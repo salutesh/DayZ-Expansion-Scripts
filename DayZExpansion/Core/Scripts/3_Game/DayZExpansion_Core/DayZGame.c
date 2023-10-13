@@ -176,7 +176,7 @@ modded class DayZGame
 	{
 		int time = date.GetHours() * 3600 + date.GetMinutes() * 60 + date.GetSeconds() - (int) GetTickTime();
 		if (time < 0)
-			time += 23 * 3600;
+			time += 24 * 3600;
 		return time;
 	}
 

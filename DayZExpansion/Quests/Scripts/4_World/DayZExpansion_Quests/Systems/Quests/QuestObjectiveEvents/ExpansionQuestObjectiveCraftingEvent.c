@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -32,9 +32,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!super.OnEventStart())
-			return false;
-
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
@@ -49,7 +46,8 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		}
 	#endif
 
-		ObjectivePrint("End and return TRUE.");
+		if (!super.OnEventStart())
+			return false;
 
 		return true;
 	}
@@ -58,9 +56,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!super.OnContinue())
-			return false;
-		
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
@@ -76,9 +71,10 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		CheckQuestPlayersForObjectiveItems();
-		m_Quest.QuestCompletionCheck();
+		m_Quest.QuestCompletionCheck(true);
 
-		ObjectivePrint("End and return TRUE.");
+		if (!super.OnContinue())
+			return false;
 
 		return true;
 	}
@@ -89,10 +85,10 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 		if (!super.OnCancel())
 			return false;
-		
+
 		CheckQuestPlayersForObjectiveItems();
 		DeleteObjectiveItems();
-		
+
 		return true;
 	}
 
@@ -178,6 +174,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			{
 				foreach (ItemBase item: itemType.Items)
 				{
+					if (item.IsRuined())
+						continue;
+
 					int current = m_ObjectiveInventoryItemsMap[typeName];
 					EXTrace.Print(EXTrace.QUESTS, this, typeName + " current: " + current);
 					if (current >= needed)
@@ -198,7 +197,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		DeleteObjectiveItems();
-	
+
 		if (!super.OnTurnIn(playerUID, selectedObjItemIndex))
 			return false;
 
@@ -242,7 +241,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		m_Quest.QuestCompletionCheck(true);
 	}
 
-	void OnInventoryItemLocationChange(ItemBase item, Man player, ExpansionQuestItemState state)
+	void OnInventoryItemLocationChange(ItemBase item, ExpansionQuestItemState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
@@ -277,7 +276,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			ObjectivePrint("Check m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 			ObjectivePrint("Check m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
 
-			if (m_ObjectiveItemsCount < m_ObjectiveItemsAmount)
+			if (m_ObjectiveItemsCount < m_ObjectiveItemsAmount && CanAddObjectiveItem(item))
 			{
 				ObjectivePrint("Add " + item.GetType() + " to objective items. Item amount: " + amount);
 				m_ObjectiveItemsCount += amount;
@@ -299,21 +298,24 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		}
 	}
 
+	protected bool CanAddObjectiveItem(ItemBase item)
+	{
+		if (item.IsRuined())
+			return false;
+
+		return true;
+	}
+
 	override bool CanComplete()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		ObjectivePrint("m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 		ObjectivePrint("m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
 
-		if (m_ObjectiveItemsAmount == 0 || m_ObjectiveItemsCount != m_ObjectiveItemsAmount || !GetCraftingState())
-		{
-			ObjectivePrint("End and return: FALSE");
+		if (m_ObjectiveItemsAmount == 0 || m_ObjectiveItemsCount != m_ObjectiveItemsAmount)
 			return false;
-		}
 
-		ObjectivePrint("End and return: TRUE");
-
-		return super.CanComplete();
+		return GetCraftingState();
 	}
 
 	void SetExecutionAmount(int amount)
@@ -334,11 +336,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	int GetObjectiveItemsCount()
 	{
 		return m_ObjectiveItemsCount;
-	}
-
-	override bool HasDynamicState()
-	{
-		return true;
 	}
 
 	override int GetObjectiveType()

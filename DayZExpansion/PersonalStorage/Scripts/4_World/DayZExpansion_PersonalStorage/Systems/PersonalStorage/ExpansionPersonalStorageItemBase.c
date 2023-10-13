@@ -243,7 +243,7 @@ class ExpansionPersonalStorageItemBase
 		m_ClassName = object.GetType();
 		m_OwnerUID = playerUID;
 
-		if (!ExpansionPersonalStorageModule.ItemCheck(object))
+		if (!ExpansionPersonalStorageModule.ItemCheckEx(object))
 			m_IsExcluded = true;
 		
 		UpdateContainerItems();
@@ -332,16 +332,19 @@ class ExpansionPersonalStorageItemBase
 				if (ExpansionPersonalStorageModule.m_HardcodedExcludes.Find(item.GetType()) > -1)
 					continue;
 
-				if (!ExpansionPersonalStorageModule.ItemCheck(item))
+				if (!ExpansionPersonalStorageModule.ItemCheckEx(item))
 					m_IsExcluded = true;
 
 				ExpansionPersonalStorageContainerItem containerItem = new ExpansionPersonalStorageContainerItem();
 				containerItem.SetFromItem(item, m_OwnerUID);
 				
-				if (!containerItem.IsExcluded() && m_IsExcluded)
-					containerItem.SetExcluded(true);
-				else if (!m_IsExcluded && containerItem.IsExcluded())
+				if (!m_IsExcluded && containerItem.IsExcluded())
 					m_IsExcluded = true;
+				
+				//! If item is a BB kit then make sure we cant deposit the attached rope..
+				KitBase kitBase;
+				if (Class.CastTo(kitBase, m_Object) && item.GetType() == "Rope")
+					containerItem.SetExcluded(true);
 				
 				m_ContainerItems.Insert(containerItem);
 				m_ContainerItemsCount++;

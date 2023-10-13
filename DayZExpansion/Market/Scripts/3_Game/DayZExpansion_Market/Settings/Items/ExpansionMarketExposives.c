@@ -58,5 +58,9 @@ class ExpansionMarketExplosives: ExpansionMarketCategory
 		// EXPLOSIVE CHARGES
 		AddItem("ExpansionSatchel", 		500,		1000,		1,		100);
 	#endif
+
+		//! MINES
+		AddItem("LandMineTrap", 		500,		1000,		1,		100);
+		AddItem("ClaymoreMine", 		500,		1000,		1,		100);
 	}
 };

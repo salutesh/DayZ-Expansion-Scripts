@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -18,37 +18,33 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 	override bool OnEventStart()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-	
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
-			return false;
-		
+
 		if (!super.OnEventStart())
 			return false;
 
-		ObjectivePrint("::OnEventStart - End and return TRUE.");
-		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+
 		return true;
 	}
 
 	override bool OnContinue()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-				
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
-			return false;
-				
+
 		if (!super.OnContinue())
 			return false;
 
-		ObjectivePrint("End and return TRUE.");
-		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+
 		return true;
 	}
-	
+
 #ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!m_Config)
 			return;
 
 		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
@@ -56,11 +52,10 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 			return;
 
 		string markerName = m_Config.GetObjectiveText();
-		if (markerName != string.Empty)
-			CreateObjectiveMarker(aiPatrol.GetWaypoints()[0], markerName);
+		CreateObjectiveMarker(aiPatrol.GetWaypoints()[0], markerName);
 	}
 #endif
-	
+
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -89,7 +84,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!m_Config)
 			return;
 
 		CheckQuestAIPatrol(1);
@@ -116,9 +111,10 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 
 		questPatrols.Insert(patrol);
 		ExpansionQuestModule.GetModuleInstance().SetQuestPatrols(m_Quest.GetQuestConfig().GetID(), questPatrols);
-		
+
 	#ifdef EXPANSIONMODNAVIGATION
-		CreateMarkers();
+		if (m_Config.GetObjectiveText() != string.Empty)
+			CreateMarkers();
 	#endif
 	}
 

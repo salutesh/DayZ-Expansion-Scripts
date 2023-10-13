@@ -568,12 +568,14 @@ class ExpansionItemInspection: ExpansionScriptView
 					break;
 				}
 
+			#ifdef EXPANSIONMOD
 				case EXPANSION_LIQUID_MILK:
 				{
 					text = "MILK";
 					color = Colors.COLOR_LIQUID;
 					break;
 				}
+			#endif
 
 				case LIQUID_GASOLINE:
 				{
@@ -767,7 +769,7 @@ class ExpansionItemInspection: ExpansionScriptView
 		if (w == ItemPreview)
 		{
 			GetGame().GetDragQueue().Call(this, "UpdateRotation");
-			g_Game.GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
+			GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
 			return true;
 		}
 		return false;

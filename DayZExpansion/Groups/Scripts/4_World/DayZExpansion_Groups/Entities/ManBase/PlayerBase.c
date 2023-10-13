@@ -13,13 +13,11 @@
 modded class PlayerBase
 {
 	protected ExpansionPartyPlayerData m_Expansion_PartyPlayerData; //! Server only
-	protected int m_Expansion_PartyID; //! Client and Server
+	protected int m_Expansion_PartyID = -1; //! Client and Server
 
 	override void Init()
 	{
 		super.Init();
-
-		m_Expansion_PartyID = -1;
 
 		RegisterNetSyncVariableInt("m_Expansion_PartyID");
 	}

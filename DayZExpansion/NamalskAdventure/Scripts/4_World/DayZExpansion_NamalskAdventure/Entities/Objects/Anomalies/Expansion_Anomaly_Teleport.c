@@ -22,12 +22,12 @@ class ExpansionAnomalyTeleporterLightBase extends ExpansionAnomalyLightBase
 class Expansion_Anomaly_Teleport: Expansion_Anomaly_Base
 {
 	//! Particles
-	protected const int PARTICLE_TELEPORT_IDLE = ParticleList.EXPANSION_PARTICLE_TELEPORT;
+	protected const int PARTICLE_WARPER_IDLE = ParticleList.EXPANSION_PARTICLE_WARPER;
 	protected const int PARTICLE_WARPER_ACTIVATED = ParticleList.EXPANSION_PARTICLE_WARPER_ACTIVATE;
 
 	override int GetAnomalyIdleParticle()
 	{
-		return PARTICLE_TELEPORT_IDLE;
+		return PARTICLE_WARPER_IDLE;
 	}
 
 	override int GetAnomalyActivatedParticle()

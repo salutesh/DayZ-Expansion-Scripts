@@ -18,8 +18,19 @@ class ExpansionQuestItem_NamalskRadio extends ItemBase
 	{
 		super.DeferredInit();
 
-		SetQuestID(2);
-		SetIsQuestGiver(true);
+		Expansion_SetQuestID(2);
+		Expansion_SetIsQuestGiver(true);
+	}
+};
+
+class ExpansionQuestItem_StashNote extends ExpansionQuestItemBook
+{
+	override void DeferredInit()
+	{
+		super.DeferredInit();
+
+		Expansion_SetQuestID(3000);
+		Expansion_SetIsQuestGiver(true);
 	}
 };
 #endif

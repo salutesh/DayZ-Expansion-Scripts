@@ -23,11 +23,13 @@ modded class ActionConstructor
 		actions.Insert(ExpansionActionRemoveSupplyCrateKey);
 		actions.Insert(ExpansionActionOpenSupplyCrate);
 		actions.Insert(ExpansionActionUseBunkerPanel);
-		actions.Insert(ExpansionActionUseRepairCenter);
-		
-		actions.Insert(ActionTurnOnWorkbenchGenerator);
-		actions.Insert(ActionTurnOffWorkbenchGenerator);
-		
 		actions.Insert(ExpansionActionOpenCommunityGoalsMenu);
+		actions.Insert(ExpansionActionUseRepairCenter);
+	#ifdef EXPANSIONMODTELEPORTER
+		actions.Insert(ExpansionActionUseTeleporter);
+	#endif
+		actions.Insert(ExpansionActionUseSatellitePanel);
+		actions.Insert(ExpansionActionRemoveSparkPlug);
+		actions.Insert(ExpansionActionUnpackHalloweenGift);
 	}
 };

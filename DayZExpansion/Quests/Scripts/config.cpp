@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DayZExpansion_VanillaFixes_Scripts"};
+		requiredAddons[] = {"DayZExpansion_Core_Scripts","DayZExpansion_VanillaFixes_Scripts"};
 	};
 };
 class CfgMods
@@ -30,18 +30,9 @@ class CfgMods
 		author = "$STR_MOD_EXPANSION_AUTHOR";
 		authorID = "";
 		dependencies[] = {"Game","World","Mission"};
+		defines[] = {"EXPANSIONMODQUESTS","EXPANSIONMODQUESTS_HUD_ENABLE"};
 		class defs
 		{
-			class engineScriptModule
-			{
-				value = "";
-				files[] = {"DayZExpansion/Quests/Scripts/1_Core"};
-			};
-			class gameLibScriptModule
-			{
-				value = "";
-				files[] = {"DayZExpansion/Quests/Scripts/2_GameLib"};
-			};
 			class gameScriptModule
 			{
 				value = "";

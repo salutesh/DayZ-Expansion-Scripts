@@ -69,7 +69,7 @@ class ExpansionTooltipPlayerListEntry: ExpansionScriptView
 			m_PlayerPlainID = playerPlainID;
 		
 		int x, y;
-		GetGame().GetMousePos(x, y);
+		GetMousePos(x, y);
 		GetLayoutRoot().SetPos(x, y, true);
 		
 		ExpansionTooltipPlayerListEntryController controller = ExpansionTooltipPlayerListEntryController.Cast(GetController());

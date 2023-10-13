@@ -66,7 +66,7 @@ class ExpansionActionLockVehicle: ActionInteractBase
 		}
 
 		// Is the car already locked ?
-		if ( car.GetLockedState() == ExpansionVehicleLockState.LOCKED || car.GetLockedState() == ExpansionVehicleLockState.READY_TO_LOCK )
+		if ( car.IsLocked() || car.Expansion_IsReadyToLock() )
 		{
 			return false;
 		}

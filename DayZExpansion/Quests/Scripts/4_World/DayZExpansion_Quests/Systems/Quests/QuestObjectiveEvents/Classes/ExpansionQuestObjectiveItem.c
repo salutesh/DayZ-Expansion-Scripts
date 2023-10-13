@@ -27,6 +27,11 @@ class ExpansionQuestObjectiveItem
 		m_RemainingAmount = amount;
 	}
 
+	int GetRemaining()
+	{
+		return m_RemainingAmount;
+	}
+
 	string GetClassName()
 	{
 		return m_ClassName;

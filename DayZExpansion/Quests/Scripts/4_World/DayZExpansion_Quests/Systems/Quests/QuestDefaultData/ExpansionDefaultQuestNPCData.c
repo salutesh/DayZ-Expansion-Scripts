@@ -32,9 +32,9 @@ class ExpansionDefaultQuestNPCData
 
 		#ifdef EXPANSIONMODAI
 			questNPC.SetClassName("ExpansionQuestNPCAIDenis"); //! Class name of the NPC entity
-			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(8584.27, 14.73, 10511.6));
 		#endif
+			questNPC.SetNPCType(ExpansionQuestNPCType.AI);
 		}
 		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
 		{
@@ -43,9 +43,9 @@ class ExpansionDefaultQuestNPCData
 
 		#ifdef EXPANSIONMODAI
 			questNPC.SetClassName("ExpansionQuestNPCAIDenis"); //! Class name of the NPC entity
-			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(3706.27, 402.012, 5987.08));
 		#endif
+			questNPC.SetNPCType(ExpansionQuestNPCType.AI);
 		}
 
 		questNPC.SetLoadoutFile("NBCLoadout"); //! Quest NPC gear
@@ -70,9 +70,9 @@ class ExpansionDefaultQuestNPCData
 
 		#ifdef EXPANSIONMODAI
 			questNPC.SetClassName("ExpansionQuestNPCAIElias"); //! Class name of the NPC entity
-			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(8348.39, 15.1237, 10724.7));
 		#endif
+			questNPC.SetNPCType(ExpansionQuestNPCType.AI);
 		}
 		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
 		{
@@ -81,11 +81,11 @@ class ExpansionDefaultQuestNPCData
 
 		#ifdef EXPANSIONMODAI
 			questNPC.SetClassName("ExpansionQuestNPCAIElias"); //! Class name of the NPC entity
-			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(3192.2, 296.707, 6093.31));
 			questNPC.SetEmoteID(EmoteConstants.ID_EMOTE_SITA);
 			questNPC.SetIsEmoteStatic(true);
 		#endif
+			questNPC.SetNPCType(ExpansionQuestNPCType.AI);
 		}
 
 		questNPC.SetLoadoutFile("NBCLoadout"); //! Quest NPC gear
@@ -102,7 +102,6 @@ class ExpansionDefaultQuestNPCData
 		ExpansionQuestNPCData questNPC = new ExpansionQuestNPCData;
 		questNPC.SetID(3); //! Unique NPC ID
 		questNPC.SetClassName("ExpansionQuestBoardLarge"); //! Class name of the NPC entity
-		questNPC.SetIsStatic(true);
 		questNPC.SetNPCName("Quest Board");
 		questNPC.SetDefaultNPCText("There is nothing to do here for you...");
 
@@ -116,6 +115,8 @@ class ExpansionDefaultQuestNPCData
 			questNPC.SetPosition(Vector(8584.236328, 15.967732, 10515.956055)); //! Quest NPC position
 			questNPC.SetOrientation(Vector(-58.060162, 0, 0)); //! Quest NPC orientation
 		}
+		
+		questNPC.SetNPCType(ExpansionQuestNPCType.OBJECT);
 
 		return questNPC;
 	}

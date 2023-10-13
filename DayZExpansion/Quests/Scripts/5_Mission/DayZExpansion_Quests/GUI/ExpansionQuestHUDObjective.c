@@ -129,7 +129,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					{
 						int currentDeliveryCount = m_Objective.GetDeliveryCountByIndex(i);
 						ExpansionQuestObjectiveDelivery delivery = deliveries[i];
-						ExpansionQuestHUDDeliveryObjective deliveryEntry = new ExpansionQuestHUDDeliveryObjective(delivery, currentDeliveryCount);
+						ExpansionQuestHUDDeliveryEntry deliveryEntry = new ExpansionQuestHUDDeliveryEntry(delivery, currentDeliveryCount);
 						m_QuestHUDObjectiveController.DeliveryEnties.Insert(deliveryEntry);
 						
 					}
@@ -140,7 +140,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.COLLECT:
 			{
 				ExpansionQuestObjectiveCollectionConfig collectionObjective;
-				ExpansionQuestHUDDeliveryObjective collectionEntry;
+				ExpansionQuestHUDDeliveryEntry collectionEntry;
 				ExpansionQuestObjectiveDelivery collection;
 				int currentCollectionCount;
 
@@ -148,20 +148,12 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_COLLECT";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-					if (collectionObjective.ShowDistance() && completed)
-					{
-						UpdateDistance();
-					}
-					else if (!collectionObjective.ShowDistance() || !completed)
-					{
-						ObjectiveWrapper.Show(false);
-					}
 
 					ObjectiveDeliveryEnties.Show(true);
 					array<ref ExpansionQuestObjectiveDelivery> collections = collectionObjective.GetCollections();
 					
 					map<int, int> collectionsMap = new map<int, int>;
-					int collectionsCount;
+					int completedCollections;
 					
 					for (i = 0; i < collections.Count(); i++)
 					{
@@ -169,19 +161,29 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 						collection = collections[i];									
 						if (!collectionObjective.NeedAnyCollection())
 						{
-							collectionEntry = new ExpansionQuestHUDDeliveryObjective(collection, currentCollectionCount);					
+							collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount);					
 							m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
+							if (currentCollectionCount >= collection.GetAmount())
+								completedCollections++;
 						}
-						else if (collectionObjective.NeedAnyCollection() && currentCollectionCount >= collection.GetAmount())
+						else if (currentCollectionCount >= collection.GetAmount())
 						{
-							collectionsCount += currentCollectionCount;
 							collectionsMap.Insert(i, currentCollectionCount);	
 						}
 					}
 
+					if (collectionObjective.ShowDistance() && (collectionObjective.NeedAnyCollection() || completedCollections == collections.Count()))
+					{
+						UpdateDistance();
+					}
+					else
+					{
+						ObjectiveWrapper.Show(false);
+					}
+
 					if (collectionObjective.NeedAnyCollection())
 					{
-						if (collectionsCount > 0)
+						if (collectionsMap.Count() > 0)
 						{
 							foreach (int collectionIndex, int collectionCount: collectionsMap)
 							{
@@ -189,7 +191,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 								if (!collection)
 									continue;
 
-								collectionEntry = new ExpansionQuestHUDDeliveryObjective(collection, collectionCount);					
+								collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, collectionCount);					
 								m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
 							}
 						}
@@ -200,7 +202,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 								currentCollectionCount = m_Objective.GetDeliveryCountByIndex(i);				
 								collection = collections[i];
 
-								collectionEntry = new ExpansionQuestHUDDeliveryObjective(collection, currentCollectionCount);					
+								collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount);					
 								m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
 							}
 						}
@@ -297,16 +299,27 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	
 	override void Expansion_Update()
 	{
-		if (!m_Objective || !IsVisible() || !GetGame().GetPlayer())
+		if (!m_Objective || !m_Quest || !IsVisible() || !GetGame().GetPlayer())
 			return;
 		
 		UpdateTimeLimit();
+		
+		if (!ObjectiveWrapper.IsVisible())
+			return;
 
-		ExpansionQuestObjectiveConfig objectiveConfig = ExpansionQuestObjectiveConfig.Cast(m_Quest.GetObjectives()[m_Objective.GetObjectiveIndex()]);
-		if (!objectiveConfig)
+		array<ref ExpansionQuestObjectiveConfigBase> questObjectives = m_Quest.GetObjectives();
+		if (!questObjectives || questObjectives.Count() == 0)
 			return;
 		
-		bool completed = m_Objective.IsCompleted();
+		int objectiveIndex = -1;
+		objectiveIndex = m_Objective.GetObjectiveIndex();
+		
+		if (objectiveIndex == -1)
+			return;
+
+		ExpansionQuestObjectiveConfig objectiveConfig = ExpansionQuestObjectiveConfig.Cast(questObjectives[objectiveIndex]);
+		if (!objectiveConfig)
+			return;
 		
 		//! @note: Update quest objective distance in HUD.
 		switch (objectiveConfig.GetObjectiveType())
@@ -330,7 +343,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.COLLECT:
 			{
 				ExpansionQuestObjectiveCollectionConfig collectionObjective;
-				if (Class.CastTo(collectionObjective, objectiveConfig) && collectionObjective.ShowDistance() && completed)
+				if (Class.CastTo(collectionObjective, objectiveConfig) && collectionObjective.ShowDistance())
 					UpdateDistance();
 			}
 			break;
@@ -385,6 +398,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		int currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
 		m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
 		m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+		ObjectiveWrapper.Show(true);
 	}
 
 	override float GetUpdateTickRate()
@@ -395,7 +409,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 class ExpansionQuestHUDObjectiveController: ExpansionViewController
 {
-	ref ObservableCollection<ref ExpansionQuestHUDDeliveryObjective> DeliveryEnties = new ObservableCollection<ref ExpansionQuestHUDDeliveryObjective>(this);
+	ref ObservableCollection<ref ExpansionQuestHUDDeliveryEntry> DeliveryEnties = new ObservableCollection<ref ExpansionQuestHUDDeliveryEntry>(this);
 	string ObjectiveName;
 	string ObjectiveTarget;
 	string ObjectiveValue;

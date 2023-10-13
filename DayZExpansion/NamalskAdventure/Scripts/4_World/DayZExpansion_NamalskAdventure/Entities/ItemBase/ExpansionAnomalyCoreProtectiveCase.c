@@ -1,5 +1,5 @@
 /**
- * Expansion_AnomalyCore_Ice.c
+ * ExpansionAnomalyCoreProtectiveCase.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -11,3 +11,4 @@
 */
 
 class ExpansionAnomalyCoreProtectiveCase: Container_Base {};
+class ExpansionAnomalyDeconCase: Container_Base {};

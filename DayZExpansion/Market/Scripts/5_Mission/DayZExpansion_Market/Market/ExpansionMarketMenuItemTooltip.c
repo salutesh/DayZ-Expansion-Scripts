@@ -196,7 +196,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 		super.OnShow();
 		
 		int x, y;
-		GetGame().GetMousePos(x, y);
+		GetMousePos(x, y);
 		GetLayoutRoot().SetPos(x - 10.0, y, true);
 	}
 	

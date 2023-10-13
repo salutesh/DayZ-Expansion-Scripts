@@ -15,12 +15,11 @@ class ExpansionQuestObjectiveActionConfigBase: ExpansionQuestObjectiveConfig
 	autoptr array<string> ActionNames = new array<string>;
 	autoptr array<string> AllowedClassNames = new array<string>;
 	autoptr array<string> ExcludedClassNames = new array<string>;
+	int ExecutionAmount = 1;
 };
 
 class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBase
 {
-	int ExecutionAmount = 1;
-
 	void AddActionName(string name)
 	{
 		ActionNames.Insert(name);
@@ -128,6 +127,7 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBa
 		ActionNames = configBase.ActionNames;
 		AllowedClassNames = configBase.AllowedClassNames;
 		ExcludedClassNames = configBase.ExcludedClassNames;
+		ExecutionAmount = configBase.ExecutionAmount;
 	}
 
 	override bool Validate()

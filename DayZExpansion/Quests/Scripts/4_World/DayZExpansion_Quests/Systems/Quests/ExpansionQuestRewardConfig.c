@@ -33,6 +33,7 @@ class ExpansionQuestRewardConfigV1: ExpansionQuestRewardConfigBase
 class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigV1
 {
 	int QuestID = -1;
+	float Chance = 1.0;
 
 	void SetClassName(string name)
 	{
@@ -90,6 +91,16 @@ class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigV1
 	int GetQuestID()
 	{
 		return QuestID;
+	}
+	
+	void SetChance(float chance)
+	{
+		Chance = chance;
+	}
+	
+	int GetChance()
+	{
+		return Chance;
 	}
 
 	void OnSend(ParamsWriteContext ctx)

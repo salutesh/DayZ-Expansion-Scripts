@@ -14,6 +14,7 @@
 class ExpansionQuestObjectiveAIVIP
 {
 	protected string NPCLoadoutFile;
+	protected string NPCClassName;
 
 	void SetNPCLoadoutFile(string loadoutFile)
 	{
@@ -24,12 +25,23 @@ class ExpansionQuestObjectiveAIVIP
 	{
 		return NPCLoadoutFile;
 	}
+	
+	void SetNPCClassName(string className)
+	{
+		NPCClassName = className;
+	}
+
+	string GetNPCClassName()
+	{
+		return NPCClassName;
+	}
 
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print("------------------------------------------------------------");
 		Print(ToString() + "::QuestDebug - NPCLoadoutFile: " + NPCLoadoutFile);
+		Print(ToString() + "::QuestDebug - NPCClassName: " + NPCClassName);
 		Print("------------------------------------------------------------");
 	#endif
 	}

@@ -815,12 +815,14 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 					break;
 				}
 
+			#ifdef EXPANSIONMOD
 				case EXPANSION_LIQUID_MILK:
 				{
 					text = "MILK";
 					color = Colors.COLOR_LIQUID;
 					break;
 				}
+			#endif
 
 				case LIQUID_GASOLINE:
 				{
@@ -969,7 +971,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		ItemBase itemIB;
 		if (Class.CastTo(itemIB, item))
 		{
-			if (itemIB.IsQuestItem() || itemIB.IsQuestGiver())
+			if (itemIB.Expansion_IsQuestItem() || itemIB.Expansion_IsQuestGiver())
 				return false;
 		}
 	#endif

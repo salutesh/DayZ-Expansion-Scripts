@@ -10,182 +10,6 @@
  *
 */
 
-class ExpansionCommunityGoalsDataBase
-{
-	int Version;
-};
-
-class ExpansionCommunityGoalsData: ExpansionCommunityGoalsDataBase
-{
-	[NonSerialized()];
-	static const int VERSION = 0;
-
-	ref array<ref ExpansionCommunityGoal> CommunityGoals = new array<ref ExpansionCommunityGoal>;
-	ref array<ref ExpansionCommunityGoalsBoard> CommunityGoalsBoards = new array<ref ExpansionCommunityGoalsBoard>;
-	
-	void ExpansionCommunityGoalsData()
-	{
-		Version = VERSION;
-	}
-
-	void CopyFromBaseClass(ExpansionCommunityGoalsDataBase base)
-	{
-		//! Nothing to do here yet
-	}
-	
-	static ExpansionCommunityGoalsData Load(string fileName)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, null, "::ExpansionCommunityGoalsData - Load");
-
-		CF_Log.Info("[ExpansionCommunityGoalsData] Load existing community goals server data file:" + fileName);
-		ExpansionCommunityGoalsDataBase dataBase;
-		ExpansionJsonFileParser<ExpansionCommunityGoalsDataBase>.Load(fileName, dataBase);
-
-		bool save;
-		ExpansionCommunityGoalsData data = new ExpansionCommunityGoalsData();
-		if (dataBase.Version < VERSION)
-		{
-			save = true;
-			data.CopyFromBaseClass(dataBase); //! Copy over old data that has not changed.
-			data.Version = VERSION;
-
-			if (save)
-				Save(data);
-		}
-		else
-		{
-			if (!ExpansionJsonFileParser<ExpansionCommunityGoalsData>.Load(fileName, data))
-				return NULL;
-		}
-
-		return data;
-	}
-
-	void Save()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		ExpansionJsonFileParser<ExpansionCommunityGoalsData>.Save(ExpansionCommunityGoalsModule.s_dataFolderPath + "CommunityGoals.json", this);
-	}
-
-	static void Save(ExpansionCommunityGoalsData data)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, null, "::ExpansionCommunityGoalsData - Save");
-
-		ExpansionJsonFileParser<ExpansionCommunityGoalsData>.Save(ExpansionCommunityGoalsModule.s_dataFolderPath + "CommunityGoals.json", data);
-	}
-	
-	void SetCommunityGoal(ExpansionCommunityGoal goal)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!CommunityGoals)
-			CommunityGoals = new array<ref ExpansionCommunityGoal>;
-
-		bool newData = true;
-	   	foreach (int i, ExpansionCommunityGoal goalData: CommunityGoals)
-		{
-			if (goalData.GetID() == goal.GetID())
-			{
-				CommunityGoals.Remove(i);
-				CommunityGoals.Insert(goal);
-				Save();
-
-				newData = false;
-				return;
-			}
-		}
-
-		if (newData)
-		{
-			CommunityGoals.Insert(goal);
-			Save();
-		}
-	}
-	
-	void AddCommunityGoalBoard(ExpansionCommunityGoalsBoard goalBoard)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		CommunityGoalsBoards.Insert(goalBoard);
-		Save();
-	}
-
-	array<ref ExpansionCommunityGoal> GetCommunityGoalsData()
-	{
-	    return CommunityGoals;
-	}
-	
-	array<ref ExpansionCommunityGoalsBoard> GetCommunityGoalsBoards()
-	{
-		return CommunityGoalsBoards;
-	}
-
-	ExpansionCommunityGoal GetCommunityGoalDataByID(int id)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-	    ExpansionCommunityGoal goal;
-	  	foreach (int i, ExpansionCommunityGoal goalData: CommunityGoals)
-		{
-			if (goalData.GetID() == id)
-			{
-				goal = goalData;
-			}
-		}
-	    return goal;
-	}
-	
-	void LoadDefaults()
-	{
-		DefaultCommunityGoals();
-		DefaultCommunityBoards();
-	}
-	
-	protected void DefaultCommunityGoals()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!CommunityGoals)
-			return;
-
-		ExpansionCommunityGoal communityGoal = new ExpansionCommunityGoal();
-		communityGoal.SetID(NamalskAdventureCommunityGoals.SURVIVORS_CAMP_SUPPLIES_1);
-		communityGoal.SetFactionID(ExpansionNamalskAdventureFaction.SURVIVORS);
-		communityGoal.SetGoalValue(100);
-		communityGoal.SetName("Medical Supplies Delivery");
-		communityGoal.SetDescription("Craft and deliver Medical Supplies to the Survivors camp to restock certain items at the trader.");
-		SetCommunityGoal(communityGoal);
-
-		communityGoal = new ExpansionCommunityGoal();
-		communityGoal.SetID(NamalskAdventureCommunityGoals.SURVIVORS_CAMP_SUPPLIES_2);
-		communityGoal.SetFactionID(ExpansionNamalskAdventureFaction.SURVIVORS);
-		communityGoal.SetGoalValue(100);
-		communityGoal.SetName("Ammunition Supplies Delivery");
-		communityGoal.SetDescription("Craft and deliver Ammunition Supplies to the Survivors camp to restock certain items at the trader.");
-		SetCommunityGoal(communityGoal);
-
-		/*communityGoal = new ExpansionCommunityGoal();
-		communityGoal.SetID(NamalskAdventureCommunityGoals.SURVIVORS_CAMP_REPAIR);
-		communityGoal.SetFactionID(ExpansionNamalskAdventureFaction.SURVIVORS);
-		communityGoal.SetGoalValue(1);
-		communityGoal.SetName("");
-		communityGoal.SetDescription("");
-		SetCommunityGoal(communityGoal);*/
-	}
-	
-	protected void DefaultCommunityBoards()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
-		if (!CommunityGoalsBoards)
-			return;
-		
-		ExpansionCommunityGoalsBoard communityGoalsBoard = new ExpansionCommunityGoalsBoard("Expansion_CommunityGoals_Board", "8596.825195 15.537852 10492.101563", "-158.963867 0.000000 -0.000000", ExpansionNamalskAdventureFaction.SURVIVORS);
-		AddCommunityGoalBoard(communityGoalsBoard);
-	}
-};
-
 [CF_RegisterModule(ExpansionCommunityGoalsModule)]
 class ExpansionCommunityGoalsModule: CF_ModuleWorld
 {
@@ -194,7 +18,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected ref ExpansionCommunityGoalsData m_ServerData; //! Server
 	protected ref map<int, ref ExpansionCommunityGoal> m_CommunityGoals; //! Server
-	
+
 	protected ref ScriptInvoker m_CommunityGoalsMenuInvoker; //! Client
 	protected ref ScriptInvoker m_CommunityGoalsMenuDetailsInvoker; //! Client
 
@@ -221,7 +45,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 	protected void CreateDirectoryStructure()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
+		
 		if (!FileExist(s_dataFolderPath))
 		{
 			ExpansionStatic.MakeDirectoryRecursive(s_dataFolderPath);
@@ -277,13 +101,17 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 		if (FileExist(s_dataFolderPath + "CommunityGoals.json"))
 		{
+			ModuleDebugPrint("::LoadCommunityGoalsServerData - Loading existing community goals data.");
 			GetCommunityGoalsData(s_dataFolderPath + "CommunityGoals.json");
 		}
 		else
 		{
+			ModuleDebugPrint("::LoadCommunityGoalsServerData - No existing data found! Create default community goals data.");
 			m_ServerData = new ExpansionCommunityGoalsData();
 			m_ServerData.LoadDefaults();
 			m_ServerData.Save();
+
+			LoadCommunityGoals();
 		}
 	}
 
@@ -313,6 +141,8 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 			{
 				if (m_CommunityGoals.Find(goalData.GetID(), null))
 					continue;
+				
+				ModuleDebugPrint("::LoadCommunityGoals - Add community goal data. ID: " + goalData.GetID() + " | Faction ID: " + goalData.GetFactionID() + " | Progress: " + goalData.GetProgress());
 
 			    m_CommunityGoals.Insert(goalData.GetID(), goalData);
 
@@ -443,9 +273,9 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 	protected void OnCommunityGoalReached(int id, inout ExpansionCommunityGoal communityGoal)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnCommunityGoalReached(id, communityGoal);
-		
+
 		if (!communityGoal.IsFinished())
 		{
 			//! Set goal to finished
@@ -453,7 +283,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 			//! Update persistent community goal data.
 			m_ServerData.SetCommunityGoal(communityGoal);
-	
+
 			//! Update module community goal data.
 			m_CommunityGoals.Set(id, communityGoal);
 		}
@@ -478,7 +308,9 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 			goalsBoardObj.SetPosition(communityGoalsBoard.Position);
 			goalsBoardObj.SetOrientation(communityGoalsBoard.Orientation);
+		#ifdef EXPANSIONMODAI
 			goalsBoardObj.SetFactionID(communityGoalsBoard.FactionID);
+		#endif
 			goalsBoardObj.Update();
 		}
 	}
@@ -537,26 +369,28 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 			return;
 		}
 
+	#ifdef EXPANSIONMODAI
 		int factionID = community_goal_board.GetFactionID();
 		if (factionID == 0)
 		{
 			Error(ToString() + "::SendCommunityGoalData - Invalid faction ID");
 			return;
 		}
+	#endif
 
-		array<ExpansionCommunityGoal> goalsToSend = new array<ExpansionCommunityGoal>;
-		int goalsCount;
+		array<ref ExpansionCommunityGoal> goalsToSend = new array<ref ExpansionCommunityGoal>;
 		foreach (int id, ExpansionCommunityGoal goal: m_CommunityGoals)
 		{
-			if (goal.GetFactionID() == factionID)
+		#ifdef EXPANSIONMODAI
+			if (goal.GetFactionID() == factionID)	
+		#endif
 			{
 				goalsToSend.Insert(goal);
-				goalsCount++;
 			}
 		}
 
 		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Write(goalsCount);
+		rpc.Write(goalsToSend.Count());
 
 		foreach (ExpansionCommunityGoal goalToSend: goalsToSend)
 		{
@@ -698,7 +532,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 	{
 		return m_CommunityGoalsMenuDetailsInvoker;
 	}
-	
+
 	static ExpansionCommunityGoalsModule GetModuleInstance()
 	{
 		return s_ModuleInstance;

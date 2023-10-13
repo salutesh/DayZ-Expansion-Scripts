@@ -12,24 +12,23 @@ class CfgPatches
 };
 class CfgVehicles
 {
-	class WorldContainer_Base;
-	class Expansion_Anomaly_Base: WorldContainer_Base
+	class Inventory_Base;
+	class Expansion_Anomaly_Base: Inventory_Base
 	{
 		scope = 2;
 		model = "\DayZExpansion\NamalskAdventure\Dta\Objects\Anomalies\Expansion_Anomaly.p3d";
 		bounding = "BSphere";
 		forceFarBubble = "true";
 		itemBehaviour = 2;
+		handheld = "false";
 		allowOwnedCargoManipulation = 1;
 		attachments[] = {"Att_ExpansionAnomalyCore"};
 		itemsCargoSize[] = {10,100};
 		weight = 1000000;
 		inventoryCondition = "true";
-		itemSize[] = {5,5};
 		storageCategory = 1;
 		openable = 1;
 		vehicleClass = "Inventory";
-		mapSize = 1;
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -46,21 +45,21 @@ class CfgVehicles
 				{
 					class Health
 					{
-						damage = 1.0;
+						damage = 0;
 					};
 				};
 				class FragGrenade
 				{
 					class Health
 					{
-						damage = 1.0;
+						damage = 0;
 					};
 				};
 				class Meele
 				{
 					class Health
 					{
-						damage = 1.0;
+						damage = 0;
 					};
 				};
 			};
@@ -73,8 +72,8 @@ class CfgVehicles
 		{
 			class Attachments
 			{
-				name = "$STR_attachment_accessories";
-				description = "";
+				name = "Anomaly Core";
+				description = "Not needed.";
 				attachmentSlots[] = {"Att_ExpansionAnomalyCore"};
 				icon = "set:expansion_inventory image:anomaly";
 			};
@@ -89,5 +88,10 @@ class CfgVehicles
 	{
 		scope = 2;
 		displayName = "Anomaly - Warper";
+	};
+	class Expansion_Anomaly_Fire: Expansion_Anomaly_Base
+	{
+		scope = 2;
+		displayName = "Anomaly - Fire";
 	};
 };

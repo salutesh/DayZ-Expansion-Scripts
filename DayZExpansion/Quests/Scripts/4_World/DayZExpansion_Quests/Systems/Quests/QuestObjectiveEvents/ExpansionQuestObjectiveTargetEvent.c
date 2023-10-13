@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -15,15 +15,15 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	protected int m_Count;
 	protected int m_Amount;
 	protected ref ExpansionQuestObjectiveTargetConfig m_Config;
-	
+
 	override bool OnEventStart()
 	{
 		if (!super.OnEventStart())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
-		
+
 		return true;
 	}
 
@@ -31,11 +31,11 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	{
 		if (!super.OnContinue())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
-		m_Quest.QuestCompletionCheck();
+		m_Quest.QuestCompletionCheck(true);
 
 		return true;
 	}
@@ -43,12 +43,13 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		ExpansionQuestObjectiveTarget target = m_Config.GetTarget();
 		if (!target)
 			return;
 
-		if (ExpansionStatic.IsAnyOf(victim, target.GetExcludedClassNames(), true))
+		array<string> excludedClassNames = target.GetExcludedClassNames();
+		if (ExpansionStatic.IsAnyOf(victim, excludedClassNames, true))
 			return;
 
 		bool maxRangeCheck = false;
@@ -61,8 +62,30 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 				return;
 
 		#ifdef EXPANSIONMODAI
+			//! Check if player is AI and if we can count it
 			if (victimPlayer.IsAI() && !target.CountAIPlayers())
 				return;
+
+			//! Check if target faction is in allowed factions of this objective
+			array<string> allowedTargetFactions = target.GetAllowedTargetFactions();
+			if (allowedTargetFactions && allowedTargetFactions.Count() > 0)
+			{
+				bool foundFaction = false;
+				eAIGroup victimGroup = victimPlayer.GetGroup();
+				if (victimGroup)
+				{
+					eAIFaction victimFaction = victimGroup.GetFaction();
+					if (victimFaction)
+					{
+						string victimFactionName = victimFaction.GetName();
+						if (allowedTargetFactions.Find(victimFactionName) > -1)
+							foundFaction = true;
+					}
+				}
+
+				if (!foundFaction)
+					return;
+			}
 		#endif
 
 			//! PvP quest objective. Check if the victim is a quest player
@@ -85,13 +108,15 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		//! If the target need to be killed with a special weapon check incoming killer class type
-		if (target.NeedSpecialWeapon() && !ExpansionStatic.IsAnyOf(killer, target.GetAllowedWeapons(), true))
+		array<string> allowedWeapons = target.GetAllowedWeapons();
+		if (target.NeedSpecialWeapon() && !ExpansionStatic.IsAnyOf(killer, allowedWeapons, true))
 		{
 			ObjectivePrint("Entity got not killed with any allowed weapon! Skip..");
 			return;
 		}
 
-		bool found = ExpansionStatic.IsAnyOf(victim, target.GetClassNames(), true);
+		array<string> allowedClassNames = target.GetClassNames();
+		bool found = ExpansionStatic.IsAnyOf(victim, allowedClassNames, true);
 		if (found)
 		{
 			ObjectivePrint("Killed valid target " + victim + " " + ExpansionString.JoinStrings(target.GetClassNames()));
@@ -111,17 +136,10 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 		if (m_Amount == 0)
 			return false;
-		
-		bool conditionsResult = (m_Count == m_Amount);
-		if (!conditionsResult)
-		{
-			ObjectivePrint("End and return: FALSE");
-			return false;
-		}
 
-		ObjectivePrint("End and return: TRUE");
-
-		return super.CanComplete();
+		if (m_Count == m_Amount)
+			return true;
+		return false;
 	}
 
 	protected bool IsInMaxRange(vector playerPos)
@@ -147,11 +165,11 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	void SetCount(int count)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		m_Count = count;
-		
-		ObjectivePrint("Count: " + m_Count);		
-		
+
+		ObjectivePrint("Count: " + m_Count);
+
 	}
 
 	int GetCount()

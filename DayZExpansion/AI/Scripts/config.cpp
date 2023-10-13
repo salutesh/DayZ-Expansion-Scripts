@@ -31,6 +31,7 @@ class CfgMods
 		type = "mod";
 		inputs = "DayZExpansion/AI/Scripts/inputs.xml";
 		dependencies[] = {"Game","World","Mission"};
+		defines[] = {"EXPANSIONAI_ONFACTIONCHANGE"};
 		class defs
 		{
 			class engineScriptModule

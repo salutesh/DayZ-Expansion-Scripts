@@ -442,13 +442,13 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 		if (w == view_item_preview)
 		{
 			GetGame().GetDragQueue().Call(this, "UpdateRotation");
-			g_Game.GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
+			GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
 			return true;
 		}
 		else if (w == view_player_preview)
 		{
 			m_PlayerPreview.OnMouseButtonDown(w, x, y, button);
-			g_Game.GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
+			GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
 			return true;
 		}
 

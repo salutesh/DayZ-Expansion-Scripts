@@ -301,10 +301,10 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			m_QuestMenuController.NotifyPropertyChanged("DefaultText");
 		}
 		
-		if (questID > -1 && questToShow)
+		/*if (questID > -1 && questToShow)
 		{
 			SetQuest(questToShow);
-		}
+		}*/
 
 		QuestDebug(ToString() + "::SetQuests - End");
 	}
@@ -363,7 +363,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			description = quest.GetDescriptions()[2];
 			ObjectivePanel.Show(false);
 			
-			if (!m_QuestLogMode)
+			if (!m_QuestLogMode || quest.GetQuestTurnInIDs().Count() == 0)
 			{
 				Complete.Show(true);
 			}
@@ -533,6 +533,11 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			if (quest.NeedToSelectReward() && quest.GetRewards().Count() > 1)
 			{
 				Reward.SetText("#STR_EXPANSION_QUEST_MENU_REWARD_LABEL");
+			}
+			else if (quest.RandomReward() && quest.GetRewards().Count() > 1)
+			{
+				StringLocaliser loc = new StringLocaliser("STR_EXPANSION_QUEST_MENU_RANDOMREWARD_LABEL", quest.GetRandomRewardAmount().ToString());
+				Reward.SetText(loc.Format());
 			}
 			else
 			{

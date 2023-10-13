@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -38,11 +38,9 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 
 		//! Only check and create the AI patrol when not already completed!
 		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
-		{
 			CheckQuestAIPatrol();
-		}
 		
-		m_Quest.QuestCompletionCheck();
+		m_Quest.QuestCompletionCheck(true);
 
 		return true;
 	}
@@ -242,7 +240,7 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 	{
 		return m_TotalKillCount;
 	}
-	
+
 	void SetKillAmount(int amount)
 	{
 		m_TotalUnitsAmount = amount;
@@ -262,7 +260,7 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 
 		if (!super.CanComplete())
 			return false;
-		
+
 		//! @note need to check for zero here because m_TotalUnitsAmount will be zero until set
 		if (m_TotalUnitsAmount <= 0 || m_TotalKillCount != m_TotalUnitsAmount)
 		{

@@ -10,18 +10,5 @@
  *
 */
 
-class MedicalSupplies: ItemBase
-{
-	override bool CanBeDamaged()
-	{
-		return false;
-	}
-};
-
-class AmmunitionSupplies: ItemBase
-{
-	override bool CanBeDamaged()
-	{
-		return false;
-	}
-};
+class MedicalSupplies: ItemBase {};
+class AmmunitionSupplies: ItemBase {};

@@ -153,6 +153,20 @@ class ExpansionQuestObjectiveData
 	{
 		return TimeLimit;
 	}
+	
+	void Copy(ExpansionQuestObjectiveData copyData)
+	{
+		ObjectiveIndex = copyData.ObjectiveIndex;
+		ObjectiveType = copyData.ObjectiveType;
+		IsCompleted = copyData.IsCompleted;
+		IsActive = copyData.IsActive;
+		ObjectiveAmount = copyData.ObjectiveAmount;
+		ObjectiveCount = copyData.ObjectiveCount;
+		ObjectivePosition = copyData.ObjectivePosition;
+		ActionState = copyData.ActionState;
+		TimeLimit = copyData.TimeLimit;
+		DeliveryData = copyData.DeliveryData;
+	}
 
 	void SetDeliveries(array<ref ExpansionQuestDeliveryObjectiveData> deliveryData)
 	{

@@ -221,7 +221,7 @@ class ExpansionUITooltip: ScriptedWidgetEventHandler
 			int mouse_x;
 			int mouse_y;
 				
-			GetGame().GetMousePos( mouse_x, mouse_y );
+			GetMousePos( mouse_x, mouse_y );
 			SetPos( mouse_x, mouse_y );
 			m_Root.Update();
 		}

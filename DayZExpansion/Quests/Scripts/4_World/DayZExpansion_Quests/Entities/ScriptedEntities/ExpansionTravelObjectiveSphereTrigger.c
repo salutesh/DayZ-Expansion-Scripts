@@ -92,13 +92,13 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 		bool result = EntityConditions(other);
 		if (!result)
 		{
-			QuestPrint("Entity conditions result: " + result);
+			QuestPrint("::EOnEnter - Entity conditions result: " + result);
 			return;
 		}
 
 		int objectiveType = m_Objective.GetObjectiveType();
 		string objectiveTypeText = typename.EnumToString(ExpansionQuestObjectiveType, objectiveType);
-		QuestPrint("Objective type: " + objectiveTypeText);
+		QuestPrint("::EOnEnter - Objective type: " + objectiveTypeText);
 		switch (objectiveType)
 		{
 			case ExpansionQuestObjectiveType.DELIVERY:
@@ -113,7 +113,13 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 			break;
 			case ExpansionQuestObjectiveType.TRAVEL:
 			{
-				OnEnter_Travel();
+				ExpansionQuestObjectiveTravelConfig travelConfig;
+				if (Class.CastTo(travelConfig, m_Objective.GetObjectiveConfig()))
+				{
+					QuestPrint("::EOnLeave - Trigger on enter: " + travelConfig.TriggerOnEnter() + " | Objective ID: " + travelConfig.GetID());
+					if (travelConfig.TriggerOnEnter())
+						OnEnter_Travel();
+				}
 			}
 			break;
 			case ExpansionQuestObjectiveType.TREASUREHUNT:
@@ -185,13 +191,13 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 		bool result = EntityConditions(other);
 		if (!result)
 		{
-			QuestPrint("Entity conditions result: " + result);
+			QuestPrint("::EOnLeave - Entity conditions result: " + result);
 			return;
 		}
 
 		int objectiveType = m_Objective.GetObjectiveType();
 		string objectiveTypeText = typename.EnumToString(ExpansionQuestObjectiveType, objectiveType);
-		QuestPrint("Objective type: " + objectiveTypeText);
+		QuestPrint("::EOnLeave - Objective type: " + objectiveTypeText);
 		switch (objectiveType)
 		{
 			case ExpansionQuestObjectiveType.DELIVERY:
@@ -206,7 +212,13 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 			break;
 			case ExpansionQuestObjectiveType.TRAVEL:
 			{
-				OnLeave_Travel();
+				ExpansionQuestObjectiveTravelConfig travelConfig;
+				if (Class.CastTo(travelConfig, m_Objective.GetObjectiveConfig()))
+				{
+					QuestPrint("::EOnLeave - Trigger on exit: " + travelConfig.TriggerOnExit() + " | Objective ID: " + travelConfig.GetID());
+					if (travelConfig.TriggerOnExit())
+						OnLeave_Travel();
+				}
 			}
 			break;
 			case ExpansionQuestObjectiveType.TREASUREHUNT:

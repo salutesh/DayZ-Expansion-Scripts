@@ -39,7 +39,7 @@ class ExpansionAnomalyLightBase extends PointLightBase
 	}
 };
 
-class Expansion_Anomaly_Base: WorldContainer_Base
+class Expansion_Anomaly_Base: ItemBase
 {
 	protected const string SOUND_IDLE = "Expansion_AnomalyRumble_Soundset";
 	protected const string SOUND_ACTIVATED = "Expansion_AnomalyWindBlowActivated_Soundset";
@@ -102,10 +102,8 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	
 	void ~Expansion_Anomaly_Base()
 	{
-		#ifdef SERVER
 		if (GetGame())
 			CleanupAnomaly();
-		#endif
 	}
 	
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -154,7 +152,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		}
 		#endif
 	
-			#ifndef SERVER
+		#ifndef SERVER
 		if (m_ParticleIdle)
 			ParticleIdleStop();
 
@@ -343,7 +341,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::UpdateVisualState - Anomaly state is: " + typename.EnumToString(ExpansionAnomalyState, state));
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateAnomalyVFX_Deferred, 0, false, state);
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(UpdateAnomalyVFX_Deferred, state);
 	}
 
 	//! @note: This method updates the anomaly visual effects (VFX) in a deferred manner based on the provided `state`.
@@ -351,8 +349,6 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::UpdateAnomalyVFX_Deferred - Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, state) + " | Previous anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_PrevAnonmalyState));
-
-		bool hasCore = true;
 		
 		//! Create anomaly light
 		if (!m_Light)
@@ -805,7 +801,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::EEItemAttached - Item: " + item.ToString() + " | Slot:" + slot_name);
-
+		
 		RefreshAnomalyCoreState(item, true);
 	}
 
@@ -869,8 +865,6 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::OnVariablesSynchronized - Current anomaly visual state: " + typename.EnumToString(ExpansionAnomalyState, m_VisualState) + " | Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_AnonmalyState));
 
-		super.OnVariablesSynchronized();
-
 		if (m_VisualState != m_AnonmalyState)
 			UpdateVisualState(m_AnonmalyState);
 	}
@@ -892,7 +886,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 
 	override bool CanPutInCargo(EntityAI parent)
 	{
-		return true;
+		return false;
 	}
 
 	override bool CanPutIntoHands(EntityAI player)
@@ -920,18 +914,9 @@ class Expansion_Anomaly_Base: WorldContainer_Base
         return true;
     }
 
-	override void EEOnCECreate()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.EEOnCECreate();
-	}
-
 	override void AfterStoreLoad()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.AfterStoreLoad();
 
 		GetGame().ObjectDelete(this);
 	}

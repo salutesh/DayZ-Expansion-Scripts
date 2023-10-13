@@ -13,12 +13,11 @@
 class ExpansionQuestObjectiveCraftingConfigBase: ExpansionQuestObjectiveConfig
 {
 	ref array<string> ItemNames = new array<string>;
+	int ExecutionAmount = 1;
 };
 
 class ExpansionQuestObjectiveCraftingConfig: ExpansionQuestObjectiveCraftingConfigBase
 {
-	int ExecutionAmount = 1;
-
 	void AddItemName(string name)
 	{
 		ItemNames.Insert(name);
@@ -98,6 +97,7 @@ class ExpansionQuestObjectiveCraftingConfig: ExpansionQuestObjectiveCraftingConf
 		TimeLimit = configBase.TimeLimit;
 
 		ItemNames = configBase.ItemNames;
+		ExecutionAmount = configBase.ExecutionAmount;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

@@ -595,7 +595,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "Package";
 		descriptionShort = "A package. Only the reciver will know what it contains.";
-		model = "\DayZExpansion\Objects\Gear\Box\box.p3d";
+		model = "\DayZExpansion\Quests\Dta\Core\Package\package.p3d";
 		isMeleeWeapon = 1;
 		weight = 4;
 		absorbency = 1;

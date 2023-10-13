@@ -1647,14 +1647,6 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		return false;
 	}
 
-	static bool ItemCheck(EntityAI item)
-	{
-		if (!ItemCheckEx(item))
-			return false;
-
-		return true;
-	}
-
 	static bool ItemCheckEx(EntityAI item)
 	{
 		if (ExpansionStatic.IsAnyOf(item, GetExpansionSettings().GetP2PMarket().ExcludedClassNames))
@@ -1687,17 +1679,13 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		ItemBase itemIB;
 		if (Class.CastTo(itemIB, item))
 		{
-			if (itemIB.IsQuestItem() || itemIB.IsQuestGiver())
+			if (itemIB.Expansion_IsQuestItem() || itemIB.Expansion_IsQuestGiver())
 				return false;
 		}
 	#endif
 
-		//! Don`t add any active items.
-		if (item.HasEnergyManager())
-		{
-			if (item.GetCompEM().IsWorking())
-				return false;
-		}
+		if (!item.CanPutInCargo(null))
+			return false;
 
 		return true;
 	}

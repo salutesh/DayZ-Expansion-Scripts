@@ -23,7 +23,7 @@ class ExpansionTooltipServerSettingEntry: ExpansionScriptView
 		m_Text = text;
 		
 		int x, y;
-		GetGame().GetMousePos(x, y);
+		GetMousePos(x, y);
 		GetLayoutRoot().SetPos(x, y, true);
 		
 		SetView();

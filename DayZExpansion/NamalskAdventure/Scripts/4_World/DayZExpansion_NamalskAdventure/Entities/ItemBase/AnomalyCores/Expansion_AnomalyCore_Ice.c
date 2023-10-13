@@ -12,7 +12,7 @@
 
 class ExpansionAnomalyCoreLightIce extends ExpansionAnomalyCoreLightBase
 {
-	void ExpansionAnomalySingularityLightBase()
+	void ExpansionAnomalyCoreLightIce()
 	{
 		SetDiffuseColor(0.105, 0.446, 0.810);
 		SetAmbientColor(0.105, 0.446, 0.810);
@@ -32,13 +32,9 @@ class Expansion_AnomalyCore_Ice: Expansion_AnomalyCore_Base
 		if (GetGame().IsServer())
 		{
 			GetGame().CreateObject("ExpansionAnomalyAreaSingularity_Local", GetPosition());
+			UpdateAnomalyCoreState(ExpansionAnomalyCoreState.ACTIVATED);
 		}
 	}
-	
-	/*override string GetCoreTexturePath()
-	{
-		return "DayZExpansion\\NamalskAdventure\\Dta\\Items\\Anomaly_Core\\data\\anomaly_core_energy_co.paa";
-	}*/
 
 	override int GetAnomalyCoreParticle()
 	{

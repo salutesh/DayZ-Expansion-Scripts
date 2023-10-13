@@ -1227,7 +1227,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 						EXLogPrint("ExpansionMapMenu::OnDoubleClick - player has pen: " + player.HasItemPen().ToString());
 						#endif
 
-						GetGame().GetMousePos(mouse_x, mouse_y);
+						GetMousePos(mouse_x, mouse_y);
 						CreateNewMarker(mouse_x, mouse_y);
 					}
 					else if (GetExpansionSettings().GetMap().NeedGPSItemForCreateMarker && player.HasItemGPS())
@@ -1236,12 +1236,12 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 						EXLogPrint("ExpansionMapMenu::OnDoubleClick - player has gps: " + player.HasItemGPS().ToString());
 						#endif
 
-						GetGame().GetMousePos(mouse_x, mouse_y);
+						GetMousePos(mouse_x, mouse_y);
 						CreateNewMarker(mouse_x, mouse_y);
 					}
 					else if (!GetExpansionSettings().GetMap().NeedGPSItemForCreateMarker && !GetExpansionSettings().GetMap().NeedPenItemForCreateMarker)
 					{
-						GetGame().GetMousePos(mouse_x, mouse_y);
+						GetMousePos(mouse_x, mouse_y);
 						CreateNewMarker(mouse_x, mouse_y);
 					}
 
@@ -1378,7 +1378,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 		}
 
 		int mouse_x, mouse_y;
-		GetGame().GetMousePos(mouse_x, mouse_y);
+		GetMousePos(mouse_x, mouse_y);
 		vector expMapPos = m_MapWidget.ScreenToMap(Vector(mouse_x, mouse_y, 0));
 		m_MarkerList.UpdatePosition(Math.Round(expMapPos[0]), Math.Round(expMapPos[2]));
 

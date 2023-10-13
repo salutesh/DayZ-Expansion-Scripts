@@ -18,7 +18,7 @@ modded class ExpansionMarketModule
 		ItemBase itemBase;
 		if (Class.CastTo(itemBase, item))
 		{
-			if (itemBase.IsQuestItem())
+			if (itemBase.Expansion_IsQuestItem())
 				return false;
 		}
 

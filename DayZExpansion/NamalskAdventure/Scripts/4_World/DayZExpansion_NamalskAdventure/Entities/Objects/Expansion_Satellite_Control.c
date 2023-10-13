@@ -10,15 +10,9 @@
  *
 */
 
-enum Expansion_Satellite_Control_ERPCs
-{
-	PLAY_BOOT_SFX = 3000101,
-	PLAY_RUNNING_SFX = 3000102
-};
-
 //! @note: Can only be used when the BuildingsModPack mod by Starlv is loaded: https://steamcommunity.com/sharedfiles/filedetails/?id=2270098553
 #ifdef EXPANSION_NAMALSK_ADVENTURE
-class Expansion_Satellite_Control: House
+class Expansion_Satellite_Control: ItemBase
 {
 	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
@@ -30,16 +24,18 @@ class Expansion_Satellite_Control: House
 	#ifdef EXPANSIONMODTELEPORTER
 	protected Expansion_Teleporter_Big m_LinkedTeleporter;
 	#endif
+	protected Expansion_Satellite_Panel_Lever m_LinkedPanelLevel;
 	protected bool m_CanActivate;
 	protected bool m_IsSatelliteActive;
 	protected bool m_IsSatelliteBooting;
 	protected ref Timer m_ActiveBootTimer;
 	protected ref Timer m_ActiveTimer;
+	protected EffectSound m_RunSFX;
 
 	void Expansion_Satellite_Control()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		RegisterNetSyncVariableBool("m_CanActivate");
 		RegisterNetSyncVariableBool("m_IsSatelliteActive");
 		RegisterNetSyncVariableBool("m_IsSatelliteBooting");
@@ -51,17 +47,21 @@ class Expansion_Satellite_Control: House
 			return;
 
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		#ifdef DIAG
 		#ifdef EXPANSIONMODNAVIGATION
 		if (!m_ServerMarker)
 			return;
 
 		ExpansionMarkerModule markerModule;
-		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
-		if (markerModule)
+		if (CF_Modules<ExpansionMarkerModule>.Get(markerModule))
 			markerModule.RemoveServerMarker(m_ServerMarker.GetUID());
 		#endif
+		#endif
+
+		#ifndef SERVER
+		if (m_RunSFX)
+			m_RunSFX.SoundStop();
 		#endif
 	}
 
@@ -93,70 +93,83 @@ class Expansion_Satellite_Control: House
 		#endif
 		#endif
 	}
-	
+
 	void SetLinkedSatellite(SV_Abandoned_Sattelite_Antenna satellite)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		m_LinkedSatellite = satellite;
 	}
-	
+
 	#ifdef EXPANSIONMODTELEPORTER
 	void SetLinkedTeleporter(Expansion_Teleporter_Big teleporter)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		m_LinkedTeleporter = teleporter;
 	}
 	#endif
 	
+	void SetLinkedPanelLever(Expansion_Satellite_Panel_Lever panelLever)
+	{
+		m_LinkedPanelLevel = panelLever;
+	}
+
 	void SetActivateState(bool state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		m_CanActivate = state;
-		
+
 		SetSynchDirty();
 	}
-	
+
 	void SetSatelliteState(bool state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		m_IsSatelliteActive = state;
-		
+
 		if (m_IsSatelliteBooting && state)
 			m_IsSatelliteBooting = false;
-		
+
 		SetSynchDirty();
 	}
-	
+
 	void SetSatelliteBooting(bool state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		m_IsSatelliteBooting = state;
-		
+
 		SetSynchDirty();
 	}
-	
+
 	bool CanActivate()
-	{		
-		if (m_IsSatelliteActive || m_IsSatelliteBooting || !m_CanActivate)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		EXTrace.Add(trace, m_IsSatelliteActive);
+		EXTrace.Add(trace, m_IsSatelliteBooting);
+		EXTrace.Add(trace, m_CanActivate);
+		EXTrace.Add(trace, HasKeyCard());
+		EXTrace.Add(trace, HasEnergy());
+		EXTrace.Add(trace, SatellitePanelState());
+
+		if (m_IsSatelliteActive || m_IsSatelliteBooting || !m_CanActivate || !HasKeyCard() || !HasEnergy() || !SatellitePanelState())
 			return false;
 
 		return true;
 	}
-	
+
 	bool IsActive()
 	{
 		return m_IsSatelliteActive;
 	}
-	
+
 	void StartSatellite()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		array<Object> objects = new array<Object>;
 		GetGame().GetObjectsAtPosition(GetPosition(), 200, objects, null);
 
@@ -164,125 +177,204 @@ class Expansion_Satellite_Control: House
 		{
 			PlayerBase player = PlayerBase.Cast(objects[i]);
 			if (player && player.GetIdentity())
-				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX, null, true, player.GetIdentity());
+			{
+				Param1<EntityAI> param = new Param1<EntityAI>(m_LinkedSatellite);
+				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX, param, true, player.GetIdentity());
+			}
 		}
-		
+
 		SetSatelliteBooting(true);
-		
-		m_ActiveBootTimer = new Timer();
-		m_ActiveBootTimer.Run(5, this, "BootSatellite"); 
+
+		m_ActiveBootTimer = new Timer(CALL_CATEGORY_SYSTEM);
+		m_ActiveBootTimer.Run(5, this, "BootSatellite");
 	}
-	
+
 	void BootSatellite()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		array<Object> objects = new array<Object>;
 		GetGame().GetObjectsAtPosition(GetPosition(), 200, objects, null);
-		
+
 		for (int j = 0; j < objects.Count(); j++)
 		{
 			PlayerBase player = PlayerBase.Cast(objects[j]);
 			if (player && player.GetIdentity())
-				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_RUNNING_SFX, null, true, player.GetIdentity());
+			{
+				Param1<EntityAI> param = new Param1<EntityAI>(m_LinkedSatellite);
+				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_RUNNING_SFX, param, true, player.GetIdentity());
+			}
 		}
-		
+
 		#ifdef EXPANSIONMODTELEPORTER
 		if (m_LinkedTeleporter)
 			m_LinkedTeleporter.SetActive(true);
-		#endif	
-		
+		#endif
+
 		SetSatelliteState(true);
-		
-		m_ActiveTimer = new Timer();
-		m_ActiveTimer.Run(522, this, "StopSatellite"); 
+
+		m_ActiveTimer = new Timer(CALL_CATEGORY_SYSTEM);
+		m_ActiveTimer.Run(120, this, "StopSatellite");
 	}
-	
+
 	void StopSatellite()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-			
+
 		array<Object> objects = new array<Object>;
 		GetGame().GetObjectsAtPosition(GetPosition(), 200, objects, null);
-		
+
 		for (int i = 0; i < objects.Count(); i++)
 		{
 			PlayerBase player = PlayerBase.Cast(objects[i]);
 			if (player && player.GetIdentity())
-				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX, null, true, player.GetIdentity());
+			{
+				Param1<EntityAI> param = new Param1<EntityAI>(m_LinkedSatellite);
+				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_SHUTDOWN_SFX, param, true, player.GetIdentity());
+			}
 		}
-		
+
 		#ifdef EXPANSIONMODTELEPORTER
 		if (m_LinkedTeleporter)
 			m_LinkedTeleporter.SetActive(false);
-		#endif	
-		
+		#endif
+
 		SetSatelliteState(false);
 		m_LinkedSatellite.SetSatelliteActive(false);
+		ExpansionNamalskModule.GetModuleInstance().OverloadSatelliteGenerator();
 	}
-	
+
 	override void OnVariablesSynchronized()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::OnVariablesSynchronized - Satellite active: " + m_IsSatelliteActive.ToString());
 
 		super.OnVariablesSynchronized();
+
+	#ifndef SERVER
+		if (!m_IsSatelliteActive && m_RunSFX)
+			m_RunSFX.SoundStop();
+	#endif
 	}
-	
-	protected void PlaySFXBoot()
+
+	protected void PlaySFXBoot(EntityAI satellite)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			EffectSound soundEffect = SEffectManager.PlaySound("Expansion_Satellite_Boot_Soundset", GetPosition(), 0, 0, false);
+			EffectSound soundEffect = SEffectManager.PlaySound("Expansion_Satellite_Boot_Soundset", satellite.GetPosition());
 			if (!soundEffect)
 				return;
-	
-			soundEffect.SetParent(this);
+
+			soundEffect.SetParent(satellite);
 			soundEffect.SetSoundAutodestroy(true);
 		}
 	}
-	
-	protected void PlaySFXActive()
+
+	protected void PlaySFXActive(EntityAI satellite)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
-		if (!GetGame().IsDedicatedServer())
+
+		if (!GetGame().IsDedicatedServer() && !m_RunSFX)
 		{
-			EffectSound soundEffect = SEffectManager.PlaySound("Expansion_Satellite_Active_Soundset", GetPosition(), 0, 0, false);
-			if (!soundEffect)
+			m_RunSFX = SEffectManager.PlaySound("Expansion_Satellite_Active_Soundset", satellite.GetPosition());
+			if (!m_RunSFX)
 				return;
-	
-			soundEffect.SetParent(this);
-			soundEffect.SetSoundAutodestroy(true);
+
+			m_RunSFX.SetParent(satellite);
+			m_RunSFX.SetSoundAutodestroy(true);
 		}
 	}
-	
+
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		super.OnRPC(sender, rpc_type, ctx);
-		
+
 		if (!GetGame().IsDedicatedServer())
 		{
 			switch (rpc_type)
 			{
 				case Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX:
 				{
-					#ifndef EDITOR
-					PlaySFXBoot();
-					#endif
+				#ifndef EDITOR
+					Param1<EntityAI> paramBoot = new Param1<EntityAI>(null);
+					if (!ctx.Read(paramBoot))
+						return;
+
+					PlaySFXBoot(paramBoot.param1);
+				#endif
 				}
 				break;
 				case Expansion_Satellite_Control_ERPCs.PLAY_RUNNING_SFX:
 				{
-					#ifndef EDITOR
-					PlaySFXActive();
-					#endif
+				#ifndef EDITOR
+					Param1<EntityAI> paramRun = new Param1<EntityAI>(null);
+					if (!ctx.Read(paramRun))
+						return;
+
+					PlaySFXActive(paramRun.param1);
+				#endif
+				}
+				break;
+				case Expansion_Satellite_Control_ERPCs.PLAY_SHUTDOWN_SFX:
+				{
+				#ifndef EDITOR
+					if (m_RunSFX)
+						m_RunSFX.SoundStop();
+
+					Param1<EntityAI> paramStop = new Param1<EntityAI>(null);
+					if (!ctx.Read(paramStop))
+						return;
+
+					PlaySFXBoot(paramStop.param1);
+				#endif
 				}
 				break;
 			}
 		}
+	}
+
+	bool HasEnergy()
+	{
+		ExpansionNamalskModule namalskModule;
+		if (CF_Modules<ExpansionNamalskModule>.Get(namalskModule))
+			return namalskModule.HasSatelliteFacilityPower();
+
+		return false;
+	}
+	
+	bool SatellitePanelState()
+	{
+		if (m_LinkedPanelLevel)
+			return m_LinkedPanelLevel.GetPanelState();
+
+		return false;
+	}
+
+	bool HasKeyCard()
+	{
+		ItemBase keyCard = ItemBase.Cast(FindAttachmentBySlotName("Att_ExpansionKeyCard"));
+		if (keyCard && !keyCard.IsDamageDestroyed())
+			return true;
+
+		return false;
+	}
+
+	override void SetActions()
+	{
+		super.SetActions();
+		AddAction(ExpansionActionUseSatelliteControl);
+	}
+
+	override bool CanPutInCargo(EntityAI parent)
+	{
+		return false;
+	}
+
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		return false;
 	}
 
 	#ifdef DIAG
@@ -292,13 +384,12 @@ class Expansion_Satellite_Control: House
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		ExpansionMarkerModule markerModule;
-		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
-		if (markerModule)
+		if (CF_Modules<ExpansionMarkerModule>.Get(markerModule))
 			markerModule.CreateServerMarker(GetType(), "Options", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 44, 62, 80), true);
 	}
 	#endif
 	#endif
-	
+
 	protected void ExDebugPrint(string text)
 	{
 		#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG

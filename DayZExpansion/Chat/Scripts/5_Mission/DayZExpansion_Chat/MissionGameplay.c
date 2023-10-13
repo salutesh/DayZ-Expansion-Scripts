@@ -19,6 +19,7 @@ modded class MissionGameplay
 	protected Widget m_ChatPanel;
 	protected Widget m_ChatChannelRootWidget;
 	protected TextWidget m_ChatChannelName;
+	protected bool m_ExpansionUseChat;
 
 	void MissionGameplay()
 	{
@@ -28,13 +29,6 @@ modded class MissionGameplay
 	void ~MissionGameplay()
 	{
 		ExpansionSettings.SI_Chat.Remove(Expansion_OnChatSettingsReceived);
-	}
-
-	override void OnInit()
-	{
-		super.OnInit();
-
-		InitExpansionChat();
 	}
 
 	void InitExpansionChat()
@@ -47,56 +41,65 @@ modded class MissionGameplay
 			m_ChatChannelRootWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Chat/GUI/layouts/expansion_chat_channel.layout");
 			m_ChatChannelName = TextWidget.Cast(m_ChatChannelRootWidget.FindAnyWidget("ChatChannelName"));
 
-			//! Set default to direct
-			SwitchChatChannelToDirect();
+			ExpansionClientUIChatChannel chatChannel = GetExpansionClientSettings().DefaultChatChannel;
+			switch (chatChannel)
+			{
+				case ExpansionClientUIChatChannel.GLOBAL:
+					SwitchChatChannelToGlobal();
+					break;
+				default:
+					//! Set default to direct
+					SwitchChatChannelToDirect();
+					break;
+			}
 		}
+		
+		m_Chat.Expansion_UseChat(true);
 	}
 
 	void Expansion_OnChatSettingsReceived()
 	{
 		ExpansionSettings.SI_Chat.Remove(Expansion_OnChatSettingsReceived);
-
-		ExpansionClientUIChatChannel chatChannel = GetExpansionClientSettings().DefaultChatChannel;
-		switch (chatChannel)
-		{
-			case ExpansionClientUIChatChannel.GLOBAL:
-				SwitchChatChannelToGlobal();
-				break;
-		}
+		
+		auto settings = GetExpansionSettings().GetChat();
+		
+		m_ExpansionUseChat = settings.EnableGlobalChat;
+		if (!m_ExpansionUseChat)
+			m_ExpansionUseChat = settings.EnableTransportChat;
+	#ifdef EXPANSIONMODGROUPS
+		if (!m_ExpansionUseChat)
+			m_ExpansionUseChat = settings.EnablePartyChat;
+	#endif
+		
+		if (m_ExpansionUseChat)
+			InitExpansionChat();
 	}
-
+	
 	override void ShowChat()
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
-		//! Disable certain controlls and inputs when the chat input menu gets opened.
-		PlayerControlDisable(INPUT_EXCLUDE_ALL);
-		PlayerControlDisable(INPUT_EXCLUDE_CHAT_EXPANSION);
-		GetUApi().GetInputByName("UAPersonView").Supress();
-		GetUApi().GetInputByName("UAPersonView").ForceDisable(true);
-		GetGame().GetUIManager().ShowUICursor(true);
+		super.ShowChat();
 
-		//! If we are no longer in a vehicle and last used channel was transport, switch to direct
-		if (m_ChatChannel == ExpansionChatChannels.CCTransport)
+		if (m_ExpansionUseChat)
 		{
-			PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
-			Object parent = Object.Cast(player.GetParent());
+			GetGame().GetUIManager().ShowUICursor(true);
 
-			if (!parent || !parent.IsTransport() || !GetExpansionSettings().GetChat().EnableTransportChat)
-				SwitchChatChannelToDirect();
+			//! If we are no longer in a vehicle and last used channel was transport, switch to direct
+			if (m_ChatChannel == ExpansionChatChannels.CCTransport)
+			{
+				PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
+				Object parent = Object.Cast(player.GetParent());
+
+				if (!parent || !parent.IsTransport() || !GetExpansionSettings().GetChat().EnableTransportChat)
+					SwitchChatChannelToDirect();
+			}
+
+			UpdateChannelColor();
+
+			//! Show chat channel widgets
+			m_ChatChannelRootWidget.Show(true);
 		}
-
-		UpdateChannelColor();
-
-		//! Update mic voice level indicator widgets
-		int level = GetGame().GetVoiceLevel();
-		UpdateVoiceLevelWidgets(level);
-
-		//! Open chat input menu
-		m_UIManager.EnterScriptedMenu(MENU_CHAT_INPUT, NULL);
-
-		//! Show chat channel widgets
-		m_ChatChannelRootWidget.Show(true);
 	}
 
 	override void HideChat()
@@ -105,10 +108,10 @@ modded class MissionGameplay
 
 		super.HideChat();
 
-		//! Enable inputs
-		GetUApi().GetInputByName("UAPersonView").ForceDisable(false);
-
-		m_ChatChannelRootWidget.Show(false);
+		if (m_ExpansionUseChat)
+		{
+			m_ChatChannelRootWidget.Show(false);
+		}
 	}
 
 	void SwitchChatChannelToGlobal()
@@ -267,7 +270,7 @@ modded class MissionGameplay
 	{
 		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-		if (isAliveConscious && !inputIsFocused && !menu && !viewMenu)
+		if (isAliveConscious && !inputIsFocused && !menu && !viewMenu && m_ExpansionUseChat)
 		{
 			//! Open main chat input and window
 			if (input.LocalPress("UAChat", false))

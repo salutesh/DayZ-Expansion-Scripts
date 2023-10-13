@@ -23,6 +23,8 @@ modded class CarScript
 
 	protected bool m_Expansion_IsInSafeZone;
 	protected bool m_Expansion_IsInSafeZone_DeprecationWarning;
+	protected bool m_Expansion_SZCleanup;
+	protected float m_Expansion_SZParkingTime;
 
 	protected string m_CurrentSkinName;
 
@@ -143,6 +145,74 @@ modded class CarScript
 		EXTrace.Print(EXTrace.VEHICLES, this, "::OnEnterZone " + GetPosition());
 
 		m_Expansion_IsInSafeZone = true;
+
+		if (GetExpansionSettings().GetSafeZone().EnableForceSZCleanupVehicles)
+			ExpansionCreateCleanup();
+	}
+
+	override void OnCEUpdate()
+	{
+		super.OnCEUpdate();
+
+		Expansion_UpdateSafeZoneCleanup();
+	}
+
+	void Expansion_UpdateSafeZoneCleanup()
+	{
+		//! If vehicle is not in a safezone, bail
+		if (!m_Expansion_IsInSafeZone)
+			return;
+
+		//! If vehicle vehicle safezone cleanup is not enabled, bail
+		if (!m_Expansion_SZCleanup)
+			return;
+
+	#ifdef EXPANSIONMODVEHICLE
+		//! Heli needs to be landed to count as parked
+		ExpansionHelicopterScript heli;
+		if (Class.CastTo(heli, this) && heli.Expansion_EngineIsSpinning() && !heli.IsLanded())
+			return;
+	#endif
+
+		//! If vehicle isn't moving, consider it parked and increase parking time
+		if (!IsMoving())
+			m_Expansion_SZParkingTime += m_ElapsedSinceLastUpdate;
+
+		//! If parking time is zero, bail
+		if (!m_Expansion_SZParkingTime)
+			return;
+
+		//! If parking time exceeds max allowed vehicle lifetime in SZ, delete it
+		float lifetime = GetExpansionSettings().GetSafeZone().VehicleLifetimeInSafeZone;
+		if (m_Expansion_SZParkingTime > lifetime)
+		{
+			Expansion_ForceCrewGetOut();
+
+			//! If we have last driver UID, notify player that their vehicle is being deleted
+			if (m_Expansion_LastDriverUID)
+			{
+				PlayerBase player = PlayerBase.GetPlayerByUID(m_Expansion_LastDriverUID);
+				if (player)
+					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", string.Format("%1 at %2 was deleted after exceeding the maximum allowed safezone parking time of %3.", GetDisplayName(), ExpansionStatic.VectorToString(GetPosition(), ExpansionVectorToString.Labels), ExpansionStatic.GetTimeString(lifetime, true))).Error(player.GetIdentity());
+			}
+
+			Delete();
+		}
+	}
+
+	void ExpansionCreateCleanup()
+	{
+		if (m_Expansion_SZCleanup)
+			return;
+
+		if (ExpansionStatic.IsAnyOf(this, GetExpansionSettings().GetSafeZone().ForceSZCleanup_ExcludedItems, true))
+			return;
+
+		m_Expansion_SZCleanup = true;
+
+		#ifdef EXPANSION_SAFEZONE_DEBUG
+		EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " marked for cleanup - lifetime " + GetLifetime());
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -155,6 +225,41 @@ modded class CarScript
 		EXTrace.Print(EXTrace.VEHICLES, this, "::OnExitZone " + GetPosition());
 
 		m_Expansion_IsInSafeZone = false;
+		m_Expansion_SZCleanup = false;
+		Expansion_ResetSZParkingTime();
+	}
+
+	void Expansion_ResetSZParkingTime()
+	{
+		m_Expansion_SZParkingTime = 0;
+	}
+
+	void SetLockedState(ExpansionVehicleLockState newLockState)
+	{
+		Error("NOT IMPLEMENTED");
+	}
+
+	ExpansionVehicleLockState GetLockedState()
+	{
+		Error("NOT IMPLEMENTED");
+		return ExpansionVehicleLockState.NOLOCK;
+	}
+
+	void Expansion_SetAllDoorsAnimationPhase(float phase)
+	{
+		for (int crewIdx = 0; crewIdx < CrewSize(); crewIdx++)
+		{
+			string selection = GetDoorSelectionNameFromSeatPos(crewIdx);
+			if (selection)
+				SetAnimationPhase(GetAnimSourceFromSelection(selection), phase);
+		}
+	}
+
+	void Expansion_CloseAllDoors()
+	{
+		ForceUpdateLightsStart();
+		Expansion_SetAllDoorsAnimationPhase(0.0);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ForceUpdateLightsEnd, 500);
 	}
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -331,7 +436,7 @@ modded class CarScript
 		return m_Expansion_LastDriverUID;
 	}
 
-	set<Human> Expansion_GetVehicleCrew(bool playersOnly = true)
+	set<Human> Expansion_GetVehicleCrew(bool playersOnly = true, bool includeAttached = true)
 	{
 		set<Human> players = new set<Human>;
 		Human crew;
@@ -346,6 +451,9 @@ modded class CarScript
 			if (!playersOnly || crew.GetIdentity())
 				players.Insert(crew);
 		}
+
+		if (!includeAttached)
+			return players;
 
 		//! Attached players
 		IEntity child = GetChildren();
@@ -363,6 +471,24 @@ modded class CarScript
 		}
 
 		return players;
+	}
+
+	void Expansion_ForceCrewGetOut()
+	{
+		auto crew = Expansion_GetVehicleCrew(false, false);
+		foreach (auto member: crew)
+		{
+			//! Open the door so player can get out
+			int crewIdx = CrewMemberIndex(member);
+			string selection = GetDoorSelectionNameFromSeatPos(crewIdx);
+			if (selection)
+				SetAnimationPhase(GetAnimSourceFromSelection(selection), 1.0);
+
+			//! Push them out
+			HumanCommandVehicle vehCommand = member.GetCommand_Vehicle();
+			if (vehCommand)
+				vehCommand.GetOutVehicle();
+		}
 	}
 
 	float Expansion_GetFuelAmmount()

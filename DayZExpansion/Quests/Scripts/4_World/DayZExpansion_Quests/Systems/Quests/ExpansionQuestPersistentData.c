@@ -14,7 +14,7 @@
 class ExpansionQuestPersistentData
 {
 	[NonSerialized()];
-	string FileName;
+	string m_FileName;
 
 	static const int DATAVERSION = 2;
 	int DataVersion;
@@ -37,7 +37,7 @@ class ExpansionQuestPersistentData
 	void AddQuestData(int questID, ExpansionQuestState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		QuestDebugPrint("Quest ID: " + questID + " | State: " + state);
+		QuestDebugPrint("Quest ID: " + questID + " | State: " + state + " | File: " + m_FileName);
 
 		if (QuestData.Contains(questID))
 		{
@@ -135,7 +135,7 @@ class ExpansionQuestPersistentData
 	void UpdateQuestState(int questID, int state)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		QuestDebugPrint("Quest ID: " + questID + " | State: " + state);
+		QuestDebugPrint("Quest ID: " + questID + " | State: " + state + " | File: " + m_FileName);
 
 		ExpansionQuestPersistentQuestData questData = QuestData[questID];
 		if (!questData)
@@ -167,7 +167,7 @@ class ExpansionQuestPersistentData
 
 	bool UpdateObjective(int questID, int objectiveIndex, ExpansionQuestObjectiveData newData)
 	{
-		QuestDebugPrint("Update quest objective data for quest: " + questID + " | File: " + FileName);
+		QuestDebugPrint("Update quest objective data for quest: " + questID + " | File: " + m_FileName);
 		QuestDebugPrint("New data:");
 		newData.QuestDebug();
 
@@ -187,7 +187,7 @@ class ExpansionQuestPersistentData
 	
 	bool UpdateCompletionCount(int questID)
 	{
-		QuestDebugPrint("Update quest completion count for quest: " + questID + " | File: " + FileName);		
+		QuestDebugPrint("Update quest completion count for quest: " + questID + " | File: " + m_FileName);		
 		ExpansionQuestPersistentQuestData questData = QuestData[questID];
 		if (questData)
 		{
@@ -201,13 +201,13 @@ class ExpansionQuestPersistentData
 		return false;
 	}
 
-	bool Load(string fileName)
+	bool Load(string fileName, string folder)
 	{
 		EXTrace.Print(EXTrace.QUESTS, this, "::Load - Load existing data file: " + fileName);
 
-		FileName = fileName;
+		m_FileName = fileName;
 
-		string path = EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin";
+		string path = folder + fileName + ".bin";
 		FileSerializer file = new FileSerializer();
 		bool save;
 		if (file.Open(path, FileMode.READ))
@@ -238,19 +238,19 @@ class ExpansionQuestPersistentData
 			save = true;
 
 		if (save)
-			Save(fileName);
+			Save(fileName, folder);
 
 		m_SynchDirty = true;
 
 		return true;
 	}
 
-	void Save(string fileName)
+	void Save(string fileName, string path)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, fileName);
 
 		FileSerializer file = new FileSerializer();
-		if (file.Open(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin", FileMode.WRITE))
+		if (file.Open(path + fileName + ".bin", FileMode.WRITE))
 		{
 			file.Write(DataVersion);
 			OnWrite(file, false);
@@ -258,7 +258,7 @@ class ExpansionQuestPersistentData
 		}
 		else
 		{
-			Error("Could not open " + EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin" + " for writing!");
+			Error("Could not open " + path + fileName + ".bin" + " for writing!");
 		}
 	}
 
@@ -270,12 +270,12 @@ class ExpansionQuestPersistentData
 			if (data)
 			{
 				int questID = data.QuestID;
-				QuestDebugPrint("Check data for quest with ID: " + questID + " | File: " + FileName);
+				QuestDebugPrint("Check data for quest with ID: " + questID + " | File: " + m_FileName);
 				data.QuestDebug();
 				ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(data.QuestID);
 				if (!questConfig)
 				{
-					EXPrint(this, "ERROR: Could not get quest config for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
+					EXPrint(this, "ERROR: Could not get quest config for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + m_FileName);
 					RemoveQuestDataByQuestID(questID);
 					changed = true;
 					continue;
@@ -303,7 +303,7 @@ class ExpansionQuestPersistentData
 					
 					if (questObjectiveData && questObjectiveConfig && questObjectiveData.GetObjectiveType() != questObjectiveConfig.GetObjectiveType())
 					{
-						EXPrint(this, "ERROR: Quest objectives type missmatch for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
+						EXPrint(this, "ERROR: Quest objectives type missmatch for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + m_FileName);
 						RemoveQuestDataByQuestID(questID);
 						changed = true;
 						removedQuestData = true;
@@ -336,7 +336,7 @@ class ExpansionQuestPersistentData
 					if (questConfig.IsRepeatable() || !questConfig.IsRepeatable())
 						continue;
 	
-					EXPrint(this, "Cleanup quest data for quest with ID:" + data.QuestID + " | State: " + data.State + " | File: " + FileName);
+					EXPrint(this, "Cleanup quest data for quest with ID:" + data.QuestID + " | State: " + data.State + " | File: " + m_FileName);
 					RemoveQuestDataByQuestID(questID);
 					changed = true;
 				}
@@ -457,7 +457,7 @@ class ExpansionQuestPersistentData
 			Print("------------------------------------------------------------------------------------------------");
 		if (GetGame().IsServer())
 		{
-			Print(ToString() + "::QuestDebug - File name: " + FileName);
+			Print(ToString() + "::QuestDebug - File name: " + m_FileName);
 			Print(ToString() + "::QuestDebug - Data version: " + DataVersion);
 		}
 		foreach (auto data: QuestData)

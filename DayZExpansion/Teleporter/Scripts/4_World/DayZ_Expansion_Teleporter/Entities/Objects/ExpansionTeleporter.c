@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -30,10 +30,9 @@ class Expansion_Teleporter_Base: BuildingSuper
 		if (IsMissionHost())
 			SetAllowDamage(false);
 		
-		SetEventMask(EntityEvent.INIT);
+		//SetEventMask(EntityEvent.INIT);
 
 		m_TeleporterID = -1;
-		m_IsActive = true;
 		
 		RegisterNetSyncVariableInt("m_TeleporterID");
 		RegisterNetSyncVariableInt("m_IsActive");
@@ -67,15 +66,11 @@ class Expansion_Teleporter_Base: BuildingSuper
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 
-		if (!GetGame().IsDedicatedServer())
-		{
-			InitTeleporterClient();
-		}
-
-		if (GetGame().IsServer())
-		{
-			InitTeleporterServer();
-		}
+		#ifndef SERVER
+		InitTeleporterClient();
+		#else
+		InitTeleporterServer();
+		#endif
 	}
 	
 	protected void InitTeleporterClient()
@@ -134,20 +129,30 @@ class Expansion_Teleporter_Base: BuildingSuper
 		SetSynchDirty();
 	}
 	
-	override bool CanPutInCargo(EntityAI parent)
+	override bool IsHealthVisible()
 	{
-		return false;
+		return true;
 	}
 
-	override bool CanPutIntoHands(EntityAI parent)
+	override bool IsInventoryVisible()
+	{
+		return true;
+	}
+
+	override bool CanDisplayCargo()
+	{
+		return true;
+	}
+
+	override bool CanPutInCargo(EntityAI parent)
+	{
+		return true;
+	}
+
+	override bool CanPutIntoHands(EntityAI player)
 	{
 		return false;
 	}
-	
-	override bool DisableVicinityIcon()
-    {
-        return true;
-    }
 
 #ifdef DIAG
 #ifdef EXPANSIONMODNAVIGATION
@@ -175,8 +180,8 @@ enum ExpansionTeleporterState
 {
 	OFF = 0,
 	IDLE = 1,
-	ACTIVATED = 2,
-	UNSTABLE = 3
+	//ACTIVATED = 2,
+	//UNSTABLE = 3
 };
 
 class Expansion_Teleporter_Big: Expansion_Teleporter_Base
@@ -188,81 +193,92 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	protected EffectSound m_SoundActivated;
 	protected Particle m_ParticleIdle;
 
-	protected ExpansionTeleporterState m_TeleporterState = ExpansionTeleporterState.OFF;
-	protected ExpansionTeleporterState m_PrevTeleporterState = ExpansionTeleporterState.OFF;
-	protected ExpansionTeleporterState m_VisualState = ExpansionTeleporterState.OFF;
+	protected int m_TeleporterState = ExpansionTeleporterState.OFF;
+	protected int m_VisualState = ExpansionTeleporterState.OFF;
 
 	//! Particles
 	protected const int PARTICLE_TELEPORTER_IDLE = ParticleList.EXPANSION_PARTICLE_TELEPORTER;
+
+#ifdef EXPANSION_NAMALSK_ADVENTURE
+	protected bool m_NeedKeyCard;
+#endif
 	
 	void Expansion_Teleporter_Big()
 	{
-		RegisterNetSyncVariableInt("m_TeleporterState", 0, 3);
-		RegisterNetSyncVariableInt("m_PrevTeleporterState", 0, 3);
+		m_TeleporterState = ExpansionTeleporterState.OFF;	
+		m_VisualState = ExpansionTeleporterState.OFF;
+		
+		RegisterNetSyncVariableInt("m_TeleporterState", 0, 1);
+	}
+	
+	void ~Expansion_Teleporter_Big()
+	{
+		#ifndef SERVER
+		CleanupTeleporterVFX();
+		#endif
+	}
+	
+	void CleanupTeleporterVFX()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	
+		if (m_ParticleIdle)
+			StopParticle();
+
+		if (m_Sound)
+			SoundStop();
+	}
+	
+	override protected void InitTeleporterClient()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
+		super.InitTeleporterClient();
+		
+		UpdateVisualState(m_TeleporterState);
 	}
 	
 	override void SetActive(bool state)
 	{
 		if (!state)
-		{
-			SetTeleporterState(ExpansionTeleporterState.OFF);
-		}
+			m_TeleporterState = ExpansionTeleporterState.OFF;
 		else
-		{
-			SetTeleporterState(ExpansionTeleporterState.IDLE);
-		}
+			m_TeleporterState = ExpansionTeleporterState.IDLE;
 
 		DebugTrace("::SetActive - Teleporter state: " + typename.EnumToString(ExpansionTeleporterState, m_TeleporterState));
 
 		super.SetActive(state);
 	}
 	
-	protected bool PlayParticle(out Particle particle, int particle_type)
-	{
-		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-
-		if (!particle && GetGame() && (!GetGame().IsDedicatedServer()))
-		{
-			particle = Particle.PlayOnObject(particle_type, this, "0 0.2 0");
-			return true;
-		}
-
-		return false;
-	}
-
-	//! Returns true if particle stopped, false if not
-	protected bool StopParticle(out Particle particle)
-	{
-		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-
-		if (particle && GetGame() && (!GetGame().IsDedicatedServer()))
-		{
-			particle.Stop();
-			particle = null;
-
-			return true;
-		}
-
-		return false;
-	}
-
-	void SetTeleporterState(ExpansionTeleporterState state)
-	{
-		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		DebugTrace("::SetTeleporterState - Set teleporter state: " + typename.EnumToString(ExpansionTeleporterState, state));
-
-		m_PrevTeleporterState = m_TeleporterState;
-		m_TeleporterState = state;
-
-		SetSynchDirty();
-	}
-	
 	protected void SetVisualState(ExpansionTeleporterState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		DebugTrace("::SetVisualState - Teleporter state: " + typename.EnumToString(ExpansionTeleporterState, state));
 
 		m_VisualState = state;
+	}
+	
+	protected void PlayParticle()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		if (!m_ParticleIdle && GetGame() && (!GetGame().IsDedicatedServer()))
+			m_ParticleIdle = Particle.PlayOnObject(GetTeleporterIdleParticle(), this, "0 0.2 0");
+	}
+
+	//! Returns true if particle stopped, false if not
+	protected bool StopParticle()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		if (m_ParticleIdle && GetGame() && (!GetGame().IsDedicatedServer()))
+		{
+			m_ParticleIdle.Stop();
+			m_ParticleIdle = null;
+
+			return true;
+		}
+
+		return false;
 	}
 	
 	protected void SoundIdleStart()
@@ -283,39 +299,33 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 		PlaySoundSet(m_SoundActivated, SOUND_ACTIVATED, 1.0, 1.0);
 	}
 
-	protected void ParticleIdleStop()
-	{
-		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		StopParticle(m_ParticleIdle);
-	}
-
 	protected void UpdateVisualState(ExpansionTeleporterState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 		DebugTrace("::UpdateVisualState - Teleporter state is: " + typename.EnumToString(ExpansionTeleporterState, state));
-
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateTeleporterVFX_Deferred, 0, false, state);
+		
+		#ifndef SERVER
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(UpdateTeleporterVFX_Deferred, state);
+		#endif
 	}
 	
 	//! @note: This method updates the teleporters visual effects (VFX) in a deferred manner based on the provided `state`.
-	protected void UpdateTeleporterVFX_Deferred(ExpansionTeleporterState state)
+	protected void UpdateTeleporterVFX_Deferred(int state)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		DebugTrace("::UpdateTeleporterVFX_Deferred - Teleporter state: " + typename.EnumToString(ExpansionTeleporterState, state) + " | Previous teleporter state: " + typename.EnumToString(ExpansionTeleporterState, m_PrevTeleporterState));
 		
 		//! Stop current effects
-		if (m_ParticleIdle)
-			ParticleIdleStop();
+		StopParticle();
 		
 		if (m_Sound)
 			SoundStop();
-		
+						
 		switch (state)
 		{
 			case ExpansionTeleporterState.OFF:
 			{
-				TurnOffUnstableEmitor();
-				TurnOffActivatedEmitor();
+				//TurnOffUnstableEmitor();
+				//TurnOffActivatedEmitor();
 				SetVisualState(state);
 			}
 			break;
@@ -325,9 +335,10 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 			    CreateIdleParticle(state);
 				TurnOffUnstableEmitor();
 				TurnOffActivatedEmitor();
+				SetVisualState(state);
 			}
 			break;
-			case ExpansionTeleporterState.ACTIVATED:
+			/*case ExpansionTeleporterState.ACTIVATED:
 			{
 				//! Create activated VFX particle
 				CreateIdleParticle(state);
@@ -341,7 +352,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 				CreateIdleParticle(state);
 				TurnOffActivatedEmitor();
 			}
-			break;
+			break;*/
 		}
 	}
 	
@@ -401,77 +412,48 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 		m_ParticleIdle.SetParameter(1, EmitorParam.REPEAT, 0);
 	}
 
-	protected void CreateIdleParticle(ExpansionTeleporterState state)
+	protected void CreateIdleParticle(int state)
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		//! Create idle VFX particle
-		PlayParticle(m_ParticleIdle, GetTeleporterIdleParticle());
+		if (!m_ParticleIdle)
+			PlayParticle();
 
 		//! Create idle sound
 		if (!m_Sound)
 			SoundIdleStart();
-
-		SetVisualState(state);
 	}
 	
 	//! @note: Synchronizes variables and updates visual state of the particle depending on the anomaly state.
 	override void OnVariablesSynchronized()
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		DebugTrace("::OnVariablesSynchronized - Current teleporter visual state: " + typename.EnumToString(ExpansionTeleporterState, m_VisualState) + " | Anomaly state: " + typename.EnumToString(ExpansionTeleporterState, m_TeleporterState));
-
-		super.OnVariablesSynchronized();
-
+		
 		if (m_VisualState != m_TeleporterState)
 			UpdateVisualState(m_TeleporterState);
 	}
-	
-	override bool IsHealthVisible()
-	{
-		return true;
-	}
-
-	override bool IsInventoryVisible()
-	{
-		return true;
-	}
-
-	override bool CanDisplayCargo()
-	{
-		return true;
-	}
-
-	override bool CanPutInCargo(EntityAI parent)
-	{
-		return true;
-	}
-
-	override bool CanPutIntoHands(EntityAI player)
-	{
-		return false;
-	}
-
-	override bool CanRemoveFromCargo(EntityAI parent)
-	{
-		return true;
-	}
-
-	override bool CanReceiveItemIntoCargo(EntityAI item)
-	{
-		return true;
-	}
-
-	override bool CanLoadItemIntoCargo(EntityAI item)
-	{
-		return true;
-	}
-
-	override bool DisableVicinityIcon()
-    {
-        return true;
-    }
 	
 	int GetTeleporterIdleParticle()
 	{
 		return PARTICLE_TELEPORTER_IDLE;
 	}
+	
+#ifdef EXPANSION_NAMALSK_ADVENTURE
+	void SetNeedKeyCard(bool state)
+	{
+		m_NeedKeyCard = state;
+	}
+	
+	bool NeedKeyCard()
+	{
+		return m_NeedKeyCard;
+	}
+	
+	override void SetActions()
+	{
+		super.SetActions();
+		AddAction(ExpansionActionUseTeleporter);
+	}
+#endif
 };

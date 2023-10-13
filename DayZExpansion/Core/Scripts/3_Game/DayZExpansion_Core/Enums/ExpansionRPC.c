@@ -467,6 +467,13 @@ enum ExpansionTeleporterModuleRPC
 	COUNT
 };
 
+enum ExpansionHardlineModuleRPC
+{
+	INVALID = 40110,
+	FactionReputationSync,
+	COUNT
+};
+
 enum ExpansionLockRPC
 {
 	LOCK = 5464150,

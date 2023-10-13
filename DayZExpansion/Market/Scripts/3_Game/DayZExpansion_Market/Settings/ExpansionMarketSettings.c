@@ -71,7 +71,7 @@ class ExpansionMarketSettingsV3: ExpansionMarketSettingsBaseV2
  **/
 class ExpansionMarketSettings: ExpansionMarketSettingsBase
 {
-	static const int VERSION = 11;
+	static const int VERSION = 12;
 
 	protected static ref map<string, string> s_MarketAmmoBoxes = new map<string, string>;
 
@@ -91,6 +91,11 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	autoptr TStringArray Currencies;
 
 	autoptr TStringArray VehicleKeys;
+	
+	#ifdef EXPANSIONMODVEHICLE
+	float MaxSZVehicleParkingTime;
+	int SZVehicleParkingTicketFine;
+	#endif
 	
 	[NonSerialized()]
 	protected autoptr map<int, ref ExpansionMarketCategory> m_Categories;
@@ -299,6 +304,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		ctx.Read(s.LargeVehicles);
 		ctx.Read(s.Currencies);
 
+		#ifdef EXPANSIONMODVEHICLE
+		ctx.Read(s.SZVehicleParkingTicketFine);
+		#endif
+
 		s.MarketMenuColors.OnReceive(ctx);
 
 		CopyInternal(s);
@@ -333,6 +342,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		ctx.Write(MaxLargeVehicleDistanceToTrader);
 		ctx.Write(LargeVehicles);
 		ctx.Write(Currencies);
+
+		#ifdef EXPANSIONMODVEHICLE
+		ctx.Write(SZVehicleParkingTicketFine);
+		#endif
 
 		//! Do not send vehicle spawn positions (only used on server)
 
@@ -392,6 +405,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		
 		Currencies.Copy(s.Currencies);
 		VehicleKeys.Copy(s.VehicleKeys);
+
+		#ifdef EXPANSIONMODVEHICLE
+		SZVehicleParkingTicketFine = s.SZVehicleParkingTicketFine;
+		#endif
 
 		int i;
 		ExpansionMarketSpawnPosition position;
@@ -527,6 +544,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		Currencies.Insert("expansionbanknotehryvnia");
 
 		#ifdef EXPANSIONMODVEHICLE
+		MaxSZVehicleParkingTime = 30 * 60;  //! 30 minutes
+		SZVehicleParkingTicketFine = 0;
+
 		VehicleKeys.Insert("ExpansionCarKey");
 		#endif
 	}
@@ -1064,6 +1084,13 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 					if (CurrencyIcon == "DayZExpansion/Market/GUI/icons/coinstack2_64x64.edds")
 						CurrencyIcon = "DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds";
 				}
+				
+				#ifdef EXPANSIONMODVEHICLE
+				if (settingsBase.m_Version < 12 && !MaxSZVehicleParkingTime)
+				{
+					MaxSZVehicleParkingTime = settingsDefault.MaxSZVehicleParkingTime;
+				}
+				#endif
 
 				m_Version = VERSION;
 				save = true;

@@ -287,7 +287,7 @@ class ExpansionP2PMarketListingBase
 		#endif
 		}
 		
-		if (!ExpansionP2PMarketModule.ItemCheck(object))
+		if (!ExpansionP2PMarketModule.ItemCheckEx(object))
 			m_IsExcluded = true;
 	}
 
@@ -318,16 +318,19 @@ class ExpansionP2PMarketListingBase
 				if (ExpansionP2PMarketModule.m_HardcodedExcludes.Find(item.GetType()) > -1)
 					continue;
 
-				if (!ExpansionP2PMarketModule.ItemCheck(item))
+				if (!ExpansionP2PMarketModule.ItemCheckEx(item))
 					m_IsExcluded = true;
 
 				ExpansionP2PMarketContainerItem containerItem = new ExpansionP2PMarketContainerItem();
 				containerItem.SetFromItem(item);
 				
-				if (!containerItem.IsExcluded() && m_IsExcluded)
-					containerItem.SetExcluded(true);
-				else if (!m_IsExcluded && containerItem.IsExcluded())
+				if (!m_IsExcluded && containerItem.IsExcluded())
 					m_IsExcluded = true;
+				
+				//! If item is a BB kit then make sure we cant deposit the attached rope..
+				KitBase kitBase;
+				if (Class.CastTo(kitBase, m_ListingObject) && item.GetType() == "Rope")
+					containerItem.SetExcluded(true);
 	
 				m_ContainerItems.Insert(containerItem);
 				m_ContainerItemsCount++;

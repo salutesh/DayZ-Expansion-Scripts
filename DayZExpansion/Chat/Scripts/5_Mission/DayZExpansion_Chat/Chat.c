@@ -13,85 +13,107 @@
 modded class Chat
 {
 	protected ref ExpansionChatUIWindow m_ExChatUI;
-
+	protected bool m_ExpansionUseChat;
+	
 	void Chat()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "Chat");
-#endif
+	#endif
 	}
-
-	override void Init(Widget root_widget)
+	
+	void Expansion_UseChat(bool state)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
-
-		m_RootWidget = root_widget;
-
-		if (m_RootWidget && !m_ExChatUI)
+		m_ExpansionUseChat = state;
+		if (m_ExpansionUseChat)
 		{
-			m_ExChatUI = new ExpansionChatUIWindow(m_RootWidget, this);
-			m_ExChatUI.Hide();
+			if (m_RootWidget && !m_ExChatUI)
+			{
+				m_ExChatUI = new ExpansionChatUIWindow(m_RootWidget, this);
+				m_ExChatUI.Hide();
+			}
 		}
 	}
 
 	void OnChatInputShow()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "OnChatInputShow");
-#endif
+		#endif
 		
-		m_ExChatUI.Show();
+		if (m_ExChatUI)
+			m_ExChatUI.Show();
 	}
 
 	void OnChatInputHide()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "OnChatInputHide");
-#endif
+	#endif
 
-		m_ExChatUI.Hide();
+		if (m_ExChatUI)
+			m_ExChatUI.Hide();
 	}
 
 	void HideChatToggle()
 	{
 		GetExpansionClientSettings().HUDChatToggle = !GetExpansionClientSettings().HUDChatToggle;
 
-		m_ExChatUI.GetLayoutRoot().Show(GetExpansionClientSettings().HUDChatToggle);
+		if (m_ExChatUI)
+			m_ExChatUI.GetLayoutRoot().Show(GetExpansionClientSettings().HUDChatToggle);
 	}
 
 	override void Add(ChatMessageEventParams params)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "Add");
-#endif
+	#endif
 
-		if (CanMute(params.param1) && IsPlayerMuted(params.param2))
+		if (m_ExpansionUseChat)
+		{
+			if (CanMute(params.param1) && IsPlayerMuted(params.param2))
+				return;
+	
+			if (m_ExChatUI)
+				m_ExChatUI.Add(params);
+			
 			return;
-
-		if (m_ExChatUI)
-			m_ExChatUI.Add(params);
+		}
+		
+		super.Add(params);
 	}
 
 	override void AddInternal(ChatMessageEventParams params)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "AddInternal");
-#endif
-
-		if (CanMute(params.param1) && IsPlayerMuted(params.param2))
+	#endif
+		
+		if (m_ExpansionUseChat)
+		{
+			if (CanMute(params.param1) && IsPlayerMuted(params.param2))
+				return;
+	
+			if (m_ExChatUI)
+				m_ExChatUI.AddInternal(params);
+			
 			return;
-
-		if (m_ExChatUI)
-			m_ExChatUI.AddInternal(params);
+		}
+		
+		super.AddInternal(params);
 	}
 
 	override void Clear()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "Clear");
-#endif
+	#endif
 
-		//! DON'T clear chat lines
+		//! DON'T clear chat lines when expansion chat is enabled
+		if (m_ExpansionUseChat)
+			return;
+		
+		super.Clear();
 	}
 
 	bool IsPlayerMuted(string playerName)

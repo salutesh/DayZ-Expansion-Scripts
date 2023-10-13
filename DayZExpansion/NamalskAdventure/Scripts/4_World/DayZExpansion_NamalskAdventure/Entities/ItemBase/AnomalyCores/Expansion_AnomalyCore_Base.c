@@ -39,8 +39,6 @@ enum ExpansionAnomalyCoreState
 
 class Expansion_AnomalyCore_Base: Grenade_Base
 {
-	static const int CHUNK_SIZE = 10; //! Process 10 anomaly cores at a time.
-
 	static ref CF_DoublyLinkedNodes_WeakRef<Expansion_AnomalyCore_Base> s_Expansion_AllAnomalyCores = new CF_DoublyLinkedNodes_WeakRef<Expansion_AnomalyCore_Base>();
 	ref CF_DoublyLinkedNode_WeakRef<Expansion_AnomalyCore_Base> m_Expansion_AnomalyCoreNode = new CF_DoublyLinkedNode_WeakRef<Expansion_AnomalyCore_Base>(this);
 
@@ -114,7 +112,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	protected void InitAnomalyCore()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		if (!GetGame().IsDedicatedServer())
 		{
 			InitAnomalyCoreClient();
@@ -165,10 +163,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		m_Exploded = true;
-
 		if (GetGame().IsServer())
 		{
+			m_Exploded = true;
 			GetGame().CreateObject("ExpansionAnomalyAreaSingularity_Local", GetPosition());
 		}
 	}
@@ -212,7 +209,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		{
 			UpdateAnomalyCoreState(ExpansionAnomalyCoreState.DESTROYED);
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Delete, 1000);
-			
+
 			if (s_Expansion_AllAnomalyCores)
 				s_Expansion_AllAnomalyCores.Remove(m_Expansion_AnomalyCoreNode);
 		}
@@ -224,59 +221,10 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	#endif
 	}
 
-	//! ------------------------------------------------------------------------------------------------------
-	//! TESTING
-	//! ------------------------------------------------------------------------------------------------------
-
-	override void OnExplosionEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, float energyFactor, float explosionFactor, bool isWater, string ammoType)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.OnExplosionEffects(source, directHit, componentIndex, surface, pos, surfNormal, energyFactor, explosionFactor, isWater, ammoType);
-	}
-
 	override protected void Activate()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		//! We don't want base functionality here
-	}
-
-	override void EEDelete(EntityAI parent)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.EEDelete(parent);
-	}
-
-	override void EEKilled(Object killer)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.EEKilled(killer);
-	}
-
-	override void OnCEUpdate()
-	{
-		auto trace = EXTrace.Profile(EXTrace.NAMALSKADVENTURE, this);
-
-		super.OnCEUpdate();
-	}
-
-	override void SetActions()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.SetActions();
-	}
-
-	override bool IsInventoryVisible()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!super.IsInventoryVisible())
-			return false;
-
-		return true;
 	}
 
 	override bool IsTakeable()
@@ -305,6 +253,8 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
+		super.OnInventoryExit(player);
+
 		//! @note: Make sure state is properly synchronized or VFX might bug out
 		SetSynchDirty();
 	}
@@ -313,16 +263,11 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
+		super.OnInventoryEnter(player);
+
 		//! @note:  Make sure to stop particles once in inventory
 		if (m_ParticleEffect)
 			StopParticle(m_ParticleEffect);
-	}
-
-	override void OnWasAttached(EntityAI parent, int slot_id)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.OnWasAttached(parent, slot_id);
 	}
 
 	//! ------------------------------------------------------------------------------------------------------
@@ -367,7 +312,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::UpdateAnomalyCoreVFX_Deferred - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
-		
+
 		switch (state)
 		{
 			case ExpansionAnomalyCoreState.STABLE:
@@ -489,14 +434,10 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		super.OnItemLocationChanged(old_owner, new_owner);
 
 		if (m_CoreState != ExpansionAnomalyCoreState.UNSTABLE && (GetParent() == null && ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive()))
-		{
 			SetAnomalyCoreUnstable();
-		}
-		else
-		{
-			if (m_CoreState != ExpansionAnomalyCoreState.STABLE && (ExpansionAnomalyCoreProtectiveCase.Cast(GetParent()) || !ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive()))
-				SetAnomalyCoreStable();
-		}
+
+		if (m_CoreState != ExpansionAnomalyCoreState.STABLE && (ExpansionAnomalyCoreProtectiveCase.Cast(GetParent()) || !ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive()))
+			SetAnomalyCoreStable();
 	}
 
 	//! @note: Event after core explosion.
@@ -518,12 +459,12 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	{
 		return ExpansionAnomalyCoreLightBase;
 	}
-	
+
 	void SetSunSelectionMaterial(string material_name)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::SetSunSelectionMaterial - Material: " + material_name);
-	
+
 		SetObjectMaterial(1, material_name);
 		SetObjectTexture(1, "");
 	}

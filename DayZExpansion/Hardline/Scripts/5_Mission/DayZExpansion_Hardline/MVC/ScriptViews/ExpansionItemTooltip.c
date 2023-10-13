@@ -23,9 +23,7 @@ modded class ExpansionItemTooltip
 		string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, rarity);
 		string text = "#" + "STR_EXPANSION_HARDLINE_" + rarityName;
 		int color;
-		typename type = ExpansionHardlineItemRarityColor;
-		ExpansionStatic.GetVariableIntByName(type, rarityName, color);
-
+		ExpansionStatic.GetVariableIntByName(ExpansionHardlineItemRarityColor, rarityName, color);
         ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
         m_ItemTooltipController.ItemStatsElements.Insert(element);
 	}

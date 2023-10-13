@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -18,7 +18,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 
 		if (!super.OnEventStart())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
@@ -28,12 +28,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		if (!GetObjectiveDataFromConfig())
 			return false;
 
-		if (!CheckQuestPlayersForObjectiveItems())
-			return false;
-
-		UpdateDeliveryData();
-
-		m_Quest.QuestCompletionCheck(true);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
 
 		return true;
 	}
@@ -44,26 +39,17 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 
 		if (!super.OnContinue())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
-		//! Only create the trigger if not already completed!
-		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
-		{
-			if (!CreateObjectiveTrigger())
-				return false;
-		}
+		if (!CreateObjectiveTrigger())
+			return false;
 
 		if (!GetObjectiveDataFromConfig())
 			return false;
 
-		if (!CheckQuestPlayersForObjectiveItems())
-			return false;
-
-		UpdateDeliveryData();
-		
-		m_Quest.QuestCompletionCheck(true);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
 
 		return true;
 	}
@@ -73,7 +59,8 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		ObjectivePrint("m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 		ObjectivePrint("m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
-		
+		ObjectivePrint("m_DestinationReached: " + m_DestinationReached);
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
@@ -85,6 +72,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		{
 			if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount && m_DestinationReached)
 				conditionsResult = true;
+
 		#ifdef EXPANSIONMODNAVIGATION
 			if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount)
 				markerConditionResult = true;
@@ -94,6 +82,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		{
 			if (HasAnyCollectionCompleted() && m_DestinationReached)
 				conditionsResult = true;
+
 		#ifdef EXPANSIONMODNAVIGATION
 			markerConditionResult = HasAnyCollectionCompleted();
 		#endif
@@ -112,15 +101,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		}
 	#endif
 
-		if (!conditionsResult)
-		{
-			ObjectivePrint("End and return: FALSE");
-			return false;
-		}
-
-		ObjectivePrint("End and return: TRUE");
-
-		return true;
+		return conditionsResult;
 	}
 
 	override bool OnIncomplete()

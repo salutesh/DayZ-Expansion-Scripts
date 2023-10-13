@@ -12,9 +12,40 @@
 
 modded class Ammunition_Base
 {
+	override bool CanAddCartridges(int count)
+	{
+		if (!super.CanAddCartridges(count))
+			return false;
+
+		if (Expansion_IsQuestItem())
+			return false;
+
+		return true;
+	}
+
+	override bool IsCompatiableAmmo( ItemBase ammo )
+	{
+		if (!super.IsCompatiableAmmo(ammo))
+			return false;
+
+		if (Expansion_IsQuestItem() || ammo.Expansion_IsQuestItem())
+		{
+			if (Expansion_IsDeliveryItem() || ammo.Expansion_IsDeliveryItem())
+				return false;
+			
+			if (Expansion_GetQuestID() != ammo.Expansion_GetQuestID())
+				return false;
+		}
+
+		return true;
+	}
+	
 	override bool CanBeSplit()
 	{
-		if (IsQuestItem())
+		if (!super.CanBeSplit())
+			return false;
+		
+		if (Expansion_IsQuestItem())
 		{
 			Man itemOwner = GetHierarchyRootPlayer();
 			if (itemOwner && itemOwner.GetIdentity())
@@ -26,6 +57,40 @@ modded class Ammunition_Base
 			return false;
 		}
 
-		return super.CanBeSplit();
+		return true;
+	}
+
+	override void SplitItemToInventoryLocation(notnull InventoryLocation dst)
+	{
+		super.SplitItemToInventoryLocation(dst);
+
+		if (!CanBeSplit())
+			return;
+
+		Expansion_OnQuantityChanged();
+	}
+
+	override void SplitItem(PlayerBase player)
+	{
+		super.SplitItem(player);
+
+		if (!CanBeSplit())
+			return;
+
+		if (player && player.GetIdentity())
+			CheckAssignedObjectivesForEntity(ExpansionQuestItemState.QUANTITY_CHANGED, player);
+	}
+	
+	override void CombineItems(ItemBase other_item, bool use_stack_max = false)
+	{
+		super.CombineItems(other_item, use_stack_max);
+
+		if (!CanBeCombined(other_item))
+			return;
+		
+		if (other_item.GetType() != GetType())
+			return;
+
+		Expansion_OnQuantityChanged();
 	}
 };

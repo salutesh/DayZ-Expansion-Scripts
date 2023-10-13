@@ -1,5 +1,5 @@
 /**
- * ExpansionQuestHUDDeliveryObjective.c
+ * ExpansionQuestHUDDeliveryEntry.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -11,16 +11,16 @@
 */
 
 #ifdef EXPANSIONMODQUESTS_HUD_ENABLE
-class ExpansionQuestHUDDeliveryObjective: ExpansionScriptView
+class ExpansionQuestHUDDeliveryEntry: ExpansionScriptView
 {
-	protected ref ExpansionQuestHUDDeliveryObjectiveController m_QuestHUDDeliveryObjectiveController;
+	protected ref ExpansionQuestHUDDeliveryEntryController m_QuestHUDDeliveryObjectiveController;
 	protected ExpansionQuestObjectiveDelivery m_Delivery;
 	protected int m_Count;
 	protected ImageWidget delivery_icon;
 	protected TextWidget delivery_name;
 	protected TextWidget delivery_value;
 
-	void ExpansionQuestHUDDeliveryObjective(ExpansionQuestObjectiveDelivery delivery, int count)
+	void ExpansionQuestHUDDeliveryEntry(ExpansionQuestObjectiveDelivery delivery, int count)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		
@@ -68,16 +68,16 @@ class ExpansionQuestHUDDeliveryObjective: ExpansionScriptView
 
 	override string GetLayoutFile()
 	{
-		return "DayZExpansion/Quests/GUI/layouts/quests/expansion_quest_hud_delivery_objective.layout";
+		return "DayZExpansion/Quests/GUI/layouts/quests/expansion_quest_hud_delivery_entry.layout";
 	}
 
 	override typename GetControllerType()
 	{
-		return ExpansionQuestHUDDeliveryObjectiveController;
+		return ExpansionQuestHUDDeliveryEntryController;
 	}
 };
 
-class ExpansionQuestHUDDeliveryObjectiveController: ExpansionViewController
+class ExpansionQuestHUDDeliveryEntryController: ExpansionViewController
 {
 	string DeliveryName;
 	string DeliveryValue;

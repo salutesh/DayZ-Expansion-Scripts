@@ -595,12 +595,14 @@ class ExpansionItemTooltip: ExpansionScriptView
 					break;
 				}
 
+			#ifdef EXPANSIONMOD
 				case EXPANSION_LIQUID_MILK:
 				{
 					text = "MILK";
 					color = Colors.COLOR_LIQUID;
 					break;
 				}
+			#endif
 
 				case LIQUID_GASOLINE:
 				{
@@ -767,7 +769,7 @@ class ExpansionItemTooltip: ExpansionScriptView
 		super.OnShow();
 
 		int x, y;
-		GetGame().GetMousePos(x, y);
+		GetMousePos(x, y);
 		GetLayoutRoot().SetPos(x + m_ContentOffsetX, y + m_ContentOffsetY, true);
 	}
 
@@ -887,7 +889,7 @@ class ExpansionItemPreviewTooltip: ExpansionScriptView
 		super.OnShow();
 
 		int x, y;
-		GetGame().GetMousePos(x, y);
+		GetMousePos(x, y);
 		GetLayoutRoot().SetPos(x + m_ContentOffsetX, y + m_ContentOffsetY, true);
 	}
 };

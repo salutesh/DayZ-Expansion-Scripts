@@ -10,7 +10,14 @@
  *
 */
 
-class ExpansionQuestNPCDataBase
+enum ExpansionQuestNPCType
+{
+	NORMAL,
+	OBJECT,
+	AI
+};
+
+class ExpansionQuestNPCData_V4
 {
 	int ConfigVersion;
 	int ID;
@@ -21,26 +28,46 @@ class ExpansionQuestNPCDataBase
 	string NPCName = "Unknown";
 	string DefaultNPCText = "What do you want? Leave me alone!";
 
-#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 	ref array<vector> Waypoints = new array<vector>;
 	int NPCEmoteID = EmoteConstants.ID_EMOTE_WATCHING;
 	bool NPCEmoteIsStatic;
-#endif
+	#endif
 	string NPCLoadoutFile;
 	bool IsStatic;
+};
+
+class ExpansionQuestNPCDataBase
+{
+	int ConfigVersion;
+	int ID;
+	string ClassName;
+	vector Position;
+	vector Orientation;
+	string NPCName = "Unknown";
+	string DefaultNPCText = "What do you want? Leave me alone!";
+
+	#ifdef EXPANSIONMODAI
+	ref array<vector> Waypoints = new array<vector>;
+	int NPCEmoteID = EmoteConstants.ID_EMOTE_WATCHING;
+	bool NPCEmoteIsStatic;
+	#endif
+	string NPCLoadoutFile;
 	int NPCInteractionEmoteID = EmoteConstants.ID_EMOTE_GREETING;
 	int NPCQuestCancelEmoteID = EmoteConstants.ID_EMOTE_SHRUG;
 	int NPCQuestStartEmoteID = EmoteConstants.ID_EMOTE_NOD;
 	int NPCQuestCompleteEmoteID = EmoteConstants.ID_EMOTE_CLAP;
-}
+	
+	#ifdef EXPANSIONMODAI
+	string NPCFaction = "InvincibleObservers";
+	#endif
+};
 
 class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 {
-	static const int CONFIGVERSION = 4;
-
-#ifdef EXPANSIONMODAI
-	string NPCFaction = "InvincibleObservers";
-#endif
+	static const int CONFIGVERSION = 5;
+	
+	int NPCType = ExpansionQuestNPCType.NORMAL;
 
 	void ExpansionQuestNPCData()
 	{
@@ -67,14 +94,14 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		return ClassName;
 	}
 
-	void SetIsAI(bool state)
+	void SetNPCType(ExpansionQuestNPCType type)
 	{
-		IsAI = state;
+		NPCType = type;
 	}
 
-	bool IsAI()
+	ExpansionQuestNPCType GetNPCType()
 	{
-		return IsAI;
+		return NPCType;
 	}
 
 	void SetPosition(vector pos)
@@ -169,16 +196,6 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	}
 #endif
 
-	void SetIsStatic(bool state)
-	{
-		IsStatic = state;
-	}
-
-	bool IsStatic()
-	{
-		return IsStatic;
-	}
-
 	ExpansionQuestNPCBase SpawnNPC()
 	{
 		Object obj = GetGame().CreateObjectEx(ClassName, Position, ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
@@ -197,8 +214,20 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	        questNPC.SetOrientation(Orientation);
 
 		questNPC.Update();
+		if (!questNPC.m_Expansion_NetsyncData)
+			questNPC.m_Expansion_NetsyncData = new ExpansionNetsyncData(questNPC);
 		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
+		
+	#ifdef EXPANSIONMODAI
+		eAIGroup aiGroup = questNPC.GetGroup();
+		if (NPCFaction != string.Empty)
+		{
+			eAIFaction faction = eAIFaction.Create(NPCFaction);
+			if (faction && aiGroup.GetFaction().Type() != faction.Type())
+				aiGroup.SetFaction(faction);
+		}
+	#endif
 
 		return questNPC;
 	}
@@ -222,6 +251,8 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		questNPC.SetPosition(Position);
 		questNPC.SetOrientation(Orientation);
 		questNPC.Update();
+		if (!questNPC.m_Expansion_NetsyncData)
+			questNPC.m_Expansion_NetsyncData = new ExpansionNetsyncData(questNPC);
 		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, NPCLoadoutFile, false);
 		questNPC.Expansion_SetCanBeLooted(false);
@@ -293,6 +324,20 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 			//! Copy over old configuration that haven't changed
 			npcConfig.CopyConfig(npcConfigBase);
 			
+			if (npcConfigBase.ConfigVersion  < 5)
+			{
+				ExpansionQuestNPCData_V4 npcConfigBaseV4;
+				if (ExpansionJsonFileParser<ExpansionQuestNPCData_V4>.Load(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfigBaseV4))
+				{
+					npcConfig.NPCType = ExpansionQuestNPCType.NORMAL;
+					if (npcConfigBaseV4.IsAI)
+						npcConfig.NPCType = ExpansionQuestNPCType.AI;
+					
+					if (npcConfigBaseV4.IsStatic)
+						npcConfig.NPCType = ExpansionQuestNPCType.OBJECT;
+				}				
+			}
+			
 			npcConfig.ConfigVersion = CONFIGVERSION;
 			save = true;
 		}
@@ -322,7 +367,6 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	{
 		ID = npcDataBase.ID;
 		ClassName = npcDataBase.ClassName;
-		IsAI = npcDataBase.IsAI;
 		Position = npcDataBase.Position;
 		Orientation = npcDataBase.Orientation;
 		NPCName = npcDataBase.NPCName;
@@ -334,12 +378,15 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		NPCEmoteIsStatic = npcDataBase.NPCEmoteIsStatic;
 	#endif
 		NPCLoadoutFile = npcDataBase.NPCLoadoutFile;
-		IsStatic = npcDataBase.IsStatic;
 		
 		NPCInteractionEmoteID = npcDataBase.NPCInteractionEmoteID;
 		NPCQuestCancelEmoteID = npcDataBase.NPCQuestCancelEmoteID;
 		NPCQuestStartEmoteID = npcDataBase.NPCQuestStartEmoteID;
 		NPCQuestCompleteEmoteID = npcDataBase.NPCQuestCompleteEmoteID;
+
+	#ifdef EXPANSIONMODAI
+		NPCFaction = npcDataBase.NPCFaction;
+	#endif
 	}
 	
 	void OnSend(ParamsWriteContext ctx)

@@ -14,6 +14,7 @@ class ExpansionQuestObjectiveDelivery
 {
 	protected int Amount = 0;
 	protected string ClassName = string.Empty;
+	protected int QuantityPercent = -1;
 
 	void SetAmount(int amount)
 	{
@@ -34,11 +35,22 @@ class ExpansionQuestObjectiveDelivery
 	{
 		return ClassName;
 	}
+	
+	void SetQuantity(int quantityPercent)
+	{
+		QuantityPercent = quantityPercent;
+	}
+	
+	int GetQuantity()
+	{
+		return QuantityPercent;
+	}
 
 	void OnSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(Amount);
 		ctx.Write(ClassName);
+		ctx.Write(QuantityPercent);
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
@@ -47,6 +59,9 @@ class ExpansionQuestObjectiveDelivery
 			return false;
 
 		if (!ctx.Read(ClassName))
+			return false;
+		
+		if (!ctx.Read(QuantityPercent))
 			return false;
 
 		return true;
@@ -58,6 +73,7 @@ class ExpansionQuestObjectiveDelivery
 		Print("------------------------------------------------------------");
 		Print(ToString() + "::QuestDebug - Amount: " + Amount);
 		Print(ToString() + "::QuestDebug - ClassName: " + ClassName);
+		Print(ToString() + "::QuestDebug - QuantityPercent: " + QuantityPercent);
 		Print("------------------------------------------------------------");
 	#endif
 	}

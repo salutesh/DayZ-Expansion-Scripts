@@ -10,10 +10,5 @@
  *
 */
 
-//! Used for third party mods, if they want to know if expansion hardline mod is loaded
-#define EXPANSIONMODHARDLINE
-
 //! Used for hardline mod debugging
 //#define EXPANSIONMODHARDLINEDEBUG
-
-#define EXPANSION_COT_BUGFIX_REF_UIACTIONS

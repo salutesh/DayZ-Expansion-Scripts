@@ -28,14 +28,18 @@ class ExpansionTeleportDataBase
 #ifdef EXPANSIONMODQUESTS
 	int m_QuestID = -1;
 #endif
+	bool m_IsExit = false;
+	bool m_IsActive = false;
 };
 
 class ExpansionTeleportData: ExpansionTeleportDataBase
 {
 	[NonSerialized()];
-	static const int VERSION = 1;
+	static const int VERSION = 3;
 
-	protected bool m_IsExit = false;
+#ifdef EXPANSION_NAMALSK_ADVENTURE
+	protected bool m_NeedKeyCard = true;
+#endif
 
 	void ExpansionTeleportData()
 	{
@@ -45,8 +49,6 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 
 	void CopyFromBaseClass(ExpansionTeleportDataBase base)
 	{
-		//! Nothing to do here yet
-		
 		m_ID = base.m_ID;
 		m_DisplayName = base.m_DisplayName;
 		m_ObjectPosition = base.m_ObjectPosition;
@@ -61,6 +63,8 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 	#ifdef EXPANSIONMODQUESTS
 		m_QuestID = base.m_QuestID;
 	#endif
+		m_IsExit = base.m_IsExit;
+		m_IsActive = base.m_IsActive;
 	}
 
 	static ExpansionTeleportData Load(string fileName)
@@ -189,6 +193,28 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 	{
 		return m_IsExit;
 	}
+	
+	void SetIsActive(bool state)
+	{
+		m_IsActive = state;
+	}
+	
+	bool IsActive()
+	{
+		return m_IsActive;
+	}
+	
+#ifdef EXPANSION_NAMALSK_ADVENTURE
+	void SetNeedKeyCard(bool state)
+	{
+		m_NeedKeyCard = state;
+	}
+	
+	bool NeedKeyCard()
+	{
+		return m_NeedKeyCard;
+	}
+#endif
 
 	array<ref ExpansionTeleportPosition> GetTeleportPositions()
 	{
@@ -205,6 +231,10 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 		teleportObj.SetPosition(m_ObjectPosition);
 		teleportObj.SetOrientation(m_ObjectOrientation);
 		teleportObj.SetTeleporterID(m_ID);
+		teleportObj.SetActive(m_IsActive);
+	#ifdef EXPANSION_NAMALSK_ADVENTURE
+		teleportObj.SetNeedKeyCard(m_NeedKeyCard);
+	#endif
 	}
 
 	void OnSend(ParamsWriteContext ctx)

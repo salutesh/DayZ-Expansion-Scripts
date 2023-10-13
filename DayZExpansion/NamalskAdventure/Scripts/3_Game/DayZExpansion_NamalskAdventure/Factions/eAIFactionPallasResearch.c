@@ -1,5 +1,5 @@
 /**
- * eAIFactionInvincibleResistance.c
+ * eAIFactionPallasResearch.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -11,25 +11,25 @@
  */
 
 #ifdef EXPANSIONMODAI
-[eAIRegisterFaction(eAIFactionInvincibleResistance)]
-class eAIFactionInvincibleResistance : eAIFactionInvincibleGuards
+[eAIRegisterFaction(eAIFactionPallasResearch)]
+class eAIFactionPallasResearch : eAIFaction
 {
-	void eAIFactionInvincibleResistance()
+	void eAIFactionPallasResearch()
 	{
-		m_Loadout = "SurvivorLoadout";
+		m_Loadout = "Namalsk_PallasResearch";
 	}
 
 	override bool IsFriendly(notnull eAIFaction other)
 	{
 		if (super.IsFriendly(other)) return true;
-		if (other.IsInherited(eAIFactionInvincibleResistance)) return true;
+		if (other.IsInherited(eAIFactionPallasResearch)) return true;
+		if (other.IsInherited(eAIFactionPassive)) return true;
 		return false;
 	}
 
 	override string GetDisplayName()
 	{
-		return "#STR_EXPANSION_AI_FACTION_RESISTANCE";
+		return "Pallas Research";
 	}
 };
 #endif
-

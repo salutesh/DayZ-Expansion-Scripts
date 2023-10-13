@@ -14,15 +14,14 @@
 class ExpansionQuestObjectiveAIPatrolConfigBase: ExpansionQuestObjectiveConfig
 {
 	ref ExpansionQuestObjectiveAIPatrol AIPatrol;
-}
-
-class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConfigBase
-{
 	float MinDistRadius = 50;
 	float MaxDistRadius = 150;
 	float DespawnRadius = 880;
 	bool CanLootAI = true;
+};
 
+class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConfigBase
+{
 	void SetAIPatrol(ExpansionQuestObjectiveAIPatrol patrol)
 	{
 		AIPatrol = patrol;
@@ -170,6 +169,10 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		TimeLimit = configBase.TimeLimit;
 
 		AIPatrol = configBase.AIPatrol;
+		MinDistRadius = configBase.MinDistRadius;
+		MaxDistRadius = configBase.MaxDistRadius;
+		DespawnRadius = configBase.DespawnRadius;
+		CanLootAI = configBase.CanLootAI;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

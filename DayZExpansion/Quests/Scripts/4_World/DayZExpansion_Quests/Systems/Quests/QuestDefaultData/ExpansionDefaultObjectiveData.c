@@ -31,11 +31,11 @@ class ExpansionDefaultObjectiveData
 		objective.SetMarkerName("Get to the Village");
 		objective.SetTriggerOnExit(false);
 
-		if (m_WorldName.Contains("namalsk"))
+		if (m_WorldName.IndexOf("namalsk") > -1)
 		{
 			objective.SetPosition(Vector(8224.93, 0, 10811.0));
 		}
-		else if (m_WorldName.Contains("chernarusplus") || m_WorldName == "chernarusplusgloom")
+		else if (m_WorldName.IndexOf("chernarusplus") > -1)
 		{
 			objective.SetPosition(Vector(4333.37, 311.779, 6299.88));
 		}
@@ -53,11 +53,11 @@ class ExpansionDefaultObjectiveData
 		objective.SetMarkerName("Get to the Village");
 		objective.SetTriggerOnExit(false);
 
-		if (m_WorldName.Contains("namalsk"))
+		if (m_WorldName.IndexOf("namalsk") > -1)
 		{
 			objective.SetPosition(Vector(8224.93, 0, 10811.0));
 		}
-		else if (m_WorldName.Contains("chernarusplus") || m_WorldName == "chernarusplusgloom")
+		else if (m_WorldName.IndexOf("chernarusplus") > -1)
 		{
 			objective.SetPosition(Vector(2596.7, 306.1, 6378.47));
 		}
@@ -74,11 +74,11 @@ class ExpansionDefaultObjectiveData
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Get to the Camp");
 
-		if (m_WorldName.Contains("namalsk"))
+		if (m_WorldName.IndexOf("namalsk") > -1)
 		{
 			objective.SetPosition(Vector(8584.27, 14.73, 10511.6));
 		}
-		else if (m_WorldName.Contains("chernarusplus") || m_WorldName == "chernarusplusgloom")
+		else if (m_WorldName.IndexOf("chernarusplus") > -1)
 		{
 			objective.SetPosition(Vector(3706.27, 402.012, 5987.08));
 		}
@@ -96,11 +96,11 @@ class ExpansionDefaultObjectiveData
 		objective.SetMarkerName("Find the patrol");
 		objective.SetTriggerOnExit(false);
 
-		if (m_WorldName.Contains("namalsk"))
+		if (m_WorldName.IndexOf("namalsk") > -1)
 		{
 			objective.SetPosition(Vector(6573.94, 20.2864, 11832.3));
 		}
-		else if (m_WorldName.Contains("chernarusplus") || m_WorldName == "chernarusplusgloom")
+		else if (m_WorldName.IndexOf("chernarusplus") > -1)
 		{
 			objective.SetPosition(Vector(6990.52, 383.992, 11390.1));
 		}
@@ -143,12 +143,12 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
 		objective.SetObjectiveText("Kill 10 Infected with a sledgehammer");
 
-		if (m_WorldName == "namalsk")
+		if (m_WorldName.IndexOf("namalsk") > -1)
 		{
 			objective.SetPosition(Vector(8224.93, 0, 10811.0));
 			objective.SetMaxDistance(150.0);
 		}
-		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
+		else if (m_WorldName.IndexOf("chernarusplus") > -1)
 		{
 			objective.SetPosition(Vector(2596.7, 306.1, 6378.47));
 			objective.SetMaxDistance(150.0);
@@ -484,16 +484,34 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.TREASUREHUNT);
 		objective.SetObjectiveText("Find the location of the treasure");
 
-		if (m_WorldName == "namalsk")
+		if (m_WorldName.IndexOf("namalsk") > -1)
 		{
 			objective.AddPosition(Vector(8541.46, 15.3878, 10299.1));
 		}
-		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
+		else if (m_WorldName.IndexOf("chernarusplus") > -1)
 		{
 			objective.AddPosition(Vector(2936.48, 350.404, 6369.39));
 			objective.AddPosition(Vector(3143.35, 365.776, 6942.04));
 			objective.AddPosition(Vector(5233.51, 290.881, 6246.37));
 		}
+		
+		array <ref ExpansionLoot> loot = new array <ref ExpansionLoot>;
+		TStringArray battery = {"Battery9V"};
+		loot.Insert(new ExpansionLoot("Binoculars", NULL, 0.3));
+		loot.Insert(new ExpansionLoot("Rangefinder", battery, 0.05));
+		loot.Insert(new ExpansionLoot("GhillieAtt_Mossy", NULL, 0.05));
+		loot.Insert(new ExpansionLoot("WeaponCleaningKit", NULL, 0.05));
+
+		if (m_WorldName.IndexOf("namalsk") > -1)
+		{
+			loot.Insert(new ExpansionLoot("dzn_map_namalsk", NULL, 0.3));
+		}
+		else if (m_WorldName.IndexOf("chernarusplus") > -1)
+		{
+			loot.Insert(new ExpansionLoot("ChernarusMap", NULL, 0.3));
+		}
+		
+		objective.InsertLoot(loot);
 
 		return objective;
 	}
@@ -516,7 +534,7 @@ class ExpansionDefaultObjectiveData
 		aiPatrol.NPCFormation = "RANDOM";
 		aiPatrol.SetNPCLoadoutFile("BanditLoadout.json");
 
-		if (m_WorldName == "namalsk")
+		if (m_WorldName.IndexOf("namalsk") > -1)
 		{
 			aiPatrol.AddWaypoint(Vector(6307.7, 14.4, 11810.6));
 			aiPatrol.AddWaypoint(Vector(6519.9, 17.3, 11901.6));
@@ -524,7 +542,7 @@ class ExpansionDefaultObjectiveData
 			aiPatrol.AddWaypoint(Vector(7216.6, 10.147, 11843.1));
 			aiPatrol.AddWaypoint(Vector(7405.78, 23.18, 11655.8));
 		}
-		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
+		else if (m_WorldName.IndexOf("chernarusplus") > -1)
 		{
 			aiPatrol.AddWaypoint(Vector(6914.7, 403.027, 11381.7));
 			aiPatrol.AddWaypoint(Vector(6931.27, 399.86, 11456.7));
@@ -555,7 +573,7 @@ class ExpansionDefaultObjectiveData
 		aiCamp.SetNPCFaction("West");
 		aiCamp.SetNPCLoadoutFile("BanditLoadout.json");
 
-		if (m_WorldName == "namalsk")
+		if (m_WorldName.IndexOf("namalsk") > -1)
 		{
 			aiCamp.AddPosition(Vector(8091.23, 15.37, 10832.4));
 			aiCamp.AddPosition(Vector(8095.07, 15.62, 10865.4));
@@ -568,7 +586,7 @@ class ExpansionDefaultObjectiveData
 			aiCamp.AddPosition(Vector(8172.00, 15.90, 10886.2));
 			aiCamp.AddPosition(Vector(8117.52, 15.23, 10864.8));
 		}
-		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
+		else if (m_WorldName.IndexOf("chernarusplus") > -1)
 		{
 			aiCamp.AddPosition(Vector(4351.33, 307.068, 6400.52));
 			aiCamp.AddPosition(Vector(4389.03, 302.802, 6391.77));
@@ -600,11 +618,11 @@ class ExpansionDefaultObjectiveData
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Escort VIP");
 
-		if (m_WorldName == "namalsk")
+		if (m_WorldName.IndexOf("namalsk") > -1)
 		{
 			objective.SetPosition(Vector(8348.39, 0, 10724.7));
 		}
-		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
+		else if (m_WorldName.IndexOf("chernarusplus") > -1)
 		{
 			objective.SetPosition(Vector(3193.59, 296.707, 6090.57));
 		}

@@ -26,7 +26,7 @@ modded class AnimalBase
 			killer = m_Expansion_LastDamageSource;
 
 		auto settings = GetExpansionSettings().GetHardline();
-		if  (settings.UseReputation && settings.ReputationOnKillAnimal)
+		if  (settings.UseReputation)
 			ExpansionHardlineModule.GetModuleInstance().OnEntityKilled(this, killer);
 	}
 };

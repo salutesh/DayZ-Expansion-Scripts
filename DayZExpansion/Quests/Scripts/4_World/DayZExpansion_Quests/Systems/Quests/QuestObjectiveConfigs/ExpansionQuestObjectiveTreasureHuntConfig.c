@@ -19,10 +19,7 @@ class ExpansionQuestObjectiveTreasureHuntConfig_V17: ExpansionQuestObjectiveTrea
 class ExpansionQuestObjectiveTreasureHuntConfigBase: ExpansionQuestObjectiveConfig
 {
 	bool ShowDistance = true;
-};
-
-class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasureHuntConfigBase
-{
+	
 	string ContainerName = "ExpansionQuestSeaChest";
 	bool DigInStash = true;
 	string MarkerName = "???";	
@@ -31,7 +28,10 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 	ref array <ref ExpansionLoot> Loot;
 	int LootItemsAmount;
 	float MaxDistance = 10.0;
-	
+};
+
+class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasureHuntConfigBase
+{	
 	void ExpansionQuestObjectiveTreasureHuntConfig()
 	{
 		Positions = new array<vector>;
@@ -79,6 +79,14 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 	void AddLoot(ExpansionLoot loot)
 	{
 		Loot.Insert(loot);
+	}
+	
+	void InsertLoot(array<ref ExpansionLoot> loots)
+	{
+		foreach (ExpansionLoot loot: loots)
+		{
+			Loot.Insert(loot);
+		}
 	}
 	
 	array <ref ExpansionLoot> GetLoot()
@@ -189,6 +197,16 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
+		
+		ShowDistance = configBase.ShowDistance;
+		ContainerName = configBase.ContainerName;
+		DigInStash = configBase.DigInStash;
+		MarkerName = configBase.MarkerName;
+		MarkerVisibility = configBase.MarkerVisibility;
+		Positions = configBase.Positions;
+		Loot = configBase.Loot;
+		LootItemsAmount = configBase.LootItemsAmount;
+		MaxDistance = configBase.MaxDistance;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

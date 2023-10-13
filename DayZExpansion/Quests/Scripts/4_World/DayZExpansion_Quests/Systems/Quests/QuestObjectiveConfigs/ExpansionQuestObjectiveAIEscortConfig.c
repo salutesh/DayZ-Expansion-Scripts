@@ -17,12 +17,12 @@ class ExpansionQuestObjectiveAIEscortConfigBase: ExpansionQuestObjectiveConfig
 	float MaxDistance = 0;
 	ref ExpansionQuestObjectiveAIVIP AIVIP;
 	string MarkerName = string.Empty;
+	bool ShowDistance = true;
+	bool CanLootAI = false;
 };
 
 class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConfigBase
 {
-	bool ShowDistance = true;
-
 	void SetPosition(vector pos)
 	{
 		Position = pos;
@@ -66,6 +66,16 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 	bool ShowDistance()
 	{
 		return ShowDistance;
+	}
+	
+	void SetCanLootAI(bool state)
+	{
+		CanLootAI = state;
+	}
+	
+	bool CanLootAI()
+	{
+		return CanLootAI;
 	}
 
 	static ExpansionQuestObjectiveAIEscortConfig Load(string fileName)
@@ -132,6 +142,8 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 		MaxDistance = configBase.MaxDistance;
 		AIVIP = configBase.AIVIP;
 		MarkerName = configBase.MarkerName;
+		ShowDistance = configBase.ShowDistance;
+		CanLootAI = configBase.CanLootAI;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)
@@ -140,6 +152,7 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 
 		ctx.Write(Position);
 		ctx.Write(ShowDistance);
+		ctx.Write(MarkerName);
 	}
 
 	override bool OnRecieve(ParamsReadContext ctx)
@@ -151,6 +164,9 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 			return false;
 
 		if (!ctx.Read(ShowDistance))
+			return false;
+		
+		if (!ctx.Read(MarkerName))
 			return false;
 
 		return true;

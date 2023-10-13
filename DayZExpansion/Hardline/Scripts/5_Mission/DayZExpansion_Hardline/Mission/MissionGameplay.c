@@ -12,7 +12,7 @@
 
 modded class MissionGameplay
 {
-	ref ExpansionHardlineHUD m_ExpansionHardlineHUD;
+	protected ref ExpansionHardlineHUD m_ExpansionHardlineHUD;
 
 	// ------------------------------------------------------------
 	// OnInit

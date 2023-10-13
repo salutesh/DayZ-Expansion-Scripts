@@ -12,6 +12,8 @@
 
 modded class MissionBaseWorld
 {
+	void Expansion_OnQuestPlayerInit(ExpansionQuestPersistentData playerQuestData, PlayerIdentity identity);
+	
 	//! This being here allows overriding in init.c
 	bool Expansion_CanStartQuest(ExpansionQuestConfig questConfig, PlayerIdentity identity)
 	{
@@ -21,6 +23,8 @@ modded class MissionBaseWorld
 	void Expansion_OnQuestStart(ExpansionQuest quest);
 
 	void Expansion_OnQuestContinue(ExpansionQuest quest);
+	
+	void Expansion_OnObjectiveTimeLimitReached(ExpansionQuestObjectiveEventBase objectiveEventBase);
 
 	void Expansion_OnQuestCancel(ExpansionQuest quest);
 
@@ -28,6 +32,10 @@ modded class MissionBaseWorld
 	{
 		return quest.CanCompleteQuest();
 	}
+	
+	void Expansion_OnQuestObjectivesComplete(ExpansionQuest quest);
+	
+	void Expansion_OnQuestObjectivesIncomplete(ExpansionQuest quest);
 
 	void Expansion_OnQuestCompletion(ExpansionQuest quest);
 }

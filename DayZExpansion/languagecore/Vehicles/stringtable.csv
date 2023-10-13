@@ -1,4 +1,6 @@
 LANGUAGE,ORIGINAL,ENGLISH,CZECH,GERMAN,RUSSIAN,POLISH,HUNGARIAN,ITALIAN,SPANISH,FRENCH,CHINESE,PORTUGUESE,JAPANESE,CHINESESIMP,
+STR_EXPANSION_ACTION_COVER,Cover,Cover,Cover,Abdecken,Cover,Cover,Cover,Copri,Cover,Couvrir,Cover,Cover,Cover,遮盖,
+STR_EXPANSION_ACTION_UNCOVER,Remove cover,Remove cover,Remove cover,Abdeckung entfernen,Снять кожух,Remove cover,Remove cover,Rimuovi Copertura,Remove cover,Retirer la couverture,Remove cover,Remove cover,Remove cover,拆下盖子,
 STR_EXPANSION_AIRCRAFT_BATTERY,Aircraft Battery,Aircraft Battery,Letecká Baterie,Flugzeugbatterie,Аккумулятор для самолёта,Bateria Samolotu,Légijármű akkumulátor,Batteria per Aerei,Bateria de avion,Batterie d'avion,Aircraft Battery,Bateria de Aeronave,航空機バッテリー,飞机电池,
 STR_EXPANSION_BIKE_GEAR_DOWN,Bike Gear Down,Bike Gear Down,Bike Gear Down,Bike Gear Down,Bike Gear Down,Bike Gear Down,Bike Gear Down,Moto marcia giù,Bike Gear Down,Vélo Vitesse Inférieur,Bike Gear Down,Bike Gear Down,Bike Gear Down,自行车装备下降,
 STR_EXPANSION_BIKE_GEAR_UP,Bike Gear Up,Bike Gear Up,Bike Gear Up,Bike Gear Up,Bike Gear Up,Bike Gear Up,Bike Gear Up,Moto marcia su,Bike Gear Up,Vélo Vitesse Supérieur,Bike Gear Up,Bike Gear Up,Bike Gear Up,自行车装备,

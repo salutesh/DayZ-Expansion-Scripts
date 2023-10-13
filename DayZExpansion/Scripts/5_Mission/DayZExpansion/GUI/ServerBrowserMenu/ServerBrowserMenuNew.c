@@ -5,7 +5,7 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
@@ -14,22 +14,22 @@ enum ExpansionTabType: TabType
 {
 	DIRECT,
 	EXPANSION
-};
+}
 
 modded class ServerBrowserMenuNew
 {
 	protected ref ExpansionDirectConnectTab m_DirectTab;
-	
+
 	protected int EXPANSION_DIRECT_TAB_INDEX;
 	protected bool m_IsDirect;
-	
+
 	// ------------------------------------------------------------
 	// Override Init
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	override Widget Init()
 	{
 		layoutRoot = super.Init();
-		
+
 		EXPANSION_DIRECT_TAB_INDEX = m_Tabber.AddTab("DIRECT");
 		m_DirectTab = new ExpansionDirectConnectTab(layoutRoot.FindAnyWidget("Tab_" + EXPANSION_DIRECT_TAB_INDEX), this, ExpansionTabType.DIRECT);
 
@@ -39,7 +39,7 @@ modded class ServerBrowserMenuNew
 
 		return layoutRoot;
 	}
-		
+
 	// ------------------------------------------------------------
 	// Override GetSelectedTab
 	// ------------------------------------------------------------
@@ -53,7 +53,7 @@ modded class ServerBrowserMenuNew
 				return m_DirectTab;
 			}
 		}
-		
+
 		IsInDirect(false);
 		//! Returning super.GetSelectedTab() directly returns NULL for some reason!?!
 		//! Assigning to local var first then returning that works.
@@ -65,7 +65,7 @@ modded class ServerBrowserMenuNew
 	override void Refresh()
 	{
 		super.Refresh();
-		
+
 		GetDayZGame().Expansion_SetGameVersionText(m_Version);
 	}
 #endif
@@ -77,7 +77,7 @@ modded class ServerBrowserMenuNew
 	{
 		m_IsDirect = state;
 	}
-	
+
 	// ------------------------------------------------------------
 	// Expansion ConnectDirect
 	// ------------------------------------------------------------
@@ -86,16 +86,16 @@ modded class ServerBrowserMenuNew
 		string ip;
 		int port;
 		int connected;
-		
+
 		ip = m_DirectTab.GetIP();
 		port = m_DirectTab.GetPort();
-		
+
 		if (ip && port)
 		{
 			GetGame().SetProfileString("ExpansionDirectConnectIP", ip);
 			GetGame().SetProfileString("ExpansionDirectConnectPort", port.ToString());
 			GetGame().SaveProfile();
-			
+
 			g_Game.ConnectFromServerBrowser( ip, port, "" );
 		}
 		else if ( !ip || !port )
@@ -103,7 +103,7 @@ modded class ServerBrowserMenuNew
 			GetGame().GetUIManager().ShowDialog( "#STR_EXPANSION_DIRECT_CONNECT_DIALOG_TITLE", "#STR_EXPANSION_DIRECT_CONNECT_ERROR", EXPANSION_IDC_Int_DIRECT, DBT_OK, DBB_NONE, DMT_INFO, GetGame().GetUIManager().GetMenu() );
 		}
 	}
-	
+
 	// ------------------------------------------------------------
 	// Override OnClick
 	// ------------------------------------------------------------
@@ -124,4 +124,4 @@ modded class ServerBrowserMenuNew
 
 		return super.OnClick(w, x, y, button);
 	}
-};
+}

@@ -22,6 +22,8 @@ class ExpansionHardlinePlayerData
 
 	int PersonalStorageLevel = 1;
 
+	bool m_FactionSynchDirty;
+
 	void ExpansionHardlinePlayerData()
 	{
 		ConfigVersion = CONFIGVERSION;
@@ -81,18 +83,45 @@ class ExpansionHardlinePlayerData
 	void OnWrite(ParamsWriteContext ctx)
 	{
 		ctx.Write(Reputation);
+		EXTrace.Print(EXTrace.HARDLINE, this, "OnWrite Reputation " + Reputation);
 
-		ctx.Write(FactionReputation.Count());
+		WriteFactionReputation(ctx);
+
+		ctx.Write(FactionID);
+		EXTrace.Print(EXTrace.HARDLINE, this, "OnWrite FactionID " + FactionID);
+
+		ctx.Write(PersonalStorageLevel);
+		EXTrace.Print(EXTrace.HARDLINE, this, "OnWrite PersonalStorageLevel " + PersonalStorageLevel);
+	}
+
+	void WriteFactionReputation(ParamsWriteContext ctx, bool includeCurrentFaction = true)
+	{
+		auto trace = EXTrace.Start(EXTrace.HARDLINE, this, "includeCurrentFaction " + includeCurrentFaction);
+
+		int factionCount = FactionReputation.Count();
+
+		//! If faction ID is identical to current faction, do not write separate entry since Reputation is faction rep
+		//! (only used for sending to client, not when saving to disk)
+		if (!includeCurrentFaction && FactionReputation.Contains(FactionID))
+			factionCount--;
+
+		ctx.Write(factionCount);
 		
 		foreach (int factionID, int factionRep: FactionReputation)
 		{
+			if (!includeCurrentFaction && factionID == FactionID)
+				continue;
+
 			ctx.Write(factionID);
 			ctx.Write(factionRep);
+			
+		#ifdef EXPANSIONMODAI
+		#ifdef DIAG
+			typename factionType = eAIFaction.GetTypeByID(factionID);
+			EXTrace.Print(EXTrace.HARDLINE, this, "WriteFactionReputation " + factionType + " " + factionRep);
+		#endif
+		#endif
 		}
-
-		ctx.Write(FactionID);
-
-		ctx.Write(PersonalStorageLevel);
 	}
 
 	bool OnRead(ParamsReadContext ctx)
@@ -109,6 +138,8 @@ class ExpansionHardlinePlayerData
 			Error(ToString() + "::OnRead Reputation");
 			return false;
 		}
+
+		EXTrace.Print(EXTrace.HARDLINE, this, "OnRead Reputation " + Reputation);
 
 		if (ConfigVersion < 4)
 		{
@@ -184,6 +215,39 @@ class ExpansionHardlinePlayerData
 		if (ConfigVersion < 6)
 			return true;
 
+		if (!ReadFactionReputation(ctx))
+			return false;
+
+		if (ConfigVersion < 7)
+			return true;
+
+		if (!ctx.Read(FactionID))
+		{
+			Error(ToString() + "::OnRead FactionID");
+			return false;
+		}
+
+		EXTrace.Print(EXTrace.HARDLINE, this, "OnRead FactionID " + FactionID);
+
+		if (FactionID != -1)
+			SetFactionReputation(FactionID, Reputation);
+
+		if (ConfigVersion < 8)
+			return true;
+
+		if (!ctx.Read(PersonalStorageLevel))
+		{
+			Error(ToString() + "::OnRead PersonalStorageLevel");
+			return false;
+		}
+
+		EXTrace.Print(EXTrace.HARDLINE, this, "OnRead PersonalStorageLevel " + PersonalStorageLevel);
+
+		return true;
+	}
+	
+	bool ReadFactionReputation(ParamsReadContext ctx)
+	{
 		int factionRepCount;
 		if (!ctx.Read(factionRepCount))
 		{
@@ -207,35 +271,47 @@ class ExpansionHardlinePlayerData
 				return false;
 			}
 			
-			FactionReputation[factionID] = factionRep;
-		}
+		#ifdef EXPANSIONMODAI
+		#ifdef DIAG
+			typename factionType = eAIFaction.GetTypeByID(factionID);
+			EXTrace.Print(EXTrace.HARDLINE, this, "ReadFactionReputation " + factionType + " " + factionRep);
+		#endif
+		#endif
 
-		if (ConfigVersion < 7)
-			return true;
-
-		if (!ctx.Read(FactionID))
-		{
-			Error(ToString() + "::OnRead FactionID");
-			return false;
-		}
-
-		if (FactionID != -1)
-			FactionReputation[FactionID] = Reputation;
-
-		if (ConfigVersion < 8)
-			return true;
-
-		if (!ctx.Read(PersonalStorageLevel))
-		{
-			Error(ToString() + "::OnRead PersonalStorageLevel");
-			return false;
+			SetFactionReputation(factionID, factionRep);
 		}
 
 		return true;
 	}
-	
-	protected int GetReputationByFactionID(int factionID)
+
+	int GetReputationByFactionID(int factionID)
 	{
 		return FactionReputation[factionID];
+	}
+	
+	void SetFactionReputation(int factionID, int rep, bool forceSynchDirty = false)
+	{
+		if (forceSynchDirty || (factionID != FactionID && FactionReputation[factionID] != rep))
+			m_FactionSynchDirty = true;
+			
+		if (rep > 0)
+			FactionReputation[factionID] = rep;
+		else
+			FactionReputation.Remove(factionID);
+	}
+
+	//! Server
+	void SendFactionReputation(PlayerIdentity identity)
+	{
+		auto trace = EXTrace.Start(EXTrace.HARDLINE, this, "synch dirty? " + m_FactionSynchDirty);
+
+		if (!m_FactionSynchDirty)
+			return;
+
+		auto rpc = ExpansionScriptRPC.Create();
+		WriteFactionReputation(rpc, false);
+		rpc.Send(null, ExpansionHardlineModuleRPC.FactionReputationSync, true, identity);
+
+		m_FactionSynchDirty = false;
 	}
 };
