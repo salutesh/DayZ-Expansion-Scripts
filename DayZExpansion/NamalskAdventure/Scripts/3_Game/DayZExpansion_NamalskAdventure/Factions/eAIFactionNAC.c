@@ -33,7 +33,7 @@ class eAIFactionNAC : eAIFaction
 	
 	override string GetDisplayName()
 	{
-		return "NAC";
+		return "Namalsk Corporation";
 	}
 };
 #endif

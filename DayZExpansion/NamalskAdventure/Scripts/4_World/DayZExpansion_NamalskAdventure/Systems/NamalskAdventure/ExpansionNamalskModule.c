@@ -183,8 +183,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			SpawnSupplyCrates();
 
 		#ifdef EXPANSION_NAMALSK_ADVENTURE
-		SpawnSatelliteAntennaObjects(); //! @note: Secret antenna event objects. Not finished yet!
-		SpawnA1Bunker(); //! @note: A1 bunker event objects.
+		if (GetExpansionSettings().GetNamalskAdventure().EnableAntennaEvent)
+			SpawnSatelliteAntennaObjects(); //! @note: Secret antenna event objects. Not finished yet!
+		
+		if (GetExpansionSettings().GetNamalskAdventure().EnableA1BunkerEvent)
+			SpawnA1Bunker(); //! @note: A1 bunker event objects.
 		#endif
 	}
 

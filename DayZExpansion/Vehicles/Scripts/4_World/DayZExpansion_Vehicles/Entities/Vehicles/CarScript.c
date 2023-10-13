@@ -3575,6 +3575,9 @@ modded class CarScript
 		if (!super.CanReceiveAttachment(attachment, slotId))
 			return false;
 
+		if (!m_Initialized)
+			return true;
+
 		if (attachment.IsInherited(CarWheel))
 			return true;
 
@@ -3592,6 +3595,9 @@ modded class CarScript
 
 		if (!super.CanReleaseAttachment(attachment))
 			return false;
+
+		if (!m_Initialized)
+			return true;
 
 		if (IsLocked())
 			return false;
