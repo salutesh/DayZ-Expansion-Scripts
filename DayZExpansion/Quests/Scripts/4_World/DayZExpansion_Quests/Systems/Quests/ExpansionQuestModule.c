@@ -509,6 +509,53 @@ class ExpansionQuestModule: CF_ModuleWorld
 		questPlayerData.m_SynchDirty = true;
 		InitClientQuests(questPlayerData, identity, sendConfigs);
 	}
+	
+	//! Handles quest player data conversion for new group quest data changes
+#ifdef EXPANSIONMODGROUPS
+	protected void QuestPlayerDataToGroupConversion(ExpansionQuestPersistentData questPlayerData, ExpansionQuestPersistentData groupData, int groupID)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
+		bool save = false;
+		foreach (int questID, ExpansionQuestPersistentQuestData questData: questPlayerData.QuestData)
+		{
+			ExpansionQuestConfig questConfig = GetQuestConfigByID(questID);
+			if (!questConfig)
+				continue;
+
+			if (questConfig.IsGroupQuest())
+			{
+				ExpansionQuestPersistentQuestData playerQuestData = questPlayerData.GetQuestDataByQuestID(questID);
+				ExpansionQuestPersistentQuestData groupQuestData = groupData.GetQuestDataByQuestID(questID);
+				
+				//! If there is no valid group quest data for this group quest we add it and use the current data from the owner.
+				if (!groupQuestData && playerQuestData)
+				{
+					ExpansionQuestState questState = questPlayerData.GetQuestStateByQuestID(questID);
+					groupData.AddQuestData(questID, questState);
+					groupQuestData = groupData.GetQuestDataByQuestID(questID);
+					
+					groupQuestData.Timestamp = playerQuestData.Timestamp;
+					
+					for (int i = 0; i < playerQuestData.QuestObjectives.Count(); i++)
+					{
+						ExpansionQuestObjectiveData objectiveData = new ExpansionQuestObjectiveData();
+						objectiveData.Copy(playerQuestData.QuestObjectives[i]);
+						groupQuestData.QuestObjectives.InsertAt(objectiveData, i);
+					}
+					
+					groupQuestData.LastUpdateTime = playerQuestData.LastUpdateTime;
+					groupQuestData.CompletionCount = playerQuestData.CompletionCount;
+					groupQuestData.UpdateLastUpdateTime();
+					save = true;
+				}
+			}
+		}
+		
+		if (save)
+			groupData.Save(groupID.ToString(), EXPANSION_QUESTS_GROUPDATA_FOLDER);
+	}
+#endif
 
 	//! Server
 	//! Handles reinitialisation of quests for a player from persistent data
@@ -586,7 +633,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestPersistentData questGroupData = GetPlayerQuestDataByUID(groupID);
 		if (!questGroupData)
 		{
-			//! If we don't have cached player quest data, check if file exists and load it, else use fresh instance as-is
+			//! If we don't have cached group quest data, check if file exists and load it, else use fresh instance as-is
 			questGroupData = new ExpansionQuestPersistentData();
 			m_PlayerDatas.Insert(groupID, questGroupData);
 			string path = EXPANSION_QUESTS_GROUPDATA_FOLDER + groupID + ".bin";
@@ -658,6 +705,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			activeGroupQuests = m_ActiveQuests[groupID.ToString()];
 			groupQuestData = GetPlayerQuestDataByUID(groupID.ToString());
+			
+			//! We check the player data for quest data of group quests if the player is a group owner.
+			//! If the group data does not contain quest data for a group quest that is in the owners data then we copy that data over to the group data.
+			if (playerUID == ownerID)
+				QuestPlayerDataToGroupConversion(playerData, groupQuestData, groupID);
 		}
 	#endif
 
@@ -789,10 +841,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		}
 
+	#ifdef EXPANSIONMODGROUPS
 		if (groupID > -1 && groupQuestData)
 		{
 			groupQuestData.Save(groupID.ToString(), EXPANSION_QUESTS_GROUPDATA_FOLDER);
 		}
+	#endif
 	}
 
 	//! Server
@@ -4471,17 +4525,23 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 
 			array<int> questGiverIDs = config.GetQuestGiverIDs();
-			if (questState < ExpansionQuestState.CAN_TURNIN && (!questGiverIDs || questGiverIDs.Count() == 0 || questGiverIDs.Find(questNPCID) == -1))
+			if (questGiverIDs && questGiverIDs.Count() > 0)
 			{
-				QuestModulePrint("::QuestDisplayConditions - Return FALSE. NPC is not a quest giver NPC for quest with ID " + questID);
-				return false;
+				if (questState < ExpansionQuestState.CAN_TURNIN && questGiverIDs.Find(questNPCID) == -1)
+				{
+					QuestModulePrint("::QuestDisplayConditions - Return FALSE. NPC is not a quest giver NPC for quest with ID " + questID);
+					return false;
+				}
 			}
 
 			array<int> questTurnInIDs = config.GetQuestTurnInIDs();
-			if (questState == ExpansionQuestState.CAN_TURNIN && (!questTurnInIDs || questTurnInIDs.Count() == 0 || questTurnInIDs.Find(questNPCID) == -1))
+			if (questTurnInIDs && questTurnInIDs.Count() > 0)
 			{
-				QuestModulePrint("::QuestDisplayConditions - Return FALSE. NPC is not a quest turn-in NPC for quest with ID " + questID);
-				return false;
+				if (questState == ExpansionQuestState.CAN_TURNIN && questTurnInIDs.Find(questNPCID) == -1)
+				{
+					QuestModulePrint("::QuestDisplayConditions - Return FALSE. NPC is not a quest turn-in NPC for quest with ID " + questID);
+					return false;
+				}
 			}
 		}
 
@@ -4808,6 +4868,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		if (questNPCData.GetNPCName() != string.Empty)
 	    	questObject.m_Expansion_NetsyncData.Set(0, questNPCData.GetNPCName());
+		
+		questObject.Update();
 
 	    return questObject;
 	}
@@ -4830,6 +4892,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		if (questNPCData.GetLoadoutFile() != string.Empty)
 			ExpansionHumanLoadout.Apply(questNPC, questNPCData.GetLoadoutFile(), false);
+		
+		questNPC.Update();
 
 		return questNPC;
 	}
@@ -4879,6 +4943,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 			if (waypoints[idx] == position)
 				aiGroup.m_CurrentWaypointIndex = idx;
 		}
+		
+		questNPC.Update();
 
 		return questNPC;
 	}

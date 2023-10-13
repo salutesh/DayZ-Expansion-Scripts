@@ -154,29 +154,41 @@ modded class CarScript
 	{
 		super.OnCEUpdate();
 
+		Expansion_UpdateSafeZoneCleanup();
+	}
+
+	void Expansion_UpdateSafeZoneCleanup()
+	{
+		//! If vehicle is not in a safezone, bail
 		if (!m_Expansion_IsInSafeZone)
 			return;
 
+		//! If vehicle vehicle safezone cleanup is not enabled, bail
 		if (!m_Expansion_SZCleanup)
 			return;
 
 	#ifdef EXPANSIONMODVEHICLE
+		//! Heli needs to be landed to count as parked
 		ExpansionHelicopterScript heli;
 		if (Class.CastTo(heli, this) && heli.Expansion_EngineIsSpinning() && !heli.IsLanded())
 			return;
 	#endif
 
+		//! If vehicle isn't moving, consider it parked and increase parking time
 		if (!IsMoving())
 			m_Expansion_SZParkingTime += m_ElapsedSinceLastUpdate;
 
+		//! If parking time is zero, bail
 		if (!m_Expansion_SZParkingTime)
 			return;
 
+		//! If parking time exceeds max allowed vehicle lifetime in SZ, delete it
 		float lifetime = GetExpansionSettings().GetSafeZone().VehicleLifetimeInSafeZone;
 		if (m_Expansion_SZParkingTime > lifetime)
 		{
 			Expansion_ForceCrewGetOut();
 
+			//! If we have last driver UID, notify player that their vehicle is being deleted
 			if (m_Expansion_LastDriverUID)
 			{
 				PlayerBase player = PlayerBase.GetPlayerByUID(m_Expansion_LastDriverUID);

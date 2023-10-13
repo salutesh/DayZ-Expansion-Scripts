@@ -133,7 +133,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 				//! Let the entity fly - TEST
 				mass = dBodyGetMass(item);
-				item.dBodyApplyImpulse(item, mass * wind);
+				dBodyApplyImpulse(item, mass * wind);
 			}
 			else
 			if (ExpansionStatic.IsAnyOf(objectEntity, m_Players, true))

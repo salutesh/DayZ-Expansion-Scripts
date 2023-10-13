@@ -17,8 +17,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	
 	protected ref map<string, ref ExpansionHardlinePlayerData> m_HardlinePlayerData = new map<string, ref ExpansionHardlinePlayerData>; //! Server
 	
-	protected ref ExpansionHardlinePlayerData m_ClientData; //! Client
-	
 	void ExpansionHardlineModule()
 	{
 		s_Instance = this;
@@ -82,96 +80,39 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 		switch ( rpc.ID )
 		{
-			case ExpansionHardlineModuleRPC.RequestHardlineData:
+			case ExpansionHardlineModuleRPC.FactionReputationSync:
 			{
-				RPC_RequestHardlineData(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionHardlineModuleRPC.SendHardlineData:
-			{
-				RPC_SendHardlineData(rpc.Context, rpc.Sender, rpc.Target);
+				RPC_ReceiveHardlineFactionReputation(rpc.Context, rpc.Sender, rpc.Target);
 				break;
 			}
 		}
 	}
 	
 	//! Client
-	void RequestHardlineDataClient()
+	protected void RPC_ReceiveHardlineFactionReputation(ParamsReadContext ctx, PlayerIdentity identity, Object target)
 	{
 		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
-		
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Send(NULL, ExpansionHardlineModuleRPC.RequestHardlineData, true);
-	}
 
-	//! Server
-	protected void RPC_RequestHardlineData(ParamsReadContext ctx, PlayerIdentity identity, Object target)
-	{
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
             return;
-		
-		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
-		
-		if (!identity)
-			return;
-		
-		RequestHardlineDataServer(identity);
-	}
-	
-	//! Server
-	void RequestHardlineDataServer(PlayerIdentity identity)
-	{
-		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
-		
-		string playerUID = identity.GetId();
-		ExpansionHardlinePlayerData playerData = m_HardlinePlayerData[playerUID];
-		if (!playerData)
-		{
-			Error(ToString() + "::RequestHardlineDataServer - Could not get ExpansionHardlinePlayerData for player with UID: " + playerUID);
-			return;
-		}
-		
-		auto rpc = ExpansionScriptRPC.Create();
-		playerData.OnWrite(rpc);
-		rpc.Send(NULL, ExpansionHardlineModuleRPC.SendHardlineData, true, identity);
-	}
-	
-	//! Client
-	protected void RPC_SendHardlineData(ParamsReadContext ctx, PlayerIdentity identity, Object target)
-	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-		
-		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
-		
-		m_ClientData = new ExpansionHardlinePlayerData();
-		if (!m_ClientData.OnRead(ctx))
-		{
-			Error(ToString() + "::RPC_SendHardlineData - Could not get ExpansionHardlinePlayerData!");
-			return;
-		}
 		
 		PlayerBase clientPB = PlayerBase.Cast(GetGame().GetPlayer());
-		if (clientPB)
-			clientPB.Expansion_SetHardlineData(m_ClientData);
-		
-		Print("--------------------------------------------------------------------------------");
-		foreach (int id, typename factionType: eAIRegisterFaction.s_FactionTypes)
+		if (!clientPB)
 		{
-			string displayName;
-			int factionRep = m_ClientData.GetReputationByFactionID(id);
-			if (factionRep > 0)
-			{
-				eAIFaction faction = eAIFaction.Cast(factionType.Spawn());
-				if (faction)
-					displayName = faction.GetDisplayName();
-			
-				faction = null;
-				
-				Print(ToString() + "::RPC_SendHardlineData - Faction Reputation [Faction Type: " + factionType.ToString() + " | Faction Name: " + displayName + " | Reputation: " + factionRep + "]");
-			}
+			Error(ToString() + "::RPC_ReceiveHardlineFactionReputation - Could not get player!");
+			return;
 		}
-		Print("--------------------------------------------------------------------------------");
+
+		if (!clientPB.m_Expansion_HardlineData)
+			clientPB.m_Expansion_HardlineData = new ExpansionHardlinePlayerData;
+		else
+			clientPB.m_Expansion_HardlineData.FactionReputation.Clear();
+
+		if (!clientPB.m_Expansion_HardlineData.ReadFactionReputation(ctx))
+		{
+			Error(ToString() + "::RPC_ReceiveHardlineFactionReputation - Could not read faction reputation data!");
+			return;
+		}
 	}
 	
 	override void OnClientPrepare(Class sender, CF_EventArgs args)
@@ -252,12 +193,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		string playerUID = identity.GetId();
 		return m_HardlinePlayerData[playerUID];
 	}
-	
-	//! Client only
-	ExpansionHardlinePlayerData GetPlayerDataClient()
-	{
-		return m_ClientData;
-	}
 
 	protected void SetupClientData(PlayerBase player, PlayerIdentity identity)
 	{
@@ -269,58 +204,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 		string playerUID = identity.GetId();
 		player.Expansion_SetHardlineData(m_HardlinePlayerData[playerUID]);
-		
-		RequestHardlineDataServer(identity);
 	}
-	
-#ifdef EXPANSIONMODAI
-	//! Server
-	//! @note oldFactionID will be -1 if player didn't have a group/faction before (e.g. initial assignment),
-	//! newFactionID will be -1 if removing group/faction
-	void OnFactionChange(DayZPlayerImplement playerImp, int oldFactionID, int newFactionID)
-	{
-	#ifdef DIAG
-		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
-		EXTrace.Add(trace, playerImp);
-		EXTrace.Add(trace, oldFactionID);
-		EXTrace.Add(trace, newFactionID);
-	#endif
-		
-		PlayerBase player;
-		if (Class.CastTo(player, playerImp))
-		{
-			bool persistFaction = GetExpansionSettings().GetHardline().EnableFactionPersistence;
-
-			if (persistFaction)
-				oldFactionID = player.m_Expansion_HardlineData.FactionID;
-
-			if (newFactionID != oldFactionID)
-			{
-				if (oldFactionID != -1)
-				{
-					//! Store current reputation for old faction
-					player.m_Expansion_HardlineData.FactionReputation[oldFactionID] = player.Expansion_GetReputation();
-	
-					if (newFactionID != -1)
-					{
-						//! Replace the player's current reputation with the one from the hashmap
-						//! for the given faction if found, else zero
-						player.Expansion_SetReputation(player.m_Expansion_HardlineData.FactionReputation[newFactionID]);
-					}
-				}
-				else
-				{
-					//! Player didn't have a faction before, carry over current reputation
-					player.m_Expansion_HardlineData.FactionReputation[newFactionID] = player.Expansion_GetReputation();
-				}
-
-				player.m_Expansion_HardlineData.FactionID = newFactionID;
-				player.Expansion_SaveHardlineData();
-				MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnPlayerFactionChange(player, oldFactionID, newFactionID);
-			}
-		}
-	}
-#endif
 	
 	void OnEntityKilled(EntityAI victim, Object killer)
 	{
@@ -329,37 +213,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		EXTrace.Add(trace, victim.GetType());
 		EXTrace.Add(trace, killer.GetType());
 	#endif
-
-		int reputation;
-		string matchingClass;
-		foreach (string cls, int rep: GetExpansionSettings().GetHardline().EntityReputation)
-		{
-		    if (ExpansionStatic.Is(victim, cls))
-		    {
-				matchingClass = cls;
-		        reputation = rep;
-		        break;
-		    }
-		}
-		
-	#ifdef EXPANSIONMODAI
-		if ((matchingClass == "PlayerBase" || matchingClass == "SurvivorBase" || matchingClass == "ManBase") && victim.GetType().IndexOf("eAI") > -1)
-		{
-			if (!GetExpansionSettings().GetHardline().EntityReputation.Find("eAIBase", reputation))
-				Error("[Hardline] No invalid reputation configuration in Hardline settings for class eAIBase!");
-		}
-	#endif
-	
-	#ifdef DIAG
-		if (matchingClass != string.Empty)
-			ModulePrint(ToString() + "::OnEntityKilled - Match <Class name: " + matchingClass + " | Reputation:" + reputation + " | Victim entity type:" + victim.GetType() + ">");
-	#endif
-
-		if (reputation == 0)
-		{
-			GetExpansionSettings().GetLog().PrintLog("[Hardline] Entity %1 has no invalid reputation configuration in Hardline settings!", victim.GetType());
-			return;
-		}
 		
 		EntityAI killerEntity;
 		if (!Class.CastTo(killerEntity, killer))
@@ -394,11 +247,28 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		#endif
 			victimIsPlayer = true;
 		}
+		
+		if (!victimPlayer && !killerPlayer)
+			return;
 
-		//! Killer was a normal player
-		if (killerIsPlayer && victimPlayer != killerPlayer)
+		//! oof, this could use some optimization to get rid of the 2nd Is() check...
+		string match;
+		int reputation;
+		foreach (string cls, int rep: GetExpansionSettings().GetHardline().EntityReputation)
 		{
-			//! Victim was a normal player.
+		    if (ExpansionStatic.Is(victim, cls) && (!match || ExpansionStatic.Is(cls, match)))
+		    {
+				match = cls;
+		        reputation = rep;
+		    }
+		}
+
+		if (reputation == 0)
+			return;
+
+		//! Killer was a player (not AI) and not a suicide
+		if (killerIsPlayer && killerPlayer != victimPlayer)
+		{
 			if (victimIsPlayer || victimIsAI)
 			{
 				HandlePlayerKilledPlayer(killerPlayer, victimPlayer, reputation, victimIsAI);
@@ -409,13 +279,13 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			}
 		}
 	#ifdef EXPANSIONMODAI
-		//! Killer was an AI and victim was player
+		//! Killer was AI and victim was a player
 		else if (victimIsPlayer && killerIsAI) 
 		{
 			HandlePlayerKilledByAI(victimPlayer, killerPlayer, reputation);
 		}
 	#endif
-		//! Victim was a normal player
+		//! Victim was a player that committed suicide or other indirectly inflicted death (e.g. fall damage, explosion...)
 		else if (victimIsPlayer)
 		{
 			HandlePlayerDeath(victimPlayer);
@@ -425,6 +295,15 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	protected void HandlePlayerKilledEntity(PlayerBase killer, EntityAI victim, int reputation)
 	{		
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
+		
+		bool isFriendly;
+	#ifdef EXPANSIONMODAI
+		  //! If the entity was friendly to the killer the killer will lose reputation
+        if (killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(victim))
+			isFriendly = true;
+	#endif
+		if (isFriendly)
+			reputation = -reputation;
 
 		killer.Expansion_AddReputation(reputation);
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnPlayerKilledEntity(killer, victim, reputation);
@@ -436,32 +315,14 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		
 		bool isFriendly = false;
 		
-		//! Calculate and add the percantage amount based on the victims reputation and settings param "ReputationPercent" to the given reputation value.
-		if (killer.GetIdentity())
-		{
-			int victimRep = victim.Expansion_GetReputation();
-			int bonusRep = ((victimRep / 100) * GetExpansionSettings().GetHardline().ReputationBonusPercent);
-			if (reputation >= 0)
-			{
-				reputation += bonusRep;
-			}
-			else
-			{
-				reputation -= bonusRep;	
-			}
-			
-		#ifdef EXPANSIONMODGROUPS
-			//! Check if killer and victim are in the same party/group.
-			if (victim.GetIdentity())
-			{
-				if (killer.Expansion_GetPartyID() == victim.Expansion_GetPartyID())
-					isFriendly = true;
-			}
-		#endif
-		}
+	#ifdef EXPANSIONMODGROUPS
+		//! Check if killer and victim are in the same party/group.
+		if (killer.GetIdentity() && victim.GetIdentity() && killer.Expansion_GetPartyID() == victim.Expansion_GetPartyID())
+			isFriendly = true;
+	#endif
 
 	#ifdef EXPANSIONMODAI
-		//! Check if killer player or AI enties are in a faction.
+		//! Check if killer player or AI are in a faction.
 		if (victim.GetGroup() && !isFriendly)
 		{
 			if (victim.GetGroup() == killer.GetGroup())
@@ -480,7 +341,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	#endif
 		
 	#ifdef DIAG
-		ModulePrint(ToString() + "::HandlePlayerKilledPlayer - Killer and victim are friendly to each other: " + isFriendly);
+		ModulePrint(ToString() + "::HandlePlayerKilledPlayer - Are killer and victim friendly to each other? " + isFriendly);
 	#endif
 		
 		//! If player killed a friendly player because they share the same faction or same party then we remove instead of add the reputation.
@@ -495,8 +356,10 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
 		
-		int victimRep = victim.Expansion_GetReputation();
-		int repToRemove = ((victimRep / 100) * GetExpansionSettings().GetHardline().ReputationLossPercent);
+		int repToRemove = GetExpansionSettings().GetHardline().ReputationLossOnDeath;
+		
+		if (!repToRemove)
+			return;
 		
 		victim.Expansion_DecreaseReputation(repToRemove);
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnPlayerDeath(victim, repToRemove);

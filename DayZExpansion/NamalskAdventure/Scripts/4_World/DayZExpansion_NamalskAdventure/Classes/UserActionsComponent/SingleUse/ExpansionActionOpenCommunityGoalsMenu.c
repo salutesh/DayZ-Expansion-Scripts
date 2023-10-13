@@ -41,10 +41,6 @@ class ExpansionActionOpenCommunityGoalsMenu: ActionInteractBase
 		{
 			return false;
 		}
-
-		/*bool is_in_range = vector.Distance(repair_center.WorldToModel(player.GetPosition()), "0.0 -1.5 0.0") < 1.5;
-		bool is_active = repair_center.GetActiveState();
-		return (is_in_range && is_active);*/
 		
 		return true;
 	}

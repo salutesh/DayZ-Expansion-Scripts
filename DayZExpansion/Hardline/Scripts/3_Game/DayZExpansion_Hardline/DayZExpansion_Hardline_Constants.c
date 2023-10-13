@@ -31,4 +31,5 @@ class ExpansionHardlineItemRarityColor
 	static const int Exotic = ARGB(30, 199, 38, 81);
 	static const int Quest = ARGB(30, 241, 196, 15);
 	static const int Collectable = ARGB(30, 224, 86, 253);
+	static const int Ingredient = ARGB(30, 158, 158, 158);
 }

@@ -269,7 +269,7 @@ class ExpansionPlayerPreview
 	bool OnMouseButtonDown(Widget w, int x, int y, int button)
 	{
 		GetGame().GetDragQueue().Call(this, "UpdateRotation");
-		g_Game.GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
+		GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
 		return true;
 	}
 

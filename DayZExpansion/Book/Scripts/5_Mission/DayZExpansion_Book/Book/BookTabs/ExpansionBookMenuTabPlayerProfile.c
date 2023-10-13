@@ -258,7 +258,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 			//! For some reason, OnMouseButtonDown gets called twice when holding down the mouse button, which fucks with player preview rotation.
 			//! Set a flag so we can check whether mouse button is still down.
 			m_MouseButtonIsDown = true;
-			GetGame().GetMousePos(m_PlayerPreviewRotationX, m_PlayerPreviewRotationY);
+			GetMousePos(m_PlayerPreviewRotationX, m_PlayerPreviewRotationY);
 			GetGame().GetDragQueue().Call(this, "UpdatePlayerPreviewRotation");
 		}
 

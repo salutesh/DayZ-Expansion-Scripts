@@ -12,15 +12,26 @@ modded class CarScript
 	{
 		super.OnCEUpdate();
 
+		Expansion_EvaluateSafeZoneParkingFine();
+	}
+
+	void Expansion_EvaluateSafeZoneParkingFine()
+	{
+		//! If vehicle is not in a safezone, bail
 		if (!m_Expansion_IsInSafeZone)
 			return;
 
+		//! If parking time is zero, bail
 		if (!m_Expansion_SZParkingTime)
 			return;
 
+		//! If a parking fine is already set, bail
 		if (m_Expansion_ParkingFine > 0)
 			return;
 
+		//! If parking time exceeds max allowed vehicle parking time in SZ or vehicle is already forced locked (meaning it was loaded from DB
+		//! or entity storage and previously had a fine, since the fine itself is not persistent but the locked state is and forced locked is
+		//! only used for fines currently), set parking fine
 		auto settings = GetExpansionSettings().GetMarket();
 		int baseFine = settings.SZVehicleParkingTicketFine;
 		if (baseFine > 0 && (m_Expansion_SZParkingTime > settings.MaxSZVehicleParkingTime || GetLockedState() == ExpansionVehicleLockState.FORCEDLOCKED))

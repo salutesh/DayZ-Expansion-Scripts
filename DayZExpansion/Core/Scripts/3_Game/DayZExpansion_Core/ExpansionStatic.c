@@ -568,7 +568,7 @@ class ExpansionStatic
 	{
 		foreach (typename parent_type: parent_types)
 		{
-			if (Is(className, parent_type.ToString()))
+			if (Is(className, parent_type))
 				return true;
 		}
 		return false;
@@ -635,6 +635,16 @@ class ExpansionStatic
 			return true;
 
 		return g_Game.ObjectIsKindOf(obj, parentName);
+	}
+
+	//! Inheritance check based on rvConfig class name or EnforceScript typename
+	static bool Is(string className, typename parentType)
+	{
+		typename classType = className.ToType();
+		if (classType && classType.IsInherited(parentType))
+			return true;
+
+		return g_Game.IsKindOf(className, parentType.ToString());
 	}
 
 	//! Special case: Any inventory item (rvConfig Inventory_Base, CfgWeapons, CfgMagazines or EnforceScript ItemBase type)

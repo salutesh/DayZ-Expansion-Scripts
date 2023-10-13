@@ -30,10 +30,19 @@ modded class ModItemRegisterCallbacks
 		pType.AddItemInHandsProfileIK("CommunityGoalTicket", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/PunchedCard.anm");
 		pType.AddItemInHandsProfileIK("MedicalSupplies", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/first_aid_kit.anm");
 		pType.AddItemInHandsProfileIK("AmmunitionSupplies", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/cleaning_kit_wood.anm");
-		pType.AddItemInHandsProfileIK("NA_Dokuments_AthenaOneBunker1", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
-		pType.AddItemInHandsProfileIK("NA_Dokuments_AthenaOneBunker2", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
-		pType.AddItemInHandsProfileIK("NA_Dokuments_Antenna1", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
-		pType.AddItemInHandsProfileIK("NA_Dokuments_Antenna2", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
-		pType.AddItemInHandsProfileIK("NA_Dokuments_Antenna3", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
+		pType.AddItemInHandsProfileIK("NA_Documents_Sanctuary1", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
+		pType.AddItemInHandsProfileIK("NA_Documents_Sanctuary2", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
+		pType.AddItemInHandsProfileIK("NA_Documents_SanctuarySecrets", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
+		pType.AddItemInHandsProfileIK("NA_Documents_ProjectSanctuary", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
+		pType.AddItemInHandsProfileIK("NA_BeringOutpostNegative", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
+		pType.AddItemInHandsProfileIK("ExpansionAnomalyDeconCase", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/protector_case.anm");
+		pType.AddItemInHandsProfileIK("ExpansionFusionCore", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/protector_case.anm");
+	}
+	
+	override void RegisterTwoHanded(DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior)
+	{
+		super.RegisterTwoHanded(pType, pBehavior);
+	
+		pType.AddItemInHandsProfileIK("Expansion_Halloween_GiftBox_Small", "dz/anims/workspaces/player/player_main/props/player_main_2h_pot.asi", pBehavior, "dz/anims/anm/player/ik/two_handed/Cauldron.anm");
 	}
 };

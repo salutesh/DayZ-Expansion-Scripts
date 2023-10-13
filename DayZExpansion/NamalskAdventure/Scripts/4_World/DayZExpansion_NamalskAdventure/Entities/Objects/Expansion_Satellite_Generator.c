@@ -10,7 +10,6 @@
  *
 */
 
-#ifdef EXPANSIONMOD
 class Expansion_Satellite_Generator: PowerGenerator
 {
 	override void OnSwitchOn()
@@ -36,13 +35,17 @@ class Expansion_Satellite_Generator: PowerGenerator
 	override void OnWorkStart()
 	{
 		super.OnWorkStart();
+	#ifdef SERVER
 		ExpansionNamalskModule.GetModuleInstance().SetSatelliteFacilityPower(true);
+	#endif
 	}
 
 	override void OnWorkStop()
 	{
 		super.OnWorkStop();
+	#ifdef SERVER
 		ExpansionNamalskModule.GetModuleInstance().SetSatelliteFacilityPower(false);
+	#endif
 	}
 
 	bool IsSwitch(string selection = "")
@@ -70,10 +73,15 @@ class Expansion_Satellite_Generator: PowerGenerator
 		return false;
 	}
 
+	override void SetActions()
+	{
+		super.SetActions();
+		AddAction(ExpansionActionRemoveSparkPlug);
+	}
+	
 	override void AfterStoreLoad()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		GetGame().ObjectDelete(this);
 	}
 };
-#endif

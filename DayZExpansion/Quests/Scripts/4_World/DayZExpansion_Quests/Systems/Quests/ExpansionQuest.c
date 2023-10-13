@@ -329,7 +329,7 @@ class ExpansionQuest
 		}
 		
 		//! Set quest-giver item if we can find one in the players inventory
-		SeachAndSetQuestGiverItem();
+		FindAndSetQuestGiverItem();
 		
 		//! Add all quest items to the players inventory
 		CreateQuestItems();
@@ -350,7 +350,7 @@ class ExpansionQuest
 		return true;
 	}
 	
-	protected void SeachAndSetQuestGiverItem()
+	protected void FindAndSetQuestGiverItem()
 	{
 		int questID = m_Config.GetID();
 		ItemBase handItem = ItemBase.Cast(m_Player.GetHumanInventory().GetEntityInHands());
@@ -547,12 +547,16 @@ class ExpansionQuest
 			}
 
 			//! Add all quest rewards to the quest players
-			bool conditions = m_Config.GetRewards().Count() > 0;
+			bool conditions;
+			if (m_Config.GetRewards().Count() > 0)
+				conditions = true;
 		#ifdef EXPANSIONMODAI
-			conditions = conditions || m_Config.GetFactionReward() != string.Empty;
+			if (!conditions && m_Config.GetFactionReward() != string.Empty)
+				conditions = true;
 		#endif
 		#ifdef EXPANSIONMODHARDLINE	
-			conditions = conditions || m_Config.GetReputationReward() > 0;
+			if (!conditions && m_Config.GetReputationReward() > 0)
+				conditions = true;
 		#endif
 			if (conditions)
 				SpawnQuestRewards(playerUID, reward);
@@ -669,7 +673,7 @@ class ExpansionQuest
 		}
 		
 		//! Set quest-giver item if we can find one in the players inventory
-		SeachAndSetQuestGiverItem();
+		FindAndSetQuestGiverItem();
 
 		//! Check if quest players still have all the configured quest items.
 		if (m_Config.GetQuestItems() && m_Config.GetQuestItems().Count() > 0 /*&& m_Config.NeedQuestItems()*/)
@@ -854,6 +858,9 @@ class ExpansionQuest
 		for (int i = m_QuestItems.Count() - 1; i >= 0; i--)
 		{
 			ItemBase item = m_QuestItems[i];
+			if (!item)
+				continue;
+
 			item.Expansion_SetQuestID(-1);
 			m_QuestItems.RemoveOrdered(i);
 		}
@@ -1754,15 +1761,23 @@ class ExpansionQuest
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		eAIGroup playerGroup = eAIGroup.GetGroupByLeader(player);
-		eAIFaction currentFaction = playerGroup.GetFaction();
-		if (currentFaction && currentFaction.GetName() == factionName)
-			return;
-
-		QuestDebugPrint("Found player group! Change faction to: " + factionName);
-		eAIFaction faction = eAIFaction.Create(factionName);
-		if (faction)
-			playerGroup.SetFaction(faction);
+		eAIGroup playerGroup = player.GetGroup();
+		eAIFaction newFaction;
+		eAIFaction currentFaction;
+		if (playerGroup)
+		{
+			currentFaction = playerGroup.GetFaction();
+			if (currentFaction.GetName() != factionName)
+			{
+				newFaction = eAIFaction.Create(factionName);
+				playerGroup.SetFaction(newFaction);
+			}
+		}
+		else
+		{
+			newFaction = eAIFaction.Create(factionName);
+			eAIGroup.GetGroupByLeader(player, true, newFaction);
+		}
 
 		//! Update the players quest configuration files as there could be quests he now need to recieve or need to be removed after a faction change.
 		ExpansionQuestModule.GetModuleInstance().SendClientQuestConfigs(player.GetIdentity());

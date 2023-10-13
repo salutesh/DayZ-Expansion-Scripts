@@ -1025,19 +1025,16 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 		ctx.Write(Repeatable);
 		ctx.Write(IsDailyQuest);
 		ctx.Write(IsWeeklyQuest);
-		//ctx.Write(CancelQuestOnPlayerDeath);
-		//ctx.Write(Autocomplete);
 		ctx.Write(IsGroupQuest);
 
 		//! Objectives
-		int objectivesCount = Objectives.Count();
-		ctx.Write(objectivesCount);
+		ctx.Write(Objectives.Count());
 
 		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
 		if (!questModule)
 			return;
 
-		for (i = 0; i < objectivesCount; i++)
+		for (i = 0; i < Objectives.Count(); i++)
 		{
 			int objectiveType = Objectives[i].GetObjectiveType();
 			int objectiveID = Objectives[i].GetID();
@@ -1219,22 +1216,17 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 		ctx.Write(NeedToSelectReward);
 		ctx.Write(RandomReward);
 		ctx.Write(RandomRewardAmount);
-	/*#ifdef EXPANSIONMODGROUPS
-		ctx.Write(RewardsForGroupOwnerOnly);
-	#endif*/
 
-		int giverIDsCount = QuestGiverIDs.Count();
-		ctx.Write(giverIDsCount);
+		ctx.Write(QuestGiverIDs.Count());
 
-		for (i = 0; i < giverIDsCount; i++)
+		for (i = 0; i < QuestGiverIDs.Count(); i++)
 		{
 			ctx.Write(QuestGiverIDs[i]);
 		}
 
-		int turnInIDsCount = QuestTurnInIDs.Count();
-		ctx.Write(turnInIDsCount);
+		ctx.Write(QuestTurnInIDs.Count());
 
-		for (i = 0; i < turnInIDsCount; i++)
+		for (i = 0; i < QuestTurnInIDs.Count(); i++)
 		{
 			ctx.Write(QuestTurnInIDs[i]);
 		}
@@ -1257,9 +1249,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 		ctx.Write(RequiredFaction);
 		ctx.Write(FactionReward);
 	#endif
-
-		//ctx.Write(PlayerNeedQuestItems);
-		//ctx.Write(DeleteQuestItems);
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
@@ -1338,18 +1327,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 			Error(ToString() + "::OnRecieve - IsWeeklyQuest");
 			return false;
 		}
-
-		/*if (!ctx.Read(CancelQuestOnPlayerDeath))
-		{
-			Error(ToString() + "::OnRecieve - CancelQuestOnPlayerDeath");
-			return false;
-		}
-
-		if (!ctx.Read(Autocomplete))
-		{
-			Error(ToString() + "::OnRecieve - Autocomplete");
-			return false;
-		}*/
 
 		if (!ctx.Read(IsGroupQuest))
 		{
@@ -1556,14 +1533,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 			return false;
 		}
 
-	/*#ifdef EXPANSIONMODGROUPS
-		if (!ctx.Read(RewardsForGroupOwnerOnly))
-		{
-			Error(ToString() + "::OnRecieve - RewardsForGroupOwnerOnly");
-			return false;
-		}
-	#endif*/
-
 		int giverIDsCount;
 		if (!ctx.Read(giverIDsCount))
 		{
@@ -1654,18 +1623,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 			return false;
 		}
 	#endif
-
-		/*if (!ctx.Read(PlayerNeedQuestItems))
-		{
-			Error(ToString() + "::OnRecieve - PlayerNeedQuestItems");
-			return false;
-		}
-
-		if (!ctx.Read(DeleteQuestItems))
-		{
-			Error(ToString() + "::OnRecieve - DeleteQuestItems");
-			return false;
-		}*/
 
 		return true;
 	}

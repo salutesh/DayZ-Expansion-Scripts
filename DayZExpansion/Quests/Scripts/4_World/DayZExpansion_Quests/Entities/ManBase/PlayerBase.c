@@ -10,9 +10,23 @@
  *
 */
 
+class ExpansionMagazine
+{
+	Magazine Mag;
+	int Count;
+
+	void ExpansionMagazine(Magazine mag)
+	{
+		Mag = mag;
+		Count = mag.GetAmmoCount();
+	}
+}
+
 modded class PlayerBase
 {
 	protected static ref array<ref ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;
+
+	protected ref array<ref ExpansionMagazine> m_Expansion_AmmoInInventoryQuantity = {};
 
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
@@ -138,5 +152,38 @@ modded class PlayerBase
 		super.SetActions(InputActionMap);
 
 		AddAction(ExpansionActionOpenQuestMenu, InputActionMap);
+	}
+
+	void Expansion_RememberAmmoInInventoryQuantity()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		m_Expansion_AmmoInInventoryQuantity.Clear();
+
+		foreach (string type, ExpansionInventoryItemType itemType: m_Expansion_InventoryItemTypes)
+		{
+			if (ExpansionStatic.Is(type, Ammunition_Base))
+			{
+				foreach (ItemBase item: itemType.Items)
+				{
+					m_Expansion_AmmoInInventoryQuantity.Insert(new ExpansionMagazine(Magazine.Cast(item)));
+				}
+			}
+		}
+	}
+
+	void Expansion_CheckAmmoInInventoryQuantityChanged()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		foreach (ExpansionMagazine ammo: m_Expansion_AmmoInInventoryQuantity)
+		{
+			if (ammo.Mag && ammo.Mag.GetAmmoCount() != ammo.Count)
+			{
+				ammo.Mag.Expansion_OnQuantityChanged();
+			}
+		}
+
+		m_Expansion_AmmoInInventoryQuantity.Clear();
 	}
 };

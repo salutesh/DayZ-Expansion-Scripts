@@ -114,7 +114,7 @@ class ExpansionMarketMenuTooltip: ExpansionScriptView
 		}
 		
 		int x, y;
-		GetGame().GetMousePos(x, y);
+		GetMousePos(x, y);
 		int w, h;
 		GetScreenSize(w, h);
 		GetLayoutRoot().SetPos(x + w * m_ContentOffsetX, y + h * m_ContentOffsetY, true);

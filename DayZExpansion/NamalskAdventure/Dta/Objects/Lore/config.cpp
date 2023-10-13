@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Residential","ns2_build_a3","DayZExpansion_Objects_Gear_Electricity"};
+		requiredAddons[] = {"DZ_Data","DZ_Gear_Consumables","DZ_Structures_Residential","DZ_Structures_Bliss_Underground","ns2_build_a3","DayZExpansion_Objects_Gear_Electricity"};
 	};
 };
 class CfgVehicles
@@ -15,6 +15,7 @@ class CfgVehicles
 	class HouseNoDestruct;
 	class Inventory_Base;
 	class ExpansionGenerator_Base;
+	class Grenade_Base;
 	class Expansion_Satellite_Generator: ExpansionGenerator_Base
 	{
 		scope = 2;
@@ -148,6 +149,21 @@ class CfgVehicles
 			};
 		};
 	};
+	class Expansion_Satellite_Panel_Lever: HouseNoDestruct
+	{
+		scope = 1;
+		model = "\DZ\structures_bliss\Underground\Entrance\Underground_Panel_Lever.p3d";
+		hiddenSelections[] = {"LED_Red","LED_Green"};
+		class AnimationSources
+		{
+			class PanelLever
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 0.5;
+			};
+		};
+	};
 	class Expansion_CommunityGoals_Board: HouseNoDestruct
 	{
 		scope = 2;
@@ -158,25 +174,16 @@ class CfgVehicles
 		carveNavmesh = 1;
 		storageCategory = 10;
 	};
-	class Expansion_Fusion_Core: Inventory_Base
+	class ExpansionFusionCore: Grenade_Base
 	{
 		scope = 2;
+		displayName = "Fusion Core";
+		descriptionShort = "PLACEHOLDER";
 		model = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\Expansion_Fusion_Core.p3d";
-		bounding = "BSphere";
-		forceFarBubble = "true";
-		itemBehaviour = 2;
-		handheld = "false";
-		allowOwnedCargoManipulation = 1;
-		attachments[] = {"Att_ExpansionAnomalyCore"};
-		weight = 1000000;
-		inventoryCondition = "true";
-		storageCategory = 1;
-		openable = 1;
-		vehicleClass = "Inventory";
-		physLayer = "item_large";
-		hiddenSelections[] = {"body","core","core_shell"};
-		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\fusion_core_co.paa","#(argb,8,8,3)color(0,1,1,1.0,CO)","DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\fusion_core_co.paa"};
-		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\Expansion_Fusion_Core.rvmat","","DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\Expansion_Fusion_Core.rvmat"};
+		weight = 400;
+		hiddenSelections[] = {"body","core"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\fusion_core_co.paa","#(argb,8,8,3)color(0,1,1,1.0,CO)"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\Expansion_Fusion_Core.rvmat",""};
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -212,24 +219,41 @@ class CfgVehicles
 				};
 			};
 		};
-		class GUIInventoryAttachmentsProps
+		class AnimEvents
 		{
-			class Attachments
+			class SoundWeapon
 			{
-				name = "$STR_attachment_accessories";
-				description = "";
-				attachmentSlots[] = {"Att_ExpansionAnomalyCore"};
-				icon = "set:expansion_inventory image:anomaly";
+				class Grenade_unpin
+				{
+					soundSet = "Grenade_unpin_SoundSet";
+					id = 201;
+				};
+				class turnOnRadio_Pin
+				{
+					soundSet = "Grenade_pin_SoundSet";
+					id = 1006;
+				};
 			};
 		};
+		class AnimationSources
+		{
+			class AnimRotate
+			{
+				source = "core";
+				animPeriod = 0.018;
+				initPhase = 0;
+			};
+			class Core_Rotation: AnimRotate{};
+		};
+		soundImpactType = "metal";
 	};
-	class NA_Dokuments_AthenaOneBunker1: Inventory_Base
+	class NA_Documents_Sanctuary1: Inventory_Base
 	{
 		model = "\nst\ns_dayz\gear\lore\paper_files.p3d";
 		scope = 2;
 		title = "PLACEHOLDER";
-		author = "NAC";
-		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\athena1_bunker1.html";
+		author = "PRI";
+		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\sanctuary1.html";
 		displayName = "PLACEHOLDER";
 		descriptionShort = "PLACEHOLDER";
 		hiddenSelections[] = {"camoGround"};
@@ -249,13 +273,13 @@ class CfgVehicles
 			};
 		};
 	};
-	class NA_Dokuments_AthenaOneBunker2: Inventory_Base
+	class NA_Documents_Sanctuary2: Inventory_Base
 	{
 		model = "\nst\ns_dayz\gear\lore\paper_files.p3d";
 		scope = 2;
 		title = "PLACEHOLDER";
-		author = "NAC";
-		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\athena1_bunker2.html";
+		author = "PRI";
+		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\sanctuary2.html";
 		displayName = "PLACEHOLDER";
 		descriptionShort = "PLACEHOLDER";
 		hiddenSelections[] = {"camoGround"};
@@ -275,81 +299,37 @@ class CfgVehicles
 			};
 		};
 	};
-	class NA_Dokuments_Antenna1: Inventory_Base
+	class NA_Documents_SanctuarySecrets: Inventory_Base
 	{
 		model = "\nst\ns_dayz\gear\lore\paper_files.p3d";
 		scope = 2;
-		title = "Outpost Expedition";
-		author = "NAC";
-		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\secret_antenna.html";
-		displayName = "Outpost Expedition";
-		descriptionShort = "PLACEHOLDER";
+		title = "Investigation Report of A1-B1";
+		author = "Unknown Author";
+		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\sanctuary3.html";
+		displayName = "Investigation Report of A1-B1";
+		descriptionShort = "A document from a unkown author that was investigating the A1 bunker.";
 		hiddenSelections[] = {"camoGround"};
 		hiddenSelectionsTextures[] = {"nst\ns_dayz\gear\lore\data\paper_files2_co.paa"};
 		rotationFlags = 1;
 		weight = 100;
-		class DamageSystem
-		{
-			class GlobalHealth
-			{
-				class Health
-				{
-					hitpoints = 100;
-					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
-					healthLevels[] = {{1.0,{"nst\ns_dayz\gear\lore\data\lore_paper.rvmat"}},{0.7,{"nst\ns_dayz\gear\lore\data\lore_paper.rvmat"}},{0.5,{"nst\ns_dayz\gear\lore\data\lore_paper_damage.rvmat"}},{0.3,{"nst\ns_dayz\gear\lore\data\lore_paper_damage.rvmat"}},{0.0,{"nst\ns_dayz\gear\lore\data\lore_paper_destruct.rvmat"}}};
-				};
-			};
-		};
-	};
-	class NA_Dokuments_Antenna2: Inventory_Base
-	{
-		model = "\nst\ns_dayz\gear\lore\paper_files.p3d";
-		scope = 2;
-		title = "Outpost Attack";
-		author = "NAC";
-		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\antenna_attack.html";
-		displayName = "Outpost Attack";
-		descriptionShort = "PLACEHOLDER";
-		hiddenSelections[] = {"camoGround"};
-		hiddenSelectionsTextures[] = {"nst\ns_dayz\gear\lore\data\paper_files2_co.paa"};
-		rotationFlags = 1;
-		weight = 100;
-		class DamageSystem
-		{
-			class GlobalHealth
-			{
-				class Health
-				{
-					hitpoints = 100;
-					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
-					healthLevels[] = {{1.0,{"nst\ns_dayz\gear\lore\data\lore_paper.rvmat"}},{0.7,{"nst\ns_dayz\gear\lore\data\lore_paper.rvmat"}},{0.5,{"nst\ns_dayz\gear\lore\data\lore_paper_damage.rvmat"}},{0.3,{"nst\ns_dayz\gear\lore\data\lore_paper_damage.rvmat"}},{0.0,{"nst\ns_dayz\gear\lore\data\lore_paper_destruct.rvmat"}}};
-				};
-			};
-		};
-	};
-	class NA_Dokuments_Antenna3: Inventory_Base
-	{
-		model = "\nst\ns_dayz\gear\lore\paper_files.p3d";
-		scope = 2;
-		title = "Outpost Research";
-		author = "NAC";
-		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\antenna_research.html";
-		displayName = "Outpost Research";
-		descriptionShort = "PLACEHOLDER";
-		hiddenSelections[] = {"camoGround"};
-		hiddenSelectionsTextures[] = {"nst\ns_dayz\gear\lore\data\paper_files2_co.paa"};
-		rotationFlags = 1;
-		weight = 100;
-		attachments[] = {"Att_ExpansionKeyCard"};
+		attachments[] = {"Att_ExpansionKeyCardAntenna","Att_ExpansionDokumentBeringOutpost"};
 		class GUIInventoryAttachmentsProps
 		{
-			class Attachments_Access
+			class Attachments_KeyCard
 			{
 				name = "Key Card";
 				description = "Not needed.";
-				attachmentSlots[] = {"Att_ExpansionKeyCard"};
+				attachmentSlots[] = {"Att_ExpansionKeyCardAntenna"};
 				icon = "set:dayz_inventory image:cat_fp_tents";
 				view_index = 1;
+			};
+			class Attachments_Dokument
+			{
+				name = "Dokument";
+				description = "Not needed.";
+				attachmentSlots[] = {"Att_ExpansionDokumentBeringOutpost"};
+				icon = "set:dayz_inventory image:cat_fp_tents";
+				view_index = 2;
 			};
 		};
 		class DamageSystem
@@ -361,6 +341,80 @@ class CfgVehicles
 					hitpoints = 100;
 					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
 					healthLevels[] = {{1.0,{"nst\ns_dayz\gear\lore\data\lore_paper.rvmat"}},{0.7,{"nst\ns_dayz\gear\lore\data\lore_paper.rvmat"}},{0.5,{"nst\ns_dayz\gear\lore\data\lore_paper_damage.rvmat"}},{0.3,{"nst\ns_dayz\gear\lore\data\lore_paper_damage.rvmat"}},{0.0,{"nst\ns_dayz\gear\lore\data\lore_paper_destruct.rvmat"}}};
+				};
+			};
+		};
+	};
+	class NA_Documents_ProjectSanctuary: Inventory_Base
+	{
+		model = "\dz\gear\consumables\Paper.p3d";
+		scope = 2;
+		title = "Status Report - Project Sanctuary";
+		author = "PRI";
+		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\project_sanctuary.html";
+		displayName = "Status Report - Project Sanctuary";
+		descriptionShort = "A document that describes the building process of a unkown facility.";
+		weight = 2;
+		itemSize[] = {1,1};
+		rotationFlags = 16;
+		hiddenSelections[] = {"zbytek"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\project_sanctuary.paa"};
+		inventorySlot[] = {"Att_ExpansionDokumentBeringOutpost"};
+		varWetMax = 1;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 15;
+					healthLevels[] = {{1,{"DZ\gear\consumables\data\Loot_Paper.rvmat"}},{0.7,{"DZ\gear\consumables\data\Loot_Paper.rvmat"}},{0.5,{"DZ\gear\consumables\data\Loot_Paper_damage.rvmat"}},{0.3,{"DZ\gear\consumables\data\Loot_Paper_damage.rvmat"}},{0,{"DZ\gear\consumables\data\Loot_Paper_destruct.rvmat"}}};
+				};
+			};
+		};
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class pickUpItem
+				{
+					soundSet = "pickUpPaper_SoundSet";
+					id = 797;
+				};
+			};
+		};
+	};
+	class NA_BeringOutpostNegative: Inventory_Base
+	{
+		model = "\dz\gear\consumables\Paper.p3d";
+		scope = 2;
+		displayName = "Drone Picture";
+		descriptionShort = "A picture negative taken by a drone that shows a area with a satellite antenna.";
+		weight = 2;
+		itemSize[] = {1,1};
+		rotationFlags = 16;
+		hiddenSelections[] = {"zbytek"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\bering_outpost_negative.paa"};
+		varWetMax = 1;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 15;
+					healthLevels[] = {{1,{"DZ\gear\consumables\data\Loot_Paper.rvmat"}},{0.7,{"DZ\gear\consumables\data\Loot_Paper.rvmat"}},{0.5,{"DZ\gear\consumables\data\Loot_Paper_damage.rvmat"}},{0.3,{"DZ\gear\consumables\data\Loot_Paper_damage.rvmat"}},{0,{"DZ\gear\consumables\data\Loot_Paper_destruct.rvmat"}}};
+				};
+			};
+		};
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class pickUpItem
+				{
+					soundSet = "pickUpPaper_SoundSet";
+					id = 797;
 				};
 			};
 		};

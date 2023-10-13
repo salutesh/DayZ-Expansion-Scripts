@@ -101,7 +101,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 
 			//! Let the entity fly - TEST
 			mass = dBodyGetMass(item);
-			item.dBodyApplyImpulse(item, mass * wind);
+			dBodyApplyImpulse(item, mass * wind);
 			
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
 		}
@@ -242,7 +242,9 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			}
 			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Vehicles, true))
 			{
+			#ifdef JM_COT
 				CarScript.Cast(objectEntity).COT_PlaceOnSurfaceAtPosition(oldPos);
+			#endif
 			}
 			else
 			{

@@ -865,8 +865,6 @@ class Expansion_Anomaly_Base: ItemBase
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::OnVariablesSynchronized - Current anomaly visual state: " + typename.EnumToString(ExpansionAnomalyState, m_VisualState) + " | Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_AnonmalyState));
 
-		super.OnVariablesSynchronized();
-
 		if (m_VisualState != m_AnonmalyState)
 			UpdateVisualState(m_AnonmalyState);
 	}

@@ -27,14 +27,23 @@ class ExpansionBookMenuTabFactions: ExpansionBookMenuTabBase
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 		if (!player)
 			return;
+
+		if (!player.m_Expansion_HardlineData)
+			return;
 	
 		if (m_FactionTabController.FactionEntries.Count() > 0)
 			m_FactionTabController.FactionEntries.Clear();
 			
+		int currentFactionID = player.eAI_GetFactionTypeID();
+
 		foreach (int id, typename factionType: eAIRegisterFaction.s_FactionTypes)
 		{
 			string displayName;
-			int factionRep = player.m_Expansion_HardlineData.GetReputationByFactionID(id);
+			int factionRep;
+			if (id == currentFactionID)
+				factionRep = player.Expansion_GetReputation();
+			else
+				factionRep = player.Expansion_GetFactionReputation(id);
 			if (factionRep > 0)
 			{
 				eAIFaction faction = eAIFaction.Cast(factionType.Spawn());
@@ -85,7 +94,7 @@ class ExpansionBookMenuTabFactions: ExpansionBookMenuTabBase
 	{
 		super.OnHide();
 		
-		if (m_FactionTabController.FactionEntries.Count() > 0)
+		if (m_FactionTabController && m_FactionTabController.FactionEntries.Count() > 0)
 			m_FactionTabController.FactionEntries.Clear();
 	}
 	
@@ -130,7 +139,10 @@ class ExpansionBookMenuTabFactionEntry: ExpansionScriptView
 		m_FactionEntryController.FactionReputation = m_FactionRep;
 		m_FactionEntryController.NotifyPropertiesChanged({"FactionName", "FactionReputation"});
 		
-		int repPercent = (m_FactionRep * 100) / GetExpansionSettings().GetHardline().MaxReputation;
+		int repPercent = 100;
+		int maxRep = GetExpansionSettings().GetHardline().MaxReputation;
+		if (maxRep > 0)
+			repPercent = (m_FactionRep * 100) / maxRep;
 		faction_progress.SetCurrent(repPercent);
 		
 		int color = ARGB(150, 220, 0, 0);

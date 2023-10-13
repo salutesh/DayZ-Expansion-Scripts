@@ -106,7 +106,10 @@ class ExpansionQuestObjectiveEventBase
 	void OnTimeLimitReached()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
+				
+		//! Call MissionBase::Expansion_OnObjectiveTimeLimitReached for override in init.c
+		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnObjectiveTimeLimitReached(this);
+		
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.OnTimeLimitReached);
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.SyncTimeLimitTime);
 		m_TimeLimit = -1;

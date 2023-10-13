@@ -189,20 +189,19 @@ modded class DayZPlayerImplement
 #ifdef DIAG
 		auto trace = CF_Trace_1(EXTrace.AI, this).Add(id);
 #endif
-		
-#ifdef EXPANSIONMODHARDLINE
-		if (GetGame().IsServer() && GetIdentity())
-		{
-			auto hardlineSettings = GetExpansionSettings().GetHardline();
-			if (hardlineSettings.UseReputation && hardlineSettings.UseFactionReputation)
-				ExpansionHardlineModule.GetModuleInstance().OnFactionChange(this, m_eAI_FactionTypeID, id);
-		}
-#endif
+
+		int oldFactionTypeID = m_eAI_FactionTypeID;
 		m_eAI_FactionTypeID = id;
 		m_eAI_FactionTypeIDSynch = id;
 
+		eAI_OnFactionChange(oldFactionTypeID, id);
+
 		if (GetGame().IsDedicatedServer())
 			SetSynchDirty();
+	}
+
+	void eAI_OnFactionChange(int oldFactionTypeID, int newFactionTypeID)
+	{
 	}
 
 	int eAI_GetFactionTypeID()

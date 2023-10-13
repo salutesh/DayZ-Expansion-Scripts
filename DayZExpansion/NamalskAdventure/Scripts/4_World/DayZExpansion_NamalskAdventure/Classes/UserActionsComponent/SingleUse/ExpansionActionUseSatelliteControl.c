@@ -19,7 +19,7 @@ class ExpansionActionUseSatelliteControl: ActionInteractBase
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
 		m_HUDCursorIcon = CursorIcons.CloseDoors;
 	}
-	
+
 	override string GetText()
 	{
 		return "Activate Antenna";
@@ -41,9 +41,14 @@ class ExpansionActionUseSatelliteControl: ActionInteractBase
 		Expansion_Satellite_Control satControl = Expansion_Satellite_Control.Cast(target.GetObject());
 		if (!satControl) 
 			return false;
+	
+	#ifdef SERVER
+		if (!satControl.CanActivate()) 
+			return false;
+	#endif
 		
 		bool is_in_range = vector.Distance(satControl.WorldToModel(player.GetPosition()), "0.0 0.7 0.4") < 2;
-		return (is_in_range && satControl.CanActivate());
+		return (is_in_range);
 	}
 
 	override void OnStartServer(ActionData action_data)

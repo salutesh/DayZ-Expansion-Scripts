@@ -33,11 +33,18 @@ class CfgSlots
 		selection = "att_generator_key";
 		ghostIcon = "set:expansion_inventory image:icon_options";
 	};
-	class Slot_Att_ExpansionKeyCard
+	class Slot_Att_ExpansionKeyCardAntenna
 	{
-		name = "Att_ExpansionKeyCard";
+		name = "Att_ExpansionKeyCardAntenna";
 		displayName = "Key Card";
-		selection = "att_key_card";
+		selection = "att_key_card_antenna";
+		ghostIcon = "set:dayz_inventory image:cat_fp_tents";
+	};
+	class Slot_Att_ExpansionDokumentBeringOutpost
+	{
+		name = "Att_ExpansionDokumentBeringOutpost";
+		displayName = "Dokument";
+		selection = "att_dokument_bering_outpost";
 		ghostIcon = "set:dayz_inventory image:cat_fp_tents";
 	};
 };
@@ -98,7 +105,8 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 5;
-					healthLevels[] = {{1.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.7,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.5,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.3,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}}};
+					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
+					healthLevels[] = {{1.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.7,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.5,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core_Damage.rvmat"}},{0.3,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core_Damage.rvmat"}},{0.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core_Destruct.rvmat"}}};
 				};
 			};
 			class AnimEvents
@@ -142,6 +150,7 @@ class CfgVehicles
 	{
 		scope = 2;
 		displayName = "Fire Plasma";
+		descriptionShort = "PLACEHOLDER";
 		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_fire_co.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core_Fire_Energy.rvmat"};
 	};
@@ -196,7 +205,7 @@ class CfgVehicles
 				{
 					hitpoints = 15;
 					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
-					healthLevels[] = {{1.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.7,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.5,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.3,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}}};
+					healthLevels[] = {{1.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.7,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.5,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Damage.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Damage.rvmat"}},{0.3,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Damage.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Damage.rvmat"}},{0.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Destruct.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Destruct.rvmat"}}};
 				};
 			};
 		};
@@ -222,14 +231,14 @@ class CfgVehicles
 		hiddenSelections[] = {"chip","keycard"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\chip_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\keycard_SAT_co.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
-		inventorySlot[] = {"Att_ExpansionKeyCard"};
+		inventorySlot[] = {"Att_ExpansionKeyCardAntenna"};
 	};
 	class Expansion_KeyCard_Teleporter: Expansion_KeyCard_Base
 	{
 		scope = 2;
 		model = "DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\Key_Card.p3d";
 		displayName = "Teleporter Access Card";
-		descriptionShort = "PLACEHOLDER";
+		descriptionShort = "Can be used to activate special warping devices to make use of the Athena Teleportation Network.";
 		hiddenSelections[] = {"chip","keycard"};
 		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\chip_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\keycard_TP_co.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
@@ -264,7 +273,7 @@ class CfgVehicles
 				{
 					hitpoints = 15;
 					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
-					healthLevels[] = {{1.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.7,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.5,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.3,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}}};
+					healthLevels[] = {{1.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.7,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.5,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Damage.rvmat"}},{0.3,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Damage.rvmat"}},{0.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Destruct.rvmat"}}};
 				};
 			};
 		};

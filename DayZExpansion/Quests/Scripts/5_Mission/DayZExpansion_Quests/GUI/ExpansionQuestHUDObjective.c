@@ -148,20 +148,12 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_COLLECT";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-					if (collectionObjective.ShowDistance() && completed)
-					{
-						UpdateDistance();
-					}
-					else if (!collectionObjective.ShowDistance() || !completed)
-					{
-						ObjectiveWrapper.Show(false);
-					}
 
 					ObjectiveDeliveryEnties.Show(true);
 					array<ref ExpansionQuestObjectiveDelivery> collections = collectionObjective.GetCollections();
 					
 					map<int, int> collectionsMap = new map<int, int>;
-					int collectionsCount;
+					int completedCollections;
 					
 					for (i = 0; i < collections.Count(); i++)
 					{
@@ -171,17 +163,27 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 						{
 							collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount);					
 							m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
+							if (currentCollectionCount >= collection.GetAmount())
+								completedCollections++;
 						}
-						else if (collectionObjective.NeedAnyCollection() && currentCollectionCount >= collection.GetAmount())
+						else if (currentCollectionCount >= collection.GetAmount())
 						{
-							collectionsCount += currentCollectionCount;
 							collectionsMap.Insert(i, currentCollectionCount);	
 						}
 					}
 
+					if (collectionObjective.ShowDistance() && (collectionObjective.NeedAnyCollection() || completedCollections == collections.Count()))
+					{
+						UpdateDistance();
+					}
+					else
+					{
+						ObjectiveWrapper.Show(false);
+					}
+
 					if (collectionObjective.NeedAnyCollection())
 					{
-						if (collectionsCount > 0)
+						if (collectionsMap.Count() > 0)
 						{
 							foreach (int collectionIndex, int collectionCount: collectionsMap)
 							{
@@ -302,6 +304,9 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		
 		UpdateTimeLimit();
 		
+		if (!ObjectiveWrapper.IsVisible())
+			return;
+
 		array<ref ExpansionQuestObjectiveConfigBase> questObjectives = m_Quest.GetObjectives();
 		if (!questObjectives || questObjectives.Count() == 0)
 			return;
@@ -315,8 +320,6 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		ExpansionQuestObjectiveConfig objectiveConfig = ExpansionQuestObjectiveConfig.Cast(questObjectives[objectiveIndex]);
 		if (!objectiveConfig)
 			return;
-		
-		bool completed = m_Objective.IsCompleted();
 		
 		//! @note: Update quest objective distance in HUD.
 		switch (objectiveConfig.GetObjectiveType())
@@ -340,7 +343,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.COLLECT:
 			{
 				ExpansionQuestObjectiveCollectionConfig collectionObjective;
-				if (Class.CastTo(collectionObjective, objectiveConfig) && collectionObjective.ShowDistance() && completed)
+				if (Class.CastTo(collectionObjective, objectiveConfig) && collectionObjective.ShowDistance())
 					UpdateDistance();
 			}
 			break;
@@ -395,6 +398,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		int currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
 		m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
 		m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+		ObjectiveWrapper.Show(true);
 	}
 
 	override float GetUpdateTickRate()

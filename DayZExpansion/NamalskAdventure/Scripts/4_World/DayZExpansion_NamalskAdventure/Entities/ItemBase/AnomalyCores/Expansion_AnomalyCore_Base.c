@@ -39,8 +39,6 @@ enum ExpansionAnomalyCoreState
 
 class Expansion_AnomalyCore_Base: Grenade_Base
 {
-	static const int CHUNK_SIZE = 10; //! Process 10 anomaly cores at a time.
-
 	static ref CF_DoublyLinkedNodes_WeakRef<Expansion_AnomalyCore_Base> s_Expansion_AllAnomalyCores = new CF_DoublyLinkedNodes_WeakRef<Expansion_AnomalyCore_Base>();
 	ref CF_DoublyLinkedNode_WeakRef<Expansion_AnomalyCore_Base> m_Expansion_AnomalyCoreNode = new CF_DoublyLinkedNode_WeakRef<Expansion_AnomalyCore_Base>(this);
 
@@ -114,7 +112,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	protected void InitAnomalyCore()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		if (!GetGame().IsDedicatedServer())
 		{
 			InitAnomalyCoreClient();
@@ -165,10 +163,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		m_Exploded = true;
-
 		if (GetGame().IsServer())
 		{
+			m_Exploded = true;
 			GetGame().CreateObject("ExpansionAnomalyAreaSingularity_Local", GetPosition());
 		}
 	}
@@ -212,7 +209,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		{
 			UpdateAnomalyCoreState(ExpansionAnomalyCoreState.DESTROYED);
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Delete, 1000);
-			
+
 			if (s_Expansion_AllAnomalyCores)
 				s_Expansion_AllAnomalyCores.Remove(m_Expansion_AnomalyCoreNode);
 		}
@@ -255,9 +252,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	override void OnInventoryExit(Man player)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		super.OnInventoryExit(player);
-		
+
 		//! @note: Make sure state is properly synchronized or VFX might bug out
 		SetSynchDirty();
 	}
@@ -265,7 +262,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	override void OnInventoryEnter(Man player)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		super.OnInventoryEnter(player);
 
 		//! @note:  Make sure to stop particles once in inventory
@@ -315,7 +312,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::UpdateAnomalyCoreVFX_Deferred - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
-		
+
 		switch (state)
 		{
 			case ExpansionAnomalyCoreState.STABLE:
@@ -462,12 +459,12 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	{
 		return ExpansionAnomalyCoreLightBase;
 	}
-	
+
 	void SetSunSelectionMaterial(string material_name)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::SetSunSelectionMaterial - Material: " + material_name);
-	
+
 		SetObjectMaterial(1, material_name);
 		SetObjectTexture(1, "");
 	}

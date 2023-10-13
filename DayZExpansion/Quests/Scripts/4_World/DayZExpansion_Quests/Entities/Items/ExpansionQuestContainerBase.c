@@ -241,7 +241,7 @@ class ExpansionQuestContainerBase: Container_Base
 	
 	override void AfterStoreLoad()
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		super.AfterStoreLoad();
 

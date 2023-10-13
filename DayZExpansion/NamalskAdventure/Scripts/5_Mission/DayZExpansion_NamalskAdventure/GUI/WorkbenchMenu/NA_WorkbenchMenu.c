@@ -67,7 +67,7 @@ class NA_WorkbenchMenu: ExpansionScriptViewMenu
 		
 		//! Anomaly Bolt - Warper
 		recipe = new NA_WorkbenchRecipe();
-		recipe.SetDisplayName("Anomaly Bold - Ice");
+		recipe.SetDisplayName("Anomaly Bold - Warper");
 		
 		//! Ingredients
 		ingredient = new NA_WorkbenchRecipeIngredient();

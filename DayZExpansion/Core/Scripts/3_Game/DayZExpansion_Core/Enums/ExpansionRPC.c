@@ -470,8 +470,7 @@ enum ExpansionTeleporterModuleRPC
 enum ExpansionHardlineModuleRPC
 {
 	INVALID = 40110,
-	RequestHardlineData,
-	SendHardlineData,
+	FactionReputationSync,
 	COUNT
 };
 

@@ -12,15 +12,16 @@
 
 enum ExpansionHardlineItemRarity
 {
-	NONE = 0,
-	Poor = 1,
-	Common = 2,
-	Uncommon = 3,
-	Rare = 4,
-	Epic = 5,
-	Legendary = 6,
-	Mythic = 7,
-	Exotic = 8,
-	Quest = 9,
-	Collectable = 10
+	NONE,
+	Poor,
+	Common,
+	Uncommon,
+	Rare,
+	Epic,
+	Legendary,
+	Mythic,
+	Exotic,
+	Quest,
+	Collectable,
+	Ingredient,
 };

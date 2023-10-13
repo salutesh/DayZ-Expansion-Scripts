@@ -27,10 +27,10 @@ modded class PlayerBase
 	}
 
 	//! Only to be called on server!
-	void Expansion_SaveHardlineData(bool force = false)
+	bool Expansion_SaveHardlineData(bool force = false)
 	{
 		if (!GetIdentity())
-			return;
+			return false;
 
 		bool save;
 		if (force || m_Expansion_HardlineData.Reputation != m_Expansion_Reputation || m_Expansion_HardlineData.PersonalStorageLevel != m_Expansion_PersonalStorageLevel)
@@ -45,8 +45,11 @@ modded class PlayerBase
 			m_Expansion_HardlineData.PersonalStorageLevel = m_Expansion_PersonalStorageLevel;
 			m_Expansion_HardlineData.Save(GetIdentity().GetId());
 		}
+
+		return save;
 	}
 
+	//! Only to be called on server!
 	void Expansion_SetHardlineData(ExpansionHardlinePlayerData data)
 	{
 		m_Expansion_HardlineData = data;
@@ -62,59 +65,39 @@ modded class PlayerBase
 		m_Expansion_PersonalStorageLevel = m_Expansion_HardlineData.PersonalStorageLevel;
 		//! If data was successfully loaded, player rep will be set to value from file, else zero
 		Expansion_SetReputation(m_Expansion_HardlineData.Reputation);
+		if (GetIdentity() && m_Expansion_HardlineData.FactionReputation.Count())
+			m_Expansion_HardlineData.SendFactionReputation(GetIdentity());
 	}
 
 	//! Only to be called on server!
-	void Expansion_SetReputation(int rep, bool forceSave = false)
+	bool Expansion_SetReputation(int rep, bool forceSave = false)
 	{
-		if (rep < 0)
-		{
-			rep = 0;
-		}
-		else
-		{
-			int maxRep = GetExpansionSettings().GetHardline().MaxReputation;
-			if (maxRep > 0 && rep > maxRep)
-				rep = maxRep;
-		}
+		rep = GetExpansionSettings().GetHardline().ClampReputation(rep);
 
 		m_Expansion_Reputation = rep;
 
 		SetSynchDirty();
-		Expansion_SaveHardlineData(forceSave);
-		
-	#ifdef SERVER
-		ExpansionHardlineModule.GetModuleInstance().RequestHardlineDataServer(GetIdentity());
-	#endif
+
+		return Expansion_SaveHardlineData(forceSave);
 	}
 	
 #ifdef EXPANSIONMODAI
 	//! Only to be called on server!
 	void Expansion_SetFactionReputation(int rep, int factionID, bool forceSave = false)
 	{
-		if (rep < 0)
-		{
-			rep = 0;
-		}
-		else
-		{
-			int maxRep = GetExpansionSettings().GetHardline().MaxReputation;
-			if (maxRep > 0 && rep > maxRep)
-				rep = maxRep;
-		}
+		rep = GetExpansionSettings().GetHardline().ClampReputation(rep);
 		
 		m_Expansion_HardlineData.SetFactionReputation(factionID, rep);
 		if (m_Expansion_HardlineData.FactionID == factionID)
 		{
 			m_Expansion_Reputation = rep;
-			m_Expansion_HardlineData.Reputation = rep;
+			SetSynchDirty();
 		}
 
-		m_Expansion_HardlineData.Save(GetIdentity().GetId());
+		Expansion_SaveHardlineData(true);
 		
-	#ifdef SERVER
-		ExpansionHardlineModule.GetModuleInstance().RequestHardlineDataServer(GetIdentity());
-	#endif
+		if (GetIdentity())
+			m_Expansion_HardlineData.SendFactionReputation(GetIdentity());
 	}
 	
 	//! Only to be called on server!
@@ -130,7 +113,7 @@ modded class PlayerBase
 		Expansion_AddFactionReputation(-rep, factionID);
 	}
 	
-	int GetFactionReputation(int factionID)
+	int Expansion_GetFactionReputation(int factionID)
 	{
 		int rep = m_Expansion_HardlineData.GetReputationByFactionID(factionID);
 		if (rep > 0)
@@ -194,6 +177,73 @@ modded class PlayerBase
 			return false;
 
 		return true;
+	}
+#endif
+
+#ifdef EXPANSIONAI_ONFACTIONCHANGE
+	//! Server
+	//! @note oldFactionTypeID will be -1 if player didn't have a group/faction before (e.g. initial assignment),
+	//! newFactionTypeID will be -1 if removing group/faction
+	override void eAI_OnFactionChange(int oldFactionTypeID, int newFactionTypeID)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
+		EXTrace.Add(trace, oldFactionTypeID);
+		EXTrace.Add(trace, newFactionTypeID);
+	#endif
+
+		if (!GetGame().IsServer())
+			return;
+
+		if (!GetIdentity())
+			return;
+
+		auto hardlineSettings = GetExpansionSettings().GetHardline();
+		if (!hardlineSettings.UseReputation || !hardlineSettings.UseFactionReputation)
+			return;
+
+		bool persistFaction = hardlineSettings.EnableFactionPersistence;
+
+		if (persistFaction)
+		{
+			oldFactionTypeID = m_Expansion_HardlineData.FactionID;
+			EXTrace.Print(EXTrace.HARDLINE, this, "eAI_OnFactionChange - faction persistence enabled - old faction: " + oldFactionTypeID);
+		}
+
+		if (newFactionTypeID != oldFactionTypeID)
+		{
+			bool saved;
+
+			m_Expansion_HardlineData.FactionID = newFactionTypeID;
+
+			if (oldFactionTypeID != -1)
+			{
+				//! Store current reputation for old faction
+				m_Expansion_HardlineData.SetFactionReputation(oldFactionTypeID, Expansion_GetReputation(), true);
+				EXTrace.Print(EXTrace.HARDLINE, this, "eAI_OnFactionChange - old faction rep: " + Expansion_GetReputation());
+
+				if (newFactionTypeID != -1)
+				{
+					//! Replace the player's current reputation with the one from the hashmap
+					//! for the given faction if found, else zero
+					saved = Expansion_SetReputation(m_Expansion_HardlineData.FactionReputation[newFactionTypeID]);
+					EXTrace.Print(EXTrace.HARDLINE, this, "eAI_OnFactionChange - assigning faction rep: " + m_Expansion_HardlineData.FactionReputation[newFactionTypeID]);
+				}
+			}
+			else
+			{
+				//! Player didn't have a faction before, carry over current reputation
+				m_Expansion_HardlineData.SetFactionReputation(newFactionTypeID, Expansion_GetReputation());
+				EXTrace.Print(EXTrace.HARDLINE, this, "eAI_OnFactionChange - assigning rep: " + Expansion_GetReputation());
+			}
+
+			if (!saved)
+				Expansion_SaveHardlineData(true);
+
+			MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnPlayerFactionChange(this, oldFactionTypeID, newFactionTypeID);
+
+			m_Expansion_HardlineData.SendFactionReputation(GetIdentity());
+		}
 	}
 #endif
 };

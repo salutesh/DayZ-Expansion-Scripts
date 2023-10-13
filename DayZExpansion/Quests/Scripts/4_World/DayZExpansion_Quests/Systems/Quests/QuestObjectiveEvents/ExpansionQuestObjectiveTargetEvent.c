@@ -137,8 +137,9 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		if (m_Amount == 0)
 			return false;
 
-		bool conditionsResult = (m_Count == m_Amount);
-		return conditionsResult;
+		if (m_Count == m_Amount)
+			return true;
+		return false;
 	}
 
 	protected bool IsInMaxRange(vector playerPos)

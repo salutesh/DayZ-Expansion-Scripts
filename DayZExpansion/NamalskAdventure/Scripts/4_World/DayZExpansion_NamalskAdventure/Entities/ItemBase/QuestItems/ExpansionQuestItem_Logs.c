@@ -10,9 +10,9 @@
  *
 */
 
-#ifdef EXPANSIONMODQUESTS
 #ifdef NAMALSK_SURVIVAL
-/*modded class dzn_athena_planning
+/*#ifdef EXPANSIONMODQUESTS
+modded class dzn_athena_planning
 {
 	override void DeferredInit()
 	{
@@ -91,9 +91,10 @@ modded class dzn_lantia_december
 modded class dzn_lantia_vega7
 {
 
-};*/
+};
+#endif*/
 
-class NA_Dokuments_AthenaOneBunker1 extends ItemBase
+class NA_Dokuments_Sanctuary1 extends ItemBase
 {
 	override void SetActions()
 	{
@@ -102,7 +103,7 @@ class NA_Dokuments_AthenaOneBunker1 extends ItemBase
 	}
 };
 
-class NA_Dokuments_AthenaOneBunker2 extends ItemBase
+class NA_Dokuments_Sanctuary2 extends ItemBase
 {
 	override void SetActions()
 	{
@@ -111,7 +112,7 @@ class NA_Dokuments_AthenaOneBunker2 extends ItemBase
 	}
 };
 
-class NA_Dokuments_Antenna1 extends ItemBase
+class NA_Dokuments_SanctuarySecrets extends ItemBase
 {
 	override void SetActions()
 	{
@@ -120,7 +121,7 @@ class NA_Dokuments_Antenna1 extends ItemBase
 	}
 };
 
-class NA_Dokuments_Antenna2 extends ItemBase
+class NA_Dokuments_ProjectSanctuary extends ItemBase
 {
 	override void SetActions()
 	{
@@ -128,14 +129,4 @@ class NA_Dokuments_Antenna2 extends ItemBase
 		AddAction(ActionReadBook);
 	}
 };
-
-class NA_Dokuments_Antenna3 extends ItemBase
-{
-	override void SetActions()
-	{
-		super.SetActions();
-		AddAction(ActionReadBook);
-	}
-};
-#endif
 #endif

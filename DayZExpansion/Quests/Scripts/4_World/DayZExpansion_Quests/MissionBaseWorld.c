@@ -23,6 +23,8 @@ modded class MissionBaseWorld
 	void Expansion_OnQuestStart(ExpansionQuest quest);
 
 	void Expansion_OnQuestContinue(ExpansionQuest quest);
+	
+	void Expansion_OnObjectiveTimeLimitReached(ExpansionQuestObjectiveEventBase objectiveEventBase);
 
 	void Expansion_OnQuestCancel(ExpansionQuest quest);
 

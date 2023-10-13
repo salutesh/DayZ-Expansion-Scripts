@@ -1,5 +1,5 @@
 /**
- * eAIFactionInvincibleScienceSociety.c
+ * eAIFactionPallasResearch.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -11,29 +11,25 @@
  */
 
 #ifdef EXPANSIONMODAI
-[eAIRegisterFaction(eAIFactionInvincibleScienceSociety)]
-class eAIFactionInvincibleScienceSociety : eAIFactionInvincibleGuards
+[eAIRegisterFaction(eAIFactionPallasResearch)]
+class eAIFactionPallasResearch : eAIFaction
 {
-	void eAIFactionInvincibleScienceSociety()
+	void eAIFactionPallasResearch()
 	{
-		m_Loadout = "SurvivorLoadout";
+		m_Loadout = "Namalsk_PallasResearch";
 	}
 
 	override bool IsFriendly(notnull eAIFaction other)
 	{
 		if (super.IsFriendly(other)) return true;
-		if (other.IsInherited(eAIFactionInvincibleScienceSociety)) return true;
-		if (other.IsInherited(eAIFactionScienceSociety)) return true;
-		if (other.IsInherited(eAIFactionResistance)) return true;
-		if (other.IsInherited(eAIFactionSurvivors)) return true;
+		if (other.IsInherited(eAIFactionPallasResearch)) return true;
 		if (other.IsInherited(eAIFactionPassive)) return true;
 		return false;
 	}
 
 	override string GetDisplayName()
 	{
-		return "Science Society";
+		return "Pallas Research";
 	}
 };
 #endif
-

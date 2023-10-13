@@ -965,12 +965,14 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 					break;
 				}
 
+			#ifdef EXPANSIONMOD
 				case EXPANSION_LIQUID_MILK:
 				{
 					text = "#STR_EXPANSION_MILK_LIQUID";
 					color = Colors.COLOR_LIQUID;
 					break;
 				}
+			#endif
 
 				case LIQUID_GASOLINE:
 				{

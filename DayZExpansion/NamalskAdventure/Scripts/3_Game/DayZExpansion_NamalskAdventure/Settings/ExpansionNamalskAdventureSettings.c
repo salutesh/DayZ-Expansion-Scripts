@@ -407,32 +407,6 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		aiSpawn.SetShelterPositions(shelterPositions);
 		AISpawnPositions.Insert(aiSpawn);
 
-		//! AI guards - Sebjan Reservoir - Resistance Camp
-		npcName = "Resistance Guard";
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(5999.97, 5.74131, 10082.5));
-		aiSpawn = new ExpansionAISpawnPosition();
-		aiSpawn.Set(npcName, Vector(5999.97, 5.74131, 10082.5), Vector(320.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true);
-		AISpawnPositions.Insert(aiSpawn);
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(6001.02, 5.78099, 10068.3));
-		aiSpawn = new ExpansionAISpawnPosition();
-		aiSpawn.Set(npcName, Vector(6001.02, 5.78099, 10068.3), Vector(195.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true);
-		AISpawnPositions.Insert(aiSpawn);
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(5980.95, 5.79031, 10040.9));
-		aiSpawn = new ExpansionAISpawnPosition();
-		aiSpawn.Set(npcName, Vector(5980.95, 5.79031, 10040.9), Vector(105.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true);
-		AISpawnPositions.Insert(aiSpawn);
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(6019.13, 5.80883, 10026.7));
-		aiSpawn = new ExpansionAISpawnPosition();
-		aiSpawn.Set(npcName, Vector(6019.13, 5.80883, 10026.7), Vector(105.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true);
-		AISpawnPositions.Insert(aiSpawn);
-
 		//! Spawn NAC AI Soldier Units at A1 Bunker
 		npcName = "NAC Soldier";
 		waypoints = new array<vector>;

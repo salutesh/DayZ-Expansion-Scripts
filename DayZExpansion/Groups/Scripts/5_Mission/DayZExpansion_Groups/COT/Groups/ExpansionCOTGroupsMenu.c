@@ -1022,7 +1022,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 			if (w == m_GroupMap && !IsEdittingMarker() && !IsCreatingMarker())
 			{
 				int mouse_x, mouse_y;
-				GetGame().GetMousePos(mouse_x, mouse_y);
+				GetMousePos(mouse_x, mouse_y);
 				CreateNewMarker(mouse_x, mouse_y);
 				return true;
 			}

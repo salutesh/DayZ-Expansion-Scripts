@@ -45,7 +45,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 	protected void CreateDirectoryStructure()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
+		
 		if (!FileExist(s_dataFolderPath))
 		{
 			ExpansionStatic.MakeDirectoryRecursive(s_dataFolderPath);
@@ -101,10 +101,12 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 		if (FileExist(s_dataFolderPath + "CommunityGoals.json"))
 		{
+			ModuleDebugPrint("::LoadCommunityGoalsServerData - Loading existing community goals data.");
 			GetCommunityGoalsData(s_dataFolderPath + "CommunityGoals.json");
 		}
 		else
 		{
+			ModuleDebugPrint("::LoadCommunityGoalsServerData - No existing data found! Create default community goals data.");
 			m_ServerData = new ExpansionCommunityGoalsData();
 			m_ServerData.LoadDefaults();
 			m_ServerData.Save();
@@ -139,6 +141,8 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 			{
 				if (m_CommunityGoals.Find(goalData.GetID(), null))
 					continue;
+				
+				ModuleDebugPrint("::LoadCommunityGoals - Add community goal data. ID: " + goalData.GetID() + " | Faction ID: " + goalData.GetFactionID() + " | Progress: " + goalData.GetProgress());
 
 			    m_CommunityGoals.Insert(goalData.GetID(), goalData);
 
@@ -374,20 +378,19 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 		}
 	#endif
 
-		array<ExpansionCommunityGoal> goalsToSend = new array<ExpansionCommunityGoal>;
-		int goalsCount;
+		array<ref ExpansionCommunityGoal> goalsToSend = new array<ref ExpansionCommunityGoal>;
 		foreach (int id, ExpansionCommunityGoal goal: m_CommunityGoals)
 		{
 		#ifdef EXPANSIONMODAI
-			if (goal.GetFactionID() == factionID)
-		#else
-				goalsToSend.Insert(goal);
-				goalsCount++;
+			if (goal.GetFactionID() == factionID)	
 		#endif
+			{
+				goalsToSend.Insert(goal);
+			}
 		}
 
 		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Write(goalsCount);
+		rpc.Write(goalsToSend.Count());
 
 		foreach (ExpansionCommunityGoal goalToSend: goalsToSend)
 		{

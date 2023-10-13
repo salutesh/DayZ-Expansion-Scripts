@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -27,6 +27,10 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	protected ref map<int, ref ExpansionTeleportData> m_TeleporterData; //! Server
 	protected ref ExpansionTeleportData m_TeleporterClientData;
+	
+#ifdef EXPANSION_NAMALSK_ADVENTURE
+	protected ref map<int, ref array<string>> m_PlayerTeleporterMap;
+#endif
 
 	void ExpansionTeleporterModule()
 	{
@@ -154,9 +158,97 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		if (!teleporterData)
 			return;
 
-		m_TeleporterData.Insert(teleporterData.GetID(), teleporterData);
+		AddTeleporterData(teleporterData);
 		teleporterData.SpawnTeleporter(); //! Spawn the teleporter.
 	}
+	
+#ifdef EXPANSION_NAMALSK_ADVENTURE
+	void AddPlayerToTeleporter(int teleporterID, string playerUID)
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		EXTrace.Add(trace, teleporterID);
+		EXTrace.Add(trace, playerUID);
+		
+		array<string> playerUIDs = m_PlayerTeleporterMap[teleporterID];
+		if (playerUIDs.Find(playerUID) == -1)
+		{
+			playerUIDs.Insert(playerUID);
+			m_PlayerTeleporterMap[teleporterID] = playerUIDs;
+		}
+	}
+	
+	void RemovePlayerFromTeleporter(int teleporterID, string playerUID)
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
+		array<string> playerUIDs = m_PlayerTeleporterMap[teleporterID];
+		int foundIndex = -1;
+		foundIndex = playerUIDs.Find(playerUID);
+		
+		if (foundIndex > -1)
+		{
+			playerUIDs.RemoveOrdered(foundIndex);
+			m_PlayerTeleporterMap[teleporterID] = playerUIDs;
+		}
+	}
+	
+	bool CanUseTeleporter(int teleporterID, string playerUID)
+	{
+		array<string> playerUIDs = m_PlayerTeleporterMap[teleporterID];
+		if (playerUIDs.Find(playerUID) > -1)
+			return true;
+		
+		return false;
+	}
+	
+	void OnTeleporterKeyCardUsed(Expansion_Teleporter_Big teleporterObj, Expansion_KeyCard_Teleporter keyCard)
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
+		PlayerBase player = PlayerBase.Cast(keyCard.GetHierarchyRootPlayer());
+		if (!player)
+			return;
+		
+		int teleporterID = teleporterObj.GetTeleporterID();
+		string playerUID = player.GetIdentity().GetId();
+		if (teleporterID > -1)
+			AddPlayerToTeleporter(teleporterID, playerUID);
+		
+		keyCard.OnCardUsed();
+		
+		int remaining;
+		if (!teleporterObj.IsActive())
+		{
+			teleporterObj.SetActive(true);
+			remaining = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(this.DeactivateTeleporter);
+			if (remaining <= 0)
+			{
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.DeactivateTeleporter, 30000, false, teleporterObj);
+			}
+		}
+		else
+		{
+			remaining = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(this.DeactivateTeleporter);
+			if (remaining > 0)
+			{
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.DeactivateTeleporter);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.DeactivateTeleporter, 30000, false, teleporterObj);
+			}
+		}
+		
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.RemovePlayerFromTeleporter, 30000, false, teleporterID, playerUID);
+	}
+	
+	void DeactivateTeleporter(Expansion_Teleporter_Big teleporterObj)
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
+		if (teleporterObj.IsActive())
+		{
+			teleporterObj.SetActive(false);
+		}
+	}
+#endif
 
 	override int GetRPCMin()
 	{
@@ -455,6 +547,18 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 		if (!m_TeleporterData.Contains(data.GetID()))
 			m_TeleporterData.Insert(data.GetID(), data);
+		
+	#ifdef EXPANSION_NAMALSK_ADVENTURE
+		if (!m_PlayerTeleporterMap)
+			m_PlayerTeleporterMap = new map<int, ref array<string>>;
+
+		array<string> playerUIDs;
+		if (!m_PlayerTeleporterMap.Find(data.GetID(), playerUIDs))
+		{
+			playerUIDs = new array<string>;
+			m_PlayerTeleporterMap.Insert(data.GetID(), playerUIDs);
+		}
+	#endif
 	}
 
 	//! Server

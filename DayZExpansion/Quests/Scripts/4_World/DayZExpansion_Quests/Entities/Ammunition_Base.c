@@ -59,4 +59,38 @@ modded class Ammunition_Base
 
 		return true;
 	}
+
+	override void SplitItemToInventoryLocation(notnull InventoryLocation dst)
+	{
+		super.SplitItemToInventoryLocation(dst);
+
+		if (!CanBeSplit())
+			return;
+
+		Expansion_OnQuantityChanged();
+	}
+
+	override void SplitItem(PlayerBase player)
+	{
+		super.SplitItem(player);
+
+		if (!CanBeSplit())
+			return;
+
+		if (player && player.GetIdentity())
+			CheckAssignedObjectivesForEntity(ExpansionQuestItemState.QUANTITY_CHANGED, player);
+	}
+	
+	override void CombineItems(ItemBase other_item, bool use_stack_max = false)
+	{
+		super.CombineItems(other_item, use_stack_max);
+
+		if (!CanBeCombined(other_item))
+			return;
+		
+		if (other_item.GetType() != GetType())
+			return;
+
+		Expansion_OnQuantityChanged();
+	}
 };

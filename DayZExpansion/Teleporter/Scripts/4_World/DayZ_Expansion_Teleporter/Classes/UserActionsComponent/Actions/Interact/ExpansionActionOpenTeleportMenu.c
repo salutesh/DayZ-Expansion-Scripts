@@ -32,13 +32,23 @@ class ExpansionActionOpenTeleportMenu: ActionInteractBase
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		Object targetObject;
-		if (!Class.CastTo(targetObject, target.GetParentOrObject()))
-			return false;
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 
-		Expansion_Teleporter_Base teleportObj = Expansion_Teleporter_Base.Cast(targetObject);
+		Expansion_Teleporter_Base teleportObj = Expansion_Teleporter_Base.Cast(target.GetObject());
 		if (!teleportObj || teleportObj && !teleportObj.IsActive())
 			return false;
+
+	#ifdef EXPANSION_NAMALSK_ADVENTURE
+	#ifdef SERVER
+		Expansion_Teleporter_Big teleportObjBig = Expansion_Teleporter_Big.Cast(teleportObj);
+		if (teleportObjBig && teleportObjBig.NeedKeyCard())
+		{
+			int teleporterID = teleportObjBig.GetTeleporterID();
+			if (!ExpansionTeleporterModule.GetModuleInstance().CanUseTeleporter(teleporterID, player.GetIdentity().GetId()))
+				return false;
+		}
+	#endif
+	#endif
 
 		if (!GetGame().IsDedicatedServer())
 		{
@@ -48,7 +58,7 @@ class ExpansionActionOpenTeleportMenu: ActionInteractBase
 				return false;
 
 			string actionText = "#use";
-			m_Text = actionText + " " + targetObject.GetDisplayName();
+			m_Text = actionText + " " + teleportObj.GetDisplayName();
 		}
 
 		return true;

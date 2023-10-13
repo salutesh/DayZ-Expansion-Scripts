@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -198,6 +198,10 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 
 	//! Particles
 	protected const int PARTICLE_TELEPORTER_IDLE = ParticleList.EXPANSION_PARTICLE_TELEPORTER;
+
+#ifdef EXPANSION_NAMALSK_ADVENTURE
+	protected bool m_NeedKeyCard;
+#endif
 	
 	void Expansion_Teleporter_Big()
 	{
@@ -425,8 +429,6 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	override void OnVariablesSynchronized()
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-
-		super.OnVariablesSynchronized();
 		
 		if (m_VisualState != m_TeleporterState)
 			UpdateVisualState(m_TeleporterState);
@@ -436,4 +438,22 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	{
 		return PARTICLE_TELEPORTER_IDLE;
 	}
+	
+#ifdef EXPANSION_NAMALSK_ADVENTURE
+	void SetNeedKeyCard(bool state)
+	{
+		m_NeedKeyCard = state;
+	}
+	
+	bool NeedKeyCard()
+	{
+		return m_NeedKeyCard;
+	}
+	
+	override void SetActions()
+	{
+		super.SetActions();
+		AddAction(ExpansionActionUseTeleporter);
+	}
+#endif
 };

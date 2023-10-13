@@ -55,6 +55,9 @@ modded class JMPlayerModule
 
 	private void Exec_SetExpansionReputation(int reputation, array<string> guids, PlayerIdentity ident, JMPlayerInstance instance = null)
 	{
+		if (reputation == -1)
+			return;
+
 		array<JMPlayerInstance> players = GetPermissionsManager().GetPlayers(guids);
 
 		for (int i = 0; i < players.Count(); i++)

@@ -29,7 +29,7 @@ class CfgMods
 		author = "$STR_MOD_EXPANSION_AUTHOR";
 		authorID = "";
 		dependencies[] = {"Game","World","Mission"};
-		defines[] = {"EXPANSIONMODHARDLINE","EXPANSION_COT_BUGFIX_REF_UIACTIONS"};
+		defines[] = {"EXPANSIONMODHARDLINE"};
 		class defs
 		{
 			class gameScriptModule

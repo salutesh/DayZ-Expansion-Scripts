@@ -463,12 +463,12 @@ modded class IngameHud
 
 					if (expNPCBase)
 					{
+						expNPCBase.m_Expansion_NetsyncData.Get(0, npcName);
+						expNPCBase.m_Expansion_NetsyncData.Get(1, icon);
 					#ifdef EXPANSIONMODQUESTS
 						ExpansionQuestNPCBase expQuestNPCBase;
 						if (Class.CastTo(expQuestNPCBase, expNPCBase))
 						{
-							expQuestNPCBase.m_Expansion_NetsyncData.Get(0, npcName);
-							expQuestNPCBase.m_Expansion_NetsyncData.Get(1, icon);
 							showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), expQuestNPCBase.GetQuestNPCID());
 							if (showQuestMarker)
 							{
@@ -476,20 +476,17 @@ modded class IngameHud
 								iconColor = ARGB(255, 255, 180, 24);
 							}
 						}
-						else
 					#endif
-							expNPCBase.m_Expansion_NetsyncData.Get(0, npcName);
-							expNPCBase.m_Expansion_NetsyncData.Get(1, icon);
 					}
 				#ifdef EXPANSIONMODAI
 					else if (expAINPCBase)
 					{
+						expAINPCBase.m_Expansion_NetsyncData.Get(0, npcName);
+						expAINPCBase.m_Expansion_NetsyncData.Get(1, icon);
 					#ifdef EXPANSIONMODQUESTS
 						ExpansionQuestNPCAIBase expQuestNPCAIBase;
 						if (Class.CastTo(expQuestNPCAIBase, expAINPCBase))
 						{
-							expQuestNPCAIBase.m_Expansion_NetsyncData.Get(0, npcName);
-							expQuestNPCAIBase.m_Expansion_NetsyncData.Get(1, icon);
 							showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), expQuestNPCAIBase.GetQuestNPCID());
 							if (showQuestMarker)
 							{
@@ -497,18 +494,15 @@ modded class IngameHud
 								iconColor = ARGB(255, 255, 180, 24);
 							}
 						}
-						else
 					#endif
-							expAINPCBase.m_Expansion_NetsyncData.Get(0, npcName);
-							expAINPCBase.m_Expansion_NetsyncData.Get(1, icon);
 					}
-					/*else if (eAI)
+					else if (eAI)
 					{
-						//! ToDo: eAIBase enities need a name!
-						//eAI.m_Expansion_NetsyncData.Get(0, npcName);
-						//eAI.m_Expansion_NetsyncData.Get(1, icon);
+						if (!eAI.m_Expansion_NetsyncData.Get(0, npcName))
+							npcName = "#str_cfgvehicles_survivor0";
+						
 						icon = "{3364F58EF7F7FBE3}DayZExpansion/Core/GUI/icons/misc/T_Soldier_256x256.edds";
-					}*/
+					}
 				#endif
 					else if (npcPlayer)
 					{

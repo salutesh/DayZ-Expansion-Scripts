@@ -118,7 +118,8 @@ modded class ItemBase
 						GetGame().ObjectDelete(this);
 				}
 
-				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_ENTER, player);
+				//! Need to check in next frame because other code might have created this item in player inventory & set quantity in this frame
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(CheckAssignedObjectivesForEntity, ExpansionQuestItemState.INV_ENTER, player);
 			}
 		}
 	}
@@ -160,10 +161,15 @@ modded class ItemBase
 
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && Expansion_IsStackable())
 		{
-			PlayerBase player = PlayerBase.Cast(GetHierarchyRootPlayer());
-			if (player && player.GetIdentity())
-				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.QUANTITY_CHANGED, player);
+			Expansion_OnQuantityChanged();
 		}
+	}
+
+	void Expansion_OnQuantityChanged()
+	{
+		PlayerBase player = PlayerBase.Cast(GetHierarchyRootPlayer());
+		if (player && player.GetIdentity())
+			CheckAssignedObjectivesForEntity(ExpansionQuestItemState.QUANTITY_CHANGED, player);
 	}
 	
 	override void EEHealthLevelChanged(int oldLevel, int newLevel, string zone)

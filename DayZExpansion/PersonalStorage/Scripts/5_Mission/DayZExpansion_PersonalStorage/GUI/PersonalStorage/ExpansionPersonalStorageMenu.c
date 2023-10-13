@@ -815,12 +815,14 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 					break;
 				}
 
+			#ifdef EXPANSIONMOD
 				case EXPANSION_LIQUID_MILK:
 				{
 					text = "MILK";
 					color = Colors.COLOR_LIQUID;
 					break;
 				}
+			#endif
 
 				case LIQUID_GASOLINE:
 				{

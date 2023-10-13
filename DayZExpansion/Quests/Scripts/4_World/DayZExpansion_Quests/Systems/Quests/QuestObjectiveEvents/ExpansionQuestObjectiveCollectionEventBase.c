@@ -10,12 +10,24 @@
  *
 */
 
+class ExpansionQuestObjectiveItemCount
+{
+	int Needed;
+	int RemainingNeeded;
+
+	void ExpansionQuestObjectiveItemCount(int needed)
+	{
+		Needed = needed;
+		RemainingNeeded = needed;
+	}
+}
+
 class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBase
 {
 	protected ExpansionTravelObjectiveSphereTrigger m_ObjectiveTrigger;
 	protected bool m_DestinationReached;
 	protected ref array<ref ExpansionQuestDeliveryObjectiveData> m_DeliveryData;
-	protected ref map<string, int> m_ObjectiveItemsMap;
+	protected ref map<string, ref ExpansionQuestObjectiveItemCount> m_ObjectiveItemsMap;
 	protected ref array<ref ExpansionQuestObjectiveItem> m_ObjectiveItems;
 	protected int m_ObjectiveItemsAmount;
 	protected int m_ObjectiveItemsCount;
@@ -28,7 +40,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	void ExpansionQuestObjectiveCollectionEventBase(ExpansionQuest quest)
 	{
-		m_ObjectiveItemsMap = new map<string, int>;
+		m_ObjectiveItemsMap = new map<string, ref ExpansionQuestObjectiveItemCount>;
 		m_DeliveryData = new array<ref ExpansionQuestDeliveryObjectiveData>;
 		m_ObjectiveItems = new array<ref ExpansionQuestObjectiveItem>;
 	}
@@ -69,8 +81,10 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		int allCollection = 0;
 		array<ExpansionQuestObjectiveItem> changedItems = new array<ExpansionQuestObjectiveItem>;
 
-		foreach (string typeName, int needed: m_ObjectiveItemsMap)
+		foreach (string typeName, ExpansionQuestObjectiveItemCount count: m_ObjectiveItemsMap)
 		{
+			int needed = count.Needed;
+
 			if (m_Config.NeedAnyCollection())
 			{
 				if (selectedObjItemIndex == -1)
@@ -100,7 +114,6 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			            ObjectivePrint("Item amount is lower or exacly the needed amount for item " + typeName + " | Amount: " + amount + " | Needed: " + needed + " | Remaining: 0");
 			            objItem.SetRemaining(0);
 			            remove += amount;
-			            changedItems.Insert(objItem);
 			        }
 			        else
 			        {
@@ -109,8 +122,8 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			            objItem.SetRemaining(remaining);
 			            remove += remainingNeeded;
 						remainingNeeded = 0;
-			            changedItems.Insert(objItem);
 			        }
+			        changedItems.Insert(objItem);
 			    }
 
 			    if (remainingNeeded == 0)
@@ -274,16 +287,15 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 			m_ObjectiveItemsAmount += amount;
 
-			int current;
+			ExpansionQuestObjectiveItemCount current;
 			if (!m_ObjectiveItemsMap.Find(typeName, current))
 			{
-				m_ObjectiveItemsMap.Insert(typeName, amount);
+				m_ObjectiveItemsMap.Insert(typeName, new ExpansionQuestObjectiveItemCount(amount));
 				ObjectivePrint("Added collection data for type name: " + typeName + " | Amount: " + amount + " to objective items map.");
 			}
 			else
 			{
-				int neededNew = current + amount;
-				m_ObjectiveItemsMap.Set(typeName, neededNew);
+				current.Needed += amount;
 			}
 		}
 
@@ -338,13 +350,14 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, player.GetIdentity().GetId());
 
-		foreach (string typeName, int needed: m_ObjectiveItemsMap)
+		foreach (string typeName, ExpansionQuestObjectiveItemCount count: m_ObjectiveItemsMap)
 		{
-			EXTrace.Print(EXTrace.QUESTS, this, typeName + " needed: " + needed);
+			count.RemainingNeeded = count.Needed;  //! Reset
+
+			EXTrace.Print(EXTrace.QUESTS, this, typeName + " needed: " + count.Needed);
 			ExpansionInventoryItemType itemType = player.Expansion_GetInventoryItemType(typeName);
 			if (itemType)
 			{
-				int remainingNeeded = needed;
 				foreach (ItemBase item: itemType.Items)
 				{
 					if (item.IsRuined())
@@ -357,18 +370,9 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 							continue;
 					}
 
-					int amount = item.Expansion_GetStackAmount();
-			        if (amount <= remainingNeeded)
-			        {
-			            remainingNeeded -= amount;
-			            AddObjectiveItem(item);
-			        }
-			        else
-			        {
-			            remainingNeeded = 0;
-			        }
+					AddObjectiveItem(item, count);
 
-					if (remainingNeeded == 0)
+					if (count.RemainingNeeded == 0)
                     	break;
 				}
 			}
@@ -400,14 +404,27 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		return true;
 	}
 
-	protected void AddObjectiveItem(ItemBase item)
+	protected void AddObjectiveItem(ItemBase item, ExpansionQuestObjectiveItemCount count)
 	{
+		int amount;  //! Amount to add
+		int stack = item.Expansion_GetStackAmount();
+		if (stack <= count.RemainingNeeded)
+		{
+			amount = stack;
+			count.RemainingNeeded -= stack;
+		}
+		else
+		{
+			amount = count.RemainingNeeded;
+			count.RemainingNeeded = 0;
+		}
+
 		if (m_Config.GetObjectiveType() == ExpansionQuestObjectiveType.DELIVERY)
 			item.Expansion_SetIsDeliveryItem(true);
 
-		int amount = item.Expansion_GetStackAmount();
 		EXTrace.Print(EXTrace.QUESTS, this, "add: " + amount);
 		ExpansionQuestObjectiveItem objItem = new ExpansionQuestObjectiveItem(item);
+		objItem.SetRemaining(stack - amount);
 		m_ObjectiveItems.Insert(objItem);
 		m_ObjectiveItemsCount += amount;
 	}
@@ -439,65 +456,73 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 			ObjectivePrint("Add delivery data entry for item: " + typeName + " | Inventory count: " + inventoryCount + " | Needed: " + needed + " | Index: " + i);
 			ExpansionQuestDeliveryObjectiveData deliveryData = new ExpansionQuestDeliveryObjectiveData();
-			deliveryData.SetFromDelivery(i, inventoryCount);
+			deliveryData.SetFromDelivery(i, Math.Min(inventoryCount, needed));
 			m_DeliveryData.Insert(deliveryData);
 		}
 	}
 
 	void OnInventoryItemLocationChange(ItemBase item, ExpansionQuestItemState state)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, item.GetType(), typename.EnumToString(ExpansionQuestItemState, state));
 
 		string typeName = item.GetType();
-		int needed = 0;
-		if (!m_ObjectiveItemsMap.Find(typeName, needed))
+		ExpansionQuestObjectiveItemCount count;
+		if (!m_ObjectiveItemsMap.Find(typeName, count))
 			return;
 
 		ObjectivePrint("::OnInventoryItemLocationChange - Item: " + typeName);
 		ObjectivePrint("::OnInventoryItemLocationChange - Inventory location state: " + typename.EnumToString(ExpansionQuestItemState, state));
 
-		int amount = item.Expansion_GetStackAmount();
+		int foundIndex;
+		ExpansionQuestObjectiveItem foundObjItem;
 		switch (state)
 		{
 		case ExpansionQuestItemState.INV_EXIT:
-			int foundIndex;
-			if (IsObjectiveItem(item, foundIndex))
+			if (IsObjectiveItem(item, foundIndex, foundObjItem))
 			{
-				ObjectivePrint("::OnInventoryItemLocationChange - Found item in current objective items array, removing: " + typeName + " | Amount: " + amount + " | Index: " + foundIndex);
+				int amount = item.Expansion_GetStackAmount() - foundObjItem.GetRemaining();
+				ObjectivePrint("::OnInventoryItemLocationChange - Found item in current objective items array, removing: " + typeName + " | Amount: " + amount + " / " + m_ObjectiveItemsCount + " | Index: " + foundIndex + " | Remaining: " + foundObjItem.GetRemaining());
 				m_ObjectiveItemsCount -= amount;
 				m_ObjectiveItems.Remove(foundIndex);
+				if (m_ObjectiveItemsCount == 0)
+					CheckQuestPlayersForObjectiveItems();  //! Check for any item that was previously ignored because we already had needed amount
+				else
+					count.RemainingNeeded += amount;
 				UpdateDeliveryData();
 			}
 			break;
 		case ExpansionQuestItemState.INV_ENTER:
-			if (amount <= needed && m_ObjectiveItemsCount < m_ObjectiveItemsAmount && CanAddObjectiveItem(item))
+			if (m_ObjectiveItemsCount < m_ObjectiveItemsAmount && CanAddObjectiveItem(item))
 			{
 				ObjectivePrint("::OnInventoryItemLocationChange - Item is not in objective items array: " + typeName + ", adding");
-				AddObjectiveItem(item);
+				AddObjectiveItem(item, count);
 				UpdateDeliveryData();
 			}
 			break;
 		case ExpansionQuestItemState.QUANTITY_CHANGED:
-			ObjectivePrint("::OnInventoryItemLocationChange - The quantity of a objective item has changed: " + typeName + " | Amount: " + amount);
-			CheckQuestPlayersForObjectiveItems();
-			UpdateDeliveryData();
+			if (IsObjectiveItem(item, foundIndex, foundObjItem))
+			{
+				ObjectivePrint("::OnInventoryItemLocationChange - The quantity of a objective item has changed: " + typeName + " | Amount: " + amount);
+				CheckQuestPlayersForObjectiveItems();
+				UpdateDeliveryData();
+			}
 			break;
 		}
 
 		m_Quest.QuestCompletionCheck(true);
 	}
 
-	protected bool IsObjectiveItem(ItemBase item, out int index = -1)
+	protected bool IsObjectiveItem(ItemBase item, out int index = -1, out ExpansionQuestObjectiveItem foundObjItem = null)
 	{
 		if (!CanAddObjectiveItem(item))
 			return false;
 
-		for (int i = 0; i < m_ObjectiveItems.Count(); i++)
+		foreach (int i, ExpansionQuestObjectiveItem objItem: m_ObjectiveItems)
 		{
-			ExpansionQuestObjectiveItem objItem = m_ObjectiveItems[i];
 			if (objItem.GetItem() == item)
 			{
 				index = i;
+				foundObjItem = objItem;
 				return true;
 			}
 		}
@@ -525,7 +550,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	protected bool HasAnyCollectionCompleted()
 	{
-		foreach (string typeName, int needed: m_ObjectiveItemsMap)
+		foreach (string typeName, ExpansionQuestObjectiveItemCount count: m_ObjectiveItemsMap)
 		{
 			int collectionItemCount = 0;
 			foreach (ExpansionQuestObjectiveItem objItem: m_ObjectiveItems)
@@ -537,7 +562,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 				}
 			}
 
-			if (collectionItemCount >= needed)
+			if (collectionItemCount >= count.Needed)
 				return true;
 		}
 

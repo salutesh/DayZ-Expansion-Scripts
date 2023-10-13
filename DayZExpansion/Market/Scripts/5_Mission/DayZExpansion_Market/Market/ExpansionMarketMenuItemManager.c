@@ -480,7 +480,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 		if (w == market_item_manager_preview)
 		{
 			GetGame().GetDragQueue().Call(this, "UpdateRotation");
-			g_Game.GetMousePos(m_ItemRotationX, m_ItemRotationY);
+			GetMousePos(m_ItemRotationX, m_ItemRotationY);
 			return true;
 		}		
 		return false;
