@@ -24,6 +24,8 @@ class ExpansionNamalskAdventureSettingsBase: ExpansionSettingBase
 	bool EnableStatic;
 	bool SpawnDynamicWithEVRStorms;
 	bool SpawnStaticWithEVRStorms;
+	bool EnableAntennaEvent;
+	bool EnableA1BunkerEvent;
 	
 	#ifdef EXPANSIONMODMARKET
 	bool EnableMerchant;
@@ -50,7 +52,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	[NonSerialized()]
 	protected const float DEFAULT_ANOMALY_SPAWN_AMOUNT = 7;
 
-	static const int VERSION = 5;
+	static const int VERSION = 6;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -113,6 +115,8 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		EnableStatic = s.EnableStatic;
 		SpawnDynamicWithEVRStorms = s.SpawnDynamicWithEVRStorms;
 		SpawnStaticWithEVRStorms = s.SpawnStaticWithEVRStorms;
+		EnableAntennaEvent = s.EnableAntennaEvent;
+		EnableA1BunkerEvent = s.EnableA1BunkerEvent;
 		
 		#ifdef EXPANSIONMODMARKET
 		EnableMerchant = s.EnableMerchant;
@@ -162,6 +166,12 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 			{
 				EXPrint("[ExpansionNamalskAdventureSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_NAMALSKADVENTURE_SETTINGS + "\" to v" + VERSION);
 				CopyInternal(settingsBase); //! Copy over old settings that have not changed.
+				
+				if (settingsBase.m_Version < 6)
+				{
+					EnableAntennaEvent = settingsDefault.EnableAntennaEvent;
+					EnableA1BunkerEvent = settingsDefault.EnableA1BunkerEvent;
+				}
 				
 				m_Version = VERSION;
 				save = true;
@@ -215,6 +225,8 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		EnableStatic = true;
 		SpawnDynamicWithEVRStorms = true;
 		SpawnStaticWithEVRStorms = false;
+		EnableAntennaEvent = false;
+		EnableA1BunkerEvent = true;
 
 		#ifdef EXPANSIONMODMARKET
 		EnableMerchant = true;
