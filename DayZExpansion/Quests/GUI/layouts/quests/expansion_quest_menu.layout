@@ -75,8 +75,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
        imageTexture "{DDEDAF5A8B34B62D}DayZExpansion/Core/GUI/icons/hud/ellipse_out_64x64.edds"
        mode blend
        "src alpha" 1
-       "clamp mode" clamp
-       "stretch mode" stretch_w_h
+       stretch 1
        "flip u" 1
        "flip v" 0
       }

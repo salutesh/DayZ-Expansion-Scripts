@@ -52,8 +52,7 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
        imageTexture "{0FCACAAF0A99273C}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"
        mode blend
        "src alpha" 1
-       "clamp mode" clamp
-       "stretch mode" stretch_w_h
+        stretch 1
       }
       RichTextWidgetClass QuestTitle {
        ignorepointer 1
