@@ -763,11 +763,11 @@ modded class IngameHud
 
 		UIScriptedMenu topMenu = GetGame().GetUIManager().GetMenu();
 		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
-		if ((topMenu || viewMenu) && m_PlayerTag)
+		if ((topMenu || viewMenu || IsHideHudPlayer()) && m_PlayerTag)
 		{
 			Expansion_ClearPlayerTagWidgets(timeslice);
 		}
-		else if (!topMenu && !viewMenu)
+		else if (!topMenu && !viewMenu && !IsHideHudPlayer())
 		{
 			//! Player Tags
 			if (GetExpansionSettings().GetNameTags(false).IsLoaded() && (GetExpansionSettings().GetNameTags().EnablePlayerTags || GetExpansionSettings().GetNameTags().ShowPlayerItemInHands))

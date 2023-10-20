@@ -94,7 +94,7 @@ modded class dzn_lantia_vega7
 };
 #endif*/
 
-class NA_Dokuments_Sanctuary1 extends ItemBase
+class NA_Documents_Sanctuary1 extends ItemBase
 {
 	override void SetActions()
 	{
@@ -103,7 +103,7 @@ class NA_Dokuments_Sanctuary1 extends ItemBase
 	}
 };
 
-class NA_Dokuments_Sanctuary2 extends ItemBase
+class NA_Documents_Sanctuary2 extends ItemBase
 {
 	override void SetActions()
 	{
@@ -112,7 +112,7 @@ class NA_Dokuments_Sanctuary2 extends ItemBase
 	}
 };
 
-class NA_Dokuments_SanctuarySecrets extends ItemBase
+class NA_Documents_SanctuarySecrets extends ItemBase
 {
 	override void SetActions()
 	{
@@ -121,7 +121,7 @@ class NA_Dokuments_SanctuarySecrets extends ItemBase
 	}
 };
 
-class NA_Dokuments_ProjectSanctuary extends ItemBase
+class NA_Documents_ProjectSanctuary extends ItemBase
 {
 	override void SetActions()
 	{

@@ -16,16 +16,19 @@ class ExpansionQuestHUDDeliveryEntry: ExpansionScriptView
 	protected ref ExpansionQuestHUDDeliveryEntryController m_QuestHUDDeliveryObjectiveController;
 	protected ExpansionQuestObjectiveDelivery m_Delivery;
 	protected int m_Count;
+	protected ExpansionQuestHUDObjective m_ObjectiveEntry;
 	protected ImageWidget delivery_icon;
 	protected TextWidget delivery_name;
 	protected TextWidget delivery_value;
+	protected Widget spacer;
 
-	void ExpansionQuestHUDDeliveryEntry(ExpansionQuestObjectiveDelivery delivery, int count)
+	void ExpansionQuestHUDDeliveryEntry(ExpansionQuestObjectiveDelivery delivery, int count, ExpansionQuestHUDObjective objectiveEntry)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		
 		m_Delivery = delivery;
 		m_Count = count;
+		m_ObjectiveEntry = objectiveEntry;
 		Class.CastTo(m_QuestHUDDeliveryObjectiveController, GetController());
 		
 		SetView();
@@ -53,7 +56,8 @@ class ExpansionQuestHUDDeliveryEntry: ExpansionScriptView
 				delivery_value.SetColor(ARGB(255, 160, 223, 59));
 				delivery_icon.SetImage(1);
 				delivery_icon.SetRotation(0, 0, 0, true);
-				delivery_icon.SetColor(ARGB(255, 160, 223, 59));
+				delivery_icon.SetColor(ARGB(255, 160, 223, 59));				
+				spacer.SetColor(ARGB(200, 160, 223, 59));
 			}
 			else
 			{
@@ -62,6 +66,9 @@ class ExpansionQuestHUDDeliveryEntry: ExpansionScriptView
 				delivery_icon.SetImage(0);
 				delivery_icon.SetRotation(0, 0, 90, true);
 				delivery_icon.SetColor(ARGB(255, 255, 255, 255));
+				
+				int color = ExpansionQuestModule.GetQuestColor(m_ObjectiveEntry.GetQuestConfig());
+				spacer.SetColor(color);
 			}
 		}
 	}

@@ -59,7 +59,7 @@ class ExpansionActionUseSatelliteControl: ActionInteractBase
 		if (satControl)
 			satControl.StartSatellite();
 		
-		Expansion_KeyCard_NA_Antenna keyCard = Expansion_KeyCard_NA_Antenna.Cast(satControl.FindAttachmentBySlotName("Att_ExpansionKeyCard"));
+		Expansion_KeyCard_NA_Antenna keyCard = Expansion_KeyCard_NA_Antenna.Cast(satControl.FindAttachmentBySlotName("Att_ExpansionKeyCardAntenna"));
 		if (keyCard)
 			keyCard.OnCardUsed();
 	}

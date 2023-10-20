@@ -76,6 +76,14 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			return false;
 		}
 
+	#ifdef EXPANSIONMODAI
+		if (!ctx.Read(UseFactionReputation))
+		{
+			Error(ToString() + "::OnRecieve UseFactionReputation");
+			return false;
+		}
+	#endif	
+		
 		if (!ctx.Read(EnableItemRarity))
 		{
 			Error(ToString() + "::OnRecieve EnableItemRarity");
@@ -108,6 +116,9 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 		ctx.Write(ShowHardlineHUD);
 		ctx.Write(UseReputation);
+	#ifdef EXPANSIONMODAI
+		ctx.Write(UseFactionReputation);
+	#endif
 		ctx.Write(EnableItemRarity);
 		ctx.Write(UseItemRarityOnInventoryIcons);
 	#ifdef EXPANSIONMOD

@@ -5,7 +5,6 @@ PanelWidgetClass ExpansionQuestHud {
  inheritalpha 0
  ignorepointer 1
  keepsafezone 1
- position 0.00049 0
  size 0.95 0.95
  halign center_ref
  valign center_ref
@@ -19,21 +18,20 @@ PanelWidgetClass ExpansionQuestHud {
  scriptclass "ExpansionQuestHUDController"
  {
   WrapSpacerWidgetClass QuestEntriesWraper {
-   clipchildren 0
+   clipchildren 1
    ignorepointer 1
    keepsafezone 1
-   size 264 1
+   size 0.1803 0.85
    halign right_ref
    hexactpos 0
    vexactpos 0
-   hexactsize 1
+   hexactsize 0
    vexactsize 0
    scriptclass ""
    style Empty
    "no focus" 1
-   Padding 5
+   Padding 4
    Margin 0
-   "Size To Content H" 1
    content_halign center
   }
  }

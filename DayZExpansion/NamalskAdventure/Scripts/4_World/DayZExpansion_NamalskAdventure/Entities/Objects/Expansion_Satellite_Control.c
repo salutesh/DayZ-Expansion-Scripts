@@ -354,7 +354,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	bool HasKeyCard()
 	{
-		ItemBase keyCard = ItemBase.Cast(FindAttachmentBySlotName("Att_ExpansionKeyCard"));
+		ItemBase keyCard = ItemBase.Cast(FindAttachmentBySlotName("Att_ExpansionKeyCardAntenna"));
 		if (keyCard && !keyCard.IsDamageDestroyed())
 			return true;
 

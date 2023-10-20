@@ -67,7 +67,7 @@ modded class Ammunition_Base
 		if (!CanBeSplit())
 			return;
 
-		Expansion_OnQuantityChanged();
+		Expansion_OnStackSizeChanged();
 	}
 
 	override void SplitItem(PlayerBase player)
@@ -78,7 +78,7 @@ modded class Ammunition_Base
 			return;
 
 		if (player && player.GetIdentity())
-			CheckAssignedObjectivesForEntity(ExpansionQuestItemState.QUANTITY_CHANGED, player);
+			CheckAssignedObjectivesForEntity(ExpansionQuestItemState.STACKSIZE_CHANGED, player);
 	}
 	
 	override void CombineItems(ItemBase other_item, bool use_stack_max = false)
@@ -91,6 +91,6 @@ modded class Ammunition_Base
 		if (other_item.GetType() != GetType())
 			return;
 
-		Expansion_OnQuantityChanged();
+		Expansion_OnStackSizeChanged();
 	}
 };

@@ -19,10 +19,10 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!super.OnEventStart())
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!super.OnEventStart())
 			return false;
 
 		return true;
@@ -32,10 +32,10 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!super.OnContinue())
-			return false;
-
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+		
+		if (!super.OnContinue())
 			return false;
 
 		return true;
@@ -52,7 +52,9 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 			return;
 
 		string markerName = m_Config.GetObjectiveText();
-		CreateObjectiveMarker(aiPatrol.GetWaypoints()[0], markerName);
+		array<vector> waypoints = aiPatrol.GetWaypoints();
+		if (waypoints)
+			CreateObjectiveMarker(waypoints[0], markerName);
 	}
 #endif
 
@@ -101,7 +103,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 		m_UnitsToSpawn = m_TotalUnitsAmount - m_TotalKillCount;
 
 		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
-		ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(m_UnitsToSpawn, aiPatrol.GetNPCSpeed(), aiPatrol.GetNPCMode(), "ALTERNATE", aiPatrol.GetNPCFaction(), aiPatrol.GetNPCLoadoutFile(), m_Config.CanLootAI(), false, aiPatrol.GetWaypoints());
+		ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(m_UnitsToSpawn, aiPatrol.GetNPCSpeed(), "SPRINT", aiPatrol.GetNPCMode(), aiPatrol.GetNPCFaction(), aiPatrol.GetNPCLoadoutFile(), m_Config.CanLootAI(), true, aiPatrol.GetWaypoints());
 		group.Formation = aiPatrol.NPCFormation;
 		group.AccuracyMin = aiPatrol.NPCAccuracyMin;
 		group.AccuracyMax = aiPatrol.NPCAccuracyMax;

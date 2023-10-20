@@ -399,23 +399,6 @@ enum ExpansionRPC
 	COUNT
 };
 
-enum ExpansionQuestModuleRPC
-{
-	INVALID = 40020,
-	RequestOpenQuestMenu,
-	ExitQuestMenu,
-	SendClientQuestData,
-	SendClientQuestConfigs,
-	RequestCreateQuestInstance,
-	RequestCompleteQuest,
-	CompleteQuest,
-	CreateClientMarker,
-	RemoveClientMarkers,
-	CancelQuest,
-	CallbackClient,
-	COUNT
-};
-
 enum ExpansionGarageModuleRPC
 {
 	INVALID = 40040,
@@ -471,6 +454,23 @@ enum ExpansionHardlineModuleRPC
 {
 	INVALID = 40110,
 	FactionReputationSync,
+	COUNT
+};
+
+enum ExpansionQuestModuleRPC
+{
+	INVALID = 40120,
+	RequestOpenQuestMenu,
+	ExitQuestMenu,
+	SendClientQuestData,
+	SendClientQuestConfigs,
+	RequestCreateQuestInstance,
+	RequestCompleteQuest,
+	CompleteQuest,
+	CreateClientMarker,
+	RemoveClientMarkers,
+	CancelQuest,
+	CallbackClient,
 	COUNT
 };
 

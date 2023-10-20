@@ -14,7 +14,8 @@ enum ExpansionQuestItemState
 {
 	INV_ENTER,
 	INV_EXIT,
-	QUANTITY_CHANGED
+	STACKSIZE_CHANGED,
+	CONTENTQUANTITY_CHANGED
 }
 
 modded class ItemBase
@@ -159,17 +160,41 @@ modded class ItemBase
 	{
 		super.OnQuantityChanged(delta);
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer() && Expansion_IsStackable())
+		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
-			Expansion_OnQuantityChanged();
+			if (Expansion_IsStackable())
+			{
+				Expansion_OnStackSizeChanged();
+			}
+			else
+			{
+				Expansion_OnContentQuantityChanged();
+			}
 		}
 	}
 
-	void Expansion_OnQuantityChanged()
+	void Expansion_OnStackSizeChanged()
+	{
+		if (IsSetForDeletion())
+			return;
+		
+		PlayerBase player = PlayerBase.Cast(GetHierarchyRootPlayer());
+		if (player && player.GetIdentity())
+			CheckAssignedObjectivesForEntity(ExpansionQuestItemState.STACKSIZE_CHANGED, player);
+	}
+	
+	void Expansion_OnContentQuantityChanged()
 	{
 		PlayerBase player = PlayerBase.Cast(GetHierarchyRootPlayer());
 		if (player && player.GetIdentity())
-			CheckAssignedObjectivesForEntity(ExpansionQuestItemState.QUANTITY_CHANGED, player);
+		{
+			ExpansionItemQuantityType quantityType;
+			float quantity = Expansion_GetQuantity(quantityType);		
+			if (quantityType >= ExpansionItemQuantityType.PERCENTAGE && quantityType <= ExpansionItemQuantityType.POWER)
+			{
+				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.CONTENTQUANTITY_CHANGED, player);
+			}
+		}
 	}
 	
 	override void EEHealthLevelChanged(int oldLevel, int newLevel, string zone)

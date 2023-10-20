@@ -85,14 +85,14 @@ class CfgVehicles
 		physLayer = "item_large";
 		carveNavmesh = 1;
 		storageCategory = 10;
-		attachments[] = {"Att_ExpansionKeyCard"};
+		attachments[] = {"Att_ExpansionKeyCardAntenna"};
 		class GUIInventoryAttachmentsProps
 		{
 			class Attachments_Access
 			{
 				name = "Key Card";
 				description = "Not needed.";
-				attachmentSlots[] = {"Att_ExpansionKeyCard"};
+				attachmentSlots[] = {"Att_ExpansionKeyCardAntenna"};
 				icon = "set:dayz_inventory image:cat_fp_tents";
 				view_index = 1;
 			};
@@ -251,10 +251,10 @@ class CfgVehicles
 	{
 		model = "\nst\ns_dayz\gear\lore\paper_files.p3d";
 		scope = 2;
-		title = "PLACEHOLDER";
+		title = "Plan - Project Sanctuary";
 		author = "PRI";
 		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\sanctuary1.html";
-		displayName = "PLACEHOLDER";
+		displayName = "Plan - Project Sanctuary";
 		descriptionShort = "PLACEHOLDER";
 		hiddenSelections[] = {"camoGround"};
 		hiddenSelectionsTextures[] = {"nst\ns_dayz\gear\lore\data\paper_files2_co.paa"};
@@ -277,10 +277,10 @@ class CfgVehicles
 	{
 		model = "\nst\ns_dayz\gear\lore\paper_files.p3d";
 		scope = 2;
-		title = "PLACEHOLDER";
+		title = "Warp System Manual - WT-001";
 		author = "PRI";
 		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\sanctuary2.html";
-		displayName = "PLACEHOLDER";
+		displayName = "Warp System Manual - WT-001";
 		descriptionShort = "PLACEHOLDER";
 		hiddenSelections[] = {"camoGround"};
 		hiddenSelectionsTextures[] = {"nst\ns_dayz\gear\lore\data\paper_files2_co.paa"};

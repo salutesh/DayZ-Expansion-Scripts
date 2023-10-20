@@ -115,6 +115,9 @@ class ExpansionClientSettings
 	bool ShowUnderRoofIndicator;
 	bool RarityColorToggle;
 
+	bool QuestHUDVisibility = true;
+	ref map<int, bool> QuestVisibilityStates;
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Constructor
 	// -----------------------------------------------------------
@@ -122,21 +125,24 @@ class ExpansionClientSettings
 	{
 		auto trace = EXTrace.StartStack(EXTrace.CLIENT_SETTINGS, this);
 
-		#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMOD
 		m_ShouldShowHUDCategory = true;
-		#endif
-		#ifdef EXPANSIONMODNAVIGATION
+	#endif
+	#ifdef EXPANSIONMODNAVIGATION
 		m_ShouldShowHUDCategory = true;
-		#endif
-		#ifdef EXPANSIONMODCHAT
+	#endif
+	#ifdef EXPANSIONMODCHAT
 		m_ShouldShowHUDCategory = true;
-		#endif
-		#ifdef EXPANSIONMODHARDLINE
+	#endif
+	#ifdef EXPANSIONMODHARDLINE
 		m_ShouldShowHUDCategory = true;
-		#endif
+	#endif
 
 		m_Categories = new array< ref ExpansionClientSettingCategory >;
 		MutedPlayers = new array<string>;
+	
+		QuestHUDVisibility = true;
+		QuestVisibilityStates = new map<int, bool>;
 
 		Init();
 		Defaults();
@@ -153,9 +159,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	private bool OnRead( ParamsReadContext ctx, int version, out bool settingsRepaired = false )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(EXTrace.CLIENT_SETTINGS, this, "OnRead").Add(ctx).Add(version);
-#endif
+	#endif
 
 		// Vehicles
 		if ( !ctx.Read( UseCameraLock ) )
@@ -605,6 +611,45 @@ class ExpansionClientSettings
 			return false;
 		}
 		
+		if ( version < 50 )
+			return true;
+
+		//! Quest HUD visibility		
+		if ( !ctx.Read( QuestHUDVisibility ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read QuestHUDVisibility!");
+			return false;
+		}
+		
+		int questVisStates;
+		if ( !ctx.Read( questVisStates ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read questVisStates!");
+			return false;
+		}
+		
+		if (!QuestVisibilityStates)
+			QuestVisibilityStates = new map<int, bool>;
+
+		for (int j = 0; j < questVisStates; j++)
+		{
+			int questID;
+			if ( !ctx.Read( questID ) )
+			{
+				EXPrint(ToString() + "::OnRead - ERROR: Couldn't read questID!");
+				return false;
+			}
+			
+			bool visState;
+			if ( !ctx.Read( visState ) )
+			{
+				EXPrint(ToString() + "::OnRead - ERROR: Couldn't read visState!");
+				return false;
+			}
+			
+			EXPrint(ToString() + "::OnRead - Add quest visibity state: " + questID + " | " + visState);
+			QuestVisibilityStates[questID] = visState;
+		}	
 
 		return true;
 	}
@@ -614,9 +659,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	private void OnSave( ParamsWriteContext ctx )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(EXTrace.CLIENT_SETTINGS, this, "OnSave").Add(ctx);
-#endif
+	#endif
 
 		// Vehicles
 		ctx.Write( UseCameraLock );
@@ -718,6 +763,16 @@ class ExpansionClientSettings
 		ctx.Write( HUDChatMessageTimeThreshold );
 		
 		ctx.Write( RarityColorToggle );
+
+		//! Quest HUD visibility
+		ctx.Write( QuestHUDVisibility );
+		ctx.Write( QuestVisibilityStates.Count() );
+
+		foreach (int questID, bool visState: QuestVisibilityStates)
+		{
+			ctx.Write( questID );
+			ctx.Write( visState );
+		}
 	}
 
 	// -----------------------------------------------------------
@@ -725,9 +780,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	bool Load()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "Load");
-#endif
+	#endif
 
 		FileSerializer file = new FileSerializer;
 
@@ -769,9 +824,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	void Save()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "Save");
-#endif
+	#endif
 
 		FileSerializer file = new FileSerializer;
 		if ( file.Open( EXPANSION_CLIENT_SETTINGS, FileMode.WRITE ) )
@@ -790,9 +845,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	void Defaults()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "Defaults");
-#endif
+	#endif
 
 		CastLightShadows = true;
 
@@ -870,6 +925,8 @@ class ExpansionClientSettings
 
 		VehicleResyncTimeout = 5.0;
 		ShowDesyncInvulnerabilityNotifications = false;
+	
+		QuestHUDVisibility = true;
 	}
 
 	// -----------------------------------------------------------
@@ -877,9 +934,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	void Init()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "Init");
-#endif
+	#endif
 
 		CreateCategory( "VideoSettings", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO" );
 
@@ -1035,18 +1092,18 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	void OnSettingsUpdated(typename type, ExpansionSettingSerializationBase setting)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "OnSettingsUpdated");
-#endif
+	#endif
 
 		GetExpansionClientSettings().SI_UpdateSetting.Invoke();
 	}
 
 	private void CreateCategory( string name, string displayName )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateCategory");
-#endif
+	#endif
 
 		ExpansionClientSettingCategory category = new ExpansionClientSettingCategory;
 
@@ -1062,9 +1119,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	private void CreateToggle( string variable, string name, string detailLabel, string detailContent )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateToggle");
-#endif
+	#endif
 
 		ExpansionSettingSerializationToggle setting = new ExpansionSettingSerializationToggle;
 
@@ -1082,9 +1139,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	private void CreateSlider( string variable, string name, string detailLabel, string detailContent, float min, float max, float step = 0 )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateSlider");
-#endif
+	#endif
 
 		ExpansionSettingSerializationSlider setting = new ExpansionSettingSerializationSlider;
 
@@ -1106,9 +1163,9 @@ class ExpansionClientSettings
 	//! TODO: Not working.
 	private void CreateInt( string variable, string name, string detailLabel, string detailContent )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateInt");
-#endif
+	#endif
 
 		ExpansionSettingSerializationInt setting = new ExpansionSettingSerializationInt;
 
@@ -1126,9 +1183,9 @@ class ExpansionClientSettings
 	// ----------------------------------------------------------
 	private void CreateEnum( string variable, typename enm, string name, string detailLabel, string detailContent )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateEnum");
-#endif
+	#endif
 
 		ExpansionSettingSerializationEnum setting = new ExpansionSettingSerializationEnum;
 
@@ -1154,9 +1211,9 @@ class ExpansionClientSettings
 	// ----------------------------------------------------------
 	private void CreateString( string variable, string name, string detailLabel, string detailContent )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateString");
-#endif
+	#endif
 
 		ExpansionSettingSerializationString setting = new ExpansionSettingSerializationString;
 
@@ -1167,6 +1224,31 @@ class ExpansionClientSettings
 		setting.m_DetailContent = detailContent;
 
 		m_CurrentCategory.m_Settings.Insert( setting );
+	}
+	
+	void SetQuestHUDVisibility(bool state)
+	{
+		QuestHUDVisibility = state;
+		Save();
+	}
+	
+	bool GetQuestHUDVisibility()
+	{
+		return QuestHUDVisibility;
+	}
+	
+	void SetQuestVisibilityState(int questID, bool state)
+	{
+		QuestVisibilityStates[questID] = state;
+		Save();
+	}
+
+	bool GetQuestVisibilityState(int questID)
+	{
+		if (QuestVisibilityStates.Contains(questID))
+			return QuestVisibilityStates[questID];
+
+		return true;
 	}
 }
 

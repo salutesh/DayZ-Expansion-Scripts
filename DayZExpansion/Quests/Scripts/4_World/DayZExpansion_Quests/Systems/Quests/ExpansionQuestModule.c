@@ -1060,6 +1060,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 				continue;
 			}
 
+		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
+			questConfig.QuestDebug();
+		#endif
 			questConfig.OnSend(rpc);
 		}
 	}
@@ -1102,7 +1105,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 				Error(ToString() + "::RPC_SendClientQuestConfigs - Error on recieving quest config!");
 				return false;
 			}
-
+			
+		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
+			questConfig.QuestDebug();
+		#endif
+			
 			QuestModulePrint("Insert config for quest with ID: " + questConfig.GetID() + " | Config: " + questConfig.ToString());
 			m_QuestConfigs[questConfig.GetID()] = questConfig;
 		}
@@ -3566,7 +3573,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	//! Server
 	//! Save and sync given persistent quest data to player with given uid.
-	//! questID is used to replace the quest data for the give ID on client side?!
+	//! questID is used to replace the quest data for the given ID on client side.
 	void SaveAndSyncQuestData(ExpansionQuestPersistentData questData, string uid, int questID, bool sendConfigs = false)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -4286,16 +4293,28 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		ExpansionQuestIndicatorState currentState;
-
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 
 		foreach (int questID, ExpansionQuestConfig config: m_QuestConfigs)
 		{
 			int questState = m_ClientQuestData.GetQuestStateByQuestID(config.GetID());
-
 			QuestModulePrint("Quest ID: " + config.GetID() + " \"" + config.Title + "\" | State: " + typename.EnumToString(ExpansionQuestState, questState));
 
-			if (questState == ExpansionQuestState.CAN_TURNIN)
+			if (questState == ExpansionQuestState.NONE)
+			{
+				array<int> questGiverIDs = config.GetQuestGiverIDs();
+				foreach (int giverID: questGiverIDs)
+				{
+					if (s_QuestNPCIndicatorStates.Find(giverID, currentState) && currentState == ExpansionQuestIndicatorState.EXCLAMATION)
+						continue;
+
+					if (!QuestDisplayConditions(config, player, m_ClientQuestData, giverID, true))
+						continue;
+
+					s_QuestNPCIndicatorStates[giverID] = ExpansionQuestIndicatorState.EXCLAMATION;
+				}
+			}
+			else if (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN)
 			{
 				array<int> questTurnInIDs = config.GetQuestTurnInIDs();
 				foreach (int turnInID: questTurnInIDs)
@@ -4307,20 +4326,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 						continue;
 
 					s_QuestNPCIndicatorStates[turnInID] = ExpansionQuestIndicatorState.QUESTION;
-				}
-			}
-			else if (questState != ExpansionQuestState.STARTED)
-			{
-				array<int> questGiverIDs = config.GetQuestGiverIDs();
-				foreach (int giverID: questGiverIDs)
-				{
-					if (s_QuestNPCIndicatorStates.Find(giverID, currentState) && currentState != ExpansionQuestIndicatorState.NOT_SET)
-						continue;
-
-					if (!QuestDisplayConditions(config, player, m_ClientQuestData, giverID, true))
-						continue;
-
-					s_QuestNPCIndicatorStates[giverID] = ExpansionQuestIndicatorState.EXCLAMATION;
 				}
 			}
 		}
@@ -4425,14 +4430,17 @@ class ExpansionQuestModule: CF_ModuleWorld
 				}
 
 				if (state == ExpansionQuestIndicatorState.QUESTION)
+				{
 					SetQuestIndicator(particle, ExpansionQuestIndicatorState.EXCLAMATION, false);
+				}
 				else
+				{
 					SetQuestIndicator(particle, ExpansionQuestIndicatorState.QUESTION, false);
+				}
 
 				//! It may seem counter-intuitive, but we need to divide offset by object scale in case it's not 1.0,
 				//! otherwise the visual will be way off
 				SetParticleParm(particle, -1, EmitorParam.EMITOFFSET, Vector(0.0, offsetY / obj.GetScale(), 0.0));
-
 				SetQuestIndicator(particle, state, true);
 			}
 			else if (particle)
@@ -4527,7 +4535,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			array<int> questGiverIDs = config.GetQuestGiverIDs();
 			if (questGiverIDs && questGiverIDs.Count() > 0)
 			{
-				if (questState < ExpansionQuestState.CAN_TURNIN && questGiverIDs.Find(questNPCID) == -1)
+				if ((questState == ExpansionQuestState.NONE || questState == ExpansionQuestState.STARTED) && questGiverIDs.Find(questNPCID) == -1)
 				{
 					QuestModulePrint("::QuestDisplayConditions - Return FALSE. NPC is not a quest giver NPC for quest with ID " + questID);
 					return false;
@@ -4537,7 +4545,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			array<int> questTurnInIDs = config.GetQuestTurnInIDs();
 			if (questTurnInIDs && questTurnInIDs.Count() > 0)
 			{
-				if (questState == ExpansionQuestState.CAN_TURNIN && questTurnInIDs.Find(questNPCID) == -1)
+				if ((questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN) && questTurnInIDs.Find(questNPCID) == -1)
 				{
 					QuestModulePrint("::QuestDisplayConditions - Return FALSE. NPC is not a quest turn-in NPC for quest with ID " + questID);
 					return false;
@@ -4619,7 +4627,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	#ifdef EXPANSIONMODHARDLINE
 		//! Check if for reputation requirement if config has a value but system is disabled.
+	#ifdef EXPANSIONMODAI
+		map<string, int> factionRepRequirements = config.GetFactionReputationRequirements();
+		if ((config.GetReputationRequirement() > 0 || factionRepRequirements.Count() > 0) && (!GetExpansionSettings().GetHardline().UseReputation || !GetExpansionSettings().GetHardline().UseFactionReputation))
+	#else
 		if (config.GetReputationRequirement() > 0 && !GetExpansionSettings().GetHardline().UseReputation)
+	#endif
 		{
 			QuestModulePrint("::QuestDisplayConditions - Return FALSE. Reputation system disabled!");
 			return false;
@@ -4637,6 +4650,46 @@ class ExpansionQuestModule: CF_ModuleWorld
 				return false;
 			}
 		}
+
+	#ifdef EXPANSIONMODAI
+		if (factionRepRequirements && factionRepRequirements.Count() > 0)
+		{
+			int factionReqCount = factionRepRequirements.Count();
+			int playerFactionReqCount;
+			int currentFactionID = player.eAI_GetFactionTypeID();
+			QuestModulePrint("::QuestDisplayConditions - Faction requirement count: " + factionReqCount);
+			
+			foreach (string faction, int repReq: factionRepRequirements)
+			{
+				typename factionType = eAIFaction.GetType(faction);
+				int factionID = eAIRegisterFaction.s_FactionIDs[factionType];
+				QuestModulePrint("::QuestDisplayConditions - Faction ID for faction type " + factionType.ToString() + ": " + factionID);
+				if (factionID != 0)
+				{
+					int factionRep;
+					if (factionID == currentFactionID)
+					{
+						factionRep = player.Expansion_GetReputation();
+					}
+					else
+					{
+						factionRep = player.Expansion_GetFactionReputation(factionID);
+					}
+
+					QuestModulePrint("::QuestDisplayConditions - Player faction reputation: " + factionType.ToString() + " | Reputation: " + factionRep + " | Requirement: " + repReq);
+					if (factionRep >= repReq)
+						playerFactionReqCount++;
+				}
+			}
+			
+			QuestModulePrint("::QuestDisplayConditions - Player is meeting " + playerFactionReqCount + " out of " + factionReqCount + " requirements..");
+			if (playerFactionReqCount < factionReqCount)
+			{
+				QuestModulePrint("::QuestDisplayConditions - Return FALSE. Faction reputation requirements not met!");
+				return false;
+			}
+		}
+	#endif
 	#endif
 
 	#ifdef EXPANSIONMODAI

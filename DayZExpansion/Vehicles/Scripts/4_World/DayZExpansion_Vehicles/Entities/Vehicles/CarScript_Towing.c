@@ -60,6 +60,7 @@ modded class CarScript
 			SetBrake(0);
 			SetThrust(0);
 			SetSteering(0);
+			SetBrakesActivateWithoutDriver(false);
 
 			if (GearboxGetType() == CarGearboxType.MANUAL)
 			{
@@ -128,9 +129,9 @@ modded class CarScript
 		m_Expansion_Connections[index].m_Parent = EntityAI.Cast(parent);
 		m_Expansion_Connections[index].m_Attached = true;
 
-		SetBrakesActivateWithoutDriver(1);
-		SetBrake(0, 0, false);
+		SetBrake(0);
 		SetHandbrake(0);
+		SetBrakesActivateWithoutDriver(false);
 
 		if (GetGame().IsServer())
 			SetSynchDirty();
@@ -181,9 +182,9 @@ modded class CarScript
 		m_Expansion_TowConnectionSynchMask &= ~(1 << connectionIndex);
 		m_Expansion_TowConnectionMask = m_Expansion_TowConnectionSynchMask;
 
-		SetBrake(1, 0, false);
-		SetHandbrake(1);
-		SetBrakesActivateWithoutDriver(0);
+		SetBrakesActivateWithoutDriver(true);
+		SetBrake(1.0);
+		SetHandbrake(1.0);
 
 		if (GetGame().IsServer())
 			SetSynchDirty();

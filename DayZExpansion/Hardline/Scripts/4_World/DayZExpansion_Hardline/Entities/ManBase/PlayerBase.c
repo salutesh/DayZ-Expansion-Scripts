@@ -115,9 +115,12 @@ modded class PlayerBase
 	
 	int Expansion_GetFactionReputation(int factionID)
 	{
-		int rep = m_Expansion_HardlineData.GetReputationByFactionID(factionID);
-		if (rep > 0)
-			return rep;
+		if (m_Expansion_HardlineData)
+		{
+			int rep = m_Expansion_HardlineData.GetReputationByFactionID(factionID);
+			if (rep > 0)
+				return rep;
+		}
 		
 		return 0;
 	}

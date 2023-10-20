@@ -376,7 +376,18 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		
 		m_P2PMarketModule.EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
 		if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewList)
+		{
 			UpdatePlayerItems();
+			if (market_filter_box.GetText() != string.Empty)
+				OnSearchFilterChange();
+		}
+
+		if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewBrowse)
+		{
+			if (market_filter_box.GetText() != string.Empty)
+				OnSearchFilterChange();
+		}
+
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdatePlayerCurrency, 250);
 		OnBackClick();
 		m_RequestsLocked = false;

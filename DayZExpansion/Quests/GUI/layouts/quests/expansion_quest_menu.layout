@@ -75,8 +75,8 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
        imageTexture "{DDEDAF5A8B34B62D}DayZExpansion/Core/GUI/icons/hud/ellipse_out_64x64.edds"
        mode blend
        "src alpha" 1
-       "no wrap" 1
-       stretch 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
        "flip u" 1
        "flip v" 0
       }
@@ -590,7 +590,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            imageTexture "{EC8EDC01E1CEFBB0}DayZExpansion/Core/GUI/icons/hud/menu_64x64.edds"
            mode blend
            "src alpha" 1
-           stretch 1
+           "stretch mode" stretch_w_h
           }
          }
          {
@@ -915,6 +915,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                style blank
                {
                 PanelWidgetClass Spacer6 {
+                 visible 1
                  ignorepointer 1
                  color 0.8627 0.8627 0.8627 1
                  size 1 3
@@ -942,7 +943,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                  ignorepointer 1
                  color 0.8627 0.8627 0.8627 1
                  position 0 0
-                 size 0.3 1
+                 size 0.5 1
                  hexactpos 0
                  vexactpos 0
                  hexactsize 0
@@ -959,7 +960,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                 TextWidgetClass ReputationVal {
                  ignorepointer 1
                  color 0.8627 0.8627 0.8627 1
-                 size 0.7 1
+                 size 0.5 1
                  halign right_ref
                  hexactpos 0
                  vexactpos 0
@@ -979,6 +980,78 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                    Binding_Name "ReputationVal"
                   }
                  }
+                }
+               }
+              }
+              WrapSpacerWidgetClass FactionReputation {
+               visible 0
+               ignorepointer 1
+               position 0 0.20783
+               size 1 0.2922
+               valign bottom_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               scriptclass ""
+               Margin 0
+               "Size To Content H" 1
+               "Size To Content V" 1
+               content_halign center
+               content_valign center
+               {
+                TextWidgetClass FactionReputationLabel {
+                 ignorepointer 1
+                 color 0.8627 0.8627 0.8627 1
+                 position 0 0
+                 size 1 27
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 1
+                 style Normal
+                 text "#STR_EXPANSION_HARDLINE_FACTION_REPUTATION"
+                 font "gui/fonts/etelkatextpro22"
+                 "text offset" 5 0
+                 "exact text" 0
+                 "size to text h" 0
+                 "size to text v" 0
+                 "text valign" center
+                }
+                WrapSpacerWidgetClass FactionReputationContent {
+                 visible 1
+                 ignorepointer 1
+                 position 0 0.20783
+                 size 1 1
+                 valign bottom_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 scriptclass "ViewBinding"
+                 Margin 0
+                 "Size To Content H" 1
+                 "Size To Content V" 1
+                 content_halign center
+                 content_valign center
+                 {
+                  ScriptParamsClass {
+                   Binding_Name "FactionRewardEntries"
+                  }
+                 }
+                }
+                PanelWidgetClass Spacer5 {
+                 visible 1
+                 ignorepointer 1
+                 color 0.8627 0.8627 0.8627 1
+                 size 1 3
+                 halign center_ref
+                 valign bottom_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 1
+                 style rover_sim_colorable
                 }
                }
               }

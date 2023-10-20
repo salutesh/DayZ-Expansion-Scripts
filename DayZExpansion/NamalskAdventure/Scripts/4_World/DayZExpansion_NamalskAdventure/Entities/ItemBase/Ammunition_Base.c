@@ -85,6 +85,12 @@ modded class Ammunition_Base
 
 		new_pile.SetSynchDirty();
 		SetSynchDirty();
+
+#ifdef EXPANSIONMODQUESTS
+		PlayerBase player = PlayerBase.Cast(GetHierarchyRootPlayer());
+		if (player && player.GetIdentity())
+			CheckAssignedObjectivesForEntity(ExpansionQuestItemState.STACKSIZE_CHANGED, player);
+#endif
 	}
 
 	override void CombineItems( ItemBase other_item, bool use_stack_max = false )

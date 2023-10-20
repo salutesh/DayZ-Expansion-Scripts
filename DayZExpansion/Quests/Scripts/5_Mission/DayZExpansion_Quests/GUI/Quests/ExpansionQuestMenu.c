@@ -68,6 +68,8 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	protected ButtonWidget HideHud;
 	protected TextWidget HideHudLable;
 	protected Widget HideHudBackground;
+	
+	protected WrapSpacerWidget FactionReputation;
 
 	void ExpansionQuestMenu()
 	{
@@ -334,42 +336,64 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 		string description;
 		string objectiveText;
-		if (questState == ExpansionQuestState.NONE)
+		if (!m_QuestLogMode)
+		{
+			switch (questState)
+			{
+				case ExpansionQuestState.NONE:
+				{
+					description = quest.GetDescriptions()[0];
+					objectiveText = quest.GetObjectiveText();
+					ObjectivePanel.Show(true);
+					Accept.Show(true);
+					Complete.Show(false);
+					Cancel.Show(false);
+				}
+				break;
+				case ExpansionQuestState.STARTED:
+				{
+					description = quest.GetDescriptions()[1];
+					objectiveText = quest.GetObjectiveText();
+					ObjectivePanel.Show(true);
+					Cancel.Show(true);
+					Accept.Show(false);
+					Complete.Show(false);
+				}
+				break;
+				case ExpansionQuestState.CAN_TURNIN:
+				{
+					description = quest.GetDescriptions()[2];
+					ObjectivePanel.Show(false);
+					Complete.Show(true);
+					Accept.Show(false);
+					Cancel.Show(true);
+				}
+				break;
+			}
+		}
+		else
 		{
 			description = quest.GetDescriptions()[0];
 			objectiveText = quest.GetObjectiveText();
 			ObjectivePanel.Show(true);
-			
-			if (!m_QuestLogMode)
-			{
-				Accept.Show(true);
-			}
-			
-			Complete.Show(false);
-			Cancel.Show(false);
-		}
-		else if (questState == ExpansionQuestState.STARTED)
-		{
-			description = quest.GetDescriptions()[1];
-			objectiveText = quest.GetObjectiveText();
-			ObjectivePanel.Show(true);
-
-			Cancel.Show(true);
 			Accept.Show(false);
-			Complete.Show(false);
-		}
-		else if (questState == ExpansionQuestState.CAN_TURNIN)
-		{
-			description = quest.GetDescriptions()[2];
-			ObjectivePanel.Show(false);
-			
-			if (!m_QuestLogMode || quest.GetQuestTurnInIDs().Count() == 0)
-			{
-				Complete.Show(true);
-			}
 
-			Accept.Show(false);
-			Cancel.Show(true);
+			if (questState < ExpansionQuestState.CAN_TURNIN)
+			{
+				ObjectivePanel.Show(true);
+			}
+			else
+			{
+				ObjectivePanel.Show(false);
+				if (quest.GetQuestTurnInIDs().Count() == 0 || quest.IsAutocomplete())
+				{
+					description = quest.GetDescriptions()[2];
+					Complete.Show(true);
+				}
+	
+				Accept.Show(false);
+				Cancel.Show(true);
+			}
 		}
 
 		StringLocaliser descriptiontext = new StringLocaliser(description, GetGame().GetPlayer().GetIdentity().GetName());
@@ -396,6 +420,25 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			m_QuestMenuController.ReputationVal = quest.GetReputationReward().ToString();
 			m_QuestMenuController.NotifyPropertyChanged("ReputationVal");
 		}
+
+	#ifdef EXPANSIONMODAI
+		m_QuestMenuController.FactionRewardEntries.Clear();
+		
+		map<string, int> factionRewards = quest.GetFactionReputationRewards();
+		if (factionRewards.Count() > 0)
+		{
+			FactionReputation.Show(true);
+			foreach (string factionName, int reputation: factionRewards)
+			{
+				ExpansionQuestMenuFactionReward factionReward = new ExpansionQuestMenuFactionReward(factionName, reputation);
+				m_QuestMenuController.FactionRewardEntries.Insert(factionReward);
+			}
+		}
+		else
+		{
+			FactionReputation.Show(false);
+		}
+	#endif
 	#endif
 
 		m_InDetailView = true;
@@ -894,6 +937,7 @@ class ExpansionQuestMenuController: ExpansionViewController
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> RewardEntries = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> ObjectiveItems = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> QuestItemEntries = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
+	ref ObservableCollection<ref ExpansionQuestMenuFactionReward> FactionRewardEntries = new ObservableCollection<ref ExpansionQuestMenuFactionReward>(this);
 };
 
 class ExpansionDialog_QuestMenu_CancelQuest: ExpansionDialogBase
@@ -989,4 +1033,45 @@ class ExpansionDialogButton_QuestMenu_CancelQuest_Cancel: ExpansionDialogButton_
 	{
 		m_CancelQuestDialog.Hide();
 	}
+};
+
+class ExpansionQuestMenuFactionReward: ExpansionScriptView
+{
+	protected ref ExpansionQuestMenuFactionRewardController m_QuestMenuFactionRewardController;
+	string m_FactionName;
+	int m_Reputation;
+	
+	void ExpansionQuestMenuFactionReward(string factionName, int reputation)
+	{
+		m_FactionName = factionName;
+		m_Reputation = reputation;
+
+		Class.CastTo(m_QuestMenuFactionRewardController, GetController());
+
+		SetEntry();
+	}
+	
+	void SetEntry()
+	{
+		m_QuestMenuFactionRewardController.FactionName = m_FactionName;
+		m_QuestMenuFactionRewardController.Reputation = m_Reputation.ToString();
+		
+		m_QuestMenuFactionRewardController.NotifyPropertiesChanged({"FactionName", "Reputation"});
+	}
+	
+	override string GetLayoutFile()
+	{
+		return "DayZExpansion/Quests/GUI/layouts/quests/expansion_quest_menu_faction_reward.layout";
+	}
+
+	override typename GetControllerType()
+	{
+		return ExpansionQuestMenuFactionRewardController;
+	}
+};
+
+class ExpansionQuestMenuFactionRewardController: ExpansionViewController
+{
+	string FactionName;
+	string Reputation;
 };

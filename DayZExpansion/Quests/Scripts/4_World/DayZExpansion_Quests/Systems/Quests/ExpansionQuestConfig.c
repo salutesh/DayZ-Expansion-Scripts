@@ -103,16 +103,33 @@ class ExpansionQuestConfigV15Base: ExpansionQuestConfigBase
 		PreQuestIDs = new array<int>;
 	}
 };
-
-class ExpansionQuestConfig: ExpansionQuestConfigV15Base
+	
+class ExpansionQuestConfigV19Base: ExpansionQuestConfigV15Base
 {
-	static const int CONFIGVERSION = 19;
-
 	bool SequentialObjectives = true;
+};
+
+class ExpansionQuestConfig: ExpansionQuestConfigV19Base
+{
+	static const int CONFIGVERSION = 20;
+
+#ifdef EXPANSIONMODHARDLINE
+#ifdef EXPANSIONMODAI
+	ref map<string, int> FactionReputationRequirements; //! Faction reputation points requirement the players will need to see and accept the quest.
+	ref map<string, int> FactionReputationRewards; //! Faction reputation points the players will gain on quest completion.
+#endif
+#endif
 	
 	void ExpansionQuestConfig()
 	{
 		ConfigVersion = CONFIGVERSION;
+		
+	#ifdef EXPANSIONMODHARDLINE
+	#ifdef EXPANSIONMODAI
+		FactionReputationRequirements = new map<string, int>;
+		FactionReputationRewards = new map<string, int>;
+	#endif
+	#endif
 	}
 
 	void ~ExpansionQuestConfig()
@@ -505,6 +522,30 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 	{
 		return FactionReward;
 	}
+	
+#ifdef EXPANSIONMODHARDLINE
+	void AddFactionReputationRequirement(string factionType, int reputation)
+	{
+		if (!FactionReputationRequirements[factionType])
+			FactionReputationRequirements[factionType] = reputation;
+	}
+	
+	map<string, int> GetFactionReputationRequirements()
+	{
+		return FactionReputationRequirements;
+	}
+	
+	void AddFactionReputationReward(string factionType, int reputation)
+	{
+		if (!FactionReputationRewards[factionType])
+			FactionReputationRewards[factionType] = reputation;
+	}
+	
+	map<string, int> GetFactionReputationRewards()
+	{
+		return FactionReputationRewards;
+	}
+#endif
 #endif
 
 	void SetNeedQuestItems(bool state)
@@ -545,10 +586,10 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 		EXTrace.Print(EXTrace.QUESTS, null, "Load existing configuration file:" + fileName);
 
 		ExpansionQuestConfig questConfig;
-		ExpansionQuestConfigV15Base questConfigBase;
+		ExpansionQuestConfigV19Base questConfigBase;
 		int j;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestConfigV15Base>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestConfigV19Base>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigBase))
 			return NULL;
 
 		if (questConfigBase.ConfigVersion < CONFIGVERSION)
@@ -955,7 +996,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 		ExpansionJsonFileParser<ExpansionQuestConfig>.Save(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, this);
 	}
 
-	void CopyConfig(ExpansionQuestConfigV15Base questConfigBase)
+	void CopyConfig(ExpansionQuestConfigV19Base questConfigBase)
 	{
 		ConfigVersion = questConfigBase.ConfigVersion;
 		ID = questConfigBase.ID;
@@ -999,6 +1040,8 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 		PlayerNeedQuestItems = questConfigBase.PlayerNeedQuestItems;
 		DeleteQuestItems = questConfigBase.DeleteQuestItems;
+		
+		SequentialObjectives = questConfigBase.SequentialObjectives;
 	}
 
 	void OnSend(ParamsWriteContext ctx)
@@ -1248,6 +1291,32 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 	#ifdef EXPANSIONMODAI
 		ctx.Write(RequiredFaction);
 		ctx.Write(FactionReward);
+		
+	#ifdef EXPANSIONMODHARDLINE
+		//! Faction reputation requirements
+		string factionType;
+		int rep;
+		int repReqCount = FactionReputationRequirements.Count();
+		ctx.Write(repReqCount);
+		for (i = 0; i < repReqCount; i++)
+		{
+			factionType = FactionReputationRequirements.GetKey(i);
+			rep = FactionReputationRequirements[factionType];
+			ctx.Write(factionType);
+			ctx.Write(rep);
+		}
+		
+		//! Faction reputation rewards
+		int repRewCount = FactionReputationRewards.Count();
+		ctx.Write(repRewCount);
+		for (i = 0; i < repRewCount; i++)
+		{
+			factionType = FactionReputationRewards.GetKey(i);
+			rep = FactionReputationRewards[factionType];
+			ctx.Write(factionType);
+			ctx.Write(rep);
+		}
+	#endif
 	#endif
 	}
 
@@ -1622,6 +1691,65 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 			Error(ToString() + "::OnRecieve - FactionReward");
 			return false;
 		}
+		
+	#ifdef EXPANSIONMODHARDLINE
+		string factionName;
+		int reputation;
+		
+		int repReqCount;
+		if (!ctx.Read(repReqCount))
+		{
+			Error(ToString() + "::OnRecieve - repReqCount");
+			return false;
+		}
+		
+		if (repReqCount > 0 && !FactionReputationRequirements)
+			FactionReputationRequirements = new map<string, int>;
+
+		for (i = 0; i < repReqCount; i++)
+		{
+			if (!ctx.Read(factionName))
+			{
+				Error(ToString() + "::OnRecieve - factionName[" + i + "]");
+				return false;
+			}
+			
+			if (!ctx.Read(reputation))
+			{
+				Error(ToString() + "::OnRecieve - reputation[" + i + "]");
+				return false;
+			}
+
+			FactionReputationRequirements.Insert(factionName, reputation);
+		}
+				
+		int repRewCount;
+		if (!ctx.Read(repRewCount))
+		{
+			Error(ToString() + "::OnRecieve - repRewCount");
+			return false;
+		}
+		
+		if (repRewCount > 0 && !FactionReputationRewards)
+			FactionReputationRewards = new map<string, int>;
+		
+		for (i = 0; i < repRewCount; i++)
+		{
+			if (!ctx.Read(factionName))
+			{
+				Error(ToString() + "::OnRecieve - factionName[" + i + "]");
+				return false;
+			}
+			
+			if (!ctx.Read(reputation))
+			{
+				Error(ToString() + "::OnRecieve - reputation[" + i + "]");
+				return false;
+			}
+
+			FactionReputationRewards.Insert(factionName, reputation);
+		}
+	#endif
 	#endif
 
 		return true;
@@ -1682,6 +1810,15 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 	#ifdef EXPANSIONMODHARDLINE
 		Print(ToString() + "::QuestDebug - ReputationReward: " + ReputationReward);
 		Print(ToString() + "::QuestDebug - ReputationRequirement: " + ReputationRequirement);
+	
+	#ifdef EXPANSIONMODAI
+		for (i = 0; i < FactionReputationRewards.Count(); ++i)
+		{
+			string factionName = FactionReputationRewards.GetKey(i);
+			int rep = FactionReputationRewards[factionName];
+			Print(ToString() + "::QuestDebug - Faction reward " + i + " - " + factionName + " | " + rep);
+		}
+	#endif
 	#endif
 		Print("------------------------------------------------------------");
 	#endif

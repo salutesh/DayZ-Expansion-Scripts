@@ -20,6 +20,7 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 	protected Widget Spacer;
 	protected Widget Spacer0;
 	protected WrapSpacerWidget ObjectiveEntries;
+	protected RichTextWidget Objective; 
 	protected ref map<int, ref ExpansionQuestHUDObjective> m_ObjectiveEntries = new map<int, ref ExpansionQuestHUDObjective>;
 
 	void ExpansionQuestHUDEntry(ExpansionQuestConfig questConfig, ExpansionQuestPersistentQuestData questData)
@@ -44,20 +45,32 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		ExpansionQuestState state = m_QuestData.State;
 		if (state == ExpansionQuestState.STARTED)
 		{
-			m_QuestHUDEntryController.ObjectiveText = m_QuestConfig.GetObjectiveText();
-			Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_QuestConfig));
+			if (m_QuestConfig.GetObjectiveText() != string.Empty)
+			{
+				Objective.Show(true);
+				m_QuestHUDEntryController.ObjectiveText = m_QuestConfig.GetObjectiveText();
+				m_QuestHUDEntryController.NotifyPropertyChanged("ObjectiveText");
+				Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_QuestConfig));
+				Spacer.Show(true);
+			}
+			else
+			{
+				Objective.Show(false);
+				Spacer.Show(false);
+			}
+			
 			Spacer0.SetColor(ExpansionQuestModule.GetQuestColor(m_QuestConfig));
 			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_QuestConfig));
 		}
 		else if (state == ExpansionQuestState.CAN_TURNIN)
 		{
+			Objective.Show(true);
 			m_QuestHUDEntryController.ObjectiveText = "#STR_EXPANSION_QUEST_HUD_TURN_IN";
 			Spacer.SetColor(ARGB(200, 160, 223, 59));
+			Spacer.Show(true);
 			Spacer0.SetColor(ARGB(200, 160, 223, 59));
 			QuestIcon.SetColor(ARGB(200, 160, 223, 59));
 		}
-
-		m_QuestHUDEntryController.NotifyPropertyChanged("ObjectiveText");
 		
 		array<int> updatedObjectives = new array<int>;
 		int objectiveIndex;
@@ -74,7 +87,7 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 			}
 			else
 			{
-				objectiveEntry = new ExpansionQuestHUDObjective(objective, m_QuestConfig);
+				objectiveEntry = new ExpansionQuestHUDObjective(objective, m_QuestConfig, state);
 				ObjectiveEntries.AddChild(objectiveEntry.GetLayoutRoot());
 				m_ObjectiveEntries.Insert(objectiveIndex, objectiveEntry);
 				objectiveEntry.SetEntryObjective();

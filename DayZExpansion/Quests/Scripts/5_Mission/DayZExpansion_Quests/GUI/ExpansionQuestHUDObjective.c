@@ -16,19 +16,23 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	protected ref ExpansionQuestHUDObjectiveController m_QuestHUDObjectiveController;
 	protected ExpansionQuestObjectiveData m_Objective;
 	protected ExpansionQuestConfig m_Quest;
+	protected ExpansionQuestState m_QuestState;
 	protected Widget Spacer;
 	protected RichTextWidget ObjectiveName;
 	protected RichTextWidget ObjectiveTime;
 	protected WrapSpacerWidget ObjectiveWrapper;
+	protected WrapSpacerWidget ObjectiveValueWrapper;
 	protected WrapSpacerWidget ObjectiveDeliveryEnties;
+	protected bool m_ObjectiveCompleted;
 
-	void ExpansionQuestHUDObjective(ExpansionQuestObjectiveData objective, ExpansionQuestConfig questConfig)
+	void ExpansionQuestHUDObjective(ExpansionQuestObjectiveData objective, ExpansionQuestConfig questConfig, ExpansionQuestState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());
 		m_Objective = objective;
 		m_Quest = questConfig;
+		m_QuestState = state;
 	}
 
 	override string GetLayoutFile()
@@ -53,12 +57,12 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		if (!objectiveConfig)
 			return;
 
-		bool completed = m_Objective.IsCompleted();
+		m_ObjectiveCompleted = m_Objective.IsCompleted();
 		if (objectiveConfig.GetObjectiveText() != string.Empty)
 		{
 			ObjectiveName.Show(true);
 			string objectiveState;
-			if (completed)
+			if (m_ObjectiveCompleted)
 			{
 				string completeKey = "#STR_EXPANSION_QUEST_HUD_COMPLETE";
 				objectiveState = "[" + completeKey + "] ";
@@ -101,6 +105,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					else
 					{
 						ObjectiveWrapper.Show(false);
+						ObjectiveValueWrapper.Show(false);
 					}
 				}
 			}
@@ -120,6 +125,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					else
 					{
 						ObjectiveWrapper.Show(false);
+						ObjectiveValueWrapper.Show(false);
 					}
  					
 					ObjectiveDeliveryEnties.Show(true);
@@ -129,7 +135,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					{
 						int currentDeliveryCount = m_Objective.GetDeliveryCountByIndex(i);
 						ExpansionQuestObjectiveDelivery delivery = deliveries[i];
-						ExpansionQuestHUDDeliveryEntry deliveryEntry = new ExpansionQuestHUDDeliveryEntry(delivery, currentDeliveryCount);
+						ExpansionQuestHUDDeliveryEntry deliveryEntry = new ExpansionQuestHUDDeliveryEntry(delivery, currentDeliveryCount, this);
 						m_QuestHUDObjectiveController.DeliveryEnties.Insert(deliveryEntry);
 						
 					}
@@ -161,7 +167,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 						collection = collections[i];									
 						if (!collectionObjective.NeedAnyCollection())
 						{
-							collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount);					
+							collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount, this);					
 							m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
 							if (currentCollectionCount >= collection.GetAmount())
 								completedCollections++;
@@ -179,6 +185,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					else
 					{
 						ObjectiveWrapper.Show(false);
+						ObjectiveValueWrapper.Show(false);
 					}
 
 					if (collectionObjective.NeedAnyCollection())
@@ -191,7 +198,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 								if (!collection)
 									continue;
 
-								collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, collectionCount);					
+								collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, collectionCount, this);					
 								m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
 							}
 						}
@@ -202,7 +209,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 								currentCollectionCount = m_Objective.GetDeliveryCountByIndex(i);				
 								collection = collections[i];
 
-								collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount);					
+								collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount, this);					
 								m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
 							}
 						}
@@ -225,6 +232,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					else
 					{
 						ObjectiveWrapper.Show(false);
+						ObjectiveValueWrapper.Show(false);
 					}
 				}
 			}
@@ -245,6 +253,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					else
 					{
 						ObjectiveWrapper.Show(false);
+						ObjectiveValueWrapper.Show(false);
 					}
 				}
 			}
@@ -267,11 +276,20 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			}
 			break;
 		}
-		
-		if (!completed)
-			Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
+				
+		if (objectiveConfig.GetObjectiveText() != string.Empty && m_QuestHUDObjectiveController.DeliveryEnties.Count() == 0)
+		{
+			if (!m_ObjectiveCompleted)
+				Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
+			else
+				Spacer.SetColor(ARGB(200, 160, 223, 59));
+
+			Spacer.Show(true);
+		}
 		else
-			Spacer.SetColor(ARGB(200, 160, 223, 59));
+		{
+			Spacer.Show(false);
+		}
 	}
 	
 	void UpdateTarget()
@@ -399,6 +417,17 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
 		m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 		ObjectiveWrapper.Show(true);
+		ObjectiveValueWrapper.Show(true);
+	}
+	
+	ExpansionQuestConfig GetQuestConfig()
+	{
+		return m_Quest;
+	}
+	
+	bool IsObjectiveCompleted()
+	{
+		return m_ObjectiveCompleted;
 	}
 
 	override float GetUpdateTickRate()

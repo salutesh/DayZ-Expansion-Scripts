@@ -9,7 +9,7 @@ modded class ActionLoadMagazine
 
 		ItemBase ammo;
 		if (Class.CastTo(ammo, action_data.m_Target.GetObject()))
-			ammo.Expansion_OnQuantityChanged();
+			ammo.Expansion_OnStackSizeChanged();
 	}
 }
 
@@ -26,7 +26,7 @@ modded class ActionLoadMagazineQuick
 
 		ItemBase ammo;
 		if (Class.CastTo(ammo, trg))
-			ammo.Expansion_OnQuantityChanged();
+			ammo.Expansion_OnStackSizeChanged();
 	}
 }
 
@@ -55,7 +55,7 @@ modded class FirearmActionLoadBullet
 
 		ItemBase ammo;
 		if (Class.CastTo(ammo, action_data.m_Target.GetObject()))
-			ammo.Expansion_OnQuantityChanged();
+			ammo.Expansion_OnStackSizeChanged();
 	}
 }
 
@@ -70,7 +70,7 @@ modded class FirearmActionLoadBulletQuick
 
 		ItemBase ammo;
 		if (Class.CastTo(ammo, action_data.m_Target.GetObject()))
-			ammo.Expansion_OnQuantityChanged();
+			ammo.Expansion_OnStackSizeChanged();
 	}
 }
 
@@ -84,7 +84,7 @@ modded class FirearmActionLoadMultiBullet
 
 		ItemBase ammo;
 		if (Class.CastTo(ammo, action_data.m_Target.GetObject()))
-			ammo.Expansion_OnQuantityChanged();
+			ammo.Expansion_OnStackSizeChanged();
 	}
 }
 
@@ -98,7 +98,7 @@ modded class FirearmActionLoadMultiBulletRadial
 
 		ItemBase ammo;
 		if (Class.CastTo(ammo, action_data.m_Target.GetObject()))
-			ammo.Expansion_OnQuantityChanged();
+			ammo.Expansion_OnStackSizeChanged();
 	}
 }
 
