@@ -206,6 +206,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		ai.SetGroup(eAIGroup.GetGroupByLeader(owner));
 		ai.Expansion_SetCanBeLooted(m_Config.CanLootAI());
+		ai.Expansion_SetQuestVIP(true);
 		ExpansionHumanLoadout.Apply(ai, loadout, false);
 
 		return ai;

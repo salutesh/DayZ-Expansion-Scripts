@@ -90,8 +90,15 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		MaxDistance = configBase.MaxDistance;
 		MarkerName = configBase.MarkerName;
 		ShowDistance = configBase.ShowDistance;
-		Collections = configBase.Collections;
 
+		Collections.Clear();
+		foreach (ExpansionQuestObjectiveDelivery collection: configBase.Collections)
+		{
+			ExpansionQuestObjectiveDelivery collectionCopy = new ExpansionQuestObjectiveDelivery();
+			collectionCopy.Copy(collection);
+			Collections.Insert(collectionCopy);
+		}
+		
 		NeedAnyCollection = configBase.NeedAnyCollection;
 	}
 

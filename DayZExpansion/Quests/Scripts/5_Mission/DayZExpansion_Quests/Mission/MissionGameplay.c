@@ -36,6 +36,9 @@ modded class MissionGameplay
 		{
 			m_ExpansionQuestHUD = new ExpansionQuestHUD();
 			m_ExpansionQuestHUD.Show();
+			
+			if (!GetExpansionClientSettings().GetQuestHUDVisibility())
+				m_Expansion_HideQuestHUD = true;
 		}
 	}
 
@@ -95,6 +98,7 @@ modded class MissionGameplay
 	void ToggleQuestHUD()
 	{
 		m_Expansion_HideQuestHUD = !m_Expansion_HideQuestHUD;
+		GetExpansionClientSettings().SetQuestHUDVisibility(!m_Expansion_HideQuestHUD);
 	}
 
 	bool QuestHudState()

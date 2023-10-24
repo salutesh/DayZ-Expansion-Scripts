@@ -354,7 +354,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	bool HasKeyCard()
 	{
-		ItemBase keyCard = ItemBase.Cast(FindAttachmentBySlotName("Att_ExpansionKeyCard"));
+		ItemBase keyCard = ItemBase.Cast(FindAttachmentBySlotName("Att_ExpansionKeyCardAntenna"));
 		if (keyCard && !keyCard.IsDamageDestroyed())
 			return true;
 
@@ -385,7 +385,7 @@ class Expansion_Satellite_Control: ItemBase
 
 		ExpansionMarkerModule markerModule;
 		if (CF_Modules<ExpansionMarkerModule>.Get(markerModule))
-			markerModule.CreateServerMarker(GetType(), "Options", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 44, 62, 80), true);
+			m_ServerMarker = markerModule.CreateServerMarker(GetType(), "Options", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 44, 62, 80), true);
 	}
 	#endif
 	#endif

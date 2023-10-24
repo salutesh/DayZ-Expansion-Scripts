@@ -163,7 +163,7 @@ class Expansion_Teleporter_Base: BuildingSuper
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
 		if (markerModule)
-			markerModule.CreateServerMarker(GetType(), "Moon", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 142, 68, 173), true);
+			m_ServerMarker = markerModule.CreateServerMarker(GetType(), "Moon", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 142, 68, 173), true);
 	}
 #endif
 #endif

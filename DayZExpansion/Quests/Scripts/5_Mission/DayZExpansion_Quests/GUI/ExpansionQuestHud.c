@@ -48,6 +48,14 @@ class ExpansionQuestHUD: ExpansionScriptView
 			EXTrace.Print(true, this, "not visible - skipping");
 			return;
 		}
+		
+		map<int, bool> visStates = GetExpansionClientSettings().QuestVisibilityStates;
+		Print(ToString() + "::UpdateView - Quest entry visibility states: " + visStates.Count());
+		foreach (int visQuestID, bool visState: visStates)
+		{
+			Print(ToString() + "::UpdateView - Set quest entry visibility state for quest entry: " + visQuestID + " | State: " + visState);
+			m_QuestEntriesVisibilityPreference[visQuestID] = visState;
+		}
 
 		ExpansionQuestPersistentData playerData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
 		if (!playerData)
@@ -89,10 +97,12 @@ class ExpansionQuestHUD: ExpansionScriptView
 	
 				if (!m_QuestEntriesVisibilityPreference.Find(questID, isVisible) || isVisible)
 				{
+					Print(ToString() + "::UpdateView - Show entry for quest with ID " + questID + ".");
 					entry.Show();
 				}
 				else
 				{
+					Print(ToString() + "::UpdateView - Hide entry for quest with ID " + questID + ".");
 					entry.Hide();
 				}
 			}
@@ -114,6 +124,10 @@ class ExpansionQuestHUD: ExpansionScriptView
 		{
 			m_QuestEntries.Remove(toRemoveId);
 			m_QuestEntriesVisibilityPreference.Remove(toRemoveId);
+			
+			ExpansionQuestState questState = ExpansionQuestModule.GetModuleInstance().GetClientQuestData().GetQuestStateByQuestID(toRemoveId);
+			if (questState == ExpansionQuestState.NONE || questState == ExpansionQuestState.COMPLETED)
+				GetExpansionClientSettings().SetQuestVisibilityState(toRemoveId, true);
 		}
 	}
 
@@ -160,7 +174,8 @@ class ExpansionQuestHUD: ExpansionScriptView
 	void ToggleQuestEntryVisibilityByID(int questID)
 	{
 		ExpansionQuestHUDEntry entry = m_QuestEntries[questID];
-		if (!IsEntryHidden(questID))
+		bool isEntryVisible = IsEntryHidden(questID);
+		if (!isEntryVisible)
 		{
 			m_QuestEntriesVisibilityPreference[questID] = false;
 			entry.Hide();
@@ -170,6 +185,8 @@ class ExpansionQuestHUD: ExpansionScriptView
 			m_QuestEntriesVisibilityPreference[questID] = true;
 			entry.Show();
 		}
+		
+		GetExpansionClientSettings().SetQuestVisibilityState(questID, isEntryVisible);
 	}
 
 	bool IsEntryHidden(int questID)

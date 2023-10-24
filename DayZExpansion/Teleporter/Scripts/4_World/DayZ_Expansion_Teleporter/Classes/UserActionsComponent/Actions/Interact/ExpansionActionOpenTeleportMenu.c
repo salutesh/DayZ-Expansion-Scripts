@@ -32,8 +32,6 @@ class ExpansionActionOpenTeleportMenu: ActionInteractBase
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-
 		Expansion_Teleporter_Base teleportObj = Expansion_Teleporter_Base.Cast(target.GetObject());
 		if (!teleportObj || teleportObj && !teleportObj.IsActive())
 			return false;

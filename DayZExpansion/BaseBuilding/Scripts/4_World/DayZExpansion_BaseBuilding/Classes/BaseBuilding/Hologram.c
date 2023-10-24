@@ -261,27 +261,6 @@ modded class Hologram
 	}
 #endif
 
-	override EntityAI PlaceEntity( EntityAI entity_for_placing )
-	{
-		if (!GetExpansionSettings().GetBaseBuilding().OverrideVanillaEntityPlacement)
-			return super.PlaceEntity(entity_for_placing);
-
-		if ( m_Projection.IsInherited( GardenPlotPlacing ) )
-		{
-			Class.CastTo(entity_for_placing, GetGame().CreateObjectEx( "GardenPlot", m_Projection.GetPosition(), ECE_OBJECT_SWAP ));
-			return entity_for_placing;
-		}
-
-		entity_for_placing.SetAffectPathgraph( true, false );
-
-		if( entity_for_placing.CanAffectPathgraph() )
-		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, entity_for_placing);
-		}
-
-		return entity_for_placing;
-	}
-
 	void HandleSnapping( out vector projPosition, out vector projOrientation )
 	{
 #ifdef EXPANSIONTRACE

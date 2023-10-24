@@ -127,6 +127,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		EnableMissionLoaded();
 		EnableRPC();
 		#ifdef SERVER
+		EnableInvokeConnect();
 		EnableUpdate();
 		#endif
 	}
@@ -143,7 +144,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		super.OnMissionLoaded(sender, args);
+		super.OnMissionStart(sender, args);
 
 		//! Server only
 		#ifdef SERVER
@@ -156,6 +157,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
+		super.OnMissionLoaded(sender, args);
+		
 		#ifdef SERVER
 		ServerModuleInit();
 		#endif
@@ -165,6 +168,35 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#endif
 	}
 
+#ifndef SERVER
+	override void OnInvokeConnect(Class sender, CF_EventArgs args)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		super.OnInvokeConnect(sender, args);
+
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+		if (GetExpansionSettings().GetNamalskAdventure().ClearPlayerFactions)
+		{
+			//! Cleanup player faction/group on connection
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ClearPlayerFaction, 5000, false, cArgs.Identity);
+		}
+	}
+#endif
+
+	protected void ClearPlayerFaction(PlayerIdentity identity)
+	{
+		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
+		eAIGroup group = player.GetGroup();
+		if (player && group)
+		{
+			eAIFaction playerFaction = group.GetFaction();
+			StringLocaliser text = new StringLocaliser("You have been removed from the %1 faction in preperation for the next content update. All your reputation points for the %1 faction have been added to your normal reputation.", playerFaction.GetDisplayName());
+			ExpansionNotification("Faction Change", text).Info(identity);
+			player.SetGroup(null);
+		}
+	}
+	
 	protected void ServerModuleInit()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);

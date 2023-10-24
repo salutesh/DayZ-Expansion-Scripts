@@ -170,7 +170,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
        hexactsize 0
        vexactsize 0
        style Bold
-       text "#STR_EXPANSION_COT_TERRITORY_INFORMATIONE"
+       text "#STR_EXPANSION_COT_TERRITORY_INFORMATION"
        "text halign" center
        "text valign" center
       }

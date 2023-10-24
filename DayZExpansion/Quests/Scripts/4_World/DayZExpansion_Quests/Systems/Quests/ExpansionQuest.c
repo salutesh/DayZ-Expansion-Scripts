@@ -352,6 +352,10 @@ class ExpansionQuest
 	
 	protected void FindAndSetQuestGiverItem()
 	{
+		m_Player = GetPlayer();
+		if (!m_Player)
+			return;
+		
 		int questID = m_Config.GetID();
 		ItemBase handItem = ItemBase.Cast(m_Player.GetHumanInventory().GetEntityInHands());
 		if (handItem && handItem.Expansion_GetQuestID() == questID && handItem.Expansion_IsQuestGiver())
@@ -554,9 +558,13 @@ class ExpansionQuest
 			if (!conditions && m_Config.GetFactionReward() != string.Empty)
 				conditions = true;
 		#endif
-		#ifdef EXPANSIONMODHARDLINE	
+		#ifdef EXPANSIONMODHARDLINE
 			if (!conditions && m_Config.GetReputationReward() > 0)
 				conditions = true;
+		#ifdef EXPANSIONMODAI
+			if (!conditions && m_Config.GetFactionReputationRewards().Count() > 0)
+				conditions = true;
+		#endif
 		#endif
 			if (conditions)
 				SpawnQuestRewards(playerUID, reward);
@@ -1415,6 +1423,32 @@ class ExpansionQuest
 				if (questPlayer)
 					questPlayer.Expansion_AddReputation(m_Config.GetReputationReward());
 			}
+			
+		#ifdef EXPANSIONMODAI
+			map<string, int> factionRewards = m_Config.GetFactionReputationRewards();
+			QuestDebugPrint("Faction reputation rewards: " + factionRewards.Count());
+			if (GetExpansionSettings().GetHardline().UseFactionReputation && factionRewards.Count() > 0)
+			{
+				int playerFactionID = questPlayer.eAI_GetFactionTypeID();
+				foreach (string faction, int reputation: factionRewards)
+				{
+					typename factionType = eAIFaction.GetType(faction);
+					int factionID = eAIRegisterFaction.s_FactionIDs[factionType];
+					if (factionID != 0)
+					{
+						QuestDebugPrint("Add faction reputation reward: " + factionType.ToString() + ":" + factionID + " | Reputation: " + reputation);
+						if (factionID == playerFactionID)
+						{
+							questPlayer.Expansion_AddReputation(reputation);
+						}
+						else
+						{
+							questPlayer.Expansion_AddFactionReputation(reputation, factionID);
+						}
+					}
+				}
+			}
+		#endif
 		#endif
 		}
 	#ifdef EXPANSIONMODGROUPS
@@ -1512,6 +1546,30 @@ class ExpansionQuest
 					if (groupPlayer)
 						groupPlayer.Expansion_AddReputation(m_Config.GetReputationReward());
 				}
+				
+			#ifdef EXPANSIONMODAI
+				map<string, int> groupFactionRewards = m_Config.GetFactionReputationRewards();
+				if (GetExpansionSettings().GetHardline().UseFactionReputation && groupFactionRewards.Count() > 0)
+				{
+					int groupPlayerFactionID = groupPlayer.eAI_GetFactionTypeID();
+					foreach (string groupFaction, int groupRep: groupFactionRewards)
+					{
+						typename groupFactionType = eAIFaction.GetType(groupFaction);
+						int groupFactionID = eAIRegisterFaction.s_FactionIDs[groupFactionType];
+						if (groupFactionID != 0)
+						{
+							if (groupFactionID == groupPlayerFactionID)
+							{
+								groupPlayer.Expansion_AddReputation(groupRep);
+							}
+							else
+							{
+								groupPlayer.Expansion_AddFactionReputation(groupRep, groupFactionID);
+							}
+						}
+					}
+				}
+			#endif
 			#endif
 			}
 		}

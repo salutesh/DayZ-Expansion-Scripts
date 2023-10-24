@@ -39,7 +39,7 @@ class ExpansionQuestObjectiveConfigBase
 
 class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 {
-	static const int CONFIGVERSION = 21;
+	static const int CONFIGVERSION = 22;
 
 	string ObjectiveText = string.Empty;
 	int TimeLimit = - 1;

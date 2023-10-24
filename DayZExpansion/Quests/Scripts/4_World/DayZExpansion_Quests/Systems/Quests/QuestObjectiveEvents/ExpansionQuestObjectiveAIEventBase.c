@@ -53,7 +53,7 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		if (!super.OnCleanup())
 			return false;
 
-		if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(m_Quest))
+		if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(m_Quest.GetQuestConfig().GetID()))
 		{
 			CleanupPatrol(true);
 		}
@@ -67,7 +67,7 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		if (!super.OnCancel())
 			return false;
 
-		if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(m_Quest))
+		if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(m_Quest.GetQuestConfig().GetID()))
 			CleanupPatrol(true);
 
 		return true;

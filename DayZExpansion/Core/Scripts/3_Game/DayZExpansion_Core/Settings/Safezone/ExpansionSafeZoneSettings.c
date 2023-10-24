@@ -34,7 +34,9 @@ class ExpansionSafeZoneSettingsV0: ExpansionSafeZoneSettingsBase
  **/
 class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 {
-	static const int VERSION = 9;
+	static const int VERSION = 10;
+
+	autoptr array<ref ExpansionSafeZoneCylinder> CylinderZones = new array< ref ExpansionSafeZoneCylinder >;
 
 	int ActorsPerTick;
 	bool DisableVehicleDamageInSafeZone;
@@ -107,6 +109,13 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		ItemLifetimeInSafeZone = s.ItemLifetimeInSafeZone;
 		EnableForceSZCleanupVehicles = s.EnableForceSZCleanupVehicles;
 		VehicleLifetimeInSafeZone = s.VehicleLifetimeInSafeZone;
+
+		CylinderZones.Clear();
+
+		foreach (auto cylinderZone: s.CylinderZones)
+		{
+			CylinderZones.Insert(cylinderZone);
+		}
 		
 		ExpansionSafeZoneSettingsBase sb = s;
 		CopyInternal( sb );
@@ -122,14 +131,14 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		CircleZones.Clear();
 		PolygonZones.Clear();
 
-		for (i = 0; i < s.PolygonZones.Count(); i++)
+		foreach (auto circleZone: s.CircleZones)
 		{
-			PolygonZones.Insert( s.PolygonZones[i] );
+			CircleZones.Insert(circleZone);
 		}
 
-		for (i = 0; i < s.CircleZones.Count(); i++)
+		foreach (auto polygonZone: s.PolygonZones)
 		{
-			CircleZones.Insert( s.CircleZones[i] );
+			PolygonZones.Insert(polygonZone);
 		}
 
 		FrameRateCheckSafeZoneInMs = s.FrameRateCheckSafeZoneInMs;
@@ -227,16 +236,6 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 			EXPrint("[ExpansionSafeZoneSettings] No existing setting file:" + EXPANSION_SAFE_ZONES_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
-		}
-
-		for (int i=0; i < CircleZones.Count(); i++)
-		{
-			vector pos = ExpansionStatic.GetSurfacePosition(CircleZones[i].Center);
-			if ( pos[1] > CircleZones[i].Center[1])
-			{
-				CircleZones[i].Center[1] = pos[1];
-				save = true;
-			}
 		}
 		
 		if (save)

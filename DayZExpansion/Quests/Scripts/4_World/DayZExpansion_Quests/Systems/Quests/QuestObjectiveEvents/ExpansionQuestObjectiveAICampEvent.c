@@ -20,10 +20,10 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!super.OnEventStart())
-			return false;
-
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+		
+		if (!super.OnEventStart())
 			return false;
 
 		return true;
@@ -33,10 +33,10 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!super.OnContinue())
-			return false;
-
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+		
+		if (!super.OnContinue())
 			return false;
 
 		return true;
@@ -103,10 +103,10 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		for (int i = 0; i < m_UnitsToSpawn; i++)
 		{
 			vector pos = aiCamp.GetPositions()[i];
-			array<vector> waypoint = new array<vector>;
+			TVectorArray waypoint = new TVectorArray;
 			waypoint.Insert(pos);
 
-			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), aiCamp.GetNPCMode(), "HALT", aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), m_Config.CanLootAI(), false, waypoint);
+			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), "SPRINT", aiCamp.GetNPCMode(), aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), m_Config.CanLootAI(), true, waypoint);
 			group.Formation = "RANDOM";  //! Just set a default, it's not really used as the NPCs are separate
 			group.AccuracyMin = aiCamp.NPCAccuracyMin;
 			group.AccuracyMax = aiCamp.NPCAccuracyMax;
@@ -146,7 +146,9 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 			return;
 
 		string markerName = m_Config.GetObjectiveText();
-		CreateObjectiveMarker(aiCamp.GetPositions()[0], markerName);
+		array<vector> positions = aiCamp.GetPositions();
+		if (positions)
+			CreateObjectiveMarker(positions[0], markerName);
 	}
 #endif
 

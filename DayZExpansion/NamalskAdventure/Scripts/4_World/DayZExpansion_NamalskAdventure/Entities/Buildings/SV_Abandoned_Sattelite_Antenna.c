@@ -12,7 +12,7 @@
 
 //! @note: Can only be used when the BuildingsModPack mod by Starlv is loaded: https://steamcommunity.com/sharedfiles/filedetails/?id=2270098553
 #ifdef EXPANSION_NAMALSK_ADVENTURE
-class SV_Abandoned_Sattelite_Antenna: House
+class SV_Abandoned_Sattelite_Antenna extends House
 {
 #ifdef DIAG
 #ifdef EXPANSIONMODNAVIGATION
@@ -123,7 +123,7 @@ class SV_Abandoned_Sattelite_Antenna: House
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
 		if (markerModule)
-			markerModule.CreateServerMarker(GetType(), "Tent", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 44, 62, 80), true);
+			m_ServerMarker = markerModule.CreateServerMarker(GetType(), "Tent", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 44, 62, 80), true);
 	}
 #endif
 #endif

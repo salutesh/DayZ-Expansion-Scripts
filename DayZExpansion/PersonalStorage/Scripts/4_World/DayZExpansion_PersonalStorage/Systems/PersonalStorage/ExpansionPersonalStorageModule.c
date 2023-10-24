@@ -717,28 +717,29 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	{
 		auto settings = GetExpansionSettings().GetPersonalStorage();
 		int playerItemsCount = GetPlayerItemsCount(identity.GetId(), storageID, isGlobal);
+
+	#ifdef EXPANSIONMODHARDLINE
+		ExpansionPersonalStorageConfig storageConfig = GetPersonalStorageConfigByID(storageID);
+		if (storageConfig)
+		{
+			int reputationToUnlock = storageConfig.GetReputation();
+			PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
+			if (player)
+			{
+				int reputation = player.Expansion_GetReputation();
+				int limit = GetStorageLimitByReputation(reputation, reputationToUnlock);
+				if (playerItemsCount >= limit)
+				{
+					ExpansionNotification(new StringLocaliser("Max items to deposit reached!"), new StringLocaliser("You already have %1 items in total in your storage. Limit is %2.", playerItemsCount.ToString(), limit.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
+					return false;
+				}
+			}
+		}
+	#else
 		if (settings.MaxItemsPerStorage != -1 && playerItemsCount >= settings.MaxItemsPerStorage)
 		{
 			ExpansionNotification(new StringLocaliser("Max items to deposit reached!"), new StringLocaliser("You already have %1 items in total in your storage. Limit is %2.", playerItemsCount.ToString(), settings.MaxItemsPerStorage.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);			
 			return false;
-		}
-
-	#ifdef EXPANSIONMODHARDLINE
-		ExpansionPersonalStorageConfig storageConfig = GetPersonalStorageConfigByID(storageID);
-		if (!storageConfig)
-			return false;
-
-		int reputationToUnlock = storageConfig.GetReputation();
-		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
-		if (player)
-		{
-			int reputation = player.Expansion_GetReputation();
-			int limit = GetStorageLimitByReputation(reputation, reputationToUnlock);
-			if (playerItemsCount >= limit)
-			{
-				ExpansionNotification(new StringLocaliser("Max items to deposit reached!"), new StringLocaliser("You already have %1 items in total in your storage. Limit is %2.", playerItemsCount.ToString(), limit.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
-				return false;
-			}
 		}
 	#endif
 

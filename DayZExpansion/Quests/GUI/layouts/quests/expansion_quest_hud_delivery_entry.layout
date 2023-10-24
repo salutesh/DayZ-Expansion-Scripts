@@ -1,10 +1,10 @@
 WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
  clipchildren 1
  ignorepointer 1
- size 264 0.025
+ size 1 0.025
  hexactpos 0
  vexactpos 0
- hexactsize 1
+ hexactsize 0
  vexactsize 0
  scriptclass "ExpansionQuestHUDDeliveryEntryController"
  style Empty
@@ -32,23 +32,37 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
     PanelWidgetClass panel {
      ignorepointer 1
      position 0.007 0.73
-     size 1 16
+     size 1 36
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 1
      {
+      PanelWidgetClass spacer {
+       visible 1
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 2
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       style rover_sim_colorable
+      }
       TextWidgetClass delivery_value {
        ignorepointer 1
-       size 0.35 1
+       position 0 2
+       size 1 16
        halign right_ref
+       valign bottom_ref
        hexactpos 1
        vexactpos 1
        hexactsize 0
-       vexactsize 0
+       vexactsize 1
        scriptclass "ViewBinding"
-       text "0/10"
+       text "5000/5000"
        font "gui/fonts/metron-bolditalic16"
+       "text offset" -2 0
        "exact text" 0
        "size to text h" 0
        "size to text v" 0
@@ -62,12 +76,12 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
       }
       TextWidgetClass delivery_name {
        ignorepointer 1
-       position 14 0
-       size 0.6 1
+       position 14 5
+       size 0.95 16
        hexactpos 1
        vexactpos 1
        hexactsize 0
-       vexactsize 0
+       vexactsize 1
        scriptclass "ViewBinding"
        text "ClassName"
        font "gui/fonts/etelkatextpro16"
@@ -83,7 +97,7 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
       }
       ImageWidgetClass delivery_icon {
        ignorepointer 1
-       position 0 0
+       position 0 5
        size 16 16
        hexactpos 1
        vexactpos 1
@@ -91,8 +105,8 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
        vexactsize 1
        mode blend
        "src alpha" 1
-       "no wrap" 1
-       stretch 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
        "flip u" 0
        "flip v" 0
        rotation 0 0 90

@@ -44,6 +44,7 @@ class ExpansionBookMenuTabFactions: ExpansionBookMenuTabBase
 				factionRep = player.Expansion_GetReputation();
 			else
 				factionRep = player.Expansion_GetFactionReputation(id);
+			
 			if (factionRep > 0)
 			{
 				eAIFaction faction = eAIFaction.Cast(factionType.Spawn());
@@ -100,7 +101,7 @@ class ExpansionBookMenuTabFactions: ExpansionBookMenuTabBase
 	
 	override bool CanShow()
 	{
-		return true;
+		return GetExpansionSettings().GetBook().ShowPlayerFaction;
 	}
 	
 	override bool IsParentTab()

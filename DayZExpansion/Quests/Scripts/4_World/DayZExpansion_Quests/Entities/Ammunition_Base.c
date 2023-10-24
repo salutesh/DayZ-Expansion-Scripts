@@ -60,29 +60,50 @@ modded class Ammunition_Base
 		return true;
 	}
 
+	//! @note Can't call super here, need access to new pile :-(
 	override void SplitItemToInventoryLocation(notnull InventoryLocation dst)
 	{
-		super.SplitItemToInventoryLocation(dst);
-
 		if (!CanBeSplit())
 			return;
 
-		Expansion_OnQuantityChanged();
+		Magazine new_pile = Magazine.Cast(GameInventory.LocationCreateEntity(dst, GetType(), ECE_IN_INVENTORY, RF_DEFAULT));
+		if (new_pile)
+		{
+			MiscGameplayFunctions.TransferItemProperties(dst.GetItem(), new_pile);
+
+			int numberOfTransferredCartridges = Expansion_TransferCartridges(new_pile, Math.Floor(GetAmmoCount() * 0.5));
+
+			if (numberOfTransferredCartridges)
+			{
+				Expansion_OnStackSizeChanged(-numberOfTransferredCartridges);
+				new_pile.Expansion_OnStackSizeChanged(numberOfTransferredCartridges);
+			}
+		}
 	}
 
+	//! @note Can't call super here, need access to new pile :-(
 	override void SplitItem(PlayerBase player)
 	{
-		super.SplitItem(player);
-
 		if (!CanBeSplit())
 			return;
 
-		if (player && player.GetIdentity())
-			CheckAssignedObjectivesForEntity(ExpansionQuestItemState.QUANTITY_CHANGED, player);
+		Magazine new_pile = Magazine.Cast(player.CreateCopyOfItemInInventoryOrGround(this));
+		if (new_pile)
+		{
+			int numberOfTransferredCartridges = Expansion_TransferCartridges(new_pile, Math.Floor(GetAmmoCount() * 0.5));
+
+			if (numberOfTransferredCartridges)
+			{
+				Expansion_OnStackSizeChanged(-numberOfTransferredCartridges);
+				new_pile.Expansion_OnStackSizeChanged(numberOfTransferredCartridges);
+			}
+		}
 	}
-	
+
 	override void CombineItems(ItemBase other_item, bool use_stack_max = false)
 	{
+		int ammoCount = GetAmmoCount();
+
 		super.CombineItems(other_item, use_stack_max);
 
 		if (!CanBeCombined(other_item))
@@ -91,6 +112,14 @@ modded class Ammunition_Base
 		if (other_item.GetType() != GetType())
 			return;
 
-		Expansion_OnQuantityChanged();
+		int delta = GetAmmoCount() - ammoCount;
+		if (delta)
+		{
+			Expansion_OnStackSizeChanged(delta);
+
+			Ammunition_Base otherPile;
+			if (Class.CastTo(otherPile, other_item))
+				otherPile.Expansion_OnStackSizeChanged(-delta);
+		}
 	}
 };

@@ -1,0 +1,60 @@
+FrameWidgetClass ExpansionQuestMenuFactionReward {
+ position 0 0
+ size 1 25
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 1
+ scriptclass "ExpansionQuestMenuFactionRewardController"
+ {
+  TextWidgetClass FactionName {
+   ignorepointer 1
+   color 0.8627 0.8627 0.8627 1
+   position 0 0
+   size 0.8 27
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   scriptclass "ViewBinding"
+   style Normal
+   text "Survivors"
+   font "gui/fonts/etelkatextpro22"
+   "text offset" 5 0
+   "exact text" 0
+   "size to text h" 0
+   "size to text v" 0
+   "text valign" center
+   {
+    ScriptParamsClass {
+     Binding_Name "FactionName"
+    }
+   }
+  }
+  TextWidgetClass Reputation {
+   ignorepointer 1
+   color 0.8627 0.8627 0.8627 1
+   size 0.2 27
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   scriptclass "ViewBinding"
+   style Normal
+   text "100"
+   font "gui/fonts/etelkatextpro22"
+   "text offset" -5 0
+   "exact text" 0
+   "size to text h" 0
+   "size to text v" 0
+   "text halign" right
+   "text valign" center
+   {
+    ScriptParamsClass {
+     Binding_Name "Reputation"
+    }
+   }
+  }
+ }
+}

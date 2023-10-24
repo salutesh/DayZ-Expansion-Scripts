@@ -96,7 +96,14 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 		MaxDistance = configBase.MaxDistance;
 		MarkerName = configBase.MarkerName;
 		ShowDistance = configBase.ShowDistance;
-		Collections = configBase.Collections;
+		
+		Collections.Clear();
+		foreach (ExpansionQuestObjectiveDelivery delivey: configBase.Collections)
+		{
+			ExpansionQuestObjectiveDelivery deliveryCopy = new ExpansionQuestObjectiveDelivery();
+			deliveryCopy.Copy(delivey);
+			Collections.Insert(deliveryCopy);
+		}
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

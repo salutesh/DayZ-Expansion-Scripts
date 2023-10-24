@@ -105,6 +105,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		{
 			m_ObjectiveItemsAmount += 1;
 
+			name.ToLower();
 			int current;
 			if (m_ObjectiveItemsMap.Find(name, current))
 			{
@@ -166,10 +167,10 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, player.GetIdentity().GetId());
 
-		foreach (string typeName, int needed: m_ObjectiveItemsMap)
+		foreach (string typeNameLower, int needed: m_ObjectiveItemsMap)
 		{
-			EXTrace.Print(EXTrace.QUESTS, this, typeName + " needed: " + needed);
-			ExpansionInventoryItemType itemType = player.Expansion_GetInventoryItemType(typeName);
+			EXTrace.Print(EXTrace.QUESTS, this, typeNameLower + " needed: " + needed);
+			ExpansionInventoryItemType itemType = player.Expansion_GetInventoryItemType(typeNameLower);
 			if (itemType)
 			{
 				foreach (ItemBase item: itemType.Items)
@@ -177,14 +178,14 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 					if (item.IsRuined())
 						continue;
 
-					int current = m_ObjectiveInventoryItemsMap[typeName];
-					EXTrace.Print(EXTrace.QUESTS, this, typeName + " current: " + current);
+					int current = m_ObjectiveInventoryItemsMap[typeNameLower];
+					EXTrace.Print(EXTrace.QUESTS, this, typeNameLower + " current: " + current);
 					if (current >= needed)
 						break;
 
 					int amount = item.Expansion_GetStackAmount();
 					EXTrace.Print(EXTrace.QUESTS, this, "add: " + amount);
-					m_ObjectiveInventoryItemsMap[typeName] = current + amount;
+					m_ObjectiveInventoryItemsMap[typeNameLower] = current + amount;
 					m_ObjectiveItems.Insert(item);
 					m_ObjectiveItemsCount += amount;
 				}
@@ -224,10 +225,10 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 		foreach (ItemBase craftedItem: spawned_objects)
 		{
-			string typeName = craftedItem.GetType();
+			string typeNameLower = craftedItem.Expansion_GetTypeLower();
 			int amount = craftedItem.Expansion_GetStackAmount();
 			int needed;
-			if (m_ObjectiveItemsMap.Find(typeName, needed))
+			if (m_ObjectiveItemsMap.Find(typeNameLower, needed))
 			{
 				if (m_ObjectiveActionCount < m_ObjectiveActionAmount)
 				{
@@ -245,9 +246,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		string typeName = item.GetType();
+		string typeNameLower = item.Expansion_GetTypeLower();
 
-		if (!m_ObjectiveItemsMap.Contains(typeName))
+		if (!m_ObjectiveItemsMap.Contains(typeNameLower))
 			return;
 
 		ObjectivePrint("State: " + typename.EnumToString(ExpansionQuestItemState, state));

@@ -37,6 +37,13 @@ class ExpansionQuestObjectiveItem
 		return m_ClassName;
 	}
 
+	string GetClassNameLower()
+	{
+		string className = m_ClassName;
+		className.ToLower();
+		return className;
+	}
+
 	void DestroyItem()
 	{
 		if (m_RemainingAmount == 0)

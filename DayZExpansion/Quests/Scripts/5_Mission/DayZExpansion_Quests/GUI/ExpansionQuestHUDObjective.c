@@ -16,19 +16,25 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	protected ref ExpansionQuestHUDObjectiveController m_QuestHUDObjectiveController;
 	protected ExpansionQuestObjectiveData m_Objective;
 	protected ExpansionQuestConfig m_Quest;
+	protected ExpansionQuestState m_QuestState;
 	protected Widget Spacer;
 	protected RichTextWidget ObjectiveName;
 	protected RichTextWidget ObjectiveTime;
 	protected WrapSpacerWidget ObjectiveWrapper;
+	protected WrapSpacerWidget ObjectiveValueWrapper;
 	protected WrapSpacerWidget ObjectiveDeliveryEnties;
+	protected bool m_ObjectiveCompleted;
+	protected int m_TimeLimit;
+	protected int m_TimeCount;
 
-	void ExpansionQuestHUDObjective(ExpansionQuestObjectiveData objective, ExpansionQuestConfig questConfig)
+	void ExpansionQuestHUDObjective(ExpansionQuestObjectiveData objective, ExpansionQuestConfig questConfig, ExpansionQuestState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());
 		m_Objective = objective;
 		m_Quest = questConfig;
+		m_QuestState = state;
 	}
 
 	override string GetLayoutFile()
@@ -53,12 +59,12 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		if (!objectiveConfig)
 			return;
 
-		bool completed = m_Objective.IsCompleted();
+		m_ObjectiveCompleted = m_Objective.IsCompleted();
 		if (objectiveConfig.GetObjectiveText() != string.Empty)
 		{
 			ObjectiveName.Show(true);
 			string objectiveState;
-			if (completed)
+			if (m_ObjectiveCompleted)
 			{
 				string completeKey = "#STR_EXPANSION_QUEST_HUD_COMPLETE";
 				objectiveState = "[" + completeKey + "] ";
@@ -83,10 +89,10 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.AICAMP:
 		#endif
 			{
+				ObjectiveWrapper.Show(false);
 				UpdateTarget();
 			}
 			break;
-
 			case  ExpansionQuestObjectiveType.TRAVEL:
 			{
 				ExpansionQuestObjectiveTravelConfig travelObjective;
@@ -101,6 +107,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					else
 					{
 						ObjectiveWrapper.Show(false);
+						ObjectiveValueWrapper.Show(false);
 					}
 				}
 			}
@@ -120,6 +127,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					else
 					{
 						ObjectiveWrapper.Show(false);
+						ObjectiveValueWrapper.Show(false);
 					}
  					
 					ObjectiveDeliveryEnties.Show(true);
@@ -129,7 +137,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					{
 						int currentDeliveryCount = m_Objective.GetDeliveryCountByIndex(i);
 						ExpansionQuestObjectiveDelivery delivery = deliveries[i];
-						ExpansionQuestHUDDeliveryEntry deliveryEntry = new ExpansionQuestHUDDeliveryEntry(delivery, currentDeliveryCount);
+						ExpansionQuestHUDDeliveryEntry deliveryEntry = new ExpansionQuestHUDDeliveryEntry(delivery, currentDeliveryCount, this);
 						m_QuestHUDObjectiveController.DeliveryEnties.Insert(deliveryEntry);
 						
 					}
@@ -161,7 +169,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 						collection = collections[i];									
 						if (!collectionObjective.NeedAnyCollection())
 						{
-							collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount);					
+							collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount, this);					
 							m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
 							if (currentCollectionCount >= collection.GetAmount())
 								completedCollections++;
@@ -179,6 +187,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					else
 					{
 						ObjectiveWrapper.Show(false);
+						ObjectiveValueWrapper.Show(false);
 					}
 
 					if (collectionObjective.NeedAnyCollection())
@@ -191,7 +200,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 								if (!collection)
 									continue;
 
-								collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, collectionCount);					
+								collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, collectionCount, this);					
 								m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
 							}
 						}
@@ -202,7 +211,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 								currentCollectionCount = m_Objective.GetDeliveryCountByIndex(i);				
 								collection = collections[i];
 
-								collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount);					
+								collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount, this);					
 								m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
 							}
 						}
@@ -225,6 +234,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					else
 					{
 						ObjectiveWrapper.Show(false);
+						ObjectiveValueWrapper.Show(false);
 					}
 				}
 			}
@@ -245,6 +255,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					else
 					{
 						ObjectiveWrapper.Show(false);
+						ObjectiveValueWrapper.Show(false);
 					}
 				}
 			}
@@ -253,25 +264,32 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 			case ExpansionQuestObjectiveType.ACTION:
 			{
-				ExpansionQuestObjectiveActionConfig actionConfig;
-				if (Class.CastTo(actionConfig, objectiveConfig))
-					UpdateTarget();
+				ObjectiveWrapper.Show(false);
+				UpdateTarget();
 			}
 			break;
 
 			case ExpansionQuestObjectiveType.CRAFTING:
 			{
-				ExpansionQuestObjectiveCraftingConfig craftingConfig;
-				if (Class.CastTo(craftingConfig, objectiveConfig))
-					UpdateTarget();
+				ObjectiveWrapper.Show(false);
+				UpdateTarget();
 			}
 			break;
 		}
-		
-		if (!completed)
-			Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
+				
+		if (objectiveConfig.GetObjectiveText() != string.Empty && m_QuestHUDObjectiveController.DeliveryEnties.Count() == 0)
+		{
+			if (!m_ObjectiveCompleted)
+				Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
+			else
+				Spacer.SetColor(ARGB(200, 160, 223, 59));
+
+			Spacer.Show(true);
+		}
 		else
-			Spacer.SetColor(ARGB(200, 160, 223, 59));
+		{
+			Spacer.Show(false);
+		}
 	}
 	
 	void UpdateTarget()
@@ -370,23 +388,45 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	
 	void UpdateTimeLimit()
 	{
-		if (m_Objective.GetTimeLimit() > -1)
+		int timeLimit = m_Objective.GetTimeLimit();
+		if (timeLimit > -1)
 		{
 			ObjectiveTime.Show(true);
-			m_QuestHUDObjectiveController.ObjectiveTimeLimit = "#STR_EXPANSION_QUEST_HUD_TIME " + ExpansionStatic.FormatTime(m_Objective.GetTimeLimit(), false);
+
+			if (timeLimit > 0 && timeLimit == m_TimeLimit)
+			{
+				if (timeLimit - m_TimeCount > 0)
+				{
+					m_TimeCount++;
+					timeLimit -= m_TimeCount;
+				}
+				else
+				{
+					timeLimit = 0;
+				}
+			}
+			else
+			{
+				m_TimeCount = 0;
+				m_TimeLimit = timeLimit;
+			}
+
+			EXPrint(string.Format("Time limit: %1 - %2 = %3", m_Objective.GetTimeLimit(), m_TimeCount, timeLimit));
+
+			m_QuestHUDObjectiveController.ObjectiveTimeLimit = "#STR_EXPANSION_QUEST_HUD_TIME " + ExpansionStatic.FormatTime(timeLimit, false);
 			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTimeLimit");
 
-			if (m_Objective.GetTimeLimit() > 60)
+			if (timeLimit <= 10)
 			{
-				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_INFO);
+				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_ERROR);
 			}
-			else if (m_Objective.GetTimeLimit() <= 60)
+			else if (timeLimit <= 60)
 			{
 				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_ORANGE);
 			}
-			else if (m_Objective.GetTimeLimit() <= 10)
+			else
 			{
-				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_ERROR);
+				ObjectiveTime.SetColor(COLOR_WHITE);
 			}
 		}
 	}
@@ -399,6 +439,17 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
 		m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 		ObjectiveWrapper.Show(true);
+		ObjectiveValueWrapper.Show(true);
+	}
+	
+	ExpansionQuestConfig GetQuestConfig()
+	{
+		return m_Quest;
+	}
+	
+	bool IsObjectiveCompleted()
+	{
+		return m_ObjectiveCompleted;
 	}
 
 	override float GetUpdateTickRate()

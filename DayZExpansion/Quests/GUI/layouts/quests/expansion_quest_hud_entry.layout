@@ -3,10 +3,10 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
  clipchildren 1
  inheritalpha 1
  position 0 0
- size 264 1
+ size 1 1
  hexactpos 0
  vexactpos 0
- hexactsize 1
+ hexactsize 0
  vexactsize 0
  scriptclass "ExpansionQuestHUDEntryController"
  style Empty
@@ -24,9 +24,23 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
    vexactsize 0
    style DayZDefaultPanelSides
    Margin 0
+   "Size To Content H" 1
    "Size To Content V" 1
    content_halign center
    {
+    PanelWidgetClass TopSpacer {
+     visible 1
+     ignorepointer 1
+     color 0 0 0 1
+     position 0 0
+     size 0.97 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+    }
     WrapSpacerWidgetClass TitelPanel {
      ignorepointer 1
      position 0 0
@@ -51,7 +65,6 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
        imageTexture "{0FCACAAF0A99273C}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"
        mode blend
        "src alpha" 1
-       "no wrap" 1
        stretch 1
       }
       RichTextWidgetClass QuestTitle {
@@ -81,10 +94,11 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
      }
     }
     PanelWidgetClass Spacer0 {
+     visible 1
      ignorepointer 1
      color 0 0 0 1
      position 0 0
-     size 0.96 2
+     size 0.97 2
      halign center_ref
      valign center_ref
      hexactpos 0
@@ -94,9 +108,10 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
      style rover_sim_colorable
     }
     RichTextWidgetClass Objective {
+     visible 0
      ignorepointer 1
      position 0 0
-     size 1 0.03
+     size 0.97 0.03
      hexactpos 0
      vexactpos 0
      hexactsize 0
@@ -115,11 +130,25 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
       }
      }
     }
-    PanelWidgetClass Spacer {
+    PanelWidgetClass TransparentSpacer {
+     visible 1
      ignorepointer 1
      color 0 0 0 1
      position 0 0
-     size 0.96 2
+     size 0.97 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+    }
+    PanelWidgetClass Spacer {
+     visible 0
+     ignorepointer 1
+     color 0 0 0 1
+     position 0 0
+     size 0.97 2
      halign center_ref
      valign center_ref
      hexactpos 0
@@ -133,7 +162,7 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
      ignorepointer 1
      keepsafezone 1
      position 0 0
-     size 1 1
+     size 0.97 1
      hexactpos 0
      vexactpos 0
      hexactsize 0
@@ -147,7 +176,6 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
      Margin 0
      "Size To Content H" 1
      "Size To Content V" 1
-     content_halign center
     }
    }
   }

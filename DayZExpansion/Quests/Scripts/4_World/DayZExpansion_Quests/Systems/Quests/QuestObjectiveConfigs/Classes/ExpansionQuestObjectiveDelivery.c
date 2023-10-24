@@ -15,6 +15,7 @@ class ExpansionQuestObjectiveDelivery
 	protected int Amount = 0;
 	protected string ClassName = string.Empty;
 	protected int QuantityPercent = -1;
+	protected int MinQuantityPercent = -1;
 
 	void SetAmount(int amount)
 	{
@@ -35,6 +36,13 @@ class ExpansionQuestObjectiveDelivery
 	{
 		return ClassName;
 	}
+
+	string GetClassNameLower()
+	{
+		string className = ClassName;
+		className.ToLower();
+		return className;
+	}
 	
 	void SetQuantity(int quantityPercent)
 	{
@@ -45,12 +53,31 @@ class ExpansionQuestObjectiveDelivery
 	{
 		return QuantityPercent;
 	}
+	
+	int GetMinQuantity()
+	{
+		return MinQuantityPercent;
+	}
+	
+	void SetMinQuantity(int quantityPercent)
+	{
+		MinQuantityPercent = quantityPercent;
+	}
+	
+	void Copy(ExpansionQuestObjectiveDelivery data)
+	{
+		Amount = data.Amount;
+		ClassName = data.ClassName;
+		QuantityPercent = data.QuantityPercent;
+		MinQuantityPercent = data.MinQuantityPercent;
+	}
 
 	void OnSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(Amount);
 		ctx.Write(ClassName);
 		ctx.Write(QuantityPercent);
+		ctx.Write(MinQuantityPercent);
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
@@ -63,6 +90,10 @@ class ExpansionQuestObjectiveDelivery
 		
 		if (!ctx.Read(QuantityPercent))
 			return false;
+		
+		if (!ctx.Read(MinQuantityPercent))
+			return false;
+
 
 		return true;
 	}
@@ -74,6 +105,7 @@ class ExpansionQuestObjectiveDelivery
 		Print(ToString() + "::QuestDebug - Amount: " + Amount);
 		Print(ToString() + "::QuestDebug - ClassName: " + ClassName);
 		Print(ToString() + "::QuestDebug - QuantityPercent: " + QuantityPercent);
+		Print(ToString() + "::QuestDebug - MinQuantityPercent: " + MinQuantityPercent);
 		Print("------------------------------------------------------------");
 	#endif
 	}

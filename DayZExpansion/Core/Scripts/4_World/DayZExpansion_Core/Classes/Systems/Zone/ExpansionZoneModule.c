@@ -52,13 +52,13 @@ class ExpansionZoneModule : CF_ModuleWorld
 
 		auto circleZones = settings.CircleZones;
 		auto polygonZones = settings.PolygonZones;
+		auto cylinderZones = settings.CylinderZones;
 
-		if (!circleZones || !polygonZones)
+		if (!circleZones || !polygonZones || !cylinderZones)
 		{
 			failure = true;
 		}
 
-		failure &= circleZones != null;
 		if (circleZones)
 		{
 			foreach (ExpansionSafeZoneCircle circleZone : circleZones)
@@ -68,14 +68,19 @@ class ExpansionZoneModule : CF_ModuleWorld
 			}
 		}
 
-		failure &= polygonZones != null;
 		if (polygonZones)
 		{
-			int index = 0;
 			foreach (ExpansionSafeZonePolygon polyZone : polygonZones)
 			{
 				polyZone.Create();
-				index++;
+			}
+		}
+
+		if (cylinderZones)
+		{
+			foreach (ExpansionSafeZoneCylinder cylinderZone : cylinderZones)
+			{
+				cylinderZone.Create();
 			}
 		}
 
