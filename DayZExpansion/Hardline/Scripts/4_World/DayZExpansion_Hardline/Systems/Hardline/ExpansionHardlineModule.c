@@ -210,8 +210,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	{
 	#ifdef DIAG
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
-		EXTrace.Add(trace, victim.GetType());
-		EXTrace.Add(trace, killer.GetType());
+		EXTrace.Add(trace, victim);
+		EXTrace.Add(trace, killer);
 	#endif
 		
 		EntityAI killerEntity;

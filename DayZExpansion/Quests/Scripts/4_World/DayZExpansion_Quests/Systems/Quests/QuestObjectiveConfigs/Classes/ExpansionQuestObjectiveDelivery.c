@@ -36,6 +36,13 @@ class ExpansionQuestObjectiveDelivery
 	{
 		return ClassName;
 	}
+
+	string GetClassNameLower()
+	{
+		string className = ClassName;
+		className.ToLower();
+		return className;
+	}
 	
 	void SetQuantity(int quantityPercent)
 	{

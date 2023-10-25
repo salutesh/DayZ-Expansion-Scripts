@@ -44,6 +44,12 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	protected ExpansionSupplyCrateKeyType m_ValidKeyType;
 	
+	#ifdef DIAG
+#ifdef EXPANSIONMODNAVIGATION
+	protected ExpansionMarkerData m_ServerMarker;
+#endif
+#endif
+
 	void Expansion_SupplyCrate_Base()
 	{
 		m_Expansion_SupplyCrateNode = s_Expansion_AllSupplyCrates.Add(this);
@@ -61,6 +67,18 @@ class Expansion_SupplyCrate_Base: Container_Base
 	{
 		if (GetGame())
 			CleanupSupplyCrate();
+		
+	#ifdef DIAG
+	#ifdef EXPANSIONMODNAVIGATION
+		if (!m_ServerMarker)
+			return;
+
+		ExpansionMarkerModule markerModule;
+		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
+		if (markerModule)
+			markerModule.RemoveServerMarker(m_ServerMarker.GetUID());
+	#endif
+	#endif
 	}
 
 	void CleanupSupplyCrate()
@@ -87,6 +105,14 @@ class Expansion_SupplyCrate_Base: Container_Base
 		m_LootDelay = false;
 
 		SetSynchDirty();
+		
+	#ifdef DIAG
+	#ifdef EXPANSIONMODNAVIGATION
+    #ifdef SERVER
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
+    #endif
+	#endif
+	#endif
 	}
 
 	override void EEItemAttached(EntityAI item, string slot_name)
@@ -391,6 +417,20 @@ class Expansion_SupplyCrate_Base: Container_Base
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 		#endif
 	}
+	
+#ifdef DIAG
+#ifdef EXPANSIONMODNAVIGATION
+	void CreateDebugMarker()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		ExpansionMarkerModule markerModule;
+		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
+		if (markerModule)
+			m_ServerMarker = markerModule.CreateServerMarker(GetType(), "Tent", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 41, 128, 185), true);
+	}
+#endif
+#endif
 };
 
 class Expansion_SupplyCrate_Bunker_Orange extends Expansion_SupplyCrate_Base 

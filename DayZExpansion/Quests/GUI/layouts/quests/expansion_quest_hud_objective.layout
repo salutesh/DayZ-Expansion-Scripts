@@ -33,7 +33,7 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
      visible 0
      ignorepointer 1
      position 0 0
-     size 0.95 0.03
+     size 1 0.03
      halign center_ref
      hexactpos 0
      vexactpos 0
@@ -44,7 +44,7 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
      "text offset" 5 0
      "exact text" 1
      "size to text h" 0
-     "size to text v" 0
+     "size to text v" 1
      wrap 1
      "condense whitespace" 1
      "strip newlines" 1
@@ -58,7 +58,7 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
      visible 0
      ignorepointer 1
      position 0 0
-     size 0.95 0.03
+     size 1 0.03
      halign center_ref
      hexactpos 0
      vexactpos 0
@@ -96,7 +96,7 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
       RichTextWidgetClass ObjectiveTarget {
        ignorepointer 1
        position 0 0.714
-       size 0.97 1
+       size 1 1
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -193,6 +193,19 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
    hexactsize 0
    vexactsize 1
    style rover_sim_colorable
+  }
+  PanelWidgetClass TransparentSpacer {
+   visible 1
+   ignorepointer 1
+   color 0 0 0 1
+   position 0 0
+   size 0.97 2
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
   }
  }
 }

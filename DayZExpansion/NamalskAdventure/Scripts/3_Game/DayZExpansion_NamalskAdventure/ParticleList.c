@@ -18,4 +18,6 @@ modded class ParticleList
 	//! Core item effect VFX particles
 	static const int EXPANSION_PARTICLE_ANOMALY_CORE_AREA = RegisterParticle("DayZExpansion/NamalskAdventure/Patricles/", "Expansion_Anomaly_Core_Area");
 	static const int EXPANSION_PARTICLE_ANOMALY_CORE_ICE = RegisterParticle("DayZExpansion/NamalskAdventure/Patricles/", "Expansion_Anomaly_Core_Ice");
+	
+	static const int EXPANSION_PARTICLE_CANDLE_FIRE = RegisterParticle("DayZExpansion/NamalskAdventure/Patricles/", "Expansion_Candle");
 };

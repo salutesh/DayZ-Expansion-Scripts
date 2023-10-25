@@ -180,7 +180,7 @@ modded class PlayerBase
 		{
 			if (ammo.Mag && ammo.Mag.GetAmmoCount() != ammo.Count)
 			{
-				ammo.Mag.Expansion_OnStackSizeChanged();
+				ammo.Mag.Expansion_OnStackSizeChanged(ammo.Mag.GetAmmoCount() - ammo.Count);
 			}
 		}
 

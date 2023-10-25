@@ -57,7 +57,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		super.OnMissionLoaded(sender, args);
+		super.OnMissionStart(sender, args);
 
 		//! Server only
 		#ifdef SERVER
@@ -70,6 +70,8 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
+		super.OnMissionLoaded(sender, args);
+		
 		#ifdef SERVER
 		ServerModuleInit();
 		#endif

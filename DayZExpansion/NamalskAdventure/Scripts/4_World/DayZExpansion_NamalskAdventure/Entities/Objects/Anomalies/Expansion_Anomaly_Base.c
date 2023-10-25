@@ -216,7 +216,7 @@ class Expansion_Anomaly_Base: ItemBase
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
 		if (markerModule)
-			markerModule.CreateServerMarker(GetType(), "Anomaly", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 235, 59, 90), true);
+			m_ServerMarker = markerModule.CreateServerMarker(GetType(), "Anomaly", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 235, 59, 90), true);
 		#endif
 		#endif
 	}

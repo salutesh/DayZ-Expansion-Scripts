@@ -743,6 +743,14 @@ modded class PlayerBase
 		}
 	}
 
+	/**
+	 * @brief Check if item class or any parent class is registered.
+	 * 
+	 * @param item The item to be checked if its type name matches or inherits from any registered item type
+	 * @param registeredType Will be set to all lowercase item type name if registered
+	 * 
+	 * @return bool True if registered, false if not
+	 */
 	static bool Expansion_IsInventoryItemTypeRegistered(ItemBase item, out string registeredType)
 	{
 		//if (Expansion_IsInventoryItemTypeRegistered(item.Type(), registeredType))
@@ -756,6 +764,7 @@ modded class PlayerBase
 			if (item.IsInherited(typeName))
 			{
 				registeredType = typeName.ToString();
+				registeredType.ToLower();
 				return true;
 			}
 		}
@@ -774,6 +783,14 @@ modded class PlayerBase
 		//return false;
 	//}
 
+	/**
+	 * @brief Check if type name is registered.
+	 * 
+	 * @param type Type name (case insensitive)
+	 * @param registeredType Will be set to all lowercase item type name if registered
+	 * 
+	 * @return bool True if registered, false if not
+	 */
 	static bool Expansion_IsInventoryItemTypeRegistered(string type, out string registeredType)
 	{
 		type.ToLower();
@@ -810,18 +827,26 @@ modded class PlayerBase
 #endif
 	}
 
-	ExpansionInventoryItemType Expansion_OnInventoryUpdateEx(string type, ItemBase item, bool inInventory = true, bool checkOnlyIfWorking = false)
+	/**
+	 * @brief Update inventory item type name to inventory item type instance mapping and return new or existing instance.
+	 * 
+	 * @param registeredType Type name. Needs to be lowercase!
+	 * @param item Item the item to add or remove
+	 * @param inInventory Whether the item is in inventory
+	 * @param checkOnlyIfWorking If in inventory, only update whether the item's energy manager is currently working
+	 */
+	protected ExpansionInventoryItemType Expansion_OnInventoryUpdateEx(string registeredType, ItemBase item, bool inInventory = true, bool checkOnlyIfWorking = false)
 	{
 		ExpansionInventoryItemType itemType;
 
-		bool found = m_Expansion_InventoryItemTypes.Find(type, itemType);
+		bool found = m_Expansion_InventoryItemTypes.Find(registeredType, itemType);
 
 		if (inInventory)
 		{
 			if (!found)
 			{
 				itemType = new ExpansionInventoryItemType;
-				m_Expansion_InventoryItemTypes[type] = itemType;
+				m_Expansion_InventoryItemTypes[registeredType] = itemType;
 			}
 
 			if (!checkOnlyIfWorking || !found)
@@ -851,7 +876,7 @@ modded class PlayerBase
 			}
 			else
 			{
-				m_Expansion_InventoryItemTypes.Remove(type);
+				m_Expansion_InventoryItemTypes.Remove(registeredType);
 				return null;
 			}
 		}
@@ -884,13 +909,12 @@ modded class PlayerBase
 
 	ExpansionInventoryItemType Expansion_GetInventoryItemType(typename type)
 	{
-		return m_Expansion_InventoryItemTypes[type.ToString()];
+		return Expansion_GetInventoryItemType(type.ToString());
 	}
 
 	ExpansionInventoryItemType Expansion_GetInventoryItemType(string type)
 	{
-		if (!type.ToType())
-			type.ToLower();
+		type.ToLower();
 		return m_Expansion_InventoryItemTypes[type];
 	}
 }

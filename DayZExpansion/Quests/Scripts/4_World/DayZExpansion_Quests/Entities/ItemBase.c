@@ -26,6 +26,7 @@ modded class ItemBase
 	protected bool m_Expansion_IsQuestGiver = false;
 	protected bool m_Expansion_DeletedByQuest = false;
 	protected bool m_Expansion_IsDeliveryItem = false;
+	protected bool m_Expansion_Quests_InventoryEnter;
 
 	protected const ref array<string> m_Expansion_ExcludedFromCombine = {"Ammunition_Base", "Edible_Base"};
 
@@ -116,11 +117,16 @@ modded class ItemBase
 				{
 					//! Delete this item when it has a quest ID assigned but the player who picks it up has not a active quest instance with that ID.
 					if (!ExpansionQuestModule.GetModuleInstance().GetActiveQuestWithQuestID(playerPB, m_Expansion_QuestID))
+					{
 						GetGame().ObjectDelete(this);
+						return;
+					}
 				}
 
-				//! Need to check in next frame because other code might have created this item in player inventory & set quantity in this frame
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(CheckAssignedObjectivesForEntity, ExpansionQuestItemState.INV_ENTER, player);
+				//! @note use Call() so execution happens in next frame, after all operations in the current frame have executed
+				//! (e.g. splitting/combining items etc)
+				m_Expansion_Quests_InventoryEnter = true;
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(CheckAssignedObjectivesForEntity, ExpansionQuestItemState.INV_ENTER, player, 0.0);
 			}
 		}
 	}
@@ -160,31 +166,38 @@ modded class ItemBase
 	{
 		super.OnQuantityChanged(delta);
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (GetGame().IsServer() && GetGame().IsMultiplayer() && !m_Expansion_Quests_InventoryEnter)
 		{
+			//! @note use Call() so execution happens in next frame, after all operations in the current frame have executed
+			//! (e.g. splitting/combining items etc)
 			if (Expansion_IsStackable())
 			{
-				Expansion_OnStackSizeChanged();
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_OnStackSizeChanged, delta);
 			}
 			else
 			{
-				Expansion_OnContentQuantityChanged();
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_OnContentQuantityChanged, delta);
 			}
 		}
 	}
 
-	void Expansion_OnStackSizeChanged()
+	void Expansion_OnStackSizeChanged(float delta)
 	{
+		//! @note If item is set for deletion, INV_EXIT will deal with the necessary objective-related checks
 		if (IsSetForDeletion())
 			return;
 		
 		PlayerBase player = PlayerBase.Cast(GetHierarchyRootPlayer());
 		if (player && player.GetIdentity())
-			CheckAssignedObjectivesForEntity(ExpansionQuestItemState.STACKSIZE_CHANGED, player);
+			CheckAssignedObjectivesForEntity(ExpansionQuestItemState.STACKSIZE_CHANGED, player, delta);
 	}
 	
-	void Expansion_OnContentQuantityChanged()
+	void Expansion_OnContentQuantityChanged(float delta)
 	{
+		//! @note If item is set for deletion, INV_EXIT will deal with the necessary objective-related checks
+		if (IsSetForDeletion())
+			return;
+
 		PlayerBase player = PlayerBase.Cast(GetHierarchyRootPlayer());
 		if (player && player.GetIdentity())
 		{
@@ -192,7 +205,7 @@ modded class ItemBase
 			float quantity = Expansion_GetQuantity(quantityType);		
 			if (quantityType >= ExpansionItemQuantityType.PERCENTAGE && quantityType <= ExpansionItemQuantityType.POWER)
 			{
-				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.CONTENTQUANTITY_CHANGED, player);
+				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.CONTENTQUANTITY_CHANGED, player, delta);
 			}
 		}
 	}
@@ -307,11 +320,14 @@ modded class ItemBase
 	#endif
 	}
 
-	void CheckAssignedObjectivesForEntity(ExpansionQuestItemState state, Man player = null)
+	void CheckAssignedObjectivesForEntity(ExpansionQuestItemState state, Man player = null, float delta = 0.0)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, GetType());
 	#endif
+
+		if (m_Expansion_Quests_InventoryEnter)
+			m_Expansion_Quests_InventoryEnter = false;
 
 		if (s_Expansion_AssignedQuestObjectives.Count() == 0)
 		{
@@ -364,7 +380,7 @@ modded class ItemBase
 				continue;
 			}
 
-			OnObjectiveItemInventoryChange(objective, state);
+			OnObjectiveItemInventoryChange(objective, state, delta);
 
 			if (objective.IsAssigned())
 				i++;
@@ -375,7 +391,7 @@ modded class ItemBase
 			EXPrint(this, "::CheckAssignedObjectivesForEntity - WARNING: Reached end of loop unexpectedly!");
 	}
 
-	protected void OnObjectiveItemInventoryChange(ExpansionQuestObjectiveEventBase objective, ExpansionQuestItemState state)
+	protected void OnObjectiveItemInventoryChange(ExpansionQuestObjectiveEventBase objective, ExpansionQuestItemState state, float delta)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -397,7 +413,7 @@ modded class ItemBase
 					if (m_Expansion_QuestID != questID)
 						return;
 
-					deliveryObjective.OnInventoryItemLocationChange(this, state);
+					deliveryObjective.OnInventoryItemLocationChange(this, state, delta);
 				}
 			}
 			break;
@@ -406,7 +422,7 @@ modded class ItemBase
 				ExpansionQuestObjectiveCollectionEvent collectionObjective;
 				if (Class.CastTo(collectionObjective, objective))
 				{
-					collectionObjective.OnInventoryItemLocationChange(this, state);
+					collectionObjective.OnInventoryItemLocationChange(this, state, delta);
 				}
 			}
 			break;

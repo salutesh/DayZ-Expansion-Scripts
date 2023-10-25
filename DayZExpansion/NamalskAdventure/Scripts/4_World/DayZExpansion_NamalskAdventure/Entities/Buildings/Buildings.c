@@ -10,4 +10,4 @@
  *
 */
 
-class land_chem_warehouse_2 extends BuildingSuper {};
+class land_chem_warehouse_2 extends House {};

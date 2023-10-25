@@ -385,7 +385,7 @@ class Expansion_Satellite_Control: ItemBase
 
 		ExpansionMarkerModule markerModule;
 		if (CF_Modules<ExpansionMarkerModule>.Get(markerModule))
-			markerModule.CreateServerMarker(GetType(), "Options", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 44, 62, 80), true);
+			m_ServerMarker = markerModule.CreateServerMarker(GetType(), "Options", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 44, 62, 80), true);
 	}
 	#endif
 	#endif

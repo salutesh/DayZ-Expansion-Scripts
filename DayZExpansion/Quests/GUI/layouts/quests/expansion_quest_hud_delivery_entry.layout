@@ -76,7 +76,7 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
       }
       TextWidgetClass delivery_name {
        ignorepointer 1
-       position 14 2
+       position 14 5
        size 0.95 16
        hexactpos 1
        vexactpos 1
@@ -97,7 +97,7 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
       }
       ImageWidgetClass delivery_icon {
        ignorepointer 1
-       position 0 2
+       position 0 5
        size 16 16
        hexactpos 1
        vexactpos 1

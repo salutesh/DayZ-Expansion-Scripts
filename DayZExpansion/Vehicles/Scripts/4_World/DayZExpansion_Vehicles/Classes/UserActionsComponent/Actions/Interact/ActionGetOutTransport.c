@@ -120,9 +120,9 @@ modded class ActionGetOutTransport
 
 		super.OnEndServer(action_data);
 
-		if (action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleLeave)
+		if (cs && action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleLeave)
 		{
-			GetExpansionSettings().GetLog().PrintLog("[VehicleLeave] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] left vehicle " + got_action_data.m_Car.GetDisplayName() + " (id=" + ExpansionStatic.GetPersistentIDString(got_action_data.m_Car) + " pos=" + got_action_data.m_Car.GetPosition() + ")");
+			GetExpansionSettings().GetLog().PrintLog("[VehicleLeave] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] left vehicle " + cs.GetDisplayName() + " (id=" + ExpansionStatic.GetPersistentIDString(cs) + " pos=" + cs.GetPosition() + ")");
 		}
 	}
 };

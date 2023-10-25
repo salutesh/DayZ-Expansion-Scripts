@@ -52,10 +52,12 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	[NonSerialized()]
 	protected const float DEFAULT_ANOMALY_SPAWN_AMOUNT = 7;
 
-	static const int VERSION = 6;
+	static const int VERSION = 7;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
+	
+	bool ClearPlayerFactions;
 
 	void ExpansionNamalskAdventureSettings()
 	{
@@ -173,6 +175,11 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 					EnableA1BunkerEvent = settingsDefault.EnableA1BunkerEvent;
 				}
 				
+				if (settingsBase.m_Version < 7)
+				{
+					ClearPlayerFactions = settingsDefault.ClearPlayerFactions;
+				}
+				
 				m_Version = VERSION;
 				save = true;
 			}
@@ -241,6 +248,8 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 		EnableSupplyCrates = true;
 		DefaultSupplyCrates();
+		
+		ClearPlayerFactions = false;
 	}
 
 	protected void DefaultNamalskAnomalies()

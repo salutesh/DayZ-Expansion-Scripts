@@ -963,6 +963,13 @@ modded class ItemBase
 		return Type();
 	}
 
+	string Expansion_GetTypeLower()
+	{
+		string type = GetType();
+		type.ToLower();
+		return type;
+	}
+
 	override void DeferredInit()
     {
 		super.DeferredInit();
@@ -1330,7 +1337,7 @@ modded class ItemBase
 
 		return quantity_output;
 	}
-
+	
 	//! @brief if item is 9V battery or has one attached, return battery energy in range [0, 100], else 0
 	//! @note this uses quantity so works on client as well since Battery9V has convertEnergyToQuantity=1 (quantity, unlike energy, is netsynced by the game)
 	int Expansion_GetBatteryEnergy()

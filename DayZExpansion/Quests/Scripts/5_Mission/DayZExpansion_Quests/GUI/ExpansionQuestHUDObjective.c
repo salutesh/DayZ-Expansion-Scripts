@@ -24,6 +24,8 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	protected WrapSpacerWidget ObjectiveValueWrapper;
 	protected WrapSpacerWidget ObjectiveDeliveryEnties;
 	protected bool m_ObjectiveCompleted;
+	protected int m_TimeLimit;
+	protected int m_TimeCount;
 
 	void ExpansionQuestHUDObjective(ExpansionQuestObjectiveData objective, ExpansionQuestConfig questConfig, ExpansionQuestState state)
 	{
@@ -87,10 +89,10 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.AICAMP:
 		#endif
 			{
+				ObjectiveWrapper.Show(false);
 				UpdateTarget();
 			}
 			break;
-
 			case  ExpansionQuestObjectiveType.TRAVEL:
 			{
 				ExpansionQuestObjectiveTravelConfig travelObjective;
@@ -262,17 +264,15 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 			case ExpansionQuestObjectiveType.ACTION:
 			{
-				ExpansionQuestObjectiveActionConfig actionConfig;
-				if (Class.CastTo(actionConfig, objectiveConfig))
-					UpdateTarget();
+				ObjectiveWrapper.Show(false);
+				UpdateTarget();
 			}
 			break;
 
 			case ExpansionQuestObjectiveType.CRAFTING:
 			{
-				ExpansionQuestObjectiveCraftingConfig craftingConfig;
-				if (Class.CastTo(craftingConfig, objectiveConfig))
-					UpdateTarget();
+				ObjectiveWrapper.Show(false);
+				UpdateTarget();
 			}
 			break;
 		}
@@ -388,23 +388,45 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	
 	void UpdateTimeLimit()
 	{
-		if (m_Objective.GetTimeLimit() > -1)
+		int timeLimit = m_Objective.GetTimeLimit();
+		if (timeLimit > -1)
 		{
 			ObjectiveTime.Show(true);
-			m_QuestHUDObjectiveController.ObjectiveTimeLimit = "#STR_EXPANSION_QUEST_HUD_TIME " + ExpansionStatic.FormatTime(m_Objective.GetTimeLimit(), false);
+
+			if (timeLimit > 0 && timeLimit == m_TimeLimit)
+			{
+				if (timeLimit - m_TimeCount > 0)
+				{
+					m_TimeCount++;
+					timeLimit -= m_TimeCount;
+				}
+				else
+				{
+					timeLimit = 0;
+				}
+			}
+			else
+			{
+				m_TimeCount = 0;
+				m_TimeLimit = timeLimit;
+			}
+
+			EXPrint(string.Format("Time limit: %1 - %2 = %3", m_Objective.GetTimeLimit(), m_TimeCount, timeLimit));
+
+			m_QuestHUDObjectiveController.ObjectiveTimeLimit = "#STR_EXPANSION_QUEST_HUD_TIME " + ExpansionStatic.FormatTime(timeLimit, false);
 			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTimeLimit");
 
-			if (m_Objective.GetTimeLimit() > 60)
+			if (timeLimit <= 10)
 			{
-				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_INFO);
+				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_ERROR);
 			}
-			else if (m_Objective.GetTimeLimit() <= 60)
+			else if (timeLimit <= 60)
 			{
 				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_ORANGE);
 			}
-			else if (m_Objective.GetTimeLimit() <= 10)
+			else
 			{
-				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_ERROR);
+				ObjectiveTime.SetColor(COLOR_WHITE);
 			}
 		}
 	}

@@ -1269,11 +1269,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		m_ClientQuestData.QuestDebug();
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Exec_DeferredSendClientQuestData, 1000);
+		if (GetGame().GetMission().GetHud())
+			UpdateClient();
+		else  //! HUD not yet initialized, delay a bit to allow for init
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateClient, 1000);
 	}
 
-	//! Client
-	protected void Exec_DeferredSendClientQuestData()
+	protected void UpdateClient()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
@@ -4194,9 +4196,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	}
 
 	//! Server
-	bool IsOtherQuestInstanceActive(ExpansionQuest quest)
+	bool IsOtherQuestInstanceActive(int questID)
 	{
-		set<ref ExpansionQuest> activeQuestInstances = m_ActiveQuestInstances[quest.GetQuestConfig().GetID()];
+		set<ref ExpansionQuest> activeQuestInstances = m_ActiveQuestInstances[questID];
 		return activeQuestInstances && activeQuestInstances.Count() > 1;
 	}
 
