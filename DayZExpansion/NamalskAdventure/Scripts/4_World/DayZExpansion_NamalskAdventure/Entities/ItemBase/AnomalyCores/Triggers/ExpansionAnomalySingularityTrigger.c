@@ -28,10 +28,10 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::ProcessEntityEvents - Entity: " + other.ToString());
-
-		if (other)
+		
+		EntityAI objectEntity = EntityAI.Cast(other);
+		if (objectEntity)
 		{
-			EntityAI objectEntity = EntityAI.Cast(other);
 			if (ExpansionStatic.IsAnyOf(objectEntity, m_Items, true))
 			{
 				ItemBase item = ItemBase.Cast(objectEntity);
@@ -39,9 +39,8 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
                 	return;
 
 				item.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED));	//! Apply random damage to the item.
-
 				ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(item, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
-
+				
 				m_IsActive = false;
 			}
 			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Players, true))
@@ -80,7 +79,7 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 
 				m_IsActive = false;
 			}
-			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Animals, true))
+			/*else if (ExpansionStatic.IsAnyOf(objectEntity, m_Animals, true))
 			{
                 AnimalBase animal = AnimalBase.Cast(objectEntity);
 				if (!animal || !animal.IsAlive())
@@ -99,7 +98,7 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 				zombie.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the infected.
 
 				m_IsActive = false;
-			}
+			}*/
 		}
 	}
 };
