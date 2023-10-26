@@ -392,7 +392,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	protected bool CanAddObjectiveItem(ItemBase item)
 	{
-		if (item.IsRuined())
+		if (item.IsRuined() || item.Expansion_IsSetForDeletion())
 			return false;
 		
 		if (item.CanDecay())
@@ -582,6 +582,13 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 					AddObjectiveItem(item, count);
 					UpdateDeliveryData();
 				}
+			}
+			break;
+		case ExpansionQuestItemState.INV_DELETE:
+			if (IsObjectiveItem(item, foundIndex, foundObjItem))
+			{
+				CheckQuestPlayersForObjectiveItems();
+				UpdateDeliveryData();
 			}
 			break;
 		}

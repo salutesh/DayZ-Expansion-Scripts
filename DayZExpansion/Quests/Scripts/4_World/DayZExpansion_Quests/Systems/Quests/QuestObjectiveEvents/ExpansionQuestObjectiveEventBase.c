@@ -288,7 +288,7 @@ class ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL);
+	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null);
 
 	//! Event called when quest is completed and turned-in.
 	bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)

@@ -14,6 +14,7 @@ enum ExpansionQuestItemState
 {
 	INV_ENTER,
 	INV_EXIT,
+	INV_DELETE,
 	STACKSIZE_CHANGED,
 	CONTENTQUANTITY_CHANGED
 }
@@ -27,6 +28,7 @@ modded class ItemBase
 	protected bool m_Expansion_DeletedByQuest = false;
 	protected bool m_Expansion_IsDeliveryItem = false;
 	protected bool m_Expansion_Quests_InventoryEnter;
+	protected bool m_ExpansionIsSetForDeletion = false;
 
 	protected const ref array<string> m_Expansion_ExcludedFromCombine = {"Ammunition_Base", "Edible_Base"};
 
@@ -87,21 +89,6 @@ modded class ItemBase
 			if (!GetHierarchyRootPlayer())
 				GetGame().ObjectDelete(this);
 		}
-	}
-	
-	//! @Note: This is mainly here because i cant fucking override the class Edible_Base::ReplaceEdibleWithNew method.
-	//! Makes sure item is removed from a active quest objective when it is deleted for example by a lambada based on ReplaceItemWithNewLambdaBase
-	//! For example SpaghettiCan gets replaced with SpaghettiCan_Opened when opened with a knife (no EEItemLocationChanged event is called in this szenario). 
-	override void DeleteSafe()
-	{
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
-		{
-			PlayerBase player = PlayerBase.Cast(GetHierarchyRootPlayer());
-			if (player && player.GetIdentity())
-				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_EXIT, player);
-		}
-		
-		super.DeleteSafe();
 	}
 
 	override void OnInventoryEnter(Man player)
@@ -445,6 +432,16 @@ modded class ItemBase
 			}
 			break;
 		}
+	}
+	
+	void Expansion_SetForDeletion(bool state)
+	{
+		m_ExpansionIsSetForDeletion = state;
+	}
+	
+	bool Expansion_IsSetForDeletion()
+	{
+		return m_ExpansionIsSetForDeletion;
 	}
 
 #ifdef EXPANSIONMODHARDLINE
