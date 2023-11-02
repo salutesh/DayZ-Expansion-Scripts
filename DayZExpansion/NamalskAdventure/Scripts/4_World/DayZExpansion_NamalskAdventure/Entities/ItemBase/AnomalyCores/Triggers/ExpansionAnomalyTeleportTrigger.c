@@ -29,9 +29,9 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::ProcessEntityEvents - Entity: " + other.ToString());
 
-		if (other)
+		EntityAI objectEntity = EntityAI.Cast(other);
+		if (objectEntity)
 		{
-			EntityAI objectEntity = EntityAI.Cast(other);
 			vector position = objectEntity.GetPosition();
 			float squareSize = Math.RandomFloat(200.0, 250.0);
 			array<vector> positions = ExpansionAnomaliesModule.GetModuleInstance().GeneratePositions(position, squareSize, 10);
@@ -119,7 +119,7 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 
 				m_IsActive = false;
 			}
-			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Animals, true))
+			/*else if (ExpansionStatic.IsAnyOf(objectEntity, m_Animals, true))
 			{
                 AnimalBase animal = AnimalBase.Cast(objectEntity);
 				if (!animal || !animal.IsAlive())
@@ -148,7 +148,7 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, objectEntity, position);
 				
 				m_IsActive = false;
-			}
+			}*/
 		}
 	}
 	

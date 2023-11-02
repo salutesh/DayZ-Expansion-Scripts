@@ -55,7 +55,13 @@ class ExpansionGarageModule: CF_ModuleWorld
 		super.OnInit();
 
 		EnableMissionStart();
-		EnableRPC();
+		Expansion_EnableRPCManager();
+
+		Expansion_RegisterServerRPC("RPC_RequestPlayerVehicles");
+		Expansion_RegisterClientRPC("RPC_SendPlayerVehicles");
+		Expansion_RegisterServerRPC("RPC_DepositVehicleRequest");
+		Expansion_RegisterServerRPC("RPC_RetrieveVehicleRequest");
+		Expansion_RegisterClientRPC("RPC_Callback");
 	}
 
 	protected void CreateDirectoryStructure()
@@ -161,89 +167,21 @@ class ExpansionGarageModule: CF_ModuleWorld
 		return m_GarageData;
 	}
 
-	override int GetRPCMin()
-	{
-		return ExpansionGarageModuleRPC.INVALID;
-	}
-
-	override int GetRPCMax()
-	{
-		return ExpansionGarageModuleRPC.COUNT;
-	}
-
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		super.OnRPC(sender, args);
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch (rpc.ID)
-		{
-			case ExpansionGarageModuleRPC.RequestPlayerVehicles:
-			{
-				RPC_RequestPlayerVehicles(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-
-			case ExpansionGarageModuleRPC.SendPlayerVehicles:
-			{
-				RPC_SendPlayerVehicles(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-
-			case ExpansionGarageModuleRPC.DepositVehicleRequest:
-			{
-				RPC_DepositVehicleRequest(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-
-			case ExpansionGarageModuleRPC.RetrieveVehicleRequest:
-			{
-				RPC_RetrieveVehicleRequest(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-
-			case ExpansionGarageModuleRPC.Callback:
-			{
-				RPC_Callback(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-		}
-	}
-
+	//! Client
 	void RequestPlayerVehicles()
 	{
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
 
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::RequestPlayerVehicles - Tryed to call RequestPlayerVehicles on Server!");
-			return;
-		}
-
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Send(NULL, ExpansionGarageModuleRPC.RequestPlayerVehicles, true);
+		auto rpc = Expansion_CreateRPC("RPC_RequestPlayerVehicles");
+		rpc.Expansion_Send(true);
 	}
 
-	protected void RPC_RequestPlayerVehicles(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	//! Server
+	protected void RPC_RequestPlayerVehicles(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
 
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RPC_RequestPlayerVehicles - Tryed to call RPC_RequestPlayerVehicles on Client!");
-			return;
-		}
-
-		if (!senderRPC)
-		{
-			Error(ToString() + "::RPC_RequestPlayerVehicles - Could not get player identity!");
-			return;
-		}
-
-		string playerUID = senderRPC.GetId();
+		string playerUID = identity.GetId();
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
 		if (!player)
 		{
@@ -264,9 +202,9 @@ class ExpansionGarageModule: CF_ModuleWorld
 		auto setting = GetExpansionSettings().GetGarage();
 		if (setting.GarageMode == ExpansionGarageMode.Territory && (!foundTerritoryForStoring && !foundTerritoryForRetrieving))
 		{
-			auto rpcCallBackNoTerritory = ExpansionScriptRPC.Create();
+			auto rpcCallBackNoTerritory = Expansion_CreateRPC("RPC_Callback");
 			rpcCallBackNoTerritory.Write(ExpansionGarageModuleCallback.NoTerritory);
-			rpcCallBackNoTerritory.Send(NULL, ExpansionGarageModuleRPC.Callback, true, senderRPC);
+			rpcCallBackNoTerritory.Expansion_Send(true, identity);
 			return;
 		}
 	#endif
@@ -274,14 +212,13 @@ class ExpansionGarageModule: CF_ModuleWorld
 		//! Callback if we found no vehicles
 		if ((!storedVehicles || storedVehicles.Count() == 0) && (!worldVehicles || worldVehicles.Count() == 0))
 		{
-			auto rpcCallBackNoVehicles = ExpansionScriptRPC.Create();
+			auto rpcCallBackNoVehicles = Expansion_CreateRPC("RPC_Callback");
 			rpcCallBackNoVehicles.Write(ExpansionGarageModuleCallback.NoVehicles);
-			rpcCallBackNoVehicles.Send(NULL, ExpansionGarageModuleRPC.Callback, true, senderRPC);
+			rpcCallBackNoVehicles.Expansion_Send(true, identity);
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
-
+		auto rpc = Expansion_CreateRPC("RPC_SendPlayerVehicles");
 		if (!worldVehicles)
 		{
 			rpc.Write(0);
@@ -308,21 +245,13 @@ class ExpansionGarageModule: CF_ModuleWorld
 			}
 		}
 
-		rpc.Send(NULL, ExpansionGarageModuleRPC.SendPlayerVehicles, true, senderRPC);
+		rpc.Expansion_Send(true, identity);
 	}
 
-	protected void RPC_SendPlayerVehicles(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	//! Client
+	protected void RPC_SendPlayerVehicles(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::RPC_SendPlayerVehicles - Tryed to call RPC_SendPlayerVehicles on Server!");
-			return;
-		}
 
 		int i;
 		int worldVehiclesCount;
@@ -368,46 +297,26 @@ class ExpansionGarageModule: CF_ModuleWorld
 		m_GarageMenuInvoker.Invoke(worldVehicles, storedVehicles);
 	}
 
+	//! Client
 	void DepositVehicleRequest(Object vehicleObj)
 	{
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
 
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::DepositVehicleRequest - Tried to call DepositVehicleRequest on Server!");
-			return;
-		}
-
 		if (!vehicleObj)
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Send(vehicleObj, ExpansionGarageModuleRPC.DepositVehicleRequest, true);
+		auto rpc = Expansion_CreateRPC("RPC_DepositVehicleRequest");
+		rpc.Expansion_Send(vehicleObj, true);
 	}
 
-	protected void RPC_DepositVehicleRequest(ParamsReadContext ctx, PlayerIdentity senderRPC, Object vehicleObj)
+	//! Server
+	protected void RPC_DepositVehicleRequest(PlayerIdentity identity, Object vehicleObj, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
 
 		auto settings = GetExpansionSettings().GetGarage();
-
 		if (!settings.Enabled)
 			return;
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RPC_DepositVehicleRequest - Tryed to call RPC_DepositVehicleRequest on Client!");
-			return;
-		}
-
-		if (!senderRPC)
-		{
-			Error(ToString() + "::RPC_DepositVehicleRequest - Could not get sender identity!");
-			return;
-		}
 
 		if (!vehicleObj)
 		{
@@ -415,7 +324,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 			return;
 		}
 
-		string playerUID = senderRPC.GetId();
+		string playerUID = identity.GetId();
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
 		if (!player)
 		{
@@ -492,7 +401,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 				displayName = blockingObject.GetDisplayName();
 			string positionStr = ExpansionStatic.VectorToString(checkPosition, ExpansionVectorToString.Labels);
 			auto localiser = new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_BLOCKED", vehicle.GetDisplayName(), displayName, positionStr);
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), localiser, ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), localiser, ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 			return;
 		}
 
@@ -539,14 +448,14 @@ class ExpansionGarageModule: CF_ModuleWorld
 		//! Check if vehicle is ruined
 		if (vehicle.IsRuined())
 		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_DESTROYED", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_DESTROYED", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 			return;
 		}
 
 		int vehicleCount = garageData.m_Vehicles.Count() + 1;
 		if (vehicleCount > storeMax)
 		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_STORELIMIT", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_STORELIMIT", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 			return;
 		}
 
@@ -555,20 +464,20 @@ class ExpansionGarageModule: CF_ModuleWorld
 		//ExpansionGarageVehicleData collidingVehicleData;
 		//if (!IsPositionFree(vehicle, collidingVehicleData))
 		//{
-			//ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_FREESPACE", vehicle.GetDisplayName(), ExpansionStatic.GetItemDisplayNameWithType(collidingVehicleData.m_ClassName)), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+			//ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_FREESPACE", vehicle.GetDisplayName(), ExpansionStatic.GetItemDisplayNameWithType(collidingVehicleData.m_ClassName)), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 			//return;
 		//}
 
 		//! Check if vehicles has any crew members.
 		if (vehicle.Expansion_GetVehicleCrew().Count() > 0)
 		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_CREW", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_CREW", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 			return;
 		}
 
 		if (settings.NeedKeyToStore && !vehicle.HasKey())
 		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_KEY", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_KEY", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 			return;
 		}
 
@@ -577,7 +486,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		{
 			if (MiscGameplayFunctions.Expansion_HasAnyCargo(vehicle))
 			{
-				ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_CARGO", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_CARGO", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 				return;
 			}
 		}
@@ -594,7 +503,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 			int playerWorth = m_MarketModule.GetPlayerWorth(player, monies, NULL, true);
 			if (playerWorth < price)
 			{
-				ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_PRICE", vehicle.GetDisplayName(), price.ToString(), playerWorth.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_PRICE", vehicle.GetDisplayName(), price.ToString(), playerWorth.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 				return;
 			}
 
@@ -609,13 +518,13 @@ class ExpansionGarageModule: CF_ModuleWorld
 		//! Store the vehicle and delete it.
 		if (!StoreVehicle(vehicleData, vehicle))
 		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_STORED", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_STORED", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 			if (GetExpansionSettings().GetLog().Garage)
-				GetExpansionSettings().GetLog().PrintLog("[VirtualGarage]::ERROR:: Player \"%1\" (id=%2 pos=%3) tried to store a vehicle \"%4\" (GlobalID=%5 pos=%6) but it failed!", senderRPC.GetName(), senderRPC.GetId(), player.GetPosition().ToString(), vehicleData.m_ClassName, ExpansionStatic.IntToHex(vehicleData.m_GlobalID), vehicleData.m_Position.ToString());
+				GetExpansionSettings().GetLog().PrintLog("[VirtualGarage]::ERROR:: Player \"%1\" (id=%2 pos=%3) tried to store a vehicle \"%4\" (GlobalID=%5 pos=%6) but it failed!", identity.GetName(), identity.GetId(), player.GetPosition().ToString(), vehicleData.m_ClassName, ExpansionStatic.IntToHex(vehicleData.m_GlobalID), vehicleData.m_Position.ToString());
 			//! Force menu update on client to update menu listings
-			auto callbackRPC = ExpansionScriptRPC.Create();
+			auto callbackRPC = Expansion_CreateRPC("RPC_Callback");
 			callbackRPC.Write(ExpansionGarageModuleCallback.Update);
-			callbackRPC.Send(NULL, ExpansionGarageModuleRPC.Callback, true, senderRPC);
+			callbackRPC.Expansion_Send(true, identity);
 			return;
 		}
 
@@ -627,13 +536,13 @@ class ExpansionGarageModule: CF_ModuleWorld
 		if (!hasData)
 			m_GarageData.Insert(garageData);
 
-		ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_INFO"), new StringLocaliser("STR_EXPANSION_GARAGE_SUCCESS_STORE", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+		ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_INFO"), new StringLocaliser("STR_EXPANSION_GARAGE_SUCCESS_STORE", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.GARAGE).Create(identity);
 		if (GetExpansionSettings().GetLog().Garage)
-			GetExpansionSettings().GetLog().PrintLog("[VirtualGarage] Player \"%1\" (id=%2 pos=%3) stored a vehicle \"%4\" (GlobalID=%5 pos=%6)", senderRPC.GetName(), senderRPC.GetId(), player.GetPosition().ToString(), vehicleData.m_ClassName, ExpansionStatic.IntToHex(vehicleData.m_GlobalID), vehicleData.m_Position.ToString());
+			GetExpansionSettings().GetLog().PrintLog("[VirtualGarage] Player \"%1\" (id=%2 pos=%3) stored a vehicle \"%4\" (GlobalID=%5 pos=%6)", identity.GetName(), identity.GetId(), player.GetPosition().ToString(), vehicleData.m_ClassName, ExpansionStatic.IntToHex(vehicleData.m_GlobalID), vehicleData.m_Position.ToString());
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_Callback");
 		rpc.Write(ExpansionGarageModuleCallback.VehicleStored);
-		rpc.Send(NULL, ExpansionGarageModuleRPC.Callback, true, senderRPC);
+		rpc.Expansion_Send(true, identity);
 	}
 
 	bool CanStore(PlayerBase player, CarScript vehicle, out string ownerUID = string.Empty)
@@ -863,37 +772,21 @@ class ExpansionGarageModule: CF_ModuleWorld
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RetrieveVehicleRequest");
 		rpc.Write(vehicleData.m_GlobalID);
-
-		rpc.Send(NULL, ExpansionGarageModuleRPC.RetrieveVehicleRequest, true);
+		rpc.Expansion_Send(true);
 	}
 
-	protected void RPC_RetrieveVehicleRequest(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	//! Server
+	protected void RPC_RetrieveVehicleRequest(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
 
 		auto settings = GetExpansionSettings().GetGarage();
-
 		if (!settings.Enabled)
 			return;
 
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;		
-		
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RPC_RetrieveVehicleRequest - Tryed to call RPC_RetrieveVehicleRequest on Client!");
-			return;
-		}
-
-		if (!senderRPC)
-		{
-			Error(ToString() + "::RPC_RetrieveVehicleRequest - Could not get sender identity!");
-			return;
-		}
-
-		string playerUID = senderRPC.GetId();
+		string playerUID = identity.GetId();
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
 		if (!player)
 		{
@@ -953,45 +846,37 @@ class ExpansionGarageModule: CF_ModuleWorld
 				displayName = blockingObject.GetDisplayName();
 			string positionStr = ExpansionStatic.VectorToString(vehicleData.m_Position, ExpansionVectorToString.Labels);
 			auto localiser = new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_BLOCKED", ExpansionStatic.GetItemDisplayNameWithType(vehicleData.m_ClassName), displayName, positionStr);
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), localiser, ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), localiser, ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 			return;
 		}
 
 		if (!LoadVehicle(vehicleData))
 		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_RETRIEVED", ExpansionStatic.GetItemDisplayNameWithType(vehicleData.m_ClassName)), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_RETRIEVED", ExpansionStatic.GetItemDisplayNameWithType(vehicleData.m_ClassName)), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 			if (GetExpansionSettings().GetLog().Garage)
-				GetExpansionSettings().GetLog().PrintLog("[VirtualGarage]::ERROR:: Player \"%1\" (id=%2 pos=%3) tried to retrieve a vehicle \"%4\" (GlobalID=%5 pos=%6) but it failed!", senderRPC.GetName(), senderRPC.GetId(), player.GetPosition().ToString(), vehicleData.m_ClassName, ExpansionStatic.IntToHex(vehicleData.m_GlobalID), vehicleData.m_Position.ToString());
+				GetExpansionSettings().GetLog().PrintLog("[VirtualGarage]::ERROR:: Player \"%1\" (id=%2 pos=%3) tried to retrieve a vehicle \"%4\" (GlobalID=%5 pos=%6) but it failed!", identity.GetName(), identity.GetId(), player.GetPosition().ToString(), vehicleData.m_ClassName, ExpansionStatic.IntToHex(vehicleData.m_GlobalID), vehicleData.m_Position.ToString());
 			//! Force menu update on client to update menu listings
-			auto callbackTerritoryRPC = ExpansionScriptRPC.Create();
+			auto callbackTerritoryRPC = Expansion_CreateRPC("RPC_Callback");
 			callbackTerritoryRPC.Write(ExpansionGarageModuleCallback.Update);
-			callbackTerritoryRPC.Send(NULL, ExpansionGarageModuleRPC.Callback, true, senderRPC);
+			callbackTerritoryRPC.Expansion_Send(true, identity);
 			return;
 		}
 
 		garageData.RemoveVehicle(vehicleData);
 		garageData.Save();
 
-		ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_INFO"), new StringLocaliser("STR_EXPANSION_GARAGE_SUCCESS_RETRIEVE", ExpansionStatic.GetItemDisplayNameWithType(vehicleData.m_ClassName), "X: " + vehicleData.m_Position[0].ToString() + "/Y: " + vehicleData.m_Position[2].ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.GARAGE).Create(senderRPC);
+		ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_INFO"), new StringLocaliser("STR_EXPANSION_GARAGE_SUCCESS_RETRIEVE", ExpansionStatic.GetItemDisplayNameWithType(vehicleData.m_ClassName), "X: " + vehicleData.m_Position[0].ToString() + "/Y: " + vehicleData.m_Position[2].ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.GARAGE).Create(identity);
 		if (GetExpansionSettings().GetLog().Garage)
-			GetExpansionSettings().GetLog().PrintLog("[VirtualGarage] Player \"%1\" (id=%2 pos=%3) retrieved a vehicle \"%4\" (GlobalID=%5 pos=%6)", senderRPC.GetName(), senderRPC.GetId(), player.GetPosition().ToString(), vehicleData.m_ClassName, ExpansionStatic.IntToHex(vehicleData.m_GlobalID), vehicleData.m_Position.ToString());
-		auto rpc = ExpansionScriptRPC.Create();
+			GetExpansionSettings().GetLog().PrintLog("[VirtualGarage] Player \"%1\" (id=%2 pos=%3) retrieved a vehicle \"%4\" (GlobalID=%5 pos=%6)", identity.GetName(), identity.GetId(), player.GetPosition().ToString(), vehicleData.m_ClassName, ExpansionStatic.IntToHex(vehicleData.m_GlobalID), vehicleData.m_Position.ToString());
+		auto rpc = Expansion_CreateRPC("RPC_Callback");
 		rpc.Write(ExpansionGarageModuleCallback.VehicleRetrieved);
-		rpc.Send(NULL, ExpansionGarageModuleRPC.Callback, true, senderRPC);
+		rpc.Expansion_Send(true, identity);
 	}
 
-	protected void RPC_Callback(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	//! Client
+	protected void RPC_Callback(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::RPC_DepositVehicleCallback - Tryed to call RPC_DepositVehicleCallback on Server!");
-			return;
-		}
 
 		ExpansionGarageModuleCallback callback;
 		if (!ctx.Read(callback))

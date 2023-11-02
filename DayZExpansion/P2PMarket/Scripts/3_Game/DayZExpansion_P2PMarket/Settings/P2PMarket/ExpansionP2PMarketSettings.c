@@ -295,9 +295,9 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 			return 0;
 		}
 
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = CreateRPC();
 		OnSend( rpc );
-		rpc.Send( null, ExpansionSettingsRPC.P2PMarket, true, identity );
+		rpc.Expansion_Send(true, identity);
 
 		return 0;
 	}

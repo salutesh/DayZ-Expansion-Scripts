@@ -46,17 +46,9 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		EnableMissionStart();
 		EnableMissionFinish();
 		EnableInvokeConnect();
-		EnableRPC();
-	}
+		Expansion_EnableRPCManager();
 
-	override int GetRPCMin()
-	{
-		return ExpansionWorldObjectsModuleRPC.INVALID;
-	}
-	
-	override int GetRPCMax()
-	{
-		return ExpansionWorldObjectsModuleRPC.COUNT;
+		Expansion_RegisterClientRPC("RPC_RemoveObjects");
 	}
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
@@ -123,9 +115,9 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 		EXTrace.Add(trace, cArgs.Identity.GetId());
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RemoveObjects");
 		WriteRemovedObjects(rpc);
-		rpc.Send(NULL, ExpansionWorldObjectsModuleRPC.RemoveObjects, true, cArgs.Identity);
+		rpc.Expansion_Send(true, cArgs.Identity);
 #endif
 	}
 
@@ -141,34 +133,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		}
 	}
 
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
-
-		super.OnRPC(sender, args);
-
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch (rpc.ID)
-		{
-			case ExpansionWorldObjectsModuleRPC.RemoveObjects:
-				//! @note IMPORTANT don't move magic number check inside RPC_RemoveObjects since it can be called in response to receiving 
-				//! ExpansionWorldObjectsModuleRPC.RemoveObjects (see OnInvokeConnect above) OR ExpansionSettingsRPC.General (if Expansion-Main is loaded)
-				//! which checks magic number on its own!
-				if (!ExpansionScriptRPC.CheckMagicNumber(rpc.Context))
-					return;
-				RPC_RemoveObjects(rpc.Context);
-				break;
-		}
-	}
-
-	static void RPC_RemoveObjects(ParamsReadContext ctx)
+	//! Client only!
+	static void RPC_RemoveObjects(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule);
-		
-		//! Client only!
-		if (GetGame().IsDedicatedServer())
-			return;
 
 		int count;
 		ctx.Read(count);

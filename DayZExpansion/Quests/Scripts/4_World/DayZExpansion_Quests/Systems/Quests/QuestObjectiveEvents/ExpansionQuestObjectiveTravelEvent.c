@@ -20,7 +20,9 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnEventStart()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnEventStart())
 			return false;
@@ -35,7 +37,9 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 	protected void Init()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		//! Set objective position.
 		m_Position = m_Config.GetPosition();
@@ -66,7 +70,9 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 	protected void DestinationCheck()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		float currentDistance;
 		if (!GetQuest().GetQuestConfig().IsGroupQuest())
@@ -128,7 +134,9 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnContinue()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnContinue())
 			return false;
@@ -154,7 +162,9 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnCleanup()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnCleanup())
 			return false;
@@ -167,7 +177,9 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 	override bool CanComplete()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		return m_DestinationReached;
 	}
@@ -175,10 +187,13 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	#ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
+		
 		if (!m_Config)
 			return;
 
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		string markerName = m_Config.GetMarkerName();
 		CreateObjectiveMarker(m_Position, markerName);
 	}
@@ -192,15 +207,23 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	//! Used by the trigger
 	void SetReachedLocation(bool state)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 		ObjectivePrint("State: " + state);
 		m_DestinationReached = state;
 		m_Quest.QuestCompletionCheck(true);
+	#ifdef EXPANSIONMODNAVIGATION
+		if (state)
+			RemoveObjectiveMarkers();
+	#endif
 	}
 
 	void SetLocationPosition(vector pos)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 		ObjectivePrint("Position: " + pos.ToString());
 		m_Position = pos;
 	}
@@ -242,6 +265,13 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
         return position;
     }
+	
+#ifdef EXPANSIONMODNAVIGATION
+	override bool CanCreateMarkers()
+	{
+		return !m_DestinationReached;
+	}
+#endif
 
 	override int GetObjectiveType()
 	{

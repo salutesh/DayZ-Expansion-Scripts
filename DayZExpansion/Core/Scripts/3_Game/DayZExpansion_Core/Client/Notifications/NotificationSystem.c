@@ -14,6 +14,8 @@ modded class NotificationSystem
 {
 	autoptr array< ref NotificationRuntimeData > m_ExNotifications;
 
+	static ref ExpansionRPCManager s_Expansion_RPCManager = Expansion_RegisterRPCManager();
+
 	void NotificationSystem()
 	{
 #ifdef EXPANSIONTRACE
@@ -21,6 +23,15 @@ modded class NotificationSystem
 #endif
 		
 		m_ExNotifications = new array< ref NotificationRuntimeData >;
+
+		s_Expansion_RPCManager.SetOwner(this);
+	}
+
+	static ExpansionRPCManager Expansion_RegisterRPCManager()
+	{
+		auto manager = new ExpansionRPCManager(null, NotificationSystem);
+		manager.RegisterClient("RPC_ExpansionCreateNotification");
+		return manager;
 	}
 
 	static void Create_Expansion( StringLocaliser title, StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
@@ -31,7 +42,7 @@ modded class NotificationSystem
 
 		if ( IsMissionHost() )
 		{
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = s_Expansion_RPCManager.CreateRPC("RPC_ExpansionCreateNotification");
 			rpc.Write( title );
 			rpc.Write( text );
 			rpc.Write( icon );
@@ -39,7 +50,7 @@ modded class NotificationSystem
 			rpc.Write( time );
 			rpc.Write( type );
 			rpc.Write( obj );
-			rpc.Send( NULL, ExpansionRPC.CreateNotification, true, sendTo );
+			rpc.Expansion_Send(true, sendTo);
 		}
 		else
 		{
@@ -59,7 +70,7 @@ modded class NotificationSystem
 	{	
 		if ( IsMissionHost() )
 		{
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = s_Expansion_RPCManager.CreateRPC("RPC_ExpansionCreateNotification");
 			rpc.Write( title );
 			rpc.Write( text );
 			rpc.Write( icon );
@@ -67,7 +78,7 @@ modded class NotificationSystem
 			rpc.Write( time );
 			rpc.Write( type );
 			rpc.Write( obj );
-			rpc.Send( NULL, ExpansionRPC.CreateNotification, true, sendTo );
+			rpc.Expansion_Send(true, sendTo);
 		} 
 		else
 		{
@@ -125,9 +136,6 @@ modded class NotificationSystem
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "RPC_CreateNotification");
 #endif
 		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		StringLocaliser title = new StringLocaliser( "" );
 		if ( !ctx.Read( title ) )
 			return;
@@ -175,9 +183,6 @@ modded class NotificationSystem
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "RPC_ExpansionCreateNotification");
 #endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
 
 		StringLocaliser title = new StringLocaliser( "" );
 		if ( !ctx.Read( title ) )

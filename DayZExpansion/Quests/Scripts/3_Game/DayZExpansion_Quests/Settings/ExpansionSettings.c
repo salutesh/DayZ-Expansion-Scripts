@@ -18,27 +18,12 @@ modded class ExpansionSettings
 	{
 		super.Init();
 
-		Init(ExpansionQuestSettings);
+		Init(ExpansionQuestSettings, true);
 	}
 
-	override bool OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
+	void RPC_QuestSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (super.OnRPC(sender, target, rpc_type, ctx))
-			return true;
-
-		if (rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT)
-			return false;
-
-		switch (rpc_type)
-		{
-			case ExpansionSettingsRPC.Quest:
-			{
-				Receive(ExpansionQuestSettings, ctx);
-				return true;
-			}
-		}
-
-		return false;
+		Receive(ExpansionQuestSettings, ctx);
 	}
 
 	ExpansionQuestSettings GetQuest(bool checkLoaded = true)

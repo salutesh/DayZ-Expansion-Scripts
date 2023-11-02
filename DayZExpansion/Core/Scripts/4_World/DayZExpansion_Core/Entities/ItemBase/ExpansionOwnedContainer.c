@@ -13,8 +13,6 @@
 //! Cargo container that's only accessible by the designated owner
 class ExpansionOwnedContainer: Container_Base
 {
-	protected ref ExpansionNetsyncData m_Expansion_NetsyncData;
-
 	void ExpansionOwnedContainer()
 	{
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
@@ -200,13 +198,6 @@ class ExpansionOwnedContainer: Container_Base
 	{
 		string owner = ExpansionGetContainerOwnerUID();
 		return owner != string.Empty && owner == uid;
-	}
-
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-
-		m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}
 
 	#ifdef EXPANSION_MODSTORAGE

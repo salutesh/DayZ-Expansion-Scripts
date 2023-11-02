@@ -19,11 +19,14 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	protected bool m_DestinationReached;
 	protected ref ExpansionQuestObjectiveAIEscortConfig m_Config;
 	protected vector m_ObjectivePos;
+	protected vector m_LastVIPPos;
 
 	//! Event called when the player starts the quest.
 	override bool OnEventStart()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnEventStart())
 			return false;
@@ -49,7 +52,9 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the player starts the quest.
 	override bool OnContinue()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnContinue())
 			return false;
@@ -84,7 +89,9 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnComplete()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnComplete())
 			return false;
@@ -112,7 +119,9 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the quest gets cleaned up (server shutdown/player disconnect).
 	override bool OnCleanup()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnCleanup())
 			return false;
@@ -124,7 +133,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		auto player = m_Quest.GetPlayer();
 		player.SetGroup(player.Expansion_GetFormerGroup());
-
+		
 		ObjectivePrint("End and return TRUE.");
 
 		return true;
@@ -142,12 +151,11 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	}
 #endif
 
-	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
+	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (killer == victim || killer == null)
-			return;
+	#endif
 
 		eAIBase victimAI = eAIBase.Cast(victim);
 		if (victimAI && victim == m_VIP)
@@ -159,11 +167,14 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 	protected void DeleteVIP()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!m_VIP)
 			return;
-
+		
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.UpdateVIPPosition);
 		//! Make sure to move AI out of the way, otherwise invisible collision box will be left behind when deleting
 		m_VIP.SetPosition("0 0 0");
 		GetGame().ObjectDelete(m_VIP);
@@ -171,7 +182,9 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 	protected void CreateVIP()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		ExpansionQuestObjectiveAIVIP vip = m_Config.GetAIVIP();
 		if (!vip)
@@ -184,6 +197,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		m_VIP.eAI_SetPassive();
 		m_Group.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.UpdateVIPPosition, 10 * 1000, true);
 	}
 
 	protected eAIBase SpawnAI_VIP(PlayerBase owner, string loadout = "HumanLoadout", string className = "")
@@ -199,9 +213,13 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		{
 			className = GetRandomAI();
 		}
-
+		
+		vector spawnPos = owner.GetPosition();
+		if (m_LastVIPPos != vector.Zero)
+			spawnPos = m_LastVIPPos;
+		
 		eAIBase ai;
-		if (!Class.CastTo(ai, GetGame().CreateObject(className, owner.GetPosition())))
+		if (!Class.CastTo(ai, GetGame().CreateObject(className, spawnPos)))
 			return null;
 
 		ai.SetGroup(eAIGroup.GetGroupByLeader(owner));
@@ -214,7 +232,9 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 	protected void CreateTrigger(vector pos)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionEscortObjectiveSphereTrigger", pos, ECE_NONE));
 		m_ObjectiveTrigger.SetPosition(pos);
@@ -233,7 +253,9 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 	override bool CanComplete()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 		ObjectivePrint("m_DestinationReached: " + m_DestinationReached);
 		return m_DestinationReached;
 	}
@@ -241,7 +263,9 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	//! Used by the trigger
 	void SetReachedLocation(bool state)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		ObjectivePrint("State: " + state);
 		m_DestinationReached = state;
@@ -252,6 +276,26 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	{
 		m_Quest.SendNotification(StringLocaliser("VIP Group Dismissed"), new StringLocaliser("The group with the VIP got dismissed. Objective failed.."), ExpansionIcons.GetPath("Error"), COLOR_EXPANSION_NOTIFICATION_ERROR);
 		m_Quest.CancelQuest();
+	}
+	
+	vector GetVIPPosition()
+	{
+		if (m_VIP)
+			return m_VIP.GetPosition();
+		
+		return vector.Zero;
+	}
+	
+	void SetLastVIPPosition(vector pos)
+	{
+		m_LastVIPPos = pos;
+	}
+	
+	void UpdateVIPPosition()
+	{
+		m_LastVIPPos = GetVIPPosition();
+		if (m_TimeLimit == -1 && m_Quest)
+			m_Quest.UpdateQuest(false);
 	}
 
 	override int GetObjectiveType()

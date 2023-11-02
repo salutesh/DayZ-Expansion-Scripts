@@ -19,38 +19,8 @@ class ExpansionWorld: ExpansionGame
 
 	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType) 
 	{
-		bool debugPrint;
 #ifdef DIAG
-	#ifdef EXPANSIONMODAI
-		if (m_eAI_FirearmEffectsRecurseCount < 100)
-	#endif
-			debugPrint = EXTrace.WEAPONS;
-#endif
-
-	#ifdef EXPANSIONMODAI
-		EXTrace trace;
-		EntityAI sourceEntity;
-		if (Class.CastTo(sourceEntity, source))
-		{
-			Man player = sourceEntity.GetHierarchyRootPlayer();
-			if (player && player.IsInherited(eAIBase))
-			{
-				if (m_eAI_FirearmEffectsCallCount == m_eAI_FirearmEffectsCallCountPrev)  //! This should NOT happen
-				{
-					m_eAI_FirearmEffectsRecurseCount++;
-					if (m_eAI_FirearmEffectsRecurseCount <= 100)
-						debugPrint = true;
-				}
-				else
-				{
-					m_eAI_FirearmEffectsCallCountPrev = m_eAI_FirearmEffectsCallCount;
-					m_eAI_FirearmEffectsRecurseCount = 0;
-				}
-			}
-		}
-	#endif
-
-		if (debugPrint)
+		if (EXTrace.WEAPONS)
 		{
 			string msg = "::FirearmEffects ";
 			msg += "" + source + " ";
@@ -66,11 +36,8 @@ class ExpansionWorld: ExpansionGame
 			msg += "" + deflected + " ";
 			msg += "" + ammoType;
 			EXTrace.Print(true, this, msg);
-		#ifdef EXPANSIONMODAI
-			if (m_eAI_FirearmEffectsRecurseCount == 100)
-				EXPrint(this, "::FirearmEffects recursed 100 times, omitting further logging");
-		#endif
 		}
+#endif
 
 		if (GetGame().IsServer())
 		{
@@ -95,7 +62,7 @@ class ExpansionWorld: ExpansionGame
 
 	override void ReadRemovedWorldObjects(ParamsReadContext ctx)
 	{
-		ExpansionWorldObjectsModule.RPC_RemoveObjects(ctx);
+		ExpansionWorldObjectsModule.RPC_RemoveObjects(null, null, ctx);
 	}
 
 	static void CheckTreeContact(IEntity other, float impulse, bool sendToClient = false)
@@ -140,5 +107,35 @@ class ExpansionWorld: ExpansionGame
 #else
 		EffectSound sound =	SEffectManager.Expansion_PlaySound(soundSet, plant.GetPosition());
 #endif
+	}
+
+	/**
+	 * @brief get moddable root type of entity
+	 * 
+	 * @param entity Entity to get moddable root type of
+	 * 
+	 * @return typename
+	 */
+	static typename GetModdableRootType(EntityAI entity)
+	{
+		if (entity.IsInherited(AdvancedCommunication))
+			return AdvancedCommunication;
+		else if (entity.IsInherited(AnimalBase))
+			return AnimalBase;
+		else if (entity.IsInherited(BuildingBase))
+			return BuildingBase;
+		else if (entity.IsInherited(CarScript))
+			return CarScript;
+		else if (entity.IsInherited(DayZPlayerImplement))
+			return DayZPlayerImplement;
+		//else if (entity.IsInherited(HelicopterScript))
+			//return HelicopterScript;
+		else if (entity.IsInherited(ItemBase))
+			return ItemBase;
+		else if (entity.IsInherited(ZombieBase))
+			return ZombieBase;
+
+		typename type;
+		return type;
 	}
 };

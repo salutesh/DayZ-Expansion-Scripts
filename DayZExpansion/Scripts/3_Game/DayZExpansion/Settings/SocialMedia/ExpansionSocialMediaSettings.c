@@ -128,9 +128,9 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 			return 0;
 		}
 		
-		auto rpc = ExpansionScriptRPC.Create();
-		OnSend(rpc);
-		rpc.Send(null, ExpansionSettingsRPC.SocialMedia, true, identity);
+		auto rpc = CreateRPC();
+		OnSend( rpc );
+		rpc.Expansion_Send(true, identity);
 		
 		return 0;
 	}

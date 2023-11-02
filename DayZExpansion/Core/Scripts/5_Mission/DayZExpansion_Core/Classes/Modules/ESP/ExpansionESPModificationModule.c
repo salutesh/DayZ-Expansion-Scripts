@@ -30,7 +30,7 @@ class ExpansionESPModificationModule : CF_ModuleGame
 		super.OnInit();
 
 		EnableMissionStart();
-		EnableRPC();
+		Expansion_EnableRPCManager();
 	}
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
@@ -38,16 +38,6 @@ class ExpansionESPModificationModule : CF_ModuleGame
 		super.OnMissionStart(sender, args);
 		
 		m_BaseModule = JMESPModule.Cast( CF_ModuleCoreManager.Get( JMESPModule ) );
-	}
-
-	override int GetRPCMin()
-	{
-		return ExpansionESPModificationModuleRPC.INVALID;
-	}
-
-	override int GetRPCMax()
-	{
-		return ExpansionESPModificationModuleRPC.COUNT;
 	}
 };
 #endif

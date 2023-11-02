@@ -39,9 +39,9 @@ class ExpansionPersonalStorageNewSettings: ExpansionSettingBase
 
 	override int Send( PlayerIdentity identity )
 	{
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = CreateRPC();
 		OnSend( rpc );
-		rpc.Send( null, ExpansionSettingsRPC.PersonalStorageNew, true, identity );
+		rpc.Expansion_Send(true, identity);
 
 		return 0;
 	}

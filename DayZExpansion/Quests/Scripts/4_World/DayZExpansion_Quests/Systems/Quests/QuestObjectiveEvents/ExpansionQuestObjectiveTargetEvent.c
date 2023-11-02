@@ -40,9 +40,11 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
+	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		ExpansionQuestObjectiveTarget target = m_Config.GetTarget();
 		if (!target)
@@ -130,7 +132,9 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 	override bool CanComplete()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 		ObjectivePrint("m_Count: " + m_Count);
 		ObjectivePrint("m_Amount: " + m_Amount);
 

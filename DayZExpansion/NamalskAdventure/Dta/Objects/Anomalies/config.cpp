@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DayZExpansion_NamalskAdventure_Items"};
+		requiredAddons[] = {"DZ_Data"};
 	};
 };
 class CfgVehicles
@@ -15,7 +15,7 @@ class CfgVehicles
 	class Inventory_Base;
 	class Expansion_Anomaly_Base: Inventory_Base
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\NamalskAdventure\Dta\Objects\Anomalies\Expansion_Anomaly.p3d";
 		bounding = "BSphere";
 		forceFarBubble = "true";
@@ -23,12 +23,10 @@ class CfgVehicles
 		handheld = "false";
 		allowOwnedCargoManipulation = 1;
 		attachments[] = {"Att_ExpansionAnomalyCore"};
-		itemsCargoSize[] = {10,100};
-		weight = 1000000;
+		weight = 10000;
 		inventoryCondition = "true";
 		storageCategory = 1;
 		openable = 1;
-		vehicleClass = "Inventory";
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -36,7 +34,8 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 100000;
-					healthLevels[] = {};
+					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
 				};
 			};
 			class GlobalArmor
@@ -45,21 +44,21 @@ class CfgVehicles
 				{
 					class Health
 					{
-						damage = 0;
+						damage = 1;
 					};
 				};
 				class FragGrenade
 				{
 					class Health
 					{
-						damage = 0;
+						damage = 1;
 					};
 				};
 				class Meele
 				{
 					class Health
 					{
-						damage = 0;
+						damage = 1;
 					};
 				};
 			};

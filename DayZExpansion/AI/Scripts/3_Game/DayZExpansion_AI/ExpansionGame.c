@@ -4,11 +4,6 @@ modded class ExpansionGame
 
 	private bool m_InGroup;
 
-	//! Incremented by Weapon_Base::EEFired
-	int m_eAI_FirearmEffectsCallCount;
-	int m_eAI_FirearmEffectsCallCountPrev;
-	int m_eAI_FirearmEffectsRecurseCount;
-
 	eAICommandManager GetCommandManager()
 	{
 #ifdef EAI_TRACE

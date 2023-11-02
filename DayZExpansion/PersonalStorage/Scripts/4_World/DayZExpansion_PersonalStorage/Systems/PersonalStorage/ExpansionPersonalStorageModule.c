@@ -82,7 +82,12 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		EnableMissionLoaded();
 		EnableInvokeConnect();
 		EnableClientDisconnect();
-		EnableRPC();
+		Expansion_EnableRPCManager();
+		
+		Expansion_RegisterClientRPC("RPC_SendItemData");
+		Expansion_RegisterClientRPC("RPC_Callback");
+		Expansion_RegisterServerRPC("RPC_RequestRetrieveItem");
+		Expansion_RegisterServerRPC("RPC_RequestDepositItem");
 	}
 
 	protected void CreateDirectoryStructure()
@@ -265,59 +270,13 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			m_ItemsData.Insert(playerUID, items);
 		}
 	}
-
-	override int GetRPCMin()
-	{
-		return ExpansionPersonalStorageModuleRPC.INVALID;
-	}
-
-	override int GetRPCMax()
-	{
-		return ExpansionPersonalStorageModuleRPC.COUNT;
-	}
-
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		super.OnRPC(sender, args);
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch (rpc.ID)
-		{
-			case ExpansionPersonalStorageModuleRPC.RequestDepositItem:
-			{
-				RPC_RequestDepositItem(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionPersonalStorageModuleRPC.RequestRetrieveItem:
-			{
-				RPC_RequestRetrieveItem(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionPersonalStorageModuleRPC.SendItemData:
-			{
-				RPC_SendItemData(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionPersonalStorageModuleRPC.Callback:
-			{
-				RPC_Callback(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-		}
-	}
-
+	
+	//! Server
 	void SendItemData(PlayerIdentity identity, int storageID = -1, string displayName = string.Empty, string displayIcon = string.Empty, ExpansionPersonalStorageModuleCallback callback = 0)
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-		
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::SendItemData - Tryed to call SendItemData on Client!");
-			return;
-		}
 
 		string playerUID = identity.GetId();
-
 		ExpansionPersonalStorageConfig storageConfig = GetPersonalStorageConfigByID(storageID);
 		if (!storageConfig)
 		{
@@ -325,7 +284,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_SendItemData");
 		storageConfig.OnSend(rpc);
 		rpc.Write(storageID);
 		rpc.Write(displayName);
@@ -354,26 +313,14 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		}
 
 		rpc.Write(callback);
-
-		rpc.Send(NULL, ExpansionPersonalStorageModuleRPC.SendItemData, true, identity);
+		rpc.Expansion_Send(true, identity);
 	}
-
-	protected void RPC_SendItemData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	
+	//! Client
+	protected void RPC_SendItemData(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-		{
-			Error(ToString() + "::RPC_SendItemData - Magic number check failed!");
-			return;
-		}
-
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::RPC_SendItemData - Tryed to call RPC_SendItemData on Server!");
-			return;
-		}
-
 		ExpansionPersonalStorageConfig storageConfig = new ExpansionPersonalStorageConfig();
 		if (!storageConfig.OnRecieve(ctx))
 			return;
@@ -428,19 +375,11 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		playerItems.Clear();
 		playerItems = null;
 	}
-
-	protected void RPC_Callback(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	
+	//! Client
+	protected void RPC_Callback(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::RPC_Callback - Tryed to call RPC_Callback on Server!");
-			return;
-		}
 
 		int callback;
 		if (!ctx.Read(callback))
@@ -448,46 +387,26 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 		m_PersonalStorageMenuCallbackInvoker.Invoke(callback);
 	}
-
+	
+	//! Client
 	void RequestRetrieveItem(ExpansionPersonalStorageItem item, int storageID)
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-		
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::RequestRetrieveItem - Tryed to call RequestRetrieveItem on Server!");
-			return;
-		}
 
 		TIntArray globalID = item.GetGlobalID();
-
-		auto rpc = ExpansionScriptRPC.Create();
+		if (!globalID)
+			return;
+		
+		auto rpc = Expansion_CreateRPC("RPC_RequestRetrieveItem");
 		rpc.Write(storageID);
 		rpc.Write(globalID);
-		rpc.Send(NULL, ExpansionPersonalStorageModuleRPC.RequestRetrieveItem, true);
+		rpc.Expansion_Send(true);
 	}
-
-	protected void RPC_RequestRetrieveItem(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	
+	//! Server
+	protected void RPC_RequestRetrieveItem(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-		{
-			Error(ToString() + "::RPC_RequestRetrieveItem - Magic number check failed!");
-			return;
-		}
-
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RPC_RequestRetrieveItem - Tryed to call RPC_RequestRetrieveItem on Server!");
-			return;
-		}
-
-		if (!senderRPC)
-		{
-			Error(ToString() + "::RPC_RequestRetrieveItem - Could not get player identity!");
-			return;
-		}
 
 		int storageID;
 		if (!ctx.Read(storageID))
@@ -531,43 +450,21 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 		ExpansionNotification(new StringLocaliser("Item Retrieved!"), new StringLocaliser("You have retrieved a %1.", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.TOAST).Create(senderRPC);
 	}
-
+	
+	//! Client
 	void RequestDepositItem(int storageID, Entity item)
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-		
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::RequestDepositItem - Tryed to call RequestDepositItem on Server!");
-			return;
-		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestDepositItem");
 		rpc.Write(storageID);
-		rpc.Send(item, ExpansionPersonalStorageModuleRPC.RequestDepositItem, true);
+		rpc.Expansion_Send(item, true);
 	}
-
-	protected void RPC_RequestDepositItem(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	
+	//! Server
+	protected void RPC_RequestDepositItem(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-		{
-			Error(ToString() + "::RPC_RequestDepositItem - Magic number check failed!");
-			return;
-		}
-
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RPC_RequestDepositItem - Tryed to call RPC_RequestDepositItem on Server!");
-			return;
-		}
-
-		if (!senderRPC)
-		{
-			Error(ToString() + "::RPC_RequestDepositItem - Could not get player identity!");
-			return;
-		}
 
 		int storageID;
 		if (!ctx.Read(storageID))
@@ -623,13 +520,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		}
 		
 		newItem.SetStoreTime();
-
 		AddStoredItem(playerUID, newItem);
-
 		newItem.Save();
-
 		SendItemData(senderRPC, storageID, "", "", ExpansionPersonalStorageModuleCallback.ItemStored);
-
 		ExpansionNotification(new StringLocaliser("Item Deposited!"), new StringLocaliser("You have deposited the item %1.", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.TOAST).Create(senderRPC);
 	}
 
@@ -698,7 +591,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			return;
 
 		Object obj = GetGame().CreateObjectEx("ExpansionSmallPersonalProtectorCase", player.GetPosition(), ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
-
 		ExpansionPersonalProtectiveCaseBase personalStorageCase;
 		if (!ExpansionPersonalProtectiveCaseBase.CastTo(personalStorageCase, obj))
 		{
@@ -758,12 +650,13 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		return storageLimit;
 	}
 #endif
-
-	void CallbackError(PlayerIdentity senderRPC)
+	
+	//! Server
+	void CallbackError(PlayerIdentity identity)
 	{
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_Callback");
 		rpc.Write(ExpansionPersonalStorageModuleCallback.Error);
-		rpc.Send(NULL, ExpansionPersonalStorageModuleRPC.Callback, true, senderRPC);
+		rpc.Expansion_Send(true, identity);
 	}
 
 	void AddStoredItem(string playerUID, ExpansionPersonalStorageItem item)

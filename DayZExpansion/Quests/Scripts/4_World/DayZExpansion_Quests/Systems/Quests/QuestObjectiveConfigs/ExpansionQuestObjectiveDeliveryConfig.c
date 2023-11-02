@@ -22,8 +22,6 @@ class ExpansionQuestObjectiveDeliveryConfig_v17: ExpansionQuestObjectiveConfig
 class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 {
 	ref array<ref ExpansionQuestObjectiveDelivery> Collections = new array<ref ExpansionQuestObjectiveDelivery>;
-	float MaxDistance = 10.0;
-	string MarkerName = "Deliver Items";
 	bool ShowDistance = true;
 
 #ifdef EXPANSIONMODMARKET
@@ -41,12 +39,11 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 
 	void SetMaxDistance(float max)
 	{
-		MaxDistance = max;
 	}
 
 	float GetMaxDistance()
 	{
-		return MaxDistance;
+		return 0.0;
 	}
 
 	bool ShowDistance()
@@ -56,12 +53,11 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 
 	void SetMarkerName(string name)
 	{
-		MarkerName = name;
 	}
 
 	string GetMarkerName()
 	{
-		return MarkerName;
+		return "";
 	}
 
 	array<ref ExpansionQuestObjectiveDelivery> GetCollections()
@@ -92,9 +88,6 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
-
-		MaxDistance = configBase.MaxDistance;
-		MarkerName = configBase.MarkerName;
 		ShowDistance = configBase.ShowDistance;
 		
 		Collections.Clear();
@@ -178,26 +171,25 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 
 class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConfigBase
 {
+	float MaxDistance = 10.0;
+	string MarkerName = "Deliver Items";
+
 	static ExpansionQuestObjectiveDeliveryConfig Load(string fileName)
 	{
 		bool save;
 		Print("[ExpansionQuestObjectiveDeliveryConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName);
 
 		ExpansionQuestObjectiveDeliveryConfig config;
-		ExpansionQuestObjectiveDeliveryConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, config))
 			return NULL;
 
-		if (configBase.ConfigVersion < CONFIGVERSION)
+		if (config.ConfigVersion < CONFIGVERSION)
 		{
 			Print("[ExpansionQuestObjectiveDeliveryConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveDeliveryConfig();
 
-			//! Copy over old configuration that haven't changed
-			config.CopyConfig(configBase);
-
-			if (configBase.ConfigVersion < 18)
+			if (config.ConfigVersion < 18)
 			{
 				ExpansionQuestObjectiveDeliveryConfig_v17 configV17;
 				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig_v17>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, configV17))
@@ -211,7 +203,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 				}
 			}
 			
-			if (configBase.ConfigVersion < 19)
+			if (config.ConfigVersion < 19)
 			{
 				foreach (ExpansionQuestObjectiveDelivery deliveryV18: config.Collections)
 				{
@@ -221,11 +213,6 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 			
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
-		}
-		else
-		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, config))
-				return NULL;
 		}
 
 		if (save)
@@ -242,5 +229,33 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 			fileName += ".json";
 		
 		ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, this);
+	}
+
+	override void SetMaxDistance(float max)
+	{
+		MaxDistance = max;
+	}
+
+	override float GetMaxDistance()
+	{
+		return MaxDistance;
+	}
+
+	override void SetMarkerName(string name)
+	{
+		MarkerName = name;
+	}
+
+	override string GetMarkerName()
+	{
+		return MarkerName;
+	}
+	
+	void CopyConfig(ExpansionQuestObjectiveDeliveryConfig config)
+	{
+		super.CopyConfig(config);
+
+		MaxDistance = config.MaxDistance;
+		MarkerName = config.MarkerName;
 	}
 };

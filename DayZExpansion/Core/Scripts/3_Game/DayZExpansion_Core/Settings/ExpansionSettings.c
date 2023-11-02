@@ -24,6 +24,9 @@ class ExpansionSettings
 	protected autoptr array<ExpansionSettingBase> m_SettingsOrdered = new array<ExpansionSettingBase>;
 	protected ref map<typename, int> m_Warnings = new map<typename, int>;
 
+	ref ExpansionRPCManager m_Expansion_RPCManager = new ExpansionRPCManager(this);
+	protected ref map<typename, int> m_RPCIDs = new map<typename, int>;
+
 	void ServerInit()
 	{
 		auto trace = EXTrace.Start(EXTrace.SETTINGS, this);
@@ -77,22 +80,50 @@ class ExpansionSettings
 	{
 		auto trace = EXTrace.Start(EXTrace.SETTINGS, this);
 
-		Init(ExpansionDebugSettings);
+		Init(ExpansionDebugSettings, true);
 		Init(ExpansionLogSettings);
 		Init(ExpansionSafeZoneSettings);
-		Init(ExpansionNotificationSettings);
-		Init(ExpansionMonitoringSettings);
+		Init(ExpansionNotificationSettings, true);
+		Init(ExpansionMonitoringSettings, true);
 		Init(ExpansionDamageSystemSettings);
 	}
 
-	void Init(typename type)
+	void RegisterClientRPC(typename type)
+	{
+		string name = type.ToString();
+		name = name.Substring(9, name.Length() - 9);  //! Strip "Expansion"
+		m_RPCIDs[type] = m_Expansion_RPCManager.RegisterClient("RPC_" + name);
+	}
+
+	ExpansionScriptRPC CreateRPC(typename type)
+	{
+		auto trace = EXTrace.Profile(EXTrace.SETTINGS, this);
+
+		return m_Expansion_RPCManager.CreateRPC(m_RPCIDs[type]);
+	}
+
+	ExpansionScriptRPC CreateRPC(string fn)
+	{
+		return m_Expansion_RPCManager.CreateRPC(fn);
+	}
+
+	void Init(typename type, bool registerClientRPC = false)
 	{
 		if (!m_Settings.Contains(type))
 		{
 			auto setting = ExpansionSettingBase.Cast(type.Spawn());
 			m_Settings.Insert(type, setting);
 			m_SettingsOrdered.Insert(setting);
+
+			if (registerClientRPC)
+				RegisterClientRPC(type);
+
+			OnInit(type);
 		}
+	}
+
+	void OnInit(typename type)
+	{
 	}
 
 	void GameInit()
@@ -115,9 +146,7 @@ class ExpansionSettings
 
 	void Send( notnull PlayerIdentity identity )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
-#endif
+		auto trace = EXTrace.Profile(EXTrace.SETTINGS, this);
 
 		if ( IsMissionClient() )
 			return;
@@ -128,31 +157,19 @@ class ExpansionSettings
 		}
 	}
 
-	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	void RPC_DebugSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRPC");
-#endif
+		Receive(ExpansionDebugSettings, ctx);
+	}
 
-		if ( rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT )
-			return false;
-		
-		switch ( rpc_type )
-		{
-			case ExpansionSettingsRPC.Debug:
-			{
-				Receive(ExpansionDebugSettings, ctx);
-				return true;
-			}
-			
-			case ExpansionSettingsRPC.Notification:
-			{
-				Receive(ExpansionNotificationSettings, ctx);
-				return true;
-			}
-		}
+	void RPC_MonitoringSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		Receive(ExpansionMonitoringSettings, ctx);
+	}
 
-		return false;
+	void RPC_NotificationSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		Receive(ExpansionNotificationSettings, ctx);
 	}
 
 	void Receive(typename type, ParamsReadContext ctx)
@@ -160,9 +177,6 @@ class ExpansionSettings
 		auto trace = EXTrace.Start(EXTrace.SETTINGS, this, type.ToString());
 
 		if (GetGame().IsDedicatedServer())
-			return;
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 
 		Init(type);

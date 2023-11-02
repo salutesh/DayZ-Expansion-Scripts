@@ -319,25 +319,25 @@ class ExpansionBookMenu: ExpansionScriptViewMenu
 		switch (rpc_type)
 		{
 		#ifdef EXPANSIONMODGROUPS
-			case ExpansionPartyModuleRPC.UpdatePlayer:
+			case ExpansionPartyModule.s_UpdatePlayerClient_RPCID:
 				ExpansionBookMenuTabParty partyTab;
 				if (Class.CastTo(partyTab, m_LastOpenedTab))
 					partyTab.Refresh();
 				break;
-			case ExpansionPartyModuleRPC.SyncPlayerInvites:
+			case ExpansionPartyModule.s_SyncPlayerInvitesClient_RPCID:
 				ExpansionBookMenuTabPartyInvites partyInvitesTab;
 				if (Class.CastTo(partyInvitesTab, m_LastOpenedTab))
 					partyInvitesTab.Refresh();
 				break;
 		#endif
 		#ifdef EXPANSIONMODBASEBUILDING
-			case ExpansionTerritoryModuleRPC.UpdateClient:
+			case ExpansionTerritoryModule.s_UpdateClient_RPCID:
 				//! Refresh territory tab even if not last opened tab because that information is used to determine if it can be shown to begin with
 				ExpansionBookMenuTabTerritory territoryTab = m_BookManager.GetTerritoryTab();
 				if (territoryTab)
 					territoryTab.Refresh();
 				break;
-			case ExpansionTerritoryModuleRPC.SyncPlayerInvites:
+			case ExpansionTerritoryModule.s_SyncPlayerInvitesClient_RPCID:
 				ExpansionBookMenuTabTerritoryInvites territoryInvitesTab;
 				if (Class.CastTo(territoryInvitesTab, m_LastOpenedTab))
 					territoryInvitesTab.Refresh();

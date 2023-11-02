@@ -3,6 +3,7 @@ modded class ItemBase
 	private autoptr eAITargetInformation m_TargetInformation;
 
 	bool m_Expansion_IsOwnerPlayer;
+	bool m_eAI_ProcessDamageByAI;
 
 	void ItemBase()
 	{
@@ -38,12 +39,31 @@ modded class ItemBase
 		super.EEKilled(killer);
 	}
 
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		if (!m_eAI_ProcessDamageByAI)
+		{
+			eAIBase ai;
+			if (damageType == DT_FIRE_ARM && GetHierarchyRootPlayer() && Class.CastTo(ai, source.GetHierarchyRootPlayer()))
+			{
+				//! Apply AI damage multiplier
+				if (ai.m_eAI_DamageMultiplier != 1.0)
+				{
+					m_eAI_ProcessDamageByAI = true;
+					return false;
+				}
+			}
+		}
+		else
+		{
+			m_eAI_ProcessDamageByAI = false;
+		}
+
+		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	}
+
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-	#ifdef DIAG
-		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-	#endif
-
 		m_TargetInformation.OnHit();
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);

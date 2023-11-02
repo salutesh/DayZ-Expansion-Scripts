@@ -59,7 +59,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		EnableClientRespawn();
 		EnableInvokeConnect();
 		EnableInvokeDisconnect();
-		EnableRPC();
+		Expansion_EnableRPCManager();
 
 		//EXPrint(ToString() + "::OnInit - GetGame() " + GetGame());  // OK
 		//EXPrint(ToString() + "::OnInit - GetGame().IsServer() " + GetGame().IsServer());  // true on client during init
@@ -74,85 +74,69 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		m_ClientStates = new ExpansionSyncedPlayerStates;
 		
 		m_PlayerDeathPositions = new map<string, vector>;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMonitorModule GetRPCMin
-	// ------------------------------------------------------------
-	override int GetRPCMin()
-	{
-		return ExpansionMonitorRPC.INVALID;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMonitorModule GetRPCMax
-	// ------------------------------------------------------------
-	override int GetRPCMax()
-	{
-		return ExpansionMonitorRPC.COUNT;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMonitorModule OnRPC
-	// Called on client
-	// ------------------------------------------------------------
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		super.OnRPC(sender, args);
 
-		auto rpc = CF_EventRPCArgs.Cast(args);
+		Expansion_RegisterServerRPC("RPC_RequestPlayerStates");
+		Expansion_RegisterServerRPC("RPC_RequestPlayerStats");
+		Expansion_RegisterServerRPC("RPC_RequestPlayerStatsAndStates");
+		Expansion_RegisterClientRPC("RPC_SyncStats");
+		Expansion_RegisterClientRPC("RPC_SyncStates");
+		Expansion_RegisterClientRPC("RPC_SendMessage");
+		Expansion_RegisterClientRPC("RPC_SendPlayerStates");
+		Expansion_RegisterClientRPC("RPC_SendPlayerStats");
+		Expansion_RegisterClientRPC("RPC_SendPlayerStatsAndStates");
+		Expansion_RegisterClientRPC("RPC_SyncLastDeathPos");
+	}
 
-		switch ( rpc.ID )
-		{
-		case ExpansionMonitorRPC.SyncStats:
-			if (!ExpansionScriptRPC.CheckMagicNumber(rpc.Context))
-				return;
-
-			m_ClientStats.OnRecieve(rpc.Context, true, false);
+	void RPC_SyncStats(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		m_ClientStats.OnRecieve(ctx, true, false);
 /*
-			m_ClientStats.m_Distance = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_DISTANCE);
-			m_ClientStats.m_Playtime = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
-			m_ClientStats.m_PlayersKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_PLAYERS_KILLED);
-			m_ClientStats.m_InfectedKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_INFECTED_KILLED);
-			m_ClientStats.m_AnimalsKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.EXP_STAT_ANIMALS_KILLED);
-			m_ClientStats.m_LongestShot = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT);
+		m_ClientStats.m_Distance = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_DISTANCE);
+		m_ClientStats.m_Playtime = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
+		m_ClientStats.m_PlayersKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_PLAYERS_KILLED);
+		m_ClientStats.m_InfectedKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_INFECTED_KILLED);
+		m_ClientStats.m_AnimalsKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.EXP_STAT_ANIMALS_KILLED);
+		m_ClientStats.m_LongestShot = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT);
 */
-			m_StatsInvoker.Invoke(m_ClientStats);
-			break;
-		case ExpansionMonitorRPC.SyncStates:
-			if (!ExpansionScriptRPC.CheckMagicNumber(rpc.Context))
-				return;
-			
-			m_ClientStates.OnRecieve(rpc.Context);
-			m_StatesInvoker.Invoke(m_ClientStates);
-			break;
-		case ExpansionMonitorRPC.SendMessage:
-			RPC_SendMessage(rpc.Context);
-			break;
-		case ExpansionMonitorRPC.RequestPlayerStats:
-			RPC_RequestPlayerStatsAndStates(rpc.Context, rpc.Sender, true, false);
-			break;
-		case ExpansionMonitorRPC.SendPlayerStats:
-			RPC_SendPlayerStatsAndStates(rpc.Context, true, false);
-			break;
-		case ExpansionMonitorRPC.RequestPlayerStates:
-			RPC_RequestPlayerStatsAndStates(rpc.Context, rpc.Sender, false, true);
-			break;
-		case ExpansionMonitorRPC.SendPlayerStates:
-			RPC_SendPlayerStatsAndStates(rpc.Context, false, true);
-			break;
-		case ExpansionMonitorRPC.RequestPlayerStatsAndStates:
-			RPC_RequestPlayerStatsAndStates(rpc.Context, rpc.Sender, true, true);
-			break;
-		case ExpansionMonitorRPC.SendPlayerStatsAndStates:
-			RPC_SendPlayerStatsAndStates(rpc.Context, true, true);
-			break;
-		case ExpansionMonitorRPC.SyncLastDeathPos:
-			RPC_SyncLastDeathPos(rpc.Context, rpc.Sender);
-			break;
-		}
+		m_StatsInvoker.Invoke(m_ClientStats);
 	}
-	
+
+	void RPC_SyncStates(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		m_ClientStates.OnRecieve(ctx);
+		m_StatesInvoker.Invoke(m_ClientStates);
+	}
+
+	void RPC_RequestPlayerStats(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		RPC_RequestPlayerStatsAndStates(ctx, sender, true, false);
+	}
+
+	void RPC_SendPlayerStats(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		RPC_SendPlayerStatsAndStates(ctx, true, false);
+	}
+
+	void RPC_RequestPlayerStates(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		RPC_RequestPlayerStatsAndStates(ctx, sender, false, true);
+	}
+
+	void RPC_SendPlayerStates(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		RPC_SendPlayerStatsAndStates(ctx, false, true);
+	}
+
+	void RPC_RequestPlayerStatsAndStates(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		RPC_RequestPlayerStatsAndStates(ctx, sender, true, true);
+	}
+
+	void RPC_SendPlayerStatsAndStates(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		RPC_SendPlayerStatsAndStates(ctx, true, true);
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule OnClientReady
 	// ------------------------------------------------------------
@@ -298,10 +282,10 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (!send)
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_SyncStats");
 		stats.OnSend(rpc, includeRegisteredStats, includeBaseStats);
 		//! @note guaranteed = false is intentional here (performance)
-		rpc.Send(NULL, ExpansionMonitorRPC.SyncStats, false, player.GetIdentity());
+		rpc.Expansion_Send(false, player.GetIdentity());
 	}
 
 	// ------------------------------------------------------------
@@ -344,10 +328,10 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (!send)
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_SyncStates");
 		states.OnSend(rpc);
 		//! @note guaranteed = false is intentional here (performance)
-		rpc.Send(NULL, ExpansionMonitorRPC.SyncStates, false, player.GetIdentity());
+		rpc.Expansion_Send(false, player.GetIdentity());
 	}
 	
 	// ------------------------------------------------------------
@@ -434,26 +418,21 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "ServerChatMessage");
 #endif
 
-		auto message_rpc = ExpansionScriptRPC.Create();
+		auto message_rpc = Expansion_CreateRPC("RPC_SendMessage");
 		message_rpc.Write(tag);
 		message_rpc.Write(message);
-		message_rpc.Send(null, ExpansionMonitorRPC.SendMessage, true);
+		message_rpc.Expansion_Send(true);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule RPC_SendMessage
 	// Called on all Clients
 	// ------------------------------------------------------------
-	private void RPC_SendMessage(ParamsReadContext ctx)
+	private void RPC_SendMessage(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "RPC_SendMessage");
 #endif
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if (!GetGame().IsClient())
-			return;
 
 		StringLocaliser tag;
 		if (!ctx.Read(tag))
@@ -724,12 +703,12 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestPlayerStats");
 		rpc.Write(playerID);
 		rpc.Write(includeRegisteredStats);
 		rpc.Write(includeBaseStats);
 		//! @note guaranteed = false is intentional here (performance)
-		rpc.Send(null, ExpansionMonitorRPC.RequestPlayerStats, false);
+		rpc.Expansion_Send(false);
 	}
 	
 	// ------------------------------------------------------------
@@ -739,12 +718,6 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	private void RPC_RequestPlayerStatsAndStates(ParamsReadContext ctx, PlayerIdentity sender, bool includeStats = true, bool includeStates = true)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, "" + includeStats, "" + includeStates);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-			return;
 
 		string playerID;
 		if (!ctx.Read(playerID))
@@ -840,7 +813,15 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, "" + playerStats, "" + playerStates, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
 
-		auto rpc = ExpansionScriptRPC.Create();
+		string fn;
+		if (playerStats && playerStates)
+			fn = "RPC_SendPlayerStatsAndStates";
+		else if (playerStats)
+			fn = "RPC_SendPlayerStats";
+		else
+			fn = "RPC_SendPlayerStates";
+
+		auto rpc = Expansion_CreateRPC(fn);
 
 		rpc.Write(playerID);
 
@@ -854,16 +835,8 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (playerStates)
 			playerStates.OnSend(rpc);
 
-		int rpcID;
-		if (playerStats && playerStates)
-			rpcID = ExpansionMonitorRPC.SendPlayerStatsAndStates;
-		else if (playerStats)
-			rpcID = ExpansionMonitorRPC.SendPlayerStats;
-		else
-			rpcID = ExpansionMonitorRPC.SendPlayerStates;
-
 		//! @note guaranteed = false is intentional here (performance)
-		rpc.Send(null, rpcID, false, ident);
+		rpc.Expansion_Send(false, ident);
 	}
 	
 	// ------------------------------------------------------------
@@ -873,12 +846,6 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	private void RPC_SendPlayerStatsAndStates(ParamsReadContext ctx, bool includeStats = true, bool includeStates = true)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, "" + includeStats, "" + includeStates);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if (!GetGame().IsClient())
-			return;
 		
 		string playerID;
 		if (!ctx.Read(playerID))
@@ -927,10 +894,10 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID);
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestPlayerStates");
 		rpc.Write(playerID);
 		//! @note guaranteed = false is intentional here (performance)
-		rpc.Send(null, ExpansionMonitorRPC.RequestPlayerStates, false);
+		rpc.Expansion_Send(false);
 	}
 	
 	// ------------------------------------------------------------
@@ -952,12 +919,12 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestPlayerStatsAndStates");
 		rpc.Write(playerID);
 		rpc.Write(includeRegisteredStats);
 		rpc.Write(includeBaseStats);
 		//! @note guaranteed = false is intentional here (performance)
-		rpc.Send(null, ExpansionMonitorRPC.RequestPlayerStatsAndStates, false);
+		rpc.Expansion_Send(false);
 	}
 
 	// ------------------------------------------------------------
@@ -998,9 +965,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (pos == vector.Zero)
 			return;
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_SyncLastDeathPos");
 		rpc.Write(pos);
-		rpc.Send(null, ExpansionMonitorRPC.SyncLastDeathPos, true, player.GetIdentity());
+		rpc.Expansion_Send(true, player.GetIdentity());
 	}
 	
 	void SyncStatsToClient(PlayerBase player)
@@ -1018,17 +985,11 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ExpansionMonitorModule RPC_SyncLastDeathPos
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_SyncLastDeathPos(ParamsReadContext ctx, PlayerIdentity ident)
+	private void RPC_SyncLastDeathPos(PlayerIdentity ident, Object target, ParamsReadContext ctx)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.PLAYER_MONITOR, this, "RPC_SyncLastDeathPos").Add(ident).Add(ctx);
 	#endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if (!GetGame().IsClient())
-			return;
 		
 		if (!ctx.Read(m_LastDeathPos))
 		{

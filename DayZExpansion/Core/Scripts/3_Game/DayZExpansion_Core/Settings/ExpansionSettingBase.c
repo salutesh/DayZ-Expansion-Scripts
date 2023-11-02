@@ -25,6 +25,11 @@ class ExpansionSettingBase
 	{
 	}
 
+	ExpansionScriptRPC CreateRPC()
+	{
+		return GetExpansionSettings().CreateRPC(Type());
+	}
+
 	bool OnRecieve( ParamsReadContext ctx )
 	{
 		Error("Not implemented");

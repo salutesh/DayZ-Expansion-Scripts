@@ -13,6 +13,7 @@
 modded class BuildingBase
 {
 	ref ExpansionNetsyncData m_Expansion_NetsyncData;
+	ref ExpansionRPCManager m_Expansion_RPCManager;
 
 	override bool NameOverride(out string output)
 	{
@@ -20,14 +21,6 @@ modded class BuildingBase
 			return true;
 		else
 			return super.NameOverride(output);
-	}
-
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-
-		if (m_Expansion_NetsyncData)
-			m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}
 
 	override void Explode(int damageType, string ammoType = "")
@@ -43,5 +36,13 @@ modded class BuildingBase
 
 		if (damageType == DT_EXPLOSION && ExpansionDamageSystem.IsEnabledForExplosionTarget(this))
 			ExpansionDamageSystem.OnExplosionHit(source, this, ammo, true, damageResult);
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		if (m_Expansion_NetsyncData && !m_Expansion_NetsyncData.m_WasDataRequested)
+			m_Expansion_NetsyncData.Request();
 	}
 }

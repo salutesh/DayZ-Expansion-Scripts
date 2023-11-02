@@ -66,7 +66,8 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		EnableMissionFinish();
 		EnableMissionLoaded();
-		EnableRPC();
+		Expansion_EnableRPCManager();
+		Expansion_RegisterClientRPC("RPC_CreateDeathMarker");
 		//EnableSettingsChanged();
 		#ifndef SERVER
 		EnableUpdate();
@@ -96,11 +97,12 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		if (GetGame().IsDedicatedServer())
 			return;
 
-		ReadLocalServerMarkers();
+		if (m_AllData.Count() == 0)
+			ReadLocalServerMarkers();
 
 		if ( IsMissionOffline() )
 		{
-			if ( m_AllData.Count() <= 0 )
+			if ( m_AllData.Count() == 0 )
 				m_AllData.Insert( new ExpansionMarkerClientData() );
 
 			m_CurrentData = m_AllData[0];
@@ -112,11 +114,11 @@ class ExpansionMarkerModule: CF_ModuleWorld
 			{
 				bool found = false;
 
-				for ( int i = 0; i < m_AllData.Count(); ++i )
+				foreach (ExpansionMarkerClientData clientData: m_AllData)
 				{
-					if ( m_AllData[i].Equals( address, port ) )
+					if ( clientData.Equals( address, port ) )
 					{
-						m_CurrentData = m_AllData[i];
+						m_CurrentData = clientData;
 
 						found = true;
 						break;
@@ -156,6 +158,18 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		
 		if (GetGame().IsDedicatedServer())
 			return;
+
+		//! @note non-persistent personal markers won't be saved (this is handled in ExpansionMarkerClientData::OnStoreSave),
+		//! but we need to remove them from the m_CurrentData cache else they will still be there when (re)connecting to a server
+		if (m_CurrentData)
+		{
+			for (int i = m_CurrentData.m_PersonalMarkers.Count() - 1; i >= 0; i--)
+			{
+				ExpansionMarkerData markerData = m_CurrentData.m_PersonalMarkers[i];
+				if (!markerData.m_Persist)
+					m_CurrentData.m_PersonalMarkers.RemoveOrdered(i);
+			}
+		}
 
 		SaveLocalServerMarkers();
 
@@ -358,41 +372,6 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		#endif
 		
 		return true;
-	}
- 	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule GetRPCMin
-	// ------------------------------------------------------------
-	override int GetRPCMin()
-	{
-		return ExpansionMarkerRPC.INVALID;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule GetRPCMax
-	// ------------------------------------------------------------
-	override int GetRPCMax()
-	{
-		return ExpansionMarkerRPC.COUNT;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule OnRPC
-	// ------------------------------------------------------------	
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		super.OnRPC(sender, args);
-
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch ( rpc.ID )
-		{
-			case ExpansionMarkerRPC.CreateDeathMarker:
-			{
-				RPC_CreateDeathMarker(rpc.Sender, rpc.Context);
-				break;
-			}
-		}
 	}
 	
 	// ------------------------------------------------------------
@@ -873,26 +852,20 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		if (!IsMissionHost())
 			return;
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_CreateDeathMarker");
 		rpc.Write(pos);
-		rpc.Send(null, ExpansionMarkerRPC.CreateDeathMarker, true, identity);
+		rpc.Expansion_Send(true, identity);
 	}
 		
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule RPC_CreateDeathMarker
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_CreateDeathMarker(PlayerIdentity sender, ParamsReadContext ctx)
+	private void RPC_CreateDeathMarker(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.MARKER, this, "RPC_CreateDeathMarker").Add(sender).Add(ctx);
 #endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if (!IsMissionClient())
-			return;
 		
 		vector pos;
 		if (!ctx.Read(pos))

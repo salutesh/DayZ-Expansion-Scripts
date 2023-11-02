@@ -537,7 +537,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		
 		m_Module.RequestServerTerritories();
 
-		GetGame().GetCallQueue( CALL_CATEGORY_GUI ).CallLater( UpdateMapPosition, 34, false, true );
+		GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdateMapPosition, 34, false, true, vector.Zero);
 	}
 	
 	void UpdateMapPosition( bool usePlayerPosition, vector mapPosition = vector.Zero )

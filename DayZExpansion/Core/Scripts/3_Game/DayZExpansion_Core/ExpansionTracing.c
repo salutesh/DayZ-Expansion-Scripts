@@ -196,8 +196,7 @@ class EXTrace
 		if (m_Silent)
 		{
 			float elapsed = TickCount(m_Ticks) * 0.0001;
-			ProcessStack(1, m_Start, true, false);
-			Profile(elapsed);
+			ProcessStack(1, m_Start, true, false, elapsed);
 		}
 		else
 		{
@@ -248,13 +247,13 @@ class EXTrace
 		}
 		else
 		{
-			ProcessStack(depth, start + 1, end, true, prefix, params, elapsed);
+			ProcessStack(depth, start + 1, end, true, elapsed, prefix, params);
 		}
 
 		m_Ticks = TickCount(0);
 	}
 
-	void ProcessStack(int depth = 1, int start = 1, bool end = false, bool dump = true, string prefix = string.Empty, string params = string.Empty, float elapsed = 0)
+	void ProcessStack(int depth = 1, int start = 1, bool end = false, bool dump = true, float elapsed = 0, string prefix = string.Empty, string params = string.Empty)
 	{
 		string stack;
 		DumpStackString(stack);

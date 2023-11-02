@@ -101,10 +101,10 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 		{
 			if ( m_Target.HasCode() && m_IsKnownUser )
 			{
-				auto rpc2 = ExpansionScriptRPC.Create();
+				auto rpc2 = ExpansionScriptRPC.Create(ItemBase.s_Expansion_Unlock_RPCID);
 				rpc2.Write( "" );
 				rpc2.Write( selection );
-				rpc2.Send( m_Target, ExpansionLockRPC.UNLOCK, true );
+				rpc2.Expansion_Send(m_Target, true);
 			} else
 			{
 				ExpansionNumpadUI menu = ExpansionNumpadUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_NUMPAD_MENU, NULL ) );
@@ -117,9 +117,9 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 			}
 		} else
 		{
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = ExpansionScriptRPC.Create(ItemBase.s_Expansion_Lock_RPCID);
 			rpc.Write(selection);
-			rpc.Send(m_Target, ExpansionLockRPC.LOCK, true);
+			rpc.Expansion_Send(m_Target, true);
 		}
 	}
 }

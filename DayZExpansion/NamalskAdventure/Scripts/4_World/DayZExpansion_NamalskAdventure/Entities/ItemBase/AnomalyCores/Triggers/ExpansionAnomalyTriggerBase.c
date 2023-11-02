@@ -65,25 +65,25 @@ class ExpansionAnomalyTriggerBase: Trigger
 	//! Condition checks on given entity.
 	protected bool EntityConditions(IEntity other)
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::EntityConditions - Entity: " + other.ToString());
 
-		Object entityObj;
-		Object.CastTo(entityObj, other);
-
-		if (ExpansionStatic.IsAnyOf(entityObj, m_Items, true) || ExpansionStatic.IsAnyOf(entityObj, m_Players, true) || ExpansionStatic.IsAnyOf(entityObj, m_Animals, true) || ExpansionStatic.IsAnyOf(entityObj, m_Vehicles, true) || ExpansionStatic.IsAnyOf(entityObj, m_Infected, true))
+		EntityAI entityObj = EntityAI.Cast(other);
+		if (entityObj)
 		{
-			PlayerBase player = PlayerBase.Cast(other);
-			if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
+			if (ExpansionStatic.IsAnyOf(entityObj, m_Items, true) || ExpansionStatic.IsAnyOf(entityObj, m_Players, true) || ExpansionStatic.IsAnyOf(entityObj, m_Vehicles, true))
 			{
-				ExDebugPrint("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
-				return false;
+				PlayerBase player = PlayerBase.Cast(other);
+				if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
+				{
+					ExDebugPrint("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
+					return false;
+				}
+	
+				ExDebugPrint("::EntityConditions - Return TRUE");
+				return true;
 			}
-
-			ExDebugPrint("::EntityConditions - Return TRUE");
-			return true;
 		}
-
+		
 		ExDebugPrint("::EntityConditions - Return FALSE");
 		return false;
 	}
@@ -102,7 +102,6 @@ class ExpansionAnomalyTriggerBase: Trigger
 
 	override void EOnEnter(IEntity other, int extra)
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::EOnEnter - Entity: " + other.ToString());
 
 		if (!EntityConditions(other))
@@ -130,8 +129,6 @@ class ExpansionAnomalyTriggerBase: Trigger
 
 	void OnEnterAnomalyServer(IEntity other)
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
 		if (!m_Anomaly)
 			return;
 

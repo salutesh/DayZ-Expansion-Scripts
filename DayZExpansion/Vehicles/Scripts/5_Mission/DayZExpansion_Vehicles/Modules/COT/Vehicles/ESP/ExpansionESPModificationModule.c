@@ -19,21 +19,12 @@ modded class ExpansionESPModificationModule
 		GetPermissionsManager().RegisterPermission( "ESP.Object.Car.Key" );
 	}
 
-	override void OnRPC(Class sender, CF_EventArgs args)
+	override void OnInit()
 	{
-		auto rpc = CF_EventRPCArgs.Cast(args);
+		super.OnInit();
 
-		switch ( rpc.ID )
-		{
-		case ExpansionESPModificationModuleRPC.CarUnPair:
-			RPC_CarUnPair( rpc.Context, rpc.Sender, rpc.Target );
-			return;
-		case ExpansionESPModificationModuleRPC.CarUnLock:
-			RPC_CarUnLock( rpc.Context, rpc.Sender, rpc.Target );
-			return;
-		}
-
-		super.OnRPC(sender, args);
+		Expansion_RegisterServerRPC("RPC_CarUnPair");
+		Expansion_RegisterServerRPC("RPC_CarUnLock");
 	}
 
 	//! ===============================================
@@ -59,16 +50,13 @@ modded class ExpansionESPModificationModule
 
 		} else if ( IsMissionClient() )
 		{
-			auto rpc = ExpansionScriptRPC.Create();
-			rpc.Send( target, ExpansionESPModificationModuleRPC.CarUnPair, true, NULL );
+			auto rpc = Expansion_CreateRPC("RPC_CarUnPair");
+			rpc.Expansion_Send(target, true, NULL);
 		}
 	}
 
-	private void RPC_CarUnPair( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_CarUnPair(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		CarScript car = CarScript.Cast( target );
 		if ( !car )
 			return;
@@ -99,16 +87,13 @@ modded class ExpansionESPModificationModule
 			car.UnlockCar(adminkey);
 		} else if ( IsMissionClient() )
 		{
-			auto rpc = ExpansionScriptRPC.Create();
-			rpc.Send( target, ExpansionESPModificationModuleRPC.CarUnLock, true, NULL );
+			auto rpc = Expansion_CreateRPC("RPC_CarUnLock");
+			rpc.Expansion_Send(target, true, NULL);
 		}
 	}
 
-	private void RPC_CarUnLock( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_CarUnLock(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		CarScript car = CarScript.Cast( target );
 		if ( !car )
 			return;

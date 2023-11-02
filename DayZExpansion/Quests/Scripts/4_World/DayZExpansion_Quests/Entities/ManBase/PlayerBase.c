@@ -76,18 +76,16 @@ modded class PlayerBase
 		
 		if (s_Expansion_AssignedQuestObjectives.Count() == 0)
 			return;
-
+		
+		string killerUID;
+		Man killerPlayer;
 		EntityAI killSource = EntityAI.Cast(killer);
-		if (!killSource || killSource == this)
-			return;
-
-		Man killerPlayer = killSource.GetHierarchyRootPlayer();
-		if (!killerPlayer || !killerPlayer.GetIdentity())
-			return;
-
-		string killerUID = killerPlayer.GetIdentity().GetId();
-		if (killerUID == string.Empty)
-			return;
+		if (killSource)
+		{
+			killerPlayer = killSource.GetHierarchyRootPlayer();
+			if (killerPlayer && killerPlayer.GetIdentity())
+				killerUID = killerPlayer.GetIdentity().GetId();
+		}
 
 		ExpansionQuest quest;
 		int failSafe = s_Expansion_AssignedQuestObjectives.Count() + 1;
@@ -109,7 +107,7 @@ modded class PlayerBase
 			}
 			
 			//! Check if the current objective belongs to the quest player
-			if (!quest.IsQuestPlayer(killerUID))
+			if (killerUID != string.Empty && !quest.IsQuestPlayer(killerUID))
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				EXTrace.Print(EXTrace.QUESTS, this, "Player with UID [" + killerUID + "] is not a quest player of this quest objective. Skip...");
@@ -124,10 +122,19 @@ modded class PlayerBase
 			#ifdef EXPANSIONMODAI
 				case ExpansionQuestObjectiveType.AICAMP:
 				case ExpansionQuestObjectiveType.AIPATROL:
-				case ExpansionQuestObjectiveType.AIESCORT:
 			#endif
-					objective.OnEntityKilled(this, killSource, killerPlayer);
-					break;
+				{
+					if (killSource && killerPlayer && killerPlayer.GetIdentity())
+						objective.OnEntityKilled(this, killSource, killerPlayer);
+				}
+				break;
+			#ifdef EXPANSIONMODAI
+				case ExpansionQuestObjectiveType.AIESCORT:
+				{
+					objective.OnEntityKilled(this, killSource, null);
+				}
+				break;
+			#endif
 			}
 
 			if (objective.IsAssigned())
@@ -185,5 +192,19 @@ modded class PlayerBase
 		}
 
 		m_Expansion_AmmoInInventoryQuantity.Clear();
+	}
+
+	override bool ServerReplaceItemWithNew(ReplaceItemWithNewLambdaBase lambda)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
+		ItemBase oldItem = ItemBase.Cast(lambda.m_OldItem);
+		if (oldItem)
+		{
+			oldItem.Expansion_SetForDeletion(true);
+			oldItem.CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_DELETE, this);
+		}
+
+		return super.ServerReplaceItemWithNew(lambda);
 	}
 };

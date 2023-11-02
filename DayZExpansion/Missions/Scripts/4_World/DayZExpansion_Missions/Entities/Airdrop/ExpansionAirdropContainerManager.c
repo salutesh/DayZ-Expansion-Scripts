@@ -148,9 +148,9 @@ class ExpansionAirdropContainerManager
 	{
 		vector spawnPos = spawnPosStr.ToVector();
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = ExpansionScriptRPC.Create(ExpansionAirdropContainerBase.s_Expansion_SpawnParticle_RPCID);
 		rpc.Write( spawnPos );
-		rpc.Send( m_Container, ExpansionAirdropContainerBase.EXPANSION_AIRDROP_RPC_ZSPAWN_PARTICLE, true );
+		PlayerBase.Expansion_SendNear(rpc, m_Container.GetPosition(), 1000.0, m_Container, true);
 	}
 
 	void SpawnInfected()

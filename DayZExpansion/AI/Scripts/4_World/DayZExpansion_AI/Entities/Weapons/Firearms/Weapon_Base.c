@@ -37,13 +37,22 @@ modded class Weapon_Base
 		return false;
 	}
 
+	bool eAI_Fire(int muzzleIndex, vector pos, vector dir, vector speed)
+	{
+	#ifdef SERVER
+		return Fire(muzzleIndex, pos, dir, speed);
+	#else
+		return TryFireWeapon(this, muzzleIndex);
+	#endif
+	}
+
+#ifdef DIAG
 	override void EEFired(int muzzleType, int mode, string ammoType)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_3(this, "EEFired").Add(muzzleType).Add(mode).Add(ammoType);
-		#endif
-
 		super.EEFired(muzzleType, mode, ammoType);
+
+		if (!EXTrace.AI)
+			return;
 
 		eAIBase ai;
 		if (!Class.CastTo(ai, GetHierarchyRootPlayer()) || !ai.GetTarget()) return;
@@ -51,9 +60,7 @@ modded class Weapon_Base
 		vector begin_point = ai.GetBonePositionWS(ai.GetBoneIndexByName("neck"));
 		vector direction = ai.GetWeaponAimDirection();
 
-	#ifdef DIAG
-		EXTrace.Print(EXTrace.AI, this, "EEFired " + direction);
-	#endif
+		EXTrace.Print(true, this, "EEFired " + direction);
 
 		Object hitObject;
 		vector hitPosition;
@@ -63,181 +70,47 @@ modded class Weapon_Base
 
 		if (!hit)  //! Nothing hit
 		{
-			if (g_Game.IsServer() && EXTrace.AI)
+			vector aimPosition = ai.GetAimPosition();
+			float aimDistance = vector.Distance(begin_point, aimPosition);
+			vector missedPosition = begin_point + (direction * aimDistance);
+			string missed;
+			float missedUD = Math.AbsFloat(missedPosition[1] - aimPosition[1]);
+			float missedLR = vector.Distance(missedPosition, aimPosition) - missedUD;
+			if (missedUD > missedLR)
 			{
-				vector aimPosition = ai.GetAimPosition();
-				float aimDistance = vector.Distance(begin_point, aimPosition);
-				vector missedPosition = begin_point + (direction * aimDistance);
-				string missed;
-				float missedUD = Math.AbsFloat(missedPosition[1] - aimPosition[1]);
-				float missedLR = vector.Distance(missedPosition, aimPosition) - missedUD;
-				if (missedUD > missedLR)
-				{
-					if (missedPosition[1] > aimPosition[1])
-						missed = "high";
-					else
-						missed = "low";
-				}
+				if (missedPosition[1] > aimPosition[1])
+					missed = "high";
 				else
-				{
-					if (ExpansionMath.Side(begin_point, aimPosition, missedPosition) > 0)
-						missed = "left";
-					else
-						missed = "right";
-				}
-				EXTrace.Print(true, ai, "didn't hit because it was aiming " + missed + " (actual " + aimPosition + " missed " + missedPosition + ")");
-
-				ai.Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugBox");
-				ai.Expansion_DebugObject_Deferred(19, missedPosition, "ExpansionDebugBox_Red", direction, begin_point);
+					missed = "low";
 			}
+			else
+			{
+				if (ExpansionMath.Side(begin_point, aimPosition, missedPosition) > 0)
+					missed = "left";
+				else
+					missed = "right";
+			}
+			EXTrace.Print(true, ai, "didn't hit because it was aiming " + missed + " (actual " + aimPosition + " missed " + missedPosition + ")");
 
-			return;
+			ai.Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugBox");
+			ai.Expansion_DebugObject_Deferred(19, missedPosition, "ExpansionDebugBox_Red", direction, begin_point);
 		}
-
-		//! Calculate projectile impact velocity and resulting damage
-		//! (initSpeed x initSpeedMultiplier) / (defaultDamageOverride value x typicalSpeed) x damage
-		//! defaultDamageOverride[]={{0.5, 1}} means 50% to 100% of typical speed will have no drop
-		//! airFriction = acceleration/v^2
-		//! airFriction x v^2 = acceleration
-		//! e.g. for 545x39:
-		//! -0.00125 x (880*880 m/s) = -968 m/s^2
-		//! damage after drop = v/v0
-		//! TODO: Add defaultDamageOverride
-		//! TODO: See if interpolation could be replaced with equation or maybe use the created bullet and move it in time?
-		//! https://www.wolframalpha.com/input?i=curve+fitting
-		float airFriction = GetGame().ConfigGetFloat("cfgAmmo " + ammoType + " airFriction");
-		float initSpeed = GetGame().ConfigGetFloat("cfgAmmo " + ammoType + " initSpeed");
-		float initSpeedMultiplier = ConfigGetFloat("initSpeedMultiplier");
-		if (initSpeedMultiplier)
-			initSpeed *= initSpeedMultiplier;
-		float speed = initSpeed;
-		vector dir = vector.Direction(begin_point, hitPosition);
-		float distance = dir.Length();
-		float simulationStep = 0.05;  //! How fine-grained our prediction will be (could use simulationStep config value, but it's always set to 0.05 anyway, so...)
-		float distanceTraveled;
-		float timeTraveled;
-		int n;
-		while (distanceTraveled < distance)
+		else
 		{
-			float speedLoss = airFriction * (speed * speed) * simulationStep;
-			speed += speedLoss;
-			distanceTraveled += speed * simulationStep;
-			timeTraveled += simulationStep;
-			n += 1;
-			//! Limit number of iterations, may result in too high prediction for projectiles with low initSpeed and/or high airFriction
-			//! Will mostly affect pistol rounds and shotgun shells where effective range is normally limited
-			if (n > 100)
-				break;
-		}
-
-		EntityAI targetEntity = ai.GetTarget().GetEntity();
-
-		DayZPlayerImplement player;
-		if (g_Game.IsClient() && Class.CastTo(player, hitObject))
-		{
-			//! MP client only!
-			vector surfNormal = hitNormal * -1;
-			vector inSpeed = direction * speed;
-			player.eAI_SetFirearmEffectsOnHit(this, g_Game.GetTickTime() + 0.15 + timeTraveled, contactComponent, hitPosition, surfNormal, inSpeed, ammoType);
-		}
-	
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_HandleShot, timeTraveled * 1000, false, begin_point, hitPosition, direction, ai, targetEntity, speed, initSpeed, ai.m_eAI_DamageMultiplier, ammoType);
-	}
-
-	void eAI_HandleShot(vector origin, vector begin_point, vector direction, eAIBase ai, EntityAI targetEntity, float speed, float initSpeed, float dmgMult, string ammoType)
-	{
-	#ifdef DIAG
-		EXTrace.Print(EXTrace.AI, this, "eAI_HandleShot " + begin_point + " " + direction);
-	#endif
-
-		Object hitObject;
-		vector hitPosition;
-		vector hitNormal;
-		int contactComponent;
-		bool hit = Hitscan(begin_point, direction * 10.0, ai, hitObject, hitPosition, hitNormal, contactComponent);
-
-		if (!hit)  //! Nothing hit, player must've managed to moved out of the way
-			return;
-
-		if (g_Game.IsServer() && EXTrace.AI)
-		{
+			EntityAI targetEntity = ai.GetTarget().GetEntity();
 			if (targetEntity && targetEntity == hitObject)
 			{
-				ai.Expansion_DebugObject_Deferred(18, hitPosition, "ExpansionDebugBox", direction, origin);
+				ai.Expansion_DebugObject_Deferred(18, hitPosition, "ExpansionDebugBox", direction, begin_point);
 				ai.Expansion_DebugObject_Deferred(19, "0 0 0", "ExpansionDebugBox_Red");
 			}
 			else
 			{
 				ai.Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugBox");
-				ai.Expansion_DebugObject_Deferred(19, hitPosition, "ExpansionDebugBox_Red", direction, origin);
+				ai.Expansion_DebugObject_Deferred(19, hitPosition, "ExpansionDebugBox_Red", direction, begin_point);
 			}
 		}
-
-		//! Firearm FX for player on MP client handled by DZPlayerImplement::eAI_HandleFirearmEffects,
-		//! no firearm FX on server if player cannot be damaged
-		DayZPlayerImplement player;
-		if (Class.CastTo(player, hitObject) && (g_Game.IsClient() || !player.Expansion_CanBeDamaged(ammoType)))
-			return;
-
-		EntityAI entity;
-		if (g_Game.IsServer() && Class.CastTo(entity, hitObject))  //! Entity hit
-		{
-			string damageZone = "";
-			TStringArray componentNameList();
-			if (entity.GetActionComponentNameList(contactComponent, componentNameList, "fire") > 0)
-			{
-				foreach (string componentName: componentNameList)
-				{
-					if (DamageSystem.GetDamageZoneFromComponentName(entity, componentName, damageZone))
-					{
-						break;
-					}
-				}
-			}
-			if (!damageZone && entity.IsInherited(DayZPlayer))
-				damageZone = "Torso";  //! Make sure we have a damageZone so that damage transfer to attachments works correctly
-
-			float dmgCoef = speed / initSpeed;
-			if (entity.IsMan())  //! Could also use IsPlayer() if we wanted to restrict to PlayerBase
-				dmgCoef *= dmgMult;
-			//EXPrint(ToString() + "::eAI_HandleShot " + ammoType + " coef " + dmgCoef + " damageZone " + damageZone);
-			entity.ProcessDirectDamage(DT_FIRE_ARM, this, damageZone, ammoType, entity.WorldToModel(hitPosition), dmgCoef);
-		}
-
-		//! Under 1.21+, call FirearmEffects the same way vanilla would (source = weapon on server, NULL on client)
-
-		Object source;
-#ifdef SERVER
-	#ifndef EXPANSION_AI_FIREARMFX_ENABLE_SERVER
-		//! FIXME: Server sporadically gets stuck in infinite recursion of DayZGame::FirearmEffects,
-		//! but not sure if that's the cause or just a side-effect (likely the latter?).
-		//! Omit server-side call of FirearmEffects for now.
-		if (ShootsExplosiveAmmo())
-		{
-			if (ammoType == "Bullet_40mm_ChemGas")
-			{
-				GetGame().CreateObject("ContaminatedArea_Local", hitPosition);
-			}
-			else if (ammoType == "Bullet_40mm_Explosive")
-			{
-				DamageSystem.ExplosionDamage(this, null, "Explosion_40mm_Ammo", hitPosition, DamageType.EXPLOSION);
-			}
-		}
-		return;
-	#endif
-
-		source = this;
+	}
 #endif
-		vector surfNormal = hitNormal * -1;
-		vector inSpeed = direction * speed;
-		string surface = ExpansionStatic.GetImpactSurfaceType(hitObject, hitPosition, inSpeed);
-		GetDayZGame().eAI_HandleFirearmEffects(source, hitObject, contactComponent, surface, hitPosition, surfNormal, inSpeed, ammoType);
-	}
-
-	//! Legacy, remove after next update
-	void Expansion_HandleFirearmEffects(Object source, Object hitObject, int contactComponent, string surface, vector hitPosition, vector surfNormal, vector inSpeed, string ammoType)
-	{
-	}
 
 	/**
 	 * @fn	ProcessWeaponEvent

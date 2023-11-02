@@ -94,7 +94,7 @@ class Expansion_Anomaly_Base: ItemBase
 		//! Also make sure you anomaly has additonaly set the event flags "EntityEvent.CONTACT" & "EntityEvent.TOUCH" via "SetEventMask(EntityEvent.CONTACT | EntityEvent.TOUCH);".
 		//SetFlags(EntityFlags.TOUCHTRIGGERS, false);
 
-		SetEventMask(EntityEvent.INIT);
+		//SetEventMask(EntityEvent.INIT);
 		
 		RegisterNetSyncVariableInt("m_AnonmalyState", 0, 5);
 		RegisterNetSyncVariableInt("m_PrevAnonmalyState", 0, 5);
@@ -227,7 +227,7 @@ class Expansion_Anomaly_Base: ItemBase
 
 		if (!particle && GetGame() && (!GetGame().IsDedicatedServer()))
 		{
-			particle = Particle.PlayOnObject(particle_type, this, "0 0.7 0");
+			particle = Particle.PlayOnObject(particle_type, this, "0 -0.7 0");
 			return true;
 		}
 
@@ -353,8 +353,8 @@ class Expansion_Anomaly_Base: ItemBase
 		//! Create anomaly light
 		if (!m_Light)
 		{
-			m_Light = ExpansionAnomalyLightBase.Cast(ScriptedLightBase.CreateLight(GetAnomalyLight(), GetPosition() + "0 1 0"));
-			m_Light.AttachOnObject(this, "0 1 0");
+			m_Light = ExpansionAnomalyLightBase.Cast(ScriptedLightBase.CreateLight(GetAnomalyLight(), GetPosition() + "0 -0.5 0"));
+			m_Light.AttachOnObject(this, "0 -0.5 0");
 		}
 
 		//! Stop current particle effects

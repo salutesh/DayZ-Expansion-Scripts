@@ -24,8 +24,6 @@ class ExpansionCarKey: ItemBase
 	private int m_PersistentIDC;
 	private int m_PersistentIDD;
 
-	ref ExpansionNetsyncData m_Expansion_NetsyncData;
-
 	private Object m_Vehicle;
 
 	void ExpansionCarKey()
@@ -528,11 +526,4 @@ class ExpansionCarKey: ItemBase
 		return true;
 	}
 	#endif
-	
-	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-		
-		m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
-	}
 };

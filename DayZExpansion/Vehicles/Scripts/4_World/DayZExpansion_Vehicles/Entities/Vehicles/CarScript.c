@@ -169,6 +169,10 @@ modded class CarScript
 	protected vector m_Expansion_ExhaustPtcDir[3];
 	protected int m_Expansion_ExhaustPtcFx[3];
 
+	static int s_Expansion_ControllerSync_RPCID;
+	static int s_Expansion_PlayLockSound_RPCID;
+	static int s_Expansion_ClientPing_RPCID;
+
 	void CarScript()
 	{
 		g_Expansion_Car = this;
@@ -408,6 +412,15 @@ modded class CarScript
 				m_Expansion_ExhaustPtcFx[i] = -1;
 			}
 		}
+
+		m_Expansion_RPCManager = new ExpansionRPCManager(this, CarScript);
+
+		if (!s_Expansion_ControllerSync_RPCID)
+			s_Expansion_ControllerSync_RPCID = m_Expansion_RPCManager.RegisterBoth("RPC_Expansion_ControllerSync");
+		if (!s_Expansion_PlayLockSound_RPCID)
+			s_Expansion_PlayLockSound_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_Expansion_PlayLockSound");
+		if (!s_Expansion_ClientPing_RPCID)
+			s_Expansion_ClientPing_RPCID = m_Expansion_RPCManager.RegisterServer("RPC_Expansion_ClientPing");
 	}
 
 	void ~CarScript()
@@ -858,8 +871,8 @@ modded class CarScript
 
 		if (GetGame().IsServer())
 		{
-			auto rpc = ExpansionScriptRPC.Create();
-			rpc.Send(this, ExpansionVehicleRPC.PlayLockSound, true, NULL);
+			auto rpc = ExpansionScriptRPC.Create(s_Expansion_PlayLockSound_RPCID);
+			PlayerBase.Expansion_SendNear(rpc, GetPosition(), 20.0, this, true);
 		}
 	}
 
@@ -869,8 +882,8 @@ modded class CarScript
 
 		if (GetGame().IsServer())
 		{
-			auto rpc = ExpansionScriptRPC.Create();
-			rpc.Send(this, ExpansionVehicleRPC.PlayLockSound, true, NULL);
+			auto rpc = ExpansionScriptRPC.Create(s_Expansion_PlayLockSound_RPCID);
+			PlayerBase.Expansion_SendNear(rpc, GetPosition(), 20.0, this, true);
 		}
 	}
 
@@ -1104,38 +1117,9 @@ modded class CarScript
 	{
 		switch (rpc_type)
 		{
-			case ExpansionVehicleRPC.ControllerSync:
-			{
-				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-					return;	
-					
-				if (m_Controller)
-				{
-					PlayerBase driverBase;
-					//! @note sender and driverBase.GetIdentity() will NOT be the same object even if they point to the same player identity (same ID)!
-					if (Class.CastTo(driverBase, CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER)) && driverBase.GetIdentityUID() == sender.GetId())
-					{
-						m_Event_NetworkRecieve.NetworkRecieve(ctx);
-					}
-	
-					//! Leave this here for pilot desync debug. TODO: Needs to be adapted when we ever have AI drivers.
-					if (driverBase && !driverBase.GetIdentityUID())
-						EXPrint("WARNING: Received controller sync, but driver has no identity! " + driverBase.GetIdentity());
-				}
-				else
-				{
-					//! Leave this here for pilot desync debug
-					EXPrint("WARNING: Received controller sync, but m_Controller is NULL!");
-				}
-	
-				return;
-			}
-			
+			//! @note vanilla RPC, so not using Expansion RPC manager
 			case ERPCs.RPC_EXPLODE_EVENT:
 			{
-				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-					return;	
-					
 				if (GetGame().IsClient())
 				{
 					Param2<int, string> params;
@@ -1148,35 +1132,36 @@ modded class CarScript
 	
 				return;
 			}
-			
-			case ExpansionVehicleRPC.PlayLockSound:
-			{
-				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-					return;	
-				
-				if (!GetGame().IsDedicatedServer())
-				{
-					if (m_SoundLock)
-						delete m_SoundLock;
-	
-					m_SoundLock = SEffectManager.PlaySound("Expansion_Car_Lock_SoundSet", GetPosition());
-					m_SoundLock.SetSoundAutodestroy(true);
-				}
-	
-				return;
-			}
-			
-			case ExpansionVehicleRPC.ClientPing:
-			{
-				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-					return;	
-				
-				m_State.OnPing(ctx);
-				return;
-			}
 		}
 
 		super.OnRPC(sender, rpc_type, ctx);
+	}
+
+	void RPC_Expansion_ControllerSync(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		if (m_Controller)
+		{
+			PlayerBase driverBase;
+			//! @note sender and driverBase.GetIdentity() will NOT be the same object even if they point to the same player identity (same ID)!
+			if (Class.CastTo(driverBase, CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER)) && driverBase.GetIdentityUID() == sender.GetId())
+			{
+				m_Event_NetworkRecieve.NetworkRecieve(ctx);
+			}
+		}
+	}
+
+	void RPC_Expansion_PlayLockSound(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		if (m_SoundLock)
+			delete m_SoundLock;
+
+		m_SoundLock = SEffectManager.PlaySound("Expansion_Car_Lock_SoundSet", GetPosition());
+		m_SoundLock.SetSoundAutodestroy(true);
+	}
+
+	void RPC_Expansion_ClientPing(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		m_State.OnPing(ctx);
 	}
 
 	void NetworkSend()
@@ -1184,7 +1169,7 @@ modded class CarScript
 		if (IsMissionOffline())
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = m_Expansion_RPCManager.CreateRPC(s_Expansion_ControllerSync_RPCID);
 
 		m_Event_NetworkSend.NetworkSend(rpc);
 
@@ -1192,11 +1177,11 @@ modded class CarScript
 		{
 			Human human = CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
 			if (human != NULL)
-				rpc.Send(this, ExpansionVehicleRPC.ControllerSync, true, human.GetIdentity());
+				rpc.Expansion_Send(true, human.GetIdentity());
 		}
 		else
 		{
-			rpc.Send(this, ExpansionVehicleRPC.ControllerSync, true, NULL);
+			rpc.Expansion_Send(true);
 		}
 	}
 

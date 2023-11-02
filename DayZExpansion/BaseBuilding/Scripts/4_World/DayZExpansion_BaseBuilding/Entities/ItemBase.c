@@ -27,6 +27,14 @@ modded class ItemBase
 	protected bool m_KnownUIDsRequested;
 	protected bool m_KnownUIDsSet;
 
+	static int s_Expansion_ChangeCode_RPCID;
+	static int s_Expansion_Lock_RPCID;
+	static int s_Expansion_ReceiveKnownUIDs_RPCID;
+	static int s_Expansion_SendKnownUIDs_RPCID;
+	static int s_Expansion_ServerReply_RPCID;
+	static int s_Expansion_SetCode_RPCID;
+	static int s_Expansion_Unlock_RPCID;
+
 	//============================================
 	// ItemBase Constructor
 	//============================================
@@ -53,6 +61,40 @@ modded class ItemBase
 			//RegisterNetSyncVariableInt( "m_SourceNetLow" );
 			//RegisterNetSyncVariableInt( "m_SourceNetHigh" );
 		}
+
+		if (IsInherited(ExpansionCodeLock) || IsInherited(ExpansionSafeBase))
+			Expansion_RegisterLockRPCs();
+	}
+
+	void Expansion_RegisterLockRPCs()
+	{
+		auto trace = EXTrace.Start(EXTrace.BASEBUILDING, this);
+
+		if (!m_Expansion_RPCManager)
+			m_Expansion_RPCManager = new ExpansionRPCManager(this, ItemBase);
+
+		if (!s_Expansion_ChangeCode_RPCID)
+			s_Expansion_ChangeCode_RPCID = m_Expansion_RPCManager.RegisterServer("RPC_Expansion_ChangeCode");
+		if (!s_Expansion_Lock_RPCID)
+			s_Expansion_Lock_RPCID = m_Expansion_RPCManager.RegisterServer("RPC_Expansion_Lock");
+		if (!s_Expansion_ReceiveKnownUIDs_RPCID)
+			s_Expansion_ReceiveKnownUIDs_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_Expansion_ReceiveKnownUIDs");
+		if (!s_Expansion_SendKnownUIDs_RPCID)
+			s_Expansion_SendKnownUIDs_RPCID = m_Expansion_RPCManager.RegisterServer("RPC_Expansion_SendKnownUIDs");
+		if (!s_Expansion_ServerReply_RPCID)
+			s_Expansion_ServerReply_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_Expansion_ServerReply");
+		if (!s_Expansion_SetCode_RPCID)
+			s_Expansion_SetCode_RPCID = m_Expansion_RPCManager.RegisterServer("RPC_Expansion_SetCode");
+		if (!s_Expansion_Unlock_RPCID)
+			s_Expansion_Unlock_RPCID = m_Expansion_RPCManager.RegisterServer("RPC_Expansion_Unlock");
+	}
+
+	override void EEItemAttached(EntityAI item, string slot_name)
+	{
+		super.EEItemAttached(item, slot_name);
+
+		if (item.IsInherited(ExpansionCodeLock))
+			Expansion_RegisterLockRPCs();
 	}
 
 	override void EEInit()
@@ -416,6 +458,18 @@ modded class ItemBase
 		}
 		else
 		{
+			//! All zeroes code = unlock attachment slot and set no code
+			if (code.ToInt() == 0)
+			{
+				code = "";
+
+				if (GetHierarchyParent() && GetInventory().IsAttachment())
+				{
+					SetSlotLock( GetHierarchyParent(), false );
+					SetTakeable( true );
+				}
+			}
+
 			m_Code = code;
 			m_CodeLength = code.Length();
 			m_Locked = false;
@@ -514,7 +568,7 @@ modded class ItemBase
 
 	bool ExpansionFindCodeLockSlot(out string slotName = "")
 	{
-		if (!GetInventory().GetAttachmentSlotsCount())
+		if (GetInventory() && !GetInventory().GetAttachmentSlotsCount())
 			return false;
 
 		if (s_Expansion_CodeLockSlotNames.Find(this.Type(), slotName))
@@ -605,12 +659,6 @@ modded class ItemBase
 
 		m_Locked = false;
 
-		if (GetHierarchyParent() && GetInventory().IsAttachment())
-		{
-			SetSlotLock( GetHierarchyParent(), false );
-			SetTakeable( true );
-		}
-
 		SetSynchDirty();
 	}
 
@@ -682,7 +730,7 @@ modded class ItemBase
 		{
 			EXPrint("ItemBase::AddUser " + this + " (parent=" + GetHierarchyParent() + ") " + player.GetIdentityUID());
 			m_KnownUIDs.Insert( player.GetIdentityUID() );
-			SendKnownUIDs();
+			SendKnownUIDs(player.GetIdentity());
 		}
 	}
 
@@ -697,18 +745,18 @@ modded class ItemBase
 	void RequestKnownUIDs()
 	{
 		EXPrint("ItemBase::RequestKnownUIDs " + this + " (parent=" + GetHierarchyParent() + ")");
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Send( this, ExpansionLockRPC.KNOWNUSERS_REQUEST, true, NULL );
+		auto rpc = ExpansionScriptRPC.Create(s_Expansion_SendKnownUIDs_RPCID);
+		rpc.Expansion_Send(this, true);
 		m_KnownUIDsRequested = true;
 	}
 
 	//! Send known UIDs (players that know the code and have entered it correctly once) to client
-	void SendKnownUIDs()
+	void SendKnownUIDs(PlayerIdentity recipient)
 	{
 		EXPrint("ItemBase::SendKnownUIDs " + this + " (parent=" + GetHierarchyParent() + ")");
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = ExpansionScriptRPC.Create(s_Expansion_ReceiveKnownUIDs_RPCID);
 		rpc.Write( m_KnownUIDs );
-		rpc.Send( this, ExpansionLockRPC.KNOWNUSERS_REPLY, true, NULL );
+		rpc.Expansion_Send(this, true, recipient);
 	}
 	
 	//============================================
@@ -716,279 +764,237 @@ modded class ItemBase
 	//============================================	
 	private void SendServerLockReply(bool reply, bool injuring, PlayerIdentity sender)
 	{
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = ExpansionScriptRPC.Create(s_Expansion_ServerReply_RPCID);
 		rpc.Write( reply );
 		rpc.Write( injuring );
-		rpc.Send( this, ExpansionLockRPC.SERVERREPLY, true, sender );
+		rpc.Expansion_Send(this, true, sender);
 	}
-	
-	//============================================
-	// OnRPC
-	//============================================	
-	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-				
-		//! Due to some weird dayz bug sender may sometimes not be null even when it could be so this check isn't really needed
-		if ( GetGame().IsServer() && GetGame().IsMultiplayer() && !sender )
-			return;
 
-		PlayerBase player;
+	string Expansion_GetPlayerDesc(PlayerBase player)
+	{
 		string playerId;
 		string playerName;
 		string playerDesc;
 
-		if ( sender )
+		if ( player )
 		{
-			player = PlayerBase.GetPlayerByUID( sender.GetId() );
+			playerId = player.GetIdentityUID();
+			playerName = player.GetIdentityName();
+			playerDesc = "player \"" + playerName + "\" (ID = \"" + playerId + "\" at " + player.GetPosition() + ")";
+		}
+
+		return playerDesc;
+	}
+
+	void RPC_Expansion_Lock(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		string selection;
+		if ( !ctx.Read( selection ) )
+		{
+			Error("ItemBase::OnRPC ExpansionLockRPC.LOCK can't read selection");
+			SendServerLockReply( false, false, sender );
+			ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_CLOSE_LOCK")).Error(sender);
+			return;
+		}
+		
+		if ( !HasCode() || ExpansionIsLocked() )
+		{
+			SendServerLockReply( false, false, sender );
+			return;
+		}
+
+		CloseAndLock( selection );
+		
+		SendServerLockReply( true, false, sender );
+	}
+
+	void RPC_Expansion_Unlock(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		if (!GetExpansionSettings().GetBaseBuilding())
+			return;
+		
+		string code;
+		if ( !ctx.Read( code ) )
+		{
+			Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read code");
+			SendServerLockReply( false, false, sender );
+			ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_UNLOCK")).Error(sender);
+			return;
+		}
+
+		string selection;
+		if ( !ctx.Read( selection ) )
+		{
+			Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read selection");
+			SendServerLockReply( false, false, sender );
+			ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_UNLOCK")).Error(sender);
+			return;
+		}
+		
+		if ( !HasCode() || !ExpansionIsLocked() )
+		{
+			CF_Log.Debug("ItemBase::OnRPC ExpansionLockRPC.UNLOCK !HasCode() || !IsLocked()");
+			
+			SendServerLockReply( false, false, sender );
+			return;
+		}
+
+		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+
+		if ( !IsKnownUser( player ) && GetCode() != code )
+		{
+			CF_Log.Debug("ItemBase::OnRPC ExpansionLockRPC.UNLOCK GetCode() != code");
+			
+			bool InjuryPlayer = GetExpansionSettings().GetBaseBuilding().DoDamageWhenEnterWrongCodeLock;
+
+			SendServerLockReply( false, InjuryPlayer, sender );
 
 			if ( player )
 			{
-				playerId = player.GetIdentityUID();
-				playerName = player.GetIdentityName();
-				playerDesc = "player \"" + playerName + "\" (ID = \"" + playerId + "\" at " + player.GetPosition() + ")";
-			}
-		}
-		
-		string code = "";
-		string selection = "";
-		switch (rpc_type)
-		{	
-			case ExpansionLockRPC.LOCK:
-			{
-				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-					return;
-				
-				if ( !IsMissionHost() )
-					return;
-				
-				if ( !ctx.Read( selection ) )
+				string playerDesc = Expansion_GetPlayerDesc(player);
+				if ( InjuryPlayer )
 				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.LOCK can't read selection");
-					SendServerLockReply( false, false, sender );
-					ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_CLOSE_LOCK")).Error(sender);
-					return;
-				}
-				
-				if ( !HasCode() || ExpansionIsLocked() )
-				{
-					SendServerLockReply( false, false, sender );
-					return;
-				}
-
-				CloseAndLock( selection );
-				
-				SendServerLockReply( true, false, sender );
-				
-				return;
-			}
-			
-			case ExpansionLockRPC.UNLOCK:
-			{
-				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-					return;
-				
-				if ( !IsMissionHost() || !GetExpansionSettings().GetBaseBuilding() )
-					return;
-				
-				if ( !ctx.Read( code ) )
-				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read code");
-					SendServerLockReply( false, false, sender );
-					ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_UNLOCK")).Error(sender);
-					return;
-				}
-
-				if ( !ctx.Read( selection ) )
-				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read selection");
-					SendServerLockReply( false, false, sender );
-					ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_UNLOCK")).Error(sender);
-					return;
-				}
-				
-				if ( !HasCode() || !ExpansionIsLocked() )
-				{
-					CF_Log.Debug("ItemBase::OnRPC ExpansionLockRPC.UNLOCK !HasCode() || !IsLocked()");
-					
-					SendServerLockReply( false, false, sender );
-					return;
-				}
-
-				if ( !IsKnownUser( player ) && GetCode() != code )
-				{
-					CF_Log.Debug("ItemBase::OnRPC ExpansionLockRPC.UNLOCK GetCode() != code");
-					
-					bool InjuryPlayer = GetExpansionSettings().GetBaseBuilding().DoDamageWhenEnterWrongCodeLock;
-
-					SendServerLockReply( false, InjuryPlayer, sender );
-
-					if ( player )
-					{
-						if ( InjuryPlayer )
-						{
-							FailedUnlock();
-
-							if ( GetExpansionSettings().GetLog().CodeLockRaiding )
-								GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " (" + GetPosition() + ") Damaged " + playerDesc + " by " + GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock + " health points. Reason: Failed to enter the correct code." );
-
-							//! Vanilla EnviroDmg is 1 0 1 (health blood shock)
-							player.ProcessDirectDamage( DT_CUSTOM, player, "", "EnviroDmg", "0.5 0.5 0.5", GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock );
-						} else {
-							if ( GetExpansionSettings().GetLog().CodeLockRaiding )
-								GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " (" + GetPosition() + ") " + playerDesc + " failed to enter the correct code." );
-						}
-						if ( GetExpansionSettings().GetLog().CodeLockRaiding )
-							GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " (" + GetPosition() + ") The correct code was " + GetCode() + " and the player tried " + code );
-					}
-
-					return;
-				}
-
-				if ( GetExpansionSettings().GetBaseBuilding().RememberCode )
-				{
-					ExpansionCodeLock codelock = ExpansionGetCodeLock();
-					if ( codelock )
-						codelock.AddUser( player );
-					else if ( IsInherited( ExpansionSafeBase ) )
-						AddUser( player );
-				}
-
-				ExpansionUnlock();
-				SendServerLockReply( true, false, sender );
-				return;
-			}
-			
-			case ExpansionLockRPC.SET:
-			{
-				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-					return;
-
-				if ( !IsMissionHost() )
-					return;
-				
-				if ( !ctx.Read( code ) || code.Length() == 0 || code.Length() > GetExpansionSettings().GetBaseBuilding().CodeLockLength )
-				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
-					SendServerLockReply( false, false, sender );
-					ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_SET")).Error(sender);
-					return;
-				}
-
-				if ( !ctx.Read( selection ) )
-				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
-					SendServerLockReply( false, false, sender );
-					ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_SET")).Error(sender);
-					return;
-				}
-				
-				if ( HasCode() )
-				{
-					// Base already has code so don't try setting it to another.
-					SendServerLockReply( false, false, sender );
-					return;
-				}
-
-				SetCode( code, player );
-
-				if ( GetExpansionSettings().GetLog().CodeLockRaiding )
-					GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " ("+ GetPosition() + ") Code set by " + playerDesc + " and the code is "+ code );
-
-				SendServerLockReply( true, false, sender );
-				return;
-			}
-
-			case ExpansionLockRPC.CHANGE:
-			{
-				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-					return;
-
-				if ( !IsMissionHost() )
-					return;
-				
-				if ( !ctx.Read( code ) || code.Length() == 0 || code.Length() > GetExpansionSettings().GetBaseBuilding().CodeLockLength )
-				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
-					SendServerLockReply( false, false, sender );
-					ExpansionNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_LOCK_CHANGE")).Error(sender);
-					return;
-				}
-
-				if ( !ctx.Read( selection ) )
-				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
-					SendServerLockReply( false, false, sender );
-					ExpansionNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_LOCK_CHANGE")).Error(sender);
-					return;
-				}
-				
-				SetCode( code, player );
-
-				if ( GetExpansionSettings().GetLog().CodeLockRaiding )
-					GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " ("+ GetPosition() + ") Code changed by " + playerDesc + " and the new code is "+ code );
-
-				SendServerLockReply( true, false, sender );
-				return;
-			}
-			
-			case ExpansionLockRPC.SERVERREPLY:
-			{
-				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-					return;
-
-				if ( !IsMissionClient() )
-					return;
-				
-				bool reply;
-				if ( !ctx.Read( reply ) )
-				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.SERVERREPLY can't read reply");
-					return;
-				}
-
-				bool injuring;
-				if ( !ctx.Read( injuring ) )
-				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.SERVERREPLY can't read injuring");
-					return;
-				}
-
-				if ( injuring )
 					FailedUnlock();
 
-				ExpansionLockUIBase menu;
-				if ( !Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_CODELOCK_MENU ) ) && !Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_NUMPAD_MENU ) ) )
-					return;
-					
-				menu.OnServerResponse( reply, injuring );
-				return;
-			}
-			
-			case ExpansionLockRPC.KNOWNUSERS_REQUEST:
-			{
-				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-					return;
+					if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+						GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " (" + GetPosition() + ") Damaged " + playerDesc + " by " + GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock + " health points. Reason: Failed to enter the correct code." );
 
-				SendKnownUIDs();
-				return;
-			}
-			
-			case ExpansionLockRPC.KNOWNUSERS_REPLY:
-			{
-				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-					return;
-
-				if ( !ctx.Read( m_KnownUIDs ) )
-				{
-					Error("ItemBase::OnRPC " + this + " ExpansionLockRPC.KNOWNUSERS_REPLY can't read reply");
-					return;
+					//! Vanilla EnviroDmg is 1 0 1 (health blood shock)
+					player.ProcessDirectDamage( DT_CUSTOM, player, "", "EnviroDmg", "0.5 0.5 0.5", GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock );
+				} else {
+					if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+						GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " (" + GetPosition() + ") " + playerDesc + " failed to enter the correct code." );
 				}
-
-				m_KnownUIDsSet = true;
-				return;
+				if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+					GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " (" + GetPosition() + ") The correct code was " + GetCode() + " and the player tried " + code );
 			}
+
+			return;
 		}
+
+		if ( GetExpansionSettings().GetBaseBuilding().RememberCode )
+		{
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if ( codelock )
+				codelock.AddUser( player );
+			else if ( IsInherited( ExpansionSafeBase ) )
+				AddUser( player );
+		}
+
+		ExpansionUnlock();
+		SendServerLockReply( true, false, sender );
+	}
+
+	void RPC_Expansion_SetCode(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		string code;
+		if ( !ctx.Read( code ) || code.Length() == 0 || code.Length() > GetExpansionSettings().GetBaseBuilding().CodeLockLength )
+		{
+			Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
+			SendServerLockReply( false, false, sender );
+			ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_SET")).Error(sender);
+			return;
+		}
+
+		string selection;
+		if ( !ctx.Read( selection ) )
+		{
+			Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
+			SendServerLockReply( false, false, sender );
+			ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_SET")).Error(sender);
+			return;
+		}
+		
+		if ( HasCode() )
+		{
+			// Base already has code so don't try setting it to another.
+			SendServerLockReply( false, false, sender );
+			return;
+		}
+
+		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+
+		SetCode( code, player );
+
+		if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+			GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " ("+ GetPosition() + ") Code set by " + Expansion_GetPlayerDesc(player) + " and the code is "+ code );
+
+		SendServerLockReply( true, false, sender );
+	}
+
+	void RPC_Expansion_ChangeCode(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		string code;
+		if ( !ctx.Read( code ) || code.Length() == 0 || code.Length() > GetExpansionSettings().GetBaseBuilding().CodeLockLength )
+		{
+			Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
+			SendServerLockReply( false, false, sender );
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_LOCK_CHANGE")).Error(sender);
+			return;
+		}
+
+		string selection;
+		if ( !ctx.Read( selection ) )
+		{
+			Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
+			SendServerLockReply( false, false, sender );
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_LOCK_CHANGE")).Error(sender);
+			return;
+		}
+
+		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+		
+		SetCode( code, player );
+
+		if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+			GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " ("+ GetPosition() + ") Code changed by " + Expansion_GetPlayerDesc(player) + " and the new code is "+ code );
+
+		SendServerLockReply( true, false, sender );
+	}
+
+	//! client
+	void RPC_Expansion_ServerReply(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		bool reply;
+		if ( !ctx.Read( reply ) )
+		{
+			Error("ItemBase::OnRPC ExpansionLockRPC.SERVERREPLY can't read reply");
+			return;
+		}
+
+		bool injuring;
+		if ( !ctx.Read( injuring ) )
+		{
+			Error("ItemBase::OnRPC ExpansionLockRPC.SERVERREPLY can't read injuring");
+			return;
+		}
+
+		if ( injuring )
+			FailedUnlock();
+
+		ExpansionLockUIBase menu;
+		if ( !Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_CODELOCK_MENU ) ) && !Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_NUMPAD_MENU ) ) )
+			return;
+			
+		menu.OnServerResponse( reply, injuring );
+	}
+
+	//! server
+	void RPC_Expansion_SendKnownUIDs(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		SendKnownUIDs(sender);
+	}
+
+	//! client
+	void RPC_Expansion_ReceiveKnownUIDs(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		if ( !ctx.Read( m_KnownUIDs ) )
+		{
+			Error("ItemBase::OnRPC " + this + " ExpansionLockRPC.KNOWNUSERS_REPLY can't read reply");
+			return;
+		}
+
+		m_KnownUIDsSet = true;
 	}
 
 	#ifdef EXPANSION_MODSTORAGE

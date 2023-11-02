@@ -37,7 +37,8 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 		super.OnInit();
 
 		EnableMissionStart();
-		EnableRPC();
+		Expansion_EnableRPCManager();
+		Expansion_RegisterClientRPC("RPC_PlaySound");
 	}
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
@@ -69,11 +70,11 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_PlaySound");
 		rpc.Write(position);
 		rpc.Write(sound);
 
-		PlayerBase.Expansion_SendNear(rpc, ExpansionItemBaseModuleRPC.PlaySound, position, radius);
+		PlayerBase.Expansion_SendNear(rpc, position, radius);
 	}
 
 	void PlaySoundImpl(vector position, string sound)
@@ -81,40 +82,15 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 		SEffectManager.Expansion_PlaySound(sound, position);
 	}
 
-	override int GetRPCMin()
+	void RPC_PlaySound(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		return ExpansionItemBaseModuleRPC.INVALID;
-	}
+		string sound;
+		vector position;
 
-	override int GetRPCMax()
-	{
-		return ExpansionItemBaseModuleRPC.COUNT;
-	}
+		ctx.Read(position);
+		ctx.Read(sound);
 
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		super.OnRPC(sender, args);
-
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch (rpc.ID)
-		{
-		case ExpansionItemBaseModuleRPC.PlaySound:
-			if (!ExpansionScriptRPC.CheckMagicNumber(rpc.Context))
-				return;
-
-			if (GetGame().IsServer())
-				return;
-
-			string sound;
-			vector position;
-
-			rpc.Context.Read(position);
-			rpc.Context.Read(sound);
-
-			PlaySoundImpl(position, sound);
-			break;
-		}
+		PlaySoundImpl(position, sound);
 	}
 
 	int ProcessQueuedEntityActions(EntityAI entity, int actionsFilter = int.MAX)

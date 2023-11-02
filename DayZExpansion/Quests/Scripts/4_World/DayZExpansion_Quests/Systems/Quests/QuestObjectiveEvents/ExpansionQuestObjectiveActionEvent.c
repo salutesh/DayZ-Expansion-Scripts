@@ -20,7 +20,9 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnEventStart()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnEventStart())
 			return false;
@@ -33,7 +35,9 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnContinue()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnContinue())
 			return false;
@@ -48,7 +52,9 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 
 	void OnObjectiveActionExecuted(ActionBase actionBase, ActionData actionData)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (IsCompleted() || m_Config.GetActionNames().Find(actionBase.ClassName()) == -1)
 			return;
@@ -101,7 +107,9 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 
 	protected void OnActionExecutionValid()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		m_ExecutionCount++;
 		bool updateQuest;
@@ -124,7 +132,9 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 
 	void SetExecutionCount(int count)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		m_ExecutionCount = count;
 
@@ -153,7 +163,9 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 
 	void SetActionState(bool state)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		m_ActionState = state;
 
@@ -162,7 +174,9 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 
 	override bool CanComplete()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		ObjectivePrint("m_ExecutionCount: " + m_ExecutionCount);
 		ObjectivePrint("m_ExecutionAmount: " + m_ExecutionAmount);

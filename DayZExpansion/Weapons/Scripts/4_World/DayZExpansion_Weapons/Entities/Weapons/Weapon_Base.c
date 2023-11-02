@@ -12,6 +12,8 @@
 
 modded class Weapon_Base
 {
+	static int s_Expansion_ConfirmWeaponFire_RPCID;
+
 	private int m_ExShouldFire;
 	private autoptr array< int > m_ExMuzzleIndices;
 	
@@ -133,5 +135,30 @@ modded class Weapon_Base
 		super.SetActions();
 		
 		AddAction(ExpansionActionCycleOpticsMode);		
+	}
+
+	void RPC_Expansion_ConfirmWeaponFire(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.WEAPONS, this);
+
+		vector direction;
+		if (!ctx.Read(direction))
+			return;
+
+		PlayerBase player;
+
+		if (GetGame().IsMultiplayer())
+		{
+			player = PlayerBase.Cast(sender.GetPlayer());
+		} 
+		else
+		{
+			player = PlayerBase.Cast(GetGame().GetPlayer());
+		}
+
+		if (!player || player != GetHierarchyRootPlayer())
+			return;
+
+		ExpansionFire(player, direction);
 	}
 };

@@ -12,7 +12,7 @@
 
 //! Versioning
 //! Change this main version define every time there is an update (or at least everytime there are changes to public API)!
-#define EXPANSION_1_8_25
+#define EXPANSION_1_8_28
 //! GEQ = Greater than or equal
 //! Do *not* remove GEQ defines, only add new ones every time there is an update (or at least everytime there are changes to public API)!
 #define EXPANSION_GEQ_1_7_0
@@ -27,6 +27,7 @@
 #define EXPANSION_GEQ_1_8_20
 #define EXPANSION_GEQ_1_8_21
 #define EXPANSION_GEQ_1_8_25
+#define EXPANSION_GEQ_1_8_28
 
 //! Enable it if you want to enable logging with EXPrint
 //#define EXPANSIONEXPRINT

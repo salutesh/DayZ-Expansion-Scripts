@@ -10,6 +10,15 @@
  *
 */
 
+enum ExpansionTeleporterModuleRPC
+{
+	INVALID = 40100,
+	RequestOpenTeleporterMenu,
+	RequestTeleport,
+	PlayTeleportSound
+	COUNT
+};
+
 enum ExpansionTeleporterSound
 {
 	TELEPORT_ACTIVE = 1,

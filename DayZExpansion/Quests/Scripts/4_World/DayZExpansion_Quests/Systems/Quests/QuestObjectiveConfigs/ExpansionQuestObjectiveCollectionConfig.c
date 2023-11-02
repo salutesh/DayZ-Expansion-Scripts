@@ -86,9 +86,6 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
-
-		MaxDistance = configBase.MaxDistance;
-		MarkerName = configBase.MarkerName;
 		ShowDistance = configBase.ShowDistance;
 
 		Collections.Clear();

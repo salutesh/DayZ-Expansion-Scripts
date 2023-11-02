@@ -140,7 +140,20 @@ class ExpansionQuestModule: CF_ModuleWorld
 		EnableInvokeConnect();
 		EnableClientDisconnect();
 		EnableClientNew();
-		EnableRPC();
+		Expansion_EnableRPCManager();
+
+		Expansion_RegisterClientRPC("RPC_SendClientQuestConfigs");
+		Expansion_RegisterClientRPC("RPC_SendClientQuestData");
+		Expansion_RegisterClientRPC("RPC_RequestOpenQuestMenu");
+		Expansion_RegisterServerRPC("RPC_ExitQuestMenu");
+		Expansion_RegisterServerRPC("RPC_RequestCreateQuestInstance");
+	#ifdef EXPANSIONMODNAVIGATION
+		Expansion_RegisterClientRPC("RPC_CreateClientMarker");
+		Expansion_RegisterClientRPC("RPC_RemoveClientMarkers");
+	#endif
+		Expansion_RegisterServerRPC("RPC_CancelQuest");
+		Expansion_RegisterClientRPC("RPC_CallbackClient");
+		Expansion_RegisterServerRPC("RPC_RequestCompleteQuest");
 	}
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
@@ -938,81 +951,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		return true;
 	}
 
-	override int GetRPCMin()
-	{
-		return ExpansionQuestModuleRPC.INVALID;
-	}
-
-	override int GetRPCMax()
-	{
-		return ExpansionQuestModuleRPC.COUNT;
-	}
-
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		super.OnRPC(sender, args);
-
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch ( rpc.ID )
-		{
-			case ExpansionQuestModuleRPC.SendClientQuestConfigs:
-			{
-				RPC_SendClientQuestConfigs(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionQuestModuleRPC.SendClientQuestData:
-			{
-				RPC_SendClientQuestData(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionQuestModuleRPC.RequestOpenQuestMenu:
-			{
-				RPC_RequestOpenQuestMenu(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionQuestModuleRPC.ExitQuestMenu:
-			{
-				RPC_ExitQuestMenu(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionQuestModuleRPC.RequestCreateQuestInstance:
-			{
-				RPC_RequestCreateQuestInstance(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionQuestModuleRPC.RequestCompleteQuest:
-			{
-				RPC_RequestCompleteQuest(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionQuestModuleRPC.CancelQuest:
-			{
-				RPC_CancelQuest(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionQuestModuleRPC.CallbackClient:
-			{
-				RPC_CallbackClient(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-		#ifdef EXPANSIONMODNAVIGATION
-			case ExpansionQuestModuleRPC.CreateClientMarker:
-			{
-				RPC_CreateClientMarker(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionQuestModuleRPC.RemoveClientMarkers:
-			{
-				RPC_RemoveClientMarkers(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-		#endif
-		}
-	}
-
 	// ------------------------------------------------------------------------------------------------------------------------
 	//! RPC Event classes
 	// ------------------------------------------------------------------------------------------------------------------------
@@ -1022,18 +960,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::SendClientQuestConfigs - Tryed to call SendClientQuestConfigs on Client!");
-			return;
-		}
-
-		if (!identity)
-		{
-			Error(ToString() + "::SendClientQuestConfigs - Could not get player identity!");
-			return;
-		}
-
 		string playerUID = identity.GetId();
 		if (!m_QuestConfigs || m_QuestConfigs.Count() == 0)
 		{
@@ -1041,10 +967,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_SendClientQuestConfigs");
 		SendClientQuestConfigs(rpc, playerUID);
-
-		rpc.Send(NULL, ExpansionQuestModuleRPC.SendClientQuestConfigs, true, identity);
+		rpc.Expansion_Send(true, identity);
 	}
 
 	void SendClientQuestConfigs(ScriptRPC rpc, string playerUID)
@@ -1068,18 +993,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	}
 
 	//! Client
-	protected void RPC_SendClientQuestConfigs(ParamsReadContext ctx, PlayerIdentity identity, Object target)
+	protected void RPC_SendClientQuestConfigs(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (GetGame().IsDedicatedServer())
-		{
-			Error(ToString() + "::RPC_SendClientQuestConfigs - Tryed to call RPC_SendClientQuestConfigs on Server!");
-			return;
-		}
 
 		RPC_SendClientQuestConfigs(ctx);
 	}
@@ -1128,26 +1044,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::SendClientQuestData - Tryed to call SendClientQuestData on Client!");
-			return;
-		}
-
-		if (!identity)
-		{
-			Error(ToString() + "::SendClientQuestData - Identity is NULL!");
-			return;
-		}
-
 		if (ExpansionInhibitor.Contains(this))
 		{
 			QuestModulePrint("SKIPPING SendClientQuestData");
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
-
+		auto rpc = Expansion_CreateRPC("RPC_SendClientQuestData");
 		string playerUID = identity.GetId();
 		rpc.Write(sendConfigs);
 		if (sendConfigs)
@@ -1183,7 +1086,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		if (sendConfigs || sendData)
 		{
-			rpc.Send(NULL, ExpansionQuestModuleRPC.SendClientQuestData, true, identity);
+			rpc.Expansion_Send(true, identity);
 		}
 		else
 		{
@@ -1192,18 +1095,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	}
 
 	//! Client
-	protected void RPC_SendClientQuestData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	protected void RPC_SendClientQuestData(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (GetGame().IsDedicatedServer())
-		{
-			Error(ToString() + "::RPC_SendClientQuestData - Tryed to call RPC_SendClientQuestData on Server!");
-			return;
-		}
 
 		bool includeConfigs;
 		if (!ctx.Read(includeConfigs))
@@ -1280,7 +1174,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		m_QuestHUDCallbackInvoker.Invoke();
-
 		UpdateQuestNPCIndicators();
 	}
 
@@ -1313,18 +1206,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 	void RequestOpenQuestMenu(Object target, PlayerIdentity identity)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RequestOpenQuestMenu - Tryed to call RequestOpenQuestMenu on Client!");
-			return;
-		}
-
-		if (!identity)
-		{
-			Error(ToString() + "::RequestOpenQuestMenu - identity is NULL!");
-			return;
-		}
 
 		auto npc = ExpansionQuestNPCBase.Cast(target);
 	#ifdef EXPANSIONMODAI
@@ -1372,11 +1253,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestOpenQuestMenu");
 		rpc.Write(questNPCID);
 		rpc.Write(questNPCData.GetDefaultNPCText());
 		rpc.Write(-1);
-		rpc.Send(target, ExpansionQuestModuleRPC.RequestOpenQuestMenu, true, identity);
+		rpc.Expansion_Send(target, true, identity);
 
 	#ifdef EXPANSIONMODAI
 		if (npcAI)
@@ -1398,38 +1279,17 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RequestOpenQuestMenu - Tryed to call RequestOpenQuestMenu on Client!");
-			return;
-		}
-
-		if (!identity)
-		{
-			Error(ToString() + "::RequestOpenQuestMenu - identity is NULL!");
-			return;
-		}
-
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestOpenQuestMenu");
 		rpc.Write(-1);
 		rpc.Write("");
 		rpc.Write(questID);
-		rpc.Send(null, ExpansionQuestModuleRPC.RequestOpenQuestMenu, true, identity);
+		rpc.Expansion_Send(true, identity);
 	}
 
 	//! Client
-	protected void RPC_RequestOpenQuestMenu(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	protected void RPC_RequestOpenQuestMenu(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (GetGame().IsDedicatedServer())
-		{
-			Error(ToString() + "::RPC_RequestOpenQuestMenu - Tryed to call RPC_RequestOpenQuestMenu on Server!");
-			return;
-		}
 
 		string displayName;
 		if (target)
@@ -1476,22 +1336,19 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto npc = GetQuestNPCAIByID(questNPCID);
 		if (npc)
 		{
-			auto rpc = ExpansionScriptRPC.Create();
-			rpc.Send(npc, ExpansionQuestModuleRPC.ExitQuestMenu, true, null);
+			auto rpc = Expansion_CreateRPC("RPC_ExitQuestMenu");
+			rpc.Expansion_Send(npc, true);
 		}
 	#endif
 	}
 
 	//! Server
-	void RPC_ExitQuestMenu(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	void RPC_ExitQuestMenu(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
 	#ifdef EXPANSIONMODAI
 		eAIBase npc;
 		if (Class.CastTo(npc, target))
-			npc.eAI_RemoveInteractingPlayer(senderRPC.GetPlayer());
+			npc.eAI_RemoveInteractingPlayer(identity.GetPlayer());
 	#endif
 	}
 
@@ -1501,30 +1358,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (GetGame().IsDedicatedServer())
-		{
-			Error(ToString() + "::RequestCreateQuestInstance - Tryed to call RequestCreateQuestInstance on Server!");
-			return;
-		}
-
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestCreateQuestInstance");
 		rpc.Write(questID);
-		rpc.Send(NULL, ExpansionQuestModuleRPC.RequestCreateQuestInstance, true);
+		rpc.Expansion_Send(true);
 	}
 
 	//! Server
-	protected void RPC_RequestCreateQuestInstance(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	protected void RPC_RequestCreateQuestInstance(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RPC_RequestCreateQuestInstance - Tryed to call CreateQuestInstance on Client!");
-			return;
-		}
 
 		int questID;
 		if (!ctx.Read(questID))
@@ -1533,7 +1375,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		CreateQuestInstance(questID, senderRPC);
+		CreateQuestInstance(questID, identity);
 	}
 
 	//! Server
@@ -1671,65 +1513,26 @@ class ExpansionQuestModule: CF_ModuleWorld
 		GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - CreateQuestInstance - Created new quest instance for with instance key " + questInstanceKey + " for quest " + questID);
 	}
 
-	//! Client
-	protected void CompleteQuestClient(int questID)
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (GetGame().IsDedicatedServer())
-		{
-			Error(ToString() + "::CompleteQuestClient - Tryed to call CompleteQuestClient on Server!");
-			return;
-		}
-
-		string playerUID = GetGame().GetPlayer().GetIdentity().GetId();
-		if (playerUID == string.Empty)
-		{
-			Error(ToString() + "::CompleteQuestClient - Could not get player UID!");
-			return;
-		}
-
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Write(questID);
-		rpc.Write(playerUID);
-		rpc.Send(NULL, ExpansionQuestModuleRPC.CompleteQuest, true);
-	}
-
 #ifdef EXPANSIONMODNAVIGATION
 	//! Server
 	void CreateClientMarker(vector pos, string text, int questID, PlayerIdentity identity, int objectiveIndex, int visibility = 6)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::CreateClientMarker - Tryed to call CreateClientMarker on Client!");
-			return;
-		}
-
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_CreateClientMarker");
 		rpc.Write(pos);
 		rpc.Write(text);
 		rpc.Write(questID);
 		rpc.Write(GetExpansionSettings().GetMap().CanCreate3DMarker);
 		rpc.Write(objectiveIndex);
 		rpc.Write(visibility);
-		rpc.Send(null, ExpansionQuestModuleRPC.CreateClientMarker, true, identity);
+		rpc.Expansion_Send(true, identity);
 	}
 
 	//! Client
-	protected void RPC_CreateClientMarker(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	protected void RPC_CreateClientMarker(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (GetGame().IsDedicatedServer())
-		{
-			Error(ToString() + "::RPC_CreateClientMarker - Tryed to call RPC_CreateClientMarker on Server!");
-			return;
-		}
 
 		vector pos;
 		if (!ctx.Read(pos))
@@ -1758,6 +1561,16 @@ class ExpansionQuestModule: CF_ModuleWorld
 		CreateMarkerClient(pos, text, questID, is3D, objectiveIndex, visibility);
 	}
 
+	/**
+	 * @brief Check if marker exist for quest and optional objective index.
+	 * 
+	 * @param questID Quest ID
+	 * @param objectiveIndex Objective index, -1 to check for existence of turn-in marker
+	 * 
+	 * @note always does exact match
+	 * 
+	 * @return True if marker exists, false if not or error.
+	 */
 	bool HasQuestMarker(int questID, int objectiveIndex)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -1789,7 +1602,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				string uid = markerData.GetUID();
 				QuestModulePrint("Marker UID: " + uid + " Name: " + markerData.GetName());
 
-				if (uid.IndexOf(search) == 0)
+				if (uid == search)
 				{
 					QuestModulePrint("End and return TRUE");
 					return true;
@@ -1846,31 +1659,16 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RemoveClientMarkers - Tryed to call RemoveClientMarkers on Client!");
-			return;
-		}
-
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RemoveClientMarkers");
 		rpc.Write(questID);
 		rpc.Write(objectiveIndex);
-		rpc.Send(null, ExpansionQuestModuleRPC.RemoveClientMarkers, true, identity);
+		rpc.Expansion_Send(true, identity);
 	}
 
 	//! Client
-	protected void RPC_RemoveClientMarkers(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	protected void RPC_RemoveClientMarkers(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (GetGame().IsDedicatedServer())
-		{
-			Error(ToString() + "::RPC_RemoveClientMarkers - Tryed to call RPC_RemoveClientMarkers on Server!");
-			return;
-		}
 
 		int questID;
 		if (!ctx.Read(questID))
@@ -1883,7 +1681,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 		RemoveMarkersClient(questID, objectiveIndex);
 	}
 
-	//! Client
+	/**
+	 * @brief Remove marker on client
+	 * 
+	 * @param questID Quest ID
+	 * @param objectiveIndex Objective index, -1 to remove only turn-in marker, -2 to also remove objective markers
+	 */
 	protected void RemoveMarkersClient(int questID, int objectiveIndex)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -1907,9 +1710,14 @@ class ExpansionQuestModule: CF_ModuleWorld
 		QuestModulePrint("Client personal markers data count: " + clientMarkerData.m_PersonalMarkers.Count());
 
 		string search = "Q" + questID + "_";
+		bool exactMatch = true;
 		if (objectiveIndex > -1)
 		{
 			search += "" + objectiveIndex;
+		}
+		else if (objectiveIndex == -2)
+		{
+			exactMatch = false;
 		}
 
 		for (int i = clientMarkerData.m_PersonalMarkers.Count() - 1; i >= 0; i--)
@@ -1920,10 +1728,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 				string uid = markerData.GetUID();
 				QuestModulePrint("Marker UID: " + uid + " Name: " + markerData.GetName());
 
-				if (uid.IndexOf(search) == 0)
+				if ((exactMatch && uid == search) || (!exactMatch && uid.IndexOf(search) == 0))
 				{
 					QuestModulePrint("Delete marker!");
 					markerModule.RemovePersonalMarkerByUID(uid);
+					if (exactMatch)
+						return;
 				}
 			}
 		}
@@ -1937,36 +1747,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (GetGame().IsDedicatedServer())
-		{
-			Error(ToString() + "::CancelQuest - Tryed to call CancelQuest on Server!");
-			return;
-		}
-
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_CancelQuest");
 		rpc.Write(questID);
-		rpc.Send(NULL, ExpansionQuestModuleRPC.CancelQuest, true);
+		rpc.Expansion_Send(true);
 	}
 
 	//! Server
-	protected void RPC_CancelQuest(ParamsReadContext ctx, PlayerIdentity identity, Object target)
+	protected void RPC_CancelQuest(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RPC_CancelQuest - Tryed to call RPC_CancelQuest on Client!");
-			return;
-		}
-
-		if (!identity)
-		{
-			Error(ToString() + "::RPC_CancelQuest - Could not get identity!");
-			return;
-		}
 
 		int questID;
 		if (!ctx.Read(questID))
@@ -2034,12 +1823,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::CancelQuestServer - Tryed to call CancelQuestServer on Client!");
-			return;
-		}
-
 		//! Call custom cancel event for override in init.c
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestCancel(quest);
 
@@ -2069,24 +1852,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_CallbackClient");
 		rpc.Write(callback);
-		rpc.Send(NULL, ExpansionQuestModuleRPC.CallbackClient, true, identity);
+		rpc.Expansion_Send(true, identity);
 	}
 
 	//! Client
-	protected void RPC_CallbackClient(ParamsReadContext ctx, PlayerIdentity identity, Object target)
+	protected void RPC_CallbackClient(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (GetGame().IsDedicatedServer())
-		{
-			Error(ToString() + "::RPC_CallbackClient - Tryed to call RPC_CallbackClient on Server!");
-			return;
-		}
 
 		int callBackID;
 		if (!ctx.Read(callBackID))
@@ -2112,50 +1886,27 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::RequestTurnInQuestClient - Tryed to call RequestTurnInQuestClient on Server!");
-			return;
-		}
-
-		if (!GetClientQuestData())
+		if (!m_ClientQuestData)
 		{
 			Error(ToString() + "::RequestTurnInQuestClient - Could not get players client quest data!");
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestCompleteQuest");
 		rpc.Write(questID);
 		rpc.Write(selectReward);
 		if (selectReward)
 			selectedReward.OnSend(rpc);
 		rpc.Write(selectedObjItemIndex);
-
-		rpc.Send(NULL, ExpansionQuestModuleRPC.RequestCompleteQuest, true);
+		rpc.Expansion_Send(true);
 	}
 
 	//! Server
-	protected void RPC_RequestCompleteQuest(ParamsReadContext ctx, PlayerIdentity identity, Object target)
+	protected void RPC_RequestCompleteQuest(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RPC_RequestCompleteQuest - Tryed to call RPC_RequestCompleteQuest on Client!");
-			return;
-		}
-
-		if (!identity)
-		{
-			Error(ToString() + "::RPC_RequestCompleteQuest - Could not get player identity!");
-			return;
-		}
-
 		string playerUID = identity.GetId();
-
 		int questID;
 		if (!ctx.Read(questID))
 		{
@@ -2757,105 +2508,156 @@ class ExpansionQuestModule: CF_ModuleWorld
 				ExpansionQuestObjectiveTravelConfig travelConfig = ExpansionQuestObjectiveTravelConfig.Load(fileName);
 				if (!travelConfig)
 					return;
-
+				
+				if (m_TravelObjectivesConfigs.Contains(objectiveID))
+				{
+					Error(ToString() + "::GetObjectiveData - Tryied to add TRAVEL objective type with ID " + objectiveID + " |File: " + fileName + ". ID is already used! Skip..");
+					return;
+				}
+				
 				m_TravelObjectivesConfigs.Insert(objectiveID, travelConfig);
 			}
 			break;
-
 			case ExpansionQuestObjectiveType.DELIVERY:
 			{
 				ExpansionQuestObjectiveDeliveryConfig deliveryConfig = ExpansionQuestObjectiveDeliveryConfig.Load(fileName);
 				if (!deliveryConfig)
 					return;
+				
+				if (m_DeliveryObjectivesConfigs.Contains(objectiveID))
+				{
+					Error(ToString() + "::GetObjectiveData - Tryied to add DELIVERY objective type with ID " + objectiveID + " |File: " + fileName + ". ID is already used! Skip..");
+					return;
+				}
 
 				deliveryConfig.CollectAllocationClasses();
 				m_DeliveryObjectivesConfigs.Insert(objectiveID, deliveryConfig);
 			}
 			break;
-
 			case ExpansionQuestObjectiveType.TARGET:
 			{
 				ExpansionQuestObjectiveTargetConfig targetConfig = ExpansionQuestObjectiveTargetConfig.Load(fileName);
 				if (!targetConfig)
 					return;
+				
+				if (m_TargetObjectivesConfigs.Contains(objectiveID))
+				{
+					Error(ToString() + "::GetObjectiveData - Tryied to add TARGET objective type with ID " + objectiveID + " |File: " + fileName + ". ID is already used! Skip..");
+					return;
+				}
 
 				targetConfig.CollectAllocationClasses();
 				m_TargetObjectivesConfigs.Insert(objectiveID, targetConfig);
 			}
 			break;
-
 			case ExpansionQuestObjectiveType.COLLECT:
 			{
 				ExpansionQuestObjectiveCollectionConfig collectionConfig = ExpansionQuestObjectiveCollectionConfig.Load(fileName);
 				if (!collectionConfig)
 					return;
-
+				
+				if (m_CollectionObjectivesConfigs.Contains(objectiveID))
+				{
+					Error(ToString() + "::GetObjectiveData - Tryied to add COLLECT objective type with ID " + objectiveID + " |File: " + fileName + ". ID is already used! Skip..");
+					return;
+				}
+				
 				collectionConfig.CollectAllocationClasses();
 				m_CollectionObjectivesConfigs.Insert(objectiveID, collectionConfig);
 			}
 			break;
-
 			case ExpansionQuestObjectiveType.TREASUREHUNT:
 			{
 				ExpansionQuestObjectiveTreasureHuntConfig treasureConfig = ExpansionQuestObjectiveTreasureHuntConfig.Load(fileName);
 				if (!treasureConfig)
 					return;
+				
+				if (m_TreasureHuntObjectivesConfigs.Contains(objectiveID))
+				{
+					Error(ToString() + "::GetObjectiveData - Tryied to add TREASUREHUNT objective type with ID " + objectiveID + " |File: " + fileName + ". ID is already used! Skip..");
+					return;
+				}
 
 				treasureConfig.CollectAllocationClasses();
 				m_TreasureHuntObjectivesConfigs.Insert(objectiveID, treasureConfig);
 			}
 			break;
-
 			case ExpansionQuestObjectiveType.ACTION:
 			{
 				ExpansionQuestObjectiveActionConfig actionConfig = ExpansionQuestObjectiveActionConfig.Load(fileName);
 				if (!actionConfig)
 					return;
+				
+				if (m_ActionObjectivesConfigs.Contains(objectiveID))
+				{
+					Error(ToString() + "::GetObjectiveData - Tryied to add ACTION objective type with ID " + objectiveID + " |File: " + fileName + ". ID is already used! Skip..");
+					return;
+				}
 
 				actionConfig.CollectAllocationClasses();
 				m_ActionObjectivesConfigs.Insert(objectiveID, actionConfig);
 			}
 			break;
-
 			case ExpansionQuestObjectiveType.CRAFTING:
 			{
 				ExpansionQuestObjectiveCraftingConfig craftingConfig = ExpansionQuestObjectiveCraftingConfig.Load(fileName);
 				if (!craftingConfig)
 					return;
+				
+				if (m_CraftingObjectivesConfigs.Contains(objectiveID))
+				{
+					Error(ToString() + "::GetObjectiveData - Tryied to add CRAFTING objective type with ID " + objectiveID + " |File: " + fileName + ". ID is already used! Skip..");
+					return;
+				}
 
 				craftingConfig.CollectAllocationClasses();
 				m_CraftingObjectivesConfigs.Insert(objectiveID, craftingConfig);
 			}
 			break;
-
 		#ifdef EXPANSIONMODAI
 			case ExpansionQuestObjectiveType.AIPATROL:
 			{
 				ExpansionQuestObjectiveAIPatrolConfig aiPatrolConfig = ExpansionQuestObjectiveAIPatrolConfig.Load(fileName);
 				if (!aiPatrolConfig)
 					return;
+				
+				if (m_AIPatrolObjectivesConfigs.Contains(objectiveID))
+				{
+					Error(ToString() + "::GetObjectiveData - Tryied to add AIPATROL objective type with ID " + objectiveID + " |File: " + fileName + ". ID is already used! Skip..");
+					return;
+				}
 
 				aiPatrolConfig.CollectAllocationClasses();
 				m_AIPatrolObjectivesConfigs.Insert(objectiveID, aiPatrolConfig);
 			}
 			break;
-
 			case ExpansionQuestObjectiveType.AICAMP:
 			{
 				ExpansionQuestObjectiveAICampConfig aiCampConfig = ExpansionQuestObjectiveAICampConfig.Load(fileName);
 				if (!aiCampConfig)
 					return;
+				
+				if (m_AICampObjectivesConfigs.Contains(objectiveID))
+				{
+					Error(ToString() + "::GetObjectiveData - Tryied to add AICAMP objective type with ID " + objectiveID + " |File: " + fileName + ". ID is already used! Skip..");
+					return;
+				}
 
 				aiCampConfig.CollectAllocationClasses();
 				m_AICampObjectivesConfigs.Insert(objectiveID, aiCampConfig);
 			}
 			break;
-
 			case ExpansionQuestObjectiveType.AIESCORT:
 			{
 				ExpansionQuestObjectiveAIEscortConfig aiEscortConfig = ExpansionQuestObjectiveAIEscortConfig.Load(fileName);
 				if (!aiEscortConfig)
 					return;
+				
+				if (m_AIEscortObjectivesConfigs.Contains(objectiveID))
+				{
+					Error(ToString() + "::GetObjectiveData - Tryied to add AIESCORT objective type with ID " + objectiveID + " |File: " + fileName + ". ID is already used! Skip..");
+					return;
+				}
 
 				aiEscortConfig.CollectAllocationClasses();
 				m_AIEscortObjectivesConfigs.Insert(objectiveID, aiEscortConfig);
@@ -2957,6 +2759,114 @@ class ExpansionQuestModule: CF_ModuleWorld
 			{
 				Error(ToString() + "::GetQuestData - Quest configuration validation failed! Quest was not added to the file system. Please check the quest configuration file: " + fileName);
 			}
+			
+			if (m_QuestConfigs.Contains(questData.GetID()))
+			{
+				Error(ToString() + "::GetQuestData - Tryied to add Quest configuration with ID " + questData.GetID() + " but the ID is already used! Skip..");
+				return;
+			}
+			
+			foreach (ExpansionQuestObjectiveConfigBase objectiveBaseData: questData.Objectives)
+			{
+				int objectiveID = objectiveBaseData.GetID();
+				int objectiveType = objectiveBaseData.GetObjectiveType();
+
+				switch (objectiveType)
+				{
+					case ExpansionQuestObjectiveType.TRAVEL:
+					{
+						if (!m_TravelObjectivesConfigs.Contains(objectiveID))
+						{
+							Error(ToString() + "::GetQuestData - Quest config with ID " + questData.GetID() + " (File: " + fileName + ") uses a TRAVEL objective ID " + objectiveID + " witch does not exist! Skip..");
+							return;
+						}
+					}
+					break;
+					case ExpansionQuestObjectiveType.DELIVERY:
+					{
+						if (!m_DeliveryObjectivesConfigs.Contains(objectiveID))
+						{
+							Error(ToString() + "::GetQuestData - Quest config with ID " + questData.GetID() + " (File: " + fileName + " uses a DELIVERY objective ID " + objectiveID + " witch does not exist! Skip..");
+							return;
+						}
+					}
+					break;
+					case ExpansionQuestObjectiveType.TARGET:
+					{
+						if (!m_TargetObjectivesConfigs.Contains(objectiveID))
+						{
+							Error(ToString() + "::GetQuestData - Quest config with ID " + questData.GetID() + " (File: " + fileName + " uses a TARGET objective ID " + objectiveID + " witch does not exist! Skip..");
+							return;
+						}
+					}
+					break;
+					case ExpansionQuestObjectiveType.COLLECT:
+					{
+						if (!m_CollectionObjectivesConfigs.Contains(objectiveID))
+						{
+							Error(ToString() + "::GetQuestData - Quest config with ID " + questData.GetID() + " (File: " + fileName + " uses a COLLECT objective ID " + objectiveID + " witch does not exist! Skip..");
+							return;
+						}
+					}
+					break;
+					case ExpansionQuestObjectiveType.TREASUREHUNT:
+					{
+						if (!m_TreasureHuntObjectivesConfigs.Contains(objectiveID))
+						{
+							Error(ToString() + "::GetQuestData - Quest config with ID " + questData.GetID() + " (File: " + fileName + " uses a TREASUREHUNT objective ID " + objectiveID + " witch does not exist! Skip..");
+							return;
+						}
+					}
+					break;
+					case ExpansionQuestObjectiveType.ACTION:
+					{
+						if (!m_ActionObjectivesConfigs.Contains(objectiveID))
+						{
+							Error(ToString() + "::GetQuestData - Quest config with ID " + questData.GetID() + " (File: " + fileName + " uses a ACTION objective ID " + objectiveID + " witch does not exist! Skip..");
+							return;
+						}
+					}
+					break;
+					case ExpansionQuestObjectiveType.CRAFTING:
+					{
+						if (!m_CraftingObjectivesConfigs.Contains(objectiveID))
+						{
+							Error(ToString() + "::GetQuestData - Quest config with ID " + questData.GetID() + " (File: " + fileName + " uses a CRAFTING objective ID " + objectiveID + " witch does not exist! Skip..");
+							return;
+						}
+					}
+					break;
+				#ifdef EXPANSIONMODAI
+					case ExpansionQuestObjectiveType.AIPATROL:
+					{
+						if (!m_AIPatrolObjectivesConfigs.Contains(objectiveID))
+						{
+							Error(ToString() + "::GetQuestData - Quest config with ID " + questData.GetID() + " (File: " + fileName + " uses a AIPATROL objective ID " + objectiveID + " witch does not exist! Skip..");
+							return;
+						}
+					}
+					break;
+					case ExpansionQuestObjectiveType.AICAMP:
+					{
+						if (!m_AICampObjectivesConfigs.Contains(objectiveID))
+						{
+							Error(ToString() + "::GetQuestData - Quest config with ID " + questData.GetID() + " (File: " + fileName + " uses a AICAMP objective ID " + objectiveID + " witch does not exist! Skip..");
+							return;
+						}
+					}
+					break;
+					case ExpansionQuestObjectiveType.AIESCORT:
+					{
+						if (!m_AIEscortObjectivesConfigs.Contains(objectiveID))
+						{
+							Error(ToString() + "::GetQuestData - Quest config with ID " + questData.GetID() + " (File: " + fileName + " uses a AIESCORT objective ID " + objectiveID + " witch does not exist! Skip..");
+							return;
+						}
+					}
+					break;
+				#endif
+				}
+			}
 
 			m_QuestConfigs.Insert(questData.GetID(), questData);
 		}
@@ -2998,29 +2908,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		return playerData;
-	}
-
-	//! Server
-	//! Used to cleanup quest items in the players inventory where he has no active quest for.
-	protected void QuestItemsCheckAndCleanup(string playerUID)
-	{
-		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
-		if (!player)
-			return;
-
-		array<EntityAI> items = new array<EntityAI>;
-		items.Reserve(player.GetInventory().CountInventory());
-
-	   	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
-		foreach (EntityAI item : items)
-		{
-			ItemBase itemIB;
-			if (Class.CastTo(itemIB, item))
-			{
-				if (itemIB.Expansion_GetQuestID() > -1 && !GetActiveQuestWithQuestID(player, itemIB.Expansion_GetQuestID()))
-					GetGame().ObjectDelete(item);
-			}
-		}
 	}
 
 	//! Server
@@ -3160,7 +3047,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 				case ExpansionQuestObjectiveType.TARGET:
 				{
 					QuestModulePrint("Objective event type: TARGET");
@@ -3173,7 +3059,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 				case ExpansionQuestObjectiveType.TREASUREHUNT:
 				{
 					QuestModulePrint("Objective event type: TREASUREHUNT");
@@ -3188,7 +3073,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 			#ifdef EXPANSIONMODAI
 				case ExpansionQuestObjectiveType.AIPATROL:
 				{
@@ -3202,7 +3086,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 				case ExpansionQuestObjectiveType.AICAMP:
 				{
 					QuestModulePrint("Objective event type: AICAMP");
@@ -3212,6 +3095,18 @@ class ExpansionQuestModule: CF_ModuleWorld
 						//! Get kill count progress from persistent data.
 						aiCamp.SetKillCount(objectiveData.GetObjectiveCount());
 						QuestModulePrint("Objective progress added: AICAMP");
+					}
+				}
+				break;
+				case ExpansionQuestObjectiveType.AIESCORT:
+				{
+					QuestModulePrint("Objective event type is: AIESCORT");
+					ExpansionQuestObjectiveAIEscortEvent aiEscort = ExpansionQuestObjectiveAIEscortEvent.Cast(objective);
+					if (aiEscort)
+					{
+						//! Get last known VIP entity position from persistent data.
+						aiEscort.SetLastVIPPosition(objectiveData.GetObjectivePosition());
+						QuestModulePrint("Objective progress added: AIESCORT");
 					}
 				}
 				break;
@@ -3308,7 +3203,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 				case ExpansionQuestObjectiveType.TRAVEL:
 				{
 					QuestModulePrint("Objective event type is: TRAVEL");
@@ -3321,7 +3215,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 				case ExpansionQuestObjectiveType.COLLECT:
 				{
 					QuestModulePrint("Objective event type is: COLLECT");
@@ -3365,7 +3258,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 				case ExpansionQuestObjectiveType.DELIVERY:
 				{
 					QuestModulePrint("Objective event type is: DELIVERY");
@@ -3409,7 +3301,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 				case ExpansionQuestObjectiveType.TREASUREHUNT:
 				{
 					QuestModulePrint("Objective event type is: TREASUREHUNT");
@@ -3420,7 +3311,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 				case ExpansionQuestObjectiveType.ACTION:
 				{
 					QuestModulePrint("Objective event type is: ACTION");
@@ -3433,7 +3323,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 				case ExpansionQuestObjectiveType.CRAFTING:
 				{
 					QuestModulePrint("Objective event type is: CRAFTING");
@@ -3446,7 +3335,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 			#ifdef EXPANSIONMODAI
 				case ExpansionQuestObjectiveType.AICAMP:
 				{
@@ -3459,7 +3347,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 				case ExpansionQuestObjectiveType.AIPATROL:
 				{
 					QuestModulePrint("Objective event type is: AIPATROL");
@@ -3471,14 +3358,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 				break;
-
 				case ExpansionQuestObjectiveType.AIESCORT:
 				{
 					QuestModulePrint("Objective event type is: AIESCORT");
 					ExpansionQuestObjectiveAIEscortEvent aiEscortObjective;
 					if (Class.CastTo(aiEscortObjective, currentObjective))
 					{
-						objectiveData.SetObjectivePosition(aiEscortObjective.GetPosition());
+						objectiveData.SetObjectivePosition(aiEscortObjective.GetVIPPosition());
 					}
 				}
 				break;
@@ -4302,21 +4188,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 			int questState = m_ClientQuestData.GetQuestStateByQuestID(config.GetID());
 			QuestModulePrint("Quest ID: " + config.GetID() + " \"" + config.Title + "\" | State: " + typename.EnumToString(ExpansionQuestState, questState));
 
-			if (questState == ExpansionQuestState.NONE)
-			{
-				array<int> questGiverIDs = config.GetQuestGiverIDs();
-				foreach (int giverID: questGiverIDs)
-				{
-					if (s_QuestNPCIndicatorStates.Find(giverID, currentState) && currentState == ExpansionQuestIndicatorState.EXCLAMATION)
-						continue;
-
-					if (!QuestDisplayConditions(config, player, m_ClientQuestData, giverID, true))
-						continue;
-
-					s_QuestNPCIndicatorStates[giverID] = ExpansionQuestIndicatorState.EXCLAMATION;
-				}
-			}
-			else if (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN)
+			//! @note ORDER MATTERS! Always set questionmark indicator FIRST if applicable,
+			//! and then set exclamation only if no indicator on NPC set yet!
+			if (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN)
 			{
 				array<int> questTurnInIDs = config.GetQuestTurnInIDs();
 				foreach (int turnInID: questTurnInIDs)
@@ -4329,6 +4203,18 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 					s_QuestNPCIndicatorStates[turnInID] = ExpansionQuestIndicatorState.QUESTION;
 				}
+			}
+
+			array<int> questGiverIDs = config.GetQuestGiverIDs();
+			foreach (int giverID: questGiverIDs)
+			{
+				if (s_QuestNPCIndicatorStates.Find(giverID, currentState) && currentState != ExpansionQuestIndicatorState.NOT_SET)
+					continue;
+
+				if (!QuestDisplayConditions(config, player, m_ClientQuestData, giverID, true))
+					continue;
+
+				s_QuestNPCIndicatorStates[giverID] = ExpansionQuestIndicatorState.EXCLAMATION;
 			}
 		}
 
@@ -4501,8 +4387,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	bool QuestDisplayConditions(ExpansionQuestConfig config, PlayerBase player, ExpansionQuestPersistentData playerQuestData = null, int questNPCID = -1, bool displayQuestsWithCooldown = false)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
 		if (!player || !player.GetIdentity())
 			return false;
 
@@ -4629,66 +4513,76 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	#ifdef EXPANSIONMODHARDLINE
 		//! Check if for reputation requirement if config has a value but system is disabled.
-	#ifdef EXPANSIONMODAI
-		map<string, int> factionRepRequirements = config.GetFactionReputationRequirements();
-		if ((config.GetReputationRequirement() > 0 || factionRepRequirements.Count() > 0) && (!GetExpansionSettings().GetHardline().UseReputation || !GetExpansionSettings().GetHardline().UseFactionReputation))
-	#else
-		if (config.GetReputationRequirement() > 0 && !GetExpansionSettings().GetHardline().UseReputation)
-	#endif
-		{
-			QuestModulePrint("::QuestDisplayConditions - Return FALSE. Reputation system disabled!");
-			return false;
-		}
-
-		//! Check if client meats the reputation requirement.
 		if (config.GetReputationRequirement() > 0)
 		{
-			int reputation = player.Expansion_GetReputation();
-			QuestModulePrint("::QuestDisplayConditions - Reputation requirement: " + config.GetReputationRequirement());
-			QuestModulePrint("::QuestDisplayConditions - Player reputation: " + reputation);
-			if (reputation < config.GetReputationRequirement())
+			if (!GetExpansionSettings().GetHardline().UseReputation)
 			{
-				QuestModulePrint("::QuestDisplayConditions - Return FALSE. Reputation requirements not met!");
+				Error("ExpansionQuestModule::QuestDisplayConditions - Quest with ID " + config.GetID() + " has a reputation requirement but the reputation system disabled! Return FALSE");
 				return false;
+			}
+			else
+			{
+				//! Check if client meets the reputation requirement.
+				if (config.GetReputationRequirement() > 0)
+				{
+					int reputation = player.Expansion_GetReputation();
+					QuestModulePrint("::QuestDisplayConditions - Reputation requirement: " + config.GetReputationRequirement());
+					QuestModulePrint("::QuestDisplayConditions - Player reputation: " + reputation);
+					if (reputation < config.GetReputationRequirement())
+					{
+						QuestModulePrint("::QuestDisplayConditions - Return FALSE. Reputation requirements not met!");
+						return false;
+					}
+				}
 			}
 		}
 
 	#ifdef EXPANSIONMODAI
-		if (factionRepRequirements && factionRepRequirements.Count() > 0)
+		map<string, int> factionRepRequirements = config.GetFactionReputationRequirements();
+		if (factionRepRequirements.Count() > 0)
 		{
-			int factionReqCount = factionRepRequirements.Count();
-			int playerFactionReqCount;
-			int currentFactionID = player.eAI_GetFactionTypeID();
-			QuestModulePrint("::QuestDisplayConditions - Faction requirement count: " + factionReqCount);
-			
-			foreach (string faction, int repReq: factionRepRequirements)
+			if (!GetExpansionSettings().GetHardline().UseFactionReputation)
 			{
-				typename factionType = eAIFaction.GetType(faction);
-				int factionID = eAIRegisterFaction.s_FactionIDs[factionType];
-				QuestModulePrint("::QuestDisplayConditions - Faction ID for faction type " + factionType.ToString() + ": " + factionID);
-				if (factionID != 0)
-				{
-					int factionRep;
-					if (factionID == currentFactionID)
-					{
-						factionRep = player.Expansion_GetReputation();
-					}
-					else
-					{
-						factionRep = player.Expansion_GetFactionReputation(factionID);
-					}
-
-					QuestModulePrint("::QuestDisplayConditions - Player faction reputation: " + factionType.ToString() + " | Reputation: " + factionRep + " | Requirement: " + repReq);
-					if (factionRep >= repReq)
-						playerFactionReqCount++;
-				}
-			}
-			
-			QuestModulePrint("::QuestDisplayConditions - Player is meeting " + playerFactionReqCount + " out of " + factionReqCount + " requirements..");
-			if (playerFactionReqCount < factionReqCount)
-			{
-				QuestModulePrint("::QuestDisplayConditions - Return FALSE. Faction reputation requirements not met!");
+				Error("ExpansionQuestModule::QuestDisplayConditions - Quest with ID " + config.GetID() + " has faction reputation requirements but the faction reputation system disabled! Return FALSE");
 				return false;
+			}
+			else
+			{
+				//! Check if client meets the faction reputation requirements.
+				int factionReqCount = factionRepRequirements.Count();
+				int playerFactionReqCount;
+				int currentFactionID = player.eAI_GetFactionTypeID();
+				QuestModulePrint("::QuestDisplayConditions - Faction requirement count: " + factionReqCount);
+				
+				foreach (string faction, int repReq: factionRepRequirements)
+				{
+					typename factionType = eAIFaction.GetType(faction);
+					int factionID = eAIRegisterFaction.s_FactionIDs[factionType];
+					QuestModulePrint("::QuestDisplayConditions - Faction ID for faction type " + factionType.ToString() + ": " + factionID);
+					if (factionID != 0)
+					{
+						int factionRep;
+						if (factionID == currentFactionID)
+						{
+							factionRep = player.Expansion_GetReputation();
+						}
+						else
+						{
+							factionRep = player.Expansion_GetFactionReputation(factionID);
+						}
+	
+						QuestModulePrint("::QuestDisplayConditions - Player faction reputation: " + factionType.ToString() + " | Reputation: " + factionRep + " | Requirement: " + repReq);
+						if (factionRep >= repReq)
+							playerFactionReqCount++;
+					}
+				}
+				
+				QuestModulePrint("::QuestDisplayConditions - Player is meeting " + playerFactionReqCount + " out of " + factionReqCount + " requirements..");
+				if (playerFactionReqCount < factionReqCount)
+				{
+					QuestModulePrint("::QuestDisplayConditions - Return FALSE. Faction reputation requirements not met!");
+					return false;
+				}
 			}
 		}
 	#endif
@@ -5026,4 +4920,4 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		return s_ModuleInstance;
 	}
- };
+};

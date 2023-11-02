@@ -23,6 +23,7 @@ modded class DayZPlayerImplement
 	protected bool m_Expansion_IsInSafeZoneSynchRemote;
 
 	ref ExpansionNetsyncData m_Expansion_NetsyncData;
+	ref ExpansionRPCManager m_Expansion_RPCManager;
 
 	ref map<string, bool> m_Expansion_DisabledAmmoDamage = new map<string, bool>;
 	bool m_Expansion_AllowDamage = true;
@@ -129,6 +130,9 @@ modded class DayZPlayerImplement
 		{
 			OnExitZone(ExpansionZoneType.SAFE);
 		}
+
+		if (m_Expansion_NetsyncData && !m_Expansion_NetsyncData.m_WasDataRequested)
+			m_Expansion_NetsyncData.Request();
 	}
 
 	bool IsInSafeZone()
@@ -227,14 +231,6 @@ modded class DayZPlayerImplement
 			return super.NameOverride(output);
 	}
 
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-		
-		if (m_Expansion_NetsyncData)
-			m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
-	}
-
 	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
 	{
 #ifdef DIAG
@@ -290,13 +286,21 @@ modded class DayZPlayerImplement
 #ifdef DIAG
 		if (!m_Expansion_DebugObjects[i])
 		{
-			Object obj = GetGame().CreateObjectEx(type, position, ECE_NOLIFETIME);
+			int iFlags;
+			#ifdef SERVER
+			iFlags = ECE_NOLIFETIME;
+			#else
+			iFlags = ECE_LOCAL;
+			#endif
+			Object obj = GetGame().CreateObjectEx(type, position, iFlags);
 			if (!obj)
 				return;
 			m_Expansion_DebugObjects[i] = obj;
+			#ifdef SERVER
 			EntityAI ent;
 			if (Class.CastTo(ent, obj))
 				ent.SetLifetime(lifetime);
+			#endif
 		}
 		else
 		{

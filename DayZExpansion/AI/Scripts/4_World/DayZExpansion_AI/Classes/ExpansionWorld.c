@@ -65,6 +65,13 @@ modded class ExpansionWorld
 */
 	}
 
+	override void OnFinish()
+	{
+		super.OnFinish();
+
+		m_CommandManager = null;
+	}
+
 	void GenerateRoadNetwork(vector position, float radius)
 	{
 		m_NetworkGenerate = true;

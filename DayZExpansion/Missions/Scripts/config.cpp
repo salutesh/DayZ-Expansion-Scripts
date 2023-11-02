@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DayZExpansion_Core_Scripts","DZ_Weapons_Ammunition","DZ_Weapons_Explosives"};
+		requiredAddons[] = {"DayZExpansion_Core_Scripts","DZ_Weapons_Ammunition","DZ_Weapons_Explosives","DZ_Pistols_Flaregun"};
 	};
 };
 class CfgMods
@@ -92,7 +92,27 @@ class CfgMagazines
 		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
 		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
 	};
-	class Expansion_Ammo_FlareSupplyRed: Ammo_FlareRed{};
-	class Expansion_Ammo_FlareSupplyGreen: Ammo_FlareGreen{};
-	class Expansion_Ammo_FlareSupplyBlue: Ammo_FlareBlue{};
+	class Expansion_Ammo_FlareSupplyRed: Ammo_FlareRed
+	{
+		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
+		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
+	};
+	class Expansion_Ammo_FlareSupplyGreen: Ammo_FlareGreen
+	{
+		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
+		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
+	};
+	class Expansion_Ammo_FlareSupplyBlue: Ammo_FlareBlue
+	{
+		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
+		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
+	};
+};
+class CfgWeapons
+{
+	class Flaregun_Base;
+	class Flaregun: Flaregun_Base
+	{
+		chamberableFrom[] += {"Expansion_Ammo_FlareSupplyBase","Expansion_Ammo_FlareSupplyRed","Expansion_Ammo_FlareSupplyGreen","Expansion_Ammo_FlareSupplyBlue"};
+	};
 };

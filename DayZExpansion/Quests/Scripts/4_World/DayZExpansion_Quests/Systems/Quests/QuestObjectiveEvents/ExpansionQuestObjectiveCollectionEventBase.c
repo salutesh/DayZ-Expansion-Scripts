@@ -27,19 +27,12 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 #ifdef DIAG
 	protected int s_CallCount;
 #endif
-	protected ExpansionTravelObjectiveSphereTrigger m_ObjectiveTrigger;
-	protected bool m_DestinationReached;
 	protected ref array<ref ExpansionQuestDeliveryObjectiveData> m_DeliveryData;
 	protected ref map<string, ref ExpansionQuestObjectiveItemCount> m_ObjectiveItemsMap;
 	protected ref array<ref ExpansionQuestObjectiveItem> m_ObjectiveItems;
 	protected ref map<string, int> m_CollectionsQuantityMap;
 	protected int m_ObjectiveItemsAmount;
 	protected int m_ObjectiveItemsCount;
-#ifdef EXPANSIONMODNAVIGATION
-	protected bool m_CreatedMarker;
-#endif
-	protected vector m_Position;
-
 	protected ref ExpansionQuestObjectiveDeliveryConfigBase m_Config;
 
 	void ExpansionQuestObjectiveCollectionEventBase(ExpansionQuest quest)
@@ -52,7 +45,9 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	void ~ExpansionQuestObjectiveCollectionEventBase()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		m_ObjectiveItemsMap.Clear();
 		m_DeliveryData.Clear();
@@ -62,7 +57,9 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	override bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!CleanupObjectiveItems(selectedObjItemIndex))
 			return false;
@@ -80,7 +77,9 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	protected bool CleanupObjectiveItems(int selectedObjItemIndex = -1)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 		ObjectivePrint("Selected objective item index: " + selectedObjItemIndex);
 
 		int all = 0;
@@ -176,104 +175,16 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		return true;
 	}
 
-	override bool OnCleanup()
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (!super.OnCleanup())
-			return false;
-
-		DeleteObjectiveTrigger();
-
-		return true;
-	}
-
-	protected void DeleteObjectiveTrigger()
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (!m_ObjectiveTrigger)
-			return;
-
-		GetGame().ObjectDelete(m_ObjectiveTrigger);
-	}
-
-	void SetReachedLocation(bool state)
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		ObjectivePrint("State: " + state);
-		m_DestinationReached = state;
-		m_Quest.QuestCompletionCheck(true);
-	}
-
-	bool GetLocationState()
-	{
-		return m_DestinationReached;
-	}
-
 	array<ref ExpansionQuestDeliveryObjectiveData> GetDeliveryData()
 	{
 		return m_DeliveryData;
 	}
 
-	protected bool CreateObjectiveTrigger()
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (!m_Quest || !m_Quest.GetQuestConfig())
-			return false;
-
-		array<int> questNPCTurnInIDs = m_Quest.GetQuestConfig().GetQuestTurnInIDs();
-		if (!questNPCTurnInIDs || questNPCTurnInIDs.Count() == 0)
-			return false;
-
-		PlayerBase player = m_Quest.GetPlayer();
-		if (!player || !player.GetIdentity())
-			return false;
-
-		vector playerPos = player.GetPosition();
-		Object npcObj = m_Quest.GetQuestModule().GetClosestQuestNPCForQuest(questNPCTurnInIDs, playerPos);
-		if (!npcObj)
-			return false;
-
-		vector npcPos = npcObj.GetPosition();
-
-		//! If trigger radius is large enough to cover the whole map, don't create it
-		float worldSize = GetGame().GetWorld().GetWorldSize();
-		//! Choose world pos at edge of map that is farthest from NPC pos
-		vector worldPos;
-		if (npcPos[0] < worldSize * 0.5)
-			worldPos[0] = worldSize;
-
-		worldPos[1] = npcPos[1];
-
-		if (npcPos[2] < worldSize * 0.5)
-			worldPos[2] = worldSize;
-
-		if (m_Config.GetMaxDistance() <= 0 || m_Config.GetMaxDistance() >= vector.Distance(npcPos, worldPos))
-		{
-			m_DestinationReached = true;
-			return true;
-		}
-
-		m_Position = npcPos;
-
-		Object trigger = GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", npcPos, ECE_NONE);
-		if (!Class.CastTo(m_ObjectiveTrigger, trigger))
-		{
-			GetGame().ObjectDelete(trigger);
-			return false;
-		}
-
-		m_ObjectiveTrigger.SetObjectiveData(this);
-		m_ObjectiveTrigger.SetPosition(npcPos);
-
-		return true;
-	}
-
 	protected bool GetObjectiveDataFromConfig()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		m_ObjectiveItemsMap.Clear();
 		m_CollectionsQuantityMap.Clear();
@@ -319,7 +230,9 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	protected bool CheckQuestPlayersForObjectiveItems(bool continues = false)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		m_ObjectiveItems.Clear();
 		m_ObjectiveItemsCount = 0;
@@ -361,7 +274,9 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		if (!player)
 			return false;
 
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, player.GetIdentity().GetId());
+	#endif
 
 		foreach (string typeNameLower, ExpansionQuestObjectiveItemCount count: m_ObjectiveItemsMap)
 		{
@@ -392,7 +307,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	protected bool CanAddObjectiveItem(ItemBase item)
 	{
-		if (item.IsRuined())
+		if (item.IsRuined() || item.Expansion_IsSetForDeletion())
 			return false;
 		
 		if (item.CanDecay())
@@ -422,7 +337,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		switch (m_Config.GetObjectiveType())
 		{
 			case ExpansionQuestObjectiveType.COLLECT:
-				return !item.Expansion_IsQuestItem();
+				return (!item.Expansion_IsQuestItem() || item.Expansion_GetQuestID() == m_Quest.GetQuestConfig().GetID() && item.Expansion_IsObjectiveLoot());
 			case ExpansionQuestObjectiveType.DELIVERY:
 				return (item.Expansion_GetQuestID() == m_Quest.GetQuestConfig().GetID());
 		}
@@ -465,7 +380,9 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	protected void UpdateDeliveryData()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		m_DeliveryData.Clear();
 		m_ObjectiveItemsCount = 0;  //! Yes, always recount here - e.g. during item split, we only process INV_ENTER to save unnecessary network churn, which means counts need to be updated
@@ -516,12 +433,14 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			m_DeliveryData.Insert(deliveryData);
 		}
 
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		EXTrace.Print(EXTrace.QUESTS, this, "Objective items: " + m_ObjectiveItemsCount + " / " + m_ObjectiveItemsAmount);
+	#endif
 	}
 
 	void OnInventoryItemLocationChange(ItemBase item, ExpansionQuestItemState state, float delta = 0.0)
 	{
-	#ifdef DIAG
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.StartStack(EXTrace.QUESTS, this, "Call: " + s_CallCount++, item.ToString(), typename.EnumToString(ExpansionQuestItemState, state), "Delta: " + delta);
 	#endif
 
@@ -546,7 +465,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			}
 			break;
 		case ExpansionQuestItemState.INV_ENTER:
-			if (m_ObjectiveItemsCount < m_ObjectiveItemsAmount && CanAddObjectiveItem(item))
+			if (count.RemainingNeeded > 0 && CanAddObjectiveItem(item))
 			{
 				EXTrace.Print(EXTrace.QUESTS, this, "::OnInventoryItemLocationChange - Item is not in objective items array: " + typeNameLower + ", adding");
 				AddObjectiveItem(item, count);
@@ -576,12 +495,19 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			}
 			else
 			{
-				if (m_ObjectiveItemsCount < m_ObjectiveItemsAmount && CanAddObjectiveItem(item))
+				if (count.RemainingNeeded > 0 && CanAddObjectiveItem(item))
 				{
 					EXTrace.Print(EXTrace.QUESTS, this, "::OnInventoryItemLocationChange - Item is not in objective items and quantity has changed to needed value. Adding " + typeNameLower);
 					AddObjectiveItem(item, count);
 					UpdateDeliveryData();
 				}
+			}
+			break;
+		case ExpansionQuestItemState.INV_DELETE:
+			if (IsObjectiveItem(item, foundIndex, foundObjItem))
+			{
+				CheckQuestPlayersForObjectiveItems();
+				UpdateDeliveryData();
 			}
 			break;
 		}
@@ -599,32 +525,18 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			{
 				index = i;
 				foundObjItem = objItem;
+			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				EXTrace.Print(EXTrace.QUESTS, this, "Is objective item " + item);
+			#endif
 				return true;
 			}
 		}
 
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		EXTrace.Print(EXTrace.QUESTS, this, "Is NOT objective item " + item);
+	#endif
 		return false;
 	}
-
-#ifdef EXPANSIONMODNAVIGATION
-	override void CreateMarkers()
-	{
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
-			return;
-
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		string markerName = m_Config.GetMarkerName();
-		array<int> questNPCTurnInIDs = m_Quest.GetQuestConfig().GetQuestTurnInIDs();
-		if (!questNPCTurnInIDs || questNPCTurnInIDs.Count() == 0)
-			return;
-
-		vector playerPos = m_Quest.GetPlayer().GetPosition();
-		vector npcPos = m_Quest.GetClosestQuestNPCPosition(questNPCTurnInIDs, playerPos);
-		CreateObjectiveMarker(npcPos, markerName);
-	}
-#endif
 
 	protected bool HasAnyCollectionCompleted()
 	{
@@ -651,9 +563,11 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 	//! Add the delivered delivery items to the market zone if there is one nearby.
 	protected void AddItemsToMarketZone(string playerUID)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
-		if (m_Config.GetObjectiveType() != ExpansionQuestObjectiveType.COLLECT )
+		if (m_Config.GetObjectiveType() != ExpansionQuestObjectiveType.COLLECT)
 			return;
 
 		ExpansionQuestPersistentServerData serverData = ExpansionQuestModule.GetModuleInstance().GetServerData();
@@ -691,71 +605,8 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 	}
 #endif
 
-	protected void DestinationCheck()
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		float currentDistance;
-		if (!GetQuest().GetQuestConfig().IsGroupQuest())
-		{
-			vector playerPos = GetQuest().GetPlayer().GetPosition();
-			currentDistance = vector.Distance(playerPos, m_Position);
-		}
-	#ifdef EXPANSIONMODGROUPS
-		else
-		{
-			//! Set the position of the group member that has the shortest distance to the target location
-			//! as our current position if the quest is a group quest.
-			array<vector> groupMemberPos = new array<vector>;
-			set<string> memberUIDs = m_Quest.GetPlayerUIDs();
-			foreach (string memberUID: memberUIDs)
-			{
-				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(memberUID);
-				if (!groupPlayer)
-					continue;
-
-				groupMemberPos.Insert(groupPlayer.GetPosition());
-			}
-
-			float smallestDistance;
-			int posIndex;
-			bool firstSet = false;
-			for (int p = 0; p < groupMemberPos.Count(); p++)
-			{
-				vector pos = groupMemberPos[p];
-				float dist = vector.Distance(pos, m_Position);
-				if (!firstSet)
-				{
-					smallestDistance = dist;
-					posIndex = p;
-					firstSet = true;
-				}
-				else if (firstSet && dist < smallestDistance)
-				{
-					smallestDistance = dist;
-					posIndex = p;
-				}
-			}
-
-			currentDistance = vector.Distance(groupMemberPos[posIndex], m_Position);
-		}
-	#endif
-
-		float maxDistance = m_Config.GetMaxDistance();
-		if (currentDistance <= maxDistance)
-		{
-			ObjectivePrint("End and return TRUE");
-			SetReachedLocation(true);
-			return;
-		}
-
-		ObjectivePrint("End and return FALSE");
-		SetReachedLocation(false);
-	}
-
 	protected void ObjectiveCheck()
 	{
-		DestinationCheck();
 		CheckQuestPlayersForObjectiveItems();
 		UpdateDeliveryData();
 		m_Quest.QuestCompletionCheck(true);

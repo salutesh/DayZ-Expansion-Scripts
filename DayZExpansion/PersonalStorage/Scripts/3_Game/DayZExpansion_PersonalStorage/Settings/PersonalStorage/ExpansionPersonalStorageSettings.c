@@ -99,9 +99,9 @@ class ExpansionPersonalStorageSettings: ExpansionPersonalStorageSettingsBase
 			return 0;
 		}
 
-		ScriptRPC rpc = new ScriptRPC;
-		OnSend(rpc);
-		rpc.Send(null, ExpansionSettingsRPC.PersonalStorage, true, identity);
+		auto rpc = CreateRPC();
+		OnSend( rpc );
+		rpc.Expansion_Send(true, identity);
 
 		return 0;
 	}

@@ -263,11 +263,18 @@ modded class DayZGame
 
 	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
 	{
-		//! Move below if there becomes some problems
-		if (m_ExpansionGame != NULL && m_ExpansionGame.OnRPC(sender, target, rpc_type, ctx))
-			return;
-		
-		super.OnRPC(sender, target, rpc_type, ctx);
+		switch (rpc_type)
+		{
+			case ExpansionScriptRPC.EXPANSION_MAGIC_NUMBER:
+				ExpansionRPCManager.OnRPC(sender, target, ctx);
+				break;
+			case ExpansionScriptRPC.EXPANSION_MAGIC_NUMBER_NETIDTARGET:
+				ExpansionRPCManager.OnRPC(sender, ctx);
+				break;
+			default:
+				super.OnRPC(sender, target, rpc_type, ctx);
+				break;
+		}
 	}
 
 	void Expansion_SetIsMissionMainMenu(bool state)

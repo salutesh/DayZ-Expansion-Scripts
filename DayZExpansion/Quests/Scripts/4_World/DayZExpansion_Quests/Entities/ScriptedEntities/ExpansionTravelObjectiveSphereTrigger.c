@@ -14,7 +14,9 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 {
 	override void SetObjectiveData(ExpansionQuestObjectiveEventBase objective)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		super.SetObjectiveData(objective);
 		
@@ -32,17 +34,6 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 					ClearEventMask(EntityEvent.LEAVE);
 				
 				distance = travelConfig.GetMaxDistance();
-				if (distance <= 0)
-					distance = 5.0;
-
-				SetTriggerRadius(distance);
-			}
-			break;
-		case ExpansionQuestObjectiveType.COLLECT:
-			ExpansionQuestObjectiveCollectionConfig collectionConfig;
-			if (Class.CastTo(collectionConfig, objective.GetObjectiveConfig()))
-			{
-				distance = collectionConfig.GetMaxDistance();
 				if (distance <= 0)
 					distance = 5.0;
 
@@ -79,13 +70,11 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 	//! Event called when an entity enters the trigger area.
 	override void EOnEnter(IEntity other, int extra)
 	{
-	//#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Entity: " + other.Type());
-	//#endif
+	#endif
 
-		if (GetGame().IsClient())
-			return;
-
+	#ifdef SERVER
 		if (!m_Objective || !m_Objective.IsActive() || m_Objective.IsCompleted())
 			return;
 
@@ -106,11 +95,6 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 				OnEnter_Delivery();
 			}
 			break;
-			case ExpansionQuestObjectiveType.COLLECT:
-			{
-				OnEnter_Collection();
-			}
-			break;
 			case ExpansionQuestObjectiveType.TRAVEL:
 			{
 				ExpansionQuestObjectiveTravelConfig travelConfig;
@@ -128,6 +112,7 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 			}
 			break;
 		}
+	#endif
 	}
 	
 	protected void OnEnter_Delivery()
@@ -140,21 +125,12 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 
 		deliveryEvent.SetReachedLocation(true);
 	}
-
-	protected void OnEnter_Collection()
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		ExpansionQuestObjectiveCollectionEvent collectionEvent;
-		if (!Class.CastTo(collectionEvent, m_Objective))
-			return;
-
-		collectionEvent.SetReachedLocation(true);
-	}
 	
 	protected void OnEnter_Travel()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		ExpansionQuestObjectiveTravelEvent travelEvent;
 		if (!Class.CastTo(travelEvent, m_Objective))
@@ -165,7 +141,9 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 
 	protected void OnEnter_TreasureHunt()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		ExpansionQuestObjectiveTreasureHuntEvent treasureHuntEvent;
 		if (!Class.CastTo(treasureHuntEvent, m_Objective))
@@ -177,13 +155,11 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 	//! Event called when an entity leaves the trigger area.
 	override void EOnLeave(IEntity other, int extra)
 	{
-	//#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Entity: " + other.Type());
-	//#endif
+	#endif
 
-		if (GetGame().IsClient())
-			return;
-
+	#ifdef SERVER
 		//! @note IsInitialized will be false during cleanup, and we don't want EOnLeave to do anything in that case
 		if (!m_Objective || !m_Objective.IsInitialized())
 			return;
@@ -205,11 +181,6 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 				OnLeave_Delivery();
 			}
 			break;
-			case ExpansionQuestObjectiveType.COLLECT:
-			{
-				OnLeave_Collection();
-			}
-			break;
 			case ExpansionQuestObjectiveType.TRAVEL:
 			{
 				ExpansionQuestObjectiveTravelConfig travelConfig;
@@ -227,6 +198,7 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 			}
 			break;
 		}
+	#endif
 	}
 	
 	protected void OnLeave_Delivery()
@@ -240,20 +212,11 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 		deliveryEvent.SetReachedLocation(false);
 	}
 
-	protected void OnLeave_Collection()
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		ExpansionQuestObjectiveCollectionEvent collectionEvent;
-		if (!Class.CastTo(collectionEvent, m_Objective))
-			return;
-
-		collectionEvent.SetReachedLocation(false);
-	}
-
 	protected void OnLeave_Travel()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		ExpansionQuestObjectiveTravelEvent travelEvent;
 		if (!Class.CastTo(travelEvent, m_Objective))
@@ -264,7 +227,9 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 
 	protected void OnLeave_TreasureHunt()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		ExpansionQuestObjectiveTreasureHuntEvent treasureHuntEvent;
 		if (!Class.CastTo(treasureHuntEvent, m_Objective))

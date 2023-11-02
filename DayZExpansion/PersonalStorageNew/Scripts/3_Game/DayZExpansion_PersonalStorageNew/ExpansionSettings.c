@@ -18,24 +18,12 @@ modded class ExpansionSettings
 	{
 		super.Init();
 
-		Init(ExpansionPersonalStorageNewSettings);
+		Init(ExpansionPersonalStorageNewSettings, true);
 	}
 
-	override bool OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
+	void RPC_PersonalStorageNewSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (super.OnRPC(sender, target, rpc_type, ctx))
-			return true;
-		
-		switch (rpc_type)
-		{
-			case ExpansionSettingsRPC.PersonalStorageNew:
-			{
-				Receive(ExpansionPersonalStorageNewSettings, ctx);
-				return true;
-			}
-		}
-
-		return false;
+		Receive(ExpansionPersonalStorageNewSettings, ctx);
 	}
 
 	ExpansionPersonalStorageNewSettings GetPersonalStorageNew(bool checkLoaded = true)
