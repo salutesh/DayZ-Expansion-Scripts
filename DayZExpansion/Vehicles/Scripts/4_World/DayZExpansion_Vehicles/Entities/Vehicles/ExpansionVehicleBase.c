@@ -243,6 +243,12 @@ class ExpansionVehicleBase: ItemBase
 
 	bool m_Expansion_HasLifetime;
 
+	static int s_Expansion_ControllerSync_RPCID;
+	static int s_Expansion_RequestCrewSync_RPCID;
+	static int s_Expansion_CrewSyncInit_RPCID;
+	static int s_Expansion_CrewSync_RPCID;
+	static int s_Expansion_ClientSync_RPCID;
+
 	void ExpansionVehicleBase()
 	{
 #ifndef DIAG
@@ -669,6 +675,20 @@ class ExpansionVehicleBase: ItemBase
 				}
 			}
 		}
+
+		if (!m_Expansion_RPCManager)
+			m_Expansion_RPCManager = new ExpansionRPCManager(this, ExpansionVehicleBase);
+
+		if (!s_Expansion_ControllerSync_RPCID)
+			s_Expansion_ControllerSync_RPCID = m_Expansion_RPCManager.RegisterBoth("RPC_Expansion_ControllerSync");
+		if (!s_Expansion_RequestCrewSync_RPCID)
+			s_Expansion_RequestCrewSync_RPCID = m_Expansion_RPCManager.RegisterServer("RPC_Expansion_RequestCrewSync");
+		if (!s_Expansion_CrewSyncInit_RPCID)
+			s_Expansion_CrewSyncInit_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_Expansion_CrewSyncInit");
+		if (!s_Expansion_CrewSync_RPCID)
+			s_Expansion_CrewSync_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_Expansion_CrewSync");
+		if (!s_Expansion_ClientSync_RPCID)
+			s_Expansion_ClientSync_RPCID = m_Expansion_RPCManager.RegisterServer("RPC_Expansion_ClientSync");
 	}
 
 	void ~ExpansionVehicleBase()
@@ -799,8 +819,8 @@ class ExpansionVehicleBase: ItemBase
 
 		if (GetGame().IsClient())
 		{
-			auto rpc = ExpansionScriptRPC.Create();
-			rpc.Send(this, ExpansionVehicleRPC.RequestCrewSync, true, NULL);
+			auto rpc = m_Expansion_RPCManager.CreateRPC(s_Expansion_RequestCrewSync_RPCID);
+			rpc.Expansion_Send(true);
 		}
 
 		float minHeight = 0;
@@ -1516,27 +1536,10 @@ class ExpansionVehicleBase: ItemBase
 	{
 		super.OnRPC(sender, rpc_type, ctx);
 
-		int crewIdx;
-
 		switch (rpc_type)
 		{
-		case ExpansionVehicleRPC.ControllerSync:
-		{
-			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-				return;	
-				
-			if (IsCrew(DayZPlayerConstants.VEHICLESEAT_DRIVER, sender))
-			{
-				m_Event_NetworkRecieve.NetworkRecieve(ctx);
-			}
-
-			return;
-		}
+		//! @note vanilla RPC, so not using Expansion RPC manager
 		case ERPCs.RPC_EXPLODE_EVENT:
-		{
-			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-				return;	
-				
 			if (GetGame().IsClient())
 			{
 				Param2<int, string> params;
@@ -1549,57 +1552,54 @@ class ExpansionVehicleBase: ItemBase
 
 			return;
 		}
-		case ExpansionVehicleRPC.ClientSync:
+	}
+
+	void RPC_Expansion_ControllerSync(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		if (IsCrew(DayZPlayerConstants.VEHICLESEAT_DRIVER, sender))
 		{
-			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-				return;	
-
-			if (GetGame().IsClient() || m_NetworkMode != ExpansionVehicleNetworkMode.CLIENT)
-				return;
-
-			if (IsCrew(DayZPlayerConstants.VEHICLESEAT_DRIVER, sender))
-			{
-				m_RecievedInitialSync = true;
-				m_State.OnRPC(ctx);
-			}
-
-			return;
+			m_Event_NetworkRecieve.NetworkRecieve(ctx);
 		}
-		case ExpansionVehicleRPC.CrewSync:
-		{
-			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-				return;	
-				
-			ctx.Read(crewIdx);
+	}
 
+	void RPC_Expansion_ClientSync(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		if (m_NetworkMode != ExpansionVehicleNetworkMode.CLIENT)
+			return;
+
+		if (IsCrew(DayZPlayerConstants.VEHICLESEAT_DRIVER, sender))
+		{
+			m_RecievedInitialSync = true;
+			m_State.OnRPC(ctx);
+		}
+	}
+
+	void RPC_Expansion_CrewSync(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		int crewIdx;
+
+		ctx.Read(crewIdx);
+
+		m_Crew[crewIdx].OnRead(ctx);
+	}
+
+	void RPC_Expansion_CrewSyncInit(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		int crewIdx;
+
+		for (crewIdx = 0; crewIdx < m_Crew.Count(); crewIdx++)
 			m_Crew[crewIdx].OnRead(ctx);
+	}
 
-			return;
-		}
-		case ExpansionVehicleRPC.CrewSyncInit:
-		{
-			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-				return;	
+	void RPC_Expansion_RequestCrewSync(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		int crewIdx;
 
-			for (crewIdx = 0; crewIdx < m_Crew.Count(); crewIdx++)
-				m_Crew[crewIdx].OnRead(ctx);
+		auto rpc = m_Expansion_RPCManager.CreateRPC(s_Expansion_CrewSyncInit_RPCID);
+		for (crewIdx = 0; crewIdx < m_Crew.Count(); crewIdx++)
+			m_Crew[crewIdx].OnSend(rpc);
 
-			return;
-		}
-		case ExpansionVehicleRPC.RequestCrewSync:
-		{
-			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-				return;	
-
-			auto rpc = ExpansionScriptRPC.Create();
-			for (crewIdx = 0; crewIdx < m_Crew.Count(); crewIdx++)
-				m_Crew[crewIdx].OnSend(rpc);
-
-			rpc.Send(this, ExpansionVehicleRPC.CrewSyncInit, true, sender);
-
-			return;
-		}
-		}
+		rpc.Expansion_Send(true, sender);
 	}
 
 	void NetworkSend()
@@ -1607,7 +1607,7 @@ class ExpansionVehicleBase: ItemBase
 		if (IsMissionOffline())
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = m_Expansion_RPCManager.CreateRPC(s_Expansion_ControllerSync_RPCID);
 
 		m_Event_NetworkSend.NetworkSend(rpc);
 
@@ -1615,11 +1615,11 @@ class ExpansionVehicleBase: ItemBase
 		{
 			Human human = CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
 			if (human != NULL)
-				rpc.Send(NULL, ExpansionVehicleRPC.ControllerSync, true, human.GetIdentity());
+				rpc.Expansion_Send(true, human.GetIdentity());
 		}
 		else
 		{
-			rpc.Send(NULL, ExpansionVehicleRPC.ControllerSync, true, NULL);
+			rpc.Expansion_Send(true);
 		}
 	}
 
@@ -2184,9 +2184,9 @@ class ExpansionVehicleBase: ItemBase
 
 		if (GetGame().IsMultiplayer() && GetGame().IsServer())
 		{
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = m_Expansion_RPCManager.CreateRPC(s_Expansion_CrewSync_RPCID);
 			m_Crew[posIdx].OnSend(rpc);
-			rpc.Send(this, ExpansionVehicleRPC.CrewSync, true, null);
+			rpc.Expansion_Send(true);
 		}
 	}
 
@@ -2202,9 +2202,9 @@ class ExpansionVehicleBase: ItemBase
 
 		if (GetGame().IsMultiplayer() && GetGame().IsServer())
 		{
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = m_Expansion_RPCManager.CreateRPC(s_Expansion_CrewSync_RPCID);
 			m_Crew[posIdx].OnSend(rpc);
-			rpc.Send(this, ExpansionVehicleRPC.CrewSync, true, null);
+			rpc.Expansion_Send(true);
 		}
 		else
 		{

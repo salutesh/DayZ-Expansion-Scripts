@@ -33,20 +33,18 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 	{
 		super.OnInit();
 
-		EnableRPC();
+		Expansion_EnableRPCManager();
+		Expansion_RegisterBothRPC("RPC_AddChatMessage");
 	}
 
 	// ------------------------------------------------------------
-	void AddChatMessage( ParamsReadContext ctx, PlayerIdentity sender, Object target )
+	void RPC_AddChatMessage(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		ChatMessageEventParams data;
 
-		Object parent;
+		CarScript vehicle;
 		int partyID = -1;
 
 #ifdef EXPANSIONMODGROUPS
@@ -88,8 +86,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 					break;
 #endif
 				case ExpansionChatChannels.CCTransport:
-					if (player) parent = Object.Cast( player.GetParent() );
-					if (parent && parent.IsTransport() && GetExpansionSettings().GetChat().EnableTransportChat)
+					if (player && Class.CastTo(vehicle, player.GetParent()) && GetExpansionSettings().GetChat().EnableTransportChat)
 						canSendMessage = true;
 					channelName = "Transport";
 					break;
@@ -101,21 +98,46 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 			if ( canSendMessage )
 			{
 				data.param2 = sender.GetName();
-				string steamid = sender.GetPlainId();
 				string biuid = sender.GetId();
-				string idtable = sender.GetPlayerId().ToString();
 
 				if ( GetGame().IsMultiplayer() )
 				{
-					auto rpc = ExpansionScriptRPC.Create();
+					auto rpc = Expansion_CreateRPC("RPC_AddChatMessage");
 					rpc.Write(data);
 
-					if (parent)
-						rpc.Write(parent);
-					if (partyID >= 0)
+					if (vehicle)
+					{
+						//! Only send RPC to vehicle crew
+						set<Human> crew = vehicle.Expansion_GetVehicleCrew();
+						foreach (Human crewMember: crew)
+						{
+							rpc.Expansion_Send(vehicle, true, crewMember.GetIdentity());
+						}
+					}
+				#ifdef EXPANSIONMODGROUPS
+					else if (partyID >= 0)
+					{
 						rpc.Write(partyID);
 
-					rpc.Send(null, ExpansionGlobalChatRPC.AddChatMessage, true);
+						//! Only send RPC to party players
+						ExpansionPartyData party = player.Expansion_GetParty();
+						if (party)
+						{
+							array<ref ExpansionPartyPlayerData> players = party.GetPlayers();
+							foreach (ExpansionPartyPlayerData partyMember: players)
+							{
+								PlayerBase partyPlayer = partyMember.Player;
+								if (partyPlayer && partyPlayer.GetIdentity())
+									rpc.Expansion_Send(true, partyPlayer.GetIdentity());
+							}
+						}
+					}
+				#endif
+					else
+					{
+						//! Send RPC to everyone (global)
+						rpc.Expansion_Send(true);
+					}
 				}
 
 				// Uses similar format as vanilla direct chat log
@@ -130,12 +152,9 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 			switch (data.param1)
 			{
 				case ExpansionChatChannels.CCTransport:
-					if (!ctx.Read(parent))
-						return;
-
 					Object localParent = Object.Cast( g_Game.GetPlayer().GetParent() );
-					//! `parent` will only be non-NULL if player is in same network bubble as sender
-					if (parent && parent.IsTransport() && localParent == parent)
+					//! `target` will only be non-NULL if player is in same network bubble as sender
+					if (target && target.IsTransport() && localParent == target)
 						break;
 					else
 						return;
@@ -152,47 +171,11 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 					else
 						return;
 
-#endif
 				break;
+#endif
 			}
 
 			GetGame().GetMission().OnEvent(ChatMessageEventTypeID, data);
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Override GetRPCMin
-	// ------------------------------------------------------------
-	override int GetRPCMin()
-	{
-		return ExpansionGlobalChatRPC.INVALID;
-	}
-	
-	// ------------------------------------------------------------
-	// Override GetRPCMax
-	// ------------------------------------------------------------
-	override int GetRPCMax()
-	{
-		return ExpansionGlobalChatRPC.COUNT;
-	}
-	
-	// ------------------------------------------------------------
-	// Override OnRPC
-	// ------------------------------------------------------------
-	
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
-
-		super.OnRPC(sender, args);
-
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch ( rpc.ID )
-		{
-			case ExpansionGlobalChatRPC.AddChatMessage:
-				AddChatMessage( rpc.Context, rpc.Sender, rpc.Target );
-			break;
 		}
 	}
 };

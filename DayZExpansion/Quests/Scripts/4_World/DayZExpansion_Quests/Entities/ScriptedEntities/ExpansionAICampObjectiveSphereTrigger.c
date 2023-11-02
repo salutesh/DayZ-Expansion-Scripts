@@ -34,15 +34,14 @@ class ExpansionAICampObjectiveSphereTrigger: Trigger
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Entity: " + other.Type());
 	#endif
 
-		if (GetGame().IsClient())
-			return;
-
+	#ifdef SERVER
 		ZombieBase infected;
-		if (!Class.CastTo(infected, other))
-			return;
-
-		QuestPrint("Delete infected: " + infected.GetType());
-		GetGame().ObjectDelete(infected);
+		if (Class.CastTo(infected, other))
+		{
+			QuestPrint("Delete infected: " + infected.GetType());
+			GetGame().ObjectDelete(infected);
+		}
+	#endif
 	}
 	
 	protected void QuestPrint(string text)

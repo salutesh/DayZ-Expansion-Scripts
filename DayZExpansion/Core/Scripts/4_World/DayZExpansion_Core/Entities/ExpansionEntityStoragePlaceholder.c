@@ -15,7 +15,6 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 	static ref array<ExpansionEntityStoragePlaceholder> s_Expansion_AllPlaceholders = new array<ExpansionEntityStoragePlaceholder>;
 
 	ref ExpansionGlobalID m_Expansion_StoredEntityGlobalID = new ExpansionGlobalID();
-	ref ExpansionNetsyncData m_Expansion_NetsyncData;
 
 	void ExpansionEntityStoragePlaceholder()
 	{
@@ -91,13 +90,6 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 		if (m_Expansion_NetsyncData)
 			return Expansion_GetStoredEntityDisplayName();
 		return super.GetDisplayName();
-	}
-
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-
-		m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}
 
 	static bool Expansion_HasPlaceholder(CarScript vehicle, bool includeGarage = false)

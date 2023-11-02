@@ -589,6 +589,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            imageTexture "{EC8EDC01E1CEFBB0}DayZExpansion/Core/GUI/icons/hud/menu_64x64.edds"
            mode blend
            "src alpha" 1
+           stretch 1
            "stretch mode" stretch_w_h
           }
          }

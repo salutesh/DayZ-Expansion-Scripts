@@ -45,6 +45,9 @@ modded class ItemBase
 	protected int m_Expansion_QueuedActions;
 	protected bool m_Expansion_IsLootable = true;
 
+	ref ExpansionNetsyncData m_Expansion_NetsyncData;
+	ref ExpansionRPCManager m_Expansion_RPCManager;
+
 	void ItemBase()
 	{
 		m_Expansion_IsAdminTool = ConfigGetBool("expansionIsAdminTool");
@@ -329,6 +332,9 @@ modded class ItemBase
 
 			ExpansionOnSkinUpdate();
 		}
+
+		if (m_Expansion_NetsyncData && !m_Expansion_NetsyncData.m_WasDataRequested)
+			m_Expansion_NetsyncData.Request();
 	}
 
 	//============================================
@@ -1153,22 +1159,8 @@ modded class ItemBase
 
 	TStringArray Expansion_GetAttachmentSlots()
 	{
-		TStringArray attachments();
-
-		string path;
-
-		if (IsWeapon())
-			path = CFG_WEAPONSPATH;
-		else if (IsMagazine())
-			path = CFG_MAGAZINESPATH;
-		else
-			path = CFG_VEHICLESPATH;
-
-		path += " " + GetType();
-
-		if (GetGame().ConfigIsExisting(path))
-			GetGame().ConfigGetTextArray(path + " attachments", attachments);
-
+		TStringArray attachments = {};
+		ConfigGetTextArray("attachments", attachments);
 		return attachments;
 	}
 

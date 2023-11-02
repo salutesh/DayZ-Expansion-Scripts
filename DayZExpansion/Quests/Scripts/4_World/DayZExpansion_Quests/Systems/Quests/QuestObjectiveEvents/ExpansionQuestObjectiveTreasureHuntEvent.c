@@ -21,11 +21,14 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	protected bool m_DestinationReached;
 	protected ExpansionTravelObjectiveSphereTrigger m_ObjectiveTrigger;
 	protected ref ExpansionQuestObjectiveTreasureHuntConfig m_Config;
+	protected int m_LootItemsCount;
 
 	//! Event called when the player starts the quest.
 	override bool OnEventStart()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnEventStart())
 			return false;
@@ -50,16 +53,37 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the player starts the quest.
 	override bool OnContinue()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnContinue())
+			return false;
+		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
 		if (IsCompleted())
 		{
-			m_LootedItemFromChest = true;
-			m_DestinationReached = true;
-			return true;
+			if (!CheckQuestPlayersForLootItems())
+			{
+				m_Quest.CancelQuest();
+				return false;
+			}
+			else
+			{
+				if (m_LootItemsCount >= m_Config.GetLootItemsAmount())
+				{
+					m_LootedItemFromChest = true;
+					m_DestinationReached = true;
+					return true;
+				}
+				else
+				{
+					m_Quest.CancelQuest();
+					return false;
+				}
+			}
 		}
 		else
 		{
@@ -85,19 +109,21 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnCleanup()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnCleanup())
 			return false;
 
-		//! Only cleanup the loot and stash if objective is not completed
+		//! Only cleanup the loot and chest if objective is not completed yet
 		if (!IsCompleted())
 		{
 			foreach (EntityAI obj: m_LootItems)
 			{
 				GetGame().ObjectDelete(obj);
 			}
-
+			
 			if (m_Chest)
 				GetGame().ObjectDelete(m_Chest);
 		}
@@ -115,12 +141,13 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnCancel()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnCancel())
 			return false;
 
-		//! Only cleanup the loot if quest is not completed
 		foreach (EntityAI obj: m_LootItems)
 		{
 			GetGame().ObjectDelete(obj);
@@ -139,10 +166,150 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		return true;
 	}
+	
+	override bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)
+	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
+
+		if (!super.OnTurnIn(playerUID, selectedObjItemIndex))
+			return false;
+
+		if (m_LootItems.Count() < m_Config.GetLootItemsAmount())
+		{
+			if (!CheckQuestPlayersForLootItems())
+			{
+				ObjectivePrint("Stash loot items check failed! Cancel quest..");
+				m_Quest.CancelQuest();
+				return false;
+			}
+			else
+			{
+				if (m_LootItemsCount >= m_Config.GetLootItemsAmount())
+				{
+					ObjectivePrint("All stash loot items found! Clear loot flags..");
+					ClearLootFlags();
+				}
+				else
+				{
+					ObjectivePrint("Not all loot items found! Cancel quest..");
+					foreach (EntityAI obj: m_LootItems)
+					{
+						GetGame().ObjectDelete(obj);
+					}
+
+					m_Quest.CancelQuest();
+					return false;
+				}
+			}
+		}
+		else
+		{
+			ObjectivePrint("All stash loot items found! Clear loot flags..");
+			ClearLootFlags();
+		}
+
+		return true;
+	}
+	
+	protected bool CheckQuestPlayersForLootItems()
+	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
+
+		m_LootItems.Clear();
+		m_LootItemsCount = 0;
+
+		if (!m_Quest.GetQuestConfig().IsGroupQuest())
+		{
+			if (!CheckPlayerForLootItems(m_Quest.GetPlayer()))
+				return false;
+		}
+	#ifdef EXPANSIONMODGROUPS
+		else
+		{
+			set<string> playerUIDs = m_Quest.GetPlayerUIDs();
+			foreach (string playerUID: playerUIDs)
+			{
+				if (m_LootItemsCount >= m_Config.GetLootItemsAmount())
+					break;
+
+				if (!CheckPlayerForLootItems(playerUID))
+					return false;
+			}
+		}
+	#endif
+
+		ObjectivePrint("End and return TRUE");
+
+		return true;
+	}
+
+	protected bool CheckPlayerForLootItems(string playerUID)
+	{
+		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
+		return CheckPlayerForLootItems(player);
+	}
+
+	protected bool CheckPlayerForLootItems(PlayerBase player)
+	{
+		if (!player)
+			return false;
+
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, player.GetIdentity().GetId());
+	#endif
+		
+		array<EntityAI> items = new array<EntityAI>;
+		items.Reserve(player.GetInventory().CountInventory());
+
+		player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+		for (int i = 0; i < items.Count(); i++)
+		{
+			ItemBase playerItem;
+			if (!Class.CastTo(playerItem, items[i]))
+				continue;
+			
+			ObjectivePrint("Checking player item. [Type: " + playerItem.GetType() + " | Quest ID: " + playerItem.Expansion_GetQuestID() + " | Objective Loot: " + playerItem.Expansion_IsObjectiveLoot() + "]");
+			
+			if (playerItem.Expansion_GetQuestID() == m_Quest.GetQuestConfig().GetID() && playerItem.Expansion_IsObjectiveLoot())
+			{
+				m_LootItems.Insert(items[i]);
+				m_LootItemsCount++;
+				ObjectivePrint("Added stash loot item to array: " + playerItem.GetType() + " | Items count: " + m_LootItemsCount);
+			}
+
+			if (m_LootItemsCount >= m_Config.GetLootItemsAmount())
+				break;
+		}
+
+		return true;
+	}
+	
+	protected void ClearLootFlags()
+	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
+
+		foreach (EntityAI obj: m_LootItems)
+		{
+			ItemBase lootIB = ItemBase.Cast(obj);
+			if (lootIB)
+			{
+				lootIB.Expansion_SetQuestID(-1);
+				lootIB.Expansion_SetIsObjectiveLoot(false);
+			}
+		}
+	}
 
 	protected void CreateTreasure()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!m_Config)
 			return;
@@ -194,26 +361,35 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		m_Chest.Expansion_SetQuestID(m_Quest.GetQuestConfig().GetID());
+		set<string> playerUIDs = new set<string>;
+		if (!m_Quest.GetQuestConfig().IsGroupQuest())
+		{
+			playerUIDs.Insert(m_Quest.GetPlayerUID());
+		}
+	#ifdef EXPANSIONMODGROUPS
+		else
+		{
+			playerUIDs = m_Quest.GetPlayerUIDs();
+		}
+	#endif
 
 		m_Chest.ExpansionSetCanReceiveItems(true);
 		ExpansionLootSpawner.SpawnLoot(m_Chest, m_Config.GetLoot(), m_Config.GetLootItemsAmount(), m_LootItems, m_LootItemsMap);
-		if (EXTrace.QUESTS)
+		foreach (EntityAI lootItem: m_LootItems)
 		{
-			EXPrint(this, "Spawned loot items: " + m_LootItems.Count());
-			foreach (EntityAI lootItem: m_LootItems)
+			ItemBase lootIB = ItemBase.Cast(lootItem);
+			if (!lootIB)
 			{
-				EXPrint(this, "Spawned loot item: " + lootItem);
+				GetGame().ObjectDelete(lootItem);
+				return;
 			}
-
-			EXPrint(this, "Spawned loot item counts: " + m_LootItemsMap.Count());
-			foreach (string className, int count: m_LootItemsMap)
-			{
-				EXPrint(this, "Spawned loot item count: " + className + " " + count);
-			}
+			
+			lootIB.Expansion_SetQuestID(m_Config.GetID());
+			lootIB.Expansion_SetIsObjectiveLoot(true);
 		}
+
 		m_Chest.ExpansionSetCanReceiveItems(false);
-
-
+		m_Chest.ExpansionSetContainerOwner(questPlayer);
 	}
 
 #ifdef EXPANSIONMODNAVIGATION
@@ -239,7 +415,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 	protected void CreateTrigger(vector pos)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", pos, ECE_NONE));
 		m_ObjectiveTrigger.SetPosition(pos);
@@ -259,12 +437,17 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	//! Used by the trigger
 	void SetReachedLocation(bool state)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 		ObjectivePrint("State: " + state);
 
 		if (state)
 		{
 			CreateTreasure();
+		#ifdef EXPANSIONMODNAVIGATION
+			RemoveObjectiveMarkers();
+		#endif
 		}
 		else
 		{
@@ -273,11 +456,15 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 			if (m_Stash)
 				GetGame().ObjectDelete(m_Stash);
+
+		#ifdef EXPANSIONMODNAVIGATION
+			CreateMarkers();
+		#endif
 		}
 
-		if (!m_DestinationReached)
+		if (!IsCompleted())
 			SetLocationState(state);
-
+	
 		m_Quest.QuestCompletionCheck(true);
 	}
 
@@ -296,7 +483,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 	void OnInventoryItemLocationChange(ItemBase item, ExpansionQuestItemState state)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 		ObjectivePrint("State: " + typename.EnumToString(ExpansionQuestItemState, state));
 
 		if (m_LootItems.Find(item) == -1)
@@ -321,19 +510,23 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 	override bool CanComplete()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 		ObjectivePrint("m_DestinationReached: " + m_DestinationReached);
 		ObjectivePrint("m_LootedItemFromChest: " + m_LootedItemFromChest);
 
-		if (!m_DestinationReached || !m_LootedItemFromChest)
-		{
-			ObjectivePrint("End and return: FALSE");
+		if (!super.CanComplete())
 			return false;
+		
+		if (m_DestinationReached && m_LootedItemFromChest)
+		{
+			ObjectivePrint("End and return: TRUE");
+			return true;
 		}
 
-		ObjectivePrint("End and return: TRUE");
-
-		return super.CanComplete();
+		ObjectivePrint("End and return: FALSE");
+		return false;
 	}
 
 	UndergroundStash GetStash()
@@ -355,6 +548,13 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	{
 		return m_LootItemsMap;
 	}
+	
+#ifdef EXPANSIONMODNAVIGATION
+	override bool CanCreateMarkers()
+	{
+		return !m_DestinationReached;
+	}
+#endif
 
 	override int GetObjectiveType()
 	{

@@ -35,6 +35,9 @@ class ExpansionPartyModule: CF_ModuleWorld
 	private int m_CurrentPartyTick;
 
 	static ref ScriptInvoker m_PartyHUDInvoker = new ScriptInvoker();
+	
+	static int s_SyncPlayerInvitesClient_RPCID;
+	static int s_UpdatePlayerClient_RPCID;
 
 	void ExpansionPartyModule()
 	{
@@ -62,13 +65,30 @@ class ExpansionPartyModule: CF_ModuleWorld
 		EnableInvokeConnect();
 		EnableMissionFinish();
 		EnableMissionStart();
-		EnableRPC();
+		Expansion_EnableRPCManager();
 		EnableUpdate();
 
 	#ifdef EXPANSIONMODNAVIGATION
 		Bind("Input_UpdateQuickMarker", "UAExpansionQuickMarker", true);
 		Bind("Input_RemoveQuickMarker",	 "UAExpansionMapDeleteMarker", true);
 	#endif
+
+		Expansion_RegisterServerRPC("RPC_CreatePartyServer");
+		Expansion_RegisterServerRPC("RPC_DissolvePartyServer");
+		Expansion_RegisterServerRPC("RPC_AcceptInviteServer");
+		Expansion_RegisterServerRPC("RPC_RemovePartyMemberServer");
+		s_UpdatePlayerClient_RPCID = Expansion_RegisterClientRPC("RPC_UpdatePlayerClient");
+	#ifdef EXPANSIONMODNAVIGATION
+		Expansion_RegisterServerRPC("RPC_CreateMarkerServer");
+		Expansion_RegisterServerRPC("RPC_UpdateMarkerServer");
+		Expansion_RegisterServerRPC("RPC_UpdatePositionMarkerServer");
+		Expansion_RegisterServerRPC("RPC_DeleteMarkerServer");
+		Expansion_RegisterServerRPC("RPC_UpdateQuickMarkerServer");
+	#endif
+		Expansion_RegisterServerRPC("RPC_InvitePlayerServer");
+		Expansion_RegisterServerRPC("RPC_DeclineInviteServer");
+		s_SyncPlayerInvitesClient_RPCID = Expansion_RegisterClientRPC("RPC_SyncPlayerInvitesClient");
+		Expansion_RegisterServerRPC("RPC_UpdatePermissionsServer");
 	}
 
 	protected void ClearPlayerParty()
@@ -167,71 +187,6 @@ class ExpansionPartyModule: CF_ModuleWorld
 		m_PartyIDs.RemoveItem(partyID);
 	}
 
-	override int GetRPCMin()
-	{
-		return ExpansionPartyModuleRPC.INVALID;
-	}
-
-	override int GetRPCMax()
-	{
-		return ExpansionPartyModuleRPC.COUNT;
-	}
-
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		super.OnRPC(sender, args);
-
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch (rpc.ID)
-		{
-			case ExpansionPartyModuleRPC.CreateParty:
-				RPC_CreatePartyServer(rpc.Context, rpc.Sender);
-				break;
-			case ExpansionPartyModuleRPC.DissolveParty:
-				RPC_DissolvePartyServer(rpc.Context, rpc.Sender);
-				break;
-			case ExpansionPartyModuleRPC.AcceptInvite:
-				RPC_AcceptInviteServer(rpc.Context, rpc.Sender);
-				break;
-			case ExpansionPartyModuleRPC.RemovePartyMember:
-				RPC_RemovePartyMemberServer(rpc.Context, rpc.Sender);
-				break;
-			case ExpansionPartyModuleRPC.UpdatePlayer:
-				RPC_UpdatePlayerClient(rpc.Context, rpc.Sender);
-				break;
-		#ifdef EXPANSIONMODNAVIGATION
-			case ExpansionPartyModuleRPC.CreateMarker:
-				RPC_CreateMarkerServer(rpc.Context, rpc.Sender);
-				break;
-			case ExpansionPartyModuleRPC.UpdateMarker:
-				RPC_UpdateMarkerServer(rpc.Context, rpc.Sender);
-				break;
-			case ExpansionPartyModuleRPC.UpdatePositionMarker:
-				RPC_UpdatePositionMarkerServer(rpc.Context, rpc.Sender);
-				break;
-			case ExpansionPartyModuleRPC.DeleteMarker:
-				RPC_DeleteMarkerServer(rpc.Context, rpc.Sender);
-				break;
-			case ExpansionPartyModuleRPC.UpdateQuickMarker:
-				RPC_UpdateQuickMarkerServer(rpc.Context, rpc.Sender);
-				break;
-		#endif
-			case ExpansionPartyModuleRPC.InvitePlayer:
-				RPC_InvitePlayerServer(rpc.Context, rpc.Sender);
-				break;
-			case ExpansionPartyModuleRPC.DeclineInvite:
-				RPC_DeclineInviteServer(rpc.Context, rpc.Sender);
-				break;
-			case ExpansionPartyModuleRPC.SyncPlayerInvites:
-				RPC_SyncPlayerInvitesClient(rpc.Context, rpc.Sender);
-				break;
-			case ExpansionPartyModuleRPC.UpdatePermissions:
-				RPC_UpdatePermissionsServer(rpc.Context, rpc.Sender);
-				break;
-		}
-	}
-
 	void SyncPlayerInvitesServer(notnull PlayerBase sender)
 	{
 		if (!IsMissionHost() || !sender || !sender.GetIdentity())
@@ -246,20 +201,17 @@ class ExpansionPartyModule: CF_ModuleWorld
 				invites.Insert(invite);
 		}
 
-		auto rpcServer = ExpansionScriptRPC.Create();
+		auto rpcServer = Expansion_CreateRPC("RPC_SyncPlayerInvitesClient");
 		rpcServer.Write(invites);
-		rpcServer.Send(NULL, ExpansionPartyModuleRPC.SyncPlayerInvites, true, sender.GetIdentity());
+		rpcServer.Expansion_Send(true, sender.GetIdentity());
 	}
 
-	private void RPC_SyncPlayerInvitesClient(ParamsReadContext ctx, PlayerIdentity senderRPC)
+	private void RPC_SyncPlayerInvitesClient(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		if (Expansion_Assert_False(ctx.Read(m_PartyInvites), "[" + this + "] Failed reading invites"))
 			return;
 
-		SI_Callback.Invoke(ExpansionPartyModuleRPC.SyncPlayerInvites);
+		SI_Callback.Invoke(s_SyncPlayerInvitesClient_RPCID);
 	}
 
 	void CreateParty(string partyName, string partyTag)
@@ -267,17 +219,14 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] CreateParty shall only be called on client!"))
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_CreatePartyServer");
 		rpc.Write(partyName);
 		rpc.Write(partyTag);
-		rpc.Send(NULL, ExpansionPartyModuleRPC.CreateParty, true, NULL);
+		rpc.Expansion_Send(true);
 	}
 
-	private void RPC_CreatePartyServer(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_CreatePartyServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		string partyName;
 		if (!ctx.Read(partyName))
 			return;
@@ -286,7 +235,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!ctx.Read(partyTag))
 			return;
 
-		PlayerBase player = PlayerBase.GetPlayerByUID(sender.GetId());
+		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
 		if (!player)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -318,19 +267,13 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] DissolveParty shall only be called on client!"))
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Send(NULL, ExpansionPartyModuleRPC.DissolveParty, true);
+		auto rpc = Expansion_CreateRPC("RPC_DissolvePartyServer");
+		rpc.Expansion_Send(true);
 	}
 	
-	private void RPC_DissolvePartyServer(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_DissolvePartyServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if (!sender)
-			return;
-
-		PlayerBase player = PlayerBase.GetPlayerByUID(sender.GetId());
+		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
 		if (!player)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -435,21 +378,18 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] InvitePlayer shall only be called on client!"))
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_InvitePlayerServer");
 		rpc.Write(sendID);
-		rpc.Send(NULL, ExpansionPartyModuleRPC.InvitePlayer, true, NULL);
+		rpc.Expansion_Send(true, NULL);
 	}
 
-	private void RPC_InvitePlayerServer(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_InvitePlayerServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		string targetID;
 		if ( !ctx.Read( targetID ) )
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(sender.GetId());
+		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
 		PlayerBase targetPlayer = PlayerBase.GetPlayerByUID(targetID);
 
 		if (!senderPlayer || !targetPlayer)
@@ -525,21 +465,18 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] DeclineInvite shall only be called on client!"))
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_DeclineInviteServer");
 		rpc.Write(partyID);
-		rpc.Send(NULL, ExpansionPartyModuleRPC.DeclineInvite, true, NULL);
+		rpc.Expansion_Send(true);
 	}
 
-	private void RPC_DeclineInviteServer(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_DeclineInviteServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		int partyID;
 		if (!ctx.Read(partyID))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(sender.GetId());
+		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -573,24 +510,18 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] AcceptInvite shall only be called on client!"))
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_AcceptInviteServer");
 		rpc.Write(partyID);
-		rpc.Send(NULL, ExpansionPartyModuleRPC.AcceptInvite, true, NULL);
+		rpc.Expansion_Send(true);
 	}
 
-	private void RPC_AcceptInviteServer(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_AcceptInviteServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if (!IsMissionHost())
-			return;
-
 		int partyID;
 		if (!ctx.Read(partyID))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(sender.GetId());
+		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -646,17 +577,14 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] RemovePartyMember shall only be called on client!"))
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RemovePartyMemberServer");
 		rpc.Write(uid);
 		rpc.Write(requestedByMember);
-		rpc.Send(NULL, ExpansionPartyModuleRPC.RemovePartyMember, true, NULL);
+		rpc.Expansion_Send(true);
 	}
 
-	private void RPC_RemovePartyMemberServer(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_RemovePartyMemberServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		string uid;
 		if (!ctx.Read(uid))
 			return;
@@ -665,7 +593,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!ctx.Read(requestedByMember))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(sender.GetId());
+		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -792,7 +720,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 			return;
 
 		string playerID = identity.GetId();
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_UpdatePlayerClient");
 		if (party && party.IsMember(playerID))
 		{
 			rpc.Write(true);
@@ -803,7 +731,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 			rpc.Write(false);
 		}
 
-		rpc.Send(null, ExpansionPartyModuleRPC.UpdatePlayer, true, identity);
+		rpc.Expansion_Send(true, identity);
 	}
 
 	void UpdatePlayerServer(ExpansionPartyData party, PlayerBase player)
@@ -814,11 +742,8 @@ class ExpansionPartyModule: CF_ModuleWorld
 		UpdatePlayerServer(party, player.GetIdentity());
 	}
 
-	private void RPC_UpdatePlayerClient(ParamsReadContext ctx, PlayerIdentity senderRPC)
+	private void RPC_UpdatePlayerClient(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		bool hasParty = false;
 		if (!ctx.Read(hasParty))
 		{
@@ -848,7 +773,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		}
 		#endif
 
-		SI_Callback.Invoke(ExpansionPartyModuleRPC.UpdatePlayer);
+		SI_Callback.Invoke(s_UpdatePlayerClient_RPCID);
 
 		if (GetExpansionSettings().GetParty(false).IsLoaded() && GetExpansionSettings().GetParty().ShowPartyMemberHUD)
 		{
@@ -862,21 +787,18 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] CreateMarker shall only be called on client!"))
 			return;
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_CreateMarkerServer");
 		marker.OnSend(rpc);
-		rpc.Send(NULL, ExpansionPartyModuleRPC.CreateMarker, true, NULL);
+		rpc.Expansion_Send(true);
 	}
 
-	private void RPC_CreateMarkerServer(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_CreateMarkerServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		ExpansionMarkerData marker = ExpansionMarkerData.Create(ExpansionMapMarkerType.PARTY);
 		if (!marker.OnRecieve(ctx))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(sender.GetId());
+		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -910,17 +832,14 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] UpdateMarker shall only be called on client!"))
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_UpdateMarkerServer");
 		rpc.Write(marker.GetUID());
 		marker.OnSend(rpc);
-		rpc.Send(NULL, ExpansionPartyModuleRPC.UpdateMarker, true, NULL);
+		rpc.Expansion_Send(true);
 	}
 
-	private void RPC_UpdateMarkerServer(ParamsReadContext ctx, PlayerIdentity senderRPC)
+	private void RPC_UpdateMarkerServer(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		string uid;
 		if (!ctx.Read(uid))
 			return;
@@ -963,21 +882,18 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] DeleteMarker shall only be called on client!"))
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_DeleteMarkerServer");
 		rpc.Write(uid);
-		rpc.Send(NULL, ExpansionPartyModuleRPC.DeleteMarker, true, NULL);
+		rpc.Expansion_Send(true);
 	}
 
-	private void RPC_DeleteMarkerServer(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_DeleteMarkerServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		string uid;
 		if (!ctx.Read(uid))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(sender.GetId());
+		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -1016,17 +932,14 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] UpdatePositionMarker shall only be called on client!"))
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_UpdatePositionMarkerServer");
 		rpc.Write(uid);
 		rpc.Write(position);
-		rpc.Send(NULL, ExpansionPartyModuleRPC.UpdatePositionMarker, true, NULL);
+		rpc.Expansion_Send(true);
 	}
 
-	private void RPC_UpdatePositionMarkerServer(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_UpdatePositionMarkerServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		string uid;
 		if (!ctx.Read(uid))
 			return;
@@ -1035,9 +948,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!ctx.Read(position))
 			return;
 
-		if (!sender) return;
-
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(sender.GetId());
+		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -1077,21 +988,18 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] UpdateQuickMarker shall only be called on client!"))
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_UpdateQuickMarkerServer");
 		rpc.Write(pos);
-		rpc.Send(NULL, ExpansionPartyModuleRPC.UpdateQuickMarker, true);
+		rpc.Expansion_Send(true);
 	}
 
-	private void RPC_UpdateQuickMarkerServer(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_UpdateQuickMarkerServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		vector position;
 		if (!ctx.Read(position))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(sender.GetId());
+		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -1123,23 +1031,15 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] UpdatePermissions shall only be called on client!"))
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_UpdatePermissionsServer");
 		rpc.Write(memberID);
 		rpc.Write(perm);
-		rpc.Send(NULL, ExpansionPartyModuleRPC.UpdatePermissions, true);
+		rpc.Expansion_Send(true);
 	}
 
-	private void RPC_UpdatePermissionsServer(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_UpdatePermissionsServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		Print("ExpansionPartyModule::RPC_UpdatePermissionsServer - Start");
-		if (!sender)
-		{
-			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "Could not get sender!").Error(sender);
-			return;
-		}
 		
 		string memberID;
 		if (!ctx.Read(memberID))
@@ -1155,7 +1055,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 			return;
 		}
 
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(sender.GetId());
+		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);

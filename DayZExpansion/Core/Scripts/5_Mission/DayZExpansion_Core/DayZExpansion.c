@@ -80,14 +80,6 @@ class DayZExpansion: ExpansionWorld
 		super.OnStart();
 	}
 
-	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
-	{
-		if ( g_exGlobalSettings && g_exGlobalSettings.OnRPC( sender, target, rpc_type, ctx ) )
-			return true;
-
-		return super.OnRPC( sender, target, rpc_type, ctx );
-	}
-
 	override void OnLoaded()
 	{
 		if ( IsMissionHost() )

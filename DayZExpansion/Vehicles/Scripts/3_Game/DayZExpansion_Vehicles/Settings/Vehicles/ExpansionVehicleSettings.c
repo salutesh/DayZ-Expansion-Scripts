@@ -197,9 +197,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 			return 0;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
-		OnSend(rpc);
-		rpc.Send(null, ExpansionSettingsRPC.Vehicle, true, identity);
+		auto rpc = CreateRPC();
+		OnSend( rpc );
+		rpc.Expansion_Send(true, identity);
 
 		return 0;
 	}

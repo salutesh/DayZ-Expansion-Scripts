@@ -35,6 +35,10 @@ modded class ExpansionWorldObjectsModule
 		super.OnInit();
 		
 		EnableMissionLoaded();
+
+		Expansion_RegisterBothRPC("RPC_Load");
+		Expansion_RegisterClientRPC("RPC_TurnOn");
+		Expansion_RegisterClientRPC("RPC_TurnOff");
 	}
  	
  	override void OnMissionStart(Class sender, CF_EventArgs args)
@@ -65,45 +69,16 @@ modded class ExpansionWorldObjectsModule
 
 		if ( !IsMissionOffline() && IsMissionClient() )
 		{
-			auto rpc = ExpansionScriptRPC.Create();
-			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.Load, true );
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion OnRPC
-	// ------------------------------------------------------------	
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		super.OnRPC(sender, args);
-
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch ( rpc.ID )
-		{
-		case ExpansionWorldObjectsModuleRPC.TurnOn:
-			RPC_TurnOn( rpc.Context, rpc.Sender, rpc.Target );
-			break;
-		case ExpansionWorldObjectsModuleRPC.TurnOff:
-			RPC_TurnOff( rpc.Context, rpc.Sender, rpc.Target );
-			break;
-		case ExpansionWorldObjectsModuleRPC.Load:
-			RPC_Load( rpc.Context, rpc.Sender, rpc.Target );
-			break;
+			auto rpc = Expansion_CreateRPC("RPC_Load");
+			rpc.Expansion_Send(true );
 		}
 	}
 	
 	// ------------------------------------------------------------
 	// Expansion RPC_TurnOn
 	// ------------------------------------------------------------	
-	private void RPC_TurnOn( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_TurnOn(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if ( IsMissionHost() )
-			return;
-
 		vector position;
 		if ( ctx.Read( position ) )
 		{
@@ -115,14 +90,8 @@ modded class ExpansionWorldObjectsModule
 	// ------------------------------------------------------------
 	// Expansion RPC_TurnOff
 	// ------------------------------------------------------------	
-	private void RPC_TurnOff( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_TurnOff(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if ( IsMissionHost() )
-			return;
-
 		vector position;
 		if ( ctx.Read( position ) )
 		{
@@ -134,16 +103,13 @@ modded class ExpansionWorldObjectsModule
 	// ------------------------------------------------------------
 	// Expansion RPC_Load
 	// ------------------------------------------------------------	
-	private void RPC_Load( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_Load(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		if ( IsMissionHost() )
 		{
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = Expansion_CreateRPC("RPC_Load");
 			rpc.Write( m_LightGenerators );
-			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.Load, true, senderRPC );
+			rpc.Expansion_Send(true, senderRPC);
 		} else
 		{
 			ctx.Read( m_LightGenerators );
@@ -171,9 +137,9 @@ modded class ExpansionWorldObjectsModule
 			SI_LampEnable.Invoke( position );
 		} else
 		{
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = Expansion_CreateRPC("RPC_TurnOn");
 			rpc.Write( position );
-			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.TurnOn, true, NULL );
+			rpc.Expansion_Send(true);
 		}
 
 		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
@@ -198,9 +164,9 @@ modded class ExpansionWorldObjectsModule
 		} 
 		else
 		{
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = Expansion_CreateRPC("RPC_TurnOff");
 			rpc.Write( position );
-			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.TurnOff, true, NULL );
+			rpc.Expansion_Send(true);
 		}
 
 		#ifdef EXPANSION_MAPPING_MODULE_DEBUG

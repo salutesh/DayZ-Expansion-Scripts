@@ -12,6 +12,14 @@
 
 class ExpansionLAW: SKS_Base
 {
+	void ExpansionLAW()
+	{
+		if (!m_Expansion_RPCManager)
+			m_Expansion_RPCManager = new ExpansionRPCManager(this, ItemBase);
+		if (!s_Expansion_ConfirmWeaponFire_RPCID)
+			s_Expansion_ConfirmWeaponFire_RPCID = m_Expansion_RPCManager.RegisterServer("RPC_Expansion_ConfirmWeaponFire");
+	}
+
 	override void InitStateMachine()
 	{
 		m_abilities.Insert(new AbilityRecord(WeaponActions.CHAMBERING, WeaponActionChamberingTypes.CHAMBERING_STARTLOOPABLE_CLOSED_KEEP));

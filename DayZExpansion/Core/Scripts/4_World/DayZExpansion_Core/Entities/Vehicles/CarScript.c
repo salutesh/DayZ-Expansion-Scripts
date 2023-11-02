@@ -41,6 +41,8 @@ modded class CarScript
 
 	ref ExpansionGlobalID m_Expansion_GlobalID = new ExpansionGlobalID();
 
+	ref ExpansionRPCManager m_Expansion_RPCManager;
+
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------

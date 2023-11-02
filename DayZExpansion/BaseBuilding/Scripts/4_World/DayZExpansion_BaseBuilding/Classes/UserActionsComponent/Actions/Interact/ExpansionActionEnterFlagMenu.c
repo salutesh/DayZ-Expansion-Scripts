@@ -225,8 +225,8 @@ class ExpansionActionEnterFlagMenu: ActionContinuousBase
 		TerritoryFlag flag;
 		if ( Class.CastTo( flag, action_data.m_Target.GetObject() ) )
 		{
-			auto rpc = ExpansionScriptRPC.Create();
-			rpc.Send( flag, ExpansionTerritoryModuleRPC.OpenFlagMenu, true, action_data.m_Player.GetIdentity() );
+			auto rpc = ExpansionScriptRPC.Create(ExpansionTerritoryModule.s_OpenFlagMenu_RPCID);
+			rpc.Expansion_Send(flag, true, action_data.m_Player.GetIdentity());
 			return;
 		}
 		

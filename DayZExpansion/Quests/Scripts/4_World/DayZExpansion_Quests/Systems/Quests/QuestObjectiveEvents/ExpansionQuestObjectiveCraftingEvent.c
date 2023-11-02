@@ -30,7 +30,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnEventStart()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
@@ -54,7 +56,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnContinue()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
@@ -81,7 +85,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnCancel()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnCancel())
 			return false;
@@ -95,7 +101,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	//! Populate objective item map with the data from the objectives deliveries configuration
 	protected void UpdateObjectiveItemsMap()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!m_Config || !m_Config.GetItemNames() || m_Config.GetItemNames().Count() == 0)
 			return;
@@ -127,7 +135,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 	protected void CheckQuestPlayersForObjectiveItems()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		m_ObjectiveItems.Clear();
 		m_ObjectiveItemsCount = 0;
@@ -165,7 +175,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		if (!player)
 			return;
 
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, player.GetIdentity().GetId());
+	#endif
 
 		foreach (string typeNameLower, int needed: m_ObjectiveItemsMap)
 		{
@@ -195,7 +207,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		DeleteObjectiveItems();
 
@@ -207,7 +221,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 	protected void DeleteObjectiveItems()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		foreach (EntityAI item: m_ObjectiveItems)
 		{
@@ -218,7 +234,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 	void OnObjectiveActionExecuted(PlayerBase player, array<ItemBase> spawned_objects)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (m_ObjectiveActionCount == m_ObjectiveActionAmount)
 			return;
@@ -244,7 +262,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 	void OnInventoryItemLocationChange(ItemBase item, ExpansionQuestItemState state)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		string typeNameLower = item.Expansion_GetTypeLower();
 
@@ -309,7 +329,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 	override bool CanComplete()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 		ObjectivePrint("m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 		ObjectivePrint("m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
 

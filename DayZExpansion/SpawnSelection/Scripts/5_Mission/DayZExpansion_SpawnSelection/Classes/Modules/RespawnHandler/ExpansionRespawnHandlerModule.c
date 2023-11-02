@@ -54,59 +54,12 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		EnableInvokeConnect();
 		EnableMissionFinish();
 		EnableMissionStart();
-		EnableRPC();
-	}
+		Expansion_EnableRPCManager();
 
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule GetRPCMin
-	// ------------------------------------------------------------	
-	override int GetRPCMin()
-	{
-		return ExpansionRespawnHandlerModuleRPC.INVALID;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule GetRPCMax
-	// ------------------------------------------------------------	
-	override int GetRPCMax()
-	{
-		return ExpansionRespawnHandlerModuleRPC.COUNT;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule OnRPC
-	// ------------------------------------------------------------
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
-
-		super.OnRPC(sender, args);
-
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch (rpc.ID)
-		{
-			case ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu:
-			{
-				RPC_ShowSpawnMenu(rpc.Sender, rpc.Context);
-				break;
-			}
-			case ExpansionRespawnHandlerModuleRPC.SelectSpawn:
-			{
-				RPC_SelectSpawn(rpc.Sender, rpc.Context);
-				break;
-			}
-			case ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu:
-			{
-				RPC_CloseSpawnMenu(rpc.Sender, rpc.Context);
-				break;
-			}
-			case ExpansionRespawnHandlerModuleRPC.CheckPlayerCooldowns:
-			{
-				RPC_CheckPlayerCooldowns(rpc.Sender, rpc.Context);
-				break;
-			}
-		}
+		Expansion_RegisterClientRPC("RPC_ShowSpawnMenu");
+		Expansion_RegisterServerRPC("RPC_SelectSpawn");
+		Expansion_RegisterClientRPC("RPC_CloseSpawnMenu");
+		Expansion_RegisterClientRPC("RPC_CheckPlayerCooldowns");
 	}
 	
 	// ------------------------------------------------------------
@@ -153,10 +106,10 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			Save();
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_ShowSpawnMenu");
 		rpc.Write(GetExpansionSettings().GetSpawn().SpawnLocations);
 		rpc.Write(territoryspawnlist);
-		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu, true, identity);
+		rpc.Expansion_Send(true, identity);
 	}
 	
 	// ------------------------------------------------------------
@@ -190,15 +143,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ExpansionRespawnHandlerModule RPC_ShowSpawnMenu
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_ShowSpawnMenu(PlayerIdentity sender, ParamsReadContext ctx)
+	private void RPC_ShowSpawnMenu(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if (!IsMissionClient())
-			return;
 
 		array<ref ExpansionSpawnLocation> spawnlist;
 		if (!ctx.Read(spawnlist))
@@ -245,6 +192,11 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		if (!GetGame().GetMission().GetHud())
 			return;
+
+	#ifdef EXPANSIONMONITORMODULE
+		if (!GetExpansionSettings().GetSpawn(false).IsLoaded())
+			return;
+	#endif
 
 		//! Game is ready to show menu
 
@@ -336,8 +288,8 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		//! FIXME (or not): Moving the player causes desync. Just skip it for now.
 		return;
 
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.RequestPlacePlayerAtTempSafePosition, true);
+		auto rpc = Expansion_CreateRPC("RPC_RequestPlacePlayerAtTempSafePosition");
+		rpc.Expansion_Send(true);
 	}
 	
 	// ------------------------------------------------------------
@@ -355,10 +307,10 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Exec_ShowSpawnMenu);
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_SelectSpawn");
 		rpc.Write(index);
 		rpc.Write(spawnPointIndex);
-		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.SelectSpawn, true);
+		rpc.Expansion_Send(true);
 	}
 	
 	//! Check existing cooldowns and add if none present.
@@ -410,19 +362,10 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ExpansionRespawnHandlerModule RPC_SelectSpawn
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_SelectSpawn(PlayerIdentity sender, ParamsReadContext ctx)
+	private void RPC_SelectSpawn(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if (!IsMissionHost())
-			return;
-		
-		if (!sender)
-			return;
-		
 		int pointIndex;
 		if (!ctx.Read(pointIndex))
 			Error(ToString() + "::RPC_SelectSpawn - ERROR: Could not read spawn point index!");
@@ -542,8 +485,8 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		player.StatRegister(AnalyticsManagerServer.STAT_PLAYTIME);
 		//player.StatSyncToClient();
 		
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu, true, identity);
+		auto rpc = Expansion_CreateRPC("RPC_CloseSpawnMenu");
+		rpc.Expansion_Send(true, identity);
 	}
 	
 	void ResetItemWetness(EntityAI parent)
@@ -566,15 +509,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ExpansionRespawnHandlerModule RPC_CloseSpawnMenu
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_CloseSpawnMenu(PlayerIdentity sender, ParamsReadContext ctx)
+	private void RPC_CloseSpawnMenu(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		if ( !IsMissionClient() )
-			return;
 		
 		//! Use CallLater to make menu disappear *after* player position has updated on client
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_CloseSpawnMenu, 1000, false);
@@ -1066,7 +1003,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		if (!player)
 			return;
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_CheckPlayerCooldowns");
 
 		rpc.Write(playerCooldowns.Count());
 		foreach (int index, ExpansionRespawnDelayTimer timer: playerCooldowns)
@@ -1077,22 +1014,16 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		rpc.Write(m_PlayerLastIndex[playerUID]);
 
-		rpc.Send(NULL, ExpansionRespawnHandlerModuleRPC.CheckPlayerCooldowns, true, player.GetIdentity());
+		rpc.Expansion_Send(true, player.GetIdentity());
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule RPC_CheckPlayerCooldowns
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_CheckPlayerCooldowns(PlayerIdentity sender, ParamsReadContext ctx)
+	private void RPC_CheckPlayerCooldowns(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-		
-		if (!IsMissionClient())
-			return;
 
 		array<ref ExpansionRespawnDelayTimer> playerCooldowns = new array<ref ExpansionRespawnDelayTimer>;
 		if (!ctx.Read(playerCooldowns))

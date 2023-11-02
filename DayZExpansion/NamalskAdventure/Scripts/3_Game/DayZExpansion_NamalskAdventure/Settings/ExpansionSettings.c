@@ -18,31 +18,12 @@ modded class ExpansionSettings
 	{
 		super.Init();
 
-		Init(ExpansionNamalskAdventureSettings);
+		Init(ExpansionNamalskAdventureSettings, true);
 	}
 
-	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	void RPC_NamalskAdventureSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRPC");
-	#endif
-
-		if (super.OnRPC(sender, target, rpc_type, ctx))
-			return true;
-
-		if (rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT)
-			return false;
-
-		switch (rpc_type)
-		{
-			case ExpansionSettingsRPC.NamalskAdventure:
-			{
-				Receive(ExpansionNamalskAdventureSettings, ctx);
-				return true;
-			}
-		}
-
-		return false;
+		Receive(ExpansionNamalskAdventureSettings, ctx);
 	}
 
 	ExpansionNamalskAdventureSettings GetNamalskAdventure(bool checkLoaded = true)

@@ -23,6 +23,8 @@ class ExpansionWeaponFireBase
 
 bool ExpansionTryFireWeapon( DayZPlayerImplement player, Weapon_Base weapon, int muzzleIndex )
 {
+	auto trace = EXTrace.Start(ExpansionTracing.WEAPONS, ExpansionWeaponFireBase);
+
 	if ( !TryFireWeapon( weapon, muzzleIndex ) )
 		return false;
 
@@ -53,7 +55,9 @@ bool ExpansionTryFireWeapon( DayZPlayerImplement player, Weapon_Base weapon, int
 
 			fireBase.FireClient( weapon, muzzleIndex, player, position, direction );
 
-			GetRPCManager().SendRPC("DayZExpansion", "ConfirmWeaponFire", new Param1<vector>(direction), true, NULL, weapon );
+			auto rpc = ExpansionScriptRPC.Create(Weapon_Base.s_Expansion_ConfirmWeaponFire_RPCID);
+			rpc.Write(direction);
+			rpc.Expansion_Send(weapon, true);
 		}
 	}
 

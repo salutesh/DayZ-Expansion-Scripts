@@ -251,6 +251,7 @@ enum ExpansionFindFileMode
 class ExpansionStatic
 {
 	static const string BASE16 = "0123456789ABCDEF";
+	static const typename NULLTYPE;
 
 	static string BitmaskEnumToString(typename e, int enumValue)
 	{

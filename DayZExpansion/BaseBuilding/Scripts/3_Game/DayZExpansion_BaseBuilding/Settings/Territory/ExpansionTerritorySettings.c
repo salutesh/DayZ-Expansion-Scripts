@@ -83,9 +83,9 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 			return 0;
 		}
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = CreateRPC();
 		OnSend( rpc );
-		rpc.Send( null, ExpansionSettingsRPC.Territory, true, identity );
+		rpc.Expansion_Send(true, identity);
 		
 		return 0;
 	}

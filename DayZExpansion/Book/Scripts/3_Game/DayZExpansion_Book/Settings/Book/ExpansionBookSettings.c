@@ -99,9 +99,9 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 			return 0;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = CreateRPC();
 		OnSend( rpc );
-		rpc.Send( null, ExpansionSettingsRPC.Book, true, identity );
+		rpc.Expansion_Send(true, identity);
 
 		return 0;
 	}

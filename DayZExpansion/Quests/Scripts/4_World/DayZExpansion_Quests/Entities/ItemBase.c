@@ -28,7 +28,8 @@ modded class ItemBase
 	protected bool m_Expansion_DeletedByQuest = false;
 	protected bool m_Expansion_IsDeliveryItem = false;
 	protected bool m_Expansion_Quests_InventoryEnter;
-	protected bool m_ExpansionIsSetForDeletion = false;
+	protected bool m_Expansion_IsSetForDeletion = false;
+	protected bool m_Expansion_IsObjectiveLootItem = false;
 
 	protected const ref array<string> m_Expansion_ExcludedFromCombine = {"Ammunition_Base", "Edible_Base"};
 
@@ -36,6 +37,7 @@ modded class ItemBase
 	{
 		RegisterNetSyncVariableInt("m_Expansion_QuestID");
 		RegisterNetSyncVariableBool("m_Expansion_IsQuestGiver");
+		RegisterNetSyncVariableBool("m_Expansion_IsObjectiveLootItem");
 	}
 
 	bool Expansion_IsQuestItem()
@@ -78,6 +80,17 @@ modded class ItemBase
 	bool Expansion_IsDeliveryItem()
 	{
 		return m_Expansion_IsDeliveryItem;
+	}
+	
+	void Expansion_SetIsObjectiveLoot(bool state)
+	{
+		m_Expansion_IsObjectiveLootItem = state;
+		SetSynchDirty();
+	}
+
+	bool Expansion_IsObjectiveLoot()
+	{
+		return m_Expansion_IsObjectiveLootItem;
 	}
 
 	override void DeferredInit()
@@ -436,12 +449,12 @@ modded class ItemBase
 	
 	void Expansion_SetForDeletion(bool state)
 	{
-		m_ExpansionIsSetForDeletion = state;
+		m_Expansion_IsSetForDeletion = state;
 	}
 	
 	bool Expansion_IsSetForDeletion()
 	{
-		return m_ExpansionIsSetForDeletion;
+		return m_Expansion_IsSetForDeletion;
 	}
 
 #ifdef EXPANSIONMODHARDLINE
@@ -464,6 +477,7 @@ modded class ItemBase
 
 		ctx.Write(m_Expansion_QuestID);
 		ctx.Write(m_Expansion_IsQuestGiver);
+		ctx.Write(m_Expansion_IsObjectiveLootItem);
 	}
 
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -484,6 +498,12 @@ modded class ItemBase
 			return true;
 
 		if (!ctx.Read(m_Expansion_IsQuestGiver))
+			return false;
+		
+		if (ctx.GetVersion() < 50)
+			return true;
+
+		if (!ctx.Read(m_Expansion_IsObjectiveLootItem))
 			return false;
 
 		return true;

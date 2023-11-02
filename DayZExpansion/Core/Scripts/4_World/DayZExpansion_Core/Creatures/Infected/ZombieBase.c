@@ -17,7 +17,8 @@ modded class ZombieBase
 	protected bool m_Expansion_IsInSafeZone;
 	protected bool m_Expansion_IsInSafeZone_DeprecationWarning;
 	
-	ref ExpansionNetsyncData m_Expansion_NetsyncData;	
+	ref ExpansionNetsyncData m_Expansion_NetsyncData;
+	ref ExpansionRPCManager m_Expansion_RPCManager;	
 	
 	// ------------------------------------------------------------
 	// ZombieBase OnEnterZone
@@ -71,19 +72,19 @@ modded class ZombieBase
 			return super.NameOverride(output);
 	}
 
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-
-		if (m_Expansion_NetsyncData)
-			m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
-	}
-
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
 		if (damageType == DT_EXPLOSION && ExpansionDamageSystem.IsEnabledForExplosionTarget(this))
 			ExpansionDamageSystem.OnExplosionHit(source, this, ammo, true, damageResult);
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		if (m_Expansion_NetsyncData && !m_Expansion_NetsyncData.m_WasDataRequested)
+			m_Expansion_NetsyncData.Request();
 	}
 }

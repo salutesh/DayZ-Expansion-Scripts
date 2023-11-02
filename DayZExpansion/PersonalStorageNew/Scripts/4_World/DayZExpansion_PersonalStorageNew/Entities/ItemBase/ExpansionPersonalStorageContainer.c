@@ -73,6 +73,9 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 			m_Expansion_PersonalStorageAllowAttachmentCargo = storageLevel.AllowAttachmentCargo;
 		}
 #endif
+		if (!m_Expansion_RPCManager)
+			m_Expansion_RPCManager = new ExpansionRPCManager(this, ItemBase);
+		m_Expansion_RPCManager.RegisterServer("RPC_Expansion_RequestMoveItem");
 	}
 
 	override void OnVariablesSynchronized()
@@ -300,31 +303,13 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 
 	void Expansion_RequestMoveItem(EntityAI item)
 	{
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_Expansion_RequestMoveItem");
 		rpc.Write(item);
-		rpc.Send(this, ExpansionPersonalStorageNewRPC.RequestMoveItem, true, null);
-	}
-
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-
-		switch (rpc_type)
-		{
-			case ExpansionPersonalStorageNewRPC.RequestMoveItem:
-				RPC_Expansion_RequestMoveItem(sender, ctx);
-				break;
-		}
+		rpc.Expansion_Send(true);
 	}
 
 	void RPC_Expansion_RequestMoveItem(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		if (!GetGame().IsServer())
-			return;
-
-		if (!sender)
-			return;
-
 		Man player = sender.GetPlayer();
 
 		if (!player)

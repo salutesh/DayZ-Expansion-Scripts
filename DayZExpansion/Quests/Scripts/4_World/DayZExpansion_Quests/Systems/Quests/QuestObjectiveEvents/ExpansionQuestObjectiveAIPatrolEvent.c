@@ -17,7 +17,9 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 
 	override bool OnEventStart()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
@@ -30,7 +32,9 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 
 	override bool OnContinue()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
@@ -60,7 +64,9 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
 		if (!aiPatrol)
@@ -84,7 +90,9 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 
 	override protected void CheckQuestAIPatrol()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!m_Config)
 			return;
@@ -94,7 +102,9 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 
 	override void CreateQuestAIPatrol()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
 		if (!aiPatrol)

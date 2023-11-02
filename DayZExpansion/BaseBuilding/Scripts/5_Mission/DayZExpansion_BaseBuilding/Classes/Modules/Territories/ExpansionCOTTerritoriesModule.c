@@ -119,6 +119,26 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	{
 	}
 
+	override void EnableRPC()
+	{
+	}
+
+	override void OnInit()
+	{
+		super.OnInit();
+
+		Expansion_EnableRPCManager();
+
+		Expansion_RegisterServerRPC("RPC_DeleteObject");
+		Expansion_RegisterServerRPC("RPC_RequestServerTerritories");
+		Expansion_RegisterClientRPC("RPC_SendServerTerritories");
+		Expansion_RegisterServerRPC("RPC_RequestTerritoryObjects");
+		Expansion_RegisterClientRPC("RPC_SendTerritoryObjects");
+		Expansion_RegisterServerRPC("RPC_TeleportToTerritory");
+		Expansion_RegisterServerRPC("RPC_RequestUpdateObjectData");
+		Expansion_RegisterClientRPC("RPC_SendObjectData");
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionCOTTerritoriesModule HasAccess
 	// ------------------------------------------------------------	
@@ -160,68 +180,6 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCOTTerritoriesModule GetRPCMin
-	// ------------------------------------------------------------	
-	override int GetRPCMin()
-	{
-		return ExpansionCOTTerritoriesModuleRPC.INVALID;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTTerritoriesModule GetRPCMax
-	// ------------------------------------------------------------
-	override int GetRPCMax()
-	{
-		return ExpansionCOTTerritoriesModuleRPC.COUNT;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTTerritoriesModule OnRPC
-	// ------------------------------------------------------------
-	#ifdef CF_BUGFIX_REF
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
-	#else
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
-	#endif
-	{
-		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
-		EXLogPrint("ExpansionCOTTerritoriesModule::OnRPC - Start");
-		#endif
-		
-		switch ( rpc_type )
-		{
-			case ExpansionCOTTerritoriesModuleRPC.DeleteObject:
-			RPC_DeleteObject( ctx, sender, target );
-			break;
-			case ExpansionCOTTerritoriesModuleRPC.RequestServerTerritories:
-			RPC_RequestServerTerritories( ctx, sender, target );
-			break;
-			case ExpansionCOTTerritoriesModuleRPC.SendServerTerritories:
-			RPC_SendServerTerritories( ctx, sender, target );
-			break;
-			case ExpansionCOTTerritoriesModuleRPC.RequestTerritoryObjects:
-			RPC_RequestTerritoryObjects( ctx, sender, target );
-			break;
-			case ExpansionCOTTerritoriesModuleRPC.SendTerritoryObjects:
-			RPC_SendTerritoryObjects( ctx, sender, target );
-			break;
-			case ExpansionCOTTerritoriesModuleRPC.TeleportToTerritory:
-			RPC_TeleportToTerritory( ctx, sender, target );
-			break;
-			case ExpansionCOTTerritoriesModuleRPC.RequestUpdateObjectData:
-			RPC_RequestUpdateObjectData( ctx, sender, target );
-			break;
-			case ExpansionCOTTerritoriesModuleRPC.SendObjectData:
-			RPC_SendObjectData( ctx, sender, target );
-			break;
-		}
-		
-		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
-		EXLogPrint("ExpansionCOTTerritoriesModule::OnRPC - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
 	// ExpansionCOTTerritoriesModule RequestTerritoryObjects
 	// Called from client
 	// ------------------------------------------------------------
@@ -231,9 +189,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		EXLogPrint("ExpansionCOTTerritoriesModule::RequestTerritoryObjects - Start");
 		#endif
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestTerritoryObjects");
 		rpc.Write( pos );
-		rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.RequestTerritoryObjects, true, null );
+		rpc.Expansion_Send(true);
 		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RequestTerritoryObjects - End");
@@ -244,17 +202,11 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_RequestTerritoryObjects
 	// Called on Server
 	// ------------------------------------------------------------
-	void RPC_RequestTerritoryObjects( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	void RPC_RequestTerritoryObjects(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_RequestTerritoryObjects - Start");
 		#endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-		
-		if ( !IsMissionHost() )
-			return;
 
 		if ( !GetPermissionsManager().HasPermission( "Expansion.Territories.View", senderRPC ) )
 			return;
@@ -298,9 +250,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 			}
 		}
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_SendTerritoryObjects");
 		rpc.Write( objects_datas );
-		rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.SendTerritoryObjects, true, ident );
+		rpc.Expansion_Send(true, ident);
 		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::Exec_RequestTerritoryObjects - End");
@@ -311,17 +263,11 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_SendTerritoryObjects
 	// Called on client
 	// ------------------------------------------------------------
-	void RPC_SendTerritoryObjects( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	void RPC_SendTerritoryObjects(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_SendTerritoryObjects - Start");
 		#endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-		
-		if ( IsMissionHost() )
-			return;
 
 		if ( !GetPermissionsManager().HasPermission( "Expansion.Territories.View", senderRPC ) )
 			return;
@@ -409,10 +355,10 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		
 		if ( IsMissionClient() )
 		{
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = Expansion_CreateRPC("RPC_DeleteObject");
 			rpc.Write( netLow );
 			rpc.Write( netHigh );
-			rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.DeleteObject, true );
+			rpc.Expansion_Send(true);
 		}
 		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
@@ -424,17 +370,11 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_DeleteObject
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_DeleteObject( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	void RPC_DeleteObject(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_DeleteObject - Start");
 		#endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-		
-		if ( !IsMissionHost() )
-			return;
 
 		if ( !GetPermissionsManager().HasPermission( "Expansion.Territories.Delete", senderRPC ) )
 			return;
@@ -471,8 +411,8 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		
 		if ( !IsMissionHost() )
 		{
-			auto rpc = ExpansionScriptRPC.Create();
- 			rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.RequestServerTerritories, true );
+			auto rpc = Expansion_CreateRPC("RPC_RequestServerTerritories");
+ 			rpc.Expansion_Send(true);
 		}
 		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
@@ -484,20 +424,11 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_RequestServerTerritories
 	// Called on Server
 	// ------------------------------------------------------------
-	void RPC_RequestServerTerritories( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	void RPC_RequestServerTerritories(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{	
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_RequestServerTerritories - Start");
 		#endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-			
-		if (!IsMissionHost())
-			return;
-		
-		if (!senderRPC) 
-			return;
 		
 		array< ref ExpansionTerritory > territories = new array< ref ExpansionTerritory >;
 		
@@ -520,9 +451,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 			territories.Insert( currentFlag.GetTerritory() );
 		}
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_SendServerTerritories");
 		rpc.Write( territories );
-		rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.SendServerTerritories, true, senderRPC );
+		rpc.Expansion_Send(true, senderRPC);
 		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_RequestServerTerritories - End");
@@ -534,17 +465,11 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_SendServerTerritories
 	// Called on Client
 	// ------------------------------------------------------------
-	private void RPC_SendServerTerritories( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	void RPC_SendServerTerritories(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_SendServerTerritories - Start");
 		#endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-		
-		if ( !IsMissionClient() )
-			return;
 				
 		array<ref ExpansionTerritory> territories = new array<ref ExpansionTerritory>;
 		if ( !ctx.Read( territories ) )
@@ -575,10 +500,10 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 				
 		if ( IsMissionClient() )
 		{
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = Expansion_CreateRPC("RPC_TeleportToTerritory");
 			rpc.Write( netLow );
 			rpc.Write( netHigh );
- 			rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.TeleportToTerritory, true );
+ 			rpc.Expansion_Send(true);
 		}
 		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
@@ -590,17 +515,11 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_TeleportToTerritory
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_TeleportToTerritory( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	void RPC_TeleportToTerritory(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_TeleportToTerritory - Start");
 		#endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-		
-		if ( !IsMissionHost() )
-			return;
 
 		JMPlayerInstance instance;
 		if ( !GetPermissionsManager().HasPermission( "Expansion.Territories.Teleport", senderRPC, instance ) )
@@ -647,10 +566,10 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		
 		if ( IsMissionClient() )
 		{
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = Expansion_CreateRPC("RPC_RequestUpdateObjectData");
 			rpc.Write( netLow );
 			rpc.Write( netHigh );
- 			rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.RequestUpdateObjectData, true );
+ 			rpc.Expansion_Send(true);
 		}
 		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
@@ -662,17 +581,11 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_RequestUpdateObjectData
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_RequestUpdateObjectData( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	void RPC_RequestUpdateObjectData(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_RequestUpdateObjectData - Start");
 		#endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
-		
-		if ( !IsMissionHost() )
-			return;
 
 		JMPlayerInstance instance;
 		if ( !GetPermissionsManager().HasPermission( "Expansion.Territories.View", senderRPC, instance ) )
@@ -708,9 +621,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_SendObjectData");
 		rpc.Write( object_data );
- 		rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.SendObjectData, true );
+ 		rpc.Expansion_Send(true, senderRPC);
 		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_RequestUpdateObjectData - End");
@@ -721,14 +634,11 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_SendObjectData
 	// Called on Client
 	// ------------------------------------------------------------
-	private void RPC_SendObjectData( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	void RPC_SendObjectData(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_SendObjectData - Start");
 		#endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
 		
 		ExpansionEntityMetaData object_data;
 		if ( !ctx.Read( object_data ) )

@@ -39,7 +39,8 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 	{
 		super.OnInit();
 
-		EnableRPC();
+		Expansion_EnableRPCManager();
+		Expansion_RegisterClientRPC("RPC_SendMessage");
 
 #ifdef JM_COT
 		CF_Modules<JMWebhookModule>.Get(m_Webhook);
@@ -733,9 +734,9 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		{
 			ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData(type, icon, param1, param2, param3, param4);
 
-			auto message_rpc = ExpansionScriptRPC.Create();
+			auto message_rpc = Expansion_CreateRPC("RPC_SendMessage");
 			message_rpc.Write( kill_data );
-			message_rpc.Send( null, ExpansionKillFeedModuleRPC.SendMessage, true );
+			message_rpc.Expansion_Send(true);
 
 			ExpansionLogKillfeed(kill_data);
 		}
@@ -979,36 +980,9 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		return identity.GetName();
 	}
 
-	override int GetRPCMin()
-	{
-		return ExpansionKillFeedModuleRPC.INVALID;
-	}
-
-	override int GetRPCMax()
-	{
-		return ExpansionKillFeedModuleRPC.COUNT;
-	}
-
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		super.OnRPC(sender, args);
-
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch ( rpc.ID )
-		{
-		case ExpansionKillFeedModuleRPC.SendMessage:
-			RPC_SendMessage( rpc.Sender, rpc.Context );
-			break;
-		}
-	}
-
 	//! @note Called on all Clients
-	private void RPC_SendMessage(PlayerIdentity sender, ParamsReadContext ctx )
+	private void RPC_SendMessage(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData( ExpansionKillFeedMessageType.UNKNOWN, "" );
 		ctx.Read(kill_data);
 

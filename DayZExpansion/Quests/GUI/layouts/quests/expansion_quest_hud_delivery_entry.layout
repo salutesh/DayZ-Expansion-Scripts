@@ -105,6 +105,7 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
        vexactsize 1
        mode blend
        "src alpha" 1
+       stretch 1
        "clamp mode" clamp
        "stretch mode" stretch_w_h
        "flip u" 0

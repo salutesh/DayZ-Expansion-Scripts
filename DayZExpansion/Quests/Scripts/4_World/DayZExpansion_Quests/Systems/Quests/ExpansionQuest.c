@@ -463,14 +463,6 @@ class ExpansionQuest
 
 		if (!m_Config.IsAchievement())
 			SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestCompletedTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestCompletedText, m_Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO);
-
-	#ifdef EXPANSIONMODNAVIGATION
-		//! Delete the objective markers.
-		foreach (ExpansionQuestObjectiveEventBase objective: m_QuestObjectives)
-		{
-			objective.RemoveObjectiveMarkers();
-		}
-	#endif
 		
 		SetQuestState(ExpansionQuestState.CAN_TURNIN);
 
@@ -484,7 +476,7 @@ class ExpansionQuest
 			ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest(m_Player.GetIdentity(), m_Config.GetID());
 		}
 		
-		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestObjectivesIncomplete(this);
+		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestObjectivesComplete(this);
 	}
 
 	//! Event called when a quest objective state has changed to incomplete after it was completed once
@@ -501,17 +493,11 @@ class ExpansionQuest
 	#ifdef EXPANSIONMODNAVIGATION
 		//! Remove the turn-in markers in case there is one.
 		RemoveQuestMarkers();
-
-		//! Recreate objective markers.
-		foreach (ExpansionQuestObjectiveEventBase objective: m_QuestObjectives)
-		{
-			objective.CreateMarkers();
-		}
 	#endif
 
 		SetQuestState(ExpansionQuestState.STARTED);
 		
-		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestObjectivesComplete(this);
+		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestObjectivesIncomplete(this);
 	}
 
 	//! Event called when ever a quest is completed and turned-in
@@ -845,7 +831,6 @@ class ExpansionQuest
 	{
 		array<EntityAI> items = new array<EntityAI>;
 		items.Reserve(player.GetInventory().CountInventory());
-
 	   	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 
 		foreach (EntityAI item : items)
@@ -854,7 +839,7 @@ class ExpansionQuest
 			if (!Class.CastTo(itemIB, item))
 				continue;
 			
-			if (!itemIB.Expansion_IsQuestGiver() && itemIB.Expansion_GetQuestID() == m_Config.GetID())
+			if (!itemIB.Expansion_IsQuestGiver() && !itemIB.Expansion_IsObjectiveLoot() && itemIB.Expansion_GetQuestID() == m_Config.GetID())
 				GetGame().ObjectDelete(item);
 		}
 	}
@@ -1070,13 +1055,7 @@ class ExpansionQuest
 		}
 
 	#ifdef EXPANSIONMODNAVIGATION
-		RemoveQuestMarkers();
-
-		//! Recreate objective markers.
-		foreach (ExpansionQuestObjectiveEventBase objective: m_QuestObjectives)
-		{
-			objective.CreateMarkers();
-		}
+		RemoveQuestMarkers(true);
 	#endif
 		SetInitialized(false);
 		
@@ -1650,9 +1629,18 @@ class ExpansionQuest
 	#endif
 	}
 
-	private void RemoveQuestMarkers()
+	/**
+	 * @brief Remove quest markers
+	 * 
+	 * @param removeObjectiveMarkers If false, remove only turn-in marker, if true, also remove objective markers
+	 */
+	private void RemoveQuestMarkers(bool removeObjectiveMarkers = false)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		int objectiveIndex = -1;
+		if (removeObjectiveMarkers)
+			objectiveIndex = -2;
 
 		if (!m_Config.IsGroupQuest())
 		{
@@ -1660,7 +1648,7 @@ class ExpansionQuest
 			if (!player)
 				return;
 
-			m_QuestModule.RemoveClientMarkers(m_Config.GetID(), player.GetIdentity(), -1);
+			m_QuestModule.RemoveClientMarkers(m_Config.GetID(), player.GetIdentity(), objectiveIndex);
 		}
 	#ifdef EXPANSIONMODGROUPS
 		else
@@ -1671,7 +1659,7 @@ class ExpansionQuest
 				if (!groupPlayer)
 					continue;
 
-				m_QuestModule.RemoveClientMarkers(m_Config.GetID(), groupPlayer.GetIdentity(), -1);
+				m_QuestModule.RemoveClientMarkers(m_Config.GetID(), groupPlayer.GetIdentity(), objectiveIndex);
 			}
 		}
 	#endif
@@ -1748,7 +1736,7 @@ class ExpansionQuest
 
 			QuestDebugPrint("Item Quest ID: " + itemIB.Expansion_GetQuestID());
 
-			if (itemIB.Expansion_GetQuestID() != questID)
+			if (itemIB.Expansion_GetQuestID() != questID || itemIB.Expansion_IsQuestGiver() || itemIB.Expansion_IsObjectiveLoot())
 			{
 				QuestDebugPrint("Item " + typeName + " is not a quest item for this quest. Skip..");
 				continue;

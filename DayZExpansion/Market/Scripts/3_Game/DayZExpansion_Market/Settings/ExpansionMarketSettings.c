@@ -362,9 +362,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			return 0;
 		}
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = CreateRPC();
 		OnSend(rpc);
-		rpc.Send(null, ExpansionSettingsRPC.Market, true, identity);
+		rpc.Expansion_Send(true, identity);
 		
 		//TraderPrint("Send - End and return");
 		return 0;

@@ -308,9 +308,9 @@ class ExpansionHardlinePlayerData
 		if (!m_FactionSynchDirty)
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = ExpansionScriptRPC.Create(ExpansionHardlineModule.s_ReceiveFactionReputation_RPCID);
 		WriteFactionReputation(rpc, false);
-		rpc.Send(null, ExpansionHardlineModuleRPC.FactionReputationSync, true, identity);
+		rpc.Expansion_Send(true, identity);
 
 		m_FactionSynchDirty = false;
 	}

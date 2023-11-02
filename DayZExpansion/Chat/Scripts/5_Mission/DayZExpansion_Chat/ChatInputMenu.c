@@ -75,9 +75,11 @@ modded class ChatInputMenu
 				if (GetGame().IsMultiplayer())
 				{
 					ChatMessageEventParams chat_params_rpc = new ChatMessageEventParams(gameplayMission.GetChatChannel(), "", text, "");
-					auto rpc = ExpansionScriptRPC.Create();
+					ExpansionGlobalChatModule module;
+					CF_Modules<ExpansionGlobalChatModule>.Get(module);
+					auto rpc = module.Expansion_CreateRPC("RPC_AddChatMessage");
 					rpc.Write(chat_params_rpc);
-					rpc.Send(null, ExpansionGlobalChatRPC.AddChatMessage, true);
+					rpc.Expansion_Send(true);
 				}
 				else
 				{

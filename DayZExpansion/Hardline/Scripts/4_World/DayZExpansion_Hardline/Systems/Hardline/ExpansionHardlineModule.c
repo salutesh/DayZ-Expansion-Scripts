@@ -14,6 +14,7 @@
 class ExpansionHardlineModule: CF_ModuleWorld
 {
 	protected static ExpansionHardlineModule s_Instance;
+	static int s_ReceiveFactionReputation_RPCID;
 	
 	protected ref map<string, ref ExpansionHardlinePlayerData> m_HardlinePlayerData = new map<string, ref ExpansionHardlinePlayerData>; //! Server
 	
@@ -57,49 +58,19 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		EnableClientPrepare();
 		EnableInvokeConnect();
 		EnableClientDisconnect();
-		EnableRPC();
-	}
-	
-	override int GetRPCMin()
-	{
-		return ExpansionHardlineModuleRPC.INVALID;
-	}
-
-	override int GetRPCMax()
-	{
-		return ExpansionHardlineModuleRPC.COUNT;
-	}
-
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		super.OnRPC(sender, args);
-
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch ( rpc.ID )
-		{
-			case ExpansionHardlineModuleRPC.FactionReputationSync:
-			{
-				RPC_ReceiveHardlineFactionReputation(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-		}
+		Expansion_EnableRPCManager();
+		s_ReceiveFactionReputation_RPCID = Expansion_RegisterClientRPC("RPC_ReceiveFactionReputation");
 	}
 	
 	//! Client
-	protected void RPC_ReceiveHardlineFactionReputation(ParamsReadContext ctx, PlayerIdentity identity, Object target)
+	protected void RPC_ReceiveFactionReputation(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-            return;
 		
 		PlayerBase clientPB = PlayerBase.Cast(GetGame().GetPlayer());
 		if (!clientPB)
 		{
-			Error(ToString() + "::RPC_ReceiveHardlineFactionReputation - Could not get player!");
+			Error(ToString() + "::RPC_ReceiveFactionReputation - Could not get player!");
 			return;
 		}
 
@@ -110,7 +81,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 		if (!clientPB.m_Expansion_HardlineData.ReadFactionReputation(ctx))
 		{
-			Error(ToString() + "::RPC_ReceiveHardlineFactionReputation - Could not read faction reputation data!");
+			Error(ToString() + "::RPC_ReceiveFactionReputation - Could not read faction reputation data!");
 			return;
 		}
 	}

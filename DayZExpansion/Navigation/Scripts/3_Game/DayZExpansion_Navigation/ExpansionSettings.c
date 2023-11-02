@@ -18,54 +18,45 @@ modded class ExpansionSettings
 	{
 		super.Init();
 
-		Init(ExpansionMapSettings);
+		Init(ExpansionMapSettings, true);
 	}
 
-	override bool OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
+	override void OnInit(typename type)
 	{
-		if (super.OnRPC(sender, target, rpc_type, ctx))
-			return true;
+		super.OnInit(type);
 
-		if (rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT)
-			return false;
-
-		if (GetGame().IsDedicatedServer())
-			return false;
-
-		switch (rpc_type)
+		if (type == ExpansionMapSettings)
 		{
-		case ExpansionSettingsRPC.Map:
-			Receive(ExpansionMapSettings, ctx);
-			return true;
-
-		case ExpansionSettingsRPC.AddServerMarker:
-			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-				return false;
-			
-			string uid_add;
-			if (!Expansion_Assert_False(ctx.Read(uid_add), "ExpansionSettingsRPC.AddServerMarker - Failed reading marker UID"))
-			{
-				auto marker = ExpansionMarkerData.Create(ExpansionMapMarkerType.SERVER, uid_add);
-				marker.OnRecieve(ctx);
-				if (GetExpansionSettings().GetMap(false).IsLoaded()) //! No need to add marker if map settings not yet received
-					GetExpansionSettings().GetMap().AddServerMarker(marker);
-			}
-			return true;
-
-		case ExpansionSettingsRPC.RemoveServerMarker:
-			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-				return false;
-			
-			string uid_remove;
-			if (!Expansion_Assert_False(ctx.Read(uid_remove), "ExpansionSettingsRPC.RemoveServerMarker - Failed reading marker UID"))
-			{
-				if (GetExpansionSettings().GetMap(false).IsLoaded()) //! No need to remove marker if map settings not yet received
-					GetExpansionSettings().GetMap().RemoveServerMarker(uid_remove);
-			}
-			return true;
+			m_Expansion_RPCManager.RegisterClient("RPC_AddServerMarker");
+			m_Expansion_RPCManager.RegisterClient("RPC_RemoveServerMarker");
 		}
+	}
 
-		return false;
+	void RPC_MapSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		Receive(ExpansionMapSettings, ctx);
+	}
+
+	void RPC_AddServerMarker(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		string uid_add;
+		if (!Expansion_Assert_False(ctx.Read(uid_add), "ExpansionSettingsRPC.AddServerMarker - Failed reading marker UID"))
+		{
+			auto marker = ExpansionMarkerData.Create(ExpansionMapMarkerType.SERVER, uid_add);
+			marker.OnRecieve(ctx);
+			if (GetExpansionSettings().GetMap(false).IsLoaded()) //! No need to add marker if map settings not yet received
+				GetExpansionSettings().GetMap().AddServerMarker(marker);
+		}
+	}
+
+	void RPC_RemoveServerMarker(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		string uid_remove;
+		if (!Expansion_Assert_False(ctx.Read(uid_remove), "ExpansionSettingsRPC.RemoveServerMarker - Failed reading marker UID"))
+		{
+			if (GetExpansionSettings().GetMap(false).IsLoaded()) //! No need to remove marker if map settings not yet received
+				GetExpansionSettings().GetMap().RemoveServerMarker(uid_remove);
+		}
 	}
 
 	ExpansionMapSettings GetMap(bool checkLoaded = true)

@@ -20,45 +20,24 @@ modded class ExpansionSettings
 	{
 		super.Init();
 
-		Init(ExpansionBaseBuildingSettings);
-		Init(ExpansionRaidSettings);
-		Init(ExpansionTerritorySettings);
+		Init(ExpansionBaseBuildingSettings, true);
+		Init(ExpansionRaidSettings, true);
+		Init(ExpansionTerritorySettings, true);
 	}
 
-	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	void RPC_BaseBuildingSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRPC");
-#endif
+		Receive(ExpansionBaseBuildingSettings, ctx);
+	}
 
-		if (super.OnRPC(sender, target, rpc_type, ctx))
-			return true;
+	void RPC_RaidSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		Receive(ExpansionRaidSettings, ctx);
+	}
 
-		if ( rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT )
-			return false;
-		
-		switch ( rpc_type )
-		{			
-			case ExpansionSettingsRPC.BaseBuilding:
-			{
-				Receive(ExpansionBaseBuildingSettings, ctx);
-				return true;
-			}
-			
-			case ExpansionSettingsRPC.Raid:
-			{
-				Receive(ExpansionRaidSettings, ctx);
-				return true;
-			}
-			
-			case ExpansionSettingsRPC.Territory:
-			{
-				Receive(ExpansionTerritorySettings, ctx);
-				return true;
-			}
-		}
-
-		return false;
+	void RPC_TerritorySettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		Receive(ExpansionTerritorySettings, ctx);
 	}
 
 	ExpansionBaseBuildingSettings GetBaseBuilding(bool checkLoaded = true)

@@ -22,31 +22,12 @@ modded class ExpansionSettings
 
 		super.Init();
 
-		Init(ExpansionBookSettings);
+		Init(ExpansionBookSettings, true);
 	}
 
-	override bool OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
+	void RPC_BookSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_4(ExpansionTracing.SETTINGS, this, "OnRPC").Add(sender).Add(target).Add(rpc_type).Add(ctx);
-#endif
-
-		if (super.OnRPC(sender, target, rpc_type, ctx))
-			return true;
-
-		if (rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT)
-			return false;
-
-		switch (rpc_type)
-		{
-		case ExpansionSettingsRPC.Book:
-		{
-			Receive(ExpansionBookSettings, ctx);
-			return true;
-		}
-		}
-
-		return false;
+		Receive(ExpansionBookSettings, ctx);
 	}
 
 	ExpansionBookSettings GetBook(bool checkLoaded = true)

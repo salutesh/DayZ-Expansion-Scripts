@@ -137,9 +137,9 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 		} 
 		else
 		{
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = ExpansionScriptRPC.Create(ItemBase.s_Expansion_SetCode_RPCID);
 			rpc.Write(selection);
-			rpc.Send(m_Target, ExpansionLockRPC.SET, true);
+			rpc.Expansion_Send(m_Target, true);
 		}
 	}
 }

@@ -20,34 +20,15 @@ modded class ExpansionSettings
 
 	#ifdef EXPANSIONMODHARDLINE
 		//! Need to load hardline before market so we have access to rarity for market items
-		Init(ExpansionHardlineSettings);
+		Init(ExpansionHardlineSettings, true);
 	#endif
 
-		Init(ExpansionMarketSettings);
+		Init(ExpansionMarketSettings, true);
 	}
 
-	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	void RPC_MarketSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRPC");
-#endif
-
-		if (super.OnRPC(sender, target, rpc_type, ctx))
-			return true;
-
-		if ( rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT )
-			return false;
-		
-		switch ( rpc_type )
-		{
-			case ExpansionSettingsRPC.Market:
-			{
-				Receive(ExpansionMarketSettings, ctx);
-				return true;
-			}
-		}
-
-		return false;
+		Receive(ExpansionMarketSettings, ctx);
 	}
 
 	ExpansionMarketSettings GetMarket(bool checkLoaded = true)

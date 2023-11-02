@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionQuestContainerBase: Container_Base
+class ExpansionQuestContainerBase: ExpansionOwnedContainer
 {
 	protected bool m_ExpansionCanReceiveItems;
 	protected bool m_ExpansionStashDelete;
@@ -107,7 +107,9 @@ class ExpansionQuestContainerBase: Container_Base
 
 	override void EECargoOut(EntityAI item)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Quest ID: " + m_Expansion_QuestID);
+	#endif
 
 		super.EECargoOut(item);
 
@@ -120,7 +122,9 @@ class ExpansionQuestContainerBase: Container_Base
 
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Quest ID: " + m_Expansion_QuestID);
+	#endif
 
 		super.EEItemDetached(item, slot_name);
 
@@ -241,7 +245,9 @@ class ExpansionQuestContainerBase: Container_Base
 	
 	override void AfterStoreLoad()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		super.AfterStoreLoad();
 

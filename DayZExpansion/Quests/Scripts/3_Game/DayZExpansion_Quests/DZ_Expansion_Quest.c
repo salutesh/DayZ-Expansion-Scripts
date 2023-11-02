@@ -17,7 +17,7 @@ class DZ_Expansion_Quests : ModStructure
 	{
 		super.LoadData();
 
-		SetStorageVersion(49);
+		SetStorageVersion(50);
 	}
 };
 #endif

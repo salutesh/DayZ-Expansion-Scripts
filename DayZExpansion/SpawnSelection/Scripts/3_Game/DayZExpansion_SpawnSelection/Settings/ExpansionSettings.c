@@ -18,31 +18,12 @@ modded class ExpansionSettings
 	{
 		super.Init();
 
-		Init(ExpansionSpawnSettings);
+		Init(ExpansionSpawnSettings, true);
 	}
 
-	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	void RPC_SpawnSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRPC");
-#endif
-
-		if (super.OnRPC(sender, target, rpc_type, ctx))
-			return true;
-
-		if ( rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT )
-			return false;
-
-		switch ( rpc_type )
-		{
-			case ExpansionSettingsRPC.Spawn:
-			{
-				Receive(ExpansionSpawnSettings, ctx);
-				return true;
-			}
-		}
-
-		return false;
+		Receive(ExpansionSpawnSettings, ctx);
 	}
 
 	ExpansionSpawnSettings GetSpawn(bool checkLoaded = true)

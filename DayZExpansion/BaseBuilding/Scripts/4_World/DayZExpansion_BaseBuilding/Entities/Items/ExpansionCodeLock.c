@@ -56,7 +56,7 @@ class ExpansionCodeLock: ItemBase
 
 				parent.SetCode("", NULL, true, false);
 			}
-			else if ( ExpansionIsLocked() )
+			else if (HasCode())
 			{
 				SetSlotLock( parent, true );
 				SetTakeable( false );

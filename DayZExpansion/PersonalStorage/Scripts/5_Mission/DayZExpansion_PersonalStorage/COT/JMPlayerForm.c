@@ -58,7 +58,7 @@ modded class JMPlayerForm
 			m_ExpansionRestoreEntityStorageObj = false;
 
 			if (m_ExpansionEntityStorage)
-				m_Module.RetriveEntityStorageObj(m_ExpansionEntityStorage.GetText());
+				m_Module.RetrieveEntityStorageObj(m_ExpansionEntityStorage.GetText());
 		}
 	}
 

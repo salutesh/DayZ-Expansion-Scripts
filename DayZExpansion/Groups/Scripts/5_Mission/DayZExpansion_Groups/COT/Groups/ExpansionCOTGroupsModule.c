@@ -42,6 +42,33 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	override void EnableUpdate()
 	{
 	}
+	
+	override void EnableRPC()
+	{
+	}
+	
+	override void OnInit()
+	{
+		super.OnInit();
+
+		Expansion_EnableRPCManager();
+		Expansion_RegisterServerRPC("RPC_EditGroupName");
+		Expansion_RegisterServerRPC("RPC_DeleteGroup");
+		Expansion_RegisterServerRPC("RPC_ChangeOwner");
+		Expansion_RegisterServerRPC("RPC_UpdatePermissions");
+		Expansion_RegisterServerRPC("RPC_InvitePlayer");
+		Expansion_RegisterServerRPC("RPC_KickMember");
+		Expansion_RegisterServerRPC("RPC_RequestGroups");
+		Expansion_RegisterClientRPC("RPC_SendGroupsToClient");
+		Expansion_RegisterClientRPC("RPC_SendGroupUpdate");
+		Expansion_RegisterClientRPC("RPC_Callback");
+	#ifdef EXPANSIONMODMARKET
+		Expansion_RegisterServerRPC("RPC_ChangeMoney");
+	#endif
+	#ifdef EXPANSIONMODNAVIGATION
+		Expansion_RegisterServerRPC("RPC_CreateGroupMarker");
+	#endif
+	}
 
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule HasAccess
@@ -92,102 +119,6 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCOTGroupModule GetRPCMin
-	// ------------------------------------------------------------	
-	override int GetRPCMin()
-	{
-		return ExpansionCOTGroupModuleRPC.INVALID;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupModule GetRPCMax
-	// ------------------------------------------------------------
-	override int GetRPCMax()
-	{
-		return ExpansionCOTGroupModuleRPC.COUNT;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTVehiclesModule OnRPC
-	// ------------------------------------------------------------
-	#ifdef CF_BUGFIX_REF
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
-	#else
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
-	#endif
-	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
-
-		switch ( rpc_type )
-		{
-			case ExpansionCOTGroupModuleRPC.EditGroupName:
-			{
-				RPC_EditGroupName(ctx, sender);
-				break;
-			}
-			case ExpansionCOTGroupModuleRPC.DeleteGroup:
-			{
-				RPC_DeleteGroup(ctx, sender);
-				break;
-			}
-			case ExpansionCOTGroupModuleRPC.ChangeOwner:
-			{
-				RPC_ChangeOwner(ctx, sender);
-				break;
-			}
-			case ExpansionCOTGroupModuleRPC.UpdatePermissions:
-			{
-				RPC_UpdatePermissions(ctx, sender);
-				break;
-			}
-			case ExpansionCOTGroupModuleRPC.InvitePlayer:
-			{
-				RPC_InvitePlayer(ctx, sender);
-				break;
-			}
-			case ExpansionCOTGroupModuleRPC.KickMember:
-			{
-				RPC_KickMember(ctx, sender);
-				break;
-			}
-			case ExpansionCOTGroupModuleRPC.RequestGroups:
-			{
-				RPC_RequestGroups(ctx, sender);
-				break;
-			}
-			case ExpansionCOTGroupModuleRPC.SendGroupsToClient:
-			{
-				RPC_SendGroupsToClient(ctx, sender);
-				break;
-			}
-			case ExpansionCOTGroupModuleRPC.SendGroupUpdate:
-			{
-				RPC_SendGroupUpdate(ctx, sender);
-				break;
-			}
-			case ExpansionCOTGroupModuleRPC.Callback:
-			{
-				RPC_Callback(ctx, sender);
-				break;
-			}
-		#ifdef EXPANSIONMODMARKET
-			case ExpansionCOTGroupModuleRPC.ChangeMoney:
-			{
-				RPC_ChangeMoney(ctx, sender);
-				break;
-			}
-		#endif
-		#ifdef EXPANSIONMODNAVIGATION
-			case ExpansionCOTGroupModuleRPC.CreateMarker:
-			{
-				RPC_CreateGroupMarker(ctx, sender);
-				break;
-			}
-		#endif
-		}
-	}
-	
-	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RequestGroups
 	// Called on Client
 	// ------------------------------------------------------------		
@@ -202,22 +133,19 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 			return;
 		
 		string playerUID = GetGame().GetPlayer().GetIdentity().GetId();
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestGroups");
 		rpc.Write(callBack);
 		rpc.Write(playerUID);
- 		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.RequestGroups, true);
+ 		rpc.Expansion_Send(true);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RPC_RequestGroups
 	// Called on Server
 	// ------------------------------------------------------------	
-	void RPC_RequestGroups(ParamsReadContext ctx, PlayerIdentity sender)
+	void RPC_RequestGroups(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.View", sender))
 			return;
@@ -237,7 +165,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (!CF_Modules<ExpansionPartyModule>.Get(module))
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();		
+		auto rpc = Expansion_CreateRPC("RPC_SendGroupsToClient");		
 		int partiesCount = module.GetAllParties().Count();
 		rpc.Write(callBack);
 		rpc.Write(partiesCount);
@@ -251,20 +179,17 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 			party.OnSend(rpc, true);
 		}
 		
- 		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.SendGroupsToClient, true, sender);
+ 		rpc.Expansion_Send(true, sender);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RPC_SendGroupsToClient
 	// Called on Client
 	// ------------------------------------------------------------	
-	void RPC_SendGroupsToClient(ParamsReadContext ctx, PlayerIdentity sender)
+	void RPC_SendGroupsToClient(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		if (!IsMissionClient())
 			return;
 		
@@ -295,9 +220,6 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return false;
-		
 		int partyID;
 		if (Expansion_Assert_False(ctx.Read(partyID), "Failed to read party ID"))
 			return false;
@@ -330,22 +252,19 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup"))
 			return;
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_EditGroupName");
 		rpc.Write(groupID);
 		rpc.Write(groupName);
- 		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.EditGroupName, true);
+ 		rpc.Expansion_Send(true);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RPC_EditGroupName
 	// Called on Server
 	// ------------------------------------------------------------	
-	private void RPC_EditGroupName(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_EditGroupName(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -397,21 +316,18 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (m_Parties.Get(partyID))
 			m_Parties.Remove(partyID);
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_DeleteGroup");
 		rpc.Write(partyID);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.DeleteGroup, true);
+		rpc.Expansion_Send(true);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RPC_DeleteGroup
 	// Called on Server
 	// ------------------------------------------------------------	
-	private void RPC_DeleteGroup(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_DeleteGroup(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.DeleteGroup", sender))
 			return;
@@ -460,23 +376,20 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup"))
 			return;
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_ChangeOwner");
 		rpc.Write(playerUID);
 		rpc.Write(partyID);
 		rpc.Write(isMember);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.ChangeOwner, true);
+		rpc.Expansion_Send(true);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RPC_ChangeOwner
 	// Called on Server
 	// ------------------------------------------------------------	
-	private void RPC_ChangeOwner(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_ChangeOwner(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -554,22 +467,19 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup"))
 			return;
 				
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_InvitePlayer");
 		rpc.Write(playerUID);
 		rpc.Write(partyID);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.InvitePlayer, true);
+		rpc.Expansion_Send(true);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RPC_InvitePlayer
 	// Called on Server
 	// ------------------------------------------------------------	
-	private void RPC_InvitePlayer(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_InvitePlayer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -652,23 +562,20 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup"))
 			return;
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_UpdatePermissions");
 		rpc.Write(playerUID);
 		rpc.Write(partyID);
 		rpc.Write(playerPerm);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.UpdatePermissions, true);
+		rpc.Expansion_Send(true);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RPC_UpdatePermissions
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_UpdatePermissions(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_UpdatePermissions(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -756,10 +663,10 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup"))
 			return;
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_ChangeMoney");
 		rpc.Write(partyID);
 		rpc.Write(value);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.ChangeMoney, true);
+		rpc.Expansion_Send(true);
 	}
 	
 #ifdef EXPANSIONMODMARKET
@@ -767,12 +674,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ExpansionCOTGroupModule RPC_UpdatePermissions
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_ChangeMoney(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_ChangeMoney(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -836,22 +740,19 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup"))
 			return;
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_KickMember");
 		rpc.Write(partyID);
 		rpc.Write(playerUID);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.KickMember, true);
+		rpc.Expansion_Send(true);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RPC_KickMember
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_KickMember(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_KickMember(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -930,22 +831,19 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		int partyID = party.GetPartyID();
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_SendGroupUpdate");
 		party.OnSend(rpc, true);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.SendGroupUpdate, true, sender);
+		rpc.Expansion_Send(true, sender);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RPC_SendGroupUpdate
 	// Called on Client
 	// ------------------------------------------------------------
-	private void RPC_SendGroupUpdate(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_SendGroupUpdate(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		if (!OnReceiveGroupClient(ctx))
 				return;
 	}
@@ -962,22 +860,19 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] CreateGroupMarker shall only be called on client!"))
 			return;
 		
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_CreateGroupMarker");
 		rpc.Write(partyID);
 		marker.OnSend(rpc);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.CreateMarker, true);
+		rpc.Expansion_Send(true);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RPC_CreateGroupMarker
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_CreateGroupMarker(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_CreateGroupMarker(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -1018,26 +913,23 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ExpansionCOTGroupModule Callback
 	// Called on Server
 	// ------------------------------------------------------------	
-	void Callback(int callBack, PlayerIdentity reciver)
+	void Callback(int callBack, PlayerIdentity receiver)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_Callback");
 		rpc.Write(callBack);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.Callback, true, reciver);
+		rpc.Expansion_Send(true, receiver);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RPC_Callback
 	// Called on Client
 	// ------------------------------------------------------------
-	private void RPC_Callback(ParamsReadContext ctx, PlayerIdentity sender)
+	private void RPC_Callback(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		int callBack;
 		if (!ctx.Read(callBack))
 			return;

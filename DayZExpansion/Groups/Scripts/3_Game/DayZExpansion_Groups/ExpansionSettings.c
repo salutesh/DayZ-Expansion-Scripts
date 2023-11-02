@@ -18,28 +18,12 @@ modded class ExpansionSettings
 	{
 		super.Init();
 
-		Init(ExpansionPartySettings);
+		Init(ExpansionPartySettings, true);
 	}
 
-	override bool OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
+	void RPC_PartySettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (super.OnRPC(sender, target, rpc_type, ctx))
-			return true;
-
-		if (rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT)
-			return false;
-
-		switch (rpc_type)
-		{
-		case ExpansionSettingsRPC.Party:
-		{
-			Receive(ExpansionPartySettings, ctx);
-
-			return true;
-		}
-		}
-
-		return false;
+		Receive(ExpansionPartySettings, ctx);
 	}
 
 	ExpansionPartySettings GetParty(bool checkLoaded = true)

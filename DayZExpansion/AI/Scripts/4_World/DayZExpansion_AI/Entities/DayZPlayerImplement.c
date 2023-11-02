@@ -23,7 +23,7 @@ modded class DayZPlayerImplement
 
 	float m_eAI_LastHitTime;
 
-	ref eAIFirearmEffectsData m_eAI_FirearmEffectsData;
+	bool m_eAI_ProcessDamageByAI;
 
 #ifdef DIAG
 #ifndef SERVER
@@ -315,15 +315,34 @@ modded class DayZPlayerImplement
 		EXTrace.PrintHit(EXTrace.AI, this, "EEOnDamageCalculated", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	#endif
 
-		DayZPlayerImplement player;
-		if (Class.CastTo(player, source.GetHierarchyRootPlayer()) && player != this)
-			player.m_eAI_LastAggressionTime = ExpansionStatic.GetTime(true);  //! Aggro guards in area (if any)
+		DayZPlayerImplement sourcePlayer;
+		if (Class.CastTo(sourcePlayer, source.GetHierarchyRootPlayer()) && sourcePlayer != this)
+			sourcePlayer.m_eAI_LastAggressionTime = ExpansionStatic.GetTime(true);  //! Aggro guards in area (if any)
 
-		if (damageType == DT_FIRE_ARM && player && player.IsAI() && player == this)
+		if (!m_eAI_ProcessDamageByAI)
 		{
-			//! This shouldn't be possible because AI don't use suicide emote
-			EXPrint(this, "WARNING: Game encountered an impossible state (AI damage source is firearm in AI's own hands)");
-			return false;
+			eAIBase ai;
+			if (damageType == DT_FIRE_ARM && Class.CastTo(ai, sourcePlayer))
+			{
+				if (sourcePlayer == this)
+				{
+					//! This shouldn't be possible because AI don't use suicide emote
+					EXPrint(this, "WARNING: Game encountered an impossible state (AI damage source is firearm in AI's own hands)");
+					return false;
+				}
+
+				//! Apply AI damage multiplier
+				if (ai.m_eAI_DamageMultiplier != 1.0)
+				{
+					m_eAI_ProcessDamageByAI = true;
+					ProcessDirectDamage(DT_FIRE_ARM, source, dmgZone, ammo, modelPos, speedCoef * ai.m_eAI_DamageMultiplier);
+					return false;
+				}
+			}
+		}
+		else
+		{
+			m_eAI_ProcessDamageByAI = false;
 		}
 
 		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
@@ -368,83 +387,6 @@ modded class DayZPlayerImplement
 		m_TargetInformation.OnHit();
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-	}
-
-	//! @note unfortunately vanilla docs are correct and this doesn't get called when AI hits something :-(
-	/*
-	override void EEHitByRemote(int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos)
-	{
-	#ifdef DIAG
-		EXTrace.PrintHit(EXTrace.AI, this, "EEHitByRemote", null, damageType, source, component, dmgZone, ammo, modelPos, 0.0);
-	#endif
-
-		super.EEHitByRemote(damageType, source, component, dmgZone, ammo, modelPos);
-
-		if (g_Game.IsClient() && damageType == DT_FIRE_ARM)
-		{
-			//! MP client only!
-			eAIBase ai;
-			if (Class.CastTo(ai, source.GetHierarchyRootPlayer()) && m_eAI_FirearmEffectsData)
-				eAI_HandleFirearmEffects();
-		}
-	}
-	*/
-
-	override bool HandleDamageHit(int pCurrentCommandID)
-	{
-		if (g_Game.IsClient() && m_eAI_FirearmEffectsData)
-		{
-			//! MP client only!
-			foreach (SyncHitInfo data: m_SyncedHitDataArray)
-			{
-				if (data.m_AnimType == 0)
-				{
-					//! Firearm or explosive, potentially custom
-					eAI_HandleFirearmEffects();
-					break;
-				}
-			}
-		}
-
-		return super.HandleDamageHit(pCurrentCommandID);
-	}
-
-	void eAI_SetFirearmEffectsOnHit(EntityAI source, float timeOut, int componentIndex, vector pos, vector surfNormal, vector inSpeed, string ammoType)
-	{
-		//! MP client only!
-		m_eAI_FirearmEffectsData = new eAIFirearmEffectsData(source, timeOut);
-		m_eAI_FirearmEffectsData.m_ComponentIndex 	= componentIndex;
-		m_eAI_FirearmEffectsData.m_Position		= pos;
-		m_eAI_FirearmEffectsData.m_SurfaceNormal	= surfNormal;
-		m_eAI_FirearmEffectsData.m_InSpeed			= inSpeed;
-		m_eAI_FirearmEffectsData.m_AmmoType		= ammoType;
-	}
-
-	void eAI_RemoveFirearmEffectsOnHit(EntityAI source)
-	{
-		if (m_eAI_FirearmEffectsData && m_eAI_FirearmEffectsData.m_Source == source)
-			m_eAI_FirearmEffectsData = null;
-	}
-
-	//! MP client only!
-	void eAI_HandleFirearmEffects()
-	{
-		eAIFirearmEffectsData data = m_eAI_FirearmEffectsData;
-
-		bool valid;
-		if (data.m_TimeOut >= g_Game.GetTickTime())
-			valid = true;
-
-	#ifdef DIAG
-		EXTrace.Print(EXTrace.AI, this, "::eAI_HandleFirearmEffects " + data.m_Source + " valid " + valid);
-	#endif
-
-		if (valid)
-		{
-			GetDayZGame().eAI_HandleFirearmEffects(data.m_Source, this, data.m_ComponentIndex, "Hit_MeatBones", data.m_Position, data.m_SurfaceNormal, data.m_InSpeed, data.m_AmmoType);
-		}
-
-		m_eAI_FirearmEffectsData = null;
 	}
 
 	bool eAI_UpdateAgressionTimeout(float timeThreshold)

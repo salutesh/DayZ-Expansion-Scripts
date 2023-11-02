@@ -444,8 +444,6 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
 		objective.SetObjectiveText("Collect 5 apples");
 		objective.AddCollection(5, "Apple");
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -457,8 +455,6 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
 		objective.SetObjectiveText("Catch a mackerel");
 		objective.AddCollection(1, "Mackerel");
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -470,8 +466,6 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
 		objective.SetObjectiveText("Get the yellow king's helmet");
 		objective.AddCollection(1, "DarkMotoHelmet_YellowScarred");
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Item");
 
 		return objective;
 	}

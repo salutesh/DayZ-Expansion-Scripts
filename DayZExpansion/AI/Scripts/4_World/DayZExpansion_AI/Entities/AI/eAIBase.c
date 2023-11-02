@@ -45,6 +45,10 @@ class eAIBase: PlayerBase
 	float m_eAI_ThreatDistanceLimit;
 	float m_eAI_DamageMultiplier;
 	bool m_eAI_SyncCurrentTarget;
+	int m_eAI_CurrentTarget_NetIDLow;
+	int m_eAI_CurrentTarget_NetIDHigh;
+	int m_eAI_CurrentTarget_NetIDLowSync;
+	int m_eAI_CurrentTarget_NetIDHighSync;
 
 	// Command handling
 	private ExpansionHumanCommandScript m_eAI_Command;
@@ -254,6 +258,8 @@ class eAIBase: PlayerBase
 		RegisterNetSyncVariableBool("m_Expansion_CanBeLooted");
 		RegisterNetSyncVariableFloat("m_eAI_AccuracyMin");
 		RegisterNetSyncVariableFloat("m_eAI_AccuracyMax");
+		//RegisterNetSyncVariableInt("m_eAI_CurrentTarget_NetIDLow");
+		//RegisterNetSyncVariableInt("m_eAI_CurrentTarget_NetIDHigh");
 
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 	}
@@ -599,10 +605,6 @@ class eAIBase: PlayerBase
 
 		if (!GetGroup())
 			return;
-
-	#ifdef DIAG
-		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-	#endif
 
 		ZombieBase zmb;
 		if (Class.CastTo(zmb, source))
@@ -961,7 +963,13 @@ class eAIBase: PlayerBase
 
 	void OnRemoveTarget(eAITarget target)
 	{
-		m_eAI_Targets.RemoveItem(target);
+		int removeIndex = m_eAI_Targets.Find(target);
+		if (removeIndex >= 0)
+		{
+			m_eAI_Targets.RemoveOrdered(removeIndex);
+			if (removeIndex == 0)
+				m_eAI_SyncCurrentTarget = true;
+		}
 		m_eAI_TargetInformationStates.Remove(target.info);
 #ifdef DIAG
 		EXTrace.Print(EXTrace.AI, this, "OnRemoveTarget " + target.info.GetEntityDebugName() + " - time remaining " + (target.found_at_time + target.max_time - GetGame().GetTime()) + " - target count " + m_eAI_Targets.Count());
@@ -1327,8 +1335,6 @@ class eAIBase: PlayerBase
 		auto hitch = new EXHitch(ToString() + "::eAI_RemoveTargets ", 20000);
 #endif
 
-		eAITarget target = m_eAI_Targets[0];
-
 		int count = m_eAI_Targets.Count();
 
 		for (int i = count - 1; i >= 0; i--)
@@ -1346,9 +1352,6 @@ class eAIBase: PlayerBase
 		if (count > 0 && m_eAI_Targets.Count() == 0)
 			EXTrace.Print(EXTrace.AI, this, "eAI_RemoveTargets - no more targets");
 #endif
-
-		if (m_eAI_Targets[0] != target)
-			m_eAI_SyncCurrentTarget = true;
 
 		return count != m_eAI_Targets.Count();
 	}
@@ -1397,46 +1400,53 @@ class eAIBase: PlayerBase
 
 	#ifdef SERVER
 		eAITarget target = GetTarget();
-		if (!target || !target.GetEntity() || target.GetEntity().IsInherited(ItemBase))
-			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
-		int idLow, idHigh;
-		target.GetEntity().GetNetworkID(idLow, idHigh);
-		rpc.Write(idLow);
-		rpc.Write(idHigh);
-		rpc.Send(this, ExpansionRPC.SyncCurrentAITarget, true, null);
+		EntityAI targetEntity;
+		if (target)
+			targetEntity = target.GetEntity();
+
+		if (targetEntity && !targetEntity.IsInherited(ItemBase))
+		{
+			targetEntity.GetNetworkID(m_eAI_CurrentTarget_NetIDLow, m_eAI_CurrentTarget_NetIDHigh);
+		}
+		else
+		{
+			m_eAI_CurrentTarget_NetIDLow = 0;
+			m_eAI_CurrentTarget_NetIDHigh = 0;
+		}
+
+		SetSynchDirty();
 	#endif
 	}
 
-#ifndef SERVER
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
+	void eAI_UpdateCurrentTarget_Client()
 	{
-		super.OnRPC(sender, rpc_type, ctx);
+		eAITarget target = GetTarget();
+		if (target)
+			target.RemoveAI(this);
+		if (m_eAI_CurrentTarget_NetIDLow == 0 && m_eAI_CurrentTarget_NetIDHigh == 0)
+			return;
+		Object entity = GetGame().GetObjectByNetworkId(m_eAI_CurrentTarget_NetIDLow, m_eAI_CurrentTarget_NetIDHigh);
+		if (!entity)
+			return;
+		eAITargetInformation info = eAITargetInformation.GetTargetInformation(entity);
+		if (!info)
+			return;
+		target = info.AddAI(this);
+		EXTrace.Print(EXTrace.AI, this, "Prioritizing target " + info.GetEntityDebugName());
+	}
 
-		switch (rpc_type)
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		if (m_eAI_CurrentTarget_NetIDLowSync != m_eAI_CurrentTarget_NetIDLow || m_eAI_CurrentTarget_NetIDHighSync != m_eAI_CurrentTarget_NetIDHigh)
 		{
-			case ExpansionRPC.SyncCurrentAITarget:
-				int idLow, idHigh;
-				if (!ctx.Read(idLow))
-					break;
-				if (!ctx.Read(idHigh))
-					break;
-				Object entity = GetGame().GetObjectByNetworkId(idLow, idHigh);
-				if (!entity)
-					break;
-				eAITargetInformation info = eAITargetInformation.GetTargetInformation(entity);
-				if (!info)
-					break;
-				eAITarget target = GetTarget();
-				if (target)
-					target.RemoveAI(this);
-				target = info.AddAI(this);
-				EXTrace.Print(EXTrace.AI, this, "Prioritizing target " + info.GetEntityDebugName());
-				break;
+			m_eAI_CurrentTarget_NetIDLowSync = m_eAI_CurrentTarget_NetIDLow;
+			m_eAI_CurrentTarget_NetIDHighSync = m_eAI_CurrentTarget_NetIDHigh;
+			eAI_UpdateCurrentTarget_Client();
 		}
 	}
-#endif
 
 	eAICommandMove GetCommand_MoveAI()
 	{
@@ -2105,8 +2115,8 @@ class eAIBase: PlayerBase
 		UpdateTargets(pDt);
 		if (eAI_RemoveTargets() || m_eAI_UpdateTargetsTick == 0)
 			eAI_PrioritizeTargets();
-		if (m_eAI_SyncCurrentTarget)
-			eAI_SyncCurrentTarget();
+		//if (m_eAI_SyncCurrentTarget)
+			//eAI_SyncCurrentTarget();
 
 		GetTransform(m_ExTransformPlayer);
 

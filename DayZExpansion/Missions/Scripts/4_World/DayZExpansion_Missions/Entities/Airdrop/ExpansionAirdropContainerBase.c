@@ -18,8 +18,8 @@
 #endif
 class ExpansionAirdropContainerBase: Container_Base
 {
-	const int EXPANSION_AIRDROP_RPC_ZSPAWN_PARTICLE = 120009009;
-	
+	static int s_Expansion_SpawnParticle_RPCID;
+
 	bool m_FromSettings;
 	protected bool m_HasLanded;
 	protected bool m_IsLooted;
@@ -76,6 +76,11 @@ class ExpansionAirdropContainerBase: Container_Base
 			m_eAI_DynamicPatrolSpawner.SetDeferDespawnUntilLoosingAggro(true);
 		#endif
 		}
+
+		if (!m_Expansion_RPCManager)
+			m_Expansion_RPCManager = new ExpansionRPCManager(this, ItemBase);
+		if (!s_Expansion_SpawnParticle_RPCID)
+			s_Expansion_SpawnParticle_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_SpawnParticle");
 	}
 	
 	override void EEInit()
@@ -550,23 +555,13 @@ class ExpansionAirdropContainerBase: Container_Base
 		GetGame().ObjectDelete(this);
 	}
 
-	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )
-	{		
+	void RPC_SpawnParticle(PlayerIdentity sender, ParamsReadContext ctx)
+	{
 		vector spawnPos;
-		if ( rpc_type == EXPANSION_AIRDROP_RPC_ZSPAWN_PARTICLE)
-		{
-			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-				return;
-			
-			if (!ctx.Read( spawnPos ))
-				return;
-			
-			SpawnParticle( spawnPos );
-		} 
-		else
-		{
-			super.OnRPC( sender, rpc_type, ctx );
-		}
+		if (!ctx.Read( spawnPos ))
+			return;
+		
+		SpawnParticle( spawnPos );
 	}
 
 	protected void SpawnParticle( vector spawnPos )

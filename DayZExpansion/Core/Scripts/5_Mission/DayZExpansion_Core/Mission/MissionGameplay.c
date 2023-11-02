@@ -194,6 +194,8 @@ modded class MissionGameplay
 		}
 
         Expansion_ForceEnableMovementInputs();
+
+		GetDayZGame().GetExpansionGame().OnFinish();
 	}
 	
 	static ExpansionItemTooltip Expansion_GetItemTooltip()

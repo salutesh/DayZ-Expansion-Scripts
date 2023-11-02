@@ -20,45 +20,24 @@ modded class ExpansionSettings
 	{
 		super.Init();
 
-		Init(ExpansionGeneralSettings);
-		Init(ExpansionPlayerListSettings);
-		Init(ExpansionSocialMediaSettings);
+		Init(ExpansionGeneralSettings, true);
+		Init(ExpansionPlayerListSettings, true);
+		Init(ExpansionSocialMediaSettings, true);
 	}
 
-	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	void RPC_GeneralSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRPC");
-#endif
+		Receive(ExpansionGeneralSettings, ctx);
+	}
 
-		if (super.OnRPC(sender, target, rpc_type, ctx))
-			return true;
+	void RPC_PlayerListSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx )
+	{
+		Receive(ExpansionPlayerListSettings, ctx);
+	}
 
-		if ( rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT )
-			return false;
-
-		switch ( rpc_type )
-		{
-			case ExpansionSettingsRPC.General:
-			{
-				Receive(ExpansionGeneralSettings, ctx);
-				return true;
-			}
-
-			case ExpansionSettingsRPC.PlayerList:
-			{
-				Receive(ExpansionPlayerListSettings, ctx);
-				return true;
-			}
-
-			case ExpansionSettingsRPC.SocialMedia:
-			{
-				Receive(ExpansionSocialMediaSettings, ctx);
-				return true;
-			}
-		}
-
-		return false;
+	void RPC_SocialMediaSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx )
+	{
+		Receive(ExpansionSocialMediaSettings, ctx);
 	}
 
 	ExpansionGeneralSettings GetGeneral(bool checkLoaded = true)

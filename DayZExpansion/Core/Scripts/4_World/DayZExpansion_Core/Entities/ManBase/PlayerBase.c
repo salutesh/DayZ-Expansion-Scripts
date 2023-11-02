@@ -72,14 +72,14 @@ modded class PlayerBase
 			s_Expansion_AllPlayers.Remove(m_Expansion_Node);
 	}
 
-	static void Expansion_SendNear(ScriptRPC rpc, int id, vector position, float distance, Object target = null, bool guaranteed = false)
+	static void Expansion_SendNear(ExpansionScriptRPC rpc, vector position, float distance, Object target = null, bool guaranteed = false)
 	{
 		float distanceSq = distance * distance;
 		foreach (string uid, PlayerBase player: s_Expansion_AllPlayersUID)
 		{
 			if (player.GetIdentity() && vector.DistanceSq(player.GetPosition(), position) < distanceSq)
 			{
-				rpc.Send(target, id, guaranteed, player.GetIdentity());
+				rpc.Expansion_Send(target, guaranteed, player.GetIdentity());
 			}
 		}
 	}
@@ -338,11 +338,6 @@ modded class PlayerBase
 			player.m_PlayerUID = identity.GetId();
 			player.m_PlayerSteam = identity.GetPlainId();
 			player.m_PlayerName = identity.GetName();
-		}
-		else
-		{
-			//! Leave the EXPrint in here. If someone complains about vehicle desync as pilot, ask them about server logs and exact timestamp, then use this to check whether the desyncing player had an identity on connect.
-			EXPrint("WARNING: Player without identity cannot be added! " + player);
 		}
 
 		if ( player.m_PlayerUID != "" )

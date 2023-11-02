@@ -333,8 +333,10 @@ class ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		SetCompleted(false);
+		
 	#ifdef EXPANSIONMODNAVIGATION
-		CreateMarkers();
+		if (CanCreateMarkers())
+			CreateMarkers();
 	#endif
 
 		return true;
@@ -406,7 +408,7 @@ class ExpansionQuestObjectiveEventBase
 	void ObjectivePrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		EXTrace.Print(EXTrace.QUESTS, null, text);
+		EXTrace.Print(EXTrace.QUESTS, this, text);
 	#endif
 	}
 
@@ -473,5 +475,10 @@ class ExpansionQuestObjectiveEventBase
 	}
 
 	void CreateMarkers();
+
+	bool CanCreateMarkers()
+	{
+		return true;
+	}
 #endif
 };

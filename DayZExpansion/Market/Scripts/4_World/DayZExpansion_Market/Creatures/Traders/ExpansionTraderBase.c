@@ -24,7 +24,7 @@ class ExpansionTraderNPCBase: ExpansionNPCBase
 		m_allTraders.Insert(this);
 
 		if (GetGame() && GetGame().IsClient())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250, false, "");
+			LoadTrader("");
 	}
 
 	void ~ExpansionTraderNPCBase()
@@ -42,14 +42,6 @@ class ExpansionTraderNPCBase: ExpansionNPCBase
 	static set<ExpansionTraderNPCBase> GetAll()
 	{
 		return m_allTraders;
-	}
-
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-
-		if (m_TraderObject)
-			m_TraderObject.OnRPC(sender, rpc_type, ctx);
 	}
 
 	void SetTraderObject(ExpansionTraderObjectBase traderObject)
@@ -85,6 +77,8 @@ class ExpansionTraderObjectBase
 	protected ref ExpansionMarketTrader m_Trader;
 
 	private EntityAI m_TraderEntity;
+
+	ref ExpansionRPCManager m_Expansion_RPCManager;
 
 	void ExpansionTraderObjectBase(EntityAI traderEntity, string fileName = "")
 	{
@@ -127,7 +121,7 @@ class ExpansionTraderObjectBase
 		} 
 		else
 		{
-			RequestTraderObject();
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RequestTraderObject, 250, false);
 		}
 	}
 
@@ -175,36 +169,18 @@ class ExpansionTraderObjectBase
 		if ( IsMissionOffline() )
 			return;
 
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Send(this.GetTraderEntity(), ExpansionMarketRPC.TraderObject, true, NULL);
+		auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_TraderObject");
+		rpc.Expansion_Send(GetTraderEntity(), true);
 	}
 
-	void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
+	private void RPC_TraderObject(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		if (rpc_type <= ExpansionMarketRPC.INVALID)
-			return;
-		if (rpc_type >= ExpansionMarketRPC.COUNT)
-			return;
-		
-		switch (rpc_type)
-		{
-		case ExpansionMarketRPC.TraderObject:
-			RPC_TraderObject(ctx, sender);
-			break;
-		}
-	}
-
-	private void RPC_TraderObject(ParamsReadContext ctx, PlayerIdentity sender)
-	{
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
 		if (GetGame().IsServer())
 		{
 			if (!m_Trader)
 				return;
 
-			auto rpc = ExpansionScriptRPC.Create();
+			auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_TraderObject");
 
 			rpc.Write(m_Trader.m_FileName);
 			rpc.Write(m_Trader.DisplayName);
@@ -212,7 +188,7 @@ class ExpansionTraderObjectBase
 			rpc.Write(m_Trader.Currencies);
 			rpc.Write(m_Trader.m_Categories);
 
-			rpc.Send(this.GetTraderEntity(), ExpansionMarketRPC.TraderObject, true, sender);
+			rpc.Expansion_Send(GetTraderEntity(), true, sender);
 		}
 		else
 		{
@@ -441,6 +417,15 @@ class ExpansionTraderObjectBase
 #endif
 
 		m_TraderEntity = entity;
+
+		EnScript.GetClassVar(entity, "m_Expansion_RPCManager", 0, m_Expansion_RPCManager);
+		if (!m_Expansion_RPCManager)
+		{
+			typename type = ExpansionWorld.GetModdableRootType(entity);
+			m_Expansion_RPCManager = new ExpansionRPCManager(entity, type);
+			EnScript.SetClassVar(entity, "m_Expansion_RPCManager", 0, m_Expansion_RPCManager);
+		}
+		m_Expansion_RPCManager.RegisterBoth("RPC_TraderObject", this);
 	}
 
 	EntityAI GetTraderEntity()
@@ -480,7 +465,7 @@ class ExpansionTraderStaticBase: ExpansionStaticObjectBase
 		m_allTraders.Insert(this);
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 		if (GetGame() && GetGame().IsClient())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250, false, "");
+			LoadTrader("");
 	}
 
 	void ~ExpansionTraderStaticBase()
@@ -496,14 +481,6 @@ class ExpansionTraderStaticBase: ExpansionStaticObjectBase
 	static set<ExpansionTraderStaticBase> GetAll()
 	{
 		return m_allTraders;
-	}
-
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-
-		if (m_TraderObject)
-			m_TraderObject.OnRPC(sender, rpc_type, ctx);
 	}
 
 	void SetTraderObject(ExpansionTraderObjectBase traderObject)
@@ -551,7 +528,7 @@ class ExpansionTraderZombieBase: ZombieBase
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 
 		if (GetGame() && GetGame().IsClient())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250, false, "");
+			LoadTrader("");
 	}
 
 	void ~ExpansionTraderZombieBase()
@@ -564,14 +541,6 @@ class ExpansionTraderZombieBase: ZombieBase
 		{
 			m_allTraders.Remove(idx);
 		}
-	}
-
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-
-		if (m_TraderObject)
-			m_TraderObject.OnRPC(sender, rpc_type, ctx);
 	}
 
 	void SetTraderObject(ExpansionTraderObjectBase traderObject)
@@ -632,7 +601,7 @@ class ExpansionTraderAIBase: eAIBase
 #endif
 
 		if (GetGame() && GetGame().IsClient())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250, false, "");
+			LoadTrader("");
 	}
 	
 	override void Expansion_Init()
@@ -654,14 +623,6 @@ class ExpansionTraderAIBase: eAIBase
 		return false;
 	}
 #endif
-
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-
-		if (m_TraderObject)
-			m_TraderObject.OnRPC(sender, rpc_type, ctx);
-	}
 
 	void SetTraderObject(ExpansionTraderObjectBase traderObject)
 	{

@@ -21,7 +21,9 @@ class ExpansionAutorunModule: CF_ModuleWorld
 	{
 		super.OnInit();
 
-		EnableRPC();
+		Expansion_EnableRPCManager();
+		Expansion_RegisterServerRPC("RPC_AutorunSync");
+		Expansion_RegisterServerRPC("RPC_AutorunDisable");
 	}
 
 	// ------------------------------------------------------------
@@ -43,17 +45,11 @@ class ExpansionAutorunModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	// Expansion AutorunSync
 	// ------------------------------------------------------------
-	void AutorunSync(ParamsReadContext ctx, PlayerIdentity sender, Object target)
+	void RPC_AutorunSync(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "AutorunSync");
 #endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
-		if ( !IsMissionHost() )
-			return;
 		
 		int autoWalkMode;
 		if ( !ctx.Read( autoWalkMode ) )
@@ -88,17 +84,11 @@ class ExpansionAutorunModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	// Expansion AutorunDisable
 	// ------------------------------------------------------------
-	void AutorunDisable(ParamsReadContext ctx, PlayerIdentity sender, Object target)
+	void RPC_AutorunDisable(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "AutorunDisable");
 #endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
-		if ( !IsMissionHost() )
-			return;
 		
 		PlayerBase player;
 		if ( !Class.CastTo( player, target ) )
@@ -179,9 +169,9 @@ class ExpansionAutorunModule: CF_ModuleWorld
 				
 				if (m_OldAutoWalkMode != m_AutoWalkMode)
 				{
-					auto rpc = ExpansionScriptRPC.Create();
+					auto rpc = Expansion_CreateRPC("RPC_AutorunSync");
 					rpc.Write( m_AutoWalkMode );
-					rpc.Send( player, ExpansionAutoRunRPC.AUTORUNSYNC, true );	
+					rpc.Expansion_Send(player, true);	
 					
 					m_OldAutoWalkMode = m_AutoWalkMode;
 				}
@@ -190,8 +180,8 @@ class ExpansionAutorunModule: CF_ModuleWorld
 			{
 				if (m_OldAutoWalkMode != m_AutoWalkMode)
 				{
-					auto rpc2 = ExpansionScriptRPC.Create();
-					rpc2.Send( player, ExpansionAutoRunRPC.AUTORUNDISABLE, true );
+					auto rpc2 = Expansion_CreateRPC("RPC_AutorunDisable");
+					rpc2.Expansion_Send(player, true);
 					
 					m_OldAutoWalkMode = m_AutoWalkMode;
 				}
@@ -205,46 +195,5 @@ class ExpansionAutorunModule: CF_ModuleWorld
 	bool IsDisabled()
 	{
 		return ( m_AutoWalkMode == 0 );
-	}
-	
-	// ------------------------------------------------------------
-	// Override GetRPCMin
-	// ------------------------------------------------------------
-	override int GetRPCMin()
-	{
-		return ExpansionAutoRunRPC.INVALID;
-	}
-	
-	// ------------------------------------------------------------
-	// Override GetRPCMax
-	// ------------------------------------------------------------
-	override int GetRPCMax()
-	{
-		return ExpansionAutoRunRPC.COUNT;
-	}
-	
-	// ------------------------------------------------------------
-	// Override OnRPC
-	// ------------------------------------------------------------
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnRPC");
-#endif
-
-		super.OnRPC(sender, args);
-
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch ( rpc.ID )
-		{
-			case ExpansionAutoRunRPC.AUTORUNSYNC:
-				AutorunSync( rpc.Context, rpc.Sender, rpc.Target );
-			break;
-			
-			case ExpansionAutoRunRPC.AUTORUNDISABLE:
-				AutorunDisable( rpc.Context, rpc.Sender, rpc.Target );
-			break;
-		}
 	}
 };

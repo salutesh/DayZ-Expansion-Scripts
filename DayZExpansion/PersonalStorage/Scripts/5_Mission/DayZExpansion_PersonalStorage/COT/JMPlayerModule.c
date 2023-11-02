@@ -33,20 +33,20 @@ modded class JMPlayerModule
 
 		switch (rpc_type)
 		{
-			case Expansion_JMPlayerModuleRPC.RetriveEntityStorageObj:
-				RPC_RetriveEntityStorageObj(ctx, sender, target);
+			case Expansion_JMPlayerModuleRPC.RetrieveEntityStorageObj:
+				RPC_RetrieveEntityStorageObj(ctx, sender, target);
 			break;
 		}
 	}
 
-	void RetriveEntityStorageObj(string entityID)
+	void RetrieveEntityStorageObj(string entityID)
 	{
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write(entityID);
-		rpc.Send(null, Expansion_JMPlayerModuleRPC.RetriveEntityStorageObj, true, null);
+		rpc.Send(null, Expansion_JMPlayerModuleRPC.RetrieveEntityStorageObj, true, null);
 	}
 
-	private void Exec_RetriveEntityStorageObj(string entityID, PlayerIdentity ident, JMPlayerInstance instance = null)
+	private void Exec_RetrieveEntityStorageObj(string entityID, PlayerIdentity ident, JMPlayerInstance instance = null)
 	{
 		JMPlayerInstance jmPlayer = GetPermissionsManager().GetPlayer(ident.GetId());
 		PlayerBase player = PlayerBase.Cast(PlayerBase.ExpansionGetPlayerByIdentity(ident));
@@ -56,7 +56,7 @@ modded class JMPlayerModule
 		EntityAI restoredEntity;
 		if (!ExpansionEntityStorageModule.RestoreFromFile(GetEntityStorageDataDirectory() + entityID + ".bin", restoredEntity, null, player))
 		{
-			Error(ToString() + "::Exec_RetriveEntityStorageObj - Could not restore entity storage item from file " + entityID);
+			Error(ToString() + "::Exec_RetrieveEntityStorageObj - Could not restore entity storage item from file " + entityID);
 			return;
 		}
 		
@@ -64,7 +64,7 @@ modded class JMPlayerModule
 			GetCommunityOnlineToolsBase().Log(ident, "Restore entity storage object " + entityID + " [guid=" + jmPlayer.GetGUID() + "]");
 	}
 
-	private void RPC_RetriveEntityStorageObj(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	private void RPC_RetrieveEntityStorageObj(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		string entityID;
 		if (!ctx.Read(entityID))
@@ -74,7 +74,7 @@ modded class JMPlayerModule
 		if (!GetPermissionsManager().HasPermission("Admin.Player.Set.ExpansionEntityStorage", senderRPC, instance))
 			return;
 
-		Exec_RetriveEntityStorageObj(entityID, senderRPC, instance);
+		Exec_RetrieveEntityStorageObj(entityID, senderRPC, instance);
 	}
 	
 	string GetEntityStorageDataDirectory()

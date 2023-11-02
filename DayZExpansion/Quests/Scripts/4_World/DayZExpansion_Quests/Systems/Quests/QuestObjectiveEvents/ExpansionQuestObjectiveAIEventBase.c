@@ -31,13 +31,15 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 	//! Event called when the player starts the quest.
 	override bool OnContinue()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnContinue())
 			return false;
 
 		//! Only check and create the AI patrol when not already completed!
-		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
+		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED && !IsCompleted())
 			CheckQuestAIPatrol();
 		
 		m_Quest.QuestCompletionCheck(true);
@@ -48,7 +50,9 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 	//! Event called when the quest gets cleaned up (server shutdown/player disconnect).
 	override bool OnCleanup()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		if (!super.OnCleanup())
 			return false;
@@ -88,7 +92,9 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 
 	protected void CleanupPatrol(bool despawn = false)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		array<eAIDynamicPatrol> questPatrols;
 		if (ExpansionQuestModule.GetModuleInstance().QuestPatrolExists(m_Quest.GetQuestConfig().GetID(), questPatrols))
@@ -135,7 +141,9 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		//! Check if killed ai entity was part of this objective event group
 		if (KilledAIMember(victim))
@@ -145,6 +153,11 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 				m_TotalKillCount++;
 				m_Quest.QuestCompletionCheck(true);
 			}
+			
+		#ifdef EXPANSIONMODNAVIGATION
+			if (m_TotalKillCount >= m_TotalUnitsAmount)
+				RemoveObjectiveMarkers();
+		#endif
 		}
 	}
 
@@ -152,7 +165,9 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 
 	protected void CheckQuestAIPatrol(int patrolsToKill)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		//! If all the targets are already killed dont create patrols
 		if (m_TotalKillCount >= m_TotalUnitsAmount)
@@ -253,7 +268,9 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 
 	override bool CanComplete()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
 
 		ObjectivePrint("m_TotalKillCount: " + m_TotalKillCount);
 		ObjectivePrint("m_TotalUnitsAmount: " + m_TotalUnitsAmount);
@@ -262,16 +279,23 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 			return false;
 
 		//! @note need to check for zero here because m_TotalUnitsAmount will be zero until set
-		if (m_TotalUnitsAmount <= 0 || m_TotalKillCount != m_TotalUnitsAmount)
+		if (m_TotalUnitsAmount > 0 && m_TotalKillCount >= m_TotalUnitsAmount)
 		{
-			ObjectivePrint("End and return: FALSE");
-			return false;
+			ObjectivePrint("End and return: TRUE");
+			return true;
 		}
 
-		ObjectivePrint("End and return: TRUE");
+		ObjectivePrint("End and return: FALSE");
 
-		return true;
+		return false;
 	}
+		
+#ifdef EXPANSIONMODNAVIGATION
+	override bool CanCreateMarkers()
+	{
+		return (m_TotalKillCount < m_TotalUnitsAmount);
+	}
+#endif
 
 	override int GetObjectiveType()
 	{

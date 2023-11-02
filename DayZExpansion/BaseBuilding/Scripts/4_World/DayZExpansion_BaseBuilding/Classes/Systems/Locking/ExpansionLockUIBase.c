@@ -147,18 +147,18 @@ class ExpansionLockUIBase: ExpansionUIScriptedMenu
 	}
 	
 	protected void SendRPC()
-	{		
-		auto rpc = ExpansionScriptRPC.Create();
-
-		int rpcType = ExpansionLockRPC.UNLOCK;
+	{
+		int rpcType = ItemBase.s_Expansion_Unlock_RPCID;
 		if ( !m_HasPin )
-			rpcType = ExpansionLockRPC.SET;
+			rpcType = ItemBase.s_Expansion_SetCode_RPCID;
 		if ( m_RpcChange )
-			rpcType = ExpansionLockRPC.CHANGE;
+			rpcType = ItemBase.s_Expansion_ChangeCode_RPCID;
+
+		auto rpc = ExpansionScriptRPC.Create(rpcType);
 
 		rpc.Write( m_Code );
 		rpc.Write( m_Selection );
-		rpc.Send( m_Target, rpcType, true );
+		rpc.Expansion_Send(m_Target, true);
 	}
 	
 	void OnServerResponse( bool success, bool injurePlayer )

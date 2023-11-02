@@ -30,16 +30,34 @@ class ExpansionMonitoringSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
+		if (!ctx.Read(Enabled))
+		{
+			Error(ClassName() + "::OnRecieve Enabled");
+			return false;
+		}
+		
+		m_IsLoaded = true;
+
 		return true;
 	}
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
+		ctx.Write(Enabled);
 	}
 	
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
+		if ( !IsMissionHost() )
+		{
+			return 0;
+		}
+		
+		auto rpc = CreateRPC();
+		OnSend( rpc );
+		rpc.Expansion_Send(true, identity);
+
 		return 0;
 	}
 
@@ -130,6 +148,10 @@ class ExpansionMonitoringSettings: ExpansionSettingBase
 		m_Version = VERSION;
 
 #ifdef EXPANSIONMOD
+		Enabled = true;
+#endif
+
+#ifdef EXPANSIONMODBOOK
 		Enabled = true;
 #endif
 
