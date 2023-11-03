@@ -13,6 +13,8 @@
 [CF_RegisterModule(ExpansionMissionModule)]
 class ExpansionMissionModule: CF_ModuleWorld
 {
+	static ref ExpansionMissionModule s_Instance;
+
 	static ref ScriptInvoker SI_Started = new ScriptInvoker();
 	static ref ScriptInvoker SI_Ended = new ScriptInvoker();
 
@@ -36,6 +38,8 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void ExpansionMissionModule()
 	{
+		s_Instance = this;
+
 		ExpansionSettings.SI_Mission.Insert( OnSettingsUpdated );
 	}
 	
@@ -78,7 +82,63 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		ExpansionMissionSettings.SI_OnSave.Insert( SaveMissions );
 	}
-	
+
+	void CallAirdrop(vector position)
+	{
+		array< ref ExpansionLootContainer > containers = new array< ref ExpansionLootContainer >;
+		ExpansionLootContainer container;
+
+		//! Get all containers enabled for player-called supply drop use
+		for ( int i = 0; i < GetExpansionSettings().GetAirdrop().Containers.Count(); i++ )
+		{
+			container = GetExpansionSettings().GetAirdrop().Containers[i];
+			if ( container.Usage == 0 || container.Usage == 2 )
+			{
+				containers.Insert( container );
+			}
+		}
+
+		if ( containers.Count() == 0 )
+		{
+			string errorMsg = "Airdrop settings do not contain compatible container (looked for container with Usage set to 0 or 2)";
+
+			CF_Log.Error( errorMsg );
+
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MISSION_NOTIF_TITLE", "ERROR"), new StringLocaliser(errorMsg), EXPANSION_NOTIFICATION_ICON_AIRDROP, COLOR_EXPANSION_NOTIFICATION_MISSION).Create();
+			return;
+		}
+
+		//! Pick a container (weighted random)
+		container = ExpansionLootContainer.GetWeightedRandomContainer( containers );
+
+		CF_Log.Debug("[ExpansionSupplySignal] Selected container: " + container.Container);
+				
+		int itemCount = container.ItemCount;
+		if ( container.ItemCount <= 0 )
+			itemCount = GetExpansionSettings().GetAirdrop().ItemCount;  //! Only kept for backwards compatibility, should be set per container
+
+		TStringArray infected;
+		int infectedCount;
+		if ( container.SpawnInfectedForPlayerCalledDrops )
+		{
+			infected = container.Infected;
+			infectedCount = container.InfectedCount;
+		}
+
+		container = new ExpansionLootContainer( container.Container, 2, 1, container.Loot, infected, itemCount, infectedCount, false, container.FallSpeed );
+
+		ExpansionAirdropPlane plane = ExpansionAirdropPlane.CreatePlane( Vector( position[0], 0, position[2] ), "", GetExpansionSettings().GetAirdrop().Radius, GetExpansionSettings().GetAirdrop().Height, GetExpansionSettings().GetAirdrop().Speed, container, new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER" ) );
+
+		if ( plane )
+		{
+			if ( GetExpansionSettings().GetNotification().ShowPlayerAirdropStarted )
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MISSION_NOTIF_TITLE", "Airdrop"), new StringLocaliser("STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS_PLAYER"), EXPANSION_NOTIFICATION_ICON_AIRDROP, COLOR_EXPANSION_NOTIFICATION_MISSION).Create();			
+
+			if ( GetExpansionSettings().GetLog().MissionAirdrop )
+				GetExpansionSettings().GetLog().PrintLog( "[Airdrop] A player called airdrop is heading toward " + Vector( position[0], 0, position[2] ) + " with a "+ container.Container );
+		}
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMissionModule OnMissionLoaded
 	// ------------------------------------------------------------

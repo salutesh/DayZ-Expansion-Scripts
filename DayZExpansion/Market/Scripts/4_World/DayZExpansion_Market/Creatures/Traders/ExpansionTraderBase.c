@@ -94,9 +94,7 @@ class ExpansionTraderObjectBase
 
 	void ~ExpansionTraderObjectBase()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "~ExpansionTraderObjectBase");
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.MARKET, this, "" + m_TraderEntity, "" + m_Expansion_RPCManager);
 
 		if (!GetGame())
 			return;

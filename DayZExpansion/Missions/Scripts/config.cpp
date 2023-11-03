@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DayZExpansion_Core_Scripts","DZ_Weapons_Ammunition","DZ_Weapons_Explosives","DZ_Pistols_Flaregun"};
+		requiredAddons[] = {"DayZExpansion_Core_Scripts","DZ_Weapons_Projectiles","DZ_Weapons_Ammunition","DZ_Weapons_Explosives","DZ_Pistols_Flaregun"};
 	};
 };
 class CfgMods
@@ -81,6 +81,48 @@ class CfgVehicles
 		weight = 300000;
 	};
 };
+class CfgAmmoTypes
+{
+	class AType_Bullet_Expansion_FlareSupply
+	{
+		name = "Bullet_Expansion_FlareSupply";
+	};
+	class AType_Bullet_Expansion_FlareSupplyRed
+	{
+		name = "Bullet_Expansion_FlareSupplyRed";
+	};
+	class AType_Bullet_Expansion_FlareSupplyGreen
+	{
+		name = "Bullet_Expansion_FlareSupplyGreen";
+	};
+	class AType_Bullet_Expansion_FlareSupplyBlue
+	{
+		name = "Bullet_Expansion_FlareSupplyBlue";
+	};
+};
+class CfgAmmo
+{
+	class Bullet_Flare;
+	class Bullet_FlareRed;
+	class Bullet_FlareGreen;
+	class Bullet_FlareBlue;
+	class Bullet_Expansion_FlareSupply: Bullet_Flare
+	{
+		spawnPileType = "Expansion_Ammo_FlareSupplyBase";
+	};
+	class Bullet_Expansion_FlareSupplyRed: Bullet_FlareRed
+	{
+		spawnPileType = "Expansion_Ammo_FlareSupplyRed";
+	};
+	class Bullet_Expansion_FlareSupplyGreen: Bullet_FlareGreen
+	{
+		spawnPileType = "Expansion_Ammo_FlareSupplyGreen";
+	};
+	class Bullet_Expansion_FlareSupplyBlue: Bullet_FlareBlue
+	{
+		spawnPileType = "Expansion_Ammo_FlareSupplyBlue";
+	};
+};
 class CfgMagazines
 {
 	class Ammo_Flare;
@@ -91,27 +133,31 @@ class CfgMagazines
 	{
 		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
 		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
+		ammo = "Bullet_Expansion_FlareSupply";
 	};
 	class Expansion_Ammo_FlareSupplyRed: Ammo_FlareRed
 	{
 		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
 		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
+		ammo = "Bullet_Expansion_FlareSupplyRed";
 	};
 	class Expansion_Ammo_FlareSupplyGreen: Ammo_FlareGreen
 	{
 		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
 		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
+		ammo = "Bullet_Expansion_FlareSupplyGreen";
 	};
 	class Expansion_Ammo_FlareSupplyBlue: Ammo_FlareBlue
 	{
 		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
 		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
+		ammo = "Bullet_Expansion_FlareSupplyBlue";
 	};
 };
 class CfgWeapons
 {
-	class Flaregun_Base;
-	class Flaregun: Flaregun_Base
+	class Pistol_Base;
+	class Flaregun_Base: Pistol_Base
 	{
 		chamberableFrom[] += {"Expansion_Ammo_FlareSupplyBase","Expansion_Ammo_FlareSupplyRed","Expansion_Ammo_FlareSupplyGreen","Expansion_Ammo_FlareSupplyBlue"};
 	};

@@ -275,7 +275,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			return false;
 
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this, player.GetIdentity().GetId());
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
 		foreach (string typeNameLower, ExpansionQuestObjectiveItemCount count: m_ObjectiveItemsMap)
