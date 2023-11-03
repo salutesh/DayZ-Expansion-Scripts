@@ -207,7 +207,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 	protected ref ExpansionMarketTraderZone m_ClientMarketZone;
 	
-	protected ref ExpansionTraderObjectBase m_OpenedClientTrader;
+	protected ExpansionTraderObjectBase m_OpenedClientTrader;
 	
 	ref array<ref ExpansionMarketATM_Data> m_ATMData;
 
@@ -288,8 +288,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
-		MarketModulePrint("OnMissionStart - Start");
-				
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		super.OnMissionStart(sender, args);
 		
 		if (!IsMissionClient() && IsMissionHost())
@@ -321,8 +321,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 				ExpansionStatic.MakeDirectoryRecursive(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER);
 			}
 		}
-		
-		MarketModulePrint("OnMissionStart - End");
 	}
 
 	// ------------------------------------------------------------
@@ -330,16 +328,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
-		MarketModulePrint("OnMissionLoaded - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		super.OnMissionLoaded(sender, args);
 
 		if (!GetGame().IsServer())
 			return;
 		
 		LoadMoneyPrice();
-		
-		MarketModulePrint("OnMissionLoaded - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -347,7 +343,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	override void OnMissionFinish(Class sender, CF_EventArgs args)
 	{
-		MarketModulePrint("OnMissionFinish - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		super.OnMissionFinish(sender, args);
 
@@ -366,8 +362,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			//! Clear cached categories and traders so that they are requested from server again after (e.g.) reconnect, to make sure they are in sync
 			GetExpansionSettings().GetMarket().ClearMarketCaches();
 		}
-		
-		MarketModulePrint("OnMissionFinish - End");
 	}
 
 	// ------------------------------------------------------------
@@ -400,7 +394,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void LoadMoneyPrice()
 	{
-		MarketModulePrint("LoadMoneyPrice - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		ExpansionMarketSettings market = GetExpansionSettings().GetMarket();
 		if (!market.MarketSystemEnabled && !market.ATMSystemEnabled)
@@ -457,12 +451,12 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		if (!m_MoneyDenominations.Count() && ExpansionGame.IsMultiplayerServer())
 			Error("No market exchange found - cannot determine currency values! Make sure you have at least one market category containing currencies with IsExchange set to 1");
-
-		MarketModulePrint("LoadMoneyPrice - End");
 	}
 	
 	bool MoneyCheck(PlayerIdentity identity = NULL)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!m_MoneyDenominations.Count())
 		{
 			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "No market exchange found - cannot determine currency values!").Error(identity);
@@ -477,8 +471,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	ExpansionTraderObjectBase GetTrader()
 	{
-		MarketModulePrint("GetTrader - Start");
-		
 		if (IsMissionClient())
 		{
 			MarketModulePrint("GetTrader - End and return!");
@@ -1085,8 +1077,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private bool FindPurchasePriceAndReserve(ExpansionMarketItem item, int amountWanted, out ExpansionMarketReserve reserved, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success)
 	{
-		MarketModulePrint("FindPurchasePriceAndReserve - Start");		
-					
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!item)
 		{		
 			Error("FindPurchasePriceAndReserve - [ERROR]: ExpansionMarketItem is NULL!");
@@ -1267,9 +1259,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// Expansion Array<Object> Spawn
 	// ------------------------------------------------------------
 	array<Object> Spawn(ExpansionMarketReserve reserve, PlayerBase player, inout EntityAI parent, bool includeAttachments = true, int skinIndex = -1, inout bool attachmentNotAttached = false, TStringIntMap spawnedAmounts = null)
-	{		
-		MarketModulePrint("Spawn - Start");
-				
+	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		array< Object > objs = new array<Object>;
 
 		ExpansionMarketItem item = reserve.RootItem;
@@ -1420,12 +1412,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// Expansion MarketMessageGM
 	// ------------------------------------------------------------
 	void MarketMessageGM(string message)
-	{	
-		MarketModulePrint("MarketMessageGM - Start");
-			
+	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", message, ""));
-			
-		MarketModulePrint("MarketMessageGM - End");
 		
 	}
 	
@@ -1433,9 +1423,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// Expansion SpawnMoney
 	// ------------------------------------------------------------
 	array<ItemBase> SpawnMoney(PlayerBase player, inout EntityAI parent, int amount, bool useExisingStacks = true, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL, bool isATM = false)
-	{	
-		MarketModulePrint("SpawnMoney - Start");	
-		
+	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		array<ItemBase> monies = new array<ItemBase>;
 
 		array<ref array<ItemBase>> foundMoney;
@@ -1943,7 +1933,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	//! If limitAmount is given and greater than -1, remove up to but not more than limitAmount
 	int RemoveMoney(PlayerBase player, int limitAmount = -1)
 	{
-		MarketModulePrint("RemoveMoney - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!player)
 		{
 			return 0;
@@ -1989,7 +1980,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 					limitAmount -= removeAmount;
 			}
 		}
-		MarketModulePrint("RemoveMoney - End");
 
 		return removed;
 	}
@@ -2002,10 +1992,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RemoveReservedStock(PlayerBase player, string itemClassName)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
 		{
-			MarketModulePrint("RemoveReservedStock - Start");
-			
 			if (!player)
 				return;
 	
@@ -2025,8 +2015,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 					player.ClearMarketReserve();
 				}
 			}
-			
-			MarketModulePrint("RemoveReservedStock - End");
 		}
 	}
 	
@@ -2052,7 +2040,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_Callback(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_Callback - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
@@ -2092,8 +2080,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		MarketModulePrint("RPC_Callback - result: " + result + " option1: " + option1 + " option2: " + option2 + " object: " + object);
 		
 		SI_Callback.Invoke(itemClassName, result, option1, option2, object);
-		
-		MarketModulePrint("RPC_Callback - End");
 	}
 
 #ifdef SERVER
@@ -2102,7 +2088,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// -----------------------------------------------------------
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
-		MarketModulePrint("OnInvokeConnect - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		super.OnInvokeConnect(sender, args);
 
@@ -2118,8 +2104,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			CreateATMData(cArgs.Identity);
 		}
-		
-		MarketModulePrint("OnInvokeConnect - End");
 	}
 #endif
 	
@@ -2128,10 +2112,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// -----------------------------------------------------------
 	private void SendMoneyDenominations(PlayerIdentity identity)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
 		{
-			MarketModulePrint("SendMoneyDenominations - Start");
-			
 			if (!MoneyCheck(identity))
 				return;
 
@@ -2147,8 +2131,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			rpc.Write(values);
 
 			rpc.Expansion_Send(true, identity);
-			
-			MarketModulePrint("SendMoneyDenominations - End");
 		}
 	}
 	
@@ -2157,7 +2139,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// -----------------------------------------------------------
 	private void RPC_MoneyDenominations(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_MoneyDenominations - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		array<string> keys = new array<string>;
 		array<int> values = new array<int>;
@@ -2177,8 +2159,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			m_MoneyDenominations.Insert(keys[i]);
 			m_MoneyTypes.Insert(keys[i], values[i]);
 		}
-		
-		MarketModulePrint("RPC_MoneyDenominations - End");
 	}
 
 	/* TODO: GET MORE INFO FROM JACOB ABOUT THIS!
@@ -2193,10 +2173,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestPurchase(string itemClassName, int count, int currentPrice, ExpansionTraderObjectBase trader, PlayerBase player = NULL, bool includeAttachments = true, int skinIndex = -1, TIntArray attachmentIDs = NULL)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("RequestPurchase - Sart");
-			
 			if (!trader)
 				return;
 
@@ -2208,8 +2188,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			rpc.Write(skinIndex);
 			rpc.Write(attachmentIDs);
 			rpc.Expansion_Send(trader.GetTraderEntity(), true);
-			
-			MarketModulePrint("RequestPurchase - End");
 		}
 	}
 	
@@ -2219,7 +2197,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_RequestPurchase(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_RequestPurchase - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
 			return;
@@ -2260,12 +2238,12 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 
 		Exec_RequestPurchase(player, itemClassName, count, currentPrice, trader, includeAttachments, skinIndex, attachmentIDs);
-		
-		MarketModulePrint("RPC_RequestPurchase - End");
 	}
 	
 	static ExpansionTraderObjectBase GetTraderFromObject(Object obj, bool errorOnNoTrader = true)
 	{
+		EXTrace trace = EXTrace.Profile(EXTrace.MARKET, ExpansionMarketModule);
+
 		ExpansionTraderNPCBase traderNPC;
 		ExpansionTraderStaticBase traderStatic;
 		ExpansionTraderZombieBase traderZombie;
@@ -2284,6 +2262,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 		else if (Class.CastTo(traderAI, obj))
 			trader = traderAI.GetTraderObject();
 		#endif
+
+		if (trace && trader && errorOnNoTrader)
+		{
+			trace.SetSilent(false);
+			trace.InitialDump(0);
+			trace.Add(trader);
+		}
 
 		if (!obj)
 		{
@@ -2304,8 +2289,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_RequestPurchase(notnull PlayerBase player, string itemClassName, int count, int currentPrice, ExpansionTraderObjectBase trader, bool includeAttachments = true, int skinIndex = -1, TIntArray attachmentIDs = NULL)
 	{
-		MarketModulePrint("Exec_RequestPurchase - Sart");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!player)
 		{
 			return;
@@ -2433,8 +2418,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		Callback(itemClassName, ExpansionMarketResult.RequestPurchaseSuccess, player.GetIdentity(), (int) includeAttachments, skinIndex);
 		
 		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has send a requested to purchase %3 x%4 from the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8).", player.GetIdentity().GetName(), player.GetIdentity().GetId(), itemClassName, count, trader.GetTraderMarket().m_FileName, trader.GetDisplayName(), trader.GetTraderZone().m_DisplayName, trader.GetTraderZone().Position.ToString()));
-		
-		MarketModulePrint("Exec_RequestPurchase - End");
 	}
 
 	/*
@@ -2446,17 +2429,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void ConfirmPurchase(string itemClassName, PlayerBase player = NULL, bool includeAttachments = true, int skinIndex = -1)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("ConfirmPurchase - Start");
-			
 			auto rpc = Expansion_CreateRPC("RPC_ConfirmPurchase");
 			rpc.Write(itemClassName);
 			rpc.Write(includeAttachments);
 			rpc.Write(skinIndex);
 			rpc.Expansion_Send(true);
-			
-			MarketModulePrint("ConfirmPurchase - End");
 		}
 	}
 		
@@ -2465,7 +2446,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_ConfirmPurchase(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_ConfirmPurchase - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
 			return;
@@ -2487,8 +2468,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 
 		Exec_ConfirmPurchase(player, itemClassName, includeAttachments, skinIndex);
-		
-		MarketModulePrint("RPC_ConfirmPurchase - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -2496,8 +2475,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_ConfirmPurchase(notnull PlayerBase player, string itemClassName, bool includeAttachments = true, int skinIndex = -1)
 	{
-		MarketModulePrint("Exec_ConfirmPurchase - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		ExpansionMarketReserve reserve = player.GetMarketReserve();
 		if (!reserve)
 		{
@@ -2626,8 +2605,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		if (objs.Count())
 			zone.Save();
-
-		MarketModulePrint("Exec_ConfirmPurchase - End");
 	}
 
 	void ClearReserved(PlayerBase player, bool unlockMoney = false)
@@ -2658,15 +2635,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void CancelPurchase(string itemClassName, PlayerBase player = NULL)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("CancelPurchase - Sart");
-			
 			auto rpc = Expansion_CreateRPC("RPC_CancelPurchase");
 			rpc.Write(itemClassName);
 			rpc.Expansion_Send(true);
-			
-			MarketModulePrint("CancelPurchase - End");
 		}
 	}
 		
@@ -2675,7 +2650,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_CancelPurchase(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_CancelPurchase - Sart");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
@@ -2686,8 +2661,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 	
 		Exec_CancelPurchase(player, itemClassName);
-		
-		MarketModulePrint("RPC_CancelPurchase - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -2695,11 +2668,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_CancelPurchase(notnull PlayerBase player, string itemClassName)
 	{
-		MarketModulePrint("Exec_CancelPurchase - Sart");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		RemoveReservedStock(player, itemClassName);
-		
-		MarketModulePrint("Exec_CancelPurchase - End");
 	}
 	
 	/*
@@ -2710,10 +2681,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestSell(string itemClassName, int count, int currentPrice, ExpansionTraderObjectBase trader, ExpansionMarketSell sell)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("RequestSell - Sart");
-			
 			if (!trader)
 			{
 				return;
@@ -2728,8 +2699,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			sellDebug.OnSend(rpc);
 
 			rpc.Expansion_Send(trader.GetTraderEntity(), true);
-						
-			MarketModulePrint("RequestSell - End");
 		}
 	}
 	
@@ -2738,7 +2707,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_RequestSell(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_RequestSell - Sart");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
 			return;
@@ -2770,8 +2739,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 
 		Exec_RequestSell(player, itemClassName, count, currentPrice, trader, playerSentSellDebug);
-		
-		MarketModulePrint("RPC_RequestSell - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -2779,8 +2746,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_RequestSell(notnull PlayerBase player, string itemClassName, int count, int playerSentPrice, ExpansionTraderObjectBase trader, ExpansionMarketSellDebug playerSentSellDebug)
 	{
-		MarketModulePrint("Exec_RequestSell - Sart");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!player)
 		{
 			return;
@@ -2919,8 +2886,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		Callback(itemClassName, ExpansionMarketResult.RequestSellSuccess, player.GetIdentity());
 		
 		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has send a requested to sell %3 x%4 at the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8).", player.GetIdentity().GetName(), player.GetIdentity().GetId(), itemClassName, count, trader.GetTraderMarket().m_FileName, trader.GetDisplayName(), trader.GetTraderZone().m_DisplayName, trader.GetTraderZone().Position.ToString()));
-
-		MarketModulePrint("Exec_RequestSell - End");
 	}
 	
 	void MarketSellDebug(int playerSentPrice, int actualPrice, ExpansionMarketSellDebug playerSentSellDebug, ExpansionMarketSellDebug sellDebug)
@@ -2946,16 +2911,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// Expansion ConfirmSell
 	// ------------------------------------------------------------
 	void ConfirmSell(string itemClassName, PlayerBase player = NULL)
-	{		
+	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("ConfirmSell - Sart");
-			
 			auto rpc = Expansion_CreateRPC("RPC_ConfirmSell");
 			rpc.Write(itemClassName);
 			rpc.Expansion_Send(true);
-					
-			MarketModulePrint("ConfirmSell - End");
 		}
 	}
 	
@@ -2964,7 +2927,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_ConfirmSell(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_ConfirmSell - Sart");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
 			return;
@@ -2978,8 +2941,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 
 		Exec_ConfirmSell(player, itemClassName);
-		
-		MarketModulePrint("RPC_ConfirmSell - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -2987,8 +2948,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_ConfirmSell(notnull PlayerBase player, string itemClassName)
 	{
-		MarketModulePrint("Exec_ConfirmSell - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!player)
 		{
 			return;
@@ -3046,8 +3007,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		player.ClearMarketSell();
 		
 		CheckSpawn(player, parent);
-		
-		MarketModulePrint("Exec_ConfirmSell - End");
 	}
 
 	// ------------------------------------------------------------
@@ -3055,15 +3014,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void CancelSell(string itemClassName, PlayerBase player = NULL)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("CancelSell - Sart");
-			
 			auto rpc = Expansion_CreateRPC("RPC_CancelSell");
 			rpc.Write(itemClassName);
 			rpc.Expansion_Send(true);
-			
-			MarketModulePrint("CancelSell - End");
 		}
 	}
 	
@@ -3072,7 +3029,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_CancelSell(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_CancelSell - Sart");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
@@ -3083,8 +3040,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 
 		Exec_CancelSell(player, itemClassName);
-		
-		MarketModulePrint("RPC_CancelSell - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -3092,11 +3047,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_CancelSell(notnull PlayerBase player, string itemClassName)
 	{
-		MarketModulePrint("Exec_CancelSell - Sart");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		player.ClearMarketSell();
-		
-		MarketModulePrint("Exec_CancelSell - End");
 	}
 
 	// ------------------------------------------------------------
@@ -3104,10 +3057,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestTraderData(ExpansionTraderObjectBase trader)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("RequestTraderData - Sart");
-			
 			if (!trader)
 			{
 				Error("ExpansionMarketModule::RequestTraderData - Trader is NULL!");
@@ -3116,8 +3069,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 			auto rpc = Expansion_CreateRPC("RPC_RequestTraderData");
 			rpc.Expansion_Send(trader.GetTraderEntity(), true);
-				
-			MarketModulePrint("RequestTraderData - End");
 		}
 	}
 	
@@ -3239,7 +3190,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_LoadTraderData(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_LoadTraderData - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this, "" + target);
 
 		ExpansionTraderObjectBase trader = GetTraderFromObject(target);
 		if (!trader)
@@ -3247,28 +3198,32 @@ class ExpansionMarketModule: CF_ModuleWorld
 			Error("ExpansionMarketModule::RPC_LoadTraderData - Could not get ExpansionTraderObjectBase!");
 			return;
 		}
+
+		EXTrace.Print(EXTrace.MARKET, this, "Client market zone: " + m_ClientMarketZone);
 		
+		EXTrace.Print(EXTrace.MARKET, this, "Reading buy price percent...");
 		if (!ctx.Read(m_ClientMarketZone.BuyPricePercent))
 		{
 			Error("ExpansionMarketModule::RPC_LoadTraderData - Could not read buy price percent!");
 			return;
 		}
 		
+		EXTrace.Print(EXTrace.MARKET, this, "Reading sell price percent...");
 		if (!ctx.Read(m_ClientMarketZone.SellPricePercent))
 		{
 			Error("ExpansionMarketModule::RPC_LoadTraderData - Could not read sell price percent!");
 			return;
 		}
 
+		EXTrace.Print(EXTrace.MARKET, this, "Setting client trader: " + trader);
 		m_OpenedClientTrader = trader;
 
+		EXTrace.Print(EXTrace.MARKET, this, "Opening trader menu...");
 		if (!OpenTraderMenu())
 			return;
 
 		bool stockOnly = trader.GetTraderMarket().m_StockOnly;  //! If already netsynched, request stock only
 		RequestTraderItems(trader, 0, stockOnly);
-
-		MarketModulePrint("RPC_LoadTraderData - End");
 	}
 
 	// ------------------------------------------------------------
@@ -3276,8 +3231,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestTraderItems(ExpansionTraderObjectBase trader, int start = 0, bool stockOnly = false, TIntArray itemIDs = NULL)
 	{
-		MarketModulePrint("RequestTraderItems - Start - " + start);
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!trader)
 		{
 			Error("ExpansionMarketModule::RequestTraderItems - Trader is NULL!");
@@ -3289,8 +3244,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		rpc.Write(stockOnly);
 		rpc.Write(itemIDs);
 		rpc.Expansion_Send(trader.GetTraderEntity(), true);
-			
-		MarketModulePrint("RequestTraderItems - End - " + start);
 	}
 
 	// ------------------------------------------------------------
@@ -3298,7 +3251,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_RequestTraderItems(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_RequestTraderItems - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		ExpansionTraderObjectBase trader = GetTraderFromObject(target);
 		if (!trader)
@@ -3329,8 +3282,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 
 		LoadTraderItems(trader, senderRPC, start, stockOnly, itemIDs);
-
-		MarketModulePrint("RPC_RequestTraderItems - End");
 	}
 
 	// ------------------------------------------------------------
@@ -3338,7 +3289,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_LoadTraderItems(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_LoadTraderItems - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this, "" + target);
 
 		ExpansionTraderObjectBase trader = GetTraderFromObject(target);
 		if (!trader)
@@ -3515,8 +3466,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			//! Request next batch
 			RequestTraderItems(trader, next, stockOnly);
 		}
-		
-		MarketModulePrint("RPC_LoadTraderItems - End");
 	}
 
 	//! Exit trader - client
@@ -3705,6 +3654,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	bool OpenTraderMenu()
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!MoneyCheck())
 			return false;
 
@@ -3837,14 +3788,12 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestPlayerATMData()
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("RequestPlayerATMData - Start");
-						
 			auto rpc = Expansion_CreateRPC("RPC_RequestPlayerATMData");
 			rpc.Expansion_Send(true);
-				
-			MarketModulePrint("RequestPlayerATMData - End");
 		}
 	}
 	
@@ -3885,7 +3834,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_SendPlayerATMData(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_SendPlayerATMData - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
@@ -3898,8 +3847,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		Exec_SendPlayerATMData(data);
-		
-		MarketModulePrint("RPC_SendPlayerATMData - End");
 	}
 
 	// ------------------------------------------------------------
@@ -3920,11 +3867,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void SetPlayerATMData(ExpansionMarketATM_Data data)
 	{
-		MarketModulePrint("SetPlayerATMData - Start");
-	
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		SI_ATMMenuInvoker.Invoke(data);
-		
-		MarketModulePrint("SetPlayerATMData - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -3932,15 +3877,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void RequestDepositMoney(int amount)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("RequestDepositMoney - Start");
-						
 			auto rpc = Expansion_CreateRPC("RPC_RequestDepositMoney");
 			rpc.Write(amount);
 			rpc.Expansion_Send(true);
-				
-			MarketModulePrint("RequestDepositMoney - End");
 		}
 	}
 	
@@ -3949,7 +3892,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_RequestDepositMoney(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_RequestDepositMoney - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
@@ -3962,8 +3905,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		Exec_RequestDepositMoney(amount, senderRPC);
-		
-		MarketModulePrint("RPC_RequestDepositMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -3971,8 +3912,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_RequestDepositMoney(int amount, PlayerIdentity ident)
 	{
-		MarketModulePrint("Exec_RequestDepositMoney - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!ident)
 		{
 			Error("ExpansionMarketModule::Exec_RequestDepositMoney - Could not get player identity!");
@@ -4033,8 +3974,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		ExpansionLogATM(string.Format("Player \"%1\" (id=%2) has deposited %3 on his ATM account.", ident.GetName(), ident.GetId(), amount));
 		
 		ConfirmDepositMoney(amount, ident, data);
-		
-		MarketModulePrint("Exec_RequestDepositMoney - End");
 	}
 		
 	// ------------------------------------------------------------
@@ -4042,14 +3981,12 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void ConfirmDepositMoney(int amount, PlayerIdentity ident, ExpansionMarketATM_Data data)
 	{
-		MarketModulePrint("RequestDepositMoney - Start");
-					
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		auto rpc = Expansion_CreateRPC("RPC_ConfirmDepositMoney");
 		rpc.Write(amount);
 		rpc.Write(data);
 		rpc.Expansion_Send(true, ident);
-			
-		MarketModulePrint("RequestDepositMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4057,7 +3994,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_ConfirmDepositMoney(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_ConfirmDepositMoney - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
@@ -4077,8 +4014,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		Exec_ConfirmDepositMoney(amount, data);
-		
-		MarketModulePrint("RPC_ConfirmDepositMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4086,11 +4021,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_ConfirmDepositMoney(int amount, ExpansionMarketATM_Data data)
 	{
-		MarketModulePrint("Exec_ConfirmDepositMoney - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		SI_ATMMenuCallback.Invoke(amount, data, 1);
-		
-		MarketModulePrint("Exec_ConfirmDepositMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4098,15 +4031,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void RequestWithdrawMoney(int amount)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("RequestWithdraw - Start");
-						
 			auto rpc = Expansion_CreateRPC("RPC_RequestWithdrawMoney");
 			rpc.Write(amount);
 			rpc.Expansion_Send(true);
-				
-			MarketModulePrint("RequestWithdraw - End");
 		}
 	}
 	
@@ -4115,7 +4046,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_RequestWithdrawMoney(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_RequestWithdrawMoney - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
@@ -4128,8 +4059,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		Exec_RequestWithdrawMoney(amount, senderRPC);
-		
-		MarketModulePrint("RPC_RequestWithdrawMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4137,8 +4066,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_RequestWithdrawMoney(int amount, PlayerIdentity ident)
 	{
-		MarketModulePrint("Exec_RequestWithdrawMoney - Start");
-					
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!ident)
 		{
 			Error("ExpansionMarketModule::Exec_RequestWithdrawMoney - Could not get sender indentity!");
@@ -4188,8 +4117,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		ExpansionLogATM(string.Format("Player \"%1\" (id=%2) has withdrawn %3 from his ATM account.", ident.GetName(), ident.GetId(), amount));
 		
 		ConfirmWithdrawMoney(amount, ident, data);
-		
-		MarketModulePrint("Exec_RequestWithdrawMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4197,14 +4124,12 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void ConfirmWithdrawMoney(int amount, PlayerIdentity ident, ExpansionMarketATM_Data data)
 	{
-		MarketModulePrint("RequestDepositMoney - Start");
-					
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		auto rpc = Expansion_CreateRPC("RPC_ConfirmWithdrawMoney");
 		rpc.Write(amount);
 		rpc.Write(data);
 		rpc.Expansion_Send(true, ident);
-			
-		MarketModulePrint("RequestDepositMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4212,7 +4137,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_ConfirmWithdrawMoney(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_ConfirmWithdrawMoney - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
@@ -4232,8 +4157,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		Exec_ConfirmWithdrawMoney(amount, data);
-		
-		MarketModulePrint("Exec_ConfirmWithdrawMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4241,11 +4164,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_ConfirmWithdrawMoney(int amount, ExpansionMarketATM_Data data)
 	{
-		MarketModulePrint("Exec_ConfirmWithdrawMoney - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		SI_ATMMenuCallback.Invoke(amount, data, 2);
-		
-		MarketModulePrint("Exec_ConfirmWithdrawMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4254,16 +4175,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void RequestTransferMoneyToPlayer(int amount, string playerID)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("RequestTransferMoneyToPlayer - Start");
-			
 			auto rpc = Expansion_CreateRPC("RPC_RequestTransferMoneyToPlayer");
 			rpc.Write(amount);
 			rpc.Write(playerID);
 			rpc.Expansion_Send(true);
-				
-			MarketModulePrint("RequestTransferMoneyToPlayer - End");
 		}
 	}
 	
@@ -4273,7 +4192,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_RequestTransferMoneyToPlayer(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_RequestTransferMoneyToPlayer - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
@@ -4293,8 +4212,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		Exec_RequestTransferMoneyToPlayer(amount, playerID, senderRPC);
-		
-		MarketModulePrint("RPC_RequestTransferMoneyToPlayer - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4303,8 +4220,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_RequestTransferMoneyToPlayer(int amount, string receiverID, PlayerIdentity ident)
 	{
-		MarketModulePrint("Exec_RequestTransferMoneyToPlayer - Start");
-								
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!ident)
 		{
 			Error("ExpansionMarketModule::Exec_RequestTransferMoneyToPlayer - Could not get sender identity!");
@@ -4369,8 +4286,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		//! This could potentaly cause an identity issue (need to test)
 		ExpansionLogATM(string.Format("Player %1 (id=%2) has transfered %3 to the player %4 (id=%5).", senderName, senderID, amount.ToString(), revicerName, receiverID));
-		
-		MarketModulePrint("Exec_RequestWithdrawMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4378,13 +4293,11 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void ConfirmTransferMoneyToPlayer(PlayerIdentity ident, ExpansionMarketATM_Data data)
 	{
-		MarketModulePrint("ConfirmTransferMoneyToPlayer - Start");
-					
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		auto rpc = Expansion_CreateRPC("RPC_ConfirmTransferMoneyToPlayer");
 		rpc.Write(data);
 		rpc.Expansion_Send(true, ident);
-
-		MarketModulePrint("ConfirmTransferMoneyToPlayer - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4392,7 +4305,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_ConfirmTransferMoneyToPlayer(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_ConfirmTransferMoneyToPlayer - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
@@ -4405,8 +4318,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		Exec_ConfirmTransferMoneyToPlayer(data);
-		
-		MarketModulePrint("RPC_ConfirmTransferMoneyToPlayer - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4414,11 +4325,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_ConfirmTransferMoneyToPlayer(ExpansionMarketATM_Data data)
 	{
-		MarketModulePrint("Exec_ConfirmTransferMoneyToPlayer - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		SI_ATMMenuTransferCallback.Invoke(data);
-		
-		MarketModulePrint("Exec_ConfirmTransferMoneyToPlayer - End");
 	}
 	
 	#ifdef EXPANSIONMODGROUPS
@@ -4427,16 +4336,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void RequestPartyTransferMoney(int amount, int partyID)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("RequestPartyTransferMoney - Start");
-						
 			auto rpc = Expansion_CreateRPC("RPC_RequestPartyTransferMoney");
 			rpc.Write(amount);
 			rpc.Write(partyID);
 			rpc.Expansion_Send(true);
-				
-			MarketModulePrint("RequestPartyTransferMoney - End");
 		}
 	}
 	
@@ -4445,7 +4352,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_RequestPartyTransferMoney(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_RequestPartyTransferMoney - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
@@ -4465,8 +4372,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		Exec_RequestPartyTransferMoney(amount, partyID, senderRPC);
-		
-		MarketModulePrint("RPC_RequestPartyTransferMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4474,8 +4379,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_RequestPartyTransferMoney(int amount, int partyID, PlayerIdentity ident)
 	{
-		MarketModulePrint("Exec_RequestPartyTransferMoney - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!ident)
 		{
 			Error("ExpansionMarketModule::Exec_RequestPartyTransferMoney - Could not get sender indetity!");
@@ -4529,8 +4434,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		ExpansionLogATM(string.Format("Player \"%1\" (id=%2) has deposited %3 on the party \"%4\" (partyid=%5 | ownerid=%6) ATM account.", ident.GetName(), ident.GetId(), amount, party.GetPartyName(), partyID, party.GetOwnerUID()));
 		
 		ConfirmPartyTransferMoney(amount, party, data, ident);
-		
-		MarketModulePrint("Exec_RequestPartyTransferMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4538,15 +4441,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void ConfirmPartyTransferMoney(int amount, ExpansionPartyData party, ExpansionMarketATM_Data data, PlayerIdentity ident)
 	{
-		MarketModulePrint("ConfirmPartyTransferMoney - Start");
-							
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		auto rpc = Expansion_CreateRPC("RPC_ConfirmPartyTransferMoney");
 		rpc.Write(amount);
 		party.OnSend(rpc, false);
 		rpc.Write(data);
 		rpc.Expansion_Send(true, ident);
-			
-		MarketModulePrint("ConfirmPartyTransferMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4554,7 +4455,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_ConfirmPartyTransferMoney(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_ConfirmPartyTransferMoney - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
@@ -4588,8 +4489,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		Exec_ConfirmPartyTransferMoney(amount, party, data);
-		
-		MarketModulePrint("RPC_ConfirmPartyTransferMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4597,11 +4496,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_ConfirmPartyTransferMoney(int amount, ExpansionPartyData party, ExpansionMarketATM_Data data)
 	{
-		MarketModulePrint("Exec_ConfirmPartyTransferMoney - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		SI_ATMMenuPartyCallback.Invoke(amount, party, data, 1);
-		
-		MarketModulePrint("Exec_ConfirmPartyTransferMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4609,16 +4506,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void RequestPartyWithdrawMoney(int amount, int partyID)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			MarketModulePrint("RequestPartyWithdrawMoney - Start");
-						
 			auto rpc = Expansion_CreateRPC("RPC_RequestPartyWithdrawMoney");
 			rpc.Write(amount);
 			rpc.Write(partyID);
 			rpc.Expansion_Send(true);
-				
-			MarketModulePrint("RequestPartyWithdrawMoney - End");
 		}
 	}
 	
@@ -4627,7 +4522,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_RequestPartyWithdrawMoney(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_RequestPartyWithdrawMoney - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
@@ -4647,8 +4542,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 				
 		Exec_RequestPartyWithdrawMoney(amount, partyID, senderRPC);
-		
-		MarketModulePrint("RPC_RequestPartyWithdrawMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4656,8 +4549,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_RequestPartyWithdrawMoney(int amount, int partyID, PlayerIdentity ident)
 	{
-		MarketModulePrint("Exec_RequestPartyWithdrawMoney - Start");
-					
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		StringLocaliser title;
 		StringLocaliser text;
 						
@@ -4720,8 +4613,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		ExpansionLogATM(string.Format("Player \"%1\" (id=%2) has withdrawn %3 from the party \"%4\" (partyid=%5 | ownerid=%6) ATM account.", ident.GetName(), ident.GetId(), amount, party.GetPartyName(), partyID, party.GetOwnerUID()));
 		
 		ConfirmPartyWithdrawMoney(amount, party, data, ident);
-		
-		MarketModulePrint("Exec_RequestPartyWithdrawMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4729,15 +4620,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void ConfirmPartyWithdrawMoney(int amount, ExpansionPartyData party, ExpansionMarketATM_Data data, PlayerIdentity ident)
 	{
-		MarketModulePrint("ConfirmPartyWithdrawMoney - Start");
-							
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		auto rpc = Expansion_CreateRPC("RPC_ConfirmPartyWithdrawMoney");
 		rpc.Write(amount);
 		party.OnSend(rpc, false);
 		rpc.Write(data);
 		rpc.Expansion_Send(true, ident);
-			
-		MarketModulePrint("ConfirmPartyWithdrawMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4745,7 +4634,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_ConfirmPartyWithdrawMoney(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		MarketModulePrint("RPC_ConfirmPartyWithdrawMoney - Start");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
@@ -4779,8 +4668,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		Exec_ConfirmPartyWithdrawMoney(amount, party, data);
-		
-		MarketModulePrint("RPC_ConfirmPartyWithdrawMoney - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4788,11 +4675,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_ConfirmPartyWithdrawMoney(int amount, ExpansionPartyData party, ExpansionMarketATM_Data data)
 	{
-		MarketModulePrint("Exec_ConfirmPartyWithdrawMoney - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		SI_ATMMenuPartyCallback.Invoke(amount, party, data, 2);
-		
-		MarketModulePrint("Exec_ConfirmPartyWithdrawMoney - End");
 	}
 	#endif
 	
