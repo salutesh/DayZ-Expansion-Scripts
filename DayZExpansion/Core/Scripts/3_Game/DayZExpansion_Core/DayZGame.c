@@ -265,11 +265,14 @@ modded class DayZGame
 	{
 		switch (rpc_type)
 		{
-			case ExpansionScriptRPC.EXPANSION_MAGIC_NUMBER:
+			case ExpansionScriptRPC.EXPANSION_RPC_UNTARGETED:
 				ExpansionRPCManager.OnRPC(sender, target, ctx);
 				break;
-			case ExpansionScriptRPC.EXPANSION_MAGIC_NUMBER_NETIDTARGET:
-				ExpansionRPCManager.OnRPC(sender, ctx);
+			case ExpansionScriptRPC.EXPANSION_RPC_TARGETED:
+				if (target)
+					ExpansionRPCManager.OnRPC(sender, target, ctx);
+				else
+					EXTrace.Print(EXTrace.RPC, this, "Info: Targeted Expansion RPC received, but target doesn't exist");
 				break;
 			default:
 				super.OnRPC(sender, target, rpc_type, ctx);

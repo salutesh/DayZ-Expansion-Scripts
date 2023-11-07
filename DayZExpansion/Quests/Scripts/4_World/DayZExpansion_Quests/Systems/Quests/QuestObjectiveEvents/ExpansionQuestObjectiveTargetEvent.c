@@ -14,14 +14,14 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 {
 	protected int m_Count;
 	protected int m_Amount;
-	protected ref ExpansionQuestObjectiveTargetConfig m_Config;
+	protected ref ExpansionQuestObjectiveTargetConfig m_TargetConfig;
 
 	override bool OnEventStart()
 	{
 		if (!super.OnEventStart())
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_TargetConfig, m_ObjectiveConfig))
 			return false;
 
 		return true;
@@ -32,7 +32,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnContinue())
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_TargetConfig, m_ObjectiveConfig))
 			return false;
 
 		m_Quest.QuestCompletionCheck(true);
@@ -46,7 +46,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		ExpansionQuestObjectiveTarget target = m_Config.GetTarget();
+		ExpansionQuestObjectiveTarget target = m_TargetConfig.GetTarget();
 		if (!target)
 			return;
 
@@ -148,11 +148,11 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 	protected bool IsInMaxRange(vector playerPos)
 	{
-		vector position = m_Config.GetPosition();
+		vector position = m_TargetConfig.GetPosition();
 		if (position == vector.Zero)
 			return true;
 
-		float maxDistance = m_Config.GetMaxDistance();
+		float maxDistance = m_TargetConfig.GetMaxDistance();
 		if (maxDistance <= 0)
 			return true;
 

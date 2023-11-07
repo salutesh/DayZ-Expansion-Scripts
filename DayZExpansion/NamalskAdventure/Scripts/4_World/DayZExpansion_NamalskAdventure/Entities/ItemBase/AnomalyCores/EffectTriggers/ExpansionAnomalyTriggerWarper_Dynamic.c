@@ -13,20 +13,16 @@
 class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynamic
 {
 	protected Particle m_ParticleTarget;
-	
-	void ExpansionAnomalyTriggerWarper_Dynamic()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-	}
 
 	//! Condition checks on given entity.
 	protected bool EntityConditions(Object entityObj)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+	#endif
 		ExDebugPrint("::EntityConditions - Entity: " + entityObj.GetType());
 		
-		if (ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Items) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Players) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Animals) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Vehicles) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Infected))
+		if (ExpansionStatic.IsAnyOf(entityObj.GetType(), s_Players) || ExpansionStatic.IsAnyOf(entityObj.GetType(), s_Vehicles))
 		{
 			PlayerBase player = PlayerBase.Cast(entityObj);
 			if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
@@ -45,7 +41,9 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 	
 	override void OnStayServerEvent(TriggerInsider insider, float deltaTime)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnStayServerEvent - Insider: " + insider.GetObject().GetType());
 
 		super.OnStayServerEvent(insider, deltaTime);
@@ -58,7 +56,9 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 
 	protected void ProcessEntityEvents(Object entityObj)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::ProcessEntityEvents - Entity: " + entityObj.GetType());
 
 		vector position = entityObj.GetPosition();
@@ -80,7 +80,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 		randomPosition[1] = GetGame().SurfaceY(randomPosition[0], randomPosition[2]);
 		vector ori = entityObj.GetOrientation();
 
-		if (ExpansionStatic.IsAnyOf(entityObj, m_Items, true))
+		/*if (ExpansionStatic.IsAnyOf(entityObj, s_Items, true))
 		{
 			ItemBase item = ItemBase.Cast(entityObj);
 			if (!item)
@@ -105,7 +105,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
 		}
-		else if (ExpansionStatic.IsAnyOf(entityObj, m_Players, true))
+		else*/ if (ExpansionStatic.IsAnyOf(entityObj, s_Players, true))
 		{
 			PlayerBase player = PlayerBase.Cast(entityObj);
 			if (!player || !player.IsAlive())
@@ -127,7 +127,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
 			}
 		}
-		else if (ExpansionStatic.IsAnyOf(entityObj, m_Vehicles, true))
+		else if (ExpansionStatic.IsAnyOf(entityObj, s_Vehicles, true))
 		{
 			Transport transport = Transport.Cast(entityObj);
 			if (!transport)
@@ -145,7 +145,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
 		}
-		else if (ExpansionStatic.IsAnyOf(entityObj, m_Animals, true))
+		/*else if (ExpansionStatic.IsAnyOf(entityObj, s_Animals, true))
 		{
                AnimalBase animal = AnimalBase.Cast(entityObj);
 			if (!animal || !animal.IsAlive())
@@ -156,7 +156,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			animal.SetPosition(randomPosition);
 			animal.SetOrientation(ori);
 		}
-		else if (ExpansionStatic.IsAnyOf(entityObj, m_Infected, true))
+		else if (ExpansionStatic.IsAnyOf(entityObj, s_Infected, true))
 		{
                ZombieBase zombie = ZombieBase.Cast(entityObj);
 			if (!zombie || !zombie.IsAlive())
@@ -168,7 +168,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			zombie.SetOrientation(ori);
 			
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
-		}
+		}*/
 	}
 
 	protected void PlayFXTarget(vector pos, PlayerIdentity identity)
@@ -179,7 +179,9 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 	
 	protected void PlayVFXTarget(vector pos)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		
 		if (!GetGame().IsDedicatedServer())
 		{
@@ -194,7 +196,9 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 	
 	protected void PlaySFXTarget(vector pos)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		
 		if (!GetGame().IsDedicatedServer())
 		{
@@ -233,14 +237,18 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 	
 	protected void CheckEntityPos(EntityAI objectEntity, vector oldPos)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
+
 		float dist = vector.Distance(objectEntity.GetPosition(), Vector(0, 0, 0));
 		if (dist < 100)
 		{
-			if (ExpansionStatic.IsAnyOf(objectEntity, m_Players, true))
+			if (ExpansionStatic.IsAnyOf(objectEntity, s_Players, true))
 			{
 				DayZPlayerSyncJunctures.ExpansionTeleport(DayZPlayer.Cast(objectEntity), oldPos, objectEntity.GetOrientation());
 			}
-			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Vehicles, true))
+			else if (ExpansionStatic.IsAnyOf(objectEntity, s_Vehicles, true))
 			{
 			#ifdef JM_COT
 				CarScript.Cast(objectEntity).COT_PlaceOnSurfaceAtPosition(oldPos);

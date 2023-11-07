@@ -19,7 +19,7 @@ modded class ExpansionActionOpenQuestMenu
 			return false;
 
 		if (!GetGame().IsDedicatedServer())
-		{
+		{			
 			bool changeText = false;
 			string actionText;
 			auto npcObject = ExpansionQuestStaticObject.Cast(target.GetParentOrObject());
@@ -27,7 +27,8 @@ modded class ExpansionActionOpenQuestMenu
 			{
 				ExpansionQuestObjectCardboardBox cardboardBox = ExpansionQuestObjectCardboardBox.Cast(npcObject);
 				ExpansionQuestObjectLocker locker = ExpansionQuestObjectLocker.Cast(npcObject);
-				if (cardboardBox)
+				ExpansionQuestObjectGiftBox_Base giftBox = ExpansionQuestObjectGiftBox_Base.Cast(npcObject);
+				if (cardboardBox || giftBox)
 				{
 					changeText = true;
 					actionText = "Open";
@@ -40,7 +41,7 @@ modded class ExpansionActionOpenQuestMenu
 			}
 
 			if (changeText)
-				m_Text = actionText + " " + target.GetParentOrObject().GetDisplayName();
+				m_Text = actionText + " " + npcObject.GetDisplayName();
 		}
 
 		return true;

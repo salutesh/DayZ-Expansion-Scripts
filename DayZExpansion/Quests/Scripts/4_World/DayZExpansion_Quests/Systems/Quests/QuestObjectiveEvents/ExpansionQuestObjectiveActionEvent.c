@@ -16,7 +16,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 	protected int m_ExecutionAmount;
 	protected int m_ExecutionCount;
 	protected int m_UpdateCount;
-	protected ref ExpansionQuestObjectiveActionConfig m_Config;
+	protected ref ExpansionQuestObjectiveActionConfig m_ActionConfig;
 
 	override bool OnEventStart()
 	{
@@ -27,7 +27,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnEventStart())
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_ActionConfig, m_ObjectiveConfig))
 			return false;
 
 		return true;
@@ -42,7 +42,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnContinue())
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_ActionConfig, m_ObjectiveConfig))
 			return false;
 
 		m_Quest.QuestCompletionCheck();
@@ -56,7 +56,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (IsCompleted() || m_Config.GetActionNames().Find(actionBase.ClassName()) == -1)
+		if (IsCompleted() || m_ActionConfig.GetActionNames().Find(actionBase.ClassName()) == -1)
 			return;
 
 		if (!MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_CheckActionSuccess(actionBase, actionData))
@@ -81,8 +81,8 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 			if (actionData.m_MainItem)
 				objects.Insert(actionData.m_MainItem);
 
-			TStringArray excluded = m_Config.GetExcludedClassNames();
-			TStringArray allowed = m_Config.GetAllowedClassNames();
+			TStringArray excluded = m_ActionConfig.GetExcludedClassNames();
+			TStringArray allowed = m_ActionConfig.GetAllowedClassNames();
 
 			bool isAllowed = allowed.Count() == 0;
 

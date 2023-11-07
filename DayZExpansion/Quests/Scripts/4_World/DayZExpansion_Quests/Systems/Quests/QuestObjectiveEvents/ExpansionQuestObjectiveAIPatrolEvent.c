@@ -13,7 +13,7 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 {
-	protected ref ExpansionQuestObjectiveAIPatrolConfig m_Config;
+	protected ref ExpansionQuestObjectiveAIPatrolConfig m_AIPatrolConfig;
 
 	override bool OnEventStart()
 	{
@@ -21,7 +21,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_AIPatrolConfig, m_ObjectiveConfig))
 			return false;
 
 		if (!super.OnEventStart())
@@ -36,7 +36,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_AIPatrolConfig, m_ObjectiveConfig))
 			return false;
 		
 		if (!super.OnContinue())
@@ -48,14 +48,11 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 #ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
-		if (!m_Config)
-			return;
-
-		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
+		ExpansionQuestObjectiveAIPatrol aiPatrol = m_AIPatrolConfig.GetAIPatrol();
 		if (!aiPatrol)
 			return;
 
-		string markerName = m_Config.GetObjectiveText();
+		string markerName = m_AIPatrolConfig.GetObjectiveText();
 		array<vector> waypoints = aiPatrol.GetWaypoints();
 		if (waypoints)
 			CreateObjectiveMarker(waypoints[0], markerName);
@@ -68,7 +65,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
+		ExpansionQuestObjectiveAIPatrol aiPatrol = m_AIPatrolConfig.GetAIPatrol();
 		if (!aiPatrol)
 			return;
 
@@ -94,7 +91,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!m_Config)
+		if (!m_AIPatrolConfig)
 			return;
 
 		CheckQuestAIPatrol(1);
@@ -106,18 +103,18 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
+		ExpansionQuestObjectiveAIPatrol aiPatrol = m_AIPatrolConfig.GetAIPatrol();
 		if (!aiPatrol)
 			return;
 
 		m_UnitsToSpawn = m_TotalUnitsAmount - m_TotalKillCount;
 
 		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
-		ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(m_UnitsToSpawn, aiPatrol.GetNPCSpeed(), "SPRINT", aiPatrol.GetNPCMode(), aiPatrol.GetNPCFaction(), aiPatrol.GetNPCLoadoutFile(), m_Config.CanLootAI(), true, aiPatrol.GetWaypoints());
+		ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(m_UnitsToSpawn, aiPatrol.GetNPCSpeed(), "SPRINT", aiPatrol.GetNPCMode(), aiPatrol.GetNPCFaction(), aiPatrol.GetNPCLoadoutFile(), m_AIPatrolConfig.CanLootAI(), true, aiPatrol.GetWaypoints());
 		group.Formation = aiPatrol.NPCFormation;
 		group.AccuracyMin = aiPatrol.NPCAccuracyMin;
 		group.AccuracyMax = aiPatrol.NPCAccuracyMax;
-		eAIDynamicPatrol patrol = ExpansionQuestObjectiveAIEventBase.CreateQuestPatrol(group, 0, 600, 300, m_Config.GetMinDistRadius(), m_Config.GetMaxDistRadius(), m_Config.GetDespawnRadius());
+		eAIDynamicPatrol patrol = ExpansionQuestObjectiveAIEventBase.CreateQuestPatrol(group, 0, 600, 300, m_AIPatrolConfig.GetMinDistRadius(), m_AIPatrolConfig.GetMaxDistRadius(), m_AIPatrolConfig.GetDespawnRadius());
 		if (!patrol)
 			return;
 
@@ -125,7 +122,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 		ExpansionQuestModule.GetModuleInstance().SetQuestPatrols(m_Quest.GetQuestConfig().GetID(), questPatrols);
 
 	#ifdef EXPANSIONMODNAVIGATION
-		if (m_Config.GetObjectiveText() != string.Empty)
+		if (m_AIPatrolConfig.GetObjectiveText() != string.Empty)
 			CreateMarkers();
 	#endif
 	}

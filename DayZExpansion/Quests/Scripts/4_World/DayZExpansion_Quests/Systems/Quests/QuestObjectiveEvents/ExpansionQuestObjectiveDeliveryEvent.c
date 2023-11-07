@@ -28,7 +28,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		if (!super.OnEventStart())
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_DeliveryConfig, m_ObjectiveConfig))
 			return false;
 
 		if (!CreateObjectiveTrigger())
@@ -54,7 +54,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		if (!super.OnContinue())
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_DeliveryConfig, m_ObjectiveConfig))
 			return false;
 
 		if (!CreateObjectiveTrigger())
@@ -135,8 +135,8 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		Object npcObj = m_Quest.GetQuestModule().GetClosestQuestNPCForQuest(questNPCTurnInIDs, playerPos);
 		if (!npcObj)
 		{
-			string objectiveType = typename.EnumToString(ExpansionQuestObjectiveType, m_Config.GetObjectiveType());
-			StringLocaliser text = new StringLocaliser("The system could not find a valid quest NPC entity for the quest objective %1 with ID %2. The entities class name/s are probably invalid and the entities are not spawned. Please inform the server Admin about this problem.", objectiveType, m_Config.GetID().ToString());
+			string objectiveType = typename.EnumToString(ExpansionQuestObjectiveType, m_DeliveryConfig.GetObjectiveType());
+			StringLocaliser text = new StringLocaliser("The system could not find a valid quest NPC entity for the quest objective %1 with ID %2. The entities class name/s are probably invalid and the entities are not spawned. Please inform the server Admin about this problem.", objectiveType, m_DeliveryConfig.GetID().ToString());
 			ExpansionNotification("Quest Objective Error", text).Error(player.GetIdentity());
 			return false;
 		}
@@ -177,7 +177,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		if (npcPos[2] < worldSize * 0.5)
 			worldPos[2] = worldSize;
 
-		float maxDistance = m_Config.GetMaxDistance();
+		float maxDistance = m_DeliveryConfig.GetMaxDistance();
 		if (maxDistance <= 0 || maxDistance * maxDistance >= vector.DistanceSq(npcPos, worldPos))
 			return false;
 		
@@ -239,7 +239,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		vector position = player.GetPosition();
 		vector orientation = player.GetOrientation();
 
-		array<ref ExpansionQuestObjectiveDelivery> objectiveDeliveries = m_Config.GetCollections();
+		array<ref ExpansionQuestObjectiveDelivery> objectiveDeliveries = m_DeliveryConfig.GetCollections();
 		foreach (ExpansionQuestObjectiveDelivery delivery: objectiveDeliveries)
 		{
 			if (!SpawnDeliveryItems(delivery, player, player, position, orientation))
@@ -331,8 +331,8 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		Object npcObj = m_Quest.GetQuestModule().GetClosestQuestNPCForQuest(questNPCTurnInIDs, playerPos);
 		if (!npcObj)
 		{
-			string objectiveType = typename.EnumToString(ExpansionQuestObjectiveType, m_Config.GetObjectiveType());
-			StringLocaliser text = new StringLocaliser("The system could not find a valid quest NPC entity for the quest objective %1 with ID %2. The entities class name/s are probably invalid and the entities are not spawned. Please inform the server Admin about this problem.", objectiveType, m_Config.GetID().ToString());
+			string objectiveType = typename.EnumToString(ExpansionQuestObjectiveType, m_DeliveryConfig.GetObjectiveType());
+			StringLocaliser text = new StringLocaliser("The system could not find a valid quest NPC entity for the quest objective %1 with ID %2. The entities class name/s are probably invalid and the entities are not spawned. Please inform the server Admin about this problem.", objectiveType, m_DeliveryConfig.GetID().ToString());
 			ExpansionNotification("Quest Objective Error", text).Error(player.GetIdentity());
 			SetReachedLocation(false);
 			return;
@@ -374,7 +374,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 			}
 		#endif
 	
-			float maxDistance = m_Config.GetMaxDistance();
+			float maxDistance = m_DeliveryConfig.GetMaxDistance();
 			if (currentDistanceSq <= maxDistance * maxDistance)
 			{
 				ObjectivePrint("End and return TRUE");
@@ -390,13 +390,13 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 #ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_DeliveryConfig, m_ObjectiveConfig))
 			return;
 
 	//#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	//#endif
-		string markerName = m_Config.GetMarkerName();
+		string markerName = m_DeliveryConfig.GetMarkerName();
 		array<int> questNPCTurnInIDs = m_Quest.GetQuestConfig().GetQuestTurnInIDs();
 		if (!questNPCTurnInIDs || questNPCTurnInIDs.Count() == 0)
 			return;
@@ -419,7 +419,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 	override bool CanCreateMarkers()
 	{
 		bool markerConditionResult = false;
-		if (!m_Config.NeedAnyCollection())
+		if (!m_DeliveryConfig.NeedAnyCollection())
 		{
 			if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount && !m_DestinationReached && !m_CreatedMarker)
 			{

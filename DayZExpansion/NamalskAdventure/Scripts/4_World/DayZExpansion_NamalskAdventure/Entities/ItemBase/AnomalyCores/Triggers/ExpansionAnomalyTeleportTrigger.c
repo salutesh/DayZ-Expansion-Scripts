@@ -14,7 +14,9 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 {
 	override void OnEnterAnomalyServer(IEntity other)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnEnterAnomalyServer - Entity: " + other.ToString());
 
 		super.OnEnterAnomalyServer(other);
@@ -26,7 +28,9 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 
 	protected void ProcessEntityEvents(IEntity other)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::ProcessEntityEvents - Entity: " + other.ToString());
 
 		EntityAI objectEntity = EntityAI.Cast(other);
@@ -51,56 +55,59 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 			randomPosition[1] = GetGame().SurfaceY(randomPosition[0], randomPosition[2]);
 			vector ori = objectEntity.GetOrientation();
 
-			if (ExpansionStatic.IsAnyOf(objectEntity, m_Items, true))
+			if (ExpansionStatic.IsAnyOf(objectEntity, s_Items, true))
 			{
 				ItemBase item = ItemBase.Cast(objectEntity);
 				if (!item)
                 	return;
 				
-				//! Get wind values and use it to let the entity fly - TEST
-				float mass;
-				vector wind = GetGame().GetWeather().GetWind();
-				wind[0] = ((wind[0] + 0.1) * 2) / 100;
-				wind[1] = 12.0; //! Let the entity fly 12 meters into the air.
-				wind[2] = ((wind[2] + 0.1) * 2) / 100;
+				if (item.GetHierarchyRootPlayer())
+				{
+					PlayerBase itemOwner = PlayerBase.Cast(item.GetHierarchyRootPlayer());
+					if (itemOwner)
+					{
+						vector ownerPos = itemOwner.GetPosition();
+						float distance = vector.Distance(ownerPos, GetPosition());
+						if (distance < 2.0)
+							OnPlayerEntityEvent(itemOwner, randomPosition, ori, position);
 
-				item.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the item.
-				ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(item, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);
-
-				item.SetPosition(randomPosition);
-				item.SetOrientation(ori);
-
-				//! Let the entity fly - TEST
-				mass = dBodyGetMass(item);
-				dBodyApplyImpulse(item, mass * wind);
-				
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, objectEntity, position);
-				
-				m_IsActive = false;
+						item.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the item.
+						ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(item, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);
+						m_IsActive = false;
+						return;
+					}
+				}
+				else
+				{
+					//! Get wind values and use it to let the entity fly - TEST
+					float mass;
+					vector wind = GetGame().GetWeather().GetWind();
+					wind[0] = ((wind[0] + 0.1) * 2) / 100;
+					wind[1] = 12.0; //! Let the entity fly 12 meters into the air.
+					wind[2] = ((wind[2] + 0.1) * 2) / 100;
+	
+					item.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the item.
+					ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(item, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);
+	
+					//item.SetPosition(randomPosition);
+					//item.SetOrientation(ori);
+	
+					//! Let the entity fly - TEST
+					mass = dBodyGetMass(item);
+					dBodyApplyImpulse(item, mass * wind);
+					m_IsActive = false;
+				}
 			}
-			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Players, true))
+			else if (ExpansionStatic.IsAnyOf(objectEntity, s_Players, true))
 			{
 				PlayerBase player = PlayerBase.Cast(objectEntity);
 				if (!player || !player.IsAlive())
                 	return;
 
-				if (ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
-					return;
-
-				if (!player.IsInTransport())
-				{
-					player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_PAIN_LIGHT); //! Let the character feel the pain :)
-					player.GiveShock(Math.RandomFloatInclusive(MIN_SHOCK_INFLICTED, MAX_SHOCK_INFLICTED)); //! Apply random shock damage to the player.
-					player.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the player.
-					ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
-					DayZPlayerSyncJunctures.ExpansionTeleport(player, randomPosition, ori);
-				}
-				
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, objectEntity, position);
-
+				OnPlayerEntityEvent(player, randomPosition, ori, position);
 				m_IsActive = false;
 			}
-			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Vehicles, true))
+			else if (ExpansionStatic.IsAnyOf(objectEntity, s_Vehicles, true))
 			{
 				Transport transport = Transport.Cast(objectEntity);
 				if (!transport)
@@ -152,16 +159,41 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 		}
 	}
 	
+	protected void OnPlayerEntityEvent(PlayerBase player, vector randomPosition, vector orientation, vector oldPosition)
+	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
+
+		if (ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
+			return;
+
+		if (!player.IsInTransport())
+		{
+			player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_PAIN_LIGHT); //! Let the character feel the pain :)
+			player.GiveShock(Math.RandomFloatInclusive(MIN_SHOCK_INFLICTED, MAX_SHOCK_INFLICTED)); //! Apply random shock damage to the player.
+			player.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the player.
+			ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
+			DayZPlayerSyncJunctures.ExpansionTeleport(player, randomPosition, orientation);
+		}
+		
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, player, oldPosition);
+	}
+	
 	protected void CheckEntityPos(EntityAI objectEntity, vector oldPos)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
+
 		float dist = vector.Distance(objectEntity.GetPosition(), Vector(0, 0, 0));
 		if (dist < 100)
 		{
-			if (ExpansionStatic.IsAnyOf(objectEntity, m_Players, true))
+			if (ExpansionStatic.IsAnyOf(objectEntity, s_Players, true))
 			{
 				DayZPlayerSyncJunctures.ExpansionTeleport(DayZPlayer.Cast(objectEntity), oldPos, objectEntity.GetOrientation());
 			}
-			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Vehicles, true))
+			else if (ExpansionStatic.IsAnyOf(objectEntity, s_Vehicles, true))
 			{
 			#ifdef JM_COT
 				CarScript.Cast(objectEntity).COT_PlaceOnSurfaceAtPosition(oldPos);

@@ -149,7 +149,7 @@ modded class ItemBase
 						if (!questInstance)
 							GetGame().ObjectDelete(this);
 					}
-					else if (Expansion_IsQuestGiver() && questInstance && questInstance.GetQuestGiverItem())
+					else if (questInstance && questInstance.GetQuestGiverItem())
 					{
 						//! Cancel quest that is active for the player that drops the item when item is a quest giver-item of a active quest.
 						if (questInstance.GetQuestGiverItem() == this && !m_Expansion_DeletedByQuest)

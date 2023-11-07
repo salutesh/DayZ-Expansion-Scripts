@@ -12,6 +12,12 @@
 
 class ExpansionAnomalyTriggerBase: Trigger
 {
+	static ref TStringArray s_Items = {"ItemBase"};
+	static ref TStringArray s_Players = {"SurvivorBase"};
+	//static ref TStringArray s_Animals = {"AnimalBase"};
+	static ref TStringArray s_Vehicles = {"Transport"};
+	//static ref TStringArray s_Infected = {"ZombieBase"};
+
 	protected const float MAX_CARGODMG_INFLICTED = -5.0; //! Max. damage infliced on players gear when triggering the anomaly.
 	protected const float MIN_CARGODMG_INFLICTED = -1.0; //! Min. damage infliced on players gear when triggering the anomaly.
 	protected const float MAX_SHOCK_INFLICTED = -25.0; //! Max. shock damage infliced on players.
@@ -20,29 +26,25 @@ class ExpansionAnomalyTriggerBase: Trigger
 	protected const float MIN_DMG_INFLICTED = -5.0; //! Min. damage infliced on players.
 
 	protected Expansion_Anomaly_Base m_Anomaly;
-
-	protected ref TStringArray m_Items = {"ItemBase"};
-	protected ref TStringArray m_Players = {"SurvivorBase"};
-	protected ref TStringArray m_Animals = {"AnimalBase"};
-	protected ref TStringArray m_Vehicles = {"Transport"};
-	protected ref TStringArray m_Infected = {"ZombieBase"};
-
 	protected const int TRIGGER_CHECK_DELAY = 5000;
-
 	protected bool m_IsActive;
 
 	void ExpansionAnomalyTriggerBase()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
-		SetEventMask(EntityEvent.ENTER | EntityEvent.LEAVE);
+		SetEventMask(EntityEvent.ENTER | EntityEvent.LEAVE | EntityEvent.CONTACT | EntityEvent.TOUCH);
 
 		RegisterNetSyncVariableBool("m_IsActive");
 	}
 
 	void SetAnomaly(Expansion_Anomaly_Base anomaly)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::SetAnomaly - Anomaly: " + anomaly.ToString());
 
 		m_Anomaly = anomaly;
@@ -50,7 +52,9 @@ class ExpansionAnomalyTriggerBase: Trigger
 
 	void SetActive(bool state)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::SetActive - State: " + state);
 
 		m_IsActive = state;
@@ -58,19 +62,24 @@ class ExpansionAnomalyTriggerBase: Trigger
 
 	void SetTriggerRadius(int radius)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		SetCollisionSphere(radius);
 	}
 
 	//! Condition checks on given entity.
 	protected bool EntityConditions(IEntity other)
-	{
+	{	
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::EntityConditions - Entity: " + other.ToString());
 
 		EntityAI entityObj = EntityAI.Cast(other);
 		if (entityObj)
 		{
-			if (ExpansionStatic.IsAnyOf(entityObj, m_Items, true) || ExpansionStatic.IsAnyOf(entityObj, m_Players, true) || ExpansionStatic.IsAnyOf(entityObj, m_Vehicles, true))
+			if (ExpansionStatic.IsAnyOf(entityObj, s_Players, true) || ExpansionStatic.IsAnyOf(entityObj, s_Vehicles, true) || ExpansionStatic.IsAnyOf(entityObj, s_Items, true))
 			{
 				PlayerBase player = PlayerBase.Cast(other);
 				if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
@@ -83,6 +92,10 @@ class ExpansionAnomalyTriggerBase: Trigger
 				return true;
 			}
 		}
+		else
+		{
+			return true;
+		}
 		
 		ExDebugPrint("::EntityConditions - Return FALSE");
 		return false;
@@ -90,18 +103,85 @@ class ExpansionAnomalyTriggerBase: Trigger
 
 	override protected void AddInsider(Object obj)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		//! Do nothing..
 	}
 
 	override protected void RemoveInsiderByObject(Object object)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		//! Do nothing..
 	}
 
+	/*override void EOnContact(IEntity other, Contact extra)
+	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
+		ExDebugPrint("::EOnContact - Entity: " + other.ToString());
+		
+		if (!EntityConditions(other))
+		{
+			ExDebugPrint("::EOnEnter - Entity conditions FALSE");
+			return;
+		}
+
+		if (!m_IsActive)
+		{
+			ExDebugPrint("::EOnEnter - Trigger inactive");
+			return;
+		}
+
+		if (!GetGame().IsDedicatedServer())
+		{
+			OnEnterAnomalyClient(other);
+		}
+
+		if (GetGame().IsServer())
+		{
+			OnEnterAnomalyServer(other);
+		}
+	}
+	
+	override void EOnTouch(IEntity other, int extra)
+	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
+		ExDebugPrint("::EOnTouch - Entity: " + other.ToString());
+		
+		if (!EntityConditions(other))
+		{
+			ExDebugPrint("::EOnEnter - Entity conditions FALSE");
+			return;
+		}
+
+		if (!m_IsActive)
+		{
+			ExDebugPrint("::EOnEnter - Trigger inactive");
+			return;
+		}
+
+		if (!GetGame().IsDedicatedServer())
+		{
+			OnEnterAnomalyClient(other);
+		}
+
+		if (GetGame().IsServer())
+		{
+			OnEnterAnomalyServer(other);
+		}
+	}*/
+
 	override void EOnEnter(IEntity other, int extra)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::EOnEnter - Entity: " + other.ToString());
 
 		if (!EntityConditions(other))
@@ -129,6 +209,10 @@ class ExpansionAnomalyTriggerBase: Trigger
 
 	void OnEnterAnomalyServer(IEntity other)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
+
 		if (!m_Anomaly)
 			return;
 
@@ -153,7 +237,9 @@ class ExpansionAnomalyTriggerBase: Trigger
 	//! Reset the trigger so it can call the trigger event again
 	protected void DeferredTriggerCheck()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		m_IsActive = true;
 		bool evrStromActive = ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive();
@@ -183,21 +269,11 @@ class ExpansionAnomalyTriggerBase: Trigger
 
 	void OnEnterAnomalyClient(IEntity other)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnEnterAnomalyClient - Entity: " + other.ToString());
 	}
-
-	/*override void EOnLeave(IEntity other, int extra)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		ExDebugPrint("::EOnLeave - Entity: " + other.ToString());
-
-		if (!GetGame().IsDedicatedServer())
-			return;
-
-		if (!EntityConditions(other))
-			return;
-	}*/
 
 	protected void ExDebugPrint(string text)
 	{

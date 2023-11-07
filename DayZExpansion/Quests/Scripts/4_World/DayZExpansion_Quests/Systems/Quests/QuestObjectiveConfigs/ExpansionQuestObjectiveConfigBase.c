@@ -35,6 +35,11 @@ class ExpansionQuestObjectiveConfigBase
 	{
 		return ObjectiveType;
 	}
+
+	vector GetPosition()
+	{
+		return vector.Zero;
+	}
 };
 
 class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase

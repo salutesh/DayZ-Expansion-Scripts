@@ -414,7 +414,7 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveTargetConfig objective = new ExpansionQuestObjectiveTargetConfig();
 		objective.SetID(4);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
-		objective.SetObjectiveText("Kill 10 Military/NPC Infected");
+		objective.SetObjectiveText("Kill 10 Military/NBC Infected");
 
 		ExpansionQuestObjectiveTarget target = new ExpansionQuestObjectiveTarget();
 		//! Military Infected

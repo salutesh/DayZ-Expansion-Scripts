@@ -14,7 +14,9 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 {
 	override void OnEnterAnomalyServer(IEntity other)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnEnterAnomalyServer - Entity: " + other.ToString());
 
 		super.OnEnterAnomalyServer(other);
@@ -26,13 +28,15 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 
 	protected void ProcessEntityEvents(IEntity other)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::ProcessEntityEvents - Entity: " + other.ToString());
 		
 		EntityAI objectEntity = EntityAI.Cast(other);
 		if (objectEntity)
 		{
-			if (ExpansionStatic.IsAnyOf(objectEntity, m_Items, true))
+			/*if (ExpansionStatic.IsAnyOf(objectEntity, s_Items, true))
 			{
 				ItemBase item = ItemBase.Cast(objectEntity);
 				if (!item)
@@ -43,7 +47,7 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 				
 				m_IsActive = false;
 			}
-			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Players, true))
+			else*/ if (ExpansionStatic.IsAnyOf(objectEntity, s_Players, true))
 			{
 				PlayerBase player = PlayerBase.Cast(objectEntity);
 				if (!player || !player.IsAlive())
@@ -67,7 +71,7 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 
 				m_IsActive = false;
 			}
-			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Vehicles, true))
+			else if (ExpansionStatic.IsAnyOf(objectEntity, s_Vehicles, true))
 			{
 				CarScript car = CarScript.Cast(objectEntity);
 				if (!car)

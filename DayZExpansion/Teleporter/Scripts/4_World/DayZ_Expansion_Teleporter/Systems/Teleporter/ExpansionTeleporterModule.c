@@ -40,6 +40,8 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 #ifdef EXPANSION_NAMALSK_ADVENTURE
 	protected ref map<int, ref array<string>> m_PlayerTeleporterMap;
 #endif
+	
+	static int s_Expansion_PlayTeleportSound_RPCID;
 
 	void ExpansionTeleporterModule()
 	{
@@ -53,7 +55,11 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 
 		EnableMissionStart();
-		EnableRPC();
+		Expansion_EnableRPCManager();
+		
+		Expansion_RegisterClientRPC("RPC_RequestOpenTeleporterMenu");
+		Expansion_RegisterServerRPC("RPC_RequestTeleport");
+		Expansion_RegisterClientRPC("RPC_PlayTeleportSound");
 	}
 
 	protected void CreateDirectoryStructure()
@@ -259,65 +265,10 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	}
 #endif
 
-	override int GetRPCMin()
-	{
-		return ExpansionTeleporterModuleRPC.INVALID;
-	}
-
-	override int GetRPCMax()
-	{
-		return ExpansionTeleporterModuleRPC.COUNT;
-	}
-
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-
-		super.OnRPC(sender, args);
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch (rpc.ID)
-		{
-			case ExpansionTeleporterModuleRPC.RequestOpenTeleporterMenu:
-			{
-				RPC_RequestOpenTeleporterMenu(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionTeleporterModuleRPC.RequestTeleport:
-			{
-				RPC_RequestTeleport(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionTeleporterModuleRPC.PlayTeleportSound:
-			{
-				RPC_PlayTeleportSound(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-		}
-	}
-
 	//! Server
-	void RequestOpenTeleporterMenu(Expansion_Teleporter_Base target, PlayerIdentity identity, ExpansionTeleportData teleporterData)
+	void RequestOpenTeleporterMenu(PlayerIdentity identity, ExpansionTeleportData teleporterData)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RequestOpenTeleporterMenu - Tryed to call RequestOpenTeleporterMenu on Client!");
-			return;
-		}
-
-		if (!identity)
-		{
-			Error(ToString() + "::RequestOpenTeleporterMenu - identity is NULL!");
-			return;
-		}
-
-		if (!target)
-		{
-			Error(ToString() + "::RequestOpenTeleporterMenu - Teleporter object is NULL!");
-			return;
-		}
 
 		if (!teleporterData)
 		{
@@ -325,24 +276,15 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestOpenTeleporterMenu");
 		teleporterData.OnSend(rpc);
-		rpc.Send(target, ExpansionTeleporterModuleRPC.RequestOpenTeleporterMenu, true, identity);
+		rpc.Expansion_Send(true, identity);
 	}
 
 	//! Client
-	protected void RPC_RequestOpenTeleporterMenu(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	protected void RPC_RequestOpenTeleporterMenu(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::RPC_RequestOpenTeleporterMenu - Tryed to call RPC_RequestOpenTeleporterMenu on Server!");
-			return;
-		}
 
 		if (m_TeleporterClientData)
 			m_TeleporterClientData = null;
@@ -375,25 +317,16 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestTeleport");
 		rpc.Write(teleporterObjPos);
 		pos.OnSend(rpc);
-		rpc.Send(null, ExpansionTeleporterModuleRPC.RequestTeleport, true);
+		rpc.Expansion_Send(true);
 	}
 
 	//! Server
-	protected void RPC_RequestTeleport(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	protected void RPC_RequestTeleport(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RPC_RequestTeleport - Tryed to call RPC_RequestTeleport on Client!");
-			return;
-		}
 
 		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(senderRPC);
 		if (!player)
@@ -474,6 +407,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(TeleportPlayer, 200, false, position, orientation, player);
 	}
 
+	//! Server
 	void PlayTeleportSound(vector position, int sound)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
@@ -484,36 +418,16 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_PlayTeleportSound");
 		rpc.Write(position);
 		rpc.Write(sound);
-
-		array<Object> objects = new array<Object>;
-		GetGame().GetObjectsAtPosition(position, 300, objects, null);
-
-		foreach (Object obj: objects)
-		{
-			PlayerBase player = PlayerBase.Cast(obj);
-			if (player && player.GetIdentity())
-				rpc.Send(NULL, ExpansionTeleporterModuleRPC.PlayTeleportSound, true, player.GetIdentity());
-		}
+		PlayerBase.Expansion_SendNear(rpc, position, 100.0, null, true);
 	}
 
-	protected void RPC_PlayTeleportSound(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	//! Client
+	protected void RPC_PlayTeleportSound(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-		{
-			Error(ToString() + "::RPC_PlayTeleportSound - Magic number check failed!");
-			return;
-		}
-
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::RPC_PlayTeleportSound - Tryed to call RPC_PlayTeleportSound on Server!");
-			return;
-		}
 
 		vector position;
 		if (!ctx.Read(position))
@@ -540,14 +454,8 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 				break;
 		}
 
-	#ifndef EDITOR
-		EffectSound soundEffect = SEffectManager.PlaySound(soundShader, position, 0, 0, false);
-		if (!soundEffect)
-			return;
-
-		//soundEffect.SetParent(target);
+		EffectSound soundEffect = SEffectManager.PlaySound(soundShader, position);
 		soundEffect.SetSoundAutodestroy(true);
-	#endif
 	}
 
 	void AddTeleporterData(ExpansionTeleportData data)

@@ -13,11 +13,11 @@
 //! @note: Base class of the area effect trigger
 class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 {
-	protected ref TStringArray m_Items = {"ItemBase"};
-	protected ref TStringArray m_Players = {"SurvivorBase"};
-	protected ref TStringArray m_Animals = {"AnimalBase"};
-	protected ref TStringArray m_Vehicles = {"Transport"};
-	protected ref TStringArray m_Infected = {"ZombieBase"};
+	static ref TStringArray s_Items = {"ItemBase"};
+	static ref TStringArray s_Players = {"SurvivorBase"};
+	//static ref TStringArray s_Animals = {"AnimalBase"};
+	static ref TStringArray s_Vehicles = {"Transport"};
+	//static ref TStringArray s_Infected = {"ZombieBase"};
 	
 	protected const float MAX_CARGODMG_INFLICTED = -5.0; //! Max. damage infliced on players gear when triggering the anomaly.
 	protected const float MIN_CARGODMG_INFLICTED = -1.0; //! Min. damage infliced on players gear when triggering the anomaly.
@@ -31,7 +31,9 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 
 	override void OnEnterServerEvent(TriggerInsider insider)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnEnterServerEvent - Insider: " + insider.GetObject().ToString());
 
 		super.OnEnterServerEvent(insider);
@@ -54,7 +56,9 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 
 	override void OnLeaveServerEvent(TriggerInsider insider)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnLeaveServerEvent - Insider: " + insider.GetObject().ToString());
 
 		super.OnLeaveServerEvent(insider);
@@ -78,7 +82,9 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 
 	override void OnEnterClientEvent(TriggerInsider insider)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnEnterClientEvent - Insider: " + insider.GetObject().ToString());
 
 		super.OnEnterClientEvent(insider);
@@ -86,7 +92,9 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 
 	override void OnLeaveClientEvent(TriggerInsider insider)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnLeaveClientEvent - Insider: " + insider.GetObject().ToString());
 
 		super.OnLeaveClientEvent(insider);
@@ -94,7 +102,9 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 
 	override void OnStayStartServerEvent(int nrOfInsiders)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		m_TimeAccuStay += m_DeltaTime;
 		if (m_TimeAccuStay > DAMAGE_TICK_RATE)
@@ -106,7 +116,9 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 
 	override void OnStayFinishServerEvent()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (m_DealDamageFlag) //! @note: The flag was previously set to true, the insiders have been updated at this point, reset the flag and the timer as well
 		{
@@ -117,7 +129,9 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 
 	override void OnStayServerEvent(TriggerInsider insider, float deltaTime)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnStayServerEvent - Insider: " + insider.GetObject().ToString());
 
 		if (m_DealDamageFlag)
@@ -138,6 +152,8 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 
 	protected void ExDebugPrint(string text)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
+	#endif
 	}
 };

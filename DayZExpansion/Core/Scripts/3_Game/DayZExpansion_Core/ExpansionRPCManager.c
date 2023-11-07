@@ -62,7 +62,7 @@ class ExpansionRPCManager
 
 		if (!m_Owner || !m_Owner.IsInherited(Object))
 		{
-			auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + s_RegisteredTargetlessManagers.Count());
+			auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + s_RegisteredTargetlessManagers.Count());
 
 			foreach (int serverRPCID: m_TypeMapping.m_RegisteredServerRPCIDs)
 			{
@@ -381,29 +381,6 @@ class ExpansionRPCManager
 		rpc.Expansion_Send(guaranteed, recipient);
 
 		return rpc;
-	}
-
-	static bool OnRPC(PlayerIdentity sender, ParamsReadContext ctx)
-	{
-		int low, high;
-
-		if (!ctx.Read(low))
-		{
-			Error("Couldn't read network ID low bits");
-			return false;
-		}
-
-		if (!ctx.Read(high))
-		{
-			Error("Couldn't read network ID high bits");
-			return false;
-		}
-
-		Object target = GetGame().GetObjectByNetworkId(low, high);
-		if (!target)
-			return false;
-
-		return OnRPC(sender, target, ctx);
 	}
 
 	static bool OnRPC(PlayerIdentity sender, Object target, ParamsReadContext ctx)

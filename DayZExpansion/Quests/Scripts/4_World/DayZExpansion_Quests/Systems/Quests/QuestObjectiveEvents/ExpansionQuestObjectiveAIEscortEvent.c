@@ -17,7 +17,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	protected eAIGroup m_Group;
 	protected ExpansionEscortObjectiveSphereTrigger m_ObjectiveTrigger;
 	protected bool m_DestinationReached;
-	protected ref ExpansionQuestObjectiveAIEscortConfig m_Config;
+	protected ref ExpansionQuestObjectiveAIEscortConfig m_AIEscortConfig;
 	protected vector m_ObjectivePos;
 	protected vector m_LastVIPPos;
 
@@ -31,15 +31,15 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnEventStart())
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_AIEscortConfig, m_ObjectiveConfig))
 			return false;
 
-		m_ObjectivePos = m_Config.GetPosition();
+		m_ObjectivePos = m_AIEscortConfig.GetPosition();
 
 		CreateVIP();
 
 	#ifdef EXPANSIONMODNAVIGATION
-		if (m_Config.GetMarkerName() != string.Empty)
+		if (m_AIEscortConfig.GetMarkerName() != string.Empty)
 			CreateMarkers();
 	#endif
 
@@ -59,10 +59,10 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnContinue())
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_AIEscortConfig, m_ObjectiveConfig))
 			return false;
 
-		m_ObjectivePos = m_Config.GetPosition();
+		m_ObjectivePos = m_AIEscortConfig.GetPosition();
 
 		//! Only create the VIP and trigger when not already completed!
 		if (!IsCompleted())
@@ -73,7 +73,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 				CreateTrigger(m_ObjectivePos);
 
 		#ifdef EXPANSIONMODNAVIGATION
-			if (m_Config.GetMarkerName() != string.Empty)
+			if (m_AIEscortConfig.GetMarkerName() != string.Empty)
 				CreateMarkers();
 		#endif
 		}
@@ -142,11 +142,8 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 #ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
-		if (!m_Config)
-			return;
-
 		vector markerPosition = m_ObjectivePos;
-		string markerName = m_Config.GetMarkerName();
+		string markerName = m_AIEscortConfig.GetMarkerName();
 		CreateObjectiveMarker(markerPosition, markerName);
 	}
 #endif
@@ -160,7 +157,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		eAIBase victimAI = eAIBase.Cast(victim);
 		if (victimAI && victim == m_VIP)
 		{
-			m_Quest.SendNotification(StringLocaliser("VIP Killed"), new StringLocaliser("The VIP got killed. Objective failed.."), ExpansionIcons.GetPath("Error"), COLOR_EXPANSION_NOTIFICATION_ERROR);
+			m_Quest.SendNotification(StringLocaliser("VIP Killed"), new StringLocaliser("The VIP got killed. Objective failed..."), ExpansionIcons.GetPath("Error"), COLOR_EXPANSION_NOTIFICATION_ERROR);
 			m_Quest.CancelQuest();
 		}
 	}
@@ -186,7 +183,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		ExpansionQuestObjectiveAIVIP vip = m_Config.GetAIVIP();
+		ExpansionQuestObjectiveAIVIP vip = m_AIEscortConfig.GetAIVIP();
 		if (!vip)
 			return;
 
@@ -223,7 +220,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			return null;
 
 		ai.SetGroup(eAIGroup.GetGroupByLeader(owner));
-		ai.Expansion_SetCanBeLooted(m_Config.CanLootAI());
+		ai.Expansion_SetCanBeLooted(m_AIEscortConfig.CanLootAI());
 		ai.Expansion_SetQuestVIP(true);
 		ExpansionHumanLoadout.Apply(ai, loadout, false);
 
@@ -238,7 +235,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionEscortObjectiveSphereTrigger", pos, ECE_NONE));
 		m_ObjectiveTrigger.SetPosition(pos);
-		m_ObjectiveTrigger.SetObjectiveData(Math.Round(m_Config.GetMaxDistance()), this);
+		m_ObjectiveTrigger.SetObjectiveData(Math.Round(m_AIEscortConfig.GetMaxDistance()), this);
 	}
 
 	vector GetPosition()
@@ -274,7 +271,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 	void OnDissmissAIGroup()
 	{
-		m_Quest.SendNotification(StringLocaliser("VIP Group Dismissed"), new StringLocaliser("The group with the VIP got dismissed. Objective failed.."), ExpansionIcons.GetPath("Error"), COLOR_EXPANSION_NOTIFICATION_ERROR);
+		m_Quest.SendNotification(StringLocaliser("VIP Group Dismissed"), new StringLocaliser("The group with the VIP got dismissed. Objective failed..."), ExpansionIcons.GetPath("Error"), COLOR_EXPANSION_NOTIFICATION_ERROR);
 		m_Quest.CancelQuest();
 	}
 	

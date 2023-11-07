@@ -24,7 +24,7 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		Position = pos;
 	}
 
-	vector GetPosition()
+	override vector GetPosition()
 	{
 		return Position;
 	}

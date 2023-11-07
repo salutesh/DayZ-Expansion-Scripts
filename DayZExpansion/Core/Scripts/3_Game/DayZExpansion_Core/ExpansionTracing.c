@@ -95,6 +95,8 @@ class EXTrace
 
 	static bool RESPAWN = IsEnabled();
 
+	static bool RPC = IsEnabled();
+
 	static bool SETTINGS = IsEnabled();
 
 	static bool CLIENT_SETTINGS = IsEnabled();

@@ -85,7 +85,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	void CleanupAnomalyCore()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (s_Expansion_AllAnomalyCores)
 			s_Expansion_AllAnomalyCores.Remove(m_Expansion_AnomalyCoreNode);
@@ -102,7 +104,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	override void EEInit()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		super.EEInit();
 
@@ -111,7 +115,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	protected void InitAnomalyCore()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (!GetGame().IsDedicatedServer())
 		{
@@ -126,7 +132,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	protected void InitAnomalyCoreClient()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (!m_EffectLight)
 		{
@@ -140,7 +148,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	protected void InitAnomalyCoreServer()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (!ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive())
 		{
@@ -161,7 +171,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	override protected void OnExplode()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (GetGame().IsServer())
 		{
@@ -177,7 +189,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	override void EOnContact(IEntity other, Contact extra)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::EOnContact - Entity: " + other.ToString());
 
 		if (GetGame().IsServer())
@@ -191,7 +205,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	void UpdateAnomalyCoreState(ExpansionAnomalyCoreState state)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::UpdateAnomalyCoreState - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
 
 		if (GetGame().IsServer())
@@ -203,7 +219,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	override void OnDamageDestroyed(int oldLevel)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
 		{
@@ -223,7 +241,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	override protected void Activate()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		//! We don't want base functionality here
 	}
 
@@ -234,7 +254,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		super.EEItemLocationChanged(oldLoc, newLoc);
 
@@ -251,7 +273,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	override void OnInventoryExit(Man player)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		super.OnInventoryExit(player);
 
@@ -261,7 +285,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	override void OnInventoryEnter(Man player)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		super.OnInventoryEnter(player);
 
@@ -274,7 +300,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	protected bool PlayParticle(out Particle particle, int particle_type)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (!particle && GetGame() && (!GetGame().IsDedicatedServer()))
 		{
@@ -287,30 +315,36 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	protected void ParticleEffectStop()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		StopParticle(m_ParticleEffect);
 	}
 
 	override void OnVariablesSynchronized()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		super.OnVariablesSynchronized();
-
 		UpdateVisualState(m_CoreState);
 	}
 
 	protected void UpdateVisualState(ExpansionAnomalyCoreState state)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::UpdateVisualState - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
-
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateAnomalyCoreVFX_Deferred, 0, false, state);
 	}
 
 	protected void UpdateAnomalyCoreVFX_Deferred(ExpansionAnomalyCoreState state)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::UpdateAnomalyCoreVFX_Deferred - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
 
 		switch (state)
@@ -349,7 +383,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	protected void TurnOnUnstableEmitor()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (m_ParticleEffect)
 		{
@@ -360,7 +396,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	protected void TurnOffUnstableEmitor()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (m_ParticleEffect)
 		{
@@ -371,7 +409,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	protected bool StopParticle(out Particle particle)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (particle && GetGame() && (!GetGame().IsDedicatedServer()))
 		{
@@ -393,14 +433,18 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	void SetAnomalyCoreUnstable()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		UpdateAnomalyCoreState(ExpansionAnomalyCoreState.UNSTABLE);
 	}
 
 	void SetAnomalyCoreStable()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		UpdateAnomalyCoreState(ExpansionAnomalyCoreState.STABLE);
 	}
@@ -408,14 +452,18 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	//! @note: Let the anomaly explode and create a anormal effect zone.
 	void ActivateAnomalyCore(int explosionTime)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnActivateFinished, explosionTime);
 	}
 
 	bool CanUnsatabilize()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (GetParent() && ExpansionAnomalyCoreProtectiveCase.Cast(GetParent()))
 			return false;
@@ -428,7 +476,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	override void OnItemLocationChanged(EntityAI old_owner, EntityAI new_owner)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnItemLocationChanged - Old owner : " + old_owner.ToString() + " | New owner: " + new_owner.ToString());
 
 		super.OnItemLocationChanged(old_owner, new_owner);
@@ -443,7 +493,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	//! @note: Event after core explosion.
 	override void OnActivateFinished()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		UpdateAnomalyCoreState(ExpansionAnomalyCoreState.DESTROYED);
 
@@ -462,7 +514,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	void SetSunSelectionMaterial(string material_name)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::SetSunSelectionMaterial - Material: " + material_name);
 
 		SetObjectMaterial(1, material_name);

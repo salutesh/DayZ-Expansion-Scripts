@@ -971,6 +971,9 @@ class eAIBase: PlayerBase
 				m_eAI_SyncCurrentTarget = true;
 		}
 		m_eAI_TargetInformationStates.Remove(target.info);
+		ItemBase item;
+		if (Class.CastTo(item, target.GetEntity()))
+			eAI_ItemThreatOverride(item, false);
 #ifdef DIAG
 		EXTrace.Print(EXTrace.AI, this, "OnRemoveTarget " + target.info.GetEntityDebugName() + " - time remaining " + (target.found_at_time + target.max_time - GetGame().GetTime()) + " - target count " + m_eAI_Targets.Count());
 #endif
@@ -3410,19 +3413,22 @@ class eAIBase: PlayerBase
 			eAI_DropItem(itemInHands, switchOff);
 	}
 
-	void eAI_DropItemInHandsImpl()
+	void eAI_DropItemInHandsImpl(bool overrideThreat = false)
 	{
 		ItemBase itemInHands = GetItemInHands();
 		if (itemInHands)
-			eAI_DropItemImpl(itemInHands);
+			eAI_DropItemImpl(itemInHands, overrideThreat);
 	}
 
-	void eAI_DropItem(ItemBase item, bool switchOff = true)
+	void eAI_DropItem(ItemBase item, bool switchOff = true, bool useAction = true)
 	{
 		if (switchOff)
 			item.Expansion_TryTurningOffAnyLightsOrNVG(this);
 
-		StartAction(eAIActionDropItem, null, item);
+		if (useAction)
+			StartAction(eAIActionDropItem, null, item);
+		else
+			eAI_DropItemImpl(item, eAI_GetItemThreatOverride(item));
 
 		m_Expansion_ActiveVisibilityEnhancers.RemoveItemUnOrdered(item);
 
@@ -3430,14 +3436,17 @@ class eAIBase: PlayerBase
 			Expansion_UpdateVisibility(true);
 	}
 
-	void eAI_DropItemImpl(ItemBase item)
+	void eAI_DropItemImpl(ItemBase item, bool overrideThreat = false)
 	{
 		InventoryLocation il_dst = new InventoryLocation();
 
 		GameInventory.SetGroundPosByOwner(this, item, il_dst);
 
 		//eAI_TakeItemToLocation(item, il_dst);
-		Expansion_CloneItemToLocation(item, il_dst);
+		EntityAI dst = Expansion_CloneItemToLocation(item, il_dst);
+		ItemBase dstItem;
+		if (Class.CastTo(dstItem, dst))
+			eAI_ItemThreatOverride(dstItem, overrideThreat);
 	}
 
 	bool eAI_TakeItemToHands(ItemBase item)
@@ -3486,7 +3495,7 @@ class eAIBase: PlayerBase
 		return GetInventory().FindFreeLocationFor(item, flags, il_dst);
 	}
 
-	bool eAI_TakeItemToInventory(ItemBase item, FindInventoryLocationType flags = 0)
+	bool eAI_TakeItemToInventory(ItemBase item, FindInventoryLocationType flags = 0, bool useAction = true)
 	{
 		InventoryLocation il_dst;
 
@@ -3497,7 +3506,7 @@ class eAIBase: PlayerBase
 
 		bool result;
 
-		if (item == GetItemInHands())
+		if (item == GetItemInHands() || !useAction)
 		{
 			//result = eAI_TakeItemToLocation(item, il_dst);
 			if (Expansion_CloneItemToLocation(item, il_dst))

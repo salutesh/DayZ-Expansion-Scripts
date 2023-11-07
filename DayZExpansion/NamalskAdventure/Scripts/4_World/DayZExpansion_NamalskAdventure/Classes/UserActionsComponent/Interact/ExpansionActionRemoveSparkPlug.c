@@ -53,7 +53,6 @@ class ExpansionActionRemoveSparkPlug: ActionInteractBase
 		EntityAI target_EAI = EntityAI.Cast(action_data.m_Target.GetObject());
 		int slot_id_plug = InventorySlots.GetSlotIdFromString("SparkPlug");
 		ItemBase sparkPlug = ItemBase.Cast(target_EAI.GetInventory().FindAttachment(slot_id_plug));
-		//ItemBase handItem = ItemBase.Cast(action_data.m_Player.GetHumanInventory().GetEntityInHands());
 		
 		//! Get current health level of the spark plug
 		float resultHealth = sparkPlug.GetHealth01("", "");
@@ -78,7 +77,6 @@ class ExpansionActionRemoveSparkPlug: ActionInteractBase
 		EntityAI target_EAI = EntityAI.Cast(action_data.m_Target.GetObject());
 		int slot_id_plug = InventorySlots.GetSlotIdFromString("SparkPlug");
 		ItemBase sparkPlug = ItemBase.Cast(target_EAI.GetInventory().FindAttachment(slot_id_plug));
-		//ItemBase handItem = ItemBase.Cast(action_data.m_Player.GetHumanInventory().GetEntityInHands());
 		
 		//! Get current health level of the spark plug
 		float resultHealth = sparkPlug.GetHealth01("", "");

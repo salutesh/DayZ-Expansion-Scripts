@@ -4293,8 +4293,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 					height = offsetY - minMax[0][1];
 				}
 
-				float scale = height / 1.8;  //! 1.0 for human-sized object
-
+				float scale = Math.Max(0.5, height / 1.8);  //! 1.0 for human-sized object
 				offsetY += 0.15 * scale;
 
 				EXTrace.Add(trace, string.Format("| OffsetY: %1 Height: %2 Scale: %3", offsetY, height, scale));

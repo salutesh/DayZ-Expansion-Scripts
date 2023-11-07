@@ -14,25 +14,22 @@ modded class Ammunition_Base
 {
 	void Ammunition_Base()
 	{
-		SetEventMask(EntityEvent.CONTACT);
+		SetEventMask(EntityEvent.TOUCH | EntityEvent.CONTACT);
 		SetFlags(EntityFlags.TOUCHTRIGGERS, false);
 	}
 
+	override void EOnTouch(IEntity other, int extra)
+	{
+		EntityAI contactEntity = EntityAI.Cast(other);
+		//anomalyTrigger.EOnEnter(this, 0);
+		ExDebugPrint("::EOnTouch - Entity: " + contactEntity.GetType());
+	}
+	
 	override void EOnContact(IEntity other, Contact extra)
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		if (GetGame().IsServer())
-		{
-			Expansion_Anomaly_Base anomaly = Expansion_Anomaly_Base.Cast(other);
-			if (!anomaly)
-				return;
-
-			ExpansionAnomalyTriggerBase anomalyTrigger = anomaly.GetAnomalyTrigger();
-			if (anomalyTrigger)
-			{
-				anomalyTrigger.EOnEnter(other, 0);
-			}
-		}
+		EntityAI contactEntity = EntityAI.Cast(other);
+		//anomalyTrigger.EOnEnter(this, 0);
+		ExDebugPrint("::EOnContact - Entity: " + contactEntity.GetType());
 	}
 
 	override int Expansion_TransferCartridges(Magazine dst, int amount, bool resetDstAmmoCount = true, out float totalDamage = 0.0)
@@ -51,7 +48,9 @@ modded class Ammunition_Base
 	//! @note Can't call super here, we don't want health of this ammo pile to change after combining
 	override void CombineItems( ItemBase other_item, bool use_stack_max = false )
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if ( !CanBeCombined(other_item) )
 			return;
@@ -78,7 +77,9 @@ modded class Ammunition_Base
 
 	void ExDebugPrint(string text)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
+	#endif
 	}
 };
 

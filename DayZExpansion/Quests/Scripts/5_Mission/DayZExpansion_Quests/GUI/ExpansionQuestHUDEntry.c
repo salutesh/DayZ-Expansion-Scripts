@@ -66,6 +66,7 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		{
 			Objective.Show(true);
 			m_QuestHUDEntryController.ObjectiveText = "#STR_EXPANSION_QUEST_HUD_TURN_IN";
+			m_QuestHUDEntryController.NotifyPropertyChanged("ObjectiveText");
 			Spacer.SetColor(ARGB(200, 160, 223, 59));
 			Spacer.Show(true);
 			Spacer0.SetColor(ARGB(200, 160, 223, 59));

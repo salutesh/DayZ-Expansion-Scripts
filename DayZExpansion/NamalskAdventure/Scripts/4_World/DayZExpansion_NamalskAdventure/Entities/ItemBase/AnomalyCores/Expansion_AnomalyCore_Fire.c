@@ -23,7 +23,9 @@ class Expansion_AnomalyCore_Fire: Expansion_AnomalyCore_Base
 {
 	void Expansion_AnomalyCore_Fire()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		SetEventMask(EntityEvent.CONTACT | EntityEvent.TOUCH);
 		SetFlags(EntityFlags.TRIGGER, false);
@@ -31,7 +33,9 @@ class Expansion_AnomalyCore_Fire: Expansion_AnomalyCore_Base
 
 	override protected void OnExplode()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (GetGame().IsServer())
 		{

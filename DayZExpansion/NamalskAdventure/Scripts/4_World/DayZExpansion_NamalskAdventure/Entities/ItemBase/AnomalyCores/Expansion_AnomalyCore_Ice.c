@@ -23,9 +23,21 @@ class Expansion_AnomalyCore_Ice: Expansion_AnomalyCore_Base
 {
 	protected const int PARTICLE_EFFECT = ParticleList.EXPANSION_PARTICLE_ANOMALY_CORE_ICE;
 
+	void Expansion_AnomalyCore_Ice()
+	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
+
+		SetEventMask(EntityEvent.CONTACT | EntityEvent.TOUCH);
+		SetFlags(EntityFlags.TRIGGER, false);
+	}
+	
 	override protected void OnExplode()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		m_Exploded = true;
 

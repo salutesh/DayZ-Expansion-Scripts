@@ -26,7 +26,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		Position = pos;
 	}
 
-	vector GetPosition()
+	override vector GetPosition()
 	{
 		return Position;
 	}

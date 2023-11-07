@@ -125,11 +125,15 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		EnableMissionStart();
 		EnableMissionLoaded();
-		EnableRPC();
 		#ifdef SERVER
 		EnableInvokeConnect();
 		EnableUpdate();
 		#endif
+		Expansion_EnableRPCManager();
+		
+		Expansion_RegisterClientRPC("RPC_SendWorkbenchData");
+		Expansion_RegisterServerRPC("RPC_SendWorkbenchResult");
+		Expansion_RegisterServerRPC("RPC_SetWorkbenchState");
 	}
 
 	protected void CreateDirectoryStructure()
@@ -1356,43 +1360,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			infected.SetHealth("", "", 0);
     }
 	
-	override int GetRPCMin()
-	{
-		return ExpansionNamalskModuleRPC.INVALID;
-	}
-
-	override int GetRPCMax()
-	{
-		return ExpansionNamalskModuleRPC.COUNT;
-	}
-
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
-		super.OnRPC(sender, args);
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch (rpc.ID)
-		{
-			case ExpansionNamalskModuleRPC.SendWorkbenchData:
-			{
-				RPC_SendWorkbenchData(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionNamalskModuleRPC.SendWorkbenchResult:
-			{
-				RPC_SendWorkbenchResult(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionNamalskModuleRPC.SetWorkbenchState:
-			{
-				RPC_SetWorkbenchState(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-		}
-	}
-
+	//! Server
 	void SendWorkbenchData(Object target, PlayerIdentity identity)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -1404,16 +1372,14 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Send(printer, ExpansionNamalskModuleRPC.SendWorkbenchData, true, identity);
+		auto rpc = Expansion_CreateRPC("RPC_SendWorkbenchData");
+		rpc.Expansion_Send(printer, true, identity);
 	}
 
-	protected void RPC_SendWorkbenchData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	//! Client
+	protected void RPC_SendWorkbenchData(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
 
 		Expansion_3DPrinter printer;
 		if (!Class.CastTo(printer, target))
@@ -1425,49 +1391,31 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		m_WorkbenchMenuInvoker.Invoke(printer);
 	}
 	
+	//! Client
 	void SendWorkbenchResult(Expansion_3DPrinter printer, NA_WorkbenchRecipe recipe)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
-		int lowBitsGen, highBitsGen;
-		printer.GetNetworkID(lowBitsGen, highBitsGen);
-		
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Write(lowBitsGen);
-		rpc.Write(highBitsGen);
+		auto rpc = Expansion_CreateRPC("RPC_SendWorkbenchResult");
 		recipe.OnSend(rpc);
-		rpc.Send(printer, ExpansionNamalskModuleRPC.SendWorkbenchResult, true);
+		rpc.Expansion_Send(printer, true);
 		
-		EffectSound effect_confirm;
-		effect_confirm = SEffectManager.PlaySound("printer_confirm_soundset", printer.GetPosition(), 0, 0, false);
-		effect_confirm.SetParent(printer);
-		effect_confirm.GetSoundObject().SetVolume(1.0);
-		effect_confirm.SetSoundAutodestroy(true);
+		EffectSound effect_confirm = SEffectManager.PlaySound("printer_confirm_soundset", printer.GetPosition(), 0, 0, false);
+		if (effect_confirm)
+		{
+			effect_confirm.SetParent(printer);
+			effect_confirm.GetSoundObject().SetVolume(1.0);
+			effect_confirm.SetSoundAutodestroy(true);
+		}
 	}
 	
-	protected void RPC_SendWorkbenchResult(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	//! Server
+	protected void RPC_SendWorkbenchResult(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		int lowBitsGen;
-		if (!ctx.Read(lowBitsGen))
-		{
-			Error(ToString() + "::RPC_SendWorkbenchResult - Couldn't read lowBitsGen");
-			return;
-		}
-
-		int highBitsGen;
-		if (!ctx.Read(highBitsGen))
-		{
-			Error(ToString() + "::RPC_SendWorkbenchResult - Couldn't read highBitsGen");
-			return;
-		}
 		
 		Expansion_3DPrinter printer;
-		if (!Class.CastTo(printer, GetGame().GetObjectByNetworkId(lowBitsGen, highBitsGen)))
+		if (!Class.CastTo(printer, target))
 		{
 			Error(ToString() + "::RPC_SendWorkbenchResult - Couldn't get 3D printer object!");
 			return;
@@ -1488,6 +1436,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(printer.CompletePrinting, (printer.PRINTING_LENGTH * 1000));
 	}
 
+	//! Client
 	void SetWorkbenchState(Expansion_3DPrinter printer, bool state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -1495,36 +1444,18 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		int lowBitsGen, highBitsGen;
 		printer.GetNetworkID(lowBitsGen, highBitsGen);
 		
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Write(lowBitsGen);
-		rpc.Write(highBitsGen);
+		auto rpc = Expansion_CreateRPC("RPC_SetWorkbenchState");
 		rpc.Write(state);
-		rpc.Send(null, ExpansionNamalskModuleRPC.SetWorkbenchState, true);
+		rpc.Expansion_Send(printer, true);
 	}
 	
-	protected void RPC_SetWorkbenchState(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	//! Server
+	protected void RPC_SetWorkbenchState(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		int lowBitsGen;
-		if (!ctx.Read(lowBitsGen))
-		{
-			Error(ToString() + "::RPC_SetWorkbenchState - Couldn't read lowBitsGen");
-			return;
-		}
-
-		int highBitsGen;
-		if (!ctx.Read(highBitsGen))
-		{
-			Error(ToString() + "::RPC_SetWorkbenchState - Couldn't read highBitsGen");
-			return;
-		}
-		
 		Expansion_3DPrinter printer;
-		if (!Class.CastTo(printer, GetGame().GetObjectByNetworkId(lowBitsGen, highBitsGen)))
+		if (!Class.CastTo(printer, target))
 		{
 			Error(ToString() + "::RPC_SetWorkbenchState - Couldn't get 3D printer object!");
 			return;

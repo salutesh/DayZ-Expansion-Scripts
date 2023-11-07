@@ -316,7 +316,7 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(8);
 		questConfig.SetTitle("Killed 10 Infected");
-		questConfig.SetObjectiveText("Achievement completed: You have killed 10 Infected! Reward: 100 Hryvnia");
+		questConfig.SetObjectiveText("You have killed 10 Infected! Reward: 100 Hryvnia");
 		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchievement(true);
 
@@ -344,7 +344,7 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(9);
 		questConfig.SetTitle("Killed 100 civilian Infected");
-		questConfig.SetObjectiveText("Achievement completed: You have killed 100 civilian Infected! Reward: 500 Hryvnia");
+		questConfig.SetObjectiveText("You have killed 100 civilian Infected! Reward: 500 Hryvnia");
 		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchievement(true);
 
@@ -411,7 +411,7 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(11);
 		questConfig.SetTitle("Lockpick your first vehicle");
-		questConfig.SetObjectiveText("Achievement completed: You have lockpicked your first vehicle! Reward: 500 Hryvnia");
+		questConfig.SetObjectiveText("You have lockpicked your first vehicle! Reward: 500 Hryvnia");
 		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchievement(true);
 
@@ -481,7 +481,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetObjectiveText("Craft an improvised fishing rod and catch a mackerel!");
 		array<string> desc = new array<string>;
 		desc.Insert("PLACEHOLDER");
-		desc.Insert("Craft an improvidsed fishing rod and catch a mackerel.");
+		desc.Insert("Craft an improvised fishing rod and catch a mackerel.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 

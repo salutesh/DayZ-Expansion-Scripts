@@ -434,7 +434,7 @@ class ExpansionQuest
 		m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
 		if (!m_Player)
 		{
-			Error(ToString() + "::OnQuestObjectivesComplete - Could not get quest player!");
+			//! This is not an error. Player object will already be deleted on disconnect
 			return;
 		}
 
