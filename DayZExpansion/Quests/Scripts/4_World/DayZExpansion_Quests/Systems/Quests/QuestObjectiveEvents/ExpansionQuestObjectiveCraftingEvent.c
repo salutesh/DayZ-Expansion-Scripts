@@ -19,7 +19,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	protected int m_ObjectiveItemsCount;
 	protected int m_ObjectiveActionAmount;
 	protected int m_ObjectiveActionCount;
-	protected ref ExpansionQuestObjectiveCraftingConfig m_Config;
+	protected ref ExpansionQuestObjectiveCraftingConfig m_CraftingConfig;
 
 	void ExpansionQuestObjectiveCraftingEvent(ExpansionQuest quest)
 	{
@@ -34,7 +34,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_CraftingConfig, m_ObjectiveConfig))
 			return false;
 
 		UpdateObjectiveItemsMap();
@@ -60,7 +60,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_CraftingConfig, m_ObjectiveConfig))
 			return false;
 
 		UpdateObjectiveItemsMap();
@@ -105,10 +105,10 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!m_Config || !m_Config.GetItemNames() || m_Config.GetItemNames().Count() == 0)
+		if (!m_CraftingConfig || !m_CraftingConfig.GetItemNames() || m_CraftingConfig.GetItemNames().Count() == 0)
 			return;
 
-		array<string> itemNames = m_Config.GetItemNames();
+		array<string> itemNames = m_CraftingConfig.GetItemNames();
 		foreach (string name: itemNames)
 		{
 			m_ObjectiveItemsAmount += 1;
@@ -128,7 +128,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 		if (!m_ObjectiveItemsMap || m_ObjectiveItemsMap.Count() == 0)
 		{
-			Error(ToString() + "::UpdateObjectiveItemsMap - There are no deliveries defined for the delivery objective with ID " + m_Config.GetID() + ". Cancel quest..");
+			Error(ToString() + "::UpdateObjectiveItemsMap - There are no deliveries defined for the delivery objective with ID " + m_CraftingConfig.GetID() + ". Cancel quest..");
 			m_Quest.CancelQuest();
 		}
 	}

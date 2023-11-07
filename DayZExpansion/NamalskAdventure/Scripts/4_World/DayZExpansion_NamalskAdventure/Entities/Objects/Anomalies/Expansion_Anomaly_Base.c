@@ -81,7 +81,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	void Expansion_Anomaly_Base()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		m_Expansion_AnomalyNode = s_Expansion_AllAnomalies.Add(this);
 		
@@ -108,7 +110,9 @@ class Expansion_Anomaly_Base: ItemBase
 	
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		
 		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
 			return false;
@@ -124,7 +128,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	void CleanupAnomaly()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (s_Expansion_AllAnomalies)
 			s_Expansion_AllAnomalies.Remove(m_Expansion_AnomalyNode);
@@ -169,7 +175,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	override void EEInit()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		super.EEInit();
 
@@ -181,7 +189,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	protected void InitAnomaly()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		
 		#ifdef SERVER
 		InitAnomalyServer();
@@ -190,7 +200,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	protected void InitAnomalyServer()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		//! Spawn anomaly trigger on anomaly position.
 		CreateAnomalyTrigger();
@@ -208,7 +220,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	protected void DestroyClutterCutter(Object clutter_cutter)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		GetGame().ObjectDelete(clutter_cutter);
 
 		#ifdef DIAG
@@ -223,11 +237,13 @@ class Expansion_Anomaly_Base: ItemBase
 
 	protected bool PlayParticle(out Particle particle, int particle_type)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (!particle && GetGame() && (!GetGame().IsDedicatedServer()))
 		{
-			particle = Particle.PlayOnObject(particle_type, this, "0 -0.7 0");
+			particle = Particle.PlayOnObject(particle_type, this, "0 0 0");
 			return true;
 		}
 
@@ -237,7 +253,9 @@ class Expansion_Anomaly_Base: ItemBase
 	//! Returns true if particle stopped, false if not
 	protected bool StopParticle(out Particle particle)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (particle && GetGame() && (!GetGame().IsDedicatedServer()))
 		{
@@ -252,7 +270,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	void SetAnomalyState(ExpansionAnomalyState state)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::SetAnomalyState - Set anomaly state: " + typename.EnumToString(ExpansionAnomalyState, state));
 
 		m_PrevAnonmalyState = m_AnonmalyState;
@@ -265,7 +285,9 @@ class Expansion_Anomaly_Base: ItemBase
 	//! no core item anymore and a player is triggering the anomaly trigger.
 	void OnAnomalyZoneEnter()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		SetAnomalyState(ExpansionAnomalyState.ACTIVATED);
 		ExDebugPrint("::OnAnomalyZoneEnter - Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_AnonmalyState));
@@ -273,7 +295,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	protected void SetVisualState(ExpansionAnomalyState state)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::SetVisualState - Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, state));
 
 		m_VisualState = state;
@@ -282,7 +306,9 @@ class Expansion_Anomaly_Base: ItemBase
 	//! @note: Spawns given loot item inside the core attachment slot of the anomaly.
 	protected void SpawnCoreItem()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		EntityAI item = ExpansionItemSpawnHelper.SpawnInInventory(GetAmomalyCoreName(), this);
 		m_AnomalyCore = Expansion_AnomalyCore_Base.Cast(item);
@@ -302,43 +328,57 @@ class Expansion_Anomaly_Base: ItemBase
 
 	protected void SoundIdleStart()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		PlaySoundSetLoop(m_Sound, SOUND_IDLE, 1.0, 1.0);
 	}
 
 	protected void SoundStop()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		StopSoundSet(m_Sound);
 	}
 
 	protected void SoundActivatedStart()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		PlaySoundSet(m_SoundActivated, SOUND_ACTIVATED, 1.0, 1.0);
 	}
 
 	protected void SoundCoreStart()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		PlaySoundSet(m_SoundActivated, SOUND_ACTIVATED, 1.0, 1.0);
 	}
 
 	protected void ParticleIdleStop()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		StopParticle(m_ParticleIdle);
 	}
 
 	protected void ParticleActivatedStop()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		StopParticle(m_ParticleActivated);
 	}
 
 	protected void UpdateVisualState(ExpansionAnomalyState state)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::UpdateVisualState - Anomaly state is: " + typename.EnumToString(ExpansionAnomalyState, state));
 
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(UpdateAnomalyVFX_Deferred, state);
@@ -347,7 +387,9 @@ class Expansion_Anomaly_Base: ItemBase
 	//! @note: This method updates the anomaly visual effects (VFX) in a deferred manner based on the provided `state`.
 	protected void UpdateAnomalyVFX_Deferred(ExpansionAnomalyState state)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::UpdateAnomalyVFX_Deferred - Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, state) + " | Previous anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_PrevAnonmalyState));
 		
 		//! Create anomaly light
@@ -491,7 +533,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	protected void TurnOffCoreEmitor()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (!m_ParticleIdle)
 		{
@@ -506,7 +550,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	protected void TurnOnUnstableEmitor()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (!m_ParticleIdle)
 		{
@@ -531,7 +577,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	protected void TurnOffUnstableEmitor()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (!m_ParticleIdle)
 		{
@@ -548,7 +596,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	protected void CreateAnomalyTrigger()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		vector pos = GetPosition();
 		Class.CastTo(m_AnomalyTrigger, GetGame().CreateObjectEx(GetAnomalyTriggerName(), pos, ECE_NONE));
@@ -561,7 +611,9 @@ class Expansion_Anomaly_Base: ItemBase
 	//! Drops all items in the anomaly cargo or that are attached to the anomaly.
 	void DropAnormalyItems()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		//! @note: MiscGameplayFunctions.Expansion_HasAnyCargo does not return true when the anomaly has a attached core in its core slot so we check for the core entity also here.
 		if (MiscGameplayFunctions.Expansion_HasAnyCargo(this) || m_AnomalyCore)
@@ -582,7 +634,9 @@ class Expansion_Anomaly_Base: ItemBase
 	//! Sets the anomaly state to unstable and synchronises it to clients so the VFX can change if needed.
 	void SetAnomalyUnstable()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (m_AnomalyCore)
 		{
@@ -601,7 +655,9 @@ class Expansion_Anomaly_Base: ItemBase
 	//! Sets the anomaly state to stable and synchronises it to clients so the VFX can change if needed.
 	void SetAnomalyStable()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		if (m_AnomalyCore)
 		{
@@ -619,7 +675,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	void SetAnomalyExplosion(int explosionTime)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::SetAnomalyExplosion - Explosion time: " + explosionTime);
 
 		if (MiscGameplayFunctions.Expansion_HasAnyCargo(this) || m_AnomalyCore || m_LootConfig && m_LootItemsMin > 0 && m_LootItemsMax)
@@ -635,7 +693,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	void SetLoot(array <ref ExpansionLoot> lootConfig, int itemsMin, int itemsMax, ExpansionAnomalyLootSpawnType lootType)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		
 		if (!m_LootConfig)
 			m_LootConfig = new array <ref ExpansionLoot>;
@@ -653,7 +713,9 @@ class Expansion_Anomaly_Base: ItemBase
 
 	void SpawnLoot()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnLootItems, 200);
 	}
@@ -661,7 +723,9 @@ class Expansion_Anomaly_Base: ItemBase
 	//! @note: Spawn given loot items around the anomaly
 	protected void SpawnLootItems()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		int randomLoot = Math.RandomInt(m_LootItemsMin, m_LootItemsMax);
 		ExDebugPrint("::SpawnLootItems - Spawn loot items from loot config: " + m_LootConfig.ToString() + " | Amount: " + randomLoot);
 
@@ -746,7 +810,9 @@ class Expansion_Anomaly_Base: ItemBase
 	
 	void IncreaseEVRStormsCount()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		m_SurviviedEVRStorms = m_SurviviedEVRStorms + 1;
 
@@ -799,25 +865,28 @@ class Expansion_Anomaly_Base: ItemBase
 
 	override void EEItemAttached(EntityAI item, string slot_name)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::EEItemAttached - Item: " + item.ToString() + " | Slot:" + slot_name);
-		
 		RefreshAnomalyCoreState(item, true);
 	}
 
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::EEItemDetached - Item: " + item.ToString() + " | Slot:" + slot_name);
-
 		RefreshAnomalyCoreState(item, false);
 	}
 
 	protected void RefreshAnomalyCoreState(EntityAI item, bool state)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::RefreshAnomalyCoreState - Item: " + item.ToString() + " | State:" + state);
-
 		bool evrStormActive = ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive();
 		Expansion_AnomalyCore_Base anomalyCore = Expansion_AnomalyCore_Base.Cast(item);
 		if (anomalyCore)
@@ -862,9 +931,10 @@ class Expansion_Anomaly_Base: ItemBase
 	//! @note: Synchronizes variables and updates visual state of the particle depending on the anomaly state.
 	override void OnVariablesSynchronized()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnVariablesSynchronized - Current anomaly visual state: " + typename.EnumToString(ExpansionAnomalyState, m_VisualState) + " | Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_AnonmalyState));
-
 		if (m_VisualState != m_AnonmalyState)
 			UpdateVisualState(m_AnonmalyState);
 	}
@@ -916,15 +986,17 @@ class Expansion_Anomaly_Base: ItemBase
 
 	override void AfterStoreLoad()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		GetGame().ObjectDelete(this);
 	}
 
 	protected void ExDebugPrint(string text)
 	{
-		#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
-		#endif
+	#endif
 	}
 };

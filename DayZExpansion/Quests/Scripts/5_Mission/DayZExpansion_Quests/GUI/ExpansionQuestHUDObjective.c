@@ -15,7 +15,8 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 {
 	protected ref ExpansionQuestHUDObjectiveController m_QuestHUDObjectiveController;
 	protected ExpansionQuestObjectiveData m_Objective;
-	protected ExpansionQuestConfig m_Quest;
+	protected ExpansionQuestObjectiveConfig m_ObjectiveConfig;
+	protected ExpansionQuestConfig m_QuestConfig;
 	protected ExpansionQuestState m_QuestState;
 	protected Widget Spacer;
 	protected RichTextWidget ObjectiveName;
@@ -33,7 +34,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 		m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());
 		m_Objective = objective;
-		m_Quest = questConfig;
+		m_QuestConfig = questConfig;
 		m_QuestState = state;
 	}
 
@@ -55,12 +56,12 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		int amount;
 		int i;
 
-		ExpansionQuestObjectiveConfig objectiveConfig = ExpansionQuestObjectiveConfig.Cast(m_Quest.GetObjectives()[m_Objective.GetObjectiveIndex()]);
-		if (!objectiveConfig)
+		m_ObjectiveConfig = ExpansionQuestObjectiveConfig.Cast(m_QuestConfig.GetObjectives()[m_Objective.GetObjectiveIndex()]);
+		if (!m_ObjectiveConfig)
 			return;
 
 		m_ObjectiveCompleted = m_Objective.IsCompleted();
-		if (objectiveConfig.GetObjectiveText() != string.Empty)
+		if (m_ObjectiveConfig.GetObjectiveText() != string.Empty)
 		{
 			ObjectiveName.Show(true);
 			string objectiveState;
@@ -75,13 +76,13 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				objectiveState = "[" + incompleteKey + "] ";
 			}
 
-			m_QuestHUDObjectiveController.ObjectiveName = objectiveState + objectiveConfig.GetObjectiveText();
+			m_QuestHUDObjectiveController.ObjectiveName = objectiveState + m_ObjectiveConfig.GetObjectiveText();
 			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveName");
 		}
 
 		UpdateTimeLimit();
 
-		switch (objectiveConfig.GetObjectiveType())
+		switch (m_ObjectiveConfig.GetObjectiveType())
 		{
 			case ExpansionQuestObjectiveType.TARGET:
 		#ifdef EXPANSIONMODAI
@@ -96,7 +97,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case  ExpansionQuestObjectiveType.TRAVEL:
 			{
 				ExpansionQuestObjectiveTravelConfig travelObjective;
-				if (Class.CastTo(travelObjective, objectiveConfig))
+				if (Class.CastTo(travelObjective, m_ObjectiveConfig))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TRAVEL";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
@@ -116,7 +117,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.DELIVERY:
 			{
 				ExpansionQuestObjectiveDeliveryConfig deliveryObjective;
-				if (Class.CastTo(deliveryObjective, objectiveConfig))
+				if (Class.CastTo(deliveryObjective, m_ObjectiveConfig))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_DELIVER";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
@@ -152,7 +153,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				ExpansionQuestObjectiveDelivery collection;
 				int currentCollectionCount;
 
-				if (Class.CastTo(collectionObjective, objectiveConfig))
+				if (Class.CastTo(collectionObjective, m_ObjectiveConfig))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_COLLECT";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
@@ -223,7 +224,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.TREASUREHUNT:
 			{
 				ExpansionQuestObjectiveTreasureHuntConfig treasureObjective;
-				if (Class.CastTo(treasureObjective, objectiveConfig))
+				if (Class.CastTo(treasureObjective, m_ObjectiveConfig))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TREASURE";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
@@ -244,7 +245,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.AIESCORT:
 			{
 				ExpansionQuestObjectiveAIEscortConfig escortConfig;
-				if (Class.CastTo(escortConfig, objectiveConfig))
+				if (Class.CastTo(escortConfig, m_ObjectiveConfig))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TRAVEL";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
@@ -277,10 +278,10 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			break;
 		}
 				
-		if (objectiveConfig.GetObjectiveText() != string.Empty && m_QuestHUDObjectiveController.DeliveryEnties.Count() == 0)
+		if (m_ObjectiveConfig.GetObjectiveText() != string.Empty && m_QuestHUDObjectiveController.DeliveryEnties.Count() == 0)
 		{
 			if (!m_ObjectiveCompleted)
-				Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
+				Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_QuestConfig));
 			else
 				Spacer.SetColor(ARGB(200, 160, 223, 59));
 
@@ -317,7 +318,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	
 	override void Expansion_Update()
 	{
-		if (!m_Objective || !m_Quest || !IsVisible() || !GetGame().GetPlayer())
+		if (!m_Objective || !m_QuestConfig || !IsVisible() || !GetGame().GetPlayer())
 			return;
 		
 		UpdateTimeLimit();
@@ -325,27 +326,20 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		if (!ObjectiveWrapper.IsVisible())
 			return;
 
-		array<ref ExpansionQuestObjectiveConfigBase> questObjectives = m_Quest.GetObjectives();
+		array<ref ExpansionQuestObjectiveConfigBase> questObjectives = m_QuestConfig.GetObjectives();
 		if (!questObjectives || questObjectives.Count() == 0)
 			return;
 		
-		int objectiveIndex = -1;
-		objectiveIndex = m_Objective.GetObjectiveIndex();
-		
-		if (objectiveIndex == -1)
-			return;
-
-		ExpansionQuestObjectiveConfig objectiveConfig = ExpansionQuestObjectiveConfig.Cast(questObjectives[objectiveIndex]);
-		if (!objectiveConfig)
+		if (!m_ObjectiveConfig)
 			return;
 		
 		//! @note: Update quest objective distance in HUD.
-		switch (objectiveConfig.GetObjectiveType())
+		switch (m_ObjectiveConfig.GetObjectiveType())
 		{
 			case  ExpansionQuestObjectiveType.TRAVEL:
 			{
 				ExpansionQuestObjectiveTravelConfig travelObjective;
-				if (Class.CastTo(travelObjective, objectiveConfig) && travelObjective.ShowDistance())
+				if (Class.CastTo(travelObjective, m_ObjectiveConfig) && travelObjective.ShowDistance())
 					UpdateDistance();
 			}
 			break;
@@ -353,7 +347,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.DELIVERY:
 			{
 				ExpansionQuestObjectiveDeliveryConfig deliveryObjective;
-				if (Class.CastTo(deliveryObjective, objectiveConfig) && deliveryObjective.ShowDistance())
+				if (Class.CastTo(deliveryObjective, m_ObjectiveConfig) && deliveryObjective.ShowDistance())
 					UpdateDistance();
 			}
 			break;
@@ -361,7 +355,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.COLLECT:
 			{
 				ExpansionQuestObjectiveCollectionConfig collectionObjective;
-				if (Class.CastTo(collectionObjective, objectiveConfig) && collectionObjective.ShowDistance())
+				if (Class.CastTo(collectionObjective, m_ObjectiveConfig) && collectionObjective.ShowDistance())
 					UpdateDistance();
 			}
 			break;
@@ -369,7 +363,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.TREASUREHUNT:
 			{
 				ExpansionQuestObjectiveTreasureHuntConfig treasureObjective;
-				if (Class.CastTo(treasureObjective, objectiveConfig) && treasureObjective.ShowDistance())
+				if (Class.CastTo(treasureObjective, m_ObjectiveConfig) && treasureObjective.ShowDistance())
 					UpdateDistance();
 			}
 			break;
@@ -378,7 +372,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.AIESCORT:
 			{
 				ExpansionQuestObjectiveAIEscortConfig escortConfig;
-				if (Class.CastTo(escortConfig, objectiveConfig) && escortConfig.ShowDistance())
+				if (Class.CastTo(escortConfig, m_ObjectiveConfig) && escortConfig.ShowDistance())
 					UpdateDistance();
 			}
 			break;
@@ -433,7 +427,11 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 	void UpdateDistance()
 	{
-		vector objectivePos = m_Objective.GetObjectivePosition();
+		vector objectivePos;
+		if (m_ObjectiveConfig.IsInherited(ExpansionQuestObjectiveAIEscortConfig))
+			objectivePos = m_ObjectiveConfig.GetPosition();  //! We want pos of target location, not current objective (VIP) pos
+		else
+			objectivePos = m_Objective.GetObjectivePosition();
 		vector playerPos = GetGame().GetPlayer().GetPosition();
 		int currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
 		m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
@@ -444,7 +442,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	
 	ExpansionQuestConfig GetQuestConfig()
 	{
-		return m_Quest;
+		return m_QuestConfig;
 	}
 	
 	bool IsObjectiveCompleted()

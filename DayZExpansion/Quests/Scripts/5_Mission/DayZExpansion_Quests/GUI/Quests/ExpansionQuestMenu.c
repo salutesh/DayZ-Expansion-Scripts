@@ -420,6 +420,10 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			m_QuestMenuController.ReputationVal = quest.GetReputationReward().ToString();
 			m_QuestMenuController.NotifyPropertyChanged("ReputationVal");
 		}
+		else
+		{
+			Reputation.Show(false);
+		}
 
 	#ifdef EXPANSIONMODAI
 		m_QuestMenuController.FactionRewardEntries.Clear();
@@ -427,6 +431,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		map<string, int> factionRewards = quest.GetFactionReputationRewards();
 		if (factionRewards.Count() > 0)
 		{
+			RewardPanel.Show(true);
 			FactionReputation.Show(true);
 			foreach (string factionName, int reputation: factionRewards)
 			{

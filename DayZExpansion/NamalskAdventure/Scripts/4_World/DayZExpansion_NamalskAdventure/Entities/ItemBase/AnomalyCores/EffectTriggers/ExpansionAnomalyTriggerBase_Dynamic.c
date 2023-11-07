@@ -16,7 +16,9 @@ class ExpansionAnomalyTriggerBase_Dynamic : ExpansionAnormalAreaTriggerBase
 
 	void ExpansionAnomalyTriggerBase_Dynamic()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		RegisterNetSyncVariableInt("m_AreaState");
 
@@ -33,7 +35,9 @@ class ExpansionAnomalyTriggerBase_Dynamic : ExpansionAnormalAreaTriggerBase
 
 	override void OnEnterClientEvent(TriggerInsider insider)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnEnterClientEvent - Insider: " + insider.GetObject().ToString());
 
 		if (insider.GetObject().IsInherited(PlayerBase))
@@ -75,7 +79,9 @@ class ExpansionAnomalyTriggerBase_Dynamic : ExpansionAnormalAreaTriggerBase
 
 	override void OnVariablesSynchronized()
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		super.OnVariablesSynchronized();
 

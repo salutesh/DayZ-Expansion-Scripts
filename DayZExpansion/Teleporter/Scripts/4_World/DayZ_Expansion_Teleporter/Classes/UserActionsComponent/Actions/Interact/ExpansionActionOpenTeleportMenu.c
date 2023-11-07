@@ -189,7 +189,7 @@ class ExpansionActionOpenTeleportMenu: ActionInteractBase
 		
 		if (!teleporterData.IsExit())
 		{
-			m_Expansion_TeleporterModule.RequestOpenTeleporterMenu(teleportObj, player.GetIdentity(), teleporterData);
+			m_Expansion_TeleporterModule.RequestOpenTeleporterMenu(player.GetIdentity(), teleporterData);
 		}
 		else
 		{

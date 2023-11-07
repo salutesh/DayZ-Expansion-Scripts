@@ -21,7 +21,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		if (!super.OnEventStart())
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_DeliveryConfig, m_ObjectiveConfig))
 			return false;
 
 		if (!GetObjectiveDataFromConfig())
@@ -41,7 +41,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		if (!super.OnContinue())
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_DeliveryConfig, m_ObjectiveConfig))
 			return false;
 
 		if (!GetObjectiveDataFromConfig())
@@ -60,11 +60,11 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		ObjectivePrint("m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 		ObjectivePrint("m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_DeliveryConfig, m_ObjectiveConfig))
 			return false;
 
 		bool conditionsResult;
-		if (!m_Config.NeedAnyCollection())
+		if (!m_DeliveryConfig.NeedAnyCollection())
 		{
 			if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount)
 				conditionsResult = true;

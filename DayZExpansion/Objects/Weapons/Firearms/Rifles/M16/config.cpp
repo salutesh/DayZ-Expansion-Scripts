@@ -5,7 +5,7 @@ class CfgPatches
 	class DayZExpansion_Weapons_Rifles_M16
 	{
 		units[] = {};
-		weapons[] = {"Expansion_M16"};
+		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms"};
 	};

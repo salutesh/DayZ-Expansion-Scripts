@@ -355,17 +355,17 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		QuestObjectiveCompletedText = "You have completed the objective %1 of the quest %2.";
 
 		AchievementCompletedTitle = "Achievement \"%1\" completed!";
-		AchievementCompletedText = "You have completed the achievement %1";
+		AchievementCompletedText = "%1";
 
 		QuestCooldownTitle = "Quest Cooldown";
 		QuestCooldownText = "This quest is still on cooldown! Come back in %1";
 
 	#ifdef EXPANSIONMODGROUPS
 		QuestNotInGroupTitle = "Group Quest";
-		QuestNotInGroupText = "Group quests can only accepted while in a group!";
+		QuestNotInGroupText = "Group quests can only be accepted while in a group!";
 
 		QuestNotGroupOwnerTitle = "Group Quest";
-		QuestNotGroupOwnerText = "Only a group owner can accept and turn-in group quest!";
+		QuestNotGroupOwnerText = "Only a group owner can accept and turn-in a group quest!";
 	#endif
 
 		WeeklyResetDay = "Wednesday";

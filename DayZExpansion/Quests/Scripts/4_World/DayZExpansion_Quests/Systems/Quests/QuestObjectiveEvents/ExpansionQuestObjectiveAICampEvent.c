@@ -14,7 +14,7 @@
 class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 {
 	protected ExpansionAICampObjectiveSphereTrigger m_ObjectiveTrigger;
-	protected ref ExpansionQuestObjectiveAICampConfig m_Config;
+	protected ref ExpansionQuestObjectiveAICampConfig m_AICampConfig;
 
 	override bool OnEventStart()
 	{
@@ -22,7 +22,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_AICampConfig, m_ObjectiveConfig))
 			return false;
 		
 		if (!super.OnEventStart())
@@ -37,7 +37,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_AICampConfig, m_ObjectiveConfig))
 			return false;
 		
 		if (!super.OnContinue())
@@ -67,7 +67,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		ExpansionQuestObjectiveAICamp aiCamp = m_Config.GetAICamp();
+		ExpansionQuestObjectiveAICamp aiCamp = m_AICampConfig.GetAICamp();
 		if (!aiCamp)
 			return;
 
@@ -93,7 +93,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_AICampConfig, m_ObjectiveConfig))
 			return;
 
 		CheckQuestAIPatrol(m_TotalUnitsAmount);
@@ -105,7 +105,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		ExpansionQuestObjectiveAICamp aiCamp = m_Config.GetAICamp();
+		ExpansionQuestObjectiveAICamp aiCamp = m_AICampConfig.GetAICamp();
 		if (!aiCamp)
 			return;
 
@@ -118,11 +118,11 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 			TVectorArray waypoint = new TVectorArray;
 			waypoint.Insert(pos);
 
-			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), "SPRINT", aiCamp.GetNPCMode(), aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), m_Config.CanLootAI(), true, waypoint);
+			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), "SPRINT", aiCamp.GetNPCMode(), aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), m_AICampConfig.CanLootAI(), true, waypoint);
 			group.Formation = "RANDOM";  //! Just set a default, it's not really used as the NPCs are separate
 			group.AccuracyMin = aiCamp.NPCAccuracyMin;
 			group.AccuracyMax = aiCamp.NPCAccuracyMax;
-			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 600, 300, m_Config.GetMinDistRadius(), m_Config.GetMaxDistRadius(), m_Config.GetDespawnRadius());
+			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 600, 300, m_AICampConfig.GetMinDistRadius(), m_AICampConfig.GetMaxDistRadius(), m_AICampConfig.GetDespawnRadius());
 			if (!patrol)
 				return;
 
@@ -131,11 +131,11 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 
 		ExpansionQuestModule.GetModuleInstance().SetQuestPatrols(m_Quest.GetQuestConfig().GetID(), questPatrols);
 
-		if (m_Config.GetInfectedDeletionRadius() > 0 && !m_ObjectiveTrigger)
-			CreateTrigger(aiCamp.GetPositions()[0], m_Config.GetInfectedDeletionRadius());
+		if (m_AICampConfig.GetInfectedDeletionRadius() > 0 && !m_ObjectiveTrigger)
+			CreateTrigger(aiCamp.GetPositions()[0], m_AICampConfig.GetInfectedDeletionRadius());
 
 	#ifdef EXPANSIONMODNAVIGATION
-		if (m_Config.GetObjectiveText() != string.Empty)
+		if (m_AICampConfig.GetObjectiveText() != string.Empty)
 			CreateMarkers();
 	#endif
 	}
@@ -150,14 +150,11 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 #ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
-		if (!m_Config)
-			return;
-
-		ExpansionQuestObjectiveAICamp aiCamp = m_Config.GetAICamp();
+		ExpansionQuestObjectiveAICamp aiCamp = m_AICampConfig.GetAICamp();
 		if (!aiCamp)
 			return;
 
-		string markerName = m_Config.GetObjectiveText();
+		string markerName = m_AICampConfig.GetObjectiveText();
 		array<vector> positions = aiCamp.GetPositions();
 		if (positions)
 			CreateObjectiveMarker(positions[0], markerName);

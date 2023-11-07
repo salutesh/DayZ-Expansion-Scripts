@@ -16,7 +16,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	protected bool m_DestinationReached;
 	protected vector m_Position;
 	protected int m_PointSearchCount;
-	protected ref ExpansionQuestObjectiveTravelConfig m_Config;
+	protected ref ExpansionQuestObjectiveTravelConfig m_TravelConfig;
 
 	override bool OnEventStart()
 	{
@@ -27,7 +27,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnEventStart())
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_TravelConfig, m_ObjectiveConfig))
 			return false;
 
 		Init();
@@ -42,13 +42,13 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		//! Set objective position.
-		m_Position = m_Config.GetPosition();
+		m_Position = m_TravelConfig.GetPosition();
 		if (m_Position == vector.Zero)
 		{
 			if (m_Quest.GetPlayer())
 			{
 				vector playerPos = m_Quest.GetPlayer().GetPosition();
-				m_Position = GetRandomPointInCircle(playerPos, m_Config.GetMaxDistance());
+				m_Position = GetRandomPointInCircle(playerPos, m_TravelConfig.GetMaxDistance());
 				if (m_Position == vector.Zero)
 					m_Position = playerPos;
 				else
@@ -57,7 +57,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		#ifdef EXPANSIONMODNAVIGATION
-		if (m_Config.GetMarkerName() != string.Empty)
+		if (m_TravelConfig.GetMarkerName() != string.Empty)
 			CreateMarkers();
 		#endif
 
@@ -120,7 +120,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		}
 		#endif
 
-		float maxDistance = m_Config.GetMaxDistance();
+		float maxDistance = m_TravelConfig.GetMaxDistance();
 		if (currentDistance <= maxDistance)
 		{
 			ObjectivePrint("End and return TRUE");
@@ -141,14 +141,14 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnContinue())
 			return false;
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!Class.CastTo(m_TravelConfig, m_ObjectiveConfig))
 			return false;
 
-		EXTrace.Print(EXTrace.QUESTS, this, "OnContinue - Quest state: " + typename.EnumToString(ExpansionQuestState, m_Quest.GetQuestState()) + " | Objective state: " + IsCompleted() + " | Trigger on exit: " + m_Config.TriggerOnExit());
+		EXTrace.Print(EXTrace.QUESTS, this, "OnContinue - Quest state: " + typename.EnumToString(ExpansionQuestState, m_Quest.GetQuestState()) + " | Objective state: " + IsCompleted() + " | Trigger on exit: " + m_TravelConfig.TriggerOnExit());
 
 		if (IsCompleted())
 		{
-			if (!m_Config.TriggerOnExit())
+			if (!m_TravelConfig.TriggerOnExit())
 			{
 				m_DestinationReached = true;
 				return true;
@@ -190,11 +190,8 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
-		
-		if (!m_Config)
-			return;
 
-		string markerName = m_Config.GetMarkerName();
+		string markerName = m_TravelConfig.GetMarkerName();
 		CreateObjectiveMarker(m_Position, markerName);
 	}
 	#endif
@@ -212,11 +209,11 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	#endif
 		ObjectivePrint("State: " + state);
 		m_DestinationReached = state;
-		m_Quest.QuestCompletionCheck(true);
 	#ifdef EXPANSIONMODNAVIGATION
 		if (state)
 			RemoveObjectiveMarkers();
 	#endif
+		m_Quest.QuestCompletionCheck(true);
 	}
 
 	void SetLocationPosition(vector pos)

@@ -33,7 +33,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 	protected ref map<string, int> m_CollectionsQuantityMap;
 	protected int m_ObjectiveItemsAmount;
 	protected int m_ObjectiveItemsCount;
-	protected ref ExpansionQuestObjectiveDeliveryConfigBase m_Config;
+	protected ref ExpansionQuestObjectiveDeliveryConfigBase m_DeliveryConfig;
 
 	void ExpansionQuestObjectiveCollectionEventBase(ExpansionQuest quest)
 	{
@@ -65,7 +65,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			return false;
 
 	#ifdef EXPANSIONMODMARKET
-		if (m_Config.AddItemsToNearbyMarketZone())
+		if (m_DeliveryConfig.AddItemsToNearbyMarketZone())
 			AddItemsToMarketZone(playerUID);
 	#endif
 
@@ -90,12 +90,12 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		{
 			int needed = count.Needed;
 
-			if (m_Config.NeedAnyCollection())
+			if (m_DeliveryConfig.NeedAnyCollection())
 			{
 				if (selectedObjItemIndex == -1)
 					continue;
 
-				ExpansionQuestObjectiveDelivery delivery = m_Config.GetCollections().Get(selectedObjItemIndex);
+				ExpansionQuestObjectiveDelivery delivery = m_DeliveryConfig.GetCollections().Get(selectedObjItemIndex);
 				if (!delivery)
 					continue;
 
@@ -135,7 +135,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			        break;
 			}
 
-			if (!m_Config.NeedAnyCollection() && remove < needed)
+			if (!m_DeliveryConfig.NeedAnyCollection() && remove < needed)
 			{
 				ObjectivePrint("E1 - Could not get all objective items! Needed: " + needed + " | Found to remove: " + remove);
 				changedItems.Clear();
@@ -145,22 +145,22 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			all += remove;
 			allCollection = needed;
 
-			if (m_Config.NeedAnyCollection() && remove >= needed)
+			if (m_DeliveryConfig.NeedAnyCollection() && remove >= needed)
 				break;
 
-			if (!m_Config.NeedAnyCollection() && all >= m_ObjectiveItemsAmount)
+			if (!m_DeliveryConfig.NeedAnyCollection() && all >= m_ObjectiveItemsAmount)
 				break;
 		}
 
-		ObjectivePrint("Need any collection: " + m_Config.NeedAnyCollection().ToString());
+		ObjectivePrint("Need any collection: " + m_DeliveryConfig.NeedAnyCollection().ToString());
 
-		if (!m_Config.NeedAnyCollection() && all < m_ObjectiveItemsAmount)
+		if (!m_DeliveryConfig.NeedAnyCollection() && all < m_ObjectiveItemsAmount)
 		{
 			ObjectivePrint("E2 - Could not get all objective items! All needed: " + m_ObjectiveItemsAmount + " | Found to remove: " + all);
 			changedItems.Clear();
 			return false;
 		}
-		else if (m_Config.NeedAnyCollection() && (all < allCollection || selectedObjItemIndex == -1))
+		else if (m_DeliveryConfig.NeedAnyCollection() && (all < allCollection || selectedObjItemIndex == -1))
 		{
 			ObjectivePrint("E2 - Could not get all collection objective items! All needed: " + allCollection + " | Found to remove: " + all);
 			changedItems.Clear();
@@ -189,10 +189,10 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		m_ObjectiveItemsMap.Clear();
 		m_CollectionsQuantityMap.Clear();
 
-		array<ref ExpansionQuestObjectiveDelivery> objectiveDeliveries = m_Config.GetCollections();
+		array<ref ExpansionQuestObjectiveDelivery> objectiveDeliveries = m_DeliveryConfig.GetCollections();
 		if (!objectiveDeliveries || objectiveDeliveries.Count() == 0)
 		{
-			int objectiveID = m_Config.GetID();
+			int objectiveID = m_DeliveryConfig.GetID();
 			Error(ToString() + "::GetObjectiveDataFromConfig - Collection objective with ID " + objectiveID + " has no collections defined!");
 			return false;
 		}
@@ -334,7 +334,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			}
 		}
 
-		switch (m_Config.GetObjectiveType())
+		switch (m_DeliveryConfig.GetObjectiveType())
 		{
 			case ExpansionQuestObjectiveType.COLLECT:
 				return (!item.Expansion_IsQuestItem() || item.Expansion_GetQuestID() == m_Quest.GetQuestConfig().GetID() && item.Expansion_IsObjectiveLoot());
@@ -347,7 +347,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	protected void AddObjectiveItem(ItemBase item, ExpansionQuestObjectiveItemCount count)
 	{
-		if (m_Config.GetObjectiveType() == ExpansionQuestObjectiveType.DELIVERY)
+		if (m_DeliveryConfig.GetObjectiveType() == ExpansionQuestObjectiveType.DELIVERY)
 			item.Expansion_SetIsDeliveryItem(true);
 
 		ExpansionQuestObjectiveItem objItem = new ExpansionQuestObjectiveItem(item);
@@ -387,7 +387,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		m_DeliveryData.Clear();
 		m_ObjectiveItemsCount = 0;  //! Yes, always recount here - e.g. during item split, we only process INV_ENTER to save unnecessary network churn, which means counts need to be updated
 
-		array<ref ExpansionQuestObjectiveDelivery> objectiveDeliveries = m_Config.GetCollections();
+		array<ref ExpansionQuestObjectiveDelivery> objectiveDeliveries = m_DeliveryConfig.GetCollections();
 		for (int i = 0; i < objectiveDeliveries.Count(); i++)
 		{
 			ExpansionQuestObjectiveDelivery objectiveDelivery = objectiveDeliveries[i];
@@ -567,7 +567,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (m_Config.GetObjectiveType() != ExpansionQuestObjectiveType.COLLECT)
+		if (m_DeliveryConfig.GetObjectiveType() != ExpansionQuestObjectiveType.COLLECT)
 			return;
 
 		ExpansionQuestPersistentServerData serverData = ExpansionQuestModule.GetModuleInstance().GetServerData();
@@ -585,7 +585,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 		vector zonePos = traderZone.Position;
 		ObjectivePrint("Market zone pos: " + zonePos.ToString());
-		array<ref ExpansionQuestObjectiveDelivery> deliveries = m_Config.GetCollections();
+		array<ref ExpansionQuestObjectiveDelivery> deliveries = m_DeliveryConfig.GetCollections();
 		foreach (ExpansionQuestObjectiveDelivery delivery: deliveries)
 		{
 			string nameLower = delivery.GetClassNameLower();

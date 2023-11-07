@@ -14,7 +14,9 @@ class ExpansionAnomalyFireTrigger: ExpansionAnomalyTriggerBase
 {
 	override void OnEnterAnomalyServer(IEntity other)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnEnterAnomalyServer - Entity: " + other.ToString());
 
 		super.OnEnterAnomalyServer(other);
@@ -26,7 +28,9 @@ class ExpansionAnomalyFireTrigger: ExpansionAnomalyTriggerBase
 
 	protected void ProcessEntityEvents(IEntity other)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::ProcessEntityEvents - Entity: " + other.ToString());
 
 		if (other)

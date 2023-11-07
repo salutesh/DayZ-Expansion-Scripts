@@ -14,19 +14,16 @@ class ExpansionAnomalyTriggerFire_Dynamic : ExpansionAnomalyTriggerBase_Dynamic
 {
 	protected Particle m_ParticleTarget;
 
-	void ExpansionAnomalyTriggerFire_Dynamic()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-	}
-
 	//! Condition checks on given entity.
 	protected bool EntityConditions(Object entityObj)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 		ExDebugPrint("::EntityConditions - Entity: " + entityObj.GetType());
 
-		if (ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Items) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Players) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Animals) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Vehicles) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Infected))
+		if (ExpansionStatic.IsAnyOf(entityObj.GetType(), s_Players) || ExpansionStatic.IsAnyOf(entityObj.GetType(), s_Vehicles))
 		{
 			PlayerBase player = PlayerBase.Cast(entityObj);
 			if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
@@ -45,7 +42,9 @@ class ExpansionAnomalyTriggerFire_Dynamic : ExpansionAnomalyTriggerBase_Dynamic
 
 	override void OnStayServerEvent(TriggerInsider insider, float deltaTime)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::OnStayServerEvent - Insider: " + insider.GetObject().GetType());
 
 		super.OnStayServerEvent(insider, deltaTime);
@@ -58,7 +57,9 @@ class ExpansionAnomalyTriggerFire_Dynamic : ExpansionAnomalyTriggerBase_Dynamic
 
 	protected void ProcessEntityEvents(Object entityObj)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 		ExDebugPrint("::ProcessEntityEvents - Entity: " + entityObj.GetType());
 	}
 

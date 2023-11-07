@@ -28,7 +28,7 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 		Position = pos;
 	}
 
-	vector GetPosition()
+	override vector GetPosition()
 	{
 		return Position;
 	}
