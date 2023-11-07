@@ -10,7 +10,6 @@
  *
 */
 
-#ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIVIP
 {
 	protected string NPCLoadoutFile;
@@ -46,4 +45,3 @@ class ExpansionQuestObjectiveAIVIP
 	#endif
 	}
 };
-#endif
