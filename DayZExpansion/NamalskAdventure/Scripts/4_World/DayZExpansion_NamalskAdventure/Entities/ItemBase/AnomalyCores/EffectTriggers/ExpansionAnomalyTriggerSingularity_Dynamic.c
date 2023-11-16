@@ -26,9 +26,9 @@ class ExpansionAnomalyTriggerSingularity_Dynamic : ExpansionAnomalyTriggerBase_D
 			PlayerBase player = PlayerBase.Cast(insider.GetObject());
 			if (player)
 			{
-				float heatComfort = player.GetStatHeatComfort().Get();
-				heatComfort = heatComfort - 1000;
-				player.GetStatHeatComfort().Set(heatComfort); //! Let the character feel the cold.
+				player.GetStatHeatComfort().Add(-1000.0); //! Let the character feel the cold.
+				player.GetStatRadiation().Add(10.0); //! Let the character get some radiation.
+				player.ForceUpdateRadiation();
 			}
 		}
 	}

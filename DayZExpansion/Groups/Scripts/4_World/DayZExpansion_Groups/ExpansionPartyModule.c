@@ -866,7 +866,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		}
 
 		ExpansionMarkerData marker = party.GetMarker(uid);
-		if (!marker.OnRecieve(ctx))
+		if (!marker || !marker.OnRecieve(ctx))
 			return;
 
 		party.UpdateMarker(marker);

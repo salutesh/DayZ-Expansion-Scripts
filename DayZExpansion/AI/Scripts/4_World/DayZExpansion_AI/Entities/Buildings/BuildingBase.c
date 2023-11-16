@@ -1,7 +1,7 @@
 [eAIRegisterDynamicPatrolSpawner(BuildingBase)]
 modded class BuildingBase
 {
-	static autoptr TStringArray s_eAI_PreventClimb = {"Land_House", "Land_Mil_Airfield_HQ"};
+	static autoptr TStringArray s_eAI_PreventClimb;
 
 	ref eAIDynamicPatrolSpawner<BuildingBase> m_eAI_DynamicPatrolSpawner;
 	ref map<int, int> m_eAI_LastDoorInteractionTime = new map<int, int>;
@@ -13,16 +13,6 @@ modded class BuildingBase
 			return;
 
 		m_eAI_DynamicPatrolSpawner = new eAIDynamicPatrolSpawner<BuildingBase>(this);
-
-		string type = GetType();
-		foreach (string preventClimb: s_eAI_PreventClimb)
-		{
-			if (type.IndexOf(preventClimb) == 0)
-			{
-				m_eAI_PreventClimb = true;
-				break;
-			}
-		}
 	}
 
 	override void DeferredInit()
@@ -36,6 +26,22 @@ modded class BuildingBase
 		if (!IsInherited(CrashBase))
 		{
 			m_eAI_DynamicPatrolSpawner.Init();
+		}
+
+		if (!s_eAI_PreventClimb)
+		{
+			s_eAI_PreventClimb = {"Land_House", "Land_Mil_Airfield_HQ"};  //! Hardcoded defaults (AI will vault those buildings' edges otherwise)
+			s_eAI_PreventClimb.InsertAll(GetExpansionSettings().GetAI().PreventClimb);
+		}
+
+		string type = GetType();
+		foreach (string preventClimb: s_eAI_PreventClimb)
+		{
+			if (type.IndexOf(preventClimb) == 0)
+			{
+				m_eAI_PreventClimb = true;
+				break;
+			}
 		}
 	}
 

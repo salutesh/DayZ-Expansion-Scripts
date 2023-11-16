@@ -40,7 +40,7 @@ class CfgVehicles
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;
-		attachments[] = {"GlowPlug","TruckBattery","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet"};
+		attachments[] = {"GlowPlug","TruckBattery","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet","KeyChain"};
 		hiddenSelections[] = {"camo","antiwater"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\inflatable_boat_ca.paa",""};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\zodiac.rvmat",""};
@@ -67,7 +67,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"CamoNet"};
+				attachmentSlots[] = {"CamoNet","KeyChain"};
 			};
 		};
 		class AnimationSources

@@ -551,7 +551,7 @@ class CfgVehicles
 		displayName = "";
 		model = "";
 		vehicleClass = "Expansion_Car";
-		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
+		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet","KeyChain"};
 		doors[] = {"uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor"};
 		defaultSkin = "Green";
 		fuelCapacity = 40;
@@ -810,7 +810,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet","KeyChain"};
 			};
 			class Chassis
 			{
@@ -842,7 +842,7 @@ class CfgVehicles
 		ReverseReflectorMatOff = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights.rvmat";
 		TailReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights_e.rvmat";
 		TailReflectorMatOff = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights.rvmat";
-		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Material_Shelter_Fabric","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
+		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Material_Shelter_Fabric","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet","KeyChain"};
 		class AnimationSources: AnimationSources
 		{
 			class roof
@@ -878,7 +878,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","Material_Shelter_Fabric","CamoNet"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","Material_Shelter_Fabric","CamoNet","KeyChain"};
 			};
 			class Chassis
 			{
@@ -1086,7 +1086,7 @@ class CfgVehicles
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo1","camo2","dmgZone_front","dmgZone_back","dmgzone_fender_FL","dmgzone_fender_BL","dmgzone_fender_FR","dmgzone_fender_BR"};
 		hiddenSelectionsTextures[] = {"dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_int_01_co.paa","","","","","",""};
 		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_interior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
-		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
+		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet","KeyChain"};
 		class AnimationSources: AnimationSources
 		{
 			class roof
@@ -1122,7 +1122,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet","KeyChain"};
 			};
 			class Chassis
 			{
@@ -1142,7 +1142,7 @@ class CfgVehicles
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo1","camo2","dmgZone_front","dmgZone_back","dmgzone_fender_FL","dmgzone_fender_BL","dmgzone_fender_FR","dmgzone_fender_BR"};
 		hiddenSelectionsTextures[] = {"dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_int_01_co.paa","","","","","",""};
 		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_interior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
-		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
+		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet","KeyChain"};
 		class AnimationSources: AnimationSources
 		{
 			class roof
@@ -1195,7 +1195,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet","KeyChain"};
 			};
 			class Chassis
 			{

@@ -502,12 +502,12 @@ class CfgVehicles
 		doors[] = {"CivSedanDriverDoors","CivSedanCoDriverDoors","CivSedanCargo1Doors","CivSedanCargo2Doors","CivSedanTrunk","CivSedanHood"};
 		applySkinsTo[] = {"CivSedanDoors_Driver","CivSedanDoors_CoDriver","CivSedanDoors_BackLeft","CivSedanDoors_BackRight","CivSedanHood","CivSedanTrunk","Expansion_CivSedanDoors_Driver","Expansion_CivSedanDoors_CoDriver","Expansion_CivSedanDoors_BackLeft","Expansion_CivSedanDoors_BackRight","Expansion_CivSedanHood","Expansion_CivSedanTrunk"};
 		defaultSkin = "White";
-		attachments[] += {"CamoNet"};
+		attachments[] += {"CamoNet","KeyChain"};
 		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
 			class Body: Body
 			{
-				attachmentSlots[] += {"CamoNet"};
+				attachmentSlots[] += {"CamoNet","KeyChain"};
 			};
 		};
 		class DamageSystem

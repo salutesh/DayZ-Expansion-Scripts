@@ -65,6 +65,8 @@ class ExpansionHumanST
 	int m_VAR_Raised;
 	int m_VAR_Stance;
 
+	int m_VAR_Lean;
+
 	int m_TAG_WeaponFire;
 
 	void ExpansionHumanST( Human human )
@@ -127,6 +129,8 @@ class ExpansionHumanST
 
 		m_VAR_Raised = hai.BindVariableBool( "Raised" );
 		m_VAR_Stance = hai.BindVariableInt( "Stance" );
+
+		m_VAR_Lean = hai.BindVariableFloat( "Lean" );
 
 		m_TAG_WeaponFire = hai.BindTag("TagWeaponFire");
 	}
@@ -319,5 +323,10 @@ class ExpansionHumanST
 	void SetStance( HumanCommandScript script, int param )
 	{
 		script.PreAnim_SetInt( m_VAR_Stance, param );
+	}
+
+	void SetLean( HumanCommandScript script, float param )
+	{
+		script.PreAnim_SetFloat( m_VAR_Lean, param );
 	}
 };

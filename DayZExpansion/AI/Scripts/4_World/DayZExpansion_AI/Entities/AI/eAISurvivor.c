@@ -1,6 +1,6 @@
 string GetRandomAI()
 {
-	auto trace = CF_Trace_0(null, "GetRandomAI");
+	auto trace = EXTrace.Start(EXTrace.AI, null);
 
 	if (Math.RandomIntInclusive(0, 1) == 1)
 	{
@@ -14,7 +14,7 @@ string GetRandomAI()
 
 string GetRandomAIFemale()
 {
-	auto trace = CF_Trace_0(null, "GetRandomAIFemale");
+	auto trace = EXTrace.Start(EXTrace.AI, null);
 
 	TStringArray FemaleList = { "SurvivorF_Eva", "SurvivorF_Frida", "SurvivorF_Gabi", "SurvivorF_Helga", 
 								"SurvivorF_Irena", "SurvivorF_Judy", "SurvivorF_Keiko", "SurvivorF_Linda", 
@@ -25,7 +25,7 @@ string GetRandomAIFemale()
 
 string GetRandomAIMale()
 {
-	auto trace = CF_Trace_0(null, "GetRandomAIMale");
+	auto trace = EXTrace.Start(EXTrace.AI, null);
 
 	TStringArray MaleList = { "SurvivorM_Boris", "SurvivorM_Cyril", "SurvivorM_Denis", "SurvivorM_Elias", 
 							  "SurvivorM_Francis", "SurvivorM_Guo", "SurvivorM_Hassan", "SurvivorM_Indar", 

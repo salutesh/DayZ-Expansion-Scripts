@@ -16,6 +16,7 @@ class ExpansionScriptRPC: ScriptRPC
 	static const int EXPANSION_RPC_UNTARGETED = 1506850293;  //! "DayZ Expansion".Hash()
 	static const int EXPANSION_RPC_TARGETED = 1506850294;  //! "DayZ Expansion".Hash() + 1
 
+	int m_Expansion_RPCID;
 	Object m_Expansion_Target;
 
 	void Expansion_WriteNetworkID(Object object)
@@ -33,6 +34,9 @@ class ExpansionScriptRPC: ScriptRPC
 
 	void Expansion_Send(Object target, bool guaranteed = true, PlayerIdentity recipient = null)
 	{
+		if (!m_Expansion_RPCID)
+			return;
+
 		if (target)
 			Send(target, EXPANSION_RPC_TARGETED, guaranteed, recipient);
 		else
@@ -49,20 +53,11 @@ class ExpansionScriptRPC: ScriptRPC
 	static ExpansionScriptRPC Create(int rpcID)
 	{
 		ExpansionScriptRPC rpc = new ExpansionScriptRPC();
+		if (!rpcID)
+			Error("Invalid Expansion RPC ID 0");
+		else
+			rpc.m_Expansion_RPCID = rpcID;
 		rpc.Write(rpcID);
 		return rpc;
-	}
-
-	//! DEPRECATED, use ExpansionRPCManager::Create
-	static ScriptRPC Create()
-	{
-		ScriptRPC rpc = new ScriptRPC();
-		return rpc;
-	}
-
-	//! DEPRECATED
-	static bool CheckMagicNumber(ParamsReadContext ctx)
-	{
-		return true;
 	}
 }

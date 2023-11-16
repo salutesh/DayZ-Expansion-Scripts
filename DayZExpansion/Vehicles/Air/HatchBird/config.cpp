@@ -57,7 +57,7 @@ class CfgVehicles
 		wreck = "ExpansionHatchBirdWreck";
 		fuelCapacity = 192;
 		fuelConsumption = 91;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","Reflector_2_1","ExpansionIgniterPlug","ExpansionHydraulicHoses","NivaDriverDoors","NivaCoDriverDoors","NivaHood","NivaTrunk","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","NivaWheel_Spare_1","CamoNet"};
+		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","Reflector_2_1","ExpansionIgniterPlug","ExpansionHydraulicHoses","NivaDriverDoors","NivaCoDriverDoors","NivaHood","NivaTrunk","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","NivaWheel_Spare_1","CamoNet","KeyChain"};
 		wheels[] = {"HatchbackWheel","HatchbackWheel","HatchbackWheel","HatchbackWheel"};
 		defaultSkin = "HatchBird";
 		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","DayZExpansion\Vehicles\Air\HatchBird\data\niva_body.rvmat","DayZExpansion\Vehicles\Air\HatchBird\data\niva_body.rvmat","DayZExpansion\Vehicles\Air\HatchBird\data\niva_body.rvmat","DayZExpansion\Vehicles\Air\HatchBird\data\niva_body.rvmat","DayZExpansion\Vehicles\Air\HatchBird\data\niva_body.rvmat","DayZExpansion\Vehicles\Air\HatchBird\data\niva_body.rvmat","DayZExpansion\Vehicles\Air\HatchBird\data\niva_body.rvmat","DayZExpansion\Vehicles\Air\HatchBird\data\niva_body.rvmat","DayZExpansion\Vehicles\Air\HatchBird\data\niva_body.rvmat","DayZExpansion\Vehicles\Air\HatchBird\data\niva_body.rvmat"};
@@ -69,7 +69,7 @@ class CfgVehicles
 			};
 			class Body: Body
 			{
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","NivaHood","NivaTrunk","NivaDriverDoors","NivaCoDriverDoors","NivaWheel_Spare_1","CamoNet"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","NivaHood","NivaTrunk","NivaDriverDoors","NivaCoDriverDoors","NivaWheel_Spare_1","CamoNet","KeyChain"};
 			};
 			class Chassis: Chassis
 			{

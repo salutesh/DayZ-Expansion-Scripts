@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Objects_Gear_Consumables
 	{
-		units[] = {"ExpansionMilkBottle","ExpansionBread1","ExpansionBread2","ExpansionBread3","ExpansionCheese1","ExpansionCheese2","ExpansionCheese3","ExpansionCheese4"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Gear_Food"};
@@ -15,8 +15,9 @@ class CfgLiquidDefinitions
 	class ExpansionMilk
 	{
 		type = 65536;
-		displayName = "Milk";
+		displayName = "$STR_EXPANSION_MILK_LIQUID";
 		flammability = 10;
+		color = "EXPANSION_MILK";
 		class Nutrition
 		{
 			fullnessIndex = 1;

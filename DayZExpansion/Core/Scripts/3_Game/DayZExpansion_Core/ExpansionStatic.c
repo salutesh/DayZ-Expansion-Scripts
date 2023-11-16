@@ -275,6 +275,30 @@ class ExpansionStatic
 		return "unknown";
 	}
 
+	/**
+	 * @brief Set value to enum value if it exists
+	 * 
+	 * @param e typename/enum
+	 * @param enumName name
+	 * @param [out] value (if found)
+	 * 
+	 * @return true if found, false if not
+	 * 
+	 * @note use this instead of typename.StringToEnum if you need to know if value exists or not
+	 */
+	static bool StringToEnumEx(typename e, string enumName, out int value)
+	{
+		int count = e.GetVariableCount();
+	   
+		for (int i = 0; i < count; i++)
+		{
+			if (e.GetVariableType(i) == int && e.GetVariableName(i) == enumName && e.GetVariableValue(null, i, value))
+				return true;
+		}
+		
+		return false;
+	}
+
 	// -----------------------------------------------------------
 	// Expansion String FloatToString
 	// -----------------------------------------------------------
@@ -1046,6 +1070,11 @@ class ExpansionStatic
 	{
 		int b1, b2, b3, b4;
 		entity.GetPersistentID(b1, b2, b3, b4);
+		return GetPersistentIDString(b1, b2, b3, b4);
+	}
+
+	static string GetPersistentIDString(int b1, int b2, int b3, int b4)
+	{
 		string id;
 		id += IntToHex(b1);
 		id += IntToHex(b2);
@@ -1541,17 +1570,7 @@ class ExpansionStatic
 
 	static bool GetVariableIntByName(typename type, string name, out int val)
 	{
-		int count = type.GetVariableCount();
-		for (int i = 0; i < count; i++)
-		{
-			if (type.GetVariableName(i) != name)
-				continue;
-
-			type.GetVariableValue(null, i, val);
-			return true;
-		}
-
-		return false;
+		return StringToEnumEx(type, name, val);
 	}
 
 	static void LockInventoryRecursive(EntityAI entity, int lockType = HIDE_INV_FROM_SCRIPT)

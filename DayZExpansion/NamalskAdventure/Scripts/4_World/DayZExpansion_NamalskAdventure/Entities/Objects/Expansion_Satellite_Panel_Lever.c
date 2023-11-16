@@ -248,6 +248,8 @@ class Expansion_Satellite_Panel_Lever: House
 	
 	override void OnVariablesSynchronized()
 	{
+		super.OnVariablesSynchronized();
+
 		if (m_PanelWasUsed != m_PanelWasUsedPrev)
 		{
 			if (m_PanelWasUsed)

@@ -34,6 +34,8 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 	protected int m_TerritoryID;	 //! Unique terriotry id. Used to get and identify the parking meters territory in the territory and garage module.
 	protected float m_ChargeEnergyPerSecond;
 
+	static int s_Expansion_ParkingMeterActivated_NetworkedSoundID;
+
 	void ExpansionParkingMeter()
 	{
 		m_ChargeEnergyPerSecond = GetGame().ConfigGetFloat ("CfgVehicles " + GetType() + " ChargeEnergyPerSecond");
@@ -44,6 +46,9 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 		m_TerritoryID = -1;
 
 		RegisterNetSyncVariableInt("m_TerritoryID");
+
+		if (!s_Expansion_ParkingMeterActivated_NetworkedSoundID)
+			s_Expansion_ParkingMeterActivated_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("Expansion_ParkingMeter_Activated_SoundSet");
 	}
 
 	void ~ExpansionParkingMeter()
@@ -123,7 +128,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 		if (GetGame().IsServer() && GetCompEM().CanWork() && GetAttachmentByType(ExpansionCircuitBoardBase))
 		{
 			if (GetExpansionSettings().GetGarage().ParkingMeterEnableFlavor)
-				ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), "Expansion_ParkingMeter_Activated_SoundSet");
+				ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), s_Expansion_ParkingMeterActivated_NetworkedSoundID);
 		}
 	}
 

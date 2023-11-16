@@ -247,7 +247,7 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 			m_Expansion_StoredEntityGlobalID.m_ID[i] = entityGlobalID[i];
 	}
 
-	static bool Expansion_StoreEntityAndReplace(EntityAI entity, string placeholderType, vector position, int iFlags = ECE_OBJECT_SWAP, out ExpansionEntityStoragePlaceholder placeholder = null, bool storeCargo = false)
+	static bool Expansion_StoreEntityAndReplace(EntityAI entity, string placeholderType, vector position, int iFlags = ECE_OBJECT_SWAP, out ExpansionEntityStoragePlaceholder placeholder = null, bool storeCargo = false, array<EntityAI> transferAttachments = null)
 	{
 		string type = entity.GetType();
 
@@ -277,7 +277,7 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 #endif
 
 		EntityAI placeholderEntity;
-		if (!ExpansionEntityStorageModule.SaveToFileAndReplace(entity, ExpansionEntityStorageModule.GetFileName(ExpansionStatic.IntToHex(entityGlobalID)), placeholderType, position, iFlags, placeholderEntity, storeCargo))
+		if (!ExpansionEntityStorageModule.SaveToFileAndReplace(entity, ExpansionEntityStorageModule.GetFileName(ExpansionStatic.IntToHex(entityGlobalID)), placeholderType, position, iFlags, placeholderEntity, storeCargo, transferAttachments))
 			return false;
 
 		if (Class.CastTo(placeholder, placeholderEntity))

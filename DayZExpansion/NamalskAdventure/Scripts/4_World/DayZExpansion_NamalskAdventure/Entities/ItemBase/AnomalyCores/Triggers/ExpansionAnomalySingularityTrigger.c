@@ -58,9 +58,10 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 
 				if (!player.IsInTransport())
 				{
-					float heatComfort = player.GetStatHeatComfort().Get();
-					heatComfort = heatComfort - 1000.0;
-					player.GetStatHeatComfort().Set(heatComfort); //! Let the character feel the cold.
+					player.GetStatHeatComfort().Add(-1000.0); //! Let the character feel the cold.
+					player.GetStatRadiation().Add(10.0); //! Let the character get some radiation.
+					player.ForceUpdateRadiation();
+					
 					player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_PAIN_LIGHT); //! Let the character feel the pain :)
 					player.GiveShock(Math.RandomFloatInclusive(MIN_SHOCK_INFLICTED, MAX_SHOCK_INFLICTED)); //! Apply random shock damage to the player.
 					player.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the player.

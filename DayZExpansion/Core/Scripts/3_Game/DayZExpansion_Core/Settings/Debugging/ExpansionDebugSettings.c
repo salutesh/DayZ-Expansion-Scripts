@@ -15,11 +15,14 @@
  **/
 class ExpansionDebugSettings: ExpansionSettingBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 
 	int DebugVehiclePlayerNetworkBubbleMode;
 	
 	int ServerUpdateRateLimit;
+
+	bool EnableProneDeathHandItemDropFix;
+	bool EnableItemDropPlacementFix;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;

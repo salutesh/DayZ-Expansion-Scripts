@@ -31,11 +31,8 @@ enum ExpansionChatChannels
 	CCTeam = 512
 };
 
-/**
- * Expansion liquid types - needs to match in config.cpp where used,
- * e.g. Objects/Gear/Consumables/config.cpp, CfgLiquidDefinitions `type`, CfgVehicles `varLiquidTypeInit` & `liquidContainerType`
- * @{
- */
+//! DPRECATED, constant is no longer used and is only kept for legacy reasons. Liquid types are set in CfgLiquidDefinitions,
+//! and liquids can be accesed via vanilla Liquid EnfScript class, e.g. use Liquid::Expansion_GetDisplayName to get display name for UI
 const int EXPANSION_LIQUID_MILK = 65536;
 
 /**
@@ -233,5 +230,5 @@ static const int EXPANSION_VERSION_CURRENT_SAVE = 49;  //! DEPRECATED, NO LONGER
  * Client settings save version
  */
 //! Starting with client settings v38, client and map marker save version are no longer linked to storage save version
-static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 50;
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 51;
 static const int EXPANSION_VERSION_MAP_MARKER_SAVE = 40;  //! Also used for groups

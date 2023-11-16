@@ -413,7 +413,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		SetRewardItems(quest);
 
 	#ifdef EXPANSIONMODHARDLINE
-		if (quest.GetReputationReward() > 0 && GetExpansionSettings().GetHardline().UseReputation)
+		if (quest.GetReputationReward() && GetExpansionSettings().GetHardline().UseReputation)
 		{
 			RewardPanel.Show(true);
 			Reputation.Show(true);

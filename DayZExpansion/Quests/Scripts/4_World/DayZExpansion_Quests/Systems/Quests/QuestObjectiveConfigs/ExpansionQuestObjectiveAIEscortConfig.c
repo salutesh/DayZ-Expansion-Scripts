@@ -10,7 +10,6 @@
  *
 */
 
-#ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIEscortConfigBase: ExpansionQuestObjectiveConfig
 {
 	vector Position = vector.Zero;
@@ -192,4 +191,3 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 	#endif
 	}
 };
-#endif

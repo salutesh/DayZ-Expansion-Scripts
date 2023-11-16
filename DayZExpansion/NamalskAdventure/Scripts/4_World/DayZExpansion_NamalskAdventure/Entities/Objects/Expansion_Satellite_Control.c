@@ -39,6 +39,11 @@ class Expansion_Satellite_Control: ItemBase
 		RegisterNetSyncVariableBool("m_CanActivate");
 		RegisterNetSyncVariableBool("m_IsSatelliteActive");
 		RegisterNetSyncVariableBool("m_IsSatelliteBooting");
+
+		m_Expansion_RPCManager = new ExpansionRPCManager(this, ItemBase);
+		m_Expansion_RPCManager.RegisterClient("RPC_Boot");
+		m_Expansion_RPCManager.RegisterClient("RPC_Active");
+		m_Expansion_RPCManager.RegisterClient("RPC_Shutdown");
 	}
 
 	void ~Expansion_Satellite_Control()
@@ -170,18 +175,9 @@ class Expansion_Satellite_Control: ItemBase
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		array<Object> objects = new array<Object>;
-		GetGame().GetObjectsAtPosition(GetPosition(), 200, objects, null);
-
-		for (int i = 0; i < objects.Count(); i++)
-		{
-			PlayerBase player = PlayerBase.Cast(objects[i]);
-			if (player && player.GetIdentity())
-			{
-				Param1<EntityAI> param = new Param1<EntityAI>(m_LinkedSatellite);
-				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX, param, true, player.GetIdentity());
-			}
-		}
+		auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_Boot");
+		rpc.Write(m_LinkedSatellite);
+		PlayerBase.Expansion_SendNear(rpc, GetPosition(), 200.0, this, true);
 
 		SetSatelliteBooting(true);
 
@@ -193,18 +189,9 @@ class Expansion_Satellite_Control: ItemBase
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		array<Object> objects = new array<Object>;
-		GetGame().GetObjectsAtPosition(GetPosition(), 200, objects, null);
-
-		for (int j = 0; j < objects.Count(); j++)
-		{
-			PlayerBase player = PlayerBase.Cast(objects[j]);
-			if (player && player.GetIdentity())
-			{
-				Param1<EntityAI> param = new Param1<EntityAI>(m_LinkedSatellite);
-				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_RUNNING_SFX, param, true, player.GetIdentity());
-			}
-		}
+		auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_Active");
+		rpc.Write(m_LinkedSatellite);
+		PlayerBase.Expansion_SendNear(rpc, GetPosition(), 200.0, this, true);
 
 		#ifdef EXPANSIONMODTELEPORTER
 		if (m_LinkedTeleporter)
@@ -221,18 +208,9 @@ class Expansion_Satellite_Control: ItemBase
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		array<Object> objects = new array<Object>;
-		GetGame().GetObjectsAtPosition(GetPosition(), 200, objects, null);
-
-		for (int i = 0; i < objects.Count(); i++)
-		{
-			PlayerBase player = PlayerBase.Cast(objects[i]);
-			if (player && player.GetIdentity())
-			{
-				Param1<EntityAI> param = new Param1<EntityAI>(m_LinkedSatellite);
-				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_SHUTDOWN_SFX, param, true, player.GetIdentity());
-			}
-		}
+		auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_Shutdown");
+		rpc.Write(m_LinkedSatellite);
+		PlayerBase.Expansion_SendNear(rpc, GetPosition(), 200.0, this, true);
 
 		#ifdef EXPANSIONMODTELEPORTER
 		if (m_LinkedTeleporter)
@@ -287,52 +265,28 @@ class Expansion_Satellite_Control: ItemBase
 		}
 	}
 
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
+	void RPC_Boot(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
-		super.OnRPC(sender, rpc_type, ctx);
+		EntityAI satellite;
+		if (ctx.Read(satellite))
+			PlaySFXBoot(satellite);
+	}
 
-		if (!GetGame().IsDedicatedServer())
-		{
-			switch (rpc_type)
-			{
-				case Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX:
-				{
-				#ifndef EDITOR
-					Param1<EntityAI> paramBoot = new Param1<EntityAI>(null);
-					if (!ctx.Read(paramBoot))
-						return;
+	void RPC_Active(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
+	{
+		EntityAI satellite;
+		if (ctx.Read(satellite))
+			PlaySFXActive(satellite);
+	}
 
-					PlaySFXBoot(paramBoot.param1);
-				#endif
-				}
-				break;
-				case Expansion_Satellite_Control_ERPCs.PLAY_RUNNING_SFX:
-				{
-				#ifndef EDITOR
-					Param1<EntityAI> paramRun = new Param1<EntityAI>(null);
-					if (!ctx.Read(paramRun))
-						return;
+	void RPC_Shutdown(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
+	{
+		if (m_RunSFX)
+			m_RunSFX.SoundStop();
 
-					PlaySFXActive(paramRun.param1);
-				#endif
-				}
-				break;
-				case Expansion_Satellite_Control_ERPCs.PLAY_SHUTDOWN_SFX:
-				{
-				#ifndef EDITOR
-					if (m_RunSFX)
-						m_RunSFX.SoundStop();
-
-					Param1<EntityAI> paramStop = new Param1<EntityAI>(null);
-					if (!ctx.Read(paramStop))
-						return;
-
-					PlaySFXBoot(paramStop.param1);
-				#endif
-				}
-				break;
-			}
-		}
+		EntityAI satellite;
+		if (ctx.Read(satellite))
+			PlaySFXActive(satellite);
 	}
 
 	bool HasEnergy()

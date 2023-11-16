@@ -50,7 +50,7 @@ class CfgVehicles
 		hiddenSelectionsMaterials[] = {"","","DayZExpansion\Vehicles\Water\Utility\data\rhib.rvmat",""};
 		frontReflectorMatOn = "dayzexpansion\vehicles\ground\bus\data\bus_exterior_on.rvmat";
 		frontReflectorMatOff = "dayzexpansion\vehicles\water\utility\data\rhib.rvmat";
-		attachments[] = {"Reflector_1_1","Reflector_2_1","GlowPlug","TruckBattery","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet"};
+		attachments[] = {"Reflector_1_1","Reflector_2_1","GlowPlug","TruckBattery","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet","KeyChain"};
 		class Cargo
 		{
 			itemsCargoSize[] = {10,50};
@@ -159,7 +159,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"CamoNet"};
+				attachmentSlots[] = {"CamoNet","KeyChain"};
 			};
 		};
 		class Sounds

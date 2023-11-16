@@ -1,0 +1,14 @@
+ImageWidgetClass RadiationWidget {
+ position 0 0
+ size 35 35
+ hexactpos 0
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ scriptclass "ExpansionRadiationIndicatorController"
+ imageTexture "{BD68B6C88C43CF53}DayZExpansion/NamalskAdventure/GUI/icons/radiation.edds"
+ mode blend
+ "src alpha" 1
+ "clamp mode" invalid
+ "stretch mode" stretch_w_h
+}

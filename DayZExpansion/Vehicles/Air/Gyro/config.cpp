@@ -56,7 +56,7 @@ class CfgVehicles
 		wreck = "ExpansionGyrocopterWreck";
 		fuelCapacity = 50;
 		fuelConsumption = 31;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet"};
+		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet","KeyChain"};
 		class GUIInventoryAttachmentsProps
 		{
 			class Engine
@@ -71,7 +71,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","CamoNet"};
+				attachmentSlots[] = {"Reflector_1_1","CamoNet","KeyChain"};
 			};
 		};
 		class AnimationSources
@@ -245,7 +245,7 @@ class CfgVehicles
 		wreck = "ExpansionGyrocopterWreck";
 		fuelCapacity = 50;
 		fuelConsumption = 31;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet"};
+		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet","KeyChain"};
 		class GUIInventoryAttachmentsProps
 		{
 			class Engine
@@ -260,7 +260,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","CamoNet"};
+				attachmentSlots[] = {"Reflector_1_1","CamoNet","KeyChain"};
 			};
 		};
 		class Crew: Crew

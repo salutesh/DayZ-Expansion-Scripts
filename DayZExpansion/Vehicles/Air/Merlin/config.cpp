@@ -246,7 +246,7 @@ class CfgVehicles
 		wreck = "ExpansionMerlinWreck";
 		fuelCapacity = 292;
 		fuelConsumption = 95;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","ExpansionIgniterPlug","ExpansionHydraulicHoses","merlinwheel_1_1","merlinwheel_1_2","merlinwheel_2_1","merlinwheel_2_2","CamoNet"};
+		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","ExpansionIgniterPlug","ExpansionHydraulicHoses","merlinwheel_1_1","merlinwheel_1_2","merlinwheel_2_1","merlinwheel_2_2","CamoNet","KeyChain"};
 		wheels[] = {"ExpansionMerlinFrontWheel","ExpansionMerlinFrontWheel","ExpansionMerlinBackWheel","ExpansionMerlinBackWheel"};
 		doors[] = {};
 		applySkinsTo[] = {};
@@ -451,7 +451,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","CamoNet"};
+				attachmentSlots[] = {"Reflector_1_1","CamoNet","KeyChain"};
 			};
 			class Chassis
 			{

@@ -76,6 +76,7 @@ modded class CarScript
 
 	// Vehicle locking
 	protected ExpansionVehicleLockState m_VehicleLockedState;
+	protected ExpansionKeyChainBase m_Expansion_KeyChain;
 
 	//! After pairing a key, it's the ID of the master key.
 	//! This allows "changing locks" on vehicles so old paired keys no longer work
@@ -490,15 +491,34 @@ modded class CarScript
 	}
 
 	override bool NameOverride(out string output)
-    {
-        if (IsLocked())
-        {
-            output = string.Format("%1 (%2)", ConfigGetString("displayName"), "#locked");
-            return true;
-        }
+	{
+		bool ret;
 
-        return false;
-    }
+		if (IsLocked())
+		{
+			output = string.Format("%1 (%2)", ConfigGetString("displayName"), "#locked");
+			ret = true;
+		}
+
+		string ownerName = Expansion_GetOwnerName();
+		if (ownerName)
+		{
+			if (!output)
+				output = ConfigGetString("displayName");
+			output = string.Format("%1's %2", ownerName, output);
+			ret = true;
+		}
+
+		return ret;
+	}
+
+	string Expansion_GetOwnerName()
+	{
+		if (m_Expansion_KeyChain)
+			return m_Expansion_KeyChain.Expansion_GetOwnerName();
+
+		return string.Empty;
+	}
 
 	void LoadConstantVariables()
 	{
@@ -793,6 +813,10 @@ modded class CarScript
 			m_PersistentIDD = 0;
 
 			SetLockedState(ExpansionVehicleLockState.NOLOCK);
+
+			auto keychain = ExpansionKeyChainBase.Cast(GetAttachmentByType(ExpansionKeyChainBase));
+			if (keychain)
+				keychain.Expansion_ResetOwner();
 		}
 	}
 
@@ -1129,7 +1153,7 @@ modded class CarScript
 						ExpansionOnExplodeClient(params.param1, params.param2);
 					}
 				}
-	
+
 				return;
 			}
 		}
@@ -1501,6 +1525,9 @@ modded class CarScript
 		}
 
 		super.EEItemAttached(item, slot_name);
+
+		if (item.IsInherited(ExpansionKeyChainBase))
+			m_Expansion_KeyChain = ExpansionKeyChainBase.Cast(item);
 	}
 
 	override void EEItemDetached(EntityAI item, string slot_name)
@@ -1550,6 +1577,9 @@ modded class CarScript
 		}
 
 		super.EEItemDetached(item, slot_name);
+
+		if (item.IsInherited(ExpansionKeyChainBase))
+			m_Expansion_KeyChain = null;
 	}
 
 	override bool IsIgnoredObject(Object o)
@@ -3071,8 +3101,6 @@ modded class CarScript
 
 		ctx.Write(false);
 		ctx.Write(false);
-
-		ctx.Write(m_CurrentSkinName);
 	}
 
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -3172,6 +3200,21 @@ modded class CarScript
 		Print(m_CurrentSkinIndex);
 		Print(m_CurrentSkin);
 #endif
+
+		if (GetExpansionSettings().GetVehicle().ShowVehicleOwners)
+		{
+			auto keychain = ExpansionKeyChainBase.Cast(GetAttachmentByType(ExpansionKeyChainBase));
+			if (!keychain || !keychain.Expansion_HasOwner())
+			{
+				array<ExpansionCarKey> keys = {};
+				ExpansionCarKey.GetKeysForVehicle(this, keys);
+				foreach (ExpansionCarKey key: keys)
+				{
+					//! Will assign a keychain if key is in player inventory
+					key.Expansion_AssignKeychain(key.GetHierarchyRootPlayer(), this);
+				}
+			}
+		}
 	}
 
 	override void OnEngineStop()
@@ -3587,6 +3630,10 @@ modded class CarScript
 		if (IsLocked())
 			return false;
 
+		ExpansionKeyChainBase keychain;
+		if (Class.CastTo(keychain, attachment))
+			return !keychain.Expansion_HasOwner();
+
 		return true;
 	}
 
@@ -3719,8 +3766,21 @@ modded class CarScript
 
 		string placeholderType = Expansion_GetPlaceholderType(coverType);
 
-		bool storeCargo = GetExpansionSettings().GetVehicle().UseVirtualStorageForCoverCargo;
-		if (ExpansionEntityStoragePlaceholder.Expansion_StoreEntityAndReplace(this, placeholderType, GetPosition(), ECE_OBJECT_SWAP, placeholder, storeCargo))
+		auto settings = GetExpansionSettings().GetVehicle();
+		bool storeCargo = settings.UseVirtualStorageForCoverCargo;
+		array<EntityAI> transferAttachments;
+
+		if (settings.ShowVehicleOwners)
+		{
+			auto keychain = GetAttachmentByType(ExpansionKeyChainBase);
+			if (keychain)
+			{
+				transferAttachments = {};
+				transferAttachments.Insert(keychain);
+			}
+		}
+
+		if (ExpansionEntityStoragePlaceholder.Expansion_StoreEntityAndReplace(this, placeholderType, GetPosition(), ECE_OBJECT_SWAP, placeholder, storeCargo, transferAttachments))
 		{
 			EXTrace.Print(EXTrace.VEHICLES, this, "Covered vehicle " + GetType() + " " + GetPosition() + " with " + coverType);
 

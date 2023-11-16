@@ -80,6 +80,9 @@ class ExpansionClientSettings
 	bool StreamerMode;
 	bool ShowPINCode;
 
+	// ================= Misc =================
+	bool EnableLiquidTypeColors;
+
 	// ================= HUD Settings =================
 	float EarplugLevel;
 
@@ -650,6 +653,18 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - Add quest visibity state: " + questID + " | " + visState);
 			QuestVisibilityStates[questID] = visState;
 		}	
+		
+		if ( version < 51 )
+		{
+			EnableLiquidTypeColors = true;
+			return true;
+		}
+
+		if ( !ctx.Read( EnableLiquidTypeColors ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read EnableLiquidTypeColors!");
+			return false;
+		}
 
 		return true;
 	}
@@ -773,6 +788,8 @@ class ExpansionClientSettings
 			ctx.Write( questID );
 			ctx.Write( visState );
 		}
+
+		ctx.Write( EnableLiquidTypeColors );
 	}
 
 	// -----------------------------------------------------------
@@ -870,6 +887,8 @@ class ExpansionClientSettings
 
 		StreamerMode = false;
 		ShowPINCode = true;
+
+		EnableLiquidTypeColors = true;
 
 		EarplugLevel = 0.05;
 		AlphaColorHUDOnTopOfHeadOfPlayers = 255;
@@ -994,6 +1013,11 @@ class ExpansionClientSettings
 		CreateToggle( "StreamerMode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION_DESC" );
 		//! Option to toggle display of pins and passwords
 		CreateToggle( "ShowPINCode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE_DESC" );
+
+	#ifdef EXPANSION_INSPECT_MENU_NEW_ENABLE
+		CreateToggle( "EnableLiquidTypeColors", "#STR_EXPANSION_SETTINGS_ENABLE_LIQUID_TYPE_COLORS", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_ENABLE_LIQUID_TYPE_COLORS_DESC" );
+	#endif
+
 	if ( m_ShouldShowHUDCategory )
 		CreateCategory( "HUD", "#STR_EXPANSION_SETTINGS_HUD" );
 	#ifdef EXPANSIONMOD	

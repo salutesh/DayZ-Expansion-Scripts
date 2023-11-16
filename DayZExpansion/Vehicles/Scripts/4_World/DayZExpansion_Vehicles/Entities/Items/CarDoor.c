@@ -43,14 +43,28 @@ modded class CarDoor
 
 	override bool NameOverride(out string output)
 	{
+		bool ret;
+
 		CarScript vehicle;
-		if (Class.CastTo(vehicle, GetHierarchyParent()) && vehicle.IsLocked())
+		if (Class.CastTo(vehicle, GetHierarchyParent()))
 		{
-			output = string.Format("%1 (%2)", ConfigGetString("displayName"), "#locked");
-			return true;
+			if (vehicle.IsLocked())
+			{
+				output = string.Format("%1 (%2)", ConfigGetString("displayName"), "#locked");
+				ret = true;
+			}
+
+			string ownerName = vehicle.Expansion_GetOwnerName();
+			if (ownerName)
+			{
+				if (!output)
+					output = ConfigGetString("displayName");
+				output = string.Format("%1's %2", ownerName, output);
+				ret = true;
+			}
 		}
 
-		return false;
+		return ret;
 	}
 
 	override bool Expansion_CarContactActivates()

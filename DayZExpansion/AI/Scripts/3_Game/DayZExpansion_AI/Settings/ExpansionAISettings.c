@@ -15,7 +15,7 @@
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 6;
+	static const int VERSION = 7;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -23,16 +23,22 @@ class ExpansionAISettings: ExpansionSettingBase
 	float ThreatDistanceLimit;
 	float DamageMultiplier;
 
-	autoptr TStringArray Admins
+	autoptr TStringArray Admins;
 
 	int MaximumDynamicPatrols;
 
 	bool Vaulting;
+
 	float SniperProneDistanceThreshold;
 
 	bool Manners;
+	int MemeLevel;
+	
+	bool CanRecruitFriendly;
 
 	bool CanRecruitGuards;
+
+	ref TStringArray PreventClimb;
 
 #ifdef DIAG
 	float FormationScale;
@@ -89,6 +95,12 @@ class ExpansionAISettings: ExpansionSettingBase
 			return false;
 		}
 
+		if ( !ctx.Read( CanRecruitFriendly ) )
+		{
+			Error("ExpansionAISettings::OnRecieve CanRecruitFriendly");
+			return false;
+		}
+
 #ifdef DIAG
 		if ( !ctx.Read( FormationScale ) )
 		{
@@ -124,6 +136,7 @@ class ExpansionAISettings: ExpansionSettingBase
 		ctx.Write( Vaulting );
 		ctx.Write( Manners );
 		ctx.Write( CanRecruitGuards );
+		ctx.Write( CanRecruitFriendly );
 
 #ifdef DIAG
 		ctx.Write( FormationScale );
@@ -173,11 +186,17 @@ class ExpansionAISettings: ExpansionSettingBase
 #endif
 		AccuracyMin = s.AccuracyMin;
 		AccuracyMax = s.AccuracyMax;
+		ThreatDistanceLimit = s.ThreatDistanceLimit;
+		DamageMultiplier = s.DamageMultiplier;
 		Admins.Copy(s.Admins);
 		MaximumDynamicPatrols = s.MaximumDynamicPatrols;
 		Vaulting = s.Vaulting;
+		SniperProneDistanceThreshold = s.SniperProneDistanceThreshold;
 		Manners = s.Manners;
-
+		MemeLevel = s.MemeLevel;
+		CanRecruitFriendly = s.CanRecruitFriendly;
+		CanRecruitGuards = s.CanRecruitGuards;
+		PreventClimb.Copy(s.PreventClimb);
 #ifdef DIAG
 		FormationScale = s.FormationScale;
 #endif
@@ -257,6 +276,12 @@ class ExpansionAISettings: ExpansionSettingBase
 					DamageMultiplier = settingsDefault.DamageMultiplier;
 				}
 
+				if (m_Version < 7)
+				{
+					CanRecruitFriendly = true;
+					PreventClimb = settingsDefault.PreventClimb;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -315,6 +340,8 @@ class ExpansionAISettings: ExpansionSettingBase
 		Vaulting = true;
 		SniperProneDistanceThreshold = 0.0;
 		Manners = false;
+		MemeLevel = 1;
+		PreventClimb = {};
 
 #ifdef DIAG
 		FormationScale = 0.15;
@@ -337,4 +364,5 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		return identity && Admins.Find(identity.GetPlainId()) > -1;
 	}
+	
 };

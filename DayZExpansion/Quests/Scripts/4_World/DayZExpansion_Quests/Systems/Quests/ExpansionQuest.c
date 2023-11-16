@@ -545,7 +545,7 @@ class ExpansionQuest
 				conditions = true;
 		#endif
 		#ifdef EXPANSIONMODHARDLINE
-			if (!conditions && m_Config.GetReputationReward() > 0)
+			if (!conditions && m_Config.GetReputationReward())
 				conditions = true;
 		#ifdef EXPANSIONMODAI
 			if (!conditions && m_Config.GetFactionReputationRewards().Count() > 0)

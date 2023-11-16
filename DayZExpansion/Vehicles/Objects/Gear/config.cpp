@@ -395,7 +395,7 @@ class CfgVehicles
 		forceFarBubble = "true";
 		rotationFlags = 2;
 		itemsCargoSize[] = {10,100};
-		attachments[] = {"CamoNet"};
+		attachments[] = {"CamoNet","KeyChain"};
 		class DamageSystem
 		{
 			class GlobalHealth

@@ -12,6 +12,8 @@
 
 class ExpansionVehicleCover: ExpansionEntityStoragePlaceholder
 {
+	protected ExpansionKeyChainBase m_Expansion_KeyChain;
+
 #ifdef GAMELABS
 #ifdef SERVER
 	protected ref _Event m_GameLabs_RegisteredInstance;
@@ -46,11 +48,46 @@ class ExpansionVehicleCover: ExpansionEntityStoragePlaceholder
 #endif
 #endif
 
+	override void EEItemAttached(EntityAI item, string slot_name)
+	{
+		super.EEItemAttached(item, slot_name);
+
+		if (item.IsInherited(ExpansionKeyChainBase))
+			m_Expansion_KeyChain = ExpansionKeyChainBase.Cast(item);
+	}
+
+	override void EEItemDetached(EntityAI item, string slot_name)
+	{
+		super.EEItemDetached(item, slot_name);
+
+		if (item.IsInherited(ExpansionKeyChainBase))
+			m_Expansion_KeyChain = null;
+	}
+
 	override void SetActions()
 	{
 		super.SetActions();
 
 		AddAction(ExpansionActionUncoverVehicle);
+	}
+
+	override string GetDisplayName()
+	{
+		string name = super.GetDisplayName();
+
+		string ownerName = Expansion_GetOwnerName();
+		if (ownerName)
+			name = string.Format("%1's %2", ownerName, name);
+
+		return name;
+	}
+
+	string Expansion_GetOwnerName()
+	{
+		if (m_Expansion_KeyChain)
+			return m_Expansion_KeyChain.Expansion_GetOwnerName();
+
+		return string.Empty;
 	}
 };
 

@@ -88,6 +88,8 @@ class StaticObj_Lamp_Harbour extends House
 	
 	override void OnVariablesSynchronized()
 	{
+		super.OnVariablesSynchronized();
+
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		if (m_LightState != m_LightStateClient)

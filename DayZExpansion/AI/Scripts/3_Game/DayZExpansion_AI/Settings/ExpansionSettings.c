@@ -15,6 +15,8 @@ modded class ExpansionSettings
 	static ref ScriptInvoker SI_AI = new ScriptInvoker();
 	static ref ScriptInvoker SI_AIPATROL = new ScriptInvoker();
 
+	ExpansionAISettings m_AISettings;
+
 	override void Init()
 	{
 		super.Init();
@@ -30,7 +32,9 @@ modded class ExpansionSettings
 
 	ExpansionAISettings GetAI(bool checkLoaded = true)
 	{
-		return ExpansionAISettings.Cast(Get(ExpansionAISettings, checkLoaded));
+		if (!m_AISettings)
+			m_AISettings = ExpansionAISettings.Cast(Get(ExpansionAISettings, checkLoaded));
+		return m_AISettings;
 	}
 
 	ExpansionAIPatrolSettings GetAIPatrol(bool checkLoaded = true)

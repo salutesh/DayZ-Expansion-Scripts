@@ -161,6 +161,12 @@ class eAIBase: PlayerBase
 
 	ref Timer m_eAI_ClientUpdateTimer;
 
+	static int s_eAI_LoveSound01_NetworkedSoundID;
+	static int s_eAI_LoveSound02_NetworkedSoundID;
+
+	int m_eAI_Meme;
+	int m_eAI_MemeLevel;
+
 	void eAIBase()
 	{
 #ifdef EAI_TRACE
@@ -174,7 +180,11 @@ class eAIBase: PlayerBase
 		s_AllAI.Insert(this);
 
 		if (GetGame().IsServer())
-			AI_HANDLEVAULTING = GetExpansionSettings().GetAI().Vaulting;
+		{
+			ExpansionAISettings settings = GetExpansionSettings().GetAI();
+			AI_HANDLEVAULTING = settings.Vaulting;
+			m_eAI_MemeLevel = settings.MemeLevel;
+		}
 
 		SetEventMask(EntityEvent.INIT);
 
@@ -262,6 +272,11 @@ class eAIBase: PlayerBase
 		//RegisterNetSyncVariableInt("m_eAI_CurrentTarget_NetIDHigh");
 
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
+
+		if (!s_eAI_LoveSound01_NetworkedSoundID)
+			s_eAI_LoveSound01_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("Expansion_AI_The_Sound_Of_Love_01_SoundSet");
+		if (!s_eAI_LoveSound02_NetworkedSoundID)
+			s_eAI_LoveSound02_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("Expansion_AI_The_Sound_Of_Love_02_SoundSet");
 	}
 
 	override void EEDelete(EntityAI parent)
@@ -371,7 +386,7 @@ class eAIBase: PlayerBase
 	}
 #endif
 
-	bool PlayerIsEnemy(EntityAI other)
+	bool PlayerIsEnemy(EntityAI other, bool track = false, out bool isPlayerMoving = false)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "PlayerIsEnemy").Add(other);
@@ -394,6 +409,9 @@ class eAIBase: PlayerBase
 			return false;
 		}
 
+		if (player.Expansion_GetMovementSpeed() > 0 || player.IsClimbing() || player.IsFalling() || player.IsFighting() || player.IsLeaning())
+			isPlayerMoving = true;
+
 		if (GetGroup().GetFaction().IsObserver())
 		{
 			//! Actual player are always "enemies" to observers (will be looked at)
@@ -401,7 +419,7 @@ class eAIBase: PlayerBase
 				return true;
 
 			//! Don't look at other AI until they move
-			return player.Expansion_GetMovementSpeed() > 0 || player.IsClimbing() || player.IsFalling() || player.IsFighting();
+			return isPlayerMoving;
 		}
 
 		//! Are we targeting them?
@@ -414,6 +432,9 @@ class eAIBase: PlayerBase
 #ifdef DIAG
 				eAI_UpdatePlayerIsEnemyStatus(player, false, "target has same group");
 #endif
+				if (track && GetExpansionSettings().GetAI().MemeLevel > 0 && isPlayerMoving)
+					return true;
+
 				return false;
 			}
 
@@ -430,6 +451,8 @@ class eAIBase: PlayerBase
 				else
 					eAI_UpdatePlayerIsEnemyStatus(player, targeted, "target is friendly " + player.GetGroup().GetFaction());
 #endif
+				if (track && GetExpansionSettings().GetAI().MemeLevel > 0 && isPlayerMoving)
+					return true;
 
 				return targeted;
 			}
@@ -459,6 +482,8 @@ class eAIBase: PlayerBase
 			else
 				eAI_UpdatePlayerIsEnemyStatus(player, targeted, "friendly");
 #endif
+			if (track && GetExpansionSettings().GetAI().MemeLevel > 0 && isPlayerMoving)
+				return true;
 
 			return targeted;
 		}
@@ -482,6 +507,9 @@ class eAIBase: PlayerBase
 #ifdef DIAG
 					eAI_UpdatePlayerIsEnemyStatus(player, targeted, "target party is leader party");
 #endif
+					if (track && GetExpansionSettings().GetAI().MemeLevel > 0 && isPlayerMoving)
+						return true;
+
 					return targeted;
 				}
 			}
@@ -1097,6 +1125,9 @@ class eAIBase: PlayerBase
 			}
 		}
 
+		if (!m_eAI_Meme && m_eAI_CurrentThreatToSelfActive > 0.15 && m_eAI_PreviousThreatToSelfActive < 0.15 && !Math.RandomInt(0, 3))
+			m_eAI_Meme = Math.RandomInt(2, 4);
+
 		if (m_eAI_CurrentThreatToSelfActive >= 0.4)
 		{
 			if (m_ThreatClearedTimeout <= 0)
@@ -1265,7 +1296,7 @@ class eAIBase: PlayerBase
 					continue;
 				if (!playerThreat.IsPlayerLoaded())
 					continue;
-				if (!PlayerIsEnemy(playerThreat))
+				if (!PlayerIsEnemy(playerThreat, true))
 					continue;
 			}
 			else if (obj.IsInherited(DayZPlayerImplement))
@@ -1515,6 +1546,9 @@ class eAIBase: PlayerBase
 		Expansion_GetUp();
 
 		m_eAI_Melee = true;
+
+		if (!IsFighting() && GetExpansionSettings().GetAI().MemeLevel > 9000)
+			ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), s_eAI_LoveSound02_NetworkedSoundID);
 	}
 
 	override void OnCommandMelee2Start()
@@ -2048,6 +2082,7 @@ class eAIBase: PlayerBase
 				AimAtDirection("0 0 1");
 		}
 
+		//! Aim from, not to! Has to be "neck" because that's how player model holds gun, everything else will break aiming
 		vector neck = GetBonePositionWS(GetBoneIndexByName("neck"));
 
 		if (isServer && m_eAI_LookDirection_Recalculate)
@@ -2829,6 +2864,16 @@ class eAIBase: PlayerBase
 		EXTrace.Print(EXTrace.AI, this, "SetIsFightingFSM " + state);
 	#endif
 		m_eAI_IsFightingFSM = state;
+
+		if (m_eAI_IsFightingFSM && GetExpansionSettings().GetAI().MemeLevel > 9000)
+			ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), eAI_GetRandomLoveSound());
+	}
+
+	int eAI_GetRandomLoveSound()
+	{
+		if (Math.RandomInt(0, 2))
+			return s_eAI_LoveSound01_NetworkedSoundID;
+		return s_eAI_LoveSound02_NetworkedSoundID;
 	}
 
 	override void OnScheduledTick(float deltaTime)
@@ -3470,10 +3515,15 @@ class eAIBase: PlayerBase
 		il_dst.SetHands(this, item);
 
 		//return eAI_TakeItemToLocation(item, il_dst);
-		if (Expansion_CloneItemToLocation(item, il_dst))
-			return true;
+		bool result;
 
-		return false;
+		if (Expansion_CloneItemToLocation(item, il_dst))
+			result = true;
+
+		if (result && m_eAI_Targets.Count() > 1 && GetExpansionSettings().GetAI().MemeLevel > 9000)
+			ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), eAI_GetRandomLoveSound());
+
+		return result;
 	}
 
 	bool eAI_FindFreeInventoryLocationFor(ItemBase item, FindInventoryLocationType flags = 0, out InventoryLocation il_dst = null)

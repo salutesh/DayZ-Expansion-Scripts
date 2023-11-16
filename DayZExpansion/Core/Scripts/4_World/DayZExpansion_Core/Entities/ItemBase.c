@@ -48,6 +48,8 @@ modded class ItemBase
 	ref ExpansionNetsyncData m_Expansion_NetsyncData;
 	ref ExpansionRPCManager m_Expansion_RPCManager;
 
+	int m_Expansion_DestroySound_NetworkedSoundID;
+
 	void ItemBase()
 	{
 		m_Expansion_IsAdminTool = ConfigGetBool("expansionIsAdminTool");
@@ -66,6 +68,10 @@ modded class ItemBase
 		{
 			m_Expansion_HealthBeforeHit = new map<string, float>;
 		}
+
+		string destroySound = GetDestroySound();
+		if (destroySound)
+			m_Expansion_DestroySound_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound(GetDestroySound());
 	}
 	
 	//============================================
@@ -709,7 +715,8 @@ modded class ItemBase
 	{
 		super.EEKilled( killer );
 
-		ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), GetDestroySound());
+		if (m_Expansion_DestroySound_NetworkedSoundID)
+			ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), m_Expansion_DestroySound_NetworkedSoundID);
 
 		ExpansionOnDestroyed( killer );
 	}

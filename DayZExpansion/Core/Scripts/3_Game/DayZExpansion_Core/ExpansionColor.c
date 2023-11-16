@@ -81,4 +81,45 @@ class ExpansionColor
 
 		return ARGB(color[3], color[0], color[1], color[2]);
 	}
+
+	//! sRGB to L*a*b* conversion, D65 reference
+	static void sRGBToLab(float r, float g, float b, out float lab_l, out float lab_a, out float lab_b)
+	{
+		float rgb[3];
+		float xyz[3];
+
+		rgb[0] = r / 255.0;
+		rgb[1] = g / 255.0;
+		rgb[2] = b / 255.0;
+
+		int i;
+
+		for (i = 0; i < 3; i++)
+		{
+			if (rgb[i] > 0.04045)
+				rgb[i] = Math.Pow((rgb[i] + 0.055) / 1.055, 2.4);
+			else
+				rgb[i] = rgb[i] / 12.92;
+		}
+
+		xyz[0] = ((rgb[0] * 0.412391) + (rgb[1] * 0.357584) + (rgb[2] * 0.180481));  
+		xyz[1] = ((rgb[0] * 0.212639) + (rgb[1] * 0.715169) + (rgb[2] * 0.072192));
+		xyz[2] = ((rgb[0] * 0.019331) + (rgb[1] * 0.119195) + (rgb[2] * 0.950532));
+
+		xyz[0] = xyz[0] / 0.950456;
+		xyz[1] = xyz[1] / 1.0;
+		xyz[2] = xyz[2] / 1.089058;
+
+		for (i = 0; i < 3; i++)
+		{
+			if (xyz[i] > 0.008856)
+				xyz[i] = Math.Pow(xyz[i], (1.0 / 3.0));
+			else
+				xyz[i] = (903.296296 * xyz[i] + 16.0) / 116.0;
+		}
+
+		lab_l = 116.0 * xyz[1] - 16.0;
+		lab_a = 500.0 * (xyz[0] - xyz[1]);
+		lab_b = 200.0 * (xyz[1] - xyz[2]);
+	}
 }

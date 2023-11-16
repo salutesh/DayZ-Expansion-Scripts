@@ -587,6 +587,26 @@ class eAIGroup
 		return m_Members.Count();
 	}
 
+
+	int GetAliveCount()
+	{
+#ifdef EAI_TRACE
+		auto trace = CF_Trace_1(this, "GetAliveCount");
+#endif
+		int aliveCount = 0;
+
+		foreach (DayZPlayerImplement member: m_Members)
+		{
+			// ignore members who dont exist or aren't alive
+			if (!member || !member.IsAlive())
+				continue;
+
+			++aliveCount;
+		}
+
+		return aliveCount;
+	}
+
 	//! Clears ALL AI from the server
 	static void Admin_ClearAllAI()
 	{
