@@ -122,7 +122,7 @@ class CfgVehicles
 		model = "\DayZExpansion\Vehicles\Ground\Bus\Ikarus.p3d";
 		modelZeroPointDistanceFromGround = 0.0;
 		vehicleClass = "Expansion_Car";
-		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","BusWheel_1_1","BusWheel_1_2","BusWheel_2_1","BusWheel_2_2","CamoNet"};
+		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","BusWheel_1_1","BusWheel_1_2","BusWheel_2_1","BusWheel_2_2","CamoNet","KeyChain"};
 		doors[] = {};
 		fuelCapacity = 62;
 		fuelConsumption = 11;
@@ -755,7 +755,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","CamoNet"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","CamoNet","KeyChain"};
 			};
 			class Chassis
 			{

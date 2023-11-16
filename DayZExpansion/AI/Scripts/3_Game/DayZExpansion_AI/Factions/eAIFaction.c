@@ -6,6 +6,7 @@ class eAIFaction
 	protected bool m_IsInvincible;
 	protected bool m_IsPassive;
 	protected bool m_IsObserver;
+	protected ref TIntArray m_Modifiers;
 
 	void eAIFaction()
 	{
@@ -43,6 +44,23 @@ class eAIFaction
 		return m_Loadout;
 	}
 
+	void AddModifier(int modifier)
+	{
+		if (!m_Modifiers)
+			m_Modifiers = {};
+		m_Modifiers.Insert(modifier);
+	}
+
+	TIntArray GetModifiers()
+	{
+    	return m_Modifiers;
+	}
+
+	bool HasModifiers() 
+	{
+		return m_Modifiers && m_Modifiers.Count() > 0;
+	}
+	
 	bool IsFriendly(notnull eAIFaction other)
 	{
 		return false;

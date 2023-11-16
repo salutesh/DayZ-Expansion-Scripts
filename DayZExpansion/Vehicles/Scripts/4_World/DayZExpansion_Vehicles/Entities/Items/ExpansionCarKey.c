@@ -25,6 +25,7 @@ class ExpansionCarKey: ItemBase
 	private int m_PersistentIDD;
 
 	private Object m_Vehicle;
+	protected ExpansionKeyChainBase m_Expansion_KeyChain;
 
 	void ExpansionCarKey()
 	{
@@ -49,19 +50,39 @@ class ExpansionCarKey: ItemBase
 		m_AllKeys.RemoveItem(this);
 	}
 
+	override void EEItemAttached(EntityAI item, string slot_name)
+	{
+		super.EEItemAttached(item, slot_name);
+
+		if (item.IsInherited(ExpansionKeyChainBase))
+			m_Expansion_KeyChain = ExpansionKeyChainBase.Cast(item);
+	}
+
+	override void EEItemDetached(EntityAI item, string slot_name)
+	{
+		super.EEItemDetached(item, slot_name);
+
+		if (item.IsInherited(ExpansionKeyChainBase))
+			m_Expansion_KeyChain = null;
+	}
+
 	override void EEOnAfterLoad()
 	{
 		auto trace = EXTrace.Start(EXTrace.VEHICLES, this);
 		
 		super.EEOnAfterLoad();
 
-		GetKeyObject();
+		if (IsPaired())
+		{
+			GetKeyObject();
 
-		//if ( !m_Vehicle && IsPaired() )
-		//{
-			//EXPrint(ToString() + "::EEOnAfterLoad - Unpairing \"" + GetDisplayName() + "\" " + GetPosition() + " because its vehicle no longer exists");
-			//Unpair( true );
-		//}
+			if (m_Vehicle && GetExpansionSettings().GetVehicle().ShowVehicleOwners)
+			{
+				auto keychain = ExpansionKeyChainBase.Cast(GetAttachmentByType(ExpansionKeyChainBase));
+				if (!keychain || !keychain.Expansion_HasOwner())
+					Expansion_AssignKeychain(GetHierarchyRootPlayer(), CarScript.Cast(m_Vehicle));  //! Will assign a keychain if key is in player inventory
+			}
+		}
 	}
 
 	override void OnVariablesSynchronized()
@@ -317,6 +338,61 @@ class ExpansionCarKey: ItemBase
 
 		m_Expansion_NetsyncData.Send(null);
 		SetSynchDirty();
+
+		if (GetExpansionSettings().GetVehicle().ShowVehicleOwners)
+			Expansion_AssignKeychain(GetHierarchyRootPlayer(), vehicle);
+	}
+
+	bool Expansion_AssignKeychain(Man player, CarScript vehicle)
+	{
+		if (player)
+		{
+			string color = ExpansionKeyChainBase.Expansion_GetRandomKeychain();
+			int slotId = InventorySlots.GetSlotIdFromString("KeyChain");
+
+			bool send = true;
+
+			if (vehicle)
+			{
+				auto vehicleKeychain = ExpansionKeyChainBase.Cast(vehicle.GetAttachmentByType(ExpansionKeyChainBase));
+
+				if (!vehicleKeychain)
+				{
+					vehicleKeychain = ExpansionKeyChainBase.Cast(vehicle.GetInventory().CreateAttachmentEx(color, slotId));
+					if (!vehicleKeychain)
+					{
+						Error("Couldn't create keychain on " + vehicle.ToString());
+						return false;
+					}
+
+					send = false;  //! No need to send when assigning owner, since it's created fresh, client will request it
+				}
+
+				vehicleKeychain.Expansion_AssignOwner(player, send);
+			}
+
+			send = true;
+
+			auto keychain = ExpansionKeyChainBase.Cast(GetAttachmentByType(ExpansionKeyChainBase));
+
+			if (!keychain)
+			{
+				keychain = ExpansionKeyChainBase.Cast(GetInventory().CreateAttachmentEx(color, slotId));
+				if (!keychain)
+				{
+					Error("Couldn't create keychain on " + ToString());
+					return false;
+				}
+
+				send = false;  //! No need to send when assigning owner, since it's created fresh, client will request it
+			}
+
+			keychain.Expansion_AssignOwner(player, send);
+
+			return true;
+		}
+
+		return false;
 	}
 
 	void PairWithMasterKey( ExpansionCarKey key )
@@ -347,6 +423,9 @@ class ExpansionCarKey: ItemBase
 
 		m_Expansion_NetsyncData.Send(null);
 		SetSynchDirty();
+
+		if (GetExpansionSettings().GetVehicle().ShowVehicleOwners)
+			Expansion_AssignKeychain(GetHierarchyRootPlayer(), null);
 	}
 
 	void PairToVehicle( ExpansionVehicleBase vehicle )
@@ -392,6 +471,10 @@ class ExpansionCarKey: ItemBase
 		
 		m_Expansion_NetsyncData.Send(null);
 		SetSynchDirty();
+
+		auto keychain = ExpansionKeyChainBase.Cast(GetAttachmentByType(ExpansionKeyChainBase));
+		if (keychain)
+			keychain.Expansion_ResetOwner();
 	}
 
 	protected void KeyMessage( string message )
@@ -526,4 +609,24 @@ class ExpansionCarKey: ItemBase
 		return true;
 	}
 	#endif
+	
+	override bool CanReleaseAttachment(EntityAI attachment)
+	{
+		if (!super.CanReleaseAttachment(attachment))
+			return false;
+
+		ExpansionKeyChainBase keychain;
+		if (Class.CastTo(keychain, attachment))
+			return !keychain.Expansion_HasOwner();
+
+		return true;
+	}
+
+	string Expansion_GetOwnerName()
+	{
+		if (m_Expansion_KeyChain)
+			return m_Expansion_KeyChain.Expansion_GetOwnerName();
+
+		return string.Empty;
+	}
 };

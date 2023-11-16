@@ -184,7 +184,7 @@ class eAIDynamicPatrol : eAIPatrol
 		{
 			string name = m_GroupName;
 			if (name == string.Empty)
-				name = m_Faction.ClassName().Substring(10, m_Faction.ClassName().Length() - 10);
+				name = m_Faction.GetName();
             GetExpansionSettings().GetLog().PrintLog("[AI Patrol] Spawning " + m_NumberOfAI + " " + name + " bots at " + m_Position);
         }
 
@@ -271,7 +271,7 @@ class eAIDynamicPatrol : eAIPatrol
 			}
 		}
 
-		//! CE API is only avaialble after game is loaded
+		//! CE API is only available after game is loaded
 		if (!GetCEApi())
 			return;
 
@@ -300,7 +300,7 @@ class eAIDynamicPatrol : eAIPatrol
 			}
 		}
 	}
-	
+
 	override void Debug()
 	{
 		super.Debug();

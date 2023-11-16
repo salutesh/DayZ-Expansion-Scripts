@@ -128,6 +128,8 @@ modded class MissionServer
 		
 		//! Do after, because some modules use PlayerIdentity setup inside AddPlayer of PlayerBase class
 		super.InvokeOnConnect( player, identity );
+
+		PlayerBase.s_Expansion_SI_OnPlayerConnected.Invoke(player, identity);
 	}
 	
 	void Expansion_SendSettings(PlayerBase player)

@@ -35,6 +35,14 @@ class CfgSoundShaders
 		radius = 150;
 		range = 150;
 	};
+	class Expansion_Geiger_SoundShader
+	{
+		volume = 1;
+		frequency = 2;
+		limitation = 0;
+		radius = 5;
+		range = 5;
+	};
 	class Expansion_AnomalyRumble_SoundShader: Expansion_Anomaly_SoundShader
 	{
 		samples[] = {{"DayZExpansion\NamalskAdventure\Sounds\data\deep_rumble",1}};
@@ -61,6 +69,38 @@ class CfgSoundShaders
 	{
 		samples[] = {{"nst\ns_dayz\effects\sounds\data\phoenix_foghorn_distance",1}};
 		range = 4000;
+	};
+	class Expansion_Geiger1_SoundShader: Expansion_Geiger_SoundShader
+	{
+		samples[] = {{"DayZExpansion\NamalskAdventure\Sounds\data\geiger_1",1}};
+	};
+	class Expansion_Geiger2_SoundShader: Expansion_Geiger_SoundShader
+	{
+		samples[] = {{"DayZExpansion\NamalskAdventure\Sounds\data\geiger_2",1}};
+	};
+	class Expansion_Geiger3_SoundShader: Expansion_Geiger_SoundShader
+	{
+		samples[] = {{"DayZExpansion\NamalskAdventure\Sounds\data\geiger_3",1}};
+	};
+	class Expansion_Geiger4_SoundShader: Expansion_Geiger_SoundShader
+	{
+		samples[] = {{"DayZExpansion\NamalskAdventure\Sounds\data\geiger_4",1}};
+	};
+	class Expansion_Geiger5_SoundShader: Expansion_Geiger_SoundShader
+	{
+		samples[] = {{"DayZExpansion\NamalskAdventure\Sounds\data\geiger_5",1}};
+	};
+	class Expansion_Geiger6_SoundShader: Expansion_Geiger_SoundShader
+	{
+		samples[] = {{"DayZExpansion\NamalskAdventure\Sounds\data\geiger_6",1}};
+	};
+	class Expansion_Geiger7_SoundShader: Expansion_Geiger_SoundShader
+	{
+		samples[] = {{"DayZExpansion\NamalskAdventure\Sounds\data\geiger_7",1}};
+	};
+	class Expansion_Geiger8_SoundShader: Expansion_Geiger_SoundShader
+	{
+		samples[] = {{"DayZExpansion\NamalskAdventure\Sounds\data\geiger_8",1}};
 	};
 };
 class CfgSoundSets
@@ -92,6 +132,15 @@ class CfgSoundSets
 		loop = 0;
 		distanceFilter = "defaultDistanceFilter";
 	};
+	class Expansion_Geiger_Soundset
+	{
+		sound3DProcessingType = "character3DProcessingType";
+		volumeCurve = "characterAttenuationCurve";
+		spatial = 1;
+		doppler = 0;
+		loop = 1;
+		distanceFilter = "defaultDistanceFilter";
+	};
 	class Expansion_AnomalyRumble_Soundset: Expansion_AnomalyIdle_Soundset
 	{
 		soundShaders[] = {"Expansion_AnomalyRumble_SoundShader"};
@@ -119,5 +168,37 @@ class CfgSoundSets
 		soundShaders[] = {"Phoenix_FogHorn_Distance_SoundShader"};
 		volumeCurve = "SatelliteDistantAttenuationCurve";
 		volumeFactor = 0.35;
+	};
+	class Expansion_Geiger1_Soundset: Expansion_Geiger_Soundset
+	{
+		soundShaders[] = {"Expansion_Geiger1_SoundShader"};
+	};
+	class Expansion_Geiger2_Soundset: Expansion_Geiger_Soundset
+	{
+		soundShaders[] = {"Expansion_Geiger2_SoundShader"};
+	};
+	class Expansion_Geiger3_Soundset: Expansion_Geiger_Soundset
+	{
+		soundShaders[] = {"Expansion_Geiger3_SoundShader"};
+	};
+	class Expansion_Geiger4_Soundset: Expansion_Geiger_Soundset
+	{
+		soundShaders[] = {"Expansion_Geiger4_SoundShader"};
+	};
+	class Expansion_Geiger5_Soundset: Expansion_Geiger_Soundset
+	{
+		soundShaders[] = {"Expansion_Geiger5_SoundShader"};
+	};
+	class Expansion_Geiger6_Soundset: Expansion_Geiger_Soundset
+	{
+		soundShaders[] = {"Expansion_Geiger7_SoundShader"};
+	};
+	class Expansion_Geiger7_Soundset: Expansion_Geiger_Soundset
+	{
+		soundShaders[] = {"Expansion_Geiger7_SoundShader"};
+	};
+	class Expansion_Geiger8_Soundset: Expansion_Geiger_Soundset
+	{
+		soundShaders[] = {"Expansion_Geiger8_SoundShader"};
 	};
 };

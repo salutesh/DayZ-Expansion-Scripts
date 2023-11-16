@@ -157,7 +157,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 			m_PartyMemberController.NotifyPropertyChanged("PlayerBloodVal");
 		}
 		
-		if (GetExpansionSettings().GetParty().ShowHUDMemberDistance)
+		if (GetExpansionSettings().GetParty().ShowHUDMemberDistance && GetGame().GetPlayer())
 		{
 			vector playerPos = GetGame().GetPlayer().GetPosition();
 			float distance = vector.Distance( player_stats.m_Position, playerPos);

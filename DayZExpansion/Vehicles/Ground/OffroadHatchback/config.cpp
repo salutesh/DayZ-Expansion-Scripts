@@ -545,12 +545,12 @@ class CfgVehicles
 		fuelConsumption = 11;
 		doors[] = {"NivaDriverDoors","NivaCoDriverDoors","NivaTrunk","NivaHood"};
 		defaultSkin = "Green";
-		attachments[] += {"CamoNet"};
+		attachments[] += {"CamoNet","KeyChain"};
 		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
 			class Body: Body
 			{
-				attachmentSlots[] += {"CamoNet"};
+				attachmentSlots[] += {"CamoNet","KeyChain"};
 			};
 		};
 		class ExpansionAttachments: ExpansionAttachments

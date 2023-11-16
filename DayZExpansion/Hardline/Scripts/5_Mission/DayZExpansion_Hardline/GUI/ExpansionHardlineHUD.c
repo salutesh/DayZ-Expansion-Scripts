@@ -45,13 +45,12 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		m_ReputationChangeFadeOut = new Timer(CALL_CATEGORY_GUI);
 		
 		Widget stancePanel = m_Hud.GetStancePanel();
-		if (stancePanel)
+		if (stancePanel && CoveredIndicator)
 		{
 			stancePanel.ClearFlags(WidgetFlags.CLIPCHILDREN);
 			stancePanel.AddChild(CoveredIndicator);
+			CoveredIndicator.Show(false);
 		}
-
-		CoveredIndicator.Show(false);
 	}
 
 	void SetView()
@@ -232,7 +231,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 			SetView();
 		}
 
-		if (!GetGame().GetPlayer())
+		if (!CoveredIndicator || !GetGame().GetPlayer())
 			return;
 
 		if (GetExpansionClientSettings().ShowUnderRoofIndicator && MiscGameplayFunctions.IsUnderRoof(GetGame().GetPlayer()))

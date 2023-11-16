@@ -39,7 +39,11 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 		EnableMissionStart();
 		EnableMissionLoaded();
-		EnableRPC();
+		Expansion_EnableRPCManager();
+
+		Expansion_RegisterServerRPC("RPC_RequestCommunityGoalDetails");
+		Expansion_RegisterClientRPC("RPC_SendCommunityGoalData");
+		Expansion_RegisterClientRPC("RPC_SendCommunityGoalDetails");
 	}
 
 	protected void CreateDirectoryStructure()
@@ -317,43 +321,6 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 		}
 	}
 
-	override int GetRPCMin()
-	{
-		return ExpansionCommunityGoalsModuleRPC.INVALID;
-	}
-
-	override int GetRPCMax()
-	{
-		return ExpansionCommunityGoalsModuleRPC.COUNT;
-	}
-
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
-		super.OnRPC(sender, args);
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch (rpc.ID)
-		{
-			case ExpansionCommunityGoalsModuleRPC.SendCommunityGoalData:
-			{
-				RPC_SendCommunityGoalData(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionCommunityGoalsModuleRPC.RequestCommunityGoalDetails:
-			{
-				RPC_RequestCommunityGoalDetails(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-			case ExpansionCommunityGoalsModuleRPC.SendCommunityGoalDetails:
-			{
-				RPC_SendCommunityGoalDetails(rpc.Context, rpc.Sender, rpc.Target);
-				break;
-			}
-		}
-	}
-
 	void SendCommunityGoalData(Object target, PlayerIdentity identity)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -391,7 +358,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 			}
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_SendCommunityGoalData");
 		rpc.Write(goalsToSend.Count());
 
 		foreach (ExpansionCommunityGoal goalToSend: goalsToSend)
@@ -399,21 +366,12 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 			goalToSend.OnSend(rpc);
 		}
 
-		rpc.Send(null, ExpansionCommunityGoalsModuleRPC.SendCommunityGoalData, true, identity);
+		rpc.Expansion_Send(true, identity);
 	}
 
-	protected void RPC_SendCommunityGoalData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	protected void RPC_SendCommunityGoalData(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::RPC_SendCommunityGoalData - Tried to call RPC_SendCommunityGoalData on Server!");
-			return;
-		}
 
 		int goalsCount;
 		if (!ctx.Read(goalsCount))
@@ -449,23 +407,14 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 			return;
 		}
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_RequestCommunityGoalDetails");
 		rpc.Write(goalID);
-		rpc.Send(null, ExpansionCommunityGoalsModuleRPC.RequestCommunityGoalDetails, true, null);
+		rpc.Expansion_Send();
 	}
 
-	protected void RPC_RequestCommunityGoalDetails(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	protected void RPC_RequestCommunityGoalDetails(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::RPC_RequestCommunityGoalDetails - Tried to call RPC_RequestCommunityGoalDetails on Client!");
-			return;
-		}
 
 		int goalID;
 		if (!ctx.Read(goalID))
@@ -478,7 +427,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 		ModuleDebugPrint("::RPC_RequestCommunityGoalDetails - Valid contributors: " + validContributors.Count() + " | Goal ID: " + goalID);
 
-		auto rpc = ExpansionScriptRPC.Create();
+		auto rpc = Expansion_CreateRPC("RPC_SendCommunityGoalDetails");
 		rpc.Write(validContributors.Count());
 
 		foreach (ExpansionCommunityGoalPlayerData contributor: validContributors)
@@ -486,21 +435,12 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 			contributor.OnSend(rpc);
 		}
 
-		rpc.Send(null, ExpansionCommunityGoalsModuleRPC.SendCommunityGoalDetails, true, senderRPC);
+		rpc.Expansion_Send(true, senderRPC);
 	}
 
-	protected void RPC_SendCommunityGoalDetails(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	protected void RPC_SendCommunityGoalDetails(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
-		if (!GetGame().IsClient())
-		{
-			Error(ToString() + "::RPC_SendCommunityGoalDetails - Tried to call RPC_SendCommunityGoalDetails on Server!");
-			return;
-		}
 
 		int contributorCount;
 		if (!ctx.Read(contributorCount))

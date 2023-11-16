@@ -854,7 +854,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 	//! @brief saves entity and all its children (attachments/cargo) and replaces original entity with placeholder. Deletes original entity on success!
 	//! @note if storeCargo is false (default), move cargo to placeholder, else save cargo to virtual storage
-	static bool SaveToFileAndReplace(EntityAI entity, string fileName, string placeholderType, vector position, int iFlags = ECE_OBJECT_SWAP, out EntityAI placeholder = null, bool storeCargo = false)
+	static bool SaveToFileAndReplace(EntityAI entity, string fileName, string placeholderType, vector position, int iFlags = ECE_OBJECT_SWAP, out EntityAI placeholder = null, bool storeCargo = false, array<EntityAI> transferAttachments = null)
 	{
 		Object placeholderObject = GetGame().CreateObjectEx(placeholderType, position, iFlags);
 
@@ -869,6 +869,17 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (isInventoryLocked)
 			entity.GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
 
+		InventoryLocation transferAttachmentInvLoc;
+		if (transferAttachments)
+		{
+			transferAttachmentInvLoc = new InventoryLocation();
+			foreach (EntityAI transferAttachment: transferAttachments)
+			{
+				transferAttachment.GetInventory().GetCurrentInventoryLocation(transferAttachmentInvLoc);
+				placeholder.ServerTakeEntityAsAttachmentEx(transferAttachment, transferAttachmentInvLoc.GetSlot());
+			}
+		}
+
 		bool success;
 
 		if (storeCargo)
@@ -878,10 +889,21 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		if (!success)
 		{
+			//! Need to undo...
+			if (transferAttachments)
+			{
+				foreach (EntityAI undoTransferAttachment: transferAttachments)
+				{
+					undoTransferAttachment.GetInventory().GetCurrentInventoryLocation(transferAttachmentInvLoc);
+					entity.ServerTakeEntityAsAttachmentEx(undoTransferAttachment, transferAttachmentInvLoc.GetSlot());
+				}
+			}
+
 			if (isInventoryLocked)
 				entity.GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
 			if (placeholder)
 				GetGame().ObjectDelete(placeholder);
+
 			return false;
 		}
 

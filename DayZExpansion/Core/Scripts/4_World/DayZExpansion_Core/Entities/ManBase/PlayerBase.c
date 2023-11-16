@@ -30,6 +30,8 @@ class ExpansionInventoryItemType
 
 modded class PlayerBase
 {
+	static ref ScriptInvoker s_Expansion_SI_OnPlayerConnected = new ScriptInvoker;
+
 	protected string m_PlayerUID;
 	protected string m_PlayerSteam;
 	protected string m_PlayerName;
@@ -77,11 +79,73 @@ modded class PlayerBase
 		float distanceSq = distance * distance;
 		foreach (string uid, PlayerBase player: s_Expansion_AllPlayersUID)
 		{
-			if (player.GetIdentity() && vector.DistanceSq(player.GetPosition(), position) < distanceSq)
+			if (player.GetIdentity() && vector.DistanceSq(player.GetPosition(), position) <= distanceSq)
 			{
 				rpc.Expansion_Send(target, guaranteed, player.GetIdentity());
 			}
 		}
+	}
+
+	/**
+	 * @brief Send RPC to players in near network range
+	 * 
+	 * @param rpc ExpansionScriptRPC instance
+	 * @param position Center position to determine radius
+	 * @param target Target object (or null)
+	 * @param guaranteed
+	 */
+	static void Expansion_SendNear(ExpansionScriptRPC rpc, vector position, Object target = null, bool guaranteed = false)
+	{
+		float distance = GetGame().ServerConfigGetInt("networkRangeNear");
+		if (distance == 0.0)
+			distance = 150;  //! default as per https://community.bistudio.com/wiki/DayZ:Server_Configuration
+		//! @note verified that items have to be in network range + 10% for them to exist in client bubble
+		Expansion_SendNear(rpc, position, distance * 1.10, target, guaranteed);
+	}
+
+	/**
+	 * @brief Send RPC to players in far network range
+	 * 
+	 * @param rpc ExpansionScriptRPC instance
+	 * @param position Center position to determine radius
+	 * @param target Target object (or null)
+	 * @param guaranteed
+	 */
+	static void Expansion_SendFar(ExpansionScriptRPC rpc, vector position, Object target = null, bool guaranteed = false)
+	{
+		float distance = GetGame().ServerConfigGetInt("networkRangeFar");
+		if (distance == 0.0)
+			distance = 1000;  //! default as per https://community.bistudio.com/wiki/DayZ:Server_Configuration
+		//! @note verified that items have to be in network range + 10% for them to exist in client bubble
+		Expansion_SendNear(rpc, position, distance * 1.10, target, guaranteed);
+	}
+
+	/**
+	 * @brief Send RPC to players in network range of target object
+	 * 
+	 * @param rpc ExpansionScriptRPC instance
+	 * @param target Target object (non-null)
+	 * @param guaranteed
+	 * 
+	 * Appropriate network range is automatically chosen based on target hierarchy root.
+	 */
+	static void Expansion_Send(ExpansionScriptRPC rpc, notnull Object target, bool guaranteed = false)
+	{
+		Object root = target;
+
+		EntityAI targetEntity;
+		if (Class.CastTo(targetEntity, target))
+			root = targetEntity.GetHierarchyRoot();
+
+		//! Target is man or is in inventory of man, or target is transport, or root has forceFarBubble
+		if (root.IsInherited(Man) || target.IsInherited(Transport) || root.ConfigGetString("forceFarBubble") == "true")
+			Expansion_SendFar(rpc, target.GetPosition(), target, guaranteed);
+		 //! Target is in inventory of root (might be transport or non-man object)
+		else if (root != target)
+			Expansion_SendNear(rpc, target.GetPosition(), 20.0, target, guaranteed);
+		//! Target has no parent
+		else
+			Expansion_SendNear(rpc, target.GetPosition(), target, guaranteed);
 	}
 
 	ItemBase Expansion_GetNVItem()

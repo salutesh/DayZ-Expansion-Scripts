@@ -2355,16 +2355,42 @@ class ExpansionMarketModule: CF_ModuleWorld
 		//! Compare that price to the one the player sent
 		if (!FindPurchasePriceAndReserve(item, count, reservedList, includeAttachments, result) || reservedList.Price != currentPrice)
 		{
-			//! Result if the price the player has seen and agreed to in menu doesn't match anymore
-			//! the current item price of the trader because stock has changed enough to affect it
-			//! (another player was quicker to get his transaction through)
-			if (result == ExpansionMarketResult.Success && reservedList.Price != currentPrice)
-				result = ExpansionMarketResult.FailedStockChange;
-
 			EXPrint("Exec_RequestPurchase - Player sent price: " + currentPrice);
 			EXPrint("Exec_RequestPurchase - Current stock: " + zone.GetStock(itemClassName, true));
 			reservedList.Debug();
 
+			if (result == ExpansionMarketResult.Success)
+			{
+				if (reservedList.Price != currentPrice)
+				{
+					//! We don't know where this difference of exactly one sometimes comes from.
+					//! Rounding differences between server and client? EnfuckScript?
+					//! We just ignore it and fixup the price
+					if (Math.AbsInt(reservedList.Price - currentPrice) == 1)
+					{
+						//! When buying from trader, match the player sent price if it's higher
+						if (reservedList.Price < currentPrice)
+							reservedList.Price = currentPrice;
+
+						EXPrint("Fixed purchase price to " + reservedList.Price);
+					}
+					else
+					{
+						//! Result if the price the player has seen and agreed to in menu doesn't match anymore
+						//! the current item price of the trader because stock has changed enough to affect it
+						//! (another player was quicker to get his transaction through)
+						result = ExpansionMarketResult.FailedStockChange;
+					}
+				}
+				else
+				{
+					result = ExpansionMarketResult.FailedUnknown;
+				}
+			}
+		}
+
+		if (result != ExpansionMarketResult.Success)
+		{
 			reservedList.ClearReserved(zone);
 			player.ClearMarketReserve();
 
@@ -2795,55 +2821,89 @@ class ExpansionMarketModule: CF_ModuleWorld
 		//! Compare that price to the one the player sent
 		if (!FindSellPrice(player, inventory.m_Inventory, stock, count, sellList, true, result, failedClassName) || sellList.Price != playerSentPrice)
 		{
-			EXLogPrint("===============================================================================");
-			EXLogPrint("| MARKET SELL REQUEST FAILED!");
-
-			if (result == ExpansionMarketResult.Success && sellList.Price != playerSentPrice)
+			if (result == ExpansionMarketResult.Success)
 			{
-				//! Check if there is a mismatch in the classnames the client sent to what the server sees
-
-				sellDebug = new ExpansionMarketSellDebug(sellList, sellList.Trader.GetTraderZone());
-
-				bool clientSellListMismatch;
-				if (playerSentSellDebug.m_Items.Count() == sellDebug.m_Items.Count())
+				if (sellList.Price != playerSentPrice)
 				{
-					//! We got the expected number of items from client. Need to check if they are identical (= sell request likely failed due to stock change) or not
-					//! (= failed due to client inventory desync, although unlikely since then it's more likely the count would have already been different)
+					//! Check if there is a mismatch in the classnames the client sent to what the server sees
 
-					auto playerSentItems = playerSentSellDebug.GetItemClassNames();
-					auto items = sellDebug.GetItemClassNames();
+					sellDebug = new ExpansionMarketSellDebug(sellList, sellList.Trader.GetTraderZone());
 
-					//! Sort so we can directly compare and don't have to worry about order
-					playerSentItems.Sort();
-					items.Sort();
-
-					for (int i = 0; i < items.Count(); i++)
+					bool clientSellListMismatch;
+					if (playerSentSellDebug.m_Items.Count() == sellDebug.m_Items.Count())
 					{
-						if (playerSentItems[i] != items[i])
+						//! We got the expected number of items from client. Need to check if they are identical (= sell request likely failed due to stock change) or not
+						//! (= failed due to client inventory desync, although unlikely since then it's more likely the count would have already been different)
+
+						auto playerSentItems = playerSentSellDebug.GetItemClassNames();
+						auto items = sellDebug.GetItemClassNames();
+
+						//! Sort so we can directly compare and don't have to worry about order
+						playerSentItems.Sort();
+						items.Sort();
+
+						for (int i = 0; i < items.Count(); i++)
 						{
-							clientSellListMismatch = true;
-							break;
+							if (playerSentItems[i] != items[i])
+							{
+								clientSellListMismatch = true;
+								break;
+							}
 						}
+					}
+					else
+					{
+						clientSellListMismatch = true;
+					}
+
+					if (!clientSellListMismatch)
+					{
+						//! We don't know where this difference of exactly one sometimes comes from.
+						//! Rounding differences between server and client? EnfuckScript?
+						//! We just ignore it and fixup the price
+						if (Math.AbsInt(sellList.Price - playerSentPrice) == 1)
+						{
+							EXPrint("Player sent sell price: " + playerSentPrice);
+							EXPrint("Actual sell price: " + sellList.Price);
+
+							//! When selling to trader, match the player sent price if it's lower
+							if (sellList.Price > playerSentPrice)
+								sellList.Price = playerSentPrice;
+
+							EXPrint("Fixed sell price to " + sellList.Price);
+						}
+						else
+						{
+							//! The price the player has seen and agreed to in menu doesn't match anymore
+							//! the current item price of the trader because stock has changed enough to affect it
+							//! (another player was quicker to get his transaction through)
+							result = ExpansionMarketResult.FailedStockChange;
+						}
+					}
+					else
+					{
+						result = ExpansionMarketResult.FailedSellListMismatch;
 					}
 				}
 				else
 				{
-					clientSellListMismatch = true;
+					result = ExpansionMarketResult.FailedUnknown;
 				}
+			}
+		}
 
-				if (!clientSellListMismatch)
-				{
-					//! The price the player has seen and agreed to in menu doesn't match anymore
-					//! the current item price of the trader because stock has changed enough to affect it
-					//! (another player was quicker to get his transaction through)
-					EXLogPrint("| Price mismatch between client and server.");
-					result = ExpansionMarketResult.FailedStockChange;
-				}
-				else
-				{
-					EXLogPrint("| Item list mismatch between client and server.");
-					result = ExpansionMarketResult.FailedSellListMismatch;
-				}
+		if (result != ExpansionMarketResult.Success)
+		{
+			EXLogPrint("===============================================================================");
+			EXLogPrint("| MARKET SELL REQUEST FAILED!");
+
+			if (result == ExpansionMarketResult.FailedStockChange)
+			{
+				EXLogPrint("| Price mismatch between client and server.");
+			}
+			else if (result == ExpansionMarketResult.FailedSellListMismatch)
+			{
+				EXLogPrint("| Item list mismatch between client and server.");
 			}
 			else if (result == ExpansionMarketResult.FailedItemDoesNotExistInTrader)
 			{

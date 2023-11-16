@@ -38,8 +38,15 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 					return levelFactor;
 			}
 
-			if (!ai.PlayerIsEnemy(m_Player))
-				return 0.0;
+			bool isPlayerMoving;
+			if (!ai.PlayerIsEnemy(m_Player, false, isPlayerMoving))
+			{
+				//! They eyeball you menacingly if you move, or if another friendly AI moves that is not in same group
+				if (isPlayerMoving && (!m_Player.IsAI() || m_Player.GetGroup() != ai.GetGroup()))
+					return ExpansionMath.PowerConversion(0.5, 30, distance, 0.152, 0.1, 0.1);
+
+				return 0.1;
+			}
 
 			vector fromTargetDirection = vector.Direction(m_Player.GetPosition(), ai.GetPosition()).Normalized();
 			float fromTargetDot = vector.Dot(m_Player.Expansion_GetAimDirection(), fromTargetDirection);
@@ -75,7 +82,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 				if (!canEnterFightingState)
 				{
 					//! They eyeball you menacingly
-					return ExpansionMath.PowerConversion(0.5, 30, distance, 0.152, 0.0, 0.1);
+					return ExpansionMath.PowerConversion(0.5, 30, distance, 0.152, 0.1, 0.1);
 				}
 			}
 

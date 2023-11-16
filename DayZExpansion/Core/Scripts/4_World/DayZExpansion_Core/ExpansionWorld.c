@@ -12,9 +12,19 @@
 
 class ExpansionWorld: ExpansionGame
 {
+	static int s_Expansion_BushFallHard_NetworkedSoundID;
+	static int s_Expansion_BushFallSoft_NetworkedSoundID;
+	static int s_Expansion_TreeFallHard_NetworkedSoundID;
+	static int s_Expansion_TreeFallSoft_NetworkedSoundID;
+
 	void ExpansionWorld()
 	{
 		ExpansionAttachmentHelper.Init();
+
+		s_Expansion_BushFallHard_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("hardBushFall_SoundSet");
+		s_Expansion_BushFallSoft_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("softBushFall_SoundSet");
+		s_Expansion_TreeFallHard_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("hardTreeFall_SoundSet");
+		s_Expansion_TreeFallSoft_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("softTreeFall_SoundSet");
 	}
 
 	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType) 
@@ -89,24 +99,20 @@ class ExpansionWorld: ExpansionGame
 			return;
 #endif
 		
-		string soundSet;
+		int soundID;
 
 		if (plant.IsInherited(TreeHard))
-			soundSet =	"hardTreeFall_SoundSet";
+			soundID =	s_Expansion_TreeFallHard_NetworkedSoundID;
 		else if (plant.IsInherited(TreeSoft))
-			soundSet =	"softTreeFall_SoundSet";
+			soundID =	s_Expansion_TreeFallSoft_NetworkedSoundID;
 		else if (plant.IsInherited(BushHard))
-			soundSet =	"hardBushFall_SoundSet";
+			soundID =	s_Expansion_BushFallHard_NetworkedSoundID;
 		else if (plant.IsInherited(BushSoft))
-			soundSet =	"softBushFall_SoundSet";
+			soundID =	s_Expansion_BushFallSoft_NetworkedSoundID;
 		else
 			return;
 
-#ifdef SERVER
-		ExpansionItemBaseModule.s_Instance.PlaySound(plant.GetPosition(), soundSet);
-#else
-		EffectSound sound =	SEffectManager.Expansion_PlaySound(soundSet, plant.GetPosition());
-#endif
+		ExpansionItemBaseModule.s_Instance.PlaySound(plant.GetPosition(), soundID);
 	}
 
 	/**
@@ -137,5 +143,98 @@ class ExpansionWorld: ExpansionGame
 
 		typename type;
 		return type;
+	}
+
+	//! @note would make more sense to have this on `Liquid` but due to `GetLiquidConfigProperty` being private
+	//! (although it's not used directly by this) it would result in a compile error :-(
+	static string GetLiquidDisplayName(int liquidType, bool upperCase = true, out int color = 0)
+	{
+		auto nutritionalProfile = Liquid.GetNutritionalProfileByType(liquidType);
+		if (!nutritionalProfile || !nutritionalProfile.IsLiquid())
+			return "ERROR";
+
+		string clsName = nutritionalProfile.GetLiquidClassname();
+		string underscored = ExpansionString.CamelCaseToWords(clsName, "_");
+		string displayName;
+		GetGame().ConfigGetTextRaw("CfgLiquidDefinitions " + clsName +  " displayName", displayName);
+		GetGame().FormatRawConfigStringKeys(displayName);
+
+		string translated;
+		if (displayName.IndexOf("#") == 0)
+			translated = Widget.TranslateString(displayName);
+		else
+			translated = displayName;
+
+		//! Fix up vanilla liquid display name
+		if (displayName.IndexOf("#STR_cfgLiquidDefinitions_") == 0 && translated.IndexOf("$UNT$") == 0)
+			translated = Widget.TranslateString("#inv_inspect_" + underscored);
+
+		if (upperCase)
+			translated.ToUpper();
+
+		color = Colors.COLOR_LIQUID;
+
+	#ifdef EXPANSION_INSPECT_MENU_NEW_ENABLE
+		if (GetExpansionClientSettings().EnableLiquidTypeColors)
+		{
+			string colorPath = "CfgLiquidDefinitions " + clsName +  " color";
+
+			color = GetGame().ConfigGetInt(colorPath);
+
+			if (!color)
+			{
+				string colorConstantName;
+				GetGame().ConfigGetTextRaw(colorPath, colorConstantName);
+
+				if (!colorConstantName)
+				{
+					//! Fallback to liquid classname, all uppercase
+					colorConstantName = clsName;
+					colorConstantName.ToUpper();
+				}
+
+				bool found = ExpansionStatic.StringToEnumEx(Colors, colorConstantName, color);
+
+				if (!found)
+				{
+					if (!colorConstantName.Contains("LIQUID"))
+					{
+						colorConstantName += "LIQUID";  //! e.g. RaG_Liquid_Framework
+						found = ExpansionStatic.StringToEnumEx(Colors, colorConstantName, color);
+					}
+
+					if (!found)
+					{
+						//! Fallback to liquid classname, all uppercase, words delimited by underscore
+						colorConstantName = underscored;
+						colorConstantName.ToUpper();
+
+						if (!ExpansionStatic.StringToEnumEx(Colors, colorConstantName, color))
+						{
+							switch (liquidType)
+							{
+								case LIQUID_BEER:
+									color = Colors.ORANGE;
+									break;
+								case LIQUID_DIESEL:
+								case LIQUID_GASOLINE:
+									color = Colors.YELLOW;
+									break;
+								case LIQUID_DISINFECTANT:
+								case LIQUID_VODKA:
+									color = Colors.GRAY;
+									break;
+								default:
+									color = Colors.COLOR_LIQUID;
+									break;
+							}
+						}
+					}
+				}
+			}
+		}
+	#endif
+
+		return translated;
 	}
 };

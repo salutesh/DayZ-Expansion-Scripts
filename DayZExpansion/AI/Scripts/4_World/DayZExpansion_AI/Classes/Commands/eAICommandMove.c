@@ -96,6 +96,9 @@ class eAICommandMove: ExpansionHumanCommandScript
 	bool m_IsTagWeaponFire;
 	bool m_WeaponFire;
 
+	float m_Lean;
+	float m_LeanDirection = 1.0;
+
 	void eAICommandMove(DayZPlayerImplement player, ExpansionHumanST st)
 	{
 		Class.CastTo(m_Unit, player);
@@ -865,6 +868,100 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 		//m_TurnVelocity = ExpansionMath.AngleDiff2(m_Turn, m_TurnPrevious);
 		//m_TurnPrevious = m_Turn;
+
+		if (m_Unit.m_eAI_MemeLevel && !m_Unit.IsClimbing() && !m_Unit.IsFalling())
+		{
+			bool meme;
+
+			if (m_Unit.GetThreatToSelf() > 0.15)
+			{
+				//! If a friendly player leans, we lean
+				eAITarget target = m_Unit.GetTarget();
+				PlayerBase targetPlayer;
+				if (target && Class.CastTo(targetPlayer, target.GetEntity()) && (m_Unit.m_eAI_Meme || Math.AbsFloat(targetPlayer.m_MovementState.m_fLeaning) > 0.5))
+				{
+					eAIFaction faction = m_Unit.GetGroup().GetFaction();
+					if (faction.IsObserver())
+					{
+						meme = true;
+					}
+					else
+					{
+						eAIGroup targetGroup = targetPlayer.GetGroup();
+						if (targetGroup)
+						{
+							if (m_Unit.GetGroup() == targetGroup)
+							{
+								meme = true;
+							}
+							else
+							{
+								eAIFaction targetFaction = targetGroup.GetFaction();
+								if (targetFaction.IsFriendly(faction) || targetFaction.IsFriendly(m_Unit))
+									meme = true;
+							}
+						}
+					}
+				}
+
+				if (meme && !m_Unit.m_eAI_Meme)
+					m_Unit.m_eAI_Meme = Math.RandomInt(2, 4);
+			}
+
+			bool returnToNeutral;
+
+			switch (m_Unit.m_eAI_MemeLevel)
+			{
+				case 1:
+					break;
+				case 2:
+					if (m_MovementSpeed && m_Unit.m_eAI_IsFightingFSM)
+						meme = true;
+					break;
+				case 3:
+					if (m_MovementSpeed)
+						meme = true;
+					break;
+				default:
+					if (m_MovementSpeed || m_TurnState == TURN_STATE_TURNING)
+						meme = true;
+					break;
+			}
+
+			if (!meme && Math.AbsFloat(m_Lean) > 0.0)
+			{
+				//! Always return to neutral state
+				meme = true;
+				returnToNeutral = true;
+			}
+
+			if (meme)
+			{
+				float leanReverseThresh = Math.RandomFloat(0.5, 2.0);
+				if (Math.AbsFloat(m_Lean) > leanReverseThresh)
+				{
+					if (m_Lean > 0.0)
+						m_Lean = leanReverseThresh;
+					else
+						m_Lean = -leanReverseThresh;
+
+					m_LeanDirection = -m_LeanDirection;
+
+					if (m_Unit.m_eAI_Meme)
+						m_Unit.m_eAI_Meme--;
+				}
+
+				float prevLean = m_Lean;
+
+				m_Lean = m_Lean + pDt * 4.0 * m_LeanDirection;
+
+				if (returnToNeutral && ((m_Lean < 0.0 && prevLean > 0.0) || (m_Lean > 0.0 && prevLean < 0.0)))
+					m_Lean = 0.0;
+
+				m_Table.SetLean(this, ExpansionMath.SmoothStep(Math.Clamp(m_Lean, -1.0, 1.0), 1, -1.0, 1.0));
+				//m_Table.SetLean(this, m_Lean);
+			}
+		}
 
 		if (m_MovementSpeed == 0)
 		{

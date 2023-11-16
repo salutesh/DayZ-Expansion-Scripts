@@ -35,12 +35,12 @@ class CfgVehicles
 	{
 		doors[] = {"Truck_01_Door_1_1","Truck_01_Door_2_1","Truck_01_Hood"};
 		defaultSkin = "Green";
-		attachments[] += {"CamoNet"};
+		attachments[] += {"CamoNet","KeyChain"};
 		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
 			class Body: Body
 			{
-				attachmentSlots[] += {"CamoNet"};
+				attachmentSlots[] += {"CamoNet","KeyChain"};
 			};
 		};
 	};

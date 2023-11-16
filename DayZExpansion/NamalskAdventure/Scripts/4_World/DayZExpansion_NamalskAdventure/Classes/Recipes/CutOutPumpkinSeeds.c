@@ -14,6 +14,9 @@ modded class CutOutPumpkinSeeds
 {
 	override bool CanDo(ItemBase ingredients[], PlayerBase player)
 	{
+		if (!super.CanDo(ingredients, player))
+			return false;
+
 		ItemBase pumpkin = ingredients[0];
 		if (pumpkin && pumpkin.Expansion_IsQuestItem())
 			return false;

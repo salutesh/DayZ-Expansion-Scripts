@@ -109,7 +109,8 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeleteVIP, 10000);
 
 		auto player = m_Quest.GetPlayer();
-		player.SetGroup(player.Expansion_GetFormerGroup());
+		if (!player.Expansion_GetFormerGroup())
+			player.SetGroup(null);
 
 		ObjectivePrint("End and return TRUE.");
 
@@ -132,7 +133,8 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			GetGame().ObjectDelete(m_ObjectiveTrigger);
 
 		auto player = m_Quest.GetPlayer();
-		player.SetGroup(player.Expansion_GetFormerGroup());
+		if (!player.Expansion_GetFormerGroup())
+			player.SetGroup(null);
 		
 		ObjectivePrint("End and return TRUE.");
 
@@ -219,7 +221,17 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(ai, GetGame().CreateObject(className, spawnPos)))
 			return null;
 
-		ai.SetGroup(eAIGroup.GetGroupByLeader(owner));
+		eAIGroup group = owner.GetGroup();
+
+		//! If player has no group, create new group with player as leader
+		if (!group)
+			group = eAIGroup.GetGroupByLeader(owner);
+		else
+			owner.Expansion_SetFormerGroup(group);
+
+		//! Add AI to player group
+		ai.SetGroup(group);
+		
 		ai.Expansion_SetCanBeLooted(m_AIEscortConfig.CanLootAI());
 		ai.Expansion_SetQuestVIP(true);
 		ExpansionHumanLoadout.Apply(ai, loadout, false);

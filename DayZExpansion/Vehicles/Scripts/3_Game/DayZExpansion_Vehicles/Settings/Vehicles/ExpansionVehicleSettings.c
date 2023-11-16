@@ -57,7 +57,7 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 18;
+	static const int VERSION = 19;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
@@ -79,6 +79,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 	string CFToolsHeliCoverIconName;
 	string CFToolsBoatCoverIconName;
 	string CFToolsCarCoverIconName;
+
+	bool ShowVehicleOwners;
 
 	ref array<ref ExpansionVehiclesConfig> VehiclesConfig;
 
@@ -140,6 +142,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Read(CanCoverWithCargo);
 		ctx.Read(AllowCoveringDEVehicles);
 
+		ctx.Read(ShowVehicleOwners);
+
 		m_IsLoaded = true;
 
 		Update(NULL);
@@ -182,6 +186,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Write(EnableVehicleCovers);
 		ctx.Write(CanCoverWithCargo);
 		ctx.Write(AllowCoveringDEVehicles);
+
+		ctx.Write(ShowVehicleOwners);
 
 		//! Don't send VehiclesConfig
 	}
@@ -238,7 +244,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		DamagedEngineStartupChancePercent = s.DamagedEngineStartupChancePercent;
 		VehicleRoadKillDamageMultiplier = s.VehicleRoadKillDamageMultiplier;
-
+		ShowVehicleOwners = s.ShowVehicleOwners;
 		ExpansionVehicleSettingsV2 settings_v2 = s;
 		CopyInternal(settings_v2);
 	}
@@ -416,6 +422,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 				if (settingsBase.m_Version < 18)
 					CanCoverWithCargo = settingsDefault.CanCoverWithCargo;
 
+				if (settingsBase.m_Version < 19)
+					ShowVehicleOwners = settingsDefault.ShowVehicleOwners;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -517,6 +526,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		CFToolsHeliCoverIconName = "helicopter";
 		CFToolsBoatCoverIconName = "ship";
 		CFToolsCarCoverIconName = "car";
+
+		ShowVehicleOwners = false;
 
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true, 1.0));
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZ", false, 1.0));

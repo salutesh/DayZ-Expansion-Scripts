@@ -103,7 +103,7 @@ class ExpansionGarageVehicleData: ExpansionGarageVehicleDataBase
 
 		if (vehicle.ExpansionGetLastDriverUID() && vehicle.ExpansionGetLastDriverUID() != string.Empty)
 		{
-			if (m_OwnerUIDs.Find(vehicle.ExpansionGetLastDriverUID()))
+			if (m_OwnerUIDs.Find(vehicle.ExpansionGetLastDriverUID()) == -1)
 				m_OwnerUIDs.Insert(vehicle.ExpansionGetLastDriverUID());
 		}
 					

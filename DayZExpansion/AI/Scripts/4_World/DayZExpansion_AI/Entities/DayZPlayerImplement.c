@@ -34,7 +34,7 @@ modded class DayZPlayerImplement
 	void DayZPlayerImplement()
 	{
 #ifdef DIAG
-		auto trace = CF_Trace_0(EXTrace.AI, this);
+		auto trace = EXTrace.Start(EXTrace.AI, this);
 #endif
 
 		m_TargetInformation = CreateTargetInformation();
@@ -43,7 +43,7 @@ modded class DayZPlayerImplement
 	override void Expansion_Init()
 	{
 #ifdef DIAG
-		auto trace = CF_Trace_0(EXTrace.AI, this);
+		auto trace = EXTrace.Start(EXTrace.AI, this);
 #endif
 
 		super.Expansion_Init();
@@ -106,7 +106,7 @@ modded class DayZPlayerImplement
 	void SetGroup(eAIGroup group, bool autoDeleteFormerGroupIfEmpty = true)
 	{
 #ifdef DIAG
-		auto trace = CF_Trace_2(EXTrace.AI, this).Add(group).Add(autoDeleteFormerGroupIfEmpty);
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + group, "" + autoDeleteFormerGroupIfEmpty);
 #endif
 
 		if (m_eAI_Group == group)
@@ -187,7 +187,7 @@ modded class DayZPlayerImplement
 	void eAI_SetFactionTypeID(int id)
 	{
 #ifdef DIAG
-		auto trace = CF_Trace_1(EXTrace.AI, this).Add(id);
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + id);
 #endif
 
 		int oldFactionTypeID = m_eAI_FactionTypeID;
@@ -352,7 +352,7 @@ modded class DayZPlayerImplement
 	Hive GetHive()
 	{
 		#ifdef DIAG
-		auto trace = CF_Trace_0(EXTrace.AI, this);
+		auto trace = EXTrace.Start(EXTrace.AI, this);
 		#endif
 
 		if (IsAI())
