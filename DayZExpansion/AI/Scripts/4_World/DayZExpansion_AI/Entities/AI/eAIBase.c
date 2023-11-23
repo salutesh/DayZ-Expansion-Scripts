@@ -422,8 +422,10 @@ class eAIBase: PlayerBase
 			return isPlayerMoving;
 		}
 
-		//! Are we targeting them?
-		bool targeted = player.GetTargetInformation().IsTargetted(GetGroup());
+		//! Are we targeting them and aggro?
+		bool targeted;
+		if (eAI_GetTargetThreat(player.GetTargetInformation(), true) > 0.2)
+			targeted = true;
 
 		if (player.GetGroup())
 		{
@@ -2105,6 +2107,9 @@ class eAIBase: PlayerBase
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_3(this, "CommandHandler").Add(pDt).Add(pCurrentCommandID).Add(pCurrentCommandFinished);
 #endif
+
+		//! New in 1.22
+		EvaluateDamageHit(pCurrentCommandID);
 
 		//! Used for animated/continuous action progress
 		m_dT = pDt;

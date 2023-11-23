@@ -48,11 +48,7 @@ modded class PlayerBase
 				
 				m_Hud.ShowHudUI( true );
 				m_Hud.ShowQuickbarUI(true);
-				#ifdef PLATFORM_CONSOLE
-				m_Hud.ShowQuickBar(GetGame().GetInput().IsEnabledMouseAndKeyboardEvenOnServer()); //temporary solution
-				#else
-				m_Hud.ShowQuickBar(g_Game.GetProfileOption(EDayZProfilesOptions.QUICKBAR));
-				#endif
+				m_Hud.UpdateQuickbarGlobalVisibility();
 			}
 		}
 	}

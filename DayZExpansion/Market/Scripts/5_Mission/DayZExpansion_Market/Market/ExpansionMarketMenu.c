@@ -14,7 +14,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 {
 	protected ref ExpansionMarketMenuController m_MarketMenuController;
 	protected ref ExpansionMarketModule m_MarketModule;
-	protected ref ExpansionTraderObjectBase m_TraderObject;
+	protected ExpansionTraderObjectBase m_TraderObject;
 	protected ref ExpansionMarketTrader m_TraderMarket;
 	protected ref TStringArray m_CategoryNames;
 	protected ref map<string, ref array<ref ExpansionMarketCategory>> m_MarketCategories;

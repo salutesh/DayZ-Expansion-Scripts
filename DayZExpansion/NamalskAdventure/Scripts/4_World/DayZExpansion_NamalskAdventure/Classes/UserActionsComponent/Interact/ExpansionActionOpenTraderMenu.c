@@ -22,10 +22,11 @@ modded class ExpansionActionOpenTraderMenu
 	#ifdef EXPANSIONMODQUESTS
 		if (GetExpansionSettings().GetQuest().EnableQuests)
 		{
-			if (!m_TraderObject)
+			ExpansionTraderObjectBase traderObject = ExpansionMarketModule.GetTraderFromObject(action_data.m_Target.GetObject());
+			if (!traderObject)
 				return;
-			
-			ExpansionMarketTrader trader = m_TraderObject.GetTraderMarket();
+
+			ExpansionMarketTrader trader = traderObject.GetTraderMarket();
 			if (!trader)
 				return;
 			

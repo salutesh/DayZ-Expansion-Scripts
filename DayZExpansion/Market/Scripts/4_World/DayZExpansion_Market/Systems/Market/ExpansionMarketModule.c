@@ -208,6 +208,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	protected ref ExpansionMarketTraderZone m_ClientMarketZone;
 	
 	protected ExpansionTraderObjectBase m_OpenedClientTrader;
+	protected EntityAI m_TraderEntity;
 	
 	ref array<ref ExpansionMarketATM_Data> m_ATMData;
 
@@ -3277,6 +3278,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		EXTrace.Print(EXTrace.MARKET, this, "Setting client trader: " + trader);
 		m_OpenedClientTrader = trader;
+		m_TraderEntity = trader.GetTraderEntity();
 
 		EXTrace.Print(EXTrace.MARKET, this, "Opening trader menu...");
 		if (!OpenTraderMenu())
@@ -3532,7 +3534,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	void ExitTrader()
 	{
 		auto rpc = Expansion_CreateRPC("RPC_ExitTrader");
-		rpc.Expansion_Send(m_OpenedClientTrader.GetTraderEntity(), true);
+		rpc.Expansion_Send(m_TraderEntity, true);
 	}
 	
 	//! Exit trader - server
@@ -3541,7 +3543,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		ExpansionTraderObjectBase trader = GetTraderFromObject(target);
 		if (!trader)
 		{
-			Error("ExpansionMarketModule::RPC_LoadTraderData - Could not get ExpansionTraderObjectBase!");
+			Error("ExpansionMarketModule::RPC_ExitTrader - Could not get ExpansionTraderObjectBase!");
 			return;
 		}
 

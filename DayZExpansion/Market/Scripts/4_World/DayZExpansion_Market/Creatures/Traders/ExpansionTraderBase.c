@@ -94,10 +94,10 @@ class ExpansionTraderObjectBase
 
 	void ~ExpansionTraderObjectBase()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.MARKET, this, "" + m_TraderEntity, "" + m_Expansion_RPCManager);
-
 		if (!GetGame())
 			return;
+
+		auto trace = EXTrace.Start(ExpansionTracing.MARKET, this, "" + m_TraderEntity, "" + m_Expansion_RPCManager);
 
 		int idx = m_allTraderObjects.Find(this);
 		if (idx >= 0)

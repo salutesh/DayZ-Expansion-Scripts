@@ -456,6 +456,9 @@ class ExpansionStatic
 			cfg_name = type_name;
 		}
 
+		if (cfg_name.IndexOf("$UNT$") == 0)
+			cfg_name.Replace("$UNT$", "");
+
 		if ( cache )
 		{
 			cache.Insert( type_name, cfg_name );

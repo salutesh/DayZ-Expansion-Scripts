@@ -669,11 +669,9 @@
 					if (target.GetDistanceSq(unit, true) &lt; 2.25 &amp;&amp; target.GetThreat(unit) &gt; 0.1)
 					{
 						dst.item = targetItem;
+						return SUCCESS;
 					}
 				}
-				
-				if (dst.item)
-					return SUCCESS;
 				
 				dst.item = unit.GetMeleeWeaponToUse();
 				if (dst.item)
@@ -722,18 +720,24 @@
 				InventoryLocation dstLoc;
 				if (targetItem.IsWeapon() || targetItem.IsMagazine())
 				{
+					//! PREPARE SWAP FROM CURRENT HAND ITEM TO GUN IN INV OR ON GROUND
 					//! If target is gun or magazine (latter means gun w/o ammo is in inventory) and we have melee in hand, prepare swap
 					hands = unit.GetItemInHands();
 					if (hands &amp;&amp; hands.Expansion_IsMeleeWeapon())
 					{
-						//! Only drop if destroyed or target is mag that fits in inventory, else might take current hand item again...
-						if (hands.IsDamageDestroyed() || (targetItem.IsMagazine() &amp;&amp; !unit.eAI_GetItemThreatOverride(targetItem) &amp;&amp; unit.eAI_FindFreeInventoryLocationFor(targetItem, 0, dstLoc)))
+						//! Only drop if destroyed, target is gun, or target is mag that fits in inventory, else might take current hand item again...
+						if (hands.IsDamageDestroyed() || targetItem.IsWeapon() || (targetItem.IsMagazine() &amp;&amp; !unit.eAI_GetItemThreatOverride(targetItem) &amp;&amp; unit.eAI_FindFreeInventoryLocationFor(targetItem, 0, dstLoc)))
 						{
-							if (!hands.IsDamageDestroyed())
+							if (hands.IsDamageDestroyed())
+							{
+								unit.eAI_DropItem(hands, true, false);
+							}
+							else if (!unit.eAI_TakeItemToInventory(hands))
+							{
 								unit.eAI_ItemThreatOverride(hands, true);
-							unit.eAI_DropItem(hands, true, false);
+								unit.eAI_DropItem(hands, true, false);
+							}
 						}
-						//! @note do NOT take hand item to inv here, might go into loop if no space for target item!
 					}
 					
 					if (targetItem.IsWeapon())  //! Picking up guns is handled by TakeItemToHands state
@@ -741,6 +745,7 @@
 				}
 				else if (targetItem.Expansion_IsMeleeWeapon())
 				{
+					//! Picking up melee weapons is handled by TakeItemToHands state
 					return FAIL;
 				}
 				

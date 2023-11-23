@@ -86,6 +86,81 @@ modded class MissionServer
 		}
 	}
 	
+	/**
+	 * Order of player-related mission events
+	 * 
+	 * On connect (new character):
+	 * 1) OnClientPrepare
+	 * 3) OnClientNew (calls CreateCharacter/EquipCharacter in vanilla)
+	 * 3) InvokeOnConnect
+	 * 
+	 * On connect (existing character):
+	 * 1) OnClientPrepare
+	 * 2) OnClientReady
+	 * 3) InvokeOnConnect
+	 * 
+	 * On respawn:
+	 * 1) OnClientRespawn
+	 * 2) OnClientPrepare
+	 * 3) OnClientNew (calls CreateCharacter/EquipCharacter in vanilla)
+	 * 4) InvokeOnConnect
+	 * 
+	 * On logout:
+	 * 1) OnClientDisconnectedEvent (calls OnClientLogout for CF modules)
+	 * 2) OnEvent LogoutCancelEventTypeID (if player cancels logout countdown, calls OnClientLogoutCancelled for CF modules)
+	 * 
+	 * On disconnect (if logout countdown runs out or player early disconnects):
+	 * 1) PlayerDisconnected (calls OnClientDisconnect for CF modules)
+	 * 2) InvokeOnDisconnect (called by PlayerDisconnected, only if player character not yet deleted)
+	 */
+#ifdef DIAG
+	override void OnEvent(EventType eventTypeId, Param params) 
+	{
+		EXTrace trace;
+		if (EXTrace.PLAYER)
+		{
+			string eventTypeIdString;
+
+			switch (eventTypeId)
+			{
+				case ClientPrepareEventTypeID:
+					eventTypeIdString = "ClientPrepareEventTypeID";
+					break;
+				case ClientNewEventTypeID:
+					eventTypeIdString = "ClientNewEventTypeID";
+					break;
+				case ClientReadyEventTypeID:
+					eventTypeIdString = "ClientReadyEventTypeID";
+					break;
+				case ClientRespawnEventTypeID:
+					eventTypeIdString = "ClientRespawnEventTypeID";
+					break;
+				case ClientReconnectEventTypeID:
+					eventTypeIdString = "ClientReconnectEventTypeID";
+					break;
+				case ClientDisconnectedEventTypeID:
+					eventTypeIdString = "ClientDisconnectedEventTypeID";
+					break;
+				case LogoutCancelEventTypeID:
+					eventTypeIdString = "LogoutCancelEventTypeID";
+					break;
+			}
+
+			if (eventTypeIdString)
+				trace = EXTrace.Start(true, this, eventTypeIdString);
+		}
+
+		super.OnEvent(eventTypeId, params);
+	}
+#endif
+
+	override void OnClientRespawnEvent(PlayerIdentity identity, PlayerBase player)
+	{
+		super.OnClientRespawnEvent(identity, player);
+
+		SyncEvents.s_Expansion_RespawningUIDs.Insert(identity.GetId(), true);
+	}
+
 	override void OnClientReadyEvent( PlayerIdentity identity, PlayerBase player )
 	{
 		super.OnClientReadyEvent( identity, player );
@@ -130,6 +205,15 @@ modded class MissionServer
 		super.InvokeOnConnect( player, identity );
 
 		PlayerBase.s_Expansion_SI_OnPlayerConnected.Invoke(player, identity);
+
+		string uid = identity.GetId();
+		if (SyncEvents.s_Expansion_RespawningUIDs[uid])
+		{
+			EXTrace.Print(EXTrace.PLAYER, this, "Client respawn");
+			SyncEvents.s_Expansion_IsClientRespawn = true;
+			SyncEvents.s_Expansion_RespawningUIDs.Remove(uid);
+		}
+		//! Next call directly after InvokeOnConnect is SyncEvents.SendPlayerList which will reset s_Expansion_IsClientRespawn
 	}
 	
 	void Expansion_SendSettings(PlayerBase player)
@@ -147,6 +231,12 @@ modded class MissionServer
 		super.PlayerDisconnected( player, identity, uid );
 
 		PlayerBase.Expansion_RemovePlayerPlainID(uid);
+
+		if (SyncEvents.s_Expansion_RespawningUIDs[uid])
+		{
+			EXTrace.Print(EXTrace.PLAYER, this, "Client disconnected before respawn finished");
+			SyncEvents.s_Expansion_RespawningUIDs.Remove(uid);
+		}
 	}
 	
 	// ------------------------------------------------------------

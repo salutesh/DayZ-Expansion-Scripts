@@ -15,7 +15,7 @@ class ExpansionMarketSell
 	bool Valid;
 
 	int Price;
-	ref ExpansionTraderObjectBase Trader;
+	ExpansionTraderObjectBase Trader;
 	int Time;
 
 	//! Total amount to sell (without modifiers and attachments)

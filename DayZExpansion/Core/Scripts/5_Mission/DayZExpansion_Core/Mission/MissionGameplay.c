@@ -237,18 +237,18 @@ modded class MissionGameplay
 			itemTooltip.SetItem(EntityAI.Cast(object));
 			itemTooltip.SetShowItemPreview(true);
 			itemTooltip.SetUpdateStatsOnShow(false);		
+			itemTooltip.UpdateItemInfoDamage(healthLevel);
 			if (!object.IsInherited(Car))
 			{
-				itemTooltip.UpdateItemInfoDamage(healthLevel);
 				itemTooltip.UpdateItemInfoLiquidType(liquidType, isBloodContainer);
 				itemTooltip.UpdateItemInfoQuantity(quantityType, quantity, quantityMax, false);
 				itemTooltip.UpdateItemInfoFoodStage(foodStage);
-				itemTooltip.UpdateItemInfoCargoSize(className);
-			#ifdef EXPANSIONMODHARDLINE
-				if (rarity != -1)
-					itemTooltip.UpdateItemRarity(rarity);
-			#endif
 			}
+			itemTooltip.UpdateItemInfoCargoSize();
+		#ifdef EXPANSIONMODHARDLINE
+			if (rarity != -1)
+				itemTooltip.UpdateItemRarity(rarity);
+		#endif
 			
 			itemTooltip.Show();
 		}
@@ -291,19 +291,19 @@ modded class MissionGameplay
 		ExpansionItemInspection itemInspection = Expansion_GetItemInspection();
 		if (itemInspection)
 		{
-			itemInspection.SetItem(object);			
+			itemInspection.SetItem(object);
+			itemInspection.UpdateItemInfoDamage(healthLevel);
 			if (!object.IsInherited(Car))
 			{
-				itemInspection.UpdateItemInfoDamage(healthLevel);
 				itemInspection.UpdateItemInfoLiquidType(liquidType, isBloodContainer);
 				itemInspection.UpdateItemInfoQuantity(quantityType, quantity, quantityMax, false);
 				itemInspection.UpdateItemInfoFoodStage(foodStage);
-				itemInspection.UpdateItemInfoCargoSize(className);
-			#ifdef EXPANSIONMODHARDLINE
-				if (rarity != -1)
-					itemInspection.UpdateItemRarity(rarity);
-			#endif
 			}
+			itemInspection.UpdateItemInfoCargoSize();
+		#ifdef EXPANSIONMODHARDLINE
+			if (rarity != -1)
+				itemInspection.UpdateItemRarity(rarity);
+		#endif
 			
 			itemInspection.SetParentView(parentView);
 			parentView.GetLayoutRoot().Show(false);

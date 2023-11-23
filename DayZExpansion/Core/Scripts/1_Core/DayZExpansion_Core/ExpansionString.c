@@ -40,6 +40,20 @@ class ExpansionString
 		return fileName;
 	}
 
+	string DirName()
+	{
+		return DirName(m_String);
+	}
+
+	static string DirName(string fileName)
+	{
+		fileName.Replace("\\", "/");
+		int index = LastIndexOf(fileName, "/");
+		if (index > -1)
+			return fileName.Substring(0, index);
+		return fileName;
+	}
+
 	//! Neat little hash function, good for small datasets (< 64 k)
 	//! https://stackoverflow.com/a/19661491
 	static int Hash16(string str)

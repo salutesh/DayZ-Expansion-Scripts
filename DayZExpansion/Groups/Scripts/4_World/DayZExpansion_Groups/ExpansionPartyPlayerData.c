@@ -55,7 +55,6 @@ class ExpansionPartyPlayerData
 		if (Player)
 		{
 			Player.Expansion_SetPartyPlayerData(NULL);
-			Player.Expansion_SetPartyID(-1); 
 		}
 		
 		Player = NULL;
@@ -68,7 +67,6 @@ class ExpansionPartyPlayerData
 		Name = player.GetIdentityName();
 		Player = player;
 		player.Expansion_SetPartyPlayerData(this);
-		player.Expansion_SetPartyID(m_Party.GetPartyID());
 	}
 	
 	void OnStoreSave(ParamsWriteContext ctx)

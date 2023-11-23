@@ -1,4 +1,4 @@
-modded class ExpansionItemInspection
+modded class ExpansionItemInspectionBase
 {
 	override void UpdateItemStats()
 	{

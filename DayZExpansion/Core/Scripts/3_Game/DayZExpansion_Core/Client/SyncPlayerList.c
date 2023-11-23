@@ -12,14 +12,14 @@
 
 modded class SyncPlayerList
 {
+	static ref map<string, string> s_Expansion_PlainID2ID = new map<string, string>;
+
 	// ------------------------------------------------------------
 	// Override CreatePlayerList
 	// ------------------------------------------------------------
 	override void CreatePlayerList()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "CreatePlayerList");
-#endif
+		auto trace = EXTrace.Start(EXTrace.PLAYER, this);
 
 		if ( GetGame().IsServer() )
 		{
@@ -42,8 +42,12 @@ modded class SyncPlayerList
 				if  ( p_identity )
 				{
 					SyncPlayer sync_player = new SyncPlayer;
-					sync_player.m_UID = p_identity.GetPlainId();
-					sync_player.m_RUID = p_identity.GetId();
+					//sync_player.m_UID = p_identity.GetPlainId();
+					//sync_player.m_RUID = p_identity.GetId();
+					p_identity.Expansion_PlainIdToInt(sync_player.m_Expansion_PlainId);
+				#ifdef EXPANSION_SYNCPLAYERLIST_SENDID
+					p_identity.Expansion_IdToInt(sync_player.m_Expansion_Id);
+				#endif
 					sync_player.m_PlayerName = p_identity.GetName();
 					m_PlayerList.Insert( sync_player );
 				} else
@@ -51,6 +55,33 @@ modded class SyncPlayerList
 					DebugPrint.LogErrorAndTrace("No Identity in Server Player List");
 				}
 			}
+		}
+	}
+
+	void Expansion_Decode()
+	{
+		auto trace = EXTrace.Start(EXTrace.PLAYER, this);
+
+		foreach (SyncPlayer syncPlayer: m_PlayerList)
+		{
+			syncPlayer.m_UID = PlayerIdentity.Expansion_PlainIdToString(syncPlayer.m_Expansion_PlainId);
+		#ifdef EXPANSION_SYNCPLAYERLIST_SENDID
+			syncPlayer.m_RUID = PlayerIdentity.Expansion_IdToString(syncPlayer.m_Expansion_Id);
+		#else
+			if (!s_Expansion_PlainID2ID.Find(syncPlayer.m_UID, syncPlayer.m_RUID))
+			{
+				//! EXPENSIVE! About ~1ms per calculated digest, so only do this if we don't have the value cached
+				ExpansionSHA256.Update(syncPlayer.m_UID);
+				CF_Byte digest[32];
+				ExpansionSHA256.Digest(digest);
+				ExpansionSHA256.Reset();
+				syncPlayer.m_RUID = PlayerIdentity.Expansion_EncodeDigest(digest);
+				s_Expansion_PlainID2ID[syncPlayer.m_UID] = syncPlayer.m_RUID;
+			}
+		#endif
+		#ifdef DIAG
+			EXTrace.Print(EXTrace.PLAYER, this, string.Format("UID %1 RUID %2", syncPlayer.m_UID, syncPlayer.m_RUID));
+		#endif
 		}
 	}
 };
