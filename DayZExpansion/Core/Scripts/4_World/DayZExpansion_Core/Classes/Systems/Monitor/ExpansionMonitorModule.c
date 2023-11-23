@@ -55,10 +55,10 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		super.OnInit();
 
 		EnableClientDisconnect();
+		EnableClientNew();
 		EnableClientReady();
 		EnableClientRespawn();
 		EnableInvokeConnect();
-		EnableInvokeDisconnect();
 		Expansion_EnableRPCManager();
 
 		//EXPrint(ToString() + "::OnInit - GetGame() " + GetGame());  // OK
@@ -137,24 +137,39 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		RPC_SendPlayerStatsAndStates(ctx, true, true);
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMonitorModule OnClientReady
-	// ------------------------------------------------------------
+	override void OnClientNew(Class sender, CF_EventArgs args)
+	{
+		super.OnClientNew(sender, args);
+
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		bool isClientRespawn = SyncEvents.s_Expansion_RespawningUIDs[cArgs.Identity.GetId()];
+		EXTrace.Print(EXTrace.PLAYER_MONITOR, this, "::OnClientNew - is client respawn? " + isClientRespawn);
+
+		if (!isClientRespawn)
+			PlayerJoinedNotification(cArgs.Identity);
+	}
+
 	override void OnClientReady(Class sender, CF_EventArgs args)
 	{
 		super.OnClientReady(sender, args);
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 
-		if (GetExpansionSettings().GetNotification().ShowPlayerJoinServer && cArgs.Identity)
+		PlayerJoinedNotification(cArgs.Identity);
+	}
+
+	void PlayerJoinedNotification(PlayerIdentity identity)
+	{
+		if (GetExpansionSettings().GetNotification().ShowPlayerJoinServer && identity)
 		{			
 			if (GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.NOTIFICATION) 
 			{
-				ExpansionNotification("STR_EXPANSION_PLAYER_JOINED_TITLE", new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TEXT", cArgs.Identity.GetName()), EXPANSION_NOTIFICATION_ICON_PERSONA).Info();
+				ExpansionNotification("STR_EXPANSION_PLAYER_JOINED_TITLE", new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TEXT", identity.GetName()), EXPANSION_NOTIFICATION_ICON_PERSONA).Info();
 			} 
 			else if (GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.CHAT)
 			{
-				ServerChatMessage(new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TITLE"), new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TEXT", cArgs.Identity.GetName()));
+				ServerChatMessage(new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TITLE"), new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TEXT", identity.GetName()));
 			}
 		}
 	}
@@ -182,34 +197,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (m_PlayerIDs.Find(playerID) == -1)
 			m_PlayerIDs.Insert(playerID);
 		
-		SyncLastDeathPos(cArgs.Player);
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMonitorModule OnInvokeDisconnect
-	// Called on server
-	// ------------------------------------------------------------
-	override void OnInvokeDisconnect(Class sender, CF_EventArgs args)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "OnInvokeDisconnect");
-#endif
-
-		super.OnInvokeDisconnect(sender, args);
-
-		auto cArgs = CF_EventPlayerArgs.Cast(args);
-
-		if (GetExpansionSettings().GetNotification().ShowPlayerLeftServer && cArgs.Player.GetIdentity()) 
-		{			
-			if (GetExpansionSettings().GetNotification().LeftMessageType == ExpansionAnnouncementType.NOTIFICATION) 
-			{
-				ExpansionNotification("STR_EXPANSION_PLAYER_LEFT_TITLE", new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TEXT", cArgs.Player.GetIdentity().GetName()), EXPANSION_NOTIFICATION_ICON_PERSONA).Info();
-			} 
-			else if (GetExpansionSettings().GetNotification().LeftMessageType == ExpansionAnnouncementType.CHAT)
-			{
-				ServerChatMessage(new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TITLE"), new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TEXT", cArgs.Player.GetIdentity().GetName()));
-			}
-		}
+		SyncLastDeathPos(cArgs.Identity);
 	}
 	
 	// ------------------------------------------------------------
@@ -230,8 +218,25 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		RemovePlayerStats(playerID);
 		RemovePlayerStates(playerID);
 		m_PlayerIDs.RemoveItem(playerID);
+
+		PlayerLeftNotification(cArgs.Identity);
 	}
 	
+	void PlayerLeftNotification(PlayerIdentity identity)
+	{
+		if (GetExpansionSettings().GetNotification().ShowPlayerLeftServer && identity) 
+		{			
+			if (GetExpansionSettings().GetNotification().LeftMessageType == ExpansionAnnouncementType.NOTIFICATION) 
+			{
+				ExpansionNotification("STR_EXPANSION_PLAYER_LEFT_TITLE", new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TEXT", identity.GetName()), EXPANSION_NOTIFICATION_ICON_PERSONA).Info();
+			} 
+			else if (GetExpansionSettings().GetNotification().LeftMessageType == ExpansionAnnouncementType.CHAT)
+			{
+				ServerChatMessage(new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TITLE"), new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TEXT", identity.GetName()));
+			}
+		}
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule UpdateStats
 	// ------------------------------------------------------------	
@@ -952,7 +957,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ExpansionMonitorModule SyncLastDeathPos
 	// Called on server
 	// ------------------------------------------------------------
-	void SyncLastDeathPos(PlayerBase player)
+	void SyncLastDeathPos(PlayerIdentity identity)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "SyncLastDeathPos");
@@ -960,14 +965,17 @@ class ExpansionMonitorModule: CF_ModuleWorld
 			
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
+
+		if (!identity)
+			return;
 		
-		vector pos = GetLastDeathPosServer(player.GetIdentity().GetId());
+		vector pos = GetLastDeathPosServer(identity.GetId());
 		if (pos == vector.Zero)
 			return;
 		
 		auto rpc = Expansion_CreateRPC("RPC_SyncLastDeathPos");
 		rpc.Write(pos);
-		rpc.Expansion_Send(true, player.GetIdentity());
+		rpc.Expansion_Send(true, identity);
 	}
 	
 	void SyncStatsToClient(PlayerBase player)
@@ -1014,11 +1022,8 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		super.OnClientRespawn(sender, args);
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
-
-		if (!cArgs.Player)
-			return;
 		
-		SyncLastDeathPos(cArgs.Player);
+		SyncLastDeathPos(cArgs.Identity);
 	}
 };
 #endif

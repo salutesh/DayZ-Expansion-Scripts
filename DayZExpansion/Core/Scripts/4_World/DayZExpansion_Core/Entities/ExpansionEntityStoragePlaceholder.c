@@ -35,23 +35,7 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 			if (HasAnyCargo())
 				EXPrint("WARNING: " + GetType() + " " + GetPosition() + " with cargo is about to be deleted!");
 
-			string fileName = Expansion_GetEntityStorageFileName();
-			if (FileExist(fileName))
-			{
-				DeleteFile(fileName);
-
-				string folderName = ExpansionEntityStorageModule.GetStorageDirectory() + m_Expansion_StoredEntityGlobalID.IDToHex();
-				if (FileExist(fileName))
-				{
-					TStringArray files = ExpansionStatic.FindFilesInLocation(folderName, ExpansionEntityStorageModule.EXT);
-					foreach (string baseName: files)
-					{
-						DeleteFile(folderName + "\\" + baseName);
-					}
-
-					DeleteFile(folderName);
-				}
-			}
+			ExpansionEntityStorageModule.DeleteFiles(m_Expansion_StoredEntityGlobalID.IDToHex());
 		}
 
 		super.EEDelete(parent);
@@ -225,6 +209,17 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 		return true;
 	}
 #endif
+
+	override void AfterStoreLoad()
+	{
+		super.AfterStoreLoad();
+
+		if (!Expansion_HasStoredEntity())
+		{
+			EXPrint(this, "Deleting placeholder");
+			Delete();
+		}
+	}
 
 	string Expansion_GetStoredEntityDisplayName()
 	{

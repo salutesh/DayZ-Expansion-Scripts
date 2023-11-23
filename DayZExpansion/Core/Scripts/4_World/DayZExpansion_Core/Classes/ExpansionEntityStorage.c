@@ -781,6 +781,27 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return "$mission:storage_" + instance_id + "\\expansion\\entitystorage\\";
 	}
 
+	static void DeleteFiles(string name)
+	{
+		string folderName = GetStorageDirectory() + name;
+		string fileName = folderName + EXT;
+		if (FileExist(fileName))
+		{
+			DeleteFile(fileName);
+
+			if (FileExist(folderName))
+			{
+				TStringArray files = ExpansionStatic.FindFilesInLocation(folderName + "\\", EXT);
+				foreach (string baseName: files)
+				{
+					DeleteFile(folderName + "\\" + baseName);
+				}
+
+				DeleteFile(folderName);
+			}
+		}
+	}
+
 	//! @brief saves entity and all its children (attachments/cargo) to file.
 	static bool SaveToFile(EntityAI entity, string fileName, bool inventoryOnly = false, EntityAI placeholder = null, bool removeOrphaned = false)
 	{

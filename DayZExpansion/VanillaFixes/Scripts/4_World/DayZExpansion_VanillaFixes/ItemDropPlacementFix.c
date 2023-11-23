@@ -262,4 +262,18 @@ modded class PlayerBase
 
 		super.PlacingCancelServer();
 	}
+
+	override EntityAI SpawnEntityOnGroundPos(string object_name, vector pos)
+	{
+		EntityAI entity = super.SpawnEntityOnGroundPos(object_name, pos);
+
+		if (GetExpansionSettings().GetDebug().EnableItemDropPlacementFix)
+		{
+			ItemBase item;
+			if (Class.CastTo(item, entity))
+				item.Expansion_PlaceOnSurfaceProper(this);
+		}
+
+		return entity;
+	}
 }

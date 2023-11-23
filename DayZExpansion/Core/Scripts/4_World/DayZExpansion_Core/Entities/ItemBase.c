@@ -74,6 +74,16 @@ modded class ItemBase
 			m_Expansion_DestroySound_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound(GetDestroySound());
 	}
 	
+	override string GetDisplayName()
+	{
+		string displayName = super.GetDisplayName();
+
+		if (displayName.IndexOf("$UNT$") == 0)
+			displayName.Replace("$UNT$", "");
+
+		return displayName;
+	}
+	
 	//============================================
 	// GetExpansionSaveVersion
 	//============================================

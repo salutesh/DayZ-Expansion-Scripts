@@ -12,8 +12,6 @@
 
 class ExpansionActionOpenTraderMenu: ActionInteractBase
 {
-	private ref ExpansionTraderObjectBase m_TraderObject;
-	
 	void ExpansionActionOpenTraderMenu()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ATTACHITEM;

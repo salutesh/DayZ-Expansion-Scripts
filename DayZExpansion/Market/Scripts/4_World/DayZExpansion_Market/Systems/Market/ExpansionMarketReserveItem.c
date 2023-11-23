@@ -15,7 +15,7 @@ class ExpansionMarketReserve
 	bool Valid;
 
 	int Price;
-	ref ExpansionTraderObjectBase Trader;
+	ExpansionTraderObjectBase Trader;
 	int Time;
 
 	ref ExpansionMarketItem RootItem;

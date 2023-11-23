@@ -12,10 +12,27 @@
 
 modded class SyncPlayer
 {
+	int m_Expansion_PlainId[2];
+#ifdef EXPANSION_SYNCPLAYERLIST_SENDID
+	int m_Expansion_Id[9];
+#endif
+
+	[NonSerialized()]
+	string m_UID;
+
+	[NonSerialized()]
 	string m_RUID;
 
 	void Expansion_CopyFrom(SyncPlayer syncPlayer)
 	{
+		m_Expansion_PlainId[0] = syncPlayer.m_Expansion_PlainId[0];
+		m_Expansion_PlainId[1] = syncPlayer.m_Expansion_PlainId[1];
+	#ifdef EXPANSION_SYNCPLAYERLIST_SENDID
+		for (int i = 0; i < 9; i++)
+		{
+			m_Expansion_Id[i] = syncPlayer.m_Expansion_Id[i];
+		}
+	#endif
 		m_UID = syncPlayer.m_UID;
 		m_RUID = syncPlayer.m_RUID;
 		m_PlayerName = syncPlayer.m_PlayerName;

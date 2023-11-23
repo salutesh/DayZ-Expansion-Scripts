@@ -39,13 +39,14 @@ class ExpansionRPCManager
 	static ref map<int, ExpansionRPCManager> s_RegisteredTargetlessManagers = new map<int, ExpansionRPCManager>;
 	static ref map<typename, ref ExpansionRPCTypeMapping> s_TypeMappings = new map<typename, ref ExpansionRPCTypeMapping>;
 
-	protected Class m_Owner;
+	protected Managed m_Owner;
+	protected bool m_OwnerIsObject;
 	protected typename m_Type;
 	protected ref ExpansionRPCTypeMapping m_TypeMapping;
 
-	ref map<int, Class> m_RegisteredInstances = new map<int, Class>;
+	ref map<int, Managed> m_RegisteredInstances = new map<int, Managed>;
 
-	void ExpansionRPCManager(Class owner, typename type = NULLTYPE)
+	void ExpansionRPCManager(Managed owner, typename type = NULLTYPE)
 	{
 		SetOwner(owner);
 
@@ -60,9 +61,9 @@ class ExpansionRPCManager
 		if (!GetGame())
 			return;
 
-		if (!m_Owner || !m_Owner.IsInherited(Object))
+		if (!m_OwnerIsObject)
 		{
-			auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + s_RegisteredTargetlessManagers.Count());
+			auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + m_Type, "" + s_RegisteredTargetlessManagers.Count());
 
 			foreach (int serverRPCID: m_TypeMapping.m_RegisteredServerRPCIDs)
 			{
@@ -78,9 +79,13 @@ class ExpansionRPCManager
 		}
 	}
 
-	void SetOwner(Class owner)
+	void SetOwner(Managed owner)
 	{
 		m_Owner = owner;
+		if (m_Owner && m_Owner.IsInherited(Object))
+			m_OwnerIsObject = true;
+		else
+			m_OwnerIsObject = false;
 	}
 
 	void SetType(typename type)
@@ -94,7 +99,7 @@ class ExpansionRPCManager
 		}
 	}
 
-	protected int CreateRPCID(string fn, Class instance = null)
+	protected int CreateRPCID(string fn, Managed instance = null)
 	{
 		auto trace = EXTrace.Start(EXTrace.PROFILING, this);
 
@@ -127,7 +132,7 @@ class ExpansionRPCManager
 
 	protected void Register(map<string, int> registeredRPCIDs, map<int, string> registeredRPCs, string fn, int rpcID)
 	{
-		if (!m_Owner || !m_Owner.IsInherited(Object))
+		if (!m_OwnerIsObject)
 		{
 			ExpansionRPCManager manager;
 			if (s_RegisteredTargetlessManagers.Find(rpcID, manager))
@@ -170,7 +175,7 @@ class ExpansionRPCManager
 	 * 
 	 * @return non-zero RPC ID
 	 */
-	int RegisterServer(string fn, Class instance = null)
+	int RegisterServer(string fn, Managed instance = null)
 	{
 		auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + m_Type, fn, "" + instance);
 
@@ -193,7 +198,7 @@ class ExpansionRPCManager
 		return rpcID;
 	}
 
-	int RegisterClient(string fn, Class instance = null)
+	int RegisterClient(string fn, Managed instance = null)
 	{
 		auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + m_Type, fn, "" + instance);
 
@@ -216,7 +221,7 @@ class ExpansionRPCManager
 		return rpcID;
 	}
 
-	int RegisterBoth(string fn, Class instance = null)
+	int RegisterBoth(string fn, Managed instance = null)
 	{
 		auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + m_Type, fn, "" + instance);
 
@@ -304,7 +309,7 @@ class ExpansionRPCManager
 	#endif
 	#else
 		fn = m_TypeMapping.m_RegisteredClientRPCs[rpcID];
-		if (!fn && !GetGame().IsMultiplayer())
+		if (!fn && !GetGame().IsMultiplayer() && !GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu())
 			fn = m_TypeMapping.m_RegisteredServerRPCs[rpcID];
 	#ifdef EXPANSION_RPCMANAGER_TRACE
 		EXTrace.Print(EXTrace.PROFILING, this, "::GetRPCName CLIENT " + rpcID + " " + fn);
@@ -360,7 +365,7 @@ class ExpansionRPCManager
 
 		ExpansionScriptRPC rpc = ExpansionScriptRPC.Create(rpcID);
 
-		if (m_Owner && m_Owner.IsInherited(Object))
+		if (m_OwnerIsObject)
 			rpc.m_Expansion_Target = Object.Cast(m_Owner);
 
 		return rpc;
@@ -443,7 +448,7 @@ class ExpansionRPCManager
 		if (!fn)
 			return false;
 
-		Class instance;
+		Managed instance;
 		if (!m_RegisteredInstances.Find(rpcID, instance))
 			instance = m_Owner;
 
@@ -470,7 +475,7 @@ class ExpansionRPCManager
 		if (!fn)
 			return false;
 
-		Class instance;
+		Managed instance;
 		if (!m_RegisteredInstances.Find(rpcID, instance))
 			instance = m_Owner;
 

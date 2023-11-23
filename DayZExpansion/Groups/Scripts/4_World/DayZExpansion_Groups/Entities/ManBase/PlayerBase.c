@@ -29,12 +29,6 @@ modded class PlayerBase
 		AddAction(ActionInviteToGroup, InputActionMap);
 	}
 	
-	void Expansion_SetPartyID(int partyID)
-	{
-		m_Expansion_PartyID = partyID;
-		SetSynchDirty();
-	}
-	
 	int Expansion_GetPartyID()
 	{
 		return m_Expansion_PartyID;
@@ -43,6 +37,11 @@ modded class PlayerBase
 	void Expansion_SetPartyPlayerData(ExpansionPartyPlayerData partyPlayerData)
 	{
 		m_Expansion_PartyPlayerData = partyPlayerData;
+		if (partyPlayerData)
+			m_Expansion_PartyID = partyPlayerData.GetParty().GetPartyID();
+		else
+			m_Expansion_PartyID = -1;
+		SetSynchDirty();
 	}
 	
 	ExpansionPartyPlayerData Expansion_GetPartyPlayerData()

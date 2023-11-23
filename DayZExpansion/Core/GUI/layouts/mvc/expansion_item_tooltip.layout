@@ -9,7 +9,7 @@ WrapSpacerWidgetClass ExpansionItemTooltip {
  hexactsize 1
  vexactsize 1
  priority 952
- scriptclass "ExpansionItemTooltipController"
+ scriptclass "ExpansionItemInspectionController"
  style Colorable
  Padding 0
  Margin 0
@@ -234,7 +234,7 @@ WrapSpacerWidgetClass ExpansionItemTooltip {
        Rows 2
        {
         ScriptParamsClass {
-         Binding_Name "ItemStatsElements"
+         Binding_Name "ItemElements"
         }
        }
       }

@@ -35,7 +35,6 @@ class ExpansionAISettings: ExpansionSettingBase
 	int MemeLevel;
 	
 	bool CanRecruitFriendly;
-
 	bool CanRecruitGuards;
 
 	ref TStringArray PreventClimb;
@@ -51,12 +50,6 @@ class ExpansionAISettings: ExpansionSettingBase
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
-
-	void ExpansionAISettings()
-	{
-		Admins = new TStringArray;
-		PlayerFactions = new TStringArray;
-	}
 
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
@@ -278,8 +271,9 @@ class ExpansionAISettings: ExpansionSettingBase
 
 				if (m_Version < 7)
 				{
-					CanRecruitFriendly = true;
+					CanRecruitFriendly = settingsDefault.CanRecruitFriendly;
 					PreventClimb = settingsDefault.PreventClimb;
+					MemeLevel = settingsDefault.MemeLevel;
 				}
 
 				m_Version = VERSION;
@@ -336,16 +330,27 @@ class ExpansionAISettings: ExpansionSettingBase
 		ThreatDistanceLimit = 1000.0;
 		DamageMultiplier = 1.0;
 
+		Admins = {};
+
 		MaximumDynamicPatrols = -1;
+
 		Vaulting = true;
+
 		SniperProneDistanceThreshold = 0.0;
+
 		Manners = false;
 		MemeLevel = 1;
+
+		CanRecruitFriendly = true;
+		CanRecruitGuards = false;
+
 		PreventClimb = {};
 
 #ifdef DIAG
 		FormationScale = 0.15;
 #endif
+
+		PlayerFactions = {};
 	}
 
 	// ------------------------------------------------------------

@@ -10,36 +10,22 @@
  *
 */
 
-class ExpansionItemInspection: ExpansionScriptView
+class ExpansionItemInspectionBase: ExpansionScriptView
 {
 	protected ref ExpansionItemInspectionController m_ItemInspectionController;
+	
 	protected Object m_Item;
-	
+
 	protected MultilineTextWidget ItemDescWidget;
-	ItemPreviewWidget ItemPreview;
-	protected ButtonWidget BackButton;
-	protected ImageWidget IconClose;
 	
-	protected int m_CharacterRotationX;
-	protected int m_CharacterRotationY;
-	protected int m_CharacterScaleDelta;
-	protected vector m_CharacterOrientation;
-	
-	protected ref ScriptView m_ParentView;
-	
-	void ExpansionItemInspection()
+	void ExpansionItemInspectionBase()
 	{
 		m_ItemInspectionController = ExpansionItemInspectionController.Cast(GetController());
 	}
 	
-	void ~ExpansionItemInspection()
+	void ~ExpansionItemInspectionBase()
 	{
 		m_ItemInspectionController.ItemElements.Clear();
-	}
-	
-	override string GetLayoutFile()
-	{
-		return "DayZExpansion/Core/GUI/layouts/mvc/expansion_item_inspection.layout";
 	}
 
 	override typename GetControllerType()
@@ -47,53 +33,57 @@ class ExpansionItemInspection: ExpansionScriptView
 		return ExpansionItemInspectionController;
 	}
 	
-	void SetItem(Object item)
+	void UpdateItemInfoCargoSize()
 	{
-		m_Item = item;
-		
-		if (!m_ItemInspectionController)
-			m_ItemInspectionController = ExpansionItemInspectionController.Cast(GetController());
+		string cfgClassPath;
 
-		m_ItemInspectionController.ItemName = m_Item.GetDisplayName();
-		m_ItemInspectionController.ItemDescription = ExpansionStatic.GetItemDescriptionWithType(m_Item.GetType());
-		ItemDescWidget.Update();
-		m_ItemInspectionController.NotifyPropertiesChanged({"ItemDescription", "ItemName"});
-		
-		if (!ItemPreview)
+		if (m_Item.IsInherited(Weapon))
+			cfgClassPath = CFG_WEAPONSPATH;
+		else if (m_Item.IsInherited(Magazine))
+			cfgClassPath = CFG_MAGAZINESPATH;
+		else
+			cfgClassPath = CFG_VEHICLESPATH;
+
+		if (GetGame().ConfigIsExisting(cfgClassPath + " " + m_Item.GetType() + " Cargo"))
 		{
-			Widget preview_frame = GetLayoutRoot().FindAnyWidget("ItemPreview");
-			if (preview_frame)
-			{
-				ItemPreview = ItemPreviewWidget.Cast(preview_frame);
-			}
+			cfgClassPath = cfgClassPath + " " + m_Item.GetType() + " Cargo";
+		}
+		else
+		{
+			cfgClassPath = cfgClassPath + " " + m_Item.GetType();
 		}
 		
-		ItemPreview.SetItem(EntityAI.Cast(item));
-		ItemBase itemIB = ItemBase.Cast(item);
-		if (itemIB)
-			ItemPreview.SetView(itemIB.GetViewIndex());
+		array<int> cargoSize = new array<int>;
+		int size1, size2;
+		GetGame().ConfigGetIntArray(cfgClassPath + " itemsCargoSize", cargoSize);
 
-		ItemPreview.SetModelPosition(Vector(0,0,1));
-	}
-	
-	void SetParentView(ScriptView parentView)
-	{
-		Print(ToString() + "::SetParentView - Start");
-		Print(ToString() + "::SetParentView - Parent view: " + parentView.ToString());
+		size1 = cargoSize[0];
+		size2 = cargoSize[1];
 		
-		m_ParentView = parentView;
-		
-		Print(ToString() + "::SetParentView - Start");
+		if (size1 > 0 && size2 > 0)
+		{
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, this, "::UpdateItemInfoCargoSize - " + m_Item.GetType() + " - storage space: " + size1 + "x" + size2);
+
+			string text = "#STR_EXPANSION_INV_CARGO_SIZE " + size1 + "x" + size2;
+			int color = Colors.WHITEGRAY;
+			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
+			m_ItemInspectionController.ItemElements.Insert(element);
+		}
 	}
-	
-	void UpdateItemStats()
+
+	protected void UpdateItemInfoCleanness()
 	{
-		UpdateItemInfoWetness();
-		UpdateItemInfoTemperature();
-		UpdateItemInfoLiquidType();
-		UpdateItemInfoFoodStage();
-		UpdateItemInfoCleanness();
-		UpdateItemInfoCargoSize(m_Item.GetType());
+		string text;
+		int color;
+		ItemBase ib = ItemBase.Cast(m_Item);
+		if (ib && ib.m_Cleanness == 1)
+		{
+			text = "#inv_inspect_cleaned";
+			color = Colors.WHITEGRAY;
+
+			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
+			m_ItemInspectionController.ItemElements.Insert(element);
+		}
 	}
 	
 	protected void UpdateItemInfoDamage()
@@ -101,12 +91,13 @@ class ExpansionItemInspection: ExpansionScriptView
 		int damageLevel = m_Item.GetHealthLevel();
 		UpdateItemInfoDamage(damageLevel);
 	}
-	
+
 	void UpdateItemInfoDamage(int damageLevel)
 	{
-		string text;
-		int color;
-
+	}
+	
+	void UpdateItemInfoDamageEx(int damageLevel, out string text, out int color)
+	{
 		switch (damageLevel)
 		{
 			case GameConstants.STATE_RUINED:
@@ -150,15 +141,134 @@ class ExpansionItemInspection: ExpansionScriptView
 				break;
 			}
 		}
+	}
+
+	void UpdateItemInfoFoodStage(int food_stage_type)
+	{
+		if (food_stage_type == -1)
+			return;
+
+		string text;
+		int color;
+		switch (food_stage_type)
+		{
+			case FoodStageType.RAW:
+			{
+				text = "#inv_inspect_raw";
+				color = Colors.COLOR_RAW;
+				break;
+			}
+			case FoodStageType.BAKED:
+			{
+				text = "#inv_inspect_baked";
+				color = Colors.COLOR_BAKED;
+				break;
+			}
+			case FoodStageType.BOILED:
+			{
+				text = "#inv_inspect_boiled";
+				color = Colors.COLOR_BOILED;
+				break;
+			}
+			case FoodStageType.DRIED:
+			{
+				text = "#inv_inspect_dried";
+				color = Colors.COLOR_DRIED;
+				break;
+			}
+			case FoodStageType.BURNED:
+			{
+				text = "#inv_inspect_burned";
+				color = Colors.COLOR_BURNED;
+				break;
+			}
+			case FoodStageType.ROTTEN:
+			{
+				text = "#inv_inspect_rotten";
+				color = Colors.COLOR_ROTTEN;
+				break;
+			}
+		}
 
 		ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
 		m_ItemInspectionController.ItemElements.Insert(element);
 	}
 
-	void UpdateItemInfoQuantity(int quantityType, float quantity, int quantityMax, bool ratio = true)
+	protected void UpdateItemInfoFoodStage()
+	{
+		Edible_Base food_item = Edible_Base.Cast(m_Item);
+		if (food_item && food_item.HasFoodStage())
+		{
+			FoodStage food_stage = food_item.GetFoodStage();
+			FoodStageType food_stage_type = food_stage.GetFoodStageType();
+			UpdateItemInfoFoodStage(food_stage_type);
+		}
+	}
+
+	protected void UpdateItemInfoLiquidType()
 	{
 		string text;
 		int color;
+		ExpansionItemTooltipStatElement element;
+		ItemBase item_base = ItemBase.Cast(m_Item);
+		if (!item_base || item_base.GetQuantity() <= 0)
+			return;
+
+		if (item_base.IsBloodContainer())
+		{
+			BloodContainerBase blood_container = BloodContainerBase.Cast(item_base);
+			if (blood_container.GetBloodTypeVisible())
+			{
+				UpdateItemInfoLiquidType(blood_container.GetLiquidType(), true);
+			}
+			else
+			{
+				UpdateItemInfoLiquidType(-1, true);
+			}
+		}
+		else if (item_base && item_base.GetQuantity() > 0 && item_base.IsLiquidContainer())
+		{
+			int liquid_type = -1;
+			liquid_type = item_base.GetLiquidType();
+			UpdateItemInfoLiquidType(liquid_type);
+		}
+	}
+
+	void UpdateItemInfoLiquidType(int liquid_type, bool isBloodContainer = false)
+	{
+		string text;
+		int color;
+		ExpansionItemTooltipStatElement element;
+		if (isBloodContainer)
+		{
+			if (liquid_type > -1)
+			{
+				string type;
+				bool positive;
+				string blood_type_name = BloodTypes.GetBloodTypeName(liquid_type, type, positive);
+				text = "#inv_inspect_blood: " + blood_type_name;
+				color = Colors.COLOR_LIQUID;
+			}
+			else if (liquid_type == -1)
+			{
+				text = "#inv_inspect_blood";
+				color = Colors.COLOR_LIQUID;
+			}
+
+			element = new ExpansionItemTooltipStatElement(text, color);
+			m_ItemInspectionController.ItemElements.Insert(element);
+		}
+		else if (liquid_type > -1)
+		{
+			text = ExpansionWorld.GetLiquidDisplayName(liquid_type, true, color);
+
+			element = new ExpansionItemTooltipStatElement(text, color);
+			m_ItemInspectionController.ItemElements.Insert(element);
+		}
+	}
+
+	void UpdateItemInfoQuantityEx(int quantityType, float quantity, int quantityMax, bool ratio = true, out string text = "", out int color = 0)
+	{
 		string quantity_str;
 		if (quantityMax > 0) // Some items, like books, have quantityMax set to 0 => division by ZERO error in quantity_ratio
 		{
@@ -239,18 +349,10 @@ class ExpansionItemInspection: ExpansionScriptView
 				}
 			}
 		}
-		
-		if (text != string.Empty)
-		{
-			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
-			m_ItemInspectionController.ItemElements.Insert(element);
-		}
 	}
 
-	void UpdateItemInfoQuantity()
+	void UpdateItemInfoQuantityEx(out string text, out int color)
 	{
-		string text;
-		int color;
 		ItemBase item_base = ItemBase.Cast(m_Item);
 		if (item_base)
 		{
@@ -345,19 +447,41 @@ class ExpansionItemInspection: ExpansionScriptView
 					}
 				}
 			}
-		
-			if (text != string.Empty)
-			{
-				ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
-				m_ItemInspectionController.ItemElements.Insert(element);
-			}
 		}
 	}
 
-	protected void UpdateItemInfoWeight()
+	protected void UpdateItemInfoTemperature()
 	{
 		string text;
 		int color;
+		float temperature;
+		ItemBase item_base = ItemBase.Cast(m_Item);
+		if (!item_base)
+			return;
+
+		temperature = item_base.GetTemperature();
+
+		if (temperature > 30)
+		{
+			if (temperature > 100)
+			{
+				temperature = 100 * Math.Floor(temperature / 100.0);
+			}
+			else
+			{
+				temperature = 10 * Math.Floor(temperature / 10.0);
+			}
+
+			text = "#inv_inspect_about " + temperature.ToString() +  " " + "#inv_inspect_celsius";
+			color = GetTemperatureColor(temperature);
+
+			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
+			m_ItemInspectionController.ItemElements.Insert(element);
+		}
+	}
+
+	protected void UpdateItemInfoWeightEx(out string text, out int color)
+	{
 		int weight;
 		ItemBase item_IB = ItemBase.Cast(m_Item);
 		if (item_IB)
@@ -395,9 +519,6 @@ class ExpansionItemInspection: ExpansionScriptView
 			text = "#inv_inspect_under_025";
 			color = Colors.COLOR_DEFAULT;
 		}
-		
-		ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
-		m_ItemInspectionController.ItemElements.Insert(element);
 	}
 
 	protected void UpdateItemInfoWetness()
@@ -452,204 +573,115 @@ class ExpansionItemInspection: ExpansionScriptView
 		ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
 		m_ItemInspectionController.ItemElements.Insert(element);
 	}
-
-	protected void UpdateItemInfoTemperature()
+	
+	void UpdateItemStats()
 	{
-		string text;
-		int color;
-		float temperature;
-		ItemBase item_base = ItemBase.Cast(m_Item);
-		if (!item_base)
-			return;
-
-		temperature = item_base.GetTemperature();
-
-		if (temperature > 30)
-		{
-			if (temperature > 100)
-			{
-				temperature = 100 * Math.Floor(temperature / 100.0);
-			}
-			else
-			{
-				temperature = 10 * Math.Floor(temperature / 10.0);
-			}
-
-			text = "#inv_inspect_about " + temperature.ToString() +  " " + "#inv_inspect_celsius";
-			color = GetTemperatureColor(temperature);
-
-			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
-			m_ItemInspectionController.ItemElements.Insert(element);
-		}
+		UpdateItemInfoWetness();
+		UpdateItemInfoTemperature();
+		UpdateItemInfoLiquidType();
+		UpdateItemInfoFoodStage();
+		UpdateItemInfoCleanness();
+		UpdateItemInfoCargoSize();
 	}
+}
 
-	protected void UpdateItemInfoLiquidType()
+class ExpansionItemInspection: ExpansionItemInspectionBase
+{
+	ItemPreviewWidget ItemPreview;
+	protected ButtonWidget BackButton;
+	protected ImageWidget IconClose;
+	
+	protected int m_CharacterRotationX;
+	protected int m_CharacterRotationY;
+	protected int m_CharacterScaleDelta;
+	protected vector m_CharacterOrientation;
+	
+	protected ref ScriptView m_ParentView;
+	
+	override string GetLayoutFile()
 	{
-		string text;
-		int color;
-		ExpansionItemTooltipStatElement element;
-		ItemBase item_base = ItemBase.Cast(m_Item);
-		if (!item_base || item_base.GetQuantity() <= 0)
-			return;
-
-		if (item_base.IsBloodContainer())
-		{
-			BloodContainerBase blood_container = BloodContainerBase.Cast(item_base);
-			if (blood_container.GetBloodTypeVisible())
-			{
-				UpdateItemInfoLiquidType(blood_container.GetLiquidType(), true);
-			}
-			else
-			{
-				UpdateItemInfoLiquidType(-1, true);
-			}
-		}
-		else if (item_base && item_base.GetQuantity() > 0 && item_base.IsLiquidContainer())
-		{
-			int liquid_type = -1;
-			liquid_type = item_base.GetLiquidType();
-			UpdateItemInfoLiquidType(liquid_type);
-		}
+		return "DayZExpansion/Core/GUI/layouts/mvc/expansion_item_inspection.layout";
 	}
-
-	void UpdateItemInfoLiquidType(int liquid_type, bool isBloodContainer = false)
+	
+	void SetItem(Object item)
 	{
-		string text;
-		int color;
-		ExpansionItemTooltipStatElement element;
-		if (isBloodContainer)
-		{
-			if (liquid_type > -1)
-			{
-				string type;
-				bool positive;
-				string blood_type_name = BloodTypes.GetBloodTypeName(liquid_type, type, positive);
-				text = "#inv_inspect_blood: " + blood_type_name;
-				color = Colors.COLOR_LIQUID;
-			}
-			else if (liquid_type == -1)
-			{
-				text = "#inv_inspect_blood";
-				color = Colors.COLOR_LIQUID;
-			}
+		m_Item = item;
+		
+		if (!m_ItemInspectionController)
+			m_ItemInspectionController = ExpansionItemInspectionController.Cast(GetController());
 
-			element = new ExpansionItemTooltipStatElement(text, color);
-			m_ItemInspectionController.ItemElements.Insert(element);
-		}
-		else if (liquid_type > -1)
+		m_ItemInspectionController.ItemName = m_Item.GetDisplayName();
+		m_ItemInspectionController.ItemDescription = ExpansionStatic.GetItemDescriptionWithType(m_Item.GetType());
+		ItemDescWidget.Update();
+		m_ItemInspectionController.NotifyPropertiesChanged({"ItemDescription", "ItemName"});
+		
+		if (!ItemPreview)
 		{
-			text = ExpansionWorld.GetLiquidDisplayName(liquid_type, true, color);
-
-			element = new ExpansionItemTooltipStatElement(text, color);
-			m_ItemInspectionController.ItemElements.Insert(element);
+			Widget preview_frame = GetLayoutRoot().FindAnyWidget("ItemPreview");
+			if (preview_frame)
+			{
+				ItemPreview = ItemPreviewWidget.Cast(preview_frame);
+			}
 		}
+		
+		ItemPreview.SetItem(EntityAI.Cast(item));
+		ItemBase itemIB = ItemBase.Cast(item);
+		if (itemIB)
+			ItemPreview.SetView(itemIB.GetViewIndex());
+
+		ItemPreview.SetModelPosition(Vector(0,0,1));
 	}
-
-	void UpdateItemInfoFoodStage(int food_stage_type)
+	
+	void SetParentView(ScriptView parentView)
 	{
-		if (food_stage_type == -1)
-			return;
-
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, this, "Parent view: " + parentView);
+		
+		m_ParentView = parentView;
+	}
+	
+	override void UpdateItemInfoDamage(int damageLevel)
+	{
 		string text;
 		int color;
-		switch (food_stage_type)
-		{
-			case FoodStageType.RAW:
-			{
-				text = "#inv_inspect_raw";
-				color = Colors.COLOR_RAW;
-				break;
-			}
-			case FoodStageType.BAKED:
-			{
-				text = "#inv_inspect_baked";
-				color = Colors.COLOR_BAKED;
-				break;
-			}
-			case FoodStageType.BOILED:
-			{
-				text = "#inv_inspect_boiled";
-				color = Colors.COLOR_BOILED;
-				break;
-			}
-			case FoodStageType.DRIED:
-			{
-				text = "#inv_inspect_dried";
-				color = Colors.COLOR_DRIED;
-				break;
-			}
-			case FoodStageType.BURNED:
-			{
-				text = "#inv_inspect_burned";
-				color = Colors.COLOR_BURNED;
-				break;
-			}
-			case FoodStageType.ROTTEN:
-			{
-				text = "#inv_inspect_rotten";
-				color = Colors.COLOR_ROTTEN;
-				break;
-			}
-		}
+		UpdateItemInfoDamageEx(damageLevel, text, color);
 
 		ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
 		m_ItemInspectionController.ItemElements.Insert(element);
 	}
 
-	protected void UpdateItemInfoFoodStage()
-	{
-		Edible_Base food_item = Edible_Base.Cast(m_Item);
-		if (food_item && food_item.HasFoodStage())
-		{
-			FoodStage food_stage = food_item.GetFoodStage();
-			FoodStageType food_stage_type = food_stage.GetFoodStageType();
-			UpdateItemInfoFoodStage(food_stage_type);
-		}
-	}
-
-	protected void UpdateItemInfoCleanness()
+	void UpdateItemInfoQuantity(int quantityType, float quantity, int quantityMax, bool ratio = true)
 	{
 		string text;
 		int color;
-		ItemBase ib = ItemBase.Cast(m_Item);
-		if (ib && ib.m_Cleanness == 1)
-		{
-			text = "#inv_inspect_cleaned";
-			color = Colors.WHITEGRAY;
+		UpdateItemInfoQuantityEx(quantityType, quantity, quantityMax, ratio, text, color);
+		UpdateItemInfoQuantity(text, color);
+	}
 
+	void UpdateItemInfoQuantity()
+	{
+		string text;
+		int color;
+		UpdateItemInfoQuantityEx(text, color);
+		UpdateItemInfoQuantity(text, color);
+	}
+
+	void UpdateItemInfoQuantity(string text, int color)
+	{
+		if (text != string.Empty)
+		{
 			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
 			m_ItemInspectionController.ItemElements.Insert(element);
 		}
 	}
-	
-	void UpdateItemInfoCargoSize(string className)
+
+	protected void UpdateItemInfoWeight()
 	{
-		string cfgClassPath;
-		if (GetGame().ConfigIsExisting("cfgVehicles " + className + " " + "Cargo "))
-		{
-			cfgClassPath = "cfgVehicles " + className + " " + "Cargo ";
-		}
-		else
-		{
-			cfgClassPath = "cfgVehicles " + className + " ";
-		}
+		string text;
+		int color;
+		UpdateItemInfoWeightEx(text, color);
 		
-		array<int> cargoSize = new array<int>;
-		int size1, size2;
-		GetGame().ConfigGetIntArray(cfgClassPath + "itemsCargoSize", cargoSize);
-
-		size1 = cargoSize[0];
-		size2 = cargoSize[1];
-		
-		Print(ToString() + "::UpdateItemInfoCargoSize - Cargo size: " + size1 + "x" + size2);
-
-		if (size1 > 0 && size2 > 0)
-		{
-			string text = "#STR_EXPANSION_INV_CARGO_SIZE " + size1 + "x" + size2;
-			int color = Colors.WHITEGRAY;
-			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
-			m_ItemInspectionController.ItemElements.Insert(element);
-		}
+		ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
+		m_ItemInspectionController.ItemElements.Insert(element);
 	}
 
 	override void OnShow()
@@ -751,8 +783,16 @@ class ExpansionItemInspection: ExpansionScriptView
 class ExpansionItemInspectionController: ExpansionViewController
 {
 	ref ObservableCollection<ref ExpansionItemTooltipStatElement> ItemElements = new ObservableCollection<ref ExpansionItemTooltipStatElement>(this);
-	Object ItemPreview;
+
 	string ItemName;
+	string ItemDamage;
+	string ItemQuantity;
+	string ItemWeight;
+	string ItemWetness;
+	string ItemTemperature;
+	string ItemLiquidType;
+	string ItemFoodStage;
+	string ItemCleanness;
 	string ItemDescription;
-	
+	Object ItemPreview;
 };
