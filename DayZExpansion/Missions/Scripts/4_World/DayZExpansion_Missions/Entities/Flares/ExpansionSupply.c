@@ -12,17 +12,18 @@
 
 class ExpansionSupplySignal: M18SmokeGrenade_Purple
 {
-	override void OnWorkStart()
+	override void Unpin()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MISSIONS, this, "OnWorkStart");
-#endif
-
-		super.OnWorkStart();
+		super.Unpin();
 
 		if ( IsMissionHost() )
 		{
-			ExpansionMissionModule.s_Instance.CallAirdrop(GetPosition());
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_CallAirdrop, m_FuseDelay * 1000);
 		}
+	}
+
+	void Expansion_CallAirdrop()
+	{
+		ExpansionMissionModule.s_Instance.CallAirdrop(GetPosition());
 	}
 };

@@ -64,7 +64,6 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	{
 		super.OnInit();
 
-		EnableClientRespawn();
 		EnableInvokeConnect();
 		Expansion_EnableRPCManager();
 		#ifndef SERVER
@@ -87,15 +86,6 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		Expansion_RegisterServerRPC("RPC_Leave");
 		Expansion_RegisterServerRPC("RPC_PlayerEnteredTerritory");
 	}
-
-	// ------------------------------------------------------------
-	// Override OnClientRespawn
-	// Called on server
-	// ------------------------------------------------------------
-	override void OnClientRespawn(Class sender, CF_EventArgs args)
-	{
-		OnInvokeConnect(sender, args);
-	}
 	
 	// ------------------------------------------------------------
 	// Override OnPlayerConnect
@@ -105,7 +95,11 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	{
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 
-		if ( !cArgs.Player )
+		if ( !cArgs.Identity )
+			return;
+
+		//! If this is a respawn, need to do nothing of the below
+		if (SyncEvents.s_Expansion_RespawningUIDs[cArgs.Identity.GetId()])
 			return;
 
 		string uid = cArgs.Identity.GetId();
@@ -139,7 +133,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 				#endif
 
 				UpdateClient( territory.GetTerritoryID() );
-				//UpdateClient( territory.GetTerritoryID(), cArgs.Player ); //! Why we call a single update for the connecting player when we update all members anyways?
+				//UpdateClient( territory.GetTerritoryID(), cArgs.Identity ); //! Why we call a single update for the connecting player when we update all members anyways?
 			}
 		}
 		
@@ -149,7 +143,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		}
 		
 		//Sync invites
-		SyncPlayerInvitesServer( cArgs.Player );
+		SyncPlayerInvitesServer( cArgs.Identity );
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::OnPlayerConnect - End");
@@ -221,9 +215,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	// Expansion UpdateClient
 	// Called on server
 	// ------------------------------------------------------------
-	void UpdateClient( int territoryID, PlayerBase player )
+	void UpdateClient( int territoryID, PlayerIdentity identity )
 	{
-		if ( !IsMissionHost() || !player || !player.GetIdentity() )
+		if ( !IsMissionHost() || !identity )
 			return;
 		
 		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
@@ -234,7 +228,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		if ( !territory )
 			return;
 		
-		Send_UpdateClient(territory.GetTerritoryID(), territory, player.GetIdentity());
+		Send_UpdateClient(territory.GetTerritoryID(), territory, identity);
 	}
 
 	// ------------------------------------------------------------
@@ -614,7 +608,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 				if (!currPlayerInvite)
 					continue;
 				
-				SyncPlayerInvitesServer(currPlayerInvite);
+				SyncPlayerInvitesServer(currPlayerInvite.GetIdentity());
 			}
 		
 			if ( GetExpansionSettings().GetLog().Territory )
@@ -746,7 +740,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			if (!currPlayerInvite)
 				continue;
 			
-			SyncPlayerInvitesServer(currPlayerInvite);
+			SyncPlayerInvitesServer(currPlayerInvite.GetIdentity());
 		}
 		
 		if ( sender && GetExpansionSettings().GetLog().Territory )
@@ -780,12 +774,12 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	// ExpansionPartyModule SyncPlayerInvitesServer
 	// Called on server
 	// ------------------------------------------------------------
-	void SyncPlayerInvitesServer( PlayerBase sender )
+	void SyncPlayerInvitesServer( PlayerIdentity identity )
 	{
-		if ( !IsMissionHost() || !sender || !sender.GetIdentity() )
+		if ( !IsMissionHost() || !identity )
 			return;
 		
-		string id = sender.GetIdentityUID();
+		string id = identity.GetId();
 		array< ref ExpansionTerritoryInvite > invites = new array< ref ExpansionTerritoryInvite >;
 		
 		foreach (int territoryID, TerritoryFlag flag: m_TerritoryFlags)
@@ -806,7 +800,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		auto rpcServer = Expansion_CreateRPC("RPC_SyncPlayerInvitesClient");
 		rpcServer.Write( invites );
-		rpcServer.Expansion_Send(true, sender.GetIdentity());
+		rpcServer.Expansion_Send(true, identity);
 	}
 	
 	// ------------------------------------------------------------
@@ -957,7 +951,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 		
-		SyncPlayerInvitesServer(targetPlayer);
+		SyncPlayerInvitesServer(targetPlayer.GetIdentity());
 		
 		if ( GetExpansionSettings().GetLog().Territory )
 			GetExpansionSettings().GetLog().PrintLog("[Territory] Player \"" + targetPlayer.GetIdentity().GetName() + "\" (id=" + targetPlayer.GetIdentity().GetId() + " pos=" + targetPlayer.GetPosition() +") was invited to join the territory " + territory.GetTerritoryName() + " at " + territory.GetPosition() + " by the player \"" + sender.GetName() + "\" (id=" + sender.GetId() +")");
@@ -1075,7 +1069,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		territory.RemoveTerritoryInvite( sender.GetId() );
 		territory.AddMember( sender.GetId(), sender.GetName() );
 		
-		SyncPlayerInvitesServer( senderPlayer );
+		SyncPlayerInvitesServer( senderPlayer.GetIdentity() );
 		UpdateClient( territoryID );
 		
 		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_ADDED", territory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
@@ -1173,7 +1167,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		}
 		
 		territory.RemoveTerritoryInvite( sender.GetId() );		
-		SyncPlayerInvitesServer( senderPlayer );
+		SyncPlayerInvitesServer( senderPlayer.GetIdentity() );
 		//UpdateClient( territoryID );
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG

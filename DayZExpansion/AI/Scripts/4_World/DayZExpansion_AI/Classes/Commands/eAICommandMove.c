@@ -547,7 +547,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 					{
 						m_OverrideTargetMovementDirection = 90.0;
 						if (m_OverrideMovementTimeout <= 0)
-							m_OverrideMovementTimeout = 1 / m_MovementSpeed;
+							m_OverrideMovementTimeout = 1.5 / m_MovementSpeed;
 						m_OverrideWaypoint = rightPos;
 						if (blockedLeft)
 						{
@@ -569,7 +569,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 						//! Go left
 						m_OverrideTargetMovementDirection = -90.0;
 						if (m_OverrideMovementTimeout <= 0)
-							m_OverrideMovementTimeout = 1 / m_MovementSpeed;
+							m_OverrideMovementTimeout = 1.5 / m_MovementSpeed;
 						m_OverrideWaypoint = leftPos;
 						if (blockedRight)
 						{
@@ -838,7 +838,12 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 		float dirChangeSpeed = pDt;
 		if (m_ForceMovementDirection)
-			dirChangeSpeed *= 4;
+		{
+			if (m_TargetMovementDirection == 0)
+				dirChangeSpeed *= 24;
+			else
+				dirChangeSpeed *= 4;
+		}
 
 		m_MovementDirection += ExpansionMath.AngleDiff2(m_MovementDirection, m_TargetMovementDirection) * dirChangeSpeed;
 		m_MovementDirection = Math.Clamp(m_MovementDirection, -180.0, 180.0);

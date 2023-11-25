@@ -17,6 +17,13 @@ modded class ExpansionSettings
 
 	ExpansionAISettings m_AISettings;
 
+	override void ServerInit()
+	{
+		super.ServerInit();
+
+		m_AISettings = ExpansionAISettings.Cast(Get(ExpansionAISettings));
+	}
+
 	override void Init()
 	{
 		super.Init();
@@ -32,9 +39,11 @@ modded class ExpansionSettings
 
 	ExpansionAISettings GetAI(bool checkLoaded = true)
 	{
-		if (!m_AISettings)
-			m_AISettings = ExpansionAISettings.Cast(Get(ExpansionAISettings, checkLoaded));
+	#ifdef SERVER
 		return m_AISettings;
+	#else
+		return ExpansionAISettings.Cast(Get(ExpansionAISettings, checkLoaded));
+	#endif
 	}
 
 	ExpansionAIPatrolSettings GetAIPatrol(bool checkLoaded = true)

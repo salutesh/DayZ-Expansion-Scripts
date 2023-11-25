@@ -94,6 +94,16 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 				camoNet.SetHealth(camoNetAttachment.GetHealth());
 		}
 
+		int slotId = InventorySlots.GetSlotIdFromString("KeyChain");
+		auto keychain = ExpansionKeyChainBase.Cast(placeholder.GetInventory().FindAttachment(slotId));
+		if (keychain)
+		{
+			if (entity.GetInventory().HasAttachmentSlot(slotId))
+			{
+				entity.ServerTakeEntityAsAttachmentEx(keychain, slotId);
+			}
+		}
+
 		GetGame().ObjectDelete(placeholder);
 		
 		if (GetExpansionSettings().GetLog().VehicleCover)

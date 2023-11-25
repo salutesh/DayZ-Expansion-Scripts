@@ -420,6 +420,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		super.OnInvokeConnect(sender, args);
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		//! If this is a respawn, need to do nothing of the below
+		if (SyncEvents.s_Expansion_RespawningUIDs[cArgs.Identity.GetId()])
+			return;
+
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetQuest().EnableQuests)
 		{
 			QuestModulePrint("Initialize quest system on the connected client with UID: [" + cArgs.Identity.GetId() + "].");

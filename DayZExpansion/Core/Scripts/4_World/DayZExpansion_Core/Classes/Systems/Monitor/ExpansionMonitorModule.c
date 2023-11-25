@@ -26,7 +26,6 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	//Server only
 	private ref map<string, ref ExpansionSyncedPlayerStats> m_Stats;
 	private ref map<string, ref ExpansionSyncedPlayerStates> m_States;
-	private ref TStringArray m_PlayerIDs;
 	
 	private float m_UpdateQueueTimer;
 	private int m_CurrentPlayerTick;
@@ -57,7 +56,6 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		EnableClientDisconnect();
 		EnableClientNew();
 		EnableClientReady();
-		EnableClientRespawn();
 		EnableInvokeConnect();
 		Expansion_EnableRPCManager();
 
@@ -67,8 +65,6 @@ class ExpansionMonitorModule: CF_ModuleWorld
 
 		m_Stats = new map<string, ref ExpansionSyncedPlayerStats>;
 		m_States = new map<string, ref ExpansionSyncedPlayerStates>;
-
-		m_PlayerIDs = new TStringArray();
 
 		m_ClientStats = new ExpansionSyncedPlayerStats;
 		m_ClientStates = new ExpansionSyncedPlayerStates;
@@ -187,15 +183,16 @@ class ExpansionMonitorModule: CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 
-		if (!cArgs.Player)
+		if (!cArgs.Identity)
 			return;
-		
-		string playerID = cArgs.Player.GetIdentity().GetPlainId();
-		AddPlayerStats(playerID, cArgs.Player);
-		AddPlayerStates(playerID, cArgs.Player);
 
-		if (m_PlayerIDs.Find(playerID) == -1)
-			m_PlayerIDs.Insert(playerID);
+		//! If this is a respawn, need to do nothing of the below
+		if (SyncEvents.s_Expansion_RespawningUIDs[cArgs.Identity.GetId()])
+			return;
+
+		string playerID = cArgs.Identity.GetPlainId();
+		AddPlayerStats(playerID);
+		AddPlayerStates(playerID);
 		
 		SyncLastDeathPos(cArgs.Identity);
 	}
@@ -217,7 +214,6 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		string playerID = PlayerBase.Expansion_GetPlainIDByUID(cArgs.UID);
 		RemovePlayerStats(playerID);
 		RemovePlayerStates(playerID);
-		m_PlayerIDs.RemoveItem(playerID);
 
 		PlayerLeftNotification(cArgs.Identity);
 	}
@@ -343,7 +339,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ExpansionMonitorModule AddPlayerStats
 	// Called on server
 	// ------------------------------------------------------------
-	void AddPlayerStats(string playerID, PlayerBase player)
+	void AddPlayerStats(string playerID)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "AddPlayerStats");
@@ -363,7 +359,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ExpansionMonitorModule AddPlayerStates
 	// Called on server
 	// ------------------------------------------------------------
-	void AddPlayerStates(string playerID, PlayerBase player)
+	void AddPlayerStates(string playerID)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "AddPlayerStates");
@@ -1012,18 +1008,6 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	vector GetLastDeathPosClient()
 	{
 		return m_LastDeathPos;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule OnClientRespawn
-	// ------------------------------------------------------------	
-	override void OnClientRespawn(Class sender, CF_EventArgs args)
-	{
-		super.OnClientRespawn(sender, args);
-
-		auto cArgs = CF_EventPlayerArgs.Cast(args);
-		
-		SyncLastDeathPos(cArgs.Identity);
 	}
 };
 #endif

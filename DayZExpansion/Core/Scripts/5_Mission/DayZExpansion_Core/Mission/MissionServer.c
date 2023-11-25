@@ -193,11 +193,19 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	override void InvokeOnConnect( PlayerBase player, PlayerIdentity identity )
 	{
-#ifdef EXPANSION_SETTINGS_DELAY
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SendSettings, 20000, false, player);
-#else
-		GetExpansionSettings().Send( identity );
-#endif
+		string uid = identity.GetId();
+		bool isRespawn = SyncEvents.s_Expansion_RespawningUIDs[uid];
+
+		//! Need to send settings BEFORE super so that modules come after
+		if (!isRespawn)
+		{
+			//! Only send settings if this is not a respawn
+		#ifdef EXPANSION_SETTINGS_DELAY
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SendSettings, 20000, false, player);
+		#else
+			GetExpansionSettings().Send( identity );
+		#endif
+		}
 
 		PlayerBase.Expansion_AddPlayer( player, identity );
 		
@@ -206,14 +214,14 @@ modded class MissionServer
 
 		PlayerBase.s_Expansion_SI_OnPlayerConnected.Invoke(player, identity);
 
-		string uid = identity.GetId();
-		if (SyncEvents.s_Expansion_RespawningUIDs[uid])
+		if (isRespawn)
 		{
 			EXTrace.Print(EXTrace.PLAYER, this, "Client respawn");
+			//! Next call directly after InvokeOnConnect is SyncEvents.SendPlayerList which will reset s_Expansion_IsClientRespawn
 			SyncEvents.s_Expansion_IsClientRespawn = true;
+			//! IMPORTANT: Remove respawning UID only AFTER super call so that modules still see it!
 			SyncEvents.s_Expansion_RespawningUIDs.Remove(uid);
 		}
-		//! Next call directly after InvokeOnConnect is SyncEvents.SendPlayerList which will reset s_Expansion_IsClientRespawn
 	}
 	
 	void Expansion_SendSettings(PlayerBase player)
