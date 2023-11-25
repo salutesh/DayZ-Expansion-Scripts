@@ -113,6 +113,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		if (!cArgs.Identity)
 			return;
 
+		//! If this is a respawn, need to do nothing of the below
+		if (SyncEvents.s_Expansion_RespawningUIDs[cArgs.Identity.GetId()])
+			return;
+
 		EXTrace.Add(trace, cArgs.Identity.GetId());
 
 		auto rpc = Expansion_CreateRPC("RPC_RemoveObjects");

@@ -88,16 +88,21 @@ class EXError
 
 	static void Log(Class instance, string msg, TStringArray stack, inout bool check = false)
 	{
-		if (check)
-			return;
-
-		check = true;
-
 		if (!s_BaseName)
 		{
 			s_BaseName = string.Format("error_%1.log", s_Start.GetISODateTime("_", "-"));
 			s_FileName = "$profile:" + s_BaseName;
 		}
+
+		LogToFile(s_FileName, instance, msg, stack, check);
+	}
+
+	static void LogToFile(string fileName, Class instance, string msg, TStringArray stack, inout bool check = false)
+	{
+		if (check)
+			return;
+
+		check = true;
 
 		string now = CF_Date.Now().Format(CF_Date.DATETIME);
 
@@ -105,13 +110,13 @@ class EXError
 
 		EXTee tee;
 
-		if (FileExist(s_FileName))
+		if (FileExist(fileName))
 		{
-			tee = new EXTee(s_FileName, FileMode.APPEND);
+			tee = new EXTee(fileName, FileMode.APPEND);
 		}
 		else
 		{
-			tee = new EXTee(s_FileName, FileMode.WRITE);
+			tee = new EXTee(fileName, FileMode.WRITE);
 
 			tee.WriteLine("---------------------------------------------", false);
 			tee.WriteLine(string.Format("Log %1 started at %2", s_BaseName, now), false);

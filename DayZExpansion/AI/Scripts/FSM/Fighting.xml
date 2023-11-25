@@ -129,7 +129,7 @@
 				{
 					unit.RaiseWeapon(true);
 				}
-				else if (wantsLower || !unit.CanRaiseWeapon() || !unit.eAI_HasLOS())
+				else if (wantsLower || !unit.CanRaiseWeapon() || !unit.eAI_HasLOS(target))
 				{
 					unit.RaiseWeapon(false);
 					unit.eAI_AdjustStance(fsm.LastFireTime, timeSinceLastFire, fsm.TimeBetweenFiringAndGettingUp);
@@ -144,7 +144,7 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				unit.eAI_ForceSideStep(1.0);
+				unit.eAI_ForceSideStep(Math.RandomFloat(0.3, 0.5));
 				unit.OverrideMovementSpeed(true, 3);
 			</event_entry>
 			<event_exit>
@@ -348,7 +348,8 @@
 			<guard>
 				int missionTime = GetGame().GetTime();
 				
-				if (missionTime - fsm.LastEvadeTime &lt; Math.RandomInt(2500, 5000)) return FAIL;
+				Weapon_Base aiWeapon;
+				if (Class.CastTo(aiWeapon, unit.GetHumanInventory().GetEntityInHands()) &amp;&amp; missionTime - fsm.LastEvadeTime &lt; Math.RandomInt(2500, 5000)) return FAIL;
 				
 				auto target = unit.GetTarget();
 				if (!target) return FAIL;
@@ -358,7 +359,7 @@
 				
 				if (!targetPlayer.IsRaised()) return FAIL;  //! Ignore if target player isn't raised
 				
-				if (!unit.eAI_HasLOS()) return FAIL;
+				if (!unit.eAI_HasLOS(target)) return FAIL;
 				
 				auto weapon = Weapon_Base.Cast(targetPlayer.GetHumanInventory().GetEntityInHands());
 				if (!weapon) return FAIL;  //! Ignore if target player doesn't have a firearm
@@ -409,7 +410,7 @@
 				
 				if (!Class.CastTo(dst.weapon, unit.GetItemInHands()) || dst.weapon.IsDamageDestroyed()) return FAIL;
 				
-				if (!unit.CanRaiseWeapon() || !unit.eAI_HasLOS()) return FAIL;
+				if (!unit.CanRaiseWeapon() || !unit.eAI_HasLOS(dst.target)) return FAIL;
 				
 				if (!dst.weapon.Expansion_IsChambered()) return FAIL;
 				

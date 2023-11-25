@@ -125,10 +125,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		EnableMissionStart();
 		EnableMissionLoaded();
-		#ifdef SERVER
 		EnableInvokeConnect();
 		EnableUpdate();
-		#endif
 		Expansion_EnableRPCManager();
 		
 		Expansion_RegisterClientRPC("RPC_SendWorkbenchData");
@@ -172,7 +170,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#endif
 	}
 
-#ifndef SERVER
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -186,7 +183,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ClearPlayerFaction, 5000, false, cArgs.Identity);
 		}
 	}
-#endif
 
 	protected void ClearPlayerFaction(PlayerIdentity identity)
 	{

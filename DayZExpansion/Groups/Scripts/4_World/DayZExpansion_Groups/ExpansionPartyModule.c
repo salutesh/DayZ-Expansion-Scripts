@@ -187,23 +187,23 @@ class ExpansionPartyModule: CF_ModuleWorld
 		m_PartyIDs.RemoveItem(partyID);
 	}
 
-	void SyncPlayerInvitesServer(notnull PlayerBase sender)
+	void SyncPlayerInvitesServer(notnull PlayerIdentity identity)
 	{
-		if (!IsMissionHost() || !sender || !sender.GetIdentity())
+		if (!IsMissionHost())
 			return;
 
 		array<ref ExpansionPartyInviteData> invites = new array<ref ExpansionPartyInviteData>();
 
 		foreach (int i, ExpansionPartyData data : m_Parties)
 		{
-			ExpansionPartyInviteData invite = data.GetPlayerInvite(sender.GetIdentityUID());
+			ExpansionPartyInviteData invite = data.GetPlayerInvite(identity.GetId());
 			if (invite)
 				invites.Insert(invite);
 		}
 
 		auto rpcServer = Expansion_CreateRPC("RPC_SyncPlayerInvitesClient");
 		rpcServer.Write(invites);
-		rpcServer.Expansion_Send(true, sender.GetIdentity());
+		rpcServer.Expansion_Send(true, identity);
 	}
 
 	private void RPC_SyncPlayerInvitesClient(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
@@ -349,7 +349,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 			PlayerBase partyPlayer = PlayerBase.GetPlayerByUID(currPlayer.UID);
 			if (partyPlayer && partyPlayer.GetIdentity())
 			{
-				UpdatePlayerServer(NULL, partyPlayer);
+				UpdatePlayerServer(NULL, partyPlayer.GetIdentity());
 				ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_PARTY_DISSOLVED").Success(partyPlayer.GetIdentity());
 			}
 		}
@@ -425,7 +425,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 		if (party.HasPlayerInvite(targetID))
 		{
-			SyncPlayerInvitesServer(targetPlayer);
+			SyncPlayerInvitesServer(targetPlayer.GetIdentity());
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_INVITED").Error(sender);
 			return;
 		}
@@ -447,7 +447,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 		UpdatePartyMembersServer(partyId);
 
-		SyncPlayerInvitesServer(targetPlayer);
+		SyncPlayerInvitesServer(targetPlayer.GetIdentity());
 
 		if (GetExpansionSettings().GetLog().Party)
 			GetExpansionSettings().GetLog().PrintLog("[Party] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " invited the player \"" + targetPlayer.GetIdentity().GetName() + "\" (id=" + targetPlayer.GetIdentity().GetId() + ")" + "to the party named " + party.GetPartyName());
@@ -500,7 +500,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 		UpdatePartyMembersServer(partyID);
 
-		SyncPlayerInvitesServer(senderPlayer);
+		SyncPlayerInvitesServer(senderPlayer.GetIdentity());
 
 		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", new StringLocaliser("STR_EXPANSION_PARTY_INVITE_DECLINED", party.GetPartyName())).Success(sender);
 	}
@@ -567,7 +567,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		//! Inform all party members that a new player joined
 		UpdatePartyMembersServer(partyID);
 
-		SyncPlayerInvitesServer(senderPlayer);
+		SyncPlayerInvitesServer(senderPlayer.GetIdentity());
 
 		SendNotificationToMembers(new StringLocaliser("STR_EXPANSION_PARTY_MEMBER_ADDED_SENDER", sender.GetName()), party, sender);
 	}
@@ -647,9 +647,9 @@ class ExpansionPartyModule: CF_ModuleWorld
 			targetIdentity = targetPlayer.GetIdentity();
 
 			//! Update player that was removed from party
-			UpdatePlayerServer(NULL, targetPlayer);
+			UpdatePlayerServer(NULL, targetIdentity);
 
-			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MEMBER_REMOVED").Success(targetPlayer.GetIdentity());
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MEMBER_REMOVED").Success(targetIdentity);
 		}
 
 		//! @note if targetPlayer *is not online*, targetIdentity will be NULL. This is intended and what we want.
@@ -679,7 +679,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 			if (!player)
 				continue;
 
-			UpdatePlayerServer(party, player);
+			UpdatePlayerServer(party, player.GetIdentity());
 		}
 	}
 
@@ -708,10 +708,10 @@ class ExpansionPartyModule: CF_ModuleWorld
 		return true;
 	}
 
-	void UpdatePlayerServer(int partyId, PlayerBase player)
+	void UpdatePlayerServer(int partyId, PlayerIdentity identity)
 	{
 		ExpansionPartyData party = m_Parties.Get(partyId);
-		UpdatePlayerServer(party, player);
+		UpdatePlayerServer(party, identity);
 	}
 
 	void UpdatePlayerServer(ExpansionPartyData party, notnull PlayerIdentity identity)
@@ -732,14 +732,6 @@ class ExpansionPartyModule: CF_ModuleWorld
 		}
 
 		rpc.Expansion_Send(true, identity);
-	}
-
-	void UpdatePlayerServer(ExpansionPartyData party, PlayerBase player)
-	{
-		if (!player || !player.GetIdentity())
-			return;
-
-		UpdatePlayerServer(party, player.GetIdentity());
 	}
 
 	private void RPC_UpdatePlayerClient(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
@@ -1160,7 +1152,12 @@ class ExpansionPartyModule: CF_ModuleWorld
 		EXPrint(ToString() + "::OnInvokeConnect " + cArgs.Identity.GetId());
 		#endif
 
-		SyncPlayerInvitesServer(cArgs.Player);
+		bool isRespawn;
+		if (SyncEvents.s_Expansion_RespawningUIDs[cArgs.Identity.GetId()])
+			isRespawn = true;
+
+		if (!isRespawn)
+			SyncPlayerInvitesServer(cArgs.Identity);
 
 		ExpansionPartyPlayerData party_player = GetPartyPlayerData(cArgs.Identity.GetId(), true);
 
@@ -1169,7 +1166,8 @@ class ExpansionPartyModule: CF_ModuleWorld
 			party_player.OnJoin(cArgs.Player);
 			party_player.GetParty().OnJoin(party_player);
 			
-			UpdatePartyMembersServer(party_player.GetParty());
+			if (!isRespawn)
+				UpdatePartyMembersServer(party_player.GetParty());
 		}
 	}
 
@@ -1403,7 +1401,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 							PlayerBase active_player = PlayerBase.GetPlayerByUID(playerData.UID);
 							if (active_player && active_player.GetIdentity())
 							{
-								UpdatePlayerServer( party, active_player );
+								UpdatePlayerServer( party, active_player.GetIdentity() );
 								updatedPlayers++;
 							}
 

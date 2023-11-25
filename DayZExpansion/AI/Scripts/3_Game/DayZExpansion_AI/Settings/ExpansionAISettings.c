@@ -324,8 +324,8 @@ class ExpansionAISettings: ExpansionSettingBase
 	{
 		m_Version = VERSION;
 
-		AccuracyMin = 0.15;
-		AccuracyMax = 0.75;
+		AccuracyMin = 0.35;
+		AccuracyMax = 0.95;
 
 		ThreatDistanceLimit = 1000.0;
 		DamageMultiplier = 1.0;

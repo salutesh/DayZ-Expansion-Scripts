@@ -2099,6 +2099,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!settings.MarketSystemEnabled && !settings.ATMSystemEnabled)
 			return;
 		
+		//! If this is a respawn, need to do nothing of the below
+		if (SyncEvents.s_Expansion_RespawningUIDs[cArgs.Identity.GetId()])
+			return;
+
 		SendMoneyDenominations(cArgs.Identity);
 		
 		if (!GetPlayerATMData(cArgs.Identity.GetId()))

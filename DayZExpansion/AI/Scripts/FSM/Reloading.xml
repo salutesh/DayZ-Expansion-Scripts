@@ -58,7 +58,7 @@
 					auto target = unit.GetTarget();
 					if (target &amp;&amp; unit.GetThreatToSelf() &gt; 0.4)
 					{
-						if (!unit.eAI_IsSideStepping() &amp;&amp; unit.eAI_HasLOS())
+						if (!unit.eAI_IsSideStepping() &amp;&amp; unit.eAI_HasLOS(target))
 						{
 							float distSq = target.GetDistanceSq(unit, true);
 							if (distSq &lt;= 2.25)

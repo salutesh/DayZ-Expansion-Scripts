@@ -18,9 +18,6 @@ modded class SyncPlayer
 #endif
 
 	[NonSerialized()]
-	string m_UID;
-
-	[NonSerialized()]
 	string m_RUID;
 
 	void Expansion_CopyFrom(SyncPlayer syncPlayer)

@@ -22,7 +22,7 @@ modded class PlayerIdentity
 		string steamId = GetPlainId();
 		int idLen = steamId.Length();
 
-		if (idLen > 18)
+		if (idLen != 17)
 		{
 			Error("Unsupported plain ID length " + idLen);
 		}
@@ -35,7 +35,7 @@ modded class PlayerIdentity
 
 	static string Expansion_PlainIdToString(int plainId[2])
 	{
-		return plainId[0].ToString() + plainId[1].ToString();
+		return plainId[0].ToString() + ExpansionString.JustifyRight(plainId[1].ToString(), 8, "0");
 	}
 
 	/**

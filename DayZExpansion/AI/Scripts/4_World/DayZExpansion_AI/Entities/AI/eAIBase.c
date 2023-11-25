@@ -93,6 +93,7 @@ class eAIBase: PlayerBase
 	private int m_MovementSpeedLimit = 3;
 	private int m_MovementSpeedLimitUnderThreat = 3;
 	private bool m_MovementDirectionActive;
+	protected bool m_eAI_ResetMovementDirectionActive;
 	private float m_MovementDirection;
 	private float m_SideStepAngle;
 	private bool m_eAI_TurnTargetActive;
@@ -441,8 +442,12 @@ class eAIBase: PlayerBase
 			}
 
 			//! If we are not targeting them, are they targeting us?
-			if (!targeted && !player.GetGroup().GetFaction().IsObserver())
-				targeted = GetTargetInformation().IsTargetted(player.GetGroup());
+			eAIBase ai;
+			float ourThreatToThem;
+			if (Class.CastTo(ai, player))
+				ourThreatToThem = ai.eAI_GetTargetThreat(GetTargetInformation());
+			if (!targeted && !player.GetGroup().GetFaction().IsObserver() && ourThreatToThem > 0.2)
+				targeted = true;
 
 			//! Other faction friendly to our faction or this specific AI?
 			if (player.GetGroup().GetFaction().IsFriendly(GetGroup().GetFaction()) || player.GetGroup().GetFaction().IsFriendly(this))
@@ -463,10 +468,9 @@ class eAIBase: PlayerBase
 			//! either aren't AI or consider us a threat
 			if (player.GetGroup().GetFaction().IsGuard())
 			{
-				eAIBase ai;
 				bool hostile;
 				//! https://feedback.bistudio.com/T173348
-				if ((player.IsRaised() || player.IsFighting()) && (!Class.CastTo(ai, player) || ai.eAI_GetTargetThreat(GetTargetInformation()) >= 0.4))
+				if ((player.IsRaised() || player.IsFighting()) && (!ai || ourThreatToThem >= 0.4))
 					hostile = true;
 #ifdef DIAG
 				eAI_UpdatePlayerIsEnemyStatus(player, hostile, "target is guard");
@@ -2071,7 +2075,7 @@ class eAIBase: PlayerBase
 					LookAtDirection("0 0 1");
 			}
 			bool aimDirectionRecalculate;
-			if (!isServer || m_eAI_CurrentThreatToSelfActive > 0.15)
+			if ((!isServer || m_eAI_CurrentThreatToSelfActive > 0.15) && hasLOS)
 				aimDirectionRecalculate = true;
 			AimAtPosition(aimPosition, aimDirectionRecalculate);
 		}
@@ -2173,6 +2177,12 @@ class eAIBase: PlayerBase
 		if (pCurrentCommandID != DayZPlayerConstants.COMMANDID_CLIMB)
 			m_PathFinding.OnUpdate(pDt, simulationPrecision);
 
+		if (m_eAI_ResetMovementDirectionActive)
+		{
+			m_MovementDirectionActive = false;
+			m_eAI_ResetMovementDirectionActive = false;
+		}
+
 		if (m_eAI_SideStepTimeout > 0)
 		{
 			m_eAI_SideStepTimeout -= pDt;
@@ -2180,7 +2190,8 @@ class eAIBase: PlayerBase
 			{
 				EXTrace.Print(EXTrace.AI, this, "sidestep 0");
 				m_SideStepAngle = 0;
-				OverrideMovementDirection(false, 0);
+				OverrideMovementDirection(true, 0);
+				m_eAI_ResetMovementDirectionActive = true;  //! Next call to cmdhandler
 				//StartCommand_MoveAI();
 			}
 		}
@@ -2848,8 +2859,17 @@ class eAIBase: PlayerBase
 
 	bool eAI_HasLOS()
 	{
-		auto target = GetTarget();
+		return eAI_HasLOS(GetTarget());
+	}
 
+	/**
+	 * @brief Return whether or not we have LOS to this target
+	 * 
+	 * @note WARNING: When not passing in current target, returns cached (last calculated) LOS info which may be stale!
+	 * Use with care!
+	 */
+	bool eAI_HasLOS(eAITarget target)
+	{
 		if (!target)
 			return false;
 

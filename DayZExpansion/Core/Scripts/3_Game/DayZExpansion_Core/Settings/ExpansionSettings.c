@@ -146,7 +146,7 @@ class ExpansionSettings
 
 	void Send( notnull PlayerIdentity identity )
 	{
-		auto trace = EXTrace.Profile(EXTrace.SETTINGS, this);
+		auto trace = EXTrace.Start(EXTrace.SETTINGS, this);
 
 		if ( IsMissionClient() )
 			return;

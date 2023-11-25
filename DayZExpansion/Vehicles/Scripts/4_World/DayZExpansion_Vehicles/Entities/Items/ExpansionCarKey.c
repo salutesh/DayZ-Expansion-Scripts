@@ -347,37 +347,17 @@ class ExpansionCarKey: ItemBase
 	{
 		if (player)
 		{
-			string color = ExpansionKeyChainBase.Expansion_GetRandomKeychain();
+			string keychainType;
 			int slotId = InventorySlots.GetSlotIdFromString("KeyChain");
 
 			bool send = true;
-
-			if (vehicle)
-			{
-				auto vehicleKeychain = ExpansionKeyChainBase.Cast(vehicle.GetAttachmentByType(ExpansionKeyChainBase));
-
-				if (!vehicleKeychain)
-				{
-					vehicleKeychain = ExpansionKeyChainBase.Cast(vehicle.GetInventory().CreateAttachmentEx(color, slotId));
-					if (!vehicleKeychain)
-					{
-						Error("Couldn't create keychain on " + vehicle.ToString());
-						return false;
-					}
-
-					send = false;  //! No need to send when assigning owner, since it's created fresh, client will request it
-				}
-
-				vehicleKeychain.Expansion_AssignOwner(player, send);
-			}
-
-			send = true;
 
 			auto keychain = ExpansionKeyChainBase.Cast(GetAttachmentByType(ExpansionKeyChainBase));
 
 			if (!keychain)
 			{
-				keychain = ExpansionKeyChainBase.Cast(GetInventory().CreateAttachmentEx(color, slotId));
+				keychainType = ExpansionKeyChainBase.Expansion_GetRandomKeychain();
+				keychain = ExpansionKeyChainBase.Cast(GetInventory().CreateAttachmentEx(keychainType, slotId));
 				if (!keychain)
 				{
 					Error("Couldn't create keychain on " + ToString());
@@ -386,8 +366,75 @@ class ExpansionCarKey: ItemBase
 
 				send = false;  //! No need to send when assigning owner, since it's created fresh, client will request it
 			}
+			else
+			{
+				keychainType = keychain.GetType();
+			}
 
 			keychain.Expansion_AssignOwner(player, send);
+
+			if (vehicle)
+			{
+				send = true;
+
+				auto vehicleKeychain = ExpansionKeyChainBase.Cast(vehicle.GetAttachmentByType(ExpansionKeyChainBase));
+
+				if (!vehicleKeychain)
+				{
+					if (vehicle.GetInventory().HasAttachmentSlot(slotId))
+					{
+						vehicleKeychain = ExpansionKeyChainBase.Cast(vehicle.GetInventory().CreateAttachmentEx(keychainType, slotId));
+						if (!vehicleKeychain)
+						{
+							Error("Couldn't create keychain on " + vehicle.ToString());
+							return false;
+						}
+
+						send = false;  //! No need to send when assigning owner, since it's created fresh, client will request it
+					}
+					else
+					{
+						string vehicleType = vehicle.GetType();
+						string fileName = string.Format("$profile:ExpansionKeyChain_notice_%1.log", vehicleType);
+						if (!FileExist(fileName))
+						{
+							FileHandle file = OpenFile(fileName, FileMode.WRITE);
+							if (file)
+							{
+								string vehicleBase;
+								GetGame().ConfigGetBaseName(CFG_VEHICLESPATH + " " + vehicleType, vehicleBase);
+								FPrintln(file, "Can't create keychain on " + vehicleType + " because the 'KeyChain' slot is missing. Add the following config.cpp to your serverpack to enable keychain creation (the keychain provides additional useful info like vehicle ID):");
+								FPrintln(file, "");
+								FPrintln(file, "class CfgPatches");
+								FPrintln(file, "{");
+								FPrintln(file, "	class " + vehicleType + "_KeyChain");
+								FPrintln(file, "	{");
+								FPrintln(file, "		requiredVersion = 0.1;");
+								FPrintln(file, "		requiredAddons[] =");
+								FPrintln(file, "		{");
+								FPrintln(file, "			\"DayZExpansion_Vehicles_Data\",");
+								FPrintln(file, "			\"NAME_OF_ADDON_CONTAINING_" + vehicleType + "\"");
+								FPrintln(file, "		};");
+								FPrintln(file, "	};");
+								FPrintln(file, "};");
+								FPrintln(file, "class " + CFG_VEHICLESPATH);
+								FPrintln(file, "{");
+								FPrintln(file, "	class " + vehicleBase + ";");
+								FPrintln(file, "	class " + vehicleType + ": " + vehicleBase);
+								FPrintln(file, "	{");
+								FPrintln(file, "		attachments[] += {\"KeyChain\"};");
+								FPrintln(file, "	};");
+								FPrintln(file, "};");
+								CloseFile(file);
+							}
+						}
+						vehicle.Expansion_AssignOwner(player, send);
+						return false;
+					}
+				}
+
+				vehicleKeychain.Expansion_AssignOwner(player, send);
+			}
 
 			return true;
 		}

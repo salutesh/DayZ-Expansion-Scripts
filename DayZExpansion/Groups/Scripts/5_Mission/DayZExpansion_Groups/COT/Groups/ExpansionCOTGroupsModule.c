@@ -809,8 +809,8 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (targetPlayer)
 		{
 			targetIdentity = targetPlayer.GetIdentity();
-			partyModule.UpdatePlayerServer(NULL, targetPlayer);
-			ExpansionNotification("[COT] Expansion Groups Manager", "STR_EXPANSION_PARTY_MEMBER_REMOVED").Success(targetPlayer.GetIdentity());
+			partyModule.UpdatePlayerServer(NULL, targetIdentity);
+			ExpansionNotification("[COT] Expansion Groups Manager", "STR_EXPANSION_PARTY_MEMBER_REMOVED").Success(targetIdentity);
 		}
 		
 		SendNotificationToMembers(new StringLocaliser("STR_EXPANSION_PARTY_MEMBER_REMOVED_SENDER"), party, targetIdentity);

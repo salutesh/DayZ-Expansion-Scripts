@@ -77,6 +77,11 @@ modded class CarScript
 	// Vehicle locking
 	protected ExpansionVehicleLockState m_VehicleLockedState;
 	protected ExpansionKeyChainBase m_Expansion_KeyChain;
+	ref ExpansionNetsyncData m_Expansion_NetsyncData;
+	//! Following three only used if vehicle has no keychain slot
+	protected bool m_Expansion_HasOwner;
+	protected string m_Expansion_OwnerUID;
+	protected string m_Expansion_OwnerName;
 
 	//! After pairing a key, it's the ID of the master key.
 	//! This allows "changing locks" on vehicles so old paired keys no longer work
@@ -415,6 +420,7 @@ modded class CarScript
 		}
 
 		m_Expansion_RPCManager = new ExpansionRPCManager(this, CarScript);
+		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 
 		if (!s_Expansion_ControllerSync_RPCID)
 			s_Expansion_ControllerSync_RPCID = m_Expansion_RPCManager.RegisterBoth("RPC_Expansion_ControllerSync");
@@ -512,12 +518,56 @@ modded class CarScript
 		return ret;
 	}
 
+	void Expansion_AssignOwner(notnull Man player, bool send = true)
+	{
+		if (player.GetIdentity())
+			Expansion_AssignOwner(player.GetIdentity(), send);
+		else
+			Expansion_AssignOwner("", player.GetDisplayName(), send);
+	}
+
+	void Expansion_AssignOwner(notnull PlayerIdentity owner, bool send = true)
+	{
+		Expansion_AssignOwner(owner.GetId(), owner.GetName(), send);
+	}
+
+	void Expansion_AssignOwner(string ownerUID, string ownerName, bool send = true)
+	{
+		auto trace = EXTrace.Start(EXTrace.VEHICLES, this);
+
+		if (ownerUID == m_Expansion_OwnerUID && ownerName == m_Expansion_OwnerName)
+			return;
+
+		m_Expansion_HasOwner = true;
+		m_Expansion_OwnerUID = ownerUID;
+		EXTrace.Add(trace, m_Expansion_OwnerUID);
+		m_Expansion_OwnerName = ownerName;
+		EXTrace.Add(trace, m_Expansion_OwnerName);
+		m_Expansion_NetsyncData.Set(0, m_Expansion_OwnerName);
+		if (send)
+			m_Expansion_NetsyncData.Send(null);
+	}
+
+	void Expansion_ResetOwner()
+	{
+		if (!m_Expansion_HasOwner)
+			return;
+
+		m_Expansion_HasOwner = false;
+		m_Expansion_OwnerUID = "";
+		m_Expansion_OwnerName = "";
+		m_Expansion_NetsyncData.Set(0, m_Expansion_OwnerName);
+		m_Expansion_NetsyncData.Send(null);
+	}
+
 	string Expansion_GetOwnerName()
 	{
 		if (m_Expansion_KeyChain)
 			return m_Expansion_KeyChain.Expansion_GetOwnerName();
 
-		return string.Empty;
+		string ownerName;
+		m_Expansion_NetsyncData.Get(0, ownerName);
+		return ownerName;
 	}
 
 	void LoadConstantVariables()
@@ -817,6 +867,8 @@ modded class CarScript
 			auto keychain = ExpansionKeyChainBase.Cast(GetAttachmentByType(ExpansionKeyChainBase));
 			if (keychain)
 				keychain.Expansion_ResetOwner();
+			else
+				Expansion_ResetOwner();
 		}
 	}
 
@@ -1527,7 +1579,10 @@ modded class CarScript
 		super.EEItemAttached(item, slot_name);
 
 		if (item.IsInherited(ExpansionKeyChainBase))
+		{
+			Expansion_ResetOwner();  //! Owner info stored on keychain, reset owner info on vehicle if present
 			m_Expansion_KeyChain = ExpansionKeyChainBase.Cast(item);
+		}
 	}
 
 	override void EEItemDetached(EntityAI item, string slot_name)
@@ -3101,6 +3156,14 @@ modded class CarScript
 
 		ctx.Write(false);
 		ctx.Write(false);
+
+		ctx.Write(m_Expansion_HasOwner);
+
+		if (m_Expansion_HasOwner)
+		{
+			ctx.Write(m_Expansion_OwnerUID);
+			ctx.Write(m_Expansion_OwnerName);
+		}
 	}
 
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -3173,6 +3236,23 @@ modded class CarScript
 				return false;
 			if (!ctx.Read(id))
 				return false;
+		}
+
+		if (ctx.GetVersion() < 51)
+			return true;
+
+		if (!ctx.Read(m_Expansion_HasOwner))
+			return false;
+
+		if (m_Expansion_HasOwner)
+		{
+			if (!ctx.Read(m_Expansion_OwnerUID))
+				return false;
+
+			if (!ctx.Read(m_Expansion_OwnerName))
+				return false;
+
+			m_Expansion_NetsyncData.Set(0, m_Expansion_OwnerName);
 		}
 
 		return true;
@@ -3770,9 +3850,10 @@ modded class CarScript
 		bool storeCargo = settings.UseVirtualStorageForCoverCargo;
 		array<EntityAI> transferAttachments;
 
+		ExpansionKeyChainBase keychain;
 		if (settings.ShowVehicleOwners)
 		{
-			auto keychain = GetAttachmentByType(ExpansionKeyChainBase);
+			keychain = GetAttachmentByType(ExpansionKeyChainBase);
 			if (keychain)
 			{
 				transferAttachments = {};
@@ -3793,6 +3874,15 @@ modded class CarScript
 					bool result = player.ServerTakeEntityToTargetAttachmentEx(placeholder, cover, InventorySlots.GetSlotIdFromString("CamoNet"));
 					EXTrace.Print(EXTrace.VEHICLES, this, "Moved " + cover + " to " + placeholder + "? " + result);
 				}
+			}
+
+			if (settings.ShowVehicleOwners && !keychain && m_Expansion_HasOwner)
+			{
+				int slotId = InventorySlots.GetSlotIdFromString("KeyChain");
+				string color = ExpansionKeyChainBase.Expansion_GetRandomKeychain();
+				keychain = ExpansionKeyChainBase.Cast(placeholder.GetInventory().CreateAttachmentEx(color, slotId));
+				if (keychain)
+					keychain.Expansion_AssignOwner(m_Expansion_OwnerUID, m_Expansion_OwnerName);
 			}
 
 			return true;
