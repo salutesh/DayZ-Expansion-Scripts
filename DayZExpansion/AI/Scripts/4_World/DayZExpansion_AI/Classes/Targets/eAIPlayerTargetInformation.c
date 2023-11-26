@@ -62,23 +62,20 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			{
 				bool canEnterFightingState;
 
-				if (ai.GetGroup().GetFaction().IsGuard())
+				if (ai.GetGroup().GetFaction().IsGuard() && !ai.PlayerIsEnemy(m_Player, false, isPlayerMoving))
 				{
-					//! Apply common Guard logic, if current AI is NOT agressive guard OR player is friendly to agressive guardian
-					if (!ai.GetGroup().GetFaction().IsGuardAgressive() || (ai.GetGroup().GetFaction().IsGuardAgressive() && !ai.PlayerIsEnemy(m_Player))) {
-
-						if (m_Player.IsRaised() && fromTargetDot >= 0.9 && ((enemyHands && enemyHands.IsWeapon()) || m_Player.IsFighting()))
-							canEnterFightingState = true;
-						else if (m_Player.eAI_UpdateAgressionTimeout(150.0 - distance))
-							canEnterFightingState = true;
-	
-						if (!canEnterFightingState && m_Player.IsRaised())
-						{
-							//! They aim at you
-							return ExpansionMath.PowerConversion(0.5, 30, distance, 0.2, 0.0, 0.1);
-						}
-					} else {
+					if (m_Player.IsRaised() && fromTargetDot >= 0.9 && ((enemyHands && enemyHands.IsWeapon()) || m_Player.IsFighting()))
+					{
 						canEnterFightingState = true;
+					}
+					else if (m_Player.eAI_UpdateAgressionTimeout(150.0 - distance)) {
+						canEnterFightingState = true;
+					}
+
+					if (!canEnterFightingState && m_Player.IsRaised())
+					{
+						//! They aim at you
+						return ExpansionMath.PowerConversion(0.5, 30, distance, 0.2, 0.0, 0.1);
 					}
 				}
 				else if (!ai.GetGroup().GetFaction().IsObserver() && !m_Player.Expansion_IsInSafeZone())
