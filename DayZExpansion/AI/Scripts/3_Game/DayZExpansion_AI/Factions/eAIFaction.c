@@ -3,6 +3,7 @@ class eAIFaction
 	protected string m_Name;  //! DEPRECATED
 	protected string m_Loadout = "HumanLoadout";
 	protected bool m_IsGuard;
+	protected bool m_IsAggressiveGuard;
 	protected bool m_IsInvincible;
 	protected bool m_IsPassive;
 	protected bool m_IsObserver;
@@ -74,6 +75,11 @@ class eAIFaction
 	bool IsGuard()
 	{
 		return m_IsGuard;
+	}
+
+	bool IsAggressiveGuard()
+	{
+		return IsGuard() && m_IsAggressiveGuard;
 	}
 
 	bool IsInvincible()
