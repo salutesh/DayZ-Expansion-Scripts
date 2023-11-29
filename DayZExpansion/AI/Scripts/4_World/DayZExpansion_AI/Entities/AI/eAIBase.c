@@ -424,11 +424,9 @@ class eAIBase: PlayerBase
 		}
 
 		//! Agressive guards are always agressive to not friendly players/factions
-		if (GetGroup().GetFaction().IsGuardAgressive()) {
-            if (!GetGroup().GetFaction().IsFriendly(player) && !GetGroup().GetFaction().IsFriendly(player.GetGroup().GetFaction())) {
-                return true;
-            }
-        }
+		if (GetGroup().GetFaction().IsGuardAgressive() && !GetGroup().GetFaction().IsFriendly(player) && !GetGroup().GetFaction().IsFriendly(player.GetGroup().GetFaction())) {
+	            return true;
+	        }
 
 		//! Are we targeting them and aggro?
 		bool targeted;
