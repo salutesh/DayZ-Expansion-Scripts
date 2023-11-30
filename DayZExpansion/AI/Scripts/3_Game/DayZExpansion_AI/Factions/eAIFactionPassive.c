@@ -6,7 +6,7 @@ class eAIFactionPassive : eAIFactionCivilian
 		m_IsPassive = true;
 	}
 
-	override bool IsFriendly(EntityAI other)
+	override bool IsFriendly(EntityAI other, DayZPlayer factionMember)
 	{
 		return other.IsInherited(DayZCreatureAI);
 	}

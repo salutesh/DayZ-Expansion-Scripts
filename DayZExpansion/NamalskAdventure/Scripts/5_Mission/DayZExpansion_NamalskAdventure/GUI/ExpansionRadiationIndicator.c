@@ -18,6 +18,7 @@ class ExpansionRadiationIndicator: ExpansionScriptView
 	void ExpansionRadiationIndicator(IngameHud hud)
 	{
 		hud.GetHudPanelWidget().FindAnyWidget("BadgesPanel").AddChild(GetLayoutRoot());
+		RadiationWidget.Show(false);
 	}
 	
 	override typename GetControllerType()
@@ -45,6 +46,7 @@ class ExpansionRadiationIndicator: ExpansionScriptView
 		{
 			m_CurrentRadiation = player.GetClientRadiation();
 			Print(ToString() + "::UpdateRadiationIndicator - Radiation: " + m_CurrentRadiation);
+			
 			if (m_CurrentRadiation >= 1)
 			{
 				RadiationWidget.SetColor(ARGB(255, 220, 220, 220));
@@ -56,13 +58,12 @@ class ExpansionRadiationIndicator: ExpansionScriptView
 				{
 					RadiationWidget.SetColor(ARGB(255, 220, 220, 0));
 				}
-				
-				GetLayoutRoot().Show(true);
+
+				RadiationWidget.Show(true);
 			}
 			else
 			{
-				if (m_CurrentRadiation == 0)
-					GetLayoutRoot().Show(false);
+				RadiationWidget.Show(false);
 			}
 		}
 	}

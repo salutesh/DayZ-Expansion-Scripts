@@ -119,8 +119,9 @@ class ExpansionActionHelicopterHoverRefill : ActionContinuousBase
 		return false;
 	}
 	
+	//! IMPORTANT so we need to be over gas pump the whole time
 	override bool ActionConditionContinue( ActionData action_data )
 	{
-		return true;
+		return ActionCondition(action_data.m_Player, action_data.m_Target, action_data.m_MainItem);
 	}
 };

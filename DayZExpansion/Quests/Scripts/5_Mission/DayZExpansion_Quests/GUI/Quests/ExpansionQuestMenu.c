@@ -481,7 +481,8 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 							ObjectivePanel.Show(true);
 							m_NeedToSelectObjItem = true;
 						}
-
+						
+						bool setDefaultEntry = false;
 						for (j = 0; j < collectionDelivery.GetCollections().Count(); j++)
 						{
 							ExpansionQuestObjectiveDelivery collection = collectionDelivery.GetCollections()[j];
@@ -511,6 +512,13 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 								continue;
 
 							m_QuestMenuController.ObjectiveItems.Insert(collectionObjectiveEntry);
+							
+							if (m_NeedToSelectObjItem && !setDefaultEntry && currentCollectionCount >= amount)
+							{
+								collectionObjectiveEntry.OnItemButtonClick();
+								setDefaultEntry = true;
+							}
+							
 							QuestDebug(ToString() + "::SetObjectiveItems - Add objective item entry for item: " + className + " - COLLECT");
 						}
 					}

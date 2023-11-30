@@ -35,6 +35,9 @@ class ExpansionPersonalStorageNewSettings: ExpansionSettingBase
 	ref map<int, ref ExpansionPersonalStorageLevel> StorageLevels = new map<int, ref ExpansionPersonalStorageLevel>;
 
 	[NonSerialized()]
+	ref map<int, int> m_StorageLevelsReputationRequirements = new map<int, int>;
+
+	[NonSerialized()]
 	private bool m_IsLoaded;
 
 	override int Send( PlayerIdentity identity )
@@ -49,14 +52,40 @@ class ExpansionPersonalStorageNewSettings: ExpansionSettingBase
 	override void OnSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(UseCategoryMenu);
+
+		ctx.Write(m_StorageLevelsReputationRequirements.Count());
+		foreach (int lvl, int repReq: m_StorageLevelsReputationRequirements)
+		{
+			ctx.Write(lvl);
+			ctx.Write(repReq);
+		}
 	}
 
 	override bool OnRecieve(ParamsReadContext ctx)
 	{
 		if (!ctx.Read(UseCategoryMenu))
 		{
-			Error("ExpansionPersonalStorageNewSettings::OnRecieve UseCategoryMenu");
+			Error("ExpansionPersonalStorageNewSettings::OnRecieve Couldn't read UseCategoryMenu");
 			return false;
+		}
+
+		int count;
+		if (!ctx.Read(count))
+		{
+			Error("ExpansionPersonalStorageNewSettings::OnRecieve Couldn't read storage levels reputation requirements count");
+			return false;
+		}
+
+		while (count--)
+		{
+			int lvl, repReq;
+			if (!ctx.Read(lvl) || !ctx.Read(repReq))
+			{
+				Error("ExpansionPersonalStorageNewSettings::OnRecieve Couldn't read storage level or reputation requirements");
+				return false;
+			}
+			m_StorageLevelsReputationRequirements[lvl] = repReq;
+			EXTrace.Print(EXTrace.PERSONALSTORAGE, this, "Received personal storage lvl " + lvl + " rep req " + repReq);
 		}
 
 		m_IsLoaded = true;
@@ -105,6 +134,16 @@ class ExpansionPersonalStorageNewSettings: ExpansionSettingBase
 			EXPrint("[ExpansionPersonalStorageNewSettings] No existing setting file:" + SETTINGS_PATH + ". Creating defaults!");
 			Defaults();
 			save = true;
+		}
+
+		foreach (int storageLevel, auto storageLevelConfig: StorageLevels)
+		{
+			int repReq = storageLevelConfig.ReputationRequirement;
+			if (repReq == -1)
+				continue;
+
+			m_StorageLevelsReputationRequirements[storageLevel] = repReq;
+			EXTrace.Print(EXTrace.PERSONALSTORAGE, this, "Personal storage lvl " + storageLevel + " rep req " + repReq);
 		}
 
 		if (save)

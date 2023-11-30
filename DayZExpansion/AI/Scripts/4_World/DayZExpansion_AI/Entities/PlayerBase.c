@@ -1,7 +1,5 @@
 modded class PlayerBase
 {
-	bool m_Expansion_IsFiring = false;
-
 	ref TIntArray m_eAI_FactionModifiers;
 
 	override void Init()
@@ -18,38 +16,6 @@ modded class PlayerBase
 
 		AddAction(ExpansionActionRecruitAI, InputActionMap);
 		AddAction(ExpansionActionDismissAI, InputActionMap);
-	}
-
-	/**
-	 * @brief gets the sound a player is making from movement or firing a weapon.
-	 */
-	int Expansion_GetMovementSound(float noise = 0)
-	{
-		if (IsAlive())
-		{
-			if (m_Expansion_IsFiring)
-			{
-				noise = 5;
-			}
-			else
-			{
-				noise += NoiseAIEvaluate.GetNoiseMultiplier(this);
-				noise = Math.Round(noise * 5);
-				Math.Clamp(noise, 0, 5);
-			}
-		}
-
-		return noise;
-	}
-
-	void Expansion_SetIsFiring(bool a) 
-	{
-		m_Expansion_IsFiring = a;
-	}
-
-	bool Expansion_GetIsFiring() 
-	{
-		return m_Expansion_IsFiring;
 	}
 
 	override void eAI_SetFactionTypeID(int id)

@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef NAMALSK_SURVIVAL
 class NA_WorkbenchMenu: ExpansionScriptViewMenu
 {
 	protected ref NA_WorkbenchMenuController m_WorkbenchMenuController;
@@ -449,3 +450,4 @@ class NA_WorkbenchMenuRecipeController: ExpansionViewController
 	Object Preview;
 	string RecipeName;
 };
+#endif

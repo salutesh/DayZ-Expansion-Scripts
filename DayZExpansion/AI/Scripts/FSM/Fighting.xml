@@ -34,9 +34,7 @@
 				
 				int timeSinceLastFire = GetGame().GetTime() - fsm.LastFireTime;
 				if (fsm.LastFireTime &gt; 0 &amp;&amp; timeSinceLastFire &gt; fsm.TimeBetweenFiring)
-				{
 					wantsLower = true;
-				}
 				
 				auto target = unit.GetTarget();
 				if (target)
@@ -46,10 +44,11 @@
 					fsm.DistanceToTargetSq = target.GetDistanceSq(unit, true);
 					
 					bool shouldBeMeleeing = false;
-				
+					
 					auto hands = unit.GetHumanInventory().GetEntityInHands();
-					bool isItemTarget = target.GetEntity().IsInherited(ItemBase);
-					if (isItemTarget)
+					auto targetEntity = target.GetEntity();
+					auto itemTarget = ItemBase.Cast(targetEntity);
+					if (!targetEntity || itemTarget)
 					{
 						wantsLower = true;
 					}
@@ -60,9 +59,7 @@
 					else if (hands.IsWeapon())
 					{
 						if (fsm.DistanceToTargetSq &lt;= 2.25)
-						{
 							shouldBeMeleeing = true;
-						}
 					}
 					else if (hands.IsMeleeWeapon())
 					{
@@ -72,20 +69,16 @@
 					if (shouldBeMeleeing)
 					{
 						if (fsm.DistanceToTargetSq &lt;= 3.24)
-						{
 							wantsRaise = true;
-						}
 						else
-						{
 							wantsLower = true;
-						}
 					}
-				
+					
 					float minDist = 1.0;
-					auto player = PlayerBase.Cast(target.GetEntity());
+					auto player = PlayerBase.Cast(targetEntity);
 					if (player &amp;&amp; player.IsUnconscious())
 						minDist = 4.0;
-					if (!isItemTarget &amp;&amp; fsm.DistanceToTargetSq &lt;= minDist)
+					if (targetEntity &amp;&amp; !itemTarget &amp;&amp; fsm.DistanceToTargetSq &lt;= minDist)
 					{
 						time += DeltaTime;
 						if (!movementDirection || time &gt; Math.RandomIntInclusive(1, 3))
@@ -105,7 +98,7 @@
 						time = 0;
 						movementDirection = 0;
 					}
-				
+					
 					unit.LookAtPosition(aimPosition);
 					unit.AimAtPosition(aimPosition);
 					unit.OverrideTargetPosition(position);
@@ -113,9 +106,7 @@
 					if (hands &amp;&amp; (hands.IsWeapon() || fsm.DistanceToTargetSq &lt;= 100.0))
 					{
 						if (hands.HasEnergyManager() &amp;&amp; !hands.GetCompEM().IsWorking() &amp;&amp; hands.GetCompEM().CanSwitchOn())
-						{
 							hands.GetCompEM().SwitchOn();
-						}
 					}
 				}
 				else
@@ -275,6 +266,8 @@
 					if (time &gt;= 0.5)
 					{
 						time = 0;
+						movementDirection = 0;
+						unit.OverrideMovementDirection(false, 0);
 						return EXIT;
 					}
 				
@@ -314,6 +307,7 @@
 				unit.Notify_Melee();
 				time = 0;
 				movementDirection = 0;
+				unit.OverrideMovementDirection(false, 0);
 				
 				return EXIT;
 			</event_update>
@@ -391,13 +385,18 @@
 				if (!dst.target) return FAIL;
 				
 				PlayerBase player;
+				EntityAI targetEntity = dst.target.GetEntity();
 				ItemBase itemTarget;
-				if (Class.CastTo(player, dst.target.GetEntity()))
+				if (!targetEntity)
+				{
+					return FAIL;
+				}
+				else if (Class.CastTo(player, targetEntity))
 				{
 					if (player.IsUnconscious())
 						return FAIL;
 				}
-				else if (Class.CastTo(itemTarget, dst.target.GetEntity()))
+				else if (Class.CastTo(itemTarget, targetEntity))
 				{
 					// don't shoot at bandages or ammo/magazines, silly
 					if (itemTarget.Expansion_CanBeUsedToBandage())

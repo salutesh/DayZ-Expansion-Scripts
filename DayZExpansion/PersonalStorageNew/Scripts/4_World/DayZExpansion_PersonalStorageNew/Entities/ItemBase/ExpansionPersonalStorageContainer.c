@@ -93,6 +93,25 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		}
 	}
 
+#ifdef EXPANSIONMODHARDLINE
+	override bool DescriptionOverride(out string output)
+	{
+		PlayerBase player;
+		if (Class.CastTo(player, GetGame().GetPlayer()))
+		{
+			int nextLvlRepReq;
+			int lvl = ExpansionPersonalStorageHub.Expansion_GetPersonalStorageLevelEx(player, nextLvlRepReq);
+			if (nextLvlRepReq > -1)
+			{
+				output = string.Format("Reputation requirement for level %1: %2", lvl + 1, nextLvlRepReq);
+				return true;
+			}
+		}
+
+		return false;
+	}
+#endif
+
 	void Expansion_SetPersonalStorageHub(ExpansionPersonalStorageHub hub, bool sync = true)
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);

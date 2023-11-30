@@ -76,19 +76,7 @@ class ExpansionPersonalStorageHub: BuildingBase
 			int lvl;
 
 			#ifdef EXPANSIONMODHARDLINE
-			lvl = player.Expansion_GetPersonalStorageLevel();
-			int rep = player.Expansion_GetReputation();
-			int repReq = -1;
-			auto settings = GetExpansionSettings().GetPersonalStorageNew();
-			foreach (int storageLevel, auto storageLevelConfig: settings.StorageLevels)
-			{
-				int lvlRepReq = storageLevelConfig.ReputationRequirement;
-				if (storageLevel > lvl && lvlRepReq > repReq && rep >= lvlRepReq)
-				{
-					lvl = storageLevel;
-					repReq = lvlRepReq;
-				}
-			}
+			lvl = Expansion_GetPersonalStorageLevelEx(player);
 			#endif
 
 			if (lvl < 1)
@@ -145,4 +133,28 @@ class ExpansionPersonalStorageHub: BuildingBase
 
 		return true;
 	}
+
+#ifdef EXPANSIONMODHARDLINE
+	//! @note Can't be on PlayerBase, leads to compile error due load order :-(
+	static int Expansion_GetPersonalStorageLevelEx(PlayerBase player, out int nextLvlRepReq = -1)
+	{
+		int lvl = player.Expansion_GetPersonalStorageLevel();
+		int rep = player.Expansion_GetReputation();
+		int repReq = -1;
+		auto settings = GetExpansionSettings().GetPersonalStorageNew();
+		foreach (int storageLevel, int lvlRepReq: settings.m_StorageLevelsReputationRequirements)
+		{
+			if (storageLevel > lvl && lvlRepReq > repReq && rep >= lvlRepReq)
+			{
+				lvl = storageLevel;
+				repReq = lvlRepReq;
+			}
+		}
+
+		if (!settings.m_StorageLevelsReputationRequirements.Find(lvl + 1, nextLvlRepReq))
+			nextLvlRepReq = -1;
+
+		return lvl;
+	}
+#endif
 }

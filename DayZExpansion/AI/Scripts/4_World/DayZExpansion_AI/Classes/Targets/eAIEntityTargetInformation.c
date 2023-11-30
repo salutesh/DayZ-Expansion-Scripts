@@ -14,7 +14,7 @@ class eAIEntityTargetInformation: eAITargetInformation
 		string str = super.GetDebugName();
 		
 		str += ", ";
-		str += "target=" + GetEntityDebugName();
+		str += "entity=" + GetEntityDebugName();
 
 		return str;
 	}
@@ -53,12 +53,12 @@ class eAIEntityTargetInformation: eAITargetInformation
 		return state.m_SearchPosition;
 	}
 
-	override float GetThreat(eAIBase ai = null)
+	override float GetThreat(eAIBase ai = null, out eAITargetInformationState state = null)
 	{
 		if (!IsActive())
 			return 0.0;
 
-		return super.GetThreat(ai);
+		return super.GetThreat(ai, state);
 	}
 
 	override float GetDistance(eAIBase ai, bool actual = false)

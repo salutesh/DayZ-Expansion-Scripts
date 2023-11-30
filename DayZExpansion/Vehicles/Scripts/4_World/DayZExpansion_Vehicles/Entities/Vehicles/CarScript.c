@@ -3853,7 +3853,7 @@ modded class CarScript
 		ExpansionKeyChainBase keychain;
 		if (settings.ShowVehicleOwners)
 		{
-			keychain = GetAttachmentByType(ExpansionKeyChainBase);
+			keychain = ExpansionKeyChainBase.Cast(GetAttachmentByType(ExpansionKeyChainBase));
 			if (keychain)
 			{
 				transferAttachments = {};

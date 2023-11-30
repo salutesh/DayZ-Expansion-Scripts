@@ -113,6 +113,25 @@ class ExpansionString
 		return output;
 	}
 
+	//! Vanilla string.Replace truncates long text >:-(
+	//! https://feedback.bistudio.com/T177558
+	static int Replace(inout string text, string search, string replace)
+	{
+		int count;
+		int searchLen = search.Length();
+		int replaceLen = replace.Length();
+		int index = text.IndexOf(search);
+
+		while (index > -1)
+		{
+			text = text.Substring(0, index) + replace + text.Substring(index + searchLen, text.Length() - index - searchLen);
+			count++;
+			index = text.IndexOfFrom(index + replaceLen, search);
+		}
+
+		return count;
+	}
+
 	bool StartsWith(string prefix)
 	{
 		return m_String.IndexOf(prefix) == 0;

@@ -17,29 +17,29 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	static string s_dataFolderPath = "$mission:expansion\\namalsk_adventure\\";
 
 	protected ref ExpansionNamalskAdventureData m_ServerData; //! Server
-	#ifdef EXPANSIONMODNAVIGATION
+#ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_MerchantServerMarker;
-	#endif
+#endif
 	protected ref ExpansionObjectSet m_MerchantObjectSet;	//! Server
 
-	#ifdef EXPANSIONMODAI
+#ifdef EXPANSIONMODAI
 	protected ref map<eAIBase, ref array<vector>> m_SpawnedAI;
 	protected int m_AISpeed;
-	#ifdef EXPANSIONMODQUESTS
+#ifdef EXPANSIONMODQUESTS
 	protected ref map<eAIBase, ref array<vector>> m_QuestAI;
-	#endif
-	#endif
+#endif
+#endif
 
 	protected typename m_LastNamalskEvent;
 
 	protected bool m_EVRStormActive;
 	protected bool m_EVRStormBlowout;
 
-	#ifdef EXPANSION_NAMALSK_ADVENTURE
+#ifdef EXPANSION_NAMALSK_ADVENTURE
 	protected SV_Abandoned_Sattelite_Antenna m_AbdonedSatellite;
-	#ifdef EXPANSIONMODTELEPORTER
+#ifdef EXPANSIONMODTELEPORTER
 	protected Expansion_Teleporter_Big m_SatelliteTeleporter;
-	#endif
+#endif
 	protected Expansion_Satellite_Control m_SatelliteController;
 	protected Expansion_Satellite_Generator m_SatelliteGenerator;
 	protected Expansion_Satellite_Panel_Lever m_SatellitePanelLever;
@@ -80,15 +80,15 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected const vector m_A1_Bunker_FakeEntranceLeaverPos = "1925.534912 242.507050 1202.186157";
 	protected const vector m_A1_Bunker_FakeEntranceLeaverOri = "-98.999931 0.000000 -0.000000";
 
-	#ifdef EXPANSIONMODTELEPORTER
+#ifdef EXPANSIONMODTELEPORTER
 	protected Expansion_Teleporter_Big m_A1BunkerTeleporter;
-	#endif
+#endif
 	protected Expansion_Bunker_Generator m_A1BungerGenerator;
 
 	protected Land_Underground_Panel m_A1BunkerEntrancePanel;
 	protected Land_Underground_Panel_Lever m_A1BunkerEntranceLeaver;
 	protected Land_Underground_Panel_Lever m_A1BunkerFakeEntranceLeaver;
-	#endif
+#endif
 
 	protected const float SUPPLY_CRATES_CHECK_TIME = 60.0; //! 1 minute tick
 	protected float m_SupplyCratesCheckTimer;
@@ -109,12 +109,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		s_ModuleInstance = this;
 
-		#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 		m_SpawnedAI = new map<eAIBase, ref array<vector>>;
-		#ifdef EXPANSIONMODQUESTS
+	#ifdef EXPANSIONMODQUESTS
 		m_QuestAI = new map<eAIBase, ref array<vector>>;
-		#endif
-		#endif
+	#endif
+	#endif
 	}
 
 	override void OnInit()
@@ -125,15 +125,14 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		EnableMissionStart();
 		EnableMissionLoaded();
-		#ifdef SERVER
 		EnableInvokeConnect();
 		EnableUpdate();
-		#endif
+	#ifdef NAMALSK_SURVIVAL
 		Expansion_EnableRPCManager();
-		
 		Expansion_RegisterClientRPC("RPC_SendWorkbenchData");
 		Expansion_RegisterServerRPC("RPC_SendWorkbenchResult");
 		Expansion_RegisterServerRPC("RPC_SetWorkbenchState");
+	#endif
 	}
 
 	protected void CreateDirectoryStructure()
@@ -151,10 +150,10 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		super.OnMissionStart(sender, args);
 
 		//! Server only
-		#ifdef SERVER
+	#ifdef SERVER
 		CreateDirectoryStructure(); //! Create directoy structure if not existing.
 		LoadNamalskAdventureServerData(); //! Load namalsk adventure server data.
-		#endif
+	#endif
 	}
 
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
@@ -163,16 +162,15 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		super.OnMissionLoaded(sender, args);
 		
-		#ifdef SERVER
+	#ifdef SERVER
 		ServerModuleInit();
-		#endif
+	#endif
 
-		#ifndef SERVER
+	#ifndef SERVER
 		ClientModuleInit();
-		#endif
+	#endif
 	}
 
-#ifndef SERVER
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -186,7 +184,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ClearPlayerFaction, 5000, false, cArgs.Identity);
 		}
 	}
-#endif
 
 	protected void ClearPlayerFaction(PlayerIdentity identity)
 	{
@@ -206,25 +203,25 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		//! Server only
-		#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 		if (GetExpansionSettings().GetNamalskAdventure().EnableAISpawns)
 			SpawnAI();
-		#endif
-		#ifdef EXPANSIONMODMARKET
+	#endif
+	#ifdef EXPANSIONMODMARKET
 		if (GetExpansionSettings().GetNamalskAdventure().EnableMerchant)
 			CreateMerchant();
-		#endif
+	#endif
 
 		if (GetExpansionSettings().GetNamalskAdventure().EnableSupplyCrates)
 			SpawnSupplyCrates();
 
-		#ifdef EXPANSION_NAMALSK_ADVENTURE
+	#ifdef EXPANSION_NAMALSK_ADVENTURE
 		if (GetExpansionSettings().GetNamalskAdventure().EnableAntennaEvent)
 			SpawnSatelliteAntennaObjects(); //! @note: Secret antenna event objects. Not finished yet!
 		
 		if (GetExpansionSettings().GetNamalskAdventure().EnableA1BunkerEvent)
 			SpawnA1Bunker(); //! @note: A1 bunker event objects.
-		#endif
+	#endif
 	}
 
 	protected void ClientModuleInit()
@@ -261,7 +258,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		}
 	}
 
-	#ifdef EXPANSIONMODAI
+#ifdef EXPANSIONMODAI
 	//! @note: Spawns all configured AI units from the NamalskAdventureSettings class.
 	protected void SpawnAI()
 	{
@@ -338,9 +335,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			m_SpawnedAI.Insert(ai, aiSpawn.ShelterPositions);
 		}
 	}
-	#endif
+#endif
 
-	#ifdef EXPANSIONMODMARKET
+#ifdef EXPANSIONMODMARKET
 	//! @note: Handles spawn of the dynamic merchant
 	protected void CreateMerchant()
 	{
@@ -470,10 +467,10 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		//! Create the temporary trader data
 		ExpansionMarketTrader trader = new ExpansionMarketTrader();
 		trader.DisplayName = "Merchant";
-		#ifdef EXPANSIONMODHARDLINE
+	#ifdef EXPANSIONMODHARDLINE
 		trader.MinRequiredReputation = 0;
 		trader.MaxRequiredReputation = int.MAX;
-		#endif
+	#endif
 		trader.TraderIcon = "Deliver";
 		trader.Currencies.Insert("expansionbanknotehryvnia");
 		
@@ -542,8 +539,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			m_MerchantObjectSet.SpawnObjects();
 		}
 	}
-	#endif
+#endif
 
+#ifdef NAMALSK_SURVIVAL
 	void OnNamalskEventStart(typename eventType)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -558,9 +556,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		#ifdef DIAG
+	#ifdef DIAG
 		ExpansionNotification(new StringLocaliser("NAMALSK EVENT CANCELED"), new StringLocaliser("%1 EVENT CANCELED", eventType.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
-		#endif
+	#endif
 
 		m_LastNamalskEvent = eventType;
 
@@ -584,9 +582,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		//SetSatelitteActive(true);
 
-		#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 		SetAIBuildingPositions();
-		#endif
+	#endif
 	}
 
 	//! @note: Handles events that should start when ever the EVR storm final blowout starts.
@@ -603,9 +601,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 		ResetAIPositions();
-		#endif
+	#endif
 
 		NamEventManager event_manager;
 	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
@@ -622,8 +620,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		//! PLACEHOLDER
 	}
+#endif
 
-	#ifdef EXPANSIONMODAI
+#ifdef EXPANSIONMODAI
 	void SetAIBuildingPositions()
 	{
 	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -714,7 +713,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		aiGroup.m_CurrentWaypointIndex = 0;
 		ai.SetMovementSpeedLimit(m_AISpeed);
 	}
-	#endif
+#endif
 
 	/*
 	#ifdef EXPANSIONMODQUESTS
@@ -753,13 +752,13 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	#endif
 	*/
 
-	#ifdef EXPANSION_NAMALSK_ADVENTURE
+#ifdef EXPANSION_NAMALSK_ADVENTURE
 	//! @note: Condition check if a EVR storm is currently active.
 	bool IsEVRStormActive()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		#ifdef NAMALSK_SURVIVAL
+	#ifdef NAMALSK_SURVIVAL
 	    NamEventManager event_manager;
 	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
 
@@ -770,7 +769,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		EVRStormDeadly stormDeadly = EVRStormDeadly.Cast(event_manager.GetEvent(EVRStormDeadly));
 		if (storm && storm.GetEVRStormPhase() > ExpansionEVRStormPhase.NONE || stormDeadly && stormDeadly.GetEVRStormPhase() > ExpansionEVRStormPhase.NONE)
 	   		return true;
-		#endif
+	#endif
 
 		return false;
 	}
@@ -1031,12 +1030,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		return m_AbdonedSatellite;
 	}
 
-	#ifdef EXPANSIONMODTELEPORTER
+#ifdef EXPANSIONMODTELEPORTER
 	Expansion_Teleporter_Big GetSatelliteTeleporter()
 	{
 		return m_SatelliteTeleporter;
 	}
-	#endif
+#endif
 
 	Expansion_Satellite_Control GetSatelliteController()
 	{
@@ -1064,7 +1063,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		}
 		
 		//! Bunker event teleporter
-		#ifdef EXPANSIONMODTELEPORTER
+	#ifdef EXPANSIONMODTELEPORTER
 		m_A1BunkerTeleporter = Expansion_Teleporter_Big.Cast(GetGame().CreateObjectEx("Expansion_Teleporter_Big", m_A1_Bunker_TeleporterPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
 		if (m_A1BunkerTeleporter)
 		{
@@ -1088,22 +1087,22 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker teleporter object at position: " + m_A1BunkerTeleporter.GetPosition());
 		}
-		#endif
+	#endif
 
 		//! Bunker event generator
 		m_A1BungerGenerator = Expansion_Bunker_Generator.Cast(GetGame().CreateObjectEx("Expansion_Bunker_Generator", m_A1_Bunker_GeneratorPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
 		if (m_A1BungerGenerator)
 		{
 			m_A1BungerGenerator.SetOrientation(m_A1_Bunker_GeneratorOri);
-			#ifdef EXPANSIONMODTELEPORTER
+		#ifdef EXPANSIONMODTELEPORTER
 			if (m_A1BunkerTeleporter)
 				m_A1BungerGenerator.SetLinkedTeleporter(m_A1BunkerTeleporter);
-			#endif
+		#endif
 
 			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker generator at position: " + m_A1BungerGenerator.GetPosition());
 		}
 
-		#ifdef EXPANSIONMODQUESTS
+	#ifdef EXPANSIONMODQUESTS
 		//! Bunker event locker quest object
 		//! @note: Make this a config param class in the namalsk settings class you lazy ass!
 		ExpansionTempQuestHolder questHolder = new ExpansionTempQuestHolder(1000, "ExpansionQuestObjectLocker", "Closed Locker");
@@ -1131,7 +1130,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			return;
 
 		travelObjective.SetPosition(randomPos.Position);
-		#endif
+	#endif
 
 		//! Bunker fake entrance panel
 		m_A1BunkerFakeEntranceLeaver = Land_Underground_Panel_Lever.Cast(GetGame().CreateObjectEx("Land_Underground_Panel_Lever", m_A1_Bunker_FakeEntranceLeaverPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
@@ -1159,7 +1158,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker fake entrance panel at position: " + m_A1BunkerEntranceLeaver.GetPosition());
 		}
 	}
-	#endif
+#endif
 
 	//! @note: Method that handles spawning of configured supply crates in the ExpansionNamalskAdventureSettings class with there loot on mission load.
 	protected void SpawnSupplyCrates()
@@ -1190,17 +1189,18 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		auto update = CF_EventUpdateArgs.Cast(args);
 
-		#ifdef SERVER
+	#ifdef SERVER
 		OnUpdateServer(update.DeltaTime);
-		#else
+	#else
 		OnUpdateClient(update.DeltaTime);
-		#endif
+	#endif
 	}
 	
 	//! @note: Server side update loop
 	protected void OnUpdateServer(float deltaTime)
 	{
-		#ifdef EXPANSION_NAMALSK_ADVENTURE
+	#ifdef EXPANSION_NAMALSK_ADVENTURE
+	#ifdef NAMALSK_SURVIVAL
 		//! Satellite cry sound FX
 		m_SatelliteCryTimer += deltaTime;
 		if (m_SatelliteCryTimer >= SATELLITE_CRY_TIME)
@@ -1208,6 +1208,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			PlaySatelliteCrySFX();
 			m_SatelliteCryTimer = 0;
 		}
+	#endif
 
 		//! Reset bunker generators
 		m_BunkerGeneratorsCheckTimer += deltaTime;
@@ -1234,7 +1235,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			Expansion_SupplyCrate_Base.s_Expansion_AllSupplyCrates.Each(s_SupplyCratesCheckSC);
 			m_SupplyCratesCheckTimer = 0;
 		}
-		#endif
+	#endif
 
 		//! Events on EVR Storms - Not used yet
 		/*m_UpdateQueueTimer += deltaTime;
@@ -1250,7 +1251,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		}*/
 	}
 
-	#ifdef EXPANSION_NAMALSK_ADVENTURE
+#ifdef EXPANSION_NAMALSK_ADVENTURE
 	protected void OnSupplyCrateCheck(Expansion_SupplyCrate_Base supplyCrate)
 	{
 		auto trace = EXTrace.Profile(EXTrace.NAMALSKADVENTURE, this);
@@ -1294,7 +1295,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			}
 		}
 	}
-	#endif
+#endif
 	
 	//! @note: Client side update loop
 	protected void OnUpdateClient(float deltaTime)
@@ -1303,7 +1304,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		if (m_ClientUpdateTimer >= CLIENT_UPDATE_TIME && GetGame().GetPlayer())
 		{
 			//! @note: Preload A1 Bunker objects on client when the client is near bunker entrance position. 
-			#ifdef EXPANSION_NAMALSK_ADVENTURE
+		#ifdef EXPANSION_NAMALSK_ADVENTURE
 			float dist = vector.Distance(m_A1_Bunker_TeleporterPos, GetGame().GetPlayer().GetPosition());
 			if (dist < 200)
 			{
@@ -1318,17 +1319,18 @@ class ExpansionNamalskModule: CF_ModuleWorld
 				GetGame().PreloadObject("bldr_expansion_Sign_roadbarrier", 3000);
 				GetGame().PreloadObject("ExpansionQuestObjectLocker", 3000);
 				GetGame().PreloadObject("Expansion_Bunker_Generator", 3000);
-				#ifdef EXPANSIONMODTELEPORTER
+			#ifdef EXPANSIONMODTELEPORTER
 				GetGame().PreloadObject("Expansion_Teleporter_Big", 3000);
-				#endif
-			}
 			#endif
+			}
+		#endif
 
 			m_ClientUpdateTimer = 0;
 		}
 	}
 
 	//! @note: Not used yet
+#ifdef NAMALSK_SURVIVAL
 	protected void OnEVRStormBlowout()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -1399,7 +1401,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		auto rpc = Expansion_CreateRPC("RPC_SendWorkbenchResult");
 		recipe.OnSend(rpc);
 		rpc.Expansion_Send(printer, true);
-		
+
 		EffectSound effect_confirm = SEffectManager.PlaySound("printer_confirm_soundset", printer.GetPosition(), 0, 0, false);
 		if (effect_confirm)
 		{
@@ -1475,6 +1477,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		return m_WorkbenchMenuInvoker;
 	}
+#endif
 
 	static ExpansionNamalskModule GetModuleInstance()
 	{
@@ -1483,9 +1486,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void ModuleDebugPrint(string text)
 	{
-		#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
-		#endif
+	#endif
 	}
 };
 

@@ -25,12 +25,14 @@ class ExpansionAnomalyTriggerFire_Dynamic : ExpansionAnomalyTriggerBase_Dynamic
 
 		if (ExpansionStatic.IsAnyOf(entityObj.GetType(), s_Players) || ExpansionStatic.IsAnyOf(entityObj.GetType(), s_Vehicles))
 		{
+		#ifdef NAMALSK_SURVIVAL
 			PlayerBase player = PlayerBase.Cast(entityObj);
 			if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 			{
 				ExDebugPrint("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
 				return false;
 			}
+		#endif
 
 			ExDebugPrint("::EntityConditions - Return TRUE");
 			return true;

@@ -84,12 +84,14 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 		if (ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Items) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Players) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Animals) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Vehicles) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Infected))
 		{
+		#ifdef NAMALSK_SURVIVAL
 			PlayerBase player = PlayerBase.Cast(other);
 			if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 			{
 				ExDebugPrint("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
 				return false;
 			}
+		#endif
 
 			ExDebugPrint("::EntityConditions - Return TRUE");
 			return true;
@@ -142,8 +144,10 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 				if (!player || !player.IsAlive())
                 	return;
 
+			#ifdef NAMALSK_SURVIVAL
 				if (ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 					return;
+			#endif
 
 				if (!player.IsInTransport())
 				{

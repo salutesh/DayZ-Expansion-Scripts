@@ -11,7 +11,7 @@ class eAITargetInformationState
 	int m_SearchPositionUpdateTimestamp;
 	vector m_SearchPosition;
 	vector m_SearchDirection;
-	bool m_LOS;
+	bool m_LOS;  //! LOS state (may be stale if not current target for AI)
 
 	void eAITargetInformationState(eAIBase ai, eAITargetInformation info)
 	{
@@ -32,7 +32,7 @@ class eAITargetInformationState
 			m_ThreatLevel = m_Info.CalculateThreat(m_AI);
 
 			//! Make active threat level rise depending on distance if LOS, fall slowly if no LOS
-			if (m_LOS)
+			if (m_LOS || m_Info.IsInherited(eAINoiseTargetInformation))
 			{
 				//! Threat level rises slowly if below fighting threshold and AI has not been attacked by player,
 				//! unless player is in vehicle (parent non-null)
@@ -71,7 +71,7 @@ class eAITargetInformationState
 			auto hitch = new EXHitch(m_AI.ToString() + " eAITargetInformationState::UpdatePosition ", 20000);
 #endif
 
-			if (force || m_LOS)
+			if (force || (m_LOS && m_AI.GetTarget().info == m_Info))
 			{
 				//! Update last known target position
 				m_LastKnownPosition = m_Info.GetPosition(m_AI, true);
@@ -87,16 +87,21 @@ class eAITargetInformationState
 				//! Make AI search the area by moving in direction of last known target position
 				//! Start search after first AI in group reaches initial search position
 				bool updateSearchPosition = m_AI.GetGroup().m_UpdateSearchPosition;
+
+				if (m_Info.IsInherited(eAINoiseTargetInformation))
+				{
+					//! The distance check may not work for noise targets since position is randomly generated
+					//! in a radius around actual noise source and may not be reachable, so we rely on time-based updates.
+					//! Also, this helps further spread search position in case we are far from noise target.
+					updateSearchPosition = true;
+					m_SearchPositionUpdateCount++;
+				}
+
 				if ((updateSearchPosition && !m_SearchPositionUpdateCount) || (updateSearchPosition && time - m_SearchPositionUpdateTimestamp > 10000) || vector.DistanceSq(m_AI.GetPosition(), m_SearchPosition) < 1.0)
 				{
 					m_SearchPositionUpdateCount++;
 					m_SearchPositionUpdateTimestamp = time;
-					vector targetPosition = m_Info.GetPosition(m_AI, true);
-					if (vector.DistanceSq(m_AI.GetPosition(), targetPosition) < 100.0)  //! Spidey sense within 10 m
-					{
-						m_SearchPosition = targetPosition;
-					}
-					else if (m_SearchPositionUpdateCount <= 3)
+					if (m_SearchPositionUpdateCount <= 3)
 					{
 						//! Directional search
 						vector angles = m_SearchDirection.Normalized().VectorToAngles();

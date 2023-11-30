@@ -958,7 +958,7 @@
 				<position_destination x="723.010348161875" y="490.855335435811" />
 			</editor_data>
 			<guard>
-				if (unit.GetThreatToSelf() &gt; 0.4) return FAIL;
+				if (unit.GetThreatToSelf() &gt;= 0.4) return FAIL;
 				
 				dst.group = unit.GetGroup();
 				if (!dst.group) return FAIL;
@@ -980,7 +980,7 @@
 				<position_destination x="624.401116247196" y="542.205251357419" />
 			</editor_data>
 			<guard>
-				if (unit.GetThreatToSelf() &gt; 0.4) return FAIL;
+				if (unit.GetThreatToSelf() &gt;= 0.4) return FAIL;
 				
 				auto group = unit.GetGroup();
 				if (!group) return FAIL;
@@ -1002,7 +1002,7 @@
 			</editor_data>
 			<guard>
 				auto group = unit.GetGroup();
-				if (unit.GetThreatToSelf() &gt; 0.4 || !group || group.GetLeader() != unit) return SUCCESS;
+				if (unit.GetThreatToSelf() &gt;= 0.4 || !group || group.GetLeader() != unit) return SUCCESS;
 				
 				return FAIL;
 			</guard>
@@ -1019,7 +1019,7 @@
 				auto group = unit.GetGroup();
 				if (!group || group.GetLeader() == unit || group.GetFormationState() != eAIGroupFormationState.IN) return SUCCESS;
 				
-				if (unit.GetThreatToSelf() &gt; 0.4) return SUCCESS;
+				if (unit.GetThreatToSelf() &gt;= 0.4) return SUCCESS;
 				
 				return FAIL;
 			</guard>

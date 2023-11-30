@@ -29,7 +29,7 @@ class CfgMods
 		author = "$STR_MOD_EXPANSION_AUTHOR";
 		authorID = "";
 		dependencies[] = {"Game","World","Mission"};
-		defines[] = {"EXPANSION_NAMALSK_ADVENTURE_DEBUG"};
+		defines[] = {};
 		class defs
 		{
 			class gameScriptModule

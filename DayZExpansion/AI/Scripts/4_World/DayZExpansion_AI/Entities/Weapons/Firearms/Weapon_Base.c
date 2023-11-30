@@ -14,6 +14,8 @@
 
 modded class Weapon_Base
 {
+	float m_eAI_LastFiredTime;
+
 	bool Hitscan(vector begin_point, vector direction, eAIBase ai, out Object hitObject, out vector hitPosition, out vector hitNormal, out int contactComponent)
 	{
 		#ifdef EAI_TRACE
@@ -46,11 +48,24 @@ modded class Weapon_Base
 	#endif
 	}
 
-#ifdef DIAG
 	override void EEFired(int muzzleType, int mode, string ammoType)
 	{
 		super.EEFired(muzzleType, mode, ammoType);
 
+		if (GetGame().IsServer())
+		{
+			float time = GetGame().GetTickTime();
+			if (time - m_eAI_LastFiredTime > 1.0)
+			{
+				//! Because shots may be fired rapidly, we only update this once every second
+				m_eAI_LastFiredTime = time;
+				float strengthMultiplier = GetPropertyModifierObject().eAI_GetNoiseShootModifier();
+				if (strengthMultiplier)
+					eAINoiseSystem.AddNoise(this, CFG_WEAPONSPATH + " " + GetType() + " NoiseShoot", strengthMultiplier, eAINoiseType.SHOT);
+			}
+		}
+
+#ifdef DIAG
 		if (!EXTrace.AI)
 			return;
 
@@ -109,8 +124,8 @@ modded class Weapon_Base
 				ai.Expansion_DebugObject_Deferred(19, hitPosition, "ExpansionDebugBox_Red", direction, begin_point);
 			}
 		}
-	}
 #endif
+	}
 
 	/**
 	 * @fn	ProcessWeaponEvent

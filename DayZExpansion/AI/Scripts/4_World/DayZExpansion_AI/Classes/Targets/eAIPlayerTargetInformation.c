@@ -108,9 +108,8 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			//! This should ensure that AI doesn't take fist fights over long distances or against armed enemies unless they are close,
 			//! and prioritizes enemies with raised weapons
 			auto hands = ai.GetHumanInventory().GetEntityInHands();
-			eAITarget target = ai.GetTarget();
 			bool hasLOS;
-			if (target && target.info == this && ai.eAI_HasLOS(target))
+			if (ai.eAI_HasLOS(this))  //! It's OK if LOS state is stale at this point
 				hasLOS = true;
 			if ((hands && AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor, hasLOS)) || distance <= 30 || hasLOS)
 			{

@@ -30,18 +30,6 @@ class eAITargetInformation
 	}
 
 	/**
-	 * @brief Debugging information about the target
-	 *
-	 * @return string
-	 */
-	override string GetDebugName()
-	{
-		string str = super.GetDebugName();
-		
-		return str;
-	}
-
-	/**
 	 * @brief Get the entity that this target belongs to, if it does so
 	 *
 	 * @return EntityAI
@@ -115,7 +103,7 @@ class eAITargetInformation
 	 * @param ai null default, if given includes the AI in threat calculation
 	 * @return int
 	 */
-	float GetThreat(eAIBase ai = null)
+	float GetThreat(eAIBase ai = null, out eAITargetInformationState state = null)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "GetThreat").Add(ai);
@@ -124,7 +112,7 @@ class eAITargetInformation
 		if (!ai)
 			return CalculateThreat();
 
-		auto state = ai.eAI_GetTargetInformationState(this);
+		state = ai.eAI_GetTargetInformationState(this);
 		state.UpdateThreat();
 
 		return state.m_ThreatLevel;

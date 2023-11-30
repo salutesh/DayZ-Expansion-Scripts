@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef NAMALSK_SURVIVAL
 class ExpansionActionUseRepairCenter: ActionInteractBase
 {
 	void ExpansionActionUseRepairCenter()
@@ -71,4 +72,5 @@ class ExpansionActionUseRepairCenter: ActionInteractBase
 		
 		printer.SetCanViewCargo(false);
 	}
-}
+};
+#endif
