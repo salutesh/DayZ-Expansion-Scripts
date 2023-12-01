@@ -44,7 +44,7 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 			if (levelFactor > 1.0)
 				levelFactor = Math.Pow(levelFactor, 2.0);
 
-			if (levelFactor > 0.4)
+			if (levelFactor >= 0.4)
 			{
 				levelFactor *= 2.0;
 				auto hands = ai.GetHumanInventory().GetEntityInHands();

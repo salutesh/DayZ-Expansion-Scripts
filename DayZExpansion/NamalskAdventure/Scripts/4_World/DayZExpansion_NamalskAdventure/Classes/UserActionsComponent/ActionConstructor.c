@@ -24,7 +24,9 @@ modded class ActionConstructor
 		actions.Insert(ExpansionActionOpenSupplyCrate);
 		actions.Insert(ExpansionActionUseBunkerPanel);
 		actions.Insert(ExpansionActionOpenCommunityGoalsMenu);
+	#ifdef NAMALSK_SURVIVAL
 		actions.Insert(ExpansionActionUseRepairCenter);
+	#endif
 	#ifdef EXPANSIONMODTELEPORTER
 		actions.Insert(ExpansionActionUseTeleporter);
 	#endif

@@ -19,9 +19,9 @@ class eAIFactionPallasResearch : eAIFaction
 		m_Loadout = "Namalsk_PallasResearch";
 	}
 
-	override bool IsFriendly(notnull eAIFaction other)
+	override bool IsFriendlyFaction(notnull eAIFaction other)
 	{
-		if (super.IsFriendly(other)) return true;
+		if (super.IsFriendlyFaction(other)) return true;
 		if (other.IsInherited(eAIFactionPallasResearch)) return true;
 		if (other.IsInherited(eAIFactionPassive)) return true;
 		return false;

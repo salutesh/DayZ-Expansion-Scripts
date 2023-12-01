@@ -54,7 +54,9 @@ modded class PlayerBase
 	void ForceUpdateRadiation()
 	{
 		m_StatRadiation = GetStatRadiation().Get();
+	#ifdef NAMALSKADVENTURE_RADIATION_DEBUG
 		Print(ToString() + "::ForceUpdateRadiation - Radiation: " + m_StatRadiation);
+	#endif
 		SetSynchDirty();
 	}
 	

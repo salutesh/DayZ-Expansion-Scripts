@@ -22,7 +22,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 	}
 
 	//! @note not using state cache for item targets as they wouldn't be removed from it
-	override float GetThreat(eAIBase ai = null)
+	override float GetThreat(eAIBase ai = null, out eAITargetInformationState state = null)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "GetThreat").Add(ai);
@@ -89,7 +89,11 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 				float distance = GetDistanceSq(ai, true);
 
 				if (ai.GetPathFinding().IsBlocked(ai.GetPosition(), m_Item.GetPosition()))
-					return ExpansionMath.LinearConversion(0.0, 900.0, distance, 0.2, 0.41);
+				{
+					if (distance < 25.0)
+						ai.eAI_ItemThreatOverride(m_Item, true);
+					return 0.4;
+				}
 
 				if (distance < 0.001)
 					distance = 0.001;

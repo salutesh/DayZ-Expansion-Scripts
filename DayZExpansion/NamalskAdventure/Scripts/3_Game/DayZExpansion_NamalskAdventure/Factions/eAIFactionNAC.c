@@ -19,8 +19,9 @@ class eAIFactionNAC : eAIFaction
 		m_Loadout = "Namalsk_NAC";
 	}
 
-	override bool IsFriendly(notnull eAIFaction other)
+	override bool IsFriendlyFaction(notnull eAIFaction other)
 	{
+		if (super.IsFriendlyFaction(other)) return true;
 		if (other.IsInherited(eAIFactionWest)) return true;
 		if (other.IsInherited(eAIFactionNAC)) return true;
 		return false;

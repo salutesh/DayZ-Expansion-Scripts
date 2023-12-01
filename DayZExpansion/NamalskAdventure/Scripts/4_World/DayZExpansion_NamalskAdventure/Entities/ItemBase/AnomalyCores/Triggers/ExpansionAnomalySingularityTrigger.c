@@ -52,9 +52,11 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 				PlayerBase player = PlayerBase.Cast(objectEntity);
 				if (!player || !player.IsAlive())
                 	return;
-
+				
+			#ifdef NAMALSK_SURVIVAL
 				if (ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 					return;
+			#endif
 
 				if (!player.IsInTransport())
 				{

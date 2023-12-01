@@ -7,12 +7,12 @@ class eAIFactionObservers : eAIFaction
 		m_IsObserver = true;
 	}
 
-	override bool IsFriendly(notnull eAIFaction other)
+	override bool IsFriendlyFaction(notnull eAIFaction other)
 	{
 		return true;
 	}
 
-	override bool IsFriendly(EntityAI other)
+	override bool IsFriendlyEntity(EntityAI other, DayZPlayer factionMember = null)
 	{
 		return other.IsInherited(DayZCreatureAI);
 	}

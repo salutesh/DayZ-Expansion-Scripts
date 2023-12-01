@@ -34,6 +34,9 @@ class eAIBase: PlayerBase
 
 	// Targeting data
 	private autoptr array<ref eAITarget> m_eAI_Targets;
+#ifdef DIAG
+	bool m_eAI_PrintCurrentTarget;
+#endif
 	private autoptr map<eAITargetInformation, ref eAITargetInformationState> m_eAI_TargetInformationStates;
 	float m_ThreatClearedTimeout;
 	float m_eAI_CurrentThreatToSelf;
@@ -49,6 +52,8 @@ class eAIBase: PlayerBase
 	int m_eAI_CurrentTarget_NetIDHigh;
 	int m_eAI_CurrentTarget_NetIDLowSync;
 	int m_eAI_CurrentTarget_NetIDHighSync;
+	ref eAINoiseTargetInformation m_eAI_NoiseTargetInfo = new eAINoiseTargetInformation();
+	int m_eAI_NoiseTarget;
 
 	// Command handling
 	private ExpansionHumanCommandScript m_eAI_Command;
@@ -255,6 +260,8 @@ class eAIBase: PlayerBase
 		//! Vehicles mod will set this in PlayerBase::Init if loaded
 		if (!m_ExpansionST)
 			m_ExpansionST = new ExpansionHumanST(this);
+
+		eAINoiseSystem.SI_OnNoiseAdded.Insert(eAI_OnNoiseEvent);
 	}
 
 	override void Expansion_Init()
@@ -450,7 +457,7 @@ class eAIBase: PlayerBase
 				targeted = true;
 
 			//! Other faction friendly to our faction or this specific AI?
-			if (player.GetGroup().GetFaction().IsFriendly(GetGroup().GetFaction()) || player.GetGroup().GetFaction().IsFriendly(this))
+			if (player.GetGroup().GetFaction().IsFriendlyFaction(GetGroup().GetFaction()) || player.GetGroup().GetFaction().IsFriendlyEntity(this, player))
 			{
 #ifdef DIAG
 				if (eAI_IsPassive())
@@ -480,7 +487,7 @@ class eAIBase: PlayerBase
 		}
 
 		//! Our faction fiendly to specific player?
-		if (GetGroup().GetFaction().IsFriendly(other))
+		if (GetGroup().GetFaction().IsFriendlyEntity(other, this))
 		{
 #ifdef DIAG
 			if (eAI_IsPassive())
@@ -720,6 +727,8 @@ class eAIBase: PlayerBase
 
 		if (m_eAI_ClientUpdateTimer && m_eAI_ClientUpdateTimer.IsRunning())
 			m_eAI_ClientUpdateTimer.Stop();
+
+		eAINoiseSystem.SI_OnNoiseAdded.Remove(eAI_OnNoiseEvent);
 	}
 
 	override bool IsAI()
@@ -991,7 +1000,8 @@ class eAIBase: PlayerBase
 		if (m_eAI_Targets.Count() == 1)
 			m_eAI_SyncCurrentTarget = true;
 #ifdef DIAG
-		EXTrace.Print(EXTrace.AI, this, "OnAddTarget " + target.info.GetEntityDebugName() + " - found at time " + target.found_at_time + " - max time " + target.max_time + " - target count " + m_eAI_Targets.Count());
+		m_eAI_PrintCurrentTarget = true;
+		EXTrace.Print(EXTrace.AI, this, "OnAddTarget " + target.GetDebugName() + " - found at time " + target.found_at_time + " - max time " + target.max_time + " - target count " + m_eAI_Targets.Count());
 #endif
 	}
 
@@ -1007,9 +1017,18 @@ class eAIBase: PlayerBase
 		m_eAI_TargetInformationStates.Remove(target.info);
 		ItemBase item;
 		if (Class.CastTo(item, target.GetEntity()))
+		{
 			eAI_ItemThreatOverride(item, false);
+		}
+		else if (target.info.IsInherited(eAINoiseTargetInformation))
+		{
+			if (m_eAI_CurrentThreatToSelfActive < 0.4 && !Math.RandomInt(0, 3))
+				Expansion_SetEmote(EmoteConstants.ID_EMOTE_SHRUG, true);
+			m_eAI_NoiseTargetInfo.SetNoiseParams(null, vector.Zero, 0.0, 0.0);
+		}
 #ifdef DIAG
-		EXTrace.Print(EXTrace.AI, this, "OnRemoveTarget " + target.info.GetEntityDebugName() + " - time remaining " + (target.found_at_time + target.max_time - GetGame().GetTime()) + " - target count " + m_eAI_Targets.Count());
+		m_eAI_PrintCurrentTarget = true;
+		EXTrace.Print(EXTrace.AI, this, "OnRemoveTarget " + target.GetDebugName() + " - time remaining " + (target.found_at_time + target.max_time - GetGame().GetTime()) + " - target count " + m_eAI_Targets.Count());
 #endif
 	}
 
@@ -1045,17 +1064,15 @@ class eAIBase: PlayerBase
 		{
 			auto target = GetTarget();
 
-			m_eAI_CurrentThreatToSelf = target.GetThreat(this);
+			eAITargetInformationState state;
+			m_eAI_CurrentThreatToSelf = target.GetThreat(this, state);
 
-			EntityAI targetEntity = target.GetEntity();
-
-			if (targetEntity.IsInherited(ItemBase))
+			if (target.info.IsInherited(eAIItemTargetInformation))
 			{
 				m_eAI_CurrentThreatToSelfActive = m_eAI_CurrentThreatToSelf;
 			}
 			else
 			{
-				auto state = m_eAI_TargetInformationStates[target.info];
 				m_eAI_CurrentThreatToSelfActive = state.m_ThreatLevelActive;
 			}
 		}
@@ -1131,9 +1148,6 @@ class eAIBase: PlayerBase
 			}
 		}
 
-		if (!m_eAI_Meme && m_eAI_CurrentThreatToSelfActive > 0.15 && m_eAI_PreviousThreatToSelfActive < 0.15 && !Math.RandomInt(0, 3))
-			m_eAI_Meme = Math.RandomInt(2, 4);
-
 		if (m_eAI_CurrentThreatToSelfActive >= 0.4)
 		{
 			if (m_ThreatClearedTimeout <= 0)
@@ -1141,6 +1155,9 @@ class eAIBase: PlayerBase
 		}
 		else
 		{
+			if (!m_eAI_Meme && m_eAI_CurrentThreatToSelfActive > 0.15 && m_eAI_PreviousThreatToSelfActive < 0.15 && !Math.RandomInt(0, 3))
+				m_eAI_Meme = Math.RandomInt(2, 4);
+
 			if (m_ThreatClearedTimeout > 0)
 			{
 				m_ThreatClearedTimeout -= pDt;
@@ -1317,39 +1334,11 @@ class eAIBase: PlayerBase
 				continue;
 			else if (obj.IsInherited(Transport))
 				continue;
-			else if (Class.CastTo(targetEntity, obj) && GetGroup().GetFaction().IsFriendly(targetEntity))
+			else if (Class.CastTo(targetEntity, obj) && GetGroup().GetFaction().IsFriendlyEntity(targetEntity, this))
 				continue;
 
-			eAITargetInformation target = eAITargetInformation.GetTargetInformation(obj);
-			if (!target)
+			if (!eAI_ProcessTarget(obj, group_count))
 				continue;
-
-			if (!target.IsActive())
-				continue;
-
-			if (obj.IsInherited(ItemBase))
-			{
-				if (target.ShouldRemove(this))
-					continue;
-			}
-			else if (target.ShouldRemove())
-			{
-				continue;
-			}
-
-			int num_ai_in_group_targetting = 0;
-			if (m_eAI_Targets.Count() > 0 && m_eAI_CurrentThreatToSelf >= 0.4 && target.IsTargetted(GetGroup(), num_ai_in_group_targetting))
-			{
-				float num_ai_in_group_not_targeting = group_count - num_ai_in_group_targetting;
-				if (!num_ai_in_group_not_targeting)
-					continue;
-				float threatLevel = target.GetThreat(this);
-				float frac = num_ai_in_group_not_targeting / group_count;
-				if ((frac * threatLevel) < (1.0 / group_count))
-					continue;
-			}
-
-			target.AddAI(this);
 
 			if (m_eAI_Targets.Count() * 2 > group_count)
 				break;
@@ -1357,6 +1346,42 @@ class eAIBase: PlayerBase
 
 		if (m_eAI_CurrentPotentialTargetIndex >= m_eAI_PotentialTargetEntities.Count())
 			m_eAI_PotentialTargetEntities.Clear();
+	}
+
+	bool eAI_ProcessTarget(Object obj, int group_count, out eAITargetInformation info = null)
+	{
+		info = eAITargetInformation.GetTargetInformation(obj);
+		if (!info)
+			return false;
+
+		if (!info.IsActive())
+			return false;
+
+		if (obj.IsInherited(ItemBase))
+		{
+			if (info.ShouldRemove(this))
+				return false;
+		}
+		else if (info.ShouldRemove())
+		{
+			return false;
+		}
+
+		int num_ai_in_group_targetting = 0;
+		if (m_eAI_Targets.Count() > 0 && m_eAI_CurrentThreatToSelf >= 0.4 && info.IsTargetted(GetGroup(), num_ai_in_group_targetting))
+		{
+			float num_ai_in_group_not_targeting = group_count - num_ai_in_group_targetting;
+			if (!num_ai_in_group_not_targeting)
+				return false;
+			float threatLevel = info.GetThreat(this);
+			float frac = num_ai_in_group_not_targeting / group_count;
+			if ((frac * threatLevel) < (1.0 / group_count))
+				return false;
+		}
+
+		info.AddAI(this);
+
+		return true;
 	}
 
 	void eAI_OnRemovePlayer(CF_DoublyLinkedNode_WeakRef<PlayerBase> node)
@@ -1382,7 +1407,7 @@ class eAIBase: PlayerBase
 			if (m_eAI_Targets[i].ShouldRemove(this))
 			{
 #ifdef DIAG
-				EXTrace.Print(EXTrace.AI, this, "eAI_RemoveTargets - removing target " + m_eAI_Targets[i].info.GetEntityDebugName());
+				EXTrace.Print(EXTrace.AI, this, "eAI_RemoveTargets - removing target " + m_eAI_Targets[i].info.GetDebugName());
 #endif
 				m_eAI_Targets[i].RemoveAI(this);
 			}
@@ -1409,27 +1434,41 @@ class eAIBase: PlayerBase
 
 		float threat;
 		float max_threat;
+		float noise_max_threat;
 		int max_threat_idx;
 
-		for (int i = 0; i < m_eAI_Targets.Count(); i++)
+		m_eAI_NoiseTarget = 0;
+
+		foreach (int i, eAITarget target: m_eAI_Targets)
 		{
-			threat = m_eAI_Targets[i].GetThreat(this);
+			threat = target.GetThreat(this);
 			if (threat > max_threat)
 			{
 				max_threat_idx = i;
 				max_threat = threat;
 			}
+		#ifdef DIAG
+			if (m_eAI_PrintCurrentTarget)
+				EXTrace.Print(EXTrace.AI, this, "eAI_PrioritizeTargets - target " + i + " " + target.GetDebugName() + " threat lvl " + threat);
+		#endif
 		}
 
 		if (max_threat_idx > 0)
 		{
-			eAITarget target = m_eAI_Targets[0];
+			eAITarget currentTarget = m_eAI_Targets[0];
 			m_eAI_Targets[0] = m_eAI_Targets[max_threat_idx];
-			m_eAI_Targets[max_threat_idx] = target;
+			if (currentTarget.info.IsInherited(eAINoiseTargetInformation))
+				m_eAI_NoiseTarget = max_threat_idx;
+			m_eAI_Targets[max_threat_idx] = currentTarget;
 			m_eAI_SyncCurrentTarget = true;
-
 #ifdef DIAG
-			EXTrace.Print(EXTrace.AI, this, "eAI_PrioritizeTargets - prioritizing target " + max_threat_idx + " " + m_eAI_Targets[0].info.GetEntityDebugName() + " threat lvl " + max_threat);
+			m_eAI_PrintCurrentTarget = true;
+		}
+
+		if (m_eAI_PrintCurrentTarget && m_eAI_Targets[0])
+		{
+			m_eAI_PrintCurrentTarget = false;
+			EXTrace.Print(EXTrace.AI, this, "eAI_PrioritizeTargets - prioritizing target " + max_threat_idx + " " + m_eAI_Targets[0].GetDebugName() + " threat lvl " + max_threat);
 #endif
 		}
 	}
@@ -1473,7 +1512,109 @@ class eAIBase: PlayerBase
 		if (!info)
 			return;
 		target = info.AddAI(this);
-		EXTrace.Print(EXTrace.AI, this, "Prioritizing target " + info.GetEntityDebugName());
+		EXTrace.Print(EXTrace.AI, this, "Prioritizing target " + info.GetDebugName());
+	}
+
+	void eAI_OnNoiseEvent(EntityAI source, vector position, float lifetime, eAINoiseParams params, float strengthMultiplier)
+	{
+		auto trace = EXTrace.Profile(EXTrace.AI, this);
+
+		EntityAI root;
+		if (source)
+		{
+			root = source.GetHierarchyRoot();
+
+			if (root == this)
+				return;
+
+			if (m_eAI_CurrentThreatToSelfActive >= 0.4)
+			{
+				eAITarget target = GetTarget();
+				if (target && target.GetEntity() == root)
+					return;  //! Already targeting the source entity
+			}
+		}
+
+		//! Friendly checks. Not using PlayerIsEnemy here is intentional.
+		//! We ignore noises made by friendlies unless it's shots.
+		DayZPlayerImplement player;
+		eAIGroup ourGroup = GetGroup();
+		eAIFaction faction = ourGroup.GetFaction();
+		if (params.m_Type != eAINoiseType.SHOT && Class.CastTo(player, root))
+		{
+			eAIGroup theirGroup = player.GetGroup();
+			if (theirGroup)
+			{
+				if (theirGroup == ourGroup || theirGroup.GetFaction().IsFriendlyFaction(faction))
+					return;
+			}
+		}
+
+		if (source && position == vector.Zero)
+			position = source.GetPosition();
+
+		float strength = params.m_Strength * strengthMultiplier;
+		float strengthSq = strength * strength;
+		float distSq = vector.DistanceSq(GetPosition(), position);
+		if (distSq > strengthSq)
+			return;
+
+		float distance = Math.Sqrt(distSq);
+		if (eAI_IsPassive() || faction.IsObserver() || faction.IsGuard())
+		{
+			if (params.m_Type != eAINoiseType.SHOT)
+				return;
+
+			strength = ExpansionMath.PowerConversion(0.5, Math.Max(strength, 30.0), distance, 0.152, 0.1, 0.1);
+			lifetime = Math.RandomFloat(2.0, 4.0);  //! Just look briefly
+		}
+		else
+		{
+			strength = ExpansionMath.LinearConversion(500.0, 1000.0, distance, 0.4, 0.152);
+			if (strength >= 0.4)
+				lifetime = ExpansionMath.LinearConversion(0.0, 500.0, distance, 3.0, 240.0);  //! Leave enough time to run there and check it out
+			else
+				lifetime = Math.RandomFloat(2.0, 4.0);  //! Just look briefly
+		}
+
+	#ifdef DIAG
+		EXTrace.Print(EXTrace.AI, this, string.Format("::eAI_OnNoiseEvent %1 %2 %3 %4 %5 %6", source, position.ToString(), lifetime, strength, params.m_Path, typename.EnumToString(eAINoiseType, params.m_Type)));
+	#endif
+
+		/*
+		float y = position[1];
+		position = ExpansionStatic.GetSurfacePosition(ExpansionMath.GetRandomPointInCircle(position, distance * 0.05));
+		position[1] = Math.Max(position[1], y);
+
+		if (root && !root.IsInherited(ItemBase))
+		{
+			eAITargetInformation info;
+			eAI_ProcessTarget(root, GetGroup().Count(), info);
+			eAITargetInformationState state = eAI_GetTargetInformationState(info);
+			if (state.m_ThreatLevel >= 0.4)
+			{
+				state.m_ThreatLevelActive = state.m_ThreatLevel;
+				state.m_SearchPosition = position;
+				state.m_SearchDirection = vector.Direction(GetPosition(), state.m_SearchPosition);
+				return;
+			}
+		}
+		*/
+
+		//! Update noise target info
+		if (strength >= m_eAI_NoiseTargetInfo.GetStrength())
+		{
+			m_eAI_NoiseTargetInfo.SetNoiseParams(source, position, strength, lifetime);
+
+			auto state = eAI_GetTargetInformationState(m_eAI_NoiseTargetInfo);
+			state.UpdatePosition(true);
+		}
+
+		int max_time = lifetime * 1000;
+		if (!m_eAI_NoiseTargetInfo.IsTargettedBy(this))
+			m_eAI_NoiseTargetInfo.AddAI(this, max_time);
+		else
+			m_eAI_NoiseTargetInfo.Update(ourGroup, max_time);
 	}
 
 	override void OnVariablesSynchronized()
@@ -2068,7 +2209,7 @@ class eAIBase: PlayerBase
 			if (isServer)
 			{
 				bool lookDirectionRecalculate;
-				if (m_eAI_CurrentThreatToSelfActive > 0.1 && hasLOS)
+				if (m_eAI_CurrentThreatToSelfActive > 0.1 && (hasLOS || target.info.IsInherited(eAINoiseTargetInformation)))
 					lookDirectionRecalculate = true;
 				LookAtPosition(aimPosition, lookDirectionRecalculate);
 				if (!m_eAI_LookDirection_Recalculate)
@@ -2168,6 +2309,17 @@ class eAIBase: PlayerBase
 		GetTransform(m_ExTransformPlayer);
 
 		bool hasLOS = EnforceLOS();
+		if (!hasLOS && m_eAI_NoiseTarget > 0)
+		{
+			eAITarget currentTarget = m_eAI_Targets[0];
+			m_eAI_Targets[0] = m_eAI_Targets[m_eAI_NoiseTarget];
+			m_eAI_Targets[m_eAI_NoiseTarget] = currentTarget;
+#ifdef DIAG
+			float noiseThreatLevelActive = eAI_GetTargetInformationState(m_eAI_Targets[0].info).m_ThreatLevelActive;
+			EXTrace.Print(EXTrace.AI, this, "eAI_PrioritizeTargets - prioritizing noise target " + m_eAI_NoiseTarget + " " + m_eAI_Targets[0].GetDebugName() + " threat lvl " + m_eAI_CurrentThreatToSelfActive + " -> " + noiseThreatLevelActive);
+#endif
+			m_eAI_NoiseTarget = 0;
+		}
 
 		DetermineThreatToSelf(pDt);
 		ReactToThreatChange(pDt);
@@ -2293,6 +2445,8 @@ class eAIBase: PlayerBase
 
 		m_eAI_Command = ExpansionHumanCommandScript.Cast(GetCommand_Script());
 
+		bool returnEarly;
+
 		if (pCurrentCommandFinished)
 		{
 			if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_UNCONSCIOUS)
@@ -2320,10 +2474,9 @@ class eAIBase: PlayerBase
 			else
 				StartCommand_MoveAI();
 
-			return;
+			returnEarly = true;
 		}
-
-		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_CLIMB)
+		else if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_CLIMB)
 		{
 			HumanCommandClimb hcc = GetCommand_Climb();
 
@@ -2345,9 +2498,8 @@ class eAIBase: PlayerBase
 				}
 			}
 		}
-
 		// taken from vanilla DayZPlayerImplement
-		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_FALL)
+		else if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_FALL)
 		{
 			HumanCommandFall fall = GetCommand_Fall();
 			if (fall && fall.PhysicsLanded())
@@ -2421,6 +2573,9 @@ class eAIBase: PlayerBase
 
 			skipScript = true;
 		}
+
+		if (returnEarly)
+			return;
 
 		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE)
 		{
@@ -2627,6 +2782,11 @@ class eAIBase: PlayerBase
 		auto target = GetTarget();
 
 		EntityAI targetEntity = target.GetEntity();
+
+		if (!targetEntity)
+		{
+			return false;
+		}
 
 		if (targetEntity.IsInherited(ItemBase))
 		{
@@ -2873,10 +3033,15 @@ class eAIBase: PlayerBase
 		if (!target)
 			return false;
 
-		if (target.info.IsInherited(eAIItemTargetInformation))
+		return eAI_HasLOS(target.info);
+	}
+
+	bool eAI_HasLOS(eAITargetInformation info)
+	{
+		if (info.IsInherited(eAIItemTargetInformation) || info.IsInherited(eAINoiseTargetInformation))
 			return true;
 
-		auto state = m_eAI_TargetInformationStates[target.info];
+		auto state = m_eAI_TargetInformationStates[info];
 		if (!state)
 			return false;
 

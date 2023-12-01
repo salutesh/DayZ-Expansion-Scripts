@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef NAMALSK_SURVIVAL
 enum ExpansionEVRStormPhase
 {
 	NONE = 0,
@@ -136,3 +137,4 @@ modded class EVRStorm
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	}
 };
+#endif

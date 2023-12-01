@@ -71,26 +71,37 @@ class CfgVehicles
 		scope = 1;
 		model = "\DZ\weapons\attachments\optics\optic_crossbow.p3d";
 	};
-	class bldr_Crossbow_Black: HouseNoDestruct
+	class bldr_Crossbow_Base: HouseNoDestruct
 	{
 		scope = 1;
-		model = "\DZ\weapons\archery\crossbow\crossbow.p3d";
-		hiddenSelections[] = {"camoGround"};
-		hiddenSelectionsTextures[] = {"\DZ\weapons\archery\crossbow\data\crossbow_black_co.paa"};
+		model = "\dz\weapons\archery\crossbow\crossbow.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dz\weapons\archery\crossbow\data\crossbow_leaves_co.paa"};
 	};
-	class bldr_Crossbow_Green: HouseNoDestruct
+	class bldr_Crossbow_Black: bldr_Crossbow_Base
 	{
 		scope = 1;
-		model = "\DZ\weapons\archery\crossbow\crossbow.p3d";
-		hiddenSelections[] = {"camoGround"};
-		hiddenSelectionsTextures[] = {"\DZ\weapons\archery\crossbow\data\crossbow_green_co.paa"};
+		hiddenSelectionsTextures[] = {"dz\weapons\archery\crossbow\data\crossbow_black_co.paa"};
 	};
-	class bldr_Crossbow_Camo: HouseNoDestruct
+	class bldr_Crossbow_Green: bldr_Crossbow_Base
 	{
 		scope = 1;
-		model = "\DZ\weapons\archery\crossbow\crossbow.p3d";
-		hiddenSelections[] = {"camoGround"};
-		hiddenSelectionsTextures[] = {"\DZ\weapons\archery\crossbow\data\crossbow_leaves_co.paa"};
+		hiddenSelectionsTextures[] = {"dz\weapons\archery\crossbow\data\crossbow_green_co.paa"};
+	};
+	class bldr_Crossbow_Wood: bldr_Crossbow_Base
+	{
+		scope = 1;
+		hiddenSelectionsTextures[] = {"dz\weapons\archery\crossbow\data\crossbow_wood_co.paa"};
+	};
+	class bldr_Crossbow_Summer: bldr_Crossbow_Base
+	{
+		scope = 1;
+		hiddenSelectionsTextures[] = {"dz\weapons\archery\crossbow\data\crossbow_summer_co.paa"};
+	};
+	class bldr_Crossbow_Camo: bldr_Crossbow_Base
+	{
+		scope = 1;
+		hiddenSelectionsTextures[] = {"dz\weapons\archery\crossbow\data\crossbow_leaves_co.paa"};
 	};
 	class bldr_RecurveBow: HouseNoDestruct
 	{

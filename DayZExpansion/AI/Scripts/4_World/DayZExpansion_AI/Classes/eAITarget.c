@@ -21,6 +21,21 @@ class eAITarget
 		info = _info;
 	}
 
+	/**
+	 * @brief Debugging information about the target
+	 *
+	 * @return string
+	 */
+	override string GetDebugName()
+	{
+		string str = super.GetDebugName();
+
+		str += ", ";
+		str += "info=" + info.GetDebugName();
+
+		return str;
+	}
+
 	bool AddAI(eAIBase ai)
 	{
 		if (ai_list.Find(ai) != -1)
@@ -81,14 +96,15 @@ class eAITarget
 		return info.GetAimOffset(ai);
 	}
 
-	float GetThreat(eAIBase ai = null)
+	float GetThreat(eAIBase ai = null, out eAITargetInformationState state = null)
 	{
-		return info.GetThreat(ai);
+		return info.GetThreat(ai, state);
 	}
 
 	bool IsMeleeViable(eAIBase ai)
 	{
-		if (GetEntity().IsInherited(ItemBase))
+		EntityAI entity = GetEntity();
+		if (!entity || entity.IsInherited(ItemBase))
 			return false;
 
 		EntityAI entityInHands = ai.GetHumanInventory().GetEntityInHands();

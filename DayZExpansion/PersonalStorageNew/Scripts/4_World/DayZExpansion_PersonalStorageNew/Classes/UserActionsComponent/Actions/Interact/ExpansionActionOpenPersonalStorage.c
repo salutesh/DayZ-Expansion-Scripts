@@ -31,7 +31,7 @@ class ExpansionActionOpenPersonalStorage: ActionInteractBase
 	#ifdef EXPANSIONMODHARDLINE
 	override void OnActionInfoUpdate(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		m_Text = EXPANSION_ACTION_DEFAULT_TEXT + " (lv. " + player.Expansion_GetPersonalStorageLevel() + ")";
+		m_Text = EXPANSION_ACTION_DEFAULT_TEXT + " (lv. " + ExpansionPersonalStorageHub.Expansion_GetPersonalStorageLevelEx(player) + ")";
 	}
 	#endif
 

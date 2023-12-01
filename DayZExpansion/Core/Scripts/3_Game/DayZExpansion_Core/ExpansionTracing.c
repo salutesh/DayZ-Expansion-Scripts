@@ -162,7 +162,7 @@ class EXTrace
 	static string s_Indent;
 
 	static ref CF_Date s_StartDate = CF_Date.Now();
-	static ref map<string, ref Param2<int, float>> s_Profiling = new map<string, ref Param2<int, float>>;
+	static ref map<string, ref Param4<int, float, int, float>> s_Profiling = new map<string, ref Param4<int, float, int, float>>;
 
 	protected string m_Instance;
 	protected string m_Params[10];
@@ -308,15 +308,25 @@ class EXTrace
 			name += m_FuncName;
 		}
 
-		Param2<int, float> profile;
+		int hitchCount;
+		float hitchTime;
+		if (elapsed > 1.0)
+		{
+			hitchCount = 1;
+			hitchTime = elapsed;
+		}
+
+		Param4<int, float, int, float> profile;
 		if (s_Profiling.Find(name, profile))
 		{
 			profile.param1 += 1;
 			profile.param2 += elapsed;
+			profile.param3 += hitchCount;
+			profile.param4 += hitchTime;
 		}
 		else
 		{
-			s_Profiling[name] = new Param2<int, float>(1, elapsed);
+			s_Profiling[name] = new Param4<int, float, int, float>(1, elapsed, hitchCount, hitchTime);
 		}
 	}
 
@@ -338,13 +348,16 @@ class EXTrace
 		string calls = ExpansionString.JustifyRight(" CALLS", 10, "-");
 		string time = ExpansionString.JustifyRight(" TOTAL TIME MS", 16, "-");
 		string avg = ExpansionString.JustifyRight(" AVG TIME MS", 16, "-");
+		string hitchCalls = ExpansionString.JustifyRight(" HITCHES", 10, "-");
+		string hitchTime = ExpansionString.JustifyRight(" TOTAL HITCH MS", 16, "-");
+		string hitchAvg = ExpansionString.JustifyRight(" AVG HITCH MS", 16, "-");
 
-		FPrintln(file, string.Format("%1 | %2 | %3 | %4", ExpansionString.JustifyLeft("NAME ", 90, "-"), calls, time, avg));
+		FPrintln(file, string.Format("%1 | %2 | %3 | %4 | %5 | %6 | %7", ExpansionString.JustifyLeft("NAME ", 90, "-"), calls, time, avg, hitchCalls, hitchTime, hitchAvg));
 
 		TStringArray names = s_Profiling.GetKeyArray();
 		names.Sort();
 
-		Param2<int, float> profile;
+		Param4<int, float, int, float> profile;
 
 		foreach (string name: names)
 		{
@@ -352,7 +365,19 @@ class EXTrace
 			calls = ExpansionString.JustifyRight(profile.param1.ToString(), 10, " ");
 			time = ExpansionString.JustifyRight(ExpansionStatic.FloatFixedDecimals(profile.param2, 4), 16, " ");
 			avg = ExpansionString.JustifyRight(ExpansionStatic.FloatFixedDecimals(profile.param2 / profile.param1, 4), 16, " ");
-			FPrintln(file, string.Format("%1 | %2 | %3 | %4", ExpansionString.JustifyLeft(name, 90, " "), calls, time, avg));
+			if (profile.param3)
+			{
+				hitchCalls = ExpansionString.JustifyRight(profile.param3.ToString(), 10, " ");
+				hitchTime = ExpansionString.JustifyRight(ExpansionStatic.FloatFixedDecimals(profile.param4, 4), 16, " ");
+				hitchAvg = ExpansionString.JustifyRight(ExpansionStatic.FloatFixedDecimals(profile.param4 / profile.param3, 4), 16, " ");
+			}
+			else
+			{
+				hitchCalls = "          ";
+				hitchTime = "                ";
+				hitchAvg = "                ";
+			}
+			FPrintln(file, string.Format("%1 | %2 | %3 | %4 | %5 | %6 | %7", ExpansionString.JustifyLeft(name, 90, " "), calls, time, avg, hitchCalls, hitchTime, hitchAvg));
 		}
 
 		CloseFile(file);

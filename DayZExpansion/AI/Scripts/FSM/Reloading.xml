@@ -56,7 +56,7 @@
 					vector position;
 					
 					auto target = unit.GetTarget();
-					if (target &amp;&amp; unit.GetThreatToSelf() &gt; 0.4)
+					if (target &amp;&amp; unit.GetThreatToSelf() &gt;= 0.4)
 					{
 						if (!unit.eAI_IsSideStepping() &amp;&amp; unit.eAI_HasLOS(target))
 						{

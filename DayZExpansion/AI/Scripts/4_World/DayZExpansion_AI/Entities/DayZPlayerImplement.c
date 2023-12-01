@@ -22,6 +22,7 @@ modded class DayZPlayerImplement
 	float m_eAI_LastAggressionTimeout;
 
 	float m_eAI_LastHitTime;
+	float m_eAI_LastNoiseTime;
 
 	bool m_eAI_ProcessDamageByAI;
 
@@ -71,7 +72,7 @@ modded class DayZPlayerImplement
 			return false;
 
 		if (GetGroup())
-			return !GetGroup().GetFaction().IsFriendly(ai);
+			return !GetGroup().GetFaction().IsFriendlyEntity(ai, this);
 
 		return true;
 	}
@@ -416,6 +417,53 @@ modded class DayZPlayerImplement
 			return cooldown;
 
 		return 0;
+	}
+
+	override void AddNoise(NoiseParams noisePar, float noiseMultiplier = 1.0)
+	{
+		super.AddNoise(noisePar, noiseMultiplier);
+
+		//! Because noises may fire rapidly, we only update this once every second
+		float time = GetGame().GetTickTime();
+		if (time - m_eAI_LastNoiseTime < 1.0)
+			return;
+
+		m_eAI_LastNoiseTime = time;
+
+		DayZPlayerType type = GetDayZPlayerType();
+		string cfgPath = "CfgVehicles SurvivorBase ";
+		switch (noisePar)
+		{
+			case type.GetNoiseParamsStand():
+				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseStepStand", noiseMultiplier);
+				break;
+			case type.GetNoiseParamsCrouch():
+				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseStepCrouch", noiseMultiplier);
+				break;
+			case type.GetNoiseParamsProne():
+				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseStepProne", noiseMultiplier);
+				break;
+			case type.GetNoiseParamsLandLight():
+				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseLandLight", noiseMultiplier);
+				break;
+			case type.GetNoiseParamsLandHeavy():
+				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseLandHeavy", noiseMultiplier);
+				break;
+			case type.GetNoiseParamsWhisper():
+				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseWhisper", noiseMultiplier);
+				break;
+			case type.GetNoiseParamsTalk():
+				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseTalk", noiseMultiplier);
+				break;
+			case type.GetNoiseParamsShout():
+				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseShout", noiseMultiplier);
+				break;
+		#ifdef DIAG
+			default:
+				EXTrace.Print(EXTrace.AI, this, "::AddNoise " + noisePar + " " + noiseMultiplier);
+				break;
+		#endif
+		}
 	}
 
 #ifdef DIAG

@@ -49,12 +49,16 @@ class Radiation extends ModifierBase
 	{
 		//! Clean up a bit radiation each second
 		float radiationCleanup = -RADIATION_CLEANUP_PER_SEC * deltaT;	
+	#ifdef NAMALSKADVENTURE_RADIATION_DEBUG
 		Print(ToString() + "::OnTick - Radiation cleanup: " + radiationCleanup);	
+	#endif
 		player.GetStatRadiation().Add(radiationCleanup);
 		player.ForceUpdateRadiation();
 		
 		float radiation = player.GetStatRadiation().Get();
+	#ifdef NAMALSKADVENTURE_RADIATION_DEBUG
 		Print(ToString() + "::OnTick - Radiation: " + radiation);
+	#endif
 		
 		if(radiation > DAMAGE_THRESHOLD)
 		{

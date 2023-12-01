@@ -205,6 +205,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		m_SpawnedDynamicAnomaliesCount++;
 	}
 
+	#ifdef NAMALSK_SURVIVAL
 	void OnNamalskEventStart(typename eventType)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -282,6 +283,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	}
+	#endif
 
 	//! @note: Condition check if a EVR storm is currently active.
 	bool IsEVRStormActive()
@@ -303,7 +305,8 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 		return false;
 	}
-
+	
+#ifdef NAMALSK_SURVIVAL
 	bool HasActiveLEHSSuit(PlayerBase player)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -339,6 +342,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		ModuleDebugPrint("::OnEnterAnomalyServer - Return TRUE");
 		return true;
 	}
+#endif
 
 	void ProcessCargoDamage(EntityAI parent, int minDmg, int maxDmg)
 	{
@@ -422,6 +426,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	    return positions;
 	}
 
+#ifdef NAMALSK_SURVIVAL
 	void OnEVRStormStartAnomaly(Expansion_Anomaly_Base anomaly)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -651,6 +656,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 			ModuleDebugPrint(ToString() + "::OnStabilizeAnomalies - m_DestabilizeAnomalies: " + m_DestabilizeAnomalies.ToString());
 		}
 	}
+#endif
 
 	static ExpansionAnomaliesModule GetModuleInstance()
 	{

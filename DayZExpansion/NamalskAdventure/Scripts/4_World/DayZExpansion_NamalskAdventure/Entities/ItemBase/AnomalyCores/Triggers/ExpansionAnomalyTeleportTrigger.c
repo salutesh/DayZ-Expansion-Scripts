@@ -164,9 +164,11 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
-
+		
+	#ifdef NAMALSK_SURVIVAL
 		if (ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 			return;
+	#endif
 
 		if (!player.IsInTransport())
 		{

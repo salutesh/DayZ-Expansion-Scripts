@@ -96,21 +96,24 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnComplete())
 			return false;
 
-		EmoteManager npcEmoteManager = m_VIP.GetEmoteManager();
-		if (!npcEmoteManager.IsEmotePlaying())
+		if (m_VIP)
 		{
-			npcEmoteManager.PlayEmote(EmoteConstants.ID_EMOTE_GREETING);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
+			EmoteManager npcEmoteManager = m_VIP.GetEmoteManager();
+			if (!npcEmoteManager.IsEmotePlaying())
+			{
+				npcEmoteManager.PlayEmote(EmoteConstants.ID_EMOTE_GREETING);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
+			}
+
+			m_Group.SetLeader(m_VIP);
+			m_Group.AddWaypoint(m_ObjectivePos);
+
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeleteVIP, 10000);
+
+			auto player = m_Quest.GetPlayer();
+			if (!player.Expansion_GetFormerGroup())
+				player.SetGroup(null);
 		}
-
-		m_Group.SetLeader(m_VIP);
-		m_Group.AddWaypoint(m_ObjectivePos);
-
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeleteVIP, 10000);
-
-		auto player = m_Quest.GetPlayer();
-		if (!player.Expansion_GetFormerGroup())
-			player.SetGroup(null);
 
 		ObjectivePrint("End and return TRUE.");
 
@@ -127,14 +130,17 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnCleanup())
 			return false;
 
-		DeleteVIP();
-
 		if (m_ObjectiveTrigger)
 			GetGame().ObjectDelete(m_ObjectiveTrigger);
 
-		auto player = m_Quest.GetPlayer();
-		if (!player.Expansion_GetFormerGroup())
-			player.SetGroup(null);
+		if (m_VIP)
+		{
+			DeleteVIP();
+
+			auto player = m_Quest.GetPlayer();
+			if (!player.Expansion_GetFormerGroup())
+				player.SetGroup(null);
+		}
 		
 		ObjectivePrint("End and return TRUE.");
 

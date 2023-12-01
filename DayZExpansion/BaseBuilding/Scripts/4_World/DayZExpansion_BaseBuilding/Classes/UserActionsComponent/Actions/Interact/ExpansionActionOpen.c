@@ -71,5 +71,10 @@ class ExpansionActionOpen: ActionInteractBase
 			m_Target.UnlockAndOpen( selection );
 		else
 			m_Target.Open( selection );
+
+	#ifdef EXPANSIONMODAI
+		if (action_data.m_Player)
+			eAINoiseSystem.AddNoise(action_data.m_Player, action_data.m_Player.GetPosition(), "CfgVehicles SurvivorBase NoiseActionDefault");
+	#endif
 	}
 }

@@ -6,14 +6,14 @@ class eAIFactionShamans : eAIFaction
 		m_Loadout = "WestLoadout";
 	}
 
-	override bool IsFriendly(notnull eAIFaction other)
+	override bool IsFriendlyFaction(notnull eAIFaction other)
 	{
 		if (other.IsInherited(eAIFactionShamans)) return true;
 		if (other.IsPassive()) return true;
 		return false;
 	}
 
-	override bool IsFriendly(EntityAI other)
+	override bool IsFriendlyEntity(EntityAI other, DayZPlayer factionMember = null)
 	{
 		return other.IsInherited(DayZCreatureAI);
 	}

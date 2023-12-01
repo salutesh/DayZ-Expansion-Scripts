@@ -717,7 +717,7 @@ modded class IngameHud
 		if (!localFaction || !playerFaction)
 			return;
 
-		if (playerFaction.IsFriendly(localFaction))
+		if (playerFaction.IsFriendlyFaction(localFaction))
 			m_IsFriendly = true;
 	}
 #endif

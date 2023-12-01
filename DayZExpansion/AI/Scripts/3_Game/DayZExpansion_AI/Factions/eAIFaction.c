@@ -61,12 +61,12 @@ class eAIFaction
 		return m_Modifiers && m_Modifiers.Count() > 0;
 	}
 	
-	bool IsFriendly(notnull eAIFaction other)
+	bool IsFriendlyFaction(notnull eAIFaction other)
 	{
 		return false;
 	}
 
-	bool IsFriendly(EntityAI other)
+	bool IsFriendlyEntity(EntityAI other, DayZPlayer factionMember = null)
 	{
 		return false;
 	}

@@ -81,12 +81,14 @@ class ExpansionAnomalyTriggerBase: Trigger
 		{
 			if (ExpansionStatic.IsAnyOf(entityObj, s_Players, true) || ExpansionStatic.IsAnyOf(entityObj, s_Vehicles, true) || ExpansionStatic.IsAnyOf(entityObj, s_Items, true))
 			{
+			#ifdef NAMALSK_SURVIVAL
 				PlayerBase player = PlayerBase.Cast(other);
 				if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 				{
 					ExDebugPrint("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
 					return false;
 				}
+			#endif
 	
 				ExDebugPrint("::EntityConditions - Return TRUE");
 				return true;

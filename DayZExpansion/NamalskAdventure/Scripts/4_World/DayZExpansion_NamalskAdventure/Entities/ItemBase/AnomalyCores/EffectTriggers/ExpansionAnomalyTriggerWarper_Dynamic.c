@@ -24,12 +24,14 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 		
 		if (ExpansionStatic.IsAnyOf(entityObj.GetType(), s_Players) || ExpansionStatic.IsAnyOf(entityObj.GetType(), s_Vehicles))
 		{
+		#ifdef NAMALSK_SURVIVAL
 			PlayerBase player = PlayerBase.Cast(entityObj);
 			if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 			{
 				ExDebugPrint("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
 				return false;
 			}
+		#endif
 
 			ExDebugPrint("::EntityConditions - Return TRUE");
 			return true;
@@ -111,8 +113,10 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			if (!player || !player.IsAlive())
                	return;
 
+		#ifdef NAMALSK_SURVIVAL
 			if (ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 				return;
+		#endif
 
 			if (!player.IsInTransport())
 			{

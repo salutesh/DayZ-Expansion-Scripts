@@ -804,7 +804,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 		else if (!m_SpeedOverrider)
 		{
 			float distanceFactor = 4.0;
-			if (matchLeaderSpeed || (m_Unit.GetThreatToSelf() > 0.4 && m_Unit.eAI_HasLOS()))
+			if (matchLeaderSpeed || (m_Unit.GetThreatToSelf() >= 0.4 && m_Unit.eAI_HasLOS()))
 				distanceFactor = 0.5;
 			float targetSpeed;
 			if (isFinal && m_WayPointDistance < 2.0 * distanceFactor)
@@ -902,7 +902,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 							else
 							{
 								eAIFaction targetFaction = targetGroup.GetFaction();
-								if (targetFaction.IsFriendly(faction) || targetFaction.IsFriendly(m_Unit))
+								if (targetFaction.IsFriendlyFaction(faction) || targetFaction.IsFriendlyEntity(m_Unit, targetPlayer))
 									meme = true;
 							}
 						}

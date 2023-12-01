@@ -118,7 +118,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 			break;
 #endif
 		default:
-			SenderSetColour(ARGB(255, 88, 195, 255));
+			SenderSetColour(ARGB(255, 255, 255, 255));
 			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("DirectChatColor"));
 			SetSenderName(message);
 			break;

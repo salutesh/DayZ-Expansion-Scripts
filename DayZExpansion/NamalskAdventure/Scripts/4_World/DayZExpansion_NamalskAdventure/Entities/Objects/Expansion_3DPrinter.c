@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef NAMALSK_SURVIVAL
 class NA_WorkbenchRecipeIngredient
 {
 	protected string m_TypeName;
@@ -178,7 +179,6 @@ class NA_WorkbenchRecipe
 	}
 };
 
-#ifdef EXPANSION_NAMALSK_ADVENTURE
 class Expansion_3DPrinter: ItemBase
 {
 	static int PRINTING_LENGTH = 20;

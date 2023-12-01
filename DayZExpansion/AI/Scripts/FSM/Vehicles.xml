@@ -85,7 +85,7 @@
 			<guard>
 				if (vector.Distance(unit.GetPosition(), src.position) &lt; 0.5) return FAIL;
 				
-				if (unit.GetThreatToSelf() &gt; 0.4) return FAIL;
+				if (unit.GetThreatToSelf() &gt;= 0.4) return FAIL;
 				
 				return SUCCESS;
 			</guard>
