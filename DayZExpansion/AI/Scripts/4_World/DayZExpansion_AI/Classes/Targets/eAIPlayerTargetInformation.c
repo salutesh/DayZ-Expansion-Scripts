@@ -90,6 +90,10 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 
 			if (distance > 30)
 			{
+				PlayerBase pb;
+				if (Class.CastTo(pb, m_Player))
+					levelFactor *= ExpansionMath.LinearConversion(1.0, 3.0, pb.Expansion_GetMovementSpeed(), Math.Max(0.2, pb.GetVisibilityCoef()), 1.0);
+
 				//! Check if target is facing AI or AI is facing target when not in near range (30 m)
 				vector toTargetDirection = vector.Direction(ai.GetPosition(), m_Player.GetPosition()).Normalized();
 				float toTargetDot = vector.Dot(ai.GetAimDirection(), toTargetDirection);

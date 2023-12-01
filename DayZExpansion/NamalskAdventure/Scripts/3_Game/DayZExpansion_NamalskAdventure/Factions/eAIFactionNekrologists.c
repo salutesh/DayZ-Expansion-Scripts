@@ -21,6 +21,7 @@ class eAIFactionNekrologists : eAIFaction
 
 	override bool IsFriendly(notnull eAIFaction other)
 	{
+		if (super.IsFriendly(other)) return true;
 		if (other.IsInherited(eAIFactionNekrologists)) return true;
 		return false;
 	}

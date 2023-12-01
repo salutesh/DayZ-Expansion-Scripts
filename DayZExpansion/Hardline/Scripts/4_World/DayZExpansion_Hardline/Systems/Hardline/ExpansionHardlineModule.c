@@ -270,7 +270,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		bool isFriendly;
 	#ifdef EXPANSIONMODAI
 		  //! If the entity was friendly to the killer the killer will lose reputation
-        if (killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(victim))
+        if (killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendlyEntity(victim))
 			isFriendly = true;
 	#endif
 		if (isFriendly)
@@ -306,7 +306,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			}
 			else
 			{
-				isFriendly = victim.GetGroup().GetFaction().IsFriendly(killer);
+				isFriendly = victim.GetGroup().GetFaction().IsFriendlyEntity(killer);
 			}
 		}
 	#endif

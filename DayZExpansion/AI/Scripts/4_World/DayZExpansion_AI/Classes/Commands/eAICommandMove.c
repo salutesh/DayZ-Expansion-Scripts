@@ -902,7 +902,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 							else
 							{
 								eAIFaction targetFaction = targetGroup.GetFaction();
-								if (targetFaction.IsFriendly(faction) || targetFaction.IsFriendly(m_Unit, targetPlayer))
+								if (targetFaction.IsFriendly(faction) || targetFaction.IsFriendlyEntity(m_Unit, targetPlayer))
 									meme = true;
 							}
 						}

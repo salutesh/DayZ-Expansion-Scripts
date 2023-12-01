@@ -20,8 +20,8 @@ class eAIFactionFreeTraders : eAIFaction
 	}
 
 	override bool IsFriendly(notnull eAIFaction other)
-	{
-		return true;
-	}
+    {
+        return true;
+    }
 };
 #endif

@@ -21,6 +21,7 @@ class eAIFactionNAC : eAIFaction
 
 	override bool IsFriendly(notnull eAIFaction other)
 	{
+		if (super.IsFriendly(other)) return true;
 		if (other.IsInherited(eAIFactionWest)) return true;
 		if (other.IsInherited(eAIFactionNAC)) return true;
 		return false;

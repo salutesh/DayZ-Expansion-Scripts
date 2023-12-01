@@ -72,7 +72,7 @@ modded class DayZPlayerImplement
 			return false;
 
 		if (GetGroup())
-			return !GetGroup().GetFaction().IsFriendly(ai, this);
+			return !GetGroup().GetFaction().IsFriendlyEntity(ai, this);
 
 		return true;
 	}

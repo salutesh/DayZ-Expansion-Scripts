@@ -13,7 +13,7 @@ class eAIFactionShamans : eAIFaction
 		return false;
 	}
 
-	override bool IsFriendly(EntityAI other, DayZPlayer factionMember)
+	override bool IsFriendlyEntity(EntityAI other, DayZPlayer factionMember = null)
 	{
 		return other.IsInherited(DayZCreatureAI);
 	}

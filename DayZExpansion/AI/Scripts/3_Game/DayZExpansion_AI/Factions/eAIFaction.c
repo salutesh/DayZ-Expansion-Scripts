@@ -66,12 +66,7 @@ class eAIFaction
 		return false;
 	}
 
-	bool IsFriendly(EntityAI other, DayZPlayer factionMember)
-	{
-		return IsFriendly(other);  //! Fallback for legacy
-	}
-
-	bool IsFriendly(EntityAI other)
+	bool IsFriendlyEntity(EntityAI other, DayZPlayer factionMember = null)
 	{
 		return false;
 	}

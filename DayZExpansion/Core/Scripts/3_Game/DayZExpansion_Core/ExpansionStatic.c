@@ -173,12 +173,12 @@ static void EXPrint( Class instance, string s, string prefix = " [EXPANSION DEBU
 // -----------------------------------------------------------
 static void EXLogPrint( string s )
 {
-	EXPrint( s, " [EXPANSION LOG]: " );
+	PrintFormat("%1%2%3", ExpansionStatic.GetISOTime(), " [EXPANSION LOG]: ", s );
 }
 
 static void EXLogPrint( Class instance, string s )
 {
-	EXPrint( instance, s, " [EXPANSION LOG]: " );
+	PrintFormat("%1%2%3 %4", ExpansionStatic.GetISOTime(), " [EXPANSION LOG]: ", instance.ToString(), s );
 }
 
 // -----------------------------------------------------------
