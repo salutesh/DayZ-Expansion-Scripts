@@ -61,7 +61,7 @@ class eAIFaction
 		return m_Modifiers && m_Modifiers.Count() > 0;
 	}
 	
-	bool IsFriendlyFaction(notnull eAIFaction other)
+	bool IsFriendly(notnull eAIFaction other)
 	{
 		return false;
 	}

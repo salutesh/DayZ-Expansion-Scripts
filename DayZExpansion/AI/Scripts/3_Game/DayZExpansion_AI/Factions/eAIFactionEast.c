@@ -6,7 +6,7 @@ class eAIFactionEast : eAIFaction
 		m_Loadout = "EastLoadout";
 	}
 
-	override bool IsFriendlyFaction(notnull eAIFaction other)
+	override bool IsFriendly(notnull eAIFaction other)
 	{
 		if (other.IsInherited(eAIFactionEast)) return true;
 		if (other.IsInherited(eAIFactionCivilian)) return true;

@@ -7,7 +7,7 @@ class eAIFactionGuards : eAIFaction
 		m_IsGuard = true;
 	}
 
-	override bool IsFriendlyFaction(notnull eAIFaction other)
+	override bool IsFriendly(notnull eAIFaction other)
 	{
 		if (other.IsGuard()) return true;
 		if (other.IsPassive()) return true;

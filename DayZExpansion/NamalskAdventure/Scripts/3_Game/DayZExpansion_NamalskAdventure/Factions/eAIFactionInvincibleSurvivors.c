@@ -19,9 +19,9 @@ class eAIFactionInvincibleSurvivors : eAIFactionInvincibleGuards
 		m_Loadout = "SurvivorLoadout";
 	}
 
-	override bool IsFriendlyFaction(notnull eAIFaction other)
+	override bool IsFriendly(notnull eAIFaction other)
 	{
-		if (super.IsFriendlyFaction(other)) return true;
+		if (super.IsFriendly(other)) return true;
 		if (other.IsInherited(eAIFactionInvincibleSurvivors)) return true;
 		if (other.IsInherited(eAIFactionPallasResearch)) return true;
 		if (other.IsInherited(eAIFactionSurvivors)) return true;

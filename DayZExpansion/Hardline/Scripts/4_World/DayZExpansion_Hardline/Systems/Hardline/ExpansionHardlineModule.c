@@ -302,7 +302,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			}
 			else if (killer.GetGroup())
 			{
-				isFriendly = victim.GetGroup().GetFaction().IsFriendlyFaction(killer.GetGroup().GetFaction());
+				isFriendly = victim.GetGroup().GetFaction().IsFriendly(killer.GetGroup().GetFaction());
 			}
 			else
 			{

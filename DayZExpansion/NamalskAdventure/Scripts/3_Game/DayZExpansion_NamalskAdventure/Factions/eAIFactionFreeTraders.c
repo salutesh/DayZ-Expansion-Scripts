@@ -19,7 +19,7 @@ class eAIFactionFreeTraders : eAIFaction
 		m_Loadout = "Namalsk_FreeTraders";
 	}
 
-	override bool IsFriendlyFaction(notnull eAIFaction other)
+	override bool IsFriendly(notnull eAIFaction other)
     {
         return true;
     }

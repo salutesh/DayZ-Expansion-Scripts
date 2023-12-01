@@ -6,7 +6,7 @@ class eAIFactionCivilian : eAIFaction
 		m_Loadout = "SurvivorLoadout";
 	}
 
-	override bool IsFriendlyFaction(notnull eAIFaction other)
+	override bool IsFriendly(notnull eAIFaction other)
 	{
 		return true;
 	}

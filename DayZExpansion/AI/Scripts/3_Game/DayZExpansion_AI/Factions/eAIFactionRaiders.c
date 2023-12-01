@@ -6,7 +6,7 @@ class eAIFactionRaiders : eAIFaction
 		m_Loadout = "BanditLoadout";
 	}
 
-	override bool IsFriendlyFaction(notnull eAIFaction other)
+	override bool IsFriendly(notnull eAIFaction other)
 	{
 		if (other.IsPassive()) return true;
 		return false;

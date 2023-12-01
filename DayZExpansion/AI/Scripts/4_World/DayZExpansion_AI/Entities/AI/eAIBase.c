@@ -457,7 +457,7 @@ class eAIBase: PlayerBase
 				targeted = true;
 
 			//! Other faction friendly to our faction or this specific AI?
-			if (player.GetGroup().GetFaction().IsFriendlyFaction(GetGroup().GetFaction()) || player.GetGroup().GetFaction().IsFriendlyEntity(this, player))
+			if (player.GetGroup().GetFaction().IsFriendly(GetGroup().GetFaction()) || player.GetGroup().GetFaction().IsFriendlyEntity(this, player))
 			{
 #ifdef DIAG
 				if (eAI_IsPassive())
@@ -1545,7 +1545,7 @@ class eAIBase: PlayerBase
 			eAIGroup theirGroup = player.GetGroup();
 			if (theirGroup)
 			{
-				if (theirGroup == ourGroup || theirGroup.GetFaction().IsFriendlyFaction(faction))
+				if (theirGroup == ourGroup || theirGroup.GetFaction().IsFriendly(faction))
 					return;
 			}
 		}

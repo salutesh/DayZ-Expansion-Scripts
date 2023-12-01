@@ -19,9 +19,9 @@ class eAIFactionNekrologists : eAIFaction
 		m_Loadout = "Namalsk_Nekrologists";
 	}
 
-	override bool IsFriendlyFaction(notnull eAIFaction other)
+	override bool IsFriendly(notnull eAIFaction other)
 	{
-		if (super.IsFriendlyFaction(other)) return true;
+		if (super.IsFriendly(other)) return true;
 		if (other.IsInherited(eAIFactionNekrologists)) return true;
 		return false;
 	}
