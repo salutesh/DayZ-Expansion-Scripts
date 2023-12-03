@@ -38,8 +38,9 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 					return levelFactor;
 			}
 
+			//! Check if player is enemy and return if not, except if current AI is Agressive Guard
 			bool isPlayerMoving;
-			if (!ai.PlayerIsEnemy(m_Player, false, isPlayerMoving))
+			if (!ai.PlayerIsEnemy(m_Player, false, isPlayerMoving) && !ai.GetGroup().GetFaction().IsGuardAgressive())
 			{
 				//! They eyeball you menacingly if you move, or if another friendly AI moves that is not in same group
 				if (isPlayerMoving && (!m_Player.IsAI() || m_Player.GetGroup() != ai.GetGroup()))
@@ -61,12 +62,15 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			{
 				bool canEnterFightingState;
 
-				if (ai.GetGroup().GetFaction().IsGuard())
+				if (ai.GetGroup().GetFaction().IsGuard() && !ai.PlayerIsEnemy(m_Player, false, isPlayerMoving))
 				{
 					if (m_Player.IsRaised() && fromTargetDot >= 0.9 && ((enemyHands && enemyHands.IsWeapon()) || m_Player.IsFighting()))
+					{
 						canEnterFightingState = true;
-					else if (m_Player.eAI_UpdateAgressionTimeout(150.0 - distance))
+					}
+					else if (m_Player.eAI_UpdateAgressionTimeout(150.0 - distance)) {
 						canEnterFightingState = true;
+					}
 
 					if (!canEnterFightingState && m_Player.IsRaised())
 					{
