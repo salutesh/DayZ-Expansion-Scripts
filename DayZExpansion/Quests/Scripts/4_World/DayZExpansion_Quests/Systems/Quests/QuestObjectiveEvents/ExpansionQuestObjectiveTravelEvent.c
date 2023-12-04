@@ -57,7 +57,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		#ifdef EXPANSIONMODNAVIGATION
-		if (m_TravelConfig.GetMarkerName() != string.Empty)
+		if (CanCreateMarkers())
 			CreateMarkers();
 		#endif
 
@@ -266,6 +266,9 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 #ifdef EXPANSIONMODNAVIGATION
 	override bool CanCreateMarkers()
 	{
+		if (m_TravelConfig.GetMarkerName() == string.Empty) {
+			return false;
+		}
 		return !m_DestinationReached;
 	}
 #endif
