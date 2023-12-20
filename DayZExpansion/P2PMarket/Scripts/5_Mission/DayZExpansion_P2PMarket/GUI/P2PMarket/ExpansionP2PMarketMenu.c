@@ -676,7 +676,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 					EXPrint(ToString() + "::SetSelectedListingItem - Container item: " + containerItem.ToString());
 					EXPrint(ToString() + "::SetSelectedListingItem - Container item class name: " + containerItem.GetClassName());
 
-					containerElement = new ExpansionP2PMarketMenuCargoItem(this, containerItem);
+					containerElement = new ExpansionP2PMarketMenuCargoItem(containerItem, this);
 					if (!containerItem.IsAttached())
 					{
 						EXPrint(ToString() + "::SetSelectedListingItem - Add Container item " + containerItem.GetClassName() + " as cargo item.");
@@ -698,7 +698,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 							EXPrint(ToString() + "::SetSelectedListingItem - Cargo item of container item: " + containerItemOfContainerItem.ToString());
 							EXPrint(ToString() + "::SetSelectedListingItem - Cargo item of container item class name: " + containerItemOfContainerItem.GetClassName());
 
-							containerElement = new ExpansionP2PMarketMenuCargoItem(this, containerItemOfContainerItem);
+							containerElement = new ExpansionP2PMarketMenuCargoItem(containerItemOfContainerItem, this);
 							if (!containerItemOfContainerItem.IsAttached())
 							{
 								EXPrint(ToString() + "::SetSelectedListingItem - Add Cargo item of container item " + containerItemOfContainerItem.GetClassName() + " as cargo item.");
@@ -1110,7 +1110,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 					EXPrint(ToString() + "::SetSelectedListingItem - Container item: " + containerItem.ToString());
 					EXPrint(ToString() + "::SetSelectedListingItem - Container item class name: " + containerItem.GetClassName());
 
-					containerElement = new ExpansionP2PMarketMenuCargoItem(this, containerItem);
+					containerElement = new ExpansionP2PMarketMenuCargoItem(containerItem, this);
 					if (!containerElement)
 						continue;
 
@@ -1130,7 +1130,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 					{
 						foreach (ExpansionP2PMarketContainerItem containerItemOfContainerItem: containerItemsOfContainerItem)
 						{
-							containerElement = new ExpansionP2PMarketMenuCargoItem(this, containerItemOfContainerItem);
+							containerElement = new ExpansionP2PMarketMenuCargoItem(containerItemOfContainerItem, this);
 							if (!containerItemOfContainerItem.IsAttached())
 							{
 								GetDetailsView().AddCargoEntry(containerElement);

@@ -12,6 +12,8 @@
 
 modded class DayZPlayerImplement
 {
+	protected bool m_Expansion_IsHeadInvisible;
+
 	ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle(ExpansionVehicleBase vehicle, int seatIdx, int seat_anim)
 	{
 		return NULL;
@@ -82,11 +84,16 @@ modded class DayZPlayerImplement
 
 	void SetHeadInvisible_Ex(bool invisible)
 	{
+		if (m_Expansion_IsHeadInvisible == invisible)
+			return;
+
 		Head_Default player_head;
 		int slot_id = InventorySlots.GetSlotIdFromString("Head");
 		player_head = Head_Default.Cast(GetInventory().FindPlaceholderForSlot(slot_id));
 
 		player_head.SetInvisible(invisible);
+
+		m_Expansion_IsHeadInvisible = invisible;
 
 		SetAttachmentInvisible_Ex("Head", invisible);
 		SetAttachmentInvisible_Ex("Headgear", invisible);
@@ -112,6 +119,11 @@ modded class DayZPlayerImplement
 		{
 			SetAttachmentInvisible_Ex(ent.GetInventory().GetAttachmentFromIndex(i), invisible);
 		}
+	}
+
+	bool Expansion_IsHeadInvisible()
+	{
+		return m_Expansion_IsHeadInvisible;
 	}
 
 	override bool IsInTransport()

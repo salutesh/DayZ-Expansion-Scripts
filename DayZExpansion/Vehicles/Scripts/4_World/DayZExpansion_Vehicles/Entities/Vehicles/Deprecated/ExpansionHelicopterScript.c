@@ -88,6 +88,22 @@ class ExpansionHelicopterScript: CarScript
 		m_CarDoorCloseSound 	= "offroad_door_close_SoundSet";
 	}
 
+	override void EEInit()
+	{
+		super.EEInit();
+
+		#ifndef SERVER
+		if (m_Expansion_EngineStartSounds.Count())
+			return;
+
+		//! start delay (seconds), stop delay (seconds after sound has started playing), soundset name*, fade in time (s), fade out time (s), loop (true/false)
+		//! * @note if soundset name does not contain the string "_SoundSet", then "_Ext_SoundSet" or "_Int_SoundSet" will be appended automatically depending on camera
+		m_Expansion_EngineStartSounds.Insert(0.0, 9.576, "Expansion_Uh1h_Starter_Start", 0.0, 1.0);
+		m_Expansion_EngineStartSounds.Insert(5.0, 0.0, "Expansion_Uh1h_Engine_Idle_Start", 1.0, 0.0);
+		m_Expansion_EngineStartSounds.Insert(9.576, 0.0, "Expansion_Uh1h_Starter_Stop", 1.0, 0.0);
+		#endif
+	}
+
 	override void AfterStoreLoad()
 	{
 #ifdef EXPANSIONTRACE
@@ -634,6 +650,10 @@ class ExpansionHelicopterScript: CarScript
 				SEffectManager.Expansion_PlaySound(m_CarDoorCloseSound, GetPosition());
 			}
 		}
+	}
+
+	override void HandleEngineSound(CarEngineSoundState state)
+	{
 	}
 
 	override void SetActions()

@@ -469,7 +469,11 @@ modded class IngameHud
 			m_HelicopterShield.SetColor( ARGB(255, 0, 255, 255) );
 		}
 
-		m_HelicopterShield.Show(helicopter.m_State.m_IsInvulnerable || !helicopter.m_State.m_IsSync);
+		bool showShield;
+		if (helicopter.m_State.m_IsInvulnerable || !helicopter.m_State.m_IsSync)
+			showShield = true;
+		
+		m_HelicopterShield.Show(showShield);
 
 		m_HelicopterAltitudeValue.SetText( Math.Floor( helicopter.GetPosition()[1] ).ToString() );
 
@@ -631,7 +635,11 @@ modded class IngameHud
 			m_BoatShield.SetColor( ARGB(255, 0, 255, 255) );
 		}
 
-		m_BoatShield.Show(boat.m_State.m_IsInvulnerable || !boat.m_State.m_IsSync);
+		bool showShield;
+		if (boat.m_State.m_IsInvulnerable || !boat.m_State.m_IsSync)
+			showShield = true;
+
+		m_BoatShield.Show(showShield);
 
 		m_BoatFuelPointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
 		m_BoatTemperaturePointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.COOLANT ) * 260 - 130, true );

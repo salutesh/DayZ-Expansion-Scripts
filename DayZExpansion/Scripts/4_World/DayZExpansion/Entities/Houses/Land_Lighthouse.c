@@ -37,9 +37,12 @@ class Land_Lighthouse extends House
 	// ------------------------------------------------------------
 	void ~Land_Lighthouse()
 	{
+		if (!GetGame())
+			return;
+
 		auto trace = EXTrace.Start(ExpansionTracing.LIGHTHOUSE, this);
 
-		if ( GetGame() && m_Light )
+		if ( m_Light )
 		{
 			GetGame().ObjectDelete( m_Light );
 		}

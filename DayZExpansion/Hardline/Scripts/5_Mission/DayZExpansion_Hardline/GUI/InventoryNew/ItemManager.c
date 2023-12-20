@@ -12,16 +12,34 @@
 
 modded class ItemManager
 {
+	protected bool m_Expansion_IsValidLayout;
+
 	void ItemManager(Widget root)
 	{
-		m_TooltipWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_inventory_tooltip.layout", root );
-		m_TooltipWidget.Show(false);
+		m_Expansion_IsValidLayout = false;
+		ExpansionSettings.SI_Hardline.Insert(Expansion_OnSettingsReceived);
+	}
+	
+	void Expansion_OnSettingsReceived()
+	{
+		if (GetExpansionSettings().GetHardline().EnableItemRarity && m_TooltipWidget)
+		{
+			GridSpacerWidget container = GridSpacerWidget.Cast(m_TooltipWidget.FindAnyWidget("GridSpacerWidget0"));
+			if (container) //! Make sure the container exists and not any other layout is used that does not have this widget..
+			{
+				GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_tooltip_entry_rarity.layout", container);
+				m_Expansion_IsValidLayout = true;
+			}
+		}
 	}
 	
 	override void PrepareTooltip(EntityAI item, int x = 0, int y = 0)
 	{
 		super.PrepareTooltip(item, x, y);
-	
-		InspectMenuNew.Expansion_UpdateItemInfoRarity(m_TooltipWidget, item);
+		
+		if (m_Expansion_IsValidLayout)
+		{
+			InspectMenuNew.Expansion_UpdateItemInfoRarity(m_TooltipWidget, item);
+		}
 	}
 };

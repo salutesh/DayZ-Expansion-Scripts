@@ -46,6 +46,7 @@ class eAIBase: PlayerBase
 	float m_eAI_AccuracyMin;
 	float m_eAI_AccuracyMax;
 	float m_eAI_ThreatDistanceLimit;
+	float m_eAI_NoiseInvestigationDistanceLimit;
 	float m_eAI_DamageMultiplier;
 	bool m_eAI_SyncCurrentTarget;
 	int m_eAI_CurrentTarget_NetIDLow;
@@ -172,6 +173,7 @@ class eAIBase: PlayerBase
 
 	int m_eAI_Meme;
 	int m_eAI_MemeLevel;
+	float m_eAI_Lean;
 
 	void eAIBase()
 	{
@@ -240,6 +242,7 @@ class eAIBase: PlayerBase
 		{
 			eAI_SetAccuracy(-1, -1);
 			eAI_SetThreatDistanceLimit(-1);
+			eAI_SetNoiseInvestigationDistanceLimit(-1);
 			eAI_SetDamageMultiplier(-1);
 			m_eAI_SniperProneDistanceThreshold = GetExpansionSettings().GetAI().SniperProneDistanceThreshold;
 
@@ -388,7 +391,7 @@ class eAIBase: PlayerBase
 		bool currentState;
 		if (!m_eAI_PlayerIsEnemyStatus.Find(player, currentState) || state != currentState)
 		{
-			EXPrint(this, "::eAI_UpdatePlayerIsEnemyStatus " + GetGroup().GetFaction() + " | " + reason + " | " + player.ToString() + " | is enemy? " + state);
+			EXPrint(ToString() + " ::eAI_UpdatePlayerIsEnemyStatus " + GetGroup().GetFaction() + " | " + reason + " | " + player.ToString() + " | is enemy? " + state);
 			m_eAI_PlayerIsEnemyStatus[player] = state;
 		}
 	}
@@ -432,7 +435,7 @@ class eAIBase: PlayerBase
 
 		//! Are we targeting them and aggro?
 		bool targeted;
-		if (eAI_GetTargetThreat(player.GetTargetInformation(), true) > 0.2)
+		if (eAI_GetTargetThreat(player.GetTargetInformation()) > 0.2)
 			targeted = true;
 
 		if (player.GetGroup())
@@ -661,20 +664,13 @@ class eAIBase: PlayerBase
 		PlayerBase player;
 		if (Class.CastTo(player, source.GetHierarchyRootPlayer()))
 		{
-			//! If attacking player is AI, check if we are their current target, else it was accidental friendly fire
+			//! If attacker is not AI, or we are their current target (else it was accidental friendly fire),
+			//! target attacker for up to 2 minutes
 			eAIBase ai;
 			if (!Class.CastTo(ai, player) || (ai.GetTarget() && ai.GetTarget().GetEntity() == this))
 			{
-				//! Target the attacking player for up to 2 minutes
-				if (!player.GetTargetInformation().IsTargettedBy(this))
-				{
-					player.GetTargetInformation().AddAI(this, 120000);
-				}
-				else
-				{
-					//! Update target found at time if already targeting
-					player.GetTargetInformation().Update(GetGroup());
-				}
+				//! Add/update target for all group members
+				GetGroup().AddTarget(player.GetTargetInformation(), 120000);
 			}
 
 			return;
@@ -956,6 +952,19 @@ class eAIBase: PlayerBase
 		EXTrace.Add(trace, distance);
 	}
 
+	void eAI_SetNoiseInvestigationDistanceLimit(float distance)
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, eAIBase);
+		EXTrace.Add(trace, distance);
+
+		if (distance <= 0)
+			distance = GetExpansionSettings().GetAI().NoiseInvestigationDistanceLimit;
+
+		m_eAI_NoiseInvestigationDistanceLimit = distance;
+
+		EXTrace.Add(trace, distance);
+	}
+
 	void eAI_SetDamageMultiplier(float multiplier)
 	{
 		auto trace = EXTrace.Start(EXTrace.AI, eAIBase);
@@ -1024,7 +1033,7 @@ class eAIBase: PlayerBase
 		{
 			if (m_eAI_CurrentThreatToSelfActive < 0.4 && !Math.RandomInt(0, 3))
 				Expansion_SetEmote(EmoteConstants.ID_EMOTE_SHRUG, true);
-			m_eAI_NoiseTargetInfo.SetNoiseParams(null, vector.Zero, 0.0, 0.0);
+			m_eAI_NoiseTargetInfo.SetNoiseParams(null, vector.Zero, 0.0, 0.0, 0.0);
 		}
 #ifdef DIAG
 		m_eAI_PrintCurrentTarget = true;
@@ -1231,11 +1240,14 @@ class eAIBase: PlayerBase
 		// TODO: use particle system instead
 		// XXX: I have no clue what the above comment means -lava76
 
-		if (!GetGroup())  //! This should never happen
+		eAIGroup group = GetGroup();
+		if (!group)  //! This should never happen
 			return;
 
 		if (eAI_IsPassive())
 			return;
+
+		eAIFaction faction = group.GetFaction();
 
 #ifdef DIAG
 		auto hitch = new EXHitch(ToString() + "::UpdateTargets ", 20000);
@@ -1277,7 +1289,7 @@ class eAIBase: PlayerBase
 		ticks = TickCount(0);
 #endif
 
-		if (!GetGroup().GetFaction().IsObserver())  //! Observers only react to near players
+		if (!faction.IsObserver())  //! Observers only react to near players
 		{
 			if (!m_eAI_PotentialTargetPlayer)
 				m_eAI_PotentialTargetPlayer = s_Expansion_AllPlayers.m_Head;
@@ -1303,7 +1315,7 @@ class eAIBase: PlayerBase
 		ItemBase targetItem;
 		EntityAI targetEntity;
 
-		float group_count = GetGroup().Count();
+		float group_count = group.Count();
 
 		while (m_eAI_CurrentPotentialTargetIndex < m_eAI_PotentialTargetEntities.Count())
 		{
@@ -1327,14 +1339,14 @@ class eAIBase: PlayerBase
 			else if (Class.CastTo(targetItem, obj))
 			{
 				//! If the object is an item, ignore it if any of the following conditions are met
-				if (targetItem.IsSetForDeletion() || GetGroup().GetFaction().IsObserver())
+				if (targetItem.IsSetForDeletion() || (!faction.IsWeaponPickupEnabled() && (!targetItem.Expansion_CanBeUsedToBandage() || !IsBleeding())))
 					continue;
 			}
 			else if (obj.IsInherited(Building))
 				continue;
 			else if (obj.IsInherited(Transport))
 				continue;
-			else if (Class.CastTo(targetEntity, obj) && GetGroup().GetFaction().IsFriendlyEntity(targetEntity, this))
+			else if (Class.CastTo(targetEntity, obj) && faction.IsFriendlyEntity(targetEntity, this))
 				continue;
 
 			if (!eAI_ProcessTarget(obj, group_count))
@@ -1357,7 +1369,7 @@ class eAIBase: PlayerBase
 		if (!info.IsActive())
 			return false;
 
-		if (obj.IsInherited(ItemBase))
+		if (obj.IsInherited(ItemBase) || obj.IsInherited(ZombieBase))
 		{
 			if (info.ShouldRemove(this))
 				return false;
@@ -1536,16 +1548,16 @@ class eAIBase: PlayerBase
 		}
 
 		//! Friendly checks. Not using PlayerIsEnemy here is intentional.
-		//! We ignore noises made by friendlies unless it's shots.
+		//! We ignore noises made by friendlies.
 		DayZPlayerImplement player;
 		eAIGroup ourGroup = GetGroup();
 		eAIFaction faction = ourGroup.GetFaction();
-		if (params.m_Type != eAINoiseType.SHOT && Class.CastTo(player, root))
+		if (Class.CastTo(player, root))
 		{
 			eAIGroup theirGroup = player.GetGroup();
 			if (theirGroup)
 			{
-				if (theirGroup == ourGroup || theirGroup.GetFaction().IsFriendly(faction))
+				if (theirGroup == ourGroup || theirGroup.GetFaction().IsFriendly(faction) || theirGroup.GetFaction().IsFriendlyEntity(this))
 					return;
 			}
 		}
@@ -1560,61 +1572,63 @@ class eAIBase: PlayerBase
 			return;
 
 		float distance = Math.Sqrt(distSq);
+
+		//! Now, convert strength (range) to threat.
+		//! @note noise threat is capped at 0.4 so entity targets can take precedence.
+		float threatLevel;
 		if (eAI_IsPassive() || faction.IsObserver() || faction.IsGuard())
 		{
 			if (params.m_Type != eAINoiseType.SHOT)
 				return;
 
-			strength = ExpansionMath.PowerConversion(0.5, Math.Max(strength, 30.0), distance, 0.152, 0.1, 0.1);
-			lifetime = Math.RandomFloat(2.0, 4.0);  //! Just look briefly
+			threatLevel = ExpansionMath.PowerConversion(0.5, Math.Max(strength, 30.0), distance, 0.152, 0.1, 0.1);
 		}
 		else
 		{
-			strength = ExpansionMath.LinearConversion(500.0, 1000.0, distance, 0.4, 0.152);
-			if (strength >= 0.4)
+			/*
+			if (root && !root.IsInherited(ItemBase))
+			{
+				eAITargetInformation info;
+				eAI_ProcessTarget(root, GetGroup().Count(), info);
+				eAITargetInformationState state = eAI_GetTargetInformationState(info);
+				if (state.m_ThreatLevel >= 0.4)
+				{
+					state.m_ThreatLevelActive = state.m_ThreatLevel;
+					state.m_SearchPosition = ExpansionMath.GetRandomPointInCircle(position, distance * 0.05);
+					state.m_SearchDirection = vector.Direction(GetPosition(), state.m_SearchPosition);
+					return;
+				}
+			}
+			*/
+
+			threatLevel = ExpansionMath.LinearConversion(Math.Min(strength, m_eAI_NoiseInvestigationDistanceLimit), strength * 1.1, distance, 0.4, 0.1024);
+		}
+
+		//! Update noise target info
+		if (threatLevel >= m_eAI_NoiseTargetInfo.GetThreat())
+		{
+			position = ExpansionMath.GetRandomPointInCircle(position, distance * 0.05);
+
+			if (threatLevel >= 0.4)
 				lifetime = ExpansionMath.LinearConversion(0.0, 500.0, distance, 3.0, 240.0);  //! Leave enough time to run there and check it out
 			else
 				lifetime = Math.RandomFloat(2.0, 4.0);  //! Just look briefly
+
+			m_eAI_NoiseTargetInfo.SetNoiseParams(source, position, strength, lifetime, threatLevel);
+
+			auto state = eAI_GetTargetInformationState(m_eAI_NoiseTargetInfo);
+			state.UpdatePosition(true);
+
+			int max_time = lifetime * 1000;
+			if (!m_eAI_NoiseTargetInfo.IsTargettedBy(this))
+				m_eAI_NoiseTargetInfo.AddAI(this, max_time);
+			else
+				m_eAI_NoiseTargetInfo.Update(ourGroup, max_time);
 		}
 
 	#ifdef DIAG
 		EXTrace.Print(EXTrace.AI, this, string.Format("::eAI_OnNoiseEvent %1 %2 %3 %4 %5 %6", source, position.ToString(), lifetime, strength, params.m_Path, typename.EnumToString(eAINoiseType, params.m_Type)));
 	#endif
-
-		/*
-		float y = position[1];
-		position = ExpansionStatic.GetSurfacePosition(ExpansionMath.GetRandomPointInCircle(position, distance * 0.05));
-		position[1] = Math.Max(position[1], y);
-
-		if (root && !root.IsInherited(ItemBase))
-		{
-			eAITargetInformation info;
-			eAI_ProcessTarget(root, GetGroup().Count(), info);
-			eAITargetInformationState state = eAI_GetTargetInformationState(info);
-			if (state.m_ThreatLevel >= 0.4)
-			{
-				state.m_ThreatLevelActive = state.m_ThreatLevel;
-				state.m_SearchPosition = position;
-				state.m_SearchDirection = vector.Direction(GetPosition(), state.m_SearchPosition);
-				return;
-			}
-		}
-		*/
-
-		//! Update noise target info
-		if (strength >= m_eAI_NoiseTargetInfo.GetStrength())
-		{
-			m_eAI_NoiseTargetInfo.SetNoiseParams(source, position, strength, lifetime);
-
-			auto state = eAI_GetTargetInformationState(m_eAI_NoiseTargetInfo);
-			state.UpdatePosition(true);
-		}
-
-		int max_time = lifetime * 1000;
-		if (!m_eAI_NoiseTargetInfo.IsTargettedBy(this))
-			m_eAI_NoiseTargetInfo.AddAI(this, max_time);
-		else
-			m_eAI_NoiseTargetInfo.Update(ourGroup, max_time);
 	}
 
 	override void OnVariablesSynchronized()
@@ -3265,11 +3279,11 @@ class eAIBase: PlayerBase
 
 		m_Environment.Expansion_GetWeatherVisibility(fogVisibility, overcastVisibility, rainVisibility);
 		if (!fogVisibility)
-			EXPrint(this, "ERROR: Fog visibility is zero!");
+			EXPrint(ToString() + " ERROR: Fog visibility is zero!");
 		if (!overcastVisibility)
-			EXPrint(this, "ERROR: Overcast visibility is zero!");
+			EXPrint(ToString() + " ERROR: Overcast visibility is zero!");
 		if (!rainVisibility)
-			EXPrint(this, "ERROR: Rain visibility is zero!");
+			EXPrint(ToString() + " ERROR: Rain visibility is zero!");
 
 		if (force || daylightVisibility != m_Expansion_DaylightVisibility)
 		{
@@ -3297,11 +3311,11 @@ class eAIBase: PlayerBase
 		}
 
 		if (!m_Expansion_Visibility)
-			EXPrint(this, "ERROR: Base visibility is zero!");
+			EXPrint(ToString() + " ERROR: Base visibility is zero!");
 
 		float visibilityLimit = m_eAI_ThreatDistanceLimit * 0.001;
 		if (!visibilityLimit)
-			EXPrint(this, "ERROR: Visibility limit is zero! Threat distance limit: " + m_eAI_ThreatDistanceLimit);
+			EXPrint(ToString() + " ERROR: Visibility limit is zero! Threat distance limit: " + m_eAI_ThreatDistanceLimit);
 		if (visibilityLimit > 0 && m_Expansion_Visibility > visibilityLimit)
 			m_Expansion_Visibility = visibilityLimit;
 
@@ -3965,6 +3979,9 @@ class eAIBase: PlayerBase
 		//	return false;
 		//}
 
+		if (!m_PathFinding.m_IsBlocked)
+			return false;
+
 		SHumanCommandClimbSettings hcls = GetDayZPlayerType().CommandClimbSettingsW();
 		
 		if ( m_MovementState.m_iMovement != DayZPlayerConstants.MOVEMENTIDX_IDLE )
@@ -3976,12 +3993,20 @@ class eAIBase: PlayerBase
 		HumanCommandClimb.DoClimbTest(this, m_ExClimbResult, 0);
 
 		if (m_ExClimbResult.m_bIsClimb || m_ExClimbResult.m_bIsClimbOver)
+		{
+			//! AI, like players, can just walk over small height differences (avoids awkwardly climbing stairs)
+			//! @note hcls.m_fFwMinHeight cannot be used for this since it is too high (0.7)
+			//! @note this check is only needed for vanilla DoClimbTest, ExpansionClimb::DoClimbTest checks height internally
+			if (m_ExClimbResult.m_fClimbHeight < 0.5)
+				return false;
+
 			return true;
+		}
 
 		//! As we are essentially using Zombie pathfinding, we may encounter situations where the path will go through a fence
 		//! that Zs would be able to jump (e.g. wall_indfnc_9.p3d) but player AI would not due to HumanCommandClimb.DoClimbTest not letting us.
 		//! Use ExpansionClimb.DoClimbTest with alwaysAllowClimb = true instead.
-		if (m_PathFinding.m_IsBlocked)
+		if (m_PathFinding.m_DoClimbTestEx)
 		{
 			ExpansionClimb.DoClimbTest(this, m_ExClimbResult, true);
 			if (m_ExClimbResult.m_bIsClimb || m_ExClimbResult.m_bIsClimbOver)
@@ -4235,17 +4260,16 @@ class eAIBase: PlayerBase
 			if (time - building.m_eAI_LastDoorInteractionTime[doorIndex] < 3000)
 				continue;
 
-			bool isStuck = false;
+			bool isBlocked = false;
 			bool isWreck = building.GetType().IndexOf("Land_Wreck_") == 0;  //! Vehicle wreck, excluding heli crashes
 
 			if (building.IsDoorOpen(doorIndex))
 			{
 				if (!isWreck)
 				{
-					eAICommandMove move;
-					if (Class.CastTo(move, m_eAI_Command))
-						isStuck = move.CheckStuck();
-					if (!isStuck)
+					if (m_PathFinding.m_IsBlocked && m_PathFinding.IsBlockedPhysically(m_PathFinding.m_Next0.Position + "0 0.7 0", m_PathFinding.m_Next1.Position + "0 0.7 0"))
+						isBlocked = true;
+					if (!isBlocked)
 						continue;
 				}
 			}
@@ -4275,20 +4299,14 @@ class eAIBase: PlayerBase
 			int speedLimitThreat = m_MovementSpeedLimitUnderThreat;
 			int targetSpeedLimit;
 			int delay = 650;
-			if (isStuck)
-			{
-				targetSpeedLimit = 1;
-				eAI_ForceSideStep(1.5, null, -180);
-				delay = 1500;
-			}
-			if ((isStuck || !isWreck) && (speedLimit > targetSpeedLimit || speedLimitThreat > targetSpeedLimit))
+			if ((isBlocked || !isWreck) && (speedLimit > targetSpeedLimit || speedLimitThreat > targetSpeedLimit))
 			{
 				SetMovementSpeedLimits(targetSpeedLimit, targetSpeedLimit);
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetMovementSpeedLimits, delay, false, speedLimit, speedLimitThreat);
 			}
 
 			//! Always close wreck doors (less chance of getting stuck on them when closed)
-			if (isStuck || isWreck)
+			if (isBlocked || isWreck)
 			{
 				building.CloseDoor(doorIndex);
 			}

@@ -5,6 +5,7 @@ class eAIFactionObservers : eAIFaction
 	{
 		m_Loadout = "SurvivorLoadout";
 		m_IsObserver = true;
+		m_DisableWeaponPickup = true;
 	}
 
 	override bool IsFriendly(notnull eAIFaction other)

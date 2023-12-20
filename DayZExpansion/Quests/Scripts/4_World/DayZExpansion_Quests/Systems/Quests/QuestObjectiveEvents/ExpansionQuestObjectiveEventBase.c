@@ -31,10 +31,12 @@ class ExpansionQuestObjectiveEventBase
 
 	void ~ExpansionQuestObjectiveEventBase()
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
 		if (GetGame())
+		{
+			auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 			DeassignObjectiveOnClasses();
+		}
 	}
 
 	void SetIndex(int index)

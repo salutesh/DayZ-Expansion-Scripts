@@ -12,6 +12,44 @@
 
 modded class Construction
 {
+	static void ExpansionBuildFullIfSupported(Object obj)
+	{
+		BaseBuildingBase baseBuilding;
+		if (Class.CastTo(baseBuilding, obj) && baseBuilding.CanUseConstruction())
+		{
+			/*************************************************************************************************************************
+			 * WARNING: Only TESTED basebuilding items!
+			 * Most 3rd-party mods do NOT have the necessary rvConfig entries to get a reasonable preview and/or can cause client CTD if used!
+			 * Do NOT add other classnames unless they are GUARANTEED to work properly in market menu!
+			 *************************************************************************************************************************/
+
+			bool isSupportedBB;
+
+			switch (baseBuilding.GetType())
+			{
+				case "Fence":
+				case "Watchtower":
+				case "TerritoryFlag":
+					isSupportedBB = true;
+					break;
+
+				default:
+				#ifdef EXPANSIONMODBASEBUILDING
+					if (baseBuilding.IsInherited(ExpansionBaseBuilding))
+						isSupportedBB = true;
+				#endif
+					break;
+			}
+
+			if (isSupportedBB)
+			{
+				Construction construction = baseBuilding.GetConstruction();
+				construction.Init();
+				construction.ExpansionBuildFull();
+			}
+		}
+	}
+
 	//! Builds the whole thing without requiring materials
 	//! Useful for client-side preview, currently used by Market for that purpose
 	void ExpansionBuildFull()

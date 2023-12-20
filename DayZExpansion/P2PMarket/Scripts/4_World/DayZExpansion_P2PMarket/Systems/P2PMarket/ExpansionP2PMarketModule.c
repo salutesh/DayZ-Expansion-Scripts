@@ -456,21 +456,21 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 		if (listing.GetListingState() != ExpansionP2PMarketListingState.SOLD)
 		{
-			EXPrint(this, "::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that is not yet sold at trader ID " + traderID);
+			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that is not yet sold at trader ID " + traderID);
 			ExpansionNotification("RPC_RequestSaleFromListing", "This listing has not yet been sold").Error(identity);
 			return;
 		}
 
 		if (listing.GetOwnerUID() != playerUID)
 		{
-			EXPrint(this, "::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that is not his own at trader ID " + traderID);
+			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that is not his own at trader ID " + traderID);
 			ExpansionNotification("RPC_RequestSaleFromListing", "You can't retrieve another player's profits").Error(identity);
 			return;
 		}
 
 		if (!RemoveListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader()))
 		{
-			EXPrint(this, "::RPC_RequestSaleFromListing - could not remove listing " + globalIDText);
+			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - could not remove listing " + globalIDText);
 			ExpansionNotification("RPC_RequestSaleFromListing", "Could not remove listing " + globalIDText).Error(identity);
 			return;
 		}
@@ -575,7 +575,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 		if (sold == 0)
 		{
-			EXPrint(this, "::RPC_RequestAllPlayerSales - No listings in SOLD state for player " + playerUID + " at trader ID " + traderID);
+			EXPrint(ToString() + " ::RPC_RequestAllPlayerSales - No listings in SOLD state for player " + playerUID + " at trader ID " + traderID);
 			ExpansionNotification("RPC_RequestAllPlayerSales", "You have no sold listings at this trader").Error(identity);
 			return;
 		}
@@ -1138,7 +1138,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			//! change the listing to the sold state when it is purchased by the listing owner.
 			if (!RemoveListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader()))
 			{
-				EXPrint(this, "::RPC_RequestPurchaseBMItem - could not remove listing " + globalIDText);
+				EXPrint(ToString() + " ::RPC_RequestPurchaseBMItem - could not remove listing " + globalIDText);
 				ExpansionNotification("RPC_RequestPurchaseBMItem", "Could not remove listing " + globalIDText).Error(identity);
 			}
 		}

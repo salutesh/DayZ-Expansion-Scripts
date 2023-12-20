@@ -5,7 +5,7 @@ modded class DayZPlayerImplement
 	static bool DEBUG_EXPANSION_AI_VEHICLE;
 #endif
 	
-	private autoptr eAITargetInformation m_TargetInformation;
+	private autoptr eAIPlayerTargetInformation m_TargetInformation;
 
 	private eAIGroup m_eAI_Group;
 	private eAIGroup m_Expansion_FormerGroup;
@@ -77,7 +77,7 @@ modded class DayZPlayerImplement
 		return true;
 	}
 
-	protected eAITargetInformation CreateTargetInformation()
+	protected eAIPlayerTargetInformation CreateTargetInformation()
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "CreateTargetInformation");
@@ -86,7 +86,7 @@ modded class DayZPlayerImplement
 		return new eAIPlayerTargetInformation(this);
 	}
 
-	eAITargetInformation GetTargetInformation()
+	eAIPlayerTargetInformation GetTargetInformation()
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "GetTargetInformation");
@@ -320,25 +320,53 @@ modded class DayZPlayerImplement
 		if (Class.CastTo(sourcePlayer, source.GetHierarchyRootPlayer()) && sourcePlayer != this)
 			sourcePlayer.m_eAI_LastAggressionTime = ExpansionStatic.GetTime(true);  //! Aggro guards in area (if any)
 
-		if (!m_eAI_ProcessDamageByAI)
+		if (!m_eAI_ProcessDamageByAI && sourcePlayer)
 		{
-			eAIBase ai;
-			if (damageType == DT_FIRE_ARM && Class.CastTo(ai, sourcePlayer))
+			switch (damageType)
 			{
-				if (sourcePlayer == this)
-				{
-					//! This shouldn't be possible because AI don't use suicide emote
-					EXPrint(this, "WARNING: Game encountered an impossible state (AI damage source is firearm in AI's own hands)");
-					return false;
-				}
+				case DT_FIRE_ARM:
+					eAIBase ai;
+					if (Class.CastTo(ai, sourcePlayer))
+					{
+						if (sourcePlayer == this)
+						{
+							//! This shouldn't be possible because AI don't use suicide emote
+							EXPrint(ToString() + " WARNING: Game encountered an impossible state (AI damage source is firearm in AI's own hands)");
+							return false;
+						}
 
-				//! Apply AI damage multiplier
-				if (ai.m_eAI_DamageMultiplier != 1.0)
-				{
-					m_eAI_ProcessDamageByAI = true;
-					ProcessDirectDamage(DT_FIRE_ARM, source, dmgZone, ammo, modelPos, speedCoef * ai.m_eAI_DamageMultiplier);
-					return false;
-				}
+						//! Apply AI damage multiplier
+						if (ai.m_eAI_DamageMultiplier != 1.0)
+						{
+							m_eAI_ProcessDamageByAI = true;
+							ProcessDirectDamage(DT_FIRE_ARM, source, "", ammo, modelPos, speedCoef * ai.m_eAI_DamageMultiplier);
+							return false;
+						}
+					}
+
+					break;
+
+				case DT_CLOSE_COMBAT:
+					eAIGroup group = sourcePlayer.GetGroup();
+					if (group)
+					{
+						eAIFaction faction = group.GetFaction();
+						float yeetForce = faction.GetMeleeYeetForce();
+						eAIMeleeCombat.eAI_ApplyYeetForce(m_TargetInformation, yeetForce, sourcePlayer.GetPosition(), faction.GetMeleeYeetFactors());
+
+						//! @note for player targets, melee dmg mult above 1 and yeet are mutually exclusive
+						//! since you can't send players flying in the moment of death
+						float meleeDamageMultiplier = faction.GetMeleeDamageMultiplier();
+						if (meleeDamageMultiplier < 1.0 || (!yeetForce && meleeDamageMultiplier != 1.0))
+						{
+							m_eAI_ProcessDamageByAI = true;
+							//! @note IMPORTANT: Do NOT pass in dmgZone here, won't generate hit! Melee dmg is a special snowflake
+							ProcessDirectDamage(DT_CLOSE_COMBAT, source, "", ammo, modelPos, speedCoef * meleeDamageMultiplier);
+							return false;
+						}
+					}
+
+					break;
 			}
 		}
 		else
@@ -379,7 +407,7 @@ modded class DayZPlayerImplement
 		if (damageType == DT_FIRE_ARM && Class.CastTo(ai, source.GetHierarchyRootPlayer()) && ai == this)
 		{
 			//! This shouldn't be possible because AI don't use suicide emote
-			EXPrint(this, "WARNING: Game encountered an impossible state (AI damage source is firearm in AI's own hands)");
+			EXPrint(ToString() + " WARNING: Game encountered an impossible state (AI damage source is firearm in AI's own hands)");
 			return;
 		}
 

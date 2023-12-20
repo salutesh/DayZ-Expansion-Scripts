@@ -13,19 +13,18 @@
 class ExpansionP2PMarketMenuItem: ExpansionP2PMarketMenuItemBase
 {
 	protected ref ExpansionP2PMarketMenuItemController m_P2PMarketMenuItemController;
-	protected ref ExpansionP2PMarketPlayerItem m_Item;
+	protected ref ExpansionP2PMarketPlayerItem m_PlayerItem;
 	protected WrapSpacerWidget cargo_content;
 	protected Widget tree_elements;
 	protected Widget tree_panel_3;
 	protected bool m_IsExcluded;
 	protected bool m_CargoDisplayState;
 
-	void ExpansionP2PMarketMenuItem(ExpansionP2PMarketPlayerItem item, ExpansionP2PMarketMenu menu)
+	void ExpansionP2PMarketMenuItem(ExpansionP2PMarketListingBase item, ExpansionP2PMarketMenu menu)
 	{
 		Class.CastTo(m_P2PMarketMenuItemController, GetController());
 
-		m_Item = item;
-		m_P2PMarketMenu = menu;
+		m_PlayerItem = ExpansionP2PMarketPlayerItem.Cast(item);
 		m_IsExcluded = item.IsExcluded();
 
 		SetView();
@@ -54,7 +53,7 @@ class ExpansionP2PMarketMenuItem: ExpansionP2PMarketMenuItemBase
 			{
 				EXPrint(ToString() + "::SetView - Container item: " + item.GetItem().GetType());
 				ExpansionP2PMarketPlayerItem playerItem = new ExpansionP2PMarketPlayerItem();
-				playerItem.SetFromItem(item.GetItem(), m_Item.GetOwnerUID());
+				playerItem.SetFromItem(item.GetItem(), m_PlayerItem.GetOwnerUID());
 				playerItem.SetExcluded(item.IsExcluded());
 				ExpansionP2PMarketMenuItem playerItemEntry = new ExpansionP2PMarketMenuItem(playerItem, m_P2PMarketMenu);
 				playerItemEntry.ShowTreeElements(true);
@@ -100,69 +99,6 @@ class ExpansionP2PMarketMenuItem: ExpansionP2PMarketMenuItemBase
 	override typename GetControllerType()
 	{
 		return ExpansionP2PMarketMenuItemController;
-	}
-
-	void UpdatePreviewObject()
-	{
-		string previewClassName = m_P2PMarketMenu.GetPreviewClassName(m_Item.GetClassName());
-		ExpansionMarketMenu.CreatePreviewObject(previewClassName, m_Object);
-
-		if (m_Object)
-		{
-			if (m_Object.IsInherited(TentBase))
-			{
-				TentBase tent;
-				Class.CastTo(tent, m_Object);
-				tent.Pack(false);
-			}
-
-			Transport transportEntity;
-			if (Class.CastTo(transportEntity, m_Object))
-			{
-				dBodyActive(m_Object, ActiveState.INACTIVE);
-				dBodyDynamic(m_Object, false);
-				transportEntity.DisableSimulation(true);
-			}
-
-			array<ref ExpansionP2PMarketContainerItem> containerItems = m_Item.GetContainerItems();
-			if (containerItems.Count() > 0)
-			{
-				EXPrint(ToString() + "::UpdatePreviewObject - Attachments count:" + containerItems.Count() + " for item " + previewClassName);
-				SpawnAttachments(containerItems, m_Object, m_Item.GetSkinIndex());
-			}
-
-			if (m_Object.HasSelection("antiwater"))
-				m_Object.HideSelection("antiwater");
-
-			BaseBuildingBase baseBuilding = BaseBuildingBase.Cast(m_Object);
-			if (baseBuilding && baseBuilding.CanUseConstruction())
-			{
-				bool isSupportedBB;
-				//! https://feedback.bistudio.com/T173348
-				if (baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag")
-					isSupportedBB = true;
-				#ifdef EXPANSIONMODBASEBUILDING
-				else if (baseBuilding.IsInherited(ExpansionBaseBuilding))
-					isSupportedBB = true;
-				#endif
-				if (isSupportedBB)
-				{
-					Construction construction = baseBuilding.GetConstruction();
-					construction.Init();
-					construction.ExpansionBuildFull();
-				}
-			}
-
-			Edible_Base food_item = Edible_Base.Cast(m_Object);
-			if (food_item && food_item.HasFoodStage())
-			{
-				FoodStage foodStage = food_item.GetFoodStage();
-				foodStage.ChangeFoodStage(m_Item.GetFoodStageType());
-			}
-		}
-
-		m_P2PMarketMenuItemController.Preview = m_Object;
-		m_P2PMarketMenuItemController.NotifyPropertyChanged("Preview");
 	}
 
 	void OnItemButtonClick(ButtonCommandArgs args)
@@ -272,7 +208,7 @@ class ExpansionP2PMarketMenuItem: ExpansionP2PMarketMenuItemBase
 
 	ExpansionP2PMarketPlayerItem GetPlayerItem()
 	{
-		return m_Item;
+		return m_PlayerItem;
 	}
 	
 	void ShowTreeElements(bool state)

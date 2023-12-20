@@ -456,6 +456,11 @@ class eAITargetInformation
 		return target.FindAI(ai) != -1;
 	}
 
+	eAITarget GetTarget(notnull eAIGroup group)
+	{
+		return m_Groups[group.GetID()];
+	}
+
 	//! entity specific implementations for abstracted call in eAIEntityTargetInformation
 	void OnDeath()
 	{

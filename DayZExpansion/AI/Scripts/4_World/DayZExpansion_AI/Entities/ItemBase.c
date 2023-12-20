@@ -1,6 +1,6 @@
 modded class ItemBase
 {
-	private autoptr eAITargetInformation m_TargetInformation;
+	private autoptr eAIItemTargetInformation m_TargetInformation;
 
 	bool m_Expansion_IsOwnerPlayer;
 	bool m_eAI_ProcessDamageByAI;
@@ -14,7 +14,7 @@ modded class ItemBase
 		m_TargetInformation = CreateTargetInformation();
 	}
 
-	protected eAITargetInformation CreateTargetInformation()
+	protected eAIItemTargetInformation CreateTargetInformation()
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "CreateTargetInformation");
@@ -23,7 +23,7 @@ modded class ItemBase
 		return new eAIItemTargetInformation(this);
 	}
 
-	eAITargetInformation GetTargetInformation()
+	eAIItemTargetInformation GetTargetInformation()
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "GetTargetInformation");

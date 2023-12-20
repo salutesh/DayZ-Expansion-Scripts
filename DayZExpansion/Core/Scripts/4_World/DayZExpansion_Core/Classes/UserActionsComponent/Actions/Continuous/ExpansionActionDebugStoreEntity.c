@@ -56,13 +56,38 @@ class ExpansionActionDebugStoreEntity: ActionContinuousBase
 		if (!entity)
 			return false;
 
-		CarScript vehicle;
-		if (Class.CastTo(vehicle, entity) && vehicle.Expansion_GetVehicleCrew().Count())
+		if (entity.IsInherited(ExpansionEntityStoragePlaceholder))
 			return false;
+
+		if (entity.ConfigGetInt("scope") != 2)
+			return false;
+
+		CarScript vehicle;
+		if (Class.CastTo(vehicle, entity))
+		{
+#ifdef EXPANSIONMODVEHICLE
+			if (vehicle.Expansion_CanCover())  //! Handled by cover action in that case
+				return false;
+#endif
+			if (vehicle.Expansion_GetVehicleCrew().Count())
+				return false;
+		}
 
 #ifdef EXPANSIONMODVEHICLE
 		ExpansionVehicleBase exVehicle;
-		if (Class.CastTo(exVehicle, entity) && exVehicle.Expansion_GetVehicleCrew().Count())
+		if (Class.CastTo(exVehicle, entity))
+		{
+			if (exVehicle.Expansion_CanCover())  //! Handled by cover action in that case
+				return false;
+
+			if (exVehicle.Expansion_GetVehicleCrew().Count())
+				return false;
+		}
+#endif
+
+#ifdef EXPANSIONMODBASEBUILDING
+		ItemBase targetItem;
+		if (Class.CastTo(targetItem, entity) && targetItem.Expansion_HasEntityStorage())
 			return false;
 #endif
 

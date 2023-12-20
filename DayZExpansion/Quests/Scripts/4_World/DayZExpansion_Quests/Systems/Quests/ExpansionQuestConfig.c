@@ -135,7 +135,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 	void ~ExpansionQuestConfig()
 	{
 		if (GetGame())
-			EXPrint(this, "~ExpansionQuestConfig");
+			EXPrint(ToString() + "~ExpansionQuestConfig");
 	}
 
 	void SetType(int type)

@@ -352,4 +352,25 @@ class ExpansionString
 		}
 		return output;
 	}
+
+	static int StrCmp(string a, string b)
+	{
+		for (int i = 0; i < Math.Min(a.Length(), b.Length()); i++)
+		{
+			if (a[i] < b[i])
+				return -1;
+			else if (a[i] > b[i])
+				return 1;
+		}
+
+		return a.Length() - b.Length();
+	}
+
+	static int StrCaseCmp(string a, string b)
+	{
+		a.ToLower();
+		b.ToLower();
+
+		return StrCmp(a, b);
+	}
 }

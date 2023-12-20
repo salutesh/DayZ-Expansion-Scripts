@@ -246,8 +246,8 @@ modded class MissionGameplay
 			}
 			itemTooltip.UpdateItemInfoCargoSize();
 		#ifdef EXPANSIONMODHARDLINE
-			if (rarity != -1)
-				itemTooltip.UpdateItemRarity(rarity);
+			if (GetExpansionSettings().GetHardline().EnableItemRarity && rarity != -1)
+				itemTooltip.UpdateItemRarityEx(rarity);
 		#endif
 			
 			itemTooltip.Show();
@@ -301,8 +301,8 @@ modded class MissionGameplay
 			}
 			itemInspection.UpdateItemInfoCargoSize();
 		#ifdef EXPANSIONMODHARDLINE
-			if (rarity != -1)
-				itemInspection.UpdateItemRarity(rarity);
+			if (GetExpansionSettings().GetHardline().EnableItemRarity && rarity != -1)
+				itemInspection.UpdateItemRarityEx(rarity);
 		#endif
 			
 			itemInspection.SetParentView(parentView);

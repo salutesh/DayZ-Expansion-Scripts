@@ -203,7 +203,7 @@ class ExpansionSettings
 		auto setting = m_Settings[type];
 		if (setting && !setting.IsLoaded())
 		{
-			if (checkLoaded && (GetGame().IsDedicatedServer() || !GetGame().GetMission() || (GetGame().GetMission().IsMissionGameplay() && GetGame().IsMultiplayer()) || (GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu())))
+			if (checkLoaded && (GetGame().IsDedicatedServer() || (GetGame().GetMission().IsMissionGameplay() && GetGame().IsMultiplayer()) || (GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu() && !GetDayZGame().Expansion_IsMissionSinglePlayer())))
 				WarnNotLoaded(type);
 
 			if (!setting.IsUsingDefaults())
@@ -211,6 +211,8 @@ class ExpansionSettings
 				EXTrace.Print(true, type, "Using defaults");
 				setting.Defaults();
 				setting.SetIsUsingDefaults();
+				if (GetDayZGame().Expansion_IsMissionSinglePlayer())
+					EnScript.SetClassVar(setting, "m_IsLoaded", 0, true);  //! Make settings defaults work in SP
 			}
 		}
 
@@ -230,11 +232,13 @@ class ExpansionSettings
 			string suffix;
 			if (count)
 				suffix = " (there have been " + count + " more suppressed warnings)";
+		#ifndef DIAG
 			if (GetGame().IsServer())
 				EXTrace.Print(true, null, "WARNING: Trying to access " + type.ToString() + " before it has been loaded!" + suffix);
 			else
 				EXTrace.Print(true, null, "WARNING: Trying to access " + type.ToString() + " before it has been received!" + suffix);
-		#ifdef DIAG
+		#else
+			Error("ERROR: Trying to access " + type.ToString() + " before it has been loaded!" + suffix);
 			EXTrace.Print(true, null, "Dedicated server: " + GetGame().IsDedicatedServer());
 			EXTrace.Print(true, null, "Mission: " + GetGame().GetMission());
 			if (GetGame().GetMission())

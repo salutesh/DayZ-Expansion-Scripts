@@ -23,13 +23,10 @@ class ExpansionNewsFeed: ExpansionScriptView
 
 	void SetView()
 	{
-		int i;
-		
 		//! Add text entries from social media settings
 		m_NewsFeedController.TextEntries.Clear();
-		for (i = 0; i < GetExpansionSettings().GetSocialMedia().NewsFeedTexts.Count(); i++)
+		foreach (ExpansionNewsFeedTextSetting textSetting: GetExpansionSettings().GetSocialMedia(false).NewsFeedTexts)
 		{
-			ExpansionNewsFeedTextSetting textSetting = GetExpansionSettings().GetSocialMedia().NewsFeedTexts[i];
 			if (!textSetting)
 				continue;
 
@@ -40,9 +37,8 @@ class ExpansionNewsFeed: ExpansionScriptView
 		
 		//! Add link entries from social media settings
 		m_NewsFeedController.LinkEntries.Clear();
-		for (i = 0; i < GetExpansionSettings().GetSocialMedia().NewsFeedLinks.Count(); i++)
+		foreach (ExpansionNewsFeedLinkSetting linkSetting: GetExpansionSettings().GetSocialMedia(false).NewsFeedLinks)
 		{
-			ExpansionNewsFeedLinkSetting linkSetting = GetExpansionSettings().GetSocialMedia().NewsFeedLinks[i];
 			if (!linkSetting)
 				continue;
 

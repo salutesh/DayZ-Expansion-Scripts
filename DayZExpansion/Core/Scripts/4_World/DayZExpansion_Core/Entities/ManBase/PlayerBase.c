@@ -204,7 +204,7 @@ modded class PlayerBase
 		if ( IsMissionClient() )
 		{
 			if ( GetIdentity() )
-				return GetIdentity().GetPlainId();
+				return GetIdentity().Expansion_GetPlainId();
 			else if ( IsMissionOffline() )
 				return "OFFLINE";
 		}
@@ -442,6 +442,10 @@ modded class PlayerBase
 		super.SetActions( InputActionMap );
 
 		AddAction( ExpansionActionPaint, InputActionMap );
+
+#ifdef DIAG
+		AddAction(ExpansionActionDebugStoreEntity, InputActionMap);
+#endif
 	}
 	
 	override bool DropItem(ItemBase item)

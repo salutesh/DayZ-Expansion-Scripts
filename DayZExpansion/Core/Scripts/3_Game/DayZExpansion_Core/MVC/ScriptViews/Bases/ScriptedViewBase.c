@@ -16,4 +16,9 @@ modded class ScriptedViewBase
 	{
 		GetLayoutRoot().SetSort(sort, immedUpdate);
 	}
+
+	int GetSort()
+	{
+		return GetLayoutRoot().GetSort();
+	}
 };

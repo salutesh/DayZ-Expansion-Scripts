@@ -715,6 +715,9 @@ modded class ItemBase
 				return codelock.IsKnownUser( player );
 		}
 
+		if (GetExpansionSettings().GetTerritory().AuthenticateCodeLockIfTerritoryMember && player.IsInsideOwnTerritory())
+			return true;
+
 		if (!m_KnownUIDs)
 			return false;
 

@@ -4,6 +4,7 @@ class eAINoiseTargetInformation: eAITargetInformation
 	protected vector m_Position;
 	protected float m_Strength;
 	protected float m_Lifetime = -1.0;
+	protected float m_ThreatLevel;
 
 	override string GetDebugName()
 	{
@@ -15,12 +16,13 @@ class eAINoiseTargetInformation: eAITargetInformation
 		return str;
 	}
 
-	void SetNoiseParams(EntityAI source, vector position, float strength, float lifetime)
+	void SetNoiseParams(EntityAI source, vector position, float strength, float lifetime, float threatLevel)
 	{
 		m_Source = source;
 		m_Position = position;
 		m_Strength = strength;
 		m_Lifetime = lifetime;
+		m_ThreatLevel = threatLevel;
 	}
 
 	float GetStrength()
@@ -35,7 +37,7 @@ class eAINoiseTargetInformation: eAITargetInformation
 
 	override float CalculateThreat(eAIBase ai = null)
 	{
-		return m_Strength;
+		return m_ThreatLevel;
 	}
 
 	override vector GetPosition(eAIBase ai = null, bool actual = false)

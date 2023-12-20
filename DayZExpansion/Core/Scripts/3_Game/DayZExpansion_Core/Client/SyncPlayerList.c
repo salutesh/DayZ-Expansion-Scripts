@@ -12,8 +12,6 @@
 
 modded class SyncPlayerList
 {
-	static ref map<string, string> s_Expansion_PlainID2ID = new map<string, string>;
-
 	// ------------------------------------------------------------
 	// Override CreatePlayerList
 	// ------------------------------------------------------------
@@ -68,16 +66,7 @@ modded class SyncPlayerList
 		#ifdef EXPANSION_SYNCPLAYERLIST_SENDID
 			syncPlayer.m_RUID = PlayerIdentity.Expansion_IdToString(syncPlayer.m_Expansion_Id);
 		#else
-			if (!s_Expansion_PlainID2ID.Find(syncPlayer.m_UID, syncPlayer.m_RUID))
-			{
-				//! EXPENSIVE! About ~1ms per calculated digest, so only do this if we don't have the value cached
-				ExpansionSHA256.Update(syncPlayer.m_UID);
-				CF_Byte digest[32];
-				ExpansionSHA256.Digest(digest);
-				ExpansionSHA256.Reset();
-				syncPlayer.m_RUID = PlayerIdentity.Expansion_EncodeDigest(digest);
-				s_Expansion_PlainID2ID[syncPlayer.m_UID] = syncPlayer.m_RUID;
-			}
+			syncPlayer.m_RUID = PlayerIdentity.Expansion_PlainIdToId(syncPlayer.m_UID);
 		#endif
 		#ifdef DIAG
 			EXTrace.Print(EXTrace.PLAYER, this, string.Format("UID %1 RUID %2", syncPlayer.m_UID, syncPlayer.m_RUID));

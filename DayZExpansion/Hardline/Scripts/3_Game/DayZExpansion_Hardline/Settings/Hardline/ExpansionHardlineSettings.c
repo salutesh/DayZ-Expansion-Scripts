@@ -105,6 +105,8 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 		m_IsLoaded = true;
 
+		ExpansionSettings.SI_Hardline.Invoke();
+		
 		return true;
 	}
 
@@ -200,12 +202,12 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		{
 			EXPrint("[ExpansionHardlineSettings] Load existing setting file:" + EXPANSION_HARDLINE_SETTINGS);
 
-			ExpansionHardlineSettings settingsDefault = new ExpansionHardlineSettings;
-			settingsDefault.Defaults();
-
 			ExpansionJsonFileParser<ExpansionHardlineSettings>.Load(EXPANSION_HARDLINE_SETTINGS, this);
 			if (m_Version < VERSION)
 			{
+				ExpansionHardlineSettings settingsDefault = new ExpansionHardlineSettings;
+				settingsDefault.Defaults();
+
 				EXPrint("[ExpansionHardlineSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_HARDLINE_SETTINGS + "\" to v" + VERSION);
 
 			#ifdef EXPANSIONMODAI

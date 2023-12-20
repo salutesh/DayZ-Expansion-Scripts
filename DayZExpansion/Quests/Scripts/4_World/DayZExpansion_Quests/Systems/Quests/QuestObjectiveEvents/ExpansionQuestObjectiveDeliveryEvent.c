@@ -193,11 +193,10 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		ObjectivePrint("m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
 		ObjectivePrint("m_DestinationReached: " + m_DestinationReached);
 
-		bool conditionsResult;
 		if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount && m_DestinationReached)
-			conditionsResult = true;
+			return true;
 
-		return conditionsResult;
+		return false;
 	}
 
 	override bool OnCancel()
@@ -418,25 +417,24 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 	
 	override bool CanCreateMarkers()
 	{
-		bool markerConditionResult = false;
 		if (!m_DeliveryConfig.NeedAnyCollection())
 		{
 			if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount && !m_DestinationReached && !m_CreatedMarker)
 			{
-				markerConditionResult = true;
-				ObjectivePrint("::CanCreateMarkers - " + markerConditionResult.ToString());
+				ObjectivePrint("::CanCreateMarkers - true");
+				return true;
 			}
 		}
 		else
 		{
 			if (HasAnyCollectionCompleted() && !m_DestinationReached && !m_CreatedMarker)
 			{
-				markerConditionResult = true;
-				ObjectivePrint("::CanCreateMarkers - " + markerConditionResult.ToString());
+				ObjectivePrint("::CanCreateMarkers - true");
+				return true;
 			}
 		}
 		
-		return markerConditionResult;
+		return false;
 	}
 #endif
 

@@ -416,7 +416,7 @@ class ExpansionPrefabObject : Managed
 					cargo = inventoryCargo[index];
 					inventoryCargo.Remove(index);
 
-					if (cargo.Spawn(inventory.CreateInInventory(cargo.ClassName)))
+					if (cargo.Spawn(ExpansionItemSpawnHelper.CreateInInventoryEx(entity, cargo.ClassName)))
 						EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - created " + cargo.ClassName + " on " + entity);
 					else
 						EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - couldn't create " + cargo.ClassName + " on " + entity);

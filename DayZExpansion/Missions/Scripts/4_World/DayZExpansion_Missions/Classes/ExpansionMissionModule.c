@@ -48,6 +48,9 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void ~ExpansionMissionModule()
 	{
+		if (!GetGame())
+			return;
+
 		auto trace = EXTrace.Start(ExpansionTracing.MISSIONS, this);
 
 		ExpansionSettings.SI_Mission.Remove( OnSettingsUpdated );

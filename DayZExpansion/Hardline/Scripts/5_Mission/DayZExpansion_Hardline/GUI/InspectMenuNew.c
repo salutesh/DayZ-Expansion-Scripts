@@ -14,17 +14,38 @@ modded class InspectMenuNew
 {	
 	override Widget Init()
 	{
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_inventory_inspect.layout");
+		if (Expansion_UseCustomLayout())
+		{
+			layoutRoot = GetGame().GetWorkspace().CreateWidgets(Expansion_GetInspectionMenuLayout());
+		}
+		else
+		{
+			layoutRoot = super.Init();
+		}
+		
 		return layoutRoot;
 	}
 
 	override void SetItem(EntityAI item)
 	{
-		InspectMenuNew.Expansion_UpdateItemInfoRarity(layoutRoot, item);
+		if (Expansion_UseCustomLayout())
+		{
+			InspectMenuNew.Expansion_UpdateItemInfoRarity(layoutRoot, item);
+		}
 		
 		super.SetItem(item);
 	}
+
+	string Expansion_GetInspectionMenuLayout()
+	{
+		return "DayZExpansion/Hardline/GUI/layouts/expansion_inventory_inspect.layout";
+	}
 	
+	static bool Expansion_UseCustomLayout()
+	{
+		return GetExpansionSettings().GetHardline().EnableItemRarity;
+	}
+
 	static void Expansion_UpdateItemInfoRarity(Widget root_widget, EntityAI item)
 	{
 		ImageWidget rarityElement = ImageWidget.Cast(root_widget.FindAnyWidget("ItemRarityWidgetBackground"));
@@ -32,10 +53,9 @@ modded class InspectMenuNew
 			return;
 
 		ItemBase itemBase = ItemBase.Cast(item);
-		if (itemBase && GetExpansionSettings().GetHardline().EnableItemRarity)
+		if (itemBase && Expansion_UseCustomLayout())
 		{
 			ExpansionHardlineItemRarity rarity = itemBase.Expansion_GetRarity();
-			
 			if (rarity == ExpansionHardlineItemRarity.NONE)
 			{
 				rarityElement.Show(false);
@@ -48,7 +68,6 @@ modded class InspectMenuNew
 			ExpansionStatic.GetVariableIntByName(ExpansionHardlineItemRarityColor, rarityName, color);
 			rarityElement.Show(true);
 			WidgetTrySetText(root_widget, "ItemRarityWidget", text, color);
-
 			return;
 		}
 

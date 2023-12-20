@@ -19,8 +19,6 @@ class ExpansionWorld: ExpansionGame
 
 	void ExpansionWorld()
 	{
-		ExpansionAttachmentHelper.Init();
-
 		s_Expansion_BushFallHard_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("hardBushFall_SoundSet");
 		s_Expansion_BushFallSoft_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("softBushFall_SoundSet");
 		s_Expansion_TreeFallHard_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("hardTreeFall_SoundSet");

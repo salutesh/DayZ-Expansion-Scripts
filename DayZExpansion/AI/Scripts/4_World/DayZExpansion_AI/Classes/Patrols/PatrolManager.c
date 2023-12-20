@@ -141,6 +141,12 @@ class ExpansionAIPatrolManager
         else
             threatDistanceLimit = patrol.ThreatDistanceLimit;
 
+        float noiseDistanceLimit;
+        if ( patrol.NoiseInvestigationDistanceLimit <= 0 )
+            noiseDistanceLimit = s_AIPatrolSettings.NoiseInvestigationDistanceLimit;
+        else
+            noiseDistanceLimit = patrol.NoiseInvestigationDistanceLimit;
+
         float damageMultiplier;
         if ( patrol.DamageMultiplier <= 0 )
             damageMultiplier = s_AIPatrolSettings.DamageMultiplier;
@@ -149,6 +155,7 @@ class ExpansionAIPatrolManager
 
         dynPatrol.SetAccuracy(accuracyMin, accuracyMax);
         dynPatrol.SetThreatDistanceLimit(threatDistanceLimit);
+        dynPatrol.SetNoiseInvestigationDistanceLimit(noiseDistanceLimit);
         dynPatrol.SetDamageMultiplier(damageMultiplier);
         dynPatrol.SetGroupName(patrol.Name);
         dynPatrol.SetSniperProneDistanceThreshold(patrol.SniperProneDistanceThreshold);

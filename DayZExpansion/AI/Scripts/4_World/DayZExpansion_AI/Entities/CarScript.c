@@ -1,6 +1,6 @@
 modded class CarScript
 {
-	private autoptr eAITargetInformation m_TargetInformation;
+	private autoptr eAIVehicleTargetInformation m_TargetInformation;
 
 	void CarScript()
 	{
@@ -11,7 +11,7 @@ modded class CarScript
 		m_TargetInformation = CreateTargetInformation();
 	}
 
-	protected eAITargetInformation CreateTargetInformation()
+	protected eAIVehicleTargetInformation CreateTargetInformation()
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "CreateTargetInformation");
@@ -20,7 +20,7 @@ modded class CarScript
 		return new eAIVehicleTargetInformation(this);
 	}
 
-	eAITargetInformation GetTargetInformation()
+	eAIVehicleTargetInformation GetTargetInformation()
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "GetTargetInformation");

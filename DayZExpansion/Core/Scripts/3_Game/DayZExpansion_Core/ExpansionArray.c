@@ -58,4 +58,13 @@ class ExpansionArray<Class T>
 
 		return element;
 	}
+
+	static void RefCopy(array<ref T> from, array<ref T> to)
+	{
+		to.Clear();
+		foreach (T value: from)
+		{
+			to.Insert(value);
+		}
+	}
 }

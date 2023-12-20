@@ -175,6 +175,10 @@ modded class CarScript
 	protected vector m_Expansion_ExhaustPtcDir[3];
 	protected int m_Expansion_ExhaustPtcFx[3];
 
+	#ifndef SERVER
+	protected ref ExpansionEngineStartSounds m_Expansion_EngineStartSounds = new ExpansionEngineStartSounds(this);
+	#endif
+
 	static int s_Expansion_ControllerSync_RPCID;
 	static int s_Expansion_PlayLockSound_RPCID;
 	static int s_Expansion_ClientPing_RPCID;
@@ -419,7 +423,6 @@ modded class CarScript
 			}
 		}
 
-		m_Expansion_RPCManager = new ExpansionRPCManager(this, CarScript);
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 
 		if (!s_Expansion_ControllerSync_RPCID)
@@ -2961,6 +2964,18 @@ modded class CarScript
 		return true;
 	}
 
+	void Expansion_HandleEngineSound(CarEngineSoundState state)
+	{
+		#ifndef SERVER
+		switch (state)
+		{
+			case CarEngineSoundState.STARTING:
+				m_Expansion_EngineStartSounds.Play();
+				break;
+		}
+		#endif
+	}
+
 	/**
 	 * @brief Is called every time the engine starts.
 	 */
@@ -2987,6 +3002,8 @@ modded class CarScript
 		}
 
 		SetSynchDirty();
+
+		Expansion_HandleEngineSound(CarEngineSoundState.STARTING);
 	}
 
 	/**
@@ -3283,15 +3300,20 @@ modded class CarScript
 
 		if (GetExpansionSettings().GetVehicle().ShowVehicleOwners)
 		{
-			auto keychain = ExpansionKeyChainBase.Cast(GetAttachmentByType(ExpansionKeyChainBase));
-			if (!keychain || !keychain.Expansion_HasOwner())
+			int slotId = InventorySlots.GetSlotIdFromString("KeyChain");
+			if (GetInventory().HasAttachmentSlot(slotId))
 			{
-				array<ExpansionCarKey> keys = {};
-				ExpansionCarKey.GetKeysForVehicle(this, keys);
-				foreach (ExpansionCarKey key: keys)
+				auto keychain = ExpansionKeyChainBase.Cast(GetAttachmentByType(ExpansionKeyChainBase));
+				if (!keychain || !keychain.Expansion_HasOwner())
 				{
-					//! Will assign a keychain if key is in player inventory
-					key.Expansion_AssignKeychain(key.GetHierarchyRootPlayer(), this);
+					array<ExpansionCarKey> keys = {};
+					ExpansionCarKey.GetKeysForVehicle(this, keys);
+					foreach (ExpansionCarKey key: keys)
+					{
+						//! Will assign a keychain if key is in player inventory
+						if (key.IsMaster() && !key.GetAttachmentByType(ExpansionKeyChainBase))
+							key.Expansion_AssignKeychain(key.GetHierarchyRootPlayer(), this);
+					}
 				}
 			}
 		}
@@ -3726,10 +3748,11 @@ modded class CarScript
 		if (m_VehicleLockedState == ExpansionVehicleLockState.FORCEDLOCKED)
 			return false;
 
-		if (GetExpansionSettings() && GetExpansionSettings().GetVehicle().VehicleLockedAllowInventoryAccess)
+		auto settings = GetExpansionSettings().GetVehicle(false);
+		if (settings.IsLoaded() && settings.VehicleLockedAllowInventoryAccess)
 			return true;
 
-		if (GetExpansionSettings().GetVehicle().VehicleLockedAllowInventoryAccessWithoutDoors && !AllDoorsClosed())
+		if (settings.IsLoaded() && settings.VehicleLockedAllowInventoryAccessWithoutDoors && !AllDoorsClosed())
 			return true;
 
 		//! @note we explicitly check for LOCKED state instead of IsLocked() as we don't want to be able to access inventory if forced locked
@@ -3896,7 +3919,10 @@ modded class CarScript
 		if (IsDamageDestroyed())
 			return false;
 
-		auto settings = GetExpansionSettings().GetVehicle();
+		auto settings = GetExpansionSettings().GetVehicle(false);
+
+		if (!settings.IsLoaded())
+			return false;
 
 		if (!settings.EnableVehicleCovers)
 			return false;

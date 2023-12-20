@@ -14,6 +14,9 @@ class ExpansionGenerator_Base: PowerGenerator
 {
 	void ~ExpansionGenerator_Base()
 	{
+		if (!GetGame())
+			return;
+
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
 		{
 			ExpansionWorldObjectsModule module;

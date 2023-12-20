@@ -13,7 +13,7 @@
 class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 {
 	protected ref ExpansionP2PMarketMenuListingController m_P2PMarketMenuListingController;
-	protected ref ExpansionP2PMarketListing m_Listing;
+	protected ExpansionP2PMarketListing m_Listing;
 
 	protected bool m_IsOwnedItem;
 	protected bool m_IsSoldItem;
@@ -33,13 +33,11 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 	
 	protected int m_RemaningTime;
 
-	void ExpansionP2PMarketMenuListing(ExpansionP2PMarketListing listing, ExpansionP2PMarketMenu menu)
+	void ExpansionP2PMarketMenuListing(ExpansionP2PMarketListingBase item, ExpansionP2PMarketMenu menu)
 	{
 		Class.CastTo(m_P2PMarketMenuListingController, GetController());
-		Class.CastTo(m_P2PMarketModule, CF_ModuleCoreManager.Get(ExpansionP2PMarketModule));
 
-		m_Listing = listing;
-		m_P2PMarketMenu = menu;
+		m_Listing = ExpansionP2PMarketListing.Cast(item);
 		
 		if (m_Listing.GetListingState() == ExpansionP2PMarketListingState.LISTED)
 		{
@@ -149,81 +147,29 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 	{
 		return ExpansionP2PMarketMenuListingController;
 	}
-
-	void UpdatePreviewObject()
-	{
-		string previewClassName = m_P2PMarketMenu.GetPreviewClassName(m_Listing.GetClassName());
-		ExpansionMarketMenu.CreatePreviewObject(previewClassName, m_Object);
-
-		if (m_Object)
-		{
-			if (m_Object.IsInherited(TentBase))
-			{
-				TentBase tent;
-				Class.CastTo(tent, m_Object);
-				tent.Pack(false);
-			}
-
-			Transport transportEntity;
-			if (Class.CastTo(transportEntity, m_Object))
-			{
-				dBodyActive(m_Object, ActiveState.INACTIVE);
-				dBodyDynamic(m_Object, false);
-				transportEntity.DisableSimulation(true);
-			}
-
-			if (m_Listing.GetContainerItems().Count() > 0)
-			{
-				EXPrint(ToString() + "::UpdatePreviewObject - Attachments count:" + m_Listing.GetContainerItems().Count() + " for item " + previewClassName);
-				SpawnAttachments(m_Listing.GetContainerItems(), m_Object, m_Listing.GetSkinIndex());
-			}
-
-			if (m_Object.HasSelection("antiwater"))
-				m_Object.HideSelection("antiwater");
-
-			BaseBuildingBase baseBuilding = BaseBuildingBase.Cast(m_Object);
-			if (baseBuilding && baseBuilding.CanUseConstruction())
-			{
-				bool isSupportedBB;
-				//! https://feedback.bistudio.com/T173348
-				if (baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag")
-					isSupportedBB = true;
-				#ifdef EXPANSIONMODBASEBUILDING
-				else if (baseBuilding.IsInherited(ExpansionBaseBuilding))
-					isSupportedBB = true;
-				#endif
-				if (isSupportedBB)
-				{
-					Construction construction = baseBuilding.GetConstruction();
-					construction.Init();
-					construction.ExpansionBuildFull();
-				}
-			}
-
-			Edible_Base food_item = Edible_Base.Cast(m_Object);
-			if (food_item && food_item.HasFoodStage())
-			{
-				FoodStage foodStage = food_item.GetFoodStage();
-				foodStage.ChangeFoodStage(m_Listing.GetFoodStageType());
-
-				int listingTime = m_Listing.GetListingTime();
-				int currentTime = CF_Date.Now(true).GetTimestamp();
-				int elapsed = (currentTime - listingTime);
-
-				EXPrint(ToString() + "::UpdatePreviewObject - Time elapsed: " + ExpansionStatic.GetTimeString(elapsed));
-				FoodStageType processedFoodStage = food_item.Expansion_GetProcessedFoodStageDecay(elapsed, false);
-				EXPrint(ToString() + "::UpdatePreviewObject - Processed food stage: " + typename.EnumToString(FoodStageType, processedFoodStage));
-				foodStage = food_item.GetFoodStage();
-				foodStage.ChangeFoodStage(processedFoodStage);
-				
-				m_Listing.SetFoodStageType(processedFoodStage);
-			}
-		}
-
-		m_P2PMarketMenuListingController.Preview = m_Object;
-		m_P2PMarketMenuListingController.NotifyPropertyChanged("Preview");
-	}
 	
+	override void UpdateFoodStage()
+	{
+		Edible_Base food_item = Edible_Base.Cast(m_Object);
+		if (food_item && food_item.HasFoodStage())
+		{
+			FoodStage foodStage = food_item.GetFoodStage();
+			foodStage.ChangeFoodStage(m_Listing.GetFoodStageType());
+
+			int listingTime = m_Listing.GetListingTime();
+			int currentTime = CF_Date.Now(true).GetTimestamp();
+			int elapsed = (currentTime - listingTime);
+
+			EXPrint(ToString() + "::UpdatePreviewObject - Time elapsed: " + ExpansionStatic.GetTimeString(elapsed));
+			FoodStageType processedFoodStage = food_item.Expansion_GetProcessedFoodStageDecay(elapsed, false);
+			EXPrint(ToString() + "::UpdatePreviewObject - Processed food stage: " + typename.EnumToString(FoodStageType, processedFoodStage));
+			foodStage = food_item.GetFoodStage();
+			foodStage.ChangeFoodStage(processedFoodStage);
+			
+			m_Listing.SetFoodStageType(processedFoodStage);
+		}
+	}
+
 	void OnItemButtonClick(ButtonCommandArgs args)
 	{
 		int button = args.GetMouseButton();

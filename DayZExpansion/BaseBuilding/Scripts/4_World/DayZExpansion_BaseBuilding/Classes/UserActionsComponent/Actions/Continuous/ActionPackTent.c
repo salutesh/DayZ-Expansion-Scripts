@@ -17,6 +17,9 @@ modded class ActionPackTent
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 
+		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
+			return false;
+
 		if ( player.IsInTerritory() )
 		{
 			if (GetExpansionSettings().GetBaseBuilding().DismantleInsideTerritory)

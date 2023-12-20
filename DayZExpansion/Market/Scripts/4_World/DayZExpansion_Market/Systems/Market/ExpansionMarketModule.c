@@ -3449,12 +3449,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 				item = GetExpansionSettings().GetMarket().UpdateMarketItem_Client(networkItems[i]);
 				m_ClientMarketZone.SetStock(networkItems[i].ClassName, networkItems[i].Stock);
 				int param1 = networkItems[i].Packed >> 24;
-				int rarity = param1 >> 4;
+				//! @note EnfScript bug: Bit-shifting produces negative value. Workaround: Apply mask first (bitwise AND)
+				//! https://feedback.bistudio.com/T177670
+				int rarity = (param1 & 0xf0) >> 4;
 #ifdef EXPANSIONMODHARDLINE
 				if (rarity)
 					GetExpansionSettings().GetHardline().ItemRarity[networkItems[i].ClassName] = rarity;
 #endif
-				int buySell = param1 & ~(rarity << 4);
+				int buySell = param1 & 0x0f;
 				trader.GetTraderMarket().AddItemInternal(item, buySell);
 				if (!m_TmpNetworkCats.Contains(networkItems[i].CategoryID))
 					m_TmpNetworkCats.Insert(networkItems[i].CategoryID, GetExpansionSettings().GetMarket().GetCategory(networkItems[i].CategoryID));

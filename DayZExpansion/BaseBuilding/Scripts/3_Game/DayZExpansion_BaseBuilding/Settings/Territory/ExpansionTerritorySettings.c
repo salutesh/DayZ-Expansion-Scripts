@@ -23,14 +23,23 @@ class ExpansionTerritorySettingsBase: ExpansionSettingBase
 	int MaxTerritoryPerPlayer;				//! If <= 0, unlimited territory number.
 }
 
+/**@class		ExpansionTerritorySettingsV2
+ * @brief		Territory settings v2 class
+ **/
+class ExpansionTerritorySettingsV2: ExpansionTerritorySettingsBase
+{
+	float TerritoryAuthenticationRadius;	//! Players need to be in this radius to be able to accept a territory invite
+}
+
 /**@class		ExpansionTerritorySettings
- * @brief		Spawn settings class
+ * @brief		Territory settings class
  **/
 class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 	
-	float TerritoryAuthenticationRadius;	//! Players need to be in this radius to be able to accept a territory invite
+	float TerritoryInviteAcceptRadius;	//! Players need to be in this radius to be able to accept a territory invite
+	bool AuthenticateCodeLockIfTerritoryMember;   //! Territory members don't have to enter code on codelocks in territory
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -113,7 +122,8 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
 
-		TerritoryAuthenticationRadius = s.TerritoryAuthenticationRadius;
+		TerritoryInviteAcceptRadius = s.TerritoryInviteAcceptRadius;
+		AuthenticateCodeLockIfTerritoryMember = s.AuthenticateCodeLockIfTerritoryMember;
 		
 		ExpansionTerritorySettingsBase sb = s;
 		CopyInternal( sb );
@@ -162,32 +172,30 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 		if (territorySettingsExist)
 		{
 			EXPrint("[ExpansionTerritorySettings] Load existing setting file:" + EXPANSION_TERRITORY_SETTINGS);
-			
-			ExpansionTerritorySettings settingsDefault = new ExpansionTerritorySettings;
-			settingsDefault.Defaults();
 
-			ExpansionTerritorySettingsBase settingsBase;
+			JsonFileLoader<ExpansionTerritorySettings>.JsonLoadFile(EXPANSION_TERRITORY_SETTINGS, this);
 
-			JsonFileLoader<ExpansionTerritorySettingsBase>.JsonLoadFile(EXPANSION_TERRITORY_SETTINGS, settingsBase);
-
-			if (settingsBase.m_Version < VERSION)
+			if (m_Version < VERSION)
 			{
-				EXPrint("[ExpansionTerritorySettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_TERRITORY_SETTINGS + "\" to v" + VERSION);
+				EXPrint("[ExpansionTerritorySettings] Load - Converting v" + m_Version + " \"" + EXPANSION_TERRITORY_SETTINGS + "\" to v" + VERSION);
+			
+				ExpansionTerritorySettings settingsDefault = new ExpansionTerritorySettings;
+				settingsDefault.Defaults();
 
-				if (settingsBase.m_Version < 2)
+				if (m_Version < 2)
 				{
-					TerritoryAuthenticationRadius = settingsDefault.TerritoryAuthenticationRadius;
+					TerritoryInviteAcceptRadius = settingsDefault.TerritoryInviteAcceptRadius;
 				}
-				
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
+				else if (m_Version == 2)
+				{
+					ExpansionTerritorySettingsV2 settingsV2;
+					JsonFileLoader<ExpansionTerritorySettingsV2>.JsonLoadFile(EXPANSION_TERRITORY_SETTINGS, settingsV2);
+
+					TerritoryInviteAcceptRadius = settingsV2.TerritoryAuthenticationRadius;
+				}
 
 				m_Version = VERSION;
 				save = true;
-			}
-			else
-			{
-				JsonFileLoader<ExpansionTerritorySettings>.JsonLoadFile(EXPANSION_TERRITORY_SETTINGS, this);
 			}
 		}
 		else
@@ -223,7 +231,8 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 		TerritoryPerimeterSize = 150.0;
 		MaxMembersInTerritory = 10;
 		MaxTerritoryPerPlayer = 1;
-		TerritoryAuthenticationRadius = 150.0;
+		TerritoryInviteAcceptRadius = 150.0;
+		AuthenticateCodeLockIfTerritoryMember = false;
 	}
 	
 	// ------------------------------------------------------------

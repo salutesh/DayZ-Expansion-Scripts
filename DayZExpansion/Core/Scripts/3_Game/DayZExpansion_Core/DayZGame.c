@@ -44,9 +44,9 @@ modded class DayZGame
 		m_Expansion_StartTimeUTC = ExpansionCalculateStartTime(nowUTC);
 		m_Expansion_StartTimestamp = now.DateToEpoch() - (int) GetTickTime();
 		m_Expansion_StartTimestampUTC = nowUTC.DateToEpoch() - (int) GetTickTime();
-		EXLogPrint(this, "Start time (local time) " + CF_Date.Epoch(m_Expansion_StartTimestamp).Format(CF_Date.DATETIME));
-		EXLogPrint(this, "Start time (UTC) " + CF_Date.Epoch(m_Expansion_StartTimestampUTC).Format(CF_Date.DATETIME));
-		EXLogPrint(this, "Runtime since start (seconds) " + GetTickTime());
+		EXLogPrint(ToString() + " Start time (local time) " + CF_Date.Epoch(m_Expansion_StartTimestamp).Format(CF_Date.DATETIME));
+		EXLogPrint(ToString() + " Start time (UTC) " + CF_Date.Epoch(m_Expansion_StartTimestampUTC).Format(CF_Date.DATETIME));
+		EXLogPrint(ToString() + " Runtime since start (seconds) " + GetTickTime());
 
 		if (!FileExist(EXPANSION_FOLDER))
 		{
@@ -288,6 +288,18 @@ modded class DayZGame
 	bool Expansion_IsMissionMainMenu()
 	{
 		return m_Expansion_IsMissionMainMenu;
+	}
+
+	bool Expansion_IsMissionSinglePlayer()
+	{
+		if (IsMultiplayer())
+			return false;
+
+		string mission;
+		if (GetCLIParam("mission", mission))
+			return true;
+
+		return false;
 	}
 
 	void Expansion_SetServerUpdateRateLimit(int rate)

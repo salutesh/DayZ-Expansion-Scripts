@@ -96,7 +96,6 @@ class eAICommandMove: ExpansionHumanCommandScript
 	bool m_IsTagWeaponFire;
 	bool m_WeaponFire;
 
-	float m_Lean;
 	float m_LeanDirection = 1.0;
 
 	void eAICommandMove(DayZPlayerImplement player, ExpansionHumanST st)
@@ -773,7 +772,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			{
 				float leaderSpeed = GetVelocity(leader).LengthSq();
 				//if (EXTrace.AI && leaderSpeed > 0.0)
-					//EXPrint(leader, "velocity " + leaderSpeed);
+					//EXPrint(leader.ToString() + " velocity " + leaderSpeed);
 				/**
 				 * Movement speeds (approx)
 				 * 
@@ -933,7 +932,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 					break;
 			}
 
-			if (!meme && Math.AbsFloat(m_Lean) > 0.0)
+			if (!meme && Math.AbsFloat(m_Unit.m_eAI_Lean) > 0.0)
 			{
 				//! Always return to neutral state
 				meme = true;
@@ -943,12 +942,12 @@ class eAICommandMove: ExpansionHumanCommandScript
 			if (meme)
 			{
 				float leanReverseThresh = Math.RandomFloat(0.5, 2.0);
-				if (Math.AbsFloat(m_Lean) > leanReverseThresh)
+				if (Math.AbsFloat(m_Unit.m_eAI_Lean) > leanReverseThresh)
 				{
-					if (m_Lean > 0.0)
-						m_Lean = leanReverseThresh;
+					if (m_Unit.m_eAI_Lean > 0.0)
+						m_Unit.m_eAI_Lean = leanReverseThresh;
 					else
-						m_Lean = -leanReverseThresh;
+						m_Unit.m_eAI_Lean = -leanReverseThresh;
 
 					m_LeanDirection = -m_LeanDirection;
 
@@ -956,15 +955,15 @@ class eAICommandMove: ExpansionHumanCommandScript
 						m_Unit.m_eAI_Meme--;
 				}
 
-				float prevLean = m_Lean;
+				float prevLean = m_Unit.m_eAI_Lean;
 
-				m_Lean = m_Lean + pDt * 4.0 * m_LeanDirection;
+				m_Unit.m_eAI_Lean = m_Unit.m_eAI_Lean + pDt * 4.0 * m_LeanDirection;
 
-				if (returnToNeutral && ((m_Lean < 0.0 && prevLean > 0.0) || (m_Lean > 0.0 && prevLean < 0.0)))
-					m_Lean = 0.0;
+				if (returnToNeutral && ((m_Unit.m_eAI_Lean < 0.0 && prevLean > 0.0) || (m_Unit.m_eAI_Lean > 0.0 && prevLean < 0.0)))
+					m_Unit.m_eAI_Lean = 0.0;
 
-				m_Table.SetLean(this, ExpansionMath.SmoothStep(Math.Clamp(m_Lean, -1.0, 1.0), 1, -1.0, 1.0));
-				//m_Table.SetLean(this, m_Lean);
+				m_Table.SetLean(this, ExpansionMath.SmoothStep(Math.Clamp(m_Unit.m_eAI_Lean, -1.0, 1.0), 1, -1.0, 1.0));
+				//m_Table.SetLean(this, m_Unit.m_eAI_Lean);
 			}
 		}
 
@@ -1098,12 +1097,12 @@ class eAICommandMove: ExpansionHumanCommandScript
 		return m_LastBlocked || m_LastBlockedLeft || m_LastBlockedRight;
 	}
 
-	bool CheckStuck()
+	bool CheckBlocked()
 	{
 		if (!m_MovementSpeed || m_Unit.IsClimbing() || m_Unit.IsFalling() || m_Unit.IsFighting())
 			return false;
 
-		if (!m_LastBlocked || !CheckBlockedLeft() || !CheckBlockedRight())
+		if (!m_LastBlocked /*|| !CheckBlockedLeft() || !CheckBlockedRight()*/)
 			return false;
 
 		return true;

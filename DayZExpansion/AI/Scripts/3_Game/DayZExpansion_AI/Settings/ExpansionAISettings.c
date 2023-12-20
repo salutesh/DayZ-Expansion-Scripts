@@ -15,12 +15,13 @@
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
 
 	float AccuracyMin;
 	float AccuracyMax;
 
 	float ThreatDistanceLimit;
+	float NoiseInvestigationDistanceLimit;
 	float DamageMultiplier;
 
 	autoptr TStringArray Admins;
@@ -180,6 +181,7 @@ class ExpansionAISettings: ExpansionSettingBase
 		AccuracyMin = s.AccuracyMin;
 		AccuracyMax = s.AccuracyMax;
 		ThreatDistanceLimit = s.ThreatDistanceLimit;
+		NoiseInvestigationDistanceLimit = s.NoiseInvestigationDistanceLimit;
 		DamageMultiplier = s.DamageMultiplier;
 		Admins.Copy(s.Admins);
 		MaximumDynamicPatrols = s.MaximumDynamicPatrols;
@@ -276,6 +278,9 @@ class ExpansionAISettings: ExpansionSettingBase
 					MemeLevel = settingsDefault.MemeLevel;
 				}
 
+				if (m_Version < 8)
+					NoiseInvestigationDistanceLimit = settingsDefault.NoiseInvestigationDistanceLimit;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -328,6 +333,7 @@ class ExpansionAISettings: ExpansionSettingBase
 		AccuracyMax = 0.95;
 
 		ThreatDistanceLimit = 1000.0;
+		NoiseInvestigationDistanceLimit = 500.0;
 		DamageMultiplier = 1.0;
 
 		Admins = {};

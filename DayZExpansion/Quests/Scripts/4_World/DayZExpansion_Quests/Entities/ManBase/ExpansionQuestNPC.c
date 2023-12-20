@@ -37,7 +37,7 @@ class ExpansionQuestNPCBase: ExpansionNPCBase
 		if (m_QuestNPCID > -1)
 		{
 			if (!ExpansionQuestModule.GetQuestNPCByID(m_QuestNPCID))
-				EXPrint(this, "::OnVariablesSynchronized - NPC ID: " + m_QuestNPCID);
+				EXPrint(ToString() + " ::OnVariablesSynchronized - NPC ID: " + m_QuestNPCID);
 			ExpansionQuestModule.AddQuestNPC(m_QuestNPCID, this);
 		}
 

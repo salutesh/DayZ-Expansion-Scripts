@@ -22,6 +22,7 @@ class eAIDynamicPatrol : eAIPatrol
 	float m_AccuracyMin; // zero or negative = use general setting
 	float m_AccuracyMax; // zero or negative = use general setting
 	float m_ThreatDistanceLimit; // zero or negative = use general setting
+	float m_NoiseInvestigationDistanceLimit; // zero or negative = use general setting
 	float m_DamageMultiplier; // zero or negative = use general setting
 
 	eAIGroup m_Group;
@@ -103,6 +104,11 @@ class eAIDynamicPatrol : eAIPatrol
 		m_ThreatDistanceLimit = distance;
 	}
 
+	void SetNoiseInvestigationDistanceLimit(float distance)
+	{
+		m_NoiseInvestigationDistanceLimit = distance;
+	}
+
 	void SetDamageMultiplier(float multiplier)
 	{
 		m_DamageMultiplier = multiplier;
@@ -141,6 +147,7 @@ class eAIDynamicPatrol : eAIPatrol
 		ai.eAI_SetUnlimitedReload(m_UnlimitedReload);
 		ai.eAI_SetAccuracy(m_AccuracyMin, m_AccuracyMax);
 		ai.eAI_SetThreatDistanceLimit(m_ThreatDistanceLimit);
+		ai.eAI_SetNoiseInvestigationDistanceLimit(m_NoiseInvestigationDistanceLimit);
 		ai.eAI_SetDamageMultiplier(m_DamageMultiplier);
 		ai.eAI_SetSniperProneDistanceThreshold(m_SniperProneDistanceThreshold);
 

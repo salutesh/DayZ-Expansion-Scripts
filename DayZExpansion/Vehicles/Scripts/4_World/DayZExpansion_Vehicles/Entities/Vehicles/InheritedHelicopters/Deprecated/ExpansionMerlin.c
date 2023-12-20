@@ -55,6 +55,19 @@ class ExpansionMerlin : ExpansionHelicopterScript
 		m_TailForceCoef = 6.0;
 	}
 
+	override void EEInit()
+	{
+		#ifndef SERVER
+		//! start delay (seconds), stop delay (seconds after sound has started playing), soundset name*, fade in time (s), fade out time (s), loop (true/false)
+		//! * @note if soundset name does not contain the string "_SoundSet", then "_Ext_SoundSet" or "_Int_SoundSet" will be appended automatically depending on camera
+		m_Expansion_EngineStartSounds.Insert(0.0, 9.576, "Expansion_Merlin_Starter_Start", 0.0, 1.0);
+		m_Expansion_EngineStartSounds.Insert(5.0, 0.0, "Expansion_Merlin_Engine_Idle_Start", 1.0, 0.0);
+		m_Expansion_EngineStartSounds.Insert(9.576, 0.0, "Expansion_Merlin_Starter_Stop", 1.0, 0.0);
+		#endif
+
+		super.EEInit();
+	}
+
 	override void LoadConstantVariables()
 	{
 		super.LoadConstantVariables();

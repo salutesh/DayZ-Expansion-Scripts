@@ -274,6 +274,33 @@ class eAIGroup
 	}
 
 	/**
+	 * @brief Add/update target for all group members
+	 * 
+	 * @param target
+	 * @param update If true (default) and member is already targeting the target, update found_at_time and max_time
+	 */
+	void AddTarget(eAITargetInformation target, int max_time = -1, bool update = true)
+	{
+		eAIBase ai;
+		foreach (DayZPlayerImplement member: m_Members)
+		{
+			if (Class.CastTo(ai, member))
+			{
+				if (!target.IsTargettedBy(ai))
+				{
+					target.AddAI(ai, max_time);
+				}
+				else if (update)
+				{
+					//! Update target found at time and maxtime if already targeting
+					target.Update(this, max_time);
+					update = false;  //! Since eAITargetInformation::Update is per-group, we only need to do this once per loop
+				}
+			}
+		}
+	}
+
+	/**
 	 * @brief Internal event fired when this group needs to know that is now targetting something
 	 *
 	 * @param target The target being added
@@ -285,6 +312,17 @@ class eAIGroup
 #endif
 
 		m_Targets.Insert(target);
+	}
+
+	/**
+	 * @brief Return true if at least one member in group is targeting target
+	 */
+	bool IsTargeting(eAITargetInformation target)
+	{
+		if (m_Targets.Find(target) > -1)
+			return true;
+
+		return false;
 	}
 
 	/**
@@ -326,7 +364,7 @@ class eAIGroup
 	 *
 	 * @return the target
 	 */
-	eAITargetInformation GetTargetInformation()
+	eAIGroupTargetInformation GetTargetInformation()
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "GetTargetInformation");

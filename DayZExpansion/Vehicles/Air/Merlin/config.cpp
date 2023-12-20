@@ -334,7 +334,7 @@ class CfgVehicles
 			{
 				source = "user";
 				animPeriod = 0.0009999999;
-				initPhase = 0;
+				initPhase = -1;
 			};
 			class hiderotorblur
 			{

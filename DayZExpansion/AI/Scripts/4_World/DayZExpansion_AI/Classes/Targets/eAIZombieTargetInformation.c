@@ -58,13 +58,16 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 
 		if (ai)
 		{
-#ifdef DIAG
-			auto hitch = new EXHitch(ai.ToString() + " eAIZombieTargetInformation::CalculateThreat ", 20000);
-#endif
+			//! The further away the zombie, the less likely it will be a threat
+			float distance = GetDistance(ai, true);
 
-			// the further away the zombie, the less likely it will be a threat
-			float distance = GetDistance(ai, true) + 0.1;
-			levelFactor *= 10 / distance;
+			//! Exception: Zombie is near, not (yet) aggroed and AI has no weapon - pre-empt zombie attacking by going on the offense
+			if (!levelFactor && distance <= 6.25 && !ai.GetHumanInventory().GetEntityInHands())
+				levelFactor = 0.25;
+			else if (!levelFactor)
+				return 0.0;
+
+			levelFactor *= 10 / (distance + 0.1);
 			if (levelFactor > 1.0)
 				levelFactor = Math.Pow(levelFactor, 2.0);
 

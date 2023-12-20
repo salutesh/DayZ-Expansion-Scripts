@@ -124,9 +124,23 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 			color = "ColorSellButton";
 		item_element_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get(color));
 
-		item_element_decrement.Show(count > 0);
-		item_element_increment.Show(m_CanBeAttached || (count == 0 && m_CanBeAttachedOrReplaceConflicting));
-		item_element_tooltip.Show(!m_CanBeAttachedOrReplaceConflicting && count == 0);
+		bool showDec;
+		if (count > 0)
+			showDec = true;
+
+		item_element_decrement.Show(showDec);
+
+		bool showInc;
+		if (m_CanBeAttached || (count == 0 && m_CanBeAttachedOrReplaceConflicting))
+			showInc = true;
+
+		item_element_increment.Show(showInc);
+
+		bool showTooltip;
+		if (!m_CanBeAttachedOrReplaceConflicting && count == 0)
+			showTooltip = true;
+
+		item_element_tooltip.Show(showTooltip);
 
 		if (!IsVisible() && (m_CanBeAttached || m_CanBeAttachedOrReplaceConflicting))
 			Show();

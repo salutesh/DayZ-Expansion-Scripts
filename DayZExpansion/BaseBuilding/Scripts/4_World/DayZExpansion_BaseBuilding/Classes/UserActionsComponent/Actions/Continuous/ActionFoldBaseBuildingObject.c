@@ -34,6 +34,9 @@ modded class ActionFoldBaseBuildingObject
 		if (!isDeployableConstruction && !super.ActionCondition(player, target, item))
 			return false;
 
+		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
+			return false;
+
 		//! Can fold if inside own territory, but not if in enemy territory unless whitelisted
 		if (player.IsInTerritory())
 		{

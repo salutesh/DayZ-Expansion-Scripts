@@ -980,7 +980,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	void SendClientQuestConfigs(ScriptRPC rpc, string playerUID)
 	{
 		int questCount = m_QuestConfigs.Count();
-		EXPrint(this, "Sending " + questCount + " quest configs to client with UID: " + playerUID);
+		EXPrint(ToString() + " Sending " + questCount + " quest configs to client with UID: " + playerUID);
 		rpc.Write(questCount);
 		foreach (ExpansionQuestConfig questConfig: m_QuestConfigs)
 		{
@@ -1036,9 +1036,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		if (m_QuestConfigs.Count())
-			EXPrint(this, "Received " + m_QuestConfigs.Count() + " quest configs");
+			EXPrint(ToString() + " Received " + m_QuestConfigs.Count() + " quest configs");
 		else
-			EXPrint(this, "WARNING: Received zero quest configs!");
+			EXPrint(ToString() + " WARNING: Received zero quest configs!");
 
 		return true;
 	}
@@ -1064,7 +1064,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 		else
 		{
-			EXPrint(this, "Quest configs already synched for player with UID: " + playerUID);
+			EXPrint(ToString() + " Quest configs already synched for player with UID: " + playerUID);
 		}
 
 		rpc.Write(questID);
@@ -1074,18 +1074,18 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			if (questID == -1)
 			{
-				EXPrint(this, "Sending player quest data for " + questPlayerData.QuestData.Count() + " quests to player with UID: " + playerUID);
+				EXPrint(ToString() + " Sending player quest data for " + questPlayerData.QuestData.Count() + " quests to player with UID: " + playerUID);
 			}
 			else
 			{
-				EXPrint(this, "Sending player quest data for quest ID " + questID + " to player with UID: " + playerUID);
+				EXPrint(ToString() + " Sending player quest data for quest ID " + questID + " to player with UID: " + playerUID);
 			}
 
 			questPlayerData.OnWrite(rpc, true, questID);
 		}
 		else if (sendConfigs)
 		{
-			EXPrint(this, "Quest data already synched for player with UID: " + playerUID);
+			EXPrint(ToString() + " Quest data already synched for player with UID: " + playerUID);
 			rpc.Write(0);
 		}
 
@@ -1095,7 +1095,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 		else
 		{
-			EXPrint(this, "Quest configs and data already synched for player with UID: " + playerUID);
+			EXPrint(ToString() + " Quest configs and data already synched for player with UID: " + playerUID);
 		}
 	}
 
@@ -1119,9 +1119,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 		else
 		{
 			if (m_QuestConfigs.Count())
-				EXPrint(this, "Quest configs already received (" + m_QuestConfigs.Count() + ")");
+				EXPrint(ToString() + " Quest configs already received (" + m_QuestConfigs.Count() + ")");
 			else
-				EXPrint(this, "WARNING: No quest configs!");
+				EXPrint(ToString() + " WARNING: No quest configs!");
 		}
 
 		int questID;
@@ -1142,14 +1142,14 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			//! Update complete quest data
 			m_ClientQuestData = data;
-			EXPrint(this, "Received quest data for " + m_ClientQuestData.QuestData.Count() + " quests");
+			EXPrint(ToString() + " Received quest data for " + m_ClientQuestData.QuestData.Count() + " quests");
 		}
 		else
 		{
 			if (data.m_RemoveQuestData)
 			{
 				m_ClientQuestData.QuestData.Remove(questID);
-				EXPrint(this, "Removed quest data for quest ID " + questID);
+				EXPrint(ToString() + " Removed quest data for quest ID " + questID);
 			}
 			else
 			{
@@ -1157,11 +1157,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 				if (questData)
 				{
 					m_ClientQuestData.QuestData[questID] = questData;
-					EXPrint(this, "Updated quest data for quest ID " + questID);
+					EXPrint(ToString() + " Updated quest data for quest ID " + questID);
 				}
 				else
 				{
-					EXPrint(this, "WARNING: No data received for quest ID " + questID);
+					EXPrint(ToString() + " WARNING: No data received for quest ID " + questID);
 				}
 			}
 		}

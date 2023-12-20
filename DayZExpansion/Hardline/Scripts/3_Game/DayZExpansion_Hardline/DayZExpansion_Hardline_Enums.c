@@ -10,6 +10,7 @@
  *
 */
 
+//! @note Rarity is encoded in 4 bits in market module, so please limit to 16 rarities!
 enum ExpansionHardlineItemRarity
 {
 	NONE,

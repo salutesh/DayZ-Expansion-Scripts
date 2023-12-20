@@ -26,15 +26,17 @@ modded class DayZPlayerCamera1stPersonVehicle
 		m_bForceFreeLook = false;
 		
 		pOutResult.m_fUseHeading			= 0.0;
+
+		PlayerBase pb = PlayerBase.Cast(m_pPlayer);
 		
 		if ( exVehicle )
 		{
 			pOutResult.m_fUseHeading		= 1.0;
 			pOutResult.m_fInsideCamera 		= 0.0;
-			PlayerBase.Cast( m_pPlayer ).SetHeadInvisible_Ex( true );
+			pb.SetHeadInvisible_Ex( true );
 		} else
 		{
-			PlayerBase.Cast( m_pPlayer ).SetHeadInvisible_Ex( false );
+			pb.SetHeadInvisible_Ex( false );
 		}
 
 		bool isFreeLook = false;
@@ -54,9 +56,7 @@ modded class DayZPlayerCamera1stPersonVehicle
 			isFreeLook = heli.IsFreeLook();
 		}
 
-		PlayerBase pb;
-
-		if ( isHeliParent && !isFreeLook && Class.CastTo(pb, m_pPlayer) && pb.Expansion_IsDriver() )
+		if ( isHeliParent && !isFreeLook && pb.Expansion_IsDriver() )
 		{
 			m_fUpDownAngle = 0;
 			m_fLeftRightAngle = 0;

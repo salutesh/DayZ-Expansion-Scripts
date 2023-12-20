@@ -144,9 +144,12 @@ class ExpansionSHA256
 		s_Hash[7] = s_Hash[7].Add(h);
 	}
 
-	static void Update(string input, bool finalize = true)
+	static void Update(string input, bool reset = true, bool finalize = true)
 	{
 		auto trace = EXTrace.Start(EXTrace.PROFILING, ExpansionSHA256);
+
+		if (reset && IsDirty())
+			Reset();
 
 		for (int i = 0; i < input.Length(); i++)
 		{
@@ -161,6 +164,14 @@ class ExpansionSHA256
 
 		if (finalize)
 			Finalize();
+	}
+
+	static bool IsDirty()
+	{
+		if (s_BufferIndex || s_TotalBits)
+			return true;
+
+		return false;
 	}
 
 	static void Finalize()

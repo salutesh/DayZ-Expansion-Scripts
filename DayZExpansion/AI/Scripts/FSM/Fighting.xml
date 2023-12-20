@@ -275,7 +275,7 @@
 				}
 				
 				auto direction = vector.Direction(unit.GetPosition(), lowPosition).Normalized();
-				if (vector.Dot(unit.GetDirection(), direction) &lt; 0.97)
+				if (vector.Dot(unit.GetDirection(), direction) &lt; 0.9)
 				{
 					if (time &gt;= Math.RandomIntInclusive(1, 3))
 					{

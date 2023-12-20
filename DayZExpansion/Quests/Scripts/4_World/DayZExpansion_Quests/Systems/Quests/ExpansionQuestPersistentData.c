@@ -28,10 +28,13 @@ class ExpansionQuestPersistentData
 
 	void ~ExpansionQuestPersistentData()
 	{
+		if (!GetGame())
+			return;
+
 		if (QuestData)
-			EXPrint(this, "~ExpansionQuestPersistentData (" + QuestData.Count() + ")");
+			EXPrint(ToString() + "~ExpansionQuestPersistentData (" + QuestData.Count() + ")");
 		else
-			EXPrint(this, "~ExpansionQuestPersistentData");
+			EXPrint(ToString() + "~ExpansionQuestPersistentData");
 	}
 
 	void AddQuestData(int questID, ExpansionQuestState state)
@@ -275,7 +278,7 @@ class ExpansionQuestPersistentData
 				ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(data.QuestID);
 				if (!questConfig)
 				{
-					EXPrint(this, "ERROR: Could not get quest config for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + m_FileName);
+					EXPrint(ToString() + " ERROR: Could not get quest config for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + m_FileName);
 					RemoveQuestDataByQuestID(questID);
 					changed = true;
 					continue;
@@ -294,7 +297,7 @@ class ExpansionQuestPersistentData
 					
 					if (!questObjectiveConfig)
 					{
-						EXPrint(this, "ERROR: Could not get quest objective config!");
+						EXPrint(ToString() + " ERROR: Could not get quest objective config!");
 						RemoveQuestDataByQuestID(questID);
 						changed = true;
 						removedQuestData = true;
@@ -303,7 +306,7 @@ class ExpansionQuestPersistentData
 					
 					if (questObjectiveData && questObjectiveConfig && questObjectiveData.GetObjectiveType() != questObjectiveConfig.GetObjectiveType())
 					{
-						EXPrint(this, "ERROR: Quest objectives type missmatch for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + m_FileName);
+						EXPrint(ToString() + " ERROR: Quest objectives type missmatch for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + m_FileName);
 						RemoveQuestDataByQuestID(questID);
 						changed = true;
 						removedQuestData = true;
@@ -336,7 +339,7 @@ class ExpansionQuestPersistentData
 					if (questConfig.IsRepeatable() || !questConfig.IsRepeatable())
 						continue;
 	
-					EXPrint(this, "Cleanup quest data for quest with ID:" + data.QuestID + " | State: " + data.State + " | File: " + m_FileName);
+					EXPrint(ToString() + " Cleanup quest data for quest with ID:" + data.QuestID + " | State: " + data.State + " | File: " + m_FileName);
 					RemoveQuestDataByQuestID(questID);
 					changed = true;
 				}

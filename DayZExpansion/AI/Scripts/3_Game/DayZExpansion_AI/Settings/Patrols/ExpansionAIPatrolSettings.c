@@ -30,7 +30,7 @@ class ExpansionAIPatrolSettingsV4
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 15;
+	static const int VERSION = 16;
 
 	float DespawnRadius;
 
@@ -38,6 +38,7 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 	float AccuracyMax;
 
 	float ThreatDistanceLimit;
+	float NoiseInvestigationDistanceLimit;
 	float DamageMultiplier;
 
 	ref array< ref ExpansionAIObjectPatrol > ObjectPatrols;
@@ -110,8 +111,11 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 		DespawnRadius = s.DespawnRadius;
 		AccuracyMin = s.AccuracyMin;
 		AccuracyMax = s.AccuracyMax;
-        ObjectPatrols = s.ObjectPatrols;
-        Patrols = s.Patrols;
+		ThreatDistanceLimit = s.ThreatDistanceLimit;
+		NoiseInvestigationDistanceLimit = s.NoiseInvestigationDistanceLimit;
+		DamageMultiplier = s.DamageMultiplier;
+		ExpansionArray<ExpansionAIObjectPatrol>.RefCopy(ObjectPatrols, s.ObjectPatrols);
+		ExpansionArray<ExpansionAIPatrol>.RefCopy(Patrols, s.Patrols);
 	}
 	
 	// ------------------------------------------------------------
@@ -185,6 +189,9 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 					AccuracyMax = settingsDefault.AccuracyMax;
 				}
 
+				if (m_Version < 16)
+					NoiseInvestigationDistanceLimit = settingsDefault.NoiseInvestigationDistanceLimit;
+
 				foreach (ExpansionAIPatrol patrol: Patrols)
 				{
 					if (m_Version < 2)
@@ -219,6 +226,9 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 						patrol.ThreatDistanceLimit = -1.0;
 						patrol.DamageMultiplier = -1.0;
 					}
+
+					if (m_Version < 16)
+						patrol.NoiseInvestigationDistanceLimit = -1.0;
 				}
 
 				m_Version = VERSION;
@@ -276,6 +286,9 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 					objectPatrol.ThreatDistanceLimit = -1.0;
 					objectPatrol.DamageMultiplier = -1.0;
 				}
+
+				if (version < 16)
+					objectPatrol.NoiseInvestigationDistanceLimit = -1.0;
 
 				if (!objectPatrol.ClassName)
 				{
@@ -345,14 +358,15 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 		AccuracyMax = -1;
 
 		ThreatDistanceLimit = -1;
+		NoiseInvestigationDistanceLimit = -1;
 		DamageMultiplier = -1;
     
         string worldName = ExpansionStatic.GetCanonicalWorldName();
 
-        DefaultCrashPatrols(worldName);
+        DefaultObjectPatrols(worldName);
         DefaultPatrols(worldName);
 	}
-    void DefaultCrashPatrols(string worldName)
+    void DefaultObjectPatrols(string worldName)
     {
         switch (worldName)
         {
@@ -419,21 +433,12 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
                 Patrols.Insert( new ExpansionAIPatrol(3, 	"WALK", "SPRINT",     "ALTERNATE",    	"West",     	"", true, false, 1.0, -2, -2, -2, -100,  	{"4508.860352 109.347275 6230.751465", "4448.490723 109.377792 6025.892578", "4546.902832 112.057549 6126.590332", "4613.975586 110.163887 6112.869629", "4563.825684 110.696106 5797.450195", "4551.805664 110.555084 5652.876953", "4312.203613 110.752151 5366.941895"}));
                 Patrols.Insert( new ExpansionAIPatrol(1,	"WALK", "SPRINT",     "ALTERNATE",	"Raiders",	"", true, false, 1.0, -2, -2, -2, -100,  		{"10545.687500 38.037155 10384.205078", "10502.615234 40.377762 10464.754883", "10700.634766 34.346542 10461.470703", "10645.350586 36.451836 10377.769531"}));
                 Patrols.Insert( new ExpansionAIPatrol(1,	"WALK", "SPRINT",     "ALTERNATE",     "Raiders",    "", true, false, 1.0, -2, -2, -2, -100, 		{"8588.209961 103.304726 13439.002930", "8578.585938 106.485222 13465.281250", "8605.717773 112.455276 13521.625977", "8640.509766 120.118225 13590.360352", "8641.976563 127.327774 13644.069336", "8643.523438 123.581627 13609.848633", "8724.077148 121.008499 13532.352539", "8792.484375 119.344810 13479.867188", "8843.358398 122.085854 13469.464844", "8881.161133 121.293594 13413.066406", "8837.004883 121.072372 13470.006836", "8742.039063 121.246811 13516.587891", "8704.238281 119.762787 13546.516602", "8609.144531 113.184517 13527.601563", "8573.016602 112.247055 13530.662109", "8563.083984 118.173904 13576.212891", "8500.525391 135.590210 13653.769531", "8456.375000 139.365845 13677.127930", "8546.610352 126.129440 13615.544922", "8566.747070 116.355377 13563.688477", "8573.123047 112.562714 13532.739258", "8563.700195 107.298088 13476.465820", "8586.047852 103.664093 13442.43557"}));
-                Patrols.Insert( new ExpansionAIPatrol(4,	"WALK", "SPRINT",     "ALTERNATE",     "Civilian",     "", true, false, 1.0, -2, -2, -2, -100,  	{"7841.334961 76.696114 105.506462", "7874.433594 86.500465 194.182739", "7881.091797 88.818947 247.873428", "7804.406250 88.379280 365.877625", "7792.430176 88.650299 383.001404", "7762.807617 83.737671 334.874634", "7760.653809 84.683838 353.211792", "7768.957031 88.445908 421.012054", "7781.338867 89.113235 430.440430", "7769.263672 90.858253 472.488281", "7776.356934 91.006439 493.633820", "7762.374023 91.014488 534.747681", "7739.280762 91.134277 564.848328", "7639.000000 120.328026 769.771545", "7378.479980 94.512924 764.417480", "7325.039063 93.792953 820.421448", "7323.554199 95.076019 869.669067", "6920.266602 84.642204 926.835693", "6942.748047 84.112991 977.515381", "6901.287598 82.878380 1002.580750", "6848.884766 91.492271 967.189453", "6835.840820 84.595589 942.760620", "6655.309082 92.318848 793.134338", "6639.655273 91.830742 792.534058", "6635.730957 92.249802 780.763000"}));
                 Patrols.Insert( new ExpansionAIPatrol(4,	"WALK", "SPRINT",     "ALTERNATE",  "Civilian",     "", true, false, 1.0, -2, -2, -2, -100,  	{"9963.346680 55.640099 10900.844727", "9965.398438 54.729034 10969.536133", "9924.380859 57.232151 10901.967773"}));
-                Patrols.Insert( new ExpansionAIPatrol(4,	"WALK", "SPRINT",     "ALTERNATE",  "West",     	"", true, false, 1.0, -2, -2, -2, -100,  	{"8796.84 59.8781 2547", "8745 59.1367 2523.2", "8710.44 57.5696 2499", "8794.23 55.9719 2417", "8756.99 55.8529 2370", "8782.76 56.1916 2345", "8740.17 56.1662 2304", "8751.15 56.1216 2284", "8828.47 56.6495 2234", "8764.02 53.2922 2139", "8656.02 47.4257 2009"}));
                 Patrols.Insert( new ExpansionAIPatrol(4,	"WALK", "SPRINT",     "ALTERNATE",     "East",     	"", true, false, 1.0, -2, -2, -2, -100,	{"1583.58 292.804 2961", "1600.84 294.292 3006", "1631.44 295.408 3029", "1652.89 297.99 3079.6", "1685.63 297.555 3080"}));
                 Patrols.Insert( new ExpansionAIPatrol(4,	"WALK", "SPRINT",     "ALTERNATE",    	"East",     	"", true, false, 1.0, -2, -2, -2, -100, {"1824.94 294.066 3075", "1884.95 293.222 3047", "1846.69 289.888 2996", "1812.78 290.333 3001", "1796.65 287.975 2990"}));
-                Patrols.Insert( new ExpansionAIPatrol(4,	"WALK", "SPRINT",     "ALTERNATE",    	"West",     	"", true, false, 1.0, -2, -2, -2, -100,  	{"7160.85 84.5561 585.604", "6677.51 95.0799 770.113"}));
-            break;
-            case "chiemsee":
-                Patrols.Insert( new ExpansionAIPatrol(3, 	"WALK", "SPRINT",     "ALTERNATE",     "West",     	"", true, false, 1.0, -2, -2, -2, -100,	{"6137.18 8.1828 14667.3", "6127.65 8.1598 14655.7", "6127.19 6.34518 14647.1"}));
-                Patrols.Insert( new ExpansionAIPatrol(3, 	"WALK", "SPRINT",     "ALTERNATE",     "East",     	"", true, false, 1.0, -2, -2, -2, -100,	{"6167.18 8.1828 14667.3", "6127.65 8.1598 14655.7", "6127.19 6.34518 14647.1"}));
-                Patrols.Insert( new ExpansionAIPatrol(4,	"JOG", "SPRINT",      "ALTERNATE",  "East",     	"", true, false, 1.0, -2, -2, -2, -100,	{"13342.375977 27.020344 11228.225586", "13469.069336 11.282786 11163.261719", "13567.762695 6.128973 11127.067383"}));
-                Patrols.Insert( new ExpansionAIPatrol(1,	"SPRINT", "SPRINT",	"ALTERNATE",     "Raiders",	"", true, false, 1.0, -2, -2, -2, -100,      	{"7332.387695 5.712450 2651.121338", "7632.803223 5.507639 3075.661865", "7621.013184 5.892049 3083.053223"}));
             break;
             case "deerisle":
-                Patrols.Insert(new ExpansionAIPatrol(4, "WALK", "SPRINT", "ALTERNATE", "West", "", true, false, 1.0, -2, -2, -2, -100, {"2614.28 35.1122 3482.59", "2637.89 34.7324 3502.45", "2649.33 33.0476 3525.77", "2649.33 33.0476 3525.77", "2705.26 22.8186 3574.8", "2707.79 22.4635 3585.09", "2752.8 22.4625 3629.68", "2823.14 22.4625 3699.33", "2918.73 22.7593 3797.69", "2923.53 22.4625 3810.79", "2973.94 22.4625 3883.61", "3003.54 22.4625 3948.92", "3007.75 22.7279 3989.39", "3025.54 22.7257 4031.3", "3053.0 22.4625 4058.19", "3126.36 22.7551 4233.04", "3112.06 22.723 4235.07"}));
+                Patrols.Insert(new ExpansionAIPatrol(4, "WALK", "SPRINT", "ALTERNATE", "West", "", true, false, 1.0, -2, -2, -2, -100, {"2614.28 35.1122 3482.59", "2637.89 34.7324 3502.45", "2649.33 33.0476 3525.77", "2705.26 22.8186 3574.8", "2707.79 22.4635 3585.09", "2752.8 22.4625 3629.68", "2823.14 22.4625 3699.33", "2918.73 22.7593 3797.69", "2923.53 22.4625 3810.79", "2973.94 22.4625 3883.61", "3003.54 22.4625 3948.92", "3007.75 22.7279 3989.39", "3025.54 22.7257 4031.3", "3053.0 22.4625 4058.19", "3126.36 22.7551 4233.04", "3112.06 22.723 4235.07"}));
                 Patrols.Insert(new ExpansionAIPatrol(4, "WALK", "SPRINT", "ALTERNATE", "West", "", true, false, 1.0, -2, -2, -2, -100, {"13605.3 12.922 9866.76", "13493.5 12.922 9873.86", "13489.6 12.922 9884.22", "13498.3 12.922 9931.7", "13482.2 12.8804 9946.66", "13426 12.95 9973.23", "13402.3 12.95 9978.1", "13399.0 12.95 9919.61", "13394.2 12.92 9857.08", "13397.2 12.922 9842.91", "13401.9 13.13 9843.68"}));
                 Patrols.Insert(new ExpansionAIPatrol(4, "WALK", "SPRINT", "ALTERNATE", "West", "", true, false, 1.0, -2, -2, -2, -100, {"13469.2 12.9525 9603.42", "13432.9 12.9525 9608.83", "13438.3 12.9172 9657.9", "13489.3 12.9525 9651.27", "13488.5 12.9525 9637.62", "13542.0 12.9525 9630.26"}));
                 Patrols.Insert(new ExpansionAIPatrol(4, "WALK", "SPRINT", "ALTERNATE", "West", "", true, false, 1.0, -2, -2, -2, -100, {"6137.18 8.1828 14667.3", "6127.65 8.1598 14655.7", "6127.19 6.34518 14647.1", "6148.16 6.02 14647.3", "6148.73 6.02 14702.1", "6168.66 6.00306 14728.6", "6169.38 6.014 14824.4", "6165.39 6.014 14827.5", "6053.98 6.031 14827.0", "6037.31 6.019 14826.6", "6037.33 6.02 14830.5", "5950.27 6.02 14830.1", "5937.34 6.0199 14822.4", "5933.13 6.01682 14809.5", "5933.28 6.01995 14585.2", "5961.84 6.01966 14568.8", "6145.52 6.02156 14568.7", "6145.21 6.01999 14584.8", "6148.13 6.01999 14584.8", "6147.86 6.02 14638.8", "6132.03 6.34517 14638.9", "6135.35 8.18288 14612"}));
@@ -457,12 +462,6 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
                 Patrols.Insert( new ExpansionAIPatrol(4, 	"WALK", "SPRINT",    	"ALTERNATE", 	"Civilian",     "", true, false, 1.0, -2, -2, -2, -100, {"6303.47 381.472 3911.79", "6317.71 379.912 3870.99", "6330.94 380.986 3840.62", "6337.35 381.841 3819.01", "6344.2 382.049 3788.23", "6397.86 382.435 3715.53", "6413.77 381.767 3698.73", "6447.35 381.685 3674.81", "6474.48 381.403 3664.66", "6513.5 382.929 3663.82", "6584.13 379.569 3557.25", "6637.13 366.449 3490.86", "6652.16 357.021 3435.77", "6681.99 346.724 3395.99", "6712.61 328.543 3335.31", "6727.83 322.986 3324.47", "6744.66 319.581 3326.5", "6767.47 315.498 3338.96", "6792.34 311.333 3342.37", "6826.68 303.954 3331.26", "6867.14 299.576 3324.07", "6907.82 299.158 3298.6", "6938.85 298.278 3285.71", "6976.62 300.97 3247.94", "6987.2 300.871 3203.35", "7008.57 299.646 3181.55", "7095.26 296.592 3144.57", "7187.00 295.347 3085.46"}));
                 Patrols.Insert( new ExpansionAIPatrol(4, 	"WALK", "SPRINT",	 	"ALTERNATE", 	"East",     	"", true, false, 1.0, -2, -2, -2, -100, {"9272.91 199.589 10826.2", "9266.68 199.532 10876.1", "9270.63 199.459 10937.9", "9250.82 198.64 10983.2", "9164.87 198.142 11063.4"}));
                 Patrols.Insert( new ExpansionAIPatrol(4, 	"WALK", "SPRINT",    	"ALTERNATE", 	"East",			"", true, false, 1.0, -2, -2, -2, -100,    	{"9486.09 242.261 10360.6", "9435.31 242.442 10421.8", "9394.87 238.669 10507.00", "9382.44 232.412 10558.3", "9371.1 217.304 10683.0"}));
-            break;
-            case "esseker":
-                Patrols.Insert( new ExpansionAIPatrol(3, 	"WALK", "SPRINT",     "ALTERNATE",     "West",      	"", true, false, 1.0, -2, -2, -2, -100,  	{"6137.18 8.1828 14667.3", "6127.65 8.1598 14655.7", "6127.19 6.34518 14647.1"}));
-                Patrols.Insert( new ExpansionAIPatrol(3, 	"WALK", "SPRINT",     "ALTERNATE",     "East",      	"", true, false, 1.0, -2, -2, -2, -100, {"6167.18 8.1828 14667.3", "6127.65 8.1598 14655.7", "6127.19 6.34518 14647.1"}));
-                Patrols.Insert( new ExpansionAIPatrol(4,	"JOG", "SPRINT",      "ALTERNATE",  "East",      	"", true, false, 1.0, -2, -2, -2, -100, {"13342.375977 27.020344 11228.225586", "13469.069336 11.282786 11163.261719", "13567.762695 6.128973 11127.067383"}));
-                Patrols.Insert( new ExpansionAIPatrol(1,	"SPRINT", "SPRINT",	"ALTERNATE",     "Raiders", 	"", true, false, 1.0, -2, -2, -2, -100,    	{"7332.387695 5.712450 2651.121338", "7632.803223 5.507639 3075.661865", "7621.013184 5.892049 3083.053223"}));
             break;
             case "namalsk":
                 Patrols.Insert( new ExpansionAIPatrol(4, 	"WALK", "SPRINT",     "ALTERNATE",	"West",    		"", true, false, 1.0, -2, -2, -2, -100,  	{"6307.7 14.4 11810.6", "6519.9 17.3 11901.6", "6967.4 6.5 11884.6", "7216.6 10.147 11843.1", "7405.78 23.18 11655.8"}));
@@ -490,10 +489,10 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
                     GetExpansionSettings().GetLog().PrintLog("[AI Patrol] WARNING: The map '"+worldName+"' doesn't have a default config");
                     GetExpansionSettings().GetLog().PrintLog("[AI Patrol] Generating an example config...");
 
-                Patrols.Insert( new ExpansionAIPatrol(3, 	"WALK", "SPRINT",     "ALTERNATE",     "West",     	"", true, false, 1.0, -2, -2, -2, -100, {"6137.18 8.1828 14667.3", "6127.65 8.1598 14655.7", "6127.19 6.34518 14647.1"}));
-                Patrols.Insert( new ExpansionAIPatrol(3, 	"WALK", "SPRINT",     "ALTERNATE",     "East",     	"", true, false, 1.0, -2, -2, -2, -100, {"6167.18 8.1828 14667.3", "6127.65 8.1598 14655.7", "6127.19 6.34518 14647.1"}));
-                Patrols.Insert( new ExpansionAIPatrol(4,	"JOG", "SPRINT",      "ALTERNATE",  "East",     	"", true, false, 1.0, -2, -2, -2, -100, {"13342.375977 27.020344 11228.225586", "13469.069336 11.282786 11163.261719", "13567.762695 6.128973 11127.067383"}));
-                Patrols.Insert( new ExpansionAIPatrol(1, 	"SPRINT", "SPRINT",   "ALTERNATE",     "Raiders",	"", true, false, 1.0, -2, -2, -2, -100, {"7332.387695 5.712450 2651.121338", "7632.803223 5.507639 3075.661865", "7621.013184 5.892049 3083.053223"}));
+				//! Default patrols are deliberately designed to be opposing factions and run into each other eventually :-)
+                Patrols.Insert( new ExpansionAIPatrol(3, 	"WALK", "SPRINT",     "LOOP",     "West",     	"", true, false, 1.0, -2, -2, -2, -100, {"6000 0 6000", "6000 0 6500", "6500 0 6500", "6500 0 6000"}));
+                Patrols.Insert( new ExpansionAIPatrol(3, 	"WALK", "SPRINT",     "LOOP",     "East",     	"", true, false, 1.0, -2, -2, -2, -100, {"6500 0 6500", "6000 0 6500", "6000 0 6000", "6500 0 6000"}));
+                Patrols.Insert( new ExpansionAIPatrol(1, 	"SPRINT", "SPRINT",   "ALTERNATE",     "Raiders",	"", true, false, 1.0, -2, -2, -2, -100, {"6000 0 6000", "6250 0 6250", "6500 0 6500"}));
                 return;
             break;
         }

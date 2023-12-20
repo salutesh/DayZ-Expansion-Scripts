@@ -27,6 +27,9 @@ class Expansion_CommunityGoals_Board: House
 
 	void ~Expansion_CommunityGoals_Board()
 	{
+		if (!GetGame())
+			return;
+
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	}
 

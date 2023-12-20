@@ -2,6 +2,9 @@ class ExpansionVehicleActionPickLock: ExpansionActionPickVehicleLockBase
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		if (!GetExpansionSettings().GetVehicle(false).IsLoaded())
+			return false;
+
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 		

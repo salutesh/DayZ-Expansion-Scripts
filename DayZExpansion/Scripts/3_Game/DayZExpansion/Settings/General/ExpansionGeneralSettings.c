@@ -15,7 +15,7 @@
  **/
 class ExpansionGeneralSettings: ExpansionSettingBase
 {
-	static const int VERSION = 12;
+	static const int VERSION = 13;
 
 	bool DisableShootToUnlock;
 	bool EnableGravecross;
@@ -29,7 +29,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool EnableHUDNightvisionOverlay;
 	bool DisableMagicCrosshair;
 	bool EnableAutoRun;
-	bool UnlimitedStamina;
 	bool UseDeathScreen;
 	bool UseDeathScreenStatistics;
 	bool UseExpansionMainMenuLogo;
@@ -86,7 +85,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		ctx.Read(EnableHUDNightvisionOverlay);
 		ctx.Read(DisableMagicCrosshair);
 		ctx.Read(EnableAutoRun);
-		ctx.Read(UnlimitedStamina);
 		ctx.Read(UseDeathScreen);
 		ctx.Read(UseDeathScreenStatistics);
 		ctx.Read(UseExpansionMainMenuLogo);
@@ -140,7 +138,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		ctx.Write(EnableHUDNightvisionOverlay);
 		ctx.Write(DisableMagicCrosshair);
 		ctx.Write(EnableAutoRun);
-		ctx.Write(UnlimitedStamina);
 		ctx.Write(UseDeathScreen);
 		ctx.Write(UseDeathScreenStatistics);
 		ctx.Write(UseExpansionMainMenuLogo);
@@ -208,7 +205,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		EnableHUDNightvisionOverlay = s.EnableHUDNightvisionOverlay;
 		DisableMagicCrosshair = s.DisableMagicCrosshair;
 		EnableAutoRun = s.EnableAutoRun;
-		UnlimitedStamina = s.UnlimitedStamina;
 		UseDeathScreen = s.UseDeathScreen;
 		UseDeathScreenStatistics = s.UseDeathScreenStatistics;
 		UseNewsFeedInGameMenu = s.UseNewsFeedInGameMenu;
@@ -368,7 +364,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		DisableMagicCrosshair = true;
 		
 		EnableAutoRun = true;
-		UnlimitedStamina = false;
 		
 		UseDeathScreen = true;
 		UseDeathScreenStatistics = true;

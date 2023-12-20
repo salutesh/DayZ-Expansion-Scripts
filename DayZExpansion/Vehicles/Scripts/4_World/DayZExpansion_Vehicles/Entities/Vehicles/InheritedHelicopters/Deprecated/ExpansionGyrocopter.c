@@ -66,6 +66,18 @@ class ExpansionGyrocopter : ExpansionHelicopterScript
 		m_TailForceCoef = 8.0; // Yaw, Q/E, same as m_AntiTorqueMax
 	}
 
+	override void EEInit()
+	{
+		#ifndef SERVER
+		//! start delay (seconds), stop delay (seconds after sound has started playing), soundset name*, fade in time (s), fade out time (s), loop (true/false), rel. volume
+		//! * @note if soundset name does not contain the string "_SoundSet", then "_Ext_SoundSet" or "_Int_SoundSet" will be appended automatically depending on camera
+		m_Expansion_EngineStartSounds.Insert(0.0, 0.0, "powerGeneratorTurnOn_SoundSet", 0.0, 0.0, false, 0.8);
+		m_Expansion_EngineStartSounds.Insert(1.5, 3.0, "powerGeneratorLoop_SoundSet", 0.0, 1.5, true, 0.8);
+		#endif
+
+		super.EEInit();
+	}
+
 	override CarLightBase CreateFrontLight()
 	{
 #ifdef EXPANSIONTRACE

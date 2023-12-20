@@ -76,7 +76,7 @@ class eAIEntityTargetInformation: eAITargetInformation
 
 class eAIEntity<Class T>
 {
-	static eAITargetInformation GetTargetInformation(T entity)
+	static eAIEntityTargetInformation GetTargetInformation(T entity)
 	{
 		return entity.GetTargetInformation();
 	}

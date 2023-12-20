@@ -44,7 +44,7 @@ modded class TentBase
 	
 	override bool CanReceiveItemIntoCargo(EntityAI item )
 	{
-        if (ExpansionIsLocked() && GetExpansionSettings().GetBaseBuilding() )
+        if (ExpansionIsLocked() && GetExpansionSettings().GetBaseBuilding(false).IsLoaded() )
 		{
 			if ( ExpansionCanAttachCodeLock() )
 			{
@@ -58,7 +58,7 @@ modded class TentBase
 
     override bool CanReleaseCargo(EntityAI cargo)
 	{
-        if ( ExpansionIsLocked() && GetExpansionSettings().GetBaseBuilding() )
+        if ( ExpansionIsLocked() && GetExpansionSettings().GetBaseBuilding(false).IsLoaded() )
 		{
 			if ( ExpansionCanAttachCodeLock() )
 			{
@@ -71,7 +71,7 @@ modded class TentBase
 
     override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
-		if ( GetExpansionSettings().GetBaseBuilding() )
+		if ( GetExpansionSettings().GetBaseBuilding(false).IsLoaded() )
 		{
 			if ( attachment.IsInherited( ExpansionCodeLock ) )
 			{
@@ -113,7 +113,7 @@ modded class TentBase
 	
 	override bool CanReleaseAttachment( EntityAI attachment )
 	{
-        if ( ExpansionIsLocked() && GetExpansionSettings().GetBaseBuilding() )
+        if ( ExpansionIsLocked() && GetExpansionSettings().GetBaseBuilding(false).IsLoaded() )
 		{
 			if ( ExpansionCanAttachCodeLock() )
 			{

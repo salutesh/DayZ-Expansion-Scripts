@@ -552,7 +552,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 				for (int i = 0; i < containerItems.Count(); i++)
 				{
 					ExpansionPersonalStorageContainerItem containerItem = containerItems[i];					
-					containerElement = new ExpansionPersonalStorageMenuCargoItem(this, containerItem);
+					containerElement = new ExpansionPersonalStorageMenuCargoItem(containerItem, this);
 					if (!containerElement)
 						continue;
 
@@ -572,7 +572,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 					{
 						foreach (ExpansionPersonalStorageContainerItem containerItemOfContainerItem: containerItemsOfContainerItem)
 						{
-							containerElement = new ExpansionPersonalStorageMenuCargoItem(this, containerItemOfContainerItem);
+							containerElement = new ExpansionPersonalStorageMenuCargoItem(containerItemOfContainerItem, this);
 							
 							if (!containerItemOfContainerItem.IsAttached())
 							{

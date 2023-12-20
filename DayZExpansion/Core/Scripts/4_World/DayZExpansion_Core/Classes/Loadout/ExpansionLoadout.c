@@ -55,6 +55,7 @@ class ExpansionHumanLoadout
 		
 		//! Misc Loadouts
 		DefaultYellowKingLoadout();
+		DefaultYeetBrigadeLoadout();
 
 		//DefaultPlayerFemaleSurviorLoadout();
 
@@ -1989,7 +1990,7 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("GorkaHelmet", "Headgear");
-				loadout = loadout.BeginAttachment("GorkaHelmetVisor", "Headgear");
+				loadout = loadout.BeginAttachment("GorkaHelmetVisor", "Glass");
 				loadout.Chance = 0.4;
 				loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.End();
@@ -2411,7 +2412,7 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("GorkaHelmet", "Headgear");
-				loadout = loadout.BeginAttachment("GorkaHelmetVisor", "Headgear");
+				loadout = loadout.BeginAttachment("GorkaHelmetVisor", "Glass");
 				loadout.Chance = 0.4;
 				loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.End();
@@ -3128,6 +3129,66 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 
+		loadout.Save();
+	}
+
+	static void DefaultYeetBrigadeLoadout()
+	{
+		if (FileExist(ExpansionLoadout.GetPath("YeetBrigadeLoadout")))
+			return;
+
+		// Generate the default YeetBrigade.json file
+		auto loadout = ExpansionLoadout.Create("YeetBrigadeLoadout");
+
+		if (!loadout)
+			return;			
+
+			loadout = loadout.BeginAttachment("PoliceJacket", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("PolicePants", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("CombatBoots_Black", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("CombatBoots_Grey", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("Expansion_PlateCarrierVest_Yeet", "Vest");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Expansion_PressVest_Blue_Yeet", "Vest");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("Expansion_GorkaHelmet_Yeet", "Headgear");
+				loadout = loadout.BeginAttachment("GorkaHelmetVisor", "Glass");
+				loadout.Chance = 1.0;
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("TacticalGloves_Black", "Gloves");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("OMNOGloves_Gray", "Gloves");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginCargo("Apple");
+			loadout.Chance = 0.1;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("BandageDressing");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("BandageDressing");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
 		loadout.Save();
 	}
 

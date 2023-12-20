@@ -73,6 +73,9 @@ modded class ActionDeployObject
 		if ( player.Expansion_IsInSafeZone() )
 			return false;
 
+		if ( !GetExpansionSettings().GetBaseBuilding(false).IsLoaded() || !GetExpansionSettings().GetTerritory(false).IsLoaded() )
+			return false;
+
 		bool isDisallowedOutsideBuildZone;
 		bool isDisallowedOutsideTerritory;
 		bool isDisallowedInEnemyTerritory;
@@ -127,10 +130,7 @@ modded class ActionDeployObject
 			}
 		}
 
-		if ( !GetExpansionSettings().GetTerritory(false).IsLoaded() || !GetExpansionSettings().GetTerritory().EnableTerritories )
-			return super.ActionCondition( player, target, item );
-
-		if ( GetExpansionSettings().GetBaseBuilding(false).IsLoaded() )
+		if ( GetExpansionSettings().GetTerritory().EnableTerritories )
 		{
 			if ( GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory == true && !isDisallowedOutsideBuildZone )
 			{

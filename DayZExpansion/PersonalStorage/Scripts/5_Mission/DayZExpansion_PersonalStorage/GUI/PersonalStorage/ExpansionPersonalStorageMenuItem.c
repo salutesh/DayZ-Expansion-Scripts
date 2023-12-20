@@ -13,7 +13,7 @@
 class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 {
 	protected ref ExpansionPersonalStorageMenuItemController m_PersonalStorageMenuItemController;
-	protected ref ExpansionPersonalStorageItem m_Item;
+	protected ExpansionPersonalStorageItem m_PersonalItem;
 	protected WrapSpacerWidget cargo_content;
 	protected Widget tree_elements;
 	protected Widget tree_panel_3;
@@ -21,14 +21,13 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 	protected bool m_IsStored;
 	protected bool m_CargoDisplayState;
 
-	void ExpansionPersonalStorageMenuItem(ExpansionPersonalStorageItem item, ExpansionPersonalStorageMenu menu)
+	void ExpansionPersonalStorageMenuItem(ExpansionPersonalStorageItemBase item, ExpansionPersonalStorageMenu menu)
 	{
 		Class.CastTo(m_PersonalStorageMenuItemController, GetController());
 
-		m_Item = item;
-		m_PersonalStorageMenu = menu;
-		m_IsExcluded = item.IsExcluded();
-		m_IsStored = item.IsStored();
+		m_PersonalItem = ExpansionPersonalStorageItem.Cast(item);
+		m_IsExcluded = m_PersonalItem.IsExcluded();
+		m_IsStored = m_PersonalItem.IsStored();
 
 		SetView();
 	}
@@ -61,13 +60,13 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 			foreach (ExpansionPersonalStorageContainerItem item: containerItems)
 			{
 				ExpansionPersonalStorageItem playerItem = new ExpansionPersonalStorageItem();
-				if (!m_Item.IsStored() && m_Item.GetItem())
+				if (!m_PersonalItem.IsStored() && m_Item.GetItem())
 				{
-					playerItem.SetFromItem(item.GetItem(), m_Item.GetOwnerUID());
+					playerItem.SetFromItem(item.GetItem(), m_PersonalItem.GetOwnerUID());
 				}
 				else
 				{
-					playerItem.SetFromContainerItem(item, m_Item.GetStorageID(), m_Item.GetGlobalID(), m_Item.GetOwnerUID(), m_Item.IsStored());
+					playerItem.SetFromContainerItem(item, m_PersonalItem.GetStorageID(), m_PersonalItem.GetGlobalID(), m_PersonalItem.GetOwnerUID(), m_PersonalItem.IsStored());
 				}
 
 				playerItem.SetExcluded(item.IsExcluded());
@@ -128,91 +127,32 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 	{
 		return ExpansionPersonalStorageMenuItemController;
 	}
-
-	void UpdatePreviewObject()
+	
+	override void UpdateFoodStage()
 	{
-		string previewClassName = m_PersonalStorageMenu.GetPreviewClassName(m_Item.GetClassName());
-		ExpansionPersonalStorageMenu.CreatePreviewObject(previewClassName, m_Object);
-
-		if (m_Object)
+		Edible_Base food_item = Edible_Base.Cast(m_Object);
+		if (food_item && food_item.HasFoodStage())
 		{
-			if (m_Object.IsInherited(TentBase))
-			{
-				TentBase tent;
-				Class.CastTo(tent, m_Object);
-				tent.Pack(false);
-			}
+			FoodStage foodStage = food_item.GetFoodStage();
+			foodStage.ChangeFoodStage(m_Item.GetFoodStageType());
 
-			Transport transportEntity;
-			if (Class.CastTo(transportEntity, m_Object))
+			if (m_IsStored)
 			{
-				dBodyActive(m_Object, ActiveState.INACTIVE);
-				dBodyDynamic(m_Object, false);
-				transportEntity.DisableSimulation(true);
-			}
-
-			array<ref ExpansionPersonalStorageContainerItem> containerItems = m_Item.GetContainerItems();
-			if (containerItems.Count() > 0)
-			{
-				Print(ToString() + "::UpdatePreviewObject - Attachments count:" + containerItems.Count() + " for item " + previewClassName);
-				SpawnAttachments(containerItems, m_Object, m_Item.GetSkinIndex());
-			}
-
-			if (m_Object.HasSelection("antiwater"))
-				m_Object.HideSelection("antiwater");
-
-			BaseBuildingBase baseBuilding = BaseBuildingBase.Cast(m_Object);
-			if (baseBuilding && baseBuilding.CanUseConstruction())
-			{
-				bool isSupportedBB;
-				//! https://feedback.bistudio.com/T173348
-				if (baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag")
-					isSupportedBB = true;
-				#ifdef EXPANSIONMODBASEBUILDING
-				else if (baseBuilding.IsInherited(ExpansionBaseBuilding))
-					isSupportedBB = true;
-				#endif
-				if (isSupportedBB)
-				{
-					Construction construction = baseBuilding.GetConstruction();
-					construction.Init();
-					construction.ExpansionBuildFull();
-				}
-			}
-
-			Edible_Base food_item = Edible_Base.Cast(m_Object);
-			if (food_item && food_item.HasFoodStage())
-			{
-				FoodStage foodStage;
-				if (!m_IsStored)
-				{
-					foodStage = food_item.GetFoodStage();
-					foodStage.ChangeFoodStage(m_Item.GetFoodStageType());
-				}
-				else
-				{
-					foodStage = food_item.GetFoodStage();
-					foodStage.ChangeFoodStage(m_Item.GetFoodStageType());
-					
-					int storeTime = m_Item.GetStoreTime();
-					int currentTime = CF_Date.Now(true).GetTimestamp();
-					int elapsed = (currentTime - storeTime);
-					
-					Print(ToString() + "::UpdatePreviewObject - Time elapsed: " + GetTimeString(elapsed));
-					FoodStageType processedFoodStage = food_item.Expansion_GetProcessedFoodStageDecay(elapsed, false);
-					Print(ToString() + "::UpdatePreviewObject - Processed food stage: " + typename.EnumToString(FoodStageType, processedFoodStage));
-					foodStage = food_item.GetFoodStage();
-					foodStage.ChangeFoodStage(processedFoodStage);
-					
-					m_Item.SetFoodStageType(processedFoodStage);
-				}
+				int storeTime = m_PersonalItem.GetStoreTime();
+				int currentTime = CF_Date.Now(true).GetTimestamp();
+				int elapsed = (currentTime - storeTime);
+				
+				Print(ToString() + "::UpdatePreviewObject - Time elapsed: " + GetTimeString(elapsed));
+				FoodStageType processedFoodStage = food_item.Expansion_GetProcessedFoodStageDecay(elapsed, false);
+				Print(ToString() + "::UpdatePreviewObject - Processed food stage: " + typename.EnumToString(FoodStageType, processedFoodStage));
+				foodStage = food_item.GetFoodStage();
+				foodStage.ChangeFoodStage(processedFoodStage);
+				
+				m_Item.SetFoodStageType(processedFoodStage);
 			}
 		}
-
-		m_PersonalStorageMenuItemController.Preview = m_Object;
-		m_PersonalStorageMenuItemController.NotifyPropertyChanged("Preview");
 	}
-	
+
 	string GetTimeString( float total_time )
 	{
 		string time_string;
@@ -370,7 +310,7 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 
 	ExpansionPersonalStorageItem GetPlayerItem()
 	{
-		return m_Item;
+		return m_PersonalItem;
 	}
 
 	void ShowTreeElements(bool state)

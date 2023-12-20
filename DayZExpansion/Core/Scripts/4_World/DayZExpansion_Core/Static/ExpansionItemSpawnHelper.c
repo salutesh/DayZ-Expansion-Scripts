@@ -236,7 +236,7 @@ class ExpansionItemSpawnHelper
 			else if (attachOnly)
 				entity = parent.GetInventory().CreateAttachment(name);
 			else
-				entity = parent.GetInventory().CreateInInventory(name);
+				entity = CreateInInventoryEx(parent, name);
 
 			if (entity)
 			{
@@ -248,6 +248,90 @@ class ExpansionItemSpawnHelper
 		}
 
 		return entity;
+	}
+
+	static EntityAI CreateInInventoryEx(EntityAI parent, string type)
+	{
+		//! First, we try to spawn item in parent inventory directly.
+		//! This can fail if parent is player even if player has clothing that still has enough space, so, ...
+		EntityAI newEntity = parent.GetInventory().CreateInInventory(type);
+
+		if (!newEntity)
+		{
+			//! ...second, we check if the item would fit in cargo by creating it locally
+			//! (unlike CreateInInventory/FindFirstFreeLocationForNewEntity, this deals with rotating the item if it doesn't fit otherwise)
+			CargoBase cargo = parent.GetInventory().GetCargo();
+			if (cargo)
+			{
+				TIntArray itemSize = {};
+
+				string path;
+				if (GetGame().ConfigIsExisting(CFG_MAGAZINESPATH + " " + type))
+					path = CFG_MAGAZINESPATH;
+				else if (GetGame().ConfigIsExisting(CFG_WEAPONSPATH + " " + type))
+					path = CFG_WEAPONSPATH;
+				else if (GetGame().ConfigIsExisting(CFG_VEHICLESPATH + " " + type))
+					path = CFG_VEHICLESPATH;
+				else
+					return null;
+
+				GetGame().ConfigGetIntArray(path + " "  + type + " itemSize", itemSize);
+
+				int cargoMax = Math.Max(cargo.GetWidth(), cargo.GetHeight());
+				int cargoMin = Math.Min(cargo.GetWidth(), cargo.GetHeight());
+				int itemMax = Math.Max(itemSize[0], itemSize[1]);
+				int itemMin = Math.Min(itemSize[0], itemSize[1]);
+
+				//! We don't even attempt to create the item if it wouldn't fit anyway due to size
+				if (cargoMax >= itemMax && cargoMin >= itemMin)
+				{
+					Object obj = GetGame().CreateObjectEx(type, "0 0 0", ECE_LOCAL);
+					if (Class.CastTo(newEntity, obj))
+					{
+						auto src = new InventoryLocation();
+						auto dst = new InventoryLocation();
+						if (newEntity.GetInventory().GetCurrentInventoryLocation(src) && parent.GetInventory().FindFreeLocationFor(newEntity, FindInventoryLocationType.CARGO, dst) && parent.LocalTakeToDst(src, dst))
+						{
+						#ifdef SERVER
+							GetGame().RemoteObjectTreeCreate(newEntity);
+						#endif
+						#ifdef DIAG
+							EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionItemSpawnHelper, "::CreateInInventoryEx - created & moved " + newEntity + " to " + parent);
+						#endif
+							return newEntity;
+						}
+						else
+						{
+							GetGame().ObjectDelete(obj);
+							newEntity = null;
+						}
+					}
+					else if (obj)
+					{
+						Error(obj.ToString() + " is not EntityAI");
+						GetGame().ObjectDelete(obj);
+					}
+				}
+			}
+
+			//! ...third, if all else failed, we look through all attachments manually to see if item can be created.
+			//! We deliberately ignore items in cargo even if they could receive items because having to dig through
+			//! inventories of items in clothing to find (e.g.) sth you have just purchased at a trader is annoying for players.
+			for (int i = 0; i < parent.GetInventory().AttachmentCount(); i++)
+			{
+				EntityAI att = parent.GetInventory().GetAttachmentFromIndex(i);
+				newEntity = CreateInInventoryEx(att, type);
+				if (newEntity)
+				{
+				#ifdef DIAG
+					EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionItemSpawnHelper, "::CreateInInventoryEx - created " + newEntity + " on " + parent);
+				#endif
+					break;
+				}
+			}
+		}
+
+		return newEntity;
 	}
 
 	static EntityAI SpawnAttachment(string name, EntityAI parent, int skinIndex = -1)
@@ -493,7 +577,7 @@ class ExpansionItemSpawnHelper
 	{
 		int i;
 
-		//! 1-2) create entity at location
+		//! 1) create entity at location
 		EntityAI dst;
 		switch (location.GetType())
 		{
@@ -528,6 +612,32 @@ class ExpansionItemSpawnHelper
 		EXPrint("ExpansionItemSpawnHelper::Clone - created " + Object.GetDebugName(dst) + " at location " + DumpLocationToString(location));
 
 		//! @note order of operations matters! DO NOT CHANGE!
+
+		//! 2) attachments + cargo
+		if (recursively)
+		{
+			EntityAI cSrc;
+			InventoryLocation cLocation();
+			InventoryLocation dLocation();
+			for (i = 0; i < src.GetInventory().AttachmentCount(); i++)
+			{
+				cSrc = src.GetInventory().GetAttachmentFromIndex(i);
+				cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
+                dLocation.SetAttachment(dst, null, cLocation.GetSlot());
+				Clone(cSrc, recursively, dLocation);
+			}
+
+			if (src.GetInventory().GetCargo())
+			{
+				for (i = 0; i < src.GetInventory().GetCargo().GetItemCount(); i++)
+				{
+					cSrc = src.GetInventory().GetCargo().GetItem(i);
+					cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
+					dLocation.SetCargo(dst, null, cLocation.GetIdx(), cLocation.GetRow(), cLocation.GetCol(), cLocation.GetFlip());
+					Clone(cSrc, recursively, dLocation);
+				}
+			}
+		}
 
 		//! 3) special treatment for weapons
 		Weapon_Base srcWeapon;
@@ -607,32 +717,6 @@ class ExpansionItemSpawnHelper
 		foreach (string dmgZone: dmgZones)
 		{
 			dst.SetHealth(dmgZone, "Health", src.GetHealth(dmgZone, "Health"));
-		}
-
-		//! 8) attachments + cargo
-		if (recursively)
-		{
-			EntityAI cSrc;
-			InventoryLocation cLocation();
-			InventoryLocation dLocation();
-			for (i = 0; i < src.GetInventory().AttachmentCount(); i++)
-			{
-				cSrc = src.GetInventory().GetAttachmentFromIndex(i);
-				cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
-                dLocation.SetAttachment(dst, null, cLocation.GetSlot());
-				Clone(cSrc, recursively, dLocation);
-			}
-
-			if (src.GetInventory().GetCargo())
-			{
-				for (i = 0; i < src.GetInventory().GetCargo().GetItemCount(); i++)
-				{
-					cSrc = src.GetInventory().GetCargo().GetItem(i);
-					cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
-					dLocation.SetCargo(dst, null, cLocation.GetIdx(), cLocation.GetRow(), cLocation.GetCol(), cLocation.GetFlip());
-					Clone(cSrc, recursively, dLocation);
-				}
-			}
 		}
 
 		//! FINAL

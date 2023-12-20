@@ -27,6 +27,7 @@ class ExpansionAISpawnBase
 	float AccuracyMin;
 	float AccuracyMax;
 	float ThreatDistanceLimit;
+	float NoiseInvestigationDistanceLimit;
 	float DamageMultiplier;
 
 	void ExpansionAISpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "", bool canbelooted = true, bool unlimitedreload = false)
@@ -42,6 +43,7 @@ class ExpansionAISpawnBase
 		AccuracyMin = -1;
 		AccuracyMax = -1;
 		ThreatDistanceLimit = -1;
+		NoiseInvestigationDistanceLimit = -1;
 		DamageMultiplier = -1;
 	}
 

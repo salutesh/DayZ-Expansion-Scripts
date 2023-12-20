@@ -139,6 +139,8 @@ class EXTrace
 			{
 				if (extrace != "0" && extrace != "false")
 					s_Enabled = true;
+				else
+					s_Enabled = false;
 				if (s_Enabled)
 					EXPrint("Command line parameter `extrace` found - enabling tracing");
 				else
