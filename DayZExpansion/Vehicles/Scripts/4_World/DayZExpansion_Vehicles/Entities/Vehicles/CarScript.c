@@ -3047,6 +3047,8 @@ modded class CarScript
 
 			m_Expansion_EngineIsOn = false;
 			SetAnimationPhase("EnableMonitor", -1);
+
+			m_EngineBeforeStart = false;
 		}
 
 		SetSynchDirty();

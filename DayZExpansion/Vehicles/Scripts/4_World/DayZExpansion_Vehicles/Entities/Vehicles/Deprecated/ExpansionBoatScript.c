@@ -810,10 +810,6 @@ class ExpansionBoatScript: CarScript
 		return super.OnSound(ctrl, oldValue);
 	}
 
-	override void HandleEngineSound(CarEngineSoundState state)
-	{
-	}
-
 	override CarLightBase CreateRearLight()
 	{
 #ifdef EXPANSIONTRACE
