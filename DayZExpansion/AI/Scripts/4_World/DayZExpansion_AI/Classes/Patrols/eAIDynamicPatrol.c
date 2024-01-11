@@ -133,8 +133,18 @@ class eAIDynamicPatrol : eAIPatrol
 		pos = ExpansionAIPatrol.GetPlacementPosition(pos);
 
 		eAIBase ai;
-		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos))) return null;
+		if (!Class.CastTo(ai, CreateAIEntity(pos))) return null;
 
+		ConfigureAi(ai, pos);
+
+		return ai;
+	}
+
+	private Object CreateAIEntity(vector pos) {
+		return GetGame().CreateObject(GetRandomAI(), pos);
+	}
+
+	private void ConfigureAi(eAIBase ai, vector pos) {
 		ai.SetPosition(pos);
 
 		if ( m_Loadout == "" )
@@ -150,8 +160,6 @@ class eAIDynamicPatrol : eAIPatrol
 		ai.eAI_SetNoiseInvestigationDistanceLimit(m_NoiseInvestigationDistanceLimit);
 		ai.eAI_SetDamageMultiplier(m_DamageMultiplier);
 		ai.eAI_SetSniperProneDistanceThreshold(m_SniperProneDistanceThreshold);
-
-		return ai;
 	}
 
 	bool WasGroupDestroyed()
