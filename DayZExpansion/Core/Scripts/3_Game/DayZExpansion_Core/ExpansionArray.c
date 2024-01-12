@@ -26,6 +26,13 @@ class ExpansionArray<Class T>
 		m_LastSelectedIdx = -1;
 	}
 
+	void Clear()
+	{
+		m_Elements.Clear();
+		m_Indexes.Clear();
+		m_LastSelectedIdx = -1;
+	}
+
 	int Count()
 	{
 		return m_Elements.Count();
@@ -34,6 +41,14 @@ class ExpansionArray<Class T>
 	int Insert(T element)
 	{
 		return m_Elements.Insert(element);
+	}
+
+	void InsertAll(notnull array<T> from)
+	{
+		foreach (T element: from)
+		{
+			Insert(element);
+		}
 	}
 
 	//! Get a quasi-random element, preferring ones that haven't been picked yet
@@ -57,6 +72,11 @@ class ExpansionArray<Class T>
 		m_Indexes.Remove(m_LastSelectedIdx);
 
 		return element;
+	}
+
+	T GetRandomElement()
+	{
+		return m_Elements.GetRandomElement();
 	}
 
 	static void RefCopy(array<ref T> from, array<ref T> to)

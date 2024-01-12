@@ -253,7 +253,7 @@ enum ExpansionFindFileMode
 	DIRECTORIES = 2
 }
 
-class ExpansionStatic
+class ExpansionStatic: ExpansionStaticCore
 {
 	static const string BASE16 = "0123456789ABCDEF";
 	static const typename NULLTYPE;
@@ -304,47 +304,219 @@ class ExpansionStatic
 		return false;
 	}
 
-	// -----------------------------------------------------------
-	// Expansion String FloatToString
-	// -----------------------------------------------------------
-	//! @note unlike float::ToString(), returns non-scientific notation for any number
+	/**
+	 * @brief Float to string conversion
+	 * 
+	 * @param nmb Float number
+	 * 
+	 * @note unlike float::ToString(), returns non-scientific notation for any number
+	 */
 	static string FloatToString(float nmb)
 	{
-		int i = nmb;
+		return FormatFloat(nmb, 6, false, false);
+	}
+
+	/**
+	 * @brief Format float number as string with given precision
+	 * 
+	 * @param nmb Float number
+	 * @param precision Decimal places after decimal separator
+	 * @param useLocale Use localized decimal/thousands separator
+	 * @param formatInt Format integer part of number (using localized or SI thousands separator)
+	 * @param enableIncreasedAccuracy Gain 1-3 additional digits of precision before and after the decimal point,
+	 *        but at roughly 50% performance cost (avg)
+	 *
+	 * @note unlike float::ToString(), returns non-scientific notation for any number
+	*/
+	static string FormatFloat(float number, int precision = 6, bool useLocale = true, bool formatInt = true, bool enableIncreasedAccuracy = false)
+	{
+		int i;
+
+		if (number > (float) int.MIN && number < (float) int.MAX)
+			i = number;
+
 		float f = i;
 
-		if (nmb == f)
-			return i.ToString();
-
-		float frac = nmb - i;
-		string tmp = frac.ToString();
-
-		if (tmp.Contains("e"))
+		if (number == f)
 		{
-			TStringArray parts = {};
-			tmp.Split("e", parts);
-
-			string real = parts[0];
-			real.Replace(".", "");
-
-			if (i < 0)
-				real = real.Substring(1, real.Length() - 1);
-
-			int count = parts[1].Substring(1, parts[1].Length() - 1).ToInt();
-			string zeros;
-			while (--count)
-			{
-				zeros += "0";
-			}
-
-			string str = "0." + zeros + real;
-			if (i < 0)
-				str = "-" + str;
-
-			return str;
+			if (formatInt)
+				return FormatInt(i, false, useLocale);
+			else
+				return i.ToString();
 		}
 
-		return i.ToString() + tmp.Substring(1, tmp.Length() - 1);
+		/*
+		//! XXX: It's easier and should be sufficient to just not do rounding at all and always truncate
+		//! Leaving this here just in case I change my mind
+		if (precision > 0)
+		{
+			float m = Math.Pow(10, precision);
+			if (Math.AbsFloat(number) <= float.MAX / m)
+				number = Math.Round(number * m) / m;
+		}
+		*/
+
+		float abs = Math.AbsFloat(number);
+		//float floor = Math.Floor(abs);  //! It's broken, e.g. float.MAX gets turned into 1.70141e+38, half of what it should be
+		float floor = -Math.Ceil(-abs);  //! Gives correct floor
+		float frac = abs - floor;
+
+		string tmp = abs.ToString();
+		string real;
+		string zeros;
+
+		bool isNegativeExp;
+		bool useComponents;
+
+		int count;
+		int digit;
+
+		string str;
+
+		int expIdx = tmp.IndexOf("e");
+
+		if (expIdx > -1)
+		{
+			int exp = tmp.Substring(expIdx + 1, tmp.Length() - expIdx - 1).ToInt();
+
+			if (exp < 0)
+				isNegativeExp = true;
+			else if (Math.AbsFloat(f) != floor)
+				useComponents = true;
+
+			if (isNegativeExp || useComponents)
+			{
+				count = Math.AbsInt(exp);
+
+				if (enableIncreasedAccuracy)
+				{
+					if (useComponents)
+					{
+						while (floor >= 1.0)
+						{
+							float fdigit = ExpansionMath.FMod(floor, 10.0);
+							digit = fdigit;
+							if (digit < 0)
+								digit = 0;
+							//PrintFormat("DIGIT %1 %2", fdigit, digit);
+							real = digit.ToString() + real;
+							floor = (floor - digit) / 10.0;
+						}
+
+						if (real.Length() > ++count)
+							real = real.Substring(0, count);
+					}
+					else
+					{
+						count += tmp.Substring(0, expIdx).Length() - 1;
+
+						if (precision > count)
+							precision = count;
+					}
+				}
+				else
+				{
+					int decimalLen;
+
+					if (expIdx >= 3)
+					{
+						//! coefficient has decimal point, e.g. 1.2e-05
+						decimalLen = expIdx - 2;
+						real = tmp.Substring(0, 1) + tmp.Substring(2, decimalLen);
+					}
+					else
+					{
+						//! coefficient has no decimal point, e.g. 1e-05
+						decimalLen = 1;
+						real = tmp.Substring(0, expIdx);
+					}
+
+					if (isNegativeExp)
+						count--;
+					else
+						count -= decimalLen;
+
+					while (count--)
+					{
+						zeros += "0";
+					}
+				}
+
+				if (number < 0)
+					str = "-";
+			}
+		}
+
+		if (isNegativeExp)
+		{
+			str += "0";
+		}
+		else if (useComponents)
+		{
+			if (formatInt)
+				str += FormatIntStr(real + zeros, useLocale);
+			else
+				str += real + zeros;
+		}
+		else
+		{
+			if (number < 0 && i >= 0)
+				str = "-";
+
+			if (formatInt)
+				str += FormatInt(i, false, useLocale);
+			else
+				str += i.ToString();
+		}
+
+		if (frac)
+		{
+			if (useLocale)
+				str += Widget.TranslateString("#STR_EXPANSION_NUMBER_SEPARATOR_DECIMAL");
+			else
+				str += ".";
+
+			if (enableIncreasedAccuracy)
+			{
+				if (!isNegativeExp)
+				{
+					count = frac.ToString().Length() - 1;
+
+					if (precision > count)
+						precision = count;
+				}
+
+				while (precision--)
+				{
+					frac *= 10;
+					digit = frac;
+					str += digit.ToString();
+					frac -= digit;
+				}
+			}
+			else if (isNegativeExp)
+			{
+				tmp = zeros + real;
+				str += tmp.Substring(0, Math.Min(tmp.Length(), precision));
+			}
+			else
+			{
+				tmp = frac.ToString();
+				str += tmp.Substring(2, Math.Min(tmp.Length() - 2, precision));
+			}
+		}
+
+		return str;
+	}
+
+	static int GetPrecision(int n)
+	{
+		n = Math.AbsInt(n);
+
+		if (n)
+			return FloatToString(1.0 / n).Length() - 2;
+
+		return 0;
 	}
 
 	static string FloatFixedDecimals(float f, int decimals = 4)
@@ -372,7 +544,8 @@ class ExpansionStatic
 	// -----------------------------------------------------------
 	static float FloatNewPrecision(float n, float i)
 	{
-		return Math.Floor(Math.Pow(10,i)*n)/Math.Pow(10,i);
+		float m = Math.Pow(10, i);
+		return Math.Floor(m * n) / m;
 	}
 
 	// -----------------------------------------------------------
@@ -925,6 +1098,11 @@ class ExpansionStatic
 		}
 	}
 
+	override string CF_GetISOTime()
+	{
+		return GetISOTime();
+	}
+
 	//! Fast timestamp, use this instead of CF_Date.Now().GetTimestamp() when performance counts
 	static int GetTimestamp(bool useUTC = false)
 	{
@@ -1289,47 +1467,101 @@ class ExpansionStatic
 	}
 	#endif
 
+	//! DEPRECATED, use FormatInt
 	static string IntToCurrencyString(int number, string separator, bool shorten = false)
 	{
-		string moneyReversed = "";
-		string strNumber = number.ToString();
-		int processedCount = 0;
-		string money = "";
-		int i;
-		float dec = number;
+		return FormatInt(number, shorten);
+	}
+
+	/**
+	 * @brief Format integer number as string
+	 * 
+	 * @param number
+	 * @param shorten If true, use K and M suffixes to denote thousands and millions
+	 * @param useLocale Use localized thousands separator (otherwise, scientific)
+	 */
+	static string FormatInt(int number, bool shorten = false, bool useLocale = true)
+	{
+		int abs;
+
+		//! Protect against integer overflow in AbsInt
+		if (number > int.MIN)
+		{
+			abs = Math.AbsInt(number);
+
+			if (abs < 1000)
+				return number.ToString();
+		}
+		else
+		{
+			abs = int.MAX;
+		}
 
 		if (shorten)
 		{
-			if (dec >= 1000000)
+			float dec = number;
+			string suffix;
+
+			if (abs >= 1000000)
 			{
 				dec /= 1000000;
-				dec = Math.Round(dec * 100) / 100;
-				return dec.ToString() + "M";
+				suffix = "M";
 			}
-			else if (dec >= 1000)
+			else
 			{
+				//! abs >= 1000
 				dec /= 1000;
-				dec = Math.Round(dec * 100) / 100;
-				return dec.ToString() + "K";
+				suffix = "K";
 			}
+
+			dec = Math.Round(dec * 100) / 100;
+
+			string str = dec.ToString();
+
+			if (useLocale)
+				str.Replace(".", Widget.TranslateString("#STR_EXPANSION_NUMBER_SEPARATOR_DECIMAL"));
+
+			return str + suffix;
 		}
 
-		for (i = (strNumber.Length() - 1); i >= 0; i--)
+		return FormatIntStr(number.ToString(), useLocale);
+	}
+
+	static string FormatIntStr(string numberStr, bool useLocale = true)
+	{
+		int len = numberStr.Length();
+		int digits = len;
+
+		if (numberStr[0] == "-")
+			digits--;
+
+		if (digits < 4)
+			return numberStr;
+
+		int processedCount = 0;
+
+		string str;
+
+		string separator;
+
+		if (useLocale)
+			separator = Widget.TranslateString("#STR_EXPANSION_NUMBER_SEPARATOR_THOUSANDS");
+
+		if (!separator)
+			separator = " ";
+
+		for (int i = (len - 1); i >= 0; i--)
 		{
-			moneyReversed += strNumber[i];
-			processedCount += 1;
-			if ((processedCount % 3) == 0 && processedCount < strNumber.Length())
-			{
-				moneyReversed += separator;
-			}
+			str = numberStr[i] + str;
+
+			if (digits == len || i)
+				processedCount += 1;
+
+			if ((processedCount % 3) == 0 && processedCount < digits)
+				str = separator + str;
 		}
 
-		for (i = (moneyReversed.Length() - 1); i >= 0; i--)
-		{
-			money += moneyReversed[i];
-		}
-
-		return money;
+		return str;
 	}
 
 	static bool Key_SHIFT()

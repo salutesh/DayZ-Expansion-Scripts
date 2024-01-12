@@ -1182,12 +1182,15 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 			else
 			{
-				string currencyString = ExpansionStatic.IntToCurrencyString(total_monies, ",");
-				descriptions.Insert(ExpansionStatic.IntToCurrencyString(monies[i], ",") + " × " + GetDisplayName(type) + " (" + currencyString + ")");
+				string currencyString = GetDisplayPrice(total_monies, false, true, true);
+				descriptions.Insert(ExpansionStatic.FormatInt(monies[i]) + " × " + GetDisplayName(type) + " (" + currencyString + ")");
 			}
 		}
 		
-		string currencyPlayerTotalMoneyString = ExpansionStatic.IntToCurrencyString(worth, ",");
+		string currencyPlayerTotalMoneyString = GetDisplayPrice(worth, false, true, true);
+	#ifdef DIAG
+		EXPrint(ToString() + " Player money: " + currencyPlayerTotalMoneyString);
+	#endif
 		m_MarketMenuController.PlayerTotalMoney = currencyPlayerTotalMoneyString + " #STR_EXPANSION_MARKET_CURRENCY_TOTAL";
 		m_MarketMenuController.NotifyPropertyChanged("PlayerTotalMoney");
 		
@@ -1580,6 +1583,11 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("SetItemAttachmentsInfo - End");
 	}
 
+	string GetDisplayPrice(int price, bool shorten = false, bool format = true, bool includeDisplayCurrencyName = false)
+	{
+		return m_TraderObject.GetDisplayPrice(price, shorten, format, includeDisplayCurrencyName);
+	}
+
 	void UpdateItemFieldFromBasicNetSync()
 	{
 		MarketPrint("UpdateItemFieldFromBasicNetSync - Start");
@@ -1651,7 +1659,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			market_item_sell_price_text.SetColor(color); 
 			market_item_sell_price_icon.SetColor(color);
 
-			m_MarketMenuController.MarketItemTotalSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",");
+			m_MarketMenuController.MarketItemTotalSellPrice = GetDisplayPrice(m_SellPrice);
 		}
 		else
 		{
@@ -1693,7 +1701,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			else
 			{
 				m_BuyPrice = price;
-				m_MarketMenuController.MarketItemTotalBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",");
+				m_MarketMenuController.MarketItemTotalBuyPrice = GetDisplayPrice(m_BuyPrice);
 			}
 
 			if (m_MarketModule.GetPlayerWorth() >= m_BuyPrice)
@@ -2056,8 +2064,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				if (notify)
 				{
 					string formattedAmount = option1.ToString() + "x";
-					//! Can't use ExpansionStatic.IntToCurrencyString because UI will omit places before a comma?!? NOT a bug with IntToCurrencyString
-					string formattedPrice = option2.ToString();
+					string formattedPrice = GetDisplayPrice(option2, false, false, true);
 
 					if (sale)
 						msgId = "SELL";

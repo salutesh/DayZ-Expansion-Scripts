@@ -13,6 +13,16 @@
 //! Disable any recipes involving attached flags if in enemy territory
 modded class RecipeBase
 {
+	protected bool m_ShowAdminPrefix;
+
+	override string GetName()
+	{
+		if (m_ShowAdminPrefix)
+			return "[ADMIN] " + m_Name;
+
+		return m_Name;
+	}
+
 	override bool CheckRecipe(ItemBase item1, ItemBase item2, PlayerBase player)
 	{
 		if (!super.CheckRecipe(item1, item2, player))
@@ -22,6 +32,8 @@ modded class RecipeBase
 		ingredients[0] = item1;
 		ingredients[1] = item2;
 
+		m_ShowAdminPrefix = false;
+
 		for (int i = 0; i < 2; i++)
 		{
 			ItemBase ingredient = ingredients[i];
@@ -29,17 +41,17 @@ modded class RecipeBase
 			{
 				TerritoryFlag flag;
 				if (Class.CastTo(flag, ingredient.GetHierarchyParent()) && flag.HasExpansionTerritoryInformation())
-					return Expansion_CanDismantle(player);
+				{
+					bool isInsideOwnTerritory;
+					bool canDismantle = player.Expansion_CanDismantleFlag(isInsideOwnTerritory);
+				#ifndef SERVER
+					if (isInsideOwnTerritory && GetPermissionsManager().IsAdminToolsToggledOn())
+						m_ShowAdminPrefix = true;
+				#endif
+					return canDismantle;
+				}
 			}
 		}
-
-		return true;
-	}
-
-	bool Expansion_CanDismantle(PlayerBase player)
-	{
-		if (player.IsInTerritory() && !player.IsInsideOwnTerritory())
-			return GetExpansionSettings().GetBaseBuilding().DismantleFlagMode > ExpansionDismantleFlagMode.TerritoryMembersWithHands;
 
 		return true;
 	}

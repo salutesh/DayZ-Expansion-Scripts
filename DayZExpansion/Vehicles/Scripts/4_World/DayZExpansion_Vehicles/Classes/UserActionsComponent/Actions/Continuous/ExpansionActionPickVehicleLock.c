@@ -7,6 +7,11 @@ class ExpansionActionPickVehicleLockBase: ExpansionActionToolBase
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_CROUCH;
 	}
 
+	override bool SetupCondition()
+	{
+		return GetExpansionSettings().GetVehicle(false).IsLoaded();
+	}
+
 	override void Setup( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		m_Time = GetExpansionSettings().GetVehicle().PickLockTimeSeconds;
@@ -30,9 +35,6 @@ class ExpansionActionPickVehicleLock: ExpansionActionPickVehicleLockBase
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if (!GetExpansionSettings().GetVehicle(false).IsLoaded())
-			return false;
-
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 

@@ -70,7 +70,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	protected ref map<int, ref ExpansionQuestObjectiveAIEscortConfig> m_AIEscortObjectivesConfigs; //! Server
 
 	//! Map of active AI patrols used for quest objectives.
-	static ref map<int, ref array<eAIDynamicPatrol>> m_GlobalAIPatrols; //! Server
+	static ref map<int, ref array<eAIQuestPatrol>> m_GlobalAIPatrols; //! Server
 #endif
 
 	//! Array of active object set spawns used by quests.
@@ -86,6 +86,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	protected ref ScriptInvoker m_QuestHUDCallbackInvoker; //! Client
 
 	protected ref array<int> m_TempQuestHolders;
+
+	//! Map of active quest objective triggers.
+	static ref map<int, ref array<ExpansionObjectiveTriggerBase>> m_GlobalTriggers; //! Server
 
 	protected static ExpansionQuestModule s_ModuleInstance;
 
@@ -114,7 +117,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		m_AIPatrolObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAIPatrolConfig>; //! Server
 		m_AICampObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAICampConfig>; //! Server
 		m_AIEscortObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAIEscortConfig>; //! Server
-		m_GlobalAIPatrols = new map<int, ref array<eAIDynamicPatrol>>; //! Server
+		m_GlobalAIPatrols = new map<int, ref array<eAIQuestPatrol>>; //! Server
 	#endif
 
 		m_QuestObjectSets = new array<ref ExpansionQuestObjectSet>;
@@ -126,6 +129,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 		m_QuestMenuCallbackInvoker = new ScriptInvoker(); //! Client
 		m_QuestHUDCallbackInvoker = new ScriptInvoker(); //! Client
 	#endif
+
+		m_GlobalTriggers = new map<int, ref array<ExpansionObjectiveTriggerBase>>; //! Server
 	}
 
 	override void OnInit()
@@ -2183,6 +2188,18 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestObjectiveTravelConfig objective_t_4 = m_DefaultObjectiveConfigData.ExpansionQuestObjective_Travel_004();
 		objective_t_4.Save("Objective_T_4");
 		m_TravelObjectivesConfigs.Insert(4, objective_t_4);
+		
+		ExpansionQuestObjectiveTravelConfig objective_t_5 = m_DefaultObjectiveConfigData.ExpansionQuestObjective_Travel_005();
+		objective_t_5.Save("Objective_T_5");
+		m_TravelObjectivesConfigs.Insert(5, objective_t_5);
+		
+		ExpansionQuestObjectiveTravelConfig objective_t_6 = m_DefaultObjectiveConfigData.ExpansionQuestObjective_Travel_006();
+		objective_t_6.Save("Objective_T_6");
+		m_TravelObjectivesConfigs.Insert(6, objective_t_6);
+		
+		ExpansionQuestObjectiveTravelConfig objective_t_7 = m_DefaultObjectiveConfigData.ExpansionQuestObjective_Travel_007();
+		objective_t_7.Save("Objective_T_7");
+		m_TravelObjectivesConfigs.Insert(7, objective_t_7);
 	}
 
 	protected void DefaultTargetObjectivesData()
@@ -2395,6 +2412,21 @@ class ExpansionQuestModule: CF_ModuleWorld
 			m_QuestConfigs.Insert(21, quest_21);
 		}
 	#endif
+		
+		//! Quest #22 - Expample template for a quest chain - Part 1
+		ExpansionQuestConfig quest_22 = m_DefaultQuestConfigData.ExpansionQuestConfig022();
+		quest_22.Save("Quest_22");
+		m_QuestConfigs.Insert(22, quest_22);
+		
+		//! Quest #23 - Expample template for a quest chain - Part 2
+		ExpansionQuestConfig quest_23 = m_DefaultQuestConfigData.ExpansionQuestConfig023();
+		quest_23.Save("Quest_23");
+		m_QuestConfigs.Insert(23, quest_23);
+		
+		//! Quest #24 - Expample template for a quest chain - Part 3
+		ExpansionQuestConfig quest_24 = m_DefaultQuestConfigData.ExpansionQuestConfig024();
+		quest_24.Save("Quest_24");
+		m_QuestConfigs.Insert(24, quest_24);
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------------
@@ -2506,6 +2538,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		int objectiveID = objectiveBaseData.GetID();
 		int objectiveType = objectiveBaseData.GetObjectiveType();
+		
+		if (!objectiveBaseData.IsActive())
+		{
+			string objectiveTypeName = typename.EnumToString(ExpansionQuestObjectiveType, objectiveType);
+			Print(ToString() + "::GetObjectiveData - Objective with ID " + objectiveID + " | Type: [" + objectiveType + "] " + objectiveTypeName + " is set to inactive. Skip..");
+		}
+		
 		switch (objectiveType)
 		{
 			case ExpansionQuestObjectiveType.TRAVEL:
@@ -2743,6 +2782,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestNPCData questNPCData = ExpansionQuestNPCData.Load(fileName);
 		if (questNPCData)
 		{
+			if (!questNPCData.IsActive())
+			{
+				Print(ToString() + "::GetQuestNPCData - NPC with ID " + questNPCData.GetID() + " is set to inactive. Skip..");
+			}
+			
 			QuestModulePrint("Adding quest npc data from file " + fileName);
 			m_QuestsNPCs.Insert(questNPCData.GetID(), questNPCData);
 		}
@@ -2759,6 +2803,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestConfig questData = ExpansionQuestConfig.Load(fileName);
 		if (questData)
 		{
+			if (!questData.IsActive())
+			{
+				Print(ToString() + "::GetQuestData - Quest with ID " + questData.GetID() + " is set to inactive. Skip..");
+			}
+			
 			QuestModulePrint("Try adding quest data from file: " + fileName);
 			if (!questData.ValidateQuestConfiguration(fileName))
 			{
@@ -3794,11 +3843,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 	}
 
 	//! Server
-	bool QuestPatrolExists(int questID, out array<eAIDynamicPatrol> patrols)
+	bool QuestPatrolExists(int questID, out array<eAIQuestPatrol> patrols)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		array<eAIDynamicPatrol> foundPatrols;
+		array<eAIQuestPatrol> foundPatrols = {};
 		if (m_GlobalAIPatrols.Find(questID, foundPatrols))
 		{
 			patrols = foundPatrols;
@@ -3807,39 +3856,61 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		QuestModulePrint("End and return FALSE");
-
 		return false;
 	}
 
 	//! Server
-	void SetQuestPatrols(int questID, array<eAIDynamicPatrol> patrols)
+	void SetQuestPatrols(int questID, array<eAIQuestPatrol> patrols)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
+		int pIndex;
+	#endif
 
-		array<eAIDynamicPatrol> foundPatrols;
+		array<eAIQuestPatrol> foundPatrols = {};
 		if (m_GlobalAIPatrols.Find(questID, foundPatrols))
 		{
+			QuestModulePrint("::SetQuestPatrols - Found to existing patrols for quest ID " + questID + " | Patrols: " + foundPatrols.ToString());
 			//! Check if current patrol has been killed.
 			int killedPatrolsCount;
-			foreach (eAIDynamicPatrol questPatrol: foundPatrols)
+			foreach (eAIQuestPatrol questPatrol: foundPatrols)
 			{
 				if (questPatrol.WasGroupDestroyed())
 					killedPatrolsCount++;
 			}
 
+			QuestModulePrint("::SetQuestPatrols - Killed patrols for quest with ID " + questID + " | Killed: " + killedPatrolsCount);
 			if (foundPatrols.Count() == killedPatrolsCount)
 			{
 				foundPatrols.Clear();
-				foreach (eAIDynamicPatrol patrol: patrols)
+				foundPatrols = patrols;
+				m_GlobalAIPatrols.Set(questID, foundPatrols);
+				QuestModulePrint("::SetQuestPatrols - Replaced existing patrols for quest ID " + questID + " | Patrols: " + foundPatrols.ToString());
+			#ifdef EXPANSIONMODQUESTSMODULEDEBUG
+				pIndex = 0;
+				foreach (eAIQuestPatrol paR: patrols)
 				{
-					foundPatrols.Insert(patrol);
+					pIndex++;
+					QuestModulePrint("[" + pIndex + "] " + paR.ToString());
 				}
+			#endif
 			}
 		}
 		else
 		{
 			m_GlobalAIPatrols.Insert(questID, patrols);
+			QuestModulePrint("::SetQuestPatrols - Added new patrols for quest ID " + questID + " | Patrols: " + patrols.ToString());
+		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
+			pIndex = 0;
+			foreach (eAIQuestPatrol paN: patrols)
+			{
+				pIndex++;
+				QuestModulePrint("[" + pIndex + "] " + paN.ToString());
+			}
+		#endif
 		}
+
+		QuestModulePrint("----------------------------------------------------------");
 	}
 
 	//! Server
@@ -3849,39 +3920,84 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
+		QuestModulePrint("::RemoveQuestPatrol - Removing existing patrols for quest ID " + questID + ".");
 		m_GlobalAIPatrols.Remove(questID);
 	}
+#endif
 
 	//! Server
-	bool CanDeleteQuestPatrol(int questID)
+	bool QuestTriggerExists(int questID, int objectiveType, int objectiveID)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		int incompleteCount = 0;
-		set<ref ExpansionQuest> activeQuestInstances = GetActiveQuestInstances(questID);
-		foreach (ExpansionQuest quest: activeQuestInstances)
+		array<ExpansionObjectiveTriggerBase> foundTriggers = new array<ExpansionObjectiveTriggerBase>;
+		if (m_GlobalTriggers.Find(questID, foundTriggers))
 		{
-			array<ref ExpansionQuestObjectiveEventBase> questObjectiveEvents = quest.GetObjectives();
-			foreach (ExpansionQuestObjectiveEventBase objective: questObjectiveEvents)
+			if (foundTriggers && foundTriggers.Count() > 0)
 			{
-				if (objective.GetObjectiveType() != ExpansionQuestObjectiveType.AIPATROL || objective.GetObjectiveType() != ExpansionQuestObjectiveType.AICAMP)
-					continue;
-
-				if (!objective.IsCompleted())
-					incompleteCount++;
+				foreach (ExpansionObjectiveTriggerBase trigger: foundTriggers)
+				{
+					if (trigger.GetObjectiveType() == objectiveType && trigger.GetObjectiveID() == objectiveID)
+					{
+						QuestModulePrint("End and return TRUE");
+						return true;
+					}
+				}
 			}
 		}
 
-		if (incompleteCount > 0)
-		{
-			QuestModulePrint("End and return FALSE");
-			return false;
-		}
-
-		QuestModulePrint("End and return TRUE");
-		return true;
+		QuestModulePrint("End and return FALSE");
+		return false;
 	}
 
+	//! Server
+	void SetQuestTriggers(int questID, array<ExpansionObjectiveTriggerBase> triggers)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		array<ExpansionObjectiveTriggerBase> foundTriggers;
+		if (m_GlobalTriggers.Find(questID, foundTriggers))
+		{
+			foreach (ExpansionObjectiveTriggerBase trigger: triggers)
+			{
+				foundTriggers.Insert(trigger);
+			}
+
+			m_GlobalTriggers.Set(questID, foundTriggers);
+		}
+		else
+		{
+			m_GlobalTriggers.Insert(questID, triggers);
+		}
+	}
+
+	//! Server
+	void RemoveObjectiveTrigger(int questID, int triggerType, int objectiveType, int objectiveID)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		bool removed = false;
+		array<ExpansionObjectiveTriggerBase> foundTriggers;
+		if (m_GlobalTriggers.Find(questID, foundTriggers))
+		{
+			for (int i = 0; i < foundTriggers.Count(); i++)
+			{
+				ExpansionObjectiveTriggerBase trigger = foundTriggers[i];
+				if (trigger.GetTriggerType() == triggerType && trigger.GetObjectiveType() == objectiveType && trigger.GetObjectiveID() == objectiveID)
+				{
+					foundTriggers.Remove(i);
+					removed = true;
+				}
+			}
+		}
+
+	#ifdef DIAG
+		if (!removed)
+			Error(ToString() + "::RemoveObjectiveTrigger - Could not find/remove objective trigger! Quest ID: " + questID + " | Trigger type: " + typename.EnumToString(ExpansionObjectiveTriggerType, triggerType) + " | Objective Type: " + typename.EnumToString(ExpansionQuestObjectiveType, objectiveType) + "| Objective ID: " + objectiveID);
+	#endif
+	}
+
+#ifdef EXPANSIONMODAI
 	static ExpansionQuestNPCAIBase GetClosestQuestAINPC(array<int> ids, vector playerPos)
 	{
 		float shortestDistance;
@@ -4389,7 +4505,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		return color;
 	}
 
-	bool QuestDisplayConditions(ExpansionQuestConfig config, PlayerBase player, ExpansionQuestPersistentData playerQuestData = null, int questNPCID = -1, bool displayQuestsWithCooldown = false)
+	bool QuestDisplayConditions(ExpansionQuestConfig config, PlayerBase player, ExpansionQuestPersistentData playerQuestData = null, int questNPCID = -1, bool displayQuestsWithCooldown = false, bool skipPreQuestCheck = false)
 	{
 		if (!player || !player.GetIdentity())
 			return false;
@@ -4467,7 +4583,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		//! Check if all pre-quests are completed.
 		array<int> incompletedQuestIDs = new array<int>;
-		if (config.GetPreQuestIDs().Count() > 0 && playerQuestData)
+		if (config.GetPreQuestIDs().Count() > 0 && playerQuestData && !skipPreQuestCheck)
 		{
 			array<int> preQuestIDs = config.GetPreQuestIDs();
 			int completedPreQuestCount;
@@ -4497,22 +4613,19 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 			}
-		}
 
-		if (config.GetPreQuestIDs().Count() > 0 && completedPreQuestCount < config.GetPreQuestIDs().Count())
-		{
-			QuestModulePrint("--------------------------------------------------");
-			QuestModulePrint("::QuestDisplayConditions - Cant display quest with ID: " + questID);
-
-			foreach (int incompletedQuestID: incompletedQuestIDs)
+			if (completedPreQuestCount < config.GetPreQuestIDs().Count())
 			{
-				QuestModulePrint("::QuestDisplayConditions - Has not completed quest with ID: " + incompletedQuestID);
+				QuestModulePrint("--------------------------------------------------");
+				QuestModulePrint("::QuestDisplayConditions - Cant display quest with ID: " + questID);
+				foreach (int incompletedQuestID: incompletedQuestIDs)
+				{
+					QuestModulePrint("::QuestDisplayConditions - Has not completed quest with ID: " + incompletedQuestID);
+				}
+				QuestModulePrint("::QuestDisplayConditions - Return FALSE. Not all pre-quests completed!");
+				QuestModulePrint("--------------------------------------------------");
+				return false;
 			}
-
-			QuestModulePrint("::QuestDisplayConditions - Return FALSE. Not all pre-quests completed!");
-			QuestModulePrint("--------------------------------------------------");
-
-			return false;
 		}
 
 	#ifdef EXPANSIONMODHARDLINE
@@ -4631,14 +4744,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 
 		string playerUID = player.GetIdentity().GetId();
-
 		map<int, ref ExpansionQuest> activeQuests = m_ActiveQuests[playerUID];
-
 		if (!activeQuests)
 			return;
 
 		array<ref ExpansionQuest> questsToCancel = {};
-
 		foreach (ExpansionQuest activeQuest: activeQuests)
 		{
 			if (activeQuest.GetQuestConfig().CancelQuestOnPlayerDeath)

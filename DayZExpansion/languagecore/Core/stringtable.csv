@@ -68,6 +68,8 @@ STR_EXPANSION_NEWSFEED_TITLE_1,DayZ Expansion Private Test Nr. 3,DayZ Expansion 
 STR_EXPANSION_NEWSFEED_TITLE_2,How to Play the mod now?!,How to Play the mod now?!,Jak momentálně hrát mód?,Wie spiele ich die Mod?,Как же поиграть в мод сейчас?!,Jak zagrać w tego moda?!,How to Play the mod now?!,Come giocare alla mod ora?!,¿¡Como jugar al mod ahora!?,Comment jouer au mod maintenant ?!,How to Play the mod now?!,Como jogar o mod?!,この Mod をどうやったら使えるの！？,现在要如何玩这个Mod？,
 STR_EXPANSION_NEWSFEED_TITLE_3,How can you help?,How can you help?,Jak mohu pomoci?,Wie kannst du helfen?,Как вы можете помочь?,Jak mogę pomóc?,How can you help?,Come posso aiutarvi?,¿Como puedes ayudar?,Comment aider ?,How can you help?,Como você pode ajudar?,どうやったらお手伝いに参加できるでしょうか？,你能够帮助我吗？,
 STR_EXPANSION_NONE,None,None,Žádný,Keine,Отсутствуют,None,None,Nulla,None,Aucun(e),None,None,None,None,
+STR_EXPANSION_NUMBER_SEPARATOR_DECIMAL,.,.,",",",",",",",",",",",",",",",",.,",",.,.,
+STR_EXPANSION_NUMBER_SEPARATOR_THOUSANDS,",",",", ,., , , ,., , ,",", ,",",",",
 STR_EXPANSION_PAINT,Paint,Paint,Malovat,Farbe,Покрасить,Farba,Festés,Dipingi,Pintura,Peindre,Paint,Pintura,Paint,喷漆,
 STR_EXPANSION_PLAYER,Player,Player,Hráči,Spieler,Игрок,Gracz,Player,Giocatore,Jugador,Joueur,Player,Jogadores,Player,玩家,
 STR_EXPANSION_PLAYERS,Players,Players,Hráči,Spieler,Игроки,Gracze,Players,Giocatori,Jugadores,Joueurs,Players,Jogadores,Players,全部玩家,

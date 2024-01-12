@@ -27,6 +27,7 @@ modded class PlayerBase
 	protected static ref array<ref ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;
 
 	protected ref array<ref ExpansionMagazine> m_Expansion_AmmoInInventoryQuantity = {};
+	protected ref ExpansionEntityHitHandler m_Expansion_HitHandler = new ExpansionEntityHitHandler(this);
 
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
@@ -77,17 +78,18 @@ modded class PlayerBase
 		if (s_Expansion_AssignedQuestObjectives.Count() == 0)
 			return;
 		
-		string killerUID;
-		Man killerPlayer;
 		EntityAI killSource = EntityAI.Cast(killer);
-		if (killSource)
-		{
-			killerPlayer = killSource.GetHierarchyRootPlayer();
-			if (killerPlayer && killerPlayer.GetIdentity())
-				killerUID = killerPlayer.GetIdentity().GetId();
-		}
+		if (!killSource || killSource == this)
+			return;
 
-		ExpansionQuest quest;
+		Man killerPlayer = killSource.GetHierarchyRootPlayer();
+		if (!killerPlayer)
+			return;
+
+		string killerUID;
+		if (killerPlayer.GetIdentity())
+			killerUID = killerPlayer.GetIdentity().GetId();
+
 		int failSafe = s_Expansion_AssignedQuestObjectives.Count() + 1;
 		for (int i = 0, j = 0; i < s_Expansion_AssignedQuestObjectives.Count() && j < failSafe; j++)
 		{
@@ -99,21 +101,90 @@ modded class PlayerBase
 				continue;
 			}
 
-			quest = objective.GetQuest();
+			ExpansionQuest quest = objective.GetQuest();
 			if (!quest)
 			{
 				i++;
 				continue;
 			}
-			
-			//! Check if the current objective belongs to the quest player
-			if (killerUID != string.Empty && !quest.IsQuestPlayer(killerUID))
+
+			//! Check if current quest players distance to our victim entity is in kill range proximity to count the kill when the killer is not a quest player of our current objective instance row
+			//! We do this to share kills between quest objectives from players that are working on the same objective.
+			if (killerUID == string.Empty || !quest.IsQuestPlayer(killerUID))
 			{
-			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				EXTrace.Print(EXTrace.QUESTS, this, "Player with UID [" + killerUID + "] is not a quest player of this quest objective. Skip...");
+			#ifdef DIAG
+				EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - Entity got killed by a player that is not part of this quest! Quest ID: " + quest.GetQuestConfig().GetID() + " | Killer UID: " + killerUID);
 			#endif
-				i++;
-				continue;
+				float maxDist = -1;
+				switch (objective.GetObjectiveType())
+				{
+					case ExpansionQuestObjectiveType.TARGET:
+					{
+						ExpansionQuestObjectiveTargetConfig targetConfig;
+						if (Class.CastTo(targetConfig, objective.GetObjectiveConfig()))
+							maxDist = targetConfig.GetMaxDistance();
+					}
+					break;
+				#ifdef EXPANSIONMODAI
+					case ExpansionQuestObjectiveType.AICAMP:
+					{
+						ExpansionQuestObjectiveAICampConfig aiCampConfig;
+						if (Class.CastTo(aiCampConfig, objective.GetObjectiveConfig()))
+							maxDist = aiCampConfig.GetMaxDistance();
+					}
+					break;
+					case ExpansionQuestObjectiveType.AIPATROL:
+					{
+						ExpansionQuestObjectiveAIPatrolConfig aiPatrolConfig;
+						if (Class.CastTo(aiPatrolConfig, objective.GetObjectiveConfig()))
+							maxDist = aiPatrolConfig.GetMaxDistance();
+					}
+					break;
+				#endif
+				}
+
+				if (maxDist <= 0)
+					maxDist = 100.0;
+
+				bool countKill = false;
+				Man questPlayer;
+				vector playerPos;
+				if (!quest.GetQuestConfig().IsGroupQuest())
+				{
+					questPlayer = quest.GetPlayer();
+					if (questPlayer && (objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) || Expansion_HasHitEntity(questPlayer)))
+					{
+						countKill = true;
+					#ifdef DIAG
+						EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - Quest player in max range! Player position: " + questPlayer.GetPosition() + " | Victim position: " + GetPosition() + " | Max distance: " + maxDist);
+					#endif
+					}
+				}
+			#ifdef EXPANSIONMODGROUPS
+				else
+				{
+					set<string> playerUIDs = quest.GetPlayerUIDs();
+					foreach (string memberUID: playerUIDs)
+					{
+						questPlayer = PlayerBase.GetPlayerByUID(memberUID);		
+						if (questPlayer && (objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) || Expansion_HasHitEntity(questPlayer)))
+						{
+							countKill = true;
+						#ifdef DIAG
+							EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - Quest player in max range! Player position: " + questPlayer.GetPosition() + " | Victim position: " + GetPosition() + " | Max distance: " + maxDist);
+						#endif
+							break;
+						}
+					}
+				}
+			#endif
+				
+				//! If none of the current quest players is in kill range proximity then stop the current check and continue with the next objective row..
+				if (!countKill)
+				{
+					i++;
+					continue;
+				}
 			}
 
 			switch (objective.GetObjectiveType())
@@ -124,14 +195,14 @@ modded class PlayerBase
 				case ExpansionQuestObjectiveType.AIPATROL:
 			#endif
 				{
-					if (killSource && killerPlayer && killerPlayer.GetIdentity())
-						objective.OnEntityKilled(this, killSource, killerPlayer);
+					if (killSource && killerPlayer)
+						objective.OnEntityKilled(this, killSource, killerPlayer, m_Expansion_HitHandler.GetHitMap());
 				}
 				break;
 			#ifdef EXPANSIONMODAI
 				case ExpansionQuestObjectiveType.AIESCORT:
 				{
-					objective.OnEntityKilled(this, killSource, null);
+					objective.OnEntityKilled(this, killSource);
 				}
 				break;
 			#endif
@@ -146,6 +217,23 @@ modded class PlayerBase
 			EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - WARNING: Reached end of loop unexpectedly!");
 	}
 
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		
+		m_Expansion_HitHandler.OnHit(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	}
+	
+	map<Man, ref ExpansionEntityHitInfo> Expansion_GetEntityHitMap()
+	{
+		return m_Expansion_HitHandler.GetHitMap();
+	}
+	
+	bool Expansion_HasHitEntity(Man player)
+	{
+		return m_Expansion_HitHandler.WasHitBy(player);
+	}
+	
 	override void EEKilled(Object killer)
 	{
 		super.EEKilled(killer);

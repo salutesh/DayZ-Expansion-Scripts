@@ -29,12 +29,19 @@ class ExpansionActionClose: ActionInteractBase
 
 	override string GetText()
 	{
+		string text;
+
 		//! If CodelockActionsAnywhere is ON, then "Close and lock" will be provided by ExpansionActionEnterCodeLock
 		//! If it is OFF, then it will be provided by this action
 		if ( m_Target && m_Target.HasCode() && !GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
-			return "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
+			text = "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
 		else
-			return "#close";
+			text = "#close";
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )

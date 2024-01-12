@@ -79,6 +79,9 @@ class eAIBase: PlayerBase
 	private vector m_eAI_LastMovementCheckUnitPosition;
 	private float m_eAI_MovementCheckTimeout;
 
+	private bool m_eAI_IsChangingStance;
+	private bool m_eAI_ShouldGetUp = true;
+
 	// Position for aiming/looking in the world
 	private vector m_eAI_LookPosition_WorldSpace;
 	private vector m_eAI_AimPosition_WorldSpace;
@@ -131,8 +134,8 @@ class eAIBase: PlayerBase
 #else
 	/*private*/ ref eAIPathFinding m_PathFinding;
 #endif
-	bool m_eAI_TargetPositionIsFinal;
-	bool m_eAI_PositionIsFinal;
+	bool m_eAI_TargetPositionIsFinal = true;
+	bool m_eAI_PositionIsFinal = true;
 
 	private Apple m_DebugTargetApple;
 	private vector m_DebugTargetOrientation;
@@ -168,8 +171,8 @@ class eAIBase: PlayerBase
 
 	ref Timer m_eAI_ClientUpdateTimer;
 
-	static int s_eAI_LoveSound01_NetworkedSoundID;
-	static int s_eAI_LoveSound02_NetworkedSoundID;
+	static ref ExpansionSoundSet s_eAI_LoveSound01_SoundSet;
+	static ref ExpansionSoundSet s_eAI_LoveSound02_SoundSet;
 
 	int m_eAI_Meme;
 	int m_eAI_MemeLevel;
@@ -284,10 +287,10 @@ class eAIBase: PlayerBase
 
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 
-		if (!s_eAI_LoveSound01_NetworkedSoundID)
-			s_eAI_LoveSound01_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("Expansion_AI_The_Sound_Of_Love_01_SoundSet");
-		if (!s_eAI_LoveSound02_NetworkedSoundID)
-			s_eAI_LoveSound02_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("Expansion_AI_The_Sound_Of_Love_02_SoundSet");
+		if (!s_eAI_LoveSound01_SoundSet)
+			s_eAI_LoveSound01_SoundSet = ExpansionSoundSet.Register("Expansion_AI_The_Sound_Of_Love_01_SoundSet");
+		if (!s_eAI_LoveSound02_SoundSet)
+			s_eAI_LoveSound02_SoundSet = ExpansionSoundSet.Register("Expansion_AI_The_Sound_Of_Love_02_SoundSet");
 	}
 
 	override void EEDelete(EntityAI parent)
@@ -978,6 +981,19 @@ class eAIBase: PlayerBase
 		EXTrace.Add(trace, multiplier);
 	}
 
+	void eAI_SetDamageReceivedMultiplier(float multiplier)
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, eAIBase);
+		EXTrace.Add(trace, multiplier);
+
+		if (multiplier <= 0)
+			multiplier = GetExpansionSettings().GetAI().DamageReceivedMultiplier;
+
+		m_eAI_DamageReceivedMultiplier = multiplier;
+
+		EXTrace.Add(trace, multiplier);
+	}
+
 	override bool IsFighting()
 	{
 		return m_IsFighting || (m_eAI_MeleeTime > 0 && GetGame().GetTime() - m_eAI_MeleeTime < 1500);
@@ -1600,6 +1616,10 @@ class eAIBase: PlayerBase
 				}
 			}
 			*/
+			
+			//! We ignore the noise if noise source is a player that we have line of sight to
+			if (player && eAI_HasLOS(player.GetTargetInformation()))
+				return;
 
 			threatLevel = ExpansionMath.LinearConversion(Math.Min(strength, m_eAI_NoiseInvestigationDistanceLimit), strength * 1.1, distance, 0.4, 0.1024);
 		}
@@ -1627,7 +1647,7 @@ class eAIBase: PlayerBase
 		}
 
 	#ifdef DIAG
-		EXTrace.Print(EXTrace.AI, this, string.Format("::eAI_OnNoiseEvent %1 %2 %3 %4 %5 %6", source, position.ToString(), lifetime, strength, params.m_Path, typename.EnumToString(eAINoiseType, params.m_Type)));
+		EXTrace.Print(EXTrace.AI, this, string.Format("::eAI_OnNoiseEvent %1 %2 %3 %4 %5 %6 %7", source, position.ToString(), lifetime, params.m_Strength, strengthMultiplier, params.m_Path, typename.EnumToString(eAINoiseType, params.m_Type)));
 	#endif
 	}
 
@@ -1651,8 +1671,11 @@ class eAIBase: PlayerBase
 	eAICommandMove StartCommand_MoveAI()
 	{
 		EXTrace.Print(EXTrace.AI, this, "StartCommand_MoveAI");
+		int stance;
+		if (GetCommand_Move())
+			stance = m_MovementState.m_iStanceIdx;
 		// WARNING: memory leak
-		eAICommandMove cmd = new eAICommandMove(this, m_ExpansionST);
+		eAICommandMove cmd = new eAICommandMove(this, m_ExpansionST, stance);
 		StartCommand_Script(cmd);
 		m_eAI_Command = cmd;
 		return cmd;
@@ -1709,7 +1732,7 @@ class eAIBase: PlayerBase
 		m_eAI_Melee = true;
 
 		if (!IsFighting() && GetExpansionSettings().GetAI().MemeLevel > 9000)
-			ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), s_eAI_LoveSound02_NetworkedSoundID);
+			s_eAI_LoveSound02_SoundSet.Play(this);
 	}
 
 	override void OnCommandMelee2Start()
@@ -1741,6 +1764,7 @@ class eAIBase: PlayerBase
 #else
 		m_PathFinding.OverridePosition(pPosition);
 #endif
+
 		m_eAI_TargetPositionIsFinal = isFinal;
 	}
 
@@ -1804,6 +1828,11 @@ class eAIBase: PlayerBase
 			int stanceIdx = move.GetStance();
 			if (move.OverrideStance(pStanceIdx))
 			{
+				if (pStanceIdx == DayZPlayerConstants.STANCEIDX_ERECT)
+					m_eAI_ShouldGetUp = true;
+				else
+					m_eAI_ShouldGetUp = false;
+
 				if (EXTrace.AI)
 					EXTrace.Print(true, this, "OverrideStance " + typename.EnumToString(eAIStance, stanceIdx) + " -> " + typename.EnumToString(eAIStance, pStanceIdx) + " " + force);
 
@@ -1828,6 +1857,11 @@ class eAIBase: PlayerBase
 	{
 		auto cmd = GetCommand_MoveAI();
 		return cmd && cmd.IsChangingStance();
+	}
+
+	bool eAI_ShouldGetUp()
+	{
+		return m_eAI_ShouldGetUp;
 	}
 
 	void eAI_SetSniperProneDistanceThreshold(float distance)
@@ -2418,7 +2452,15 @@ class eAIBase: PlayerBase
 				{
 					HumanCommandUnconscious hcu = GetCommand_Unconscious();
 					if (hcu)
-						hcu.WakeUp();
+					{
+						int wakeUpStance = DayZPlayerConstants.STANCEIDX_PRONE;
+
+						//! Don't set the stance if we are swimming or in a vehicle, stance change animation could play
+						if (m_Swimming.m_bWasSwimming || m_LastCommandBeforeUnconscious == DayZPlayerConstants.COMMANDID_VEHICLE)
+							wakeUpStance = -1;
+
+						hcu.WakeUp(wakeUpStance);
+					}
 				}
 			}
 			else
@@ -2614,9 +2656,9 @@ class eAIBase: PlayerBase
 
 		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_MOVE)
 		{
-			//! COMMANDID_MOVE will be running if the AI was just spawned
+			//! COMMANDID_MOVE will be running if the AI was just spawned or if we woke up from uncon
 			//! IMPORTANT: Start AI move only after delay, else hand anim state will be broken!
-			if (m_eAI_CommandTime > pDt)
+			if (m_eAI_CommandTime > pDt && !m_FSM.IsInState("Unconscious"))
 				StartCommand_MoveAI();
 			// return;
 		}
@@ -2653,6 +2695,19 @@ class eAIBase: PlayerBase
 		}
 
 		m_eAI_MeleeDidHit = false;
+
+		if (eAI_IsChangingStance())
+		{
+			m_eAI_IsChangingStance = true;
+		}
+		else if (m_eAI_IsChangingStance)
+		{
+			m_eAI_IsChangingStance = false;
+
+			//! HACK: Fix collision box
+			StartCommand_Move();
+			skipScript = true;
+		}
 
 		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT && m_eAI_Command && !skipScript)
 		{
@@ -3070,14 +3125,15 @@ class eAIBase: PlayerBase
 		m_eAI_IsFightingFSM = state;
 
 		if (m_eAI_IsFightingFSM && GetExpansionSettings().GetAI().MemeLevel > 9000)
-			ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), eAI_GetRandomLoveSound());
+			eAI_PlayRandomLoveSound();
 	}
 
-	int eAI_GetRandomLoveSound()
+	void eAI_PlayRandomLoveSound()
 	{
 		if (Math.RandomInt(0, 2))
-			return s_eAI_LoveSound01_NetworkedSoundID;
-		return s_eAI_LoveSound02_NetworkedSoundID;
+			s_eAI_LoveSound01_SoundSet.Play(this);
+		else
+			s_eAI_LoveSound02_SoundSet.Play(this);
 	}
 
 	override void OnScheduledTick(float deltaTime)
@@ -3725,7 +3781,7 @@ class eAIBase: PlayerBase
 			result = true;
 
 		if (result && m_eAI_Targets.Count() > 1 && GetExpansionSettings().GetAI().MemeLevel > 9000)
-			ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), eAI_GetRandomLoveSound());
+			eAI_PlayRandomLoveSound();
 
 		return result;
 	}
@@ -3979,7 +4035,8 @@ class eAIBase: PlayerBase
 		//	return false;
 		//}
 
-		if (!m_PathFinding.m_IsBlocked)
+		auto cmd = GetCommand_MoveAI();
+		if (!m_PathFinding.m_IsBlocked && (!cmd || !cmd.IsBlocked()))
 			return false;
 
 		SHumanCommandClimbSettings hcls = GetDayZPlayerType().CommandClimbSettingsW();
@@ -4157,7 +4214,7 @@ class eAIBase: PlayerBase
 			if (Class.CastTo(building, object) && (!climbRes.m_bIsClimb || building.m_eAI_PreventClimb))
 				return false;
 
-			if (object.IsTransport() && climbRes.m_bIsClimbOver)
+			if ((object.IsTransport() || object.IsInventoryItem()) && climbRes.m_bIsClimbOver)
 				return false;
 		}
 

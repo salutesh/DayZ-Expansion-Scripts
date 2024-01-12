@@ -44,13 +44,14 @@ class ExpansionQuestObjectiveConfigBase
 
 class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 {
-	static const int CONFIGVERSION = 22;
-
-	string ObjectiveText = string.Empty;
-	int TimeLimit = - 1;
+	static const int CONFIGVERSION = 26;
 
 	[NonSerialized()];
 	protected ref set<typename> m_ObjectiveAllocationTypeNames;
+
+	string ObjectiveText = string.Empty;
+	int TimeLimit = - 1;
+	bool Active = true;
 
 	void ExpansionQuestObjectiveConfig()
 	{
@@ -75,6 +76,11 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 	int GetTimeLimit()
 	{
 		return TimeLimit;
+	}
+	
+	bool IsActive()
+	{
+		return Active;
 	}
 
 	void CollectAllocationClasses()
@@ -111,11 +117,7 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 				ExpansionQuestObjectiveTargetConfig targetConfig;
 				if (Class.CastTo(targetConfig, this))
 				{
-					ExpansionQuestObjectiveTarget target = targetConfig.GetTarget();
-					if (!target)
-						return;
-
-					TStringArray classNames = target.GetClassNames();
+					TStringArray classNames = targetConfig.GetClassNames();
 					foreach (string className: classNames)
 					{
 						AddAllocationTypeName(className);

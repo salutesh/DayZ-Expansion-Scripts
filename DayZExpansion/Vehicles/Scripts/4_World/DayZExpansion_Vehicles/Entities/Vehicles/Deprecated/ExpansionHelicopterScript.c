@@ -596,6 +596,11 @@ class ExpansionHelicopterScript: CarScript
 		}
 	}
 
+	void Expansion_RotateRotors(float rotorSpeed)
+	{
+		m_Simulation.m_RotorSpeed = rotorSpeed;
+	}
+
 	override bool Expansion_EngineIsSpinning()
 	{
 		return m_Simulation.m_RotorSpeed > 0;
@@ -666,6 +671,7 @@ class ExpansionHelicopterScript: CarScript
 
 		AddAction(ExpansionActionSwitchAutoHover);
 		AddAction(ExpansionActionSwitchAutoHoverInput);
+		AddAction(ExpansionActionRotateRotors);
 	}
 
 	override int GetAnimInstance()

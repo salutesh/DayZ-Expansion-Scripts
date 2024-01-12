@@ -428,9 +428,11 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	void UpdateDistance()
 	{
 		vector objectivePos;
+	#ifdef EXPANSIONMODAI
 		if (m_ObjectiveConfig.IsInherited(ExpansionQuestObjectiveAIEscortConfig))
 			objectivePos = m_ObjectiveConfig.GetPosition();  //! We want pos of target location, not current objective (VIP) pos
 		else
+	#endif
 			objectivePos = m_Objective.GetObjectivePosition();
 		vector playerPos = GetGame().GetPlayer().GetPosition();
 		int currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));

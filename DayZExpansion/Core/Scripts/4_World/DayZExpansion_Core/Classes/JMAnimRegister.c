@@ -28,4 +28,11 @@ modded class ModItemRegisterCallbacks
 		pType.AddItemInHandsProfileIK("ExpansionCircuitBoard_MK2", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/tuna.anm");
 		pType.AddItemInHandsProfileIK("ExpansionCircuitBoard_MK3", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/tuna.anm");
 	}
+	
+	override void RegisterTwoHanded(DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior)
+	{
+		super.RegisterTwoHanded(pType, pBehavior);
+		
+		pType.AddItemInHandsProfileIK("ExpansionDebugGoat", "dz/anims/workspaces/player/player_main/weapons/player_main_2h_extinguisher.asi", pBehavior, "dz/anims/anm/player/ik/two_handed/alice_g.anm");
+	}
 }

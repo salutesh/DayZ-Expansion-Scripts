@@ -11,33 +11,8 @@
 */
 
 /**@class		ExpansionItemBaseModule
- * @brief		This module provides misc functionality like playing sound for near players at item's location,
- * 				or doing queued actions for an existing item on server start.
+ * @brief		This module provides misc functionality like doing queued actions for an existing item on server start.
  **/
-
-class ExpansionNetworkedSound
-{
-	string m_SoundSet;
-	int m_ID;
-	float m_Range;
-
-	void ExpansionNetworkedSound(string soundSet)
-	{
-		m_SoundSet = soundSet;
-		m_ID = soundSet.Hash();
-
-		TStringArray soundShaders = {};
-		GetGame().ConfigGetTextArray("CfgSoundSets " + soundSet + " soundShaders", soundShaders);
-		foreach (string soundShader: soundShaders)
-		{
-			m_Range = Math.Max(GetGame().ConfigGetFloat("CfgSoundShaders " + soundShader + " range"), m_Range);
-		}
-
-	#ifdef DIAG
-		EXTrace.Print(EXTrace.GENERAL_ITEMS, this, soundSet + " ID " + m_ID + " range " + m_Range);
-	#endif
-	}
-}
 
 [CF_RegisterModule(ExpansionItemBaseModule)]
 class ExpansionItemBaseModule : CF_ModuleWorld
@@ -50,9 +25,6 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 	string m_QueuedEntityActionsFileName;
 	ref map<int, ref map<int, ref map<int, ref map<int, int>>>> m_QueuedEntityActions;
 
-	ref map<int, ref ExpansionNetworkedSound> m_RegisteredSounds = new map<int, ref ExpansionNetworkedSound>;
-	ref map<string, ExpansionNetworkedSound> m_RegisteredSounds_BySoundSet = new map<string, ExpansionNetworkedSound>;
-
 	void ExpansionItemBaseModule()
 	{
 		s_Instance = this;
@@ -64,8 +36,6 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 		super.OnInit();
 
 		EnableMissionStart();
-		Expansion_EnableRPCManager();
-		Expansion_RegisterClientRPC("RPC_PlaySound");
 	}
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
@@ -84,80 +54,6 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 		else
 			ExpansionStatic.MakeDirectoryRecursive(folder);
 #endif
-	}
-
-	int RegisterSound(string soundSet)
-	{
-		ExpansionNetworkedSound sound;
-
-		if (!m_RegisteredSounds_BySoundSet.Find(soundSet, sound))
-		{
-			sound = new ExpansionNetworkedSound(soundSet);
-			m_RegisteredSounds[sound.m_ID] = sound;
-			m_RegisteredSounds_BySoundSet[soundSet] = sound;
-		}
-
-		return sound.m_ID;
-	}
-
-	void PlaySound(vector position, string soundSet, bool guaranteed = false)
-	{
-		auto sound = m_RegisteredSounds_BySoundSet[soundSet];
-
-		if (!sound)
-		{
-			Error("Not a registered sound: " + soundSet);
-			return;
-		}
-
-		PlaySound(position, sound, guaranteed);
-	}
-
-	void PlaySound(vector position, int soundID, bool guaranteed = false)
-	{
-		auto sound = m_RegisteredSounds[soundID];
-
-		if (!sound)
-		{
-			Error("Not a registered sound ID: " + soundID);
-			return;
-		}
-
-		PlaySound(position, sound, guaranteed);
-	}
-
-	protected void PlaySound(vector position, notnull ExpansionNetworkedSound sound, bool guaranteed = false)
-	{
-		if (!GetGame().IsServer() || !GetGame().IsMultiplayer())
-		{
-			PlaySoundImpl(position, sound.m_SoundSet);
-			return;
-		}
-
-		auto rpc = Expansion_CreateRPC("RPC_PlaySound");
-		rpc.Write(position);
-		rpc.Write(sound.m_ID);
-
-		PlayerBase.Expansion_SendNear(rpc, position, sound.m_Range, null, guaranteed);
-	}
-
-	protected void PlaySoundImpl(vector position, string soundSet)
-	{
-		SEffectManager.Expansion_PlaySound(soundSet, position);
-	}
-
-	void RPC_PlaySound(PlayerIdentity sender, Object target, ParamsReadContext ctx)
-	{
-		int soundID;
-		vector position;
-
-		if (!ctx.Read(position))
-			return;
-
-		if (!ctx.Read(soundID))
-			return;
-
-		PlaySound(position, soundID);
 	}
 
 	int ProcessQueuedEntityActions(EntityAI entity, int actionsFilter = int.MAX)

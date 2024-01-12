@@ -15,7 +15,7 @@ class ExpansionDialogContent_Text: ExpansionDialogContentBase
 	ref ExpansionDialogContent_TextController m_TextController;
 	private string m_Text;
 
-	RichTextWidget dialog_text;
+	MultilineTextWidget dialog_text;
 
 	void ExpansionDialogContent_Text(ExpansionDialogBase dialog)
 	{

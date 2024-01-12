@@ -442,15 +442,46 @@ class ExpansionMath
 		return 1;
 	}
 
-	//! Proper RandomFloatInclusive that does include endpoint, other than the one in EnMath
-	static float RandomFloatInclusive(float min, float max)
+	/**
+	 * @brief Proper RandomFloatInclusive that does include endpoint, other than the one in EnMath
+	 * 
+	 * @note uniform = true assumes Math.RandomInt is indeed uniform
+	 * @note with uniform = true, the range of possible unique values is limited to 2^24
+	 *       (otherwise 2^26 in best-case scenarios)
+	 * @note if the range defined by min and max exceeds 2^24, distribution is no longer uniform
+	 */
+	static float RandomFloatInclusive(float min, float max, bool uniform = false)
 	{
-		int max_range = Math.Pow(2, 30);
-		int random_int = Math.RandomIntInclusive(0, max_range);
-		float rand_float = (float)random_int / (float)max_range;
+		int max_range = 16777216;  //! 2^24 (uniform, unique)
 		float range = max - min;
 
+		if (!uniform || Math.AbsFloat(range) > max_range)
+			max_range = 1073741824;  //! 2^30 (non-uniform, 2^26 unique values)
+
+		int random_int = Math.RandomIntInclusive(0, max_range);
+		float rand_float = (float)random_int / (float)max_range;
+
 		return min + (rand_float * range);
+	}
+
+	static float FMod(float x, float y)
+	{
+		float r = x / y;
+
+		if (r >= 1.0)
+		{
+			//PrintFormat("FMOD %1 >= 1.0", r);
+			//return x - Math.Floor(r) * y;  //! Math.Floor is broken, e.g. float.MAX gets turned into 1.70141e+38, half of what it should be
+			return x + Math.Ceil(-r) * y;  //! Gives correct floor
+		}
+		else if (r <= -1.0)
+		{
+			//PrintFormat("FMOD %1 <= -1.0", r);
+			return x - Math.Ceil(r) * y;
+		}
+
+		//PrintFormat("FMOD -1.0 < %1 < 1.0", r);
+		return x;
 	}
 
 	//! Proper Log2. Vanilla Math.Log2 signature gives the impression it works with floats. It doesn't, it's a purely integer implementation.
@@ -586,5 +617,37 @@ class ExpansionMath
 	{
 		p1[1] = p2[1];
 		return vector.DistanceSq(p1, p2);
+	}
+
+	static float FindLargestDistance(TVectorArray positions)
+	{
+		float maxDistanceSq;
+		for (int i = 0; i < positions.Count() - 1; i++)
+		{
+			for (int j = i + 1; j < positions.Count(); j++)
+			{
+				float distanceSq = vector.DistanceSq(positions[i], positions[j]);
+				if (distanceSq > maxDistanceSq)
+					maxDistanceSq = distanceSq;
+			}
+		}
+
+		return Math.Sqrt(maxDistanceSq);
+	}
+
+	static float FindShortesDistance(TVectorArray positions)
+	{
+		float minDistanceSq;
+		for (int i = 0; i < positions.Count() - 1; i++)
+		{
+			for (int j = i + 1; j < positions.Count(); j++)
+			{
+				float distanceSq = vector.DistanceSq(positions[i], positions[j]);
+				if (distanceSq < minDistanceSq)
+					minDistanceSq = distanceSq;
+			}
+		}
+
+		return Math.Sqrt(minDistanceSq);
 	}
 }

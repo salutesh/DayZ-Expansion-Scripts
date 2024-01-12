@@ -44,7 +44,7 @@ class ExpansionMarketTraderV9: ExpansionMarketTraderBase
 
 class ExpansionMarketTrader : ExpansionMarketTraderBase
 {
-	static const int VERSION = 11;
+	static const int VERSION = 12;
 
 	#ifdef EXPANSIONMODHARDLINE
 	int MinRequiredReputation;
@@ -62,6 +62,8 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 	string TraderIcon;
 
 	autoptr TStringArray Currencies;
+	int DisplayCurrencyValue;
+	string DisplayCurrencyName;
 
 	autoptr TStringArray Categories;
 	
@@ -76,6 +78,9 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 	//! Client only!
 	[NonSerialized()]
 	bool m_StockOnly;
+
+	[NonSerialized()]
+	int m_DisplayCurrencyPrecision;
 	
 	// ------------------------------------------------------------
 	// ExpansionMarketTrader Constructor
@@ -161,6 +166,9 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 				#endif
 			}
 			
+			if (settingsBase.m_Version < 12 && !settings.DisplayCurrencyValue)
+				settings.DisplayCurrencyValue = settingsDefault.DisplayCurrencyValue;
+
 			settings.m_Version = VERSION;
 			settings.m_FileName = name;
 			
@@ -190,6 +198,8 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 				settings.AddItem(className, buySell);
 			}
 		}
+
+		settings.m_DisplayCurrencyPrecision = ExpansionStatic.GetPrecision(settings.DisplayCurrencyValue);
 		
 		settings.Finalize();
 		
@@ -227,6 +237,9 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		#endif
 		
 		DefaultCurrencies();
+
+		DisplayCurrencyValue = 1;
+		DisplayCurrencyName = "";
 	}
 
 	void DefaultCurrencies()

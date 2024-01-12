@@ -21,11 +21,17 @@ class ExpansionActionDisconnectElectricityToSource: ActionInteractBase
 	{
 		m_ConditionItem = new CCINone;
 		m_ConditionTarget = new CCTNone;
+		m_Text = "Disconnect";
 	}
 
 	override string GetText()
 	{
-		return "Disconnect";
+		string text = super.GetText();
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )

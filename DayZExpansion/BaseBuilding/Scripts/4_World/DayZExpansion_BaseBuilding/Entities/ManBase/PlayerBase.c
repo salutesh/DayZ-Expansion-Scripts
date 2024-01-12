@@ -260,4 +260,29 @@ modded class PlayerBase
 			return false;
 		}
 	}
+
+	bool Expansion_CanDismantleFlag(out bool isInsideOwnTerritory)
+	{
+		auto settings = GetExpansionSettings().GetBaseBuilding(false);
+		if (!settings.IsLoaded())
+			return false;
+
+		if (IsInTerritory())
+		{
+			if (IsInsideOwnTerritory())
+			{
+				isInsideOwnTerritory = true;
+
+				return true;
+			}
+			else if (settings.DismantleFlagMode > ExpansionDismantleFlagMode.TerritoryMembersWithHands)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		return true;
+	}
 };

@@ -22,13 +22,13 @@ class ExpansionActionOpenGarageMenu: ActionInteractBase
 	override void CreateConditionComponents()
 	{
 		m_ConditionItem = new CCINone;
-		m_ConditionTarget = new CCTNone;
+		m_ConditionTarget = new CCTCursor;
 	}
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		Object targetObject = target.GetParentOrObject();
-		if (!target || !targetObject)
+		Object targetObject = target.GetObject();
+		if (!targetObject)
 			return false;
 
 		if (!ExpansionGarageModule.s_Instance)

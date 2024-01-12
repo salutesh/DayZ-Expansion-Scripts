@@ -139,4 +139,16 @@ class eAIFaction
 
 		return null;
 	}
+
+	static eAIFaction CreateByID(int factionID)
+	{
+		typename faction = GetTypeByID(factionID);
+
+		if (faction)
+			return eAIFaction.Cast(faction.Spawn());
+		else
+			Error("Invalid faction ID " + factionID);
+
+		return null;
+	}
 };

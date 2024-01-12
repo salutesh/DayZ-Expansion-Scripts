@@ -17,15 +17,24 @@ modded class ActionToggleTentOpen
 
 	override string GetText()
 	{
+		string text;
+
 		if ( m_Tent && m_Tent.ExpansionIsLocked() )
 		{
 			if ( m_IsEntrance )
-				return "#STR_EXPANSION_OPEN_LOCKED_TENT";
-
-			return "#STR_EXPANSION_TOGGLE_LOCKED_OPENING";
+				text = "#STR_EXPANSION_OPEN_LOCKED_TENT";
+			else
+				text = "#STR_EXPANSION_TOGGLE_LOCKED_OPENING";
+		}
+		else
+		{
+			text = "#toggle_opening";
 		}
 
-		return "#toggle_opening";
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
 	}
 
     override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)

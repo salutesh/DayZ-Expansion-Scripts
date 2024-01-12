@@ -29,24 +29,41 @@ class ExpansionActionOpen: ActionInteractBase
 
 	override string GetText()
 	{
+		string text;
+
 		if ( m_Target && m_Target.ExpansionIsLocked() )
 		{
 			string type = m_Target.GetType();
-			if ( m_Target.IsInherited( ExpansionSafeBase ) )
-				return "#STR_EXPANSION_OPEN_LOCKED_SAFE";
 			ExpansionWallBase wall;
-			if ( (Class.CastTo( wall, m_Target ) && wall.HasGate()) || type == "Fence" )
-				return "#STR_EXPANSION_OPEN_LOCKED_GATE";
-			if ( m_Target.IsKindOf( "Container_Base" ) && !m_Target.IsBuilding() )
+			if ( m_Target.IsInherited( ExpansionSafeBase ) )
+			{
+				text = "#STR_EXPANSION_OPEN_LOCKED_SAFE";
+			}
+			else if ( (Class.CastTo( wall, m_Target ) && wall.HasGate()) || type == "Fence" )
+			{
+				text = "#STR_EXPANSION_OPEN_LOCKED_GATE";
+			}
+			else if ( m_Target.IsKindOf( "Container_Base" ) && !m_Target.IsBuilding() )
 			{
 				if ( type.Contains("Safe") )
-					return "#STR_EXPANSION_OPEN_LOCKED_SAFE";
-				return "#STR_EXPANSION_OPEN_LOCKED_CONTAINER";
+					text = "#STR_EXPANSION_OPEN_LOCKED_SAFE";
+				else
+					text = "#STR_EXPANSION_OPEN_LOCKED_CONTAINER";
 			}
-			return "#STR_EXPANSION_OPEN_LOCKED_DOOR";
+			else
+			{
+				text = "#STR_EXPANSION_OPEN_LOCKED_DOOR";
+			}
+		}
+		else
+		{
+			text = "#open";
 		}
 
-		return "#open";
+		if (m_Target && GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )

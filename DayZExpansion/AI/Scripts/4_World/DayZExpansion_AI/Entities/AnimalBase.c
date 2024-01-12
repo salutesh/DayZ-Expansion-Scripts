@@ -1,27 +1,9 @@
 modded class AnimalBase
 {
-	private autoptr eAICreatureTargetInformation m_TargetInformation;
-	bool m_eAI_ProcessDamageByAI;
+	private ref eAICreatureTargetInformation m_TargetInformation = new eAICreatureTargetInformation(this);
+	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
 	bool m_Expansion_Airborne;
 	float m_Expansion_AirbornePeakAltitude;
-
-	void AnimalBase()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "AnimalBase");
-#endif
-
-		m_TargetInformation = CreateTargetInformation();
-	}
-
-	protected eAICreatureTargetInformation CreateTargetInformation()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "CreateTargetInformation");
-#endif
-
-		return new eAICreatureTargetInformation(this);
-	}
 
 	eAICreatureTargetInformation GetTargetInformation()
 	{
@@ -34,37 +16,13 @@ modded class AnimalBase
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-		DayZPlayerImplement sourcePlayer;
-		if (!m_eAI_ProcessDamageByAI && Class.CastTo(sourcePlayer, source.GetHierarchyRootPlayer()))
-		{
-			switch (damageType)
-			{
-				case DT_CLOSE_COMBAT:
-					eAIGroup group = sourcePlayer.GetGroup();
-					if (group)
-					{
-						eAIFaction faction = group.GetFaction();
-						eAIMeleeCombat.eAI_ApplyYeetForce(m_TargetInformation, faction.GetMeleeYeetForce(), sourcePlayer.GetPosition(), faction.GetMeleeYeetFactors());
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
 
-						float meleeDamageMultiplier = faction.GetMeleeDamageMultiplier();
-						if (meleeDamageMultiplier != 1.0)
-						{
-							m_eAI_ProcessDamageByAI = true;
-							//! @note IMPORTANT: Do NOT pass in dmgZone here, won't generate hit! Melee dmg is a special snowflake
-							ProcessDirectDamage(DT_CLOSE_COMBAT, source, "", ammo, modelPos, speedCoef * meleeDamageMultiplier);
-							return false;
-						}
-					}
+		if (!m_eAI_DamageHandler.OnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
 
-					break;
-			}
-		}
-		else
-		{
-			m_eAI_ProcessDamageByAI = false;
-		}
-
-		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		return true;
 	}
 
 	override void EEKilled(Object killer)

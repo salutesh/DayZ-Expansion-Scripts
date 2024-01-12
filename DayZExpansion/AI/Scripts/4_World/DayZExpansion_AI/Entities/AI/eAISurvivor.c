@@ -1,39 +1,79 @@
+class eAISurvivor
+{
+	static ref ExpansionArray<string> s_Females = new ExpansionArray<string>;
+	static ref ExpansionArray<string> s_Males = new ExpansionArray<string>;
+
+	static bool s_Initialized = Init();
+
+	static bool Init()
+	{
+		TStringArray females = {"Eva", "Frida", "Gabi", "Helga", 
+								"Irena", "Judy", "Keiko", "Linda", 
+								"Maria", "Naomi", "Baty"};
+
+		s_Females.InsertAll(females);
+
+		TStringArray males = {"Boris", "Cyril", "Denis", "Elias", 
+							  "Francis", "Guo", "Hassan", "Indar", 
+							  "Jose", "Kaito", "Lewis", "Manua", 
+							  "Mirek", "Niki", "Oliver", "Peter", 
+							  "Quinn", "Rolf", "Seth", "Taiki"};
+
+		s_Males.InsertAll(males);
+
+		return true;
+	}
+
+	static string GetQuasiRandom()
+	{
+		if (Math.RandomIntInclusive(0, 1) == 1)
+			return GetQuasiRandomFemale();
+		else
+			return GetQuasiRandomMale();
+	}
+
+	static string GetQuasiRandomFemale()
+	{
+		return "eAI_SurvivorF_" + s_Females.GetQuasiRandomElementAvoidRepetition();
+	}
+
+	static string GetQuasiRandomMale()
+	{
+		return "eAI_SurvivorM_" + s_Males.GetQuasiRandomElementAvoidRepetition();
+	}
+
+	static string GetRandom()
+	{
+		if (Math.RandomIntInclusive(0, 1) == 1)
+			return GetRandomFemale();
+		else
+			return GetRandomMale();
+	}
+
+	static string GetRandomFemale()
+	{
+		return "eAI_SurvivorF_" + s_Females.GetRandomElement();
+	}
+
+	static string GetRandomMale()
+	{
+		return "eAI_SurvivorM_" + s_Males.GetRandomElement();
+	}
+}
+
 string GetRandomAI()
 {
-	auto trace = EXTrace.Start(EXTrace.AI, null);
-
-	if (Math.RandomIntInclusive(0, 1) == 1)
-	{
-		return GetRandomAIFemale();
-	}
-	else
-	{
-		return GetRandomAIMale();
-	}
+	return eAISurvivor.GetQuasiRandom();
 }
 
 string GetRandomAIFemale()
 {
-	auto trace = EXTrace.Start(EXTrace.AI, null);
-
-	TStringArray FemaleList = { "SurvivorF_Eva", "SurvivorF_Frida", "SurvivorF_Gabi", "SurvivorF_Helga", 
-								"SurvivorF_Irena", "SurvivorF_Judy", "SurvivorF_Keiko", "SurvivorF_Linda", 
-								"SurvivorF_Maria", "SurvivorF_Naomi", "SurvivorF_Baty"
-							  };
-	return "eAI_" + FemaleList.GetRandomElement();
+	return eAISurvivor.GetQuasiRandomFemale();
 }
 
 string GetRandomAIMale()
 {
-	auto trace = EXTrace.Start(EXTrace.AI, null);
-
-	TStringArray MaleList = { "SurvivorM_Boris", "SurvivorM_Cyril", "SurvivorM_Denis", "SurvivorM_Elias", 
-							  "SurvivorM_Francis", "SurvivorM_Guo", "SurvivorM_Hassan", "SurvivorM_Indar", 
-							  "SurvivorM_Jose", "SurvivorM_Kaito", "SurvivorM_Lewis", "SurvivorM_Manua", 
-							  "SurvivorM_Mirek", "SurvivorM_Niki", "SurvivorM_Oliver", "SurvivorM_Peter", 
-							  "SurvivorM_Quinn", "SurvivorM_Rolf", "SurvivorM_Seth", "SurvivorM_Taiki"
-							};
-	return "eAI_" + MaleList.GetRandomElement();
+	return eAISurvivor.GetQuasiRandomMale();
 }
 
 class eAI_SurvivorM_Mirek: eAIBase {};

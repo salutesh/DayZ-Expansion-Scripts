@@ -11,71 +11,100 @@
 */
 
 #ifdef EXPANSIONMODAI
+class ExpansionQuestObjectiveAICampConfig_V25: ExpansionQuestObjectiveConfig
+{
+	autoptr ExpansionQuestObjectiveAICamp AICamp;
+	float MinDistRadius;
+	float MaxDistRadius;
+	float DespawnRadius;
+	bool CanLootAI;
+	int InfectedDeletionRadius;
+};
+
 class ExpansionQuestObjectiveAICampConfigBase: ExpansionQuestObjectiveConfig
 {
-	ref ExpansionQuestObjectiveAICamp AICamp;
-	float MinDistRadius = 50;
-	float MaxDistRadius = 150;
-	float DespawnRadius = 880;
-	bool CanLootAI = true;
-	int InfectedDeletionRadius = 500;
+	//! Not used rn
 };
 
 class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBase
-{	
-	void SetAICamp(ExpansionQuestObjectiveAICamp camp)
+{
+	float InfectedDeletionRadius = 500.0;
+	autoptr array<ref ExpansionQuestAISpawn> AISpawns = new array<ref ExpansionQuestAISpawn>;
+	float MaxDistance = -1;
+	float MinDistance = -1;
+	autoptr TStringArray AllowedWeapons = new TStringArray;
+	autoptr TStringArray AllowedDamageZones = new TStringArray;
+
+	void SetAISpawns(array<ref ExpansionQuestAISpawn> aiSpawns)
 	{
-		AICamp = camp;
+		if (!AISpawns)
+			AISpawns = new array<ref ExpansionQuestAISpawn>;
+
+		AISpawns = aiSpawns;
 	}
 
-	ExpansionQuestObjectiveAICamp GetAICamp()
+	void AddAISpawn(ExpansionQuestAISpawn aiSpawn)
 	{
-		return AICamp;
+		if (!AISpawns)
+			AISpawns = new array<ref ExpansionQuestAISpawn>;
+
+		AISpawns.Insert(aiSpawn);
 	}
 
-	void SetMinDistRadius(float dist)
+	array<ref ExpansionQuestAISpawn> GetAISpawns()
 	{
-		MinDistRadius = dist;
-	}
-
-	float GetMinDistRadius()
-	{
-		return MinDistRadius;
-	}
-
-	void SetMaxDistRadius(float dist)
-	{
-		MaxDistRadius = dist;
-	}
-
-	float GetMaxDistRadius()
-	{
-		return MaxDistRadius;
-	}
-
-	void SetDespawnRadius(float dist)
-	{
-		DespawnRadius = dist;
-	}
-
-	float GetDespawnRadius()
-	{
-		return DespawnRadius;
-	}
-
-	void SetCanLootAI(bool state)
-	{
-		CanLootAI = state;
-	}
-
-	bool CanLootAI()
-	{
-		return CanLootAI;
+		return AISpawns;
 	}
 	
-	int GetInfectedDeletionRadius()
+	void AddAllowedWeapon(string name)
+	{
+		AllowedWeapons.Insert(name);
+	}
+
+	TStringArray GetAllowedWeapons()
+	{
+		return AllowedWeapons;
+	}
+	
+	void SetInfectedDeletionRadius(float radius)
+	{
+		InfectedDeletionRadius = radius;
+	}
+
+	float GetInfectedDeletionRadius()
 	{
 		return InfectedDeletionRadius;
+	}
+
+	void SetMaxDistance(float max)
+	{
+		MaxDistance = max;
+	}
+
+	float GetMaxDistance()
+	{
+		return MaxDistance;
+	}
+
+	void SetMinDistance(float max)
+	{
+		MinDistance = max;
+	}
+
+	float GetMinDistance()
+	{
+		return MinDistance;
+	}
+	
+	void AddAllowedDamageZone(string zone)
+	{
+		if (!AllowedDamageZones.Find(zone))
+			AllowedDamageZones.Insert(zone);
+	}
+
+	TStringArray GetAllowedDamageZones()
+	{
+		return AllowedDamageZones;
 	}
 
 	static ExpansionQuestObjectiveAICampConfig Load(string fileName)
@@ -97,17 +126,48 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 			//! Copy over old configuration that haven't changed
 			config.CopyConfig(configBase);
 
-			if (configBase.ConfigVersion < 6)
+			if (configBase.ConfigVersion < 26)
 			{
-				config.CanLootAI = true;
-			}
+				ExpansionQuestObjectiveAICampConfig_V25 configV25;
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig_V25>.Load(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, configV25))
+					return NULL;
 
-			if (configBase.ConfigVersion < 7)
-			{
-				if (config.AICamp)
+				config.InfectedDeletionRadius = configV25.InfectedDeletionRadius;
+
+				if (configV25.AICamp)
 				{
-					config.AICamp.NPCAccuracyMin = -1;
-					config.AICamp.NPCAccuracyMax = -1;
+					config.AllowedWeapons = configV25.AICamp.AllowedWeapons;
+
+					foreach (vector pos: configV25.AICamp.Positions)
+					{
+						ExpansionQuestAISpawn aiSpawn = new ExpansionQuestAISpawn();
+						aiSpawn.SetNumberOfAI(1);
+						aiSpawn.SetName("Quest Target");
+						aiSpawn.AddWaypoint(pos);
+						aiSpawn.SetLoadout(configV25.AICamp.NPCLoadoutFile);
+						aiSpawn.SetFaction(configV25.AICamp.NPCFaction);
+						aiSpawn.SetBehaviour(eAIWaypointBehavior.HALT);
+						aiSpawn.SetFormation("RANDOM");
+						aiSpawn.SetSpeed(0);
+						aiSpawn.SetThreatSpeed(3.0);
+						aiSpawn.SetMinAccuracy(configV25.AICamp.NPCAccuracyMin);
+						aiSpawn.SetMaxAccuracy(configV25.AICamp.NPCAccuracyMax);
+						aiSpawn.SetCanBeLooted(configV25.CanLootAI);
+						aiSpawn.SetUnlimitedReload(true);
+						aiSpawn.SetThreatDistanceLimit(1000.0);
+						aiSpawn.SetDamageMultiplier(1.0);
+						aiSpawn.SetDamageReceivedMultiplier(1.0);
+						aiSpawn.SetClassNames(ExpansionQuestAISpawn.eAI_UNITS);
+						aiSpawn.SetSniperProneDistanceThreshold(300.0);
+
+						aiSpawn.SetRespawnTime(1.0);
+						aiSpawn.SetDespawnTime(1.0);
+						aiSpawn.SetMinDistanceRadius(configV25.MinDistRadius);
+						aiSpawn.SetMaxDistanceRadius(configV25.MaxDistRadius);
+						aiSpawn.SetDespawnRadius(configV25.DespawnRadius);
+
+						config.AddAISpawn(aiSpawn);
+					}
 				}
 			}
 
@@ -120,14 +180,22 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 				return NULL;
 		}
 
-		if (!config.DespawnRadius)
-			config.DespawnRadius = 880;
-		
-		string removeExt = ExpansionString.StripExtension(config.AICamp.GetNPCLoadoutFile(), ".json");
-		if (removeExt != config.AICamp.GetNPCLoadoutFile())
+		foreach (ExpansionQuestAISpawn spawn: config.AISpawns)
 		{
-			config.AICamp.SetNPCLoadoutFile(removeExt);
-			save = true;
+			string removeExt = ExpansionString.StripExtension(spawn.GetLoadout(), ".json");
+			if (removeExt != spawn.GetLoadout())
+			{
+				spawn.SetLoadout(removeExt);
+				save = true;
+			}
+			
+			//! Make sure number of AI for each AI spawn is set to 1.
+			int numOfAI = spawn.GetNumberOfAI();
+			if (numOfAI <= 0 || numOfAI > 1)
+			{
+				spawn.SetNumberOfAI(1);
+				save = true;
+			}
 		}
 
 		if (save)
@@ -154,26 +222,6 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
-
-		AICamp = configBase.AICamp;
-		MinDistRadius = configBase.MinDistRadius;
-		MaxDistRadius = configBase.MaxDistRadius;
-		DespawnRadius = configBase.DespawnRadius;
-		CanLootAI = configBase.CanLootAI;
-		InfectedDeletionRadius = configBase.InfectedDeletionRadius;
-	}
-
-	override void OnSend(ParamsWriteContext ctx)
-	{
-		super.OnSend(ctx);
-	}
-
-	override bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!super.OnRecieve(ctx))
-			return false;
-
-		return true;
 	}
 
 	override bool Validate()
@@ -181,22 +229,7 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		if (!super.Validate())
 			return false;
 
-		if (!AICamp)
-			return false;
-		
-		if (!AICamp.Validate())
-			return false;
-
 		return true;
-	}
-
-	override void QuestDebug()
-	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		super.QuestDebug();
-		if (AICamp)
-			AICamp.QuestDebug();
-	#endif
 	}
 };
 #endif

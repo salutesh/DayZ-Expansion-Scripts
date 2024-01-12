@@ -109,16 +109,32 @@ class ExpansionQuestConfigV19Base: ExpansionQuestConfigV15Base
 	bool SequentialObjectives = true;
 };
 
-class ExpansionQuestConfig: ExpansionQuestConfigV19Base
+class ExpansionQuestConfigV20Base: ExpansionQuestConfigV19Base
 {
-	static const int CONFIGVERSION = 20;
-
 #ifdef EXPANSIONMODHARDLINE
 #ifdef EXPANSIONMODAI
 	ref map<string, int> FactionReputationRequirements; //! Faction reputation points requirement the players will need to see and accept the quest.
 	ref map<string, int> FactionReputationRewards; //! Faction reputation points the players will gain on quest completion.
 #endif
 #endif
+
+	void ExpansionQuestConfigV20Base()
+	{		
+	#ifdef EXPANSIONMODHARDLINE
+	#ifdef EXPANSIONMODAI
+		FactionReputationRequirements = new map<string, int>;
+		FactionReputationRewards = new map<string, int>;
+	#endif
+	#endif
+	}
+};
+
+class ExpansionQuestConfig: ExpansionQuestConfigV20Base
+{
+	static const int CONFIGVERSION = 21;
+	
+	bool SuppressQuestLogOnCompetion = false;
+	bool Active = true;
 	
 	void ExpansionQuestConfig()
 	{
@@ -578,6 +594,16 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 	{
 		return SequentialObjectives;
 	}
+	
+	bool IsActive()
+	{
+		return Active;
+	}
+	
+	bool SuppressQuestLogOnCompetion()
+	{
+		return SuppressQuestLogOnCompetion;
+	}
 
 	static ExpansionQuestConfig Load(string fileName)
 	{
@@ -587,10 +613,10 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 		EXTrace.Print(EXTrace.QUESTS, null, "Load existing configuration file:" + fileName);
 
 		ExpansionQuestConfig questConfig;
-		ExpansionQuestConfigV19Base questConfigBase;
+		ExpansionQuestConfigV20Base questConfigBase;
 		int j;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestConfigV19Base>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestConfigV20Base>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigBase))
 			return NULL;
 
 		if (questConfigBase.ConfigVersion < CONFIGVERSION)
@@ -655,6 +681,12 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 					ExpansionQuestRewardConfig rewardConfigV17 = questConfig.Rewards[j];
 					rewardConfigV17.SetChance(1.0);
 				}
+			}
+			
+			if (questConfigBase.ConfigVersion < 21)
+			{
+				questConfig.SuppressQuestLogOnCompetion = false;
+				questConfig.Active = true;
 			}
 
 			//! Update quest configuration objectives config version.
@@ -997,7 +1029,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 		ExpansionJsonFileParser<ExpansionQuestConfig>.Save(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, this);
 	}
 
-	void CopyConfig(ExpansionQuestConfigV19Base questConfigBase)
+	void CopyConfig(ExpansionQuestConfigV20Base questConfigBase)
 	{
 		ConfigVersion = questConfigBase.ConfigVersion;
 		ID = questConfigBase.ID;
@@ -1043,6 +1075,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 		DeleteQuestItems = questConfigBase.DeleteQuestItems;
 		
 		SequentialObjectives = questConfigBase.SequentialObjectives;
+	
+	#ifdef EXPANSIONMODHARDLINE
+	#ifdef EXPANSIONMODAI
+		FactionReputationRequirements = questConfigBase.FactionReputationRequirements;
+		FactionReputationRewards = questConfigBase.FactionReputationRewards;
+	#endif
+	#endif
 	}
 
 	void OnSend(ParamsWriteContext ctx)
@@ -1780,20 +1819,24 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 		int i;
 		for (i = 0; i < Objectives.Count(); ++i)
 		{
-			ExpansionQuestObjectiveConfig objectiveConfig = ExpansionQuestObjectiveConfig.Cast(Objectives[i]);
-			objectiveConfig.QuestDebug();
+			ExpansionQuestObjectiveConfigBase objectiveConfigBase = Objectives[i];
+			ExpansionQuestObjectiveConfig objectiveConfig;
+			if (Class.CastTo(objectiveConfig, objectiveConfigBase))
+				objectiveConfig.QuestDebug();
 		}
 
 		for (i = 0; i < QuestItems.Count(); ++i)
 		{
 			ExpansionQuestItemConfig itemConfig = QuestItems[i];
-			itemConfig.QuestDebug();
+			if (itemConfig)
+				itemConfig.QuestDebug();
 		}
 
 		for (i = 0; i < Rewards.Count(); ++i)
 		{
 			ExpansionQuestRewardConfig rewardConfig = Rewards[i];
-			rewardConfig.QuestDebug();
+			if (rewardConfig)
+				rewardConfig.QuestDebug();
 		}
 
 		Print(ToString() + "::QuestDebug - IsGroupQuest: " + IsGroupQuest);

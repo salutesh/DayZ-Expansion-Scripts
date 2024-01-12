@@ -153,12 +153,22 @@ class ExpansionAIPatrolManager
         else
             damageMultiplier = patrol.DamageMultiplier;
 
+        float damageReceivedMultiplier;
+        if ( patrol.DamageReceivedMultiplier <= 0 )
+            damageReceivedMultiplier = s_AIPatrolSettings.DamageReceivedMultiplier;
+        else
+            damageReceivedMultiplier = patrol.DamageReceivedMultiplier;
+
         dynPatrol.SetAccuracy(accuracyMin, accuracyMax);
         dynPatrol.SetThreatDistanceLimit(threatDistanceLimit);
         dynPatrol.SetNoiseInvestigationDistanceLimit(noiseDistanceLimit);
         dynPatrol.SetDamageMultiplier(damageMultiplier);
+        dynPatrol.SetDamageReceivedMultiplier(damageReceivedMultiplier);
         dynPatrol.SetGroupName(patrol.Name);
         dynPatrol.SetSniperProneDistanceThreshold(patrol.SniperProneDistanceThreshold);
+
+        if (patrol.Units && patrol.Units.Count())
+            dynPatrol.SetUnits(patrol.Units);
 
         return dynPatrol;
     }

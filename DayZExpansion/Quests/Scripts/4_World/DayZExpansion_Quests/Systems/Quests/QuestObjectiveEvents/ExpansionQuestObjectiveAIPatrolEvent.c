@@ -48,39 +48,68 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 #ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
-		ExpansionQuestObjectiveAIPatrol aiPatrol = m_AIPatrolConfig.GetAIPatrol();
-		if (!aiPatrol)
+		if (!m_AIPatrolConfig)
 			return;
 
 		string markerName = m_AIPatrolConfig.GetObjectiveText();
-		array<vector> waypoints = aiPatrol.GetWaypoints();
-		if (waypoints)
-			CreateObjectiveMarker(waypoints[0], markerName);
+		vector position = m_AIPatrolConfig.GetAISpawn().GetWaypoints()[0];
+		if (position != "0 0 0")
+			CreateObjectiveMarker(position, markerName);
 	}
 #endif
 
-	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null)
+	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null, map<Man, ref ExpansionEntityHitInfo> hitMap = null)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		ExpansionQuestObjectiveAIPatrol aiPatrol = m_AIPatrolConfig.GetAIPatrol();
-		if (!aiPatrol)
+		if (!m_AIPatrolConfig)
 			return;
 
-		//! If the ai camp need to be killed with a special weapon check incoming killer class type
-		if (aiPatrol.NeedSpecialWeapon())
+		//! If the ai camp need to be killed with a special weapon check incoming killer class type.
+		if (m_AIPatrolConfig.GetAllowedWeapons().Count() > 0)
 		{
-			if (!ExpansionStatic.IsAnyOf(killer, aiPatrol.GetAllowedWeapons(), true))
+			if (!ExpansionStatic.IsAnyOf(killer, m_AIPatrolConfig.GetAllowedWeapons(), true))
+			{
+				ObjectivePrint("Entity got not killed with any allowed weapon! Skip..");
 				return;
+			}
 		}
-
-		//! Check if killed entities class name is a valid one from our objective config
-		bool found = ExpansionStatic.IsAnyOf(victim, aiPatrol.GetClassNames(), true);
-		ObjectivePrint("Target found: " + found);
-		if (!found)
+		
+		//! Check if the killer player was in legit kill range.
+		if (killerPlayer && !IsInRange(killerPlayer.GetPosition(), victim.GetPosition(), m_AIPatrolConfig.GetMaxDistance(), m_AIPatrolConfig.GetMinDistance()))
+		{
+			ObjectivePrint("Killer is out of legit kill range! Skip..");
 			return;
+		}
+		
+		//! If the target need to be hit at a certain zone we check the hit map for the last valid hit of the killer player on the victim entity.
+		TStringArray allowedDamageZones = m_AIPatrolConfig.GetAllowedDamageZones();
+		if (allowedDamageZones.Count() > 0 && killerPlayer)
+		{
+			ObjectivePrint("::OnEntityKilled - Check if entity got hit at valid zone..");
+			bool hasHitEntity = false;
+			
+			if (hitMap.Count() == 0)
+				return;
+			
+			ExpansionEntityHitInfo hitInfo;
+			if (!hitMap.Find(killerPlayer, hitInfo))
+				return;
+			
+			string damageZone = hitInfo.GetZone();
+			string killerUID;
+			if (killerPlayer.GetIdentity())
+				killerUID = killerPlayer.GetIdentity().GetId();
+			ObjectivePrint("::OnEntityKilled - Last known hit zone for player with UID: " + killerUID + " | Zone: " + damageZone);
+			int hitFound = allowedDamageZones.Find(damageZone);
+			if (hitFound == -1)
+			{
+				ObjectivePrint("Entity killed was not hit on a valid damage zone! Skip..");
+				return;
+			}
+		}
 
 		super.OnEntityKilled(victim, killer, killerPlayer);
 	}
@@ -103,22 +132,17 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		ExpansionQuestObjectiveAIPatrol aiPatrol = m_AIPatrolConfig.GetAIPatrol();
-		if (!aiPatrol)
+		if (!m_AIPatrolConfig)
 			return;
 
-		m_UnitsToSpawn = m_TotalUnitsAmount - m_TotalKillCount;
-
-		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
-		ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(m_UnitsToSpawn, aiPatrol.GetNPCSpeed(), "SPRINT", aiPatrol.GetNPCMode(), aiPatrol.GetNPCFaction(), aiPatrol.GetNPCLoadoutFile(), m_AIPatrolConfig.CanLootAI(), true, aiPatrol.GetWaypoints());
-		group.Formation = aiPatrol.NPCFormation;
-		group.AccuracyMin = aiPatrol.NPCAccuracyMin;
-		group.AccuracyMax = aiPatrol.NPCAccuracyMax;
-		eAIDynamicPatrol patrol = ExpansionQuestObjectiveAIEventBase.CreateQuestPatrol(group, 0, 600, 300, m_AIPatrolConfig.GetMinDistRadius(), m_AIPatrolConfig.GetMaxDistRadius(), m_AIPatrolConfig.GetDespawnRadius());
-		if (!patrol)
+		ExpansionQuestAISpawn aiSpawn = m_AIPatrolConfig.GetAISpawn();
+		if (!aiSpawn)
 			return;
 
-		questPatrols.Insert(patrol);
+		array<eAIQuestPatrol> questPatrols = new array<eAIQuestPatrol>;
+		eAIQuestPatrol questPatrol = aiSpawn.CreateAIQuestPatrol(m_TotalKillCount);
+		questPatrols.Insert(questPatrol);
+
 		ExpansionQuestModule.GetModuleInstance().SetQuestPatrols(m_Quest.GetQuestConfig().GetID(), questPatrols);
 
 	#ifdef EXPANSIONMODNAVIGATION

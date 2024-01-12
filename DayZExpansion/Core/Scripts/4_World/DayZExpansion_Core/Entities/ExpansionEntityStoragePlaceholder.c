@@ -288,10 +288,58 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 
 class ExpansionDebugGoat: ExpansionEntityStoragePlaceholder
 {
+	override void EEInit()
+	{
+		super.EEInit();
+		
+		if (GetGame().IsServer())
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_CreateGoatAttachment);
+	}
+
 	override void SetActions()
 	{
 		super.SetActions();
 
 		AddAction(ExpansionActionRestoreEntity);
+
+		AddAction(ActionTogglePlaceObject);
+		AddAction(ExpansionActionPlaceDebugGoat);
+	}
+
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		return true;
+	}
+	
+	override void OnPlacementComplete(Man player, vector position = "0 0 0", vector orientation = "0 0 0")
+	{
+		super.OnPlacementComplete(player, position, orientation);
+
+	#ifndef SERVER
+		ExpansionSound.Play(GetPlaceSoundset(), this);
+	#endif
+	}
+		
+	override string GetPlaceSoundset()
+	{
+		string bleat;
+
+		if (Math.RandomIntInclusive(0, 1))
+			bleat = "GoatBleat_A_SoundSet";
+		else
+			bleat = "GoatBleat_E_SoundSet";
+
+		return bleat;
+	}
+
+	override string GetLoopDeploySoundset()
+	{
+		return "mediumtent_deploy_SoundSet";
+	}
+
+	void Expansion_CreateGoatAttachment()
+	{
+		if (!FindAttachmentBySlotName("ExpansionGoat_Attachment"))
+			GetInventory().CreateAttachment("ExpansionGoat_Attachment");
 	}
 };

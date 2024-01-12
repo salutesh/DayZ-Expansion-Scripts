@@ -188,15 +188,14 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		ExpansionQuestMenuLogEntry questEntry;
 		foreach (ExpansionQuestConfig questConfig: m_ClientQuestConfigs)
 		{
-			//! We only want to display active quests here the player is currently progressing thrue 
-			//! or when it is ready for turn-in and when it is not a achievement quest.
+			//! We only want to display quests here that can be started when the quest has no quest-giver ID, active quests the player is currently progressing thrue and quests that are ready for turn-in (excludes achievement quest).
 			int questID = questConfig.GetID();
 			ExpansionQuestState questState = ExpansionQuestState.NONE;
 			questState = m_ClientQuestData.GetQuestStateByQuestID(questID);
 			string stateText = typename.EnumToString(ExpansionQuestState, questState);
 			QuestDebug(ToString() + "::SetQuests - Quest state for quest " + questID + " is " + stateText);
 			
-			if (!questConfig.IsAchievement() && (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN))
+			if (!questConfig.IsAchievement() && (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN || (questState == ExpansionQuestState.NONE && !questConfig.GetQuestGiverIDs().Count() && ExpansionQuestModule.GetModuleInstance().QuestDisplayConditions(questConfig, player, m_ClientQuestData, -1, false))))
 			{
 				QuestDebug(ToString() + "::SetQuests - Show quest " + questID + ". Add to menu quest.");
 				m_Quests.Insert(questConfig);
@@ -263,7 +262,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			return;
 		}
 		
-		ExpansionQuestConfig questToShow;
+		//ExpansionQuestConfig questToShow;
 		ExpansionQuestMenuListEntry questEntry;
 		//! Check quest configurations array for valid quests to display.
 		foreach (ExpansionQuestConfig questConfig: m_ClientQuestConfigs)
@@ -284,7 +283,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			}
 			else if (questID > -1 && questConfig.GetID() == questID)
 			{
-				questToShow = questConfig;
+				//questToShow = questConfig;
 				QuestDebug(ToString() + "::SetQuests - Show quest " + questConfig.GetID() + ". Add to menu quest.");
 				m_Quests.Insert(questConfig);
 				questEntry = new ExpansionQuestMenuListEntry(questConfig, this);
@@ -373,26 +372,46 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		}
 		else
 		{
-			description = quest.GetDescriptions()[0];
-			objectiveText = quest.GetObjectiveText();
-			ObjectivePanel.Show(true);
-			Accept.Show(false);
-
-			if (questState < ExpansionQuestState.CAN_TURNIN)
+			switch (questState)
 			{
-				ObjectivePanel.Show(true);
-			}
-			else
-			{
-				ObjectivePanel.Show(false);
-				if (quest.GetQuestTurnInIDs().Count() == 0 || quest.IsAutocomplete())
+				case ExpansionQuestState.NONE:
 				{
-					description = quest.GetDescriptions()[2];
-					Complete.Show(true);
+					description = quest.GetDescriptions()[0];
+					objectiveText = quest.GetObjectiveText();
+					ObjectivePanel.Show(true);
+					Accept.Show(true);
+					Complete.Show(false);
+					Cancel.Show(false);
 				}
-	
-				Accept.Show(false);
-				Cancel.Show(true);
+				break;
+				case ExpansionQuestState.STARTED:
+				{
+					description = quest.GetDescriptions()[0];
+					objectiveText = quest.GetObjectiveText();
+					ObjectivePanel.Show(true);
+					Accept.Show(false);
+					Complete.Show(false);
+					Cancel.Show(true);
+				}
+				break;
+				case ExpansionQuestState.CAN_TURNIN:
+				{
+					ObjectivePanel.Show(false);
+					if (quest.GetQuestTurnInIDs().Count() == 0 || quest.IsAutocomplete())
+					{
+						description = quest.GetDescriptions()[2];
+						Complete.Show(true);
+					}
+					else
+					{
+						description = quest.GetDescriptions()[0];
+						Complete.Show(false);
+					}
+		
+					Accept.Show(false);
+					Cancel.Show(true);
+				}
+				break;
 			}
 		}
 
@@ -900,7 +919,11 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 	override void OnHide()
 	{
-		ExpansionQuestModule.GetModuleInstance().ExitQuestMenu(m_CurrentNPCID);
+		if (m_CurrentNPCID > -1 && !m_QuestLogMode)
+			ExpansionQuestModule.GetModuleInstance().ExitQuestMenu(m_CurrentNPCID);
+
+		if (m_QuestLogMode)
+			m_QuestLogMode = false;
 		
 		super.OnHide();
 	}
@@ -915,17 +938,8 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	
 	void SetLogMode(bool state)
 	{
-		QuestDebug(ToString() + "::SetLogMode - Start");
 		QuestDebug(ToString() + "::SetLogMode - State: " + state);
-		
 		m_QuestLogMode = state;
-		
-		if (state)
-		{
-			SetQuestLogView();
-		}
-		
-		QuestDebug(ToString() + "::SetLogMode - End");
 	}
 
 	void QuestDebug(string text)

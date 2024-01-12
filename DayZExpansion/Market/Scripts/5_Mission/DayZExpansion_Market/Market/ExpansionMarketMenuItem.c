@@ -19,6 +19,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	protected ref ExpansionMarketMenu m_MarketMenu;
 	protected ref ExpansionMarketMenuItemTooltip m_Tooltip;
 	protected ref ExpansionItemTooltip m_ItemTooltip;
+	protected string m_ItemSortName;
 
 	protected int m_MenuIdx;
 	
@@ -198,6 +199,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		
 		m_ItemController.ItemName = itemDisplayName;
 		m_ItemController.NotifyPropertyChanged("ItemName");
+
+		itemDisplayName.ToLower();
+		m_ItemSortName = itemDisplayName;
 		
 		UpdatePreviewObject();
 		
@@ -366,7 +370,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			ExpansionMarketItem item = GetMarketItem();
 			m_MarketModule.FindPriceOfPurchase(item, m_MarketModule.GetClientZone(), GetMarketMenu().GetMarketTrader(), 1, price, GetIncludeAttachments());
 			m_BuyPrice = price;
-			m_ItemController.ItemBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",", true);
+			m_ItemController.ItemBuyPrice = m_MarketMenu.GetDisplayPrice(m_BuyPrice, true);
 		}
 		else
 		{
@@ -397,7 +401,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_ItemStock, 1, marketSell, m_PlayerStock != 0 || m_IncludeAttachments);
 			m_SellPrice = marketSell.Price;
 
-			m_ItemController.ItemSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",", true);
+			m_ItemController.ItemSellPrice = m_MarketMenu.GetDisplayPrice(m_SellPrice, true);
 		}
 		else
 		{
@@ -630,6 +634,11 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		return m_ItemController.ItemName;
 	}
 
+	string GetItemSortName()
+	{
+		return m_ItemSortName;
+	}
+
 	int GetBuyPrice()
 	{
 		return m_BuyPrice;
@@ -642,10 +651,10 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		switch (sortPriority)
 		{
 			case ExpansionMarketMenuSortPriority.NAME:
-				return m_ItemController.ItemName + "|" + pricePadded;
+				return m_ItemSortName + "\t" + pricePadded;
 
 			case ExpansionMarketMenuSortPriority.PRICE:
-				return pricePadded + "|" + m_ItemController.ItemName;
+				return pricePadded + "\t" + m_ItemSortName;
 		}
 
 		return string.Empty;

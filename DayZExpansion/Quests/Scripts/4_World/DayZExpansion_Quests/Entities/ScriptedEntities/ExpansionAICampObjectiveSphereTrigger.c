@@ -10,44 +10,29 @@
  *
 */
 
-class ExpansionAICampObjectiveSphereTrigger: Trigger
+class ExpansionAICampObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 {
 	void ExpansionAICampObjectiveSphereTrigger()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
+
 		SetEventMask(EntityEvent.ENTER);
-	}
-
-	void SetTriggerRadius(int radius)
-	{
-		SetCollisionSphere(radius);
-	}
-
-	override protected void AddInsider(Object obj)
-	{
-		//! Do nothing..
+		m_TriggerType = ExpansionObjectiveTriggerType.AICAMP;
 	}
 
 	//! Event called when an entity enters the trigger area.
 	override void EOnEnter(IEntity other, int extra)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Entity: " + other.Type());
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
 	#ifdef SERVER
 		ZombieBase infected;
 		if (Class.CastTo(infected, other))
-		{
-			QuestPrint("Delete infected: " + infected.GetType());
 			GetGame().ObjectDelete(infected);
-		}
-	#endif
-	}
-	
-	protected void QuestPrint(string text)
-	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		EXTrace.Print(EXTrace.QUESTS, this, text);
 	#endif
 	}
 };

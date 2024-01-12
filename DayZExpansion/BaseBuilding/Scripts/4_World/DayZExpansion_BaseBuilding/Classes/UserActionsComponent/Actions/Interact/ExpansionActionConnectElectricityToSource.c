@@ -16,6 +16,7 @@ class ExpansionActionConnectElectricityToSource: ActionInteractBase
 	void ExpansionActionConnectElectricityToSource()
 	{
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
+		m_Text = "Connect";
 	}
 
 	override void CreateConditionComponents()  
@@ -26,7 +27,12 @@ class ExpansionActionConnectElectricityToSource: ActionInteractBase
 
 	override string GetText()
 	{
-		return "Connect";
+		string text = super.GetText();
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )

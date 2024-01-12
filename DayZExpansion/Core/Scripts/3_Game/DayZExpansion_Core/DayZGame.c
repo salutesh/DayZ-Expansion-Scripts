@@ -48,6 +48,8 @@ modded class DayZGame
 		EXLogPrint(ToString() + " Start time (UTC) " + CF_Date.Epoch(m_Expansion_StartTimestampUTC).Format(CF_Date.DATETIME));
 		EXLogPrint(ToString() + " Runtime since start (seconds) " + GetTickTime());
 
+		CF_Log.s_Expansion_Static = new ExpansionStatic;
+
 		if (!FileExist(EXPANSION_FOLDER))
 		{
 			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_FOLDER);

@@ -2233,6 +2233,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		if (uid == territory.GetOwnerID())
 			return true;
 
+		if (CanEditTerritory(uid))
+			return true;
+
 		//! Check member for moderator permissions
 
 		ExpansionTerritoryMember member = territory.GetMember(uid);

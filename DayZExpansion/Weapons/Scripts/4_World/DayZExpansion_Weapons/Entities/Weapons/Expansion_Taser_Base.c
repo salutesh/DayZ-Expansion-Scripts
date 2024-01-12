@@ -21,6 +21,11 @@ class Expansion_Taser_Base: FNX45_Base
 		RemoveAction( ActionTurnOffWeaponFlashlight );
 		RemoveAction( FirearmActionLoadBulletQuick );
 	}
+
+	override void OnDebugSpawn()
+	{
+		SpawnAttachedMagazine("Mag_Expansion_Taser");
+	}
 };
 
 class Expansion_Taser_Debug: Expansion_Taser_Base

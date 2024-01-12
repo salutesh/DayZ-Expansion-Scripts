@@ -169,6 +169,7 @@ class eAIGroup
 #endif
 
 		m_Waypoints.Clear();
+		m_CurrentWaypointIndex = 0;
 	}
 
 	void SetWaypointBehaviour(eAIWaypointBehavior bhv)
@@ -235,12 +236,18 @@ class eAIGroup
 			return;
 		}
 
+		int oldFactionTypeID = m_Faction.GetTypeID();
+		int newFactionTypeID = f.GetTypeID();
+
 		m_Faction = f;
+
+		if (newFactionTypeID == oldFactionTypeID)
+			return;
 
 		foreach (auto member: m_Members)
 		{
 			if (member)
-				member.eAI_SetFactionTypeID(f.GetTypeID());
+				member.eAI_SetFactionTypeID(newFactionTypeID);
 		}
 	}
 

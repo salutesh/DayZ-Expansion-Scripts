@@ -22,7 +22,18 @@ modded class ItemManager
 	
 	void Expansion_OnSettingsReceived()
 	{
-		if (GetExpansionSettings().GetHardline().EnableItemRarity && m_TooltipWidget)
+		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
+		EXTrace.Add(trace, "EnableItemRarity " + GetExpansionSettings().GetHardline().EnableItemRarity);
+		EXTrace.Add(trace, "tooltip " + m_TooltipWidget);
+
+		Expansion_InitHardlineRarityWidget();
+	}
+
+	void Expansion_InitHardlineRarityWidget()
+	{
+		auto settings = GetExpansionSettings().GetHardline(false);
+
+		if (!m_Expansion_IsValidLayout && settings.IsLoaded() && settings.EnableItemRarity && m_TooltipWidget)
 		{
 			GridSpacerWidget container = GridSpacerWidget.Cast(m_TooltipWidget.FindAnyWidget("GridSpacerWidget0"));
 			if (container) //! Make sure the container exists and not any other layout is used that does not have this widget..
@@ -37,6 +48,8 @@ modded class ItemManager
 	{
 		super.PrepareTooltip(item, x, y);
 		
+		Expansion_InitHardlineRarityWidget();
+
 		if (m_Expansion_IsValidLayout)
 		{
 			InspectMenuNew.Expansion_UpdateItemInfoRarity(m_TooltipWidget, item);

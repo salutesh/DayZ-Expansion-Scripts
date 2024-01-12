@@ -8,6 +8,10 @@ class ExpansionHumanLoadout
 
 	static void Init()
 	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.LOADOUTS, ExpansionHumanLoadout);
+	#endif
+
 		if (s_Initialized)
 			return;
 
@@ -3194,6 +3198,10 @@ class ExpansionHumanLoadout
 
 	static bool Apply(EntityAI other, string file, bool forceReload = false)
 	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.LOADOUTS, ExpansionHumanLoadout);
+	#endif
+
 		ExpansionHumanLoadout.Init();
 		
 		string name = ExpansionString.StripExtension(file, FILETYPE);

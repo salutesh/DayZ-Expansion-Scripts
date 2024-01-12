@@ -71,7 +71,7 @@ class ExpansionMarketSettingsV3: ExpansionMarketSettingsBaseV2
  **/
 class ExpansionMarketSettings: ExpansionMarketSettingsBase
 {
-	static const int VERSION = 12;
+	static const int VERSION = 13;
 
 	protected static ref map<string, string> s_MarketAmmoBoxes = new map<string, string>;
 
@@ -95,6 +95,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	#ifdef EXPANSIONMODVEHICLE
 	float MaxSZVehicleParkingTime;
 	int SZVehicleParkingTicketFine;
+	#endif
+	
+	#ifdef HypeTrain
+	autoptr array<ref ExpansionMarketSpawnPosition> TrainSpawnPositions;
 	#endif
 	
 	[NonSerialized()]
@@ -162,7 +166,11 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 			EXPrint(ToString() + " - found " + s_MarketAmmoBoxes.Count() + " ammo boxes with corresponding ammo");
 		}
-
+		
+		#ifdef HypeTrain
+		TrainSpawnPositions = new array<ref ExpansionMarketSpawnPosition>;
+		#endif
+		
 		//TraderPrint("ExpansionMarketSettings - End");
 	}
 
@@ -450,6 +458,17 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 				m_Categories.Insert(category.CategoryID, category);
 			}
 		}
+		
+		//! Need to clear spawn positions first
+		#ifdef HypeTrain
+		TrainSpawnPositions.Clear();
+		for (i = 0; i < s.TrainSpawnPositions.Count(); i++)
+		{
+			position = new ExpansionMarketSpawnPosition;
+			position.Copy(s.TrainSpawnPositions[i]);
+			TrainSpawnPositions.Insert(position);
+		}
+		#endif
 
 		ExpansionMarketSettingsBase sb = s;
 		CopyInternal(sb);

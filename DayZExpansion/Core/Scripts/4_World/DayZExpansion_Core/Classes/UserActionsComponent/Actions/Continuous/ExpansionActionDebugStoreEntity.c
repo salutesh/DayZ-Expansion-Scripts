@@ -25,8 +25,8 @@ class ExpansionActionDebugStoreEntity: ActionContinuousBase
 		m_CallbackClass = ExpansionActionDebugStoreEntityCB;
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONFB_INTERACT;
 		m_FullBody = true;
-		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
-		m_Text = "[DEBUG] Store";
+		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
+		m_Text = "[ADMIN] Goatify";
 	}
 
 	override void CreateConditionComponents()  
@@ -59,14 +59,30 @@ class ExpansionActionDebugStoreEntity: ActionContinuousBase
 		if (entity.IsInherited(ExpansionEntityStoragePlaceholder))
 			return false;
 
+		if (entity.IsInherited(ExpansionNPCBase))
+			return false;
+
+	#ifdef EXPANSIONMODAI
+		if (entity.IsInherited(eAINPCBase))
+			return false;
+	#endif
+
 		if (entity.ConfigGetInt("scope") != 2)
+			return false;
+
+		auto permissionsManager = GetPermissionsManager();
+	#ifdef SERVER
+		if (!permissionsManager.HasPermission("Expansion.EntityStorage.Goatify", player.GetIdentity()))
+	#else
+		if (!permissionsManager.IsAdminToolsToggledOn() || !permissionsManager.HasPermission("Expansion.EntityStorage.Goatify"))
+	#endif
 			return false;
 
 		CarScript vehicle;
 		if (Class.CastTo(vehicle, entity))
 		{
 #ifdef EXPANSIONMODVEHICLE
-			if (vehicle.Expansion_CanCover())  //! Handled by cover action in that case
+			if (vehicle.Expansion_CanCover() && item && item.IsInherited(CamoNet))  //! Handled by cover action in that case
 				return false;
 #endif
 			if (vehicle.Expansion_GetVehicleCrew().Count())
@@ -77,7 +93,7 @@ class ExpansionActionDebugStoreEntity: ActionContinuousBase
 		ExpansionVehicleBase exVehicle;
 		if (Class.CastTo(exVehicle, entity))
 		{
-			if (exVehicle.Expansion_CanCover())  //! Handled by cover action in that case
+			if (exVehicle.Expansion_CanCover() && item && item.IsInherited(CamoNet))  //! Handled by cover action in that case
 				return false;
 
 			if (exVehicle.Expansion_GetVehicleCrew().Count())
@@ -93,6 +109,19 @@ class ExpansionActionDebugStoreEntity: ActionContinuousBase
 
 		return true;
 	}
+
+	override void OnStartServer(ActionData action_data)
+	{
+		Object targetObject = action_data.m_Target.GetParentOrObject();
+		ExpansionSound.Play("cartent_deploy_SoundSet", targetObject.GetPosition());
+	}
+
+	override void OnEndServer(ActionData action_data)
+	{
+		Object targetObject = action_data.m_Target.GetParentOrObject();
+		if (targetObject)
+			ExpansionSound.Stop("cartent_deploy_SoundSet", targetObject.GetPosition(), 0.1);
+	}
 	
 	override void OnFinishProgressServer(ActionData action_data)
 	{
@@ -100,6 +129,8 @@ class ExpansionActionDebugStoreEntity: ActionContinuousBase
 		if (!entity)
 			return;
 
-		ExpansionEntityStoragePlaceholder.Expansion_StoreEntityAndReplace(entity, "ExpansionDebugGoat", entity.GetPosition());
+		ExpansionEntityStoragePlaceholder placeholder;
+		if (ExpansionEntityStoragePlaceholder.Expansion_StoreEntityAndReplace(entity, "ExpansionDebugGoat", entity.GetPosition(), ECE_OBJECT_SWAP, placeholder))
+			ExpansionSound.Play(placeholder.GetPlaceSoundset(), placeholder);
 	}
 }

@@ -218,7 +218,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 			menuItem = m_CategoryController.MarketItems[i];
 			menuItem.SetMenuIdx(i);
 			//! @note we append the index so items with same sort key (= same displayname and price) don't overwrite each other
-			string sortKey = menuItem.GetSortKey(sortPriority) + "|" + i;
+			string sortKey = menuItem.GetSortKey(sortPriority) + "\t" + i;
 			sortKeys.Insert(sortKey);
 			menuItems[sortKey] = menuItem;
 		}
@@ -254,7 +254,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 			}
 			menuItem.SetSort(index, false);
 		#ifdef DIAG
-			PrintFormat("SortItems %1->%2 %3 %4", i, index, menuItem.GetItemDisplayName(), menuItem.GetBuyPrice());
+			PrintFormat("SortItems %1->%2 %3 %4", i, index, menuItem.GetItemSortName(), menuItem.GetBuyPrice());
 		#endif
 		}
 
@@ -264,7 +264,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		//for (i = 0; i < m_CategoryController.MarketItems.Count(); i++)
 		//{
 			//menuItem = m_CategoryController.MarketItems[i];
-			//PrintFormat("SortItems %1 %2 %3 %4", i, menuItem.GetSort(), menuItem.GetItemDisplayName(), menuItem.GetBuyPrice());
+			//PrintFormat("SortItems %1 %2 %3 %4", i, menuItem.GetSort(), menuItem.GetItemSortName(), menuItem.GetBuyPrice());
 		//}
 	//#endif
 	}
@@ -307,8 +307,8 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 
 	int Cmp(ExpansionMarketMenuItem a, ExpansionMarketMenuItem b)
 	{
-		string nameA = a.GetItemDisplayName();
-		string nameB = b.GetItemDisplayName();
+		string nameA = a.GetItemSortName();
+		string nameB = b.GetItemSortName();
 
 		int priceA = a.GetBuyPrice();
 		int priceB = b.GetBuyPrice();
@@ -338,9 +338,9 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 	int CmpName(string nameA, string nameB)
 	{
 		if (m_MarketMenu.GetNameSortState())
-			return ExpansionString.StrCaseCmp(nameB, nameA);  //! Descending
+			return ExpansionString.StrCmp(nameB, nameA);  //! Descending
 		else
-			return ExpansionString.StrCaseCmp(nameA, nameB);  //! Ascending
+			return ExpansionString.StrCmp(nameA, nameB);  //! Ascending
 	}
 
 	int CmpPrice(int priceA, int priceB)

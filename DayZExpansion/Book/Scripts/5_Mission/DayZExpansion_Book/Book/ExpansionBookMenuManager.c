@@ -82,9 +82,12 @@ class ExpansionBookMenuManager
 			m_ServerInfoTab = new ExpansionBookMenuTabServerInfo(book_menu);
 			m_Tabs.Insert(m_ServerInfoTab);
 		}
-				
-		m_CraftingTab = new ExpansionBookMenuTabCrafting(book_menu);
-		m_Tabs.Insert(m_CraftingTab);
+
+		if (GetExpansionSettings().GetBook().EnableCraftingRecipesTab)
+		{	
+			m_CraftingTab = new ExpansionBookMenuTabCrafting(book_menu);
+			m_Tabs.Insert(m_CraftingTab);
+		}
 		
 		foreach (ExpansionBookMenuTabBase tab: m_Tabs)
 		{

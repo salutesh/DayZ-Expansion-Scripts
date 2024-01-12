@@ -50,7 +50,14 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 				return "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
 
 			if ( m_IsKnownUser )
-				return "#STR_EXPANSION_BB_CODE_UNLOCK";
+			{
+				string text = "#STR_EXPANSION_BB_CODE_UNLOCK";
+
+				if (GetPermissionsManager().IsAdminToolsToggledOn())
+					text = "[ADMIN] " + text;
+
+				return text;
+			}
 
 			return "#STR_EXPANSION_BB_CODE_LOCK_ENTER_CODE";
 		}

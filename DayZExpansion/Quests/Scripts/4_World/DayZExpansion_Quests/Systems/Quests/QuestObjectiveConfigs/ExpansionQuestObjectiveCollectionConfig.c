@@ -12,7 +12,7 @@
 
 class ExpansionQuestObjectiveCollectionConfig_V10: ExpansionQuestObjectiveCollectionConfigBase
 {
-	ref ExpansionQuestObjectiveCollection Collection = new ExpansionQuestObjectiveCollection();
+	autoptr ExpansionQuestObjectiveCollection Collection = new ExpansionQuestObjectiveCollection();
 };
 
 class ExpansionQuestObjectiveCollectionConfigBase: ExpansionQuestObjectiveDeliveryConfigBase 
@@ -21,7 +21,7 @@ class ExpansionQuestObjectiveCollectionConfigBase: ExpansionQuestObjectiveDelive
 };
 
 class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollectionConfigBase
-{	
+{
 	override bool NeedAnyCollection()
 	{
 		return NeedAnyCollection;

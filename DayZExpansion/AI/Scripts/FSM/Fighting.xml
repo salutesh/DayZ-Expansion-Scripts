@@ -21,6 +21,9 @@
 			</editor_data>
 			<event_entry>
 				time = 0;
+				
+				if (unit.eAI_ShouldGetUp())
+					unit.Expansion_GetUp();
 			</event_entry>
 			<event_exit>
 				unit.OverrideMovementDirection(false, 0);
@@ -327,6 +330,8 @@
 				// we are targetting an entity?
 				dst.target = unit.GetTarget();
 				if (!dst.target || !dst.target.IsMeleeViable(unit) || dst.target.GetThreat(unit) &lt; 0.4) return FAIL;
+				
+				if (unit.IsBleeding() &amp;&amp; unit.GetHealth01("", "Blood") &lt; 0.7) return FAIL;
 				
 				return SUCCESS;
 			</guard>

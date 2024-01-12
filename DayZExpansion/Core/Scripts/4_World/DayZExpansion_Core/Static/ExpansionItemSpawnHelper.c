@@ -144,8 +144,8 @@ class ExpansionItemSpawnHelper
 		return obj;
 	}
 	
-	//! Spawn in parent inventory, create player-owned temporary storage container if inventory full
-	static Object SpawnInInventorySecure(string className, PlayerBase player, inout EntityAI parent, int skinIndex = -1)
+	//! Spawn in parent inventory, use player-owned temporary storage container if inventory full
+	static EntityAI SpawnInInventorySecure(string className, PlayerBase player, inout EntityAI parent, int skinIndex = -1)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "ExpansionItemSpawnHelper", "SpawnInInventorySecure");
@@ -159,40 +159,65 @@ class ExpansionItemSpawnHelper
 			return NULL;
 		}
 
-		Object obj;
+		EntityAI entity;
 		ExpansionTemporaryOwnedContainer newStorage;
+		ExpansionTemporaryOwnedContainer playerStorage = player.Expansion_GetTemporaryOwnedContainer();
 
+		/**
+		 * To spawn in inventory, we try in order:
+		 * 
+		 * 1. In parent inventory
+		 * 2. In player's existing temporary container, if any
+		 * 3. In new temporary container
+		 */
 		while (true)
 		{
 			ExpansionTemporaryOwnedContainer storage = ExpansionTemporaryOwnedContainer.Cast(parent);
 			if (storage)
 				storage.ExpansionSetCanReceiveItems(true);
 
-			obj = SpawnInInventory(className, parent, skinIndex);
+			entity = SpawnInInventory(className, parent, skinIndex);
 
 			if (storage)
 				storage.ExpansionSetCanReceiveItems(false);
 
-			if (obj || newStorage)
+			//! If entity couldn't be spawned but we have a new temporary container, sth definitely is wrong and we need to abort
+			if (entity || newStorage)
 				break;
 
 			//! If it's an inventory item and couldn't be spawned in parent inventory (likely because it's full),
-			//! create new temporary storage container and set as parent
-			newStorage = ExpansionTemporaryOwnedContainer.Cast(GetGame().CreateObject("ExpansionTemporaryOwnedContainer", parent.GetPosition()));
-
-			if (!newStorage)
+			//! use existing player temporary container or create new temporary storage container and set as parent
+			if (playerStorage)
 			{
-				Error("Failed to create temporary storage container!");
-
-				return NULL;
+				parent = playerStorage;
+				playerStorage = null;  //! null it so next iteration of the while loop we create a new one
 			}
+			else
+			{
+				newStorage = ExpansionTemporaryOwnedContainer.Cast(GetGame().CreateObject("ExpansionTemporaryOwnedContainer", parent.GetPosition()));
 
-			newStorage.ExpansionSetContainerOwner(player);
+				if (!newStorage)
+				{
+					Error("Failed to create temporary storage container!");
 
-			parent = newStorage;
+					return NULL;
+				}
+
+				player.Expansion_SetTemporaryOwnedContainer(newStorage);
+
+				parent = newStorage;
+			}
 		}
 
-		return obj;
+		if (newStorage)
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(TemporaryStorageNotification, player.GetIdentity());
+
+		return entity;
+	}
+
+	static void TemporaryStorageNotification(PlayerIdentity identity)
+	{
+		ExpansionNotification("STR_EXPANSION_TEMPORARY_STORAGE", "STR_EXPANSION_TEMPORARY_STORAGE_INFO", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 6, ExpansionNotificationType.TOAST).Create(identity);
 	}
 
 	// ------------------------------------------------------------
@@ -455,6 +480,9 @@ class ExpansionItemSpawnHelper
 		ExpansionVehicleBase exVeh;
 		ExpansionCarKey expkey;
 		#endif
+		#ifdef HypeTrain
+		HypeTrain_PartBase hypeTrain;
+		#endif
 		if (Class.CastTo(vehicle, obj))
 		{
 			vehicle.Fill(CarFluid.FUEL, vehicle.GetFluidCapacity(CarFluid.FUEL));
@@ -505,6 +533,13 @@ class ExpansionItemSpawnHelper
 					exVeh.LockCar(expkey);
 				}
 			}
+		}
+		#endif
+		#ifdef HypeTrain
+		else if (Class.CastTo(hypeTrain, obj))
+		{
+			if (hypeTrain.GetLiquidQuantityMax())
+				hypeTrain.SetLiquidQuantity(hypeTrain.GetLiquidQuantityMax());
 		}
 		#endif
 		else
@@ -589,7 +624,8 @@ class ExpansionItemSpawnHelper
 			case InventoryLocationType.ATTACHMENT:
 				dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_IN_INVENTORY, RF_DEFAULT);
 				int slotId = location.GetSlot();
-				location.GetParent().GetInventory().SetSlotLock(slotId, src.GetHierarchyParent().GetInventory().GetSlotLock(slotId));
+				if (location.GetParent() && src.GetHierarchyParent())
+					location.GetParent().GetInventory().SetSlotLock(slotId, src.GetHierarchyParent().GetInventory().GetSlotLock(slotId));
 				break;
 			case InventoryLocationType.HANDS:
 				dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_IN_INVENTORY, RF_DEFAULT);

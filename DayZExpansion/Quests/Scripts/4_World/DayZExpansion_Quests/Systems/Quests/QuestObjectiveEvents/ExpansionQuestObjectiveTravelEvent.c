@@ -12,7 +12,6 @@
 
 class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 {
-	protected ExpansionTravelObjectiveSphereTrigger m_ObjectiveTrigger;
 	protected bool m_DestinationReached;
 	protected vector m_Position;
 	protected int m_PointSearchCount;
@@ -62,8 +61,8 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		#endif
 
 		//! Create objective trigger.
-		if (!m_ObjectiveTrigger)
-			CreateObjectiveTrigger(m_Position);
+		if (!ExpansionQuestModule.GetModuleInstance().QuestTriggerExists(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_ObjectiveConfig.GetID()))
+			CreateTrigger(m_Position);
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DestinationCheck, 500);
 	}
@@ -144,8 +143,6 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(m_TravelConfig, m_ObjectiveConfig))
 			return false;
 
-		EXTrace.Print(EXTrace.QUESTS, this, "OnContinue - Quest state: " + typename.EnumToString(ExpansionQuestState, m_Quest.GetQuestState()) + " | Objective state: " + IsCompleted() + " | Trigger on exit: " + m_TravelConfig.TriggerOnExit());
-
 		if (IsCompleted())
 		{
 			if (!m_TravelConfig.TriggerOnExit())
@@ -166,11 +163,17 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!super.OnCleanup())
+		if (!Class.CastTo(m_TravelConfig, m_ObjectiveConfig))
 			return false;
 
-		if (m_ObjectiveTrigger)
-			GetGame().ObjectDelete(m_ObjectiveTrigger);
+		int questID = m_Quest.GetQuestConfig().GetID();
+		int objectiveType = GetObjectiveType();
+		int objectiveID = m_TravelConfig.GetID();
+		if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(questID))
+			ExpansionQuestModule.GetModuleInstance().RemoveObjectiveTrigger(questID, ExpansionObjectiveTriggerType.TRAVEL, objectiveType, objectiveID);
+
+		if (!super.OnCleanup())
+			return false;
 
 		return true;
 	}
@@ -230,11 +233,18 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		return m_DestinationReached;
 	}
 
-	protected void CreateObjectiveTrigger(vector pos)
+	protected void CreateTrigger(vector pos)
 	{
-		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", pos, ECE_NONE));
-		m_ObjectiveTrigger.SetPosition(pos);
-		m_ObjectiveTrigger.SetObjectiveData(this);
+		array<ExpansionObjectiveTriggerBase> triggers = new array<ExpansionObjectiveTriggerBase>;
+		ExpansionTravelObjectiveSphereTrigger trigger = ExpansionTravelObjectiveSphereTrigger.Cast(GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", pos, ECE_LOCAL));
+		if (!trigger)
+			return;
+
+		trigger.SetPosition(pos);
+		trigger.SetObjectiveData(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_TravelConfig.GetID());
+		triggers.Insert(trigger);
+
+		ExpansionQuestModule.GetModuleInstance().SetQuestTriggers(m_Quest.GetQuestConfig().GetID(), triggers);
 	}
 
 	protected vector GetRandomPointInCircle(vector pos, float radius)

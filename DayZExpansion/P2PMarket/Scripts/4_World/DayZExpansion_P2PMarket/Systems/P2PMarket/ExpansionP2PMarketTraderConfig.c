@@ -30,8 +30,7 @@ class ExpansionP2PMarketTraderConfigV1: ExpansionP2PMarketTraderConfigBase
 
 class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 {
-	[NonSerialized()];
-	static const int VERSION = 5;
+	static const int VERSION = 7;
 
 	string m_DisplayName = "Unknown";
 	string m_DisplayIcon = "Deliver";
@@ -42,14 +41,21 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 	bool m_EmoteIsStatic;
 #endif
 	bool m_IsGlobalTrader;
+	
+	autoptr TStringArray m_Currencies;
+	int m_DisplayCurrencyValue = 1;
+	string m_DisplayCurrencyName;
+
+	[NonSerialized()]
+	int m_DisplayCurrencyPrecision;
 
 	void ExpansionP2PMarketTraderConfig()
 	{
 		m_Version = VERSION;
-		
-#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 		m_Waypoints = new array<vector>;
-#endif
+	#endif
+		m_Currencies = new TStringArray; 
 	}
 
 	void CopyFromBaseClass(ExpansionP2PMarketTraderConfigBase base)
@@ -171,24 +177,33 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 		return m_IsGlobalTrader;
 	}
 	
+	void AddCurrency(string currency)
+	{
+		currency.ToLower();
+		if (m_Currencies.Find(currency) == -1)
+			m_Currencies.Insert(currency);
+	}
+	
+	TStringArray GetCurrencies()
+	{
+		return m_Currencies;
+	}
+	
 	static ExpansionP2PMarketTraderConfig Load(string fileName)
 	{
-		CF_Log.Info("[ExpansionP2PMarketTraderConfig] Load existing black market listing file:" + fileName);
-		ExpansionP2PMarketTraderConfigBase traderConfigBase;
-		ExpansionJsonFileParser<ExpansionP2PMarketTraderConfigBase>.Load(fileName, traderConfigBase);
+		CF_Log.Info("[ExpansionP2PMarketTraderConfig] Attempting to load P2P market listing file:" + fileName);
 
-		bool save;
-		ExpansionP2PMarketTraderConfig traderConfig = new ExpansionP2PMarketTraderConfig();
-		if (traderConfigBase.m_Version < VERSION)
+		ExpansionP2PMarketTraderConfig traderConfig;
+		if (!ExpansionJsonFileParser<ExpansionP2PMarketTraderConfig>.Load(fileName, traderConfig))
+			return NULL;
+
+		if (traderConfig.m_Version < VERSION)
 		{
-			save = true;
-			traderConfig.CopyFromBaseClass(traderConfigBase); //! Copy over old data that has not changed.
-			traderConfig.m_Version = VERSION;
-
-			if (traderConfigBase.m_Version < 2)
+			if (traderConfig.m_Version < 2)
 			{
 				ExpansionP2PMarketTraderConfigV1 traderConfigV1;
-				ExpansionJsonFileParser<ExpansionP2PMarketTraderConfigV1>.Load(fileName, traderConfigV1);
+				if (!ExpansionJsonFileParser<ExpansionP2PMarketTraderConfigV1>.Load(fileName, traderConfigV1))
+					return NULL;
 
 				array<ref ExpansionP2PMarketListing> listings = traderConfigV1.m_Listings;
 				foreach (ExpansionP2PMarketListing listing: listings)
@@ -199,15 +214,20 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 					listing.Save();
 				}
 			}
+			
+			if (traderConfig.m_Version < 6 && !traderConfig.m_Currencies.Count())
+				traderConfig.AddCurrency("expansionbanknotehryvnia");
 
-			if (save)
-				Save(traderConfig);
+			if (traderConfig.m_Version < 7 && !traderConfig.m_DisplayCurrencyValue)
+				traderConfig.m_DisplayCurrencyValue = 1;
+			
+			traderConfig.m_Version = VERSION;
+		
+			Save(traderConfig);
 		}
-		else
-		{
-			if (!ExpansionJsonFileParser<ExpansionP2PMarketTraderConfig>.Load(fileName, traderConfig))
-				return NULL;
-		}
+
+		traderConfig.m_Currencies = ExpansionMarketSettings.StringArrayToLower(traderConfig.m_Currencies);
+		traderConfig.m_DisplayCurrencyPrecision = ExpansionStatic.GetPrecision(traderConfig.m_DisplayCurrencyValue);
 
 		return traderConfig;
 	}

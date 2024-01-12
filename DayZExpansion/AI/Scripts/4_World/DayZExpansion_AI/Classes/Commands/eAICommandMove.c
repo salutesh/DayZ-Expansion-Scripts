@@ -98,13 +98,16 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 	float m_LeanDirection = 1.0;
 
-	void eAICommandMove(DayZPlayerImplement player, ExpansionHumanST st)
+	void eAICommandMove(DayZPlayerImplement player, ExpansionHumanST st, int stance = -1)
 	{
 		Class.CastTo(m_Unit, player);
 
 		m_PathFinding = m_Unit.GetPathFinding();
 
 		m_InstanceNum = s_InstanceCount++;
+
+		m_StancePrev = stance;
+		m_Stance = stance;
 	}
 
 	void ~eAICommandMove()
@@ -344,7 +347,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			string msg;
 #endif
 
-			if (vector.DistanceSq(m_PrevPosition, position) < 0.0016)
+			if (m_Stance != DayZPlayerConstants.STANCEIDX_PRONE && vector.DistanceSq(m_PrevPosition, position) < 0.0009)
 				m_PositionTime += pDt;  //! We don't seem to be actually moving
 			else
 				m_PositionTime = 0;
@@ -715,9 +718,13 @@ class eAICommandMove: ExpansionHumanCommandScript
 				speedLimit = 2;
 		}
 
+		if (wayPoint != position)
+			m_WayPointDistance2D = pathDir2D.LengthSq();
+		else
+			m_WayPointDistance2D = 0.0;
+
 		if (m_MovementSpeed != 0)
 		{
-			m_WayPointDistance2D = pathDir2D.LengthSq();
 			if (m_WayPointDistance2D >= 0.04)  //! 0.2 m
 			{
 				m_PrevWaypoint = wayPoint;
@@ -736,6 +743,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			}
 		}
 
+		/*
 		if (wayPoint != position)
 		{
 			float y = GetGame().SurfaceY(wayPoint[0], wayPoint[2]);
@@ -750,6 +758,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 		{
 			m_WayPointDistance = 0.0;
 		}
+		*/
 
 		if (m_OverrideMovementTimeout > 0)
 		{
@@ -788,10 +797,11 @@ class eAICommandMove: ExpansionHumanCommandScript
 		}
 
 		//! https://feedback.bistudio.com/T173348
-		if (isFinal && m_WayPointDistance < minFinal && !matchLeaderSpeed)
+		if (isFinal && m_WayPointDistance2D < minFinal && !matchLeaderSpeed)
 			m_Unit.m_eAI_PositionIsFinal = true;
 		else
 			m_Unit.m_eAI_PositionIsFinal = false;
+
 		if (m_Unit.m_eAI_PositionIsFinal)
 		{
 			SetTargetSpeed(0.0);
@@ -806,14 +816,14 @@ class eAICommandMove: ExpansionHumanCommandScript
 			if (matchLeaderSpeed || (m_Unit.GetThreatToSelf() >= 0.4 && m_Unit.eAI_HasLOS()))
 				distanceFactor = 0.5;
 			float targetSpeed;
-			if (isFinal && m_WayPointDistance < 2.0 * distanceFactor)
+			if (isFinal && m_WayPointDistance2D < 2.0 * distanceFactor)
 			{
 				if (matchLeaderSpeed)
 					targetSpeed = leader.Expansion_GetMovementSpeed();
 				else
 					targetSpeed = 1.0;
 			}
-			else if (isFinal && m_WayPointDistance < 5.0 * distanceFactor)
+			else if (isFinal && m_WayPointDistance2D < 5.0 * distanceFactor)
 			{
 				if (matchLeaderSpeed)
 					targetSpeed = leader.Expansion_GetMovementSpeed();
@@ -1015,7 +1025,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 				isAboveGround = true;
 
 			//! Enable sharper turns if above ground or waypoint is close and not avoiding obstacles
-			if (isAboveGround || (m_WayPointDistance < 8.0 && m_OverrideMovementTimeout <= 0))
+			if (isAboveGround || (m_WayPointDistance2D < 8.0 && m_OverrideMovementTimeout <= 0))
 				PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.15, 30.0);
 			else
 				PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
@@ -1097,12 +1107,20 @@ class eAICommandMove: ExpansionHumanCommandScript
 		return m_LastBlocked || m_LastBlockedLeft || m_LastBlockedRight;
 	}
 
-	bool CheckBlocked()
+	bool IsBlocked()
 	{
 		if (!m_MovementSpeed || m_Unit.IsClimbing() || m_Unit.IsFalling() || m_Unit.IsFighting())
 			return false;
 
-		if (!m_LastBlocked /*|| !CheckBlockedLeft() || !CheckBlockedRight()*/)
+		if (!m_LastBlocked)
+			return false;
+
+		return true;
+	}
+
+	bool CheckBlocked()
+	{
+		if (!IsBlocked() || !CheckBlockedLeft() || !CheckBlockedRight())
 			return false;
 
 		return true;

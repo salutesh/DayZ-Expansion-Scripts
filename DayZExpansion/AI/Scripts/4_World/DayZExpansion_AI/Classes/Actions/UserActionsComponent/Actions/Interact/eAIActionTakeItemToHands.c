@@ -50,7 +50,8 @@ class eAIActionTakeItemToHands: ActionInteractBase
 		if (stackable == 0 || stackable >= ntarget.GetQuantity())
 		{
 			eAIBase ai = eAIBase.Cast(action_data.m_Player);
-			ai.eAI_TakeItemToHandsImpl(ntarget);
+			//! Need to do actual take to hands in next frame to avoid segfault, don't ask why
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(ai.eAI_TakeItemToHandsImpl, ntarget);
 		}
 		else
 		{

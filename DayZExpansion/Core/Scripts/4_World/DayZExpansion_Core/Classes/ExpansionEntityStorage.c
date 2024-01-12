@@ -83,7 +83,7 @@ class ExpansionEntityStorageContext
 [CF_RegisterModule(ExpansionEntityStorageModule)]
 class ExpansionEntityStorageModule: CF_ModuleWorld
 {
-	static const int VERSION = 11;
+	static const int VERSION = 12;
 	static const string EXT = ".bin";
 
 	static const int FAILURE = 0;
@@ -93,6 +93,13 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	static ref map<string, ref ExpansionEntityStorageContext> s_SubContexts = new map<string, ref ExpansionEntityStorageContext>;
 
 	static int Now;
+
+	void ExpansionEntityStorageModule()
+	{
+	#ifdef JM_COT
+		GetPermissionsManager().Expansion_RegisterPermission("Expansion.EntityStorage.Goatify", JMPermissionType.DISALLOW);
+	#endif
+	}
 
 #ifdef SERVER
 	override void OnInit()
@@ -344,6 +351,13 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		ctx.Write(version);
 		entity.OnStoreSave(ctx);
 
+		DayZPlayerImplement player;
+		if (Class.CastTo(player, entity))
+		{
+			ctx.Write(player.Expansion_GetEntityStorageAdditionalDataVersion());
+			player.Expansion_OnEntityStorageAdditionalDataSave(ctx);
+		}
+
 		//! 5) special treatment for mags/ammo
 		Magazine mag;
 		if (Class.CastTo(mag, entity))
@@ -449,7 +463,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			else if (result == SKIP)
 				return true;
 
-			if (!parent && dBodyIsSet(entity))
+			if (!parent && entity.IsTransport() && dBodyIsSet(entity))
 				dBodyActive(entity, ActiveState.INACTIVE);
 		}
 
@@ -564,8 +578,8 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		if (!level && !entity && player)
 		{
-			//! Try to create in player inventory
-			entity = ExpansionItemSpawnHelper.CreateInInventoryEx(player, type);
+			//! Try to create in player inventory, falling back to owned container
+			entity = ExpansionItemSpawnHelper.SpawnInInventorySecure(type, player, parent);
 			//! Try to create on ground at player pos
 			if (!entity && Class.CastTo(entity, GetGame().CreateObjectEx(type, player.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
 				EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Restore_Phase1 - WARNING: Couldn't create " + type + " on " + parent + ", created at player position " + player.GetPosition() + " instead");
@@ -689,6 +703,17 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			return ErrorFalse(entity.GetType() + ": Couldn't read game version");
 		if (!entity.OnStoreLoad(ctx, version))
 			return ErrorFalse(entity.GetType() + ": Couldn't OnStoreLoad");
+
+		DayZPlayerImplement player;
+		if (version >= 12 && Class.CastTo(player, entity))
+		{
+			int entityStorageAdditionalDataVersion;
+			if (!ctx.Read(entityStorageAdditionalDataVersion))
+				return ErrorFalse(entity.GetType() + ": Couldn't read additional data version");
+
+			if (!player.Expansion_OnEntityStorageAdditionalDataLoad(ctx, entityStorageAdditionalDataVersion))
+				return ErrorFalse(entity.GetType() + ": Couldn't read additional data");
+		}
 
 		//! 5) special treatment for mags/ammo
 		Magazine mag;

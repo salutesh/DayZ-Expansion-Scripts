@@ -12,6 +12,11 @@
 
 class ExpansionActionCrackSafe : ExpansionActionDestroyBase
 {
+	override bool SetupCondition()
+	{
+		return GetExpansionSettings().GetRaid(false).IsLoaded();
+	}
+
 	override void Setup( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		m_Time = GetExpansionSettings().GetRaid().SafeRaidToolTimeSeconds;
@@ -43,9 +48,7 @@ class ExpansionActionCrackSafe : ExpansionActionDestroyBase
 
 	override bool CanBeDestroyed( Object targetObject )
 	{
-		auto settings = GetExpansionSettings().GetRaid(false);
-		if (!settings.IsLoaded())
-			return false;
+		auto settings = GetExpansionSettings().GetRaid();
 		return settings.CanRaidSafes && (!settings.SafeRaidUseSchedule || settings.IsRaidableNow());
 	}
 

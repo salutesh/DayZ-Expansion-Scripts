@@ -67,7 +67,7 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 		m_P2PMarketMenuListingController.ItemName = displayText;
 		m_P2PMarketMenuListingController.NotifyPropertyChanged("ItemName");
 
-		string moneyString = ExpansionStatic.IntToCurrencyString(m_Listing.GetPrice(), ",");
+		string moneyString = m_P2PMarketMenu.GetDisplayPrice(m_Listing.GetPrice());
 		m_P2PMarketMenuListingController.Price = moneyString;
 		m_P2PMarketMenuListingController.NotifyPropertyChanged("Price");
 
@@ -108,7 +108,7 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 		m_P2PMarketMenuListingController.Discount = localiser.Format();
 		m_P2PMarketMenuListingController.NotifyPropertyChanged("Discount");
 
-		m_P2PMarketMenuListingController.Price = ExpansionStatic.IntToCurrencyString(discountPrice, ",");
+		m_P2PMarketMenuListingController.Price = m_P2PMarketMenu.GetDisplayPrice(discountPrice);
 		m_P2PMarketMenuListingController.NotifyPropertyChanged("Price");
 	}
 	

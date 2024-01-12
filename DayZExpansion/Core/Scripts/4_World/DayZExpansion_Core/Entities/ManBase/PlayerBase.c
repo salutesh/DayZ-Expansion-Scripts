@@ -52,6 +52,8 @@ modded class PlayerBase
 	static ref set<typename> s_Expansion_RegisteredInventoryItemTypenames = new set<typename>;
 	ref map<string, ref ExpansionInventoryItemType> m_Expansion_InventoryItemTypes = new map<string, ref ExpansionInventoryItemType>;
 
+	ExpansionTemporaryOwnedContainer m_Expansion_TemporaryOwnedContainer;
+
 	void PlayerBase()
 	{
 		m_Expansion_Node = s_Expansion_AllPlayers.Add(this);
@@ -146,6 +148,28 @@ modded class PlayerBase
 		//! Target has no parent
 		else
 			Expansion_SendNear(rpc, target.GetPosition(), target, guaranteed);
+	}
+
+	void Expansion_SetTemporaryOwnedContainer(ExpansionTemporaryOwnedContainer container)
+	{
+		container.ExpansionSetContainerOwner(this);
+		m_Expansion_TemporaryOwnedContainer = container;
+	}
+
+	/**
+	 * @brief Get temporary owned container previously set, or null.
+	 * 
+	 * @param vicinity If true (default), previously set container must be in vicinity (within 2 m of player), else null is returned.
+	 */
+	ExpansionTemporaryOwnedContainer Expansion_GetTemporaryOwnedContainer(bool vicinity = true)
+	{
+		if (m_Expansion_TemporaryOwnedContainer)
+		{
+			if (!vicinity || vector.DistanceSq(GetPosition(), m_Expansion_TemporaryOwnedContainer.GetPosition()) <= 4.0)
+				return m_Expansion_TemporaryOwnedContainer;
+		}
+
+		return null;
 	}
 
 	ItemBase Expansion_GetNVItem()
@@ -372,6 +396,31 @@ modded class PlayerBase
 		return false;
 	}
 
+	/**
+	 * @brief Check whether any player is in sphere specified by outer and inner radius and centered at given position
+	 * 
+	 * @note sphere is hollow if innerRadius > 0.0 and solid if innerRadius = 0.0 (default)
+	 */
+	static bool Expansion_IsPlayerInSphere(vector center, float outerRadius, float innerRadius = 0.0)
+	{
+		float distanceSq;
+		float outerRadiusSq = outerRadius * outerRadius;
+		float innerRadiusSq = innerRadius * innerRadius;
+		
+		foreach (string uid, PlayerBase player: s_Expansion_AllPlayersUID)
+		{
+			if (!player.IsAlive() || !player.GetIdentity())
+				continue;
+
+			distanceSq = vector.DistanceSq(center, player.GetPosition());
+
+			if (distanceSq <= outerRadiusSq && distanceSq >= innerRadiusSq)
+				return true;
+		}
+		
+		return false;
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase GetIdentityUID
 	// ------------------------------------------------------------
@@ -443,9 +492,7 @@ modded class PlayerBase
 
 		AddAction( ExpansionActionPaint, InputActionMap );
 
-#ifdef DIAG
 		AddAction(ExpansionActionDebugStoreEntity, InputActionMap);
-#endif
 	}
 	
 	override bool DropItem(ItemBase item)

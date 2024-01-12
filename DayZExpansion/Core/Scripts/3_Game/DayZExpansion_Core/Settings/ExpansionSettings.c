@@ -203,16 +203,16 @@ class ExpansionSettings
 		auto setting = m_Settings[type];
 		if (setting && !setting.IsLoaded())
 		{
-			if (checkLoaded && (GetGame().IsDedicatedServer() || (GetGame().GetMission().IsMissionGameplay() && GetGame().IsMultiplayer()) || (GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu() && !GetDayZGame().Expansion_IsMissionSinglePlayer())))
+			if (checkLoaded && (GetGame().IsDedicatedServer() || !GetGame().GetMission() || (GetGame().GetMission().IsMissionGameplay() && GetGame().IsMultiplayer()) || (GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu() && !GetDayZGame().Expansion_IsMissionSinglePlayer())))
 				WarnNotLoaded(type);
 
-			if (!setting.IsUsingDefaults())
+			if (!setting.IsUsingDefaults() && (GetGame().IsDedicatedServer() || GetDayZGame().Expansion_IsMissionSinglePlayer()))
 			{
+				//! IMPORTANT: Only use defaults if dedicated server or SP!
 				EXTrace.Print(true, type, "Using defaults");
 				setting.Defaults();
 				setting.SetIsUsingDefaults();
-				if (GetDayZGame().Expansion_IsMissionSinglePlayer())
-					EnScript.SetClassVar(setting, "m_IsLoaded", 0, true);  //! Make settings defaults work in SP
+				EnScript.SetClassVar(setting, "m_IsLoaded", 0, true);
 			}
 		}
 
@@ -229,26 +229,36 @@ class ExpansionSettings
 
 		if (count % 10 == 0)
 		{
-			string suffix;
-			if (count)
-				suffix = " (there have been " + count + " more suppressed warnings)";
-		#ifndef DIAG
-			if (GetGame().IsServer())
-				EXTrace.Print(true, null, "WARNING: Trying to access " + type.ToString() + " before it has been loaded!" + suffix);
+			string msg = "Trying to access " + type.ToString() + " before it has been ";
+
+			if (GetGame().IsDedicatedServer() || GetDayZGame().Expansion_IsMissionSinglePlayer())
+				msg += "loaded!";
 			else
-				EXTrace.Print(true, null, "WARNING: Trying to access " + type.ToString() + " before it has been received!" + suffix);
-		#else
-			Error("ERROR: Trying to access " + type.ToString() + " before it has been loaded!" + suffix);
+				msg += "received!";
+
+			EXTrace trace;
+
+			if (count)
+			{
+				EXPrint("WARNING: " + msg + " (there have been " + count + " more suppressed warnings)");
+				trace = EXTrace.StartStack(true, this);
+				trace.SetStart(5);
+			}
+			else
+			{
+				Error("ERROR: " + msg);
+			}
+
+		#ifdef DIAG
 			EXTrace.Print(true, null, "Dedicated server: " + GetGame().IsDedicatedServer());
+			EXTrace.Print(true, null, "Is mission singleplayer: " + GetDayZGame().Expansion_IsMissionSinglePlayer());
+			EXTrace.Print(true, null, "Is multiplayer: " + GetGame().IsMultiplayer());
+			EXTrace.Print(true, null, "Is loading: " + GetDayZGame().IsLoading());
 			EXTrace.Print(true, null, "Mission: " + GetGame().GetMission());
 			if (GetGame().GetMission())
 				EXTrace.Print(true, null, "Is mission gameplay: " + GetGame().GetMission().IsMissionGameplay());
-			EXTrace.Print(true, null, "Is multiplayer: " + GetGame().IsMultiplayer());
-			EXTrace.Print(true, null, "Is loading: " + GetDayZGame().IsLoading());
 			EXTrace.Print(true, null, "Is mission main menu: " + GetDayZGame().Expansion_IsMissionMainMenu());
 		#endif
-			EXTrace trace = EXTrace.StartStack(true, this);
-			trace.SetStart(5);
 		}
 	}
 

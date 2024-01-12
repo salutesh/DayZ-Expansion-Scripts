@@ -11,43 +11,49 @@
 */
 
 #ifdef EXPANSIONMODAI
-class ExpansionEscortObjectiveSphereTrigger: Trigger
+class ExpansionEscortObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 {
 	protected ExpansionQuestObjectiveAIEscortEvent m_Objective;
-
+	
 	void ExpansionEscortObjectiveSphereTrigger()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
+
 		SetEventMask(EntityEvent.ENTER);
+		m_TriggerType = ExpansionObjectiveTriggerType.AIESCORT;
 	}
 
-	void SetObjectiveData(int radius, ExpansionQuestObjectiveAIEscortEvent objective)
+	void SetObjectiveEvent(ExpansionQuestObjectiveAIEscortEvent objective)
 	{
 		m_Objective = objective;
-		SetCollisionSphere(radius);
-	}
-	
-	override protected void AddInsider(Object obj)
-	{
-		//! Do nothing..
 	}
 
 	//! When an Object enters the trigger
 	override void EOnEnter(IEntity other, int extra)
 	{
-		if (GetGame().IsClient())
-			return;
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Entity: " + other.Type());
+	#endif
 		
+	#ifdef SERVER
 		if (!m_Objective || !m_Objective.IsActive() || m_Objective.IsCompleted())
 			return;
 
 		eAIBase eAIplayer;
 		if (!Class.CastTo(eAIplayer, other))
 			return;
-
-		if (eAIplayer != m_Objective.GetAIVIP())
+		
+		ExpansionQuestObjectiveAIEscortEvent escortEvent;
+		if (!Class.CastTo(escortEvent, m_Objective))
 			return;
-
-		m_Objective.SetReachedLocation(true);
+		
+		if (eAIplayer != escortEvent.GetAIVIP())
+			return;
+		
+		escortEvent.SetReachedLocation(true);
+	#endif
 	}
 };
 #endif

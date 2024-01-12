@@ -64,6 +64,16 @@ modded class ActionDeployObject
 		return false;
 	}
 
+	override string GetText()
+	{
+		string text = super.GetText();
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
+	}
+
 	// ------------------------------------------------------------	
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{

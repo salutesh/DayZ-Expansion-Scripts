@@ -15,7 +15,7 @@
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 8;
+	static const int VERSION = 9;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -23,8 +23,9 @@ class ExpansionAISettings: ExpansionSettingBase
 	float ThreatDistanceLimit;
 	float NoiseInvestigationDistanceLimit;
 	float DamageMultiplier;
+	float DamageReceivedMultiplier;
 
-	autoptr TStringArray Admins;
+	autoptr TStringArray Admins = {};
 
 	int MaximumDynamicPatrols;
 
@@ -38,13 +39,13 @@ class ExpansionAISettings: ExpansionSettingBase
 	bool CanRecruitFriendly;
 	bool CanRecruitGuards;
 
-	ref TStringArray PreventClimb;
+	ref TStringArray PreventClimb = {};
 
 #ifdef DIAG
 	float FormationScale;
 #endif
 
-	autoptr TStringArray PlayerFactions;  //! If non-empty, player will automatically join one of these factions on connect
+	autoptr TStringArray PlayerFactions = {};  //! If non-empty, player will automatically join one of these factions on connect
 
 	[NonSerialized()]
 	private bool m_IsAdmin;
@@ -183,6 +184,7 @@ class ExpansionAISettings: ExpansionSettingBase
 		ThreatDistanceLimit = s.ThreatDistanceLimit;
 		NoiseInvestigationDistanceLimit = s.NoiseInvestigationDistanceLimit;
 		DamageMultiplier = s.DamageMultiplier;
+		DamageReceivedMultiplier = s.DamageReceivedMultiplier;
 		Admins.Copy(s.Admins);
 		MaximumDynamicPatrols = s.MaximumDynamicPatrols;
 		Vaulting = s.Vaulting;
@@ -281,6 +283,9 @@ class ExpansionAISettings: ExpansionSettingBase
 				if (m_Version < 8)
 					NoiseInvestigationDistanceLimit = settingsDefault.NoiseInvestigationDistanceLimit;
 
+				if (m_Version < 9 && !DamageReceivedMultiplier)
+					DamageReceivedMultiplier = settingsDefault.DamageReceivedMultiplier;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -335,8 +340,9 @@ class ExpansionAISettings: ExpansionSettingBase
 		ThreatDistanceLimit = 1000.0;
 		NoiseInvestigationDistanceLimit = 500.0;
 		DamageMultiplier = 1.0;
+		DamageReceivedMultiplier = 1.0;
 
-		Admins = {};
+		Admins.Clear();
 
 		MaximumDynamicPatrols = -1;
 
@@ -350,13 +356,13 @@ class ExpansionAISettings: ExpansionSettingBase
 		CanRecruitFriendly = true;
 		CanRecruitGuards = false;
 
-		PreventClimb = {};
+		PreventClimb.Clear();
 
 #ifdef DIAG
 		FormationScale = 0.15;
 #endif
 
-		PlayerFactions = {};
+		PlayerFactions.Clear();
 	}
 
 	// ------------------------------------------------------------

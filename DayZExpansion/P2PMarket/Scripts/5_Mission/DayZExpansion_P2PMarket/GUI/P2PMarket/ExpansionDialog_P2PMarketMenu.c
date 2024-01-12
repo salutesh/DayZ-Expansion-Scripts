@@ -17,18 +17,28 @@ class ExpansionDialog_P2PMarketMenu: ExpansionDialogBase
 	protected ref ExpansionDialogButton_P2PMarketMenu_Cancel m_CancelButton;
 	protected ExpansionP2PMarketMenu m_P2PMarketMenu;
 
-	void ExpansionDialog_P2PMarketMenu(ScriptView parentView)
+	void ExpansionDialog_P2PMarketMenu(ScriptView parentView, string text)
 	{
 		m_ParentView = parentView;
 
 		if (!m_P2PMarketMenu)
 			m_P2PMarketMenu = ExpansionP2PMarketMenu.Cast(m_ParentView);
+		
+		ExpansionDialogContentSpacer spacer;
+		spacer = new ExpansionDialogContentSpacer(this);
+		AddContent(spacer);
 
 		if (!m_Text)
 		{
 			m_Text = new ExpansionDialogContent_Text(this);
 			AddContent(m_Text);
+			m_Text.SetText(text);
+			m_Text.SetTextColor(ARGB(255, 220, 220, 220));
+			m_Text.Show();
 		}
+		
+		spacer = new ExpansionDialogContentSpacer(this);
+		AddContent(spacer);
 
 		if (!m_AcceptButton)
 		{
@@ -45,16 +55,9 @@ class ExpansionDialog_P2PMarketMenu: ExpansionDialogBase
 		}
 	}
 
-	void SetText(string text)
-	{
-		m_Text.SetText(text);
-		m_Text.SetTextColor(ARGB(255, 220, 220, 220));
-		m_Text.Show();
-	}
-
 	override string GetDialogTitle()
 	{
-		return "";
+		return "#STR_EXPANSION_MARKET_P2P_TRADERNAME";
 	}
 };
 

@@ -124,7 +124,7 @@ class ExpansionQuest
 				targetObjectiveEvent.SetIndex(index);
 				targetObjectiveEvent.SetObjectiveConfig(targetConfig);
 				targetObjectiveEvent.SetTimeLimit(targetConfig.GetTimeLimit());
-				targetObjectiveEvent.SetAmount(targetConfig.GetTarget().GetAmount());
+				targetObjectiveEvent.SetAmount(targetConfig.GetAmount());
 				m_QuestObjectives.Insert(targetObjectiveEvent);
 				return true;
 			}
@@ -194,7 +194,12 @@ class ExpansionQuest
 				aiPatrolObjectiveEvent.SetIndex(index);
 				aiPatrolObjectiveEvent.SetObjectiveConfig(aiPatrolConfig);
 				aiPatrolObjectiveEvent.SetTimeLimit(aiPatrolConfig.GetTimeLimit());
-				aiPatrolObjectiveEvent.SetKillAmount(aiPatrolConfig.GetAIPatrol().GetNPCUnits());
+				
+				ExpansionQuestAISpawn aiPatrolSpawn = aiPatrolConfig.GetAISpawn();
+				if (!aiPatrolSpawn)
+					return false;
+
+				aiPatrolObjectiveEvent.SetKillAmount(aiPatrolSpawn.GetNumberOfAI());
 				m_QuestObjectives.Insert(aiPatrolObjectiveEvent);
 				return true;
 			}
@@ -208,7 +213,18 @@ class ExpansionQuest
 				aiCampObjectiveEvent.SetIndex(index);
 				aiCampObjectiveEvent.SetObjectiveConfig(aiCampConfig);
 				aiCampObjectiveEvent.SetTimeLimit(aiCampConfig.GetTimeLimit());
-				aiCampObjectiveEvent.SetKillAmount(aiCampConfig.GetAICamp().GetPositions().Count());
+				
+				int unitsCountC;
+				array<ref ExpansionQuestAISpawn> aiCampSpawns = aiCampConfig.GetAISpawns();
+				if (!aiCampSpawns || aiCampSpawns.Count() == 0)
+					return false;
+
+				foreach (ExpansionQuestAISpawn campSpawn: aiCampSpawns)
+				{
+					unitsCountC += campSpawn.GetNumberOfAI();
+				}
+
+				aiCampObjectiveEvent.SetKillAmount(unitsCountC);
 				m_QuestObjectives.Insert(aiCampObjectiveEvent);
 				return true;
 			}
@@ -565,14 +581,23 @@ class ExpansionQuest
 			}
 
 			SetIsCompleted(true);
-
-			if (m_Config.GetFollowUpQuestID() > 0)
+			
+			//! Check if we should show the quest log with the follow-up quest on quest completion.
+			//! We only want to display the quest log with the follow-up quest when the follow-up quest has no quest giver and when the player meats all other quest display conditions for that quest.
+			if (m_Config.GetFollowUpQuestID() > 0 && !m_Config.SuppressQuestLogOnCompetion())
 			{
-				PlayerBase questPlayer = PlayerBase.GetPlayerByUID(playerUID);
-				if (!questPlayer || !questPlayer.GetIdentity())
-					return false;
-
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_QuestModule.RequestOpenQuestMenuForQuest, 1000, false, questPlayer.GetIdentity(), m_Config.GetFollowUpQuestID());
+				ExpansionQuestConfig followUpQuest = m_QuestModule.GetQuestConfigByID(m_Config.GetFollowUpQuestID());
+				if (followUpQuest && followUpQuest.GetQuestGiverIDs().Count() == 0)
+				{
+					PlayerBase questPlayer = PlayerBase.GetPlayerByUID(playerUID);
+					if (!questPlayer || !questPlayer.GetIdentity())
+						return false;
+					
+					ExpansionQuestPersistentData playerQuestData = m_QuestModule.GetPlayerQuestDataByUID(playerUID);
+					//! We set to skip the pre-quest conditions check here as the player quest data does not contain the completion of the current quest yet and the QuestDisplayConditions check would return false otherwise then.
+					if (m_QuestModule.QuestDisplayConditions(followUpQuest, questPlayer, playerQuestData, -1, false, true))
+						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_QuestModule.RequestOpenQuestMenuForQuest, 1000, false, questPlayer.GetIdentity(), m_Config.GetFollowUpQuestID());
+				}
 			}
 		}
 
@@ -1054,13 +1079,13 @@ class ExpansionQuest
 			SetQuestItemsToNormalItems();
 		}
 
+		//! Call cleanup event on all active quest objectives
+		CleanupObjectives(callObjectiveCleanup);
+		
 	#ifdef EXPANSIONMODNAVIGATION
 		RemoveQuestMarkers(true);
 	#endif
 		SetInitialized(false);
-		
-		//! Call cleanup event on all active quest objectives
-		CleanupObjectives(callObjectiveCleanup);
 
 		return true;
 	}
@@ -1268,6 +1293,21 @@ class ExpansionQuest
 	array<ref ExpansionQuestObjectiveEventBase> GetObjectives()
 	{
 		return m_QuestObjectives;
+	}
+	
+	ExpansionQuestObjectiveEventBase GetObjective(int objectiveType, int objectiveID)
+	{
+		ExpansionQuestObjectiveEventBase foundObj;
+		foreach (ExpansionQuestObjectiveEventBase obj: m_QuestObjectives)
+		{
+			if (obj.GetObjectiveConfig().GetObjectiveType() == objectiveType && obj.GetObjectiveConfig().GetID() == objectiveID)
+			{
+				foundObj = obj;
+				break;
+			}
+		}
+		
+		return foundObj;
 	}
 
 	bool IsInitialized()

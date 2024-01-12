@@ -221,10 +221,6 @@ class ExpansionFSM
 		if (!m_Owner)
 			return EXIT;
 
-#ifdef DIAG
-		auto hitch = new EXHitch(m_Owner.ToString() + " " + this + "::Update ", 20000);
-#endif
-
 		//CF_Log.Debug("m_CurrentState: %1", "" + m_CurrentState);
 
 		if (m_CurrentState)

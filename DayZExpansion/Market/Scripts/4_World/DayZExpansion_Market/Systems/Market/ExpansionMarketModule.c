@@ -1423,14 +1423,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	// Expansion SpawnMoney
 	// ------------------------------------------------------------
-	array<ItemBase> SpawnMoney(PlayerBase player, inout EntityAI parent, int amount, bool useExisingStacks = true, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL, bool isATM = false)
+	array<ItemBase> SpawnMoney(PlayerBase player, inout EntityAI parent, int amount, bool useExistingStacks = true, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL, bool isATM = false)
 	{
-		auto trace = EXTrace.Start(EXTrace.MARKET, this);
-
-		array<ItemBase> monies = new array<ItemBase>;
-
-		array<ref array<ItemBase>> foundMoney;
-
 		TStringArray currencies;
 
 		if (trader)
@@ -1438,7 +1432,18 @@ class ExpansionMarketModule: CF_ModuleWorld
 		else if (isATM)
 			currencies = GetExpansionSettings().GetMarket().Currencies;
 
-		if (useExisingStacks)
+		return SpawnMoneyInCurrency(player, parent, amount, currencies, useExistingStacks, marketItem);
+	}
+	
+	array<ItemBase> SpawnMoneyInCurrency(PlayerBase player, inout EntityAI parent, int amount, TStringArray currencies, bool useExistingStacks = true, ExpansionMarketItem marketItem = NULL)
+	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
+		array<ItemBase> monies = new array<ItemBase>;
+
+		array<ref array<ItemBase>> foundMoney;
+
+		if (useExistingStacks)
 		{
 			//! Will increment existing stacks and only spawn new money when needed
 			foundMoney = new array<ref array<ItemBase>>;
@@ -1510,7 +1515,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 				ItemBase money = NULL;
 				int stack = 0;
 
-				if (useExisingStacks)
+				if (useExistingStacks)
 				{
 					MarketModulePrint("SpawnMoney - check for existing stack of " + type);
 					array<ItemBase> existingMonies = foundMoney[currentDenomination];
@@ -1585,6 +1590,18 @@ class ExpansionMarketModule: CF_ModuleWorld
 	//! Out array <monies> contains needed amounts for each money type to reach total <amount>
 	//! Note: Out array <monies> is always ordered from highest to lowest value currency
 	bool FindMoneyAndCountTypes(PlayerBase player, int amount, out array<int> monies, bool reserve = false, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL, bool isATM = false)
+	{
+		TStringArray currencies;
+
+		if (trader)
+			currencies = trader.Currencies;
+		else if (isATM)
+			currencies = GetExpansionSettings().GetMarket().Currencies;
+
+		return FindMoneyInCurrency(player, amount, monies, currencies, reserve, marketItem);
+	}
+
+	bool FindMoneyInCurrency(PlayerBase player, int amount, out array<int> monies, TStringArray currencies, bool reserve = false, ExpansionMarketItem marketItem = NULL)
 	{	
 		MarketModulePrint("FindMoneyAndCountTypes - player " + player + " - amount " + amount);
 
@@ -1610,13 +1627,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			monies.Insert(0);
 			playerMonies.Insert(0);
 		}
-
-		TStringArray currencies;
-
-		if (trader)
-			currencies = trader.Currencies;
-		else if (isATM)
-			currencies = GetExpansionSettings().GetMarket().Currencies;
 
 		ItemBase money;
 		int playerWorth;
@@ -1802,6 +1812,19 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	int GetPlayerWorth(PlayerBase player, out array<int> monies, ExpansionMarketTrader trader = NULL, bool isATM = false)
 	{
+
+		TStringArray currencies;
+
+		if (trader)
+			currencies = trader.Currencies;
+		else if (isATM)
+			currencies = GetExpansionSettings().GetMarket().Currencies;
+
+		return GetPlayerWorth(player, monies, currencies);
+	}
+
+	int GetPlayerWorth(PlayerBase player, out array<int> monies, TStringArray currencies)
+	{
 		m_PlayerWorth = 0;
 
 		if (!monies)
@@ -1822,13 +1845,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			return m_PlayerWorth;
 		}
-
-		TStringArray currencies;
-
-		if (trader)
-			currencies = trader.Currencies;
-		else if (isATM)
-			currencies = GetExpansionSettings().GetMarket().Currencies;
 
 		array<EntityAI> items = new array<EntityAI>;
 		items.Reserve(player.GetInventory().CountInventory());
@@ -1864,6 +1880,35 @@ class ExpansionMarketModule: CF_ModuleWorld
 	int GetPlayerWorth()
 	{
 		return m_PlayerWorth;
+	}
+	
+	static string GetDisplayPrice(ExpansionMarketTrader trader, int price, bool shorten = false, bool format = true, bool includeDisplayCurrencyName = false)
+	{
+		return GetDisplayPriceEx(price, shorten, format, includeDisplayCurrencyName, trader.DisplayCurrencyValue, trader.m_DisplayCurrencyPrecision, trader.DisplayCurrencyName);
+	}
+
+	static string GetDisplayPriceEx(int price, bool shorten = false, bool format = true, bool includeDisplayCurrencyName = false, int displaycurrencyValue = 1, int displayCurrencyPrecision = 2, string displayCurrencyName = string.Empty)
+	{
+		string priceString;
+
+		if (displaycurrencyValue <= 1)
+		{
+			if (format)
+				priceString = ExpansionStatic.FormatInt(price, shorten);
+			else
+				priceString = price.ToString();
+		}
+		else
+		{
+			float displayPrice = price / displaycurrencyValue;
+
+			priceString = ExpansionStatic.FormatFloat(displayPrice, displayCurrencyPrecision, format);
+		}
+
+		if (includeDisplayCurrencyName && displayCurrencyName)
+			priceString += " " + displayCurrencyName;
+
+		return priceString;
 	}
 
 	// ------------------------------------------------------------
@@ -3757,10 +3802,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 	void CheckSpawn(PlayerBase player, EntityAI parent, bool attachmentNotAttached = false)
 	{
-		if (parent != player || attachmentNotAttached)
-		{
-			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "STR_EXPANSION_TEMPORARY_STORAGE_INFO", EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 6, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
-		}
 	}
 	
 	// ------------------------------------------------------------
@@ -4752,16 +4793,19 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	// Expansion RemoveMoney
 	// ------------------------------------------------------------
-	bool RemoveMoney(int amount, PlayerBase player)
+	bool RemoveMoney(int amount, PlayerBase player, TStringArray currencies = NULL)
 	{
-		if (!GetExpansionSettings().GetMarket().Currencies.Count())
+		if (currencies == NULL)
+			currencies = GetExpansionSettings().GetMarket().Currencies;
+
+		if (!currencies.Count())
 		{
 			Error(ToString() + "::RemoveMoney - No currencies defined in market settings!");
 			return false;
 		}
 
 		array<int> monies = new array<int>;
-		if (!FindMoneyAndCountTypes(player, amount, monies, true, NULL, NULL, true))
+		if (!FindMoneyInCurrency(player, amount, monies, currencies, true))
 		{
 			Error(ToString() + "::RemoveMoney - Could not find player money!");
 			UnlockMoney(player);
@@ -4772,8 +4816,12 @@ class ExpansionMarketModule: CF_ModuleWorld
 		int removed = RemoveMoney(player);
 		if (removed - amount > 0)
 		{
-		    SpawnMoney(player, parent, removed - amount, true, NULL, NULL, true);
+		    SpawnMoneyInCurrency(player, parent, removed - amount, currencies, true);
 			CheckSpawn(player, parent);
+		}
+		else if (removed != amount)
+		{
+			return false;
 		}
 
 		return true;

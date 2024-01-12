@@ -12,6 +12,11 @@
 
 class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 {
+	override bool SetupCondition()
+	{
+		return GetExpansionSettings().GetRaid(false).IsLoaded();
+	}
+
 	override void Setup( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		Object targetObject = target.GetParentOrObject();
@@ -143,10 +148,7 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 
 	override bool CanBeDestroyed( Object targetObject )
 	{
-		auto settings = GetExpansionSettings().GetRaid(false);
-
-		if (!settings.IsLoaded())
-			return false;
+		auto settings = GetExpansionSettings().GetRaid();
 
 		bool raidableNow = settings.IsRaidableNow();
 

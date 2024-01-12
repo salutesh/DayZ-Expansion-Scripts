@@ -1,27 +1,9 @@
 modded class ZombieBase
 {
-	private autoptr eAIZombieTargetInformation m_TargetInformation;
-	bool m_eAI_ProcessDamageByAI;
+	private ref eAIZombieTargetInformation m_TargetInformation = new eAIZombieTargetInformation(this);
+	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
 	bool m_Expansion_Airborne;
 	float m_Expansion_AirbornePeakAltitude;
-
-	void ZombieBase()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "ZombieBase");
-#endif
-
-		Class.CastTo(m_TargetInformation, CreateTargetInformation());
-	}
-
-	protected eAIZombieTargetInformation CreateTargetInformation()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "CreateTargetInformation");
-#endif
-
-		return new eAIZombieTargetInformation(this);
-	}
 
 	eAIZombieTargetInformation GetTargetInformation()
 	{
@@ -34,37 +16,13 @@ modded class ZombieBase
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-		DayZPlayerImplement sourcePlayer;
-		if (!m_eAI_ProcessDamageByAI && Class.CastTo(sourcePlayer, source.GetHierarchyRootPlayer()))
-		{
-			switch (damageType)
-			{
-				case DT_CLOSE_COMBAT:
-					eAIGroup group = sourcePlayer.GetGroup();
-					if (group)
-					{
-						eAIFaction faction = group.GetFaction();
-						eAIMeleeCombat.eAI_ApplyYeetForce(m_TargetInformation, faction.GetMeleeYeetForce(), sourcePlayer.GetPosition(), faction.GetMeleeYeetFactors());
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
 
-						float meleeDamageMultiplier = faction.GetMeleeDamageMultiplier();
-						if (meleeDamageMultiplier != 1.0)
-						{
-							m_eAI_ProcessDamageByAI = true;
-							//! @note IMPORTANT: Do NOT pass in dmgZone here, won't generate hit! Melee dmg is a special snowflake
-							ProcessDirectDamage(DT_CLOSE_COMBAT, source, "", ammo, modelPos, speedCoef * meleeDamageMultiplier);
-							return false;
-						}
-					}
+		if (!m_eAI_DamageHandler.OnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
 
-					break;
-			}
-		}
-		else
-		{
-			m_eAI_ProcessDamageByAI = false;
-		}
-
-		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		return true;
 	}
 
 	override void EEKilled(Object killer)
@@ -77,7 +35,7 @@ modded class ZombieBase
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 	#ifdef DIAG
-		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy[" + m_eAI_DamageHandler.m_HitCounter + "]", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	#endif
 
 		m_TargetInformation.OnHit();

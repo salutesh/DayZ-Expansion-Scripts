@@ -19,7 +19,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	protected ExpansionQuestContainerBase m_Chest;
 	protected vector m_StashPos;
 	protected bool m_DestinationReached;
-	protected ExpansionTravelObjectiveSphereTrigger m_ObjectiveTrigger;
 	protected ref ExpansionQuestObjectiveTreasureHuntConfig m_TreasureHuntConfig;
 	protected int m_LootItemsCount;
 
@@ -39,7 +38,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		vector pos = m_TreasureHuntConfig.GetPositions().GetRandomElement();
 		m_StashPos = pos;
 
-		if (!m_ObjectiveTrigger)
+		if (!ExpansionQuestModule.GetModuleInstance().QuestTriggerExists(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_ObjectiveConfig.GetID()))
 			CreateTrigger(m_StashPos);
 
 	#ifdef EXPANSIONMODNAVIGATION
@@ -81,7 +80,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 			if (!m_LootedItemFromChest)
 			{
-				if (!m_ObjectiveTrigger)
+				if (!ExpansionQuestModule.GetModuleInstance().QuestTriggerExists(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_ObjectiveConfig.GetID()))
 					CreateTrigger(m_StashPos);
 
 			#ifdef EXPANSIONMODNAVIGATION
@@ -103,7 +102,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!super.OnCleanup())
+		if (!Class.CastTo(m_TreasureHuntConfig, m_ObjectiveConfig))
 			return false;
 
 		//! Only cleanup the chest if objective is not completed yet, because it may yet contain items if quest is autocomplete
@@ -114,8 +113,14 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (m_Stash)
 			GetGame().ObjectDelete(m_Stash);
 
-		if (m_ObjectiveTrigger)
-			GetGame().ObjectDelete(m_ObjectiveTrigger);
+		int questID = m_Quest.GetQuestConfig().GetID();
+		int objectiveType = GetObjectiveType();
+		int objectiveID = m_TreasureHuntConfig.GetID();
+		if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(questID))
+			ExpansionQuestModule.GetModuleInstance().RemoveObjectiveTrigger(questID, ExpansionObjectiveTriggerType.TRAVEL, objectiveType, objectiveID);
+
+		if (!super.OnCleanup())
+			return false;
 
 		ObjectivePrint("End and return TRUE.");
 
@@ -150,10 +155,24 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (m_Stash)
 			GetGame().ObjectDelete(m_Stash);
 
-		if (m_ObjectiveTrigger)
-			GetGame().ObjectDelete(m_ObjectiveTrigger);
-
 		ObjectivePrint("End and return TRUE.");
+
+		return true;
+	}
+
+	override bool OnComplete()
+	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
+
+		int questID = m_Quest.GetQuestConfig().GetID();
+		int objectiveType = GetObjectiveType();
+		int objectiveID = m_TreasureHuntConfig.GetID();
+		if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(questID))
+			ExpansionQuestModule.GetModuleInstance().RemoveObjectiveTrigger(questID, ExpansionObjectiveTriggerType.TRAVEL, objectiveType, objectiveID);
+
+		super.OnComplete();
 
 		return true;
 	}
@@ -305,60 +324,32 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		//! Spawn the chest in the underground stash
-		PlayerBase questPlayer = PlayerBase.GetPlayerByUID(m_Quest.GetPlayerUID());
+		string playerUID = m_Quest.GetPlayerUID();
+		PlayerBase questPlayer = PlayerBase.GetPlayerByUID(playerUID);
 		if (!questPlayer)
 			return;
 
 		Object chestObj;
 		if (useStash)
 		{
-			chestObj = Spawn(containerName, 1, questPlayer, m_Stash, m_StashPos, Vector(0, 0, 0));
+			chestObj = m_Stash.GetInventory().CreateInInventory(containerName);
 		}
 		else
 		{
 			chestObj = GetGame().CreateObjectEx(containerName, m_StashPos, ECE_PLACE_ON_SURFACE);
 		}
 
-
 		if (!Class.CastTo(m_Chest, chestObj))
-			return;
-
-		if (!m_Chest)
 		{
 			GetGame().ObjectDelete(chestObj);
 			return;
 		}
 
+		m_Chest.ExpansionSetContainerOwner(questPlayer.GetIdentity());
 		m_Chest.Expansion_SetQuestID(m_Quest.GetQuestConfig().GetID());
-		set<string> playerUIDs = new set<string>;
-		if (!m_Quest.GetQuestConfig().IsGroupQuest())
-		{
-			playerUIDs.Insert(m_Quest.GetPlayerUID());
-		}
-	#ifdef EXPANSIONMODGROUPS
-		else
-		{
-			playerUIDs = m_Quest.GetPlayerUIDs();
-		}
-	#endif
-
 		m_Chest.ExpansionSetCanReceiveItems(true);
 		ExpansionLootSpawner.SpawnLoot(m_Chest, m_TreasureHuntConfig.GetLoot(), m_TreasureHuntConfig.GetLootItemsAmount(), m_LootItems, m_LootItemsMap);
-		foreach (EntityAI lootItem: m_LootItems)
-		{
-			ItemBase lootIB = ItemBase.Cast(lootItem);
-			if (!lootIB)
-			{
-				GetGame().ObjectDelete(lootItem);
-				return;
-			}
-			
-			lootIB.Expansion_SetQuestID(m_Quest.GetQuestConfig().GetID());
-			lootIB.Expansion_SetIsObjectiveLoot(true);
-		}
-
 		m_Chest.ExpansionSetCanReceiveItems(false);
-		m_Chest.ExpansionSetContainerOwner(questPlayer);
 	}
 
 #ifdef EXPANSIONMODNAVIGATION
@@ -374,23 +365,22 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	}
 #endif
 
-	Object Spawn(string name, int amount, PlayerBase player, EntityAI parent, vector position, vector orientation)
-	{
-		Object obj = ExpansionItemSpawnHelper.SpawnOnParent(name, player, parent, amount);
-		if (!obj)
-			Error(ToString() + "::Spawn - couldn't spawn " + name + " on " + parent + " at " + position);
-		return obj;
-	}
-
 	protected void CreateTrigger(vector pos)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", pos, ECE_NONE));
-		m_ObjectiveTrigger.SetPosition(pos);
-		m_ObjectiveTrigger.SetObjectiveData(this);
+		array<ExpansionObjectiveTriggerBase> triggers = {};
+		ExpansionTravelObjectiveSphereTrigger trigger = ExpansionTravelObjectiveSphereTrigger.Cast(GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", pos, ECE_LOCAL));
+		if (!trigger)
+			return;
+
+		trigger.SetPosition(pos);
+		trigger.SetObjectiveData(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_ObjectiveConfig.GetID());
+		triggers.Insert(trigger);
+
+		ExpansionQuestModule.GetModuleInstance().SetQuestTriggers(m_Quest.GetQuestConfig().GetID(), triggers);
 	}
 
 	vector GetPosition()
@@ -413,7 +403,8 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		if (state)
 		{
-			CreateTreasure();
+			if (!m_Chest)
+				CreateTreasure();
 		#ifdef EXPANSIONMODNAVIGATION
 			RemoveObjectiveMarkers();
 		#endif
@@ -421,10 +412,16 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		else
 		{
 			if (m_Chest)
+			{
 				GetGame().ObjectDelete(m_Chest);
+				m_Chest = null;
+			}
 
 			if (m_Stash)
+			{
 				GetGame().ObjectDelete(m_Stash);
+				m_Stash = null;
+			}
 
 		#ifdef EXPANSIONMODNAVIGATION
 			CreateMarkers();
@@ -447,7 +444,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		m_LootedItemFromChest = true;
 		m_Quest.QuestCompletionCheck(true);
-
 	}
 
 	void OnInventoryItemLocationChange(ItemBase item, ExpansionQuestItemState state)

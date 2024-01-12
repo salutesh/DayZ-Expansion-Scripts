@@ -253,6 +253,40 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 
 		GetGame().ObjectDelete(this);
 	}
+
+	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, typename.EnumToString(InventoryLocationType, oldLoc.GetType()), typename.EnumToString(InventoryLocationType, newLoc.GetType()));
+
+		super.EEItemLocationChanged(oldLoc, newLoc);
+
+		if (newLoc.GetType() == InventoryLocationType.GROUND && GetGame().IsServer())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_FinalizeLoot);
+	}
+
+	//void Expansion_DirtSync_FuckDayZ()
+	void Expansion_FinalizeLoot()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		array<EntityAI> lootItems = new array<EntityAI>;
+		GetInventory().EnumerateInventory(InventoryTraversalType.LEVELORDER, lootItems);
+		foreach (EntityAI lootItem: lootItems)
+		{
+			if (!lootItem)
+				continue;
+
+			ItemBase lootIB = ItemBase.Cast(lootItem);
+			if (!lootIB)
+			{
+				GetGame().ObjectDelete(lootItem);
+				continue;
+			}
+			
+			lootIB.Expansion_SetQuestID(m_Expansion_QuestID);
+			lootIB.Expansion_SetIsObjectiveLoot(true);
+		}
+	}
 };
 
 class ExpansionQuestSeaChest: ExpansionQuestContainerBase {};

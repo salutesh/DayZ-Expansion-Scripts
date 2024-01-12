@@ -120,6 +120,10 @@ class ExpansionGame
 	{
 	}
 
+	void Expansion_SendNear(ExpansionScriptRPC rpc, vector position, float distance, Object target = null, bool guaranteed = false)
+	{
+	}
+
 	static bool IsMultiplayerClient()
 	{
 		//! Check for `&& IsMultiplayer` is redundant here, comment for clarity

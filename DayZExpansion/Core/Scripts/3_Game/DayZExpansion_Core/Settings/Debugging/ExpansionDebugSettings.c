@@ -15,11 +15,13 @@
  **/
 class ExpansionDebugSettings: ExpansionSettingBase
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 
 	int DebugVehiclePlayerNetworkBubbleMode;
 	
 	int ServerUpdateRateLimit;
+
+	bool EnableProneDeathHandItemDropFix;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -137,6 +139,12 @@ class ExpansionDebugSettings: ExpansionSettingBase
 
 			if (m_Version < VERSION)
 			{
+				auto settingsDefaults = new ExpansionDebugSettings();
+				settingsDefaults.Defaults();
+
+				if (m_Version < 5)
+					EnableProneDeathHandItemDropFix = settingsDefaults.EnableProneDeathHandItemDropFix;
+
 				m_Version = VERSION;
 
 				save = true;
@@ -192,6 +200,7 @@ class ExpansionDebugSettings: ExpansionSettingBase
 		m_Version = VERSION;
 		
 		DebugVehiclePlayerNetworkBubbleMode = 0;
+		EnableProneDeathHandItemDropFix = 1;
 	}
 	
 	override string SettingName()

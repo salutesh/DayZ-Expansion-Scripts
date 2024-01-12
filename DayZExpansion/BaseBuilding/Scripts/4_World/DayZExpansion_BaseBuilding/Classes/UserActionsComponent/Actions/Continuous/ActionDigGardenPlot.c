@@ -11,7 +11,17 @@
 */
 
 modded class ActionDigGardenPlot
-{	
+{
+	override string GetText()
+	{
+		string text = super.GetText();
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
+	}
+
 	override bool ActionCondition ( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		if ( !super.ActionCondition( player, target, item ) )
@@ -19,8 +29,11 @@ modded class ActionDigGardenPlot
 		
 		if ( player.Expansion_IsInSafeZone() )
 			return false;
-			
-		if ( GetExpansionSettings().GetBaseBuilding(false).IsLoaded() && GetExpansionSettings().GetTerritory(false).IsLoaded() && GetExpansionSettings().GetTerritory().EnableTerritories )
+
+		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded() || !GetExpansionSettings().GetTerritory(false).IsLoaded())
+			return false;
+
+		if (GetExpansionSettings().GetTerritory().EnableTerritories)
 		{
 			int i;
 
@@ -57,8 +70,10 @@ modded class ActionDigGardenPlot
 						return true;
 				}
 			}
+
+			return false;
 		}
 		
-		return false;
+		return true;
 	}
 };

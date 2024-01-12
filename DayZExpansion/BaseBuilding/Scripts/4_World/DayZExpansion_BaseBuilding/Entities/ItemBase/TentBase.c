@@ -38,13 +38,19 @@ modded class TentBase
 	//! Only call this after settings have been loaded
 	bool ExpansionCanAttachCodeLock()
 	{
+		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
+			return false;
+
 		int attachMode = GetExpansionSettings().GetBaseBuilding().CodelockAttachMode;
-		return attachMode == ExpansionCodelockAttachMode.ExpansionAndTents || attachMode == ExpansionCodelockAttachMode.ExpansionAndFenceAndTents;
+		if (attachMode == ExpansionCodelockAttachMode.ExpansionAndTents || attachMode == ExpansionCodelockAttachMode.ExpansionAndFenceAndTents)
+			return true;
+
+		return false;
 	}
 	
 	override bool CanReceiveItemIntoCargo(EntityAI item )
 	{
-        if (ExpansionIsLocked() && GetExpansionSettings().GetBaseBuilding(false).IsLoaded() )
+        if (ExpansionIsLocked() )
 		{
 			if ( ExpansionCanAttachCodeLock() )
 			{
@@ -58,7 +64,7 @@ modded class TentBase
 
     override bool CanReleaseCargo(EntityAI cargo)
 	{
-        if ( ExpansionIsLocked() && GetExpansionSettings().GetBaseBuilding(false).IsLoaded() )
+        if ( ExpansionIsLocked() )
 		{
 			if ( ExpansionCanAttachCodeLock() )
 			{
@@ -71,27 +77,27 @@ modded class TentBase
 
     override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
-		if ( GetExpansionSettings().GetBaseBuilding(false).IsLoaded() )
+		if (!super.CanReceiveAttachment(attachment, slotId))
+			return false;
+
+		if ( attachment.IsInherited( ExpansionCodeLock ) )
 		{
-			if ( attachment.IsInherited( ExpansionCodeLock ) )
-			{
-				if ( !ExpansionCanAttachCodeLock() )
-					return false;
+			if ( !ExpansionCanAttachCodeLock() )
+				return false;
 
-				//! Safety to prevent attaching Expansion Code Lock if another lock is already present in different slot (e.g. silver Code Lock from RoomService's mod)
-				if ( FindAttachmentBySlotName( "Att_CombinationLock" ) )
-					return false;
+			//! Safety to prevent attaching Expansion Code Lock if another lock is already present in different slot (e.g. silver Code Lock from RoomService's mod)
+			if ( FindAttachmentBySlotName( "Att_CombinationLock" ) )
+				return false;
 
-				if ( IsEntranceRuined() )
-					return false;
-			}
-
-			//! Safety to prevent attaching other locks (e.g. silver Code Lock from RoomService's mod) if Expansion Code Lock is already present
-			if ( attachment.IsKindOf( "CombinationLock" ) && ExpansionGetCodeLock() )
+			if ( IsEntranceRuined() )
 				return false;
 		}
 
-        return super.CanReceiveAttachment(attachment, slotId);
+		//! Safety to prevent attaching other locks (e.g. silver Code Lock from RoomService's mod) if Expansion Code Lock is already present
+		if ( attachment.IsKindOf( "CombinationLock" ) && ExpansionGetCodeLock() )
+			return false;
+
+        return true;
     }
 	
 	bool IsEntranceRuined()
@@ -113,7 +119,7 @@ modded class TentBase
 	
 	override bool CanReleaseAttachment( EntityAI attachment )
 	{
-        if ( ExpansionIsLocked() && GetExpansionSettings().GetBaseBuilding(false).IsLoaded() )
+        if ( ExpansionIsLocked() )
 		{
 			if ( ExpansionCanAttachCodeLock() )
 			{

@@ -38,6 +38,7 @@ modded class CarScript
 	ref ExpansionVehicleModuleEvent m_Event_Animate = new ExpansionVehicleModuleEvent();
 	ref ExpansionVehicleModuleEvent m_Event_NetworkSend = new ExpansionVehicleModuleEvent();
 	ref ExpansionVehicleModuleEvent m_Event_NetworkRecieve = new ExpansionVehicleModuleEvent();
+	float m_Expansion_AnimationTickTime;
 
 	int m_Expansion_EnginesOn;
 
@@ -185,6 +186,10 @@ modded class CarScript
 
 	void CarScript()
 	{
+	#ifndef SERVER
+		SetEventMask(EntityEvent.POSTSIMULATE | EntityEvent.FRAME);
+	#endif
+
 		g_Expansion_Car = this;
 
 		RegisterNetSyncVariableInt("m_PersistentIDA");
@@ -617,8 +622,10 @@ modded class CarScript
 			if (m_Modules[i].m_Simulate)
 				m_Event_Simulate.Add(m_Modules[i]);
 
+		#ifndef SERVER
 			if (m_Modules[i].m_Animate)
 				m_Event_Animate.Add(m_Modules[i]);
+		#endif
 
 			if (m_Modules[i].m_Network)
 			{
@@ -1901,12 +1908,17 @@ modded class CarScript
 		}
 	}
 
+	//! @note only called for driver on client
 	override void OnUpdate(float dt)
 	{
 		if (GetGame().IsServer() && m_DrownTime > 0 && !CanBeDamaged())
 			m_DrownTime = 0;
 
 		super.OnUpdate(dt);
+
+	#ifndef SERVER
+		OnAnimationUpdate(dt);
+	#endif
 	}
 
 	void Expansion_AddWheels()
@@ -2405,20 +2417,18 @@ modded class CarScript
 
 	protected void OnPreSimulation(float pDt)
 	{
-		if (IsMissionClient())
-		{
-			OnParticleUpdate(pDt);
-		}
+#ifndef SERVER
+		OnParticleUpdate(pDt);
+#endif
 	}
 
 	protected void OnNoSimulation(float pDt)
 	{
-		if (IsMissionClient())
-		{
-			OnParticleUpdate(pDt);
-		}
-
-		OnAnimationUpdate(pDt);
+#ifndef SERVER
+		m_State.SetupSimulation(pDt);
+		m_Event_PreSimulate.PreSimulate(m_State);
+		OnParticleUpdate(pDt);
+#endif
 	}
 
 	protected void OnSimulation(ExpansionPhysicsState pState)
@@ -2427,7 +2437,6 @@ modded class CarScript
 
 	protected void OnPostSimulation(float pDt)
 	{
-		OnAnimationUpdate(pDt);
 	}
 
 	protected void OnParticleUpdate(float pDt)
@@ -2436,8 +2445,19 @@ modded class CarScript
 
 	protected void OnAnimationUpdate(float pDt)
 	{
-		m_Event_Animate.Animate(m_State);
+		//float tickTime = GetGame().GetTickTime();
+		//float deltaTimeAccurate = tickTime - m_Expansion_AnimationTickTime;
+		//m_Expansion_AnimationTickTime = tickTime;
+		m_Event_Animate.Animate(m_State, pDt);
 	}
+
+#ifndef SERVER
+	//! @note not called for driver on client
+	override void EOnFrame(IEntity other, float timeSlice)
+	{
+		OnAnimationUpdate(timeSlice);
+	}
+#endif
 
 #ifdef CF_DebugUI
 	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
@@ -4062,8 +4082,12 @@ modded class CarScript
 
 	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "OnContact").Add(zoneName).Add(localPos).Add(other).Add(data);
+#ifdef DIAG_DEVELOPER
+		auto trace = EXTrace.Start(ExpansionTracing.VEHICLES, this);
+		EXTrace.Add(trace, zoneName);
+		EXTrace.Add(trace, localPos);
+		EXTrace.Add(trace, other);
+		EXTrace.Add(trace, data);
 #endif
 
 		auto item = ItemBase.Cast(other);
@@ -4089,7 +4113,7 @@ modded class CarScript
 			}
 		}
 
-		ExpansionWorld.CheckTreeContact(other, data.Impulse);
+		ExpansionWorld.CheckTreeContact(other, data.Impulse, true);
 
 		if (GetGame().IsServer() && (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed))
 		{
@@ -4131,6 +4155,42 @@ modded class CarScript
 		{
 			float dmg = Math.AbsInt(data[0].impulse * m_dmgContactCoef);
 
+		#ifdef DIAG_DEVELOPER
+			CrashDebugData.m_CrashDataPoint = new CrashDebugData();
+			CrashDebugData.m_CrashDataPoint.m_VehicleType = GetDisplayName();
+			CrashDebugData.m_CrashDataPoint.m_Damage = dmg;
+			CrashDebugData.m_CrashDataPoint.m_Zone = zoneName;
+			CrashDebugData.m_CrashDataPoint.m_MomentumCurr = GetMomentum();
+			CrashDebugData.m_CrashDataPoint.m_MomentumPrev = m_MomentumPrevTick;
+			CrashDebugData.m_CrashDataPoint.m_MomentumDelta = data[0].impulse;
+			CrashDebugData.m_CrashDataPoint.m_SpeedWorld = GetVelocity(this).Length() * 3.6;
+			CrashDebugData.m_CrashDataPoint.m_SpeedWorldPrev = m_VelocityPrevTick.Length() * 3.6;
+			CrashDebugData.m_CrashDataPoint.m_SpeedWorldDelta = (m_VelocityPrevTick.Length() - GetVelocity(this).Length()) * 3.6;
+			CrashDebugData.m_CrashDataPoint.m_VelocityCur = GetVelocity(this);
+			CrashDebugData.m_CrashDataPoint.m_VelocityPrev = m_VelocityPrevTick;
+			CrashDebugData.m_CrashDataPoint.m_VelocityDot = vector.Dot(m_VelocityPrevTick.Normalized(), GetVelocity(this).Normalized());
+			CrashDebugData.m_CrashDataPoint.m_Time = GetGame().GetTime();
+
+			if (DEBUG_OUTPUT_TYPE & EVehicleDebugOutputType.DAMAGE_CONSIDERED)
+			{
+				Debug.Log("--------------------------------------------------");
+				Debug.Log("Vehicle:" + GetDisplayName());
+				Debug.Log("DMG: " + dmg);
+				Debug.Log("zoneName : "+ zoneName);
+				Debug.Log("momentumCurr : "+ GetMomentum());
+				Debug.Log("momentumPrev : "+ m_MomentumPrevTick);
+				Debug.Log("momentumDelta : "+ data[0].impulse);
+				Debug.Log("speed(km/h): "+ GetVelocity(this).Length() * 3.6);
+				Debug.Log("speedPrev(km/h): "+ m_VelocityPrevTick.Length() * 3.6);
+				Debug.Log("speedDelta(km/h) : "+ (m_VelocityPrevTick.Length() - GetVelocity(this).Length()) * 3.6);
+				Debug.Log("velocityCur.): "+ GetVelocity(this));
+				Debug.Log("velocityPrev.): "+ m_VelocityPrevTick);
+				Debug.Log("velocityDot): "+ vector.Dot(m_VelocityPrevTick.Normalized(), GetVelocity(this).Normalized()));
+				Debug.Log("GetGame().GetTime(): "+ GetGame().GetTime());
+				Debug.Log("--------------------------------------------------");
+			}
+		#endif
+
 			if (dmg < GameConstants.CARS_CONTACT_DMG_MIN)
 				continue;
 
@@ -4138,13 +4198,31 @@ modded class CarScript
 
 			int pddfFlags;
 
+		#ifdef DIAG_DEVELOPER
+			CrashDebugData.m_CrashData.Insert(CrashDebugData.m_CrashDataPoint);
+			CrashDebugData.m_CrashDataPoint.m_Speedometer =  GetSpeedometer();
+			//Print("Crash data recorded");
+		#endif
+
 			if (dmg < GameConstants.CARS_CONTACT_DMG_THRESHOLD)
 			{
+			#ifdef DIAG_DEVELOPER
+				CrashDebugData.m_CrashDataPoint.m_DamageType = "Small";
+				if (DEBUG_OUTPUT_TYPE & EVehicleDebugOutputType.DAMAGE_APPLIED)
+					Debug.Log(string.Format("[Vehiles:Damage]:: DMG %1 to the %2 zone is SMALL (threshold: %3), SPEEDOMETER: %4, TIME: %5", dmg, zoneName, GameConstants.CARS_CONTACT_DMG_MIN, GetSpeedometer(), GetGame().GetTime() ));
+			#endif
+
 				SynchCrashLightSound(true);
 				pddfFlags = ProcessDirectDamageFlags.NO_TRANSFER;
 			}
 			else
 			{
+			#ifdef DIAG_DEVELOPER
+				CrashDebugData.m_CrashDataPoint.m_DamageType = "Big";
+				if (DEBUG_OUTPUT_TYPE & EVehicleDebugOutputType.DAMAGE_APPLIED)
+					Debug.Log(string.Format("[Vehiles:Damage]:: DMG %1 to the %2 zone is BIG (threshold: %3), SPEED: %4, TIME: %5", dmg, zoneName, GameConstants.CARS_CONTACT_DMG_THRESHOLD, GetSpeedometer(), GetGame().GetTime() ));
+			#endif
+
 				float crewDmg = crewDmgBase * GetExpansionSettings().GetVehicle().VehicleCrewDamageMultiplier;
 				if (crewDmg > 0)
 					DamageCrew(crewDmg);
