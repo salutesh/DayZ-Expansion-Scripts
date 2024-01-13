@@ -445,8 +445,12 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 		#endif
 
 			//! Convert localized input
-			priceText.Replace(Widget.TranslateString("#STR_EXPANSION_NUMBER_SEPARATOR_THOUSANDS"), "");
-			priceText.Replace(Widget.TranslateString("#STR_EXPANSION_NUMBER_SEPARATOR_DECIMAL"), ".");
+			string thousandsSeparator = Widget.TranslateString("#STR_EXPANSION_NUMBER_SEPARATOR_THOUSANDS");
+			if (thousandsSeparator)
+				priceText.Replace(thousandsSeparator, "");
+			string decimalSeparator = Widget.TranslateString("#STR_EXPANSION_NUMBER_SEPARATOR_DECIMAL");
+			if (decimalSeparator)
+				priceText.Replace(decimalSeparator, ".");
 			priceText.Replace(" ", "");
 
 		#ifdef DIAG
