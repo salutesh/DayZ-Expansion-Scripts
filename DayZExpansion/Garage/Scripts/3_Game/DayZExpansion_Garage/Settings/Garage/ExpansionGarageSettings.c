@@ -53,17 +53,14 @@ class ExpansionGarageSettings: ExpansionSettingBase
 	bool UseVirtualStorageForCargo; //! Whether to use virtual storage for cargo or transfer cargo to/from placeholder
 	bool NeedKeyToStore; //! A a car key need to be paired to the vehicle to store it.
 	autoptr TStringArray EntityWhitelist;
-#ifdef EXPANSIONMODGROUPS
+
 	bool EnableGroupFeatures;  //! Enable/Disable garage group mod features.
 	int GroupStoreMode; //! 0 - Group members can only store vehicles of other group members. | 1 - Group members can only retrieve vehicles of other group members. | 2 - Group members can store and retrieve vehicles of other group members.
-#endif
-#ifdef EXPANSIONMODMARKET
+
 	bool EnableMarketFeatures; //! Enable/Disable garage market mod features.
 	float StorePricePercent; //! If StorePricePercent is higer then 0 StaticStorePrice is set to 0 this value will be used for the price calculation. The base price is the market item max. price for the vehicle.
 	int StaticStorePrice; //! If static price is higher then 0 and StorePricePercent is set to 0 this value will be used for the storing price for all vehicles.
-#endif
 	
-#ifdef EXPANSIONMODBASEBUILDING
 	int MaxStorableTier1;
 	int MaxStorableTier2;
 	int MaxStorableTier3;
@@ -71,7 +68,6 @@ class ExpansionGarageSettings: ExpansionSettingBase
 	float MaxRangeTier2;
 	float MaxRangeTier3;
 	bool ParkingMeterEnableFlavor;
-#endif
 
 	[NonSerialized()]
 	bool m_IsLoaded;
@@ -217,25 +213,19 @@ class ExpansionGarageSettings: ExpansionSettingBase
 		NeedKeyToStore = s.NeedKeyToStore;
 		EntityWhitelist.Copy(s.EntityWhitelist);
 	
-	#ifdef EXPANSIONMODGROUPS
 		EnableGroupFeatures = s.EnableGroupFeatures;
 		GroupStoreMode = s.GroupStoreMode;
-	#endif	
 		
-	#ifdef EXPANSIONMODMARKET
 		EnableMarketFeatures = s.EnableMarketFeatures;
 		StorePricePercent = s.StorePricePercent;
 		StaticStorePrice = s.StaticStorePrice;
-	#endif
 		
-	#ifdef EXPANSIONMODBASEBUILDING
 		MaxStorableTier1 = s.MaxStorableTier1;
 		MaxStorableTier2 = s.MaxStorableTier2;
 		MaxStorableTier3 = s.MaxStorableTier3;
 		MaxRangeTier1 = s.MaxRangeTier1;
 		MaxRangeTier2 = s.MaxRangeTier2;
 		MaxRangeTier3 = s.MaxRangeTier3;
-	#endif
 	}
 
 	override bool IsLoaded()
@@ -268,12 +258,9 @@ class ExpansionGarageSettings: ExpansionSettingBase
 				ExpansionGarageSettings defaultSettings = new ExpansionGarageSettings;
 				defaultSettings.Defaults();
 				
-			#ifdef EXPANSIONMODMARKET
 				if (m_Version < 1)
 					StorePricePercent *= 100;
-			#endif
 				
-			#ifdef EXPANSIONMODBASEBUILDING
 				if (m_Version < 2)
 				{					
 					MaxStorableTier1 = defaultSettings.MaxStorableTier1;
@@ -283,15 +270,12 @@ class ExpansionGarageSettings: ExpansionSettingBase
 					MaxRangeTier2 = defaultSettings.MaxRangeTier2;
 					MaxRangeTier3 = defaultSettings.MaxRangeTier3;
 				}
-			#endif
 				
 				if (m_Version < 3)
 					Enabled = defaultSettings.Enabled;
 
-			#ifdef EXPANSIONMODBASEBUILDING
 				if (m_Version < 6)
 					ParkingMeterEnableFlavor = defaultSettings.ParkingMeterEnableFlavor;
-			#endif
 
 				m_Version = VERSION;
 				save = true;
@@ -358,18 +342,13 @@ class ExpansionGarageSettings: ExpansionSettingBase
 
 		EntityWhitelist.Insert("ExpansionParkingMeter");
 	
-	#ifdef EXPANSIONMODGROUPS
 		EnableGroupFeatures = true;
 		GroupStoreMode = 2;
-	#endif	
 		
-	#ifdef EXPANSIONMODMARKET
 		EnableMarketFeatures = true;
 		StorePricePercent = 5.0;
 		StaticStorePrice = 0;
-	#endif
 		
-	#ifdef EXPANSIONMODBASEBUILDING
 		MaxStorableTier1 = 2;
 		MaxStorableTier2 = 4;
 		MaxStorableTier3 = 6;
@@ -377,7 +356,6 @@ class ExpansionGarageSettings: ExpansionSettingBase
 		MaxRangeTier2 = 30.0;
 		MaxRangeTier3 = 40.0;
 		ParkingMeterEnableFlavor = true;
-	#endif
 	}
 
 	override string SettingName()

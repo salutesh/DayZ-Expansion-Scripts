@@ -19,6 +19,11 @@ class ExpansionActionChangeVehicleLock: ExpansionActionToolBase
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_CROUCH;
 	}
 
+	override bool SetupCondition()
+	{
+		return GetExpansionSettings().GetVehicle(false).IsLoaded();
+	}
+
 	override void Setup( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		m_Time = GetExpansionSettings().GetVehicle().ChangeLockTimeSeconds;

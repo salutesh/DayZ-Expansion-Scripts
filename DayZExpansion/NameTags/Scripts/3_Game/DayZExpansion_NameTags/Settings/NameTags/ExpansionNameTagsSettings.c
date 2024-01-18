@@ -41,12 +41,10 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	
 	bool ShowPlayerItemInHands;
 	bool ShowNPCTags;
-#ifdef EXPANSIONMODAI
+
 	bool ShowPlayerFaction;
-#endif
-#ifdef EXPANSIONMODHARDLINE
+
 	bool UseRarityColorForItemInHands;
-#endif
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -215,12 +213,10 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	
 		ShowPlayerItemInHands = s.ShowPlayerItemInHands;
 		ShowNPCTags = s.ShowNPCTags;
-	#ifdef EXPANSIONMODAI
+
 		ShowPlayerFaction = s.ShowPlayerFaction;
-	#endif
-	#ifdef EXPANSIONMODHARDLINE
+
 		UseRarityColorForItemInHands = s.UseRarityColorForItemInHands;
-	#endif
 
 		ExpansionNameTagsSettingsBase sb = s;
 		CopyInternal( sb );
@@ -357,12 +353,10 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 		OnlyInTerritories = false;
 		ShowPlayerItemInHands = false;
 		ShowNPCTags = false;
-	#ifdef EXPANSIONMODAI
+
 		ShowPlayerFaction = false;
-	#endif
-	#ifdef EXPANSIONMODHARDLINE
+
 		UseRarityColorForItemInHands = false;
-	#endif
 	}
 		
 	// ------------------------------------------------------------

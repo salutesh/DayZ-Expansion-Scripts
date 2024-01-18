@@ -63,6 +63,8 @@ class EXTrace
 
 	static bool LIGHTS;
 
+	static bool LOADOUTS = IsEnabled();
+
 	static bool MAPPING = IsEnabled();
 
 	static bool MARKER;
@@ -98,6 +100,8 @@ class EXTrace
 	static bool RPC = IsEnabled();
 
 	static bool SETTINGS = IsEnabled();
+
+	static bool SOUND = IsEnabled();
 
 	static bool CLIENT_SETTINGS = IsEnabled();
 
@@ -139,6 +143,8 @@ class EXTrace
 			{
 				if (extrace != "0" && extrace != "false")
 					s_Enabled = true;
+				else
+					s_Enabled = false;
 				if (s_Enabled)
 					EXPrint("Command line parameter `extrace` found - enabling tracing");
 				else
@@ -529,11 +535,14 @@ class EXTrace
 		if (msg)
 			msg += " ";
 
-		msg += damageResult.GetDamage(dmgZone, "Health").ToString() + " ";
-		if (instance && instance.IsInherited(Man))
+		if (damageResult)
 		{
-			msg += damageResult.GetDamage(dmgZone, "Blood").ToString() + " ";
-			msg += damageResult.GetDamage(dmgZone, "Shock").ToString() + " ";
+			msg += damageResult.GetDamage(dmgZone, "Health").ToString() + " ";
+			if (instance && instance.IsInherited(Man))
+			{
+				msg += damageResult.GetDamage(dmgZone, "Blood").ToString() + " ";
+				msg += damageResult.GetDamage(dmgZone, "Shock").ToString() + " ";
+			}
 		}
 
 		msg += typename.EnumToString(DamageType, damageType) + " ";

@@ -797,4 +797,79 @@ class ExpansionDefaultQuestData
 		return questConfig;
 	}
 #endif
+	
+	ExpansionQuestConfig ExpansionQuestConfig022()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(22);
+		questConfig.SetTitle("Quest chain example [Part 1]");
+		questConfig.SetObjectiveText("Go to location A");
+		array<string> desc = new array<string>;
+		desc.Insert("This is a simple quest chain example quest where the player can process thrue a quests without visiting a quest NPC.");
+		desc.Insert("Go to location A.");
+		desc.Insert("You reached location A and now you can accept the next quest when you complete this one!");
+		questConfig.SetDescriptions(desc);
+
+		questConfig.AddQuestGiverID(1);
+		questConfig.SetFollowUpQuestID(23);
+
+		//! Quest objectives
+		ExpansionQuestObjectiveTravelConfig objective_1 = new ExpansionQuestObjectiveTravelConfig();
+		objective_1.SetID(5);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TRAVEL);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		return questConfig;
+	}
+	
+	ExpansionQuestConfig ExpansionQuestConfig023()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(23);
+		questConfig.SetTitle("Quest chain example [Part 2]");
+		questConfig.SetObjectiveText("Go to location B");
+		array<string> desc = new array<string>;
+		desc.Insert("You can now always cancle this quest in the quest log and accept it there again if needed! You can now go to location B to contine the quest chain example.");
+		desc.Insert("Go to location B.");
+		desc.Insert("You reached location B and now you can accept the last quest when you complete this one!");
+		questConfig.SetDescriptions(desc);
+
+		questConfig.AddPreQuestID(22);
+		questConfig.SetFollowUpQuestID(24);
+
+		//! Quest objectives
+		ExpansionQuestObjectiveTravelConfig objective_1 = new ExpansionQuestObjectiveTravelConfig();
+		objective_1.SetID(6);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TRAVEL);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		return questConfig;
+	}
+	
+	ExpansionQuestConfig ExpansionQuestConfig024()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(24);
+		questConfig.SetTitle("Quest chain example [Part 3]");
+		questConfig.SetObjectiveText("PLACEHOLDER");
+		array<string> desc = new array<string>;
+		desc.Insert("PLACEHOLDER");
+		desc.Insert("PLACEHOLDER");
+		desc.Insert("PLACEHOLDER");
+		questConfig.SetDescriptions(desc);
+
+		questConfig.AddQuestTurnInID(2);
+		questConfig.AddPreQuestID(23);
+
+		//! Quest objectives
+		ExpansionQuestObjectiveTravelConfig objective_1 = new ExpansionQuestObjectiveTravelConfig();
+		objective_1.SetID(7);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TRAVEL);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		return questConfig;
+	}
 };

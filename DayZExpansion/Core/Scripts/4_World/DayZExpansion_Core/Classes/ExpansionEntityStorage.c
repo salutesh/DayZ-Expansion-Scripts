@@ -64,16 +64,26 @@ class ExpansionEntityStorageContext
  * Vanilla order:
  * 
  * OnStoreLoad
- * For each attachment (if any):
+ * For each attachment/cargo (if any):
  *   attachment OnStoreLoad
  *   attachment AfterStoreLoad
  * AfterStoreLoad
+ * 
+ * EntityStorage order:
+ * 
+ * For each attachment/cargo (if any):
+ *   attachment OnStoreLoad
+ *   attachment AfterStoreLoad
+ * OnStoreLoad
+ * AfterStoreLoad
+ * 
+ * @note This difference is intentional so that restored parent entity state is less likely to interfere with creation of child entities.
  */
 
 [CF_RegisterModule(ExpansionEntityStorageModule)]
 class ExpansionEntityStorageModule: CF_ModuleWorld
 {
-	static const int VERSION = 10;
+	static const int VERSION = 12;
 	static const string EXT = ".bin";
 
 	static const int FAILURE = 0;
@@ -83,6 +93,13 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	static ref map<string, ref ExpansionEntityStorageContext> s_SubContexts = new map<string, ref ExpansionEntityStorageContext>;
 
 	static int Now;
+
+	void ExpansionEntityStorageModule()
+	{
+	#ifdef JM_COT
+		GetPermissionsManager().Expansion_RegisterPermission("Expansion.EntityStorage.Goatify", JMPermissionType.DISALLOW);
+	#endif
+	}
 
 #ifdef SERVER
 	override void OnInit()
@@ -118,7 +135,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		if (!inventoryOnly || level > 0)
 		{
-			int result = Save_Phase1a(ctx, entity, inventoryOnly, level);
+			int result = Save_Phase1(ctx, entity, inventoryOnly, level);
 			if (result == FAILURE)
 				return false;
 			else if (result == SKIP)
@@ -148,19 +165,29 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			file = FileSerializer.Cast(ctx);
 		}
 
-		if (!inventoryOnly || level > 0)
-			Save_Phase1b(file, entity);
-
 		if (!Save_Phase2(file, basePath, entity, inventoryOnly, placeholder, level, orphanedFiles))
 			return false;
+
+		if (!inventoryOnly || level > 0)
+			Save_Phase3(file, entity);
 
 		return true;
 	}
 
-	static int Save_Phase1a(ParamsWriteContext ctx, EntityAI entity, bool inventoryOnly = false, int level = 0)
+	static int Save_Phase1(ParamsWriteContext ctx, EntityAI entity, bool inventoryOnly = false, int level = 0)
 	{
 		InventoryLocation il = new InventoryLocation();
-		entity.GetInventory().GetCurrentInventoryLocation(il);
+		GameInventory inventory = entity.GetInventory();
+		if (inventory)
+		{
+			inventory.GetCurrentInventoryLocation(il);
+		}
+		else
+		{
+			vector mat[4];
+			entity.GetTransform(mat);
+			il.SetGround(null, mat);
+		}
 		if (!il.IsValid())
 		{
 			Error(entity.ToString() + ": Invalid location");
@@ -179,17 +206,17 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 #endif
 			if (isOpenable || parent.GetInventory().GetSlotLock(il.GetSlot()) || entity.IsKindOf("CombinationLock") || entity.IsKindOf("ExpansionCodeLock"))
 			{
-				EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Save_Phase1a - skippping " + entity.GetType() + " in locked slot");
+				EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Save_Phase1 - skippping " + entity.GetType() + " in locked slot");
 				ctx.Write("");  //! Have to write empty entry because we already have written inventory count and no way to retroactively overwrite it
 				return SKIP;
 			}
 		}
-		EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Save_Phase1a " + entity.GetType() + " inventory location type " + typename.EnumToString(InventoryLocationType, ilt));
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Save_Phase1 " + entity.GetType() + " inventory location type " + typename.EnumToString(InventoryLocationType, ilt));
 
-		//! 1) entity type
+		//! 1a) entity type
 		ctx.Write(entity.GetType());
 
-		//! 2) location
+		//! 1b) location
 		ctx.Write(ilt);
 		switch (ilt)
 		{
@@ -223,13 +250,20 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 	static bool Save_Phase2(ParamsWriteContext ctx, string basePath, EntityAI entity, bool inventoryOnly = false, EntityAI placeholder = null, int level = 0, TStringArray orphanedFiles = null)
 	{
-		//! 8) attachments + cargo
-		if (!level && placeholder && entity.HasAnyCargo() && !MiscGameplayFunctions.Expansion_MoveCargo(entity, placeholder))
-			EXPrint("[EntityStorage] " + entity.GetType() + ": Couldn't move cargo to placeholder " + placeholder.GetType());
-		int attCount = entity.GetInventory().AttachmentCount();
+		//! 2) attachments + cargo
+		GameInventory inventory = entity.GetInventory();
+		CargoBase cargo;
+		int attCount;
 		int cargoItemCount;
-		if (entity.GetInventory().GetCargo())
-			cargoItemCount = entity.GetInventory().GetCargo().GetItemCount();
+		if (inventory)
+		{
+			if (!level && placeholder && entity.HasAnyCargo() && !MiscGameplayFunctions.Expansion_MoveCargo(entity, placeholder))
+				EXPrint("[EntityStorage] " + entity.GetType() + ": Couldn't move cargo to placeholder " + placeholder.GetType() + " - serializing instead");
+			attCount = inventory.AttachmentCount();
+			cargo = inventory.GetCargo();
+			if (cargo)
+				cargoItemCount = cargo.GetItemCount();
+		}
 		int inventoryCount = attCount + cargoItemCount;
 		ctx.Write(inventoryCount);
 
@@ -239,15 +273,15 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (!level && !FileExist(basePath))
 			MakeDirectory(basePath);
 
-		bool success;
+		bool success = true;
 
 		for (int i = 0; i < inventoryCount; i++)
 		{
 			EntityAI item;
 			if (i < attCount)
-				item = entity.GetInventory().GetAttachmentFromIndex(i);
+				item = inventory.GetAttachmentFromIndex(i);
 			else
-				item = entity.GetInventory().GetCargo().GetItem(i - attCount);
+				item = cargo.GetItem(i - attCount);
 
 			success = Save(item, ctx, basePath, inventoryOnly, null, level + 1);
 
@@ -276,7 +310,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return true;
 	}
 
-	static void Save_Phase1b(ParamsWriteContext ctx, EntityAI entity)
+	static void Save_Phase3(ParamsWriteContext ctx, EntityAI entity)
 	{
 		int i;
 
@@ -316,6 +350,13 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		int version = GetGame().SaveVersion();
 		ctx.Write(version);
 		entity.OnStoreSave(ctx);
+
+		DayZPlayerImplement player;
+		if (Class.CastTo(player, entity))
+		{
+			ctx.Write(player.Expansion_GetEntityStorageAdditionalDataVersion());
+			player.Expansion_OnEntityStorageAdditionalDataSave(ctx);
+		}
 
 		//! 5) special treatment for mags/ammo
 		Magazine mag;
@@ -416,13 +457,13 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			createEntity = true;
 		if (createEntity)
 		{
-			int result = Restore_Phase1a(ctx, entity, parent, player, entityStorageVersion, type, level);
+			int result = Restore_Phase1(ctx, entity, parent, player, entityStorageVersion, type, level);
 			if (result == FAILURE)
 				return false;
 			else if (result == SKIP)
 				return true;
 
-			if (!parent && dBodyIsSet(entity))
+			if (!parent && entity.IsTransport() && dBodyIsSet(entity))
 				dBodyActive(entity, ActiveState.INACTIVE);
 		}
 
@@ -431,8 +472,8 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		bool restored;
 
-		if (createEntity && entityStorageVersion >= 10)
-			restored = Restore_Phase1b(file, entity, entityStorageVersion);
+		if (createEntity && entityStorageVersion == 10)
+			restored = Restore_Phase3a(file, entity, entityStorageVersion);
 		else
 			restored = true;
 
@@ -441,15 +482,15 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		if (restored && createEntity)
 		{
-			if (entityStorageVersion < 10)
+			if (entityStorageVersion != 10)
 			{
-				restored = Restore_Phase1b(file, entity, entityStorageVersion);
+				restored = Restore_Phase3a(file, entity, entityStorageVersion);
 				if (restored)
-					Restore_Phase3(entity, elapsed);
+					Restore_Phase3b(entity, elapsed);
 			}
 			else
 			{
-				Restore_Phase3(entity, elapsed);
+				Restore_Phase3b(entity, elapsed);
 			}
 		}
 
@@ -463,9 +504,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return restored;
 	}
 
-	static int Restore_Phase1a(ParamsReadContext ctx, out EntityAI entity, EntityAI parent, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0)
+	static int Restore_Phase1(ParamsReadContext ctx, out EntityAI entity, EntityAI parent, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0)
 	{
-		//! 1) entity type
+		//! 1a) entity type
 		if (!level || !type)
 		{
 			if (!ctx.Read(type))
@@ -475,13 +516,13 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				return SKIP;
 		}
 
-		//! 2) location (creates entity)
+		//! 1b) location (creates entity)
 		InventoryLocationType ilt;
 		if (!ctx.Read(ilt))
 			return ErrorFalse(type + ": Couldn't read inventory location type");
 		if (!level && !parent && player)
 			parent = player;
-		EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Restore_Phase1a " + type + " inventory location type " + typename.EnumToString(InventoryLocationType, ilt));
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Restore_Phase1 " + type + " inventory location type " + typename.EnumToString(InventoryLocationType, ilt));
 		InventoryLocation il;
 		switch (ilt)
 		{
@@ -537,11 +578,11 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		if (!level && !entity && player)
 		{
-			//! Try to create in player inventory
-			entity = player.GetInventory().CreateInInventory(type);
+			//! Try to create in player inventory, falling back to owned container
+			entity = ExpansionItemSpawnHelper.SpawnInInventorySecure(type, player, parent);
 			//! Try to create on ground at player pos
 			if (!entity && Class.CastTo(entity, GetGame().CreateObjectEx(type, player.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
-				EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Restore_Phase1a - WARNING: Couldn't create " + type + " on " + parent + ", created at player position " + player.GetPosition() + " instead");
+				EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Restore_Phase1 - WARNING: Couldn't create " + type + " on " + parent + ", created at player position " + player.GetPosition() + " instead");
 		}
 
 		if (!entity)
@@ -552,7 +593,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 	static bool Restore_Phase2(ParamsReadContext ctx, string basePath, EntityAI entity, EntityAI placeholder = null, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0, int elapsed = 0, bool deleteRestored = true)
 	{
-		//! 8) attachments + cargo
+		//! 2) attachments + cargo
 		if (!level && placeholder && placeholder.HasAnyCargo() && !MiscGameplayFunctions.Expansion_MoveCargo(placeholder, entity))
 			Error("Couldn't move cargo from placeholder");
 		int inventoryCount;
@@ -613,7 +654,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return restored > 0;
 	}
 
-	static bool Restore_Phase1b(ParamsReadContext ctx, EntityAI entity, int entityStorageVersion)
+	static bool Restore_Phase3a(ParamsReadContext ctx, EntityAI entity, int entityStorageVersion)
 	{
 		int i;
 
@@ -662,6 +703,17 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			return ErrorFalse(entity.GetType() + ": Couldn't read game version");
 		if (!entity.OnStoreLoad(ctx, version))
 			return ErrorFalse(entity.GetType() + ": Couldn't OnStoreLoad");
+
+		DayZPlayerImplement player;
+		if (version >= 12 && Class.CastTo(player, entity))
+		{
+			int entityStorageAdditionalDataVersion;
+			if (!ctx.Read(entityStorageAdditionalDataVersion))
+				return ErrorFalse(entity.GetType() + ": Couldn't read additional data version");
+
+			if (!player.Expansion_OnEntityStorageAdditionalDataLoad(ctx, entityStorageAdditionalDataVersion))
+				return ErrorFalse(entity.GetType() + ": Couldn't read additional data");
+		}
 
 		//! 5) special treatment for mags/ammo
 		Magazine mag;
@@ -748,9 +800,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return true;
 	}
 
-	static void Restore_Phase3(EntityAI entity, int elapsed)
+	static void Restore_Phase3b(EntityAI entity, int elapsed)
 	{
-		//! 9) Process wetness/temperature/decay
+		//! 8) Process wetness/temperature/decay
 		ItemBase item;
 		if (elapsed > 0 && Class.CastTo(item, entity))
 			item.Expansion_ProcessWTD(elapsed);
@@ -840,12 +892,16 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (!file.Open(fileName, FileMode.READ))
 			return ErrorFalse("Couldn't open file for reading " + fileName);
 
+		GameInventory inventory;
 		bool isInventoryLocked;
 		if (entity)
 		{
-			isInventoryLocked = entity.GetInventory().IsInventoryLockedForLockType(HIDE_INV_FROM_SCRIPT);
-			if (isInventoryLocked)
-				entity.GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
+			inventory = entity.GetInventory();
+			if (inventory && inventory.IsInventoryLockedForLockType(HIDE_INV_FROM_SCRIPT))
+			{
+				isInventoryLocked = true;
+				inventory.UnlockInventory(HIDE_INV_FROM_SCRIPT);
+			}
 		}
 
 		Now = CF_Date.Now(true).DateToEpoch();
@@ -860,7 +916,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		bool success = Restore(file, null, basePath, entity, entity, placeholder, player, 0, string.Empty, 0, 0, deleteRestored);
 
 		if (isInventoryLocked)
-			entity.GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
+			inventory.LockInventory(HIDE_INV_FROM_SCRIPT);
 
 		file.Close();
 
@@ -886,9 +942,13 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			return false;
 		}
 
-		bool isInventoryLocked = entity.GetInventory().IsInventoryLockedForLockType(HIDE_INV_FROM_SCRIPT);
-		if (isInventoryLocked)
-			entity.GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
+		GameInventory inventory = entity.GetInventory();
+		bool isInventoryLocked;
+		if (inventory && inventory.IsInventoryLockedForLockType(HIDE_INV_FROM_SCRIPT))
+		{
+			isInventoryLocked = true;
+			inventory.UnlockInventory(HIDE_INV_FROM_SCRIPT);
+		}
 
 		InventoryLocation transferAttachmentInvLoc;
 		if (transferAttachments)
@@ -921,7 +981,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			}
 
 			if (isInventoryLocked)
-				entity.GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
+				inventory.LockInventory(HIDE_INV_FROM_SCRIPT);
 			if (placeholder)
 				GetGame().ObjectDelete(placeholder);
 

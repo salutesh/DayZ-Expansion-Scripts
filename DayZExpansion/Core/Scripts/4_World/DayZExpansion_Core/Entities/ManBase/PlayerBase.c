@@ -52,6 +52,8 @@ modded class PlayerBase
 	static ref set<typename> s_Expansion_RegisteredInventoryItemTypenames = new set<typename>;
 	ref map<string, ref ExpansionInventoryItemType> m_Expansion_InventoryItemTypes = new map<string, ref ExpansionInventoryItemType>;
 
+	ExpansionTemporaryOwnedContainer m_Expansion_TemporaryOwnedContainer;
+
 	void PlayerBase()
 	{
 		m_Expansion_Node = s_Expansion_AllPlayers.Add(this);
@@ -148,6 +150,28 @@ modded class PlayerBase
 			Expansion_SendNear(rpc, target.GetPosition(), target, guaranteed);
 	}
 
+	void Expansion_SetTemporaryOwnedContainer(ExpansionTemporaryOwnedContainer container)
+	{
+		container.ExpansionSetContainerOwner(this);
+		m_Expansion_TemporaryOwnedContainer = container;
+	}
+
+	/**
+	 * @brief Get temporary owned container previously set, or null.
+	 * 
+	 * @param vicinity If true (default), previously set container must be in vicinity (within 2 m of player), else null is returned.
+	 */
+	ExpansionTemporaryOwnedContainer Expansion_GetTemporaryOwnedContainer(bool vicinity = true)
+	{
+		if (m_Expansion_TemporaryOwnedContainer)
+		{
+			if (!vicinity || vector.DistanceSq(GetPosition(), m_Expansion_TemporaryOwnedContainer.GetPosition()) <= 4.0)
+				return m_Expansion_TemporaryOwnedContainer;
+		}
+
+		return null;
+	}
+
 	ItemBase Expansion_GetNVItem()
 	{
 		NVGoggles goggles;
@@ -204,7 +228,7 @@ modded class PlayerBase
 		if ( IsMissionClient() )
 		{
 			if ( GetIdentity() )
-				return GetIdentity().GetPlainId();
+				return GetIdentity().Expansion_GetPlainId();
 			else if ( IsMissionOffline() )
 				return "OFFLINE";
 		}
@@ -372,6 +396,31 @@ modded class PlayerBase
 		return false;
 	}
 
+	/**
+	 * @brief Check whether any player is in sphere specified by outer and inner radius and centered at given position
+	 * 
+	 * @note sphere is hollow if innerRadius > 0.0 and solid if innerRadius = 0.0 (default)
+	 */
+	static bool Expansion_IsPlayerInSphere(vector center, float outerRadius, float innerRadius = 0.0)
+	{
+		float distanceSq;
+		float outerRadiusSq = outerRadius * outerRadius;
+		float innerRadiusSq = innerRadius * innerRadius;
+		
+		foreach (string uid, PlayerBase player: s_Expansion_AllPlayersUID)
+		{
+			if (!player.IsAlive() || !player.GetIdentity())
+				continue;
+
+			distanceSq = vector.DistanceSq(center, player.GetPosition());
+
+			if (distanceSq <= outerRadiusSq && distanceSq >= innerRadiusSq)
+				return true;
+		}
+		
+		return false;
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase GetIdentityUID
 	// ------------------------------------------------------------
@@ -442,6 +491,8 @@ modded class PlayerBase
 		super.SetActions( InputActionMap );
 
 		AddAction( ExpansionActionPaint, InputActionMap );
+
+		AddAction(ExpansionActionDebugStoreEntity, InputActionMap);
 	}
 	
 	override bool DropItem(ItemBase item)
@@ -465,8 +516,8 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void OnUnconsciousStart()
 	{
-		if ( IsMissionClient() && GetGame().GetUIManager().GetMenu() && GetGame().GetUIManager().GetMenu().IsVisible() )
-			GetGame().GetUIManager().CloseAll();
+		if (IsMissionClient())
+			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseAll();
 
 		super.OnUnconsciousStart();
 
@@ -482,6 +533,14 @@ modded class PlayerBase
 		if (IsAlive() && !m_Expansion_CanBeLooted)
 			//! 10134 = 2 | 4 | 16 | 128 | 256 | 512 | 1024 | 8192
 			ExpansionStatic.UnlockInventoryRecursive(this, 10134);
+	}
+
+	override void OnRestrainStart()
+	{
+		if (IsMissionClient())
+			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseAll();
+
+		super.OnRestrainStart();
 	}
 
 	//! Need to override vanilla PlayerBase::IsInventoryVisible

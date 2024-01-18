@@ -64,6 +64,9 @@ class ExpansionVehicleActionStartEngine : ActionContinuousBase
 					if (!m_Vehicle.HasKey())
 						return true;
 
+					if (!GetExpansionSettings().GetVehicle(false).IsLoaded())
+						return false;
+
 					ExpansionCarKey key;
 					if (GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 1)
 					{

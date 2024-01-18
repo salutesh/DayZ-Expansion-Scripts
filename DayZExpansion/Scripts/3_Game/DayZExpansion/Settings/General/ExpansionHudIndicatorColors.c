@@ -26,11 +26,9 @@ class ExpansionHudIndicatorColors: ExpansionColorSettingsBase
 	string NotifiersHalfColor;		//! Yellow
 	string NotifiersLowColor;		//! Red
 
-#ifdef EXPANSIONMODHARDLINE
 	string ReputationBaseColor;
 	string ReputationMedColor;
 	string ReputationHighColor;
-#endif
 
 	override void Update()
 	{
@@ -69,7 +67,6 @@ class ExpansionHudIndicatorColors: ExpansionColorSettingsBase
 		if (!Get("NotifiersLowColor"))
 			Set("NotifiersLowColor", ARGB(255, 220, 0, 0));
 
-	#ifdef EXPANSIONMODHARDLINE
 		if (!Get("ReputationBaseColor"))
 			Set("ReputationBaseColor", ARGB(255, 220, 220, 220));
 
@@ -78,6 +75,5 @@ class ExpansionHudIndicatorColors: ExpansionColorSettingsBase
 
 		if (!Get("ReputationHighColor"))
 			Set("ReputationHighColor", ARGB(255, 220, 0, 0));
-	#endif
 	}
 }

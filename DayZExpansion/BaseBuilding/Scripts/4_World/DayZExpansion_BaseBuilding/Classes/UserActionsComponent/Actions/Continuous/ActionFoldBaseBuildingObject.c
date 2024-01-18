@@ -12,6 +12,16 @@
 
 modded class ActionFoldBaseBuildingObject
 {
+	override string GetText()
+	{
+		string text = super.GetText();
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
+	}
+
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		bool isDeployableConstruction;
@@ -32,6 +42,9 @@ modded class ActionFoldBaseBuildingObject
 
 		//! Standard checks
 		if (!isDeployableConstruction && !super.ActionCondition(player, target, item))
+			return false;
+
+		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
 			return false;
 
 		//! Can fold if inside own territory, but not if in enemy territory unless whitelisted

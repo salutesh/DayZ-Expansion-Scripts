@@ -29,10 +29,8 @@ class ExpansionDialogBase: ExpansionScriptView
 	TextWidget dialog_base_title;
 	Widget dialog_base_footer;
 	ButtonWidget dialog_close_button;
-	WrapSpacerWidget dialog_body_content;
-	GridSpacerWidget dialog_buttons_grid;
 	ImageWidget dialog_base_backround;
-	WrapSpacerWidget dialog_base_spacer;
+	WrapSpacerWidget dialog_body_content;
 
 	ref ScriptView m_ParentView;
 	ref ExpansionDialogBaseController m_DialogBaseController;

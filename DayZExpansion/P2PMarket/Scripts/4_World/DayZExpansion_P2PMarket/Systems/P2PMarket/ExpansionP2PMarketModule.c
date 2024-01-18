@@ -13,9 +13,19 @@
 enum ExpansionP2PMarketModuleCallback
 {
 	ItemListed = 1,
-	ItemPurchased = 2,
-	SaleRetrieved = 4,
-	Error = 8
+	ItemPurchased,
+	SaleRetrieved,
+	AllSalesRetrieved,
+	MsgItemGotSold,
+	MsgTotalSold,
+	Error,
+	ErrorListingPriceTooLow,
+	ErrorNotEnoughMoney,
+	ErrorNotEnoughMoneyToList,
+	ErrorVehicleMissingAttachment,
+	ErrorVehicleRuinedAttachment,
+	ErrorNoVehicleSpawnPosition,
+	ErrorVehicleSpawnPositionBlocked
 };
 
 class ExpansionP2PMarketPlayerInventory extends ExpansionMarketPlayerInventory
@@ -47,7 +57,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	protected ref map<int, ref ExpansionP2PMarketTraderConfig> m_P2PTraderConfig = new map<int, ref ExpansionP2PMarketTraderConfig>;
 	protected ref map<int, ref array<ref ExpansionP2PMarketListing>> m_P2PListingsData = new map<int, ref array<ref ExpansionP2PMarketListing>>;
 	protected ref map<string, int> m_TradingPlayers = new map<string, int>;
-
+	
 	//! Client
 	protected ref ExpansionP2PMarketPlayerInventory m_LocalEntityInventory;
 	protected ref ScriptInvoker m_P2PMarketMenuListingsInvoker; //! Client
@@ -148,9 +158,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 			if (moneyFromSales > 0)
 			{
-				auto localiser = new CF_Localiser("STR_EXPANSION_MARKET_P2P_MSG_TOTAL_SOLD_NOTIFIER", moneyFromSales.ToString(), salesCount.ToString());
-				string message = localiser.Format();
-				GetGame().RPCSingleParam(cArgs.Player, ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>(message), true, cArgs.Identity);
+				Callback(cArgs.Identity, ExpansionP2PMarketModuleCallback.MsgTotalSold, "", moneyFromSales, salesCount);
 			}
 		}
 	}
@@ -163,7 +171,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
 			m_MarketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
-
+			
 			foreach (ExpansionP2PMarketTraderConfig config: m_P2PTraderConfig)
 			{
 				//! Spawn NPCs late so mapping already loaded
@@ -216,61 +224,44 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		worldname.ToLower();
 
 		vector mapPos = GetDayZGame().GetWorldCenterPosition();
+		bool addToConfigArray = false;
 		ExpansionP2PMarketTraderConfig bmTrader01;
+		
+		bmTrader01 = new ExpansionP2PMarketTraderConfig();
+		bmTrader01.SetID(1);
+	#ifdef EXPANSIONMODAI
+		bmTrader01.SetClassName("ExpansionP2PTraderAIIrena");
+	#else
+		bmTrader01.SetClassName("ExpansionP2PTraderIrena");
+	#endif
+		bmTrader01.SetLoadoutFile("YellowKingLoadout");
+		bmTrader01.AddCurrency("expansionbanknotehryvnia");
+		
 		if (worldname.IndexOf("chernarus") > -1)
 		{
-			bmTrader01 = new ExpansionP2PMarketTraderConfig();
-			bmTrader01.SetID(1);
-		#ifdef EXPANSIONMODAI
-			bmTrader01.SetClassName("ExpansionP2PTraderAIIrena");
-		#else
-			bmTrader01.SetClassName("ExpansionP2PTraderIrena");
-		#endif
 			bmTrader01.SetPosition(Vector(3697.77, 402.012, 5971.12));
 			bmTrader01.SetOrientation(Vector(150.132, 0, 0));
-			bmTrader01.SetLoadoutFile("YellowKingLoadout");
-
 			bmTrader01.SetVehicleSpawnPosition(Vector(3728.44, 401.666, 6011.51));
-
-			bmTrader01.Save();
-			m_P2PTraderConfig.Insert(1, bmTrader01);
+			addToConfigArray = true;
 		}
 		else if (worldname.IndexOf("namalsk") > -1)
 		{
-			bmTrader01 = new ExpansionP2PMarketTraderConfig();
-			bmTrader01.SetID(1);
-		#ifdef EXPANSIONMODAI
-			bmTrader01.SetClassName("ExpansionP2PTraderAIIrena");
-		#else
-			bmTrader01.SetClassName("ExpansionP2PTraderIrena");
-		#endif
 			bmTrader01.SetPosition(Vector(3696.6, 402.012, 5970.54));
 			bmTrader01.SetOrientation(Vector(156.132, 0, -0));
-			bmTrader01.SetLoadoutFile("YellowKingLoadout");
-
 			bmTrader01.SetVehicleSpawnPosition(Vector(3741.68, 402.833, 5996.14));
-
-			bmTrader01.Save();
-			m_P2PTraderConfig.Insert(1, bmTrader01);
+			addToConfigArray = true;
 		}
 		else
 		{
 			//! @note: NPC entity is not spawned here as its just a config template.
-			bmTrader01 = new ExpansionP2PMarketTraderConfig();
-			bmTrader01.SetID(1);
-		#ifdef EXPANSIONMODAI
-			bmTrader01.SetClassName("ExpansionP2PTraderAIIrena");
-		#else
-			bmTrader01.SetClassName("ExpansionP2PTraderIrena");
-		#endif
 			bmTrader01.SetPosition(mapPos);
 			bmTrader01.SetOrientation(Vector(0, 0, 0));
-			bmTrader01.SetLoadoutFile("YellowKingLoadout");
-
 			bmTrader01.SetVehicleSpawnPosition(mapPos);
-
-			bmTrader01.Save();
 		}
+		
+		bmTrader01.Save();
+		if (addToConfigArray)
+			m_P2PTraderConfig.Insert(1, bmTrader01);
 	}
 
 	protected void LoadP2PMarketTraderData(string fileName, string path)
@@ -377,7 +368,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	}
 
 	//! Server
-	void SendUpdatedTraderData(int traderID, ExpansionP2PMarketModuleCallback callback = 0)
+	void SendUpdatedTraderData(int traderID, ExpansionP2PMarketModuleCallback callback = 0, string type = string.Empty, int price = 0)
 	{
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
 
@@ -390,7 +381,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			if (!player)
 				continue;
 
-			SendBMTraderData(traderID, player.GetIdentity(), "", "", callback);
+			SendBMTraderData(traderID, player.GetIdentity(), "", "", callback, type, price);
 		}
 	}
 	
@@ -441,7 +432,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		}
 
 		string playerUID = identity.GetId();
-		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
 		if (!player)
 			return;
 
@@ -456,37 +447,51 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 		if (listing.GetListingState() != ExpansionP2PMarketListingState.SOLD)
 		{
-			EXPrint(this, "::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that is not yet sold at trader ID " + traderID);
+			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that is not yet sold at trader ID " + traderID);
 			ExpansionNotification("RPC_RequestSaleFromListing", "This listing has not yet been sold").Error(identity);
 			return;
 		}
 
 		if (listing.GetOwnerUID() != playerUID)
 		{
-			EXPrint(this, "::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that is not his own at trader ID " + traderID);
+			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that is not his own at trader ID " + traderID);
 			ExpansionNotification("RPC_RequestSaleFromListing", "You can't retrieve another player's profits").Error(identity);
+			return;
+		}
+
+		int price = listing.GetPrice();
+		if (price <= 0)
+		{
+			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that has a price of 0. Price: " + price);
+			ExpansionNotification("RPC_RequestSaleFromListing", "You can't retrieve profits from a listing with a price of zero.").Error(identity);
+			return;
+		}
+	
+		string className = listing.GetClassName();
+		if (className == "")
+		{
+			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that has no type name. Class name: " + className);
+			ExpansionNotification("RPC_RequestSaleFromListing", "You can't retrieve profits from a listing with no associated item(s).").Error(identity);
 			return;
 		}
 
 		if (!RemoveListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader()))
 		{
-			EXPrint(this, "::RPC_RequestSaleFromListing - could not remove listing " + globalIDText);
+			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - could not remove listing " + globalIDText);
 			ExpansionNotification("RPC_RequestSaleFromListing", "Could not remove listing " + globalIDText).Error(identity);
 			return;
 		}
-		
-		int price = listing.GetPrice();
+
 		EntityAI playerEntity = player;
-		m_MarketModule.SpawnMoney(player, playerEntity, price, false, NULL, NULL, true);
+		TStringArray currencies = traderConfig.GetCurrencies();
+		m_MarketModule.SpawnMoneyInCurrency(player, playerEntity, price, currencies, false);
 
-		SendBMTraderData(traderID, identity, "", "", ExpansionP2PMarketModuleCallback.SaleRetrieved);
-
-		string displayName = ExpansionStatic.GetItemDisplayNameWithType(listing.GetClassName());
-		ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_ITEM_DESC", displayName, price.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.TOAST).Create(identity);
+		SendBMTraderData(traderID, identity, "", "", ExpansionP2PMarketModuleCallback.SaleRetrieved, className, price);
 	
 		if (GetExpansionSettings().GetLog().Market)
 		{
-			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has retrieved the sale of \"" + listing.GetClassName() + "\" for a price of " + price.ToString() + " (globalID=" + globalIDText + ")");
+			string priceStringLog = string.Format("%1 (%2)", price, GetDisplayPrice(traderConfig, price, false, false, true));
+			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has retrieved the sale of \"" + className + "\" for a price of " + priceStringLog + " (globalID=" + globalIDText + ")");
 		}
 	}
 	
@@ -575,21 +580,21 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 		if (sold == 0)
 		{
-			EXPrint(this, "::RPC_RequestAllPlayerSales - No listings in SOLD state for player " + playerUID + " at trader ID " + traderID);
+			EXPrint(ToString() + " ::RPC_RequestAllPlayerSales - No listings in SOLD state for player " + playerUID + " at trader ID " + traderID);
 			ExpansionNotification("RPC_RequestAllPlayerSales", "You have no sold listings at this trader").Error(identity);
 			return;
 		}
 
 		EntityAI playerEntity = player;
-		m_MarketModule.SpawnMoney(player, playerEntity, price, false, NULL, NULL, true);
+		TStringArray currencies = traderConfig.GetCurrencies();
+		m_MarketModule.SpawnMoneyInCurrency(player, playerEntity, price, currencies, false);
 
-		SendBMTraderData(traderID, identity, "", "", ExpansionP2PMarketModuleCallback.SaleRetrieved);
-
-		ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_ALL_ITEMS_DESC", price.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.TOAST).Create(identity);
+		SendBMTraderData(traderID, identity, "", "", ExpansionP2PMarketModuleCallback.AllSalesRetrieved, "", price);
 	
 		if (GetExpansionSettings().GetLog().Market)
 		{
-			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has retrieved " + sold + " sales for a total of " + price.ToString() + ".");
+			string priceStringLog = string.Format("%1 (%2)", price, GetDisplayPrice(traderConfig, price, false, false, true));
+			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has retrieved " + sold + " sales for a total of " + priceStringLog + ".");
 		}
 	}
 
@@ -616,7 +621,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	}
 
 	//! Server
-	void SendBMTraderData(int traderID, PlayerIdentity identity, string traderName = string.Empty, string iconName = string.Empty, ExpansionP2PMarketModuleCallback callback = 0)
+	void SendBMTraderData(int traderID, PlayerIdentity identity, string traderName = string.Empty, string iconName = string.Empty, ExpansionP2PMarketModuleCallback callback = 0, string type = string.Empty, int price = 0)
 	{
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
 
@@ -650,6 +655,8 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		P2PDebugPrint(ToString() + "::SendBMTraderData - global: " + traderConfig.IsGlobalTrader());
 		P2PDebugPrint(ToString() + "::SendBMTraderData - listings count: " + listings.Count());
 
+		TStringArray currencies = traderConfig.GetCurrencies();
+
 		auto rpc = Expansion_CreateRPC("RPC_SendBMTraderData");
 		rpc.Write(traderID);
 		rpc.Write(listings.Count());
@@ -661,7 +668,12 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 		rpc.Write(traderName);
 		rpc.Write(iconName);
+		rpc.Write(currencies);
+		rpc.Write(traderConfig.m_DisplayCurrencyValue);
+		rpc.Write(traderConfig.m_DisplayCurrencyName);
 		rpc.Write(callback);
+		rpc.Write(type);
+		rpc.Write(price);
 		rpc.Expansion_Send(true, identity);
 	}
 
@@ -711,7 +723,26 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		m_P2PMarketMenuListingsInvoker.Invoke(listings, traderID, traderName, iconName);
+		TStringArray currencies;
+		if (!ctx.Read(currencies))
+		{
+			Error(ToString() + "::RPC_SendBMTraderData - couldn't read trader currencies");
+			return;
+		}
+
+		int displayCurrencyValue;
+		if (!ctx.Read(displayCurrencyValue))
+		{
+			Error(ToString() + "::RPC_SendBMTraderData - couldn't read trader currency value");
+			return;
+		}
+
+		string displayCurrencyName;
+		if (!ctx.Read(displayCurrencyName))
+		{
+			Error(ToString() + "::RPC_SendBMTraderData - couldn't read trader currency name");
+			return;
+		}
 
 		int callback;
 		if (!ctx.Read(callback))
@@ -720,7 +751,23 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		m_P2PMarketMenuCallbackInvoker.Invoke(callback);
+		string type;
+		if (!ctx.Read(type))
+		{
+			Error(ToString() + "::RPC_Callback - couldn't read type");
+			return;
+		}
+
+		int price;
+		if (!ctx.Read(price))
+		{
+			Error(ToString() + "::RPC_Callback - couldn't read price");
+			return;
+		}
+
+		m_P2PMarketMenuListingsInvoker.Invoke(listings, traderID, traderName, iconName, currencies, displayCurrencyValue, displayCurrencyName);
+
+		m_P2PMarketMenuCallbackInvoker.Invoke(callback, type, price, 0, null);
 	}
 
 	//! Client
@@ -775,29 +822,31 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			Error(ToString() + "::RPC_RequestListBMItem - Could not get player.");
 			return;
 		}
+		
+		ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(traderID);
+		if (!traderConfig)
+		{
+			Error(ToString() + "::RPC_RequestListBMItem - Could not get P2P trader data for ID " + traderID);
+			return;
+		}
 
-		string displayName = objEntity.GetDisplayName();
+		string priceString = GetDisplayPrice(traderConfig, price, false, true, true);
+
+		string type = objEntity.GetType();
 		int listingPrice = Math.Ceil(price * settings.ListingPricePercent / 100);
+		string listingPriceString = GetDisplayPrice(traderConfig, listingPrice, false, true, true);
 		if (listingPrice <= 0)
 		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_PRICE_LOW_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_PRICE_LOW_DESC", displayName, price.ToString(), listingPrice.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
-			CallbackError(identity);
+			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorListingPriceTooLow, type, price, listingPrice);
 			return;
 		}
 
 		array<int> monies = new array<int>;
-		int playerWorth = m_MarketModule.GetPlayerWorth(player, monies, NULL, true);
-		if (playerWorth <= 0)
+		TStringArray currencies = traderConfig.GetCurrencies();
+		int playerWorth = m_MarketModule.GetPlayerWorth(player, monies, currencies);
+		if (playerWorth <= 0 || playerWorth < listingPrice)
 		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NOT_ENOUGH_MONEY_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NOT_ENOUGH_MONEY_DESC", displayName, price.ToString(), listingPrice.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
-			CallbackError(identity);
-			return;
-		}
-
-		if (playerWorth < listingPrice)
-		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NOT_ENOUGH_MONEY_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NOT_ENOUGH_MONEY_DESC", displayName, price.ToString(), listingPrice.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
-			CallbackError(identity);
+			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorNotEnoughMoneyToList, type, price, listingPrice);
 			return;
 		}
 
@@ -824,15 +873,13 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 			if (doorsCount < doorsRequiredAmount || wheelsCount < wheelsRequiredAmount || !car.Expansion_IsVehicleFunctional(true))
 			{
-				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_VEH_MISSING_ATT_ERROR_DESC", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
-				CallbackError(identity);
+				CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleMissingAttachment, type);
 				return;
 			}
 
 			if (!CheckItemsCondition(slotItems))
 			{
-				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_RUINED_ATT_ERROR_DESC", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
-				CallbackError(identity);
+				CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleRuinedAttachment, type);
 				return;
 			}
 
@@ -878,20 +925,19 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		AddListing(traderID, newListing);
 		newListing.Save();
 
-		if (!m_MarketModule.RemoveMoney(listingPrice, player))
+		if (!m_MarketModule.RemoveMoney(listingPrice, player, currencies))
 		{
 			Error(ToString() + "::RPC_RequestListBMItem - Could not remove money from player!");
 			return;
 		}
 
-		SendUpdatedTraderData(traderID, ExpansionP2PMarketModuleCallback.ItemListed);
-
-		ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PLACED_SALE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PLACED_SALE_DESC", displayName, price.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.TOAST).Create(identity);
+		SendUpdatedTraderData(traderID, ExpansionP2PMarketModuleCallback.ItemListed, type, price);
 		
 		if (GetExpansionSettings().GetLog().Market)
 		{
 			string globalIDText = ExpansionStatic.IntToHex(newListing.GetGlobalID());
-			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has listed \"" + newListing.GetClassName() + "\" for a price of " + price.ToString() + " (globalID=" + globalIDText + ")");
+			string priceStringLog = string.Format("%1 (%2)", price, GetDisplayPrice(traderConfig, price, false, false, true));
+			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has listed \"" + newListing.GetClassName() + "\" for a price of " + priceStringLog + " (globalID=" + globalIDText + ")");
 		}
 	}
 
@@ -914,12 +960,21 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	}
 	
 	//! Server
-	void CallbackError(PlayerIdentity identity)
+	void CallbackError(PlayerIdentity identity, ExpansionP2PMarketModuleCallback error = ExpansionP2PMarketModuleCallback.Error, string type = string.Empty, int price = 0, int listingPriceString = 0, Object blockingObject = null)
+	{
+		Callback(identity, error, type, price, listingPriceString, blockingObject);
+	}
+
+	void Callback(PlayerIdentity identity, ExpansionP2PMarketModuleCallback callback, string type = string.Empty, int price = 0, int listingPriceString = 0, Object blockingObject = null)
 	{
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
 
 		auto rpc = Expansion_CreateRPC("RPC_Callback");
-		rpc.Write(ExpansionP2PMarketModuleCallback.Error);
+		rpc.Write(callback);
+		rpc.Write(type);
+		rpc.Write(price);
+		rpc.Write(listingPriceString);
+		rpc.Write(blockingObject);
 		rpc.Expansion_Send(true, identity);
 	}
 
@@ -997,27 +1052,27 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		string displayName = ExpansionStatic.GetItemDisplayNameWithType(listing.GetClassName());
 		bool isOwner;
 		if (listingOwnerUID == playerUID)
 			isOwner = true;
 
 		auto settings = GetExpansionSettings().GetP2PMarket();
 		int price = listing.GetPrice();
-		int ownerDiscount = (price / 100) * settings.ListingOwnerDiscountPercent;
+		string priceString = GetDisplayPrice(traderConfig, price, false, true, true);
+		int ownerDiscount = ((float) price / 100) * settings.ListingOwnerDiscountPercent;
 		int ownerPrice = price - ownerDiscount;
+		string ownerPriceString = GetDisplayPrice(traderConfig, ownerPrice, false, true, true);
 		array<int> monies = new array<int>;
-		int playerWorth = m_MarketModule.GetPlayerWorth(player, monies, NULL, true);
+		TStringArray currencies = traderConfig.GetCurrencies();
+		int playerWorth = m_MarketModule.GetPlayerWorth(player, monies, currencies);
 		if (!isOwner && playerWorth < price)
 		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NOT_ENOUGH_MONEY_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NOT_ENOUGH_MONEY_DESC", displayName, price.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
-			CallbackError(identity);
+			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorNotEnoughMoney, listing.GetClassName(), price);
 			return;
 		}
 		else if (isOwner && playerWorth < ownerPrice)
 		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NOT_ENOUGH_MONEY_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NOT_ENOUGH_MONEY_DESC", displayName, ownerPrice.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
-			CallbackError(identity);
+			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorNotEnoughMoney, listing.GetClassName(), ownerPrice);
 			return;
 		}
 
@@ -1047,29 +1102,14 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 		if (isVehicle && spawnPositionVehicle == vector.Zero)
 		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASE_FAILED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NO_VEH_SPAWN_DESC", ExpansionStatic.GetItemDisplayNameWithType(listing.GetClassName())), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
-			CallbackError(identity);
+			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorNoVehicleSpawnPosition, listing.GetClassName());
 			return;
 		}
-
-		StringLocaliser localiser;
 
 		Object blockingObject;
 		if (isVehicle && !ExpansionItemSpawnHelper.IsSpawnPositionFree(spawnPositionVehicle, Vector(0, 0, 0), listing.GetClassName(), blockingObject))
 		{
-			PlayerBase blockingPlayer;
-			if (Class.CastTo(blockingPlayer, blockingObject) && blockingPlayer.GetIdentity())
-			{
-				displayName = blockingPlayer.GetIdentityName();  //! So you can call 'em out in chat - unless it's yourself...
-			}
-			else
-			{
-				displayName = blockingObject.GetDisplayName();
-			}
-
-			localiser = new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_BLOCKED_VEH_SPAWN_DESC", ExpansionStatic.GetItemDisplayNameWithType(listing.GetClassName()), displayName, ExpansionStatic.VectorToString(spawnPositionVehicle, ExpansionVectorToString.Labels));
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASE_FAILED_TITLE"), localiser, ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
-			CallbackError(identity);
+			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleSpawnPositionBlocked, listing.GetClassName(), 0, 0, blockingObject);
 			return;
 		}
 		
@@ -1111,14 +1151,14 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		}
 	#endif
 
-		if (!isOwner && !m_MarketModule.RemoveMoney(price, player))
+		if (!isOwner && !m_MarketModule.RemoveMoney(price, player, currencies))
 		{
 			Error(ToString() + "::RPC_RequestPurchaseBMItem - Could not remove money from player!");
 			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASE_FAILED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_CANT_REMOVE_MONEY_DESC"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
 			CallbackError(identity);
 			return;
 		}
-		else if (isOwner && !m_MarketModule.RemoveMoney(ownerPrice, player))
+		else if (isOwner && !m_MarketModule.RemoveMoney(ownerPrice, player, currencies))
 		{
 			Error(ToString() + "::RPC_RequestPurchaseBMItem - Could not remove money from player!");
 			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASE_FAILED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_CANT_REMOVE_MONEY_DESC"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
@@ -1138,12 +1178,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			//! change the listing to the sold state when it is purchased by the listing owner.
 			if (!RemoveListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader()))
 			{
-				EXPrint(this, "::RPC_RequestPurchaseBMItem - could not remove listing " + globalIDText);
+				EXPrint(ToString() + " ::RPC_RequestPurchaseBMItem - could not remove listing " + globalIDText);
 				ExpansionNotification("RPC_RequestPurchaseBMItem", "Could not remove listing " + globalIDText).Error(identity);
 			}
 		}
-
-		SendUpdatedTraderData(traderID, ExpansionP2PMarketModuleCallback.ItemPurchased);
 
 		int messagePrice;
 		if (!isOwner)
@@ -1155,23 +1193,24 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			messagePrice = ownerPrice;
 		}
 
-		ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASED_DESC", displayName, messagePrice.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.TOAST).Create(identity);
+		SendUpdatedTraderData(traderID, ExpansionP2PMarketModuleCallback.ItemPurchased, listing.GetClassName(), messagePrice);
 		
 		if (!isOwner)
 		{
 			PlayerBase ownerPlayer = PlayerBase.GetPlayerByUID(listingOwnerUID);
 			if (ownerPlayer)
 			{
-				localiser = new StringLocaliser("STR_EXPANSION_MARKET_P2P_MSG_ITEM_GOT_SOLD_NOTIFIER", displayName, price.ToString());
-				string message = localiser.Format();
-				GetGame().RPCSingleParam(ownerPlayer, ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>(message), true, ownerPlayer.GetIdentity());
+				Callback(ownerPlayer.GetIdentity(), ExpansionP2PMarketModuleCallback.MsgItemGotSold, listing.GetClassName(), price);
 			}
 		}
 		
 		if (GetExpansionSettings().GetLog().Market)
 		{
-			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has purchased \"" + listing.GetClassName() + "\" for a price of " + messagePrice.ToString() + " (globalID=" + globalIDText + ")");
+			string messagePriceStringLog = string.Format("%1 (%2)", messagePrice, GetDisplayPrice(traderConfig, messagePrice, false, false, true));
+			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has purchased \"" + listing.GetClassName() + "\" for a price of " + messagePriceStringLog + " (globalID=" + globalIDText + ")");
 		}
+		
+		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnP2PMarketPurchase(playerUID, messagePrice, loadedEntity);
 	}
 
 	//! Client
@@ -1186,7 +1225,57 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		m_P2PMarketMenuCallbackInvoker.Invoke(callback);
+		string type;
+		if (!ctx.Read(type))
+		{
+			Error(ToString() + "::RPC_Callback - couldn't read type");
+			return;
+		}
+
+		int price;
+		if (!ctx.Read(price))
+		{
+			Error(ToString() + "::RPC_Callback - couldn't read price");
+			return;
+		}
+
+		int option;
+		if (!ctx.Read(option))
+		{
+			Error(ToString() + "::RPC_Callback - couldn't read option");
+			return;
+		}
+
+		Object blockingObject;
+		if (!ctx.Read(blockingObject))
+		{
+			Error(ToString() + "::RPC_Callback - couldn't read price");
+			return;
+		}
+
+		string priceString;
+		CF_Localiser localiser;
+
+		switch (callback)
+		{
+			case ExpansionP2PMarketModuleCallback.MsgTotalSold:
+				priceString = ExpansionMarketModule.GetDisplayPriceEx(price);
+				int salesCount = option;
+				localiser = new CF_Localiser("STR_EXPANSION_MARKET_P2P_MSG_TOTAL_SOLD_NOTIFIER", priceString, salesCount.ToString());
+				GetGame().Chat(localiser.Format(), "colorAction");
+				break;
+
+			case ExpansionP2PMarketModuleCallback.MsgItemGotSold:
+				string displayName = ExpansionStatic.GetItemDisplayNameWithType(type);
+				priceString = ExpansionMarketModule.GetDisplayPriceEx(price);
+				localiser = new CF_Localiser("STR_EXPANSION_MARKET_P2P_MSG_ITEM_GOT_SOLD_NOTIFIER", displayName, priceString);
+				GetGame().Chat(localiser.Format(), "colorAction");
+				break;
+
+			default:
+				m_P2PMarketMenuCallbackInvoker.Invoke(callback, type, price, option, blockingObject);
+				break;
+		}
 	}
 
 	static int GetMarketPrice(string typeName)
@@ -1197,6 +1286,11 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return marketItem.CalculatePrice(marketItem.MaxStockThreshold);
 
 		return 0;
+	}
+	
+	static string GetDisplayPrice(ExpansionP2PMarketTraderConfig trader, int price, bool shorten = false, bool format = true, bool includeDisplayCurrencyName = false)
+	{
+		return ExpansionMarketModule.GetDisplayPriceEx(price, shorten, format, includeDisplayCurrencyName, trader.m_DisplayCurrencyValue, trader.m_DisplayCurrencyPrecision, trader.m_DisplayCurrencyName);
 	}
 
 	protected bool StoreItem(ExpansionP2PMarketListing listing, EntityAI itemEntity)

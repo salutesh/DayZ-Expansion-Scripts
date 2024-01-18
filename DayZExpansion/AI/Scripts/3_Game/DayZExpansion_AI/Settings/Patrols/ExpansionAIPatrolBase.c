@@ -17,6 +17,7 @@ class ExpansionAISpawnBase
 	string Formation;                   // Column, File, Vee, Wall or RANDOM
 	float FormationLooseness;
 	string LoadoutFile;                 // a json file containing the loadout of this team - if empty, will use the default loadout of the faction
+	TStringArray Units;                 // If non-empty, pick from these AI classnames when spawning
 	int NumberOfAI;                     // How many bots, -x will make it random between 0 and x
 	string Behaviour;                   // See eAIWaypointBehavior
 	string Speed;                       // See eAIMovementSpeed
@@ -27,7 +28,9 @@ class ExpansionAISpawnBase
 	float AccuracyMin;
 	float AccuracyMax;
 	float ThreatDistanceLimit;
+	float NoiseInvestigationDistanceLimit;
 	float DamageMultiplier;
+	float DamageReceivedMultiplier;
 
 	void ExpansionAISpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "", bool canbelooted = true, bool unlimitedreload = false)
 	{
@@ -42,7 +45,9 @@ class ExpansionAISpawnBase
 		AccuracyMin = -1;
 		AccuracyMax = -1;
 		ThreatDistanceLimit = -1;
+		NoiseInvestigationDistanceLimit = -1;
 		DamageMultiplier = -1;
+		DamageReceivedMultiplier = -1;
 	}
 
 	float GetSpeed()

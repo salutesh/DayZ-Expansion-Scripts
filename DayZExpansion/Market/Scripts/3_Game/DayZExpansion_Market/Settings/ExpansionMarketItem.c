@@ -318,6 +318,6 @@ class ExpansionMarketItem
 
 	bool IsVehicle()
 	{
-		return GetGame().IsKindOf(ClassName, "CarScript") || GetGame().IsKindOf(ClassName, "ExpansionVehicleBase");
+		return GetGame().IsKindOf(ClassName, "CarScript") || GetGame().IsKindOf(ClassName, "ExpansionVehicleBase") || GetGame().IsKindOf(ClassName, "HypeTrain_PartBase");
 	}
 }

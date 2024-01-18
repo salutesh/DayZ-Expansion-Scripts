@@ -79,13 +79,13 @@ class CfgVehicles
 			class rotor
 			{
 				source = "user";
-				animPeriod = 0.025;
+				animPeriod = 0.001;
 				initPhase = 0;
 			};
 			class rear_rotor
 			{
 				source = "user";
-				animPeriod = 0.025;
+				animPeriod = 0.001;
 				initPhase = 0;
 			};
 			class hiderotor
@@ -365,13 +365,13 @@ class CfgVehicles
 			class rotor
 			{
 				source = "user";
-				animPeriod = 0.025;
+				animPeriod = 0.001;
 				initPhase = 0;
 			};
 			class rear_rotor
 			{
 				source = "user";
-				animPeriod = 0.025;
+				animPeriod = 0.001;
 				initPhase = 0;
 			};
 			class hiderotor

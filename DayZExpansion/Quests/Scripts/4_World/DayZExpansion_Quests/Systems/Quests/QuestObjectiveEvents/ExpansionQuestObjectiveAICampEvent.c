@@ -13,7 +13,6 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 {
-	protected ExpansionAICampObjectiveSphereTrigger m_ObjectiveTrigger;
 	protected ref ExpansionQuestObjectiveAICampConfig m_AICampConfig;
 
 	override bool OnEventStart()
@@ -52,37 +51,76 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!super.OnCleanup())
+		if (!Class.CastTo(m_AICampConfig, m_ObjectiveConfig))
 			return false;
 
-		if (m_ObjectiveTrigger)
-			GetGame().ObjectDelete(m_ObjectiveTrigger);
+		if (m_AICampConfig.GetInfectedDeletionRadius() > 0)
+		{
+			int questID = m_Quest.GetQuestConfig().GetID();
+			int objectiveType = GetObjectiveType();
+			int objectiveID = m_AICampConfig.GetID();
+			if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(questID))
+				ExpansionQuestModule.GetModuleInstance().RemoveObjectiveTrigger(questID, ExpansionObjectiveTriggerType.AICAMP, objectiveType, objectiveID);
+		}
 
+		if (!super.OnCleanup())
+			return false;
+		
 		return true;
 	}
 
-	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null)
+	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null, map<Man, ref ExpansionEntityHitInfo> hitMap = null)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		ExpansionQuestObjectiveAICamp aiCamp = m_AICampConfig.GetAICamp();
-		if (!aiCamp)
+		if (!m_AICampConfig)
 			return;
 
 		//! If the ai camp need to be killed with a special weapon check incoming killer class type
-		if (aiCamp.NeedSpecialWeapon())
+		if (m_AICampConfig.GetAllowedWeapons().Count() > 0)
 		{
-			if (!ExpansionStatic.IsAnyOf(killer, aiCamp.GetAllowedWeapons(), true))
+			if (!ExpansionStatic.IsAnyOf(killer, m_AICampConfig.GetAllowedWeapons(), true))
+			{
+				ObjectivePrint("::OnEntityKilled - Entity got not killed with any allowed weapon! Skip..");
 				return;
+			}
 		}
-
-		//! Check if killed entities class name is a valid one from our objective config
-		bool found = ExpansionStatic.IsAnyOf(victim, aiCamp.GetClassNames(), true);
-		ObjectivePrint("Target found: " + found);
-		if (!found)
+		
+		//! Check if the killer player was in legit kill range.
+		if (killerPlayer && !IsInRange(killerPlayer.GetPosition(), victim.GetPosition(), m_AICampConfig.GetMaxDistance(), m_AICampConfig.GetMinDistance()))
+		{
+			ObjectivePrint("::OnEntityKilled - Killer is out of legit kill range! Skip..");
 			return;
+		}
+		
+		//! If the target need to be hit at a certain zone we check the hit map for the last valid hit of the killer player on the victim entity.
+		TStringArray allowedDamageZones = m_AICampConfig.GetAllowedDamageZones();
+		if (allowedDamageZones.Count() > 0 && killerPlayer)
+		{
+			ObjectivePrint("::OnEntityKilled - Check if entity got hit at valid zone..");
+			bool hasHitEntity = false;
+			
+			if (hitMap.Count() == 0)
+				return;
+			
+			ExpansionEntityHitInfo hitInfo;
+			if (!hitMap.Find(killerPlayer, hitInfo))
+				return;
+			
+			string damageZone = hitInfo.GetZone();
+			string killerUID;
+			if (killerPlayer.GetIdentity())
+				killerUID = killerPlayer.GetIdentity().GetId();
+			ObjectivePrint("::OnEntityKilled - Last known hit zone for player with UID: " + killerUID + " | Zone: " + damageZone);
+			int hitFound = allowedDamageZones.Find(damageZone);
+			if (hitFound == -1)
+			{
+				ObjectivePrint("Entity killed was not hit on a valid damage zone! Skip..");
+				return;
+			}
+		}
 
 		super.OnEntityKilled(victim, killer, killerPlayer);
 	}
@@ -105,34 +143,27 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		ExpansionQuestObjectiveAICamp aiCamp = m_AICampConfig.GetAICamp();
-		if (!aiCamp)
+		if (!m_AICampConfig)
 			return;
 
 		m_UnitsToSpawn = m_TotalUnitsAmount - m_TotalKillCount;
+		array<ref ExpansionQuestAISpawn> aiSpawns = m_AICampConfig.GetAISpawns();
+		if (!aiSpawns)
+			return;
 
-		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
+		array<eAIQuestPatrol> questPatrols = new array<eAIQuestPatrol>;
 		for (int i = 0; i < m_UnitsToSpawn; i++)
 		{
-			vector pos = aiCamp.GetPositions()[i];
-			TVectorArray waypoint = new TVectorArray;
-			waypoint.Insert(pos);
-
-			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), "SPRINT", aiCamp.GetNPCMode(), aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), m_AICampConfig.CanLootAI(), true, waypoint);
-			group.Formation = "RANDOM";  //! Just set a default, it's not really used as the NPCs are separate
-			group.AccuracyMin = aiCamp.NPCAccuracyMin;
-			group.AccuracyMax = aiCamp.NPCAccuracyMax;
-			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 600, 300, m_AICampConfig.GetMinDistRadius(), m_AICampConfig.GetMaxDistRadius(), m_AICampConfig.GetDespawnRadius());
-			if (!patrol)
-				return;
-
-			questPatrols.Insert(patrol);
+			ExpansionQuestAISpawn aiSpawn = aiSpawns[i];
+			eAIQuestPatrol questPatrol = aiSpawn.CreateAIQuestPatrol();
+			questPatrols.Insert(questPatrol);
 		}
 
 		ExpansionQuestModule.GetModuleInstance().SetQuestPatrols(m_Quest.GetQuestConfig().GetID(), questPatrols);
 
-		if (m_AICampConfig.GetInfectedDeletionRadius() > 0 && !m_ObjectiveTrigger)
-			CreateTrigger(aiCamp.GetPositions()[0], m_AICampConfig.GetInfectedDeletionRadius());
+		//! Create trigger and add it to global triggers array in quest module for further use when not created already by an other instance of the same objective
+		if (m_AICampConfig.GetInfectedDeletionRadius() > 0 && !ExpansionQuestModule.GetModuleInstance().QuestTriggerExists(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_ObjectiveConfig.GetID()))
+			CreateTrigger(m_AICampConfig.GetAISpawns()[0].GetWaypoints()[0], m_AICampConfig.GetInfectedDeletionRadius());
 
 	#ifdef EXPANSIONMODNAVIGATION
 		if (m_AICampConfig.GetObjectiveText() != string.Empty)
@@ -142,22 +173,33 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 
 	protected void CreateTrigger(vector pos, int radius)
 	{
-		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionAICampObjectiveSphereTrigger", pos, ECE_NONE));
-		m_ObjectiveTrigger.SetPosition(pos);
-		m_ObjectiveTrigger.SetTriggerRadius(radius);
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
+
+		array<ExpansionObjectiveTriggerBase> triggers = new array<ExpansionObjectiveTriggerBase>;
+		ExpansionAICampObjectiveSphereTrigger trigger = ExpansionAICampObjectiveSphereTrigger.Cast(GetGame().CreateObjectEx("ExpansionAICampObjectiveSphereTrigger", pos, ECE_LOCAL));
+		if (!trigger)
+			return;
+
+		trigger.SetPosition(pos);
+		trigger.SetTriggerRadius(radius);
+		trigger.SetObjectiveData(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_AICampConfig.GetID());
+		triggers.Insert(trigger);
+
+		ExpansionQuestModule.GetModuleInstance().SetQuestTriggers(m_Quest.GetQuestConfig().GetID(), triggers);
 	}
 
 #ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
-		ExpansionQuestObjectiveAICamp aiCamp = m_AICampConfig.GetAICamp();
-		if (!aiCamp)
+		if (!m_AICampConfig)
 			return;
 
 		string markerName = m_AICampConfig.GetObjectiveText();
-		array<vector> positions = aiCamp.GetPositions();
-		if (positions)
-			CreateObjectiveMarker(positions[0], markerName);
+		vector position = m_AICampConfig.GetAISpawns()[0].GetWaypoints()[0];
+		if (position != "0 0 0")
+			CreateObjectiveMarker(position, markerName);
 	}
 #endif
 

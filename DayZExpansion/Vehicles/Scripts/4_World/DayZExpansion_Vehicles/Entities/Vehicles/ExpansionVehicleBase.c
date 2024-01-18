@@ -1260,9 +1260,7 @@ class ExpansionVehicleBase: ItemBase
 
 	void OnAnimationUpdate(float pDt)
 	{
-		m_State.m_DeltaTime = pDt;
-
-		m_Event_Animate.Animate(m_State);
+		m_Event_Animate.Animate(m_State, pDt);
 	}
 
 #ifdef CF_DebugUI

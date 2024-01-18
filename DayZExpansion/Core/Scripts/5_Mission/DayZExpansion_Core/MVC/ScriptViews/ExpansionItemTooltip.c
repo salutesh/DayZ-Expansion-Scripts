@@ -52,7 +52,12 @@ class ExpansionItemTooltip: ExpansionItemInspectionBase
 			Content.Show(false);
 
 		m_ItemInspectionController.ItemName = m_Item.GetDisplayName();
-		m_ItemInspectionController.ItemDescription = ExpansionStatic.GetItemDescriptionWithType(m_Item.GetType());
+		
+		string itemDesc = ExpansionStatic.GetItemDescriptionWithType(m_Item.GetType());
+		if (itemDesc.IndexOf("STR_") == 0)
+			itemDesc = "";
+
+		m_ItemInspectionController.ItemDescription = itemDesc;
 		ItemDescWidget.Update();
 		m_ItemInspectionController.NotifyPropertiesChanged({"ItemDescription", "ItemName"});
 

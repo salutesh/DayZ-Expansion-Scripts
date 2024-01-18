@@ -11,6 +11,10 @@ class ExpansionPrefab : ExpansionPrefabObject
 
 	static ExpansionPrefab Load(string name, bool forceReload = false)
 	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.LOADOUTS, ExpansionPrefab);
+	#endif
+
 		ExpansionPrefab prefab;
 		if (s_Prefabs.Find(name, prefab) && !forceReload)
 		{

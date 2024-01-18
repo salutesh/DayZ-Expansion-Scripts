@@ -23,9 +23,10 @@ modded class ActionConstructor
 		super.RegisterActions( actions );	
 
 		actions.Insert( ExpansionActionPaint );
-#ifdef DIAG
+
 		actions.Insert( ExpansionActionDebugStoreEntity );
-#endif
+
 		actions.Insert( ExpansionActionRestoreEntity );
+		actions.Insert( ExpansionActionPlaceDebugGoat );
 	}
 };

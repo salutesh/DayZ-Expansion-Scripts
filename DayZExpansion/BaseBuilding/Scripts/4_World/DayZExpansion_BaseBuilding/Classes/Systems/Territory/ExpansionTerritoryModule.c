@@ -1059,10 +1059,10 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 		
-		float authenticationRadius = GetExpansionSettings().GetTerritory().TerritoryAuthenticationRadius;
-		if ( !IsInTerritory(senderPlayer.GetPosition(), authenticationRadius, flag) )
+		float inviteAcceptRadius = GetExpansionSettings().GetTerritory().TerritoryInviteAcceptRadius;
+		if ( !IsInTerritory(senderPlayer.GetPosition(), inviteAcceptRadius, flag) )
 		{
-			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_ERROR_NOT_IN_TERRITORY", authenticationRadius.ToString(), territory.GetTerritoryName())).Error(sender);
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_ERROR_NOT_IN_TERRITORY", inviteAcceptRadius.ToString(), territory.GetTerritoryName())).Error(sender);
 			return;
 		}
 		
@@ -1767,7 +1767,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			
 			foreach ( ExpansionTerritoryMember currentMember: territoryMembers )
 			{
-				if ( currentMember && currentMember.GetID() == identity.GetPlainId() )
+				if ( currentMember && currentMember.GetID() == identity.GetId() )
 				{
 					return true;
 				}
@@ -2231,6 +2231,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 
 		//! Owner is always admin
 		if (uid == territory.GetOwnerID())
+			return true;
+
+		if (CanEditTerritory(uid))
 			return true;
 
 		//! Check member for moderator permissions

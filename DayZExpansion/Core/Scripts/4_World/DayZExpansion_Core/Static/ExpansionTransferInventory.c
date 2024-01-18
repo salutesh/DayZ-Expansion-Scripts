@@ -94,17 +94,24 @@ static void Expansion_PhysicsDropAttachments(EntityAI parent)
 		invMode = InventoryMode.LOCAL;
 
 	bool exploded;
+	bool hasFakeWheels;
 #ifdef EXPANSIONMODVEHICLE
 	CarScript car;
 	ExpansionVehicleBase vehicle;
 	if ((Class.CastTo(car, parent) && car.IsExploded()) || (Class.CastTo(vehicle, parent) && vehicle.IsExploded()))
 		exploded = true;
+
+	if (car && !car.IsCar() && !car.IsDuck())
+		hasFakeWheels = true;
 #endif
 
 	//! Popping attachments off changes attachment count, so do this in reverse order
 	for (int i = parent.GetInventory().AttachmentCount() - 1; i >= 0; i--)
 	{
 		EntityAI entity = parent.GetInventory().GetAttachmentFromIndex(i);
+
+		if (entity.Type() == HatchbackWheel && hasFakeWheels)
+			continue;
 
 		vector transform[4];
 		entity.GetTransform(transform);

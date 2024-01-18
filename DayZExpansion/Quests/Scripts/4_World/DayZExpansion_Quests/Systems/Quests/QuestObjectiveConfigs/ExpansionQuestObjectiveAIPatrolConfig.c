@@ -11,65 +11,77 @@
 */
 
 #ifdef EXPANSIONMODAI
+class ExpansionQuestObjectiveAIPatrolConfig_V25: ExpansionQuestObjectiveConfig
+{
+	autoptr ExpansionQuestObjectiveAIPatrol AIPatrol;
+	float MinDistRadius;
+	float MaxDistRadius;
+	float DespawnRadius;
+	bool CanLootAI;
+};
+
 class ExpansionQuestObjectiveAIPatrolConfigBase: ExpansionQuestObjectiveConfig
 {
-	ref ExpansionQuestObjectiveAIPatrol AIPatrol;
-	float MinDistRadius = 50;
-	float MaxDistRadius = 150;
-	float DespawnRadius = 880;
-	bool CanLootAI = true;
+	//! Not used rn
 };
 
 class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConfigBase
 {
-	void SetAIPatrol(ExpansionQuestObjectiveAIPatrol patrol)
+	autoptr ExpansionQuestAISpawn AISpawn;
+	float MaxDistance = -1;
+	float MinDistance = -1;
+	autoptr TStringArray AllowedWeapons = new TStringArray;
+	autoptr TStringArray AllowedDamageZones = new TStringArray;
+
+	void SetAISpawn(ExpansionQuestAISpawn aiSpawn)
 	{
-		AIPatrol = patrol;
+		AISpawn = aiSpawn;
 	}
 
-	ExpansionQuestObjectiveAIPatrol GetAIPatrol()
+	ExpansionQuestAISpawn GetAISpawn()
 	{
-		return AIPatrol;
+		return AISpawn;
+	}
+	
+	void AddAllowedWeapon(string name)
+	{
+		AllowedWeapons.Insert(name);
 	}
 
-	void SetMinDistRadius(float dist)
+	TStringArray GetAllowedWeapons()
 	{
-		MinDistRadius = dist;
+		return AllowedWeapons;
 	}
 
-	float GetMinDistRadius()
+	void SetMaxDistance(float max)
 	{
-		return MinDistRadius;
+		MaxDistance = max;
 	}
 
-	void SetMaxDistRadius(float dist)
+	float GetMaxDistance()
 	{
-		MaxDistRadius = dist;
+		return MaxDistance;
 	}
 
-	float GetMaxDistRadius()
+	void SetMinDistance(float max)
 	{
-		return MaxDistRadius;
+		MinDistance = max;
 	}
 
-	void SetDespawnRadius(float dist)
+	float GetMinDistance()
 	{
-		DespawnRadius = dist;
+		return MinDistance;
+	}
+	
+	void AddAllowedDamageZone(string zone)
+	{
+		if (!AllowedDamageZones.Find(zone))
+			AllowedDamageZones.Insert(zone);
 	}
 
-	float GetDespawnRadius()
+	TStringArray GetAllowedDamageZones()
 	{
-		return DespawnRadius;
-	}
-
-	void SetCanLootAI(bool state)
-	{
-		CanLootAI = state;
-	}
-
-	bool CanLootAI()
-	{
-		return CanLootAI;
+		return AllowedDamageZones;
 	}
 
 	static ExpansionQuestObjectiveAIPatrolConfig Load(string fileName)
@@ -86,41 +98,47 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
 			Print("[ExpansionQuestObjectiveAIPatrolConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName + " to version " + CONFIGVERSION);
+			config = new ExpansionQuestObjectiveAIPatrolConfig();
+			//! Copy over old configuration that haven't changed
+			config.CopyConfig(configBase);
 
-			if (configBase.ConfigVersion < 4)
+			if (configBase.ConfigVersion < 26)
 			{
-				config = new ExpansionQuestObjectiveAIPatrolConfig();
-
-				//! Copy over old configuration that haven't changed
-				config.CopyConfig(configBase);
-
-				config.MinDistRadius = 50;
-				config.MaxDistRadius = 150;
-				config.DespawnRadius = 880;
-			}
-			else
-			{
-				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, config))
+				ExpansionQuestObjectiveAIPatrolConfig_V25 configV25;
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig_V25>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, configV25))
 					return NULL;
-			}
 
-			if (configBase.ConfigVersion < 5)
-			{
-				if (config.AIPatrol)
-					config.AIPatrol.NPCFormation = "RANDOM";
-			}
-
-			if (configBase.ConfigVersion < 6)
-			{
-				config.CanLootAI = true;
-			}
-
-			if (configBase.ConfigVersion < 7)
-			{
-				if (config.AIPatrol)
+				if (configV25.AIPatrol)
 				{
-					config.AIPatrol.NPCAccuracyMin = -1;
-					config.AIPatrol.NPCAccuracyMax = -1;
+					config.AllowedWeapons = configV25.AIPatrol.AllowedWeapons;
+
+					ExpansionQuestAISpawn aiSpawn = new ExpansionQuestAISpawn();
+					aiSpawn.SetNumberOfAI(configV25.AIPatrol.NPCUnits);
+					aiSpawn.SetName("Quest Target");
+					aiSpawn.SetWaypoints(configV25.AIPatrol.Waypoints);
+					aiSpawn.SetLoadout(configV25.AIPatrol.NPCLoadoutFile);
+					aiSpawn.SetFaction(configV25.AIPatrol.NPCFaction);
+					aiSpawn.SetBehaviour(eAIWaypointBehavior.HALT);
+					aiSpawn.SetFormation(configV25.AIPatrol.NPCFormation);
+					aiSpawn.SetSpeed(1.0);
+					aiSpawn.SetThreatSpeed(3.0);
+					aiSpawn.SetMinAccuracy(configV25.AIPatrol.NPCAccuracyMin);
+					aiSpawn.SetMaxAccuracy(configV25.AIPatrol.NPCAccuracyMax);
+					aiSpawn.SetCanBeLooted(configV25.CanLootAI);
+					aiSpawn.SetUnlimitedReload(true);
+					aiSpawn.SetThreatDistanceLimit(1000.0);
+					aiSpawn.SetDamageMultiplier(1.0);
+					aiSpawn.SetDamageReceivedMultiplier(1.0);
+					aiSpawn.SetClassNames(ExpansionQuestAISpawn.eAI_UNITS);
+					aiSpawn.SetSniperProneDistanceThreshold(300.0);
+
+					aiSpawn.SetRespawnTime(1.0);
+					aiSpawn.SetDespawnTime(1.0);
+					aiSpawn.SetMinDistanceRadius(configV25.MinDistRadius);
+					aiSpawn.SetMaxDistanceRadius(configV25.MaxDistRadius);
+					aiSpawn.SetDespawnRadius(configV25.DespawnRadius);
+
+					config.SetAISpawn(aiSpawn);
 				}
 			}
 
@@ -133,13 +151,10 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 				return NULL;
 		}
 
-		if (!config.DespawnRadius)
-			config.DespawnRadius = 880;
-
-		string removeExt = ExpansionString.StripExtension(config.AIPatrol.GetNPCLoadoutFile(), ".json");
-		if (removeExt != config.AIPatrol.GetNPCLoadoutFile())
+		string removeExt = ExpansionString.StripExtension(config.AISpawn.GetLoadout(), ".json");
+		if (removeExt != config.AISpawn.GetLoadout())
 		{
-			config.AIPatrol.SetNPCLoadoutFile(removeExt);
+			config.AISpawn.SetLoadout(removeExt);
 			save = true;
 		}
 		
@@ -167,25 +182,6 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
-
-		AIPatrol = configBase.AIPatrol;
-		MinDistRadius = configBase.MinDistRadius;
-		MaxDistRadius = configBase.MaxDistRadius;
-		DespawnRadius = configBase.DespawnRadius;
-		CanLootAI = configBase.CanLootAI;
-	}
-
-	override void OnSend(ParamsWriteContext ctx)
-	{
-		super.OnSend(ctx);
-	}
-
-	override bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!super.OnRecieve(ctx))
-			return false;
-
-		return true;
 	}
 
 	override bool Validate()
@@ -193,19 +189,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		if (!super.Validate())
 			return false;
 
-		if (!AIPatrol)
-			return false;
-
 		return true;
-	}
-
-	override void QuestDebug()
-	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		super.QuestDebug();
-		if (AIPatrol)
-			AIPatrol.QuestDebug();
-	#endif
 	}
 };
 #endif

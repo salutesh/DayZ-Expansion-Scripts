@@ -41,6 +41,9 @@ class Expansion_EffectHolder_Base: House
 	
 	void ~Expansion_EffectHolder_Base()
 	{
+		if (!GetGame())
+			return;
+
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		CleanupEffect();

@@ -144,8 +144,8 @@ class ExpansionItemSpawnHelper
 		return obj;
 	}
 	
-	//! Spawn in parent inventory, create player-owned temporary storage container if inventory full
-	static Object SpawnInInventorySecure(string className, PlayerBase player, inout EntityAI parent, int skinIndex = -1)
+	//! Spawn in parent inventory, use player-owned temporary storage container if inventory full
+	static EntityAI SpawnInInventorySecure(string className, PlayerBase player, inout EntityAI parent, int skinIndex = -1)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "ExpansionItemSpawnHelper", "SpawnInInventorySecure");
@@ -159,40 +159,65 @@ class ExpansionItemSpawnHelper
 			return NULL;
 		}
 
-		Object obj;
+		EntityAI entity;
 		ExpansionTemporaryOwnedContainer newStorage;
+		ExpansionTemporaryOwnedContainer playerStorage = player.Expansion_GetTemporaryOwnedContainer();
 
+		/**
+		 * To spawn in inventory, we try in order:
+		 * 
+		 * 1. In parent inventory
+		 * 2. In player's existing temporary container, if any
+		 * 3. In new temporary container
+		 */
 		while (true)
 		{
 			ExpansionTemporaryOwnedContainer storage = ExpansionTemporaryOwnedContainer.Cast(parent);
 			if (storage)
 				storage.ExpansionSetCanReceiveItems(true);
 
-			obj = SpawnInInventory(className, parent, skinIndex);
+			entity = SpawnInInventory(className, parent, skinIndex);
 
 			if (storage)
 				storage.ExpansionSetCanReceiveItems(false);
 
-			if (obj || newStorage)
+			//! If entity couldn't be spawned but we have a new temporary container, sth definitely is wrong and we need to abort
+			if (entity || newStorage)
 				break;
 
 			//! If it's an inventory item and couldn't be spawned in parent inventory (likely because it's full),
-			//! create new temporary storage container and set as parent
-			newStorage = ExpansionTemporaryOwnedContainer.Cast(GetGame().CreateObject("ExpansionTemporaryOwnedContainer", parent.GetPosition()));
-
-			if (!newStorage)
+			//! use existing player temporary container or create new temporary storage container and set as parent
+			if (playerStorage)
 			{
-				Error("Failed to create temporary storage container!");
-
-				return NULL;
+				parent = playerStorage;
+				playerStorage = null;  //! null it so next iteration of the while loop we create a new one
 			}
+			else
+			{
+				newStorage = ExpansionTemporaryOwnedContainer.Cast(GetGame().CreateObject("ExpansionTemporaryOwnedContainer", parent.GetPosition()));
 
-			newStorage.ExpansionSetContainerOwner(player);
+				if (!newStorage)
+				{
+					Error("Failed to create temporary storage container!");
 
-			parent = newStorage;
+					return NULL;
+				}
+
+				player.Expansion_SetTemporaryOwnedContainer(newStorage);
+
+				parent = newStorage;
+			}
 		}
 
-		return obj;
+		if (newStorage)
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(TemporaryStorageNotification, player.GetIdentity());
+
+		return entity;
+	}
+
+	static void TemporaryStorageNotification(PlayerIdentity identity)
+	{
+		ExpansionNotification("STR_EXPANSION_TEMPORARY_STORAGE", "STR_EXPANSION_TEMPORARY_STORAGE_INFO", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 6, ExpansionNotificationType.TOAST).Create(identity);
 	}
 
 	// ------------------------------------------------------------
@@ -236,7 +261,7 @@ class ExpansionItemSpawnHelper
 			else if (attachOnly)
 				entity = parent.GetInventory().CreateAttachment(name);
 			else
-				entity = parent.GetInventory().CreateInInventory(name);
+				entity = CreateInInventoryEx(parent, name);
 
 			if (entity)
 			{
@@ -248,6 +273,90 @@ class ExpansionItemSpawnHelper
 		}
 
 		return entity;
+	}
+
+	static EntityAI CreateInInventoryEx(EntityAI parent, string type)
+	{
+		//! First, we try to spawn item in parent inventory directly.
+		//! This can fail if parent is player even if player has clothing that still has enough space, so, ...
+		EntityAI newEntity = parent.GetInventory().CreateInInventory(type);
+
+		if (!newEntity)
+		{
+			//! ...second, we check if the item would fit in cargo by creating it locally
+			//! (unlike CreateInInventory/FindFirstFreeLocationForNewEntity, this deals with rotating the item if it doesn't fit otherwise)
+			CargoBase cargo = parent.GetInventory().GetCargo();
+			if (cargo)
+			{
+				TIntArray itemSize = {};
+
+				string path;
+				if (GetGame().ConfigIsExisting(CFG_MAGAZINESPATH + " " + type))
+					path = CFG_MAGAZINESPATH;
+				else if (GetGame().ConfigIsExisting(CFG_WEAPONSPATH + " " + type))
+					path = CFG_WEAPONSPATH;
+				else if (GetGame().ConfigIsExisting(CFG_VEHICLESPATH + " " + type))
+					path = CFG_VEHICLESPATH;
+				else
+					return null;
+
+				GetGame().ConfigGetIntArray(path + " "  + type + " itemSize", itemSize);
+
+				int cargoMax = Math.Max(cargo.GetWidth(), cargo.GetHeight());
+				int cargoMin = Math.Min(cargo.GetWidth(), cargo.GetHeight());
+				int itemMax = Math.Max(itemSize[0], itemSize[1]);
+				int itemMin = Math.Min(itemSize[0], itemSize[1]);
+
+				//! We don't even attempt to create the item if it wouldn't fit anyway due to size
+				if (cargoMax >= itemMax && cargoMin >= itemMin)
+				{
+					Object obj = GetGame().CreateObjectEx(type, "0 0 0", ECE_LOCAL);
+					if (Class.CastTo(newEntity, obj))
+					{
+						auto src = new InventoryLocation();
+						auto dst = new InventoryLocation();
+						if (newEntity.GetInventory().GetCurrentInventoryLocation(src) && parent.GetInventory().FindFreeLocationFor(newEntity, FindInventoryLocationType.CARGO, dst) && parent.LocalTakeToDst(src, dst))
+						{
+						#ifdef SERVER
+							GetGame().RemoteObjectTreeCreate(newEntity);
+						#endif
+						#ifdef DIAG
+							EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionItemSpawnHelper, "::CreateInInventoryEx - created & moved " + newEntity + " to " + parent);
+						#endif
+							return newEntity;
+						}
+						else
+						{
+							GetGame().ObjectDelete(obj);
+							newEntity = null;
+						}
+					}
+					else if (obj)
+					{
+						Error(obj.ToString() + " is not EntityAI");
+						GetGame().ObjectDelete(obj);
+					}
+				}
+			}
+
+			//! ...third, if all else failed, we look through all attachments manually to see if item can be created.
+			//! We deliberately ignore items in cargo even if they could receive items because having to dig through
+			//! inventories of items in clothing to find (e.g.) sth you have just purchased at a trader is annoying for players.
+			for (int i = 0; i < parent.GetInventory().AttachmentCount(); i++)
+			{
+				EntityAI att = parent.GetInventory().GetAttachmentFromIndex(i);
+				newEntity = CreateInInventoryEx(att, type);
+				if (newEntity)
+				{
+				#ifdef DIAG
+					EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionItemSpawnHelper, "::CreateInInventoryEx - created " + newEntity + " on " + parent);
+				#endif
+					break;
+				}
+			}
+		}
+
+		return newEntity;
 	}
 
 	static EntityAI SpawnAttachment(string name, EntityAI parent, int skinIndex = -1)
@@ -371,6 +480,9 @@ class ExpansionItemSpawnHelper
 		ExpansionVehicleBase exVeh;
 		ExpansionCarKey expkey;
 		#endif
+		#ifdef HypeTrain
+		HypeTrain_PartBase hypeTrain;
+		#endif
 		if (Class.CastTo(vehicle, obj))
 		{
 			vehicle.Fill(CarFluid.FUEL, vehicle.GetFluidCapacity(CarFluid.FUEL));
@@ -421,6 +533,13 @@ class ExpansionItemSpawnHelper
 					exVeh.LockCar(expkey);
 				}
 			}
+		}
+		#endif
+		#ifdef HypeTrain
+		else if (Class.CastTo(hypeTrain, obj))
+		{
+			if (hypeTrain.GetLiquidQuantityMax())
+				hypeTrain.SetLiquidQuantity(hypeTrain.GetLiquidQuantityMax());
 		}
 		#endif
 		else
@@ -493,7 +612,7 @@ class ExpansionItemSpawnHelper
 	{
 		int i;
 
-		//! 1-2) create entity at location
+		//! 1) create entity at location
 		EntityAI dst;
 		switch (location.GetType())
 		{
@@ -505,7 +624,8 @@ class ExpansionItemSpawnHelper
 			case InventoryLocationType.ATTACHMENT:
 				dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_IN_INVENTORY, RF_DEFAULT);
 				int slotId = location.GetSlot();
-				location.GetParent().GetInventory().SetSlotLock(slotId, src.GetHierarchyParent().GetInventory().GetSlotLock(slotId));
+				if (location.GetParent() && src.GetHierarchyParent())
+					location.GetParent().GetInventory().SetSlotLock(slotId, src.GetHierarchyParent().GetInventory().GetSlotLock(slotId));
 				break;
 			case InventoryLocationType.HANDS:
 				dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_IN_INVENTORY, RF_DEFAULT);
@@ -528,6 +648,32 @@ class ExpansionItemSpawnHelper
 		EXPrint("ExpansionItemSpawnHelper::Clone - created " + Object.GetDebugName(dst) + " at location " + DumpLocationToString(location));
 
 		//! @note order of operations matters! DO NOT CHANGE!
+
+		//! 2) attachments + cargo
+		if (recursively)
+		{
+			EntityAI cSrc;
+			InventoryLocation cLocation();
+			InventoryLocation dLocation();
+			for (i = 0; i < src.GetInventory().AttachmentCount(); i++)
+			{
+				cSrc = src.GetInventory().GetAttachmentFromIndex(i);
+				cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
+                dLocation.SetAttachment(dst, null, cLocation.GetSlot());
+				Clone(cSrc, recursively, dLocation);
+			}
+
+			if (src.GetInventory().GetCargo())
+			{
+				for (i = 0; i < src.GetInventory().GetCargo().GetItemCount(); i++)
+				{
+					cSrc = src.GetInventory().GetCargo().GetItem(i);
+					cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
+					dLocation.SetCargo(dst, null, cLocation.GetIdx(), cLocation.GetRow(), cLocation.GetCol(), cLocation.GetFlip());
+					Clone(cSrc, recursively, dLocation);
+				}
+			}
+		}
 
 		//! 3) special treatment for weapons
 		Weapon_Base srcWeapon;
@@ -607,32 +753,6 @@ class ExpansionItemSpawnHelper
 		foreach (string dmgZone: dmgZones)
 		{
 			dst.SetHealth(dmgZone, "Health", src.GetHealth(dmgZone, "Health"));
-		}
-
-		//! 8) attachments + cargo
-		if (recursively)
-		{
-			EntityAI cSrc;
-			InventoryLocation cLocation();
-			InventoryLocation dLocation();
-			for (i = 0; i < src.GetInventory().AttachmentCount(); i++)
-			{
-				cSrc = src.GetInventory().GetAttachmentFromIndex(i);
-				cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
-                dLocation.SetAttachment(dst, null, cLocation.GetSlot());
-				Clone(cSrc, recursively, dLocation);
-			}
-
-			if (src.GetInventory().GetCargo())
-			{
-				for (i = 0; i < src.GetInventory().GetCargo().GetItemCount(); i++)
-				{
-					cSrc = src.GetInventory().GetCargo().GetItem(i);
-					cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
-					dLocation.SetCargo(dst, null, cLocation.GetIdx(), cLocation.GetRow(), cLocation.GetCol(), cLocation.GetFlip());
-					Clone(cSrc, recursively, dLocation);
-				}
-			}
 		}
 
 		//! FINAL

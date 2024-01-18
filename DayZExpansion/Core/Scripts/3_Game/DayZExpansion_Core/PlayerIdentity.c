@@ -14,6 +14,27 @@ modded class PlayerIdentity
 {
 	static const string EXPANSION_ID64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
+	static ref map<string, string> s_Expansion_PlainID2ID = new map<string, string>;
+
+	string Expansion_GetPlainId()
+	{
+		if (GetGame().IsServer())
+			return GetPlainId();
+
+		//! @note on client, PlayerIdentity::GetPlainId() will return empty string,
+		//! so we have to find corresponding SyncPlayer using hashed ID.
+		foreach (SyncPlayer syncPlayer: ClientData.m_PlayerList.m_PlayerList)
+		{
+			if (!syncPlayer)
+				continue;
+
+			if (syncPlayer.m_RUID == GetId())
+				return syncPlayer.m_UID;
+		}
+
+		return string.Empty;
+	}
+
 	/**
 	 * @brief Get plain ID as array of ints (2)
 	 */
@@ -124,5 +145,23 @@ modded class PlayerIdentity
 		}
 
 		return id + "=";
+	}
+
+	static string Expansion_PlainIdToId(string steamId)
+	{
+		string uid;
+
+		if (!s_Expansion_PlainID2ID.Find(steamId, uid))
+		{
+			//! EXPENSIVE! About ~1ms per calculated digest, so only do this if we don't have the value cached
+			ExpansionSHA256.Update(steamId);
+			CF_Byte digest[32];
+			ExpansionSHA256.Digest(digest);
+			ExpansionSHA256.Reset();
+			uid = Expansion_EncodeDigest(digest);
+			s_Expansion_PlainID2ID[steamId] = uid;
+		}
+
+		return uid;
 	}
 }

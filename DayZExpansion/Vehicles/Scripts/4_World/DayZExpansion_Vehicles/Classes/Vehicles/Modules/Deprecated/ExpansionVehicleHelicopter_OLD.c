@@ -294,6 +294,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_Simulate = true;
 		m_Animate = true;
 		m_Network = true;
+
+		m_RotorAnimationPosition = m_Vehicle.GetAnimationPhase("rotor");
 	}
 
 	override void TEMP_DeferredInit()
@@ -1050,34 +1052,22 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		pState.m_Torque += torque;
 	}
 
-	override void Animate(ExpansionPhysicsState pState)
+	float m_LastDeltaT;
+	override void Animate(ExpansionPhysicsState pState, float deltaTime)
 	{
 		if (!m_Initialized)
 			return;
 
-		float n;
+	#ifdef DIAG
+		if (Math.AbsFloat(m_LastDeltaT - deltaTime) > 0.008)
+			EXTrace.Print(EXTrace.VEHICLES, this, m_Vehicle.ToString() + "deltaT " + m_LastDeltaT + " -> " + deltaTime);
+		m_LastDeltaT = deltaTime;
+	#endif
 
-		m_RotorAnimationPosition += m_RotorSpeed * pState.m_DeltaTime * 20.0 / (Math.PI * 2.0);
+		if (m_RotorSpeed > 0)
+			m_RotorAnimationPosition += m_RotorSpeed * deltaTime * 20.0 / (Math.PI * 2.0);
 
-		if (m_RotorSpeed > 0.7)
-		{
-			m_Vehicle.ShowSelection("hiderotorblur");
-			m_Vehicle.HideSelection("hiderotor");
-		}
-		else
-		{
-			m_Vehicle.ShowSelection("hiderotor");
-			m_Vehicle.HideSelection("hiderotorblur");
-		}
-
-		if (m_RotorAnimationPosition >= 1)
-			m_RotorAnimationPosition -= 1;
-
-		if (m_RotorSpeed > 0.01)
-		{
-			m_Vehicle.SetAnimationPhase("rotor", m_RotorAnimationPosition);
-			m_Vehicle.SetAnimationPhase("rearrotor", m_RotorAnimationPosition);
-		}
+		AnimateRotors();
 
 		m_Vehicle.SetAnimationPhase("compasspointer", m_Vehicle.GetOrientation()[0] * Math.DEG2RAD);
 		m_Vehicle.SetAnimationPhase("attitudeDiveRTD", m_Vehicle.GetDirection()[1]);
@@ -1178,6 +1168,26 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 	}
 
+	void AnimateRotors()
+	{
+		if (m_RotorSpeed > 0.7)
+		{
+			m_Vehicle.ShowSelection("hiderotorblur");
+			m_Vehicle.HideSelection("hiderotor");
+		}
+		else
+		{
+			m_Vehicle.ShowSelection("hiderotor");
+			m_Vehicle.HideSelection("hiderotorblur");
+		}
+
+		if (m_RotorAnimationPosition >= 1)
+			m_RotorAnimationPosition -= 1;
+
+		m_Vehicle.SetAnimationPhase("rotor", m_RotorAnimationPosition);
+		m_Vehicle.SetAnimationPhase("rearrotor", m_RotorAnimationPosition);
+	}
+
 	override void NetworkSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(m_AutoHover);
@@ -1193,7 +1203,10 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		ctx.Write(m_MouseVertSens);
 		ctx.Write(m_MouseHorzSens);
 
-		ctx.Write(m_WindSpeedSync);
+		ctx.Write(m_RotorAnimationPosition);
+
+		if (m_EnableWind)
+			ctx.Write(m_WindSpeedSync);
 	}
 
 	override void NetworkRecieve(ParamsReadContext ctx)
@@ -1211,10 +1224,15 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		ctx.Read(m_MouseVertSens);
 		ctx.Read(m_MouseHorzSens);
 
-		ctx.Read(m_WindSpeedSync);
+		ctx.Read(m_RotorAnimationPosition);
 
-		if (!m_EnableWind)
-			m_WindSpeedSync = "0 0 0";
+		//! Sync rotor animation to state received from client. This fixes brief animation glitches
+		//! when passengers enter heli while rotor isn't spinning and pilot is present.
+		if (m_RotorSpeed == 0.0)
+			AnimateRotors();
+
+		if (m_EnableWind)
+			ctx.Read(m_WindSpeedSync);
 	}
 
 	bool IsAutoHover()

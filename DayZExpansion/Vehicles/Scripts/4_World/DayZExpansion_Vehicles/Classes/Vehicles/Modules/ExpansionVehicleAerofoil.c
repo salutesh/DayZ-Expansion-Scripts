@@ -230,7 +230,7 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 		pState.m_Torque += (position * force).Multiply3(pState.m_Transform);
 	}
 
-	override void Animate(ExpansionPhysicsState pState)
+	override void Animate(ExpansionPhysicsState pState, float deltaTime)
 	{
 		m_Vehicle.SetAnimationPhase(m_Animation, m_Input);
 	}

@@ -12,8 +12,21 @@
 
 modded class ActionUnmountBarbedWire
 {
+	override string GetText()
+	{
+		string text = super.GetText();
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
+	}
+
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		if (!super.ActionCondition(player, target, item))
+			return false;
+
 		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
 			return false;
 
@@ -28,7 +41,7 @@ modded class ActionUnmountBarbedWire
 
 		if ( isInsideOwnTerritory || dismantleOutsideTerritory )
 		{
-			return super.ActionCondition(player, target, item);
+			return true;
 		}
 
 		return false;

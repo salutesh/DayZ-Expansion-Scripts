@@ -13,6 +13,7 @@
 modded class ZombieBase
 {
 	protected static ref array<ref ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;
+	protected ref ExpansionEntityHitHandler m_Expansion_HitHandler = new ExpansionEntityHitHandler(this);
 
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
@@ -64,12 +65,12 @@ modded class ZombieBase
 			return;
 
 		Man killerPlayer = killSource.GetHierarchyRootPlayer();
-		if (!killerPlayer || !killerPlayer.GetIdentity())
+		if (!killerPlayer)
 			return;
 
-		string killerUID = killerPlayer.GetIdentity().GetId();
-		if (killerUID == string.Empty)
-			return;
+		string killerUID;
+		if (killerPlayer.GetIdentity())
+			killerUID = killerPlayer.GetIdentity().GetId();
 
 		ExpansionQuest quest;
 		int failSafe = s_Expansion_AssignedQuestObjectives.Count() + 1;
@@ -90,19 +91,75 @@ modded class ZombieBase
 				continue;
 			}
 			
-			if (!quest.IsQuestPlayer(killerUID))
+			//! Check if current quest players distance to our victim entity is in kill range proximity to count the kill when the killer is not a quest player of our current objective instance row
+			//! We do this to share kills between quest objectives from players that are working on the same objective.
+			if (killerUID == string.Empty || !quest.IsQuestPlayer(killerUID))
 			{
-				i++;
-				continue;
+			#ifdef DIAG
+				EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - Entity got killed by a player that is not part of this quest! Quest ID: " + quest.GetQuestConfig().GetID() + " | Killer UID: " + killerUID);
+			#endif
+				float maxDist = -1;
+				switch (objective.GetObjectiveType())
+				{
+					case ExpansionQuestObjectiveType.TARGET:
+					{
+						ExpansionQuestObjectiveTargetConfig targetConfig;
+						if (Class.CastTo(targetConfig, objective.GetObjectiveConfig()))
+							maxDist = targetConfig.GetMaxDistance();
+					}
+					break;
+				}
+
+				if (maxDist <= 0)
+					maxDist = 100.0;
+
+				bool countKill = false;
+				Man questPlayer;
+				vector playerPos;
+				if (!quest.GetQuestConfig().IsGroupQuest())
+				{
+					questPlayer = quest.GetPlayer();
+					if (questPlayer && (objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) || Expansion_HasHitEntity(questPlayer)))
+					{
+						countKill = true;
+					#ifdef DIAG
+						EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - Quest player in max range! Player position: " + questPlayer.GetPosition() + " | Victim position: " + GetPosition() + " | Max distance: " + maxDist);
+					#endif
+					}
+				}
+			#ifdef EXPANSIONMODGROUPS
+				else
+				{
+					set<string> playerUIDs = quest.GetPlayerUIDs();
+					foreach (string memberUID: playerUIDs)
+					{
+						questPlayer = PlayerBase.GetPlayerByUID(memberUID);		
+						if (questPlayer && (objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) || Expansion_HasHitEntity(questPlayer)))
+						{
+							countKill = true;
+						#ifdef DIAG
+							EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - Quest player in max range! Player position: " + questPlayer.GetPosition() + " | Victim position: " + GetPosition() + " | Max distance: " + maxDist);
+						#endif
+							break;
+						}
+					}
+				}
+			#endif
+				
+				//! If none of the current quest players is in kill range proximity then stop the current check and continue with the next objective row..
+				if (!countKill)
+				{
+					i++;
+					continue;
+				}
 			}
 
-			int objectiveType = objective.GetObjectiveType();
-			switch (objectiveType)
+			switch (objective.GetObjectiveType())
 			{
 				case ExpansionQuestObjectiveType.TARGET:
 					ExpansionQuestObjectiveTargetEvent targetEvent;
 					if (Class.CastTo(targetEvent, objective))
-						targetEvent.OnEntityKilled(this, killSource, killerPlayer);
+						targetEvent.OnEntityKilled(this, killSource, killerPlayer, m_Expansion_HitHandler.GetHitMap());
 					break;
 			}
 
@@ -112,9 +169,26 @@ modded class ZombieBase
 
 		//! @note should not happen, this could mean an objective was no longer marked assigned but still in the list
 		if (j == failSafe)
-			EXPrint(this, "::CheckAssignedObjectivesForEntity - WARNING: Reached end of loop unexpectedly!");
+			EXPrint(ToString() + " ::CheckAssignedObjectivesForEntity - WARNING: Reached end of loop unexpectedly!");
 	}
 
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		
+		m_Expansion_HitHandler.OnHit(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	}
+	
+	map<Man, ref ExpansionEntityHitInfo> Expansion_GetEntityHitMap()
+	{
+		return m_Expansion_HitHandler.GetHitMap();
+	}
+	
+	bool Expansion_HasHitEntity(Man player)
+	{
+		return m_Expansion_HitHandler.WasHitBy(player);
+	}
+	
 	override void EEKilled(Object killer)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG

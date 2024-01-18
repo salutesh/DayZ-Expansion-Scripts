@@ -8,6 +8,7 @@ class ExpansionPathHandler
 
 	autoptr PGFilter m_PathFilter;
 	autoptr PGFilter m_CheckFilter;
+	autoptr PGFilter m_BlockFilter;
 
 	ref ExpansionPathPoint m_Current;
 	ref ExpansionPathPoint m_Target;
@@ -29,6 +30,7 @@ class ExpansionPathHandler
 
 	bool m_Recalculate;
 	bool m_IsBlocked;
+	bool m_DoClimbTestEx;
 	bool m_IsUnreachable;
 
 	void ExpansionPathHandler(eAIBase unit)
@@ -41,6 +43,7 @@ class ExpansionPathHandler
 
 		m_PathFilter = new PGFilter();
 		m_CheckFilter = new PGFilter();
+		m_BlockFilter = new PGFilter();
 
 		m_AIWorld = GetGame().GetWorld().GetAIWorld();
 
@@ -61,25 +64,23 @@ class ExpansionPathHandler
 
 		m_PathFilter = new PGFilter();
 
-		int in = PGPolyFlags.UNREACHABLE | PGPolyFlags.DISABLED | PGPolyFlags.WALK | PGPolyFlags.DOOR | PGPolyFlags.INSIDE | PGPolyFlags.LADDER;
-		int ex = PGPolyFlags.CRAWL | PGPolyFlags.CROUCH | PGPolyFlags.SWIM_SEA | PGPolyFlags.SWIM;
-		int ec = PGPolyFlags.NONE;
+		int includeFlags = PGPolyFlags.UNREACHABLE | PGPolyFlags.DISABLED | PGPolyFlags.WALK | PGPolyFlags.DOOR | PGPolyFlags.INSIDE | PGPolyFlags.LADDER;
+		int excludeFlags = PGPolyFlags.CRAWL | PGPolyFlags.CROUCH | PGPolyFlags.SWIM_SEA | PGPolyFlags.SWIM;
+		int exclusiveFlags = PGPolyFlags.NONE;
 
 		if (eAIBase.AI_HANDLEVAULTING)
 		{
-			in |= PGPolyFlags.SPECIAL;
+			includeFlags |= PGPolyFlags.SPECIAL;
 		}
 		else
 		{
-			ex |= PGPolyFlags.SPECIAL;
+			excludeFlags |= PGPolyFlags.SPECIAL;
 		}
 
 		m_PathFilter.SetCost(PGAreaType.LADDER, 1.0);
 		m_PathFilter.SetCost(PGAreaType.CRAWL, 10.0);
 		m_PathFilter.SetCost(PGAreaType.CROUCH, 10.0);
 		m_PathFilter.SetCost(PGAreaType.FENCE_WALL, 1.0);
-		//! @note jump has higher cost because some objects cannot be jumped over by AI but will be pathed through otherwise.
-		//! This fixes AI getting stuck on (e.g.) the high mesh fences and other obstacles that can only be jumped by Zs.
 		m_PathFilter.SetCost(PGAreaType.JUMP, 10.0);
 		m_PathFilter.SetCost(PGAreaType.WATER, 5.0);
 		m_PathFilter.SetCost(PGAreaType.WATER_DEEP, 100.0);
@@ -98,7 +99,12 @@ class ExpansionPathHandler
 		m_PathFilter.SetCost(PGAreaType.BUILDING, 1.0);
 		m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);
 
-		m_PathFilter.SetFlags(in, ex, ec);
+		m_PathFilter.SetFlags(includeFlags, excludeFlags, exclusiveFlags);
+
+		//! Block filter - only used to check if path is blocked. MUST use SAME flags as normal pathfilter EXCEPT door
+		includeFlags &= ~PGPolyFlags.DOOR;
+		excludeFlags |= PGPolyFlags.DOOR;
+		m_BlockFilter.SetFlags(includeFlags, excludeFlags, exclusiveFlags);
 	}
 
 	bool Raycast(PGPolyFlags filter, float distance, out vector hitPos)
@@ -151,25 +157,36 @@ class ExpansionPathHandler
 		//return Raycast(PGPolyFlags.CLIMB, 0.5, hitPos);
 	}
 
-	bool IsBlocked(vector start, vector end)
+	/**
+	 * @brief Check if path is blocked in navmesh
+	 * 
+	 * @param start
+	 * @param end
+	 * @param excludeDoors if true, doors are always considered blocking
+	 * @param [out] hitPos
+	 * @param [out] hitNormal
+	 */
+	bool IsBlocked(vector start, vector end, bool excludeDoors = false, out vector hitPos = vector.Zero, out vector hitNormal = vector.Zero)
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_2(this, "IsBlocked").Add(start).Add(end);
 		#endif
 
-		vector hitPos;
-		vector hitNormal;
-
+		if (excludeDoors)
+			return m_AIWorld.RaycastNavMesh(start, end, m_BlockFilter, hitPos, hitNormal);
 		return m_AIWorld.RaycastNavMesh(start, end, m_PathFilter, hitPos, hitNormal);
 	}
 
-	bool IsBlocked(vector start, vector end, out vector hitPos, out vector hitNormal)
+	/**
+	 * @brief Check if path is blocked physically
+	 */
+	bool IsBlockedPhysically(vector start, vector end, out vector hitPos = vector.Zero, out vector hitNormal = vector.Zero)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_2(this, "IsBlocked").Add(start).Add(end);
-		#endif
-
-		return m_AIWorld.RaycastNavMesh(start, end, m_PathFilter, hitPos, hitNormal);
+		int contactComponent;
+		set<Object> results = new set<Object>;
+		if (DayZPhysics.RaycastRV(start, end, hitPos, hitNormal, contactComponent, results, null, m_Unit, false, false, ObjIntersectGeom))
+			return true;
+		return false;
 	}
 
 	vector CalculateOffset()
@@ -346,7 +363,14 @@ class ExpansionPathHandler
 			origin = m_Points[m_PointIdx - 1];
 
 		if (m_Count)
-			m_Unit.Expansion_DebugObject(11111 + m_PointIdx, m_Points[m_PointIdx++], "ExpansionDebugConeSmall_White", vector.Zero, origin, 3, ShapeFlags.NOZBUFFER);
+		{
+			string debugObj;
+			if (m_IsBlocked)
+				debugObj = "ExpansionDebugConeSmall_Red";
+			else
+				debugObj = "ExpansionDebugConeSmall_White";
+			m_Unit.Expansion_DebugObject(11111 + m_PointIdx, m_Points[m_PointIdx++], debugObj, vector.Zero, origin, 3, ShapeFlags.NOZBUFFER);
+		}
 
 		for (int i = m_PrevCount - 1; i > m_Count - 1; i--)
 		{
@@ -382,7 +406,7 @@ class ExpansionPathHandler
 		if (pSimulationPrecision < 0)
 		{
 			recalculate = true;
-			//EXPrint(m_Unit, "recalculating because pSimulationPrecision < 0");
+			//EXPrint(m_Unit.ToString() + " recalculating because pSimulationPrecision < 0");
 
 			// HACK FIX for recalculating while climbing
 
@@ -403,7 +427,7 @@ class ExpansionPathHandler
 			if (vector.DistanceSq(unitPosition, targetPosition) > 0.5)
 				recalculate = true;
 			//if (recalculate)
-				//EXPrint(m_Unit, "recalculating because dstSq to target ref > 0.5");
+				//EXPrint(m_Unit.ToString() + " recalculating because dstSq to target ref > 0.5");
 		}
 
 		if (!recalculate && m_Count >= 1 && m_Time >= m_MinTimeUntilNextUpdate)
@@ -416,11 +440,12 @@ class ExpansionPathHandler
 			if (d0 < d1)
 			{
 				recalculate = true;
-				//EXPrint(m_Unit, "recalculating because d0 < d1 (overshoot), diff " + ExpansionStatic.FloatToString(d1 - d0) + ", velocity " + unitVelocity);
+				//EXPrint(m_Unit.ToString() + " recalculating because d0 < d1 (overshoot), diff " + ExpansionStatic.FloatToString(d1 - d0) + ", velocity " + unitVelocity);
 			}
 		}
 
 		m_IsBlocked = false;
+		m_DoClimbTestEx = false;
 
 		if (recalculate)
 		{
@@ -577,8 +602,10 @@ class ExpansionPathHandler
 					 */
 
 					vector hitPos, hitNormal;
-					if (IsBlocked(m_Next0.Position, m_Next1.Position, hitPos, hitNormal))
+					if (IsBlocked(m_Next0.Position, m_Next1.Position, true, hitPos, hitNormal))
 					{
+						m_IsBlocked = true;
+
 						//! Move the waypoint closer to target to entice the AI to vault if possible
 						//! (otherwise might get stuck at e.g. wall_woodf_5.p3d which is easily vaultable)
 						if (vector.DistanceSq(hitPos, m_Next1.Position) < vector.DistanceSq(m_Next0.Position, m_Next1.Position))
@@ -586,10 +613,10 @@ class ExpansionPathHandler
 							vector corrected = hitPos - vector.Direction(hitPos, m_Next0.Position).Normalized() * 0.5;
 						#ifdef DIAG
 							if (EXTrace.AI)
-								EXPrint(m_Unit, m_Count.ToString() + " total points, [1] " + m_Next0.Position + ", hitpos " + hitPos + ", corrected " + corrected + ", [2] " + m_Next1.Position);
+								EXPrint(m_Unit.ToString() + " " + m_Count.ToString() + " total points, [1] " + m_Next0.Position + ", hitpos " + hitPos + ", corrected " + corrected + ", [2] " + m_Next1.Position);
 						#endif
 							m_Next0.Position = corrected;
-							m_IsBlocked = true;
+							m_DoClimbTestEx = true;
 						}
 					}
 				}

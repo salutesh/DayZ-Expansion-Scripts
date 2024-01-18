@@ -36,10 +36,9 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 	bool ShowHardlineHUD;
 	bool UseReputation;
-#ifdef EXPANSIONMODAI
+
 	bool UseFactionReputation;
 	bool EnableFactionPersistence;
-#endif
 
 	bool EnableItemRarity;
 	bool UseItemRarityOnInventoryIcons;
@@ -95,16 +94,23 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			Error(ToString() + "::OnRecieve UseItemRarityOnInventoryIcons");
 			return false;
 		}
-	#ifdef EXPANSIONMOD
+
 		if (!ctx.Read(MaxReputation))
 		{
 			Error(ToString() + "::OnRecieve MaxReputation");
 			return false;
 		}
-	#endif
+
+		if (!ctx.Read(DefaultItemRarity))
+		{
+			Error(ToString() + "::OnRecieve DefaultItemRarity");
+			return false;
+		}
 
 		m_IsLoaded = true;
 
+		ExpansionSettings.SI_Hardline.Invoke();
+		
 		return true;
 	}
 
@@ -121,9 +127,8 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	#endif
 		ctx.Write(EnableItemRarity);
 		ctx.Write(UseItemRarityOnInventoryIcons);
-	#ifdef EXPANSIONMOD
 		ctx.Write(MaxReputation);
-	#endif
+		ctx.Write(DefaultItemRarity);
 	}
 
 	override int Send( PlayerIdentity identity )
@@ -200,21 +205,19 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		{
 			EXPrint("[ExpansionHardlineSettings] Load existing setting file:" + EXPANSION_HARDLINE_SETTINGS);
 
-			ExpansionHardlineSettings settingsDefault = new ExpansionHardlineSettings;
-			settingsDefault.Defaults();
-
 			ExpansionJsonFileParser<ExpansionHardlineSettings>.Load(EXPANSION_HARDLINE_SETTINGS, this);
 			if (m_Version < VERSION)
 			{
+				ExpansionHardlineSettings settingsDefault = new ExpansionHardlineSettings;
+				settingsDefault.Defaults();
+
 				EXPrint("[ExpansionHardlineSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_HARDLINE_SETTINGS + "\" to v" + VERSION);
 
-			#ifdef EXPANSIONMODAI
 				if (m_Version < 7)
 				{
 					UseFactionReputation = settingsDefault.UseFactionReputation;
 					EnableFactionPersistence = settingsDefault.EnableFactionPersistence;
 				}
-			#endif
 
 				if (m_Version < 8)
 					MaxReputation = settingsDefault.MaxReputation;
@@ -299,10 +302,10 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 		ShowHardlineHUD = true;
 		UseReputation = true;
-	#ifdef EXPANSIONMODAI
+
 		UseFactionReputation = false;
 		EnableFactionPersistence = false;
-	#endif
+
 		EnableItemRarity = true;
 		UseItemRarityOnInventoryIcons = true;
 		UseItemRarityForMarketPurchase = true;
@@ -342,10 +345,8 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		//! All other Infected
 		EntityReputation.Insert("ZombieBase", 10);
 
-	#ifdef EXPANSIONMODAI
 		//! AI
 		EntityReputation.Insert("eAIBase", 100);
-	#endif
 	}
 
 	protected void DefaultItemRarity()
@@ -699,8 +700,8 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("HuntingBag", ExpansionHardlineItemRarity.Rare);
 		AddItem("TortillaBag", ExpansionHardlineItemRarity.Rare);
 
-	#ifdef EXPANSIONMOD
 		AddItem("CoyoteBag_Green", ExpansionHardlineItemRarity.Rare);
+	#ifdef EXPANSIONMOD
 		AddItem("ExpansionCoyoteBlack", ExpansionHardlineItemRarity.Rare);
 	#endif
 		AddItem("CoyoteBag_Brown", ExpansionHardlineItemRarity.Rare);
@@ -1357,16 +1358,14 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("MedicalScrubsHat_Green", ExpansionHardlineItemRarity.Common);
 
 	#ifdef EXPANSIONMOD
-		AddItem("CowboyHat_Brown", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("ExpansionCowboyHatGator", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("ExpansionCowboyHatSnake", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("ExpansionCowboyHatRattleSnake", ExpansionHardlineItemRarity.Uncommon);
-	#else
+	#endif
 		AddItem("CowboyHat_Brown", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("CowboyHat_black", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("CowboyHat_darkBrown", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("CowboyHat_green", ExpansionHardlineItemRarity.Uncommon);
-	#endif
 
 		AddItem("MilitaryBeret_ChDKZ", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("MilitaryBeret_Red", ExpansionHardlineItemRarity.Uncommon);
@@ -1461,11 +1460,9 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("FirefightersHelmet_White", ExpansionHardlineItemRarity.Epic);
 		AddItem("FirefightersHelmet_Yellow", ExpansionHardlineItemRarity.Epic);
 
+		AddItem("Mich2001Helmet", ExpansionHardlineItemRarity.Epic);
 	#ifdef EXPANSIONMOD
-		AddItem("Mich2001Helmet", ExpansionHardlineItemRarity.Epic);
 		AddItem("ExpansionMich2001Desert", ExpansionHardlineItemRarity.Epic);
-	#else
-		AddItem("Mich2001Helmet", ExpansionHardlineItemRarity.Epic);
 	#endif
 
 		AddItem("GorkaHelmetVisor", ExpansionHardlineItemRarity.Epic);

@@ -16,6 +16,7 @@ class ExpansionPersonalStorageMenuItemBase: ExpansionScriptView
 	protected ref ExpansionPersonalStorageModule m_PersonalStorageModule;
 	protected ref ExpansionPersonalStorageMenu m_PersonalStorageMenu;
 	protected ref ExpansionItemTooltip m_ItemTooltip;
+	protected ref ExpansionPersonalStorageItemBase m_Item;
 
 	protected EntityAI m_Object;
 	protected ButtonWidget item_button;
@@ -25,10 +26,13 @@ class ExpansionPersonalStorageMenuItemBase: ExpansionScriptView
 	protected int m_RarityColor = -1;
 #endif
 
-	void ExpansionPersonalStorageMenuItemBase()
+	void ExpansionPersonalStorageMenuItemBase(ExpansionPersonalStorageItemBase item, ExpansionPersonalStorageMenu menu)
 	{
 		Class.CastTo(m_PersonalStorageMenuItemBaseController, GetController());
 		Class.CastTo(m_PersonalStorageModule, CF_ModuleCoreManager.Get(ExpansionPersonalStorageModule));
+
+		m_Item = item;
+		m_PersonalStorageMenu = menu;
 	}
 
 	void ~ExpansionPersonalStorageMenuItemBase()
@@ -38,6 +42,11 @@ class ExpansionPersonalStorageMenuItemBase: ExpansionScriptView
 
 		if (m_Object)
 			GetGame().ObjectDelete(m_Object);
+	}
+
+	override typename GetControllerType()
+	{
+		return ExpansionPersonalStorageMenuItemBaseController;
 	}
 
 #ifdef EXPANSIONMODHARDLINE
@@ -77,6 +86,57 @@ class ExpansionPersonalStorageMenuItemBase: ExpansionScriptView
 	EntityAI GetPreviewObject()
 	{
 		return m_Object;
+	}
+
+	void UpdatePreviewObject()
+	{
+		string previewClassName = m_PersonalStorageMenu.GetPreviewClassName(m_Item.GetClassName());
+		ExpansionPersonalStorageMenu.CreatePreviewObject(previewClassName, m_Object);
+
+		if (m_Object)
+		{
+			if (m_Object.IsInherited(TentBase))
+			{
+				TentBase tent;
+				Class.CastTo(tent, m_Object);
+				tent.Pack(false);
+			}
+
+			Transport transportEntity;
+			if (Class.CastTo(transportEntity, m_Object))
+			{
+				dBodyActive(m_Object, ActiveState.INACTIVE);
+				dBodyDynamic(m_Object, false);
+				transportEntity.DisableSimulation(true);
+			}
+
+			array<ref ExpansionPersonalStorageContainerItem> containerItems = m_Item.GetContainerItems();
+			if (containerItems.Count() > 0)
+			{
+				Print(ToString() + "::UpdatePreviewObject - Attachments count:" + containerItems.Count() + " for item " + previewClassName);
+				SpawnAttachments(containerItems, m_Object, m_Item.GetSkinIndex());
+			}
+
+			if (m_Object.HasSelection("antiwater"))
+				m_Object.HideSelection("antiwater");
+
+			Construction.ExpansionBuildFullIfSupported(m_Object);
+
+			UpdateFoodStage();
+		}
+
+		m_PersonalStorageMenuItemBaseController.Preview = m_Object;
+		m_PersonalStorageMenuItemBaseController.NotifyPropertyChanged("Preview");
+	}
+
+	void UpdateFoodStage()
+	{
+		Edible_Base food_item = Edible_Base.Cast(m_Object);
+		if (food_item && food_item.HasFoodStage())
+		{
+			FoodStage foodStage = food_item.GetFoodStage();
+			foodStage.ChangeFoodStage(m_Item.GetFoodStageType());
+		}
 	}
 };
 

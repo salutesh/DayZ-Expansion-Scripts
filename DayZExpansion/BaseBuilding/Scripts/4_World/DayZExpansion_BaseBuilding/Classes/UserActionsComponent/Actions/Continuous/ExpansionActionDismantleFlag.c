@@ -39,10 +39,17 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 	
 	override string GetText()
 	{
+		string text;
+
 		if ( m_IsDismantle )
-			return "#fold";
-		
-		return "#destroy";
+			text = "#fold";
+		else
+			text = "#destroy";
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
 	}
 	
 	override typename GetInputType()

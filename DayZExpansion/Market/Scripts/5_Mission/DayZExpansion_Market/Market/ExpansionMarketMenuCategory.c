@@ -55,7 +55,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 	protected ref ExpansionMarketCategory m_Category;
 	protected ref ExpansionMarketMenuCategoryController m_CategoryController;
 	protected ref map<string, ref array<ExpansionMarketItem>> m_TempItems;
-	protected ref array<string> m_TempDisplayNames;
+	protected ref array<string> m_TempDisplayNames = {};
 	protected int m_ItemUpdateIdx;
 	protected ref array<ExpansionMarketItem> m_MarketItems;
 	protected ref TIntArray m_ItemIDs;
@@ -64,6 +64,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 	protected string m_CategoryInfo_Loading;
 	protected int m_CategoryInfo_Loading_Idx;
 	protected string m_CategoryInfo_ItemCount;
+	protected bool m_Sorted;
 	
 	protected GridSpacerWidget category_items;
 	protected  ButtonWidget category_button;
@@ -107,17 +108,15 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 
 	void UpdateMarketItems()
 	{
-		//! Sort by display name
-		m_TempDisplayNames = m_TempItems.GetKeyArray();
-		m_TempDisplayNames.Sort();
+		m_TempDisplayNames.Clear();
 
 		int idx;
 		int show;
-		foreach (string tempDisplayName: m_TempDisplayNames)
+		foreach (string tempDisplayName, array<ExpansionMarketItem> tempItems: m_TempItems)
 		{
-			foreach (ExpansionMarketItem tempItem: m_TempItems[tempDisplayName])
+			m_TempDisplayNames.Insert(tempDisplayName);
+			foreach (ExpansionMarketItem tempItem: tempItems)
 			{
-				tempItem.m_Idx = idx++;
 				if (m_MarketItems.Find(tempItem) == -1)
 					m_MarketItems.Insert(tempItem);
 				if (tempItem.m_ShowInMenu && m_Category.m_Finalized)
@@ -148,26 +147,224 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 	{
 		ExpansionMarketMenuItem itemElement = new ExpansionMarketMenuItem(m_MarketMenu, item);
 
-		int count = m_CategoryController.MarketItems.Count();
+		int sortIdx = GetSortIndex(itemElement);
+		m_CategoryController.MarketItems.InsertAt(itemElement, sortIdx);
 
-		if (!count || item.m_Idx > m_CategoryController.MarketItems[count - 1].GetBaseItem().m_Idx)
+		if (m_Sorted)
 		{
-			m_CategoryController.MarketItems.Insert(itemElement);
-		}
-		else
-		{
-			for (int i = 0; i < count; i++)
+			//! Item sorting has been manually changed while loading, need to update sort order
+			for (int i = sortIdx; i < m_CategoryController.MarketItems.Count(); i++)
 			{
-				if (item.m_Idx < m_CategoryController.MarketItems[i].GetBaseItem().m_Idx)
-					break;
+				m_CategoryController.MarketItems[i].SetSort(i);
 			}
-
-			m_CategoryController.MarketItems.InsertAt(itemElement, i);
 		}
 
 		m_ItemIDs.Insert(item.ItemID);
 	}
 	
+	void QuickSortItems(int low, int high)
+	{
+		if (low < high)
+		{
+			int partitionIndex = Partition(low, high);
+			QuickSortItems(low, partitionIndex - 1);
+			QuickSortItems(partitionIndex + 1, high);
+		}
+	}
+
+	int Partition(int low, int high)
+	{
+		ExpansionMarketMenuItem pivot = m_CategoryController.MarketItems[high];
+		int i = low - 1;
+
+		for (int j = low; j < high; j++)
+		{
+			if (Cmp(m_CategoryController.MarketItems[j], pivot) < 0)
+			{
+				i++;
+				m_CategoryController.MarketItems.SwapItems(i, j);
+			}
+		}
+
+		m_CategoryController.MarketItems.SwapItems(i + 1, high);
+
+		return i + 1;
+	}
+
+	void SortItems()
+	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
+		int i;
+		ExpansionMarketMenuItem menuItem;
+
+		//! QuickSort in EnfScript: ~60 ms for 100 items
+	/*
+		int high = m_CategoryController.MarketItems.Count() - 1;
+		
+		QuickSortItems(0, high);
+	*/
+
+		//! All the below combined: ~3 ms for 100 items
+
+		TStringArray sortKeys = {};
+
+		ExpansionMarketMenuSortPriority sortPriority = m_MarketMenu.GetSortPriority();
+
+		map<string, ref ExpansionMarketMenuItem> menuItems = new map<string, ref ExpansionMarketMenuItem>;
+
+		for (i = 0; i < m_CategoryController.MarketItems.Count(); i++)
+		{
+			menuItem = m_CategoryController.MarketItems[i];
+			menuItem.SetMenuIdx(i);
+			//! @note we append the index so items with same sort key (= same displayname and price) don't overwrite each other
+			string sortKey = menuItem.GetSortKey(sortPriority) + "\t" + i;
+			sortKeys.Insert(sortKey);
+			menuItems[sortKey] = menuItem;
+		}
+
+		bool reverse;
+
+		switch (sortPriority)
+		{
+			case ExpansionMarketMenuSortPriority.NAME:
+				reverse = m_MarketMenu.GetNameSortState();
+				break;
+
+			case ExpansionMarketMenuSortPriority.PRICE:
+				reverse = m_MarketMenu.GetPriceSortState();
+				break;
+		}
+
+		sortKeys.Sort(reverse);
+
+		foreach (int index, string key: sortKeys)
+		{
+			menuItem = menuItems[key];
+			i = menuItem.GetMenuIdx();
+			//i = m_CategoryController.MarketItems.Find(menuItem);
+			if (i != index)
+			{
+				m_CategoryController.MarketItems[index].SetMenuIdx(i);
+				//! @note SpacerBaseWidgetController::Swap in current stable DF is broken (does not always swap the widgets correctly),
+				//! so we run our own swapping implementation
+				//m_CategoryController.MarketItems.SwapItems(index, i);
+				SwapMenuItems(index, i);
+				menuItem.SetMenuIdx(index);
+			}
+			menuItem.SetSort(index, false);
+		#ifdef DIAG
+			PrintFormat("SortItems %1->%2 %3 %4", i, index, menuItem.GetItemSortName(), menuItem.GetBuyPrice());
+		#endif
+		}
+
+		m_Sorted = true;
+
+	//#ifdef DIAG
+		//for (i = 0; i < m_CategoryController.MarketItems.Count(); i++)
+		//{
+			//menuItem = m_CategoryController.MarketItems[i];
+			//PrintFormat("SortItems %1 %2 %3 %4", i, menuItem.GetSort(), menuItem.GetItemSortName(), menuItem.GetBuyPrice());
+		//}
+	//#endif
+	}
+
+	//! @brief Swap menu items at index A and B
+	void SwapMenuItems(int indexA, int indexB)
+	{
+		if (indexA == indexB)
+			return;
+
+		m_CategoryController.MarketItems.GetArray().SwapItems(indexA, indexB);
+
+		if (indexA > indexB)
+		{
+			int temp = indexA;
+			indexA = indexB;
+			indexB = temp;
+		}
+
+		Widget widgetA = m_CategoryController.MarketItems[indexA].GetLayoutRoot();
+		Widget widgetB = m_CategoryController.MarketItems[indexB].GetLayoutRoot();
+		category_items.RemoveChild(widgetB);
+		category_items.AddChildAfter(widgetB, widgetA);
+		category_items.RemoveChild(widgetA);
+		Widget widgetC = m_CategoryController.MarketItems[indexB - 1].GetLayoutRoot();
+		category_items.AddChildAfter(widgetA, widgetC);
+	}
+
+	int GetSortIndex(ExpansionMarketMenuItem newMenuItem)
+	{
+		for (int i = 0; i < m_CategoryController.MarketItems.Count(); i++)
+		{
+			ExpansionMarketMenuItem menuItem = m_CategoryController.MarketItems[i];
+			if (Cmp(newMenuItem, menuItem) < 0)
+				break;
+		}
+
+		return i;
+	}
+
+	int Cmp(ExpansionMarketMenuItem a, ExpansionMarketMenuItem b)
+	{
+		string nameA = a.GetItemSortName();
+		string nameB = b.GetItemSortName();
+
+		int priceA = a.GetBuyPrice();
+		int priceB = b.GetBuyPrice();
+
+		switch (m_MarketMenu.GetSortPriority())
+		{
+			case ExpansionMarketMenuSortPriority.NAME:
+				if (nameA == nameB)
+					return CmpPrice(priceA, priceB);
+				else
+					return CmpName(nameA, nameB);
+
+				break;
+
+			case ExpansionMarketMenuSortPriority.PRICE:
+				if (priceA == priceB)
+					return CmpName(nameA, nameB);
+				else
+					return CmpPrice(priceA, priceB);
+
+				break;
+		}
+
+		return 0;
+	}
+
+	int CmpName(string nameA, string nameB)
+	{
+		if (m_MarketMenu.GetNameSortState())
+			return ExpansionString.StrCmp(nameB, nameA);  //! Descending
+		else
+			return ExpansionString.StrCmp(nameA, nameB);  //! Ascending
+	}
+
+	int CmpPrice(int priceA, int priceB)
+	{
+		if (m_MarketMenu.GetPriceSortState())
+		{
+			//! Descending
+			if (priceA < priceB)
+				return 1;
+			else if (priceA > priceB)
+				return -1;
+		}
+		else
+		{
+			//! Ascending
+			if (priceA < priceB)
+				return -1;
+			else if (priceA > priceB)
+				return 1;
+		}
+
+		return 0;
+	}
+
 	ObservableCollection<ref ExpansionMarketMenuItem> GetItems()
 	{
 		return m_CategoryController.MarketItems;
@@ -370,6 +567,14 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 			m_MarketMenu.CategoriesExpanded--;
 
 		m_IsExpanded = toggleState;
+
+		if (m_IsExpanded)
+			SortItems();
+	}
+
+	bool IsExpanded()
+	{
+		return m_IsExpanded;
 	}
 
 	override bool OnMouseEnter(Widget w, int x, int y)

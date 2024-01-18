@@ -75,11 +75,6 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
 		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
 	};
-	class Container_Base;
-	class ExpansionAirdropContainerBase: Container_Base
-	{
-		weight = 300000;
-	};
 };
 class CfgAmmoTypes
 {

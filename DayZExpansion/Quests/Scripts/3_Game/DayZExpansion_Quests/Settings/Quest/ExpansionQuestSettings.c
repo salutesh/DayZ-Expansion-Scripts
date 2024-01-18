@@ -31,14 +31,12 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
 	string QuestCooldownTitle;
 	string QuestCooldownText;
 
-#ifdef EXPANSIONMODGROUPS
 	string QuestNotInGroupTitle;
 	string QuestNotInGroupText;
 
 	string QuestNotGroupOwnerTitle;
 	string QuestNotGroupOwnerText;
 	int GroupQuestMode = 0; //! 0 - Only group owners can accept and turn-in quests. | 1 - Only group owner can turn-in quest but all group members can accept them. | 2 - All group members can accept and turn-in quests.
-#endif
 };
 
 class ExpansionQuestSettingsV5Base: ExpansionQuestSettingsBase
@@ -175,7 +173,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		QuestCooldownTitle = s.QuestCooldownTitle;
 		QuestCooldownText = s.QuestCooldownText;
 
-	#ifdef EXPANSIONMODGROUPS
 		QuestNotInGroupTitle = s.QuestNotInGroupTitle;
 		QuestNotInGroupText = s.QuestNotInGroupText;
 
@@ -183,7 +180,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		QuestNotGroupOwnerText = s.QuestNotGroupOwnerText;
 
 		GroupQuestMode = s.GroupQuestMode;
-	#endif
 	}
 
 	protected void CopyInternal( ExpansionQuestSettings s )
@@ -242,12 +238,10 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 				if (!ExpansionJsonFileParser<ExpansionQuestSettings>.Load(EXPANSION_QUEST_SETTINGS, this))
 					return false;
 
-			#ifdef EXPANSIONMODGROUPS
 				if (settingsBase.m_Version < 4)
 				{
 					GroupQuestMode = settingsDefault.GroupQuestMode;
 				}
-			#endif
 
 				if (settingsBase.m_Version < 6)
 				{
@@ -360,13 +354,11 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		QuestCooldownTitle = "Quest Cooldown";
 		QuestCooldownText = "This quest is still on cooldown! Come back in %1";
 
-	#ifdef EXPANSIONMODGROUPS
 		QuestNotInGroupTitle = "Group Quest";
 		QuestNotInGroupText = "Group quests can only be accepted while in a group!";
 
 		QuestNotGroupOwnerTitle = "Group Quest";
 		QuestNotGroupOwnerText = "Only a group owner can accept and turn-in a group quest!";
-	#endif
 
 		WeeklyResetDay = "Wednesday";
 		WeeklyResetHour = 8;
@@ -379,9 +371,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		UseQuestNPCIndicators = true;
 		MaxActiveQuests = -1;
 
-	#ifdef EXPANSIONMODGROUPS
 		GroupQuestMode = 0;
-	#endif
 	}
 
 	override string SettingName()

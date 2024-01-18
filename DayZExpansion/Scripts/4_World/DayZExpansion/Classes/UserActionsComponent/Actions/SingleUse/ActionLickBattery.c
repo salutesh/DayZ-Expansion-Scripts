@@ -82,7 +82,7 @@ class ActionLickBattery: ActionSingleUseBase
 			if ( IsMissionHost() )
 			{
 				//! Shock dmg
-				action_data.m_Player.ProcessDirectDamage( DT_CUSTOM, m_Battery, "", "Bullet_Expansion_Taser", "0.5 0.5 0.5", 1 );
+				action_data.m_Player.ProcessDirectDamage( DT_CUSTOM, m_Battery, "", "FallDamageShock", "0.5 0.5 0.5", 1 );
 			}
 		}
 

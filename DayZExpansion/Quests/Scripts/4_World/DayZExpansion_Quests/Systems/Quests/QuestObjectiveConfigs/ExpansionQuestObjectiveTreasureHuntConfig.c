@@ -24,8 +24,8 @@ class ExpansionQuestObjectiveTreasureHuntConfigBase: ExpansionQuestObjectiveConf
 	bool DigInStash = true;
 	string MarkerName = "???";	
 	int MarkerVisibility = 4; //! 4 - visible on map | 2 - visible in world | 6 - visible on map and in world.
-	ref array<vector> Positions;
-	ref array <ref ExpansionLoot> Loot;
+	autoptr array<vector> Positions;
+	autoptr array <ref ExpansionLoot> Loot;
 	int LootItemsAmount;
 	float MaxDistance = 10.0;
 };

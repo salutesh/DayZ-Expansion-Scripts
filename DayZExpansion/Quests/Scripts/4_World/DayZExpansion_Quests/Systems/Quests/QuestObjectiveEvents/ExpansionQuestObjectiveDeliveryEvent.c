@@ -12,7 +12,6 @@
 
 class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEventBase
 {
-	protected ExpansionTravelObjectiveSphereTrigger m_ObjectiveTrigger;
 	protected bool m_DestinationReached;
 #ifdef EXPANSIONMODNAVIGATION
 	protected bool m_CreatedMarker;
@@ -31,7 +30,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		if (!Class.CastTo(m_DeliveryConfig, m_ObjectiveConfig))
 			return false;
 
-		if (!CreateObjectiveTrigger())
+		if (!ExpansionQuestModule.GetModuleInstance().QuestTriggerExists(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_ObjectiveConfig.GetID()) && !CreateObjectiveTrigger())
 			return false;
 
 		if (!GetObjectiveDataFromConfig())
@@ -57,7 +56,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		if (!Class.CastTo(m_DeliveryConfig, m_ObjectiveConfig))
 			return false;
 
-		if (!CreateObjectiveTrigger())
+		if (!ExpansionQuestModule.GetModuleInstance().QuestTriggerExists(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_ObjectiveConfig.GetID()) && !CreateObjectiveTrigger())
 			return false;
 
 		if (!GetObjectiveDataFromConfig())
@@ -74,24 +73,19 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
+		if (!Class.CastTo(m_DeliveryConfig, m_ObjectiveConfig))
+			return false;
+
+		int questID = m_Quest.GetQuestConfig().GetID();
+		int objectiveType = GetObjectiveType();
+		int objectiveID = m_DeliveryConfig.GetID();
+		if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(questID))
+			ExpansionQuestModule.GetModuleInstance().RemoveObjectiveTrigger(questID, ExpansionObjectiveTriggerType.TRAVEL, objectiveType, objectiveID);
+
 		if (!super.OnCleanup())
 			return false;
 
-		DeleteObjectiveTrigger();
-
 		return true;
-	}
-
-	protected void DeleteObjectiveTrigger()
-	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-	#endif
-
-		if (!m_ObjectiveTrigger)
-			return;
-
-		GetGame().ObjectDelete(m_ObjectiveTrigger);
 	}
 
 	void SetReachedLocation(bool state)
@@ -149,16 +143,17 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		}
 
 		m_Position = npcPos;
-
-		Object trigger = GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", npcPos, ECE_NONE);
-		if (!Class.CastTo(m_ObjectiveTrigger, trigger))
-		{
-			GetGame().ObjectDelete(trigger);
+		
+		array<ExpansionObjectiveTriggerBase> triggers = new array<ExpansionObjectiveTriggerBase>;
+		ExpansionTravelObjectiveSphereTrigger trigger = ExpansionTravelObjectiveSphereTrigger.Cast(GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", npcPos, ECE_LOCAL));
+		if (!trigger)
 			return false;
-		}
 
-		m_ObjectiveTrigger.SetObjectiveData(this);
-		m_ObjectiveTrigger.SetPosition(npcPos);
+		trigger.SetPosition(npcPos);
+		trigger.SetObjectiveData(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_DeliveryConfig.GetID());
+		triggers.Insert(trigger);
+
+		ExpansionQuestModule.GetModuleInstance().SetQuestTriggers(m_Quest.GetQuestConfig().GetID(), triggers);
 
 		return true;
 	}
@@ -193,11 +188,10 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		ObjectivePrint("m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
 		ObjectivePrint("m_DestinationReached: " + m_DestinationReached);
 
-		bool conditionsResult;
 		if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount && m_DestinationReached)
-			conditionsResult = true;
+			return true;
 
-		return conditionsResult;
+		return false;
 	}
 
 	override bool OnCancel()
@@ -418,25 +412,24 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 	
 	override bool CanCreateMarkers()
 	{
-		bool markerConditionResult = false;
 		if (!m_DeliveryConfig.NeedAnyCollection())
 		{
 			if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount && !m_DestinationReached && !m_CreatedMarker)
 			{
-				markerConditionResult = true;
-				ObjectivePrint("::CanCreateMarkers - " + markerConditionResult.ToString());
+				ObjectivePrint("::CanCreateMarkers - true");
+				return true;
 			}
 		}
 		else
 		{
 			if (HasAnyCollectionCompleted() && !m_DestinationReached && !m_CreatedMarker)
 			{
-				markerConditionResult = true;
-				ObjectivePrint("::CanCreateMarkers - " + markerConditionResult.ToString());
+				ObjectivePrint("::CanCreateMarkers - true");
+				return true;
 			}
 		}
 		
-		return markerConditionResult;
+		return false;
 	}
 #endif
 

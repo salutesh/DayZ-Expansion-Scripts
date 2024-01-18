@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Objects_Airdrop
 	{
-		units[] = {"ExpansionAirdropContainer","ExpansionAirdropContainer_Grey","ExpansionAirdropContainer_Blue","ExpansionAirdropContainer_Olive","ExpansionAirdropContainer_Medical","ExpansionAirdropContainer_Military","ExpansionAirdropContainer_Military_GreenCamo","ExpansionAirdropContainer_Military_MarineCamo","ExpansionAirdropContainer_Military_OliveCamo","ExpansionAirdropContainer_Military_OliveCamo2","ExpansionAirdropContainer_Military_WinterCamo","ExpansionAirdropContainer_Basebuilding","ExpansionAirdropPlane"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
@@ -25,7 +25,7 @@ class CfgVehicles
 		itemsCargoSize[] = {10,100};
 		rotationFlags = 2;
 		itemSize[] = {20,20};
-		weight = 1000000;
+		weight = 300000;
 		physLayer = "item_large";
 		cargoClass = "";
 		inventoryCondition = "true";

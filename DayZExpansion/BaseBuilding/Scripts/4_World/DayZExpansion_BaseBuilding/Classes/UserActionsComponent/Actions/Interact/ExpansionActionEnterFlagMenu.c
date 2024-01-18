@@ -61,12 +61,17 @@ class ExpansionActionEnterFlagMenu: ActionContinuousBase
 	// -----------------------------------------------------------
 	override string GetText()
 	{
+		string text;
+
 		if (m_ActionCreate)
-		{
-			return "#STR_EXPANSION_BB_FLAG_CREATE_TERRITORY";
-		}
-		
-		return "#STR_EXPANSION_BB_FLAG_CHANGE";
+			text = "#STR_EXPANSION_BB_FLAG_CREATE_TERRITORY";
+		else
+			text = "#STR_EXPANSION_BB_FLAG_CHANGE";
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
 	}
 	
 	// -----------------------------------------------------------

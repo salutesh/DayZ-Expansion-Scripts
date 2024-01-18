@@ -7,6 +7,11 @@ class eAIFaction
 	protected bool m_IsPassive;
 	protected bool m_IsObserver;
 	protected ref TIntArray m_Modifiers;
+	protected bool m_DisableWeaponPickup;
+	protected float m_MeleeDamageMultiplier = 1.0;
+	protected float m_MeleeYeetForce;
+	protected vector m_MeleeYeetFactors = "1 1 1";
+	protected bool m_HasUnlimitedStamina;
 
 	void eAIFaction()
 	{
@@ -60,6 +65,31 @@ class eAIFaction
 	{
 		return m_Modifiers && m_Modifiers.Count() > 0;
 	}
+
+	bool HasUnlimitedStamina()
+	{
+		return m_HasUnlimitedStamina;
+	}
+
+	float GetMeleeDamageMultiplier()
+	{
+		return m_MeleeDamageMultiplier;
+	}
+
+	float GetMeleeYeetForce()
+	{
+		return m_MeleeYeetForce;
+	}
+
+	vector GetMeleeYeetFactors()
+	{
+		return m_MeleeYeetFactors;
+	}
+
+	bool IsWeaponPickupEnabled()
+	{
+		return !m_DisableWeaponPickup;
+	}
 	
 	bool IsFriendly(notnull eAIFaction other)
 	{
@@ -106,6 +136,18 @@ class eAIFaction
 			return eAIFaction.Cast(faction.Spawn());
 		else
 			Error("Invalid faction name " + factionName);
+
+		return null;
+	}
+
+	static eAIFaction CreateByID(int factionID)
+	{
+		typename faction = GetTypeByID(factionID);
+
+		if (faction)
+			return eAIFaction.Cast(faction.Spawn());
+		else
+			Error("Invalid faction ID " + factionID);
 
 		return null;
 	}

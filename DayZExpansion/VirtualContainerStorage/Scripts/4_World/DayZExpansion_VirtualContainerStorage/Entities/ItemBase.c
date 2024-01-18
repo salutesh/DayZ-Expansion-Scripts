@@ -131,7 +131,7 @@ modded class ItemBase
 		if (GetGame().IsClient())
 			return m_Expansion_HasEntityStorage;
 
-		if (!m_Expansion_GlobalID.m_IsSet)
+		if (!m_Expansion_GlobalID || !m_Expansion_GlobalID.m_IsSet)
 			return false;
 
 		return FileExist(Expansion_GetEntityStorageFileName());

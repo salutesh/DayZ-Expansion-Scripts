@@ -10,11 +10,16 @@
  *
 */
 
+#ifdef EXPANSIONMODAI
+class ExpansionQuestObjectiveAIEscortConfig_V25: ExpansionQuestObjectiveConfig
+{
+	autoptr ExpansionQuestObjectiveAIVIP AIVIP;
+};
+
 class ExpansionQuestObjectiveAIEscortConfigBase: ExpansionQuestObjectiveConfig
 {
 	vector Position = vector.Zero;
 	float MaxDistance = 0;
-	ref ExpansionQuestObjectiveAIVIP AIVIP;
 	string MarkerName = string.Empty;
 	bool ShowDistance = true;
 	bool CanLootAI = false;
@@ -22,6 +27,10 @@ class ExpansionQuestObjectiveAIEscortConfigBase: ExpansionQuestObjectiveConfig
 
 class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConfigBase
 {
+	string NPCLoadoutFile;
+	string NPCClassName;
+	string NPCName;
+	
 	void SetPosition(vector pos)
 	{
 		Position = pos;
@@ -42,16 +51,6 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 		return MaxDistance;
 	}
 
-	void SetAIVIP(ExpansionQuestObjectiveAIVIP vip)
-	{
-		AIVIP = vip;
-	}
-
-	ExpansionQuestObjectiveAIVIP GetAIVIP()
-	{
-		return AIVIP;
-	}
-
 	void SetMarkerName(string name)
 	{
 		MarkerName = name;
@@ -67,14 +66,44 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 		return ShowDistance;
 	}
 	
-	void SetCanLootAI(bool state)
+	void SetCanBeLooted(bool state)
 	{
 		CanLootAI = state;
 	}
 	
-	bool CanLootAI()
+	bool CanBeLooted()
 	{
 		return CanLootAI;
+	}
+	
+	void SetLoadout(string loadoutFile)
+	{
+		NPCLoadoutFile = loadoutFile;
+	}
+
+	string GetLoadout()
+	{
+		return NPCLoadoutFile;
+	}
+	
+	void SetNPCClassName(string className)
+	{
+		NPCClassName = className;
+	}
+
+	string GetNPCClassName()
+	{
+		return NPCClassName;
+	}
+	
+	void SetNPCName(string name)
+	{
+		NPCName = name;
+	}
+
+	string GetNPCName()
+	{
+		return NPCName;
 	}
 
 	static ExpansionQuestObjectiveAIEscortConfig Load(string fileName)
@@ -95,6 +124,20 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 
 			//! Copy over old configuration that haven't changed
 			config.CopyConfig(configBase);
+			
+			if (configBase.ConfigVersion < 26)
+			{
+				ExpansionQuestObjectiveAIEscortConfig_V25 configV25;
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIEscortConfig_V25>.Load(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName, configV25))
+					return NULL;
+
+				if (configV25.AIVIP)
+				{
+					config.NPCLoadoutFile = configV25.AIVIP.NPCLoadoutFile;
+					config.NPCClassName = configV25.AIVIP.NPCClassName;
+					config.NPCName = "Survivor";
+				}
+			}
 
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
@@ -105,10 +148,10 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 				return NULL;
 		}
 		
-		string removeExt = ExpansionString.StripExtension(config.AIVIP.GetNPCLoadoutFile(), ".json");
-		if (removeExt != config.AIVIP.GetNPCLoadoutFile())
+		string removeExt = ExpansionString.StripExtension(config.GetLoadout(), ".json");
+		if (removeExt != config.GetLoadout())
 		{
-			config.AIVIP.SetNPCLoadoutFile(removeExt);
+			config.SetLoadout(removeExt);
 			save = true;
 		}
 
@@ -139,7 +182,6 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 
 		Position = configBase.Position;
 		MaxDistance = configBase.MaxDistance;
-		AIVIP = configBase.AIVIP;
 		MarkerName = configBase.MarkerName;
 		ShowDistance = configBase.ShowDistance;
 		CanLootAI = configBase.CanLootAI;
@@ -176,18 +218,7 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 		if (!super.Validate())
 			return false;
 
-		if (!AIVIP)
-			return false;
-
 		return true;
 	}
-
-	override void QuestDebug()
-	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		super.QuestDebug();
-		if (AIVIP)
-			AIVIP.QuestDebug();
-	#endif
-	}
 };
+#endif

@@ -10,15 +10,105 @@
  *
 */
 
+class ExpansionQuestObjectiveTargetConfig_25: ExpansionQuestObjectiveConfig
+{
+	autoptr ExpansionQuestObjectiveTarget Target;
+};
+
 class ExpansionQuestObjectiveTargetConfigBase: ExpansionQuestObjectiveConfig
 {
 	vector Position = vector.Zero;
 	float MaxDistance = -1;
-	autoptr ExpansionQuestObjectiveTarget Target;
 };
 
 class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBase
 {
+	float MinDistance = -1;
+	int Amount = -1;
+	autoptr TStringArray ClassNames = new TStringArray;
+	bool CountSelfKill;
+	autoptr TStringArray AllowedWeapons = new TStringArray;
+	autoptr TStringArray ExcludedClassNames = new TStringArray;
+
+	bool CountAIPlayers = false;
+	autoptr TStringArray AllowedTargetFactions = new TStringArray;
+
+	autoptr TStringArray AllowedDamageZones = new TStringArray;
+
+	void SetAmount(int amount)
+	{
+		Amount = amount;
+	}
+
+	int GetAmount()
+	{
+		return Amount;
+	}
+
+	void AddClassName(string name)
+	{
+		if (!ClassNames.Find(name))
+			ClassNames.Insert(name);
+	}
+
+	TStringArray GetClassNames()
+	{
+		return ClassNames;
+	}
+
+	void AddAllowedWeapon(string name)
+	{
+		if (!AllowedWeapons.Find(name))
+			AllowedWeapons.Insert(name);
+	}
+
+	TStringArray GetAllowedWeapons()
+	{
+		return AllowedWeapons;
+	}
+
+	void AddExcludedClassName(string name)
+	{
+		if (!ExcludedClassNames.Find(name))
+			ExcludedClassNames.Insert(name);
+	}
+
+	TStringArray GetExcludedClassNames()
+	{
+		return ExcludedClassNames;
+	}
+	
+	void SetCountSelfKill(bool state)
+	{
+		CountSelfKill = state;
+	}
+	
+	bool CountSelfKill()
+	{
+		return CountSelfKill;
+	}
+	
+	void SetCountAIPlayers(bool state)
+	{
+		CountAIPlayers = state;
+	}
+	
+	bool CountAIPlayers()
+	{
+		return CountAIPlayers;
+	}
+	
+	void AddAllowedFaction(string factionName)
+	{
+		if (!AllowedTargetFactions.Find(factionName))
+			AllowedTargetFactions.Insert(factionName);
+	}
+
+	TStringArray GetAllowedTargetFactions()
+	{
+		return AllowedTargetFactions;
+	}
+	
 	void SetPosition(vector pos)
 	{
 		Position = pos;
@@ -39,14 +129,25 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		return MaxDistance;
 	}
 
-	void SetTarget(ExpansionQuestObjectiveTarget target)
+	void SetMinDistance(float min)
 	{
-		Target = target;
+		MinDistance = min;
 	}
 
-	ExpansionQuestObjectiveTarget GetTarget()
+	float GetMinDistance()
 	{
-		return Target;
+		return MinDistance;
+	}
+	
+	void AddAllowedDamageZone(string zone)
+	{
+		if (!AllowedDamageZones.Find(zone))
+			AllowedDamageZones.Insert(zone);
+	}
+
+	TStringArray GetAllowedDamageZones()
+	{
+		return AllowedDamageZones;
 	}
 
 	static ExpansionQuestObjectiveTargetConfig Load(string fileName)
@@ -68,16 +169,29 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 			//! Copy over old configuration that haven't changed
 			config.CopyConfig(configBase);
 
-		#ifdef EXPANSIONMODAI
 			if (configBase.ConfigVersion < 13)
 			{
-				ExpansionQuestObjectiveTarget target = config.GetTarget();
-				if (target)
+				config.SetCountAIPlayers(false);
+			}
+			
+			if (configBase.ConfigVersion < 26)
+			{
+				ExpansionQuestObjectiveTargetConfig_25 configV25;
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfig_25>.Load(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName, configV25))
+					return NULL;
+
+				if (configV25.Target)
 				{
-					target.SetCountAIPlayers(false);
+					config.Amount = configV25.Target.Amount;
+					config.ClassNames = configV25.Target.ClassNames;
+					config.CountSelfKill = configV25.Target.CountSelfKill;
+					config.AllowedWeapons = configV25.Target.AllowedWeapons;
+					config.ExcludedClassNames = configV25.Target.ExcludedClassNames;
+
+					config.CountAIPlayers = configV25.Target.CountAIPlayers;
+					config.AllowedTargetFactions = configV25.Target.AllowedTargetFactions;
 				}
 			}
-		#endif
 
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
@@ -113,7 +227,6 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 
 		Position = configBase.Position;
 		MaxDistance = configBase.MaxDistance;
-		Target = configBase.Target;
 	}
 
 	override bool Validate()
@@ -121,18 +234,6 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		if (!super.Validate())
 			return false;
 
-		if (!Target)
-			return false;
-
 		return true;
-	}
-
-	override void QuestDebug()
-	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		super.QuestDebug();
-		if (Target)
-			Target.QuestDebug();
-	#endif
 	}
 };

@@ -35,10 +35,10 @@ class ExpansionChatColors: ExpansionColorSettingsBase
 			Set("DirectChatColor", ARGB(255, 255, 255, 255));
 		if (!Get("TransportChatColor"))
 			Set("TransportChatColor", ARGB(255, 255, 206, 9));
-#ifdef EXPANSIONMODGROUPS
+
 		if (!Get("PartyChatColor"))
 			Set("PartyChatColor", ARGB(255, 10, 250, 122));
-#endif
+
 		if (!Get("TransmitterChatColor"))
 			Set("TransmitterChatColor", ARGB(255, 249, 255, 73));
 	}

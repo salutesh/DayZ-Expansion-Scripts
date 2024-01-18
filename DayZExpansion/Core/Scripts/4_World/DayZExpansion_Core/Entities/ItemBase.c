@@ -48,7 +48,7 @@ modded class ItemBase
 	ref ExpansionNetsyncData m_Expansion_NetsyncData;
 	ref ExpansionRPCManager m_Expansion_RPCManager;
 
-	int m_Expansion_DestroySound_NetworkedSoundID;
+	ref ExpansionSoundSet m_Expansion_DestroySound_SoundSet;
 
 	void ItemBase()
 	{
@@ -71,7 +71,7 @@ modded class ItemBase
 
 		string destroySound = GetDestroySound();
 		if (destroySound)
-			m_Expansion_DestroySound_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound(GetDestroySound());
+			m_Expansion_DestroySound_SoundSet = ExpansionSoundSet.Register(GetDestroySound());
 	}
 	
 	override string GetDisplayName()
@@ -254,9 +254,9 @@ modded class ItemBase
 						return;
 				}
 			}
-		}
 
-		m_Expansion_IsMeleeWeapon = true;
+			m_Expansion_IsMeleeWeapon = true;
+		}
 	}
 
 	bool Expansion_IsMeleeWeapon()
@@ -725,8 +725,8 @@ modded class ItemBase
 	{
 		super.EEKilled( killer );
 
-		if (m_Expansion_DestroySound_NetworkedSoundID)
-			ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), m_Expansion_DestroySound_NetworkedSoundID);
+		if (m_Expansion_DestroySound_SoundSet)
+			m_Expansion_DestroySound_SoundSet.Play(GetPosition());
 
 		ExpansionOnDestroyed( killer );
 	}

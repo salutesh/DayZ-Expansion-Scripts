@@ -35,36 +35,26 @@ class ExpansionItemInspectionBase: ExpansionScriptView
 	
 	void UpdateItemInfoCargoSize()
 	{
-		string cfgClassPath;
+		EntityAI entity;
+		if (!Class.CastTo(entity, m_Item))
+			return;
 
-		if (m_Item.IsInherited(Weapon))
-			cfgClassPath = CFG_WEAPONSPATH;
-		else if (m_Item.IsInherited(Magazine))
-			cfgClassPath = CFG_MAGAZINESPATH;
-		else
-			cfgClassPath = CFG_VEHICLESPATH;
+		GameInventory inventory = entity.GetInventory();
+		if (!inventory)
+			return;
 
-		if (GetGame().ConfigIsExisting(cfgClassPath + " " + m_Item.GetType() + " Cargo"))
-		{
-			cfgClassPath = cfgClassPath + " " + m_Item.GetType() + " Cargo";
-		}
-		else
-		{
-			cfgClassPath = cfgClassPath + " " + m_Item.GetType();
-		}
+		CargoBase cargo = inventory.GetCargo();
+		if (!cargo)
+			return;
 		
-		array<int> cargoSize = new array<int>;
-		int size1, size2;
-		GetGame().ConfigGetIntArray(cfgClassPath + " itemsCargoSize", cargoSize);
-
-		size1 = cargoSize[0];
-		size2 = cargoSize[1];
+		int width = cargo.GetWidth();
+		int height = cargo.GetHeight();
 		
-		if (size1 > 0 && size2 > 0)
+		if (width > 0 && height > 0)
 		{
-			EXTrace.Print(EXTrace.GENERAL_ITEMS, this, "::UpdateItemInfoCargoSize - " + m_Item.GetType() + " - storage space: " + size1 + "x" + size2);
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, this, "::UpdateItemInfoCargoSize - " + m_Item.GetType() + " - storage space: " + width + "x" + height);
 
-			string text = "#STR_EXPANSION_INV_CARGO_SIZE " + size1 + "x" + size2;
+			string text = "#STR_EXPANSION_INV_CARGO_SIZE " + width + "x" + height;
 			int color = Colors.WHITEGRAY;
 			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
 			m_ItemInspectionController.ItemElements.Insert(element);
@@ -611,7 +601,12 @@ class ExpansionItemInspection: ExpansionItemInspectionBase
 			m_ItemInspectionController = ExpansionItemInspectionController.Cast(GetController());
 
 		m_ItemInspectionController.ItemName = m_Item.GetDisplayName();
-		m_ItemInspectionController.ItemDescription = ExpansionStatic.GetItemDescriptionWithType(m_Item.GetType());
+		
+		string itemDesc = ExpansionStatic.GetItemDescriptionWithType(m_Item.GetType());
+		if (itemDesc.IndexOf("STR_") == 0)
+			itemDesc = "";
+
+		m_ItemInspectionController.ItemDescription = itemDesc;
 		ItemDescWidget.Update();
 		m_ItemInspectionController.NotifyPropertiesChanged({"ItemDescription", "ItemName"});
 		

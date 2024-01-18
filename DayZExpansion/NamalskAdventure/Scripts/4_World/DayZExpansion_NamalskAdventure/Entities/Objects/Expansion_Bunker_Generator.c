@@ -50,6 +50,9 @@ class Expansion_Bunker_Generator: House
 
 	void ~Expansion_Bunker_Generator()
 	{
+		if (!GetGame())
+			return;
+
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		if (s_Expansion_AllBunkerGenerators)

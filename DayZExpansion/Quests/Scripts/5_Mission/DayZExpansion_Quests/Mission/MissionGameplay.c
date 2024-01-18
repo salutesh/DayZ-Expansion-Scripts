@@ -127,6 +127,7 @@ modded class MissionGameplay
 			if (questMenu)
 			{
 				questMenu.SetLogMode(true);
+				questMenu.SetQuestLogView();
 				
 				if (m_ExpansionQuestHUD)
 					m_ExpansionQuestHUD.UpdateView();

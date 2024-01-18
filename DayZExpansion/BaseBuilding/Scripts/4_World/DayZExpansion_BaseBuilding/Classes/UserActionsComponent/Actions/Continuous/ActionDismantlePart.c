@@ -12,6 +12,16 @@
 
 modded class ActionDismantlePart
 {
+	override string GetText()
+	{
+		string text = super.GetText();
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
+	}
+
 	override protected bool DismantleCondition( PlayerBase player, ActionTarget target, ItemBase item, bool camera_check )
 	{
 		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())

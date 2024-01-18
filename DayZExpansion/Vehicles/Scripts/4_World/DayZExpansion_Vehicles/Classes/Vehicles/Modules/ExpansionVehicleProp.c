@@ -165,7 +165,7 @@ class ExpansionVehicleProp : ExpansionVehicleModule
 		pState.m_Torque += (m_Position * force).Multiply3(pState.m_Transform);
 	}
 
-	override void Animate(ExpansionPhysicsState pState)
+	override void Animate(ExpansionPhysicsState pState, float deltaTime)
 	{
 		if (m_UseBlur)
 		{

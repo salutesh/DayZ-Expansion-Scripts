@@ -82,7 +82,7 @@ class ExpansionFlagTextures
 			GetGame().ConfigGetTextArray(CFG_VEHICLESPATH + " " + childName + " hiddenSelectionsTextures", hiddenSelectionsTextures);
 			if (!hiddenSelectionsTextures.Count() || !hiddenSelectionsTextures[0])
 			{
-				EXPrint(this, "WARNING: Flag without hiddenSelectionTextures '" + childName + "'");
+				EXPrint(ToString() + " WARNING: Flag without hiddenSelectionTextures '" + childName + "'");
 				continue;
 			}
 
@@ -133,7 +133,7 @@ class ExpansionFlagTextures
 	{
 		if (m_FlagTextures.Contains(path))
 		{
-			EXPrint(this, "WARNING: Flag already added '" + path + "'");
+			EXPrint(ToString() + " WARNING: Flag already added '" + path + "'");
 			return;
 		}
 

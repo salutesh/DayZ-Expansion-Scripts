@@ -15,11 +15,11 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 {
 	protected eAIBase m_VIP;
 	protected eAIGroup m_Group;
-	protected ExpansionEscortObjectiveSphereTrigger m_ObjectiveTrigger;
 	protected bool m_DestinationReached;
 	protected ref ExpansionQuestObjectiveAIEscortConfig m_AIEscortConfig;
 	protected vector m_ObjectivePos;
 	protected vector m_LastVIPPos;
+	protected ExpansionEscortObjectiveSphereTrigger m_Trigger;
 
 	//! Event called when the player starts the quest.
 	override bool OnEventStart()
@@ -43,7 +43,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			CreateMarkers();
 	#endif
 
-		if (!m_ObjectiveTrigger)
+		if (!m_Trigger)
 			CreateTrigger(m_ObjectivePos);
 
 		return true;
@@ -63,13 +63,15 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			return false;
 
 		m_ObjectivePos = m_AIEscortConfig.GetPosition();
+		if (m_ObjectivePos == vector.Zero)
+			return false;
 
 		//! Only create the VIP and trigger when not already completed!
 		if (!IsCompleted())
 		{
 			CreateVIP();
 
-			if (!m_ObjectiveTrigger)
+			if (!m_Trigger)
 				CreateTrigger(m_ObjectivePos);
 
 		#ifdef EXPANSIONMODNAVIGATION
@@ -130,8 +132,8 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnCleanup())
 			return false;
 
-		if (m_ObjectiveTrigger)
-			GetGame().ObjectDelete(m_ObjectiveTrigger);
+		if (m_Trigger)
+			GetGame().ObjectDelete(m_Trigger);
 
 		if (m_VIP)
 		{
@@ -156,7 +158,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	}
 #endif
 
-	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null)
+	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null, map<Man, ref ExpansionEntityHitInfo> hitMap = null)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -191,16 +193,27 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		ExpansionQuestObjectiveAIVIP vip = m_AIEscortConfig.GetAIVIP();
-		if (!vip)
+		if (!m_AIEscortConfig)
 			return;
 
 		m_Group = eAIGroup.GetGroupByLeader(m_Quest.GetPlayer(), true, null, false);
-		m_VIP = SpawnAI_VIP(m_Quest.GetPlayer(), vip.GetNPCLoadoutFile(), vip.GetNPCClassName());
+		m_VIP = SpawnAI_VIP(m_Quest.GetPlayer(), m_AIEscortConfig.GetLoadout(), m_AIEscortConfig.GetNPCClassName());
 		if (!m_VIP)
 			return;
 
 		m_VIP.eAI_SetPassive();
+		if (!m_VIP.m_Expansion_NetsyncData)
+			m_VIP.m_Expansion_NetsyncData = new ExpansionNetsyncData(m_VIP);
+	
+       int iconIndex = 0;
+       if (m_AIEscortConfig.GetNPCName() != "")
+       {
+           m_VIP.m_Expansion_NetsyncData.Set(0, m_AIEscortConfig.GetNPCName());
+           iconIndex++;
+       }
+	
+		m_VIP.m_Expansion_NetsyncData.Set(iconIndex, "set:expansion_iconset image:icon_profile");
+		
 		m_Group.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.UpdateVIPPosition, 10 * 1000, true);
 	}
@@ -238,7 +251,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		//! Add AI to player group
 		ai.SetGroup(group);
 		
-		ai.Expansion_SetCanBeLooted(m_AIEscortConfig.CanLootAI());
+		ai.Expansion_SetCanBeLooted(m_AIEscortConfig.CanBeLooted());
 		ai.Expansion_SetQuestVIP(true);
 		ExpansionHumanLoadout.Apply(ai, loadout, false);
 
@@ -251,9 +264,13 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionEscortObjectiveSphereTrigger", pos, ECE_NONE));
-		m_ObjectiveTrigger.SetPosition(pos);
-		m_ObjectiveTrigger.SetObjectiveData(Math.Round(m_AIEscortConfig.GetMaxDistance()), this);
+		m_Trigger = ExpansionEscortObjectiveSphereTrigger.Cast(GetGame().CreateObjectEx("ExpansionEscortObjectiveSphereTrigger", pos, ECE_LOCAL));
+		if (!m_Trigger)
+			return;
+
+		m_Trigger.SetPosition(pos);
+		m_Trigger.SetTriggerRadius(m_AIEscortConfig.GetMaxDistance());
+		m_Trigger.SetObjectiveEvent(this);
 	}
 
 	vector GetPosition()

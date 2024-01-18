@@ -5,7 +5,8 @@ modded class DayZPlayerImplement
 	static bool DEBUG_EXPANSION_AI_VEHICLE;
 #endif
 	
-	private autoptr eAITargetInformation m_TargetInformation;
+	private ref eAIPlayerTargetInformation m_TargetInformation = new eAIPlayerTargetInformation(this);
+	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
 
 	private eAIGroup m_eAI_Group;
 	private eAIGroup m_Expansion_FormerGroup;
@@ -24,22 +25,13 @@ modded class DayZPlayerImplement
 	float m_eAI_LastHitTime;
 	float m_eAI_LastNoiseTime;
 
-	bool m_eAI_ProcessDamageByAI;
+	float m_eAI_DamageReceivedMultiplier = 1.0;
 
 #ifdef DIAG
 #ifndef SERVER
 	autoptr array<Shape> m_Expansion_DebugShapes = new array<Shape>();
 #endif
 #endif
-
-	void DayZPlayerImplement()
-	{
-#ifdef DIAG
-		auto trace = EXTrace.Start(EXTrace.AI, this);
-#endif
-
-		m_TargetInformation = CreateTargetInformation();
-	}
 
 	override void Expansion_Init()
 	{
@@ -77,16 +69,7 @@ modded class DayZPlayerImplement
 		return true;
 	}
 
-	protected eAITargetInformation CreateTargetInformation()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "CreateTargetInformation");
-#endif
-
-		return new eAIPlayerTargetInformation(this);
-	}
-
-	eAITargetInformation GetTargetInformation()
+	eAIPlayerTargetInformation GetTargetInformation()
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "GetTargetInformation");
@@ -102,6 +85,42 @@ modded class DayZPlayerImplement
 #endif
 
 		return false;
+	}
+
+	override int Expansion_GetEntityStorageAdditionalDataVersion()
+	{
+		return 1;
+	}
+
+	override void Expansion_OnEntityStorageAdditionalDataSave(ParamsWriteContext ctx)
+	{
+		super.Expansion_OnEntityStorageAdditionalDataSave(ctx);
+
+		ctx.Write(m_eAI_FactionTypeID);
+	}
+
+	override bool Expansion_OnEntityStorageAdditionalDataLoad(ParamsWriteContext ctx, int version)
+	{
+		if (!super.Expansion_OnEntityStorageAdditionalDataLoad(ctx, version))
+			return false;
+
+		if (!ctx.Read(m_eAI_FactionTypeID))
+			return false;
+
+		if (!m_eAI_Group || m_eAI_Group.GetFaction().GetTypeID() != m_eAI_FactionTypeID)
+		{
+			eAIFaction faction = eAIFaction.CreateByID(m_eAI_FactionTypeID);
+
+			if (faction)
+			{
+				if (m_eAI_Group)
+					m_eAI_Group.SetFaction(faction);
+				else
+					eAIGroup.GetGroupByLeader(this, true, faction);
+			}
+		}
+
+		return true;
 	}
 
 	void SetGroup(eAIGroup group, bool autoDeleteFormerGroupIfEmpty = true)
@@ -312,41 +331,13 @@ modded class DayZPlayerImplement
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-	#ifdef DIAG
-		EXTrace.PrintHit(EXTrace.AI, this, "EEOnDamageCalculated", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-	#endif
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
 
-		DayZPlayerImplement sourcePlayer;
-		if (Class.CastTo(sourcePlayer, source.GetHierarchyRootPlayer()) && sourcePlayer != this)
-			sourcePlayer.m_eAI_LastAggressionTime = ExpansionStatic.GetTime(true);  //! Aggro guards in area (if any)
+		if (!m_eAI_DamageHandler.OnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
 
-		if (!m_eAI_ProcessDamageByAI)
-		{
-			eAIBase ai;
-			if (damageType == DT_FIRE_ARM && Class.CastTo(ai, sourcePlayer))
-			{
-				if (sourcePlayer == this)
-				{
-					//! This shouldn't be possible because AI don't use suicide emote
-					EXPrint(this, "WARNING: Game encountered an impossible state (AI damage source is firearm in AI's own hands)");
-					return false;
-				}
-
-				//! Apply AI damage multiplier
-				if (ai.m_eAI_DamageMultiplier != 1.0)
-				{
-					m_eAI_ProcessDamageByAI = true;
-					ProcessDirectDamage(DT_FIRE_ARM, source, dmgZone, ammo, modelPos, speedCoef * ai.m_eAI_DamageMultiplier);
-					return false;
-				}
-			}
-		}
-		else
-		{
-			m_eAI_ProcessDamageByAI = false;
-		}
-
-		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		return true;
 	}
 
 	//! Suppress "couldn't kill player" in server logs when AI gets killed
@@ -372,16 +363,8 @@ modded class DayZPlayerImplement
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 	#ifdef DIAG
-		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy[" + m_eAI_DamageHandler.m_HitCounter + "]", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	#endif
-
-		eAIBase ai;
-		if (damageType == DT_FIRE_ARM && Class.CastTo(ai, source.GetHierarchyRootPlayer()) && ai == this)
-		{
-			//! This shouldn't be possible because AI don't use suicide emote
-			EXPrint(this, "WARNING: Game encountered an impossible state (AI damage source is firearm in AI's own hands)");
-			return;
-		}
 
 		m_eAI_LastHitTime = GetGame().GetTickTime();
 

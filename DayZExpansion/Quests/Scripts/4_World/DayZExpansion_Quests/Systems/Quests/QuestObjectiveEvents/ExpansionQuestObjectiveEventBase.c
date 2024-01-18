@@ -31,10 +31,12 @@ class ExpansionQuestObjectiveEventBase
 
 	void ~ExpansionQuestObjectiveEventBase()
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
 		if (GetGame())
+		{
+			auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 			DeassignObjectiveOnClasses();
+		}
 	}
 
 	void SetIndex(int index)
@@ -288,7 +290,7 @@ class ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null);
+	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null, map<Man, ref ExpansionEntityHitInfo> hitMap = null);
 
 	//! Event called when quest is completed and turned-in.
 	bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)
@@ -481,4 +483,20 @@ class ExpansionQuestObjectiveEventBase
 		return true;
 	}
 #endif
+
+	bool IsInRange(vector playerPos, vector position, float maxDistance, float minDistance = 0.0)
+	{
+		if (position == vector.Zero)
+			return true;
+
+		if (maxDistance <= 0)
+			return true;
+
+		position[1] = GetGame().SurfaceY(position[0], position[2]);
+		float currentDistanceSq = vector.DistanceSq(playerPos, position);
+		if (currentDistanceSq <= maxDistance * maxDistance && currentDistanceSq >= minDistance * minDistance)
+			return true;
+
+		return false;
+	}
 };

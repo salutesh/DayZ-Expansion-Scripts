@@ -157,7 +157,7 @@ modded class InGameMenu
 		auto trace = EXTrace.Start(EXTrace.PLAYER_MONITOR, this, player_stats.m_PlainID);
 	#endif
 
-		if (GetGame().GetPlayer().GetIdentity().GetPlainId() != player_stats.m_PlainID || !player_stats.m_HasRegisteredStats)
+		if (GetGame().GetPlayer().GetIdentity().Expansion_GetPlainId() != player_stats.m_PlainID || !player_stats.m_HasRegisteredStats)
 			return;
 
 		if (GetExpansionSettings().GetGeneral().UseDeathScreenStatistics && GetValuesFromMonitor())

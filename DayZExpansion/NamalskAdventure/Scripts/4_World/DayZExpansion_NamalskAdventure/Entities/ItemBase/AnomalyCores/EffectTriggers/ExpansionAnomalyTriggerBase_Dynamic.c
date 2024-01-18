@@ -94,7 +94,7 @@ class ExpansionAnomalyTriggerBase_Dynamic : ExpansionAnormalAreaTriggerBase
 				if (playerInsider.IsControlledPlayer())
 				{
 					//! Update Local particle effects
-					bool nonDefaultState;
+					bool nonDefaultState = false;
 					if (m_AreaState > eAreaDecayStage.LIVE)
 						nonDefaultState = true;
 					if (nonDefaultState)

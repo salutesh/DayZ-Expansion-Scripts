@@ -31,6 +31,9 @@ class ExpansionActionOpenTraderMenu: ActionInteractBase
 		if (!trader)
 			return false;
 
+		if (!GetExpansionSettings().GetMarket(false).IsLoaded())
+			return false;
+
 		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
 			return false;
 

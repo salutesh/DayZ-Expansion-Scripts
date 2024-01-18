@@ -28,8 +28,12 @@
 					hands.GetCompEM().SwitchOff();
 				}
 				
+				unit.OverrideTargetPosition(unit.GetPosition());
 				unit.OverrideMovementDirection(false, 0);
 				unit.OverrideMovementSpeed(true, 0);
+				
+				if (unit.eAI_ShouldGetUp())
+					unit.Expansion_GetUp();
 			</event_entry>
 			<event_exit />
 			<event_update>
@@ -49,7 +53,10 @@
 				unit.OverrideTargetPosition(unit.GetPosition());
 				unit.OverrideMovementSpeed(true, 0);
 			</event_entry>
-			<event_exit />
+			<event_exit>
+				if (EXTrace.AI)
+					EXPrint(unit.ToString() + " left uncon state after " + time + " seconds");
+			</event_exit>
 			<event_update>
 				if (time &gt; 3)
 				{
@@ -59,6 +66,7 @@
 				if (!unit.IsUnconscious())
 				{
 					time += DeltaTime;  //! Allow time to stand up so we don't instantly start firing
+					if (unit.Expansion_IsAnimationIdle()) return EXIT;
 				}
 				
 				return CONTINUE;
@@ -112,9 +120,6 @@
 		</state>
 		<state name="TraversingWaypoints">
 			<variables>
-				<variable name="path" type="ref TVectorArray" />
-				<variable name="behaviour" type="eAIWaypointBehavior" />
-				<variable name="backtracking" type="bool" />
 				<variable name="index" type="int" />
 				<variable name="threshold" type="float" default="1.0" />
 				<variable name="previousDistance" type="float" />
@@ -125,23 +130,24 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				path = unit.GetGroup().GetWaypoints();
-				if (path.Count() == 0)
-				{
-					path = { unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() };
-				}
-				behaviour = unit.GetGroup().GetWaypointBehaviour();
 				unit.Expansion_GetUp();
-				if (previousWayPoint == vector.Zero &amp;&amp; path.Count() &gt; 1)
-					previousWayPoint = path[0] - vector.Direction(path[0], path[1]).Normalized();
 			</event_entry>
 			<event_exit />
 			<event_update>
+				eAIWaypointBehavior behaviour = unit.GetGroup().GetWaypointBehaviour();
 				if (behaviour == eAIWaypointBehavior.HALT)
 					return EXIT;
 				
+				TVectorArray path = unit.GetGroup().GetWaypoints();
+				
+				if (path.Count() == 0)
+				{
+					return EXIT;
+					//path = { unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() };
+				}
+				
 				index = unit.GetGroup().m_CurrentWaypointIndex;
-				backtracking = unit.GetGroup().m_BackTracking;
+				bool backtracking = unit.GetGroup().m_BackTracking;
 				float distance = vector.DistanceSq(unit.GetPosition(), path[index]);
 				if (distance &lt; threshold)
 				{
@@ -196,9 +202,15 @@
 				
 				vector direction;
 				if (path.Count() &gt; 1)
+				{
+					if (previousWayPoint == vector.Zero)
+						previousWayPoint = path[0] - vector.Direction(path[0], path[1]).Normalized();
 					direction = vector.Direction(previousWayPoint, path[index]).Normalized();
+				}
 				else
+				{
 					direction = unit.GetDirection();
+				}
 				unit.Expansion_DebugObject_Deferred(index + 20, path[index] - "0 1.5 0", "ExpansionDebugNoticeMe_Red", direction);
 				unit.Expansion_DebugObject_Deferred(path.Count() + 20, path[index], "ExpansionDebugNoticeMe", unit.GetDirection());
 				
@@ -339,10 +351,7 @@
 			</event_entry>
 			<event_exit />
 			<event_update>
-				if (!item)
-					return EXIT;
-				
-				if (unit.GetItemInHands() != item)
+				if (item &amp;&amp; unit.GetItemInHands() != item)
 				{
 					if (item.Expansion_IsInventoryLocked())
 						ExpansionStatic.UnlockInventoryRecursive(item, 10134);
@@ -356,6 +365,9 @@
 					time += DeltaTime;
 					return CONTINUE;
 				}
+				
+				if (unit.GetActionManager().GetRunningAction())
+					return CONTINUE;
 				
 				return EXIT;
 			</event_update>
@@ -375,10 +387,7 @@
 			</event_entry>
 			<event_exit />
 			<event_update>
-				if (!item)
-					return EXIT;
-				
-				if (!item.GetHierarchyRootPlayer())
+				if (item &amp;&amp; !item.GetHierarchyRootPlayer())
 				{
 					if (item.Expansion_IsInventoryLocked())
 						ExpansionStatic.UnlockInventoryRecursive(item, 10134);
@@ -392,6 +401,9 @@
 					time += DeltaTime;
 					return CONTINUE;
 				}
+				
+				if (unit.GetActionManager().GetRunningAction())
+					return CONTINUE;
 				
 				return EXIT;
 			</event_update>

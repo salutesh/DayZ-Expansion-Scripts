@@ -10,6 +10,12 @@
  *
 */
 
+enum ExpansionMarketMenuSortPriority
+{
+	NAME,
+	PRICE
+}
+
 class ExpansionMarketMenu: ExpansionScriptViewMenu
 {
 	protected ref ExpansionMarketMenuController m_MarketMenuController;
@@ -73,6 +79,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	bool m_IsDropdownExpanded = false;
 	bool m_IsSkinSelectorExpanded = false;
 	protected ref ExpansionMarketMenuItemManager m_MarketMenuItemManager;
+	protected bool m_NameSortState;
+	protected bool m_PriceSortState;
+	protected ExpansionMarketMenuSortPriority m_SortPriority = ExpansionMarketMenuSortPriority.NAME;
 	
 	protected EditBoxWidget market_filter_box;
 	protected Widget market_menu_info;
@@ -133,9 +142,21 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	protected Widget market_item_info_stock_player;
 	protected Widget dropdown_background;
 	protected Widget market_item_info_item_manager_panel;
+	protected ButtonWidget sort_item_name_button;
+	protected TextWidget sort_item_name_text;
+	protected ImageWidget sort_item_name_icon;
+	protected ButtonWidget sort_item_price_button;
+	protected ImageWidget sort_item_price_symbol;
+	protected ImageWidget sort_item_price_icon;
 
 	void ExpansionMarketMenu()
 	{
+		if (GetExpansionSettings().GetMarket().CurrencyIcon != "")
+			sort_item_price_symbol.LoadImageFile(0, GetExpansionSettings().GetMarket().CurrencyIcon);
+
+		sort_item_price_symbol.SetAlpha(0.4);
+		sort_item_price_icon.SetAlpha(0.4);
+
 		SetIsLoading(true);
 
 		if (!m_MarketMenuController)
@@ -1161,12 +1182,15 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 			else
 			{
-				string currencyString = ExpansionStatic.IntToCurrencyString(total_monies, ",");
-				descriptions.Insert(ExpansionStatic.IntToCurrencyString(monies[i], ",") + " × " + GetDisplayName(type) + " (" + currencyString + ")");
+				string currencyString = GetDisplayPrice(total_monies, false, true, true);
+				descriptions.Insert(ExpansionStatic.FormatInt(monies[i]) + " × " + GetDisplayName(type) + " (" + currencyString + ")");
 			}
 		}
 		
-		string currencyPlayerTotalMoneyString = ExpansionStatic.IntToCurrencyString(worth, ",");
+		string currencyPlayerTotalMoneyString = GetDisplayPrice(worth, false, true, true);
+	#ifdef DIAG
+		EXPrint(ToString() + " Player money: " + currencyPlayerTotalMoneyString);
+	#endif
 		m_MarketMenuController.PlayerTotalMoney = currencyPlayerTotalMoneyString + " #STR_EXPANSION_MARKET_CURRENCY_TOTAL";
 		m_MarketMenuController.NotifyPropertyChanged("PlayerTotalMoney");
 		
@@ -1221,7 +1245,11 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		m_MarketMenuController.MarketItemName = GetDisplayName(itemClassName);
 		m_MarketMenuController.NotifyPropertyChanged("MarketItemName");
 		
-		m_MarketMenuController.MarketItemDesc = ExpansionStatic.GetItemDescriptionWithType(itemClassName);
+		string itemDesc = ExpansionStatic.GetItemDescriptionWithType(itemClassName);
+		if (itemDesc.IndexOf("STR_") == 0)
+			itemDesc = "";
+
+		m_MarketMenuController.MarketItemDesc = itemDesc;
 		m_MarketMenuController.NotifyPropertyChanged("MarketItemDesc");
 		
 		UpdatePreview();
@@ -1253,7 +1281,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		bool hasSpawnAttachments = itemElement.GetMarketItem().SpawnAttachments.Count() > 0;
 		
 		market_item_info_item_manager_panel.Show(hasAttachments);
-		market_item_info_attachments_panel.Show(hasSpawnAttachments && !hasAttachments);
+
+		bool showAttachmentsInfo;
+		if (hasSpawnAttachments && !hasAttachments)
+			showAttachmentsInfo = true;
+
+		market_item_info_attachments_panel.Show(showAttachmentsInfo);
 		market_item_info_attachments_checkbox.SetChecked(GetSelectedMarketItemElement().GetIncludeAttachments());
 		
 		MarketPrint("SetItemInfo - End");
@@ -1550,6 +1583,11 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("SetItemAttachmentsInfo - End");
 	}
 
+	string GetDisplayPrice(int price, bool shorten = false, bool format = true, bool includeDisplayCurrencyName = false)
+	{
+		return m_TraderObject.GetDisplayPrice(price, shorten, format, includeDisplayCurrencyName);
+	}
+
 	void UpdateItemFieldFromBasicNetSync()
 	{
 		MarketPrint("UpdateItemFieldFromBasicNetSync - Start");
@@ -1611,13 +1649,17 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				color = COLOR_EXPANSION_NOTIFICATION_EXPANSION;
 			}
 
-			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_TraderItemStock, m_Quantity, m_MarketSell, m_PlayerStock != 0 || m_SelectedMarketItemElement.GetIncludeAttachments(), m_LastFindSellPriceResult, m_LastFindSellPriceFailedClassName);
+			//! https://feedback.bistudio.com/T173348
+			bool includeAttachments;
+			if (m_PlayerStock != 0 || m_SelectedMarketItemElement.GetIncludeAttachments())
+				includeAttachments = true;
+			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_TraderItemStock, m_Quantity, m_MarketSell, includeAttachments, m_LastFindSellPriceResult, m_LastFindSellPriceFailedClassName);
 			m_SellPrice = m_MarketSell.Price;
 
 			market_item_sell_price_text.SetColor(color); 
 			market_item_sell_price_icon.SetColor(color);
 
-			m_MarketMenuController.MarketItemTotalSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",");
+			m_MarketMenuController.MarketItemTotalSellPrice = GetDisplayPrice(m_SellPrice);
 		}
 		else
 		{
@@ -1659,7 +1701,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			else
 			{
 				m_BuyPrice = price;
-				m_MarketMenuController.MarketItemTotalBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",");
+				m_MarketMenuController.MarketItemTotalBuyPrice = GetDisplayPrice(m_BuyPrice);
 			}
 
 			if (m_MarketModule.GetPlayerWorth() >= m_BuyPrice)
@@ -2022,8 +2064,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				if (notify)
 				{
 					string formattedAmount = option1.ToString() + "x";
-					//! Can't use ExpansionStatic.IntToCurrencyString because UI will omit places before a comma?!? NOT a bug with IntToCurrencyString
-					string formattedPrice = option2.ToString();
+					string formattedPrice = GetDisplayPrice(option2, false, false, true);
 
 					if (sale)
 						msgId = "SELL";
@@ -2369,7 +2410,17 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			return;
 		
 		SetMenuState(ExpansionMarketMenuState.REQUESTING_PURCHASE);
-		m_MarketModule.RequestPurchase(GetSelectedMarketItem().ClassName, m_Quantity, m_BuyPrice, m_TraderObject, NULL, GetSelectedMarketItem().SpawnAttachments.Count() > 0 && GetSelectedMarketItemElement().GetIncludeAttachments(), GetSelectedMarketItemElement().GetCurrentSelectedSkinIndex(), GetCurrentSelectedAttachmentIDs());
+
+		//! https://feedback.bistudio.com/T173348
+		bool includeAttachments;
+		TIntArray attachmentIDs = {};
+		if (GetSelectedMarketItem().SpawnAttachments.Count() > 0 && GetSelectedMarketItemElement().GetIncludeAttachments())
+		{
+			includeAttachments = true;
+			attachmentIDs = GetCurrentSelectedAttachmentIDs();
+		}
+
+		m_MarketModule.RequestPurchase(GetSelectedMarketItem().ClassName, m_Quantity, m_BuyPrice, m_TraderObject, NULL, includeAttachments, GetSelectedMarketItemElement().GetCurrentSelectedSkinIndex(), attachmentIDs);
 		if (m_PurchaseDialog)
 			m_PurchaseDialog.Hide();
 		
@@ -3241,6 +3292,92 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				attachmentIDs.InsertAll(GetCurrentSelectedAttachmentIDs(recursive, attachmentItem));
 		}
 		return attachmentIDs;
+	}
+
+	void OnNameSortClick()
+	{
+		if (m_SortPriority == ExpansionMarketMenuSortPriority.NAME)
+		{
+			m_NameSortState = !m_NameSortState;
+
+			if (m_NameSortState)
+			{
+				sort_item_name_text.SetText("Z-A");
+				sort_item_name_icon.ClearFlags(WidgetFlags.FLIPV);
+			}
+			else
+			{
+				sort_item_name_text.SetText("A-Z");
+				sort_item_name_icon.SetFlags(WidgetFlags.FLIPV);
+			}
+		}
+		else
+		{
+			m_SortPriority = ExpansionMarketMenuSortPriority.NAME;
+		}
+
+		sort_item_name_text.SetAlpha(1);
+		sort_item_name_icon.SetAlpha(1);
+		sort_item_price_symbol.SetAlpha(0.4);
+		sort_item_price_icon.SetAlpha(0.4);
+
+		SortCategoryItems();
+	}
+	
+	void OnPriceSortClick()
+	{
+		if (m_SortPriority == ExpansionMarketMenuSortPriority.PRICE)
+		{
+			m_PriceSortState = !m_PriceSortState;
+
+			if (m_PriceSortState)
+			{
+				sort_item_price_icon.ClearFlags(WidgetFlags.FLIPV);
+			}
+			else
+			{
+				sort_item_price_icon.SetFlags(WidgetFlags.FLIPV);
+			}
+		}
+		else
+		{
+			m_SortPriority = ExpansionMarketMenuSortPriority.PRICE;
+		}
+
+		sort_item_name_text.SetAlpha(0.7);
+		sort_item_name_icon.SetAlpha(0.4);
+		sort_item_price_symbol.SetAlpha(1);
+		sort_item_price_icon.SetAlpha(1);
+
+		SortCategoryItems();
+	}
+
+	void SortCategoryItems()
+	{
+		for (int i = 0; i < m_MarketMenuController.MarketCategories.Count(); i++)
+		{
+			ExpansionMarketMenuCategory menuCategory = m_MarketMenuController.MarketCategories[i];
+			if (menuCategory.IsExpanded())
+				menuCategory.SortItems();
+		}
+	}
+
+	//! @brief Get name sorting. Descending = true, ascending = false
+	bool GetNameSortState()
+	{
+		return m_NameSortState;
+	}
+
+	//! @brief Get price sorting. Descending = true, ascending = false
+	bool GetPriceSortState()
+	{
+		return m_PriceSortState;
+	}
+
+	//! @brief Get sorting priority
+	ExpansionMarketMenuSortPriority GetSortPriority()
+	{
+		return m_SortPriority;
 	}
 };
 

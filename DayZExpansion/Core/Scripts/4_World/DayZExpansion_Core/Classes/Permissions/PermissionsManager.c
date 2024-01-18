@@ -97,5 +97,19 @@ modded class JMPermissionManager
 	{
 		return GetCommunityOnlineToolsBase().IsActive();
 	}
+
+	void Expansion_RegisterPermission( string permission, JMPermissionType permType )
+	{
+		#ifdef JM_COT_DIAG_LOGGING
+		auto trace = CF_Trace_1(this, "RegisterPermission").Add(permission);
+		#endif
+
+		Assert_Null( RootPermission );
+
+		if (m_MissionLoaded)
+			Error("Cannot register new permissions once mission is loaded!");
+		else
+			RootPermission.AddPermission( permission, permType, false );
+	}
 }
 #endif

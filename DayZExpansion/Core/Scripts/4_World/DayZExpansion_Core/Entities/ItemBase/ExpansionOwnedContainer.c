@@ -13,27 +13,55 @@
 //! Cargo container that's only accessible by the designated owner
 class ExpansionOwnedContainer: Container_Base
 {
+	protected string m_Expansion_OwnerUID;  //! Server only
+	protected int m_Expansion_OwnerPlainID[2];  //! Server + client (temp)
+	protected int m_Expansion_OwnerPlainID0;  //! Server + client (netsynced)
+	protected int m_Expansion_OwnerPlainID1;  //! Server + client (netsynced)
+
 	void ExpansionOwnedContainer()
 	{
-		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
-
-		if (m_Expansion_NetsyncData.SI_Receive)
-			m_Expansion_NetsyncData.SI_Receive.Insert(Expansion_OnOwnerSync);
+		RegisterNetSyncVariableInt("m_Expansion_OwnerPlainID0");
+		RegisterNetSyncVariableInt("m_Expansion_OwnerPlainID1");
 	}
 
-	void ~ExpansionOwnedContainer()
+	override void DeferredInit()
 	{
-		if (m_Expansion_NetsyncData && m_Expansion_NetsyncData.SI_Receive)
-			m_Expansion_NetsyncData.SI_Receive.Remove(Expansion_OnOwnerSync);
+		super.DeferredInit();
+
+		Expansion_UpdateOwner();
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		Expansion_UpdateOwner();
+	}
+
+	protected void Expansion_UpdateOwner()
+	{
+		if (m_Expansion_OwnerPlainID[0] != m_Expansion_OwnerPlainID0 || m_Expansion_OwnerPlainID[1] != m_Expansion_OwnerPlainID1)
+		{
+			m_Expansion_OwnerPlainID[0] = m_Expansion_OwnerPlainID0;
+			m_Expansion_OwnerPlainID[1] = m_Expansion_OwnerPlainID1;
+
+			string steamId = PlayerIdentity.Expansion_PlainIdToString(m_Expansion_OwnerPlainID);
+
+			m_Expansion_OwnerUID = PlayerIdentity.Expansion_PlainIdToId(steamId);
+
+		#ifdef DIAG
+			EXTrace.Print(EXTrace.MISC, this, "::Expansion_UpdateOwner - owner " + m_Expansion_OwnerUID);
+			EXTrace.Print(EXTrace.MISC, this, "::Expansion_UpdateOwner - owner steam64 " + steamId);
+		#endif
+
+		#ifndef SERVER
+			Expansion_OnOwnerSync();
+		#endif
+		}
 	}
 
 	void Expansion_OnOwnerSync()
 	{
-#ifdef DIAG
-		string uid;
-		m_Expansion_NetsyncData.Get(0, uid);
-		EXTrace.Print(EXTrace.MISC, this, "ExpansionOwnedContainer::Expansion_OnOwnerSync - owner " + uid);
-#endif
 	}
 
 	override bool CanCombineAttachment(notnull EntityAI e, int slot, bool stack_max_limit = false)
@@ -148,12 +176,47 @@ class ExpansionOwnedContainer: Container_Base
 	void ExpansionSetContainerOwner(PlayerIdentity identity)
 	{
 		if (identity)
-			ExpansionSetContainerOwner(identity.GetId());
+		{
+			m_Expansion_OwnerUID = identity.GetId();
+
+			identity.Expansion_PlainIdToInt(m_Expansion_OwnerPlainID);
+
+			m_Expansion_OwnerPlainID0 = m_Expansion_OwnerPlainID[0];
+			m_Expansion_OwnerPlainID1 = m_Expansion_OwnerPlainID[1];
+
+		#ifdef DIAG
+			EXTrace.Print(EXTrace.MISC, this, "::ExpansionSetContainerOwner - owner " + m_Expansion_OwnerUID);
+			EXTrace.Print(EXTrace.MISC, this, "::ExpansionSetContainerOwner - owner steam64 " + identity.GetPlainId());
+		#endif
+
+		#ifdef SERVER
+			SetSynchDirty();
+		#endif
+		}
 	}
 
+	//! DEPRECATED, use ExpansionSetContainerOwner(PlayerIdentity identity)
 	void ExpansionSetContainerOwner(string uid)
 	{
-		m_Expansion_NetsyncData.Set(0, uid);
+		m_Expansion_OwnerUID = uid;
+
+		string steamId = PlayerBase.Expansion_GetPlainIDByUID(uid);
+		int idLen = steamId.Length();
+
+		m_Expansion_OwnerPlainID0 = steamId.Substring(0, 9).ToInt();
+		m_Expansion_OwnerPlainID1 = steamId.Substring(9, idLen - 9).ToInt();
+
+		m_Expansion_OwnerPlainID[0] = m_Expansion_OwnerPlainID0;
+		m_Expansion_OwnerPlainID[1] = m_Expansion_OwnerPlainID1;
+
+	#ifdef DIAG
+		EXTrace.Print(EXTrace.MISC, this, "::ExpansionSetContainerOwner - owner " + m_Expansion_OwnerUID);
+		EXTrace.Print(EXTrace.MISC, this, "::ExpansionSetContainerOwner - owner steam64 " + steamId);
+	#endif
+
+	#ifdef SERVER
+		SetSynchDirty();
+	#endif
 	}
 
 	PlayerBase ExpansionGetContainerOwner()
@@ -163,10 +226,7 @@ class ExpansionOwnedContainer: Container_Base
 
 	string ExpansionGetContainerOwnerUID()
 	{
-		string owner;
-		if (m_Expansion_NetsyncData)
-			m_Expansion_NetsyncData.Get(0, owner);
-		return owner;
+		return m_Expansion_OwnerUID;
 	}
 
 	//! Callable client only
@@ -211,9 +271,8 @@ class ExpansionOwnedContainer: Container_Base
 		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return;
 
-		string uid;
-		m_Expansion_NetsyncData.Get(0, uid);
-		ctx.Write(uid);
+		ctx.Write(m_Expansion_OwnerPlainID0);
+		ctx.Write(m_Expansion_OwnerPlainID1);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -227,13 +286,24 @@ class ExpansionOwnedContainer: Container_Base
 		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return true;
 
-		string uid;
-		if (!ctx.Read(uid))
-			return false;
+		if (ctx.GetVersion() < 50)
+		{
+			string uid;
+			if (!ctx.Read(uid))
+				return false;
 
-		ExpansionSetContainerOwner(uid);
+			ExpansionSetContainerOwner(uid);
+		}
+		else
+		{
+			if (!ctx.Read(m_Expansion_OwnerPlainID0))
+				return false;
 
-		EXTrace.Print(EXTrace.MISC, this, "::CF_OnStoreLoad - owner " + uid);
+			if (!ctx.Read(m_Expansion_OwnerPlainID1))
+				return false;
+
+			Expansion_UpdateOwner();
+		}
 
 		return true;
 	}
@@ -370,9 +440,7 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		if (IsEmpty())
 			return;
 
-		string uid;
-		m_Expansion_NetsyncData.Get(0, uid);
-		PlayerBase player = PlayerBase.GetPlayerByUID(uid);
+		PlayerBase player = PlayerBase.GetPlayerByUID(m_Expansion_OwnerUID);
 		if (!player || !player.GetIdentity())
 			return;
 

@@ -51,6 +51,8 @@ modded class CarScript
 		m_Expansion_Node = s_Expansion_AllVehicles.Add(this);
 		RegisterNetSyncVariableBool("m_Expansion_SynchLastDriverUID");
 		RegisterNetSyncVariableInt("m_Expansion_CargoCount");
+
+		m_Expansion_RPCManager = new ExpansionRPCManager(this, CarScript);
 	}
 
 	// ------------------------------------------------------------
@@ -335,17 +337,6 @@ modded class CarScript
 			return;
 
 		super.DamageCrew(dmg);
-	}
-
-	override void SetActions()
-	{
-		super.SetActions();
-
-#ifdef DIAG
-#ifndef EXPANSIONMODVEHICLE
-		AddAction(ExpansionActionDebugStoreEntity);
-#endif
-#endif
 	}
 
 	#ifdef EXPANSION_MODSTORAGE

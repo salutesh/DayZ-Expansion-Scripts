@@ -609,7 +609,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 				itemEnt = Man.Cast( entity ).GetHumanInventory().CreateInHands( items[0] );
 			//! Spawn everything else in inventory
 			if ( !itemEnt )
-				itemEnt = entity.GetInventory().CreateInInventory( items[0] );
+				itemEnt = ExpansionItemSpawnHelper.CreateInInventoryEx(entity, items[0] );
 			ItemBase itemBase = ItemBase.Cast( itemEnt );
 			if ( itemEnt )
 			{

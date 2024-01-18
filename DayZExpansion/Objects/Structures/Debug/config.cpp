@@ -330,19 +330,17 @@ class CfgVehicles
 	class ExpansionDebugGoat: Inventory_Base
 	{
 		scope = 2;
-		model = "\dz\animals\capra_hircus\capra_hircus.p3d";
+		model = "DayZExpansion\Objects\Structures\Debug\DebugGoat.p3d";
 		displayName = "Expansion Debug Goat";
 		descriptionShort = "Debug goat";
-		hiddenSelections[] = {"Camo","CamoHair"};
-		hiddenSelectionsTextures[] = {"dz\animals\capra_hircus\data\Black_Goat_CO.paa","dz\animals\capra_hircus\data\black_goat_fur_co.paa"};
-		hiddenSelectionsMaterials[] = {"dz\animals\capra_hircus\data\Black_Goat.rvmat","dz\animals\capra_hircus\data\black_goat_fur.rvmat"};
-		itemBehaviour = 0;
+		itemBehaviour = 2;
 		itemSize[] = {10,100};
 		carveNavmesh = 1;
-		weight = 1000000;
+		weight = 45000;
 		physLayer = "item_large";
 		allowOwnedCargoManipulation = 1;
 		forceFarBubble = "true";
+		attachments[] = {"ExpansionDebugGoat_Attachment"};
 		rotationFlags = 2;
 		class DamageSystem
 		{
@@ -355,5 +353,52 @@ class CfgVehicles
 				};
 			};
 		};
+		soundImpactType = "textile";
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class pickUpItem_Light
+				{
+					soundSet = "GoatBleat_B_SoundSet";
+					id = 796;
+				};
+				class pickUpItem
+				{
+					soundSet = "GoatBleat_C_SoundSet";
+					id = 797;
+				};
+				class drop
+				{
+					soundset = "GoatBleat_D_SoundSet";
+					id = 898;
+				};
+			};
+		};
+	};
+	class ExpansionDebugGoat_Attachment: Inventory_Base
+	{
+		scope = 2;
+		model = "DayZExpansion\Objects\Structures\Debug\DebugBox.p3d";
+		inventorySlots[] = {"ExpansionDebugGoat_Attachment"};
+	};
+};
+class CfgSlots
+{
+	class Slot_ExpansionDebugGoat_Attachment
+	{
+		name = "ExpansionDebugGoat_Attachment";
+		displayName = "";
+		ghostIcon = "";
+		show = "false";
+	};
+};
+class CfgNonAIVehicles
+{
+	class ProxyAttachment;
+	class ProxyExpansionDebugGoat_Attachment: ProxyAttachment
+	{
+		model = "\dz\animals\capra_hircus\capra_hircus.p3d";
+		inventorySlot = "ExpansionDebugGoat_Attachment";
 	};
 };

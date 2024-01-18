@@ -21,12 +21,10 @@ class ExpansionQuestObjectiveDeliveryConfig_v17: ExpansionQuestObjectiveConfig
 
 class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 {
-	ref array<ref ExpansionQuestObjectiveDelivery> Collections = new array<ref ExpansionQuestObjectiveDelivery>;
+	autoptr array<ref ExpansionQuestObjectiveDelivery> Collections = new array<ref ExpansionQuestObjectiveDelivery>;
 	bool ShowDistance = true;
 
-#ifdef EXPANSIONMODMARKET
 	bool AddItemsToNearbyMarketZone = false;
-#endif
 
 	void AddCollection(int amount, string name, int quantityPercent = -1)
 	{
@@ -65,7 +63,6 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 		return Collections;
 	}
 
-#ifdef EXPANSIONMODMARKET
 	void SetAddItemsToNearbyMarketZone(bool state)
 	{
 		AddItemsToNearbyMarketZone = state;
@@ -75,7 +72,6 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 	{
 		return AddItemsToNearbyMarketZone;
 	}
-#endif
 	
 	bool NeedAnyCollection()
 	{
@@ -180,16 +176,20 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 		Print("[ExpansionQuestObjectiveDeliveryConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName);
 
 		ExpansionQuestObjectiveDeliveryConfig config;
+		ExpansionQuestObjectiveDeliveryConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, config))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, configBase))
 			return NULL;
 
-		if (config.ConfigVersion < CONFIGVERSION)
+		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
 			Print("[ExpansionQuestObjectiveDeliveryConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveDeliveryConfig();
 
-			if (config.ConfigVersion < 18)
+			//! Copy over old configuration that haven't changed
+			config.CopyConfig(configBase);
+
+			if (configBase.ConfigVersion < 18)
 			{
 				ExpansionQuestObjectiveDeliveryConfig_v17 configV17;
 				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig_v17>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, configV17))
@@ -203,9 +203,9 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 				}
 			}
 			
-			if (config.ConfigVersion < 19)
+			if (configBase.ConfigVersion < 19)
 			{
-				foreach (ExpansionQuestObjectiveDelivery deliveryV18: config.Collections)
+				foreach (ExpansionQuestObjectiveDelivery deliveryV18: configBase.Collections)
 				{
 					deliveryV18.SetQuantity(-1);
 				}
@@ -213,6 +213,11 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 			
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
+		}
+		else
+		{
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, config))
+				return NULL;
 		}
 
 		if (save)

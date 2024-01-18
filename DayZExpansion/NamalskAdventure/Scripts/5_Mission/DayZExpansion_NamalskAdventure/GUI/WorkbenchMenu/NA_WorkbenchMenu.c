@@ -372,23 +372,7 @@ class NA_WorkbenchMenuRecipe: ExpansionScriptView
 			if (m_PrevObj.HasSelection("antiwater"))
 				m_PrevObj.HideSelection("antiwater");
 
-			BaseBuildingBase baseBuilding = BaseBuildingBase.Cast(m_PrevObj);
-			if (baseBuilding && baseBuilding.CanUseConstruction())
-			{
-				bool isSupportedBB;
-				if (baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag")
-					isSupportedBB = true;
-				#ifdef EXPANSIONMODBASEBUILDING
-				else if (baseBuilding.IsInherited(ExpansionBaseBuilding))
-					isSupportedBB = true;
-				#endif
-				if (isSupportedBB)
-				{
-					Construction construction = baseBuilding.GetConstruction();
-					construction.Init();
-					construction.ExpansionBuildFull();
-				}
-			}
+			Construction.ExpansionBuildFullIfSupported(m_PrevObj);
 		}*/
 		
 		m_WorkbenchMenuRecipeController.Preview = m_PrevObj;

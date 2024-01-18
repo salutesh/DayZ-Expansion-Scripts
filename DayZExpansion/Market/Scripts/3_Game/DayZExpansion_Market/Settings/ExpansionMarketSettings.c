@@ -71,7 +71,7 @@ class ExpansionMarketSettingsV3: ExpansionMarketSettingsBaseV2
  **/
 class ExpansionMarketSettings: ExpansionMarketSettingsBase
 {
-	static const int VERSION = 12;
+	static const int VERSION = 13;
 
 	protected static ref map<string, string> s_MarketAmmoBoxes = new map<string, string>;
 
@@ -92,10 +92,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 	autoptr TStringArray VehicleKeys;
 	
-	#ifdef EXPANSIONMODVEHICLE
 	float MaxSZVehicleParkingTime;
 	int SZVehicleParkingTicketFine;
-	#endif
+	
+	autoptr array<ref ExpansionMarketSpawnPosition> TrainSpawnPositions;
 	
 	[NonSerialized()]
 	protected autoptr map<int, ref ExpansionMarketCategory> m_Categories;
@@ -162,7 +162,11 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 			EXPrint(ToString() + " - found " + s_MarketAmmoBoxes.Count() + " ammo boxes with corresponding ammo");
 		}
-
+		
+		#ifdef HypeTrain
+		TrainSpawnPositions = new array<ref ExpansionMarketSpawnPosition>;
+		#endif
+		
 		//TraderPrint("ExpansionMarketSettings - End");
 	}
 
@@ -406,9 +410,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		Currencies.Copy(s.Currencies);
 		VehicleKeys.Copy(s.VehicleKeys);
 
-		#ifdef EXPANSIONMODVEHICLE
 		SZVehicleParkingTicketFine = s.SZVehicleParkingTicketFine;
-		#endif
 
 		int i;
 		ExpansionMarketSpawnPosition position;
@@ -450,6 +452,17 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 				m_Categories.Insert(category.CategoryID, category);
 			}
 		}
+		
+		//! Need to clear spawn positions first
+		#ifdef HypeTrain
+		TrainSpawnPositions.Clear();
+		for (i = 0; i < s.TrainSpawnPositions.Count(); i++)
+		{
+			position = new ExpansionMarketSpawnPosition;
+			position.Copy(s.TrainSpawnPositions[i]);
+			TrainSpawnPositions.Insert(position);
+		}
+		#endif
 
 		ExpansionMarketSettingsBase sb = s;
 		CopyInternal(sb);
@@ -543,12 +556,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		
 		Currencies.Insert("expansionbanknotehryvnia");
 
-		#ifdef EXPANSIONMODVEHICLE
 		MaxSZVehicleParkingTime = 30 * 60;  //! 30 minutes
 		SZVehicleParkingTicketFine = 0;
 
 		VehicleKeys.Insert("ExpansionCarKey");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -1085,12 +1096,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 						CurrencyIcon = "DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds";
 				}
 				
-				#ifdef EXPANSIONMODVEHICLE
 				if (settingsBase.m_Version < 12 && !MaxSZVehicleParkingTime)
 				{
 					MaxSZVehicleParkingTime = settingsDefault.MaxSZVehicleParkingTime;
 				}
-				#endif
 
 				m_Version = VERSION;
 				save = true;

@@ -2,56 +2,12 @@
 
 class CfgPatches
 {
-	class DayZExpansion_Sounds_Ground_Vehicle_Sedan_02
+	class DayZExpansion_Sounds_Ground_Bus
 	{
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Sounds_Effects"};
-	};
-};
-class CfgSoundSets
-{
-	class baseVehicles_SoundSet;
-	class Vehicle_Sedan_02_damper_left_SoundSet: baseVehicles_SoundSet
-	{
-		soundShaders[] = {"Sedan_02_damper_metal_SoundShader"};
-		volumeCurve = "vehicleBumpervolumeCurve";
-		volumeFactor = 0.5;
-		frequencyFactor = 1;
-		frequencyRandomizer = 3;
-		volumeRandomizer = 1;
-		positionOffset[] = {0.5,0,0};
-		sound3DProcessingType = "Vehicle_Damper_Ext_3DProcessingType";
-		spatial = 1;
-		doppler = 0;
-		loop = 0;
-	};
-	class Vehicle_Sedan_02_damper_right_SoundSet: baseVehicles_SoundSet
-	{
-		soundShaders[] = {"Sedan_02_damper_metal_SoundShader"};
-		volumeFactor = 0.5;
-		frequencyFactor = 1;
-		frequencyRandomizer = 3;
-		volumeRandomizer = 1;
-		volumeCurve = "vehicleBumpervolumeCurve";
-		positionOffset[] = {-0.5,0,0};
-		sound3DProcessingType = "Vehicle_Damper_Ext_3DProcessingType";
-		spatial = 1;
-		doppler = 0;
-		loop = 0;
-	};
-	class Vehicle_Sedan_02_Engine_Thrust_Down_SoundSet: baseVehicles_SoundSet
-	{
-		soundShaders[] = {"Offroad_Engine_Thrust_Down_SoundShader"};
-		volumeFactor = 1;
-		frequencyFactor = 1;
-		volumeCurve = "vehicleBumpervolumeCurve";
-		positionOffset[] = {0,0,0.3};
-		sound3DProcessingType = "Vehicle_Damper_Ext_3DProcessingType";
-		spatial = 1;
-		doppler = 0;
-		loop = 0;
 	};
 };
 class CfgVehicles

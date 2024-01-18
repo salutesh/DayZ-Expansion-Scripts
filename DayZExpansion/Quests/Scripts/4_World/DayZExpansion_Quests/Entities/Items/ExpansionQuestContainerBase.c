@@ -216,17 +216,17 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 				EXTrace.Print(EXTrace.QUESTS, this, "Item is not loot item: " + item);
 				if (EXTrace.QUESTS)
 				{
-					EXPrint(this, "Loot items: " + lootItems.Count());
+					EXPrint(ToString() + " Loot items: " + lootItems.Count());
 					foreach (EntityAI lootItem: lootItems)
 					{
-						EXPrint(this, "Loot item: " + lootItem);
+						EXPrint(ToString() + " Loot item: " + lootItem);
 					}
 
 					map<string, int> lootItemsMap = treasureHuntEvent.GetLootItemsMap();
-					EXPrint(this, "Loot item counts: " + lootItemsMap.Count());
+					EXPrint(ToString() + " Loot item counts: " + lootItemsMap.Count());
 					foreach (string className, int count: lootItemsMap)
 					{
-						EXPrint(this, "Loot item count: " + className + " " + count);
+						EXPrint(ToString() + " Loot item count: " + className + " " + count);
 					}
 				}
 				return;
@@ -240,7 +240,7 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 
 		//! @note should not happen, this could mean an objective was no longer marked assigned but still in the list
 		if (j == failSafe)
-			EXPrint(this, "::CheckAssignedObjectivesForEntity - WARNING: Reached end of loop unexpectedly!");
+			EXPrint(ToString() + " ::CheckAssignedObjectivesForEntity - WARNING: Reached end of loop unexpectedly!");
 	}
 	
 	override void AfterStoreLoad()
@@ -252,6 +252,40 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 		super.AfterStoreLoad();
 
 		GetGame().ObjectDelete(this);
+	}
+
+	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, typename.EnumToString(InventoryLocationType, oldLoc.GetType()), typename.EnumToString(InventoryLocationType, newLoc.GetType()));
+
+		super.EEItemLocationChanged(oldLoc, newLoc);
+
+		if (newLoc.GetType() == InventoryLocationType.GROUND && GetGame().IsServer())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_FinalizeLoot);
+	}
+
+	//void Expansion_DirtSync_FuckDayZ()
+	void Expansion_FinalizeLoot()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		array<EntityAI> lootItems = new array<EntityAI>;
+		GetInventory().EnumerateInventory(InventoryTraversalType.LEVELORDER, lootItems);
+		foreach (EntityAI lootItem: lootItems)
+		{
+			if (!lootItem)
+				continue;
+
+			ItemBase lootIB = ItemBase.Cast(lootItem);
+			if (!lootIB)
+			{
+				GetGame().ObjectDelete(lootItem);
+				continue;
+			}
+			
+			lootIB.Expansion_SetQuestID(m_Expansion_QuestID);
+			lootIB.Expansion_SetIsObjectiveLoot(true);
+		}
 	}
 };
 

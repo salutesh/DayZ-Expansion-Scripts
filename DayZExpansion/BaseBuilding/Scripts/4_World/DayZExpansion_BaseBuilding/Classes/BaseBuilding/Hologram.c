@@ -245,6 +245,11 @@ modded class Hologram
 			HandleSnapping( m_ExProjectionPosition, m_ExProjectionOrientation );
 
 			m_Projection.SetPosition( m_ExProjectionPosition );
+
+		#ifdef HypeTrain
+			//! Using SetClassVar so if HypeTrain ever renames the variable there will be no compile error (it'll still break though)
+			EnScript.SetClassVar(this, "m_HypeTrain_PositionBuffer", 0, m_ExProjectionPosition);
+		#endif
 		}
 		else
 		{

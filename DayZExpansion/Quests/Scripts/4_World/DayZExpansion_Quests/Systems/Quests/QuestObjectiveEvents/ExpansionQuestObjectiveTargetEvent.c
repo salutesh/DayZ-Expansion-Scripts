@@ -40,36 +40,33 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null)
+	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null, map<Man, ref ExpansionEntityHitInfo> hitMap = null)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		ExpansionQuestObjectiveTarget target = m_TargetConfig.GetTarget();
-		if (!target)
+		if (!m_TargetConfig)
 			return;
 
-		array<string> excludedClassNames = target.GetExcludedClassNames();
+		array<string> excludedClassNames = m_TargetConfig.GetExcludedClassNames();
 		if (ExpansionStatic.IsAnyOf(victim, excludedClassNames, true))
 			return;
-
-		bool maxRangeCheck = false;
 
 		PlayerBase victimPlayer;
 		if (Class.CastTo(victimPlayer, victim))
 		{
 			//! Check if this was a self-kill
-			if (m_Quest.GetPlayer() == victimPlayer && !target.CountSelfKill())
+			if (m_Quest.GetPlayer() == victimPlayer && !m_TargetConfig.CountSelfKill())
 				return;
 
 		#ifdef EXPANSIONMODAI
 			//! Check if player is AI and if we can count it
-			if (victimPlayer.IsAI() && !target.CountAIPlayers())
+			if (victimPlayer.IsAI() && !m_TargetConfig.CountAIPlayers())
 				return;
 
 			//! Check if target faction is in allowed factions of this objective
-			array<string> allowedTargetFactions = target.GetAllowedTargetFactions();
+			array<string> allowedTargetFactions = m_TargetConfig.GetAllowedTargetFactions();
 			if (allowedTargetFactions && allowedTargetFactions.Count() > 0)
 			{
 				bool foundFaction = false;
@@ -103,30 +100,64 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		#endif
 		}
 
-		if (killerPlayer && !IsInMaxRange(killerPlayer.GetPosition()))
+		if (killerPlayer && !IsInRange(killerPlayer.GetPosition(), m_TargetConfig.GetPosition(), m_TargetConfig.GetMaxDistance(), m_TargetConfig.GetMinDistance()))
 		{
 			ObjectivePrint("Killer is out of legit kill range! Skip..");
 			return;
 		}
 
 		//! If the target need to be killed with a special weapon check incoming killer class type
-		array<string> allowedWeapons = target.GetAllowedWeapons();
-		if (target.NeedSpecialWeapon() && !ExpansionStatic.IsAnyOf(killer, allowedWeapons, true))
+		TStringArray allowedWeapons = m_TargetConfig.GetAllowedWeapons();
+		if (allowedWeapons.Count() > 0 && !ExpansionStatic.IsAnyOf(killer, allowedWeapons, true))
 		{
 			ObjectivePrint("Entity got not killed with any allowed weapon! Skip..");
 			return;
 		}
-
-		array<string> allowedClassNames = target.GetClassNames();
-		bool found = ExpansionStatic.IsAnyOf(victim, allowedClassNames, true);
-		if (found)
+		
+		//! If the target need to be a certain entity we compare the victim entity type with the configured list from the objective.
+		TStringArray allowedClassNames = m_TargetConfig.GetClassNames();
+		if (allowedClassNames.Count() > 0)
 		{
-			ObjectivePrint("Killed valid target " + victim + " " + ExpansionString.JoinStrings(target.GetClassNames()));
-			if (m_Count < m_Amount)
+			bool found = ExpansionStatic.IsAnyOf(victim, allowedClassNames, true);
+			if (!found)
 			{
-				m_Count++;
-				m_Quest.QuestCompletionCheck(true);
+				ObjectivePrint("Entity killed was not a valid entity! Skip..");
+				return;
 			}
+		}
+		
+		//! If the target need to be hit at a certain zone we check the hit map for the last valid hit of the killer player on the victim entity.
+		TStringArray allowedDamageZones = m_TargetConfig.GetAllowedDamageZones();
+		if (allowedDamageZones.Count() > 0 && killerPlayer)
+		{
+			ObjectivePrint("::OnEntityKilled - Check if entity got hit at valid zone..");
+			bool hasHitEntity = false;
+			
+			if (hitMap.Count() == 0)
+				return;
+			
+			ExpansionEntityHitInfo hitInfo;
+			if (!hitMap.Find(killerPlayer, hitInfo))
+				return;
+			
+			string damageZone = hitInfo.GetZone();
+			string killerUID;
+			if (killerPlayer.GetIdentity())
+				killerUID = killerPlayer.GetIdentity().GetId();
+			ObjectivePrint("::OnEntityKilled - Last known hit zone for player with UID: " + killerUID + " | Zone: " + damageZone);
+			int hitFound = allowedDamageZones.Find(damageZone);
+			if (hitFound == -1)
+			{
+				ObjectivePrint("Entity killed was not hit on a valid damage zone! Skip..");
+				return;
+			}
+		}
+		
+		ObjectivePrint("Killed valid target " + victim + " " + ExpansionString.JoinStrings(m_TargetConfig.GetClassNames()));
+		if (m_Count < m_Amount)
+		{
+			m_Count++;
+			m_Quest.QuestCompletionCheck(true);
 		}
 	}
 
@@ -143,26 +174,6 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 		if (m_Count == m_Amount)
 			return true;
-		return false;
-	}
-
-	protected bool IsInMaxRange(vector playerPos)
-	{
-		vector position = m_TargetConfig.GetPosition();
-		if (position == vector.Zero)
-			return true;
-
-		float maxDistance = m_TargetConfig.GetMaxDistance();
-		if (maxDistance <= 0)
-			return true;
-
-		position[1] = GetGame().SurfaceY(position[0], position[2]);
-
-		float currentDistanceSq = vector.DistanceSq(playerPos, position);
-
-		if (currentDistanceSq <= maxDistance * maxDistance)
-			return true;
-
 		return false;
 	}
 

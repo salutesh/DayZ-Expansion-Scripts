@@ -175,7 +175,7 @@ class ExpansionAirdropContainerBase: Container_Base
 			if (windImpact)
 				m_Expansion_WindImpactStrength = ExpansionMath.LinearConversion(3.0, 6.0, m_Expansion_FallSpeed, 0.2, 0.1) * windImpact;
 
-			EXLogPrint(this, "InitAirdrop - total weight (kg) " + totalWeightKg + " - nominal fall speed " + m_Expansion_FallSpeed + " m/s, wind impact strength " + m_Expansion_WindImpactStrength);
+			EXLogPrint(ToString() + " InitAirdrop - total weight (kg) " + totalWeightKg + " - nominal fall speed " + m_Expansion_FallSpeed + " m/s, wind impact strength " + m_Expansion_WindImpactStrength);
 		}
 	}
 
@@ -359,7 +359,7 @@ class ExpansionAirdropContainerBase: Container_Base
 	#endif
 
 		if (GetLifetime() <= 0)
-			EXPrint(this, "WARNING: " + GetType() + " lifetime was already zero when it landed! Check MissionMaxTime (for mission airdrops) or expansion_types.xml (for player-called airdrops).");
+			EXPrint(ToString() + " WARNING: " + GetType() + " lifetime was already zero when it landed! Check MissionMaxTime (for mission airdrops) or expansion_types.xml (for player-called airdrops).");
 
 		SetSynchDirty();
 	}

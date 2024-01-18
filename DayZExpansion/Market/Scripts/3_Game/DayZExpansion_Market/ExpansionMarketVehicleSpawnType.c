@@ -2,5 +2,6 @@ enum ExpansionMarketVehicleSpawnType
 {
 	AIR,
 	LAND,
-	WATER
+	WATER,
+	RAILTRACK
 }

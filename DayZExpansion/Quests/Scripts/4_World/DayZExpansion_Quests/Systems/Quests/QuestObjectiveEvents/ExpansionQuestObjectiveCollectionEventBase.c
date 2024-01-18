@@ -24,7 +24,7 @@ class ExpansionQuestObjectiveItemCount
 
 class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBase
 {
-#ifdef DIAG
+#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 	protected int s_CallCount;
 #endif
 	protected ref array<ref ExpansionQuestDeliveryObjectiveData> m_DeliveryData;
@@ -591,7 +591,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			string nameLower = delivery.GetClassNameLower();
 			int amount = delivery.GetAmount();
 
-			ExpansionMarketItem marketItem = marketSettings.GetItem(nameLower);
+			ExpansionMarketItem marketItem = ExpansionMarketCategory.GetGlobalItem(nameLower);
 			if (!marketItem)
 			{
 				ObjectivePrint("Item " + nameLower + " is not a market item. Skip..");

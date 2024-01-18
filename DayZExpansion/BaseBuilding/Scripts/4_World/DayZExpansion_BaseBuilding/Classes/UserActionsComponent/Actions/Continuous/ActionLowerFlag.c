@@ -12,22 +12,29 @@
 
 modded class ActionLowerFlag
 {
+	override string GetText()
+	{
+		string text = super.GetText();
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
+	}
+
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		//! In this scenario the player don't need tools to dismantle. 
-		if ( player.IsInTerritory() )
-		{
-			if ( player.IsInsideOwnTerritory() )
-			{
-				//! The player is in his own territory, let's parse the usual vanilla checks then
-				return super.ActionCondition( player, target, item );
-			}
+		if (!super.ActionCondition( player, target, item ))
+			return false;
 
+		//! In this scenario the player don't need tools to dismantle. 
+		if ( player.IsInTerritory() && !player.IsInsideOwnTerritory() )
+		{
 			//! The player is not in his territory, so he can't interact
 			return false;
 		}
 
 		//! This is not a territory, Everyone can interact with then
-		return super.ActionCondition( player, target, item );
+		return true;
 	}	
 };

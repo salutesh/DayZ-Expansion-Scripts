@@ -19,6 +19,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	protected ref ExpansionMarketMenu m_MarketMenu;
 	protected ref ExpansionMarketMenuItemTooltip m_Tooltip;
 	protected ref ExpansionItemTooltip m_ItemTooltip;
+	protected string m_ItemSortName;
+
+	protected int m_MenuIdx;
 	
 	protected EntityAI m_Object;
 	protected int m_CurrentSelectedSkinIndex = -1;
@@ -196,6 +199,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		
 		m_ItemController.ItemName = itemDisplayName;
 		m_ItemController.NotifyPropertyChanged("ItemName");
+
+		itemDisplayName.ToLower();
+		m_ItemSortName = itemDisplayName;
 		
 		UpdatePreviewObject();
 		
@@ -239,29 +245,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			if (m_Object.HasSelection("antiwater"))
 				m_Object.HideSelection("antiwater");
 
-			BaseBuildingBase baseBuilding = BaseBuildingBase.Cast(m_Object);
-			if (baseBuilding && baseBuilding.CanUseConstruction())
-			{
-				/*************************************************************************************************************************
-				 * WARNING: Only TESTED basebuilding items!
-				 * Most mods do NOT have the necessary rvConfig entries to get a reasonable preview and/or can cause client CTD if used!
-				 * Do NOT add other classnames unless they are GUARANTEED to work properly in market menu!
-				 *************************************************************************************************************************/
-
-				bool isSupportedBB;
-				if (baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag")
-					isSupportedBB = true;
-				#ifdef EXPANSIONMODBASEBUILDING
-				else if (baseBuilding.IsInherited(ExpansionBaseBuilding))
-					isSupportedBB = true;
-				#endif
-				if (isSupportedBB)
-				{
-					Construction construction = baseBuilding.GetConstruction();
-					construction.Init();
-					construction.ExpansionBuildFull();
-				}
-			}
+			Construction.ExpansionBuildFullIfSupported(m_Object);
 
 			if (!m_Variant)
 				SetExpansionSkin(m_CurrentSelectedSkinIndex);
@@ -363,8 +347,17 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	
 	void UpdateButtons()
 	{
-		market_item_fastbuy.Show(m_CanBuy && m_ItemStock > 0 && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice);
-		market_item_fastsell.Show(m_CanSell && m_PlayerStock > 0 && m_SellPrice > -1);
+		bool showFastBuy;
+		if (m_CanBuy && m_ItemStock > 0 && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice)
+			showFastBuy = true;
+
+		market_item_fastbuy.Show(showFastBuy);
+
+		bool showFastSell;
+		if (m_CanSell && m_PlayerStock > 0 && m_SellPrice > -1)
+			showFastSell = true;
+
+		market_item_fastsell.Show(showFastSell);
 	}
 
 	void UpdatePrices()
@@ -377,7 +370,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			ExpansionMarketItem item = GetMarketItem();
 			m_MarketModule.FindPriceOfPurchase(item, m_MarketModule.GetClientZone(), GetMarketMenu().GetMarketTrader(), 1, price, GetIncludeAttachments());
 			m_BuyPrice = price;
-			m_ItemController.ItemBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",", true);
+			m_ItemController.ItemBuyPrice = m_MarketMenu.GetDisplayPrice(m_BuyPrice, true);
 		}
 		else
 		{
@@ -408,7 +401,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_ItemStock, 1, marketSell, m_PlayerStock != 0 || m_IncludeAttachments);
 			m_SellPrice = marketSell.Price;
 
-			m_ItemController.ItemSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",", true);
+			m_ItemController.ItemSellPrice = m_MarketMenu.GetDisplayPrice(m_SellPrice, true);
 		}
 		else
 		{
@@ -634,6 +627,47 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	ExpansionMarketItem GetCurrentVariant()
 	{
 		return m_Variant;
+	}
+
+	string GetItemDisplayName()
+	{
+		return m_ItemController.ItemName;
+	}
+
+	string GetItemSortName()
+	{
+		return m_ItemSortName;
+	}
+
+	int GetBuyPrice()
+	{
+		return m_BuyPrice;
+	}
+
+	string GetSortKey(ExpansionMarketMenuSortPriority sortPriority)
+	{
+		string pricePadded = ExpansionString.JustifyRight(m_BuyPrice.ToString(), 10, " ");
+
+		switch (sortPriority)
+		{
+			case ExpansionMarketMenuSortPriority.NAME:
+				return m_ItemSortName + "\t" + pricePadded;
+
+			case ExpansionMarketMenuSortPriority.PRICE:
+				return pricePadded + "\t" + m_ItemSortName;
+		}
+
+		return string.Empty;
+	}
+
+	void SetMenuIdx(int idx)
+	{
+		m_MenuIdx = idx;
+	}
+
+	int GetMenuIdx()
+	{
+		return m_MenuIdx;
 	}
 
 	void SetIncludeAttachments(bool state)

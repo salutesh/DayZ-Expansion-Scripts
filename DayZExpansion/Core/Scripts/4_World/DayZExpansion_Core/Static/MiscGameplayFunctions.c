@@ -109,12 +109,19 @@ modded class MiscGameplayFunctions
 
 	static bool Expansion_MoveCargo(EntityAI src, EntityAI dst, InventoryMode mode = InventoryMode.SERVER)
 	{
+		if (!src.GetInventory() || !dst.GetInventory())
+			return false;
+
 		CargoBase cargo = src.GetInventory().GetCargo();
 		if (!cargo)
 			return false;
 
 		int cargoCount = cargo.GetItemCount();
 		if (!cargoCount)
+			return false;
+
+		CargoBase dstCargo = dst.GetInventory().GetCargo();
+		if (!dstCargo)
 			return false;
 
 		auto srcLoc = new InventoryLocation;
@@ -125,7 +132,7 @@ modded class MiscGameplayFunctions
 			EntityAI item = cargo.GetItem(i);
 			item.GetInventory().GetCurrentInventoryLocation(srcLoc);
 			dstLoc.SetCargo(dst, item, srcLoc.GetIdx(), srcLoc.GetRow(), srcLoc.GetCol(), srcLoc.GetFlip());
-			if (!item.GetInventory().TakeToDst(mode, srcLoc, dstLoc))
+			if (!dstLoc.IsValid() || !item.GetInventory().TakeToDst(mode, srcLoc, dstLoc))
 				return false;
 		}
 

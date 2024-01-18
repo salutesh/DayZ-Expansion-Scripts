@@ -46,6 +46,9 @@ class ExpansionActionRecruitAI: ActionInteractBase
 		if (tAI.eAI_IsPassive() || tAI.GetGroup().GetFaction().IsInvincible())
 			return false;
 
+		if (!GetExpansionSettings().GetAI(false).IsLoaded())
+			return false;
+
 		if (tAI.GetGroup().GetFaction().IsGuard())
 		{
 			if (!GetExpansionSettings().GetAI().CanRecruitGuards)

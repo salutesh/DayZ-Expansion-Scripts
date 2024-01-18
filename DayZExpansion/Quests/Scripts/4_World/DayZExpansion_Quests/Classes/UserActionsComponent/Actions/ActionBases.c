@@ -135,7 +135,7 @@ modded class ActionBase
 
 		//! @note should not happen, this could mean an objective was no longer marked assigned but still in the list
 		if (j == failSafe)
-			EXPrint(this, "::CheckAssignedObjectivesForEntity - WARNING: Reached end of loop unexpectedly!");
+			EXPrint(ToString() + " ::CheckAssignedObjectivesForEntity - WARNING: Reached end of loop unexpectedly!");
 	}
 
 	protected void OnObjectiveActionExecuted(ExpansionQuestObjectiveEventBase objective, ActionData action_data)

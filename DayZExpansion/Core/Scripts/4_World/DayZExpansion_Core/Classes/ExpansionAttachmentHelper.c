@@ -12,23 +12,8 @@
 
 class ExpansionAttachmentHelper
 {
-	static bool HT_Loaded = false;
-	static typename HT_Base;
-	static typename HT_NullType;
-
-	static void Init()
-	{
-		// We don't want HypeTrain player attachment running as it will most likely interfere with our AI
-		// This is just a proof of concept to see if we can use this as a viable means for overriding
-		string name = "HypeTrain_PartBase";
-		HT_Base = name.ToType();
-		HT_Loaded = HT_Base != HT_NullType;
-	}
-
 	static bool CanAttachTo(Object child, Object target)
 	{
-		Init();
-			
 		if (!target)
 			return false;
 
@@ -48,12 +33,6 @@ class ExpansionAttachmentHelper
 				return false;
 
 			return item.Expansion_CanObjectAttach(child);
-		}
-
-		if (HT_Loaded)
-		{
-			if (target.IsInherited(HT_Base))
-				return true;
 		}
 
 		return false;

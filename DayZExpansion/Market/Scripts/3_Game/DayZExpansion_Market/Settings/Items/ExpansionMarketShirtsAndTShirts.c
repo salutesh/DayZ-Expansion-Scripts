@@ -24,13 +24,13 @@ class ExpansionMarketShirtsAndTShirts: ExpansionMarketCategory
 		m_FileName = "Shirts_And_TShirts";
 
 
-		AddItem("TShirt_Blue", 							8,		16,		1,		100, null, {"TShirt_OrangeWhiteStripes", "TShirt_Red", "TShirt_RedBlackStripes", "TShirt_Beige", "TShirt_Grey", "TShirt_Black", "TShirt_Green"});
+		AddItem("TShirt_Blue", 							8,		16,		1,		100, null, {"TShirt_OrangeWhiteStripes", "TShirt_Red", "TShirt_RedBlackStripes", "TShirt_Beige", "TShirt_Grey", "TShirt_Black", "TShirt_Green", "TShirt_White"});
 		/*AddItem("TShirt_OrangeWhiteStripes", 			8,		16,		1,		100);
 		AddItem("TShirt_Red", 							8,		16,		1,		100);
 		AddItem("TShirt_RedBlackStripes", 				8,		16,		1,		100);*/
 		AddItem("TShirt_Beige", 						10,		20,		1,		100);
 		AddItem("TShirt_Grey", 							10,		20,		1,		100);
-		AddItem("TShirt_Black", 						12,		24,		1,		100);
+		AddItem("TShirt_Black", 						12,		24,		1,		100, null, {"TShirt_10thAnniversary"});
 		AddItem("TShirt_Green", 						12,		24,		1,		100);
 		
 	#ifdef EXPASIONMOD

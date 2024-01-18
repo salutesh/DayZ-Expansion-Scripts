@@ -216,7 +216,7 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 
 		if (!Expansion_HasStoredEntity())
 		{
-			EXPrint(this, "Deleting placeholder");
+			EXPrint(ToString() + " Deleting placeholder");
 			Delete();
 		}
 	}
@@ -248,28 +248,27 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 
 		float lifetime = entity.GetLifetimeMax();
 
+		ExpansionGlobalID gid;
 		TIntArray entityGlobalID = new TIntArray;
-		int i;
 
 		CarScript vehicle;
 		if (Class.CastTo(vehicle, entity))
-		{
-			if (!vehicle.m_Expansion_GlobalID.m_IsSet)
-				vehicle.m_Expansion_GlobalID.Acquire();
-			for (i = 0; i < 4; i++)
-				entityGlobalID.Insert(vehicle.m_Expansion_GlobalID.m_ID[i]);
-		}
+			gid = vehicle.m_Expansion_GlobalID;
 
 #ifdef EXPANSIONMODVEHICLE
 		ExpansionVehicleBase exVehicle;
 		if (Class.CastTo(exVehicle, entity))
-		{
-			if (!exVehicle.m_Expansion_GlobalID.m_IsSet)
-				exVehicle.m_Expansion_GlobalID.Acquire();
-			for (i = 0; i < 4; i++)
-				entityGlobalID.Insert(exVehicle.m_Expansion_GlobalID.m_ID[i]);
-		}
+			gid = exVehicle.m_Expansion_GlobalID;
 #endif
+
+		if (!gid)
+			gid = new ExpansionGlobalID();
+
+		if (!gid.m_IsSet)
+			gid.Acquire();
+
+		for (int i = 0; i < 4; i++)
+			entityGlobalID.Insert(gid.m_ID[i]);
 
 		EntityAI placeholderEntity;
 		if (!ExpansionEntityStorageModule.SaveToFileAndReplace(entity, ExpansionEntityStorageModule.GetFileName(ExpansionStatic.IntToHex(entityGlobalID)), placeholderType, position, iFlags, placeholderEntity, storeCargo, transferAttachments))
@@ -289,10 +288,58 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 
 class ExpansionDebugGoat: ExpansionEntityStoragePlaceholder
 {
+	override void EEInit()
+	{
+		super.EEInit();
+		
+		if (GetGame().IsServer())
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_CreateGoatAttachment);
+	}
+
 	override void SetActions()
 	{
 		super.SetActions();
 
 		AddAction(ExpansionActionRestoreEntity);
+
+		AddAction(ActionTogglePlaceObject);
+		AddAction(ExpansionActionPlaceDebugGoat);
+	}
+
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		return true;
+	}
+	
+	override void OnPlacementComplete(Man player, vector position = "0 0 0", vector orientation = "0 0 0")
+	{
+		super.OnPlacementComplete(player, position, orientation);
+
+	#ifndef SERVER
+		ExpansionSound.Play(GetPlaceSoundset(), this);
+	#endif
+	}
+		
+	override string GetPlaceSoundset()
+	{
+		string bleat;
+
+		if (Math.RandomIntInclusive(0, 1))
+			bleat = "GoatBleat_A_SoundSet";
+		else
+			bleat = "GoatBleat_E_SoundSet";
+
+		return bleat;
+	}
+
+	override string GetLoopDeploySoundset()
+	{
+		return "mediumtent_deploy_SoundSet";
+	}
+
+	void Expansion_CreateGoatAttachment()
+	{
+		if (!FindAttachmentBySlotName("ExpansionGoat_Attachment"))
+			GetInventory().CreateAttachment("ExpansionGoat_Attachment");
 	}
 };

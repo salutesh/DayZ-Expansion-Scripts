@@ -42,7 +42,10 @@ modded class ExpansionWorld
 		DayZPlayerImplement player;
 		Class.CastTo(player, GetGame().GetPlayer());
 
-		SetInGroup(player && player.GetGroup() && player.GetGroup().Count() > 1);
+		if (player && player.GetGroup() && player.GetGroup().Count() > 1)
+			SetInGroup(true);
+		else
+			SetInGroup(false);
 	#endif
 
 /*

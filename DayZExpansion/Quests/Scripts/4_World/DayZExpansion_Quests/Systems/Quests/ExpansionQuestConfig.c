@@ -37,9 +37,7 @@ class ExpansionQuestConfigBase
 	bool NeedToSelectReward = false; //! If there is more then one item in the Rewards array and this config param is set to true the player needs to select a reward item on quest competion from the given items in the Rewards array.	
 	bool RandomReward = false; //! Only one reward is randomly selected and given to the player from the configured reward items on quest completion.
 	int RandomRewardAmount = -1; //! Controlls amount of reward items that get randomly selected and given to the player on quest completion if RandomReward boolean is true.
-#ifdef EXPANSIONMODGROUPS
 	bool RewardsForGroupOwnerOnly = true; //! If the quest is a group quest this option controlls if all group players get the reward or ownly the group owner.
-#endif
 
 	ref array<int> QuestGiverIDs; //! NPC IDs of the NPCs that will head out the quest.
 	ref array<int> QuestTurnInIDs;	//! NPC IDs of the NPCs where players can turn in the quest when completed.
@@ -83,16 +81,14 @@ class ExpansionQuestConfigV15Base: ExpansionQuestConfigBase
 	ref array<ref ExpansionQuestObjectiveConfigBase> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
 
 	int QuestColor = 0;  //! Main color that will be used in all the quest menus and interfaces for this quest.
-#ifdef EXPANSIONMODHARDLINE 
+
 	int ReputationReward = 0; //! Reputation reward when completing the quest.
 	int ReputationRequirement = -1; //! Reputation needed to see and start the quest.
-#endif
+
 	ref array<int> PreQuestIDs; //! Pre-Quest Quest IDs of the quest the player need to have completed to accept this quest.
 
-#ifdef EXPANSIONMODAI
 	string RequiredFaction = ""; //! Player need to be part of this faction to start this quest.
 	string FactionReward = ""; //! Player faction will be set to the given faction on quest completion.
-#endif
 
 	bool PlayerNeedQuestItems = true; //! Quest will be cancled if the quest player is missing one of the quest items on relog/reconnect.
 	bool DeleteQuestItems = true; //! Controlls if the quest items will be deleted when the quest is completed or not. They still always get deleted when the quest is cancled.
@@ -109,33 +105,37 @@ class ExpansionQuestConfigV19Base: ExpansionQuestConfigV15Base
 	bool SequentialObjectives = true;
 };
 
-class ExpansionQuestConfig: ExpansionQuestConfigV19Base
+class ExpansionQuestConfigV20Base: ExpansionQuestConfigV19Base
 {
-	static const int CONFIGVERSION = 20;
-
-#ifdef EXPANSIONMODHARDLINE
-#ifdef EXPANSIONMODAI
 	ref map<string, int> FactionReputationRequirements; //! Faction reputation points requirement the players will need to see and accept the quest.
 	ref map<string, int> FactionReputationRewards; //! Faction reputation points the players will gain on quest completion.
-#endif
-#endif
+
+	void ExpansionQuestConfigV20Base()
+	{
+		FactionReputationRequirements = new map<string, int>;
+		FactionReputationRewards = new map<string, int>;
+	}
+};
+
+class ExpansionQuestConfig: ExpansionQuestConfigV20Base
+{
+	static const int CONFIGVERSION = 21;
+	
+	bool SuppressQuestLogOnCompetion = false;
+	bool Active = true;
 	
 	void ExpansionQuestConfig()
 	{
 		ConfigVersion = CONFIGVERSION;
 		
-	#ifdef EXPANSIONMODHARDLINE
-	#ifdef EXPANSIONMODAI
 		FactionReputationRequirements = new map<string, int>;
 		FactionReputationRewards = new map<string, int>;
-	#endif
-	#endif
 	}
 
 	void ~ExpansionQuestConfig()
 	{
 		if (GetGame())
-			EXPrint(this, "~ExpansionQuestConfig");
+			EXPrint(ToString() + "~ExpansionQuestConfig");
 	}
 
 	void SetType(int type)
@@ -459,7 +459,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 		return RandomRewardAmount;
 	}
 
-#ifdef EXPANSIONMODGROUPS
 	void SetRewardForGroupOwnerOnly(bool state)
 	{
 		RewardsForGroupOwnerOnly = state;
@@ -469,9 +468,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 	{
 		return RewardsForGroupOwnerOnly;
 	}
-#endif
 
-#ifdef EXPANSIONMODHARDLINE
 	void SetReputationReward(int rep)
 	{
 		ReputationReward = rep;
@@ -491,7 +488,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 	{
 		return ReputationRequirement;
 	}
-#endif
 
 	void SetQuestColor(int color)
 	{
@@ -503,7 +499,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 		return QuestColor;
 	}
 
-#ifdef EXPANSIONMODAI
 	void SetRequiredFaction(string factionName)
 	{
 		RequiredFaction = factionName;
@@ -524,7 +519,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 		return FactionReward;
 	}
 	
-#ifdef EXPANSIONMODHARDLINE
 	void AddFactionReputationRequirement(string factionType, int reputation)
 	{
 		if (!FactionReputationRequirements[factionType])
@@ -546,8 +540,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 	{
 		return FactionReputationRewards;
 	}
-#endif
-#endif
 
 	void SetNeedQuestItems(bool state)
 	{
@@ -578,6 +570,16 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 	{
 		return SequentialObjectives;
 	}
+	
+	bool IsActive()
+	{
+		return Active;
+	}
+	
+	bool SuppressQuestLogOnCompetion()
+	{
+		return SuppressQuestLogOnCompetion;
+	}
 
 	static ExpansionQuestConfig Load(string fileName)
 	{
@@ -587,10 +589,10 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 		EXTrace.Print(EXTrace.QUESTS, null, "Load existing configuration file:" + fileName);
 
 		ExpansionQuestConfig questConfig;
-		ExpansionQuestConfigV19Base questConfigBase;
+		ExpansionQuestConfigV20Base questConfigBase;
 		int j;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestConfigV19Base>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestConfigV20Base>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigBase))
 			return NULL;
 
 		if (questConfigBase.ConfigVersion < CONFIGVERSION)
@@ -606,9 +608,8 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 				ExpansionQuestConfigV5 questConfigv5;
 				if (ExpansionJsonFileParser<ExpansionQuestConfigV5>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigv5))
 				{
-				#ifdef EXPANSIONMODHARDLINE
 					questConfig.ReputationReward = questConfigv5.HumanityReward;
-				#endif
+
 					if (questConfigv5.PreQuest != -1)
 						questConfig.AddPreQuestID(questConfigv5.PreQuest);
 				}
@@ -655,6 +656,12 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 					ExpansionQuestRewardConfig rewardConfigV17 = questConfig.Rewards[j];
 					rewardConfigV17.SetChance(1.0);
 				}
+			}
+			
+			if (questConfigBase.ConfigVersion < 21)
+			{
+				questConfig.SuppressQuestLogOnCompetion = false;
+				questConfig.Active = true;
 			}
 
 			//! Update quest configuration objectives config version.
@@ -997,7 +1004,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 		ExpansionJsonFileParser<ExpansionQuestConfig>.Save(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, this);
 	}
 
-	void CopyConfig(ExpansionQuestConfigV19Base questConfigBase)
+	void CopyConfig(ExpansionQuestConfigV20Base questConfigBase)
 	{
 		ConfigVersion = questConfigBase.ConfigVersion;
 		ID = questConfigBase.ID;
@@ -1020,29 +1027,28 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 		NeedToSelectReward = questConfigBase.NeedToSelectReward;
 		RandomReward = questConfigBase.RandomReward;
 		RandomRewardAmount = questConfigBase.RandomRewardAmount;
-	#ifdef EXPANSIONMODGROUPS
+
 		RewardsForGroupOwnerOnly = questConfigBase.RewardsForGroupOwnerOnly;
-	#endif
+
 		QuestGiverIDs = questConfigBase.QuestGiverIDs;
 		QuestTurnInIDs = questConfigBase.QuestTurnInIDs;
 		QuestColor = questConfigBase.QuestColor;
 	
-	#ifdef EXPANSIONMODHARDLINE
 		ReputationReward = questConfigBase.ReputationReward;
 		ReputationRequirement = questConfigBase.ReputationRequirement;
-	#endif
 
 		PreQuestIDs = questConfigBase.PreQuestIDs;
 
-	#ifdef EXPANSIONMODAI
 		RequiredFaction = questConfigBase.RequiredFaction;
 		FactionReward = questConfigBase.FactionReward;
-	#endif
 
 		PlayerNeedQuestItems = questConfigBase.PlayerNeedQuestItems;
 		DeleteQuestItems = questConfigBase.DeleteQuestItems;
 		
 		SequentialObjectives = questConfigBase.SequentialObjectives;
+	
+		FactionReputationRequirements = questConfigBase.FactionReputationRequirements;
+		FactionReputationRewards = questConfigBase.FactionReputationRewards;
 	}
 
 	void OnSend(ParamsWriteContext ctx)
@@ -1780,20 +1786,24 @@ class ExpansionQuestConfig: ExpansionQuestConfigV19Base
 		int i;
 		for (i = 0; i < Objectives.Count(); ++i)
 		{
-			ExpansionQuestObjectiveConfig objectiveConfig = ExpansionQuestObjectiveConfig.Cast(Objectives[i]);
-			objectiveConfig.QuestDebug();
+			ExpansionQuestObjectiveConfigBase objectiveConfigBase = Objectives[i];
+			ExpansionQuestObjectiveConfig objectiveConfig;
+			if (Class.CastTo(objectiveConfig, objectiveConfigBase))
+				objectiveConfig.QuestDebug();
 		}
 
 		for (i = 0; i < QuestItems.Count(); ++i)
 		{
 			ExpansionQuestItemConfig itemConfig = QuestItems[i];
-			itemConfig.QuestDebug();
+			if (itemConfig)
+				itemConfig.QuestDebug();
 		}
 
 		for (i = 0; i < Rewards.Count(); ++i)
 		{
 			ExpansionQuestRewardConfig rewardConfig = Rewards[i];
-			rewardConfig.QuestDebug();
+			if (rewardConfig)
+				rewardConfig.QuestDebug();
 		}
 
 		Print(ToString() + "::QuestDebug - IsGroupQuest: " + IsGroupQuest);

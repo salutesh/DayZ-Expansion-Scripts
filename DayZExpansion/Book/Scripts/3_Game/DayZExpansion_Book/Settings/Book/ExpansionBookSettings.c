@@ -35,16 +35,14 @@ class ExpansionBookSettingsV1: ExpansionBookSettingsBase
  */
 class ExpansionBookSettings: ExpansionBookSettingsBase
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 
 	bool EnableBookMenu;
 	bool CreateBookmarks;
 
 	bool ShowHaBStats;
 	
-#ifdef EXPANSIONMODAI
 	bool ShowPlayerFaction;
-#endif
 
 	ref array<ref ExpansionBookRuleCategory> RuleCategories = new array<ref ExpansionBookRuleCategory>;
 	bool DisplayServerSettingsInServerInfoTab;
@@ -52,6 +50,7 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 	ref array<ref ExpansionBookLink> Links = new array<ref ExpansionBookLink>;
 	ref array<ref ExpansionBookDescriptionCategory> Descriptions = new array<ref ExpansionBookDescriptionCategory>;
 	ref array<ref ExpansionBookCraftingCategory> CraftingCategories = new array<ref ExpansionBookCraftingCategory>;
+	bool EnableCraftingRecipesTab;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -136,9 +135,9 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		CraftingCategories = s.CraftingCategories;
 		ShowHaBStats = s.ShowHaBStats;
 		
-	#ifdef EXPANSIONMODAI
 		ShowPlayerFaction = s.ShowPlayerFaction;
-	#endif
+
+		EnableCraftingRecipesTab = s.EnableCraftingRecipesTab;
 
 		ExpansionBookSettingsBase sb = s;
 		CopyInternal( sb );
@@ -360,9 +359,9 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		DefaultDescriptions();
 		DefaultCraftingCategories();
 		
-	#ifdef EXPANSIONMODAI
 		ShowPlayerFaction = false;
-	#endif
+
+		EnableCraftingRecipesTab = true;
 	}
 
 	void DefaultRules()

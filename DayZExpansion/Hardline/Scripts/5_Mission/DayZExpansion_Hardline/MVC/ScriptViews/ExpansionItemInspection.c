@@ -8,14 +8,14 @@ modded class ExpansionItemInspectionBase
 			UpdateItemRarity();
 	}
 
-	protected void UpdateItemRarity()
+	void UpdateItemRarity()
 	{
 		ItemBase itemBase;
 		if (Class.CastTo(itemBase, m_Item))
-			UpdateItemRarity(itemBase.Expansion_GetRarity());
+			UpdateItemRarityEx(itemBase.Expansion_GetRarity());
 	}
 
-	void UpdateItemRarity(ExpansionHardlineItemRarity rarity)
+	void UpdateItemRarityEx(ExpansionHardlineItemRarity rarity)
 	{
 		if (rarity == ExpansionHardlineItemRarity.NONE)
 			return;

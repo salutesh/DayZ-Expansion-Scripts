@@ -36,7 +36,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 	protected TextWidget rarity_value;
 #endif
 
-	protected string m_ListPriceString;
+	protected int m_ListPrice;
 	protected int m_ListCost;
 
 	protected EditBoxWidget listing_price_editbox;
@@ -254,9 +254,9 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 		m_P2PMarketMenu.OnBackClick();
 	}
 
-	string GetListPriceString()
+	int GetListPrice()
 	{
-		return m_ListPriceString;
+		return m_ListPrice;
 	}
 
 	int GetListCost()
@@ -437,22 +437,85 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 		if (w != NULL && w == listing_price_editbox)
 		{
 			bool valid = true;
+
 			string priceText = listing_price_editbox.GetText();
-			TStringArray allNumbers = {"0","1","2","3","4","5","6","7","8","9"};
+
+		#ifdef DIAG
+			EXPrint(ToString() + "::OnChange - price text: " + priceText);
+		#endif
+
+			//! Convert localized input
+			string thousandsSeparator = Widget.TranslateString("#STR_EXPANSION_NUMBER_SEPARATOR_THOUSANDS");
+			if (thousandsSeparator)
+				priceText.Replace(thousandsSeparator, "");
+			string decimalSeparator = Widget.TranslateString("#STR_EXPANSION_NUMBER_SEPARATOR_DECIMAL");
+			if (decimalSeparator)
+				priceText.Replace(decimalSeparator, ".");
+			priceText.Replace(" ", "");
+
+		#ifdef DIAG
+			EXPrint(ToString() + "::OnChange - price text after conversion of localized input: " + priceText);
+		#endif
+
+			float priceFloat = priceText.ToFloat();  //! Will be nan if not a valid number
+
+		#ifdef DIAG
+			EXPrint(ToString() + "::OnChange - price after conversion to float: " + priceFloat.ToString());
+			if (priceFloat == "nan".ToFloat())
+				EXPrint(ToString() + "::OnChange - price is nan");
+		#endif
+
+			string allowedCharacters = "0123456789.e";
+			int pointCount;
 			for (int i = 0; i < priceText.Length(); i++)
 			{
-				if (allNumbers.Find(priceText.Get(i)) == -1)
+				string c = priceText[i];
+
+				if (c == ".")
+					pointCount++;
+
+				if (allowedCharacters.IndexOf(c) == -1 || pointCount > 1 || (c == "e" && !priceFloat))
+				{
 					valid = false;
+					break;
+				}
 			}
 
 			if (valid)
 			{
-				int price = priceText.ToInt();
-				m_ListPriceString = priceText;
+				int displayCurrencyValue = m_P2PMarketMenu.GetDisplayCurrencyValue();
+				int price;
+
+				if (displayCurrencyValue > 1)
+					price = priceFloat * displayCurrencyValue;
+				else
+					price = priceText.ToInt();
+
+				string listCostString;
+
+				//! Valid input
+				m_ListPrice = price;
 				m_ListCost = Math.Ceil(price * m_P2PMarketSettings.ListingPricePercent / 100);
-				m_P2PMarketMenuDetailsController.ListCost = m_ListCost.ToString();
-				m_P2PMarketMenuDetailsController.NotifyPropertyChanged("ListCost");
+				listCostString = m_P2PMarketMenu.GetDisplayPrice(m_ListCost, false, true, true);
+
+			#ifdef DIAG
+				EXPrint(ToString() + "::OnChange - valid price " + price);
+			#endif
 			}
+			else
+			{
+				//! Invalid input
+				m_ListPrice = -1;
+				m_ListCost = -1;
+				listCostString = "";
+
+			#ifdef DIAG
+				EXPrint(ToString() + "::OnChange - invalid price " + price);
+			#endif
+			}
+
+			m_P2PMarketMenuDetailsController.ListCost = listCostString;
+			m_P2PMarketMenuDetailsController.NotifyPropertyChanged("ListCost");
 		}
 
 		return false;

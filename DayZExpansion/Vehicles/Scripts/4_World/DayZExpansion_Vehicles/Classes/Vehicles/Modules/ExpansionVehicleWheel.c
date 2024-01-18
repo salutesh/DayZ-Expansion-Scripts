@@ -384,7 +384,7 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 		pState.m_Torque += torque.Multiply3(pState.m_Transform);
 	}
 
-	override void Animate(ExpansionPhysicsState pState)
+	override void Animate(ExpansionPhysicsState pState, float deltaTime)
 	{
 		m_Vehicle.SetAnimationPhase(m_AnimDamper, m_SuspensionFraction);
 		m_Vehicle.SetAnimationPhase(m_AnimTurn, m_Steering * Math.DEG2RAD);

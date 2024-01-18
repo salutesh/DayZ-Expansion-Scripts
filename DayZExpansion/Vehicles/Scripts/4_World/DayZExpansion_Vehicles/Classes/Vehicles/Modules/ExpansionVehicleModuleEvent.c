@@ -113,13 +113,13 @@ class ExpansionVehicleModuleEvent
 		}
 	}
 
-	void Animate(ExpansionPhysicsState pState)
+	void Animate(ExpansionPhysicsState pState, float deltaTime)
 	{
 		ExpansionVehicleModuleEvent evt = this.m_Next;
 		while (evt)
 		{
 			ExpansionVehicleModule module = evt.m_Value;
-			module.Animate(pState);
+			module.Animate(pState, deltaTime);
 			evt = evt.m_Next;
 		}
 	}

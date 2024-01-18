@@ -85,7 +85,17 @@ class eAICommandManagerClient : eAICommandManager
 		auto trace = CF_Trace_0(this, "SpawnAI_Helper");
 		#endif
 
-		auto group = eAIGroup.GetGroupByLeader(owner);
+		auto group = owner.GetGroup();
+		if (group)
+		{
+			owner.Expansion_SetFormerGroup(group);
+			loadout = group.GetFaction().GetDefaultLoadout();
+		}
+		else
+		{
+			group = eAIGroup.GetGroupByLeader(owner);
+		}
+
 		auto form = group.GetFormation();
 		vector pos = ExpansionAISpawnBase.GetPlacementPosition(form.ToWorld(form.GetPosition(group.Count())));
 		auto ai = SpawnAIEx(pos, loadout);

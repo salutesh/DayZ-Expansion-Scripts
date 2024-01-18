@@ -84,7 +84,7 @@ class ExpansionVehicleModule
 	{
 	}
 
-	void Animate(ExpansionPhysicsState pState)
+	void Animate(ExpansionPhysicsState pState, float deltaTime)
 	{
 	}
 

@@ -63,19 +63,18 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		if (!Class.CastTo(m_DeliveryConfig, m_ObjectiveConfig))
 			return false;
 
-		bool conditionsResult;
 		if (!m_DeliveryConfig.NeedAnyCollection())
 		{
 			if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount)
-				conditionsResult = true;
+				return true;
 		}
 		else
 		{
 			if (HasAnyCollectionCompleted())
-				conditionsResult = true;
+				return true;
 		}
 
-		return conditionsResult;
+		return false;
 	}
 
 	override int GetObjectiveType()

@@ -1,5 +1,13 @@
 modded class CarScript
 {
+	int s_Expansion_OnBeforeEngineStart_Client_RPCID;
+
+	void CarScript()
+	{
+		if (!s_Expansion_OnBeforeEngineStart_Client_RPCID)
+			s_Expansion_OnBeforeEngineStart_Client_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_Expansion_OnBeforeEngineStart_Client");
+	}
+
 	//! Prevent being able to glitch through base walls etc when getting out vehicle
 	//! Mostly a verbatim copy of vanilla IsAreaAtDoorFree, but stretches the extents so that the whole area from door to
 	//! get out position is checked, and has exception for our BB because it has no collision box (TODO: why?! we should fix this)
@@ -91,5 +99,26 @@ modded class CarScript
 		Shape shape = Debug.DrawBox(-extents * 0.5, extents * 0.5, color);
 		shape.SetMatrix(transform);
 		return shape;
+	}
+
+	//! "Failed engine start" sounds not working https://feedback.bistudio.com/T177537
+	override bool OnBeforeEngineStart()
+	{
+		bool ret = super.OnBeforeEngineStart();
+
+		m_EngineStartDoOnce = false;  // make engine start fail sounds play reliably, not just every other time engine is attempted to start
+
+		return ret;
+	}
+
+	void Expansion_SendOnBeforeEngineStart()
+	{
+		auto rpc = m_Expansion_RPCManager.CreateRPC(s_Expansion_OnBeforeEngineStart_Client_RPCID);
+		PlayerBase.Expansion_SendNear(rpc, GetPosition(), 50.0, this, true);
+	}
+
+	void RPC_Expansion_OnBeforeEngineStart_Client(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		OnBeforeEngineStart();
 	}
 }

@@ -1,29 +1,11 @@
 modded class ItemBase
 {
-	private autoptr eAITargetInformation m_TargetInformation;
+	private ref eAIItemTargetInformation m_TargetInformation = new eAIItemTargetInformation(this);
+	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
 
 	bool m_Expansion_IsOwnerPlayer;
-	bool m_eAI_ProcessDamageByAI;
 
-	void ItemBase()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "ItemBase");
-#endif
-
-		m_TargetInformation = CreateTargetInformation();
-	}
-
-	protected eAITargetInformation CreateTargetInformation()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "CreateTargetInformation");
-#endif
-
-		return new eAIItemTargetInformation(this);
-	}
-
-	eAITargetInformation GetTargetInformation()
+	eAIItemTargetInformation GetTargetInformation()
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "GetTargetInformation");
@@ -41,25 +23,13 @@ modded class ItemBase
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-		if (!m_eAI_ProcessDamageByAI)
-		{
-			eAIBase ai;
-			if (damageType == DT_FIRE_ARM && GetHierarchyRootPlayer() && Class.CastTo(ai, source.GetHierarchyRootPlayer()))
-			{
-				//! Apply AI damage multiplier
-				if (ai.m_eAI_DamageMultiplier != 1.0)
-				{
-					m_eAI_ProcessDamageByAI = true;
-					return false;
-				}
-			}
-		}
-		else
-		{
-			m_eAI_ProcessDamageByAI = false;
-		}
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
 
-		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		if (!m_eAI_DamageHandler.OnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
+		return true;
 	}
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)

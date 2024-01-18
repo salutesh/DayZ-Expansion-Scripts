@@ -61,14 +61,15 @@ class ExpansionQuestNPCDataBase
 	#ifdef EXPANSIONMODAI
 	string NPCFaction = "InvincibleObservers";
 	#endif
+	int NPCType = ExpansionQuestNPCType.NORMAL;
 };
 
 class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 {
-	static const int CONFIGVERSION = 5;
+	static const int CONFIGVERSION = 6;
 	
-	int NPCType = ExpansionQuestNPCType.NORMAL;
-
+	bool Active = true;
+	
 	void ExpansionQuestNPCData()
 	{
 		ConfigVersion = CONFIGVERSION;
@@ -195,10 +196,20 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		return NPCFaction;
 	}
 #endif
+	
+	bool IsActive()
+	{
+		return Active;
+	}
 
 	ExpansionQuestNPCBase SpawnNPC()
 	{
-		Object obj = GetGame().CreateObjectEx(ClassName, Position, ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+		int flags = ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE;
+
+		if (GetGame().IsKindOf(ClassName, "DZ_LightAI"))  //! Only true for animals and Zs
+			flags |= ECE_INITAI;
+
+		Object obj = GetGame().CreateObjectEx(ClassName, Position, flags);
  		ExpansionQuestNPCBase questNPC;
 		if (!ExpansionQuestNPCBase.CastTo(questNPC, obj))
 	    {
@@ -216,6 +227,9 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		questNPC.Update();
 		if (!questNPC.m_Expansion_NetsyncData)
 			questNPC.m_Expansion_NetsyncData = new ExpansionNetsyncData(questNPC);
+	#ifdef DIAG
+		NPCName = NPCName + " | ID: " + ID;
+	#endif
 		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
 		
@@ -251,6 +265,9 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		questNPC.SetPosition(Position);
 		questNPC.SetOrientation(Orientation);
 		questNPC.Update();
+	#ifdef DIAG
+		NPCName = NPCName + " | ID: " + ID;
+	#endif
 		if (!questNPC.m_Expansion_NetsyncData)
 			questNPC.m_Expansion_NetsyncData = new ExpansionNetsyncData(questNPC);
 		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
@@ -300,6 +317,9 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	    if (Orientation)
 	        questObject.SetOrientation(Orientation);
 
+	#ifdef DIAG
+		NPCName = NPCName + " | ID: " + ID;
+	#endif
 	    questObject.m_Expansion_NetsyncData.Set(0, NPCName);
 
 	    return questObject;
@@ -324,7 +344,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 			//! Copy over old configuration that haven't changed
 			npcConfig.CopyConfig(npcConfigBase);
 			
-			if (npcConfigBase.ConfigVersion  < 5)
+			if (npcConfigBase.ConfigVersion < 5)
 			{
 				ExpansionQuestNPCData_V4 npcConfigBaseV4;
 				if (ExpansionJsonFileParser<ExpansionQuestNPCData_V4>.Load(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfigBaseV4))
@@ -336,6 +356,11 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 					if (npcConfigBaseV4.IsStatic)
 						npcConfig.NPCType = ExpansionQuestNPCType.OBJECT;
 				}				
+			}
+			
+			if (npcConfigBase.ConfigVersion < 6)
+			{
+				npcConfig.Active = true;
 			}
 			
 			npcConfig.ConfigVersion = CONFIGVERSION;
@@ -387,6 +412,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	#ifdef EXPANSIONMODAI
 		NPCFaction = npcDataBase.NPCFaction;
 	#endif
+		NPCType = npcDataBase.NPCType;
 	}
 	
 	void OnSend(ParamsWriteContext ctx)

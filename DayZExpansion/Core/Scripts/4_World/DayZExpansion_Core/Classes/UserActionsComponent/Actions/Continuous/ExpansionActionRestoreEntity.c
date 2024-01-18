@@ -25,8 +25,8 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 		m_CallbackClass = ExpansionActionRestoreEntityCB;
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONFB_INTERACT;
 		m_FullBody = true;
-		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
-		m_Text = "#STR_EXPANSION_ACTION_RESTORE";
+		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
+		m_Text = "[ADMIN] Ungoatify";
 	}
 
 	override void CreateConditionComponents()  
@@ -56,9 +56,20 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 		if (!placeholder)
 			return false;
 
+		if (placeholder.Type() == ExpansionDebugGoat)
+		{
+			auto permissionsManager = GetPermissionsManager();
+		#ifdef SERVER
+			if (!permissionsManager.HasPermission("Expansion.EntityStorage.Goatify", player.GetIdentity()))
+		#else
+			if (!permissionsManager.IsAdminToolsToggledOn() || !permissionsManager.HasPermission("Expansion.EntityStorage.Goatify"))
+		#endif
+				return false;
+		}
+
 		if (!placeholder.Expansion_HasStoredEntity())
 		{
-			if (GetGame().IsServer())
+			if (GetGame().IsServer() && GetGame().IsMultiplayer())
 			{
 				ExpansionNotification("Entity Storage", "Could not restore " + placeholder.Expansion_GetStoredEntityDisplayName() + " (missing data?)").Error(player.GetIdentity());
 
@@ -70,6 +81,20 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 		}
 
 		return true;
+	}
+
+	override void OnStartServer(ActionData action_data)
+	{
+		Object targetObject = action_data.m_Target.GetParentOrObject();
+		if (targetObject.Type() == ExpansionDebugGoat)
+			ExpansionSound.Play("cartent_deploy_SoundSet", targetObject);
+	}
+
+	override void OnEndServer(ActionData action_data)
+	{
+		Object targetObject = action_data.m_Target.GetParentOrObject();
+		if (targetObject && targetObject.Type() == ExpansionDebugGoat)
+			ExpansionSound.Stop("cartent_deploy_SoundSet", targetObject, 0.1);
 	}
 
 	bool Expansion_OnFinishProgressServer(ActionData action_data, bool deletePlaceholder = true, out ExpansionEntityStoragePlaceholder placeholder = null, out EntityAI entity = null, bool log = true)
@@ -84,7 +109,34 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 		if (ExpansionEntityStorageModule.RestoreFromFile(placeholder.Expansion_GetEntityStorageFileName(), entity, placeholder))
 		{
 			if (deletePlaceholder)
+			{
+				//! If we are deleting placeholder, move restored entity to placeholder position
+
+				vector orientation = placeholder.GetOrientation();
+
+				vector placeholderMinMax[2];
+				if (!placeholder.GetCollisionBox(placeholderMinMax))
+					placeholder.ClippingInfo(placeholderMinMax);
+
+				float placeHolderOffsetY = placeholderMinMax[0][1];
+				if (placeHolderOffsetY > 0)
+					placeHolderOffsetY = 0;
+
+				vector entityMinMax[2];
+				if (!entity.GetCollisionBox(entityMinMax))
+					entity.ClippingInfo(entityMinMax);
+
+				float entityOffsetY = entityMinMax[0][1];
+				if (entityOffsetY > 0)
+					entityOffsetY = 0;
+
+				position[1] = position[1] + placeHolderOffsetY - entityOffsetY;
+
 				GetGame().ObjectDelete(placeholder);
+
+				entity.SetPosition(position);
+				entity.SetOrientation(orientation);
+			}
 		}
 		else
 		{

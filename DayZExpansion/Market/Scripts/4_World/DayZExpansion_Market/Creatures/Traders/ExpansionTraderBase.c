@@ -75,6 +75,7 @@ class ExpansionTraderObjectBase
 
 	protected ref ExpansionMarketTraderZone m_TraderZone;
 	protected ref ExpansionMarketTrader m_Trader;
+	protected int m_DisplayCurrencyPrecision;
 
 	private EntityAI m_TraderEntity;
 
@@ -184,6 +185,8 @@ class ExpansionTraderObjectBase
 			rpc.Write(m_Trader.DisplayName);
 			rpc.Write(m_Trader.TraderIcon);
 			rpc.Write(m_Trader.Currencies);
+			rpc.Write(m_Trader.DisplayCurrencyValue);
+			rpc.Write(m_Trader.DisplayCurrencyName);
 			rpc.Write(m_Trader.m_Categories);
 
 			rpc.Expansion_Send(GetTraderEntity(), true, sender);
@@ -210,6 +213,14 @@ class ExpansionTraderObjectBase
 				return;
 
 			if (!ctx.Read(m_Trader.Currencies))
+				return;
+
+			if (!ctx.Read(m_Trader.DisplayCurrencyValue))
+				return;
+
+			m_Trader.m_DisplayCurrencyPrecision = ExpansionStatic.GetPrecision(m_Trader.DisplayCurrencyValue);
+
+			if (!ctx.Read(m_Trader.DisplayCurrencyName))
 				return;
 
 			if (!ctx.Read(m_Trader.m_Categories))
@@ -292,6 +303,11 @@ class ExpansionTraderObjectBase
 		m_Trader = trader;
 	}
 
+	string GetDisplayPrice(int price, bool shorten = false, bool format = true, bool includeDisplayCurrencyName = false)
+	{
+		return ExpansionMarketModule.GetDisplayPrice(m_Trader, price, shorten, format, includeDisplayCurrencyName);
+	}
+
 	bool HasVehicleSpawnPosition(string className, out vector spawnPosition, out vector spawnOrientation, out ExpansionMarketVehicleSpawnType spawnType = 0, out ExpansionMarketResult result = ExpansionMarketResult.Success, out Object blockingObject = NULL, int amountNeeded = 1)
 	{
 #ifdef EXPANSIONTRACE
@@ -299,10 +315,8 @@ class ExpansionTraderObjectBase
 #endif
 
 		//array<vector> positions;
-		array<ref ExpansionMarketSpawnPosition> positions;
-
+		array<ref ExpansionMarketSpawnPosition> positions;		
 		string vehicleClass = GetGame().ConfigGetTextOut("CfgVehicles " + className + " vehicleClass");
-
 		switch (vehicleClass)
 		{
 			case "Expansion_Boat":
@@ -319,6 +333,13 @@ class ExpansionTraderObjectBase
 				positions = GetExpansionSettings().GetMarket().AirSpawnPositions;
 				spawnType = ExpansionMarketVehicleSpawnType.AIR;
 				break;
+		#ifdef HypeTrain
+			case "HypeTrain_Locomotive":
+			case "HypeTrain_Wagon":
+				positions = GetExpansionSettings().GetMarket().TrainSpawnPositions;
+				spawnType = ExpansionMarketVehicleSpawnType.RAILTRACK;
+				break;
+		#endif
 			default:
 				positions = GetExpansionSettings().GetMarket().LandSpawnPositions;
 				spawnType = ExpansionMarketVehicleSpawnType.LAND;

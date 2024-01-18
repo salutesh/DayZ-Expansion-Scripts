@@ -462,6 +462,20 @@ modded class DayZPlayerImplement
 			return false;
 		return true;
 	}
+
+	int Expansion_GetEntityStorageAdditionalDataVersion()
+	{
+		return 0;
+	}
+
+	void Expansion_OnEntityStorageAdditionalDataSave(ParamsWriteContext ctx)
+	{
+	}
+
+	bool Expansion_OnEntityStorageAdditionalDataLoad(ParamsWriteContext ctx, int version)
+	{
+		return true;
+	}
 };
 
 modded class DayZPlayerCommandDeathCallback

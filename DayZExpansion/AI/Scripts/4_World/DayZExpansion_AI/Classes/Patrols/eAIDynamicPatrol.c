@@ -10,6 +10,7 @@ class eAIDynamicPatrol : eAIPatrol
 	float m_DespawnRadius;
 	float m_MovementSpeedLimit;
 	float m_MovementThreatSpeedLimit;
+	ref ExpansionArray<string> m_Units;
 	int m_NumberOfAI;
 	int m_RespawnTime; // negative respawn time = patrol won't respawn
 	int m_DespawnTime; // if all players outside despawn radius, ticks up time. When despawn time reached, patrol is deleted
@@ -22,13 +23,22 @@ class eAIDynamicPatrol : eAIPatrol
 	float m_AccuracyMin; // zero or negative = use general setting
 	float m_AccuracyMax; // zero or negative = use general setting
 	float m_ThreatDistanceLimit; // zero or negative = use general setting
+	float m_NoiseInvestigationDistanceLimit; // zero or negative = use general setting
 	float m_DamageMultiplier; // zero or negative = use general setting
+	float m_DamageReceivedMultiplier; // zero or negative = use general setting
 
 	eAIGroup m_Group;
 	string m_GroupName;
 	float m_TimeSinceLastSpawn;
 	bool m_CanSpawn;
 	private bool m_WasGroupDestroyed;
+	private eAIDynamicPatrolSphereTrigger m_Trigger;
+
+	void ~eAIDynamicPatrol()
+	{
+		if (GetGame() && m_Trigger)
+			GetGame().ObjectDelete(m_Trigger);
+	}
 
 	/**
 	 * @brief Creates a dynamic patrol which spawns a patrol under the right conditions.
@@ -103,9 +113,19 @@ class eAIDynamicPatrol : eAIPatrol
 		m_ThreatDistanceLimit = distance;
 	}
 
+	void SetNoiseInvestigationDistanceLimit(float distance)
+	{
+		m_NoiseInvestigationDistanceLimit = distance;
+	}
+
 	void SetDamageMultiplier(float multiplier)
 	{
 		m_DamageMultiplier = multiplier;
+	}
+
+	void SetDamageReceivedMultiplier(float multiplier)
+	{
+		m_DamageReceivedMultiplier = multiplier;
 	}
 
 	void SetGroupName(string name)
@@ -118,16 +138,43 @@ class eAIDynamicPatrol : eAIPatrol
 		m_SniperProneDistanceThreshold = distance;
 	}
 
+	void SetUnits(TStringArray units)
+	{
+		if (m_Units)
+			m_Units.Clear();
+		else
+			m_Units = new ExpansionArray<string>;
+
+		m_Units.InsertAll(units);
+	}
+
+	private eAIBase CreateAI(vector pos)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		string unit;
+
+		if (m_Units)
+			unit = m_Units.GetQuasiRandomElementAvoidRepetition();
+		else
+			unit = eAISurvivor.GetQuasiRandom();
+
+		return eAIBase.Cast(GetGame().CreateObject(unit, pos));
+	}
+
 	private eAIBase SpawnAI(vector pos)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "SpawnAI");
-		#endif
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
 		pos = ExpansionAIPatrol.GetPlacementPosition(pos);
 
-		eAIBase ai;
-		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos))) return null;
+		eAIBase ai = CreateAI(pos);
+		if (!ai)
+			return null;
 
 		ai.SetPosition(pos);
 
@@ -135,13 +182,15 @@ class eAIDynamicPatrol : eAIPatrol
 			m_Loadout = m_Faction.GetDefaultLoadout();
 
 		ExpansionHumanLoadout.Apply(ai, m_Loadout, false);
-				
+	
 		ai.SetMovementSpeedLimits(m_MovementSpeedLimit, m_MovementThreatSpeedLimit);
 		ai.Expansion_SetCanBeLooted(m_CanBeLooted);
 		ai.eAI_SetUnlimitedReload(m_UnlimitedReload);
 		ai.eAI_SetAccuracy(m_AccuracyMin, m_AccuracyMax);
 		ai.eAI_SetThreatDistanceLimit(m_ThreatDistanceLimit);
+		ai.eAI_SetNoiseInvestigationDistanceLimit(m_NoiseInvestigationDistanceLimit);
 		ai.eAI_SetDamageMultiplier(m_DamageMultiplier);
+		ai.eAI_SetDamageReceivedMultiplier(m_DamageReceivedMultiplier);
 		ai.eAI_SetSniperProneDistanceThreshold(m_SniperProneDistanceThreshold);
 
 		return ai;
@@ -172,11 +221,26 @@ class eAIDynamicPatrol : eAIPatrol
 		return true;
 	}
 
+	bool CanSpawn()
+	{
+		if (m_Group)
+			return false;
+
+		if (!m_CanSpawn)
+			return false;
+
+		int maxPatrols = GetExpansionSettings().GetAI().MaximumDynamicPatrols;
+		if (maxPatrols > -1 && m_NumberOfDynamicPatrols >= maxPatrols)
+			return false;
+
+		return true;
+	}
+
 	void Spawn()
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "Spawn");
-		#endif
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
 		if (m_Group) return;
 
@@ -194,14 +258,19 @@ class eAIDynamicPatrol : eAIPatrol
 
 		eAIBase ai = SpawnAI(m_Position);
 		m_Group = ai.GetGroup();
+		m_Group.SetName(m_GroupName);
 		m_Group.SetFaction(m_Faction);
 		m_Group.SetFormation(m_Formation);
-		m_Group.SetWaypointBehaviour(m_WaypointBehaviour);
-		m_Group.SetName(m_GroupName);
-		for (int idx = 0; idx < m_Waypoints.Count(); idx++)
+
+		if (m_NumberOfAI > 1)
+			m_Group.SetWaypointBehaviour(eAIWaypointBehavior.HALT);  //! Only start moving after all AI spawned
+		else
+			m_Group.SetWaypointBehaviour(m_WaypointBehaviour);
+
+		foreach (int idx, vector waypoint: m_Waypoints)
 		{
-			m_Group.AddWaypoint(m_Waypoints[idx]);
-			if (m_Waypoints[idx] == m_Position)
+			m_Group.AddWaypoint(waypoint);
+			if (waypoint == m_Position)
 			{
 				m_Group.m_CurrentWaypointIndex = idx;
 				if (Math.RandomIntInclusive(0, 1))
@@ -209,13 +278,28 @@ class eAIDynamicPatrol : eAIPatrol
 			}
 		}
 
-		for (int i = 1; i < m_NumberOfAI; i++)
-		{
-			ai = SpawnAI(m_Formation.ToWorld(m_Formation.GetPosition(i)));
-			ai.SetGroup(m_Group);
-		}
+		if (m_NumberOfAI > 1)
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(SpawnAI_Deferred, 1);
 
 		m_NumberOfDynamicPatrols++;
+	}
+
+	void SpawnAI_Deferred(int i)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		if (m_Group)
+		{
+			eAIBase ai = SpawnAI(m_Formation.ToWorld(m_Formation.GetPosition(i)));
+			ai.SetGroup(m_Group);
+
+			if (++i < m_NumberOfAI)
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(SpawnAI_Deferred, i);
+			else
+				m_Group.SetWaypointBehaviour(m_WaypointBehaviour);  //! Only start moving after all AI spawned
+		}
 	}
 
 	void Despawn(bool deferDespawnUntilLoosingAggro = false)
@@ -247,56 +331,39 @@ class eAIDynamicPatrol : eAIPatrol
 			return;
 		}
 
-		if (!m_CanSpawn && (!m_Group || m_WasGroupDestroyed))
+		if (!m_Group || m_WasGroupDestroyed)
 		{
 			m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
 			//! https://feedback.bistudio.com/T173348
-			if (m_RespawnTime > -1 && m_TimeSinceLastSpawn >= m_RespawnTime)
+			if (!m_CanSpawn && m_RespawnTime > -1 && m_TimeSinceLastSpawn >= m_RespawnTime)
 				m_CanSpawn = true;
-			else
-				m_CanSpawn = false;
 		}
 
 		if (!m_Group)
 		{
-			if (!m_CanSpawn)
+			if (!m_Trigger && CanSpawn())
 			{
-				return;
-			}
-
-			int maxPatrols = GetExpansionSettings().GetAI().MaximumDynamicPatrols;
-			if (maxPatrols > -1 && m_NumberOfDynamicPatrols >= maxPatrols)
-			{
-				return;
-			}
-		}
-
-		//! CE API is only available after game is loaded
-		if (!GetCEApi())
-			return;
-
-		vector patrolPos = m_Position;
-		DayZPlayerImplement leader = null;
-		if (m_Group && m_Group.GetLeader())
-		{
-			leader = m_Group.GetLeader();
-			patrolPos = leader.GetPosition();
-		}
-
-		if (m_Group)
-		{
-			if (GetCEApi().AvoidPlayer(patrolPos, m_DespawnRadius))
-			{
-				m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
-				if (m_TimeSinceLastSpawn >= m_DespawnTime)
-					Despawn();
+				m_Trigger = eAIDynamicPatrolSphereTrigger.Cast(GetGame().CreateObjectEx("eAIDynamicPatrolSphereTrigger", m_Position, ECE_LOCAL));
+				m_Trigger.eAI_SetParams(this, m_MaximumRadius, m_MinimumRadius);
 			}
 		}
 		else
 		{
-			if (!GetCEApi().AvoidPlayer(patrolPos, m_MaximumRadius) && GetCEApi().AvoidPlayer(patrolPos, m_MinimumRadius))
+			//! CE API is only available after game is loaded
+			if (!GetCEApi())
+				return;
+
+			vector patrolPos = m_Position;
+			DayZPlayerImplement leader = m_Group.GetLeader();
+			if (leader)
+				patrolPos = leader.GetPosition();
+
+			if (GetCEApi().AvoidPlayer(patrolPos, m_DespawnRadius))
 			{
-				Spawn();
+				if (!m_WasGroupDestroyed)
+					m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
+				if (m_TimeSinceLastSpawn >= m_DespawnTime)
+					Despawn();
 			}
 		}
 	}

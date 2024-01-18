@@ -56,6 +56,9 @@ modded class ActionStartEngine
 							return false;
 					}
 
+					if (!GetExpansionSettings().GetVehicle(false).IsLoaded())
+						return false;
+
 					ExpansionCarKey key;
 					if (GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 1)
 					{

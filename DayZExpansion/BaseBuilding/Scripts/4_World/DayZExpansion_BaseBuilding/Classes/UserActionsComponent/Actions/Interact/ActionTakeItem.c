@@ -12,15 +12,27 @@
 
 modded class ActionTakeItem
 {
+	bool m_ShowAdminPrefix;
+
+	override string GetText()
+	{
+		string text = super.GetText();
+
+		if (m_ShowAdminPrefix)
+			text = "[ADMIN] " + text;
+
+		return text;
+	}
+
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 
-		return Expansion_TakeItemActionCondition(player, target, item);
+		return Expansion_TakeItemActionCondition(player, target, item, m_ShowAdminPrefix);
 	}
 
-	static bool Expansion_TakeItemActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
+	static bool Expansion_TakeItemActionCondition(PlayerBase player, ActionTarget target, ItemBase item, out bool showAdminPrefix)
 	{
 		//! Disallow taking codelock if it is attached and has code
 		//! to prevent taking it accidentally
@@ -28,6 +40,17 @@ modded class ActionTakeItem
 		ExpansionCodeLock codelock = ExpansionCodeLock.Cast( target.GetObject() );
 		if ( target.GetParent() && codelock && codelock.HasCode() )
 			return false;
+
+		bool isInsideOwnTerritory;
+		if (!player.Expansion_CanDismantleFlag(isInsideOwnTerritory))
+			return false;
+
+	#ifndef SERVER
+		if (isInsideOwnTerritory && GetPermissionsManager().IsAdminToolsToggledOn())
+			showAdminPrefix = true;
+		else
+			showAdminPrefix = false;
+	#endif
 
 		return true;
 	}

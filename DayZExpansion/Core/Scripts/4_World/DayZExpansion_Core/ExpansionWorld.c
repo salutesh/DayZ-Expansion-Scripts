@@ -12,19 +12,21 @@
 
 class ExpansionWorld: ExpansionGame
 {
-	static int s_Expansion_BushFallHard_NetworkedSoundID;
-	static int s_Expansion_BushFallSoft_NetworkedSoundID;
-	static int s_Expansion_TreeFallHard_NetworkedSoundID;
-	static int s_Expansion_TreeFallSoft_NetworkedSoundID;
+	static ref ExpansionSoundSet s_Expansion_BushFallHard_SoundSet;
+	static ref ExpansionSoundSet s_Expansion_BushFallSoft_SoundSet;
+	static ref ExpansionSoundSet s_Expansion_TreeFallHard_SoundSet;
+	static ref ExpansionSoundSet s_Expansion_TreeFallSoft_SoundSet;
 
 	void ExpansionWorld()
 	{
-		ExpansionAttachmentHelper.Init();
+		s_Expansion_BushFallHard_SoundSet = ExpansionSoundSet.Register("hardBushFall_SoundSet");
+		s_Expansion_BushFallSoft_SoundSet = ExpansionSoundSet.Register("softBushFall_SoundSet");
+		s_Expansion_TreeFallHard_SoundSet = ExpansionSoundSet.Register("hardTreeFall_SoundSet");
+		s_Expansion_TreeFallSoft_SoundSet = ExpansionSoundSet.Register("softTreeFall_SoundSet");
 
-		s_Expansion_BushFallHard_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("hardBushFall_SoundSet");
-		s_Expansion_BushFallSoft_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("softBushFall_SoundSet");
-		s_Expansion_TreeFallHard_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("hardTreeFall_SoundSet");
-		s_Expansion_TreeFallSoft_NetworkedSoundID = ExpansionItemBaseModule.s_Instance.RegisterSound("softTreeFall_SoundSet");
+		ExpansionSoundSet.Register("cartent_deploy_SoundSet");
+		ExpansionSoundSet.Register("GoatBleat_A_SoundSet");
+		ExpansionSoundSet.Register("GoatBleat_E_SoundSet");
 	}
 
 	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType) 
@@ -75,6 +77,11 @@ class ExpansionWorld: ExpansionGame
 		ExpansionWorldObjectsModule.RPC_RemoveObjects(null, null, ctx);
 	}
 
+	override void Expansion_SendNear(ExpansionScriptRPC rpc, vector position, float distance, Object target = null, bool guaranteed = false)
+	{
+		PlayerBase.Expansion_SendNear(rpc, position, distance, target, guaranteed);
+	}
+
 	static void CheckTreeContact(IEntity other, float impulse, bool sendToClient = false)
 	{
 		if (impulse < 7500)
@@ -84,35 +91,34 @@ class ExpansionWorld: ExpansionGame
 		if (!Plant.CastTo(plant, other))
 			return;
 
-		PlayFellPlantSound(plant, sendToClient);
-
 		if (GetGame().IsServer())
+		{
+			PlayFellPlantSound(plant, sendToClient);
 			plant.SetHealth(0);
+		}
 
 		dBodyDestroy(plant);
 	}
 
 	static void PlayFellPlantSound(Object plant, bool sendToClient = false)
 	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.SOUND, ExpansionWorld, "" + sendToClient);
+	#endif
+
 #ifdef SERVER
 		if (!sendToClient)
 			return;
 #endif
-		
-		int soundID;
 
 		if (plant.IsInherited(TreeHard))
-			soundID =	s_Expansion_TreeFallHard_NetworkedSoundID;
+			s_Expansion_TreeFallHard_SoundSet.Play(plant.GetPosition());
 		else if (plant.IsInherited(TreeSoft))
-			soundID =	s_Expansion_TreeFallSoft_NetworkedSoundID;
+			s_Expansion_TreeFallSoft_SoundSet.Play(plant.GetPosition());
 		else if (plant.IsInherited(BushHard))
-			soundID =	s_Expansion_BushFallHard_NetworkedSoundID;
+			s_Expansion_BushFallHard_SoundSet.Play(plant.GetPosition());
 		else if (plant.IsInherited(BushSoft))
-			soundID =	s_Expansion_BushFallSoft_NetworkedSoundID;
-		else
-			return;
-
-		ExpansionItemBaseModule.s_Instance.PlaySound(plant.GetPosition(), soundID);
+			s_Expansion_BushFallSoft_SoundSet.Play(plant.GetPosition());
 	}
 
 	/**

@@ -10,18 +10,40 @@
  *
 */
 
+enum ExpansionObjectiveTriggerType
+{
+	TRAVEL = 1,
+	AICAMP,
+	AIESCORT
+};
+
 class ExpansionObjectiveTriggerBase: Trigger
 {
-	protected ExpansionQuestObjectiveEventBase m_Objective;
-
-	void ExpansionObjectiveTriggerBase()
+	protected ExpansionObjectiveTriggerType m_TriggerType;
+	protected int m_QuestID = -1;
+	protected int m_ObjectiveType = ExpansionQuestObjectiveType.NONE;
+	protected int m_ObjectiveID = -1;
+	
+	void SetObjectiveData(int questID, int objectiveType, int objectiveID)
 	{
-		SetEventMask(EntityEvent.ENTER | EntityEvent.LEAVE);
+		m_QuestID = questID;
+		m_ObjectiveType = objectiveType;
+		m_ObjectiveID = objectiveID;
 	}
-
-	void SetObjectiveData(ExpansionQuestObjectiveEventBase objective)
+	
+	int GetQuestID()
 	{
-		m_Objective = objective;
+		return m_QuestID;
+	}
+	
+	int GetObjectiveType()
+	{
+		return m_ObjectiveType;
+	}
+	
+	int GetObjectiveID()
+	{
+		return m_ObjectiveID;
 	}
 	
 	void SetTriggerRadius(int radius)
@@ -35,18 +57,6 @@ class ExpansionObjectiveTriggerBase: Trigger
 		return true;
 	}
 
-#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-	protected void TriggerDebug()
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		vector pos = GetPosition();
-		QuestPrint("Position: " + pos);
-		QuestPrint("Objective: " + m_Objective.ToString());
-		m_Objective.QuestDebug();
-	}
-#endif
-
 	override protected void AddInsider(Object obj)
 	{
 		//! Do nothing..
@@ -56,6 +66,21 @@ class ExpansionObjectiveTriggerBase: Trigger
 	{
 		//! Do nothing..
 	}
+
+	ExpansionObjectiveTriggerType GetTriggerType()
+	{
+		return m_TriggerType;
+	}
+
+#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+	protected void TriggerDebug()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		vector pos = GetPosition();
+		QuestPrint("Position: " + pos);
+	}
+#endif
 
 	protected void QuestPrint(string text)
 	{

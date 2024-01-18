@@ -64,6 +64,16 @@ modded class ActionDeployObject
 		return false;
 	}
 
+	override string GetText()
+	{
+		string text = super.GetText();
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
+	}
+
 	// ------------------------------------------------------------	
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
@@ -71,6 +81,9 @@ modded class ActionDeployObject
 			return false;
 		
 		if ( player.Expansion_IsInSafeZone() )
+			return false;
+
+		if ( !GetExpansionSettings().GetBaseBuilding(false).IsLoaded() || !GetExpansionSettings().GetTerritory(false).IsLoaded() )
 			return false;
 
 		bool isDisallowedOutsideBuildZone;
@@ -127,10 +140,7 @@ modded class ActionDeployObject
 			}
 		}
 
-		if ( !GetExpansionSettings().GetTerritory(false).IsLoaded() || !GetExpansionSettings().GetTerritory().EnableTerritories )
-			return super.ActionCondition( player, target, item );
-
-		if ( GetExpansionSettings().GetBaseBuilding(false).IsLoaded() )
+		if ( GetExpansionSettings().GetTerritory().EnableTerritories )
 		{
 			if ( GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory == true && !isDisallowedOutsideBuildZone )
 			{

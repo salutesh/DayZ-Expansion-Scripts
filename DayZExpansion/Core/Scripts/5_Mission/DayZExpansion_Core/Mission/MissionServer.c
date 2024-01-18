@@ -81,7 +81,7 @@ modded class MissionServer
 		string exitAfter;
 		if (GetCLIParam("exitAfter", exitAfter))
 		{
-			EXPrint(this, "Command line parameter exitAfter found - exiting after " + exitAfter + " seconds");
+			EXPrint(ToString() + " Command line parameter exitAfter found - exiting after " + exitAfter + " seconds");
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().RequestExit, exitAfter.ToInt() * 1000, false, 0);
 		}
 	}

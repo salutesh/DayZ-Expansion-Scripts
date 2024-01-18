@@ -53,6 +53,11 @@ class ExpansionActionToolBase : ActionContinuousBase
 		m_CallbackClass = ExpansionActionToolBaseCB;
 	}
 
+	bool SetupCondition()
+	{
+		return true;
+	}
+
 	void Setup( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		m_Time = 15 * 60;  //! 15 minutes
@@ -64,6 +69,9 @@ class ExpansionActionToolBase : ActionContinuousBase
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		if ( !item || !target.GetParentOrObject() )
+			return false;
+
+		if (!SetupCondition())
 			return false;
 
 		Setup( player, target, item );

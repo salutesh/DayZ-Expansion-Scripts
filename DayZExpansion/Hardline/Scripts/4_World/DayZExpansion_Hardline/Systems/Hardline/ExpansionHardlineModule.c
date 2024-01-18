@@ -140,7 +140,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 			if (data.Load(playerUID))
 			{
-				EXPrint(this, "::LoadPlayerData - Loaded player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
+				EXPrint(ToString() + " ::LoadPlayerData - Loaded player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
 			#ifdef EXPANSIONMODAI
 				if (data.FactionID != -1 && !GetExpansionSettings().GetHardline().EnableFactionPersistence)
 				{

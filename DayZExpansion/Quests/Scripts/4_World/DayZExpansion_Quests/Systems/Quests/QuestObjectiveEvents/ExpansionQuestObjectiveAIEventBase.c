@@ -58,9 +58,7 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 			return false;
 
 		if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(m_Quest.GetQuestConfig().GetID()))
-		{
 			CleanupPatrol(true);
-		}
 
 		return true;
 	}
@@ -82,10 +80,8 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		if (!super.OnComplete())
 			return false;
 
-		if (ExpansionQuestModule.GetModuleInstance().CanDeleteQuestPatrol(m_Quest.GetQuestConfig().GetID()))
-		{
+		if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(m_Quest.GetQuestConfig().GetID()))
 			CleanupPatrol();
-		}
 
 		return true;
 	}
@@ -96,10 +92,10 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		array<eAIDynamicPatrol> questPatrols;
+		array<eAIQuestPatrol> questPatrols;
 		if (ExpansionQuestModule.GetModuleInstance().QuestPatrolExists(m_Quest.GetQuestConfig().GetID(), questPatrols))
 		{
-			foreach(eAIDynamicPatrol patrol: questPatrols)
+			foreach(eAIQuestPatrol patrol: questPatrols)
 			{
 				eAIGroup group = patrol.m_Group;
 				ObjectivePrint("Patrol: " + patrol.ToString());
@@ -123,23 +119,33 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 	{
 		DayZPlayerImplement victimPlayer;
 		if (!Class.CastTo(victimPlayer, victim))
+		{
+			ObjectivePrint("::KilledAIMember - F1 - FALSE");
 			return false;
+		}
 
-		array<eAIDynamicPatrol> questPatrols;
+		array<eAIQuestPatrol> questPatrols = {};
 		if (!ExpansionQuestModule.GetModuleInstance().QuestPatrolExists(m_Quest.GetQuestConfig().GetID(), questPatrols))
+		{
+			ObjectivePrint("::KilledAIMember - F2 - FALSE");
 			return false;
+		}
 
-		foreach (eAIDynamicPatrol patrol: questPatrols)
+		foreach (eAIQuestPatrol patrol: questPatrols)
 		{
 			eAIGroup group = patrol.m_Group;
 			if (group && group.IsMember(victimPlayer))
+			{
+				ObjectivePrint("::KilledAIMember - TRUE");
 				return true;
+			}
 		}
 
+		ObjectivePrint("::KilledAIMember - F3 - FALSE");
 		return false;
 	}
 
-	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
+	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null, map<Man, ref ExpansionEntityHitInfo> hitMap = null)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -148,6 +154,7 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		//! Check if killed ai entity was part of this objective event group
 		if (KilledAIMember(victim))
 		{
+			ObjectivePrint("::OnEntityKilled - Entity killed was a valid target! Type: " + victim.GetType());
 			if (m_TotalKillCount < m_TotalUnitsAmount)
 			{
 				m_TotalKillCount++;
@@ -159,6 +166,12 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 				RemoveObjectiveMarkers();
 		#endif
 		}
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		else
+		{
+			ObjectivePrint("::OnEntityKilled - Entity killed was not a valid target! Type: " + victim.GetType());
+		}
+	#endif
 	}
 
 	protected void CheckQuestAIPatrol();
@@ -173,12 +186,12 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		if (m_TotalKillCount >= m_TotalUnitsAmount)
 			return;
 
-		array<eAIDynamicPatrol> questPatrols;
+		array<eAIQuestPatrol> questPatrols;
 		if (ExpansionQuestModule.GetModuleInstance().QuestPatrolExists(m_Quest.GetQuestConfig().GetID(), questPatrols))
 		{
 			//! Check if the previous patrol groups related to this quest have been killed
 			int killedPatrolCount;
-			foreach (eAIDynamicPatrol questPatrol: questPatrols)
+			foreach (eAIQuestPatrol questPatrol: questPatrols)
 			{
 				if (questPatrol.WasGroupDestroyed())
 					killedPatrolCount++;
@@ -198,9 +211,9 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 
 	protected void CreateQuestAIPatrol();
 
-	static eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group, int killCount = 0, int respawnTime = -1, int despawnTime = 0, float minDistRadius = 20, float maxDistRadius = 600, float despawnRadius = 880)
+	/*static eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group, int killCount = 0, int respawnTime = -1, int despawnTime = 0, float minDistRadius = 20, float maxDistRadius = 100, float despawnRadius = 100)
 	{
-		Print("=================== Expansion Quest AI Patrol ===================");
+		//Print("=================== Expansion Quest AI Patrol ===================");
 		int aiSum;
 		if ( group.NumberOfAI != 0 )
 		{
@@ -221,8 +234,8 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 
         if ( !group.Waypoints )
         {
-        Error("[QUESTS] No waypoints (validate your file with a json validator)");
-           return NULL;
+        	Error("[QUESTS] No waypoints (validate your file with a json validator)");
+           	return NULL;
         }
 
 		vector startpos = group.Waypoints[0];
@@ -237,14 +250,15 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		if ( startpos[1] < group.Waypoints[0][1] )
 			startpos[1] = group.Waypoints[0][1];
 
-		Print("[QUESTS] Created trigger for "+aiSum+" "+group.Faction+" bots at "+group.Waypoints[0]);
+		//Print("[QUESTS] Created trigger for "+aiSum+" "+group.Faction+" bots at "+group.Waypoints[0]);
 
 		eAIDynamicPatrol patrol = eAIDynamicPatrol.CreateEx(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawnTime, despawnTime, eAIFaction.Create(group.Faction), eAIFormation.Create(group.Formation), true, minDistRadius, maxDistRadius, despawnRadius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
         patrol.SetAccuracy(group.AccuracyMin, group.AccuracyMax);
+		patrol.SetDamageReceivedMultiplier(group.DamageReceivedMultiplier);
 
-		Print("=================== Expansion Quest AI Patrol ===================");
+		//Print("=================== Expansion Quest AI Patrol ===================");
 		return patrol;
-	}
+	}*/
 
 	void SetKillCount(int count)
 	{

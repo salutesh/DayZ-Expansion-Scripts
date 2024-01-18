@@ -147,7 +147,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 		Reset(InventoryItem.Cast(m_Hands), GetMeleeHitType());
 		TargetSelection();
-		if (m_HitType == EMeleeHitType.NONE)
+		if (m_HitType == EMeleeHitType.NONE || !m_TargetObject)
 		{
 			return false;
 		}
@@ -204,6 +204,38 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		default:
 			m_DZPlayer.DepleteStamina(EStaminaModifiers.MELEE_LIGHT);
 			break;
+		}
+	}
+
+	static void eAI_ApplyYeetForce(eAIEntityTargetInformation info, float yeetForce, vector sourcePosition, vector yeetFactors)
+	{
+		if (yeetForce)
+		{
+			EntityAI targetEntity = info.GetEntity();
+			float mass = dBodyGetMass(targetEntity);
+
+			if (!mass)
+				mass = targetEntity.GetWeightEx() / 1000.0;
+
+			vector targetPosition = targetEntity.GetPosition() + info.GetAimOffset();
+
+			for (int i = 0; i < 3; i++)
+			{
+				targetPosition[i] = ExpansionMath.LinearConversion(0.0, 1.0, yeetFactors[i], sourcePosition[i], targetPosition[i]);
+			}
+
+			vector yeetDirection = vector.Direction(sourcePosition, targetPosition).Normalized();
+
+			EXTrace.Print(EXTrace.AI, targetEntity, "::eAI_ApplyYeetForce mass " + mass + " yeet " + yeetForce + " dir " + yeetDirection);
+
+			dBodyApplyImpulse(targetEntity, yeetDirection * mass * yeetForce);
+
+			AnimalBase animal;
+			ZombieBase zombie;
+			if (Class.CastTo(animal, targetEntity))
+				animal.Expansion_SetAirborne(true);
+			else if (Class.CastTo(zombie, targetEntity))
+				zombie.Expansion_SetAirborne(true);
 		}
 	}
 

@@ -55,6 +55,42 @@ class CfgSoundShaders
 		samples[] = {{"\DZ\sounds\environment\buildings\doors\WoodSlide\doorWoodSlideClose_4",1}};
 		volume = 0.9;
 	};
+	class Expansion_Uh1h_Starter_Start_Int_SoundShader: Expansion_Uh1h_Base_Int_SoundShader
+	{
+		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\Uh1h\medium_int_starter_start",1}};
+		frequency = 1;
+		volume = 1;
+	};
+	class Expansion_Uh1h_Starter_Start_Ext_SoundShader: Expansion_Uh1h_Base_Ext_SoundShader
+	{
+		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\Uh1h\medium_ext_starter_start",1}};
+		frequency = 1;
+		volume = 1;
+	};
+	class Expansion_Uh1h_Starter_Stop_Int_SoundShader: Expansion_Uh1h_Base_Int_SoundShader
+	{
+		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\Uh1h\medium_int_starter_stop",1}};
+		frequency = 1;
+		volume = 1;
+	};
+	class Expansion_Uh1h_Starter_Stop_Ext_SoundShader: Expansion_Uh1h_Base_Ext_SoundShader
+	{
+		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\Uh1h\medium_ext_starter_stop",1}};
+		frequency = 1;
+		volume = 1;
+	};
+	class Expansion_Uh1h_Engine_Idle_Start_Int_SoundShader: Expansion_Uh1h_Base_Int_SoundShader
+	{
+		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\Uh1h\medium_int_idle_start",1}};
+		frequency = 1;
+		volume = 0.3;
+	};
+	class Expansion_Uh1h_Engine_Idle_Start_Ext_SoundShader: Expansion_Uh1h_Base_Ext_SoundShader
+	{
+		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\Uh1h\medium_ext_idle_start",1}};
+		frequency = 1;
+		volume = 0.3;
+	};
 };
 class CfgSoundSets
 {
@@ -110,5 +146,41 @@ class CfgSoundSets
 	class Expansion_Uh1h_SlidingDoor_Close_SoundSet: baseVehicles_SoundSet
 	{
 		soundShaders[] = {"Expansion_Uh1h_SlidingDoor_Close_SoundShader"};
+	};
+	class Expansion_Uh1h_Starter_Start_Int_SoundSet: Expansion_Uh1h_Base_Int_SoundSet
+	{
+		loop = 0;
+		soundShaders[] = {"Expansion_Uh1h_Starter_Start_Int_SoundShader"};
+		volumeFactor = 1;
+	};
+	class Expansion_Uh1h_Starter_Start_Ext_SoundSet: Expansion_Uh1h_Base_Ext_SoundSet
+	{
+		loop = 0;
+		soundShaders[] = {"Expansion_Uh1h_Starter_Start_Ext_SoundShader"};
+		volumeFactor = 1;
+	};
+	class Expansion_Uh1h_Starter_Stop_Int_SoundSet: Expansion_Uh1h_Base_Int_SoundSet
+	{
+		loop = 0;
+		soundShaders[] = {"Expansion_Uh1h_Starter_Stop_Int_SoundShader"};
+		volumeFactor = 1;
+	};
+	class Expansion_Uh1h_Starter_Stop_Ext_SoundSet: Expansion_Uh1h_Base_Ext_SoundSet
+	{
+		loop = 0;
+		soundShaders[] = {"Expansion_Uh1h_Starter_Stop_Ext_SoundShader"};
+		volumeFactor = 1;
+	};
+	class Expansion_Uh1h_Engine_Idle_Start_Int_SoundSet: Expansion_Uh1h_Base_Int_SoundSet
+	{
+		loop = 0;
+		soundShaders[] = {"Expansion_Uh1h_Engine_Idle_Start_Int_SoundShader"};
+		volumeFactor = 1;
+	};
+	class Expansion_Uh1h_Engine_Idle_Start_Ext_SoundSet: Expansion_Uh1h_Base_Ext_SoundSet
+	{
+		loop = 0;
+		soundShaders[] = {"Expansion_Uh1h_Engine_Idle_Start_Ext_SoundShader"};
+		volumeFactor = 1;
 	};
 };

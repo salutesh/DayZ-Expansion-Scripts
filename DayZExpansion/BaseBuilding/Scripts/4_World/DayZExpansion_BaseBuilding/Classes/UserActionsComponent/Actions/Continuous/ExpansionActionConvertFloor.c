@@ -41,9 +41,17 @@ class ExpansionActionConvertFloor : ActionContinuousBase
 
 	override string GetText()
 	{
+		string text;
+
 		if (m_ExpansionFloor.IsRoof())
-			return "#STR_USRACT_CONVERT_TO_FLOOR";
-		return "#STR_USRACT_CONVERT_TO_ROOF";
+			text = "#STR_USRACT_CONVERT_TO_FLOOR";
+		else
+			text = "#STR_USRACT_CONVERT_TO_ROOF";
+
+		if (GetPermissionsManager().IsAdminToolsToggledOn())
+			text = "[ADMIN] " + text;
+
+		return text;
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )

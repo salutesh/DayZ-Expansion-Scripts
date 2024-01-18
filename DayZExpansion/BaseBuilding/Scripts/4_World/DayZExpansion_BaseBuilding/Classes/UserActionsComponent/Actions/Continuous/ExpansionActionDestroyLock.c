@@ -12,6 +12,11 @@
 
 class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 {
+	override bool SetupCondition()
+	{
+		return GetExpansionSettings().GetRaid(false).IsLoaded();
+	}
+
 	override void Setup( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		Object targetObject = target.GetParentOrObject();
