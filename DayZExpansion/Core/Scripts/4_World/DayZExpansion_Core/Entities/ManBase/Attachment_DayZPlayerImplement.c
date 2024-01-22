@@ -290,34 +290,6 @@ modded class DayZPlayerImplement
 		return false;
 	}
 
-	override bool HandleDeath(int pCurrentCommandID)
-	{
-		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE && m_DeathAnimType != -2)
-		{
-			HumanCommandVehicle hcv = GetCommand_Vehicle();
-			Transport transport = hcv.GetTransport();
-			if (!transport) //! We died in a wreck, it no longer exists
-			{
-				if (m_DeathAnimType != -2 && g_Game.GetMissionState() == g_Game.MISSION_STATE_GAME)
-				{
-					int type = GetTypeOfDeath(pCurrentCommandID);
-
-					DayZPlayerCommandDeathCallback callback = DayZPlayerCommandDeathCallback.Cast(StartCommand_Death(type, m_DeathHitDir, DayZPlayerCommandDeathCallback));
-					callback.m_pPlayer = PlayerBase.Cast(this);
-
-					ResetDeathStartTime();
-					GetGame().GetWorld().SetVoiceOn(false);
-
-					return true;
-				}
-
-				return false;
-			}
-		}
-
-		return super.HandleDeath(pCurrentCommandID);
-	}
-
 	bool IsAttached()
 	{
 		Error("DEPRECATED - please use Expansion_IsAttached()");
@@ -569,48 +541,6 @@ modded class DayZPlayerImplement
 			return ExpansionPlayerRaycastResult.FALSE;
 
 		return ExpansionPlayerRaycastResult.DETECT;
-	}
-
-	override bool ModCommandHandlerBefore(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
-	{
-		if (pCurrentCommandFinished)
-		{
-			if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_UNCONSCIOUS)
-			{
-				if ((m_LastCommandBeforeUnconscious == DayZPlayerConstants.COMMANDID_VEHICLE) && (m_TransportCache != NULL))
-				{
-					int crew_index = m_TransportCache.CrewMemberIndex(this);
-					int seat = m_TransportCache.GetSeatAnimationType(crew_index);
-					StartCommand_Vehicle(m_TransportCache, crew_index, seat, true);
-					m_TransportCache = NULL;
-					return true;
-				}
-			}
-
-			if (PhysicsIsFalling(true))
-			{
-				StartCommand_Fall(0);
-				m_FallYDiff = GetPosition()[1];
-
-				return true;
-			}
-
-			if (m_Swimming.m_bWasSwimming)
-			{
-				StartCommand_Swim();
-
-				return true;
-			}
-
-			StartCommand_Move();
-
-			return true;
-		}
-
-		if (super.ModCommandHandlerBefore(pDt, pCurrentCommandID, pCurrentCommandFinished))
-			return true;
-
-		return false;
 	}
 
 	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)

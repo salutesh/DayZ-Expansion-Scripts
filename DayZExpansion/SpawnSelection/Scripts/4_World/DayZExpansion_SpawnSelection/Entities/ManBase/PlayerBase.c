@@ -19,4 +19,17 @@ modded class PlayerBase
 		if (!m_Expansion_SpawnSelect)
 			super.UpdatePlayerMeasures();
 	}
+
+	override void Expansion_OnSyncJuncture(int pJunctureID, ParamsReadContext pCtx)
+	{
+		super.Expansion_OnSyncJuncture(pJunctureID, pCtx);
+
+		switch (pJunctureID)
+		{
+			case DayZPlayerSyncJunctures.EXPANSION_SJ_TELEPORT:
+				if (m_Expansion_SpawnSelect)
+					MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_EndSpawnSelection(this);
+				break;
+		}
+	}
 };

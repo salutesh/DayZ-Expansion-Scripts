@@ -79,6 +79,7 @@ class ExpansionClientSettings
 	// ================= Codelock Settings =================
 	bool StreamerMode;
 	bool ShowPINCode;
+	bool AutoOpenLockMenuAfterPlacing;
 
 	// ================= Misc =================
 	bool EnableLiquidTypeColors;
@@ -652,7 +653,7 @@ class ExpansionClientSettings
 			
 			EXPrint(ToString() + "::OnRead - Add quest visibity state: " + questID + " | " + visState);
 			QuestVisibilityStates[questID] = visState;
-		}	
+		}
 		
 		if ( version < 51 )
 		{
@@ -665,6 +666,20 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read EnableLiquidTypeColors!");
 			return false;
 		}
+		
+		if ( version < 52 )
+		{
+			AutoOpenLockMenuAfterPlacing = false;
+			return true;
+		}
+
+		if ( !ctx.Read( AutoOpenLockMenuAfterPlacing ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read AutoOpenLockMenuAfterPlacing!");
+			return false;
+		}
+
+		
 
 		return true;
 	}
@@ -790,6 +805,8 @@ class ExpansionClientSettings
 		}
 
 		ctx.Write( EnableLiquidTypeColors );
+
+		ctx.Write( AutoOpenLockMenuAfterPlacing );		
 	}
 
 	// -----------------------------------------------------------
@@ -887,6 +904,7 @@ class ExpansionClientSettings
 
 		StreamerMode = false;
 		ShowPINCode = true;
+		AutoOpenLockMenuAfterPlacing = false;
 
 		EnableLiquidTypeColors = true;
 
@@ -1013,10 +1031,15 @@ class ExpansionClientSettings
 		CreateToggle( "StreamerMode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION_DESC" );
 		//! Option to toggle display of pins and passwords
 		CreateToggle( "ShowPINCode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE_DESC" );
-
+		
 	#ifdef EXPANSION_INSPECT_MENU_NEW_ENABLE
 		CreateToggle( "EnableLiquidTypeColors", "#STR_EXPANSION_SETTINGS_ENABLE_LIQUID_TYPE_COLORS", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_ENABLE_LIQUID_TYPE_COLORS_DESC" );
 	#endif
+
+		CreateCategory( "BaseBuilding", "#STR_EXPANSION_SETTINGS_BASEBUILDING" );
+
+		//! Option to automaticaly open the lock menu after placing the codelock
+		CreateToggle( "AutoOpenLockMenuAfterPlacing", "#STR_EXPANSION_SETTINGS_AUTOOPEN_CODELOCK_PLACING", "#STR_EXPANSION_SETTINGS_BASEBUILDING", "#STR_EXPANSION_SETTINGS_AUTOOPEN_CODELOCK_PLACING_DESC" );
 
 	if ( m_ShouldShowHUDCategory )
 		CreateCategory( "HUD", "#STR_EXPANSION_SETTINGS_HUD" );

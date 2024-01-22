@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Vehicles_Wheeled","DZ_Characters","DZ_Scripts","DZ_AI"};
+		requiredAddons[] = {"DZ_Characters","DZ_Gear_Camping"};
 	};
 };
 class CfgSurfaces
@@ -119,6 +119,37 @@ class CfgVehicles
 	class SurvivorF_Eva;
 	class SurvivorF_Naomi;
 	class SurvivorF_Baty;
+	class SeaChest;
+	class ExpansionAdminChest: SeaChest
+	{
+		displayName = "Admin Chest";
+		attachments[] = {"Shoulder","Melee","Vest","Body","Hips","Legs","Back","Headgear","Mask","Eyewear","Gloves","Feet","Armband"};
+		class Cargo
+		{
+			itemsCargoSize[] = {10,100};
+		};
+		class DamageSystem
+		{
+			class GlobalArmor
+			{
+				class FragGrenade
+				{
+					class Health
+					{
+						damage = 0;
+					};
+					class Blood
+					{
+						damage = 0;
+					};
+					class Shock
+					{
+						damage = 0;
+					};
+				};
+			};
+		};
+	};
 	class ExpansionPickup: Inventory_Base
 	{
 		scope = 2;

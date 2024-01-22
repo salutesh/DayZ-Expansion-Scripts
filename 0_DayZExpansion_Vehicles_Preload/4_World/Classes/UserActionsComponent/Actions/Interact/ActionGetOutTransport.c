@@ -21,7 +21,8 @@ modded class ActionGetOutTransport
 
 		if (got_action_data.m_WasJumpingOut)
 		{
-			got_action_data.m_Player.OnJumpOutVehicleFinish(got_action_data.m_CarSpeed);
+			float carSpeed = got_action_data.m_CarSpeed;
+			got_action_data.m_Player.OnJumpOutVehicleFinish(carSpeed);
 
 			//! Jump out damage should only apply for land vehicles (cars), not helis, planes or boats, and only if player is not in godmode
 			if (got_action_data.m_Player.Expansion_CanBeDamaged("FallDamage") && car && car.IsCar())
@@ -32,7 +33,10 @@ modded class ActionGetOutTransport
 
 				vector posMS = player.WorldToModel(player.GetPosition());
 				player.DamageAllLegs(got_action_data.m_DmgTaken); //! Additional leg specific damage dealing
-				player.ProcessDirectDamage(DT_CUSTOM, player, "", "FallDamage", posMS, got_action_data.m_DmgTaken);
+				//float healthCoef = Math.InverseLerp(HEALTH_LOW_SPEED_VALUE, HEALTH_HIGH_SPEED_VALUE, carSpeed);  //! private const >:(
+				float healthCoef = Math.InverseLerp(30, 70, carSpeed);
+				healthCoef = Math.Clamp(healthCoef, 0.0, 1.0);
+				player.ProcessDirectDamage(DT_CUSTOM, player, "", DayZPlayerImplementFallDamage.FALL_DAMAGE_AMMO_HEALTH, posMS, healthCoef);
 			}
 		}
 

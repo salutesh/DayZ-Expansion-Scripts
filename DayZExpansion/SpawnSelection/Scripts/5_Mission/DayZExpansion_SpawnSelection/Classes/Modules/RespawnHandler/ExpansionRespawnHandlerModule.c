@@ -261,7 +261,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			
 			vector pos = territory.GetPosition();
 			// Offset player slighly horizontally and vertically so we don't spawn them on top of the flag pole
-			pos = Vector(pos[0] + 0.5, pos[1], pos[2] + 0.5);
+			pos = Vector(pos[0] + 1.0, pos[1], pos[2] + 1.0);
 
 			positions.Insert(pos);
 			location = new ExpansionSpawnLocation(territory.GetTerritoryName(), positions, true);
@@ -440,18 +440,13 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
 
 		DayZPlayerSyncJunctures.ExpansionTeleport(player, spawnPoint);
-					
-		EndSpawnSelection(player, state);
-
-		if (GetExpansionSettings().GetLog().SpawnSelection)
-			GetExpansionSettings().GetLog().PrintLog("[SpawnSelection] Player \"" + sender.GetName() + "\" (id=" + playerUID + ")" + " spawned at " + spawnPoint);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule EndSpawnSelection
 	// Called on server
 	// ------------------------------------------------------------
-	void EndSpawnSelection(PlayerBase player, ExpansionPlayerState state)
+	void EndSpawnSelection(PlayerBase player)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
@@ -463,7 +458,11 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		if ( !identity )
 			return; // can be NULL if the player rage quit
 
+		ExpansionEquipCharacter(player);
+
 		string uid = identity.GetId();
+
+		auto state = m_PlayerStartStates.Get(uid);
 
 		//! Make sure clothes and contained items are dry after using spawn select in case we were in the water
 		ResetItemWetness(player);
@@ -487,6 +486,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		
 		auto rpc = Expansion_CreateRPC("RPC_CloseSpawnMenu");
 		rpc.Expansion_Send(true, identity);
+
+		if (GetExpansionSettings().GetLog().SpawnSelection)
+			GetExpansionSettings().GetLog().PrintLog("[SpawnSelection] Player \"" + identity.GetName() + "\" (id=" + uid + ")" + " spawned at " + player.GetPosition());
 	}
 	
 	void ResetItemWetness(EntityAI parent)

@@ -164,7 +164,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		switch ( damageType )
 		{
 			case DT_CUSTOM:
-				if ( ammo == "FallDamage" )											//! Fall damage
+				if ( ammo == DayZPlayerImplementFallDamage.FALL_DAMAGE_AMMO_HEALTH )	//! Fall damage
 				{
 					ResetKillfeed(player, source);
 					DoKillfeed_SetHitCheck(ExpansionKillFeedMessageType.FALL, "Human Skull", m_SourceType);

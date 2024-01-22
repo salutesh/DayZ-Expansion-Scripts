@@ -194,7 +194,7 @@ class ExpansionItemSpawnHelper
 			}
 			else
 			{
-				newStorage = ExpansionTemporaryOwnedContainer.Cast(GetGame().CreateObject("ExpansionTemporaryOwnedContainer", parent.GetPosition()));
+				newStorage = ExpansionTemporaryOwnedContainer.Cast(GetGame().CreateObjectEx("ExpansionTemporaryOwnedContainer", player.GetPosition(), ECE_PLACE_ON_SURFACE));
 
 				if (!newStorage)
 				{

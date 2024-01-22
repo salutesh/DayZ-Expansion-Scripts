@@ -546,7 +546,10 @@ class ExpansionHelicopterScript: CarScript
 			//if (position[1] - ground[1] <= 2.53)
 				//dummySpawnPosition = ground;  //! If we died close to ground, spawn dummy on ground
 
-			EntityAI dummy = EntityAI.Cast(GetGame().CreateObject(player.GetType(), dummySpawnPosition));
+			Man dummy = Man.Cast(GetGame().CreateObject(player.GetType(), dummySpawnPosition));
+
+			float playtime = player.StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
+			dummy.StatUpdate(AnalyticsManagerServer.STAT_PLAYTIME, playtime);  //! Make gravecross etc work correctly
 
 			ExpansionTransferInventory(player, dummy, true);
 
@@ -554,7 +557,7 @@ class ExpansionHelicopterScript: CarScript
 			vector force = velocity * dBodyGetMass(dummy);
 			dBodyApplyImpulse(dummy, force);
 
-			float fallHeight = dummySpawnPosition[1] - ground[1];
+			float fallHeight = Math.Max(dummySpawnPosition[1] - ground[1], 0.0);
 
 			if (fallHeight > 2.53)
 			{
@@ -565,7 +568,7 @@ class ExpansionHelicopterScript: CarScript
 
 			//! Just in case fall doesn't kill our dummy (maybe because we died on ground), kill it later.
 			//! This may look a little awkward, but at least makes sure it's dead.
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(dummy.ProcessDirectDamage, Math.Sqrt((fallHeight * 2) / 9.81) * 1000, false, DT_CUSTOM, this, "", "FallDamage", "0 0 0", dummy.GetMaxHealth());
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(dummy.ProcessDirectDamage, Math.Sqrt((fallHeight * 2) / 9.81) * 1000, false, DT_CUSTOM, this, "", DayZPlayerImplementFallDamage.FALL_DAMAGE_AMMO_HEALTH, vector.Zero, dummy.GetMaxHealth(), ProcessDirectDamageFlags.ALL_TRANSFER);
 
 			//! Needs to be called at least two simulation frames (50ms) later
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.Delete, 50, false);
