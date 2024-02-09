@@ -438,7 +438,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 
 		ExpansionP2PMarketListing listing = GetListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader());
-		string globalIDText = ExpansionStatic.IntToHex(listing.GetGlobalID());
+		string globalIDText = ExpansionStatic.IntToHex(globalID);
 		if (!listing)
 		{
 			Error(ToString() + "::RPC_RequestSaleFromListing - couldn't find listing with global ID " + globalIDText);
