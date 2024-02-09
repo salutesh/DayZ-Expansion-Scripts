@@ -373,7 +373,8 @@ modded class DayZPlayerImplement
 
 		super.EEKilled(killer);
 
-		eAI_Cleanup();
+		//! Since we're going to remove this player from their group, do it in next frame so other mods can still access group in EEKilled
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(eAI_Cleanup, false);
 	}
 
 	void eAI_Cleanup(bool autoDeleteGroup = false)

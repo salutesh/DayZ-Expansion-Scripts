@@ -18,16 +18,6 @@ class ExpansionRPCTypeMapping
 	ref map<string, int> m_RegisteredClientRPCIDs = new map<string, int>;
 	ref map<int, string> m_RegisteredClientRPCs = new map<int, string>;
 
-#ifdef DIAG
-	void ~ExpansionRPCTypeMapping()
-	{
-		if (!GetGame())
-			return;
-
-		EXTrace.Print(EXTrace.RPC, this, "~ExpansionRPCTypeMapping");
-	}
-#endif
-
 	void DebugIDs()
 	{
 		foreach (string serverRPC, int serverRPCID: m_RegisteredServerRPCIDs)
@@ -48,7 +38,7 @@ class ExpansionRPCManager
 
 	static ref map<typename, ExpansionRPCManager> s_TargetlessManagersByType = new map<typename, ExpansionRPCManager>;
 	static ref map<int, ExpansionRPCManager> s_RegisteredTargetlessManagers = new map<int, ExpansionRPCManager>;
-	static ref map<typename, ExpansionRPCTypeMapping> s_TypeMappings = new map<typename, ExpansionRPCTypeMapping>;
+	static ref map<typename, ref ExpansionRPCTypeMapping> s_TypeMappings = new map<typename, ref ExpansionRPCTypeMapping>;
 
 	protected Managed m_Owner;
 	protected bool m_OwnerIsObject;
@@ -74,7 +64,7 @@ class ExpansionRPCManager
 
 		if (!m_OwnerIsObject)
 		{
-			auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + m_Type, "" + m_TypeMapping, "" + s_RegisteredTargetlessManagers.Count());
+			auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + m_Type, "" + s_RegisteredTargetlessManagers.Count());
 
 			s_TargetlessManagersByType.Remove(m_Type);
 
@@ -142,15 +132,11 @@ class ExpansionRPCManager
 	{
 		m_Type = type;
 
-		if (!s_TypeMappings.Find(m_Type, m_TypeMapping) || !m_TypeMapping)
+		if (!s_TypeMappings.Find(m_Type, m_TypeMapping))
 		{
 			m_TypeMapping = new ExpansionRPCTypeMapping();
 			s_TypeMappings[m_Type] = m_TypeMapping;
 		}
-
-	#ifdef DIAG
-		EXTrace.Print(EXTrace.RPC, this, "SetType " + type + " " + m_TypeMapping);
-	#endif
 	}
 
 	Managed GetOwner()
