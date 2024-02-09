@@ -742,12 +742,10 @@ class ExpansionVehicleBase: ItemBase
 				m_RearLight.Destroy();
 		}
 		
-#ifdef SERVER
-		if (GetExpansionSettings().GetLog().VehicleDeleted)
+		if (GetGame().IsServer() && GetExpansionSettings().GetLog().VehicleDeleted)
 		{
 			GetExpansionSettings().GetLog().PrintLog("[VehicleDeleted] " + GetType() + " (id=" + GetVehiclePersistentIDString() + " pos=" + GetPosition().ToString() + ")");
 		}
-#endif
 	}
 
 	void LoadConstantVariables()

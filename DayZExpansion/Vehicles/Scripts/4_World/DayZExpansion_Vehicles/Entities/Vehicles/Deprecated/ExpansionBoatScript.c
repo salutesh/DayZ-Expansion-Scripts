@@ -159,11 +159,10 @@ class ExpansionBoatScript: CarScript
 
 	override void SetActions()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "SetActions");
-#endif
-
 		super.SetActions();
+
+		if (!IsInherited(ExpansionLHD))
+			AddAction(ExpansionActionBoardBuoyantObject);
 	}
 
 	override void Expansion_OnHandleController(DayZPlayerImplement driver, float dt)

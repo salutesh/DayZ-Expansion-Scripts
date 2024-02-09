@@ -35,29 +35,50 @@ class ExpansionActionRecruitAI: ActionInteractBase
 		if (!tAI.IsAlive() || tAI.IsUnconscious())
 			return false;
 
-		if (player.GetGroup() == tAI.GetGroup())
+		eAIGroup group = tAI.GetGroup();
+		eAIGroup playerGroup = player.GetGroup();
+
+		if (group == playerGroup)
 			return false;
 
 		//! Don't allow to recruit other player's AI
-		if (tAI.GetGroup().GetLeader() && !tAI.GetGroup().GetLeader().IsAI())
+		if (group.GetLeader() && !group.GetLeader().IsAI())
 			return false;
+
+		eAIFaction faction = group.GetFaction();
 
 		//! Don't allow to recruit passive or invincible AI
-		if (tAI.eAI_IsPassive() || tAI.GetGroup().GetFaction().IsInvincible())
+		if (tAI.eAI_IsPassive() || faction.IsInvincible())
 			return false;
 
-		if (!GetExpansionSettings().GetAI(false).IsLoaded())
+		auto settings = GetExpansionSettings().GetAI(false);
+
+		if (!settings.IsLoaded())
 			return false;
 
-		if (tAI.GetGroup().GetFaction().IsGuard())
+		bool isPlayerMoving;
+		bool friendly;
+		if (faction.IsGuard())
 		{
-			if (!GetExpansionSettings().GetAI().CanRecruitGuards)
+			if (!settings.CanRecruitGuards)
 				return false;
+
+			if (GetGame().IsServer() && tAI.eAI_GetTargetThreat(player.GetTargetInformation()) > 0.2)
+			{
+				ExpansionNotification("STR_EXPANSION_HOSTILE", "STR_EXPANSION_AI_CANNOT_RECRUIT_HOSTILE_TEMP").Error(player.GetIdentity());
+				return false;
+			}
 		}
-		else
+		else if (!settings.CanRecruitFriendly)
 		{
-			if (tAI.PlayerIsEnemy(player) || !GetExpansionSettings().GetAI().CanRecruitFriendly)
-				return false;
+			return false;
+		}
+		else if (tAI.PlayerIsEnemy(player, false, isPlayerMoving, friendly))
+		{
+			if (GetGame().IsServer() && friendly)
+				ExpansionNotification("STR_EXPANSION_HOSTILE", "STR_EXPANSION_AI_CANNOT_RECRUIT_HOSTILE_TEMP").Error(player.GetIdentity());
+
+			return false;
 		}
 
 		return true;

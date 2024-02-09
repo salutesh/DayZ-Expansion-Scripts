@@ -33,6 +33,18 @@ modded class DayZPlayerImplement
 #endif
 #endif
 
+	void ~DayZPlayerImplement()
+	{
+		if (!GetGame())
+			return;
+
+	#ifdef DIAG
+		EXTrace.Print(EXTrace.AI, this, "~DayZPlayerImplement");
+	#endif
+
+		eAI_Cleanup(true);
+	}
+
 	override void Expansion_Init()
 	{
 #ifdef DIAG
@@ -149,12 +161,14 @@ modded class DayZPlayerImplement
 		if (m_eAI_Group)
 		{
 			m_eAI_GroupID = m_eAI_Group.GetID();
-			eAI_SetFactionTypeID(m_eAI_Group.GetFaction().GetTypeID());
+			int factionTypeID = m_eAI_Group.GetFaction().GetTypeID();
+			if (factionTypeID != m_eAI_FactionTypeID)
+				eAI_SetFactionTypeID(factionTypeID);
 
 			SetGroupMemberIndex(m_eAI_Group.AddMember(this));
 			EXTrace.Print(EXTrace.AI, this, "Group ID: " + m_eAI_GroupID);
 		}
-		else
+		else if (m_eAI_FactionTypeID != -1)
 		{
 			eAI_SetFactionTypeID(-1);
 		}
@@ -358,6 +372,14 @@ modded class DayZPlayerImplement
 		m_TargetInformation.OnDeath();
 
 		super.EEKilled(killer);
+
+		eAI_Cleanup();
+	}
+
+	void eAI_Cleanup(bool autoDeleteGroup = false)
+	{
+		if (GetGroup() && !GetGroup().RemoveMember(this, autoDeleteGroup) && autoDeleteGroup && !GetGroup().Count())
+			GetGroup().Delete();
 	}
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -371,6 +393,52 @@ modded class DayZPlayerImplement
 		m_TargetInformation.OnHit();
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		if (IsDamageDestroyed())
+			return;
+
+		if (!GetGroup())
+			return;
+
+		ZombieBase zmb;
+		if (Class.CastTo(zmb, source))
+		{
+			zmb.GetTargetInformation().AddFriendlyAI(this);
+
+			return;
+		}
+
+		PlayerBase player;
+		if (Class.CastTo(player, source.GetHierarchyRootPlayer()) && player != this)
+		{
+			//! If attacker is not AI, or we are their current target (else it was accidental friendly fire),
+			//! target attacker for up to 2 minutes
+			eAIBase ai;
+			if (!Class.CastTo(ai, player) || (ai.GetTarget() && ai.GetTarget().GetEntity() == this))
+			{
+				if (!ai || IsAI())
+					player.GetTargetInformation().AddFriendlyAI(this, 120000, true, 0.21);  //! Attacking player will be attacked by friendly AI
+				else
+					GetGroup().AddTarget(this, player.GetTargetInformation(), 120000, true, 0.21);   //! Attacking friendly AI will be attacked by group members of player
+			}
+
+			return;
+		}
+
+		AnimalBase animal;
+		if (Class.CastTo(animal, source))
+		{
+			animal.GetTargetInformation().AddFriendlyAI(this);
+
+			return;
+		}
+
+		//! If we loose 5.55555% of current damage zone health or more by vehicle hit, add vehicle as target
+		CarScript vehicle;
+		if (Class.CastTo(vehicle, source) && damageResult.GetDamage(dmgZone, "Health") >= GetHealth(dmgZone, "Health") * 0.055555)
+		{
+			vehicle.GetTargetInformation().AddFriendlyAI(this);
+		}
 	}
 
 	bool eAI_UpdateAgressionTimeout(float timeThreshold)

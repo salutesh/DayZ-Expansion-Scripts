@@ -479,7 +479,6 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void DeferredClientInit()
 	{
-		
 	}
 
 	override void SetActions( out TInputActionMap InputActionMap )
@@ -493,6 +492,8 @@ modded class PlayerBase
 		AddAction( ExpansionActionPaint, InputActionMap );
 
 		AddAction(ExpansionActionDebugStoreEntity, InputActionMap);
+
+		AddAction(ExpansionActionDebugLobotomize, InputActionMap);
 	}
 	
 	override bool DropItem(ItemBase item)
@@ -516,8 +517,8 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void OnUnconsciousStart()
 	{
-		if ( IsMissionClient() && GetGame().GetUIManager().GetMenu() && GetGame().GetUIManager().GetMenu().IsVisible() )
-			GetGame().GetUIManager().CloseAll();
+		if (IsMissionClient())
+			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseAll();
 
 		super.OnUnconsciousStart();
 
@@ -533,6 +534,14 @@ modded class PlayerBase
 		if (IsAlive() && !m_Expansion_CanBeLooted)
 			//! 10134 = 2 | 4 | 16 | 128 | 256 | 512 | 1024 | 8192
 			ExpansionStatic.UnlockInventoryRecursive(this, 10134);
+	}
+
+	override void OnRestrainStart()
+	{
+		if (IsMissionClient())
+			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseAll();
+
+		super.OnRestrainStart();
 	}
 
 	//! Need to override vanilla PlayerBase::IsInventoryVisible
@@ -663,6 +672,47 @@ modded class PlayerBase
 		invisibility |= InvisibilityStatus();
 #endif
 		return invisibility;
+	}
+
+	/**
+	 * @brief Check if other player is considered a helper.
+	 * 
+	 * Currently, AI that are friendly towards the player as well as guards not actively threatened by the player are considered helpers.
+	 */
+	bool Expansion_IsHelper(PlayerBase other, bool checkIfWeAreHelper = false)
+	{
+	#ifdef EXPANSIONMODAI
+		eAIBase ai;
+		if (Class.CastTo(ai, other))
+		{
+			if (!ai.PlayerIsEnemy(this))
+				return true;
+
+			if (ai.GetGroup().GetFaction().IsGuard() && ai.eAI_GetTargetThreat(GetTargetInformation()) < 0.4)
+				return true;
+		}
+		else if (checkIfWeAreHelper && Class.CastTo(ai, this))
+		{
+			if (!ai.PlayerIsEnemy(other))
+				return true;
+
+			if (ai.GetGroup().GetFaction().IsGuard() && ai.eAI_GetTargetThreat(other.GetTargetInformation()) < 0.4)
+				return true;
+		}
+	#endif
+
+		return false;
+	}
+
+	/**
+	 * @brief Check if other player is considered friendly.
+	 */
+	bool Expansion_IsFriendly(PlayerBase other)
+	{
+		if (Expansion_IsHelper(other, true))
+			return true;
+
+		return false;
 	}
 
 	// ------------------------------------------------------------

@@ -267,11 +267,11 @@ class CfgVehicles
 			altitudeFullForce = 1000;
 			altitudeNoForce = 2000;
 			bodyFrictionCoef = 1.1;
-			liftForceCoef = 1.3;
+			liftForceCoef = 1.1;
 			bankForceCoef = 0.02;
-			tailForceCoef = 1.4;
+			tailForceCoef = 1.2;
 			linearFrictionCoef[] = {16.0,0.04,0.04};
-			angularFrictionCoef = 1.5;
+			angularFrictionCoef = 1.3;
 			class Rotor
 			{
 				minAutoRotateSpeed = 2.0;

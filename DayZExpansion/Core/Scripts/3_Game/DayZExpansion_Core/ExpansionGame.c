@@ -13,6 +13,7 @@
 class ExpansionGame
 {
 	ref ExpansionUIManager m_ExUIManager;
+	ref ExpansionRPCManager m_RPCManager = new ExpansionRPCManager(this);
 
 	bool m_IsLoaded;
 
@@ -21,8 +22,8 @@ class ExpansionGame
 	// ------------------------------------------------------------
 	void ExpansionGame()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "ExpansionGame");
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, this);
 #endif
 
 		CreateExpansionUIManager();
@@ -33,11 +34,14 @@ class ExpansionGame
 	// ------------------------------------------------------------	
 	void ~ExpansionGame()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "~ExpansionGame");
-#endif
+		if (!GetGame())
+			return;
 		
 		DestroyExpansionUIManager();
+
+#ifdef DIAG
+		Print("~ExpansionGame");
+#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -73,9 +77,6 @@ class ExpansionGame
 	// ------------------------------------------------------------
 	void FirearmEffects( Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType ) 
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.WEAPONS, this, "FirearmEffects");
-#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -124,6 +125,10 @@ class ExpansionGame
 	{
 	}
 
+	void Expansion_SendFar(ExpansionScriptRPC rpc, vector position, Object target = null, bool guaranteed = false)
+	{
+	}
+
 	static bool IsMultiplayerClient()
 	{
 		//! Check for `&& IsMultiplayer` is redundant here, comment for clarity
@@ -149,5 +154,13 @@ class ExpansionGame
 	{
 		//! Check for `|| !IsMultiplayer` is redundant here, comment for clarity
 		return GetGame().IsServer();
+	}
+
+	void Lobotomize(DayZCreatureAI creature)
+	{
+	}
+
+	void LobotomySync(DayZCreatureAI creature, bool isLobotomized = false)
+	{
 	}
 };

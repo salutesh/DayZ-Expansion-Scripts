@@ -61,7 +61,7 @@
 						if (!unit.eAI_IsSideStepping() &amp;&amp; unit.eAI_HasLOS(target))
 						{
 							float distSq = target.GetDistanceSq(unit, true);
-							if (distSq &lt;= 2.25)
+							if (distSq &lt;= 4.0)
 							{
 								float movementDirection;
 								if (Math.RandomIntInclusive(0, 1))
@@ -83,7 +83,7 @@
 						auto group = unit.GetGroup();
 						if (group)
 						{
-							if (group.GetLeader() != unit)
+							if (group.GetFormationLeader() != unit)
 								position = group.GetFormationPosition(unit);
 							else
 								position = group.GetCurrentWaypoint();

@@ -5,6 +5,7 @@ modded class BuildingBase
 
 	ref eAIDynamicPatrolSpawner<BuildingBase> m_eAI_DynamicPatrolSpawner;
 	ref map<int, int> m_eAI_LastDoorInteractionTime = new map<int, int>;
+	ref map<int, ref eAIDoorTargetInformation> m_eAI_DoorTargetInformation;
 	bool m_eAI_PreventClimb;
 
 	void BuildingBase()
@@ -30,7 +31,7 @@ modded class BuildingBase
 
 		if (!s_eAI_PreventClimb)
 		{
-			s_eAI_PreventClimb = {"Land_House", "Land_Mil_Airfield_HQ"};  //! Hardcoded defaults (AI will vault those buildings' edges otherwise)
+			s_eAI_PreventClimb = {"Land_House", "Land_Mil_Airfield_HQ", "Land_Office"};  //! Hardcoded defaults (AI will vault those buildings' edges otherwise)
 			s_eAI_PreventClimb.InsertAll(GetExpansionSettings().GetAI().PreventClimb);
 		}
 
@@ -67,6 +68,21 @@ modded class BuildingBase
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 #endif
+
+	eAIDoorTargetInformation eAI_GetDoorTargetInformation(int doorIndex, vector position)
+	{
+		if (!m_eAI_DoorTargetInformation)
+			m_eAI_DoorTargetInformation = new map<int, ref eAIDoorTargetInformation>;
+
+		eAIDoorTargetInformation info;
+		if (!m_eAI_DoorTargetInformation.Find(doorIndex, info))
+		{
+			info = new eAIDoorTargetInformation(this, doorIndex, position);
+			m_eAI_DoorTargetInformation[doorIndex] = info;
+		}
+
+		return info;
+	}
 };
 
 //! Bit annoying to have to do this, it's just for error checking of AI patrol settings which uses IsKindOf

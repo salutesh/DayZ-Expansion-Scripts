@@ -18,6 +18,66 @@ class ExpansionChatMessage
 	string From;
 	string Text;
 	bool IsMuted;
+	int Color;
+
+	void SetColorByName(string colorName)
+	{
+		auto chatColors = GetExpansionSettings().GetChat().ChatColors;
+
+		//! See vanilla ChatLine::SetColorByParam
+		if (colorName)
+		{
+			//! See vanilla ChatLine::ColorNameToColor
+			switch (colorName)
+			{
+				case "colorStatusChannel":
+					Color = chatColors.Get("StatusMessageColor");
+					break;
+				case "colorAction":
+					Color = chatColors.Get("ActionMessageColor");
+					break;
+				case "colorFriendly":
+					Color = chatColors.Get("FriendlyMessageColor");
+					break;
+				case "colorImportant":
+					Color = chatColors.Get("ImportantMessageColor");
+					break;
+				default:
+					Color = chatColors.Get("DefaultMessageColor");
+					break;
+			}
+		}
+		else
+		{
+			switch (Channel)
+			{
+				case CCSystem:
+					Color = chatColors.Get("SystemChatColor");
+					break;
+				case CCAdmin:
+				case CCBattlEye:
+					Color = chatColors.Get("AdminChatColor");
+					break;
+				case CCTransmitter:
+					Color = chatColors.Get("TransmitterChatColor");
+					break;
+				case ExpansionChatChannels.CCTransport:
+					Color = chatColors.Get("TransportChatColor");
+					break;
+				case ExpansionChatChannels.CCGlobal:
+					Color = chatColors.Get("GlobalChatColor");
+					break;
+		#ifdef EXPANSIONMODGROUPS
+				case ExpansionChatChannels.CCTeam:
+					Color = chatColors.Get("PartyChatColor");
+					break;
+		#endif
+				default:
+					Color = chatColors.Get("DirectChatColor");
+					break;
+			}
+		}
+	}
 }
 
 class ExpansionChatLineBase: ExpansionScriptView
@@ -85,44 +145,33 @@ class ExpansionChatLineBase: ExpansionScriptView
 		switch (message.Channel)
 		{
 		case CCSystem:
-			SenderSetColour(ARGB(255, 255, 255, 255));
-			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("SystemChatColor"));
 			m_ChatLineController.SenderName = " Game: ";
 			break;
 		case CCAdmin:
 		case CCBattlEye:
-			SenderSetColour(ARGB(255, 255, 255, 255));
-			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("AdminChatColor"));
 			SetSenderName(message, " Admin: ");
 			break;
 		case CCTransmitter:
-			SenderSetColour(ARGB(255, 255, 255, 255));
-			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("TransmitterChatColor"));
 			m_ChatLineController.SenderName = " PAS: ";
 			break;
 		case ExpansionChatChannels.CCTransport:
-			SenderSetColour(ARGB(255, 255, 255, 255));
-			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("TransportChatColor"));
 			SetSenderName(message);
 			break;
 		case ExpansionChatChannels.CCGlobal:
-			SenderSetColour(ARGB(255, 255, 255, 255));
-			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("GlobalChatColor"));
 			SetSenderName(message);
 			break;
 #ifdef EXPANSIONMODGROUPS
 		case ExpansionChatChannels.CCTeam:
-			SenderSetColour(ARGB(255, 255, 255, 255));
-			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("PartyChatColor"));
 			SetSenderName(message);
 			break;
 #endif
 		default:
-			SenderSetColour(ARGB(255, 255, 255, 255));
-			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("DirectChatColor"));
 			SetSenderName(message);
 			break;
 		}
+
+		SenderSetColour(ARGB(255, 255, 255, 255));
+		SetTextColor(message.Color);
 
 		m_ChatLineController.Message = BreakLongWords(message);
 		m_ChatLineController.Time = message.Time;

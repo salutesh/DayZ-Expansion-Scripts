@@ -90,6 +90,11 @@ modded class PlayerBase
 		if (killerPlayer.GetIdentity())
 			killerUID = killerPlayer.GetIdentity().GetId();
 
+		bool isAI;
+	#ifdef EXPANSIONMODAI
+		isAI = IsAI();
+	#endif
+
 		int failSafe = s_Expansion_AssignedQuestObjectives.Count() + 1;
 		for (int i = 0, j = 0; i < s_Expansion_AssignedQuestObjectives.Count() && j < failSafe; j++)
 		{
@@ -147,12 +152,12 @@ modded class PlayerBase
 					maxDist = 100.0;
 
 				bool countKill = false;
-				Man questPlayer;
-				vector playerPos;
+				PlayerBase questPlayer;
+				PlayerBase killerPB = PlayerBase.Cast(killerPlayer);
 				if (!quest.GetQuestConfig().IsGroupQuest())
 				{
 					questPlayer = quest.GetPlayer();
-					if (questPlayer && (objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) || Expansion_HasHitEntity(questPlayer)))
+					if (questPlayer && objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) && ((isAI && Expansion_HasHitEntity(questPlayer)) || questPlayer.Expansion_IsHelper(killerPB)))
 					{
 						countKill = true;
 					#ifdef DIAG
@@ -167,7 +172,7 @@ modded class PlayerBase
 					foreach (string memberUID: playerUIDs)
 					{
 						questPlayer = PlayerBase.GetPlayerByUID(memberUID);		
-						if (questPlayer && (objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) || Expansion_HasHitEntity(questPlayer)))
+						if (questPlayer && objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) && ((isAI && Expansion_HasHitEntity(questPlayer)) || questPlayer.Expansion_IsHelper(killerPB)))
 						{
 							countKill = true;
 						#ifdef DIAG

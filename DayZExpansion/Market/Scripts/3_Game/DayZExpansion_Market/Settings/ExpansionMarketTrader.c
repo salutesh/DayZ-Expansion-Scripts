@@ -34,30 +34,22 @@ class ExpansionMarketTraderV3 : ExpansionMarketTraderBase
 	autoptr array< string > Items;
 }
 
-#ifdef EXPANSIONMODHARDLINE
 class ExpansionMarketTraderV9: ExpansionMarketTraderBase
 {
 	int MinRequiredHumanity;
 	int MaxRequiredHumanity
 }
-#endif
 
 class ExpansionMarketTrader : ExpansionMarketTraderBase
 {
 	static const int VERSION = 12;
 
-	#ifdef EXPANSIONMODHARDLINE
 	int MinRequiredReputation;
 	int MaxRequiredReputation;
-	#endif
 
-	#ifdef EXPANSIONMODAI
 	string RequiredFaction;
-	#endif
 
-	#ifdef EXPANSIONMODQUESTS
 	int RequiredCompletedQuestID;
-	#endif
 
 	string TraderIcon;
 
@@ -143,7 +135,6 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 			if (settingsBase.m_Version < 6)
 				settings.TraderIcon = settingsDefault.TraderIcon;
 
-		#ifdef EXPANSIONMODHARDLINE
 			if (settingsBase.m_Version < 10)
 			{
 				ExpansionMarketTraderV9 settings_v9;
@@ -153,17 +144,12 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 				settings.MinRequiredReputation = settings_v9.MinRequiredHumanity;
 				settings.MaxRequiredReputation = settings_v9.MaxRequiredHumanity;
 			}
-		#endif
 
 			if (settingsBase.m_Version < 11)
 			{	
-				#ifdef EXPANSIONMODAI
 				settings.RequiredFaction = settingsDefault.RequiredFaction;
-				#endif
 
-				#ifdef EXPANSIONMODQUESTS
 				settings.RequiredCompletedQuestID = settingsDefault.RequiredCompletedQuestID;
-				#endif
 			}
 			
 			if (settingsBase.m_Version < 12 && !settings.DisplayCurrencyValue)
@@ -223,18 +209,12 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		m_FileName = "INVALID-FILE-NAME";
 		TraderIcon = "Trader";
 		
-		#ifdef EXPANSIONMODHARDLINE
 		MinRequiredReputation = 0;
 		MaxRequiredReputation = int.MAX;
-		#endif
 
-		#ifdef EXPANSIONMODAI
 		RequiredFaction = "";
-		#endif
 
-		#ifdef EXPANSIONMODQUESTS
 		RequiredCompletedQuestID = -1;
-		#endif
 		
 		DefaultCurrencies();
 

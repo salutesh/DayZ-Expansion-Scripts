@@ -92,7 +92,7 @@ class ExpansionLockUIBase: ExpansionUIScriptedMenu
 				Error("Expansion BaseBuildingSettings.json - CodeLockLength is inferior to 1 or can't be read !!! Validate the file or compare your file with this link https://github.com/ExpansionModTeam/DayZ-Expansion-Settings/blob/master/BaseBuildingSettings.json");
 			}
 		} else {
-			m_TextCodePanel.SetText( "Error #1" );
+			m_TextCodePanel.SetText( "Critical Error" );
 		}
 	}
 

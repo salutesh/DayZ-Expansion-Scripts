@@ -19,6 +19,8 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 		string boneName;
 		if (ai && Weapon_Base.Cast(ai.GetHumanInventory().GetEntityInHands()))
 			boneName = "neck";
+		else if (m_Crawling)
+			boneName = "pelvis";  //! Aim even lower for melee if crawling
 		else
 			boneName = "spine3";  //! Aim lower for melee
 		vector pos = m_Zombie.GetBonePositionWS(m_Zombie.GetBoneIndexByName(boneName));
@@ -30,6 +32,9 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 	override float CalculateThreat(eAIBase ai = null)
 	{
 		if (m_Zombie.IsDamageDestroyed())
+			return 0.0;
+
+		if (!m_Zombie.Expansion_IsDanger())
 			return 0.0;
 
 		float levelFactor;

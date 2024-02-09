@@ -23,16 +23,16 @@ class CfgSlots
 	class Slot_merlinwheel_1_2
 	{
 		name = "merlinwheel_1_2";
-		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_FRONT";
-		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_FRONT_DESC";
+		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK_DESC";
 		selection = "wheel_1_2";
 		ghostIcon = "wheel";
 	};
 	class Slot_merlinwheel_2_1
 	{
 		name = "merlinwheel_2_1";
-		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK";
-		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK_DESC";
+		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_FRONT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_FRONT_DESC";
 		selection = "wheel_2_1";
 		ghostIcon = "wheel";
 	};
@@ -47,16 +47,14 @@ class CfgSlots
 	class Slot_merlindoor_1_1
 	{
 		name = "merlindoor_1_1";
-		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK";
-		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK_DESC";
+		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_DOOR_LEFT";
 		selection = "merlindoor_1_1";
 		ghostIcon = "doorfront";
 	};
 	class Slot_merlindoor_1_2
 	{
 		name = "merlindoor_1_2";
-		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK";
-		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK_DESC";
+		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_DOOR_RIGHT";
 		selection = "merlindoor_1_2";
 		ghostIcon = "doorback";
 	};

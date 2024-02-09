@@ -16,9 +16,9 @@
 class ExpansionChatSettingsBase: ExpansionSettingBase
 {
 	bool EnableGlobalChat;
-#ifdef EXPANSIONMODGROUPS
+
 	bool EnablePartyChat;
-#endif
+
 	bool EnableTransportChat;
 }
 
@@ -33,9 +33,9 @@ class ExpansionChatSettingsV1: ExpansionChatSettingsBase
 	int GlobalChatColor;
 	int DirectChatColor;
 	int TransportChatColor;
-#ifdef EXPANSIONMODGROUPS
+
 	int PartyChatColor;
-#endif
+
 	int TransmitterChatColor;
 }
 
@@ -44,7 +44,7 @@ class ExpansionChatSettingsV1: ExpansionChatSettingsBase
  **/
 class ExpansionChatSettings: ExpansionChatSettingsBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 	
 	ref ExpansionChatColors ChatColors;
 	
@@ -147,9 +147,9 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 #endif
 
 		EnableGlobalChat = s.EnableGlobalChat;
-#ifdef EXPANSIONMODGROUPS
+
 		EnablePartyChat = s.EnablePartyChat;
-#endif
+
 		EnableTransportChat = s.EnableTransportChat;
 	}
 	
@@ -195,6 +195,9 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 
 				if (settingsBase.m_Version < 2)
 				{
+					//! Copy over old settings that haven't changed
+					CopyInternal(settingsBase);
+
 					ExpansionChatSettingsV1 settings_v1;
 
 					JsonFileLoader<ExpansionChatSettingsV1>.JsonLoadFile(EXPANSION_CHAT_SETTINGS, settings_v1);
@@ -204,18 +207,15 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 					ChatColors.Set("GlobalChatColor", settings_v1.GlobalChatColor);
 					ChatColors.Set("DirectChatColor", settings_v1.DirectChatColor);
 					ChatColors.Set("TransportChatColor", settings_v1.TransportChatColor);
-#ifdef EXPANSIONMODGROUPS
+
 					ChatColors.Set("PartyChatColor", settings_v1.PartyChatColor);
-#endif
+
 					ChatColors.Set("TransmitterChatColor", settings_v1.TransmitterChatColor);
 				}
 				else
 				{
 					JsonFileLoader<ExpansionChatSettings>.JsonLoadFile(EXPANSION_CHAT_SETTINGS, this);
 				}
-
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
 
 				m_Version = VERSION;
 				save = true;
@@ -264,9 +264,9 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 		m_Version = VERSION;
 				
 		EnableGlobalChat = true;
-#ifdef EXPANSIONMODGROUPS
+
 		EnablePartyChat = true;
-#endif
+
 		EnableTransportChat = true;
 		
 		ChatColors.Update();

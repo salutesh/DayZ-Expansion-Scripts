@@ -83,27 +83,99 @@ class EXTee
 class EXError
 {
 	static ref CF_Date s_Start = CF_Date.Now();
-	static string s_BaseName;
-	static string s_FileName;
+	static ref map<ErrorExSeverity, string> s_BaseNames = new map<ErrorExSeverity, string>;
+	static ref map<string, int> s_Suppressed = new map<string, int>;
 
-	static void Log(Class instance, string msg, TStringArray stack, inout bool check = false)
+	static void Info(Class instance, string msg, TStringArray stack = null)
 	{
-		if (!s_BaseName)
-		{
-			s_BaseName = string.Format("error_%1.log", s_Start.GetISODateTime("_", "-"));
-			s_FileName = "$profile:" + s_BaseName;
-		}
-
-		LogToFile(s_FileName, instance, msg, stack, check);
+		Log(instance, msg, stack, ErrorExSeverity.INFO);
 	}
 
-	static void LogToFile(string fileName, Class instance, string msg, TStringArray stack, inout bool check = false)
+	static void Warn(Class instance, string msg, TStringArray stack = null)
 	{
-		if (check)
-			return;
+		Log(instance, msg, stack, ErrorExSeverity.WARNING);
+	}
 
-		check = true;
+	static void Error(Class instance, string msg, TStringArray stack = null)
+	{
+		Log(instance, msg, stack, ErrorExSeverity.ERROR);
+	}
 
+	static void InfoOnce(Class instance, string msg, TStringArray stack = null)
+	{
+		LogOnce(instance, msg, stack, ErrorExSeverity.INFO);
+	}
+
+	static void WarnOnce(Class instance, string msg, TStringArray stack = null)
+	{
+		LogOnce(instance, msg, stack, ErrorExSeverity.WARNING);
+	}
+
+	static void ErrorOnce(Class instance, string msg, TStringArray stack = null)
+	{
+		LogOnce(instance, msg, stack, ErrorExSeverity.ERROR);
+	}
+
+	static void LogOnce(Class instance, string msg, TStringArray stack = null, ErrorExSeverity severity = ErrorExSeverity.ERROR)
+	{
+		int count;
+
+		if (!s_Suppressed.Find(msg, count))
+			Log(instance, msg, stack, severity);
+		else
+			count++;
+
+		s_Suppressed[msg] = count;
+	}
+
+	static void Log(Class instance, string msg, TStringArray stack = null, ErrorExSeverity severity = ErrorExSeverity.ERROR)
+	{
+		string baseName;
+
+		if (!s_BaseNames.Find(severity, baseName))
+		{
+			string prefix = typename.EnumToString(ErrorExSeverity, severity);
+			prefix.ToLower();
+			baseName = string.Format("%1_%2.log", prefix, s_Start.GetISODateTime("_", "-"));
+			s_BaseNames[severity] = baseName;
+		}
+
+		TStringArray filtered;
+		if (!stack)
+		{
+			string tmp;
+			DumpStackString(tmp);
+			TStringArray lines = {};
+			tmp.Split("\n", lines);
+
+			filtered = {};
+			bool insert;
+			foreach (string line: lines)
+			{
+				if (insert)
+					filtered.Insert(line);
+				else if (line.IndexOf("Info()") > -1)
+					insert = true;
+				else if (line.IndexOf("Warn()") > -1)
+					insert = true;
+				else if (line.IndexOf("Error()") > -1)
+					insert = true;
+				else if (line.IndexOf("InfoOnce()") > -1)
+					insert = true;
+				else if (line.IndexOf("WarnOnce()") > -1)
+					insert = true;
+				else if (line.IndexOf("ErrorOnce()") > -1)
+					insert = true;
+			}
+
+			stack = filtered;
+		}
+
+		LogToFile("$profile:" + baseName, instance, msg, stack, severity);
+	}
+
+	static void LogToFile(string fileName, Class instance, string msg, TStringArray stack = null, ErrorExSeverity severity = ErrorExSeverity.ERROR)
+	{
 		string now = CF_Date.Now().Format(CF_Date.DATETIME);
 
 		//! Try to mimic vanilla error output
@@ -119,7 +191,7 @@ class EXError
 			tee = new EXTee(fileName, FileMode.WRITE);
 
 			tee.WriteLine("---------------------------------------------", false);
-			tee.WriteLine(string.Format("Log %1 started at %2", s_BaseName, now), false);
+			tee.WriteLine(string.Format("Log %1 started at %2", s_BaseNames[severity], now), false);
 			tee.WriteLine("", false);
 		}
 
@@ -140,17 +212,20 @@ class EXError
 			tee.WriteLine("");
 		}
 
-		tee.WriteLine(string.Format("Function: '%1'", stack[0].Substring(0, stack[0].IndexOf("("))));
-
-		tee.WriteLine("Stack trace:");
-
-		bool print = true;
-		foreach (string line: stack)
+		if (stack.Count())
 		{
-			line.Replace(" : ", ":");
-			int index = line.IndexOf(")") + 2;
-			tee.WriteLine(line.Substring(index, line.Length() - index), print);
-			print = false;
+			tee.WriteLine(string.Format("Function: '%1'", stack[0].Substring(0, stack[0].IndexOf("("))));
+
+			tee.WriteLine("Stack trace:");
+
+			bool print = true;
+			foreach (string line: stack)
+			{
+				line.Replace(" : ", ":");
+				int index = line.IndexOf(")") + 2;
+				tee.WriteLine(line.Substring(index, line.Length() - index), print);
+				print = false;
+			}
 		}
 	}
 }
@@ -1029,9 +1104,9 @@ class ExpansionStatic: ExpansionStaticCore
 		return year.ToStringLen(4) + "-" + month.ToStringLen(2) + "-" + day.ToStringLen(2);
 	}
 
-	static string GetISODateTime(bool useUTC = false, string delim = "T", string delimHMS = ":")
+	static string GetISODateTime(bool useUTC = false, string delim = "T", string delimHMS = ":", bool include_ms = false)
 	{
-		return GetISODate(useUTC) + delim + GetISOTime(useUTC, false, delimHMS);
+		return GetISODate(useUTC) + delim + GetISOTime(useUTC, include_ms, delimHMS);
 	}
 
 	/*!
@@ -1666,6 +1741,44 @@ class ExpansionStatic: ExpansionStaticCore
 				GetGame().RPCSingleParam(player, ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>(msg), true, player.GetIdentity());
 			}
 		}
+	}
+
+	static vector GetCursorHitPos(out Object hitObject = null, float fallbackDistance = 20.0)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, ExpansionStatic);
+	#endif
+
+		vector begPos = GetGame().GetCurrentCameraPosition();
+		vector endPos = begPos + GetGame().GetCurrentCameraDirection() * 1000.0;
+
+	#ifdef DIAG
+		EXTrace.Add(trace, begPos);
+		EXTrace.Add(trace, endPos);
+	#endif
+
+		vector hitPosition, hitNormal;
+		int hitComponent;
+		set<Object> results = new set<Object>;
+
+		if (DayZPhysics.RaycastRV(begPos, endPos, hitPosition, hitNormal, hitComponent, results, null, GetGame().GetPlayer()))
+		{
+			if (results.Count())
+				hitObject = results[0];
+		}
+		else if (fallbackDistance)
+		{
+			hitPosition = begPos + GetGame().GetCurrentCameraDirection() * fallbackDistance;
+			float surfaceY = GetGame().SurfaceY(hitPosition[0], hitPosition[2]);
+			if (surfaceY > hitPosition[1])
+				hitPosition[1] = surfaceY;
+		}
+
+	#ifdef DIAG
+		EXTrace.Add(trace, hitPosition);
+	#endif
+
+		return hitPosition;
 	}
 
 	static vector GetSurfacePosition(vector position)

@@ -44,7 +44,7 @@ class ExpansionQuestObjectiveConfigBase
 
 class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 {
-	static const int CONFIGVERSION = 26;
+	static const int CONFIGVERSION = 27;
 
 	[NonSerialized()];
 	protected ref set<typename> m_ObjectiveAllocationTypeNames;

@@ -75,45 +75,6 @@ modded class ActionGetOutTransport
 
 		if (Class.CastTo(cs, got_action_data.m_Car))
 		{
-			if (!got_action_data.m_WasJumpingOut)
-			{
-				vector playerPos = action_data.m_Player.GetPosition();
-
-				if (cs.Expansion_IsBoat() && !cs.Expansion_IsCar())
-				{
-					//! Prevent player glitching below boat
-
-					float vehicleY = cs.GetPosition()[1] - cs.GetModelZeroPointDistanceFromGround();
-					if (playerPos[1] < vehicleY + 1.0)
-					{
-						playerPos[1] = vehicleY + 1.0;
-						action_data.m_Player.SetPosition(playerPos);
-					}
-				}
-				else if (cs.Expansion_IsHelicopter() && !got_action_data.m_KeepInVehicleSpaceAfterLeave)
-				{
-					//! Prevent player glitching below surface
-
-					vector surfacePos = ExpansionStatic.GetSurfacePosition(playerPos);
-
-					PhxInteractionLayers layerMask;
-					layerMask |= PhxInteractionLayers.BUILDING;
-					layerMask |= PhxInteractionLayers.VEHICLE;
-					layerMask |= PhxInteractionLayers.ITEM_LARGE;
-					layerMask |= PhxInteractionLayers.ROADWAY;
-					layerMask |= PhxInteractionLayers.TERRAIN;
-					layerMask |= PhxInteractionLayers.WATERLAYER;
-
-					vector hitPosition;
-
-					if (!DayZPhysics.RayCastBullet(playerPos + "0 1.5 0", surfacePos, layerMask, action_data.m_Player, NULL, hitPosition, NULL, NULL))
-						hitPosition = surfacePos;
-
-					if (Math.AbsFloat(playerPos[1] - hitPosition[1]) <= 1.5)
-						action_data.m_Player.SetPosition(hitPosition);
-				}
-			}
-
 			if (cs.Expansion_IsHelicopter())
 				cs.SetHasPilot(false);  //! So we are able to detect if pilot got disconnected or got out on own accord
 		}

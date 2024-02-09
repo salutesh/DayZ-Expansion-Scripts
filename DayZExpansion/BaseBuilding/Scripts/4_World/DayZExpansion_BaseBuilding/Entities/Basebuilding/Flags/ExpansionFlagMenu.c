@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2024 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -35,15 +35,17 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 	protected ButtonWidget m_TerritoryDialogConfirmButton;
 	protected ButtonWidget m_TerritoryDialogCancelButton;
 	
+	protected Widget m_FlagFilterPanel;
+	protected EditBoxWidget m_FlagFilterBox;
+	protected ButtonWidget m_FlagFilterButton;
+	protected ImageWidget m_FlagFilterButtonIcon;
+	
 	protected TerritoryFlag m_CurrentFlag;
 	
 	protected ref ExpansionTerritoryModule m_TerritoryModule;
 	protected ref array<ref ExpansionFlagMenuTextureEntry> m_TextureEntrys;
 	protected string m_CurrentSelectedTexture;
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionFlagMenu Constructor
-	// ------------------------------------------------------------	
+
 	void ExpansionFlagMenu()
 	{
 		m_TerritoryModule = ExpansionTerritoryModule.Cast( CF_ModuleCoreManager.Get( ExpansionTerritoryModule ) );
@@ -52,9 +54,6 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 		m_CurrentSelectedTexture = "";
 	}
 
-	// ------------------------------------------------------------
-	// Expansion Override Init
-	// ------------------------------------------------------------
 	override Widget Init()
 	{
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/BaseBuilding/GUI/layouts/flag/expansion_flag_menu.layout");
@@ -82,9 +81,16 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 		m_TerritoryDialogConfirmButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "territory_dialog_ok_button" ) );
 		m_TerritoryDialogCancelButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "territory_dialog_cancel_button" ) );
 		
+		//! Flag filter
+		m_FlagFilterPanel = layoutRoot.FindAnyWidget("flag_filter_panel");
+		m_FlagFilterBox = EditBoxWidget.Cast( layoutRoot.FindAnyWidget("flag_filter_box") );
+		m_FlagFilterButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget("flag_filter_clear") );
+		m_FlagFilterButtonIcon = ImageWidget.Cast( layoutRoot.FindAnyWidget("flag_filter_clear_icon") ); 
+		
 		if ( GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.NoFlagChoice )
 		{
 			m_FlagWindow.Show( false );
+			m_FlagFilterPanel.Show( false );
 			m_TerritoryWindow.Show( true );
 		}
 
@@ -92,10 +98,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 		
 		return layoutRoot;
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion LoadTextureList
-	// ------------------------------------------------------------
+
 	void LoadTextureList()
 	{
 		array<ref ExpansionFlagTexture> flagTextures = GetExpansionFlagTextures().GetAll();
@@ -116,10 +119,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 			m_TextureEntrys.Insert( texture_entry );
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion SetCurrentTexture
-	// ------------------------------------------------------------
+
 	void SetCurrentTexture( ExpansionFlagTexture texture)
 	{
 		if (!texture)
@@ -130,10 +130,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 		
 		m_CurrentSelectedTexture = texture.Path;
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion ChangeFlag
-	// ------------------------------------------------------------
+
 	void ChangeFlag()
 	{
 		if ( m_CurrentSelectedTexture != "" )
@@ -146,10 +143,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 			Close();
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion FindChar
-	// ------------------------------------------------------------	
+
 	bool FindChar( TStringArray key, string word )
 	{
 		// Each letters of the word
@@ -165,10 +159,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion ConfirmTerritoryCreation
-	// ------------------------------------------------------------	
+
 	void ConfirmTerritoryCreation()
 	{
 #ifdef EXPANSIONTRACE
@@ -199,10 +190,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 			m_TerritoryModule.CreateTerritory( territoryName, m_CurrentFlag );
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Override OnShow
-	// ------------------------------------------------------------	
+
 	override void OnShow()
 	{
 		super.OnShow();
@@ -243,10 +231,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 			m_FlagWindowLable.SetText( "#STR_EXPANSION_FLAG_TERRITORY_FLAG" );
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion SetTerritoryInfo
-	// ------------------------------------------------------------	
+
 	void SetTerritoryInfo()
 	{
 		PlayerBase clientPlayer = PlayerBase.Cast( GetGame().GetPlayer() );
@@ -260,10 +245,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 		if ( m_CurrentFlag )
 			m_TerritoryPosition.SetText( "X: " + Math.Round( m_CurrentFlag.GetPosition()[0] ) + " Y: " + Math.Round( m_CurrentFlag.GetPosition()[2] ) );
 	}
-	
-	// ------------------------------------------------------------
-	// Override OnHide
-	// ------------------------------------------------------------
+
 	override void OnHide()
 	{
 		super.OnHide();
@@ -272,10 +254,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 		
 		PPEffects.SetBlurMenu( 0.0 );
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Override Update
-	// ------------------------------------------------------------	
+
 	override void Update( float timeslice )
 	{
 		Input input = GetGame().GetInput();
@@ -287,10 +266,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 
 		super.Update(timeslice);
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Override OnClick
-	// ------------------------------------------------------------	
+
 	override bool OnClick( Widget w, int x, int y, int button )
 	{
 		//! Flag Window Buttons
@@ -312,6 +288,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 				return false;
 			
 			m_FlagWindow.Show( false );
+			m_FlagFilterPanel.Show( false );
 			m_TerritoryWindow.Show( true );
 						
 			return true;
@@ -355,11 +332,90 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 			} else {
 				m_TerritoryWindow.Show( false );
 				m_FlagWindow.Show( true );
+				m_FlagFilterPanel.Show( true );
 			}
 			
 			return true;
 		}
 		
+		if ( w == m_FlagFilterButton )
+		{
+			m_FlagFilterBox.SetText("");
+			UpdateFlags();
+			return true;
+		}
+		
 		return false;
+	}
+	
+	override bool OnChange(Widget w, int x, int y, bool finished)
+	{		
+		if (w == m_FlagFilterBox)
+		{
+			UpdateFlags();
+		}
+		
+		return false;
+	}
+	
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		if (w != NULL)
+		{
+			if (w == m_FlagFilterButton)
+			{
+				m_FlagFilterButtonIcon.SetColor(ARGB(255, 68, 68, 68));
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		if (w != NULL)
+		{
+			if (w == m_FlagFilterButton)
+			{
+				m_FlagFilterButtonIcon.SetColor(ARGB(255, 251, 252, 254));
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	protected void UpdateFlags()
+	{
+		string search = GetSearchText();
+		search.ToLower();
+		foreach (ExpansionFlagMenuTextureEntry flagEntry: m_TextureEntrys)
+		{
+			if (search != "")
+			{
+				string flagName = flagEntry.GetName();
+				flagName.ToLower();
+				if (!flagName.Contains(search))
+				{
+					flagEntry.Hide();
+				}
+				else
+				{
+					if (!flagEntry.IsVisible())
+						flagEntry.Show();
+				}	
+			}
+			else
+			{
+				if (!flagEntry.IsVisible())
+					flagEntry.Show();
+			}
+		}
+	}
+	
+	string GetSearchText()
+	{
+		return m_FlagFilterBox.GetText();
 	}
 }

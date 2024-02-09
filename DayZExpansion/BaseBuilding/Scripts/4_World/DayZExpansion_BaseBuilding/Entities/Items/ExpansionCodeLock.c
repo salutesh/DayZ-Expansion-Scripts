@@ -40,10 +40,13 @@ class ExpansionCodeLock: ItemBase
 
 		UpdateVisuals();
 
+		if (!GetGame().IsServer())
+			return;
+
 		ItemBase parent = ItemBase.Cast( GetHierarchyParent() );
 		if ( parent && parent.ExpansionGetCodeLock() == this )
 		{
-			if ( GetGame().IsServer() && !HasCode() && parent.HasCode() )
+			if ( !HasCode() && parent.HasCode() )
 			{
 				EXPrint(ToString() + "::DeferredInit - migrating code from " + parent.ToString() + " " + parent.GetPosition());
 
@@ -62,7 +65,7 @@ class ExpansionCodeLock: ItemBase
 				SetTakeable( false );
 			}
 		}
-		else if ( GetGame().IsServer() && HasCode() )
+		else if ( HasCode() )
 		{
 			EXPrint(ToString() + "::DeferredInit - removing code from unattached " + ToString() + " " + GetPosition());
 			SetCode("");

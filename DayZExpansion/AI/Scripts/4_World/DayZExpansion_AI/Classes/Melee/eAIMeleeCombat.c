@@ -25,7 +25,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		// Second one is to see if that target is still in range before applying damage to it
 		// m_WasHit means the hit event occured, so this is the second call
 
-		if (m_WasHit && GetFinisherType() == -1 && CanObjectBeTargeted(m_TargetObject))
+		if (m_WasHit && CanObjectBeTargeted(m_TargetObject))
 		{
 			hitPos = m_TargetObject.GetDamageZonePos(m_HitZoneName);
 
@@ -47,6 +47,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		Object target;
 		int hitZone;
 		
+		// First pass - Prefer what the player is looking at (only aligneable ones, we will try for nonaligneable later)
 		if (HitZoneSelectionRaycastHelper(hitPos, hitZone, target))
 		{
 			if (m_ForceUntargetable)
@@ -66,6 +67,18 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 				return;
 			}
 		}
+		
+		// Third pass - We found no aligneable target, check if the target that we are directly looking at is nonalignable (big)
+		if (CanObjectBeTargeted(target, true) && vector.DistanceSq(m_RayStart, hitPos) <= dist2)
+		{
+			m_AllTargetObjects.Insert(target);
+
+			SetTarget(target, hitPos, hitZone);
+
+			eAI_DebugHit(true, hitPos, m_RayStart);
+
+			return;
+		}
 
 		eAI_DebugHit(false, m_RayEnd, m_RayStart);
 	}
@@ -78,13 +91,13 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 			if (hit)
 			{
-				m_AI.Expansion_DebugObject_Deferred(18, position, "ExpansionDebugBox", dir, origin);
-				m_AI.Expansion_DebugObject_Deferred(19, "0 0 0", "ExpansionDebugBox_Red");
+				m_AI.Expansion_DebugObject_Deferred(18, position, "ExpansionDebugSphereSmall", dir, origin);
+				m_AI.Expansion_DebugObject_Deferred(19, "0 0 0", "ExpansionDebugSphereSmall_Red");
 			}
 			else
 			{
-				m_AI.Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugBox");
-				m_AI.Expansion_DebugObject_Deferred(19, position, "ExpansionDebugBox_Red", dir, origin);
+				m_AI.Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugSphereSmall");
+				m_AI.Expansion_DebugObject_Deferred(19, position, "ExpansionDebugSphereSmall_Red", dir, origin);
 			}
 		}
 	}

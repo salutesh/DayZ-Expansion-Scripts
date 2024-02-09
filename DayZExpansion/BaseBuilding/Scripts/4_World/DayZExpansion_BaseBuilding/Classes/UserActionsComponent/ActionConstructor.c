@@ -41,6 +41,7 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionEnterSafeLock );
 		actions.Insert( ExpansionActionChangeSafeLock );
 		actions.Insert( ExpansionActionAttachCodeLock );
+		actions.Insert( ExpansionActionResetCodeLock );		
 
 		//! Safes
 		actions.Insert( ExpansionActionCloseAndLockSafe );

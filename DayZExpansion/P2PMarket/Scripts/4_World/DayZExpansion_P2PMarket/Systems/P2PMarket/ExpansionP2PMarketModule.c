@@ -25,7 +25,8 @@ enum ExpansionP2PMarketModuleCallback
 	ErrorVehicleMissingAttachment,
 	ErrorVehicleRuinedAttachment,
 	ErrorNoVehicleSpawnPosition,
-	ErrorVehicleSpawnPositionBlocked
+	ErrorVehicleSpawnPositionBlocked,
+	ErrorVehicleLockpicked
 };
 
 class ExpansionP2PMarketPlayerInventory extends ExpansionMarketPlayerInventory
@@ -432,7 +433,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		}
 
 		string playerUID = identity.GetId();
-		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
 		if (!player)
 			return;
 
@@ -459,24 +460,39 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 		}
 
+		int price = listing.GetPrice();
+		if (price <= 0)
+		{
+			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that has a price of 0. Price: " + price);
+			ExpansionNotification("RPC_RequestSaleFromListing", "You can't retrieve profits from a listing with a price of zero.").Error(identity);
+			return;
+		}
+	
+		string className = listing.GetClassName();
+		if (className == "")
+		{
+			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that has no type name. Class name: " + className);
+			ExpansionNotification("RPC_RequestSaleFromListing", "You can't retrieve profits from a listing with no associated item(s).").Error(identity);
+			return;
+		}
+
 		if (!RemoveListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader()))
 		{
 			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - could not remove listing " + globalIDText);
 			ExpansionNotification("RPC_RequestSaleFromListing", "Could not remove listing " + globalIDText).Error(identity);
 			return;
 		}
-		
-		int price = listing.GetPrice();
+
 		EntityAI playerEntity = player;
 		TStringArray currencies = traderConfig.GetCurrencies();
 		m_MarketModule.SpawnMoneyInCurrency(player, playerEntity, price, currencies, false);
-		
-		SendBMTraderData(traderID, identity, "", "", ExpansionP2PMarketModuleCallback.SaleRetrieved, listing.GetClassName(), price);
+
+		SendBMTraderData(traderID, identity, "", "", ExpansionP2PMarketModuleCallback.SaleRetrieved, className, price);
 	
 		if (GetExpansionSettings().GetLog().Market)
 		{
 			string priceStringLog = string.Format("%1 (%2)", price, GetDisplayPrice(traderConfig, price, false, false, true));
-			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has retrieved the sale of \"" + listing.GetClassName() + "\" for a price of " + priceStringLog + " (globalID=" + globalIDText + ")");
+			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has retrieved the sale of \"" + className + "\" for a price of " + priceStringLog + " (globalID=" + globalIDText + ")");
 		}
 	}
 	
@@ -835,7 +851,6 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 		}
 
-	#ifdef EXPANSIONMODVEHICLE
 		int doorsCount;
 		int doorsRequiredAmount;
 		int wheelsCount;
@@ -845,6 +860,14 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		CarScript car;
 		if (Class.CastTo(car, objEntity))
 		{
+		#ifdef EXPANSIONMODVEHICLE
+			if (car.GetLockedState() == ExpansionVehicleLockState.FORCEDUNLOCKED)
+			{
+				CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleLockpicked, type);
+				return;
+			}
+		#endif
+
 			slotItems = GetSlotItems(car, doorsRequiredAmount, wheelsRequiredAmount);
 
 			foreach (EntityAI slotItemCar: slotItems)
@@ -868,6 +891,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 				return;
 			}
 
+		#ifdef EXPANSIONMODVEHICLE
 			if (car.HasKey())
 			{
 				array<ExpansionCarKey> carKeys = new array<ExpansionCarKey>;
@@ -885,8 +909,8 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 				car.ResetKeyPairing();
 			}
+		#endif
 		}
-	#endif
 
 		ExpansionP2PMarketListing newListing = new ExpansionP2PMarketListing();
 		newListing.SetFromItem(objEntity, player);

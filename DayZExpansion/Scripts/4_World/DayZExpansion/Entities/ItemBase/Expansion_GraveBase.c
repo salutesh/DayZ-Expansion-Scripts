@@ -74,8 +74,7 @@ class Expansion_GraveBase extends Inventory_Base
 	{
 		float lifetime = 0;
 
-		if (GetEconomyProfile())
-			lifetime = GetLifetimeMax() * 1000;
+		lifetime = GetLifetimeMax();
 		
 		if ( lifetime == 0 )
 			lifetime = GetDefaultLifetime();
@@ -85,7 +84,7 @@ class Expansion_GraveBase extends Inventory_Base
 
 	void SetSelfDestructCountDown(int lifetime)
 	{
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RemoveGrave, lifetime, false);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RemoveGrave, lifetime * 1000, false);
 	}
 
 	// Probably not needed, but in case if we need to mod it or change it's deletion behaviour here ya go
@@ -171,9 +170,12 @@ class Expansion_GraveBase extends Inventory_Base
 			item.SetHealth(health);
 	}
 
+	/**
+	 * @brief default lifetime in seconds
+	 */
 	float GetDefaultLifetime()
 	{
-		return 300000; // ms
+		return 0;
 	}
 };
 
@@ -181,7 +183,7 @@ class Expansion_Gravecross extends Expansion_GraveBase
 {
 	override float GetDefaultLifetime()
 	{
-		return 3600000;
+		return 3600;
 	}
 };
 
@@ -189,6 +191,6 @@ class Expansion_Gravecross_LowLifetime extends Expansion_GraveBase
 {
 	override float GetDefaultLifetime()
 	{
-		return 300000;
+		return 300;
 	}
 };

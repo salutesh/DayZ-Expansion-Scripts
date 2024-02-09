@@ -17,4 +17,15 @@ class eAIFormationCircleDot : eAIFormation
 
 		return Vector(x, 0, z);
 	}
+
+	override vector GetDirection(int member_no)
+	{
+		if ( member_no == 0 )
+			return Vector(0, 0, 1);
+
+		vector dir = vector.Direction("0 0 0", GetPosition(member_no)).Normalized();
+		dir[1] = 0;
+
+		return dir;
+	}
 };

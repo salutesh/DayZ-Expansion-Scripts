@@ -19,8 +19,7 @@ class ExpansionQuestObjectiveTarget
 	bool SpecialWeapon = false;
 	ref array<string> AllowedWeapons = new array<string>;
 	ref array<string> ExcludedClassNames = new array<string>;
-#ifdef EXPANSIONMODAI
+
 	bool CountAIPlayers = false;
 	ref array<string> AllowedTargetFactions = new array<string>;
-#endif
 };

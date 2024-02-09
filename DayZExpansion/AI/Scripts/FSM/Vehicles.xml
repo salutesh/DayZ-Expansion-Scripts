@@ -133,7 +133,7 @@
 				auto group = unit.GetGroup();
 				if (!group) return FAIL;
 				
-				auto leader = group.GetLeader();
+				auto leader = group.GetFormationLeader();
 				if (leader &amp;&amp; leader != unit)
 				{
 					if (group.GetFormationState() != eAIGroupFormationState.IN || leader.GetParent() == unit.GetParent())

@@ -7,15 +7,21 @@ class eAICommandManagerClient : eAICommandManager
 	{
 		m_Expansion_RPCManager = new ExpansionRPCManager(this);
 
-		m_Expansion_RPCManager.RegisterServer("SpawnAI");
-		m_Expansion_RPCManager.RegisterServer("SpawnZombie");
-		m_Expansion_RPCManager.RegisterServer("SpawnWolf");
-		m_Expansion_RPCManager.RegisterServer("SpawnBear");
-		m_Expansion_RPCManager.RegisterServer("ClearAllAI");
+		m_Expansion_RPCManager.RegisterServer("RPC_SpawnAI");
+		m_Expansion_RPCManager.RegisterServer("RPC_SpawnZombie");
+		m_Expansion_RPCManager.RegisterServer("RPC_SpawnWolf");
+		m_Expansion_RPCManager.RegisterServer("RPC_SpawnBear");
+		m_Expansion_RPCManager.RegisterServer("RPC_ClearAllAI");
 
-		m_Expansion_RPCManager.RegisterServer("ReqFormationChange");
-		m_Expansion_RPCManager.RegisterServer("ReqFormRejoin");
-		m_Expansion_RPCManager.RegisterServer("ReqFormStop");
+		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormationChange");
+		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormRejoin");
+		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormStop");
+
+		m_Expansion_RPCManager.RegisterServer("RPC_SetWaypoint");
+		m_Expansion_RPCManager.RegisterServer("RPC_ExportPatrol");
+		m_Expansion_RPCManager.RegisterServer("RPC_ClearWaypoints");
+
+		m_Expansion_RPCManager.RegisterServer("RPC_DumpState");
 	}
 
 	override bool Send(eAICommands cmd)
@@ -27,21 +33,21 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.DEB_SPAWNGUARD:
 			case eAICommands.DEB_SPAWNPASSIVE:
 			case eAICommands.DEB_SPAWNSHAMAN:
-				m_Expansion_RPCManager.SendRPC("SpawnAI", new Param1<int>(cmd));
+				m_Expansion_RPCManager.SendRPC("RPC_SpawnAI", new Param2<int, vector>(cmd, ExpansionStatic.GetCursorHitPos()));
 				return true;
 			
 			case eAICommands.DEB_CLEARALL:
-				m_Expansion_RPCManager.SendRPC("ClearAllAI");
+				m_Expansion_RPCManager.SendRPC("RPC_ClearAllAI");
 				return true;
 			
 			case eAICommands.DEB_SPAWNZOM:
-				m_Expansion_RPCManager.SendRPC("SpawnZombie");
+				m_Expansion_RPCManager.SendRPC("RPC_SpawnZombie", new Param1<vector>(ExpansionStatic.GetCursorHitPos()));
 				return true;
 			case eAICommands.DEB_SPAWNWOLF:
-				m_Expansion_RPCManager.SendRPC("SpawnWolf");
+				m_Expansion_RPCManager.SendRPC("RPC_SpawnWolf", new Param1<vector>(ExpansionStatic.GetCursorHitPos()));
 				return true;
 			case eAICommands.DEB_SPAWNBEAR:
-				m_Expansion_RPCManager.SendRPC("SpawnBear");
+				m_Expansion_RPCManager.SendRPC("RPC_SpawnBear", new Param1<vector>(ExpansionStatic.GetCursorHitPos()));
 				return true;
 			case eAICommands.FOR_VEE:
 			case eAICommands.FOR_INVVEE:
@@ -54,15 +60,29 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.FOR_CIRCLEDOT:
 			case eAICommands.FOR_STAR:
 			case eAICommands.FOR_STARDOT:
-				m_Expansion_RPCManager.SendRPC("ReqFormationChange", new Param1<int>(cmd));
+				m_Expansion_RPCManager.SendRPC("RPC_ReqFormationChange", new Param1<int>(cmd));
 				return true;
 			
 			case eAICommands.MOV_STOP:
-				m_Expansion_RPCManager.SendRPC("ReqFormStop");
+				m_Expansion_RPCManager.SendRPC("RPC_ReqFormStop");
 				return true;
 			
 			case eAICommands.MOV_RTF:
-				m_Expansion_RPCManager.SendRPC("ReqFormRejoin");
+				m_Expansion_RPCManager.SendRPC("RPC_ReqFormRejoin");
+				return true;
+			
+			case eAICommands.MOV_SETWP:
+				vector position = ExpansionStatic.GetCursorHitPos();
+				if (position != vector.Zero)
+					m_Expansion_RPCManager.SendRPC("RPC_SetWaypoint", new Param1<vector>(position));
+				return true;
+			
+			case eAICommands.DEB_EXPORTPATROL:
+				m_Expansion_RPCManager.SendRPC("RPC_ExportPatrol");
+				return true;
+			
+			case eAICommands.MOV_CLEARWP:
+				m_Expansion_RPCManager.SendRPC("RPC_ClearWaypoints");
 				return true;
 			
 			case eAICommands.DEB_TARGET_CREATE:
@@ -72,18 +92,25 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.DEB_TARGET_DESTROY:
 				eAIBase.Get(0).DestroyDebugApple();
 				return true;
+
+			case eAICommands.STA_DUMP:
+				auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_DumpState");
+				Object target;
+				ExpansionStatic.GetCursorHitPos(target);
+				rpc.Expansion_Send(target, true);
+				return true;
 		}
 		
 		return false;
 	}
-	
+
 	//! @param owner Who is the manager of this AI
 	//! @param formOffset Where should this AI follow relative to the formation?
 	eAIBase SpawnAI_Helper(PlayerBase owner, string loadout = "HumanLoadout.json")
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "SpawnAI_Helper");
-		#endif
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
 		auto group = owner.GetGroup();
 		if (group)
@@ -119,18 +146,18 @@ class eAICommandManagerClient : eAICommandManager
 
 	eAIBase SpawnAI_Sentry(vector pos, string loadout = "WestLoadout.json")
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "SpawnAI_Sentry");
-		#endif
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
 		return SpawnAIEx(pos, loadout);
 	}
 	
 	eAIBase SpawnAI_Patrol(vector pos, string loadout = "HumanLoadout.json")
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "SpawnAI_Patrol");
-		#endif
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
 		return SpawnAIEx(pos, loadout);
 	}
@@ -147,61 +174,66 @@ class eAICommandManagerClient : eAICommandManager
 	}
 
 	// Server Side: This RPC spawns a helper AI next to the player, and tells them to join the player's formation.
-	void SpawnAI(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	void RPC_SpawnAI(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "SpawnAI");
-		#endif
-
-		DayZPlayer player = DayZPlayer.Cast(sender.GetPlayer());
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
 		int command;
-        if (!ctx.Read(command)) return;
+		if (!ctx.Read(command)) return;
+
+		vector pos;
+		if (!ctx.Read(pos)) return;
 
 		if (GetGame().IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
 		}
-		
-			if (!GetGame().IsMultiplayer()) player = GetGame().GetPlayer();
-			
-            CF_Log.Debug("eAI: spawn entity RPC called.");
-            vector pos = GetEntitySpawnPosition(player);
-            eAIBase sentry;
-            switch (command)
-            {
-				case eAICommands.DEB_SPAWNALLY:
-					SpawnAI_Helper(PlayerBase.Cast(player));
-					break;
-				case eAICommands.DEB_SPAWNSENTRY:
-					sentry = SpawnAI_Sentry(pos);
-					sentry.GetGroup().SetFaction(new eAIFactionMercenaries());
-					break;
-				case eAICommands.DEB_SPAWNGUARD:
-					sentry = SpawnAI_Sentry(pos);
-					sentry.GetGroup().SetFaction(new eAIFactionGuards());
-					break;
-				case eAICommands.DEB_SPAWNPASSIVE:
-					sentry = SpawnAI_Sentry(pos);
-					sentry.GetGroup().SetFaction(new eAIFactionPassive());
-					break;
-				case eAICommands.DEB_SPAWNSHAMAN:
-					sentry = SpawnAI_Sentry(pos);
-					sentry.GetGroup().SetFaction(new eAIFactionShamans());
-					break;
-			}
+
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		if (pos == vector.Zero)
+			pos = GetEntitySpawnPosition(player);
+		else
+			pos = ExpansionAISpawnBase.GetPlacementPosition(pos);
+
+		eAIBase sentry;
+		switch (command)
+		{
+			case eAICommands.DEB_SPAWNALLY:
+				SpawnAI_Helper(player);
+				break;
+			case eAICommands.DEB_SPAWNSENTRY:
+				sentry = SpawnAI_Sentry(pos);
+				sentry.GetGroup().SetFaction(new eAIFactionMercenaries());
+				break;
+			case eAICommands.DEB_SPAWNGUARD:
+				sentry = SpawnAI_Sentry(pos);
+				sentry.GetGroup().SetFaction(new eAIFactionGuards());
+				break;
+			case eAICommands.DEB_SPAWNPASSIVE:
+				sentry = SpawnAI_Sentry(pos);
+				sentry.GetGroup().SetFaction(new eAIFactionPassive());
+				break;
+			case eAICommands.DEB_SPAWNSHAMAN:
+				sentry = SpawnAI_Sentry(pos);
+				sentry.GetGroup().SetFaction(new eAIFactionShamans());
+				break;
+		}
 	}
 	
 	// Server Side: This RPC spawns a zombie. It's actually not the right way to do it. But it's only for testing.
 	// BUG: this has sometimes crashed us before. Not sure why yet.
-	void SpawnZombie(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	void RPC_SpawnZombie(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "SpawnZombie");
-		#endif
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
-		DayZPlayer player = DayZPlayer.Cast(sender.GetPlayer());
+		vector pos;
+		if (!ctx.Read(pos)) return;
 
 		if (GetGame().IsMultiplayer())
 		{
@@ -209,19 +241,24 @@ class eAICommandManagerClient : eAICommandManager
 				return;
 		}
 
-		if (!GetGame().IsMultiplayer()) Class.CastTo(player, GetGame().GetPlayer());
-		
-		CF_Log.Debug("eAI: SpawnZombie RPC called.");
-		GetGame().CreateObject(ExpansionStatic.GetWorkingZombieClasses().GetRandomElement(), GetEntitySpawnPosition(player), false, true, true);
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		if (pos == vector.Zero)
+			pos = GetEntitySpawnPosition(player);
+		else
+			pos = ExpansionAISpawnBase.GetPlacementPosition(pos);
+
+		GetGame().CreateObject(ExpansionStatic.GetWorkingZombieClasses().GetRandomElement(), pos, false, true, true);
 	}
 
-	void SpawnWolf(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	void RPC_SpawnWolf(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "SpawnWolf");
-		#endif
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
-		DayZPlayer player = DayZPlayer.Cast(sender.GetPlayer());
+		vector pos;
+		if (!ctx.Read(pos)) return;
 
 		if (GetGame().IsMultiplayer())
 		{
@@ -229,19 +266,24 @@ class eAICommandManagerClient : eAICommandManager
 				return;
 		}
 
-		if (!GetGame().IsMultiplayer()) Class.CastTo(player, GetGame().GetPlayer());
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		if (pos == vector.Zero)
+			pos = GetEntitySpawnPosition(player);
+		else
+			pos = ExpansionAISpawnBase.GetPlacementPosition(pos);
 		
-		CF_Log.Debug("eAI: SpawnWolf RPC called.");
-		GetGame().CreateObject("Animal_CanisLupus_Grey", GetEntitySpawnPosition(player), false, true, true);
+		GetGame().CreateObject("Animal_CanisLupus_Grey", pos, false, true, true);
 	}
 
-	void SpawnBear(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	void RPC_SpawnBear(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "SpawnBear");
-		#endif
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
-		DayZPlayer player = DayZPlayer.Cast(sender.GetPlayer());
+		vector pos;
+		if (!ctx.Read(pos)) return;
 
 		if (GetGame().IsMultiplayer())
 		{
@@ -249,84 +291,73 @@ class eAICommandManagerClient : eAICommandManager
 				return;
 		}
 
-		if (!GetGame().IsMultiplayer()) Class.CastTo(player, GetGame().GetPlayer());
-		
-		CF_Log.Debug("eAI: SpawnBear RPC called.");
-		GetGame().CreateObject("Animal_UrsusArctos", GetEntitySpawnPosition(player), false, true, true);
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		if (pos == vector.Zero)
+			pos = GetEntitySpawnPosition(player);
+		else
+			pos = ExpansionAISpawnBase.GetPlacementPosition(pos);
+	
+		GetGame().CreateObject("Animal_UrsusArctos", pos, false, true, true);
 	}
 	
 	// Server Side: Delete AI.
-	void ClearAllAI(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	void RPC_ClearAllAI(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "ClearAllAI");
-		#endif
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
-		DayZPlayer player = DayZPlayer.Cast(sender.GetPlayer());
-		
 		if (GetGame().IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
 		}
 	
-		if (!GetGame().IsMultiplayer()) Class.CastTo(player, GetGame().GetPlayer());
-		
-		CF_Log.Debug("eAI: ClearAllAI called.");
 		eAIGroup.Admin_ClearAllAI();
 	}
 	
-	void ReqFormRejoin(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	void RPC_ReqFormRejoin(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "ReqFormRejoin");
-		#endif
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
-		DayZPlayer player = DayZPlayer.Cast(sender.GetPlayer());
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 
-		if (!GetGame().IsMultiplayer()) Class.CastTo(player, GetGame().GetPlayer());
-		
-		CF_Log.Debug("eAI: ReqFormRejoin called.");
-		eAIGroup g = eAIGroup.GetGroupByLeader(DayZPlayerImplement.Cast(player), false);
+		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
 		g.SetFormationState(eAIGroupFormationState.IN);
+		g.SetWaypointBehaviourAuto(eAIWaypointBehavior.ONCE);
 	}
 	
-	void ReqFormStop(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	void RPC_ReqFormStop(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "ReqFormStop");
-		#endif
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
-		DayZPlayer player = DayZPlayer.Cast(sender.GetPlayer());
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 
-		if (!GetGame().IsMultiplayer()) Class.CastTo(player, GetGame().GetPlayer());
-		
-		CF_Log.Debug("eAI: ReqFormStop called.");
-		eAIGroup g = eAIGroup.GetGroupByLeader(DayZPlayerImplement.Cast(player), false);
+		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
 		g.SetFormationState(eAIGroupFormationState.NONE);
+		g.SetWaypointBehaviour(eAIWaypointBehavior.HALT);
 	}
 	
-	void ReqFormationChange(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	void RPC_ReqFormationChange(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "ReqFormationChange");
-		#endif
-
-		DayZPlayer player = DayZPlayer.Cast(sender.GetPlayer());
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
 
 		int command;
         if (!ctx.Read(command)) return;
 
-		if (!GetGame().IsMultiplayer()) Class.CastTo(player, GetGame().GetPlayer());
-		
-		CF_Log.Debug("eAI: ReqFormationChange called.");
-		eAIGroup g = eAIGroup.GetGroupByLeader(DayZPlayerImplement.Cast(player), false);
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
 		eAIFormation newForm;
 		switch (command)
 		{
-			case eAICommands.FOR_VEE:
-				newForm = new eAIFormationVee(g);
-				break;
 			case eAICommands.FOR_INVVEE:
 				newForm = new eAIFormationInvVee(g);
 				break;
@@ -357,8 +388,154 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.FOR_STARDOT:
 				newForm = new eAIFormationStarDot(g);
 				break;
-			// no default needed here
+			case eAICommands.FOR_VEE:
+			default:
+				newForm = new eAIFormationVee(g);
+				break;
 		}
 		g.SetFormation(newForm);
+	}
+
+	void RPC_SetWaypoint(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		vector position;
+		if (!ctx.Read(position))
+			return;
+
+		position = ExpansionAISpawnBase.GetPlacementPosition(position);
+
+	#ifdef DIAG
+		EXTrace.Add(trace, position);
+	#endif
+
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
+
+		g.AddWaypoint(position);
+		g.SetWaypointBehaviourAuto(eAIWaypointBehavior.ONCE);
+
+		eAIBase ai;
+		if (Class.CastTo(ai, g.GetFormationLeader()))
+			ai.SetMovementSpeedLimit(2);
+	}
+
+	void RPC_ExportPatrol(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		if (GetGame().IsMultiplayer())
+		{
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
+		}
+
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
+
+		eAIWaypointBehavior bhv = g.GetWaypointBehaviour();
+
+		if (bhv == eAIWaypointBehavior.ONCE)
+			bhv = eAIWaypointBehavior.ALTERNATE;
+
+		string beh = typename.EnumToString(eAIWaypointBehavior, bhv);
+
+		eAIFaction faction = g.GetFaction();
+
+		ExpansionAIPatrol patrol = new ExpansionAIPatrol(g.Count(), "JOG", "SPRINT", beh, faction.GetName(), faction.GetDefaultLoadout());
+		string formationClassName = g.GetFormation().ClassName();
+		patrol.Formation = formationClassName.Substring(12, formationClassName.Length() - 12);
+		patrol.FormationLooseness = 0.1;
+		patrol.Waypoints = g.GetWaypoints();
+
+	#ifdef SERVER
+		ExpansionJsonFileParser<ExpansionAIPatrol>.Save("$profile:Expansion_AI_Patrol.json", patrol);
+		ExpansionNotification("EXPANSION AI", "Patrol written to \"$profile:Expansion_AI_Patrol.json\".").Info(sender);
+	#else
+		GetGame().CopyToClipboard(ExpansionJsonFileParser<ExpansionAIPatrol>.AsString(patrol));
+		ExpansionNotification("EXPANSION AI", "Patrol copied to clipboard.").Info();
+	#endif
+	}
+
+	void RPC_ClearWaypoints(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
+
+		eAIBase ai;
+		if (Class.CastTo(ai, g.GetFormationLeader()))
+			ai.SetMovementSpeedLimit(3);
+
+		g.ClearWaypoints();
+	}
+
+	void RPC_DumpState(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + target);
+	#endif
+
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		TStringArray report;
+
+		eAIBase ai;
+		if (Class.CastTo(ai, target))
+		{
+			if (GetExpansionSettings().GetAI().IsAdmin(sender) || player.GetGroup() == ai.GetGroup())
+				report = ai.eAI_DumpState(sender);
+		}
+
+		if (!report)
+		{
+			eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
+			report = g.DumpState(sender);
+		}
+
+		string fileName = string.Format("$profile:Expansion_AI_State_%1.txt", ExpansionStatic.GetISODate(false));
+		bool fileExisted = FileExist(fileName);
+
+		FileHandle file = OpenFile(fileName, FileMode.APPEND);
+		if (file)
+		{
+			if (fileExisted)
+				FPrintln(file, "");
+
+			FPrintln(file, string.Format("State dump started at %1", ExpansionStatic.GetISODateTime(false, " ", ":", true)));
+		}
+
+		int chatLineLimit = 100;
+		if (report.Count() > chatLineLimit)
+			chatLineLimit = 99;
+
+		foreach (int i, string msg: report)
+		{
+			if (file)
+				FPrintln(file, msg);
+
+			if (i < chatLineLimit)
+				GetGame().ChatMP(player, msg, "colorDefault");
+		}
+
+		if (report.Count() > chatLineLimit)
+			GetGame().ChatMP(player, "WARNING: State dump is too large for chat", "colorAction");
+
+		if (file)
+		{
+			CloseFile(file);
+			ExpansionNotification("EXPANSION AI", string.Format("State dumped to %1", fileName)).Info(sender);
+		}
 	}
 };

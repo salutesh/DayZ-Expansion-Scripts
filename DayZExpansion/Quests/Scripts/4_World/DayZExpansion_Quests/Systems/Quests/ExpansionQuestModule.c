@@ -3993,7 +3993,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	#ifdef DIAG
 		if (!removed)
-			Error(ToString() + "::RemoveObjectiveTrigger - Could not find/remove objective trigger! Quest ID: " + questID + " | Trigger type: " + typename.EnumToString(ExpansionObjectiveTriggerType, triggerType) + " | Objective Type: " + typename.EnumToString(ExpansionQuestObjectiveType, objectiveType) + "| Objective ID: " + objectiveID);
+			EXPrint(ToString() + "::RemoveObjectiveTrigger - Could not find/remove objective trigger! Quest ID: " + questID + " | Trigger type: " + typename.EnumToString(ExpansionObjectiveTriggerType, triggerType) + " | Objective Type: " + typename.EnumToString(ExpansionQuestObjectiveType, objectiveType) + "| Objective ID: " + objectiveID);
 	#endif
 	}
 

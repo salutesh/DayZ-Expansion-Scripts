@@ -307,15 +307,8 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	protected bool CanAddObjectiveItem(ItemBase item)
 	{
-		if (item.IsRuined() || item.Expansion_IsSetForDeletion())
+		if (!CanAddItem(item))
 			return false;
-		
-		if (item.CanDecay())
-		{
-			Edible_Base edibleIB;
-			if (Class.CastTo(edibleIB, item) && (edibleIB.GetFoodStageType() == FoodStageType.BURNED || edibleIB.GetFoodStageType() == FoodStageType.ROTTEN))
-				return false;
-		}
 
 		if (item.HasQuantity())
 		{
@@ -341,6 +334,24 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			case ExpansionQuestObjectiveType.DELIVERY:
 				return (item.Expansion_GetQuestID() == m_Quest.GetQuestConfig().GetID());
 		}
+
+		return true;
+	}
+
+	protected bool CanAddItem(ItemBase item)
+	{
+		if (item.Expansion_IsSetForDeletion())
+			return false;
+
+		if (item.CanDecay())
+		{
+			Edible_Base edibleIB;
+			if (Class.CastTo(edibleIB, item) && (edibleIB.GetFoodStageType() == FoodStageType.BURNED || edibleIB.GetFoodStageType() == FoodStageType.ROTTEN))
+				return false;
+		}
+
+		if (!MiscGameplayFunctions.Expansion_IsLooseEntity(item, true))
+			return false;
 
 		return true;
 	}

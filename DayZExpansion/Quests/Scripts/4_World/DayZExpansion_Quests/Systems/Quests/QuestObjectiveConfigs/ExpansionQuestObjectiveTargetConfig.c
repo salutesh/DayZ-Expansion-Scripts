@@ -29,10 +29,10 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 	bool CountSelfKill;
 	autoptr TStringArray AllowedWeapons = new TStringArray;
 	autoptr TStringArray ExcludedClassNames = new TStringArray;
-#ifdef EXPANSIONMODAI
+
 	bool CountAIPlayers = false;
 	autoptr TStringArray AllowedTargetFactions = new TStringArray;
-#endif
+
 	autoptr TStringArray AllowedDamageZones = new TStringArray;
 
 	void SetAmount(int amount)
@@ -88,7 +88,6 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		return CountSelfKill;
 	}
 	
-#ifdef EXPANSIONMODAI
 	void SetCountAIPlayers(bool state)
 	{
 		CountAIPlayers = state;
@@ -109,7 +108,6 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 	{
 		return AllowedTargetFactions;
 	}
-#endif
 	
 	void SetPosition(vector pos)
 	{
@@ -160,23 +158,29 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		ExpansionQuestObjectiveTargetConfig config;
 		ExpansionQuestObjectiveTargetConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName, config))
 			return NULL;
+
+		//! Uncomment this once needed
+		//if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName, configBase))
+			//return NULL;
+
+		//! Comment this out once needed
+		configBase = config;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
 			Print("[ExpansionQuestObjectiveTargetConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName + " to version " + CONFIGVERSION);
-			config = new ExpansionQuestObjectiveTargetConfig();
+			if (!config)
+				config = new ExpansionQuestObjectiveTargetConfig();
 			
 			//! Copy over old configuration that haven't changed
 			config.CopyConfig(configBase);
 
-		#ifdef EXPANSIONMODAI
 			if (configBase.ConfigVersion < 13)
 			{
 				config.SetCountAIPlayers(false);
 			}
-		#endif
 			
 			if (configBase.ConfigVersion < 26)
 			{
@@ -191,20 +195,14 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 					config.CountSelfKill = configV25.Target.CountSelfKill;
 					config.AllowedWeapons = configV25.Target.AllowedWeapons;
 					config.ExcludedClassNames = configV25.Target.ExcludedClassNames;
-				#ifdef EXPANSIONMODAI
+
 					config.CountAIPlayers = configV25.Target.CountAIPlayers;
 					config.AllowedTargetFactions = configV25.Target.AllowedTargetFactions;
-				#endif
 				}
 			}
 
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
-		}
-		else
-		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName, config))
-				return NULL;
 		}
 
 		if (save)

@@ -705,7 +705,10 @@ modded class ItemBase
 	*/
 	bool IsKnownUser( PlayerBase player )
 	{
-		if ( !player || !player.GetIdentity() || !GetExpansionSettings().GetBaseBuilding().RememberCode )
+		auto bbSettings = GetExpansionSettings().GetBaseBuilding(false);
+		auto ttSettings = GetExpansionSettings().GetTerritory(false);
+
+		if ( !player || !player.GetIdentity() || !bbSettings.IsLoaded() || !ttSettings.IsLoaded() || !bbSettings.RememberCode )
 			return false;
 
 		if (!IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
@@ -715,7 +718,7 @@ modded class ItemBase
 				return codelock.IsKnownUser( player );
 		}
 
-		if (GetExpansionSettings().GetTerritory().AuthenticateCodeLockIfTerritoryMember && player.IsInsideOwnTerritory())
+		if (ttSettings.AuthenticateCodeLockIfTerritoryMember && player.IsInsideOwnTerritory())
 			return true;
 
 		if (!m_KnownUIDs)

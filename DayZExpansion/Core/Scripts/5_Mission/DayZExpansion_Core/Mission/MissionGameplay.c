@@ -26,6 +26,8 @@ modded class MissionGameplay
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "MissionGameplay");
 #endif
+
+		Expansion_UpdateWorldViewDistances();
 	}
 
 	// ------------------------------------------------------------
@@ -38,6 +40,14 @@ modded class MissionGameplay
 #endif
 		
 		DestroyNotificationSystem();
+	}
+
+	override void Expansion_UpdateWorldViewDistances()
+	{
+		if (GetExpansionClientSettings().ViewDistance > 0)
+			GetGame().GetWorld().SetViewDistance(GetExpansionClientSettings().ViewDistance);
+		if (GetExpansionClientSettings().ObjectViewDistance > 0)
+			GetGame().GetWorld().SetObjectViewDistance(GetExpansionClientSettings().ObjectViewDistance);
 	}
 
 	void Expansion_ForceEnableMovementInputs()
@@ -170,6 +180,13 @@ modded class MissionGameplay
 		
 		return false;
 	}
+
+	override void OnMissionStart()
+	{
+		super.OnMissionStart();
+		
+		GetDayZExpansion().OnStart();
+	}
 	
 	override void OnMissionLoaded()
 	{
@@ -195,7 +212,7 @@ modded class MissionGameplay
 
         Expansion_ForceEnableMovementInputs();
 
-		GetDayZGame().GetExpansionGame().OnFinish();
+		GetDayZExpansion().OnFinish();
 	}
 	
 	static ExpansionItemTooltip Expansion_GetItemTooltip()

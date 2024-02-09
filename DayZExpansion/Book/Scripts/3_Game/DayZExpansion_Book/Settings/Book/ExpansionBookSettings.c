@@ -42,9 +42,7 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 
 	bool ShowHaBStats;
 	
-#ifdef EXPANSIONMODAI
 	bool ShowPlayerFaction;
-#endif
 
 	ref array<ref ExpansionBookRuleCategory> RuleCategories = new array<ref ExpansionBookRuleCategory>;
 	bool DisplayServerSettingsInServerInfoTab;
@@ -137,9 +135,7 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		CraftingCategories = s.CraftingCategories;
 		ShowHaBStats = s.ShowHaBStats;
 		
-	#ifdef EXPANSIONMODAI
 		ShowPlayerFaction = s.ShowPlayerFaction;
-	#endif
 
 		EnableCraftingRecipesTab = s.EnableCraftingRecipesTab;
 
@@ -363,9 +359,7 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		DefaultDescriptions();
 		DefaultCraftingCategories();
 		
-	#ifdef EXPANSIONMODAI
 		ShowPlayerFaction = false;
-	#endif
 
 		EnableCraftingRecipesTab = true;
 	}

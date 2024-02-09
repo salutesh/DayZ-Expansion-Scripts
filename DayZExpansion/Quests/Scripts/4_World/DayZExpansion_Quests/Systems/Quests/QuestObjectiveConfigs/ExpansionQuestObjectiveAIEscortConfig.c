@@ -114,13 +114,21 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 		ExpansionQuestObjectiveAIEscortConfig config;
 		ExpansionQuestObjectiveAIEscortConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIEscortConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIEscortConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName, config))
 			return NULL;
+
+		//! Uncomment this once needed
+		//if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIEscortConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName, configBase))
+			//return NULL;
+
+		//! Comment this out once needed
+		configBase = config;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
 			Print("[ExpansionQuestObjectiveAIEscortConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName + " to version " + CONFIGVERSION);
-			config = new ExpansionQuestObjectiveAIEscortConfig();
+			if (!config)
+				config = new ExpansionQuestObjectiveAIEscortConfig();
 
 			//! Copy over old configuration that haven't changed
 			config.CopyConfig(configBase);
@@ -141,11 +149,6 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
-		}
-		else
-		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIEscortConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName, config))
-				return NULL;
 		}
 		
 		string removeExt = ExpansionString.StripExtension(config.GetLoadout(), ".json");

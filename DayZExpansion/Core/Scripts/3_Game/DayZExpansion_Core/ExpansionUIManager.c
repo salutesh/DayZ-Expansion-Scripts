@@ -21,7 +21,7 @@ class ExpansionUIManager
 		m_ActiveMenus = new map<string, ExpansionScriptViewMenuBase>;
 	}
 	
-	void SetMenu(ExpansionScriptViewMenuBase view)
+	protected void SetMenu(ExpansionScriptViewMenuBase view)
 	{
 		if (m_CurrentMenu)
 			m_CurrentMenu.Destroy();
@@ -47,7 +47,21 @@ class ExpansionUIManager
 		}
 	}
 	
-	void CloseAll()
+	/**
+	 * @brief Close all Expansion menus
+	 * 
+	 * @param includeVanilla If true, close all vanilla menus as well (may include pause menu and menus of other mods, use with care!)
+	 */
+	void CloseAll(bool includeVanilla = false)
+	{
+		CloseAllScriptViews();
+		CloseAllUIScriptedMenus(includeVanilla);
+	}
+	
+	/**
+	 * @brief Close all Expansion ScriptView menus
+	 */
+	protected void CloseAllScriptViews()
 	{
 		foreach (ExpansionScriptViewMenuBase menu: m_ActiveMenus)
 		{
@@ -60,7 +74,29 @@ class ExpansionUIManager
 		m_ActiveMenus.Clear();
 		m_CurrentMenu = NULL;
 	}
-	
+
+	/**
+	 * @brief Close all Expansion UIScripted menus
+	 */
+	protected void CloseAllUIScriptedMenus(bool includeVanilla = false)
+	{
+		UIMenuPanel menu = GetGame().GetUIManager().GetMenu();
+		while (menu)
+		{
+			if (menu.GetParentMenu())
+			{
+				menu = menu.GetParentMenu();
+			}
+			else
+			{
+				if (includeVanilla || (menu.GetID() >= MENU_EXPANSION_MENU_START && menu.GetID() < MENU_EXPANSION_MENU_END))
+					menu.Close();
+
+				break;
+			}
+		}
+	}
+
 	ExpansionScriptViewMenuBase CreateSVMenu(string viewName)
 	{
 		ExpansionScriptViewMenuBase viewMenu;
@@ -83,7 +119,7 @@ class ExpansionUIManager
 		return viewMenu;
 	}
 	
-	void DestroySVMenu(ExpansionScriptViewMenuBase menu, bool doDelete = true)
+	protected void DestroySVMenu(ExpansionScriptViewMenuBase menu, bool doDelete = true)
 	{
 		ExpansionScriptViewMenuBase viewMenu;
 		if (m_ActiveMenus.Find(menu.ClassName(), viewMenu))
@@ -99,7 +135,7 @@ class ExpansionUIManager
 		return m_ActiveMenus;
 	}
 	
-	ExpansionScriptViewMenuBase CreateMenuInstance(string className)
+	protected ExpansionScriptViewMenuBase CreateMenuInstance(string className)
 	{
 		return ExpansionScriptViewMenuBase.Cast(className.ToType().Spawn());
 	}

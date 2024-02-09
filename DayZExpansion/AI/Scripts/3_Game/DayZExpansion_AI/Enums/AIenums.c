@@ -3,6 +3,7 @@ enum eAIWaypointBehavior
 	HALT,
 	LOOP,
 	ALTERNATE,
+	ONCE,
 	HALT_OR_LOOP,
 	HALT_OR_ALTERNATE
 };

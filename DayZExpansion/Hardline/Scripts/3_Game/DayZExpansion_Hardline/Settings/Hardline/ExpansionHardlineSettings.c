@@ -36,10 +36,9 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 	bool ShowHardlineHUD;
 	bool UseReputation;
-#ifdef EXPANSIONMODAI
+
 	bool UseFactionReputation;
 	bool EnableFactionPersistence;
-#endif
 
 	bool EnableItemRarity;
 	bool UseItemRarityOnInventoryIcons;
@@ -214,13 +213,11 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 				EXPrint("[ExpansionHardlineSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_HARDLINE_SETTINGS + "\" to v" + VERSION);
 
-			#ifdef EXPANSIONMODAI
 				if (m_Version < 7)
 				{
 					UseFactionReputation = settingsDefault.UseFactionReputation;
 					EnableFactionPersistence = settingsDefault.EnableFactionPersistence;
 				}
-			#endif
 
 				if (m_Version < 8)
 					MaxReputation = settingsDefault.MaxReputation;
@@ -305,10 +302,10 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 		ShowHardlineHUD = true;
 		UseReputation = true;
-	#ifdef EXPANSIONMODAI
+
 		UseFactionReputation = false;
 		EnableFactionPersistence = false;
-	#endif
+
 		EnableItemRarity = true;
 		UseItemRarityOnInventoryIcons = true;
 		UseItemRarityForMarketPurchase = true;
@@ -348,10 +345,8 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		//! All other Infected
 		EntityReputation.Insert("ZombieBase", 10);
 
-	#ifdef EXPANSIONMODAI
 		//! AI
 		EntityReputation.Insert("eAIBase", 100);
-	#endif
 	}
 
 	protected void DefaultItemRarity()
@@ -1199,6 +1194,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("Expansion_Flag_Finland", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Expansion_Flag_Sweden", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Expansion_Flag_Spain", ExpansionHardlineItemRarity.Uncommon);
+		AddItem("Expansion_Flag_Denmark", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Expansion_Flag_Brazil", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Expansion_Flag_Portugal", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Expansion_Flag_Belgium", ExpansionHardlineItemRarity.Uncommon);

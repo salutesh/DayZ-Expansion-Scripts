@@ -182,7 +182,7 @@ class ExpansionMerlin : ExpansionHelicopterScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
 #endif
 
-		return "0 1 0";
+		return "0 2.5 0";
 	}
 
 	override float GetTransportCameraDistance()

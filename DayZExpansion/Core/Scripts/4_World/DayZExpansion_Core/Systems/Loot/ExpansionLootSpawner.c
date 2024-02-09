@@ -16,7 +16,7 @@ class ExpansionLootSpawner
 	{
 		string className = loot.Name;
 		
-		TStringArray attachments = loot.Attachments;
+		array<ref ExpansionLootVariant> attachments = loot.Attachments;
 
 		if ( loot.Variants && loot.Variants.Count() > 0 )
 		{
@@ -65,7 +65,7 @@ class ExpansionLootSpawner
 		Spawn( className, container, loot.QuantityPercent, attachments, spawnedEntities, spawnedEntitiesMap, spawnOnGround, damagePercentMin, damagePercentMax ); 
 	}
 
-	static void Spawn( string className, EntityAI parent, int quantityPercent, TStringArray attachments = null, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false, float damagePercentMin = 0, float damagePercentMax = 0 )
+	static void Spawn( string className, EntityAI parent, int quantityPercent, array<ref ExpansionLootVariant> attachments = null, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false, float damagePercentMin = 0, float damagePercentMax = 0 )
 	{
         ItemBase itemParent;
 		ItemBase item;
@@ -143,13 +143,17 @@ class ExpansionLootSpawner
 				//! Need to copy the attachments array because passing in NULL in the recursive call below
 				//! nulls our original attachments array in caller :-(
 				//! https://feedback.bistudio.com/T173458
-				TStringArray attachmentsTmp();
-				attachmentsTmp.Copy(attachments);
+				array<ref ExpansionLootVariant> attachmentsTmp = {};
+				foreach (ExpansionLootVariant attachment: attachments)
+				{
+					if ( Math.AbsFloat(attachment.Chance) == 1.0 || attachment.Chance > Math.RandomFloat(0.0, 1.0) )
+						attachmentsTmp.Insert(attachment);
+				}
 
-				foreach ( string attachment: attachmentsTmp )
+				foreach ( ExpansionLootVariant attachmentTmp: attachmentsTmp )
 				{
 					//! Need to pass in spawnedEntities and spawnedEntitiesMap due to T173458 as well
-					Spawn( attachment, item, quantityPercent, NULL, spawnedEntities, spawnedEntitiesMap, false, damagePercentMin, damagePercentMax );
+					Spawn( attachmentTmp.Name, item, quantityPercent, NULL, spawnedEntities, spawnedEntitiesMap, false, damagePercentMin, damagePercentMax );
 				}
 			}
 			

@@ -79,6 +79,7 @@ class ExpansionClientSettings
 	// ================= Codelock Settings =================
 	bool StreamerMode;
 	bool ShowPINCode;
+	bool AutoOpenLockMenuAfterPlacing;
 
 	// ================= Misc =================
 	bool EnableLiquidTypeColors;
@@ -120,6 +121,9 @@ class ExpansionClientSettings
 
 	bool QuestHUDVisibility = true;
 	ref map<int, bool> QuestVisibilityStates;
+
+	float ViewDistance;
+	float ObjectViewDistance;
 
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Constructor
@@ -652,7 +656,7 @@ class ExpansionClientSettings
 			
 			EXPrint(ToString() + "::OnRead - Add quest visibity state: " + questID + " | " + visState);
 			QuestVisibilityStates[questID] = visState;
-		}	
+		}
 		
 		if ( version < 51 )
 		{
@@ -663,6 +667,34 @@ class ExpansionClientSettings
 		if ( !ctx.Read( EnableLiquidTypeColors ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read EnableLiquidTypeColors!");
+			return false;
+		}
+		
+		if ( version < 52 )
+		{
+			return true;
+		}
+
+		if ( !ctx.Read( AutoOpenLockMenuAfterPlacing ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read AutoOpenLockMenuAfterPlacing!");
+			return false;
+		}
+		
+		if ( version < 53 )
+		{
+			return true;
+		}
+
+		if ( !ctx.Read( ViewDistance ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ViewDistance!");
+			return false;
+		}
+
+		if ( !ctx.Read( ObjectViewDistance ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ObjectViewDistance!");
 			return false;
 		}
 
@@ -790,6 +822,11 @@ class ExpansionClientSettings
 		}
 
 		ctx.Write( EnableLiquidTypeColors );
+
+		ctx.Write( AutoOpenLockMenuAfterPlacing );
+
+		ctx.Write( ViewDistance );
+		ctx.Write( ObjectViewDistance );
 	}
 
 	// -----------------------------------------------------------
@@ -887,6 +924,7 @@ class ExpansionClientSettings
 
 		StreamerMode = false;
 		ShowPINCode = true;
+		AutoOpenLockMenuAfterPlacing = false;
 
 		EnableLiquidTypeColors = true;
 
@@ -946,6 +984,9 @@ class ExpansionClientSettings
 		ShowDesyncInvulnerabilityNotifications = false;
 	
 		QuestHUDVisibility = true;
+
+		ViewDistance = 0;  //! 0 = use game default
+		ObjectViewDistance = 0;  //! 0 = use game default
 	}
 
 	// -----------------------------------------------------------
@@ -961,7 +1002,10 @@ class ExpansionClientSettings
 
 		//! Option to toggle light shadows
 		CreateToggle( "CastLightShadows", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS_DESC" );
-
+		//! Client side view distance of the terrain
+		CreateSlider( "ViewDistance", "#STR_EXPANSION_SETTINGS_CLIENT_VIEWDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIEWDISTANCE_DESC", 0, 3600, 100 );
+		//! Client side view distance of the objects and vegetation
+		CreateSlider( "ObjectViewDistance", "#STR_EXPANSION_SETTINGS_CLIENT_OBJECTVIEWDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_OBJECTVIEWDISTANCE_DESC", 0, 3600, 100 );
 	#ifdef EXPANSIONMODNAVIGATION
 		CreateCategory( "3DMapMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D" );
 
@@ -1013,10 +1057,15 @@ class ExpansionClientSettings
 		CreateToggle( "StreamerMode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION_DESC" );
 		//! Option to toggle display of pins and passwords
 		CreateToggle( "ShowPINCode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE_DESC" );
-
+		
 	#ifdef EXPANSION_INSPECT_MENU_NEW_ENABLE
 		CreateToggle( "EnableLiquidTypeColors", "#STR_EXPANSION_SETTINGS_ENABLE_LIQUID_TYPE_COLORS", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_ENABLE_LIQUID_TYPE_COLORS_DESC" );
 	#endif
+
+		CreateCategory( "BaseBuilding", "#STR_EXPANSION_SETTINGS_BASEBUILDING" );
+
+		//! Option to automaticaly open the lock menu after placing the codelock
+		CreateToggle( "AutoOpenLockMenuAfterPlacing", "#STR_EXPANSION_SETTINGS_AUTOOPEN_CODELOCK_PLACING", "#STR_EXPANSION_SETTINGS_BASEBUILDING", "#STR_EXPANSION_SETTINGS_AUTOOPEN_CODELOCK_PLACING_DESC" );
 
 	if ( m_ShouldShowHUDCategory )
 		CreateCategory( "HUD", "#STR_EXPANSION_SETTINGS_HUD" );

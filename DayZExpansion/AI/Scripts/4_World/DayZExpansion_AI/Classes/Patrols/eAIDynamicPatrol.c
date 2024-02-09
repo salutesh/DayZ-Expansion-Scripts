@@ -204,14 +204,8 @@ class eAIDynamicPatrol : eAIPatrol
 		if (m_WasGroupDestroyed)
 			return true;
 
-		for (int i = 0; i < m_Group.Count(); i++)
-		{
-			DayZPlayerImplement member = m_Group.GetMember(i);
-			if (member && member.IsInherited(PlayerBase) && member.IsAlive())
-			{
-				return false;
-			}
-		}
+		if (m_Group.Count())
+			return false;
 
 		m_WasGroupDestroyed = true;
 

@@ -5,6 +5,8 @@ enum eAICommands
 	MOV_GOTO,
 	MOV_RTF, // Return to formation
 	MOV_GETIN,
+	MOV_SETWP,
+	MOV_CLEARWP,
 	// Formation 
 	FOR_VEE,
 	FOR_INVVEE,
@@ -21,6 +23,7 @@ enum eAICommands
 	STA_SITREP, // report health and ammo level
 	STA_POSITION, // report position
 	STA_THREATS,
+	STA_DUMP,
 	STA_UNUSED,
 	// Debug
 	DEB_SPAWNALLY,
@@ -36,4 +39,5 @@ enum eAICommands
 	DEB_GRPMGR, // TODO
 	DEB_TARGET_CREATE,
 	DEB_TARGET_DESTROY,
+	DEB_EXPORTPATROL,
 };

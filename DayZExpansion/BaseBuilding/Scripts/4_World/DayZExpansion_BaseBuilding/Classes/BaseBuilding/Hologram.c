@@ -15,6 +15,15 @@
  **/
 modded class Hologram
 {
+	static const ref TTypenameArray EXPANSION_PLACING_TYPES = {
+		ExpansionKitBase,  //! Kits w/o placingTypes in config.cpp
+		ExpansionExplosive,
+		ExpansionSafeMedium,
+		ExpansionStove,
+		ExpansionCone,
+		ExpansionSignDanger
+	};
+
 	//! Expansion switch for snap
 	protected bool m_UsingSnap;
 
@@ -1030,29 +1039,16 @@ modded class Hologram
 	// ------------------------------------------------------------
 	override string ProjectionBasedOnParent()
 	{
-		ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
+		if (m_Parent)
+		{
+			//! Kits w/ placingTypes in config.cpp
+			ExpansionKitBase kit;
+			if (Class.CastTo(kit, m_Parent) && kit.GetPlacingTypes().Count() > 0)
+				return kit.GetPlacingTypes()[m_PlacingTypeChosen];
 
-		ExpansionKitBase kit;
-		if ( Class.CastTo( kit, item_in_hands ) && kit.GetPlacingTypes().Count() > 0 )
-			return kit.GetPlacingTypes()[m_PlacingTypeChosen];
-
-		if ( item_in_hands.IsInherited( ExpansionExplosive ) )
-			return item_in_hands.GetType() + "Placing";
-
-		if ( item_in_hands.IsInherited( ExpansionKitBase ) )
-			return item_in_hands.GetType() + "Placing";
-
-		if ( item_in_hands.IsInherited( ExpansionSafeMedium ) )
-			return item_in_hands.GetType() + "Placing";
-
-		if ( item_in_hands.IsInherited( ExpansionStove ) )
-			return item_in_hands.GetType() + "Placing";
-		
-		if ( item_in_hands.IsInherited( ExpansionCone ) )
-			return item_in_hands.GetType() + "Placing";
-
-		if ( item_in_hands.IsInherited( ExpansionSignDanger ) )
-			return item_in_hands.GetType() + "Placing";
+			if (ExpansionStatic.IsAnyOf(m_Parent, EXPANSION_PLACING_TYPES))
+				return m_Parent.GetType() + "Placing";
+		}
 
 		return super.ProjectionBasedOnParent();
 	}

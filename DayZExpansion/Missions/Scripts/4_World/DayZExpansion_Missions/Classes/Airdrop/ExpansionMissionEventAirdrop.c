@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
+class ExpansionMissionEventAirdropBase: ExpansionMissionEventBase
 {
 	bool ShowNotification;
 	
@@ -22,10 +22,21 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	
 	ref ExpansionAirdropLocation DropLocation;
 
-	ref array < ref ExpansionLoot > Loot;
 	ref TStringArray Infected;
 	int ItemCount;
 	int InfectedCount;
+}
+
+class ExpansionMissionEventAirdropV0: ExpansionMissionEventAirdropBase
+{
+	ref array < ref ExpansionLootV1 > Loot = {};
+}
+
+class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
+{
+	static const int VERSION = 1;
+
+	ref array < ref ExpansionLoot > Loot = {};
 
 	[NonSerialized()]
 	ExpansionAirdropPlane m_Plane;
@@ -243,6 +254,22 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 			}
 		}
 	}
+
+	void Copy(ExpansionMissionEventAirdropBase mission)
+	{
+		ShowNotification = mission.ShowNotification;
+		Height = mission.Height;
+		Speed = mission.Speed;
+		Container = mission.Container;
+		FallSpeed = mission.FallSpeed;
+		DropLocation = mission.DropLocation;
+		Infected = mission.Infected;
+		ItemCount = mission.ItemCount;
+		InfectedCount = mission.InfectedCount;
+
+		ExpansionMissionEventBase missionBase = mission;
+		Copy(missionBase);
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion OnLoadMission
@@ -255,7 +282,38 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 
 		if ( IsMissionHost() )
 		{
-			JsonFileLoader<ExpansionMissionEventAirdrop>.JsonLoadFile( m_FileName, this );
+			ExpansionMissionEventAirdropBase airdropBase;
+			if (!ExpansionJsonFileParser<ExpansionMissionEventAirdropBase>.Load(m_FileName, airdropBase))
+				return;
+
+			if (airdropBase.m_Version < VERSION)
+			{
+				if (airdropBase.m_Version < 1)
+				{
+					Copy(airdropBase);
+
+					ExpansionMissionEventAirdropV0 airdropV0;
+					if (!ExpansionJsonFileParser<ExpansionMissionEventAirdropV0>.Load(m_FileName, airdropV0))
+						return;
+
+					foreach (ExpansionLootV1 lootV1: airdropV0.Loot)
+					{
+						Loot.Insert(lootV1.Convert());
+					}
+				}
+				else if (!ExpansionJsonFileParser<ExpansionMissionEventAirdrop>.Load(m_FileName, this))
+				{
+					return;
+				}
+
+				m_Version = VERSION;
+
+				ExpansionJsonFileParser<ExpansionMissionEventAirdrop>.Save(m_FileName, this);
+			}
+			else
+			{
+				ExpansionJsonFileParser<ExpansionMissionEventAirdrop>.Load(m_FileName, this);
+			}
 		}
 	}
 	
@@ -270,7 +328,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 
 		if ( IsMissionHost() )
 		{
-			JsonFileLoader<ExpansionMissionEventAirdrop>.JsonSaveFile( m_FileName, this );
+			ExpansionJsonFileParser<ExpansionMissionEventAirdrop>.Save(m_FileName, this);
 		}
 	}
 	

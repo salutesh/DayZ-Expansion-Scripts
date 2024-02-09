@@ -1378,6 +1378,78 @@ modded class ItemBase
 		m_Expansion_QueuedActions &= ~actions;
 	}
 
+	void Expansion_PlaceOnSurfaceProper(vector position)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, this, position.ToString());
+	#endif
+
+		vector pos = GetPosition();
+		vector ori = GetOrientation();
+
+		//! -------------------------------------------------------
+
+		//! See hologram.c, AlignProjectionOnTerrain
+
+		vector yaw = Vector(ori[0], 0.0, 0.0);
+		vector mat0[3];
+		vector mat1[3];
+		vector mat2[3];
+		vector normal = GetGame().SurfaceGetNormal(position[0], position[2]);
+
+		vector angles = normal.VectorToAngles();
+		angles[1] = angles[1] + 270;
+
+		angles[0] = Math.Clamp(angles[0], 0, 360); 
+		angles[1] = Math.Clamp(angles[1], 0, 360);
+		angles[2] = Math.Clamp(angles[2], 0, 360);
+
+		yaw[0] = yaw[0] + (360 - angles[0]);
+
+		Math3D.YawPitchRollMatrix(yaw, mat0);
+		Math3D.YawPitchRollMatrix(angles, mat1);
+		Math3D.MatrixMultiply3(mat1, mat0, mat2);
+
+		//! -------------------------------------------------------
+
+		vector m4[4];
+		m4[0] = mat2[0];
+		m4[1] = mat2[1];
+		m4[2] = mat2[2];
+		m4[3] = position;
+
+		PlaceOnSurfaceRotated(m4, m4[3]);
+
+		//! -------------------------------------------------------
+
+	/*
+		vector minMax[2];
+		float offsetY;
+		if (GetCollisionBox(minMax))
+		{
+			vector p1 = minMax[0].Multiply4(m4);
+			vector p2 = minMax[1].Multiply4(m4);
+			vector center = vector.Zero.Multiply4(m4);
+			if (p2[1] < center[1])
+				offsetY = center[1] - p2[1];
+			else
+				offsetY = center[1] - p1[1];
+		}
+
+	#ifdef DIAG
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, this, "" + pos + " " + ori + " -> " + m4[3] + " + <0 " + offsetY + " 0> " + Math3D.MatrixToAngles(m4));
+	#endif
+
+		m4[3][1] = m4[3][1] + offsetY;
+	*/
+
+	#ifdef DIAG
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, this, "" + pos + " " + ori + " -> " + m4[3] + " " + Math3D.MatrixToAngles(m4));
+	#endif
+		
+		SetTransform(m4);
+	}
+
 	//! Process wetness/temperature/decay like vanilla does
 	void Expansion_ProcessWTD(float elapsed)
 	{

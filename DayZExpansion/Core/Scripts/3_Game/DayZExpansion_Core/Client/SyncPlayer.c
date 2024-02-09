@@ -12,7 +12,9 @@
 
 modded class SyncPlayer
 {
+#ifdef DAYZ_1_23
 	int m_Expansion_PlainId[2];
+#endif
 #ifdef EXPANSION_SYNCPLAYERLIST_SENDID
 	int m_Expansion_Id[9];
 #endif
@@ -22,8 +24,10 @@ modded class SyncPlayer
 
 	void Expansion_CopyFrom(SyncPlayer syncPlayer)
 	{
+	#ifdef DAYZ_1_23
 		m_Expansion_PlainId[0] = syncPlayer.m_Expansion_PlainId[0];
 		m_Expansion_PlainId[1] = syncPlayer.m_Expansion_PlainId[1];
+	#endif
 	#ifdef EXPANSION_SYNCPLAYERLIST_SENDID
 		for (int i = 0; i < 9; i++)
 		{

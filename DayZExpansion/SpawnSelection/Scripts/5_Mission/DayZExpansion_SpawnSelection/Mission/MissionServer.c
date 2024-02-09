@@ -46,4 +46,9 @@ modded class MissionServer
 			super.EquipCharacter(char_data);
 		}
 	}
+
+	override void Expansion_EndSpawnSelection(PlayerBase player)
+	{
+		m_RespawnHandlerModule.EndSpawnSelection(player);
+	}
 }

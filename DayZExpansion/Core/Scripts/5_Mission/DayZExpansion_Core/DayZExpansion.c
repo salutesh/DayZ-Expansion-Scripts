@@ -26,8 +26,8 @@ class DayZExpansion: ExpansionWorld
 	// ------------------------------------------------------------
 	void DayZExpansion()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "DayZExpansion");
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, this);
 #endif
 	
 		//! Version checking
@@ -37,13 +37,23 @@ class DayZExpansion: ExpansionWorld
 		GetExpansionSettings();
 	}
 
+	void ~DayZExpansion()
+	{
+		if (!GetGame())
+			return;
+
+#ifdef DIAG
+		Print("~DayZExpansion");
+#endif
+	}
+
 	// ------------------------------------------------------------
 	// Expansion Expansion_LoadVersion
 	// ------------------------------------------------------------
 	void Expansion_LoadVersion()
-	{		
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "Expansion_LoadVersion");
+	{
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, this);
 #endif
 	
 		m_Version = GetDayZGame().GetExpansionClientVersion();
@@ -72,14 +82,6 @@ class DayZExpansion: ExpansionWorld
 		return m_Version;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion OnStart
-	// ------------------------------------------------------------
-	override void OnStart()
-	{
-		super.OnStart();
-	}
-
 	override void OnLoaded()
 	{
 		if ( IsMissionHost() )
@@ -100,8 +102,8 @@ static DayZExpansion GetDayZExpansion()
 
 static void CreateDayZExpansion()
 {
-#ifdef EXPANSIONTRACE
-	auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "CreateDayZExpansion");
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC);
 #endif
 	
 	if ( g_exDayZ )
@@ -109,15 +111,18 @@ static void CreateDayZExpansion()
 		return;
 	}
 
+	if (Class.CastTo(g_exDayZ, GetDayZGame().GetExpansionGame()))
+		return;
+
 	g_exDayZ = new DayZExpansion;
 
 	GetDayZGame().SetExpansionGame( g_exDayZ );
 }
 
 static void DestroyDayZExpansion()
-{	
-#ifdef EXPANSIONTRACE
-	auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "DestroyDayZExpansion");
+{
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC);
 #endif
 
 	g_exDayZ = null;

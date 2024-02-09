@@ -459,6 +459,10 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 				StringLocaliser localiser = new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_BLOCKED_VEH_SPAWN_DESC", displayName, blockingObjectDisplayName, positionString);
 				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASE_FAILED_TITLE"), localiser, ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create();
 				break;
+
+			case ExpansionP2PMarketModuleCallback.ErrorVehicleLockpicked:
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_VEHICLE_LOCKPICKED_DESC", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create();
+				break;
 		}
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdatePlayerCurrency, 250);

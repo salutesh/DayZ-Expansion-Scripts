@@ -10,11 +10,9 @@
  *
 */
 
+#ifdef DAYZ_1_23
 modded class SyncPlayerList
 {
-	// ------------------------------------------------------------
-	// Override CreatePlayerList
-	// ------------------------------------------------------------
 	override void CreatePlayerList()
 	{
 		auto trace = EXTrace.Start(EXTrace.PLAYER, this);
@@ -74,3 +72,4 @@ modded class SyncPlayerList
 		}
 	}
 };
+#endif

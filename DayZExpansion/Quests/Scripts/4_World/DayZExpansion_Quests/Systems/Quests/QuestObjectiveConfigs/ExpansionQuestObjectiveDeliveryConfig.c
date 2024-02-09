@@ -24,9 +24,7 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 	autoptr array<ref ExpansionQuestObjectiveDelivery> Collections = new array<ref ExpansionQuestObjectiveDelivery>;
 	bool ShowDistance = true;
 
-#ifdef EXPANSIONMODMARKET
 	bool AddItemsToNearbyMarketZone = false;
-#endif
 
 	void AddCollection(int amount, string name, int quantityPercent = -1)
 	{
@@ -65,7 +63,6 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 		return Collections;
 	}
 
-#ifdef EXPANSIONMODMARKET
 	void SetAddItemsToNearbyMarketZone(bool state)
 	{
 		AddItemsToNearbyMarketZone = state;
@@ -75,7 +72,6 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 	{
 		return AddItemsToNearbyMarketZone;
 	}
-#endif
 	
 	bool NeedAnyCollection()
 	{

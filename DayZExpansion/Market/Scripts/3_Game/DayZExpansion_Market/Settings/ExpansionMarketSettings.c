@@ -92,14 +92,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 	autoptr TStringArray VehicleKeys;
 	
-	#ifdef EXPANSIONMODVEHICLE
 	float MaxSZVehicleParkingTime;
 	int SZVehicleParkingTicketFine;
-	#endif
 	
-	#ifdef HypeTrain
 	autoptr array<ref ExpansionMarketSpawnPosition> TrainSpawnPositions;
-	#endif
 	
 	[NonSerialized()]
 	protected autoptr map<int, ref ExpansionMarketCategory> m_Categories;
@@ -414,9 +410,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		Currencies.Copy(s.Currencies);
 		VehicleKeys.Copy(s.VehicleKeys);
 
-		#ifdef EXPANSIONMODVEHICLE
 		SZVehicleParkingTicketFine = s.SZVehicleParkingTicketFine;
-		#endif
 
 		int i;
 		ExpansionMarketSpawnPosition position;
@@ -562,12 +556,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		
 		Currencies.Insert("expansionbanknotehryvnia");
 
-		#ifdef EXPANSIONMODVEHICLE
 		MaxSZVehicleParkingTime = 30 * 60;  //! 30 minutes
 		SZVehicleParkingTicketFine = 0;
 
 		VehicleKeys.Insert("ExpansionCarKey");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -1104,12 +1096,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 						CurrencyIcon = "DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds";
 				}
 				
-				#ifdef EXPANSIONMODVEHICLE
 				if (settingsBase.m_Version < 12 && !MaxSZVehicleParkingTime)
 				{
 					MaxSZVehicleParkingTime = settingsDefault.MaxSZVehicleParkingTime;
 				}
-				#endif
 
 				m_Version = VERSION;
 				save = true;

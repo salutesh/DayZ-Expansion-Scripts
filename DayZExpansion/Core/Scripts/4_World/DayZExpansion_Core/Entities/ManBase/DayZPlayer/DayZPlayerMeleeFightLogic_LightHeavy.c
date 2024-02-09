@@ -12,15 +12,25 @@
 
 modded class DayZPlayerMeleeFightLogic_LightHeavy
 {
+	override void Init(DayZPlayerImplement player)
+	{
+		if (!player.IsInherited(ExpansionNotPlayerBase))
+			super.Init(player);
+	}
+
 	override bool HandleFightLogic(int pCurrentCommandID, HumanInputController pInputs, EntityAI pEntityInHands, HumanMovementState pMovementState, out bool pContinueAttack)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "HandleFightLogic");
 #endif
 
+#ifdef DAYZ_1_23
 		PlayerBase player = PlayerBase.Cast(m_DZPlayer);
-
 		if (player && player.Expansion_IsInSafeZone())
+#else
+		//! 1.24+
+		if (m_Player && m_Player.Expansion_IsInSafeZone())
+#endif
 			return false;
 
 		return super.HandleFightLogic(pCurrentCommandID, pInputs, pEntityInHands, pMovementState, pContinueAttack);

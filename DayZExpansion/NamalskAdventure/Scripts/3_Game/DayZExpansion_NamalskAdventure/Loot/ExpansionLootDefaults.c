@@ -3,75 +3,157 @@ modded class ExpansionLootDefaults
 	static void Expansion_NA_Weapons_Civilian(out array < ref ExpansionLoot > Loot)
 	{
 		//! General Variants
-		TStringArray battery = { "Battery9V" };
+		array<ref ExpansionLootVariant> battery = {};
+			battery.Insert(new ExpansionLootVariant("Battery9V"));
 
-		TStringArray att_UniversalLight 				= { "UniversalLight" };
+		array<ref ExpansionLootVariant> att_UniversalLight = {};
+			att_UniversalLight.Insert(new ExpansionLootVariant("UniversalLight"));
 
-		TStringArray att_TLRLight 						= { "TLRLight" };
-		TStringArray att_PistolSuppressor 				= { "PistolSuppressor" };
-		TStringArray att_TLRLightAndPistolSuppressor 	= { "TLRLight","PistolSuppressor" };
+		array<ref ExpansionLootVariant> att_TLRLight = {};
+			att_TLRLight.Insert(new ExpansionLootVariant("TLRLight"));
+		array<ref ExpansionLootVariant> att_PistolSuppressor = {};
+			att_PistolSuppressor.Insert(new ExpansionLootVariant("PistolSuppressor"));
+		array<ref ExpansionLootVariant> att_TLRLightAndPistolSuppressor = {};
+			att_TLRLightAndPistolSuppressor.Insert(new ExpansionLootVariant("TLRLight"));
+			att_TLRLightAndPistolSuppressor.Insert(new ExpansionLootVariant("PistolSuppressor"));
 
-		TStringArray att_PUScopeOptic 					= { "PUScopeOptic" };
-		TStringArray att_HuntingOptic 					= { "HuntingOptic" };
+		array<ref ExpansionLootVariant> att_PUScopeOptic = {};
+			att_PUScopeOptic.Insert(new ExpansionLootVariant("PUScopeOptic"));
+		array<ref ExpansionLootVariant> att_HuntingOptic = {};
+			att_HuntingOptic.Insert(new ExpansionLootVariant("HuntingOptic"));
 
-		TStringArray att_PSO1Optic 						= { "PSO1Optic" };
-		TStringArray att_PSO11Optic 					= { "PSO11Optic" };
-		TStringArray att_KazuarOptic 					= { "KazuarOptic" };
-		TStringArray att_KobraOptic 					= { "KobraOptic" };
-		TStringArray att_KashtanOptic 					= { "KashtanOptic" };
+		array<ref ExpansionLootVariant> att_PSO1Optic = {};
+			att_PSO1Optic.Insert(new ExpansionLootVariant("PSO1Optic"));
+		array<ref ExpansionLootVariant> att_PSO11Optic = {};
+			att_PSO11Optic.Insert(new ExpansionLootVariant("PSO11Optic"));
+		array<ref ExpansionLootVariant> att_KazuarOptic = {};
+			att_KazuarOptic.Insert(new ExpansionLootVariant("KazuarOptic"));
+		array<ref ExpansionLootVariant> att_KobraOptic = {};
+			att_KobraOptic.Insert(new ExpansionLootVariant("KobraOptic"));
+		array<ref ExpansionLootVariant> att_KashtanOptic = {};
+			att_KashtanOptic.Insert(new ExpansionLootVariant("KashtanOptic"));
 
-		TStringArray att_ReflexOptic 					= { "ReflexOptic" };
-		TStringArray att_ACOGOptic 						= { "ACOGOptic" };
-		TStringArray att_ACOGOptic_6x 					= { "ACOGOptic_6x" };
-		TStringArray att_M68Optic 						= { "M68Optic" };
-		TStringArray att_M4_T3NRDSOptic 				= { "M4_T3NRDSOptic" };
-		TStringArray att_StarlightOptic 				= { "StarlightOptic" };
+		array<ref ExpansionLootVariant> att_ReflexOptic = {};
+			att_ReflexOptic.Insert(new ExpansionLootVariant("ReflexOptic"));
+		array<ref ExpansionLootVariant> att_ACOGOptic = {};
+			att_ACOGOptic.Insert(new ExpansionLootVariant("ACOGOptic"));
+		array<ref ExpansionLootVariant> att_ACOGOptic_6x = {};
+			att_ACOGOptic_6x.Insert(new ExpansionLootVariant("ACOGOptic_6x"));
+		array<ref ExpansionLootVariant> att_M68Optic = {};
+			att_M68Optic.Insert(new ExpansionLootVariant("M68Optic"));
+		array<ref ExpansionLootVariant> att_M4_T3NRDSOptic = {};
+			att_M4_T3NRDSOptic.Insert(new ExpansionLootVariant("M4_T3NRDSOptic"));
+		array<ref ExpansionLootVariant> att_StarlightOptic = {};
+			att_StarlightOptic.Insert(new ExpansionLootVariant("StarlightOptic"));
 		#ifdef EXPANSIONMODWEAPONS
-		TStringArray att_ExpansionReflexMRSOptic 		= { "ExpansionReflexMRSOptic" };
-		TStringArray att_ExpansionEXPS3HoloOptic 		= { "ExpansionEXPS3HoloOptic" };
-		TStringArray att_ExpansionHAMROptic 			= { "ExpansionHAMROptic" };
+		array<ref ExpansionLootVariant> att_ExpansionReflexMRSOptic = {};
+			att_ExpansionReflexMRSOptic.Insert(new ExpansionLootVariant("ExpansionReflexMRSOptic"));
+		array<ref ExpansionLootVariant> att_ExpansionEXPS3HoloOptic = {};
+			att_ExpansionEXPS3HoloOptic.Insert(new ExpansionLootVariant("ExpansionEXPS3HoloOptic"));
+		array<ref ExpansionLootVariant> att_ExpansionHAMROptic = {};
+			att_ExpansionHAMROptic.Insert(new ExpansionLootVariant("ExpansionHAMROptic"));
 		#endif
 
-		TStringArray att_AKPlastic 						= { "AK_PlasticBttstck", "AK_PlasticHndgrd" };
-		TStringArray att_AK74 							= { "AK74_WoodBttstck", "AK74_Hndgrd" };
-		TStringArray att_AKM 							= { "AK_WoodBttstck", "AK_WoodHndgrd" };
+		array<ref ExpansionLootVariant> att_AKPlastic = {};
+			att_AKPlastic.Insert(new ExpansionLootVariant("AK_PlasticBttstck"));
+			att_AKPlastic.Insert(new ExpansionLootVariant("AK_PlasticHndgrd"));
+		array<ref ExpansionLootVariant> att_AK74 = {};
+			att_AK74.Insert(new ExpansionLootVariant("AK74_WoodBttstck"));
+			att_AK74.Insert(new ExpansionLootVariant("AK74_Hndgrd"));
+		array<ref ExpansionLootVariant> att_AKM = {};
+			att_AKM.Insert(new ExpansionLootVariant("AK_WoodBttstck"));
+			att_AKM.Insert(new ExpansionLootVariant("AK_WoodHndgrd"));
 		//! End of General Variants
 
-		TStringArray ak_1 								= { "AK_FoldingBttstck", "AK74_Hndgrd" };
-		TStringArray ak_2 								= { "AK_FoldingBttstck", "AK74_Hndgrd", "AK_Bayonet" };
-		TStringArray ak_3 								= { "KobraOptic", "AK_WoodHndgrd", "AK74_WoodBttstck" };
-		TStringArray ak_4 								= { "AK_FoldingBttstck", "AK_RailHndgrd" };
-		TStringArray ak_5 								= { "AK_WoodBttstck", "AK_WoodHndgrd", "KobraOptic" };
-		TStringArray ak_6 								= { "AK_PlasticBttstck", "AK_RailHndgrd"};
-		TStringArray ak_7 								= { "AK_PlasticBttstck", "AK_RailHndgrd", "UniversalLight"};
+		array<ref ExpansionLootVariant> ak_1 = {};
+			ak_1.Insert(new ExpansionLootVariant("AK_FoldingBttstck"));
+			ak_1.Insert(new ExpansionLootVariant("AK74_Hndgrd"));
+		array<ref ExpansionLootVariant> ak_2 = {};
+			ak_2.Insert(new ExpansionLootVariant("AK_FoldingBttstck"));
+			ak_2.Insert(new ExpansionLootVariant("AK74_Hndgrd"));
+			ak_2.Insert(new ExpansionLootVariant("AK_Bayonet"));
+		array<ref ExpansionLootVariant> ak_3 = {};
+			ak_3.Insert(new ExpansionLootVariant("KobraOptic"));
+			ak_3.Insert(new ExpansionLootVariant("AK_WoodHndgrd"));
+			ak_3.Insert(new ExpansionLootVariant("AK74_WoodBttstck"));
+		array<ref ExpansionLootVariant> ak_4 = {};
+			ak_4.Insert(new ExpansionLootVariant("AK_FoldingBttstck"));
+			ak_4.Insert(new ExpansionLootVariant("AK_RailHndgrd"));
+		array<ref ExpansionLootVariant> ak_5 = {};
+			ak_5.Insert(new ExpansionLootVariant("AK_WoodBttstck"));
+			ak_5.Insert(new ExpansionLootVariant("AK_WoodHndgrd"));
+			ak_5.Insert(new ExpansionLootVariant("KobraOptic"));
+		array<ref ExpansionLootVariant> ak_6 = {};
+			ak_6.Insert(new ExpansionLootVariant("AK_PlasticBttstck"));
+			ak_6.Insert(new ExpansionLootVariant("AK_RailHndgrd"));
+		array<ref ExpansionLootVariant> ak_7 = {};
+			ak_7.Insert(new ExpansionLootVariant("AK_PlasticBttstck"));
+			ak_7.Insert(new ExpansionLootVariant("AK_RailHndgrd"));
+			ak_7.Insert(new ExpansionLootVariant("UniversalLight"));
 
-		TStringArray ak74u_1 							= { "AK74_WoodBttstck"};
-		TStringArray ak74u_2 							= { "AKS74U_Bttstck" };
+		array<ref ExpansionLootVariant> ak74u_1 = {};
+			ak74u_1.Insert(new ExpansionLootVariant("AK74_WoodBttstck"));
+		array<ref ExpansionLootVariant> ak74u_2 = {};
+			ak74u_2.Insert(new ExpansionLootVariant("AKS74U_Bttstck"));
 
-		TStringArray expansionm16_1 					= { "ExpansionEXPS3HoloOptic","UniversalLight" };
-		TStringArray expansionm16_2 					= { "M68Optic","UniversalLight" };
-		TStringArray expansionm16_3 					= { "ReflexOptic","UniversalLight" };
+		array<ref ExpansionLootVariant> expansionm16_1 = {};
+			expansionm16_1.Insert(new ExpansionLootVariant("ExpansionEXPS3HoloOptic"));
+			expansionm16_1.Insert(new ExpansionLootVariant("UniversalLight"));
+		array<ref ExpansionLootVariant> expansionm16_2 = {};
+			expansionm16_2.Insert(new ExpansionLootVariant("M68Optic"));
+			expansionm16_2.Insert(new ExpansionLootVariant("UniversalLight"));
+		array<ref ExpansionLootVariant> expansionm16_3 = {};
+			expansionm16_3.Insert(new ExpansionLootVariant("ReflexOptic"));
+			expansionm16_3.Insert(new ExpansionLootVariant("UniversalLight"));
 
-		TStringArray m4a1_1 							= { "M4_CarryHandleOptic", "M4_OEBttstck", "M4_PlasticHndgrd" };
-		TStringArray m4a1_2 							= { "BUISOptic", "M4_CQBBttstck", "M4_RisHndgrd" };
-		TStringArray m4a1_3 							= { "ACOGOptic", "M4_MPBttstck", "M4_MPHndgrd" };
-		TStringArray m4a1_4 							= { "BUISOptic", "M4_CQBBttstck", "M4_RisHndgrd", "UniversalLight"};
+		array<ref ExpansionLootVariant> m4a1_1 = {};
+			m4a1_1.Insert(new ExpansionLootVariant("M4_CarryHandleOptic"));
+			m4a1_1.Insert(new ExpansionLootVariant("M4_OEBttstck"));
+			m4a1_1.Insert(new ExpansionLootVariant("M4_PlasticHndgrd"));
+		array<ref ExpansionLootVariant> m4a1_2 = {};
+			m4a1_2.Insert(new ExpansionLootVariant("BUISOptic"));
+			m4a1_2.Insert(new ExpansionLootVariant("M4_CQBBttstck"));
+			m4a1_2.Insert(new ExpansionLootVariant("M4_RisHndgrd"));
+		array<ref ExpansionLootVariant> m4a1_3 = {};
+			m4a1_3.Insert(new ExpansionLootVariant("ACOGOptic"));
+			m4a1_3.Insert(new ExpansionLootVariant("M4_MPBttstck"));
+			m4a1_3.Insert(new ExpansionLootVariant("M4_MPHndgrd"));
+		array<ref ExpansionLootVariant> m4a1_4 = {};
+			m4a1_4.Insert(new ExpansionLootVariant("BUISOptic"));
+			m4a1_4.Insert(new ExpansionLootVariant("M4_CQBBttstck"));
+			m4a1_4.Insert(new ExpansionLootVariant("M4_RisHndgrd"));
+			m4a1_4.Insert(new ExpansionLootVariant("UniversalLight"));
 
-		TStringArray fal_1 								= { "Fal_OeBttstck" };
-		TStringArray fal_2 								= { "Fal_FoldingBttstck" };
-		TStringArray fal_3 								= { "Fal_OeBttstck", "ACOGOptic" };
-		TStringArray fal_4 								= { "Fal_FoldingBttstck", "ReflexOptic" };
+		array<ref ExpansionLootVariant> fal_1 = {};
+			fal_1.Insert(new ExpansionLootVariant("Fal_OeBttstck"));
+		array<ref ExpansionLootVariant> fal_2 = {};
+			fal_2.Insert(new ExpansionLootVariant("Fal_FoldingBttstck"));
+		array<ref ExpansionLootVariant> fal_3 = {};
+			fal_3.Insert(new ExpansionLootVariant("Fal_OeBttstck"));
+			fal_3.Insert(new ExpansionLootVariant("ACOGOptic"));
+		array<ref ExpansionLootVariant> fal_4 = {};
+			fal_4.Insert(new ExpansionLootVariant("Fal_FoldingBttstck"));
+			fal_4.Insert(new ExpansionLootVariant("ReflexOptic"));
 
-		TStringArray saiga_1 							= { "Saiga_Bttstck", "KobraOptic" };
-		TStringArray saiga_2 							= { "Saiga_Bttstck" };
+		array<ref ExpansionLootVariant> saiga_1 = {};
+			saiga_1.Insert(new ExpansionLootVariant("Saiga_Bttstck"));
+			saiga_1.Insert(new ExpansionLootVariant("KobraOptic"));
+		array<ref ExpansionLootVariant> saiga_2 = {};
+			saiga_2.Insert(new ExpansionLootVariant("Saiga_Bttstck"));
 
-		TStringArray sks_1 								= { "SKS_Bayonet" };
+		array<ref ExpansionLootVariant> sks_1 = {};
+			sks_1.Insert(new ExpansionLootVariant("SKS_Bayonet"));
 
-		TStringArray mosin_1 							= { "Mosin_Bayonet" };
-		TStringArray mosin_2 							= { "Mosin_Compensator" };
-		TStringArray mosin_3 							= { "Mosin_Compensator","PUScopeOptic" };
+		array<ref ExpansionLootVariant> mosin_1 = {};
+			mosin_1.Insert(new ExpansionLootVariant("Mosin_Bayonet"));
+		array<ref ExpansionLootVariant> mosin_2 = {};
+			mosin_2.Insert(new ExpansionLootVariant("Mosin_Compensator"));
+		array<ref ExpansionLootVariant> mosin_3 = {};
+			mosin_3.Insert(new ExpansionLootVariant("Mosin_Compensator"));
+			mosin_3.Insert(new ExpansionLootVariant("PUScopeOptic"));
 
-		TStringArray winchester70_1 					= { "HuntingOptic" };
+		array<ref ExpansionLootVariant> winchester70_1 = {};
+			winchester70_1.Insert(new ExpansionLootVariant("HuntingOptic"));
 
 		array< ref ExpansionLootVariant > sksVariants = {
 			new ExpansionLootVariant( "SKS", sks_1, 0.2 ),
@@ -269,75 +351,157 @@ modded class ExpansionLootDefaults
 	static void Expansion_NA_Weapons_Military(out array < ref ExpansionLoot > Loot)
 	{
 		//! General Variants
-		TStringArray battery = { "Battery9V" };
+		array<ref ExpansionLootVariant> battery = {};
+			battery.Insert(new ExpansionLootVariant("Battery9V"));
 
-		TStringArray att_UniversalLight 				= { "UniversalLight" };
+		array<ref ExpansionLootVariant> att_UniversalLight = {};
+			att_UniversalLight.Insert(new ExpansionLootVariant("UniversalLight"));
 
-		TStringArray att_TLRLight 						= { "TLRLight" };
-		TStringArray att_PistolSuppressor 				= { "PistolSuppressor" };
-		TStringArray att_TLRLightAndPistolSuppressor 	= { "TLRLight","PistolSuppressor" };
+		array<ref ExpansionLootVariant> att_TLRLight = {};
+			att_TLRLight.Insert(new ExpansionLootVariant("TLRLight"));
+		array<ref ExpansionLootVariant> att_PistolSuppressor = {};
+			att_PistolSuppressor.Insert(new ExpansionLootVariant("PistolSuppressor"));
+		array<ref ExpansionLootVariant> att_TLRLightAndPistolSuppressor = {};
+			att_TLRLightAndPistolSuppressor.Insert(new ExpansionLootVariant("TLRLight"));
+			att_TLRLightAndPistolSuppressor.Insert(new ExpansionLootVariant("PistolSuppressor"));
 
-		TStringArray att_PUScopeOptic 					= { "PUScopeOptic" };
-		TStringArray att_HuntingOptic 					= { "HuntingOptic" };
+		array<ref ExpansionLootVariant> att_PUScopeOptic = {};
+			att_PUScopeOptic.Insert(new ExpansionLootVariant("PUScopeOptic"));
+		array<ref ExpansionLootVariant> att_HuntingOptic = {};
+			att_HuntingOptic.Insert(new ExpansionLootVariant("HuntingOptic"));
 
-		TStringArray att_PSO1Optic 						= { "PSO1Optic" };
-		TStringArray att_PSO11Optic 					= { "PSO11Optic" };
-		TStringArray att_KazuarOptic 					= { "KazuarOptic" };
-		TStringArray att_KobraOptic 					= { "KobraOptic" };
-		TStringArray att_KashtanOptic 					= { "KashtanOptic" };
+		array<ref ExpansionLootVariant> att_PSO1Optic = {};
+			att_PSO1Optic.Insert(new ExpansionLootVariant("PSO1Optic"));
+		array<ref ExpansionLootVariant> att_PSO11Optic = {};
+			att_PSO11Optic.Insert(new ExpansionLootVariant("PSO11Optic"));
+		array<ref ExpansionLootVariant> att_KazuarOptic = {};
+			att_KazuarOptic.Insert(new ExpansionLootVariant("KazuarOptic"));
+		array<ref ExpansionLootVariant> att_KobraOptic = {};
+			att_KobraOptic.Insert(new ExpansionLootVariant("KobraOptic"));
+		array<ref ExpansionLootVariant> att_KashtanOptic = {};
+			att_KashtanOptic.Insert(new ExpansionLootVariant("KashtanOptic"));
 
-		TStringArray att_ReflexOptic 					= { "ReflexOptic" };
-		TStringArray att_ACOGOptic 						= { "ACOGOptic" };
-		TStringArray att_ACOGOptic_6x 					= { "ACOGOptic_6x" };
-		TStringArray att_M68Optic 						= { "M68Optic" };
-		TStringArray att_M4_T3NRDSOptic 				= { "M4_T3NRDSOptic" };
-		TStringArray att_StarlightOptic 				= { "StarlightOptic" };
+		array<ref ExpansionLootVariant> att_ReflexOptic = {};
+			att_ReflexOptic.Insert(new ExpansionLootVariant("ReflexOptic"));
+		array<ref ExpansionLootVariant> att_ACOGOptic = {};
+			att_ACOGOptic.Insert(new ExpansionLootVariant("ACOGOptic"));
+		array<ref ExpansionLootVariant> att_ACOGOptic_6x = {};
+			att_ACOGOptic_6x.Insert(new ExpansionLootVariant("ACOGOptic_6x"));
+		array<ref ExpansionLootVariant> att_M68Optic = {};
+			att_M68Optic.Insert(new ExpansionLootVariant("M68Optic"));
+		array<ref ExpansionLootVariant> att_M4_T3NRDSOptic = {};
+			att_M4_T3NRDSOptic.Insert(new ExpansionLootVariant("M4_T3NRDSOptic"));
+		array<ref ExpansionLootVariant> att_StarlightOptic = {};
+			att_StarlightOptic.Insert(new ExpansionLootVariant("StarlightOptic"));
 	#ifdef EXPANSIONMODWEAPONS
-		TStringArray att_ExpansionReflexMRSOptic 		= { "ExpansionReflexMRSOptic" };
-		TStringArray att_ExpansionEXPS3HoloOptic 		= { "ExpansionEXPS3HoloOptic" };
-		TStringArray att_ExpansionHAMROptic 			= { "ExpansionHAMROptic" };
+		array<ref ExpansionLootVariant> att_ExpansionReflexMRSOptic = {};
+			att_ExpansionReflexMRSOptic.Insert(new ExpansionLootVariant("ExpansionReflexMRSOptic"));
+		array<ref ExpansionLootVariant> att_ExpansionEXPS3HoloOptic = {};
+			att_ExpansionEXPS3HoloOptic.Insert(new ExpansionLootVariant("ExpansionEXPS3HoloOptic"));
+		array<ref ExpansionLootVariant> att_ExpansionHAMROptic = {};
+			att_ExpansionHAMROptic.Insert(new ExpansionLootVariant("ExpansionHAMROptic"));
 	#endif
 
-		TStringArray att_AKPlastic 						= { "AK_PlasticBttstck", "AK_PlasticHndgrd" };
-		TStringArray att_AK74 							= { "AK74_WoodBttstck", "AK74_Hndgrd" };
-		TStringArray att_AKM 							= { "AK_WoodBttstck", "AK_WoodHndgrd" };
+		array<ref ExpansionLootVariant> att_AKPlastic = {};
+			att_AKPlastic.Insert(new ExpansionLootVariant("AK_PlasticBttstck"));
+			att_AKPlastic.Insert(new ExpansionLootVariant("AK_PlasticHndgrd"));
+		array<ref ExpansionLootVariant> att_AK74 = {};
+			att_AK74.Insert(new ExpansionLootVariant("AK74_WoodBttstck"));
+			att_AK74.Insert(new ExpansionLootVariant("AK74_Hndgrd"));
+		array<ref ExpansionLootVariant> att_AKM = {};
+			att_AKM.Insert(new ExpansionLootVariant("AK_WoodBttstck"));
+			att_AKM.Insert(new ExpansionLootVariant("AK_WoodHndgrd"));
 		//! End of General Variants
 
-		TStringArray ak_1 								= { "AK_FoldingBttstck", "AK74_Hndgrd" };
-		TStringArray ak_2 								= { "AK_FoldingBttstck", "AK74_Hndgrd", "AK_Bayonet" };
-		TStringArray ak_3 								= { "KobraOptic", "AK_WoodHndgrd", "AK74_WoodBttstck" };
-		TStringArray ak_4 								= { "AK_FoldingBttstck", "AK_RailHndgrd" };
-		TStringArray ak_5 								= { "AK_WoodBttstck", "AK_WoodHndgrd", "KobraOptic" };
-		TStringArray ak_6 								= { "AK_PlasticBttstck", "AK_RailHndgrd"};
-		TStringArray ak_7 								= { "AK_PlasticBttstck", "AK_RailHndgrd", "UniversalLight"};
+		array<ref ExpansionLootVariant> ak_1 = {};
+			ak_1.Insert(new ExpansionLootVariant("AK_FoldingBttstck"));
+			ak_1.Insert(new ExpansionLootVariant("AK74_Hndgrd"));
+		array<ref ExpansionLootVariant> ak_2 = {};
+			ak_2.Insert(new ExpansionLootVariant("AK_FoldingBttstck"));
+			ak_2.Insert(new ExpansionLootVariant("AK74_Hndgrd"));
+			ak_2.Insert(new ExpansionLootVariant("AK_Bayonet"));
+		array<ref ExpansionLootVariant> ak_3 = {};
+			ak_3.Insert(new ExpansionLootVariant("KobraOptic"));
+			ak_3.Insert(new ExpansionLootVariant("AK_WoodHndgrd"));
+			ak_3.Insert(new ExpansionLootVariant("AK74_WoodBttstck"));
+		array<ref ExpansionLootVariant> ak_4 = {};
+			ak_4.Insert(new ExpansionLootVariant("AK_FoldingBttstck"));
+			ak_4.Insert(new ExpansionLootVariant("AK_RailHndgrd"));
+		array<ref ExpansionLootVariant> ak_5 = {};
+			ak_5.Insert(new ExpansionLootVariant("AK_WoodBttstck"));
+			ak_5.Insert(new ExpansionLootVariant("AK_WoodHndgrd"));
+			ak_5.Insert(new ExpansionLootVariant("KobraOptic"));
+		array<ref ExpansionLootVariant> ak_6 = {};
+			ak_6.Insert(new ExpansionLootVariant("AK_PlasticBttstck"));
+			ak_6.Insert(new ExpansionLootVariant("AK_RailHndgrd"));
+		array<ref ExpansionLootVariant> ak_7 = {};
+			ak_7.Insert(new ExpansionLootVariant("AK_PlasticBttstck"));
+			ak_7.Insert(new ExpansionLootVariant("AK_RailHndgrd"));
+			ak_7.Insert(new ExpansionLootVariant("UniversalLight"));
 
-		TStringArray ak74u_1 							= { "AK74_WoodBttstck"};
-		TStringArray ak74u_2 							= { "AKS74U_Bttstck" };
+		array<ref ExpansionLootVariant> ak74u_1 = {};
+			ak74u_1.Insert(new ExpansionLootVariant("AK74_WoodBttstck"));
+		array<ref ExpansionLootVariant> ak74u_2 = {};
+			ak74u_2.Insert(new ExpansionLootVariant("AKS74U_Bttstck"));
 
-		TStringArray expansionm16_1 					= { "ExpansionEXPS3HoloOptic","UniversalLight" };
-		TStringArray expansionm16_2 					= { "M68Optic","UniversalLight" };
-		TStringArray expansionm16_3 					= { "ReflexOptic","UniversalLight" };
+		array<ref ExpansionLootVariant> expansionm16_1 = {};
+			expansionm16_1.Insert(new ExpansionLootVariant("ExpansionEXPS3HoloOptic"));
+			expansionm16_1.Insert(new ExpansionLootVariant("UniversalLight"));
+		array<ref ExpansionLootVariant> expansionm16_2 = {};
+			expansionm16_2.Insert(new ExpansionLootVariant("M68Optic"));
+			expansionm16_2.Insert(new ExpansionLootVariant("UniversalLight"));
+		array<ref ExpansionLootVariant> expansionm16_3 = {};
+			expansionm16_3.Insert(new ExpansionLootVariant("ReflexOptic"));
+			expansionm16_3.Insert(new ExpansionLootVariant("UniversalLight"));
 
-		TStringArray m4a1_1 							= { "M4_CarryHandleOptic", "M4_OEBttstck", "M4_PlasticHndgrd" };
-		TStringArray m4a1_2 							= { "BUISOptic", "M4_CQBBttstck", "M4_RisHndgrd" };
-		TStringArray m4a1_3 							= { "ACOGOptic", "M4_MPBttstck", "M4_MPHndgrd" };
-		TStringArray m4a1_4 							= { "BUISOptic", "M4_CQBBttstck", "M4_RisHndgrd", "UniversalLight"};
+		array<ref ExpansionLootVariant> m4a1_1 = {};
+			m4a1_1.Insert(new ExpansionLootVariant("M4_CarryHandleOptic"));
+			m4a1_1.Insert(new ExpansionLootVariant("M4_OEBttstck"));
+			m4a1_1.Insert(new ExpansionLootVariant("M4_PlasticHndgrd"));
+		array<ref ExpansionLootVariant> m4a1_2 = {};
+			m4a1_2.Insert(new ExpansionLootVariant("BUISOptic"));
+			m4a1_2.Insert(new ExpansionLootVariant("M4_CQBBttstck"));
+			m4a1_2.Insert(new ExpansionLootVariant("M4_RisHndgrd"));
+		array<ref ExpansionLootVariant> m4a1_3 = {};
+			m4a1_3.Insert(new ExpansionLootVariant("ACOGOptic"));
+			m4a1_3.Insert(new ExpansionLootVariant("M4_MPBttstck"));
+			m4a1_3.Insert(new ExpansionLootVariant("M4_MPHndgrd"));
+		array<ref ExpansionLootVariant> m4a1_4 = {};
+			m4a1_4.Insert(new ExpansionLootVariant("BUISOptic"));
+			m4a1_4.Insert(new ExpansionLootVariant("M4_CQBBttstck"));
+			m4a1_4.Insert(new ExpansionLootVariant("M4_RisHndgrd"));
+			m4a1_4.Insert(new ExpansionLootVariant("UniversalLight"));
 
-		TStringArray fal_1 								= { "Fal_OeBttstck" };
-		TStringArray fal_2 								= { "Fal_FoldingBttstck" };
-		TStringArray fal_3 								= { "Fal_OeBttstck", "ACOGOptic" };
-		TStringArray fal_4 								= { "Fal_FoldingBttstck", "ReflexOptic" };
+		array<ref ExpansionLootVariant> fal_1 = {};
+			fal_1.Insert(new ExpansionLootVariant("Fal_OeBttstck"));
+		array<ref ExpansionLootVariant> fal_2 = {};
+			fal_2.Insert(new ExpansionLootVariant("Fal_FoldingBttstck"));
+		array<ref ExpansionLootVariant> fal_3 = {};
+			fal_3.Insert(new ExpansionLootVariant("Fal_OeBttstck"));
+			fal_3.Insert(new ExpansionLootVariant("ACOGOptic"));
+		array<ref ExpansionLootVariant> fal_4 = {};
+			fal_4.Insert(new ExpansionLootVariant("Fal_FoldingBttstck"));
+			fal_4.Insert(new ExpansionLootVariant("ReflexOptic"));
 
-		TStringArray saiga_1 							= { "Saiga_Bttstck", "KobraOptic" };
-		TStringArray saiga_2 							= { "Saiga_Bttstck" };
+		array<ref ExpansionLootVariant> saiga_1 = {};
+			saiga_1.Insert(new ExpansionLootVariant("Saiga_Bttstck"));
+			saiga_1.Insert(new ExpansionLootVariant("KobraOptic"));
+		array<ref ExpansionLootVariant> saiga_2 = {};
+			saiga_2.Insert(new ExpansionLootVariant("Saiga_Bttstck"));
 
-		TStringArray sks_1 								= { "SKS_Bayonet" };
+		array<ref ExpansionLootVariant> sks_1 = {};
+			sks_1.Insert(new ExpansionLootVariant("SKS_Bayonet"));
 
-		TStringArray mosin_1 							= { "Mosin_Bayonet" };
-		TStringArray mosin_2 							= { "Mosin_Compensator" };
-		TStringArray mosin_3 							= { "Mosin_Compensator","PUScopeOptic" };
+		array<ref ExpansionLootVariant> mosin_1 = {};
+			mosin_1.Insert(new ExpansionLootVariant("Mosin_Bayonet"));
+		array<ref ExpansionLootVariant> mosin_2 = {};
+			mosin_2.Insert(new ExpansionLootVariant("Mosin_Compensator"));
+		array<ref ExpansionLootVariant> mosin_3 = {};
+			mosin_3.Insert(new ExpansionLootVariant("Mosin_Compensator"));
+			mosin_3.Insert(new ExpansionLootVariant("PUScopeOptic"));
 
-		TStringArray winchester70_1 					= { "HuntingOptic" };
+		array<ref ExpansionLootVariant> winchester70_1 = {};
+			winchester70_1.Insert(new ExpansionLootVariant("HuntingOptic"));
 
 		array< ref ExpansionLootVariant > sksVariants = {
 			new ExpansionLootVariant( "SKS", sks_1, 0.2 ),
@@ -611,7 +775,8 @@ modded class ExpansionLootDefaults
 
 	static void Expansion_NA_Attachments(out array < ref ExpansionLoot > Loot)
 	{
-		TStringArray battery = { "Battery9V" };
+		array<ref ExpansionLootVariant> battery = {};
+			battery.Insert(new ExpansionLootVariant("Battery9V"));
 
 		Loot.Insert(new ExpansionLoot( "AK_RailHndgrd", NULL , 0.1 ));
 		Loot.Insert(new ExpansionLoot( "AK_Bayonet", NULL , 0.1 ));
@@ -663,7 +828,8 @@ modded class ExpansionLootDefaults
 
 	static void Expansion_NA_NBC(out array < ref ExpansionLoot > Loot)
 	{
-		TStringArray att_gasmask = { "GasMask_Filter" };
+		array<ref ExpansionLootVariant> att_gasmask = {};
+			att_gasmask.Insert(new ExpansionLootVariant("GasMask_Filter"));
 
 		array< ref ExpansionLootVariant > airborneMaskVariants = {
 			new ExpansionLootVariant( "AirborneMask", NULL, 0.80 ),
@@ -691,22 +857,57 @@ modded class ExpansionLootDefaults
 
 	static void Expansion_NA_Gear_Medical(out array < ref ExpansionLoot > Loot)
 	{
-		TStringArray firstaidkit_1 = { "BandageDressing","BandageDressing" };
-		TStringArray firstaidkit_2 = { "BandageDressing","BandageDressing","BandageDressing","BandageDressing" };
-		TStringArray firstaidkit_3 = { "Morphine","BandageDressing" };
-		TStringArray firstaidkit_4 = { "BandageDressing","SalineBagIV" };
-		TStringArray firstaidkit_5 = { "PainkillerTablets","DisinfectantAlcohol" };
-		TStringArray firstaidkit_6 = { "CharcoalTablets","Morphine" };
-		TStringArray firstaidkit_7 = { "Epinephrine","StartKitIV" };
-		TStringArray firstaidkit_8 = { "TetracyclineAntiBiotics","VitaminBottle" };
-		TStringArray firstaidkit_9 = { "Morphine","SalineBagIV" };
-		TStringArray firstaidkit_10 = { "PainkillerTablets","Epinephrine" };
-		TStringArray firstaidkit_11 = { "TetracyclineAntiBiotics","Morphine" };
-		TStringArray firstaidkit_12 = { "VitaminBottle","SurgicalGloves_Blue" };
-		TStringArray firstaidkit_13 = { "BandageDressing","VitaminBottle" };
-		TStringArray firstaidkit_14 = { "CharcoalTablets","DisinfectantAlcohol" };
-		TStringArray firstaidkit_15 = { "IodineTincture","PainkillerTablets" };
-		TStringArray firstaidkit_16 = { "CharcoalTablets","AntiChemInjector", "BandageDressing" };
+		array<ref ExpansionLootVariant> firstaidkit_1 = {};
+			firstaidkit_1.Insert(new ExpansionLootVariant("BandageDressing"));
+			firstaidkit_1.Insert(new ExpansionLootVariant("BandageDressing"));
+		array<ref ExpansionLootVariant> firstaidkit_2 = {};
+			firstaidkit_2.Insert(new ExpansionLootVariant("BandageDressing"));
+			firstaidkit_2.Insert(new ExpansionLootVariant("BandageDressing"));
+			firstaidkit_2.Insert(new ExpansionLootVariant("BandageDressing"));
+			firstaidkit_2.Insert(new ExpansionLootVariant("BandageDressing"));
+		array<ref ExpansionLootVariant> firstaidkit_3 = {};
+			firstaidkit_3.Insert(new ExpansionLootVariant("Morphine"));
+			firstaidkit_3.Insert(new ExpansionLootVariant("BandageDressing"));
+		array<ref ExpansionLootVariant> firstaidkit_4 = {};
+			firstaidkit_4.Insert(new ExpansionLootVariant("BandageDressing"));
+			firstaidkit_4.Insert(new ExpansionLootVariant("SalineBagIV"));
+		array<ref ExpansionLootVariant> firstaidkit_5 = {};
+			firstaidkit_5.Insert(new ExpansionLootVariant("PainkillerTablets"));
+			firstaidkit_5.Insert(new ExpansionLootVariant("DisinfectantAlcohol"));
+		array<ref ExpansionLootVariant> firstaidkit_6 = {};
+			firstaidkit_6.Insert(new ExpansionLootVariant("CharcoalTablets"));
+			firstaidkit_6.Insert(new ExpansionLootVariant("Morphine"));
+		array<ref ExpansionLootVariant> firstaidkit_7 = {};
+			firstaidkit_7.Insert(new ExpansionLootVariant("Epinephrine"));
+			firstaidkit_7.Insert(new ExpansionLootVariant("StartKitIV"));
+		array<ref ExpansionLootVariant> firstaidkit_8 = {};
+			firstaidkit_8.Insert(new ExpansionLootVariant("TetracyclineAntiBiotics"));
+			firstaidkit_8.Insert(new ExpansionLootVariant("VitaminBottle"));
+		array<ref ExpansionLootVariant> firstaidkit_9 = {};
+			firstaidkit_9.Insert(new ExpansionLootVariant("Morphine"));
+			firstaidkit_9.Insert(new ExpansionLootVariant("SalineBagIV"));
+		array<ref ExpansionLootVariant> firstaidkit_10 = {};
+			firstaidkit_10.Insert(new ExpansionLootVariant("PainkillerTablets"));
+			firstaidkit_10.Insert(new ExpansionLootVariant("Epinephrine"));
+		array<ref ExpansionLootVariant> firstaidkit_11 = {};
+			firstaidkit_11.Insert(new ExpansionLootVariant("TetracyclineAntiBiotics"));
+			firstaidkit_11.Insert(new ExpansionLootVariant("Morphine"));
+		array<ref ExpansionLootVariant> firstaidkit_12 = {};
+			firstaidkit_12.Insert(new ExpansionLootVariant("VitaminBottle"));
+			firstaidkit_12.Insert(new ExpansionLootVariant("SurgicalGloves_Blue"));
+		array<ref ExpansionLootVariant> firstaidkit_13 = {};
+			firstaidkit_13.Insert(new ExpansionLootVariant("BandageDressing"));
+			firstaidkit_13.Insert(new ExpansionLootVariant("VitaminBottle"));
+		array<ref ExpansionLootVariant> firstaidkit_14 = {};
+			firstaidkit_14.Insert(new ExpansionLootVariant("CharcoalTablets"));
+			firstaidkit_14.Insert(new ExpansionLootVariant("DisinfectantAlcohol"));
+		array<ref ExpansionLootVariant> firstaidkit_15 = {};
+			firstaidkit_15.Insert(new ExpansionLootVariant("IodineTincture"));
+			firstaidkit_15.Insert(new ExpansionLootVariant("PainkillerTablets"));
+		array<ref ExpansionLootVariant> firstaidkit_16 = {};
+			firstaidkit_16.Insert(new ExpansionLootVariant("CharcoalTablets"));
+			firstaidkit_16.Insert(new ExpansionLootVariant("AntiChemInjector"));
+			firstaidkit_16.Insert(new ExpansionLootVariant("BandageDressing"));
 		array< ref ExpansionLootVariant > firstaidkitVariants = {
 			new ExpansionLootVariant( "FirstAidKit", firstaidkit_2, 0.040984 ),
 			new ExpansionLootVariant( "FirstAidKit", firstaidkit_3, 0.073770 ),
@@ -790,13 +991,16 @@ modded class ExpansionLootDefaults
 	{
 		array < ref ExpansionLoot > Loot;
 
-		TStringArray visor = { "DirtBikeHelmet_Visor" };
+		array<ref ExpansionLootVariant> visor = {};
+			visor.Insert(new ExpansionLootVariant("DirtBikeHelmet_Visor"));
 		Loot.Insert(new ExpansionLoot( "DirtBikeHelmet_Chernarus", visor, 0.3 ));
 	}
 
 	static void Expansion_NA_Clothing_Military(out array < ref ExpansionLoot > Loot)
 	{
-		TStringArray vest = { "PlateCarrierHolster","PlateCarrierPouches" };
+		array<ref ExpansionLootVariant> vest = {};
+			vest.Insert(new ExpansionLootVariant("PlateCarrierHolster"));
+			vest.Insert(new ExpansionLootVariant("PlateCarrierPouches"));
 
 		Loot.Insert(new ExpansionLoot( "UKAssVest_Black", NULL , 0.1));
 		Loot.Insert(new ExpansionLoot( "UKAssVest_Camo", NULL , 0.1));
@@ -822,7 +1026,8 @@ modded class ExpansionLootDefaults
 	{
 		array < ref ExpansionLoot > Loot = new array < ref ExpansionLoot >;
 
-		TStringArray battery = { "Battery9V" };
+		array<ref ExpansionLootVariant> battery = {};
+			battery.Insert(new ExpansionLootVariant("Battery9V"));
 
 		Loot.Insert(new ExpansionLoot( "SewingKit", NULL, 0.25 ));
 		Loot.Insert(new ExpansionLoot( "LeatherSewingKit", NULL, 0.25 ));
@@ -866,7 +1071,8 @@ modded class ExpansionLootDefaults
 	{
 		array <ref ExpansionLoot> Loot = new array < ref ExpansionLoot >;
 
-		TStringArray battery = { "Battery9V" };
+		array<ref ExpansionLootVariant> battery = {};
+			battery.Insert(new ExpansionLootVariant("Battery9V"));
 
 		Loot.Insert(new ExpansionLoot( "Binoculars", NULL, 0.3 ));
 		Loot.Insert(new ExpansionLoot( "Rangefinder", battery, 0.05 ));

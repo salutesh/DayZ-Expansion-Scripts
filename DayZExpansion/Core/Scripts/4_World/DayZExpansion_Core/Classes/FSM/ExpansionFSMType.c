@@ -130,7 +130,7 @@ class ExpansionFSMType
 		new_type.m_Module = ScriptModule.LoadScript(module, script_path, false);
 		if (new_type.m_Module == null)
 		{
-			Error("There was an error loading in the FSM generated from " + path + "/" + fileName + ".xml, check " + script_path);
+			Error("There was an error loading in the FSM generated from " + path + "/" + fileName + ".xml, check $profile:script_<date>_<time>.log and " + script_path);
 			s_Loaded[path + "/" + fileName] = false;
 			return null;
 		}

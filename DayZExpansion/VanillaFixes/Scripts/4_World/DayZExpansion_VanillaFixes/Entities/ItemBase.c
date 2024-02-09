@@ -72,9 +72,11 @@ modded class ItemBase
 			}
 
 			if (stack.Count() > 1)
-				EXError.Log(this, "Obsolete function - use CanDisplayAttachmentSlot with slot id parameter", stack, m_Expansion_CDASObsoleteError);
+				EXError.ErrorOnce(this, "Obsolete function - use CanDisplayAttachmentSlot with slot id parameter", stack);
 			else
-				EXError.Log(null, "Obsolete function call - use CanDisplayAttachmentSlot with slot id parameter", stack, m_Expansion_CDASObsoleteError);
+				EXError.ErrorOnce(null, "Obsolete function call - use CanDisplayAttachmentSlot with slot id parameter", stack);
+
+			m_Expansion_CDASObsoleteError = true;
 		}
 
 		return CanDisplayAttachmentSlot(InventorySlots.GetSlotIdFromString(slot_name));

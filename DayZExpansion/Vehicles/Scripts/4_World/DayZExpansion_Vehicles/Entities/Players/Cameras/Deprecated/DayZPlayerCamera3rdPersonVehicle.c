@@ -157,18 +157,9 @@ modded class DayZPlayerCamera3rdPersonVehicle
 
 		if ( pIsFreeLook )
 		{
-		#ifdef DAYZ_1_20
-			rotation[0] = m_fLeftRightAngle + CONST_ANGULAR_LAG_YAW_STRENGTH * m_LagOffsetOrientation[0];
-		#else
-			//! 1.21+
 			rotation[0] = m_CurrentCameraYaw + CONST_ANGULAR_LAG_YAW_STRENGTH * m_LagOffsetOrientation[0];
-		#endif
 			rotation[1] = Limit(m_fUpDownAngle + m_fUpDownAngleAdd, CONST_UD_MIN, CONST_UD_MAX) + CONST_ANGULAR_LAG_PITCH_STRENGTH * m_LagOffsetOrientation[1];
-		#ifdef DAYZ_1_20
-			rotation[2] = m_fRoll;
-		#else
 			rotation[2] = m_CurrentCameraRoll;
-		#endif
 		} else {		
 			Input input = GetGame().GetInput(); 	//! Reference to input
 			if ( input.LocalValue( "UANextAction" ) != 0 && input.LocalHold( "UAVehicleSlow", false ) )
@@ -187,6 +178,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		pOutResult.m_CameraTM[3] 			= cameraPosition - m_ExLagOffsetPosition;
 
 		pOutResult.m_fIgnoreParentRoll		= 1.0;
+		pOutResult.m_fIgnoreParentPitch 	= 1.0;
 		pOutResult.m_fInsideCamera		  	= 0.0;
 		pOutResult.m_fUseHeading 			= 0.0;
 		pOutResult.m_iDirectBone			= -1.0;

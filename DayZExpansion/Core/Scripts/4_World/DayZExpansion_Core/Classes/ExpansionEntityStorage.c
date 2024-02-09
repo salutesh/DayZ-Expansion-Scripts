@@ -1017,32 +1017,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			}
 		}
 
-		vector entityMinMax[2];
-		if (!entity.GetCollisionBox(entityMinMax))
-			entity.ClippingInfo(entityMinMax);
-
-		float entityOffsetY = entityMinMax[0][1];
-		if (entityOffsetY > 0)
-			entityOffsetY = 0;
-
-		EXTrace.Print(EXTrace.GENERAL_ITEMS, entity, "Collision box min Y " + entityOffsetY);
-
 		GetGame().ObjectDelete(entity);
 
 		if (placeholder)
 		{
-			vector placeholderMinMax[2];
-			if (!placeholder.GetCollisionBox(placeholderMinMax))
-				placeholder.ClippingInfo(placeholderMinMax);
-
-			float placeHolderOffsetY = placeholderMinMax[0][1];
-			if (placeHolderOffsetY > 0)
-				placeHolderOffsetY = 0;
-
-			EXTrace.Print(EXTrace.GENERAL_ITEMS, placeholder, "Collision box min Y " + placeHolderOffsetY);
-
-			position[1] = position[1] + entityOffsetY - placeHolderOffsetY;
-
 			placeholder.SetPosition(position);
 			placeholder.SetOrientation(orientation);
 		}

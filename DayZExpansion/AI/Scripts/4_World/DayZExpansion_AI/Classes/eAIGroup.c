@@ -51,6 +51,16 @@ class eAIGroup
 		return group;
 	}
 
+	override string GetDebugName()
+	{
+		string str = ToString();
+		
+		str += ", ";
+		str += "faction=" + m_Faction;
+
+		return str;
+	}
+
 	static eAIGroup GetGroupByID(int id, bool createIfNoneExists = false)
 	{
 #ifdef EAI_TRACE
@@ -86,11 +96,17 @@ class eAIGroup
 	static void DeleteGroup(eAIGroup group)
 	{
 #ifdef DIAG
-		auto trace = CF_Trace_0(EXTrace.AI, group);
+		auto trace = EXTrace.Start(EXTrace.AI, eAIGroup, "" + group);
 #endif
 
 		int index = s_AllGroups.Find(group);
-		s_AllGroups.Remove(index);
+		if (index > -1)
+		{
+		#ifdef DIAG
+			EXTrace.Print(EXTrace.AI, eAIGroup, "Removing group from s_AllGroups");
+		#endif
+			s_AllGroups.Remove(index);
+		}
 	}
 
 	private void eAIGroup(eAIFaction faction = null)
@@ -118,22 +134,20 @@ class eAIGroup
 
 	/*private*/ void ~eAIGroup()
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(EXTrace.AI, this);
-#endif
-
 		if (!GetGame())
 			return;
 
-		int idx = s_AllGroups.Find(this);
-		if (idx != -1)
-			s_AllGroups.RemoveOrdered(idx);
+	#ifdef DIAG
+		EXTrace.Print(EXTrace.AI, this, "~eAIGroup");
+	#endif
+
+		DeleteGroup(this);
 	}
 
 	void Delete()
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "Delete");
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
 #endif
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(DeleteGroup, this);
@@ -195,6 +209,22 @@ class eAIGroup
 		}
 
 		m_WaypointBehaviour = bhv;
+	}
+
+	/**
+	 * @brief Set waypoint behavior automatically based on proximity of 1st and last waypoint to one another
+	 * 
+	 * If 1st and last waypoints are close (within 1.5 m) to one another, waypoint behavior will be set to LOOP.
+	 * If they are not close, it will be set to the passed in behavior (default ALTERNATE).
+	 */
+	void SetWaypointBehaviourAuto(eAIWaypointBehavior bhv = eAIWaypointBehavior.ALTERNATE)
+	{
+		int count = m_Waypoints.Count();
+
+		if (count > 1 && vector.DistanceSq(m_Waypoints[0], m_Waypoints[count - 1]) <= 2.25)
+			SetWaypointBehaviour(eAIWaypointBehavior.LOOP);
+		else
+			SetWaypointBehaviour(bhv);
 	}
 
 	eAIWaypointBehavior GetWaypointBehaviour()
@@ -283,25 +313,35 @@ class eAIGroup
 	/**
 	 * @brief Add/update target for all group members
 	 * 
-	 * @param target
+	 * @param info Target information
 	 * @param update If true (default) and member is already targeting the target, update found_at_time and max_time
+	 * @param threat Initial threat level if non-zero
 	 */
-	void AddTarget(eAITargetInformation target, int max_time = -1, bool update = true)
+	void AddTarget(DayZPlayerImplement player, eAITargetInformation info, int max_time = -1, bool update = true, float threat = 0.0)
 	{
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this, info.GetDebugName(), "" + max_time, "" + update, "" + threat);
+#endif
+
 		eAIBase ai;
+		eAITarget target;
 		foreach (DayZPlayerImplement member: m_Members)
 		{
 			if (Class.CastTo(ai, member))
 			{
-				if (!target.IsTargettedBy(ai))
+				target = info.AddAI(ai, max_time);
+
+				if (update)
 				{
-					target.AddAI(ai, max_time);
+					target.Update(max_time);
+					update = false;  //! Since targets are per-group, we only need to do this once per loop
 				}
-				else if (update)
+
+				if (threat > 0.0)
 				{
-					//! Update target found at time and maxtime if already targeting
-					target.Update(this, max_time);
-					update = false;  //! Since eAITargetInformation::Update is per-group, we only need to do this once per loop
+					auto state = ai.eAI_GetTargetInformationState(info, false);
+					if (threat > state.m_ThreatLevelActive)
+						state.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
 				}
 			}
 		}
@@ -314,8 +354,8 @@ class eAIGroup
 	 */
 	void OnTargetAdded(eAITargetInformation target)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "OnTargetAdded").Add(target);
+#ifdef DIAG
+		EXTrace.Print(EXTrace.AI, this, "OnTargetAdded " + target.GetDebugName());
 #endif
 
 		m_Targets.Insert(target);
@@ -339,27 +379,11 @@ class eAIGroup
 	 */
 	void OnTargetRemoved(eAITargetInformation target)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "OnTargetRemoved").Add(target);
+#ifdef DIAG
+		EXTrace.Print(EXTrace.AI, this, "OnTargetRemoved " + target.GetDebugName());
 #endif
 
 		m_Targets.RemoveItem(target);
-	}
-
-	/**
-	 * @brief Processes all the targets so they can be removed when the time has been exceeded
-	 */
-	void ProcessTargets()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "ProcessTargets");
-#endif
-
-		for (int i = m_Targets.Count() - 1; i >= 0; i--)
-		{
-			if (!m_Targets[i].Process(m_ID))
-				m_Targets.RemoveOrdered(i);
-		}
 	}
 
 	/**
@@ -380,68 +404,12 @@ class eAIGroup
 		return m_TargetInformation;
 	}
 
-	void Update(float pDt)
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "Update");
-#endif
-
-		ProcessTargets();
-
-		m_Form.Update(pDt);
-	}
-
-	static void UpdateAll(float pDt, int groupsPerTick = 10)
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0("eAIGroup", "UpdateAll");
-#endif
-
-		// don't process if we aren't the server
-		if (!GetGame().IsServer())
-			return;
-
-		int count = s_AllGroups.Count();
-
-		if (!count)
-			return;
-
-		if (groupsPerTick > count)
-			groupsPerTick = count;
-
-		while (groupsPerTick > 0)
-		{
-			if (s_UpdateIndex >= count)
-				s_UpdateIndex = 0;
-
-			s_AllGroups[s_UpdateIndex++].Update(pDt);
-
-			groupsPerTick--;
-		} 
-	}
-
+	//! DEPRECATED - group will never contain NULL or members that aren't alive
 	int GetMemberIndex(eAIBase ai)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "GetMemberIndex").Add(ai);
-#endif
+		EXError.WarnOnce(this, "GetMemberIndex() is deprecated. Please use GetIndex().");
 
-		int pos = 0;
-		vector position = "0 0 0";
-
-		for (int i = 0; i < m_Members.Count(); i++)
-		{
-			// ignore members who have died so their position can be taken over
-			if (!m_Members[i] || !m_Members[i].IsAlive())
-				continue;
-
-			if (m_Members[i] == ai)
-				return pos;
-
-			pos++;
-		}
-
-		return -1;
+		return GetIndex(ai);
 	}
 
 	vector GetFormationPosition(eAIBase ai)
@@ -454,11 +422,15 @@ class eAIGroup
 		bool isInitialUpdate = ai.m_eAI_FormationPositionUpdateTime == 0.0;
 		if (time - ai.m_eAI_FormationPositionUpdateTime > Math.RandomFloat(2.0, 4.0) || isInitialUpdate)
 		{
-			int index = GetMemberIndex(ai);
+			int index = GetIndex(ai);
 			if (index != -1)
 			{
+				auto leader = GetFormationLeader();
+				if (index > 0 && leader != GetLeader())
+					index--;
 				vector position = m_Form.GetPosition(index);
-				auto leader = GetLeader();
+				vector direction = m_Form.GetDirection(index);
+				
 				bool isMoving;
 				if (leader && leader.Expansion_GetMovementSpeed() > 0)
 					isMoving = true;
@@ -471,7 +443,9 @@ class eAIGroup
 							position[i] = position[i] + isMoving;  //! Compensate for head start of leader
 					}
 				}
+				
 				ai.m_eAI_FormationPosition = position;
+				ai.m_eAI_FormationDirection = direction;
 				ai.m_eAI_FormationPositionUpdateTime = time;
 			}
 		}
@@ -522,6 +496,16 @@ class eAIGroup
 #endif
 
 		return m_Form;
+	}
+
+	DayZPlayerImplement GetFormationLeader()
+	{
+		auto leader = GetLeader();
+
+		if (leader && !leader.IsAI() && m_Members.Count() > 1 && m_Waypoints.Count() > 0)
+			return m_Members[1];
+
+		return leader;
 	}
 
 	void SetFormation(eAIFormation f)
@@ -579,8 +563,8 @@ class eAIGroup
 
 	bool RemoveMember(DayZPlayerImplement member, bool autoDelete = true)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_2(this, "RemoveMember").Add(member).Add(autoDelete);
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + member, "" + autoDelete);
 #endif
 
 		return RemoveMember(m_Members.Find(member), autoDelete);
@@ -588,8 +572,8 @@ class eAIGroup
 
 	bool RemoveMember(int i, bool autoDelete = true)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_2(this, "RemoveMember").Add(i).Add(autoDelete);
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + i, "" + autoDelete);
 #endif
 
 		if (i < 0 || i >= m_Members.Count())
@@ -623,6 +607,34 @@ class eAIGroup
 		return m_Members.Find(player);
 	}
 
+	/**
+	 * @brief Return random member excluding player. If group size is 1, return null.
+	 * 
+	 * @param player Player to exclude
+	 */
+	DayZPlayerImplement GetRandomMemberExcluding(DayZPlayerImplement player)
+	{
+		int count = Count();
+
+		if (count == 1)
+			return null;
+
+		int index = Math.RandomInt(0, count);
+		DayZPlayerImplement member = m_Members[index];
+
+		if (member == player)
+		{
+			if (index + 1 == count)
+				index--;
+			else
+				index++;
+
+			member = m_Members[index];
+		}
+
+		return member;
+	}
+
 	int Count()
 	{
 #ifdef EAI_TRACE
@@ -632,24 +644,12 @@ class eAIGroup
 		return m_Members.Count();
 	}
 
-
+	//! DEPRECATED - group will never contain NULL or members that aren't alive
 	int GetAliveCount()
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "GetAliveCount");
-#endif
-		int aliveCount = 0;
+		EXError.WarnOnce(this, "GetAliveCount() is deprecated. Please use Count().");
 
-		foreach (DayZPlayerImplement member: m_Members)
-		{
-			// ignore members who dont exist or aren't alive
-			if (!member || !member.IsAlive())
-				continue;
-
-			++aliveCount;
-		}
-
-		return aliveCount;
+		return Count();
 	}
 
 	//! Clears ALL AI from the server
@@ -680,5 +680,51 @@ class eAIGroup
 			else
 				ai.eAI_Despawn();
 		}
+	}
+
+	TStringArray DumpState(PlayerIdentity sender, bool includeMembers = true, string indent = string.Empty)
+	{
+		TStringArray report = {};
+
+		report.Insert(indent + string.Format("Group ID %1 %2", m_ID, m_Name));
+
+		if (indent)
+			indent.Replace("-", " ");
+
+		report.Insert(indent + string.Format("|- Faction %1", m_Faction.GetName()));
+
+		string form = m_Form.ClassName().Substring(12, m_Form.ClassName().Length() - 12);
+		report.Insert(indent + string.Format("|- Formation %1 %2", form, typename.EnumToString(eAIGroupFormationState, m_FormationState)));
+
+		string lineSegment;
+		if (includeMembers)
+			lineSegment = "|";
+		else
+			lineSegment = "\\";
+
+		report.Insert(indent + string.Format(lineSegment + "- Waypoints %1 %2", m_Waypoints.Count(), typename.EnumToString(eAIWaypointBehavior, m_WaypointBehaviour)));
+
+		if (includeMembers)
+		{
+			eAIBase ai;
+			string subIndent = "|  ";
+			lineSegment = "|";
+			foreach (int i, DayZPlayerImplement member: m_Members)
+			{
+				if (Class.CastTo(ai, member))
+				{
+					if (i == Count() - 1)
+					{
+						subIndent = ".  ";
+						lineSegment = "\\";
+					}
+
+					report.Insert(indent + string.Format(lineSegment + "- AI group member %1", i));
+					report.InsertAll(ai.eAI_DumpState(sender, false, indent + subIndent + lineSegment + "- "));
+				}
+			}
+		}
+
+		return report;
 	}
 };

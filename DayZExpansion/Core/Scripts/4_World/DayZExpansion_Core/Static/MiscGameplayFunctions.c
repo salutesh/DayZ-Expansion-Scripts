@@ -38,9 +38,12 @@ modded class MiscGameplayFunctions
 			{
 				if (item.IsMagazine())
 					return false;
-				if (!item.GetHierarchyParent().CanReleaseAttachment(item))
+				EntityAI parent = item.GetHierarchyParent();
+				if (!item.CanDetachAttachment(parent))
 					return false;
-				if (!item.GetHierarchyParent().GetInventory().CanRemoveAttachment(item))
+				if (!parent.CanReleaseAttachment(item))
+					return false;
+				if (!parent.GetInventory().CanRemoveAttachment(item))
 					return false;
 				return true;
 			}
@@ -105,6 +108,41 @@ modded class MiscGameplayFunctions
 		}
 
 		return false;
+	}
+
+	static int Expansion_CountCargo(EntityAI entity)
+	{
+		int cargoCount;
+
+		CargoBase cargo = entity.GetInventory().GetCargo();
+		
+		if (cargo)
+			cargoCount = cargo.GetItemCount();
+
+		if (!entity.GetHierarchyParent())
+		{
+			CarScript car;
+			if (Class.CastTo(car, entity))
+			{
+				cargoCount += car.m_Expansion_CargoCount;
+			}
+			#ifdef EXPANSIONMODVEHICLE
+			else
+			{
+				ExpansionVehicleBase vehicle;
+				if (Class.CastTo(vehicle, entity))
+					cargoCount += vehicle.m_Expansion_CargoCount;
+			}
+			#endif
+		}
+
+		for (int i = 0; i < entity.GetInventory().AttachmentCount(); i++)
+		{
+			EntityAI attachment = entity.GetInventory().GetAttachmentFromIndex(i);
+			cargoCount += Expansion_CountCargo(attachment);
+		}
+
+		return cargoCount;
 	}
 
 	static bool Expansion_MoveCargo(EntityAI src, EntityAI dst, InventoryMode mode = InventoryMode.SERVER)

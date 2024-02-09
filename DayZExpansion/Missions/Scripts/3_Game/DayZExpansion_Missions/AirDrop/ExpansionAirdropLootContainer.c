@@ -9,20 +9,50 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-
-class ExpansionLootContainer
+class ExpansionLootContainerBase
 {
 	string Container;
 	float FallSpeed;
 	int Usage;  //! 0 = missions & player called, 1 = only missions, 2 = only player called
 	float Weight;
-	ref array < ref ExpansionLoot > Loot;
 	ref TStringArray Infected;
 	int ItemCount;
 	int InfectedCount;
 	bool SpawnInfectedForPlayerCalledDrops;
+}
 
-	void ExpansionLootContainer( string container, int usage, float weight, array < ref ExpansionLoot > loot, TStringArray infected, int itemCount, int infectedCount, bool spawnInfectedForPlayerCalledDrops = false, float fallSpeed = 4.5 )
+class ExpansionLootContainerV1: ExpansionLootContainerBase
+{
+	ref array <ref ExpansionLootV1> Loot;
+	
+	ExpansionLootContainer Convert()
+	{
+		ExpansionLootContainer newLoot = ExpansionLootContainer();
+		array <ref ExpansionLoot> lootArray = new array <ref ExpansionLoot>;
+		foreach(ExpansionLootV1 lootv1: Loot)
+		{
+			lootArray.Insert(lootv1.Convert());
+		}
+		newLoot.Loot = lootArray;
+
+		newLoot.Container = Container;
+		newLoot.Usage = Usage;
+		newLoot.Weight = Weight;
+		newLoot.Infected = Infected;
+		newLoot.ItemCount = ItemCount;
+		newLoot.InfectedCount = InfectedCount;
+		newLoot.SpawnInfectedForPlayerCalledDrops = SpawnInfectedForPlayerCalledDrops;
+		newLoot.FallSpeed = FallSpeed;
+
+		return newLoot;
+	}
+};
+
+class ExpansionLootContainer: ExpansionLootContainerBase
+{
+	ref array < ref ExpansionLoot > Loot;
+
+	void ExpansionLootContainer( string container = "", int usage = -1, float weight = -1, array < ref ExpansionLoot > loot = NULL, TStringArray infected = NULL, int itemCount = -1, int infectedCount = -1, bool spawnInfectedForPlayerCalledDrops = false, float fallSpeed = 4.5 )
 	{
 		Container = container;
 		Usage = usage;

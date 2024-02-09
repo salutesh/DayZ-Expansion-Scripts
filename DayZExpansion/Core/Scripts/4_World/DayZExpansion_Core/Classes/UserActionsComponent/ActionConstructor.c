@@ -28,5 +28,7 @@ modded class ActionConstructor
 
 		actions.Insert( ExpansionActionRestoreEntity );
 		actions.Insert( ExpansionActionPlaceDebugGoat );
+
+		actions.Insert( ExpansionActionDebugLobotomize );
 	}
 };

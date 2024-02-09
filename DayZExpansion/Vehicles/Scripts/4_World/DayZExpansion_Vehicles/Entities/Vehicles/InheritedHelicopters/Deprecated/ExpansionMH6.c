@@ -146,7 +146,7 @@ class ExpansionMh6 : ExpansionHelicopterScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
 #endif
 
-		return "0 1 0";
+		return "0 2.5 0";
 	}
 
 	override float GetTransportCameraDistance()
@@ -155,7 +155,7 @@ class ExpansionMh6 : ExpansionHelicopterScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
 #endif
 
-		return 10;
+		return 15;
 	}
 
 	override bool CanReleaseAttachment(EntityAI attachment)

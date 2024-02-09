@@ -127,5 +127,21 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 			return;
 
 		action_data.m_Player.PredictiveTakeEntityToTargetAttachmentEx( targetItem, action_data.m_MainItem, slotId );
+
+#ifndef SERVER
+		if ( !GetExpansionClientSettings().AutoOpenLockMenuAfterPlacing )
+			return;
+
+		if ( !targetItem.HasCode() )
+		{
+			ExpansionCodeLockUI menu = ExpansionCodeLockUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_CODELOCK_MENU, NULL ) );
+			if ( menu )
+			{
+				menu.SetChangeCodelock( false );
+				menu.SetConfirm( !targetItem.HasCode() );
+				menu.SetTarget( targetItem, "" );
+			}
+		}
+#endif
 	}
-}
+};

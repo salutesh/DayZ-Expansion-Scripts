@@ -22,14 +22,39 @@ enum ExpansionAnomalyLootSpawnType
 	DYNAMIC = 1
 };
 
-class ExpansionAnomalyStatic
+class ExpansionAnomalyBase
 {
 	ref array<string> AnomalyTypes = new array<string>;
 	vector CenterPosition;
-	ref array <ref ExpansionLoot> Loot;
 	int LootItemsMin = 1;
 	int LootItemsMax = 1;
 	ExpansionAnomalyLootSpawnType LootSpawnType = ExpansionAnomalyLootSpawnType.STATIC;
+}
+
+class ExpansionAnomalyStaticV7: ExpansionAnomalyBase
+{
+	ref array <ref ExpansionLootV1> Loot = {};
+
+	ExpansionAnomalyStatic ConvertStatic()
+	{
+		auto anomaly = new ExpansionAnomalyStatic(AnomalyTypes, CenterPosition);
+
+		foreach (ExpansionLootV1 lootV1: Loot)
+		{
+			anomaly.Loot.Insert(lootV1.Convert());
+		}
+
+		anomaly.LootItemsMin = LootItemsMin;
+		anomaly.LootItemsMax = LootItemsMax;
+		anomaly.LootSpawnType = LootSpawnType;
+
+		return anomaly;
+	}
+}
+
+class ExpansionAnomalyStatic: ExpansionAnomalyBase
+{
+	ref array <ref ExpansionLoot> Loot = {};
 	
 	void ExpansionAnomalyStatic(array<string> anomalyTypes, vector center)
 	{
@@ -51,6 +76,29 @@ class ExpansionAnomalyStatic
 		LootSpawnType = lootType;
 	}
 };
+
+class ExpansionAnomalyDynamicV7: ExpansionAnomalyStaticV7
+{
+	float SquareSize;
+	int Amount;
+	ExpansionAnomalyPersistance Persistance;
+
+	ExpansionAnomalyDynamic ConvertDynamic()
+	{
+		auto anomaly = new ExpansionAnomalyDynamic(AnomalyTypes, CenterPosition, SquareSize, Amount, Persistance);
+
+		foreach (ExpansionLootV1 lootV1: Loot)
+		{
+			anomaly.Loot.Insert(lootV1.Convert());
+		}
+
+		anomaly.LootItemsMin = LootItemsMin;
+		anomaly.LootItemsMax = LootItemsMax;
+		anomaly.LootSpawnType = LootSpawnType;
+
+		return anomaly;
+	}
+}
 
 class ExpansionAnomalyDynamic: ExpansionAnomalyStatic
 {

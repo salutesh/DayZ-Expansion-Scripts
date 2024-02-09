@@ -327,6 +327,35 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,0,1,co)"};
 	};
+	class ExpansionDebugSphereSmall: ExpansionDebugObject
+	{
+		scope = 2;
+		model = "DayZExpansion\Objects\Structures\Debug\DebugSphereSmall.p3d";
+	};
+	class ExpansionDebugSphereSmall_Red: ExpansionDebugSphereSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
+	};
+	class ExpansionDebugSphereSmall_Orange: ExpansionDebugSphereSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
+	};
+	class ExpansionDebugSphereSmall_Blue: ExpansionDebugSphereSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugSphereSmall_Purple: ExpansionDebugSphereSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
+	};
+	class ExpansionDebugSphereSmall_White: ExpansionDebugSphereSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1,co)"};
+	};
+	class ExpansionDebugSphereSmall_Black: ExpansionDebugSphereSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,0,1,co)"};
+	};
 	class ExpansionDebugGoat: Inventory_Base
 	{
 		scope = 2;

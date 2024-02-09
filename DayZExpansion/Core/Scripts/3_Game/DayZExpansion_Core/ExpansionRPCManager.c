@@ -18,6 +18,16 @@ class ExpansionRPCTypeMapping
 	ref map<string, int> m_RegisteredClientRPCIDs = new map<string, int>;
 	ref map<int, string> m_RegisteredClientRPCs = new map<int, string>;
 
+#ifdef DIAG
+	void ~ExpansionRPCTypeMapping()
+	{
+		if (!GetGame())
+			return;
+
+		EXTrace.Print(EXTrace.RPC, this, "~ExpansionRPCTypeMapping");
+	}
+#endif
+
 	void DebugIDs()
 	{
 		foreach (string serverRPC, int serverRPCID: m_RegisteredServerRPCIDs)
@@ -36,8 +46,9 @@ class ExpansionRPCManager
 {
 	static const typename NULLTYPE;
 
+	static ref map<typename, ExpansionRPCManager> s_TargetlessManagersByType = new map<typename, ExpansionRPCManager>;
 	static ref map<int, ExpansionRPCManager> s_RegisteredTargetlessManagers = new map<int, ExpansionRPCManager>;
-	static ref map<typename, ref ExpansionRPCTypeMapping> s_TypeMappings = new map<typename, ref ExpansionRPCTypeMapping>;
+	static ref map<typename, ExpansionRPCTypeMapping> s_TypeMappings = new map<typename, ExpansionRPCTypeMapping>;
 
 	protected Managed m_Owner;
 	protected bool m_OwnerIsObject;
@@ -63,7 +74,9 @@ class ExpansionRPCManager
 
 		if (!m_OwnerIsObject)
 		{
-			auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + m_Type, "" + s_RegisteredTargetlessManagers.Count());
+			auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + m_Type, "" + m_TypeMapping, "" + s_RegisteredTargetlessManagers.Count());
+
+			s_TargetlessManagersByType.Remove(m_Type);
 
 			foreach (int serverRPCID: m_TypeMapping.m_RegisteredServerRPCIDs)
 			{
@@ -79,6 +92,43 @@ class ExpansionRPCManager
 		}
 	}
 
+	/**
+	 * @brief Get new or existing RPC manager instance
+	 * 
+	 * @note Use this instead of calling `new ExpansionRPCManager` directly if owner is effectively a singleton,
+	 * but is recreated before the existing instance is destroyed.
+	 */
+	static ExpansionRPCManager Get(Managed owner, typename type = NULLTYPE)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.RPC, ExpansionRPCManager, "" + owner, "" + type);
+	#endif
+
+		bool ownerIsObject;
+		if (owner)
+		{
+			if (owner.IsInherited(Object))
+				ownerIsObject = true;
+			else if (!type)
+				type = owner.Type();
+		}
+
+		ExpansionRPCManager manager;
+		if (ownerIsObject || !type || !s_TargetlessManagersByType.Find(type, manager) || !manager)
+		{
+			manager = new ExpansionRPCManager(owner, type);
+
+			if (!ownerIsObject && type)
+				s_TargetlessManagersByType[type] = manager;
+		}
+		else if (manager.GetOwner() != owner)
+		{
+			manager.SetOwner(owner);
+		}
+
+		return manager;
+	}
+
 	void SetOwner(Managed owner)
 	{
 		m_Owner = owner;
@@ -92,11 +142,20 @@ class ExpansionRPCManager
 	{
 		m_Type = type;
 
-		if (!s_TypeMappings.Find(m_Type, m_TypeMapping))
+		if (!s_TypeMappings.Find(m_Type, m_TypeMapping) || !m_TypeMapping)
 		{
 			m_TypeMapping = new ExpansionRPCTypeMapping();
 			s_TypeMappings[m_Type] = m_TypeMapping;
 		}
+
+	#ifdef DIAG
+		EXTrace.Print(EXTrace.RPC, this, "SetType " + type + " " + m_TypeMapping);
+	#endif
+	}
+
+	Managed GetOwner()
+	{
+		return m_Owner;
 	}
 
 	protected int CreateRPCID(string fn, Managed instance = null)
@@ -135,7 +194,7 @@ class ExpansionRPCManager
 		if (!m_OwnerIsObject)
 		{
 			ExpansionRPCManager manager;
-			if (s_RegisteredTargetlessManagers.Find(rpcID, manager))
+			if (s_RegisteredTargetlessManagers.Find(rpcID, manager) && manager)
 			{
 				if (manager != this)
 				{
