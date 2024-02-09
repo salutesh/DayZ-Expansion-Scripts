@@ -86,6 +86,122 @@ FrameWidgetClass ExpansionFlagMenu {
           }
          }
         }
+        PanelWidgetClass flag_filter_panel {
+         ignorepointer 1
+         position 0 0.055
+         size 1 48.4413
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         {
+          ImageWidgetClass flag_filter_background {
+           visible 1
+           ignorepointer 1
+           color 0 0 0 1
+           position 0.00284 0
+           size 1 31
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           image0 ""
+           imageTexture ""
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+          }
+          EditBoxWidgetClass flag_filter_box {
+           position -0.015 0
+           size 0.77 26
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           style ServerBrowser
+           text "#STR_EXPANSION_UPPERCASE_SEARCH"
+           "limit visible" 0
+           "Use default text" 1
+           "exact text" 1
+           font "gui/fonts/etelkatextpro22"
+          }
+          ButtonWidgetClass flag_filter_clear {
+           clipchildren 0
+           position 0.007 0
+           size 34 34
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           scaled 1
+           fixaspect fixwidth
+           scriptclass ""
+           style Empty
+           {
+            ImageWidgetClass flag_filter_clear_icon {
+             visible 1
+             clipchildren 0
+             ignorepointer 1
+             color 0.9843 0.9882 0.9961 1
+             size 26 26
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             scriptclass ""
+             image0 "set:expansion_iconset image:icon_cancle"
+             imageTexture ""
+             mode blend
+             "src alpha" 1
+             "clamp mode" clamp
+             "stretch mode" stretch_w_h
+            }
+           }
+          }
+          PanelWidgetClass flag_filter_icon {
+           clipchildren 0
+           ignorepointer 1
+           position 0.02 0
+           size 0.5 0.5
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scaled 1
+           fixaspect fixwidth
+           {
+            ImageWidgetClass flag_filter_search_icon {
+             clipchildren 0
+             ignorepointer 1
+             color 0.8627 0.8627 0.8627 1
+             size 26 26
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             image0 ""
+             imageTexture "{0A37CC5D0C68964C}DayZExpansion/Core/GUI/icons/misc/T_Frying_Pan_256x256.edds"
+             mode blend
+             "src alpha" 1
+             "clamp mode" clamp
+             "stretch mode" stretch_w_h
+            }
+           }
+          }
+         }
+        }
         TextWidgetClass flag_textures_header_text {
          visible 1
          ignorepointer 1
@@ -172,8 +288,8 @@ FrameWidgetClass ExpansionFlagMenu {
            imageTexture "{83F4855ACB544999}DayZExpansion/Core/GUI/textures/expansion_icon.edds"
            mode blend
            "src alpha" 1
-           "no wrap" 1
-           stretch 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
            pivot 0 0
           }
          }
@@ -563,8 +679,8 @@ FrameWidgetClass ExpansionFlagMenu {
        image0 "set:expansion_notification_iconset image:icon_info"
        mode blend
        "src alpha" 1
-       "no wrap" 1
-       stretch 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
       }
      }
     }

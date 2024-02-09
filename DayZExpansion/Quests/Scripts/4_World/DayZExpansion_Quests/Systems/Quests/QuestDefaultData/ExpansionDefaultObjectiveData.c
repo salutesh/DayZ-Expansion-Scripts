@@ -543,7 +543,9 @@ class ExpansionDefaultObjectiveData
 		}
 		
 		array <ref ExpansionLoot> loot = new array <ref ExpansionLoot>;
-		TStringArray battery = {"Battery9V"};
+		array<ref ExpansionLootVariant> battery = {};
+			battery.Insert(new ExpansionLootVariant("Battery9V"));
+			
 		loot.Insert(new ExpansionLoot("Binoculars", NULL, 0.3));
 		loot.Insert(new ExpansionLoot("Rangefinder", battery, 0.05));
 		loot.Insert(new ExpansionLoot("GhillieAtt_Mossy", NULL, 0.05));

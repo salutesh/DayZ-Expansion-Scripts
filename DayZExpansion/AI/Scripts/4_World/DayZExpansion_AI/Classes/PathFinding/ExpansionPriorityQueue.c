@@ -24,7 +24,7 @@ class ExpansionPriorityQueue<Class T>
 
 			if (idx > 20)
 			{
-				Sleep(1);
+				//Sleep(1);
 				idx = 0;
 			}
 

@@ -142,10 +142,12 @@ modded class ItemBase
 		if (restoreOverride)
 			return m_Expansion_HasEntityStorage;
 
-		if (!GetExpansionSettings().GetBaseBuilding().EnableVirtualStorage)
+		auto settings = GetExpansionSettings().GetBaseBuilding(false);
+
+		if (!settings.IsLoaded() || !settings.EnableVirtualStorage)
 			return false;
 
-		if (ExpansionStatic.IsAnyOf(this, GetExpansionSettings().GetBaseBuilding().VirtualStorageExcludedContainers, true))
+		if (ExpansionStatic.IsAnyOf(this, settings.VirtualStorageExcludedContainers, true))
 			return false;
 
 		return true;

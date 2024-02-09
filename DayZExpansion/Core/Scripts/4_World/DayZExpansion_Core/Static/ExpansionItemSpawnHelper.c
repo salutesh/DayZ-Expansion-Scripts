@@ -608,7 +608,7 @@ class ExpansionItemSpawnHelper
 	}
 
 	//! https://pastebin.com/FFuaPFiT, except without bugs :P
-	static EntityAI Clone(EntityAI src, bool recursively = true, InventoryLocation location = null)
+	static EntityAI Clone(EntityAI src, bool recursively = true, InventoryLocation location = null, bool keepUnlootable = false)
 	{
 		int i;
 
@@ -713,7 +713,7 @@ class ExpansionItemSpawnHelper
 		ItemBase dstItem;
 		if (Class.CastTo(srcItem, src) && Class.CastTo(dstItem, dst))
 		{
-			if (!srcItem.Expansion_IsLootable())
+			if (!srcItem.Expansion_IsLootable() && keepUnlootable)
 				dstItem.Expansion_SetLootable(false);
 			dstItem.m_Expansion_PreviousOwner = srcItem.m_Expansion_PreviousOwner;
 		}

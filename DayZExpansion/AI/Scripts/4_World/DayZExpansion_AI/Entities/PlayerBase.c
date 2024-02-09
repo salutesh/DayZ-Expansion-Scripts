@@ -18,6 +18,20 @@ modded class PlayerBase
 		AddAction(ExpansionActionDismissAI, InputActionMap);
 	}
 
+	//! @note Only called for players not eAIBase since the latter overrides the commandhandler completely,
+	//! formation update if AI is leader is dealt with in eAICommandMove
+	override bool ModCommandHandlerInside(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
+	{
+		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_MOVE && !pCurrentCommandFinished)
+		{
+			eAIGroup group = GetGroup();
+			if (group && group.GetFormationLeader() == this && group.Count() > 1)
+				group.GetFormation().Update(pDt);
+		}
+
+		return super.ModCommandHandlerInside(pDt, pCurrentCommandID, pCurrentCommandFinished);
+	}
+
 	override void eAI_SetFactionTypeID(int id)
 	{
 		super.eAI_SetFactionTypeID(id);

@@ -1,5 +1,6 @@
 class ExpansionEntityHitHandler
 {
+	protected bool m_Killed;
 	protected EntityAI m_Entity;
 	protected ref map<Man, ref ExpansionEntityHitInfo> m_HitMap = new map<Man, ref ExpansionEntityHitInfo>;
 
@@ -21,6 +22,22 @@ class ExpansionEntityHitHandler
 
 	void OnHit(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
+		if (m_Killed)
+		{
+		#ifdef DIAG
+			EXTrace.Print(EXTrace.QUESTS, this, m_Entity.ToString() + " is dead, ignoring hit");
+		#endif
+			return;
+		}
+
+		if (m_Entity.GetHealth() == 0.0)
+		{
+		#ifdef DIAG
+			EXTrace.Print(EXTrace.QUESTS, this, m_Entity.ToString() + " killing blow");
+		#endif
+			m_Killed = true;
+		}
+
 		Man sourcePlayer;
 
 		if (source)  //! Source can be null if actual source is not an EntityAI but (e.g.) a static object during a vehicle collision

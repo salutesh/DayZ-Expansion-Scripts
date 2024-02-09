@@ -76,6 +76,7 @@ class ExpansionMarketFlags: ExpansionMarketCategory
 		AddItem("Expansion_Flag_Finland", 			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Sweden", 			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Spain", 			15,		30,		1,		100);
+		AddItem("Expansion_Flag_Denmark", 			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Brazil", 			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Portugal", 			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Belgium", 			15,		30,		1,		100);

@@ -42,4 +42,11 @@ class ExpansionClientSettingsModule : CF_ModuleWorld
 
 		OnSettingsChanged(this, CF_EventArgs.Empty);
 	}
+	
+	override void OnSettingsChanged(Class sender, CF_EventArgs args)
+	{
+		super.OnSettingsChanged(sender, args);
+
+		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_UpdateWorldViewDistances();
+	}
 };

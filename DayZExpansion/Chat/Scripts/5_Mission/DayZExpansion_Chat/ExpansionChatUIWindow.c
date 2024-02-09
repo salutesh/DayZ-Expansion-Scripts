@@ -164,6 +164,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		message.Channel = params.param1;
 		message.From = params.param2;
 		message.Text = params.param3;
+		message.SetColorByName(params.param4);
 
 		if (message.From == "BattlEye")
 		{

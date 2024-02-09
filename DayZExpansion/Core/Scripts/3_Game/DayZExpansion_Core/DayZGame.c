@@ -102,6 +102,10 @@ modded class DayZGame
 	// ------------------------------------------------------------
 	void SetExpansionGame(ExpansionGame game)
 	{
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, this);
+#endif
+
 		m_ExpansionGame = game;
 	}
 

@@ -17,6 +17,7 @@
 enum ExpansionChatChannels
 {
 	//! Vanilla
+	CCLocal = 0, // https://www.youtube.com/watch?v=nN66uAbiJJw
 	CCSystem = 1,
 	CCAdmin = 2,
 	CCDirect = 4,
@@ -231,5 +232,5 @@ static const int EXPANSION_VERSION_CURRENT_SAVE = 49;  //! DEPRECATED, NO LONGER
  * Client settings save version
  */
 //! Starting with client settings v38, client and map marker save version are no longer linked to storage save version
-static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 52;
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 53;
 static const int EXPANSION_VERSION_MAP_MARKER_SAVE = 40;  //! Also used for groups

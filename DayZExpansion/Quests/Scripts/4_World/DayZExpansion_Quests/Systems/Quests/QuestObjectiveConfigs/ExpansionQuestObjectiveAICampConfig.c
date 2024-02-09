@@ -115,13 +115,21 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		ExpansionQuestObjectiveAICampConfig config;
 		ExpansionQuestObjectiveAICampConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, config))
 			return NULL;
+
+		//! Uncomment this once needed
+		//if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, configBase))
+			//return NULL;
+
+		//! Comment this out once needed
+		configBase = config;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
 			Print("[ExpansionQuestObjectiveAICampConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName + " to version " + CONFIGVERSION);
-			config = new ExpansionQuestObjectiveAICampConfig();
+			if (!config)
+				config = new ExpansionQuestObjectiveAICampConfig();
 
 			//! Copy over old configuration that haven't changed
 			config.CopyConfig(configBase);
@@ -173,11 +181,6 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
-		}
-		else
-		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, config))
-				return NULL;
 		}
 
 		foreach (ExpansionQuestAISpawn spawn: config.AISpawns)

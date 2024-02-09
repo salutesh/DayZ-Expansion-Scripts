@@ -44,7 +44,9 @@ class ExpansionPermissionsManager
 		switch ( permission )
 		{
 			case "Admin.Chat":
+			case "Entity.Spawn":
 			case "Expansion.Territories.Edit":
+			case "Expansion.DayZCreature.Lobotomize":
 				#ifdef VPPADMINTOOLS
 				if (!GetGame().IsDedicatedServer())
 					return IsAdminToolsToggledOn();
@@ -77,7 +79,7 @@ class ExpansionPermissionsManager
 
 ref ExpansionPermissionsManager g_ExpansionPermissionsManager;
 
-ref ExpansionPermissionsManager GetPermissionsManager()
+ExpansionPermissionsManager GetPermissionsManager()
 {
 	if ( !g_ExpansionPermissionsManager )
 	{

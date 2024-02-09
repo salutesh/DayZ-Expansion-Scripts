@@ -40,9 +40,7 @@ modded class MissionServer
 	{
 		if (GetExpansionSettings().GetSpawn().StartingClothing.EnableCustomClothing)
 		{
-			//! If spawn selection menu is enabled, defer equip character AFTER selecting spawnpoint
-			if (!GetExpansionSettings().GetSpawn().EnableSpawnSelection)
-				m_RespawnHandlerModule.ExpansionEquipCharacter(m_player);
+			m_RespawnHandlerModule.ExpansionEquipCharacter(m_player);
 		} else
 		{
 			super.EquipCharacter(char_data);

@@ -238,7 +238,7 @@ class ExpansionDamageSystem
 			}
 
 			if (checkForBlockingObj)
-				Raycast(source, nearest_entity, position, targetHit, blockingObject);
+				PerformRaycast(source, nearest_entity, position, targetHit, blockingObject);
 
 			if (!blockingObject)
 			{
@@ -259,7 +259,7 @@ class ExpansionDamageSystem
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnAfterExplode, 34, false, source, source.ToString(), ExpansionStatic.VectorToString(position), damageType, ammoType, targets);
 	}
 
-	static bool Raycast(EntityAI source, EntityAI target, vector position, out bool targetHit, out Object blockingObject)
+	static bool PerformRaycast(EntityAI source, EntityAI target, vector position, out bool targetHit, out Object blockingObject)
 	{
 		vector hitPosition;
 		vector hitNormal;

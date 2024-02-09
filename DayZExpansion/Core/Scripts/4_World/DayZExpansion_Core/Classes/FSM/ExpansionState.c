@@ -40,6 +40,11 @@ class ExpansionState
 		return m_Name;
 	}
 
+	ExpansionFSM GetSubFSM()
+	{
+		return m_SubFSM;
+	}
+
 	/* IMPLEMENTED IN XML */
 	void OnEntry(string Event, ExpansionState From)
 	{

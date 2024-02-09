@@ -13,10 +13,8 @@
 /**@class		ExpansionAirdropSettings
  * @brief		Airdrop settings class
  **/
-class ExpansionAirdropSettings: ExpansionSettingBase
+class ExpansionAirdropSettingsBase: ExpansionSettingBase
 {
-	static const int VERSION = 4;
-	
 	bool ServerMarkerOnDropLocation;
 	bool Server3DMarkerOnDropLocation;
 	bool ShowAirdropTypeOnMarker;
@@ -33,17 +31,22 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 	//! Only kept for backwards compatibility, should be set per container
 	int ItemCount;
-
-	ref array < ref ExpansionLootContainer > Containers;
 	
+};
+
+class ExpansionAirdropSettingsV4: ExpansionAirdropSettingsBase
+{
+	ref array < ref ExpansionLootContainerV1 > Containers;
+};
+
+class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
+{
+	static const int VERSION = 5;
+	
+	ref array < ref ExpansionLootContainer > Containers = {};
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
-
-	// ------------------------------------------------------------
-	void ExpansionAirdropSettings()
-	{
-		Containers =  new array< ref ExpansionLootContainer >;
-	}
 	
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
@@ -64,6 +67,14 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionAirdropSettings s )
+	{
+		ExpansionArray<ExpansionLootContainer>.RefCopy(s.Containers, Containers);
+		
+		ExpansionAirdropSettingsBase sb = s;
+		CopyInternal( sb );
+	}
+
+	private void CopyInternal(  ExpansionAirdropSettingsBase s )
 	{
 		ServerMarkerOnDropLocation = s.ServerMarkerOnDropLocation;
 		Server3DMarkerOnDropLocation = s.Server3DMarkerOnDropLocation;
@@ -104,44 +115,65 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		
 		if (airdropSettingsExist)
 		{
-			auto defaults = new ExpansionAirdropSettings;
-			defaults.Defaults();
-
 			EXPrint("[ExpansionAirdropSettings] Load existing setting file:" + EXPANSION_AIRDROP_SETTINGS);
 
-			JsonFileLoader<ExpansionAirdropSettings>.JsonLoadFile( EXPANSION_AIRDROP_SETTINGS, this );
+			ExpansionAirdropSettingsBase configbase;
+			JsonFileLoader<ExpansionAirdropSettingsBase>.JsonLoadFile( EXPANSION_AIRDROP_SETTINGS, configbase );
 
-			if (m_Version < VERSION)
+			if (configbase.m_Version < VERSION)
 			{
-				foreach (ExpansionLootContainer container : Containers)
+				ExpansionAirdropSettings defaults = new ExpansionAirdropSettings;
+				defaults.Defaults();
+
+				if (configbase.m_Version < 5)
 				{
-					if (m_Version < 2)
+					ExpansionAirdropSettingsV4 configV4;
+					if (!ExpansionJsonFileParser<ExpansionAirdropSettingsV4>.Load(EXPANSION_AIRDROP_SETTINGS, configV4))
+						return false;
+
+					CopyInternal(configbase);
+
+					foreach(ExpansionLootContainerV1 containerV1: configV4.Containers)
 					{
-						foreach (ExpansionLoot lootV1OrLower: container.Loot)
+						if (configbase.m_Version < 2)
 						{
-							if (!lootV1OrLower.QuantityPercent)
-								lootV1OrLower.QuantityPercent = -1;
+							foreach (ExpansionLootV1 lootV1OrLower: containerV1.Loot)
+							{
+								if (!lootV1OrLower.QuantityPercent)
+									lootV1OrLower.QuantityPercent = -1;
 
-							if (!lootV1OrLower.Max)
-								lootV1OrLower.Max = -1;
+								if (!lootV1OrLower.Max)
+									lootV1OrLower.Max = -1;
+							}
 						}
-					}
 
-					if (m_Version < 3)
-						container.FallSpeed = 4.5;
+						if (configbase.m_Version < 3)
+							containerV1.FallSpeed = 4.5;
+
+						ExpansionLootContainer newcontainer = containerV1.Convert();
+						Containers.Insert( newcontainer );
+					}
 				}
 
-				if (m_Version < 4)
+				if (configbase.m_Version < 4)
 					HideCargoWhileParachuteIsDeployed = defaults.HideCargoWhileParachuteIsDeployed;
 
 				m_Version = VERSION;
 				save = true;
+			}
+			else
+			{
+				JsonFileLoader<ExpansionAirdropSettings>.JsonLoadFile( EXPANSION_AIRDROP_SETTINGS, this );
 			}
 		}
 		else
 		{
 			EXPrint("[ExpansionAirdropSettings] No existing setting file:" + EXPANSION_AIRDROP_SETTINGS + ". Creating defaults!");
 			Defaults();
+			DefaultRegular();
+			DefaultMedical();
+			DefaultBaseBuilding();
+			DefaultMilitary();
 			save = true;
 		}
 		
@@ -187,10 +219,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 		ItemCount = 50;
 
-		DefaultRegular();
-		DefaultMedical();
-		DefaultBaseBuilding();
-		DefaultMilitary();
+		Containers.Clear();
 	}
 
 	void DefaultRegular()
@@ -293,8 +322,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		int itemCount = 30;
 		int infectedCount = 25;
 
-		if(Containers)
-			Containers.Insert( new ExpansionLootContainer( "ExpansionAirdropContainer", 0, 5, Loot, Infected, itemCount, infectedCount ) );	
+		Containers.Insert( new ExpansionLootContainer( "ExpansionAirdropContainer", 0, 5, Loot, Infected, itemCount, infectedCount ) );	
 	}
 
 	void DefaultMedical()
@@ -402,8 +430,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		int itemCount = 25;
 		int infectedCount = 15;
 
-		if(Containers)
-			Containers.Insert( new ExpansionLootContainer( "ExpansionAirdropContainer_Medical", 0, 10, Loot, Infected, itemCount, infectedCount ) );
+		Containers.Insert( new ExpansionLootContainer( "ExpansionAirdropContainer_Medical", 0, 10, Loot, Infected, itemCount, infectedCount ) );
 	}
 
 	void DefaultBaseBuilding()
@@ -523,8 +550,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		int itemCount = 50;
 		int infectedCount = 10;
 
-		if(Containers)
-			Containers.Insert( new ExpansionLootContainer( "ExpansionAirdropContainer_Basebuilding", 0, 15, Loot, Infected, itemCount, infectedCount ) );
+		Containers.Insert( new ExpansionLootContainer( "ExpansionAirdropContainer_Basebuilding", 0, 15, Loot, Infected, itemCount, infectedCount ) );
 	}
 
 	void DefaultMilitary()
@@ -543,18 +569,15 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		int itemCount = 50;
 		int infectedCount = 50;
 
-		if( Containers )
+		//! Set defaults depending on map name
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
-			//! Set defaults depending on map name
-			switch (ExpansionStatic.GetCanonicalWorldName())
-			{
-				case "namalsk":
-					Containers.Insert( new ExpansionLootContainer( "ExpansionAirdropContainer_Military_WinterCamo", 0, 20, Loot, Infected, itemCount, infectedCount ) );
-					break;
-				default:
-					Containers.Insert( new ExpansionLootContainer( "ExpansionAirdropContainer_Military", 0, 20, Loot, Infected, itemCount, infectedCount ) );
-					break;
-			}
+			case "namalsk":
+				Containers.Insert( new ExpansionLootContainer( "ExpansionAirdropContainer_Military_WinterCamo", 0, 20, Loot, Infected, itemCount, infectedCount ) );
+				break;
+			default:
+				Containers.Insert( new ExpansionLootContainer( "ExpansionAirdropContainer_Military", 0, 20, Loot, Infected, itemCount, infectedCount ) );
+				break;
 		}
 	}
 	

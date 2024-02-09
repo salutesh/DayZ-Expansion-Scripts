@@ -122,6 +122,9 @@ class ExpansionClientSettings
 	bool QuestHUDVisibility = true;
 	ref map<int, bool> QuestVisibilityStates;
 
+	float ViewDistance;
+	float ObjectViewDistance;
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Constructor
 	// -----------------------------------------------------------
@@ -669,7 +672,6 @@ class ExpansionClientSettings
 		
 		if ( version < 52 )
 		{
-			AutoOpenLockMenuAfterPlacing = false;
 			return true;
 		}
 
@@ -678,8 +680,23 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read AutoOpenLockMenuAfterPlacing!");
 			return false;
 		}
-
 		
+		if ( version < 53 )
+		{
+			return true;
+		}
+
+		if ( !ctx.Read( ViewDistance ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ViewDistance!");
+			return false;
+		}
+
+		if ( !ctx.Read( ObjectViewDistance ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ObjectViewDistance!");
+			return false;
+		}
 
 		return true;
 	}
@@ -806,7 +823,10 @@ class ExpansionClientSettings
 
 		ctx.Write( EnableLiquidTypeColors );
 
-		ctx.Write( AutoOpenLockMenuAfterPlacing );		
+		ctx.Write( AutoOpenLockMenuAfterPlacing );
+
+		ctx.Write( ViewDistance );
+		ctx.Write( ObjectViewDistance );
 	}
 
 	// -----------------------------------------------------------
@@ -964,6 +984,9 @@ class ExpansionClientSettings
 		ShowDesyncInvulnerabilityNotifications = false;
 	
 		QuestHUDVisibility = true;
+
+		ViewDistance = 0;  //! 0 = use game default
+		ObjectViewDistance = 0;  //! 0 = use game default
 	}
 
 	// -----------------------------------------------------------
@@ -979,7 +1002,10 @@ class ExpansionClientSettings
 
 		//! Option to toggle light shadows
 		CreateToggle( "CastLightShadows", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS_DESC" );
-
+		//! Client side view distance of the terrain
+		CreateSlider( "ViewDistance", "#STR_EXPANSION_SETTINGS_CLIENT_VIEWDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIEWDISTANCE_DESC", 0, 3600, 100 );
+		//! Client side view distance of the objects and vegetation
+		CreateSlider( "ObjectViewDistance", "#STR_EXPANSION_SETTINGS_CLIENT_OBJECTVIEWDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_OBJECTVIEWDISTANCE_DESC", 0, 3600, 100 );
 	#ifdef EXPANSIONMODNAVIGATION
 		CreateCategory( "3DMapMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D" );
 

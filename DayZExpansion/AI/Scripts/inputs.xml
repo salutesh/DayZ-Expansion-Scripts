@@ -3,6 +3,7 @@
 	<inputs>
 		<actions>
 			<input name="eAICommandMenu" loc="STR_EXPANSION_AI_COMMAND_MENU"/>
+			<input name="eAISetWaypoint" loc="STR_EXPANSION_AI_SET_WAYPOINT"/>
 			<input name="eAITestInput" visible="false" />
 
 			<input name="eAITestLRIncrease" visible="false" />
@@ -14,6 +15,7 @@
 
 		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="eAICommandMenu" />
+			<input name="eAISetWaypoint" />
 			<input name="eAITestInput" />
 			<input name="eAITestLRIncrease" />
 			<input name="eAITestLRDecrease" />
@@ -24,6 +26,11 @@
 	<preset>
 		<input name="eAICommandMenu">
 			<btn name="kT"/>
+		</input>
+		<input name="eAISetWaypoint">
+			<btn name="kLControl">
+				<btn name="mBLeft"/>
+			</btn>
 		</input>
 		<input name="eAITestInput">
 			<btn name="kY"/>

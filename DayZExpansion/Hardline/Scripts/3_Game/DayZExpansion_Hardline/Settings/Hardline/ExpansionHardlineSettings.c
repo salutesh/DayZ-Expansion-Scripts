@@ -1194,6 +1194,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("Expansion_Flag_Finland", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Expansion_Flag_Sweden", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Expansion_Flag_Spain", ExpansionHardlineItemRarity.Uncommon);
+		AddItem("Expansion_Flag_Denmark", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Expansion_Flag_Brazil", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Expansion_Flag_Portugal", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Expansion_Flag_Belgium", ExpansionHardlineItemRarity.Uncommon);

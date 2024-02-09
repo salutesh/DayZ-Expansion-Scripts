@@ -18,8 +18,6 @@ static const string EXPANSION_NAMALSKADVENTURE_SETTINGS = EXPANSION_MISSION_SETT
 class ExpansionNamalskAdventureSettingsBase: ExpansionSettingBase
 {
 	bool EnableAnomalies;
-	ref array<ref ExpansionAnomalyDynamic> DynamicAnomalies;
-	ref array<ref ExpansionAnomalyStatic> StaticAnomalies;
 	bool EnableDynamic;
 	bool EnableStatic;
 	bool SpawnDynamicWithEVRStorms;
@@ -29,54 +27,44 @@ class ExpansionNamalskAdventureSettingsBase: ExpansionSettingBase
 	
 	#ifdef EXPANSIONMODMARKET
 	bool EnableMerchant;
-	ref array<ref ExpansionMerchantPosition> MerchantPositions; //! Server
-	ref array<ref ExpansionMerchantItemSet> MerchantItemSets; //! Server
+	ref array<ref ExpansionMerchantPosition> MerchantPositions = {}; //! Server
+	ref array<ref ExpansionMerchantItemSet> MerchantItemSets = {}; //! Server
 	#endif
 	
 	#ifdef EXPANSIONMODAI
 	bool EnableAISpawns;
-	ref array<ref ExpansionAISpawnPosition> AISpawnPositions; //! Server
+	ref array<ref ExpansionAISpawnPosition> AISpawnPositions = {}; //! Server
 	#endif
 
 	bool EnableSupplyCrates;
-	ref array<ref ExpansionSupplyCrateSetup> SupplyCrateSpawns;
+	bool ClearPlayerFactions;
 };
+
+class ExpansionNamalskAdventureSettingsV7
+{
+	ref array<ref ExpansionAnomalyDynamicV7> DynamicAnomalies = {};
+	ref array<ref ExpansionAnomalyStaticV7> StaticAnomalies = {};
+	ref array<ref ExpansionSupplyCrateSetupV7> SupplyCrateSpawns = {};
+}
 
 /**@class		ExpansionSpawnSettings
  * @brief		Spawn settings class
  **/
 class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 {
+	static const int VERSION = 8;
+
+	ref array<ref ExpansionAnomalyDynamic> DynamicAnomalies = {};
+	ref array<ref ExpansionAnomalyStatic> StaticAnomalies = {};
+	ref array<ref ExpansionSupplyCrateSetup> SupplyCrateSpawns = {};
+
 	[NonSerialized()]
 	protected const float DEFAULT_ANOMALY_SQUARE_SIZE = 400;
 	[NonSerialized()]
 	protected const float DEFAULT_ANOMALY_SPAWN_AMOUNT = 7;
 
-	static const int VERSION = 7;
-
 	[NonSerialized()]
 	private bool m_IsLoaded;
-	
-	bool ClearPlayerFactions;
-
-	void ExpansionNamalskAdventureSettings()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		DynamicAnomalies = new array<ref ExpansionAnomalyDynamic>;
-		StaticAnomalies = new array<ref ExpansionAnomalyStatic>;
-		
-		#ifdef EXPANSIONMODMARKET
-		MerchantPositions = new array<ref ExpansionMerchantPosition>;
-		MerchantItemSets = new array<ref ExpansionMerchantItemSet>;
-		#endif
-		
-		#ifdef EXPANSIONMODAI
-		AISpawnPositions = new array<ref ExpansionAISpawnPosition>;
-		#endif
-
-		SupplyCrateSpawns = new array<ref ExpansionSupplyCrateSetup>;
-	}
 
 	override bool OnRecieve(ParamsReadContext ctx)
 	{
@@ -106,13 +94,11 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		return 0;
 	}
 
-	private void CopyInternal(ExpansionNamalskAdventureSettingsBase s)
+	protected void CopyInternal(ExpansionNamalskAdventureSettingsBase s)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		EnableAnomalies = s.EnableAnomalies;
-		DynamicAnomalies = s.DynamicAnomalies;
-		StaticAnomalies = s.StaticAnomalies;
 		EnableDynamic = s.EnableDynamic;
 		EnableStatic = s.EnableStatic;
 		SpawnDynamicWithEVRStorms = s.SpawnDynamicWithEVRStorms;
@@ -132,7 +118,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		#endif
 
 		EnableSupplyCrates = s.EnableSupplyCrates;
-		SupplyCrateSpawns = s.SupplyCrateSpawns;
+		ClearPlayerFactions = s.ClearPlayerFactions;
 	}
 
 	override bool IsLoaded()
@@ -159,15 +145,42 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		{
 			EXPrint("[ExpansionNamalskAdventureSettings] Load existing setting file:" + EXPANSION_NAMALSKADVENTURE_SETTINGS);
 
-			ExpansionNamalskAdventureSettings settingsDefault = new ExpansionNamalskAdventureSettings;
-			settingsDefault.Defaults();
-
 			ExpansionNamalskAdventureSettingsBase settingsBase;
 			JsonFileLoader<ExpansionNamalskAdventureSettingsBase>.JsonLoadFile(EXPANSION_NAMALSKADVENTURE_SETTINGS, settingsBase);
 			if (settingsBase.m_Version < VERSION)
 			{
+				ExpansionNamalskAdventureSettings settingsDefault = new ExpansionNamalskAdventureSettings;
+				settingsDefault.Defaults();
+
 				EXPrint("[ExpansionNamalskAdventureSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_NAMALSKADVENTURE_SETTINGS + "\" to v" + VERSION);
-				CopyInternal(settingsBase); //! Copy over old settings that have not changed.
+
+				if (settingsBase.m_Version < 8)
+				{
+					CopyInternal(settingsBase); //! Copy over old settings that have not changed.
+
+					//! Convert loot
+					ExpansionNamalskAdventureSettingsV7 settingsV7;
+					JsonFileLoader<ExpansionNamalskAdventureSettingsV7>.JsonLoadFile(EXPANSION_NAMALSKADVENTURE_SETTINGS, settingsV7);
+
+					foreach (ExpansionAnomalyDynamicV7 dynamicAnomalyV7: settingsV7.DynamicAnomalies)
+					{
+						DynamicAnomalies.Insert(dynamicAnomalyV7.ConvertDynamic());
+					}
+
+					foreach (ExpansionAnomalyStaticV7 staticAnomalyV7: settingsV7.StaticAnomalies)
+					{
+						StaticAnomalies.Insert(staticAnomalyV7.ConvertStatic());
+					}
+
+					foreach (ExpansionSupplyCrateSetupV7 supplyCrateV7: settingsV7.SupplyCrateSpawns)
+					{
+						SupplyCrateSpawns.Insert(supplyCrateV7.Convert());
+					}
+				}
+				else
+				{
+					JsonFileLoader<ExpansionNamalskAdventureSettings>.JsonLoadFile(EXPANSION_NAMALSKADVENTURE_SETTINGS, this);
+				}
 				
 				if (settingsBase.m_Version < 6)
 				{
@@ -192,6 +205,15 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		{
 			EXPrint("[ExpansionNamalskAdventureSettings] No existing setting file:" + EXPANSION_NAMALSKADVENTURE_SETTINGS + ". Creating defaults!");
 			Defaults();
+			DefaultNamalskAnomalies();
+		#ifdef EXPANSIONMODMARKET
+			DefaultNamalskMerchantData();
+			DefaultNamalskMerchantItemData();
+		#endif
+		#ifdef EXPANSIONMODAI
+			DefaultAISpawnPositions();
+		#endif
+			DefaultSupplyCrates();
 			save = true;
 		}
 
@@ -226,7 +248,6 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		m_Version = VERSION;
 
 		EnableAnomalies = true;
-		DefaultNamalskAnomalies();
 
 		EnableDynamic = true;
 		EnableStatic = true;
@@ -237,17 +258,13 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 		#ifdef EXPANSIONMODMARKET
 		EnableMerchant = true;
-		DefaultNamalskMerchantData();
-		DefaultNamalskMerchantItemData();
 		#endif
 		
 		#ifdef EXPANSIONMODAI
 		EnableAISpawns = true;
-		DefaultAISpawnPositions();
 		#endif
 
 		EnableSupplyCrates = true;
-		DefaultSupplyCrates();
 		
 		ClearPlayerFactions = false;
 	}

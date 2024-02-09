@@ -19,6 +19,10 @@ class ExpansionWorld: ExpansionGame
 
 	void ExpansionWorld()
 	{
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, this);
+#endif
+
 		s_Expansion_BushFallHard_SoundSet = ExpansionSoundSet.Register("hardBushFall_SoundSet");
 		s_Expansion_BushFallSoft_SoundSet = ExpansionSoundSet.Register("softBushFall_SoundSet");
 		s_Expansion_TreeFallHard_SoundSet = ExpansionSoundSet.Register("hardTreeFall_SoundSet");
@@ -27,6 +31,20 @@ class ExpansionWorld: ExpansionGame
 		ExpansionSoundSet.Register("cartent_deploy_SoundSet");
 		ExpansionSoundSet.Register("GoatBleat_A_SoundSet");
 		ExpansionSoundSet.Register("GoatBleat_E_SoundSet");
+
+		GetPermissionsManager().RegisterPermission("Expansion.Creature.Lobotomize");
+
+		m_RPCManager.RegisterClient("RPC_LobotomySync");
+	}
+
+	void ~ExpansionWorld()
+	{
+		if (!GetGame())
+			return;
+
+#ifdef DIAG
+		Print("~ExpansionWorld");
+#endif
 	}
 
 	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType) 
@@ -75,6 +93,11 @@ class ExpansionWorld: ExpansionGame
 	override void ReadRemovedWorldObjects(ParamsReadContext ctx)
 	{
 		ExpansionWorldObjectsModule.RPC_RemoveObjects(null, null, ctx);
+	}
+
+	override void Expansion_SendFar(ExpansionScriptRPC rpc, vector position, Object target = null, bool guaranteed = false)
+	{
+		PlayerBase.Expansion_SendFar(rpc, position, target, guaranteed);
 	}
 
 	override void Expansion_SendNear(ExpansionScriptRPC rpc, vector position, float distance, Object target = null, bool guaranteed = false)
@@ -242,5 +265,128 @@ class ExpansionWorld: ExpansionGame
 	#endif
 
 		return translated;
+	}
+
+	/**
+	 * @brief Lobotomize/unlobotomize creature
+	 */
+	override void Lobotomize(DayZCreatureAI creature)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, this, "" + creature, "" + creature.GetAIAgent());
+	#endif
+
+		if (!creature || !creature.IsAlive())
+			return;
+
+		bool isLobotomyInProgress;
+		bool isLobotomized;
+
+		AnimalBase animal;
+		ZombieBase zombie;
+
+		if (Class.CastTo(animal, creature))
+		{
+			isLobotomyInProgress = animal.m_Expansion_LobotomyInProgress;
+			isLobotomized = animal.Expansion_IsLobotomized();
+		}
+		else if (Class.CastTo(zombie, creature))
+		{
+			isLobotomyInProgress = zombie.m_Expansion_LobotomyInProgress;
+			isLobotomized = zombie.Expansion_IsLobotomized();
+		}
+
+		if (creature.GetAIAgent() && !isLobotomized)
+		{
+			if (!isLobotomyInProgress)
+			{
+				Error(string.Format("Cannot lobotomize, use %1::Expansion_StartLobotomy first", creature));
+				return;
+			}
+
+		#ifdef DIAG
+			EXTrace.Print(EXTrace.MISC, this, "Lobotomizing " + creature);
+		#endif
+
+
+		#ifdef DIAG_DEVELOPER
+			creature.DebugDisableAIControl();
+
+			//! Dangerous, can CTD when called during creature animation (calling DebugDisableAIControl first helps, but not always).
+			//! Will also CTD if targeted by another creature after health of this one is depleted while it has no AI agent
+			//creature.DestroyAIAgent();
+		#endif
+		}
+		else
+		{
+			if (!creature.GetAIAgent())
+			{
+				string templateName = creature.ConfigGetString("aiAgentTemplate");
+				AIWorld aiWorld = GetGame().GetWorld().GetAIWorld();
+			#ifdef DIAG
+				EXTrace.Print(EXTrace.MISC, this, "Creating AI group " + templateName);
+			#endif
+				AIGroup aiGroup = aiWorld.CreateGroup(templateName);
+			#ifdef DIAG
+				EXTrace.Print(EXTrace.MISC, this, "Initializing AI agent " + aiGroup);
+			#endif
+				creature.InitAIAgent(aiGroup);
+			}
+
+		#ifdef DIAG_DEVELOPER
+			creature.DebugRestoreAIControl();
+		#endif
+		}
+
+		if (animal)
+		{
+			animal.Expansion_SetLobotomized(!isLobotomized);
+			animal.Expansion_EndLobotomy();
+		}
+		else if (zombie)
+		{
+			zombie.Expansion_SetLobotomized(!isLobotomized);
+			zombie.Expansion_EndLobotomy();
+		}
+
+		LobotomySync(creature, !isLobotomized);
+	}
+
+	override void LobotomySync(DayZCreatureAI creature, bool isLobotomized = false)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, this, "" + creature, "" + creature.GetAIAgent());
+	#endif
+
+		auto rpc = m_RPCManager.CreateRPC("RPC_LobotomySync");
+
+		if (!creature.GetAIAgent())
+			isLobotomized = true;
+
+		rpc.Write(isLobotomized);
+
+		Expansion_SendFar(rpc, creature.GetPosition(), creature, true);
+	}
+
+	void RPC_LobotomySync(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, this);
+	#endif
+
+		bool isLobotomized;
+		if (!ctx.Read(isLobotomized))
+			return;
+
+	#ifdef DIAG
+		EXTrace.Add(trace, isLobotomized);
+	#endif
+
+		AnimalBase animal;
+		ZombieBase zombie;
+		if (Class.CastTo(animal, target))
+			animal.Expansion_SetLobotomized(isLobotomized);
+		else if (Class.CastTo(zombie, target))
+			zombie.Expansion_SetLobotomized(isLobotomized);
 	}
 };

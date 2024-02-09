@@ -16,7 +16,7 @@ modded class ActionSwitchSeats
 	{
 		super.Start(action_data);
 
-		if (action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEnter)
+		if (GetGame().IsServer() && action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEnter)
 		{
 			CarScript car;
 			if (Class.CastTo(car, action_data.m_Target.GetObject()))

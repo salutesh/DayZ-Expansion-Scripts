@@ -6,9 +6,23 @@ modded class MissionBase
 
 	void MissionBase()
 	{
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, this);
+#endif
+
 		GetDayZGame().Expansion_SetIsMissionMainMenu(IsInherited(MissionMainMenu));
 
 		CreateDayZExpansion();
+	}
+
+	void ~MissionBase()
+	{
+		if (!GetGame())
+			return;
+
+#ifdef DIAG
+		Print("~MissionBase");
+#endif
 	}
 
 #ifndef CF_ONUPDATE_RATE_LIMIT

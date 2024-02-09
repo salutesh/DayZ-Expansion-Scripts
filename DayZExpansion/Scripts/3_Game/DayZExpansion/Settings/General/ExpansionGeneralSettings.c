@@ -58,12 +58,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRecieve");
 #endif
 
-		ctx.Read(DisableShootToUnlock);
-		ctx.Read(EnableGravecross);
-		ctx.Read(GravecrossDeleteBody);
-		ctx.Read(GravecrossTimeThreshold);
-		ctx.Read(GravecrossSpawnTimeDelay);		
-
 		GetDayZGame().GetExpansionGame().ReadRemovedWorldObjects(ctx);
 
 		int interiorCount;
@@ -107,12 +101,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ctx.Write(DisableShootToUnlock);
-		ctx.Write(EnableGravecross);
-		ctx.Write(GravecrossDeleteBody);
-		ctx.Write(GravecrossTimeThreshold);
-		ctx.Write(GravecrossSpawnTimeDelay);		
-
 		GetDayZGame().GetExpansionGame().WriteRemovedWorldObjects(ctx);
 
 		//! Do not send mapping, but do send interiors if enabled as interiors w/o collision are created only clientside

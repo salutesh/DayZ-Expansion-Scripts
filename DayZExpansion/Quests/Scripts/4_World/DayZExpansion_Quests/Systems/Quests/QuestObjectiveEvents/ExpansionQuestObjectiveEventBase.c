@@ -492,7 +492,6 @@ class ExpansionQuestObjectiveEventBase
 		if (maxDistance <= 0)
 			return true;
 
-		position[1] = GetGame().SurfaceY(position[0], position[2]);
 		float currentDistanceSq = vector.DistanceSq(playerPos, position);
 		if (currentDistanceSq <= maxDistance * maxDistance && currentDistanceSq >= minDistance * minDistance)
 			return true;

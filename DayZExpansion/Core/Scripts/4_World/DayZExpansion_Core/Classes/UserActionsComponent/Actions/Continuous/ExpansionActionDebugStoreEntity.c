@@ -52,6 +52,9 @@ class ExpansionActionDebugStoreEntity: ActionContinuousBase
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
+		if (item)
+			return false;
+
 		auto entity = EntityAI.Cast(target.GetParentOrObject());
 		if (!entity)
 			return false;
@@ -79,23 +82,17 @@ class ExpansionActionDebugStoreEntity: ActionContinuousBase
 			return false;
 
 		CarScript vehicle;
+#ifdef EXPANSIONMODVEHICLE
+		ExpansionVehicleBase exVehicle;
+#endif
 		if (Class.CastTo(vehicle, entity))
 		{
-#ifdef EXPANSIONMODVEHICLE
-			if (vehicle.Expansion_CanCover() && item && item.IsInherited(CamoNet))  //! Handled by cover action in that case
-				return false;
-#endif
 			if (vehicle.Expansion_GetVehicleCrew().Count())
 				return false;
 		}
-
 #ifdef EXPANSIONMODVEHICLE
-		ExpansionVehicleBase exVehicle;
-		if (Class.CastTo(exVehicle, entity))
+		else if (Class.CastTo(exVehicle, entity))
 		{
-			if (exVehicle.Expansion_CanCover() && item && item.IsInherited(CamoNet))  //! Handled by cover action in that case
-				return false;
-
 			if (exVehicle.Expansion_GetVehicleCrew().Count())
 				return false;
 		}

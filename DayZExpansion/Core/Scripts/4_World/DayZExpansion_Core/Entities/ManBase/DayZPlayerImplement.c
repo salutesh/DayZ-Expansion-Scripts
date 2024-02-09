@@ -50,6 +50,12 @@ modded class DayZPlayerImplement
 		Expansion_Init();
 	}
 
+	void ~DayZPlayerImplement()
+	{
+		if (GetGame())
+			Expansion_DeleteDebugObjects();
+	}
+
 	//! For NPCs that don't inherit from PlayerBase
 	override bool IsInventoryVisible()
 	{
@@ -208,13 +214,6 @@ modded class DayZPlayerImplement
 		Expansion_DeleteDebugObjects();
 	}
 
-	override void EEDelete(EntityAI parent)
-	{
-		super.EEDelete(parent);
-
-		Expansion_DeleteDebugObjects();
-	}
-
 	override bool CanBeSkinned()
 	{
 		if (!m_Expansion_CanBeLooted)
@@ -284,15 +283,25 @@ modded class DayZPlayerImplement
 	void Expansion_DebugObject(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero, float lifetime = 300.0, int flags = 0)
 	{
 #ifdef DIAG
-		if (!m_Expansion_DebugObjects[i])
+		Object obj = m_Expansion_DebugObjects[i];
+
+		bool createObject;
+		if (!obj || obj.GetType() != type)
+			createObject = true;
+
+		if (createObject)
 		{
+			if (obj)
+				GetGame().ObjectDelete(obj);
+			if (position == vector.Zero)
+				return;
 			int iFlags;
 			#ifdef SERVER
 			iFlags = ECE_NOLIFETIME;
 			#else
 			iFlags = ECE_LOCAL;
 			#endif
-			Object obj = GetGame().CreateObjectEx(type, position, iFlags);
+			obj = GetGame().CreateObjectEx(type, position, iFlags);
 			if (!obj)
 				return;
 			m_Expansion_DebugObjects[i] = obj;
@@ -304,18 +313,18 @@ modded class DayZPlayerImplement
 		}
 		else
 		{
-			m_Expansion_DebugObjects[i].SetPosition(position);
+			obj.SetPosition(position);
 		}
 
 		if (direction != vector.Zero)
 		{
-			m_Expansion_DebugObjects[i].SetDirection(direction);
+			obj.SetDirection(direction);
 		}
 
 		if (origin != vector.Zero)
 		{
 			ExpansionDebugObject dbgObj;
-			if (Class.CastTo(dbgObj, m_Expansion_DebugObjects[i]))
+			if (Class.CastTo(dbgObj, obj))
 			{
 				dbgObj.Expansion_DrawDebugLine(origin);
 				dbgObj.Expansion_SetDebugLineFlags(flags);
@@ -326,18 +335,22 @@ modded class DayZPlayerImplement
 
 	void Expansion_DeleteDebugObject(int i)
 	{
-		Object obj = m_Expansion_DebugObjects[i];
-		if (obj)
-			GetGame().ObjectDelete(obj);
+		Object obj;
+		if (m_Expansion_DebugObjects.Find(i, obj))
+		{
+			if (obj)
+				GetGame().ObjectDelete(obj);
 
-		m_Expansion_DebugObjects.Remove(i);
+			m_Expansion_DebugObjects.Remove(i);
+		}
 	}
 
 	void Expansion_DeleteDebugObjects()
 	{
 		foreach (Object obj: m_Expansion_DebugObjects)
 		{
-			GetGame().ObjectDelete(obj);
+			if (obj)
+				GetGame().ObjectDelete(obj);
 		}
 
 		m_Expansion_DebugObjects.Clear();
@@ -386,8 +399,8 @@ modded class DayZPlayerImplement
 #ifdef SERVER
 #ifdef DIAG
 		vector neckPosition = GetBonePositionWS(GetBoneIndexByName("neck"));
-		Expansion_DebugObject(0, neckPosition, "ExpansionDebugBox_Red", dir);
-		Expansion_DebugObject(1, neckPosition + dir, "ExpansionDebugBox", dir, neckPosition);
+		//Expansion_DebugObject(0, neckPosition, "ExpansionDebugSphereSmall_Red", dir);
+		Expansion_DebugObject(1, neckPosition + dir, "ExpansionDebugSphereSmall_Blue", dir, neckPosition);
 #endif
 #endif
 

@@ -118,12 +118,12 @@ modded class AnimalBase
 					maxDist = 100.0;
 
 				bool countKill = false;
-				Man questPlayer;
-				vector playerPos;
+				PlayerBase questPlayer;
+				PlayerBase killerPB = PlayerBase.Cast(killerPlayer);
 				if (!quest.GetQuestConfig().IsGroupQuest())
 				{
 					questPlayer = quest.GetPlayer();
-					if (questPlayer && (objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) || Expansion_HasHitEntity(questPlayer)))
+					if (questPlayer && objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) && (Expansion_HasHitEntity(questPlayer) || questPlayer.Expansion_IsHelper(killerPB)))
 					{
 						countKill = true;
 					#ifdef DIAG
@@ -138,7 +138,7 @@ modded class AnimalBase
 					foreach (string memberUID: playerUIDs)
 					{
 						questPlayer = PlayerBase.GetPlayerByUID(memberUID);		
-						if (questPlayer && (objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) || Expansion_HasHitEntity(questPlayer)))
+						if (questPlayer && objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) && (Expansion_HasHitEntity(questPlayer) || questPlayer.Expansion_IsHelper(killerPB)))
 						{
 							countKill = true;
 						#ifdef DIAG

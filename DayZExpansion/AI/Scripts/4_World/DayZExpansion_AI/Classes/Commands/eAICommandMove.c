@@ -86,7 +86,9 @@ class eAICommandMove: ExpansionHumanCommandScript
 	private bool m_LastBlockedBackward;
 	private bool m_LastBlocked;
 	private float m_TurnDirection = 45.0;
-	private bool m_TurnOverride;
+	private int m_TurnOverride;
+	private float m_TurnDirectionCWTime;
+	private float m_TurnDirectionCCWTime;
 
 	private float m_OverrideMovementTimeout;
 	private float m_OverrideTargetMovementDirection;
@@ -154,6 +156,33 @@ class eAICommandMove: ExpansionHumanCommandScript
 	{
 		m_TurnTarget = pTarget;
 		m_ForceTurnTarget = force;
+	}
+
+	void StartTurnOverride(int speedLimit = 1)
+	{
+		if (m_OverrideMovementTimeout <= 0 || m_TurnOverride < speedLimit)
+		{
+			m_OverrideMovementTimeout = 3.0;
+
+			if (m_LastBlockedLeft && !m_LastBlockedRight)
+			{
+				//! Blocked left, turn right
+				m_TurnDirection = 45.0;
+			}
+			else if (!m_LastBlockedLeft && m_LastBlockedRight)
+			{
+				//! Blocked right, turn left
+				m_TurnDirection = -45.0;
+			}
+			else if (Math.RandomIntInclusive(0, 1))
+			{
+				//! Both directions blocked, random turn direction
+				m_TurnDirection = -m_TurnDirection;
+			}
+
+			if (m_TurnOverride < speedLimit)
+				m_TurnOverride = speedLimit;
+		}
 	}
 
 	void SetWeaponFire(bool state)
@@ -224,6 +253,9 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 	bool IsChangingStance()
 	{
+		if (m_StancePrev != m_Stance)
+			return true;
+
 		return m_StanceChangeTimeout > 0;
 	}
 
@@ -314,11 +346,39 @@ class eAICommandMove: ExpansionHumanCommandScript
 		bool moveRight;
 		bool backPedal;
 		bool turnOverride;
+	
+#ifdef DIAG
+		string msg;
+#endif
 
 		if (m_OverrideMovementTimeout > 0)
 		{
 			m_OverrideMovementTimeout -= pDt;
 			m_DebugTime = m_OverrideMovementTimeout;
+			if (m_TurnOverride)
+			{
+				if (m_TurnDirection < 0)
+					m_TurnDirectionCCWTime += pDt;
+				else
+					m_TurnDirectionCWTime += pDt;
+
+				float turnDirectionDiff = m_TurnDirectionCWTime - m_TurnDirectionCCWTime;
+				if (Math.AbsFloat(turnDirectionDiff) > 5)
+				{
+					//! Failsafe so we don't make a turn in same direction indefinitely
+				#ifdef DIAG
+					msg = " WARNING: CW to CCW turn time diff " + turnDirectionDiff + " exceeds 5 seconds! Changing direction";
+					EXTrace.Print(EXTrace.AI, this, "eAICommandMove::StartTurnOverride -" + msg);
+					ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100, m_Unit.GetType() + msg);
+				#endif
+					m_TurnDirection = -m_TurnDirection;
+				}
+			}
+			else
+			{
+				m_TurnDirectionCCWTime = 0.0;
+				m_TurnDirectionCWTime = 0.0;
+			}
 		}
 		else
 		{
@@ -329,7 +389,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			m_LastBlockedBackward = false;
 			m_LastBlockedLeft = false;
 			m_LastBlockedRight = false;
-			m_TurnOverride = false;
+			m_TurnOverride = 0;
 		}
 
 		//! Try and avoid obstacles if we are moving and not climbing
@@ -343,11 +403,8 @@ class eAICommandMove: ExpansionHumanCommandScript
 			float hitFraction;
 
 			bool chg;
-#ifdef DIAG
-			string msg;
-#endif
 
-			if (m_Stance != DayZPlayerConstants.STANCEIDX_PRONE && vector.DistanceSq(m_PrevPosition, position) < 0.0009)
+			if (m_Stance != DayZPlayerConstants.STANCEIDX_PRONE && vector.DistanceSq(m_PrevPosition, position) < 0.0001)
 				m_PositionTime += pDt;  //! We don't seem to be actually moving
 			else
 				m_PositionTime = 0;
@@ -360,7 +417,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 				checkDir = position - 0.5 * fb;
 				blockedBackward = Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, backwardPos, outNormal, hitFraction, checkDir + CHECK_MIN_HEIGHT, 0.5, true);
 
-				if (!blockedBackward && m_PositionTime > 0.3)
+				if (!blockedBackward && m_PositionTime > 3.0)
 					blockedBackward = true;
 
 				if (blockedBackward)
@@ -377,7 +434,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 				checkDir = position + 0.5 * fb;
 				blockedForward = Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed + CHECK_MIN_HEIGHT, 1.0, true);
 
-				if (!blockedForward && m_PositionTime > 0.3)
+				if (!blockedForward && m_PositionTime > 3.0)
 					blockedForward = true;
 
 				if (blockedForward)
@@ -417,9 +474,13 @@ class eAICommandMove: ExpansionHumanCommandScript
 				vector checkLeft = position + 0.25 * lr;
 				vector checkRight = position - 0.25 * lr;
 				blockedLeft = Raycast(position + CHECK_MIN_HEIGHT, checkLeft + CHECK_MIN_HEIGHT, leftPos, outNormal, hitFraction, checkDir + lr + CHECK_MIN_HEIGHT, 0.5);
+				if (!blockedLeft && m_PositionTime > 3.0)
+					blockedLeft = true;
 				if (blockedLeft)
 					m_Unit.Expansion_DebugObject_Deferred(BLOCKED_LEFT_HITPOSITION, leftPos, "ExpansionDebugBox_Purple", outNormal);
 				blockedRight = Raycast(position + CHECK_MIN_HEIGHT, checkRight + CHECK_MIN_HEIGHT, rightPos, outNormal, hitFraction, checkDir - lr + CHECK_MIN_HEIGHT, 0.5);
+				if (!blockedRight && m_PositionTime > 3.0)
+					blockedRight = true;
 				if (blockedRight)
 					m_Unit.Expansion_DebugObject_Deferred(BLOCKED_RIGHT_HITPOSITION, rightPos, "ExpansionDebugBox_Purple", outNormal);
 
@@ -533,14 +594,8 @@ class eAICommandMove: ExpansionHumanCommandScript
 					else if (turnOverride)
 					{
 						m_OverrideTargetMovementDirection = 0.0;
-						if (m_OverrideMovementTimeout <= 0)
-						{
-							m_OverrideMovementTimeout = 3.0;
-							if (Math.RandomIntInclusive(0, 1))
-								m_TurnDirection = -m_TurnDirection;
-						}
+						StartTurnOverride();
 						m_OverrideWaypoint = forwardPos;
-						m_TurnOverride = true;
 					#ifdef EAI_DEBUG_MOVE
 						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked L+R+B, turn " + m_TurnDirection);
 					#endif
@@ -734,7 +789,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 			if (m_TurnOverride)
 			{
-				speedLimit = 1;
+				speedLimit = m_TurnOverride;
 				m_TurnTarget = orientation[0] + m_TurnDirection;
 				if (m_TurnTarget >= 360.0)
 					m_TurnTarget -= 360.0;
@@ -773,10 +828,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 		bool matchLeaderSpeed;
 
-		DayZPlayerImplement leader;
+		eAIGroup group = m_Unit.GetGroup();
+		DayZPlayerImplement leader = group.GetFormationLeader();
 		if (m_Unit.GetFSM().IsInState("FollowFormation"))
 		{
-			leader = m_Unit.GetGroup().GetLeader();
 			if (leader && !leader.eAI_IsSideSteppingObstacles() && Math.AbsFloat(leader.Expansion_GetMovementAngle()) <= 90.0)
 			{
 				float leaderSpeed = GetVelocity(leader).LengthSq();
@@ -795,6 +850,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 					matchLeaderSpeed = true;
 			}
 		}
+		else if (m_Unit == leader && group.Count() > 1)
+		{
+			group.GetFormation().Update(pDt);
+		}
 
 		//! https://feedback.bistudio.com/T173348
 		if (isFinal && m_WayPointDistance2D < minFinal && !matchLeaderSpeed)
@@ -806,7 +865,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 		{
 			SetTargetSpeed(0.0);
 		}
-		else if (Math.AbsFloat(m_TurnDifference) > 30.0)
+		else if (Math.AbsFloat(m_TurnDifference) > 30.0 && !m_TurnOverride)
 		{
 			SetTargetSpeed(Math.Lerp(m_MovementSpeed, 1.0, pDt * 2.0));
 		}
@@ -894,7 +953,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 				PlayerBase targetPlayer;
 				if (target && Class.CastTo(targetPlayer, target.GetEntity()) && (m_Unit.m_eAI_Meme || Math.AbsFloat(targetPlayer.m_MovementState.m_fLeaning) > 0.5))
 				{
-					eAIFaction faction = m_Unit.GetGroup().GetFaction();
+					eAIFaction faction = group.GetFaction();
 					if (faction.IsObserver())
 					{
 						meme = true;
@@ -904,7 +963,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 						eAIGroup targetGroup = targetPlayer.GetGroup();
 						if (targetGroup)
 						{
-							if (m_Unit.GetGroup() == targetGroup)
+							if (group == targetGroup)
 							{
 								meme = true;
 							}
@@ -929,7 +988,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 				case 1:
 					break;
 				case 2:
-					if (m_MovementSpeed && m_Unit.m_eAI_IsFightingFSM)
+					if (m_MovementSpeed && m_Unit.m_eAI_IsFightingFSM && !m_Unit.IsFighting())
 						meme = true;
 					break;
 				case 3:

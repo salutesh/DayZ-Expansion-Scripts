@@ -62,6 +62,7 @@ modded class ActionConstructor
 		//! Boats
 		actions.Insert( ExpansionActionNextEngine );
 		actions.Insert( ExpansionActionNextEngineInput );		
+		actions.Insert( ExpansionActionBoardBuoyantObject );
 		
 		//! Helicopters
 		actions.Insert( ExpansionActionHelicopterHoverRefill );

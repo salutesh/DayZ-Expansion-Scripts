@@ -32,7 +32,7 @@ class ExpansionAISpawnBase
 	float DamageMultiplier;
 	float DamageReceivedMultiplier;
 
-	void ExpansionAISpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "", bool canbelooted = true, bool unlimitedreload = false)
+	void ExpansionAISpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, bool unlimitedreload = false)
 	{
 		NumberOfAI = bod;
 		Speed = spd;
@@ -149,12 +149,15 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 	float DespawnTime;					// if all players outside despawn radius, ticks up time. When despawn time reached, patrol is deleted. If set to -1, will use general setting instead
 	float RespawnTime;	                // Time in seconds before the dead group will respawn. If set to -1, they won't respawn, if set to -2, will use the general setting instead
 
-	void ExpansionAIDynamicSpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -2, float maxdistradius = -2)
+	void ExpansionAIDynamicSpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -1, float maxdistradius = -1)
 	{
 		Chance = chance;
 		MinDistRadius = mindistradius;
 		MaxDistRadius = maxdistradius;
-		DespawnRadius = maxdistradius * 1.1;
+		if (maxdistradius > 0)
+			DespawnRadius = maxdistradius * 1.1;
+		else
+			DespawnRadius = -1;
 		DespawnTime = -1;
 		RespawnTime = -2;
 	}

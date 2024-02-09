@@ -16,6 +16,11 @@ class ExpansionQuestObjectiveTreasureHuntConfig_V17: ExpansionQuestObjectiveTrea
 	ref ExpansionQuestObjectiveTreasureHunt TreasureHunt;
 };
 
+class ExpansionQuestObjectiveTreasureHuntConfig_V20: ExpansionQuestObjectiveTreasureHuntConfigBase
+{
+	ref array <ref ExpansionLootV1> Loot;
+};
+
 class ExpansionQuestObjectiveTreasureHuntConfigBase: ExpansionQuestObjectiveConfig
 {
 	bool ShowDistance = true;
@@ -24,14 +29,15 @@ class ExpansionQuestObjectiveTreasureHuntConfigBase: ExpansionQuestObjectiveConf
 	bool DigInStash = true;
 	string MarkerName = "???";	
 	int MarkerVisibility = 4; //! 4 - visible on map | 2 - visible in world | 6 - visible on map and in world.
-	autoptr array<vector> Positions;
-	autoptr array <ref ExpansionLoot> Loot;
+	ref array<vector> Positions;
 	int LootItemsAmount;
 	float MaxDistance = 10.0;
 };
 
 class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasureHuntConfigBase
 {	
+	ref array <ref ExpansionLoot> Loot;
+
 	void ExpansionQuestObjectiveTreasureHuntConfig()
 	{
 		Positions = new array<vector>;
@@ -124,14 +130,23 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 
 		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName, configBase))
 			return NULL;
-
+		
+		Print("DEBUG DEBUG == configBase " + configBase);
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
 			Print("[ExpansionQuestObjectiveTreasureHuntConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + " to version " + CONFIGVERSION);
-			config = new ExpansionQuestObjectiveTreasureHuntConfig();
 
-			//! Copy over old configuration that haven't changed
-			config.CopyConfig(configBase);
+			if (configBase.ConfigVersion < 27)
+			{
+				config = new ExpansionQuestObjectiveTreasureHuntConfig();
+
+				//! Copy over old configuration that haven't changed
+				config.CopyConfig(configBase);
+			}
+			else if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName, config))
+			{
+				return null;
+			}
 			
 			if (configBase.ConfigVersion < 18)
 			{
@@ -162,6 +177,30 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 				}
 				
 				config.SetLootItemsAmount(treasureHunt.Items.Count());
+			}
+			else if (configBase.ConfigVersion < 27)
+			{
+				ExpansionQuestObjectiveTreasureHuntConfig_V20 configV20;
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfig_V20>.Load(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName, configV20))
+				{
+					Error("ExpansionQuestObjectiveTreasureHuntConfig::Load - Config conversion failed for file: " + EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + " | Error Code: 1");
+					return NULL;
+				}
+				
+				array <ref ExpansionLootV1> lootV1Array = configV20.Loot;
+				if (!lootV1Array)
+				{
+					Error("ExpansionQuestObjectiveTreasureHuntConfig::Load - Config conversion failed for file: " + EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + " | Error Code: 2");
+					return NULL;
+				}
+
+				array <ref ExpansionLoot> lootArray = new array <ref ExpansionLoot>;
+				foreach(ExpansionLootV1 lootv1: lootV1Array)
+				{
+					lootArray.Insert(lootv1.Convert());
+				}
+
+				config.Loot = lootArray;
 			}
 
 			config.ConfigVersion = CONFIGVERSION;
@@ -204,7 +243,6 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 		MarkerName = configBase.MarkerName;
 		MarkerVisibility = configBase.MarkerVisibility;
 		Positions = configBase.Positions;
-		Loot = configBase.Loot;
 		LootItemsAmount = configBase.LootItemsAmount;
 		MaxDistance = configBase.MaxDistance;
 	}

@@ -14,6 +14,19 @@ class ExpansionVehicleCover: ExpansionEntityStoragePlaceholder
 {
 	protected ExpansionKeyChainBase m_Expansion_KeyChain;
 
+	override void AfterStoreLoad()
+	{
+		super.AfterStoreLoad();
+
+		//! Fix position of Merlin cover (positioning of model in p3d changed with Expansion 1.8.39)
+		if (GetType() == "ExpansionMerlin_Cover" && m_ExpansionSaveVersion < 52)
+		{
+			vector corrected = GetPosition() - Vector(0, 3.831, 0);
+			EXPrint(ToString() + "::AfterStoreLoad - correcting position " + GetPosition() + " -> " + corrected);
+			SetPosition(corrected);
+		}
+	}
+
 #ifdef GAMELABS
 #ifdef SERVER
 	protected ref _Event m_GameLabs_RegisteredInstance;
@@ -69,6 +82,7 @@ class ExpansionVehicleCover: ExpansionEntityStoragePlaceholder
 		super.SetActions();
 
 		AddAction(ExpansionActionUncoverVehicle);
+		AddAction(ExpansionActionBoardBuoyantObject);
 	}
 
 	override string GetDisplayName()

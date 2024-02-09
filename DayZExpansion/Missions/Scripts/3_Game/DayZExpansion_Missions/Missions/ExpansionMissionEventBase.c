@@ -14,6 +14,8 @@ static ref ScriptInvoker SI_OnMissionEnd = new ScriptInvoker();
 
 class ExpansionMissionEventBase
 {
+	int m_Version;
+
 	bool Enabled;
 
 	float Weight;
@@ -66,6 +68,20 @@ class ExpansionMissionEventBase
 				End();
 			}
 		}
+	}
+
+	void Copy(ExpansionMissionEventBase mission)
+	{
+		Enabled = mission.Enabled;
+
+		Weight = mission.Weight;
+		MissionMaxTime = mission.MissionMaxTime;
+
+		MissionName = mission.MissionName;
+
+		Difficulty = mission.Difficulty;
+		Objective = mission.Objective;
+		Reward = mission.Reward;
 	}
 	
 	// ------------------------------------------------------------

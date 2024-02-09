@@ -84,6 +84,8 @@ modded class ItemBase
 		if (!ctx.Read(m_Expansion_IsAttached))
 			return false;
 
+		m_ExpansionSaveVersion = ctx.GetVersion();
+
 		if ( m_Expansion_IsAttached )
 		{
 			if (!ctx.Read(m_Expansion_AttachIDA))

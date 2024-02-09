@@ -7,10 +7,6 @@ enum eAIProcessingState
 
 modded class ExpansionWorld
 {
-	private float m_GroupsUpdateInterval = 0.05;
-	private float m_GroupsUpdateTime;
-	private int m_UpdateGroupsPerTick = 5;
-
 	private ref eAIRoadNetwork m_Network;
 	private bool m_NetworkGenerate;
 	private vector m_NetworkPosition;
@@ -24,31 +20,11 @@ modded class ExpansionWorld
 		//m_Network.Init();
 	}
 
+/*
 	override void OnUpdate(bool doSim, float timeslice)
 	{
 		super.OnUpdate(doSim, timeslice);
 
-		float updateTime = g_Game.GetTickTime();
-		float elapsedSinceLastGroupsUpdate = updateTime - m_GroupsUpdateTime;
-
-		if (elapsedSinceLastGroupsUpdate >= m_GroupsUpdateInterval)
-		{
-			eAIGroup.UpdateAll(elapsedSinceLastGroupsUpdate, m_UpdateGroupsPerTick);
-
-			m_GroupsUpdateTime = updateTime;
-		}
-
-	#ifndef SERVER
-		DayZPlayerImplement player;
-		Class.CastTo(player, GetGame().GetPlayer());
-
-		if (player && player.GetGroup() && player.GetGroup().Count() > 1)
-			SetInGroup(true);
-		else
-			SetInGroup(false);
-	#endif
-
-/*
 		if (m_NetworkGenerate)
 		{
 			m_NetworkGenerate = false;
@@ -65,8 +41,8 @@ modded class ExpansionWorld
 			
 			GenerateRoadNetwork(pos, radius);
 		}
-*/
 	}
+*/
 
 	void GenerateRoadNetwork(vector position, float radius)
 	{
@@ -179,4 +155,13 @@ modded class ExpansionWorld
 		}
 	}
 	*/
+
+	override bool InGroup()
+	{
+		DayZPlayerImplement player;
+		if (Class.CastTo(player, GetGame().GetPlayer()) && player.GetGroup() && player.GetGroup().Count() > 1)
+			return true;
+
+		return false;
+	}
 };

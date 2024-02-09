@@ -12,14 +12,32 @@ class eAITargetInformationState
 	vector m_SearchPosition;
 	vector m_SearchDirection;
 	bool m_LOS;  //! LOS state (may be stale if not current target for AI)
+#ifdef DIAG
+	Object m_LOSRaycastHitObject;
+	vector m_LOSRaycastHitPosition;
+#endif
 
-	void eAITargetInformationState(eAIBase ai, eAITargetInformation info)
+	void eAITargetInformationState(eAIBase ai, eAITargetInformation info, bool initialUpdate = true)
 	{
 		m_AI = ai;
 		m_Info = info;
 
-		UpdatePosition(true);
-		UpdateThreat(true);
+		UpdatePosition(initialUpdate);
+		UpdateThreat(initialUpdate);
+	}
+
+	void SetInitial(float threat, vector position)
+	{
+		int time = GetGame().GetTime();
+
+		m_ThreatLevelUpdateTimestamp = time;
+		m_ThreatLevel = threat;
+		m_ThreatLevelActive = threat;
+
+		m_SearchPositionUpdateTimestamp = time;
+		m_LastKnownPosition = position;
+		m_SearchPosition = position;
+		m_SearchDirection = vector.Direction(m_AI.GetPosition(), m_SearchPosition);
 	}
 
 	void UpdateThreat(bool force = false)
@@ -32,7 +50,7 @@ class eAITargetInformationState
 			m_ThreatLevel = m_Info.CalculateThreat(m_AI);
 
 			//! Make active threat level rise depending on distance if LOS, fall slowly if no LOS
-			if (m_LOS || m_Info.IsInherited(eAINoiseTargetInformation))
+			if (m_LOS || !m_Info.IsEntity())
 			{
 				//! Threat level rises slowly if below fighting threshold and AI has not been attacked by player,
 				//! unless player is in vehicle (parent non-null)
@@ -57,7 +75,7 @@ class eAITargetInformationState
 			}
 			else if (!force)
 			{
-				m_ThreatLevelActive = Math.Lerp(m_ThreatLevelActive, Math.Min(0.1999, m_ThreatLevel), diff / 33.333333 * 0.001111);
+				m_ThreatLevelActive = Math.Lerp(m_ThreatLevelActive, Math.Min(0.0999, m_ThreatLevel), diff / 33.333333 * 0.001111);
 			}
 		}
 	}

@@ -19,6 +19,8 @@ modded class PlayerBase
 	ExpansionKillFeedModule m_KillfeedModule;
 	ItemBase m_Expansion_SuicideItem;
 
+	float m_Expansion_GraveCross_Playtime;
+
 	void PlayerBase()
 	{
 		m_HasCalledKillFeed = false;
@@ -59,6 +61,10 @@ modded class PlayerBase
 			if (!IsAI())
 			{
 			#endif
+
+				float playtime = StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
+				if (playtime > 0)
+					Expansion_SetPlaytimeForGraveCross(playtime);
 
 				EntityAI handEntity = GetHumanInventory().GetEntityInHands();
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, GetExpansionSettings().GetGeneral().GravecrossSpawnTimeDelay * 1000, false, handEntity);
@@ -103,9 +109,14 @@ modded class PlayerBase
 		m_HasCalledKillFeed = state;
 	}
 
+	void Expansion_SetPlaytimeForGraveCross(float playtime)
+	{
+		m_Expansion_GraveCross_Playtime = playtime;
+	}
+
 	void CreateGraveCross(EntityAI handEntity)
 	{
-		int lifetimeThreshhold = GetExpansionSettings().GetGeneral().GravecrossTimeThreshold;
+		float lifetimeThreshhold = GetExpansionSettings().GetGeneral().GravecrossTimeThreshold;
 		bool deleteBody = GetExpansionSettings().GetGeneral().GravecrossDeleteBody;
 
 		string graveobject = "Expansion_Gravecross";
@@ -114,9 +125,11 @@ modded class PlayerBase
 		//! if we change cross object and not using ECE_TRACE this needs to be adjusted!
 		float offsetY = 0.6;
 
-		float playtime = StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
+	#ifdef DIAG
+		EXPrint(ToString() + "::CreateGraveCross playtime " + m_Expansion_GraveCross_Playtime + " threshold " + lifetimeThreshhold);
+	#endif
 
-		if (playtime <= lifetimeThreshhold)
+		if (m_Expansion_GraveCross_Playtime <= lifetimeThreshhold)
 		{
 			graveobject = "Expansion_Gravecross_LowLifetime";
 

@@ -125,11 +125,7 @@ modded class NotificationSystem
 		m_Instance.AddNotif( data );
 	}
 	
-	#ifdef CF_BUGFIX_REF
 	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ParamsReadContext ctx )
-	#else
-	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ref ParamsReadContext ctx )
-	#endif
 	{
 		//! This is only here to make all CF notifications (non-Expansion mods) use Expansion visual style for consistency
 #ifdef EXPANSIONTRACE
@@ -162,11 +158,7 @@ modded class NotificationSystem
 	// ------------------------------------------------------------
 	// NotificationSystem AddNotif
 	// ------------------------------------------------------------
-	#ifdef CF_BUGFIX_REF
 	override void AddNotif(  NotificationRuntimeData data )
-	#else
-	override void AddNotif( ref NotificationRuntimeData data )
-	#endif
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "AddNotif");

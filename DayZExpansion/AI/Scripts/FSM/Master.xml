@@ -13,15 +13,6 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				if (!unit.GetTarget())
-				{
-					if (unit.GetLookDirectionRecalculate())
-						unit.LookAtDirection("0 0 1");
-				
-					if (unit.GetAimDirectionRecalculate())
-						unit.AimAtDirection("0 0 1");
-				}
-				
 				auto hands = unit.GetItemInHands();
 				if (hands &amp;&amp; hands.HasEnergyManager() &amp;&amp; hands.GetCompEM().IsWorking() &amp;&amp; hands.GetCompEM().CanSwitchOff())
 				{
@@ -134,21 +125,30 @@
 			</event_entry>
 			<event_exit />
 			<event_update>
-				eAIWaypointBehavior behaviour = unit.GetGroup().GetWaypointBehaviour();
-				if (behaviour == eAIWaypointBehavior.HALT)
-					return EXIT;
-				
 				TVectorArray path = unit.GetGroup().GetWaypoints();
 				
 				if (path.Count() == 0)
 				{
+					unit.Expansion_DeleteDebugObjects();
 					return EXIT;
 					//path = { unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() };
 				}
 				
 				index = unit.GetGroup().m_CurrentWaypointIndex;
+				
+				eAIWaypointBehavior behaviour = unit.GetGroup().GetWaypointBehaviour();
+				if (behaviour == eAIWaypointBehavior.HALT)
+				{
+					unit.OverrideTargetPosition(path[index], true);
+					unit.OverrideMovementDirection(false, 0);
+					unit.OverrideMovementSpeed(false, 0);
+					return EXIT;
+				}
+				
+				vector position = unit.GetPosition();
+				position[1] = path[index][1];
 				bool backtracking = unit.GetGroup().m_BackTracking;
-				float distance = vector.DistanceSq(unit.GetPosition(), path[index]);
+				float distance = vector.DistanceSq(position, path[index]);
 				if (distance &lt; threshold)
 				{
 					previousWayPoint = path[index];
@@ -172,9 +172,13 @@
 						backtracking = false;
 						index = 1;
 					}
-					else
+					else if (behaviour == eAIWaypointBehavior.LOOP)
 					{
 						index = path.Count() - 1;
+					}
+					else
+					{
+						index = 0;
 					}
 				}
 				else if (index == path.Count())
@@ -188,13 +192,17 @@
 					{
 						index = 0;
 					}
+					else
+					{
+						index = path.Count() - 1;
+					}
 				}
 				
 				index = Math.Clamp(index, 0, path.Count() - 1);
 				
 				bool isFinal;
-				if (behaviour != eAIWaypointBehavior.LOOP)
-					isFinal = index == 0 || index == path.Count() - 1;
+				if (behaviour != eAIWaypointBehavior.LOOP &amp;&amp; (index == 0 || index == path.Count() - 1))
+					isFinal = true;
 				
 				unit.OverrideTargetPosition(path[index], isFinal);
 				unit.OverrideMovementDirection(false, 0);
@@ -204,8 +212,11 @@
 				if (path.Count() &gt; 1)
 				{
 					if (previousWayPoint == vector.Zero)
-						previousWayPoint = path[0] - vector.Direction(path[0], path[1]).Normalized();
-					direction = vector.Direction(previousWayPoint, path[index]).Normalized();
+						previousWayPoint = path[0] - vector.Direction(path[0], path[1]);
+					direction = vector.Direction(previousWayPoint, path[index]).VectorToAngles();
+					direction[1] = 0.0;
+					direction[2] = 0.0;
+					direction = direction.AnglesToVector();
 				}
 				else
 				{
@@ -231,7 +242,7 @@
 				auto group = unit.GetGroup();
 				if (!group) return EXIT;
 				
-				auto leader = group.GetLeader();
+				auto leader = group.GetFormationLeader();
 				//! @note leader can only briefly be null (disconnected/killed).
 				//! We wait until a new leader has been determined (which may be the current unit).
 				if (!leader) return CONTINUE;
@@ -348,9 +359,14 @@
 			<event_entry>
 				EXTrace.Print(EXTrace.AI, unit, "TakeItemToHands " + item.ToString());
 				time = 0;
+				if (unit.GetEmoteManager().IsEmotePlaying())
+					unit.GetEmoteManager().ServerRequestEmoteCancel();
 			</event_entry>
 			<event_exit />
 			<event_update>
+				if (unit.GetActionManager().GetRunningAction())
+					return CONTINUE;
+				
 				if (item &amp;&amp; unit.GetItemInHands() != item)
 				{
 					if (item.Expansion_IsInventoryLocked())
@@ -384,9 +400,14 @@
 			<event_entry>
 				EXTrace.Print(EXTrace.AI, unit, "TakeItemToInventory " + item.ToString());
 				time = 0;
+				if (unit.GetEmoteManager().IsEmotePlaying())
+					unit.GetEmoteManager().ServerRequestEmoteCancel();
 			</event_entry>
 			<event_exit />
 			<event_update>
+				if (unit.GetActionManager().GetRunningAction())
+					return CONTINUE;
+				
 				if (item &amp;&amp; !item.GetHierarchyRootPlayer())
 				{
 					if (item.Expansion_IsInventoryLocked())
@@ -414,6 +435,7 @@
 				<variable name="bandage" type="ItemBase" />
 				<variable name="timeout" type="float" />
 				<variable name="time" type="float" />
+				<variable name="bleedingSourceCount" type="int" />
 			</variables>
 			<editor_data>
 				<position x="246.619877794781" y="467.752853681019" />
@@ -421,14 +443,14 @@
 			</editor_data>
 			<event_entry>
 				last_bandage_attempt_time = GetGame().GetTime();
+				bleedingSourceCount = unit.GetBleedingSourceCount();
 				time = 0;
 				float effectivity = bandage.GetBandagingEffectivity();
 				if (effectivity &gt; 0)
 					timeout = UATimeSpent.BANDAGE / effectivity + 8.0;
 				else
 					timeout = 16.0;
-				if (unit.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_PRONE | DayZPlayerConstants.STANCEMASK_RAISEDPRONE))
-					unit.OverrideStance(DayZPlayerConstants.STANCEIDX_CROUCH);
+				unit.OverrideStance(DayZPlayerConstants.STANCEIDX_CROUCH);
 			</event_entry>
 			<event_exit>
 				if (bandage)
@@ -447,6 +469,12 @@
 				
 				if (unit.GetActionManager().GetRunningAction())
 				{
+					if (unit.GetBleedingSourceCount() != bleedingSourceCount)
+					{
+						bleedingSourceCount = unit.GetBleedingSourceCount();
+						time = 0;
+					}
+
 					time += DeltaTime;
 					if (time &gt; timeout)  //! Looks like something went terribly wrong
 					{
@@ -458,7 +486,7 @@
 					
 					return CONTINUE;
 				}
-				else
+				else if (unit.eAI_ShouldBandage())
 				{
 					if (bandage)
 					{
@@ -562,7 +590,7 @@
 				
 				if (unit.IsRestrained()) return FAIL;
 				
-				if (!unit.IsBleeding()) return FAIL;
+				if (!unit.eAI_ShouldBandage()) return FAIL;
 				
 				if (GetGame().GetTime() - dst.last_bandage_attempt_time &lt; 4000) return FAIL;
 				
@@ -640,6 +668,9 @@
 				//! Taking items to hands while raised breaks hands! Wait until lowered
 				if (unit.IsRaised()) return FAIL;
 				
+				if (unit.GetWeaponManager().IsRunning()) return FAIL;
+				if (unit.GetActionManager().GetRunningAction()) return FAIL;
+				
 				ItemBase hands = unit.GetItemInHands();
 				
 				//! If ruined, drop
@@ -650,7 +681,7 @@
 				}
 				
 				//! First check if we want to switch to bandage
-				if (unit.IsBleeding() &amp;&amp; (unit.GetThreatToSelf() &lt; 0.4 || (unit.GetHealth01("", "Blood") &lt; 0.7 &amp;&amp; GetGame().GetTickTime() - unit.m_eAI_LastHitTime &gt; 10)))
+				if (unit.eAI_ShouldBandage())
 				{
 					if (!hands || !hands.Expansion_CanBeUsedToBandage())
 					{
@@ -678,7 +709,7 @@
 				ItemBase targetItem;
 				if (target &amp;&amp; Class.CastTo(targetItem, target.GetEntity()) &amp;&amp; (targetItem.IsWeapon() || targetItem.Expansion_IsMeleeWeapon()) &amp;&amp; !targetItem.GetHierarchyRootPlayer() &amp;&amp; !targetItem.IsSetForDeletion())
 				{
-					if (target.GetDistanceSq(unit, true) &lt; 2.25 &amp;&amp; target.GetThreat(unit) &gt; 0.1)
+					if (target.GetDistanceSq(unit, true) &lt;= 4.0 &amp;&amp; target.GetThreat(unit) &gt; 0.1 &amp;&amp; unit.eAI_HasLOS(target.info))
 					{
 						dst.item = targetItem;
 						return SUCCESS;
@@ -719,13 +750,16 @@
 				
 				if (unit.IsRaised()) return FAIL;
 				
+				if (unit.GetWeaponManager().IsRunning()) return FAIL;
+				if (unit.GetActionManager().GetRunningAction()) return FAIL;
+				
 				eAITarget target = unit.GetTarget();
 				ItemBase targetItem;
 				
 				if (!target || !Class.CastTo(targetItem, target.GetEntity()) || targetItem.GetHierarchyRootPlayer() || targetItem.IsSetForDeletion())
 					return FAIL;
 				
-				if (target.GetDistanceSq(unit, true) &gt;= 2.25)
+				if (target.GetDistanceSq(unit, true) &gt; 4.0 || !unit.eAI_HasLOS(target.info))
 					return FAIL;
 				
 				ItemBase hands;
@@ -735,7 +769,7 @@
 					//! PREPARE SWAP FROM CURRENT HAND ITEM TO GUN IN INV OR ON GROUND
 					//! If target is gun or magazine (latter means gun w/o ammo is in inventory) and we have melee in hand, prepare swap
 					hands = unit.GetItemInHands();
-					if (hands &amp;&amp; hands.Expansion_IsMeleeWeapon())
+					if (hands &amp;&amp; (hands.Expansion_IsMeleeWeapon() || hands.Expansion_CanBeUsedToBandage()))
 					{
 						//! Only drop if destroyed, target is gun, or target is mag that fits in inventory, else might take current hand item again...
 						if (hands.IsDamageDestroyed() || targetItem.IsWeapon() || (targetItem.IsMagazine() &amp;&amp; !unit.eAI_GetItemThreatOverride(targetItem) &amp;&amp; unit.eAI_FindFreeInventoryLocationFor(targetItem, 0, dstLoc)))
@@ -897,7 +931,7 @@
 				
 				if (group.GetFormationState() != eAIGroupFormationState.IN) return FAIL;
 				
-				auto leader = group.GetLeader();
+				auto leader = group.GetFormationLeader();
 				if (!leader || leader == unit) return FAIL;
 				
 				if (!leader.IsInTransport()) return FAIL;
@@ -977,7 +1011,7 @@
 				
 				if (dst.group.GetFormationState() != eAIGroupFormationState.IN) return FAIL;
 				
-				auto leader = dst.group.GetLeader();
+				auto leader = dst.group.GetFormationLeader();
 				if (!leader || leader == unit) return FAIL;
 				
 				return SUCCESS;
@@ -997,9 +1031,12 @@
 				auto group = unit.GetGroup();
 				if (!group) return FAIL;
 				
+				if (group.GetFormationState() != eAIGroupFormationState.IN) return FAIL;
+				
 				// we are the leader so we traverse the waypoints
-				auto leader = group.GetLeader();
+				auto leader = group.GetFormationLeader();
 				if (leader &amp;&amp; leader != unit) return FAIL;
+				if (group.GetWaypoints().Count() == 0) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -1014,7 +1051,8 @@
 			</editor_data>
 			<guard>
 				auto group = unit.GetGroup();
-				if (unit.GetThreatToSelf() &gt;= 0.4 || !group || group.GetLeader() != unit) return SUCCESS;
+				if (group.GetFormationState() != eAIGroupFormationState.IN) return SUCCESS;
+				if (unit.GetThreatToSelf() &gt;= 0.4 || !group || group.GetFormationLeader() != unit || group.GetWaypoints().Count() == 0) return SUCCESS;
 				
 				return FAIL;
 			</guard>
@@ -1029,7 +1067,7 @@
 			</editor_data>
 			<guard>
 				auto group = unit.GetGroup();
-				if (!group || group.GetLeader() == unit || group.GetFormationState() != eAIGroupFormationState.IN) return SUCCESS;
+				if (!group || group.GetFormationLeader() == unit || group.GetFormationState() != eAIGroupFormationState.IN) return SUCCESS;
 				
 				if (unit.GetThreatToSelf() &gt;= 0.4) return SUCCESS;
 				

@@ -86,6 +86,13 @@ modded class MissionServer
 		}
 	}
 	
+	override void OnMissionFinish()
+	{
+		super.OnMissionFinish();
+
+		GetDayZExpansion().OnFinish();
+	}
+	
 	/**
 	 * Order of player-related mission events
 	 * 

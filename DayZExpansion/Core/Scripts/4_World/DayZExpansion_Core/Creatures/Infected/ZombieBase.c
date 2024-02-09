@@ -19,7 +19,30 @@ modded class ZombieBase
 	
 	ref ExpansionNetsyncData m_Expansion_NetsyncData;
 	ref ExpansionRPCManager m_Expansion_RPCManager;	
-	
+
+	bool m_Expansion_LobotomyInProgress;
+	bool m_Expansion_IsLobotomized;
+	vector m_Expansion_LobotomizedPosition;
+
+	override void AfterStoreLoad()
+	{
+		super.AfterStoreLoad();
+
+		if (!GetAIAgent())
+			GetDayZGame().GetExpansionGame().LobotomySync(this);
+	}
+
+	bool Expansion_IsDanger()
+	{
+		if (!IsDanger())
+			return false;
+
+		if (!GetAIAgent() || m_Expansion_LobotomyInProgress || m_Expansion_IsLobotomized)
+			return false;
+
+		return true;
+	}
+
 	// ------------------------------------------------------------
 	// ZombieBase OnEnterZone
 	// ------------------------------------------------------------	
@@ -72,12 +95,46 @@ modded class ZombieBase
 			return super.NameOverride(output);
 	}
 
+#ifdef DIAG_DEVELOPER
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
+		if (m_Expansion_IsLobotomized && GetAIAgent())
+		{
+			DebugRestoreAIControl();  //! Enable hit/death anim
+			m_Expansion_IsLobotomized = false;
+			Expansion_StartLobotomy();
+		}
+
+		return true;
+	}
+#endif
+
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
 		if (damageType == DT_EXPLOSION && ExpansionDamageSystem.IsEnabledForExplosionTarget(this))
+		{
 			ExpansionDamageSystem.OnExplosionHit(source, this, ammo, true, damageResult);
+		}
+		else if (damageType == DT_FIRE_ARM && ammo == "Bullet_Expansion_LobotomyDart")
+		{
+			if (GetAIAgent() && !m_Expansion_LobotomyInProgress && !m_Expansion_IsLobotomized)
+				Expansion_StartLobotomy();
+		}
+	}
+
+	override void EEKilled(Object killer)
+	{
+		super.EEKilled(killer);
+
+		//! Will CTD if targeted by another creature after health of this one is depleted while it has no AI agent,
+		//! so remove the body to prevent that
+		if (!GetAIAgent())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Delete, 1500);
 	}
 
 	override void OnVariablesSynchronized()
@@ -86,5 +143,102 @@ modded class ZombieBase
 
 		if (m_Expansion_NetsyncData && !m_Expansion_NetsyncData.m_WasDataRequested)
 			m_Expansion_NetsyncData.Request();
+	}
+
+	override bool ModCommandHandlerBefore(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
+	{
+		if (m_Expansion_IsLobotomized && IsAlive())
+		{
+			if (HandleDeath(pCurrentCommandID))
+				return true;
+
+			if (HandleCrawlTransition(pCurrentCommandID))
+			{
+				m_Expansion_LobotomizedPosition = GetPosition();
+				return true;
+			}
+
+			if (HandleDamageHit(pCurrentCommandID))
+			{
+				m_Expansion_LobotomizedPosition = GetPosition();
+				return true;
+			}
+
+			if (GetPosition() != m_Expansion_LobotomizedPosition)
+				SetPosition(m_Expansion_LobotomizedPosition);
+
+			return true;
+		}
+
+		if (super.ModCommandHandlerBefore(pDt, pCurrentCommandID, pCurrentCommandFinished))
+			return true;
+
+		return false;
+	}
+
+	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
+	{
+		super.CommandHandler(pDt, pCurrentCommandID, pCurrentCommandFinished);
+
+		if (m_Expansion_LobotomyInProgress /*|| m_Expansion_IsLobotomized || !GetAIAgent()*/)
+		{
+			if (pCurrentCommandFinished && !m_Expansion_IsLobotomized)
+				GetDayZGame().GetExpansionGame().Lobotomize(this);
+		}
+	}
+
+	void Expansion_StartLobotomy()
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, this);
+	#endif
+
+		m_Expansion_LobotomyInProgress = true;
+
+		auto controller = GetInputController();
+
+		controller.OverrideTurnSpeed(true, 0.0);
+		controller.OverrideMovementSpeed(true, 0.0);
+		controller.OverrideHeading(true, GetOrientation()[0] * Math.DEG2RAD);
+		controller.OverrideAlertLevel(true, true, 0, 0.0);
+	}
+
+	void Expansion_SetLobotomized(bool isLobotomized)
+	{
+		m_Expansion_IsLobotomized = isLobotomized;
+
+		if (isLobotomized)
+			m_Expansion_LobotomizedPosition = GetPosition();
+	}
+
+	bool Expansion_IsLobotomized()
+	{
+		if (!GetAIAgent())
+			return true;
+
+		return m_Expansion_IsLobotomized;
+	}
+
+	void Expansion_EndLobotomy()
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, this);
+	#endif
+
+		m_Expansion_LobotomyInProgress = false;
+
+		if (GetAIAgent() && !m_Expansion_IsLobotomized)
+		{
+		#ifdef DIAG
+			EXTrace.Print(EXTrace.MISC, this, "Resetting input controller...");
+		#endif
+
+			auto controller = GetInputController();
+
+			controller.OverrideTurnSpeed(false, 0.0);
+			controller.OverrideMovementSpeed(false, 0.0);
+			controller.OverrideHeading(false, GetOrientation()[0] * Math.DEG2RAD);
+			controller.OverrideAlertLevel(false, false, 0, 0.0);
+		}
 	}
 }

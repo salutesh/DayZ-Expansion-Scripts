@@ -458,8 +458,6 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		if ( !identity )
 			return; // can be NULL if the player rage quit
 
-		ExpansionEquipCharacter(player);
-
 		string uid = identity.GetId();
 
 		auto state = m_PlayerStartStates.Get(uid);
@@ -489,6 +487,10 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		if (GetExpansionSettings().GetLog().SpawnSelection)
 			GetExpansionSettings().GetLog().PrintLog("[SpawnSelection] Player \"" + identity.GetName() + "\" (id=" + uid + ")" + " spawned at " + player.GetPosition());
+
+		auto container = player.Expansion_GetTemporaryOwnedContainer(false);
+		if (container)
+			container.Expansion_PlaceOnSurfaceProper(player.GetPosition());
 	}
 	
 	void ResetItemWetness(EntityAI parent)

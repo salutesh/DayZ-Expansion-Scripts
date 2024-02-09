@@ -162,7 +162,7 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
 #endif
 
-		return 15;
+		return 25;
 	}
 
 	override string GetActionCompNameFuel()

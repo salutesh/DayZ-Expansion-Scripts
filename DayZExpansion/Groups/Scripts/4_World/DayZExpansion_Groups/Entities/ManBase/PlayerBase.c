@@ -56,4 +56,17 @@ modded class PlayerBase
 
 		return NULL;
 	}
+
+	override bool Expansion_IsFriendly(PlayerBase other)
+	{
+		if (super.Expansion_IsFriendly(other))
+			return true;
+
+	#ifdef EXPANSIONMODGROUPS
+		if (Expansion_GetParty() == other.Expansion_GetParty())
+			return true;
+	#endif
+
+		return false;
+	}
 };

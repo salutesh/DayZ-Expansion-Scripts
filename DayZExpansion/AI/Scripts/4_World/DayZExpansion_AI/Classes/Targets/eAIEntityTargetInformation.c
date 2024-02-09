@@ -28,10 +28,22 @@ class eAIEntityTargetInformation: eAITargetInformation
 	{
 		string str = m_TargetDebugName;
 
-		if (!m_Target)
+		if (m_Target)
+		{
+			str += ", ";
+			str += "position=" + GetPosition();
+		}
+		else
+		{
 			str += "(deleted)";
+		}
 		
 		return str;
+	}
+
+	override bool IsEntity()
+	{
+		return true;
 	}
 
 	override bool IsActive()
@@ -59,6 +71,12 @@ class eAIEntityTargetInformation: eAITargetInformation
 			return 0.0;
 
 		return super.GetThreat(ai, state);
+	}
+
+	override vector GetDirection(eAIBase ai, bool actual = false)
+	{
+		vector position = GetPosition(ai, actual);
+		return vector.Direction(ai.GetPosition(), position);
 	}
 
 	override float GetDistance(eAIBase ai, bool actual = false)

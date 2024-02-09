@@ -12,16 +12,6 @@
 
 modded class ActionDigGardenPlot
 {
-	override string GetText()
-	{
-		string text = super.GetText();
-
-		if (GetPermissionsManager().IsAdminToolsToggledOn())
-			text = "[ADMIN] " + text;
-
-		return text;
-	}
-
 	override bool ActionCondition ( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		if ( !super.ActionCondition( player, target, item ) )

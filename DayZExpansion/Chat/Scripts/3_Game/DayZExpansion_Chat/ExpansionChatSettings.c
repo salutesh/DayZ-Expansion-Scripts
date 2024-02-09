@@ -44,7 +44,7 @@ class ExpansionChatSettingsV1: ExpansionChatSettingsBase
  **/
 class ExpansionChatSettings: ExpansionChatSettingsBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 	
 	ref ExpansionChatColors ChatColors;
 	
@@ -195,6 +195,9 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 
 				if (settingsBase.m_Version < 2)
 				{
+					//! Copy over old settings that haven't changed
+					CopyInternal(settingsBase);
+
 					ExpansionChatSettingsV1 settings_v1;
 
 					JsonFileLoader<ExpansionChatSettingsV1>.JsonLoadFile(EXPANSION_CHAT_SETTINGS, settings_v1);
@@ -213,9 +216,6 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 				{
 					JsonFileLoader<ExpansionChatSettings>.JsonLoadFile(EXPANSION_CHAT_SETTINGS, this);
 				}
-
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
 
 				m_Version = VERSION;
 				save = true;

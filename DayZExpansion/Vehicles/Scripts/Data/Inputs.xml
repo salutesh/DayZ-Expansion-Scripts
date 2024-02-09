@@ -32,7 +32,7 @@
 			<input name="UAExpansionPlaneRudderRight" loc="STR_EXPANSION_PLANE_RUDDER_LEFT" />
 			<input name="UAExpansionPlaneFlapsUp" loc="STR_EXPANSION_PLANE_FLAPS_UP" />
 			<input name="UAExpansionPlaneFlapsDown" loc="STR_EXPANSION_PLANE_FLAPS_DOWN" />
-			<input name="UAExpansionPlaneWheelBrake" loc="STR_EXPANSION_PLANE_BRAKE" />
+			<input name="UAExpansionPlaneWheelBrake" loc="STR_EXPANSION_PLANE_WHEEL_BRAKE" />
 
 			<input name="UAExpansionBoatMoveForward" loc="STR_EXPANSION_BOAT_MOVEFORWARD" />
 			<input name="UAExpansionBoatMoveBackward" loc="STR_EXPANSION_BOAT_MOVEBACKWARD" />

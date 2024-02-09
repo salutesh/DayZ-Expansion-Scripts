@@ -43,6 +43,8 @@ modded class ItemBase
 	{
 		super.EEInventoryIn(newParentMan, diz, newParent);
 
+		m_TargetInformation.RemoveFromAll();
+
 		eAIBase ai;
 		if (!Class.CastTo(ai, newParentMan))
 		{

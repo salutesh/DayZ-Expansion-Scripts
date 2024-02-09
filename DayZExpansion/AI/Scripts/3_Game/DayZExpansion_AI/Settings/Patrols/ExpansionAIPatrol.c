@@ -15,7 +15,7 @@ class ExpansionAIPatrol: ExpansionAIDynamicSpawnBase
 	bool UseRandomWaypointAsStartPoint;
 	autoptr TVectorArray Waypoints;     // a list of positions to create a path to follow
 
-	void ExpansionAIPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "HumanLoadout", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -2, float maxdistradius = -2, float respawntime = -2, float wprnd = 0, TVectorArray way = null)
+	void ExpansionAIPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "HumanLoadout", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -1, float maxdistradius = -1, float respawntime = -2, float wprnd = 0, TVectorArray way = null)
 	{
 		RespawnTime = respawntime;
 		if (wprnd < 0.0)

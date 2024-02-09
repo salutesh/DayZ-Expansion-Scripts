@@ -21,6 +21,19 @@ class eAITarget
 		info = _info;
 	}
 
+#ifdef DIAG
+	void ~eAITarget()
+	{
+		if (!GetGame())
+			return;
+
+		if (info)
+			EXTrace.Print(EXTrace.AI, this, "~eAITarget() " + info.GetDebugName());
+		else
+			EXTrace.Print(EXTrace.AI, this, "~eAITarget()");
+	}
+#endif
+
 	/**
 	 * @brief Debugging information about the target
 	 *
@@ -28,7 +41,10 @@ class eAITarget
 	 */
 	override string GetDebugName()
 	{
-		string str = super.GetDebugName();
+		string str = ToString();
+
+		str += ", ";
+		str += "group=" + group.GetDebugName();
 
 		str += ", ";
 		str += "info=" + info.GetDebugName();
@@ -41,13 +57,29 @@ class eAITarget
 		if (ai_list.Find(ai) != -1)
 			return false;
 
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + ai);
+#endif
+
 		ai_list.Insert(ai);
 		return true;
+	}
+
+	void Update(int _max_time = -1)
+	{
+		found_at_time = GetGame().GetTime();
+		if (_max_time != -1)
+			max_time = _max_time;
 	}
 
 	bool RemoveAI(eAIBase ai)
 	{
 		int idx = ai_list.Find(ai);
+
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + ai, "" + idx);
+#endif
+
 		if (idx == -1)
 			return false;
 
@@ -143,6 +175,11 @@ class eAITarget
 	bool ShouldRemove(eAIBase ai = null)
 	{
 		return !info.IsActive() || (found_at_time + max_time <= GetGame().GetTime() && info.ShouldRemove(ai));
+	}
+
+	vector GetDirection(eAIBase ai, bool actual = false)
+	{
+		return info.GetDirection(ai, actual);
 	}
 
 	float GetDistance(eAIBase ai, bool actual = false)

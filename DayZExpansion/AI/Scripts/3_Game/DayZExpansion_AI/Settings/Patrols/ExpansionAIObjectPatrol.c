@@ -14,7 +14,7 @@ class ExpansionAIObjectPatrol: ExpansionAIDynamicSpawnBase
 {
 	string ClassName;           // Any valid BuildingBase type
 
-	void ExpansionAIObjectPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -2, float maxdistradius = -2, string classname = "Wreck_UH1Y")
+	void ExpansionAIObjectPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -1, float maxdistradius = -1, string classname = "Wreck_UH1Y")
 	{
 		ClassName = classname;
 		DefaultSpread();

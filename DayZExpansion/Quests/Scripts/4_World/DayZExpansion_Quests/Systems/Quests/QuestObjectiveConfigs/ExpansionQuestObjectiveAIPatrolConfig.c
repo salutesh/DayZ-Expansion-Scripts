@@ -22,7 +22,6 @@ class ExpansionQuestObjectiveAIPatrolConfig_V25: ExpansionQuestObjectiveConfig
 
 class ExpansionQuestObjectiveAIPatrolConfigBase: ExpansionQuestObjectiveConfig
 {
-	//! Not used rn
 };
 
 class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConfigBase
@@ -92,13 +91,21 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		ExpansionQuestObjectiveAIPatrolConfig config;
 		ExpansionQuestObjectiveAIPatrolConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, config))
 			return NULL;
+
+		//! Uncomment this once needed
+		//if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, configBase))
+			//return NULL;
+
+		//! Comment this out once needed
+		configBase = config;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
 			Print("[ExpansionQuestObjectiveAIPatrolConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName + " to version " + CONFIGVERSION);
-			config = new ExpansionQuestObjectiveAIPatrolConfig();
+			if (!config)
+				config = new ExpansionQuestObjectiveAIPatrolConfig();
 			//! Copy over old configuration that haven't changed
 			config.CopyConfig(configBase);
 
@@ -144,11 +151,6 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
-		}
-		else
-		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, config))
-				return NULL;
 		}
 
 		string removeExt = ExpansionString.StripExtension(config.AISpawn.GetLoadout(), ".json");

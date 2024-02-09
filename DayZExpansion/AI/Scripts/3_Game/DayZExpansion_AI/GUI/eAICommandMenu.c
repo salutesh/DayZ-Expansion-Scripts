@@ -216,6 +216,7 @@ class eAICommandMenu: UIScriptedMenu
 			if (GetExpansionSettings().GetAI().IsAdmin())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DEBUG, "Spawn", eAICommandCategories.CATEGORIES));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_STATUS, "Status", eAICommandCategories.CATEGORIES));
 			}
 		}
 
@@ -226,6 +227,10 @@ class eAICommandMenu: UIScriptedMenu
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_GOTO, "Go To...", eAICommandCategories.CAT_MOVEMENT));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_RTF, "Rejoin", eAICommandCategories.CAT_MOVEMENT));
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_GETIN, "Get In", eAICommandCategories.CAT_MOVEMENT));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_SETWP, "Set Waypoint", eAICommandCategories.CAT_MOVEMENT));
+			if (GetExpansionSettings().GetAI().IsAdmin())
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_EXPORTPATROL, "Export Patrol", eAICommandCategories.CAT_MOVEMENT));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_CLEARWP, "Clear Waypoints", eAICommandCategories.CAT_MOVEMENT));
 		}
 
 		//Category 2 - Formation
@@ -247,9 +252,10 @@ class eAICommandMenu: UIScriptedMenu
 		//Category 3 - Status
 		else if (category == eAICommandCategories.CAT_STATUS)
 		{
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_SITREP, "Report Situation", eAICommandCategories.CAT_STATUS));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_POSITION, "Report Position", eAICommandCategories.CAT_STATUS));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_THREATS, "Report Threats", eAICommandCategories.CAT_STATUS));
+			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_SITREP, "Report Situation", eAICommandCategories.CAT_STATUS));
+			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_POSITION, "Report Position", eAICommandCategories.CAT_STATUS));
+			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_THREATS, "Report Threats", eAICommandCategories.CAT_STATUS));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_DUMP, "Dump State", eAICommandCategories.CAT_STATUS));
 		}
 
 		//Category 4 - Debug
@@ -273,7 +279,6 @@ class eAICommandMenu: UIScriptedMenu
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_GRPMGR, "Group Manager", eAICommandCategories.CAT_DEBUG));
 		}
 
-		//Category 4 - Debug
 		else if (category == eAICommandCategories.CAT_EMPTY)
 		{
 			Close();

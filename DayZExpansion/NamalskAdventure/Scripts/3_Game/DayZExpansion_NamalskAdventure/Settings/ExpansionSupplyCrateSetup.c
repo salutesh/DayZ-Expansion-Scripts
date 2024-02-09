@@ -10,11 +10,32 @@
  *
 */
 
-class ExpansionSupplyCrateSetup
+class ExpansionSupplyCrateSetupBase
 {
 	string ClassName;
 	vector Position;
 	vector Orientation;
+}
+
+class ExpansionSupplyCrateSetupV7: ExpansionSupplyCrateSetupBase
+{
+	ref array<ref ExpansionLootV1> CrateLoot;
+
+	ExpansionSupplyCrateSetup Convert()
+	{
+		auto crate = new ExpansionSupplyCrateSetup(ClassName, Position, Orientation);
+
+		foreach (ExpansionLootV1 lootV1: CrateLoot)
+		{
+			crate.CrateLoot.Insert(lootV1.Convert());
+		}
+
+		return crate;
+	}
+}
+
+class ExpansionSupplyCrateSetup: ExpansionSupplyCrateSetupBase
+{
 	ref array<ref ExpansionLoot> CrateLoot;
 
 	void ExpansionSupplyCrateSetup(string className, vector pos, vector ori)
@@ -27,7 +48,14 @@ class ExpansionSupplyCrateSetup
 
 	void AddLoot(string name, TStringArray attachments = NULL, float chance = 1, int quantityPercent = -1, array<ref ExpansionLootVariant> variants = NULL, int max = -1, int min = 0)
 	{
-		ExpansionLoot loot = new ExpansionLoot(name, attachments, chance, quantityPercent, variants , max, min);
+		TStringArray attachmentsTmp = {};
+		attachmentsTmp.Copy(attachments);
+		array<ref ExpansionLootVariant> attachmentLoot = {};
+		foreach (string attachment: attachmentsTmp)
+		{
+			attachmentLoot.Insert(new ExpansionLootVariant(attachment));
+		}
+		ExpansionLoot loot = new ExpansionLoot(name, attachmentLoot, chance, quantityPercent, variants , max, min);
 		CrateLoot.Insert(loot);
 	}
 

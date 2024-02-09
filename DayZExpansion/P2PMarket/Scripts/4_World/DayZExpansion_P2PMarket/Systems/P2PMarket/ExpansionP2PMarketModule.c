@@ -25,7 +25,8 @@ enum ExpansionP2PMarketModuleCallback
 	ErrorVehicleMissingAttachment,
 	ErrorVehicleRuinedAttachment,
 	ErrorNoVehicleSpawnPosition,
-	ErrorVehicleSpawnPositionBlocked
+	ErrorVehicleSpawnPositionBlocked,
+	ErrorVehicleLockpicked
 };
 
 class ExpansionP2PMarketPlayerInventory extends ExpansionMarketPlayerInventory
@@ -850,7 +851,6 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 		}
 
-	#ifdef EXPANSIONMODVEHICLE
 		int doorsCount;
 		int doorsRequiredAmount;
 		int wheelsCount;
@@ -860,6 +860,14 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		CarScript car;
 		if (Class.CastTo(car, objEntity))
 		{
+		#ifdef EXPANSIONMODVEHICLE
+			if (car.GetLockedState() == ExpansionVehicleLockState.FORCEDUNLOCKED)
+			{
+				CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleLockpicked, type);
+				return;
+			}
+		#endif
+
 			slotItems = GetSlotItems(car, doorsRequiredAmount, wheelsRequiredAmount);
 
 			foreach (EntityAI slotItemCar: slotItems)
@@ -883,6 +891,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 				return;
 			}
 
+		#ifdef EXPANSIONMODVEHICLE
 			if (car.HasKey())
 			{
 				array<ExpansionCarKey> carKeys = new array<ExpansionCarKey>;
@@ -900,8 +909,8 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 				car.ResetKeyPairing();
 			}
+		#endif
 		}
-	#endif
 
 		ExpansionP2PMarketListing newListing = new ExpansionP2PMarketListing();
 		newListing.SetFromItem(objEntity, player);

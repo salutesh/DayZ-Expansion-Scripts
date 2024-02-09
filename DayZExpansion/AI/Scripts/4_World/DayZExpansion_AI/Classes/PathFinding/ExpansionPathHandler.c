@@ -30,6 +30,7 @@ class ExpansionPathHandler
 
 	bool m_Recalculate;
 	bool m_IsBlocked;
+	bool m_IsBlockedPhysically;
 	bool m_DoClimbTestEx;
 	bool m_IsUnreachable;
 
@@ -185,7 +186,11 @@ class ExpansionPathHandler
 		int contactComponent;
 		set<Object> results = new set<Object>;
 		if (DayZPhysics.RaycastRV(start, end, hitPos, hitNormal, contactComponent, results, null, m_Unit, false, false, ObjIntersectGeom))
-			return true;
+		{
+			if (!results.Count() || !results[0].IsMan())
+				return true;
+		}
+
 		return false;
 	}
 
@@ -365,8 +370,14 @@ class ExpansionPathHandler
 		if (m_Count)
 		{
 			string debugObj;
-			if (m_IsBlocked)
+			if (m_PointIdx != 2)
+				debugObj = "ExpansionDebugConeSmall_White";
+			else if (m_IsBlocked && m_IsBlockedPhysically)
 				debugObj = "ExpansionDebugConeSmall_Red";
+			else if (m_IsBlockedPhysically)
+				debugObj = "ExpansionDebugConeSmall_Orange";
+			else if (m_IsBlocked)
+				debugObj = "ExpansionDebugConeSmall_Purple";
 			else
 				debugObj = "ExpansionDebugConeSmall_White";
 			m_Unit.Expansion_DebugObject(11111 + m_PointIdx, m_Points[m_PointIdx++], debugObj, vector.Zero, origin, 3, ShapeFlags.NOZBUFFER);
@@ -444,11 +455,12 @@ class ExpansionPathHandler
 			}
 		}
 
-		m_IsBlocked = false;
-		m_DoClimbTestEx = false;
-
 		if (recalculate)
 		{
+			m_IsBlocked = false;
+			m_IsBlockedPhysically = false;
+			m_DoClimbTestEx = false;
+
 			m_Time = 0;
 
 			array<vector> tempPath();
@@ -620,6 +632,9 @@ class ExpansionPathHandler
 						}
 					}
 				}
+
+				if ((m_Unit.AI_HANDLEVAULTING || m_Unit.AI_HANDLEDOORS) && IsBlockedPhysically(m_Next0.Position + "0 0.7 0", m_Next1.Position + "0 0.7 0"))
+					m_IsBlockedPhysically = true;
 			}
 			else if (m_Count != 0)
 			{

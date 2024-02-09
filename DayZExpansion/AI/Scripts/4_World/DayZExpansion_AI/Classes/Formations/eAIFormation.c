@@ -28,6 +28,9 @@ class eAIFormation
 	// Abstract function that returns the position in local space relative to the formation transformation at any given time.
 	vector GetPosition(int member_no);
 
+	// returns the direction the AI is supposed to look at when not in a fight
+	vector GetDirection(int member_no);
+
 	void SetLooseness(float looseness)
 	{
 		m_Looseness = looseness;
@@ -40,8 +43,8 @@ class eAIFormation
 
 	vector ToWorld(vector fs)
 	{
-		if (m_Group.Count() > 0 && m_Group.GetLeader())
-			m_Transform[3] = m_Group.GetLeader().GetPosition();
+		if (m_Group.Count() > 0 && m_Group.GetFormationLeader())
+			m_Transform[3] = m_Group.GetFormationLeader().GetPosition();
 
 		vector ws = fs.Multiply4(m_Transform);
 
@@ -50,14 +53,14 @@ class eAIFormation
 
 	void Update(float pDt)
 	{
-		if (!m_Group || !m_Group.GetLeader())
+		if (!m_Group || !m_Group.GetFormationLeader())
 			return;
 
-		vector newPos = m_Group.GetLeader().GetPosition();
+		vector newPos = m_Group.GetFormationLeader().GetPosition();
 
 		if (m_LastUpdatePosition == vector.Zero)
 		{
-			UpdateTransform(newPos, m_Group.GetLeader().GetDirection());
+			UpdateTransform(newPos, m_Group.GetFormationLeader().GetDirection());
 			return;
 		}
 

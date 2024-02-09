@@ -136,7 +136,7 @@ GridSpacerWidgetClass ChatItemWidget {
    "size to text v" 1
    "text valign" top
    wrap 1
-   "condense whitespace" 1
+   "condense whitespace" 0
    "strip newlines" 1
    {
     ScriptParamsClass {

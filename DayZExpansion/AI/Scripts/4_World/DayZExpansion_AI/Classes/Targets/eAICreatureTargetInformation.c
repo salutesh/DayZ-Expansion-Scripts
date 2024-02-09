@@ -1,6 +1,6 @@
 class eAICreatureTargetInformation: eAIEntityTargetInformation
 {
-	private DayZCreatureAI m_Creature;
+	private AnimalBase m_Creature;
 
 	void eAICreatureTargetInformation(EntityAI target)
 	{
@@ -17,7 +17,7 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 		//pos = pos + m_Creature.GetDirection() * 0.5;
 	#ifdef DIAG
 		if (EXTrace.AI && ai)
-			ai.Expansion_DebugObject(1234567890, m_Creature.GetPosition() + pos, "ExpansionDebugBox_Orange", m_Creature.GetDirection(), ai.GetPosition() + "0 1.5 0", 3.0, ShapeFlags.NOZBUFFER);
+			ai.Expansion_DebugObject(1234567890, m_Creature.GetPosition() + pos, "ExpansionDebugSphereSmall_Orange", m_Creature.GetDirection(), ai.GetPosition() + "0 1.5 0", 3.0, ShapeFlags.NOZBUFFER);
 	#endif
 		return pos;
 	}
@@ -27,7 +27,7 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 		if (m_Creature.IsDamageDestroyed())
 			return 0.0;
 
-		if (!m_Creature.IsDanger())
+		if (!m_Creature.Expansion_IsDanger())
 			return 0.0;
 
 		float levelFactor = 0.5;

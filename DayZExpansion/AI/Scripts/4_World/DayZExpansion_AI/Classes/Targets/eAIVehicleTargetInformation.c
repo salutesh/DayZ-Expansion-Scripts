@@ -10,6 +10,11 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 		Class.CastTo(m_Transport, target);
 	}
 
+	override bool IsInanimate()
+	{
+		return true;
+	}
+
 	override float CalculateThreat(eAIBase ai = null)
 	{
 		if (m_Transport.IsDamageDestroyed())

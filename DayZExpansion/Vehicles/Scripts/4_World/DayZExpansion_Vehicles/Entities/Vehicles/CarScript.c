@@ -496,12 +496,10 @@ modded class CarScript
 	{
 		super.EEDelete(parent);
 
-#ifdef SERVER
-		if (GetExpansionSettings().GetLog().VehicleDeleted)
+		if (GetGame().IsServer() && GetExpansionSettings().GetLog().VehicleDeleted)
 		{
 			GetExpansionSettings().GetLog().PrintLog("[VehicleDeleted] " + GetType() + " (id=" + GetVehiclePersistentIDString() + " pos=" + GetPosition().ToString() + ")");
 		}
-#endif
 	}
 
 	override bool NameOverride(out string output)
@@ -556,6 +554,24 @@ modded class CarScript
 			m_Expansion_NetsyncData.Send(null);
 	}
 
+	bool Expansion_IsOwner(notnull Man player)
+	{
+		return Expansion_IsOwner(player.GetIdentity());
+	}
+
+	bool Expansion_IsOwner(notnull PlayerIdentity identity)
+	{
+		return Expansion_IsOwner(identity.GetId());
+	}
+
+	bool Expansion_IsOwner(string playerUID)
+	{
+		if (playerUID == Expansion_GetOwnerUID())
+			return true;
+
+		return false;
+	}
+
 	void Expansion_ResetOwner()
 	{
 		if (!m_Expansion_HasOwner)
@@ -573,9 +589,15 @@ modded class CarScript
 		if (m_Expansion_KeyChain)
 			return m_Expansion_KeyChain.Expansion_GetOwnerName();
 
-		string ownerName;
-		m_Expansion_NetsyncData.Get(0, ownerName);
-		return ownerName;
+		return m_Expansion_OwnerName;
+	}
+
+	string Expansion_GetOwnerUID()
+	{
+		if (m_Expansion_KeyChain)
+			return m_Expansion_KeyChain.Expansion_GetOwnerUID();
+
+		return m_Expansion_OwnerUID;
 	}
 
 	void LoadConstantVariables()
@@ -4261,7 +4283,7 @@ modded class CarScript
 	{
 		super.EEKilled( killer );
 
-		if (GetExpansionSettings().GetLog().VehicleDestroyed && !m_Expansion_Killed)
+		if (GetGame().IsServer() && GetExpansionSettings().GetLog().VehicleDestroyed && !m_Expansion_Killed)
     		GetExpansionSettings().GetLog().PrintLog("[VehicleDestroyed] " + GetType() + " (id=" + GetVehiclePersistentIDString() + " pos=" + GetPosition() + ")");
 
 		m_Expansion_Killed = true;

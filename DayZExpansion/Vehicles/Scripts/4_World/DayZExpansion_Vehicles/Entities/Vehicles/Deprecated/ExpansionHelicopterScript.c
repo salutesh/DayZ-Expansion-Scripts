@@ -546,10 +546,16 @@ class ExpansionHelicopterScript: CarScript
 			//if (position[1] - ground[1] <= 2.53)
 				//dummySpawnPosition = ground;  //! If we died close to ground, spawn dummy on ground
 
-			Man dummy = Man.Cast(GetGame().CreateObject(player.GetType(), dummySpawnPosition));
+			PlayerBase dummy = PlayerBase.Cast(GetGame().CreateObject(player.GetType(), dummySpawnPosition));
 
+		#ifdef EXPANSIONMOD
+			//! Make gravecross work correctly
 			float playtime = player.StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
-			dummy.StatUpdate(AnalyticsManagerServer.STAT_PLAYTIME, playtime);  //! Make gravecross etc work correctly
+		#ifdef DIAG
+			EXPrint(ToString() + "::Expansion_ReplaceDeadPlayerWithDummy playtime " + playtime);
+		#endif
+			dummy.Expansion_SetPlaytimeForGraveCross(playtime);
+		#endif
 
 			ExpansionTransferInventory(player, dummy, true);
 

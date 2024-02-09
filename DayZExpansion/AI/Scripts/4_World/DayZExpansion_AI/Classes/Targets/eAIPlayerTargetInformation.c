@@ -38,14 +38,20 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 					return levelFactor;
 			}
 
-			bool isPlayerMoving;
-			if (!ai.PlayerIsEnemy(m_Player, false, isPlayerMoving))
-			{
-				//! They eyeball you menacingly if you move, or if another friendly AI moves that is not in same group
-				if (isPlayerMoving && (!m_Player.IsAI() || m_Player.GetGroup() != ai.GetGroup()))
-					return ExpansionMath.PowerConversion(0.5, 30, distance, 0.152, 0.1, 0.1);
+			eAIGroup group = ai.GetGroup();
 
-				return 0.1;
+			bool isPlayerMoving;
+			bool friendly;
+			bool targeted;
+			if (!ai.PlayerIsEnemy(m_Player, false, isPlayerMoving, friendly, targeted))
+			{
+				bool targetIsAI = m_Player.IsAI();
+				//! They eyeball you menacingly if you move, or if another friendly AI moves that is not in same group,
+				//! or if you're standing close to them
+				if ((isPlayerMoving && (!targetIsAI || m_Player.GetGroup() != group)) || (!isPlayerMoving && !targetIsAI && m_Player.GetGroup() != group && distance <= 2.33))
+					return ExpansionMath.PowerConversion(0.5, 30, distance, 0.152, 0.0, 0.1);
+
+				return ExpansionMath.LinearConversion(0, 30, distance, 0.1, 0.0);
 			}
 
 			vector fromTargetDirection = vector.Direction(m_Player.GetPosition(), ai.GetPosition()).Normalized();
@@ -54,14 +60,15 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			//! Enemy weapon
 			auto enemyHands = ItemBase.Cast(m_Player.GetHumanInventory().GetEntityInHands());
 
-			//! Threat handling for guards and observers
 			//! Guards won't aggro until the other player raises their weapon in their direction, starts melee fighting or shoots another player
 			//! Observers will never aggro and just look at the player
-			if (ai.GetGroup())
+			//! Others will attack if not friendly or temporarily hostile
+			if (group)
 			{
+				eAIFaction faction = group.GetFaction();
 				bool canEnterFightingState;
 
-				if (ai.GetGroup().GetFaction().IsGuard())
+				if (faction.IsGuard())
 				{
 					if (m_Player.IsRaised() && fromTargetDot >= 0.9 && ((enemyHands && enemyHands.IsWeapon()) || m_Player.IsFighting()))
 						canEnterFightingState = true;
@@ -74,15 +81,16 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 						return ExpansionMath.PowerConversion(0.5, 30, distance, 0.2, 0.0, 0.1);
 					}
 				}
-				else if (!ai.GetGroup().GetFaction().IsObserver() && !m_Player.Expansion_IsInSafeZone())
+				else if (!faction.IsObserver() && !m_Player.Expansion_IsInSafeZone())
 				{
-					canEnterFightingState = true;
+					if (!friendly || m_Player.eAI_UpdateAgressionTimeout(120.0))
+						canEnterFightingState = true;
 				}
 
 				if (!canEnterFightingState)
 				{
 					//! They eyeball you menacingly
-					return ExpansionMath.PowerConversion(0.5, 30, distance, 0.152, 0.1, 0.1);
+					return ExpansionMath.PowerConversion(0.5, 15, distance, 0.152, 0.0, 0.1);
 				}
 			}
 

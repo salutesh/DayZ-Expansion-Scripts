@@ -60,6 +60,14 @@ modded class MissionGameplay
 				GetUIManager().Back();
 			}
 		}
+
+		if (!inputIsFocused && input.LocalPress("eAISetWaypoint", false))
+		{
+			if (player && player.GetGroup() && !player.IsRaised())
+			{
+				GetDayZExpansion().GetCommandManager().Send(eAICommands.MOV_SETWP);
+			}
+		}
 		
 		if (player && player.GetHumanInventory())
 		{

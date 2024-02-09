@@ -48,6 +48,9 @@ class ExpansionActionRotateRotors: ActionContinuousBase
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
+		if (item)
+			return false;
+
 		if (!target.GetParentOrObject().IsInherited(ExpansionHelicopterScript))
 			return false;
 
