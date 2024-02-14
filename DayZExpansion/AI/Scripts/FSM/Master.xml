@@ -319,7 +319,7 @@
 					time += DeltaTime;
 					if (time &gt; 10)  //! Looks like something went terribly wrong
 					{
-						EXTrace.Print(true, unit, "Weapon_Unjamming - timeout");
+						EXPrint(unit.ToString() + " Weapon_Unjamming - timeout");
 						unit.eAI_Unbug("unjam");
 						return EXIT;
 					}
@@ -336,7 +336,7 @@
 				if (unit.GetWeaponManager().CanUnjam(weapon))
 				{
 					failed_attempts++;
-					EXTrace.Print(true, unit, "Weapon_Unjamming - failed (" + failed_attempts + ")");
+					EXPrint(unit.ToString() + " Weapon_Unjamming - failed (" + failed_attempts + ")");
 					weapon.ValidateAndRepair();
 				}
 				else
@@ -357,7 +357,9 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
+				#ifdef DIAG
 				EXTrace.Print(EXTrace.AI, unit, "TakeItemToHands " + item.ToString());
+				#endif
 				time = 0;
 				if (unit.GetEmoteManager().IsEmotePlaying())
 					unit.GetEmoteManager().ServerRequestEmoteCancel();
@@ -398,7 +400,9 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
+				#ifdef DIAG
 				EXTrace.Print(EXTrace.AI, unit, "TakeItemToInventory " + item.ToString());
+				#endif
 				time = 0;
 				if (unit.GetEmoteManager().IsEmotePlaying())
 					unit.GetEmoteManager().ServerRequestEmoteCancel();
@@ -478,7 +482,7 @@
 					time += DeltaTime;
 					if (time &gt; timeout)  //! Looks like something went terribly wrong
 					{
-						EXTrace.Print(true, unit, "Bandaging_Self - timeout");
+						EXPrint(unit.ToString() + " Bandaging_Self - timeout");
 						unit.eAI_Unbug("bandage");
 						time = 0;
 						return EXIT;
@@ -709,7 +713,7 @@
 				ItemBase targetItem;
 				if (target &amp;&amp; Class.CastTo(targetItem, target.GetEntity()) &amp;&amp; (targetItem.IsWeapon() || targetItem.Expansion_IsMeleeWeapon()) &amp;&amp; !targetItem.GetHierarchyRootPlayer() &amp;&amp; !targetItem.IsSetForDeletion())
 				{
-					if (target.GetDistanceSq(unit, true) &lt;= 4.0 &amp;&amp; target.GetThreat(unit) &gt; 0.1 &amp;&amp; unit.eAI_HasLOS(target.info))
+					if (target.GetDistanceSq(unit, true) &lt;= 4.0 &amp;&amp; target.GetThreat(unit) &gt; 0.1 &amp;&amp; !unit.eAI_IsItemObstructed(targetItem))
 					{
 						dst.item = targetItem;
 						return SUCCESS;
@@ -759,7 +763,7 @@
 				if (!target || !Class.CastTo(targetItem, target.GetEntity()) || targetItem.GetHierarchyRootPlayer() || targetItem.IsSetForDeletion())
 					return FAIL;
 				
-				if (target.GetDistanceSq(unit, true) &gt; 4.0 || !unit.eAI_HasLOS(target.info))
+				if (target.GetDistanceSq(unit, true) &gt; 4.0 || unit.eAI_IsItemObstructed(targetItem))
 					return FAIL;
 				
 				ItemBase hands;

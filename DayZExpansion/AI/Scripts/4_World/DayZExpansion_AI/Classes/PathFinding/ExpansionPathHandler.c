@@ -91,14 +91,14 @@ class ExpansionPathHandler
 		m_PathFilter.SetCost(PGAreaType.DOOR_CLOSED, 2.0);
 		m_PathFilter.SetCost(PGAreaType.DOOR_OPENED, 1.0);
 
-		m_PathFilter.SetCost(PGAreaType.ROADWAY, 1.0);
-		m_PathFilter.SetCost(PGAreaType.TREE, 5.0);
+		m_PathFilter.SetCost(PGAreaType.ROADWAY, 5.0);
+		m_PathFilter.SetCost(PGAreaType.TREE, 1.0);
 
 		m_PathFilter.SetCost(PGAreaType.OBJECTS_NOFFCON, 5.0);
 		m_PathFilter.SetCost(PGAreaType.OBJECTS, 5.0);
-		m_PathFilter.SetCost(PGAreaType.TERRAIN, 1.0);
+		m_PathFilter.SetCost(PGAreaType.TERRAIN, 5.0);
 		m_PathFilter.SetCost(PGAreaType.BUILDING, 1.0);
-		m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);
+		m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 5.0);
 
 		m_PathFilter.SetFlags(includeFlags, excludeFlags, exclusiveFlags);
 

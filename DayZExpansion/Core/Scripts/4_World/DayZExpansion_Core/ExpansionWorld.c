@@ -308,14 +308,7 @@ class ExpansionWorld: ExpansionGame
 			EXTrace.Print(EXTrace.MISC, this, "Lobotomizing " + creature);
 		#endif
 
-
-		#ifdef DIAG_DEVELOPER
-			creature.DebugDisableAIControl();
-
-			//! Dangerous, can CTD when called during creature animation (calling DebugDisableAIControl first helps, but not always).
-			//! Will also CTD if targeted by another creature after health of this one is depleted while it has no AI agent
-			//creature.DestroyAIAgent();
-		#endif
+			creature.GetAIAgent().SetKeepInIdle(true);
 		}
 		else
 		{
@@ -332,10 +325,10 @@ class ExpansionWorld: ExpansionGame
 			#endif
 				creature.InitAIAgent(aiGroup);
 			}
-
-		#ifdef DIAG_DEVELOPER
-			creature.DebugRestoreAIControl();
-		#endif
+			else
+			{
+				creature.GetAIAgent().SetKeepInIdle(false);
+			}
 		}
 
 		if (animal)

@@ -22,7 +22,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 
 	override vector GetPosition(eAIBase ai = null, bool actual = false)
 	{
-		return m_Item.GetPosition();
+		return m_Item.GetCenter();
 	}
 
 	override float CalculateThreat(eAIBase ai = null)
@@ -47,9 +47,9 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 			//! @note The dBodyIsactive check is to avoid checking items while they are thrown physically
 			if (target && target.info == this && !dBodyIsActive(m_Item))
 			{
-				if (ai.eAI_IsUnreachable(distance, 4.0, m_Item.GetPosition()))
+				if (ai.eAI_IsUnreachable(distance, 4.0, m_Item.GetCenter()) || (distance <= 4.0 && ai.eAI_IsItemObstructed(m_Item)))
 				{
-					//! Item is above or below where AI can reach
+					//! Item is above or below where AI can reach or item is obstructed
 					ai.eAI_ItemThreatOverride(m_Item, true);
 					return 0.1;
 				}
@@ -102,10 +102,10 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 						return 0.0;
 				}
 
-				if (ai.GetPathFinding().IsBlocked(ai.GetPosition(), m_Item.GetPosition(), true))
+				if (ai.GetPathFinding().IsBlocked(ai.GetPosition(), m_Item.GetCenter()))
 				{
 					//! Something is blocking the direct path to item
-					return 0.4;
+					return 0.1;
 				}
 
 				if (distance < 1.0)

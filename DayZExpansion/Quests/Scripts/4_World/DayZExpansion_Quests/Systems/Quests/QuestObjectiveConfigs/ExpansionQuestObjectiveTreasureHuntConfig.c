@@ -131,7 +131,6 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName, configBase))
 			return NULL;
 		
-		Print("DEBUG DEBUG == configBase " + configBase);
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
 			Print("[ExpansionQuestObjectiveTreasureHuntConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + " to version " + CONFIGVERSION);

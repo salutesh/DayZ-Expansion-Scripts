@@ -5,11 +5,12 @@ class CfgPatches
 	class DayZExpansion_Objects_BaseBuilding_Flags
 	{
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data"};
+		requiredAddons[] = {"DZ_Characters_Tops","DZ_Gear_Camping"};
 	};
 };
 class CfgVehicles
 {
+	class Armband_ColorBase;
 	class Flag_Base;
 	class Expansion_Flag_Expansion: Flag_Base
 	{
@@ -409,7 +410,6 @@ class CfgVehicles
 		color = "Expansion_Rainbow";
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\colors\flag_rainbow_co.paa"};
 	};
-	class Armband_ColorBase;
 	class Armband_Expansion_Expansion: Armband_ColorBase
 	{
 		scope = 2;

@@ -50,7 +50,11 @@ class eAITargetInformationState
 			m_ThreatLevel = m_Info.CalculateThreat(m_AI);
 
 			//! Make active threat level rise depending on distance if LOS, fall slowly if no LOS
+		#ifdef EXPANSION_AI_ITEM_TARGET_REQUIRE_LOS
 			if (m_LOS || !m_Info.IsEntity())
+		#else
+			if (m_LOS || !m_Info.IsEntity() || m_Info.IsInherited(eAIItemTargetInformation))
+		#endif
 			{
 				//! Threat level rises slowly if below fighting threshold and AI has not been attacked by player,
 				//! unless player is in vehicle (parent non-null)
@@ -75,6 +79,11 @@ class eAITargetInformationState
 			}
 			else if (!force)
 			{
+			#ifdef EXPANSION_AI_ITEM_TARGET_REQUIRE_LOS
+				if (m_Info.IsInherited(eAIItemTargetInformation))
+					m_ThreatLevelActive = Math.Min(0.3999, m_ThreatLevel);  //! No interpolation for item targets
+				else
+			#endif
 				m_ThreatLevelActive = Math.Lerp(m_ThreatLevelActive, Math.Min(0.0999, m_ThreatLevel), diff / 33.333333 * 0.001111);
 			}
 		}

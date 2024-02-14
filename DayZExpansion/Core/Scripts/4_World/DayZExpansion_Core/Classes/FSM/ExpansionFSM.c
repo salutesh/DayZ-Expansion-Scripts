@@ -143,7 +143,7 @@ class ExpansionFSM
 
 		if (src)
 		{
-			CF_Log.Debug("StartDefault - Exiting state: " + src);
+			CF_Log.Debug("%1 StartDefault - Exiting state: %2", m_Owner.ToString(), src.GetName());
 			src.OnExit("", true, dst);
 		}
 	
@@ -151,12 +151,12 @@ class ExpansionFSM
 		
 		if (m_CurrentState)
 		{
-			CF_Log.Debug("StartDefault - Starting state: " + m_CurrentState);
+			CF_Log.Debug("%1 StartDefault - Starting state: %2", m_Owner.ToString(), m_CurrentState.GetName());
 			m_CurrentState.OnEntry("", src);
 			return true;
 		}
 		
-		CF_Log.Warn("StartDefault - No valid state found.");
+		CF_Log.Warn("%1 StartDefault - No valid state found.", m_Owner.ToString());
 		
 		return false;
 	}
@@ -174,7 +174,7 @@ class ExpansionFSM
 
 		if (m_CurrentState && m_CurrentState != dst)
 		{
-			CF_Log.Debug("Start - Exiting state: " + m_CurrentState);
+			CF_Log.Debug("%1 Start - Exiting state: %2", m_Owner.ToString(), m_CurrentState.GetName());
 			m_CurrentState.OnExit(e, true, dst);
 		}
 
@@ -182,12 +182,12 @@ class ExpansionFSM
 
 		if (m_CurrentState && src != m_CurrentState)
 		{
-			CF_Log.Debug("Start - Starting state: " + m_CurrentState);
+			CF_Log.Debug("%1 Start - Starting state: %2", m_Owner.ToString(), m_CurrentState.GetName());
 			m_CurrentState.OnEntry(e, src);
 			return true;
 		}
 
-		CF_Log.Warn("Start - No valid state found.");
+		CF_Log.Warn("%1 Start - No valid state found.", m_Owner.ToString());
 
 		return false;
 	}
@@ -200,7 +200,7 @@ class ExpansionFSM
 
 		if (m_CurrentState)
 		{
-			CF_Log.Debug("Abort - Exiting state: " + m_CurrentState);
+			CF_Log.Debug("%1 Abort - Exiting state: %2", m_Owner.ToString(), m_CurrentState.GetName());
 			m_CurrentState.OnExit(e, true, null);
 			return true;
 		}
@@ -251,11 +251,11 @@ class ExpansionFSM
 		if (m_CurrentState == null)
 		{
 			if (src)
-				CF_Log.Info("State transition exit " + src);
+				CF_Log.Info("%1 State transition exit %2", m_Owner.ToString(), src.GetName());
 			return EXIT;
 		}
 		
-		CF_Log.Info("State transition " + src + " -> " + m_CurrentState.GetName());
+		CF_Log.Info("%1 State transition %2 -> %3", m_Owner.ToString(), src.GetName(), m_CurrentState.GetName());
 
 		m_CurrentState.OnEntry("", src);
 
@@ -280,8 +280,6 @@ class ExpansionFSM
 				{
 				case ExpansionTransition.SUCCESS:
 #ifdef EAI_DEBUG_TRANSITION
-					if (s != t.GetDestination())
-						EXPrint(m_Owner.ToString() + " transition " + s + " -> " + t.GetDestination());
 					m_NoTransitionCount = 0;
 #endif
 					return t.GetDestination();

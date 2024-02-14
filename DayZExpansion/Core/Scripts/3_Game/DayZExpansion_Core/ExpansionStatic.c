@@ -758,6 +758,21 @@ class ExpansionStatic: ExpansionStaticCore
 		return cfg_des;
 	}
 
+	//! Will return sensible result on server for all objects, including ItemBase
+	//! (vanilla ItemBase::CanObstruct will always return true on server as it is only meant to be called on client because it relies on g_Game.GetPlayer)
+	static bool CanObstruct(Object obj)
+	{
+		if (obj.IsItemBase())
+		{
+			if (obj.ConfigGetString("physLayer") == "item_large")
+				return true;
+
+			return false;
+		}
+
+		return obj.CanObstruct();
+	}
+
 	static float GetBoundingRadius(string className)
 	{
 		vector minMax[2];

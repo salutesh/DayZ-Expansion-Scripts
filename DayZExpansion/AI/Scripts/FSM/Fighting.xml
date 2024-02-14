@@ -89,7 +89,7 @@
 						minDist = 4.0;
 					}
 					
-					if (targetEntity &amp;&amp; !itemTarget &amp;&amp; (fsm.DistanceToTargetSq &lt;= minDist || unit.eAI_IsUnreachable(fsm.DistanceToTargetSq, minDist, position)))
+					if (targetEntity &amp;&amp; !itemTarget &amp;&amp; (fsm.DistanceToTargetSq &lt;= minDist || (unit.m_eAI_PositionIsFinal &amp;&amp; unit.eAI_IsUnreachable(fsm.DistanceToTargetSq, minDist, position))))
 					{
 						time += DeltaTime;
 						if (!movementDirection || time &gt; Math.RandomIntInclusive(1, 3))
@@ -176,8 +176,12 @@
 				
 				fsm.LastFireTime = GetGame().GetTime();
 				
-				if (unit.eAI_AdjustStance(weapon, fsm.DistanceToTargetSq))
+				bool adjustStance = unit.eAI_AdjustStance(weapon, fsm.DistanceToTargetSq);
+				
+				#ifdef DIAG
+				if (adjustStance)
 					EXTrace.Print(EXTrace.AI, unit, "eAI_AdjustStance " + typename.EnumToString(eAIStance, unit.eAI_GetStance()));
+				#endif
 			</event_entry>
 			<event_exit />
 			<event_update>
@@ -334,6 +338,8 @@
 				if (unit.IsRestrained()) return FAIL;
 				
 				if (!unit.CanRaiseWeapon() || !unit.eAI_HasLOS()) return FAIL;
+				
+				if (unit.eAI_ShouldBandage() &amp;&amp; unit.GetBandageToUse()) return FAIL;
 				
 				// we are targetting an entity?
 				dst.target = unit.GetTarget();

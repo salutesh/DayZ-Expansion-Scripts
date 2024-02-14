@@ -13,8 +13,6 @@ class ExpansionHelicopterScriptRotor : CollisionOverlapCallback
 
 	EntityAI m_Entity;
 
-	float m_HealthSync; //! Health of rotor [0,1]
-
 	void ExpansionHelicopterScriptRotor(EntityAI vehicle, string rotor)
 	{
 		m_Vehicle = vehicle;
@@ -22,8 +20,6 @@ class ExpansionHelicopterScriptRotor : CollisionOverlapCallback
 		string path;
 		string rootPath = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Rotors " + rotor;
 		m_Setup = GetGame().ConfigIsExisting(rootPath);
-
-		m_HealthSync = 1.0;
 
 		if (m_Setup)
 		{
@@ -74,9 +70,7 @@ class ExpansionHelicopterScriptRotor : CollisionOverlapCallback
 			return;
 		}
 
-		m_HealthSync = m_Entity.GetHealth01();
-
-		if (m_HealthSync > 0.0)
+		if (!m_Entity.IsDamageDestroyed())
 		{
 			vector transform[4];
 			m_Entity.GetTransform(transform);
@@ -90,8 +84,6 @@ class ExpansionHelicopterScriptRotor : CollisionOverlapCallback
 				m_Entity.DecreaseHealth(m_ContactDamage * time, false);
 			}
 		}
-
-		m_HealthSync = m_Entity.GetHealth01();
 	}
 
 	override bool OnContact(IEntity other, Contact contact)
@@ -104,11 +96,13 @@ class ExpansionHelicopterScriptRotor : CollisionOverlapCallback
 		return true;
 	}
 
-	float GetHealth01()
+	int GetHealthLevel()
 	{
-		return m_HealthSync;
+		if (m_Entity)
+			return m_Entity.GetHealthLevel();
+		else
+			return m_Vehicle.GetHealthLevel();
 	}
-
 };
 
 class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
@@ -962,8 +956,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				float tailRotorMalfunction = 0.0;
 				if (m_EnableTailRotorDamage)
 				{
-					tailRotorMalfunction = 1.0 - m_Tail.GetHealth01();
-				//	tailRotorMalfunction = m_Vehicle.GetHealthLevel() / 5.0; // GetHealthLevel( "TailRotor" ) / 5.0;
+					tailRotorMalfunction = m_Tail.GetHealthLevel() / 5.0;
 				}
 
 				float tailRotorMalfunctionNeg = 1.0 - tailRotorMalfunction;

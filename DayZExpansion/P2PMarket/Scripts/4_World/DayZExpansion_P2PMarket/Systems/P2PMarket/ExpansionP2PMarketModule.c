@@ -12,7 +12,8 @@
 
 enum ExpansionP2PMarketModuleCallback
 {
-	ItemListed = 1,
+	Silent,  //! Silent callback w/o notification (just used to update menu)
+	ItemListed,
 	ItemPurchased,
 	SaleRetrieved,
 	AllSalesRetrieved,
@@ -369,10 +370,11 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	}
 
 	//! Server
-	void SendUpdatedTraderData(int traderID, ExpansionP2PMarketModuleCallback callback = 0, string type = string.Empty, int price = 0)
+	void SendUpdatedTraderData(int traderID, string senderUID, ExpansionP2PMarketModuleCallback callback = 0, string type = string.Empty, int price = 0)
 	{
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
 
+		ExpansionP2PMarketModuleCallback menuCallback;
 		foreach (string playerUID, int id: m_TradingPlayers)
 		{
 			if (id != traderID)
@@ -382,7 +384,12 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			if (!player)
 				continue;
 
-			SendBMTraderData(traderID, player.GetIdentity(), "", "", callback, type, price);
+			if (playerUID == senderUID)
+				menuCallback = callback;
+			else
+				menuCallback = ExpansionP2PMarketModuleCallback.Silent;
+
+			SendBMTraderData(traderID, player.GetIdentity(), "", "", menuCallback, type, price);
 		}
 	}
 	
@@ -438,7 +445,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 
 		ExpansionP2PMarketListing listing = GetListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader());
-		string globalIDText = ExpansionStatic.IntToHex(listing.GetGlobalID());
+		string globalIDText = ExpansionStatic.IntToHex(globalID);
 		if (!listing)
 		{
 			Error(ToString() + "::RPC_RequestSaleFromListing - couldn't find listing with global ID " + globalIDText);
@@ -940,7 +947,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		SendUpdatedTraderData(traderID, ExpansionP2PMarketModuleCallback.ItemListed, type, price);
+		SendUpdatedTraderData(traderID, identity.GetId(), ExpansionP2PMarketModuleCallback.ItemListed, type, price);
 		
 		if (GetExpansionSettings().GetLog().Market)
 		{
@@ -1202,7 +1209,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			messagePrice = ownerPrice;
 		}
 
-		SendUpdatedTraderData(traderID, ExpansionP2PMarketModuleCallback.ItemPurchased, listing.GetClassName(), messagePrice);
+		SendUpdatedTraderData(traderID, identity.GetId(), ExpansionP2PMarketModuleCallback.ItemPurchased, listing.GetClassName(), messagePrice);
 		
 		if (!isOwner)
 		{
