@@ -204,6 +204,8 @@ class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
+		m_Version = VERSION;
+
 		ServerMarkerOnDropLocation = true;
 		Server3DMarkerOnDropLocation = true;
 		ShowAirdropTypeOnMarker = true;

@@ -298,8 +298,8 @@ class eAIDynamicPatrol : eAIPatrol
 
 	void Despawn(bool deferDespawnUntilLoosingAggro = false)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "Despawn");
+		#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
 		#endif
 
 		m_TimeSinceLastSpawn = 0;

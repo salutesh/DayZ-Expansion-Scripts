@@ -19,7 +19,6 @@ modded class AnimalBase
 
 	bool m_Expansion_LobotomyInProgress;
 	bool m_Expansion_IsLobotomized;
-	vector m_Expansion_LobotomizedPosition;
 
 	override void AfterStoreLoad()
 	{
@@ -81,23 +80,6 @@ modded class AnimalBase
 		return m_Expansion_IsInSafeZone;
 	}
 
-#ifdef DIAG_DEVELOPER
-	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
-	{
-		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
-			return false;
-
-		if (m_Expansion_IsLobotomized && GetAIAgent())
-		{
-			DebugRestoreAIControl();  //! Enable hit/death anim
-			m_Expansion_IsLobotomized = false;
-			Expansion_StartLobotomy();
-		}
-
-		return true;
-	}
-#endif
-
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
@@ -133,13 +115,7 @@ modded class AnimalBase
 				return true;
 
 			if (HandleDamageHit(pCurrentCommandID))
-			{
-				m_Expansion_LobotomizedPosition = GetPosition();
 				return true;
-			}
-
-			if (GetPosition() != m_Expansion_LobotomizedPosition)
-				SetPosition(m_Expansion_LobotomizedPosition);
 
 			return true;
 		}
@@ -183,9 +159,6 @@ modded class AnimalBase
 	void Expansion_SetLobotomized(bool isLobotomized)
 	{
 		m_Expansion_IsLobotomized = isLobotomized;
-
-		if (isLobotomized)
-			m_Expansion_LobotomizedPosition = GetPosition();
 	}
 
 	bool Expansion_IsLobotomized()

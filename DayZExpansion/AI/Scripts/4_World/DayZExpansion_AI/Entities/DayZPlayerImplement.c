@@ -377,10 +377,24 @@ modded class DayZPlayerImplement
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(eAI_Cleanup, false);
 	}
 
+	/**
+	 * @brief Do cleanup after AI is killed or destroyed.
+	 * 
+	 * @param autoDeleteGroup Will be false when player is killed (called after EEKilled), true when player is being destroyed (called from DTOR)
+	 * 
+	 * @note If player is killed before being destroyed, then GetGroup().RemoveMember will return false on 2nd invocation of eAI_Cleanup
+	 * from DTOR, and if there are still other alive group members, then the killed player is removed from deceased group members.
+	 * If there are no other alive group members, then group is just destroyed (in the next frame).
+	 */
 	void eAI_Cleanup(bool autoDeleteGroup = false)
 	{
-		if (GetGroup() && !GetGroup().RemoveMember(this, autoDeleteGroup) && autoDeleteGroup && !GetGroup().Count())
-			GetGroup().Delete();
+		if (GetGroup() && !GetGroup().RemoveMember(this, autoDeleteGroup) && autoDeleteGroup)
+		{
+			if (GetGroup().Count())
+				GetGroup().RemoveDeceased(this);
+			else
+				GetGroup().Delete();
+		}
 	}
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)

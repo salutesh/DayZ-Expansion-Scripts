@@ -65,12 +65,12 @@ class eAIEntityTargetInformation: eAITargetInformation
 		return state.m_SearchPosition;
 	}
 
-	override float GetThreat(eAIBase ai = null, out eAITargetInformationState state = null)
+	override float GetThreat(eAIBase ai = null, out eAITargetInformationState state = null, out bool created = false)
 	{
 		if (!IsActive())
 			return 0.0;
 
-		return super.GetThreat(ai, state);
+		return super.GetThreat(ai, state, created);
 	}
 
 	override vector GetDirection(eAIBase ai, bool actual = false)

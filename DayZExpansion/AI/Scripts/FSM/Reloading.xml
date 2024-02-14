@@ -48,7 +48,7 @@
 					time += DeltaTime;
 					if (time &gt; 12)  //! Looks like something went terribly wrong
 					{
-						EXTrace.Print(true, unit, "Weapon_Reloading - Reloading - timeout");
+						EXPrint(unit.ToString() + " Weapon_Reloading - Reloading - timeout");
 						unit.eAI_Unbug("reload");
 						return EXIT;
 					}
@@ -105,7 +105,7 @@
 				else if (fsm.weapon.IsChamberEmpty(fsm.weapon.GetCurrentMuzzle()))
 				{
 					fsm.failed_attempts++;
-					EXTrace.Print(true, unit, "Weapon_Reloading - Reloading - failed (" + fsm.failed_attempts + ")");
+					EXPrint(unit.ToString() + " Weapon_Reloading - Reloading - failed (" + fsm.failed_attempts + ")");
 					fsm.weapon.ValidateAndRepair();
 				}
 				else
@@ -171,10 +171,12 @@
 				
 				if (!unit.eAI_HasAmmoForFirearm(fsm.weapon, dst.magazine)) return FAIL;
 				
+				#ifdef DIAG
 				if (!dst.magazine)
 					EXTrace.Start0(EXTrace.AI, this, "Reloading " + fsm.weapon + " from internal mag");
 				else
 					EXTrace.Start0(EXTrace.AI, this, "Reloading " + fsm.weapon + " from mag " + dst.magazine);
+				#endif
 				
 				return SUCCESS;
 			</guard>

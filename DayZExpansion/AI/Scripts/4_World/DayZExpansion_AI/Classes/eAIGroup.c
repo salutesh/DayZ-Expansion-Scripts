@@ -7,14 +7,15 @@ class eAIGroup
 
 	private static int s_IDCounter = 0;
 
-	private autoptr array<eAITargetInformation> m_Targets;
+	private autoptr array<eAITargetInformation> m_Targets = {};
 	private int m_ID;
 
 	//! Refer to eAIGroup::GetTargetInformation
 	private autoptr eAIGroupTargetInformation m_TargetInformation;
 
 	// Ordered array of group members. 0 is the leader.
-	private autoptr array<DayZPlayerImplement> m_Members;
+	private autoptr array<DayZPlayerImplement> m_Members = {};
+	private autoptr array<DayZPlayerImplement> m_Members_Deceased = {};
 
 	// What formation the group should keep
 	private autoptr eAIFormation m_Form;
@@ -116,9 +117,6 @@ class eAIGroup
 #endif
 
 		m_TargetInformation = new eAIGroupTargetInformation(this);
-		m_Targets = new array<eAITargetInformation>();
-
-		m_Members = new array<DayZPlayerImplement>();
 
 		m_Form = new eAIFormationVee(this);
 
@@ -579,12 +577,37 @@ class eAIGroup
 		if (i < 0 || i >= m_Members.Count())
 			return false;
 
+		auto member = m_Members[i];
+
 		m_Members.RemoveOrdered(i);
 
 		if (autoDelete && m_Members.Count() == 0)
-		{
 			Delete();
-		}
+		else if (member && !member.IsAlive())
+			m_Members_Deceased.Insert(member);
+
+		return true;
+	}
+
+	bool RemoveDeceased(DayZPlayerImplement member)
+	{
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + member);
+#endif
+
+		return RemoveDeceased(m_Members_Deceased.Find(member));
+	}
+
+	bool RemoveDeceased(int i)
+	{
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + i);
+#endif
+
+		if (i < 0 || i >= m_Members_Deceased.Count())
+			return false;
+
+		m_Members_Deceased.RemoveOrdered(i);
 
 		return true;
 	}
@@ -667,18 +690,30 @@ class eAIGroup
 
 	void ClearAI(bool autodelete = true, bool deferDespawnUntilLoosingAggro = false)
 	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		int i;
 		eAIBase ai;
-		for (int i = Count() - 1; i > -1; i--)
+
+		for (i = Count() - 1; i > -1; i--)
 		{
 			if (!Class.CastTo(ai, GetMember(i)) || ai.IsInherited(eAINPCBase))
-			{
 				continue;
-			}
 
 			if (deferDespawnUntilLoosingAggro && ai.GetThreatToSelf() >= 0.4)
 				ai.eAI_SetDespawnOnLoosingAggro(true);
 			else
 				ai.eAI_Despawn();
+		}
+
+		for (i = m_Members_Deceased.Count() - 1; i > -1; i--)
+		{
+			if (!Class.CastTo(ai, m_Members_Deceased[i]))
+				continue;
+
+			ai.eAI_Despawn();
 		}
 	}
 

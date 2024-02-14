@@ -120,7 +120,7 @@ class eAITargetInformation
 	 * @param ai null default, if given includes the AI in threat calculation
 	 * @return int
 	 */
-	float GetThreat(eAIBase ai = null, out eAITargetInformationState state = null)
+	float GetThreat(eAIBase ai = null, out eAITargetInformationState state = null, out bool created = false)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "GetThreat").Add(ai);
@@ -129,7 +129,6 @@ class eAITargetInformation
 		if (!ai)
 			return CalculateThreat();
 
-		bool created;
 		state = ai.eAI_GetTargetInformationState(this, true, created);
 
 		if (created)

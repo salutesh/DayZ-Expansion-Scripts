@@ -172,6 +172,7 @@ class eAIBase: PlayerBase
 
 	bool m_eAI_DespawnOnLoosingAggro;
 
+	//ref IsObjectObstructedCache m_eAI_IsItemObstructedCache = new IsObjectObstructedCache(vector.Zero, 1);
 	ref map<ItemBase, bool> m_eAI_ItemThreatOverride = new map<ItemBase, bool>;
 
 	ref Timer m_eAI_ClientUpdateTimer;
@@ -693,8 +694,6 @@ class eAIBase: PlayerBase
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
-		super.eAI_Cleanup(autoDeleteGroup);
-
 		array<ref eAITargetInformation> targets = {};
 		foreach (eAITargetInformation info, eAITargetInformationState state: m_eAI_TargetInformationStates)
 		{
@@ -706,6 +705,8 @@ class eAIBase: PlayerBase
 		{
 			target.RemoveAI(this);
 		}
+
+		super.eAI_Cleanup(autoDeleteGroup);
 
 		if (GetGame().IsServer() && !IsDamageDestroyed())
 			s_Expansion_AllPlayers.m_OnRemove.Remove(eAI_OnRemovePlayer);
@@ -1197,6 +1198,9 @@ class eAIBase: PlayerBase
 				report.Insert(indent + string.Format("|- FSM state %1", fsmState.GetName()));
 		}
 
+		report.Insert(indent + string.Format("|- Is position final %1", m_eAI_PositionIsFinal.ToString()));
+		report.Insert(indent + string.Format("|- Is target position final %1", m_eAI_TargetPositionIsFinal.ToString()));
+
 		vector lookAnglesTarget = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
 		string look = string.Format("%1° %2°", ExpansionMath.RelAngle(lookAnglesTarget[0]), ExpansionMath.RelAngle(lookAnglesTarget[1]));
 		if (m_eAI_LookDirection_Recalculate)
@@ -1224,9 +1228,29 @@ class eAIBase: PlayerBase
 		report.Insert(indent + string.Format("|- Current absolute threat to AI %1", GetThreatToSelf(true)));
 		report.Insert(indent + string.Format("|- Current active threat to AI %1", GetThreatToSelf()));
 
-		report.Insert(indent + string.Format("|- Stateful/tracked targets %1/%2", m_eAI_TargetInformationStates.Count(), m_eAI_Targets.Count()));
+		report.Insert(indent + string.Format("|- Tracked/stateful targets %1/%2", m_eAI_Targets.Count(), m_eAI_TargetInformationStates.Count()));
 
-		foreach (int i, eAITarget target: m_eAI_Targets)
+		array<ref eAITarget> targets = {};
+		ExpansionArray<eAITarget>.RefCopy(m_eAI_Targets, targets);
+
+		foreach (eAITargetInformation info, eAITargetInformationState state: m_eAI_TargetInformationStates)
+		{
+			bool tracked = false;
+
+			foreach (eAITarget trackedTarget: targets)
+			{
+				if (trackedTarget.info == info)
+				{
+					tracked = true;
+					break;
+				}
+			}
+
+			if (!tracked)
+				targets.Insert(new eAITarget(GetGroup(), -1, -1, info));
+		}
+
+		foreach (int i, eAITarget target: targets)
 		{
 			if (!target)
 				continue;
@@ -1241,6 +1265,9 @@ class eAIBase: PlayerBase
 					targetInfo += " " + player.GetIdentity().GetName();
 				else
 					targetInfo += " " + Debug.GetDebugName(target.GetEntity());
+
+				if (target.found_at_time < 0)
+					targetInfo += " (untracked)";
 
 				Class.CastTo(item, target.GetEntity());
 			}
@@ -1310,9 +1337,19 @@ class eAIBase: PlayerBase
 				}
 			}
 
-			string foundAtTime = ExpansionStatic.FormatTime(GetDayZGame().ExpansionGetStartTimestamp(true) + target.found_at_time * 0.001, true, true, true);
-			report.Insert(indent + string.Format("|  |- Found at time %1 UTC", foundAtTime));
-			report.Insert(indent + string.Format("|  \\- Max time %1s", target.max_time * 0.001));
+			if (target.found_at_time > -1)
+			{
+				string foundAtTime = ExpansionStatic.FormatTime(GetDayZGame().ExpansionGetStartTimestamp(true) + target.found_at_time * 0.001, true, true, true);
+				report.Insert(indent + string.Format("|  |- Found at time %1 UTC", foundAtTime));
+				report.Insert(indent + string.Format("|  \\- Max time %1s", target.max_time * 0.001));
+			}
+			else
+			{
+				int index = report.Count() - 1;
+				string last = report[index];
+				last.Replace("|-", "\\-");
+				report[index] = last;
+			}
 		}
 
 		report.Insert(indent + string.Format("|- Health %1%% Blood %2%% Shock %3%%", GetHealth01() * 100, GetHealth01("", "Blood") * 100, GetHealth01("", "Shock") * 100));
@@ -2369,6 +2406,8 @@ class eAIBase: PlayerBase
 		{
 			EXTrace.Print(EXTrace.AI, this, "eAI_RemoveItem - bandage/rag " + item);
 			m_Bandages.RemoveItem(item);
+			if (item == m_eAI_BandageToUse)
+				m_eAI_BandageToUse = null;
 			return;
 		}
 
@@ -3250,6 +3289,13 @@ class eAIBase: PlayerBase
 			return false;
 		}
 
+		bool isItemTarget = targetEntity.IsInherited(ItemBase);
+
+	#ifndef EXPANSION_AI_ITEM_TARGET_REQUIRE_LOS
+		if (isItemTarget)
+			return true;
+	#endif
+
 		auto state = m_eAI_TargetInformationStates[target.info];
 		if (!state)
 			return false;
@@ -3270,22 +3316,23 @@ class eAIBase: PlayerBase
 
 		set< Object > results = new set< Object >;
 		float radius;
-		bool isCreatureTarget = targetEntity.IsInherited(DayZCreatureAI);
-		bool isItemTarget = targetEntity.IsInherited(ItemBase);
+	#ifdef EXPANSION_AI_ITEM_TARGET_REQUIRE_LOS
 		if (isItemTarget)
 			radius = 0.15;
 		else
+	#endif
 			radius = 0.05;
 		bool hadLos = state.m_LOS;
 		state.m_LOS = DayZPhysics.RaycastRV(begPos, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectView, radius);
-		if (!state.m_LOS && hadLos)
-		{
-			EXTrace.Print(EXTrace.AI, this, "lost line of sight to target " + targetEntity);
-			EXTrace.Print(EXTrace.AI, this, "aim offset " + aimOffset + " end pos " + endPos);
-		}
 		if (!state.m_LOS)
 		{
 		#ifdef DIAG
+			if (hadLos)
+			{
+				EXTrace.Print(EXTrace.AI, this, "lost line of sight to target " + targetEntity);
+				EXTrace.Print(EXTrace.AI, this, "aim offset " + aimOffset + " end pos " + endPos);
+			}
+
 			state.m_LOSRaycastHitObject = null;
 			state.m_LOSRaycastHitPosition = vector.Zero;
 
@@ -3295,6 +3342,7 @@ class eAIBase: PlayerBase
 			return false;
 		}
 
+		bool isCreatureTarget = targetEntity.IsInherited(DayZCreatureAI);
 		EntityAI parent = EntityAI.Cast(targetEntity.GetParent());
 
 		if (results.Count() && results[0].IsBuilding())
@@ -3341,11 +3389,12 @@ class eAIBase: PlayerBase
 			{
 				if (Class.CastTo(player, obj))
 				{
+				#ifdef EXPANSION_AI_ITEM_TARGET_REQUIRE_LOS
 					if (isItemTarget)
-					{
 						continue;
-					}
-					else if (eAI_GetTargetThreat(player.GetTargetInformation()) < 0.2)
+				#endif
+
+					if (eAI_GetTargetThreat(player.GetTargetInformation()) < 0.2)
 					{
 						sideStep = m_eAI_IsFightingFSM;  //! Sidestep if we are in fighting FSM
 					}
@@ -3366,13 +3415,13 @@ class eAIBase: PlayerBase
 			}
 		}
 
+	#ifdef DIAG
 		if (state.m_LOS != hadLos)
 		{
 			EXTrace.Print(EXTrace.AI, this, "has line of sight to target (" + targetEntity + ")? " + state.m_LOS);
 			EXTrace.Print(EXTrace.AI, this, "aim offset " + aimOffset + " end pos " + endPos);
 		}
 
-	#ifdef DIAG
 		state.m_LOSRaycastHitObject = hitObj;
 		state.m_LOSRaycastHitPosition = contactPos;
 
@@ -3495,7 +3544,7 @@ class eAIBase: PlayerBase
 
 	bool eAI_IsUnreachable(float distanceSq, float minDistanceSq, vector position)
 	{
-		if (m_eAI_PositionIsFinal && distanceSq > minDistanceSq && Math.IsPointInCircle(position, Math.Sqrt(minDistanceSq), GetPosition()))
+		if (distanceSq > minDistanceSq && Math.IsPointInCircle(position, Math.Sqrt(minDistanceSq), GetPosition()))
 			return true;
 
 		return false;
@@ -4358,6 +4407,42 @@ class eAIBase: PlayerBase
 			GetGame().RemoteObjectTreeCreate(item);
 
 		return result;
+	}
+
+	bool eAI_IsItemObstructed(ItemBase item)
+	{
+		vector begPos;
+		MiscGameplayFunctions.GetHeadBonePos(this, begPos);
+		vector endPos = item.GetCenter();
+
+		//! @note cannot use IsObjectObstructedFilterEx
+		//! (uses vanilla ItemBase::CanObstruct which will always return true on server as it is only meant to be called on client because it relies on g_Game.GetPlayer)
+		//m_eAI_IsItemObstructedCache.ClearCache();
+		//m_eAI_IsItemObstructedCache.RaycastStart = begPos;
+		//m_eAI_IsItemObstructedCache.ObjectCenterPos = endPos;
+
+		//if (MiscGameplayFunctions.IsObjectObstructedFilterEx(item, m_eAI_IsItemObstructedCache, this))
+			//return true;
+
+		vector contactPos, contactDir;
+		int contactComponent;
+		set<Object> results = new set<Object>;
+
+		if (DayZPhysics.RaycastRV(begPos, endPos, contactPos, contactDir, contactComponent, results, item, this, false, false, ObjIntersectFire, 0.0, CollisionFlags.ALLOBJECTS))
+		{
+			EntityAI entity;
+
+			foreach (Object obj: results)
+			{
+				if (Class.CastTo(entity, obj))
+					obj = entity.GetHierarchyRoot();
+
+				if (ExpansionStatic.CanObstruct(obj))
+					return true;
+			}
+		}
+
+		return false;
 	}
 
 	bool Expansion_GetUp(bool force = false)
