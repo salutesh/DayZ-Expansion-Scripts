@@ -61,6 +61,9 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		m_ExLagOffsetVelocityX[0] = 0;
 		m_ExLagOffsetVelocityY[0] = 0;
 		m_ExLagOffsetVelocityZ[0] = 0;
+
+		m_ExDistanceMultiplier = GetExpansionClientSettings().VehicleCameraDistance;
+		m_ExHeightMultiplier = GetExpansionClientSettings().VehicleCameraHeight;
 	}
 
 	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
@@ -68,9 +71,6 @@ modded class DayZPlayerCamera3rdPersonVehicle
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "OnUpdate").Add(pDt);
 #endif
-
-		m_ExDistanceMultiplier = 1.0;
-		m_ExHeightMultiplier = 1.0;
 
 		ExpansionVehicleBase exVehicle;
 		m_bForceFreeLook = Class.CastTo( exVehicle, m_pPlayer.GetParent() );
