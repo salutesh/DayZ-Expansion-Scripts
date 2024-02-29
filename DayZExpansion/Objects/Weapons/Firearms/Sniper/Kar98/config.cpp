@@ -296,7 +296,7 @@ class cfgWeapons
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_KAR98";
-		descriptionShort = "$STR_EXPANSION_KAR98";
+		descriptionShort = "$STR_EXPANSION_KAR98_DESC";
 		model = "DayZExpansion\Objects\Weapons\Firearms\Sniper\Kar98\kar98.p3d";
 		itemSize[] = {9,3};
 		attachments[] = {"suppressorImpro","expansionWeaponBayonetKar","weaponOpticsMosin","ExpansionKar98Optics","weaponWrap"};

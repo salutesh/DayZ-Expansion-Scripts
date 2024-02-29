@@ -165,7 +165,6 @@ modded class PlayerBase
 					#endif
 					}
 				}
-			#ifdef EXPANSIONMODGROUPS
 				else
 				{
 					set<string> playerUIDs = quest.GetPlayerUIDs();
@@ -182,7 +181,6 @@ modded class PlayerBase
 						}
 					}
 				}
-			#endif
 				
 				//! If none of the current quest players is in kill range proximity then stop the current check and continue with the next objective row..
 				if (!countKill)

@@ -2650,7 +2650,7 @@ class ExpansionHumanLoadout
 			loadout = loadout.BeginAttachment("SKS", "Shoulder");
 			loadout = loadout.End();
 			
-			loadout = loadout.BeginAttachment("Ammo_762x39");
+			loadout = loadout.BeginCargo("Ammo_762x39");
 			loadout = loadout.End();
 			loadout = loadout.BeginCargo("Ammo_762x39");
 			loadout.Chance = 1.0;
@@ -2926,7 +2926,7 @@ class ExpansionHumanLoadout
 			loadout = loadout.BeginAttachment("Mp133Shotgun", "Shoulder");
 			loadout = loadout.End();
 			
-			loadout = loadout.BeginAttachment("Ammo_12gaRubberSlug");
+			loadout = loadout.BeginCargo("Ammo_12gaRubberSlug");
 			loadout = loadout.End();
 			loadout = loadout.BeginCargo("Ammo_12gaRubberSlug");
 			loadout.Chance = 1.0;

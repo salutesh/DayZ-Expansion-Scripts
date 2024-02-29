@@ -45,18 +45,13 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 		return true;
 	}
 
-#ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
-		if (!m_AIPatrolConfig)
-			return;
-
 		string markerName = m_AIPatrolConfig.GetObjectiveText();
 		vector position = m_AIPatrolConfig.GetAISpawn().GetWaypoints()[0];
 		if (position != "0 0 0")
 			CreateObjectiveMarker(position, markerName);
 	}
-#endif
 
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null, map<Man, ref ExpansionEntityHitInfo> hitMap = null)
 	{
@@ -145,10 +140,8 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 
 		ExpansionQuestModule.GetModuleInstance().SetQuestPatrols(m_Quest.GetQuestConfig().GetID(), questPatrols);
 
-	#ifdef EXPANSIONMODNAVIGATION
 		if (m_AIPatrolConfig.GetObjectiveText() != string.Empty)
 			CreateMarkers();
-	#endif
 	}
 
 	override int GetObjectiveType()

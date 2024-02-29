@@ -231,6 +231,9 @@ class eAICommandMenu: UIScriptedMenu
 			if (GetExpansionSettings().GetAI().IsAdmin())
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_EXPORTPATROL, "Export Patrol", eAICommandCategories.CAT_MOVEMENT));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_CLEARWP, "Clear Waypoints", eAICommandCategories.CAT_MOVEMENT));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_WALK, "Walk", eAICommandCategories.CAT_MOVEMENT));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_JOG, "Jog", eAICommandCategories.CAT_MOVEMENT));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_SPRINT, "Sprint", eAICommandCategories.CAT_MOVEMENT));
 		}
 
 		//Category 2 - Formation

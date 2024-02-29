@@ -38,10 +38,8 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		CreateVIP();
 
-	#ifdef EXPANSIONMODNAVIGATION
 		if (m_AIEscortConfig.GetMarkerName() != string.Empty)
 			CreateMarkers();
-	#endif
 
 		if (!m_Trigger)
 			CreateTrigger(m_ObjectivePos);
@@ -74,10 +72,8 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			if (!m_Trigger)
 				CreateTrigger(m_ObjectivePos);
 
-		#ifdef EXPANSIONMODNAVIGATION
 			if (m_AIEscortConfig.GetMarkerName() != string.Empty)
 				CreateMarkers();
-		#endif
 		}
 		else
 		{
@@ -149,14 +145,12 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-#ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
 		vector markerPosition = m_ObjectivePos;
 		string markerName = m_AIEscortConfig.GetMarkerName();
 		CreateObjectiveMarker(markerPosition, markerName);
 	}
-#endif
 
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = null, map<Man, ref ExpansionEntityHitInfo> hitMap = null)
 	{

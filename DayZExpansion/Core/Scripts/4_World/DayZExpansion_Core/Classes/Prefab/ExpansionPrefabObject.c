@@ -265,6 +265,10 @@ class ExpansionPrefabObject : Managed
 			{
 				HumanInventory humanInventory = HumanInventory.Cast(inventory);
 
+			#ifdef EXPANSIONMODAI
+				eAIBase ai = eAIBase.Cast(entity);
+			#endif
+
 				array<ref ExpansionPrefabObject> candidates();
 				int index;
 
@@ -320,6 +324,7 @@ class ExpansionPrefabObject : Managed
 
 					int slotId = InventorySlots.GetSlotIdFromString(slotName);
 					int currentSlotId;
+					int fallbackSlotId = InventorySlots.INVALID;
 
 					map<int, bool> slotTaken = new map<int, bool>;
 					child = null;
@@ -357,6 +362,22 @@ class ExpansionPrefabObject : Managed
 							if (GetGame().IsKindOf(attachment.ClassName, "Magazine_Base") && !GetGame().IsKindOf(attachment.ClassName, "Ammunition_Base"))
 								currentSlotId = InventorySlots.MAGAZINE;
 						}
+					#ifdef EXPANSIONMODAI
+						else if (ai)
+						{
+							//! Prefer hand slot for AI weapon to mitigate client sync issues
+							if ((slotId == InventorySlots.SHOULDER || slotId == InventorySlots.MELEE) && !slotTaken[InventorySlots.HANDS] && GetGame().ConfigIsExisting("CfgWeapons " + attachment.ClassName))
+							{
+								currentSlotId = InventorySlots.HANDS;
+								fallbackSlotId = slotId;
+							}
+							else if (slotId == InventorySlots.HANDS && fallbackSlotId != InventorySlots.INVALID && slotTaken[InventorySlots.HANDS])
+							{
+								currentSlotId = fallbackSlotId;
+								fallbackSlotId = InventorySlots.INVALID;
+							}
+						}
+					#endif
 
 						if (currentSlotId != InventorySlots.INVALID && slotTaken[currentSlotId])
 						{

@@ -90,14 +90,12 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 			//! PvP quest objective. Check if the victim is a quest player
 			//! of this quest and if its a group quest make sure he was not in the involved party before.
 			//! If he is in the related group or was in it we dont count the kill!
-		#ifdef EXPANSIONMODGROUPS
 			if (m_Quest.GetQuestConfig().IsGroupQuest() && victimPlayer.GetIdentity())
 			{
 				string victimPlayerUID = victimPlayer.GetIdentity().GetId();
 				if (ExpansionQuestModule.GetModuleInstance().IsGroupPlayer(m_Quest.GetGroupID(), victimPlayerUID))
 					return;
 			}
-		#endif
 		}
 
 		if (killerPlayer && !IsInRange(killerPlayer.GetPosition(), m_TargetConfig.GetPosition(), m_TargetConfig.GetMaxDistance(), m_TargetConfig.GetMinDistance()))

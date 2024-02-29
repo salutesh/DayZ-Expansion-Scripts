@@ -146,7 +146,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		{
 			CheckPlayerForObjectiveItems(m_Quest.GetPlayer());
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			set<string> playerUIDs = m_Quest.GetPlayerUIDs();
@@ -158,7 +157,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 				CheckPlayerForObjectiveItems(playerUID);
 			}
 		}
-	#endif
 
 		ObjectivePrint("m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 	}

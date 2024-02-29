@@ -271,7 +271,6 @@ class ExpansionDefaultQuestData
 	}
 #endif
 
-#ifdef EXPANSIONMODGROUPS
 	//! Quest example template for a simple group quest
 	ExpansionQuestConfig ExpansionQuestConfig007()
 	{
@@ -307,7 +306,6 @@ class ExpansionDefaultQuestData
 
 		return questConfig;
 	}
-#endif
 
 	//! Achievement example quests
 	ExpansionQuestConfig ExpansionQuestConfig008()

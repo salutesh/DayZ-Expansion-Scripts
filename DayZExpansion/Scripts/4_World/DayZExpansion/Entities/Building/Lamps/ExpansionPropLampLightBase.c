@@ -61,7 +61,7 @@ class ExpansionPropLampLightBase: Building
 			m_CastShadow = GetExpansionClientSettings().CastLightShadows;
 			
 			//! https://feedback.bistudio.com/T173348
-			if (GetExpansionSettings().GetGeneral() && GetExpansionSettings().GetGeneral().EnableLamps != LampModeEnum.Disabled)
+			if (GetExpansionSettings().GetGeneral().EnableLamps != LampModeEnum.Disabled)
 				m_CanBeEnabled = true;
 			else
 				m_CanBeEnabled = false;

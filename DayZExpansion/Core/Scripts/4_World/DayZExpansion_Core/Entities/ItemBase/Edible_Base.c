@@ -17,7 +17,7 @@ modded class Edible_Base
 	FoodStageType Expansion_GetProcessedFoodStageDecay( float delta, bool hasRootAsPlayer )
 	{
 		int decayTimer;
-		FoodStageType processedFoodStage;
+		FoodStageType processedFoodStage = FoodStageType.NONE;
 		FoodStageType lastDecayStage;
 		float decayDelta = 0.0;
 		decayDelta *= DayZGame.Cast(GetGame()).GetFoodDecayModifier();
@@ -168,25 +168,9 @@ modded class Edible_Base
 				}
 			}
 		}
-		else
-		{
-			//! Opened cans
-			decayTimer -= ( delta * decayDelta );
-			if ( ( decayTimer <= 0 ) && ( lastDecayStage == FoodStageType.NONE ) )
-			{
-				decayTimer = ( GameConstants.DECAY_FOOD_CAN_OPEN + ( Math.RandomFloat01() * ( GameConstants.DECAY_FOOD_DRIED_MEAT * ( GameConstants.DECAY_TIMER_RANDOM_PERCENTAGE / 100.0 ) ) ) );
-				lastDecayStage = FoodStageType.RAW;
-			}
-			else
-			{
-				if ( decayTimer <= 0 )
-				{
-					decayTimer = -1;
-				}
-			}
-		}
 
-		decayDelta = 0.0;
+		if (processedFoodStage == FoodStageType.NONE && m_FoodStage)
+			processedFoodStage = GetFoodStageType();
 
 		return processedFoodStage;
 	}

@@ -7,6 +7,9 @@ enum eAICommands
 	MOV_GETIN,
 	MOV_SETWP,
 	MOV_CLEARWP,
+	MOV_WALK,
+	MOV_JOG,
+	MOV_SPRINT,
 	// Formation 
 	FOR_VEE,
 	FOR_INVVEE,
