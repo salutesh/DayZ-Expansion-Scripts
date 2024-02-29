@@ -160,11 +160,9 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 				m_TotalKillCount++;
 				m_Quest.QuestCompletionCheck(true);
 			}
-			
-		#ifdef EXPANSIONMODNAVIGATION
+
 			if (m_TotalKillCount >= m_TotalUnitsAmount)
 				RemoveObjectiveMarkers();
-		#endif
 		}
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		else
@@ -211,55 +209,6 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 
 	protected void CreateQuestAIPatrol();
 
-	/*static eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group, int killCount = 0, int respawnTime = -1, int despawnTime = 0, float minDistRadius = 20, float maxDistRadius = 100, float despawnRadius = 100)
-	{
-		//Print("=================== Expansion Quest AI Patrol ===================");
-		int aiSum;
-		if ( group.NumberOfAI != 0 )
-		{
-			if ( group.NumberOfAI < 0 )
-			{
-				aiSum = Math.RandomInt(1,-group.NumberOfAI);
-			}
-			else
-			{
-				aiSum = group.NumberOfAI - killCount;
-			}
-		}
-		else
-		{
-            Error("[QUESTS] WARNING: NumberOfAI shouldn't be set to 0, skipping this group...");
-			return NULL;
-		}
-
-        if ( !group.Waypoints )
-        {
-        	Error("[QUESTS] No waypoints (validate your file with a json validator)");
-           	return NULL;
-        }
-
-		vector startpos = group.Waypoints[0];
-		if ( !startpos || startpos == "0 0 0" )
-		{
-			Error("[QUESTS] Couldn't find a spawn location. First waypoint is set to 0 0 0 or cannot be read by the system (validate your file with a json validator)");
-			return NULL;
-		}
-
-		// Safety in case the Y is bellow the ground
-		startpos = ExpansionStatic.GetSurfacePosition(startpos);
-		if ( startpos[1] < group.Waypoints[0][1] )
-			startpos[1] = group.Waypoints[0][1];
-
-		//Print("[QUESTS] Created trigger for "+aiSum+" "+group.Faction+" bots at "+group.Waypoints[0]);
-
-		eAIDynamicPatrol patrol = eAIDynamicPatrol.CreateEx(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawnTime, despawnTime, eAIFaction.Create(group.Faction), eAIFormation.Create(group.Formation), true, minDistRadius, maxDistRadius, despawnRadius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
-        patrol.SetAccuracy(group.AccuracyMin, group.AccuracyMax);
-		patrol.SetDamageReceivedMultiplier(group.DamageReceivedMultiplier);
-
-		//Print("=================== Expansion Quest AI Patrol ===================");
-		return patrol;
-	}*/
-
 	void SetKillCount(int count)
 	{
 		m_TotalKillCount = count;
@@ -303,13 +252,11 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 
 		return false;
 	}
-		
-#ifdef EXPANSIONMODNAVIGATION
+
 	override bool CanCreateMarkers()
 	{
 		return (m_TotalKillCount < m_TotalUnitsAmount);
 	}
-#endif
 
 	override int GetObjectiveType()
 	{

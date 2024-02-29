@@ -25,11 +25,18 @@ class eAIFormation
 		m_Group = group;
 	}
 
-	// Abstract function that returns the position in local space relative to the formation transformation at any given time.
+	/**
+	 * @brief Abstract function that returns the position in local space relative to the formation transformation at any given time.
+	 */
 	vector GetPosition(int member_no);
 
-	// returns the direction the AI is supposed to look at when not in a fight
-	vector GetDirection(int member_no);
+	/**
+	 * @brief Returns the direction in local space the AI is supposed to look at when not in a fight
+	 */
+	vector GetDirection(int member_no)
+	{
+		return vector.Forward;
+	}
 
 	void SetLooseness(float looseness)
 	{

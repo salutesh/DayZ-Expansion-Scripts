@@ -55,10 +55,8 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 			}
 		}
 
-		#ifdef EXPANSIONMODNAVIGATION
 		if (CanCreateMarkers())
 			CreateMarkers();
-		#endif
 
 		//! Create objective trigger.
 		if (!ExpansionQuestModule.GetModuleInstance().QuestTriggerExists(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_ObjectiveConfig.GetID()))
@@ -79,7 +77,6 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 			vector playerPos = GetQuest().GetPlayer().GetPosition();
 			currentDistance = vector.Distance(playerPos, m_Position);
 		}
-		#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			//! Set the position of the group member that has the shortest distance to the target location
@@ -117,7 +114,6 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 			currentDistance = vector.Distance(groupMemberPos[posIndex], m_Position);
 		}
-		#endif
 
 		float maxDistance = m_TravelConfig.GetMaxDistance();
 		if (currentDistance <= maxDistance)
@@ -187,7 +183,6 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		return m_DestinationReached;
 	}
 
-	#ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -195,9 +190,9 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		string markerName = m_TravelConfig.GetMarkerName();
-		CreateObjectiveMarker(m_Position, markerName);
+		if (markerName != string.Empty)
+			CreateObjectiveMarker(m_Position, markerName);
 	}
-	#endif
 
 	vector GetPosition()
 	{
@@ -212,10 +207,10 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	#endif
 		ObjectivePrint("State: " + state);
 		m_DestinationReached = state;
-	#ifdef EXPANSIONMODNAVIGATION
+
 		if (state)
 			RemoveObjectiveMarkers();
-	#endif
+
 		m_Quest.QuestCompletionCheck(true);
 	}
 
@@ -272,8 +267,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
         return position;
     }
-	
-#ifdef EXPANSIONMODNAVIGATION
+
 	override bool CanCreateMarkers()
 	{
 		if (m_TravelConfig.GetMarkerName() == string.Empty)
@@ -281,7 +275,6 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 		return !m_DestinationReached;
 	}
-#endif
 
 	override int GetObjectiveType()
 	{

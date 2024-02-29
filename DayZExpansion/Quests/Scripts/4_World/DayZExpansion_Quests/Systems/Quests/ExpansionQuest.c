@@ -22,10 +22,8 @@ class ExpansionQuest
 	protected string m_PlayerUID;
 	protected bool m_IsCompleted = false;
 	protected bool m_Initialized = false;
-#ifdef EXPANSIONMODGROUPS
 	protected int m_GroupID = -1;
 	protected ref set<string> m_PlayerUIDs = new set<string>;
-#endif
 	protected bool m_ObjectivesCreated = false;
 	protected int m_CurrentObjectiveIndex = -1;
 	protected int m_CompletedObjectivesCount;
@@ -273,9 +271,7 @@ class ExpansionQuest
 		m_PlayerUID = playerUID;
 		m_Player = PlayerBase.GetPlayerByUID(playerUID);
 
-	#ifdef EXPANSIONMODGROUPS
 		AddGroupMember(playerUID);
-	#endif
 	}
 
 	PlayerBase GetPlayer()
@@ -425,13 +421,11 @@ class ExpansionQuest
 			return false;
 		}
 
-	#ifdef EXPANSIONMODGROUPS
 		if (m_Config.IsGroupQuest() && m_GroupID == -1)
 		{
 			Error(ToString() + "::OnQuestStart - Group ID not set!");
 			return false;
 		}
-	#endif
 
 		return true;
 	}
@@ -460,16 +454,8 @@ class ExpansionQuest
 			return;
 		}
 
-	#ifdef EXPANSIONMODNAVIGATION
-		//! Create the turn-in marker if the quest is not autocompleted or has no turn-in quest NPC ID.
 		if (!m_Config.IsAutocomplete() && m_Config.GetQuestTurnInIDs().Count() > 0 && m_Config.GetQuestTurnInIDs()[0] != -1)
-		{
-			QuestDebugPrint("Create turn-in marker!");
-			//! Create a marker on the closest quest npc location for the player
-			vector npcPos = GetClosestQuestNPCPosition(m_Config.GetQuestTurnInIDs(), m_Player.GetPosition());
-			CreateQuestMarker(npcPos, "#STR_EXPANSION_QUEST_MARKER_TURNIN");
-		}
-	#endif
+			CreateQuestTurnInMarker();
 
 		if (m_QuestState >= ExpansionQuestState.CAN_TURNIN)
 		{
@@ -495,6 +481,17 @@ class ExpansionQuest
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestObjectivesComplete(this);
 	}
 
+	//! Create the turn-in marker if the quest is not autocompleted or has no turn-in quest NPC ID.
+	protected void CreateQuestTurnInMarker()
+	{
+	#ifdef EXPANSIONMODNAVIGATION
+		QuestDebugPrint("Create turn-in marker!");
+		//! Create a marker on the closest quest npc location for the player
+		vector npcPos = GetClosestQuestNPCPosition(m_Config.GetQuestTurnInIDs(), m_Player.GetPosition());
+		CreateQuestMarker(npcPos, "#STR_EXPANSION_QUEST_MARKER_TURNIN");
+	#endif	
+	}
+
 	//! Event called when a quest objective state has changed to incomplete after it was completed once
 	void OnQuestObjectivesIncomplete()
 	{
@@ -506,10 +503,8 @@ class ExpansionQuest
 			return;
 		}
 
-	#ifdef EXPANSIONMODNAVIGATION
 		//! Remove the turn-in markers in case there is one.
 		RemoveQuestMarkers();
-	#endif
 
 		SetQuestState(ExpansionQuestState.STARTED);
 		
@@ -782,7 +777,6 @@ class ExpansionQuest
 				return false;
 			}
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			foreach (string playerUID: m_PlayerUIDs)
@@ -817,7 +811,6 @@ class ExpansionQuest
 				}
 			}
 		}
-	#endif
 		
 		return true;
 	}
@@ -837,7 +830,6 @@ class ExpansionQuest
 		{
 			CleanupAllItemsWithQuestID(m_Player);
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			foreach (string memberUID: m_PlayerUIDs)
@@ -849,7 +841,6 @@ class ExpansionQuest
 				CleanupAllItemsWithQuestID(groupPlayer);
 			}
 		}
-	#endif
 	}
 	
 	protected void CleanupAllItemsWithQuestID(PlayerBase player)
@@ -897,7 +888,6 @@ class ExpansionQuest
 				SpawnQuestItem(questItem, m_Player, m_Player, m_Player.GetPosition(), m_Player.GetOrientation());
 			}
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			foreach (string memberUID: m_PlayerUIDs)
@@ -913,11 +903,9 @@ class ExpansionQuest
 				}
 			}
 		}
-	#endif
 	}
 
 	//! Event called for group quests only when a group member joins/rejoins the quest group
-#ifdef EXPANSIONMODGROUPS
 	void OnGroupMemberJoined(string playerUID)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -1039,8 +1027,7 @@ class ExpansionQuest
 			if (currentActiveObjective.IsActive() && currentActiveObjective.IsInitialized())
 				currentActiveObjective.OnGroupMemberLeave(playerUID);
 
-			auto group = ExpansionPartyModule.s_Instance.GetPartyByID(m_GroupID);
-			if (!group || group.GetPlayers().Count() == 0)
+			if (!GroupExists(m_GroupID))
 			{
 				//! Group was deleted
 				CancelQuest();
@@ -1055,12 +1042,22 @@ class ExpansionQuest
 		}
 	}
 
+	//! 3rd party modding support helper function
+	bool GroupExists(int groupID)
+	{
+	#ifdef EXPANSIONMODGROUPS
+		auto group = ExpansionPartyModule.s_Instance.GetPartyByID(m_GroupID);
+		if (group && group.GetPlayers().Count() > 0)
+			return true;
+	#endif
+		return false;
+	}
+
 	//! Players (online)
 	set<string> GetPlayerUIDs()
 	{
 		return m_PlayerUIDs;
 	}
-#endif
 
 	//! Event called when quest instance is destroyed/cleaned-up
 	bool OnQuestCleanup(bool callObjectiveCleanup = false, bool canceledQuest = false)
@@ -1081,10 +1078,9 @@ class ExpansionQuest
 
 		//! Call cleanup event on all active quest objectives
 		CleanupObjectives(callObjectiveCleanup);
-		
-	#ifdef EXPANSIONMODNAVIGATION
+
 		RemoveQuestMarkers(true);
-	#endif
+
 		SetInitialized(false);
 
 		return true;
@@ -1340,7 +1336,6 @@ class ExpansionQuest
 		return false;
 	}
 
-#ifdef EXPANSIONMODGROUPS
 	void SetGroupID(int groupID)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -1359,7 +1354,6 @@ class ExpansionQuest
 	{
 		return m_PlayerUIDs.Count() > 1;
 	}
-#endif
 
 	void SpawnQuestRewards(string playerUID, ExpansionQuestRewardConfig reward = null)
 	{
@@ -1470,7 +1464,6 @@ class ExpansionQuest
 		#endif
 		#endif
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			bool isGroupOwnerOnline = false;
@@ -1486,6 +1479,8 @@ class ExpansionQuest
 			
 			foreach (string memberUID: m_PlayerUIDs)
 			{
+				//! TODO: *Terrible*, everything duplicated from non-group quest handling. Please refactor at some point @Steve_aka_Salutesh
+
 				if (m_Config.RewardsForGroupOwnerOnly())
 				{
 					QuestDebugPrint("Quest rewards for quest " + m_Config.GetID() + " are for the quest owner only.");
@@ -1592,7 +1587,6 @@ class ExpansionQuest
 			#endif
 			}
 		}
-	#endif
 	}
 
 	int GetObjectivesCount()
@@ -1610,7 +1604,6 @@ class ExpansionQuest
 
 			ExpansionNotification(title, text, icon, color, 7, ExpansionNotificationType.TOAST).Create(m_Player.GetIdentity());
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			foreach (string memberUID: m_PlayerUIDs)
@@ -1622,7 +1615,6 @@ class ExpansionQuest
 				ExpansionNotification(title, text, icon, color, 7, ExpansionNotificationType.TOAST).Create(groupPlayer.GetIdentity());
 			}
 		}
-	#endif
 	}
 
 	bool IsQuestPlayer(string uid)
@@ -1631,17 +1623,14 @@ class ExpansionQuest
 		{
 			return true;
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else if (m_Config.IsGroupQuest())
 		{
 			return m_PlayerUIDs.Find(uid) > -1;
 		}
-	#endif
 
 		return false;
 	}
 
-#ifdef EXPANSIONMODNAVIGATION
 	//! @note DO NOT use this to create objective markers! Use ExpansionQuestObjectivEEventBase::CreateObjectiveMarker
 	private void CreateQuestMarker(vector pos, string name)
 	{
@@ -1654,7 +1643,6 @@ class ExpansionQuest
 
 			m_QuestModule.CreateClientMarker(pos, name, m_Config.GetID(), m_Player.GetIdentity(), -1);
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			foreach (string memberUID: m_PlayerUIDs)
@@ -1666,7 +1654,6 @@ class ExpansionQuest
 				m_QuestModule.CreateClientMarker(pos, name, m_Config.GetID(), groupPlayer.GetIdentity(), -1);
 			}
 		}
-	#endif
 	}
 
 	/**
@@ -1690,7 +1677,6 @@ class ExpansionQuest
 
 			m_QuestModule.RemoveClientMarkers(m_Config.GetID(), player.GetIdentity(), objectiveIndex);
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			foreach (string memberUID: m_PlayerUIDs)
@@ -1702,9 +1688,7 @@ class ExpansionQuest
 				m_QuestModule.RemoveClientMarkers(m_Config.GetID(), groupPlayer.GetIdentity(), objectiveIndex);
 			}
 		}
-	#endif
 	}
-#endif
 
 	bool ObjectivesCreated()
 	{

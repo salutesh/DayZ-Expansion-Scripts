@@ -42,7 +42,7 @@ class ExpansionScriptViewBase: ScriptView
 		m_IsVisible = state;
 	}
 
-	bool IsVisible()
+	override bool IsVisible()
 	{
 		return m_IsVisible;
 	}
@@ -57,7 +57,7 @@ class ExpansionScriptViewBase: ScriptView
 		return m_Alpha;
 	}
 
-	void Show(bool show);
+	override void Show(bool show);
 
 	void Show();
 

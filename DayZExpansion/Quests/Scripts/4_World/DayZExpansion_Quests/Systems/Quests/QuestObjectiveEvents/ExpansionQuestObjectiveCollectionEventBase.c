@@ -242,7 +242,6 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			if (!CheckPlayerForObjectiveItems(m_Quest.GetPlayer()))
 				return false;
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			set<string> playerUIDs = m_Quest.GetPlayerUIDs();
@@ -255,7 +254,6 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 					return false;
 			}
 		}
-	#endif
 
 		ObjectivePrint("End and return TRUE");
 

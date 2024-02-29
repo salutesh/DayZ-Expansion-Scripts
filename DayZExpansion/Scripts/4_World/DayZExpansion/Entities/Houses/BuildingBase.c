@@ -35,9 +35,8 @@ modded class BuildingBase
 
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
 
-#ifdef SERVER
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(OnSettingsUpdated);
-#endif
+		if (GetGame().IsServer())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(OnSettingsUpdated);
 	}
 		
 	// ------------------------------------------------------------

@@ -75,7 +75,7 @@ class EXTrace
 
 	static bool MISSIONS = IsEnabled();
 
-	static bool NOTIFICATIONS;
+	static bool NOTIFICATIONS = IsEnabled();
 	
 	static bool NAMALSKADVENTURE = IsEnabled();
 	

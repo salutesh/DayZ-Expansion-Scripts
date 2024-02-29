@@ -1814,9 +1814,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 		Print(ToString() + "::QuestDebug - IsAchievement: " + IsAchievement);
 		Print(ToString() + "::QuestDebug - ObjectSetFileName: " + ObjectSetFileName);
 		Print(ToString() + "::QuestDebug - NeedToSelectReward: " + NeedToSelectReward);
-	#ifdef EXPANSIONMODGROUPS
 		Print(ToString() + "::QuestDebug - RewardsForGroupOwnerOnly: " + RewardsForGroupOwnerOnly);
-	#endif
 		Print(ToString() + "::QuestDebug - QuestColor: " + QuestColor);
 	#ifdef EXPANSIONMODHARDLINE
 		Print(ToString() + "::QuestDebug - ReputationReward: " + ReputationReward);

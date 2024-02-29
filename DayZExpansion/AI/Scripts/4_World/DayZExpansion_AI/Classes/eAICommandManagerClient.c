@@ -3,6 +3,8 @@ class eAICommandManagerClient : eAICommandManager
 {
 	ref ExpansionRPCManager m_Expansion_RPCManager;
 
+	int m_MovementSpeedLimit = eAIMovementSpeed.SPRINT;
+
 	void eAICommandManagerClient()
 	{
 		m_Expansion_RPCManager = new ExpansionRPCManager(this);
@@ -21,6 +23,8 @@ class eAICommandManagerClient : eAICommandManager
 		m_Expansion_RPCManager.RegisterServer("RPC_ExportPatrol");
 		m_Expansion_RPCManager.RegisterServer("RPC_ClearWaypoints");
 
+		m_Expansion_RPCManager.RegisterServer("RPC_SetMovementSpeed");
+
 		m_Expansion_RPCManager.RegisterServer("RPC_DumpState");
 	}
 
@@ -33,7 +37,7 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.DEB_SPAWNGUARD:
 			case eAICommands.DEB_SPAWNPASSIVE:
 			case eAICommands.DEB_SPAWNSHAMAN:
-				m_Expansion_RPCManager.SendRPC("RPC_SpawnAI", new Param2<int, vector>(cmd, ExpansionStatic.GetCursorHitPos()));
+				m_Expansion_RPCManager.SendRPC("RPC_SpawnAI", new Param3<int, vector, int>(cmd, ExpansionStatic.GetCursorHitPos(), m_MovementSpeedLimit));
 				return true;
 			
 			case eAICommands.DEB_CLEARALL:
@@ -83,6 +87,13 @@ class eAICommandManagerClient : eAICommandManager
 			
 			case eAICommands.MOV_CLEARWP:
 				m_Expansion_RPCManager.SendRPC("RPC_ClearWaypoints");
+				return true;
+			
+			case eAICommands.MOV_WALK:
+			case eAICommands.MOV_JOG:
+			case eAICommands.MOV_SPRINT:
+				m_MovementSpeedLimit = cmd - eAICommands.MOV_WALK + 1;
+				m_Expansion_RPCManager.SendRPC("RPC_SetMovementSpeed", new Param1<int>(m_MovementSpeedLimit));
 				return true;
 			
 			case eAICommands.DEB_TARGET_CREATE:
@@ -186,6 +197,9 @@ class eAICommandManagerClient : eAICommandManager
 		vector pos;
 		if (!ctx.Read(pos)) return;
 
+		int speed;
+		if (!ctx.Read(speed)) return;
+
 		if (GetGame().IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
@@ -199,27 +213,28 @@ class eAICommandManagerClient : eAICommandManager
 		else
 			pos = ExpansionAISpawnBase.GetPlacementPosition(pos);
 
-		eAIBase sentry;
+		eAIBase ai;
 		switch (command)
 		{
 			case eAICommands.DEB_SPAWNALLY:
-				SpawnAI_Helper(player);
+				ai = SpawnAI_Helper(player);
+				ai.SetMovementSpeedLimit(speed);
 				break;
 			case eAICommands.DEB_SPAWNSENTRY:
-				sentry = SpawnAI_Sentry(pos);
-				sentry.GetGroup().SetFaction(new eAIFactionMercenaries());
+				ai = SpawnAI_Sentry(pos);
+				ai.GetGroup().SetFaction(new eAIFactionMercenaries());
 				break;
 			case eAICommands.DEB_SPAWNGUARD:
-				sentry = SpawnAI_Sentry(pos);
-				sentry.GetGroup().SetFaction(new eAIFactionGuards());
+				ai = SpawnAI_Sentry(pos);
+				ai.GetGroup().SetFaction(new eAIFactionGuards());
 				break;
 			case eAICommands.DEB_SPAWNPASSIVE:
-				sentry = SpawnAI_Sentry(pos);
-				sentry.GetGroup().SetFaction(new eAIFactionPassive());
+				ai = SpawnAI_Sentry(pos);
+				ai.GetGroup().SetFaction(new eAIFactionPassive());
 				break;
 			case eAICommands.DEB_SPAWNSHAMAN:
-				sentry = SpawnAI_Sentry(pos);
-				sentry.GetGroup().SetFaction(new eAIFactionShamans());
+				ai = SpawnAI_Sentry(pos);
+				ai.GetGroup().SetFaction(new eAIFactionShamans());
 				break;
 		}
 	}
@@ -418,10 +433,6 @@ class eAICommandManagerClient : eAICommandManager
 
 		g.AddWaypoint(position);
 		g.SetWaypointBehaviourAuto(eAIWaypointBehavior.ONCE);
-
-		eAIBase ai;
-		if (Class.CastTo(ai, g.GetFormationLeader()))
-			ai.SetMovementSpeedLimit(2);
 	}
 
 	void RPC_ExportPatrol(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -474,11 +485,28 @@ class eAICommandManagerClient : eAICommandManager
 
 		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
 
-		eAIBase ai;
-		if (Class.CastTo(ai, g.GetFormationLeader()))
-			ai.SetMovementSpeedLimit(3);
-
 		g.ClearWaypoints();
+	}
+	
+	void RPC_SetMovementSpeed(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		int speed;
+		if (!ctx.Read(speed))
+			return;
+
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
+		for (int i = 0; i < g.Count(); i++)
+		{
+			eAIBase ai;
+			if (Class.CastTo(ai, g.GetMember(i)))
+				ai.SetMovementSpeedLimit(speed);
+		}
 	}
 
 	void RPC_DumpState(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -500,7 +528,14 @@ class eAICommandManagerClient : eAICommandManager
 
 		if (!report)
 		{
-			eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
+			eAIGroup g = player.GetGroup();
+
+			if (!g)
+			{
+				ExpansionNotification("EXPANSION AI", "No group and no AI selected, nothing to dump").Error(sender);
+				return;
+			}
+
 			report = g.DumpState(sender);
 		}
 

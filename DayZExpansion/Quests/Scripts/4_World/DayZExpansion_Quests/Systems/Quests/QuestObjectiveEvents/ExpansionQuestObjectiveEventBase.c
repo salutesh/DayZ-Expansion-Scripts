@@ -316,9 +316,7 @@ class ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		SetCompleted(true);
-	#ifdef EXPANSIONMODNAVIGATION
 		RemoveObjectiveMarkers();
-	#endif
 
 		if (m_TimeLimit > -1)
 		{
@@ -335,11 +333,9 @@ class ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		SetCompleted(false);
-		
-	#ifdef EXPANSIONMODNAVIGATION
+
 		if (CanCreateMarkers())
 			CreateMarkers();
-	#endif
 
 		return true;
 	}
@@ -372,20 +368,16 @@ class ExpansionQuestObjectiveEventBase
 		}
 
 		DeassignObjectiveOnClasses();
-	#ifdef EXPANSIONMODNAVIGATION
 		RemoveObjectiveMarkers();
-	#endif
 
 		return true;
 	}
 
 	//! Event called for group quests only when a group member joins/rejoins the quest group
-#ifdef EXPANSIONMODGROUPS
 	void OnGroupMemberJoined(string playerUID);
 
 	//! Event called for group quests only when a group member leaves the quest group
 	void OnGroupMemberLeave(string playerUID);
-#endif
 
 	ExpansionQuestObjectiveConfig GetObjectiveConfig()
 	{
@@ -419,7 +411,6 @@ class ExpansionQuestObjectiveEventBase
 		return ExpansionQuestObjectiveType.NONE;
 	}
 
-#ifdef EXPANSIONMODNAVIGATION
 	void CreateObjectiveMarker(vector pos, string name, int visibility = 6)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -432,7 +423,6 @@ class ExpansionQuestObjectiveEventBase
 
 			m_Quest.GetQuestModule().CreateClientMarker(pos, name, m_Quest.GetQuestConfig().GetID(), player.GetIdentity(), m_Index, visibility);
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			set<string> members = m_Quest.GetPlayerUIDs();
@@ -445,7 +435,6 @@ class ExpansionQuestObjectiveEventBase
 				m_Quest.GetQuestModule().CreateClientMarker(pos, name, m_Quest.GetQuestConfig().GetID(), groupPlayer.GetIdentity(), m_Index, visibility);
 			}
 		}
-	#endif
 	}
 
 	void RemoveObjectiveMarkers()
@@ -460,7 +449,6 @@ class ExpansionQuestObjectiveEventBase
 
 			m_Quest.GetQuestModule().RemoveClientMarkers(m_Quest.GetQuestConfig().GetID(), player.GetIdentity(), m_Index);
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			set<string> members = m_Quest.GetPlayerUIDs();
@@ -473,7 +461,6 @@ class ExpansionQuestObjectiveEventBase
 				m_Quest.GetQuestModule().RemoveClientMarkers(m_Quest.GetQuestConfig().GetID(), groupPlayer.GetIdentity(), m_Index);
 			}
 		}
-	#endif
 	}
 
 	void CreateMarkers();
@@ -482,7 +469,6 @@ class ExpansionQuestObjectiveEventBase
 	{
 		return true;
 	}
-#endif
 
 	bool IsInRange(vector playerPos, vector position, float maxDistance, float minDistance = 0.0)
 	{

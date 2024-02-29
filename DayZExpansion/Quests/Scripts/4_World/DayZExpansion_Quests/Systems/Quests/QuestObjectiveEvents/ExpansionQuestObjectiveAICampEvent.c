@@ -165,10 +165,8 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		if (m_AICampConfig.GetInfectedDeletionRadius() > 0 && !ExpansionQuestModule.GetModuleInstance().QuestTriggerExists(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_ObjectiveConfig.GetID()))
 			CreateTrigger(m_AICampConfig.GetAISpawns()[0].GetWaypoints()[0], m_AICampConfig.GetInfectedDeletionRadius());
 
-	#ifdef EXPANSIONMODNAVIGATION
 		if (m_AICampConfig.GetObjectiveText() != string.Empty)
 			CreateMarkers();
-	#endif
 	}
 
 	protected void CreateTrigger(vector pos, int radius)
@@ -190,18 +188,13 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		ExpansionQuestModule.GetModuleInstance().SetQuestTriggers(m_Quest.GetQuestConfig().GetID(), triggers);
 	}
 
-#ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
-		if (!m_AICampConfig)
-			return;
-
 		string markerName = m_AICampConfig.GetObjectiveText();
 		vector position = m_AICampConfig.GetAISpawns()[0].GetWaypoints()[0];
 		if (position != "0 0 0")
 			CreateObjectiveMarker(position, markerName);
 	}
-#endif
 
 	override int GetObjectiveType()
 	{

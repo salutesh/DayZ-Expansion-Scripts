@@ -46,6 +46,7 @@ class ExpansionNPCBase: ExpansionNotPlayerBase
 
 	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished) 
 	{
+		dBodyActive(this, ActiveState.INACTIVE);
 	}
 
 	//! Vanilla, prevent being targeted by Zs/animals

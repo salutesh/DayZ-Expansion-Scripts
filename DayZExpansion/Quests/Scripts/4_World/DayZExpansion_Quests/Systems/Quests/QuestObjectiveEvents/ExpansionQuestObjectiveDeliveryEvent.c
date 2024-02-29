@@ -13,9 +13,7 @@
 class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEventBase
 {
 	protected bool m_DestinationReached;
-#ifdef EXPANSIONMODNAVIGATION
 	protected bool m_CreatedMarker;
-#endif
 	protected vector m_Position;
 
 	override bool OnEventStart()
@@ -344,7 +342,6 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 			{
 				currentDistanceSq = vector.DistanceSq(playerPos, m_Position);
 			}
-		#ifdef EXPANSIONMODGROUPS
 			else
 			{
 				//! Set the position of the group member that has the shortest distance to the target location
@@ -366,7 +363,6 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 	
 				currentDistanceSq = smallestDistanceSq;
 			}
-		#endif
 	
 			float maxDistance = m_DeliveryConfig.GetMaxDistance();
 			if (currentDistanceSq <= maxDistance * maxDistance)
@@ -381,7 +377,6 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		}
 	}
 
-#ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
 		if (!Class.CastTo(m_DeliveryConfig, m_ObjectiveConfig))
@@ -401,6 +396,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		vector playerPos = player.GetPosition();
 		vector npcPos = m_Quest.GetClosestQuestNPCPosition(questNPCTurnInIDs, playerPos);
 		CreateObjectiveMarker(npcPos, markerName);
+
 		m_CreatedMarker = true;
 	}
 	
@@ -428,10 +424,9 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-#endif
 
 	override protected void ObjectiveCheck()
 	{

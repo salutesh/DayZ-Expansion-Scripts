@@ -40,11 +40,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		if (!ExpansionQuestModule.GetModuleInstance().QuestTriggerExists(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_ObjectiveConfig.GetID()))
 			CreateTrigger(m_StashPos);
-
-	#ifdef EXPANSIONMODNAVIGATION
+	
 		if (m_TreasureHuntConfig.GetMarkerName() != string.Empty)
 			CreateMarkers();
-	#endif
 
 		return true;
 	}
@@ -83,10 +81,8 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 				if (!ExpansionQuestModule.GetModuleInstance().QuestTriggerExists(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_ObjectiveConfig.GetID()))
 					CreateTrigger(m_StashPos);
 
-			#ifdef EXPANSIONMODNAVIGATION
 				if (m_TreasureHuntConfig.GetMarkerName() != string.Empty)
 					CreateMarkers();
-			#endif
 			}
 		}
 		
@@ -213,7 +209,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 			if (!CheckEntityForLootItems(m_Quest.GetPlayer()))
 				return false;
 		}
-	#ifdef EXPANSIONMODGROUPS
 		else
 		{
 			set<string> playerUIDs = m_Quest.GetPlayerUIDs();
@@ -226,7 +221,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 					break;
 			}
 		}
-	#endif
 
 		EXTrace.Add(trace, true);
 
@@ -352,7 +346,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		m_Chest.ExpansionSetCanReceiveItems(false);
 	}
 
-#ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
 		if (!Class.CastTo(m_TreasureHuntConfig, m_ObjectiveConfig))
@@ -360,10 +353,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		string markerName = m_TreasureHuntConfig.GetMarkerName();
-		CreateObjectiveMarker(m_StashPos, markerName, m_TreasureHuntConfig.GetMarkerVisibility());
-
+		if (markerName != string.Empty)
+			CreateObjectiveMarker(m_StashPos, markerName, m_TreasureHuntConfig.GetMarkerVisibility());
 	}
-#endif
 
 	protected void CreateTrigger(vector pos)
 	{
@@ -405,9 +397,8 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		{
 			if (!m_Chest)
 				CreateTreasure();
-		#ifdef EXPANSIONMODNAVIGATION
+
 			RemoveObjectiveMarkers();
-		#endif
 		}
 		else
 		{
@@ -423,9 +414,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 				m_Stash = null;
 			}
 
-		#ifdef EXPANSIONMODNAVIGATION
 			CreateMarkers();
-		#endif
 		}
 
 		if (!IsCompleted())
@@ -498,13 +487,11 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	{
 		return m_LootItemsMap;
 	}
-	
-#ifdef EXPANSIONMODNAVIGATION
+
 	override bool CanCreateMarkers()
 	{
 		return !m_DestinationReached;
 	}
-#endif
 
 	override int GetObjectiveType()
 	{

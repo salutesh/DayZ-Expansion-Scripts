@@ -114,6 +114,7 @@ class eAIBase: PlayerBase
 
 	float m_eAI_FormationDirectionUpdateTime;
 	float m_eAI_FormationDirectionNextUpdateTime;
+	float m_eAI_MovementSpeedPrev;
 
 	private bool m_WeaponRaised;
 	private bool m_WeaponRaisedPrev;
@@ -706,6 +707,13 @@ class eAIBase: PlayerBase
 			target.RemoveAI(this);
 		}
 
+		if (m_eAI_TargetInformationStates.Count())
+		{
+			eAI_DebugTargetInformationStates();
+
+			m_eAI_TargetInformationStates.Clear();
+		}
+
 		super.eAI_Cleanup(autoDeleteGroup);
 
 		if (GetGame().IsServer() && !IsDamageDestroyed())
@@ -715,6 +723,14 @@ class eAIBase: PlayerBase
 			m_eAI_ClientUpdateTimer.Stop();
 
 		eAINoiseSystem.SI_OnNoiseAdded.Remove(eAI_OnNoiseEvent);
+	}
+
+	void eAI_DebugTargetInformationStates()
+	{
+		foreach (eAITargetInformation info, eAITargetInformationState state: m_eAI_TargetInformationStates)
+		{
+			EXPrint(this, "Debug: Not removed during target cleanup " + info + " " + state);
+		}
 	}
 
 	override bool IsAI()
@@ -1455,6 +1471,10 @@ class eAIBase: PlayerBase
 					}
 				}
 			}
+			else if (m_eAI_PreviousThreatToSelf < 0.15 && m_eAI_CurrentThreatToSelf >= 0.15 && m_eAI_CurrentThreatToSelf < 0.2 && !m_Expansion_EmoteID && Math.RandomFloat(0.0, 1.0) < 0.05)
+			{
+				eAI_RandomGreeting();
+			}
 		}
 
 		if (IsRaised() && !GetWeaponManager().IsRunning())
@@ -1687,6 +1707,12 @@ class eAIBase: PlayerBase
 
 	override void SetGroup(eAIGroup group, bool autoDeleteFormerGroupIfEmpty = true)
 	{
+		if (!group)
+		{
+			Error("Group cannot be NULL");
+			return;
+		}
+
 		if (GetGroup() == group)
 			return;
 
@@ -3026,12 +3052,11 @@ class eAIBase: PlayerBase
 		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT && m_eAI_Command && !skipScript)
 		{
 			vector lookTargetRelAngles = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
+			vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
 
 			if (IsRaised())
 			{
 				//! Need to adjust look direction when aiming
-				vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
-
 				lookTargetRelAngles[0] = lookTargetRelAngles[0] - aimTargetRelAngles[0];
 				if (entityInHands && entityInHands.IsWeapon())
 					lookTargetRelAngles[1] = lookTargetRelAngles[1] - aimTargetRelAngles[1];
@@ -3086,12 +3111,21 @@ class eAIBase: PlayerBase
 					turnTarget = m_eAI_TurnTarget;
 					setTurnTarget = true;
 				}
-				else if (m_eAI_Targets.Count() > 0)
+				else if (m_eAI_AimDirection_Recalculate || Math.AbsFloat(m_eAI_AimRelAngles[0]) > 90)
 				{
-					if (m_eAI_AimDirection_Recalculate || Math.AbsFloat(m_eAI_AimRelAngles[0]) > 90)
+					turnTarget = m_eAI_AimDirectionTarget_ModelSpace.Multiply3(m_ExTransformPlayer).VectorToAngles()[0];
+					setTurnTarget = true;
+
+					if (!m_eAI_LookDirection_Recalculate)
 					{
-						turnTarget = vector.Direction(GetPosition(), m_eAI_AimPosition_WorldSpace).Normalized().VectorToAngles()[0];
-						setTurnTarget = true;
+						lookTargetRelAngles[0] = 0.0;
+						m_eAI_LookDirectionTarget_ModelSpace = lookTargetRelAngles.AnglesToVector();
+					}
+
+					if (!m_eAI_AimDirection_Recalculate)
+					{
+						aimTargetRelAngles[0] = 0.0;
+						m_eAI_AimDirectionTarget_ModelSpace = aimTargetRelAngles.AnglesToVector();
 					}
 				}
 				else if (IsInherited(eAINPCBase) && hcm.GetCurrentMovementSpeed() == 0.0)
@@ -3150,24 +3184,32 @@ class eAIBase: PlayerBase
 			return false;
 		
 		float time = GetGame().GetTickTime();
-		bool isInitialUpdate = m_eAI_FormationDirectionUpdateTime == 0.0;
-		if (time - m_eAI_FormationDirectionUpdateTime < m_eAI_FormationDirectionNextUpdateTime && !isInitialUpdate)
+		bool force;
+
+		if (m_eAI_FormationDirectionUpdateTime == 0.0)
+			force = true;
+
+		float speed = Expansion_GetMovementSpeed();
+		if (m_eAI_MovementSpeedPrev == 0.0 && speed > 0.0)
+			force = true;
+
+		if (!force && time - m_eAI_FormationDirectionUpdateTime < m_eAI_FormationDirectionNextUpdateTime)
 			return true;
 
 		int count = GetGroup().Count();
 		
-		float speed = Expansion_GetMovementSpeed();
+		m_eAI_MovementSpeedPrev = speed;
 		float f = 4.0 - speed;
 		m_eAI_FormationDirectionNextUpdateTime = Math.RandomFloat(2.0, 6.666666 * f);
 		m_eAI_FormationDirectionUpdateTime = time;
 		vector pos, ori, dir;
 		float angle;
 		bool isDir;
+		bool isDirWS;
 
 		if (speed > 0)
 		{
 			isDir = true;
-			ori = m_eAI_FormationDirection.VectorToAngles();
 			ori[0] = Math.RandomFloat(-22.0 * f, 22.0 * f);
 			ori[1] = Math.RandomFloat(-36.0, 18.0);
 		}
@@ -3181,41 +3223,14 @@ class eAIBase: PlayerBase
 			{
 				pos = GetGroup().GetRandomMemberExcluding(this).GetPosition() + "0 1.5 0";
 				ori = vector.Direction(GetPosition() + "0 1.5 0", pos).VectorToAngles();
-				angle = ExpansionMath.RelAngle(ori[0]);
+				angle = ExpansionMath.AngleDiff2(GetOrientation()[0], ori[0]);
 
-				if (!m_Expansion_EmoteID && angle > -30 && angle < 30 && !GetExpansionSettings().GetAI().Manners)
+				if (!m_Expansion_EmoteID && angle > -30 && angle < 30)
 				{
 					isDir = true;
-					int emoteId;
-					switch (Math.RandomIntInclusive(0, 7))
-					{
-						case 0:
-							emoteId = EmoteConstants.ID_EMOTE_TAUNT;
-							break;
-						case 1:
-							emoteId = EmoteConstants.ID_EMOTE_TAUNTELBOW;
-							break;
-						case 2:
-							emoteId = EmoteConstants.ID_EMOTE_THROAT;
-							break;
-						case 3:
-							emoteId = EmoteConstants.ID_EMOTE_TAUNTKISS;
-							break;
-						case 4:
-							emoteId = EmoteConstants.ID_EMOTE_POINT;
-							break;
-						case 5:
-							emoteId = EmoteConstants.ID_EMOTE_WATCHING;
-							break;
-						case 6:
-							emoteId = EmoteConstants.ID_EMOTE_GREETING;
-							break;
-						case 7:
-							emoteId = EmoteConstants.ID_EMOTE_HEART;
-							break;
-					}
+					ori[0] = angle;
 
-					Expansion_SetEmote(emoteId, true);
+					eAI_RandomGreeting();
 				}
 			}
 			//! 12% to look at another member
@@ -3223,32 +3238,54 @@ class eAIBase: PlayerBase
 			{
 				pos = GetGroup().GetRandomMemberExcluding(this).GetPosition() + "0 1.5 0";
 				ori = vector.Direction(GetPosition() + "0 1.5 0", pos).VectorToAngles();
-				angle = ExpansionMath.RelAngle(ori[0]);
+				angle = ExpansionMath.AngleDiff2(GetOrientation()[0], ori[0]);
 
 				if (angle < -80 || angle > 80)
+				{
 					isDir = true;
+					ori[0] = angle;
+				}
 				else
-					pos[1] = pos[1] + Math.RandomFloat(-0.1, 0.0);
+				{
+					pos[1] = pos[1] + Math.RandomFloat(0.1, 0.2);
+				}
 			}
-			//! 41% to look in front somewhere
-			else if (diceRoll < 57)
-			{
-				isDir = true;
-				ori = m_eAI_FormationDirection.VectorToAngles();
-
-				ori[0] = Math.RandomFloat(-54.0, 54.0);
-				ori[1] = Math.RandomFloat(-36.0, 18.0);
-
-				if (!m_Expansion_EmoteID && Math.RandomFloat(0.0, 1.0) < 0.25)
-					Expansion_SetEmote(EmoteConstants.ID_EMOTE_WATCHING, true);
-			}
-			//! 43% to look somewhere
+			//! 84% to look in formation direction, ahead or around (100% if no other group members)
 			else
 			{
 				isDir = true;
-				ori = m_eAI_FormationDirection.VectorToAngles();
 
-				ori[0] = Math.RandomFloat(-72.0, 72.0);
+				//! 41% to look in formation direction (56% if no other group members)
+				if (diceRoll < 57)
+				{
+					ori[0] = Math.RandomFloat(-54.0, 54.0);
+
+					if (count > 1 && GetGroup().GetFormationState() == eAIGroupFormationState.IN)
+					{
+						isDirWS = true;
+
+						vector formPos = GetGroup().GetFormation().ToWorld(m_eAI_FormationPosition);
+						dir = vector.Direction(formPos, GetGroup().GetFormation().ToWorld(m_eAI_FormationPosition + m_eAI_FormationDirection));
+						ori[0] = ori[0] + dir.VectorToAngles()[0];
+
+					#ifdef DIAG
+						Expansion_DebugObject(987654321, formPos + "0 1.5 0" + dir, "ExpansionDebugSphereSmall_Orange", dir, formPos + "0 1.5 0");
+					#endif
+					}
+
+					if (!m_Expansion_EmoteID && Math.RandomFloat(0.0, 1.0) < 0.05)
+						Expansion_SetEmote(EmoteConstants.ID_EMOTE_WATCHING, true);
+				}
+				//! 43% to look ahead if NPC or around if not NPC
+				else if (IsInherited(eAINPCBase))
+				{
+					ori[0] = Math.RandomFloat(-72.0, 72.0);
+				}
+				else
+				{
+					ori[0] = Math.RandomFloat(-144.0, 144.0);
+				}
+					
 				ori[1] = Math.RandomFloat(-36.0, 18.0);
 			}
 		}
@@ -3256,6 +3293,9 @@ class eAIBase: PlayerBase
 		if (isDir)
 		{
 			dir = ori.AnglesToVector();
+
+			if (isDirWS)
+				dir = dir.InvMultiply3(m_ExTransformPlayer);
 
 			LookAtDirection(dir);
 			AimAtDirection(dir);
@@ -3267,6 +3307,60 @@ class eAIBase: PlayerBase
 		}
 
 		return true;
+	}
+
+	void eAI_RandomGreeting()
+	{
+		bool manners = GetExpansionSettings().GetAI().Manners;
+
+		int emoteId;
+		switch (Math.RandomIntInclusive(0, 9))
+		{
+			case 0:
+				if (!manners)
+				{
+					emoteId = EmoteConstants.ID_EMOTE_TAUNT;
+					break;
+				}
+			case 1:
+				if (!manners)
+				{
+					emoteId = EmoteConstants.ID_EMOTE_TAUNTELBOW;
+					break;
+				}
+			case 2:
+				if (!manners)
+				{
+					emoteId = EmoteConstants.ID_EMOTE_THROAT;
+					break;
+				}
+			case 3:
+				if (!manners)
+				{
+					emoteId = EmoteConstants.ID_EMOTE_TAUNTTHINK;
+					break;
+				}
+			case 4:
+				emoteId = EmoteConstants.ID_EMOTE_GREETING;
+				break;
+			case 5:
+				emoteId = EmoteConstants.ID_EMOTE_TAUNTKISS;
+				break;
+			case 6:
+				emoteId = EmoteConstants.ID_EMOTE_POINT;
+				break;
+			case 7:
+				emoteId = EmoteConstants.ID_EMOTE_WATCHING;
+				break;
+			case 8:
+				emoteId = EmoteConstants.ID_EMOTE_HEART;
+				break;
+			case 9:
+				emoteId = EmoteConstants.ID_EMOTE_SALUTE;
+				break;
+		}
+
+		Expansion_SetEmote(emoteId, true);
 	}
 
 	bool EnforceLOS()

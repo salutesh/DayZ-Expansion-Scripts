@@ -251,11 +251,38 @@ modded class CarScript
 
 	void Expansion_SetAllDoorsAnimationPhase(float phase)
 	{
-		for (int crewIdx = 0; crewIdx < CrewSize(); crewIdx++)
+		CarDoor carDoor;
+
+		for (int i = 0; i < GetInventory().AttachmentCount(); i++)
 		{
-			string selection = GetDoorSelectionNameFromSeatPos(crewIdx);
-			if (selection)
-				SetAnimationPhase(GetAnimSourceFromSelection(selection), phase);
+			if (Class.CastTo(carDoor, GetInventory().GetAttachmentFromIndex(i)))
+			{
+				TStringArray selectionNames = {};
+
+				carDoor.GetActionComponentNameList(0, selectionNames);
+
+				if (!selectionNames.Count())
+					continue;
+
+				TStringArray animSources = {};
+				string animSource;
+
+				foreach (string selectionName: selectionNames)
+				{
+					animSource = GetAnimSourceFromSelection(selectionName);
+					if (animSource)
+						animSources.Insert(animSource);
+				}
+
+				 //! Turns out correct selection is always last one when doing it this way
+				int lastIdx = animSources.Count() - 1;
+				if (lastIdx > -1)
+				{
+					animSource = animSources[lastIdx];
+					if (GetAnimationPhase(animSource) > 0.0)
+						SetAnimationPhase(animSource, 0.0);
+				}
+			}
 		}
 	}
 

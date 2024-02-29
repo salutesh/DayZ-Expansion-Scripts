@@ -12,19 +12,38 @@
 
 modded class NotificationSystem
 {
-	autoptr array< ref NotificationRuntimeData > m_ExNotifications;
+	autoptr array< ref NotificationRuntimeData > m_ExNotifications = {};
 
 	static ref ExpansionRPCManager s_Expansion_RPCManager = Expansion_RegisterRPCManager();
 
 	void NotificationSystem()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "NotificationSystem");
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.NOTIFICATIONS, this);
 #endif
-		
-		m_ExNotifications = new array< ref NotificationRuntimeData >;
 
+#ifdef SERVER
+		string tmp;
+		DumpStackString(tmp);
+		TStringArray lines = {};
+		tmp.Split("\n", lines);
+
+		TStringArray stack = {};
+
+		for (int i = 1; i < lines.Count(); i++)
+		{
+			string line = lines[i];
+			string lineLower = line;
+			lineLower.ToLower();
+
+			if (lineLower.IndexOf("dayzexpansion") == -1)
+				stack.Insert(line);
+		}
+
+		EXError.Error(this, "NotificationSystem should not be initialized on server!", stack);
+#else
 		s_Expansion_RPCManager.SetOwner(this);
+#endif
 	}
 
 	static ExpansionRPCManager Expansion_RegisterRPCManager()
