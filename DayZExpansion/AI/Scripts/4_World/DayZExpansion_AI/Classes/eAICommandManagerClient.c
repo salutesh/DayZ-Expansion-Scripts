@@ -3,7 +3,8 @@ class eAICommandManagerClient : eAICommandManager
 {
 	ref ExpansionRPCManager m_Expansion_RPCManager;
 
-	int m_MovementSpeedLimit = eAIMovementSpeed.SPRINT;
+	int m_MovementSpeedLimit = eAIMovementSpeed.SPRINT;  //! Client
+	bool m_UnlimitedReload;  //! Server
 
 	void eAICommandManagerClient()
 	{
@@ -26,6 +27,7 @@ class eAICommandManagerClient : eAICommandManager
 		m_Expansion_RPCManager.RegisterServer("RPC_SetMovementSpeed");
 
 		m_Expansion_RPCManager.RegisterServer("RPC_DumpState");
+		m_Expansion_RPCManager.RegisterServer("RPC_UnlimitedReload");
 	}
 
 	override bool Send(eAICommands cmd)
@@ -53,6 +55,11 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.DEB_SPAWNBEAR:
 				m_Expansion_RPCManager.SendRPC("RPC_SpawnBear", new Param1<vector>(ExpansionStatic.GetCursorHitPos()));
 				return true;
+
+			case eAICommands.DEB_UNLIMITEDRELOAD:
+				m_Expansion_RPCManager.SendRPC("RPC_UnlimitedReload");
+				return true;
+
 			case eAICommands.FOR_VEE:
 			case eAICommands.FOR_INVVEE:
 			case eAICommands.FOR_FILE:
@@ -332,6 +339,29 @@ class eAICommandManagerClient : eAICommandManager
 		eAIGroup.Admin_ClearAllAI();
 	}
 	
+	void RPC_UnlimitedReload(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		if (GetGame().IsMultiplayer())
+		{
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
+		}
+	
+		eAIBase.s_eAI_UnlimitedReload = !eAIBase.s_eAI_UnlimitedReload;
+
+		string onOff;
+		if (eAIBase.s_eAI_UnlimitedReload)
+			onOff = "ON";
+		else
+			onOff = "OFF";
+
+		ExpansionNotification("EXPANSION AI", "Unlimited reload " + onOff).Info(sender);
+	}
+	
 	void RPC_ReqFormRejoin(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 	#ifdef DIAG
@@ -501,10 +531,22 @@ class eAICommandManagerClient : eAICommandManager
 		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 
 		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
+		
+		eAIBase ai;
+
+		DayZPlayerImplement formationLeader = g.GetFormationLeader();
+		if (formationLeader != g.GetLeader())
+		{
+			if (Class.CastTo(ai, formationLeader))
+			{
+				ai.SetMovementSpeedLimit(speed);
+				speed = eAIMovementSpeed.SPRINT;  //! Allow other members to catch up with leader
+			}
+		}
+
 		for (int i = 0; i < g.Count(); i++)
 		{
-			eAIBase ai;
-			if (Class.CastTo(ai, g.GetMember(i)))
+			if (Class.CastTo(ai, g.GetMember(i)) && ai != formationLeader)
 				ai.SetMovementSpeedLimit(speed);
 		}
 	}

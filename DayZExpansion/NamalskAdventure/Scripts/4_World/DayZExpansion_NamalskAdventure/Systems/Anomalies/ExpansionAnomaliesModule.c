@@ -151,7 +151,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	protected void SpawnAnomalyStatic(ExpansionAnomalyStatic anomaly, bool isDynamicEvent = false)
 	{
 		string typeToSpawn = anomaly.AnomalyTypes.GetRandomElement();
-	    Object entity = GetGame().CreateObjectEx(typeToSpawn, anomaly.CenterPosition, ECE_PLACE_ON_SURFACE, ECE_NOLIFETIME);
+	    Object entity = GetGame().CreateObjectEx(typeToSpawn, anomaly.CenterPosition, ECE_PLACE_ON_SURFACE | ECE_NOPERSISTENCY_WORLD | ECE_NOLIFETIME);
 	    Expansion_Anomaly_Base anomalyObj = Expansion_Anomaly_Base.Cast(entity);
 		if (!anomalyObj)
         {
@@ -178,9 +178,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	protected void SpawnAnomalyDynamic(ExpansionAnomalyDynamic dynamicSpawn, vector position, bool isDynamic = false)
 	{
 		string typeToSpawn = dynamicSpawn.AnomalyTypes.GetRandomElement();
-		int flags = ECE_PLACE_ON_SURFACE;
+		int flags = ECE_PLACE_ON_SURFACE | ECE_NOPERSISTENCY_WORLD;
 		if (dynamicSpawn.Persistance < ExpansionAnomalyPersistance.LIFETIME)
-		    flags = ECE_NOLIFETIME;
+		    flags |= ECE_NOLIFETIME;
 
 		Object entity = GetGame().CreateObjectEx(typeToSpawn, position, flags);
 		Expansion_Anomaly_Base anomalyObj = Expansion_Anomaly_Base.Cast(entity);

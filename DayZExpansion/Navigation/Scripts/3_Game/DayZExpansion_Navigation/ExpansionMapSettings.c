@@ -100,7 +100,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		{
 			auto rpc = GetExpansionSettings().CreateRPC("RPC_AddServerMarker");
 			rpc.Write(marker.GetUID());
-			marker.OnSend(rpc);
+			marker.OnSendFull(rpc);
 			rpc.Expansion_Send(true, null);
 		}
 
@@ -226,7 +226,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 				ServerMarkers.Insert( marker );
 			}
 
-			if ( !marker.OnRecieve( ctx ) )
+			if ( !marker.OnRecieveFull( ctx ) )
 				return false;
 		}
 
@@ -284,7 +284,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		for ( index = 0; index < count; ++index )
 		{
 			ctx.Write( ServerMarkers[index].GetUID() );
-			ServerMarkers[index].OnSend( ctx );
+			ServerMarkers[index].OnSendFull( ctx );
 		}
 	}
 

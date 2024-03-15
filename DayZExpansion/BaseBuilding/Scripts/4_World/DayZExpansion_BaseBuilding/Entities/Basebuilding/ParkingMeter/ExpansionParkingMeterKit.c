@@ -59,7 +59,7 @@ class ExpansionParkingMeterKit: ExpansionConstructionKitLarge
 			ExpansionParkingMeter parkingMeter = ExpansionParkingMeter.Cast(GetGame().CreateObjectEx("ExpansionParkingMeter", GetPosition(), ECE_PLACE_ON_SURFACE));
 			parkingMeter.SetPosition(position);
 			parkingMeter.SetOrientation(orientation);
-			parkingMeter.m_ConstructionKitHealth = GetHealth("", "");
+			parkingMeter.m_Expansion_ConstructionKitHealth = GetHealth("", "");
 			
 			if (setting.GarageMode == ExpansionGarageMode.Territory && flag && flag.GetTerritoryID() > -1 && playerPB.IsInTerritoryOrPerimeter())
 			{

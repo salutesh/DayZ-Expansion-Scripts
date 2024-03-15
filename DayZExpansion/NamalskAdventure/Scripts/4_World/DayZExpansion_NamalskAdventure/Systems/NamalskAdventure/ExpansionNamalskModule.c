@@ -786,7 +786,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			m_AbdonedSatellite.Update();
 		}
 		
-		m_SatelliteGenerator = Expansion_Satellite_Generator.Cast(GetGame().CreateObjectEx("Expansion_Satellite_Generator", "1191.82 3.31497 11828.2", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
+		m_SatelliteGenerator = Expansion_Satellite_Generator.Cast(GetGame().CreateObjectEx("Expansion_Satellite_Generator", "1191.82 3.31497 11828.2", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS | ECE_NOPERSISTENCY_WORLD));
 		if (m_SatelliteGenerator)
 		{
 			m_SatelliteGenerator.SetPosition("1191.82 3.31497 11828.2");
@@ -1090,7 +1090,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	#endif
 
 		//! Bunker event generator
-		m_A1BungerGenerator = Expansion_Bunker_Generator.Cast(GetGame().CreateObjectEx("Expansion_Bunker_Generator", m_A1_Bunker_GeneratorPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
+		m_A1BungerGenerator = Expansion_Bunker_Generator.Cast(GetGame().CreateObjectEx("Expansion_Bunker_Generator", m_A1_Bunker_GeneratorPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS | ECE_NOPERSISTENCY_WORLD));
 		if (m_A1BungerGenerator)
 		{
 			m_A1BungerGenerator.SetOrientation(m_A1_Bunker_GeneratorOri);
@@ -1169,7 +1169,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		array<ref ExpansionSupplyCrateSetup> supplyCrateSpawns = GetExpansionSettings().GetNamalskAdventure().GetSupplyCrateSpawns();
 		foreach (ExpansionSupplyCrateSetup supplyCrate: supplyCrateSpawns)
 		{
-			Expansion_SupplyCrate_Base supplyCareObj = Expansion_SupplyCrate_Base.Cast(GetGame().CreateObject(supplyCrate.ClassName, supplyCrate.Position));
+			Expansion_SupplyCrate_Base supplyCareObj = Expansion_SupplyCrate_Base.Cast(GetGame().CreateObjectEx(supplyCrate.ClassName, supplyCrate.Position, ECE_KEEPHEIGHT | ECE_NOPERSISTENCY_WORLD));
 			if (!supplyCareObj)
 			{
 				Error(ToString() + "::SpawnSupplyCrates - Could not spawn supply crate object!");

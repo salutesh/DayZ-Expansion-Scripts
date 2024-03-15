@@ -16,49 +16,49 @@
 
 class ExpansionKitBase: WatchtowerKit
 {	
-	private int m_PlacingTypeChosen;
-	private autoptr array< string > m_PlacingTypes;
-	private string m_ToDeploy;
+	private int m_Expansion_PlacingTypeChosen;
+	private autoptr array< string > m_Expansion_PlacingTypes;
+	private string m_Expansion_ToDeploy;
 	
 	// ------------------------------------------------------------
 	void ExpansionKitBase()
 	{
-		m_PlacingTypes = new array< string >;
+		m_Expansion_PlacingTypes = new array< string >;
 		
 		string path = "CfgVehicles " + GetType() + " placingTypes";
 		if ( GetGame().ConfigIsExisting( path ) )
-			GetGame().ConfigGetTextArray( path, m_PlacingTypes );
+			GetGame().ConfigGetTextArray( path, m_Expansion_PlacingTypes );
 	}
 	
 	// ------------------------------------------------------------
 	void SetPlacingIndex( int placingTypeIdx )
 	{
-		m_ToDeploy = GetType();
-		m_PlacingTypeChosen = placingTypeIdx;
+		m_Expansion_ToDeploy = GetType();
+		m_Expansion_PlacingTypeChosen = placingTypeIdx;
 		
-		string path = "CfgVehicles " + m_PlacingTypes[m_PlacingTypeChosen] + " deployType";
+		string path = "CfgVehicles " + m_Expansion_PlacingTypes[m_Expansion_PlacingTypeChosen] + " deployType";
 		if ( !GetGame().ConfigIsExisting( path ) )
 			return;
 		
-		m_ToDeploy = GetGame().ConfigGetTextOut( path );
+		m_Expansion_ToDeploy = GetGame().ConfigGetTextOut( path );
 	}
 	
 	// ------------------------------------------------------------
 	array< string > GetPlacingTypes()
 	{
-		return m_PlacingTypes;
+		return m_Expansion_PlacingTypes;
 	}
 
 	// ------------------------------------------------------------
 	string GetDeployType()
 	{
-		return m_ToDeploy;
+		return m_Expansion_ToDeploy;
 	}
 
 	// ------------------------------------------------------------
 	int GetPlacingTypeChosen()
 	{
-		return m_PlacingTypeChosen;
+		return m_Expansion_PlacingTypeChosen;
 	}
 
 	override void DisassembleKit(ItemBase item)

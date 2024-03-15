@@ -9,12 +9,8 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 
 	override vector GetAimOffset(eAIBase ai = null)
 	{
-		vector pos;
-		if (m_Creature.IsInherited(Animal_UrsusArctos))
-			pos = "0 1.2 0";
-		else
-			pos = "0 0.6 0";
-		//pos = pos + m_Creature.GetDirection() * 0.5;
+		vector pos = m_Creature.GetBonePositionWS(m_Creature.GetBoneIndexByName("Chest"));
+		pos = pos - m_Creature.GetPosition();
 	#ifdef DIAG
 		if (EXTrace.AI && ai)
 			ai.Expansion_DebugObject(1234567890, m_Creature.GetPosition() + pos, "ExpansionDebugSphereSmall_Orange", m_Creature.GetDirection(), ai.GetPosition() + "0 1.5 0", 3.0, ShapeFlags.NOZBUFFER);

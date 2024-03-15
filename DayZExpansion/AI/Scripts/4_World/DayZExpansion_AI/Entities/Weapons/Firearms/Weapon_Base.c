@@ -107,21 +107,21 @@ modded class Weapon_Base
 			}
 			EXTrace.Print(true, ai, "didn't hit because it was aiming " + missed + " (actual " + aimPosition + " missed " + missedPosition + ")");
 
-			ai.Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugSphereSmall");
-			ai.Expansion_DebugObject_Deferred(19, missedPosition, "ExpansionDebugSphereSmall_Red", direction, begin_point);
+			ai.Expansion_DebugObject_Deferred(1818, "0 0 0", "ExpansionDebugSphereSmall");
+			ai.Expansion_DebugObject_Deferred(1919, missedPosition, "ExpansionDebugSphereSmall_Red", direction, begin_point);
 		}
 		else
 		{
 			EntityAI targetEntity = ai.GetTarget().GetEntity();
 			if (targetEntity && targetEntity == hitObject)
 			{
-				ai.Expansion_DebugObject_Deferred(18, hitPosition, "ExpansionDebugSphereSmall", direction, begin_point);
-				ai.Expansion_DebugObject_Deferred(19, "0 0 0", "ExpansionDebugSphereSmall_Red");
+				ai.Expansion_DebugObject_Deferred(1818, hitPosition, "ExpansionDebugSphereSmall", direction, begin_point);
+				ai.Expansion_DebugObject_Deferred(1919, "0 0 0", "ExpansionDebugSphereSmall_Red");
 			}
 			else
 			{
-				ai.Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugSphereSmall");
-				ai.Expansion_DebugObject_Deferred(19, hitPosition, "ExpansionDebugSphereSmall_Red", direction, begin_point);
+				ai.Expansion_DebugObject_Deferred(1818, "0 0 0", "ExpansionDebugSphereSmall");
+				ai.Expansion_DebugObject_Deferred(1919, hitPosition, "ExpansionDebugSphereSmall_Red", direction, begin_point);
 			}
 		}
 #endif

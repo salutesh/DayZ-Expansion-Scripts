@@ -133,6 +133,12 @@ class ExpansionPathPoint
 	{
 		int i;
 		
+		PGFilter filter;
+		if (pathFinding.m_AllowJumpClimb && pathFinding.m_Unit.GetHealth01() >= 0.2)
+			filter = pathFinding.m_PathFilter;
+		else
+			filter = pathFinding.m_PathFilter_NoJumpClimb;
+		
 		if (Parent)
 		{
 			vector transform[4];
@@ -140,7 +146,7 @@ class ExpansionPathPoint
 			
 			startPos = startPos.InvMultiply4(transform);
 
-			NavMesh.FindPath(startPos, Position, pathFinding.m_PathFilter, path);
+			NavMesh.FindPath(startPos, Position, filter, path);
 			
 			for (i = 0; i < path.Count(); i++)
 			{
@@ -149,7 +155,7 @@ class ExpansionPathPoint
 		}
 		else
 		{
-			pathFinding.m_AIWorld.FindPath(startPos, Position, pathFinding.m_PathFilter, path);
+			pathFinding.m_AIWorld.FindPath(startPos, Position, filter, path);
 		}
 	}
 };

@@ -17,8 +17,8 @@
 class ExpansionConstructionKitBase: ItemBase
 {
 	const float MAX_PLACEMENT_HEIGHT_DIFF = 1.5;
-	ref protected EffectSound m_DeployLoopSound;
-	protected bool m_DeployedRegularly;
+	ref protected EffectSound m_Expansion_DeployLoopSound;
+	protected bool m_Expansion_DeployedRegularly;
 	
 	void ExpansionConstructionKitBase()
 	{
@@ -28,7 +28,7 @@ class ExpansionConstructionKitBase: ItemBase
 	
 	void ~ExpansionConstructionKitBase()
 	{
-		SEffectManager.DestroyEffect(m_DeployLoopSound);
+		SEffectManager.DestroyEffect(m_Expansion_DeployLoopSound);
 	}
 	
 	override void EEInit()
@@ -81,14 +81,14 @@ class ExpansionConstructionKitBase: ItemBase
 	
 	override void OnEndPlacement()
 	{
-		m_DeployedRegularly = true;
+		m_Expansion_DeployedRegularly = true;
 		SoundSynchRemote();
 	}
 	
 	override void OnPlacementCancelled(Man player)
 	{
 		super.OnPlacementCancelled(player);
-		m_DeployedRegularly = false;
+		m_Expansion_DeployedRegularly = false;
 		
 		if (GetGame().IsServer())
 		{
@@ -116,7 +116,7 @@ class ExpansionConstructionKitBase: ItemBase
 			PlayDeployLoopSound();
 		}
 
-		if (m_DeployLoopSound && !CanPlayDeployLoopSound())
+		if (m_Expansion_DeployLoopSound && !CanPlayDeployLoopSound())
 		{
 			StopDeployLoopSound();
 		}
@@ -126,9 +126,9 @@ class ExpansionConstructionKitBase: ItemBase
 	{
 		if (!GetGame().IsDedicatedServer())
 		{
-			if (!m_DeployLoopSound || !m_DeployLoopSound.IsSoundPlaying())
+			if (!m_Expansion_DeployLoopSound || !m_Expansion_DeployLoopSound.IsSoundPlaying())
 			{
-				m_DeployLoopSound = SEffectManager.PlaySound(GetLoopDeploySoundset(), GetPosition());
+				m_Expansion_DeployLoopSound = SEffectManager.PlaySound(GetLoopDeploySoundset(), GetPosition());
 			}
 		}
 	}
@@ -137,8 +137,8 @@ class ExpansionConstructionKitBase: ItemBase
 	{
 		if ( !GetGame().IsDedicatedServer() )
 		{
-			m_DeployLoopSound.SetSoundFadeOut(0.5);
-			m_DeployLoopSound.SoundStop();
+			m_Expansion_DeployLoopSound.SetSoundFadeOut(0.5);
+			m_Expansion_DeployLoopSound.SoundStop();
 		}
 	}
 
@@ -197,14 +197,14 @@ class ExpansionConstructionKitSmall: ExpansionConstructionKitBase {};
 
 class ExpansionDeployableConstruction: ItemBase
 {
-	float m_ConstructionKitHealth;
+	float m_Expansion_ConstructionKitHealth;
 	
 	ItemBase CreateConstructionKit()
 	{
 		ItemBase construction_kit = ItemBase.Cast(GetGame().CreateObjectEx(GetConstructionKitType(), GetPosition(), ECE_PLACE_ON_SURFACE ));
-		if (m_ConstructionKitHealth > 0)
+		if (m_Expansion_ConstructionKitHealth > 0)
 		{
-			construction_kit.SetHealth(m_ConstructionKitHealth);
+			construction_kit.SetHealth(m_Expansion_ConstructionKitHealth);
 		}
 		
 		return construction_kit;
@@ -213,9 +213,9 @@ class ExpansionDeployableConstruction: ItemBase
 	void CreateConstructionKitInHands(notnull PlayerBase player)
 	{
 		ItemBase construction_kit = ItemBase.Cast(player.GetHumanInventory().CreateInHands(GetConstructionKitType()));
-		if (m_ConstructionKitHealth > 0)
+		if (m_Expansion_ConstructionKitHealth > 0)
 		{
-			construction_kit.SetHealth(m_ConstructionKitHealth);
+			construction_kit.SetHealth(m_Expansion_ConstructionKitHealth);
 		}
 	}
 	
@@ -253,7 +253,7 @@ class ExpansionDeployableConstruction: ItemBase
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return;
 
-		ctx.Write(m_ConstructionKitHealth);
+		ctx.Write(m_Expansion_ConstructionKitHealth);
 	}
 
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -267,7 +267,7 @@ class ExpansionDeployableConstruction: ItemBase
 		if (ctx.GetVersion() < 46)
 			return true;
 		
-		if (!ctx.Read(m_ConstructionKitHealth))
+		if (!ctx.Read(m_Expansion_ConstructionKitHealth))
 			return false;
 
 		return true;

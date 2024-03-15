@@ -29,23 +29,23 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 	static const string GREEN_LIGHT_GLOW = "dz\\gear\\camping\\data\\battery_charger_light_g.rvmat";
 	static const string BLUE_LIGHT_GLOW = "dz\\gear\\consumable\\data\\chemlight_blue_on.rvmat";
 	
-	protected ExpansionTerritoryModule m_TerritoryModule;
-	protected ExpansionGarageModule m_GarageModule;
-	protected int m_TerritoryID;	 //! Unique terriotry id. Used to get and identify the parking meters territory in the territory and garage module.
-	protected float m_ChargeEnergyPerSecond;
+	protected ExpansionTerritoryModule m_Expansion_TerritoryModule;
+	protected ExpansionGarageModule m_Expansion_GarageModule;
+	protected int m_Expansion_TerritoryID;	 //! Unique terriotry id. Used to get and identify the parking meters territory in the territory and garage module.
+	protected float m_Expansion_ChargeEnergyPerSecond;
 
 	static ref ExpansionSoundSet s_Expansion_ParkingMeterActivated_SoundSet;
 
 	void ExpansionParkingMeter()
 	{
-		m_ChargeEnergyPerSecond = GetGame().ConfigGetFloat ("CfgVehicles " + GetType() + " ChargeEnergyPerSecond");
+		m_Expansion_ChargeEnergyPerSecond = GetGame().ConfigGetFloat ("CfgVehicles " + GetType() + " ChargeEnergyPerSecond");
 
-		CF_Modules<ExpansionTerritoryModule>.Get(m_TerritoryModule);
-		CF_Modules<ExpansionGarageModule>.Get(m_GarageModule);
+		CF_Modules<ExpansionTerritoryModule>.Get(m_Expansion_TerritoryModule);
+		CF_Modules<ExpansionGarageModule>.Get(m_Expansion_GarageModule);
 		
-		m_TerritoryID = -1;
+		m_Expansion_TerritoryID = -1;
 
-		RegisterNetSyncVariableInt("m_TerritoryID");
+		RegisterNetSyncVariableInt("m_Expansion_TerritoryID");
 
 		if (!s_Expansion_ParkingMeterActivated_SoundSet)
 			s_Expansion_ParkingMeterActivated_SoundSet = ExpansionSoundSet.Register("Expansion_ParkingMeter_Activated_SoundSet");
@@ -58,8 +58,8 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && ExpansionGarageModule.s_Instance)
 		{
-			if (m_TerritoryID > -1)
-				ExpansionGarageModule.s_Instance.RemoveTerritoryParkingMeter(m_TerritoryID);
+			if (m_Expansion_TerritoryID > -1)
+				ExpansionGarageModule.s_Instance.RemoveTerritoryParkingMeter(m_Expansion_TerritoryID);
 			else
 				ExpansionGarageModule.s_Instance.RemoveParkingMeter(this);
 		}
@@ -67,27 +67,27 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 
 	override void EOnInit(IEntity other, int extra)
 	{
-		m_TerritoryModule = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
-		m_GarageModule = ExpansionGarageModule.Cast(CF_ModuleCoreManager.Get(ExpansionGarageModule));
+		m_Expansion_TerritoryModule = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
+		m_Expansion_GarageModule = ExpansionGarageModule.Cast(CF_ModuleCoreManager.Get(ExpansionGarageModule));
 	}
 
 	void SetTerritoryID(int territoryID)
 	{
-		m_TerritoryID = territoryID;
-		m_GarageModule.AddTerritoryParkingMeter(this, m_TerritoryID);
+		m_Expansion_TerritoryID = territoryID;
+		m_Expansion_GarageModule.AddTerritoryParkingMeter(this, m_Expansion_TerritoryID);
 	}
 
 	bool IsInTerritory()
 	{
-		if (!m_TerritoryModule)
+		if (!m_Expansion_TerritoryModule)
 			return false;
 
-		return m_TerritoryModule.IsInTerritory(GetPosition());
+		return m_Expansion_TerritoryModule.IsInTerritory(GetPosition());
 	}
 	
 	void OnDeployOutsideTerritory()
 	{		
-		m_GarageModule.AddParkingMeter(this);
+		m_Expansion_GarageModule.AddParkingMeter(this);
 	}
 	
 	override bool CanPutInCargo( EntityAI parent )
@@ -160,7 +160,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 		super.EEHealthLevelChanged(oldLevel, newLevel, zone);
 		
 		//! If object is destroyed drop all stored vehicles and destroy them.
-		if (GetGame().IsServer() && GetGame().IsMultiplayer() && m_GarageModule && zone == "" && newLevel == GameConstants.STATE_RUINED)
+		if (GetGame().IsServer() && GetGame().IsMultiplayer() && m_Expansion_GarageModule && zone == "" && newLevel == GameConstants.STATE_RUINED)
 		{
 			DropStoredVehicles(true);
 		}
@@ -246,7 +246,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return;
 
-		ctx.Write(m_TerritoryID);
+		ctx.Write(m_Expansion_TerritoryID);
 	}
 
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -257,7 +257,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return true;
 
-		if (!ctx.Read(m_TerritoryID))
+		if (!ctx.Read(m_Expansion_TerritoryID))
 			return false;
 
 		return true;
@@ -268,13 +268,13 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 	{
 		super.AfterStoreLoad();
 
-		if (m_TerritoryID > -1)
+		if (m_Expansion_TerritoryID > -1)
 		{
-			m_GarageModule.AddTerritoryParkingMeter(this, m_TerritoryID);
+			m_Expansion_GarageModule.AddTerritoryParkingMeter(this, m_Expansion_TerritoryID);
 		}
 		else
 		{
-			m_GarageModule.AddParkingMeter(this);
+			m_Expansion_GarageModule.AddParkingMeter(this);
 		}
 	}
 
@@ -362,10 +362,10 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 	void DropStoredVehicles(bool destroy = false)
 	{
 		//! Drop all stored vehicles.
-		if (m_TerritoryID > -1)
-			m_GarageModule.DropTerritoryVehicles(m_TerritoryID, destroy);
+		if (m_Expansion_TerritoryID > -1)
+			m_Expansion_GarageModule.DropTerritoryVehicles(m_Expansion_TerritoryID, destroy);
 		else
-			m_GarageModule.DropParkingMeterVehicles(GetPosition(), GetRadiusByCircuitBoardType(), destroy);
+			m_Expansion_GarageModule.DropParkingMeterVehicles(GetPosition(), GetRadiusByCircuitBoardType(), destroy);
 	}
 	
 	override void OnWork(float consumed_energy)
@@ -404,7 +404,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 			else
 			{
 				//! Add energy to the battery during daytime if not under roof or during EVR storms
-				energy_delta = m_ChargeEnergyPerSecond * (consumed_energy / GetCompEM().GetEnergyUsage());  //! Add charge each second (base value, influenced by EVR and sunshine)
+				energy_delta = m_Expansion_ChargeEnergyPerSecond * (consumed_energy / GetCompEM().GetEnergyUsage());  //! Add charge each second (base value, influenced by EVR and sunshine)
 				float health01 = GetHealth01("", "");
 				energy_delta *= (0.5 + health01 * 0.5); //! 50% damage causes 75% efficiency
 				if (isEVRStormActive)

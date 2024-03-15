@@ -12,7 +12,7 @@
 
 modded class Flag_Base
 {
-	private string m_FlagTexturePath = "";
+	private string m_Expansion_FlagTexturePath = "";
 
 	// ------------------------------------------------------------
 	// Flag_Base Constructor
@@ -32,10 +32,10 @@ modded class Flag_Base
 		if ( !IsMissionHost() || !texturePath )
 			return;
 		
-		m_FlagTexturePath = texturePath;
-		SetObjectTexture( 0, m_FlagTexturePath );
+		m_Expansion_FlagTexturePath = texturePath;
+		SetObjectTexture( 0, m_Expansion_FlagTexturePath );
 		
-		CF_Log.Debug("ExpansionFlagBase::SetFlagTexture - Set flag texture path to: " + m_FlagTexturePath);
+		CF_Log.Debug("ExpansionFlagBase::SetFlagTexture - Set flag texture path to: " + m_Expansion_FlagTexturePath);
 	}
 	
 	// ------------------------------------------------------------
@@ -43,7 +43,7 @@ modded class Flag_Base
 	// ------------------------------------------------------------
 	string GetFlagTexturePath()
 	{
-		return m_FlagTexturePath;
+		return m_Expansion_FlagTexturePath;
 	}
 
 	#ifdef EXPANSION_MODSTORAGE
@@ -54,7 +54,7 @@ modded class Flag_Base
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return;
 
-		ctx.Write(m_FlagTexturePath);
+		ctx.Write(m_Expansion_FlagTexturePath);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -65,7 +65,7 @@ modded class Flag_Base
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return true;
 
-		if (!ctx.Read(m_FlagTexturePath))
+		if (!ctx.Read(m_Expansion_FlagTexturePath))
 			return false;
 
 		return true;
@@ -80,6 +80,6 @@ modded class Flag_Base
 
 		super.AfterStoreLoad();
 			
-		SetFlagTexture( m_FlagTexturePath );
+		SetFlagTexture( m_Expansion_FlagTexturePath );
 	}
 };

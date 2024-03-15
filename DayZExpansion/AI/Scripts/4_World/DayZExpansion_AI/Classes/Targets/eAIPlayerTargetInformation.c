@@ -101,16 +101,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 				PlayerBase pb;
 				if (Class.CastTo(pb, m_Player))
 					levelFactor *= ExpansionMath.LinearConversion(1.0, 3.0, pb.Expansion_GetMovementSpeed(), Math.Max(0.2, pb.GetVisibilityCoef()), 1.0);
-
-				//! Check if target is facing AI or AI is facing target when not in near range (30 m)
-				vector toTargetDirection = vector.Direction(ai.GetPosition(), m_Player.GetPosition()).Normalized();
-				float toTargetDot = vector.Dot(ai.GetAimDirection(), toTargetDirection);
-				if (fromTargetDot < 0.75 && toTargetDot < 0.75)  //! Target is facing away and AI is facing away
-					return Math.Clamp(levelFactor, 0.0, 1000000.0);
 			}
-
-			//! Enemy is within 30 m, or farher than 30 m but looking in our direction,
-			//! or we are looking in their direction
 
 			//! Only adjust threat level based on enemy weapon if AI has a weapon in hands to fight back to begin with
 			//! Threat level from lowest to highest:

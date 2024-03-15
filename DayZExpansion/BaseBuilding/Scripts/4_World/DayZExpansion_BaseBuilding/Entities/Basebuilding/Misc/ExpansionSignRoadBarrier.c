@@ -25,15 +25,15 @@ class ExpansionSignRoadBarrier: Container_Base
 	const string SOUND_TURN_OFF		= "Flashlight_TurnOff_SoundSet";
 
 	//! Expansion burning sound instance
-	protected EffectSound m_SoundBurningLoop;
+	protected EffectSound m_Expansion_SoundBurningLoop;
 
 	//! Expansion turn on sound instance
-	protected EffectSound m_SoundTurnOn;
+	protected EffectSound m_Expansion_SoundTurnOn;
 
 	//! Expansion turn off sound instance
-	protected EffectSound m_SoundTurnOff;
+	protected EffectSound m_Expansion_SoundTurnOff;
 	
-	protected ScriptedLightBase m_Light;
+	protected ScriptedLightBase m_Expansion_Light;
 
 	// ------------------------------------------------------------
 	// SetActions
@@ -61,27 +61,27 @@ class ExpansionSignRoadBarrier: Container_Base
 			SoundTurnOn();
 			SetObjectMaterial( 0, "DayZExpansion\\Objects\\Basebuilding\\Misc\\Signs\\Data\\bariera_lampa_on.rvmat" );
 
-			if ( !m_Light )
+			if ( !m_Expansion_Light )
 			{
-				m_Light = ScriptedLightBase.CreateLight( ExpansionPointLight, "0 0 0" );
+				m_Expansion_Light = ScriptedLightBase.CreateLight( ExpansionPointLight, "0 0 0" );
 
-				m_Light.FadeIn(0.3);			
-				m_Light.SetCastShadow(true);				
-				m_Light.SetFlareVisible(false);
+				m_Expansion_Light.FadeIn(0.3);			
+				m_Expansion_Light.SetCastShadow(true);				
+				m_Expansion_Light.SetFlareVisible(false);
 
 				vector colorRGB = Vector( 1.0, 0.5, 0 );
-				m_Light.SetDiffuseColor( colorRGB[0], colorRGB[1], colorRGB[2] );
-				m_Light.SetAmbientColor( colorRGB[0], colorRGB[1], colorRGB[2] );
-				m_Light.SetRadiusTo( 2.5 );
-				m_Light.SetBrightnessTo( 1 );
+				m_Expansion_Light.SetDiffuseColor( colorRGB[0], colorRGB[1], colorRGB[2] );
+				m_Expansion_Light.SetAmbientColor( colorRGB[0], colorRGB[1], colorRGB[2] );
+				m_Expansion_Light.SetRadiusTo( 2.5 );
+				m_Expansion_Light.SetBrightnessTo( 1 );
 
-				m_Light.AttachOnMemoryPoint( this, "zluty pozicni blik" );
+				m_Expansion_Light.AttachOnMemoryPoint( this, "zluty pozicni blik" );
 
-				m_Light.SetEnabled( true );
+				m_Expansion_Light.SetEnabled( true );
 			}
 			else
 			{
-				m_Light.SetEnabled( true );
+				m_Expansion_Light.SetEnabled( true );
 			}
 		}
 	}
@@ -98,9 +98,9 @@ class ExpansionSignRoadBarrier: Container_Base
 			SoundTurnOff();
 			SetObjectMaterial( 0, "DayZExpansion\\Objects\\Basebuilding\\Misc\\Signs\\Data\\bariera_lampa.rvmat" );
 
-			if ( m_Light )
+			if ( m_Expansion_Light )
 			{
-				m_Light.Destroy();
+				m_Expansion_Light.Destroy();
 			}
 		}
 	}
@@ -110,7 +110,7 @@ class ExpansionSignRoadBarrier: Container_Base
 	// ------------------------------------------------------------
 	protected void SoundTurnOn()
 	{
-		PlaySoundSet( m_SoundTurnOn, SOUND_TURN_ON, 0.1, 0.1 );
+		PlaySoundSet( m_Expansion_SoundTurnOn, SOUND_TURN_ON, 0.1, 0.1 );
 	}
 
 	// ------------------------------------------------------------
@@ -118,7 +118,7 @@ class ExpansionSignRoadBarrier: Container_Base
 	// ------------------------------------------------------------
 	protected void SoundTurnOff()
 	{
-		PlaySoundSet( m_SoundTurnOff, SOUND_TURN_OFF, 0.1, 0.1 );
+		PlaySoundSet( m_Expansion_SoundTurnOff, SOUND_TURN_OFF, 0.1, 0.1 );
 	}
 
 	// ------------------------------------------------------------
@@ -172,7 +172,7 @@ class ExpansionSignRoadBarrier: Container_Base
 		{
 			Battery9V battery = Battery9V.Cast( GetCompEM().GetEnergySource() );
 			
-			if (battery  &&  m_Light)
+			if (battery  &&  m_Expansion_Light)
 			{
 				float efficiency = battery.GetEfficiency0To1();
 				

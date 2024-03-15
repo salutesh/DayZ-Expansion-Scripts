@@ -37,7 +37,15 @@ class eAIDynamicPatrolSphereTrigger: Trigger
 	override protected bool CanAddObjectAsInsider(Object object)
 	{
 		Man player;
-		if (Class.CastTo(player, object) && player.GetIdentity())
+		if (Class.CastTo(player, object) && player.GetIdentity() && player.IsAlive())
+			return true;
+
+		return false;
+	}
+
+	override protected bool ShouldRemoveInsider(TriggerInsider insider)
+	{
+		if (!insider.GetObject().IsAlive())
 			return true;
 
 		return false;

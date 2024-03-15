@@ -411,7 +411,7 @@ class ExpansionQuestObjectiveEventBase
 		return ExpansionQuestObjectiveType.NONE;
 	}
 
-	void CreateObjectiveMarker(vector pos, string name, int visibility = 6)
+	void CreateObjectiveMarker(vector pos, string name, int visibility = EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
@@ -475,11 +475,11 @@ class ExpansionQuestObjectiveEventBase
 		if (position == vector.Zero)
 			return true;
 
-		if (maxDistance <= 0)
+		if (maxDistance <= 0 && minDistance <= 0)
 			return true;
 
 		float currentDistanceSq = vector.DistanceSq(playerPos, position);
-		if (currentDistanceSq <= maxDistance * maxDistance && currentDistanceSq >= minDistance * minDistance)
+		if ((maxDistance <= 0 || currentDistanceSq <= maxDistance * maxDistance) && (minDistance <= 0 || currentDistanceSq >= minDistance * minDistance))
 			return true;
 
 		return false;

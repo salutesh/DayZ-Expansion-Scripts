@@ -64,6 +64,6 @@ class ExpansionActionResetCodeLock: ActionContinuousBase
 
 	override string GetAdminLogMessage(ActionData action_data)
 	{
-		return " reset " + action_data.m_Target.GetObject().GetDisplayName() + " with " + action_data.m_MainItem.GetDisplayName() + " at " + action_data.m_Target.GetObject().GetPosition();
+		return " reset " + action_data.m_Target.GetParentOrObject().GetDisplayName() + " with " + action_data.m_MainItem.GetDisplayName() + " at " + action_data.m_Target.GetParentOrObject().GetPosition();
 	}
 };

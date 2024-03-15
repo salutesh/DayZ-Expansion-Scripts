@@ -38,7 +38,7 @@ class ExpansionDamageSystem
 			}
 			else
 			{
-				Log("WARNING: Ammo " + ammoType + " has no indirectHitRange! Assuming 1.0");
+				EXError.WarnOnce(null, "WARNING: Ammo " + ammoType + " has no indirectHitRange! Assuming 1.0", {});
 				explosionDropoffRange = 1.0;
 			}
 
@@ -48,7 +48,7 @@ class ExpansionDamageSystem
 			}
 			else
 			{
-				Log("WARNING: Ammo " + ammoType + " has no indirectHitRangeMultiplier! Assuming 1.0");
+				EXError.WarnOnce(null, "WARNING: Ammo " + ammoType + " has no indirectHitRangeMultiplier! Assuming 1.0", {});
 				explosionRange = explosionDropoffRange;
 			}
 
@@ -60,7 +60,7 @@ class ExpansionDamageSystem
 		}
 		else
 		{
-			Log("ERROR: " + source.GetType() + " has no ammo!");
+			EXError.ErrorOnce(null, "ERROR: " + source.GetType() + " has no ammo!", {});
 		}
 
 		return false;
@@ -400,7 +400,8 @@ class ExpansionDamageSystem
 
 	static void Log(string msg)
 	{
-		if (GetExpansionSettings().GetLog().ExplosionDamageSystem)
-			GetExpansionSettings().GetLog().PrintLog("[ExplosionDamageSystem] " + msg);
+		auto settings = GetExpansionSettings().GetLog();
+		if (settings.ExplosionDamageSystem)
+			settings.PrintLog("[ExplosionDamageSystem] " + msg);
 	}
 }

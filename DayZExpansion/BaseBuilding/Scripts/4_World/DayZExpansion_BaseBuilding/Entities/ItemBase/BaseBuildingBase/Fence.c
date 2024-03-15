@@ -137,13 +137,13 @@ modded class Fence
 
 		if (ctx.GetVersion() < 38)
 		{
-			if (!ctx.Read(m_Locked))
+			if (!ctx.Read(m_Expansion_Locked))
 				return false;
 
-			if (!ctx.Read(m_Code))
+			if (!ctx.Read(m_Expansion_Code))
 				return false;
 
-			m_CodeLength = m_Code.Length();
+			m_Expansion_CodeLength = m_Expansion_Code.Length();
 
 			bool hasCode;
 			if (!ctx.Read(hasCode))

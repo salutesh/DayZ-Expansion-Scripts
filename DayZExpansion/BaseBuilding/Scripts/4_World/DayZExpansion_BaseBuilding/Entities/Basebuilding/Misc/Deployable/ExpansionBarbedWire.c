@@ -15,7 +15,7 @@
  **/
 class ExpansionBarbedWire: ExpansionBaseBuilding 
 {
-	protected ref AreaDamageLoopedDeferred_NoVehicle m_AreaDamage;
+	protected ref AreaDamageLoopedDeferred_NoVehicle m_Expansion_AreaDamage;
 
 	// ------------------------------------------------------------
 	// Destructor
@@ -69,21 +69,21 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	{
 		DestroyDamageTrigger();
 
-		m_AreaDamage = new AreaDamageLoopedDeferred_NoVehicle( this );
-		m_AreaDamage.SetDamageComponentType( AreaDamageComponentTypes.HITZONE );
-		m_AreaDamage.SetExtents( "-2.96 0 -0.77", "2.97 1.36 0.74" );
-		m_AreaDamage.SetLoopInterval( 1.0 );
-		m_AreaDamage.SetDeferDuration( 0.2 );
-		m_AreaDamage.SetHitZones( { "Torso","LeftHand","LeftLeg","LeftFoot","RightHand","RightLeg","RightFoot" } );
-		m_AreaDamage.SetAmmoName( "BarbedWireHit" );
-		m_AreaDamage.Spawn();
+		m_Expansion_AreaDamage = new AreaDamageLoopedDeferred_NoVehicle( this );
+		m_Expansion_AreaDamage.SetDamageComponentType( AreaDamageComponentTypes.HITZONE );
+		m_Expansion_AreaDamage.SetExtents( "-2.96 0 -0.77", "2.97 1.36 0.74" );
+		m_Expansion_AreaDamage.SetLoopInterval( 1.0 );
+		m_Expansion_AreaDamage.SetDeferDuration( 0.2 );
+		m_Expansion_AreaDamage.SetHitZones( { "Torso","LeftHand","LeftLeg","LeftFoot","RightHand","RightLeg","RightFoot" } );
+		m_Expansion_AreaDamage.SetAmmoName( "BarbedWireHit" );
+		m_Expansion_AreaDamage.Spawn();
 	}
 
 	void DestroyDamageTrigger()
 	{
-		if ( m_AreaDamage )
+		if ( m_Expansion_AreaDamage )
 		{
-			m_AreaDamage.Destroy();
+			m_Expansion_AreaDamage.Destroy();
 		}
 	}
 

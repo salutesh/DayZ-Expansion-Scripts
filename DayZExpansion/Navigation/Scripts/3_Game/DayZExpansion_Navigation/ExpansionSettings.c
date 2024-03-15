@@ -43,7 +43,7 @@ modded class ExpansionSettings
 		if (!Expansion_Assert_False(ctx.Read(uid_add), "ExpansionSettingsRPC.AddServerMarker - Failed reading marker UID"))
 		{
 			auto marker = ExpansionMarkerData.Create(ExpansionMapMarkerType.SERVER, uid_add);
-			marker.OnRecieve(ctx);
+			marker.OnRecieveFull(ctx);
 			if (GetExpansionSettings().GetMap(false).IsLoaded()) //! No need to add marker if map settings not yet received
 				GetExpansionSettings().GetMap().AddServerMarker(marker);
 		}

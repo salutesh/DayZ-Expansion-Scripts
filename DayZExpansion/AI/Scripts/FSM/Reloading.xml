@@ -34,14 +34,19 @@
 			</editor_data>
 			<event_entry>
 				time = 0;
-				unit.RaiseWeapon(false);
+				if (unit.m_eAI_IsInCover &amp;&amp; unit.eAI_GetStance() == eAIStance.ERECT)
+					unit.OverrideStance(DayZPlayerConstants.STANCEIDX_CROUCH);
 				unit.ReloadWeaponAI(fsm.weapon, magazine);
 			</event_entry>
 			<event_exit>
 				unit.eAI_CancelSidestep();
+				if (unit.eAI_ShouldGetUp())
+					unit.Expansion_GetUp();
 			</event_exit>
 			<event_update>
 				if (!unit.GetWeaponManager() || unit.IsUnconscious()) return EXIT;
+				
+				if (!fsm.weapon) return EXIT;
 				
 				if (unit.GetWeaponManager().IsRunning())
 				{
@@ -58,10 +63,13 @@
 					auto target = unit.GetTarget();
 					if (target &amp;&amp; unit.GetThreatToSelf() &gt;= 0.4)
 					{
+						if (!unit.m_eAI_IsInCover)
+							unit.OverrideTargetPosition(target, true);
+						
 						if (!unit.eAI_IsSideStepping() &amp;&amp; unit.eAI_HasLOS(target))
 						{
 							float distSq = target.GetDistanceSq(unit, true);
-							if (distSq &lt;= 4.0)
+							if (distSq &lt;= 9.0)
 							{
 								float movementDirection;
 								if (Math.RandomIntInclusive(0, 1))
@@ -69,14 +77,15 @@
 								else
 									movementDirection = Math.RandomFloat(-135, -180);
 								unit.eAI_ForceSideStep(Math.RandomFloat(1, 1.5), null, movementDirection);
+								unit.OverrideMovementSpeed(false, 0);
 							}
-							else if (distSq &lt; 100.0)
+							//! If we have a bolt action rifle with ammo in internal or attached mag, circle around player while cycling action
+							else if (distSq &lt; 100.0 &amp;&amp; fsm.weapon.IsInherited(BoltActionRifle_Base) &amp;&amp; fsm.weapon.Expansion_HasAmmo())
 							{
 								unit.eAI_ForceSideStep(Math.RandomFloat(1, 1.5), null, 0.0, false);
+								unit.OverrideMovementSpeed(false, 0);
 							}
 						}
-						
-						position = target.GetPosition(unit, false);
 					}
 					else
 					{
@@ -88,15 +97,13 @@
 							else
 								position = group.GetCurrentWaypoint();
 						}
-					}
 					
-					if (position != vector.Zero)
-						unit.OverrideTargetPosition(position);
+						if (position != vector.Zero)
+							unit.OverrideTargetPosition(position);
+					}
 				
 					return CONTINUE;
 				}
-				
-				if (!fsm.weapon) return EXIT;
 				
 				if (fsm.weapon.IsDamageDestroyed())
 				{

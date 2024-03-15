@@ -7,6 +7,7 @@ class ExpansionPathHandler
 	float m_MinTimeUntilNextUpdate;
 
 	autoptr PGFilter m_PathFilter;
+	autoptr PGFilter m_PathFilter_NoJumpClimb;
 	autoptr PGFilter m_CheckFilter;
 	autoptr PGFilter m_BlockFilter;
 
@@ -33,6 +34,7 @@ class ExpansionPathHandler
 	bool m_IsBlockedPhysically;
 	bool m_DoClimbTestEx;
 	bool m_IsUnreachable;
+	bool m_AllowJumpClimb = true;
 
 	void ExpansionPathHandler(eAIBase unit)
 	{
@@ -43,6 +45,7 @@ class ExpansionPathHandler
 		m_Unit = unit;
 
 		m_PathFilter = new PGFilter();
+		m_PathFilter_NoJumpClimb = new PGFilter();
 		m_CheckFilter = new PGFilter();
 		m_BlockFilter = new PGFilter();
 
@@ -81,7 +84,7 @@ class ExpansionPathHandler
 		m_PathFilter.SetCost(PGAreaType.LADDER, 1.0);
 		m_PathFilter.SetCost(PGAreaType.CRAWL, 10.0);
 		m_PathFilter.SetCost(PGAreaType.CROUCH, 10.0);
-		m_PathFilter.SetCost(PGAreaType.FENCE_WALL, 1.0);
+		m_PathFilter.SetCost(PGAreaType.FENCE_WALL, 4.0);
 		m_PathFilter.SetCost(PGAreaType.JUMP, 10.0);
 		m_PathFilter.SetCost(PGAreaType.WATER, 5.0);
 		m_PathFilter.SetCost(PGAreaType.WATER_DEEP, 100.0);
@@ -91,21 +94,43 @@ class ExpansionPathHandler
 		m_PathFilter.SetCost(PGAreaType.DOOR_CLOSED, 2.0);
 		m_PathFilter.SetCost(PGAreaType.DOOR_OPENED, 1.0);
 
-		m_PathFilter.SetCost(PGAreaType.ROADWAY, 5.0);
+		m_PathFilter.SetCost(PGAreaType.ROADWAY, 4.0);
 		m_PathFilter.SetCost(PGAreaType.TREE, 1.0);
 
 		m_PathFilter.SetCost(PGAreaType.OBJECTS_NOFFCON, 5.0);
 		m_PathFilter.SetCost(PGAreaType.OBJECTS, 5.0);
-		m_PathFilter.SetCost(PGAreaType.TERRAIN, 5.0);
+		m_PathFilter.SetCost(PGAreaType.TERRAIN, 4.0);
 		m_PathFilter.SetCost(PGAreaType.BUILDING, 1.0);
-		m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 5.0);
+		m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 4.0);
 
 		m_PathFilter.SetFlags(includeFlags, excludeFlags, exclusiveFlags);
 
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.LADDER, 1.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.CRAWL, 10.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.CROUCH, 10.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.FENCE_WALL, 1000.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.JUMP, 1000.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.WATER, 5.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.WATER_DEEP, 100.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.WATER_SEA, 5.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.WATER_SEA_DEEP, 100.0);
+
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.DOOR_CLOSED, 2.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.DOOR_OPENED, 1.0);
+
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.ROADWAY, 4.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.TREE, 1.0);
+
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.OBJECTS_NOFFCON, 5.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.OBJECTS, 5.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.TERRAIN, 4.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.BUILDING, 1.0);
+		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.ROADWAY_BUILDING, 4.0);
+
+		m_PathFilter_NoJumpClimb.SetFlags(includeFlags & ~PGPolyFlags.SPECIAL, excludeFlags | PGPolyFlags.SPECIAL, exclusiveFlags);
+
 		//! Block filter - only used to check if path is blocked. MUST use SAME flags as normal pathfilter EXCEPT door
-		includeFlags &= ~PGPolyFlags.DOOR;
-		excludeFlags |= PGPolyFlags.DOOR;
-		m_BlockFilter.SetFlags(includeFlags, excludeFlags, exclusiveFlags);
+		m_BlockFilter.SetFlags(includeFlags & ~PGPolyFlags.DOOR, excludeFlags | PGPolyFlags.DOOR, exclusiveFlags);
 	}
 
 	bool Raycast(PGPolyFlags filter, float distance, out vector hitPos)
@@ -600,7 +625,7 @@ class ExpansionPathHandler
 				UpdatePoint(m_Next0, m_Points[1]);
 				UpdatePoint(m_Next1, m_Points[2]);
 
-				if (m_Unit.AI_HANDLEVAULTING && !m_Next0.Parent && !m_Next1.Parent)
+				if (m_Unit.AI_HANDLEVAULTING && m_AllowJumpClimb && !m_Next0.Parent && !m_Next1.Parent)
 				{
 					/**
 					 * Vanilla FindPath sometimes places fixed points around some vaultable objects even if AI is already closer to p2 than p1,
@@ -716,6 +741,14 @@ class ExpansionPathHandler
 		return m_Count;
 	}
 
+	vector GetEnd()
+	{
+		if (m_Count)
+			return m_Points[m_Count - 1];
+
+		return m_Unit.GetPosition();
+	}
+
 	void UpdatePoint(inout ExpansionPathPoint point, vector position)
 	{
 		if (!point)
@@ -735,7 +768,7 @@ class ExpansionPathHandler
 		m_Current.OnParentUpdate();
 	}
 
-	void SetTarget(vector pPosition)
+	void SetTarget(vector pPosition, float maxDistance = 1.0, bool allowJumpClimb = true)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "pPosition").Add(pPosition);
@@ -756,12 +789,18 @@ class ExpansionPathHandler
 		vector inPos = pPosition;
 
 		// TODO: investigate why the same variable source must be used for 0th and 3rd parameter, and that it can't be a member variable for either
-		if (!m_AIWorld.SampleNavmeshPosition(inPos, 1.0, m_PathFilter, inPos))
+		if (!m_AIWorld.SampleNavmeshPosition(inPos, maxDistance, m_PathFilter, inPos))
 		{
 			//inPos = oldPos;
 		}
 
 		m_TargetReference.Position = inPos;
+		m_AllowJumpClimb = allowJumpClimb;
+	}
+
+	vector GetTarget()
+	{
+		return m_TargetReference.Position;
 	}
 
 	void OverridePosition(vector pPosition)

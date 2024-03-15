@@ -20,7 +20,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	void ExpansionBarrierGate()
 	{
-		m_CurrentBuild = "metal";
+		m_Expansion_CurrentBuild = "metal";
 	}
 
 	// ------------------------------------------------------------

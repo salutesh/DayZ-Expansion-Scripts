@@ -1,9 +1,20 @@
 modded class ItemBase
 {
-	private ref eAIItemTargetInformation m_TargetInformation = new eAIItemTargetInformation(this);
+	private ref eAIItemTargetInformation m_TargetInformation;
 	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
 
 	bool m_Expansion_IsOwnerPlayer;
+	float m_eAI_LastRecordedImpactTime;
+
+	void ItemBase()
+	{
+		m_TargetInformation = CreateTargetInformation();
+	}
+
+	protected eAIItemTargetInformation CreateTargetInformation()
+	{
+		return new eAIItemTargetInformation(this);
+	}
 
 	eAIItemTargetInformation GetTargetInformation()
 	{
@@ -68,6 +79,35 @@ modded class ItemBase
 		EXTrace.Print(EXTrace.AI, this, "::EEInventoryOut - " + oldParentMan);
 
 		ai.eAI_RemoveItem(this);
+	}
+
+	override void EOnContact(IEntity other, Contact extra)
+	{
+		if (m_CanPlayImpactSound && GetGame().IsServer())
+		{
+			float time = GetGame().GetTickTime();
+			if (time - m_eAI_LastRecordedImpactTime > 1.0)
+			{
+				//! Because impacts may happen rapidly, we only update this once every second
+				m_eAI_LastRecordedImpactTime = time;
+
+			/*
+				//! This WOULD work if all items had NoiseImpact...
+				string path;
+
+				if (IsWeapon())
+					path = CFG_WEAPONSPATH;
+				else if (IsMagazine())
+					path = CFG_MAGAZINESPATH;
+				else
+					path = CFG_VEHICLESPATH;
+	
+				eAINoiseSystem.AddNoise(this, path + " " + GetType() + " NoiseImpact", m_ImpactSpeed, eAINoiseType.SOUND);
+			*/
+
+				eAINoiseSystem.AddNoise(this, CFG_VEHICLESPATH + " Bone NoiseImpact", 0.1, eAINoiseType.SOUND);
+			}
+		}
 	}
 
 	bool Expansion_TryTurningOn()

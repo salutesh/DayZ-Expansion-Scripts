@@ -16,7 +16,7 @@
 //! TODO: Is there a good reason this inherits from ExpansionBaseBuilding and not DeployableContainer_Base or similar?
 class ExpansionCamoBox: ExpansionBaseBuilding
 {
-	int m_CanBeDamaged = -1;
+	int m_Expansion_CanBeDamaged = -1;
 
 	// ------------------------------------------------------------
 	// CanPutIntoHands
@@ -60,10 +60,10 @@ class ExpansionCamoBox: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	override bool CanBeDamaged()
 	{
-		if ( m_CanBeDamaged == -1 && GetGame() && GetGame().IsMultiplayer() && GetGame().IsServer() )
-			m_CanBeDamaged = GetGame().ServerConfigGetInt( "disableContainerDamage" ) == 0;
+		if ( m_Expansion_CanBeDamaged == -1 && GetGame() && GetGame().IsMultiplayer() && GetGame().IsServer() )
+			m_Expansion_CanBeDamaged = GetGame().ServerConfigGetInt( "disableContainerDamage" ) == 0;
 
-		return m_CanBeDamaged;
+		return m_Expansion_CanBeDamaged;
 	}
 
 	override void SetPartsAfterStoreLoad()

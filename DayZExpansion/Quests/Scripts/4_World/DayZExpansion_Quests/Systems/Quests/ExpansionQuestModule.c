@@ -1519,20 +1519,31 @@ class ExpansionQuestModule: CF_ModuleWorld
 	}
 
 	//! Server
-	void CreateClientMarker(vector pos, string text, int questID, PlayerIdentity identity, int objectiveIndex, int visibility = 6)
+	void CreateClientMarker(vector pos, string text, int questID, PlayerIdentity identity, int objectiveIndex, int visibility = -1)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-	#ifdef EXPANSIONMODNAVIGATION
+		if (visibility < 0)
+			visibility = EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP;
+
 		auto rpc = Expansion_CreateRPC("RPC_CreateClientMarker");
 		rpc.Write(pos);
 		rpc.Write(text);
 		rpc.Write(questID);
-		rpc.Write(GetExpansionSettings().GetMap().CanCreate3DMarker);
+		rpc.Write(CanCreate3DMarker());
 		rpc.Write(objectiveIndex);
 		rpc.Write(visibility);
 		rpc.Expansion_Send(true, identity);
+	}
+
+	//! 3rd party modding support helper function
+	bool CanCreate3DMarker()
+	{
+	#ifdef EXPANSIONMODNAVIGATION
+		return GetExpansionSettings().GetMap().CanCreate3DMarker;
 	#endif
+
+		return true;
 	}
 
 	//! Client
@@ -1560,7 +1571,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!ctx.Read(objectiveIndex))
 			return;
 
-		int visibility = 6;
+		int visibility;
 		if (!ctx.Read(visibility))
 			return;
 
@@ -1636,7 +1647,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		Class.CastTo(markerModule, CF_ModuleCoreManager.Get(ExpansionMarkerModule));
 
 		bool showMap = false;
-		if (is3D && visibility <= 4)
+		if (is3D && (visibility & EXPANSION_MARKER_VIS_WORLD) == 0)
 			is3D = false;
 
 		pos[1] = pos[1] + 2.0;
@@ -1655,7 +1666,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		markerData.SetColor(ARGB(255,241,196,15));
 		markerData.SetPosition(pos);
 		markerData.Set3D(is3D);
-		markerData.SetVisibility(visibility);
+		markerData.ApplyVisibility(visibility);
 		markerData.SetLockState(true);
 		markerModule.CreateMarker(markerData);
 

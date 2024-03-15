@@ -248,6 +248,16 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return SUCCESS;
 	}
 
+	static int Save_Phase2a(ParamsWriteContext ctx, int itemCount, string basePath, int level)
+	{
+		ctx.Write(itemCount);
+
+		if (itemCount && !level && !FileExist(basePath))
+			MakeDirectory(basePath);
+
+		return itemCount;
+	}
+
 	static bool Save_Phase2(ParamsWriteContext ctx, string basePath, EntityAI entity, bool inventoryOnly = false, EntityAI placeholder = null, int level = 0, TStringArray orphanedFiles = null)
 	{
 		//! 2) attachments + cargo
@@ -255,6 +265,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		CargoBase cargo;
 		int attCount;
 		int cargoItemCount;
+
 		if (inventory)
 		{
 			if (!level && placeholder && entity.HasAnyCargo() && !MiscGameplayFunctions.Expansion_MoveCargo(entity, placeholder))
@@ -264,16 +275,29 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			if (cargo)
 				cargoItemCount = cargo.GetItemCount();
 		}
+
 		int inventoryCount = attCount + cargoItemCount;
-		ctx.Write(inventoryCount);
-
-		if (!inventoryCount)
-			return true;
-
-		if (!level && !FileExist(basePath))
-			MakeDirectory(basePath);
 
 		bool success = true;
+
+		if (entity.IsMan())
+		{
+			Man player = Man.Cast(entity);
+			EntityAI entityInHands = player.GetHumanInventory().GetEntityInHands();
+			if (entityInHands)
+			{
+				Save_Phase2a(ctx, inventoryCount + 1, basePath, level);
+				success = Save(entityInHands, ctx, basePath, inventoryOnly, null, level + 1);
+			}
+			else if (Save_Phase2a(ctx, inventoryCount, basePath, level) == 0)
+			{
+				return true;
+			}
+		}
+		else if (Save_Phase2a(ctx, inventoryCount, basePath, level) == 0)
+		{
+			return true;
+		}
 
 		for (int i = 0; i < inventoryCount; i++)
 		{

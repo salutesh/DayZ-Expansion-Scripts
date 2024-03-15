@@ -1311,17 +1311,3 @@ class CfgVehicles
 		skinName = "BlueRust";
 	};
 };
-class CfgNonAIVehicles
-{
-	class ProxyVehiclePart;
-	class ProxySedan_02_Wheel: ProxyVehiclePart
-	{
-		model = "DZ\vehicles\wheeled\Sedan_02\proxy\Sedan_02_Wheel.p3d";
-		inventorySlot[] = {"Sedan_02_Wheel_1_1","Sedan_02_Wheel_1_2","Sedan_02_Wheel_2_1","Sedan_02_Wheel_2_2"};
-	};
-	class ProxySedan_02_Wheel_ruined: ProxyVehiclePart
-	{
-		model = "DZ\vehicles\wheeled\Sedan_02\proxy\Sedan_02_Wheel_ruined.p3d";
-		inventorySlot[] = {"Sedan_02_Wheel_1_1","Sedan_02_Wheel_1_2","Sedan_02_Wheel_2_1","Sedan_02_Wheel_2_2"};
-	};
-};
