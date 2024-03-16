@@ -78,6 +78,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 	private int m_StancePrev = -1;
 	private float m_StanceChangeTimeout;
 
+	Object m_BlockingObject;
 	private bool m_LastBlockedForward;
 	private bool m_LastBlockedLeft;
 	private float m_BlockedLeftDist;
@@ -156,6 +157,32 @@ class eAICommandMove: ExpansionHumanCommandScript
 	{
 		m_TurnTarget = pTarget;
 		m_ForceTurnTarget = force;
+	}
+
+	float GetTurnTarget()
+	{
+		return m_TurnTarget;
+	}
+
+	float GetTurnDifference()
+	{
+		return m_TurnDifference;
+	}
+
+	bool IsTurning()
+	{
+		if (m_TurnState == TURN_STATE_TURNING)
+			return true;
+
+		return false;
+	}
+
+	bool ShouldRecalculateTurnTarget()
+	{
+		if (!m_TurnOverride && (m_OverrideMovementTimeout > 0 || !m_ForceTurnTarget))
+			return true;
+
+		return false;
 	}
 
 	void StartTurnOverride(int speedLimit = 1)
@@ -404,7 +431,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 			bool chg;
 
-			if (m_Stance != DayZPlayerConstants.STANCEIDX_PRONE && vector.DistanceSq(m_PrevPosition, position) < 0.0001)
+			if (m_Stance != DayZPlayerConstants.STANCEIDX_PRONE && vector.DistanceSq(m_PrevPosition, position) < 0.0001 && !m_Unit.GetActionManager().GetRunningAction())
 				m_PositionTime += pDt;  //! We don't seem to be actually moving
 			else
 				m_PositionTime = 0;
@@ -783,8 +810,11 @@ class eAICommandMove: ExpansionHumanCommandScript
 			if (m_WayPointDistance2D >= 0.04)  //! 0.2 m
 			{
 				m_PrevWaypoint = wayPoint;
-				if (!m_TurnOverride && (m_OverrideMovementTimeout > 0 || !m_ForceTurnTarget))
+				if (ShouldRecalculateTurnTarget())
+				{
+					//! Turn to waypoint while moving
 					m_TurnTarget = pathDir2D.Normalized().VectorToAngles()[0];
+				}
 			}
 
 			if (m_TurnOverride)
@@ -815,13 +845,28 @@ class eAICommandMove: ExpansionHumanCommandScript
 		}
 		*/
 
+		m_Turn = orientation[0];
+
 		if (m_OverrideMovementTimeout > 0)
 		{
 			m_TargetMovementDirection = m_OverrideTargetMovementDirection;
 			m_ForceMovementDirection = true;
 		}
+		//! Turn towards aim direction when raised but keep moving in waypoint direction (strafe/backpedal if necessary)
+		else if (m_MovementSpeed > 0 && m_Unit.IsRaised())
+		{
+			float aimAngle = m_Unit.GetAimDirection().VectorToAngles()[0];
+			float aimToMovementAngle = ExpansionMath.AngleDiff2(aimAngle, m_TurnTarget);
+			float aimToMovementAngleAbs = Math.AbsFloat(aimToMovementAngle);
 
-		m_Turn = orientation[0];
+			if (aimToMovementAngleAbs >= 90)
+			{
+
+				m_TargetMovementDirection = ExpansionMath.AngleDiff2(m_Turn, m_TurnTarget);
+				m_ForceMovementDirection = true;
+				m_TurnTarget = aimAngle;
+			}
+		}
 
 		//! Clockwise: Positive, counter-clockwise: Negative
 		m_TurnDifference = ExpansionMath.AngleDiff2(m_Turn, m_TurnTarget);
@@ -868,6 +913,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 		else if (Math.AbsFloat(m_TurnDifference) > 30.0 && !m_TurnOverride)
 		{
 			SetTargetSpeed(Math.Lerp(m_MovementSpeed, 1.0, pDt * 2.0));
+		}
+		else if (m_Unit.IsRaised())
+		{
+			SetTargetSpeed(2.0);
 		}
 		else if (!m_SpeedOverrider)
 		{
@@ -1075,16 +1124,18 @@ class eAICommandMove: ExpansionHumanCommandScript
 			float turnTargetActual = m_TurnTarget;
 
 			auto parent = Object.Cast(m_Player.GetParent());
-			if (parent) turnTargetActual -= parent.GetOrientation()[0];
+			if (parent)
+				turnTargetActual -= parent.GetOrientation()[0];
 
-			if (turnTargetActual > 180.0) turnTargetActual = turnTargetActual - 360.0;
+			if (turnTargetActual > 180.0)
+				turnTargetActual -= 360.0;
 
 			bool isAboveGround;
 			if (position[1] - GetGame().SurfaceY(position[0], position[2]) > 0.5)
 				isAboveGround = true;
 
 			//! Enable sharper turns if above ground or waypoint is close and not avoiding obstacles
-			if (isAboveGround || (m_WayPointDistance2D < 8.0 && m_OverrideMovementTimeout <= 0))
+			if (!m_Unit.IsRaised() && (isAboveGround || (m_WayPointDistance2D < 8.0 && m_OverrideMovementTimeout <= 0)))
 				PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.15, 30.0);
 			else
 				PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
@@ -1118,6 +1169,8 @@ class eAICommandMove: ExpansionHumanCommandScript
 		vector dir = vector.Direction(start, end).Normalized();
 		bool hit;
 
+		m_BlockingObject = null;
+
 		//! 1st raycast specifically for trees
 		int contactComponent;
 		set<Object> results();
@@ -1127,6 +1180,8 @@ class eAICommandMove: ExpansionHumanCommandScript
 			{
 				if (obj.IsTree())
 					hit = true;
+
+				m_BlockingObject = obj;
 			}
 		}
 
@@ -1139,6 +1194,8 @@ class eAICommandMove: ExpansionHumanCommandScript
 				hit_mask |= PhxInteractionLayers.CHARACTER | PhxInteractionLayers.AI;
 			hit = DayZPhysics.SphereCastBullet(start + dir * 0.125, end, 0.25, hit_mask, m_Unit, hitObject, hitPosition, hitNormal, hitFraction);
 			hitFraction = 1.0 - hitFraction;
+			if (hitObject)
+				m_BlockingObject = hitObject;
 		}
 
 #ifdef DIAG
@@ -1243,5 +1300,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 			return false;
 
 		return isBlocked;
+	}
+
+	Object GetBlockingObject()
+	{
+		return m_BlockingObject;
 	}
 };

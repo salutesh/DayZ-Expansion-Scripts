@@ -1,6 +1,6 @@
 class eAIItemTargetInformation: eAIEntityTargetInformation
 {
-	private ItemBase m_Item;
+	protected ItemBase m_Item;
 
 	void eAIItemTargetInformation(EntityAI target)
 	{

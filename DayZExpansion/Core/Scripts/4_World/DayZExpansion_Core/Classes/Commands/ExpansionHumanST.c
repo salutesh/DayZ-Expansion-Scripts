@@ -63,6 +63,7 @@ class ExpansionHumanST
 	int m_VAR_AimY;
 
 	int m_VAR_Raised;
+	int m_VAR_ADS;
 	int m_VAR_Stance;
 
 	int m_VAR_Lean;
@@ -128,6 +129,7 @@ class ExpansionHumanST
 	#endif
 
 		m_VAR_Raised = hai.BindVariableBool( "Raised" );
+		m_VAR_ADS = hai.BindVariableBool( "ADS" );
 		m_VAR_Stance = hai.BindVariableInt( "Stance" );
 
 		m_VAR_Lean = hai.BindVariableFloat( "Lean" );
@@ -318,6 +320,11 @@ class ExpansionHumanST
 	void SetRaised( HumanCommandScript script, bool param )
 	{
 		script.PreAnim_SetBool( m_VAR_Raised, param );
+	}
+
+	void SetADS( HumanCommandScript script, bool param )
+	{
+		script.PreAnim_SetBool( m_VAR_ADS, param );
 	}
 
 	void SetStance( HumanCommandScript script, int param )

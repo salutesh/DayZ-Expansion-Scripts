@@ -10,6 +10,7 @@
  *
 */
 
+//! TODO: Change these constants to an enum (same values)
 const int EXPANSION_MARKER_VIS_NONE = 0;
 const int EXPANSION_MARKER_VIS_WORLD = 2;
 const int EXPANSION_MARKER_VIS_MAP = 4;
@@ -368,6 +369,24 @@ class ExpansionMarkerData
 			
 			m_Object = GetGame().GetObjectByNetworkId( m_ObjectNetworkLow, m_ObjectNetworkHigh );
 		}
+
+		return true;
+	}
+
+	void OnSendFull(ParamsWriteContext ctx)
+	{
+		OnSend(ctx);
+
+		ctx.Write(m_Visibility);
+	}
+
+	bool OnRecieveFull(ParamsReadContext ctx)
+	{
+		if (!OnRecieve(ctx))
+			return false;
+
+		if (!ctx.Read(m_Visibility))
+			return false;
 
 		return true;
 	}

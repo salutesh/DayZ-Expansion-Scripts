@@ -31,6 +31,8 @@ class eAITargetInformation
 		RemoveFromAll();
 	}
 	
+	void DeferredInit();
+
 	override string GetDebugName()
 	{
 		return ToString();
@@ -151,6 +153,11 @@ class eAITargetInformation
 #endif
 
 		return 0;
+	}
+
+	float GetMinDistance(eAIBase ai = null)
+	{
+		return 0.0;
 	}
 
 	vector GetDirection(eAIBase ai, bool actual = false)

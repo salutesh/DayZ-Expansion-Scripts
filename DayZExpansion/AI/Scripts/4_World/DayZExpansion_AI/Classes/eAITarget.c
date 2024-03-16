@@ -177,6 +177,11 @@ class eAITarget
 		return !info.IsActive() || (found_at_time + max_time <= GetGame().GetTime() && info.ShouldRemove(ai));
 	}
 
+	float GetMinDistance(eAIBase ai = null)
+	{
+		return info.GetMinDistance(ai);
+	}
+
 	vector GetDirection(eAIBase ai, bool actual = false)
 	{
 		return info.GetDirection(ai, actual);

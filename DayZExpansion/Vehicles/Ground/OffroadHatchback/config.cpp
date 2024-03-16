@@ -1122,17 +1122,3 @@ class CfgVehicles
 		skinName = "WhiteRust";
 	};
 };
-class CfgNonAIVehicles
-{
-	class ProxyVehiclePart;
-	class ProxyNivaWheel: ProxyVehiclePart
-	{
-		model = "DZ\vehicles\wheeled\OffroadHatchback\proxy\nivaWheel.p3d";
-		inventorySlot[] = {"NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","NivaWheel_Spare_1"};
-	};
-	class ProxyNivaWheel_destroyed: ProxyVehiclePart
-	{
-		model = "DZ\vehicles\wheeled\OffroadHatchback\proxy\nivaWheel_destroyed.p3d";
-		inventorySlot[] = {"NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","NivaWheel_Spare_1"};
-	};
-};

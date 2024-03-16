@@ -22,16 +22,16 @@ modded class TerritoryFlag
 	const string EXPANSION_DEFAULT_FLAG_TEXTURE = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
 
 	//! Expansion META DATA
-	string m_FlagTexturePath = "";						//! Flag texture path (get saved to flag (this) and attached flag (flag_base).
-	string m_OwnerID = "";								//! Player id who placed the flag (is flag owner).
+	string m_Expansion_FlagTexturePath = "";						//! Flag texture path (get saved to flag (this) and attached flag (flag_base).
+	string m_Expansion_OwnerID = "";								//! Player id who placed the flag (is flag owner).
 	
-	protected ExpansionTerritoryModule m_TerritoryModule;
+	protected ExpansionTerritoryModule m_Expansion_TerritoryModule;
 	
-	protected int m_TerritoryID;						//! Unique terriotry id. Used to get and identify the flags territory in the territory module.
-	protected autoptr ExpansionTerritory m_Territory;	//! Contains flags ExpansionTerritoryx data if flag is a expansion territory flag.
-	protected bool m_IsTerritory = false;				//! Used to check if flag is a expansion territory flag.
+	protected int m_Expansion_TerritoryID;						//! Unique terriotry id. Used to get and identify the flags territory in the territory module.
+	protected autoptr ExpansionTerritory m_Expansion_Territory;	//! Contains flags ExpansionTerritoryx data if flag is a expansion territory flag.
+	protected bool m_Expansion_IsTerritory = false;				//! Used to check if flag is a expansion territory flag.
 
-	protected bool m_SkipSetRefresherActive;
+	protected bool m_Expansion_SkipSetRefresherActive;
 
 	// ------------------------------------------------------------
 	// TerritoryFlag Constructor
@@ -42,13 +42,13 @@ modded class TerritoryFlag
 		EXLogPrint("TerritoryFlag::TerritoryFlag - Start");
 		#endif
 		
-		CF_Modules<ExpansionTerritoryModule>.Get(m_TerritoryModule);
+		CF_Modules<ExpansionTerritoryModule>.Get(m_Expansion_TerritoryModule);
 		
-		m_TerritoryID = -1;
-		m_Territory = new ExpansionTerritory(-1, "", 1, "", vector.Zero, "");
+		m_Expansion_TerritoryID = -1;
+		m_Expansion_Territory = new ExpansionTerritory(-1, "", 1, "", vector.Zero, "");
 		
-		RegisterNetSyncVariableInt( "m_TerritoryID" );
-		RegisterNetSyncVariableBool( "m_IsTerritory" );
+		RegisterNetSyncVariableInt( "m_Expansion_TerritoryID" );
+		RegisterNetSyncVariableBool( "m_Expansion_IsTerritory" );
 		
 		//SetEventMask( EntityEvent.INIT );
 
@@ -64,9 +64,9 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	void ~TerritoryFlag()
 	{
-		if ( m_TerritoryModule && m_TerritoryID > -1 )
+		if ( m_Expansion_TerritoryModule && m_Expansion_TerritoryID > -1 )
 		{
-			m_TerritoryModule.RemoveTerritoryFlag( m_TerritoryID );
+			m_Expansion_TerritoryModule.RemoveTerritoryFlag( m_Expansion_TerritoryID );
 		}
 
 		if (!GetGame())
@@ -94,14 +94,14 @@ modded class TerritoryFlag
 		//! ...then set it to zero so vanilla TerritoryFlag::OnCEUpdate doesn't update refresh time and lifetimes
 		m_RefresherTimeRemaining = 0;
 
-		m_SkipSetRefresherActive = true;
+		m_Expansion_SkipSetRefresherActive = true;
 
 		super.OnCEUpdate();
 
 		//! Restore time remaining
 		m_RefresherTimeRemaining = refresherTimeRemaining;
 
-		m_SkipSetRefresherActive = false;
+		m_Expansion_SkipSetRefresherActive = false;
 
 		//! Update refresher (duplicate of vanilla code except using TerritorySize instead of constant)
 		int time_elapsed_rounded = Math.Round(m_ElapsedSinceLastUpdate);
@@ -123,7 +123,7 @@ modded class TerritoryFlag
 	
 	override void SetRefresherActive(bool state)
 	{
-		if ( m_SkipSetRefresherActive )
+		if ( m_Expansion_SkipSetRefresherActive )
 			return;
 
 		//! Set refresher active state (duplicate of vanilla code except using TerritorySize instead of constant)
@@ -155,7 +155,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	int GetTerritoryID()
 	{
-		return m_TerritoryID;
+		return m_Expansion_TerritoryID;
 	}
 	
 	// ------------------------------------------------------------
@@ -166,12 +166,12 @@ modded class TerritoryFlag
 		if ( !IsMissionHost() )
 			return;
 		
-		m_TerritoryID = id;
+		m_Expansion_TerritoryID = id;
 		
 		SetSynchDirty();
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint("TerritoryFlag::SetTerritoryID - Set territory id to " + m_TerritoryID.ToString() + " for territory flag " + this.ToString() + ".");
+		EXLogPrint("TerritoryFlag::SetTerritoryID - Set territory id to " + m_Expansion_TerritoryID.ToString() + " for territory flag " + this.ToString() + ".");
 		#endif
 	}
 	
@@ -183,10 +183,10 @@ modded class TerritoryFlag
 		if ( !IsMissionHost() )
 			return;
 
-		m_Territory = territory;
+		m_Expansion_Territory = territory;
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint("TerritoryFlag::SetTerritory - Set territory to " + territory.ToString() + " [ID:" + m_Territory.GetTerritoryID() + ", Name: " + m_Territory.GetTerritoryName() + " OwnerID: " + m_Territory.GetOwnerID() + "] for territory flag " + this.ToString() + ".");
+		EXLogPrint("TerritoryFlag::SetTerritory - Set territory to " + territory.ToString() + " [ID:" + m_Expansion_Territory.GetTerritoryID() + ", Name: " + m_Expansion_Territory.GetTerritoryName() + " OwnerID: " + m_Expansion_Territory.GetOwnerID() + "] for territory flag " + this.ToString() + ".");
 		#endif
 	}
 	
@@ -195,7 +195,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	ExpansionTerritory GetTerritory()
 	{
-		return m_Territory;
+		return m_Expansion_Territory;
 	}
 	
 	// ------------------------------------------------------------
@@ -214,7 +214,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	bool HasExpansionTerritoryInformation()
 	{
-		return m_IsTerritory;
+		return m_Expansion_IsTerritory;
 	}
 	
 	// ------------------------------------------------------------
@@ -225,7 +225,7 @@ modded class TerritoryFlag
 		if ( !IsMissionHost() )
 			return;
 		
-		m_FlagTexturePath = texturePath;
+		m_Expansion_FlagTexturePath = texturePath;
 		
 		Flag_Base flag = Flag_Base.Cast( FindAttachmentBySlotName("Material_FPole_Flag") );
 		if ( flag )
@@ -234,7 +234,7 @@ modded class TerritoryFlag
 			EXLogPrint("TerritoryFlag::SetFlagTexture - Flag: " + flag.ToString());
 			#endif
 
-			flag.SetFlagTexture( m_FlagTexturePath );
+			flag.SetFlagTexture( m_Expansion_FlagTexturePath );
 		} else
 		{
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -243,7 +243,7 @@ modded class TerritoryFlag
 		}
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint("TerritoryFlag::SetFlagTexture - Set flag texture path to: " + m_FlagTexturePath);
+		EXLogPrint("TerritoryFlag::SetFlagTexture - Set flag texture path to: " + m_Expansion_FlagTexturePath);
 		#endif
 	}
 	
@@ -252,7 +252,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	string GetFlagTexturePath()
 	{
-		return m_FlagTexturePath;
+		return m_Expansion_FlagTexturePath;
 	}
 	
 	// ------------------------------------------------------------
@@ -276,7 +276,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	string GetOwnerID()
 	{
-		return m_OwnerID;
+		return m_Expansion_OwnerID;
 	}
 	
 	// ------------------------------------------------------------
@@ -284,10 +284,10 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	void SetOwnerID( string id )
 	{
-		m_OwnerID = id;
+		m_Expansion_OwnerID = id;
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint( "TerritoryFlag::SetOwnerID:: - Set flag owner id to: " + m_OwnerID );
+		EXLogPrint( "TerritoryFlag::SetOwnerID:: - Set flag owner id to: " + m_Expansion_OwnerID );
 		#endif
 	}
 
@@ -299,14 +299,14 @@ modded class TerritoryFlag
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return;
 
-		ctx.Write(m_IsTerritory);
-		if (m_IsTerritory)
+		ctx.Write(m_Expansion_IsTerritory);
+		if (m_Expansion_IsTerritory)
 		{
-			ctx.Write(m_FlagTexturePath);
-			ctx.Write(m_OwnerID);
-			ctx.Write(m_TerritoryID);		
+			ctx.Write(m_Expansion_FlagTexturePath);
+			ctx.Write(m_Expansion_OwnerID);
+			ctx.Write(m_Expansion_TerritoryID);		
 			
-			m_Territory.OnStoreSave(ctx);
+			m_Expansion_Territory.OnStoreSave(ctx);
 		}
 	}
 	
@@ -318,21 +318,21 @@ modded class TerritoryFlag
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return true;
 
-		if (!ctx.Read(m_IsTerritory))
+		if (!ctx.Read(m_Expansion_IsTerritory))
 			return false;
 
-		if (m_IsTerritory)
+		if (m_Expansion_IsTerritory)
 		{
-			if (!ctx.Read(m_FlagTexturePath))
+			if (!ctx.Read(m_Expansion_FlagTexturePath))
 				return false;
 
-			if (!ctx.Read(m_OwnerID))
+			if (!ctx.Read(m_Expansion_OwnerID))
 				return false;
 
-			if (!ctx.Read(m_TerritoryID))
+			if (!ctx.Read(m_Expansion_TerritoryID))
 				return false;
 
-			if (!m_Territory.OnStoreLoad(ctx))
+			if (!m_Expansion_Territory.OnStoreLoad(ctx))
 				return false;
 		}
 
@@ -346,10 +346,10 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	bool IsInTerritory()
 	{
-		if ( !m_TerritoryModule )
+		if ( !m_Expansion_TerritoryModule )
 			return false;
 			
-		return m_TerritoryModule.IsInTerritory( GetPosition() );
+		return m_Expansion_TerritoryModule.IsInTerritory( GetPosition() );
 	}
 	
 	// ------------------------------------------------------------
@@ -357,7 +357,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	override void EOnInit(IEntity other, int extra)
 	{
-		m_TerritoryModule = ExpansionTerritoryModule.Cast( CF_ModuleCoreManager.Get( ExpansionTerritoryModule ) );
+		m_Expansion_TerritoryModule = ExpansionTerritoryModule.Cast( CF_ModuleCoreManager.Get( ExpansionTerritoryModule ) );
 	}
 	
 	// ------------------------------------------------------------
@@ -368,12 +368,12 @@ modded class TerritoryFlag
 		if ( !IsMissionHost() )
 			return;
 		
-		m_IsTerritory = state;
+		m_Expansion_IsTerritory = state;
 		
 		SetSynchDirty();
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint("TerritoryFlag::SetIsExpansionTerritoryFlag - Set flag m_IsTerritory: " + m_IsTerritory.ToString() );
+		EXLogPrint("TerritoryFlag::SetIsExpansionTerritoryFlag - Set flag is territory: " + m_Expansion_IsTerritory.ToString() );
 		#endif
 	}
 	
@@ -388,8 +388,8 @@ modded class TerritoryFlag
 
 		super.AfterStoreLoad();
 				
-		if ( m_Territory && m_IsTerritory )
-			m_TerritoryModule.AddTerritoryFlag( this, m_Territory.GetTerritoryID() );
+		if ( m_Expansion_Territory && m_Expansion_IsTerritory )
+			m_Expansion_TerritoryModule.AddTerritoryFlag( this, m_Expansion_Territory.GetTerritoryID() );
 		
 		SetSynchDirty();
 	}
@@ -427,8 +427,8 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	override void EEDelete( EntityAI parent )
 	{		
-		if ( m_Territory && m_TerritoryID > -1 && GetGame() && m_TerritoryModule )
-			m_TerritoryModule.Exec_DeleteTerritoryAdmin( m_TerritoryID, null );
+		if ( m_Expansion_Territory && m_Expansion_TerritoryID > -1 && GetGame() && m_Expansion_TerritoryModule )
+			m_Expansion_TerritoryModule.Exec_DeleteTerritoryAdmin( m_Expansion_TerritoryID, null );
 			
 		super.EEDelete( parent );
 	}
@@ -462,10 +462,10 @@ modded class TerritoryFlag
 			Flag_Base flag;
 			if (Flag_Base.CastTo(flag, GetInventory().CreateAttachment(EXPANSION_DEFAULT_FLAG_TYPE)))
 			{
-				if (!m_FlagTexturePath)
-					m_FlagTexturePath = EXPANSION_DEFAULT_FLAG_TEXTURE;
+				if (!m_Expansion_FlagTexturePath)
+					m_Expansion_FlagTexturePath = EXPANSION_DEFAULT_FLAG_TEXTURE;
 				
-				flag.SetFlagTexture(m_FlagTexturePath);
+				flag.SetFlagTexture(m_Expansion_FlagTexturePath);
 			}
 		}
 	}

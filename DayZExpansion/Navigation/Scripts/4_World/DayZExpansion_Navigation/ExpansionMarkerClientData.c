@@ -590,6 +590,7 @@ class ExpansionMarkerClientData : Managed
 			{
 				//! It's a new marker
 				ExpansionMarkerClientInfo info = new ExpansionMarkerClientInfo(uid);
+				info.ApplyVisibility(markers[index].GetVisibility());  //! Initial visibility of server marker determined by server
 				m_MarkerInfo_Server.Insert(uid, info);
 			}
 		}

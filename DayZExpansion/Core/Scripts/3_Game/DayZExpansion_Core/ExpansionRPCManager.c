@@ -177,14 +177,16 @@ class ExpansionRPCManager
 
 	protected void Register(map<string, int> registeredRPCIDs, map<int, string> registeredRPCs, string fn, int rpcID)
 	{
+		string registeredFuncName;
+
 		if (!m_OwnerIsObject)
 		{
 			ExpansionRPCManager manager;
 			if (s_RegisteredTargetlessManagers.Find(rpcID, manager) && manager)
 			{
-				if (manager != this)
+				if (manager != this || (registeredRPCs.Find(rpcID, registeredFuncName) && registeredFuncName != fn))
 				{
-					Error("Hash collision: "  + ToString() + " " + fn + " " + manager);
+					Error("Hash collision: "  + ToString() + " " + fn + " " + manager + " " + registeredFuncName);
 					return;
 				}
 			}
@@ -195,7 +197,6 @@ class ExpansionRPCManager
 		}
 		else
 		{
-			string registeredFuncName;
 			if (registeredRPCs.Find(rpcID, registeredFuncName))
 			{
 				if (registeredFuncName != fn)

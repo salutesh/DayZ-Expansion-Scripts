@@ -18,8 +18,8 @@ class ExpansionStove: PortableGasStove
 	const int   DIRECT_COOKING_SLOT_COUNT			= 2;
 	const int   SMOKING_SLOT_COUNT					= 4;
 
-	ItemBase m_DirectCookingSlots[DIRECT_COOKING_SLOT_COUNT];
-	ItemBase m_SmokingSlots[SMOKING_SLOT_COUNT];
+	ItemBase m_Expansion_DirectCookingSlots[DIRECT_COOKING_SLOT_COUNT];
+	ItemBase m_Expansion_SmokingSlots[SMOKING_SLOT_COUNT];
 
 	override void SetActions()
 	{
@@ -118,28 +118,28 @@ class ExpansionStove: PortableGasStove
 		switch (slot_name)
 		{
 			case "DirectCookingA":
-				m_DirectCookingSlots[0] = item_base;
+				m_Expansion_DirectCookingSlots[0] = item_base;
 				edible_base_attached = true;
 				break;
 			case "DirectCookingB":
-				m_DirectCookingSlots[1] = item_base;
+				m_Expansion_DirectCookingSlots[1] = item_base;
 				edible_base_attached = true;
 				break;
 
 			case "SmokingA":
-				m_SmokingSlots[0] = item_base;
+				m_Expansion_SmokingSlots[0] = item_base;
 				edible_base_attached = true;
 				break;
 			case "SmokingB":
-				m_SmokingSlots[1] = item_base;
+				m_Expansion_SmokingSlots[1] = item_base;
 				edible_base_attached = true;
 				break;
 			case "SmokingC":
-				m_SmokingSlots[2] = item_base;
+				m_Expansion_SmokingSlots[2] = item_base;
 				edible_base_attached = true;
 				break;
 			case "SmokingD":
-				m_SmokingSlots[3] = item_base;
+				m_Expansion_SmokingSlots[3] = item_base;
 				edible_base_attached = true;
 				break;
 		}
@@ -166,23 +166,23 @@ class ExpansionStove: PortableGasStove
 		switch (slot_name)
 		{
 			case "DirectCookingA":
-				m_DirectCookingSlots[0] = null;
+				m_Expansion_DirectCookingSlots[0] = null;
 				break;
 			case "DirectCookingB":
-				m_DirectCookingSlots[1] = null;
+				m_Expansion_DirectCookingSlots[1] = null;
 				break;
 
 			case "SmokingA":
-				m_SmokingSlots[0] = null;
+				m_Expansion_SmokingSlots[0] = null;
 				break;
 			case "SmokingB":
-				m_SmokingSlots[1] = null;
+				m_Expansion_SmokingSlots[1] = null;
 				break;
 			case "SmokingC":
-				m_SmokingSlots[2] = null;
+				m_Expansion_SmokingSlots[2] = null;
 				break;
 			case "SmokingD":
-				m_SmokingSlots[3] = null;
+				m_Expansion_SmokingSlots[3] = null;
 				break;
 		}
 	}
@@ -216,20 +216,20 @@ class ExpansionStove: PortableGasStove
 		// manage cooking on direct cooking slots
 		for ( i = 0; i < DIRECT_COOKING_SLOT_COUNT; i++ )
 		{
-			if ( m_DirectCookingSlots[i] )
+			if ( m_Expansion_DirectCookingSlots[i] )
 			{
-				CookOnDirectSlot( m_DirectCookingSlots[i], m_DirectCookingSlots[i].GetTemperature(), temperature );
-				Expansion_AddTemperatureToItemByEnergy(m_DirectCookingSlots[i], consumed_energy);
+				CookOnDirectSlot( m_Expansion_DirectCookingSlots[i], m_Expansion_DirectCookingSlots[i].GetTemperature(), temperature );
+				Expansion_AddTemperatureToItemByEnergy(m_Expansion_DirectCookingSlots[i], consumed_energy);
 			}
 		}
 
 		// manage smoking slots
 		for ( i = 0; i < SMOKING_SLOT_COUNT; i++ )
 		{
-			if ( m_SmokingSlots[i] )
+			if ( m_Expansion_SmokingSlots[i] )
 			{
-				SmokeOnSmokingSlot( m_SmokingSlots[i], m_SmokingSlots[i].GetTemperature(), temperature );
-				Expansion_AddTemperatureToItemByEnergy(m_SmokingSlots[i], consumed_energy);
+				SmokeOnSmokingSlot( m_Expansion_SmokingSlots[i], m_Expansion_SmokingSlots[i].GetTemperature(), temperature );
+				Expansion_AddTemperatureToItemByEnergy(m_Expansion_SmokingSlots[i], consumed_energy);
 			}
 		}
 	}

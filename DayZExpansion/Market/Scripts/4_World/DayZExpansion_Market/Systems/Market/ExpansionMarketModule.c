@@ -361,7 +361,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (IsMissionClient())
 		{
 			//! Clear cached categories and traders so that they are requested from server again after (e.g.) reconnect, to make sure they are in sync
-			GetExpansionSettings().GetMarket().ClearMarketCaches();
+			auto settings = GetExpansionSettings().GetMarket(false);
+			if (settings.IsLoaded())
+				settings.ClearMarketCaches();
 		}
 	}
 

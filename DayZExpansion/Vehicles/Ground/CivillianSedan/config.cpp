@@ -1211,17 +1211,3 @@ class CfgVehicles
 		skinName = "BlackRust";
 	};
 };
-class CfgNonAIVehicles
-{
-	class ProxyVehiclePart;
-	class ProxySedanWheel: ProxyVehiclePart
-	{
-		model = "DZ\vehicles\wheeled\civiliansedan\proxy\sedanWheel.p3d";
-		inventorySlot[] = {"CivSedanWheel_1_1","CivSedanWheel_1_2","CivSedanWheel_2_1","CivSedanWheel_2_2"};
-	};
-	class ProxySedanWheel_destroyed: ProxyVehiclePart
-	{
-		model = "DZ\vehicles\wheeled\civiliansedan\proxy\sedanWheel_destroyed.p3d";
-		inventorySlot[] = {"CivSedanWheel_1_1","CivSedanWheel_1_2","CivSedanWheel_2_1","CivSedanWheel_2_2"};
-	};
-};

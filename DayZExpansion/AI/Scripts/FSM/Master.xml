@@ -773,7 +773,7 @@
 					//! PREPARE SWAP FROM CURRENT HAND ITEM TO GUN IN INV OR ON GROUND
 					//! If target is gun or magazine (latter means gun w/o ammo is in inventory) and we have melee in hand, prepare swap
 					hands = unit.GetItemInHands();
-					if (hands &amp;&amp; (hands.Expansion_IsMeleeWeapon() || hands.Expansion_CanBeUsedToBandage()))
+					if (hands &amp;&amp; (hands.Expansion_IsMeleeWeapon() || (hands.Expansion_CanBeUsedToBandage() &amp;&amp; !unit.eAI_ShouldBandage())))
 					{
 						//! Only drop if destroyed, target is gun, or target is mag that fits in inventory, else might take current hand item again...
 						if (hands.IsDamageDestroyed() || targetItem.IsWeapon() || (targetItem.IsMagazine() &amp;&amp; !unit.eAI_GetItemThreatOverride(targetItem) &amp;&amp; unit.eAI_FindFreeInventoryLocationFor(targetItem, 0, dstLoc)))

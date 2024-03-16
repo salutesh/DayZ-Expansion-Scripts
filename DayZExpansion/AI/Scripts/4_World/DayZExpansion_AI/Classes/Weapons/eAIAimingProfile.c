@@ -30,7 +30,8 @@ class eAIAimingProfile
 		vector direction = vector.Direction(position, m_Unit.GetAimPosition());
 
 		PlayerBase targetPlayer;
-		if (Class.CastTo(targetPlayer, m_Unit.GetTarget().GetEntity()))
+		eAITarget target = m_Unit.GetTarget();
+		if (target && Class.CastTo(targetPlayer, target.GetEntity()))
 		{
 			//! More complex accuracy if target is a player/AI
 

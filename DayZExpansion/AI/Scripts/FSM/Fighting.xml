@@ -3,7 +3,7 @@
 	<files />
 	<variables>
 		<variable name="LastFireTime" type="int" />
-		<variable name="TimeBetweenFiring" type="int" default="5000" />
+		<variable name="TimeBetweenFiring" type="int" default="10000" />
 		<variable name="TimeBetweenFiringAndGettingUp" type="int" default="15000" />
 		<variable name="LastEvadeTime" type="int" />
 		<variable name="DistanceToTargetSq" type="float" />
@@ -51,7 +51,7 @@
 					auto hands = unit.GetHumanInventory().GetEntityInHands();
 					auto targetEntity = target.GetEntity();
 					auto itemTarget = ItemBase.Cast(targetEntity);
-					if (!targetEntity || itemTarget)
+					if (itemTarget &amp;&amp; (!itemTarget.IsExplosive() || unit.eAI_GetTargetThreat(target.info, true) &gt; 0.4))
 					{
 						wantsLower = true;
 					}
@@ -100,19 +100,30 @@
 								movementDirection = Math.RandomFloat(-135, -180);
 						}
 						unit.OverrideMovementDirection(true, movementDirection);
-						unit.OverrideMovementSpeed(true, Math.RandomIntInclusive(1, 2));
+						unit.OverrideMovementSpeed(true, 2);
 					}
 					else
 					{
 						unit.OverrideMovementDirection(false, 0);
-						unit.OverrideMovementSpeed(false, 0);
+						if (itemTarget &amp;&amp; itemTarget.IsExplosive() &amp;&amp; wantsLower)
+							unit.OverrideMovementSpeed(true, 3);
+						else 
+							unit.OverrideMovementSpeed(false, 0);
 						time = 0;
 						movementDirection = 0;
 					}
 					
 					unit.LookAtPosition(aimPosition);
 					unit.AimAtPosition(aimPosition);
-					unit.OverrideTargetPosition(position);
+					
+					if ((!itemTarget &amp;&amp; hands &amp;&amp; hands.IsWeapon()) || (itemTarget &amp;&amp; itemTarget.IsExplosive()))
+					{
+						unit.OverrideTargetPosition(target);
+					}
+					else
+					{
+						unit.OverrideTargetPosition(position);
+					}
 					
 					if (hands &amp;&amp; (hands.IsWeapon() || fsm.DistanceToTargetSq &lt;= 100.0))
 					{
@@ -131,7 +142,7 @@
 				{
 					unit.RaiseWeapon(true);
 				}
-				else if (wantsLower || !unit.CanRaiseWeapon() || !unit.eAI_HasLOS(target))
+				else if (wantsLower || !unit.CanRaiseWeapon())
 				{
 					unit.RaiseWeapon(false);
 					unit.eAI_AdjustStance(fsm.LastFireTime, timeSinceLastFire, fsm.TimeBetweenFiringAndGettingUp);
@@ -148,6 +159,9 @@
 			<event_entry>
 				unit.eAI_ForceSideStep(Math.RandomFloat(0.3, 0.5));
 				unit.OverrideMovementSpeed(true, 3);
+				auto target = unit.GetTarget();
+				if (target)
+					unit.OverrideTargetPosition(target);
 			</event_entry>
 			<event_exit>
 				unit.OverrideMovementSpeed(false, 0);
@@ -195,7 +209,7 @@
 				auto aimPosition = lowPosition + target.GetAimOffset(unit);
 				
 				time += DeltaTime;
-				unit.OverrideTargetPosition(lowPosition);
+				unit.OverrideTargetPosition(target);
 				unit.LookAtPosition(aimPosition);
 				unit.AimAtPosition(aimPosition);
 				
@@ -214,7 +228,7 @@
 				
 				auto neck = unit.GetBonePositionWS(unit.GetBoneIndexByName("neck"));
 				auto direction = vector.Direction(neck, aimPosition).Normalized();
-				if (vector.Dot(unit.GetAimDirection(), direction) &lt; 0.75)
+				if (vector.Dot(unit.GetAimDirection(), direction) &lt; 0.875)
 				{
 					if (time &gt;= 0.5)
 					{
@@ -309,7 +323,7 @@
 							movementDirection = Math.RandomFloat(-135, -180);
 					}
 					unit.OverrideMovementDirection(true, movementDirection);
-					unit.OverrideMovementSpeed(true, Math.RandomIntInclusive(1, 2));
+					unit.OverrideMovementSpeed(true, 2);
 				
 					return CONTINUE;
 				}
@@ -424,6 +438,12 @@
 						return FAIL;
 					if (itemTarget.Expansion_IsMeleeWeapon())
 						return FAIL;
+					if (itemTarget.IsExplosive())
+					{
+						float dist = dst.target.GetDistance(unit);
+						if (dist &lt; dst.target.GetMinDistance(unit))
+							return FAIL;
+					}
 				}
 				
 				if (unit.IsFighting()) return FAIL;

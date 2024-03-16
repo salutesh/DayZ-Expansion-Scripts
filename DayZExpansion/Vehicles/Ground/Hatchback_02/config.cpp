@@ -1156,17 +1156,3 @@ class CfgVehicles
 		skinName = "BanditKitty";
 	};
 };
-class CfgNonAIVehicles
-{
-	class ProxyVehiclePart;
-	class ProxyHatchback_02_Wheel: ProxyVehiclePart
-	{
-		model = "DZ\vehicles\wheeled\Hatchback_02\proxy\Hatchback_02_Wheel.p3d";
-		inventorySlot[] = {"Hatchback_02_Wheel_1_1","Hatchback_02_Wheel_1_2","Hatchback_02_Wheel_2_1","Hatchback_02_Wheel_2_2"};
-	};
-	class ProxyHatchback_02_Wheel_ruined: ProxyVehiclePart
-	{
-		model = "DZ\vehicles\wheeled\Hatchback_02\proxy\Hatchback_02_Wheel_ruined.p3d";
-		inventorySlot[] = {"Hatchback_02_Wheel_1_1","Hatchback_02_Wheel_1_2","Hatchback_02_Wheel_2_1","Hatchback_02_Wheel_2_2"};
-	};
-};

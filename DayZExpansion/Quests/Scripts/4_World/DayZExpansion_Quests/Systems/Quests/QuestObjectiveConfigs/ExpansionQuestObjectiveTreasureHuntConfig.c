@@ -28,7 +28,7 @@ class ExpansionQuestObjectiveTreasureHuntConfigBase: ExpansionQuestObjectiveConf
 	string ContainerName = "ExpansionQuestSeaChest";
 	bool DigInStash = true;
 	string MarkerName = "???";	
-	int MarkerVisibility = 4; //! 4 - visible on map | 2 - visible in world | 6 - visible on map and in world.
+	int MarkerVisibility = EXPANSION_MARKER_VIS_MAP; //! 4 - visible on map | 2 - visible in world | 6 - visible on map and in world.
 	ref array<vector> Positions;
 	int LootItemsAmount;
 	float MaxDistance = 10.0;

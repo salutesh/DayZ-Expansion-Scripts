@@ -31,7 +31,16 @@ modded class BuildingBase
 
 		if (!s_eAI_PreventClimb)
 		{
-			s_eAI_PreventClimb = {"Land_House", "Land_Mil_Airfield_HQ", "Land_Office"};  //! Hardcoded defaults (AI will vault those buildings' edges otherwise)
+			//! Hardcoded defaults (AI will vault those buildings' edges otherwise or climb on ledges unnecessarily)
+			s_eAI_PreventClimb = {
+				"Land_House",
+				"Land_Misc",
+				"Land_Mil",
+				"Land_Office",
+				"Land_Shed",
+				"Land_Wreck"
+			};
+
 			s_eAI_PreventClimb.InsertAll(GetExpansionSettings().GetAI().PreventClimb);
 		}
 

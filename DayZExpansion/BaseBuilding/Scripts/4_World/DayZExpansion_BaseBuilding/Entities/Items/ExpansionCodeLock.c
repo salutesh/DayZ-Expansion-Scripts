@@ -21,17 +21,17 @@ class ExpansionCodeLock: ItemBase
 
 	protected static ref TStringArray s_Expansion_InventorySlots = new TStringArray;
 
-	protected EffectSound m_Sound;
+	protected EffectSound m_Expansion_Sound;
 	
-	protected bool m_WasSynced;
-	protected bool m_WasLocked;
+	protected bool m_Expansion_WasSynced;
+	protected bool m_Expansion_WasLocked;
 
 	void ExpansionCodeLock()
 	{
-		m_KnownUIDs = new TStringArray;
+		m_Expansion_KnownUIDs = new TStringArray;
 
-		RegisterNetSyncVariableBool( "m_Locked" );
-		RegisterNetSyncVariableInt( "m_CodeLength" );
+		RegisterNetSyncVariableBool( "m_Expansion_Locked" );
+		RegisterNetSyncVariableInt( "m_Expansion_CodeLength" );
 	}
 
 	override void DeferredInit()
@@ -80,13 +80,13 @@ class ExpansionCodeLock: ItemBase
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return;
 
-		ctx.Write( m_Locked );
-		ctx.Write( m_Code );
+		ctx.Write( m_Expansion_Locked );
+		ctx.Write( m_Expansion_Code );
 
-		ctx.Write( m_KnownUIDs.Count() );
-		for ( int i = 0; i < m_KnownUIDs.Count(); i++ )
+		ctx.Write( m_Expansion_KnownUIDs.Count() );
+		for ( int i = 0; i < m_Expansion_KnownUIDs.Count(); i++ )
 		{
-			ctx.Write( m_KnownUIDs[i] );
+			ctx.Write( m_Expansion_KnownUIDs[i] );
 		}
 	}
 	
@@ -100,12 +100,12 @@ class ExpansionCodeLock: ItemBase
 
 		if ( ctx.GetVersion() >= 38 )
 		{
-			if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
+			if ( Expansion_Assert_False( ctx.Read( m_Expansion_Locked ), "[" + this + "] Failed reading m_Expansion_Locked" ) )
 				return false;
-			if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
+			if ( Expansion_Assert_False( ctx.Read( m_Expansion_Code ), "[" + this + "] Failed reading m_Expansion_Code" ) )
 				return false;
 
-			m_CodeLength = m_Code.Length();
+			m_Expansion_CodeLength = m_Expansion_Code.Length();
 		}
 
 		int count;
@@ -118,7 +118,7 @@ class ExpansionCodeLock: ItemBase
 			if (!ctx.Read(knownUID))
 				return false;
 
-			m_KnownUIDs.Insert( knownUID );
+			m_Expansion_KnownUIDs.Insert( knownUID );
 		}
 
 		return true;
@@ -206,16 +206,16 @@ class ExpansionCodeLock: ItemBase
 	{
 		super.OnVariablesSynchronized();
 
-		if ( m_WasSynced && m_WasLocked != m_Locked )
+		if ( m_Expansion_WasSynced && m_Expansion_WasLocked != m_Expansion_Locked )
 		{
-			if ( m_Locked )
+			if ( m_Expansion_Locked )
 				SoundCodeLockLocked();
 			else
 				SoundCodeLockUnlocked();
 		}
 
-		m_WasLocked = m_Locked;
-		m_WasSynced = true;
+		m_Expansion_WasLocked = m_Expansion_Locked;
+		m_Expansion_WasSynced = true;
 
 		UpdateVisuals();
 	}
@@ -263,8 +263,8 @@ class ExpansionCodeLock: ItemBase
 	{
 		if ( !GetGame().IsDedicatedServer() )
 		{
-			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Lock1_SoundSet", GetPosition());
-			m_Sound.SetSoundAutodestroy( true );
+			m_Expansion_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Lock1_SoundSet", GetPosition());
+			m_Expansion_Sound.SetSoundAutodestroy( true );
 		}
 	}
 	
@@ -272,8 +272,8 @@ class ExpansionCodeLock: ItemBase
 	{
 		if ( !GetGame().IsDedicatedServer() ) // client side
 		{
-			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock1_SoundSet", GetPosition());
-			m_Sound.SetSoundAutodestroy( true );
+			m_Expansion_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock1_SoundSet", GetPosition());
+			m_Expansion_Sound.SetSoundAutodestroy( true );
 		}
 	}
 }

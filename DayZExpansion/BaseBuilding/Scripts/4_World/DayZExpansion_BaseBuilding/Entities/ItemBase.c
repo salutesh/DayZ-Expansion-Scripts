@@ -14,18 +14,18 @@ modded class ItemBase
 {
 	protected static ref TTypeNameStringMap s_Expansion_CodeLockSlotNames = new TTypeNameStringMap;
 
-	protected ref ExpansionElectricityConnection m_ElectricitySource;
-	protected ref array< ItemBase > m_ElectricityConnections;
+	protected ref ExpansionElectricityConnection m_Expansion_ElectricitySource;
+	protected ref array< ItemBase > m_Expansion_ElectricityConnections;
 
 	protected bool m_Expansion_IsOpenable;
 	protected bool m_Expansion_IsOpened;
-	protected bool m_Locked;
-	protected string m_Code;  //! Only set on server, not synced to client. NEVER set this directly. Use SetCode()
-	protected int m_CodeLength;  //! Unlike m_Code, this should be synched to clients for items that use codes
+	protected bool m_Expansion_Locked;
+	protected string m_Expansion_Code;  //! Only set on server, not synced to client. NEVER set this directly. Use SetCode()
+	protected int m_Expansion_CodeLength;  //! Unlike m_Expansion_Code, this should be synched to clients for items that use codes
 
-	protected ref TStringArray m_KnownUIDs;
-	protected bool m_KnownUIDsRequested;
-	protected bool m_KnownUIDsSet;
+	protected ref TStringArray m_Expansion_KnownUIDs;
+	protected bool m_Expansion_KnownUIDsRequested;
+	protected bool m_Expansion_KnownUIDsSet;
 
 	static int s_Expansion_ChangeCode_RPCID;
 	static int s_Expansion_Lock_RPCID;
@@ -52,8 +52,8 @@ modded class ItemBase
 		if (m_Expansion_IsOpenable)
 			RegisterNetSyncVariableBool( "m_Expansion_IsOpened" );
 
-		m_ElectricitySource = new ExpansionElectricityConnection( this );
-		m_ElectricityConnections = new array< ItemBase >();
+		m_Expansion_ElectricitySource = new ExpansionElectricityConnection( this );
+		m_Expansion_ElectricityConnections = new array< ItemBase >();
 		if ( ExpansionCanRecievePower() )
 		{
 			//RegisterNetSyncVariableBool( "m_IsPairedSynch" );
@@ -211,12 +211,12 @@ modded class ItemBase
 
 	bool ExpansionIsConnected( ItemBase source = NULL )
 	{
-		return m_ElectricitySource.IsConnected( source );
+		return m_Expansion_ElectricitySource.IsConnected( source );
 	}
 
 	void ExpansionDisconnect()
 	{
-		m_ElectricitySource.Disconnect();
+		m_Expansion_ElectricitySource.Disconnect();
 
 		SetSynchDirty();
 	}
@@ -227,7 +227,7 @@ modded class ItemBase
 		if ( !ExpansionIsPowerSource() || !item.ExpansionCanRecievePower() )
 			return;
 
-		item.m_ElectricitySource.Pair( this );
+		item.m_Expansion_ElectricitySource.Pair( this );
 
 		SetSynchDirty();
 		
@@ -236,25 +236,25 @@ modded class ItemBase
 
 	void _ExpansionAddConnection( ItemBase item )
 	{
-		int idx = m_ElectricityConnections.Find( item );
+		int idx = m_Expansion_ElectricityConnections.Find( item );
 		if ( idx == -1 )
-			m_ElectricityConnections.Insert( item );
+			m_Expansion_ElectricityConnections.Insert( item );
 	}
 
 	void _ExpansionRemoveConnection( ItemBase item )
 	{
-		int idx = m_ElectricityConnections.Find( item );
+		int idx = m_Expansion_ElectricityConnections.Find( item );
 		if ( idx != -1 )
-			m_ElectricityConnections.Remove( idx );
+			m_Expansion_ElectricityConnections.Remove( idx );
 	}
 
 	override void OnWorkStart()
 	{
 		super.OnWorkStart();
 
-		for ( int i = 0; i < m_ElectricityConnections.Count(); ++i )
+		for ( int i = 0; i < m_Expansion_ElectricityConnections.Count(); ++i )
 		{
-			m_ElectricityConnections[i].OnWorkStart();
+			m_Expansion_ElectricityConnections[i].OnWorkStart();
 		}
 	}
 
@@ -262,9 +262,9 @@ modded class ItemBase
 	{
 		super.OnWorkStop();
 		
-		for ( int i = 0; i < m_ElectricityConnections.Count(); ++i )
+		for ( int i = 0; i < m_Expansion_ElectricityConnections.Count(); ++i )
 		{
-			m_ElectricityConnections[i].OnWorkStop();
+			m_Expansion_ElectricityConnections[i].OnWorkStop();
 		}
 	}
 	
@@ -447,8 +447,8 @@ modded class ItemBase
 			return;
 		}
 
-		//! Check for m_Code allows to set empty code on parent after migration of code to attached codelock
-		if (!m_Code && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		//! Check for m_Expansion_Code allows to set empty code on parent after migration of code to attached codelock
+		if (!m_Expansion_Code && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
 		{
 			ExpansionCodeLock codelock = ExpansionGetCodeLock();
 			if (codelock)
@@ -470,11 +470,11 @@ modded class ItemBase
 				}
 			}
 
-			m_Code = code;
-			m_CodeLength = code.Length();
-			m_Locked = false;
+			m_Expansion_Code = code;
+			m_Expansion_CodeLength = code.Length();
+			m_Expansion_Locked = false;
 
-			if (m_KnownUIDs && setUser && GetExpansionSettings().GetBaseBuilding().RememberCode)
+			if (m_Expansion_KnownUIDs && setUser && GetExpansionSettings().GetBaseBuilding().RememberCode)
 				SetUser( player );
 		}
 
@@ -489,19 +489,19 @@ modded class ItemBase
 	/**
 	\brief Returning code of item
 		\param 	
-		@note Remember that m_Code only exists on server!
+		@note Remember that m_Expansion_Code only exists on server!
 		
 	*/
 	string GetCode()
 	{
-		if (!m_Code && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		if (!m_Expansion_Code && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
 		{
 			ExpansionCodeLock codelock = ExpansionGetCodeLock();
 			if (codelock)
 				return codelock.GetCode();
 		}
 
-		return m_Code;
+		return m_Expansion_Code;
 	}
 
 	/**
@@ -510,43 +510,43 @@ modded class ItemBase
 	*/
 	int GetCodeLength()
 	{
-		if (!m_CodeLength && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		if (!m_Expansion_CodeLength && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
 		{
 			ExpansionCodeLock codelock = ExpansionGetCodeLock();
 			if (codelock)
 				return codelock.GetCodeLength();
 		}
 
-		return m_CodeLength;
+		return m_Expansion_CodeLength;
 	}
 
 	/**
 	\brief Returning if the item has a code
 		\param 	
-		@note Remember that m_Code only exists on server! Use m_CodeLength > 0 to check for code on both server and client
+		@note Remember that m_Expansion_Code only exists on server! Use m_Expansion_CodeLength > 0 to check for code on both server and client
 	*/
 	bool HasCode()
 	{
-		if (!m_CodeLength && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		if (!m_Expansion_CodeLength && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
 		{
 			ExpansionCodeLock codelock = ExpansionGetCodeLock();
 			if (codelock)
 				return codelock.HasCode();
 		}
 
-		return m_CodeLength > 0;
+		return m_Expansion_CodeLength > 0;
 	}
 
 	override bool ExpansionIsLocked()
 	{
-		if (!m_CodeLength && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		if (!m_Expansion_CodeLength && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
 		{
 			ExpansionCodeLock codelock = ExpansionGetCodeLock();
 			if (codelock)
 				return codelock.ExpansionIsLocked();
 		}
 
-		return m_CodeLength > 0 && m_Locked;
+		return m_Expansion_CodeLength > 0 && m_Expansion_Locked;
 	}
 
 	/**
@@ -627,9 +627,9 @@ modded class ItemBase
 			}
 		}
 
-		if (m_Code)
+		if (m_Expansion_Code)
 		{
-			m_Locked = true;
+			m_Expansion_Locked = true;
 
 			if (GetHierarchyParent() && GetInventory().IsAttachment())
 			{
@@ -657,7 +657,7 @@ modded class ItemBase
 			}
 		}
 
-		m_Locked = false;
+		m_Expansion_Locked = false;
 
 		SetSynchDirty();
 	}
@@ -721,13 +721,13 @@ modded class ItemBase
 		if (ttSettings.AuthenticateCodeLockIfTerritoryMember && player.IsInsideOwnTerritory())
 			return true;
 
-		if (!m_KnownUIDs)
+		if (!m_Expansion_KnownUIDs)
 			return false;
 
-		if ( GetGame().IsClient() && !m_KnownUIDsSet && !m_KnownUIDsRequested )
+		if ( GetGame().IsClient() && !m_Expansion_KnownUIDsSet && !m_Expansion_KnownUIDsRequested )
 			RequestKnownUIDs();
 
-		return m_KnownUIDs.Find( player.GetIdentityUID() ) > -1;
+		return m_Expansion_KnownUIDs.Find( player.GetIdentityUID() ) > -1;
 	}
 
 	void AddUser( PlayerBase player )
@@ -735,7 +735,7 @@ modded class ItemBase
 		if ( player && player.GetIdentity() && !IsKnownUser( player ) )
 		{
 			EXPrint("ItemBase::AddUser " + this + " (parent=" + GetHierarchyParent() + ") " + player.GetIdentityUID());
-			m_KnownUIDs.Insert( player.GetIdentityUID() );
+			m_Expansion_KnownUIDs.Insert( player.GetIdentityUID() );
 			SendKnownUIDs(player.GetIdentity());
 		}
 	}
@@ -743,7 +743,7 @@ modded class ItemBase
 	void SetUser( PlayerBase player )
 	{
 		EXPrint("ItemBase::SetUser " + this + " (parent=" + GetHierarchyParent() + ")");
-		m_KnownUIDs.Clear();
+		m_Expansion_KnownUIDs.Clear();
 		AddUser( player );
 	}
 
@@ -753,7 +753,7 @@ modded class ItemBase
 		EXPrint("ItemBase::RequestKnownUIDs " + this + " (parent=" + GetHierarchyParent() + ")");
 		auto rpc = ExpansionScriptRPC.Create(s_Expansion_SendKnownUIDs_RPCID);
 		rpc.Expansion_Send(this, true);
-		m_KnownUIDsRequested = true;
+		m_Expansion_KnownUIDsRequested = true;
 	}
 
 	//! Send known UIDs (players that know the code and have entered it correctly once) to client
@@ -761,7 +761,7 @@ modded class ItemBase
 	{
 		EXPrint("ItemBase::SendKnownUIDs " + this + " (parent=" + GetHierarchyParent() + ")");
 		auto rpc = ExpansionScriptRPC.Create(s_Expansion_ReceiveKnownUIDs_RPCID);
-		rpc.Write( m_KnownUIDs );
+		rpc.Write( m_Expansion_KnownUIDs );
 		rpc.Expansion_Send(this, true, recipient);
 	}
 	
@@ -994,13 +994,13 @@ modded class ItemBase
 	//! client
 	void RPC_Expansion_ReceiveKnownUIDs(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		if ( !ctx.Read( m_KnownUIDs ) )
+		if ( !ctx.Read( m_Expansion_KnownUIDs ) )
 		{
 			Error("ItemBase::OnRPC " + this + " ExpansionLockRPC.KNOWNUSERS_REPLY can't read reply");
 			return;
 		}
 
-		m_KnownUIDsSet = true;
+		m_Expansion_KnownUIDsSet = true;
 	}
 
 	#ifdef EXPANSION_MODSTORAGE
@@ -1011,7 +1011,7 @@ modded class ItemBase
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return;
 
-		m_ElectricitySource.OnStoreSave(ctx);
+		m_Expansion_ElectricitySource.OnStoreSave(ctx);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -1022,7 +1022,7 @@ modded class ItemBase
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return true;
 
-		if (!m_ElectricitySource.OnStoreLoad(ctx))
+		if (!m_Expansion_ElectricitySource.OnStoreLoad(ctx))
 			return false;
 
 		return true;
@@ -1040,7 +1040,7 @@ modded class ItemBase
 
 		super.EEOnAfterLoad();
 
-		m_ElectricitySource.OnAfterLoad();
+		m_Expansion_ElectricitySource.OnAfterLoad();
 	}
 
 	//============================================
@@ -1073,7 +1073,7 @@ modded class ItemBase
 
 		super.OnVariablesSynchronized();
 
-		m_ElectricitySource.OnVariablesSynchronized();
+		m_Expansion_ElectricitySource.OnVariablesSynchronized();
 	}
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)

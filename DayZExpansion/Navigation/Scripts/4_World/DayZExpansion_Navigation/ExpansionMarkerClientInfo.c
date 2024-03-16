@@ -48,6 +48,12 @@ class ExpansionMarkerClientInfo
 		return m_UID;
 	}
 
+	int ApplyVisibility( int vis )
+	{
+		m_Visibility = vis;
+		return m_Visibility;
+	}
+
 	int SetVisibility( int vis )
 	{
 		m_Visibility |= vis;

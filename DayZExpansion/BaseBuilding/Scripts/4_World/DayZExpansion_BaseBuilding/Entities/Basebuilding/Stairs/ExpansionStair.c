@@ -12,13 +12,13 @@
 
 class ExpansionStairBase: ExpansionBaseBuilding
 {
-	private bool m_HasStair;
+	private bool m_Expansion_HasStair;
 
 	void ExpansionStairBase()
 	{
-		RegisterNetSyncVariableBool( "m_HasStair" );
+		RegisterNetSyncVariableBool( "m_Expansion_HasStair" );
 
-		m_CurrentBuild = "wood";
+		m_Expansion_CurrentBuild = "wood";
 	}
 
 	override string GetConstructionKitType()
@@ -29,20 +29,20 @@ class ExpansionStairBase: ExpansionBaseBuilding
 	override bool NameOverride(out string output)
 	{
 		if (IsLastStage())
-			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_STAIR_FINISHED";
+			output = "#STR_EXPANSION_BB_" + m_Expansion_CurrentBuild + "_STAIR_FINISHED";
 		else
-			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_STAIR_BASE";
+			output = "#STR_EXPANSION_BB_" + m_Expansion_CurrentBuild + "_STAIR_BASE";
 		return true;
 	}
 
 	override bool IsLastStage()
 	{
-		return m_HasStair;
+		return m_Expansion_HasStair;
 	}
 
 	override bool IsLastStageBuilt()
 	{
-		return IsPartBuilt( m_CurrentBuild + "_tread" ) );
+		return IsPartBuilt( m_Expansion_CurrentBuild + "_tread" ) );
 	}
 
 	override void OnVariablesSynchronized()
@@ -61,7 +61,7 @@ class ExpansionStairBase: ExpansionBaseBuilding
 		super.AfterStoreLoad();
 
 		if ( m_ExpansionSaveVersion < 18 )
-			m_HasStair = IsLastStageBuilt();
+			m_Expansion_HasStair = IsLastStageBuilt();
 		
 		UpdateVisuals();	
 	}
@@ -74,7 +74,7 @@ class ExpansionStairBase: ExpansionBaseBuilding
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return;
 
-		ctx.Write(m_HasStair);
+		ctx.Write(m_Expansion_HasStair);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -85,7 +85,7 @@ class ExpansionStairBase: ExpansionBaseBuilding
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return true;
 
-		if (!ctx.Read(m_HasStair))
+		if (!ctx.Read(m_Expansion_HasStair))
 			return false;
 
 		return true;
@@ -101,7 +101,7 @@ class ExpansionStairBase: ExpansionBaseBuilding
 
 	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
 	{
-		m_HasStair = false;
+		m_Expansion_HasStair = false;
 
 		ExpansionUpdateBaseBuildingStateFromPartBuilt( part_name );
 
@@ -111,15 +111,15 @@ class ExpansionStairBase: ExpansionBaseBuilding
 
 	override void ExpansionUpdateBaseBuildingStateFromPartBuilt( string part_name )
 	{
-		if ( part_name == m_CurrentBuild + "_tread" )
+		if ( part_name == m_Expansion_CurrentBuild + "_tread" )
 		{
-			m_HasStair = true;
+			m_Expansion_HasStair = true;
 		}
 	}
 
 	override void OnPartDismantledServer( notnull Man player, string part_name, int action_id )
 	{
-		m_HasStair = false;
+		m_Expansion_HasStair = false;
 
 		super.OnPartDismantledServer( player, part_name, action_id );
 		UpdateVisuals();
@@ -127,7 +127,7 @@ class ExpansionStairBase: ExpansionBaseBuilding
 
 	override void OnPartDestroyedServer( Man player, string part_name, int action_id, bool destroyed_by_connected_part = false )
 	{
-		m_HasStair = false;
+		m_Expansion_HasStair = false;
 
 		super.OnPartDestroyedServer( player, part_name, action_id, destroyed_by_connected_part );
 		UpdateVisuals();

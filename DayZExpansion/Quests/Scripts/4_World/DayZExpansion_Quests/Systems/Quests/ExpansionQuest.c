@@ -484,12 +484,10 @@ class ExpansionQuest
 	//! Create the turn-in marker if the quest is not autocompleted or has no turn-in quest NPC ID.
 	protected void CreateQuestTurnInMarker()
 	{
-	#ifdef EXPANSIONMODNAVIGATION
 		QuestDebugPrint("Create turn-in marker!");
 		//! Create a marker on the closest quest npc location for the player
 		vector npcPos = GetClosestQuestNPCPosition(m_Config.GetQuestTurnInIDs(), m_Player.GetPosition());
 		CreateQuestMarker(npcPos, "#STR_EXPANSION_QUEST_MARKER_TURNIN");
-	#endif	
 	}
 
 	//! Event called when a quest objective state has changed to incomplete after it was completed once

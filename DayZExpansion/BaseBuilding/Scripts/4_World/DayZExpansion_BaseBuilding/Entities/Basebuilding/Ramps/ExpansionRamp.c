@@ -12,23 +12,23 @@
 
 class ExpansionRampBase: ExpansionBaseBuilding
 {
-	private bool m_HasRamp;
+	private bool m_Expansion_HasRamp;
 
 	void ExpansionRampBase()
 	{
-		RegisterNetSyncVariableBool( "m_HasRamp" );
+		RegisterNetSyncVariableBool( "m_Expansion_HasRamp" );
 
-		m_CurrentBuild = "wood";
+		m_Expansion_CurrentBuild = "wood";
 	}
 
 	override bool IsLastStage()
 	{
-		return m_HasRamp;
+		return m_Expansion_HasRamp;
 	}
 
 	override bool IsLastStageBuilt()
 	{
-		return IsPartBuilt( m_CurrentBuild + "_finished" );
+		return IsPartBuilt( m_Expansion_CurrentBuild + "_finished" );
 	}
 
 	override string GetConstructionKitType()
@@ -39,9 +39,9 @@ class ExpansionRampBase: ExpansionBaseBuilding
 	override bool NameOverride(out string output)
 	{
 		if (IsLastStage())
-			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_RAMP_FINISHED";
+			output = "#STR_EXPANSION_BB_" + m_Expansion_CurrentBuild + "_RAMP_FINISHED";
 		else
-			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_RAMP_BASE";
+			output = "#STR_EXPANSION_BB_" + m_Expansion_CurrentBuild + "_RAMP_BASE";
 		return true;
 	}
 
@@ -61,7 +61,7 @@ class ExpansionRampBase: ExpansionBaseBuilding
 		super.AfterStoreLoad();
 
 		if ( m_ExpansionSaveVersion < 18 )
-			m_HasRamp = IsLastStageBuilt();
+			m_Expansion_HasRamp = IsLastStageBuilt();
 		
 		UpdateVisuals();	
 	}
@@ -74,7 +74,7 @@ class ExpansionRampBase: ExpansionBaseBuilding
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return;
 
-		ctx.Write(m_HasRamp);
+		ctx.Write(m_Expansion_HasRamp);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -85,7 +85,7 @@ class ExpansionRampBase: ExpansionBaseBuilding
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return true;
 
-		if (!ctx.Read(m_HasRamp))
+		if (!ctx.Read(m_Expansion_HasRamp))
 			return false;
 
 		return true;
@@ -101,7 +101,7 @@ class ExpansionRampBase: ExpansionBaseBuilding
 
 	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
 	{
-		m_HasRamp = false;
+		m_Expansion_HasRamp = false;
 
 		ExpansionUpdateBaseBuildingStateFromPartBuilt( part_name );
 
@@ -111,15 +111,15 @@ class ExpansionRampBase: ExpansionBaseBuilding
 
 	override void ExpansionUpdateBaseBuildingStateFromPartBuilt( string part_name )
 	{
-		if ( part_name == m_CurrentBuild + "_finished" )
+		if ( part_name == m_Expansion_CurrentBuild + "_finished" )
 		{
-			m_HasRamp = true;
+			m_Expansion_HasRamp = true;
 		}
 	}
 
 	override void OnPartDismantledServer( notnull Man player, string part_name, int action_id )
 	{
-		m_HasRamp = false;
+		m_Expansion_HasRamp = false;
 
 		super.OnPartDismantledServer( player, part_name, action_id );
 		UpdateVisuals();
@@ -127,7 +127,7 @@ class ExpansionRampBase: ExpansionBaseBuilding
 
 	override void OnPartDestroyedServer( Man player, string part_name, int action_id, bool destroyed_by_connected_part = false )
 	{
-		m_HasRamp = false;
+		m_Expansion_HasRamp = false;
 
 		super.OnPartDestroyedServer( player, part_name, action_id, destroyed_by_connected_part );
 		UpdateVisuals();

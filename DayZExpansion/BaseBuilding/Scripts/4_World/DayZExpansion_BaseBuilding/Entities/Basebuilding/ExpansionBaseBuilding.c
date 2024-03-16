@@ -29,9 +29,9 @@ modded class ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	//! Local values
 	// ------------------------------------------------------------
-	protected bool m_WasSynced;
+	protected bool m_Expansion_WasSynced;
 
-	protected string m_CurrentBuild;
+	protected string m_Expansion_CurrentBuild;
 
 	// ------------------------------------------------------------
 	//! SetActions
@@ -97,7 +97,7 @@ modded class ExpansionBaseBuilding
 	
 	override protected string GetDestroySound()
 	{
-		switch ( m_CurrentBuild )
+		switch ( m_Expansion_CurrentBuild )
 		{
 			case "wood": 	return SOUND_DISMANTLE_WOOD_LOG;  //! Vanilla soundset
 			case "metal": 	return SOUND_DISMANTLE_METAL;  //! Vanilla soundset
@@ -389,7 +389,7 @@ modded class ExpansionBaseBuilding
 	{
 		super.OnVariablesSynchronized();
 
-		m_WasSynced = true;
+		m_Expansion_WasSynced = true;
 	}
 
 	#ifdef EXPANSION_MODSTORAGE
@@ -412,12 +412,12 @@ modded class ExpansionBaseBuilding
 		if ( ctx.GetVersion() >= 38 )
 			return true;
 
-		if (!ctx.Read(m_Locked))
+		if (!ctx.Read(m_Expansion_Locked))
 			return false;
-		if (!ctx.Read(m_Code))
+		if (!ctx.Read(m_Expansion_Code))
 			return false;
 
-		m_CodeLength = m_Code.Length();
+		m_Expansion_CodeLength = m_Expansion_Code.Length();
 
 		bool hasCode;
 		if (!ctx.Read(hasCode))

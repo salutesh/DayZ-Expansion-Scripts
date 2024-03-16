@@ -61,15 +61,9 @@ class eAITargetInformationState
 				float distanceFactor;
 				DayZPlayerImplement player;
 				if (m_ThreatLevelActive < 0.4 && !m_AI.GetGroup().GetFaction().IsObserver() && Class.CastTo(player, m_Info.GetEntity()) && !player.GetParent() && ExpansionStatic.GetTime(true) - player.m_eAI_LastAggressionTime > 1.0)
-					distanceFactor = m_SearchDirection.Length();
+					distanceFactor = m_SearchDirection.Length() * 3;
 				if (distanceFactor > 0)
 				{
-					vector dirNorm = m_SearchDirection.Normalized();
-					float toTargetDot = vector.Dot(m_AI.GetAimDirection(), dirNorm);
-					if (toTargetDot < 0.75)
-						distanceFactor *= 7;  //! AI is facing away
-					else
-						distanceFactor *= 3;  //! AI is facing target
 					m_ThreatLevelActive = Math.Min(m_ThreatLevelActive + m_ThreatLevel / distanceFactor, m_ThreatLevel);
 				}
 				else

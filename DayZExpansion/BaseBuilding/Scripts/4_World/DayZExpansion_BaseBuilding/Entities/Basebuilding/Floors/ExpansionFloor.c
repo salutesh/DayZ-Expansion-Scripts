@@ -12,35 +12,35 @@
 
 class ExpansionFloorBase: ExpansionBaseBuilding
 {
-	private bool m_HasFloor;
-	private bool m_IsRoof;
+	private bool m_Expansion_HasFloor;
+	private bool m_Expansion_IsRoof;
 
 	void ExpansionFloorBase()
 	{
-		RegisterNetSyncVariableBool( "m_HasFloor" );
-		RegisterNetSyncVariableBool( "m_IsRoof" );
+		RegisterNetSyncVariableBool( "m_Expansion_HasFloor" );
+		RegisterNetSyncVariableBool( "m_Expansion_IsRoof" );
 
-		m_CurrentBuild = "wood";
+		m_Expansion_CurrentBuild = "wood";
 	}
 
 	override bool IsLastStage()
 	{
-		return m_HasFloor;
+		return m_Expansion_HasFloor;
 	}
 
 	override bool IsLastStageBuilt()
 	{
-		return IsPartBuilt( m_CurrentBuild + "_floorfinished" ) || IsPartBuilt( m_CurrentBuild + "_hatchfinished" ) );
+		return IsPartBuilt( m_Expansion_CurrentBuild + "_floorfinished" ) || IsPartBuilt( m_Expansion_CurrentBuild + "_hatchfinished" ) );
 	}
 
 	bool IsRoof()
 	{
-		return m_IsRoof;
+		return m_Expansion_IsRoof;
 	}
 
 	void SetRoof(bool state)
 	{
-		m_IsRoof = state;
+		m_Expansion_IsRoof = state;
 
 		SetSynchDirty();
 	}
@@ -55,11 +55,11 @@ class ExpansionFloorBase: ExpansionBaseBuilding
 	override bool NameOverride(out string output)
 	{
 		if (IsRoof())
-			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_ROOF_FINISHED";
+			output = "#STR_EXPANSION_BB_" + m_Expansion_CurrentBuild + "_ROOF_FINISHED";
 		else if (IsLastStage())
-			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_FLOOR_FINISHED";
+			output = "#STR_EXPANSION_BB_" + m_Expansion_CurrentBuild + "_FLOOR_FINISHED";
 		else
-			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_FLOOR_BASE";
+			output = "#STR_EXPANSION_BB_" + m_Expansion_CurrentBuild + "_FLOOR_BASE";
 		return true;
 	}
 
@@ -79,7 +79,7 @@ class ExpansionFloorBase: ExpansionBaseBuilding
 		super.AfterStoreLoad();
 
 		if ( m_ExpansionSaveVersion < 18 )
-			m_HasFloor = IsLastStageBuilt();
+			m_Expansion_HasFloor = IsLastStageBuilt();
 		
 		UpdateVisuals();	
 	}
@@ -92,8 +92,8 @@ class ExpansionFloorBase: ExpansionBaseBuilding
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return;
 
-		ctx.Write(m_HasFloor);
-		ctx.Write(m_IsRoof);
+		ctx.Write(m_Expansion_HasFloor);
+		ctx.Write(m_Expansion_IsRoof);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -104,10 +104,10 @@ class ExpansionFloorBase: ExpansionBaseBuilding
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return true;
 
-		if (!ctx.Read(m_HasFloor))
+		if (!ctx.Read(m_Expansion_HasFloor))
 			return false;
 
-		if (!ctx.Read(m_IsRoof))
+		if (!ctx.Read(m_Expansion_IsRoof))
 			return false;
 
 		return true;
@@ -123,7 +123,7 @@ class ExpansionFloorBase: ExpansionBaseBuilding
 	
 	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
 	{
-		m_HasFloor = false;
+		m_Expansion_HasFloor = false;
 
 		ExpansionUpdateBaseBuildingStateFromPartBuilt( part_name );
 
@@ -133,15 +133,15 @@ class ExpansionFloorBase: ExpansionBaseBuilding
 
 	override void ExpansionUpdateBaseBuildingStateFromPartBuilt( string part_name )
 	{
-		if ( part_name == m_CurrentBuild + "_floorfinished" || part_name == m_CurrentBuild + "_hatchfinished" )
+		if ( part_name == m_Expansion_CurrentBuild + "_floorfinished" || part_name == m_Expansion_CurrentBuild + "_hatchfinished" )
 		{
-			m_HasFloor = true;
+			m_Expansion_HasFloor = true;
 		}
 	}
 
 	override void OnPartDismantledServer( notnull Man player, string part_name, int action_id )
 	{
-		m_HasFloor = false;
+		m_Expansion_HasFloor = false;
 
 		super.OnPartDismantledServer( player, part_name, action_id );
 		UpdateVisuals();
@@ -149,7 +149,7 @@ class ExpansionFloorBase: ExpansionBaseBuilding
 
 	override void OnPartDestroyedServer( Man player, string part_name, int action_id, bool destroyed_by_connected_part = false )
 	{
-		m_HasFloor = false;
+		m_Expansion_HasFloor = false;
 
 		super.OnPartDestroyedServer( player, part_name, action_id, destroyed_by_connected_part );
 		UpdateVisuals();
