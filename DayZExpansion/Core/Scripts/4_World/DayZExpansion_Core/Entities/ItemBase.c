@@ -264,6 +264,15 @@ modded class ItemBase
 		return m_Expansion_IsMeleeWeapon;
 	}
 
+	bool Expansion_IsLiveExplosive()
+	{
+		ExplosivesBase explosive;
+		if (Class.CastTo(this, explosive) && explosive.Expansion_IsLive())
+			return true;
+
+		return false;
+	}
+
 	/*! ExpansionActionOn<...>
 
 		Override these in inherited items and call them from within an action

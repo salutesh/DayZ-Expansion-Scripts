@@ -35,6 +35,7 @@ class ExpansionPathHandler
 	bool m_DoClimbTestEx;
 	bool m_IsUnreachable;
 	bool m_AllowJumpClimb = true;
+	float m_AllowJumpClimb_Timeout;
 
 	void ExpansionPathHandler(eAIBase unit)
 	{
@@ -131,6 +132,17 @@ class ExpansionPathHandler
 
 		//! Block filter - only used to check if path is blocked. MUST use SAME flags as normal pathfilter EXCEPT door
 		m_BlockFilter.SetFlags(includeFlags & ~PGPolyFlags.DOOR, excludeFlags | PGPolyFlags.DOOR, exclusiveFlags);
+	}
+
+	void SetAllowJumpClimb(bool allow, float timeout = 0)
+	{
+		if (!allow && allow != m_AllowJumpClimb)
+			m_Recalculate = true;
+
+		m_AllowJumpClimb = allow;
+
+		if (timeout > 0)
+			m_AllowJumpClimb_Timeout = timeout;
 	}
 
 	bool Raycast(PGPolyFlags filter, float distance, out vector hitPos)
@@ -429,6 +441,9 @@ class ExpansionPathHandler
 #endif
 
 		m_Time += pDt;
+
+		if (m_AllowJumpClimb_Timeout > 0)
+			m_AllowJumpClimb_Timeout -= pDt;
 
 		vector unitPosition = m_Unit.GetPosition();
 		vector unitDirection = m_Unit.GetDirection();
@@ -795,7 +810,9 @@ class ExpansionPathHandler
 		}
 
 		m_TargetReference.Position = inPos;
-		m_AllowJumpClimb = allowJumpClimb;
+
+		if (m_AllowJumpClimb_Timeout <= 0)
+			SetAllowJumpClimb(allowJumpClimb);
 	}
 
 	vector GetTarget()

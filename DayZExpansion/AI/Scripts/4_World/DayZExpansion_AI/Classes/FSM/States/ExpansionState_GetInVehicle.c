@@ -7,6 +7,8 @@ class ExpansionState_GetInVehicle : ExpansionState_GoToVehicle
 		super.OnEntry(Event, From);
 
 		time = 0;
+
+		unit.LookAtDirection("0 0 1");  //! Reset look direction to prevent head snapping to previous direction when sitting
 	}
 
 	override int OnUpdate(float DeltaTime, int SimulationPrecision)

@@ -52,18 +52,10 @@ class eAIExplosivesTargetInformation: eAIItemTargetInformation
 		if (!m_ExplosionRange)
 			return false;
 
-		Grenade_Base grenade;
-		if (Class.CastTo(grenade, m_Item))
-		{
-			if (grenade.IsPinned())
-				return false;
-		}
-		else if (!m_Explosive.GetArmed() || m_Explosive.GetDefused())
-		{
-			return false;
-		}
+		if (m_Explosive.Expansion_IsLive())
+			return true;
 
-		return true;
+		return false;
 	}
 
 	override float CalculateThreat(eAIBase ai = null)

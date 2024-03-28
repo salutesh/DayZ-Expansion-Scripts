@@ -59,13 +59,15 @@ class eAIAimingProfile
 				}
 			}
 
-			float inaccuracyLR = 1.0 - Math.RandomFloat(accuracyMin, accuracyMax);
-			float inaccuracyUD = 1.0 - Math.RandomFloat(accuracyMin, accuracyMax);
+			float dist = Math.Sqrt(distSq);
+			float visibility = m_Unit.Expansion_GetVisibility(dist);
+			float inaccuracyLR = 1.0 - Math.RandomFloat(accuracyMin, accuracyMax) * visibility;
+			float inaccuracyUD = 1.0 - Math.RandomFloat(accuracyMin, accuracyMax) * visibility;
 
 			//! Accuracy influenced by target movement speed and angle
 			//vector aimOrientation = direction.InvMultiply3(transform).VectorToAngles();
 			vector aimOrientation = m_Unit.GetAimRelAngles();
-			float distClamped = Math.Clamp(Math.Sqrt(distSq), 100, 1000);
+			float distClamped = Math.Clamp(dist, 100, 1000);
 			float targetSpeedMult = targetPlayer.Expansion_GetMovementSpeed() / 3.0;
 			float targetMovementAngle = targetPlayer.Expansion_GetMovementAngle();
 			float targetMovementAngleMult;

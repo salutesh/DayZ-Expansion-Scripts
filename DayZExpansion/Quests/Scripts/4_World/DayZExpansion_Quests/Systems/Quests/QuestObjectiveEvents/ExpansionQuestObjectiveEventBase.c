@@ -411,9 +411,12 @@ class ExpansionQuestObjectiveEventBase
 		return ExpansionQuestObjectiveType.NONE;
 	}
 
-	void CreateObjectiveMarker(vector pos, string name, int visibility = EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP)
+	void CreateObjectiveMarker(vector pos, string name, int visibility = -1)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		if (visibility < 0)
+			visibility = EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP;
 
 		if (!m_Quest.GetQuestConfig().IsGroupQuest())
 		{

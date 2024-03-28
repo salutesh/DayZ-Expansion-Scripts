@@ -697,20 +697,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_Tail.Update(pState.m_DeltaTime);
 	}
 
-	static float LookUp(float value, int num, float inVals[], float outVals[])
-	{
-		for (int i = 0; i < num - 1; i++)
-		{
-			if (inVals[i] < value && value <= inVals[i + 1])
-			{
-				float delta = (value - inVals[i]) / (inVals[i + 1] - inVals[i]);
-				return Math.Lerp(outVals[i], outVals[i + 1], delta);
-			}
-		}
-
-		return 0;
-	}
-
 	override void Simulate(ExpansionPhysicsState pState)
 	{
 		if (!m_Initialized)
@@ -871,8 +857,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			m_Hydraulic = Math.Clamp(m_Hydraulic, 0.0, 1.0);
 			m_HydraulicPrev = m_Hydraulic;
 
-			m_CyclicForwardHydraulicCoef	= LookUp(m_Hydraulic, m_CyclicForwardControlCount, m_CyclicForwardControlFluid, m_CyclicForwardControlDelta);
-			m_CyclicSideHydraulicCoef		= LookUp(m_Hydraulic, m_CyclicForwardControlCount, m_CyclicForwardControlFluid, m_CyclicForwardControlDelta);
+			m_CyclicForwardHydraulicCoef	= ExpansionMath.LookUp(m_Hydraulic, m_CyclicForwardControlCount, m_CyclicForwardControlFluid, m_CyclicForwardControlDelta);
+			m_CyclicSideHydraulicCoef		= ExpansionMath.LookUp(m_Hydraulic, m_CyclicForwardControlCount, m_CyclicForwardControlFluid, m_CyclicForwardControlDelta);
 		}
 
 		if (pState.m_LinearVelocityMS.Length() > 0.05 || m_RotorSpeed != 0)

@@ -4,7 +4,7 @@ modded class DayZPlayerImplement
 {
 	override void EEKilled(Object killer)
 	{
-		if (GetGame().IsServer() && IsPlayerInStance(DayZPlayerConstants.STANCEMASK_PRONE | DayZPlayerConstants.STANCEIDX_RAISEDPRONE))
+		if (GetGame().IsServer() && IsPlayerInStance(DayZPlayerConstants.STANCEMASK_PRONE | DayZPlayerConstants.STANCEMASK_RAISEDPRONE))
 		{
 			EntityAI itemInHands = GetHumanInventory().GetEntityInHands();
 			if (itemInHands && GetExpansionSettings().GetDebug().EnableProneDeathHandItemDropFix)

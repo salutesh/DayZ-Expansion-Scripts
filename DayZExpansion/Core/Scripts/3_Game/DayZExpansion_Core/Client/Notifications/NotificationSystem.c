@@ -183,6 +183,8 @@ modded class NotificationSystem
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "AddNotif");
 #endif
 		
+		//! @note: The reason we *subtract* NOTIFICATION_FADE_TIME here is because CF *adds* it in NotificationRuntimeData constructor,
+		//! and we don't want that. Jumped through years old commit logs to try and understand why this is here. Please document your code :-(
 		data.SetTime( data.GetTime() - NOTIFICATION_FADE_TIME );
 
 		m_ExNotifications.Insert( data );

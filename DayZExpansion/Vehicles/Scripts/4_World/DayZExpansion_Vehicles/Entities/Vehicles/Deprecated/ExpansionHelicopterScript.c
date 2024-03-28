@@ -62,6 +62,8 @@ class ExpansionHelicopterScript: CarScript
 
 	float m_Expansion_IsLandedTick;
 
+	ref map<string, float> m_Expansion_DoorSoundPhaseStarted = new map<string, float>;
+
 	void ExpansionHelicopterScript()
 	{
 		string path;
@@ -655,6 +657,11 @@ class ExpansionHelicopterScript: CarScript
 	{
 		if (animSource.Contains("door_") || animSource.Contains("doors"))
 		{
+			if (!Expansion_ShouldHandleDoorsSound(animSource, phase))
+				return;
+
+			EXTrace.Print(EXTrace.VEHICLES, this, "HandleDoorsSound " + animSource + " " + phase);
+
 			if (phase == 0)
 			{
 				SEffectManager.Expansion_PlaySound(m_CarDoorOpenSound, GetPosition());
@@ -664,6 +671,23 @@ class ExpansionHelicopterScript: CarScript
 				SEffectManager.Expansion_PlaySound(m_CarDoorCloseSound, GetPosition());
 			}
 		}
+	}
+
+	bool Expansion_ShouldHandleDoorsSound(string animSource, float phase)
+	{
+		if (phase != 0 && phase != 1)
+			return false;
+
+		float phaseStarted;
+
+		//! @note prevent door sound overlapping due to OnAnimationPhaseStarteded getting called multiple times each anim phase for helis for some reason.
+		//! Do nothing if current anim phase is equal to last played sound start phase.
+		if (m_Expansion_DoorSoundPhaseStarted.Find(animSource, phaseStarted) && phase == phaseStarted)
+			return false;
+
+		m_Expansion_DoorSoundPhaseStarted[animSource] = phase;
+
+		return true;
 	}
 
 	override void HandleEngineSound(CarEngineSoundState state)

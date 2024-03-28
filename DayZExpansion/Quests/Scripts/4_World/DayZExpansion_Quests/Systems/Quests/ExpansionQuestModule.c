@@ -155,10 +155,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		Expansion_RegisterClientRPC("RPC_CreateClientMarker");
 		Expansion_RegisterClientRPC("RPC_RemoveClientMarkers");
-
 		Expansion_RegisterServerRPC("RPC_CancelQuest");
 		Expansion_RegisterClientRPC("RPC_CallbackClient");
 		Expansion_RegisterServerRPC("RPC_RequestCompleteQuest");
+
+		Expansion_RegisterServerRPC("RPC_RequestShareQuest");
 	}
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
@@ -1305,12 +1306,14 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		QuestModulePrint("Quest ID: " + questID);
-
-		//! Open quest menu
-		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionQuestMenu");
-
-		//! Populate quest menu with needed client data.
-		m_QuestMenuInvoker.Invoke(displayName, defaultText, questNPCID, questID);
+		
+		//! Open quest menu if no other menu is opened
+		if (!GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
+		{
+			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionQuestMenu");
+			//! Populate quest menu with needed client data.
+			m_QuestMenuInvoker.Invoke(displayName, defaultText, questNPCID, questID);
+		}
 	}
 
 	//! Client
@@ -2146,10 +2149,82 @@ class ExpansionQuestModule: CF_ModuleWorld
 		GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - CompleteQuest - Player with UID " + identity.GetId() + " has completed quest " + quest.GetQuestConfig().GetID());
 	}
 
+	//! Client
+	void RequestShareQuest(int questID)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		auto rpc = Expansion_CreateRPC("RPC_RequestShareQuest");
+		rpc.Write(questID);
+		rpc.Expansion_Send(true);
+	}
+
+	//! Server
+	protected void RPC_RequestShareQuest(PlayerIdentity identity, Object target, ParamsReadContext ctx)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		int questID;
+		if (!ctx.Read(questID))
+		{
+			Error(ToString() + "::RPC_RequestShareQuest - Could not get read quest ID!");
+			return;
+		}
+
+		ExpansionQuestConfig configInstance = GetQuestConfigByID(questID);
+		if (!configInstance)
+		{
+			Error(ToString() + "::RPC_RequestShareQuest - Could not get config data for quest with ID: " + questID);
+			return;
+		}
+
+		ShareQuestWithGroup(identity, configInstance);
+	}
+
+	//! Server
+	protected void ShareQuestWithGroup(PlayerIdentity identity, ExpansionQuestConfig config)
+	{
+	#ifdef EXPANSIONMODGROUPS
+		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
+		if (!player)
+		{
+			Error(ToString() + "::ShareQuestWithGroup - Could not get player entity!");
+			return;
+		}
+
+		ExpansionPartyData groupData = player.Expansion_GetParty();
+		if (!groupData)
+		{
+			Error(ToString() + "::ShareQuestWithGroup - Could not get players group data!");
+			return;
+		}
+
+		array<ref ExpansionPartyPlayerData> groupMembers = groupData.GetPlayers();
+		foreach (ExpansionPartyPlayerData member: groupMembers)
+		{
+			string memberUID = member.GetID();
+
+			ExpansionQuestPersistentData memberQuestData = GetPlayerQuestDataByUID(memberUID);
+			if (!memberQuestData)
+				continue;
+
+			ExpansionQuestState questState = memberQuestData.GetQuestStateByQuestID(config.GetID());
+			if (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.COMPLETED)
+				continue;
+
+			PlayerBase memberPB = PlayerBase.GetPlayerByUID(memberUID);
+			if (!memberPB)
+				continue;
+
+			if (QuestDisplayConditions(config, memberPB, memberQuestData, -1, true))
+				RequestOpenQuestMenuForQuest(memberPB.GetIdentity(), config.GetID());
+		}
+	#endif
+	}
+
 	// ----------------------------------------------------------------------------------------------------------------------
 	//! Default quest data
 	// ----------------------------------------------------------------------------------------------------------------------
-
 	protected void DefaultQuestNPCData()
 	{
 		//! Quest NPC #1

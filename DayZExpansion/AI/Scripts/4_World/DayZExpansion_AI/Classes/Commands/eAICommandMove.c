@@ -56,9 +56,6 @@ class eAICommandMove: ExpansionHumanCommandScript
 	private vector m_PrevPosition;
 	private float m_PositionTime;
 
-	private bool m_Look;
-	private float m_LookLR;
-	private float m_LookUD;
 	private float m_AimLR;
 	private float m_AimUD;
 
@@ -125,24 +122,6 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 	override void OnDeactivate()
 	{
-	}
-
-	override void SetLookDirection(vector pDirection)
-	{
-		vector angles = pDirection.VectorToAngles();
-		SetLookAnglesRel(ExpansionMath.RelAngle(angles[0]), ExpansionMath.RelAngle(angles[1]));
-	}
-
-	override void SetLookAnglesRel(float lookLR, float lookUD)
-	{
-		m_LookLR = lookLR;
-		m_LookUD = lookUD;
-
-		//! https://feedback.bistudio.com/T173348
-		if (Math.AbsFloat(m_LookLR) > 0.01 || Math.AbsFloat(m_LookUD) > 0.01)
-			m_Look = true;
-		else
-			m_Look = false;
 	}
 
 /*
@@ -438,11 +417,13 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 			vector checkDir;
 
+			m_BlockingObject = null;
+
 			//! Only check bwd if we are moving bwd, else check fwd
 			if (Math.AbsFloat(m_MovementDirection) >= 135)
 			{
 				checkDir = position - 0.5 * fb;
-				blockedBackward = Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, backwardPos, outNormal, hitFraction, checkDir + CHECK_MIN_HEIGHT, 0.5, true);
+				blockedBackward = Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, backwardPos, outNormal, hitFraction, checkDir + CHECK_MIN_HEIGHT, 0.5, true, m_BlockingObject);
 
 				if (!blockedBackward && m_PositionTime > 3.0)
 					blockedBackward = true;
@@ -459,7 +440,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			else
 			{
 				checkDir = position + 0.5 * fb;
-				blockedForward = Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed + CHECK_MIN_HEIGHT, 1.0, true);
+				blockedForward = Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed + CHECK_MIN_HEIGHT, 1.0, true, m_BlockingObject);
 
 				if (!blockedForward && m_PositionTime > 3.0)
 					blockedForward = true;
@@ -981,10 +962,6 @@ class eAICommandMove: ExpansionHumanCommandScript
 		m_Table.SetMovementDirection(this, m_MovementDirection);
 		m_Table.SetMovementSpeed(this, m_MovementSpeed);
 
-		m_Table.SetLook(this, m_Look);
-		m_Table.SetLookDirX(this, m_LookLR);
-		m_Table.SetLookDirY(this, m_LookUD);
-
 		//m_Table.SetAimX(this, m_AimLR);
 		//m_Table.SetAimY(this, m_AimUD);
 
@@ -1161,15 +1138,13 @@ class eAICommandMove: ExpansionHumanCommandScript
 		return true;
 	}
 
-	private bool Raycast(vector start, vector end, out vector hitPosition, out vector hitNormal, out float hitFraction, vector endRV = vector.Zero, float radiusRV = 0.25, bool includeAI = false)
+	private bool Raycast(vector start, vector end, out vector hitPosition, out vector hitNormal, out float hitFraction, vector endRV = vector.Zero, float radiusRV = 0.25, bool includeAI = false, out Object blockingObject = null)
 	{
 		if (endRV == vector.Zero)
 			endRV = end;
 
 		vector dir = vector.Direction(start, end).Normalized();
 		bool hit;
-
-		m_BlockingObject = null;
 
 		//! 1st raycast specifically for trees
 		int contactComponent;
@@ -1181,7 +1156,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 				if (obj.IsTree())
 					hit = true;
 
-				m_BlockingObject = obj;
+				blockingObject = obj;
 			}
 		}
 
@@ -1195,7 +1170,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			hit = DayZPhysics.SphereCastBullet(start + dir * 0.125, end, 0.25, hit_mask, m_Unit, hitObject, hitPosition, hitNormal, hitFraction);
 			hitFraction = 1.0 - hitFraction;
 			if (hitObject)
-				m_BlockingObject = hitObject;
+				blockingObject = hitObject;
 		}
 
 #ifdef DIAG

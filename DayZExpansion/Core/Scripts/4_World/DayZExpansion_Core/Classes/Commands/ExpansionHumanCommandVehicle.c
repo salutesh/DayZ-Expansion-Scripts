@@ -239,22 +239,21 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 
 	override void PreAnimUpdate(float pDt)
 	{
-		m_Table.SetLook(this, true);
-
-		HumanCommandWeapons hcw = m_Player.GetCommandModifier_Weapons();
-		m_Table.SetLookDirX(this, hcw.GetBaseAimingAngleLR());
-		m_Table.SetLookDirY(this, hcw.GetBaseAimingAngleUD());
+		super.PreAnimUpdate(pDt);
 
 		m_Table.SetVehicleType(this, m_VehicleType);
 
 		if (m_Transport)
 		{
-			Car car = Car.Cast(m_Transport);
+			if (m_SeatIndex == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+			{
+				Car car = Car.Cast(m_Transport);
 
-			m_Table.SetVehicleSteering(this, car.GetSteering());
-			m_Table.SetVehicleThrottle(this, car.GetThrust());
-			m_Table.SetVehicleBrake(this, car.GetBrake() != 0.0);
-			m_Table.SetVehicleClutch(this, m_ClutchState);
+				m_Table.SetVehicleSteering(this, car.GetSteering());
+				m_Table.SetVehicleThrottle(this, car.GetThrust());
+				m_Table.SetVehicleBrake(this, car.GetBrake() != 0.0);
+				m_Table.SetVehicleClutch(this, m_ClutchState);
+			}
 		}
 #ifdef EXPANSIONMODVEHICLE
 		else if (m_Vehicle)

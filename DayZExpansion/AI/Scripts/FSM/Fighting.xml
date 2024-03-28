@@ -418,6 +418,7 @@
 				PlayerBase player;
 				EntityAI targetEntity = dst.target.GetEntity();
 				ItemBase itemTarget;
+				float dist = dst.target.GetDistance(unit);
 				if (!targetEntity)
 				{
 					return FAIL;
@@ -440,7 +441,6 @@
 						return FAIL;
 					if (itemTarget.IsExplosive())
 					{
-						float dist = dst.target.GetDistance(unit);
 						if (dist &lt; dst.target.GetMinDistance(unit))
 							return FAIL;
 					}
@@ -455,6 +455,8 @@
 				if (!dst.weapon.Expansion_IsChambered()) return FAIL;
 				
 				if (unit.GetWeaponManager().CanUnjam(dst.weapon)) return FAIL;
+				
+				if (unit.Expansion_GetVisibility(dist) == 0.0) return FAIL;
 				
 				return SUCCESS;
 			</guard>

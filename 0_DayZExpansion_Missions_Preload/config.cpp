@@ -20,23 +20,23 @@ class CfgMods
 		{
 			class engineScriptModule
 			{
-				files[] = {"0_DayZExpansion_Missions_Preload/Common","0_DayZExpansion_Missions_Preload/1_Missions"};
+				files[] = {"0_DayZExpansion_Missions_Preload/Common","DayZExpansion/0_Missions_Preload/Common","0_DayZExpansion_Missions_Preload/1_Missions","DayZExpansion/0_Missions_Preload/1_Missions"};
 			};
 			class gameLibScriptModule
 			{
-				files[] = {"0_DayZExpansion_Missions_Preload/Common","0_DayZExpansion_Missions_Preload/2_GameLib"};
+				files[] = {"0_DayZExpansion_Missions_Preload/Common","DayZExpansion/0_Missions_Preload/Common","0_DayZExpansion_Missions_Preload/2_GameLib","DayZExpansion/0_Missions_Preload/2_GameLib"};
 			};
 			class gameScriptModule
 			{
-				files[] = {"0_DayZExpansion_Missions_Preload/Common","0_DayZExpansion_Missions_Preload/3_Game"};
+				files[] = {"0_DayZExpansion_Missions_Preload/Common","DayZExpansion/0_Missions_Preload/Common","0_DayZExpansion_Missions_Preload/3_Game","DayZExpansion/0_Missions_Preload/3_Game"};
 			};
 			class worldScriptModule
 			{
-				files[] = {"0_DayZExpansion_Missions_Preload/Common","0_DayZExpansion_Missions_Preload/4_World"};
+				files[] = {"0_DayZExpansion_Missions_Preload/Common","DayZExpansion/0_Missions_Preload/Common","0_DayZExpansion_Missions_Preload/4_World","DayZExpansion/0_Missions_Preload/4_World"};
 			};
 			class missionScriptModule
 			{
-				files[] = {"0_DayZExpansion_Missions_Preload/Common","0_DayZExpansion_Missions_Preload/5_Mission"};
+				files[] = {"0_DayZExpansion_Missions_Preload/Common","DayZExpansion/0_Missions_Preload/Common","0_DayZExpansion_Missions_Preload/5_Mission","DayZExpansion/0_Missions_Preload/5_Mission"};
 			};
 		};
 	};

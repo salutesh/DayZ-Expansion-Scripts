@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Characters","DZ_Gear_Camping","DZ_Pistols_FNX45","DZ_Weapons_Ammunition","DZ_Weapons_Projectiles"};
+		requiredAddons[] = {"DZ_Characters","DZ_Gear_Camping","DZ_Pistols_FNX45","DZ_Surfaces","DZ_Weapons_Ammunition","DZ_Weapons_Projectiles"};
 	};
 };
 class CfgSurfaces

@@ -369,13 +369,17 @@
 				if (unit.GetActionManager().GetRunningAction())
 					return CONTINUE;
 				
-				if (item &amp;&amp; unit.GetItemInHands() != item)
+				if (item &amp;&amp; unit.GetItemInHands() != item &amp;&amp; (!item.GetHierarchyRootPlayer() || item.GetHierarchyRootPlayer() == unit))
 				{
-					if (item.Expansion_IsInventoryLocked())
-						ExpansionStatic.UnlockInventoryRecursive(item, 10134);
-					
-					if (!unit.eAI_TakeItemToHands(item))
+					if (unit.eAI_GetItemThreatOverride(item))
+					{
+						if (!unit.eAI_TakeItemToInventoryImpl(item))
+							return EXIT;
+					}
+					else if (!unit.eAI_TakeItemToHands(item))
+					{
 						return EXIT;
+					}
 				}
 				
 				if (time &lt; 0.5)
@@ -414,10 +418,7 @@
 				
 				if (item &amp;&amp; !item.GetHierarchyRootPlayer())
 				{
-					if (item.Expansion_IsInventoryLocked())
-						ExpansionStatic.UnlockInventoryRecursive(item, 10134);
-					
-					if (!unit.eAI_TakeItemToInventory(item))
+					if (unit.eAI_GetItemThreatOverride(item) || !unit.eAI_TakeItemToInventory(item))
 						return EXIT;
 				}
 				
@@ -680,7 +681,7 @@
 				//! If ruined, drop
 				if (hands &amp;&amp; hands.IsDamageDestroyed())
 				{
-					unit.eAI_DropItem(hands, true, false);
+					unit.eAI_DropItem(hands, false);
 					hands = null;
 				}
 				
@@ -695,7 +696,7 @@
 						{
 							//! Try to put in inventory (shoulder slot or cargo), drop if not possible
 							if (hands &amp;&amp; !unit.eAI_TakeItemToInventory(hands))
-								unit.eAI_DropItem(hands, true, false);
+								unit.eAI_DropItem(hands, false);
 							
 							return SUCCESS;
 						}
@@ -763,6 +764,9 @@
 				if (!target || !Class.CastTo(targetItem, target.GetEntity()) || targetItem.GetHierarchyRootPlayer() || targetItem.IsSetForDeletion())
 					return FAIL;
 				
+				if (targetItem.Expansion_IsLiveExplosive())
+					return FAIL;
+				
 				if (target.GetDistanceSq(unit, true) &gt; 4.0 || unit.eAI_IsItemObstructed(targetItem))
 					return FAIL;
 				
@@ -780,12 +784,12 @@
 						{
 							if (hands.IsDamageDestroyed())
 							{
-								unit.eAI_DropItem(hands, true, false);
+								unit.eAI_DropItem(hands, false);
 							}
 							else if (!unit.eAI_TakeItemToInventory(hands))
 							{
 								unit.eAI_ItemThreatOverride(hands, true);
-								unit.eAI_DropItem(hands, true, false);
+								unit.eAI_DropItem(hands, false);
 							}
 						}
 					}

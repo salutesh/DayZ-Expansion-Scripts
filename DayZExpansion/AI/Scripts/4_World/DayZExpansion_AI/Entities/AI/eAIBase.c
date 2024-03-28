@@ -2880,6 +2880,10 @@ class eAIBase: PlayerBase
 
 	bool eAI_HandleAiming(float pDt, bool hasLOS = false)
 	{
+		eAICommandVehicle vehCmd = GetCommand_VehicleAI();
+		if (vehCmd && (vehCmd.IsGettingIn() || vehCmd.IsGettingOut()))
+			return false;
+
 		eAITarget target = m_eAI_Targets[0];
 
 		bool isServer = GetGame().IsServer();
@@ -3424,11 +3428,15 @@ class eAIBase: PlayerBase
 				{
 					if (m_JumpClimb.Expansion_Climb())
 						break;
+
+					//! If we didn't vault or climb, find way around obstacle
+					if (m_PathFinding.m_AllowJumpClimb)
+						m_PathFinding.SetAllowJumpClimb(false, 5.0);
 				}
 
 				if (AI_HANDLEDOORS)
 				{
-					HandleBuildingDoors(pDt);
+					HandleBuildingDoors(hcm, pDt);
 				}
 				
 				float speedLimit;
@@ -3544,7 +3552,7 @@ class eAIBase: PlayerBase
 		bool isDir;
 		bool isDirWS;
 
-		if (speed > 0)
+		if (speed > 0 || GetCommand_VehicleAI())
 		{
 			isDir = true;
 			ori[0] = Math.RandomFloat(-22.0 * f, 22.0 * f);
@@ -3783,10 +3791,9 @@ class eAIBase: PlayerBase
 
 		bool isCreatureTarget = targetEntity.IsInherited(DayZCreatureAI);
 
-		//! If target is player and we are not aggroed, check if we are facing
-		if (targetPlayer && state.m_ThreatLevelActive < 0.4)
+		if (targetPlayer)
 		{
-			//! Check if we are facing target (horizontal aim/look direction, not movement direction) unless we are already aware of target
+			//! Check if we are facing target (horizontal aim/look direction, not movement direction)
 			vector toTargetDirection = vector.Direction(GetPosition(), endPos);
 			float toTargetAngle = toTargetDirection.VectorToAngles()[0];
 			float aimAngle = GetAimDirection().VectorToAngles()[0];
@@ -3849,7 +3856,7 @@ class eAIBase: PlayerBase
 						sideStep = m_eAI_IsFightingFSM;  //! Sidestep if we are in fighting FSM
 					}
 				}
-				else if ((isCreatureTarget && (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase))) || ((obj.IsTree() || obj.IsBush()) && contactToTargetDistSq <= 4) || contactToTargetDistSq <= 0.0625)
+				else if ((isCreatureTarget && (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase))) || ((obj.IsTree() || obj.IsBush()) && contactToTargetDistSq <= 4 && state.m_ThreatLevelActive >= 0.4) || contactToTargetDistSq <= 0.0625)
 				{
 					//! If object is zombie, animal or tree/bush but not the target or its parent, we don't care if they get shot when they are in the way
 					state.m_LOS = true;
@@ -4703,89 +4710,130 @@ class eAIBase: PlayerBase
 
 	override void OnUnconsciousStart()
 	{
-		eAI_DropItemInHandsImpl();
+		eAI_DropItemInHandsImpl(false, false);
 
 		super.OnUnconsciousStart();
 	}
 
-	void eAI_DropItemInHands(bool switchOff = true)
+	bool eAI_DropItemInHands(bool useAction = true)
 	{
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+
 		ItemBase itemInHands = GetItemInHands();
 		if (itemInHands)
-			eAI_DropItem(itemInHands, switchOff);
+			return eAI_DropItem(itemInHands, useAction);
+
+		return false;
 	}
 
-	void eAI_DropItemInHandsImpl(bool overrideThreat = false)
+	bool eAI_DropItemInHandsImpl(bool overrideThreat = false, bool switchOff = true)
 	{
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+
 		ItemBase itemInHands = GetItemInHands();
 		if (itemInHands)
-			eAI_DropItemImpl(itemInHands, overrideThreat);
+			return eAI_DropItemImpl(itemInHands, overrideThreat, switchOff);
+
+		return false;
 	}
 
-	void eAI_DropItem(ItemBase item, bool switchOff = true, bool useAction = true)
+	bool eAI_DropItem(ItemBase item, bool useAction = true)
 	{
-		if (switchOff)
-			item.Expansion_TryTurningOffAnyLightsOrNVG(this);
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + item);
 
-		if (useAction)
-			StartAction(eAIActionDropItem, null, item);
-		else
-			eAI_DropItemImpl(item, eAI_GetItemThreatOverride(item));
+		if (!useAction)
+			return eAI_DropItemImpl(item, eAI_GetItemThreatOverride(item));
+		else if (StartAction(eAIActionDropItem, null, item))
+			return true;
 
-		m_Expansion_ActiveVisibilityEnhancers.RemoveItemUnOrdered(item);
-
-		if (switchOff)
-			Expansion_UpdateVisibility(true);
+		return false;
 	}
 
-	void eAI_DropItemImpl(ItemBase item, bool overrideThreat = false)
+	bool eAI_DropItemImpl(ItemBase item, bool overrideThreat = false, bool switchOff = true)
 	{
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + item);
+
 		InventoryLocation il_dst = new InventoryLocation();
 
 		GameInventory.SetGroundPosByOwner(this, item, il_dst);
 
-		//eAI_TakeItemToLocation(item, il_dst);
-		EntityAI dst = Expansion_CloneItemToLocation(item, il_dst);
-		ItemBase dstItem;
-		if (Class.CastTo(dstItem, dst))
-			eAI_ItemThreatOverride(dstItem, overrideThreat);
-	}
+		if (switchOff)
+			item.Expansion_TryTurningOffAnyLightsOrNVG(this);
 
-	bool eAI_TakeItemToHands(ItemBase item)
-	{
+		//! 1) Remove from active visibility enhancers if present
+		m_Expansion_ActiveVisibilityEnhancers.RemoveItemUnOrdered(item);
+
 		bool result;
 
-		if (item.GetHierarchyRootPlayer() == this)
-			result = eAI_TakeItemToHandsImpl(item);
-		else if (StartActionObject(eAIActionTakeItemToHands, item))
+	#ifdef EXPANSIONMODAI_TAKETOLOCATION
+		if (eAI_TakeItemToLocation(item, il_dst))
+			result = true;
+	#else
+		EntityAI dst = Expansion_CloneItemToLocation(item, il_dst);
+		if (dst)
+		{
 			result = true;
 
+			ItemBase dstItem;
+			if (Class.CastTo(dstItem, dst))
+				eAI_ItemThreatOverride(dstItem, overrideThreat);
+		}
+	#endif
+
+		//! 2) Update visibility regardless of result because of 1)
 		Expansion_UpdateVisibility(true);
 
 		return result;
 	}
 
+	bool eAI_TakeItemToHands(ItemBase item, bool useAction = true)
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + item);
+
+		if (item.GetHierarchyRootPlayer() == this || !useAction)
+			return eAI_TakeItemToHandsImpl(item);
+		else if (StartActionObject(eAIActionTakeItemToHands, item))
+			return true;
+
+		return false;
+	}
+
 	bool eAI_TakeItemToHandsImpl(ItemBase item)
 	{
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + item);
+
 		if (!item)
 			return false;
 
-		InventoryLocation il_dst = new InventoryLocation();
+		InventoryLocation il_dst;
 
-		il_dst.SetHands(this, item);
+		if (eAI_FindFreeInventoryLocationFor(item, FindInventoryLocationType.HANDS, il_dst))
+		{
+			if (item.Expansion_IsInventoryLocked())
+				ExpansionStatic.UnlockInventoryRecursive(item, 10134);
 
-		//return eAI_TakeItemToLocation(item, il_dst);
-		bool result;
+		#ifdef EXPANSIONMODAI_TAKETOLOCATION
+			if (eAI_TakeItemToLocation(item, il_dst))
+		#else
+			if (Expansion_CloneItemToLocation(item, il_dst))
+		#endif
+			{
+				if (m_eAI_Targets.Count() > 1 && GetExpansionSettings().GetAI().MemeLevel > 9000)
+					eAI_PlayRandomLoveSound();
 
-		if (Expansion_CloneItemToLocation(item, il_dst))
-			result = true;
+				m_eAI_PositionOverrideTimeout = 0;  //! Reset so we prioritize taking cover during actions
 
-		if (result && m_eAI_Targets.Count() > 1 && GetExpansionSettings().GetAI().MemeLevel > 9000)
-			eAI_PlayRandomLoveSound();
+				Expansion_UpdateVisibility(true);
 
-		m_eAI_PositionOverrideTimeout = 0;  //! Reset so we prioritize taking cover during actions
+				return true;
+			}
+		}
 
-		return result;
+		//! If we couldn't take, make sure we don't try again
+		if (item)
+			eAI_ItemThreatOverride(item, true);
+
+		return false;
 	}
 
 	bool eAI_FindFreeInventoryLocationFor(ItemBase item, FindInventoryLocationType flags = 0, out InventoryLocation il_dst = null)
@@ -4807,52 +4855,63 @@ class eAIBase: PlayerBase
 		return GetInventory().FindFreeLocationFor(item, flags, il_dst);
 	}
 
-	bool eAI_TakeItemToInventory(ItemBase item, FindInventoryLocationType flags = 0, bool useAction = true)
+	bool eAI_TakeItemToInventory(ItemBase item, bool useAction = true)
 	{
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + item);
+
 		if (!item)
 			return false;
 
-		InventoryLocation il_dst;
-
-		if (!eAI_FindFreeInventoryLocationFor(item, flags, il_dst))
-			return false;
-
-		item.Expansion_TryTurningOffAnyLightsOrNVG(this);
-
-		bool result;
-
 		if (item == GetItemInHands() || !useAction)
 		{
-			//result = eAI_TakeItemToLocation(item, il_dst);
-			if (Expansion_CloneItemToLocation(item, il_dst))
-				result = true;
+			if (eAI_TakeItemToInventoryImpl(item))
+				return true;
 		}
 		else if (StartActionObject(eAIActionTakeItem, item))
 		{
-			result = true;
+			return true;
 		}
 
-		if (result)
-			m_Expansion_ActiveVisibilityEnhancers.RemoveItemUnOrdered(item);
-
-		Expansion_UpdateVisibility(true);
-
-		return result;
+		return false;
 	}
 
 	bool eAI_TakeItemToInventoryImpl(ItemBase item, FindInventoryLocationType flags = 0)
 	{
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + item);
+
 		if (!item)
 			return false;
 
 		InventoryLocation il_dst;
 
-		if (!eAI_FindFreeInventoryLocationFor(item, flags, il_dst))
-			return false;
+		if (eAI_FindFreeInventoryLocationFor(item, flags, il_dst))
+		{
+			if (item.Expansion_IsInventoryLocked())
+				ExpansionStatic.UnlockInventoryRecursive(item, 10134);
 
-		//return eAI_TakeItemToLocation(item, il_dst);
-		if (Expansion_CloneItemToLocation(item, il_dst))
-			return true;
+			item.Expansion_TryTurningOffAnyLightsOrNVG(this);
+
+			//! 1) Remove from active visibility enhancers if present
+			m_Expansion_ActiveVisibilityEnhancers.RemoveItemUnOrdered(item);
+
+			bool result;
+
+		#ifdef EXPANSIONMODAI_TAKETOLOCATION
+			if (eAI_TakeItemToLocation(item, il_dst))
+		#else
+			if (Expansion_CloneItemToLocation(item, il_dst))
+		#endif
+				result = true;
+
+			//! 2) Update visibility regardless of result because of 1)
+			Expansion_UpdateVisibility(true);
+
+			return result;
+		}
+
+		//! If we couldn't take, make sure we don't try again
+		if (item)
+			eAI_ItemThreatOverride(item, true);
 
 		return false;
 	}
@@ -5293,6 +5352,19 @@ class eAIBase: PlayerBase
 				if (climbRes.m_bIsClimbOver)
 					return false;
 			}
+			else if (!object.IsScenery())
+			{
+				string debugName = object.GetDebugName();
+				debugName.ToLower();
+
+				if (debugName.Contains("pole"))
+				{
+					if (EXTrace.AI)
+						EXTrace.Print(true, this, "eAI_CanClimbOn false " + Debug.GetDebugName(parent) + " is scenery? " + object.IsScenery() + " is plain? " + object.IsPlainObject());
+
+					return false;
+				}
+			}
 		}
 
 		if (EXTrace.AI && parent)
@@ -5338,7 +5410,7 @@ class eAIBase: PlayerBase
 		m_JumpClimb.JumpOrClimb();
 	}
 
-	void HandleBuildingDoors(float pDt)
+	void HandleBuildingDoors(eAICommandMove hcm, float pDt)
 	{
 		//if (!m_PathFinding.IsDoor())
 			//return;
@@ -5397,21 +5469,20 @@ class eAIBase: PlayerBase
 			if (doorIndex == -1)
 				continue;
 
-			if (time - building.m_eAI_LastDoorInteractionTime[doorIndex] < 3000)
-				continue;
-
-			bool isDoorOpen;
-			bool isWreck = building.GetType().IndexOf("Land_Wreck_") == 0;  //! Vehicle wreck, excluding heli crashes
+			bool isDoorOpen = false;
+			bool isWreck = false;
+			if (building.GetType().IndexOf("Land_Wreck_") == 0)
+				isWreck = true;  //! Vehicle wreck, excluding heli crashes
 
 			if (building.IsDoorOpen(doorIndex))
 			{
-				if (!isWreck && building.GetType().IndexOf("Land_Wall_Gate") == -1)
+				if (!isWreck)
 				{
-					auto cmd = GetCommand_MoveAI();
-					if (cmd && !cmd.CheckBlocked())
+					Object blockingObject = hcm.GetBlockingObject();
+					if (!hcm.CheckBlocked() && (!blockingObject || blockingObject.GetType().IndexOf("Land_Wall_Gate") == -1))
 					{
-						if (cmd.IsBlocked())
-							cmd.StartTurnOverride(2);
+						if (hcm.IsBlocked())
+							hcm.StartTurnOverride(2);
 						continue;
 					}
 				}
@@ -5431,6 +5502,9 @@ class eAIBase: PlayerBase
 
 				continue;
 			}
+
+			if (time - building.m_eAI_LastDoorInteractionTime[doorIndex] < 3000)
+				continue;
 
 			/**
 			 * TODO: Use FSM events to notify that the door should be opened. 

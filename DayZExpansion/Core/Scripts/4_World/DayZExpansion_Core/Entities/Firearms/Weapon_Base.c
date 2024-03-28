@@ -156,6 +156,7 @@ modded class Weapon_Base
 		#endif
 			OnFireModeChange(fireModeIndex);
 			SetCurrentMode(muzzleIndex, fireModeIndex);
+			Synchronize();
 		}
 
 		return true;

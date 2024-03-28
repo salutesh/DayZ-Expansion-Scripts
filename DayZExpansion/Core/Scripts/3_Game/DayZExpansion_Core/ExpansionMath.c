@@ -650,4 +650,21 @@ class ExpansionMath
 
 		return Math.Sqrt(minDistanceSq);
 	}
+
+	static float LookUp(float value, int num, float inVals[], float outVals[])
+	{
+		value = Math.Clamp(value, inVals[0], inVals[num - 1]);
+
+		for (int i = 0; i < num - 1; i++)
+		{
+			if (inVals[i] <= value && value <= inVals[i + 1])
+			{
+				float delta = (value - inVals[i]) / (inVals[i + 1] - inVals[i]);
+				return Math.Lerp(outVals[i], outVals[i + 1], delta);
+			}
+		}
+
+		//! Should never reach this point, just here to make code compile as we need a return value
+		return 0;
+	}
 }

@@ -17,9 +17,4 @@ modded class ExplosivesBase
 
 		return new eAIExplosivesTargetInformation(this);
 	}
-
-	TStringArray Expansion_GetAmmoTypes()
-	{
-		return m_AmmoTypes;
-	}
 };

@@ -159,7 +159,10 @@
 				if (!fsm.weapon || unit.GetItemInHands() != fsm.weapon)
 					return EXIT;  // remove complete
 				
-				if (!unit.eAI_TakeItemToInventory(fsm.weapon))
+				if (unit.GetActionManager().GetRunningAction())
+					return CONTINUE;
+				
+				if (fsm.weapon.IsDamageDestroyed() || !unit.eAI_TakeItemToInventory(fsm.weapon))
 					unit.eAI_DropItem(fsm.weapon);
 				
 				return CONTINUE;

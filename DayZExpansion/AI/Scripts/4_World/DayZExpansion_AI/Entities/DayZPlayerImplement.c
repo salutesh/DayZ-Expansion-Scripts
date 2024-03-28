@@ -99,6 +99,11 @@ modded class DayZPlayerImplement
 		return false;
 	}
 
+	override bool Expansion_IsAI()
+	{
+		return IsAI();
+	}
+
 	override int Expansion_GetEntityStorageAdditionalDataVersion()
 	{
 		return 1;

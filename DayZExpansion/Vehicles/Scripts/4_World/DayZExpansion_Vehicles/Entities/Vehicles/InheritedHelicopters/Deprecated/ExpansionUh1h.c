@@ -213,6 +213,11 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		{
 		case "uh1hdoor_2_1":
 		case "uh1hdoor_2_2":
+			if (!Expansion_ShouldHandleDoorsSound(animSource, phase))
+				return;
+
+			EXTrace.Print(EXTrace.VEHICLES, this, "HandleDoorsSound " + animSource + " " + phase);
+
 			if (phase == 0)
 			{
 				SEffectManager.Expansion_PlaySound("Expansion_Uh1h_SlidingDoor_Open_SoundSet", GetPosition());
