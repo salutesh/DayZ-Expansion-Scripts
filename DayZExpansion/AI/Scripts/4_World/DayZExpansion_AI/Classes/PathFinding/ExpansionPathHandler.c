@@ -15,7 +15,6 @@ class ExpansionPathHandler
 	ref ExpansionPathPoint m_Target;
 	ref ExpansionPathPoint m_TargetReference;
 
-	vector m_OverridePosition;
 	bool m_OverridingPosition;
 
 	int m_Count;
@@ -35,6 +34,7 @@ class ExpansionPathHandler
 	bool m_DoClimbTestEx;
 	bool m_IsUnreachable;
 	bool m_AllowJumpClimb = true;
+	float m_AllowJumpClimb_Timeout;
 
 	void ExpansionPathHandler(eAIBase unit)
 	{
@@ -133,6 +133,17 @@ class ExpansionPathHandler
 		m_BlockFilter.SetFlags(includeFlags & ~PGPolyFlags.DOOR, excludeFlags | PGPolyFlags.DOOR, exclusiveFlags);
 	}
 
+	void SetAllowJumpClimb(bool allow, float timeout = 0)
+	{
+		if (!allow && allow != m_AllowJumpClimb)
+			m_Recalculate = true;
+
+		m_AllowJumpClimb = allow;
+
+		if (timeout > 0)
+			m_AllowJumpClimb_Timeout = timeout;
+	}
+
 	bool Raycast(PGPolyFlags filter, float distance, out vector hitPos)
 	{
 		m_CheckFilter.SetFlags(filter, ~filter, PGPolyFlags.NONE);
@@ -163,7 +174,7 @@ class ExpansionPathHandler
 		return true;
 
 		//vector hitPos;
-		//return Raycast(PGPolyFlags.DOOR, 1.5, hitPos);
+		//return this.Raycast(PGPolyFlags.DOOR, 1.5, hitPos);
 	}
 
 	bool IsVault()
@@ -174,13 +185,13 @@ class ExpansionPathHandler
 		if (m_Current && m_Current.NavMesh)
 		{
 			vector hitPos;
-			return Raycast(PGPolyFlags.CLIMB, 0.5, hitPos);
+			return this.Raycast(PGPolyFlags.CLIMB, 0.5, hitPos);
 		}
 
 		return true;
 
 		//vector hitPos;
-		//return Raycast(PGPolyFlags.CLIMB, 0.5, hitPos);
+		//return this.Raycast(PGPolyFlags.CLIMB, 0.5, hitPos);
 	}
 
 	/**
@@ -429,6 +440,9 @@ class ExpansionPathHandler
 #endif
 
 		m_Time += pDt;
+
+		if (m_AllowJumpClimb_Timeout > 0)
+			m_AllowJumpClimb_Timeout -= pDt;
 
 		vector unitPosition = m_Unit.GetPosition();
 		vector unitDirection = m_Unit.GetDirection();
@@ -775,7 +789,7 @@ class ExpansionPathHandler
 #endif
 
 		if (m_OverridingPosition)
-			pPosition = m_OverridePosition;
+			return;
 
 		vector oldPos = m_TargetReference.Position;
 
@@ -795,7 +809,9 @@ class ExpansionPathHandler
 		}
 
 		m_TargetReference.Position = inPos;
-		m_AllowJumpClimb = allowJumpClimb;
+
+		if (m_AllowJumpClimb_Timeout <= 0)
+			SetAllowJumpClimb(allowJumpClimb);
 	}
 
 	vector GetTarget()
@@ -803,10 +819,13 @@ class ExpansionPathHandler
 		return m_TargetReference.Position;
 	}
 
-	void OverridePosition(vector pPosition)
+	void OverridePosition(vector pPosition, bool recalculate = false)
 	{
-		m_OverridePosition = pPosition;
+		StopOverride();
+		SetTarget(pPosition, 1.0);
 		m_OverridingPosition = true;
+		if (recalculate)
+			m_Recalculate = true;
 	}
 
 	bool GetOverride()

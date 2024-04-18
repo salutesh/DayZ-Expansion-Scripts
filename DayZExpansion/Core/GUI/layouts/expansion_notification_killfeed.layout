@@ -140,8 +140,8 @@ WrapSpacerWidgetClass ExpansionNotificationViewKillfeed {
            image0 ""
            mode blend
            "src alpha" 1
-           "no wrap" 1
-           stretch 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
            {
             ScriptParamsClass {
              Binding_Name "NotificationIcon"
@@ -162,10 +162,10 @@ WrapSpacerWidgetClass ExpansionNotificationViewKillfeed {
          vexactsize 0
          scriptclass "ViewBinding"
          style DayZNormal
-         font "gui/fonts/etelkatextpro28"
-         "text offset" 2 0
+         font "gui/fonts/sdf_MetronBook24"
+         "bold text" 1
          "exact text" 1
-         "exact text size" 22
+         "exact text size" 20
          "size to text h" 1
          "size to text v" 1
          "text valign" center
@@ -220,13 +220,15 @@ WrapSpacerWidgetClass ExpansionNotificationViewKillfeed {
          hexactsize 0
          vexactsize 0
          scriptclass "ViewBinding"
-         font "gui/fonts/etelkatextpro22"
-         "text offset" 2 0
+         font "gui/fonts/sdf_MetronBook24"
          "exact text" 1
+         "exact text size" 16
          "size to text h" 1
          "size to text v" 1
          "text valign" center
          wrap 1
+         "condense whitespace" 1
+         "strip newlines" 1
          {
           ScriptParamsClass {
            Binding_Name "NotificationText"

@@ -72,7 +72,7 @@ class ExpansionLauncher_Base: Rifle_Base
 		ExpansionReloadShowBullet Chamber_E = new ExpansionReloadShowBullet(this, NULL, WeaponActions.CHAMBERING, WeaponActionChamberingTypes.CHAMBERING_ONEBULLET_CLOSED);
 		
 		WeaponStateBase Trigger_E = new WeaponDryFire(this, NULL, WeaponActions.FIRE, WeaponActionFireTypes.FIRE_COCKED);
-		WeaponStateBase Trigger_L = new ExpansionFireBulletHide(this, NULL, WeaponActions.FIRE, WeaponActionFireTypes.FIRE_NORMAL);
+		WeaponStateBase Trigger_L = new WeaponFire(this, NULL, WeaponActions.FIRE, WeaponActionFireTypes.FIRE_NORMAL);
 
 		
 
@@ -127,5 +127,13 @@ class ExpansionLauncher_Base: Rifle_Base
 		ExpansionHideWeaponPart("ammo", true);
 
 		m_fsm.Start();
+	}
+
+	override void OnFire(int muzzle_index)
+	{
+		super.OnFire(muzzle_index);
+
+		EjectCasing(muzzle_index);
+		ExpansionHideWeaponPart("ammo", true);
 	}
 };

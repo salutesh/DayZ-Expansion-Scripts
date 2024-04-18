@@ -40,9 +40,11 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
      hexactsize 0
      vexactsize 0
      scriptclass "ViewBinding"
-     font "gui/fonts/etelkatextpro16"
+     font "gui/fonts/sdf_MetronBook24"
      "text offset" 5 0
+     "bold text" 1
      "exact text" 1
+     "exact text size" 14
      "size to text h" 0
      "size to text v" 1
      wrap 1
@@ -65,9 +67,10 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
      hexactsize 0
      vexactsize 0
      scriptclass "ViewBinding"
-     font "gui/fonts/etelkatextpro16"
+     font "gui/fonts/sdf_MetronBook24"
      "text offset" 5 0
      "exact text" 1
+     "exact text size" 14
      "size to text h" 1
      "size to text v" 1
      wrap 1
@@ -102,9 +105,12 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
        hexactsize 0
        vexactsize 0
        scriptclass "ViewBinding"
-       font "gui/fonts/etelkatextpro16"
+       style DayZBold
+       font "gui/fonts/sdf_MetronBook24"
        "text offset" 5 0
+       "bold text" 1
        "exact text" 1
+       "exact text size" 14
        "size to text h" 1
        "size to text v" 1
        wrap 1
@@ -141,14 +147,15 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
        vexactsize 0
        scriptclass "ViewBinding"
        text "5000/5000"
-       font "gui/fonts/metron-bolditalic16"
+       font "gui/fonts/sdf_MetronBook24"
        "text offset" 2 0
        "exact text" 1
+       "exact text size" 14
        "size to text h" 1
        "size to text v" 1
        "text halign" right
        "text valign" center
-       wrap 0
+       wrap 1
        "condense whitespace" 1
        "strip newlines" 1
        {

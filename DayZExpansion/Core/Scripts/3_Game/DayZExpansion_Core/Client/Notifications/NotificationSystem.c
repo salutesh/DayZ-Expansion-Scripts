@@ -53,7 +53,7 @@ modded class NotificationSystem
 		return manager;
 	}
 
-	static void Create_Expansion( StringLocaliser title, StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+	static void Create_Expansion( CF_Localiser title, CF_Localiser text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "Create_Expansion");
@@ -82,10 +82,10 @@ modded class NotificationSystem
 
 	static void Create_Expansion( string title, string text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
 	{
-		Create_Expansion( new StringLocaliser( title ), new StringLocaliser( text ), icon, color, time, sendTo, type, obj );
+		Create_Expansion( new CF_Localiser( title ), new CF_Localiser( text ), icon, color, time, sendTo, type, obj );
 	}
 
-	static void ExpansionCreateNotification( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time = 3, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+	static void ExpansionCreateNotification( ref CF_Localiser title, ref CF_Localiser text, string icon, int color, float time = 3, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
 	{	
 		if ( IsMissionHost() )
 		{
@@ -105,7 +105,7 @@ modded class NotificationSystem
 		}
 	}
 
-	private static void Exec_ExpansionCreateNotification(  StringLocaliser title, StringLocaliser text, string icon, int color, float time, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+	private static void Exec_ExpansionCreateNotification(  CF_Localiser title, CF_Localiser text, string icon, int color, float time, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "Exec_ExpansionCreateNotification");
@@ -151,11 +151,11 @@ modded class NotificationSystem
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "RPC_CreateNotification");
 #endif
 		
-		StringLocaliser title = new StringLocaliser( "" );
+		CF_Localiser title = new CF_Localiser( "" );
 		if ( !ctx.Read( title ) )
 			return;
 
-		StringLocaliser text = new StringLocaliser( "" );
+		CF_Localiser text = new CF_Localiser( "" );
 		if ( !ctx.Read( text ) )
 			return;
 
@@ -183,6 +183,8 @@ modded class NotificationSystem
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "AddNotif");
 #endif
 		
+		//! @note: The reason we *subtract* NOTIFICATION_FADE_TIME here is because CF *adds* it in NotificationRuntimeData constructor,
+		//! and we don't want that. Jumped through years old commit logs to try and understand why this is here. Please document your code :-(
 		data.SetTime( data.GetTime() - NOTIFICATION_FADE_TIME );
 
 		m_ExNotifications.Insert( data );
@@ -195,11 +197,11 @@ modded class NotificationSystem
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "RPC_ExpansionCreateNotification");
 #endif
 
-		StringLocaliser title = new StringLocaliser( "" );
+		CF_Localiser title = new CF_Localiser( "" );
 		if ( !ctx.Read( title ) )
 			return;
 
-		StringLocaliser text = new StringLocaliser( "" );
+		CF_Localiser text = new CF_Localiser( "" );
 		if ( !ctx.Read( text ) )
 			return;
 

@@ -10,201 +10,13 @@
  *
 */
 
-class ExpansionWeaponFireBase
-{
-	void FireServer(Weapon_Base weapon, int muzzleIndex, DayZPlayerImplement player, vector pos, vector dir)
-	{
-	}
-
-	void FireClient(Weapon_Base weapon, int muzzleIndex, DayZPlayerImplement player, vector pos, vector dir)
-	{
-	}
-};
-
-bool ExpansionTryFireWeapon( DayZPlayerImplement player, Weapon_Base weapon, int muzzleIndex )
-{
-	auto trace = EXTrace.Start(ExpansionTracing.WEAPONS, ExpansionWeaponFireBase);
-
-	if ( !TryFireWeapon( weapon, muzzleIndex ) )
-		return false;
-
-	typename firehandle = weapon.GetExpansionFireType();
-	if ( !firehandle )
-		return false;
-
-	if ( GetGame().IsServer() )
-	{
-		weapon.ExpansionSetNextFire( muzzleIndex );
-	}
-
-	if (!GetGame().IsDedicatedServer())
-	{
-		ExpansionWeaponFireBase fireBase;
-		if ( Class.CastTo( fireBase, firehandle.Spawn() ) )
-		{
-			vector usti_hlavne_position = weapon.GetSelectionPositionLS("usti hlavne");
-			vector konec_hlavne_position = weapon.GetSelectionPositionLS("konec hlavne");
-			float barrel_length = vector.Distance(usti_hlavne_position, konec_hlavne_position);
-
-			vector w_usti_hlavne_position = weapon.ModelToWorld(usti_hlavne_position);
-			vector w_konec_hlavne_position = weapon.ModelToWorld(konec_hlavne_position);
-
-			vector direction = vector.Direction(w_konec_hlavne_position, w_usti_hlavne_position).Normalized();
-
-			vector position = weapon.GetFirePosition( player ) + (direction * barrel_length);
-
-			fireBase.FireClient( weapon, muzzleIndex, player, position, direction );
-
-			auto rpc = ExpansionScriptRPC.Create(Weapon_Base.s_Expansion_ConfirmWeaponFire_RPCID);
-			rpc.Write(direction);
-			rpc.Expansion_Send(weapon, true);
-		}
-	}
-
-	return true;
-};
-
-class ExpansionWeaponFire: WeaponStartAction
-{
-	float m_dtAccumulator;
-
-	override bool IsWaitingForActionFinish() { return true; }
-
-	override void OnEntry(WeaponEventBase e)
-	{
-		m_dtAccumulator = 0;
-
-		wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " WeaponFire bang!");
-
-		DayZPlayerImplement player;
-		if ( Class.CastTo( player, e.m_player ) )
-		{
-			int muzzleIndex = m_weapon.GetCurrentMuzzle();
-
-			if ( ExpansionTryFireWeapon( player, m_weapon, muzzleIndex ) )
-			{
-				player.GetAimingModel().SetRecoil( m_weapon );
-			}
-		}
-
-		super.OnEntry(e);
-	}
-
-	override void OnUpdate(float dt)
-	{
-		m_dtAccumulator += dt;
-
-		DayZPlayer p;
-		Class.CastTo(p, m_weapon.GetHierarchyParent());
-
-		int muzzleIndex = m_weapon.GetCurrentMuzzle();
-		float reloadTime = m_weapon.GetReloadTime(muzzleIndex);
-		if (m_dtAccumulator >= reloadTime)
-			if (m_weapon.CanProcessWeaponEvents())
-				m_weapon.ProcessWeaponEvent(new WeaponEventReloadTimeout(p));
-	}
-
-	override void OnExit(WeaponEventBase e)
-	{
-		m_dtAccumulator = 0;
-		super.OnExit(e);
-	}
-};
-
-class ExpansionWeaponFireToJam: WeaponStartAction
-{
-	float m_dtAccumulator;
-
-	override bool IsWaitingForActionFinish() { return true; }
-
-	override void OnEntry(WeaponEventBase e)
-	{
-		m_dtAccumulator = 0;
-
-		wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " WeaponFire bang! and jam?");
-
-		DayZPlayerImplement player;
-		if ( Class.CastTo( player, e.m_player ) )
-		{
-			int muzzleIndex = m_weapon.GetCurrentMuzzle();
-
-			if ( ExpansionTryFireWeapon( player, m_weapon, muzzleIndex ) )
-			{
-				player.GetAimingModel().SetRecoil( m_weapon );
-
-				m_weapon.SetJammed(true);
-			}
-		}
-
-		super.OnEntry(e);
-	}
-
-	override void OnUpdate(float dt)
-	{
-		m_dtAccumulator += dt;
-
-		DayZPlayer p;
-		Class.CastTo(p, m_weapon.GetHierarchyParent());
-
-		int muzzleIndex = m_weapon.GetCurrentMuzzle();
-		float reloadTime = m_weapon.GetReloadTime(muzzleIndex);
-		if (m_dtAccumulator >= reloadTime)
-			if (m_weapon.CanProcessWeaponEvents())
-				m_weapon.ProcessWeaponEvent(new WeaponEventReloadTimeout(p));
-	}
-
-	override void OnExit(WeaponEventBase e)
-	{
-		m_dtAccumulator = 0;
-		super.OnExit(e);
-	}
-};
-
-class ExpansionWeaponFireAndChamber: ExpansionWeaponFire
-{
-	override void OnEntry(WeaponEventBase e)
-	{
-		super.OnEntry(e);
-
-		if (!m_weapon.IsJammed())
-		{
-			wpnDebugPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " ejected fired out casing");
-			int mi = m_weapon.GetCurrentMuzzle();
-			m_weapon.EjectCasing(mi);
-			m_weapon.EffectBulletHide(mi);
-			m_weapon.SelectionBulletHide();
-
-			pushToChamberFromAttachedMagazine(m_weapon, mi);
-		}
-	}
-};
-
-class ExpansionWeaponFireAndChamberFromInnerMagazine: ExpansionWeaponFire
-{
-	override void OnEntry(WeaponEventBase e)
-	{
-		super.OnEntry(e);
-
-		if (!m_weapon.IsJammed())
-		{
-			wpnDebugPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " ejected fired out casing");
-			int mi = m_weapon.GetCurrentMuzzle();
-			m_weapon.EjectCasing(mi);
-			m_weapon.EffectBulletHide(mi);
-			m_weapon.SelectionBulletHide();
-
-			pushToChamberFromInnerMagazine(m_weapon, mi);
-		}
-	}
-};
-
 class ExpansionWeaponFireLast: WeaponStateBase
 {
 	WeaponActions m_action;
 	int m_actionType;
 
 	float m_dtAccumulator;
-	ref ExpansionWeaponFire m_fire;
+	ref WeaponFire m_fire;
 	ref WeaponEjectCasing_W4T m_eject;
 
 	void ExpansionWeaponFireLast(Weapon_Base w = NULL, WeaponStateBase parent = NULL, WeaponActions action = WeaponActions.NONE, int actionType = -1)
@@ -213,7 +25,7 @@ class ExpansionWeaponFireLast: WeaponStateBase
 		m_actionType = actionType;
 
 		// setup nested state machine
-		m_fire = new ExpansionWeaponFire(m_weapon, this, m_action, m_actionType);
+		m_fire = new WeaponFire(m_weapon, this, m_action, m_actionType);
 		m_eject = new WeaponEjectCasing_W4T(m_weapon, this);
 
 		// events
@@ -264,67 +76,6 @@ class ExpansionWeaponFireLast: WeaponStateBase
 	}
 
 	override void OnExit(WeaponEventBase e)
-	{
-		m_dtAccumulator = 0;
-		super.OnExit(e);
-	}
-};
-
-class ExpansionWeaponFireAndChamberNext: WeaponStateBase
-{
-	WeaponActions m_action;
-	int m_actionType;
-
-	float m_dtAccumulator;
-	ref ExpansionWeaponFire m_fire;
-
-	void ExpansionWeaponFireAndChamberNext (Weapon_Base w = NULL, WeaponStateBase parent = NULL, WeaponActions action = WeaponActions.NONE, int actionType = -1)
-	{
-		m_action = action;
-		m_actionType = actionType;
-
-		// setup nested state machine
-		m_fire = new ExpansionWeaponFireAndChamber(m_weapon, this, m_action, m_actionType);
-
-		// events
-		WeaponEventBase _fin_ = new WeaponEventHumanCommandActionFinished;
-		WeaponEventAnimBulletEject  __be_ = new WeaponEventAnimBulletEject;
-		WeaponEventReloadTimeout __to_ = new WeaponEventReloadTimeout;
-
-		m_fsm = new WeaponFSM(this); // @NOTE: set owner of the submachine fsm
-
-		// transitions
-		m_fsm.AddTransition(new WeaponTransition(m_fire, _fin_, NULL));
-		m_fsm.AddTransition(new WeaponTransition(m_fire, __to_, NULL));
-
-		m_fsm.SetInitialState(m_fire);
-	}
-
-	override void OnEntry (WeaponEventBase e)
-	{
-		super.OnEntry(e);
-
-		m_dtAccumulator = 0;
-	}
-
-	override void OnUpdate (float dt)
-	{
-		m_dtAccumulator += dt;
-		DayZPlayer p;
-		Class.CastTo(p, m_weapon.GetHierarchyParent());
-		if( p )
-		{
-			HumanInputController hic = p.GetInputController();
-
-			int muzzleIndex = m_weapon.GetCurrentMuzzle();
-			float reloadTime = m_weapon.GetReloadTime(muzzleIndex);
-			if ( hic.IsUseButton() && m_dtAccumulator >= reloadTime)
-				if (m_weapon.CanProcessWeaponEvents())
-					m_weapon.ProcessWeaponEvent(new WeaponEventReloadTimeout(p));
-		}
-	}
-
-	override void OnExit (WeaponEventBase e)
 	{
 		m_dtAccumulator = 0;
 		super.OnExit(e);

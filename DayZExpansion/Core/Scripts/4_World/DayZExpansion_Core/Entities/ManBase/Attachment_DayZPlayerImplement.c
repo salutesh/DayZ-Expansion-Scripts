@@ -287,6 +287,9 @@ modded class DayZPlayerImplement
 		if (GetCommand_Vehicle())
 			return true;
 
+		if (ExpansionHumanCommandVehicle.Cast(GetCommand_Script()))
+			return true;
+
 		return false;
 	}
 

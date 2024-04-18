@@ -13,6 +13,8 @@ class ExpansionState_GetOutVehicle : ExpansionState_GoToVehicle
 			CarScript car;
 			if (Class.CastTo(car, vehCmd.GetTransport()))
 				car.Expansion_ReserveSeat(vehCmd.GetVehicleSeat(), null);
+
+			unit.LookAtDirection("0 0 1");  //! Reset look direction to prevent head snapping to previous direction after getting out
 		}
 
 		time = 0;

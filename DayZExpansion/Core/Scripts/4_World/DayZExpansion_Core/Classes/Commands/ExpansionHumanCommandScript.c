@@ -20,6 +20,10 @@ class ExpansionHumanCommandScript : HumanCommandScript
 
 	autoptr array<Shape> m_DebugShapes = new array<Shape>();
 
+	private bool m_Look = true;
+	private float m_LookLR;
+	private float m_LookUD;
+
 	void ExpansionHumanCommandScript(DayZPlayerImplement player, ExpansionHumanST table)
 	{
 		m_Player = player;
@@ -33,9 +37,23 @@ class ExpansionHumanCommandScript : HumanCommandScript
 		ClearDebugShapes();
 	}
 
-	void SetLookDirection(vector pDirection) { }
+	void SetLookDirection(vector pDirection)
+	{
+		vector angles = pDirection.VectorToAngles();
+		SetLookAnglesRel(ExpansionMath.RelAngle(angles[0]), ExpansionMath.RelAngle(angles[1]));
+	}
 
-	void SetLookAnglesRel(float lookLR, float lookUD) { }
+	void SetLookAnglesRel(float lookLR, float lookUD)
+	{
+		m_LookLR = lookLR;
+		m_LookUD = lookUD;
+
+		//! https://feedback.bistudio.com/T173348
+		if (Math.AbsFloat(m_LookLR) > 0.01 || Math.AbsFloat(m_LookUD) > 0.01)
+			m_Look = true;
+		else
+			m_Look = false;
+	}
 
 	void SetAimAnglesRel(float aimLR, float aimUD) { }
 
@@ -66,9 +84,25 @@ class ExpansionHumanCommandScript : HumanCommandScript
 
 	override void PreAnimUpdate(float pDt)
 	{
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 		ClearDebugShapes();
+#endif
 
 		m_Player.GetTransform(m_Transform);
+
+		m_Table.SetLook(this, m_Look);
+
+		if (m_Player.GetInstanceType() == DayZPlayerInstanceType.INSTANCETYPE_AI_SERVER)
+		{
+			m_Table.SetLookDirX(this, m_LookLR);
+			m_Table.SetLookDirY(this, m_LookUD);
+		}
+		else
+		{
+			HumanCommandWeapons hcw = m_Player.GetCommandModifier_Weapons();
+			m_Table.SetLookDirX(this, hcw.GetBaseAimingAngleLR());
+			m_Table.SetLookDirY(this, hcw.GetBaseAimingAngleUD());
+		}
 	}
 
 	override void OnActivate()

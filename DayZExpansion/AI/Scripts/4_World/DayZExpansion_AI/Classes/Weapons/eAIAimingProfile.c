@@ -42,30 +42,42 @@ class eAIAimingProfile
 
 			Weapon_Base weapon;
 			ItemOptics optics;
-			if (accuracyMin < 1 && Class.CastTo(weapon, m_Unit.GetHumanInventory().GetEntityInHands()) && Class.CastTo(optics, weapon.GetAttachedOptics()))
+			if (accuracyMin < 1 && Class.CastTo(weapon, m_Unit.GetHumanInventory().GetEntityInHands()))
 			{
-				float zoomMin = optics.GetZeroingDistanceZoomMin();
-				float zoomMax = optics.GetZeroingDistanceZoomMax();
-				float zoomMinSq = zoomMin * zoomMin;
-				float zoomMaxSq = zoomMax * zoomMax;
-
-				//! If target distance is within zeroing range, give accuracy bonus.
-				//! Gradual dropoff due to squared values.
-				if (zoomMaxSq > 0 && distSq >= zoomMinSq)
+				if (Class.CastTo(optics, weapon.GetAttachedOptics()))
 				{
-					accuracyMin = ExpansionMath.LinearConversion(0, zoomMaxSq + zoomMinSq, distSq, accuracyMax, accuracyMin);
-					if (distSq <= zoomMaxSq)
-						accuracyMax = ExpansionMath.LinearConversion(zoomMinSq, zoomMaxSq, distSq, 1.0, accuracyMax);
+					float zoomMin = optics.GetZeroingDistanceZoomMin();
+					float zoomMax = optics.GetZeroingDistanceZoomMax();
+					float zoomMinSq = zoomMin * zoomMin;
+					float zoomMaxSq = zoomMax * zoomMax;
+
+					//! If target distance is within zeroing range, give accuracy bonus.
+					//! Gradual dropoff due to squared values.
+					if (zoomMaxSq > 0 && distSq >= zoomMinSq)
+					{
+						accuracyMin = ExpansionMath.LinearConversion(0, zoomMaxSq + zoomMinSq, distSq, accuracyMax, accuracyMin);
+						if (distSq <= zoomMaxSq)
+							accuracyMax = ExpansionMath.LinearConversion(zoomMinSq, zoomMaxSq, distSq, 1.0, accuracyMax);
+					}
+				}
+
+				if (weapon.ShootsExplosiveAmmo())
+				{
+					//! Increase accuracy if shooting explosive ammo to offset for slow projectile and other factors
+					accuracyMin = ExpansionMath.LinearConversion(0, 1.0, accuracyMin, 0.5, 1.0);
+					accuracyMax = ExpansionMath.LinearConversion(0, 1.0, accuracyMax, 0.5, 1.0);
 				}
 			}
 
-			float inaccuracyLR = 1.0 - Math.RandomFloat(accuracyMin, accuracyMax);
-			float inaccuracyUD = 1.0 - Math.RandomFloat(accuracyMin, accuracyMax);
+			float dist = Math.Sqrt(distSq);
+			float visibility = m_Unit.Expansion_GetVisibility(dist);
+			float inaccuracyLR = 1.0 - Math.RandomFloat(accuracyMin, accuracyMax) * visibility;
+			float inaccuracyUD = 1.0 - Math.RandomFloat(accuracyMin, accuracyMax) * visibility;
 
 			//! Accuracy influenced by target movement speed and angle
 			//vector aimOrientation = direction.InvMultiply3(transform).VectorToAngles();
 			vector aimOrientation = m_Unit.GetAimRelAngles();
-			float distClamped = Math.Clamp(Math.Sqrt(distSq), 100, 1000);
+			float distClamped = Math.Clamp(dist, 100, 1000);
 			float targetSpeedMult = targetPlayer.Expansion_GetMovementSpeed() / 3.0;
 			float targetMovementAngle = targetPlayer.Expansion_GetMovementAngle();
 			float targetMovementAngleMult;

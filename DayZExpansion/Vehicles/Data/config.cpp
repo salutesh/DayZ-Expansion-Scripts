@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
+		requiredAddons[] = {"DZ_Surfaces","DZ_Vehicles_Wheeled"};
 	};
 };
 class CfgVehicleClasses

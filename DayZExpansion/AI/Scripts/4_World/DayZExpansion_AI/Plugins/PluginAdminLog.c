@@ -1,66 +1,83 @@
 modded class PluginAdminLog
 {
 	string m_Expansion_SurvivorDisplayName;
+	bool m_eAI_LogAIHitBy;
+	bool m_eAI_LogAIKilled;
 
 	void PluginAdminLog()
 	{
 		m_Expansion_SurvivorDisplayName = GetGame().ConfigGetTextOut(CFG_VEHICLESPATH + " SurvivorBase displayName");
 	}
 
-	override string GetPlayerPrefix( PlayerBase player, PlayerIdentity identity )  // player name + id + position prefix for log prints
-	{	
-		if (identity || !player.IsInherited(eAIBase))
-			return super.GetPlayerPrefix(player, identity);
+	override void OnInit()
+	{
+		super.OnInit();
 
-		m_Position = player.GetPosition();
-		m_PosArray[3] = { m_Position[0].ToString(), m_Position[2].ToString(), m_Position[1].ToString() };
-		
-		for ( int i = 0; i < 3; i++ )	// trim position precision
+		//! Expansion settings get initialized in DayZExpansion constructor, which gets created in MissionBase constructor.
+		//! Vanilla plugin init also happens in MissionBase constructor, so we have to delay accessing Expansion settings to next frame
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(eAI_OnAfterInit);
+	}
+
+	void eAI_OnAfterInit()
+	{
+		if (GetGame().IsServer())
 		{
-			m_DotIndex = m_PosArray[i].IndexOf(".");
-			if ( m_DotIndex != -1 )
-				m_PosArray[i] = m_PosArray[i].Substring( 0, m_DotIndex + 2 );
+			auto settings = GetExpansionSettings().GetAI();
+			m_eAI_LogAIHitBy = settings.LogAIHitBy;
+			m_eAI_LogAIKilled = settings.LogAIKilled;
+		}
+	}
+
+	override string GetPlayerPrefix(PlayerBase player, PlayerIdentity identity)
+	{
+		string playerPrefix = super.GetPlayerPrefix(player, identity);
+
+		if (player.IsAI())
+		{
+			string name = player.GetDisplayName();
+
+			if (name == m_Expansion_SurvivorDisplayName)
+			{
+				name = player.GetType();
+				int index = ExpansionString.LastIndexOf(name, "_");
+				if (index > -1)
+					name = name.Substring(index + 1, name.Length() - index - 1);
+			}
+
+			playerPrefix = "AI \"" + name + "\"" + playerPrefix.Substring(7, playerPrefix.Length() - 7);
 		}
 
-		string name = player.GetDisplayName();
-		if (name == m_Expansion_SurvivorDisplayName)
+		eAIGroup group = player.GetGroup();
+
+		if (group)
 		{
-			name = player.GetType();
-			int index = ExpansionString.LastIndexOf(name, "_");
-			if (index > -1)
-				name = name.Substring(index + 1, name.Length() - index - 1);
+			string groupInfo = "group=" + group.GetID();
+			string groupName = group.GetName();
+
+			if (groupName)
+				groupInfo += ":\"" + groupName + "\"";
+
+			groupInfo += " faction=\"" + group.GetFaction().GetName() + "\"";
+
+			if (player.IsAI())
+				playerPrefix.Replace("id=", groupInfo);
+			else
+				playerPrefix.Replace("pos=", groupInfo + " pos=");
 		}
 
-		eAIBase ai = eAIBase.Cast(player);
-
-		return "AI \"" + name + "\" (group=\"" + ai.GetGroup().GetName() + "\" faction=\"" + ai.GetGroup().GetFaction().GetName() + "\" pos=<" +  m_PosArray[0] + ", " + m_PosArray[1] + ", " + m_PosArray[2] + ">)";
+		return playerPrefix;
 	}
 
 	override void PlayerHitBy(TotalDamageResult damageResult, int damageType, PlayerBase player, EntityAI source, int component, string dmgZone, string ammo)
 	{
-		if (player.IsAI()) return;
-
-		if (!PlayerBase.Cast(source.GetHierarchyParent()))
-		{
-			switch (damageType)
-			{
-				case DamageType.CLOSE_COMBAT:
-					if (source.IsMeleeWeapon())
-						return;
-					break;
-				case DamageType.FIRE_ARM:
-					if (source.IsWeapon())
-						return;
-					break;
-			}
-		}
+		if (player.IsAI() && !m_eAI_LogAIHitBy) return;
 		
 		super.PlayerHitBy(damageResult, damageType, player, source, component, dmgZone, ammo);
 	}
 
 	override void PlayerKilled(PlayerBase player, Object source)
 	{
-		if (player.IsAI()) return;
+		if (player.IsAI() && !m_eAI_LogAIKilled) return;
 
 		super.PlayerKilled(player, source);
 	}

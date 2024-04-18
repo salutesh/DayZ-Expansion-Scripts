@@ -65,11 +65,16 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	protected Widget DefaultPanel;
 	protected Widget Reputation;
 	
+	protected WrapSpacerWidget MenuButtonsPanel;	
 	protected ButtonWidget HideHud;
 	protected TextWidget HideHudLable;
 	protected Widget HideHudBackground;
 	
 	protected WrapSpacerWidget FactionReputation;
+
+	protected ButtonWidget Share;
+	protected TextWidget ShareLable;
+	protected Widget ShareBackground;
 
 	void ExpansionQuestMenu()
 	{
@@ -142,6 +147,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		
 		ButtonsPanel.Show(false);
 		HideHud.Show(true);
+		MenuButtonsPanel.Show(true);
 
 		MissionGameplay mission = MissionGameplay.Cast(GetDayZGame().GetMission());
 		if (mission)
@@ -215,14 +221,15 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	 * Client: ExpansionQuestModule::RPC_RequestOpenQuestMenu
 	 * Client: Invoke ExpansionQuestMenu::SetQuests
 	 **/
-	void SetQuests(string npcName = "", string defaultText = "", int questNPCID = -1, int questID = -1)
+	void SetQuests(string npcName = "", string defaultText = "", int questNPCID = -1, int questID = -1, int serverTime = 0)
 	{
 		QuestDebug(ToString() + "::SetQuests - Start");
 		QuestDebug(ToString() + "::SetQuests - NPC name: " + npcName);
 		QuestDebug(ToString() + "::SetQuests - NPC default text: " + defaultText);
 		QuestDebug(ToString() + "::SetQuests - NPC ID: " + questNPCID);
 		QuestDebug(ToString() + "::SetQuests - Quest ID: " + questID);
-		
+		QuestDebug(ToString() + "::SetQuests - Server time: " + serverTime);
+
 		m_QuestMenuController.Quests.Clear();
 		
 		m_CurrentNPCName = npcName;
@@ -235,6 +242,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 		ButtonsPanel.Show(false);
 		HideHud.Show(false);
+		MenuButtonsPanel.Show(true);
 
 		m_QuestMenuController.QuestNPCName = npcName;
 		m_QuestMenuController.NotifyPropertyChanged("QuestNPCName");
@@ -278,7 +286,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			{
 				QuestDebug(ToString() + "::SetQuests - Show quest " + questConfig.GetID() + ". Add to menu quest.");
 				m_Quests.Insert(questConfig);
-				questEntry = new ExpansionQuestMenuListEntry(questConfig, this);
+				questEntry = new ExpansionQuestMenuListEntry(questConfig, this, serverTime);
 				m_QuestMenuController.Quests.Insert(questEntry);
 			}
 			else if (questID > -1 && questConfig.GetID() == questID)
@@ -286,7 +294,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 				//questToShow = questConfig;
 				QuestDebug(ToString() + "::SetQuests - Show quest " + questConfig.GetID() + ". Add to menu quest.");
 				m_Quests.Insert(questConfig);
-				questEntry = new ExpansionQuestMenuListEntry(questConfig, this);
+				questEntry = new ExpansionQuestMenuListEntry(questConfig, this, serverTime);
 				m_QuestMenuController.Quests.Insert(questEntry);
 			}
 		}
@@ -326,6 +334,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		QuestDebug(ToString() + "::SetQuest - Quest state: " + questState);
 		QuestListPanel.Show(false);
 
+		MenuButtonsPanel.Show(false);
 		ButtonsPanel.Show(true);
 		QuestDetailsPanel.Show(true);
 
@@ -347,6 +356,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 					Accept.Show(true);
 					Complete.Show(false);
 					Cancel.Show(false);
+					Share.Show(false);
 				}
 				break;
 				case ExpansionQuestState.STARTED:
@@ -357,6 +367,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 					Cancel.Show(true);
 					Accept.Show(false);
 					Complete.Show(false);
+					Share.Show(false);
 				}
 				break;
 				case ExpansionQuestState.CAN_TURNIN:
@@ -366,6 +377,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 					Complete.Show(true);
 					Accept.Show(false);
 					Cancel.Show(true);
+					Share.Show(false);
 				}
 				break;
 			}
@@ -382,6 +394,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 					Accept.Show(true);
 					Complete.Show(false);
 					Cancel.Show(false);
+					Share.Show(false);
 				}
 				break;
 				case ExpansionQuestState.STARTED:
@@ -392,6 +405,10 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 					Accept.Show(false);
 					Complete.Show(false);
 					Cancel.Show(true);
+					if (!quest.IsGroupQuest() && DisplayShareButton())
+						Share.Show(true);
+					else
+						Share.Show(false);
 				}
 				break;
 				case ExpansionQuestState.CAN_TURNIN:
@@ -410,6 +427,10 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		
 					Accept.Show(false);
 					Cancel.Show(true);
+					if (!quest.IsGroupQuest() && DisplayShareButton())
+						Share.Show(true);
+					else
+						Share.Show(false);
 				}
 				break;
 			}
@@ -611,8 +632,15 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			}
 			else if (quest.RandomReward() && quest.GetRewards().Count() > 1)
 			{
-				StringLocaliser loc = new StringLocaliser("STR_EXPANSION_QUEST_MENU_RANDOMREWARD_LABEL", quest.GetRandomRewardAmount().ToString());
-				Reward.SetText(loc.Format());
+				if (quest.GetRewardBehavior() == ExpansionQuestRewardBehavior.RANDOMIZED_ON_COMPLETION)
+				{
+					StringLocaliser loc = new StringLocaliser("STR_EXPANSION_QUEST_MENU_RANDOMREWARD_LABEL", quest.GetRandomRewardAmount().ToString());
+					Reward.SetText(loc.Format());
+				}
+				else if (quest.GetRewardBehavior() == ExpansionQuestRewardBehavior.RANDOMIZED_ON_START)
+				{
+					Reward.SetText("#STR_EXPANSION_QUEST_MENU_REWARDS_LABEL");
+				}
 			}
 			else
 			{
@@ -768,9 +796,10 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		}
 		else
 		{
-			QuestListPanel.Show(true);
 			ButtonsPanel.Show(false);
 			QuestDetailsPanel.Show(false);
+			MenuButtonsPanel.Show(true);
+			QuestListPanel.Show(true);
 			m_InDetailView = false;
 		}
 	}
@@ -801,6 +830,24 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 			m_QuestMenuController.NotifyPropertyChanged("HideHudLable");
 		}
+	}
+	
+	void OnShareButtonClick()
+	{
+		if (!m_SelectedQuest)
+			return;
+
+		ExpansionQuestModule.GetModuleInstance().RequestShareQuest(m_SelectedQuest.GetID());
+	}
+
+	bool DisplayShareButton()
+	{
+		bool canShow;
+	#ifdef EXPANSIONMODGROUPS
+		canShow = PlayerBase.Cast(GetGame().GetPlayer()).Expansion_GetPartyID() > -1;
+	#endif
+
+		return canShow;
 	}
 
 	ExpansionQuestConfig GetSelectedQuest()
@@ -852,6 +899,12 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			HideHudLable.SetColor(ARGB(255, 0, 0, 0));
 			return true;
 		}
+		else if (w == Share)
+		{
+			ShareBackground.SetColor(ARGB(200, 220, 220, 220));
+			ShareLable.SetColor(ARGB(255, 0, 0, 0));
+			return true;
+		}
 
 		return false;
 	}
@@ -898,6 +951,12 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		{
 			HideHudBackground.SetColor(ARGB(200, 0, 0, 0));
 			HideHudLable.SetColor(ARGB(255, 220, 220, 220));
+			return true;
+		}
+		else if (w == Share)
+		{
+			ShareBackground.SetColor(ARGB(200, 0, 0, 0));
+			ShareLable.SetColor(ARGB(255, 220, 220, 220));
 			return true;
 		}
 

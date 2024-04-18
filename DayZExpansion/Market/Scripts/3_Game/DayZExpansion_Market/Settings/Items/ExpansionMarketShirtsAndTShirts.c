@@ -33,7 +33,7 @@ class ExpansionMarketShirtsAndTShirts: ExpansionMarketCategory
 		AddItem("TShirt_Black", 						12,		24,		1,		100, null, {"TShirt_10thAnniversary"});
 		AddItem("TShirt_Green", 						12,		24,		1,		100);
 		
-	#ifdef EXPASIONMOD
+	#ifdef EXPANSIONMOD
 		AddItem("ExpansionTee", 						12,		24,		1,		100);
 	#endif
 

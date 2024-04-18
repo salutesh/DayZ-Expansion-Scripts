@@ -113,6 +113,11 @@ class eAITarget
 		return info != null;
 	}
 
+	bool IsEntity()
+	{
+		return info.IsEntity();
+	}
+
 	EntityAI GetEntity()
 	{
 		return info.GetEntity();
@@ -133,13 +138,29 @@ class eAITarget
 		return info.GetThreat(ai, state);
 	}
 
-	bool IsMeleeViable(eAIBase ai)
+	bool CanMeleeIfClose(eAIBase ai)
 	{
+		bool canYeet;
+		if (ai.GetGroup().GetFaction().GetMeleeYeetForce() >= 1.0)
+			canYeet = true;
+
 		EntityAI entity = GetEntity();
-		if (!entity || entity.IsInherited(ItemBase))
+		if (!entity || entity.IsInherited(ItemBase) || (entity.IsTransport() && !canYeet))
 			return false;
 
-		EntityAI entityInHands = ai.GetHumanInventory().GetEntityInHands();
+		IEntity parent = entity.GetParent();
+		Car car;
+		//! Allow hitting vehicle passengers as long as engine isn't on or speed is below RegisterTransportHit tolerance 2 km/h = 0.555555 m/s
+		if (parent && (GetVelocity(parent).LengthSq() > 0.308641 || (Class.CastTo(car, parent) && car.EngineIsOn())))
+			return false;
+
+		return true;
+	}
+
+	bool IsMeleeViable(eAIBase ai)
+	{
+		if (!CanMeleeIfClose(ai))
+			return false;
 
 		float distSq = GetDistanceSq(ai, true);
 		if (distSq > 3.24)
@@ -149,6 +170,8 @@ class eAITarget
 		if (distSq > 2.25 && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
 			return false;
 
+		EntityAI entityInHands = ai.GetHumanInventory().GetEntityInHands();
+
 		Weapon_Base weapon;
 		bool hasAmmo;
 		if (Class.CastTo(weapon, entityInHands) && weapon.Expansion_HasAmmo())
@@ -156,10 +179,10 @@ class eAITarget
 		if (distSq > 1.0 && hasAmmo)
 			return false;
 
-		//! We don't punch the bear or the zombie if we have a firearm with ammo
+		//! We don't punch the bear or the zombie if we have a firearm with ammo - unless it's explosive ammo
 		if (GetEntity().IsInherited(Animal_UrsusArctos) || GetEntity().IsInherited(ZombieBase))
 		{
-			if (hasAmmo)
+			if (hasAmmo && !weapon.ShootsExplosiveAmmo())
 				return false;
 		}
 		else

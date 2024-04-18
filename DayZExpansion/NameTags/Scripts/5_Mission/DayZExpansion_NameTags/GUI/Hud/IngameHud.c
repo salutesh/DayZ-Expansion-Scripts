@@ -20,8 +20,6 @@ modded class IngameHud
 
 	//! Player Tag
 	protected ImageWidget m_PlayerTagIcon;
-	protected ImageWidget m_PlayerTagBackground;
-	protected ImageWidget m_PlayerTagIconFrame;
 	protected string m_PlayerTagIconPath;
 	protected int m_PlayerTagIconColor;
 	protected int m_PlayerNameIconColor;
@@ -81,8 +79,6 @@ modded class IngameHud
 		m_PlayerTag = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/NameTags/GUI/layouts/expansion_hud_player_tag.layout");
 		m_PlayerTagText = TextWidget.Cast(m_PlayerTag.FindAnyWidget("TagText"));
 		m_PlayerTagIcon = ImageWidget.Cast(m_PlayerTag.FindAnyWidget("TagIcon"));
-		m_PlayerTagBackground = ImageWidget.Cast(m_PlayerTag.FindAnyWidget("TagBackground"));
-		m_PlayerTagIconFrame = ImageWidget.Cast(m_PlayerTag.FindAnyWidget("TagIconFrame"));
 
 		if (!m_PlayerTagIconPath)
 			Expansion_SetPlayerTagIconPath();
@@ -99,8 +95,6 @@ modded class IngameHud
 		float new_alpha = Math.Clamp(m_PlayerTagText.GetAlpha() - timeslice * 10, 0, 1);
 		m_PlayerTagText.SetAlpha(Math.Clamp(m_PlayerTagText.GetAlpha() - timeslice * 10, 0, 1));
 		m_PlayerTagIcon.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() - timeslice * 10, 0, 1));
-		m_PlayerTagBackground.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() - timeslice * 10, 0, 1));
-		m_PlayerTagIconFrame.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() - timeslice * 10, 0, 1));
 		if (new_alpha == 0)
 		{
 			m_PlayerTagText.SetText("");
@@ -407,8 +401,6 @@ modded class IngameHud
 					m_PlayerTagIcon.SetImage(0);
 					m_PlayerTagIcon.SetColor(iconColor);
 					m_PlayerTagIcon.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
-					m_PlayerTagBackground.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 0.6275));
-					m_PlayerTagIconFrame.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
 					m_PlayerTagIcon.Show(true);
 					return true;
 				}
@@ -540,8 +532,6 @@ modded class IngameHud
 					m_PlayerTagIcon.SetImage(0);
 					m_PlayerTagIcon.SetColor(iconColor);
 					m_PlayerTagIcon.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
-					m_PlayerTagBackground.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 0.6275));
-					m_PlayerTagIconFrame.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
 					m_PlayerTagIcon.Show(true);
 					return true;
 				}
@@ -608,8 +598,6 @@ modded class IngameHud
 					m_PlayerTagIcon.SetImage(0);
 					m_PlayerTagIcon.SetColor(iconColor);
 					m_PlayerTagIcon.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
-					m_PlayerTagBackground.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 0.6275));
-					m_PlayerTagIconFrame.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
 					m_PlayerTagIcon.Show(true);
 					return true;
 				}
@@ -681,8 +669,6 @@ modded class IngameHud
 					m_PlayerTagIcon.SetImage(0);
 					m_PlayerTagIcon.SetColor(iconColor);
 					m_PlayerTagIcon.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
-					m_PlayerTagBackground.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 0.6275));
-					m_PlayerTagIconFrame.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
 					m_PlayerTagIcon.Show(true);
 					return true;
 				}

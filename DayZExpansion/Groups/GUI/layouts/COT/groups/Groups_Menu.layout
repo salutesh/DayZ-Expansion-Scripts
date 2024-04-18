@@ -846,7 +846,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
          hexactsize 1
          vexactsize 1
          scriptclass ""
-         style Expansnion_03
+         style Expansion_03
          font "gui/fonts/etelkatextpro22"
         }
        }
@@ -882,7 +882,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
          hexactsize 1
          vexactsize 1
          scriptclass ""
-         style Expansnion_03
+         style Expansion_03
          font "gui/fonts/etelkatextpro22"
         }
        }
@@ -918,7 +918,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
          hexactsize 1
          vexactsize 1
          scriptclass ""
-         style Expansnion_03
+         style Expansion_03
          font "gui/fonts/etelkatextpro22"
         }
        }
@@ -955,7 +955,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
          hexactsize 1
          vexactsize 1
          scriptclass ""
-         style Expansnion_03
+         style Expansion_03
          font "gui/fonts/etelkatextpro22"
         }
        }
@@ -992,7 +992,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
          hexactsize 1
          vexactsize 1
          scriptclass ""
-         style Expansnion_03
+         style Expansion_03
          font "gui/fonts/etelkatextpro22"
         }
        }
@@ -1842,7 +1842,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
          vexactpos 0
          hexactsize 1
          vexactsize 1
-         style Expansnion_03
+         style Expansion_03
         }
         TextWidgetClass marker_state_3d_label {
          ignorepointer 1
@@ -1876,7 +1876,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
          vexactpos 0
          hexactsize 1
          vexactsize 1
-         style Expansnion_03
+         style Expansion_03
         }
         TextWidgetClass marker_state_lock_label {
          ignorepointer 1

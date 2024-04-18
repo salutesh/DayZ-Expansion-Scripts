@@ -39,8 +39,8 @@ GridSpacerWidgetClass ChatItemWidget {
      imageTexture "{EC53856041985A10}DayZExpansion/Core/GUI/icons/hud/cross_64x64.edds"
      mode blend
      "src alpha" 1
-     "no wrap" 1
-     stretch 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
     }
    }
    {
@@ -61,9 +61,9 @@ GridSpacerWidgetClass ChatItemWidget {
    vexactpos 1
    hexactsize 0
    vexactsize 0
-   style None
+   style Colorable
    Padding 0
-   Margin 2
+   Margin 1
    "Size To Content H" 1
    "Size To Content V" 1
    Columns 2
@@ -81,7 +81,8 @@ GridSpacerWidgetClass ChatItemWidget {
      scaled 0
      scriptclass "ViewBinding"
      style None
-     font "gui/fonts/etelkatextpro12"
+     font "gui/fonts/sdf_MetronBook24"
+     "italic text" 0
      "exact text" 1
      "exact text size" 12
      "size to text h" 1
@@ -104,7 +105,7 @@ GridSpacerWidgetClass ChatItemWidget {
      scaled 0
      scriptclass "ViewBinding"
      style None
-     font "gui/fonts/etelkatextpro12"
+     font "gui/fonts/sdf_MetronBook24"
      "exact text" 1
      "exact text size" 12
      "size to text h" 1
@@ -129,7 +130,7 @@ GridSpacerWidgetClass ChatItemWidget {
    vexactsize 0
    scaled 0
    scriptclass "ViewBinding"
-   font "gui/fonts/etelkatextpro12"
+   font "gui/fonts/sdf_MetronBook24"
    "exact text" 1
    "exact text size" 12
    "size to text h" 1

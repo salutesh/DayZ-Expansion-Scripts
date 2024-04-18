@@ -45,7 +45,7 @@ class eAIDynamicPatrolSphereTrigger: Trigger
 
 	override protected bool ShouldRemoveInsider(TriggerInsider insider)
 	{
-		if (!insider.GetObject().IsAlive())
+		if (m_PendingDelete || !insider.GetObject().IsAlive())
 			return true;
 
 		return false;
@@ -76,7 +76,7 @@ class eAIDynamicPatrolSphereTrigger: Trigger
 		if (m_eAI_Patrol.CanSpawn() && vector.DistanceSq(insider.GetObject().GetPosition(), GetPosition()) >= m_eAI_InnerRadiusSq)
 		{
 			m_eAI_Patrol.Spawn();
-			GetGame().ObjectDelete(this);
+			Delete();  //! Deletes trigger in next frame as Stay->OnStayServerEvent->eAI_PatrolSpawnCheck may have been called from within the UpdateInsiders loop
 		}
 	}
 };

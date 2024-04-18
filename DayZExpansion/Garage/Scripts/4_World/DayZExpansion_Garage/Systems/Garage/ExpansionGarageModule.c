@@ -914,7 +914,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 			return false;
 		}
 
-		GetGame().ObjectDelete(vehicleEntity);
+		ExpansionEntityStorageModule.DeleteSavedEntity(vehicleEntity);
 
 		return true;
 	}

@@ -1874,7 +1874,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("TShirt_Black", ExpansionHardlineItemRarity.Common);
 		AddItem("TShirt_Green", ExpansionHardlineItemRarity.Common);
 
-	#ifdef EXPASIONMOD
+	#ifdef EXPANSIONMOD
 		AddItem("ExpansionTee", ExpansionHardlineItemRarity.Common);
 	#endif
 

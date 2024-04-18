@@ -19,9 +19,10 @@ FrameWidgetClass ExpansionQuestMenuFactionReward {
    scriptclass "ViewBinding"
    style Normal
    text "Survivors"
-   font "gui/fonts/etelkatextpro22"
+   font "gui/fonts/sdf_MetronBook72"
    "text offset" 5 0
-   "exact text" 0
+   "exact text" 1
+   "exact text size" 18
    "size to text h" 0
    "size to text v" 0
    "text valign" center
@@ -43,9 +44,10 @@ FrameWidgetClass ExpansionQuestMenuFactionReward {
    scriptclass "ViewBinding"
    style Normal
    text "100"
-   font "gui/fonts/etelkatextpro22"
+   font "gui/fonts/sdf_MetronBook72"
    "text offset" -5 0
-   "exact text" 0
+   "exact text" 1
+   "exact text size" 18
    "size to text h" 0
    "size to text v" 0
    "text halign" right

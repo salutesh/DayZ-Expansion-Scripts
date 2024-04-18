@@ -307,7 +307,7 @@ FrameWidgetClass ExpansionMarketMenu {
              hexactsize 1
              vexactsize 1
              scriptclass "ViewBinding"
-             style Expansnion_04
+             style Expansion_04
              {
               ScriptParamsClass {
                Binding_Name "ShowSellables"
@@ -361,7 +361,7 @@ FrameWidgetClass ExpansionMarketMenu {
              hexactsize 1
              vexactsize 1
              scriptclass "ViewBinding"
-             style Expansnion_04
+             style Expansion_04
              {
               ScriptParamsClass {
                Binding_Name "ShowPurchasables"
@@ -2122,7 +2122,7 @@ FrameWidgetClass ExpansionMarketMenu {
              hexactsize 1
              vexactsize 1
              scriptclass "ViewBinding"
-             style Expansnion_04
+             style Expansion_04
              {
               ScriptParamsClass {
                Binding_Name "IncludeAttachments"

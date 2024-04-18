@@ -16,7 +16,7 @@ class ExpansionActionUpgradePersonalStorage: ActionSingleUseBase
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ATTACHITEM;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
-		m_Text = "Upgrade Personal Storage";
+		m_Text = "#STR_EXPANSION_PERSONALSTORAGE_ACTION_UPGRADE";
 	}
 
 	override void CreateConditionComponents()  

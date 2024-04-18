@@ -4,12 +4,10 @@ class CfgPatches
 {
 	class DayZExpansion_Objects_Firearms_LAW
 	{
-		units[] = {"Expansion_LAW_Explosion"};
-		weapons[] = {"ExpansionLAW"};
+		units[] = {};
+		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms","DayZExpansion_Sounds_Weapons_RPG7"};
-		magazines[] = {"ExpansionAmmoLAW"};
-		ammo[] = {"Bullet_Base","DummyShockDamage","ExpansionRocketLAW"};
 	};
 };
 class CfgAmmoTypes
@@ -21,29 +19,7 @@ class CfgAmmoTypes
 };
 class CfgAmmo
 {
-	class BulletCore;
-	class Bullet_Base: BulletCore{};
-	class MeleeDamage;
-	class DummyShockDamage: MeleeDamage
-	{
-		hitAnimation = 0;
-		class DamageApplied
-		{
-			type = "DummyShockHit";
-			class Health
-			{
-				damage = 0;
-			};
-			class Blood
-			{
-				damage = 0;
-			};
-			class Shock
-			{
-				damage = 1;
-			};
-		};
-	};
+	class Bullet_Base;
 	class ExpansionRocketLAW: Bullet_Base
 	{
 		scope = 2;
@@ -62,7 +38,7 @@ class CfgAmmo
 		typicalSpeed = 115;
 		timeToLive = 30;
 		airFriction = -0.00315;
-		weight = 2.6;
+		weight = 0.26;
 		supersonicCrackNear[] = {};
 		supersonicCrackFar[] = {};
 		class DamageApplied
@@ -94,30 +70,6 @@ class CfgAmmo
 class CfgMagazines
 {
 	class Ammunition_Base;
-	class ExpansionAmmoLAWHE: Ammunition_Base
-	{
-		scope = 0;
-		displayName = "$STR_CfgMagazines_Ammo_762x39Tracer0";
-		descriptionShort = "$STR_CfgMagazines_Ammo_762x39Tracer1";
-		model = "\dz\weapons\launchers\law\law_rocket.p3d";
-		weight = 8;
-		count = 20;
-		ammo = "Bullet_762x39Tracer";
-		muzzleFlashParticle = "weapon_shot_izh18_01";
-		hiddenSelections[] = {"zbytek"};
-		hiddenSelectionsTextures[] = {"dz\weapons\ammunition\data\762x39_tracer_co.paa"};
-		class DamageSystem
-		{
-			class GlobalHealth
-			{
-				class Health
-				{
-					hitpoints = 100;
-					healthLevels[] = {{1.0,{"DZ\weapons\ammunition\data\762x39.rvmat"}},{0.7,{"DZ\weapons\ammunition\data\762x39.rvmat"}},{0.5,{"DZ\weapons\ammunition\data\762x39_damage.rvmat"}},{0.3,{"DZ\weapons\ammunition\data\762x39_damage.rvmat"}},{0.0,{"DZ\weapons\ammunition\data\762x39_destruct.rvmat"}}};
-				};
-			};
-		};
-	};
 	class ExpansionAmmoLAW: Ammunition_Base
 	{
 		scope = 2;

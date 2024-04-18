@@ -63,7 +63,7 @@ PanelWidgetClass ExpansionQuestMenuRewardEntry {
      visible 1
      ignorepointer 1
      position 0 0.01
-     size 1 15
+     size 1 16
      halign center_ref
      hexactpos 0
      vexactpos 0
@@ -99,8 +99,10 @@ PanelWidgetClass ExpansionQuestMenuRewardEntry {
        scriptclass "ViewBinding"
        style Normal
        text "ITEM DISPLAY NAME"
-       font "gui/fonts/etelkatextpro14"
-       "exact text" 0
+       font "gui/fonts/sdf_MetronBook72"
+       "bold text" 1
+       "exact text" 1
+       "exact text size" 14
        "size to text h" 0
        "size to text v" 0
        "text halign" center
@@ -116,7 +118,7 @@ PanelWidgetClass ExpansionQuestMenuRewardEntry {
     PanelWidgetClass reward_item_footer_panel {
      visible 1
      ignorepointer 1
-     size 1 15
+     size 1 16
      halign center_ref
      valign bottom_ref
      hexactpos 0
@@ -153,8 +155,9 @@ PanelWidgetClass ExpansionQuestMenuRewardEntry {
        scriptclass "ViewBinding"
        style Normal
        text "ITEM DISPLAY NAME"
-       font "gui/fonts/etelkatextpro14"
-       "exact text" 0
+       font "gui/fonts/sdf_MetronBook72"
+       "exact text" 1
+       "exact text size" 14
        "size to text h" 0
        "size to text v" 0
        "text halign" center

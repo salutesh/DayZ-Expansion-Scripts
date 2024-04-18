@@ -145,7 +145,7 @@ class ExpansionItemSpawnHelper
 	}
 	
 	//! Spawn in parent inventory, use player-owned temporary storage container if inventory full
-	static EntityAI SpawnInInventorySecure(string className, PlayerBase player, inout EntityAI parent, int skinIndex = -1)
+	static EntityAI SpawnInInventorySecure(string className, notnull PlayerBase player, inout EntityAI parent, int skinIndex = -1)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "ExpansionItemSpawnHelper", "SpawnInInventorySecure");
@@ -162,6 +162,7 @@ class ExpansionItemSpawnHelper
 		EntityAI entity;
 		ExpansionTemporaryOwnedContainer newStorage;
 		ExpansionTemporaryOwnedContainer playerStorage = player.Expansion_GetTemporaryOwnedContainer();
+		ExpansionTemporaryOwnedContainer storage;
 
 		/**
 		 * To spawn in inventory, we try in order:
@@ -172,8 +173,7 @@ class ExpansionItemSpawnHelper
 		 */
 		while (true)
 		{
-			ExpansionTemporaryOwnedContainer storage = ExpansionTemporaryOwnedContainer.Cast(parent);
-			if (storage)
+			if (Class.CastTo(storage, parent))
 				storage.ExpansionSetCanReceiveItems(true);
 
 			entity = SpawnInInventory(className, parent, skinIndex);
@@ -194,9 +194,7 @@ class ExpansionItemSpawnHelper
 			}
 			else
 			{
-				newStorage = ExpansionTemporaryOwnedContainer.Cast(GetGame().CreateObjectEx("ExpansionTemporaryOwnedContainer", player.GetPosition(), ECE_PLACE_ON_SURFACE));
-
-				if (!newStorage)
+				if (!Class.CastTo(newStorage, GetGame().CreateObjectEx("ExpansionTemporaryOwnedContainer", player.GetPosition(), ECE_PLACE_ON_SURFACE)))
 				{
 					Error("Failed to create temporary storage container!");
 
@@ -209,13 +207,13 @@ class ExpansionItemSpawnHelper
 			}
 		}
 
-		if (newStorage)
+		if (storage)
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(TemporaryStorageNotification, player.GetIdentity());
 
 		return entity;
 	}
 
-	static void TemporaryStorageNotification(PlayerIdentity identity)
+	static void TemporaryStorageNotification(notnull PlayerIdentity identity)
 	{
 		ExpansionNotification("STR_EXPANSION_TEMPORARY_STORAGE", "STR_EXPANSION_TEMPORARY_STORAGE_INFO", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 6, ExpansionNotificationType.TOAST).Create(identity);
 	}
@@ -707,6 +705,9 @@ class ExpansionItemSpawnHelper
 		ScriptReadWriteContext ctx = new ScriptReadWriteContext;
 		src.OnStoreSave(ctx.GetWriteContext());
 		dst.OnStoreLoad(ctx.GetReadContext(), GetGame().SaveVersion());
+
+		if (dstWeapon)
+			dstWeapon.Expansion_ResetMuzzleModes();
 
 		//! 4b) Volatile variables
 		ItemBase srcItem;

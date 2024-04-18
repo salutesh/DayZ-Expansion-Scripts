@@ -64,6 +64,24 @@ class ExpansionPersonalStorageHub: BuildingBase
 		}
 	}
 
+	string Expansion_GetContainerDisplayName(PlayerBase player)
+	{
+		string containerName = ConfigGetString("expansionPersonalStorageBase");
+
+	#ifdef EXPANSIONMODHARDLINE
+		auto settings = GetExpansionSettings().GetHardline(false);
+		if (settings.IsLoaded() && settings.UseReputation)
+			containerName += "_Level" + Expansion_GetPersonalStorageLevelEx(player);
+	#endif
+
+		string displayName = GetGame().ConfigGetTextOut(CFG_VEHICLESPATH + " " + containerName + " displayName");
+
+		if (!displayName)
+			displayName = "#STR_EXPANSION_PERSONALSTORAGE";
+
+		return displayName;
+	}
+
 	bool Expansion_OpenPersonalStorage(PlayerBase player)
 	{
 		string uid = player.GetIdentityUID();
@@ -84,13 +102,21 @@ class ExpansionPersonalStorageHub: BuildingBase
 
 			string containerBase = ConfigGetString("expansionPersonalStorageBase");
 
-			if (!Class.CastTo(container, GetGame().CreateObjectEx(containerBase + "_Level" + lvl, GetPosition(), ECE_KEEPHEIGHT)))
+			Object obj = GetGame().CreateObjectEx(containerBase + "_Level" + lvl, GetPosition(), ECE_KEEPHEIGHT);
+			if (!Class.CastTo(container, obj))
+			{
+				EXError.Error(this, "Cannot cast " + obj + " to ExpansionPersonalStorageContainer", {});
+				GetGame().ObjectDelete(obj);
 				return false;
+			}
 
 			container.ExpansionSetContainerOwner(uid);
 
 			if (FileExist(container.Expansion_GetPersonalStorageFileName()) && !container.Expansion_RestoreContents())
+			{
+				GetGame().ObjectDelete(obj);
 				return false;
+			}
 
 			s_Expansion_PersonalStorageContainers[uid] = container;
 
@@ -138,10 +164,14 @@ class ExpansionPersonalStorageHub: BuildingBase
 	//! @note Can't be on PlayerBase, leads to compile error due load order :-(
 	static int Expansion_GetPersonalStorageLevelEx(PlayerBase player, out int nextLvlRepReq = -1)
 	{
+		auto settings = GetExpansionSettings().GetPersonalStorageNew(false);
+		if (!settings.IsLoaded())
+			return 0;
+
 		int lvl = player.Expansion_GetPersonalStorageLevel();
 		int rep = player.Expansion_GetReputation();
 		int repReq = -1;
-		auto settings = GetExpansionSettings().GetPersonalStorageNew();
+
 		foreach (int storageLevel, int lvlRepReq: settings.m_StorageLevelsReputationRequirements)
 		{
 			if (storageLevel > lvl && lvlRepReq > repReq && rep >= lvlRepReq)

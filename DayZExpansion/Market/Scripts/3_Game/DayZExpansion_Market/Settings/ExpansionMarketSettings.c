@@ -73,8 +73,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 {
 	static const int VERSION = 13;
 
-	protected static ref map<string, string> s_MarketAmmoBoxes = new map<string, string>;
-
 	bool UseWholeMapForATMPlayerList;
 	float SellPricePercent;
 	int NetworkBatchSize;
@@ -127,41 +125,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 		Currencies = new TStringArray;
 		VehicleKeys = new TStringArray;
-		
-		//! Ammo boxes and corresponding ammo are only needed on client
-		if (!GetGame().IsDedicatedServer() && !s_MarketAmmoBoxes.Count())
-		{
-			int count = GetGame().ConfigGetChildrenCount("CfgVehicles");
-		
-			EXPrint(ToString() + " - enumerating " + count + " CfgVehicles entries");
-
-			for (int i = 0; i < count; i++)
-			{
-				string className;
-
-				GetGame().ConfigGetChildName("CfgVehicles", i, className);
-				if (!GetGame().IsKindOf(className, "Box_Base"))
-					continue;
-
-				string path = "CfgVehicles " + className + " Resources";
-				if (GetGame().ConfigIsExisting(path))
-				{
-					int resCount = GetGame().ConfigGetChildrenCount(path);
-
-					for (int j = 0; j < resCount; j++)
-					{
-						string childName;
-						GetGame().ConfigGetChildName(path, j, childName);
-						if (!GetGame().IsKindOf(childName, "Ammunition_Base"))
-							continue;
-
-						s_MarketAmmoBoxes.Insert(childName, className);
-					}
-				}
-			}
-
-			EXPrint(ToString() + " - found " + s_MarketAmmoBoxes.Count() + " ammo boxes with corresponding ammo");
-		}
 		
 		#ifdef HypeTrain
 		TrainSpawnPositions = new array<ref ExpansionMarketSpawnPosition>;
@@ -1296,7 +1259,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	// ------------------------------------------------------------
 	string GetAmmoBoxWithAmmoName(string name)
 	{
-		return s_MarketAmmoBoxes.Get(name);
+		EXError.WarnOnce(this, "ExpansionMarketSettings::GetAmmoBoxWithAmmoName is DEPRECATED, use DayZGame::Expansion_GetAmmoBoxByAmmoName");
+		return GetDayZGame().Expansion_GetAmmoBoxByAmmoName(name);
 	}
 
 	// ------------------------------------------------------------

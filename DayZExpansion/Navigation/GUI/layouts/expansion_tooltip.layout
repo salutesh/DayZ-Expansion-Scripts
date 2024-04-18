@@ -43,9 +43,9 @@ GridSpacerWidgetClass TooltipFrame {
      vexactsize 1
      style DayZNormal
      text "awdawdawd"
-     font "gui/fonts/etelkatextpro16"
+     font "gui/fonts/sdf_MetronBook24"
      "exact text" 1
-     "exact text size" 16
+     "exact text size" 14
      "size to text h" 1
      "size to text v" 1
      "text halign" center
@@ -74,9 +74,9 @@ GridSpacerWidgetClass TooltipFrame {
      hexactsize 1
      vexactsize 0
      style DayZNormal
-     font "gui/fonts/etelkatextpro22"
+     font "gui/fonts/sdf_MetronBook24"
      "exact text" 1
-     "exact text size" 16
+     "exact text size" 14
      "size to text h" 1
      "size to text v" 1
      "text valign" center

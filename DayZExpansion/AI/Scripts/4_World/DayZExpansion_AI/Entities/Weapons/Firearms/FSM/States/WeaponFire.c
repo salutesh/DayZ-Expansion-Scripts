@@ -78,22 +78,25 @@ modded class WeaponFireWithEject
 {
 	override void OnEntry(WeaponEventBase e)
 	{
-		eAIBase p;
-		if (Class.CastTo(p, e.m_player))
+		if (e)
 		{
-			m_dtAccumulator = 0;
-
-			if (LogManager.IsWeaponLogEnable()) { wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " WeaponFire bang!"); }
-			int mi = m_weapon.GetCurrentMuzzle();
-			if (m_weapon.eAI_Fire(mi, p.GetBonePositionWS(p.GetBoneIndexByName("neck")), p.GetWeaponAimDirection(), vector.Forward))
+			eAIBase p;
+			if (Class.CastTo(p, e.m_player))
 			{
-				p.GetAimingModel().SetRecoil(m_weapon);
-				m_weapon.EjectCasing(mi);
-				m_weapon.EffectBulletHide(mi);
-				m_weapon.OnFire(mi);
+				m_dtAccumulator = 0;
+
+				if (LogManager.IsWeaponLogEnable()) { wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " WeaponFire bang!"); }
+				int mi = m_weapon.GetCurrentMuzzle();
+				if (m_weapon.eAI_Fire(mi, p.GetBonePositionWS(p.GetBoneIndexByName("neck")), p.GetWeaponAimDirection(), vector.Forward))
+				{
+					p.GetAimingModel().SetRecoil(m_weapon);
+					m_weapon.EjectCasing(mi);
+					m_weapon.EffectBulletHide(mi);
+					m_weapon.OnFire(mi);
+				}
+				super.eAI_Vanilla_OnEntry(e);
+				return;
 			}
-			super.eAI_Vanilla_OnEntry(e);
-			return;
 		}
 		super.OnEntry(e);
 	}
@@ -150,10 +153,10 @@ modded class WeaponFireToJam
 {
 	override void OnEntry (WeaponEventBase e)
 	{
-		eAIBase p;
-		if (Class.CastTo(p, e.m_player))
+		if (e)
 		{
-			if (e)
+			eAIBase p;
+			if (Class.CastTo(p, e.m_player))
 			{
 				m_dtAccumulator = 0;
 
@@ -165,10 +168,10 @@ modded class WeaponFireToJam
 					p.GetAimingModel().SetRecoil(m_weapon);
 					m_weapon.OnFire(mi);
 				}
+				m_weapon.ResetBurstCount();
+				super.eAI_Vanilla_OnEntry(e);
+				return;
 			}
-			m_weapon.ResetBurstCount();
-			super.eAI_Vanilla_OnEntry(e);
-			return;
 		}
 		super.OnEntry(e);
 	}

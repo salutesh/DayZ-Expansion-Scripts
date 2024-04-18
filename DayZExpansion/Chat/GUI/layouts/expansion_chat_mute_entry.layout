@@ -37,8 +37,8 @@ GridSpacerWidgetClass ChatMuteEntry {
      imageTexture "{EC53856041985A10}DayZExpansion/Core/GUI/icons/hud/cross_64x64.edds"
      mode blend
      "src alpha" 1
-     "no wrap" 1
-     stretch 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
     }
    }
    {
@@ -59,9 +59,9 @@ GridSpacerWidgetClass ChatMuteEntry {
    scaled 0
    scriptclass "ViewBinding"
    style None
-   font "gui/fonts/etelkatextpro16"
+   font "gui/fonts/sdf_MetronBook24"
    "exact text" 1
-   "exact text size" 16
+   "exact text size" 14
    "size to text h" 1
    "size to text v" 1
    "text halign" center

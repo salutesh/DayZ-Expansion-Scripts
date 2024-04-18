@@ -676,7 +676,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 			PlayerBase player = PlayerBase.GetPlayerByUID(playerData.UID);
 
-			if (!player)
+			if (!player || !player.GetIdentity())
 				continue;
 
 			UpdatePlayerServer(party, player.GetIdentity());

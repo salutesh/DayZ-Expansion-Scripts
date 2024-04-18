@@ -15,7 +15,7 @@
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 9;
+	static const int VERSION = 10;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -46,6 +46,9 @@ class ExpansionAISettings: ExpansionSettingBase
 #endif
 
 	autoptr TStringArray PlayerFactions = {};  //! If non-empty, player will automatically join one of these factions on connect
+
+	bool LogAIHitBy;
+	bool LogAIKilled;
 
 	[NonSerialized()]
 	private bool m_IsAdmin;
@@ -286,6 +289,12 @@ class ExpansionAISettings: ExpansionSettingBase
 				if (m_Version < 9 && !DamageReceivedMultiplier)
 					DamageReceivedMultiplier = settingsDefault.DamageReceivedMultiplier;
 
+				if (m_Version < 10)
+				{
+					LogAIHitBy = settingsDefault.LogAIHitBy;
+					LogAIKilled = settingsDefault.LogAIKilled;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -299,15 +308,6 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		if (save)
 			Save();
-
-		//! Copy over eAI loadouts
-		string humanLoadout = "$profile:eAI\\HumanLoadout.json";
-		string humanLoadoutAI = EXPANSION_LOADOUT_FOLDER + "HumanLoadout.json";
-		if (!FileExist(humanLoadoutAI) && FileExist(humanLoadout))
-		{
-			EXLogPrint("[ExpansionAISettings] Copying loadout " + humanLoadout + " to " + humanLoadoutAI);
-			CopyFile(humanLoadout, humanLoadoutAI);
-		}
 
 		return AISettingsExist;
 	}
@@ -363,6 +363,9 @@ class ExpansionAISettings: ExpansionSettingBase
 #endif
 
 		PlayerFactions.Clear();
+
+		LogAIHitBy = true;
+		LogAIKilled = true;
 	}
 
 	// ------------------------------------------------------------

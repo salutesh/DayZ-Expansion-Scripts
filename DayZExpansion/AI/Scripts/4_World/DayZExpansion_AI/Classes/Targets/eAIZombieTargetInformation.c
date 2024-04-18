@@ -17,14 +17,33 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 	override vector GetAimOffset(eAIBase ai = null)
 	{
 		string boneName;
-		if (ai && Weapon_Base.Cast(ai.GetHumanInventory().GetEntityInHands()))
-			boneName = "neck";
+
+		Weapon_Base weapon;
+		if (ai && Class.CastTo(weapon, ai.GetHumanInventory().GetEntityInHands()))
+		{
+			if (weapon.ShootsExplosiveAmmo())
+				boneName = "spine3";
+			else
+				boneName = "neck";
+		}
 		else if (m_Crawling)
+		{
 			boneName = "pelvis";  //! Aim even lower for melee if crawling
+		}
 		else
+		{
 			boneName = "spine3";  //! Aim lower for melee
-		vector pos = m_Zombie.GetBonePositionWS(m_Zombie.GetBoneIndexByName(boneName));
+		}
+
+		vector pos;
+		int index = m_Zombie.GetBoneIndexByName(boneName);
+		if (index > -1)
+			pos = m_Zombie.GetBonePositionWS(index);
+		else
+			pos = m_Zombie.GetCenter();
+
 		pos = pos - m_Zombie.GetPosition();
+
 		return pos;
 	}
 

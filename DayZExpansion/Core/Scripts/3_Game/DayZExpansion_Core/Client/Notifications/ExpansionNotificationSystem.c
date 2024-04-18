@@ -20,7 +20,7 @@ class ExpansionNotificationSystem
 	// ------------------------------------------------------------
 	// ExpansionNotificationSystem CreateNotification
 	// ------------------------------------------------------------
-	void CreateNotification( StringLocaliser title, StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST)
+	void CreateNotification( CF_Localiser title, CF_Localiser text, string icon, int color, float time = 7, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "CreateNotification");
@@ -35,7 +35,7 @@ class ExpansionNotificationSystem
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "CreateNotification");
 #endif
 
-		CreateNotification( new StringLocaliser( title ), new StringLocaliser( text ), icon, color, time, identity, type );
+		CreateNotification( new CF_Localiser( title ), new CF_Localiser( text ), icon, color, time, identity, type );
 	}
 };
 
@@ -129,9 +129,9 @@ class ExpansionNotificationTemplate<Class T>
 	}
 }
 
-static ExpansionNotificationTemplate<StringLocaliser> ExpansionNotification( StringLocaliser title, StringLocaliser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
+static ExpansionNotificationTemplate<CF_Localiser> ExpansionNotification( CF_Localiser title, CF_Localiser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 {
-	return new ExpansionNotificationTemplate<StringLocaliser>( title, text, icon, color, time, type );
+	return new ExpansionNotificationTemplate<CF_Localiser>( title, text, icon, color, time, type );
 }
 
 static ExpansionNotificationTemplate<string> ExpansionNotification( string title, string text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
@@ -139,12 +139,12 @@ static ExpansionNotificationTemplate<string> ExpansionNotification( string title
 	return new ExpansionNotificationTemplate<string>( title, text, icon, color, time, type );
 }
 
-static ExpansionNotificationTemplate<StringLocaliser> ExpansionNotification( string title, StringLocaliser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
+static ExpansionNotificationTemplate<CF_Localiser> ExpansionNotification( string title, CF_Localiser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 {
-	return ExpansionNotification( new StringLocaliser( title ), text, icon, color, time, type );
+	return ExpansionNotification( new CF_Localiser( title ), text, icon, color, time, type );
 }
 
-static ExpansionNotificationTemplate<StringLocaliser> ExpansionNotification( StringLocaliser title, string text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
+static ExpansionNotificationTemplate<CF_Localiser> ExpansionNotification( CF_Localiser title, string text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 {
-	return ExpansionNotification( title, new StringLocaliser( text ), icon, color, time, type );
+	return ExpansionNotification( title, new CF_Localiser( text ), icon, color, time, type );
 }

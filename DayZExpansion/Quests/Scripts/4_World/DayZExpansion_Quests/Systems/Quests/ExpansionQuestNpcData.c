@@ -288,6 +288,9 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		
 		aiGroup.SetFormation(new eAIFormationColumn(aiGroup));
 		aiGroup.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
+	
+		if (!Waypoints.Count())
+			Waypoints.Insert(Position);
 
 		for (int idx = 0; idx < Waypoints.Count(); idx++)
 		{

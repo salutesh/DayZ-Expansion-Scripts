@@ -316,6 +316,8 @@ class ExpansionPrefabObject : Managed
 				}
 
 				Object child;
+				int fallbackSlotId = InventorySlots.INVALID;
+				map<int, bool> slotTaken = new map<int, bool>;
 
 				foreach (auto slot : InventoryAttachments)
 				{
@@ -324,9 +326,7 @@ class ExpansionPrefabObject : Managed
 
 					int slotId = InventorySlots.GetSlotIdFromString(slotName);
 					int currentSlotId;
-					int fallbackSlotId = InventorySlots.INVALID;
 
-					map<int, bool> slotTaken = new map<int, bool>;
 					child = null;
 
 					candidates.Clear();

@@ -25,7 +25,7 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 
 	void ~ExpansionQuestContainerBase()
 	{
-		if (m_ExpansionStashDelete)
+		if (m_ExpansionStashDelete && GetGame())
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionDeleteStorage);
 	}
 	

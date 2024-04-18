@@ -49,6 +49,7 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_ANPEQ15";
 		descriptionShort = "$STR_EXPANSION_ANPEQ15_DESC";
 	};
+	class Expansion_ANPEQ15_GreenNV: Expansion_ANPEQ15_Green{};
 	class Expansion_ANPEQ15_IR: Expansion_ANPEQ15_Base
 	{
 		scope = 0;

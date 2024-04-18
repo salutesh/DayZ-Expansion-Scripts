@@ -17,23 +17,22 @@ class Expansion_GraveBase extends Inventory_Base
 	void Expansion_GraveBase()
 	{
 		RegisterNetSyncVariableBool("m_ReceivedAttachments");
+	}
+
+	override void AfterStoreLoad()
+	{
+		super.AfterStoreLoad();
 
 		if ( m_ReceivedAttachments && GetGame().IsServer() )
 		{
 			if (GetInventory().AttachmentCount() < 1 || m_Lifetime < 60)
 			{
 				RemoveGrave();
-			} else {
+			}
+			else
+			{
 				SetSelfDestructCountDown(m_Lifetime);
 			}
-		}
-	}
-
-	void ~Expansion_GraveBase()
-	{
-		if ( GetGame() && GetGame().IsServer() )
-		{
-			m_Lifetime = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(RemoveGrave);
 		}
 	}
 
@@ -46,6 +45,9 @@ class Expansion_GraveBase extends Inventory_Base
 		if (!ctx) return;
 
 		ctx.Write(m_ReceivedAttachments);
+
+		m_Lifetime = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(RemoveGrave);
+
 		ctx.Write(m_Lifetime);
 	}
 	
@@ -90,7 +92,8 @@ class Expansion_GraveBase extends Inventory_Base
 	// Probably not needed, but in case if we need to mod it or change it's deletion behaviour here ya go
     void RemoveGrave()
     {
-		Delete();
+		//! We don't want this to be removed while players are near, set health to zero so CE cleanup takes care of it ASAP
+		SetHealth(0.0);
     }
 
 	override bool CanPutIntoHands(EntityAI parent)

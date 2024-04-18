@@ -99,11 +99,12 @@ FrameWidgetClass ExpansionMapMarker {
        vexactsize 1
        style Normal
        text "MARKER NAME"
-       font "gui/fonts/etelkatextpro22"
-       "shadow size" 20
+       font "gui/fonts/sdf_MetronBook24"
+       "shadow size" 1
        "shadow color" 0 0 0 1
        "shadow offset" 1 1
        "exact text" 1
+       "exact text size" 16
        "size to text h" 0
        "size to text v" 0
        "text valign" center
@@ -120,6 +121,9 @@ FrameWidgetClass ExpansionMapMarker {
        vexactsize 1
        style DefaultBorder
        "Use default text" 0
+       font "gui/fonts/MetronBook"
+       "exact text" 1
+       "exact text size" 16
       }
      }
     }

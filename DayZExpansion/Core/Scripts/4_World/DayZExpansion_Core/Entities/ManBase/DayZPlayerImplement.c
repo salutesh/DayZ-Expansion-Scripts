@@ -80,6 +80,11 @@ modded class DayZPlayerImplement
 		return false;
 	}
 
+	bool Expansion_IsAI()
+	{
+		return false;
+	}
+
 	void OnEnterZone(ExpansionZoneType type)
 	{
 #ifdef EXPANSIONTRACE

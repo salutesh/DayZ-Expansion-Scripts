@@ -71,7 +71,7 @@ modded class ItemBase
 
 		string destroySound = GetDestroySound();
 		if (destroySound)
-			m_Expansion_DestroySound_SoundSet = ExpansionSoundSet.Register(GetDestroySound());
+			m_Expansion_DestroySound_SoundSet = ExpansionSoundSet.Register(destroySound);
 	}
 	
 	override string GetDisplayName()
@@ -262,6 +262,15 @@ modded class ItemBase
 	bool Expansion_IsMeleeWeapon()
 	{
 		return m_Expansion_IsMeleeWeapon;
+	}
+
+	bool Expansion_IsLiveExplosive()
+	{
+		ExplosivesBase explosive;
+		if (Class.CastTo(explosive, this) && explosive.Expansion_IsLive())
+			return true;
+
+		return false;
 	}
 
 	/*! ExpansionActionOn<...>
@@ -1075,6 +1084,13 @@ modded class ItemBase
 		if (!super.CanPutAsAttachment(parent))
 			return false;
 
+		if (parent)
+		{
+			DayZPlayerImplement player;
+			if (Class.CastTo(player, parent.GetHierarchyRoot()) && player.Expansion_IsAI())
+				return true;  //! AI can always take
+		}
+
 		return m_Expansion_IsLootable;
 	}
 
@@ -1084,6 +1100,13 @@ modded class ItemBase
 		if (!super.CanPutInCargo(parent))
 			return false;
 
+		if (parent)
+		{
+			DayZPlayerImplement player;
+			if (Class.CastTo(player, parent.GetHierarchyRoot()) && player.Expansion_IsAI())
+				return true;  //! AI can always take
+		}
+
 		return m_Expansion_IsLootable;
 	}
 
@@ -1092,6 +1115,13 @@ modded class ItemBase
 	{
 		if (!super.CanPutIntoHands(parent))
 			return false;
+
+		if (parent)
+		{
+			DayZPlayerImplement player;
+			if (Class.CastTo(player, parent.GetHierarchyRoot()) && player.Expansion_IsAI())
+				return true;  //! AI can always take
+		}
 
 		return m_Expansion_IsLootable;
 	}

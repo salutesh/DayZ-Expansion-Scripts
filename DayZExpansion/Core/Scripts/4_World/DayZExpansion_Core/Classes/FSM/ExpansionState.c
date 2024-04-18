@@ -10,12 +10,23 @@ class ExpansionState
 	//! only used if there is a sub-fsm
 	ref ExpansionFSM m_SubFSM;
 
+	autoptr array<ref ExpansionTransition> m_Transitions = {};
+
 	/* STATE VARIABLES */
 	ExpansionState parent;
 
 	void ExpansionState(ExpansionFSM _fsm)
 	{
 		parent = _fsm.GetParent();
+	}
+
+	void AddTransition(ExpansionTransition transition)
+	{
+		m_Transitions.Insert(transition);
+
+	#ifdef DIAG
+		EXTrace.Print(EXTrace.AI, this, "AddTransition -> " + transition.GetDestination() + " | count: " + m_Transitions.Count());
+	#endif
 	}
 
 	#ifdef CF_DEBUG

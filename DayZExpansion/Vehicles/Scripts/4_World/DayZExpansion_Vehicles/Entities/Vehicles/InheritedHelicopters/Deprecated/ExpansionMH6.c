@@ -50,7 +50,7 @@ class ExpansionMh6 : ExpansionHelicopterScript
 		m_Expansion_EngineStartSounds.Insert(0.0, 9.961, "Expansion_Mh6_Starter_Start", 0.0, 1.0);
 		//m_Expansion_EngineStartSounds.Insert(0.0, 5.0, "Expansion_Mh6_Starter_Click", 0.0, 5.0, true);
 		m_Expansion_EngineStartSounds.Insert(5.0, 0.0, "Expansion_Mh6_Engine_Idle_Start", 1.0, 0.0);
-		m_Expansion_EngineStartSounds.Insert(9.961, 0.0, "Expansion_Mh6_Starter_Stop", 1.0, 0.0);
+		//m_Expansion_EngineStartSounds.Insert(9.961, 0.0, "Expansion_Mh6_Starter_Stop", 1.0, 0.0);
 		#endif
 
 		super.EEInit();
@@ -146,7 +146,7 @@ class ExpansionMh6 : ExpansionHelicopterScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
 #endif
 
-		return "0 2.5 0";
+		return "0 1.5 0";
 	}
 
 	override float GetTransportCameraDistance()
@@ -155,7 +155,7 @@ class ExpansionMh6 : ExpansionHelicopterScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
 #endif
 
-		return 15;
+		return 13;
 	}
 
 	override bool CanReleaseAttachment(EntityAI attachment)

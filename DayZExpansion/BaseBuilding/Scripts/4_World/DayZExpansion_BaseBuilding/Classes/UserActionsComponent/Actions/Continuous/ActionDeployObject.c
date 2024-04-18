@@ -26,6 +26,8 @@ modded class PlaceObjectActionData
 
 modded class ActionDeployObject
 {
+	static ref ExpansionHash s_Expansion_GardenPlot_Hash = new ExpansionHash("gardenplot");
+
 	// ------------------------------------------------------------	
 	override bool SetupAction( PlayerBase player, ActionTarget target, ItemBase item, out ActionData action_data, Param extra_data = NULL )
 	{	
@@ -80,6 +82,11 @@ modded class ActionDeployObject
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 		
+		return Expansion_CheckDeploy(player, target, item, GetGame().IsDedicatedServer());
+	}
+
+	static bool Expansion_CheckDeploy(PlayerBase player, ActionTarget target, ItemBase item, bool notify = false)
+	{
 		if ( player.Expansion_IsInSafeZone() )
 			return false;
 
@@ -213,23 +220,24 @@ modded class ActionDeployObject
 			return true;
 		}
 
-		ExpansionNotification(title, text).Error(player.GetIdentity());
+		if (notify)
+			ExpansionNotification(title, text).Error(player.GetIdentity());
 
 		return false;
 	}
 
 	static bool CanDeployInTerritory( PlayerBase player, ItemBase item )
 	{
-		if ( !GetGame().IsServer() || player.IsInsideOwnTerritory() )
+		if (player.IsInsideOwnTerritory())
 			return true;
 
 		if (!item)
 			return false;
 
-		//! @note deployables are not sent to client (intentional)
-		foreach (string deployable: GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory)
+		//! @note deployables are sent to client as hashes
+		foreach (ExpansionHash hash: GetExpansionSettings().GetBaseBuilding().m_DeployableInEnemyTerritory_Hashes)
 		{
-			if ( ( item.CanMakeGardenplot() && deployable == "GardenPlot" ) || item.IsKindOf( deployable ) )
+			if ((item.CanMakeGardenplot() && hash.IsEqual(s_Expansion_GardenPlot_Hash)) || hash.ObjectIsKindOf(item))
 				return true;
 		}
 

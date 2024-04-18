@@ -58,7 +58,11 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
        hexactsize 1
        vexactsize 1
        text "X"
+       font "gui/fonts/sdf_MetronBook24"
        "text color" 0.8627 0.8627 0.8627 1
+       "bold text" 1
+       "exact text" 1
+       "exact text size" 16
        "text halign" center
        "text valign" center
       }
@@ -75,7 +79,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
        imageTexture "{DDEDAF5A8B34B62D}DayZExpansion/Core/GUI/icons/hud/ellipse_out_64x64.edds"
        mode blend
        "src alpha" 1
-       stretch 1
+       "stretch mode" stretch_w_h
        "flip u" 1
        "flip v" 0
       }
@@ -105,7 +109,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
      visible 1
      ignorepointer 1
      position 0 0.01
-     size 0.95 0.99
+     size 0.95 0.91833
      halign center_ref
      hexactpos 0
      vexactpos 0
@@ -116,7 +120,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
       WrapSpacerWidgetClass QuestListWraper {
        ignorepointer 1
        position 0 0
-       size 1 0.9301
+       size 1 1
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -158,8 +162,11 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            scriptclass "ViewBinding"
            style Bold
            text "Name"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_MetronBook72"
            "text color" 0 0 0 1
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 24
            "text halign" center
            "text valign" center
            {
@@ -243,9 +250,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
              scriptclass "ViewBinding"
              style DayZNormal
              text "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_MetronBook72"
              "text offset" 5 0
              "exact text" 1
+             "exact text size" 18
              "size to text h" 0
              "size to text v" 1
              wrap 1
@@ -256,123 +264,6 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                Binding_Name "DefaultText"
               }
              }
-            }
-           }
-          }
-         }
-        }
-       }
-      }
-      PanelWidgetClass ButtonsPanel0 {
-       ignorepointer 1
-       position 0 0.01
-       size 0.93025 0.05
-       halign center_ref
-       valign bottom_ref
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       style blank
-       {
-        WrapSpacerWidgetClass ButtonsSpacer0 {
-         ignorepointer 1
-         size 1 1
-         hexactpos 0
-         vexactpos 0
-         hexactsize 0
-         vexactsize 0
-         Padding 0
-         content_halign right
-         content_valign center
-         {
-          ButtonWidgetClass Close {
-           size 0.49 48
-           halign right_ref
-           hexactpos 1
-           vexactpos 1
-           hexactsize 0
-           vexactsize 1
-           scriptclass "ViewBinding"
-           style Empty
-           {
-            PanelWidgetClass CloseBackground {
-             ignorepointer 1
-             color 0 0 0 0.7843
-             position 0 0
-             size 1 1
-             hexactpos 0
-             vexactpos 0
-             hexactsize 0
-             vexactsize 0
-             style UIDefaultPanel
-            }
-            TextWidgetClass CloseLable {
-             ignorepointer 1
-             color 0.8627 0.8627 0.8627 1
-             size 1 1
-             hexactpos 0
-             vexactpos 0
-             hexactsize 0
-             vexactsize 0
-             scriptclass ""
-             text "#STR_MOD_EXPANSION_CLOSE"
-             font "gui/fonts/etelkatextpro"
-             "text halign" center
-             "text valign" center
-            }
-           }
-           {
-            ScriptParamsClass {
-             Relay_Command "OnCloseButtonClick"
-            }
-           }
-          }
-          ButtonWidgetClass HideHud {
-           visible 0
-           position 10 10
-           size 0.49 48
-           hexactpos 1
-           vexactpos 1
-           hexactsize 0
-           vexactsize 1
-           scriptclass "ViewBinding"
-           style Empty
-           {
-            PanelWidgetClass HideHudBackground {
-             ignorepointer 1
-             color 0 0 0 0.7843
-             position 0 0
-             size 1 1
-             hexactpos 0
-             vexactpos 0
-             hexactsize 0
-             vexactsize 0
-             style UIDefaultPanel
-            }
-            TextWidgetClass HideHudLable {
-             ignorepointer 1
-             color 0.8627 0.8627 0.8627 1
-             size 1 1
-             hexactpos 0
-             vexactpos 0
-             hexactsize 0
-             vexactsize 0
-             scriptclass "ViewBinding"
-             text "#STR_EXPANSION_QUEST_MENU_HIDEHUD"
-             font "gui/fonts/etelkatextpro"
-             "text halign" center
-             "text valign" center
-             {
-              ScriptParamsClass {
-               Binding_Name "HideHudLable"
-              }
-             }
-            }
-           }
-           {
-            ScriptParamsClass {
-             Relay_Command "OnHideHudButtonClick"
             }
            }
           }
@@ -401,6 +292,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
      "Size To Content V" 1
      {
       WrapSpacerWidgetClass ButtonsSpacer {
+       visible 1
        ignorepointer 1
        size 1 1
        hexactpos 0
@@ -414,7 +306,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
        {
         ButtonWidgetClass Cancel {
          position 10 10
-         size 0.4 48
+         size 0.2 48
          hexactpos 1
          vexactpos 1
          hexactsize 0
@@ -441,16 +333,14 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           scriptclass "ViewBinding"
+           scriptclass ""
            text "#STR_EXPANSION_QUEST_MENU_CANCEL"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_MetronBook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "text halign" center
            "text valign" center
-           {
-            ScriptParamsClass {
-             Relay_Command "OnCancelButtonClick"
-            }
-           }
           }
          }
          {
@@ -462,7 +352,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
         ButtonWidgetClass Accept {
          visible 1
          position 10 10
-         size 0.4 48
+         size 0.2 48
          hexactpos 1
          vexactpos 1
          hexactsize 0
@@ -489,16 +379,14 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           scriptclass "ViewBinding"
+           scriptclass ""
            text "#STR_EXPANSION_QUEST_MENU_ACCEPT"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_MetronBook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "text halign" center
            "text valign" center
-           {
-            ScriptParamsClass {
-             Relay_Command "OnAcceptButtonClick"
-            }
-           }
           }
          }
          {
@@ -510,7 +398,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
         ButtonWidgetClass Complete {
          visible 0
          position 10 10
-         size 0.4 48
+         size 0.2 48
          hexactpos 1
          vexactpos 1
          hexactsize 0
@@ -537,21 +425,69 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           scriptclass "ViewBinding"
+           scriptclass ""
            text "#STR_EXPANSION_QUEST_MENU_COMPLETE"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_MetronBook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "text halign" center
            "text valign" center
-           {
-            ScriptParamsClass {
-             Relay_Command "OnAcceptButtonClick"
-            }
-           }
           }
          }
          {
           ScriptParamsClass {
            Relay_Command "OnCompleteButtonClick"
+          }
+         }
+        }
+        ButtonWidgetClass Share {
+         visible 1
+         position 10 10
+         size 0.2 48
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          PanelWidgetClass ShareBackground {
+           ignorepointer 1
+           color 0 0 0 0.7843
+           position 0 0
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style UIDefaultPanel
+          }
+          TextWidgetClass ShareLable {
+           ignorepointer 1
+           color 0.8627 0.8627 0.8627 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass ""
+           text "#STR_EXPANSION_QUEST_MENU_SHARE"
+           font "gui/fonts/sdf_MetronBook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
+           "size to text h" 0
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+         {
+          ScriptParamsClass {
+           Relay_Command "OnShareButtonClick"
           }
          }
         }
@@ -589,7 +525,6 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            imageTexture "{EC8EDC01E1CEFBB0}DayZExpansion/Core/GUI/icons/hud/menu_64x64.edds"
            mode blend
            "src alpha" 1
-           stretch 1
            "stretch mode" stretch_w_h
           }
          }
@@ -675,8 +610,11 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
              scriptclass "ViewBinding"
              style Bold
              text "Quest Title"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_MetronBook72"
              "text color" 0 0 0 1
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 24
              "text halign" center
              "text valign" center
              {
@@ -713,9 +651,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
              vexactsize 0
              scriptclass "ViewBinding"
              style DayZNormal
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_MetronBook72"
              "text offset" 5 0
              "exact text" 1
+             "exact text size" 18
              "size to text h" 1
              "size to text v" 1
              wrap 1
@@ -795,9 +734,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                scriptclass ""
                style DayZNormal
                text "You will receive the following items on quest start:"
-               font "gui/fonts/etelkatextpro22"
+               font "gui/fonts/sdf_MetronBook72"
                "text offset" 5 0
                "exact text" 1
+               "exact text size" 18
                "size to text h" 1
                "size to text v" 1
                wrap 1
@@ -883,9 +823,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                vexactsize 1
                style Normal
                text "#STR_EXPANSION_QUEST_MENU_REWARDS_LABEL"
-               font "gui/fonts/etelkatextpro22"
+               font "gui/fonts/sdf_MetronBook72"
                "text offset" 5 0
-               "exact text" 0
+               "exact text" 1
+               "exact text size" 18
                "size to text h" 0
                "size to text v" 0
                "text valign" center
@@ -950,9 +891,11 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                  vexactsize 0
                  style Normal
                  text "#STR_EXPANSION_HARDLINE_REPUTATION"
-                 font "gui/fonts/etelkatextpro22"
+                 font "gui/fonts/sdf_MetronBook72"
                  "text offset" 5 0
-                 "exact text" 0
+                 "bold text" 1
+                 "exact text" 1
+                 "exact text size" 18
                  "size to text h" 0
                  "size to text v" 0
                  "text valign" center
@@ -968,9 +911,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                  vexactsize 0
                  scriptclass "ViewBinding"
                  style Normal
-                 font "gui/fonts/etelkatextpro22"
+                 font "gui/fonts/sdf_MetronBook72"
                  "text offset" -5 0
-                 "exact text" 0
+                 "exact text" 1
+                 "exact text size" 18
                  "size to text h" 0
                  "size to text v" 0
                  "text halign" right
@@ -1011,9 +955,11 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                  vexactsize 1
                  style Normal
                  text "#STR_EXPANSION_HARDLINE_FACTION_REPUTATION"
-                 font "gui/fonts/etelkatextpro22"
+                 font "gui/fonts/sdf_MetronBook72"
                  "text offset" 5 0
-                 "exact text" 0
+                 "bold text" 1
+                 "exact text" 1
+                 "exact text size" 18
                  "size to text h" 0
                  "size to text v" 0
                  "text valign" center
@@ -1122,9 +1068,11 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
              vexactsize 1
              style Normal
              text "#STR_EXPANSION_QUEST_MENU_OBJECTIVES_LABEL"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_MetronBook72"
              "text offset" 5 0
-             "exact text" 0
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 18
              "size to text h" 0
              "size to text v" 0
              "text valign" center
@@ -1165,9 +1113,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                vexactsize 0
                scriptclass "ViewBinding"
                style DayZNormal
-               font "gui/fonts/etelkatextpro22"
+               font "gui/fonts/sdf_MetronBook72"
                "text offset" 5 0
                "exact text" 1
+               "exact text size" 18
                "size to text h" 1
                "size to text v" 1
                wrap 1
@@ -1226,6 +1175,139 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
      hexactsize 0
      vexactsize 0
      style DayZDefaultPanel
+    }
+    WrapSpacerWidgetClass MenuButtonsPanel {
+     visible 1
+     ignorepointer 1
+     position 0 0.01
+     size 0.95 0.05
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     style Colorable
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     {
+      WrapSpacerWidgetClass MenuButtonsSpacer {
+       ignorepointer 1
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       content_halign right
+       content_valign center
+       {
+        ButtonWidgetClass Close {
+         size 0.49 48
+         halign right_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          PanelWidgetClass CloseBackground {
+           ignorepointer 1
+           color 0 0 0 0.7843
+           position 0 0
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style UIDefaultPanel
+          }
+          TextWidgetClass CloseLable {
+           ignorepointer 1
+           color 0.8627 0.8627 0.8627 1
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass ""
+           style Normal
+           text "#STR_MOD_EXPANSION_CLOSE"
+           font "gui/fonts/sdf_MetronBook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
+           "text halign" center
+           "text valign" center
+          }
+         }
+         {
+          ScriptParamsClass {
+           Relay_Command "OnCloseButtonClick"
+          }
+         }
+        }
+        ButtonWidgetClass HideHud {
+         visible 0
+         position 10 10
+         size 0.49 48
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          PanelWidgetClass HideHudBackground {
+           ignorepointer 1
+           color 0 0 0 0.7843
+           position 0 0
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style UIDefaultPanel
+          }
+          TextWidgetClass HideHudLable {
+           ignorepointer 1
+           color 0.8627 0.8627 0.8627 1
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           text "#STR_EXPANSION_QUEST_MENU_HIDE_HUD"
+           font "gui/fonts/sdf_MetronBook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
+           "text halign" center
+           "text valign" center
+           {
+            ScriptParamsClass {
+             Binding_Name "HideHudLable"
+            }
+           }
+          }
+         }
+         {
+          ScriptParamsClass {
+           Relay_Command "OnHideHudButtonClick"
+          }
+         }
+        }
+       }
+      }
+     }
     }
    }
   }

@@ -39,6 +39,7 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.DEB_SPAWNGUARD:
 			case eAICommands.DEB_SPAWNPASSIVE:
 			case eAICommands.DEB_SPAWNSHAMAN:
+			case eAICommands.DEB_SPAWNYEET:
 				m_Expansion_RPCManager.SendRPC("RPC_SpawnAI", new Param3<int, vector, int>(cmd, ExpansionStatic.GetCursorHitPos(), m_MovementSpeedLimit));
 				return true;
 			
@@ -122,23 +123,21 @@ class eAICommandManagerClient : eAICommandManager
 		return false;
 	}
 
-	//! @param owner Who is the manager of this AI
-	//! @param formOffset Where should this AI follow relative to the formation?
-	eAIBase SpawnAI_Helper(PlayerBase owner, string loadout = "HumanLoadout.json")
+	eAIBase SpawnAI_Helper(PlayerBase leader, string loadout = "HumanLoadout.json")
 	{
 	#ifdef DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
-		auto group = owner.GetGroup();
+		auto group = leader.GetGroup();
 		if (group)
 		{
-			owner.Expansion_SetFormerGroup(group);
+			leader.Expansion_SetFormerGroup(group);
 			loadout = group.GetFaction().GetDefaultLoadout();
 		}
 		else
 		{
-			group = eAIGroup.GetGroupByLeader(owner);
+			group = eAIGroup.GetGroupByLeader(leader);
 		}
 
 		auto form = group.GetFormation();
@@ -243,11 +242,13 @@ class eAICommandManagerClient : eAICommandManager
 				ai = SpawnAI_Sentry(pos);
 				ai.GetGroup().SetFaction(new eAIFactionShamans());
 				break;
+			case eAICommands.DEB_SPAWNYEET:
+				ai = SpawnAI_Sentry(pos, "YeetBrigadeLoadout");
+				ai.GetGroup().SetFaction(new eAIFactionYeetBrigade());
+				break;
 		}
 	}
 	
-	// Server Side: This RPC spawns a zombie. It's actually not the right way to do it. But it's only for testing.
-	// BUG: this has sometimes crashed us before. Not sure why yet.
 	void RPC_SpawnZombie(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 	#ifdef DIAG

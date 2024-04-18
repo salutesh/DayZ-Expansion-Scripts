@@ -30,7 +30,7 @@ PanelWidgetClass ExpansionQuestMenuLogEntry {
    scriptclass "ViewBinding"
    mode blend
    "src alpha" 1
-   stretch 1
+   "stretch mode" stretch_w_h
    {
     ScriptParamsClass {
      Binding_Name "QuestIconPath"
@@ -48,7 +48,10 @@ PanelWidgetClass ExpansionQuestMenuLogEntry {
    vexactsize 0
    scriptclass "ViewBinding"
    text "Quest Title"
-   font "gui/fonts/etelkatextpro22"
+   font "gui/fonts/sdf_MetronBook72"
+   "bold text" 1
+   "exact text" 1
+   "exact text size" 18
    "size to text h" 1
    "size to text v" 0
    "text halign" center
@@ -89,7 +92,7 @@ PanelWidgetClass ExpansionQuestMenuLogEntry {
    image0 "set:expansion_iconset image:clock_blank"
    mode blend
    "src alpha" 1
-   stretch 1
+   "stretch mode" stretch_w_h
    {
     ScriptParamsClass {
      Binding_Name "QuestIcon"
@@ -143,8 +146,8 @@ PanelWidgetClass ExpansionQuestMenuLogEntry {
        scriptclass "ViewBinding"
        mode blend
        "src alpha" 1
-       "no wrap" 1
-       stretch 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
        {
         ScriptParamsClass {
          Binding_Name "HideIcon"

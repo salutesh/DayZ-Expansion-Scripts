@@ -2014,10 +2014,19 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 
 	bool CanEditTerritory(string playerUID)
 	{
-		if (GetGame().IsClient())
-			return GetPermissionsManager().IsAdminToolsToggledOn();
+		if (GetGame().IsClient() && !GetPermissionsManager().IsAdminToolsToggledOn())
+			return false;
 
-		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
+		PlayerBase player;
+
+	#ifdef SERVER
+		player = PlayerBase.GetPlayerByUID(playerUID);
+	#else
+		player = PlayerBase.Cast(GetGame().GetPlayer());
+		if (playerUID && player.GetIdentity().GetId() != playerUID)
+			return false;
+	#endif
+
 		if (player && player.GetIdentity())
 			return GetPermissionsManager().HasPermission("Expansion.Territories.Edit", player.GetIdentity());
 

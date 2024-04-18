@@ -35,7 +35,9 @@ PanelWidgetClass ExpansionChatChannel {
      hexactsize 0
      vexactsize 1
      scaled 1
-     "exact text" 0
+     font "gui/fonts/sdf_MetronBook24"
+     "exact text" 1
+     "exact text size" 22
      "size to text h" 0
      "size to text v" 0
      "text valign" center

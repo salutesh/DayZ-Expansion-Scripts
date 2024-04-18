@@ -35,7 +35,8 @@ modded class ItemBase
 	{
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && m_Expansion_GlobalID && m_Expansion_GlobalID.m_IsSet)
 		{
-			ExpansionEntityStorageModule.DeleteFiles(m_Expansion_GlobalID.IDToHex());
+			if (GetHierarchyRoot() != ExpansionEntityStorageModule.GetSavedEntityToBeDeleted())
+				ExpansionEntityStorageModule.DeleteFiles(m_Expansion_GlobalID.IDToHex());
 		}
 
 		super.EEDelete(parent);

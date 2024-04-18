@@ -10,14 +10,11 @@
  *
 */
 
-class ExpansionLAW: SKS_Base
+class ExpansionLAWBase: SKS_Base
 {
-	void ExpansionLAW()
+	override bool ShootsExplosiveAmmo()
 	{
-		if (!m_Expansion_RPCManager)
-			m_Expansion_RPCManager = new ExpansionRPCManager(this, ItemBase);
-		if (!s_Expansion_ConfirmWeaponFire_RPCID)
-			s_Expansion_ConfirmWeaponFire_RPCID = m_Expansion_RPCManager.RegisterServer("RPC_Expansion_ConfirmWeaponFire");
+		return true;
 	}
 
 	override void InitStateMachine()
@@ -58,12 +55,12 @@ class ExpansionLAW: SKS_Base
 		
 		//Fire
 		WeaponStateBase Trigger_C0 = new WeaponDryFire(this, NULL, WeaponActions.FIRE, GetWeaponSpecificCommand(WeaponActions.FIRE, WeaponActionFireTypes.FIRE_DRY)); // cock without clip
-		ExpansionWeaponFireAndChamberFromInnerMagazine Trigger_C1 = new ExpansionWeaponFireAndChamberFromInnerMagazine(this, NULL, WeaponActions.FIRE, GetWeaponSpecificCommand(WeaponActions.FIRE, WeaponActionFireTypes.FIRE_NORMAL) );
+		WeaponFireAndChamberFromInnerMagazine Trigger_C1 = new WeaponFireAndChamberFromInnerMagazine(this, NULL, WeaponActions.FIRE, GetWeaponSpecificCommand(WeaponActions.FIRE, WeaponActionFireTypes.FIRE_NORMAL) );
 		WeaponStateBase Trigger_C1L = new ExpansionWeaponFireLast(this, NULL, WeaponActions.FIRE, GetWeaponSpecificCommand(WeaponActions.FIRE, WeaponActionFireTypes.FIRE_LAST));
 		WeaponStateBase Trigger_L0 = new WeaponDryFire(this, NULL, WeaponActions.FIRE, GetWeaponSpecificCommand(WeaponActions.FIRE, WeaponActionFireTypes.FIRE_DRY));
 		WeaponStateBase Trigger_JF = new WeaponDryFire(this, NULL, WeaponActions.FIRE, GetWeaponSpecificCommand(WeaponActions.FIRE, WeaponActionFireTypes.FIRE_DRY));
 		
-		WeaponStateBase Trigger_C1J = new ExpansionWeaponFireToJam(this, NULL, WeaponActions.FIRE, WeaponActionFireTypes.FIRE_JAM); 
+		WeaponStateBase Trigger_C1J = new WeaponFireToJam(this, NULL, WeaponActions.FIRE, WeaponActionFireTypes.FIRE_JAM); 
 	
 		//Unjam
 		WeaponStateBase Unjam_JF = new WeaponUnjamming(this, NULL, WeaponActions.UNJAMMING, GetWeaponSpecificCommand(WeaponActions.UNJAMMING, WeaponActionUnjammingTypes.UNJAMMING_START));
@@ -199,3 +196,5 @@ class ExpansionLAW: SKS_Base
 		super.EEFired(muzzleType, mode, ammoType);
 	}
 };
+
+class ExpansionLAW: ExpansionLAWBase {};

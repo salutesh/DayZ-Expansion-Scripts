@@ -23,7 +23,6 @@ PanelWidgetClass ExpansionChatInput {
    style rover_sim_colorable
    {
     EditBoxWidgetClass InputEditBoxWidget {
-     color 0 0 0 1
      position 0 0
      size 1 28
      halign center_ref
@@ -31,9 +30,12 @@ PanelWidgetClass ExpansionChatInput {
      hexactsize 0
      vexactsize 1
      priority 1
-     style Default
+     style No_Highlight
      "limit visible" 1
-     "exact text" 0
+     "Use default text" 0
+     "exact text" 1
+     "exact text size" 22
+     font "gui/fonts/sdf_MetronBook24"
     }
    }
   }

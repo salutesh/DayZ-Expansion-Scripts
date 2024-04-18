@@ -16,6 +16,8 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 
 	static ref ScriptInvoker SI_Expansion_OpenPersonalStorageMenu = new ScriptInvoker;
 
+	static ref map<string, bool> s_Expansion_RequestedIsExcludedFromPS = new map<string, bool>;
+
 	bool m_Expansion_PersonalStorageExcludeSlotShoulder;
 	bool m_Expansion_PersonalStorageExcludeSlotMelee;
 	bool m_Expansion_PersonalStorageExcludeSlotVest;
@@ -76,6 +78,9 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		if (!m_Expansion_RPCManager)
 			m_Expansion_RPCManager = new ExpansionRPCManager(this, ItemBase);
 		m_Expansion_RPCManager.RegisterServer("RPC_Expansion_RequestMoveItem");
+		//m_Expansion_RPCManager.RegisterClient("RPC_Expansion_ExcludedFromPSNotification");
+		m_Expansion_RPCManager.RegisterServer("RPC_Expansion_SendIsExcludedFromPS");
+		m_Expansion_RPCManager.RegisterClient("RPC_Expansion_ReceiveIsExcludedFromPS");
 	}
 
 	override void OnVariablesSynchronized()
@@ -103,7 +108,8 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 			int lvl = ExpansionPersonalStorageHub.Expansion_GetPersonalStorageLevelEx(player, nextLvlRepReq);
 			if (nextLvlRepReq > -1)
 			{
-				output = string.Format("Reputation requirement for level %1: %2", lvl + 1, nextLvlRepReq);
+				CF_Localiser localizer = new CF_Localiser("STR_EXPANSION_PERSONALSTORAGE_DESC", (lvl + 1).ToString(), nextLvlRepReq.ToString());
+				output = localizer.Format();
 				return true;
 			}
 		}
@@ -157,6 +163,24 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		return !Expansion_IsSlotExcluded(slot_id);
 	}
 
+	override bool CanDisplayAttachmentCategory(string category_name)
+	{
+		if (!super.CanDisplayAttachmentCategory(category_name))
+			return false;
+
+		bool exclude;
+		int excluded;
+		TStringArray slotNames = {};
+		ConfigGetTextArray("attachments", slotNames);
+		foreach (string slotName: slotNames)
+		{
+			EnScript.GetClassVar(this, "m_Expansion_PersonalStorageExcludeSlot" + slotName, 0, exclude);
+			excluded |= exclude;
+		}
+		
+		return !excluded;
+	}
+
 	override bool CanObstruct()
 	{
 		return false;
@@ -178,7 +202,57 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		if (!m_Expansion_PersonalStorageAllowAttachmentCargo && attachment.HasAnyCargo())
 			return false;
 
+		if (Expansion_IsExcludedFromPS(attachment))
+			return false;
+
 		return true;
+	}
+
+	override bool CanReceiveItemIntoCargo(EntityAI item)
+	{
+		if (!super.CanReceiveItemIntoCargo(item))
+			return false;
+
+		if (Expansion_IsExcludedFromPS(item))
+			return false;
+
+		return true;
+	}
+
+	bool Expansion_IsExcludedFromPS(EntityAI item)
+	{
+		auto settings = GetExpansionSettings().GetPersonalStorageNew(false);
+		if (settings.IsLoaded() && ExpansionStatic.IsAnyOf(item, settings.ExcludedItems))
+			return true;
+
+		if (GetGame().IsClient() && !s_Expansion_RequestedIsExcludedFromPS[item.GetType()])
+			Expansion_RequestIsExcludedFromPS(item);
+
+		return false;
+	}
+
+	//! Client
+	void Expansion_RequestIsExcludedFromPS(EntityAI item)
+	{
+		auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_Expansion_SendIsExcludedFromPS");
+		rpc.Write(item);
+		rpc.Expansion_Send(true);
+
+		s_Expansion_RequestedIsExcludedFromPS[item.GetType()] = true;
+	}
+
+	//! Server
+	void Expansion_SendExcludedFromPSNotification(EntityAI item, PlayerIdentity identity)
+	{
+		auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_Expansion_ExcludedFromPSNotification");
+		rpc.Write(item);
+		rpc.Expansion_Send(true, identity);
+	}
+
+	//! Client
+	void Expansion_ExcludedFromPSNotification(EntityAI item)
+	{
+		ExpansionNotification("STR_EXPANSION_DENIED", new CF_Localiser("STR_EXPANSION_PERSONALSTORAGE_ITEM_DENIED", item.GetDisplayName()), "Error", COLOR_EXPANSION_NOTIFICATION_ERROR, 3).Create();
 	}
 
 	override void EEDelete(EntityAI parent)
@@ -254,7 +328,7 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		}
 		else
 		{
-			EXTrace.Print(EXTrace.PERSONALSTORAGE, this, "::Expansion_StoreContents - " + GetPosition() + " - could not save inventory to " + fileName);
+			EXError.Error(this, "Personal storage at " + GetPosition() + " - could not save inventory to " + fileName, {});
 		}
 
 		return false;
@@ -282,7 +356,7 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		}
 		else
 		{
-			EXTrace.Print(EXTrace.PERSONALSTORAGE, this, "::Expansion_RestoreContents - " + GetPosition() + " - could not restore inventory from " + fileName);
+			EXError.Error(this, "Personal storage at " + GetPosition() + " - could not restore inventory from " + fileName, {});
 		}
 
 		return false;
@@ -380,7 +454,7 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		InventoryLocation dstLoc = new InventoryLocation;
 		if (!dst.GetInventory().FindFreeLocationFor(item, FindInventoryLocationType.ANY, dstLoc))
 		{
-			ExpansionNotification("Not enough space in inventory", "Not enough space in inventory of " + dst.GetDisplayName()).Error(sender);
+			ExpansionNotification("STR_EXPANSION_INVENTORY_FULL_TITLE", new CF_Localiser("STR_EXPANSION_TARGET_INVENTORY_FULL_DESC", dst.GetDisplayName())).Error(sender);
 			return;
 		}
 
@@ -391,6 +465,63 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		}
 	}
 	
+	//! Client
+	void RPC_Expansion_ExcludedFromPSNotification(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		EntityAI item;
+		if (!ctx.Read(item))
+		{
+			ExpansionNotification("Couldn't read item", "Couldn't read item").Error();
+			return;
+		}
+
+		Expansion_ExcludedFromPSNotification(item);
+	}
+
+	//! Server
+	void RPC_Expansion_SendIsExcludedFromPS(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		Man player = sender.GetPlayer();
+
+		if (!player)
+			return;
+
+		if (ExpansionGetContainerOwnerUID() != sender.GetId())
+		{
+			ExpansionNotification("Access denied", "Cannot access another player's personal storage!").Error(sender);
+			return;
+		}
+
+		EntityAI item;
+		if (!ctx.Read(item))
+		{
+			ExpansionNotification("Couldn't read item", "Couldn't read item").Error(sender);
+			return;
+		}
+
+		if (Expansion_IsExcludedFromPS(item))
+		{
+			auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_Expansion_ReceiveIsExcludedFromPS");
+			rpc.Write(item);
+			rpc.Expansion_Send(true, sender);
+		}
+	}
+
+	//! Client
+	void RPC_Expansion_ReceiveIsExcludedFromPS(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		EntityAI item;
+		if (!ctx.Read(item))
+		{
+			ExpansionNotification("Couldn't read item", "Couldn't read item").Error();
+			return;
+		}
+
+		GetExpansionSettings().GetPersonalStorageNew().ExcludedItems.Insert(item.GetType());
+
+		Expansion_ExcludedFromPSNotification(item);
+	}
+
 	ExpansionPersonalStorageHub Expansion_GetPersonalStorageHub()
 	{
 		return m_Expansion_PersonalStorageHub;

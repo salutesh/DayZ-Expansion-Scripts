@@ -14,6 +14,8 @@
 
 modded class Weapon_Base
 {
+	static ref map<string, float> s_Expansion_MinSafeFiringDistance = new map<string, float>;
+
 	float m_eAI_LastFiredTime;
 
 	bool Hitscan(vector begin_point, vector direction, eAIBase ai, out Object hitObject, out vector hitPosition, out vector hitNormal, out int contactComponent)
@@ -255,5 +257,37 @@ modded class Weapon_Base
 		}
 
 		return false;
+	}
+
+	float Expansion_GetMinSafeFiringDistance()
+	{
+		int muzzleIndex = GetCurrentMuzzle();
+
+		string projectile;
+		if (IsChamberFull(muzzleIndex))
+			projectile = GetChamberedCartridgeMagazineTypeName(muzzleIndex);
+
+		float minDist;
+
+		if (!s_Expansion_MinSafeFiringDistance.Find(projectile, minDist))
+		{
+			float indirectHitRange = GetGame().ConfigGetFloat(CFG_AMMO + " " + projectile + " indirectHitRange");
+			float indirectHitRangeMultiplier = GetGame().ConfigGetFloat(CFG_AMMO + " " + projectile + " indirectHitRangeMultiplier");
+
+			minDist = indirectHitRange * indirectHitRangeMultiplier;
+
+		#ifdef DIAG
+			EXTrace.Print(EXTrace.AI, this, projectile + " indirect hit range " + minDist);
+		#endif
+
+			//! TODO: Vanilla does this so awkward. The fired projectile is different from the explosive projectile
+			//! which is only referenced in DayZGame::FirearmEffects, and there is no canonical way to get it from the fired projectile.
+			//! Need to fall back to a hardcoded value for now :-(
+			minDist = Math.Max(minDist, 20.0);
+
+			s_Expansion_MinSafeFiringDistance[projectile] = minDist;
+		}
+
+		return minDist;
 	}
 };

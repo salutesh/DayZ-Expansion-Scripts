@@ -89,7 +89,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 				}
 
 				//! Ignore magazines and ammo if AI has no gun
-				if (m_Item.IsMagazine() && !gunInHands && !ai.GetWeaponToUse())
+				if (m_Item.IsMagazine() && !gunInHands && !ai.eAI_GetAnyWeaponToUse())
 					return 0.0;
 
 				Weapon_Base gun;

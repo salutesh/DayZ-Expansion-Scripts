@@ -10,6 +10,12 @@
  *
 */
 
+enum ExpansionQuestRewardBehavior
+{
+	RANDOMIZED_ON_COMPLETION = 0,
+	RANDOMIZED_ON_START = 1
+};
+
 class ExpansionQuestConfigBase
 {
 	int ConfigVersion;
@@ -38,6 +44,7 @@ class ExpansionQuestConfigBase
 	bool RandomReward = false; //! Only one reward is randomly selected and given to the player from the configured reward items on quest completion.
 	int RandomRewardAmount = -1; //! Controlls amount of reward items that get randomly selected and given to the player on quest completion if RandomReward boolean is true.
 	bool RewardsForGroupOwnerOnly = true; //! If the quest is a group quest this option controlls if all group players get the reward or ownly the group owner.
+	ExpansionQuestRewardBehavior RewardBehavior = 0;
 
 	ref array<int> QuestGiverIDs; //! NPC IDs of the NPCs that will head out the quest.
 	ref array<int> QuestTurnInIDs;	//! NPC IDs of the NPCs where players can turn in the quest when completed.
@@ -119,7 +126,7 @@ class ExpansionQuestConfigV20Base: ExpansionQuestConfigV19Base
 
 class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 {
-	static const int CONFIGVERSION = 21;
+	static const int CONFIGVERSION = 22;
 	
 	bool SuppressQuestLogOnCompetion = false;
 	bool Active = true;
@@ -458,6 +465,16 @@ class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 	{
 		return RandomRewardAmount;
 	}
+	
+	void SetRewardBehavior(ExpansionQuestRewardBehavior rewardBehavior)
+	{
+		RewardBehavior = rewardBehavior;
+	}
+	
+	ExpansionQuestRewardBehavior GetRewardBehavior()
+	{
+		return RewardBehavior;
+	}
 
 	void SetRewardForGroupOwnerOnly(bool state)
 	{
@@ -681,8 +698,65 @@ class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 
 		if (save)
 			questConfig.Save(fileName);
+		
+		//! Preperations for config behavior handling after data was loaded
+		OnLoad(questConfig);
 
 		return questConfig;
+	}
+	
+	protected static void OnLoad(ExpansionQuestConfig questConfig)
+	{
+		if (questConfig.GetRewardBehavior() == ExpansionQuestRewardBehavior.RANDOMIZED_ON_START)
+		{
+			array<ref ExpansionQuestRewardConfig> questRewards = questConfig.GetRewards();
+			array<ExpansionQuestRewardConfig> randomRewards = new array<ExpansionQuestRewardConfig>;
+			
+			int index = -1;
+			int lootItemsSelected = 0;
+			array<float> chances = new array<float>;
+			foreach (ExpansionQuestRewardConfig rewardConfig: questRewards)
+			{
+				chances.Insert(rewardConfig.GetChance());
+			}
+
+			int itemCount = questConfig.GetRandomRewardAmount();
+			ExpansionQuestRewardConfig radomReward;
+	
+			if (itemCount > 0)
+			{
+				while (lootItemsSelected < itemCount)
+				{
+					index = ExpansionStatic.GetWeightedRandom(chances);
+					if (index > -1)
+					{
+						radomReward = questRewards[index];
+						randomRewards.Insert(radomReward);
+						lootItemsSelected++;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			else
+			{
+				index = ExpansionStatic.GetWeightedRandom(chances);
+				if (index > -1)
+				{
+					radomReward = questRewards[index];
+					randomRewards.Insert(radomReward);
+				}
+			}
+			
+			questConfig.Rewards.Clear();
+			
+			foreach (ExpansionQuestRewardConfig selectedReward: randomRewards)
+			{
+				questConfig.Rewards.Insert(selectedReward);
+			}
+		}
 	}
 
 	protected static void UpdateQuestObjectivesConfigs(ExpansionQuestConfig questConfig, string fileName = string.Empty)
@@ -1027,6 +1101,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 		NeedToSelectReward = questConfigBase.NeedToSelectReward;
 		RandomReward = questConfigBase.RandomReward;
 		RandomRewardAmount = questConfigBase.RandomRewardAmount;
+		RewardBehavior = questConfigBase.RewardBehavior;
 
 		RewardsForGroupOwnerOnly = questConfigBase.RewardsForGroupOwnerOnly;
 
@@ -1266,6 +1341,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 		ctx.Write(NeedToSelectReward);
 		ctx.Write(RandomReward);
 		ctx.Write(RandomRewardAmount);
+		ctx.Write(RewardBehavior);
 
 		ctx.Write(QuestGiverIDs.Count());
 
@@ -1606,6 +1682,12 @@ class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 		if (!ctx.Read(RandomRewardAmount))
 		{
 			Error(ToString() + "::OnRecieve - RandomRewardAmount");
+			return false;
+		}
+		
+		if (!ctx.Read(RewardBehavior))
+		{
+			Error(ToString() + "::OnRecieve - RewardBehavior");
 			return false;
 		}
 

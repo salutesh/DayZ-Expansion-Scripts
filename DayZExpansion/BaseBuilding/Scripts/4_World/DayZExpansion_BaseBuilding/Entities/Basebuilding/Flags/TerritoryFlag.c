@@ -447,7 +447,7 @@ modded class TerritoryFlag
 
 		if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation && part_name == "pole" ) 
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_AttachDefaultFlag, 34, false);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_AttachDefaultFlag, 34, false, PlayerBase.Cast(player));
 		}
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -455,7 +455,7 @@ modded class TerritoryFlag
 		#endif
 	}
 	
-	void Expansion_AttachDefaultFlag()
+	void Expansion_AttachDefaultFlag(PlayerBase player = null)
 	{
 		if (!FindAttachmentBySlotName("Material_FPole_Flag"))
 		{
@@ -466,6 +466,12 @@ modded class TerritoryFlag
 					m_Expansion_FlagTexturePath = EXPANSION_DEFAULT_FLAG_TEXTURE;
 				
 				flag.SetFlagTexture(m_Expansion_FlagTexturePath);
+
+				if (player && ExpansionActionEnterFlagMenu.Expansion_CanEnterFlagMenu(player, this))
+				{
+					auto rpc = ExpansionScriptRPC.Create(ExpansionTerritoryModule.s_OpenFlagMenu_RPCID);
+					rpc.Expansion_Send(this, true, player.GetIdentity());
+				}
 			}
 		}
 	}
