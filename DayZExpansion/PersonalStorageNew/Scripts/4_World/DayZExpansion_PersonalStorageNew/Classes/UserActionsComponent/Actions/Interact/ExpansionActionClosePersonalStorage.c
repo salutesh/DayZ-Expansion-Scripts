@@ -17,13 +17,20 @@ class ExpansionActionClosePersonalStorage: ActionInteractBase
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
 		m_HUDCursorIcon = CursorIcons.CloseDoors;
-		m_Text = "Close Personal Storage";
+		m_Text = "#close #STR_EXPANSION_PERSONALSTORAGE";
 	}
 
 	override void CreateConditionComponents()  
 	{
 		m_ConditionItem = new CCINone;
 		m_ConditionTarget = new CCTCursorNoObject(UAMaxDistances.DEFAULT);
+	}
+
+	override void OnActionInfoUpdate(PlayerBase player, ActionTarget target, ItemBase item)
+	{
+		ExpansionPersonalStorageHub hub;
+		if (Class.CastTo(hub, target.GetObject()))
+			m_Text = "#close " + hub.Expansion_GetContainerDisplayName(player);
 	}
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
@@ -44,6 +51,6 @@ class ExpansionActionClosePersonalStorage: ActionInteractBase
 			return;
 
 		if (!hub.Expansion_ClosePersonalStorage(action_data.m_Player))
-			ExpansionNotification("STR_EXPANSION_ERROR_TITLE", "Could not close personal storage").Error(action_data.m_Player.GetIdentity());
+			ExpansionNotification("STR_EXPANSION_ERROR_TITLE", "STR_EXPANSION_PERSONALSTORAGE_CLOSE_ERROR").Error(action_data.m_Player.GetIdentity());
 	}
 }

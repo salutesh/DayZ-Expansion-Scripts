@@ -388,7 +388,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 		}
 		else
 		{
-			m_PathFinding.StopOverride();
+			//m_PathFinding.StopOverride();
 			if (m_DebugTime > 0)
 				m_DebugTime -= pDt;
 			m_LastBlockedForward = false;
@@ -423,7 +423,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			if (Math.AbsFloat(m_MovementDirection) >= 135)
 			{
 				checkDir = position - 0.5 * fb;
-				blockedBackward = Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, backwardPos, outNormal, hitFraction, checkDir + CHECK_MIN_HEIGHT, 0.5, true, m_BlockingObject);
+				blockedBackward = this.Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, backwardPos, outNormal, hitFraction, checkDir + CHECK_MIN_HEIGHT, 0.5, true, m_BlockingObject);
 
 				if (!blockedBackward && m_PositionTime > 3.0)
 					blockedBackward = true;
@@ -440,7 +440,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			else
 			{
 				checkDir = position + 0.5 * fb;
-				blockedForward = Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed + CHECK_MIN_HEIGHT, 1.0, true, m_BlockingObject);
+				blockedForward = this.Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed + CHECK_MIN_HEIGHT, 1.0, true, m_BlockingObject);
 
 				if (!blockedForward && m_PositionTime > 3.0)
 					blockedForward = true;
@@ -481,12 +481,12 @@ class eAICommandMove: ExpansionHumanCommandScript
 				vector lr = fb.Perpend();
 				vector checkLeft = position + 0.25 * lr;
 				vector checkRight = position - 0.25 * lr;
-				blockedLeft = Raycast(position + CHECK_MIN_HEIGHT, checkLeft + CHECK_MIN_HEIGHT, leftPos, outNormal, hitFraction, checkDir + lr + CHECK_MIN_HEIGHT, 0.5);
+				blockedLeft = this.Raycast(position + CHECK_MIN_HEIGHT, checkLeft + CHECK_MIN_HEIGHT, leftPos, outNormal, hitFraction, checkDir + lr + CHECK_MIN_HEIGHT, 0.5);
 				if (!blockedLeft && m_PositionTime > 3.0)
 					blockedLeft = true;
 				if (blockedLeft)
 					m_Unit.Expansion_DebugObject_Deferred(BLOCKED_LEFT_HITPOSITION, leftPos, "ExpansionDebugBox_Purple", outNormal);
-				blockedRight = Raycast(position + CHECK_MIN_HEIGHT, checkRight + CHECK_MIN_HEIGHT, rightPos, outNormal, hitFraction, checkDir - lr + CHECK_MIN_HEIGHT, 0.5);
+				blockedRight = this.Raycast(position + CHECK_MIN_HEIGHT, checkRight + CHECK_MIN_HEIGHT, rightPos, outNormal, hitFraction, checkDir - lr + CHECK_MIN_HEIGHT, 0.5);
 				if (!blockedRight && m_PositionTime > 3.0)
 					blockedRight = true;
 				if (blockedRight)
@@ -887,7 +887,11 @@ class eAICommandMove: ExpansionHumanCommandScript
 		else
 			m_Unit.m_eAI_PositionIsFinal = false;
 
-		if (m_Unit.m_eAI_PositionIsFinal)
+		if (m_Unit.eAI_IsSideSteppingVehicle())
+		{
+			SetTargetSpeed(Math.Lerp(m_MovementSpeed, 3.0, pDt * 4.0));
+		}
+		else if (m_Unit.m_eAI_PositionIsFinal)
 		{
 			SetTargetSpeed(0.0);
 		}
@@ -1236,7 +1240,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			vector hitPosition;
 			vector hitNormal;
 			float hitFraction;
-			isBlocked = Raycast(position + CHECK_MIN_HEIGHT, checkLeft + CHECK_MIN_HEIGHT, hitPosition, hitNormal, hitFraction, checkDir + lr + CHECK_MIN_HEIGHT, 0.5);
+			isBlocked = this.Raycast(position + CHECK_MIN_HEIGHT, checkLeft + CHECK_MIN_HEIGHT, hitPosition, hitNormal, hitFraction, checkDir + lr + CHECK_MIN_HEIGHT, 0.5);
 			if (isBlocked)
 				blockDistSq = vector.DistanceSq(position, hitPosition);
 		}
@@ -1266,7 +1270,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			vector hitPosition;
 			vector hitNormal;
 			float hitFraction;
-			isBlocked = Raycast(position + CHECK_MIN_HEIGHT, checkRight + CHECK_MIN_HEIGHT, hitPosition, hitNormal, hitFraction, checkDir - lr + CHECK_MIN_HEIGHT, 0.5);
+			isBlocked = this.Raycast(position + CHECK_MIN_HEIGHT, checkRight + CHECK_MIN_HEIGHT, hitPosition, hitNormal, hitFraction, checkDir - lr + CHECK_MIN_HEIGHT, 0.5);
 			if (isBlocked)
 				blockDistSq = vector.DistanceSq(position, hitPosition);
 		}

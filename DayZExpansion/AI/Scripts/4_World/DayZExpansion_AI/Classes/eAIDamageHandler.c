@@ -21,7 +21,13 @@ class eAIDamageHandler
 
 		DayZPlayerImplement sourcePlayer;
 		if (source)  //! Source can be null if actual source is not an EntityAI but (e.g.) a static object during a vehicle collision
-			sourcePlayer = DayZPlayerImplement.Cast(source.GetHierarchyRootPlayer());
+		{
+			Transport transport;
+			if (Class.CastTo(transport, source))
+				sourcePlayer = DayZPlayerImplement.Cast(transport.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER));
+			else
+				sourcePlayer = DayZPlayerImplement.Cast(source.GetHierarchyRootPlayer());
+		}
 
 		if (!m_ProcessDamage)
 		{
@@ -72,10 +78,26 @@ class eAIDamageHandler
 							eAIFaction faction = group.GetFaction();
 							float yeetForce;
 
-							if (!isPlayerItem)
+							if (!isPlayerItem && !m_Entity.GetHierarchyParent())
 							{
-								yeetForce = faction.GetMeleeYeetForce();
-								eAIMeleeCombat.eAI_ApplyYeetForce(m_TargetInformation, yeetForce, sourcePlayer.GetPosition(), faction.GetMeleeYeetFactors());
+								eAIEntityTargetInformation info;
+
+								if (player && player.IsInTransport())
+								{
+									CarScript vehicle;
+									if (Class.CastTo(vehicle, player.GetParent()))
+										info = vehicle.GetTargetInformation();
+								}
+								else
+								{
+									info = m_TargetInformation;
+								}
+
+								if (info)
+								{
+									yeetForce = faction.GetMeleeYeetForce();
+									eAIMeleeCombat.eAI_ApplyYeetForce(info, yeetForce, sourcePlayer.GetPosition(), faction.GetMeleeYeetFactors());
+								}
 							}
 
 							//! @note for player targets, melee dmg mult above 1 and yeet are mutually exclusive

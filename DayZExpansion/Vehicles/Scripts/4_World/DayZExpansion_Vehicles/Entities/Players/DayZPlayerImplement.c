@@ -125,15 +125,4 @@ modded class DayZPlayerImplement
 	{
 		return m_Expansion_IsHeadInvisible;
 	}
-
-	override bool IsInTransport()
-	{
-		if (GetCommand_Vehicle())
-			return true;
-
-		if (ExpansionHumanCommandVehicle.Cast(GetCommand_Script()))
-			return true;
-
-		return false;
-	}
 };

@@ -77,11 +77,12 @@ FrameWidgetClass rootFrame {
      vexactsize 0
      style Normal
      text "Marker Name"
-     font "gui/fonts/etelkatextpro16"
+     font "gui/fonts/sdf_MetronBook24"
      "text offset" 0 0
-     "exact text" 0
+     "exact text" 1
+     "exact text size" 16
      "size to text h" 0
-     "size to text v" 0
+     "size to text v" 1
      "text halign" center
      "text valign" center
     }
@@ -108,9 +109,10 @@ FrameWidgetClass rootFrame {
      vexactsize 0
      style Normal
      text "1000 m"
-     font "gui/fonts/etelkatextpro16"
+     font "gui/fonts/sdf_MetronLight24"
      "text offset" 0 0
-     "exact text" 0
+     "exact text" 1
+     "exact text size" 14
      "size to text h" 0
      "size to text v" 0
      "text halign" center

@@ -126,6 +126,8 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 		if (DayZPhysics.RaycastRV(m_RayStart, m_RayEnd, hitPos, hitNormal, hitZone, hitObjects, null, m_AI, true, false, ObjIntersectIFire, 0.0, CollisionFlags.ALLOBJECTS) && hitObjects.Count() > 0)
 		{
+			EntityAI hitEntity;
+
 			foreach (Object hitObject: hitObjects)
 			{
 				if (hitObject.IsBush())
@@ -134,16 +136,26 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 				target = hitObject;
 				m_ForceUntargetable = false;
 
+				if (hitObject.IsInherited(CarDoor) && Class.CastTo(hitEntity, hitObject) && hitEntity.GetHierarchyRoot().IsTransport())
+					return true;
+
 				//! Opponent is inside car - targeting range is shorter in that case
 				PlayerBase playerTarget = PlayerBase.Cast(target);
 				if (playerTarget && playerTarget.IsInVehicle())
 				{
 					if (vector.DistanceSq(m_RayStart, hitPos) > Math.SqrFloat(GetRange() * 0.5))
 					{
-						m_ForceUntargetable = true;
-						target = null;
-						hitPos = vector.Zero;
-						hitZone = -1;
+						if (m_AI.GetGroup().GetFaction().GetMeleeYeetForce() >= 1.0)
+						{
+							target = Object.Cast(playerTarget.GetParent());
+						}
+						else
+						{
+							m_ForceUntargetable = true;
+							target = null;
+							hitPos = vector.Zero;
+							hitZone = -1;
+						}
 					}
 				}
 
@@ -220,7 +232,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		}
 	}
 
-	static void eAI_ApplyYeetForce(eAIEntityTargetInformation info, float yeetForce, vector sourcePosition, vector yeetFactors)
+	static void eAI_ApplyYeetForce(notnull eAIEntityTargetInformation info, float yeetForce, vector sourcePosition, vector yeetFactors)
 	{
 		if (yeetForce)
 		{

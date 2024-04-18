@@ -31,3 +31,11 @@ class Expansion_ANPEQ15_Green: Expansion_Laser_Base
 		return true;
 	}
 };
+
+class Expansion_ANPEQ15_GreenNV: Expansion_ANPEQ15_Green
+{
+	override bool IsVisibleWithoutNVG()
+	{
+		return false;
+	}
+};

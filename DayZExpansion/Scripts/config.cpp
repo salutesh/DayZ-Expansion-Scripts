@@ -101,14 +101,6 @@ class CfgMods
 		dependencies[] = {"Game","World","Mission"};
 		class defs
 		{
-			class widgetStyles
-			{
-				files[] = {"DayZExpansion/GUI/looknfeel/dayzexpansionwidgets.styles"};
-			};
-			class imageSets
-			{
-				files[] = {};
-			};
 			class engineScriptModule
 			{
 				value = "";

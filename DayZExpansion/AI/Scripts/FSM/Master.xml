@@ -19,7 +19,7 @@
 					hands.GetCompEM().SwitchOff();
 				}
 				
-				unit.OverrideTargetPosition(unit.GetPosition());
+				unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() * 0.333333);
 				unit.OverrideMovementDirection(false, 0);
 				unit.OverrideMovementSpeed(true, 0);
 				
@@ -70,7 +70,7 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed());
+				unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() * 0.333333);
 			</event_entry>
 			<event_exit />
 			<event_update>
@@ -351,6 +351,7 @@
 			<variables>
 				<variable name="item" type="ItemBase" />
 				<variable name="time" type="float" />
+				<variable name="loweringWeapon" type="bool" />
 			</variables>
 			<editor_data>
 				<position x="275.340877794781" y="547.920853681019" />
@@ -361,20 +362,49 @@
 				EXTrace.Print(EXTrace.AI, unit, "TakeItemToHands " + item.ToString());
 				#endif
 				time = 0;
+				loweringWeapon = false;
 				if (unit.GetEmoteManager().IsEmotePlaying())
 					unit.GetEmoteManager().ServerRequestEmoteCancel();
 			</event_entry>
 			<event_exit />
 			<event_update>
-				if (unit.GetActionManager().GetRunningAction())
+				if (unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning())
 					return CONTINUE;
 				
-				if (item &amp;&amp; unit.GetItemInHands() != item &amp;&amp; (!item.GetHierarchyRootPlayer() || item.GetHierarchyRootPlayer() == unit))
+				//! Taking items to hands while raised breaks hands! Wait until lowered
+				if (unit.IsRaised())
+				{
+					loweringWeapon = true;
+					unit.RaiseWeapon(false);
+				}
+				
+				if (loweringWeapon)
+				{
+					if (time &lt; 0.5)
+					{
+						time += DeltaTime;
+						return CONTINUE;
+					}
+					
+					time = 0;
+					loweringWeapon = false;
+				}
+				
+				ItemBase hands = unit.GetItemInHands();
+				if (item &amp;&amp; hands != item &amp;&amp; (!item.GetHierarchyRootPlayer() || item.GetHierarchyRootPlayer() == unit))
 				{
 					if (unit.eAI_GetItemThreatOverride(item))
 					{
+						//! If we can't take the item, exit
 						if (!unit.eAI_TakeItemToInventoryImpl(item))
 							return EXIT;
+					}
+					else if (hands)
+					{
+						//! Try to put current hand item in inventory (shoulder slot or cargo), drop if not possible
+						if (!unit.eAI_TakeItemToInventoryImpl(hands))
+							unit.eAI_DropItem(hands);
+							
 					}
 					else if (!unit.eAI_TakeItemToHands(item))
 					{
@@ -594,6 +624,7 @@
 				if (unit.IsFighting()) return FAIL;
 				
 				if (unit.IsRestrained()) return FAIL;
+				if (unit.IsUnconscious()) return FAIL;
 				
 				if (!unit.eAI_ShouldBandage()) return FAIL;
 				
@@ -611,7 +642,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation,Fighting" />
 			<to_state name="Bandaging_Self" />
 		</transition>
 		<transition>
@@ -641,6 +672,7 @@
 				if (unit.IsClimbing() || unit.IsFalling() || unit.IsFighting() || !unit.GetCommand_MoveAI()) return FAIL;
 				
 				if (unit.IsRestrained()) return FAIL;
+				if (unit.IsUnconscious()) return FAIL;
 				
 				if (!Class.CastTo(dst.sub_fsm.weapon, unit.GetItemInHands())) return FAIL;
 				
@@ -657,7 +689,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state />
+			<from_state name="Idle,Fighting" />
 			<to_state name="Weapon_Reloading" />
 		</transition>
 		<transition>
@@ -669,12 +701,7 @@
 				if (unit.IsFighting()) return FAIL;
 				
 				if (unit.IsRestrained()) return FAIL;
-				
-				//! Taking items to hands while raised breaks hands! Wait until lowered
-				if (unit.IsRaised()) return FAIL;
-				
-				if (unit.GetWeaponManager().IsRunning()) return FAIL;
-				if (unit.GetActionManager().GetRunningAction()) return FAIL;
+				if (unit.IsUnconscious()) return FAIL;
 				
 				ItemBase hands = unit.GetItemInHands();
 				
@@ -694,23 +721,44 @@
 						dst.item = unit.GetBandageToUse();
 						if (dst.item)
 						{
-							//! Try to put in inventory (shoulder slot or cargo), drop if not possible
-							if (hands &amp;&amp; !unit.eAI_TakeItemToInventory(hands))
-								unit.eAI_DropItem(hands, false);
-							
 							return SUCCESS;
 						}
 					}
 				}
 				
-				if (hands)
-					return FAIL;
-				
-				dst.item = unit.GetWeaponToUse(true);
-				if (dst.item)
-					return SUCCESS;
-				
 				eAITarget target = unit.GetTarget();
+				
+				bool preferExplosiveAmmo;
+				if (hands)
+				{
+					EntityAI targetEntity;
+					
+					if (target)
+						targetEntity = target.GetEntity();
+					
+					if (targetEntity &amp;&amp; targetEntity.GetParent() &amp;&amp; unit.eAI_GetTargetThreat(target.info, true) &gt; 0.2)
+					{
+						if (!hands.ShootsExplosiveAmmo())
+							preferExplosiveAmmo = true;
+						else
+							return FAIL;
+					}
+					else if (!hands.ShootsExplosiveAmmo())
+					{
+						return FAIL;
+					}
+				}
+				
+				ItemBase item = unit.eAI_GetAnyWeaponToUse(true, preferExplosiveAmmo);
+				if (item)
+				{
+					if (item == hands)
+						return FAIL;
+					
+					dst.item = item;
+					return SUCCESS;
+				}
+				
 				ItemBase targetItem;
 				if (target &amp;&amp; Class.CastTo(targetItem, target.GetEntity()) &amp;&amp; (targetItem.IsWeapon() || targetItem.Expansion_IsMeleeWeapon()) &amp;&amp; !targetItem.GetHierarchyRootPlayer() &amp;&amp; !targetItem.IsSetForDeletion())
 				{
@@ -728,7 +776,7 @@
 				 return FAIL;
 			</guard>
 			<event />
-			<from_state />
+			<from_state name="Idle,Fighting" />
 			<to_state name="TakeItemToHands" />
 		</transition>
 		<transition>
@@ -752,6 +800,7 @@
 				if (unit.IsFighting()) return FAIL;
 				
 				if (unit.IsRestrained()) return FAIL;
+				if (unit.IsUnconscious()) return FAIL;
 				
 				if (unit.IsRaised()) return FAIL;
 				
@@ -819,7 +868,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state />
+			<from_state name="Idle,Fighting" />
 			<to_state name="TakeItemToInventory" />
 		</transition>
 		<transition>
@@ -843,6 +892,7 @@
 				if (unit.IsClimbing() || unit.IsFalling() || unit.IsFighting() || !unit.GetCommand_MoveAI()) return FAIL;
 				
 				if (unit.IsRestrained()) return FAIL;
+				if (unit.IsUnconscious()) return FAIL;
 				
 				if (!Class.CastTo(dst.weapon, unit.GetItemInHands())) return FAIL;
 				
@@ -854,7 +904,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state />
+			<from_state name="Idle,Fighting" />
 			<to_state name="Weapon_Unjamming" />
 		</transition>
 		<transition>
@@ -888,14 +938,17 @@
 			</editor_data>
 			<guard>
 				if (unit.IsRestrained()) return FAIL;
+				if (unit.IsUnconscious()) return FAIL;
 				
 				if (unit.GetThreatToSelf() &lt; 0.4) return FAIL;
 				if (unit.GetActionManager().GetRunningAction()) return FAIL;
 				
+				if (unit.IsInTransport()) return FAIL;
+				
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation" />
 			<to_state name="Fighting" />
 		</transition>
 		<transition>
@@ -964,7 +1017,7 @@
 				return FAIL;
 			</guard>
 			<event />
-			<from_state />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation" />
 			<to_state name="Vehicles" />
 		</transition>
 		<transition>
@@ -974,6 +1027,7 @@
 			</editor_data>
 			<guard>
 				if (unit.IsRestrained()) return FAIL;
+				if (unit.IsUnconscious()) return FAIL;
 				if (!unit.GetCommand_MoveAI()) return FAIL;
 				if (unit.eAI_IsChangingStance()) return FAIL;
 				
@@ -991,7 +1045,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation" />
 			<to_state name="PlayEmote" />
 		</transition>
 		<transition>
@@ -1022,10 +1076,12 @@
 				auto leader = dst.group.GetFormationLeader();
 				if (!leader || leader == unit) return FAIL;
 				
+				if (leader.IsInTransport()) return FAIL;
+				
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle,FollowFormation" />
+			<from_state name="Idle" />
 			<to_state name="FollowFormation" />
 		</transition>
 		<transition>
@@ -1044,12 +1100,13 @@
 				// we are the leader so we traverse the waypoints
 				auto leader = group.GetFormationLeader();
 				if (leader &amp;&amp; leader != unit) return FAIL;
+				if (leader.IsInTransport()) return FAIL;
 				if (group.GetWaypoints().Count() == 0) return FAIL;
 				
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle,TraversingWaypoints" />
+			<from_state name="Idle" />
 			<to_state name="TraversingWaypoints" />
 		</transition>
 		<transition>
@@ -1094,7 +1151,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state />
+			<from_state name="Idle" />
 			<to_state name="Idle" />
 		</transition>
 	</transitions>

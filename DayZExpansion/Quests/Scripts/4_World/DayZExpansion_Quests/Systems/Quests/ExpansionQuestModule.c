@@ -1242,6 +1242,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		rpc.Write(questNPCID);
 		rpc.Write(questNPCData.GetDefaultNPCText());
 		rpc.Write(-1);
+		rpc.Write(CF_Date.Now(true).GetTimestamp());
 		rpc.Expansion_Send(target, true, identity);
 
 	#ifdef EXPANSIONMODAI
@@ -1305,14 +1306,21 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
+		int serverTime;
+		if (!ctx.Read(serverTime))
+		{
+			Error(ToString() + "::RPC_RequestOpenQuestMenu - Could not get serverTime!");
+			return;
+		}
+
 		QuestModulePrint("Quest ID: " + questID);
 		
 		//! Open quest menu if no other menu is opened
-		if (!GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
+		if (!GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu() && !GetGame().GetUIManager().GetMenu())
 		{
 			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionQuestMenu");
 			//! Populate quest menu with needed client data.
-			m_QuestMenuInvoker.Invoke(displayName, defaultText, questNPCID, questID);
+			m_QuestMenuInvoker.Invoke(displayName, defaultText, questNPCID, questID, serverTime);
 		}
 	}
 
@@ -2564,18 +2572,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 					npcAI.SetQuestNPCID(questNPCData.GetID());
 					npcAI.SetQuestNPCData(questNPCData);
-					npcAI.SetPosition(questNPCData.GetPosition());
-					npcAI.SetOrientation(questNPCData.GetOrientation());
 					npcAI.Expansion_SetEmote(questNPCData.GetEmoteID(), !questNPCData.IsEmoteStatic());
-
-					eAIGroup npcAIGroup = npcAI.GetGroup();
-					array<vector> waypoints = questNPCData.GetWaypoints();
-					foreach (vector point: waypoints)
-					{
-						npcAIGroup.AddWaypoint(point);
-					}
-
-					npcAIGroup.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
 				}
 				break;
 			#endif

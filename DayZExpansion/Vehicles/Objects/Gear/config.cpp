@@ -577,7 +577,7 @@ class CfgSlots
 {
 	class Slot_GlowPlug
 	{
-		displayName = "$STR_EXPANSION_GLOWPLUG";
+		displayName = "$STR_GlowPlug0";
 	};
 	class Slot_ExpansionIgniterPlug
 	{
@@ -608,7 +608,7 @@ class CfgSlots
 	class Slot_KeyChain
 	{
 		name = "KeyChain";
-		displayName = "KeyChain";
+		displayName = "$STR_EXPANSION_KEYCHAIN";
 		ghostIcon = "missing";
 	};
 };

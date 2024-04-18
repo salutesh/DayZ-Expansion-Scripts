@@ -190,11 +190,13 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 	protected TextWidget CooldownText;
 	
 	protected bool m_HasCooldown;
+	protected int m_ServerTime;
 
-	void ExpansionQuestMenuListEntry(ExpansionQuestConfig quest, ExpansionQuestMenu menu)
+	void ExpansionQuestMenuListEntry(ExpansionQuestConfig quest, ExpansionQuestMenu menu, int serverTime = 0)
 	{
 		m_Quest = quest;
 		m_QuestMenu = menu;
+		m_ServerTime = serverTime;
 
 		Class.CastTo(m_QuestMenuListEntryController, GetController());
 		Class.CastTo(m_QuestModule, CF_ModuleCoreManager.Get(ExpansionQuestModule));
@@ -241,21 +243,26 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 		
 		m_QuestMenuListEntryController.NotifyPropertyChanged("QuestIconPath");
 		
-		SetCooldown();
+		SetCooldown(m_ServerTime);
 	}
 	
-	protected void SetCooldown()
+	protected void SetCooldown(int serverTime)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
 		m_HasCooldown = false;
 		
 		int timedif;
 		if (m_Quest.IsDailyQuest() || m_Quest.IsWeeklyQuest())
 		{
-			if (m_QuestModule.GetClientQuestData().HasCooldownOnQuest(m_Quest.GetID(), timedif))
+			int timestamp = m_QuestModule.GetClientQuestData().GetQuestTimestampByQuestID(m_Quest.GetID());
+			if (timestamp != -1)
 			{
-				m_HasCooldown = true;
+				int dif = timestamp - serverTime;
+				if (dif != 0)
+				{
+					m_HasCooldown = true;
+					timedif = dif;
+				}
 			}
 		}
 		
@@ -323,7 +330,7 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 
 		return false;
 	}
-	
+
 	override float GetUpdateTickRate()
 	{
 		return 10.0;
@@ -331,10 +338,11 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 	
 	override void Expansion_Update()
 	{
-		if (!IsVisible())
+		if (!IsVisible() || !m_HasCooldown)
 			return;
 
-		SetCooldown();
+		m_ServerTime = m_ServerTime + 10;
+		SetCooldown(m_ServerTime);
 	}
 };
 

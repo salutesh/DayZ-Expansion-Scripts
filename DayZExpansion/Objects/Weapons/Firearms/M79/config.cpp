@@ -234,27 +234,6 @@ class cfgAmmoTypes
 class CfgAmmo
 {
 	class Bullet_Base;
-	class MeleeDamage;
-	class DummyShockDamage: MeleeDamage
-	{
-		hitAnimation = 0;
-		class DamageApplied
-		{
-			type = "DummyShockHit";
-			class Health
-			{
-				damage = 0;
-			};
-			class Blood
-			{
-				damage = 0;
-			};
-			class Shock
-			{
-				damage = 1;
-			};
-		};
-	};
 	class Bullet_Expansion_M203_Smoke_Base: Bullet_Base
 	{
 		scope = 0;

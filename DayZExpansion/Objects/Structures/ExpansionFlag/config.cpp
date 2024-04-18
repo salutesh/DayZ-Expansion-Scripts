@@ -18,7 +18,7 @@ class CfgVehicles
 	{
 		scope = 1;
 		shadow = 0;
-		model = "\DayZExpansion\Objects\Structures\ExpansionFlag\ExpasnionFlagProp.p3d";
+		model = "\DayZExpansion\Objects\Structures\ExpansionFlag\ExpansionFlagProp.p3d";
 		vehicleClass = "Expansion_Static";
 	};
 };

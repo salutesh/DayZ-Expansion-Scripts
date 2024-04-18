@@ -707,7 +707,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 	
 	protected static void OnLoad(ExpansionQuestConfig questConfig)
 	{
-		//! TODO: Set reward pool based on the given random reward items and the amount of items given on quest completion so we can display these items in the quest menu before the player accepts the quest.
 		if (questConfig.GetRewardBehavior() == ExpansionQuestRewardBehavior.RANDOMIZED_ON_START)
 		{
 			array<ref ExpansionQuestRewardConfig> questRewards = questConfig.GetRewards();

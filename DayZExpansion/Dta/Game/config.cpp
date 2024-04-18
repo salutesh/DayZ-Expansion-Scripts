@@ -19,11 +19,6 @@ class CfgVehicles
 		hasDoors = 1;
 		hornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
 		hornSoundSetINT = "Expansion_Horn_Int_SoundSet";
-		class NoiseCarHorn
-		{
-			strength = 150;
-			type = "shot";
-		};
 	};
 };
 class CfgNonAIVehicles

@@ -65,6 +65,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	protected Widget DefaultPanel;
 	protected Widget Reputation;
 	
+	protected WrapSpacerWidget MenuButtonsPanel;	
 	protected ButtonWidget HideHud;
 	protected TextWidget HideHudLable;
 	protected Widget HideHudBackground;
@@ -146,6 +147,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		
 		ButtonsPanel.Show(false);
 		HideHud.Show(true);
+		MenuButtonsPanel.Show(true);
 
 		MissionGameplay mission = MissionGameplay.Cast(GetDayZGame().GetMission());
 		if (mission)
@@ -219,14 +221,15 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	 * Client: ExpansionQuestModule::RPC_RequestOpenQuestMenu
 	 * Client: Invoke ExpansionQuestMenu::SetQuests
 	 **/
-	void SetQuests(string npcName = "", string defaultText = "", int questNPCID = -1, int questID = -1)
+	void SetQuests(string npcName = "", string defaultText = "", int questNPCID = -1, int questID = -1, int serverTime = 0)
 	{
 		QuestDebug(ToString() + "::SetQuests - Start");
 		QuestDebug(ToString() + "::SetQuests - NPC name: " + npcName);
 		QuestDebug(ToString() + "::SetQuests - NPC default text: " + defaultText);
 		QuestDebug(ToString() + "::SetQuests - NPC ID: " + questNPCID);
 		QuestDebug(ToString() + "::SetQuests - Quest ID: " + questID);
-		
+		QuestDebug(ToString() + "::SetQuests - Server time: " + serverTime);
+
 		m_QuestMenuController.Quests.Clear();
 		
 		m_CurrentNPCName = npcName;
@@ -239,6 +242,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 		ButtonsPanel.Show(false);
 		HideHud.Show(false);
+		MenuButtonsPanel.Show(true);
 
 		m_QuestMenuController.QuestNPCName = npcName;
 		m_QuestMenuController.NotifyPropertyChanged("QuestNPCName");
@@ -282,7 +286,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			{
 				QuestDebug(ToString() + "::SetQuests - Show quest " + questConfig.GetID() + ". Add to menu quest.");
 				m_Quests.Insert(questConfig);
-				questEntry = new ExpansionQuestMenuListEntry(questConfig, this);
+				questEntry = new ExpansionQuestMenuListEntry(questConfig, this, serverTime);
 				m_QuestMenuController.Quests.Insert(questEntry);
 			}
 			else if (questID > -1 && questConfig.GetID() == questID)
@@ -290,7 +294,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 				//questToShow = questConfig;
 				QuestDebug(ToString() + "::SetQuests - Show quest " + questConfig.GetID() + ". Add to menu quest.");
 				m_Quests.Insert(questConfig);
-				questEntry = new ExpansionQuestMenuListEntry(questConfig, this);
+				questEntry = new ExpansionQuestMenuListEntry(questConfig, this, serverTime);
 				m_QuestMenuController.Quests.Insert(questEntry);
 			}
 		}
@@ -330,6 +334,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		QuestDebug(ToString() + "::SetQuest - Quest state: " + questState);
 		QuestListPanel.Show(false);
 
+		MenuButtonsPanel.Show(false);
 		ButtonsPanel.Show(true);
 		QuestDetailsPanel.Show(true);
 
@@ -791,9 +796,10 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		}
 		else
 		{
-			QuestListPanel.Show(true);
 			ButtonsPanel.Show(false);
 			QuestDetailsPanel.Show(false);
+			MenuButtonsPanel.Show(true);
+			QuestListPanel.Show(true);
 			m_InDetailView = false;
 		}
 	}

@@ -142,19 +142,27 @@ class Expansion_Laser_Base: UniversalLight
 
 	bool CheckNVGState()
 	{
-		Man man = GetGame().GetPlayer();
-		PlayerBase player = PlayerBase.Cast( man );
-
-		if ( player && player.GetCurrentCamera() )
+		DayZPlayerImplement player;
+		DayZPlayerCameraBase camera;
+		if (Class.CastTo(player, GetGame().GetPlayer()) && Class.CastTo(camera, player.GetCurrentCamera()) && camera.IsCameraNV())
 		{
-			private DayZPlayerCameraBase camera = DayZPlayerCameraBase.Cast( GetGame().GetPlayer().GetCurrentCamera() );
-			if ( camera )
+			if (player.IsInOptics())
 			{
-				if ( camera && camera.IsCameraNV() ) 
+				EntityAI entityInHands = player.GetHumanInventory().GetEntityInHands();
+				if (entityInHands)
 				{
-					return true;
+					ItemOptics optic;
+					Weapon weapon;
+
+					if (Class.CastTo(optic, entityInHands) || (Class.CastTo(weapon, entityInHands) && Class.CastTo(optic, weapon.GetAttachedOptics())))
+					{
+						if (optic.GetCurrentNVType() == NVTypes.NONE || !optic.IsWorking())
+							return false;
+					}
 				}
 			}
+
+			return true;
 		}
 
 		return false;

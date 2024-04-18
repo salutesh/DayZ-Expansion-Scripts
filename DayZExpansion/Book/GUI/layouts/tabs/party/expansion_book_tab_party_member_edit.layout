@@ -559,7 +559,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 1
              vexactsize 1
              scriptclass ""
-             style Expansnion_03
+             style Expansion_03
              font "gui/fonts/etelkatextpro22"
             }
            }
@@ -599,7 +599,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 1
              vexactsize 1
              scriptclass ""
-             style Expansnion_03
+             style Expansion_03
              font "gui/fonts/etelkatextpro22"
             }
            }
@@ -638,7 +638,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 1
              vexactsize 1
              scriptclass ""
-             style Expansnion_03
+             style Expansion_03
              font "gui/fonts/etelkatextpro22"
             }
            }
@@ -677,7 +677,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 1
              vexactsize 1
              scriptclass ""
-             style Expansnion_03
+             style Expansion_03
              font "gui/fonts/etelkatextpro22"
             }
            }
@@ -717,7 +717,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 1
              vexactsize 1
              scriptclass ""
-             style Expansnion_03
+             style Expansion_03
              font "gui/fonts/etelkatextpro22"
             }
            }

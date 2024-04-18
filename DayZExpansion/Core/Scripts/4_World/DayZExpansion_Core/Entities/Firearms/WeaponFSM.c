@@ -12,7 +12,7 @@
 
 modded class WeaponFSM
 {
-	//! Instead of writing a stack dump to both script crash log, just print a single line to script log.
+	//! Instead of writing a stack dump to both script and crash log, print stack dump to info_date_time.log.
 	//! Other than that, this is exactly equivalent to vanilla ValidateAndRepairHelper
 	override protected bool ValidateAndRepairHelper(Weapon_Base weapon, string name, bool stateCondition, bool gunCondition, WeaponEventBase e1, WeaponEventBase e2, out WeaponStableState state)
 	{
@@ -26,7 +26,7 @@ modded class WeaponFSM
 			// It is simply being listed in the logs to identify how much the FSM state and weapon state still desyncs
 			// Which can be because of a myriad of causes, such as incorrectly set up transitions
 			// Or simply certain timings of certain actions or interrupts lined up perfectly, which can have repro rates such as 1/300
-			Print(string.Format("[wpnfsm] ValidateAndRepair Attempting to repair: %1 - %2 - %3 - state: %4 != weapon: %5",
+			EXError.Info(this, string.Format("[wpnfsm] ValidateAndRepair Attempting to repair: %1 - %2 - %3 - state: %4 != weapon: %5",
 				weapon.GetDebugName(weapon), name, m_State, stateCondition, gunCondition));
 			
 			if (e1 && e2)

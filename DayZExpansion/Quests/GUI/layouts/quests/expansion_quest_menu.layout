@@ -58,7 +58,11 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
        hexactsize 1
        vexactsize 1
        text "X"
+       font "gui/fonts/sdf_MetronBook24"
        "text color" 0.8627 0.8627 0.8627 1
+       "bold text" 1
+       "exact text" 1
+       "exact text size" 16
        "text halign" center
        "text valign" center
       }
@@ -158,8 +162,11 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            scriptclass "ViewBinding"
            style Bold
            text "Name"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_MetronBook72"
            "text color" 0 0 0 1
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 24
            "text halign" center
            "text valign" center
            {
@@ -243,9 +250,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
              scriptclass "ViewBinding"
              style DayZNormal
              text "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_MetronBook72"
              "text offset" 5 0
              "exact text" 1
+             "exact text size" 18
              "size to text h" 0
              "size to text v" 1
              wrap 1
@@ -266,7 +274,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
      }
     }
     WrapSpacerWidgetClass ButtonsPanel {
-     visible 1
+     visible 0
      ignorepointer 1
      position 0 0.01
      size 0.95 0.05
@@ -327,7 +335,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            vexactsize 0
            scriptclass ""
            text "#STR_EXPANSION_QUEST_MENU_CANCEL"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_MetronBook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "text halign" center
            "text valign" center
           }
@@ -370,7 +381,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            vexactsize 0
            scriptclass ""
            text "#STR_EXPANSION_QUEST_MENU_ACCEPT"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_MetronBook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "text halign" center
            "text valign" center
           }
@@ -413,7 +427,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            vexactsize 0
            scriptclass ""
            text "#STR_EXPANSION_QUEST_MENU_COMPLETE"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_MetronBook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "text halign" center
            "text valign" center
           }
@@ -458,7 +475,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            vexactsize 0
            scriptclass ""
            text "#STR_EXPANSION_QUEST_MENU_SHARE"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_MetronBook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 0
            "size to text v" 0
            "text halign" center
@@ -590,8 +610,11 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
              scriptclass "ViewBinding"
              style Bold
              text "Quest Title"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_MetronBook72"
              "text color" 0 0 0 1
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 24
              "text halign" center
              "text valign" center
              {
@@ -628,9 +651,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
              vexactsize 0
              scriptclass "ViewBinding"
              style DayZNormal
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_MetronBook72"
              "text offset" 5 0
              "exact text" 1
+             "exact text size" 18
              "size to text h" 1
              "size to text v" 1
              wrap 1
@@ -710,9 +734,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                scriptclass ""
                style DayZNormal
                text "You will receive the following items on quest start:"
-               font "gui/fonts/etelkatextpro22"
+               font "gui/fonts/sdf_MetronBook72"
                "text offset" 5 0
                "exact text" 1
+               "exact text size" 18
                "size to text h" 1
                "size to text v" 1
                wrap 1
@@ -798,9 +823,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                vexactsize 1
                style Normal
                text "#STR_EXPANSION_QUEST_MENU_REWARDS_LABEL"
-               font "gui/fonts/etelkatextpro22"
+               font "gui/fonts/sdf_MetronBook72"
                "text offset" 5 0
-               "exact text" 0
+               "exact text" 1
+               "exact text size" 18
                "size to text h" 0
                "size to text v" 0
                "text valign" center
@@ -865,9 +891,11 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                  vexactsize 0
                  style Normal
                  text "#STR_EXPANSION_HARDLINE_REPUTATION"
-                 font "gui/fonts/etelkatextpro22"
+                 font "gui/fonts/sdf_MetronBook72"
                  "text offset" 5 0
-                 "exact text" 0
+                 "bold text" 1
+                 "exact text" 1
+                 "exact text size" 18
                  "size to text h" 0
                  "size to text v" 0
                  "text valign" center
@@ -883,9 +911,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                  vexactsize 0
                  scriptclass "ViewBinding"
                  style Normal
-                 font "gui/fonts/etelkatextpro22"
+                 font "gui/fonts/sdf_MetronBook72"
                  "text offset" -5 0
-                 "exact text" 0
+                 "exact text" 1
+                 "exact text size" 18
                  "size to text h" 0
                  "size to text v" 0
                  "text halign" right
@@ -926,9 +955,11 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                  vexactsize 1
                  style Normal
                  text "#STR_EXPANSION_HARDLINE_FACTION_REPUTATION"
-                 font "gui/fonts/etelkatextpro22"
+                 font "gui/fonts/sdf_MetronBook72"
                  "text offset" 5 0
-                 "exact text" 0
+                 "bold text" 1
+                 "exact text" 1
+                 "exact text size" 18
                  "size to text h" 0
                  "size to text v" 0
                  "text valign" center
@@ -1037,9 +1068,11 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
              vexactsize 1
              style Normal
              text "#STR_EXPANSION_QUEST_MENU_OBJECTIVES_LABEL"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_MetronBook72"
              "text offset" 5 0
-             "exact text" 0
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 18
              "size to text h" 0
              "size to text v" 0
              "text valign" center
@@ -1080,9 +1113,10 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                vexactsize 0
                scriptclass "ViewBinding"
                style DayZNormal
-               font "gui/fonts/etelkatextpro22"
+               font "gui/fonts/sdf_MetronBook72"
                "text offset" 5 0
                "exact text" 1
+               "exact text size" 18
                "size to text h" 1
                "size to text v" 1
                wrap 1
@@ -1142,8 +1176,8 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
      vexactsize 0
      style DayZDefaultPanel
     }
-    WrapSpacerWidgetClass ButtonsPanel0 {
-     visible 0
+    WrapSpacerWidgetClass MenuButtonsPanel {
+     visible 1
      ignorepointer 1
      position 0 0.01
      size 0.95 0.05
@@ -1160,7 +1194,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
      "Size To Content H" 1
      "Size To Content V" 1
      {
-      WrapSpacerWidgetClass ButtonsSpacer0 {
+      WrapSpacerWidgetClass MenuButtonsSpacer {
        ignorepointer 1
        size 1 1
        hexactpos 0
@@ -1204,8 +1238,12 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            hexactsize 0
            vexactsize 0
            scriptclass ""
+           style Normal
            text "#STR_MOD_EXPANSION_CLOSE"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_MetronBook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "text halign" center
            "text valign" center
           }
@@ -1246,11 +1284,19 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           scriptclass ""
-           text "#STR_EXPANSION_QUEST_MENU_HIDEHUD"
-           font "gui/fonts/etelkatextpro"
+           scriptclass "ViewBinding"
+           text "#STR_EXPANSION_QUEST_MENU_HIDE_HUD"
+           font "gui/fonts/sdf_MetronBook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "text halign" center
            "text valign" center
+           {
+            ScriptParamsClass {
+             Binding_Name "HideHudLable"
+            }
+           }
           }
          }
          {

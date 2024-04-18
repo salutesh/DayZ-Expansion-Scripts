@@ -6,9 +6,6 @@ class CfgPatches
 	{
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
-		units[] = {"ExpansionHelipadKit","ExpansionHelipadKitPlacing","ExpansionHelipad","ExpansionHescoKit","ExpansionHescoKitPlacing","ExpansionHesco","ExpansionBarbedWireKit","ExpansionBarbedWireKitPlacing","ExpansionBarbedWire","ExpansionGunrack","ExpansionCone","ExpansionConePlacing","ExpansionSignDanger","ExpansionSignDangerPlacing","ExpansionSignDanger2","ExpansionSignDanger2Placing","ExpansionSignDanger3","ExpansionSignDanger3Placing","ExpansionSignRoadBarrier","ExpansionSignRoadBarrierPlacing","ExpansionStove","ExpansionStovePlacing"};
-		weapons[] = {};
-		ammo[] = {"BarbedWireDamage"};
 	};
 };
 class CfgSlots
@@ -114,7 +111,7 @@ class CfgSlots
 	class Slot_Shoulder15
 	{
 		name = "Shoulder15";
-		displayName = "Weap$STR_EXPANSION_GUNRACKon15";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};

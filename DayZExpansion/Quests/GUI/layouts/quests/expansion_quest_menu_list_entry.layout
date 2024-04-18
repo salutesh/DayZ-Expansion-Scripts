@@ -30,7 +30,7 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
    scriptclass "ViewBinding"
    mode blend
    "src alpha" 1
-   stretch 1
+   "stretch mode" stretch_w_h
    {
     ScriptParamsClass {
      Binding_Name "QuestIconPath"
@@ -48,7 +48,10 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
    vexactsize 0
    scriptclass "ViewBinding"
    text "Quest Title"
-   font "gui/fonts/etelkatextpro22"
+   font "gui/fonts/sdf_MetronBook72"
+   "bold text" 1
+   "exact text" 1
+   "exact text size" 18
    "size to text h" 1
    "size to text v" 0
    "text valign" center
@@ -72,7 +75,7 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
     }
    }
   }
-  WrapSpacerWidgetClass CooldownPanel {
+  GridSpacerWidgetClass CooldownPanel {
    visible 0
    ignorepointer 1
    position 0 0
@@ -87,6 +90,7 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
    Margin 0
    "Size To Content H" 1
    content_valign center
+   Rows 1
    {
     ImageWidgetClass CooldownIcon {
      visible 1
@@ -103,7 +107,7 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
      image0 "set:expansion_iconset image:clock_blank"
      mode blend
      "src alpha" 1
-     stretch 1
+     "stretch mode" stretch_w_h
      {
       ScriptParamsClass {
        Binding_Name "QuestIcon"
@@ -129,9 +133,11 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
      vexactsize 0
      scriptclass "ViewBinding"
      text "1D 15H 25M"
-     font "gui/fonts/etelkatextpro22"
+     font "gui/fonts/sdf_MetronBook72"
+     "exact text" 1
+     "exact text size" 18
      "size to text h" 1
-     "size to text v" 0
+     "size to text v" 1
      "text halign" center
      "text valign" center
      {

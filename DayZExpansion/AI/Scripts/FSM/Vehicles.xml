@@ -101,7 +101,6 @@
 			<guard>
 				if (vector.Distance(unit.GetPosition(), src.position) &gt; 0.5) return FAIL;
 				if (unit.IsInTransport()) return FAIL;
-				if (src.entity.IsKindOf("ExpansionBus")) return FAIL;  //! Hard block bus until seating CTD is fixed
 				if (!src.transport.CrewCanGetThrough(src.seat) || !src.transport.IsAreaAtDoorFree(src.seat)) return FAIL;
 				CarScript cs;
 				if (src.transport.CrewMember(src.seat) || (Class.CastTo(cs, src.transport) &amp;&amp; cs.Expansion_IsSeatReservedByOther(src.seat, unit))) return FAIL;

@@ -48,9 +48,8 @@ class CfgVehicles
 	class SurvivorF_Irena;
 	class SurvivorF_Judy;
 	class SurvivorF_Keiko;
-	class SurvivorF_Lina;
-	class SurvivorF_Naomi;
 	class SurvivorF_Eva;
+	class SurvivorF_Naomi;
 	class SurvivorF_Baty;
 	class Inventory_Base;
 	class HouseNoDestruct;

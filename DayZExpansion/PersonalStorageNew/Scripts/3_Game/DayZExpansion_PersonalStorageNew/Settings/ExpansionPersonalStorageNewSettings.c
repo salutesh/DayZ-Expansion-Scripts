@@ -27,11 +27,12 @@ class ExpansionPersonalStorageLevel
 
 class ExpansionPersonalStorageNewSettings: ExpansionSettingBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 	static const string SETTINGS_PATH = EXPANSION_SETTINGS_FOLDER + "PersonalStorageNewSettings.json";
 
 	bool UseCategoryMenu;
 
+	ref TStringArray ExcludedItems = {};
 	ref map<int, ref ExpansionPersonalStorageLevel> StorageLevels = new map<int, ref ExpansionPersonalStorageLevel>;
 
 	[NonSerialized()]
@@ -166,6 +167,8 @@ class ExpansionPersonalStorageNewSettings: ExpansionSettingBase
 		m_Version = VERSION;
 
 		UseCategoryMenu = false;
+		ExcludedItems.Clear();
+		StorageLevels.Clear();
 
 		TStringArray defaultExcludedSlots = {"Vest", "Body", "Hips", "Legs", "Back"};
 

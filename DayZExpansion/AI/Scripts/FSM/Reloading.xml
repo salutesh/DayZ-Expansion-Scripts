@@ -39,7 +39,8 @@
 				unit.ReloadWeaponAI(fsm.weapon, magazine);
 			</event_entry>
 			<event_exit>
-				unit.eAI_CancelSidestep();
+				if (unit.eAI_IsSideStepping())
+					unit.eAI_CancelSidestep();
 				if (unit.eAI_ShouldGetUp())
 					unit.Expansion_GetUp();
 			</event_exit>

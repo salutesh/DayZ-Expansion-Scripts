@@ -305,21 +305,20 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 			npcAI.eAI_SetThreatDistanceLimit(800);
 			npcAI.Expansion_SetEmote(m_EmoteID, !m_EmoteIsStatic);
 			
-			eAIGroup aiGroup;
-			eAIFaction faction = eAIFaction.Create(m_Faction);
-			if (!Class.CastTo(aiGroup, npcAI.GetGroup()))
+			eAIGroup aiGroup = npcAI.GetGroup();
+			if (m_Faction != string.Empty)
 			{
-				if (!Class.CastTo(aiGroup, eAIGroup.CreateGroup(faction)))
-					return;
-
-				npcAI.SetGroup(aiGroup);
+				eAIFaction faction = eAIFaction.Create(m_Faction);
+				if (faction && aiGroup.GetFaction().Type() != faction.Type())
+					aiGroup.SetFaction(faction);
 			}
-
-			aiGroup.SetFaction(faction);
 			
 			aiGroup.SetFormation(new eAIFormationColumn(aiGroup));
 			aiGroup.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
 	
+			if (!m_Waypoints.Count())
+				m_Waypoints.Insert(m_Position);
+
 			for (int idx = 0; idx < m_Waypoints.Count(); idx++)
 			{
 				aiGroup.AddWaypoint(m_Waypoints[idx]);

@@ -116,7 +116,7 @@
 					unit.LookAtPosition(aimPosition);
 					unit.AimAtPosition(aimPosition);
 					
-					if ((!itemTarget &amp;&amp; hands &amp;&amp; hands.IsWeapon()) || (itemTarget &amp;&amp; itemTarget.IsExplosive()))
+					if ((!itemTarget &amp;&amp; ((hands &amp;&amp; hands.IsWeapon()) || !target.CanMeleeIfClose(unit))) || (itemTarget &amp;&amp; itemTarget.IsExplosive()))
 					{
 						unit.OverrideTargetPosition(target);
 					}
@@ -135,7 +135,7 @@
 				{
 					unit.OverrideMovementDirection(false, 0);
 					unit.OverrideMovementSpeed(false, 0);
-					unit.OverrideTargetPosition(unit.GetPosition());
+					unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() * 0.333333);
 				}
 				
 				if (wantsRaise &amp;&amp; unit.CanRaiseWeapon())
@@ -228,7 +228,15 @@
 				
 				auto neck = unit.GetBonePositionWS(unit.GetBoneIndexByName("neck"));
 				auto direction = vector.Direction(neck, aimPosition).Normalized();
-				if (vector.Dot(unit.GetAimDirection(), direction) &lt; 0.875)
+				auto weapon = unit.GetHumanInventory().GetEntityInHands();
+				
+				float threshold;
+				if (weapon &amp;&amp; weapon.ShootsExplosiveAmmo())
+					threshold = 0.96875;
+				else
+					threshold = 0.875;
+				
+				if (vector.Dot(unit.GetAimDirection(), direction) &lt; threshold)
 				{
 					if (time &gt;= 0.5)
 					{
@@ -290,21 +298,9 @@
 				unit.AimAtPosition(aimPosition);
 				
 				fsm.DistanceToTargetSq = target.GetDistanceSq(unit, true);
-				if (fsm.DistanceToTargetSq &gt; 2.25)
-				{
-					if (time &gt;= 0.5)
-					{
-						time = 0;
-						movementDirection = 0;
-						unit.OverrideMovementDirection(false, 0);
-						return EXIT;
-					}
-				
-					return CONTINUE;
-				}
 				
 				auto direction = vector.Direction(unit.GetPosition(), lowPosition).Normalized();
-				if (vector.Dot(unit.GetDirection(), direction) &lt; 0.9 &amp;&amp; !target.info.IsInanimate())
+				if (vector.Dot(unit.GetDirection(), direction) &lt; 0.9 &amp;&amp; !target.info.IsInanimate() &amp;&amp; !target.GetEntity().GetParent())
 				{
 					if (time &gt;= Math.RandomIntInclusive(1, 3))
 					{
@@ -457,6 +453,54 @@
 				if (unit.GetWeaponManager().CanUnjam(dst.weapon)) return FAIL;
 				
 				if (unit.Expansion_GetVisibility(dist) == 0.0) return FAIL;
+				
+				if (dst.weapon.ShootsExplosiveAmmo())
+				{
+					float minDist = dst.weapon.Expansion_GetMinSafeFiringDistance();
+					
+					if (dist &lt; minDist) return FAIL;
+					
+					float minDistSq = minDist * minDist;
+					
+					vector aimPosition = dst.target.GetPosition(unit) + dst.target.GetAimOffset(unit);
+					
+					vector min = Vector(aimPosition[0] - minDist, aimPosition[1] - minDist, aimPosition[2] - minDist);
+					vector max = Vector(aimPosition[0] + minDist, aimPosition[1] + minDist, aimPosition[2] + minDist);
+					
+					array&lt;EntityAI&gt; entities = {};
+					
+					DayZPlayerUtils.SceneGetEntitiesInBox(min, max, entities);
+					
+					vector hitPos;
+					vector hitDir;
+					int hitComponent;
+					set&lt;Object&gt; results = new set&lt;Object&gt;;
+					
+					foreach (EntityAI entity: entities)
+					{
+						vector entityCenter = entity.GetCenter();
+						
+						if (vector.DistanceSq(entityCenter, aimPosition) &gt; minDistSq)
+							continue;
+						
+						if (!unit.PlayerIsEnemy(entity))
+						{
+							//! Friendly unit in blast radius
+							if (DayZPhysics.RaycastRV(aimPosition, entityCenter, hitPos, hitDir, hitComponent, results, null, targetEntity, false, false, ObjIntersectFire, 0.2))
+							{
+								Object parentObject;
+								
+								if (results.Find(entity) &gt; -1 || (Class.CastTo(parentObject, entity.GetParent()) &amp;&amp; results.Find(parentObject) &gt; -1))
+								{
+									if (!unit.IsRaised())
+										unit.RaiseWeapon(true);
+									
+									return FAIL;  //! Friendly unit in blast radius and nothing blocking the blast
+								}
+							}
+						}
+					}
+				}
 				
 				return SUCCESS;
 			</guard>

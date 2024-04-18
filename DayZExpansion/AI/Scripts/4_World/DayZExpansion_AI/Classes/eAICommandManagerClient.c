@@ -39,6 +39,7 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.DEB_SPAWNGUARD:
 			case eAICommands.DEB_SPAWNPASSIVE:
 			case eAICommands.DEB_SPAWNSHAMAN:
+			case eAICommands.DEB_SPAWNYEET:
 				m_Expansion_RPCManager.SendRPC("RPC_SpawnAI", new Param3<int, vector, int>(cmd, ExpansionStatic.GetCursorHitPos(), m_MovementSpeedLimit));
 				return true;
 			
@@ -240,6 +241,10 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.DEB_SPAWNSHAMAN:
 				ai = SpawnAI_Sentry(pos);
 				ai.GetGroup().SetFaction(new eAIFactionShamans());
+				break;
+			case eAICommands.DEB_SPAWNYEET:
+				ai = SpawnAI_Sentry(pos, "YeetBrigadeLoadout");
+				ai.GetGroup().SetFaction(new eAIFactionYeetBrigade());
 				break;
 		}
 	}

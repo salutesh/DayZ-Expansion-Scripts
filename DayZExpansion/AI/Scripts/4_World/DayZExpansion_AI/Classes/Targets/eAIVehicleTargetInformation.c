@@ -46,16 +46,17 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 
 	static float ProcessVehicleThreat(Transport transport, eAIBase ai, float distance, out float speed = 0.0, out float fromTargetDot = 0.0)
 	{
-		Car car;
-		if (Class.CastTo(car, transport))
-			speed = car.GetSpeedometer();
-		else
-			speed = GetVelocity(transport).Length() * 3.6;
+		vector velocity = GetVelocity(transport);
+		
+		speed = velocity.Length();  //! m/s
 
 		float speedAbs = Math.AbsFloat(speed);
 
-		if (speedAbs < 2)  //! RegisterTransportHit tolerance
+		if (speedAbs < 0.555555)  //! RegisterTransportHit tolerance 2 km/h = 0.5555 m/s
 			return 0.0;
+
+		if (!ai.Expansion_CanBeDamaged())
+			return ExpansionMath.LinearConversion(0.5, 100, distance, 0.199999, 0.15);
 
 		vector minMax[2];
 		float radius = transport.ClippingInfo(minMax);
@@ -66,7 +67,7 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 
 			if (distance > 100.0)
 				return 15.0 / distance;  //! 0.1 at 200 m
-			else if (distance > Math.Max(speedAbs, 4.0) * 0.833333 * 3)
+			else if (distance > Math.Max(speedAbs, 1.111111) * 9)  //! 10 m at 4 km/h
 				return ExpansionMath.LinearConversion(0.5, 100, distance, 0.199999, 0.15);
 		}
 		else
@@ -74,68 +75,104 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 			distance = 0.1;
 		}
 
-		CarScript cs = CarScript.Cast(transport);
-
-		if (!ai.eAI_IsSideStepping())
+		if (ai.GetMovementSpeedLimitUnderThreat() > 0)
 		{
-			vector vehicleDir = transport.GetDirection();
-			vector fromTargetDirection = vector.Direction(transport.GetPosition(), ai.GetPosition()).Normalized();
+			vector angularVelocity = dBodyGetAngularVelocity(transport);
+			vector fullVelocity = (velocity + angularVelocity).Normalized();
 
-			if (speed < 0)
-				vehicleDir = -vehicleDir;
+			vector pos = ai.GetPosition();
+			vector tpos = transport.GetPosition();
 
-			fromTargetDot = vector.Dot(vehicleDir, fromTargetDirection);
+			vector fromTargetDirection = vector.Direction(tpos, pos).Normalized();
 
-			if (fromTargetDot < 0.97 && distance > 10)
+			fromTargetDot = vector.Dot(fullVelocity, fromTargetDirection);
+
+			float minDist = radius * 2.0;
+
+			if (fromTargetDot < 0.97 && (distance > minDist || fromTargetDot < 0.25))
 				return ExpansionMath.LinearConversion(0.5, 100, distance, 0.199999, 0.15);
 
-			//! If AI is within distance that vehicle can travel in three seconds, sidestep
-			if (distance < speedAbs * 0.833333)
-			{
-				vector transform[4];
-				if (cs)
-					cs.Expansion_EstimateTransform(0.25, transform);  //! Quarter second ahead
-				else
-					transport.GetTransform(transform);
+			float travelTime = 2.0;
 
-				if (speed < 0)
-					transform[2] = -transform[2];
+			//! If AI is within distance that vehicle can travel in travelTime seconds, sidestep
+			if (distance < Math.Max(speedAbs * travelTime, minDist))
+			{
+				bool vehicleCanHit = true;
+
+				vector begPos = pos + "0 0.9 0";
+				vector endPos = tpos + "0 0.9 0";
+
+				vector contactPos;
+				vector contactDir;
+				int contactComponent;
+
+				set<Object> results = new set<Object>;
+
+				if (DayZPhysics.RaycastRV(begPos, endPos, contactPos, contactDir, contactComponent, results, null, ai, false, false, ObjIntersectGeom, 0.2, CollisionFlags.ALLOBJECTS))
+				{
+					foreach (Object result: results)
+					{
+						if (result.IsBuilding() || (result.IsPlainObject() && !result.IsScenery()) || result.IsInherited(BaseBuildingBase))
+						{
+							vehicleCanHit = false;
+							break;
+						}
+					}
+				}
+
+				if (!vehicleCanHit)
+					return ExpansionMath.LinearConversion(0.5, 100, distance, 0.199999, 0.15);
+
+				vector lr = fromTargetDirection.Perpend();
 
 				#ifdef DIAG
-				vector lr = fromTargetDirection.Perpend();
-				ai.Expansion_DebugObject(98, ai.GetPosition(), "ExpansionDebugBox_Red", fromTargetDirection);
+				ai.Expansion_DebugObject(98, pos, "ExpansionDebugBox_Red", fromTargetDirection);
+				ai.Expansion_DebugObject(100, tpos + fullVelocity, "ExpansionDebugNoticeMe_Orange", fullVelocity);
 				#endif
 
-				float duration;
-				float angle;
+				float duration = ExpansionMath.LinearConversion(0, speedAbs * travelTime, distance, 1.0, travelTime);
+				float sideStepAngle;
+				float d = Math.Max(distance, 30);
+				float dn = d * -0.5;
 
-				if (fromTargetDot < 0.5 && distance < 3)
+				//vector dir = transport.GetDirection();
+				//vector ori = transport.GetOrientation();
+				//vector futureOrientation = (dir + angularVelocity * travelTime).VectorToAngles();
+				//float angleDiff = Math.Round(ExpansionMath.AngleDiff2(ori[0], futureOrientation[0]));
+				//EXTrace.Print(EXTrace.AI, ai, "cur ori " + ori.AnglesToVector().VectorToAngles() + " future " + futureOrientation + " yaw diff " + angleDiff);
+				//bool evadeR;
+
+				////! If AI is on the left of vehicle movement axis (vehicle viewpoint), go right (AI viewpoint)
+				////! except if AI is directly in front of vehicle and vehicle turns to the left
+				//if (ExpansionMath.Side(tpos - velocity * 1000, tpos + velocity * 1000, pos) > 0 && (fromTargetDot < 0.97 || angleDiff >= 0))
+					//evadeR = true;
+
+				if (ExpansionMath.Side(tpos - fullVelocity * 1000, tpos + fullVelocity * 1000, pos) > 0 && ExpansionMath.Side(tpos - velocity * 1000, tpos + velocity * 1000, pos) > 0)
+				//if (evadeR)
 				{
-					duration = 1.5;
-					angle = -180;
-				}
-				else if (ExpansionMath.Side(transport.GetPosition() - transform[2] * 1000, transport.GetPosition() + transform[2] * 1000, ai.GetPosition()) > 0)
-				{
-					duration = 1.5;
-					angle = 90;  //! If AI is on the left of vehicle movement axis (vehicle viewpoint), go right (AI viewpoint)
+					//sideStepAngle = 90;  //! If AI is on the left of vehicle movement axis (vehicle viewpoint), go right (AI viewpoint)
+					sideStepAngle = 0.0001;  //! Non-zero so ForceSideStep doesn't override it
 
 					#ifdef DIAG
-					vector posR = ai.GetPosition() + lr * 2;
-					ai.Expansion_DebugObject(99, posR, "ExpansionDebugArrow", lr);
+					ai.Expansion_DebugObject(99, pos + lr * 2, "ExpansionDebugArrow", lr);
 					#endif
+
+					ai.GetPathFinding().OverridePosition(pos + fromTargetDirection * dn + lr * d, true);
 				}
 				else
 				{
-					duration = 1.5;
-					angle = -90;  //! If AI is on the right of vehicle movement axis (vehicle viewpoint), go left (AI viewpoint)
-	
+					//sideStepAngle = -90;  //! If AI is on the right of vehicle movement axis (vehicle viewpoint), go left (AI viewpoint)
+					sideStepAngle = -0.0001;  //! Non-zero so ForceSideStep doesn't override it
+
 					#ifdef DIAG
-					vector posL = ai.GetPosition() - lr * 2;
-					ai.Expansion_DebugObject(99, posL, "ExpansionDebugArrow", -lr);
+					ai.Expansion_DebugObject(99, pos - lr * 2, "ExpansionDebugArrow", -lr);
 					#endif
+	
+					ai.GetPathFinding().OverridePosition(pos + fromTargetDirection * dn - lr * d, true);
 				}
 
-				ai.eAI_ForceSideStep(duration, transport, angle, angle == -180);
+				ai.RaiseWeapon(false);
+				ai.eAI_ForceSideStep(duration, transport, sideStepAngle, false);
 			}
 			else if (!ai.GetHumanInventory().GetEntityInHands() || !ai.GetHumanInventory().GetEntityInHands().IsWeapon())
 			{
@@ -143,11 +180,7 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 			}
 		}
 
-		//! Invincible AI will only sidestep unless they have been hit by this vehicle
-		if (!ai.Expansion_CanBeDamaged() && (!cs || !cs.GetTargetInformation().IsTargettedBy(ai)))
-			return ExpansionMath.LinearConversion(0.5, 100, distance, 0.199999, 0.15);
-
-		float levelFactor = speedAbs / 20.0;  //! 0.4 at 8 km/h
+		float levelFactor = speedAbs / 5.555555;  //! 0.4 at 8 km/h
 		levelFactor *= 100.0 / distance;
 
 		return levelFactor;

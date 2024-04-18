@@ -23,7 +23,6 @@ class ExpansionActionEnterFlagMenuCB : ActionContinuousBaseCB
  **/
 class ExpansionActionEnterFlagMenu: ActionContinuousBase
 {
-	protected ExpansionTerritoryModule m_TerritoryModule;
 	protected bool m_ActionCreate;
 	
 	// -----------------------------------------------------------
@@ -39,8 +38,6 @@ class ExpansionActionEnterFlagMenu: ActionContinuousBase
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
 		//m_HUDCursorIcon = CursorIcons.CloseDoors;
-		
-		CF_Modules<ExpansionTerritoryModule>.Get(m_TerritoryModule);
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionActionEnterFlagMenu::ExpansionActionEnterFlagMenu - End");
@@ -104,19 +101,25 @@ class ExpansionActionEnterFlagMenu: ActionContinuousBase
 		if ( !target.GetObject() )
 			return false;
 
-		if ( !m_TerritoryModule )
+		TerritoryFlag flag;
+		if (!Class.CastTo(flag, target.GetObject()))
 			return false;
-		
+
+	#ifdef SERVER
+		return Expansion_CanEnterFlagMenu(player, flag);
+	#else
+		return Expansion_CanEnterFlagMenu(player, flag, m_ActionCreate);
+	#endif
+	}
+
+	static bool Expansion_CanEnterFlagMenu(PlayerBase player, TerritoryFlag flag, out bool actionCreate = false)
+	{
 		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
 			return false;
 
 		if ( GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.Disabled )
 			return false;
 		
-		//! Is this a new flag ?
-		TerritoryFlag flag;
-		if ( Class.CastTo( flag, target.GetObject() ) )
-		{
 			//! Is the flag fully construced ?
 			float state = flag.GetAnimationPhase("flag_mast");
 			if ( flag.FindAttachmentBySlotName("Material_FPole_Flag") && state >= 0.99 )
@@ -134,7 +137,7 @@ class ExpansionActionEnterFlagMenu: ActionContinuousBase
 						EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - IS TERRITORY FLAG!");
 						#endif
 
-						m_ActionCreate = false;
+						actionCreate = false;
 						
 						//! Is he in a territory ?
 						if ( player.IsInTerritory() )
@@ -153,7 +156,7 @@ class ExpansionActionEnterFlagMenu: ActionContinuousBase
 					//! Is the player outside of any potential territories and their perimeters ?
 					if ( !player.IsInTerritoryOrPerimeter() )
 					{
-						m_ActionCreate = true; //! Add the create territory action
+						actionCreate = true; //! Add the create territory action
 
 						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 						EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - [2] is not inside a territory or perimeter, end and return true!");
@@ -175,7 +178,7 @@ class ExpansionActionEnterFlagMenu: ActionContinuousBase
 					//! Is the player the owner of the nearest Territory but in his perimeter ?
 					if ( player.IsInsideOwnPerimeter() )
 					{
-						m_ActionCreate = true; //! Add the create territory action
+						actionCreate = true; //! Add the create territory action
 
 						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 						EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - [2] is inside own territory perimeter, end and return true!");
@@ -191,7 +194,6 @@ class ExpansionActionEnterFlagMenu: ActionContinuousBase
 					return false;
 				}
 			}
-		}
 	
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - [3] TerritoryFlag false!");

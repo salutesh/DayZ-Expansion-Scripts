@@ -1,6 +1,6 @@
 <WidgetStyles>
     <Widget Name="CheckBoxWidget">
-        <Style Name="Expansnion_01" Font="gui/fonts/metron" ImageSet="expansion_widgets" Color="4294967295">
+        <Style Name="Expansion_01" Font="gui/fonts/metron" ImageSet="expansion_widgets" Color="4294967295">
             <State Name="Normal">
                 <Item Name="CheckBox" Image="CheckboxHover" />
             </State>
@@ -14,7 +14,7 @@
                 <Item Name="CheckBox" Image="CheckboxHover" />
             </State>
         </Style>
-        <Style Name="Expansnion_02" Font="gui/fonts/metron" ImageSet="expansion_widgets" Color="4294967295">
+        <Style Name="Expansion_02" Font="gui/fonts/metron" ImageSet="expansion_widgets" Color="4294967295">
             <State Name="Normal">
                 <Item Name="CheckBox" Image="CheckboxScrapsHover" />
             </State>
@@ -28,7 +28,7 @@
                 <Item Name="CheckBox" Image="CheckboxScrapsHover" />
             </State>
         </Style>
-        <Style Name="Expansnion_03" Font="gui/fonts/metron" ImageSet="expansion_widgets" Color="4294967295">
+        <Style Name="Expansion_03" Font="gui/fonts/metron" ImageSet="expansion_widgets" Color="4294967295">
             <State Name="Normal">
                 <Item Name="CheckBox" Image="CheckboxSquareHover" />
             </State>
@@ -42,7 +42,7 @@
                 <Item Name="CheckBox" Image="CheckboxSquareHover" />
             </State>
         </Style>
-        <Style Name="Expansnion_04" Font="gui/fonts/metron" ImageSet="expansion_widgets" Color="4294967295">
+        <Style Name="Expansion_04" Font="gui/fonts/metron" ImageSet="expansion_widgets" Color="4294967295">
             <State Name="Normal">
                 <Item Name="CheckBox" Image="CheckboxScrapsSquareHover" />
             </State>

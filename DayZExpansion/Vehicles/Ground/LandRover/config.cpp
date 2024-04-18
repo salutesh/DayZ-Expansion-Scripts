@@ -15,112 +15,112 @@ class CfgSlots
 	class Slot_expansion_landrover_wheel_1_1
 	{
 		name = "expansion_landrover_wheel_1_1";
-		displayName = "expansion_landrover_wheel_1_1";
+		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_WHEEL";
 		selection = "wheel_1_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_expansion_landrover_wheel_2_1
 	{
 		name = "expansion_landrover_wheel_2_1";
-		displayName = "expansion_landrover_wheel_2_1";
+		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_WHEEL";
 		selection = "wheel_2_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_expansion_landrover_wheel_2_2
 	{
 		name = "expansion_landrover_wheel_2_2";
-		displayName = "expansion_landrover_wheel_2_2";
+		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_WHEEL";
 		selection = "wheel_2_2";
 		ghostIcon = "wheel";
 	};
 	class Slot_expansion_landrover_wheel_1_2
 	{
 		name = "expansion_landrover_wheel_1_2";
-		displayName = "expansion_landrover_wheel_1_2";
+		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_WHEEL";
 		selection = "wheel_1_2";
 		ghostIcon = "wheel";
 	};
 	class Slot_expansion_landrover_sparewheel
 	{
 		name = "expansion_landrover_sparewheel";
-		displayName = "expansion_landrover_sparewheel";
+		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_WHEEL";
 		selection = "wheel_spare";
 		ghostIcon = "wheel";
 	};
 	class Slot_expansion_landrover_hood
 	{
 		name = "expansion_landrover_hood";
-		displayName = "expansion_landrover_hood";
+		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_HOOD";
 		selection = "doors_hood";
 		ghostIcon = "hood";
 	};
 	class Slot_expansion_landrover_driverdoor
 	{
 		name = "expansion_landrover_driverdoor";
-		displayName = "expansion_landrover_driverdoor";
+		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_FRONT_LEFT";
 		selection = "doors_driver";
 		ghostIcon = "doorfront";
 	};
 	class Slot_expansion_landrover_codriverdoor
 	{
 		name = "expansion_landrover_codriverdoor";
-		displayName = "expansion_landrover_codriverdoor";
+		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_FRONT_RIGHT";
 		selection = "doors_codriver";
 		ghostIcon = "doorfront";
 	};
 	class Slot_expansion_landrover_left
 	{
 		name = "expansion_landrover_left";
-		displayName = "expansion_landrover_left";
+		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_BACK_LEFT";
 		selection = "doors_cargo_left";
 		ghostIcon = "doorrear";
 	};
 	class Slot_expansion_landrover_right
 	{
 		name = "expansion_landrover_right";
-		displayName = "expansion_landrover_right";
+		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_BACK_RIGHT";
 		selection = "doors_cargo_right";
 		ghostIcon = "doorrear";
 	};
 	class Slot_expansion_landrover_trunk
 	{
 		name = "expansion_landrover_trunk";
-		displayName = "expansion_landrover_trunk";
+		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_TRUNK";
 		selection = "doors_trunk";
 		ghostIcon = "trunk";
 	};
 	class Slot_CanisterGasoline
 	{
 		name = "CanisterGasoline";
-		displayName = "CanisterGasoline";
+		displayName = "$STR_CfgVehicles_CanisterGasoline0";
 		selection = "CanisterGasoline";
 		ghostIcon = "gascanister";
 	};
 	class Slot_Truck_01_WoodenCrate1
 	{
 		name = "Truck_01_WoodenCrate1";
-		displayName = "WoodenCrate";
+		displayName = "$STR_CfgVehicles_Wooden_Case0";
 		selection = "Truck_01_WoodenCrate1";
 		ghostIcon = "woodcrate";
 	};
 	class Slot_Truck_01_WoodenCrate2
 	{
 		name = "Truck_01_WoodenCrate2";
-		displayName = "WoodenCrate";
+		displayName = "$STR_CfgVehicles_Wooden_Case0";
 		selection = "Truck_01_WoodenCrate2";
 		ghostIcon = "woodcrate";
 	};
 	class Slot_Truck_01_WoodenCrate3
 	{
 		name = "Truck_01_WoodenCrate3";
-		displayName = "WoodenCrate";
+		displayName = "$STR_CfgVehicles_Wooden_Case0";
 		selection = "Truck_01_WoodenCrate3";
 		ghostIcon = "woodcrate";
 	};
 	class Slot_sea_chest
 	{
 		name = "sea_chest";
-		displayName = "sea_chest";
+		displayName = "$STR_CfgVehicles_SeaChest0";
 		selection = "sea_chest";
 		ghostIcon = "cat_common_cargo";
 	};

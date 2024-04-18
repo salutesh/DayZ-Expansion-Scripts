@@ -733,7 +733,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			return false;
 		}
 
-		GetGame().ObjectDelete(itemEntity);
+		ExpansionEntityStorageModule.DeleteSavedEntity(itemEntity);
 
 		return true;
 	}

@@ -31,7 +31,9 @@ class ExpansionPersonalStorageUpgrade: ItemBase
 	bool Expansion_CanUpgradePersonalStorage(PlayerBase player)
 	{
 	#ifdef EXPANSIONMODHARDLINE
-		return player.Expansion_GetPersonalStorageLevel() == m_Expansion_PersonalStorageUpgradeLevel - 1;
+		auto settings = GetExpansionSettings().GetHardline(false);
+		if (settings.IsLoaded() && settings.UseReputation)
+			return player.Expansion_GetPersonalStorageLevel() == m_Expansion_PersonalStorageUpgradeLevel - 1;
 	#endif
 
 		return false;

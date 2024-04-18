@@ -14,6 +14,11 @@ modded class TerritoryFlagKit
 {
 	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
 	{
+		if (m_AdminLog)
+		{
+			m_AdminLog.OnPlacementComplete(player, this);
+		}
+
 		if ( GetGame().IsServer() )
 		{
 			//Create TerritoryFlag

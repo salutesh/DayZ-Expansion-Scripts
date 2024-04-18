@@ -41,22 +41,26 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
      hexactsize 0
      vexactsize 1
     }
-    WrapSpacerWidgetClass TitelPanel {
+    GridSpacerWidgetClass TitelPanel {
+     clipchildren 1
      ignorepointer 1
+     keepsafezone 0
      position 0 0
-     size 1 16
+     size 0.97 16
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 1
      Margin 0
-     "Size To Content H" 0
+     "Size To Content H" 1
      "Size To Content V" 1
      content_halign center
+     content_valign center
+     Columns 2
+     Rows 1
      {
       ImageWidgetClass QuestIcon {
        ignorepointer 1
-       position 0 0
        size 16 16
        hexactpos 0
        vexactpos 0
@@ -65,26 +69,30 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
        imageTexture "{0FCACAAF0A99273C}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"
        mode blend
        "src alpha" 1
-       stretch 1
+       "stretch mode" stretch_w_h
       }
       RichTextWidgetClass QuestTitle {
        ignorepointer 1
-       position 0 0
-       size 0.92 1
+       size 1 1
        halign right_ref
        hexactpos 0
        vexactpos 0
        hexactsize 0
        vexactsize 0
        scriptclass "ViewBinding"
-       font "gui/fonts/etelkatextpro16"
+       style DayZBold
+       text "Title"
+       font "gui/fonts/sdf_MetronBook24"
        "text offset" 5 0
+       "bold text" 1
        "exact text" 1
-       "size to text h" 0
+       "exact text size" 14
+       "size to text h" 1
        "size to text v" 1
        "text valign" center
        wrap 1
        "condense whitespace" 1
+       "strip newlines" 1
        {
         ScriptParamsClass {
          Binding_Name "QuestName"
@@ -117,13 +125,15 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
      hexactsize 0
      vexactsize 0
      scriptclass "ViewBinding"
-     font "gui/fonts/etelkatextpro16"
+     font "gui/fonts/sdf_MetronBook24"
      "text offset" 5 0
      "exact text" 1
+     "exact text size" 14
      "size to text h" 0
      "size to text v" 1
      wrap 1
      "condense whitespace" 1
+     "strip newlines" 1
      {
       ScriptParamsClass {
        Binding_Name "ObjectiveText"

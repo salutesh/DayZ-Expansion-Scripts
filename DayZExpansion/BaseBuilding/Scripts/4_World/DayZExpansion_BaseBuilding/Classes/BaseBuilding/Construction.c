@@ -17,7 +17,8 @@ modded class Construction
 	//============================================
 	override bool IsColliding( string part_name )
 	{
-		if ( GetExpansionSettings().GetBaseBuilding().CanBuildAnywhere )
+		auto settings = GetExpansionSettings().GetBaseBuilding(false);
+		if ( settings.IsLoaded() && settings.CanBuildAnywhere )
 		{
 			return false;
 		}

@@ -94,6 +94,8 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 	static int Now;
 
+	static EntityAI s_SavedEntityToBeDeleted;
+
 	void ExpansionEntityStorageModule()
 	{
 	#ifdef JM_COT
@@ -728,6 +730,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (!entity.OnStoreLoad(ctx, version))
 			return ErrorFalse(entity.GetType() + ": Couldn't OnStoreLoad");
 
+		if (weapon)
+			weapon.Expansion_ResetMuzzleModes();
+
 		DayZPlayerImplement player;
 		if (version >= 12 && Class.CastTo(player, entity))
 		{
@@ -855,6 +860,20 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	{
 		int instance_id = GetGame().ServerConfigGetInt("instanceId");
 		return "$mission:storage_" + instance_id + "\\expansion\\entitystorage\\";
+	}
+
+	static void DeleteSavedEntity(EntityAI entity)
+	{
+		s_SavedEntityToBeDeleted = entity;
+
+		GetGame().ObjectDelete(entity);
+
+		s_SavedEntityToBeDeleted = null;
+	}
+
+	static EntityAI GetSavedEntityToBeDeleted()
+	{
+		return s_SavedEntityToBeDeleted;
 	}
 
 	static void DeleteFiles(string name)
@@ -1041,7 +1060,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			}
 		}
 
-		GetGame().ObjectDelete(entity);
+		DeleteSavedEntity(entity);
 
 		if (placeholder)
 		{

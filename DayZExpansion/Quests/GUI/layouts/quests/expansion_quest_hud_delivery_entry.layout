@@ -61,9 +61,10 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
        vexactsize 1
        scriptclass "ViewBinding"
        text "5000/5000"
-       font "gui/fonts/metron-bolditalic16"
+       font "gui/fonts/sdf_MetronBook24"
        "text offset" -2 0
-       "exact text" 0
+       "exact text" 1
+       "exact text size" 14
        "size to text h" 0
        "size to text v" 0
        "text halign" right
@@ -76,7 +77,7 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
       }
       TextWidgetClass delivery_name {
        ignorepointer 1
-       position 14 5
+       position 16 5
        size 0.95 16
        hexactpos 1
        vexactpos 1
@@ -84,8 +85,10 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
        vexactsize 1
        scriptclass "ViewBinding"
        text "ClassName"
-       font "gui/fonts/etelkatextpro16"
+       font "gui/fonts/sdf_MetronBook24"
        "text offset" 5 0
+       "exact text" 1
+       "exact text size" 14
        "size to text h" 0
        "size to text v" 0
        "text valign" center
@@ -105,7 +108,6 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
        vexactsize 1
        mode blend
        "src alpha" 1
-       stretch 1
        "clamp mode" clamp
        "stretch mode" stretch_w_h
        "flip u" 0

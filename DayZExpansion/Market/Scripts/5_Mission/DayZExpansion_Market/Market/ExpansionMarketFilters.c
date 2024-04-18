@@ -127,7 +127,7 @@ class ExpansionMarketFilters
 
 			foreach (string bullet : bullets)
 			{
-				string boxName = GetExpansionSettings().GetMarket().GetAmmoBoxWithAmmoName(bullet);
+				string boxName = GetDayZGame().Expansion_GetAmmoBoxByAmmoName(bullet);
 				bullets.Insert(boxName);
 			}
 		}

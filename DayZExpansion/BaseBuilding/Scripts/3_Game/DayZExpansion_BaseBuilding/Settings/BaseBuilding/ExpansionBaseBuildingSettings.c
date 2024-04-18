@@ -72,6 +72,9 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
+	[NonSerialized()]
+	ref array<ref ExpansionHash> m_DeployableInEnemyTerritory_Hashes = {};
+
 	// ------------------------------------------------------------
 	void ExpansionBaseBuildingSettings()
 	{
@@ -96,6 +99,17 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 
 		ctx.Read(CanBuildAnywhere);
 		ctx.Read(AllowBuildingWithoutATerritory);
+
+		int count;
+		ctx.Read(count);
+		m_DeployableInEnemyTerritory_Hashes.Clear();
+		while (count--)
+		{
+			auto hash = new ExpansionHash();
+			hash.Read(ctx);
+			m_DeployableInEnemyTerritory_Hashes.Insert(hash);
+		}
+
 		ctx.Read(CanCraftVanillaBasebuilding);
 		ctx.Read(CanCraftExpansionBasebuilding);
 		ctx.Read(DestroyFlagOnDismantle);
@@ -132,7 +146,13 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 	{
 		ctx.Write(CanBuildAnywhere);
 		ctx.Write(AllowBuildingWithoutATerritory);
-		//! Do not send deployable items to clients
+
+		ctx.Write(m_DeployableInEnemyTerritory_Hashes.Count());
+		foreach (ExpansionHash hash: m_DeployableInEnemyTerritory_Hashes)
+		{
+			hash.Write(ctx);
+		}
+
 		ctx.Write(CanCraftVanillaBasebuilding);
 		ctx.Write(CanCraftExpansionBasebuilding);
 		ctx.Write(DestroyFlagOnDismantle);
@@ -343,6 +363,12 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 			save = true;
 		}
 		
+		foreach (string deployable: DeployableInsideAEnemyTerritory)
+		{
+			deployable.ToLower();
+			m_DeployableInEnemyTerritory_Hashes.Insert(new ExpansionHash(deployable));
+		}
+
 		if (save)
 			Save();
 		

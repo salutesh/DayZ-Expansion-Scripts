@@ -34,8 +34,12 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 				//! Any AI, even passive, will react if vehicle is speeding towards them
 				//! Vehicles WITHOUT drivers are handled by vehicle target info
 				levelFactor = ProcessVehicleThreat(ai, distance);
-				if (levelFactor > 0.0)
-					return levelFactor;
+				if (!levelFactor)
+					levelFactor = 10 / distance;
+			}
+			else
+			{
+				levelFactor = 10 / distance;
 			}
 
 			eAIGroup group = ai.GetGroup();
@@ -93,8 +97,6 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 					return ExpansionMath.PowerConversion(0.5, 15, distance, 0.152, 0.0, 0.1);
 				}
 			}
-
-			levelFactor = 10 / distance;
 
 			if (distance > 30)
 			{
@@ -217,12 +219,23 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 	override vector GetAimOffset(eAIBase ai = null)
 	{
 		string boneName;
-		if (ai && Weapon_Base.Cast(ai.GetHumanInventory().GetEntityInHands()))
-			boneName = "neck";
+
+		Weapon_Base weapon;
+		if (ai && Class.CastTo(weapon, ai.GetHumanInventory().GetEntityInHands()))
+		{
+			if (weapon.ShootsExplosiveAmmo())
+				boneName = "spine3";
+			else
+				boneName = "neck";
+		}
 		else
+		{
 			boneName = "spine3";  //! Aim lower for melee
+		}
+
 		vector pos = m_Player.GetBonePositionWS(m_Player.GetBoneIndexByName(boneName));
 		pos = pos - m_Player.GetPosition();
+
 		return pos;
 	}
 };

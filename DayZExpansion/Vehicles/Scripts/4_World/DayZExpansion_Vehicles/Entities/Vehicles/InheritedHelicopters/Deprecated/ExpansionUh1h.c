@@ -53,7 +53,7 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		//! * @note if soundset name does not contain the string "_SoundSet", then "_Ext_SoundSet" or "_Int_SoundSet" will be appended automatically depending on camera
 		m_Expansion_EngineStartSounds.Insert(0.0, 9.576, "Expansion_Uh1h_Starter_Start", 0.0, 1.0);
 		m_Expansion_EngineStartSounds.Insert(5.0, 0.0, "Expansion_Uh1h_Engine_Idle_Start", 1.0, 0.0);
-		m_Expansion_EngineStartSounds.Insert(9.576, 0.0, "Expansion_Uh1h_Starter_Stop", 1.0, 0.0);
+		//m_Expansion_EngineStartSounds.Insert(9.576, 0.0, "Expansion_Uh1h_Starter_Stop", 1.0, 0.0);
 		#endif
 
 		super.EEInit();
@@ -153,7 +153,7 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
 #endif
 
-		return "0 1 0";
+		return "0 2 0";
 	}
 
 	override float GetTransportCameraDistance()
@@ -162,7 +162,7 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
 #endif
 
-		return 25;
+		return 15;
 	}
 
 	override string GetActionCompNameFuel()

@@ -179,4 +179,14 @@ modded class Weapon_Base
 		}
 		return ExpansionFireMode.INVALID;
 	}
+
+	void Expansion_ResetMuzzleModes()
+	{
+		int muzzleCount = GetMuzzleCount();
+
+		for (int i = 0; i < muzzleCount; i++)
+		{
+			SetCurrentMode(i, 0);
+		}
+	}
 }

@@ -26,6 +26,11 @@ class ExpansionRPG7Base: ExpansionLauncher_Base
 
 		super.EEFired(muzzleType, mode, ammoType);
 	}
+	
+	override bool ShootsExplosiveAmmo()
+	{
+		return true;
+	}
 };
 
-class ExpansionRPG7: ExpansionLauncher_Base {};
+class ExpansionRPG7: ExpansionRPG7Base {};
