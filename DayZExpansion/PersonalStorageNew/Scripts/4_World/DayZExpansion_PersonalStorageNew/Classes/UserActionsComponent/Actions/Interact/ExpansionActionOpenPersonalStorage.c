@@ -40,7 +40,7 @@ class ExpansionActionOpenPersonalStorage: ActionInteractBase
 			return false;
 
 	#ifdef EXPANSIONMODHARDLINE
-		if (GetGame().IsServer())
+		if (GetGame().IsServer() && player.GetIdentity())
 		{
 			int nextLevel, repReq, questID;
 			bool completed;
@@ -48,16 +48,16 @@ class ExpansionActionOpenPersonalStorage: ActionInteractBase
 			if (lvl < 1)
 			{
 				if (repReq > player.Expansion_GetReputation())
-					ExpansionNotification("STR_EXPANSION_PERSONALSTORAGE_ACCESS_DENIED", new StringLocaliser("STR_EXPANSION_PERSONALSTORAGE_ACCESS_DENIED_REPUTATION", repReq.ToString()), "Exclamationmark", COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create();
+					ExpansionNotification("STR_EXPANSION_PERSONALSTORAGE_ACCESS_DENIED", new StringLocaliser("STR_EXPANSION_PERSONALSTORAGE_ACCESS_DENIED_REPUTATION", repReq.ToString()), "Exclamationmark", COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(player.GetIdentity());
 
 			#ifdef EXPANSIONMODQUESTS
 				if (questID && !completed)
 				{
 					ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
 					if (questConfig)
-						ExpansionNotification("STR_EXPANSION_PERSONALSTORAGE_ACCESS_DENIED", new StringLocaliser("STR_EXPANSION_PERSONALSTORAGE_ACCESS_DENIED_QUEST", questConfig.GetTitle()), "Exclamationmark", COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create();
+						ExpansionNotification("STR_EXPANSION_PERSONALSTORAGE_ACCESS_DENIED", new StringLocaliser("STR_EXPANSION_PERSONALSTORAGE_ACCESS_DENIED_QUEST", questConfig.GetTitle()), "Exclamationmark", COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(player.GetIdentity());
 					else
-						ExpansionNotification("Internal Error", "Could not get config for quest ID: " + questID).Error();
+						ExpansionNotification("Internal Error", "Could not get config for quest ID: " + questID).Error(player.GetIdentity());
 				}
 			#endif
 

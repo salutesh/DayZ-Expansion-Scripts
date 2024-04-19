@@ -185,7 +185,8 @@ class ExpansionPersonalStorageHub: BuildingBase
 		if (!settings.IsLoaded())
 			return 0;
 
-		int lvl = player.Expansion_GetPersonalStorageLevel();
+		int initialLvl = player.Expansion_GetPersonalStorageLevel();
+		int lvl = initialLvl;
 		int rep = player.Expansion_GetReputation();
 		int repReq = -1;
 
@@ -229,11 +230,8 @@ class ExpansionPersonalStorageHub: BuildingBase
 					break;
 				}
 
-				if (storageLevel > lvl)
-				{
+				if (storageLevel > lvl && initialLvl < storageLevel)
 					lvl = storageLevel;
-					break;
-				}
 			}
 		}
 
