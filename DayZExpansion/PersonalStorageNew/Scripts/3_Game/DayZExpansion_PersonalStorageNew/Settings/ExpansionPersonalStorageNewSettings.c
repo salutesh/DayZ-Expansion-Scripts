@@ -13,12 +13,18 @@
 class ExpansionPersonalStorageLevel
 {
 	int ReputationRequirement;
+	int QuestID;
 	autoptr TStringArray ExcludedSlots = {};
 	bool AllowAttachmentCargo;
 
-	void ExpansionPersonalStorageLevel(int repReq, TStringArray excludedSlots = null, bool allowAttCargo = false)
+	[NonSerialized()]
+	int m_Level;
+
+	void ExpansionPersonalStorageLevel(int lvl, int repReq, int questID, TStringArray excludedSlots = null, bool allowAttCargo = false)
 	{
+		m_Level = lvl;
 		ReputationRequirement = repReq;
+		QuestID = questID;
 		if (excludedSlots)
 			ExcludedSlots = excludedSlots;
 		AllowAttachmentCargo = allowAttCargo;
@@ -27,16 +33,23 @@ class ExpansionPersonalStorageLevel
 
 class ExpansionPersonalStorageNewSettings: ExpansionSettingBase
 {
-	static const int VERSION = 3;
+	static const int VERSION = 4;
 	static const string SETTINGS_PATH = EXPANSION_SETTINGS_FOLDER + "PersonalStorageNewSettings.json";
 
 	bool UseCategoryMenu;
 
 	ref TStringArray ExcludedItems = {};
+
+	//! Server only, all levels
 	ref map<int, ref ExpansionPersonalStorageLevel> StorageLevels = new map<int, ref ExpansionPersonalStorageLevel>;
 
+	//! Server + client, only levels w/ requirements
 	[NonSerialized()]
-	ref map<int, int> m_StorageLevelsReputationRequirements = new map<int, int>;
+	ref map<int, ref ExpansionPersonalStorageLevel> m_StorageLevelsRequirements = new map<int, ref ExpansionPersonalStorageLevel>;
+
+	//! Server + client, only levels w/ requirements, sorted by level (asc)
+	[NonSerialized()]
+	ref array<ref ExpansionPersonalStorageLevel> m_StorageLevelsRequirements_Sorted = new array<ref ExpansionPersonalStorageLevel>;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -54,11 +67,12 @@ class ExpansionPersonalStorageNewSettings: ExpansionSettingBase
 	{
 		ctx.Write(UseCategoryMenu);
 
-		ctx.Write(m_StorageLevelsReputationRequirements.Count());
-		foreach (int lvl, int repReq: m_StorageLevelsReputationRequirements)
+		ctx.Write(m_StorageLevelsRequirements_Sorted.Count());
+		foreach (auto storageLevelConfig: m_StorageLevelsRequirements_Sorted)
 		{
-			ctx.Write(lvl);
-			ctx.Write(repReq);
+			ctx.Write(storageLevelConfig.m_Level);
+			ctx.Write(storageLevelConfig.ReputationRequirement);
+			ctx.Write(storageLevelConfig.QuestID);
 		}
 	}
 
@@ -77,16 +91,21 @@ class ExpansionPersonalStorageNewSettings: ExpansionSettingBase
 			return false;
 		}
 
+		m_StorageLevelsRequirements.Clear();
+		m_StorageLevelsRequirements_Sorted.Clear();
+
 		while (count--)
 		{
-			int lvl, repReq;
-			if (!ctx.Read(lvl) || !ctx.Read(repReq))
+			int lvl, repReq, questID;
+			if (!ctx.Read(lvl) || !ctx.Read(repReq) || !ctx.Read(questID))
 			{
-				Error("ExpansionPersonalStorageNewSettings::OnRecieve Couldn't read storage level or reputation requirements");
+				Error("ExpansionPersonalStorageNewSettings::OnRecieve Couldn't read storage level, reputation or questID requirements");
 				return false;
 			}
-			m_StorageLevelsReputationRequirements[lvl] = repReq;
-			EXTrace.Print(EXTrace.PERSONALSTORAGE, this, "Received personal storage lvl " + lvl + " rep req " + repReq);
+			auto storageLevelConfig = new ExpansionPersonalStorageLevel(lvl, repReq, questID);
+			m_StorageLevelsRequirements[lvl] = storageLevelConfig;
+			m_StorageLevelsRequirements_Sorted.Insert(storageLevelConfig);
+			EXTrace.Print(EXTrace.PERSONALSTORAGE, this, "Received personal storage lvl " + lvl + " rep req " + repReq + " quest ID " + questID);
 		}
 
 		m_IsLoaded = true;
@@ -137,14 +156,21 @@ class ExpansionPersonalStorageNewSettings: ExpansionSettingBase
 			save = true;
 		}
 
+		m_StorageLevelsRequirements.Clear();
+		m_StorageLevelsRequirements_Sorted.Clear();
+
 		foreach (int storageLevel, auto storageLevelConfig: StorageLevels)
 		{
 			int repReq = storageLevelConfig.ReputationRequirement;
-			if (repReq == -1)
+			int questID = storageLevelConfig.QuestID;
+
+			if (repReq == -1 && !questID)
 				continue;
 
-			m_StorageLevelsReputationRequirements[storageLevel] = repReq;
-			EXTrace.Print(EXTrace.PERSONALSTORAGE, this, "Personal storage lvl " + storageLevel + " rep req " + repReq);
+			storageLevelConfig.m_Level = storageLevel;
+			m_StorageLevelsRequirements[storageLevel] = storageLevelConfig;
+			m_StorageLevelsRequirements_Sorted.Insert(storageLevelConfig);
+			EXTrace.Print(EXTrace.PERSONALSTORAGE, this, "Personal storage lvl " + storageLevel + " rep req " + repReq + " quest ID " + questID);
 		}
 
 		if (save)
@@ -180,13 +206,13 @@ class ExpansionPersonalStorageNewSettings: ExpansionSettingBase
 				case 7:
 				case 8:
 				case 9:
-					StorageLevels.Insert(lvl, new ExpansionPersonalStorageLevel(-1));
+					StorageLevels.Insert(lvl, new ExpansionPersonalStorageLevel(lvl, -1, 0));
 					break;
 				case 10:
-					StorageLevels.Insert(lvl, new ExpansionPersonalStorageLevel(-1, null, true));
+					StorageLevels.Insert(lvl, new ExpansionPersonalStorageLevel(lvl, -1, 0, null, true));
 					break;
 				default:
-					StorageLevels.Insert(lvl, new ExpansionPersonalStorageLevel(-1, defaultExcludedSlots, false));
+					StorageLevels.Insert(lvl, new ExpansionPersonalStorageLevel(lvl, -1, 0, defaultExcludedSlots, false));
 					break;
 			}
 		}

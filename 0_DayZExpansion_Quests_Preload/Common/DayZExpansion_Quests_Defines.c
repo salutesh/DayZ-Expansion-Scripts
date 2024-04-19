@@ -10,6 +10,8 @@
  *
 */
 
+#define EXPANSIONMODQUESTS_COOLDOWN_FIX
+
 //! Uncomment to enable expansion quest system debug logs
 //#define EXPANSIONMODQUESTSMODULEDEBUG
 //#define EXPANSIONMODQUESTSINSTANCEDEBUG

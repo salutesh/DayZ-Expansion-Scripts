@@ -255,18 +255,14 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 		if (m_Quest.IsDailyQuest() || m_Quest.IsWeeklyQuest())
 		{
 			int timestamp = m_QuestModule.GetClientQuestData().GetQuestTimestampByQuestID(m_Quest.GetID());
-			if (timestamp != -1)
+			if (timestamp > serverTime)
 			{
-				int dif = timestamp - serverTime;
-				if (dif != 0)
-				{
-					m_HasCooldown = true;
-					timedif = dif;
-				}
+				timedif = timestamp - serverTime;
+				m_HasCooldown = true;
 			}
 		}
 		
-		if (m_HasCooldown && timedif != 0)
+		if (m_HasCooldown)
 		{
 			CooldownPanel.Show(true);
 			m_QuestMenuListEntryController.Cooldown = ExpansionStatic.GetTimeString(timedif);

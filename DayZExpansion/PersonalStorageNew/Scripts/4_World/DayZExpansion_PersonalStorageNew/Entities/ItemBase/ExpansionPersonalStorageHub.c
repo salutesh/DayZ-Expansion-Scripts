@@ -66,12 +66,25 @@ class ExpansionPersonalStorageHub: BuildingBase
 
 	string Expansion_GetContainerDisplayName(PlayerBase player)
 	{
+		//! If personal storage is currently open, use container display name
+		ExpansionPersonalStorageContainer container = s_Expansion_PersonalStorageContainers[player.GetIdentity().GetId()];
+		if (container)
+			return container.GetDisplayName();
+
 		string containerName = ConfigGetString("expansionPersonalStorageBase");
 
 	#ifdef EXPANSIONMODHARDLINE
 		auto settings = GetExpansionSettings().GetHardline(false);
 		if (settings.IsLoaded() && settings.UseReputation)
-			containerName += "_Level" + Expansion_GetPersonalStorageLevelEx(player);
+		{
+			int currentRestrictedLevel;
+			int lvl = Expansion_GetPersonalStorageLevelEx(player, currentRestrictedLevel);
+
+			if (lvl < 1)
+				lvl = currentRestrictedLevel;
+
+			containerName += "_Level" + lvl;
+		}
 	#endif
 
 		string displayName = GetGame().ConfigGetTextOut(CFG_VEHICLESPATH + " " + containerName + " displayName");
@@ -162,27 +175,87 @@ class ExpansionPersonalStorageHub: BuildingBase
 
 #ifdef EXPANSIONMODHARDLINE
 	//! @note Can't be on PlayerBase, leads to compile error due load order :-(
-	static int Expansion_GetPersonalStorageLevelEx(PlayerBase player, out int nextLvlRepReq = -1)
+	static int Expansion_GetPersonalStorageLevelEx(PlayerBase player, out int nextLevel = -1, out int nextLvlRepReq = -1, out int nextLvlQuestID = 0, out bool completed = false)
 	{
+	#ifdef SERVER
+		auto trace = EXTrace.StartStack(EXTrace.PERSONALSTORAGE, ExpansionPersonalStorageHub);
+	#endif
+
 		auto settings = GetExpansionSettings().GetPersonalStorageNew(false);
 		if (!settings.IsLoaded())
 			return 0;
 
-		int lvl = player.Expansion_GetPersonalStorageLevel();
+		int initialLvl = player.Expansion_GetPersonalStorageLevel();
+		int lvl = initialLvl;
 		int rep = player.Expansion_GetReputation();
 		int repReq = -1;
 
-		foreach (int storageLevel, int lvlRepReq: settings.m_StorageLevelsReputationRequirements)
+	#ifdef EXPANSIONMODQUESTS
+		map<int, bool> completedQuests = new map<int, bool>;
+	#endif
+
+		int storageLevel;
+
+		//! Only levels w/ requirements, sorted (asc)
+		foreach (auto storageLevelConfig: settings.m_StorageLevelsRequirements_Sorted)
 		{
-			if (storageLevel > lvl && lvlRepReq > repReq && rep >= lvlRepReq)
+			storageLevel = storageLevelConfig.m_Level;
+
+			int lvlRepReq = storageLevelConfig.ReputationRequirement;
+			int questID = storageLevelConfig.QuestID;
+
+			if (storageLevel >= lvl && storageLevel <= lvl + 1 && (lvlRepReq >= repReq || questID))
 			{
-				lvl = storageLevel;
+				nextLevel = storageLevel;
 				repReq = lvlRepReq;
+
+				if (questID)
+				{
+					completed = false;
+
+				#ifdef EXPANSIONMODQUESTS
+					if (!completedQuests.Find(questID, completed))
+					{
+						completed = ExpansionQuestModule.GetModuleInstance().HasCompletedQuest(questID, player.GetIdentity().GetId());
+						completedQuests[questID] = completed;
+					}
+				#endif
+				}
+
+				if (rep < lvlRepReq || (questID && !completed))
+				{
+					if (storageLevel == lvl)
+						lvl = 0;  //! Player has no access to current level
+
+					break;
+				}
+
+				if (storageLevel > lvl && initialLvl < storageLevel)
+					lvl = storageLevel;
 			}
 		}
 
-		if (!settings.m_StorageLevelsReputationRequirements.Find(lvl + 1, nextLvlRepReq))
+	#ifdef SERVER
+	#ifdef DIAG
+		Print(lvl);
+		Print(storageLevel);
+		Print(nextLevel);
+		Print(questID);
+		Print(completed);
+	#endif
+	#endif
+
+		ExpansionPersonalStorageLevel nextLevelConfig;
+		if (settings.m_StorageLevelsRequirements.Find(nextLevel, nextLevelConfig))
+		{
+			nextLvlRepReq = nextLevelConfig.ReputationRequirement;
+			nextLvlQuestID = nextLevelConfig.QuestID;
+		}
+		else
+		{
 			nextLvlRepReq = -1;
+			nextLvlQuestID = 0;
+		}
 
 		return lvl;
 	}

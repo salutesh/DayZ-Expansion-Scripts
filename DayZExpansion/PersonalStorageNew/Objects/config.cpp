@@ -137,6 +137,9 @@ class CfgVehicles
 	{
 		scope = 0;
 		descriptionShort = "$STR_EXPANSION_PERSONALSTORAGE_UPGRADE_DESC";
+		canBeSplit = 0;
+		varQuantityMax = 1;
+		varStackMax = 1;
 	};
 	class ExpansionPersonalStorageUpgrade_Level2: ExpansionPersonalStorageUpgrade
 	{

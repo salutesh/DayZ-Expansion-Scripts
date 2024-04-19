@@ -14,7 +14,6 @@
 class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 {
 	protected eAIBase m_VIP;
-	protected eAIGroup m_Group;
 	protected bool m_DestinationReached;
 	protected ref ExpansionQuestObjectiveAIEscortConfig m_AIEscortConfig;
 	protected vector m_ObjectivePos;
@@ -103,8 +102,12 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
 			}
 
-			m_Group.SetLeader(m_VIP);
-			m_Group.AddWaypoint(m_ObjectivePos);
+			eAIFaction faction = new eAIFactionInvincibleObservers();
+
+			auto group = eAIGroup.CreateGroup(faction);
+			m_VIP.SetGroup(group);
+			group.SetWaypointBehaviour(eAIWaypointBehavior.ONCE);
+			group.AddWaypoint(m_ObjectivePos);
 
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeleteVIP, 10000);
 
@@ -190,7 +193,6 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!m_AIEscortConfig)
 			return;
 
-		m_Group = eAIGroup.GetGroupByLeader(m_Quest.GetPlayer(), true, null, false);
 		m_VIP = SpawnAI_VIP(m_Quest.GetPlayer(), m_AIEscortConfig.GetLoadout(), m_AIEscortConfig.GetNPCClassName());
 		if (!m_VIP)
 			return;
@@ -208,7 +210,6 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	
 		m_VIP.m_Expansion_NetsyncData.Set(iconIndex, "set:expansion_iconset image:icon_profile");
 		
-		m_Group.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.UpdateVIPPosition, 10 * 1000, true);
 	}
 
@@ -238,9 +239,14 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		//! If player has no group, create new group with player as leader
 		if (!group)
+		{
 			group = eAIGroup.GetGroupByLeader(owner);
+		}
 		else
+		{
 			owner.Expansion_SetFormerGroup(group);
+			group.ClearWaypoints();
+		}
 
 		//! Add AI to player group
 		ai.SetGroup(group);
