@@ -39,6 +39,33 @@ class ExpansionActionOpenPersonalStorage: ActionInteractBase
 		if (!Class.CastTo(hub, target.GetObject()))
 			return false;
 
+	#ifdef EXPANSIONMODHARDLINE
+		if (GetGame().IsServer())
+		{
+			int nextLevel, repReq, questID;
+			bool completed;
+			int lvl = ExpansionPersonalStorageHub.Expansion_GetPersonalStorageLevelEx(player, nextLevel, repReq, questID, completed);
+			if (lvl < 1)
+			{
+				if (repReq > player.Expansion_GetReputation())
+					ExpansionNotification("STR_EXPANSION_PERSONALSTORAGE_ACCESS_DENIED", new StringLocaliser("STR_EXPANSION_PERSONALSTORAGE_ACCESS_DENIED_REPUTATION", repReq.ToString()), "Exclamationmark", COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create();
+
+			#ifdef EXPANSIONMODQUESTS
+				if (questID && !completed)
+				{
+					ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
+					if (questConfig)
+						ExpansionNotification("STR_EXPANSION_PERSONALSTORAGE_ACCESS_DENIED", new StringLocaliser("STR_EXPANSION_PERSONALSTORAGE_ACCESS_DENIED_QUEST", questConfig.GetTitle()), "Exclamationmark", COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create();
+					else
+						ExpansionNotification("Internal Error", "Could not get config for quest ID: " + questID).Error();
+				}
+			#endif
+
+				return false;
+			}
+		}
+	#endif
+
 		return ExpansionPersonalStorageHub.s_Expansion_PersonalStorageHubs[player.GetIdentityUID()] != hub;
 	}
 

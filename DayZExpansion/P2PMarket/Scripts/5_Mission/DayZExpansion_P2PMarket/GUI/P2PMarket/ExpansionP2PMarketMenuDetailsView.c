@@ -203,7 +203,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 		{
 			view_item_preview.Show(true);
 			view_player_preview.Show(false);
-			m_P2PMarketMenuDetailsController.ViewItemPreview = m_P2PMarketMenu.GetSelectedPreviewObject(;
+			m_P2PMarketMenuDetailsController.ViewItemPreview = m_P2PMarketMenu.GetSelectedPreviewObject();
 			m_P2PMarketMenuDetailsController.NotifyPropertyChanged("ViewItemPreview");
 
 			m_CurrentPreviewObject = m_P2PMarketMenu.GetSelectedPreviewObject();

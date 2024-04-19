@@ -104,11 +104,27 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		PlayerBase player;
 		if (Class.CastTo(player, GetGame().GetPlayer()))
 		{
+			int nextLevel;
 			int nextLvlRepReq;
-			int lvl = ExpansionPersonalStorageHub.Expansion_GetPersonalStorageLevelEx(player, nextLvlRepReq);
-			if (nextLvlRepReq > -1)
+			int questID;
+			int lvl = ExpansionPersonalStorageHub.Expansion_GetPersonalStorageLevelEx(player, nextLevel, nextLvlRepReq, questID);
+			if (lvl < nextLevel && (nextLvlRepReq > -1 || questID))
 			{
-				CF_Localiser localizer = new CF_Localiser("STR_EXPANSION_PERSONALSTORAGE_DESC", (lvl + 1).ToString(), nextLvlRepReq.ToString());
+				string reqs;
+
+				if (nextLvlRepReq > -1)
+					reqs += "\n#STR_EXPANSION_HARDLINE_REPUTATION " + nextLvlRepReq;
+
+			#ifdef EXPANSIONMODQUESTS
+				if (questID)
+				{
+					ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
+					if (questConfig)
+						reqs += "\n#STR_EXPANSION_QUEST: " + questConfig.GetTitle();
+				}
+			#endif
+
+				CF_Localiser localizer = new CF_Localiser("STR_EXPANSION_PERSONALSTORAGE_DESC", nextLevel.ToString(), reqs);
 				output = localizer.Format();
 				return true;
 			}
@@ -134,6 +150,8 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 				m_Expansion_SetPersonalStorageHub = 2;
 			SetSynchDirty();
 		}
+	#else
+		m_Expansion_PersonalStorageHub.s_Expansion_PersonalStorageContainers
 	#endif
 	}
 
@@ -143,6 +161,9 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 
 		if (!ExpansionIsContainerOwner() || !Expansion_IsOwnerNear())
 			return;
+
+		string uid = ExpansionGetContainerOwnerUID();
+		ExpansionPersonalStorageHub.s_Expansion_PersonalStorageContainers[uid] = this;
 
 		if (GetExpansionSettings().GetPersonalStorageNew().UseCategoryMenu)
 		{
@@ -175,10 +196,14 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		foreach (string slotName: slotNames)
 		{
 			EnScript.GetClassVar(this, "m_Expansion_PersonalStorageExcludeSlot" + slotName, 0, exclude);
-			excluded |= exclude;
+			if (exclude)
+				excluded++;
 		}
-		
-		return !excluded;
+
+		if (excluded == slotNames.Count())
+			return false;
+
+		return true;
 	}
 
 	override bool CanObstruct()
@@ -261,9 +286,7 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 
 		string uid = ExpansionGetContainerOwnerUID();
 		EXTrace.Print(EXTrace.PERSONALSTORAGE, this, "::EEDelete - owner UID " + uid);
-		#ifdef SERVER
 		ExpansionPersonalStorageHub.s_Expansion_PersonalStorageContainers.Remove(uid);
-		#endif
 		ExpansionPersonalStorageHub.s_Expansion_PersonalStorageHubs.Remove(uid);
 	}
 
