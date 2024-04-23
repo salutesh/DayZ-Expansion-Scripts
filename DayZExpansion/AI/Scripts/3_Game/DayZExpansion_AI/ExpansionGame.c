@@ -18,4 +18,6 @@ modded class ExpansionGame
 	{
 		return false;
 	}
+
+	void eAI_Spectate(DayZPlayer player, PlayerIdentity sender);
 };

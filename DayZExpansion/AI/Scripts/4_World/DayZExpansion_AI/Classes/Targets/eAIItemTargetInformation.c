@@ -35,7 +35,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 
 		if (ai)
 		{
-			if (ai.eAI_GetItemThreatOverride(m_Item))
+			if (ai.eAI_GetItemThreatOverride(m_Item) || ai.IsRestrained())
 				return 0.1;
 
 			float distance = GetDistanceSq(ai, true);

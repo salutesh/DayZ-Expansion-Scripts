@@ -3155,11 +3155,15 @@ class eAIBase: PlayerBase
 		
 		ProcessADDModifier();
 
-		if (hic)
+		if (hic && pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT && !pCurrentCommandFinished && m_eAI_Command)
 		{
-			bool exitIronSights = false;
-			//! @note HandleWeapons also deals with hands lowering/raising if no weapon in hands
-			HandleWeapons(pDt, entityInHands, hic, exitIronSights);
+			eAICommandVehicle vehicleCmd;
+			if (!Class.CastTo(vehicleCmd, m_eAI_Command) || !vehicleCmd.IsGettingIn())
+			{
+				bool exitIronSights = false;
+				//! @note HandleWeapons also deals with hands lowering/raising if no weapon in hands
+				HandleWeapons(pDt, entityInHands, hic, exitIronSights);
+			}
 		}
 
 		GetDayZPlayerInventory().HandleInventory(pDt);
@@ -4485,7 +4489,7 @@ class eAIBase: PlayerBase
 			m_WeaponRaisedPrev = m_WeaponRaised;
 			m_WeaponRaisedTimer = 0.0;
 
-			if (g_Game.IsServer())
+			if (g_Game.IsServer() && m_eAI_Command.IsInherited(eAICommandMove))
 			{
 				AnimSetBool(m_ExpansionST.m_VAR_Raised, m_WeaponRaised);
 				if (!m_WeaponRaised)

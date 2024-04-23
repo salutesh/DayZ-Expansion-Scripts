@@ -16,6 +16,8 @@ modded class DayZExpansion
 {
 	private static DayZExpansion m_Instance_5; //! weak ref
 	
+	eAIBase m_eAI_SpectatedAI;
+
     void DayZExpansion()
 	{
 		#ifdef EAI_TRACE
@@ -32,5 +34,29 @@ modded class DayZExpansion
 		#endif
 		
 		return m_Instance_5;
+	}
+
+	override void eAI_Spectate(DayZPlayer player, PlayerIdentity sender)
+	{
+	#ifdef JM_COT
+		JMPlayerModule module;
+		if (CF_Modules<JMPlayerModule>.Get(module))
+		{
+			eAIBase ai;
+			if (Class.CastTo(ai, player) && ai != m_eAI_SpectatedAI)
+			{
+				m_eAI_SpectatedAI = ai;
+				module.StartSpectatingAI(ai, sender);
+			}
+			else if (CurrentActiveCamera)
+			{
+				if (CurrentActiveCamera.IsInherited(JMSpectatorCamera) || (COT_PreviousActiveCamera && COT_PreviousActiveCamera.IsInherited(JMSpectatorCamera)))
+				{
+					m_eAI_SpectatedAI = null;
+					module.EndSpectating();
+				}
+			}
+		}
+	#endif
 	}
 };

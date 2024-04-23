@@ -689,7 +689,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle,Fighting" />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation,Fighting" />
 			<to_state name="Weapon_Reloading" />
 		</transition>
 		<transition>
@@ -904,7 +904,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle,Fighting" />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation,Fighting" />
 			<to_state name="Weapon_Unjamming" />
 		</transition>
 		<transition>
@@ -1026,6 +1026,7 @@
 				<position_destination x="794" y="456.89192130556" />
 			</editor_data>
 			<guard>
+				if (unit.IsRaised()) return FAIL;
 				if (unit.IsRestrained()) return FAIL;
 				if (unit.IsUnconscious()) return FAIL;
 				if (!unit.GetCommand_MoveAI()) return FAIL;
