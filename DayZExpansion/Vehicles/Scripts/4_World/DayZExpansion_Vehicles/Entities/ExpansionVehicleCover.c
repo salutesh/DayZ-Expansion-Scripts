@@ -14,6 +14,14 @@ class ExpansionVehicleCover: ExpansionEntityStoragePlaceholder
 {
 	protected ExpansionKeyChainBase m_Expansion_KeyChain;
 
+	void ExpansionVehicleCover()
+	{
+		//! @note geo LOD of cover p3d needs to have a high enough mass else UpdatePathgraphRegion won't do anything.
+		//! 100 kg and up seem to work. All our covers have a geo LOD mass of 1000 kg.
+		if (GetGame().IsServer())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
+	}
+
 	override void AfterStoreLoad()
 	{
 		super.AfterStoreLoad();

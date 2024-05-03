@@ -469,14 +469,11 @@ class ExpansionQuest
 		SetQuestState(ExpansionQuestState.CAN_TURNIN);
 
 		if (m_Config.IsAutocomplete())
-		{
 			m_QuestModule.RequestCompleteQuestServer(m_Config.GetID(), GetPlayerUID(), m_Player.GetIdentity(), true);
-		}
 		
+		//! Open quest menu so player can turn in the quest when the quest has no quest turn-in ID and cant be autocompleted.
 		if (!m_Config.IsAutocomplete() && !m_Config.IsAchievement() && m_Config.GetQuestTurnInIDs().Count() == 0)
-		{
-			ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest(m_Player.GetIdentity(), m_Config.GetID());
-		}
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest, 1000, false, m_Player.GetIdentity(), m_Config.GetID());
 		
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestObjectivesComplete(this);
 	}
@@ -530,70 +527,50 @@ class ExpansionQuest
 		DeleteQuestGiverItem();
 
 		m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
-		if (m_Player)
+		if (!m_Player || !m_Player.GetIdentity())
 		{
-			if (!m_Config && m_Config.GetID() == -1)
-			{
-				Error(ToString() + "::OnQuestTurnIn - Could not get quest config!");
-				return false;
-			}
-
-			//! Call end event on all quest objectives
-			foreach (ExpansionQuestObjectiveEventBase objectiveEvent: m_QuestObjectives)
-			{
-				if (!objectiveEvent.OnTurnIn(playerUID, selectedObjItemIndex))
-					return false;
-			}
-
-			//! Add all quest rewards to the quest players
-			bool conditions;
-			if (m_Config.GetRewards().Count() > 0)
-				conditions = true;
-		#ifdef EXPANSIONMODAI
-			if (!conditions && m_Config.GetFactionReward() != string.Empty)
-				conditions = true;
-		#endif
-		#ifdef EXPANSIONMODHARDLINE
-			if (!conditions && m_Config.GetReputationReward())
-				conditions = true;
-		#ifdef EXPANSIONMODAI
-			if (!conditions && m_Config.GetFactionReputationRewards().Count() > 0)
-				conditions = true;
-		#endif
-		#endif
-			if (conditions)
-				SpawnQuestRewards(playerUID, reward);
-
-			if (!m_Config.IsAchievement())
-			{
-				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestTurnInTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestTurnInText, m_Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS);
-			}
-			else
-			{
-				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().AchievementCompletedTitle, m_Config.GetTitle()), new StringLocaliser(GetExpansionSettings().GetQuest().AchievementCompletedText, m_Config.GetObjectiveText()), ExpansionIcons.GetPath("Star"), COLOR_EXPANSION_NOTIFICATION_EXPANSION);
-			}
-
-			SetIsCompleted(true);
-			
-			//! Check if we should show the quest log with the follow-up quest on quest completion.
-			//! We only want to display the quest log with the follow-up quest when the follow-up quest has no quest giver and when the player meats all other quest display conditions for that quest.
-			if (m_Config.GetFollowUpQuestID() > 0 && !m_Config.SuppressQuestLogOnCompetion())
-			{
-				ExpansionQuestConfig followUpQuest = m_QuestModule.GetQuestConfigByID(m_Config.GetFollowUpQuestID());
-				if (followUpQuest && followUpQuest.GetQuestGiverIDs().Count() == 0)
-				{
-					PlayerBase questPlayer = PlayerBase.GetPlayerByUID(playerUID);
-					if (!questPlayer || !questPlayer.GetIdentity())
-						return false;
-					
-					ExpansionQuestPersistentData playerQuestData = m_QuestModule.GetPlayerQuestDataByUID(playerUID);
-					//! We set to skip the pre-quest conditions check here as the player quest data does not contain the completion of the current quest yet and the QuestDisplayConditions check would return false otherwise then.
-					if (m_QuestModule.QuestDisplayConditions(followUpQuest, questPlayer, playerQuestData, -1, false, true))
-						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_QuestModule.RequestOpenQuestMenuForQuest, 1000, false, questPlayer.GetIdentity(), m_Config.GetFollowUpQuestID());
-				}
-			}
+			Error(ToString() + "::OnQuestTurnIn - Could not get quest player!");
+			return false;
 		}
 
+		if (!m_Config && m_Config.GetID() == -1)
+		{
+			Error(ToString() + "::OnQuestTurnIn - Could not get quest config!");
+			return false;
+		}
+
+		//! Call end event on all quest objectives
+		foreach (ExpansionQuestObjectiveEventBase objectiveEvent: m_QuestObjectives)
+		{
+			if (!objectiveEvent.OnTurnIn(playerUID, selectedObjItemIndex))
+				return false;
+		}
+
+		//! Add all quest rewards to the quest players
+		bool conditions;
+		if (m_Config.GetRewards().Count() > 0)
+			conditions = true;
+	#ifdef EXPANSIONMODAI
+		if (!conditions && m_Config.GetFactionReward() != string.Empty)
+			conditions = true;
+	#endif
+	#ifdef EXPANSIONMODHARDLINE
+		if (!conditions && m_Config.GetReputationReward())
+			conditions = true;
+	#ifdef EXPANSIONMODAI
+		if (!conditions && m_Config.GetFactionReputationRewards().Count() > 0)
+			conditions = true;
+	#endif
+	#endif
+		if (conditions)
+			SpawnQuestRewards(playerUID, reward);
+
+		if (!m_Config.IsAchievement())
+			SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestTurnInTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestTurnInText, m_Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS);
+		else
+			SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().AchievementCompletedTitle, m_Config.GetTitle()), new StringLocaliser(GetExpansionSettings().GetQuest().AchievementCompletedText, m_Config.GetObjectiveText()), ExpansionIcons.GetPath("Star"), COLOR_EXPANSION_NOTIFICATION_EXPANSION);
+
+		SetIsCompleted(true);
 		SetQuestState(ExpansionQuestState.COMPLETED);
 
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestCompletion(this);
@@ -703,12 +680,14 @@ class ExpansionQuest
 		SetInitialized(true);
 
 		delete inhibitor;
-
+		
+		//! If the quest can be automatically completed we send a request to complete the quest to the module if we can turn it in.
 		if (m_Config.IsAutocomplete() && m_QuestState == ExpansionQuestState.CAN_TURNIN)
 			m_QuestModule.RequestCompleteQuestServer(m_Config.GetID(), GetPlayerUID(), m_Player.GetIdentity(), true);
 		
-		/*if (!m_Config.IsAutocomplete() && !m_Config.IsAchievement() && m_QuestState == ExpansionQuestState.CAN_TURNIN && m_Config.GetQuestTurnInIDs().Count() == 0)
-			ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest(m_Player.GetIdentity(), m_Config.GetID());*/
+		//! If the quest cant be automatically completed but has no turn-in NPC IDs then we try to open the quest menu so the player can turn-in the quest.
+		if (!m_Config.IsAutocomplete() && !m_Config.IsAchievement() && m_QuestState == ExpansionQuestState.CAN_TURNIN && m_Config.GetQuestTurnInIDs().Count() == 0)
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest, 1000, false, m_Player.GetIdentity(), m_Config.GetID());
 
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestContinue(this);
 

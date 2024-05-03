@@ -133,11 +133,7 @@ class ExpansionPathPoint
 	{
 		int i;
 		
-		PGFilter filter;
-		if (pathFinding.m_AllowJumpClimb && pathFinding.m_Unit.GetHealth01() >= 0.2)
-			filter = pathFinding.m_PathFilter;
-		else
-			filter = pathFinding.m_PathFilter_NoJumpClimb;
+		PGFilter filter = pathFinding.GetFilter();
 		
 		if (Parent)
 		{
@@ -157,5 +153,10 @@ class ExpansionPathPoint
 		{
 			pathFinding.m_AIWorld.FindPath(startPos, Position, filter, path);
 		}
+
+	#ifdef DIAG
+		pathFinding.m_Unit.Expansion_DebugObject(11110, startPos, "ExpansionDebugNoticeMe_Blue", pathFinding.m_Unit.GetDirection());
+		//EXTrace.Print(EXTrace.AI, pathFinding.m_Unit, "FindPath " + path.Count() + " points");
+	#endif
 	}
 };

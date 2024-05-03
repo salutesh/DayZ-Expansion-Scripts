@@ -13,6 +13,8 @@
 class ExpansionHudIndicatorColors: ExpansionColorSettingsBase
 {
 	string StaminaBarColor;
+	string StaminaBarColorHalf;
+	string StaminaBarColorLow;
 
 	string NotifierDividerColor;	//! Divider between stamina and Notifiers (health, hunger, tempe, etc)
 
@@ -37,6 +39,12 @@ class ExpansionHudIndicatorColors: ExpansionColorSettingsBase
 		//! Make sure none of the colors are zero (all transparent) and set defaults
 		if (!Get("StaminaBarColor"))
 			Set("StaminaBarColor", ARGB(255, 255, 255, 255));
+
+		if (!Get("StaminaBarColorHalf"))
+			Set("StaminaBarColorHalf", ARGB(255, 255, 255, 255));
+
+		if (!Get("StaminaBarColorLow"))
+			Set("StaminaBarColorLow", ARGB(255, 255, 255, 255));
 
 		if (!Get("NotifierDividerColor"))
 			Set("NotifierDividerColor", ARGB(255, 220, 220, 220));

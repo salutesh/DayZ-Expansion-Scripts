@@ -28,10 +28,15 @@ class eAICommandManagerClient : eAICommandManager
 
 		m_Expansion_RPCManager.RegisterServer("RPC_DumpState");
 		m_Expansion_RPCManager.RegisterServer("RPC_UnlimitedReload");
+
+		m_Expansion_RPCManager.RegisterServer("RPC_SpectateAI");
 	}
 
 	override bool Send(eAICommands cmd)
 	{
+		ExpansionScriptRPC rpc;
+		Object target;
+
 		switch (cmd)
 		{
 			case eAICommands.DEB_SPAWNALLY:
@@ -113,9 +118,15 @@ class eAICommandManagerClient : eAICommandManager
 				return true;
 
 			case eAICommands.STA_DUMP:
-				auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_DumpState");
-				Object target;
+				rpc = m_Expansion_RPCManager.CreateRPC("RPC_DumpState");
 				ExpansionStatic.GetCursorHitPos(target);
+				rpc.Expansion_Send(target, true);
+				return true;
+
+			case eAICommands.DEB_SPECTATE:
+				ExpansionStatic.GetCursorHitPos(target);
+				GetDayZGame().GetExpansionGame().eAI_Spectate(eAIBase.Cast(target), null);
+				rpc = m_Expansion_RPCManager.CreateRPC("RPC_SpectateAI");
 				rpc.Expansion_Send(target, true);
 				return true;
 		}
@@ -464,6 +475,10 @@ class eAICommandManagerClient : eAICommandManager
 
 		g.AddWaypoint(position);
 		g.SetWaypointBehaviourAuto(eAIWaypointBehavior.ONCE);
+
+		eAIBase ai;
+		if (g.GetWaypoints().Count() == 1 && Class.CastTo(ai, g.GetFormationLeader()))
+			ai.GetPathFinding().ForceRecalculate(true);
 	}
 
 	void RPC_ExportPatrol(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -615,5 +630,20 @@ class eAICommandManagerClient : eAICommandManager
 			CloseFile(file);
 			ExpansionNotification("EXPANSION AI", string.Format("State dumped to %1", fileName)).Info(sender);
 		}
+	}
+	
+	void RPC_SpectateAI(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		if (GetGame().IsMultiplayer())
+		{
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
+		}
+
+		GetDayZGame().GetExpansionGame().eAI_Spectate(eAIBase.Cast(target), sender);
 	}
 };

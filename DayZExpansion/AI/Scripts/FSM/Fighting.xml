@@ -35,8 +35,10 @@
 				bool wantsLower = false;
 				bool wantsRaise = false;
 				
+				float speed = unit.Expansion_GetMovementSpeed();
+				
 				int timeSinceLastFire = GetGame().GetTime() - fsm.LastFireTime;
-				if (fsm.LastFireTime &gt; 0 &amp;&amp; timeSinceLastFire &gt; fsm.TimeBetweenFiring)
+				if (fsm.LastFireTime &gt; 0 &amp;&amp; timeSinceLastFire &gt; fsm.TimeBetweenFiring &amp;&amp; speed &gt; 0)
 					wantsLower = true;
 				
 				auto target = unit.GetTarget();
@@ -51,7 +53,7 @@
 					auto hands = unit.GetHumanInventory().GetEntityInHands();
 					auto targetEntity = target.GetEntity();
 					auto itemTarget = ItemBase.Cast(targetEntity);
-					if (itemTarget &amp;&amp; (!itemTarget.IsExplosive() || unit.eAI_GetTargetThreat(target.info, true) &gt; 0.4))
+					if (itemTarget &amp;&amp; (!itemTarget.Expansion_IsExplosive() || unit.eAI_GetTargetThreat(target.info, true) &gt; 0.4))
 					{
 						wantsLower = true;
 					}
@@ -87,6 +89,8 @@
 					else if (!wantsLower)
 					{
 						minDist = 4.0;
+						if (speed == 0)
+							wantsRaise = true;
 					}
 					
 					if (targetEntity &amp;&amp; !itemTarget &amp;&amp; (fsm.DistanceToTargetSq &lt;= minDist || (unit.m_eAI_PositionIsFinal &amp;&amp; unit.eAI_IsUnreachable(fsm.DistanceToTargetSq, minDist, position))))
@@ -105,7 +109,7 @@
 					else
 					{
 						unit.OverrideMovementDirection(false, 0);
-						if (itemTarget &amp;&amp; itemTarget.IsExplosive() &amp;&amp; wantsLower)
+						if (itemTarget &amp;&amp; itemTarget.Expansion_IsExplosive() &amp;&amp; wantsLower &amp;&amp; fsm.DistanceToTargetSq &lt; target.GetMinDistanceSq())
 							unit.OverrideMovementSpeed(true, 3);
 						else 
 							unit.OverrideMovementSpeed(false, 0);
@@ -116,7 +120,7 @@
 					unit.LookAtPosition(aimPosition);
 					unit.AimAtPosition(aimPosition);
 					
-					if ((!itemTarget &amp;&amp; ((hands &amp;&amp; hands.IsWeapon()) || !target.CanMeleeIfClose(unit))) || (itemTarget &amp;&amp; itemTarget.IsExplosive()))
+					if ((!itemTarget &amp;&amp; ((hands &amp;&amp; hands.IsWeapon()) || !target.CanMeleeIfClose(unit))) || (itemTarget &amp;&amp; itemTarget.Expansion_IsDanger()))
 					{
 						unit.OverrideTargetPosition(target);
 					}
@@ -135,7 +139,7 @@
 				{
 					unit.OverrideMovementDirection(false, 0);
 					unit.OverrideMovementSpeed(false, 0);
-					unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() * 0.333333);
+					unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * speed * 0.333333);
 				}
 				
 				if (wantsRaise &amp;&amp; unit.CanRaiseWeapon())
@@ -293,14 +297,31 @@
 				auto aimPosition = lowPosition + aimOffset;
 				
 				time += DeltaTime;
-				unit.OverrideTargetPosition(lowPosition);
+				if (target.IsMechanicalTrap())
+					unit.OverrideTargetPosition(target);
+				else
+					unit.OverrideTargetPosition(lowPosition);
 				unit.LookAtPosition(aimPosition);
 				unit.AimAtPosition(aimPosition);
 				
 				fsm.DistanceToTargetSq = target.GetDistanceSq(unit, true);
 				
+				//! If we are already meleeing, wait until raised again to avoid awkward animation
+				if (unit.IsFighting() &amp;&amp; (!unit.IsRaised() || !unit.IsWeaponRaiseCompleted()))
+				{
+					unit.RaiseWeapon(true);
+				
+					if (time &gt;= 0.5)
+					{
+						return EXIT;
+					}
+				
+					// waiting for the weapon to be raised
+					return CONTINUE;
+				}
+				
 				auto direction = vector.Direction(unit.GetPosition(), lowPosition).Normalized();
-				if (vector.Dot(unit.GetDirection(), direction) &lt; 0.9 &amp;&amp; !target.info.IsInanimate() &amp;&amp; !target.GetEntity().GetParent())
+				if (vector.Dot(unit.GetDirection(), direction) &lt; 0.9 &amp;&amp; (!target.info.IsInanimate() || target.IsMechanicalTrap()) &amp;&amp; !target.GetEntity().GetParent())
 				{
 					if (time &gt;= Math.RandomIntInclusive(1, 3))
 					{
@@ -435,11 +456,6 @@
 						return FAIL;
 					if (itemTarget.Expansion_IsMeleeWeapon())
 						return FAIL;
-					if (itemTarget.IsExplosive())
-					{
-						if (dist &lt; dst.target.GetMinDistance(unit))
-							return FAIL;
-					}
 				}
 				
 				if (unit.IsFighting()) return FAIL;
@@ -454,12 +470,20 @@
 				
 				if (unit.Expansion_GetVisibility(dist) == 0.0) return FAIL;
 				
+				float minDist;
+				
 				if (dst.weapon.ShootsExplosiveAmmo())
+					minDist = dst.weapon.Expansion_GetMinSafeFiringDistance();
+				
+				if (dst.target.IsExplosive())
+					minDist = Math.Max(dst.target.GetMinDistance(unit), minDist);
+				
+				if (minDist)
 				{
-					float minDist = dst.weapon.Expansion_GetMinSafeFiringDistance();
-					
+					//! Avoid firing if within minDist
 					if (dist &lt; minDist) return FAIL;
 					
+					//! Avoid firing if other friendly units within minDist from tgt
 					float minDistSq = minDist * minDist;
 					
 					vector aimPosition = dst.target.GetPosition(unit) + dst.target.GetAimOffset(unit);

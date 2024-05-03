@@ -33,6 +33,8 @@ modded class BuildingBase
 		{
 			//! Hardcoded defaults (AI will vault those buildings' edges otherwise or climb on ledges unnecessarily)
 			s_eAI_PreventClimb = {
+				"Land_CementWorks",
+				"Land_Garage",
 				"Land_House",
 				"Land_Misc",
 				"Land_Mil",

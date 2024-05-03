@@ -16,6 +16,7 @@ class eAIGroup
 	// Ordered array of group members. 0 is the leader.
 	private autoptr array<DayZPlayerImplement> m_Members = {};
 	private autoptr array<DayZPlayerImplement> m_Members_Deceased = {};
+	private int m_MemberCount = 1;
 
 	// What formation the group should keep
 	private autoptr eAIFormation m_Form;
@@ -531,7 +532,11 @@ class eAIGroup
 		auto trace = CF_Trace_1(this, "AddMember").Add(member);
 #endif
 
-		return m_Members.Insert(member);
+		int index = m_Members.Insert(member);
+
+		Send_SetInGroup();
+
+		return index;
 	}
 
 	void Client_SetMemberIndex(DayZPlayerImplement member, int index)
@@ -582,9 +587,16 @@ class eAIGroup
 		m_Members.RemoveOrdered(i);
 
 		if (autoDelete && m_Members.Count() == 0)
+		{
 			Delete();
-		else if (member && !member.IsAlive())
-			m_Members_Deceased.Insert(member);
+		}
+		else
+		{
+			Send_SetInGroup();
+
+			if (member && !member.IsAlive())
+				m_Members_Deceased.Insert(member);
+		}
 
 		return true;
 	}
@@ -610,6 +622,37 @@ class eAIGroup
 		m_Members_Deceased.RemoveOrdered(i);
 
 		return true;
+	}
+
+	/**
+	 * @brief send whether leader is in group with more than one other member to client
+	 * 
+	 * @note This is necessary because on client, group can only contain the members in network bubble,
+	 *       so the count does not reflect the value on server.
+	 */
+	void Send_SetInGroup()
+	{
+	#ifdef SERVER
+	#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		if (m_Members.Count() <= 2 && m_Members.Count() != m_MemberCount)
+		{
+			m_MemberCount = m_Members.Count();
+
+			auto leader = GetLeader();
+			if (leader && leader.GetIdentity())
+			{
+				auto rpc = GetDayZGame().GetExpansionGame().GetRPCManager().CreateRPC("RPC_SetInGroup");
+				if (m_MemberCount > 1)
+					rpc.Write(true);
+				else
+					rpc.Write(false);
+				rpc.Expansion_Send(true, leader.GetIdentity());
+			}
+		}
+	#endif
 	}
 
 	DayZPlayerImplement GetMember(int i)

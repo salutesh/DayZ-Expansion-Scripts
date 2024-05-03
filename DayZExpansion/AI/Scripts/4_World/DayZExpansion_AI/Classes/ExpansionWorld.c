@@ -155,13 +155,4 @@ modded class ExpansionWorld
 		}
 	}
 	*/
-
-	override bool InGroup()
-	{
-		DayZPlayerImplement player;
-		if (Class.CastTo(player, GetGame().GetPlayer()) && player.GetGroup() && player.GetGroup().Count() > 1)
-			return true;
-
-		return false;
-	}
 };

@@ -1269,6 +1269,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		rpc.Write(-1);
 		rpc.Write("");
 		rpc.Write(questID);
+		rpc.Write(CF_Date.Now(true).GetTimestamp());
 		rpc.Expansion_Send(true, identity);
 	}
 
@@ -1857,6 +1858,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 		//! Call custom cancel event for override in init.c
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestCancel(quest);
 
+		//! Reset the quest timestamp in the persisten quest data of the quest players.
+		//! save = false because OnCancel quest will process and save the quest data of all quest players afterwards.
+		UpdateQuestTimestampForQuestPlayers(quest, 0, false);
+
 		//! Call the OnQuestCancel on the active quest instance.
 		//! Sends update of quest data to all quest players also.
 		if (!quest.OnQuestCancel())
@@ -1864,9 +1869,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 			int questID = quest.GetQuestConfig().GetID();
 			QuestModulePrint("Something went wrong in the cancel quest event for quest with ID: " + questID);
 		}
-
-		//! Reset the quest timestamp in the persisten quest data of the quest players.
-		UpdateQuestTimestampForQuestPlayers(quest, 0);
 
 		string instanceKey = quest.GetPlayerUID();
 		if (quest.GetQuestConfig().IsGroupQuest())
@@ -1968,17 +1970,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		if (rewardSelected)
-		{
-			if (!reward)
-				return;
-
-			RequestCompleteQuestServer(questID, playerUID, identity, false, reward, selectedObjItemIndex);
-		}
-		else
-		{
-			RequestCompleteQuestServer(questID, playerUID, identity, false, null, selectedObjItemIndex);
-		}
+		RequestCompleteQuestServer(questID, playerUID, identity, false, reward, selectedObjItemIndex);
 	}
 
 	//! Server
@@ -2050,6 +2042,27 @@ class ExpansionQuestModule: CF_ModuleWorld
 			QuestModulePrint("Quest turn-in event failed for quest with quest id: " + quest.GetQuestConfig().GetID());
 			ExpansionNotification(new StringLocaliser("Quest turn-In failed!"), new StringLocaliser("Something went wrong.."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
 			return;
+		}
+		
+		//! Check if we should show the quest log with the follow-up quest on quest completion.
+		//! We only want to display the quest log with the follow-up quest when the follow-up quest has no quest giver and when the player meats all other quest display conditions for that quest.
+		ExpansionQuestConfig questConfig = quest.GetQuestConfig();
+		int followupQuestID = questConfig.GetFollowUpQuestID();
+		if (followupQuestID > 0 && !questConfig.SuppressQuestLogOnCompetion())
+		{
+			ExpansionQuestConfig followUpQuest = GetQuestConfigByID(followupQuestID);
+			array<int> questGivers = followUpQuest.GetQuestGiverIDs();
+			if (followUpQuest && questGivers.Count() == 0)
+			{
+				ExpansionQuestPersistentData playerQuestData = GetPlayerQuestDataByUID(playerUID);
+				if (playerQuestData)
+				{
+					PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
+					//! We set to skip the pre-quest conditions check here as the player quest data does not contain the completion of the current quest yet and the QuestDisplayConditions check would return false otherwise then.
+					if (player && QuestDisplayConditions(followUpQuest, player, playerQuestData, -1, false, true))
+						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RequestOpenQuestMenuForQuest, 1000, false, identity, followUpQuest.GetID());
+				}
+			}
 		}
 
 		if (quest.GetQuestConfig().IsDailyQuest() || quest.GetQuestConfig().IsWeeklyQuest())
@@ -2129,14 +2142,17 @@ class ExpansionQuestModule: CF_ModuleWorld
 		RemoveClientMarkers(quest.GetQuestConfig().GetID(), identity, -1);
 
 	#ifdef EXPANSIONMODAI
-		ExpansionQuestNPCAIBase npc = GetClosestQuestAINPC(quest.GetQuestConfig().GetQuestTurnInIDs(), quest.GetPlayer().GetPosition());
-		if (npc)
+		if (quest.GetQuestConfig().GetQuestTurnInIDs().Count())
 		{
-			EmoteManager npcEmoteManager = npc.GetEmoteManager();
-			if (!npcEmoteManager.IsEmotePlaying())
+			ExpansionQuestNPCAIBase npc = GetClosestQuestAINPC(quest.GetQuestConfig().GetQuestTurnInIDs(), quest.GetPlayer().GetPosition());
+			if (npc)
 			{
-				npcEmoteManager.PlayEmote(npc.GetQuestNPCData().NPCQuestCompleteEmoteID);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
+				EmoteManager npcEmoteManager = npc.GetEmoteManager();
+				if (!npcEmoteManager.IsEmotePlaying())
+				{
+					npcEmoteManager.PlayEmote(npc.GetQuestNPCData().NPCQuestCompleteEmoteID);
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
+				}
 			}
 		}
 	#endif
@@ -2878,6 +2894,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			if (!questData.IsActive())
 			{
 				Print(ToString() + "::GetQuestData - Quest with ID " + questData.GetID() + " is set to inactive. Skip..");
+				return;
 			}
 			
 			QuestModulePrint("Try adding quest data from file: " + fileName);
@@ -3632,7 +3649,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	//! Server
 	//! Sets updated time data for all quest clients.
-	protected void UpdateQuestTimestampForQuestPlayers(ExpansionQuest quest, int time)
+	protected void UpdateQuestTimestampForQuestPlayers(ExpansionQuest quest, int time, bool save = true)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
@@ -3643,7 +3660,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 			{
 				QuestModulePrint("Player quest data: " + playerQuestData.ToString());
 				playerQuestData.UpdateQuestTimestamp(quest.GetQuestConfig().GetID(), time);
-				playerQuestData.Save(quest.GetPlayerUID(), EXPANSION_QUESTS_PLAYERDATA_FOLDER);
+				if (save)
+					playerQuestData.Save(quest.GetPlayerUID(), EXPANSION_QUESTS_PLAYERDATA_FOLDER);
 			}
 		}
 		else
@@ -3654,7 +3672,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 			{
 				QuestModulePrint("Group quest data: " + groupQuestData.ToString());
 				groupQuestData.UpdateQuestTimestamp(quest.GetQuestConfig().GetID(), time);
-				groupQuestData.Save(groupID, EXPANSION_QUESTS_GROUPDATA_FOLDER);
+				if (save)
+					groupQuestData.Save(groupID, EXPANSION_QUESTS_GROUPDATA_FOLDER);
 			}
 
 			set<string> memberUIDs = quest.GetPlayerUIDs();
@@ -3665,7 +3684,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 				{
 					QuestModulePrint("Player quest data: " + memberQuestData.ToString());
 					memberQuestData.UpdateQuestTimestamp(quest.GetQuestConfig().GetID(), time);
-					memberQuestData.Save(memberUID, EXPANSION_QUESTS_PLAYERDATA_FOLDER);
+					if (save)
+						memberQuestData.Save(memberUID, EXPANSION_QUESTS_PLAYERDATA_FOLDER);
 				}
 			}
 		}

@@ -15,9 +15,13 @@
  **/
 modded class ActionTarget
 {
-	// ------------------------------------------------------------
-	// ActionTarget GetParentOrObject
-	// ------------------------------------------------------------
+	void ActionTarget(Object object, Object parent, int componentIndex, vector cursorHitPos, float utility)
+	{
+		ExpansionNavmeshCarver navmeshCarver;
+		if (Class.CastTo(navmeshCarver, object))
+			m_Object = navmeshCarver.Expansion_GetObject();
+	}
+
 	Object GetParentOrObject()
 	{
 		if ( GetParent() )

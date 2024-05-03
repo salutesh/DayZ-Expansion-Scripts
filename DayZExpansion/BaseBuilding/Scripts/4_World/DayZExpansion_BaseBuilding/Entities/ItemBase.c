@@ -730,21 +730,34 @@ modded class ItemBase
 		return m_Expansion_KnownUIDs.Find( player.GetIdentityUID() ) > -1;
 	}
 
-	void AddUser( PlayerBase player )
+	void AddUser(PlayerBase player, TStringArray knownUsersToForget = null)
 	{
 		if ( player && player.GetIdentity() && !IsKnownUser( player ) )
 		{
-			EXPrint("ItemBase::AddUser " + this + " (parent=" + GetHierarchyParent() + ") " + player.GetIdentityUID());
-			m_Expansion_KnownUIDs.Insert( player.GetIdentityUID() );
-			SendKnownUIDs(player.GetIdentity());
+			string uid = player.GetIdentityUID();
+			EXPrint("ItemBase::AddUser " + this + " (parent=" + GetHierarchyParent() + ") " + uid);
+			m_Expansion_KnownUIDs.Insert(uid);
+			SendKnownUIDs(player.GetIdentity(), knownUsersToForget);
 		}
 	}
 
 	void SetUser( PlayerBase player )
 	{
 		EXPrint("ItemBase::SetUser " + this + " (parent=" + GetHierarchyParent() + ")");
+
+		string uid = player.GetIdentityUID();
+
+		//! All existing known users need to be updated, else their info becomes stale
+		TStringArray knownUIDsToForget = {};
+		foreach (string knownUID: m_Expansion_KnownUIDs)
+		{
+			if (knownUID != uid)
+				knownUIDsToForget.Insert(knownUID);
+		}
+
 		m_Expansion_KnownUIDs.Clear();
-		AddUser( player );
+
+		AddUser(player, knownUIDsToForget);
 	}
 
 	//! Request known UIDs (players that know the code and have entered it correctly once) from server
@@ -757,11 +770,33 @@ modded class ItemBase
 	}
 
 	//! Send known UIDs (players that know the code and have entered it correctly once) to client
-	void SendKnownUIDs(PlayerIdentity recipient)
+	void SendKnownUIDs(PlayerIdentity recipient, TStringArray knownUIDsToForget = null)
 	{
 		EXPrint("ItemBase::SendKnownUIDs " + this + " (parent=" + GetHierarchyParent() + ")");
-		auto rpc = ExpansionScriptRPC.Create(s_Expansion_ReceiveKnownUIDs_RPCID);
-		rpc.Write( m_Expansion_KnownUIDs );
+
+		ExpansionScriptRPC rpc;
+
+		if (knownUIDsToForget)
+		{
+			rpc = ExpansionScriptRPC.Create(s_Expansion_ReceiveKnownUIDs_RPCID);
+
+			rpc.Write(false);
+
+			foreach (string forgetUID: knownUIDsToForget)
+			{
+				auto player = PlayerBase.GetPlayerByUID(forgetUID);
+				if (player && player.GetIdentity())
+					rpc.Expansion_Send(this, true, player.GetIdentity());
+			}
+		}
+
+		rpc = ExpansionScriptRPC.Create(s_Expansion_ReceiveKnownUIDs_RPCID);
+
+		if (m_Expansion_KnownUIDs.Find(recipient.GetId()) > -1)
+			rpc.Write(true);
+		else
+			rpc.Write(false);
+
 		rpc.Expansion_Send(this, true, recipient);
 	}
 	
@@ -994,13 +1029,13 @@ modded class ItemBase
 	//! client
 	void RPC_Expansion_ReceiveKnownUIDs(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		if ( !ctx.Read( m_Expansion_KnownUIDs ) )
-		{
-			Error("ItemBase::OnRPC " + this + " ExpansionLockRPC.KNOWNUSERS_REPLY can't read reply");
-			return;
-		}
+		m_Expansion_KnownUIDs.Clear();
 
-		m_Expansion_KnownUIDsSet = true;
+		if (!ctx.Read(m_Expansion_KnownUIDsSet))
+			Error("ItemBase::RPC_Expansion_ReceiveKnownUIDs can't read m_Expansion_KnownUIDsSet");
+
+		if (m_Expansion_KnownUIDsSet)
+			m_Expansion_KnownUIDs.Insert(GetGame().GetPlayer().GetIdentity().GetId());  //! We only need to know this client's player identity
 	}
 
 	#ifdef EXPANSION_MODSTORAGE

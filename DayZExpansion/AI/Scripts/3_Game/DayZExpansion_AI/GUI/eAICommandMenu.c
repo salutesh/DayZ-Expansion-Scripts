@@ -260,7 +260,12 @@ class eAICommandMenu: UIScriptedMenu
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_THREATS, "Report Threats", eAICommandCategories.CAT_STATUS));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_DUMP, "Dump State", eAICommandCategories.CAT_STATUS));
 			if (GetExpansionSettings().GetAI().IsAdmin())
+			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_UNLIMITEDRELOAD, "Toggle Unlimited Reload", eAICommandCategories.CAT_STATUS));
+			#ifdef JM_COT
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPECTATE, "Spectate AI", eAICommandCategories.CAT_STATUS));
+			#endif
+			}
 		}
 
 		//Category 4 - Debug

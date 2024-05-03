@@ -57,7 +57,22 @@ class eAITargetInformation
 		return "";
 	}
 
+	bool CanPutInCargo(EntityAI parent)
+	{
+		return false;
+	}
+
 	bool IsEntity()
+	{
+		return false;
+	}
+
+	bool IsExplosive()
+	{
+		return false;
+	}
+
+	bool IsMechanicalTrap()
 	{
 		return false;
 	}
@@ -156,6 +171,11 @@ class eAITargetInformation
 	}
 
 	float GetMinDistance(eAIBase ai = null)
+	{
+		return 0.0;
+	}
+
+	float GetMinDistanceSq(eAIBase ai = null)
 	{
 		return 0.0;
 	}

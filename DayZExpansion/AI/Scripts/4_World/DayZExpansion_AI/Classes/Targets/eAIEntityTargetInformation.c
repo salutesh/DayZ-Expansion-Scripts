@@ -41,6 +41,11 @@ class eAIEntityTargetInformation: eAITargetInformation
 		return str;
 	}
 
+	override bool CanPutInCargo(EntityAI parent)
+	{
+		return m_Target.CanPutInCargo(parent);
+	}
+
 	override bool IsEntity()
 	{
 		return true;

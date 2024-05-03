@@ -103,7 +103,7 @@ class eAITargetInformationState
 				if (!force)
 					m_AI.GetGroup().m_UpdateSearchPosition = false;
 			}
-			else if (m_ThreatLevelActive > 0.2)
+			else if (m_ThreatLevelActive > 0.2 && m_AI.m_eAI_FlankTime == 0.0)
 			{
 				//! Make AI search the area by moving in direction of last known target position
 				//! Start search after first AI in group reaches initial search position

@@ -264,6 +264,21 @@ modded class ItemBase
 		return m_Expansion_IsMeleeWeapon;
 	}
 
+	bool Expansion_IsMechanicalTrap()
+	{
+		return false;
+	}
+
+	bool Expansion_IsDanger()
+	{
+		return false;
+	}
+
+	bool Expansion_IsExplosive()
+	{
+		return IsExplosive();
+	}
+
 	bool Expansion_IsLiveExplosive()
 	{
 		ExplosivesBase explosive;
@@ -271,6 +286,11 @@ modded class ItemBase
 			return true;
 
 		return false;
+	}
+
+	TStringArray Expansion_GetAmmoTypes()
+	{
+		return {ConfigGetString("ammoType")};
 	}
 
 	/*! ExpansionActionOn<...>
@@ -975,6 +995,24 @@ modded class ItemBase
 			pb.Expansion_OnInventoryUpdate(this, true, true);
 
 		m_Expansion_IsWorking = false;
+	}
+
+	/**
+	 * @brief return the root item of the hierarchy
+	 * 
+	 * I.e. if this item is a scope attached to a gun on a player's shoulder, return the gun.
+	 */
+	ItemBase Expansion_GetHierarchyRootItem()
+	{
+		ItemBase rootItem = this;
+		ItemBase parentItem;
+
+		while (rootItem.GetHierarchyParent() && Class.CastTo(parentItem, rootItem.GetHierarchyParent()))
+		{
+			rootItem = parentItem;
+		}
+
+		return rootItem;
 	}
 
 	typename Expansion_GetFamilyType()

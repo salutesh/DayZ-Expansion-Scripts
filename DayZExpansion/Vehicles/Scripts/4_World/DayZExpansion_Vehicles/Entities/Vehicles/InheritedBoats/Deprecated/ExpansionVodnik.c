@@ -497,7 +497,7 @@ class ExpansionVodnik: ExpansionBoatScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
 #endif
 
-		return 6.0;
+		return 7.0;
 	}
 
 	override vector GetTransportCameraOffset()
@@ -506,7 +506,7 @@ class ExpansionVodnik: ExpansionBoatScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
 #endif
 
-		return "0 0.8 0";
+		return "0 1.5 0";
 	}
 
 	override bool LeavingSeatDoesAttachment(int posIdx)

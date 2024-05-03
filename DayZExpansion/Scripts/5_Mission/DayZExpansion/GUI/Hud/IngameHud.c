@@ -15,6 +15,7 @@ modded class IngameHud
 	protected bool m_ExpansionHudNVState;
 	protected bool m_ExpansionEarplugState;
 	protected bool m_ExpansionNVSetting;
+	protected bool m_Expansion_UseHUDColors;
 
 	protected Widget m_NVPanel;
 	protected ImageWidget m_NVBatteryIcon;
@@ -26,7 +27,9 @@ modded class IngameHud
 	protected int BATTERY_MED_COLOR = ARGB(255, 113, 204, 46);
 	protected int BATTERY_FULL_COLOR = ARGB(255, 46, 204, 113);
 
-	protected int m_StaminaBarColor = ARGB(255, 255, 255, 255);
+	protected int m_StaminaBarColorFull = ARGB(255, 255, 255, 255);
+	protected int m_StaminaBarColorHalf = ARGB(255, 255, 255, 255);
+	protected int m_StaminaBarColorLow = ARGB(255, 255, 255, 255);
 	protected int m_NotifierDividerColor = ARGB(255, 220, 220, 220);
 	protected int m_TemperatureBurningColor = ARGB(255, 220, 0, 0);
 	protected int m_TemperatureHotColor = ARGB(255, 220, 220, 0);
@@ -37,10 +40,14 @@ modded class IngameHud
 	protected int m_NotifiersHalfColor = ARGB(255, 220, 220, 0);
 	protected int m_NotifiersLowColor = ARGB(255, 220, 0, 0);
 
+	protected ref map<int, ref Param2<int, int>> m_Expansion_DisplayTendencyNormalCache = new map<int, ref Param2<int, int>>;
+	protected ref map<int, ref Param2<int, int>> m_Expansion_DisplayTendencyTempCache = new map<int, ref Param2<int, int>>;
+
 	protected Widget m_EarPlugsPanel;
 
 	void IngameHud()
 	{
+		Expansion_UpdateFromSettings(false);
 		ExpansionSettings.SI_General.Insert(Expansion_OnGeneralSettingsUpdated);
 	}
 
@@ -83,6 +90,14 @@ modded class IngameHud
 
 	override void DisplayTendencyNormal(int key, int tendency, int status)
 	{
+		Expansion_UpdateDisplayTendencyCache(m_Expansion_DisplayTendencyNormalCache, key, tendency, status);
+
+		if (!m_Expansion_UseHUDColors)
+		{
+			super.DisplayTendencyNormal(key, tendency, status);
+			return;
+		}
+
 		ImageWidget w;
 		Class.CastTo(w,  m_Notifiers.FindAnyWidget(String("Icon" + m_StatesWidgetNames.Get(key))));
 
@@ -93,28 +108,40 @@ modded class IngameHud
 
 			switch (status)
 			{
+				case 2:
+					w.SetColor(LinearColor.Lerp(m_NotifiersIdealColor, m_NotifiersHalfColor, BlendMode.NORMAL, 0.5));
+					m_TendencyStatusCritical.Remove(w);
+					break;
 				case 3:
 					w.SetColor(m_NotifiersHalfColor);
 					m_TendencyStatusCritical.Remove(w);				//! Remove from blinking group
-                break;
+					break;
 				case 4:
 					w.SetColor(m_NotifiersLowColor);
 					m_TendencyStatusCritical.Remove(w);				//! Remove from blinking group
-                break;
+					break;
 				case 5:
 					if (!m_TendencyStatusCritical.Contains(w))
 						m_TendencyStatusCritical.Insert(w, m_NotifiersLowColor);	//! Add to blinking group
-                break;
+					break;
 				default:
 					w.SetColor(m_NotifiersIdealColor);
 					m_TendencyStatusCritical.Remove(w);
-                break;
+					break;
 			}
 		}
 	}
 
 	override void DisplayTendencyTemp( int key, int tendency, int status )
 	{
+		Expansion_UpdateDisplayTendencyCache(m_Expansion_DisplayTendencyTempCache, key, tendency, status);
+
+		if (!m_Expansion_UseHUDColors)
+		{
+			super.DisplayTendencyTemp(key, tendency, status);
+			return;
+		}
+
 		ImageWidget w = ImageWidget.Cast(m_Notifiers.FindAnyWidget(String("Icon" + m_StatesWidgetNames.Get(key))));
 		TextWidget temp_top = TextWidget.Cast(m_Notifiers.FindAnyWidget( "TemperatureValueTop"));
 		TextWidget temp_bot = TextWidget.Cast(m_Notifiers.FindAnyWidget( "TemperatureValueBottom"));
@@ -175,12 +202,86 @@ modded class IngameHud
 		}
 	}
 
+	void Expansion_UpdateDisplayTendencyCache(map<int, ref Param2<int, int>> cache, int key, int tendency, int status)
+	{
+		Param2<int, int> cachedValue;
+		if (cache.Find(key, cachedValue))
+		{
+			cachedValue.param1 = tendency;
+			cachedValue.param2 = status;
+		}
+		else
+		{
+			cache[key] = new Param2<int, int>(tendency, status);
+		}
+	}
+
+	//! RAAAIIINBOOOWPUUUKEEE
+	override void SetStamina(int value, int range)
+	{
+		super.SetStamina(value, range);
+
+		if (!m_Expansion_UseHUDColors)
+			return;
+
+		float max = CfgGameplayHandler.GetStaminaMax();
+
+		if (max <= 0)
+			max = 100;
+
+		float fraction = value / max;
+
+		LinearColor color1;
+		LinearColor color2;
+		float t;
+
+		if (fraction <= 0.5)
+		{
+			//! 0.0..0.5
+			color1 = m_StaminaBarColorLow;
+			color2 = m_StaminaBarColorHalf;
+			t = fraction / 0.5;
+		}
+		else
+		{
+			//! >0.5..1.0
+			color1 = m_StaminaBarColorHalf;
+			color2 = m_StaminaBarColorFull;
+			t = (fraction - 0.5) / 0.5;
+		}
+
+		int color = LinearColor.Lerp(color1, color2, BlendMode.NORMAL, t);
+
+		//m_StanceStand.SetColor(color);
+		//m_StanceStandWalk.SetColor(color);
+		//m_StanceCrouch.SetColor(color);
+		//m_StanceProne.SetColor(color);
+		//m_StanceCar.SetColor(color);
+        m_Stamina.SetColor(color);
+	}
+
 	void Expansion_OnGeneralSettingsUpdated()
 	{
-		ExpansionGeneralSettings settings = GetExpansionSettings().GetGeneral();
+		Expansion_UpdateFromSettings(true);
+	}
+
+	void Expansion_UpdateFromSettings(bool checkLoaded)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(true, this, "checkLoaded " + checkLoaded);
+	#endif
+
+		ExpansionGeneralSettings settings = GetExpansionSettings().GetGeneral(checkLoaded);
 
 		m_ExpansionNVSetting = settings.EnableHUDNightvisionOverlay;
-		m_StaminaBarColor = settings.HUDColors.Get("StaminaBarColor");
+		m_Expansion_UseHUDColors = settings.UseHUDColors;
+
+		if (!m_Expansion_UseHUDColors)
+			return;
+
+		m_StaminaBarColorFull = settings.HUDColors.Get("StaminaBarColor");
+		m_StaminaBarColorHalf = settings.HUDColors.Get("StaminaBarColorHalf");
+		m_StaminaBarColorLow = settings.HUDColors.Get("StaminaBarColorLow");
 		m_NotifierDividerColor = settings.HUDColors.Get("NotifierDividerColor");
 		m_TemperatureBurningColor = settings.HUDColors.Get("TemperatureBurningColor");
 		m_TemperatureHotColor = settings.HUDColors.Get("TemperatureHotColor");
@@ -191,8 +292,17 @@ modded class IngameHud
 		m_NotifiersHalfColor = settings.HUDColors.Get("NotifiersHalfColor");
 		m_NotifiersLowColor = settings.HUDColors.Get("NotifiersLowColor");
 
-        m_Stamina.SetColor(m_StaminaBarColor);
 		m_BadgeNotifierDivider.SetColor(m_NotifierDividerColor);
+
+		foreach (int normalKey, Param2<int, int> normalValue: m_Expansion_DisplayTendencyNormalCache)
+		{
+			DisplayTendencyNormal(normalKey, normalValue.param1, normalValue.param2);
+		}
+
+		foreach (int tempKey, Param2<int, int> tempValue: m_Expansion_DisplayTendencyTempCache)
+		{
+			DisplayTendencyTemp(tempKey, tempValue.param1, tempValue.param2);
+		}
 	}
 
 	override void RefreshHudVisibility()

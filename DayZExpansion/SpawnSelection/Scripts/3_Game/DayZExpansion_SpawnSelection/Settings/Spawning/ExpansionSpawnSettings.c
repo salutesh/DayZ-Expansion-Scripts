@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2024 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -293,6 +293,11 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 			Defaults();
 			save = true;
 		}
+
+		foreach (ExpansionSpawnLocation spawnLocation: SpawnLocations)
+		{
+			spawnLocation.TerritoryID = -1;  //! Territories are always added automatically, this value is not serialized
+		}
 		
 		if (save)
 			Save();
@@ -412,7 +417,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 14407.3, 2.0, 13253.0 ) );
 		positions.Insert( Vector( 14142.4, 3.3, 13290.2 ) );
 		positions.Insert( Vector( 13910.9, 4.3, 13624.9 ) );
-		location = new ExpansionSpawnLocation( "Svetloyarsk", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Svetloyarsk", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -422,7 +428,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 13057.2, 2.3, 9584.48 ) );
 		positions.Insert( Vector( 13052.9, 6.1, 9894.7 ) );
 		positions.Insert( Vector( 13207.2, 2.3, 10193.7 ) );
-		location = new ExpansionSpawnLocation( "Berezino", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Berezino", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -432,7 +439,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 13274, 1.7835, 7258.81 ) );
 		positions.Insert( Vector( 13345.6, 1.87793, 6987.36 ) );
 		positions.Insert( Vector( 13383, 2.75516, 6815.89 ) );
-		location = new ExpansionSpawnLocation( "Solnich", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Solnich", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -442,7 +450,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 13484.724609, 1.746646, 5911.094727 ) );
 		positions.Insert( Vector( 13515.912109, 2.679648, 6117.384277 ) );
 		positions.Insert( Vector( 13534.671875, 1.644669, 6234.750000 ) );
-		location = new ExpansionSpawnLocation( "Solnichniy", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Solnichniy", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -452,7 +461,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 12188.570313, 1.727290, 3422.332275 ) );
 		positions.Insert( Vector( 11992.250000, 1.982081, 3404.554443 ) );
 		positions.Insert( Vector( 11859.343750, 1.901515, 3367.714844 ) );
-		location = new ExpansionSpawnLocation( "Kamyshovo", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Kamyshovo", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -464,7 +474,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 9826.885742, 1.711821, 1757.374634 ) );
 		positions.Insert( Vector( 9428.458008, 2.254453, 1826.218506 ) );
 		positions.Insert( Vector( 9153.536133, 3.421117, 1914.300659 ) );
-		location = new ExpansionSpawnLocation( "Elektrozavodsk", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Elektrozavodsk", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -475,7 +486,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 7118.122070, 1.824183, 2533.971924 ) );
 		positions.Insert( Vector( 7419.497070, 1.768386, 2576.503906 ) );
 		positions.Insert( Vector( 8139.250000, 1.151711, 2802.356445 ) );
-		location = new ExpansionSpawnLocation( "Chernogorsk", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Chernogorsk", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -485,7 +497,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 4543.990723, 1.901639, 2198.166260 ) );
 		positions.Insert( Vector( 4269.422852, 1.289235, 2245.660889 ) );
 		positions.Insert( Vector( 4111.905762, 1.566264, 2193.932617 ) );
-		location = new ExpansionSpawnLocation( "Balota", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Balota", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -495,7 +508,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 3746.655762, 2.445386, 2199.878174 ) );
 		positions.Insert( Vector( 3507.422852, 2.008609, 2101.454590 ) );
 		positions.Insert( Vector( 3366.985352, 1.902521, 2002.414063 ) );
-		location = new ExpansionSpawnLocation( "Komarovo", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Komarovo", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -505,7 +519,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 2031.425415, 1.290743, 2150.743408 ) );
 		positions.Insert( Vector( 1708.523071, 1.958309, 2031.263672 ) );
 		positions.Insert( Vector( 1563.325684, 2.174132, 2063.254883 ) );
-		location = new ExpansionSpawnLocation( "Kamenka", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Kamenka", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -531,7 +546,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 1692.644165, 286.825073, 9950.559570 ) );
 		positions.Insert( Vector( 1772.424316, 275.384155, 9837.327148 ) );
 		positions.Insert( Vector( 1107.232178, 282.667786, 9262.442383 ) );
-		location = new ExpansionSpawnLocation( "Bielawa", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Bielawa", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -542,7 +558,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 3640.191162, 244.446060, 12446.875977 ) );
 		positions.Insert( Vector( 4053.288818, 242.455200, 11554.082031 ) );
 		positions.Insert( Vector( 3397.184326, 263.205750, 11606.515625 ) );
-		location = new ExpansionSpawnLocation( "Lukow", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Lukow", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -553,7 +570,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 6600.863281, 188.712906, 11543.671875 ) );
 		positions.Insert( Vector( 7015.449219, 172.516708, 11113.072266 ) );
 		positions.Insert( Vector( 6426.084473, 201.526901, 11602.169922 ) );
-		location = new ExpansionSpawnLocation( "Brena", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Brena", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -563,7 +581,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 8590.466797, 172.585556, 11946.450195 ) );
 		positions.Insert( Vector( 8294.539063, 174.662094, 11968.569336 ) );
 		positions.Insert( Vector( 8553.800781, 187.723114, 12174.582031 ) );
-		location = new ExpansionSpawnLocation( "Kolembrody", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Kolembrody", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -575,7 +594,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 11345.790039, 181.382370, 11485.919922 ) );
 		positions.Insert( Vector( 11187.933594, 170.951965, 11216.284180 ) );
 		positions.Insert( Vector( 10829.276367, 173.663818, 11294.203125 ) );
-		location = new ExpansionSpawnLocation( "Grabin", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Grabin", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -600,7 +620,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 106.173439, 10.012496, 283.065094 ) );
 		positions.Insert( Vector( 292.435364, 10.012502, 94.893372 ) );
 		positions.Insert( Vector( 329.115234, 10.012492 ,220.430328 ) );
-		location = new ExpansionSpawnLocation( "Top Left", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Top Left", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -610,7 +631,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 53.061890, 10.012502, 1052.014648 ) );
 		positions.Insert( Vector( 159.996994, 10.012480, 1088.825195 ) );
 		positions.Insert( Vector( 215.231918, 10.012502, 1236.653809 ) );
-		location = new ExpansionSpawnLocation( "Top Right", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Top Right", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -620,7 +642,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 1130.051758, 10.012502, 1252.959351 ) );
 		positions.Insert( Vector( 1168.290771, 10.012502, 1169.665527 ) );
 		positions.Insert( Vector( 1229.704712, 10.012502, 1133.009155 ) );
-		location = new ExpansionSpawnLocation( "Bottom Right", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Bottom Right", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -630,7 +653,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 1157.893677, 10.012421, 33.013878 ) );
 		positions.Insert( Vector( 1157.629028, 10.012501, 146.891006 ) );
 		positions.Insert( Vector( 1254.572998, 10.012502, 184.080612 ) );
-		location = new ExpansionSpawnLocation( "Bottom Left", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Bottom Left", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -641,7 +665,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 692.220642, 10.012502, 600.312195 ) );
 		positions.Insert( Vector( 828.482178, 10.012494, 580.280029 ) );
 		positions.Insert( Vector( 838.387878, 10.012502, 743.722046 ) );
-		location = new ExpansionSpawnLocation( "Middle", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Middle", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -668,7 +693,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 10813.910156, 1.885007, 4589.654297 ) );
 		positions.Insert( Vector( 10230.116211, 3.189571, 4238.677246 ) );
 		positions.Insert( Vector( 10098.096680, 16.852987, 4507.153809 ) );
-		location = new ExpansionSpawnLocation( "Smallville", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Smallville", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -679,7 +705,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 10171.602539, 33.866161, 4771.109863 ) );
 		positions.Insert( Vector( 10027.609375, 46.279781, 5010.659668 ) );
 		positions.Insert( Vector( 10299.725586, 43.082348, 5171.118652 ) );
-		location = new ExpansionSpawnLocation( "Oceanville", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Oceanville", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -690,7 +717,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 10397.962891, 17.839876, 5373.638672 ) );
 		positions.Insert( Vector( 10266.131836, 8.428172, 5572.642578 ) );
 		positions.Insert( Vector( 10339.783203, 7.476208, 5502.157227 ) );
-		location = new ExpansionSpawnLocation( "Fisher Camp", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Fisher Camp", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -703,7 +731,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 9304.708984, 28.948595, 5198.045410 ) );
 		positions.Insert( Vector( 9289.031250, 39.871628, 5421.801270 ) );
 		positions.Insert( Vector( 9479.124023, 27.024431, 5234.839844 ) );
-		location = new ExpansionSpawnLocation( "Unnnamed Town", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Unnnamed Town", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -732,7 +761,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 7991.038574, 5.828287, 7320.502930 ) );
 		positions.Insert( Vector( 7999.814941, 4.266075, 7226.579590 ) );
 		positions.Insert( Vector( 7999.422852, 3.917540, 7135.880859 ) );
-		location = new ExpansionSpawnLocation( "Tara Harbor", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Tara Harbor", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -744,7 +774,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 7173.758789, 2.490517, 5535.238770 ) );
 		positions.Insert( Vector( 7029.282227, 4.738458, 5508.801758 ) );
 		positions.Insert( Vector( 6907.666504, 2.793373, 5516.155273 ) );
-		location = new ExpansionSpawnLocation( "Tara SawMill", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Tara SawMill", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -757,7 +788,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 6075.745605, 1.194679, 5531.776855 ) );
         positions.Insert( Vector( 6077.612793, 3.505146, 5477.541016 ) );
         positions.Insert( Vector( 5994.918457, 1.527500, 5409.187988 ) );
-		location = new ExpansionSpawnLocation( "Brensk Marsh", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Brensk Marsh", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -769,7 +801,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 4171.402832, 2.025218, 4714.413574 ) );
 		positions.Insert( Vector( 4073.524658, 3.821608, 4738.167480 ) );
 		positions.Insert( Vector( 4016.597656, 3.288769, 4808.031250 ) );
-		location = new ExpansionSpawnLocation( "Brensk", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Brensk", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -795,7 +828,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 7516.029297, 1.701337, 11800.656250 )	);
 		positions.Insert( Vector( 7665.194824, 2.558721, 11813.786133 )	);
 		positions.Insert( Vector( 7766.950195, 1.250474, 11752.501953 )	);
-		location = new ExpansionSpawnLocation( "Lubjansk", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Lubjansk", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -807,7 +841,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 8673.834961, 1.655312, 10926.909180 )	);
 		positions.Insert( Vector( 8763.146484, 2.962097, 10880.047852 )	);
 		positions.Insert( Vector( 8831.335938, 3.817108, 10787.751953 )	);
-		location = new ExpansionSpawnLocation( "Jalovisko", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Jalovisko", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -821,7 +856,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 9029.701172, 2.618637, 9954.769531 ) );
 		positions.Insert( Vector( 8995.268555, 2.661735, 9906.744141 ) );
 		positions.Insert( Vector( 8928.280273, 3.379394, 9872.879883 ) );
-		location = new ExpansionSpawnLocation( "Nemsk", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Nemsk", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -861,7 +897,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 8217.591797, 85.408607, 8743.672852 ) );
 		positions.Insert( Vector( 8079.215820, 71.149635, 8437.955078 ) );
 		positions.Insert( Vector( 8141.916504, 60.722095, 8174.657227 ) );
-		location = new ExpansionSpawnLocation( "Woods", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Woods", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -892,7 +929,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 7903.954590, 104.279541, 5846.573242 ) );
         positions.Insert( Vector( 7811.805176, 86.072418, 5737.385254 ) );
         positions.Insert( Vector( 9117.009766, 108.684692, 5944.108398 ) );
-		location = new ExpansionSpawnLocation( "Esseker", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Esseker", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -903,7 +941,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 6251.624512, 163.699326, 5202.340820 ) );
         positions.Insert( Vector( 6702.913574, 144.765900, 5345.629395 ) );
         positions.Insert( Vector( 6637.131836, 122.660553, 5451.673340 ) );
-		location = new ExpansionSpawnLocation( "Neptune Resort", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Neptune Resort", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -917,7 +956,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 4866.981445, 194.962906, 4884.998535 ) );
         positions.Insert( Vector( 5011.791504, 179.612839, 4967.582520 ) );
         positions.Insert( Vector( 5250.353516, 159.675873, 5055.750000 ) );
-		location = new ExpansionSpawnLocation( "Kula", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Kula", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -933,7 +973,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 6164.781250, 143.901749, 6103.173340 ) );
         positions.Insert( Vector( 6079.798340, 113.399956, 6272.316406 ) );
         positions.Insert( Vector( 6236.822266, 143.239914, 6384.316895 ) );
-		location = new ExpansionSpawnLocation( "Gulash", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Gulash", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -948,7 +989,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 5908.775879, 218.342422, 6970.965332 ) );
         positions.Insert( Vector( 5969.068359, 220.182510, 6833.822754 ) );
         positions.Insert( Vector( 6095.966309, 203.902664, 6624.937012 ) );
-		location = new ExpansionSpawnLocation( "Lug", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Lug", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -961,7 +1003,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 7734.949707, 150.316696, 7076.026367 ) );
         positions.Insert( Vector( 7566.331055, 155.758224, 7064.740234 ) );
         positions.Insert( Vector( 7432.634277, 151.480347, 7056.217773 ) );
-		location = new ExpansionSpawnLocation( "Posetra", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Posetra", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -974,7 +1017,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 10406.526367, 185.784714, 8016.970703 ) );
         positions.Insert( Vector( 10367.518555, 101.088333, 7714.915039 ) );
         positions.Insert( Vector( 9956.348633, 158.499130, 7899.201660 ) );
-		location = new ExpansionSpawnLocation( "Woods", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Woods", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -996,7 +1040,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		
 		//! Default
 		positions.Insert( Vector( 100, 100, 100 ) );
-		location = new ExpansionSpawnLocation( "Default", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Default", positions );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 
@@ -1021,7 +1066,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 4844.7412, 192.90112, 264.20785 ) );
 		positions.Insert( Vector( 5171.1289, 200.18545, 131.65123 ) );
 		positions.Insert( Vector( 4631.9119, 189.56954, 258.21246 ) );
-		location = new ExpansionSpawnLocation( "Biskupice", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Biskupice", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -1031,7 +1077,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 317.423123, 230.283131, 2739.49185 ) );
 		positions.Insert( Vector( 85.104818, 231.41718, 2825.7216 ) );
 		positions.Insert( Vector( 165.49123, 224.92475, 2974.2948 ) );
-		location = new ExpansionSpawnLocation( "Velk DrzKovce", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Velk DrzKovce", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -1041,7 +1088,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 3253.06189, 207.364541, 394.450212 ) );
 		positions.Insert( Vector( 3549.0623, 214.12825, 298.71454 ) );
 		positions.Insert( Vector( 2797.7924, 200.21935, 492.45524 ) );
-		location = new ExpansionSpawnLocation( "Dvorec", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Dvorec", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -1050,7 +1098,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 2284.44123, 208.327189, 1672.10025 ) );
 		positions.Insert( Vector( 2097.75175, 212.307278, 2055.90928 ) );
 		positions.Insert( Vector( 1642.57025, 217.200197, 2410.49076 ) );
-		location = new ExpansionSpawnLocation( "Sliezska Osada", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Sliezska Osada", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -1060,7 +1109,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 9807.65198, 242.471234, 1548.71278 ) );
 		positions.Insert( Vector( 9461.86517, 235.765487, 1518.16187 ) );
 		positions.Insert( Vector( 9158.06197, 238.032089, 1466.68098 ) );
-		location = new ExpansionSpawnLocation( "Miezgovce", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Miezgovce", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -1069,7 +1119,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 12962.50987, 300.3315314, 289.4148459 ) );
 		positions.Insert( Vector( 12854.290874, 312.78805927, 415.34608721 ) );
 		positions.Insert( Vector( 13184.400587, 292.25089746, 520.99919917 ) );
-		location = new ExpansionSpawnLocation( "Latkovce", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Latkovce", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -1091,7 +1142,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		
 		//! Default
 		positions.Insert( Vector( 100, 100, 100 ) );
-		location = new ExpansionSpawnLocation( "Default", positions );
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Default", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
@@ -1162,7 +1214,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert(Vector(1387.732446, 0.0, 3054.650793));
 		positions.Insert(Vector(1019.343476, 0.0, 2705.736882));
 		positions.Insert(Vector(1321.431657, 0.0, 1608.622952));
-		location = new ExpansionSpawnLocation("Zayda", positions);
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Zayda", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert(location);
 		positions.Clear();
@@ -1173,7 +1226,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert(Vector(10428.710088, 165.615, 10073.853221));
 		positions.Insert(Vector(10409.731986, 167.144, 10024.542597));
 		positions.Insert(Vector(9939.707119, 0.0, 10203.334406));
-		location = new ExpansionSpawnLocation("Al Badair", positions);
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Al Badair", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert(location);
 		positions.Clear();
@@ -1226,7 +1280,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert(Vector(9826.711535, 0.0, 8234.344502));
 		positions.Insert(Vector(10264.161987, 0.0, 7599.142477));
 		positions.Insert(Vector(9210.257382, 0.0, 8353.979933));
-		location = new ExpansionSpawnLocation("Imarat", positions);
+		location = new ExpansionSpawnLocation;
+		location.SetLocation( "Imarat", positions );
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert(location);
 		positions.Clear();

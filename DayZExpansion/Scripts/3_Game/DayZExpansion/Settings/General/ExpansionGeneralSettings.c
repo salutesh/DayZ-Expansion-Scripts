@@ -15,7 +15,7 @@
  **/
 class ExpansionGeneralSettings: ExpansionSettingBase
 {
-	static const int VERSION = 13;
+	static const int VERSION = 14;
 
 	bool DisableShootToUnlock;
 	bool EnableGravecross;
@@ -36,6 +36,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool UseExpansionMainMenuIntroScene;
 	bool UseNewsFeedInGameMenu;
 
+	bool UseHUDColors;
 	ref ExpansionHudIndicatorColors HUDColors;
 	
 	bool EnableEarPlugs;
@@ -61,36 +62,59 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		GetDayZGame().GetExpansionGame().ReadRemovedWorldObjects(ctx);
 
 		int interiorCount;
-		ctx.Read(interiorCount);
-		Mapping.BuildingInteriors = interiorCount > 0;
+		if (!ctx.Read(interiorCount))
+			Error("Couldn't read interior count");
+		Mapping.BuildingInteriors = interiorCount;
+		if (Mapping.Interiors.Count())
+			EXPrint(this, "Clearing previous interiors: " + Mapping.Interiors.Count());
+		Mapping.Interiors.Clear();
 		while (interiorCount)
 		{
 			string interior;
-			ctx.Read(interior);
+			if (!ctx.Read(interior))
+				Error("Couldn't read interior");
 			Mapping.Interiors.Insert(interior);
 			interiorCount--;
 		}
 
-		ctx.Read(Mapping.BuildingIvys);
+		if (!ctx.Read(Mapping.BuildingIvys))
+			Error("Couldn't read BuildingIvys");
 
-		ctx.Read(EnableLamps);
-		ctx.Read(EnableGenerators);
-		ctx.Read(EnableLighthouses);
-		ctx.Read(EnableHUDNightvisionOverlay);
-		ctx.Read(DisableMagicCrosshair);
-		ctx.Read(EnableAutoRun);
-		ctx.Read(UseDeathScreen);
-		ctx.Read(UseDeathScreenStatistics);
-		ctx.Read(UseExpansionMainMenuLogo);
-		ctx.Read(UseExpansionMainMenuIcons);
-		ctx.Read(UseExpansionMainMenuIntroScene);
-		ctx.Read(UseNewsFeedInGameMenu);
+		if (!ctx.Read(EnableLamps))
+			Error("Couldn't read EnableLamps");
+		if (!ctx.Read(EnableGenerators))
+			Error("Couldn't read EnableGenerators");
+		if (!ctx.Read(EnableLighthouses))
+			Error("Couldn't read EnableLighthouses");
+		if (!ctx.Read(EnableHUDNightvisionOverlay))
+			Error("Couldn't read EnableHUDNightvisionOverlay");
+		if (!ctx.Read(DisableMagicCrosshair))
+			Error("Couldn't read DisableMagicCrosshair");
+		if (!ctx.Read(EnableAutoRun))
+			Error("Couldn't read EnableAutoRun");
+		if (!ctx.Read(UseDeathScreen))
+			Error("Couldn't read UseDeathScreen");
+		if (!ctx.Read(UseDeathScreenStatistics))
+			Error("Couldn't read UseDeathScreenStatistics");
+		if (!ctx.Read(UseExpansionMainMenuLogo))
+			Error("Couldn't read UseExpansionMainMenuLogo");
+		if (!ctx.Read(UseExpansionMainMenuIcons))
+			Error("Couldn't read UseExpansionMainMenuIcons");
+		if (!ctx.Read(UseExpansionMainMenuIntroScene))
+			Error("Couldn't read UseExpansionMainMenuIntroScene");
+		if (!ctx.Read(UseNewsFeedInGameMenu))
+			Error("Couldn't read UseNewsFeedInGameMenu");
 
-		HUDColors.OnReceive(ctx);
+		if (!ctx.Read(UseHUDColors))
+			Error("Couldn't read UseHUDColors");
+		if (UseHUDColors)
+			HUDColors.OnReceive(ctx);
 		HUDColors.Update();
 		
-		ctx.Read(EnableEarPlugs);
-		ctx.Read(InGameMenuLogoPath);
+		if (!ctx.Read(EnableEarPlugs))
+			Error("Couldn't read EnableEarPlugs");
+		if (!ctx.Read(InGameMenuLogoPath))
+			Error("Couldn't read InGameMenuLogoPath");
 
 		m_IsLoaded = true;
 
@@ -133,7 +157,9 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		ctx.Write(UseExpansionMainMenuIntroScene);
 		ctx.Write(UseNewsFeedInGameMenu);
 
-		HUDColors.OnSend(ctx);
+		ctx.Write(UseHUDColors);
+		if (UseHUDColors)
+			HUDColors.OnSend(ctx);
 		
 		ctx.Write(EnableEarPlugs);
 		ctx.Write(InGameMenuLogoPath);
@@ -235,6 +261,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 
 			JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
 
+			HUDColors.Update();
+
 			if (m_Version < VERSION)
 			{
 				EXPrint("[ExpansionGeneralSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_GENERAL_SETTINGS + "\" to v" + VERSION);
@@ -289,15 +317,22 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 					UseExpansionMainMenuIntroScene = settingsDefault.UseExpansionMainMenuIntroScene;
 				}
 
+				if (m_Version < 14)
+				{
+					foreach (string name, int color: HUDColors.m_Colors)
+					{
+						if (color != settingsDefault.HUDColors.m_Colors[name])
+						{
+							EXPrint(this, "Using custom HUD colors");
+							UseHUDColors = true;
+							break;
+						}
+					}
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
-			else
-			{
-				JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
-			}
-
-			HUDColors.Update();
 		}
 		else
 		{
@@ -361,6 +396,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		UseExpansionMainMenuIntroScene = true;
 		UseNewsFeedInGameMenu = true;
 
+		UseHUDColors = false;
 		HUDColors.Update();
 		
 		EnableEarPlugs = true;

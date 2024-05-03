@@ -270,8 +270,6 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 			m_MapWidget.SetScale(scale);
 			m_MapWidget.SetMapPos(mapPosition);
 
-		#ifndef DAYZ_1_18
-			//! 1.19
 			m_HasCompass 	= false;
 			m_HasGPS = false;
 			m_HasExpansionGPS = false;
@@ -330,7 +328,6 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 					}
 				}
 			}
-		#endif
 		}
 	}
 
@@ -1398,7 +1395,6 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 
 		if (m_MapWidget)
 		{
-		#ifndef DAYZ_1_18
 			//! 1.19
 			if (player)
 			{
@@ -1459,7 +1455,6 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 					}
 				}
 			}
-		#endif
 
 			m_IsOpenning = false;
 		}
@@ -1533,8 +1528,6 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 			GetGame().GetUIManager().HideScriptedMenu( this );  //! Don't close, we do not want to have to redraw all the markers next time we open it
 	}
 
-#ifndef DAYZ_1_18
-	//! 1.19
 	// ------------------------------------------------------------
 	// 1.19 Vanilla addition
 	// ------------------------------------------------------------
@@ -1652,5 +1645,4 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 			units = "cm";
 		}
 	}
-#endif
 };

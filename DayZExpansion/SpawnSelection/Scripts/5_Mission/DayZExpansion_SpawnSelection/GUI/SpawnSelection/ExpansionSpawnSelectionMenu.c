@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2024 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -21,6 +21,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	private ref ExpansionSpawnSelectionMenuController m_SpawnSelectionMenuController;
 	private bool m_HasCooldown = false;
 	private bool m_SelectedSpawnIsTerritory = false;
+	private string m_SelectedSpawnKey;
 	private bool m_SelectedSpawnUseCooldown = false;
 	private int m_NextListIndex = 0;
 	
@@ -35,9 +36,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	bool m_DebugMonitorHidden;
 
 	void ExpansionSpawnSelectionMenu()
-	{
-		Print("ExpansionSpawnSelectionMenu - Start");
-		
+	{		
 		m_MapMarkers = new array<ref ExpansionSpawSelectionMenuMapMarker>;
 		
 		CF_Modules<ExpansionRespawnHandlerModule>.Get(m_RespawnModule);
@@ -49,8 +48,6 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 
 		int mapSize = GetGame().GetWorld().GetWorldSize() / 2;
 		Map_Widget.SetMapPos(Vector(mapSize, 0, mapSize));
-		
-		Print("ExpansionSpawnSelectionMenu - End");
 	}
 	
 	void ~ExpansionSpawnSelectionMenu()
@@ -68,24 +65,23 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		return ExpansionSpawnSelectionMenuController;
 	}
 	
-	void FillList(array<ref ExpansionSpawnLocation> SpawnLocations, int type = 0)
+	void FillList(array<ref ExpansionSpawnLocation> spawnLocations, int type = 0)
 	{
-		if (!SpawnLocations)
+		if (!spawnLocations)
 			return;
 
 		int primaryColor = ARGB(255,255,255,255);
 		int hoverColor = ARGB(255,255,255,255);
 		string markerIcon = "Map Marker";
 		bool isTerritory = false;
-		
-		//! You can use this switch case for modding purposes
+
 		switch (type)
 		{
-			case 0: //! Normal
+			case ExpansionSpawnSelectionLocationType.NORMAL:
 				primaryColor = ARGB(255,226,65,66);
 				hoverColor = ARGB(255,255,255,255);
 			break;
-			case 1: //! Territory
+			case ExpansionSpawnSelectionLocationType.TERRITORY:
 				primaryColor = ARGB(255, 0, 102, 204);
 				hoverColor = ARGB(255,255,255,255);
 				markerIcon = "Territory";
@@ -93,22 +89,23 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 			break;
 		}
 
-		int selectedSpawn = Math.RandomIntInclusive(0,SpawnLocations.Count());
-				
-		for (int i = 0; i < SpawnLocations.Count(); i++)
+		int selectedSpawn = Math.RandomIntInclusive(0, spawnLocations.Count());
+		for (int i = 0; i < spawnLocations.Count(); i++)
 		{
-			ExpansionSpawnLocation currenLocation = SpawnLocations[i];
+			ExpansionSpawnLocation currenLocation = spawnLocations[i];
 			ExpansionSpawSelectionMenuLocationEntry location_entry = new ExpansionSpawSelectionMenuLocationEntry(m_NextListIndex, currenLocation, isTerritory);
+			location_entry.SetLocationKey(currenLocation.GetKey());
+
 			m_SpawnSelectionMenuController.SpawnLocationEntries.Insert(location_entry);
 			
 			//! Create map marker for territory
-			vector pos;
-			pos = currenLocation.Positions[0];
-
-			if ( selectedSpawn == i )
+			vector pos = currenLocation.Positions[0];
+			if (selectedSpawn == i)
 				Map_Widget.SetMapPos(Vector(pos[0], 0, pos[2]));			
 			
 			ExpansionSpawSelectionMenuMapMarker marker = new ExpansionSpawSelectionMenuMapMarker(MapSpacer, Map_Widget, true);
+			marker.SetLocationKey(currenLocation.GetKey());
+
 			marker.SetIcon(markerIcon);
 			marker.SetPosition(pos);
 			marker.SetPrimaryColor(primaryColor);
@@ -116,11 +113,9 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 			marker.SetName(currenLocation.Name);
 			marker.SetLocation(m_NextListIndex, currenLocation);
 			marker.SetIsTerritory(isTerritory);
-			
 			marker.Show(); //! Need to show marker or it will never show up and color and icons dont get applied
 			
 			m_MapMarkers.Insert(marker);
-			
 			m_NextListIndex++;
 		}
 	}
@@ -135,11 +130,17 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	{
 		m_SelectedSpawnPointIndex = location.Positions.GetRandomIndex();
 		m_SelectedSpawnIndex = index;
-		m_SelectedSpawnIsTerritory = location.IsTerritory();
+		if (location.TerritoryID == -1)
+			m_SelectedSpawnIsTerritory = false;
+		else
+			m_SelectedSpawnIsTerritory = true;
+		
+		m_SelectedSpawnKey = location.GetKey();
+
 		m_SelectedSpawnUseCooldown = location.UseCooldown();
 		m_SpawnSelectionMenuController.SelectedLocation = location.Name;
 		m_SpawnSelectionMenuController.NotifyPropertyChanged("SelectedLocation");
-		
+
 		if (setmappos)
 		{
 			vector mapPos = location.Positions[0];
@@ -167,12 +168,23 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 			Background.LoadImageFile(0, GetExpansionSettings().GetSpawn().BackgroundImagePath);
 		else
 			Background.LoadImageFile(0, "DayZExpansion/SpawnSelection/GUI/textures/wood_background.edds");
+		
+	#ifdef EXPANSIONMONITORMODULE
+		//! Create death marker on the map if monitor module is present and "CreateDeathMarker" setting is enabled in respawn settings
+		if (GetExpansionSettings().GetSpawn().CreateDeathMarker)
+		{
+			ExpansionMonitorModule monitorModule;
+			if (Class.CastTo(monitorModule, CF_ModuleCoreManager.Get(ExpansionMonitorModule)))
+				CreateDeathMarker(monitorModule.GetLastDeathPosClient());
+		}
+	#endif
 	}
 	
 	void ClearSpawnPoint()
 	{
 		m_SelectedSpawnPointIndex = -1;
 		m_SelectedSpawnIndex = -1;
+		m_SelectedSpawnKey = "";
 		m_SpawnSelectionMenuController.SelectedLocation = "NONE";
 		m_SpawnSelectionMenuController.NotifyPropertyChanged("SelectedLocation");
 	}
@@ -202,26 +214,28 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 					EXTrace.Print(EXTrace.RESPAWN, this, "Showing vanilla debug monitor");
 					DebugMonitor.Instance.Show();
 				}
-#ifdef JM_COT
-#ifndef JM_COT_DEBUGMONITOR_REMOVED
+			#ifdef JM_COT
+			#ifndef JM_COT_DEBUGMONITOR_REMOVED
 				if (JMDebugMonitor.Instance)
 				{
 					EXTrace.Print(EXTrace.RESPAWN, this, "Showing COT debug monitor");
 					JMDebugMonitor.Instance.ForceShow();
 				}
-#endif
-#endif
+			#endif
+			#endif
 				m_DebugMonitorHidden = false;
 			}
 		}
 	}
 	
+	//! Client to server handshake
+	//! Spawn -> ExpansionRespawnHandlerModule::SelectSpawn
 	void Spawn()
 	{
 		if (m_SelectedSpawnPointIndex == -1 || m_SelectedSpawnIndex == -1)
 			return;
 
-		m_RespawnModule.SelectSpawn(m_SelectedSpawnIndex, m_SelectedSpawnPointIndex, m_SelectedSpawnIsTerritory, m_SelectedSpawnUseCooldown);
+		m_RespawnModule.SelectSpawn(m_SelectedSpawnIndex, m_SelectedSpawnPointIndex, m_SelectedSpawnKey, m_SelectedSpawnIsTerritory, m_SelectedSpawnUseCooldown);
 		Confirm.Show(false);
 		Confirm.Enable(false);
 		Random.Show(false);
@@ -250,8 +264,13 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 
 		if (!loc.Positions.Count())
 			return;
+		
+		string locKey = loc.GetKey();
+		bool isTerritory;
+		if (loc.TerritoryID != -1)
+			isTerritory = true;
 
-		m_RespawnModule.SelectSpawn(idx, loc.Positions.GetRandomIndex(), loc.IsTerritory, loc.UseCooldown);
+		m_RespawnModule.SelectSpawn(idx, loc.Positions.GetRandomIndex(), locKey, isTerritory, loc.UseCooldown);
 		Confirm.Show(false);
 		Confirm.Enable(false);
 		Random.Show(false);
@@ -296,41 +315,35 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		return super.OnMouseLeave(w, enterW, x, y);
 	}
 	
-	override float GetUpdateTickRate()
+	override void Update(float dt)
 	{
-		return 0.1;
-	}
-	
-	override void Expansion_Update() 
-	{
-		for ( int i = 0; i < m_MapMarkers.Count(); i++ )
+		if (GetLayoutRoot().IsVisible())
 		{
-			m_MapMarkers[i].Update(0.1);
+			for ( int i = 0; i < m_MapMarkers.Count(); i++ )
+			{
+				m_MapMarkers[i].Update(dt);
+			}
 		}
 
-		if (IsVisible())
+		//! Hide debug monitor because if our menu was created first, the debug monitor will have higher Z-order and
+		//! prevent interaction due to its root widget filling the whole screen.
+		//! @note We can't do this in OnShow because the debug monitor instance may be created after OnShow has already been called.
+		if (DebugMonitor.Instance && DebugMonitor.Instance.IsVisible())
 		{
-			LockControls();
-
-			//! Hide debug monitor because if our menu was created first, the debug monitor will have higher Z-order and
-			//! prevent interaction due to its root widget filling the whole screen
-			if (DebugMonitor.Instance && DebugMonitor.Instance.IsVisible())
-			{
-				EXTrace.Print(EXTrace.RESPAWN, this, "Hiding vanilla debug monitor");
-				DebugMonitor.Instance.Hide();
-				m_DebugMonitorHidden = true;
-			}
-#ifdef JM_COT
-#ifndef JM_COT_DEBUGMONITOR_REMOVED
-			if (JMDebugMonitor.Instance && JMDebugMonitor.Instance.IsVisible())
-			{
-				EXTrace.Print(EXTrace.RESPAWN, this, "Hiding COT debug monitor");
-				JMDebugMonitor.Instance.ForceHide();
-				m_DebugMonitorHidden = true;
-			}
-#endif
-#endif
+			EXTrace.Print(EXTrace.RESPAWN, this, "Hiding vanilla debug monitor");
+			DebugMonitor.Instance.Hide();
+			m_DebugMonitorHidden = true;
 		}
+	#ifdef JM_COT
+	#ifndef JM_COT_DEBUGMONITOR_REMOVED
+		if (JMDebugMonitor.Instance && JMDebugMonitor.Instance.IsVisible())
+		{
+			EXTrace.Print(EXTrace.RESPAWN, this, "Hiding COT debug monitor");
+			JMDebugMonitor.Instance.ForceHide();
+			m_DebugMonitorHidden = true;
+		}
+	#endif
+	#endif
 	}
 	
 	ButtonWidget GetConfirmButton()
@@ -343,12 +356,12 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		return Map_Widget;
 	}
 	
-	void UpdateMarkerCooldownState(int index)
+	void UpdateMarkerCooldownState(string locKey)
 	{
 		for (int i = 0; i < m_MapMarkers.Count(); i++)
 		{
 			ExpansionSpawSelectionMenuMapMarker marker = m_MapMarkers[i];
-			if (marker.GetIndex() == index && !marker.IsDeathMarker())
+			if (marker.GetLocationKey() == locKey && !marker.IsDeathMarker())
 			{
 				marker.UpdateCooldown();
 				continue;
@@ -376,25 +389,17 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		{
 			ExpansionSpawSelectionMenuLocationEntry entry = m_SpawnSelectionMenuController.SpawnLocationEntries[i];
 			if (entry.GetIndex() == m_SelectedSpawnIndex)
-			{
 				entry.Lock();
-			}
 			else
-			{
-				entry.Unlock();
-			}			
+				entry.Unlock();		
 		}
 		
 		foreach (ExpansionSpawSelectionMenuMapMarker marker: m_MapMarkers)
 		{
 			if (marker.GetIndex() == m_SelectedSpawnIndex)
-			{
 				marker.Lock();
-			}
 			else
-			{
 				marker.Unlock();
-			}	
 		}
 	}
 };

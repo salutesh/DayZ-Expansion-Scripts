@@ -1,8 +1,13 @@
 modded class ExplosivesBase
 {
-	TStringArray Expansion_GetAmmoTypes()
+	override TStringArray Expansion_GetAmmoTypes()
 	{
 		return m_AmmoTypes;
+	}
+
+	override bool Expansion_IsDanger()
+	{
+		return Expansion_IsLive();
 	}
 
 	bool Expansion_IsLive()

@@ -4,8 +4,8 @@ PanelWidgetClass ExpansionSpawnSelectionMenuEntry {
  ignorepointer 1
  position 0 0
  size 1 32
- hexactpos 1
- vexactpos 1
+ hexactpos 0
+ vexactpos 0
  hexactsize 0
  vexactsize 1
  scriptclass "ExpansionSpawSelectionMenuLocationEntryController"
@@ -28,120 +28,162 @@ PanelWidgetClass ExpansionSpawnSelectionMenuEntry {
    clipchildren 0
    ignorepointer 0
    color 0 0 0 0.3922
+   position 0 0
    size 1 32
-   hexactpos 1
-   vexactpos 1
+   hexactpos 0
+   vexactpos 0
    hexactsize 0
    vexactsize 1
    scriptclass "ViewBinding"
    style Default
    "no focus" 1
    {
-    ImageWidgetClass icon {
-     visible 1
-     clipchildren 1
+    GridSpacerWidgetClass name_grid {
      ignorepointer 1
-     color 0.8627 0.8627 0.8627 1
-     position 0 0
-     size 26 26
-     valign center_ref
-     hexactpos 0
-     vexactpos 0
-     hexactsize 1
-     vexactsize 1
-     scriptclass "ViewBinding"
-     image0 ""
-     imageTexture "{B40287E36A28B065}DayZExpansion/Core/GUI/icons/hud/marker_64x64.edds"
-     mode blend
-     "src alpha" 1
-     "no wrap" 1
-     stretch 1
-     {
-      ScriptParamsClass {
-       Binding_Name "EntryIcon"
-      }
-     }
-    }
-    TextWidgetClass name {
-     clipchildren 0
-     ignorepointer 1
-     color 0.8627 0.8627 0.8627 1
-     position 0.08131 0
-     size 0.71836 0.9
+     position 0.005 0
+     size 0.68 1
      valign center_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     scriptclass "ViewBinding"
-     font "gui/fonts/etelkatextpro22"
-     "exact text" 0
-     "text valign" center
+     Padding 7
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     Columns 2
+     Rows 1
      {
-      ScriptParamsClass {
-       Binding_Name "LocationName"
+      ImageWidgetClass icon {
+       visible 1
+       clipchildren 1
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       position 0 0
+       size 26 26
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       scriptclass "ViewBinding"
+       image0 ""
+       imageTexture "{B40287E36A28B065}DayZExpansion/Core/GUI/icons/hud/marker_64x64.edds"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+       {
+        ScriptParamsClass {
+         Binding_Name "EntryIcon"
+        }
+       }
+      }
+      ImageWidgetClass icon_locked {
+       visible 0
+       clipchildren 1
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       position 0 0
+       size 22 22
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       image0 "set:dayz_gui image:icon_locked_sb"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+      }
+      TextWidgetClass name {
+       clipchildren 0
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       position 0.0813 0
+       size 0.6 0.9
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       text "TESTME"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       "size to text h" 1
+       "size to text v" 1
+       "text valign" center
+       {
+        ScriptParamsClass {
+         Binding_Name "LocationName"
+        }
+       }
       }
      }
     }
-    ImageWidgetClass cooldown_icon {
-     visible 0
-     clipchildren 1
+    GridSpacerWidgetClass cooldown_grid {
      ignorepointer 1
-     color 0.8627 0.8627 0.8627 1
-     position 0.16 0
-     size 22 22
-     halign right_ref
-     valign center_ref
-     hexactpos 0
-     vexactpos 0
-     hexactsize 1
-     vexactsize 1
-     image0 "set:expansion_iconset image:clock_blank"
-     mode blend
-     "src alpha" 1
-     "no wrap" 1
-     stretch 1
-    }
-    TextWidgetClass cooldown {
-     visible 0
-     clipchildren 0
-     ignorepointer 1
-     color 0.8627 0.8627 0.8627 1
-     position 0.035 0
-     size 0.11 0.9
+     position 0.045 0
+     size 0.2 1
      halign right_ref
      valign center_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     scriptclass "ViewBinding"
-     font "gui/fonts/etelkatextpro22"
-     "exact text" 0
-     "text valign" center
+     Padding 7
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign right
      {
-      ScriptParamsClass {
-       Binding_Name "Cooldown"
+      ImageWidgetClass cooldown_icon {
+       visible 0
+       clipchildren 1
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       position 0.24 0
+       size 22 22
+       halign right_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       image0 "set:expansion_iconset image:clock_blank"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+      }
+      TextWidgetClass cooldown {
+       visible 1
+       clipchildren 0
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       position 0.045 0
+       size 0.2 0.9
+       halign right_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       "size to text h" 1
+       "text halign" right
+       "text valign" center
+       {
+        ScriptParamsClass {
+         Binding_Name "Cooldown"
+        }
+       }
       }
      }
-    }
-    ImageWidgetClass icon_locked {
-     visible 0
-     clipchildren 1
-     ignorepointer 1
-     color 0.8627 0.8627 0.8627 1
-     position 0 0
-     size 22 22
-     valign center_ref
-     hexactpos 0
-     vexactpos 0
-     hexactsize 1
-     vexactsize 1
-     image0 "set:dayz_gui image:icon_locked_sb"
-     mode blend
-     "src alpha" 1
-     "no wrap" 1
-     stretch 1
     }
    }
    {

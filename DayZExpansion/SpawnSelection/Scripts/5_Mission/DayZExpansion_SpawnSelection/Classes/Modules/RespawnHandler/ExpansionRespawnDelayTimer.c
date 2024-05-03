@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2024 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -12,15 +12,15 @@
 
 class ExpansionRespawnDelayTimer
 {
-	int Index;
+	string Key;
 	int Timestamp;
 	int Now;
 	int Punishment;
 	bool IsTerritory;
 	
-	void ExpansionRespawnDelayTimer(int index, bool isTerritory = false)
+	void ExpansionRespawnDelayTimer(string key, bool isTerritory = false)
 	{
-		Index = index;
+		Key = key;
 		IsTerritory = isTerritory;
 		
 		SetTime();
@@ -42,7 +42,6 @@ class ExpansionRespawnDelayTimer
 	int GetTimeDiff()
 	{
 		int currentTime = CF_Date.Now(true).GetTimestamp();
-		
 		return (currentTime - Timestamp);
 	}
 	
@@ -64,5 +63,34 @@ class ExpansionRespawnDelayTimer
 	bool IsTerritory()
 	{
 		return IsTerritory;
+	}
+
+	void WriteTo(ParamsWriteContext ctx)
+	{
+		ctx.Write(Key);
+		ctx.Write(Timestamp);
+		ctx.Write(Now);
+		ctx.Write(Punishment);
+		ctx.Write(IsTerritory);
+	}
+
+	bool ReadFrom(ParamsReadContext ctx)
+	{
+		if (!ctx.Read(Key))
+			return false;
+
+		if (!ctx.Read(Timestamp))
+			return false;
+
+		if (!ctx.Read(Now))
+			return false;
+
+		if (!ctx.Read(Punishment))
+			return false;
+
+		if (!ctx.Read(IsTerritory))
+			return false;
+
+		return true;
 	}
 }

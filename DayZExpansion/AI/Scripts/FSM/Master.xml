@@ -19,12 +19,15 @@
 					hands.GetCompEM().SwitchOff();
 				}
 				
-				unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() * 0.333333);
-				unit.OverrideMovementDirection(false, 0);
-				unit.OverrideMovementSpeed(true, 0);
-				
-				if (unit.eAI_ShouldGetUp())
-					unit.Expansion_GetUp();
+				if (!unit.m_eAI_CurrentCoverObject)
+				{
+					unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() * 0.333333);
+					unit.OverrideMovementDirection(false, 0);
+					unit.OverrideMovementSpeed(true, 0);
+					
+					if (unit.eAI_ShouldGetUp())
+						unit.Expansion_GetUp();
+				}
 			</event_entry>
 			<event_exit />
 			<event_update>
@@ -136,25 +139,33 @@
 				
 				index = unit.GetGroup().m_CurrentWaypointIndex;
 				
+				vector position = unit.GetPosition();
+				position[1] = path[index][1];
+				float distance = vector.DistanceSq(position, path[index]);
+				bool isFinal;
+				
 				eAIWaypointBehavior behaviour = unit.GetGroup().GetWaypointBehaviour();
-				if (behaviour == eAIWaypointBehavior.HALT)
+				if (behaviour == eAIWaypointBehavior.HALT || path.Count() == 1)
 				{
-					unit.OverrideTargetPosition(path[index], true);
+					if (distance &lt; threshold || unit.Expansion_GetMovementSpeed() == 0)
+						isFinal = true;
+					unit.OverrideTargetPosition(path[index], isFinal);
 					unit.OverrideMovementDirection(false, 0);
 					unit.OverrideMovementSpeed(false, 0);
+					unit.Expansion_DebugObject_Deferred(index + 20, path[index] - "0 1.5 0", "ExpansionDebugNoticeMe_Red", unit.GetDirection());
+					unit.Expansion_DebugObject_Deferred(path.Count() + 20, path[index], "ExpansionDebugNoticeMe", unit.GetDirection());
 					return EXIT;
 				}
 				
-				vector position = unit.GetPosition();
-				position[1] = path[index][1];
 				bool backtracking = unit.GetGroup().m_BackTracking;
-				float distance = vector.DistanceSq(position, path[index]);
 				if (distance &lt; threshold)
 				{
 					previousWayPoint = path[index];
 					if (backtracking) index--;
 					else index++;
 					threshold = 1.0;
+					if (unit.Expansion_GetMovementSpeed() &gt; 0)
+						unit.GetPathFinding().ForceRecalculate(true);
 				}
 				else if (Math.AbsFloat(distance - previousDistance) &lt; 0.0016)
 				{
@@ -181,7 +192,7 @@
 						index = 0;
 					}
 				}
-				else if (index == path.Count())
+				else if (index &gt;= path.Count())
 				{
 					if (behaviour == eAIWaypointBehavior.ALTERNATE)
 					{
@@ -198,9 +209,6 @@
 					}
 				}
 				
-				index = Math.Clamp(index, 0, path.Count() - 1);
-				
-				bool isFinal;
 				if (behaviour != eAIWaypointBehavior.LOOP &amp;&amp; (index == 0 || index == path.Count() - 1))
 					isFinal = true;
 				
@@ -227,6 +235,30 @@
 				
 				unit.GetGroup().m_CurrentWaypointIndex = index;
 				unit.GetGroup().m_BackTracking = backtracking;
+				
+				return EXIT;
+			</event_update>
+		</state>
+		<state name="Flank">
+			<variables>
+				<variable name="target" type="eAITarget" />
+			</variables>
+			<editor_data>
+				<position x="705.506428737142" y="490.855335435811" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.OverrideMovementDirection(false, 0);
+				unit.OverrideMovementSpeed(false, 0);
+				
+				unit.eAI_SetShouldTakeCover(true);
+			</event_entry>
+			<event_exit>
+				unit.eAI_SetShouldTakeCover(false);
+			</event_exit>
+			<event_update>
+				if (target)
+					unit.OverrideTargetPosition(target);
 				
 				return EXIT;
 			</event_update>
@@ -368,14 +400,26 @@
 			</event_entry>
 			<event_exit />
 			<event_update>
-				if (unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning())
+				if (unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning() || !unit.GetCommand_Script())
+				{
+					time += DeltaTime;
+					if (time &gt; 10)  //! Looks like something went terribly wrong
+					{
+						EXPrint(unit.ToString() + " TakeItemToHands - timeout");
+						unit.eAI_Unbug("taketohands");
+						time = 0;
+						return EXIT;
+					}
+					
 					return CONTINUE;
+				}
 				
 				//! Taking items to hands while raised breaks hands! Wait until lowered
 				if (unit.IsRaised())
 				{
 					loweringWeapon = true;
 					unit.RaiseWeapon(false);
+					time = 0;
 				}
 				
 				if (loweringWeapon)
@@ -428,6 +472,7 @@
 			<variables>
 				<variable name="item" type="ItemBase" />
 				<variable name="time" type="float" />
+				<variable name="loweringWeapon" type="bool" />
 			</variables>
 			<editor_data>
 				<position x="375.340877794781" y="647.920853681019" />
@@ -438,6 +483,7 @@
 				EXTrace.Print(EXTrace.AI, unit, "TakeItemToInventory " + item.ToString());
 				#endif
 				time = 0;
+				loweringWeapon = false;
 				if (unit.GetEmoteManager().IsEmotePlaying())
 					unit.GetEmoteManager().ServerRequestEmoteCancel();
 			</event_entry>
@@ -445,6 +491,26 @@
 			<event_update>
 				if (unit.GetActionManager().GetRunningAction())
 					return CONTINUE;
+				
+				//! Taking items while raised breaks hands! Wait until lowered
+				if (unit.IsRaised())
+				{
+					loweringWeapon = true;
+					unit.RaiseWeapon(false);
+					time = 0;
+				}
+				
+				if (loweringWeapon)
+				{
+					if (time &lt; 0.5)
+					{
+						time += DeltaTime;
+						return CONTINUE;
+					}
+					
+					time = 0;
+					loweringWeapon = false;
+				}
 				
 				if (item &amp;&amp; !item.GetHierarchyRootPlayer())
 				{
@@ -642,7 +708,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle,TraversingWaypoints,FollowFormation,Fighting" />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation,Flank,Fighting" />
 			<to_state name="Bandaging_Self" />
 		</transition>
 		<transition>
@@ -689,7 +755,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle,Fighting" />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation,Flank,Fighting" />
 			<to_state name="Weapon_Reloading" />
 		</transition>
 		<transition>
@@ -724,59 +790,107 @@
 							return SUCCESS;
 						}
 					}
+					else
+					{
+						//! Item in hands and can be used to bandage
+						return FAIL;
+					}
 				}
 				
 				eAITarget target = unit.GetTarget();
 				
 				bool preferExplosiveAmmo;
+				bool preferMelee;
+				bool hasMeleeInHands;
+				
 				if (hands)
 				{
+					if (hands.Expansion_IsMeleeWeapon())
+						hasMeleeInHands = true;
+
 					EntityAI targetEntity;
 					
 					if (target)
+					{
 						targetEntity = target.GetEntity();
+						
+						if (target.IsMechanicalTrap() &amp;&amp; target.IsActive() &amp;&amp; !target.IsExplosive() &amp;&amp; !target.CanPutInCargo(unit))
+							preferMelee = true;
+					}
 					
-					if (targetEntity &amp;&amp; targetEntity.GetParent() &amp;&amp; unit.eAI_GetTargetThreat(target.info, true) &gt; 0.2)
+					if (preferMelee)
+					{
+						if (hasMeleeInHands)
+							return FAIL;
+					}
+					else if (targetEntity &amp;&amp; targetEntity.GetParent() &amp;&amp; unit.eAI_GetTargetThreat(target.info, true) &gt; 0.2)
 					{
 						if (!hands.ShootsExplosiveAmmo())
 							preferExplosiveAmmo = true;
 						else
 							return FAIL;
 					}
-					else if (!hands.ShootsExplosiveAmmo())
+					else if (!hands.ShootsExplosiveAmmo() &amp;&amp; hands.IsWeapon())
 					{
 						return FAIL;
 					}
 				}
 				
-				ItemBase item = unit.eAI_GetAnyWeaponToUse(true, preferExplosiveAmmo);
+				ItemBase item;  //! The item we may want to take to hands
+				
+				if (!preferMelee)
+				{
+					item = unit.eAI_GetWeaponToUse(true, preferExplosiveAmmo);
+					if (item)
+					{
+						if (item == hands || item.Expansion_GetHierarchyRootItem() == hands)
+							return FAIL;
+						
+						dst.item = item;
+						return SUCCESS;
+					}
+					
+					ItemBase targetItem;
+					if (target &amp;&amp; Class.CastTo(targetItem, target.GetEntity()) &amp;&amp; (targetItem.IsWeapon() || (targetItem.Expansion_IsMeleeWeapon() &amp;&amp; !hasMeleeInHands)) &amp;&amp; !targetItem.GetHierarchyRootPlayer() &amp;&amp; !targetItem.IsSetForDeletion())
+					{
+						if (target.GetDistanceSq(unit, true) &lt;= 4.0 &amp;&amp; target.GetThreat(unit) &gt; 0.1 &amp;&amp; !unit.eAI_IsItemObstructed(targetItem))
+						{
+							dst.item = targetItem;
+							return SUCCESS;
+						}
+					}
+					
+					if (!preferExplosiveAmmo)
+					{
+						item = unit.eAI_GetWeaponToUse(true, false);
+						if (item)
+						{
+							if (item == hands || item.Expansion_GetHierarchyRootItem() == hands)
+								return FAIL;
+							
+							dst.item = item;
+							return SUCCESS;
+						}
+					}
+				}
+				
+				if (hasMeleeInHands)
+					return FAIL;
+				
+				item = unit.GetMeleeWeaponToUse();
 				if (item)
 				{
-					if (item == hands)
+					if (item == hands || item.Expansion_GetHierarchyRootItem() == hands)
 						return FAIL;
 					
 					dst.item = item;
 					return SUCCESS;
 				}
 				
-				ItemBase targetItem;
-				if (target &amp;&amp; Class.CastTo(targetItem, target.GetEntity()) &amp;&amp; (targetItem.IsWeapon() || targetItem.Expansion_IsMeleeWeapon()) &amp;&amp; !targetItem.GetHierarchyRootPlayer() &amp;&amp; !targetItem.IsSetForDeletion())
-				{
-					if (target.GetDistanceSq(unit, true) &lt;= 4.0 &amp;&amp; target.GetThreat(unit) &gt; 0.1 &amp;&amp; !unit.eAI_IsItemObstructed(targetItem))
-					{
-						dst.item = targetItem;
-						return SUCCESS;
-					}
-				}
-				
-				dst.item = unit.GetMeleeWeaponToUse();
-				if (dst.item)
-					return SUCCESS;
-				
 				 return FAIL;
 			</guard>
 			<event />
-			<from_state name="Idle,Fighting" />
+			<from_state name="Idle,Flank,Fighting" />
 			<to_state name="TakeItemToHands" />
 		</transition>
 		<transition>
@@ -810,41 +924,38 @@
 				eAITarget target = unit.GetTarget();
 				ItemBase targetItem;
 				
-				if (!target || !Class.CastTo(targetItem, target.GetEntity()) || targetItem.GetHierarchyRootPlayer() || targetItem.IsSetForDeletion())
+				if (!target || !Class.CastTo(targetItem, target.GetEntity()) || targetItem.GetHierarchyRootPlayer() || targetItem.IsSetForDeletion() || unit.eAI_GetItemThreatOverride(targetItem))
 					return FAIL;
 				
-				if (targetItem.Expansion_IsLiveExplosive())
+				if (targetItem.Expansion_IsLiveExplosive() || !targetItem.CanPutInCargo(unit))
 					return FAIL;
 				
 				if (target.GetDistanceSq(unit, true) &gt; 4.0 || unit.eAI_IsItemObstructed(targetItem))
 					return FAIL;
 				
-				ItemBase hands;
-				InventoryLocation dstLoc;
-				if (targetItem.IsWeapon() || targetItem.IsMagazine())
+				if (target.GetThreat(unit) &lt;= 0.1)
+					return FAIL;
+				
+				if (targetItem.IsWeapon())
 				{
 					//! PREPARE SWAP FROM CURRENT HAND ITEM TO GUN IN INV OR ON GROUND
-					//! If target is gun or magazine (latter means gun w/o ammo is in inventory) and we have melee in hand, prepare swap
-					hands = unit.GetItemInHands();
+					//! If target is gun and we have melee or bandage in hand (but shouldn't bandage right now), prepare swap
+					ItemBase hands = unit.GetItemInHands();
 					if (hands &amp;&amp; (hands.Expansion_IsMeleeWeapon() || (hands.Expansion_CanBeUsedToBandage() &amp;&amp; !unit.eAI_ShouldBandage())))
 					{
-						//! Only drop if destroyed, target is gun, or target is mag that fits in inventory, else might take current hand item again...
-						if (hands.IsDamageDestroyed() || targetItem.IsWeapon() || (targetItem.IsMagazine() &amp;&amp; !unit.eAI_GetItemThreatOverride(targetItem) &amp;&amp; unit.eAI_FindFreeInventoryLocationFor(targetItem, 0, dstLoc)))
+						//! Only drop hand item if destroyed or doesn't fit in inventory
+						if (hands.IsDamageDestroyed())
 						{
-							if (hands.IsDamageDestroyed())
-							{
-								unit.eAI_DropItem(hands, false);
-							}
-							else if (!unit.eAI_TakeItemToInventory(hands))
-							{
-								unit.eAI_ItemThreatOverride(hands, true);
-								unit.eAI_DropItem(hands, false);
-							}
+							unit.eAI_DropItem(hands, false);
+						}
+						else if (!unit.eAI_TakeItemToInventory(hands))
+						{
+							unit.eAI_ItemThreatOverride(hands, true);  //! Make sure we do not attempt to take it again after  dropping
+							unit.eAI_DropItem(hands, false);
 						}
 					}
 					
-					if (targetItem.IsWeapon())  //! Picking up guns is handled by TakeItemToHands state
-						return FAIL;
+					return FAIL;  //! Picking up guns is handled by TakeItemToHands state
 				}
 				else if (targetItem.Expansion_IsMeleeWeapon())
 				{
@@ -852,10 +963,7 @@
 					return FAIL;
 				}
 				
-				if (target.GetThreat(unit) &lt;= 0.1)
-					return FAIL;
-				
-				if ((dstLoc &amp;&amp; !dstLoc.IsValid()) || (!dstLoc &amp;&amp; !unit.eAI_FindFreeInventoryLocationFor(targetItem)))
+				if (!unit.eAI_FindFreeInventoryLocationFor(targetItem))
 				{
 					unit.eAI_ItemThreatOverride(targetItem, true);
 					return FAIL;
@@ -868,7 +976,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle,Fighting" />
+			<from_state name="Idle,Flank,Fighting" />
 			<to_state name="TakeItemToInventory" />
 		</transition>
 		<transition>
@@ -904,7 +1012,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle,Fighting" />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation,Flank,Fighting" />
 			<to_state name="Weapon_Unjamming" />
 		</transition>
 		<transition>
@@ -948,7 +1056,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle,TraversingWaypoints,FollowFormation" />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation,Flank" />
 			<to_state name="Fighting" />
 		</transition>
 		<transition>
@@ -1017,7 +1125,7 @@
 				return FAIL;
 			</guard>
 			<event />
-			<from_state name="Idle,TraversingWaypoints,FollowFormation" />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation,Flank" />
 			<to_state name="Vehicles" />
 		</transition>
 		<transition>
@@ -1026,6 +1134,7 @@
 				<position_destination x="794" y="456.89192130556" />
 			</editor_data>
 			<guard>
+				if (unit.IsRaised()) return FAIL;
 				if (unit.IsRestrained()) return FAIL;
 				if (unit.IsUnconscious()) return FAIL;
 				if (!unit.GetCommand_MoveAI()) return FAIL;
@@ -1045,7 +1154,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle,TraversingWaypoints,FollowFormation" />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation,Flank" />
 			<to_state name="PlayEmote" />
 		</transition>
 		<transition>
@@ -1081,7 +1190,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle" />
+			<from_state name="Idle,Flank" />
 			<to_state name="FollowFormation" />
 		</transition>
 		<transition>
@@ -1106,8 +1215,34 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle" />
+			<from_state name="Idle,Flank" />
 			<to_state name="TraversingWaypoints" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="604.355068778326" y="389" />
+				<position_destination x="624.401116247196" y="562.205251357419" />
+			</editor_data>
+			<guard>
+				if (unit.GetThreatToSelf() &gt;= 0.4) return FAIL;
+				
+				if (unit.IsInTransport()) return FAIL;
+				
+				dst.target = unit.GetTarget();
+				if (!dst.target)
+					return FAIL;
+				
+				auto group = unit.GetGroup();
+				if (!group) return FAIL;
+				if (group.GetWaypoints().Count() &gt; 0) return FAIL;
+				
+				if (dst.target.GetDistanceSq(unit) &gt; 40000) return FAIL;  //! 200 m
+				
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state name="Idle" />
+			<to_state name="Flank" />
 		</transition>
 		<transition>
 			<editor_data>
@@ -1140,6 +1275,20 @@
 			</guard>
 			<event />
 			<from_state name="FollowFormation" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="738.815618203381" y="690.855335435811" />
+				<position_destination x="652.899826762951" y="569" />
+			</editor_data>
+			<guard>
+				if (src.target.GetDistanceSq(unit) &lt;= 40000) return FAIL;  //! 200 m
+				
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state name="Flank" />
 			<to_state name="Idle" />
 		</transition>
 		<transition>

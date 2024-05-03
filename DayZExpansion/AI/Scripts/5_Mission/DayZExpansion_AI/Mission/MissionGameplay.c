@@ -25,6 +25,8 @@ modded class MissionGameplay
 		#endif
 
 		super.OnMissionFinish();
+
+		GetDayZGame().GetExpansionGame().SetInGroup(false);
 	}
 
 	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)

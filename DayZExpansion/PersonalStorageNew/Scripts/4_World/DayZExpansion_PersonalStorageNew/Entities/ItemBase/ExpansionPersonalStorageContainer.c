@@ -150,8 +150,6 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 				m_Expansion_SetPersonalStorageHub = 2;
 			SetSynchDirty();
 		}
-	#else
-		m_Expansion_PersonalStorageHub.s_Expansion_PersonalStorageContainers
 	#endif
 	}
 

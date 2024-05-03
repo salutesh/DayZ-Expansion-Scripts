@@ -20,6 +20,7 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 	protected bool m_IsLocked = false;
 	protected bool m_IsDeathMarker = false;
 	protected bool m_IsSelected = false;
+	protected string m_LocationKey;
 		
 	void ExpansionSpawSelectionMenuMapMarker(Widget parent, MapWidget mapWidget, bool autoInit = true)
 	{
@@ -36,10 +37,10 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 		if (m_RespawnModule)
 		{
 			int respawnCooldown = GetExpansionSettings().GetSpawn().GetCooldown(m_IsTerritory);
-			map<int, ref ExpansionRespawnDelayTimer> playerCooldowns = m_RespawnModule.m_PlayerRespawnDelays.GetElement(0);
+			map<string, ref ExpansionRespawnDelayTimer> playerCooldowns = m_RespawnModule.m_PlayerRespawnDelays.GetElement(0);
 			if (playerCooldowns)
 			{
-				ExpansionRespawnDelayTimer timer = playerCooldowns[m_Index];
+				ExpansionRespawnDelayTimer timer = playerCooldowns[m_LocationKey];
 				if (!timer)
 					return;
 
@@ -48,13 +49,11 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 					int cooldownTime = timer.GetTimeDiff();
 					int cooldown = respawnCooldown;
 					if (GetExpansionSettings().GetSpawn().PunishMultispawn)
-					{
 						cooldown += timer.GetPunishment();
-					}
+
 					if (cooldownTime < cooldown)
-					{
 						m_HasCooldown = true;
-					}
+
 					if (m_HasCooldown)
 					{
 						if (!m_IsLocked)
@@ -96,22 +95,14 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 	{
 		m_Index = index;
 		m_Location = location;
+		SetPosition(m_Location.Positions[0]);
 	}
 
 	override void Update(float pDt)
 	{
-		vector mapPos;
-		if (!m_IsDeathMarker)
-		{
-			mapPos = GetMapWidget().MapToScreen(m_Location.Positions[0]);	
-		}
-		else
-		{
-			mapPos = GetMapWidget().MapToScreen(m_WorldPosition);	
-		}
-			
 		float x, y;
 		GetLayoutRoot().GetParent().GetScreenPos(x, y);
+		vector mapPos = GetMapWidget().MapToScreen(m_WorldPosition);	
 		GetLayoutRoot().SetPos(mapPos[0] - x, mapPos[1] - y, true);
 	}
 	
@@ -187,5 +178,15 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 	void Unlock()
 	{
 		m_IsSelected = false;
+	}
+	
+	void SetLocationKey(string key)
+	{
+		m_LocationKey = key;
+	}
+	
+	string GetLocationKey()
+	{
+		return m_LocationKey;
 	}
 };

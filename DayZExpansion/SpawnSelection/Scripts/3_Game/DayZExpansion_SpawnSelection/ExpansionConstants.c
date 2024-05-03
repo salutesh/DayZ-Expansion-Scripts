@@ -15,3 +15,9 @@
  * @{
  */
 static const string EXPANSION_SPAWN_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "SpawnSettings.json";
+
+enum ExpansionSpawnSelectionLocationType
+{
+	NORMAL,
+	TERRITORY
+}

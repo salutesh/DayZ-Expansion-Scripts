@@ -792,8 +792,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 			return false;
 		}
 
-		//! ToDo: Check if objective configuration file with same ID and Type exists in quest module objectives configuration.
-
 		bool objectivesValid = true;
 		int aiObjectivesCount;
 		for (int i = 0; i < questObjectives.Count(); i++)

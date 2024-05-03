@@ -135,8 +135,6 @@ WrapSpacerWidgetClass ExpansionNotificationViewActivity {
          "size to text v" 1
          "text valign" center
          wrap 1
-         "condense whitespace" 1
-         "strip newlines" 1
          {
           ScriptParamsClass {
            Binding_Name "NotificationTitle"
@@ -229,8 +227,6 @@ WrapSpacerWidgetClass ExpansionNotificationViewActivity {
          "size to text v" 1
          "text valign" center
          wrap 1
-         "condense whitespace" 1
-         "strip newlines" 1
          {
           ScriptParamsClass {
            Binding_Name "NotificationText"

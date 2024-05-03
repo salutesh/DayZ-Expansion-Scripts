@@ -35,10 +35,12 @@ class eAICommandMove: ExpansionHumanCommandScript
 #else
 	private eAIPathFinding m_PathFinding;
 #endif
-	private vector m_PrevWaypoint;
+	private vector m_Waypoint;
 	private float m_WaypointTime;
 	private float m_WayPointDistance;
 	private float m_WayPointDistance2D;
+	private float m_MinFinal = 0.3;
+	private bool m_UpdatePath;
 
 	private float m_Turn;
 	private float m_TurnTarget;
@@ -83,6 +85,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 	private float m_BlockedRightDist;
 	private bool m_LastBlockedBackward;
 	private bool m_LastBlocked;
+	private float m_BlockedTime;
 	private float m_TurnDirection = 45.0;
 	private int m_TurnOverride;
 	private float m_TurnDirectionCWTime;
@@ -158,7 +161,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 	bool ShouldRecalculateTurnTarget()
 	{
-		if (!m_TurnOverride && (m_OverrideMovementTimeout > 0 || !m_ForceTurnTarget))
+		if (m_WayPointDistance2D >= m_MinFinal && !m_TurnOverride && (m_OverrideMovementTimeout > 0 || !m_ForceTurnTarget))
 			return true;
 
 		return false;
@@ -169,6 +172,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 		if (m_OverrideMovementTimeout <= 0 || m_TurnOverride < speedLimit)
 		{
 			m_OverrideMovementTimeout = 3.0;
+			m_DebugTime = 3.0;
 
 			if (m_LastBlockedLeft && !m_LastBlockedRight)
 			{
@@ -282,13 +286,16 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 		m_SpeedUpdateTime += pDt;
 
+		m_UpdatePath = false;
+
 		vector debug_points[2];
 
 		vector orientation = Math3D.MatrixToAngles(m_Transform);
 		vector position = m_Transform[3];
 
 		vector wayPoint = position;
-		bool isFinal = true;
+		bool isPathPointFinal;  //! Is waypoint the final point of the current path? (not necessarily final target position!)
+		bool isTargetPositionFinal = true;  //! Is waypoint the final target position?
 		vector pathDir2D;
 		vector fb = m_Transform[2];
 		m_Direction = fb;
@@ -296,10 +303,12 @@ class eAICommandMove: ExpansionHumanCommandScript
 		{
 #ifndef EAI_USE_LEGACY_PATHFINDING
 			//! https://feedback.bistudio.com/T173348
-			if (m_PathFinding.GetNext(wayPoint) <= 2 && m_Unit.m_eAI_TargetPositionIsFinal)
-				isFinal = true;
+			if (m_PathFinding.GetNext(wayPoint) <= 2)
+				isPathPointFinal = true;
+			if (isPathPointFinal && (m_Unit.m_eAI_TargetPositionIsFinal || m_PathFinding.m_Count == 0))
+				isTargetPositionFinal = true;
 			else
-				isFinal = false;
+				isTargetPositionFinal = false;
 			//m_WayPointDistance = vector.DistanceSq(position, wayPoint);
 			DBGDrawSphere(wayPoint, 0.05, 0xFFFF0000);
 			//DBGDrawLine(position, wayPoint, 0xFFFF0000);
@@ -312,13 +321,13 @@ class eAICommandMove: ExpansionHumanCommandScript
 				wayPointIndex = m_PathFinding.Next(position);
 				wayPoint = m_PathFinding[wayPointIndex];
 
-				isFinal = wayPointIndex == m_PathFinding.Count() - 1;
+				isTargetPositionFinal = wayPointIndex == m_PathFinding.Count() - 1;
 			}
 #endif
 
 			pathDir2D = vector.Direction(position, Vector(wayPoint[0], position[1], wayPoint[2]));
 
-			if (isFinal && m_PathFinding.m_IsUnreachable)
+			if (isTargetPositionFinal && m_PathFinding.m_IsUnreachable)
 			{
 				bool halt;
 
@@ -331,7 +340,8 @@ class eAICommandMove: ExpansionHumanCommandScript
 				else
 				{
 					//! Don't go into deep water
-					if (GetGame().GetWaterDepth(position + fb - "0 1 0") > 0.5)
+					vector surfacePosition = ExpansionStatic.GetSurfacePosition(position + fb);
+					if (GetGame().GetWaterDepth(surfacePosition) > 0.5)
 						halt = true;
 				}
 
@@ -343,6 +353,8 @@ class eAICommandMove: ExpansionHumanCommandScript
 				}
 			}
 		}
+
+		m_Waypoint = wayPoint;
 
 		bool blockedForward;
 		bool blockedLeft;
@@ -360,7 +372,6 @@ class eAICommandMove: ExpansionHumanCommandScript
 		if (m_OverrideMovementTimeout > 0)
 		{
 			m_OverrideMovementTimeout -= pDt;
-			m_DebugTime = m_OverrideMovementTimeout;
 			if (m_TurnOverride)
 			{
 				if (m_TurnDirection < 0)
@@ -422,8 +433,11 @@ class eAICommandMove: ExpansionHumanCommandScript
 			//! Only check bwd if we are moving bwd, else check fwd
 			if (Math.AbsFloat(m_MovementDirection) >= 135)
 			{
-				checkDir = position - 0.5 * fb;
-				blockedBackward = this.Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, backwardPos, outNormal, hitFraction, checkDir + CHECK_MIN_HEIGHT, 0.5, true, m_BlockingObject);
+				if (!m_Unit.IsRaised())
+				{
+					checkDir = position - 0.5 * fb;
+					blockedBackward = this.Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, backwardPos, outNormal, hitFraction, checkDir + CHECK_MIN_HEIGHT, 0.5, true, m_BlockingObject);
+				}
 
 				if (!blockedBackward && m_PositionTime > 3.0)
 					blockedBackward = true;
@@ -439,8 +453,9 @@ class eAICommandMove: ExpansionHumanCommandScript
 			}
 			else
 			{
+				fb = pathDir2D.Normalized();
 				checkDir = position + 0.5 * fb;
-				blockedForward = this.Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed + CHECK_MIN_HEIGHT, 1.0, true, m_BlockingObject);
+				blockedForward = this.Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed + CHECK_MIN_HEIGHT, 1.0, true, m_BlockingObject, true);
 
 				if (!blockedForward && m_PositionTime > 3.0)
 					blockedForward = true;
@@ -462,7 +477,15 @@ class eAICommandMove: ExpansionHumanCommandScript
 			bool blockedFwdOrBwd;
 			//! https://feedback.bistudio.com/T173348
 			if (blockedForward || blockedBackward)
+			{
 				blockedFwdOrBwd = true;
+				if (m_LastBlocked)
+					m_BlockedTime += pDt;
+			}
+			else
+			{
+				m_BlockedTime = 0.0;
+			}
 
 			m_LastBlocked = blockedFwdOrBwd;
 
@@ -593,7 +616,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 						else
 							m_OverrideTargetMovementDirection = -180;
 						if (m_OverrideMovementTimeout <= 0)
+						{
 							m_OverrideMovementTimeout = 1.0;
+							m_DebugTime = 3.0;
+						}
 						m_OverrideWaypoint = backwardPos;
 					#ifdef EAI_DEBUG_MOVE
 						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked L+R, move bwd");
@@ -612,7 +638,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 					{
 						m_OverrideTargetMovementDirection = 90.0;
 						if (m_OverrideMovementTimeout <= 0)
+						{
 							m_OverrideMovementTimeout = 1.5 / m_MovementSpeed;
+							m_DebugTime = 3.0;
+						}
 						m_OverrideWaypoint = rightPos;
 						if (blockedLeft)
 						{
@@ -634,7 +663,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 						//! Go left
 						m_OverrideTargetMovementDirection = -90.0;
 						if (m_OverrideMovementTimeout <= 0)
+						{
 							m_OverrideMovementTimeout = 1.5 / m_MovementSpeed;
+							m_DebugTime = 3.0;
+						}
 						m_OverrideWaypoint = leftPos;
 						if (blockedRight)
 						{
@@ -751,8 +783,6 @@ class eAICommandMove: ExpansionHumanCommandScript
 		}
 #endif
 
-		float minFinal = 0.3;
-
 		int speedLimit;
 		if (m_StanceChangeTimeout > 0)
 		{
@@ -788,14 +818,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 		if (m_MovementSpeed != 0)
 		{
-			if (m_WayPointDistance2D >= 0.04)  //! 0.2 m
+			if (ShouldRecalculateTurnTarget())
 			{
-				m_PrevWaypoint = wayPoint;
-				if (ShouldRecalculateTurnTarget())
-				{
-					//! Turn to waypoint while moving
-					m_TurnTarget = pathDir2D.Normalized().VectorToAngles()[0];
-				}
+				//! Turn to waypoint while moving
+				m_TurnTarget = pathDir2D.Normalized().VectorToAngles()[0];
 			}
 
 			if (m_TurnOverride)
@@ -881,11 +907,37 @@ class eAICommandMove: ExpansionHumanCommandScript
 			group.GetFormation().Update(pDt);
 		}
 
+		if (m_WayPointDistance2D < m_MinFinal)
+			m_UpdatePath = true;
+
+		if (m_UpdatePath)
+		{
+			if (isPathPointFinal && wayPoint != position)
+			{
+				if (matchLeaderSpeed || wayPoint != m_PathFinding.GetTarget())
+				{
+					m_PathFinding.ForceRecalculate(true);
+				}
+			#ifdef DIAG
+				m_Unit.Expansion_DeleteDebugObject(11111 + m_PathFinding.m_PointIdx);
+			#endif
+			}
+			else
+			{
+				m_PathFinding.UpdateNext(true);
+			}
+		}
+
 		//! https://feedback.bistudio.com/T173348
-		if (isFinal && m_WayPointDistance2D < minFinal && !matchLeaderSpeed)
+		if (isTargetPositionFinal && m_WayPointDistance2D < m_MinFinal && !matchLeaderSpeed)
 			m_Unit.m_eAI_PositionIsFinal = true;
 		else
 			m_Unit.m_eAI_PositionIsFinal = false;
+
+	//#ifdef DIAG
+		//Object dbgObj;
+		//vector dbgOri;
+	//#endif
 
 		if (m_Unit.eAI_IsSideSteppingVehicle())
 		{
@@ -893,30 +945,68 @@ class eAICommandMove: ExpansionHumanCommandScript
 		}
 		else if (m_Unit.m_eAI_PositionIsFinal)
 		{
+		//#ifdef DIAG
+			//dbgObj = m_Unit.m_Expansion_DebugObjects[11106];
+			//if (dbgObj)
+				//dbgOri = dbgObj.GetOrientation();
+			//else
+				//dbgOri = m_Unit.GetOrientation();
+			//dbgOri[0] = dbgOri[0] + 1;
+			//m_Unit.Expansion_DebugObject_Deferred(11106, m_Unit.GetPosition(), "ExpansionDebugNoticeMe_White", dbgOri.AnglesToVector());
+		//#endif
 			SetTargetSpeed(0.0);
 		}
 		else if (Math.AbsFloat(m_TurnDifference) > 30.0 && !m_TurnOverride)
 		{
-			SetTargetSpeed(Math.Lerp(m_MovementSpeed, 1.0, pDt * 2.0));
+		//#ifdef DIAG
+			//dbgObj = m_Unit.m_Expansion_DebugObjects[11107];
+			//if (dbgObj)
+				//dbgOri = dbgObj.GetOrientation();
+			//else
+				//dbgOri = m_Unit.GetOrientation();
+			//dbgOri[0] = dbgOri[0] + 1;
+			//m_Unit.Expansion_DebugObject_Deferred(11107, m_Unit.GetPosition(), "ExpansionDebugNoticeMe_Black", dbgOri.AnglesToVector());
+		//#endif
+			if (ExpansionMath.Distance2DSq(position, m_PathFinding.GetEnd()) >= m_MinFinal)
+				SetTargetSpeed(Math.Lerp(m_MovementSpeed, 1.0, pDt * 2.0));
 		}
 		else if (m_Unit.IsRaised())
 		{
-			SetTargetSpeed(2.0);
+		//#ifdef DIAG
+			//dbgObj = m_Unit.m_Expansion_DebugObjects[11108];
+			//if (dbgObj)
+				//dbgOri = dbgObj.GetOrientation();
+			//else
+				//dbgOri = m_Unit.GetOrientation();
+			//dbgOri[0] = dbgOri[0] + 1;
+			//m_Unit.Expansion_DebugObject_Deferred(11108, m_Unit.GetPosition(), "ExpansionDebugNoticeMe_Orange", dbgOri.AnglesToVector());
+		//#endif
+			if (ExpansionMath.Distance2DSq(position, m_PathFinding.GetEnd()) >= m_MinFinal)
+				SetTargetSpeed(2.0);
 		}
 		else if (!m_SpeedOverrider)
 		{
+		//#ifdef DIAG
+			//dbgObj = m_Unit.m_Expansion_DebugObjects[11109];
+			//if (dbgObj)
+				//dbgOri = dbgObj.GetOrientation();
+			//else
+				//dbgOri = m_Unit.GetOrientation();
+			//dbgOri[0] = dbgOri[0] + 1;
+			//m_Unit.Expansion_DebugObject_Deferred(11109, m_Unit.GetPosition(), "ExpansionDebugNoticeMe_Red", dbgOri.AnglesToVector());
+		//#endif
 			float distanceFactor = 4.0;
 			if (matchLeaderSpeed || (m_Unit.GetThreatToSelf() >= 0.4 && m_Unit.eAI_HasLOS()))
 				distanceFactor = 0.5;
 			float targetSpeed;
-			if (isFinal && m_WayPointDistance2D < 2.0 * distanceFactor)
+			if (isTargetPositionFinal && m_WayPointDistance2D < 2.0 * distanceFactor)
 			{
 				if (matchLeaderSpeed)
 					targetSpeed = leader.Expansion_GetMovementSpeed();
 				else
 					targetSpeed = 1.0;
 			}
-			else if (isFinal && m_WayPointDistance2D < 5.0 * distanceFactor)
+			else if (isTargetPositionFinal && m_WayPointDistance2D < 5.0 * distanceFactor)
 			{
 				if (matchLeaderSpeed)
 					targetSpeed = leader.Expansion_GetMovementSpeed();
@@ -1142,7 +1232,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 		return true;
 	}
 
-	private bool Raycast(vector start, vector end, out vector hitPosition, out vector hitNormal, out float hitFraction, vector endRV = vector.Zero, float radiusRV = 0.25, bool includeAI = false, out Object blockingObject = null)
+	private bool Raycast(vector start, vector end, out vector hitPosition, out vector hitNormal, out float hitFraction, vector endRV = vector.Zero, float radiusRV = 0.25, bool includeAI = false, out Object blockingObject = null, bool updatePathIfTreeClose = false)
 	{
 		if (endRV == vector.Zero)
 			endRV = end;
@@ -1158,7 +1248,12 @@ class eAICommandMove: ExpansionHumanCommandScript
 			foreach (Object obj: results)
 			{
 				if (obj.IsTree())
+				{
 					hit = true;
+
+					if (updatePathIfTreeClose && vector.DistanceSq(m_Waypoint, hitPosition) < 16.0)
+						m_UpdatePath = true;
+				}
 
 				blockingObject = obj;
 			}
@@ -1167,6 +1262,18 @@ class eAICommandMove: ExpansionHumanCommandScript
 		//! Everything else
 		if (!hit)
 		{
+			IEntity hitEntity;
+			hitFraction = m_Unit.CollisionMoveTest(dir * 0.8, vector.Zero, 1.0, null, hitEntity, hitPosition, hitNormal);
+			if (hitFraction < 0.5)
+			{
+				//ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, "IEnt " + hitEntity + " frac " + hitFraction);
+				blockingObject = Object.Cast(hitEntity);
+				m_PathFinding.ForceRecalculate();
+				return true;
+			}
+
+			return false;
+
 			Object hitObject;
 			PhxInteractionLayers hit_mask = PhxInteractionLayers.BUILDING | PhxInteractionLayers.DOOR | PhxInteractionLayers.VEHICLE | PhxInteractionLayers.ITEM_LARGE | PhxInteractionLayers.FENCE;
 			if (includeAI)
@@ -1284,5 +1391,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 	Object GetBlockingObject()
 	{
 		return m_BlockingObject;
+	}
+
+	float GetBlockedTime()
+	{
+		return m_BlockedTime;
 	}
 };

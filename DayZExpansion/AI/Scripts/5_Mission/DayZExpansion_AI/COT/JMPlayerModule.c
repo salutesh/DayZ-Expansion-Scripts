@@ -130,5 +130,51 @@ modded class JMPlayerModule
 
 		Exec_SetExpansionFaction(factionTypeID, guids, senderRPC, instance);
 	}
+
+	void StartSpectatingAI(eAIBase ai, PlayerIdentity ident)
+	{
+	#ifdef SERVER
+		PlayerBase playerSpectator = PlayerBase.Cast(ident.GetPlayer());
+		if (!playerSpectator)
+			return;
+
+		if (m_Spectators[ident.GetId()] != playerSpectator)
+		{
+			playerSpectator.COT_RememberVehicle();
+			playerSpectator.SetLastPosition();
+
+			m_Spectators[ident.GetId()] = playerSpectator;
+		}
+
+		playerSpectator.m_JM_SpectatedPlayer = ai;
+		playerSpectator.m_JM_CameraPosition = vector.Zero;
+
+		playerSpectator.COT_TempDisableOnSelectPlayer();
+
+		GetGame().SelectPlayer(ident, null);
+
+		vector position = ai.GetBonePositionWS(ai.GetBoneIndexByName("Head"));
+		GetGame().SelectSpectator(ident, "JMSpectatorCamera", position);
+
+		playerSpectator.COTSetGodMode(true, false);  //! Enable godmode and remember previous state of GetAllowDamage
+		playerSpectator.COTUpdateSpectatorPosition();
+
+		ScriptRPC rpc = new ScriptRPC();
+		int networkLow, networkHigh;
+		ai.GetNetworkID(networkLow, networkHigh);
+		rpc.Write(networkLow);
+		rpc.Write(networkHigh);
+		rpc.Send(null, JMPlayerModuleRPC.StartSpectating, true, ident);
+
+		GetCommunityOnlineToolsBase().Log(ident, "Spectating AI " + ai);
+	#else
+		if (!GetGame().IsMultiplayer() || !GetGame().GetPlayer() || !ai)
+			return;
+
+		m_SpectatorClient = PlayerBase.Cast(GetGame().GetPlayer());
+		m_SpectatorClient.COT_TempDisableOnSelectPlayer();
+		m_SpectatorClient.COT_RememberVehicle();
+	#endif
+	}
 }
 #endif

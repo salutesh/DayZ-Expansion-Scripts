@@ -277,6 +277,8 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		}
 
 		CloseFile( file );
+
+		GetGame().GetWorld().ProcessMarkedObjectsForPathgraphUpdate();
 	}
 
 	static Object SpawnObject(string className, vector position, vector rotation, bool special = false, bool takeable = true)
@@ -298,7 +300,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 		if ( obj.CanAffectPathgraph() )
 		{
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, obj );
+			GetGame().GetWorld().MarkObjectForPathgraphUpdate(obj);
 		}
 
 		if (!takeable)
@@ -734,7 +736,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 			if ( obj.CanAffectPathgraph() )
 			{
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, obj );
+				GetGame().GetWorld().MarkObjectForPathgraphUpdate(obj);
 			}
 
 			trader = EntityAI.Cast( obj );
@@ -782,6 +784,8 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		}
 
 		CloseFile( file );
+
+		GetGame().GetWorld().ProcessMarkedObjectsForPathgraphUpdate();
 	}
 
 	// ------------------------------------------------------------

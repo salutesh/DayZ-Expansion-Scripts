@@ -52,6 +52,11 @@ class eAITarget
 		return str;
 	}
 
+	bool IsActive()
+	{
+		return info.IsActive();
+	}
+
 	bool AddAI(eAIBase ai)
 	{
 		if (ai_list.Find(ai) != -1)
@@ -123,6 +128,16 @@ class eAITarget
 		return info.GetEntity();
 	}
 
+	bool IsExplosive()
+	{
+		return info.IsExplosive();
+	}
+
+	bool IsMechanicalTrap()
+	{
+		return info.IsMechanicalTrap();
+	}
+
 	vector GetPosition(eAIBase ai = null, bool actual = false)
 	{
 		return info.GetPosition(ai, actual);
@@ -138,6 +153,11 @@ class eAITarget
 		return info.GetThreat(ai, state);
 	}
 
+	bool CanPutInCargo(EntityAI parent)
+	{
+		return info.CanPutInCargo(parent);
+	}
+
 	bool CanMeleeIfClose(eAIBase ai)
 	{
 		bool canYeet;
@@ -145,7 +165,7 @@ class eAITarget
 			canYeet = true;
 
 		EntityAI entity = GetEntity();
-		if (!entity || entity.IsInherited(ItemBase) || (entity.IsTransport() && !canYeet))
+		if (!entity || (entity.IsInherited(ItemBase) && (!IsMechanicalTrap() || IsExplosive())) || (entity.IsTransport() && !canYeet))
 			return false;
 
 		IEntity parent = entity.GetParent();
@@ -163,12 +183,12 @@ class eAITarget
 			return false;
 
 		float distSq = GetDistanceSq(ai, true);
-		if (distSq > 3.24)
+
+		if (distSq > 6.0025)
 			return false;
 
-		//! DayZPlayerMeleeFightLogic_LightHeavy.CLOSE_TARGET_DISTANCE = 1.5
-		if (distSq > 2.25 && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
-			return false;
+		//if (distSq > 3.0625 && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
+			//return false;
 
 		EntityAI entityInHands = ai.GetHumanInventory().GetEntityInHands();
 
@@ -203,6 +223,11 @@ class eAITarget
 	float GetMinDistance(eAIBase ai = null)
 	{
 		return info.GetMinDistance(ai);
+	}
+
+	float GetMinDistanceSq(eAIBase ai = null)
+	{
+		return info.GetMinDistanceSq(ai);
 	}
 
 	vector GetDirection(eAIBase ai, bool actual = false)

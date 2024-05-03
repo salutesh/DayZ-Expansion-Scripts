@@ -34,6 +34,7 @@ class eAIBase: PlayerBase
 
 	protected autoptr eAIFSM m_FSM;
 	bool m_eAI_IsFightingFSM;
+	bool m_eAI_ShouldTakeCover;
 	bool m_eAI_UpdatePotentialCoverObjects;
 
 	// Targeting data
@@ -151,6 +152,7 @@ class eAIBase: PlayerBase
 #endif
 	bool m_eAI_TargetPositionIsFinal = true;
 	bool m_eAI_PositionIsFinal = true;
+	int m_eAI_PrevHCCState;
 
 	private Apple m_DebugTargetApple;
 	private vector m_DebugTargetOrientation;
@@ -165,6 +167,9 @@ class eAIBase: PlayerBase
 	Object m_eAI_CurrentCoverObject;
 	vector m_eAI_CurrentCoverPosition;
 	bool m_eAI_IsInCover;
+	float m_eAI_FlankAngle;
+	float m_eAI_FlankTime;
+	float m_eAI_FlankTimeMax;
 
 	int m_Expansion_EmoteID;
 	bool m_Expansion_EmoteAutoCancel;
@@ -677,6 +682,13 @@ class eAIBase: PlayerBase
 			return true;
 
 		return false;
+	}
+
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		m_eAI_FlankTime = 0.0;
 	}
 
 	override void EEKilled(Object killer)
@@ -1507,10 +1519,10 @@ class eAIBase: PlayerBase
 			{
 				RaiseWeapon(false);
 			}
-			else if (m_eAI_CurrentThreatToSelfActive < 0.2)
+			else if (m_eAI_CurrentThreatToSelfActive < 0.2 && !m_eAI_IsInCover)
 			{
 				if (m_eAI_PreviousThreatToSelfActive >= 0.2)
-					m_WeaponLowerTimeout = Math.RandomFloat(0.5, 1.5);
+					m_WeaponLowerTimeout = Math.RandomFloat(15.0, 30.0);
 
 				m_WeaponLowerTimeout -= pDt;
 		
@@ -1566,7 +1578,7 @@ class eAIBase: PlayerBase
 			vector max = Vector(center[0] + 30, center[1] + 30, center[2] + 30);
 
 			int flags = QueryFlags.DYNAMIC;
-			if (m_eAI_IsFightingFSM && (m_eAI_UpdateNearTargetsCount % 33 == 0 || m_eAI_UpdatePotentialCoverObjects))
+			if (m_eAI_ShouldTakeCover && (m_eAI_UpdateNearTargetsCount % 33 == 0 || m_eAI_UpdatePotentialCoverObjects))
 			{
 				m_eAI_PotentialCoverObjects.Clear();
 				//flags |= QueryFlags.STATIC;
@@ -1678,7 +1690,7 @@ class eAIBase: PlayerBase
 			if (fireArm.Expansion_HasAmmo())
 				hasFirearmWithAmmo = true;
 		}
-		else if (Class.CastTo(itemInHands, entityInHands) && itemInHands.Expansion_IsMeleeWeapon())
+		else if ((Class.CastTo(itemInHands, entityInHands) && itemInHands.Expansion_IsMeleeWeapon()) || GetMeleeWeaponToUse())
 		{
 			hasMeleeWeapon = true;
 		}
@@ -1710,19 +1722,21 @@ class eAIBase: PlayerBase
 				continue;  //! Ignore non PlayerBase NPCs
 			else if (Class.CastTo(targetItem, obj))
 			{
-				if (targetItem.IsExplosive())
+				//! If the object is an item, ignore it if any of the following conditions are met.
+				//! Note these should be roughly in sync with what's in eAIItemTargetInformation::CalculateThreat,
+				//! but the latter can be more specific
+
+				if (targetItem.IsDamageDestroyed() || targetItem.IsSetForDeletion())
+					continue;
+
+				if (targetItem.Expansion_IsDanger())
 				{
 					if (!Expansion_CanBeDamaged())
 						continue;
 				}
 				else
 				{
-					//! If the object is an item, ignore it if any of the following conditions are met.
-					//! Note these should be roughly in sync with what's in eAIItemTargetInformation::CalculateThreat,
-					//! but the latter can be more specific
-
-					if (targetItem.IsDamageDestroyed() || targetItem.IsSetForDeletion())
-						continue;
+					//! Check if item is a weapon, melee weapon or bandage
 
 					bool canBeUsedToBandageRightNow = false;
 					bool isWeaponOrNonEmptyMag = false;
@@ -2210,12 +2224,22 @@ class eAIBase: PlayerBase
 		m_PathFinding.OverridePosition(pPosition);
 #endif
 
-		m_eAI_TargetPositionIsFinal = isFinal;
+		eAI_CheckIsInCover(isFinal);
 
+		m_eAI_TargetPositionIsFinal = isFinal;
+	}
+
+	void eAI_CheckIsInCover(inout bool isFinal = false)
+	{
 		if (m_eAI_CurrentCoverObject && Math.IsPointInCircle(GetPosition(), 0.55, m_eAI_CurrentCoverPosition))
+		{
 			m_eAI_IsInCover = true;
+			isFinal = true;
+		}
 		else
+		{
 			m_eAI_IsInCover = false;
+		}
 	}
 
 	void OverrideTargetPosition(eAITarget target, bool isFinal = true)
@@ -2228,6 +2252,7 @@ class eAIBase: PlayerBase
 		bool allowJumpClimb = true;
 		bool keepMinDistToTarget;
 		bool cannotMelee;
+		bool flank;
 
 		if (minDist)
 		{
@@ -2236,15 +2261,82 @@ class eAIBase: PlayerBase
 				return;
 
 			keepMinDistToTarget = true;
+			//EXTrace.Print(EXTrace.AI, this, "Positioning - min dist " + minDist);
 		}
 		else
 		{
-			if (!IsRaised() && !target.CanMeleeIfClose(this))
+			if (!IsRaised() && target.IsEntity() && !target.CanMeleeIfClose(this))
 				cannotMelee = true;
 
 			//! While weapon is raised and we have LOS or action/weapon manager is running (e.g. reload/unjam), reposition/seek cover
 			if ((IsRaised() && eAI_HasLOS(target)) || GetActionManager().GetRunningAction() || GetWeaponManager().IsRunning() || cannotMelee)
+			{
 				allowJumpClimb = false;
+				//EXTrace.Print(EXTrace.AI, this, "Positioning - flank time reset " + m_eAI_FlankTime);
+				m_eAI_FlankTime = 0.0;
+				m_eAI_FlankTimeMax = 0.0;
+			}
+			else if (dist > 5.0 && dist <= 200.0)
+			{
+				if (m_eAI_FlankTime <= 0.0)
+				{
+					if (Math.RandomInt(0, 2))
+						m_eAI_FlankAngle = Math.RandomFloat(56.25, 67.5);
+					else
+						m_eAI_FlankAngle = -Math.RandomFloat(56.25, 67.5);
+
+					m_eAI_FlankTimeMax = Math.RandomFloat(dist * 0.3, dist * 0.6);
+					//EXTrace.Print(EXTrace.AI, this, "Positioning - flank angle " + m_eAI_FlankAngle + ", time max " + m_eAI_FlankTimeMax);
+				}
+
+				m_eAI_FlankTime += m_dT;
+
+				//! Return early if we are already overriding position and not yet near endpoint and not in cover
+				if (m_eAI_FlankTimeMax > 0.0 && !eAI_ShouldUpdatePosition() && !m_eAI_IsInCover)
+				{
+					//EXTrace.Print(EXTrace.AI, this, "Positioning - flanking, not updating pos tmax=" + m_eAI_FlankTime + " timeout=" + m_eAI_PositionOverrideTimeout + " inCover=" + m_eAI_IsInCover);
+					return;
+				}
+
+				//! Flank time is based on a random speed estimate.
+				//! Sprint = 6.66 m/s avg or factor 0.3, half speed = 3.33 m/s avg or factor 0.6 (lower speed = more time)
+				if (m_eAI_FlankTime >= m_eAI_FlankTimeMax)
+				{
+					//EXTrace.Print(EXTrace.AI, this, "Positioning - flank time exceeded " + m_eAI_FlankTime);
+
+					if (Math.RandomInt(0, 3000) < 1 || m_PathFinding.m_IsUnreachable)
+					{
+						m_eAI_FlankTime = 0.0;
+						Expansion_GetUp();
+						return;
+					}
+
+					eAI_CheckIsInCover(m_eAI_TargetPositionIsFinal);
+
+					if (m_eAI_IsInCover && m_eAI_CurrentCoverObject)
+					{
+						if (m_eAI_CurrentCoverObject.IsRock())
+							OverrideStance(DayZPlayerConstants.STANCEIDX_PRONE);
+						else if (eAI_GetStance() == eAIStance.ERECT)
+							OverrideStance(DayZPlayerConstants.STANCEIDX_CROUCH);
+
+						EntityAI hands = GetHumanInventory().GetEntityInHands();
+						if (hands && hands.IsWeapon())
+							RaiseWeapon(true);
+
+						return;
+					}
+				}
+
+				flank = true;
+				isFinal = false;
+				Expansion_GetUp();
+				//EXTrace.Print(EXTrace.AI, this, "Positioning - flanking " + m_eAI_FlankTime);
+			}
+			//else
+			//{
+				//EXTrace.Print(EXTrace.AI, this, "Positioning - dist " + dist);
+			//}
 		}
 
 		Weapon_Base weapon;
@@ -2293,11 +2385,24 @@ class eAIBase: PlayerBase
 				else if (cannotMelee)
 					minDist = 30.0;
 			}
+
+			//EXTrace.Print(EXTrace.AI, this, "Positioning - no jump/climb, min dist " + minDist);
 		}
 
-		if (minDist)
+		Object currentCoverObj = m_eAI_CurrentCoverObject;
+
+		if (minDist || flank)
 		{
 			pos = GetPosition();
+
+			if (flank)
+			{
+				vector ori = dir.VectorToAngles();
+
+				ori[0] = ExpansionMath.RelAngle(ori[0] + m_eAI_FlankAngle);
+
+				dir = ori.AnglesToVector();
+			}
 
 			if (m_eAI_CurrentCoverObject)
 			{
@@ -2305,7 +2410,7 @@ class eAIBase: PlayerBase
 				m_eAI_CurrentCoverObject = null;
 			}
 
-			if (m_eAI_PotentialCoverObjects.Count())
+			if (m_eAI_PotentialCoverObjects.Count() && (!target.IsMechanicalTrap() || target.IsExplosive()))
 			{
 				vector aimDirectionTarget = GetAimDirectionTarget();
 				vector forwardPos = GetPosition();
@@ -2339,20 +2444,41 @@ class eAIBase: PlayerBase
 					if (dBodyIsActive(obj))
 						continue;
 
+					if (flank)
+					{
+						if (obj == currentCoverObj)
+							continue;
+					}
+
 					if (s_eAI_TakenCoverObjects.Find(obj) > -1)
 						continue;
 
 					toObjDir = vector.Direction(forwardPos, obj.GetPosition());
 					toObjDirNorm = toObjDir.Normalized();
-					dot = vector.Dot(aimDirectionTarget, toObjDirNorm);
 
-					//! Select object if closer than target or if opposite of AI aim direction target
 					objDistSq = toObjDir.LengthSq();
+
+					if (flank)
+					{
+						dot = vector.Dot(dir, toObjDirNorm);
+
+						//! Select object if in direction of flank angle
+						if (dot < 0.75)
+							continue;
+					}
+					else
+					{
+						dot = vector.Dot(aimDirectionTarget, toObjDirNorm);
+
+						//! Select object if closer than target or if opposite of AI aim direction target
+						if ((keepMinDistToTarget || distSq <= objDistSq) && dot >= 0.0)
+							continue;
+					}
 
 					if (keepMinDistToTarget)
 						objToTargetDistSq = vector.DistanceSq(obj.GetPosition(), targetPos);
 
-					if (((!keepMinDistToTarget && distSq > objDistSq) || dot < 0.0) && (!keepMinDistToTarget || objToTargetDistSq > minDistSq))
+					if (!keepMinDistToTarget || objToTargetDistSq > minDistSq)
 					{
 						coverObjKey = Math.Round(objDistSq);
 						distances.Insert(coverObjKey);
@@ -2376,11 +2502,17 @@ class eAIBase: PlayerBase
 					EXTrace.Print(EXTrace.AI, this, "New cover object selected: " + m_eAI_CurrentCoverObject + " " + m_eAI_CurrentCoverObject.GetPosition());
 				#endif
 
+					Building building;
+					bool houseWithDoors;
 					float extension;
 					vector minMax[2];
 					if (m_eAI_CurrentCoverObject.IsTree())
 					{
 						extension = 2.0;
+					}
+					else if (Class.CastTo(building, m_eAI_CurrentCoverObject) && building.GetDoorCount() > 0 && building.GetType().IndexOf("Land_Wreck_") == -1)
+					{
+						houseWithDoors = true;
 					}
 					else if (m_eAI_CurrentCoverObject.GetCollisionBox(minMax))
 					{
@@ -2394,24 +2526,54 @@ class eAIBase: PlayerBase
 					}
 
 					vector objPos = m_eAI_CurrentCoverObject.GetPosition();
-					objPos[1] = m_eAI_AimPosition_WorldSpace[1];
-					vector objToTargetDir = vector.Direction(objPos, m_eAI_AimPosition_WorldSpace);
-					vector objToTargetDirNorm = objToTargetDir.Normalized();
-					pos = objPos - objToTargetDirNorm * extension;
 
-					m_eAI_PositionOverrideTimeout = 3.0;
+					if (houseWithDoors)
+					{
+						pos = objPos;
+					}
+					else
+					{
+						objPos[1] = m_eAI_AimPosition_WorldSpace[1];
+						vector objToTargetDir = vector.Direction(objPos, m_eAI_AimPosition_WorldSpace);
+						vector objToTargetDirNorm = objToTargetDir.Normalized();
+						pos = objPos - objToTargetDirNorm * extension;
+					}
+
+					if (flank)
+					{
+						m_eAI_FlankTimeMax = Math.RandomFloat(dist * 0.3, dist * 0.6);
+						m_eAI_PositionOverrideTimeout = m_eAI_FlankTimeMax;
+					}
+					else
+					{
+						m_eAI_PositionOverrideTimeout = 3.0;
+					}
 				}
 			}
 
 			if (!m_eAI_CurrentCoverObject)
 			{
+				//EXTrace.Print(EXTrace.AI, this, "Positioning - no cover obj");
+
 				if (dist != minDist)
+				{
+					//EXTrace.Print(EXTrace.AI, this, "Positioning - dist != min dist, AI pos=" + pos);
+
 					pos = pos + dir.Normalized() * (dist - minDist * Math.RandomFloat(1.0, 2.0));
+				}
 
-				if (minDist > 3.0 && !keepMinDistToTarget)
-					pos = ExpansionMath.GetRandomPointInCircle(pos, minDist);
+				if (flank)
+				{
+					m_eAI_FlankTimeMax = Math.RandomFloat(dist * 0.3, dist * 0.6);
+					m_eAI_PositionOverrideTimeout = m_eAI_FlankTimeMax;
+				}
+				else
+				{
+					if (minDist > 3.0 && !keepMinDistToTarget)
+						pos = ExpansionMath.GetRandomPointInCircle(pos, minDist);
 
-				m_eAI_PositionOverrideTimeout = Math.RandomFloat(5.0, 10.0);
+					m_eAI_PositionOverrideTimeout = Math.RandomFloat(5.0, 10.0);
+				}
 			}
 		}
 		else
@@ -2419,15 +2581,18 @@ class eAIBase: PlayerBase
 			pos = target.GetPosition(this);
 		}
 
+		//EXTrace.Print(EXTrace.AI, this, "Positioning - pos " + pos + " dist " + dist + " minDist " + minDist + " cover obj " + m_eAI_CurrentCoverObject);
 		OverrideTargetPosition(pos, isFinal, 1.0, allowJumpClimb);
 
-		if (minDist && m_eAI_CurrentCoverObject)
+		if ((minDist || flank) && m_eAI_CurrentCoverObject && m_eAI_CurrentCoverObject != currentCoverObj)
 		{
+			m_PathFinding.OnUpdate(m_dT, -1.0);
 			m_eAI_CurrentCoverPosition = m_PathFinding.GetEnd();
 		#ifdef DIAG
+			//EXTrace.Print(EXTrace.AI, this, "Positioning - cover obj " + m_eAI_CurrentCoverObject + " pos " + m_eAI_CurrentCoverObject.GetPosition() + " cover pos " + m_eAI_CurrentCoverPosition + " dist to cover pos " + vector.Distance(m_eAI_CurrentCoverObject.GetPosition(), m_eAI_CurrentCoverPosition));
 			Expansion_DebugObject_Deferred(20, m_eAI_CurrentCoverPosition, "ExpansionDebugNoticeMe", GetDirection());
 		}
-		else
+		else if (!m_eAI_CurrentCoverObject)
 		{
 			Expansion_DebugObject_Deferred(20, "0 0 0", "ExpansionDebugNoticeMe");
 		#endif
@@ -2687,6 +2852,16 @@ class eAIBase: PlayerBase
 	{
 		if (!src || src.IsSetForDeletion())
 			return null;
+
+		InventoryLocation il_src = new InventoryLocation();
+
+		src.GetInventory().GetCurrentInventoryLocation(il_src);
+
+		if (il_src.GetType() == InventoryLocationType.HANDS)
+		{
+			if (GetWeaponManager().IsRunning())
+				GetWeaponManager().OnWeaponActionEnd();  //! Prevent getting stuck in running state
+		}
 
 		if (location.GetType() == InventoryLocationType.HANDS)
 		{
@@ -3057,7 +3232,6 @@ class eAIBase: PlayerBase
 				EXTrace.Print(true, this, "CommandHandler " + Expansion_CommandIDToString(m_eAI_CurrentCommandID) + " -> " + Expansion_CommandIDToString(pCurrentCommandID) + " finished " + pCurrentCommandFinished);
 			m_eAI_CurrentCommandID = pCurrentCommandID;
 			m_eAI_CommandTime = 0.0;
-			m_eAI_PositionOverrideTimeout = 0.0;
 		}
 		else if (pCurrentCommandFinished && EXTrace.AI)
 		{
@@ -3155,11 +3329,15 @@ class eAIBase: PlayerBase
 		
 		ProcessADDModifier();
 
-		if (hic)
+		if (hic && pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT && !pCurrentCommandFinished && m_eAI_Command)
 		{
-			bool exitIronSights = false;
-			//! @note HandleWeapons also deals with hands lowering/raising if no weapon in hands
-			HandleWeapons(pDt, entityInHands, hic, exitIronSights);
+			eAICommandVehicle vehicleCmd;
+			if (!Class.CastTo(vehicleCmd, m_eAI_Command) || !vehicleCmd.IsGettingIn())
+			{
+				bool exitIronSights = false;
+				//! @note HandleWeapons also deals with hands lowering/raising if no weapon in hands
+				HandleWeapons(pDt, entityInHands, hic, exitIronSights);
+			}
 		}
 
 		GetDayZPlayerInventory().HandleInventory(pDt);
@@ -3300,18 +3478,32 @@ class eAIBase: PlayerBase
 			if (hcc)
 			{
 				int hccState = hcc.GetState();
-				if (hccState == ClimbStates.STATE_FINISH)
+				
+				/**
+				 * @note
+				 * For vaulting: MOVE -> TAKEOFF -> ONTOP -> FALLING -> FINISH
+				 * For climbing: MOVE -> TAKEOFF -> ONTOP
+				 */
+
+				switch (hccState)
 				{
-					m_PathFinding.OnUpdate(pDt, -1);
-					//StartCommand_MoveAI();
-				}
-				else if (hccState == ClimbStates.STATE_FALLING)
-				{
-					//StartCommand_MoveAI();
-				}
-				else if (hccState == ClimbStates.STATE_ONTOP)
-				{
-					//StartCommand_MoveAI();
+					case ClimbStates.STATE_FINISH:
+					#ifdef DIAG
+						EXTrace.Print(EXTrace.AI, this, "CommandClimb -> " + typename.EnumToString(ClimbStates, hccState));
+					#endif
+						m_eAI_PrevHCCState = hccState;
+						m_PathFinding.ForceRecalculate(true);
+						break;
+
+					default:
+						if (hccState != m_eAI_PrevHCCState)
+						{
+						#ifdef DIAG
+							EXTrace.Print(EXTrace.AI, this, "CommandClimb -> " + typename.EnumToString(ClimbStates, hccState));
+						#endif
+							m_eAI_PrevHCCState = hccState;
+						}
+						break;
 				}
 			}
 		}
@@ -3436,7 +3628,7 @@ class eAIBase: PlayerBase
 					m_eAI_MeleeDidHit = true;
 				}
 
-				if (m_eAI_Melee && m_eAI_MeleeDidHit)
+				if (m_eAI_Melee && m_eAI_MeleeDidHit && hcm2.IsInComboRange())
 				{
 					m_eAI_Melee = false;
 					m_eAI_MeleeTime = GetGame().GetTime();
@@ -4179,17 +4371,24 @@ class eAIBase: PlayerBase
 	#endif
 		m_eAI_IsFightingFSM = state;
 
+		eAI_SetShouldTakeCover(state);
+
+		if (m_eAI_IsFightingFSM && GetExpansionSettings().GetAI().MemeLevel > 9000)
+			eAI_PlayRandomLoveSound();
+	}
+
+	void eAI_SetShouldTakeCover(bool state)
+	{
 		if (state)
 		{
+			m_eAI_ShouldTakeCover = true;
 			m_eAI_UpdatePotentialCoverObjects = true;
 		}
 		else if (m_eAI_CurrentCoverObject)
 		{
+			m_eAI_ShouldTakeCover = false;
 			s_eAI_TakenCoverObjects.RemoveItem(m_eAI_CurrentCoverObject);
 		}
-
-		if (m_eAI_IsFightingFSM && GetExpansionSettings().GetAI().MemeLevel > 9000)
-			eAI_PlayRandomLoveSound();
 	}
 
 	void eAI_PlayRandomLoveSound()
@@ -4275,10 +4474,31 @@ class eAIBase: PlayerBase
 				trace = EXTrace.Start0(EXTrace.AI, this, "Attaching mag to " + wpn + " " + mag);
 				GetWeaponManager().AttachMagazine(mag);
 			}
-			else if (GetWeaponManager().CanSwapMagazine(wpn, mag))
+			else if (mag && !mag.IsAmmoPile())
 			{
-				trace = EXTrace.Start0(EXTrace.AI, this, "Swapping mag " + wpn + " " + mag);
-				GetWeaponManager().SwapMagazine(mag);
+				if (GetWeaponManager().CanSwapMagazine(wpn, mag))
+				{
+					trace = EXTrace.Start0(EXTrace.AI, this, "Swapping mag " + wpn + " " + mag);
+					GetWeaponManager().SwapMagazine(mag);
+				}
+				else
+				{
+					Magazine currentMag = wpn.GetMagazine(mi);
+					if (currentMag && GetWeaponManager().CanDetachMagazine(wpn, currentMag))
+					{
+						trace = EXTrace.Start0(EXTrace.AI, this, "Attached mag doesn't fit in inventory, dropping " + wpn + " " + currentMag);
+
+						//! Could also use PredictiveDropEntity, but let's be explicit for maximum control
+						vector m4[4];
+						Math3D.MatrixIdentity4(m4);
+						
+						//! We don't care if a valid transform couldn't be found, we just want to preferably use it instead of placing on the player
+						GameInventory.PrepareDropEntityPos(this, currentMag, m4, false, GameConstants.INVENTORY_ENTITY_DROP_OVERLAP_DEPTH);
+						InventoryLocation il = new InventoryLocation;
+						il.SetGround(currentMag, m4);
+						GetWeaponManager().DetachMagazine(il);
+					}
+				}
 			}
 			else if (GetWeaponManager().CanLoadBullet(wpn, mag))
 			{
@@ -4485,7 +4705,7 @@ class eAIBase: PlayerBase
 			m_WeaponRaisedPrev = m_WeaponRaised;
 			m_WeaponRaisedTimer = 0.0;
 
-			if (g_Game.IsServer())
+			if (g_Game.IsServer() && m_eAI_Command.IsInherited(eAICommandMove))
 			{
 				AnimSetBool(m_ExpansionST.m_VAR_Raised, m_WeaponRaised);
 				if (!m_WeaponRaised)
@@ -5059,6 +5279,9 @@ class eAIBase: PlayerBase
 
 			if (il_src.GetType() == InventoryLocationType.HANDS)
 			{
+				if (m_WeaponManager.IsRunning())
+					m_WeaponManager.OnWeaponActionEnd();  //! Prevent getting stuck in running state
+
 				//! Forcing switch to HumanCommandMove before taking from hands,
 				//! and hiding item in hands before, unbreaks hand anim state
 				GetItemAccessor().HideItemInHands(true);
@@ -5392,10 +5615,18 @@ class eAIBase: PlayerBase
 
 		if (climbRes)
 		{
+			if (!eAI_CanClimbOn(climbRes.m_GrabPointParent, climbRes))
+				return false;
+			if (!eAI_CanClimbOn(climbRes.m_ClimbStandPointParent, climbRes))
+				return false;
+			if (!eAI_CanClimbOn(climbRes.m_ClimbOverStandPointParent, climbRes))
+				return false;
+
 			IEntity standPointParent;
 			vector standPoint;
 			vector checkPosition;
 			vector checkDirection;
+			vector unitPosition = GetPosition();
 
 			if (climbRes.m_ClimbOverStandPoint != vector.Zero)
 			{
@@ -5414,7 +5645,6 @@ class eAIBase: PlayerBase
 
 			if (standPoint != vector.Zero)
 			{
-				vector unitPosition = GetPosition();
 				Object standPointObject;
 				if (Class.CastTo(standPointObject, standPointParent))
 				{
@@ -5432,14 +5662,11 @@ class eAIBase: PlayerBase
 				checkDirection = vector.Direction(unitPosition, checkPosition);
 			}
 
-			if (!eAI_IsFallSafe(checkDirection))
+			vector surfacePosition = ExpansionStatic.GetSurfacePosition(unitPosition + checkDirection);
+			if (GetGame().GetWaterDepth(surfacePosition) > 0.5)
 				return false;
 
-			if (!eAI_CanClimbOn(climbRes.m_GrabPointParent, climbRes))
-				return false;
-			if (!eAI_CanClimbOn(climbRes.m_ClimbStandPointParent, climbRes))
-				return false;
-			if (!eAI_CanClimbOn(climbRes.m_ClimbOverStandPointParent, climbRes))
+			if (!eAI_IsFallSafe(checkDirection))
 				return false;
 		}
 
@@ -5477,7 +5704,15 @@ class eAIBase: PlayerBase
 				string debugName = object.GetDebugName();
 				debugName.ToLower();
 
-				if (debugName.Contains("pole"))
+				if (debugName.Contains("container") && climbRes.m_bIsClimbOver)
+				{
+					if (EXTrace.AI)
+						EXTrace.Print(true, this, "eAI_CanClimbOn false " + Debug.GetDebugName(parent) + " is scenery? " + object.IsScenery() + " is plain? " + object.IsPlainObject());
+
+					return false;
+				}
+
+				if (debugName.Contains("pole") || debugName.Contains("sign") || debugName.Contains("busstop"))
 				{
 					if (EXTrace.AI)
 						EXTrace.Print(true, this, "eAI_CanClimbOn false " + Debug.GetDebugName(parent) + " is scenery? " + object.IsScenery() + " is plain? " + object.IsPlainObject());
@@ -5599,11 +5834,14 @@ class eAIBase: PlayerBase
 				if (!isWreck)
 				{
 					Object blockingObject = hcm.GetBlockingObject();
-					if (!hcm.CheckBlocked() && (!blockingObject || blockingObject.GetType().IndexOf("Land_Wall_Gate") == -1))
+					if (blockingObject || !hcm.CheckBlocked())
 					{
-						if (hcm.IsBlocked())
-							hcm.StartTurnOverride(2);
-						continue;
+						if (hcm.GetBlockedTime() < 3.0)
+						{
+							if (hcm.IsBlocked())
+								m_PathFinding.ForceRecalculate(true);
+							continue;
+						}
 					}
 				}
 

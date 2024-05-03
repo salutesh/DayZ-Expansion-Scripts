@@ -94,249 +94,125 @@ class CfgVehicles
 	class eAI_SurvivorM_Mirek: SurvivorM_Mirek
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Denis: SurvivorM_Denis
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Boris: SurvivorM_Boris
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Cyril: SurvivorM_Cyril
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Elias: SurvivorM_Elias
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Francis: SurvivorM_Francis
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Guo: SurvivorM_Guo
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Hassan: SurvivorM_Hassan
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Indar: SurvivorM_Indar
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Jose: SurvivorM_Jose
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Kaito: SurvivorM_Kaito
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Lewis: SurvivorM_Lewis
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Manua: SurvivorM_Manua
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Niki: SurvivorM_Niki
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Oliver: SurvivorM_Oliver
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Peter: SurvivorM_Peter
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Quinn: SurvivorM_Quinn
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Rolf: SurvivorM_Rolf
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Seth: SurvivorM_Seth
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorM_Taiki: SurvivorM_Taiki
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorF_Linda: SurvivorF_Linda
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorF_Maria: SurvivorF_Maria
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorF_Frida: SurvivorF_Frida
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorF_Gabi: SurvivorF_Gabi
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorF_Helga: SurvivorF_Helga
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorF_Irena: SurvivorF_Irena
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorF_Judy: SurvivorF_Judy
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorF_Keiko: SurvivorF_Keiko
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorF_Eva: SurvivorF_Eva
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorF_Naomi: SurvivorF_Naomi
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 	class eAI_SurvivorF_Baty: SurvivorF_Baty
 	{
 		scope = 2;
-		class enfAnimSys: enfAnimSys
-		{
-			graphName = "DayZExpansion\AI\Animations\player_main.agr";
-		};
 	};
 };

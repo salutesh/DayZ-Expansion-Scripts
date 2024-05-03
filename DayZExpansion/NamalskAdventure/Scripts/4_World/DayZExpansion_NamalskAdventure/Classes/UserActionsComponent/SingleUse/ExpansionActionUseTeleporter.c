@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONMODTELEPORTER
 class ExpansionActionUseTeleporter: ActionInteractBase
 {
 	void ExpansionActionUseTeleporter()
@@ -77,3 +78,4 @@ class ExpansionActionUseTeleporter: ActionInteractBase
 	#endif
 	}
 };
+#endif

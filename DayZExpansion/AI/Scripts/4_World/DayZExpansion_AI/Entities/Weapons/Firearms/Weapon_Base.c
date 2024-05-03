@@ -274,7 +274,9 @@ modded class Weapon_Base
 			float indirectHitRange = GetGame().ConfigGetFloat(CFG_AMMO + " " + projectile + " indirectHitRange");
 			float indirectHitRangeMultiplier = GetGame().ConfigGetFloat(CFG_AMMO + " " + projectile + " indirectHitRangeMultiplier");
 
-			minDist = indirectHitRange * indirectHitRangeMultiplier;
+			minDist = indirectHitRange;
+			if (indirectHitRangeMultiplier)
+				minDist *= indirectHitRangeMultiplier;
 
 		#ifdef DIAG
 			EXTrace.Print(EXTrace.AI, this, projectile + " indirect hit range " + minDist);

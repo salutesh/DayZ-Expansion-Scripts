@@ -4,4 +4,9 @@ modded class DayZPlayerMeleeFightLogic_LightHeavy
 	{
 		EvaluateHit(weapon);
 	}
+
+	float eAI_GetAttackTypeByDistanceToTarget(EntityAI pTarget, EMeleeTargetType pTargetType = EMeleeTargetType.ALIGNABLE)
+	{
+		return GetAttackTypeByDistanceToTarget(pTarget, pTargetType);
+	}
 };
