@@ -14,7 +14,7 @@ modded class AnimalBase
 {
 	override void EEKilled(Object killer)
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this, "killer " + killer, "last dmg src " + m_Expansion_LastDamageSource);
 #endif
 

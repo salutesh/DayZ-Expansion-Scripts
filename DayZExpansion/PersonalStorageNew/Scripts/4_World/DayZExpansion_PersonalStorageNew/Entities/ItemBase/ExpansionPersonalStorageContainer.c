@@ -40,8 +40,10 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 
 	void ExpansionPersonalStorageContainer()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
+#endif
+		
 		TStringArray slots = {};
 		ConfigGetTextArray("attachments", slots);
 
@@ -85,7 +87,9 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 
 	override void OnVariablesSynchronized()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 
 		super.OnVariablesSynchronized();
 
@@ -136,7 +140,9 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 
 	void Expansion_SetPersonalStorageHub(ExpansionPersonalStorageHub hub, bool sync = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 
 		m_Expansion_PersonalStorageHub = hub;
 
@@ -150,8 +156,6 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 				m_Expansion_SetPersonalStorageHub = 2;
 			SetSynchDirty();
 		}
-	#else
-		m_Expansion_PersonalStorageHub.s_Expansion_PersonalStorageContainers
 	#endif
 	}
 

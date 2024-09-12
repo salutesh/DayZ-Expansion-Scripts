@@ -41,9 +41,9 @@ class ExpansionActionPickVehicleLock: ExpansionActionPickVehicleLockBase
 		if ( player.Expansion_IsInSafeZone() )
 			return false;
 
-		CarScript carScript = CarScript.Cast( target.GetParentOrObject() );
+		auto vehicle = ExpansionVehicle.Get( target.GetParentOrObject() );
 
-		if ( carScript && carScript.IsLocked() && GetExpansionSettings().GetVehicle().CanPickLock )
+		if ( vehicle && vehicle.IsLocked() && GetExpansionSettings().GetVehicle().CanPickLock )
 		{
 			if ( GetExpansionSettings().GetVehicle().PickLockTools.Find( item.GetType() ) > -1 )
 				return true;
@@ -54,24 +54,24 @@ class ExpansionActionPickVehicleLock: ExpansionActionPickVehicleLockBase
 
 	override void OnFinishProgressServer( ActionData action_data )
 	{
-		CarScript carScript = CarScript.Cast( action_data.m_Target.GetParentOrObject() );
+		auto vehicle = ExpansionVehicle.Get( action_data.m_Target.GetParentOrObject() );
 
-		if ( carScript )
+		if ( vehicle )
 		{
-			float lockComplexity = carScript.Expansion_LockComplexity();
+			float lockComplexity = vehicle.GetLockComplexity();
 			float pickLockChancePercent = GetExpansionSettings().GetVehicle().PickLockChancePercent;
 			if (lockComplexity)
 				pickLockChancePercent /= lockComplexity;
 
 			if ( GetExpansionSettings().GetLog().VehicleLockPicking )
-				GetExpansionSettings().GetLog().PrintLog("[VehicleLockPick] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " is attempting to pick lock on " + carScript.GetType() + " (id=" + carScript.GetVehiclePersistentIDString() + " pos=" + carScript.GetPosition() + ") with " + action_data.m_MainItem.GetType() );
+				GetExpansionSettings().GetLog().PrintLog("[VehicleLockPick] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " is attempting to pick lock on " + vehicle.GetType() + " (id=" + vehicle.GetPersistentIDString() + " pos=" + vehicle.GetPosition() + ") with " + action_data.m_MainItem.GetType() );
 
 			if ( Math.RandomFloat( 0, 100 ) < pickLockChancePercent )
 			{
-				carScript.UnlockCarWithoutKey();
+				vehicle.ForceUnlock();
 
 				if ( GetExpansionSettings().GetLog().VehicleLockPicking )
-					GetExpansionSettings().GetLog().PrintLog( "[VehicleLockPick] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " picked lock on " + carScript.GetType() + " (id=" + carScript.GetVehiclePersistentIDString() + " pos=" + carScript.GetPosition() + ") with " + action_data.m_MainItem.GetType() );
+					GetExpansionSettings().GetLog().PrintLog( "[VehicleLockPick] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " picked lock on " + vehicle.GetType() + " (id=" + vehicle.GetPersistentIDString() + " pos=" + vehicle.GetPosition() + ") with " + action_data.m_MainItem.GetType() );
 			}
 			super.OnFinishProgressServer( action_data );
 		}
@@ -79,9 +79,9 @@ class ExpansionActionPickVehicleLock: ExpansionActionPickVehicleLockBase
 
 	override bool Expansion_CheckSuccess(ActionData action_data)
 	{
-		CarScript carScript;
-		if (Class.CastTo(carScript, action_data.m_Target.GetParentOrObject()))
-			return !carScript.IsLocked();
+		auto vehicle = ExpansionVehicle.Get(action_data.m_Target.GetParentOrObject());
+		if (vehicle && !vehicle.IsLocked())
+			return true;
 
 		return false;
 	}

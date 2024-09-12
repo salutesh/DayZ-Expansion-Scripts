@@ -187,7 +187,7 @@ PanelWidgetClass ExpansionDeadScreen {
        Margin 6
        "Size To Content V" 1
        Columns 1
-       Rows 5
+       Rows 8
        {
         FrameWidgetClass TimeSurvived {
          ignorepointer 1
@@ -252,6 +252,45 @@ PanelWidgetClass ExpansionDeadScreen {
            "text valign" center
           }
           TextWidgetClass PlayersKilledValue {
+           ignorepointer 1
+           size 1 1
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        FrameWidgetClass AIKilled {
+         ignorepointer 1
+         position 0 0
+         size 48 32
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass AIKilledLabel {
+           ignorepointer 1
+           size 1 1
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_AI_KILLED"
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+          TextWidgetClass AIKilledValue {
            ignorepointer 1
            size 1 1
            halign right_ref

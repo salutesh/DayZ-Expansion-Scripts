@@ -23,17 +23,21 @@ class ExpansionQuestObjectiveAICampConfig_V25: ExpansionQuestObjectiveConfig
 
 class ExpansionQuestObjectiveAICampConfigBase: ExpansionQuestObjectiveConfig
 {
-	//! Not used rn
-};
-
-class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBase
-{
 	float InfectedDeletionRadius = 500.0;
-	autoptr array<ref ExpansionQuestAISpawn> AISpawns = new array<ref ExpansionQuestAISpawn>;
 	float MaxDistance = -1;
 	float MinDistance = -1;
 	autoptr TStringArray AllowedWeapons = new TStringArray;
 	autoptr TStringArray AllowedDamageZones = new TStringArray;
+};
+
+class ExpansionQuestObjectiveAICampConfig_V27: ExpansionQuestObjectiveAICampConfigBase
+{
+	autoptr array<ref ExpansionQuestAISpawn_V27> AISpawns = new array<ref ExpansionQuestAISpawn_V27>;
+};
+
+class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBase
+{
+	autoptr array<ref ExpansionQuestAISpawn> AISpawns = new array<ref ExpansionQuestAISpawn>;
 
 	void SetAISpawns(array<ref ExpansionQuestAISpawn> aiSpawns)
 	{
@@ -115,15 +119,8 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		ExpansionQuestObjectiveAICampConfig config;
 		ExpansionQuestObjectiveAICampConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, config))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, configBase))
 			return NULL;
-
-		//! Uncomment this once needed
-		//if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, configBase))
-			//return NULL;
-
-		//! Comment this out once needed
-		configBase = config;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
@@ -178,9 +175,26 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 					}
 				}
 			}
+			else if (configBase.ConfigVersion < 28)
+			{
+				ExpansionQuestObjectiveAICampConfig_V27 configV27;
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig_V27>.Load(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, configV27))
+					return NULL;
+
+				foreach (auto aiSpawnV27: configV27.AISpawns)
+				{
+					ExpansionQuestAISpawn aiSpawnV28 = new ExpansionQuestAISpawn();
+					aiSpawnV28.CopyFrom(aiSpawnV27);
+					config.AddAISpawn(aiSpawnV28);
+				}
+			}
 
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
+		}
+		else if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, config))
+		{
+			return NULL;
 		}
 
 		foreach (ExpansionQuestAISpawn spawn: config.AISpawns)
@@ -211,7 +225,9 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 	
 	override void Save(string fileName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName);
+#endif
 
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
@@ -225,6 +241,12 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
+		
+		InfectedDeletionRadius = configBase.InfectedDeletionRadius;
+		MaxDistance = configBase.MaxDistance;
+		MinDistance = configBase.MinDistance;
+		AllowedWeapons.Copy(configBase.AllowedWeapons);
+		AllowedDamageZones.Copy(configBase.AllowedDamageZones);
 	}
 
 	override bool Validate()

@@ -409,7 +409,7 @@ class ExpansionClimb
 
 	static void DebugClimb(PlayerBase pPlayer, SHumanCommandClimbResult pResult, int pColorGrab, int pColorStand)
 	{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #ifndef SERVER
 		if (!pResult.m_bIsClimb && !pResult.m_bIsClimbOver)
 		{

@@ -33,21 +33,48 @@ modded class BuildingBase
 		{
 			//! Hardcoded defaults (AI will vault those buildings' edges otherwise or climb on ledges unnecessarily)
 			s_eAI_PreventClimb = {
-				"Land_House",
-				"Land_Misc",
-				"Land_Mil",
-				"Land_Office",
-				"Land_Shed",
-				"Land_Wreck"
+				"land_busstop",
+				"land_camp_house",
+				"land_castle_bergfrit",
+				//"land_cementworks",
+				"land_city_firestation",
+				"land_city_stand",
+				"land_garage",
+				"land_guardhouse",
+				"land_house",
+				"land_misc_polytunnel",
+				"land_misc_greenhouse",
+				"land_misc_trailroof",
+				"land_mil_airfield_hq",
+				"land_mil_atc",
+				"land_mil_barracks",
+				"land_mil_camonet_roof",
+				"land_mil_firestation",
+				"land_mil_guardbox",
+				"land_mil_guardhouse",
+				"land_mil_guardshed",
+				"land_mil_tent",
+				"land_office1",
+				"land_office2",
+				"land_rail_station",
+				"land_shed",
+				"land_tenement",
+				"land_train_wagon_box",  //! Pathfinding won't find a path out of the wagon, that's the only reason it's excluded
+				"land_village_healthcare",
+				"land_village_store",
+				"land_water_station",
+				"land_workshop",
+				"sign"
 			};
 
 			s_eAI_PreventClimb.InsertAll(GetExpansionSettings().GetAI().PreventClimb);
 		}
 
 		string type = GetType();
+		type.ToLower();
 		foreach (string preventClimb: s_eAI_PreventClimb)
 		{
-			if (type.IndexOf(preventClimb) == 0)
+			if (type.IndexOf(preventClimb) >= 0)
 			{
 				m_eAI_PreventClimb = true;
 				break;
@@ -69,7 +96,7 @@ modded class BuildingBase
 		m_eAI_DynamicPatrolSpawner.Init();
 	}
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
@@ -91,6 +118,42 @@ modded class BuildingBase
 		}
 
 		return info;
+	}
+
+	/**
+	 * @brief If this is a building, return whether it can be entered or not
+	 */
+	bool Expansion_IsEnterable()
+	{
+		//! If it has no doors, assume not enterable
+		if (GetDoorCount() == 0)
+			return false;
+
+		//! Ugly to have to hardcode this, but I fail to see a better way
+		string type = GetType();
+		type.ToLower();
+		if (type.IndexOf("land_wreck_") == 0)
+		{
+			if (type.IndexOf("land_wreck_caravan") == 0)
+				return true;
+
+			if (type.IndexOf("land_wreck_v3s") == 0)
+				return true;
+
+			return false;
+		}
+
+		return true;
+	}
+
+	bool Expansion_IsWreck()
+	{
+		string type = GetType();
+		type.ToLower();
+		if (type.IndexOf("land_wreck_") == 0)
+			return true;
+
+		return false;
 	}
 };
 

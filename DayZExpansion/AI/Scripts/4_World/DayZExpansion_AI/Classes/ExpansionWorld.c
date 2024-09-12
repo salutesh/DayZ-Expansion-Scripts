@@ -11,6 +11,7 @@ modded class ExpansionWorld
 	private bool m_NetworkGenerate;
 	private vector m_NetworkPosition;
 	private float m_NetworkRadius;
+	ref array<ref ExpansionLocatorArray> m_AIRoamingLocations; 
 
 	void ExpansionWorld()
 	{
@@ -18,6 +19,22 @@ modded class ExpansionWorld
 
 		m_Network = new eAIRoadNetwork();
 		//m_Network.Init();
+
+		if (GetGame().IsServer())
+		{
+			int include;
+			include |= ExpansionLocationType.CAMP;
+			include |= ExpansionLocationType.HILL;
+			include |= ExpansionLocationType.LOCAL;
+			include |= ExpansionLocationType.LOCALOFFICE;
+			//include |= ExpansionLocationType.MARINE;
+			include |= ExpansionLocationType.RAILROADSTATION;
+			include |= ExpansionLocationType.RUIN;
+			include |= ExpansionLocationType.SETTLEMENT;
+			//include |= ExpansionLocationType.VIEWPOINT;
+
+			m_AIRoamingLocations = ExpansionLocatorStatic.GetWorldLocations(include);
+		}
 	}
 
 /*
@@ -156,12 +173,8 @@ modded class ExpansionWorld
 	}
 	*/
 
-	override bool InGroup()
+	array<ref ExpansionLocatorArray> GetAIRoamingLocations()
 	{
-		DayZPlayerImplement player;
-		if (Class.CastTo(player, GetGame().GetPlayer()) && player.GetGroup() && player.GetGroup().Count() > 1)
-			return true;
-
-		return false;
+		return m_AIRoamingLocations;
 	}
 };

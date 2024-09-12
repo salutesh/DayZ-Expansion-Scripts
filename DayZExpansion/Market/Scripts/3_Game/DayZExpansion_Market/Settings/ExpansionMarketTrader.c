@@ -232,10 +232,6 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 	// ------------------------------------------------------------
 	ExpansionMarketTraderItem AddItem( string item, ExpansionMarketTraderBuySell buySell = ExpansionMarketTraderBuySell.CanBuyAndSell )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "AddItem");
-#endif
-	
 		item.ToLower();
 		if (Items.Contains(item))
 			return NULL;  //! Already added, possibly implicitly by adding a variant before the parent (which will add the parent first)

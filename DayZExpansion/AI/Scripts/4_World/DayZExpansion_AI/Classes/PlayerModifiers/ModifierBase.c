@@ -25,6 +25,9 @@ modded class ModifierBase
 				case MaskMdfr:
 				case FliesMdfr:
 					break;
+				case HeatComfortMdfr:
+				case WoundInfectStage1Mdfr:
+				case WoundInfectStage2Mdfr:
 				case HungerMdfr:
 				case ThirstMdfr:
 					return;  //! Maybe re-enable hunger/thirst when we teach AI to eat & drink?

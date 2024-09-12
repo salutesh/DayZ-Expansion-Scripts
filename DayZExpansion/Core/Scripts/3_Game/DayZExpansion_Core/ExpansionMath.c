@@ -262,7 +262,9 @@ class ExpansionMath
 	 */
 	static TVectorArray PathInterpolated(TVectorArray path, ECurveType curveType = ECurveType.CatmullRom, bool smooth = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PATH_INTERPOLATION, ExpansionMath);
+#endif
 
 		if (path.Count() < 3)
 			return path;
@@ -272,7 +274,7 @@ class ExpansionMath
 		TVectorArray points();
 		TVectorArray interpolatedPath();
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, "Original points");
 #endif
 
@@ -280,7 +282,7 @@ class ExpansionMath
 		{
 			points.Insert(Vector(pathPoint[0], pathPoint[2], 0));
 			
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, pathPoint[0].ToString() + " " + pathPoint[2].ToString());
 #endif
 		}
@@ -289,7 +291,7 @@ class ExpansionMath
 		//! (helps against overly sharp turns in curve interpolation)
 		TVectorArray intermediatePoints = {points[0]};
 		
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, "Intermediate points");
 		EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, points[0][0].ToString() + " " + points[0][1].ToString());
 #endif
@@ -309,14 +311,14 @@ class ExpansionMath
 				vector intermediatePoint = vector.Lerp(points[i - 1], points[i], j / steps);
 				intermediatePoints.Insert(intermediatePoint);
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, intermediatePoint[0].ToString() + " " + intermediatePoint[1].ToString());
 #endif
 			}
 		}
 
 		//! Curve interpolation
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, "Filtered interpolated points - " + typename.EnumToString(ECurveType, curveType));
 #endif
 
@@ -333,7 +335,7 @@ class ExpansionMath
 		{
 			vector curvePoint = Math3D.Curve(curveType, t / tEnd, intermediatePoints);
 
-//#ifdef DIAG
+//#ifdef DIAG_DEVELOPER
 			//EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, curvePoint[0].ToString() + " " + curvePoint[1].ToString());
 //#endif
 
@@ -367,7 +369,7 @@ class ExpansionMath
 				angleDiff = 0;
 
 				interpolatedPath.Insert(point3D);
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, point3D[0].ToString() + " " + point3D[2].ToString());
 #endif
 			}
@@ -376,7 +378,7 @@ class ExpansionMath
 		if (smooth)
 		{
 			//! Smoothing pass - moving avg
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, "Smoothing pass - moving avg");
 #endif
 
@@ -397,7 +399,7 @@ class ExpansionMath
 				vector smoothedPoint = Vector(x[k], 0, z[k]);
 				interpolatedPath[k] = smoothedPoint;
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, x[k].ToString() + " " + z[k].ToString());
 #endif
 			}
@@ -409,7 +411,7 @@ class ExpansionMath
 			vector interpolatedPoint = interpolatedPath[l];
 			interpolatedPoint[1] = GetGame().SurfaceY(interpolatedPath[l][0], interpolatedPath[l][2]);
 			interpolatedPath[l] = interpolatedPoint;
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, interpolatedPath[l].ToString(false));
 #endif
 		}

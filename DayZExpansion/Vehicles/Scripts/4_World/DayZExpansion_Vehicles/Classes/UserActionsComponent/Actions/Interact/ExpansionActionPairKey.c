@@ -37,13 +37,13 @@ class ExpansionActionPairKey: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		CarScript car;
+		ExpansionVehicle vehicle;
 		ExpansionCarKey key;
 
-		if ( player.GetCommand_Vehicle() ) //! don't pair if we are inside the car
+		if ( ExpansionVehicle.Get( vehicle, player ) ) //! don't pair if we are inside the vehicle
 			return false;
 
-		if ( !Class.CastTo( car, target.GetParentOrObject() ) )
+		if ( !ExpansionVehicle.Get( vehicle, target.GetParentOrObject() ) )
 			return false;
 
 		if ( !Class.CastTo( key, player.GetItemInHands() ) )
@@ -52,16 +52,16 @@ class ExpansionActionPairKey: ActionInteractBase
 		if ( key.IsInherited( ExpansionCarAdminKey ) )
 			return false;
 
-		if ( key.IsPaired() && !car.HasKey() ) //! key is paired to something, car doesn't have a key
+		if ( key.IsPaired() && !vehicle.HasKey() ) //! key is paired to something, vehicle doesn't have a key
 		{
-			if ( !key.IsPairedTo( car ) ) //! the key is not paired to the car
+			if ( !key.IsPairedTo( vehicle ) ) //! the key is not paired to the vehicle
 				return false;
 
-			//! the key is paired to the car but the car has no key, we are glitched.
+			//! the key is paired to the vehicle but the vehicle has no key, we are glitched.
 			m_IsGlitched = true;
 		} else
 		{
-			if ( car.HasKey() ) //! car has a key
+			if ( vehicle.HasKey() ) //! vehicle has a key
 				return false;
 
 			if ( key.IsPaired() ) //! key is paired
@@ -75,11 +75,11 @@ class ExpansionActionPairKey: ActionInteractBase
 	{
 		super.OnStartServer( action_data );
 
-		CarScript car = CarScript.Cast( action_data.m_Target.GetParentOrObject() );
-		car.PairKeyTo( ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() ) );
+		auto vehicle = ExpansionVehicle.Get( action_data.m_Target.GetParentOrObject() );
+		vehicle.PairKey( ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() ) );
 
 		if ( GetExpansionSettings().GetLog().VehicleCarKey )
-			GetExpansionSettings().GetLog().PrintLog("[VehicleCarKey] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " paired a  "+ action_data.m_Player.GetItemInHands().GetType() +" to " + car.GetType() + " (id=" + car.GetVehiclePersistentIDString() + " pos=" + car.GetPosition() + ")");
+			GetExpansionSettings().GetLog().PrintLog("[VehicleCarKey] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " paired a  "+ action_data.m_Player.GetItemInHands().GetType() +" to " + vehicle.GetType() + " (id=" + vehicle.GetPersistentIDString() + " pos=" + vehicle.GetPosition() + ")");
 	}
 
 	override bool CanBeUsedInRestrain()

@@ -85,7 +85,7 @@ class ExpansionNotificationSchedulerModule: CF_ModuleGame
 					if (!Class.CastTo(icon, ExpansionIcons.Get(schedule.Icon)))
 						iconPath = schedule.Icon;
 					else
-						iconPath = icon.Path;
+						iconPath = icon.IconPath;
 					
 					ExpansionNotification(title, text, iconPath, schedule.m_Color.Get("Color"), 7, ExpansionNotificationType.BAGUETTE).Create();
 

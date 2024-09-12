@@ -48,12 +48,14 @@ class ExpansionSupplyCrateSetup: ExpansionSupplyCrateSetupBase
 
 	void AddLoot(string name, TStringArray attachments = NULL, float chance = 1, int quantityPercent = -1, array<ref ExpansionLootVariant> variants = NULL, int max = -1, int min = 0)
 	{
-		TStringArray attachmentsTmp = {};
-		attachmentsTmp.Copy(attachments);
-		array<ref ExpansionLootVariant> attachmentLoot = {};
-		foreach (string attachment: attachmentsTmp)
+		array<ref ExpansionLootVariant> attachmentLoot;
+		if (attachments && attachments.Count())
 		{
-			attachmentLoot.Insert(new ExpansionLootVariant(attachment));
+			attachmentLoot = new array<ref ExpansionLootVariant>;
+			foreach (string attachment: attachments)
+			{
+				attachmentLoot.Insert(new ExpansionLootVariant(attachment));
+			}
 		}
 		ExpansionLoot loot = new ExpansionLoot(name, attachmentLoot, chance, quantityPercent, variants , max, min);
 		CrateLoot.Insert(loot);

@@ -34,24 +34,23 @@ class ActionInviteToGroup: ActionInteractBase
 		if (!targetPlayer.GetIdentity())
 			return false;
 		
-		bool hasTargetParty;
 		if (targetPlayer.Expansion_GetPartyID() > -1)
-			hasTargetParty = true;
-		
-		bool hasPlayerParty;
-		if (player.Expansion_GetPartyID() > -1)
-			hasPlayerParty = true;
+			return false;
 
-		return hasPlayerParty && !hasTargetParty;
+		return true;
 	}
 	
 	override void OnExecuteClient(ActionData action_data)
 	{
 		Object target = action_data.m_Target.GetParentOrObject();
 		PlayerBase targetPlayer = PlayerBase.Cast(target);
-		if (targetPlayer)
+		PlayerBase player = action_data.m_Player;
+		if (targetPlayer && player)
 		{
 			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
+			if (player.Expansion_GetPartyID() == -1)
+				partyModule.CreateRandomParty();
+			
 			string targetUID = targetPlayer.GetIdentity().GetId();
 			partyModule.InvitePlayer(targetUID);
 		}

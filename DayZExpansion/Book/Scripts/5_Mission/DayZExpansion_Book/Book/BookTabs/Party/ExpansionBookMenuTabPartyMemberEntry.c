@@ -13,14 +13,14 @@
 #ifdef EXPANSIONMODGROUPS
 class ExpansionBookMenuTabPartyMemberEntry: ExpansionScriptView
 {
-	ref ExpansionBookMenuTabPartyMemberEntryController m_EntryController;
-	ref ExpansionBookMenuTabParty m_PartyTab;
-	ref ExpansionPartyPlayerData m_Member;
-	ref ExpansionPartyModule m_PartyModule;
+	protected ref ExpansionBookMenuTabPartyMemberEntryController m_EntryController;
+	protected ref ExpansionBookMenuTabParty m_PartyTab;
+	protected ref ExpansionPartyPlayerData m_Member;
+	protected ref ExpansionPartyModule m_PartyModule;
 
-	private TextWidget member_entry_label;
-	private ImageWidget member_entry_icon;
-	private ButtonWidget member_entry_button;
+	protected TextWidget member_entry_label;
+	protected ImageWidget member_entry_icon;
+	protected ButtonWidget member_entry_button;
 	
 	bool m_MouseHover;
 
@@ -143,6 +143,11 @@ class ExpansionBookMenuTabPartyMemberEntry: ExpansionScriptView
 		}
 		
 		return super.OnMouseLeave(w, enterW, x, y);
+	}
+	
+	ExpansionPartyPlayerData GetMember()
+	{
+		return m_Member;
 	}
 };
 

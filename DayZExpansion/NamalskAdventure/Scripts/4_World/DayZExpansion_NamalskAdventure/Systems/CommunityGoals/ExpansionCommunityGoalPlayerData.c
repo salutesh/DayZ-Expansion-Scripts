@@ -17,7 +17,9 @@ class ExpansionCommunityGoalContribution
 
 	void OnSend(ParamsWriteContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		ctx.Write(GoalID);
 		ctx.Write(Points);
@@ -106,7 +108,9 @@ class ExpansionCommunityGoalPlayerData: ExpansionCommunityGoalPlayerDataBase
 
 	static ExpansionCommunityGoalPlayerData Load(string fileName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, null, "::ExpansionCommunityGoalPlayerData - Load");
+#endif
 
 		CF_Log.Info("[ExpansionCommunityGoalPlayerData] Load existing namalsk adventure community goal player data file:" + fileName);
 		ExpansionCommunityGoalPlayerDataBase dataBase;
@@ -134,21 +138,27 @@ class ExpansionCommunityGoalPlayerData: ExpansionCommunityGoalPlayerDataBase
 
 	void Save()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		ExpansionJsonFileParser<ExpansionCommunityGoalPlayerData>.Save(ExpansionCommunityGoalsModule.s_dataFolderPath + "contributors\\" + UID + ".json", this);
 	}
 
 	static void Save(ExpansionCommunityGoalPlayerData data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, null, "::ExpansionCommunityGoalPlayerData - Save");
+#endif 
 
 		ExpansionJsonFileParser<ExpansionCommunityGoalPlayerData>.Save(ExpansionCommunityGoalsModule.s_dataFolderPath + "contributors\\" + data.UID + ".json", data);
 	}
 
 	void OnSend(ParamsWriteContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		ctx.Write(Name);
 

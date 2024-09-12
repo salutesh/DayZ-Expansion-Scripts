@@ -330,6 +330,7 @@ class cfgWeapons
 		displayName = "$STR_EXPANSION_MP5A2";
 		descriptionShort = "$STR_EXPANSION_MP5A2_DESC";
 		model = "\DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\mp5a2.p3d";
+		PPDOFProperties[] = {0.4,0.75,40,180,4,10};
 		attachments[] = {"Expansion_MP5ScopeRail","weaponOptics","weaponMuzzleMP5","pistolMuzzle","weaponWrap"};
 		itemSize[] = {6,3};
 		class DamageSystem

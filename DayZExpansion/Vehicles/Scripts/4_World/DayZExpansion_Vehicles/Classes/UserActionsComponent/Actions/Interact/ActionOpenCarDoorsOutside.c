@@ -5,8 +5,8 @@ modded class ActionOpenCarDoorsOutside
 		if (!super.ActionCondition(player, target, item))
 			return false;
 
-		CarScript car;
-		if (Class.CastTo(car, target.GetParent()) && car.IsLocked())
+		auto vehicle = ExpansionVehicle.Get(target.GetParent());
+		if (vehicle && vehicle.IsLocked())
 			return false;
 
 		return true;

@@ -12,12 +12,10 @@
 
 modded class CarScript
 {
-	float m_Expansion_CrewKilledTimestamp;
-
 	override void DamageCrew(float dmg)
 	{
 		if (dmg > GameConstants.CARS_CONTACT_DMG_KILLCREW)
-			m_Expansion_CrewKilledTimestamp = GetGame().GetTickTime();
+			m_ExpansionVehicle.SetCrewKilledTimestamp(GetGame().GetTickTime());
 
 		super.DamageCrew(dmg);
 	}

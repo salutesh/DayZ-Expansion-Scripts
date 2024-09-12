@@ -57,6 +57,7 @@ class CfgVehicles
 {
 	class Inventory_Base;
 	class Container_Base;
+	class Transport;
 	class CarWheel: Inventory_Base
 	{
 		class DamageSystem
@@ -318,7 +319,7 @@ class CfgVehicles
 		radius = 0.536;
 		width = 0.316;
 	};
-	class ExpansionVehicleBase: Inventory_Base
+	class ExpansionVehicleBase: Transport
 	{
 		scope = 0;
 		vehicleClass = "Expansion_Vehicle";

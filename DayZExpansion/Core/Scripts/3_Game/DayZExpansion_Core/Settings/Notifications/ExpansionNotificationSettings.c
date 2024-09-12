@@ -21,7 +21,6 @@ class ExpansionNotificationSettingsBase: ExpansionSettingBase
 	bool ShowPlayerLeftServer;
 	ExpansionAnnouncementType LeftMessageType;
 
-#ifdef EXPANSIONMODMISSIONS
 	bool ShowAirdropStarted;
 	bool ShowAirdropClosingOn;
 	bool ShowAirdropDropped;
@@ -30,19 +29,15 @@ class ExpansionNotificationSettingsBase: ExpansionSettingBase
 	bool ShowPlayerAirdropStarted;
 	bool ShowPlayerAirdropClosingOn;
 	bool ShowPlayerAirdropDropped;
-	
-#ifdef EXPANSION_MISSION_AI_ENABLE
+
+	#ifdef EXPANSION_MISSION_AI_ENABLE
 	bool ShowAIMissionStarted;
 	bool ShowAIMissionAction;
 	bool ShowAIMissionEnded;
-#endif
-#endif
+	#endif
 
-#ifdef EXPANSIONMODBASEBUILDING
 	bool ShowTerritoryNotifications;				//! Show the notifications when entering or leaving territory.
-#endif
 
-#ifdef EXPANSIONMODKILLFEED
 	bool EnableKillFeed;
 	ExpansionAnnouncementType KillFeedMessageType;
 	bool KillFeedFall;
@@ -50,20 +45,20 @@ class ExpansionNotificationSettingsBase: ExpansionSettingBase
 	bool KillFeedCarHitNoDriver;
 	bool KillFeedCarCrash;
 	bool KillFeedCarCrashCrew;
-	#ifdef EXPANSIONMODVEHICLE
-		bool KillFeedHeliHitDriver;
-		bool KillFeedHeliHitNoDriver;
-		bool KillFeedHeliCrash;
-		bool KillFeedHeliCrashCrew;
-		bool KillFeedBoatHitDriver;
-		bool KillFeedBoatHitNoDriver;
-		bool KillFeedBoatCrash;
-		bool KillFeedBoatCrashCrew;
-		/*bool KillFeedPlaneHitDriver;
-		bool KillFeedPlaneHitNoDriver;
-		bool KillFeedBikeHitDriver;
-		bool KillFeedBikeHitNoDriver;*/
-	#endif
+	
+	bool KillFeedHeliHitDriver;
+	bool KillFeedHeliHitNoDriver;
+	bool KillFeedHeliCrash;
+	bool KillFeedHeliCrashCrew;
+	bool KillFeedBoatHitDriver;
+	bool KillFeedBoatHitNoDriver;
+	bool KillFeedBoatCrash;
+	bool KillFeedBoatCrashCrew;
+	/*bool KillFeedPlaneHitDriver;
+	bool KillFeedPlaneHitNoDriver;
+	bool KillFeedBikeHitDriver;
+	bool KillFeedBikeHitNoDriver;*/
+
 	bool KillFeedBarbedWire;
 	bool KillFeedFire;
 	bool KillFeedWeaponExplosion;
@@ -77,12 +72,11 @@ class ExpansionNotificationSettingsBase: ExpansionSettingBase
 	bool KillFeedBarehands;
 	bool KillFeedInfected;
 	bool KillFeedAnimal;
+	bool KillFeedAI;
 	bool KillFeedKilledUnknown;
 	bool KillFeedDiedUnknown;
-	#ifdef JM_COT
-		bool EnableKillFeedDiscordMsg;
-	#endif
-#endif
+
+	bool EnableKillFeedDiscordMsg;
 }
 
 /**@class		ExpansionNotificationSettings
@@ -90,15 +84,13 @@ class ExpansionNotificationSettingsBase: ExpansionSettingBase
  **/
 class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 {	
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 	
-#ifdef EXPANSIONMODKILLFEED
 	//! These are not implemented, uncomment once done
 	//bool ShowVictimOnKillFeed;
 	//bool ShowDistanceOnKillFeed;
 	//bool ShowKillerOnKillFeed;
 	//bool ShowWeaponOnKillFeed;
-#endif
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -171,13 +163,11 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionNotificationSettings s )
 	{
-#ifdef EXPANSIONMODKILLFEED
 		//! These are not implemented, uncomment once done
 		//ShowDistanceOnKillFeed = s.ShowDistanceOnKillFeed;
 		//ShowVictimOnKillFeed = s.ShowVictimOnKillFeed;
 		//ShowKillerOnKillFeed = s.ShowKillerOnKillFeed;
 		//ShowWeaponOnKillFeed = s.ShowWeaponOnKillFeed;
-#endif
 		
 		ExpansionNotificationSettingsBase sb = s;
 		CopyInternal( sb );
@@ -192,7 +182,6 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 		ShowPlayerLeftServer = s.ShowPlayerLeftServer;
 		LeftMessageType = s.LeftMessageType;
 
-#ifdef EXPANSIONMODMISSIONS
 		ShowAirdropStarted = s.ShowAirdropStarted;
 		ShowAirdropClosingOn = s.ShowAirdropClosingOn;
 		ShowAirdropDropped = s.ShowAirdropDropped;
@@ -200,13 +189,9 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 		ShowPlayerAirdropStarted = s.ShowPlayerAirdropStarted;
 		ShowPlayerAirdropClosingOn = s.ShowPlayerAirdropClosingOn;
 		ShowPlayerAirdropDropped = s.ShowPlayerAirdropDropped;
-#endif
 
-#ifdef EXPANSIONMODBASEBUILDING
 		ShowTerritoryNotifications = s.ShowTerritoryNotifications;
-#endif
 
-#ifdef EXPANSIONMODKILLFEED
 		EnableKillFeed = s.EnableKillFeed;
 		KillFeedMessageType = s.KillFeedMessageType;
 		KillFeedFall = s.KillFeedFall;
@@ -214,7 +199,6 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 		KillFeedCarHitNoDriver = s.KillFeedCarHitNoDriver;
 		KillFeedCarCrash = s.KillFeedCarCrash;
 		KillFeedCarCrashCrew = s.KillFeedCarCrashCrew;
-#ifdef EXPANSIONMODVEHICLE
 		KillFeedHeliHitDriver = s.KillFeedHeliHitDriver;
 		KillFeedHeliHitNoDriver = s.KillFeedHeliHitNoDriver;
 		KillFeedHeliCrash = s.KillFeedHeliCrash;
@@ -227,7 +211,6 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 		KillFeedPlaneHitNoDriver = s.KillFeedPlaneHitNoDriver;
 		KillFeedBikeHitDriver = s.KillFeedBikeHitDriver;
 		KillFeedBikeHitNoDriver = s.KillFeedBikeHitNoDriver;*/
-#endif
 		KillFeedBarbedWire = s.KillFeedBarbedWire;
 		KillFeedFire = s.KillFeedFire;
 		KillFeedWeaponExplosion = s.KillFeedWeaponExplosion;
@@ -241,12 +224,10 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 		KillFeedBarehands = s.KillFeedBarehands;
 		KillFeedInfected = s.KillFeedInfected;
 		KillFeedAnimal = s.KillFeedAnimal;
+		KillFeedAI = s.KillFeedAI;
 		KillFeedKilledUnknown = s.KillFeedKilledUnknown;
 		KillFeedDiedUnknown = s.KillFeedDiedUnknown;
-#ifdef JM_COT
 		EnableKillFeedDiscordMsg = s.EnableKillFeedDiscordMsg;
-#endif
-#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -264,10 +245,6 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
-#endif
-
 		m_IsLoaded = true;
 
 		bool save;
@@ -298,20 +275,21 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
 
-#ifdef EXPANSIONMODKILLFEED
-#ifdef EXPANSIONMODVEHICLE
 				if (settingsBase.m_Version < 3)
 				{
 					KillFeedBoatHitDriver = settingsDefault.KillFeedBoatHitDriver;
 					KillFeedBoatHitNoDriver = settingsDefault.KillFeedBoatHitNoDriver;
 				}
-#endif
 
 				if (settingsBase.m_Version < 4)
 				{
 					KillFeedStatusEffects = settingsDefault.KillFeedStatusEffects;
 				}
-#endif
+
+				if (settingsBase.m_Version < 5)
+				{
+					KillFeedAI = settingsDefault.KillFeedAI;
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -364,7 +342,6 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 		ShowPlayerLeftServer = true;
 		LeftMessageType = ExpansionAnnouncementType.NOTIFICATION;
 
-#ifdef EXPANSIONMODMISSIONS
 		ShowAirdropStarted = true;
 		ShowAirdropClosingOn = true;
 		ShowAirdropDropped = true;
@@ -372,13 +349,9 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 		ShowPlayerAirdropStarted = true;
 		ShowPlayerAirdropClosingOn = true;
 		ShowPlayerAirdropDropped = true;
-#endif
 
-#ifdef EXPANSIONMODBASEBUILDING
 		ShowTerritoryNotifications = true;
-#endif
 
-#ifdef EXPANSIONMODKILLFEED
 		EnableKillFeed = true;
 		KillFeedMessageType = ExpansionAnnouncementType.NOTIFICATION;
 
@@ -393,7 +366,6 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 		KillFeedCarHitNoDriver = true;
 		KillFeedCarCrash = true;
 		KillFeedCarCrashCrew = true;
-#ifdef EXPANSIONMODVEHICLE
 		KillFeedHeliHitDriver = true;
 		KillFeedHeliHitNoDriver = true;
 		KillFeedHeliCrash = true;
@@ -406,7 +378,6 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 		KillFeedPlaneHitNoDriver = true;
 		KillFeedBikeHitDriver = true;
 		KillFeedBikeHitNoDriver = true;*/
-#endif
 		KillFeedBarbedWire = true;
 		KillFeedFire = true;
 		KillFeedWeaponExplosion = true;
@@ -420,13 +391,11 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 		KillFeedBarehands = true;
 		KillFeedInfected = true;
 		KillFeedAnimal = true;
+		KillFeedAI = true;
 		KillFeedKilledUnknown = true;
 		KillFeedDiedUnknown = true;
 
-#ifdef JM_COT
 		EnableKillFeedDiscordMsg = false;
-#endif
-#endif
 	}
 	
 	// ------------------------------------------------------------	

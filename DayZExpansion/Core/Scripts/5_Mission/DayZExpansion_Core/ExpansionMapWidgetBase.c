@@ -243,7 +243,7 @@ class ExpansionMapWidgetBase: ScriptedWidgetEventHandler
 		if (!m_CurrentExpansionIcon)
 			return;
 
-		m_Icon.LoadImageFile(0, m_CurrentExpansionIcon.Path);
+		m_Icon.LoadImageFile(0, m_CurrentExpansionIcon.IconPath);
 	}
 
 	void SetIcon(string icon)

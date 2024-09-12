@@ -22,12 +22,12 @@ class ExpansionDialog_CreateParty: ExpansionScriptView
 	protected ButtonWidget button_cancel_button;
 	protected TextWidget button_cancel_text; 
 	
-	ref ExpansionBookMenuTabParty m_PartyTab;
-	ref ExpansionPartyModule m_PartyModule;
-	ref ExpansionDialog_CreatePartyController m_DialogController;
+	protected ref ExpansionBookMenuTabParty m_PartyTab;
+	protected ref ExpansionPartyModule m_PartyModule;
+	protected ref ExpansionDialog_CreatePartyController m_DialogController;
 
 	void ExpansionDialog_CreateParty(ScriptView parentView)
-	{		
+	{
 		if (!Class.CastTo(m_PartyTab, parentView))
 			return;
 		
@@ -50,14 +50,14 @@ class ExpansionDialog_CreateParty: ExpansionScriptView
 	
 	override void OnShow()
 	{
-		super.OnShow();	
+		super.OnShow();
 		SwitchMovementLockState(true);
 	}
 	
 	override void OnHide()
 	{
 		SwitchMovementLockState(false);
-		super.OnHide();	
+		super.OnHide();
 	}
 	
 	protected void SwitchMovementLockState(bool lockMovement)
@@ -137,7 +137,7 @@ class ExpansionDialog_CreateParty: ExpansionScriptView
 			{
 				button_create_text.SetColor(ARGB(255,255,255,255));
 			}
-			else if (w == button_create_button)
+			else if (w == button_cancel_button)
 			{
 				button_cancel_text.SetColor(ARGB(255,255,255,255));
 			}
@@ -154,7 +154,7 @@ class ExpansionDialog_CreateParty: ExpansionScriptView
 			{
 				button_create_text.SetColor(ARGB(255,0,0,0));
 			}
-			else if (w == button_create_button)
+			else if (w == button_cancel_button)
 			{
 				button_cancel_text.SetColor(ARGB(255,0,0,0));
 			}

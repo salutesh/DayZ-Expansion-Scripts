@@ -15,65 +15,8 @@
  **/
 class ExpansionBlinkLight: ExpansionPointLight
 {
-	// ------------------------------------------------------------
-	// Constructor
-	// ------------------------------------------------------------
 	void ExpansionBlinkLight()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "ExpansionBlinkLight");
-#endif
-		
-		if (!GetGame().IsDedicatedServer())
-		{
-			SetEnabled(true);
-
-			m_Val = 0;
-		}
-	}
-
-	// ------------------------------------------------------------
-	// Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionBlinkLight()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "~ExpansionBlinkLight");
-#endif
-		
-	}
-
-	// ------------------------------------------------------------
-	// EOnFrame
-	// ------------------------------------------------------------
-	override void EOnFrame(IEntity other, float timeSlice)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "EOnFrame");
-#endif
-		
-		if (!GetGame().IsDedicatedServer())
-		{
-			if ( ExpansionGetEnabled() )
-			{
-				if (m_Val < 360)
-				{	
-					m_Val += 1;
-				}	
-				else
-				{
-					m_Val = 0;
-				}			
-	
-				if (m_Val < 180)
-				{
-					SetEnabled(true);
-				}
-				else
-				{
-					SetEnabled(false);
-				}
-			}
-		}
+		SetBlinkingSpeed(3.0);
 	}
 };

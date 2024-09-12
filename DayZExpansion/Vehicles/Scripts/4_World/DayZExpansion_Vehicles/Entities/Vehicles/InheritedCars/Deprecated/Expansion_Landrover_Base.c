@@ -163,6 +163,32 @@ class Expansion_Landrover_Base: CarScript
 
 		return true;
 	}
+
+	override bool CanDisplayAttachmentCategory( string category_name )
+	{
+		if ( !super.CanDisplayAttachmentCategory( category_name ) )
+			return false;
+	
+		category_name.ToLower();		
+		if ( category_name.Contains("engine") )
+		{
+			if ( GetCarDoorsState("expansion_landrover_hood") == CarDoorState.DOORS_CLOSED )
+				return false;
+		}
+				
+		return true;
+	}
+	
+	override bool CanDisplayCargo()
+	{
+		if ( !super.CanDisplayCargo() )
+			return false;
+		
+		if ( GetCarDoorsState("expansion_landrover_trunk") == CarDoorState.DOORS_CLOSED )
+			return false;
+		
+		return true;
+	}
 	
 	override int GetCarDoorsState( string slotType )
 	{

@@ -60,16 +60,18 @@ class ExpansionActionClose: ActionInteractBase
 	
 	override void OnStartServer( ActionData action_data )
 	{
-		if ( !m_Target )
-			return;
+		ItemBase tgtItem;
+		if ( !Class.CastTo( tgtItem, action_data.m_Target.GetObject() ) )
+			if ( !Class.CastTo( tgtItem, action_data.m_Target.GetParent() ) )
+				return;
 
-		string selection = m_Target.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
+		string selection = tgtItem.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
 
 		//! If CodelockActionsAnywhere is ON, then "Close and lock" will be provided by ExpansionActionEnterCodeLock
 		//! If it is OFF, then it will be provided by this action
-		if ( m_Target && m_Target.HasCode() && !GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
-			m_Target.CloseAndLock( selection );
+		if ( tgtItem && tgtItem.HasCode() && !GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
+			tgtItem.CloseAndLock( selection );
 		else
-			m_Target.Close( selection );
+			tgtItem.Expansion_Close( selection );
 	}
 }

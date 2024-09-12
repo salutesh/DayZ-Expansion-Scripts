@@ -79,10 +79,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
-	#endif
-
 		ExpansionQuestSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
@@ -101,20 +97,12 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 	override void OnSend( ParamsWriteContext ctx )
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
-	#endif
-
 		ExpansionQuestSettings thisSetting = this;
 		ctx.Write(thisSetting);
 	}
 
 	override int Send( PlayerIdentity identity )
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
-	#endif
-
 		if (!IsMissionHost())
 		{
 			return 0;
@@ -129,10 +117,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 	override bool Copy( ExpansionSettingBase setting )
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Copy").Add(setting);
-	#endif
-
 		ExpansionQuestSettings s;
 		if (!Class.CastTo(s, setting))
 			return false;
@@ -143,10 +127,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 	protected void CopyInternal( ExpansionQuestSettingsBase s )
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-	#endif
-
 		EnableQuests = s.EnableQuests;
 		EnableQuestLogTab = s.EnableQuestLogTab;
 		CreateQuestNPCMarkers = s.CreateQuestNPCMarkers;
@@ -184,10 +164,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 	protected void CopyInternal( ExpansionQuestSettings s )
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-	#endif
-
 		AchievementCompletedTitle = s.AchievementCompletedTitle;
 		AchievementCompletedText = s.AchievementCompletedText;
 
@@ -216,8 +192,9 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 	override bool OnLoad()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.SETTINGS, this);
-
+#endif
 		m_IsLoaded = true;
 
 		bool save;
@@ -302,10 +279,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 	override bool OnSave()
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnSave");
-	#endif
-
 		ExpansionJsonFileParser<ExpansionQuestSettings>.Save(EXPANSION_QUEST_SETTINGS, this);
 
 		return true;
@@ -313,10 +286,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 	override void Update( ExpansionSettingBase setting )
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Update").Add(setting);
-	#endif
-
 		super.Update( setting );
 
 		ExpansionSettings.SI_Quest.Invoke();

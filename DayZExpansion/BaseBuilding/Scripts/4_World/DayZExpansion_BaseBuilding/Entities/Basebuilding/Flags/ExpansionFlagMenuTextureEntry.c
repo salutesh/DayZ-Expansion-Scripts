@@ -46,7 +46,7 @@ class ExpansionFlagMenuTextureEntry: ScriptedWidgetEventHandler
 
 	void SetEntry()
 	{
-		m_Icon.LoadImageFile( 0, GetTextureData().Path );
+		m_Icon.LoadImageFile( 0, GetTextureData().TexturePath );
 		m_Icon.Show( true );
 
 		m_NameText = GetTextureData().Name;

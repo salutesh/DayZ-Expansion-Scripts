@@ -93,7 +93,13 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 			if (m_Quest.GetQuestConfig().IsGroupQuest() && victimPlayer.GetIdentity())
 			{
 				string victimPlayerUID = victimPlayer.GetIdentity().GetId();
-				if (ExpansionQuestModule.GetModuleInstance().IsGroupPlayer(m_Quest.GetGroupID(), victimPlayerUID))
+				
+				#ifdef EXPANSIONMODGROUPS
+				if (victimPlayer.Expansion_GetPartyID() == m_Quest.GetGroupID())
+					return;
+				#endif
+				
+				if (ExpansionQuestModule.GetModuleInstance().WasPlayerInGroup(victimPlayerUID, m_Quest.GetGroupID()))
 					return;
 			}
 		}
@@ -177,7 +183,9 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 	void SetCount(int count)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		m_Count = count;
 

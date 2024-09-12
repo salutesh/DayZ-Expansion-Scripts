@@ -6,8 +6,6 @@ class CfgPatches
 	{
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
-		units[] = {"ExpansionSafeLarge","ExpansionSafeMini","ExpansionSafeMedium","ExpansionSafeMediumPlacing"};
-		weapons[] = {};
 	};
 };
 class CfgVehicles

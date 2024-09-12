@@ -24,7 +24,7 @@ class ExpansionEntityHitHandler
 	{
 		if (m_Killed)
 		{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.QUESTS, this, m_Entity.ToString() + " is dead, ignoring hit");
 		#endif
 			return;
@@ -32,7 +32,7 @@ class ExpansionEntityHitHandler
 
 		if (m_Entity.GetHealth() == 0.0)
 		{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.QUESTS, this, m_Entity.ToString() + " killing blow");
 		#endif
 			m_Killed = true;

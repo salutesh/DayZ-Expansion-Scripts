@@ -507,7 +507,7 @@ class ExpansionAirdropPlane: House
 		#endif
 		Object obj = GetGame().CreateObjectEx(container, dropPosition, flags);
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 		GetGame().CreateObjectEx("ExpansionDebugRodBig", ExpansionStatic.GetSurfacePosition(dropPosition), ECE_NOLIFETIME);
 		#endif
 		

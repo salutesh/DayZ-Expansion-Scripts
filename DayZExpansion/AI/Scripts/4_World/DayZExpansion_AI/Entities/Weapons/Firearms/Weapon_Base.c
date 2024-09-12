@@ -67,12 +67,21 @@ modded class Weapon_Base
 			}
 		}
 
-#ifdef DIAG
-		if (!EXTrace.AI)
-			return;
-
 		eAIBase ai;
 		if (!Class.CastTo(ai, GetHierarchyRootPlayer()) || !ai.GetTarget()) return;
+
+		typename type = ai.GetTarget().info.Type();
+
+#ifdef DIAG_DEVELOPER
+		if (EXTrace.AI && ai.m_eAI_LastEngagedTargetType != type)
+			EXTrace.Print(true, this, "Last engaged target type " + type);
+#endif
+
+		ai.m_eAI_LastEngagedTargetType = type;
+
+#ifdef DIAG_DEVELOPER
+		if (!EXTrace.AI)
+			return;
 		
 		vector begin_point = ai.GetBonePositionWS(ai.GetBoneIndexByName("neck"));
 		vector direction = ai.GetWeaponAimDirection();
@@ -184,7 +193,9 @@ modded class Weapon_Base
 
 	override bool Expansion_TryTurningOnAnyLightsOrNVG(out float nightVisibility, PlayerBase player, bool skipNonNVG = false, bool skipNVG = false)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
+#endif
 
 		ItemOptics optic;
 		if (!skipNVG && Class.CastTo(optic, GetAttachedOptics()) && optic.GetCurrentNVType() != NVTypes.NONE)
@@ -229,7 +240,9 @@ modded class Weapon_Base
 
 	override bool Expansion_TryTurningOffAnyLightsOrNVG(PlayerBase player, bool skipNVG = false)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
+#endif
 
 		ActionTarget atrg;
 		ActionManagerClient mngr_client;
@@ -274,9 +287,11 @@ modded class Weapon_Base
 			float indirectHitRange = GetGame().ConfigGetFloat(CFG_AMMO + " " + projectile + " indirectHitRange");
 			float indirectHitRangeMultiplier = GetGame().ConfigGetFloat(CFG_AMMO + " " + projectile + " indirectHitRangeMultiplier");
 
-			minDist = indirectHitRange * indirectHitRangeMultiplier;
+			minDist = indirectHitRange;
+			if (indirectHitRangeMultiplier)
+				minDist *= indirectHitRangeMultiplier;
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.AI, this, projectile + " indirect hit range " + minDist);
 		#endif
 

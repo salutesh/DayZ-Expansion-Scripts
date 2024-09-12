@@ -26,8 +26,8 @@ modded class WeaponFSM
 			// It is simply being listed in the logs to identify how much the FSM state and weapon state still desyncs
 			// Which can be because of a myriad of causes, such as incorrectly set up transitions
 			// Or simply certain timings of certain actions or interrupts lined up perfectly, which can have repro rates such as 1/300
-			EXError.Info(this, string.Format("[wpnfsm] ValidateAndRepair Attempting to repair: %1 - %2 - %3 - state: %4 != weapon: %5",
-				weapon.GetDebugName(weapon), name, m_State, stateCondition, gunCondition));
+			EXError.Info(this, string.Format("[wpnfsm] ValidateAndRepair Attempting to repair: %1 (owner %2) - %3 - %4 - state: %5 != weapon: %6",
+				weapon.GetDebugName(weapon), weapon.GetHierarchyRootPlayer(), name, m_State, stateCondition, gunCondition));
 			
 			if (e1 && e2)
 				repairedState = ValidateAndRepairStateFinder(gunCondition, e1, e2, state);

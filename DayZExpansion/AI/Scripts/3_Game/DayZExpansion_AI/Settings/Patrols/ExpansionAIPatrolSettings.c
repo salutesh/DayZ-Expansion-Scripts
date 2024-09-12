@@ -17,20 +17,6 @@ class ExpansionAIPatrolSettingsBase: ExpansionSettingBase
 	float RespawnTime;				    // Time in seconds before the dead patrol will respawn. If set to -1, they won't respawn
 	float MinDistRadius;			    // If the player is closer than MinDistRadius from the spawn point, the patrol won't spawn
 	float MaxDistRadius;			    // Same but if the player is further away than MaxDistRadius, the bots won't spawn
-}
-
-class ExpansionAIPatrolSettingsV4
-{
-	ref array< ref ExpansionAICrashPatrol > EventCrashPatrol;
-	ref array< ref ExpansionAIPatrol > Patrol;
-}
-
-/**@class		ExpansionAIPatrolSettings
- * @brief		Spawn settings class
- **/
-class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
-{
-	static const int VERSION = 18;
 
 	float DespawnRadius;
 
@@ -41,9 +27,32 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 	float NoiseInvestigationDistanceLimit;
 	float DamageMultiplier;
 	float DamageReceivedMultiplier;
+}
+
+class ExpansionAIPatrolSettingsV4
+{
+	ref array< ref ExpansionAICrashPatrol > EventCrashPatrol;
+	ref array< ref ExpansionAIPatrol > Patrol;
+}
+
+class ExpansionAIPatrolSettingsV19
+{
+	ref array< ref ExpansionAIObjectPatrol_V19 > ObjectPatrols;
+	ref array< ref ExpansionAIPatrol_V19 > Patrols;
+}
+
+/**@class		ExpansionAIPatrolSettings
+ * @brief		Spawn settings class
+ **/
+class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
+{
+	static const int VERSION = 22;
 
 	ref array< ref ExpansionAIObjectPatrol > ObjectPatrols;
 	ref array< ref ExpansionAIPatrol > Patrols;
+
+	[NonSerialized()]
+	private ref TStringArray m_UniquePersistentPatrolNames;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -101,9 +110,15 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionAIPatrolSettings s )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
+		ExpansionArray<ExpansionAIObjectPatrol>.RefCopy(s.ObjectPatrols, ObjectPatrols);
+		ExpansionArray<ExpansionAIPatrol>.RefCopy(s.Patrols, Patrols);
+		
+		ExpansionAIPatrolSettingsBase sb = s;
+		CopyInternal( sb );
+	}
+
+	private void CopyInternal(  ExpansionAIPatrolSettingsBase s )
+	{
 		Enabled = s.Enabled;
 		RespawnTime = s.RespawnTime;
 		DespawnTime = s.DespawnTime;
@@ -116,8 +131,6 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 		NoiseInvestigationDistanceLimit = s.NoiseInvestigationDistanceLimit;
 		DamageMultiplier = s.DamageMultiplier;
 		DamageReceivedMultiplier = s.DamageReceivedMultiplier;
-		ExpansionArray<ExpansionAIObjectPatrol>.RefCopy(s.ObjectPatrols, ObjectPatrols);
-		ExpansionArray<ExpansionAIPatrol>.RefCopy(s.Patrols, Patrols);
 	}
 	
 	// ------------------------------------------------------------
@@ -143,33 +156,50 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 
 		bool save;
 
-		bool AIPatrolSettingsExist = FileExist(EXPANSION_AIPATROL_SETTINGS);
+		bool settingsExist = FileExist(EXPANSION_AIPATROL_SETTINGS);
 
-		if (AIPatrolSettingsExist)
+		if (settingsExist)
 		{
 			EXPrint("[ExpansionAIPatrolSettings] Load existing setting file:" + EXPANSION_AIPATROL_SETTINGS);
 
-			bool loadSuccessful;
-			if (ExpansionJsonFileParser<ExpansionAIPatrolSettings>.Load(EXPANSION_AIPATROL_SETTINGS, this))
-				loadSuccessful = true;
+			int version;
 
-			int version = m_Version;
-
-			if (!loadSuccessful)
+			//! Try loading settings base
+			ExpansionAIPatrolSettingsBase settingsBase;
+			if (!ExpansionJsonFileParser<ExpansionAIPatrolSettingsBase>.Load(EXPANSION_AIPATROL_SETTINGS, settingsBase))
 			{
 				//! Use defaults, but DON'T save them
 				Defaults();
 
 				version = VERSION;
 			}
-			else if (m_Version < VERSION)
+			else if (settingsBase.m_Version < 20)
 			{
-				EXPrint("[ExpansionAIPatrolSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_AIPATROL_SETTINGS + "\" to v" + VERSION);
+				CopyInternal(settingsBase);
+
+				version = settingsBase.m_Version;
+			}
+			//! Try loading full setttings
+			else if (!ExpansionJsonFileParser<ExpansionAIPatrolSettings>.Load(EXPANSION_AIPATROL_SETTINGS, this))
+			{
+				//! Use defaults, but DON'T save them
+				Defaults();
+
+				version = VERSION;
+			}
+			else
+			{
+				version = m_Version;
+			}
+
+			if (version < VERSION)
+			{
+				EXPrint("[ExpansionAIPatrolSettings] Load - Converting v" + version + " \"" + EXPANSION_AIPATROL_SETTINGS + "\" to v" + VERSION);
 
 				ExpansionAIPatrolSettings settingsDefault = new ExpansionAIPatrolSettings;
 				settingsDefault.Defaults();
 
-				if (m_Version < 5)
+				if (version < 5)
 				{
 					ExpansionAIPatrolSettingsV4 settingsV4 = new ExpansionAIPatrolSettingsV4;
 					ExpansionJsonFileParser<ExpansionAIPatrolSettingsV4>.Load(EXPANSION_AIPATROL_SETTINGS, settingsV4);
@@ -180,67 +210,103 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 					}
 					Patrols = settingsV4.Patrol;
 				}
+				else if (version < 20)
+				{
+					ExpansionAIPatrolSettingsV19 settingsV19;
+					if (ExpansionJsonFileParser<ExpansionAIPatrolSettingsV19>.Load(EXPANSION_AIPATROL_SETTINGS, settingsV19))
+					{
+						foreach (ExpansionAIObjectPatrol_V19 objPatrolV19: settingsV19.ObjectPatrols)
+						{
+							objPatrolV19.Loadout = objPatrolV19.LoadoutFile;
+							ObjectPatrols.Insert(objPatrolV19);
+						}
 
-				if (m_Version < 6)
+						foreach (ExpansionAIPatrol_V19 patrolV19: settingsV19.Patrols)
+						{
+							patrolV19.Loadout = patrolV19.LoadoutFile;
+							Patrols.Insert(patrolV19);
+						}
+					}
+				}
+
+				if (version < 6)
 					DespawnRadius = MaxDistRadius * 1.1;
 
-				if (m_Version < 8)
+				if (version < 8)
 				{
 					DespawnTime = settingsDefault.DespawnTime;
 					AccuracyMin = settingsDefault.AccuracyMin;
 					AccuracyMax = settingsDefault.AccuracyMax;
 				}
 
-				if (m_Version < 16)
+				if (version < 16)
 					NoiseInvestigationDistanceLimit = settingsDefault.NoiseInvestigationDistanceLimit;
 
-				if (m_Version < 17 && !DamageReceivedMultiplier)
+				if (version < 17 && !DamageReceivedMultiplier)
 					DamageReceivedMultiplier = settingsDefault.DamageReceivedMultiplier;
-
-				foreach (ExpansionAIPatrol patrol: Patrols)
-				{
-					if (m_Version < 2)
-					{
-						patrol.MinSpreadRadius = 1;
-						patrol.MaxSpreadRadius = 100;
-					}
-
-					if (m_Version < 4)
-						patrol.UpdateSettings();
-
-					if (m_Version < 6)
-					{
-						if (patrol.MaxDistRadius <= 0)
-							patrol.DespawnRadius = -2;
-						else
-							patrol.DespawnRadius = patrol.MaxDistRadius * 1.1;
-					}
-
-					if (m_Version < 7)
-						patrol.Formation = "RANDOM";
-
-					if (m_Version < 8)
-					{
-						patrol.DespawnTime = -1;
-						patrol.AccuracyMin = -1;
-						patrol.AccuracyMax = -1;
-					}
-
-					if (m_Version < 11)
-					{
-						patrol.ThreatDistanceLimit = -1.0;
-						patrol.DamageMultiplier = -1.0;
-					}
-
-					if (m_Version < 16)
-						patrol.NoiseInvestigationDistanceLimit = -1.0;
-
-					if (m_Version < 17 && !patrol.DamageReceivedMultiplier)
-						patrol.DamageReceivedMultiplier = -1.0;
-				}
 
 				m_Version = VERSION;
 				save = true;
+			}
+
+			m_UniquePersistentPatrolNames = {};
+
+			foreach (ExpansionAIPatrol patrol: Patrols)
+			{
+				if (version < 2)
+				{
+					patrol.MinSpreadRadius = 1;
+					patrol.MaxSpreadRadius = 100;
+				}
+
+				if (version < 4)
+					patrol.UpdateSettings();
+
+				if (version < 6)
+				{
+					if (patrol.MaxDistRadius <= 0)
+						patrol.DespawnRadius = -2;
+					else
+						patrol.DespawnRadius = patrol.MaxDistRadius * 1.1;
+				}
+
+				if (version < 7)
+					patrol.Formation = "RANDOM";
+
+				if (version < 8)
+				{
+					patrol.DespawnTime = -1;
+					patrol.AccuracyMin = -1;
+					patrol.AccuracyMax = -1;
+				}
+
+				if (version < 11)
+				{
+					patrol.ThreatDistanceLimit = -1.0;
+					patrol.DamageMultiplier = -1.0;
+				}
+
+				if (version < 16)
+					patrol.NoiseInvestigationDistanceLimit = -1.0;
+
+				if (version < 17 && !patrol.DamageReceivedMultiplier)
+					patrol.DamageReceivedMultiplier = -1.0;
+
+				if (version < 22 && !patrol.LootingBehaviour)
+					patrol.SetDefaultLootingBehaviour();
+
+				if (patrol.Persist)
+				{
+					if (patrol.Name && m_UniquePersistentPatrolNames.Find(patrol.Name) == -1)
+					{
+						m_UniquePersistentPatrolNames.Insert(patrol.Name);
+						patrol.GenerateBaseName();
+					}
+					else
+					{
+						EXError.Error(this, "Not an unique persistent patrol name: '" + patrol.Name + "'", {});
+					}
+				}
 			}
 		
 			ExpansionAIObjectPatrol policeCrashPatrol;
@@ -301,6 +367,9 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 				if (version < 17 && !objectPatrol.DamageReceivedMultiplier)
 					objectPatrol.DamageReceivedMultiplier = -1.0;
 
+				if (version < 22 && !objectPatrol.LootingBehaviour)
+					objectPatrol.SetDefaultLootingBehaviour();
+
 				if (!objectPatrol.ClassName)
 				{
 					EXError.Warn(this, "Ignoring empty object patrol classname", {});
@@ -309,6 +378,12 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 				{
 					EXError.Warn(this, "Ignoring object patrol classname '" + objectPatrol.ClassName + "' because it is not registered for dynamic patrol spawning", {});
 				}
+
+				if (objectPatrol.Persist)
+				{
+					EXError.ErrorOnce(this, "Persistence is not supported for object patrols", {});
+					objectPatrol.Persist = false;
+				}
 			}
 
 			if (policeCrashPatrol)
@@ -316,7 +391,7 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 				TStringArray policeWrecks = {"Land_Wreck_sed01_aban2_police", "Land_Wreck_hb01_aban1_police", "Land_Wreck_hb01_aban2_police"};
 				foreach (string policeWreck: policeWrecks)
 				{
-					ObjectPatrols.Insert(new ExpansionAIObjectPatrol(policeCrashPatrol.NumberOfAI, policeCrashPatrol.Speed, policeCrashPatrol.UnderThreatSpeed, policeCrashPatrol.Behaviour, policeCrashPatrol.Faction, policeCrashPatrol.LoadoutFile, policeCrashPatrol.CanBeLooted, policeCrashPatrol.UnlimitedReload, policeCrashPatrol.Chance, policeCrashPatrol.MinDistRadius, policeCrashPatrol.MaxDistRadius, policeWreck));
+					ObjectPatrols.Insert(new ExpansionAIObjectPatrol(policeCrashPatrol.NumberOfAI, policeCrashPatrol.Speed, policeCrashPatrol.UnderThreatSpeed, policeCrashPatrol.Behaviour, policeCrashPatrol.Faction, policeCrashPatrol.Loadout, policeCrashPatrol.CanBeLooted, policeCrashPatrol.UnlimitedReload, policeCrashPatrol.Chance, policeCrashPatrol.MinDistRadius, policeCrashPatrol.MaxDistRadius, policeWreck));
 				}
 			}
 		}
@@ -330,7 +405,7 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 		if (save)
 			Save();
 		
-		return AIPatrolSettingsExist;
+		return settingsExist;
 	}
 
 	// ------------------------------------------------------------
@@ -358,7 +433,7 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
         Enabled = true;
         RespawnTime = -1;
         DespawnTime = 600;
-        #ifdef DIAG
+        #ifdef DIAG_DEVELOPER
         MinDistRadius = 1;
         #else
         MinDistRadius = 400;
@@ -446,8 +521,6 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
                 Patrols.Insert( new ExpansionAIPatrol(1,	"WALK", "SPRINT",     "ALTERNATE",	"Raiders",	"", true, false, 1.0, -1, -1, -2, -100,  		{"10545.687500 38.037155 10384.205078", "10502.615234 40.377762 10464.754883", "10700.634766 34.346542 10461.470703", "10645.350586 36.451836 10377.769531"}));
                 Patrols.Insert( new ExpansionAIPatrol(1,	"WALK", "SPRINT",     "ALTERNATE",     "Raiders",    "", true, false, 1.0, -1, -1, -2, -100, 		{"8588.209961 103.304726 13439.002930", "8578.585938 106.485222 13465.281250", "8605.717773 112.455276 13521.625977", "8640.509766 120.118225 13590.360352", "8641.976563 127.327774 13644.069336", "8643.523438 123.581627 13609.848633", "8724.077148 121.008499 13532.352539", "8792.484375 119.344810 13479.867188", "8843.358398 122.085854 13469.464844", "8881.161133 121.293594 13413.066406", "8837.004883 121.072372 13470.006836", "8742.039063 121.246811 13516.587891", "8704.238281 119.762787 13546.516602", "8609.144531 113.184517 13527.601563", "8573.016602 112.247055 13530.662109", "8563.083984 118.173904 13576.212891", "8500.525391 135.590210 13653.769531", "8456.375000 139.365845 13677.127930", "8546.610352 126.129440 13615.544922", "8566.747070 116.355377 13563.688477", "8573.123047 112.562714 13532.739258", "8563.700195 107.298088 13476.465820", "8586.047852 103.664093 13442.43557"}));
                 Patrols.Insert( new ExpansionAIPatrol(-3,	"WALK", "SPRINT",     "ALTERNATE",  "Civilian",     "", true, false, 1.0, -1, -1, -2, -100,  	{"9963.346680 55.640099 10900.844727", "9965.398438 54.729034 10969.536133", "9924.380859 57.232151 10901.967773"}));
-                Patrols.Insert( new ExpansionAIPatrol(-3,	"WALK", "SPRINT",     "ALTERNATE",     "East",     	"", true, false, 1.0, -1, -1, -2, -100,	{"1583.58 292.804 2961", "1600.84 294.292 3006", "1631.44 295.408 3029", "1652.89 297.99 3079.6", "1685.63 297.555 3080"}));
-                Patrols.Insert( new ExpansionAIPatrol(-3,	"WALK", "SPRINT",     "ALTERNATE",    	"East",     	"", true, false, 1.0, -1, -1, -2, -100, {"1824.94 294.066 3075", "1884.95 293.222 3047", "1846.69 289.888 2996", "1812.78 290.333 3001", "1796.65 287.975 2990"}));
             break;
             case "deerisle":
                 Patrols.Insert(new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, false, 1.0, -1, -1, -2, -100, {"2614.28 35.1122 3482.59", "2637.89 34.7324 3502.45", "2649.33 33.0476 3525.77", "2705.26 22.8186 3574.8", "2707.79 22.4635 3585.09", "2752.8 22.4625 3629.68", "2823.14 22.4625 3699.33", "2918.73 22.7593 3797.69", "2923.53 22.4625 3810.79", "2973.94 22.4625 3883.61", "3003.54 22.4625 3948.92", "3007.75 22.7279 3989.39", "3025.54 22.7257 4031.3", "3053.0 22.4625 4058.19", "3126.36 22.7551 4233.04", "3112.06 22.723 4235.07"}));

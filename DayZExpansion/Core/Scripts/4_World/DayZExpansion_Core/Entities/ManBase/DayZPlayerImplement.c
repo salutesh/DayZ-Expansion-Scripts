@@ -12,6 +12,8 @@
 
 modded class DayZPlayerImplement
 {
+	static bool s_Expansion_DebugObjects_Enabled;
+
 	ref ExpansionHumanST m_ExpansionST;
 
 	protected bool m_Expansion_CanBeLooted = true;
@@ -43,10 +45,18 @@ modded class DayZPlayerImplement
 
 	int m_Expansion_CurrentPhxInteractionLayer;
 
+	float m_Expansion_ActualVelocityUpdateDT;
+	vector m_Expansion_PreviousPosition;
+	vector m_Expansion_ActualVelocity;
+
 	ref map<int, Object> m_Expansion_DebugObjects = new map<int, Object>();
+
+	ref SHumanCommandClimbResult m_ExClimbResult;
 
 	void DayZPlayerImplement()
 	{
+		m_ExClimbResult = new SHumanCommandClimbResult;
+
 		Expansion_Init();
 	}
 
@@ -237,7 +247,7 @@ modded class DayZPlayerImplement
 
 	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
 	{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		int interactionLayer = dBodyGetInteractionLayer(this);
 #endif
 
@@ -246,13 +256,71 @@ modded class DayZPlayerImplement
 		if (m_Expansion_EnableBonePositionUpdate)
 			Expansion_UpdateBonePositionTimes(pDt);
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		if (interactionLayer != m_Expansion_CurrentPhxInteractionLayer)
 		{
 			m_Expansion_CurrentPhxInteractionLayer = interactionLayer;
 			EXTrace.Print(EXTrace.PLAYER, this, "::CommandHandler current interaction layer " + ExpansionStatic.BitmaskEnumToString(PhxInteractionLayers, interactionLayer));
 		}
 #endif
+
+		Expansion_UpdateActualVelocity(pDt);
+	}
+
+	override void OnSyncJuncture(int pJunctureID, ParamsReadContext pCtx)
+	{
+#ifdef EXTRACE_DIAG
+		CF_Trace trace;
+#endif
+
+		super.OnSyncJuncture(pJunctureID, pCtx);
+
+		switch (pJunctureID)
+		{
+		case DayZPlayerSyncJunctures.EXPANSION_SJ:
+#ifdef EXTRACE_DIAG
+			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_SJ");
+#endif
+			int id;
+			pCtx.Read(id);
+			Expansion_OnSyncJuncture(id, pCtx);
+			break;
+		}
+	}
+	
+	void Expansion_OnSyncJuncture(int pJunctureID, ParamsReadContext pCtx)
+	{
+	}
+	
+	void Expansion_UpdateActualVelocity(float pDt)
+	{
+		vector position = GetPosition();
+
+		if (m_Expansion_PreviousPosition == vector.Zero)
+			m_Expansion_PreviousPosition = position;
+
+		m_Expansion_ActualVelocityUpdateDT += pDt;
+
+		if (m_Expansion_ActualVelocityUpdateDT < 0.333333)
+			return;
+
+		m_Expansion_ActualVelocity = (position - m_Expansion_PreviousPosition) * (1.0 / m_Expansion_ActualVelocityUpdateDT);
+
+		m_Expansion_ActualVelocityUpdateDT = 0.0;
+
+		m_Expansion_PreviousPosition = position;
+	}
+
+	/**
+	 * @brief return actual velocity of player
+	 * 
+	 * @note vanilla GetVelocity does not return actual velocity in case player is stuck
+	 * (actual velocity will be close to zero, while GetVelocity will return a wrong, much higher value,
+	 * probably because it only takes the animation into account and not whether the player is actually moving from the position)
+	 */
+	vector Expansion_GetActualVelocity()
+	{
+		return m_Expansion_ActualVelocity;
 	}
 
 	vector Expansion_GetHeadingVector()
@@ -278,16 +346,44 @@ modded class DayZPlayerImplement
 		return 0.0;
 	}
 
+	/**
+	 * @brief return entity player is parented to (e.g. if sitting in or attached to vehicle)
+	 */
+	IEntity Expansion_GetParent()
+	{
+		IEntity parent = GetParent();
+
+	#ifndef DAYZ_1_25
+		if (!parent)
+			parent = PhysicsGetLinkedEntity();
+	#endif
+
+		return parent;
+	}
+
+#ifndef DAYZ_1_25
+	bool Expansion_IsAttached()
+	{
+		if (PhysicsGetLinkedEntity())
+			return true;
+
+		return false;
+	}
+#endif
+
 	void Expansion_DebugObject_Deferred(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero, float lifetime = 300.0, int flags = 0)
 	{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_DebugObject, 1, false, i, position, type, direction, origin, lifetime, flags);
 #endif
 	}
 
 	void Expansion_DebugObject(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero, float lifetime = 300.0, int flags = 0)
 	{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
+		if (!s_Expansion_DebugObjects_Enabled)
+			return;
+
 		Object obj = m_Expansion_DebugObjects[i];
 
 		bool createObject;
@@ -402,7 +498,7 @@ modded class DayZPlayerImplement
 		}
 
 #ifdef SERVER
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		vector neckPosition = GetBonePositionWS(GetBoneIndexByName("neck"));
 		//Expansion_DebugObject(0, neckPosition, "ExpansionDebugSphereSmall_Red", dir);
 		Expansion_DebugObject(1, neckPosition + dir, "ExpansionDebugSphereSmall_Blue", dir, neckPosition);

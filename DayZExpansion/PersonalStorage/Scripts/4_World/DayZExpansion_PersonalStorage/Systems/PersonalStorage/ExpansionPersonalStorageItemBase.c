@@ -320,12 +320,8 @@ class ExpansionPersonalStorageItemBase
 				//! Skip attachments without cargo on vehicles
 				if (item.GetInventory().IsAttachment() && !MiscGameplayFunctions.Expansion_HasAnyCargo(item))
 				{
-					if (item.GetHierarchyParent().IsInherited(CarScript))
+					if (ExpansionVehicle.Get(item.GetHierarchyParent()))
 						continue;
-				#ifdef EXPANSIONMODVEHICLE
-					else if (item.GetHierarchyParent().IsInherited(ExpansionVehicleBase))
-						continue;
-				#endif
 				}
 
 				//! Hardcoded excluded type names where the item should never get added and shown in the menu.
@@ -368,4 +364,27 @@ class ExpansionPersonalStorageItemBase
 			}
 		}
 	}
+	
+	void CheckContainerItems(string fileName, out bool save)
+	{
+		if (m_ContainerItems && m_ContainerItems.Count())
+		{
+			for (int i = m_ContainerItems.Count() - 1; i >= 0; i--)
+			{
+				ExpansionPersonalStorageContainerItem containerItem = m_ContainerItems[i];
+				bool parentExists = true;
+				if (!ExpansionStatic.ItemExists(containerItem.GetClassName()))
+				{
+					PrintFormat("%1::CheckContainerItems - Delete personal storage container item %2 [Parent=%3] from personal storage file %4 as the associated item does not exist!", ToString(), containerItem.GetClassName(), m_ClassName, fileName);
+					parentExists = false;
+					m_ContainerItems.RemoveOrdered(i); //! Remove the container item entry.
+					if (!save)
+						save = true;
+				}
+				
+				if (parentExists)
+					containerItem.CheckContainerItems(fileName, save);
+			}
+		}
+	}	
 };

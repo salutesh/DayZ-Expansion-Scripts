@@ -50,7 +50,7 @@ modded class JMVehicleSpawnerSettings
 		//DefaultExpansion250N();
 		//DefaultExpansionOldBike();
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		DefaultVehicle_ExpansionMerlin();
 		DefaultVehicle_ExpansionMh6();
 		DefaultVehicle_ExpansionUh1h();

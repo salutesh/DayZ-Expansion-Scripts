@@ -13,10 +13,10 @@
 #ifdef EXPANSIONMODGROUPS
 class ExpansionDialog_LeaveParty: ExpansionDialogBookBase
 {
-	ref ExpansionDialogContent_Text m_Text;
-	ref ExpansionDialogButton_Text_PartyLeave_Accept m_AcceptButton;
-	ref ExpansionDialogButton_Text_PartyLeave_Cancel m_CancelButton;	
-	ref ExpansionBookMenuTabParty m_PartyTab;
+	protected ref ExpansionDialogContent_Text m_Text;
+	protected ref ExpansionDialogButton_Text_PartyLeave_Accept m_AcceptButton;
+	protected ref ExpansionDialogButton_Text_PartyLeave_Cancel m_CancelButton;	
+	protected ref ExpansionBookMenuTabParty m_PartyTab;
 		
 	void ExpansionDialog_LeaveParty(ExpansionScriptView parentView)
 	{

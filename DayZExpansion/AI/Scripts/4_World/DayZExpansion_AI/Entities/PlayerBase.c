@@ -32,6 +32,30 @@ modded class PlayerBase
 		return super.ModCommandHandlerInside(pDt, pCurrentCommandID, pCurrentCommandFinished);
 	}
 
+	override void OnCommandSwimStart()
+	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+#endif 
+
+		super.OnCommandSwimStart();
+
+		if (GetGame().IsServer() && GetGroup())
+			GetGroup().EnableSwimming(true);  //! Enable swimming for the whole group so they can follow the leader
+	}
+
+	override void OnCommandSwimFinish()
+	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+#endif 
+
+		super.OnCommandSwimFinish();
+
+		//if (GetGame().IsServer() && GetGroup())
+			//GetGroup().EnableSwimming(false);  //! Disable swimming for the whole group (unless they are currently swimming)
+	}
+
 	override void eAI_SetFactionTypeID(int id)
 	{
 		super.eAI_SetFactionTypeID(id);
@@ -49,14 +73,18 @@ modded class PlayerBase
 	 */
 	void eAI_ApplyFactionModifiers(eAIFaction faction)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI,this);
+#endif 
 
 		TIntArray modifiers = faction.GetModifiers();
 
 		if (!modifiers || !modifiers.Count())
 			return;
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, modifiers.Count());
+#endif 
 
 		m_eAI_FactionModifiers = {};
 
@@ -86,12 +114,16 @@ modded class PlayerBase
 	 */
 	void eAI_RemoveFactionModifiers()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI,this);
+#endif 
 
 		if (!m_eAI_FactionModifiers)
 			return;
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, m_eAI_FactionModifiers.Count());
+#endif 
 
 		foreach (int modifier: m_eAI_FactionModifiers)
 		{
@@ -109,5 +141,44 @@ modded class PlayerBase
 		}
 
 		m_eAI_FactionModifiers = null;
+	}
+
+	void Expansion_OnContaminatedAreaEnterServer(EffectArea area, EffectTrigger trigger)
+	{
+	}
+
+	void Expansion_OnContaminatedAreaExitServer(EffectArea area, EffectTrigger trigger)
+	{
+	}
+
+	/**
+	 * @brief Check if other player is considered a helper.
+	 * 
+	 * Currently, AI that are friendly towards the player as well as guards not actively threatened by the player are considered helpers.
+	 */
+	override bool Expansion_IsHelper(PlayerBase other, bool checkIfWeAreHelper = false)
+	{
+		if (super.Expansion_IsHelper(other, checkIfWeAreHelper))
+			return true;
+
+		eAIBase ai;
+		if (Class.CastTo(ai, other))
+		{
+			if (!ai.PlayerIsEnemy(this))
+				return true;
+
+			if (ai.GetGroup().GetFaction().IsGuard() && ai.eAI_GetTargetThreat(GetTargetInformation()) < 0.4)
+				return true;
+		}
+		else if (checkIfWeAreHelper && Class.CastTo(ai, this))
+		{
+			if (!ai.PlayerIsEnemy(other))
+				return true;
+
+			if (ai.GetGroup().GetFaction().IsGuard() && ai.eAI_GetTargetThreat(other.GetTargetInformation()) < 0.4)
+				return true;
+		}
+
+		return false;
 	}
 };

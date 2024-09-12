@@ -15,7 +15,7 @@
  **/
 class ExpansionPartySettings: ExpansionSettingBase
 {
-	static const int VERSION = 6;
+	static const int VERSION = 8;
 
 	bool EnableParties;	//! Enable party module, allow players to create parties
 	int MaxMembersInParty; //! If <= 0, unlimited party size
@@ -43,8 +43,14 @@ class ExpansionPartySettings: ExpansionSettingBase
 	//! Added with version 5
 	bool ShowHUDMemberDistance;
 	
-	//! Added with version 5
+	//! Added with version 6
 	bool ForcePartyToHaveTags;
+
+	//! Added with version 7
+	int InviteCooldown;
+
+	//! Added with version 8
+	bool DisplayPartyTag;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -138,6 +144,8 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ShowHUDMemberDistance = s.ShowHUDMemberDistance;
 		
 		ForcePartyToHaveTags = s.ForcePartyToHaveTags;
+		InviteCooldown = s.InviteCooldown;
+		DisplayPartyTag = s.DisplayPartyTag;
 	}
 	
 	// ------------------------------------------------------------
@@ -205,6 +213,12 @@ class ExpansionPartySettings: ExpansionSettingBase
 					ForcePartyToHaveTags = settingsDefault.ForcePartyToHaveTags;
 				}
 
+				if (m_Version < 7)
+					InviteCooldown = settingsDefault.InviteCooldown;
+
+				if (m_Version < 8)
+					DisplayPartyTag = settingsDefault.DisplayPartyTag;				
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -270,6 +284,12 @@ class ExpansionPartySettings: ExpansionSettingBase
 
 		//! Added with version 6
 		ForcePartyToHaveTags = false;
+
+		//! Added with version 7
+		InviteCooldown = 0;
+
+		//! Added with version 8
+		DisplayPartyTag = true;
 	}
 	
 	// ------------------------------------------------------------

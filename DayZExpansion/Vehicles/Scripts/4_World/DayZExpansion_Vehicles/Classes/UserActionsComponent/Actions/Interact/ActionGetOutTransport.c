@@ -10,32 +10,36 @@
  *
 */
 
-modded class GetOutTransportActionData
-{
-	bool m_KeepInVehicleSpaceAfterLeave = false;
-};
-
 modded class ActionGetOutTransport
 {
+#ifdef DAYZ_1_25
 	override void ProcessGetOutActionData(Car car, GetOutTransportActionData got_action_data)
 	{
 		super.ProcessGetOutActionData(car, got_action_data);
 
+		auto vehicle = ExpansionVehicle.Get(car);
+#else
+	//! 1.26+
+	override void ProcessGetOutTransportActionData(Transport veh, GetOutTransportActionData got_action_data)
+	{
+		super.ProcessGetOutTransportActionData(veh, got_action_data);
+
+		auto vehicle = ExpansionVehicle.Get(veh);
+#endif
+
 		HumanCommandVehicle vehCommand = got_action_data.m_Player.GetCommand_Vehicle();
 
-		CarScript cs;
-		if (Class.CastTo(cs, car))
+		if (vehicle)
 		{
-			if ( cs.Expansion_CanObjectAttach(got_action_data.m_Player) && cs.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat()) )
+			if ( vehicle.CanObjectAttach(got_action_data.m_Player) && vehicle.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat()) )
 			{
 				got_action_data.m_WasJumpingOut = false;
-				got_action_data.m_KeepInVehicleSpaceAfterLeave = true;
 			}
 
 			// Should prevent a few issues related to towing and server crashes
-			if (cs.CrewMemberIndex(got_action_data.m_Player) == DayZPlayerConstants.VEHICLESEAT_DRIVER && cs.Expansion_IsTowing())
+			if (vehicle.CrewMemberIndex(got_action_data.m_Player) == DayZPlayerConstants.VEHICLESEAT_DRIVER && vehicle.IsTowing())
 			{
-				cs.Expansion_DestroyTow();
+				vehicle.DestroyTow();
 			}
 		}
 	}
@@ -61,7 +65,13 @@ modded class ActionGetOutTransport
 		auto got_action_data = GetOutTransportActionData.Cast(action_data);
 
 		CarScript cs;
-		if (Class.CastTo(cs, got_action_data.m_Car) && !cs.IsCar() && !cs.IsDuck())
+	#ifdef DAYZ_1_25
+		Class.CastTo(cs, got_action_data.m_Car);
+	#else
+		//! 1.26+
+		Class.CastTo(cs, got_action_data.m_Vehicle);
+	#endif
+		if (cs && !cs.Expansion_IsCar() && !cs.Expansion_IsDuck())
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(action_data.m_Player.GetInventory().UnlockInventory, 1500, false, LOCK_FROM_SCRIPT); //! Unlock after delay to fix hand desync bug
 		else
 			super.OnEnd(action_data);
@@ -71,19 +81,24 @@ modded class ActionGetOutTransport
 	{
 		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast(action_data);
 
-		CarScript cs;
+	#ifdef DAYZ_1_25
+		auto vehicle = ExpansionVehicle.Get(got_action_data.m_Car);
+	#else
+		//! 1.26+
+		auto vehicle = ExpansionVehicle.Get(got_action_data.m_Vehicle);
+	#endif
 
-		if (Class.CastTo(cs, got_action_data.m_Car))
+		if (vehicle)
 		{
-			if (cs.Expansion_IsHelicopter())
-				cs.SetHasPilot(false);  //! So we are able to detect if pilot got disconnected or got out on own accord
+			if (vehicle.IsHelicopter())
+				vehicle.SetHasPilot(false);  //! So we are able to detect if pilot got disconnected or got out on own accord
 		}
 
 		super.OnEndServer(action_data);
 
-		if (cs && action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleLeave)
+		if (vehicle && action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleLeave)
 		{
-			GetExpansionSettings().GetLog().PrintLog("[VehicleLeave] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] left vehicle " + cs.GetDisplayName() + " (id=" + ExpansionStatic.GetPersistentIDString(cs) + " pos=" + cs.GetPosition() + ")");
+			GetExpansionSettings().GetLog().PrintLog("[VehicleLeave] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] left vehicle " + vehicle.GetDisplayName() + " (id=" + vehicle.GetPersistentIDString() + " pos=" + vehicle.GetPosition() + ")");
 		}
 	}
 };

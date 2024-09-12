@@ -65,12 +65,12 @@ class ExpansionActionRepairVehicle: ExpansionActionRepairVehicleBase
 		if (!super.ActionCondition(player, target, item))
 			return false;
 
-		CarScript vehicle = CarScript.Cast( target.GetParentOrObject() );
+		auto vehicle = ExpansionVehicle.Get( target.GetParentOrObject() );
 
-		if (!vehicle || (!vehicle.IsHelicopter() && !vehicle.IsBoat()) || vehicle.IsDamageDestroyed())
+		if (!vehicle || (!vehicle.IsHelicopter() && !vehicle.IsBoat()) || vehicle.IsDestroyed())
 			return false;
 
-		if (vehicle.Expansion_EngineIsOn())
+		if (vehicle.EngineIsOn())
 			return false;
 
 		if (vehicle.GetHealthLevel() != GameConstants.STATE_PRISTINE)
@@ -79,8 +79,7 @@ class ExpansionActionRepairVehicle: ExpansionActionRepairVehicleBase
 		if (vehicle.GetHealthLevel("Engine") != GameConstants.STATE_PRISTINE)
 			return true;
 
-		ExpansionHelicopterScript heli;
-		if (Class.CastTo(heli, vehicle) && heli.Expansion_IsRotorDamaged())
+		if (vehicle.IsHelicopter() && vehicle.IsRotorDamaged())
 			return true;
 
 		return false;

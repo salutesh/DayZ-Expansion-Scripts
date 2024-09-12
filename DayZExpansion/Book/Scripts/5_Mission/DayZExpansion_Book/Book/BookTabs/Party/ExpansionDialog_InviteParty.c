@@ -13,10 +13,10 @@
 #ifdef EXPANSIONMODGROUPS
 class ExpansionDialog_InviteParty: ExpansionDialogBookBase
 {
-	ref ExpansionDialogContent_Text m_Text;
-	ref ExpansionDialogButton_Text_PartyInvite_Accept m_AcceptButton;
-	ref ExpansionDialogButton_Text_PartyInvite_Cancel m_CancelButton;	
-	ref ExpansionBookMenuTabParty m_PartyTab;
+	protected ref ExpansionDialogContent_Text m_Text;
+	protected ref ExpansionDialogButton_Text_PartyInvite_Accept m_AcceptButton;
+	protected ref ExpansionDialogButton_Text_PartyInvite_Cancel m_CancelButton;	
+	protected ref ExpansionBookMenuTabParty m_PartyTab;
 		
 	void ExpansionDialog_InviteParty(ExpansionScriptView parentView)
 	{

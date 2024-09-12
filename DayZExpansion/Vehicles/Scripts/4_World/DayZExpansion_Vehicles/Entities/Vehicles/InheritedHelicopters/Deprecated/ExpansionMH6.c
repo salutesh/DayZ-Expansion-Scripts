@@ -258,6 +258,32 @@ class ExpansionMh6 : ExpansionHelicopterScript
 		return super.GetDoorInvSlotNameFromSeatPos(posIdx);
 	}
 
+	override bool CanDisplayAttachmentCategory( string category_name )
+	{
+		if ( !super.CanDisplayAttachmentCategory( category_name ) )
+			return false;
+	
+		category_name.ToLower();		
+		if ( category_name.Contains("engine") )
+		{
+			if ( m_ExpansionVehicle.AllDoorsClosed() )
+				return false;
+		}
+				
+		return true;
+	}
+
+	override bool CanDisplayCargo()
+	{
+		if ( !super.CanDisplayCargo() )
+			return false;
+		
+		if ( m_ExpansionVehicle.AllDoorsClosed() )
+			return false;
+		
+		return true;
+	}
+
 	override int GetCarDoorsState(string slotType)
 	{
 #ifdef EXPANSIONTRACE
@@ -335,6 +361,8 @@ class ExpansionMh6 : ExpansionHelicopterScript
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachSeatFromSeat").Add(currentSeat).Add(nextSeat);
 #endif
 
+		//! DISABLED since we have no animations for switching seats that would put the player in the correct position
+/*
 		switch (currentSeat)
 		{
 		case 0:
@@ -354,6 +382,7 @@ class ExpansionMh6 : ExpansionHelicopterScript
 				return true;
 			break;
 		}
+*/
 
 		return false;
 	}

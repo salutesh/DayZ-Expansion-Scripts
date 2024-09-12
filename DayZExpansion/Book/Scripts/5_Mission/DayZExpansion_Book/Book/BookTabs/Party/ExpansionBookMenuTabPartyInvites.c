@@ -13,17 +13,17 @@
 #ifdef EXPANSIONMODGROUPS
 class ExpansionBookMenuTabPartyInvites: ExpansionBookMenuTabBase
 {
-	ref ExpansionBookMenuTabPartyInvitesController m_InvitesController;
-	ref ExpansionPartyInviteData m_Invite;
-	ref ExpansionPartyModule m_PartyModule;
+	protected ref ExpansionBookMenuTabPartyInvitesController m_InvitesController;
+	protected ref ExpansionPartyInviteData m_Invite;
+	protected ref ExpansionPartyModule m_PartyModule;
 	
-	private ButtonWidget option_accept_button;
-	private TextWidget option_accept_label;
-	private ButtonWidget option_decline_button;
-	private TextWidget option_decline_label;
-	private ButtonWidget option_cancel_button;
-	private TextWidget option_cancel_label;
-	private Widget invite_info_content_left;
+	protected ButtonWidget option_accept_button;
+	protected TextWidget option_accept_label;
+	protected ButtonWidget option_decline_button;
+	protected TextWidget option_decline_label;
+	protected ButtonWidget option_cancel_button;
+	protected TextWidget option_cancel_label;
+	protected Widget invite_info_content_left;
 	
 	void ExpansionBookMenuTabPartyInvites(ExpansionBookMenu book_menu)
 	{
@@ -53,7 +53,13 @@ class ExpansionBookMenuTabPartyInvites: ExpansionBookMenuTabBase
 	
 	override string GetTabName()
 	{
-		return "Party Invites";
+		if ( m_PartyModule.GetPartyInvites() )
+		{
+			int count = m_PartyModule.GetPartyInvites().Count();
+			if ( count > 0 )
+				return "#STR_EXPANSION_BOOK_TAB_PARTY_INVITES ("+count+")";
+		}
+		return "#STR_EXPANSION_BOOK_TAB_PARTY_INVITES";
 	}
 	
 	override int GetTabColor()

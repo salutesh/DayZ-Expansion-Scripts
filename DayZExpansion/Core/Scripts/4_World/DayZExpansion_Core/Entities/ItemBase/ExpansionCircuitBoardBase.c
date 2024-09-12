@@ -12,7 +12,7 @@
 
 class ExpansionCircuitBoardBase: ItemBase
 {
-	int GetTier()
+	int Expansion_GetTier()
 	{
 		return -1;
 	}
@@ -20,21 +20,21 @@ class ExpansionCircuitBoardBase: ItemBase
 
 class ExpansionCircuitBoard_MK1: ExpansionCircuitBoardBase
 {
-	override int GetTier()
+	override int Expansion_GetTier()
 	{
 		return 1;
 	}
 };
 class ExpansionCircuitBoard_MK2: ExpansionCircuitBoardBase
 {
-	override int GetTier()
+	override int Expansion_GetTier()
 	{
 		return 2;
 	}
 };
 class ExpansionCircuitBoard_MK3: ExpansionCircuitBoardBase
 {
-	override int GetTier()
+	override int Expansion_GetTier()
 	{
 		return 3;
 	}

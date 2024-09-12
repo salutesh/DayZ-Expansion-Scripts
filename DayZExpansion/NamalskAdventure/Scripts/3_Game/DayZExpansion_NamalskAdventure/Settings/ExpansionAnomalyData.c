@@ -58,7 +58,9 @@ class ExpansionAnomalyStatic: ExpansionAnomalyBase
 	
 	void ExpansionAnomalyStatic(array<string> anomalyTypes, vector center)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		AnomalyTypes = anomalyTypes;
 		CenterPosition = center;
@@ -66,7 +68,9 @@ class ExpansionAnomalyStatic: ExpansionAnomalyBase
 	
 	void SetLoot(array <ref ExpansionLoot> loot, int min, int max, ExpansionAnomalyLootSpawnType lootType)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		Loot = new array<ref ExpansionLoot>;
 		Loot = loot;
@@ -111,7 +115,9 @@ class ExpansionAnomalyDynamic: ExpansionAnomalyStatic
 	
 	void ExpansionAnomalyDynamic(array<string> anomalyTypes, vector center, float squareSize = 500, int amount = 1, ExpansionAnomalyPersistance persistance = ExpansionAnomalyPersistance.NONE)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		AnomalyTypes = anomalyTypes;
 		CenterPosition = center;
@@ -122,7 +128,9 @@ class ExpansionAnomalyDynamic: ExpansionAnomalyStatic
 	
 	void GeneratePositions(float distance)
     {
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
         m_Positions = new array<vector>;
         m_Positions = GeneratePositions(CenterPosition, SquareSize, Amount, distance);

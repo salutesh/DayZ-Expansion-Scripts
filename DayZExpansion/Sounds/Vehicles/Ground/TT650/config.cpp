@@ -15,7 +15,7 @@ class CfgVehicles
 	class ExpansionVehicleBikeBase;
 	class Vehicle_ExpansionTT650: ExpansionVehicleBikeBase
 	{
-		class Sounds
+		class ExpansionSounds
 		{
 			thrust = 0.6;
 			thrustTurbo = 1;

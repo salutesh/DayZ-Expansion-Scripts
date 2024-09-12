@@ -5,12 +5,9 @@
 
 //#define EAI_TRACE
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	#define EAI_DEBUG_TRANSITION
 	#define EAI_DEBUG_PATH
 	//#define EAI_DEBUG_MOVE
+	//#define EXPANSION_AI_DEBUG_UNREACHABLE
 #endif
-
-//! Disable AI attachment until server CTD when attaching is fixed
-#define EXPANSION_DISABLE_AI_ATTACHMENT
-

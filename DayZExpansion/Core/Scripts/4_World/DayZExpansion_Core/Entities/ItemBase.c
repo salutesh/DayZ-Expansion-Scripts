@@ -33,7 +33,6 @@ modded class ItemBase
 
 	bool m_Expansion_AcceptingAttachment;
 	bool m_Expansion_CanPlayerAttach;
-	bool m_Expansion_CanPlayerAttachSet;
 
 	bool m_Expansion_IsAdminTool;
 	bool m_Expansion_IsMeleeWeapon;
@@ -141,6 +140,16 @@ modded class ItemBase
 		return true;
 	}
 	#endif
+
+	bool Expansion_IsStoreLoaded()
+	{
+		return m_Expansion_IsStoreLoaded;
+	}
+
+	bool Expansion_IsStoreSaved()
+	{
+		return m_Expansion_IsStoreSaved;
+	}
 
 	bool ExpansionIsLocked()
 	{
@@ -264,6 +273,21 @@ modded class ItemBase
 		return m_Expansion_IsMeleeWeapon;
 	}
 
+	bool Expansion_IsMechanicalTrap()
+	{
+		return false;
+	}
+
+	bool Expansion_IsDanger()
+	{
+		return false;
+	}
+
+	bool Expansion_IsExplosive()
+	{
+		return IsExplosive();
+	}
+
 	bool Expansion_IsLiveExplosive()
 	{
 		ExplosivesBase explosive;
@@ -271,6 +295,11 @@ modded class ItemBase
 			return true;
 
 		return false;
+	}
+
+	TStringArray Expansion_GetAmmoTypes()
+	{
+		return {ConfigGetString("ammoType")};
 	}
 
 	/*! ExpansionActionOn<...>
@@ -592,7 +621,7 @@ modded class ItemBase
 	{
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		EXTrace.PrintHit(EXTrace.GENERAL_ITEMS, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 #endif
 
@@ -659,23 +688,12 @@ modded class ItemBase
 			}
 			else
 			{
-				CarScript cs;
-				if (Class.CastTo(cs, root))
+				ExpansionVehicle vehicle;
+				if (ExpansionVehicle.Get(vehicle, root))
 				{
-					if (!cs.CanBeDamaged())
+					if (!vehicle.CanBeDamaged())
 						return false;
 				}
-			#ifdef EXPANSIONMODVEHICLE
-				else
-				{
-					ExpansionVehicleBase evb;
-					if (Class.CastTo(evb, root))
-					{
-						if (!evb.CanBeDamaged())
-							return false;
-					}
-				}
-			#endif
 			}
 		}
 
@@ -893,30 +911,15 @@ modded class ItemBase
 	//! Workaround for vanilla not initializing vehicle inv on client if not close to player (cargo count is used by e.g. market to show unsellable items)
 	void Expansion_UpdateParentCargoCount(InventoryLocation loc, int delta)
 	{
-		CarScript car;
-		if (Class.CastTo(car, loc.GetParent()))
+		auto vehicle = ExpansionVehicle.Get(loc.GetParent());
+		if (vehicle)
 		{
 			delta *= GetInventory().CountInventory();
-			car.m_Expansion_CargoCount += delta;
-			#ifdef DIAG
-			EXTrace.Print(EXTrace.GENERAL_ITEMS, this, car.ToString() + " cargo count " + delta + " " + car.m_Expansion_CargoCount);
+			vehicle.UpdateCargoCount(delta);
+			#ifdef DIAG_DEVELOPER
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, this, vehicle.GetEntity().ToString() + " cargo count " + delta + " " + vehicle.GetCargoCount());
 			#endif
-			if (GetGame().IsDedicatedServer() && car.IsInitialized())
-				car.SetSynchDirty();
 		}
-		#ifdef EXPANSIONMODVEHICLE
-		else
-		{
-			ExpansionVehicleBase vehicle;
-			if (Class.CastTo(vehicle, loc.GetParent()))
-			{
-				delta *= GetInventory().CountInventory();
-				vehicle.m_Expansion_CargoCount += delta;
-				if (GetGame().IsDedicatedServer() && vehicle.IsInitialized())
-					vehicle.SetSynchDirty();
-			}
-		}
-		#endif
 	}
 
 	override void OnInventoryEnter(Man player)
@@ -977,6 +980,24 @@ modded class ItemBase
 		m_Expansion_IsWorking = false;
 	}
 
+	/**
+	 * @brief return the root item of the hierarchy
+	 * 
+	 * I.e. if this item is a scope attached to a gun on a player's shoulder, return the gun.
+	 */
+	ItemBase Expansion_GetHierarchyRootItem()
+	{
+		ItemBase rootItem = this;
+		ItemBase parentItem;
+
+		while (rootItem.GetHierarchyParent() && Class.CastTo(parentItem, rootItem.GetHierarchyParent()))
+		{
+			rootItem = parentItem;
+		}
+
+		return rootItem;
+	}
+
 	typename Expansion_GetFamilyType()
 	{
 		if (IsInherited(ItemCompass))
@@ -1000,6 +1021,30 @@ modded class ItemBase
 		string type = GetType();
 		type.ToLower();
 		return type;
+	}
+
+	/**
+	 * @brief Get raw (untranslated) display name of item
+	 * 
+	 * This is useful (e.g.) to send over network so client can do translation in their locale
+	 */
+	string Expansion_GetDisplayNameRaw()
+	{
+		string path;
+		string displayName;
+
+		if (IsWeapon())
+			path = CFG_WEAPONSPATH;
+		else if (IsMagazine())
+			path = CFG_MAGAZINESPATH;
+		else
+			path = CFG_VEHICLESPATH;
+
+		//! Send localization key and let client handle localization
+		if (GetGame().ConfigGetTextRaw(path + " " + GetType() + " displayName", displayName))
+			GetGame().FormatRawConfigStringKeys(displayName);
+
+		return displayName;
 	}
 
 	override void DeferredInit()
@@ -1193,7 +1238,19 @@ modded class ItemBase
 
 	bool Expansion_CanObjectAttach(Object obj)
 	{
+		if (obj.IsMan())
+			return Expansion_CanPlayerAttach();
+
 		return false;
+	}
+
+	bool Expansion_CanPlayerAttach()
+	{
+#ifdef EXPANSION_PLAYER_ATTACHMENT_CANATTACH_OVERRIDE
+		m_Expansion_CanPlayerAttach = true;
+#endif
+
+		return m_Expansion_CanPlayerAttach;
 	}
 
 	bool Expansion_CarContactActivates()
@@ -1211,11 +1268,79 @@ modded class ItemBase
 		return attachments;
 	}
 
+	TStringArray Expansion_GetInventorySlots()
+	{
+		TStringArray inventorySlots = {};
+		ConfigGetTextArray("inventorySlot", inventorySlots);
+		return inventorySlots;
+	}
+
 	bool Expansion_HasAttachmentSlot(string slotName)
 	{
-		TStringArray attachments = Expansion_GetAttachmentSlots();
+		//! @note inventory is not available in constructor
+		if (GetInventory())
+		{
+			int slotID = InventorySlots.GetSlotIdFromString(slotName);
 
-		return ExpansionStatic.StringArrayContainsIgnoreCase(attachments, slotName);
+			if (!InventorySlots.IsSlotIdValid(slotID))
+				return false;
+
+			if (!GetInventory().HasAttachmentSlot(slotID))
+				return false;
+		}
+		else
+		{
+			TStringArray attachments = Expansion_GetAttachmentSlots();
+
+			return ExpansionStatic.StringArrayContainsIgnoreCase(attachments, slotName);
+		}
+
+		return true;
+	}
+
+	bool Expansion_HasAttachmentSlot(TStringArray slotNames)
+	{
+		foreach (string slotName: slotNames)
+		{
+			if (Expansion_HasAttachmentSlot(slotName))
+				return true;
+		}
+
+		return false;
+	}
+
+	bool Expansion_HasInventorySlot(string slotName)
+	{
+		//! @note inventory is not available in constructor
+		if (GetInventory())
+		{
+			int slotID = InventorySlots.GetSlotIdFromString(slotName);
+
+			if (!InventorySlots.IsSlotIdValid(slotID))
+				return false;
+
+			if (!GetInventory().HasInventorySlot(slotID))
+				return false;
+		}
+		else
+		{
+			TStringArray inventorySlots = Expansion_GetInventorySlots();
+
+			return ExpansionStatic.StringArrayContainsIgnoreCase(inventorySlots, slotName);
+		}
+
+		return true;
+	}
+
+	bool Expansion_HasInventorySlot(TStringArray slotNames)
+	{
+		foreach (string slotName: slotNames)
+		{
+			if (Expansion_HasInventorySlot(slotName))
+				return true;
+		}
+
+		return false;
 	}
 
 	bool Expansion_IsAdminTool()
@@ -1388,6 +1513,55 @@ modded class ItemBase
 		return 0;
 	}
 
+	float Expansion_GetDPS()
+	{
+		if (m_Expansion_IsMeleeWeapon)
+		{
+			string ammoType;
+			if (GetGame().ConfigGetText(CFG_VEHICLESPATH + " " + GetType() + " MeleeModes Default ammo", ammoType))
+				return GetGame().ConfigGetFloat(CFG_AMMO + " " + ammoType + " DamageApplied Health damage");
+		}
+
+		return 0.0;
+	}
+
+	/**
+	 * @brief compare DPS (dmg per second) of weapons.
+	 * 
+	 * @return -1 if this weapon's DPS is lower than the other's, 1 if higher, 0 if equal
+	 */
+	int Expansion_CompareDPS(ItemBase weapon)
+	{
+		float dpsA = Expansion_GetDPS();
+		float dpsB = weapon.Expansion_GetDPS();
+
+		if (dpsA < dpsB)
+			return -1;
+
+		if (dpsA > dpsB)
+			return 1;
+
+		return 0;
+	}
+
+	void Expansion_DropAllCargo(float lifetime = -1)
+	{
+		array<EntityAI> items = MiscGameplayFunctions.Expansion_GetCargoItems(this);
+
+		float angle = Math.Acos(Math.RandomFloat(-1.0, 1.0));	
+
+		float cos = Math.Cos(angle);
+		float sin = Math.Sin(angle);
+
+		vector halfExtents = "0.5 0 0.5";
+		foreach (EntityAI item: items)
+		{
+			GetInventory().DropEntityInBounds(InventoryMode.SERVER, this, item, halfExtents, angle, cos, sin);
+			if (lifetime > -1)
+				item.SetLifetime(lifetime);
+		}
+	}
+
 	void Expansion_QueueEntityActions(int actions)
 	{
 		if ((m_Expansion_QueuedActions & actions) == actions)  //! Already queued
@@ -1410,7 +1584,7 @@ modded class ItemBase
 
 	void Expansion_PlaceOnSurfaceProper(vector position)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, this, position.ToString());
 	#endif
 
@@ -1466,14 +1640,14 @@ modded class ItemBase
 				offsetY = center[1] - p1[1];
 		}
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.GENERAL_ITEMS, this, "" + pos + " " + ori + " -> " + m4[3] + " + <0 " + offsetY + " 0> " + Math3D.MatrixToAngles(m4));
 	#endif
 
 		m4[3][1] = m4[3][1] + offsetY;
 	*/
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.GENERAL_ITEMS, this, "" + pos + " " + ori + " -> " + m4[3] + " " + Math3D.MatrixToAngles(m4));
 	#endif
 		

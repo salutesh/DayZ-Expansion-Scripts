@@ -69,7 +69,8 @@ class Vehicle_ExpansionAn2: ExpansionVehiclePlaneBase
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachSeatFromSeat").Add(currentSeat).Add(nextSeat);
 #endif
 
-		return true;
+		//!	DISABLED since we have no animations for switching seats that would put the player in the correct position
+		return false;
 	}
 	
 	override bool CanReachSeatFromDoors( string pSeatSelection, vector pFromPos, float pDistance = 1.0 )

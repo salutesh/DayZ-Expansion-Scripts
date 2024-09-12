@@ -52,7 +52,9 @@ class Expansion_Anomaly_Singularity: Expansion_Anomaly_Base
 
 	override void TurnOffCoreEmitor()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		super.TurnOffCoreEmitor();
 

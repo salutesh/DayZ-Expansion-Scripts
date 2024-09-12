@@ -36,16 +36,16 @@ class JMESPMetaCar : JMESPMeta
 	{
 		super.CreateActions( parent );
 
-		CarScript car;
-		if ( Class.CastTo( car, target ) )
+		ExpansionVehicle vehicle;
+		if ( ExpansionVehicle.Get( vehicle, target ) )
 		{
-			if ( car.HasKey() )
+			if ( vehicle.HasKey() )
 			{
 				UIActionManager.CreatePanel( parent, 0xFF000000, 1 );
 
 				m_Action_UnPair = UIActionManager.CreateButton( parent, "Unpair", this, "Action_UnPair" );
 
-				if ( car.IsLocked() )
+				if ( vehicle.IsLocked() )
 				{
 					m_Action_UnLock = UIActionManager.CreateButton( parent, "Unlock", this, "Action_UnLock" );
 				}

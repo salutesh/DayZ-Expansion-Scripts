@@ -1168,6 +1168,11 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 			}
 			m_PlayerB.SetLastMapInfo(scale, map_pos);
 		}
+		else if (GetExpansionSettings().GetMap().ShowPlayerPosition)
+		{
+			player_pos = m_PlayerB.GetPosition();
+			map_pos = player_pos;
+		}
 
 		m_MapWidget.SetScale(scale);
 		m_MapWidget.SetMapPos(map_pos);
@@ -1275,6 +1280,9 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 
 		SetFocus(layoutRoot);
 		GetGame().GetMission().AddActiveInputExcludes({"map"});
+
+		if (GetExpansionClientSettings().OpenMapOnPlayerPos)
+			SetMapPosition();
 
 		PPEffects.SetBlurMenu(0.5);
 

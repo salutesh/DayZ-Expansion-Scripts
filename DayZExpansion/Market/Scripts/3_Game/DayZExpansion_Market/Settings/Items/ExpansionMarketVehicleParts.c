@@ -163,7 +163,7 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 		
 		AddItem("ExpansionCarKey",							250,	500,	1,		100);
 		
-		AddItem("ExpansionKeyChain_Red",					100,	200,	1,		100, null, {"ExpansionKeyChain_White", "ExpansionKeyChain_Black", "ExpansionKeyChain_Blue", "ExpansionKeyChain_Green", "ExpansionKeyChain_Grey", "ExpansionKeyChain_Orange", "ExpansionKeyChain_Pink", "ExpansionKeyChain_Purp", "ExpansionKeyChain_Yellow"});
+		AddItem("ExpansionKeyChain_Red",					100,	200,	1,		100, null, {"ExpansionKeyChain_White", "ExpansionKeyChain_Black", "ExpansionKeyChain_Blue", "ExpansionKeyChain_Green", "ExpansionKeyChain_Grey", "ExpansionKeyChain_Orange", "ExpansionKeyChain_Pink", "ExpansionKeyChain_Purple", "ExpansionKeyChain_Yellow"});
 	#endif
 	}
 };

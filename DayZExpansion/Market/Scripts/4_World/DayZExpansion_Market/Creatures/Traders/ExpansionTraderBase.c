@@ -83,10 +83,6 @@ class ExpansionTraderObjectBase
 
 	void ExpansionTraderObjectBase(EntityAI traderEntity, string fileName = "")
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "ExpansionTraderObjectBase");
-#endif
-		
 		m_allTraderObjects.Insert(this);
 
 		SetTraderEntity(traderEntity);
@@ -98,7 +94,9 @@ class ExpansionTraderObjectBase
 		if (!GetGame())
 			return;
 
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MARKET, this, "" + m_TraderEntity, "" + m_Expansion_RPCManager);
+#endif
 
 		int idx = m_allTraderObjects.Find(this);
 		if (idx >= 0)
@@ -126,10 +124,6 @@ class ExpansionTraderObjectBase
 
 	void LoadTraderHost(string fileName)
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "LoadTraderHost");
-#endif
-
 		if (!m_TraderEntity)
 		{
 			Error(ToString() + "::LoadTraderHost - ERROR: Trader does not have entity!");
@@ -308,7 +302,7 @@ class ExpansionTraderObjectBase
 		return ExpansionMarketModule.GetDisplayPrice(m_Trader, price, shorten, format, includeDisplayCurrencyName);
 	}
 
-	bool HasVehicleSpawnPosition(string className, out vector spawnPosition, out vector spawnOrientation, out ExpansionMarketVehicleSpawnType spawnType = 0, out ExpansionMarketResult result = ExpansionMarketResult.Success, out Object blockingObject = NULL, int amountNeeded = 1)
+	bool HasVehicleSpawnPosition(string className, out vector spawnPosition, out vector spawnOrientation, out ExpansionVehicleType spawnType = 0, out ExpansionMarketResult result = ExpansionMarketResult.Success, out Object blockingObject = NULL, int amountNeeded = 1)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "HasVehicleSpawnPosition");
@@ -316,33 +310,22 @@ class ExpansionTraderObjectBase
 
 		//array<vector> positions;
 		array<ref ExpansionMarketSpawnPosition> positions;		
-		string vehicleClass = GetGame().ConfigGetTextOut("CfgVehicles " + className + " vehicleClass");
-		switch (vehicleClass)
+		spawnType = ExpansionVehicle.GetVehicleType(className);
+		switch (spawnType)
 		{
-			case "Expansion_Boat":
-			case "Expansion_Ship":
-			case "Vehicles_Boat":
-			case "Vehicles_Ship":
+			case ExpansionVehicleType.WATER:
 				positions = GetExpansionSettings().GetMarket().WaterSpawnPositions;
-				spawnType = ExpansionMarketVehicleSpawnType.WATER;
 				break;
-			case "Expansion_Helicopter":
-			case "Expansion_Plane":
-			case "Vehicles_Helicopter":
-			case "Vehicles_Plane":
+			case ExpansionVehicleType.AIR:
 				positions = GetExpansionSettings().GetMarket().AirSpawnPositions;
-				spawnType = ExpansionMarketVehicleSpawnType.AIR;
 				break;
 		#ifdef HypeTrain
-			case "HypeTrain_Locomotive":
-			case "HypeTrain_Wagon":
+			case ExpansionVehicleType.RAILTRACK:
 				positions = GetExpansionSettings().GetMarket().TrainSpawnPositions;
-				spawnType = ExpansionMarketVehicleSpawnType.RAILTRACK;
 				break;
 		#endif
 			default:
 				positions = GetExpansionSettings().GetMarket().LandSpawnPositions;
-				spawnType = ExpansionMarketVehicleSpawnType.LAND;
 		}
 
 		if (!positions || !positions.Count())

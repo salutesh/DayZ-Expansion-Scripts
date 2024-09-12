@@ -24,46 +24,29 @@ class ExpansionVehicleAnimInstances
 #ifdef EXPANSIONMODANIMATIONS
 
 	// Cars - Expansion - using Expansion anims
-	static int EXPANSION_BUS = 10;
+	static int EXPANSION_BUS = 11;
 
 	// Boats
-	static int EXPANSION_UTILITY_BOAT = 9;
-	static int EXPANSION_ZODIAC = 11;
-	static int EXPANSION_LHD = 11;
+	static int EXPANSION_UTILITY_BOAT = 10;
+	static int EXPANSION_ZODIAC = 12;
+	static int EXPANSION_LHD = 12;
 
 	// Bikes
-	static int EXPANSION_TT650 = 12;
-	static int EXPANSION_N250 = 13;
-	static int EXPANSION_OLDBIKE = 15;
+	static int EXPANSION_TT650 = 13;
+	static int EXPANSION_N250 = 14;
+	static int EXPANSION_OLDBIKE = 16;
 
 	// Helicopters
-	static int EXPANSION_MH6 = 11;
-	static int EXPANSION_MERLIN = 14;
-	static int EXPANSION_UH1H = 11;
-	static int EXPANSION_GYROCOPTER = 11;
+	static int EXPANSION_MH6 = 12;
+	static int EXPANSION_MERLIN = 15;
+	static int EXPANSION_UH1H = 12;
+	static int EXPANSION_GYROCOPTER = 12;
 
 #else
 
 	// Cars
 	static int EXPANSION_BUS = VehicleAnimInstances.HMMWV;
 
-#ifdef SURVIVOR_ANIMS
-	// Boats
-	static int EXPANSION_UTILITY_BOAT = VehicleAnimInstances.HMMWV;
-	static int EXPANSION_ZODIAC = CustomVehicleAnimInstances.HELICOPTER;
-	static int EXPANSION_LHD = CustomVehicleAnimInstances.HELICOPTER;
-
-	// Bikes
-	static int EXPANSION_TT650 = CustomVehicleAnimInstances.MOTORCYCLE;
-	static int EXPANSION_N250 = CustomVehicleAnimInstances.MOTORCYCLE;
-	static int EXPANSION_OLDBIKE = CustomVehicleAnimInstances.MOTORCYCLE;
-
-	// Helicopters
-	static int EXPANSION_MH6 = CustomVehicleAnimInstances.HELICOPTER;
-	static int EXPANSION_MERLIN = CustomVehicleAnimInstances.HELICOPTER;
-	static int EXPANSION_UH1H = CustomVehicleAnimInstances.HELICOPTER;
-	static int EXPANSION_GYROCOPTER = CustomVehicleAnimInstances.HELICOPTER;
-#else
 	// Boats
 	static int EXPANSION_UTILITY_BOAT = VehicleAnimInstances.SEDAN;
 	static int EXPANSION_ZODIAC = VehicleAnimInstances.SEDAN;
@@ -79,7 +62,6 @@ class ExpansionVehicleAnimInstances
 	static int EXPANSION_MERLIN = VehicleAnimInstances.SEDAN;
 	static int EXPANSION_UH1H = VehicleAnimInstances.HMMWV;
 	static int EXPANSION_GYROCOPTER = VehicleAnimInstances.SEDAN;
-#endif
 
 #endif
 };

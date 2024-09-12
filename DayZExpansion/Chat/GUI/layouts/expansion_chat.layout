@@ -1,6 +1,6 @@
 PanelWidgetClass ExpansionChatUIWindow {
  clipchildren 1
- ignorepointer 0
+ ignorepointer 1
  keepsafezone 0
  position -39 0
  size 490 380
@@ -15,7 +15,7 @@ PanelWidgetClass ExpansionChatUIWindow {
  {
   PanelWidgetClass ChatPanel {
    clipchildren 1
-   ignorepointer 0
+   ignorepointer 1
    keepsafezone 0
    size 450 218
    halign right_ref
@@ -52,7 +52,7 @@ PanelWidgetClass ExpansionChatUIWindow {
      "Scrollbar V Left" 1
      {
       GridSpacerWidgetClass ChatContent {
-       ignorepointer 0
+       ignorepointer 1
        size 1 1
        hexactpos 1
        vexactpos 1
@@ -64,9 +64,9 @@ PanelWidgetClass ExpansionChatUIWindow {
        Columns 1
        Rows 1
        {
-        GridSpacerWidgetClass ContentRows {
+        WrapSpacerWidgetClass ContentRows {
          clipchildren 1
-         ignorepointer 0
+         ignorepointer 1
          position 0 0
          size 1 1
          hexactpos 1
@@ -74,8 +74,6 @@ PanelWidgetClass ExpansionChatUIWindow {
          hexactsize 0
          vexactsize 0
          "Size To Content V" 1
-         Columns 1
-         Rows 100
         }
        }
       }

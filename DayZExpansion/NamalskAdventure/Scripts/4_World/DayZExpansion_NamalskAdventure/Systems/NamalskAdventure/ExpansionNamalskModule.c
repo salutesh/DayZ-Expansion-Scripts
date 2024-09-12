@@ -105,7 +105,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	void ExpansionNamalskModule()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		s_ModuleInstance = this;
 
@@ -119,7 +121,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	override void OnInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		super.OnInit();
 
@@ -137,7 +141,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void CreateDirectoryStructure()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (!FileExist(s_dataFolderPath))
 			ExpansionStatic.MakeDirectoryRecursive(s_dataFolderPath);
@@ -145,7 +151,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		super.OnMissionStart(sender, args);
 
@@ -158,7 +166,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		super.OnMissionLoaded(sender, args);
 		
@@ -173,7 +183,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		super.OnInvokeConnect(sender, args);
 
@@ -200,7 +212,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	protected void ServerModuleInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		//! Server only
 	#ifdef EXPANSIONMODAI
@@ -226,14 +240,18 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void ClientModuleInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		m_WorkbenchMenuInvoker = new ScriptInvoker();
 	}
 
 	protected void LoadNamalskAdventureServerData()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (FileExist(s_dataFolderPath + "ServerData.json"))
 		{
@@ -248,7 +266,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void GetServerData(string file)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		m_ServerData = ExpansionNamalskAdventureData.Load(file);
 		if (!m_ServerData)
@@ -262,7 +282,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! @note: Spawns all configured AI units from the NamalskAdventureSettings class.
 	protected void SpawnAI()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		array<ref ExpansionAISpawnPosition> aiPositions = GetExpansionSettings().GetNamalskAdventure().AISpawnPositions;
 		for (int i = 0; i < aiPositions.Count(); i++)
@@ -278,7 +300,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! @note: Handles spawns of AI units.
 	protected void SpawnSingleAI(ExpansionAISpawnPosition aiSpawn)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		vector pos = ExpansionAIPatrol.GetPlacementPosition(aiSpawn.Position);
 
@@ -341,7 +365,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! @note: Handles spawn of the dynamic merchant
 	protected void CreateMerchant()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		ExpansionMarketSettings marketSettings = GetExpansionSettings().GetMarket();
 		int findIndex = -1;
@@ -544,7 +570,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 #ifdef NAMALSK_SURVIVAL
 	void OnNamalskEventStart(typename eventType)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (eventType == EVRStorm || eventType == EVRStormDeadly)
 		{
@@ -554,9 +582,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	void OnNamalskEventCancel(typename eventType)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		ExpansionNotification(new StringLocaliser("NAMALSK EVENT CANCELED"), new StringLocaliser("%1 EVENT CANCELED", eventType.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
 	#endif
 
@@ -572,13 +602,17 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! @note: Handles events that should start when ever a EVR storm event starts.
 	void OnEVRStormInitPhaseServer()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 	}
 
 	//! @note: Handles events that should start when ever a EVR storm mid phase starts.
 	void OnEVRStormMidPhaseServer()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		//SetSatelitteActive(true);
 
@@ -599,7 +633,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! @note: Handles events that should start when ever a EVR storm event end phase starts.
 	void OnEVRStormEndPhaseServer()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 	#ifdef EXPANSIONMODAI
 		ResetAIPositions();
@@ -617,7 +653,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! Gets called on every active player on the server.
 	void OnEVRStormFinished(SurvivorBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		//! PLACEHOLDER
 	}
 #endif
@@ -645,7 +683,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! @note: Handles reset of spawned AI units and active quest AI NPCs waypoints after a EVR strom event.
 	protected void ResetAIPositions()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		for (int i = 0; i < m_SpawnedAI.Count(); i++)
 		{
@@ -687,7 +727,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void ResetSpawnedAIWaypoints(eAIBase ai)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		ModuleDebugPrint("::ResetSpawnedAIWaypoints - AI: " + ai.ToString());
 
 		eAIGroup aiGroup = ai.GetGroup();
@@ -719,7 +761,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODQUESTS
 	void AfterQuestModuleClientInit(ExpansionQuestPersistentData playerQuestData, PlayerIdentity identity)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		//! Server only
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
@@ -756,7 +800,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! @note: Condition check if a EVR storm is currently active.
 	bool IsEVRStormActive()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 	#ifdef NAMALSK_SURVIVAL
 	    NamEventManager event_manager;
@@ -776,7 +822,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void SpawnSatelliteAntennaObjects()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		m_AbdonedSatellite = SV_Abandoned_Sattelite_Antenna.Cast(GetGame().CreateObjectEx("SV_Abandoned_Sattelite_Antenna", "1118.26 27.4257 11745.3", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
 		if (m_AbdonedSatellite)
@@ -885,7 +933,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void PlaySatelliteCrySFX()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		string soundSet = "Expansion_Satellite_Cry_Distance_SoundSet";
 		Param3<bool, vector, int> satelliteCry = new Param3<bool, vector, int>(true, "1118.26 27.4257 11745.3", soundSet.Hash());
@@ -894,7 +944,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	void SetSatelliteFacilityPower(bool state)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		if (state != m_SatelliteFacilityHasPower)
 		{
@@ -913,7 +965,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	void ActivateSatelliteFacility()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		string soundSet = "Reactor_SwitchOn";
 		Param3<bool, vector, int> activationSound = new Param3<bool, vector, int>(true, "1193.147095 1.941499 11813.058594", soundSet.Hash());
@@ -931,7 +985,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	void DeactivateSatelliteFacility()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		string soundSet = "Reactor_SwitchOn";
 		Param3<bool, vector, int> activationSound = new Param3<bool, vector, int>(true, "1193.147095 1.941499 11813.058594", soundSet.Hash());
@@ -952,7 +1008,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	void OverloadSatelliteGenerator()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		if (m_SatelliteGenerator)
 		{
@@ -975,7 +1033,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	void SetSatelitteActive(bool state)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (state != m_SatelliteState)
 		{
@@ -999,7 +1059,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	void ActivateSatellite()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (!m_AbdonedSatellite || !m_SatelliteController)
 			return;
@@ -1013,7 +1075,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	void DeactivateSatellite()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (!m_AbdonedSatellite || !m_SatelliteController)
 			return;
@@ -1049,7 +1113,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void SpawnA1Bunker()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		//! Entrance trigger
 		ExpansionBunkerEntranceTriggerBase trigger = ExpansionBunkerEntranceTriggerBase.Cast(GetGame().CreateObjectEx("ExpansionBunkerEntranceTriggerBase", m_A1_Bunker_EntrancePos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
@@ -1163,7 +1229,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! @note: Method that handles spawning of configured supply crates in the ExpansionNamalskAdventureSettings class with there loot on mission load.
 	protected void SpawnSupplyCrates()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		//! Supply crates
 		array<ref ExpansionSupplyCrateSetup> supplyCrateSpawns = GetExpansionSettings().GetNamalskAdventure().GetSupplyCrateSpawns();
@@ -1254,7 +1322,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 #ifdef EXPANSION_NAMALSK_ADVENTURE
 	protected void OnSupplyCrateCheck(Expansion_SupplyCrate_Base supplyCrate)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Profile(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (supplyCrate.HasLootDelay() && !supplyCrate.IsCrateOpened())
 		{
@@ -1278,7 +1348,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void OnBunkerGeneratorCheck(Expansion_Bunker_Generator generator)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Profile(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (generator.IsActive())
 		{
@@ -1333,7 +1405,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 #ifdef NAMALSK_SURVIVAL
 	protected void OnEVRStormBlowout()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (m_Expansion_ProcessedInfected < ZombieBase.s_Expansion_AllInfected.m_Count)
 		{
@@ -1354,7 +1428,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! @note: Not used yet
 	protected void OnEVRStormFinalBlowoutInfected(ZombieBase infected)
     {
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		//! Gamble if infected gets killed by EVR Storm blowout or not
 		int gamble = Math.RandomIntInclusive(0, 2);
@@ -1365,7 +1441,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! Server
 	void SendWorkbenchData(Object target, PlayerIdentity identity)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		Expansion_3DPrinter printer;
 		if (!Class.CastTo(printer, target))
@@ -1381,7 +1459,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! Client
 	protected void RPC_SendWorkbenchData(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		Expansion_3DPrinter printer;
 		if (!Class.CastTo(printer, target))
@@ -1396,7 +1476,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! Client
 	void SendWorkbenchResult(Expansion_3DPrinter printer, NA_WorkbenchRecipe recipe)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		auto rpc = Expansion_CreateRPC("RPC_SendWorkbenchResult");
 		recipe.OnSend(rpc);
@@ -1414,7 +1496,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_SendWorkbenchResult(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		Expansion_3DPrinter printer;
 		if (!Class.CastTo(printer, target))
@@ -1441,7 +1525,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! Client
 	void SetWorkbenchState(Expansion_3DPrinter printer, bool state)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		int lowBitsGen, highBitsGen;
 		printer.GetNetworkID(lowBitsGen, highBitsGen);
@@ -1454,7 +1540,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_SetWorkbenchState(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		Expansion_3DPrinter printer;
 		if (!Class.CastTo(printer, target))

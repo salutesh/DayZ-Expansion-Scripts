@@ -36,8 +36,12 @@ class ExpansionDebugObject: Building
 			m_Expansion_DebugColor = 0xFFFF0000;
 		else if (es.EndsWith("_Orange"))
 			m_Expansion_DebugColor = 0xFFFF8000;
+		else if (es.EndsWith("_Yellow"))
+			m_Expansion_DebugColor = 0xFFFFFF00;
 		else if (es.EndsWith("_Blue"))
 			m_Expansion_DebugColor = 0xFF0000FF;
+		else if (es.EndsWith("_Cyan"))
+			m_Expansion_DebugColor = 0xFF00FFFF;
 		else if (es.EndsWith("_Purple"))
 			m_Expansion_DebugColor = 0xFF8000FF;
 		else if (es.EndsWith("_White"))

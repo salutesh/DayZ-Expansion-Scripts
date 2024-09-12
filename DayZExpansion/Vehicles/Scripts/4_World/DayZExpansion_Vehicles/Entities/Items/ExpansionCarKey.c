@@ -19,10 +19,10 @@ class ExpansionCarKey: ItemBase
 	
 	//! After pairing to a vehicle, it's the ID of the master key.
 	//! This allows "changing locks" on vehicles so old paired keys no longer work
-	private int m_PersistentIDA;
-	private int m_PersistentIDB;
-	private int m_PersistentIDC;
-	private int m_PersistentIDD;
+	private int m_MasterKeyPersistentIDA;
+	private int m_MasterKeyPersistentIDB;
+	private int m_MasterKeyPersistentIDC;
+	private int m_MasterKeyPersistentIDD;
 
 	private Object m_Vehicle;
 	protected ExpansionKeyChainBase m_Expansion_KeyChain;
@@ -32,10 +32,10 @@ class ExpansionCarKey: ItemBase
 		RegisterNetSyncVariableBool( "m_IsMasterKey" );
 		RegisterNetSyncVariableInt( "MasterKeyUses" );
 
-		RegisterNetSyncVariableInt( "m_PersistentIDA" );
-		RegisterNetSyncVariableInt( "m_PersistentIDB" );
-		RegisterNetSyncVariableInt( "m_PersistentIDC" );
-		RegisterNetSyncVariableInt( "m_PersistentIDD" );
+		RegisterNetSyncVariableInt( "m_MasterKeyPersistentIDA" );
+		RegisterNetSyncVariableInt( "m_MasterKeyPersistentIDB" );
+		RegisterNetSyncVariableInt( "m_MasterKeyPersistentIDC" );
+		RegisterNetSyncVariableInt( "m_MasterKeyPersistentIDD" );
 
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 		
@@ -68,7 +68,9 @@ class ExpansionCarKey: ItemBase
 
 	override void EEOnAfterLoad()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.VEHICLES, this);
+#endif
 		
 		super.EEOnAfterLoad();
 
@@ -80,19 +82,20 @@ class ExpansionCarKey: ItemBase
 			{
 				auto keychain = ExpansionKeyChainBase.Cast(GetAttachmentByType(ExpansionKeyChainBase));
 				if (!keychain || !keychain.Expansion_HasOwner())
-					Expansion_AssignKeychain(GetHierarchyRootPlayer(), CarScript.Cast(m_Vehicle));  //! Will assign a keychain if key is in player inventory
+					Expansion_AssignKeychain(GetHierarchyRootPlayer(), EntityAI.Cast(m_Vehicle));  //! Will assign a keychain if key is in player inventory
 			}
 		}
 	}
 
 	override void OnVariablesSynchronized()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.VEHICLES, this);
+#endif
 		
 		super.OnVariablesSynchronized();
 
-		TIntArray id = {m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD};
-		EXTrace.Print(EXTrace.VEHICLES, this, "Key ID: " + ExpansionStatic.IntToHex(id));
+		EXTrace.Print(EXTrace.VEHICLES, this, "Key ID: " + ExpansionStatic.GetPersistentIDString(m_MasterKeyPersistentIDA, m_MasterKeyPersistentIDB, m_MasterKeyPersistentIDC, m_MasterKeyPersistentIDD));
 	}
 
 	override void OnInventoryEnter(Man player)
@@ -159,14 +162,14 @@ class ExpansionCarKey: ItemBase
 		{
 			CF_Log.Debug(ToString() + "::GetKeyObject - looking for vehicle");
 
-			auto node = CarScript.s_Expansion_AllVehicles.m_Head;
+			auto node = ExpansionVehicle.s_All.m_Head;
 			while (node)
 			{
-				CarScript car = node.m_Value;
-				if ( IsPairedTo( car ) )
+				ExpansionVehicle vehicle = node.m_Value;
+				if ( IsPairedTo( vehicle ) )
 				{
-					EXPrint(ToString() + "::GetKeyObject - found " + car);
-					m_Vehicle = car;
+					m_Vehicle = vehicle.GetEntity();
+					EXPrint(ToString() + "::GetKeyObject - found " + m_Vehicle);
 					break;
 				}
 				node = node.m_Next;
@@ -176,60 +179,58 @@ class ExpansionCarKey: ItemBase
 		return m_Vehicle;
 	}
 
+	void GetMasterKeyPersistentID(out int b1, out int b2, out int b3, out int b4)
+	{
+		b1 = m_MasterKeyPersistentIDA;
+		b2 = m_MasterKeyPersistentIDB;
+		b3 = m_MasterKeyPersistentIDC;
+		b4 = m_MasterKeyPersistentIDD;
+	}
+
 	int GetPersistentIDA()
-	{		
-		return m_PersistentIDA;
+	{
+		EXError.ErrorOnce(this, "DEPRECATED, use GetMasterKeyPersistentID(a, b, c, d)");
+		return m_MasterKeyPersistentIDA;
 	}
 
 	int GetPersistentIDB()
-	{		
-		return m_PersistentIDB;
+	{
+		EXError.ErrorOnce(this, "DEPRECATED, use GetMasterKeyPersistentID(a, b, c, d)");
+		return m_MasterKeyPersistentIDB;
 	}
 
 	int GetPersistentIDC()
-	{		
-		return m_PersistentIDC;
+	{
+		EXError.ErrorOnce(this, "DEPRECATED, use GetMasterKeyPersistentID(a, b, c, d)");
+		return m_MasterKeyPersistentIDC;
 	}
 
 	int GetPersistentIDD()
-	{		
-		return m_PersistentIDD;
+	{
+		EXError.ErrorOnce(this, "DEPRECATED, use GetMasterKeyPersistentID(a, b, c, d)");
+		return m_MasterKeyPersistentIDD;
+	}
+
+	static ExpansionCarKey GetFirstKeyForVehicle( Object obj )
+	{
+		auto vehicle = ExpansionVehicle.Get(obj);
+		return GetFirstKeyForVehicle(vehicle);
 	}
 
 	/**
 	 * @note 	Does not get keys which may be stored in a 
 	 * 			player inventory while they are not logged in
 	 */
-	static ExpansionCarKey GetFirstKeyForVehicle( Object obj )
+	static ExpansionCarKey GetFirstKeyForVehicle( ExpansionVehicle vehicle )
 	{
-		if ( !obj )
-			return NULL;
-
-		CarScript car;
-		ExpansionVehicleBase veh;
-		if ( Class.CastTo( car, obj ) )
+		if ( vehicle )
 		{
 			for ( int i = 0; i < m_AllKeys.Count(); ++i )
 			{
 				if (!m_AllKeys[i] || !m_AllKeys[i].IsPaired())
 					continue;
 				
-				if ( m_AllKeys[i].IsPairedTo( car ) )
-				{
-					#ifdef EXPANSION_CARKEY_LOGGING
-					EXLogPrint("ExpansionCarKey::GetFirstKeyForVehicle - End and return Key: " + m_AllKeys[i]);
-					#endif
-					return m_AllKeys[i];
-				}
-			}
-		} else if ( Class.CastTo( veh, obj ) )
-		{
-			for ( i = 0; i < m_AllKeys.Count(); ++i )
-			{
-				if ( !m_AllKeys[i] || !m_AllKeys[i].IsPaired() )
-					continue;
-				
-				if ( m_AllKeys[i].IsPairedTo( veh ) )
+				if ( m_AllKeys[i].IsPairedTo( vehicle ) )
 				{
 					#ifdef EXPANSION_CARKEY_LOGGING
 					EXLogPrint("ExpansionCarKey::GetFirstKeyForVehicle - End and return Key: " + m_AllKeys[i]);
@@ -242,38 +243,29 @@ class ExpansionCarKey: ItemBase
 		return NULL;
 	}
 
+	static void GetKeysForVehicle( Object obj, inout array< ExpansionCarKey > keys )
+	{
+		auto vehicle = ExpansionVehicle.Get(obj);
+		GetKeysForVehicle(vehicle, keys);
+	}
+
 	/**
 	 * @note 	Does not get keys which may be stored in a 
 	 * 			player inventory while they are not logged in
 	 */
-	static void GetKeysForVehicle( Object obj, inout array< ExpansionCarKey > keys )
+	static void GetKeysForVehicle( ExpansionVehicle vehicle, inout array< ExpansionCarKey > keys )
 	{
 		if ( !keys )
 			keys = new array< ExpansionCarKey >;
 
-		if ( !obj )
-			return;
-
-		CarScript car;
-		ExpansionVehicleBase veh;
-		if ( Class.CastTo( car, obj ) )
+		if ( vehicle )
 		{
 			for ( int i = 0; i < m_AllKeys.Count(); ++i )
 			{
 				if (!m_AllKeys[i] || !m_AllKeys[i].IsPaired())
 					continue;
 				
-				if ( m_AllKeys[i].IsPairedTo( car ) )
-					keys.Insert( m_AllKeys[i] );
-			}
-		} else if ( Class.CastTo( veh, obj ) )
-		{
-			for ( i = 0; i < m_AllKeys.Count(); ++i )
-			{
-				if ( !m_AllKeys[i] || !m_AllKeys[i].IsPaired() )
-					continue;
-				
-				if ( m_AllKeys[i].IsPairedTo( veh ) )
+				if ( m_AllKeys[i].IsPairedTo( vehicle ) )
 					keys.Insert( m_AllKeys[i] );
 			}
 		}
@@ -315,14 +307,28 @@ class ExpansionCarKey: ItemBase
 
 	void PairToVehicle( CarScript vehicle )
 	{
+		PairToVehicle((EntityAI) vehicle);
+	}
+
+	void PairToVehicle(EntityAI entity)
+	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.VEHICLES, this);
+#endif 
+		
+		auto vehicle = ExpansionVehicle.Get(entity, true);
 
-		GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
+		if (!vehicle)
+			return;
 
-		vehicle.SetPersistentIDA(m_PersistentIDA);
-		vehicle.SetPersistentIDB(m_PersistentIDB);
-		vehicle.SetPersistentIDC(m_PersistentIDC);
-		vehicle.SetPersistentIDD(m_PersistentIDD);
+		PairToVehicle(vehicle);
+	}
+
+	void PairToVehicle(ExpansionVehicle vehicle)
+	{
+		GetPersistentID( m_MasterKeyPersistentIDA, m_MasterKeyPersistentIDB, m_MasterKeyPersistentIDC, m_MasterKeyPersistentIDD );
+
+		vehicle.SetMasterKeyPersistentID(m_MasterKeyPersistentIDA, m_MasterKeyPersistentIDB, m_MasterKeyPersistentIDC, m_MasterKeyPersistentIDD);
 
 		if ( GetExpansionSettings().GetVehicle().MasterKeyPairingMode != 0 )
 		{
@@ -330,20 +336,19 @@ class ExpansionCarKey: ItemBase
 			SetMasterUses(GetExpansionSettings().GetVehicle().MasterKeyUses, false);
 		}
 
-		TIntArray id = {m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD};
-		EXTrace.Print(EXTrace.VEHICLES, this, "Key ID: " + ExpansionStatic.IntToHex(id));
+		EXTrace.Print(EXTrace.VEHICLES, this, "Key ID: " + ExpansionStatic.GetPersistentIDString(m_MasterKeyPersistentIDA, m_MasterKeyPersistentIDB, m_MasterKeyPersistentIDC, m_MasterKeyPersistentIDD));
 
 		m_Expansion_NetsyncData.Set(0, vehicle.GetType());
-		m_Vehicle = vehicle;
+		m_Vehicle = vehicle.GetEntity();
 
 		m_Expansion_NetsyncData.Send(null);
 		SetSynchDirty();
 
 		if (GetExpansionSettings().GetVehicle().ShowVehicleOwners)
-			Expansion_AssignKeychain(GetHierarchyRootPlayer(), vehicle);
+			Expansion_AssignKeychain(GetHierarchyRootPlayer(), vehicle.GetEntity());
 	}
 
-	bool Expansion_AssignKeychain(Man player, CarScript vehicle)
+	bool Expansion_AssignKeychain(Man player, EntityAI vehicle)
 	{
 		if (player)
 		{
@@ -428,7 +433,9 @@ class ExpansionCarKey: ItemBase
 								CloseFile(file);
 							}
 						}
-						vehicle.Expansion_AssignOwner(player, send);
+						auto ev = ExpansionVehicle.Get(vehicle, true);
+						if (ev)
+							ev.AssignOwner(player, send);
 						return false;
 					}
 				}
@@ -444,8 +451,10 @@ class ExpansionCarKey: ItemBase
 
 	void PairWithMasterKey( ExpansionCarKey key )
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.VEHICLES, this);
-
+#endif 
+		
 		if ( !key.IsMaster() || this.IsMaster() )
 			return;
 
@@ -455,15 +464,12 @@ class ExpansionCarKey: ItemBase
 				key.SetMaster(false);
 		}
 
-		key.SetMasterUses( key.GetMasterUses() - 1 );
+		if ( GetExpansionSettings().GetVehicle().MasterKeyPairingMode > 0 )
+			key.SetMasterUses( key.GetMasterUses() - 1 );
 
-		m_PersistentIDA = key.GetPersistentIDA();
-		m_PersistentIDB = key.GetPersistentIDB();
-		m_PersistentIDC = key.GetPersistentIDC();
-		m_PersistentIDD = key.GetPersistentIDD();
+		key.GetMasterKeyPersistentID(m_MasterKeyPersistentIDA, m_MasterKeyPersistentIDB, m_MasterKeyPersistentIDC, m_MasterKeyPersistentIDD);
 
-		TIntArray id = {m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD};
-		EXTrace.Print(EXTrace.VEHICLES, this, "Key ID: " + ExpansionStatic.IntToHex(id));
+		EXTrace.Print(EXTrace.VEHICLES, this, "Key ID: " + ExpansionStatic.GetPersistentIDString(m_MasterKeyPersistentIDA, m_MasterKeyPersistentIDB, m_MasterKeyPersistentIDC, m_MasterKeyPersistentIDD));
 
 		m_Expansion_NetsyncData.Set(0, key.Expansion_GetPairedVehicleType());
 		m_Vehicle = key.GetKeyObject();
@@ -477,40 +483,34 @@ class ExpansionCarKey: ItemBase
 
 	void PairToVehicle( ExpansionVehicleBase vehicle )
 	{
-		m_Vehicle = vehicle;
-		
-		// TODO
+		PairToVehicle((EntityAI) vehicle);
 	}
 
 	void Unpair( bool ignore_check = false )
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.VEHICLES, this);
-
+#endif 
+		
 		if ( !ignore_check )
 		{
 			array< ExpansionCarKey > keys = new array< ExpansionCarKey >;
-			ExpansionCarKey.GetKeysForVehicle( m_Vehicle, keys );
+			ExpansionVehicle ev = ExpansionVehicle.Get(m_Vehicle);
+			ExpansionCarKey.GetKeysForVehicle( ev, keys );
 
 			if ( keys.Count() <= 1 )
 			{
-				ExpansionVehicleBase exveh;
-				if ( Class.CastTo( exveh, m_Vehicle ) )
+				if (ev)
 				{
-					//exveh.ResetKeyPairing();
-				}
-
-				CarScript vnveh;
-				if ( Class.CastTo( vnveh, m_Vehicle ) )
-				{
-					vnveh.ResetKeyPairing();
+					ev.ResetKeyPairing();
 				}
 			}
 		}
 
-		m_PersistentIDA = 0;
-		m_PersistentIDB = 0;
-		m_PersistentIDC = 0;
-		m_PersistentIDD = 0;
+		m_MasterKeyPersistentIDA = 0;
+		m_MasterKeyPersistentIDB = 0;
+		m_MasterKeyPersistentIDC = 0;
+		m_MasterKeyPersistentIDD = 0;
 		m_IsMasterKey = false;
 
 		m_Vehicle = NULL;
@@ -539,7 +539,7 @@ class ExpansionCarKey: ItemBase
 
 	bool IsPaired()
 	{
-		if ( m_PersistentIDA != 0 || m_PersistentIDB != 0 || m_PersistentIDC != 0 || m_PersistentIDD != 0 )
+		if ( m_MasterKeyPersistentIDA != 0 || m_MasterKeyPersistentIDB != 0 || m_MasterKeyPersistentIDC != 0 || m_MasterKeyPersistentIDD != 0 )
 		{
 			KeyMessage("ExpansionCarKey::IsPaired - End and return TRUE");
 			return true;
@@ -551,24 +551,42 @@ class ExpansionCarKey: ItemBase
 
 	bool IsPairedTo( CarScript vehicle )
 	{
+		return IsPairedTo((EntityAI) vehicle);
+	}
+
+	bool IsPairedTo( EntityAI entity )
+	{
+		auto vehicle = ExpansionVehicle.Get(entity, true);
+
+		if (!vehicle)
+			return false;
+
+		return IsPairedTo(vehicle);
+	}
+
+	bool IsPairedTo( ExpansionVehicle vehicle )
+	{
 		//string msg = "ExpansionCarKey::IsPairedTo:";
-		//msg = msg + " " + vehicle.GetPersistentIDA() + "=" + m_PersistentIDA;
-		//msg = msg + " " + vehicle.GetPersistentIDB() + "=" + m_PersistentIDB;
-		//msg = msg + " " + vehicle.GetPersistentIDC() + "=" + m_PersistentIDC;
-		//msg = msg + " " + vehicle.GetPersistentIDD() + "=" + m_PersistentIDD;
+		//msg = msg + " " + vehicle.GetPersistentIDA() + "=" + m_MasterKeyPersistentIDA;
+		//msg = msg + " " + vehicle.GetPersistentIDB() + "=" + m_MasterKeyPersistentIDB;
+		//msg = msg + " " + vehicle.GetPersistentIDC() + "=" + m_MasterKeyPersistentIDC;
+		//msg = msg + " " + vehicle.GetPersistentIDD() + "=" + m_MasterKeyPersistentIDD;
 		//
 		//KeyMessage(msg);
 
-		if ( m_PersistentIDA == 0 || vehicle.GetPersistentIDA() != m_PersistentIDA )
+		int b1, b2, b3, b4;
+		vehicle.GetMasterKeyPersistentID(b1, b2, b3, b4);
+
+		if ( m_MasterKeyPersistentIDA == 0 || b1 != m_MasterKeyPersistentIDA )
 			return false;
 
-		if ( m_PersistentIDB == 0 || vehicle.GetPersistentIDB() != m_PersistentIDB )
+		if ( m_MasterKeyPersistentIDB == 0 || b2 != m_MasterKeyPersistentIDB )
 			return false;
 
-		if ( m_PersistentIDC == 0 || vehicle.GetPersistentIDC() != m_PersistentIDC )
+		if ( m_MasterKeyPersistentIDC == 0 || b3 != m_MasterKeyPersistentIDC )
 			return false;
 
-		if ( m_PersistentIDD == 0 || vehicle.GetPersistentIDD() != m_PersistentIDD )
+		if ( m_MasterKeyPersistentIDD == 0 || b4 != m_MasterKeyPersistentIDD )
 			return false;
 
 		//KeyMessage("PAIRED");
@@ -578,16 +596,19 @@ class ExpansionCarKey: ItemBase
 
 	bool IsPairedToMaster( ExpansionCarKey masterkey )
 	{
-		if ( m_PersistentIDA == 0 || masterkey.GetPersistentIDA() != m_PersistentIDA )
+		int b1, b2, b3, b4;
+		masterkey.GetMasterKeyPersistentID(b1, b2, b3, b4);
+
+		if ( m_MasterKeyPersistentIDA == 0 || b1 != m_MasterKeyPersistentIDA )
 			return false;
 
-		if ( m_PersistentIDB == 0 || masterkey.GetPersistentIDB() != m_PersistentIDB )
+		if ( m_MasterKeyPersistentIDB == 0 || b2 != m_MasterKeyPersistentIDB )
 			return false;
 
-		if ( m_PersistentIDC == 0 || masterkey.GetPersistentIDC() != m_PersistentIDC )
+		if ( m_MasterKeyPersistentIDC == 0 || b3 != m_MasterKeyPersistentIDC )
 			return false;
 
-		if ( m_PersistentIDD == 0 || masterkey.GetPersistentIDD() != m_PersistentIDD )
+		if ( m_MasterKeyPersistentIDD == 0 || b4 != m_MasterKeyPersistentIDD )
 			return false;
 
 		return true;
@@ -595,9 +616,7 @@ class ExpansionCarKey: ItemBase
 
 	bool IsPairedTo( ExpansionVehicleBase vehicle )
 	{
-		// TODO
-		
-		return false;
+		return IsPairedTo((EntityAI) vehicle);
 	}
 
 	#ifdef EXPANSION_MODSTORAGE
@@ -608,10 +627,10 @@ class ExpansionCarKey: ItemBase
 		auto ctx = storage[DZ_Expansion_Vehicles];
 		if (!ctx) return;
 
-		ctx.Write(m_PersistentIDA);
-		ctx.Write(m_PersistentIDB);
-		ctx.Write(m_PersistentIDC);
-		ctx.Write(m_PersistentIDD);
+		ctx.Write(m_MasterKeyPersistentIDA);
+		ctx.Write(m_MasterKeyPersistentIDB);
+		ctx.Write(m_MasterKeyPersistentIDC);
+		ctx.Write(m_MasterKeyPersistentIDD);
 
 		string vehicleType;
 		m_Expansion_NetsyncData.Get(0, vehicleType);
@@ -629,16 +648,16 @@ class ExpansionCarKey: ItemBase
 		auto ctx = storage[DZ_Expansion_Vehicles];
 		if (!ctx) return true;
 
-		if (!ctx.Read(m_PersistentIDA))
+		if (!ctx.Read(m_MasterKeyPersistentIDA))
 			return false;
 
-		if (!ctx.Read(m_PersistentIDB))
+		if (!ctx.Read(m_MasterKeyPersistentIDB))
 			return false;
 
-		if (!ctx.Read(m_PersistentIDC))
+		if (!ctx.Read(m_MasterKeyPersistentIDC))
 			return false;
 
-		if (!ctx.Read(m_PersistentIDD))
+		if (!ctx.Read(m_MasterKeyPersistentIDD))
 			return false;
 
 		string vehicleType;

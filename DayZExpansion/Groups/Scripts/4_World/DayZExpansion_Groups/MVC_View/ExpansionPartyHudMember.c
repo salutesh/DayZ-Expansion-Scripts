@@ -47,7 +47,9 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	void ExpansionPartyHudMember(string playerID, string playerPlainID, string playerName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GROUPS, this, playerPlainID, playerName);
+#endif
 
 		m_PlayerID = playerID;
 		m_PlayerPlainID = playerPlainID;
@@ -71,7 +73,9 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	void ~ExpansionPartyHudMember()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
+#endif
 
 #ifdef EXPANSIONMONITORMODULE
 		if (!GetExpansionSettings().IsLoaded(ExpansionPartySettings))
@@ -110,7 +114,9 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	void OnDataRecived( ExpansionSyncedPlayerStats player_stats)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PLAYER_MONITOR, this, player_stats.m_PlainID);
+#endif
 
 		if (m_PlayerPlainID != player_stats.m_PlainID || !player_stats.m_HasBaseStats) return;
 
@@ -119,7 +125,9 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	void OnStateDataRecived(ExpansionSyncedPlayerStates player_states)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PLAYER_MONITOR, this, player_states.m_PlainID);
+#endif
 
 		if (m_PlayerPlainID != player_states.m_PlainID) 
 			return;
@@ -385,7 +393,10 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	void CreateUpdateTimer()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
+#endif
+		
 		if (!m_UpdateTimer && GetUpdateTickRate() != -1)
 		{
 			m_UpdateTimer = new Timer(CALL_CATEGORY_GUI);

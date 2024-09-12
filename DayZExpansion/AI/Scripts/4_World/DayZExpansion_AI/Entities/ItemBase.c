@@ -30,6 +30,13 @@ modded class ItemBase
 		m_TargetInformation.OnDeath();
 
 		super.EEKilled(killer);
+
+		eAIBase ai;
+		if (Class.CastTo(ai, GetHierarchyRootPlayer()))
+		{
+			EXTrace.Print(EXTrace.AI, this, "::EEKilled - " + ai);
+			ai.eAI_OnItemDestroyed(this);
+		}
 	}
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -50,35 +57,70 @@ modded class ItemBase
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 
-	override void EEInventoryIn(Man newParentMan, EntityAI diz, EntityAI newParent)
+	override void OnInventoryEnter(Man player)
 	{
-		super.EEInventoryIn(newParentMan, diz, newParent);
+		super.OnInventoryEnter(player);
 
 		m_TargetInformation.RemoveFromAll();
 
 		eAIBase ai;
-		if (!Class.CastTo(ai, newParentMan))
+		if (!Class.CastTo(ai, player))
 		{
 			m_Expansion_IsOwnerPlayer = true;
 			return;
 		}
 
-		EXTrace.Print(EXTrace.AI, this, "::EEInventoryIn - " + newParentMan);
+		EXTrace.Print(EXTrace.AI, this, "::OnInventoryEnter - " + player);
 
-		ai.eAI_AddItem(this);
+		if (!IsDamageDestroyed())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(ai.eAI_OnInventoryEnter, this);  //! Add in next tick to make sure we're not instantly adding items created by ObjectCreate(Ex) and similar methods where item setup (quantity etc) is performed in script after creation
 	}
 
-	override void EEInventoryOut(Man oldParentMan, EntityAI diz, EntityAI newParent)
+	override void OnInventoryExit(Man player)
 	{
-		super.EEInventoryOut(oldParentMan, diz, newParent);
+		super.OnInventoryExit(player);
 
 		eAIBase ai;
-		if (!Class.CastTo(ai, oldParentMan))
+		if (!Class.CastTo(ai, player))
 			return;
 
-		EXTrace.Print(EXTrace.AI, this, "::EEInventoryOut - " + oldParentMan);
+		EXTrace.Print(EXTrace.AI, this, "::OnInventoryExit - " + player);
 
-		ai.eAI_RemoveItem(this);
+		ai.eAI_OnInventoryExit(this);
+	}
+
+	override void OnWasAttached(EntityAI parent, int slot_id)
+	{
+		super.OnWasAttached(parent, slot_id);
+
+		eAIBase ai;
+		if (!Class.CastTo(ai, GetHierarchyRootPlayer()))
+			return;
+
+		//! If mag was attached to item that's in AI possession, remove from tracked list
+		Magazine mag;
+		if (Class.CastTo(mag, this))
+		{
+			EXTrace.Print(EXTrace.AI, this, "::OnWasAttached - " + ai);
+			ai.eAI_OnMagAttached(mag);
+		}
+	}
+
+	override void OnWasDetached(EntityAI parent, int slot_id)
+	{
+		super.OnWasDetached(parent, slot_id);
+
+		eAIBase ai;
+		if (!Class.CastTo(ai, GetHierarchyRootPlayer()))
+			return;
+
+		//! If mag was detached from item that's in AI possession, add to tracked list
+		Magazine mag;
+		if (Class.CastTo(mag, this) && !IsDamageDestroyed())
+		{
+			EXTrace.Print(EXTrace.AI, this, "::OnWasDetached - " + ai);
+			ai.eAI_OnMagDetached(mag);
+		}
 	}
 
 	override void EOnContact(IEntity other, Contact extra)
@@ -108,6 +150,15 @@ modded class ItemBase
 				eAINoiseSystem.AddNoise(this, CFG_VEHICLESPATH + " Bone NoiseImpact", 0.1, eAINoiseType.SOUND);
 			}
 		}
+	}
+
+	override bool AreChildrenAccessible()
+	{
+		eAIBase ai;
+		if (Class.CastTo(ai, GetHierarchyRootPlayer()))
+			return true;
+
+		return super.AreChildrenAccessible();
 	}
 
 	bool Expansion_TryTurningOn()
@@ -233,5 +284,14 @@ modded class ItemBase
 		}
 
 		return false;
+	}
+
+	Man Expansion_GetRootPlayerAliveExcluding(Man player)
+	{
+		Man owner = GetHierarchyRootPlayer();
+		if (owner && owner != player && owner.IsAlive())
+			return owner;
+
+		return null;
 	}
 };

@@ -148,4 +148,9 @@ class ExpansionZodiacBoat: ExpansionBoatScript
 		Fill(CarFluid.COOLANT, 6.0);
 		Fill(CarFluid.OIL, 4.0);
 	}
+
+	override bool LeavingSeatDoesAttachment(int posIdx)
+	{
+		return true;
+	}
 };

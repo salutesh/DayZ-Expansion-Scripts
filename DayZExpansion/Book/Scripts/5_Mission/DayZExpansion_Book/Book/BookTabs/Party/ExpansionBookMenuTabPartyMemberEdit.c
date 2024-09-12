@@ -13,43 +13,48 @@
 #ifdef EXPANSIONMODGROUPS
 class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 {
-	ref ExpansionBookMenuTabPartyMemberEditController m_MemberEditController;
-	ref ExpansionPartyPlayerData m_Member;
-	ref ExpansionPartyPlayerData m_Player;
-	ref ExpansionPartyData m_Party;
-	ref ExpansionBookMenuTabParty m_PartyTab;
-	ref ExpansionPartyModule m_PartyModule;
+	protected ref ExpansionBookMenuTabPartyMemberEditController m_MemberEditController;
+	protected ref ExpansionPartyPlayerData m_Member;
+	protected ref ExpansionPartyPlayerData m_Player;
+	protected ref ExpansionPartyData m_Party;
+	protected ref ExpansionBookMenuTabParty m_PartyTab;
+	protected ref ExpansionPartyModule m_PartyModule;
 	
-	private ImageWidget member_status_icon;
-	private PlayerPreviewWidget book_member_preview;
-	private ButtonWidget option_kick_button;
-	private TextWidget option_kick_label;
-	private ButtonWidget option_cancel_button;
-	private TextWidget option_cancel_label;
+	protected ImageWidget member_status_icon;
+	protected PlayerPreviewWidget book_member_preview;
+	protected ButtonWidget option_kick_button;
+	protected TextWidget option_kick_label;
+	protected ButtonWidget option_cancel_button;
+	protected TextWidget option_cancel_label;
 	
-	private Widget member_perm_edit_spacer;
-	private CheckBoxWidget member_perm_edit_checkbox;
+	protected Widget member_perm_edit_spacer;
+	protected CheckBoxWidget member_perm_edit_checkbox;
 	
-	private Widget member_perm_kick_spacer;
-	private CheckBoxWidget member_perm_kick_checkbox;
+	protected Widget member_perm_kick_spacer;
+	protected CheckBoxWidget member_perm_kick_checkbox;
 	
-	private Widget member_perm_delete_spacer;
-	private CheckBoxWidget member_perm_delete_checkbox;
+	protected Widget member_perm_delete_spacer;
+	protected CheckBoxWidget member_perm_delete_checkbox;
 	
-	private Widget member_perm_invite_spacer;
-	private CheckBoxWidget member_perm_invite_checkbox;
+	protected Widget member_perm_invite_spacer;
+	protected CheckBoxWidget member_perm_invite_checkbox;
 
 #ifdef EXPANSIONMODMARKET	
-	private Widget member_perm_withdraw_spacer;
-	private CheckBoxWidget member_perm_withdraw_checkbox;
+	protected Widget member_perm_withdraw_spacer;
+	protected CheckBoxWidget member_perm_withdraw_checkbox;
 #endif
 	
-	private TextWidget option_save_label;
-	private ButtonWidget option_save_button;
+	protected TextWidget option_save_label;
+	protected ButtonWidget option_save_button;
 	
-	vector m_PlayerPreviewOrientation = vector.Zero;
-	int m_PlayerPreviewRotationX = 0;
-	int m_PlayerPreviewRotationY = 0;
+	protected SliderWidget color_picker_r;
+	protected SliderWidget color_picker_g;
+	protected SliderWidget color_picker_b;
+	protected ImageWidget color_preview;
+	
+	protected vector m_PlayerPreviewOrientation = vector.Zero;
+	protected int m_PlayerPreviewRotationX = 0;
+	protected int m_PlayerPreviewRotationY = 0;
 	
 	protected bool m_MouseButtonIsDown;
 	
@@ -139,30 +144,43 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 			m_MemberEditController.MemberStatus = "Offline";
 			m_MemberEditController.NotifyPropertyChanged("MemberStatus");
 		}
-				
-		//! If editing member is owner of the party or if the player using the menu dont has edit permissions the hide the permisson checkboxes
-		if (!GetPlayerPartyData().CanEdit() || GetMemberPartyData().GetID() == m_Party.GetOwnerUID())
+		
+		if ( GetPlayerPartyData().CanEdit() )
 		{
-			HideAllAdminControls();
-		}
-		else //! If player has the right to edit members then display the permisson checkboxes
-		{
-			option_kick_button.Show(true);
+			//! If player has the right to edit members then display the permisson checkboxes
+			bool isOwner = GetMemberPartyData().GetID() == m_Party.GetOwnerUID();
+
+			option_kick_button.Show(!isOwner);
+			member_perm_edit_spacer.Show(!isOwner);
+			member_perm_kick_spacer.Show(!isOwner);
+			member_perm_delete_spacer.Show(!isOwner);
+			member_perm_invite_spacer.Show(!isOwner);
+		#ifdef EXPANSIONMODMARKET
+			member_perm_withdraw_spacer.Show(!isOwner); //! Show withdraw elements when market mod is loaded
+		#endif
+
+			if (!isOwner)
+			{
+				member_perm_edit_checkbox.SetChecked(GetMemberPartyData().CanEdit());
+				member_perm_kick_checkbox.SetChecked(GetMemberPartyData().CanKick());
+				member_perm_delete_checkbox.SetChecked(GetMemberPartyData().CanDelete());
+				member_perm_invite_checkbox.SetChecked(GetMemberPartyData().CanInvite());
+			#ifdef EXPANSIONMODMARKET
+				member_perm_withdraw_checkbox.SetChecked(GetMemberPartyData().CanWithdrawMoney());
+			#endif
+			}
+
 			option_save_button.Show(true);
 			option_save_label.Show(true);
-
-			member_perm_edit_spacer.Show(true);
-			member_perm_edit_checkbox.SetChecked(GetMemberPartyData().CanEdit());
-			member_perm_kick_spacer.Show(true);
-			member_perm_kick_checkbox.SetChecked(GetMemberPartyData().CanKick());
-			member_perm_delete_spacer.Show(true);
-			member_perm_delete_checkbox.SetChecked(GetMemberPartyData().CanDelete());
-			member_perm_invite_spacer.Show(true);
-			member_perm_invite_checkbox.SetChecked(GetMemberPartyData().CanInvite());
-		#ifdef EXPANSIONMODMARKET
-			member_perm_withdraw_spacer.Show(true); //! Show withdraw elements when market mod is loaded
-			member_perm_withdraw_checkbox.SetChecked(GetMemberPartyData().CanWithdrawMoney());
-		#endif
+			
+			color_picker_r.Show(true);
+			color_picker_g.Show(true);
+			color_picker_b.Show(true);
+			SetPrimaryColor(GetMemberPartyData().GetColor());
+		}
+		else
+		{
+			HideAllAdminControls();
 		}
 	}
 	
@@ -179,6 +197,10 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 	#ifdef EXPANSIONMODMARKET
 		member_perm_withdraw_spacer.Show(false);
 	#endif
+
+		color_picker_r.Show(false);
+		color_picker_g.Show(false);
+		color_picker_b.Show(false);
 	}
 
 	void SetMemberPreview(string id)
@@ -218,12 +240,12 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 	}
 	
 	void OnSaveButtonClick()
-	{				
+	{
+		m_PartyModule.ChangeMemberColor(GetMemberPartyData().GetID(), color_preview.GetColor(), true);
+
 		//! If current member that we edit is the party owner then block all further actions
 		if (GetMemberPartyData().UID == m_Party.GetOwnerUID())
-		{
 			return;
-		}
 		
 		int perm = GetMemberPartyData().GetPermissions();
 		#ifdef EXPANSIONMODGROUPS_DEBUG
@@ -291,11 +313,6 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		#endif
 	}
 	
-	override void OnShow()
-	{
-		super.OnShow();
-	}
-	
 	override bool OnMouseButtonDown( Widget w, int x, int y, int button )
 	{		
 		if (w == book_member_preview && !m_MouseButtonIsDown)
@@ -315,6 +332,40 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		m_MouseButtonIsDown = false;
 
 		return super.OnMouseButtonUp(w, x, y, button);
+	}
+
+	bool IsRGBSlider(Widget w)
+	{
+		return w == color_picker_r || w == color_picker_g || w == color_picker_b;
+	}
+
+	void SetPrimaryColor(int color)
+	{
+		if (color_picker_r && color_picker_g && color_picker_b)
+		{
+			int a = (color >> 24) & 0xFF;
+			int r = (color >> 16) & 0xFF;
+			int g = (color >> 8) & 0xFF;
+			int b = (color)&0xFF;
+
+			color_picker_r.SetCurrent(r);
+			color_picker_g.SetCurrent(g);
+			color_picker_b.SetCurrent(b);
+		}
+
+		color_preview.SetColor(color);
+	}
+
+	override bool OnChange(Widget w, int x, int y, bool finished)
+	{
+		if (w != NULL && IsRGBSlider(w))
+		{
+			SetPrimaryColor(ARGB(255, color_picker_r.GetCurrent(), color_picker_g.GetCurrent(), color_picker_b.GetCurrent()));
+
+			return true;
+		}
+
+		return super.OnChange(w, x, y, finished);
 	}
 	
 	override bool OnMouseEnter(Widget w, int x, int y)

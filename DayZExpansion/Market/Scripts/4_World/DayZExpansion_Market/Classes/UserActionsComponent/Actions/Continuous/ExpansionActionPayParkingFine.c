@@ -21,7 +21,7 @@ class ExpansionActionPayParkingFineCB: ActionContinuousBaseCB
 
 class ExpansionActionPayParkingFine: ActionInteractBase
 {
-	CarScript m_Vehicle;  //! client only!
+	ExpansionVehicle m_Vehicle;  //! client only!
 
 	void ExpansionActionPayParkingFine()
 	{
@@ -48,16 +48,27 @@ class ExpansionActionPayParkingFine: ActionInteractBase
 
 	override string GetText()
 	{
-		return string.Format("Pay fine (%1)", m_Vehicle.Expansion_GetParkingFine());
+		return string.Format("Pay fine (%1)", m_Vehicle.GetParkingFine());
 	}
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		if (!Class.CastTo(m_Vehicle, target.GetParentOrObject()) && !Class.CastTo(m_Vehicle, player.GetParent()))
+		if (!ExpansionVehicle.Get(m_Vehicle, target.GetParentOrObject()) && !ExpansionVehicle.Get(m_Vehicle, player))
 			return false;
 
-		if (!m_Vehicle.Expansion_GetParkingFine())
+		if (!m_Vehicle.GetParkingFine())
 			return false;
+		
+		#ifdef SERVER
+		if ( m_Vehicle.HasKey() )
+		{
+			if (!player.HasKeyForCar(m_Vehicle))
+			{
+				ExpansionNotification("STR_EXPANSION_ERROR_TITLE", "STR_EXPANSION_MARKET_FINE_MISSING_KEY").Error(player.GetIdentity());
+				return false;
+			}
+		}
+		#endif
 
 		return true;
 	}
@@ -65,10 +76,10 @@ class ExpansionActionPayParkingFine: ActionInteractBase
 	override void OnExecuteServer(ActionData action_data)
 	{
 		PlayerBase player = action_data.m_Player;
-		CarScript vehicle;
-		if (Class.CastTo(vehicle, action_data.m_Target.GetParentOrObject()) || Class.CastTo(vehicle, player.GetParent()))
+		ExpansionVehicle vehicle;
+		if (ExpansionVehicle.Get(vehicle, action_data.m_Target.GetParentOrObject()) || ExpansionVehicle.Get(vehicle, player))
 		{
-			int amount = vehicle.Expansion_GetParkingFine();
+			int amount = vehicle.GetParkingFine();
 			ExpansionMarketModule market = ExpansionMarketModule.GetInstance();
 
 			TIntArray monies = {};
@@ -82,9 +93,9 @@ class ExpansionActionPayParkingFine: ActionInteractBase
 					market.CheckSpawn(player, parent);
 				}
 
-				vehicle.UnlockCarWithoutKey(ExpansionVehicleLockState.UNLOCKED);
-				vehicle.Expansion_SetParkingFine(0);
-				vehicle.Expansion_ResetSZParkingTime();
+				vehicle.ForceUnlock(ExpansionVehicleLockState.UNLOCKED);
+				vehicle.SetParkingFine(0);
+				vehicle.ResetSZParkingTime();
 			}
 			else
 			{

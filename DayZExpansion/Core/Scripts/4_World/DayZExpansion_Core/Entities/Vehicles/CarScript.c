@@ -21,27 +21,20 @@ modded class CarScript
 
 	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<CarScript>(this);
 
-	protected bool m_Expansion_IsInSafeZone;
-	protected bool m_Expansion_IsInSafeZone_DeprecationWarning;
-	protected bool m_Expansion_SZCleanup;
-	protected float m_Expansion_SZParkingTime;
-
 	protected string m_CurrentSkinName;
 
 	protected bool m_Expansion_IsStoreLoaded;
 	protected bool m_Expansion_IsStoreSaved;
 
-	protected string m_Expansion_LastDriverUID;
-	protected bool m_Expansion_SynchLastDriverUID;
-	protected bool m_Expansion_LastDriverUIDSynched;
-
+#ifdef DAYZ_1_25
 	bool m_Expansion_AcceptingAttachment;
-
-	int m_Expansion_CargoCount;
+#endif
 
 	ref ExpansionGlobalID m_Expansion_GlobalID = new ExpansionGlobalID();
 
 	ref ExpansionRPCManager m_Expansion_RPCManager;
+
+	ref ExpansionVehicle m_ExpansionVehicle = new ExpansionVehicleT<CarScript>(this);
 
 	// ------------------------------------------------------------
 	// Constructor
@@ -49,10 +42,10 @@ modded class CarScript
 	void CarScript()
 	{
 		m_Expansion_Node = s_Expansion_AllVehicles.Add(this);
-		RegisterNetSyncVariableBool("m_Expansion_SynchLastDriverUID");
-		RegisterNetSyncVariableInt("m_Expansion_CargoCount");
 
 		m_Expansion_RPCManager = new ExpansionRPCManager(this, CarScript);
+
+		m_ExpansionVehicle.Init();
 	}
 
 	// ------------------------------------------------------------
@@ -67,15 +60,58 @@ modded class CarScript
 			s_Expansion_AllVehicles.Remove(m_Expansion_Node);
 	}
 
+	override void SetActions()
+	{
+		super.SetActions();
+
+		m_ExpansionVehicle.SetActions();
+	}
+
+	void Expansion_AddAction(typename actionName)
+	{
+		AddAction(actionName);
+	}
+
+	ExpansionVehicle GetExpansionVehicle()
+	{
+		return m_ExpansionVehicle;
+	}
+
+	bool Expansion_IsBike()
+	{
+		return false;
+	}
+
+	bool Expansion_IsBoat()
+	{
+		return false;
+	}
+
+	bool Expansion_IsCar()
+	{
+		return true;
+	}
+
+	bool Expansion_IsHelicopter()
+	{
+		return false;
+	}
+
+	bool Expansion_IsPlane()
+	{
+		return false;
+	}
+
+	bool Expansion_IsDuck()
+	{
+		return false;
+	}
+
 	override void DeferredInit()
 	{
 		super.DeferredInit();
 
-		if (m_Expansion_IsStoreLoaded && !IsSetForDeletion() && ExpansionEntityStoragePlaceholder.Expansion_HasPlaceholder(this))
-		{
-			EXPrint("Deleting " + this + " " + GetPosition() + " global ID " + m_Expansion_GlobalID.IDToString());
-			Delete();
-		}
+		m_ExpansionVehicle.DeferredInit();
 	}
 
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -116,27 +152,32 @@ modded class CarScript
 	{
 	}
 
+	string ExpansionGetCurrentSkinName()
+	{
+		return "";
+	}
+	
+	int ExpansionGetCurrentSkinIndex()
+	{
+		return 0;
+	}
+
 	bool IsInSafeZone()
 	{
-		Expansion_Error("DEPRECATED: Please use Expansion_IsInSafeZone", m_Expansion_IsInSafeZone_DeprecationWarning);
+		EXError.WarnOnce(this, "DEPRECATED: Please use Expansion_IsInSafeZone");
 		return Expansion_IsInSafeZone();
 	}
 
 	// ------------------------------------------------------------
 	bool Expansion_IsInSafeZone()
 	{
-		return m_Expansion_IsInSafeZone;
+		return m_ExpansionVehicle.IsInSafeZone();
 	}
 
 	// ------------------------------------------------------------
 	bool CanBeDamaged()
 	{
-		if ( GetExpansionSettings().GetSafeZone().Enabled && Expansion_IsInSafeZone() )
-		{
-			return !GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone;
-		}
-
-		return GetAllowDamage();
+		return m_ExpansionVehicle.CanBeDamaged();
 	}
 
 	// ------------------------------------------------------------
@@ -144,79 +185,19 @@ modded class CarScript
 	// ------------------------------------------------------------
 	void OnEnterZone(ExpansionZoneType type)
 	{
-		if (type != ExpansionZoneType.SAFE) return;
-
-		EXTrace.Print(EXTrace.VEHICLES, this, "::OnEnterZone " + GetPosition());
-
-		m_Expansion_IsInSafeZone = true;
-
-		if (GetExpansionSettings().GetSafeZone().EnableForceSZCleanupVehicles)
-			ExpansionCreateCleanup();
+		m_ExpansionVehicle.OnEnterZone(type);
 	}
 
 	override void OnCEUpdate()
 	{
 		super.OnCEUpdate();
 
-		Expansion_UpdateSafeZoneCleanup();
-	}
-
-	void Expansion_UpdateSafeZoneCleanup()
-	{
-		//! If vehicle is not in a safezone, bail
-		if (!m_Expansion_IsInSafeZone)
-			return;
-
-		//! If vehicle vehicle safezone cleanup is not enabled, bail
-		if (!m_Expansion_SZCleanup)
-			return;
-
-	#ifdef EXPANSIONMODVEHICLE
-		//! Heli needs to be landed to count as parked
-		ExpansionHelicopterScript heli;
-		if (Class.CastTo(heli, this) && heli.Expansion_EngineIsSpinning() && !heli.IsLanded())
-			return;
-	#endif
-
-		//! If vehicle isn't moving, consider it parked and increase parking time
-		if (!IsMoving())
-			m_Expansion_SZParkingTime += m_ElapsedSinceLastUpdate;
-
-		//! If parking time is zero, bail
-		if (!m_Expansion_SZParkingTime)
-			return;
-
-		//! If parking time exceeds max allowed vehicle lifetime in SZ, delete it
-		float lifetime = GetExpansionSettings().GetSafeZone().VehicleLifetimeInSafeZone;
-		if (m_Expansion_SZParkingTime > lifetime)
-		{
-			Expansion_ForceCrewGetOut();
-
-			//! If we have last driver UID, notify player that their vehicle is being deleted
-			if (m_Expansion_LastDriverUID)
-			{
-				PlayerBase player = PlayerBase.GetPlayerByUID(m_Expansion_LastDriverUID);
-				if (player)
-					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", string.Format("%1 at %2 was deleted after exceeding the maximum allowed safezone parking time of %3.", GetDisplayName(), ExpansionStatic.VectorToString(GetPosition(), ExpansionVectorToString.Labels), ExpansionStatic.GetTimeString(lifetime, true))).Error(player.GetIdentity());
-			}
-
-			Delete();
-		}
+		m_ExpansionVehicle.SafeZoneCleanup(m_ElapsedSinceLastUpdate);
 	}
 
 	void ExpansionCreateCleanup()
 	{
-		if (m_Expansion_SZCleanup)
-			return;
-
-		if (ExpansionStatic.IsAnyOf(this, GetExpansionSettings().GetSafeZone().ForceSZCleanup_ExcludedItems, true))
-			return;
-
-		m_Expansion_SZCleanup = true;
-
-		#ifdef EXPANSION_SAFEZONE_DEBUG
-		EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " marked for cleanup - lifetime " + GetLifetime());
-		#endif
+		EXError.Error(this, "DEPRECATED");
 	}
 
 	// ------------------------------------------------------------
@@ -224,72 +205,33 @@ modded class CarScript
 	// ------------------------------------------------------------
 	void OnExitZone(ExpansionZoneType type)
 	{
-		if (type != ExpansionZoneType.SAFE) return;
-
-		EXTrace.Print(EXTrace.VEHICLES, this, "::OnExitZone " + GetPosition());
-
-		m_Expansion_IsInSafeZone = false;
-		m_Expansion_SZCleanup = false;
-		Expansion_ResetSZParkingTime();
+		m_ExpansionVehicle.OnExitZone(type);
 	}
 
 	void Expansion_ResetSZParkingTime()
 	{
-		m_Expansion_SZParkingTime = 0;
+		EXError.Error(this, "DEPRECATED");
 	}
 
 	void SetLockedState(ExpansionVehicleLockState newLockState)
 	{
-		Error("NOT IMPLEMENTED");
+		m_ExpansionVehicle.SetLockState(newLockState);
 	}
 
 	ExpansionVehicleLockState GetLockedState()
 	{
-		Error("NOT IMPLEMENTED");
-		return ExpansionVehicleLockState.NOLOCK;
+		return m_ExpansionVehicle.GetLockState();
 	}
 
 	void Expansion_SetAllDoorsAnimationPhase(float phase)
 	{
-		CarDoor carDoor;
-
-		for (int i = 0; i < GetInventory().AttachmentCount(); i++)
-		{
-			if (Class.CastTo(carDoor, GetInventory().GetAttachmentFromIndex(i)))
-			{
-				TStringArray selectionNames = {};
-
-				carDoor.GetActionComponentNameList(0, selectionNames);
-
-				if (!selectionNames.Count())
-					continue;
-
-				TStringArray animSources = {};
-				string animSource;
-
-				foreach (string selectionName: selectionNames)
-				{
-					animSource = GetAnimSourceFromSelection(selectionName);
-					if (animSource)
-						animSources.Insert(animSource);
-				}
-
-				 //! Turns out correct selection is always last one when doing it this way
-				int lastIdx = animSources.Count() - 1;
-				if (lastIdx > -1)
-				{
-					animSource = animSources[lastIdx];
-					if (GetAnimationPhase(animSource) > 0.0)
-						SetAnimationPhase(animSource, 0.0);
-				}
-			}
-		}
+		m_ExpansionVehicle.SetAllDoorsAnimationPhase(phase);
 	}
 
 	void Expansion_CloseAllDoors()
 	{
 		ForceUpdateLightsStart();
-		Expansion_SetAllDoorsAnimationPhase(0.0);
+		m_ExpansionVehicle.SetAllDoorsAnimationPhase(0.0);
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ForceUpdateLightsEnd, 500);
 	}
 
@@ -298,21 +240,33 @@ modded class CarScript
 		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
 			return false;
 
-		return CanBeDamaged();
+		return m_ExpansionVehicle.CanBeDamaged();
 	}
 
 	bool Expansion_CanObjectAttach(Object obj)
 	{
+		if (obj.IsMan())
+			return Expansion_CanPlayerAttach();
+
 		return false;
 	}
 
-	bool Expansion_IsVehicleFunctional(bool checkOptionalParts = false)
+	bool Expansion_CanPlayerAttach()
+	{
+		return ConfigGetFloat("animPhysDetachSpeed") > 0;
+	}
+
+	bool Expansion_IsVehicleFunctional(bool checkOptionalParts = false, set<typename> missingComponents = null)
 	{
 		if (IsDamageDestroyed())
 			return false;
 
 		if (GetFluidFraction(CarFluid.FUEL) <= 0)
+		{
+			if (missingComponents)
+				missingComponents.Insert(CarFluid);
 			return false;
+		}
 
 		EntityAI item;
 
@@ -320,21 +274,30 @@ modded class CarScript
 		{
 			item = GetBattery();
 			if (!item || item.IsRuined() || item.GetCompEM().GetEnergy() < m_BatteryEnergyStartMin)
+			{
+				if (missingComponents)
+					missingComponents.Insert(VehicleBattery);
 				return false;
+			}
 		}
+
+		TStringArray plugSlotsToCheck = {};
 
 		if (IsVitalSparkPlug())
-		{
-			item = FindAttachmentBySlotName("SparkPlug");
-			if (!item || item.IsRuined())
-				return false;
-		}
+			plugSlotsToCheck.Insert("SparkPlug");
 
 		if (IsVitalGlowPlug())
+			plugSlotsToCheck.Insert("GlowPlug");
+
+		foreach (string plugSlotName: plugSlotsToCheck)
 		{
-			item = FindAttachmentBySlotName("GlowPlug");
+			item = FindAttachmentBySlotName(plugSlotName);
 			if (!item || item.IsRuined())
+			{
+				if (missingComponents)
+					missingComponents.Insert(SparkPlug);
 				return false;
+			}
 		}
 
 		if (checkOptionalParts)
@@ -343,11 +306,35 @@ modded class CarScript
 			{
 				item = GetRadiator();
 				if (!item || item.IsRuined())
+				{
+					if (missingComponents)
+						missingComponents.Insert(CarRadiator);
 					return false;
+				}
 			}
 		}
 
 		return true;
+	}
+	
+	string Expansion_GetAnimSourceFromSelection(string selection)
+	{
+		return GetAnimSourceFromSelection(selection);
+	}
+	
+	string Expansion_GetDoorInvSlotNameFromSeatPos(int posIdx)
+	{
+		return GetDoorInvSlotNameFromSeatPos(posIdx);
+	}
+	
+	string Expansion_GetDoorSelectionNameFromSeatPos(int posIdx)
+	{
+		return GetDoorSelectionNameFromSeatPos(posIdx);
+	}
+
+	int Expansion_GetCarDoorsState(string slotType)
+	{
+		return GetCarDoorsState(slotType);
 	}
 
 	override void EEInit()
@@ -356,6 +343,13 @@ modded class CarScript
 
 		if (IsMissionHost() && GetExpansionSettings().GetSafeZone().Enabled)
 			m_Expansion_SafeZoneInstance.Update();
+	}
+
+	override void EEDelete(EntityAI parent)
+	{
+		super.EEDelete(parent);
+
+		m_ExpansionVehicle.OnDelete();
 	}
 
 	override void DamageCrew(float dmg)
@@ -407,108 +401,46 @@ modded class CarScript
 	}
 	#endif
 
+	bool Expansion_IsStoreLoaded()
+	{
+		return m_Expansion_IsStoreLoaded;
+	}
+
+	bool Expansion_IsStoreSaved()
+	{
+		return m_Expansion_IsStoreSaved;
+	}
+
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();
 
-		if (m_Expansion_SynchLastDriverUID != m_Expansion_LastDriverUIDSynched)
-		{
-			m_Expansion_LastDriverUIDSynched = m_Expansion_SynchLastDriverUID;
-
-			if (!m_Expansion_SynchLastDriverUID)
-				return;
-
-			//! Reset m_Expansion_LastDriverUID client-side if vehicle has driver and it is not the player
-			Human driver = CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
-			Man player = GetGame().GetPlayer();
-			if (driver && player && driver != player)
-			{
-				m_Expansion_LastDriverUID = "";
-			}
-		}
+		m_ExpansionVehicle.OnVariablesSynchronized();
 	}
 
 	void ExpansionSetLastDriverUID(PlayerBase player)
 	{
-		m_Expansion_LastDriverUID = player.GetIdentityUID();
-
-		EXPrint(ToString() + "::ExpansionSetLastDriverUID - " + m_Expansion_LastDriverUID);
-
-		if (!IsMissionHost())
-			return;
-
-		m_Expansion_SynchLastDriverUID = true;
-
-		SetSynchDirty();
+		m_ExpansionVehicle.SetLastDriverUID(player);
 	}
 
 	void ExpansionResetLastDriverUIDSynch()
 	{
-		EXPrint(ToString() + "::ExpansionResetLastDriverUIDSynch");
-
-		m_Expansion_SynchLastDriverUID = false;
-
-		SetSynchDirty();
+		m_ExpansionVehicle.ResetLastDriverUIDSynch();
 	}
 
 	string ExpansionGetLastDriverUID()
 	{
-		return m_Expansion_LastDriverUID;
+		return m_ExpansionVehicle.GetLastDriverUID();
 	}
 
 	set<Human> Expansion_GetVehicleCrew(bool playersOnly = true, bool includeAttached = true)
 	{
-		set<Human> players = new set<Human>;
-		Human crew;
-
-		//! Seated players
-		for (int i = 0; i < CrewSize(); i++)
-		{
-			crew = CrewMember(i);
-			if (!crew)
-				continue;
-
-			if (!playersOnly || crew.GetIdentity())
-				players.Insert(crew);
-		}
-
-		if (!includeAttached)
-			return players;
-
-		//! Attached players
-		IEntity child = GetChildren();
-		while (child)
-		{
-			crew = Human.Cast(child);
-
-			child = child.GetSibling();
-
-			if (!crew)
-				continue;
-
-			if (!playersOnly || crew.GetIdentity())
-				players.Insert(crew);
-		}
-
-		return players;
+		return m_ExpansionVehicle.GetCrew(playersOnly, includeAttached);
 	}
 
 	void Expansion_ForceCrewGetOut()
 	{
-		auto crew = Expansion_GetVehicleCrew(false, false);
-		foreach (auto member: crew)
-		{
-			//! Open the door so player can get out
-			int crewIdx = CrewMemberIndex(member);
-			string selection = GetDoorSelectionNameFromSeatPos(crewIdx);
-			if (selection)
-				SetAnimationPhase(GetAnimSourceFromSelection(selection), 1.0);
-
-			//! Push them out
-			HumanCommandVehicle vehCommand = member.GetCommand_Vehicle();
-			if (vehCommand)
-				vehCommand.GetOutVehicle();
-		}
+		m_ExpansionVehicle.ForceCrewGetOut();
 	}
 
 	float Expansion_GetFuelAmmount()

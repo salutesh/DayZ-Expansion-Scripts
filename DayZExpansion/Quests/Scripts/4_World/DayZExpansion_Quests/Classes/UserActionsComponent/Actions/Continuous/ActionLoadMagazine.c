@@ -3,7 +3,9 @@ modded class ActionLoadMagazine
 {
 	override void OnStartServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		action_data.m_Player.Expansion_RememberAmmoInInventoryQuantity();
 
@@ -12,7 +14,9 @@ modded class ActionLoadMagazine
 
 	override void OnEndServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		super.OnEndServer(action_data);
 
@@ -25,7 +29,9 @@ modded class ActionLoadMagazineQuick
 {
 	override void OnStartServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		action_data.m_Player.Expansion_RememberAmmoInInventoryQuantity();
 
@@ -34,7 +40,9 @@ modded class ActionLoadMagazineQuick
 
 	override void OnEndServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		super.OnEndServer(action_data);
 
@@ -46,7 +54,9 @@ modded class ActionEmptyMagazine
 {
 	override void OnStartServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		action_data.m_Player.Expansion_RememberAmmoInInventoryQuantity();
 
@@ -55,7 +65,9 @@ modded class ActionEmptyMagazine
 
 	override void OnEndServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		super.OnEndServer(action_data);
 
@@ -68,7 +80,9 @@ modded class FirearmActionLoadBullet
 {
 	override void OnEndServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		super.OnEndServer(action_data);
 
@@ -83,7 +97,9 @@ modded class FirearmActionLoadBulletQuick
 {
 	override void OnEndServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		super.OnEndServer(action_data);
 
@@ -98,7 +114,9 @@ modded class FirearmActionLoadMultiBullet
 {
 	override void OnStartServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		action_data.m_Player.Expansion_RememberAmmoInInventoryQuantity();
 
@@ -107,7 +125,9 @@ modded class FirearmActionLoadMultiBullet
 
 	override void OnEndServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		super.OnEndServer(action_data);
 
@@ -120,7 +140,9 @@ modded class FirearmActionLoadMultiBulletQuick
 {
 	override void OnStartServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		action_data.m_Player.Expansion_RememberAmmoInInventoryQuantity();
 
@@ -129,7 +151,9 @@ modded class FirearmActionLoadMultiBulletQuick
 
 	override void OnEndServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		super.OnEndServer(action_data);
 
@@ -141,7 +165,9 @@ modded class FirearmActionLoadMultiBulletRadial
 {
 	override void OnStartServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		action_data.m_Player.Expansion_RememberAmmoInInventoryQuantity();
 
@@ -150,7 +176,9 @@ modded class FirearmActionLoadMultiBulletRadial
 
 	override void OnEndServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		super.OnEndServer(action_data);
 
@@ -163,7 +191,9 @@ modded class FirearmActionMechanicManipulate
 {
 	override void OnStartServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		action_data.m_Player.Expansion_RememberAmmoInInventoryQuantity();
 
@@ -172,7 +202,9 @@ modded class FirearmActionMechanicManipulate
 
 	override void OnEndServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		super.OnEndServer(action_data);
 

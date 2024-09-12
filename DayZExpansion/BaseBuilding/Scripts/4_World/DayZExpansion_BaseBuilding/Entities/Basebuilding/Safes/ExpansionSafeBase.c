@@ -71,23 +71,23 @@ class ExpansionSafeBase: Container_Base
 	// ------------------------------------------------------------
 	// Expansion Open
 	// ------------------------------------------------------------
-	override void Open( string selection ) 
+	override void Expansion_Open( string selection ) 
 	{
 		//! Door open animation
 		SetAnimationPhase( "safe_door", 1 );
 
-		super.Open( selection );
+		super.Expansion_Open( selection );
 	}
 
 	// ------------------------------------------------------------
 	// Expansion Close
 	// ------------------------------------------------------------
-	override void Close( string selection ) 
+	override void Expansion_Close( string selection ) 
 	{
 		//! Door close animation
 		SetAnimationPhase( "safe_door", 0 );
 		
-		super.Close( selection );
+		super.Expansion_Close( selection );
 	}
 	
 	protected void SoundCodeLockLocked()

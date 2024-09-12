@@ -81,7 +81,9 @@ class ExpansionQuestObjectiveCraftingConfig: ExpansionQuestObjectiveCraftingConf
 	
 	override void Save(string fileName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER + fileName);
+#endif
 
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";

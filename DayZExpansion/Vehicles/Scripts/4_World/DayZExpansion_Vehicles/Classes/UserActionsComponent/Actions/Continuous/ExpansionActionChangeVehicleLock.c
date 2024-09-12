@@ -50,25 +50,11 @@ class ExpansionActionChangeVehicleLock: ExpansionActionToolBase
 		if ( player.Expansion_IsInSafeZone() )
 			return false;
 
-		CarScript carScript = CarScript.Cast( target.GetParentOrObject() );
-		ExpansionVehicleBase vehicleBase = ExpansionVehicleBase.Cast( target.GetParentOrObject() );
-
-		if ( !carScript && !vehicleBase )
+		auto vehicle = ExpansionVehicle.Get(target.GetParentOrObject());
+		if (!vehicle)
 			return false;
 
-		bool canChangeLock;
-		if ( carScript )
-		{
-			if (carScript.HasKey() && !carScript.IsLocked())
-				canChangeLock = true;
-		}
-		else
-		{
-			if (vehicleBase.HasKey() && !vehicleBase.IsLocked())
-				canChangeLock = true;
-		}
-
-		if ( canChangeLock )
+		if (vehicle.HasKey() && !vehicle.IsLocked())
 		{
 			if ( !GetExpansionSettings().GetVehicle().CanChangeLock )
 				return false;
@@ -82,26 +68,17 @@ class ExpansionActionChangeVehicleLock: ExpansionActionToolBase
 
 	override void OnFinishProgressServer( ActionData action_data )
 	{
-		CarScript carScript = CarScript.Cast( action_data.m_Target.GetParentOrObject() );
-		ExpansionVehicleBase vehicleBase = ExpansionVehicleBase.Cast( action_data.m_Target.GetParentOrObject() );
+		auto vehicle = ExpansionVehicle.Get(action_data.m_Target.GetParentOrObject());
 
-		if ( !carScript && !vehicleBase )
+		if (!vehicle)
 			return;
 
 		array< ExpansionCarKey > keys = new array< ExpansionCarKey >;
 
-		if ( carScript )
-		{
-			ExpansionCarKey.GetKeysForVehicle( carScript, keys );
-			carScript.ResetKeyPairing();
-		}
-		else
-		{
-			ExpansionCarKey.GetKeysForVehicle( vehicleBase, keys );
-			vehicleBase.ResetKeyPairing();
-		}
+		ExpansionCarKey.GetKeysForVehicle(vehicle, keys);
+		vehicle.ResetKeyPairing();
 
-		for ( int i = 0; i < keys.Count(); ++i )
-			keys[i].Unpair( true );
+		foreach (auto key: keys)
+			key.Unpair(true);
 	}
 }

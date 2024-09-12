@@ -34,34 +34,15 @@ class ExpansionActionNextEngine : ActionInteractBase
 	{
 		Human driver;
 		
-		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
-		if (vehCommand)
+		auto vehicle = ExpansionVehicle.Get(player);
+		if (vehicle)
 		{
-			CarScript car;
-			if (Class.CastTo(car, vehCommand.GetTransport()))
-			{
-				if (car.Expansion_EngineGetCount() <= 1)
-					return false;
+			if (vehicle.EngineGetCount() <= 1)
+				return false;
 
-				driver = car.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
-				if (driver && driver == player)
-					return true;
-			}
-		}
-
-		ExpansionHumanCommandVehicle exVehCommand = player.GetCommand_ExpansionVehicle();
-		if (exVehCommand)
-		{
-			ExpansionVehicleBase veh;
-			if (Class.CastTo(veh, exVehCommand.GetObject()))
-			{
-				if (veh.EngineGetCount() <= 1)
-					return false;
-
-				driver = veh.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
-				if (driver && driver == player)
-					return true;
-			}
+			driver = vehicle.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
+			if (driver && driver == player)
+				return true;
 		}
 
 		return false;
@@ -71,25 +52,11 @@ class ExpansionActionNextEngine : ActionInteractBase
 	{
 		if (!action_data.m_WasExecuted)
 		{
-			HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
-			if (vehCommand)
-			{
-				CarScript car;
-				if (Class.CastTo(car, vehCommand.GetTransport()))
+				auto vehicle = ExpansionVehicle.Get(action_data.m_Player);
+				if (vehicle)
 				{
-					car.Expansion_EngineSetNext();
+					vehicle.EngineSetNext();
 				}
-			}
-
-			ExpansionHumanCommandVehicle exVehCommand = action_data.m_Player.GetCommand_ExpansionVehicle();
-			if (exVehCommand)
-			{
-				ExpansionVehicleBase veh;
-				if (Class.CastTo(veh, exVehCommand.GetObject()))
-				{
-					veh.EngineSetNext();
-				}
-			}
 		}
 
 		super.OnAnimationEvent(action_data);

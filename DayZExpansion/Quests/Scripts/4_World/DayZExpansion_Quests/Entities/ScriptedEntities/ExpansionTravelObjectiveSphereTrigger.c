@@ -134,7 +134,9 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 	
 	protected void OnEnter_Delivery(ExpansionQuestObjectiveEventBase questObjective)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		ExpansionQuestObjectiveDeliveryEvent deliveryEvent;
 		if (!Class.CastTo(deliveryEvent, questObjective))
@@ -224,7 +226,9 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 	
 	protected void OnLeave_Delivery(ExpansionQuestObjectiveEventBase questObjective)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		ExpansionQuestObjectiveDeliveryEvent deliveryEvent;
 		if (!Class.CastTo(deliveryEvent, questObjective))

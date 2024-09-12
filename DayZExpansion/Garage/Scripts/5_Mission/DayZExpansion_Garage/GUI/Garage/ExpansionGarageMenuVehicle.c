@@ -116,9 +116,9 @@ class ExpansionGarageMenuVehicle: ExpansionScriptView
 				if (m_Object.HasSelection("antiwater"))
 					m_Object.HideSelection("antiwater");
 
-				CarScript cs;
-				if (Class.CastTo(cs, m_Object) && m_Vehicle.m_SkinIndex > -1 && cs.ExpansionHasSkin(m_Vehicle.m_SkinIndex))
-					cs.ExpansionSetSkin(m_Vehicle.m_SkinIndex);
+				ExpansionVehicle vehicle;
+				if (m_Vehicle.m_SkinIndex > -1 && ExpansionVehicle.Get(vehicle, m_Object) && vehicle.HasSkin(m_Vehicle.m_SkinIndex))
+					vehicle.SetSkin(m_Vehicle.m_SkinIndex);
 			}
 		}
 		else

@@ -9,11 +9,25 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 	{
 		Class.CastTo(m_AI, player);
 	}
+
+	override protected bool CanObjectBeTargeted(Object obj, bool checkNonAligneAble = false)
+	{
+		if (super.CanObjectBeTargeted(obj, checkNonAligneAble))
+			return true;
+
+		ItemBase item;
+		if (Class.CastTo(item, obj) && item.Expansion_IsMechanicalTrap())
+			return true;
+
+		return false;
+	}
 	
 	override protected void TargetSelection()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Profile(EXTrace.AI, this);
-
+#endif 
+		
 		vector hitPos;
 
 		// Calculate max distances
@@ -104,8 +118,10 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 	override protected bool HitZoneSelectionRaycast(out vector hitPos, out int hitZone, out Object target, bool useCamera)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Profile(EXTrace.AI, this);
-
+#endif 
+		
 		vector pos;
 		vector playerDir = m_AI.GetDirection();
 		MiscGameplayFunctions.GetHeadBonePos(m_AI, pos);
@@ -124,7 +140,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		set<Object> hitObjects = new set<Object>;
 		vector hitNormal;
 
-		if (DayZPhysics.RaycastRV(m_RayStart, m_RayEnd, hitPos, hitNormal, hitZone, hitObjects, null, m_AI, true, false, ObjIntersectIFire, 0.0, CollisionFlags.ALLOBJECTS) && hitObjects.Count() > 0)
+		if (DayZPhysics.RaycastRV(m_RayStart, m_RayEnd, hitPos, hitNormal, hitZone, hitObjects, null, m_AI, false, false, ObjIntersectIFire, 0.0, CollisionFlags.ALLOBJECTS) && hitObjects.Count() > 0)
 		{
 			EntityAI hitEntity;
 
@@ -136,8 +152,8 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 				target = hitObject;
 				m_ForceUntargetable = false;
 
-				if (hitObject.IsInherited(CarDoor) && Class.CastTo(hitEntity, hitObject) && hitEntity.GetHierarchyRoot().IsTransport())
-					return true;
+				if (hitObject.IsBuilding())
+					continue;
 
 				//! Opponent is inside car - targeting range is shorter in that case
 				PlayerBase playerTarget = PlayerBase.Cast(target);
@@ -159,29 +175,32 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 					}
 				}
 
-				return true;
+				break;
 			}
 		}
+
+		if (target)
+			return true;
 
 		return false;
 	}
 
-	bool eAI_SetupMelee()
+	bool eAI_SetupMelee(bool wasHit = false)
 	{
 		m_Hands = m_AI.GetHumanInventory().GetEntityInHands();
 
-		Reset(InventoryItem.Cast(m_Hands), GetMeleeHitType());
+		Reset(InventoryItem.Cast(m_Hands), GetMeleeHitType(), wasHit);
 		TargetSelection();
 		if (m_HitType == EMeleeHitType.NONE || !m_TargetObject)
 		{
 			return false;
 		}
 
-		m_eAI_MeleeAttackType = 1.0;
-		if (m_TargetObject && m_TargetType != EMeleeTargetType.NONALIGNABLE && vector.DistanceSq(m_AI.GetPosition(), m_TargetObject.GetPosition()) > Math.SqrFloat(DayZPlayerMeleeFightLogic_LightHeavy.CLOSE_TARGET_DISTANCE))
-		{
-			m_eAI_MeleeAttackType = 0.0;
-		}
+		ItemBase item;
+		if (Class.CastTo(item, m_TargetObject) && item.Expansion_IsMechanicalTrap())
+			m_eAI_MeleeAttackType = 1.0;  //! Always use in-place attack for mechanical traps, as we don't want to step into it due to the forward movement
+		else
+			m_eAI_MeleeAttackType = m_AI.GetMeleeFightLogic().eAI_GetAttackTypeByDistanceToTarget(EntityAI.Cast(m_TargetObject), m_TargetType);
 
 		m_AI.SetOrientation(m_AI.GetOrientation());
 
@@ -200,22 +219,32 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 			return;
 
 		m_AI.StartCommand_Melee2(EntityAI.Cast(m_TargetObject), m_eAI_MeleeHeavy, m_eAI_MeleeAttackType, m_HitPositionWS);
+
+		eAI_DepleteStaminaAndApplyShock();
 	}
 
 	void Combo(HumanCommandMelee2 hcm2)
 	{
-		if (!eAI_SetupMelee())
+		bool wasHit;
+		if (GetFinisherType() == -1)
+			wasHit = true;
+
+		if (!eAI_SetupMelee(wasHit))
 			return;
 
 		hcm2.ContinueCombo(m_eAI_MeleeHeavy, m_eAI_MeleeAttackType, EntityAI.Cast(m_TargetObject), m_HitPositionWS);
+
+		eAI_DepleteStaminaAndApplyShock();
 	}
 
 	void OnHit()
 	{
-		m_Hands = m_AI.GetHumanInventory().GetEntityInHands();
-		
-		m_HitType = GetMeleeHitType();
 		m_AI.GetMeleeFightLogic().eAI_EvaluateHit(InventoryItem.Cast(m_Hands));
+	}
+
+	void eAI_DepleteStaminaAndApplyShock()
+	{
+		int shock;
 
 		switch (m_HitType)
 		{
@@ -225,10 +254,18 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		case EMeleeHitType.WPN_HIT_BUTTSTOCK:
 		case EMeleeHitType.WPN_HIT:
 			m_DZPlayer.DepleteStamina(EStaminaModifiers.MELEE_HEAVY);
+			shock = PlayerConstants.BROKEN_LEGS_HEAVY_MELEE_SHOCK;
 			break;
 		default:
 			m_DZPlayer.DepleteStamina(EStaminaModifiers.MELEE_LIGHT);
+			shock = PlayerConstants.BROKEN_LEGS_LIGHT_MELEE_SHOCK;
 			break;
+		}
+
+		if (m_AI.GetBrokenLegs() == eBrokenLegs.BROKEN_LEGS)
+		{
+			m_AI.m_ShockHandler.SetShock(shock);
+			m_AI.m_ShockHandler.CheckValue(true);
 		}
 	}
 
@@ -268,7 +305,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 	{
 		if (m_Hands && m_Hands.IsWeapon())
 		{
-			//if (m_AI.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
+			if (m_AI.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
 			{
 				if (m_Hands.HasBayonetAttached())
 				{

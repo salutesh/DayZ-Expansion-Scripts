@@ -95,6 +95,8 @@ class ExpansionSkinModule: CF_ModuleWorld
 							}
 						}
 					}
+
+					CloseFindFile(findFileHandle);
 				}
 			}
 		}
@@ -134,6 +136,8 @@ class ExpansionSkinModule: CF_ModuleWorld
 					LoadSkinsForObject( folder + "\\" + fileName, rootFolder );
 				}
 			}
+
+			CloseFindFile(findFileHandle);
 		}
 	}
 	

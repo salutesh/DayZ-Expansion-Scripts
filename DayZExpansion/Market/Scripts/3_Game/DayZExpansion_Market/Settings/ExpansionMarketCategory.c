@@ -341,7 +341,9 @@ class ExpansionMarketCategory
 
 	static ExpansionMarketItem GetGlobalItem(string className, bool checkCategoryFinalized = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Profile(EXTrace.MARKET, ExpansionMarketCategory);
+#endif
 
 		ExpansionMarketItem item = s_GlobalItems[className];
 		if (item && checkCategoryFinalized)
@@ -352,8 +354,10 @@ class ExpansionMarketCategory
 
 	static ExpansionMarketItem GetGlobalItem(int itemID, bool checkCategoryFinalized = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Profile(EXTrace.MARKET, ExpansionMarketCategory);
-
+#endif
+		
 		ExpansionMarketItem item = s_GlobalItemsByID[itemID];
 		if (item && checkCategoryFinalized)
 			item.Category.CheckFinalized();

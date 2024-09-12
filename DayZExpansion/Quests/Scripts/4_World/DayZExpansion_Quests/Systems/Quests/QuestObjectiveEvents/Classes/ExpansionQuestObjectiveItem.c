@@ -49,11 +49,12 @@ class ExpansionQuestObjectiveItem
 		if (m_RemainingAmount == 0)
 		{
 			#ifdef EXPANSIONMODVEHICLE
-			if (m_ObjectiveItem.IsInherited(CarScript) || m_ObjectiveItem.IsInherited(ExpansionVehicleBase))
+			ExpansionVehicle vehicle;
+			if (ExpansionVehicle.Get(vehicle, m_ObjectiveItem))
 			{
 				//! Delete all keys for vehicle
 				array< ExpansionCarKey > keys;
-				ExpansionCarKey.GetKeysForVehicle(m_ObjectiveItem, keys);
+				ExpansionCarKey.GetKeysForVehicle(vehicle, keys);
 				foreach (ExpansionCarKey key : keys)
 				{
 					GetGame().ObjectDelete(key);

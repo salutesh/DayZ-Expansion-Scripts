@@ -161,8 +161,10 @@ class ExpansionBoatScript: CarScript
 	{
 		super.SetActions();
 
+	#ifdef DAYZ_1_25
 		if (!IsInherited(ExpansionLHD))
 			AddAction(ExpansionActionBoardBuoyantObject);
+	#endif
 	}
 
 	override void Expansion_OnHandleController(DayZPlayerImplement driver, float dt)
@@ -593,7 +595,7 @@ class ExpansionBoatScript: CarScript
 
 		//! Activate boat so it doesn't sink to the sea floor if spawned by (e.g.) admin tool
 		//! and not loaded from storage/spawned by CE
-		if (!m_Expansion_IsStoreLoaded && !m_IsCECreated)
+		if (!m_Expansion_IsStoreLoaded && !m_ExpansionVehicle.IsCECreated())
 		{
 			m_IsInitialized = true;
 			dBodyActive(this, ActiveState.ACTIVE);
@@ -832,16 +834,12 @@ class ExpansionBoatScript: CarScript
 		return true;
 	}
 
-	override bool IsCar()
+	override bool Expansion_IsCar()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsCar");
-#endif
-
 		return false;
 	}
 
-	override bool IsBoat()
+	override bool Expansion_IsBoat()
 	{
 		return true;
 	}

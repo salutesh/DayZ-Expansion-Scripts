@@ -210,12 +210,16 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		{
 			file.Write( EXPANSION_VERSION_MAP_MARKER_SAVE );
 
-			file.Write( 5 );
 			file.Write( m_Visibility[0] );
 			file.Write( m_Visibility[1] );
 			file.Write( m_Visibility[2] );
 			file.Write( m_Visibility[3] );
 			file.Write( m_Visibility[4] );
+			file.Write( m_PreviousVisibility[0] );
+			file.Write( m_PreviousVisibility[1] );
+			file.Write( m_PreviousVisibility[2] );
+			file.Write( m_PreviousVisibility[3] );
+			file.Write( m_PreviousVisibility[4] );
 			
 			file.Write( m_AllData.Count() );
 			
@@ -252,21 +256,26 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 			if ( version >= 8 )
 			{
-				int countVis;
-				if ( Expansion_Assert_False( ctx.Read( countVis ), "[" + this + "] Failed reading m_Visibility array length" ) )
+				int countVis = 5;
+
+				if (version < 41)
 				{
-					ctx.Close();
-					
-					#ifdef EXPANSION_MARKER_MODULE_DEBUG
-					EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
-					#endif
-					
-					return false;
+					if ( Expansion_Assert_False( ctx.Read( countVis ), "[" + this + "] Failed reading m_Visibility array length" ) )
+					{
+						ctx.Close();
+						
+						#ifdef EXPANSION_MARKER_MODULE_DEBUG
+						EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
+						#endif
+						
+						return false;
+					}
 				}
 
-				for ( int j = 0; j < countVis; ++j )
+				int j;
+				int vis;
+				for ( j = 0; j < countVis; ++j )
 				{
-					int vis;
 					if ( Expansion_Assert_False( ctx.Read( vis ), "[" + this + "] Failed reading m_Visibility[" + j + "]" ) )
 					{
 						ctx.Close();
@@ -279,6 +288,28 @@ class ExpansionMarkerModule: CF_ModuleWorld
 					}
 
 					m_Visibility[j] = vis;
+
+					if (version < 41)
+						m_PreviousVisibility[j] = vis;
+				}
+
+				if (version >= 41)
+				{
+					for ( j = 0; j < countVis; ++j )
+					{
+						if ( Expansion_Assert_False( ctx.Read( vis ), "[" + this + "] Failed reading m_PreviousVisibility[" + j + "]" ) )
+						{
+							ctx.Close();
+							
+							#ifdef EXPANSION_MARKER_MODULE_DEBUG
+							EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
+							#endif
+							
+							return false;
+						}
+
+						m_PreviousVisibility[j] = vis;
+					}
 				}
 			}
 
@@ -362,6 +393,13 @@ class ExpansionMarkerModule: CF_ModuleWorld
 							l2 -= 1;
 						}
 			}
+		}
+		else
+		{
+			SetVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
+			SetVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
+			SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
+			SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 		}
 
 		//! Override quick markers, so they are always visible no matter what

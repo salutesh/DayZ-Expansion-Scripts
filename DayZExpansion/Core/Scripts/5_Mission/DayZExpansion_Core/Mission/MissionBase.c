@@ -6,7 +6,7 @@ modded class MissionBase
 
 	void MissionBase()
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this);
 #endif
 
@@ -20,7 +20,7 @@ modded class MissionBase
 		if (!GetGame())
 			return;
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		Print("~MissionBase");
 #endif
 	}

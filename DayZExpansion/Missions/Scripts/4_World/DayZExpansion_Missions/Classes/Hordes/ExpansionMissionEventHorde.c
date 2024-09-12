@@ -45,7 +45,7 @@ class ExpansionMissionEventHorde: ExpansionMissionEventBase
 		Class.CastTo( bgip, m_AIGroup.GetBehaviour() );
 		if ( bgip )
 		{
-			bgip.SetWaypoints( WayPoints, 0, true, false );
+			bgip.SetWaypoints( WayPoints, 0, true, true );
 		}
 
 		int TargetInfectedAmount = Math.RandomInt(MinInfectedAmount, MaxInfectedAmount);
@@ -228,7 +228,7 @@ class ExpansionMissionEventHorde: ExpansionMissionEventBase
 			m_Infected.Insert( obj );
 		}
 
-		//SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, remaining - 1 );
+		SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, remaining - 1 );
 		// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( this.SpawnInfectedRemaining, centerPosition, innerRadius, spawnRadius, remaining - 1 );
 	}
 

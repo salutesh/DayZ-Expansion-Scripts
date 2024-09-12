@@ -58,9 +58,7 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 
 		float levelFactor;
 
-		// TODO: check to see if ::GetMindState() returns int of 0->4
-		DayZInfectedInputController diip = m_Zombie.GetInputController();
-		int level = diip.GetMindState();
+		int level = m_Zombie.Expansion_GetMindState();
 		switch (level)
 		{
 		case DayZInfectedConstants.MINDSTATE_CALM:
@@ -85,21 +83,24 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 			//! The further away the zombie, the less likely it will be a threat
 			float distance = GetDistance(ai, true);
 
-			//! Exception: Zombie is near, not (yet) aggroed and AI has no weapon - pre-empt zombie attacking by going on the offense
-			if (!levelFactor && distance <= 6.25 && !ai.GetHumanInventory().GetEntityInHands())
-				levelFactor = 0.25;
-			else if (!levelFactor)
-				return 0.0;
+			if (!levelFactor)
+			{
+				//! Exception: Zombie is near, not (yet) aggroed and AI has no weapon - pre-empt zombie attacking by going on the offense
+				EntityAI hands = ai.GetHumanInventory().GetEntityInHands();
+				if (distance <= 6.25 && (!hands || !hands.IsWeapon()))
+					levelFactor = 0.25;
+				else
+					return ExpansionMath.LinearConversion(0.0, 45.0, distance, 0.15, 0.0);  //! 0.1 at 15 m
+			}
 
 			levelFactor *= 10 / (distance + 0.1);
 			if (levelFactor > 1.0)
 				levelFactor = Math.Pow(levelFactor, 2.0);
 
-			if (diip.GetTargetEntity() == ai)
+			if (m_Zombie.Expansion_GetActualTarget() == ai)
 			{
 				levelFactor *= 2.0;
-				auto hands = ai.GetHumanInventory().GetEntityInHands();
-				if (hands)
+				if (hands && hands.IsWeapon())
 					eAIPlayerTargetInformation.AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
 			}
 
@@ -112,5 +113,21 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 	override bool ShouldRemove(eAIBase ai = null)
 	{
 		return GetThreat(ai) <= 0.1;
+	}
+
+	override float GetMinDistance(eAIBase ai = null, float distance = 0.0)
+	{
+		if (ai && (ai.m_eAI_AcuteDangerTargetCount > 1 || ai.eAI_IsLowVitals()))
+			return 100.0;  //! Flee
+
+		return m_MinDistance;
+	}
+
+	override bool ShouldAvoid(eAIBase ai = null, float distance = 0.0)
+	{
+		if (ai && !ai.IsRaised() && GetMinDistance(ai, distance) > 0.0)
+			return true;
+
+		return false;
 	}
 };

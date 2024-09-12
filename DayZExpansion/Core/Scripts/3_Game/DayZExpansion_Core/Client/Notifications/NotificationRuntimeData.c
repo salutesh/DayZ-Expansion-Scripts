@@ -32,7 +32,7 @@ modded class NotificationRuntimeData
 		{
 			auto icon = ExpansionIcons.Get(m_StaticData.m_Icon);
 			if (icon)
-				return icon.Path;
+				return icon.IconPath;
 		}
 
 		return m_StaticData.m_Icon;

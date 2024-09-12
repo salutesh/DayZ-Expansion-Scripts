@@ -62,9 +62,6 @@ class ExpansionNotificationHUD: ExpansionScriptViewBase
 		if (!m_NotificationHUDController)
 			return;
 		
-		if (m_NotificationHUDController.NotificationBaguetteElements.Count() > 2)
-			HideBaguetteElements();
-		
 		m_NotificationHUDController.NotificationBaguetteElements.Insert(element);
 	}
 	
@@ -95,9 +92,6 @@ class ExpansionNotificationHUD: ExpansionScriptViewBase
 	{
 		if (!m_NotificationHUDController)
 			return;
-		
-		if (m_NotificationHUDController.NotificationActivityElements.Count() > 2)
-			HideActivityElements();
 		
 		m_NotificationHUDController.NotificationActivityElements.Insert(element);
 	}

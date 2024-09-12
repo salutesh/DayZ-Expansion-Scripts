@@ -44,17 +44,14 @@ class ExpansionChatSettingsV1: ExpansionChatSettingsBase
  **/
 class ExpansionChatSettings: ExpansionChatSettingsBase
 {
-	static const int VERSION = 3;
+	static const int VERSION = 4;
 	
-	ref ExpansionChatColors ChatColors;
+	bool EnableExpansionChat;
+	ref ExpansionChatColors ChatColors = new ExpansionChatColors;
+	ref TStringArray BlacklistedWords = {};
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
-	
-	void ExpansionChatSettings()
-	{
-		ChatColors = new ExpansionChatColors;
-	}
 
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
@@ -68,6 +65,8 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 		ctx.Read(EnablePartyChat);
 #endif
 		ctx.Read(EnableTransportChat);
+
+		ctx.Read(EnableExpansionChat);
 
 		ChatColors.OnReceive(ctx);
 
@@ -88,6 +87,8 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 #endif
 		ctx.Write(EnableTransportChat);
 
+		ctx.Write(EnableExpansionChat);
+
 		ChatColors.OnSend(ctx);
 	}
 
@@ -97,11 +98,8 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
 #endif
-		
 		if ( !IsMissionHost() )
-		{
 			return 0;
-		}
 		
 		auto rpc = CreateRPC();
 		OnSend( rpc );
@@ -133,7 +131,9 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
 
+		EnableExpansionChat = s.EnableExpansionChat;
 		ChatColors = s.ChatColors;
+		BlacklistedWords.Copy(s.BlacklistedWords);
 
 		ExpansionChatSettingsBase sb = s;
 		CopyInternal( sb );
@@ -147,9 +147,7 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 #endif
 
 		EnableGlobalChat = s.EnableGlobalChat;
-
 		EnablePartyChat = s.EnablePartyChat;
-
 		EnableTransportChat = s.EnableTransportChat;
 	}
 	
@@ -217,6 +215,12 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 					JsonFileLoader<ExpansionChatSettings>.JsonLoadFile(EXPANSION_CHAT_SETTINGS, this);
 				}
 
+				if (settingsBase.m_Version < 4)
+				{
+					EnableExpansionChat = EnableGlobalChat && EnablePartyChat && EnableTransportChat;
+					BlacklistedWords.Copy(settingsDefault.BlacklistedWords);
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -264,12 +268,13 @@ class ExpansionChatSettings: ExpansionChatSettingsBase
 		m_Version = VERSION;
 				
 		EnableGlobalChat = true;
-
 		EnablePartyChat = true;
-
 		EnableTransportChat = true;
+		EnableExpansionChat = true;
 		
 		ChatColors.Update();
+
+		BlacklistedWords.Clear();
 	}
 	
 	// ------------------------------------------------------------

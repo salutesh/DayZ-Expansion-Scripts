@@ -13,6 +13,7 @@
 modded class PlayerBase
 {
 	protected int m_TerritoryIdInside;
+	protected int m_ExpansionTerritoryLeaveTimestamp; //! Server only
 
 	protected ExpansionTerritoryModule m_TerritoryModule;
 
@@ -25,6 +26,35 @@ modded class PlayerBase
 
 		CF_Modules<ExpansionTerritoryModule>.Get(m_TerritoryModule);
 	}
+
+	#ifdef EXPANSION_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
+	{
+		super.CF_OnStoreSave(storage);
+
+		auto ctx = storage[DZ_Expansion_BaseBuilding];
+		if (!ctx) return;
+
+		ctx.Write(m_ExpansionTerritoryLeaveTimestamp);
+	}
+	
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
+	{
+		if (!super.CF_OnStoreLoad(storage))
+			return false;
+
+		auto ctx = storage[DZ_Expansion_BaseBuilding];
+		if (!ctx) return true;
+
+		if (ctx.GetVersion() < 51)
+			return true;
+		
+		if (!ctx.Read(m_ExpansionTerritoryLeaveTimestamp))
+			return false;
+
+		return true;
+	}
+	#endif
 	
 	// ------------------------------------------------------------
 	// Expansion SetActions
@@ -284,5 +314,34 @@ modded class PlayerBase
 		}
 
 		return true;
+	}
+
+	void Expansion_OnLeaveTerritory()
+	{
+		auto now = CF_Date.Now(true);
+		m_ExpansionTerritoryLeaveTimestamp = now.GetTimestamp();
+	}
+	
+	bool Expansion_IsTerritoryInviteCooldownActive()
+	{
+		if (Expansion_GetTerritoryInviteCooldown() > 0)
+			return true;
+
+		return false;
+	}
+
+	/**
+	 * @brief Get remaining invite cooldown time in seconds
+	 */
+	int Expansion_GetTerritoryInviteCooldown()
+	{
+		auto now = CF_Date.Now(true);
+		int timestamp = now.GetTimestamp();
+
+		int elapsedTime = timestamp - m_ExpansionTerritoryLeaveTimestamp;
+		if (elapsedTime < GetExpansionSettings().GetTerritory().InviteCooldown)
+			return GetExpansionSettings().GetTerritory().InviteCooldown - elapsedTime;
+
+		return 0;
 	}
 };

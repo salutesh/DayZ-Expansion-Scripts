@@ -14,19 +14,19 @@ class ExpansionAttachmentHelper
 {
 	static bool CanAttachTo(Object child, Object target)
 	{
-		if (!target)
-			return false;
-
-		CarScript car = NULL;
-		if (Class.CastTo(car, target))
+		ExpansionVehicle vehicle;
+		if (ExpansionVehicle.Get(vehicle, target))
 		{
-			if (!car.m_Expansion_AcceptingAttachment)
+		#ifdef DAYZ_1_25
+			CarScript car = vehicle.GetCar();
+			if (!car || !car.m_Expansion_AcceptingAttachment)
 				return false;
+		#endif
 
-			return car.Expansion_CanObjectAttach(child);
+			return vehicle.CanObjectAttach(child);
 		}
 
-		ItemBase item = NULL;
+		ItemBase item;
 		if (Class.CastTo(item, target))
 		{
 			if (!item.m_Expansion_AcceptingAttachment)
@@ -40,53 +40,50 @@ class ExpansionAttachmentHelper
 
 	static Object FindRootAttach(Object child, Object obj)
 	{
-		Object target = obj;
-
-		if (CanAttachTo(child, target))
+		while (obj)
 		{
-			return target;
+			if (CanAttachTo(child, obj))
+				return obj;
+
+			if (!Class.CastTo(obj, obj.GetParent()))
+				break;
 		}
 
-		while (target != NULL && Class.CastTo(target, target.GetParent()))
-		{
-			if (CanAttachTo(child, target))
-			{
-				return target;
-			}
-		}
-
-		if (CanAttachTo(child, target))
-		{
-			return target;
-		}
-
-		return NULL;
+		return null;
 	}
 
 	static Object FindBestAttach(Object child, array<ref RaycastRVResult> results)
 	{
-		Object best = NULL;
+		Object best;
 
 		Object obj;
-		for (int i = 0; i < results.Count(); i++)
+		IEntity parent;
+		DayZPlayerImplement player;
+
+		if (Class.CastTo(player, child))
+			parent = player.Expansion_GetParent();
+		else
+			parent = child.GetParent();
+
+		foreach (RaycastRVResult result: results)
 		{
-			if (!CanAttachTo(child, results[i].parent))
+			if (!CanAttachTo(child, result.parent))
 			{
-				if (!CanAttachTo(child, results[i].obj))
+				if (!CanAttachTo(child, result.obj))
 					continue;
 
-				obj = results[i].obj;
+				obj = result.obj;
 			}
 
 			if (!obj)
 			{
-				obj = results[i].parent;
+				obj = result.parent;
 
 				if (!obj)
 					continue;
 			}
 
-			if (obj == child.GetParent())
+			if (obj == parent)
 				return obj;
 
 			best = obj;
@@ -97,19 +94,27 @@ class ExpansionAttachmentHelper
 
 	static Object FindBestAttach(Object child, set<Object> objects)
 	{
-		Object best = NULL;
+		Object best;
 
-		Object obj;
-		for (int i = 0; i < objects.Count(); i++)
+		Object root;
+		IEntity parent;
+		DayZPlayerImplement player;
+
+		if (Class.CastTo(player, child))
+			parent = player.Expansion_GetParent();
+		else
+			parent = child.GetParent();
+
+		foreach (Object obj: objects)
 		{
-			obj = FindRootAttach(child, objects[i]);
-			if (!obj)
+			root = FindRootAttach(child, obj);
+			if (!root)
 				continue;
 
-			if (obj == child.GetParent())
-				return obj;
+			if (root == parent)
+				return root;
 
-			best = obj;
+			best = root;
 		}
 
 		return best;
@@ -130,9 +135,7 @@ class ExpansionAttachmentHelper
 		//! Initiate the raycast
 		array<ref RaycastRVResult> results = new array<ref RaycastRVResult>();
 		if (DayZPhysics.RaycastRVProxy(params, results))
-		{
 			return ExpansionAttachmentHelper.FindBestAttach(owner, results);
-		}
 
 		return null;
 	}

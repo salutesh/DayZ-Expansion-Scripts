@@ -22,15 +22,20 @@ class ExpansionQuestObjectiveAIPatrolConfig_V25: ExpansionQuestObjectiveConfig
 
 class ExpansionQuestObjectiveAIPatrolConfigBase: ExpansionQuestObjectiveConfig
 {
+	float MaxDistance = -1;
+	float MinDistance = -1;
+	autoptr TStringArray AllowedWeapons = new TStringArray;
+	autoptr TStringArray AllowedDamageZones = new TStringArray;
+};
+
+class ExpansionQuestObjectiveAIPatrolConfig_V27: ExpansionQuestObjectiveConfig
+{
+	autoptr ExpansionQuestAISpawn_V27 AISpawn;
 };
 
 class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConfigBase
 {
 	autoptr ExpansionQuestAISpawn AISpawn;
-	float MaxDistance = -1;
-	float MinDistance = -1;
-	autoptr TStringArray AllowedWeapons = new TStringArray;
-	autoptr TStringArray AllowedDamageZones = new TStringArray;
 
 	void SetAISpawn(ExpansionQuestAISpawn aiSpawn)
 	{
@@ -91,15 +96,8 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		ExpansionQuestObjectiveAIPatrolConfig config;
 		ExpansionQuestObjectiveAIPatrolConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, config))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, configBase))
 			return NULL;
-
-		//! Uncomment this once needed
-		//if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, configBase))
-			//return NULL;
-
-		//! Comment this out once needed
-		configBase = config;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
@@ -148,9 +146,26 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 					config.SetAISpawn(aiSpawn);
 				}
 			}
+			else if (configBase.ConfigVersion < 28)
+			{
+				ExpansionQuestObjectiveAIPatrolConfig_V27 configV27;
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig_V27>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, configV27))
+					return NULL;
+
+				if (configV27.AISpawn)
+				{
+					ExpansionQuestAISpawn aiSpawnV28 = new ExpansionQuestAISpawn();
+					aiSpawnV28.CopyFrom(configV27.AISpawn);
+					config.SetAISpawn(aiSpawnV28);
+				}
+			}
 
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
+		}
+		else if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, config))
+		{
+			return NULL;
 		}
 
 		string removeExt = ExpansionString.StripExtension(config.AISpawn.GetLoadout(), ".json");
@@ -170,7 +185,9 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 	
 	override void Save(string fileName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName);
+#endif
 
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
@@ -184,6 +201,11 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
+
+		MaxDistance = configBase.MaxDistance;
+		MinDistance = configBase.MinDistance;
+		AllowedWeapons.Copy(configBase.AllowedWeapons);
+		AllowedDamageZones.Copy(configBase.AllowedDamageZones);
 	}
 
 	override bool Validate()

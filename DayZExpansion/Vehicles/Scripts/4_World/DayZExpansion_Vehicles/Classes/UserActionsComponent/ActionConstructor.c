@@ -21,16 +21,6 @@ modded class ActionConstructor
 	override void RegisterActions( TTypenameArray actions )
 	{
 		super.RegisterActions( actions );
-
-		//! Vehicles
-#ifdef DIAG
-		actions.Insert( ExpansionActionPushVehicle );
-#endif
-
-		actions.Insert( ExpansionActionGetInExpansionVehicle );
-		actions.Insert( ExpansionActionGetOutExpansionVehicle );
-
-		actions.Insert( ExpansionActionSwitchSeats );
 		
 		#ifdef EXPANSION_VEHICLE_TOWING
 		actions.Insert( ExpansionActionConnectTow );
@@ -46,23 +36,21 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionUnlockVehicle );
 		actions.Insert( ExpansionActionOpenVehicleDoor );
 		actions.Insert( ExpansionActionCloseVehicleDoor );
-		
-		actions.Insert( ExpansionVehicleActionStartEngine );
-		actions.Insert( ExpansionVehicleActionStopEngine );
 
 		actions.Insert( ExpansionActionSwitchLights );
 		actions.Insert( ExpansionActionFillFuel );
 
 		//! Tool-based actions
 		actions.Insert( ExpansionActionPickVehicleLock );
-		actions.Insert( ExpansionVehicleActionPickLock );
 		actions.Insert( ExpansionActionChangeVehicleLock );
 		actions.Insert( ExpansionActionRepairVehicle );
 
 		//! Boats
 		actions.Insert( ExpansionActionNextEngine );
 		actions.Insert( ExpansionActionNextEngineInput );		
+	#ifdef DAYZ_1_25
 		actions.Insert( ExpansionActionBoardBuoyantObject );
+	#endif
 		
 		//! Helicopters
 		actions.Insert( ExpansionActionHelicopterHoverRefill );
@@ -73,5 +61,7 @@ modded class ActionConstructor
 		//! Vehicle cover
 		actions.Insert( ExpansionActionCoverVehicle );
 		actions.Insert( ExpansionActionUncoverVehicle );
+
+		actions.Insert( ExpansionActionSwitchSeats );
 	}
 };

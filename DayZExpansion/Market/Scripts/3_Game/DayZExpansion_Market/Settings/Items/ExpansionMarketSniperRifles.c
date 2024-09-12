@@ -25,8 +25,10 @@ class ExpansionMarketSniperRifles: ExpansionMarketCategory
 
 		AddItem("VSS", 						1600,	3200,	1,		100,	{"Mag_VSS_10Rnd"});
 		AddItem("ASVAL", 					1600,	3200,	1,		100,	{"Mag_VAL_20Rnd"});
+		AddItem("Vikhr", 					1500,	3200,	1,		100,	{"Mag_Vikhr_30Rnd"});
 		AddItem("B95", 						1700,	3400,	1,		100);
 		AddItem("SVD", 						2000,	4000,	1,		100,	{"Mag_SVD_10Rnd"});
+		AddItem("SV98", 					2000,	4000,	1,		100,	{"Mag_SV98_10Rnd"});
 
 		if (ExpansionStatic.GetCanonicalWorldName() == "enoch")
 		{

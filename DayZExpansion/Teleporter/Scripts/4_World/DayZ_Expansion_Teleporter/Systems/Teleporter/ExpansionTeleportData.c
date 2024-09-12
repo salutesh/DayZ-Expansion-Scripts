@@ -239,7 +239,9 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 
 	void OnSend(ParamsWriteContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		ctx.Write(m_ID);
 		ctx.Write(m_DisplayName);

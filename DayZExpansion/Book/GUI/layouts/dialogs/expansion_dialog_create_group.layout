@@ -223,7 +223,7 @@ WrapSpacerWidgetClass ExpansionDialogBookCreateGroup {
            vexactsize 0
            scriptclass ""
            style ServerBrowser
-           text "Tag (4 characters)"
+           text "Tag (5 characters)"
            "Default text color" 1 1 1 0.5882
            "Use default text" 1
            "exact text" 1

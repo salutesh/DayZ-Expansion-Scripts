@@ -49,7 +49,7 @@
 				
 				if (!fsm.weapon) return EXIT;
 				
-				if (unit.GetWeaponManager().IsRunning())
+				if (unit.GetWeaponManager().IsRunning() || unit.GetActionManager().GetRunningAction())
 				{
 					time += DeltaTime;
 					if (time &gt; 12)  //! Looks like something went terribly wrong
@@ -163,7 +163,7 @@
 				if (unit.GetActionManager().GetRunningAction())
 					return CONTINUE;
 				
-				if (fsm.weapon.IsDamageDestroyed() || !unit.eAI_TakeItemToInventory(fsm.weapon))
+				if (fsm.weapon.IsDamageDestroyed() || !unit.eAI_TakeItemToInventoryDropShoulderImpl(fsm.weapon))
 					unit.eAI_DropItem(fsm.weapon);
 				
 				return CONTINUE;

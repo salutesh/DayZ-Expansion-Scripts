@@ -157,7 +157,9 @@ class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 
 	void Save()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		ExpansionJsonFileParser<ExpansionQuestPersistentServerData>.Save(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, this);
 	}

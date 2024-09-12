@@ -24,8 +24,8 @@ FrameWidgetClass ExpansionSpawnSelection {
    imageTexture "{C595ED9ED316D080}DayZExpansion/SpawnSelection/GUI/textures/wood_background.edds"
    mode opaque
    "src alpha" 1
-   "no wrap" 1
-   stretch 1
+   "clamp mode" clamp
+   "stretch mode" stretch_w_h
   }
   PanelWidgetClass Panel {
    inheritalpha 0

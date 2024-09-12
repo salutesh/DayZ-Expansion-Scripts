@@ -15,13 +15,13 @@ class eAITarget
 		if (_max_time != -1)
 			max_time = _max_time;
 		else
-			max_time = 60000;
+			max_time = 120000;
 
 		ai_list = new set<eAIBase>();
 		info = _info;
 	}
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	void ~eAITarget()
 	{
 		if (!GetGame())
@@ -52,12 +52,17 @@ class eAITarget
 		return str;
 	}
 
+	bool IsActive()
+	{
+		return info.IsActive();
+	}
+
 	bool AddAI(eAIBase ai)
 	{
 		if (ai_list.Find(ai) != -1)
 			return false;
 
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + ai);
 #endif
 
@@ -76,7 +81,7 @@ class eAITarget
 	{
 		int idx = ai_list.Find(ai);
 
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + ai, "" + idx);
 #endif
 
@@ -123,6 +128,16 @@ class eAITarget
 		return info.GetEntity();
 	}
 
+	bool IsExplosive()
+	{
+		return info.IsExplosive();
+	}
+
+	bool IsMechanicalTrap()
+	{
+		return info.IsMechanicalTrap();
+	}
+
 	vector GetPosition(eAIBase ai = null, bool actual = false)
 	{
 		return info.GetPosition(ai, actual);
@@ -138,6 +153,11 @@ class eAITarget
 		return info.GetThreat(ai, state);
 	}
 
+	bool CanPutInCargo(EntityAI parent)
+	{
+		return info.CanPutInCargo(parent);
+	}
+
 	bool CanMeleeIfClose(eAIBase ai)
 	{
 		bool canYeet;
@@ -145,10 +165,14 @@ class eAITarget
 			canYeet = true;
 
 		EntityAI entity = GetEntity();
-		if (!entity || entity.IsInherited(ItemBase) || (entity.IsTransport() && !canYeet))
+		if (!entity || (entity.IsInherited(ItemBase) && (!IsMechanicalTrap() || IsExplosive())) || (entity.IsTransport() && !canYeet))
 			return false;
 
-		IEntity parent = entity.GetParent();
+		DayZPlayerImplement player;
+		if (!Class.CastTo(player, entity))
+			return true;
+
+		IEntity parent = player.Expansion_GetParent();
 		Car car;
 		//! Allow hitting vehicle passengers as long as engine isn't on or speed is below RegisterTransportHit tolerance 2 km/h = 0.555555 m/s
 		if (parent && (GetVelocity(parent).LengthSq() > 0.308641 || (Class.CastTo(car, parent) && car.EngineIsOn())))
@@ -163,21 +187,34 @@ class eAITarget
 			return false;
 
 		float distSq = GetDistanceSq(ai, true);
-		if (distSq > 3.24)
+
+		if (distSq > 6.0025)
 			return false;
 
-		//! DayZPlayerMeleeFightLogic_LightHeavy.CLOSE_TARGET_DISTANCE = 1.5
-		if (distSq > 2.25 && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
-			return false;
+		//if (distSq > 3.0625 && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
+			//return false;
 
 		EntityAI entityInHands = ai.GetHumanInventory().GetEntityInHands();
 
 		Weapon_Base weapon;
 		bool hasAmmo;
-		if (Class.CastTo(weapon, entityInHands) && weapon.Expansion_HasAmmo())
-			hasAmmo = true;
-		if (distSq > 1.0 && hasAmmo)
-			return false;
+		if (Class.CastTo(weapon, entityInHands))
+		{
+			//! FIXME: Pistols fuck up the hand animation state (left hand stays on pistol after melee)
+			if (weapon.IsKindOf("Pistol_Base"))
+				return false;
+
+			if (weapon.Expansion_GetMagazineAmmoCount() > 0)
+			{
+				hasAmmo = true;
+
+				if (distSq > 1.0)
+					return false;
+			}
+
+			if (weapon && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
+				return false;
+		}
 
 		//! We don't punch the bear or the zombie if we have a firearm with ammo - unless it's explosive ammo
 		if (GetEntity().IsInherited(Animal_UrsusArctos) || GetEntity().IsInherited(ZombieBase))
@@ -200,9 +237,19 @@ class eAITarget
 		return !info.IsActive() || (found_at_time + max_time <= GetGame().GetTime() && info.ShouldRemove(ai));
 	}
 
-	float GetMinDistance(eAIBase ai = null)
+	bool ShouldAvoid(eAIBase ai = null, float distance = 0.0)
 	{
-		return info.GetMinDistance(ai);
+		return info.ShouldAvoid(ai, distance);
+	}
+
+	float GetMinDistance(eAIBase ai = null, float distance = 0.0)
+	{
+		return info.GetMinDistance(ai, distance);
+	}
+
+	float GetMinDistanceSq(eAIBase ai = null, float distance = 0.0)
+	{
+		return info.GetMinDistanceSq(ai, distance);
 	}
 
 	vector GetDirection(eAIBase ai, bool actual = false)

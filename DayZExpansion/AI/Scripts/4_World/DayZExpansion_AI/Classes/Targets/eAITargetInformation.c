@@ -10,6 +10,8 @@ class eAITargetInformation
 
 	ref set<eAIBase> m_AI = new set<eAIBase>;  //! Contains all AI that know about this target (not necessarily actively tracking it)
 
+	float m_MinDistance;
+
 	void eAITargetInformation()
 	{
 #ifdef EAI_TRACE
@@ -24,7 +26,7 @@ class eAITargetInformation
 		if (!GetGame())
 			return;
 
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 #endif
 
@@ -57,7 +59,22 @@ class eAITargetInformation
 		return "";
 	}
 
+	bool CanPutInCargo(EntityAI parent)
+	{
+		return false;
+	}
+
 	bool IsEntity()
+	{
+		return false;
+	}
+
+	bool IsExplosive()
+	{
+		return false;
+	}
+
+	bool IsMechanicalTrap()
 	{
 		return false;
 	}
@@ -155,9 +172,20 @@ class eAITargetInformation
 		return 0;
 	}
 
-	float GetMinDistance(eAIBase ai = null)
+	bool ShouldAvoid(eAIBase ai = null, float distance = 0.0)
 	{
-		return 0.0;
+		return false;
+	}
+
+	float GetMinDistance(eAIBase ai = null, float distance = 0.0)
+	{
+		return m_MinDistance;
+	}
+
+	float GetMinDistanceSq(eAIBase ai = null, float distance = 0.0)
+	{
+		float minDist = GetMinDistance(ai, distance);
+		return minDist * minDist;
 	}
 
 	vector GetDirection(eAIBase ai, bool actual = false)
@@ -217,7 +245,7 @@ class eAITargetInformation
 	 */
 	eAITarget Insert(notnull eAIGroup group, int max_time = -1)
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + group, "" + max_time);
 #endif
 
@@ -239,7 +267,7 @@ class eAITargetInformation
 	 */
 	eAITarget Insert(eAIBase ai, int max_time = -1)
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + ai, "" + max_time);
 #endif
 
@@ -283,7 +311,7 @@ class eAITargetInformation
 	 */
 	void AddFriendlyAI(DayZPlayerImplement player, int max_time = -1, bool update = true, float threat = 0.0)
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + player, "" + max_time, "" + update, "" + threat);
 #endif
 
@@ -298,7 +326,7 @@ class eAITargetInformation
 
 		foreach (eAIBase other: m_AI)
 		{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.AI, this, "" + other);
 		#endif
 
@@ -334,7 +362,7 @@ class eAITargetInformation
 	 */
 	bool RemoveAI(eAIBase ai)
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + ai);
 #endif
 
@@ -358,7 +386,7 @@ class eAITargetInformation
 	 */
 	void Remove(int group_id)
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + group_id);
 #endif
 
@@ -368,7 +396,7 @@ class eAITargetInformation
 
 		if (target.group)
 		{
-		#ifdef DIAG
+		#ifdef EXTRACE_DIAG
 			EXTrace.Add(trace, "leader " + target.group.GetLeader());
 		#endif
 
@@ -402,7 +430,7 @@ class eAITargetInformation
 
 	void RemoveFromAll()
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, GetEntityDebugName());
 #endif
 
@@ -411,7 +439,7 @@ class eAITargetInformation
 			Remove(id);
 		}
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		if (m_AI.Count())
 			EXTrace.Print(EXTrace.AI, this, "Removing AI that are not targeting");
 #endif
@@ -537,7 +565,7 @@ class eAITargetInformation
 	//! entity specific implementations for abstracted call in eAIEntityTargetInformation
 	void OnDeath()
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 #endif
 

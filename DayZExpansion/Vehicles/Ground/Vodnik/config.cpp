@@ -175,6 +175,7 @@ class CfgVehicles
 		model = "\DayZExpansion\Vehicles\Ground\Vodnik\vodnik.p3d";
 		modelZeroPointDistanceFromGround = 0;
 		vehicleClass = "Expansion_Car";
+		animPhysDetachSpeed = 100.0;
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","med"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","",""};
 		hiddenSelectionsMaterials[] = {"","","","","","","","","",""};
@@ -438,8 +439,8 @@ class CfgVehicles
 			thrustGentle = 0.3;
 			thrustSmoothCoef = 0.02;
 			camposSmoothCoef = 0.03;
-			soundSetsFilter[] = {"offroad_02_Engine_Offload_Ext_Rpm1_SoundSet","offroad_02_Engine_Offload_Ext_Rpm2_SoundSet","offroad_02_Engine_Offload_Ext_Rpm3_SoundSet","offroad_02_Engine_Offload_Ext_Rpm4_SoundSet","offroad_02_Engine_Offload_Ext_Rpm5_SoundSet","offroad_02_Engine_Ext_Rpm0_SoundSet","offroad_02_Engine_Ext_Rpm1_SoundSet","offroad_02_Engine_Ext_Rpm2_SoundSet","offroad_02_Engine_Ext_Rpm3_SoundSet","offroad_02_Engine_Ext_Rpm4_SoundSet","offroad_02_Engine_Ext_Rpm5_SoundSet","offroad_02_Engine_Ext_Broken_SoundSet","offroad_Tires_rock_slow_Ext_SoundSet","offroad_Tires_rock_fast_Ext_SoundSet","offroad_Tires_grass_slow_Ext_SoundSet","offroad_Tires_grass_fast_Ext_SoundSet","offroad_Tires_gravel_slow_Ext_SoundSet","offroad_Tires_gravel_fast_Ext_SoundSet","offroad_Tires_gravel_dust_fast_Ext_SoundSet","offroad_Tires_asphalt_slow_Ext_SoundSet","offroad_Tires_asphalt_fast_Ext_SoundSet","offroad_Tires_water_slow_Ext_SoundSet","offroad_Tires_water_fast_Ext_SoundSet","Offroad_skid_dirt_SoundSet","offroad_dirt_turn_SoundSet","offroad_Rain_Ext_SoundSet","offroad_damper_left_SoundSet","offroad_damper_right_SoundSet"};
-			soundSetsInt[] = {"Offroad_Tires_Asphalt_Slow_General_Int_SoundSet","Offroad_Tires_Asphalt_Fast_General_Int_SoundSet","Offroad_Wind_SoundSet"};
+			soundSetsFilter[] = {"offroad_02_Engine_Offload_Ext_Rpm1_SoundSet","offroad_02_Engine_Offload_Ext_Rpm2_SoundSet","offroad_02_Engine_Offload_Ext_Rpm3_SoundSet","offroad_02_Engine_Offload_Ext_Rpm4_SoundSet","offroad_02_Engine_Offload_Ext_Rpm5_SoundSet","offroad_02_Engine_Ext_Rpm0_SoundSet","offroad_02_Engine_Ext_Rpm1_SoundSet","offroad_02_Engine_Ext_Rpm2_SoundSet","offroad_02_Engine_Ext_Rpm3_SoundSet","offroad_02_Engine_Ext_Rpm4_SoundSet","offroad_02_Engine_Ext_Rpm5_SoundSet","offroad_02_Engine_Ext_Broken_SoundSet","offroad_Tires_ice_slow_Ext_SoundSet","offroad_Tires_ice_fast_Ext_SoundSet","offroad_Tires_snow_slow_Ext_SoundSet","offroad_Tires_snow_fast_Ext_SoundSet","offroad_Tires_rock_slow_Ext_SoundSet","offroad_Tires_rock_fast_Ext_SoundSet","offroad_Tires_grass_slow_Ext_SoundSet","offroad_Tires_grass_fast_Ext_SoundSet","offroad_Tires_gravel_slow_Ext_SoundSet","offroad_Tires_gravel_fast_Ext_SoundSet","offroad_Tires_gravel_dust_fast_Ext_SoundSet","offroad_Tires_asphalt_slow_Ext_SoundSet","offroad_Tires_asphalt_fast_Ext_SoundSet","offroad_Tires_water_slow_Ext_SoundSet","offroad_Tires_water_fast_Ext_SoundSet","offroad_skid_dirt_SoundSet","offroad_dirt_turn_SoundSet","offroad_Rain_Ext_SoundSet","offroad_damper_left_SoundSet","offroad_damper_right_SoundSet"};
+			soundSetsInt[] = {"Offroad_Tires_Asphalt_Fast_General_Int_SoundSet","Offroad_Wind_SoundSet"};
 		};
 		class ObstacleGenerator
 		{

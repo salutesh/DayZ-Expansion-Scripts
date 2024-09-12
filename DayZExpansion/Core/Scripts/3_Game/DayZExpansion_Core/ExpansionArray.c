@@ -38,6 +38,16 @@ class ExpansionArray<Class T>
 		return m_Elements.Count();
 	}
 
+	void Set(int n, T value)
+	{
+		m_Elements[n] = value;
+	}
+
+	T Get(int n)
+	{
+		return m_Elements[n];
+	}
+
 	int Insert(T element)
 	{
 		return m_Elements.Insert(element);
@@ -49,6 +59,11 @@ class ExpansionArray<Class T>
 		{
 			Insert(element);
 		}
+	}
+
+	int InsertAt(T element, int index)
+	{
+		return m_Elements.InsertAt(element, index);
 	}
 
 	//! Get a quasi-random element, preferring ones that haven't been picked yet
@@ -79,10 +94,83 @@ class ExpansionArray<Class T>
 		return m_Elements.GetRandomElement();
 	}
 
+	void Each(ScriptCaller callback, bool reverse = false)
+	{
+		Each(m_Elements, callback, reverse);
+	}
+
+	static void Each(array<T> elements, ScriptCaller callback, bool reverse = false)
+	{
+		//! @note: Enforce garbage collects references to function arguments inside loops after the first iteration,
+		//! so we have to assign a local variable and use that instead to avoid premature garbage collection
+		ScriptCaller localCallback = callback;
+
+		int count = elements.Count();
+		int i, delta;
+
+		if (reverse)
+		{
+			i = count - 1;
+			delta = -1;
+		}
+		else
+		{
+			i = 0;
+			delta = 1;
+		}
+
+		while (count--)
+		{
+			localCallback.Invoke(elements[i]);
+			i += delta;
+		}
+	}
+
 	static void RefCopy(array<ref T> from, array<ref T> to)
 	{
 		to.Clear();
 		foreach (T value: from)
+		{
+			to.Insert(value);
+		}
+	}
+}
+
+class ExpansionArrayTools<Class T1, Class T2>
+{
+	/**
+	 * @brief Insert all values from source array `from` down-casted to T2 into destination array `to`
+	 * 
+	 * @note No typechecking on values is done, if a value from source array cannot be cast to T2, null will be inserted instead
+	 */
+	static void InsertAll_DownCast(array<T1> from, array<T2> to)
+	{
+		if (!T2.IsInherited(T1))
+		{
+			Error("'" + T1 + "' cannot be down-casted to '" + T2 + "'");
+			return;
+		}
+
+		foreach (T1 value1: from)
+		{
+			T2 value2;
+			Class.CastTo(value2, value1);
+			to.Insert(value2);
+		}
+	}
+
+	/**
+	 * @brief Insert all values from source array `from` up-casted to T2 into destination array `to`
+	 */
+	static void InsertAll_UpCast(array<T1> from, array<T2> to)
+	{
+		if (!T1.IsInherited(T2))
+		{
+			Error("'" + T1 + "' cannot be up-casted to '" + T2 + "'");
+			return;
+		}
+
+		foreach (T1 value: from)
 		{
 			to.Insert(value);
 		}

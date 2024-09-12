@@ -54,7 +54,17 @@ class ExpansionCOTGroupsMarkerListEntry: ScriptedWidgetEventHandler
 		if (!m_Marker)
 			return;
 		
-		m_MarkerIcon.LoadImageFile(0, m_Marker.GetMarkerData().GetIcon());
+		string icon = m_Marker.GetMarkerData().GetIcon();
+		if ( icon != string.Empty )
+		{
+			m_MarkerIcon.LoadImageFile( 0, icon );
+			m_MarkerIcon.SetImage( 0 );
+			m_MarkerIcon.Show(true);
+		}
+		else
+		{
+			m_MarkerIcon.Show(false);
+		}
 		m_MarkerIcon.SetColor(m_Marker.GetMarkerData().GetColor());
 		m_MarkerName.SetText(m_Marker.GetMarkerData().GetName());
 		m_MarkerName.SetColor(m_Marker.GetMarkerData().GetColor());

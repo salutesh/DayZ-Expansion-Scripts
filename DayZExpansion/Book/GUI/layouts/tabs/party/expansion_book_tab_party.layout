@@ -46,28 +46,34 @@ FrameWidgetClass ExpansionBookMenuTabParty {
        image0 "set:book_assets image:menu_element_2"
        mode blend
        "src alpha" 1
-       stretch 1
-      }
-      TextWidgetClass party_label {
-       ignorepointer 1
-       color 0 0 0 1
-       size 1 0.08
-       halign center_ref
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       priority 1
-       scriptclass "ViewBinding"
-       text "#STR_EXPANSION_BOOK_TERRITORY_MEMBERS_TITLE"
-       font "gui/fonts/etelkatextpro22"
-       "exact text" 0
-       "text halign" center
-       "text valign" center
+       "stretch mode" stretch_w_h
        {
-        ScriptParamsClass {
-         Debug_Logging 0
-         Binding_Name "PartyName"
+        TextWidgetClass party_label {
+         ignorepointer 1
+         color 0 0 0 1
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         scriptclass "ViewBinding"
+         text "#STR_EXPANSION_BOOK_TERRITORY_MEMBERS_TITLE"
+         font "gui/fonts/sdf_metronbook24"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 16
+         "size to text v" 1
+         "text halign" center
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Binding_Name "PartyName"
+          }
+         }
         }
        }
       }
@@ -115,10 +121,12 @@ FrameWidgetClass ExpansionBookMenuTabParty {
            vexactsize 0
            scriptclass ""
            text "#STR_EXPANSION_BOOK_TERRITORY_DELETE"
-           font "gui/fonts/etelkatextpro22"
-           "exact text" 0
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 16
            "size to text h" 0
-           "size to text v" 0
+           "size to text v" 1
            "text halign" center
            "text valign" center
           }
@@ -144,8 +152,7 @@ FrameWidgetClass ExpansionBookMenuTabParty {
          imageTexture "{BD8BC27DBF4EB2FF}DayZExpansion/Book/GUI/textures/stick_note.edds"
          mode blend
          "src alpha" 1
-         "no wrap" 0
-         stretch 1
+         "stretch mode" stretch_w_h
         }
        }
       }
@@ -223,10 +230,12 @@ FrameWidgetClass ExpansionBookMenuTabParty {
            vexactsize 0
            scriptclass ""
            text "#STR_EXPANSION_BOOK_TERRITORY_LEAVE"
-           font "gui/fonts/etelkatextpro22"
-           "exact text" 0
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 16
            "size to text h" 0
-           "size to text v" 0
+           "size to text v" 1
            "text halign" center
            "text valign" center
           }
@@ -252,8 +261,7 @@ FrameWidgetClass ExpansionBookMenuTabParty {
          imageTexture "{1CF585E0C6574290}DayZExpansion/Book/GUI/textures/stick_note_3.edds"
          mode blend
          "src alpha" 1
-         "no wrap" 0
-         stretch 1
+         "stretch mode" stretch_w_h
         }
        }
       }
@@ -271,22 +279,6 @@ FrameWidgetClass ExpansionBookMenuTabParty {
      vexactsize 0
      priority 2
      {
-      TextWidgetClass group_players_label {
-       ignorepointer 1
-       color 0 0 0 1
-       size 1 0.08
-       halign center_ref
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       priority 1
-       text "#STR_EXPANSION_BOOK_GROUP_INVITE_TITLE"
-       font "gui/fonts/etelkatextpro22"
-       "exact text" 0
-       "text halign" center
-       "text valign" center
-      }
       ImageWidgetClass group_players_background {
        ignorepointer 1
        size 440 45
@@ -298,7 +290,29 @@ FrameWidgetClass ExpansionBookMenuTabParty {
        image0 "set:book_assets image:menu_element_1"
        mode blend
        "src alpha" 1
-       stretch 1
+       "stretch mode" stretch_w_h
+       {
+        TextWidgetClass group_players_label {
+         ignorepointer 1
+         color 0 0 0 1
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         text "#STR_EXPANSION_BOOK_GROUP_INVITE_TITLE"
+         font "gui/fonts/sdf_metronbook24"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 16
+         "size to text v" 1
+         "text halign" center
+         "text valign" center
+        }
+       }
       }
       ScrollWidgetClass player_list_scroller {
        ignorepointer 0
@@ -371,8 +385,8 @@ FrameWidgetClass ExpansionBookMenuTabParty {
            imageTexture "{50590D86B12E21D3}DayZExpansion/Core/GUI/icons/hud/refresh_64x64.edds"
            mode blend
            "src alpha" 1
-           "no wrap" 1
-           stretch 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
           }
          }
          {
@@ -406,8 +420,8 @@ FrameWidgetClass ExpansionBookMenuTabParty {
            imageTexture "{0A37CC5D0C68964C}DayZExpansion/Core/GUI/icons/misc/T_Frying_Pan_256x256.edds"
            mode blend
            "src alpha" 1
-           "no wrap" 1
-           stretch 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
           }
          }
         }
@@ -435,9 +449,10 @@ FrameWidgetClass ExpansionBookMenuTabParty {
          "Default text color" 0 0 0 1
          "Use default text" 1
          "exact text" 1
-         font "gui/fonts/etelkatextpro22"
+         font "gui/fonts/sdf_metronbook24"
          "text color" 0 0 0 1
          "disabled text color" 0 0 0 1
+         "bold text" 1
          {
           ScriptParamsClass {
            Binding_Name "SearchFilter"

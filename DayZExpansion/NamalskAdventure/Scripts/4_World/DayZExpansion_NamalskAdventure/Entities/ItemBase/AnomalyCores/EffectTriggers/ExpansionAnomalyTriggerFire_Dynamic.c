@@ -73,7 +73,9 @@ class ExpansionAnomalyTriggerFire_Dynamic : ExpansionAnomalyTriggerBase_Dynamic
 
 	protected void PlayVFXTarget(vector pos)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (!GetGame().IsDedicatedServer())
 		{
@@ -88,7 +90,9 @@ class ExpansionAnomalyTriggerFire_Dynamic : ExpansionAnomalyTriggerBase_Dynamic
 
 	protected void PlaySFXTarget(vector pos)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (!GetGame().IsDedicatedServer())
 		{

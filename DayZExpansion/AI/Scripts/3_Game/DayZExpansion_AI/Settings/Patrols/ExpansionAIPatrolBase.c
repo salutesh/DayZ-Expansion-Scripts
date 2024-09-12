@@ -13,17 +13,19 @@
 class ExpansionAISpawnBase
 {
 	string Name;  // user-definable name for easier recognition
+	bool Persist;   // Patrol will be saved & restored between server restarts unless all members of it are killed
 	string Faction;                     // Raiders, Mercenaries, West, East, Guards, Civilian, Passive
 	string Formation;                   // Column, File, Vee, Wall or RANDOM
 	float FormationLooseness;
-	string LoadoutFile;                 // a json file containing the loadout of this team - if empty, will use the default loadout of the faction
-	TStringArray Units;                 // If non-empty, pick from these AI classnames when spawning
+	string Loadout;                 // a json file containing the loadout of this team - if empty, will use the default loadout of the faction
+	ref TStringArray Units = {};        // If non-empty, pick from these AI classnames when spawning
 	int NumberOfAI;                     // How many bots, -x will make it random between 0 and x
 	string Behaviour;                   // See eAIWaypointBehavior
+	string LootingBehaviour;
 	string Speed;                       // See eAIMovementSpeed
 	string UnderThreatSpeed;            // 
 	bool CanBeLooted;                   // if enabled, the bots can be looted by the players
-	bool UnlimitedReload;               // should bots be able to reload indefinitely (still needs spare mag in inventory!)
+	int UnlimitedReload;               // should bots be able to reload indefinitely (still needs spare mag in inventory!)
 	float SniperProneDistanceThreshold;
 	float AccuracyMin;
 	float AccuracyMax;
@@ -32,14 +34,17 @@ class ExpansionAISpawnBase
 	float DamageMultiplier;
 	float DamageReceivedMultiplier;
 
-	void ExpansionAISpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, bool unlimitedreload = false)
+	[NonSerialized()]
+	string m_BaseName;
+
+	void ExpansionAISpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, int unlimitedreload = 0)
 	{
 		NumberOfAI = bod;
 		Speed = spd;
 		UnderThreatSpeed = threatspd;
 		Behaviour = beh;
 		Faction = fac;
-		LoadoutFile = loa;
+		Loadout = loa;
 		CanBeLooted = canbelooted;
 		UnlimitedReload = unlimitedreload;
 		AccuracyMin = -1;
@@ -65,6 +70,33 @@ class ExpansionAISpawnBase
 		return typename.StringToEnum(eAIWaypointBehavior, Behaviour);
 	}
 
+	void SetDefaultLootingBehaviour()
+	{
+		if (Behaviour == "ROAMING")
+			LootingBehaviour = "ALL";
+		else
+			LootingBehaviour = "DEFAULT";
+	}
+
+	int GetLootingBehaviour()
+	{
+		int bitmask;
+
+		TStringArray lootingBehaviors = {};
+		LootingBehaviour.Split("|", lootingBehaviors);
+		foreach (string lootingBehavior: lootingBehaviors)
+		{
+			lootingBehavior.TrimInPlace();
+			int value = typename.StringToEnum(eAILootingBehavior, lootingBehavior);
+			if (value == -1)
+				EXError.Error(this, "Invalid looting behaviour " + lootingBehavior, {});
+			else
+				bitmask |= value;
+		}
+
+		return bitmask;
+	}
+
 	static vector GetPlacementPosition(vector pos)
 	{
 		vector hitPosition;
@@ -86,6 +118,10 @@ class ExpansionAISpawnBase
 			if (pos[1] < surfaceY)
 				pos[1] = surfaceY;
 		}
+
+		float waterDepth = GetGame().GetWaterDepth(pos);
+		if (waterDepth > 0)
+			pos[1] = pos[1] + waterDepth;
 
 		return pos;
 	}
@@ -135,10 +171,18 @@ class ExpansionAISpawnBase
 		if (UnderThreatSpeed == "RANDOM")
 			UnderThreatSpeed = "RANDOM_NONSTATIC";
 	}
+
+	void GenerateBaseName()
+	{
+		ExpansionSHA256.Update(Name);
+		m_BaseName = ExpansionSHA256.HexDigest();
+		ExpansionSHA256.Reset();
+	}
 };
 
 class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 {
+	bool CanBeTriggeredByAI;
 	float MinDistRadius;	            // If the player is closer than MinDistRadius from the spawn point, the patrol won't spawn, if set to -2, will use the general setting instead
 	float MaxDistRadius;	            // Same but if the player is further away than MaxDistRadius, the bots won't spawn, if set to -2, will use the general setting instead
 	float DespawnRadius;
@@ -149,7 +193,7 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 	float DespawnTime;					// if all players outside despawn radius, ticks up time. When despawn time reached, patrol is deleted. If set to -1, will use general setting instead
 	float RespawnTime;	                // Time in seconds before the dead group will respawn. If set to -1, they won't respawn, if set to -2, will use the general setting instead
 
-	void ExpansionAIDynamicSpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -1, float maxdistradius = -1)
+	void ExpansionAIDynamicSpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, int unlimitedreload = 0, float chance = 1.0, float mindistradius = -1, float maxdistradius = -1)
 	{
 		Chance = chance;
 		MinDistRadius = mindistradius;

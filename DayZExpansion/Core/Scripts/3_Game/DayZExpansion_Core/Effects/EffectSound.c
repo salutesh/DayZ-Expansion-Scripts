@@ -12,7 +12,7 @@
 
 modded class EffectSound
 {
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	void ~EffectSound()
 	{
 		if (!GetGame())

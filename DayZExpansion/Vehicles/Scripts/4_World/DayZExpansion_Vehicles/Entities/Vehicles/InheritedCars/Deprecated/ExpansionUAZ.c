@@ -239,6 +239,32 @@ class ExpansionUAZ: CarScript
 		return super.GetDoorInvSlotNameFromSeatPos(posIdx);
 	}
 
+	override bool CanDisplayAttachmentCategory( string category_name )
+	{
+		if ( !super.CanDisplayAttachmentCategory( category_name ) )
+			return false;
+	
+		category_name.ToLower();		
+		if ( category_name.Contains("engine") )
+		{
+			if ( GetCarDoorsState("uazhooddoor") == CarDoorState.DOORS_CLOSED )
+				return false;
+		}
+				
+		return true;
+	}
+
+	override bool CanDisplayCargo()
+	{
+		if ( !super.CanDisplayCargo() )
+			return false;
+		
+		if ( m_ExpansionVehicle.AllDoorsClosed(false) )
+			return false;
+		
+		return true;
+	}
+
 	override int GetCarDoorsState(string slotType)
 	{
 #ifdef EXPANSIONTRACE
@@ -343,27 +369,6 @@ class ExpansionUAZ: CarScript
 		if (EngineIsOn() || GetCarDoorsState("uazhooddoor") == CarDoorState.DOORS_CLOSED)
 		{
 			if (attType == "CarRadiator" || attType == "CarBattery" || attType == "SparkPlug")
-				return false;
-		}
-
-		return true;
-	}
-
-	override bool CanDisplayAttachmentCategory(string category_name)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CanDisplayAttachmentCategory").Add(category_name);
-#endif
-
-		if (!super.CanDisplayAttachmentCategory(category_name))
-			return false;
-
-		category_name.ToLower();
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
-
-		if (category_name.Contains("engine"))
-		{
-			if (GetCarDoorsState("uazhooddoor") == CarDoorState.DOORS_CLOSED)
 				return false;
 		}
 

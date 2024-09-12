@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2024 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -12,13 +12,30 @@
 
 class ExpansionLastPlayerSpawnLocation
 {
-	int Index;
+	string Key;
 	bool IsTerritory;
 	
-	void ExpansionLastPlayerSpawnLocation(int index, bool isTerritory)
+	void ExpansionLastPlayerSpawnLocation(string key, bool isTerritory = false)
 	{
-		Index = index;
+		Key = key;
 		IsTerritory = isTerritory;
+	}
+
+	void WriteTo(ParamsWriteContext ctx)
+	{
+		ctx.Write(Key);
+		ctx.Write(IsTerritory);
+	}
+
+	bool ReadFrom(ParamsReadContext ctx)
+	{
+		if (!ctx.Read(Key))
+			return false;
+
+		if (!ctx.Read(IsTerritory))
+			return false;
+
+		return true;
 	}
 }
 
@@ -30,22 +47,21 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	protected string s_FileName;
 	ref map<string, ref ExpansionPlayerState> m_PlayerStartStates;
 	bool m_SpawnSelected;
-	ref map<string, ref map<int, ref ExpansionRespawnDelayTimer>> m_PlayerRespawnDelays;
-	ref map<string, ref ExpansionLastPlayerSpawnLocation> m_PlayerLastIndex;
+	ref map<string, ref map<string, ref ExpansionRespawnDelayTimer>> m_PlayerRespawnDelays;
+	ref map<string, ref ExpansionLastPlayerSpawnLocation> m_PlayerLastSpawnLocation;
 
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule Constructor
-	// ------------------------------------------------------------	
 	void ExpansionRespawnHandlerModule()
 	{
 		m_PlayerStartStates = new map<string, ref ExpansionPlayerState>;
-		m_PlayerRespawnDelays = new map<string, ref map<int, ref ExpansionRespawnDelayTimer>>;
-		m_PlayerLastIndex = new map<string, ref ExpansionLastPlayerSpawnLocation>;
+		m_PlayerRespawnDelays = new map<string, ref map<string, ref ExpansionRespawnDelayTimer>>;
+		m_PlayerLastSpawnLocation = new map<string, ref ExpansionLastPlayerSpawnLocation>;
 	}
 	
 	override void OnInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		super.OnInit();
 		
@@ -60,15 +76,17 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		Expansion_RegisterServerRPC("RPC_SelectSpawn");
 		Expansion_RegisterClientRPC("RPC_CloseSpawnMenu");
 		Expansion_RegisterClientRPC("RPC_CheckPlayerCooldowns");
+		Expansion_RegisterClientRPC("RPC_Callback");
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule StartSpawnSelection
 	// Called on server
 	// ------------------------------------------------------------
 	void StartSpawnSelection(PlayerBase player, PlayerIdentity identity)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 	
 		if (!IsMissionHost())
 			return;
@@ -86,16 +104,13 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		}
 
 		string uid = identity.GetId();
-			
 		array<ref ExpansionSpawnLocation> territoryspawnlist = new array<ref ExpansionSpawnLocation>;
 		if (GetExpansionSettings().GetSpawn().SpawnOnTerritory)
 			territoryspawnlist = GetTerritoryList(identity.GetId());
-
+		
+		//! This is NOT an error. When only territory spawn is enabled, the player may simply not have a territory.
 		if (!GetExpansionSettings().GetSpawn().SpawnLocations.Count() && (!territoryspawnlist || !territoryspawnlist.Count()))
-		{
-			//! This is NOT an error. When only territory spawn is enabled, the player may simply not have a territory.
 			return;
-		}
 
 		player.m_Expansion_SpawnSelect = true;
 
@@ -107,17 +122,31 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		}
 
 		auto rpc = Expansion_CreateRPC("RPC_ShowSpawnMenu");
-		rpc.Write(GetExpansionSettings().GetSpawn().SpawnLocations);
-		rpc.Write(territoryspawnlist);
+
+		auto spawnlist = GetExpansionSettings().GetSpawn().SpawnLocations;
+
+		rpc.Write(spawnlist.Count());
+		foreach (ExpansionSpawnLocation normalSpawn: spawnlist)
+		{
+			normalSpawn.OnSend(rpc);
+		}
+		
+		rpc.Write(territoryspawnlist.Count());
+
+		//! @note: We send the territory list with a ParamsWriteContext method as we send unserialised data also that would be skiped otherwise by the RPC.
+		foreach (ExpansionSpawnLocation territorySpawn: territoryspawnlist)
+		{
+			territorySpawn.OnSend(rpc);
+		}
+
 		rpc.Expansion_Send(true, identity);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule CheckResumeSpawnSelection
-	// ------------------------------------------------------------
+
 	void CheckResumeSpawnSelection(PlayerBase player, PlayerIdentity identity)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		if (!player)
 			return;
@@ -140,23 +169,39 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule RPC_ShowSpawnMenu
 	// Called on client
 	// ------------------------------------------------------------
 	private void RPC_ShowSpawnMenu(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
-		array<ref ExpansionSpawnLocation> spawnlist;
-		if (!ctx.Read(spawnlist))
+		int normalCount;
+		if (!ctx.Read(normalCount))
+			Error(ToString() + "::RPC_ShowSpawnMenu - Could not read territoryCount");
+
+		ExpansionSpawnLocation loc;
+
+		array<ref ExpansionSpawnLocation> spawnlist = {};
+		while (normalCount--)
 		{
-			Error(ToString() + "::RPC_ShowSpawnMenu - Could not read spawnlist");
+			loc = new ExpansionSpawnLocation;
+			loc.OnReceive(ctx);
+			spawnlist.Insert(loc);
 		}
 
-		array<ref ExpansionSpawnLocation> territoryspawnlist;
-		if (!ctx.Read(territoryspawnlist))
+		int territoryCount;
+		if (!ctx.Read(territoryCount))
+			Error(ToString() + "::RPC_ShowSpawnMenu - Could not read territoryCount");
+
+		//! @note: We get the territory list with a ParamsReadContext method as we recive unserialised data also that would be skiped otherwise by the RPC.
+		array<ref ExpansionSpawnLocation> territoryspawnlist = {};
+		while (territoryCount--)
 		{
-			Error(ToString() + "::RPC_ShowSpawnMenu - Could not read territoryspawnlist");
+			loc = new ExpansionSpawnLocation;
+			loc.OnReceive(ctx);
+			territoryspawnlist.Insert(loc);
 		}
 		
 		//! Abort if both lists not set/empty
@@ -171,13 +216,11 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule Exec_ShowSpawnMenu
 	// Called on client
 	// ------------------------------------------------------------
 	private void Exec_ShowSpawnMenu(array<ref ExpansionSpawnLocation> spawnlist, array<ref ExpansionSpawnLocation> territoryspawnlist)
 	{
 		//! Return if game is not yet ready to show spawn menu
-
 		if (GetDayZGame().IsLoading())
 			return;
 
@@ -199,8 +242,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	#endif
 
 		//! Game is ready to show menu
-
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().CreateSVMenu("ExpansionSpawnSelectionMenu"));
 		//! In case spawn select menu could not be created, player will stay at original position and spawn select won't show
@@ -211,40 +255,31 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		}
 		
 		if (spawnlist)
-			spawnSelectionMenu.FillList(spawnlist, 0);
+			spawnSelectionMenu.FillList(spawnlist, ExpansionSpawnSelectionLocationType.NORMAL);
 
 		if (territoryspawnlist)
-			spawnSelectionMenu.FillList(territoryspawnlist, 1);
+			spawnSelectionMenu.FillList(territoryspawnlist, ExpansionSpawnSelectionLocationType.TERRITORY);
 		
 		RequestPlacePlayerAtTempSafePosition();
-		
-	#ifdef EXPANSIONMONITORMODULE
-		if (GetExpansionSettings().GetSpawn().CreateDeathMarker)
-		{
-			ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
-			if (monitorModule)
-				spawnSelectionMenu.CreateDeathMarker(monitorModule.GetLastDeathPosClient());
-		}
-	#endif
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule GetTerritoryList
 	// Called on server
 	// ------------------------------------------------------------	
 	array<ref ExpansionSpawnLocation> GetTerritoryList(string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
-		array<ref ExpansionSpawnLocation> SpawnLocations = new array<ref ExpansionSpawnLocation>;
-
+		array<ref ExpansionSpawnLocation> spawnLocations = new array<ref ExpansionSpawnLocation>;
 		if (!IsMissionHost())
-			return SpawnLocations;
+			return spawnLocations;
 			
-#ifdef EXPANSIONMODBASEBUILDING
+	#ifdef EXPANSIONMODBASEBUILDING
 		ExpansionTerritoryModule territories_module = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
 		if (!territories_module)
-			return SpawnLocations;
+			return spawnLocations;
 
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
@@ -264,28 +299,30 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			pos = Vector(pos[0] + 1.0, pos[1], pos[2] + 1.0);
 
 			positions.Insert(pos);
-			location = new ExpansionSpawnLocation(territory.GetTerritoryName(), positions, true);
+			location = new ExpansionSpawnLocation;
+			location.SetLocation(territory.GetTerritoryName(), positions, id);
 			if (GetExpansionSettings().GetSpawn().EnableRespawnCooldowns)
 				location.SetUseCooldown(true);
 			
-			SpawnLocations.Insert(location);
+			spawnLocations.Insert(location);
 			positions.Clear();
 		}
+	#endif
 		
-#endif
-		
-		return SpawnLocations;
+		return spawnLocations;
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule RequestPlacePlayerAtTempSafePosition
 	// Called from Client
 	// ------------------------------------------------------------	
 	void RequestPlacePlayerAtTempSafePosition()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		//! FIXME (or not): Moving the player causes desync. Just skip it for now.
+		//! We have the teleport sync juncture, maybe we can use that here?!
 		return;
 
 		auto rpc = Expansion_CreateRPC("RPC_RequestPlacePlayerAtTempSafePosition");
@@ -293,16 +330,16 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule SelectSpawn
 	// Called from client
 	// ------------------------------------------------------------
-	void SelectSpawn(int index, int spawnPointIndex, bool isTerritory, bool useCooldown)
+	void SelectSpawn(int index, int spawnPointIndex, string locKey, bool isTerritory, bool useCooldown)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this, index.ToString(), spawnPointIndex.ToString(), locKey, isTerritory.ToString(), useCooldown.ToString());
+#endif
 
 		m_SpawnSelected = true;
-		
-		if (ProcessCooldown(GetGame().GetPlayer().GetIdentity(), index, isTerritory, useCooldown, false))
+		if (ProcessCooldown(GetGame().GetPlayer().GetIdentity(), locKey, isTerritory, useCooldown, false))
 			return;
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Exec_ShowSpawnMenu);
@@ -310,44 +347,43 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		auto rpc = Expansion_CreateRPC("RPC_SelectSpawn");
 		rpc.Write(index);
 		rpc.Write(spawnPointIndex);
+		rpc.Write(isTerritory);
 		rpc.Expansion_Send(true);
 	}
 	
 	//! Check existing cooldowns and add if none present.
 	//! Return true if point index already had a cooldown (that hasn't expired), false otherwise.
-	bool ProcessCooldown(PlayerIdentity sender, int index, bool isTerritory, bool useCooldown, bool addCooldown = true)
+	bool ProcessCooldown(PlayerIdentity sender, string locKey, bool isTerritory, bool useCooldown, bool addCooldown = true)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this, locKey, isTerritory.ToString(), useCooldown.ToString(), addCooldown.ToString());
+#endif
 
 		bool hasCooldown = false;
-
 		if (GetExpansionSettings().GetSpawn().EnableRespawnCooldowns && useCooldown)
 		{
+			string cooldownIndex;
 			int respawnCooldown = GetExpansionSettings().GetSpawn().GetCooldown(isTerritory);
 			string playerUID = sender.GetId();
-			map<int, ref ExpansionRespawnDelayTimer> playerCooldowns = m_PlayerRespawnDelays[playerUID];
+			map<string, ref ExpansionRespawnDelayTimer> playerCooldowns = m_PlayerRespawnDelays[playerUID];
 			if (playerCooldowns)
-			{
-				ExpansionRespawnDelayTimer timer = playerCooldowns[index];
+			{					
+				ExpansionRespawnDelayTimer timer = playerCooldowns[locKey];
 				if (timer)
 				{
 					int cooldownTime = timer.GetTimeDiff();
 					int cooldown = respawnCooldown;
 					if (GetExpansionSettings().GetSpawn().PunishMultispawn)
-					{
 						cooldown += timer.GetPunishment();
-					}
 					if (cooldownTime < cooldown)
-					{
 						hasCooldown = true;
-					}
 				}
 			}
 
 			if (!hasCooldown)
 			{
 				if (addCooldown)
-					AddCooldown(playerUID, index, isTerritory);
+					AddCooldown(playerUID, locKey, isTerritory);
 			}
 			else
 			{
@@ -359,12 +395,13 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule RPC_SelectSpawn
 	// Called on server
 	// ------------------------------------------------------------
 	private void RPC_SelectSpawn(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		int pointIndex;
 		if (!ctx.Read(pointIndex))
@@ -374,19 +411,23 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		if (!ctx.Read(spawnPointIndex)) //! @note failing to read spawn point should still call exec so proper cleanup is done
 			Error(ToString() + "::RPC_SelectSpawn - ERROR: Could not read spawn point position!");
 
-		Exec_SelectSpawn(sender, pointIndex, spawnPointIndex);
+		bool isTerritory;
+		if (!ctx.Read(isTerritory))
+			Error(ToString() + "::RPC_SelectSpawn - ERROR: Could not read spawn point isTerritory bolean!");
+
+		Exec_SelectSpawn(sender, pointIndex, spawnPointIndex, isTerritory);
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule Exec_SelectSpawn
 	// Called on server
 	// ------------------------------------------------------------
-	private void Exec_SelectSpawn(PlayerIdentity sender, int pointIndex, int spawnPointIndex)
+	private void Exec_SelectSpawn(PlayerIdentity sender, int pointIndex, int spawnPointIndex, bool isTerritory)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this, pointIndex.ToString(), spawnPointIndex.ToString());
+#endif
 
 		string playerUID = sender.GetId();
-
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
 		if (!player)
 		{
@@ -397,6 +438,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		ExpansionPlayerState state = m_PlayerStartStates.Get(playerUID);
 		if (!state)
 		{
+			Error(ToString() + "::Exec_SelectSpawn - ERROR: Could not get player state for player with UID " + playerUID);
 			return;
 		}
 
@@ -410,8 +452,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		}
 
 		ExpansionSpawnLocation loc;
-		
-		if (pointIndex < locations.Count())
+		if (!isTerritory)
 			loc = locations[pointIndex];
 		else
 			loc = territories[pointIndex - locations.Count()];
@@ -421,20 +462,21 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			Error(ToString() + "::Exec_SelectSpawn - ERROR: Location doesn't have spawn points");
 			return;
 		}
+
+		string locationKey = loc.GetKey();
 		
-		if (ProcessCooldown(sender, pointIndex, loc.IsTerritory, loc.UseCooldown))
+		if (ProcessCooldown(sender, locationKey, isTerritory, loc.UseCooldown))
 		{
+			Callback();
 			return;
 		}
 
 		vector spawnPoint = loc.Positions[spawnPointIndex];
 
+		//! If spawn point is still zero vector, use original spawn position
+		//! (this is not necessarily an error, it is valid to include the zero vector among spawn positions in the configuration)
 		if (spawnPoint == vector.Zero)
-		{
-			//! If spawn point is still zero vector, use original spawn position
-			//! (this is not necessarily an error, it is valid to include the zero vector among spawn positions in the configuration)
 			spawnPoint = state.m_Position;
-		}
 
 		if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
 			spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
@@ -443,23 +485,52 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule EndSpawnSelection
+	// Called on server
+	// ------------------------------------------------------------
+	private void Callback()
+	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
+		
+		auto rpc = Expansion_CreateRPC("RPC_Callback");
+		rpc.Expansion_Send(true);
+	}
+	
+	// ------------------------------------------------------------
+	// Called on client
+	// ------------------------------------------------------------
+	private void RPC_Callback(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
+		
+		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
+		if (!spawnSelectionMenu || !spawnSelectionMenu.IsVisible())
+			return;
+		
+		spawnSelectionMenu.ClearSpawnPoint();
+	}
+	
+	// ------------------------------------------------------------
 	// Called on server
 	// ------------------------------------------------------------
 	void EndSpawnSelection(PlayerBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
-		if ( !IsMissionHost() )
+		if (!IsMissionHost())
 			return;
 
 		PlayerIdentity identity = player.GetIdentity();
 
-		if ( !identity )
+		if (!identity)
 			return; // can be NULL if the player rage quit
 
 		string uid = identity.GetId();
-
 		auto state = m_PlayerStartStates.Get(uid);
 
 		//! Make sure clothes and contained items are dry after using spawn select in case we were in the water
@@ -495,7 +566,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	
 	void ResetItemWetness(EntityAI parent)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		array<EntityAI> items = new array<EntityAI>;
 		items.Reserve(parent.GetInventory().CountInventory());
@@ -510,26 +583,28 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule RPC_CloseSpawnMenu
 	// Called on client
 	// ------------------------------------------------------------
 	private void RPC_CloseSpawnMenu(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 		
 		//! Use CallLater to make menu disappear *after* player position has updated on client
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_CloseSpawnMenu, 1000, false);
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule Exec_CloseSpawnMenu
 	// Called on client
 	// ------------------------------------------------------------
 	private void Exec_CloseSpawnMenu()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
-		if ( !IsMissionClient() )
+		if (!IsMissionClient())
 			return;
 		
 		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
@@ -538,13 +613,12 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			GetDayZExpansion().GetExpansionUIManager().CloseMenu();
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule SetExpansionStartingGear
-	// ------------------------------------------------------------
+
 	void SetExpansionStartingGear(PlayerBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		if (!IsMissionHost())
 			return;
@@ -584,9 +658,6 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule AddGear
-	// ------------------------------------------------------------	
 	private void AddGear(PlayerBase player, array< ref ExpansionStartingGearItem > gearItems, inout EntityAI parent, string slotName)
 	{
 		EntityAI item = player.FindAttachmentBySlotName(slotName);
@@ -607,12 +678,11 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule AddItem
-	// ------------------------------------------------------------
 	private void AddItem(PlayerBase player, ExpansionStartingGearItem gearItem, inout EntityAI parent)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.RESPAWN, this, "" + player, gearItem.ClassName, "" + parent);
+#endif
 
 		if (!gearItem.ClassName)
 			return;
@@ -620,7 +690,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		int remainingAmount = gearItem.Quantity;  //! SpawnOnParent will deduct spawned amount!
 		EntityAI item = EntityAI.Cast(ExpansionItemSpawnHelper.SpawnOnParent(gearItem.ClassName, player, parent, remainingAmount, gearItem.Quantity, gearItem.Attachments, -1, true));
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, "" + item);
+#endif
 
 		if (!item)
 			return;
@@ -686,12 +758,11 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		return "";
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule ExpansionEquipCharacter
-	// ------------------------------------------------------------
 	void ExpansionEquipCharacter(PlayerBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		if ( !IsMissionHost() )
 			return;
@@ -737,9 +808,6 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			SetRandomHealth(clothing);
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule SetRandomHealth
-	// ------------------------------------------------------------
 	void SetRandomHealth(EntityAI itemEnt)
 	{
 		if (itemEnt)
@@ -749,12 +817,11 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule OnMissionStart
-	// ------------------------------------------------------------
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		super.OnMissionStart(sender, args);
 
@@ -786,12 +853,11 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		Load();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule OnMissionFinish
-	// ------------------------------------------------------------
 	override void OnMissionFinish(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		super.OnMissionFinish(sender, args);
 
@@ -802,12 +868,11 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		Save();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule Save
-	// ------------------------------------------------------------
 	void Save()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		FileSerializer file = new FileSerializer;
 		if (file.Open(s_FileName, FileMode.WRITE))
@@ -829,20 +894,22 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	void SaveCooldowns(string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		string cooldownsFile = s_CooldownsFolder + playerUID + ".bin";
 
 		FileSerializer file = new FileSerializer;
 		if (file.Open(cooldownsFile, FileMode.WRITE))
 		{
-			map<int, ref ExpansionRespawnDelayTimer> playerCooldowns = m_PlayerRespawnDelays[playerUID];
+			map<string, ref ExpansionRespawnDelayTimer> playerCooldowns = m_PlayerRespawnDelays[playerUID];
 			if (playerCooldowns)
 			{
 				file.Write(playerCooldowns.Count());
-				foreach (int index, ExpansionRespawnDelayTimer playerTimer: playerCooldowns)
+				foreach (string key, ExpansionRespawnDelayTimer playerTimer: playerCooldowns)
 				{
-					file.Write(playerTimer);
+					playerTimer.WriteTo(file);
 				}
 			}
 			else
@@ -850,19 +917,26 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 				file.Write(0);
 			}
 
-			ExpansionLastPlayerSpawnLocation last = m_PlayerLastIndex[playerUID];
-			file.Write(last);
+			ExpansionLastPlayerSpawnLocation last = m_PlayerLastSpawnLocation[playerUID];
+			if (last)
+			{
+				file.Write(true);
+				last.WriteTo(file);
+			}
+			else
+			{
+				file.Write(false);
+			}
 
 			file.Close();
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule Load
-	// ------------------------------------------------------------
 	void Load()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		if (!FileExist(s_FileName))
 			return;
@@ -890,26 +964,25 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule AddCooldown
-	// ------------------------------------------------------------	
-	void AddCooldown(string playerUID, int index, bool isTerritory)
+	void AddCooldown(string playerUID, string key, bool isTerritory)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 		
 		bool hasCooldownEntry = false;
-		//! Check if player has a exiting cooldown entry for this spawn point index
-		map<int, ref ExpansionRespawnDelayTimer> playerCooldowns = m_PlayerRespawnDelays[playerUID];
+		//! Check if player has a exiting cooldown entry for this spawn point key
+		map<string, ref ExpansionRespawnDelayTimer> playerCooldowns = m_PlayerRespawnDelays[playerUID];
 		if (playerCooldowns)
 		{
-			ExpansionRespawnDelayTimer timer = playerCooldowns[index];
+			ExpansionRespawnDelayTimer timer = playerCooldowns[key];
 			if (timer)
 			{
 				if (GetExpansionSettings().GetSpawn().PunishMultispawn)
 				{
 					//! Check if this is the same spawnpoint the player used before
-					ExpansionLastPlayerSpawnLocation lastLocation = m_PlayerLastIndex.Get(playerUID);
-					if (lastLocation && lastLocation.Index == index)
+					ExpansionLastPlayerSpawnLocation lastLocation = m_PlayerLastSpawnLocation.Get(playerUID);
+					if (lastLocation && lastLocation.Key == key)
 					{
 						//! Check if the player used this spawn point in the timeframe set in PunishTimeframe spawn settings
 						if (timer.GetTimeDiff() < GetExpansionSettings().GetSpawn().PunishTimeframe)
@@ -934,45 +1007,48 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		{
 			if (!playerCooldowns)
 			{
-				playerCooldowns = new map<int, ref ExpansionRespawnDelayTimer>;
+				playerCooldowns = new map<string, ref ExpansionRespawnDelayTimer>;
 				m_PlayerRespawnDelays.Insert(playerUID, playerCooldowns);
 			}
-			playerCooldowns.Insert(index, new ExpansionRespawnDelayTimer(index, isTerritory));
+			playerCooldowns.Insert(key, new ExpansionRespawnDelayTimer(key, isTerritory));
 		}
 		
-		//! Save last used spawnpoint index
+		//! Save last used spawnpoint key
 		ExpansionLastPlayerSpawnLocation last;
-		if (m_PlayerLastIndex.Find(playerUID, last))
+		if (m_PlayerLastSpawnLocation.Find(playerUID, last))
 		{	
-			last.Index = index;
+			last.Key = key;
 			last.IsTerritory = isTerritory;
 		}
 		else
 		{
-			last = new ExpansionLastPlayerSpawnLocation(index, isTerritory);
-			m_PlayerLastIndex.Insert(playerUID, last);
+			last = new ExpansionLastPlayerSpawnLocation(key, isTerritory);
+			m_PlayerLastSpawnLocation.Insert(playerUID, last);
 		}
 
 		SaveCooldowns(playerUID);
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule RespawnCountdownCheck
 	// Called on server
 	// ------------------------------------------------------------
 	void RespawnCountdownCheck(string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
-		map<int, ref ExpansionRespawnDelayTimer> playerCooldowns = m_PlayerRespawnDelays[playerUID];
+		map<string, ref ExpansionRespawnDelayTimer> playerCooldowns = m_PlayerRespawnDelays[playerUID];
 		if (!playerCooldowns)
 		{
-			playerCooldowns = new map<int, ref ExpansionRespawnDelayTimer>;
+			playerCooldowns = new map<string, ref ExpansionRespawnDelayTimer>;
 			m_PlayerRespawnDelays.Insert(playerUID, playerCooldowns);
 		}
+
+		ExpansionLastPlayerSpawnLocation last;
 
 		if (!playerCooldowns.Count())
 		{
@@ -988,15 +1064,41 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 					ExpansionRespawnDelayTimer playerTimer;
 					for (int i = 0; i < count; i++)
 					{
-						file.Read(playerTimer);
-						if (playerTimer)
-							playerCooldowns.Insert(playerTimer.Index, playerTimer);
+						playerTimer = new ExpansionRespawnDelayTimer("");
+						if (playerTimer.ReadFrom(file))
+						{
+							playerCooldowns.Insert(playerTimer.Key, playerTimer);
+						}
+						else
+						{
+							Error("Couldn't read spawn delay at index " + i);
+							file.Close();
+							return;
+						}
 					}
 
-					ExpansionLastPlayerSpawnLocation last;
-					file.Read(last);
-					if (last)
-						m_PlayerLastIndex.Insert(playerUID, last);
+					bool hasLastSpawnLoc;
+					if (!file.Read(hasLastSpawnLoc))
+					{
+						Error("Couldn't read if last player spawn location is present");
+						file.Close();
+						return;
+					}
+
+					if (hasLastSpawnLoc)
+					{
+						last = new ExpansionLastPlayerSpawnLocation("");
+						if (last.ReadFrom(file))
+						{
+							m_PlayerLastSpawnLocation[playerUID] = last;
+						}
+						else
+						{
+							Error("Couldn't read last player spawn location");
+							file.Close();
+							return;
+						}
+					}
 
 					file.Close();
 				}
@@ -1010,63 +1112,92 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		auto rpc = Expansion_CreateRPC("RPC_CheckPlayerCooldowns");
 
 		rpc.Write(playerCooldowns.Count());
-		foreach (int index, ExpansionRespawnDelayTimer timer: playerCooldowns)
+		foreach (string key, ExpansionRespawnDelayTimer timer: playerCooldowns)
 		{
 			timer.Now = CF_Date.Now(true).GetTimestamp();
-			rpc.Write(timer);
+			timer.WriteTo(rpc);
 		}
 
-		rpc.Write(m_PlayerLastIndex[playerUID]);
+		last = m_PlayerLastSpawnLocation[playerUID];
+		if (last)
+		{
+			rpc.Write(true);
+			m_PlayerLastSpawnLocation[playerUID].WriteTo(rpc);
+		}
+		else
+		{
+			rpc.Write(false);
+		}
 
 		rpc.Expansion_Send(true, player.GetIdentity());
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule RPC_CheckPlayerCooldowns
 	// Called on client
 	// ------------------------------------------------------------
 	private void RPC_CheckPlayerCooldowns(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
-		array<ref ExpansionRespawnDelayTimer> playerCooldowns = new array<ref ExpansionRespawnDelayTimer>;
-		if (!ctx.Read(playerCooldowns))
+		int cooldownsCount;
+		if (!ctx.Read(cooldownsCount))
 		{
-			Error(ToString() + "::RPC_CheckPlayerCooldowns - Could not read player cooldowns list");
+			Error(ToString() + "::RPC_CheckPlayerCooldowns - Could not read player cooldowns count");
+			return;
 		}
-
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
-		string playerUID = player.GetIdentityUID();
-
-		ExpansionLastPlayerSpawnLocation last;
-		if (!ctx.Read(last))
-		{
-			Error(ToString() + "::RPC_CheckPlayerCooldowns - Could not read player last index");
-		}
-			
-		int now = CF_Date.Now(true).GetTimestamp();
 
 		m_PlayerRespawnDelays.Clear();
-		map<int, ref ExpansionRespawnDelayTimer> timers();
+		map<string, ref ExpansionRespawnDelayTimer> timers = new map<string, ref ExpansionRespawnDelayTimer>;
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		string playerUID = player.GetIdentityUID();
 		m_PlayerRespawnDelays.Insert(playerUID, timers);
-		foreach (auto playerCooldown: playerCooldowns)
-		{
-			//! Correct for difference between client and server clock
-			playerCooldown.Timestamp += now - playerCooldown.Now;
+		int now = CF_Date.Now(true).GetTimestamp();
 
-			timers.Insert(playerCooldown.Index, playerCooldown);
+		while (cooldownsCount--)
+		{
+			auto timer = new ExpansionRespawnDelayTimer("");
+			if (!timer.ReadFrom(ctx))
+			{
+				Error(ToString() + "::RPC_CheckPlayerCooldowns - Could not read player cooldown");
+				return;
+			}
+
+			//! Correct for difference between client and server clock
+			timer.Timestamp += now - timer.Now;
+			timers.Insert(timer.Key, timer);
+		}
+
+		bool hasLastSpawnLoc;
+		if (!ctx.Read(hasLastSpawnLoc))
+		{
+			Error(ToString() + "::RPC_CheckPlayerCooldowns - Could not read if player last spawn loc is present");
+			return;
 		}
 		
-		if (last)
-			m_PlayerLastIndex.Insert(playerUID, last);
+		if (hasLastSpawnLoc)
+		{
+			auto last = new ExpansionLastPlayerSpawnLocation("");
+			if (!last.ReadFrom(ctx))
+			{
+				Error(ToString() + "::RPC_CheckPlayerCooldowns - Could not read player last spawn loc");
+				return;
+			}
+			
+			m_PlayerLastSpawnLocation[playerUID] = last;
+		}
+		else
+		{
+			m_PlayerLastSpawnLocation.Remove(playerUID);
+		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule OnInvokeConnect
-	// ------------------------------------------------------------	
+
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		super.OnInvokeConnect(sender, args);
 

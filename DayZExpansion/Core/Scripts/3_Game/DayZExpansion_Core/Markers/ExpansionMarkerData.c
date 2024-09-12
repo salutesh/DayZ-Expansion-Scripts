@@ -215,7 +215,7 @@ class ExpansionMarkerData
 	{
 		ExpansionIcon icon = ExpansionIcons.Get(m_IconName);
 		if (icon)
-			return icon.Path;
+			return icon.IconPath;
 		else
 			return m_IconName;
 	}	

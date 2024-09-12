@@ -47,8 +47,9 @@ class ExpansionString
 
 	static string DirName(string fileName)
 	{
-		fileName.Replace("\\", "/");
-		int index = LastIndexOf(fileName, "/");
+		string tmp = fileName;
+		tmp.Replace("\\", "/");
+		int index = LastIndexOf(tmp, "/");
 		if (index > -1)
 			return fileName.Substring(0, index);
 		return fileName;
@@ -113,20 +114,53 @@ class ExpansionString
 		return output;
 	}
 
+	static bool ContainsAny(string text, TStringArray words)
+	{
+		foreach (string word: words)
+		{
+			if (text.Contains(word))
+				return true;
+		}
+
+		return false;
+	}
+
 	//! Vanilla string.Replace truncates long text >:-(
 	//! https://feedback.bistudio.com/T177558
-	static int Replace(inout string text, string search, string replace)
+	static int Replace(inout string text, string search, string replace, bool ignoreCase = false)
 	{
+		string tmp;
+		int index;
+
+		if (ignoreCase)
+		{
+			tmp = text;
+			tmp.ToLower();
+			search.ToLower();
+			index = tmp.IndexOf(search);
+		}
+		else
+		{
+			index = text.IndexOf(search);
+		}
+
 		int count;
 		int searchLen = search.Length();
 		int replaceLen = replace.Length();
-		int index = text.IndexOf(search);
 
 		while (index > -1)
 		{
 			text = text.Substring(0, index) + replace + text.Substring(index + searchLen, text.Length() - index - searchLen);
 			count++;
-			index = text.IndexOfFrom(index + replaceLen, search);
+			if (ignoreCase)
+			{
+				tmp = tmp.Substring(0, index) + replace + tmp.Substring(index + searchLen, tmp.Length() - index - searchLen);
+				index = tmp.IndexOfFrom(index + replaceLen, search);
+			}
+			else
+			{
+				index = text.IndexOfFrom(index + replaceLen, search);
+			}
 		}
 
 		return count;
@@ -329,27 +363,59 @@ class ExpansionString
 		return str.Substring( 0, str.Length() - 1 );
 	}
 
-	static string JoinStrings(array<ExpansionString> strings, string glue = ", ")
+	static string JoinStrings(array<ExpansionString> strings, string glue = ", ", bool reverse = false)
 	{
 		string output = "";
-		for (int i = 0; i < strings.Count(); i++)
+		int count = strings.Count();
+		int i, delta;
+
+		if (reverse)
+		{
+			i = count - 1;
+			delta = -1;
+		}
+		else
+		{
+			i = 0;
+			delta = 1;
+		}
+
+		while (count--)
 		{
 			if (glue && output)
 				output += glue;
 			output += strings[i].Get();
+			i += delta;
 		}
+
 		return output;
 	}
 
-	static string JoinStrings(TStringArray strings, string glue = ", ")
+	static string JoinStrings(TStringArray strings, string glue = ", ", bool reverse = false)
 	{
 		string output = "";
-		for (int i = 0; i < strings.Count(); i++)
+		int count = strings.Count();
+		int i, delta;
+
+		if (reverse)
+		{
+			i = count - 1;
+			delta = -1;
+		}
+		else
+		{
+			i = 0;
+			delta = 1;
+		}
+
+		while (count--)
 		{
 			if (glue && output)
 				output += glue;
 			output += strings[i];
+			i += delta;
 		}
+
 		return output;
 	}
 

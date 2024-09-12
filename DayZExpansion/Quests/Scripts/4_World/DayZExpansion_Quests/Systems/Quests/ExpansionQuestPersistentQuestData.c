@@ -46,7 +46,9 @@ class ExpansionQuestPersistentQuestData
 
 	void OnWrite(ParamsWriteContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Quest ID: " + QuestID + " " + typename.EnumToString(ExpansionQuestState, State));
+#endif
 
 		ctx.Write(QuestID);
 		ctx.Write(State);
@@ -113,14 +115,18 @@ class ExpansionQuestPersistentQuestData
 
 	bool OnRead(ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (!OnRead_V1(ctx))
 			return false;
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, "Quest ID: " + QuestID);
 		EXTrace.Add(trace, typename.EnumToString(ExpansionQuestState, State));
-
+#endif
+		
 		if (!ctx.Read(LastUpdateTime))
 		{
 			Error(ToString() + "::OnRead - LastUpdateTime");

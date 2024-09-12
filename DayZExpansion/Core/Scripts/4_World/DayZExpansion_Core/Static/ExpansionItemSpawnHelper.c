@@ -132,6 +132,9 @@ class ExpansionItemSpawnHelper
 				if (item.Expansion_IsStackable())
 					itemQuantity = Math.Round(itemQuantity);
 				item.SetQuantity(itemQuantity);
+
+				if (item.GetCompEM())
+					item.GetCompEM().SetEnergy0To1(quantityPercent / 100);
 			}
 		}
 		
@@ -207,7 +210,7 @@ class ExpansionItemSpawnHelper
 			}
 		}
 
-		if (storage)
+		if (storage && !playerStorage)
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(TemporaryStorageNotification, player.GetIdentity());
 
 		return entity;
@@ -318,7 +321,7 @@ class ExpansionItemSpawnHelper
 						#ifdef SERVER
 							GetGame().RemoteObjectTreeCreate(newEntity);
 						#endif
-						#ifdef DIAG
+						#ifdef DIAG_DEVELOPER
 							EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionItemSpawnHelper, "::CreateInInventoryEx - created & moved " + newEntity + " to " + parent);
 						#endif
 							return newEntity;
@@ -346,7 +349,7 @@ class ExpansionItemSpawnHelper
 				newEntity = CreateInInventoryEx(att, type);
 				if (newEntity)
 				{
-				#ifdef DIAG
+				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionItemSpawnHelper, "::CreateInInventoryEx - created " + newEntity + " on " + parent);
 				#endif
 					break;
@@ -378,7 +381,7 @@ class ExpansionItemSpawnHelper
 			{
 				size = Vector(minMax[1][0] - minMax[0][0], minMax[1][1] - minMax[0][1], minMax[1][2] - minMax[0][2]);
 
-				#ifdef DIAG
+				#ifdef DIAG_DEVELOPER
 				Object debugBox;
 
 				//! Bottom left
@@ -436,12 +439,8 @@ class ExpansionItemSpawnHelper
 		{
 			bool match = false;
 			//! https://feedback.bistudio.com/T173348
-			if (obj.IsInherited(Man) || (obj.IsInherited(ItemBase) && obj.ConfigGetString("physLayer") == "item_large") || obj.IsInherited(CarScript))
+			if (obj.IsInherited(Man) || (obj.IsInherited(ItemBase) && obj.ConfigGetString("physLayer") == "item_large") || ExpansionVehicle.Get(obj))
 				match = true;
-			#ifdef EXPANSIONMODVEHICLE
-			else if (obj.IsInherited(ExpansionVehicleBase))
-				match = true;
-			#endif
 
 			if (match)
 				return obj;
@@ -472,24 +471,20 @@ class ExpansionItemSpawnHelper
 
 		remainingAmount--;
 
-		CarScript vehicle;
+		ExpansionVehicle vehicle;
 		ItemBase keyb;
 		#ifdef EXPANSIONMODVEHICLE
-		ExpansionVehicleBase exVeh;
 		ExpansionCarKey expkey;
 		#endif
 		#ifdef HypeTrain
 		HypeTrain_PartBase hypeTrain;
 		#endif
-		if (Class.CastTo(vehicle, obj))
+		if (ExpansionVehicle.Get(vehicle, obj))
 		{
-			vehicle.Fill(CarFluid.FUEL, vehicle.GetFluidCapacity(CarFluid.FUEL));
-			vehicle.Fill(CarFluid.OIL, vehicle.GetFluidCapacity(CarFluid.OIL));
-			vehicle.Fill(CarFluid.BRAKE, vehicle.GetFluidCapacity(CarFluid.BRAKE));
-			vehicle.Fill(CarFluid.COOLANT, vehicle.GetFluidCapacity(CarFluid.COOLANT));
+			vehicle.FillFluids();
 
 			if (skinIndex > -1)
-				vehicle.ExpansionSetSkin(skinIndex);
+				vehicle.SetSkin(skinIndex);
 
 			if (carKeyName != "")
 			{
@@ -498,8 +493,8 @@ class ExpansionItemSpawnHelper
 				#ifdef EXPANSIONMODVEHICLE
 				if (Class.CastTo(expkey, keyb) && vehicle.CanBeLocked())
 				{
-					vehicle.PairKeyTo(expkey);
-					vehicle.LockCar(expkey);
+					vehicle.PairKey(expkey);
+					vehicle.Lock(expkey);
 				}
 				#endif
 			}
@@ -507,32 +502,9 @@ class ExpansionItemSpawnHelper
 			#ifdef EXPANSIONMODVEHICLE
 			float dist = vehicle.GetModelZeroPointDistanceFromGround();
 			if (placeOnSurface && position[1] + dist > vehicle.GetPosition()[1])
-				vehicle.SetPosition(position + Vector(0, dist, 0));
+				vehicle.GetEntity().SetPosition(position + Vector(0, dist, 0));
 			#endif
 		}
-		#ifdef EXPANSIONMODVEHICLE
-		else if (Class.CastTo(exVeh, obj))
-		{
-			exVeh.Fill(CarFluid.FUEL, exVeh.GetFluidCapacity(CarFluid.FUEL));
-			exVeh.Fill(CarFluid.OIL, exVeh.GetFluidCapacity(CarFluid.OIL));
-			exVeh.Fill(CarFluid.BRAKE, exVeh.GetFluidCapacity(CarFluid.BRAKE));
-			exVeh.Fill(CarFluid.COOLANT, exVeh.GetFluidCapacity(CarFluid.COOLANT));
-
-			if (skinIndex > -1)
-				exVeh.ExpansionSetSkin(skinIndex);
-
-			if (carKeyName != "")
-			{
-				Class.CastTo(keyb, SpawnInInventorySecure(carKeyName, player, parent));
-
-				if (Class.CastTo(expkey, keyb) && exVeh.CanBeLocked())
-				{
-					exVeh.PairKeyTo(expkey);
-					exVeh.LockCar(expkey);
-				}
-			}
-		}
-		#endif
 		#ifdef HypeTrain
 		else if (Class.CastTo(hypeTrain, obj))
 		{
@@ -633,17 +605,17 @@ class ExpansionItemSpawnHelper
 				dst = location.GetParent().GetInventory().CreateEntityInCargoEx(src.GetType(), location.GetIdx(), location.GetRow(), location.GetCol(), location.GetFlip());  //! Only way to get flip correct
 				break;
 			default:
-				EXPrint("ExpansionItemSpawnHelper::Clone - unknown location type " + location.GetType());
+				EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionItemSpawnHelper, "::Clone - unknown location type " + location.GetType());
 				return null;
 		}
 
 		if (!dst)
 		{
-			EXPrint("ExpansionItemSpawnHelper::Clone - failed to create " + src.GetType() + " at location " + DumpLocationToString(location));
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionItemSpawnHelper, "::Clone - failed to create " + src.GetType() + " at location " + DumpLocationToString(location));
 			return null;
 		}
 
-		EXPrint("ExpansionItemSpawnHelper::Clone - created " + Object.GetDebugName(dst) + " at location " + DumpLocationToString(location));
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionItemSpawnHelper, "::Clone - created " + Object.GetDebugName(dst) + " at location " + DumpLocationToString(location));
 
 		//! @note order of operations matters! DO NOT CHANGE!
 
@@ -734,17 +706,12 @@ class ExpansionItemSpawnHelper
 			}
 		}
 
-		//! 6) Special treatment for Car (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
-		Car srcCar;
-		Car dstCar;
-		if (Class.CastTo(srcCar, src) && Class.CastTo(dstCar, dst))
+		//! 6) Special treatment for vehicles (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
+		ExpansionVehicle srcVehicle;
+		ExpansionVehicle dstVehicle;
+		if (ExpansionVehicle.Get(srcVehicle, src) && ExpansionVehicle.Get(dstVehicle, dst))
 		{
-			CarFluid fluid;
-			for (i = 0; i < EnumTools.GetEnumSize(CarFluid); i++)
-			{
-				fluid = EnumTools.GetEnumValue(CarFluid, i);
-				dstCar.Fill(fluid, srcCar.GetFluidFraction(fluid) * dstCar.GetFluidCapacity(fluid));
-			}
+			srcVehicle.CloneFluidsTo(dstVehicle);
 		}
 
 		//! 7) global health and damage zones

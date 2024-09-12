@@ -19,7 +19,6 @@ modded class ExpansionPartyPlayerData
 	{
 		if (GetExpansionClientSettings())
 			GetExpansionClientSettings().SI_UpdateSetting.Insert(OnSettingChanged);
-		CreateMarker();
 	}
 	
 	void ~ExpansionPartyPlayerData()
@@ -41,14 +40,7 @@ modded class ExpansionPartyPlayerData
 
 	void CreateMarker()
 	{
-		int max = 255;
-		int a = 255;
-		int r = Math.RandomIntInclusive(0, max);
-		int g = Math.RandomIntInclusive(0, max);
-		int b = Math.RandomIntInclusive(0, max);
-		m_TempMarkerData.SetColor(ARGB(a, r, g, b));
-
-		InitMarker();
+		Error("DEPRECATED");
 	}
 	
 	override void OnLeave()
@@ -85,7 +77,8 @@ modded class ExpansionPartyPlayerData
 		if (position != vector.Zero && !QuickMarker)
 		{
 			QuickMarker = new ExpansionPartyQuickMarkerData("QuickMarker" + UID);
-		} else if (position == vector.Zero && QuickMarker || QuickMarker && vector.Distance(position, QuickMarker.GetPosition()) < 2.5)
+		}
+		else if (position == vector.Zero && QuickMarker || QuickMarker && vector.Distance(position, QuickMarker.GetPosition()) < 2.5)
 		{
 			delete QuickMarker;
 		}
@@ -101,25 +94,10 @@ modded class ExpansionPartyPlayerData
     {
      	if (!super.OnStoreLoad(ctx, version))
 			return false;
- 
-        if (version < 9)
-        {
-            CreateMarker();
-        }
- 
+
         InitMarker();
                 
         return true;
     }
-	
-	override void OnSettingChanged()
-	{
-		super.OnSettingChanged();
-		
-		if (m_TempMarkerData)
-			delete m_TempMarkerData;
-
-		InitMarker();
-	}
 }
 #endif

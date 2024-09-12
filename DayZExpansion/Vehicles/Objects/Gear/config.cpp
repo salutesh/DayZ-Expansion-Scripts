@@ -507,6 +507,10 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
 		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
 	};
+	class Boat_01_Orange_Cover: ExpansionZodiacBoat_Cover{};
+	class Boat_01_Black_Cover: ExpansionZodiacBoat_Cover{};
+	class Boat_01_Blue_Cover: ExpansionZodiacBoat_Cover{};
+	class Boat_01_Camo_Cover: ExpansionZodiacBoat_Cover{};
 	class ExpansionTractor_Cover: ExpansionVehicleCover
 	{
 		scope = 2;

@@ -52,6 +52,8 @@ class ExpansionBookMenuTabServerInfoDescCategory: ExpansionScriptView
 			ExpansionBookMenuTabServerInfoDescElement descElement = new ExpansionBookMenuTabServerInfoDescElement(description);
 			m_EntryController.Descriptions.Insert(descElement);
 		}
+
+		categories_spacer.Show(false);
 	}
 	
 	void OnEntryButtonClick()

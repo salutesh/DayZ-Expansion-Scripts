@@ -39,7 +39,9 @@ class ExpansionQuestPersistentData
 
 	void AddQuestData(int questID, ExpansionQuestState state)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		QuestDebugPrint("Quest ID: " + questID + " | State: " + state + " | File: " + m_FileName);
 
 		if (QuestData.Contains(questID))
@@ -59,7 +61,9 @@ class ExpansionQuestPersistentData
 
 	void RemoveQuestDataByQuestID(int questID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		ExpansionQuestPersistentQuestData currentData = QuestData[questID];
 		if (currentData)
@@ -105,7 +109,9 @@ class ExpansionQuestPersistentData
 
 	array<ref ExpansionQuestObjectiveData> GetQuestObjectivesByQuestID(int questID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		ExpansionQuestPersistentQuestData questData = QuestData[questID];
 		if (questData)
@@ -116,7 +122,9 @@ class ExpansionQuestPersistentData
 
 	ExpansionQuestObjectiveData GetQuestObjectiveByQuestIDAndIndex(int questID, int index)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		ExpansionQuestPersistentQuestData questData = QuestData[questID];
 		if (questData)
@@ -137,7 +145,9 @@ class ExpansionQuestPersistentData
 
 	void UpdateQuestState(int questID, int state)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		QuestDebugPrint("Quest ID: " + questID + " | State: " + state + " | File: " + m_FileName);
 
 		ExpansionQuestPersistentQuestData questData = QuestData[questID];
@@ -250,7 +260,9 @@ class ExpansionQuestPersistentData
 
 	void Save(string fileName, string path)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, fileName);
+#endif
 
 		FileSerializer file = new FileSerializer();
 		if (file.Open(path + fileName + ".bin", FileMode.WRITE))
@@ -384,12 +396,16 @@ class ExpansionQuestPersistentData
 
 	void OnWrite(ParamsWriteContext ctx, bool resetSynchDirty = true, int questID = -1)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (questID == -1)
 		{
 			int dataCount = QuestData.Count();
+#ifdef EXTRACE
 			EXTrace.Add(trace, "Count: " + dataCount);
+#endif
 			ctx.Write(dataCount);
 			foreach (auto data: QuestData)
 			{
@@ -416,7 +432,9 @@ class ExpansionQuestPersistentData
 
 	bool OnRead(ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		QuestData.Clear();
 
@@ -429,8 +447,10 @@ class ExpansionQuestPersistentData
 
 		m_RemoveQuestData = dataCount == -1;
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, "Count: " + dataCount);
-
+#endif 
+		
 		for (int i = 0; i < dataCount; i++)
 		{
 			ExpansionQuestPersistentQuestData data = new ExpansionQuestPersistentQuestData();

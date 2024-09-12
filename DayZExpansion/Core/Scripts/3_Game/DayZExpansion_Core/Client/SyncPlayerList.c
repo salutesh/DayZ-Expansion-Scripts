@@ -15,7 +15,9 @@ modded class SyncPlayerList
 {
 	override void CreatePlayerList()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PLAYER, this);
+#endif
 
 		if ( GetGame().IsServer() )
 		{
@@ -56,7 +58,9 @@ modded class SyncPlayerList
 
 	void Expansion_Decode()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PLAYER, this);
+#endif
 
 		foreach (SyncPlayer syncPlayer: m_PlayerList)
 		{
@@ -66,7 +70,7 @@ modded class SyncPlayerList
 		#else
 			syncPlayer.m_RUID = PlayerIdentity.Expansion_PlainIdToId(syncPlayer.m_UID);
 		#endif
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.PLAYER, this, string.Format("UID %1 RUID %2", syncPlayer.m_UID, syncPlayer.m_RUID));
 		#endif
 		}

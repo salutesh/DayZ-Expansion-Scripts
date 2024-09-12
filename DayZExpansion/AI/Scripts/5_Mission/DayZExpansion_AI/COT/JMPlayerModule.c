@@ -166,6 +166,8 @@ modded class JMPlayerModule
 		rpc.Write(networkHigh);
 		rpc.Send(null, JMPlayerModuleRPC.StartSpectating, true, ident);
 
+		ai.m_eAI_Spectators.Insert(playerSpectator);
+
 		GetCommunityOnlineToolsBase().Log(ident, "Spectating AI " + ai);
 	#else
 		if (!GetGame().IsMultiplayer() || !GetGame().GetPlayer() || !ai)
@@ -175,6 +177,16 @@ modded class JMPlayerModule
 		m_SpectatorClient.COT_TempDisableOnSelectPlayer();
 		m_SpectatorClient.COT_RememberVehicle();
 	#endif
+	}
+
+	override private void Server_EndSpectating(PlayerIdentity ident)
+	{
+		PlayerBase spectator = m_Spectators[ident.GetId()];
+		eAIBase ai;
+		if (spectator && Class.CastTo(ai, spectator.m_JM_SpectatedPlayer))
+			ai.m_eAI_Spectators.RemoveItem(spectator);
+
+		super.Server_EndSpectating(ident);
 	}
 }
 #endif

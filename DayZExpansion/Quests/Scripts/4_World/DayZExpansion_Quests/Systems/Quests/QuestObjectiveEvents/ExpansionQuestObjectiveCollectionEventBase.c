@@ -347,7 +347,8 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			if (Class.CastTo(edibleIB, item) && (edibleIB.GetFoodStageType() == FoodStageType.BURNED || edibleIB.GetFoodStageType() == FoodStageType.ROTTEN))
 				return false;
 		}
-
+		
+		//! Make sure we don't use items as money that should not be included, like attachments (e.g. Dogtags that are attached to the player itself) or that are in nested containers (1.25 change).
 		if (!MiscGameplayFunctions.Expansion_IsLooseEntity(item, true))
 			return false;
 

@@ -66,7 +66,7 @@ PanelWidgetClass ExpansionMarketMenuItemManagerPresetElement {
    vexactsize 1
    scaled 1
    fixaspect fixwidth
-   scriptclass "ViewBinding"
+   scriptclass ""
    style Empty
    {
     ImageWidgetClass market_filter_clear_icon {
@@ -86,13 +86,8 @@ PanelWidgetClass ExpansionMarketMenuItemManagerPresetElement {
      imageTexture "{EC53856041985A10}DayZExpansion/Core/GUI/icons/hud/cross_64x64.edds"
      mode blend
      "src alpha" 1
-     "no wrap" 1
-     stretch 1
-    }
-   }
-   {
-    ScriptParamsClass {
-     Relay_Command "OnElementDeleteClick"
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
     }
    }
   }

@@ -13,13 +13,13 @@
 #ifdef EXPANSIONMODGROUPS
 class ExpansionBookMenuTabPartyInviteEntry: ExpansionScriptView
 {
-	ref ExpansionBookMenuTabPartyInvites m_InvitesTab;
-	ref ExpansionPartyInviteData m_Invite;
-	ref ExpansionBookMenuTabPartyInviteEntryController m_InviteEntryController;
+	protected ref ExpansionBookMenuTabPartyInvites m_InvitesTab;
+	protected ref ExpansionPartyInviteData m_Invite;
+	protected ref ExpansionBookMenuTabPartyInviteEntryController m_InviteEntryController;
 	
-	private ImageWidget invite_entry_icon;
-	private ButtonWidget invite_entry_button;
-	private TextWidget invite_entry_label;
+	protected ImageWidget invite_entry_icon;
+	protected ButtonWidget invite_entry_button;
+	protected TextWidget invite_entry_label;
 	
 	void ExpansionBookMenuTabPartyInviteEntry(ExpansionBookMenuTabPartyInvites tab, ExpansionPartyInviteData invite)
 	{

@@ -369,8 +369,8 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		
 		//! Get player object from network by sender identity
-		PlayerBase player = PlayerBase.GetPlayerByUID( sender.GetId() );
-		if ( !player )
+		PlayerBase player;
+		if ( !Class.CastTo(player, sender.GetPlayer()) )
 		{
 			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER").Error(sender);
 			return;
@@ -401,6 +401,26 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		string texturePath = flag.GetFlagTexturePath();
 		string senderID = sender.GetId();
 		
+		//! Create new territory
+		ExpansionTerritory newTerritory = new ExpansionTerritory( m_NextTerritoryID, territoryName, 1, senderID, position, texturePath );
+		if ( !newTerritory )
+			return;
+
+		#ifdef EXPANSIONMODGROUPS
+		if (GetExpansionSettings().GetTerritory().OnlyInviteGroupMember)
+		{
+			if (player.Expansion_GetPartyID() > -1)
+			{
+				newTerritory.SetPartyID(player.Expansion_GetPartyID());
+			}
+			else
+			{
+				ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_NOT_IN_GROUP")).Error(sender);
+				return;
+			}
+		}
+		#endif
+		
 		//! Set needed flag data
 		flag.SetIsExpansionTerritoryFlag( true );
 		flag.SetTerritoryID( m_NextTerritoryID );
@@ -408,11 +428,6 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifndef EXPANSION_TERRITORY_DEV_DEBUG
 		flag.SetOwnerID( senderID );
 		#endif
-		
-		//! Create new territory
-		ExpansionTerritory newTerritory = new ExpansionTerritory( m_NextTerritoryID, territoryName, 1, senderID, position, texturePath );
-		if ( !newTerritory )
-			return;
 		
 		#ifndef EXPANSION_TERRITORY_DEV_DEBUG
 		newTerritory.AddMember( senderID, sender.GetName(), true );
@@ -889,6 +904,13 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		{
 			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER").Error(sender);
 			return;
+		}		
+
+		if (targetPlayer.Expansion_IsTerritoryInviteCooldownActive())
+		{
+			int playerInviteCooldown = targetPlayer.Expansion_GetTerritoryInviteCooldown();
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new CF_Localiser("STR_EXPANSION_TERRITORY_ERROR_COOLDOWN", ExpansionStatic.GetTimeString(playerInviteCooldown, true))).Error(sender);
+			return;
 		}
 		
 		if ( !flag )
@@ -930,7 +952,22 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 		
-		if ( GetExpansionSettings().GetTerritory() && GetExpansionSettings().GetTerritory().MaxMembersInTerritory > 0 && territory.NumberOfMembers() >= GetExpansionSettings().GetTerritory().MaxMembersInTerritory )
+		int inviteCooldown = territory.GetInviteCooldown();
+		if (inviteCooldown > 0)
+		{
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_INVITED_COOLDOWN", ExpansionStatic.GetTimeString(inviteCooldown, true))).Error(sender);
+			return;
+		}
+
+		#ifdef EXPANSIONMODGROUPS
+		if ( GetExpansionSettings().GetTerritory().OnlyInviteGroupMember && !territory.IsPartyMember(targetPlayer) )
+		{
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_NOT_PARTY_MEMBER", targetPlayer.GetIdentity().GetName())).Error(sender);
+			return;
+		}
+		#endif
+
+		if ( GetExpansionSettings().GetTerritory().MaxMembersInTerritory > 0 && territory.NumberOfMembers() >= GetExpansionSettings().GetTerritory().MaxMembersInTerritory )
 		{
 			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY", GetExpansionSettings().GetTerritory().MaxMembersInTerritory.ToString())).Error(sender);
 			return;
@@ -1042,7 +1079,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 		
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( sender.GetId() );
+		PlayerBase senderPlayer = PlayerBase.Cast( sender.GetPlayer() );
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_AcceptInvite - 4 senderPlayer: " + senderPlayer);
 		#endif
@@ -1155,7 +1192,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 		
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( sender.GetId() );
+		PlayerBase senderPlayer = PlayerBase.Cast( sender.GetPlayer() );
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_DeclineInvite - 4 senderPlayer: " + senderPlayer);
 		#endif
@@ -1523,9 +1560,12 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		territory.RemoveMember( target );
 		
-		PlayerBase playerTarget = PlayerBase.GetPlayerByUID( target.GetID() );
-		if (playerTarget)
+		PlayerBase playerTarget;
+		if (Class.CastTo(playerTarget, sender.GetPlayer()))
 		{
+			if ( GetExpansionSettings().GetTerritory().InviteCooldown > 0 )
+				playerTarget.Expansion_OnLeaveTerritory();
+
 			Send_UpdateClient( territoryID, NULL, playerTarget.GetIdentity() );
 			
 			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_KICKED_TARGET", territory.GetTerritoryName(), sender.GetName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(playerTarget.GetIdentity());
@@ -1613,6 +1653,13 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		}
 		
 		territory.RemoveMember( senderTerritory );
+		
+		if ( GetExpansionSettings().GetTerritory().InviteCooldown > 0 )
+		{
+			PlayerBase player;
+			if (Class.CastTo(player, sender.GetPlayer()))
+				player.Expansion_OnLeaveTerritory();
+		}
 		
 		Send_UpdateClient( territoryID, NULL, sender );
 		

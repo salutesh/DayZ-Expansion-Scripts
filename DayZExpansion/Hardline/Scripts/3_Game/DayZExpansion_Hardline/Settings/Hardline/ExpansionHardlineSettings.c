@@ -23,7 +23,7 @@ class ExpansionHardlineSettingsV8
  **/
 class ExpansionHardlineSettings: ExpansionSettingBase
 {
-	static const int VERSION = 10;
+	static const int VERSION = 11;
 
 	int PoorItemRequirement;
 	int CommonItemRequirement;
@@ -49,6 +49,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	int ReputationLossOnDeath;
 	
 	ExpansionHardlineItemRarity DefaultItemRarity;
+	bool ItemRarityParentSearch;
 
 	ref map<string, int> EntityReputation = new map<string, int>;
 
@@ -62,6 +63,54 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this).Add(ctx);
 	#endif
+		
+		if (!ctx.Read(PoorItemRequirement))
+		{
+			Error(ToString() + "::OnRecieve PoorItemRequirement");
+			return false;
+		}
+		
+		if (!ctx.Read(CommonItemRequirement))
+		{
+			Error(ToString() + "::OnRecieve CommonItemRequirement");
+			return false;
+		}
+		
+		if (!ctx.Read(UncommonItemRequirement))
+		{
+			Error(ToString() + "::OnRecieve UncommonItemRequirement");
+			return false;
+		}
+		
+		if (!ctx.Read(RareItemRequirement))
+		{
+			Error(ToString() + "::OnRecieve RareItemRequirement");
+			return false;
+		}
+		
+		if (!ctx.Read(EpicItemRequirement))
+		{
+			Error(ToString() + "::OnRecieve EpicItemRequirement");
+			return false;
+		}
+		
+		if (!ctx.Read(LegendaryItemRequirement))
+		{
+			Error(ToString() + "::OnRecieve LegendaryItemRequirement");
+			return false;
+		}
+		
+		if (!ctx.Read(MythicItemRequirement))
+		{
+			Error(ToString() + "::OnRecieve MythicItemRequirement");
+			return false;
+		}
+		
+		if (!ctx.Read(ExoticItemRequirement))
+		{
+			Error(ToString() + "::OnRecieve ExoticItemRequirement");
+			return false;
+		}
 
 		if (!ctx.Read(ShowHardlineHUD))
 		{
@@ -94,6 +143,18 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			Error(ToString() + "::OnRecieve UseItemRarityOnInventoryIcons");
 			return false;
 		}
+		
+		if (!ctx.Read(UseItemRarityForMarketPurchase))
+		{
+			Error(ToString() + "::OnRecieve UseItemRarityForMarketPurchase");
+			return false;
+		}
+		
+		if (!ctx.Read(UseItemRarityForMarketSell))
+		{
+			Error(ToString() + "::OnRecieve UseItemRarityForMarketSell");
+			return false;
+		}
 
 		if (!ctx.Read(MaxReputation))
 		{
@@ -119,7 +180,16 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this).Add(ctx);
 	#endif
-
+		
+		ctx.Write(PoorItemRequirement);
+		ctx.Write(CommonItemRequirement);
+		ctx.Write(UncommonItemRequirement);
+		ctx.Write(RareItemRequirement);
+		ctx.Write(EpicItemRequirement);
+		ctx.Write(LegendaryItemRequirement);
+		ctx.Write(MythicItemRequirement);
+		ctx.Write(ExoticItemRequirement);
+		
 		ctx.Write(ShowHardlineHUD);
 		ctx.Write(UseReputation);
 	#ifdef EXPANSIONMODAI
@@ -127,6 +197,8 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	#endif
 		ctx.Write(EnableItemRarity);
 		ctx.Write(UseItemRarityOnInventoryIcons);
+		ctx.Write(UseItemRarityForMarketPurchase);
+		ctx.Write(UseItemRarityForMarketSell);
 		ctx.Write(MaxReputation);
 		ctx.Write(DefaultItemRarity);
 	}
@@ -239,6 +311,9 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 				
 				if (m_Version < 10)
 					DefaultItemRarity = settingsDefault.DefaultItemRarity;
+				
+				if (m_Version < 11)
+					ItemRarityParentSearch = settingsDefault.ItemRarityParentSearch;
 
 				m_Version = VERSION;
 				save = true;
@@ -316,6 +391,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		ReputationLossOnDeath = 100;
 
 		DefaultItemRarity = ExpansionHardlineItemRarity.Common;
+		ItemRarityParentSearch = false;
 		
 		DefaultEntityReputation();
 
@@ -1572,6 +1648,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("Mag_CMAG_40Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_VSS_10Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_VAL_20Rnd", ExpansionHardlineItemRarity.Epic);
+		AddItem("Mag_Vikhr_30Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_Ruger1022_15Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_Ruger1022_30Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_SVD_10Rnd", ExpansionHardlineItemRarity.Epic);
@@ -1580,7 +1657,11 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("Mag_Aug_30Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_P1_8Rnd", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Mag_CZ550_4rnd", ExpansionHardlineItemRarity.Rare);
+		AddItem("Mag_SSG82_5rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("Mag_CZ550_10rnd", ExpansionHardlineItemRarity.Epic);
+		AddItem("Mag_M14_10Rnd", ExpansionHardlineItemRarity.Epic);
+		AddItem("Mag_M14_10Rnd", ExpansionHardlineItemRarity.Epic);
+		AddItem("Mag_M14_20Rnd", ExpansionHardlineItemRarity.Epic);
 
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Mag_Expansion_Taser", ExpansionHardlineItemRarity.Uncommon);
@@ -1931,6 +2012,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("ASVAL", ExpansionHardlineItemRarity.Rare);
 		AddItem("B95", ExpansionHardlineItemRarity.Rare);
 		AddItem("SVD", ExpansionHardlineItemRarity.Rare);
+		AddItem("M14", ExpansionHardlineItemRarity.Rare);
 
 		if (ExpansionStatic.GetCanonicalWorldName() == "enoch")
 		{
@@ -2288,7 +2370,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("ExpansionKeyChain_Grey", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("ExpansionKeyChain_Orange", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("ExpansionKeyChain_Pink", ExpansionHardlineItemRarity.Uncommon);
-		AddItem("ExpansionKeyChain_Purp", ExpansionHardlineItemRarity.Uncommon);
+		AddItem("ExpansionKeyChain_Purple", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("ExpansionKeyChain_Yellow", ExpansionHardlineItemRarity.Uncommon);
 	#endif
 
@@ -2425,6 +2507,15 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		ExpansionHardlineItemRarity rarity;
 		if (ItemRarity.Find(type, rarity))
 			return rarity;
+
+		if (ItemRarityParentSearch)
+		{
+			foreach (string baseClassType, ExpansionHardlineItemRarity baseRarity: ItemRarity)
+			{
+				if (ExpansionStatic.Is(type, baseClassType))
+					return baseRarity;
+			}
+		}
 
 		return DefaultItemRarity;
 	}

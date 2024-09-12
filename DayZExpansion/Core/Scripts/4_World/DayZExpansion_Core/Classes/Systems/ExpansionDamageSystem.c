@@ -144,7 +144,7 @@ class ExpansionDamageSystem
 
 		ItemBase nearest_item;
 		DayZPlayerImplement player;
-		CarScript vehicle;
+		ExpansionVehicle vehicle;
 		EntityAI nearest_entity;
 
 		bool checkForBlockingObj = GetExpansionSettings().GetDamageSystem().CheckForBlockingObjects;
@@ -171,11 +171,11 @@ class ExpansionDamageSystem
 					continue;
 				nearest_entity = player;
 			}
-			else if (Class.CastTo(vehicle, nearest_object))
+			else if (ExpansionVehicle.Get(vehicle, nearest_object))
 			{
 				if (!vehicle.CanBeDamaged())
 					continue;
-				nearest_entity = vehicle;
+				nearest_entity = vehicle.GetEntity();
 			}
 			else if (!Class.CastTo(nearest_entity, nearest_object))
 			{
@@ -213,7 +213,7 @@ class ExpansionDamageSystem
 
 				if (Math.AbsFloat(ExpansionMath.AngleDiff2(sourceAngles[0], targetAngles[0])) > hitAngle1)
 				{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 					Log(nearest_object.ToString() + " at " + ExpansionStatic.VectorToString(nearest_object.GetPosition()) + " is NOT a target for " + source + " at " + ExpansionStatic.VectorToString(position) + " (not in blast direction)");
 #endif
 					continue;
@@ -221,7 +221,7 @@ class ExpansionDamageSystem
 
 				if (Math.AbsFloat(ExpansionMath.AngleDiff2(sourceAngles[1], targetAngles[1])) > hitAngle2)
 				{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 					Log(nearest_object.ToString() + " at " + ExpansionStatic.VectorToString(nearest_object.GetPosition()) + " is NOT a target for " + source + " at " + ExpansionStatic.VectorToString(position) + " (not in blast direction)");
 #endif
 					continue;
@@ -231,7 +231,7 @@ class ExpansionDamageSystem
 			float explosionDamageNormalized = GetExplosionDamageNormalized(source, nearest_entity, explosionRange, explosionDropoffRange, position);
 			if (!explosionDamageNormalized)
 			{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 				Log(nearest_object.ToString() + " at " + ExpansionStatic.VectorToString(nearest_object.GetPosition()) + " is NOT a target for " + source + " at " + ExpansionStatic.VectorToString(position) + " (too far away)");
 #endif
 				continue;
@@ -242,13 +242,13 @@ class ExpansionDamageSystem
 
 			if (!blockingObject)
 			{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 				Log(nearest_object.ToString() + " at " + ExpansionStatic.VectorToString(nearest_object.GetPosition()) + " is a target for " + source + " at " + ExpansionStatic.VectorToString(position));
 #endif
 				targets.Insert(nearest_entity, explosionDamageNormalized);
 				QueueExplosion(nearest_entity, source.ToString(), ammoType);
 			}
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 			else
 			{
 				Log(nearest_object.ToString() + " at " + ExpansionStatic.VectorToString(nearest_object.GetPosition()) + " is NOT a target for " + source + " at " + ExpansionStatic.VectorToString(position) + " (blocking " + blockingObject + " is in the way)");
@@ -307,13 +307,18 @@ class ExpansionDamageSystem
 
 			if (GetQueuedExplosionCount(target, sourceIdentifier, ammoType))
 			{
-				Log(target.ToString() + " at " + ExpansionStatic.VectorToString(target.GetPosition()) + " was not hit by " + ammoType + " from " + sourceIdentifier + " at " + sourcePosition + " - applying direct " + typename.EnumToString(DamageType, damageType) + " damage coef " + dmg);
+				Log(target.ToString() + " at " + ExpansionStatic.VectorToString(target.GetPosition()) + " (destroyed " + target.IsDamageDestroyed() + ") was not hit by " + ammoType + " from " + sourceIdentifier + " at " + sourcePosition + " - applying direct " + typename.EnumToString(DamageType, damageType) + " damage coef " + dmg);
+
 				if (!source)
 				{
 					directDamageSource = target;
 					DequeueExplosion(target, sourceIdentifier, ammoType);
 				}
-				target.ProcessDirectDamage(damageType, directDamageSource, "", ammoType, "0 0 0", dmg);
+
+				if (target.IsDamageDestroyed())
+					DequeueExplosion(target, sourceIdentifier, ammoType);
+				else
+					target.ProcessDirectDamage(damageType, directDamageSource, "", ammoType, "0 0 0", dmg);
 			}
 		}
 	}

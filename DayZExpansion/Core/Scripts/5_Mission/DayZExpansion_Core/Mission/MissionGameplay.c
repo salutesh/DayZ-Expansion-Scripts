@@ -17,18 +17,6 @@ modded class MissionGameplay
 {
 	protected static ref ExpansionItemTooltip m_EXItemTooltip;
 	protected static ref ExpansionItemInspection m_EXItemInspection;
-	
-	// ------------------------------------------------------------
-	// Constructor
-	// ------------------------------------------------------------
-	void MissionGameplay()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "MissionGameplay");
-#endif
-
-		Expansion_UpdateWorldViewDistances();
-	}
 
 	// ------------------------------------------------------------
 	// Destructor
@@ -193,6 +181,10 @@ modded class MissionGameplay
 		ExpansionGlobalID.s_IsMissionLoaded = true;
 
 		super.OnMissionLoaded();
+
+	#ifdef DAYZ_1_25
+		Expansion_UpdateWorldViewDistances();
+	#endif
 	}
 
 	// ------------------------------------------------------------
@@ -255,7 +247,7 @@ modded class MissionGameplay
 			itemTooltip.SetShowItemPreview(true);
 			itemTooltip.SetUpdateStatsOnShow(false);		
 			itemTooltip.UpdateItemInfoDamage(healthLevel);
-			if (!object.IsInherited(Car))
+			if (!object.IsTransport())
 			{
 				itemTooltip.UpdateItemInfoLiquidType(liquidType, isBloodContainer);
 				itemTooltip.UpdateItemInfoQuantity(quantityType, quantity, quantityMax, false);
@@ -310,7 +302,7 @@ modded class MissionGameplay
 		{
 			itemInspection.SetItem(object);
 			itemInspection.UpdateItemInfoDamage(healthLevel);
-			if (!object.IsInherited(Car))
+			if (!object.IsTransport())
 			{
 				itemInspection.UpdateItemInfoLiquidType(liquidType, isBloodContainer);
 				itemInspection.UpdateItemInfoQuantity(quantityType, quantity, quantityMax, false);

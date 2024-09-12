@@ -29,12 +29,14 @@ modded class ActionGetInTransport
 		if (!super.ActionCondition(player, target, item))
 			return false;
 
-		CarScript car = CarScript.Cast(target.GetObject());
+		auto vehicle = ExpansionVehicle.Get(target.GetObject());
+		if (!vehicle)
+			return false;
 
 		// Temp fix for being able to enter Uh1h despite being locked
-		ExpansionUh1h uh1h = ExpansionUh1h.Cast(target.GetObject());
-		if (car.DoorCount() <= 0 || uh1h)
-			return !car.IsLocked();
+		ExpansionUh1h uh1h = ExpansionUh1h.Cast(vehicle.GetEntity());
+		if (vehicle.DoorCount() <= 0 || uh1h)
+			return !vehicle.IsLocked();
 
 		return true;
 	}
@@ -46,6 +48,7 @@ modded class ActionGetInTransport
 		CarScript car = CarScript.Cast(action_data.m_Target.GetObject());
 		//AttachmentDebugPrint(action_data.m_Player, "car=" + car);
 
+#ifdef DAYZ_1_25
 		if (action_data.m_Player.Expansion_IsAttached() && action_data.m_Player.GetParent())
 		{
 			//AttachmentDebugPrint(action_data.m_Player, "parent=" + action_data.m_Player.GetParent());
@@ -57,19 +60,15 @@ modded class ActionGetInTransport
 			//AttachmentDebugPrint(action_data.m_Player, "-ActionGetInTransport::Start");
 			return;
 		}
+#endif
 
 		//AttachmentDebugPrint(action_data.m_Player, "Has No Parent");
 		super.Start(action_data);
 
-#ifdef DAYZ_1_19
-		//! Disable collision while getting in to prevent impulse being applied to vehicle
-		//! https://feedback.bistudio.com/T168870
-		dBodySetInteractionLayer(action_data.m_Player, PhxInteractionLayers.RAGDOLL);
-#endif
-
 		Expansion_OnPerformGetInTransport(car);
 	}
 
+#ifdef DAYZ_1_25
 	override void OnUpdate(ActionData action_data)
 	{
 		if (action_data.m_State == UA_START)
@@ -120,6 +119,7 @@ modded class ActionGetInTransport
 			//AttachmentDebugPrint(action_data.m_Player, "-ActionGetInTransport::Expansion_PerformGetInTransport");
 			return;
 		}
+		
 		int componentIndex = action_data.m_Target.GetComponentIndex();
 		int crew_index = car.CrewPositionIndex(componentIndex);
 		int seat = car.GetSeatAnimationType(crew_index);
@@ -127,12 +127,6 @@ modded class ActionGetInTransport
 		//AttachmentDebugPrint(action_data.m_Player, "componentIndex=" + componentIndex + " crew_index=" + crew_index + " seat=" + seat);
 
 		HumanCommandVehicle vehCommand = action_data.m_Player.StartCommand_Vehicle(car, crew_index, seat, false);
-
-#ifdef DAYZ_1_19
-		//! Disable collision while getting in to prevent impulse being applied to vehicle
-		//! https://feedback.bistudio.com/T168870
-		dBodySetInteractionLayer(action_data.m_Player, PhxInteractionLayers.RAGDOLL);
-#endif
 
 		//AttachmentDebugPrint(action_data.m_Player, "vehCommand=" + vehCommand);
 		if (vehCommand)
@@ -161,6 +155,7 @@ modded class ActionGetInTransport
 			action_data.m_Player.SetPosition(playerPosition);
 		}
 	}
+#endif
 
 	void Expansion_OnPerformGetInTransport(CarScript car)
 	{
@@ -168,9 +163,9 @@ modded class ActionGetInTransport
 		{
 			if (IsMissionClient())
 			{
-				bool isCar = car.IsCar();
-				bool isBoat = car.IsBoat();
-				bool isPlane = car.IsPlane();
+				bool isCar = car.Expansion_IsCar();
+				bool isBoat = car.Expansion_IsBoat();
+				bool isPlane = car.Expansion_IsPlane();
 
 				GetUApi().GetInputByName("UACarLeft").ForceDisable(!isCar);
 				GetUApi().GetInputByName("UACarRight").ForceDisable(!isCar);
@@ -201,25 +196,28 @@ modded class ActionGetInTransport
 
 	override void OnEndServer(ActionData action_data)
 	{
-		CarScript car = CarScript.Cast(action_data.m_Target.GetObject());
-
 		super.OnEndServer(action_data);
 
+	#ifdef DAYZ_1_25
 		action_data.m_Player.Expansion_SetIsInVehicleSeatOrAttached(true);
-		if (!car)
+	#endif
+
+		auto vehicle = ExpansionVehicle.Get(action_data.m_Target.GetObject());
+
+		if (!vehicle)
 			return;
 
-		if (car.IsHelicopter())
-			car.SetHasPilot(car.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) != NULL);  //! So we are able to detect if pilot got disconnected or got out on own accord
+		if (vehicle.IsHelicopter())
+			vehicle.SetHasPilot(vehicle.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) != NULL);  //! So we are able to detect if pilot got disconnected or got out on own accord
 		
 		if (action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEnter)
 		{
 			int componentIndex = action_data.m_Target.GetComponentIndex();
-			int crew_index = car.CrewPositionIndex(componentIndex);
+			int crew_index = vehicle.CrewPositionIndex(componentIndex);
 			string seat;
 			if (crew_index == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 			{
-				if (car.IsHelicopter() || car.IsPlane())
+				if (vehicle.IsHelicopter() || vehicle.IsPlane())
 					seat = "pilot";
 				else
 					seat = "driver";
@@ -229,7 +227,7 @@ modded class ActionGetInTransport
 				seat = "passenger";
 			}
 
-			GetExpansionSettings().GetLog().PrintLog("[VehicleEnter] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] entered vehicle " + car.GetDisplayName() + " (id=" + car.GetVehiclePersistentIDString() + " pos=" + car.GetPosition() + ") as " + seat);
+			GetExpansionSettings().GetLog().PrintLog("[VehicleEnter] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] entered vehicle " + vehicle.GetDisplayName() + " (id=" + vehicle.GetPersistentIDString() + " pos=" + vehicle.GetPosition() + ") as " + seat);
 		}
 	}
 };

@@ -90,6 +90,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		m_ClientStats.m_Distance = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_DISTANCE);
 		m_ClientStats.m_Playtime = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
 		m_ClientStats.m_PlayersKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_PLAYERS_KILLED);
+	#ifdef ENFUSION_AI_PROJECT
+		m_ClientStats.m_AIKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.EXP_STAT_AI_PLAYERS_KILLED);
+	#endif
 		m_ClientStats.m_InfectedKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_INFECTED_KILLED);
 		m_ClientStats.m_AnimalsKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.EXP_STAT_ANIMALS_KILLED);
 		m_ClientStats.m_LongestShot = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT);
@@ -275,6 +278,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 			stats.m_Distance = player.StatGet(AnalyticsManagerServer.STAT_DISTANCE);
 			stats.m_Playtime = player.StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
 			stats.m_PlayersKilled = player.StatGet(AnalyticsManagerServer.STAT_PLAYERS_KILLED);
+		#ifdef ENFUSION_AI_PROJECT
+			stats.m_AIKilled = player.StatGet(AnalyticsManagerServer.EXP_STAT_AI_PLAYERS_KILLED);
+		#endif
 			stats.m_InfectedKilled = player.StatGet(AnalyticsManagerServer.STAT_INFECTED_KILLED);
 			stats.m_AnimalsKilled = player.StatGet(AnalyticsManagerServer.EXP_STAT_ANIMALS_KILLED);
 			stats.m_LongestShot = player.StatGet(AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT);
@@ -628,9 +634,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	static ExpansionPlayerStanceStatus GetPlayerStance(PlayerBase player)
 	{
 		ExpansionPlayerStanceStatus stance = ExpansionPlayerStanceStatus.UNKNOWN;
-		CarScript car;
+		ExpansionVehicle vehicle;
 		
-		if (!Class.CastTo(car, player.GetParent()))
+		if (!ExpansionVehicle.Get(vehicle, player))
 		{
 			if (!player.IsAlive())
 			{
@@ -655,24 +661,18 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		}
 		else
 		{
-	#ifdef EXPANSIONMODVEHICLE
-			ExpansionHelicopterScript heli;
-			ExpansionBoatScript boat;
-			if (Class.CastTo(heli, car))
+			if (vehicle.IsHelicopter())
 			{
 				stance = ExpansionPlayerStanceStatus.HELICOPTER;
 			}
-			else if (Class.CastTo(boat, car))
+			else if (vehicle.IsBoat())
 			{
 				stance = ExpansionPlayerStanceStatus.BOAT;
 			}
 			else
 			{
-	#endif
 				stance = ExpansionPlayerStanceStatus.CAR;
-	#ifdef EXPANSIONMODVEHICLE
 			}
-	#endif
 		}
 		
 		return stance;
@@ -702,8 +702,10 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestPlayerStats(string playerID = "", bool includeRegisteredStats = false, bool includeBaseStats = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
-
+#endif
+		
 		auto rpc = Expansion_CreateRPC("RPC_RequestPlayerStats");
 		rpc.Write(playerID);
 		rpc.Write(includeRegisteredStats);
@@ -718,13 +720,17 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_RequestPlayerStatsAndStates(ParamsReadContext ctx, PlayerIdentity sender, bool includeStats = true, bool includeStates = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, "" + includeStats, "" + includeStates);
-
+#endif
+		
 		string playerID;
 		if (!ctx.Read(playerID))
 			return;
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, playerID);
+#endif
 		
 		string originalPlayerID = playerID;
 
@@ -812,8 +818,10 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void SendPlayerStatsAndStates(ExpansionSyncedPlayerStats playerStats, ExpansionSyncedPlayerStates playerStates, string playerID, PlayerIdentity ident, bool includeRegisteredStats = false, bool includeBaseStats = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, "" + playerStats, "" + playerStates, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
-
+#endif
+		
 		string fn;
 		if (playerStats && playerStates)
 			fn = "RPC_SendPlayerStatsAndStates";
@@ -846,14 +854,18 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_SendPlayerStatsAndStates(ParamsReadContext ctx, bool includeStats = true, bool includeStates = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, "" + includeStats, "" + includeStates);
+#endif
 		
 		string playerID;
 		if (!ctx.Read(playerID))
 			return;
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, playerID);
-		
+#endif
+			
 		bool includeRegisteredStats;
 		if (includeStats && !ctx.Read(includeRegisteredStats))
 			return;
@@ -893,8 +905,10 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestPlayerStates(string playerID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID);
-
+#endif
+		
 		auto rpc = Expansion_CreateRPC("RPC_RequestPlayerStates");
 		rpc.Write(playerID);
 		//! @note guaranteed = false is intentional here (performance)
@@ -918,8 +932,10 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestPlayerStatsAndStates(string playerID, bool includeRegisteredStats = false, bool includeBaseStats = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
-
+#endif
+		
 		auto rpc = Expansion_CreateRPC("RPC_RequestPlayerStatsAndStates");
 		rpc.Write(playerID);
 		rpc.Write(includeRegisteredStats);
@@ -955,10 +971,6 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void SyncLastDeathPos(PlayerIdentity identity)
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "SyncLastDeathPos");
-	#endif
-			
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
@@ -991,10 +1003,6 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_SyncLastDeathPos(PlayerIdentity ident, Object target, ParamsReadContext ctx)
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.PLAYER_MONITOR, this, "RPC_SyncLastDeathPos").Add(ident).Add(ctx);
-	#endif
-		
 		if (!ctx.Read(m_LastDeathPos))
 		{
 			Error(ToString() + "::RPC_SyncLastDeathPos - Could not read last death position!");

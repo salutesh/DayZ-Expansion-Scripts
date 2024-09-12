@@ -17,7 +17,7 @@ class ExpansionPointLight: PointLightBase
 {
 	float m_Val;
 	
-	bool m_Enabled;	
+	bool m_Enabled = true;	
 
 	// ------------------------------------------------------------
 	// Constructor
@@ -50,6 +50,7 @@ class ExpansionPointLight: PointLightBase
 		
 	}
 
+	//! @note this exists because EntityLightSource::IsEnabled always return true...
 	bool ExpansionGetEnabled()
 	{
 		return m_Enabled;

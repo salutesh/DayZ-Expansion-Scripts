@@ -93,14 +93,25 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	bool IsInGarage(CarScript vehicle)
 	{
-		if (vehicle.m_Expansion_GlobalID.IsZero())
+		EXError.Warn(this, "DEPRECATED");
+
+		ExpansionVehicle ev;
+		if (ExpansionVehicle.Get(ev, vehicle))
+			return IsInGarage(ev);
+
+		return false;
+	}
+
+	bool IsInGarage(ExpansionVehicle vehicle)
+	{
+		if (vehicle.GetGlobalID().IsZero())
 			return false;
 
 		foreach (ExpansionGarageData garageData: m_GarageData)
 		{
 			foreach (ExpansionGarageVehicleData vehicleData: garageData.m_Vehicles)
 			{
-				if (vehicle.m_Expansion_GlobalID.IsEqual(vehicleData.m_GlobalID))
+				if (vehicle.GetGlobalID().IsEqual(vehicleData.m_GlobalID))
 				{
 					EXPrint(ToString() + "::IsInGarage - " + vehicle.GetType() + " " + vehicle.GetPosition() + " has identical global ID to " + vehicleData.m_ClassName + " " + vehicleData.m_Position + " stored in garage " + garageData.m_OwnerUID);
 					if (vehicle.GetType() == vehicleData.m_ClassName)
@@ -143,8 +154,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	protected void LoadGarageData()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		array<string> garageFiles = ExpansionStatic.FindFilesInLocation(s_GarageFolderPath, ".json");
 		foreach (string fileName: garageFiles)
 		{
@@ -170,8 +183,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 	//! Client
 	void RequestPlayerVehicles()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		auto rpc = Expansion_CreateRPC("RPC_RequestPlayerVehicles");
 		rpc.Expansion_Send(true);
 	}
@@ -179,8 +194,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RequestPlayerVehicles(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		string playerUID = identity.GetId();
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
 		if (!player)
@@ -251,8 +268,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 	//! Client
 	protected void RPC_SendPlayerVehicles(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		int i;
 		int worldVehiclesCount;
 		if (!ctx.Read(worldVehiclesCount))
@@ -300,8 +319,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 	//! Client
 	void DepositVehicleRequest(Object vehicleObj)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		if (!vehicleObj)
 			return;
 
@@ -312,8 +333,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_DepositVehicleRequest(PlayerIdentity identity, Object vehicleObj, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		auto settings = GetExpansionSettings().GetGarage();
 		if (!settings.Enabled)
 			return;
@@ -332,9 +355,9 @@ class ExpansionGarageModule: CF_ModuleWorld
 			return;
 		}
 
-		CarScript vehicle;
+		ExpansionVehicle vehicle;
 
-		if (!Class.CastTo(vehicle, vehicleObj))
+		if (!ExpansionVehicle.Get(vehicle, vehicleObj))
 		{
 			Error(ToString() + "::RPC_DepositVehicleRequest - Could not get vehicle!");
 			return;
@@ -446,7 +469,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		}
 
 		//! Check if vehicle is ruined
-		if (vehicle.IsRuined())
+		if (vehicle.IsDestroyed())
 		{
 			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_DESTROYED", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 			return;
@@ -469,7 +492,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		//}
 
 		//! Check if vehicles has any crew members.
-		if (vehicle.Expansion_GetVehicleCrew().Count() > 0)
+		if (vehicle.GetCrew().Count() > 0)
 		{
 			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_CREW", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 			return;
@@ -484,7 +507,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		//! Check if vehicle has any cargo items that are not attachments if the "CanStoreWithCargo" setting is enabled.
 		if (!settings.CanStoreWithCargo)
 		{
-			if (MiscGameplayFunctions.Expansion_HasAnyCargo(vehicle))
+			if (MiscGameplayFunctions.Expansion_HasAnyCargo(vehicle.GetEntity()))
 			{
 				ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_CARGO", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 				return;
@@ -516,7 +539,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 	#endif
 
 		//! Store the vehicle and delete it.
-		if (!StoreVehicle(vehicleData, vehicle))
+		if (!StoreVehicle(vehicleData, vehicle.GetEntity()))
 		{
 			ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_STORED", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create(identity);
 			if (GetExpansionSettings().GetLog().Garage)
@@ -547,16 +570,30 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	bool CanStore(PlayerBase player, CarScript vehicle, out string ownerUID = string.Empty)
 	{
+		EXError.Warn(this, "DEPRECATED");
+
+		ExpansionVehicle ev;
+		if (ExpansionVehicle.Get(ev, vehicle))
+			return CanStore(player, ev, ownerUID);
+
+		return false;
+	}
+
+	bool CanStore(PlayerBase player, ExpansionVehicle vehicle, out string ownerUID = string.Empty)
+	{
 		string playerUID = player.GetIdentity().GetId();
 		vector playerPos = player.GetPosition();
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.GARAGE, this, "::CanStore - checking world vehicle " + vehicle.GetType() + " " + vehicle.GetPosition() + " for player " + playerUID + " " + playerPos);
 	#endif
 
 		auto settings = GetExpansionSettings().GetGarage();
 
-		if (!vehicle.m_Expansion_HasLifetime && !settings.AllowStoringDEVehicles)
+		if (!vehicle.HasLifetime() && !settings.AllowStoringDEVehicles)
+			return false;
+
+		if (vehicle.IsTowing())
 			return false;
 
 		bool isOwnedVehicle;
@@ -564,7 +601,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		if (settings.GarageMode == ExpansionGarageMode.Personal || settings.GarageStoreMode == ExpansionGarageStoreMode.Personal)
 		{
 			isOwnedVehicle = IsVehicleOwner(vehicle, playerUID);
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.GARAGE, this, "Is owned vehicle (personal)? " + isOwnedVehicle);
 		#endif
 
@@ -576,7 +613,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 			else if (m_PartyDataTemp)
 			{
 				isOwnedVehicle = IsGroupMemberVehicle(vehicle, m_PartyDataTemp);
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.GARAGE, this, "Is owned vehicle (group)? " + isOwnedVehicle);
 			#endif
 				if (isOwnedVehicle)
@@ -584,7 +621,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 					ownerUID = m_PartyDataTemp.GetOwnerUID();
 					if (settings.GroupStoreMode == ExpansionGarageGroupStoreMode.RetrieveOnly)
 					{
-					#ifdef DIAG
+					#ifdef DIAG_DEVELOPER
 						EXTrace.Print(EXTrace.GARAGE, this, "Cannot store vehicle: Is group member vehicle, but GroupStoreMode is RetrieveOnly");
 					#endif
 						return false;
@@ -606,20 +643,20 @@ class ExpansionGarageModule: CF_ModuleWorld
 					break;
 				case ExpansionGarageStoreMode.TerritoryShared:
 					isOwnedVehicle = IsTerritoryMemberVehicle(vehicle, m_TerritoryTemp);
-				#ifdef DIAG
+				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.GARAGE, this, "Is territory member vehicle? " + isOwnedVehicle);
 				#endif
 					break;
 				case ExpansionGarageStoreMode.TerritoryTyrannical:
 					isOwnedVehicle = IsTerritoryMemberVehicle(vehicle, m_TerritoryTemp);
-				#ifdef DIAG
+				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.GARAGE, this, "Is territory member vehicle? " + isOwnedVehicle);
 				#endif
 					if (isOwnedVehicle)
 					{
 						ExpansionTerritoryMember playerTerritoryData = m_TerritoryTemp.GetMember(playerUID);
 						isOwnedVehicle = playerTerritoryData.GetRank() >= ExpansionTerritoryRank.MODERATOR;
-					#ifdef DIAG
+					#ifdef DIAG_DEVELOPER
 						EXTrace.Print(EXTrace.GARAGE, this, "Is tyrant? " + isOwnedVehicle);
 					#endif
 					}
@@ -628,7 +665,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		}
 	#endif
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.GARAGE, this, typename.EnumToString(ExpansionGarageStoreMode, settings.GarageStoreMode) + " store mode - can store vehicle? " + isOwnedVehicle);
 	#endif
 
@@ -640,7 +677,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		string playerUID = player.GetIdentity().GetId();
 		vector playerPos = player.GetPosition();
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.GARAGE, this, "::CanRetrieve - checking stored vehicle " + vehicleData.m_ClassName + " " + vehicleData.m_Position + " for player " + playerUID + " " + playerPos);
 	#endif
 
@@ -670,7 +707,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		float maxDist = Math.Max(vehicleSearchRadius, settings.MaxDistanceFromStoredPosition);
 		if (distanceSq > maxDist * maxDist)
 		{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.GARAGE, this, "Cannot retrieve vehicle: Out of range");
 		#endif
 			return false;
@@ -688,7 +725,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		if (settings.GarageMode == ExpansionGarageMode.Personal || settings.GarageRetrieveMode == ExpansionGarageRetrieveMode.Personal)
 		{
 			isOwnedVehicle = IsVehicleOwner(vehicleData, playerUID);
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.GARAGE, this, "Is owned vehicle (personal)? " + isOwnedVehicle);
 		#endif
 
@@ -696,12 +733,12 @@ class ExpansionGarageModule: CF_ModuleWorld
 			if (!isOwnedVehicle && m_PartyDataTemp)
 			{
 				isOwnedVehicle = IsGroupMemberVehicle(vehicleData, m_PartyDataTemp);
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.GARAGE, this, "Is owned vehicle (group)? " + isOwnedVehicle);
 			#endif
 				if (isOwnedVehicle && settings.GroupStoreMode == ExpansionGarageGroupStoreMode.StoreOnly)
 				{
-				#ifdef DIAG
+				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.GARAGE, this, "Cannot retrieve vehicle: Is group member vehicle, but GroupStoreMode is StoreOnly");
 				#endif
 					return false;
@@ -722,20 +759,20 @@ class ExpansionGarageModule: CF_ModuleWorld
 					break;
 				case ExpansionGarageRetrieveMode.TerritoryShared:
 					isOwnedVehicle = IsTerritoryMemberVehicle(vehicleData, m_TerritoryTemp);
-				#ifdef DIAG
+				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.GARAGE, this, "Is territory member vehicle? " + isOwnedVehicle);
 				#endif
 					break;
 				case ExpansionGarageRetrieveMode.TerritoryTyrannical:
 					isOwnedVehicle = IsTerritoryMemberVehicle(vehicleData, m_TerritoryTemp);
-				#ifdef DIAG
+				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.GARAGE, this, "Is territory member vehicle? " + isOwnedVehicle);
 				#endif
 					if (isOwnedVehicle)
 					{
 						ExpansionTerritoryMember playerTerritoryData = m_TerritoryTemp.GetMember(playerUID);
 						isOwnedVehicle = playerTerritoryData.GetRank() >= ExpansionTerritoryRank.MODERATOR;
-					#ifdef DIAG
+					#ifdef DIAG_DEVELOPER
 						EXTrace.Print(EXTrace.GARAGE, this, "Is tyrant? " + isOwnedVehicle);
 					#endif
 					}
@@ -744,7 +781,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		}
 	#endif
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.GARAGE, this, typename.EnumToString(ExpansionGarageRetrieveMode, settings.GarageRetrieveMode) + " retrieve mode - can retrieve vehicle? " + isOwnedVehicle);
 	#endif
 
@@ -764,8 +801,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	void RetrieveVehicleRequest(ExpansionGarageVehicleData vehicleData)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		if (!GetGame().IsClient())
 		{
 			Error(ToString() + "::RetrieveVehicleRequest - Tryed to call RetrieveVehicleRequest on Server!");
@@ -780,8 +819,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RetrieveVehicleRequest(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		auto settings = GetExpansionSettings().GetGarage();
 		if (!settings.Enabled)
 			return;
@@ -876,8 +917,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 	//! Client
 	protected void RPC_Callback(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		ExpansionGarageModuleCallback callback;
 		if (!ctx.Read(callback))
 			return;
@@ -887,8 +930,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	protected bool StoreVehicle(ExpansionGarageVehicleData vehicleData, EntityAI vehicleEntity)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		if (!vehicleEntity)
 		{
 			Error(ToString() + "::StoreVehicle - Could not get vehicle!");
@@ -921,8 +966,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	protected bool LoadVehicle(ExpansionGarageVehicleData vehicleData, out EntityAI loadedEntity = null, bool setLastDriver = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		ExpansionEntityStoragePlaceholder placeholder = ExpansionEntityStoragePlaceholder.GetByStoredEntityGlobalID(vehicleData.m_GlobalID);
 		if (!placeholder && !GetExpansionSettings().GetGarage().UseVirtualStorageForCargo)
 			EXPrint("WARNING: No placeholder found for vehicle data " + vehicleData.m_ClassName + " " + vehicleData.m_Position);
@@ -936,13 +983,13 @@ class ExpansionGarageModule: CF_ModuleWorld
 		if (placeholder)
 			placeholder.Delete();
 
-		CarScript vehicle;
+		ExpansionVehicle vehicle;
 
-		if (setLastDriver && Class.CastTo(vehicle, loadedEntity) && vehicle.ExpansionGetLastDriverUID() == string.Empty && vehicle.GetType() == vehicleData.m_ClassName)
+		if (setLastDriver && ExpansionVehicle.Get(vehicle, loadedEntity) && vehicle.GetLastDriverUID() == string.Empty && vehicle.GetType() == vehicleData.m_ClassName)
 		{
 			PlayerBase player = GetNearbyVehicleOwner(vehicle.GetPosition(), vehicleData.m_OwnerUIDs);
 			if (player)
-				vehicle.ExpansionSetLastDriverUID(player);
+				vehicle.SetLastDriverUID(player);
 		}
 
 		return true;
@@ -974,8 +1021,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	protected array<ref ExpansionGarageVehicleData> GetWorldVehicles(PlayerBase player, out bool foundTerritoryForStoring)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		array<ref ExpansionGarageVehicleData> worldVehicles = new array<ref ExpansionGarageVehicleData>;
 		vector playerPos = player.GetPosition();
 
@@ -1018,7 +1067,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 		float vehicleSearchRadiusSq = vehicleSearchRadius * vehicleSearchRadius;
 
-		auto node = CarScript.s_Expansion_AllVehicles.m_Head;
+		auto node = ExpansionVehicle.s_All.m_Head;
 		while (node)
 		{
 			auto vehicle = node.m_Value;
@@ -1044,8 +1093,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 		CleanupTemp();
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, "World vehicles: " + worldVehicles.Count());
-
+#endif
+		
 		return worldVehicles;
 	}
 
@@ -1069,7 +1120,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 			if (IsTerritoryMember(player, territory))
 				return territory;
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.GARAGE, this, "::GetTerritory - neither player nor group are members in this territory");
 		#endif
 		}
@@ -1085,7 +1136,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 					return territory;
 			}
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.GARAGE, this, "::GetTerritory - neither player nor group are members in any territory");
 		#endif
 		}
@@ -1099,7 +1150,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 		if (!territoryFlag || !territoryFlag.HasExpansionTerritoryInformation())
 		{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.GARAGE, this, "::GetTerritory - territory with ID " + territoryID + " does not exist");
 		#endif
 			return NULL;
@@ -1114,7 +1165,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		//! they can just retrieve anything in that territory
 		if (m_TerritoryModule.IsInTerritory(player.GetPosition(), -1, territoryFlag))
 		{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.GARAGE, this, "::GetTerritory - neither player nor group are members in this territory, but player position is within territory radius");
 		#endif
 			enemyTerritory = true;
@@ -1128,7 +1179,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 	{
 		if (territory.IsMember(player.GetIdentity().GetId()))
 		{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.GARAGE, this, "::GetTerritory - player is territory member");
 		#endif
 			return true;
@@ -1137,7 +1188,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODGROUPS
 		if (m_PartyDataTemp && IsAnyTerritoryMemberAGroupMember(territory, m_PartyDataTemp))
 		{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.GARAGE, this, "::GetTerritory - player group has member in this territory");
 		#endif
 			return true;
@@ -1150,8 +1201,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	protected array<ref ExpansionGarageVehicleData> GetStoredVehicles(PlayerBase player, out bool foundTerritoryForRetrieving)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		array<ref ExpansionGarageVehicleData> storedVehicles = new array<ref ExpansionGarageVehicleData>;
 
 		auto settings = GetExpansionSettings().GetGarage();
@@ -1189,8 +1242,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 		CleanupTemp();
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, "Stored vehicles: " + storedVehicles.Count());
-
+#endif
+		
 		return storedVehicles;
 	}
 
@@ -1270,6 +1325,17 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	array<string> GetVehicleOwnersFromKeys(Object vehicle)
 	{
+		EXError.Warn(this, "DEPRECATED");
+
+		ExpansionVehicle ev;
+		if (ExpansionVehicle.Get(ev, vehicle))
+			return GetVehicleOwnersFromKeys(ev);
+
+		return {};
+	}
+
+	array<string> GetVehicleOwnersFromKeys(ExpansionVehicle vehicle)
+	{
 		array<string> owners = new array<string>;
 		array<ExpansionCarKey> keys = new array<ExpansionCarKey>;
 		ExpansionCarKey.GetKeysForVehicle(vehicle, keys);
@@ -1289,7 +1355,18 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	bool IsVehicleOwner(CarScript vehicle, string playerUID)
 	{
-		if (vehicle.ExpansionGetLastDriverUID() == playerUID)
+		EXError.Warn(this, "DEPRECATED");
+
+		ExpansionVehicle ev;
+		if (ExpansionVehicle.Get(ev, vehicle))
+			return IsVehicleOwner(ev, playerUID);
+
+		return false;
+	}
+
+	bool IsVehicleOwner(ExpansionVehicle vehicle, string playerUID)
+	{
+		if (vehicle.GetLastDriverUID() == playerUID)
 			return true;
 
 		array<string> owners = GetVehicleOwnersFromKeys(vehicle);
@@ -1318,8 +1395,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 #ifdef EXPANSIONMODBASEBUILDING
 	void DropTerritoryVehicles(int territoryID, bool destroy = false)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		for (int i = m_GarageData.Count() - 1; i >= 0; i--)
 		{
 			ExpansionGarageData currentGarageData = m_GarageData[i];
@@ -1336,8 +1415,19 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	bool IsTerritoryMemberVehicle(CarScript vehicle, ExpansionTerritory territory)
 	{
+		EXError.Warn(this, "DEPRECATED");
+
+		ExpansionVehicle ev;
+		if (ExpansionVehicle.Get(ev, vehicle))
+			return IsTerritoryMemberVehicle(ev, territory);
+
+		return false;
+	}
+
+	bool IsTerritoryMemberVehicle(ExpansionVehicle vehicle, ExpansionTerritory territory)
+	{
 		array<string> owners = GetVehicleOwnersFromKeys(vehicle);
-		string lastDriver = vehicle.ExpansionGetLastDriverUID();
+		string lastDriver = vehicle.GetLastDriverUID();
 		if (lastDriver != string.Empty && owners.Find(lastDriver) == -1)
 			owners.Insert(lastDriver);
 
@@ -1387,8 +1477,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	protected void DropPlayerVehicles(string playerUID, bool destroy = false)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
-
+#endif
+		
 		for (int i = m_GarageData.Count() - 1; i >= 0; i--)
 		{
 			ExpansionGarageData currentGarageData = m_GarageData[i];
@@ -1463,8 +1555,19 @@ class ExpansionGarageModule: CF_ModuleWorld
 #ifdef EXPANSIONMODGROUPS
 	bool IsGroupMemberVehicle(CarScript vehicle, ExpansionPartyData group)
 	{
+		EXError.Warn(this, "DEPRECATED");
+
+		ExpansionVehicle ev;
+		if (ExpansionVehicle.Get(ev, vehicle))
+			return IsGroupMemberVehicle(ev, group);
+
+		return false;
+	}
+
+	bool IsGroupMemberVehicle(ExpansionVehicle vehicle, ExpansionPartyData group)
+	{
 		array<string> owners = GetVehicleOwnersFromKeys(vehicle);
-		string lastDriver = vehicle.ExpansionGetLastDriverUID();
+		string lastDriver = vehicle.GetLastDriverUID();
 		if (lastDriver != string.Empty && owners.Find(lastDriver) == -1)
 			owners.Insert(lastDriver);
 

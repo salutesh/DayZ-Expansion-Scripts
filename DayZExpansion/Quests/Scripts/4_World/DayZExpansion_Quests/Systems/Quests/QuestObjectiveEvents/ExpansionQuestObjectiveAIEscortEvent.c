@@ -201,14 +201,8 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!m_VIP.m_Expansion_NetsyncData)
 			m_VIP.m_Expansion_NetsyncData = new ExpansionNetsyncData(m_VIP);
 	
-       int iconIndex = 0;
-       if (m_AIEscortConfig.GetNPCName() != "")
-       {
-           m_VIP.m_Expansion_NetsyncData.Set(0, m_AIEscortConfig.GetNPCName());
-           iconIndex++;
-       }
-	
-		m_VIP.m_Expansion_NetsyncData.Set(iconIndex, "set:expansion_iconset image:icon_profile");
+		m_VIP.m_Expansion_NetsyncData.Set(0, m_AIEscortConfig.GetNPCName());
+		m_VIP.m_Expansion_NetsyncData.Set(1, "set:expansion_iconset image:icon_profile");
 		
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.UpdateVIPPosition, 10 * 1000, true);
 	}

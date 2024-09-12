@@ -117,8 +117,10 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	void ExpansionP2PMarketMenu()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-		
+#endif
+
 		Class.CastTo(m_P2PMarketMenuController, GetController());
 		Class.CastTo(m_P2PMarketModule, CF_ModuleCoreManager.Get(ExpansionP2PMarketModule));
 		Class.CastTo(m_MarketModule, CF_ModuleCoreManager.Get(ExpansionMarketModule));
@@ -138,7 +140,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	void ~ExpansionP2PMarketMenu()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif
 		
 		if (m_P2PMarketModule)
 		{
@@ -181,7 +185,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	void SetTraderItems(array<ref ExpansionP2PMarketListing> listings, int traderID, string traderName = string.Empty, string iconName = string.Empty, TStringArray currencies = null, int displayCurrencyValue = 1, string displayCurrencyName = string.Empty)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif
 		
 		EXPrint(ToString() + "::SetTraderItems - ID: " + traderID);
 		EXPrint(ToString() + "::SetTraderItems - Trader Name: " + traderName);
@@ -285,7 +291,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	void UpdatePlayerItems()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif
 		
 		m_PlayerItems.Clear();
 
@@ -296,7 +304,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 			foreach (EntityAI item: items)
 			{
 				//! Only add items that have the player as direct parent.
-				if (item.GetHierarchyParent() && item.GetHierarchyParent().IsInherited(SurvivorBase) || item.IsInherited(CarScript))
+				if ((item.GetHierarchyParent() && item.GetHierarchyParent().IsInherited(SurvivorBase)) || ExpansionVehicle.Get(item))
 				{
 					//! Hardcoded excluded type names where the item should never get added and shown in the menu.
 					if (ExpansionP2PMarketModule.m_HardcodedExcludes.Find(item.GetType()) > -1)
@@ -371,7 +379,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	void UpdatePlayerCurrency()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif
 		
 		array<int> monies = new array<int>;
 		m_PlayerWorth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, m_Currencies);
@@ -382,7 +392,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	void OnModuleCallback(int callback, string type = string.Empty, int price = 0, int listingPrice = 0, Object blockingObject = null)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif
 
 		switch (m_ViewState)
 		{
@@ -1039,7 +1051,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		GetDetailsView().GetDetailsViewController().SelectedName = listing.GetPreviewObject().GetDisplayName();
 		GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("SelectedName");
 
-		if (!listing.GetPreviewObject().IsInherited(ZombieBase) || !listing.GetPreviewObject().IsInherited(Car) || !listing.GetPreviewObject().IsInherited(CarScript))
+		if (!listing.GetPreviewObject().IsInherited(ZombieBase) || !listing.GetPreviewObject().IsTransport())
 		{
 			GetDetailsView().GetDetailsViewController().ItemDescription = ExpansionStatic.GetItemDescriptionWithType(listing.GetListing().GetClassName());
 			GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("ItemDescription");
@@ -1974,7 +1986,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	override void OnShow()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif
 		
 		super.OnShow();
 
@@ -2174,7 +2188,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	override void OnHide()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif
 
 		super.OnHide();
 

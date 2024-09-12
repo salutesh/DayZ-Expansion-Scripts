@@ -56,12 +56,14 @@ modded class EffExhaustSmoke
 
 		m_Expansion_FrameTime = 0;
 
-		Car parent = Car.Cast( GetAttachmentParent() );
+		Object parent = GetAttachmentParent();
 		Particle p = GetParticle();
 		
 		if ( parent && p )
 		{
-			float speed = parent.GetSpeedometerAbsolute();
+			vector velocity = GetVelocity(parent);
+			velocity[1] = 0;
+			float speed = velocity.Length() * 3.6;
 			float lifetime_scale;
 				
 			if (speed < 100)

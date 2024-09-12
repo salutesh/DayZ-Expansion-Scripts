@@ -138,8 +138,8 @@ GridSpacerWidgetClass ExpansionMarketCategory {
      imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
      mode blend
      "src alpha" 1
-     "no wrap" 1
-     stretch 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
      "flip v" 0
     }
     ImageWidgetClass category_collapse_icon {
@@ -158,8 +158,8 @@ GridSpacerWidgetClass ExpansionMarketCategory {
      imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
      mode blend
      "src alpha" 1
-     "no wrap" 1
-     stretch 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
      "flip v" 1
     }
     ImageWidgetClass category_icon {
@@ -178,8 +178,8 @@ GridSpacerWidgetClass ExpansionMarketCategory {
      imageTexture "{764DDD38FF7B105D}DayZExpansion/Core/GUI/icons/hud/questionmark_64x64.edds"
      mode blend
      "src alpha" 1
-     "no wrap" 1
-     stretch 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
      {
       ScriptParamsClass {
        Binding_Name "CategoryIcon"
@@ -188,7 +188,7 @@ GridSpacerWidgetClass ExpansionMarketCategory {
     }
    }
   }
-  GridSpacerWidgetClass category_items {
+  WrapSpacerWidgetClass category_items {
    visible 0
    ignorepointer 1
    position 0 50
@@ -198,9 +198,9 @@ GridSpacerWidgetClass ExpansionMarketCategory {
    hexactsize 0
    vexactsize 0
    scriptclass "ViewBinding"
+   Padding 7
+   Margin 7
    "Size To Content V" 1
-   Columns 7
-   Rows 100
    {
     ScriptParamsClass {
      Binding_Name "MarketItems"

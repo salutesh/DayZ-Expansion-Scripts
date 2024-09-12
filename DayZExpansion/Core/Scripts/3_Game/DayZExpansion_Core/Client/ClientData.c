@@ -15,7 +15,9 @@ modded class ClientData
 #ifdef DAYZ_1_23
 	override static void SyncEvent_OnRecievedPlayerList( SyncPlayerList player_list )
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PLAYER, ClientData);
+#endif
 
 		if (m_PlayerList && m_PlayerList.m_PlayerList)
 			m_PlayerList.Expansion_Decode();

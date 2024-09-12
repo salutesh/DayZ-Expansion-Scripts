@@ -244,6 +244,7 @@ class CfgVehicles
 		wreck = "ExpansionMerlinWreck";
 		fuelCapacity = 292;
 		fuelConsumption = 95;
+		animPhysDetachSpeed = 100.0;
 		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","ExpansionIgniterPlug","ExpansionHydraulicHoses","merlinwheel_1_1","merlinwheel_1_2","merlinwheel_2_1","merlinwheel_2_2","CamoNet","KeyChain"};
 		wheels[] = {"ExpansionMerlinFrontWheel","ExpansionMerlinFrontWheel","ExpansionMerlinBackWheel","ExpansionMerlinBackWheel"};
 		doors[] = {};
@@ -706,6 +707,7 @@ class CfgVehicles
 		wreck = "ExpansionMerlinWreck";
 		fuelCapacity = 292;
 		fuelConsumption = 95;
+		animPhysDetachSpeed = 100.0;
 		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","ExpansionIgniterPlug","ExpansionHydraulicHoses","merlinwheel_1_1","merlinwheel_1_2","merlinwheel_2_1","merlinwheel_2_2"};
 		doors[] = {};
 		applySkinsTo[] = {};
@@ -844,7 +846,7 @@ class CfgVehicles
 			allowOwnedCargoManipulation = 1;
 			openable = 0;
 		};
-		class Sounds
+		class ExpansionSounds
 		{
 			thrust = 0.6;
 			thrustTurbo = 1;

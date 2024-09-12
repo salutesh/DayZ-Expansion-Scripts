@@ -55,6 +55,9 @@ class ExpansionMapping
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Defaults");
 #endif
+
+		Mapping.Clear();
+		Interiors.Clear();
 		
 		//! Set default mapping depending on map name
 

@@ -17,7 +17,7 @@ class ExpansionQuestItemConfig
 
 	bool IsVehicle()
 	{
-		return GetGame().IsKindOf(ClassName, "CarScript") || GetGame().IsKindOf(ClassName, "ExpansionVehicleBase");
+		return ExpansionStatic.IsVehicle(ClassName);
 	}
 
 	void SetClassName(string name)

@@ -78,14 +78,14 @@ class ExpansionActionOpenPersonalStorageMenu: ActionInteractBase
 				//! Check if player has completed required quest
 				if (!ExpansionQuestModule.GetModuleInstance().HasCompletedQuest(questID, player.GetIdentity().GetId()))
 				{
-					ExpansionQuestConfig questConig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
-					if (!questConig)
+					ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
+					if (!questConfig)
 					{
 						Error(ToString() + "::OnExecuteServer - Could not get quest config for quest ID: " + questID);
 						return;
 					}
 		
-					ExpansionNotification(new StringLocaliser("Storage is locked!"), new StringLocaliser("You have no access to this storage yet. You need to compelete the quest " + questConig.GetTitle() + " first to use this storage."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create(player.GetIdentity());
+					ExpansionNotification(new StringLocaliser("Storage is locked!"), new StringLocaliser("You have no access to this storage yet. You need to compelete the quest " + questConfig.GetTitle() + " first to use this storage."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create(player.GetIdentity());
 					return;
 				}
 			}

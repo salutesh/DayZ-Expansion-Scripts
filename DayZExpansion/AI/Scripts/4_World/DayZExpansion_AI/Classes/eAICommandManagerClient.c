@@ -19,6 +19,8 @@ class eAICommandManagerClient : eAICommandManager
 		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormationChange");
 		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormRejoin");
 		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormStop");
+		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormFlank");
+		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormRoam");
 
 		m_Expansion_RPCManager.RegisterServer("RPC_SetWaypoint");
 		m_Expansion_RPCManager.RegisterServer("RPC_ExportPatrol");
@@ -28,8 +30,7 @@ class eAICommandManagerClient : eAICommandManager
 
 		m_Expansion_RPCManager.RegisterServer("RPC_DumpState");
 		m_Expansion_RPCManager.RegisterServer("RPC_UnlimitedReload");
-
-		m_Expansion_RPCManager.RegisterServer("RPC_SpectateAI");
+		m_Expansion_RPCManager.RegisterServer("RPC_DebugObjects");
 	}
 
 	override bool Send(eAICommands cmd)
@@ -66,6 +67,10 @@ class eAICommandManagerClient : eAICommandManager
 				m_Expansion_RPCManager.SendRPC("RPC_UnlimitedReload");
 				return true;
 
+			case eAICommands.DEB_DBGOBJECTS:
+				m_Expansion_RPCManager.SendRPC("RPC_DebugObjects");
+				return true;
+
 			case eAICommands.FOR_VEE:
 			case eAICommands.FOR_INVVEE:
 			case eAICommands.FOR_FILE:
@@ -82,6 +87,14 @@ class eAICommandManagerClient : eAICommandManager
 			
 			case eAICommands.MOV_STOP:
 				m_Expansion_RPCManager.SendRPC("RPC_ReqFormStop");
+				return true;
+			
+			case eAICommands.MOV_FLANK:
+				m_Expansion_RPCManager.SendRPC("RPC_ReqFormFlank");
+				return true;
+			
+			case eAICommands.MOV_ROAM:
+				m_Expansion_RPCManager.SendRPC("RPC_ReqFormRoam");
 				return true;
 			
 			case eAICommands.MOV_RTF:
@@ -119,24 +132,46 @@ class eAICommandManagerClient : eAICommandManager
 
 			case eAICommands.STA_DUMP:
 				rpc = m_Expansion_RPCManager.CreateRPC("RPC_DumpState");
-				ExpansionStatic.GetCursorHitPos(target);
-				rpc.Expansion_Send(target, true);
+				rpc.Expansion_Send(GetAIAtCursorOrNearest(), true);
 				return true;
 
 			case eAICommands.DEB_SPECTATE:
-				ExpansionStatic.GetCursorHitPos(target);
-				GetDayZGame().GetExpansionGame().eAI_Spectate(eAIBase.Cast(target), null);
-				rpc = m_Expansion_RPCManager.CreateRPC("RPC_SpectateAI");
-				rpc.Expansion_Send(target, true);
+				GetDayZGame().GetExpansionGame().SpectateAI(null, GetAIAtCursorOrNearest(), null);
 				return true;
 		}
 		
 		return false;
 	}
 
+	eAIBase GetAIAtCursorOrNearest()
+	{
+		Object target;
+		ExpansionStatic.GetCursorHitPos(target);
+
+		eAIBase targetAI;
+		if (!Class.CastTo(targetAI, target))
+		{
+			//! Dump state of nearest AI
+			vector cameraPosition = GetGame().GetCurrentCameraPosition();
+			float minDistSq = float.MAX;
+			array<eAIBase> allAI = eAIBase.eAI_GetAll();
+			foreach (eAIBase ai: allAI)
+			{
+				float distSq = vector.DistanceSq(cameraPosition, ai.GetPosition());
+				if (distSq < minDistSq)
+				{
+					minDistSq = distSq;
+					targetAI = ai;
+				}
+			}
+		}
+
+		return targetAI;
+	}
+
 	eAIBase SpawnAI_Helper(PlayerBase leader, string loadout = "HumanLoadout.json")
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -174,7 +209,7 @@ class eAICommandManagerClient : eAICommandManager
 
 	eAIBase SpawnAI_Sentry(vector pos, string loadout = "WestLoadout.json")
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -183,7 +218,7 @@ class eAICommandManagerClient : eAICommandManager
 	
 	eAIBase SpawnAI_Patrol(vector pos, string loadout = "HumanLoadout.json")
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -204,7 +239,7 @@ class eAICommandManagerClient : eAICommandManager
 	// Server Side: This RPC spawns a helper AI next to the player, and tells them to join the player's formation.
 	void RPC_SpawnAI(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -262,7 +297,7 @@ class eAICommandManagerClient : eAICommandManager
 	
 	void RPC_SpawnZombie(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -287,7 +322,7 @@ class eAICommandManagerClient : eAICommandManager
 
 	void RPC_SpawnWolf(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -312,7 +347,7 @@ class eAICommandManagerClient : eAICommandManager
 
 	void RPC_SpawnBear(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -338,7 +373,7 @@ class eAICommandManagerClient : eAICommandManager
 	// Server Side: Delete AI.
 	void RPC_ClearAllAI(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -353,7 +388,7 @@ class eAICommandManagerClient : eAICommandManager
 	
 	void RPC_UnlimitedReload(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -374,9 +409,46 @@ class eAICommandManagerClient : eAICommandManager
 		ExpansionNotification("EXPANSION AI", "Unlimited reload " + onOff).Info(sender);
 	}
 	
+	void RPC_DebugObjects(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		if (GetGame().IsMultiplayer())
+		{
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
+		}
+	
+		DayZPlayerImplement.s_Expansion_DebugObjects_Enabled = !DayZPlayerImplement.s_Expansion_DebugObjects_Enabled;
+
+		string onOff;
+		if (DayZPlayerImplement.s_Expansion_DebugObjects_Enabled)
+		{
+			onOff = "ON";
+
+			if (GetGame().IsMultiplayer())
+				onOff += "<br/>\nWARNING: Debug objects are server-side and thus visible to anyone!";
+		}
+		else
+		{
+			onOff = "OFF";
+
+			CF_DoublyLinkedNode_WeakRef<PlayerBase> node = PlayerBase.s_Expansion_AllPlayers.m_Head;
+			while (node)
+			{
+				node.m_Value.Expansion_DeleteDebugObjects();
+				node = node.m_Next;
+			}
+		}
+
+		ExpansionNotification("EXPANSION AI", "Debug objects " + onOff).Info(sender);
+	}
+	
 	void RPC_ReqFormRejoin(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -389,7 +461,7 @@ class eAICommandManagerClient : eAICommandManager
 	
 	void RPC_ReqFormStop(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -398,11 +470,61 @@ class eAICommandManagerClient : eAICommandManager
 		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
 		g.SetFormationState(eAIGroupFormationState.NONE);
 		g.SetWaypointBehaviour(eAIWaypointBehavior.HALT);
+
+		eAIBase ai;
+		for (int i = 0; i < g.Count(); i++)
+		{
+			if (Class.CastTo(ai, g.GetMember(i)))
+				ai.eAI_SetLootingBehavior(eAILootingBehavior.DEFAULT);
+		}
+	}
+	
+	void RPC_ReqFormFlank(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
+
+		eAIBase ai;
+		for (int i = 0; i < g.Count(); i++)
+		{
+			if (Class.CastTo(ai, g.GetMember(i)) && ai.GetTarget() && ai.eAI_HasLOS(ai.GetTarget()) && ai.eAI_IsInFlankRange(ai.GetTarget()))
+			{
+				g.SetFormationState(eAIGroupFormationState.FLANK);
+				return;
+			}
+		}
+
+		ExpansionNotification("EXPANSION AI", "No valid targets to flank").Info(sender);
+	}
+	
+	void RPC_ReqFormRoam(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
+		g.SetFormationState(eAIGroupFormationState.IN);
+		g.SetWaypointBehaviour(eAIWaypointBehavior.ROAMING);
+
+		eAIBase ai;
+		for (int i = 0; i < g.Count(); i++)
+		{
+			if (Class.CastTo(ai, g.GetMember(i)))
+				ai.eAI_SetLootingBehavior(eAILootingBehavior.ALL);
+		}
 	}
 	
 	void RPC_ReqFormationChange(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -455,7 +577,7 @@ class eAICommandManagerClient : eAICommandManager
 
 	void RPC_SetWaypoint(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -465,7 +587,7 @@ class eAICommandManagerClient : eAICommandManager
 
 		position = ExpansionAISpawnBase.GetPlacementPosition(position);
 
-	#ifdef DIAG
+	#ifdef EXTRACE
 		EXTrace.Add(trace, position);
 	#endif
 
@@ -475,11 +597,15 @@ class eAICommandManagerClient : eAICommandManager
 
 		g.AddWaypoint(position);
 		g.SetWaypointBehaviourAuto(eAIWaypointBehavior.ONCE);
+
+		eAIBase ai;
+		if (g.GetWaypoints().Count() == 1 && Class.CastTo(ai, g.GetFormationLeader()))
+			ai.GetPathFinding().ForceRecalculate(true);
 	}
 
 	void RPC_ExportPatrol(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -519,7 +645,7 @@ class eAICommandManagerClient : eAICommandManager
 
 	void RPC_ClearWaypoints(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -532,7 +658,7 @@ class eAICommandManagerClient : eAICommandManager
 	
 	void RPC_SetMovementSpeed(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -565,7 +691,7 @@ class eAICommandManagerClient : eAICommandManager
 
 	void RPC_DumpState(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + target);
 	#endif
 
@@ -626,20 +752,5 @@ class eAICommandManagerClient : eAICommandManager
 			CloseFile(file);
 			ExpansionNotification("EXPANSION AI", string.Format("State dumped to %1", fileName)).Info(sender);
 		}
-	}
-	
-	void RPC_SpectateAI(PlayerIdentity sender, Object target, ParamsReadContext ctx)
-	{
-	#ifdef DIAG
-		auto trace = EXTrace.Start(EXTrace.AI, this);
-	#endif
-
-		if (GetGame().IsMultiplayer())
-		{
-			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
-				return;
-		}
-
-		GetDayZGame().GetExpansionGame().eAI_Spectate(eAIBase.Cast(target), sender);
 	}
 };

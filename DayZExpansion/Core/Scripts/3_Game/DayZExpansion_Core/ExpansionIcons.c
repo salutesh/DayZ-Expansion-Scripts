@@ -277,7 +277,7 @@ class ExpansionIcons
 		{
 			icon.Name = name;
 			icon.Localisation = localisation;
-			icon.Path = path;
+			icon.IconPath = path;
 		}
 	}
 
@@ -319,7 +319,7 @@ class ExpansionIcons
 		if (!icon)
 			return string.Empty;
 
-		return icon.Path;
+		return icon.IconPath;
 	}
 
 	static array<ExpansionIcon> Sorted()

@@ -1,3 +1,4 @@
+#ifdef DAYZ_1_25
 modded class ActionEnterLadder
 {
 	override void Start( ActionData action_data )
@@ -10,3 +11,4 @@ modded class ActionEnterLadder
 		}
 	}
 }
+#endif

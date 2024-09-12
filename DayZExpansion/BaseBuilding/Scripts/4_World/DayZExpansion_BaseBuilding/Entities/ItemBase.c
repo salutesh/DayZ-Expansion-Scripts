@@ -40,10 +40,6 @@ modded class ItemBase
 	//============================================
 	void ItemBase()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GENERAL_ITEMS, this, "ItemBase");
-#endif
-			
 		//! Only register for netsync if config value is true, don't use ExpansionIsOpenable() here
 		//! for compatibility with 3rd party modded items which may not wish to set the config value
 		//! and have their own means of syncing open/closed state but still want to override
@@ -68,7 +64,9 @@ modded class ItemBase
 
 	void Expansion_RegisterLockRPCs()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.BASEBUILDING, this);
+#endif
 
 		if (!m_Expansion_RPCManager)
 			m_Expansion_RPCManager = new ExpansionRPCManager(this, ItemBase);
@@ -379,7 +377,7 @@ modded class ItemBase
 	\brief Opening item on defined selection
 		\param 	
 	*/
-	void Open( string selection ) 
+	void Expansion_Open( string selection ) 
 	{
 		Open();
 	}
@@ -402,14 +400,14 @@ modded class ItemBase
 	{
 		ExpansionUnlock();
 
-		Open( selection );
+		Expansion_Open( selection );
 	}
 	
 	/**
 	\brief Closing item on defined selection
 		\param 	
 	*/
-	void Close( string selection ) 
+	void Expansion_Close( string selection ) 
 	{
 		Close();
 	}
@@ -430,7 +428,7 @@ modded class ItemBase
 
 	void CloseAndLock( string selection )
 	{
-		Close( selection );
+		Expansion_Close( selection );
 
 		ExpansionLock();
 	}
@@ -578,7 +576,7 @@ modded class ItemBase
 
 		if (attachments.Count())
 		{
-			TStringArray slots = ExpansionCodeLock.Expansion_GetInventorySlots();
+			TStringArray slots = ExpansionCodeLock.Expansion_GetCodeLockInventorySlots();
 
 			foreach (string slot: slots)
 			{
@@ -730,14 +728,14 @@ modded class ItemBase
 		return m_Expansion_KnownUIDs.Find( player.GetIdentityUID() ) > -1;
 	}
 
-	void AddUser(PlayerBase player, TStringArray knownUsersToForget = null)
+	void AddUser(PlayerBase player, TStringArray knownUIDsToForget = null)
 	{
 		if ( player && player.GetIdentity() && !IsKnownUser( player ) )
 		{
 			string uid = player.GetIdentityUID();
 			EXPrint("ItemBase::AddUser " + this + " (parent=" + GetHierarchyParent() + ") " + uid);
 			m_Expansion_KnownUIDs.Insert(uid);
-			SendKnownUIDs(player.GetIdentity(), knownUsersToForget);
+			SendKnownUIDs(player.GetIdentity(), knownUIDsToForget);
 		}
 	}
 
@@ -745,7 +743,10 @@ modded class ItemBase
 	{
 		EXPrint("ItemBase::SetUser " + this + " (parent=" + GetHierarchyParent() + ")");
 
-		string uid = player.GetIdentityUID();
+		string uid;
+
+		if (player)
+			uid = player.GetIdentityUID();
 
 		//! All existing known users need to be updated, else their info becomes stale
 		TStringArray knownUIDsToForget = {};
@@ -757,7 +758,10 @@ modded class ItemBase
 
 		m_Expansion_KnownUIDs.Clear();
 
-		AddUser(player, knownUIDsToForget);
+		if (player)
+			AddUser(player, knownUIDsToForget);
+		else if (knownUIDsToForget)
+			SendKnownUIDs(null, knownUIDsToForget);
 	}
 
 	//! Request known UIDs (players that know the code and have entered it correctly once) from server
@@ -789,6 +793,9 @@ modded class ItemBase
 					rpc.Expansion_Send(this, true, player.GetIdentity());
 			}
 		}
+
+		if (!recipient)
+			return;
 
 		rpc = ExpansionScriptRPC.Create(s_Expansion_ReceiveKnownUIDs_RPCID);
 
@@ -1113,13 +1120,13 @@ modded class ItemBase
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		EXTrace.PrintHit(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 #endif
 
 		if (!super.EEOnDamageCalculated( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
 		{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated - !super");
 #endif
 			return false;
@@ -1127,7 +1134,7 @@ modded class ItemBase
 
 		if (!CanBeDamaged())
 		{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated - cannot be damaged");
 #endif
 			return false;
@@ -1154,7 +1161,7 @@ modded class ItemBase
 
 				if (!m_Expansion_DamageMultiplier)
 				{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated - damage multiplier is zero");
 #endif
 					return false;
@@ -1166,7 +1173,7 @@ modded class ItemBase
 					{
 						if (!source)
 						{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 							EXTrace.Print(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated - no explosion source");
 #endif
 							return false;
@@ -1174,7 +1181,7 @@ modded class ItemBase
 
 						if (!ExpansionStatic.IsAnyOf(source, GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist, true))
 						{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 							EXTrace.Print(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated - explosive is not whitelisted");
 #endif
 							return false;

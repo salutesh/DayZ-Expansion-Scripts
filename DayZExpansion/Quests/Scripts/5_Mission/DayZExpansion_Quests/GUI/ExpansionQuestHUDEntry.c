@@ -25,16 +25,26 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 
 	void ExpansionQuestHUDEntry(ExpansionQuestConfig questConfig, ExpansionQuestPersistentQuestData questData)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		m_QuestConfig = questConfig;
 		m_QuestData = questData;
 		m_QuestHUDEntryController = ExpansionQuestHUDEntryController.Cast(GetController());
 	}
 
+	void ~ExpansionQuestHUDEntry()
+	{
+		if (GetGame() && Objective)
+			GetGame().GetCallQueue(CALL_CATEGORY_GUI).Remove(Objective.SetSize);
+	}
+
 	void SetEntry()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		if (!m_QuestConfig)
 			return;
@@ -50,6 +60,7 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 				Objective.Show(true);
 				m_QuestHUDEntryController.ObjectiveText = m_QuestConfig.GetObjectiveText();
 				m_QuestHUDEntryController.NotifyPropertyChanged("ObjectiveText");
+				GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(Objective.SetSize, 100, false, 0.97, 1.0, true);
 				Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_QuestConfig));
 				Spacer.Show(true);
 			}
@@ -67,6 +78,7 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 			Objective.Show(true);
 			m_QuestHUDEntryController.ObjectiveText = "#STR_EXPANSION_QUEST_HUD_TURN_IN";
 			m_QuestHUDEntryController.NotifyPropertyChanged("ObjectiveText");
+			GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(Objective.SetSize, 100, false, 0.97, 1.0, true);
 			Spacer.SetColor(ARGB(200, 160, 223, 59));
 			Spacer.Show(true);
 			Spacer0.SetColor(ARGB(200, 160, 223, 59));
@@ -111,7 +123,9 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 	
 	void UpdateQuestData(ExpansionQuestPersistentQuestData questData)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		m_QuestData = questData;
 		SetEntry();

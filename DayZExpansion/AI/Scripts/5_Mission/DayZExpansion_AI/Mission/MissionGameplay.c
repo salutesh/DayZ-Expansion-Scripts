@@ -25,6 +25,8 @@ modded class MissionGameplay
 		#endif
 
 		super.OnMissionFinish();
+
+		GetDayZGame().GetExpansionGame().SetInGroup(false);
 	}
 
 	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
@@ -35,7 +37,7 @@ modded class MissionGameplay
 
 		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		if (player && player.DEBUG_EXPANSION_AI_VEHICLE && g_Expansion_Car && g_ExpansionNavMesh)
 		{
 			g_ExpansionNavMesh.DebugScripts();

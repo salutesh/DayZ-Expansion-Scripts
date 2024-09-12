@@ -698,7 +698,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			ExpansionQuestModule.GetModuleInstance().RequestCreateQuestInstance(m_SelectedQuest.GetID());
 		}
 
-		CloseMenu();
+		OnCloseButtonClick();
 	}
 
 	bool HasTooManyQuests()
@@ -787,10 +787,13 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		CloseMenu();
 	}
 
-
 	void OnCloseButtonClick()
 	{
 		if (!m_InDetailView)
+		{
+			CloseMenu();
+		}
+		else if (m_Quests.Count() == 0)
 		{
 			CloseMenu();
 		}

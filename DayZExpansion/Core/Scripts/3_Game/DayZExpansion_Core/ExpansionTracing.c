@@ -31,6 +31,8 @@ class EXTrace
 {
 	//! Please keep these alphabetically ordered when inserting new variables
 
+	static bool ACTIONS = IsEnabled();
+
 	static bool AI = IsEnabled();
 
 	static bool BASEBUILDING = IsEnabled();
@@ -134,7 +136,9 @@ class EXTrace
 			s_Enabled = true;
 #else
 	#ifdef BUILD_EXPERIMENTAL
+		#ifndef DEVELOPER
 			s_Enabled = true;
+		#endif
 	#endif
 #endif
 
@@ -345,6 +349,7 @@ class EXTrace
 			PrintFormat("%1 [EXTRACE] %2", ExpansionStatic.GetISOTime(), s_Indent + "+" + line);
 	}
 
+#ifdef EXTRACE
 	static void DumpProfilingData()
 	{
 		FileHandle file = OpenFile(string.Format("$profile:EXTrace_Profiling_%1.csv", s_StartDate.GetISODateTime("_", "-")), FileMode.WRITE);
@@ -388,7 +393,8 @@ class EXTrace
 
 		CloseFile(file);
 	}
-
+#endif
+	
 	EXTrace Add(bool param)
 	{
 		return Add(param.ToString());
@@ -425,6 +431,7 @@ class EXTrace
 		return this;
 	}
 
+#ifdef EXTRACE
 	static void Add(EXTrace trace, bool param)
 	{
 		Add(trace, param.ToString());
@@ -465,6 +472,7 @@ class EXTrace
 
 		trace.Add(param);
 	}
+#endif
 
 	void SetDepth(int depth)
 	{
@@ -557,6 +565,7 @@ class EXTrace
 		Print(true, instance, msg);
 	}
 
+#ifdef EXTRACE
 	//! Includes 1st line of stack
 	static EXTrace Start(bool yes = true, Class instance = null, string param0 = "", string param1 = "", string param2 = "", string param3 = "", string param4 = "", string param5 = "", string param6 = "", string param7 = "", string param8 = "", string param9 = "", int initialDumpStart = 1)
 	{
@@ -712,6 +721,7 @@ class EXTrace
 		trace.SetSilent(true);
 		return trace;
 	}
+#endif
 }
 
 typedef EXTrace ExpansionTracing;

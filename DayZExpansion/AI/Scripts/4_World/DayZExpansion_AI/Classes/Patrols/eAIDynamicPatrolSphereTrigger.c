@@ -20,7 +20,7 @@ class eAIDynamicPatrolSphereTrigger: Trigger
 
 	void eAI_SetParams(eAIDynamicPatrol patrol, float outerRadius, float innerRadius = 0.0)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + GetPosition());
 	#endif
 
@@ -36,8 +36,8 @@ class eAIDynamicPatrolSphereTrigger: Trigger
 
 	override protected bool CanAddObjectAsInsider(Object object)
 	{
-		Man player;
-		if (Class.CastTo(player, object) && player.GetIdentity() && player.IsAlive())
+		PlayerBase player;
+		if (Class.CastTo(player, object) && player.IsAlive() && (player.GetIdentity() || (player.IsAI() && m_eAI_Patrol.m_Config.CanBeTriggeredByAI)))
 			return true;
 
 		return false;

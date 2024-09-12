@@ -24,7 +24,9 @@ class ExpansionPersonalStoragePlayerInventory
 
 	void Enumerate()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MARKET, this);
+#endif 
 
 		array<EntityAI> items = new array<EntityAI>;
 		m_Player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
@@ -131,12 +133,16 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			{
 				if (!m_ItemsData.Contains(directoryName))
 				{
+#ifdef EXTRACE
 					EXTrace.Start(EXTrace.PERSONALSTORAGE, this, "::OnMissionStart - Add personal storage data for player with UID: " + directoryName);
+#endif 
 					LoadPersonalStorageItemData(directoryName);
 				}
 				else
 				{
+#ifdef EXTRACE
 					EXTrace.Start(EXTrace.PERSONALSTORAGE, this, "::OnMissionStart - Personal storage data for player with UID: " + directoryName + " already loaded! Skip..");
+#endif 
 				}
 			}
 		}
@@ -146,7 +152,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected void LoadPersonalStorageServerConfig()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif 
 
 		//! Move existing configs (if any) from old to new location
 		string dataDir = GetPersonalStorageDataDirectory();
@@ -227,22 +235,26 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected void LoadPersonalStorageItemData(string directoyName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif 
 		
 		string storagePath = ExpansionPersonalStorageModule.GetPersonalStorageDataDirectory() + directoyName + "\\";
 		if (FileExist(storagePath))
 		{
 			array<string> personalStorageFiles = ExpansionStatic.FindFilesInLocation(storagePath, ".json");
-			foreach (string fileName: personalStorageFiles)
+			for (int i = personalStorageFiles.Count() - 1; i >= 0; i--)
 			{
-				GetPersonalStorageItemData(fileName, storagePath);
+				GetPersonalStorageItemData(personalStorageFiles[i], storagePath);
 			}
 		}
 	}
 
 	protected void GetPersonalStorageItemData(string fileName, string path)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif 
 		
 		ExpansionPersonalStorageItem itemData = ExpansionPersonalStorageItem.Load(path + fileName);
 		if (!itemData)
@@ -251,10 +263,27 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		//! Check if the entity storage file still exists otherwise we delete the personal storage item file and dont add it to the system.
 		if (!FileExist(itemData.GetEntityStorageFileName()))
 		{
+			PrintFormat("%1::GetPersonalStorageItemData - Delete personal storage file %2 as the associated entity storage file does not exist!", ToString(), path + fileName);
 			DeleteFile(path + fileName); //! Delete the personal storage item JSON file.
 			itemData = null;
 			return;
 		}
+		
+		//! Check if the item still exists!		
+		if (!ExpansionStatic.ItemExists(itemData.GetClassName()))
+		{
+			PrintFormat("%1::GetPersonalStorageItemData - Delete personal storage file %2 and entity storage file %3 as the associated item %4 does not exist!", ToString(), path + fileName, itemData.GetEntityStorageFileName(), itemData.GetClassName());
+			DeleteFile(path + fileName); //! Delete the personal storage item JSON file.
+			DeleteFile(itemData.GetEntityStorageFileName()); //! Delete the entity storage .bin file.
+			itemData = null;
+			return;
+		}
+		
+		//! Check if any of the container items
+		bool save;
+		itemData.CheckContainerItems(path + fileName, save);
+		if (save)
+			ExpansionPersonalStorageItem.Save(itemData);
 
 		string playerUID = itemData.GetOwnerUID();
 		array<ref ExpansionPersonalStorageItem> items;
@@ -274,8 +303,10 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	//! Server
 	void SendItemData(PlayerIdentity identity, int storageID = -1, string displayName = string.Empty, string displayIcon = string.Empty, ExpansionPersonalStorageModuleCallback callback = 0)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
+#endif
+		
 		string playerUID = identity.GetId();
 		ExpansionPersonalStorageConfig storageConfig = GetPersonalStorageConfigByID(storageID);
 		if (!storageConfig)
@@ -319,7 +350,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	//! Client
 	protected void RPC_SendItemData(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif 
 		
 		ExpansionPersonalStorageConfig storageConfig = new ExpansionPersonalStorageConfig();
 		if (!storageConfig.OnRecieve(ctx))
@@ -379,7 +412,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	//! Client
 	protected void RPC_Callback(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif 
 
 		int callback;
 		if (!ctx.Read(callback))
@@ -391,7 +426,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	//! Client
 	void RequestRetrieveItem(ExpansionPersonalStorageItem item, int storageID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif 
 
 		TIntArray globalID = item.GetGlobalID();
 		if (!globalID)
@@ -406,7 +443,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RequestRetrieveItem(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif 
 
 		int storageID;
 		if (!ctx.Read(storageID))
@@ -454,7 +493,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	//! Client
 	void RequestDepositItem(int storageID, Entity item)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif 
 
 		auto rpc = Expansion_CreateRPC("RPC_RequestDepositItem");
 		rpc.Write(storageID);
@@ -464,7 +505,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RequestDepositItem(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif 
 
 		int storageID;
 		if (!ctx.Read(storageID))
@@ -718,7 +761,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected bool StoreItem(ExpansionPersonalStorageItem item, EntityAI itemEntity)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif 
 
 		if (!itemEntity)
 		{
@@ -740,7 +785,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected bool LoadItem(ExpansionPersonalStorageItem item, PlayerBase player, out EntityAI loadedEntity = null)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif 
 
 		if (!ExpansionEntityStorageModule.RestoreFromFile(item.GetEntityStorageFileName(), loadedEntity, null, player))
 		{

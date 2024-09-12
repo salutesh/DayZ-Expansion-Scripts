@@ -109,7 +109,7 @@ class ExpansionNotificationTemplate<Class T>
 		if ( !m_Icon )
 			m_Icon = EXPANSION_NOTIFICATION_ICON_ERROR;
 
-		Create( m_Icon, COLOR_EXPANSION_NOTIFICATION_ERROR, identity );
+		Create( m_Icon, COLOR_EXPANSION_NOTIFICATION_ERROR, identity, m_Type );
 	}
 
 	void Info( PlayerIdentity identity = NULL )
@@ -117,7 +117,7 @@ class ExpansionNotificationTemplate<Class T>
 		if ( !m_Icon )
 			m_Icon = EXPANSION_NOTIFICATION_ICON_INFO;
 
-		Create( m_Icon, COLOR_EXPANSION_NOTIFICATION_INFO, identity );
+		Create( m_Icon, COLOR_EXPANSION_NOTIFICATION_INFO, identity, m_Type );
 	}
 
 	void Success( PlayerIdentity identity = NULL )
@@ -125,7 +125,7 @@ class ExpansionNotificationTemplate<Class T>
 		if ( !m_Icon )
 			m_Icon = EXPANSION_NOTIFICATION_ICON_INFO;
 
-		Create( m_Icon, COLOR_EXPANSION_NOTIFICATION_SUCCESS, identity );
+		Create( m_Icon, COLOR_EXPANSION_NOTIFICATION_SUCCESS, identity, m_Type );
 	}
 }
 

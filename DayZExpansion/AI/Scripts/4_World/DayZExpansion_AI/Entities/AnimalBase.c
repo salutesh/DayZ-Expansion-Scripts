@@ -4,6 +4,30 @@ modded class AnimalBase
 	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
 	bool m_Expansion_Airborne;
 	float m_Expansion_AirbornePeakAltitude;
+	bool m_Expansion_IsBigGame;
+
+	void AnimalBase()
+	{
+		vector minMax[2];
+		float radius;
+
+		//! @note bounding radius returned by ClippingInfo is very inaccurate for animals, so we use collision box to calculate it
+		if (GetCollisionBox(minMax))
+		{
+			float w = minMax[1][0] - minMax[0][0];
+			float h = minMax[1][1] - minMax[0][1];
+			float d = minMax[1][2] - minMax[0][2];
+
+			radius = Math.Sqrt(Math.Pow(w, 2.0) + Math.Pow(h, 2.0) + Math.Pow(d, 2.0)) * 0.5;
+
+			if (radius > 1.3)
+				m_Expansion_IsBigGame = true;
+		}
+
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.AI, this, "Bounding radius: " + radius + " | Big game: " + m_Expansion_IsBigGame);
+	#endif
+	}
 
 	eAICreatureTargetInformation GetTargetInformation()
 	{

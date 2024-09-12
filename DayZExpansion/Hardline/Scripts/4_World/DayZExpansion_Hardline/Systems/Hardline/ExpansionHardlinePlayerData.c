@@ -96,8 +96,10 @@ class ExpansionHardlinePlayerData
 
 	void WriteFactionReputation(ParamsWriteContext ctx, bool includeCurrentFaction = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.HARDLINE, this, "includeCurrentFaction " + includeCurrentFaction);
-
+#endif 
+		
 		int factionCount = FactionReputation.Count();
 
 		//! If faction ID is identical to current faction, do not write separate entry since Reputation is faction rep
@@ -116,7 +118,7 @@ class ExpansionHardlinePlayerData
 			ctx.Write(factionRep);
 			
 		#ifdef EXPANSIONMODAI
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			typename factionType = eAIFaction.GetTypeByID(factionID);
 			EXTrace.Print(EXTrace.HARDLINE, this, "WriteFactionReputation " + factionType + " " + factionRep);
 		#endif
@@ -272,7 +274,7 @@ class ExpansionHardlinePlayerData
 			}
 			
 		#ifdef EXPANSIONMODAI
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			typename factionType = eAIFaction.GetTypeByID(factionID);
 			EXTrace.Print(EXTrace.HARDLINE, this, "ReadFactionReputation " + factionType + " " + factionRep);
 		#endif
@@ -303,8 +305,10 @@ class ExpansionHardlinePlayerData
 	//! Server
 	void SendFactionReputation(PlayerIdentity identity)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.HARDLINE, this, "synch dirty? " + m_FactionSynchDirty);
-
+#endif 
+		
 		if (!m_FactionSynchDirty)
 			return;
 

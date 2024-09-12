@@ -45,23 +45,29 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
        image0 "set:book_assets image:menu_element_2"
        mode blend
        "src alpha" 1
-       stretch 1
-      }
-      TextWidgetClass book_member_options_label {
-       ignorepointer 1
-       color 0 0 0 1
-       size 1 0.08
-       halign center_ref
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       priority 1
-       text "#STR_EXPANSION_BOOK_TERRITORY_MANAGE_MEMBER"
-       font "gui/fonts/etelkatextpro22"
-       "exact text" 0
-       "text halign" center
-       "text valign" center
+       "stretch mode" stretch_w_h
+       {
+        TextWidgetClass book_member_options_label {
+         ignorepointer 1
+         color 0 0 0 1
+         size 1 0.08
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         text "#STR_EXPANSION_BOOK_TERRITORY_MANAGE_MEMBER"
+         font "gui/fonts/sdf_metronbook24"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 16
+         "size to text v" 1
+         "text halign" center
+         "text valign" center
+        }
+       }
       }
       GridSpacerWidgetClass book_member_options_spacer {
        ignorepointer 1
@@ -100,8 +106,12 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            vexactsize 0
            priority 1
            text "#STR_EXPANSION_BOOK_TERRITORY_PROMOTE"
-           font "gui/fonts/etelkatextpro22"
-           "exact text" 0
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 16
+           "size to text h" 1
+           "size to text v" 1
            "text halign" center
            "text valign" center
           }
@@ -117,7 +127,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            image0 "set:book_assets image:menu_element_1"
            mode blend
            "src alpha" 1
-           stretch 1
+           "stretch mode" stretch_w_h
           }
          }
          {
@@ -151,8 +161,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            vexactsize 0
            priority 1
            text "#STR_EXPANSION_BOOK_TERRITORY_DEMOTE"
-           font "gui/fonts/etelkatextpro22"
-           "exact text" 0
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 16
+           "size to text v" 1
            "text halign" center
            "text valign" center
           }
@@ -168,7 +181,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            image0 "set:book_assets image:menu_element_3"
            mode blend
            "src alpha" 1
-           stretch 1
+           "stretch mode" stretch_w_h
           }
          }
          {
@@ -201,8 +214,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            vexactsize 0
            priority 1
            text "#STR_EXPANSION_BOOK_TERRITORY_KICK"
-           font "gui/fonts/etelkatextpro22"
-           "exact text" 0
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 16
+           "size to text v" 1
            "text halign" center
            "text valign" center
           }
@@ -219,7 +235,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            image0 "set:book_assets image:menu_element_4"
            mode blend
            "src alpha" 1
-           stretch 1
+           "stretch mode" stretch_w_h
           }
          }
          {
@@ -252,8 +268,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            vexactsize 0
            priority 1
            text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
-           font "gui/fonts/etelkatextpro22"
-           "exact text" 0
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 16
+           "size to text v" 1
            "text halign" center
            "text valign" center
           }
@@ -269,7 +288,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            image0 "set:book_assets image:menu_element_1"
            mode blend
            "src alpha" 1
-           stretch 1
+           "stretch mode" stretch_w_h
           }
          }
          {
@@ -312,22 +331,6 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
      vexactsize 0
      priority 2
      {
-      TextWidgetClass member_info_label {
-       ignorepointer 1
-       color 0 0 0 1
-       size 1 0.08
-       halign center_ref
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       priority 1
-       text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_INFO"
-       font "gui/fonts/etelkatextpro22"
-       "exact text" 0
-       "text halign" center
-       "text valign" center
-      }
       ImageWidgetClass member_info_label_background {
        ignorepointer 1
        size 440 45
@@ -339,11 +342,35 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
        image0 "set:book_assets image:menu_element_5"
        mode blend
        "src alpha" 1
-       stretch 1
+       "stretch mode" stretch_w_h
+       {
+        TextWidgetClass member_info_label {
+         ignorepointer 1
+         color 0 0 0 1
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_INFO"
+         font "gui/fonts/sdf_metronbook24"
+         "italic text" 0
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 16
+         "size to text h" 0
+         "size to text v" 1
+         "text halign" center
+         "text valign" center
+        }
+       }
       }
       PanelWidgetClass member_info_content_left {
        color 0.349 0.2 0.1451 1
-       position 0 0.09
+       position 0 0.08904
        size 1 0.6
        halign center_ref
        hexactpos 0
@@ -364,7 +391,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
          "Size To Content H" 1
          "Size To Content V" 1
          {
-          PanelWidgetClass member_name_spacer {
+          GridSpacerWidgetClass member_name_spacer {
            visible 1
            size 1 0.15
            halign center_ref
@@ -373,6 +400,10 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            vexactpos 0
            hexactsize 0
            vexactsize 0
+           Margin 0
+           "Size To Content V" 1
+           Columns 2
+           Rows 1
            {
             TextWidgetClass member_name_label {
              color 0 0 0 1
@@ -384,24 +415,27 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_NAME"
-             font "gui/fonts/etelkatextpro22"
-             "exact text" 0
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 16
+             "size to text v" 1
              "text valign" center
             }
             TextWidgetClass member_name_value {
              color 0 0 0 1
-             position 0 0
              size 0.5 1
-             halign right_ref
              valign center_ref
              hexactpos 0
              vexactpos 0
              hexactsize 0
              vexactsize 0
              scriptclass "ViewBinding"
-             font "gui/fonts/etelkatextpro22"
-             "exact text" 0
-             "text halign" right
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 16
+             "size to text v" 1
              "text valign" center
              {
               ScriptParamsClass {
@@ -412,8 +446,8 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
             }
            }
           }
-          PanelWidgetClass member_rank_spacer {
-           visible 0
+          GridSpacerWidgetClass member_rank_spacer {
+           visible 1
            size 1 0.2
            halign center_ref
            valign center_ref
@@ -421,6 +455,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            vexactpos 0
            hexactsize 0
            vexactsize 0
+           Margin 0
+           "Size To Content H" 1
+           "Size To Content V" 1
+           Columns 2
+           Rows 1
            {
             TextWidgetClass member_rank_label {
              color 0 0 0 1
@@ -432,24 +471,28 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_RANK"
-             font "gui/fonts/etelkatextpro22"
-             "exact text" 0
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 16
+             "size to text h" 0
+             "size to text v" 1
              "text valign" center
             }
             TextWidgetClass member_rank_value {
              color 0 0 0 1
-             position 0 0
              size 0.5 1
-             halign right_ref
              valign center_ref
              hexactpos 0
              vexactpos 0
              hexactsize 0
              vexactsize 0
              scriptclass "ViewBinding"
-             font "gui/fonts/etelkatextpro22"
-             "exact text" 0
-             "text halign" right
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 16
+             "size to text v" 1
              "text valign" center
              {
               ScriptParamsClass {
@@ -460,7 +503,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
             }
            }
           }
-          PanelWidgetClass member_status_spacer {
+          GridSpacerWidgetClass member_status_spacer {
            position 0 0
            size 1 0.15
            halign center_ref
@@ -469,6 +512,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            vexactpos 0
            hexactsize 0
            vexactsize 0
+           Margin 0
+           "Size To Content V" 1
+           content_valign center
+           Columns 2
+           Rows 1
            {
             TextWidgetClass member_status_label {
              color 0 0 0 1
@@ -480,52 +528,74 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_STATUS"
-             font "gui/fonts/etelkatextpro22"
-             "exact text" 0
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 16
+             "size to text v" 1
              "text valign" center
             }
-            TextWidgetClass member_status_value {
-             color 0 0 0 1
-             position 0 0
-             size 0.15 1
-             halign right_ref
-             valign center_ref
-             hexactpos 0
-             vexactpos 0
-             hexactsize 0
-             vexactsize 0
-             scriptclass "ViewBinding"
-             font "gui/fonts/etelkatextpro22"
-             "exact text" 0
-             "text halign" right
-             "text valign" center
+            GridSpacerWidgetClass member_status_value_content {
+             ignorepointer 1
+             position 10 10
+             size 48 48
+             hexactpos 1
+             vexactpos 1
+             hexactsize 1
+             vexactsize 1
+             Margin 0
+             "Size To Content H" 1
+             "Size To Content V" 1
+             content_valign center
+             Columns 2
+             Rows 1
              {
-              ScriptParamsClass {
-               Debug_Logging 0
-               Binding_Name "MemberStatus"
+              ImageWidgetClass member_status_icon {
+               ignorepointer 1
+               color 0 0 0 1
+               size 16 16
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               imageTexture "{E3D8C56427B83C70}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"
+               mode blend
+               "src alpha" 1
+               "clamp mode" clamp
+               "stretch mode" stretch_w_h
+              }
+              TextWidgetClass member_status_value {
+               inheritalpha 0
+               color 0 0 0 1
+               size 0.15 1
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               scriptclass "ViewBinding"
+               text "ONLINE"
+               font "gui/fonts/sdf_metronbook24"
+               "bold text" 1
+               "exact text" 1
+               "exact text size" 16
+               "size to text h" 1
+               "size to text v" 1
+               "text halign" right
+               "text valign" center
+               {
+                ScriptParamsClass {
+                 Debug_Logging 0
+                 Binding_Name "MemberStatus"
+                }
+               }
               }
              }
             }
-            ImageWidgetClass member_status_icon {
-             ignorepointer 1
-             color 0 0 0 1
-             position 0.15 0
-             size 26 26
-             halign right_ref
-             valign center_ref
-             hexactpos 0
-             vexactpos 0
-             hexactsize 1
-             vexactsize 1
-             imageTexture "{E3D8C56427B83C70}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"
-             mode blend
-             "src alpha" 1
-             "no wrap" 1
-             stretch 1
-            }
            }
           }
-          PanelWidgetClass member_perm_edit_spacer {
+          GridSpacerWidgetClass member_perm_edit_spacer {
            size 1 0.15
            halign center_ref
            valign center_ref
@@ -533,6 +603,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            vexactpos 0
            hexactsize 0
            vexactsize 0
+           Margin 0
+           "Size To Content V" 1
+           content_valign center
+           Columns 2
+           Rows 1
            {
             TextWidgetClass member_perm_edit_label {
              color 0 0 0 1
@@ -544,14 +619,17 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_PERM_EDIT"
-             font "gui/fonts/etelkatextpro22"
-             "exact text" 0
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 16
+             "size to text v" 1
              "text valign" center
             }
             CheckBoxWidgetClass member_perm_edit_checkbox {
              color 0 0 0 1
              position 0.15 0
-             size 27 27
+             size 16 16
              halign right_ref
              valign center_ref
              hexactpos 0
@@ -564,7 +642,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
             }
            }
           }
-          PanelWidgetClass member_perm_delete_spacer {
+          GridSpacerWidgetClass member_perm_delete_spacer {
            position 0 0
            size 1 0.15
            halign center_ref
@@ -573,6 +651,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            vexactpos 0
            hexactsize 0
            vexactsize 0
+           Margin 0
+           "Size To Content V" 1
+           content_valign center
+           Columns 2
+           Rows 1
            {
             TextWidgetClass member_perm_delete_label {
              color 0 0 0 1
@@ -584,14 +667,17 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_GROUP_MEMBER_PERM_DELETE"
-             font "gui/fonts/etelkatextpro22"
-             "exact text" 0
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 16
+             "size to text v" 1
              "text valign" center
             }
             CheckBoxWidgetClass member_perm_delete_checkbox {
              color 0 0 0 1
              position 0.15 0
-             size 27 27
+             size 16 16
              halign right_ref
              valign center_ref
              hexactpos 0
@@ -604,7 +690,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
             }
            }
           }
-          PanelWidgetClass member_perm_kick_spacer {
+          GridSpacerWidgetClass member_perm_kick_spacer {
            size 1 0.15
            halign center_ref
            valign center_ref
@@ -612,6 +698,10 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            vexactpos 0
            hexactsize 0
            vexactsize 0
+           Margin 0
+           "Size To Content V" 1
+           content_valign center
+           Columns 2
            {
             TextWidgetClass member_perm_kick_label {
              color 0 0 0 1
@@ -623,14 +713,17 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_PERM_KICK"
-             font "gui/fonts/etelkatextpro22"
-             "exact text" 0
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 16
+             "size to text v" 1
              "text valign" center
             }
             CheckBoxWidgetClass member_perm_kick_checkbox {
              color 0 0 0 1
              position 0.15 0
-             size 27 27
+             size 16 16
              halign right_ref
              valign center_ref
              hexactpos 0
@@ -643,7 +736,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
             }
            }
           }
-          PanelWidgetClass member_perm_invite_spacer {
+          GridSpacerWidgetClass member_perm_invite_spacer {
            size 1 0.15
            halign center_ref
            valign center_ref
@@ -651,6 +744,10 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            vexactpos 0
            hexactsize 0
            vexactsize 0
+           Margin 0
+           "Size To Content V" 1
+           content_valign center
+           Columns 2
            {
             TextWidgetClass member_perm_invite_label {
              color 0 0 0 1
@@ -662,14 +759,17 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_PERM_INVITE"
-             font "gui/fonts/etelkatextpro22"
-             "exact text" 0
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 16
+             "size to text v" 1
              "text valign" center
             }
             CheckBoxWidgetClass member_perm_invite_checkbox {
              color 0 0 0 1
              position 0.15 0
-             size 27 27
+             size 16 16
              halign right_ref
              valign center_ref
              hexactpos 0
@@ -682,7 +782,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
             }
            }
           }
-          PanelWidgetClass member_perm_withdraw_spacer {
+          GridSpacerWidgetClass member_perm_withdraw_spacer {
            visible 0
            size 1 0.15
            halign center_ref
@@ -691,6 +791,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            vexactpos 0
            hexactsize 0
            vexactsize 0
+           Margin 0
+           "Size To Content V" 1
+           content_valign center
+           Columns 2
+           Rows 1
            {
             TextWidgetClass member_perm_withdraw_label {
              color 0 0 0 1
@@ -702,15 +807,16 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              hexactsize 0
              vexactsize 0
              text "##STR_EXPANSION_BOOK_GROUP_MEMBER_PERM_WITHDRAW"
-             font "gui/fonts/etelkatextpro22"
-             "exact text" 0
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 16
+             "size to text v" 1
              "text valign" center
             }
             CheckBoxWidgetClass member_perm_withdraw_checkbox {
              color 0 0 0 1
-             position 0.15 0
-             size 27 27
-             halign right_ref
+             size 16 16
              valign center_ref
              hexactpos 0
              vexactpos 0
@@ -719,6 +825,159 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              scriptclass ""
              style Expansion_03
              font "gui/fonts/etelkatextpro22"
+            }
+           }
+          }
+          GridSpacerWidgetClass member_color_spacer {
+           size 1 0.15
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           Margin 0
+           "Size To Content V" 1
+           Columns 2
+           Rows 2
+           {
+            TextWidgetClass member_color_label {
+             color 0 0 0 1
+             size 0.5 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_MEMBER_COLOR"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 16
+             "size to text h" 0
+             "size to text v" 1
+             "text valign" center
+            }
+            PanelWidgetClass PanelWidget0 {
+             ignorepointer 1
+             position 0.042 1
+             size 0.5 16
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+            }
+            PanelWidgetClass PanelWidget1 {
+             ignorepointer 1
+             position 0.042 0.116
+             size 0.5 16
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+            }
+            GridSpacerWidgetClass marker_color_picker_container {
+             ignorepointer 1
+             position 0.027 0.091
+             size 0.128 0.436
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             Padding 0
+             Margin 0
+             "Size To Content H" 1
+             "Size To Content V" 1
+             content_valign center
+             Columns 2
+             Rows 1
+             {
+              GridSpacerWidgetClass marker_color_picker_container_rgb {
+               ignorepointer 1
+               position 0 0
+               size 1 1
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               "Size To Content V" 1
+               Columns 1
+               {
+                SliderWidgetClass color_picker_r {
+                 clipchildren 0
+                 ignorepointer 0
+                 color 1 0 0 1
+                 size 0.8 10
+                 halign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 1
+                 style Default
+                 "no focus" 0
+                 "next down" ""
+                 maximum 255
+                 current 255
+                 "fill in" 1
+                 "listen to input" 1
+                }
+                SliderWidgetClass color_picker_g {
+                 clipchildren 0
+                 ignorepointer 0
+                 color 0 1 0 1
+                 position 0 0
+                 size 0.8 10
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 1
+                 style Default
+                 "no focus" 0
+                 "next down" ""
+                 maximum 255
+                 current 255
+                 "fill in" 1
+                 "listen to input" 1
+                }
+                SliderWidgetClass color_picker_b {
+                 clipchildren 0
+                 ignorepointer 0
+                 color 0 0 1 1
+                 position 0 0
+                 size 0.8 10
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 1
+                 style Default
+                 "no focus" 0
+                 "next down" ""
+                 maximum 255
+                 current 255
+                 "fill in" 1
+                 "listen to input" 1
+                }
+               }
+              }
+              ImageWidgetClass color_preview {
+               ignorepointer 1
+               position 0.024 0.116
+               size 32 32
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               imageTexture "{287CF3AEB0F2A6E7}DayZExpansion/Core/GUI/icons/hud/persona_64x64.edds"
+               mode blend
+               "src alpha" 1
+               "clamp mode" wrap
+               "stretch mode" stretch_w_h
+              }
+             }
             }
            }
           }
@@ -762,9 +1021,12 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            hexactsize 0
            vexactsize 0
            priority 1
-           text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_PERM_SAVE"
-           font "gui/fonts/etelkatextpro22"
-           "exact text" 0
+           text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_SAVE"
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 16
+           "size to text v" 1
            "text halign" center
            "text valign" center
           }
@@ -780,7 +1042,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
            image0 "set:book_assets image:menu_element_1"
            mode blend
            "src alpha" 1
-           stretch 1
+           "stretch mode" stretch_w_h
           }
          }
          {

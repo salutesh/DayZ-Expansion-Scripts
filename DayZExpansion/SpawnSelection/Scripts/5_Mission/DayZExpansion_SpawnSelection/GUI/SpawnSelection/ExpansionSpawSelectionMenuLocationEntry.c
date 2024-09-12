@@ -21,6 +21,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	protected bool m_IsTerritory = false;
 	protected bool m_IsHighlighted = false;
 	protected bool m_IsSelected = false;
+	protected string m_LocationKey;
 	
 	protected ButtonWidget spawn_entry;
 	protected Widget background;
@@ -71,10 +72,10 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 		if (m_RespawnModule)
 		{
 			int respawnCooldown = GetExpansionSettings().GetSpawn().GetCooldown(m_IsTerritory);
-			map<int, ref ExpansionRespawnDelayTimer> playerCooldowns = m_RespawnModule.m_PlayerRespawnDelays.GetElement(0);
+			map<string, ref ExpansionRespawnDelayTimer> playerCooldowns = m_RespawnModule.m_PlayerRespawnDelays.GetElement(0);
 			if (playerCooldowns)
 			{
-				ExpansionRespawnDelayTimer timer = playerCooldowns[m_Index];
+				ExpansionRespawnDelayTimer timer = playerCooldowns[m_LocationKey];
 				if (!timer)
 					return;
 
@@ -104,7 +105,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 				
 				ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 				if (spawnSelectionMenu)
-					spawnSelectionMenu.UpdateMarkerCooldownState(m_Index);
+					spawnSelectionMenu.UpdateMarkerCooldownState(m_LocationKey);
 			}
 		}
 	}
@@ -167,7 +168,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 		switch (w)
 		{
 			case spawn_entry:
-			{				
+			{
 				ExpansionSpawnSelectionMenu menu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 				if (menu && !m_HasCooldown)
 				{
@@ -271,6 +272,16 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	int GetIndex()
 	{
 		return m_Index;
+	}
+	
+	void SetLocationKey(string key)
+	{
+		m_LocationKey = key;
+	}
+	
+	string GetLocationKey()
+	{
+		return m_LocationKey;
 	}
 };
 

@@ -179,7 +179,7 @@ class ExpansionHelicopterScript: CarScript
 		return m_Simulation.IsFreeLook();
 	}
 
-	override void SwitchGear()
+	override void Expansion_SwitchGear()
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "SwitchGear");
@@ -553,7 +553,7 @@ class ExpansionHelicopterScript: CarScript
 		#ifdef EXPANSIONMOD
 			//! Make gravecross work correctly
 			float playtime = player.StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXPrint(ToString() + "::Expansion_ReplaceDeadPlayerWithDummy playtime " + playtime);
 		#endif
 			dummy.Expansion_SetPlaytimeForGraveCross(playtime);
@@ -589,21 +589,25 @@ class ExpansionHelicopterScript: CarScript
 
 		if (IsLanded())
 		{
-			//! Bouncing/jolting/flipping fix
-			//! 0% momentum at zero vertical distance to ground and/or rotor off,
-			//! 100% momentum at >= 0.5m vertical distance to ground and full rotor speed,
-			//! linearly interpolated
-			float f = m_Simulation.m_RotorSpeed;
-			if (f > 0)
-			{
-				vector modelBottomPos = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround(), 0));
-				f *= ExpansionMath.LinearConversion(0, 0.5, modelBottomPos[1] - m_Expansion_IsLandedHitPos[1], 0, 1, true);
-			}
 			//SetVelocity(this, GetVelocity(this) * m_Simulation.m_RotorSpeed);
 			vector angularVelocity = dBodyGetAngularVelocity(this);
-			angularVelocity[0] = angularVelocity[0] * f;
-			angularVelocity[2] = angularVelocity[2] * f;
-			dBodySetAngularVelocity(this, angularVelocity);
+			if (angularVelocity.LengthSq() > 0.0001)
+			{
+				//EXTrace.Print(EXTrace.VEHICLES, this, "Angular velocity " + angularVelocity.Length());
+				//! Bouncing/jolting/flipping fix
+				//! 0% momentum at zero vertical distance to ground and/or rotor off,
+				//! 100% momentum at >= 0.5m vertical distance to ground and full rotor speed,
+				//! linearly interpolated
+				float f = m_Simulation.m_RotorSpeed;
+				if (f > 0)
+				{
+					vector modelBottomPos = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround(), 0));
+					f *= ExpansionMath.LinearConversion(0, 0.5, modelBottomPos[1] - m_Expansion_IsLandedHitPos[1], 0, 1, true);
+				}
+				angularVelocity[0] = angularVelocity[0] * f;
+				angularVelocity[2] = angularVelocity[2] * f;
+				dBodySetAngularVelocity(this, angularVelocity);
+			}
 		}
 	}
 
@@ -982,21 +986,13 @@ class ExpansionHelicopterScript: CarScript
 		return 15;
 	}
 
-	override bool IsHelicopter()
+	override bool Expansion_IsHelicopter()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsHelicopter");
-#endif
-
 		return true;
 	}
 
-	override bool IsCar()
+	override bool Expansion_IsCar()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsCar");
-#endif
-
 		return false;
 	}
 

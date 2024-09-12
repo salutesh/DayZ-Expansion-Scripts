@@ -120,9 +120,10 @@ modded class MissionServer
 	 * 1) PlayerDisconnected (calls OnClientDisconnect for CF modules)
 	 * 2) InvokeOnDisconnect (called by PlayerDisconnected, only if player character not yet deleted)
 	 */
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	override void OnEvent(EventType eventTypeId, Param params) 
 	{
+#ifdef EXTRACE_DIAG
 		EXTrace trace;
 		if (EXTrace.PLAYER)
 		{
@@ -156,6 +157,7 @@ modded class MissionServer
 			if (eventTypeIdString)
 				trace = EXTrace.Start(true, this, eventTypeIdString);
 		}
+#endif
 
 		super.OnEvent(eventTypeId, params);
 	}

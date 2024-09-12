@@ -91,6 +91,15 @@ class ExpansionGarageVehicleData: ExpansionGarageVehicleDataBase
 
 	void SetDataFromVehicleObject(CarScript vehicle)
 	{
+		EXError.Warn(this, "DEPRECATED");
+
+		ExpansionVehicle ev;
+		if (ExpansionVehicle.Get(ev, vehicle))
+			SetDataFromVehicleObject(ev);
+	}
+
+	void SetDataFromVehicleObject(ExpansionVehicle vehicle)
+	{
 		if (vehicle.HasKey())
 		{
 			array<string> keyOwners = ExpansionGarageModule.s_Instance.GetVehicleOwnersFromKeys(vehicle);
@@ -101,10 +110,10 @@ class ExpansionGarageVehicleData: ExpansionGarageVehicleDataBase
 			}
 		}
 
-		if (vehicle.ExpansionGetLastDriverUID() && vehicle.ExpansionGetLastDriverUID() != string.Empty)
+		if (vehicle.GetLastDriverUID() != string.Empty)
 		{
-			if (m_OwnerUIDs.Find(vehicle.ExpansionGetLastDriverUID()) == -1)
-				m_OwnerUIDs.Insert(vehicle.ExpansionGetLastDriverUID());
+			if (m_OwnerUIDs.Find(vehicle.GetLastDriverUID()) == -1)
+				m_OwnerUIDs.Insert(vehicle.GetLastDriverUID());
 		}
 					
 		m_ClassName = vehicle.GetType();
@@ -112,16 +121,16 @@ class ExpansionGarageVehicleData: ExpansionGarageVehicleDataBase
 		float modelZeroPointFromGround = vehicle.GetModelZeroPointDistanceFromGround();
 		m_Position = Vector(m_Position[0], m_Position[1] - modelZeroPointFromGround, m_Position[2]);
 		m_Orientation = vehicle.GetOrientation();
-		m_SkinName = vehicle.ExpansionGetCurrentSkinName();
-		m_SkinIndex = vehicle.ExpansionGetCurrentSkinIndex();
-		vehicle.GetNetworkID(m_NetworkIDLow, m_NetworkIDHigh);
-		m_VehicleObject = vehicle;
+		m_SkinName = vehicle.GetCurrentSkinName();
+		m_SkinIndex = vehicle.GetCurrentSkinIndex();
+		vehicle.GetEntity().GetNetworkID(m_NetworkIDLow, m_NetworkIDHigh);
+		m_VehicleObject = vehicle.GetEntity();
 
-		if (!vehicle.m_Expansion_GlobalID.m_IsSet)
-			vehicle.m_Expansion_GlobalID.Acquire();
+		if (!vehicle.GetGlobalID().m_IsSet)
+			vehicle.GetGlobalID().Acquire();
 
 		for (int i = 0; i < 4; i++)
-			m_GlobalID[i] = vehicle.m_Expansion_GlobalID.m_ID[i];
+			m_GlobalID[i] = vehicle.GetGlobalID().m_ID[i];
 
 	#ifdef EXPANSIONMODMARKET
 		if (GetExpansionSettings().GetGarage().EnableMarketFeatures)

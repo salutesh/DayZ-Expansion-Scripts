@@ -40,7 +40,7 @@ FrameWidgetClass ExpansionATMMenu {
      Columns 1
      Rows 2
      {
-      PanelWidgetClass atm_header {
+      ImageWidgetClass atm_header {
        ignorepointer 1
        color 0 0 0 0.8627
        position 0 0
@@ -49,7 +49,11 @@ FrameWidgetClass ExpansionATMMenu {
        vexactpos 1
        hexactsize 0
        vexactsize 1
-       style UIDefaultPanel
+       image0 "set:dayz_gui image:inv_header_2"
+       mode blend
+       "src alpha" 1
+       "clamp mode" wrap
+       "stretch mode" stretch_w_h
        {
         TextWidgetClass atm_text {
          ignorepointer 1
@@ -62,7 +66,8 @@ FrameWidgetClass ExpansionATMMenu {
          vexactsize 0
          style Normal
          text "#STR_EXPANSION_ATM_UI_PERSONAL_ACCOUNT"
-         font "gui/fonts/etelkatextpro22"
+         font "gui/fonts/sdf_metronbook24"
+         "bold text" 1
          "exact text" 1
          "exact text size" 22
          "text halign" center
@@ -105,7 +110,10 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            text "#STR_EXPANSION_ATM_UI_MAXDEPOSIT"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -122,7 +130,9 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            scriptclass "ViewBinding"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronlight24"
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -154,7 +164,10 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            text "#STR_EXPANSION_ATM_UI_MONEY_ACCOUNT"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -171,7 +184,9 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            scriptclass "ViewBinding"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronlight24"
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -203,7 +218,10 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            text "#STR_EXPANSION_ATM_UI_MONEY_INVENTORY"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -220,7 +238,9 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            scriptclass "ViewBinding"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronlight24"
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -262,7 +282,7 @@ FrameWidgetClass ExpansionATMMenu {
          hexactsize 1
          vexactsize 1
          {
-          ImageWidgetClass AmountBackground {
+          PanelWidgetClass AmountBackground {
            visible 1
            ignorepointer 1
            color 0.1412 0.1412 0.1412 0.549
@@ -274,15 +294,10 @@ FrameWidgetClass ExpansionATMMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           imageTexture "{5CCDBAA76FB55F9B}DayZExpansion/Market/GUI/textures/panel_background_01.edds"
-           mode blend
-           "src alpha" 1
-           "no wrap" 1
-           stretch 1
+           style DayZDefaultPanel
           }
           TextWidgetClass AmountLabel {
            ignorepointer 1
-           position 0.04 0
            size 1 1
            valign center_ref
            hexactpos 0
@@ -290,7 +305,10 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            text "#STR_EXPANSION_ATM_UI_AMOUNT"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -299,8 +317,8 @@ FrameWidgetClass ExpansionATMMenu {
           EditBoxWidgetClass AmountValue {
            clipchildren 1
            ignorepointer 0
-           position 0.04 0
-           size 0.71 24
+           position 0.02 0
+           size 0.75 32
            halign right_ref
            valign center_ref
            hexactpos 0
@@ -311,7 +329,7 @@ FrameWidgetClass ExpansionATMMenu {
            style ServerBrowser
            "Use default text" 0
            "exact text" 1
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronlight24"
           }
          }
         }
@@ -351,7 +369,10 @@ FrameWidgetClass ExpansionATMMenu {
              vexactsize 1
              priority 1
              text "#STR_EXPANSION_ATM_UI_WITHDRAW"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -384,7 +405,10 @@ FrameWidgetClass ExpansionATMMenu {
              vexactsize 1
              priority 1
              text "#STR_EXPANSION_ATM_UI_DEPOSIT"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -416,7 +440,10 @@ FrameWidgetClass ExpansionATMMenu {
              vexactsize 1
              priority 1
              text "#STR_EXPANSION_ATM_UI_WITHDRAW_ALL"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -449,7 +476,10 @@ FrameWidgetClass ExpansionATMMenu {
              vexactsize 1
              priority 1
              text "#STR_EXPANSION_ATM_UI_DEPOSIT_ALL"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -467,7 +497,7 @@ FrameWidgetClass ExpansionATMMenu {
      }
     }
     GridSpacerWidgetClass atm_transfer {
-     visible 0
+     visible 1
      ignorepointer 1
      size 450 380
      halign center_ref
@@ -483,7 +513,7 @@ FrameWidgetClass ExpansionATMMenu {
      Columns 1
      Rows 2
      {
-      PanelWidgetClass atm_transfer_header {
+      ImageWidgetClass atm_transfer_header {
        ignorepointer 1
        color 0 0 0 0.8627
        position 0 0
@@ -492,7 +522,11 @@ FrameWidgetClass ExpansionATMMenu {
        vexactpos 1
        hexactsize 0
        vexactsize 1
-       style UIDefaultPanel
+       image0 "set:dayz_gui image:inv_header_2"
+       mode blend
+       "src alpha" 1
+       "clamp mode" wrap
+       "stretch mode" stretch_w_h
        {
         TextWidgetClass atm_transfer_text {
          ignorepointer 1
@@ -505,7 +539,8 @@ FrameWidgetClass ExpansionATMMenu {
          vexactsize 0
          style Normal
          text "#STR_EXPANSION_ATM_UI_PLAYERS"
-         font "gui/fonts/etelkatextpro22"
+         font "gui/fonts/sdf_metronbook24"
+         "bold text" 1
          "exact text" 1
          "exact text size" 22
          "text halign" center
@@ -539,7 +574,7 @@ FrameWidgetClass ExpansionATMMenu {
          hexactsize 0
          vexactsize 1
          {
-          ImageWidgetClass atm_filter_background {
+          PanelWidgetClass atm_filter_background {
            visible 1
            ignorepointer 1
            color 0.1412 0.1412 0.1412 0.549
@@ -551,11 +586,7 @@ FrameWidgetClass ExpansionATMMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           imageTexture "{5CCDBAA76FB55F9B}DayZExpansion/Market/GUI/textures/panel_background_01.edds"
-           mode blend
-           "src alpha" 1
-           "no wrap" 1
-           stretch 1
+           style DayZDefaultPanel
           }
           EditBoxWidgetClass atm_filter_box {
            position 0.0992 0
@@ -571,7 +602,7 @@ FrameWidgetClass ExpansionATMMenu {
            "limit visible" 0
            "Use default text" 1
            "exact text" 1
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronlight24"
           }
           ButtonWidgetClass atm_filter_clear {
            position 0.02 0
@@ -603,8 +634,8 @@ FrameWidgetClass ExpansionATMMenu {
              imageTexture "{50590D86B12E21D3}DayZExpansion/Core/GUI/icons/hud/refresh_64x64.edds"
              mode blend
              "src alpha" 1
-             "no wrap" 1
-             stretch 1
+             "clamp mode" clamp
+             "stretch mode" stretch_w_h
             }
            }
            {
@@ -627,8 +658,8 @@ FrameWidgetClass ExpansionATMMenu {
            imageTexture "{0A37CC5D0C68964C}DayZExpansion/Core/GUI/icons/misc/T_Frying_Pan_256x256.edds"
            mode blend
            "src alpha" 1
-           "no wrap" 1
-           stretch 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
           }
          }
         }
@@ -713,7 +744,11 @@ FrameWidgetClass ExpansionATMMenu {
              vexactsize 1
              priority 1
              text "#STR_EXPANSION_ATM_UI_TRANSFER_PLAYER"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 22
+             "size to text h" 0
              "text halign" center
              "text valign" center
             }
@@ -745,7 +780,10 @@ FrameWidgetClass ExpansionATMMenu {
              vexactsize 1
              priority 1
              text "#STR_EXPANSION_ATM_UI_TRANSFER_ALL_PLAYER"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -779,7 +817,7 @@ FrameWidgetClass ExpansionATMMenu {
      Columns 1
      Rows 2
      {
-      PanelWidgetClass atm_party_header {
+      ImageWidgetClass atm_party_header {
        ignorepointer 1
        color 0 0 0 0.8627
        position 0 0
@@ -788,7 +826,11 @@ FrameWidgetClass ExpansionATMMenu {
        vexactpos 1
        hexactsize 0
        vexactsize 1
-       style UIDefaultPanel
+       image0 "set:dayz_gui image:inv_header_2"
+       mode blend
+       "src alpha" 1
+       "clamp mode" wrap
+       "stretch mode" stretch_w_h
        {
         TextWidgetClass atm_party_text {
          ignorepointer 1
@@ -801,7 +843,8 @@ FrameWidgetClass ExpansionATMMenu {
          vexactsize 0
          style Normal
          text "#STR_EXPANSION_ATM_UI_PARTY_ACCOUNT"
-         font "gui/fonts/etelkatextpro22"
+         font "gui/fonts/sdf_metronbook24"
+         "bold text" 1
          "exact text" 1
          "exact text size" 22
          "text halign" center
@@ -844,7 +887,10 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            text "#STR_EXPANSION_ATM_UI_PARTY_NAME"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -861,7 +907,9 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            scriptclass "ViewBinding"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronlight24"
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -893,7 +941,10 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            text "#STR_EXPANSION_ATM_UI_PARTY_ID"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -910,7 +961,9 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            scriptclass "ViewBinding"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronlight24"
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -942,7 +995,10 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            text "#STR_EXPANSION_ATM_UI_PARTY_OWNER"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -959,7 +1015,9 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            scriptclass "ViewBinding"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronlight24"
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -991,7 +1049,10 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            text "#STR_EXPANSION_ATM_UI_MAXDEPOSIT"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -1008,7 +1069,9 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            scriptclass "ViewBinding"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronlight24"
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -1040,7 +1103,10 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            text "#STR_EXPANSION_ATM_UI_MONEY_ACCOUNT"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -1057,7 +1123,9 @@ FrameWidgetClass ExpansionATMMenu {
            hexactsize 0
            vexactsize 0
            scriptclass "ViewBinding"
-           font "gui/fonts/etelkatextpro22"
+           font "gui/fonts/sdf_metronlight24"
+           "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 0
            "text halign" center
@@ -1090,15 +1158,14 @@ FrameWidgetClass ExpansionATMMenu {
          hexactsize 0
          vexactsize 1
          style Expansion_01
-         "Ignore invisible" 0
          "Size To Content H" 1
          "Size To Content V" 1
-         Columns 2
-         Rows 2
+         Columns 1
+         Rows 4
          {
           ButtonWidgetClass PartyButtonDeposit {
            color 0.1804 0.8 0.4431 0.7843
-           size 0.49 24
+           size 1 24
            halign right_ref
            hexactpos 1
            vexactpos 1
@@ -1116,7 +1183,10 @@ FrameWidgetClass ExpansionATMMenu {
              vexactsize 1
              priority 1
              text "#STR_EXPANSION_ATM_UI_TRANSFER_PARTY"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -1130,7 +1200,7 @@ FrameWidgetClass ExpansionATMMenu {
           ButtonWidgetClass PartyButtonWithdraw {
            visible 0
            color 0.8863 0.2549 0.2588 0.7843
-           size 0.49 24
+           size 1 24
            hexactpos 1
            vexactpos 1
            hexactsize 0
@@ -1147,7 +1217,10 @@ FrameWidgetClass ExpansionATMMenu {
              vexactsize 1
              priority 1
              text "#STR_EXPANSION_ATM_UI_TRANSFER_YOU"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -1160,7 +1233,7 @@ FrameWidgetClass ExpansionATMMenu {
           }
           ButtonWidgetClass PartyButtonDepositAll {
            color 0.1804 0.8 0.4431 0.7843
-           size 0.49 24
+           size 1 24
            halign right_ref
            hexactpos 1
            vexactpos 1
@@ -1178,7 +1251,10 @@ FrameWidgetClass ExpansionATMMenu {
              vexactsize 1
              priority 1
              text "#STR_EXPANSION_ATM_UI_TRANSFER_ALL_PARTY"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -1192,7 +1268,7 @@ FrameWidgetClass ExpansionATMMenu {
           ButtonWidgetClass PartyButtonWithdrawAll {
            visible 0
            color 0.8863 0.2549 0.2588 0.7843
-           size 0.49 24
+           size 1 24
            hexactpos 1
            vexactpos 1
            hexactsize 0
@@ -1209,7 +1285,10 @@ FrameWidgetClass ExpansionATMMenu {
              vexactsize 1
              priority 1
              text "#STR_EXPANSION_ATM_UI_TRANSFER_ALL_YOU"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -1232,9 +1311,9 @@ FrameWidgetClass ExpansionATMMenu {
    visible 1
    ignorepointer 1
    color 0 0 0 0.7843
-   position 2.43455 1.21727
    size 1.6 0.9
    halign center_ref
+   valign center_ref
    hexactpos 1
    vexactpos 1
    hexactsize 0
@@ -1244,8 +1323,8 @@ FrameWidgetClass ExpansionATMMenu {
    imageTexture "{E6B3EF816E067499}Gui/textures/inventory_bgvignette.edds"
    mode blend
    "src alpha" 1
-   "no wrap" 1
-   stretch 1
+   "clamp mode" clamp
+   "stretch mode" stretch_w_h
    filter 0
    nocache 1
   }
@@ -1261,8 +1340,9 @@ FrameWidgetClass ExpansionATMMenu {
    priority 1
    style Normal
    text "#STR_EXPANSION_ATM_UI_TITLE"
-   font "gui/fonts/etelkatextpro48"
+   font "gui/fonts/sdf_metronbook24"
    "text color" 0.8157 0.1255 0.7843 1
+   "bold text" 1
    "exact text" 0
    "size to text h" 0
    "size to text v" 1

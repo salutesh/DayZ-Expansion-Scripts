@@ -18,8 +18,7 @@ class CAContinuousHoverFillFuel : CAContinuousBase
 	//---------------------------------------------------------------------------
 	override void Setup( ActionData action_data )
 	{
-		ExpansionHelicopterScript car = ExpansionHelicopterScript.Cast(action_data.m_Player.GetParent());
-		ExpansionVehicleHelicopterBase Expcar = ExpansionVehicleHelicopterBase.Cast(action_data.m_Player.GetParent());
+		auto vehicle = ExpansionVehicle.Get(action_data.m_Player.GetParent());
 		
 		m_TimeElpased = 0;
 		m_SpentQuantity = 0;
@@ -35,19 +34,12 @@ class CAContinuousHoverFillFuel : CAContinuousBase
 		
 		float fuelCapacity;
 		float currentFuel;
-		if ( car )
+		if ( vehicle )
 		{
-			m_QuantityUsedPerSecond *= car.GetLiquidThroughputCoef();
+			m_QuantityUsedPerSecond *= vehicle.GetEntity().GetLiquidThroughputCoef();
 			
-			fuelCapacity = car.GetFluidCapacity( CarFluid.FUEL );
-			currentFuel = car.GetFluidFraction( CarFluid.FUEL );
-		}
-		else if ( Expcar )
-		{
-			m_QuantityUsedPerSecond *= Expcar.GetLiquidThroughputCoef();
-			
-			fuelCapacity = Expcar.GetFluidCapacity( CarFluid.FUEL );
-			currentFuel = Expcar.GetFluidFraction( CarFluid.FUEL );
+			fuelCapacity = vehicle.GetFluidCapacity( CarFluid.FUEL );
+			currentFuel = vehicle.GetFluidFraction( CarFluid.FUEL );
 		}
 		currentFuel = currentFuel * fuelCapacity;
 

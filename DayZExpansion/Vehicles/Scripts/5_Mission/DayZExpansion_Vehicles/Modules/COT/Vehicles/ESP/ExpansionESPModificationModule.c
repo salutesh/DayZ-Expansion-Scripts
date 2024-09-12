@@ -36,17 +36,17 @@ modded class ExpansionESPModificationModule
 	{
 		if ( IsMissionOffline() )
 		{
-			CarScript car = CarScript.Cast( target );
-			if ( !car )
+			auto vehicle = ExpansionVehicle.Get( target );
+			if ( !vehicle )
 				return;
 
 			array< ExpansionCarKey > keys = new array< ExpansionCarKey >;
-			ExpansionCarKey.GetKeysForVehicle( car, keys );
+			ExpansionCarKey.GetKeysForVehicle( vehicle, keys );
 
 			for ( int i = 0; i < keys.Count(); ++i )
 				keys[i].Unpair( true );
 
-			car.ResetKeyPairing();
+			vehicle.ResetKeyPairing();
 
 		} else if ( IsMissionClient() )
 		{
@@ -57,8 +57,8 @@ modded class ExpansionESPModificationModule
 
 	private void RPC_CarUnPair(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		CarScript car = CarScript.Cast( target );
-		if ( !car )
+		auto vehicle = ExpansionVehicle.Get( target );
+		if ( !vehicle )
 			return;
 
 		JMPlayerInstance instance;
@@ -66,12 +66,12 @@ modded class ExpansionESPModificationModule
 			return;
 
 		array< ExpansionCarKey > keys = new array< ExpansionCarKey >;
-		ExpansionCarKey.GetKeysForVehicle( car, keys );
+		ExpansionCarKey.GetKeysForVehicle( vehicle, keys );
 
 		for ( int i = 0; i < keys.Count(); ++i )
 			keys[i].Unpair( true );
 
-		car.ResetKeyPairing();
+		vehicle.ResetKeyPairing();
 	}
 	
 	//! Unlock a vehicle
@@ -79,12 +79,12 @@ modded class ExpansionESPModificationModule
 	{
 		if ( IsMissionOffline() )
 		{
-			CarScript car = CarScript.Cast( target );
-			if ( !car )
+			auto vehicle = ExpansionVehicle.Get( target );
+			if ( !vehicle )
 				return;
 
 			ExpansionCarAdminKey adminkey;
-			car.UnlockCar(adminkey);
+			vehicle.Unlock(adminkey);
 		} else if ( IsMissionClient() )
 		{
 			auto rpc = Expansion_CreateRPC("RPC_CarUnLock");
@@ -94,8 +94,8 @@ modded class ExpansionESPModificationModule
 
 	private void RPC_CarUnLock(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		CarScript car = CarScript.Cast( target );
-		if ( !car )
+		auto vehicle = ExpansionVehicle.Get( target );
+		if ( !vehicle )
 			return;
 
 		JMPlayerInstance instance;
@@ -103,7 +103,7 @@ modded class ExpansionESPModificationModule
 			return;
 
 		ExpansionCarAdminKey adminkey;
-		car.UnlockCar(adminkey);
+		vehicle.Unlock(adminkey);
 	}
 };
 #endif

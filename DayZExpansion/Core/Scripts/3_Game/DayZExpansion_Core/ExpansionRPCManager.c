@@ -64,9 +64,13 @@ class ExpansionRPCManager
 
 		if (!m_OwnerIsObject)
 		{
+#ifdef EXTRACE
 			auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + m_Type, "" + s_RegisteredTargetlessManagers.Count());
-
-			s_TargetlessManagersByType.Remove(m_Type);
+#endif
+			
+			if (s_TargetlessManagersByType) {
+				s_TargetlessManagersByType.Remove(m_Type);
+			}
 
 			foreach (int serverRPCID: m_TypeMapping.m_RegisteredServerRPCIDs)
 			{
@@ -78,7 +82,9 @@ class ExpansionRPCManager
 				s_RegisteredTargetlessManagers.Remove(clientRPCID);
 			}
 
+#ifdef EXTRACE
 			EXTrace.Add(trace, "" + s_RegisteredTargetlessManagers.Count());
+#endif
 		}
 	}
 
@@ -90,7 +96,7 @@ class ExpansionRPCManager
 	 */
 	static ExpansionRPCManager Get(Managed owner, typename type = NULLTYPE)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.RPC, ExpansionRPCManager, "" + owner, "" + type);
 	#endif
 
@@ -103,6 +109,10 @@ class ExpansionRPCManager
 				type = owner.Type();
 		}
 
+		if (!s_TargetlessManagersByType) {
+			s_TargetlessManagersByType = new map<typename, ExpansionRPCManager>();
+		}
+		
 		ExpansionRPCManager manager;
 		if (ownerIsObject || !type || !s_TargetlessManagersByType.Find(type, manager) || !manager)
 		{
@@ -132,6 +142,10 @@ class ExpansionRPCManager
 	{
 		m_Type = type;
 
+		if (!s_TypeMappings) {
+			s_TypeMappings = new map<typename, ref ExpansionRPCTypeMapping>();
+		}
+		
 		if (!s_TypeMappings.Find(m_Type, m_TypeMapping))
 		{
 			m_TypeMapping = new ExpansionRPCTypeMapping();
@@ -146,8 +160,9 @@ class ExpansionRPCManager
 
 	protected int CreateRPCID(string fn, Managed instance = null)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PROFILING, this);
-
+#endif
 		string name;
 
 		if (instance)
@@ -165,12 +180,16 @@ class ExpansionRPCManager
 
 		name += fn;
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, name);
+#endif
 
 		//int rpcID = ExpansionString.BetterHash(name);
 		int rpcID = name.Hash();
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, rpcID);
+#endif
 
 		return rpcID;
 	}
@@ -179,6 +198,10 @@ class ExpansionRPCManager
 	{
 		string registeredFuncName;
 
+		if (!s_RegisteredTargetlessManagers) {
+			s_RegisteredTargetlessManagers = new map<int, ExpansionRPCManager>();
+		}
+		
 		if (!m_OwnerIsObject)
 		{
 			ExpansionRPCManager manager;
@@ -223,7 +246,9 @@ class ExpansionRPCManager
 	 */
 	int RegisterServer(string fn, Managed instance = null)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + m_Type, fn, "" + instance);
+#endif
 
 		int rpcID = m_TypeMapping.m_RegisteredServerRPCIDs[fn];
 
@@ -246,7 +271,9 @@ class ExpansionRPCManager
 
 	int RegisterClient(string fn, Managed instance = null)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + m_Type, fn, "" + instance);
+#endif
 
 		int rpcID = m_TypeMapping.m_RegisteredClientRPCIDs[fn];
 
@@ -269,8 +296,10 @@ class ExpansionRPCManager
 
 	int RegisterBoth(string fn, Managed instance = null)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PROFILING, this, "" + m_Owner, "" + m_Type, fn, "" + instance);
-
+#endif
+		
 		int rpcID;
 		int serverRPCID = m_TypeMapping.m_RegisteredServerRPCIDs[fn];
 		int clientRPCID = m_TypeMapping.m_RegisteredClientRPCIDs[fn];
@@ -504,6 +533,10 @@ class ExpansionRPCManager
 			return false;
 		}
 
+	#ifdef EXPANSION_RPCMANAGER_TRACE
+		EXTrace.Add(trace, instance);
+	#endif
+
 		auto params = new Param3<PlayerIdentity, Object, ParamsReadContext>(sender, target, ctx);
 		GetGame().GameScript.CallFunctionParams(instance, fn, null, params);
 
@@ -530,6 +563,10 @@ class ExpansionRPCManager
 			Error("Expansion RPC " + rpcID + " " + fn + " has no instance!");
 			return false;
 		}
+
+	#ifdef EXPANSION_RPCMANAGER_TRACE
+		EXTrace.Add(trace, instance);
+	#endif
 
 		auto params = new Param2<PlayerIdentity, ParamsReadContext>(sender, ctx);
 		GetGame().GameScript.CallFunctionParams(instance, fn, null, params);

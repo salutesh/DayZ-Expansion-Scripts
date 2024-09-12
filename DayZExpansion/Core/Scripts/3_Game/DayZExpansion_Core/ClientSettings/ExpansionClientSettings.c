@@ -54,6 +54,14 @@ class ExpansionClientSettings
 	bool Show2DGlobalMarkers;
 	
 	bool ShowPartyMemberHUD;
+	bool OpenMapOnPlayerPos;
+	
+	float MaxDistance3DClientMarkers;
+	float MaxDistance3DPlayerMarkers;
+	float MaxDistance3DPartyMarkers;
+	float MaxDistance3DGlobalMarkers;
+
+	bool ShowMarkerTextColor;
 
 	ExpansionClientUIMemberMarkerType MemberMarkerType;
 	ExpansionClientUIMarkerSize MarkerSize;
@@ -130,7 +138,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	void ExpansionClientSettings()
 	{
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.StartStack(EXTrace.CLIENT_SETTINGS, this);
+#endif
 
 	#ifdef EXPANSIONMOD
 		m_ShouldShowHUDCategory = true;
@@ -697,6 +707,47 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ObjectViewDistance!");
 			return false;
 		}
+		
+		if ( version < 54 )
+		{
+			return true;
+		}
+
+		if ( !ctx.Read( MaxDistance3DClientMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MaxDistance3DClientMarkers!");
+			return false;
+		}
+
+		if ( !ctx.Read( MaxDistance3DPlayerMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MaxDistance3DPlayerMarkers!");
+			return false;
+		}
+
+		if ( !ctx.Read( MaxDistance3DPartyMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MaxDistance3DPartyMarkers!");
+			return false;
+		}
+
+		if ( !ctx.Read( MaxDistance3DGlobalMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MaxDistance3DGlobalMarkers!");
+			return false;
+		}
+
+		if ( !ctx.Read( ShowMarkerTextColor ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowMarkerTextColor!");
+			return false;
+		}
+		
+		if ( !ctx.Read( OpenMapOnPlayerPos ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read OpenMapOnPlayerPos!");
+			return false;
+		}
 
 		return true;
 	}
@@ -827,6 +878,13 @@ class ExpansionClientSettings
 
 		ctx.Write( ViewDistance );
 		ctx.Write( ObjectViewDistance );
+
+		ctx.Write( MaxDistance3DClientMarkers );
+		ctx.Write( MaxDistance3DPlayerMarkers );
+		ctx.Write( MaxDistance3DPartyMarkers );
+		ctx.Write( MaxDistance3DGlobalMarkers );
+		ctx.Write( ShowMarkerTextColor );
+		ctx.Write( OpenMapOnPlayerPos );
 	}
 
 	// -----------------------------------------------------------
@@ -917,6 +975,15 @@ class ExpansionClientSettings
 
 		ShowPartyMemberHUD = true;
 
+		MaxDistance3DClientMarkers = 30000;
+		MaxDistance3DPlayerMarkers = 30000;
+		MaxDistance3DPartyMarkers = 30000;
+		MaxDistance3DGlobalMarkers = 30000;
+
+		OpenMapOnPlayerPos = true;
+
+		ShowMarkerTextColor = false;
+
 		ShowNotifications = true;
 		NotificationSound = true;
 		NotificationJoin = true;
@@ -978,7 +1045,7 @@ class ExpansionClientSettings
 		TurnOffAutoHoverDuringFlight = true;
 		Show3DPartyMemberIcon = true;
 
-		DefaultChatChannel = ExpansionClientUIChatChannel.DIRECT;
+		DefaultChatChannel = ExpansionClientUIChatChannel.GLOBAL;
 
 		VehicleResyncTimeout = 5.0;
 		ShowDesyncInvulnerabilityNotifications = false;
@@ -1003,9 +1070,12 @@ class ExpansionClientSettings
 		//! Option to toggle light shadows
 		CreateToggle( "CastLightShadows", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS_DESC" );
 		//! Client side view distance of the terrain
+	#ifdef DAYZ_1_25
+		//! Only show the sliders for 1.25, 1.26 vanilla has its own viewdistance settings
 		CreateSlider( "ViewDistance", "#STR_EXPANSION_SETTINGS_CLIENT_VIEWDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIEWDISTANCE_DESC", 0, 3600, 100 );
 		//! Client side view distance of the objects and vegetation
 		CreateSlider( "ObjectViewDistance", "#STR_EXPANSION_SETTINGS_CLIENT_OBJECTVIEWDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_OBJECTVIEWDISTANCE_DESC", 0, 3600, 100 );
+	#endif
 	#ifdef EXPANSIONMODNAVIGATION
 		CreateCategory( "3DMapMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D" );
 
@@ -1021,7 +1091,13 @@ class ExpansionClientSettings
 		//! Option to show/hide the icon that gets displayed next to party member markers
 		CreateToggle( "Show3DPartyMemberIcon", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMEMBERICON", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMEMBERICON_DESC" );
 	#endif
+		CreateToggle( "ShowMarkerTextColor", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOWMARKERTEXTCOLOR", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOWMARKERTEXTCOLOR_DESC" );
+		CreateSlider( "MaxDistance3DClientMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_CLIENT3DDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_CLIENT3DDISTANCE_DESC", 100, 30000, 100 );
+		CreateSlider( "MaxDistance3DPlayerMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_PLAYER3DDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_PLAYER3DDISTANCE_DESC", 100, 30000, 100 );
+		CreateSlider( "MaxDistance3DPartyMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_PARTY3DDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_PARTY3DDISTANCE_DESC", 100, 30000, 100 );
+		CreateSlider( "MaxDistance3DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_GLOBAL3DDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_GLOBAL3DDISTANCE_DESC", 100, 30000, 100 );
 	#endif
+	
 
 	#ifdef EXPANSIONMODNAVIGATION
 		CreateCategory( "2DMapMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D" );
@@ -1036,6 +1112,7 @@ class ExpansionClientSettings
 		CreateToggle( "Show2DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DGLOBALMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DGLOBALMARKERS_DESC" );
 		//! Option to set default marker lock state for new created map markers.
 		CreateToggle( "DefaultMarkerLockState", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK_DESC" );
+		CreateToggle( "OpenMapOnPlayerPos", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_OPENMAPONPLAYERPOS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_OPENMAPONPLAYERPOS_DESC" );
 	#endif
 
 		CreateCategory( "Notifications", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS" );

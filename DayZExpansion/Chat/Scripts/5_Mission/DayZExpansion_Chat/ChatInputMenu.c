@@ -19,7 +19,9 @@ modded class ChatInputMenu
 
 	override Widget Init()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		m_BackInputWrapper = GetUApi().GetInputByID(UAUIBack).GetPersistentWrapper();
 
@@ -50,7 +52,9 @@ modded class ChatInputMenu
 		if (!finished)
 			return false;
 
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		string text = m_edit_box.GetText();
 
@@ -62,6 +66,9 @@ modded class ChatInputMenu
 
 			switch (gameplayMission.GetChatChannel())
 			{
+				case ExpansionChatChannels.CCDirect:
+					if (text[0] == "#")  //! Allow vanilla chat commands
+						break;
 				case ExpansionChatChannels.CCGlobal:
 				case ExpansionChatChannels.CCTeam:
 				case ExpansionChatChannels.CCTransport:
@@ -74,7 +81,7 @@ modded class ChatInputMenu
 			{
 				if (GetGame().IsMultiplayer())
 				{
-					ChatMessageEventParams chat_params_rpc = new ChatMessageEventParams(gameplayMission.GetChatChannel(), "", text, "");
+					ExpansionChatMessageEventParams chat_params_rpc = new ExpansionChatMessageEventParams(gameplayMission.GetChatChannel(), "", text, "");
 					ExpansionGlobalChatModule module;
 					CF_Modules<ExpansionGlobalChatModule>.Get(module);
 					auto rpc = module.Expansion_CreateRPC("RPC_AddChatMessage");
@@ -86,7 +93,7 @@ modded class ChatInputMenu
 					string name;
 					GetGame().GetPlayerName(name);
 
-					ChatMessageEventParams chat_params = new ChatMessageEventParams(gameplayMission.GetChatChannel(), name, text, "");
+					ExpansionChatMessageEventParams chat_params = new ExpansionChatMessageEventParams(gameplayMission.GetChatChannel(), name, text, "");
 					gameplayMission.m_Chat.Add(chat_params);
 				}
 
@@ -101,7 +108,9 @@ modded class ChatInputMenu
 
 	override void OnShow()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		super.OnShow();
 
@@ -111,7 +120,9 @@ modded class ChatInputMenu
 
 	override void OnHide()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		if (GetGame() && GetGame().GetMission())  //! Prevent NULL pointer on game exit
 			super.OnHide();

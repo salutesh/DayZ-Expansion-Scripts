@@ -124,7 +124,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------		
 	void RequestGroups(int callBack)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (!IsMissionClient())
 			return;
@@ -145,7 +147,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	void RPC_RequestGroups(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.View", sender))
 			return;
@@ -188,7 +192,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	void RPC_SendGroupsToClient(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (!IsMissionClient())
 			return;
@@ -218,7 +224,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	bool OnReceiveGroupClient(ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		int partyID;
 		if (Expansion_Assert_False(ctx.Read(partyID), "Failed to read party ID"))
@@ -237,6 +245,76 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 				
 		return true;
 	}
+
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupModule EditPlayerColor
+	// Called on Client
+	// ------------------------------------------------------------	
+	void EditPlayerColor(int groupID, string uid, int color)
+	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
+
+		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] EditGroupName shall only be called on client!"))
+			return;
+		
+		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup"))
+			return;
+		
+		auto rpc = Expansion_CreateRPC("RPC_EditGroupUserColor");
+		rpc.Write(groupID);
+		rpc.Write(uid);
+		rpc.Write(color);
+ 		rpc.Expansion_Send(true);
+	}
+
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupModule RPC_EditGroupUserColor
+	// Called on Server
+	// ------------------------------------------------------------	
+	private void RPC_EditGroupUserColor(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
+		
+		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
+			return;
+
+		int groupID;
+		if (!ctx.Read(groupID))
+			return;
+		
+		string uid;
+		if (!ctx.Read(uid))
+			return;
+		
+		int color;
+		if (!ctx.Read(color))
+			return;
+		
+		ExpansionPartyModule partyModule;
+		if (!CF_Modules<ExpansionPartyModule>.Get(partyModule))
+			return;
+		
+		ExpansionPartyData party = partyModule.GetPartyByID(groupID);
+		if (!party)
+			return;
+		
+		ExpansionPartyPlayerData playerdata = party.GetPlayer(uid);
+		playerdata.SetColor(color);
+
+		party.Save();
+		partyModule.UpdatePartyMembersServer(groupID);
+		ExpansionNotification("[COT] Expansion Groups Manager", "Changed group user color of party with ID " + party.GetPartyID() + ".").Success(sender);
+		
+		SendGroupUpdate(party, sender);
+		
+		Callback(ExpansionCOTGroupsMenuCallback.GroupUpdate, sender);
+		
+		AdminLog(sender.GetName() + " [" + sender.GetId() + "] has changed the group user color of [" + party.GetPartyID() + "] " + party.GetPartyName());
+	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule EditGroupName
@@ -244,7 +322,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	void EditGroupName(int groupID, string groupName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] EditGroupName shall only be called on client!"))
 			return;
@@ -264,7 +344,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	private void RPC_EditGroupName(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -305,7 +387,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	void DeleteGroup(int partyID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] DeleteGroup shall only be called on client!"))
 			return;
@@ -327,7 +411,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	private void RPC_DeleteGroup(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.DeleteGroup", sender))
 			return;
@@ -368,7 +454,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	void ChangeOwner(string playerUID, int partyID, bool isMember)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] ChangeOwner shall only be called on client!"))
 			return;
@@ -389,7 +477,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	private void RPC_ChangeOwner(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -459,7 +549,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void InvitePlayer(string playerUID, int partyID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] InvitePlayer shall only be called on client!"))
 			return;
@@ -479,7 +571,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	private void RPC_InvitePlayer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -501,7 +595,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private bool InvitePlayerServer(string playerUID, int partyID, PlayerIdentity sender)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		ExpansionPartyModule partyModule;
 		if (!CF_Modules<ExpansionPartyModule>.Get(partyModule))
@@ -554,7 +650,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void UpdatePermissions(string playerUID, int partyID, int playerPerm)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] UpdatePermissions shall only be called on client!"))
 			return;
@@ -575,7 +673,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_UpdatePermissions(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -655,7 +755,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void ChangeMoney(int partyID, int value)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] ChangeMoney shall only be called on client!"))
 			return;
@@ -676,7 +778,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_ChangeMoney(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -732,7 +836,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void KickMember(int partyID, string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] KickMember shall only be called on client!"))
 			return;
@@ -752,7 +858,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_KickMember(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -828,7 +936,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------		
 	private void SendGroupUpdate(ExpansionPartyData party, PlayerIdentity sender)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		int partyID = party.GetPartyID();
 		auto rpc = Expansion_CreateRPC("RPC_SendGroupUpdate");
@@ -842,7 +952,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_SendGroupUpdate(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (!OnReceiveGroupClient(ctx))
 				return;
@@ -855,7 +967,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void CreateGroupMarker(ExpansionMarkerData marker, int partyID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] CreateGroupMarker shall only be called on client!"))
 			return;
@@ -872,7 +986,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_CreateGroupMarker(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 		
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
 			return;
@@ -915,7 +1031,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	void Callback(int callBack, PlayerIdentity receiver)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		auto rpc = Expansion_CreateRPC("RPC_Callback");
 		rpc.Write(callBack);
@@ -928,7 +1046,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_Callback(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		int callBack;
 		if (!ctx.Read(callBack))
@@ -957,7 +1077,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void SendNotificationToMembers(StringLocaliser text, ExpansionPartyData party, PlayerIdentity sender)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (Expansion_Assert_False(IsMissionHost(), "[" + this + "] SendNotificationToMembers shall only be called on server!"));
 			return;
@@ -997,7 +1119,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	ExpansionPartyPlayerData GetGroupPlayerData(string uid)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		foreach (int i, ExpansionPartyData data : m_Parties)
 		{
@@ -1017,7 +1141,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------		
 	bool HasGroup(string uid)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		foreach (int i, ExpansionPartyData party : m_Parties)
 		{
@@ -1043,7 +1169,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------		
 	void AdminLog(string msg)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
+#endif
 
 		if (GetExpansionSettings().GetLog().Party)
 			GetExpansionSettings().GetLog().PrintLog("[COT] Expansion Groups Manager - " + msg);

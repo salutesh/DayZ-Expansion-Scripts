@@ -31,7 +31,9 @@
 //! Enable if if you want to enable car debug logs
 //#define EXPANSION_CARSCRIPT_LOGGING
 
+#ifndef DIAG_DEVELOPER
 #define EXPANSION_VEHICLES_CONFIG_DISPLAYNAME_TEMP
+#endif
 
 //#define EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
 

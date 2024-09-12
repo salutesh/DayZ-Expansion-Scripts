@@ -50,6 +50,6 @@ class ExpansionActionCloseSafe: ActionInteractBase
 				return;
 
 		string selection = tgtSafe.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
-		tgtSafe.Close( selection );
+		tgtSafe.Expansion_Close( selection );
 	}
 }

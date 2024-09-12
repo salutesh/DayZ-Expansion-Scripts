@@ -128,6 +128,37 @@ class eAIFaction
 
 	static eAIFaction Create(string factionName)
 	{
+		if (factionName == "RANDOM")
+		{
+			array<ref eAIFaction> candidates = {};
+
+			eAIFaction candidate;
+
+			foreach (int id, typename type: eAIRegisterFaction.s_FactionTypes)
+			{
+				candidate = eAIFaction.Cast(type.Spawn());
+
+				if (candidate.IsInvincible())
+					continue;
+
+				if (candidate.IsObserver())
+					continue;
+
+				if (candidate.IsPassive())
+					continue;
+
+				if (candidate.GetMeleeDamageMultiplier() != 1.0)
+					continue;
+
+				if (candidate.GetMeleeYeetForce() != 0.0)
+					continue;
+
+				candidates.Insert(candidate);
+			}
+
+			return candidates.GetRandomElement();
+		}
+
 		typename faction = GetType(factionName);
 		if (faction)
 			//! @note w/o the cast to eAIFaction, the compiler warns about unsafe downcasting.
@@ -135,7 +166,7 @@ class eAIFaction
 			//! Yes I wrote this comment for the sole reason that I'm annoyed by this.
 			return eAIFaction.Cast(faction.Spawn());
 		else
-			Error("Invalid faction name " + factionName);
+			EXError.Error(null, "Invalid faction name '" + factionName + "'", {});
 
 		return null;
 	}
@@ -147,7 +178,7 @@ class eAIFaction
 		if (faction)
 			return eAIFaction.Cast(faction.Spawn());
 		else
-			Error("Invalid faction ID " + factionID);
+			EXError.Error(null, "Invalid faction ID " + factionID, {});
 
 		return null;
 	}

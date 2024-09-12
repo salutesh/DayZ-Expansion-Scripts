@@ -122,6 +122,7 @@ class ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Accept: ExpansionDial
 			m_ConfirmDialog = ExpansionMenuDialog_MarketConfirmPurchase.Cast(m_Dialog);
 		
 		SetButtonText("#STR_EXPANSION_MARKET_DIALOG_ACCEPT");
+		SetTextColor(-10178716);
 	}
 	
 	override void OnButtonClick()
@@ -143,6 +144,7 @@ class ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Cancel: ExpansionDial
 			m_ConfirmDialog = ExpansionMenuDialog_MarketConfirmPurchase.Cast(m_Dialog);
 		
 		SetButtonText("#STR_EXPANSION_MARKET_DIALOG_CANCLE");
+		SetTextColor(-3657166);
 	}
 
 	override void OnButtonClick()

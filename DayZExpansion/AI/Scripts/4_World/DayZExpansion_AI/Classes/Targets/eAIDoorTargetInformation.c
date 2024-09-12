@@ -44,7 +44,7 @@ class eAIDoorTargetInformation: eAIEntityTargetInformation
 				if (target && !target.info.IsInherited(eAIDoorTargetInformation))
 				{
 					auto pathHandler = ai.GetPathFinding();
-					if (pathHandler.m_IsBlocked && pathHandler.m_IsBlockedPhysically)
+					if (pathHandler.m_IsBlocked)
 						levelFactor = threat * 2.0;
 				}
 			}
@@ -58,5 +58,10 @@ class eAIDoorTargetInformation: eAIEntityTargetInformation
 	override bool ShouldRemove(eAIBase ai = null)
 	{
 		return GetThreat(ai) <= 0.1;
+	}
+
+	override float GetMinDistance(eAIBase ai = null, float distance = 0.0)
+	{
+		return 1.0;
 	}
 };

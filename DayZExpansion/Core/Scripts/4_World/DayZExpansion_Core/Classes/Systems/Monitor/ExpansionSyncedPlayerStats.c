@@ -105,6 +105,7 @@ class ExpansionSyncedPlayerStats
 	float m_Distance;
 	float m_Playtime;
 	int m_PlayersKilled;
+	int m_AIKilled;
 	int m_InfectedKilled;
 	int m_AnimalsKilled;
 	float m_LongestShot;
@@ -127,6 +128,9 @@ class ExpansionSyncedPlayerStats
 			ctx.Write(m_Distance);
 			ctx.Write(m_Playtime);
 			ctx.Write(m_PlayersKilled);
+		#ifdef ENFUSION_AI_PROJECT
+			ctx.Write(m_AIKilled);
+		#endif
 			ctx.Write(m_InfectedKilled);
 			ctx.Write(m_AnimalsKilled);
 			ctx.Write(m_LongestShot);
@@ -169,6 +173,11 @@ class ExpansionSyncedPlayerStats
 			if (!ctx.Read(m_PlayersKilled))
 				return false;
 			
+		#ifdef ENFUSION_AI_PROJECT
+			if (!ctx.Read(m_AIKilled))
+				return false;
+		#endif
+			
 			if (!ctx.Read(m_InfectedKilled))
 				return false;
 			
@@ -192,6 +201,9 @@ class ExpansionSyncedPlayerStats
 		m_Distance = player.StatGet(AnalyticsManagerServer.STAT_DISTANCE);
 		m_Playtime = player.StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
 		m_PlayersKilled = player.StatGet(AnalyticsManagerServer.STAT_PLAYERS_KILLED);
+	#ifdef ENFUSION_AI_PROJECT
+		m_AIKilled = player.StatGet(AnalyticsManagerServer.EXP_STAT_AI_PLAYERS_KILLED);
+	#endif
 		m_InfectedKilled = player.StatGet(AnalyticsManagerServer.STAT_INFECTED_KILLED);
 		m_AnimalsKilled = player.StatGet(AnalyticsManagerServer.EXP_STAT_ANIMALS_KILLED);
 		m_LongestShot = player.StatGet(AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT);

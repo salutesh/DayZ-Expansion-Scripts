@@ -16,8 +16,10 @@ modded class RecipeBase
 
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, RecipeBase);
-
+#endif 
+		
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index == -1)
 		{
@@ -36,8 +38,10 @@ modded class RecipeBase
 
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, RecipeBase);
-
+#endif 
+		
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index > -1)
 		{

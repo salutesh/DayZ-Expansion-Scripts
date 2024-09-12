@@ -32,7 +32,9 @@ class ExpansionPersonalStorageHub: BuildingBase
 
 	override void SetActions()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 
 		super.SetActions();
 
@@ -42,7 +44,9 @@ class ExpansionPersonalStorageHub: BuildingBase
 
 	void Expansion_FindContainersInVicinity()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 
 		vector pos = GetPosition();
 		vector min = Vector(pos[0] - 1, pos[1] - 1, pos[2] - 1);
@@ -178,7 +182,9 @@ class ExpansionPersonalStorageHub: BuildingBase
 	static int Expansion_GetPersonalStorageLevelEx(PlayerBase player, out int nextLevel = -1, out int nextLvlRepReq = -1, out int nextLvlQuestID = 0, out bool completed = false)
 	{
 	#ifdef SERVER
+		#ifdef EXTRACE
 		auto trace = EXTrace.StartStack(EXTrace.PERSONALSTORAGE, ExpansionPersonalStorageHub);
+	#endif
 	#endif
 
 		auto settings = GetExpansionSettings().GetPersonalStorageNew(false);
@@ -236,7 +242,7 @@ class ExpansionPersonalStorageHub: BuildingBase
 		}
 
 	#ifdef SERVER
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		Print(lvl);
 		Print(storageLevel);
 		Print(nextLevel);

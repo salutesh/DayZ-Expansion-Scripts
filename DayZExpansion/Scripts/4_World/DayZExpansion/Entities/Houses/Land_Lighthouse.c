@@ -22,16 +22,17 @@ class Expansion_Lighthouse_Lamp: House
 
 	void Expansion_Lighthouse_Lamp()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.LIGHTHOUSE, this);
-
+#endif 
+		
 		if (GetGame().IsServer())
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_Rotate, 25, true);
 	
 	#ifndef SERVER
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(Expansion_OnClientSettingsUpdated);
 
-		if (GetExpansionSettings().GetGeneral(false).IsLoaded())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_OnClientSettingsUpdated, 1000);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_OnClientSettingsUpdated, 1000);
 	#endif
 	}
 
@@ -40,8 +41,10 @@ class Expansion_Lighthouse_Lamp: House
 		if (!GetGame())
 			return;
 
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.LIGHTHOUSE, this);
-
+#endif 
+		
 	#ifndef SERVER
 		GetExpansionClientSettings().SI_UpdateSetting.Remove(Expansion_OnClientSettingsUpdated);
 
@@ -55,8 +58,10 @@ class Expansion_Lighthouse_Lamp: House
 
 	override void AfterStoreLoad()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.LIGHTHOUSE, this);
-
+#endif 
+		
 		super.AfterStoreLoad();
 
 		Delete();
@@ -77,7 +82,9 @@ class Expansion_Lighthouse_Lamp: House
 	
 	void Expansion_OnClientSettingsUpdated()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.LIGHTHOUSE, this);
+#endif 
 
 	#ifndef SERVER
 		m_Expansion_CastShadows = GetExpansionClientSettings().CastLightShadows;
@@ -88,14 +95,18 @@ class Expansion_Lighthouse_Lamp: House
 
 	void Expansion_Enable(vector position)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.LIGHTHOUSE, this, "" + position);
+#endif 
 		
 		Expansion_OnEnable();
 	}
 
 	protected void Expansion_OnEnable()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.LIGHTHOUSE, this);
+#endif 
 
 	#ifndef SERVER
 		if (!Expansion_IsEnabled())
@@ -111,16 +122,26 @@ class Expansion_Lighthouse_Lamp: House
 				m_Expansion_Light_Outer = ScriptedLightBase.CreateLight(ExpansionLighthouseLampLight_Outer, "0 0 0");
 				m_Expansion_Light_Outer.AttachOnObject(this, "0 0.5 1.5", "0 0 0");
 			}
+
+			m_Expansion_Light_Inner.SetEnabled(true);
+			m_Expansion_Light_Inner.FadeIn(0.3);
+			m_Expansion_Light_Outer.SetEnabled(true);
+			m_Expansion_Light_Outer.FadeIn(0.3);
 		}
 
-		if (Expansion_IsEnabled())
-			m_Expansion_Light_Outer.SetCastShadow(m_Expansion_CastShadows);
+		//! Lighthouse light shadows disabled, see https://feedback.bistudio.com/T179455
+		//! DayZ 1.24: Lighthouse light shadows CTDs client if lighthouse light is behind camera at certain angle/distance
+		//! DayZ 1.25: Got even worse
+		//if (Expansion_IsEnabled())
+			//m_Expansion_Light_Outer.SetCastShadow(m_Expansion_CastShadows);
 	#endif
 	}
 
 	void Expansion_Disable( vector position )
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.LIGHTHOUSE, this, "" + position);
+#endif 
 
 		Expansion_OnDisable();
 	}
@@ -160,9 +181,12 @@ class Land_Lighthouse: House
 		if (!GetGame())
 			return;
 
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.LIGHTHOUSE, this);
+#endif 
 
-		Expansion_DeleteLamp();
+		//! @note destructor runs on server even if lighthouse object is not destroyed?!?
+		//Expansion_DeleteLamp();
 	}
 
 	void Expansion_DeleteLamp()
@@ -173,11 +197,16 @@ class Land_Lighthouse: House
 
 	override void OnSettingsUpdated()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.LIGHTHOUSE, this);
+#endif 
 
 		super.OnSettingsUpdated();
 
 		if (!GetGame().IsServer())
+			return;
+
+		if (ExpansionWorldObjectsModule.s_RemovedObjects[this])
 			return;
 
 		if (GetExpansionSettings().GetGeneral().EnableLighthouses)

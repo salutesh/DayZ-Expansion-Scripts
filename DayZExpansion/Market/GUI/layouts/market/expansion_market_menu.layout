@@ -919,7 +919,7 @@ FrameWidgetClass ExpansionMarketMenu {
    }
   }
   PanelWidgetClass market_menu_info {
-   visible 0
+   visible 1
    disabled 0
    ignorepointer 1
    size 0.22 0.9417
@@ -1144,6 +1144,7 @@ FrameWidgetClass ExpansionMarketMenu {
            }
           }
           FrameWidgetClass market_item_amount_panel {
+           visible 1
            clipchildren 0
            ignorepointer 0
            color 0.8627 0.8627 0.8627 1

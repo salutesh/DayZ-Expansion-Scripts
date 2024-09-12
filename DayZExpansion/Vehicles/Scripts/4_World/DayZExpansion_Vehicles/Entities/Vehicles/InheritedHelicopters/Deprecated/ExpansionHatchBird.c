@@ -108,7 +108,7 @@ class ExpansionHatchBird: ExpansionHelicopterScript
 
 	}
 
-	override bool IsDuck()
+	override bool Expansion_IsDuck()
 	{
 		return true;
 	}

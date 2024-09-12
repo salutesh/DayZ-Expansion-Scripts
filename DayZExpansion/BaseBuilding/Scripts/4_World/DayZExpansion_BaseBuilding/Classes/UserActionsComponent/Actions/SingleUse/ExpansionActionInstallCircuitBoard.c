@@ -46,7 +46,7 @@ class ExpansionActionInstallCircuitBoard: ActionSingleUseBase
 			if (attachedBoard)
 			{
 				//! If there is already a board attached only allow action if the tier of the board in the players hands is higher then the attached one.
-				if (boardInHands.GetTier() <= attachedBoard.GetTier())
+				if (boardInHands.Expansion_GetTier() <= attachedBoard.Expansion_GetTier())
 					return false;
 			}
 		}
@@ -54,7 +54,7 @@ class ExpansionActionInstallCircuitBoard: ActionSingleUseBase
 		if (!GetGame().IsDedicatedServer())
 		{
 			//! TODO: Localization
-			m_Text = "Install Upgrade - Tier " + boardInHands.GetTier().ToString();
+			m_Text = "Install Upgrade - Tier " + boardInHands.Expansion_GetTier().ToString();
 		}
 
 		return true;

@@ -137,7 +137,7 @@ class ExpansionFSMType
 
 		s_Loaded[path + "/" + fileName] = true;
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		//! Create a backup to ease debugging
 		CopyFile(script_path, script_path + ".bak");
 #endif
@@ -163,7 +163,7 @@ class ExpansionFSMType
 		CF_XML_Document document;
 		CF_XML.ReadDocument(actualFilePath, document);
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 		//! XXX: CF_XML_Document::Save doesn't write a proper representation of the parsed document
 		document.Save(EXPANSION_AI_FSM_FOLDER + fileName + ".xml");
 		#endif

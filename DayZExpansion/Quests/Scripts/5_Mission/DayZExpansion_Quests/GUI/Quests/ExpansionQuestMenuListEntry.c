@@ -141,7 +141,9 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 
 	void OnHideEntryClick()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (!m_Quest)
 			return;
@@ -216,7 +218,9 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 
 	void SetEntry()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (!m_Quest || !m_QuestModule || !m_QuestModule.GetClientQuestData())
 			return;
@@ -248,7 +252,9 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 	
 	protected void SetCooldown(int serverTime)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		m_HasCooldown = false;
 		
 		int timedif;
@@ -276,7 +282,9 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 
 	void OnEntryClick()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (!m_Quest)
 			return;

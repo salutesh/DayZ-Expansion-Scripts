@@ -95,27 +95,6 @@ class ExpansionPhysicsState
 		m_Entity = vehicle;
 	}
 
-	void RegisterSync(string varName)
-	{
-		m_Entity.RegisterNetSyncVariableInt(varName + ".m_Time");
-
-		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityX", 0, 0, 4);
-		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityY", 0, 0, 4);
-		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityZ", 0, 0, 4);
-
-		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularVelocityX", 0, 0, 4);
-		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularVelocityY", 0, 0, 4);
-		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularVelocityZ", 0, 0, 4);
-
-		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearAccelerationX", 0, 0, 4);
-		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearAccelerationY", 0, 0, 4);
-		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearAccelerationZ", 0, 0, 4);
-
-		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularAccelerationX", 0, 0, 4);
-		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularAccelerationY", 0, 0, 4);
-		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularAccelerationZ", 0, 0, 4);
-	}
-
 	void RegisterSync_CarScript(string varName)
 	{
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityX", 0, 0, 4);
@@ -160,7 +139,6 @@ class ExpansionPhysicsState
 	void CreateDynamic()
 	{
 		int physLayer = PhxInteractionLayers.VEHICLE;
-		int interactLayer = PhxInteractionLayers.VEHICLE | PhxInteractionLayers.VEHICLE_NOTERRAIN;
 
 		m_Entity.CreateDynamicPhysics(physLayer);
 
@@ -169,9 +147,7 @@ class ExpansionPhysicsState
 
 		m_Entity.SetDynamicPhysicsLifeTime(-1);
 
-		//dBodyDynamic(m_Entity, true);
-		dBodyActive(m_Entity, ActiveState.ALWAYS_ACTIVE);
-		dBodySetInteractionLayer(m_Entity, interactLayer);
+		dBodyActive(m_Entity, ActiveState.ACTIVE);
 		dBodyEnableGravity(m_Entity, false);
 
 		//m_Entity.EnableDynamicCCD( true );
@@ -184,25 +160,6 @@ class ExpansionPhysicsState
 
 		SetVelocity(m_Entity, m_LinearVelocity);
 		dBodySetAngularVelocity(m_Entity, m_AngularVelocity);
-
-		auto item = ItemBase.Cast(m_Entity);
-		if (item)
-			item.EnableCollisionsWithCharacter(false);
-	}
-
-	void OnVariablesSynchronized(bool isPhysHost)
-	{
-		m_TimeSince = (m_Time - m_Entity.GetSimulationTimeStamp()) / 1000.0;
-		if (m_TimeSince < 0)
-			m_TimeSince = 0;
-
-		//m_LastLinearVelocity = m_LinearVelocity;
-		m_SyncLinearVelocity = Vector(m_LinearVelocityX, m_LinearVelocityY, m_LinearVelocityZ);
-		m_SyncLinearAcceleration = Vector(m_LinearAccelerationX, m_LinearAccelerationY, m_LinearAccelerationZ);
-
-		//m_LastAngularVelocity = m_AngularVelocity;
-		m_SyncAngularVelocity = Vector(m_AngularVelocityX, m_AngularVelocityY, m_AngularVelocityZ);
-		m_SyncAngularAcceleration = Vector(m_AngularAccelerationX, m_AngularAccelerationY, m_AngularAccelerationZ);
 	}
 
 	void OnVariablesSynchronized_CarScript()
@@ -319,9 +276,10 @@ class ExpansionPhysicsState
 			}
 			else if (!prevSync && !m_IsSync && m_TimeSinceDesync > vehicleResyncTimeout && !m_HaltPhysics)
 			{
+#ifdef EXTRACE
 				if (EXTrace.VEHICLES && driver != NULL)
 					trace = EXTrace.Start(true, m_Entity, "Client desynced for " + m_TimeSinceDesync + " - halting physics updates");
-
+#endif
 				//! If <VehicleResyncTimeout> seconds after we desynced we are still desynced, halt vehicle physics updates on client
 				m_HaltPhysics = true;
 			}
@@ -438,49 +396,13 @@ class ExpansionPhysicsState
 		rpc.Expansion_Send(m_Entity, true);
 	}
 
-	void SendData(ExpansionVehicleNetworkMode mode, bool isServer)
-	{
-		// Only Client sync mode will attempt to overwrite the server values
-		// Server will still perform the simulation for moments when the client desyncs
-		// When the client resyncs, the client will force the vehicle to a certain position
-		// The client will transmit all contact events to the server
-		if (!isServer && mode == ExpansionVehicleNetworkMode.CLIENT)
-		{
-			auto rpc = ExpansionScriptRPC.Create(ExpansionVehicleBase.s_Expansion_ClientSync_RPCID);
-			rpc.Write(m_Entity.GetSimulationTimeStamp());
-			rpc.Write(m_Transform[3]);
-			rpc.Write(Math3D.MatrixToAngles(m_Transform));
-			rpc.Write(m_LinearVelocity);
-			rpc.Write(m_AngularVelocity);
-			rpc.Write(m_LinearAcceleration);
-			rpc.Write(m_AngularAcceleration);
-			rpc.Expansion_Send(m_Entity, false);
-		}
-		else if (isServer)
-		{
-			m_Time = m_Entity.GetSimulationTimeStamp();
-
-			m_LinearVelocityX = m_LinearVelocity[0];
-			m_LinearVelocityY = m_LinearVelocity[1];
-			m_LinearVelocityZ = m_LinearVelocity[2];
-			m_AngularVelocityX = m_AngularVelocity[0];
-			m_AngularVelocityY = m_AngularVelocity[1];
-			m_AngularVelocityZ = m_AngularVelocity[2];
-
-			m_LinearAccelerationX = m_LinearAcceleration[0];
-			m_LinearAccelerationY = m_LinearAcceleration[1];
-			m_LinearAccelerationZ = m_LinearAcceleration[2];
-			m_AngularAccelerationX = m_AngularAcceleration[0];
-			m_AngularAccelerationY = m_AngularAcceleration[1];
-			m_AngularAccelerationZ = m_AngularAcceleration[2];
-		}
-	}
-
 	void OnPing(ParamsReadContext ctx)
 	{
 		m_TimeSincePing = 0;
 		ctx.Read(m_ClientDesync);
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.VEHICLES, m_Entity, "Received client ping - desynced " + m_ClientDesync);
+#endif
 	}
 
 	void OnRPC(ParamsReadContext ctx)

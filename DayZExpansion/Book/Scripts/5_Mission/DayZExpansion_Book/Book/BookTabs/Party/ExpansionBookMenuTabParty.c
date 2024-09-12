@@ -13,28 +13,31 @@
 #ifdef EXPANSIONMODGROUPS
 class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 {
-	ref ExpansionPartyModule m_PartyModule;
-	ref ExpansionDialog_CreateParty m_CreatePartyDialog;
-	ref ExpansionBookMenuTabPartyController m_PartyTabController;
-	ref ExpansionPartyData m_Party;
-	ref ExpansionDialog_DeleteParty m_DeleteDialog;
-	ref ExpansionDialog_LeaveParty m_LeaveDialog;
-	ref ExpansionDialog_InviteParty m_InviteDialog;
-	ref ExpansionBookMenuTabPartyMemberEdit m_PartyTabMemberEdit;
+	protected ref ExpansionPartyModule m_PartyModule;
+	protected ref ExpansionDialog_CreateParty m_CreatePartyDialog;
+	protected ref ExpansionBookMenuTabPartyController m_PartyTabController;
+	protected ref ExpansionPartyData m_Party;
+	protected ref ExpansionDialog_DeleteParty m_DeleteDialog;
+	protected ref ExpansionDialog_LeaveParty m_LeaveDialog;
+	protected ref ExpansionDialog_InviteParty m_InviteDialog;
+	protected ref ExpansionBookMenuTabPartyMemberEdit m_PartyTabMemberEdit;
 	
-	private ButtonWidget party_delete_button;
-	private TextWidget party_delete_button_label;
+	protected ButtonWidget party_delete_button;
+	protected TextWidget party_delete_button_label;
 	
-	private EditBoxWidget player_list_filter_editbox;
-	private ButtonWidget player_list_filter_clear;
-	private ImageWidget player_list_filter_clear_icon;
+	protected ButtonWidget party_leave_button;
+	protected TextWidget party_leave_button_label;
 	
-	private Widget party_delete_content;
-	private Widget party_leave_content;
-	private Widget book_menu_content_left;
+	protected EditBoxWidget player_list_filter_editbox;
+	protected ButtonWidget player_list_filter_clear;
+	protected ImageWidget player_list_filter_clear_icon;
+	
+	protected Widget party_delete_content;
+	protected Widget party_leave_content;
+	protected Widget book_menu_content_left;
 		
-	private int m_PlayerSearchRadius = 25;
-	ref SyncPlayer m_Player;
+	protected int m_PlayerSearchRadius = 25;
+	protected ref SyncPlayer m_Player;
 	
 	void ExpansionBookMenuTabParty(ExpansionBookMenu book_menu)
 	{
@@ -88,7 +91,11 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		if (!m_Party)
 			return;
 		
-		m_PartyTabController.PartyName = m_Party.GetPartyName() + " #STR_EXPANSION_BOOK_MEMBERS";
+		string partyTag;
+		if (m_Party.GetPartyTag() != string.Empty)
+			partyTag = m_Party.GetPartyTagFormatted();
+
+		m_PartyTabController.PartyName = partyTag + m_Party.GetPartyName() + " #STR_EXPANSION_BOOK_MEMBERS";
 		m_PartyTabController.NotifyPropertyChanged("PartyName");
 	
 		#ifdef EXPANSIONMODGROUPS_DEBUG
@@ -143,10 +150,10 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 				{
 					ExpansionBookMenuTabPartyMemberEntry existingEntry = m_PartyTabController.PartyMemberEntrys[e];
 					
-					if (existingEntry.m_Member && existingEntry.m_Member.GetID() == memberData.GetID())
+					if (existingEntry.GetMember() && existingEntry.GetMember().GetID() == memberData.GetID())
 						entry = existingEntry;
 					//! If the entry is related to an old member that is no longer in the party then remove the entry
-					else if (!existingEntry.m_Member || members.Find(existingEntry.m_Member) == -1)
+					else if (!existingEntry.GetMember() || members.Find(existingEntry.GetMember()) == -1)
 						m_PartyTabController.PartyMemberEntrys.RemoveOrdered(e);
 				}
 
@@ -230,10 +237,14 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 			for (int i = m_PartyTabController.PartyPlayerEntrys.Count() - 1; i >= 0; i--)
 			{
 				ExpansionBookMenuTabPartyPlayerEntry entry = m_PartyTabController.PartyPlayerEntrys[i];
-				if (entry.m_Player.m_RUID == filteredPlayer.m_RUID)
+				if (entry.GetSyncPlayer().m_RUID == filteredPlayer.m_RUID)
+				{
 					isInList = true;
-				else if (filteredUIDs.Find(entry.m_Player.m_RUID) == -1)
+				}
+				else if (filteredUIDs.Find(entry.GetSyncPlayer().m_RUID) == -1)
+				{
 					m_PartyTabController.PartyPlayerEntrys.RemoveOrdered(i);
+				}
 			}
 			
 			if (!isInList)
@@ -419,6 +430,9 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		case player_list_filter_clear:
 			player_list_filter_clear_icon.SetColor(ARGB(255, 220, 220, 220));
 			break;
+		case party_leave_button:
+			party_delete_button_label.SetColor(ARGB(255, 220, 220, 220));
+			break;
 		}
 		
 		return super.OnMouseEnter(w, x, y);;
@@ -433,6 +447,9 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 			break;
 		case player_list_filter_clear:
 			player_list_filter_clear_icon.SetColor(ARGB(255, 0, 0, 0));
+			break;
+		case party_leave_button:
+			party_delete_button_label.SetColor(ARGB(255, 0, 0, 0));
 			break;
 		}
 		
@@ -466,7 +483,9 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 	
 	override void Refresh()
 	{
-		EXTrace.Start(EXTrace.GROUPS, this);
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
+#endif
 
 		SetParty();
 

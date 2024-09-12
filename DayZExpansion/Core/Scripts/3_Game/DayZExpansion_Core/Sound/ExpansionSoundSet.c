@@ -36,7 +36,7 @@ class ExpansionSoundSet
 			m_Range = Math.Max(GetGame().ConfigGetFloat("CfgSoundShaders " + soundShader + " range"), m_Range);
 		}
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.SOUND, this, name + " ID " + m_ID + " range " + m_Range);
 	#endif
 	}

@@ -97,6 +97,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	private TextWidget m_MemberNameValue;
 	private TextWidget m_MemberUIDValue;
 	private TextWidget m_MemberRankValue;
+	private SliderWidget m_MemberColorValue;
 
 	private CheckBoxWidget m_MemberPermInvite;
 	private CheckBoxWidget m_MemberPermKick;
@@ -209,6 +210,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		m_MemberNameValue = TextWidget.Cast(layoutRoot.FindAnyWidget("member_info_name_value"));
 		m_MemberUIDValue = TextWidget.Cast(layoutRoot.FindAnyWidget("member_info_uid_value"));
 		m_MemberRankValue = TextWidget.Cast(layoutRoot.FindAnyWidget("member_info_rank_value"));
+		m_MemberColorValue = SliderWidget.Cast(layoutRoot.FindAnyWidget("member_info_color_value"));
 		m_MemberPermInvite = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("member_perm_invite_checkbox"));
 		m_MemberPermKick = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("member_perm_kick_checkbox"));
 		m_MemberPermEdit = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("member_perm_edit_checkbox"));
@@ -510,6 +512,9 @@ class ExpansionCOTGroupsMenu: JMFormBase
 			m_MemberRankValue.SetText("Member");
 		}
 
+		m_MemberColorValue.SetCurrent(player.GetColor());
+		m_MemberColorValue.SetColor(player.GetColor());
+
 		m_MemberPermInvite.SetChecked(player.CanInvite());
 		m_MemberPermKick.SetChecked(player.CanKick());
 		m_MemberPermEdit.SetChecked(player.CanEdit());
@@ -523,6 +528,15 @@ class ExpansionCOTGroupsMenu: JMFormBase
 			m_MemberSetOwnerButton.Show(false);
 		else
 			m_MemberSetOwnerButton.Show(true);
+	}
+
+	private void EditPlayerColor()
+	{
+		if (!m_CurrentSelectedGroupMember || !m_CurrentSelectedGroup)
+			return;
+
+		m_MemberColorValue.SetColor(m_MemberColorValue.GetCurrent());
+		m_Module.EditPlayerColor(m_CurrentSelectedGroup.GetPartyID(), m_CurrentSelectedGroupMember.GetID(), m_MemberColorValue.GetCurrent());
 	}
 
 	// ------------------------------------------------------------
@@ -1098,6 +1112,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		}
 		else if (w == m_MemberSavePermButton)
 		{
+			//EditPlayerColor(); // PLACEHOLDER
 			UpdateMemberPerm();
 			return true;
 		}

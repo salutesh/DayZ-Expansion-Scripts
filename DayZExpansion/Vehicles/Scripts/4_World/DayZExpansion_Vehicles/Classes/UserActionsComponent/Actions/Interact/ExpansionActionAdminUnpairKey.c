@@ -33,15 +33,15 @@ class ExpansionActionAdminUnpairKey: ActionInteractBase
 		if ( !target || !player )
 			return false;
 
-		CarScript car;
-		if ( !Class.CastTo( car, target.GetParentOrObject() ) )
+		auto vehicle = ExpansionVehicle.Get(target.GetParentOrObject());
+		if ( !vehicle )
 			return false;
 
 		ExpansionCarAdminKey key;
 		if ( !Class.CastTo( key, player.GetItemInHands() ) )
 			return false;
 
-		if ( !car.HasKey() )
+		if ( !vehicle.HasKey() )
 			return false;
 		
 		return true;
@@ -51,18 +51,18 @@ class ExpansionActionAdminUnpairKey: ActionInteractBase
 	{
 		super.OnStartServer( action_data );
 
-		CarScript car = CarScript.Cast( action_data.m_Target.GetParentOrObject() );
+		auto vehicle = ExpansionVehicle.Get( action_data.m_Target.GetParentOrObject() );
 
 		array< ExpansionCarKey > keys = new array< ExpansionCarKey >;
-		ExpansionCarKey.GetKeysForVehicle( car, keys );
+		ExpansionCarKey.GetKeysForVehicle( vehicle, keys );
 
 		for ( int i = 0; i < keys.Count(); ++i )
 			keys[i].Unpair( true );
 
 		if ( GetExpansionSettings().GetLog().AdminTools )
-			GetExpansionSettings().GetLog().PrintLog("[AdminTools] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " used the Admin CarKey to unpair " + car.GetType() + " (id=" + car.GetVehiclePersistentIDString() + " pos=" + car.GetPosition() + ")" );
+			GetExpansionSettings().GetLog().PrintLog("[AdminTools] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " used the Admin CarKey to unpair " + vehicle.GetType() + " (id=" + vehicle.GetPersistentIDString() + " pos=" + vehicle.GetPosition() + ")" );
 
-		car.ResetKeyPairing();
+		vehicle.ResetKeyPairing();
 	}
 
 	override bool CanBeUsedInRestrain()

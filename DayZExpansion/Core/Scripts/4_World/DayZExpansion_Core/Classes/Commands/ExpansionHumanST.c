@@ -13,8 +13,10 @@
 class ExpansionHumanST
 {
 	int m_CMD_Fall;
+	int m_CMD_FallCancel;
 	int m_CMD_Jump;
 	int m_CMD_Land;
+	int m_CMD_Swim;
 
 	int m_CMD_Turn;
 	int m_CMD_StopTurn;
@@ -38,6 +40,8 @@ class ExpansionHumanST
 	int m_VAR_MovementDirection;
 
 	int m_VAR_TurnAmount;
+
+	int m_VAR_WaterLevel;
 
 	int m_EVT_LandEarlyExit;
 
@@ -75,8 +79,10 @@ class ExpansionHumanST
 		HumanAnimInterface hai = human.GetAnimInterface();
 
 		m_CMD_Fall = hai.BindCommand( "CMD_Fall" );
+		m_CMD_FallCancel = hai.BindCommand( "CMD_FallCancel" );
 		m_CMD_Jump = hai.BindCommand( "CMD_Jump" );
 		m_CMD_Land = hai.BindCommand( "CMD_Land" );
+		m_CMD_Swim = hai.BindCommand( "CMD_Swim" );
 
 		m_CMD_Turn = hai.BindCommand( "CMD_Turn" );
 		m_CMD_StopTurn = hai.BindCommand( "CMD_StopTurn" );
@@ -100,6 +106,8 @@ class ExpansionHumanST
 		m_VAR_MovementDirection = hai.BindVariableFloat( "MovementDirection" );
 
 		m_VAR_TurnAmount = hai.BindVariableFloat( "TurnAmount" );
+
+		m_VAR_WaterLevel = hai.BindVariableFloat( "WaterLevel" );
 
 		m_EVT_LandEarlyExit = hai.BindEvent( "LandEarlyExit" );
 
@@ -142,6 +150,11 @@ class ExpansionHumanST
 		script.PreAnim_CallCommand( m_CMD_Fall, pParamInt, pParamFloat );
 	}
 
+	void CallFallCancel( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		script.PreAnim_CallCommand( m_CMD_FallCancel, pParamInt, pParamFloat );
+	}
+
 	void CallJump( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
 	{
 		script.PreAnim_CallCommand( m_CMD_Jump, pParamInt, pParamFloat );
@@ -150,6 +163,11 @@ class ExpansionHumanST
 	void CallLand( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
 	{
 		script.PreAnim_CallCommand( m_CMD_Land, pParamInt, pParamFloat );
+	}
+
+	void CallSwim( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		script.PreAnim_CallCommand( m_CMD_Swim, pParamInt, pParamFloat );
 	}
 
 	void CallTurn( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
@@ -230,6 +248,11 @@ class ExpansionHumanST
 	void SetTurnAmount( HumanCommandScript script, float param )
 	{
 		script.PreAnim_SetFloat( m_VAR_TurnAmount, param );
+	}
+
+	void SetWaterLevel( HumanCommandScript script, float param )
+	{
+		script.PreAnim_SetFloat( m_VAR_WaterLevel, param );
 	}
 
 	bool IsLandEarlyExit( HumanCommandScript script )

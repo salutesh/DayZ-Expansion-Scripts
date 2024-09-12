@@ -71,8 +71,12 @@ class ExpansionPhysics
 		body1.GetTransform(orientation1);
 		vector invInertiaDiagLocal2;
 		float invMass1 = 1.0 / dBodyGetMass(body1);
+		
+		float mass2 = 0.0;
+		if (body2)
+			mass2 = dBodyGetMass(body2);	
 
-		if (body2) // if is a dynamic body
+		if (mass2 > 0.0) // if is a dynamic body
 		{
 			rel_pos2 = pos2;
 			vector vel2 = dBodyGetVelocityAt(body2, body2.GetGlobalPos(rel_pos2));

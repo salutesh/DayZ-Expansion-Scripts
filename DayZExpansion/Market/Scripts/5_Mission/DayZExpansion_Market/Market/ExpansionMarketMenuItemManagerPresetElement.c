@@ -53,25 +53,8 @@ class ExpansionMarketMenuItemManagerPresetElement: ExpansionScriptView
 		m_MarketMenuItemManager.SetAttachmentsFromPreset(m_Preset);
 	}
 	
-	void OnElementDeleteClick()
-	{
-		if (m_MarketMenuItemManager.GetMarketMenu().GetSelectedMarketItemElement().GetPreviewObject().IsWeapon())
-		{
-			m_MarketMenuItemManager.DeleteItemPreset(m_Preset, EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + m_Preset.ClassName + "\\");
-		}
-		else if (m_MarketMenuItemManager.GetMarketMenu().GetSelectedMarketItemElement().GetPreviewObject().IsClothing())
-		{
-			if (ExpansionMarketFilters.IsCustomizableClothing(m_MarketMenuItemManager.GetMarketMenu().GetSelectedMarketItemElement().GetPreviewObject().GetType()))
-			{
-				m_MarketMenuItemManager.DeleteItemPreset(m_Preset, EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER + m_Preset.ClassName + "\\");
-			}
-		}
-	}
-	
 	override bool OnMouseEnter(Widget w, int x, int y)
-	{
-		super.OnMouseEnter(w, x, y);
-		
+	{		
 		switch (w)
 		{
 			case dropdown_element_button:
@@ -85,9 +68,7 @@ class ExpansionMarketMenuItemManagerPresetElement: ExpansionScriptView
 	}
 	
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
-	{
-		super.OnMouseLeave(w, enterW, x, y);
-		
+	{		
 		switch (w)
 		{
 			case dropdown_element_button:
@@ -98,6 +79,29 @@ class ExpansionMarketMenuItemManagerPresetElement: ExpansionScriptView
 				break;
 		}
 			
+		return false;
+	}
+	
+	override bool OnClick(Widget w, int x, int y, int button)
+	{
+		Print(w.GetName());
+		if (w == dropdown_element_clear)
+		{
+			if (m_MarketMenuItemManager.GetMarketMenu().GetSelectedMarketItemElement().GetPreviewObject().IsWeapon())
+			{
+				m_MarketMenuItemManager.DeleteItemPreset(m_Preset, EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + m_Preset.ClassName + "\\", this);
+			}
+			else if (m_MarketMenuItemManager.GetMarketMenu().GetSelectedMarketItemElement().GetPreviewObject().IsClothing())
+			{
+				if (ExpansionMarketFilters.IsCustomizableClothing(m_MarketMenuItemManager.GetMarketMenu().GetSelectedMarketItemElement().GetPreviewObject().GetType()))
+				{
+					m_MarketMenuItemManager.DeleteItemPreset(m_Preset, EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER + m_Preset.ClassName + "\\", this);
+				}
+			}
+			
+			return true;
+		}
+
 		return false;
 	}
 };

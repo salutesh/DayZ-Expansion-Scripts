@@ -33,7 +33,9 @@ class ExpansionTeleportPositionEntry
 
 	void OnSend(ParamsWriteContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		ctx.Write(m_Position);
 		ctx.Write(m_Orientation);

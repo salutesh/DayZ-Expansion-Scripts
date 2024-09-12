@@ -29,8 +29,10 @@ class ExpansionSettings
 
 	void ServerInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.SETTINGS, this);
-
+#endif
+		
 		Init();
 
 		foreach (ExpansionSettingBase setting: m_SettingsOrdered)
@@ -41,8 +43,10 @@ class ExpansionSettings
 
 	void Unload()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.StartStack(EXTrace.SETTINGS, this);
-
+#endif
+		
 		foreach (ExpansionSettingBase setting: m_SettingsOrdered)
 		{
 			setting.Unload();
@@ -78,8 +82,10 @@ class ExpansionSettings
 
 	void Init()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.SETTINGS, this);
-
+#endif
+		
 		Init(ExpansionDebugSettings, true);
 		Init(ExpansionLogSettings);
 		Init(ExpansionSafeZoneSettings);
@@ -97,8 +103,10 @@ class ExpansionSettings
 
 	ExpansionScriptRPC CreateRPC(typename type)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Profile(EXTrace.SETTINGS, this);
-
+#endif
+		
 		return m_Expansion_RPCManager.CreateRPC(m_RPCIDs[type]);
 	}
 
@@ -128,8 +136,10 @@ class ExpansionSettings
 
 	void GameInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.SETTINGS, this);
-
+#endif
+		
 		if (m_GameInit)
 		{
 			Unload();
@@ -146,8 +156,10 @@ class ExpansionSettings
 
 	void Send( notnull PlayerIdentity identity )
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.SETTINGS, this);
-
+#endif
+		
 		if ( IsMissionClient() )
 			return;
 
@@ -174,8 +186,10 @@ class ExpansionSettings
 
 	void Receive(typename type, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.SETTINGS, this, type.ToString());
-
+#endif
+		
 		if (GetGame().IsDedicatedServer())
 			return;
 
@@ -237,7 +251,6 @@ class ExpansionSettings
 				msg += "received!";
 
 			EXTrace trace;
-
 			if (count)
 			{
 				EXPrint("WARNING: " + msg + " (there have been " + count + " more suppressed warnings)");
@@ -249,7 +262,7 @@ class ExpansionSettings
 				Error("ERROR: " + msg);
 			}
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(true, null, "Dedicated server: " + GetGame().IsDedicatedServer());
 			EXTrace.Print(true, null, "Is mission singleplayer: " + GetDayZGame().Expansion_IsMissionSinglePlayer());
 			EXTrace.Print(true, null, "Is multiplayer: " + GetGame().IsMultiplayer());

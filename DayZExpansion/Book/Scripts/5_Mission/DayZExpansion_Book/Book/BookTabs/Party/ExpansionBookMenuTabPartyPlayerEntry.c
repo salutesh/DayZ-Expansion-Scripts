@@ -13,13 +13,13 @@
 #ifdef EXPANSIONMODGROUPS
 class ExpansionBookMenuTabPartyPlayerEntry: ExpansionScriptView
 {
-	ref ExpansionBookMenuTabParty m_PartyTab;
-	ref SyncPlayer m_Player;
-	ref ExpansionBookMenuTabPartyPlayerEntryController m_EntryController;
+	protected ref ExpansionBookMenuTabParty m_PartyTab;
+	protected ref SyncPlayer m_Player;
+	protected ref ExpansionBookMenuTabPartyPlayerEntryController m_EntryController;
 	
-	TextWidget player_entry_label;
-	ButtonWidget player_entry_button;
-	ImageWidget player_entry_icon;
+	protected TextWidget player_entry_label;
+	protected ButtonWidget player_entry_button;
+	protected ImageWidget player_entry_icon;
 	
 	void ExpansionBookMenuTabPartyPlayerEntry(ExpansionBookMenuTabParty tab, SyncPlayer player)
 	{
@@ -40,21 +40,7 @@ class ExpansionBookMenuTabPartyPlayerEntry: ExpansionScriptView
 		m_EntryController.Background = "set:book_assets image:menu_element_1";
 		m_EntryController.NotifyPropertyChanged("Background");
 	}
-	
-	/*string GetRandomElementBackground()
-	{
-		TStringArray backgrounds = new TStringArray;
-		
-		backgrounds.Insert("set:book_assets image:menu_element_1");
-		backgrounds.Insert("set:book_assets image:menu_element_2");
-		backgrounds.Insert("set:book_assets image:menu_element_3");
-		backgrounds.Insert("set:book_assets image:menu_element_4");
-		backgrounds.Insert("set:book_assets image:menu_element_5");
-		backgrounds.Insert("set:book_assets image:menu_element_6");
-		
-		return backgrounds.GetRandomElement();
-	}*/
-	
+
 	void OnElementButtonClick()
 	{
 		if (!m_PartyTab)
@@ -96,6 +82,11 @@ class ExpansionBookMenuTabPartyPlayerEntry: ExpansionScriptView
 		}
 		
 		return super.OnMouseLeave(w, enterW, x, y);
+	}
+	
+	SyncPlayer GetSyncPlayer()
+	{
+		return m_Player;
 	}
 };
 

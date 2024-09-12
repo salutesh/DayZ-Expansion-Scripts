@@ -33,7 +33,9 @@ modded class MissionGameplay
 
 	void InitExpansionChat()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		m_ChatPanel = Widget.Cast(m_HudRootWidget.FindAnyWidget("ChatFrameWidget"));
 		if (m_Chat && m_ChatPanel)
@@ -57,19 +59,19 @@ modded class MissionGameplay
 		m_Chat.Expansion_UseChat(true);
 	}
 
+	override void OnMissionLoaded()
+	{
+		super.OnMissionLoaded();
+
+		if (!GetGame().IsMultiplayer())
+			Expansion_OnChatSettingsReceived();
+	}
+
 	void Expansion_OnChatSettingsReceived()
 	{
 		ExpansionSettings.SI_Chat.Remove(Expansion_OnChatSettingsReceived);
 		
-		auto settings = GetExpansionSettings().GetChat();
-		
-		m_ExpansionUseChat = settings.EnableGlobalChat;
-		if (!m_ExpansionUseChat)
-			m_ExpansionUseChat = settings.EnableTransportChat;
-	#ifdef EXPANSIONMODGROUPS
-		if (!m_ExpansionUseChat)
-			m_ExpansionUseChat = settings.EnablePartyChat;
-	#endif
+		m_ExpansionUseChat = GetExpansionSettings().GetChat().EnableExpansionChat;
 		
 		if (m_ExpansionUseChat)
 			InitExpansionChat();
@@ -77,7 +79,9 @@ modded class MissionGameplay
 	
 	override void ShowChat()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		super.ShowChat();
 
@@ -88,10 +92,7 @@ modded class MissionGameplay
 			//! If we are no longer in a vehicle and last used channel was transport, switch to direct
 			if (m_ChatChannel == ExpansionChatChannels.CCTransport)
 			{
-				PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
-				Object parent = Object.Cast(player.GetParent());
-
-				if (!parent || !parent.IsTransport() || !GetExpansionSettings().GetChat().EnableTransportChat)
+				if (!ExpansionVehicle.Get(g_Game.GetPlayer(), false, true) || !GetExpansionSettings().GetChat().EnableTransportChat)
 					SwitchChatChannelToDirect();
 			}
 
@@ -104,7 +105,9 @@ modded class MissionGameplay
 
 	override void HideChat()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		super.HideChat();
 
@@ -116,7 +119,9 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToGlobal()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		if (GetExpansionSettings().GetChat().EnableGlobalChat)
 		{
@@ -131,7 +136,9 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToTeam()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 #ifdef EXPANSIONMODGROUPS
 		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
@@ -152,17 +159,11 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToTransport()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
-		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
-		if (!player || !player.GetParent())
-		{
-			SwitchChatChannelToAdmin();
-			return;
-		}
-
-		Object parent = Object.Cast(player.GetParent());
-		if (parent && parent.IsTransport() && GetExpansionSettings().GetChat().EnableTransportChat)
+		if (ExpansionVehicle.Get(g_Game.GetPlayer(), false, true) && GetExpansionSettings().GetChat().EnableTransportChat)
 		{
 			m_ChatChannel = ExpansionChatChannels.CCTransport;
 			m_ChatChannelName.SetText("Transport Chat");
@@ -175,7 +176,9 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToAdmin()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		if (GetPermissionsManager().HasPermission("Admin.Chat"))
 		{
@@ -190,7 +193,9 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToDirect()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		m_ChatChannel = ExpansionChatChannels.CCDirect;
 		m_ChatChannelName.SetText("Proximity Chat");
@@ -198,7 +203,9 @@ modded class MissionGameplay
 
 	void SwitchChannel()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		m_ChatChannelHideTimer.Stop();
 		m_ChatChannelRootWidget.Show(true);

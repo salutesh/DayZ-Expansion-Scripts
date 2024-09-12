@@ -12,7 +12,7 @@ class eAITargetInformationState
 	vector m_SearchPosition;
 	vector m_SearchDirection;
 	bool m_LOS;  //! LOS state (may be stale if not current target for AI)
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	Object m_LOSRaycastHitObject;
 	vector m_LOSRaycastHitPosition;
 #endif
@@ -73,12 +73,17 @@ class eAITargetInformationState
 			}
 			else if (!force)
 			{
+				float threatMin;
+				if (m_AI.m_eAI_FlankTime == 0.0)
+					threatMin = 0.0999;
+				else
+					threatMin = 0.4;  //! Prevent leaving combat state while flanking
 			#ifdef EXPANSION_AI_ITEM_TARGET_REQUIRE_LOS
 				if (m_Info.IsInherited(eAIItemTargetInformation))
 					m_ThreatLevelActive = Math.Min(0.3999, m_ThreatLevel);  //! No interpolation for item targets
 				else
 			#endif
-				m_ThreatLevelActive = Math.Lerp(m_ThreatLevelActive, Math.Min(0.0999, m_ThreatLevel), diff / 33.333333 * 0.001111);
+				m_ThreatLevelActive = Math.Lerp(m_ThreatLevelActive, Math.Min(threatMin, m_ThreatLevel), diff / 33.333333 * 0.001111);
 			}
 		}
 	}
@@ -88,7 +93,7 @@ class eAITargetInformationState
 		int time = GetGame().GetTime();
 		if (force || m_LOS || time - m_SearchPositionUpdateTimestamp > Math.RandomIntInclusive(250, 300))
 		{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 			auto hitch = new EXHitch(m_AI.ToString() + " eAITargetInformationState::UpdatePosition ", 20000);
 #endif
 
@@ -103,7 +108,7 @@ class eAITargetInformationState
 				if (!force)
 					m_AI.GetGroup().m_UpdateSearchPosition = false;
 			}
-			else if (m_ThreatLevelActive > 0.2)
+			else if (m_ThreatLevelActive > 0.2 && m_AI.m_eAI_FlankTime == 0.0)
 			{
 				//! Make AI search the area by moving in direction of last known target position
 				//! Start search after first AI in group reaches initial search position
@@ -128,12 +133,12 @@ class eAITargetInformationState
 						vector angles = m_SearchDirection.Normalized().VectorToAngles();
 						angles[0] = ExpansionMath.AbsAngle(ExpansionMath.RelAngle(angles[0] + Math.RandomFloat(-33.75, 33.75)));
 						vector dir = angles.AnglesToVector();
-						m_SearchPosition = ExpansionStatic.GetSurfacePosition(m_SearchPosition + dir * Math.RandomFloat(5.0, 10.0));
+						m_SearchPosition = ExpansionStatic.GetSurfaceRoadPosition(m_SearchPosition + dir * Math.RandomFloat(5.0, 10.0), RoadSurfaceDetection.CLOSEST);
 					}
 					else
 					{
 						//! Radial search after three updates
-						m_SearchPosition = ExpansionStatic.GetSurfacePosition(ExpansionMath.GetRandomPointInCircle(m_SearchPosition + m_SearchDirection.Normalized(), 30));
+						m_SearchPosition = ExpansionStatic.GetSurfaceRoadPosition(ExpansionMath.GetRandomPointInCircle(m_SearchPosition + m_SearchDirection.Normalized(), 30), RoadSurfaceDetection.CLOSEST);
 					}
 					m_AI.GetGroup().m_UpdateSearchPosition = true;
 				}

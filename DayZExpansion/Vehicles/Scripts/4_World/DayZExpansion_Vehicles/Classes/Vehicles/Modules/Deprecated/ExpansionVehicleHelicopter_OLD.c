@@ -1037,7 +1037,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		if (!m_Initialized)
 			return;
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		if (Math.AbsFloat(m_LastDeltaT - deltaTime) > 0.008)
 			EXTrace.Print(EXTrace.VEHICLES, this, m_Vehicle.ToString() + "deltaT " + m_LastDeltaT + " -> " + deltaTime);
 		m_LastDeltaT = deltaTime;

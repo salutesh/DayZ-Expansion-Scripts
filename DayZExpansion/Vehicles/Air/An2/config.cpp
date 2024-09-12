@@ -119,6 +119,7 @@ class CfgVehicles
 		vehicleClass = "Expansion_Plane";
 		fuelCapacity = 192;
 		fuelConsumption = 12;
+		animPhysDetachSpeed = 100.0;
 		attachments[] = {"ExpansionAircraftBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","expansion_anwheel_1_1","expansion_anwheel_2_1","expansion_ansmallwheel_2"};
 		hiddenSelections[] = {};
 		hiddenSelectionsTextures[] = {};
@@ -367,7 +368,7 @@ class CfgVehicles
 				attachmentSlots[] = {"expansion_anwheel_1_1","expansion_anwheel_2_1","expansion_ansmallwheel_2"};
 			};
 		};
-		class Sounds
+		class ExpansionSounds
 		{
 			thrust = 0.6;
 			thrustTurbo = 1;

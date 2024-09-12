@@ -17,7 +17,9 @@ modded class ZombieBase
 
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, ZombieBase);
+#endif 
 
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index == -1)
@@ -37,7 +39,9 @@ modded class ZombieBase
 
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, ZombieBase);
+#endif
 
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index > -1)
@@ -95,7 +99,7 @@ modded class ZombieBase
 			//! We do this to share kills between quest objectives from players that are working on the same objective.
 			if (killerUID == string.Empty || !quest.IsQuestPlayer(killerUID))
 			{
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - Entity got killed by a player that is not part of this quest! Quest ID: " + quest.GetQuestConfig().GetID() + " | Killer UID: " + killerUID);
 			#endif
 				float maxDist = -1;
@@ -122,7 +126,7 @@ modded class ZombieBase
 					if (questPlayer && objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) && (Expansion_HasHitEntity(questPlayer) || questPlayer.Expansion_IsHelper(killerPB)))
 					{
 						countKill = true;
-					#ifdef DIAG
+					#ifdef DIAG_DEVELOPER
 						EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - Quest player in max range! Player position: " + questPlayer.GetPosition() + " | Victim position: " + GetPosition() + " | Max distance: " + maxDist);
 					#endif
 					}
@@ -136,7 +140,7 @@ modded class ZombieBase
 						if (questPlayer && objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) && (Expansion_HasHitEntity(questPlayer) || questPlayer.Expansion_IsHelper(killerPB)))
 						{
 							countKill = true;
-						#ifdef DIAG
+						#ifdef DIAG_DEVELOPER
 							EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - Quest player in max range! Player position: " + questPlayer.GetPosition() + " | Victim position: " + GetPosition() + " | Max distance: " + maxDist);
 						#endif
 							break;

@@ -44,9 +44,13 @@ class ExpansionQuestObjectiveConfigBase
 
 class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 {
-	static const int CONFIGVERSION = 27;
+	[NonSerialized()]
+	static const int CONFIGVERSION = 28;
+	
+	[NonSerialized()]
+	static string FILENAME = "NONE";
 
-	[NonSerialized()];
+	[NonSerialized()]
 	protected ref set<typename> m_ObjectiveAllocationTypeNames;
 
 	string ObjectiveText = string.Empty;

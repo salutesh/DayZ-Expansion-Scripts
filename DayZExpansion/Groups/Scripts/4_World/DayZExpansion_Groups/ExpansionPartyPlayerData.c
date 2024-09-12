@@ -13,12 +13,12 @@
 enum ExpansionPartyPlayerPermissions
 {
 	NONE = 0,
-	CAN_EDIT = 1, 										// 1
-	CAN_INVITE = 2,									// 2
-	CAN_KICK = 4,										// 4
-	CAN_DELETE = 8,									// 8
+	CAN_EDIT = 1, 					// 1
+	CAN_INVITE = 2,					// 2
+	CAN_KICK = 4,					// 4
+	CAN_DELETE = 8,					// 8
 	CAN_WITHDRAW_MONEY = 16			// 16
-}
+};
 
 class ExpansionPartyPlayerData
 {
@@ -50,8 +50,10 @@ class ExpansionPartyPlayerData
 
 	void OnLeave()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
-
+#endif
+		
 		if (Player)
 		{
 			Player.Expansion_SetPartyPlayerData(NULL);
@@ -62,8 +64,10 @@ class ExpansionPartyPlayerData
 
 	void OnJoin(PlayerBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
-
+#endif
+		
 		Name = player.GetIdentityName();
 		Player = player;
 		player.Expansion_SetPartyPlayerData(this);
@@ -114,11 +118,38 @@ class ExpansionPartyPlayerData
         {
             m_TempMarkerData.OnStoreLoad(ctx, version);
         }
-                 
+
         return true;
     }
 
 	void OnSettingChanged() {};
+	
+	int GetColor()
+	{
+		if (Marker)
+			return Marker.GetColor();
+		return m_TempMarkerData.GetColor();
+	}
+
+	void SetColor(int color)
+	{
+		m_TempMarkerData.SetColor(color);
+		if (Marker)
+			Marker.SetColor(color);
+	}
+
+	void SetupColor(bool force = false)
+	{
+		if (!force && GetColor() != 0)
+			return;
+
+		int color = UID.Hash();
+
+		int a, r, g, b;
+		ExpansionStatic.IntToARGB(color, a, b, g, r);
+
+		SetColor(ARGB(255, r, g, b));
+	}
 	
 	string GetID()
 	{

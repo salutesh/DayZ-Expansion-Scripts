@@ -68,7 +68,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 		if ( GetExpansionSettings().GetNotification().ShowAIMissionStarted )
 			CreateNotif(MissionMeta.NotificationStart);
 
-		MappingSet = new ExpansionObjectSet(EXPANSION_MISSIONS_OBJECTS_FOLDER,MappingFile);
+		MappingSet = new ExpansionObjectSet(EXPANSION_MISSION_MISSIONOBJECTS_FOLDER,MappingFile);
 		MappingSet.SpawnObjects();
 
 	#ifdef EXPANSIONMODVEHICLE
@@ -85,26 +85,25 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 				EntityAI container = EntityAI.Cast( SpawnObject(containerData.Classnames.GetRandomElement(), containerData.Position, containerData.Orientation) );
 				Print("container =>"+container);
 				ItemBase itembs;
-				CarScript car;
-				ItemBase itemcargo;
-				if (container.IsInherited(ItemBase))
+				ExpansionVehicle vehicle;
+				if (ExpansionVehicle.Get(vehicle, container))
 				{
-					itembs = ItemBase.Cast(container);
-					itembs.Open();
-				}
-				else if (container.IsInherited(CarScript))
-				{
-					car = CarScript.Cast(container);
-					car.OnDebugSpawn();
+					vehicle.OnDebugSpawn();
 
-					for (int att_i = 0; att_i < car.GetInventory().AttachmentCount(); ++att_i)
+					EntityAI vehicleEntity = vehicle.GetEntity();
+
+					for (int att_i = 0; att_i < vehicleEntity.GetInventory().AttachmentCount(); ++att_i)
 					{
-						EntityAI attachment = car.GetInventory().GetAttachmentFromIndex(att_i);
+						EntityAI attachment = vehicleEntity.GetInventory().GetAttachmentFromIndex(att_i);
 						attachment.SetHealth01("", "Health", Math.RandomFloat(0.65, 1.0));
 					}
 
-					car.LeakAll( CarFluid.FUEL );
-					car.Fill( CarFluid.FUEL, Math.RandomFloat(0.0, car.GetFluidCapacity( CarFluid.FUEL ) ) );
+					vehicle.LeakFluids();
+					vehicle.FillFluids(Math.RandomFloat(0.0, 1.0));
+				}
+				else if (Class.CastTo(itembs, container))
+				{
+					itembs.Open();
 				}
 
 				ExpansionLootSpawner.SpawnLoot(container, currloot.Loot, currloot.ItemCount );

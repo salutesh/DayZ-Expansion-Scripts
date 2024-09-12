@@ -5,11 +5,9 @@ class CfgPatches
 	class DayZExpansion_Crossbow
 	{
 		units[] = {};
-		weapons[] = {"Expansion_Crossbow"};
+		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms"};
-		magazines[] = {"Expansion_Ammo_ArrowBolt"};
-		ammo[] = {"Expansion_Arrow_Bolt"};
 	};
 };
 class Mode_Safe;
@@ -25,7 +23,7 @@ class cfgWeapons
 		scope = 0;
 		rotationFlags = 3;
 		displayName = "$STR_EXPANSION_CROSSBOW";
-		descriptionShort = "$STR_EXPANSION_CROSSBOW_DESC";
+		descriptionShort = "USE THE VANILLA CROSSBOW - THIS ITEM WILL BE REMOVED IN A FUTUR EXPANSION UPDATE";
 		model = "\DZ\weapons\archery\crossbow\crossbow.p3d";
 		attachments[] = {"weaponOpticsCrossbow"};
 		itemSize[] = {9,3};

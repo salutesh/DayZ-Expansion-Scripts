@@ -28,7 +28,9 @@ modded class ExpansionPartyData
 
 	protected void OnJoin_Deferred(ExpansionPartyPlayerData player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		ExpansionQuestModule.GetModuleInstance().LoadGroupQuestData(PartyID.ToString());
 		
@@ -53,6 +55,10 @@ modded class ExpansionPartyData
 			if (ExpansionQuestModule.GetModuleInstance().QuestDisplayConditions(activeQuestInstance.GetQuestConfig(), playerPB, playerQuestData, -1, true))
 				activeQuestInstance.OnGroupMemberJoined(playerUID);
 		}
+
+		//! Track group membership during this session to prevent players circumventing group restrictions by temporarily leaving their group
+		//! (e.g. target objectives that require player kills)
+		ExpansionQuestModule.GetModuleInstance().AddPlayerGroupID(playerUID, PartyID);
 	}
 
 	//! We send all the group quests to the leaving member
@@ -61,7 +67,9 @@ modded class ExpansionPartyData
 	//! can recover these sates.
 	override void OnLeave(ExpansionPartyPlayerData player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		super.OnLeave(player);
 

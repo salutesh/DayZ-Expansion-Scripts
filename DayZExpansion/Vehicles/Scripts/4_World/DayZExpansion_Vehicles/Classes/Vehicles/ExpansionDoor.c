@@ -4,8 +4,9 @@ class ExpansionDoor
 	dJoint m_Joint;
 	bool m_JointExists;
 
-	CarScript m_Car;
+	EntityAI m_Vehicle;
 	CarDoor m_Door;
+	ExpansionPhysicsState m_State;
 
 	vector m_Transform0[4];
 	vector m_Transform1[4];
@@ -19,12 +20,22 @@ class ExpansionDoor
 
 	bool m_IsDoor;
 	bool m_IsValid;
+	bool m_IsHood;
+	bool m_IsTrunk;
 
-	void ExpansionDoor(CarScript car, string slot, string rootPath)
+	void ExpansionDoor(ExpansionVehicle vehicle, string slot, string rootPath)
 	{
-		m_Car = car;
+		m_Vehicle = vehicle.GetEntity();
+		m_State = vehicle.GetPhysicsState();
 		m_InventorySlot = slot;
 		m_InventorySlotID = InventorySlots.GetSlotIdFromString(m_InventorySlot);
+
+		slot.ToLower();
+
+		if (slot.Contains("hood"))
+			m_IsHood = true;
+		else if (slot.Contains("trunk"))
+			m_IsTrunk = true;
 
 #ifdef EXPANSION_VEHICLE_DOOR_JOINTS
 		if (rootPath == string.Empty)
@@ -34,21 +45,20 @@ class ExpansionDoor
 
 			string compareSlot
 			
-			int crewSize = m_Car.CrewSize();
+			int crewSize = vehicle.CrewSize();
 			for (int index = 0; index < crewSize; index++)
 			{
-				string slotName = m_Car.GetDoorInvSlotNameFromSeatPos(index);
+				string slotName = vehicle.GetDoorInvSlotNameFromSeatPos(index);
 				slotName.ToLower();
-				slot.ToLower();
 				if (slotName == slot)
 				{
-					m_Selection = m_Car.GetDoorSelectionNameFromSeatPos(index);
+					m_Selection = vehicle.GetDoorSelectionNameFromSeatPos(index);
 					m_IsValid = true;
 					break;
 				}
 			}
 
-			m_Animation = m_Car.GetAnimSourceFromSelection(m_Selection);
+			m_Animation = vehicle.GetAnimSourceFromSelection(m_Selection);
 		}
 		else
 		{
@@ -85,7 +95,7 @@ class ExpansionDoor
 
 		vector hingeTransform[4];
 
-		lod = m_Car.GetLODByName("memory");
+		lod = m_Vehicle.GetLODByName("memory");
 		selection = lod.GetSelectionByName("axis_" + m_Selection);
 		if (!selection)
 			return;
@@ -96,7 +106,7 @@ class ExpansionDoor
 		m_Transform0[3] = (pos0 + pos1) * 0.5;
 		m_Transform0[2] = -vector.Direction(pos0, pos1).Normalized();
 
-		lod = m_Car.GetLODByName("geometryView");
+		lod = m_Vehicle.GetLODByName("geometryView");
 		selection = lod.GetSelectionByName(m_Selection);
 		if (!selection)
 			return;
@@ -131,7 +141,7 @@ class ExpansionDoor
 		}
 		else
 		{
-			if (m_Car.GetAnimationPhase(m_Animation) > 0.0)
+			if (m_Vehicle.GetAnimationPhase(m_Animation) > 0.0)
 			{
 				CreateHinge();
 			}
@@ -141,21 +151,21 @@ class ExpansionDoor
 	}
 
 	void OnDebug(float pDt)
-	{		
-		m_Car.m_State.DBGDrawSphereMS(m_ProxyTransform[3], 0.15, 0x1f7f7fff);
-		m_Car.m_State.DBGDrawSphereMS(m_ProxyTransform[3] + m_ProxyTransform[0], 0.1, 0x1f7f7fff);
-		m_Car.m_State.DBGDrawSphereMS(m_ProxyTransform[3] + m_ProxyTransform[1], 0.1, 0x1f7f7fff);
-		m_Car.m_State.DBGDrawSphereMS(m_ProxyTransform[3] + m_ProxyTransform[2], 0.1, 0x1f7f7fff);
+	{
+		m_State.DBGDrawSphereMS(m_ProxyTransform[3], 0.15, 0x1f7f7fff);
+		m_State.DBGDrawSphereMS(m_ProxyTransform[3] + m_ProxyTransform[0], 0.1, 0x1f7f7fff);
+		m_State.DBGDrawSphereMS(m_ProxyTransform[3] + m_ProxyTransform[1], 0.1, 0x1f7f7fff);
+		m_State.DBGDrawSphereMS(m_ProxyTransform[3] + m_ProxyTransform[2], 0.1, 0x1f7f7fff);
 
-		m_Car.m_State.DBGDrawSphereMS(m_Transform0[3], 0.15, 0x1f7fff7f);
-		m_Car.m_State.DBGDrawSphereMS(m_Transform0[3] + m_Transform0[0], 0.1, 0x1f7fff7f);
-		m_Car.m_State.DBGDrawSphereMS(m_Transform0[3] + m_Transform0[1], 0.1, 0x1f7fff7f);
-		m_Car.m_State.DBGDrawSphereMS(m_Transform0[3] + m_Transform0[2], 0.1, 0x1f7fff7f);
+		m_State.DBGDrawSphereMS(m_Transform0[3], 0.15, 0x1f7fff7f);
+		m_State.DBGDrawSphereMS(m_Transform0[3] + m_Transform0[0], 0.1, 0x1f7fff7f);
+		m_State.DBGDrawSphereMS(m_Transform0[3] + m_Transform0[1], 0.1, 0x1f7fff7f);
+		m_State.DBGDrawSphereMS(m_Transform0[3] + m_Transform0[2], 0.1, 0x1f7fff7f);
 
-		m_Car.m_State.DBGDrawSphereMS(m_Transform1[3], 0.15, 0x1fff7f7f);
-		m_Car.m_State.DBGDrawSphereMS(m_Transform1[3] + m_Transform1[0], 0.1, 0x1fff7f7f);
-		m_Car.m_State.DBGDrawSphereMS(m_Transform1[3] + m_Transform1[1], 0.1, 0x1fff7f7f);
-		m_Car.m_State.DBGDrawSphereMS(m_Transform1[3] + m_Transform1[2], 0.1, 0x1fff7f7f);
+		m_State.DBGDrawSphereMS(m_Transform1[3], 0.15, 0x1fff7f7f);
+		m_State.DBGDrawSphereMS(m_Transform1[3] + m_Transform1[0], 0.1, 0x1fff7f7f);
+		m_State.DBGDrawSphereMS(m_Transform1[3] + m_Transform1[1], 0.1, 0x1fff7f7f);
+		m_State.DBGDrawSphereMS(m_Transform1[3] + m_Transform1[2], 0.1, 0x1fff7f7f);
 	}
 
 	void SetDoor(CarDoor door)
@@ -202,7 +212,7 @@ class ExpansionDoor
 
 		CreateDynamic();
 
-		m_Joint = dJointCreateHinge2(m_Car, m_Door, m_Transform0, m_Transform1, true, 0.0);
+		m_Joint = dJointCreateHinge2(m_Vehicle, m_Door, m_Transform0, m_Transform1, true, 0.0);
 		m_JointExists = true;
 		//dJointHingeSetLimits(m_Joint, 0, 90, 0.5, 0.5, 0.5);
 

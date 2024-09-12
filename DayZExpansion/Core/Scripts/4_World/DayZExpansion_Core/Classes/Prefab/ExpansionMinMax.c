@@ -19,9 +19,9 @@ class ExpansionMinMax
 
 	float GetRandom()
 	{
-		if (Min == 0)
+		if (Max <= 0)
 		{
-			return 0;
+			return -1;
 		}
 
 		float random = Math.RandomFloatInclusive(Min, Max);

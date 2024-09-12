@@ -48,9 +48,17 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
 	};
+	class ExpansionDebugArrow_Yellow: ExpansionDebugArrow
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,0,1,co)"};
+	};
 	class ExpansionDebugArrow_Blue: ExpansionDebugArrow
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugArrow_Cyan: ExpansionDebugArrow
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,1,1,co)"};
 	};
 	class ExpansionDebugArrow_Purple: ExpansionDebugArrow
 	{
@@ -77,9 +85,17 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
 	};
+	class ExpansionDebugBox_Yellow: ExpansionDebugBox
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,0,1,co)"};
+	};
 	class ExpansionDebugBox_Blue: ExpansionDebugBox
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugBox_Cyan: ExpansionDebugBox
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,1,1,co)"};
 	};
 	class ExpansionDebugBox_Purple: ExpansionDebugBox
 	{
@@ -107,9 +123,17 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
 	};
+	class ExpansionDebugCone_Yellow: ExpansionDebugCone
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,0,1,co)"};
+	};
 	class ExpansionDebugCone_Blue: ExpansionDebugCone
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugCone_Cyan: ExpansionDebugCone
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,1,1,co)"};
 	};
 	class ExpansionDebugCone_Purple: ExpansionDebugCone
 	{
@@ -137,9 +161,17 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
 	};
+	class ExpansionDebugConeSmall_Yellow: ExpansionDebugConeSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,0,1,co)"};
+	};
 	class ExpansionDebugConeSmall_Blue: ExpansionDebugConeSmall
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugConeSmall_Cyan: ExpansionDebugConeSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,1,1,co)"};
 	};
 	class ExpansionDebugConeSmall_Purple: ExpansionDebugConeSmall
 	{
@@ -166,9 +198,17 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
 	};
+	class ExpansionDebugCube_Yellow: ExpansionDebugCube
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,0,1,co)"};
+	};
 	class ExpansionDebugCube_Blue: ExpansionDebugCube
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugCube_Cyan: ExpansionDebugCube
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,1,1,co)"};
 	};
 	class ExpansionDebugCube_Purple: ExpansionDebugCube
 	{
@@ -196,9 +236,17 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
 	};
+	class ExpansionDebugCylinder_Yellow: ExpansionDebugCylinder
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,0,1,co)"};
+	};
 	class ExpansionDebugCylinder_Blue: ExpansionDebugCylinder
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugCylinder_Cyan: ExpansionDebugCylinder
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,1,1,co)"};
 	};
 	class ExpansionDebugCylinder_Purple: ExpansionDebugCylinder
 	{
@@ -225,9 +273,17 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
 	};
+	class ExpansionDebugLine_Yellow: ExpansionDebugLine
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,0,1,co)"};
+	};
 	class ExpansionDebugLine_Blue: ExpansionDebugLine
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugLine_Cyan: ExpansionDebugLine
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,1,1,co)"};
 	};
 	class ExpansionDebugLine_Purple: ExpansionDebugLine
 	{
@@ -254,9 +310,17 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
 	};
+	class ExpansionDebugNoticeMe_Yellow: ExpansionDebugNoticeMe
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,0,1,co)"};
+	};
 	class ExpansionDebugNoticeMe_Blue: ExpansionDebugNoticeMe
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugNoticeMe_Cyan: ExpansionDebugNoticeMe
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,1,1,co)"};
 	};
 	class ExpansionDebugNoticeMe_Purple: ExpansionDebugNoticeMe
 	{
@@ -283,9 +347,17 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
 	};
+	class ExpansionDebugRod_Yellow: ExpansionDebugRod
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,0,1,co)"};
+	};
 	class ExpansionDebugRod_Blue: ExpansionDebugRod
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugRod_Cyan: ExpansionDebugRod
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,1,1,co)"};
 	};
 	class ExpansionDebugRod_Purple: ExpansionDebugRod
 	{
@@ -311,9 +383,17 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
 	};
+	class ExpansionDebugRodBig_Yellow: ExpansionDebugRodBig
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,0,1,co)"};
+	};
 	class ExpansionDebugRodBig_Blue: ExpansionDebugRodBig
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugRodBig_Cyan: ExpansionDebugRodBig
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,1,1,co)"};
 	};
 	class ExpansionDebugRodBig_Purple: ExpansionDebugRodBig
 	{
@@ -340,9 +420,17 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
 	};
+	class ExpansionDebugSphereSmall_Yellow: ExpansionDebugSphereSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,0,1,co)"};
+	};
 	class ExpansionDebugSphereSmall_Blue: ExpansionDebugSphereSmall
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugSphereSmall_Cyan: ExpansionDebugSphereSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,1,1,co)"};
 	};
 	class ExpansionDebugSphereSmall_Purple: ExpansionDebugSphereSmall
 	{

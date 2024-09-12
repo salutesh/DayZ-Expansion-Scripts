@@ -42,13 +42,16 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	
 	protected ButtonWidget preset_editbox_clear;
 	protected ImageWidget market_filter_clear_icon;
+	
+	protected WrapSpacerWidget preset_selector_content;
 		
 	protected vector m_ItemOrientation;
 	protected int m_ItemRotationX;
 	protected int m_ItemRotationY;
 	protected int m_ItemScaleDelta;
 	
-	protected ref array<ref ExpansionMarketMenuItemManagerPreset> m_ItemManagerPresets = new array<ref ExpansionMarketMenuItemManagerPreset>;
+	protected ref array<ref ExpansionMarketMenuItemManagerPreset> m_ItemManagerPresets;
+	protected ref array<ref ExpansionMarketMenuItemManagerPresetElement> m_PresetsDropdownElements;
 	
 	void ExpansionMarketMenuItemManager(ExpansionMarketMenu marketMenu)
 	{
@@ -65,6 +68,9 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 		button_reset_label.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		preset_selector_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
 		preset_editbox_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
+		
+		m_ItemManagerPresets = new array<ref ExpansionMarketMenuItemManagerPreset>;
+		m_PresetsDropdownElements = new array<ref ExpansionMarketMenuItemManagerPresetElement>;
 	}
 	
 	override string GetLayoutFile() 
@@ -148,7 +154,12 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	
 	void AddCategory(string className, string title, array<ExpansionMarketAttachType> attachTypes, string icon)
 	{
-		TStringArray atts = m_MarketMenu.GetMarketFilters().GetAttachmentsByClassNameAndTypes(className, attachTypes);
+		TStringArray atts = m_MarketMenu.GetMarketFilters().GetAttachmentsByClassNameAndTypes(className, attachTypes);		
+		AddCategoryEx(title, atts, icon);
+	}
+	
+	void AddCategoryEx(string title, TStringArray atts, string icon)
+	{
 		if (atts.Count() > 0)
 		{
 			ExpansionMarketMenuItemManagerCategory itemCategory = new ExpansionMarketMenuItemManagerCategory(title, atts, this);
@@ -167,9 +178,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 			int index = -1;
 			index = tempAttachments.Find(attachment);
 			if (index == -1)
-			{
 				tempAttachments.Insert(attachment);
-			}
 		}
 		
 		foreach (string tempAttachment: tempAttachments)
@@ -186,9 +195,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 				string attachmentNameToLower = categoryItem.GetItemClassName();
 				attachmentNameToLower.ToLower();
 				if (categoryItem && attachmentNameToLower == attachmentName)
-				{
 					categoryItem.UpdateView();
-				}
 			}
 		}
 	}
@@ -199,9 +206,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 		{
 			ExpansionMarketMenuItemManagerCategoryItem categoryItem = m_MarketItemManagerController.CategoryItems[i];
 			if (categoryItem)
-			{
 				categoryItem.UpdateView();
-			}
 		}
 	}
 	
@@ -314,7 +319,13 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 
 	void UpdatePresetElements()
 	{
-		m_MarketItemManagerController.PresetsDropdownElements.Clear();
+		m_PresetsDropdownElements.Clear();
+		
+		while (preset_selector_content.GetChildren())
+		{
+			Widget w = preset_selector_content.GetChildren();
+			preset_selector_content.RemoveChild(w);
+		}
 		
 		for (int i = 0; i < m_ItemManagerPresets.Count(); i++)
 		{
@@ -322,11 +333,13 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 			if (preset)
 			{
 				ExpansionMarketMenuItemManagerPresetElement presetElement = new ExpansionMarketMenuItemManagerPresetElement(preset, this);
-				m_MarketItemManagerController.PresetsDropdownElements.Insert(presetElement);
+				m_PresetsDropdownElements.Insert(presetElement);
+				preset_selector_content.AddChild(presetElement.GetLayoutRoot());			
 			}
 		}
 		
-		preset_selector.Show(m_MarketItemManagerController.PresetsDropdownElements.Count() > 0);
+		preset_selector_content.Update();
+		preset_selector.Show(m_PresetsDropdownElements.Count() > 0);
 	}
 	
 	void OnPresetEditboxClearButtonClick()
@@ -401,16 +414,27 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 		UpdateListView();
 	}
 	
-	void DeleteItemPreset(ExpansionMarketMenuItemManagerPreset preset, string path)
-	{	
-		string file = path + preset.ClassName + "\\" + preset.PresetName + ".json";
+	void DeleteItemPreset(ExpansionMarketMenuItemManagerPreset preset, string path, ExpansionMarketMenuItemManagerPresetElement element)
+	{
+		Print(ToString() + "::DeleteItemPreset - Preset=" + preset + " | Path=" + path + " | Element=" + element);
+		
+		string file = path + "\\" + preset.PresetName + ".json";
+		Print(ToString() + "::DeleteItemPreset - File=" + file);
 		if (FileExist(file))
 		{
+			Print(ToString() + "::DeleteItemPreset - Delete File=" + file);
 			DeleteFile(file);
 		}
 		else if (path.IndexOf(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER) == 0)
 		{
 			VestCleanup(preset);
+		}
+
+		int elementIndex = m_PresetsDropdownElements.Find(element);
+		if (elementIndex > -1)
+		{
+			Print(ToString() + "::DeleteItemPreset - Delete element! Index=" + elementIndex);
+			m_PresetsDropdownElements.Remove(elementIndex);
 		}
 		
 		LoadLocalItemPresets();
@@ -581,7 +605,6 @@ class ExpansionMarketMenuItemManagerController: ExpansionViewController
 {
 	ref ObservableCollection<ref ExpansionMarketMenuItemManagerCategory> ItemCategories = new ObservableCollection<ref ExpansionMarketMenuItemManagerCategory>(this);
 	ref ObservableCollection<ref ExpansionMarketMenuItemManagerCategoryItem> CategoryItems = new ObservableCollection<ref ExpansionMarketMenuItemManagerCategoryItem>(this);
-	ref ObservableCollection<ref ExpansionMarketMenuItemManagerPresetElement> PresetsDropdownElements = new ObservableCollection<ref ExpansionMarketMenuItemManagerPresetElement>(this);
 	Object ItemPreview;
 	string ItemName;
 	string PresetName;

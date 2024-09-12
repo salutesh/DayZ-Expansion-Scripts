@@ -399,7 +399,7 @@ class CfgVehicles
 				initPhase = 0;
 			};
 		};
-		class Sounds
+		class ExpansionSounds
 		{
 			thrust = 0.6;
 			thrustTurbo = 1;

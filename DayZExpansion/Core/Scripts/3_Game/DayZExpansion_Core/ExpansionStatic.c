@@ -14,7 +14,7 @@ static bool Expansion_Assert_False( bool check, string message )
 {
 	if ( check == false )
 	{
-		Assert_Log( message );
+		Error( message );
 		return true;
 	}
 
@@ -101,6 +101,12 @@ class EXError
 		Log(instance, msg, stack, ErrorExSeverity.ERROR);
 	}
 
+	static bool ErrorFalse(Class instance, string msg, TStringArray stack = null)
+	{
+		EXError.Error(instance, msg, stack);
+		return false;
+	}
+
 	static void InfoOnce(Class instance, string msg, TStringArray stack = null)
 	{
 		LogOnce(instance, msg, stack, ErrorExSeverity.INFO);
@@ -131,6 +137,9 @@ class EXError
 	static void Log(Class instance, string msg, TStringArray stack = null, ErrorExSeverity severity = ErrorExSeverity.ERROR)
 	{
 		string baseName;
+
+		if (!s_BaseNames)
+			s_BaseNames = new map<ErrorExSeverity, string>;
 
 		if (!s_BaseNames.Find(severity, baseName))
 		{
@@ -332,6 +341,8 @@ class ExpansionStatic: ExpansionStaticCore
 {
 	static const string BASE16 = "0123456789ABCDEF";
 	static const typename NULLTYPE;
+
+	static ref TStringArray s_VehicleClassNames = {"CarScript", "BoatScript", "ExpansionVehicleBase", "HypeTrain_PartBase"};
 
 	static string BitmaskEnumToString(typename e, int enumValue)
 	{
@@ -675,6 +686,16 @@ class ExpansionStatic: ExpansionStaticCore
 				 "ZmbM_usSoldier_Officer_Desert" };
 	}
 
+	/**
+	 * @brief get the hex part of an instance's representational string,
+	 * e.g. if instance repr string is "SomeObject<4461795a>", returns "4461795a"
+	 */
+	static string GetInstanceID(Class instance)
+	{
+		string repr = instance.ToString();
+		return repr.Substring(repr.IndexOf("<") + 1, 8);
+	}
+
 	// -----------------------------------------------------------
 	// Expansion String GetItemDisplayNameWithType
 	// -----------------------------------------------------------
@@ -818,6 +839,28 @@ class ExpansionStatic: ExpansionStaticCore
 		return hasCollisionBox;
 	}
 
+	static bool IsColliding(Object obj, vector point)
+	{
+		vector minMax[2];
+		if (obj.GetCollisionBox(minMax))
+		{
+			vector localPoint = obj.WorldToModel(point);
+
+			for (int i = 0; i < 3; i++)
+			{
+				if (localPoint[i] < minMax[0][i])
+					return false;
+
+				if (localPoint[i] > minMax[1][i])
+					return false;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 	static bool HasQuantity(string item_name)
 	{
 		float min;
@@ -941,6 +984,14 @@ class ExpansionStatic: ExpansionStaticCore
 			return true;
 
 		return g_Game.IsKindOf(className, parentType.ToString());
+	}
+
+	static bool IsVehicle(string className)
+	{
+		if (ExpansionStatic.IsAnyOf(className, s_VehicleClassNames))
+			return true;
+
+		return false;
 	}
 
 	//! Special case: Any inventory item (rvConfig Inventory_Base, CfgWeapons, CfgMagazines or EnforceScript ItemBase type)
@@ -1393,6 +1444,19 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static array< string > FindInLocation( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES )
 	{
+#ifdef PLATFORM_LINUX
+	#ifdef DAYZ_1_25
+		return FindInLocationImpl_Linux_T179707(folder, ext, mode);
+	#else
+		return FindInLocationImpl(folder, ext, mode);
+	#endif
+#else
+		return FindInLocationImpl(folder, ext, mode);
+#endif
+	}
+
+	static array< string > FindInLocationImpl( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES )
+	{
 		array< string > files = new array< string >;
 		if (!FileExist(folder))
 			return files;
@@ -1402,12 +1466,20 @@ class ExpansionStatic: ExpansionStaticCore
 		if ( findFileHandle )
 		{
 			bool isValid = true;
-			bool includeFiles = mode & ExpansionFindFileMode.FILES;
-			bool includeDirs = mode & ExpansionFindFileMode.DIRECTORIES;
+
+			bool includeFiles;
+			if (mode & ExpansionFindFileMode.FILES)
+				includeFiles = true;
+
+			bool includeDirs;
+			if (mode & ExpansionFindFileMode.DIRECTORIES)
+				includeDirs = true;
 
 			while (isValid)
 			{
-				bool isDir = fileAttr & FileAttr.DIRECTORY;
+				bool isDir = false;
+				if (fileAttr & FileAttr.DIRECTORY)
+					isDir = true;
 
 				if (fileName.Length() > 0 && ((includeFiles && !isDir) || (includeDirs && isDir)))
 				{
@@ -1419,6 +1491,45 @@ class ExpansionStatic: ExpansionStaticCore
 
 			CloseFindFile( findFileHandle );
 		}
+		return files;
+	}
+
+	//! Workaround for https://feedback.bistudio.com/T179707 (will be fixed in 1.26)
+	//! @note will only find files, not directories
+	static array<string> FindInLocationImpl_Linux_T179707(string folder, string ext = "", int mode = ExpansionFindFileMode.FILES)
+	{
+		array<string> files = new array< string >;
+		if (!FileExist(folder))
+			return files;
+		folder.Replace("\\", "/");
+		string fileName;
+		//! Under Linux, fileAttr cannot be used, see https://feedback.bistudio.com/T179707
+		FileAttr fileAttr;
+		FindFileHandle findFileHandle = FindFile( folder + "*", fileName, fileAttr, 0 );
+		//! Under Linux, FindFile always returns zero, see https://feedback.bistudio.com/T182004
+		//if (findFileHandle)
+		//{
+			bool isValid = true;
+
+			bool includeFiles;
+			if (mode & ExpansionFindFileMode.FILES)
+				includeFiles = true;
+
+			bool includeDirs;
+			if (mode & ExpansionFindFileMode.DIRECTORIES)
+				includeDirs = true;
+
+			FileHandle file;
+			while (isValid)
+			{
+				if (fileName.Length() > 0 && (!ext || ExpansionString.EndsWithIgnoreCase(fileName, ext)))
+					files.Insert(fileName);
+
+				isValid = FindNextFile(findFileHandle, fileName, fileAttr);
+			}
+
+			CloseFindFile(findFileHandle);
+		//}
 		return files;
 	}
 
@@ -1444,7 +1555,7 @@ class ExpansionStatic: ExpansionStaticCore
 				continue;
 			if (!FileExist(path) && !MakeDirectory(path))
 			{
-				EXPrint("ERROR: MakeDirectoryRecursive " + path + " failed");
+				EXError.Error(null, "Couldn't create directory " + path);
 				return false;
 			}
 		}
@@ -1503,6 +1614,35 @@ class ExpansionStatic: ExpansionStaticCore
 		}
 
 		return true;
+	}
+
+	/**
+	 * @brief delete whole directory structure rooted at path.
+	 * If `ext` is given, only files matching that extension are deleted (else all files).
+	 * Directories that still contain files after all matching files have been deleted are kept.
+	 * 
+	 * @note passed in path needs to end with backslash!
+	 */
+	static bool DeleteDirectoryStructureRecursive(string path, string ext = string.Empty)
+	{
+		if (FileExist(path))
+		{
+			TStringArray files = ExpansionStatic.FindFilesInLocation(path, ext);
+			foreach (string baseName: files)
+			{
+				DeleteFile(path + baseName);
+			}
+
+			TStringArray dirs = ExpansionStatic.FindDirectoriesInLocation(path);
+			foreach (string dirBaseName: dirs)
+			{
+				DeleteDirectoryStructureRecursive(path + dirBaseName + "\\", ext);
+			}
+
+			return DeleteFile(path);
+		}
+
+		return false;
 	}
 
 	//! @note if copying a directory, make sure paths end with "\\" or provide fileAttr parameter
@@ -1760,14 +1900,14 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static vector GetCursorHitPos(out Object hitObject = null, float fallbackDistance = 20.0)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, ExpansionStatic);
 	#endif
 
 		vector begPos = GetGame().GetCurrentCameraPosition();
 		vector endPos = begPos + GetGame().GetCurrentCameraDirection() * 1000.0;
 
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		EXTrace.Add(trace, begPos);
 		EXTrace.Add(trace, endPos);
 	#endif
@@ -1789,7 +1929,7 @@ class ExpansionStatic: ExpansionStaticCore
 				hitPosition[1] = surfaceY;
 		}
 
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		EXTrace.Add(trace, hitPosition);
 	#endif
 
@@ -1804,6 +1944,21 @@ class ExpansionStatic: ExpansionStaticCore
 	static vector GetSurfacePosition(float x, float z)
 	{
 		return Vector(x, GetGame().SurfaceY(x, z), z);
+	}
+
+	static vector GetSurfaceRoadPosition(vector position, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER)
+	{
+		return GetSurfaceRoadPosition(position[0], position[1], position[2], rsd);
+	}
+
+	static vector GetSurfaceRoadPosition(float x, float y, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER)
+	{
+		return Vector(x, GetGame().SurfaceRoadY3D(x, y + 0.1, z, rsd), z);
+	}
+
+	static vector GetSurfaceRoadPosition(float x, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.LEGACY)
+	{
+		return Vector(x, GetGame().SurfaceRoadY(x, z, rsd), z);
 	}
 
 	static float GetSurfaceWaterDepth(vector position)
@@ -1860,7 +2015,7 @@ class ExpansionStatic: ExpansionStaticCore
 				hitPosition + add,
 				surfaceImpact) && surfaceImpact != string.Empty)
 			{
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.AI, null, "GetHitSurface " + surfaceImpact);
 			#endif
 

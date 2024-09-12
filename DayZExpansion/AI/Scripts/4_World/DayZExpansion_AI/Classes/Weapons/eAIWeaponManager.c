@@ -241,9 +241,7 @@ class eAIWeaponManager: WeaponManager
 		if( !Class.CastTo(mag2, wpn.GetMagazine(muzzleIndex)) ) 
 			return false;
 		
-		TStringArray mags = new TStringArray();
-		wpn.ConfigGetTextArray("magazines", mags);
-		if (ExpansionStatic.StringArrayContainsIgnoreCase(mags, mag.GetType()))
+		if (wpn.TestAttachMagazine(muzzleIndex, mag, false, true))
 			return true;
 		
 		return false;

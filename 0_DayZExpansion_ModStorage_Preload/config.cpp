@@ -16,6 +16,7 @@ class CfgMods
 	{
 		type = "mod";
 		dependencies[] = {"Game","World","Mission"};
+		defines[] = {"EXPANSION_MODSTORAGE"};
 		class defs
 		{
 			class engineScriptModule

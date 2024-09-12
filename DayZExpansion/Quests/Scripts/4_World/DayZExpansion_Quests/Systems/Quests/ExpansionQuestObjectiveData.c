@@ -205,7 +205,9 @@ class ExpansionQuestObjectiveData
 
 	void OnSend(ParamsWriteContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, typename.EnumToString(ExpansionQuestObjectiveType, ObjectiveType));
+#endif
 
 		ctx.Write(ObjectiveIndex);
 		ctx.Write(ObjectiveType);
@@ -232,7 +234,9 @@ class ExpansionQuestObjectiveData
 
 	bool OnRecieve(ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (!ctx.Read(ObjectiveIndex))
 			return false;
@@ -240,8 +244,10 @@ class ExpansionQuestObjectiveData
 		if (!ctx.Read(ObjectiveType))
 			return false;
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, typename.EnumToString(ExpansionQuestObjectiveType, ObjectiveType));
-
+#endif
+		
 		if (!ctx.Read(IsCompleted))
 			return false;
 

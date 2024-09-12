@@ -139,7 +139,7 @@ modded class AnimalBase
 
 	void Expansion_StartLobotomy()
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this);
 	#endif
 
@@ -171,7 +171,7 @@ modded class AnimalBase
 
 	void Expansion_EndLobotomy()
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this);
 	#endif
 
@@ -179,7 +179,7 @@ modded class AnimalBase
 
 		if (GetAIAgent() && !m_Expansion_IsLobotomized)
 		{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.MISC, this, "Resetting input controller...");
 		#endif
 

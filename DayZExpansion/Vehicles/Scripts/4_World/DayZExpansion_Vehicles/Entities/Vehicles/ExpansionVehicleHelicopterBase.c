@@ -157,7 +157,7 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 		return m_Simulation.IsFreeLook();
 	}
 
-	override void SwitchGear()
+	override void Expansion_SwitchGear()
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "SwitchGear");
@@ -370,6 +370,11 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 			//! Needs to be called at least one simulation frame (25ms) later
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().GetPlayer().StartCommand_Fall, 25, false, 0);
 		}
+	}
+
+	bool Expansion_IsRotorDamaged()
+	{
+		return m_Simulation.IsRotorDamaged();
 	}
 
 	override float OnSound(CarSoundCtrl ctrl, float oldValue)
@@ -645,7 +650,7 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 		return Vector( 0, 5, 0 );
 	}
 
-	override bool IsHelicopter()
+	override bool Expansion_IsHelicopter()
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsHelicopter");
@@ -654,7 +659,7 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 		return true;
 	}
 
-	override bool IsCar()
+	override bool Expansion_IsCar()
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsCar");

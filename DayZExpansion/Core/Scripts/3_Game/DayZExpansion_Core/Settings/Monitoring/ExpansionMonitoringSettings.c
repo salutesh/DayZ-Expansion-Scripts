@@ -75,10 +75,6 @@ class ExpansionMonitoringSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionMonitoringSettings s )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
-
 		Enabled = s.Enabled;
 	}
 	
@@ -96,11 +92,7 @@ class ExpansionMonitoringSettings: ExpansionSettingBase
 
 	// ------------------------------------------------------------
 	override bool OnLoad()
-	{	
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
-#endif
-
+	{
 		m_IsLoaded = true;
 		
 		bool save;

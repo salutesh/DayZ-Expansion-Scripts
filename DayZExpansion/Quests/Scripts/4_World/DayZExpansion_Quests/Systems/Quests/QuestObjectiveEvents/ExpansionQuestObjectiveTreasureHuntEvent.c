@@ -197,7 +197,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	protected bool CheckQuestPlayersForLootItems()
 	{
 	//#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 	//#endif
 
 		m_LootItems.Clear();
@@ -222,8 +224,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 			}
 		}
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, true);
-
+#endif
+		
 		return true;
 	}
 
@@ -236,7 +240,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	protected bool CheckEntityForLootItems(EntityAI entity)
 	{
 	//#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "" + entity);
+#endif
 	//#endif
 		
 		if (!entity)
@@ -272,7 +278,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	protected void ClearLootFlags()
 	{
 	//#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 	//#endif
 
 		foreach (EntityAI obj: m_LootItems)
@@ -290,7 +298,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	protected void CreateTreasure()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 	#endif
 
 		if (!m_TreasureHuntConfig)
@@ -351,7 +361,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(m_TreasureHuntConfig, m_ObjectiveConfig))
 			return;
 
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
+		
 		string markerName = m_TreasureHuntConfig.GetMarkerName();
 		if (markerName != string.Empty)
 			CreateObjectiveMarker(m_StashPos, markerName, m_TreasureHuntConfig.GetMarkerVisibility());
@@ -360,7 +373,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	protected void CreateTrigger(vector pos)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 	#endif
 
 		array<ExpansionObjectiveTriggerBase> triggers = {};
@@ -389,7 +404,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	void SetReachedLocation(bool state)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 	#endif
 		ObjectivePrint("State: " + state);
 
@@ -430,7 +447,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 	void LootedItemFromChest()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		m_LootedItemFromChest = true;
 		m_Quest.QuestCompletionCheck(true);
 	}
@@ -438,7 +457,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	void OnInventoryItemLocationChange(ItemBase item, ExpansionQuestItemState state)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "State: " + typename.EnumToString(ExpansionQuestItemState, state));
+#endif
 	#endif
 	}
 

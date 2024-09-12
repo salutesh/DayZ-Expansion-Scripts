@@ -15,8 +15,11 @@ class ExpansionChatMessage
 	int Channel;
 	float TimeStamp;
 	string Time;
+	string UID;
+	string PlayerTag;
 	string From;
 	string Text;
+	string FormattedText;
 	bool IsMuted;
 	int Color;
 
@@ -78,6 +81,36 @@ class ExpansionChatMessage
 			}
 		}
 	}
+
+	void FormatText()
+	{
+		string text = Text;
+
+		text.Replace("<", "‹");
+		text.Replace(">", "›");
+
+		int maxWordCharacters = 5;
+
+		TStringArray words = {};
+		text.Split(" ", words);
+		string formattedText;
+		foreach (string word: words)
+		{
+			if (!word.Contains("#"))
+			{
+				while (word.LengthUtf8() > maxWordCharacters)
+				{
+					//! @note have to use RichTextWidget and `<wbr />` tag because there is no support for zero-width space
+					formattedText += word.SubstringUtf8(0, maxWordCharacters) + "<wbr />";
+					word = word.SubstringUtf8(maxWordCharacters, word.LengthUtf8() - maxWordCharacters);
+				}
+			}
+
+			formattedText += word + " ";
+		}
+
+		FormattedText = formattedText;
+	}
 }
 
 class ExpansionChatLineBase: ExpansionScriptView
@@ -99,7 +132,9 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 	void ExpansionChatLineBase(Widget parent, Chat chat)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		m_ChatLineController = ExpansionChatLineController.Cast(GetController());
 		m_Parent = parent;
@@ -112,7 +147,9 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 	void ~ExpansionChatLineBase()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		if (m_FadeOutLaterTimer && m_FadeOutLaterTimer.IsRunning())
 			m_FadeOutLaterTimer.Stop();
@@ -135,24 +172,23 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 		if (!message)
 		{
-			m_ChatLineController.Time = "";
-			m_ChatLineController.SenderName = "";
-			m_ChatLineController.Message = "";
-			m_ChatLineController.NotifyPropertiesChanged({"Time","SenderName", "Message"});
+			Time.SetText("");
+			SenderName.SetText("");
+			Message.SetText("");
 			return;
 		}
 
 		switch (message.Channel)
 		{
 		case CCSystem:
-			m_ChatLineController.SenderName = " Game: ";
+			SenderName.SetText(" Game: ");
 			break;
 		case CCAdmin:
 		case CCBattlEye:
 			SetSenderName(message, " Admin: ");
 			break;
 		case CCTransmitter:
-			m_ChatLineController.SenderName = " PAS: ";
+			SenderName.SetText(" PAS: ");
 			break;
 		case ExpansionChatChannels.CCTransport:
 			SetSenderName(message);
@@ -173,13 +209,12 @@ class ExpansionChatLineBase: ExpansionScriptView
 		SenderSetColour(ARGB(255, 255, 255, 255));
 		SetTextColor(message.Color);
 
-		m_ChatLineController.Message = BreakLongWords(message);
-		m_ChatLineController.Time = message.Time;
-		m_ChatLineController.NotifyPropertiesChanged({"Time","SenderName", "Message"});
+		Message.SetText(message.FormattedText);
+		Time.SetText(message.Time);
 
 		//! Adjust message size so it actually fits and doesn't get cut off
 		float root_w, root_h;
-		GetLayoutRoot().GetScreenSize(root_w, root_h);
+		m_Parent.GetScreenSize(root_w, root_h);
 		float time_w, time_h;
 		Time.GetScreenSize(time_w, time_h);
 		float sender_w, sender_h;
@@ -187,33 +222,11 @@ class ExpansionChatLineBase: ExpansionScriptView
 		Message.SetSize(1.0 - (time_w + 4 + sender_w) / root_w, 1.0);
 	}
 
-	string BreakLongWords(ExpansionChatMessage message)
-	{
-		int maxWordCharacters = 5;
-
-		TStringArray words = {};
-		message.Text.Split(" ", words);
-		string messageText;
-		foreach (string word: words)
-		{
-			if (!word.Contains("#"))
-			{
-				while (word.LengthUtf8() > maxWordCharacters)
-				{
-					//! @note have to use RichTextWidget and `<wbr />` tag because there is no support for zero-width space
-					messageText += word.SubstringUtf8(0, maxWordCharacters) + "<wbr />";
-					word = word.SubstringUtf8(maxWordCharacters, word.LengthUtf8() - maxWordCharacters);
-				}
-			}
-			messageText += word + " ";
-		}
-
-		return messageText;
-	}
-
 	void FadeIn()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		if (m_FadeOutLaterTimer.IsRunning())
 			m_FadeOutLaterTimer.Stop();
@@ -226,7 +239,9 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 	void Clear()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		if (m_FadeOutLaterTimer.IsRunning())
 			m_FadeOutLaterTimer.Stop();
@@ -244,11 +259,14 @@ class ExpansionChatLineBase: ExpansionScriptView
 	{
 		if ( message.From )
 		{
-			m_ChatLineController.SenderName = " " + message.From + ": ";
+			if (message.PlayerTag != string.Empty)
+				SenderName.SetText(string.Format(" %1%2: ", message.PlayerTag, message.From));
+			else
+				SenderName.SetText(string.Format(" %1: ", message.From));
 		}
 		else
 		{
-			m_ChatLineController.SenderName = fallback;
+			SenderName.SetText(fallback);
 		}
 	}
 
@@ -351,7 +369,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 		if (!m_Message)
 			return false;
 
-		if (m_Message.From == GetGame().GetPlayer().GetIdentity().GetName())
+		if (!m_Message.UID || m_Message.UID == GetGame().GetPlayer().GetIdentity().GetId())
 			return false;
 
 		return m_Chat.CanMute(m_Message.Channel);
@@ -362,7 +380,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 		if (!CanMute())
 			return;
 
-		m_Chat.GetChatWindow().Mute(m_Message.From);
+		m_Chat.GetChatWindow().Mute(m_Message.UID);
 		ChatItemButton.Show(false);
 	}
 

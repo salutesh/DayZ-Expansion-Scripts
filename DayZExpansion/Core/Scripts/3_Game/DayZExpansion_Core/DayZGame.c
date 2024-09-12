@@ -73,8 +73,10 @@ modded class DayZGame
 			DeleteFile(EXPANSION_TEMP_INTERIORS);
 		}
 
+#ifdef EXTRACE
 		if (EXTrace.PROFILING)
 			EXTrace.DumpProfilingData();
+#endif
 	}
 
 	void Expansion_FilterPlayerCharacters()
@@ -102,7 +104,7 @@ modded class DayZGame
 	// ------------------------------------------------------------
 	void SetExpansionGame(ExpansionGame game)
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this);
 #endif
 
@@ -160,6 +162,10 @@ modded class DayZGame
 
 		#ifdef DIAG
 			version_info += "_Diag";
+		#endif
+		
+		#ifdef DEVELOPER
+			version_info += "_Internal";
 		#endif
 
 		string version;

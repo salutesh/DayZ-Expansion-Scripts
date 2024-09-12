@@ -13,8 +13,7 @@
 #ifdef JM_COT
 modded class JMPlayerForm
 {
-	//private UIActionDropdownList m_ExpansionFaction;  //! TODO: Should use dropdown but COT dropdowns are scuffed
-	private UIActionEditableText m_ExpansionFaction;
+	private UIActionDropdownList m_ExpansionFaction;
 	private bool m_ExpansionFactionUpdated;
 
 	override void OnClientPermissionsUpdated()
@@ -32,8 +31,7 @@ modded class JMPlayerForm
 		Widget actions = m_Stamina.GetLayoutRoot().GetParent();
 		if (actions)
 		{
-			/*
-			TStringArray factions = {};
+			TStringArray factions = {""};
 
 			foreach (typename factionType: eAIRegisterFaction.s_FactionTypes)
 			{
@@ -42,19 +40,12 @@ modded class JMPlayerForm
 					factions.Insert(faction.GetName());
 			}
 
+			factions.Sort();
+
 			m_ExpansionFaction = UIActionManager.CreateDropdownBox(actions, GetLayoutRoot(), "Faction:", factions, this, "Click_SetExpansionFaction");
 
-			EditBoxWidget editBox = m_ExpansionFaction.GetEditBoxWidget();
-			float w;
-			float h;
-			editBox.GetSize( w, h );
-			editBox.SetSize( 0.5, h );
-			editBox.Update();
-			*/
-			m_ExpansionFaction = UIActionManager.CreateEditableText(actions, "Faction:", this, "Click_SetExpansionFaction", "", "");
-			#ifdef COT_UIACTIONS_SETWIDTH
 			m_ExpansionFaction.SetEditBoxWidth(0.5);
-			#endif
+
 			Widget spacer = UIActionManager.CreatePanel(actions, 0, 1);
 			int sort = spacer.GetSort();
 			m_ApplyStats.GetLayoutRoot().SetSort(sort + 1);

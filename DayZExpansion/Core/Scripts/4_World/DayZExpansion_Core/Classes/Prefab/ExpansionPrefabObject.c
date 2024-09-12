@@ -3,6 +3,8 @@ class ExpansionPrefabObject : Managed
 	// Config class name of the item
 	string ClassName = "";
 
+	string Include;
+
 	float Chance = 1.0;
 
 	// Number of items in the stack
@@ -22,6 +24,9 @@ class ExpansionPrefabObject : Managed
 
 	// Sets of prefab objects (for making chance apply to whole set)
 	autoptr array<ref ExpansionPrefabObject> Sets = new array<ref ExpansionPrefabObject>();
+
+	[NonSerialized()]
+	string m_Name;
 
 	ExpansionPrefabObject BeginAttachment(string className, string slotName = "")
 	{
@@ -182,13 +187,32 @@ class ExpansionPrefabObject : Managed
 
 	Object Spawn(Object self, bool ignoreCargo = false)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.LOADOUTS, this);
 	#endif
 
 		if (!self)
 		{
 			return self;
+		}
+
+		if (Include)
+		{
+			if (CF_String.EqualsIgnoreCase(Include, m_Name))
+			{
+				EXError.Error(this, string.Format("'%1' cannot include itself", m_Name), {});
+			}
+			else
+			{
+				ExpansionPrefab prefab = ExpansionPrefab.Load(Include);
+				if (prefab)
+				{
+					if (prefab.Include && CF_String.EqualsIgnoreCase(prefab.Include, m_Name))
+						EXError.Error(this, string.Format("'%1' cannot include parent '%2'", prefab.m_Name, m_Name), {});
+					else
+						prefab.Spawn(self, ignoreCargo);
+				}
+			}
 		}
 
 		foreach (ExpansionHealth health : Health)
@@ -204,23 +228,20 @@ class ExpansionPrefabObject : Managed
 		EntityAI entity;
 		if (Class.CastTo(entity, self))
 		{
-			Car car;
-			if (Class.CastTo(car, entity))
+			ExpansionVehicle vehicle;
+			if (ExpansionVehicle.Get(vehicle, entity))
 			{
-				FillCar(car, CarFluid.FUEL);
-				FillCar(car, CarFluid.OIL);
-				FillCar(car, CarFluid.BRAKE);
-				FillCar(car, CarFluid.COOLANT);
+				vehicle.FillFluids();
 			}
 
 			ItemBase item;
 			Magazine mag;
-			if (Class.CastTo(item, entity))
+			if (Class.CastTo(item, entity) && item.HasQuantity())
 			{
-				if (item.HasQuantity())
-				{
-					float quantity = Quantity.GetRandom();
+				float quantity = Quantity.GetRandom();
 
+				if (quantity > -1)
+				{
 					float quantityMin;
 					float quantityMax;
 					if (Class.CastTo(mag, entity))
@@ -477,6 +498,7 @@ class ExpansionPrefabObject : Managed
 
 	void FillCar(Car car, CarFluid fluid)
 	{
+		EXError.WarnOnce(this, "DEPRECATED");
 		car.Fill(fluid, car.GetFluidCapacity(fluid));
 	}
 };

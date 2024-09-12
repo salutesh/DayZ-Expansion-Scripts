@@ -93,25 +93,25 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	// Expansion Open
 	// ------------------------------------------------------------
-	override void Open( string selection ) 
+	override void Expansion_Open( string selection ) 
 	{	
 		//! Door open animation
 		if (selection == "gate")
 			SetAnimationPhase( "gate", 0 );
 		
-		super.Open( selection );
+		super.Expansion_Open( selection );
 	}
 	
 	// ------------------------------------------------------------
 	// Expansion Close
 	// ------------------------------------------------------------
-	override void Close( string selection ) 
+	override void Expansion_Close( string selection ) 
 	{	
 		//! Door open animation
 		if (selection == "gate")
 			SetAnimationPhase( "gate", 1 );
 		
-		super.Close( selection );
+		super.Expansion_Close( selection );
 	}
 
 	#ifdef EXPANSION_MODSTORAGE

@@ -32,8 +32,16 @@ class ExpansionMapMarkerIconItem: ScriptedWidgetEventHandler
 
 		m_LayoutRoot.SetHandler( this );
 
-		m_Icon.LoadImageFile( 0, m_IconData.Path );
-		m_Icon.Show( true );
+		if ( m_IconData.IconPath != string.Empty )
+		{
+			m_Icon.LoadImageFile( 0, m_IconData.IconPath );
+			m_Icon.SetImage( 0 );
+			m_Icon.Show(true);
+		}
+		else
+		{
+			m_Icon.Show(false);
+		}
 
 		m_Name.SetText( m_IconData.Name );
 
@@ -52,7 +60,7 @@ class ExpansionMapMarkerIconItem: ScriptedWidgetEventHandler
 	
 	string GetMarkerIcon()
 	{
-		return m_IconData.Path;
+		return m_IconData.IconPath;
 	}
 
 	ExpansionIcon GetIcon()

@@ -51,6 +51,11 @@ class eAINoiseTargetInformation: eAITargetInformation
 		return state.m_SearchPosition;
 	}
 
+	override vector GetDirection(eAIBase ai, bool actual = false)
+	{
+		return vector.Direction(ai.GetPosition(), m_Position);
+	}
+
 	override float GetDistance(eAIBase ai, bool actual = false)
 	{
 		return vector.Distance(ai.GetPosition(), m_Position);

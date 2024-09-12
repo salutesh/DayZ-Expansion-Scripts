@@ -57,7 +57,7 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 19;
+	static const int VERSION = 20;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
@@ -529,16 +529,16 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		ShowVehicleOwners = false;
 
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true, 1.0));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZ", false, 1.0));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionBus", true, 1.5));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionVodnik", true, 2.0));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUtilityBoat", true, 1.25));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionZodiacBoat", true, 0.5));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionLHD", true, 100.0));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionMerlin", true, 4.0));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionMh6", false, 3.0));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUh1h", false, 2.5));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", 1.0));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZ", 1.0));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionBus", 1.5));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionVodnik", 2.0));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUtilityBoat", 1.25));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionZodiacBoat", 0.5));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionLHD", 100.0));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionMerlin", 4.0));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionMh6", 3.0));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUh1h", 2.5));
 	}
 
 	override string SettingName()

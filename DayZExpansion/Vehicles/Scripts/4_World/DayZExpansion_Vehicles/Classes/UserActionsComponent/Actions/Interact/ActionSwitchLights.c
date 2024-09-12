@@ -14,44 +14,37 @@ modded class ActionSwitchLights
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
+		auto vehicle = ExpansionVehicle.Get(player);
 
-		if ( vehCommand )
+		if ( vehicle )
 		{
-			Transport trans = vehCommand.GetTransport();
-			if ( trans )
+			if ( vehicle.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 			{
-				CarScript car;
-				if ( Class.CastTo(car, trans) )
-				{	
-					if ( car.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-					{
-						if ( !car.IsScriptedLightsOn() )
-						{
-							EntityAI neededItem = null;
+				if ( !vehicle.IsScriptedLightsOn() )
+				{
+					EntityAI neededItem = null;
+					EntityAI vehicleEntity = vehicle.GetEntity();
 
-							if ( car.IsVitalCarBattery() ) neededItem = car.FindAttachmentBySlotName("CarBattery");
-							if ( car.IsVitalTruckBattery() ) neededItem = car.FindAttachmentBySlotName("TruckBattery");
-							if ( car.IsVitalHelicopterBattery() ) neededItem = car.FindAttachmentBySlotName("ExpansionHelicopterBattery");
-							if ( car.IsVitalAircraftBattery() ) neededItem = car.FindAttachmentBySlotName("ExpansionAircraftBattery");
+					if ( vehicle.IsVitalCarBattery() ) neededItem = vehicleEntity.FindAttachmentBySlotName("CarBattery");
+					if ( vehicle.IsVitalTruckBattery() ) neededItem = vehicleEntity.FindAttachmentBySlotName("TruckBattery");
+					if ( vehicle.IsVitalHelicopterBattery() ) neededItem = vehicleEntity.FindAttachmentBySlotName("ExpansionHelicopterBattery");
+					if ( vehicle.IsVitalAircraftBattery() ) neededItem = vehicleEntity.FindAttachmentBySlotName("ExpansionAircraftBattery");
 
-							if ( !neededItem || neededItem.IsRuined() || (neededItem.GetCompEM() && neededItem.GetCompEM().GetEnergy() <= 0) )
-								return false;
-							
-							EntityAI item1 = car.FindAttachmentBySlotName("Reflector_1_1");
-							EntityAI item2 = car.FindAttachmentBySlotName("Reflector_2_1");
-			
-							if ( !item1 && !item2 )
-								return false;
-							else if ( item1 && item1.IsRuined() && item2 && item2.IsRuined() )
-								return false;
+					if ( !neededItem || neededItem.IsRuined() || (neededItem.GetCompEM() && neededItem.GetCompEM().GetEnergy() <= 0) )
+						return false;
+					
+					EntityAI item1 = vehicleEntity.FindAttachmentBySlotName("Reflector_1_1");
+					EntityAI item2 = vehicleEntity.FindAttachmentBySlotName("Reflector_2_1");
+	
+					if ( !item1 && !item2 )
+						return false;
+					else if ( item1 && item1.IsRuined() && item2 && item2.IsRuined() )
+						return false;
 
-							return true;
-						} else
-						{
-							return true;
-						}
-					}
+					return true;
+				} else
+				{
+					return true;
 				}
 			}
 		}

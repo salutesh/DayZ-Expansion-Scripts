@@ -517,24 +517,24 @@ class CfgVehicles
 		scope = 0;
 		displayName = "$STR_EXPANSION_ATM";
 		model = "dayzexpansion\market\objects\atm\expansion_atm.p3d";
-		hiddenSelections[] = {"zbytek"};
+		hiddenSelections[] = {"zbytek","screen"};
 		hiddenSelectionsMaterials[] = {"dayzexpansion\market\objects\atm\data\expansion_atm.rvmat"};
 		rotationFlags = 12;
 	};
 	class ExpansionATM_1: ExpansionATM_Base
 	{
 		scope = 1;
-		hiddenSelectionsTextures[] = {"dayzexpansion\market\objects\atm\data\expansion_atm_01_co.paa"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\market\objects\atm\data\expansion_atm_01_co.paa","dayzexpansion\market\objects\atm\data\expansion_atm_01_co.paa"};
 	};
 	class ExpansionATM_2: ExpansionATM_Base
 	{
 		scope = 1;
-		hiddenSelectionsTextures[] = {"dayzexpansion\market\objects\atm\data\expansion_atm_02_co.paa"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\market\objects\atm\data\expansion_atm_02_co.paa","dayzexpansion\market\objects\atm\data\expansion_atm_02_co.paa"};
 	};
 	class ExpansionATM_3: ExpansionATM_Base
 	{
 		scope = 1;
-		hiddenSelectionsTextures[] = {"dayzexpansion\market\objects\atm\data\expansion_atm_03_co.paa"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\market\objects\atm\data\expansion_atm_03_co.paa","dayzexpansion\market\objects\atm\data\expansion_atm_03_co.paa"};
 	};
 	class ExpansionBanknoteUSD: ExpansionMoneyBanknote_Base
 	{

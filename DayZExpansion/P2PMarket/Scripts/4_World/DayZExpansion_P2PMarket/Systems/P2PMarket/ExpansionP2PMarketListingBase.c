@@ -357,21 +357,11 @@ class ExpansionP2PMarketListingBase
 		if (!m_ContainerItemsCount)
 		{
 			//! Inventory not yet initialized on client, use netsynched cargo count
-			CarScript car;
-			if (Class.CastTo(car, m_ListingObject))
+			ExpansionVehicle vehicle;
+			if (ExpansionVehicle.Get(vehicle, m_ListingObject))
 			{
-				m_ContainerItemsCount = car.m_Expansion_CargoCount;
+				m_ContainerItemsCount = vehicle.GetCargoCount();
 			}
-		#ifdef EXPANSIONMODVEHICLE
-			else
-			{
-				ExpansionVehicleBase vehicle;
-				if (Class.CastTo(vehicle, m_ListingObject))
-				{
-					m_ContainerItemsCount = vehicle.m_Expansion_CargoCount;
-				}
-			}
-		#endif
 		}
 	}
 };

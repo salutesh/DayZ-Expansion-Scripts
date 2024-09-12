@@ -15,13 +15,12 @@
  **/
 class ExpansionLogSettings: ExpansionSettingBase
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
 
 	bool Safezone;				//! If enabled, generate logs when the player leave or enter a safezone
 	bool AdminTools;			//! If enabled, generate logs of the adminhammer and expansionadmincarkey when used
 	bool ExplosionDamageSystem;			//! If enabled, generate logs of the Expansion explosion damage system when used
 
-	#ifdef EXPANSIONMODVEHICLE
 	bool VehicleCarKey;			//! If enabled, generate logs about pairing, unpairing, locking, unlocking vehicles with car keys
 	bool VehicleTowing;			//! If enabled, generate logs about towing and untowing vehicles
 	bool VehicleLockPicking;	//! If enabled, generate logs about lockpicking a vehicle
@@ -31,59 +30,40 @@ class ExpansionLogSettings: ExpansionSettingBase
 	bool VehicleLeave;
 	bool VehicleDeleted;
 	bool VehicleEngine;
-	#endif
 
-	#ifdef EXPANSIONMODBASEBUILDING
 	bool BaseBuildingRaiding;	//! If enabled, generate logs about raiding expansion basebuilding and safes
 	bool CodeLockRaiding;		//! If enabled, generate logs about codelock raiding (wrong core)
 	bool Territory;				//! If enabled, generate logs about creating, deleting territories and inviting players
-	#endif
 
-	#ifdef EXPANSIONMOD
 	bool Killfeed;				//! If enabled, generate logs based on the killfeed module
-	#endif
 
-	#ifdef EXPANSIONMODSPAWNSELECTION
 	bool SpawnSelection;		//! If enabled, generate logs when the player spawn
-	#endif
 
-	#ifdef EXPANSIONMODGROUPS
 	bool Party;					//! If enabled, generate logs when the player create a party or invite someone
-	#endif
 
-	#ifdef EXPANSIONMODMISSIONS
 	bool MissionAirdrop;		//! If enabled, generate logs of spawned airdrops from missions or player called
 	//bool MissionHorde;		//! Will log Horde missions
-	#endif
 
-	#ifdef EXPANSIONMODCHAT
 	bool Chat;					//! If enabled, generate logs of the chat
-	#endif
 
-	#ifdef EXPANSIONMODMARKET
 	bool Market;				//! If enabled, generate logs for market system actions by all players
 	bool ATM;					//! If enabled, generate logs for ATM system actions by all players
-	#endif
 
-	#ifdef EXPANSIONMODAI
 	bool AIGeneral; 			// If enabled, generate logs about AI. This logs will be non specific
 	bool AIPatrol; 				// If enabled, generate logs about AI Patrols
 	bool AIObjectPatrol; 		// If enabled, generate logs about AI Crash Patrols
-	#endif
 
 	bool LogToScripts; 			// Should the prints be logged in the scripts logs ?
 	bool LogToADM; 				// Should the prints be logged in the ADM logs ?
 
-	#ifdef EXPANSIONMODHARDLINE
 	bool Hardline;			//! If enabled, generate logs for market system actions by all players
-	#endif
 	
-	#ifdef EXPANSIONMODVEHICLE
 	bool Garage;				//! If enabled, generate logs for garage module events.
 	bool VehicleCover;				//! If enabled, generate logs for vehicle-cover actions.
-	#endif
 
 	bool EntityStorage;			//! If enabled, generate logs for entity-storage actions.
+	
+	bool Quests;
 
 	[NonSerialized()]
 	private string m_FileName;
@@ -102,10 +82,6 @@ class ExpansionLogSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
-#endif
-
 		//Not sent to client under normal operation
 		m_IsLoaded = true;
 
@@ -152,14 +128,9 @@ class ExpansionLogSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionLogSettings s )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
-
 		Safezone = s.Safezone;
 		ExplosionDamageSystem = s.ExplosionDamageSystem;
 
-		#ifdef EXPANSIONMODVEHICLE
 		VehicleCarKey = s.VehicleCarKey;
 		VehicleTowing = s.VehicleTowing;
 		VehicleLockPicking = s.VehicleLockPicking;
@@ -169,59 +140,38 @@ class ExpansionLogSettings: ExpansionSettingBase
 		VehicleLeave = s.VehicleLeave;
 		VehicleDeleted = s.VehicleDeleted;
 		VehicleEngine = s.VehicleEngine;
-		#endif
 
-		#ifdef EXPANSIONMODBASEBUILDING
 		BaseBuildingRaiding = s.BaseBuildingRaiding;
 		CodeLockRaiding = s.CodeLockRaiding;
 		Territory = s.Territory;
-		#endif
 
-		#ifdef EXPANSIONMOD
 		Killfeed = s.Killfeed;
-		#endif
 
-		#ifdef EXPANSIONMODSPAWNSELECTION
 		SpawnSelection = s.SpawnSelection;
-		#endif
 
-		#ifdef EXPANSIONMODMISSIONS
 		MissionAirdrop = s.MissionAirdrop;
 		//MissionHorde = s.MissionHorde;
-		#endif
 
-		#ifdef EXPANSIONMODGROUPS
 		Party = s.Party;
-		#endif
 
-		#ifdef EXPANSIONMODCHAT
 		Chat = s.Chat;
-		#endif
 
-		#ifdef EXPANSIONMODMARKET
 		Market = s.Market;
 		ATM = s.ATM;
-		#endif
 
-		#ifdef EXPANSIONMODHARDLINE
 		Hardline = s.Hardline;
-		#endif
 
-		#ifdef EXPANSIONMODAI
 		AIGeneral = s.AIGeneral;
 		AIPatrol = s.AIPatrol;
 		AIObjectPatrol = s.AIObjectPatrol;
-		#endif
 		
 		AdminTools = s.AdminTools;
 
 		LogToScripts = s.LogToScripts;
 		LogToADM = s.LogToADM;
 		
-		#ifdef EXPANSIONMODVEHICLE
 		Garage = s.Garage;
 		VehicleCover = s.VehicleCover;
-		#endif
 
 		EntityStorage = s.EntityStorage;
 	}
@@ -241,10 +191,6 @@ class ExpansionLogSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
-#endif
-
 		m_IsLoaded = true;
 
 		m_FileName = EXPANSION_LOG_FOLDER + "\\" + "ExpLog_" + ExpansionStatic.GetISODateTime(false, "_", "-") + ".log";
@@ -272,12 +218,9 @@ class ExpansionLogSettings: ExpansionSettingBase
 					LogToScripts = settingsDefault.LogToScripts;
 					LogToADM = settingsDefault.LogToADM;
 
-					#ifdef EXPANSIONMODVEHICLE
 					VehicleDestroyed = settingsDefault.VehicleDestroyed;
-					#endif
 				}
 
-				#ifdef EXPANSIONMODAI
 				if (m_Version < 3)
 				{
 					AIGeneral = settingsDefault.AIGeneral;
@@ -288,14 +231,12 @@ class ExpansionLogSettings: ExpansionSettingBase
 				{
 					AIObjectPatrol = settingsDefault.AIObjectPatrol;
 				}
-				#endif
 
 				if (m_Version < 5)
 				{
 					ExplosionDamageSystem = settingsDefault.ExplosionDamageSystem;
 				}
 
-				#ifdef EXPANSIONMODVEHICLE
 				if (m_Version < 6)
 				{
 					VehicleAttachments = settingsDefault.VehicleAttachments;
@@ -310,11 +251,15 @@ class ExpansionLogSettings: ExpansionSettingBase
 					Garage = settingsDefault.Garage;
 					VehicleCover = settingsDefault.VehicleCover;
 				}
-				#endif
 				
 				if (m_Version < 7)
 				{
 					EntityStorage = settingsDefault.EntityStorage;
+				}
+				
+				if (m_Version < 8)
+				{
+					Quests = settingsDefault.Quests;
 				}
 
 				m_Version = VERSION;
@@ -364,7 +309,6 @@ class ExpansionLogSettings: ExpansionSettingBase
 		LogToScripts = false;
 		LogToADM = false;
 
-		#ifdef EXPANSIONMODVEHICLE
 		VehicleDestroyed = true;
 		VehicleCarKey = true;
 		VehicleTowing = true;
@@ -374,56 +318,37 @@ class ExpansionLogSettings: ExpansionSettingBase
 		VehicleLeave = true;
 		VehicleDeleted = true;
 		VehicleEngine = true;
-		#endif
 
-		#ifdef EXPANSIONMODBASEBUILDING
 		BaseBuildingRaiding = true;
 		CodeLockRaiding = true;
 		Territory = true;
-		#endif
 
-		#ifdef EXPANSIONMOD
 		Killfeed = true;
-		#endif
 
-		#ifdef EXPANSIONMODSPAWNSELECTION
 		SpawnSelection = true;
-		#endif
 
-		#ifdef EXPANSIONMODMISSIONS
 		MissionAirdrop = true;
 		//MissionHorde = true;
-		#endif
 
-		#ifdef EXPANSIONMODGROUPS
 		Party = true;
-		#endif
 
-		#ifdef EXPANSIONMODCHAT
 		Chat = true;
-		#endif
 
-		#ifdef EXPANSIONMODAI
 		AIGeneral = true;
 		AIPatrol = true;
 		AIObjectPatrol = true;
-		#endif
 
-		#ifdef EXPANSIONMODMARKET
 		Market = true;
 		ATM = true;
-		#endif
 
-		#ifdef EXPANSIONMODHARDLINE
 		Hardline = true;
-		#endif
 		
-		#ifdef EXPANSIONMODVEHICLE
 		Garage = true;
 		VehicleCover = true;
-		#endif
 
 		EntityStorage = true;
+		
+		Quests = true;
 	}
 
 	override string SettingName()
