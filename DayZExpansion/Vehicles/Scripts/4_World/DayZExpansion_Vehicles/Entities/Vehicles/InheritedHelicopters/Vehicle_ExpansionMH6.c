@@ -374,6 +374,8 @@ class Vehicle_ExpansionMh6 : ExpansionVehicleHelicopterBase
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachSeatFromSeat").Add(currentSeat).Add(nextSeat);
 #endif
 
+		//! DISABLED since we have no animations for switching seats that would put the player in the correct position
+/*
 		switch (currentSeat)
 		{
 		case 0:
@@ -393,6 +395,7 @@ class Vehicle_ExpansionMh6 : ExpansionVehicleHelicopterBase
 				return true;
 			break;
 		}
+*/
 
 		return false;
 	}

@@ -543,7 +543,9 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 
 	override void Refresh()
 	{
-		EXTrace.Start(EXTrace.BASEBUILDING, this);
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.BASEBUILDING, this);
+#endif
 
 		SetTerritory();
 

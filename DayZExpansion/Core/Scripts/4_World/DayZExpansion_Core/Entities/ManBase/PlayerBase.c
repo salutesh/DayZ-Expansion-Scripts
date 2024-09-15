@@ -54,6 +54,8 @@ modded class PlayerBase
 
 	ExpansionTemporaryOwnedContainer m_Expansion_TemporaryOwnedContainer;
 
+	ref ExpansionEntity m_Expansion_Entity;
+
 	void PlayerBase()
 	{
 		m_Expansion_Node = s_Expansion_AllPlayers.Add(this);
@@ -251,6 +253,16 @@ modded class PlayerBase
 
 		return m_PlayerName;
 	}
+
+	string Expansion_GetSurvivorName()
+	{
+		string name = GetType();
+		int index = ExpansionString.LastIndexOf(name, "_");
+		if (index > -1)
+			name = name.Substring(index + 1, name.Length() - index - 1);
+
+		return name;
+	}
 	
 	static set< PlayerBase > GetAll()
 	{
@@ -394,6 +406,11 @@ modded class PlayerBase
 		}
 		
 		return false;
+	}
+
+	static int Expansion_GetOnlinePlayersCount()
+	{
+		return s_Expansion_AllPlayersUID.Count();
 	}
 
 	/**
@@ -676,31 +693,9 @@ modded class PlayerBase
 
 	/**
 	 * @brief Check if other player is considered a helper.
-	 * 
-	 * Currently, AI that are friendly towards the player as well as guards not actively threatened by the player are considered helpers.
 	 */
 	bool Expansion_IsHelper(PlayerBase other, bool checkIfWeAreHelper = false)
 	{
-	#ifdef EXPANSIONMODAI
-		eAIBase ai;
-		if (Class.CastTo(ai, other))
-		{
-			if (!ai.PlayerIsEnemy(this))
-				return true;
-
-			if (ai.GetGroup().GetFaction().IsGuard() && ai.eAI_GetTargetThreat(GetTargetInformation()) < 0.4)
-				return true;
-		}
-		else if (checkIfWeAreHelper && Class.CastTo(ai, this))
-		{
-			if (!ai.PlayerIsEnemy(other))
-				return true;
-
-			if (ai.GetGroup().GetFaction().IsGuard() && ai.eAI_GetTargetThreat(other.GetTargetInformation()) < 0.4)
-				return true;
-		}
-	#endif
-
 		return false;
 	}
 
@@ -739,18 +734,19 @@ modded class PlayerBase
 		SetSynchDirty();
 		#endif
 
-		#ifdef ENFUSION_AI_PROJECT
-		if (IsAI())
+		if (!GetIdentity())
 		{
 			//! If this is AI, we still want it to be able to raise hands in safezones so it can reload its weapon
 			return;
 		}
-		#endif
 
 		SetCanRaise(false);
 
 		if (GetGame().IsClient())
 			return;
+
+		if (GetExpansionSettings().GetSafeZone().DisablePlayerCollision)
+			PhysicsSetSolid(false);
 
 		if (IsRestrained())
 		{
@@ -798,14 +794,15 @@ modded class PlayerBase
 		SetSynchDirty();
 		#endif
 
-		#ifdef ENFUSION_AI_PROJECT
-		if (IsAI())
+		if (!GetIdentity())
 		{
 			return;
 		}
-		#endif
 
 		SetCanRaise(true);
+
+		if (GetExpansionSettings().GetSafeZone().DisablePlayerCollision)
+			PhysicsSetSolid(true);
 	
 		if ( GetIdentity() )
 		{
@@ -847,6 +844,7 @@ modded class PlayerBase
 		super.EEKilled(killer);
 	}
 
+#ifdef DAYZ_1_25
 	override bool CanReceiveItemIntoHands(EntityAI item_to_hands)
 	{
 		if ( Expansion_IsAttached() )
@@ -863,21 +861,18 @@ modded class PlayerBase
 		
 		return super.CanReceiveItemIntoHands(item_to_hands);
 	}
+#endif
 	
 	override void OnVehicleSeatDriverEnter()
 	{
 		super.OnVehicleSeatDriverEnter();
 
-		HumanCommandVehicle hcv = GetCommand_Vehicle();
-		if (hcv && hcv.GetTransport())
+		auto vehicle = ExpansionVehicle.Get(this);
+		if (vehicle)
 		{
-			CarScript car = CarScript.Cast(hcv.GetTransport());
-			if (car)
-			{
-				car.ExpansionSetLastDriverUID(this);
-				if (IsMissionHost())
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(car.ExpansionResetLastDriverUIDSynch, 1000, false);
-			}
+			vehicle.SetLastDriverUID(this);
+			if (IsMissionHost())
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(vehicle.ResetLastDriverUIDSynch, 1000, false);
 		}
 	}
 
@@ -965,7 +960,7 @@ modded class PlayerBase
 
 	void Expansion_OnInventoryUpdate(ItemBase item, bool inInventory = true, bool checkOnlyIfWorking = false)
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start0(ExpansionTracing.GENERAL_ITEMS, this, "Expansion_OnInventoryUpdate");
 		EXTrace.Add(trace, item.ToString());
 		EXTrace.Add(trace, inInventory);
@@ -978,7 +973,7 @@ modded class PlayerBase
 		if (Expansion_IsInventoryItemTypeRegistered(item, registeredType))
 			itemType = Expansion_OnInventoryUpdateEx(registeredType, item, inInventory, checkOnlyIfWorking);
 
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		if (itemType)
 		{
 			EXTrace.Add(trace, itemType.Items.Count());
@@ -1077,4 +1072,229 @@ modded class PlayerBase
 		type.ToLower();
 		return m_Expansion_InventoryItemTypes[type];
 	}
+	
+#ifdef EXPANSION_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
+	{
+		super.CF_OnStoreSave(storage);
+
+		auto ctx = storage[DZ_Expansion_Core];
+		if (!ctx) return;
+
+		if (ExpansionEntityStorageModule.IsCurrentRootEntity(this))
+			Expansion_OnEntityStorageSave(ctx);
+	}
+
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
+	{
+		if (!super.CF_OnStoreLoad(storage))
+		{
+			EXPrint(this, "---- PlayerBase::CF_OnStoreLoad super failed  ----");
+			return false;
+		}
+
+		auto ctx = storage[DZ_Expansion_Core];
+		if (!ctx) return true;
+
+		if (ExpansionEntityStorageModule.IsCurrentRootEntity(this) && !Expansion_OnEntityStorageLoad(ctx))
+			return false;
+
+		return true;
+	}
+
+	void Expansion_OnEntityStorageSave(CF_ModStorage ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.PLAYER, this);
+	#endif
+
+		if (!m_Expansion_Entity)
+			m_Expansion_Entity = new ExpansionEntity(this);
+
+		m_Expansion_Entity.CF_OnStoreSave(ctx);
+
+		//! HumanInventory is not moddable, but its OnStoreSave is a no-op in vanilla anyway (writes no data)
+		//GetHumanInventory().OnStoreSave(ctx);
+		CF_OnStoreSaveLifespan(ctx);
+
+	#ifdef SERVER
+		GetPlayerStats().CF_SaveStats(ctx);
+		m_ModifiersManager.CF_OnStoreSave(ctx);
+		m_AgentPool.CF_OnStoreSave(ctx);
+		GetSymptomManager().CF_OnStoreSave(ctx);
+		GetBleedingManagerServer().CF_OnStoreSave(ctx);
+		m_PlayerStomach.CF_OnStoreSave(ctx);
+		ctx.Write(GetBrokenLegs());
+		CF_SaveAreaPersistenceFlag(ctx);
+
+		HumanCommandLadder ladder = GetCommand_Ladder();
+		if (ladder)
+		{
+			ctx.Write(true);
+			ctx.Write(ladder.GetLogoutPosition());
+		}
+		else
+		{
+			ctx.Write(false);
+		}
+		
+		ArrowManagerPlayer arrowManager = ArrowManagerPlayer.Cast(GetArrowManager());
+		arrowManager.CF_Save(ctx);
+	#endif
+	}
+
+	bool Expansion_OnEntityStorageLoad(CF_ModStorage ctx)
+	{
+		if (!m_Expansion_Entity)
+			m_Expansion_Entity = new ExpansionEntity(this);
+
+		if (!m_Expansion_Entity.CF_OnStoreLoad(ctx, m_Expansion_StoreLoadedVersion))
+		{
+			EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load entity state  ----");
+			return false;
+		}
+
+		//! HumanInventory is not moddable, but its OnStoreLoad is a no-op in vanilla anyway (reads no data)
+		//if (!GetHumanInventory().OnStoreLoad(ctx, m_Expansion_StoreLoadedVersion))
+		//{
+			//EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load inventory state  ----");
+			//return false;
+		//}
+
+		if (!CF_OnStoreLoadLifespan(ctx, m_Expansion_StoreLoadedVersion))
+		{
+			EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load lifespan state  ----");
+			return false;
+		}
+
+	#ifdef SERVER
+		if (!GetPlayerStats().CF_LoadStats(ctx, m_Expansion_StoreLoadedVersion)) // load stats
+		{
+			EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load PlayerStats  ----");
+			return false;
+		}
+		
+		if (!m_ModifiersManager.CF_OnStoreLoad(ctx, m_Expansion_StoreLoadedVersion))
+		{
+			EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load ModifiersManager, read fail  ----");
+			return false;
+		}
+		
+		if (!m_AgentPool.CF_OnStoreLoad(ctx, m_Expansion_StoreLoadedVersion))
+		{
+			EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load AgentPool, read fail  ----");
+			return false;
+		}
+		
+		
+		if (!GetSymptomManager().CF_OnStoreLoad(ctx, m_Expansion_StoreLoadedVersion))
+		{
+			EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load SymptomManager, read fail  ----");
+			return false;
+		}
+		
+		if (!GetBleedingManagerServer().CF_OnStoreLoad(ctx, m_Expansion_StoreLoadedVersion))
+		{
+			EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load BleedingManagerServer, read fail  ----");
+			return false;
+		}
+		
+		if (!m_PlayerStomach.CF_OnStoreLoad(ctx, m_Expansion_StoreLoadedVersion))
+		{
+			EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load PlayerStomach, read fail  ----");
+			return false;
+		}
+		
+		if (!ctx.Read(m_BrokenLegState))
+		{
+			EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load broken legs state  ----");
+			return false;
+		}
+
+		if (!ctx.Read(m_PersistentFlags))
+		{
+			EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load Persistent Flags, read fail  ----");
+			return false;
+		}
+
+		bool onLadder;
+		if (!ctx.Read(onLadder))
+		{
+			EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load ladder state  ----");
+			return false;
+		}
+
+		if (onLadder)
+		{
+			vector position;
+			if (!ctx.Read(position))
+			{
+				EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load position on ladder  ----");
+				return false;
+			}
+
+			Hive hive = GetHive();
+			if (!hive || !hive.CharacterIsLoginPositionChanged(this))
+				SetPosition(position);
+		}
+	
+		ArrowManagerPlayer arrowManager = ArrowManagerPlayer.Cast(GetArrowManager());
+		if (!arrowManager.CF_Load(ctx))
+		{
+			EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad failed to load arrow manager state  ----");
+			return false;
+		}
+	#endif
+
+		EXPrint(this, "---- PlayerBase::Expansion_OnEntityStorageLoad SUCCESS ----");
+
+		return true;
+	}
+
+	void CF_OnStoreSaveLifespan(CF_ModStorage ctx)
+	{
+		ctx.Write(m_LifeSpanState);	
+		ctx.Write(m_LastShavedSeconds);	
+		ctx.Write(m_HasBloodyHandsVisible);
+		ctx.Write(m_HasBloodTypeVisible);
+		ctx.Write(m_BloodType);
+	}
+
+	bool CF_OnStoreLoadLifespan(CF_ModStorage ctx, int version)
+	{
+		int lifespan_state = 0;
+		if (!ctx.Read(lifespan_state))
+			return false;
+		m_LifeSpanState = lifespan_state;
+		
+		int last_shaved = 0;
+		if (!ctx.Read(last_shaved))
+			return false;
+		m_LastShavedSeconds = last_shaved;
+
+		int bloody_hands = 0;
+		if (!ctx.Read(bloody_hands))
+			return false;
+		m_HasBloodyHandsVisible = bloody_hands;
+
+		bool blood_visible = false;
+		if (!ctx.Read(blood_visible))
+			return false;
+		m_HasBloodTypeVisible = blood_visible;
+
+		int blood_type = 0;
+		if (!ctx.Read(blood_type))
+			return false;
+		m_BloodType = blood_type;
+
+		return true;
+	}
+
+	void CF_SaveAreaPersistenceFlag(CF_ModStorage ctx)
+	{
+		if (GetModifiersManager())
+			SetPersistentFlag(PersistentFlag.AREA_PRESENCE, GetModifiersManager().IsModifierActive(eModifiers.MDF_AREAEXPOSURE));//set the flag for player's presence in contaminated area
+		ctx.Write(m_PersistentFlags);
+	}
+#endif
 }

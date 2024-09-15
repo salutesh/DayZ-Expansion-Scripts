@@ -383,7 +383,9 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 			return;
 
 	//#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 	//#endif
 		string markerName = m_DeliveryConfig.GetMarkerName();
 		array<int> questNPCTurnInIDs = m_Quest.GetQuestConfig().GetQuestTurnInIDs();

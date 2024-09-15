@@ -53,7 +53,7 @@ class ExpansionActionResetCodeLock: ActionContinuousBase
 
 	override void OnFinishProgressServer(ActionData action_data)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.BASEBUILDING, this, "" + action_data.m_Target.GetParentOrObject());
 	#endif
 

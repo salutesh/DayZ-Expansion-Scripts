@@ -31,7 +31,9 @@ modded class PlayerBase
 
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, PlayerBase);
+#endif
 
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index == -1)
@@ -51,7 +53,9 @@ modded class PlayerBase
 
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, PlayerBase);
+#endif
 
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index > -1)
@@ -86,6 +90,8 @@ modded class PlayerBase
 		if (!killerPlayer)
 			return;
 
+		PlayerBase killerPB = PlayerBase.Cast(killerPlayer);
+
 		string killerUID;
 		if (killerPlayer.GetIdentity())
 			killerUID = killerPlayer.GetIdentity().GetId();
@@ -113,11 +119,18 @@ modded class PlayerBase
 				continue;
 			}
 
+			if (Expansion_IsFriendly(killerPB))
+			{
+				//! Don't count kill by friendly (e.g. same group)
+				i++;
+				continue;
+			}
+
 			//! Check if current quest players distance to our victim entity is in kill range proximity to count the kill when the killer is not a quest player of our current objective instance row
 			//! We do this to share kills between quest objectives from players that are working on the same objective.
 			if (killerUID == string.Empty || !quest.IsQuestPlayer(killerUID))
 			{
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - Entity got killed by a player that is not part of this quest! Quest ID: " + quest.GetQuestConfig().GetID() + " | Killer UID: " + killerUID);
 			#endif
 				float maxDist = -1;
@@ -153,14 +166,13 @@ modded class PlayerBase
 
 				bool countKill = false;
 				PlayerBase questPlayer;
-				PlayerBase killerPB = PlayerBase.Cast(killerPlayer);
 				if (!quest.GetQuestConfig().IsGroupQuest())
 				{
 					questPlayer = quest.GetPlayer();
 					if (questPlayer && objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) && ((isAI && Expansion_HasHitEntity(questPlayer)) || questPlayer.Expansion_IsHelper(killerPB)))
 					{
 						countKill = true;
-					#ifdef DIAG
+					#ifdef DIAG_DEVELOPER
 						EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - Quest player in max range! Player position: " + questPlayer.GetPosition() + " | Victim position: " + GetPosition() + " | Max distance: " + maxDist);
 					#endif
 					}
@@ -174,7 +186,7 @@ modded class PlayerBase
 						if (questPlayer && objective.IsInRange(questPlayer.GetPosition(), GetPosition(), maxDist) && ((isAI && Expansion_HasHitEntity(questPlayer)) || questPlayer.Expansion_IsHelper(killerPB)))
 						{
 							countKill = true;
-						#ifdef DIAG
+						#ifdef DIAG_DEVELOPER
 							EXPrint(ToString() + "::CheckAssignedObjectivesForEntity - Quest player in max range! Player position: " + questPlayer.GetPosition() + " | Victim position: " + GetPosition() + " | Max distance: " + maxDist);
 						#endif
 							break;
@@ -254,7 +266,9 @@ modded class PlayerBase
 
 	void Expansion_RememberAmmoInInventoryQuantity()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		m_Expansion_AmmoInInventoryQuantity.Clear();
 
@@ -272,7 +286,9 @@ modded class PlayerBase
 
 	void Expansion_CheckAmmoInInventoryQuantityChanged()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		foreach (ExpansionMagazine ammo: m_Expansion_AmmoInInventoryQuantity)
 		{
@@ -287,7 +303,9 @@ modded class PlayerBase
 
 	override bool ServerReplaceItemWithNew(ReplaceItemWithNewLambdaBase lambda)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		ItemBase oldItem = ItemBase.Cast(lambda.m_OldItem);
 		if (oldItem)

@@ -178,6 +178,32 @@ class ExpansionTractor: CarScript
 		return true;
 	}
 
+	override bool CanDisplayAttachmentCategory( string category_name )
+	{
+		if ( !super.CanDisplayAttachmentCategory( category_name ) )
+			return false;
+	
+		category_name.ToLower();		
+		if ( category_name.Contains("engine") )
+		{
+			if ( m_ExpansionVehicle.AllDoorsClosed() )
+				return false;
+		}
+				
+		return true;
+	}
+
+	override bool CanDisplayCargo()
+	{
+		if ( !super.CanDisplayCargo() )
+			return false;
+		
+		if ( m_ExpansionVehicle.AllDoorsClosed() )
+			return false;
+		
+		return true;
+	}
+
 	override int GetCarDoorsState(string slotType)
 	{
 #ifdef EXPANSIONTRACE

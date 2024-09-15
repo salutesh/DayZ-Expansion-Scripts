@@ -83,7 +83,7 @@ class ExpansionEntityStorageContext
 [CF_RegisterModule(ExpansionEntityStorageModule)]
 class ExpansionEntityStorageModule: CF_ModuleWorld
 {
-	static const int VERSION = 12;
+	static const int VERSION = 13;
 	static const string EXT = ".bin";
 
 	static const int FAILURE = 0;
@@ -95,6 +95,8 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	static int Now;
 
 	static EntityAI s_SavedEntityToBeDeleted;
+	static EntityAI s_CurrentRootEntity;
+	static int s_LastRestoredVersion;
 
 	void ExpansionEntityStorageModule()
 	{
@@ -113,7 +115,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
+	#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.GENERAL_ITEMS, this);
+	#endif
 
 		super.OnMissionStart(sender, args);
 
@@ -128,6 +132,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (!level)
 		{
 			Reset();
+			ResetState();
 
 			ctx.Write(VERSION);
 			ctx.Write(Now);
@@ -173,6 +178,12 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (!inventoryOnly || level > 0)
 			Save_Phase3(file, entity);
 
+		if (!level)
+		{
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "Save " + s_CurrentRootEntity + " -> null");
+			s_CurrentRootEntity = null;
+		}
+
 		return true;
 	}
 
@@ -192,7 +203,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		}
 		if (!il.IsValid())
 		{
-			Error(entity.ToString() + ": Invalid location");
+			EXError.Error(entity, "Invalid location");
 			return FAILURE;
 		}
 		InventoryLocationType ilt = il.GetType();
@@ -206,7 +217,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			if (Class.CastTo(itemParent, parent) && (itemParent.ExpansionIsOpenable() || itemParent.IsNonExpansionOpenable()))
 				isOpenable = true;
 #endif
-			if (isOpenable || parent.GetInventory().GetSlotLock(il.GetSlot()) || entity.IsKindOf("CombinationLock") || entity.IsKindOf("ExpansionCodeLock"))
+			if (isOpenable || parent.GetInventory().GetSlotLock(il.GetSlot()) || entity.IsKindOf("CombinationLock") || entity.IsKindOf("ExpansionCodeLock") || entity.IsKindOf("RA_CodeLock") || entity.IsKindOf("CodeLock"))
 			{
 				EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Save_Phase1 - skippping " + entity.GetType() + " in locked slot");
 				ctx.Write("");  //! Have to write empty entry because we already have written inventory count and no way to retroactively overwrite it
@@ -242,9 +253,15 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				ctx.Write(il.GetFlip());
 				break;
 			default:
-				Error(entity.ToString() + ": Unknown location type " + typename.EnumToString(InventoryLocationType, ilt));
+				EXError.Error(entity, "Unknown location type " + typename.EnumToString(InventoryLocationType, ilt));
 				return FAILURE;
 				break;
+		}
+
+		if (!level)
+		{
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "Save_Phase1 " + s_CurrentRootEntity + " -> " + entity);
+			s_CurrentRootEntity = entity;
 		}
 
 		return SUCCESS;
@@ -420,16 +437,11 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			}
 		}
 
-		//! 6) Special treatment for Car (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
-		Car car;
-		if (Class.CastTo(car, entity))
+		//! 6) Special treatment for vehicles (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
+		ExpansionVehicle vehicle;
+		if (!entity.IsItemBase() && ExpansionVehicle.Get(vehicle, entity))
 		{
-			int fluidCount = EnumTools.GetEnumSize(CarFluid);
-			ctx.Write(fluidCount);
-			for (i = 0; i < fluidCount; i++)
-			{
-				ctx.Write(car.GetFluidFraction(EnumTools.GetEnumValue(CarFluid, i)));
-			}
+			vehicle.WriteFluidsTo(ctx);
 		}
 
 		//! 7) global health and damage zones
@@ -447,19 +459,26 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 	static bool ErrorFalse(string message)
 	{
-		Error(message);
+		EXError.Error(null, message);
 		return false;
 	}
 
 	//! @brief restore entity and all its children from ctx (creates entities)
 	static bool Restore(ParamsReadContext ctx, FileSerializer file, string basePath = string.Empty, inout EntityAI entity = null, EntityAI parent = null, EntityAI placeholder = null, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0, int elapsed = 0, bool deleteRestored = true)
 	{
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule);
+	#endif
+
 		if (!level)
 		{
 			Reset();
+			ResetState();
 
 			if (!ctx.Read(entityStorageVersion))
 				return ErrorFalse("Couldn't read entity storage version");
+
+			s_LastRestoredVersion = entityStorageVersion;
 
 			if (entityStorageVersion >= 5)
 			{
@@ -523,8 +542,14 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (!restored && createEntity)
 		{
 			if (!level && placeholder && entity.HasAnyCargo() && !MiscGameplayFunctions.Expansion_MoveCargo(entity, placeholder))
-				Error(entity.ToString() + ": Couldn't move cargo back to placeholder");
+				EXError.Error(null, "Couldn't move cargo from " + entity + " back to placeholder " + placeholder);
 			entity.Delete();
+		}
+
+		if (!level)
+		{
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "Restore " + s_CurrentRootEntity + " -> null");
+			s_CurrentRootEntity = null;
 		}
 
 		return restored;
@@ -532,6 +557,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 	static int Restore_Phase1(ParamsReadContext ctx, out EntityAI entity, EntityAI parent, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0)
 	{
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule);
+	#endif
+
 		//! 1a) entity type
 		if (!level || !type)
 		{
@@ -559,10 +588,17 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				vector orientation;
 				if (!ctx.Read(orientation))
 					return ErrorFalse(type + ": Couldn't read orientation");
-				if (Class.CastTo(entity, GetGame().CreateObjectEx(type, position, ECE_OBJECT_SWAP, RF_DEFAULT)))
+				int flags = ECE_OBJECT_SWAP;
+				if (GetGame().IsKindOf(type, "DZ_LightAI"))
+					flags |= ECE_INITAI;
+				if (Class.CastTo(entity, GetGame().CreateObjectEx(type, position, flags, RF_DEFAULT)))
 				{
 					entity.SetPosition(position);
 					entity.SetOrientation(orientation);
+				}
+				else
+				{
+					EXError.Error(null, "Couldn't create " + type + " on ground at " + position);
 				}
 				break;
 			case InventoryLocationType.ATTACHMENT:
@@ -577,11 +613,15 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				entity = GameInventory.LocationCreateEntity(il, type, ECE_IN_INVENTORY, RF_DEFAULT);
 				if (entity)
 					parent.GetInventory().SetSlotLock(slotId, slotLocked);
+				else
+					EXError.Error(null, "Couldn't create " + type + " on " + parent);
 				break;
 			case InventoryLocationType.HANDS:
 				il = new InventoryLocation();
 				il.SetHands(parent, null);
 				entity = GameInventory.LocationCreateEntity(il, type, ECE_IN_INVENTORY, RF_DEFAULT);
+				if (!entity)
+					EXError.Error(null, "Couldn't create " + type + " in hands of " + parent);
 				break;
 			case InventoryLocationType.CARGO:
 			case InventoryLocationType.PROXYCARGO:
@@ -596,32 +636,53 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				if (!ctx.Read(flip))
 					return ErrorFalse(type + ": Couldn't read cargo flip");
 				entity = parent.GetInventory().CreateEntityInCargoEx(type, idx, row, col, flip);  //! Only way to get flip correct
+				if (!entity)
+					EXError.Error(null, "Couldn't create " + type + " in cargo of " + parent);
 				break;
 			default:
 				return ErrorFalse(type + ": Unknown inventory location type " + typename.EnumToString(InventoryLocationType, ilt));
 				break;
 		}
 
-		if (!level && !entity && player)
+		if (ilt != InventoryLocationType.GROUND)
 		{
-			//! Try to create in player inventory, falling back to owned container
-			entity = ExpansionItemSpawnHelper.SpawnInInventorySecure(type, player, parent);
-			//! Try to create on ground at player pos
-			if (!entity && Class.CastTo(entity, GetGame().CreateObjectEx(type, player.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
-				EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Restore_Phase1 - WARNING: Couldn't create " + type + " on " + parent + ", created at player position " + player.GetPosition() + " instead");
+			if (!level && !entity && player)
+			{
+				//! Try to create in player inventory, falling back to owned container
+				entity = ExpansionItemSpawnHelper.SpawnInInventorySecure(type, player, parent);
+				//! Try to create on ground at player pos
+				if (!entity && Class.CastTo(entity, GetGame().CreateObjectEx(type, player.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
+					EXError.Warn(null, "ExpansionEntityStorage::Restore_Phase1 - WARNING: Couldn't create " + type + " on " + parent + ", created at player position " + player.GetPosition() + " instead");
+			}
+			else if (!entity && parent)
+			{
+				//! Try to create at parent position
+				if (Class.CastTo(entity, GetGame().CreateObjectEx(type, parent.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
+					EXError.Warn(null, "ExpansionEntityStorage::Restore_Phase1 - WARNING: Couldn't create " + type + " on " + parent + ", created at parent position " + parent.GetPosition() + " instead");
+			}
 		}
 
 		if (!entity)
-			return ErrorFalse("No entity created: " + type);
+			return false;
+
+		if (!level)
+		{
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "Restore_Phase1 " + s_CurrentRootEntity + " -> " + entity);
+			s_CurrentRootEntity = entity;
+		}
 
 		return SUCCESS;
 	}
 
 	static bool Restore_Phase2(ParamsReadContext ctx, string basePath, EntityAI entity, EntityAI placeholder = null, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0, int elapsed = 0, bool deleteRestored = true)
 	{
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "" + entity.GetType());
+	#endif
+
 		//! 2) attachments + cargo
 		if (!level && placeholder && placeholder.HasAnyCargo() && !MiscGameplayFunctions.Expansion_MoveCargo(placeholder, entity))
-			Error("Couldn't move cargo from placeholder");
+			EXError.Error(null, "Couldn't move cargo from placeholder " + placeholder + " to " + entity);
 		int inventoryCount;
 		if (!ctx.Read(inventoryCount))
 			return ErrorFalse(entity.GetType() + ": Couldn't read inventory count");
@@ -682,6 +743,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 	static bool Restore_Phase3a(ParamsReadContext ctx, EntityAI entity, int entityStorageVersion)
 	{
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "" + entity.GetType());
+	#endif
+
 		int i;
 
 		//! 3) special treatment for weapons
@@ -691,6 +756,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			int muzzleCount;
 			if (!ctx.Read(muzzleCount))
 				return ErrorFalse(entity.GetType() + ": Couldn't read muzzle count");
+
+		#ifdef DIAG_DEVELOPER
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Muzzle count: " + muzzleCount);
+		#endif
 
 			float ammoDamage;
 			string ammoTypeName;
@@ -712,6 +781,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				int internalMagCartridgeCount;
 				if (!ctx.Read(internalMagCartridgeCount))
 					return ErrorFalse(entity.GetType() + ": Couldn't read internal mag cartridge count");
+			#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Internal magazine cartridge count: " + internalMagCartridgeCount);
+			#endif
 				for (int ci = 0; ci < internalMagCartridgeCount; ++ci)
 				{
 					if (!ctx.Read(ammoDamage))
@@ -727,8 +799,15 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		int version;
 		if (!ctx.Read(version))
 			return ErrorFalse(entity.GetType() + ": Couldn't read game version");
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Storage version: " + version);
+	#endif
 		if (!entity.OnStoreLoad(ctx, version))
 			return ErrorFalse(entity.GetType() + ": Couldn't OnStoreLoad");
+
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Entity OnStoreLoad SUCCESS");
+	#endif
 
 		if (weapon)
 			weapon.Expansion_ResetMuzzleModes();
@@ -739,6 +818,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			int entityStorageAdditionalDataVersion;
 			if (!ctx.Read(entityStorageAdditionalDataVersion))
 				return ErrorFalse(entity.GetType() + ": Couldn't read additional data version");
+		#ifdef DIAG_DEVELOPER
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Additional data version: " + entityStorageAdditionalDataVersion);
+		#endif
 
 			if (!player.Expansion_OnEntityStorageAdditionalDataLoad(ctx, entityStorageAdditionalDataVersion))
 				return ErrorFalse(entity.GetType() + ": Couldn't read additional data");
@@ -753,6 +835,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			{
 				if (!ctx.Read(ammoCount))
 					return ErrorFalse(entity.GetType() + ": Couldn't read ammo count");
+			#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Ammo count: " + ammoCount);
+			#endif
 				mag.ServerSetAmmoCount(ammoCount);
 			}
 			else
@@ -760,6 +845,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				int count;
 				if (!ctx.Read(count))
 					return ErrorFalse(entity.GetType() + ": Couldn't read cartridge count");
+			#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Cartridge count: " + count);
+			#endif
 				mag.ServerSetAmmoCount(0);
 				auto cartridges = new array<ref ExpansionCartridgeInfo>;
 				for (i = 0; i < count; i++)
@@ -779,27 +867,12 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			}
 		}
 
-		//! 6) Special treatment for Car (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
-		Car car;
-		if (Class.CastTo(car, entity))
+		//! 6) Special treatment for vehicles (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
+		ExpansionVehicle vehicle;
+		if (!entity.IsItemBase() && ExpansionVehicle.Get(vehicle, entity))
 		{
-			CarFluid fluid;
-			float fluidFraction;
-			int fluidEnumSize = EnumTools.GetEnumSize(CarFluid);
-			int fluidCount;
-			if (entityStorageVersion >= 6)
-				ctx.Read(fluidCount);
-			else
-				fluidCount = fluidEnumSize;
-			for (i = 0; i < fluidCount; i++)
-			{
-				if (i < fluidEnumSize)
-					fluid = EnumTools.GetEnumValue(CarFluid, i);
-				if (!ctx.Read(fluidFraction))
-					return ErrorFalse(entity.GetType() + ": Couldn't read fluid fraction for " + typename.EnumToString(CarFluid, fluid));
-				if (i < fluidEnumSize)
-					car.Fill(fluid, fluidFraction * car.GetFluidCapacity(fluid));
-			}
+			if (!vehicle.ReadFluidsFrom(ctx, entityStorageVersion))
+				return false;
 		}
 
 		//! 7) global health and damage zones
@@ -812,6 +885,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		int dmgZoneCount;
 		if (!ctx.Read(dmgZoneCount))
 			return ErrorFalse(entity.GetType() + ": Couldn't read damage zone count");
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Damage zone count: " + dmgZoneCount);
+	#endif
 		for (i = 0; i < dmgZoneCount; i++)
 		{
 			string dmgZone;
@@ -831,6 +907,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 	static void Restore_Phase3b(EntityAI entity, int elapsed)
 	{
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "" + entity.GetType());
+	#endif
+
 		//! 8) Process wetness/temperature/decay
 		ItemBase item;
 		if (elapsed > 0 && Class.CastTo(item, entity))
@@ -874,6 +954,30 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	static EntityAI GetSavedEntityToBeDeleted()
 	{
 		return s_SavedEntityToBeDeleted;
+	}
+
+	/** @brief get current root entity during entity storage save/restore operations
+	 * 
+	 * @note use only during Save/Restore! Will be nulled afterwards
+	 */
+	static EntityAI GetCurrentRootEntity()
+	{
+		return s_CurrentRootEntity;
+	}
+
+	static int IsCurrentRootEntity(EntityAI entity)
+	{
+		if (s_CurrentRootEntity == entity)
+			return true;
+
+		return false;
+	}
+
+	/** @brief get last restored entity storage version
+	 */
+	static int GetRestoredVersion()
+	{
+		return s_LastRestoredVersion;
 	}
 
 	static void DeleteFiles(string name)
@@ -930,6 +1034,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	//! @note if you pass in an existing entity, only its children (inventory) will be restored.
 	static bool RestoreFromFile(string fileName, inout EntityAI entity = null, EntityAI placeholder = null, PlayerBase player = null, bool deleteRestored = true)
 	{
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule);
+	#endif
+
 		FileSerializer file = new FileSerializer();
 
 		if (!file.Open(fileName, FileMode.READ))
@@ -980,7 +1088,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		if (!Class.CastTo(placeholder, placeholderObject))
 		{
-			EXTrace.Print(EXTrace.GENERAL_ITEMS, entity, "ExpansionEntityStorageModule::SaveToFileAndReplace - Couldn't cast to EntityAI " + placeholderObject);
+			EXError.Error(entity, "ExpansionEntityStorageModule::SaveToFileAndReplace - Couldn't cast to EntityAI " + placeholderObject);
 			GetGame().ObjectDelete(placeholderObject);
 			return false;
 		}
@@ -1093,5 +1201,12 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		s_SubContexts.Clear();
 
 		return !deleteRestored || failedCount == 0;
+	}
+
+	static void ResetState()
+	{
+		s_LastRestoredVersion = 0;
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "ResetState " + s_CurrentRootEntity + " -> null");
+		s_CurrentRootEntity = null;
 	}
 }

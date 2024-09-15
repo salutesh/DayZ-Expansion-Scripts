@@ -20,8 +20,10 @@ class ExpansionQuestHUD: ExpansionScriptView
 	
 	void ExpansionQuestHUD()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
-		
+#endif
+
 		m_QuestHUDController = ExpansionQuestHUDController.Cast(GetController());
 		
 		ExpansionQuestModule.GetModuleInstance().GetQuestHUDCallbackSI().Insert(UpdateView);
@@ -35,8 +37,10 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 	void UpdateView()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(true, this);
-		
+#endif
+
 		if (!GetGame().GetPlayer())
 		{
 			EXTrace.Print(true, this, "no player - skipping");
@@ -133,8 +137,10 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 	void ShowHud(bool state)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
-		
+#endif
+
 		if (state)
 		{
 			Show();
@@ -147,8 +153,10 @@ class ExpansionQuestHUD: ExpansionScriptView
 	
 	override void OnShow()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
-		
+#endif
+
 		super.OnShow();
 		
 		UpdateView();
@@ -156,8 +164,10 @@ class ExpansionQuestHUD: ExpansionScriptView
 	
 	override void OnHide()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
-		
+#endif
+
 		super.OnHide();
 	}
 

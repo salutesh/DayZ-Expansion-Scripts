@@ -70,7 +70,7 @@ class ExpansionRefillGrindMasterKey: RecipeBase
 	{
 		ExpansionCarKey masterkey;
 
-		if ( GetExpansionSettings().GetVehicle().MasterKeyPairingMode != 3 )
+		if ( GetExpansionSettings().GetVehicle().MasterKeyPairingMode < 2 )
 			return false;
 
 		if ( !Class.CastTo( masterkey, ingredients[0] ) ) //! Is it a master key ?

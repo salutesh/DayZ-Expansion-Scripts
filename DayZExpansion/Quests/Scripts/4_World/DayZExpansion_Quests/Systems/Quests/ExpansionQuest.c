@@ -32,7 +32,9 @@ class ExpansionQuest
 
 	void ExpansionQuest(ExpansionQuestModule module, ExpansionQuestConfig config)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		m_QuestModule = module;
 		m_Config = config;
@@ -40,7 +42,9 @@ class ExpansionQuest
 
 	void Finalize()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		CreateObjectivesFromConfig(); //! Create objective instances from quest config
 		m_QuestModule.CheckAndSpawnObjectSet(m_Config.GetID());  //! Create quest objects from quest config if not spawned already
@@ -53,7 +57,9 @@ class ExpansionQuest
 
 	protected void CreateObjectivesFromConfig()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (!m_Config || !m_Config.GetObjectives())
 			return;
@@ -252,7 +258,9 @@ class ExpansionQuest
 
 	void SetQuestState(ExpansionQuestState state)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		m_QuestState = state;
 		string stateName = typename.EnumToString(ExpansionQuestState, m_QuestState);
 		QuestDebugPrint("State: " + stateName);
@@ -265,7 +273,9 @@ class ExpansionQuest
 
 	void SetPlayerUID(string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		QuestDebugPrint("Set UID: " + playerUID);
 
 		m_PlayerUID = playerUID;
@@ -304,7 +314,9 @@ class ExpansionQuest
 	//! Event called when a quest is started
 	bool OnQuestStart()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (!ValidateQuest())
 		{
@@ -433,7 +445,9 @@ class ExpansionQuest
 	//! Event called when all quest objectives are completed
 	void OnQuestObjectivesComplete()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (!m_QuestModule)
 		{
@@ -490,7 +504,9 @@ class ExpansionQuest
 	//! Event called when a quest objective state has changed to incomplete after it was completed once
 	void OnQuestObjectivesIncomplete()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (!m_QuestModule)
 		{
@@ -509,7 +525,9 @@ class ExpansionQuest
 	//! Event called when ever a quest is completed and turned-in
 	bool OnQuestTurnIn(string playerUID, ExpansionQuestRewardConfig reward = null, int selectedObjItemIndex = -1)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (m_QuestState != ExpansionQuestState.CAN_TURNIN)
 		{
@@ -592,7 +610,9 @@ class ExpansionQuest
 	//! Event called when a quest is manualy canceled by the player
 	bool OnQuestCancel()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		auto inhibitor = ExpansionInhibitor.Add(this);
 		
@@ -624,7 +644,9 @@ class ExpansionQuest
 	//! Event called when a quest gets recreated (reloaded because the player reloged/disconnected)
 	bool OnQuestContinue()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "ID: " + m_Config.GetID(), "Current objective index: " + m_CurrentObjectiveIndex);
+#endif
 
 		if (!ValidateQuest())
 		{
@@ -794,7 +816,9 @@ class ExpansionQuest
 
 	void CleanupQuestItems()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		for (int i = m_QuestItems.Count() - 1; i >= 0; i--)
 		{
@@ -839,7 +863,9 @@ class ExpansionQuest
 
 	void SetQuestItemsToNormalItems()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		for (int i = m_QuestItems.Count() - 1; i >= 0; i--)
 		{
@@ -854,7 +880,9 @@ class ExpansionQuest
 
 	void CreateQuestItems()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		array<ref ExpansionQuestItemConfig> questItemConfigs = m_Config.GetQuestItems();
 		if (!m_Config.IsGroupQuest() && m_Player)
@@ -885,7 +913,9 @@ class ExpansionQuest
 	//! Event called for group quests only when a group member joins/rejoins the quest group
 	void OnGroupMemberJoined(string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (m_Config.IsGroupQuest() && m_GroupID > -1)
 		{
@@ -955,7 +985,9 @@ class ExpansionQuest
 	//! Event called for group quests only when a group member leaves the quest group
 	void OnGroupMemberLeave(string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (m_Config.IsGroupQuest() && m_GroupID > -1)
 		{
@@ -1039,7 +1071,9 @@ class ExpansionQuest
 	//! Event called when quest instance is destroyed/cleaned-up
 	bool OnQuestCleanup(bool callObjectiveCleanup = false, bool canceledQuest = false)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		//! Cleanup all spawned static quest objects from the object set
 		m_QuestModule.CheckAndDeleteObjectSet(m_Config.GetID());
@@ -1066,7 +1100,9 @@ class ExpansionQuest
 	//! Main quest objective completion check
 	void QuestCompletionCheck(bool forceUpdateQuest = false)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		int completedObjectives;	//! Amount of completed quest objectives.
 		int objectivesCount = m_QuestObjectives.Count();	//! Amount of all quest objectives.
@@ -1213,7 +1249,9 @@ class ExpansionQuest
 
 	protected Object Spawn(ExpansionQuestRewardConfig item, PlayerBase player, EntityAI parent, vector position, vector orientation, out int remainingAmount)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		Object obj;
 		if (!item.IsVehicle())
@@ -1315,7 +1353,9 @@ class ExpansionQuest
 
 	void SetGroupID(int groupID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		m_GroupID = groupID;
 
@@ -1631,7 +1671,9 @@ class ExpansionQuest
 	//! @note DO NOT use this to create objective markers! Use ExpansionQuestObjectivEEventBase::CreateObjectiveMarker
 	private void CreateQuestMarker(vector pos, string name)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (!m_Config.IsGroupQuest())
 		{
@@ -1660,7 +1702,9 @@ class ExpansionQuest
 	 */
 	private void RemoveQuestMarkers(bool removeObjectiveMarkers = false)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		int objectiveIndex = -1;
 		if (removeObjectiveMarkers)
@@ -1699,7 +1743,9 @@ class ExpansionQuest
 
 	void SetCurrentObjectiveIndex(int index)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		m_CurrentObjectiveIndex = index;
 
@@ -1733,7 +1779,9 @@ class ExpansionQuest
 
 	array<ItemBase> GetPlayerQuestItems(PlayerBase player, int questID, array<string> questItemsNames, inout map<string, int> questItemsInventoryMap = null)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		QuestDebugPrint("Check player for quest items. UID: " + player.GetIdentity().GetId() + " | Quest ID: " + questID);
 
 		array<ItemBase> questItems = new array<ItemBase>;
@@ -1792,7 +1840,9 @@ class ExpansionQuest
 
 	void UpdateQuest(bool updateQuestState)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "ID: " + m_Config.GetID(), "Update state: " + updateQuestState);
+#endif
 
 		if (ExpansionInhibitor.Contains(this))
 		{
@@ -1812,7 +1862,9 @@ class ExpansionQuest
 
 	void CancelQuest()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		if (!m_QuestModule)
 		{
@@ -1826,7 +1878,9 @@ class ExpansionQuest
 #ifdef EXPANSIONMODAI
 	void ApplyPlayerFaction(string factionName, PlayerBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		eAIGroup playerGroup = player.GetGroup();
 		eAIFaction newFaction;

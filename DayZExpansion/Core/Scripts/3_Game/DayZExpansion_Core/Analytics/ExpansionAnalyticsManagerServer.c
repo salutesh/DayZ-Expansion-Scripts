@@ -13,43 +13,46 @@
 modded class AnalyticsManagerServer
 {
 	const string EXP_STAT_ANIMALS_KILLED = "animals_killed";
+	const string EXP_STAT_AI_PLAYERS_KILLED = "ai_players_killed";
 
 	// ------------------------------------------------------------
 	// Override OnPlayerConnect
 	// ------------------------------------------------------------
-	override void OnPlayerConnect( Man player )
+	override void OnPlayerConnect(Man player)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "OnPlayerConnect");
 #endif
 
-		super.OnPlayerConnect( player );
+		super.OnPlayerConnect(player);
 		
-		player.StatRegister( EXP_STAT_ANIMALS_KILLED );
-		//player.StatSyncToClient();
+		player.StatRegister(EXP_STAT_ANIMALS_KILLED);
+	#ifdef ENFUSION_AI_PROJECT
+		player.StatRegister(EXP_STAT_AI_PLAYERS_KILLED);
+	#endif
 	}
 	
 	// ------------------------------------------------------------
 	// Override OnEntityKilled
 	// ------------------------------------------------------------
-	override void OnEntityKilled( Object killer, EntityAI target )
+	override void OnEntityKilled(Object killer, EntityAI target)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "OnEntityKilled");
 #endif
 
-		super.OnEntityKilled( killer, target );
+		super.OnEntityKilled(killer, target);
 		
 		EntityAI killer_entity = EntityAI.Cast( killer );
-		if ( killer_entity )
+		if (killer_entity)
 		{
 			Man killer_survivor = killer_entity.GetHierarchyRootPlayer();
 			
-			if ( killer_survivor )
+			if (killer_survivor)
 			{
-				if ( target.IsAnimal() )
+				if (target.IsAnimal())
 				{
-					OnAnimalKilled( killer_survivor, target );
+					OnAnimalKilled(killer_survivor, target);
 				}
 			}
 		}
@@ -58,13 +61,43 @@ modded class AnalyticsManagerServer
 	// ------------------------------------------------------------
 	// Expansion OnAnimalKilled
 	// ------------------------------------------------------------
-	protected void OnAnimalKilled( Man killer, EntityAI target )
+	protected void OnAnimalKilled(Man killer, EntityAI target)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "OnAnimalKilled");
 #endif
 
-		killer.StatUpdate( EXP_STAT_ANIMALS_KILLED, 1 );
-		//killer.StatSyncToClient();
+		killer.StatUpdate(EXP_STAT_ANIMALS_KILLED, 1);
 	}
-};
+
+	override protected void OnPlayerKilled(Man killer, EntityAI target)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "OnPlayerKilled");
+#endif
+
+	#ifdef ENFUSION_AI_PROJECT
+		//! Since eAIBase and DZPlayerImpl are not available in 3_Game,
+		//! we just assume AI if target is man and has no identity
+		Man victim;
+		if (Class.CastTo(victim, target) && !victim.GetIdentity())
+		{
+			OnAIPlayerKilled(killer, target);
+			return;
+		}
+	#endif
+
+		super.OnPlayerKilled(killer, target);
+	}
+
+	protected void OnAIPlayerKilled(Man killer, EntityAI target)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "OnAIPlayerKilled");
+#endif
+
+	#ifdef ENFUSION_AI_PROJECT
+		killer.StatUpdate(EXP_STAT_AI_PLAYERS_KILLED, 1);
+	#endif
+	}
+}

@@ -300,23 +300,15 @@ modded class IngameHud
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 		if (player)
 		{
-			HumanCommandVehicle hcv = player.GetCommand_Vehicle();
-			if (hcv)
+			auto vehicle = ExpansionVehicle.Get(player);
+			if (vehicle)
 			{
-				CarScript car = CarScript.Cast(hcv.GetTransport());
-				if (car)
-				{
-					float carSpeed = car.GetSpeedometerAbsolute() / 200;
-					
-					// Converting negative speed (backward)
-					if ( carSpeed < 0.0 )
-						carSpeed += carSpeed * 2;
+				float carSpeed = vehicle.GetSpeedometerAbsolute() / 200;
 
-					m_GPSMapScale = carSpeed;
+				m_GPSMapScale = carSpeed;
 
-					if ( m_GPSMapScale >= 0.8 ) 	m_GPSMapScale = 0.8;
-					else if (m_GPSMapScale <= 0.1)	m_GPSMapScale = 0.1;
-				}
+				if ( m_GPSMapScale >= 0.8 ) 	m_GPSMapScale = 0.8;
+				else if (m_GPSMapScale <= 0.1)	m_GPSMapScale = 0.1;
 			}
 		}
 	}

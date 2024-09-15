@@ -568,79 +568,55 @@ class ExpansionBus: CarScript
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachSeatFromSeat").Add(currentSeat).Add(nextSeat);
 #endif
 
+		//!DISABLED since we have no animations for switching seats that would put the player in the correct position
+/*
+		switch (currentSeat)
+		{
+			case 2:
+				return nextSeat == 3;
+
+			case 3:
+				return nextSeat == 2;
+
+			case 10:
+				return nextSeat == 16;
+
+			case 16:
+				return nextSeat == 10;
+
+			case 11:
+				return nextSeat == 17;
+
+			case 17:
+				return nextSeat == 11;
+
+			case 12:
+				return nextSeat == 18;
+
+			case 18:
+				return nextSeat == 12;
+
+			case 13:
+				return nextSeat == 19;
+
+			case 19:
+				return nextSeat == 13;
+
+			case 14:
+				return nextSeat == 20;
+
+			case 20:
+				return nextSeat == 14;
+
+			case 15:
+				return nextSeat == 21;
+
+			case 21:
+				return nextSeat == 15;
+		}
+*/
+
 		return false;
-		/*
-				switch( currentSeat )
-				{
-				case 11:
-					if ( nextSeat == 17 )
-						return true;
-					if ( nextSeat == 10 )
-						return true;
-					return false;
-				case 12:
-					if ( nextSeat == 18 )
-						return true;
-					if ( nextSeat == 9 )
-						return true;
-					return false;
-				case 13:
-					if ( nextSeat == 19 )
-						return true;
-					if ( nextSeat == 8 )
-						return true;
-					return false;
-				case 14:
-					if ( nextSeat == 20 )
-						return true;
-					if ( nextSeat == 3 )
-						return true;
-					if ( nextSeat == 2 )
-						return true;
-					return false;
-				case 15:
-					if ( nextSeat == 21 )
-						return true;
-					if ( nextSeat == 2 )
-						return true;
-					if ( nextSeat == 1 )
-						return true;
-					return false;
-				case 16:
-					if ( nextSeat == 22 )
-						return true;
-					if ( nextSeat == 1 )
-						return true;
-					return false;
-
-				case 17:
-					if ( nextSeat == 11 )
-						return true;
-					return false;
-				case 18:
-					if ( nextSeat == 12 )
-						return true;
-					return false;
-				case 19:
-					if ( nextSeat == 13 )
-						return true;
-					return false;
-				case 20:
-					if ( nextSeat == 14 )
-						return true;
-					return false;
-				case 21:
-					if ( nextSeat == 15 )
-						return true;
-					return false;
-				case 22:
-					if ( nextSeat == 16 )
-						return true;
-					return false;
-				}
-
-				return false;
-		*/
 	}
 
 	override string GetAnimSourceFromSelection(string selection)
@@ -658,6 +634,16 @@ class ExpansionBus: CarScript
 		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CrewCanGetThrough").Add(posIdx);
 #endif
 
+		return true;
+	}
+
+	override bool IsAreaAtDoorFree(int currentSeat, float maxAllowedObjHeight = 0.5, float horizontalExtents = 0.5, float playerHeight = 1.7)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "IsAreaAtDoorFree").Add(currentSeat).Add(maxAllowedObjHeight).Add(horizontalExtents).Add(playerHeight);
+#endif
+
+		//! Getting out of seat should never be blocked because you stay inside the vehicle
 		return true;
 	}
 

@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef DAYZ_1_25
 #ifdef EXPANSION_OBSOLETE_CAMERA
 modded class DayZPlayerCamera1stPerson
 {	
@@ -80,4 +81,5 @@ modded class DayZPlayerCamera1stPerson
 		pOutResult.m_CameraTM[3] = pOutResult.m_CameraTM[3] + m_OffsetLS;
 	}
 };
+#endif
 #endif

@@ -19,7 +19,7 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 
 		pos = pos - m_Creature.GetPosition();
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		if (EXTrace.AI && ai)
 			ai.Expansion_DebugObject(1234567890, m_Creature.GetPosition() + pos, "ExpansionDebugSphereSmall_Orange", m_Creature.GetDirection(), ai.GetPosition() + "0 1.5 0", 3.0, ShapeFlags.NOZBUFFER);
 	#endif
@@ -39,7 +39,7 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 
 		if (ai)
 		{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 			auto hitch = new EXHitch(ai.ToString() + " eAICreatureTargetInformation::CalculateThreat ", 20000);
 #endif
 
@@ -53,7 +53,7 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 			{
 				levelFactor *= 2.0;
 				auto hands = ai.GetHumanInventory().GetEntityInHands();
-				if (hands)
+				if (hands && hands.IsWeapon())
 					eAIPlayerTargetInformation.AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
 			}
 
@@ -66,5 +66,21 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 	override bool ShouldRemove(eAIBase ai = null)
 	{
 		return GetThreat(ai) <= 0.1;
+	}
+
+	override float GetMinDistance(eAIBase ai = null, float distance = 0.0)
+	{
+		if (ai && (ai.m_eAI_AcuteDangerTargetCount > 2 || ai.eAI_IsLowVitals() || (!ai.m_eAI_HasProjectileWeaponInHands && m_Creature.m_Expansion_IsBigGame)))
+			return 100.0;  //! Flee
+
+		return m_MinDistance;
+	}
+
+	override bool ShouldAvoid(eAIBase ai = null, float distance = 0.0)
+	{
+		if (ai && !ai.IsRaised() && GetMinDistance(ai, distance) > 0.0)
+			return true;
+
+		return false;
 	}
 };

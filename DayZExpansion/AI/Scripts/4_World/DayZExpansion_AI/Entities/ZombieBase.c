@@ -34,7 +34,7 @@ modded class ZombieBase
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy[" + m_eAI_DamageHandler.m_HitCounter + "]", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	#endif
 
@@ -77,5 +77,15 @@ modded class ZombieBase
 	void Expansion_SetAirborne(bool state)
 	{
 		m_Expansion_Airborne = state;
+	}
+
+	EntityAI Expansion_GetActualTarget()
+	{
+		return m_ActualTarget;   //! Vanilla variable, but no vanilla getter
+	}
+
+	int Expansion_GetMindState()
+	{
+		return m_MindState;   //! Vanilla variable, but no vanilla getter
 	}
 };

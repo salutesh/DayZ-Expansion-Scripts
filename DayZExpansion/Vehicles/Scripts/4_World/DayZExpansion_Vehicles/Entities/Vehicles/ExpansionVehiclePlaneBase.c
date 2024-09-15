@@ -216,7 +216,7 @@ class ExpansionVehiclePlaneBase: ExpansionVehicleBase
 		return true;
 	}
 
-	override bool IsCar()
+	override bool Expansion_IsCar()
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsCar");
@@ -225,7 +225,7 @@ class ExpansionVehiclePlaneBase: ExpansionVehicleBase
 		return false;
 	}
 
-	override bool IsPlane()
+	override bool Expansion_IsPlane()
 	{
 		return true;
 	}

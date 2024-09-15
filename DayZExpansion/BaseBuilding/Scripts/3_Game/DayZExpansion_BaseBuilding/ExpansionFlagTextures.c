@@ -52,8 +52,10 @@ class ExpansionFlagTextures
 	
 	void Load()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.BASEBUILDING, this);
-
+#endif
+		
 		//! Load all flags from config.cpp
 
 		int count = GetGame().ConfigGetChildrenCount(CFG_VEHICLESPATH);

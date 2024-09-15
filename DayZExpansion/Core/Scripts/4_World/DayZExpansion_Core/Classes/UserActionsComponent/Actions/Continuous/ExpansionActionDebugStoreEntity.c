@@ -52,6 +52,11 @@ class ExpansionActionDebugStoreEntity: ActionContinuousBase
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
+#ifdef USER_jacob
+		// fuck off
+		return false;
+#endif
+		
 		if (item)
 			return false;
 
@@ -81,22 +86,12 @@ class ExpansionActionDebugStoreEntity: ActionContinuousBase
 	#endif
 			return false;
 
-		CarScript vehicle;
-#ifdef EXPANSIONMODVEHICLE
-		ExpansionVehicleBase exVehicle;
-#endif
-		if (Class.CastTo(vehicle, entity))
+		auto vehicle = ExpansionVehicle.Get(entity);
+		if (vehicle)
 		{
-			if (vehicle.Expansion_GetVehicleCrew().Count())
+			if (vehicle.GetCrew().Count())
 				return false;
 		}
-#ifdef EXPANSIONMODVEHICLE
-		else if (Class.CastTo(exVehicle, entity))
-		{
-			if (exVehicle.Expansion_GetVehicleCrew().Count())
-				return false;
-		}
-#endif
 
 #ifdef EXPANSIONMODBASEBUILDING
 		ItemBase targetItem;

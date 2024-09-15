@@ -889,6 +889,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 		cat_Vehicles.SetDisplayName("Vehicles");
 		cat_Vehicles.SetIconPath("set:dayz_inventory image:cat_vehicle_body");
 		cat_Vehicles.AddIncluded("CarScript");
+		cat_Vehicles.AddIncluded("BoatScript");
 		MenuCategories.Insert(cat_Vehicles);
 
 	#ifdef EXPANSIONMODVEHICLE
@@ -1014,6 +1015,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 		sub_Cat_Weapons_SniperRifles.AddIncluded("B95_base");
 		sub_Cat_Weapons_SniperRifles.AddIncluded("SVD_Base");
 		sub_Cat_Weapons_SniperRifles.AddIncluded("Scout_Base");
+		sub_Cat_Weapons_SniperRifles.AddIncluded("SV98_Base");
 	#ifdef EXPANSIONMODWEAPONS
 		sub_Cat_Weapons_SniperRifles.AddIncluded("Expansion_AWM");
 	#endif

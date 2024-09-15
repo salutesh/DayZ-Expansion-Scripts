@@ -19,7 +19,7 @@ enum ExpansionChatChannels
 	//! Vanilla
 	CCLocal = 0, // https://www.youtube.com/watch?v=nN66uAbiJJw
 	CCSystem = 1,
-	CCAdmin = 2,
+	CCAdmin = 2, // https://www.youtube.com/watch?v=W3q8Od5qJio
 	CCDirect = 4,
 	CCMegaphone = 8,
 	CCTransmitter = 16,
@@ -90,7 +90,10 @@ static const string EXPANSION_AI_PATROLS_FOLDER = EXPANSION_AI_FOLDER + "Patrols
 static const string EXPANSION_AI_FSM_FOLDER = EXPANSION_AI_FOLDER + "FSM\\";
 static const string EXPANSION_MISSION_SETTINGS_FOLDER = EXPANSION_MISSION_FOLDER + "settings\\";
 static const string EXPANSION_MISSIONS_FOLDER = EXPANSION_MISSION_FOLDER + "missions\\";
-static const string EXPANSION_MISSIONS_OBJECTS_FOLDER = EXPANSION_MISSION_FOLDER + "missionobjects\\";
+static const string EXPANSION_MISSION_MISSIONOBJECTS_FOLDER = EXPANSION_MISSION_FOLDER + "missionobjects\\";
+
+static const string EXPANSION_MISSION_OBJECTS_FOLDER = EXPANSION_MISSION_FOLDER + "objects\\";
+static const string EXPANSION_MISSION_TRADERS_FOLDER = EXPANSION_MISSION_FOLDER + "traders\\";
 
 static const string EXPANSION_MAPPING_FOLDER = "DayZExpansion/Scripts/Data/Mapping/";
 static const string EXPANSION_MAPPING_EXT = ".map";
@@ -232,5 +235,5 @@ static const int EXPANSION_VERSION_CURRENT_SAVE = 49;  //! DEPRECATED, NO LONGER
  * Client settings save version
  */
 //! Starting with client settings v38, client and map marker save version are no longer linked to storage save version
-static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 53;
-static const int EXPANSION_VERSION_MAP_MARKER_SAVE = 40;  //! Also used for groups
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 54;
+static const int EXPANSION_VERSION_MAP_MARKER_SAVE = 42;  //! Also used for groups since group data stores group marker data

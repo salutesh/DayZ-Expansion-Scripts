@@ -98,49 +98,6 @@ PanelWidgetClass ExpansionNotificationHUD {
     }
    }
   }
-  PanelWidgetClass ActivityContent {
-   visible 1
-   disabled 0
-   clipchildren 1
-   inheritalpha 0
-   ignorepointer 1
-   keepsafezone 1
-   position 960 540
-   size 0.15 0.4
-   halign right_ref
-   valign center_ref
-   hexactpos 1
-   vexactpos 1
-   hexactsize 0
-   vexactsize 0
-   scaled 1
-   draggable 0
-   "no focus" 1
-   {
-    WrapSpacerWidgetClass ActivityGrid {
-     clipchildren 1
-     ignorepointer 1
-     keepsafezone 1
-     position 0 0
-     size 1 1
-     hexactpos 1
-     vexactpos 1
-     hexactsize 0
-     vexactsize 0
-     scriptclass "ViewBinding"
-     style Empty
-     "no focus" 1
-     Padding 5
-     Margin 0
-     "Size To Content V" 1
-     {
-      ScriptParamsClass {
-       Binding_Name "NotificationActivityElements"
-      }
-     }
-    }
-   }
-  }
   PanelWidgetClass KillfeedsContent {
    visible 1
    disabled 0
@@ -221,6 +178,49 @@ PanelWidgetClass ExpansionNotificationHUD {
      {
       ScriptParamsClass {
        Binding_Name "NotificationMarketElements"
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass ActivityContent {
+   visible 1
+   disabled 0
+   clipchildren 1
+   inheritalpha 0
+   ignorepointer 1
+   keepsafezone 1
+   position 28 130
+   size 0.15 0.8
+   halign right_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   scaled 1
+   draggable 0
+   "no focus" 1
+   {
+    WrapSpacerWidgetClass ActivityGrid {
+     clipchildren 1
+     ignorepointer 1
+     keepsafezone 1
+     size 1 1
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     scriptclass "ViewBinding"
+     style Empty
+     "no focus" 1
+     Padding 5
+     Margin 0
+     content_valign bottom
+     {
+      ScriptParamsClass {
+       Binding_Name "NotificationActivityElements"
       }
      }
     }

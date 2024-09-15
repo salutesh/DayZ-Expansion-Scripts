@@ -57,7 +57,7 @@ class ExpansionNetsyncData
 		{
 			int low, high;
 			m_Object.GetNetworkID(low, high);
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.MISC, m_Object, "Netsync data late client init - network ID " + low + " " + high);
 		#endif
 			if (low || high)
@@ -73,7 +73,7 @@ class ExpansionNetsyncData
 			m_Data[index] = value;
 		else
 			m_Data.Insert(value);
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.MISC, m_Object, "Set netsync data " + index + " '" + m_Data[index] + "'");
 	#endif
 	}
@@ -92,7 +92,7 @@ class ExpansionNetsyncData
 	//! Request name override from server
 	void Request()
 	{
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.MISC, m_Object, "Requesting netsync data");
 	#endif
 		m_Expansion_RPCManager.SendRPC("Send");
@@ -105,7 +105,7 @@ class ExpansionNetsyncData
 		if (!m_Data || !m_Data.Count())
 			return;
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		if (recipient)
 			EXTrace.Print(EXTrace.MISC, m_Object, "Sending " + m_Data.Count() + " netsync data entries to " + recipient.GetId());
 		else
@@ -136,7 +136,7 @@ class ExpansionNetsyncData
 		while (count)
 		{
 			ctx.Read(value);
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.MISC, m_Object, "Received netsync data entry '" + value + "'");
 		#endif
 			m_Data.Insert(value);
@@ -146,7 +146,7 @@ class ExpansionNetsyncData
 		if (SI_Receive)
 			SI_Receive.Invoke();
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.MISC, m_Object, "Received " + m_Data.Count() + " netsync data entries");
 	#endif
 	}

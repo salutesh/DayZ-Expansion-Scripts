@@ -189,7 +189,7 @@ modded class PlayerBase
 	//! newFactionTypeID will be -1 if removing group/faction
 	override void eAI_OnFactionChange(int oldFactionTypeID, int newFactionTypeID)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
 		EXTrace.Add(trace, oldFactionTypeID);
 		EXTrace.Add(trace, newFactionTypeID);

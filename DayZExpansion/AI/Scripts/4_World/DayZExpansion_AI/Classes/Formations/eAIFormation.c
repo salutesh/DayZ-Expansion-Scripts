@@ -98,7 +98,7 @@ class eAIFormation
 
 	float GetScale()
 	{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		m_Scale = GetExpansionSettings().GetAI().FormationScale;
 #endif
 

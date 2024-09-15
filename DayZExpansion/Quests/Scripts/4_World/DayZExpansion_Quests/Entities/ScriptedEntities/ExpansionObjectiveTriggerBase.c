@@ -75,7 +75,9 @@ class ExpansionObjectiveTriggerBase: Trigger
 #ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 	protected void TriggerDebug()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		vector pos = GetPosition();
 		QuestPrint("Position: " + pos);

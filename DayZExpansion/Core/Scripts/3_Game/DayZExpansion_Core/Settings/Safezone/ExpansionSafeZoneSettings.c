@@ -34,11 +34,12 @@ class ExpansionSafeZoneSettingsV0: ExpansionSafeZoneSettingsBase
  **/
 class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 {
-	static const int VERSION = 10;
+	static const int VERSION = 11;
 
 	autoptr array<ref ExpansionSafeZoneCylinder> CylinderZones = new array< ref ExpansionSafeZoneCylinder >;
 
 	int ActorsPerTick;
+	bool DisablePlayerCollision;
 	bool DisableVehicleDamageInSafeZone;
 	bool EnableForceSZCleanup;
 	float ItemLifetimeInSafeZone;
@@ -104,6 +105,8 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	{
 		ActorsPerTick = s.ActorsPerTick;
 
+		DisablePlayerCollision = s.DisablePlayerCollision;
+
 		DisableVehicleDamageInSafeZone = s.DisableVehicleDamageInSafeZone;
 		EnableForceSZCleanup = s.EnableForceSZCleanup;
 		ItemLifetimeInSafeZone = s.ItemLifetimeInSafeZone;
@@ -159,10 +162,6 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
-#endif
-
 		m_IsLoaded = true;
 			
 		//! Move existing settings file over from old location in $profile to new location in $mission
@@ -223,6 +222,9 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 				if (settingsBase.m_Version < 9 && !VehicleLifetimeInSafeZone)
 					VehicleLifetimeInSafeZone = settingsDefault.VehicleLifetimeInSafeZone;
 
+				if (settingsBase.m_Version < 11)
+					DisablePlayerCollision = settingsDefault.DisablePlayerCollision;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -267,6 +269,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		DisableVehicleDamageInSafeZone = true;
 		FrameRateCheckSafeZoneInMs = 0;
 		ActorsPerTick = 5;
+		DisablePlayerCollision = false;
 		EnableForceSZCleanup = true;
 		ItemLifetimeInSafeZone = 15 * 60;  //! 15 Minutes
 		EnableForceSZCleanupVehicles = false;

@@ -59,16 +59,16 @@ class ExpansionMarketAmmo: ExpansionMarketCategory
 		//! 1.21+
 		AddItem("Ammo_HuntingBolt", 						5,		10,		1,		500);
 	#ifdef EXPANSIONMODWEAPONS
-		AddItem("Expansion_Ammo_ArrowBolt", 				5,		10,		1,		500);
-
 		AddItem("ExpansionAmmoLAW", 						400,	800,	1,		500);
 		AddItem("ExpansionAmmoRPG", 						400,	800,	1,		500);
-		
+
+		/*
 		AddItem("Ammo_Expansion_M203_Smoke_White", 			300,	600,	1,		500, null, {"Ammo_Expansion_M203_Smoke_Red", "Ammo_Expansion_M203_Smoke_Green", "Ammo_Expansion_M203_Smoke_Yellow", "Ammo_Expansion_M203_Smoke_Purple"});
-		/*AddItem("Ammo_Expansion_M203_Smoke_Red", 			300,	600,	1,		500);
+		AddItem("Ammo_Expansion_M203_Smoke_Red", 			300,	600,	1,		500);
 		AddItem("Ammo_Expansion_M203_Smoke_Green", 			300,	600,	1,		500);
 		AddItem("Ammo_Expansion_M203_Smoke_Yellow", 		300,	600,	1,		500);
-		AddItem("Ammo_Expansion_M203_Smoke_Purple", 		300,	600,	1,		500);*/
+		AddItem("Ammo_Expansion_M203_Smoke_Purple", 		300,	600,	1,		500);
+		*/
 
 		AddItem("Ammo_Expansion_M203_Smoke_Teargas", 		450,	900,	1,		500);
 
@@ -79,7 +79,7 @@ class ExpansionMarketAmmo: ExpansionMarketCategory
 		AddItem("Ammo_Expansion_M203_Sticky_Smoke_Purple", 	300,	600,	1,		500);*/
 		AddItem("Ammo_Expansion_M203_Sticky_Smoke_Teargas", 450,	900,	1,		500);
 
-		AddItem("Ammo_Expansion_M203_HE", 					500,	1000,	1,		500);
+		//AddItem("Ammo_Expansion_M203_HE", 					500,	1000,	1,		500);
 		
 		AddItem("Ammo_Expansion_46x30", 					2,		5,	  	1,		500);
 		AddItem("Ammo_Expansion_338", 						2,		5,	  	1,		500);

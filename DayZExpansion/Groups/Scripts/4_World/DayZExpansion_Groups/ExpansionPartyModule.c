@@ -77,6 +77,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		Expansion_RegisterServerRPC("RPC_DissolvePartyServer");
 		Expansion_RegisterServerRPC("RPC_AcceptInviteServer");
 		Expansion_RegisterServerRPC("RPC_RemovePartyMemberServer");
+		Expansion_RegisterServerRPC("RPC_ChangeMemberColorServer");		
 		s_UpdatePlayerClient_RPCID = Expansion_RegisterClientRPC("RPC_UpdatePlayerClient");
 	#ifdef EXPANSIONMODNAVIGATION
 		Expansion_RegisterServerRPC("RPC_CreateMarkerServer");
@@ -225,6 +226,20 @@ class ExpansionPartyModule: CF_ModuleWorld
 		rpc.Expansion_Send(true);
 	}
 
+	void CreateRandomParty()
+	{
+		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] CreateRandomParty shall only be called on client!"))
+			return;
+
+		string partyName = ExpansionPartyData.RANDOM_NAMES.GetRandomElement() + " " + ExpansionPartyData.RANDOM_ADJECTIVES.GetRandomElement();
+		string partyTag = partyName.Substring(0, 5);
+
+		auto rpc = Expansion_CreateRPC("RPC_CreatePartyServer");
+		rpc.Write(partyName);
+		rpc.Write(partyTag);
+		rpc.Expansion_Send(true);
+	}
+
 	private void RPC_CreatePartyServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		string partyName;
@@ -245,6 +260,13 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (player.Expansion_GetParty())
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_IN_PARTY").Error(sender);
+			return;
+		}
+		
+		if (player.Expansion_IsPartyInviteCooldownActive())
+		{
+			int inviteCooldown = player.Expansion_GetPartyInviteCooldown();
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", new CF_Localiser("STR_EXPANSION_PARTY_ERROR_COOLDOWN", ExpansionStatic.GetTimeString(inviteCooldown, true))).Error(sender);
 			return;
 		}
 
@@ -433,6 +455,13 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (targetPlayer.Expansion_GetParty())
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_IN_PARTY").Error(sender);
+			return;
+		}
+
+		int inviteCooldown = party.GetInviteCooldown();
+		if (inviteCooldown > 0)
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", new CF_Localiser("STR_EXPANSION_PARTY_ERROR_INVITED_COOLDOWN", ExpansionStatic.GetTimeString(inviteCooldown, true))).Error(sender);
 			return;
 		}
 
@@ -644,6 +673,9 @@ class ExpansionPartyModule: CF_ModuleWorld
 		//! @note if targetPlayer is not online, it will be NULL. We only want to notify targetPlayer separately if online.
 		if (targetPlayer)
 		{
+			if ( GetExpansionSettings().GetParty().InviteCooldown > 0 )
+				targetPlayer.Expansion_OnLeaveParty();
+			
 			targetIdentity = targetPlayer.GetIdentity();
 
 			//! Update player that was removed from party
@@ -687,6 +719,73 @@ class ExpansionPartyModule: CF_ModuleWorld
 	{
 		ExpansionPartyData party = m_Parties.Get(partyId);
 		UpdatePartyMembersServer(party);
+	}
+
+	void ChangeMemberColor(string uid, int color, bool requestedByMember = false)
+	{
+		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] ChangeMemberColor shall only be called on client!"))
+			return;
+
+		auto rpc = Expansion_CreateRPC("RPC_ChangeMemberColorServer");
+		rpc.Write(uid);
+		rpc.Write(color);
+		rpc.Write(requestedByMember);
+		rpc.Expansion_Send(true);
+	}
+
+	private void RPC_ChangeMemberColorServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		string uid;
+		if (!ctx.Read(uid))
+			return;
+
+		int color;
+		if (!ctx.Read(color))
+			return;
+
+		bool requestedByMember;
+		if (!ctx.Read(requestedByMember))
+			return;
+
+		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
+		if (!senderPlayer)
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
+			return;
+		}
+
+		int partyId = GetPartyID(senderPlayer);
+		ExpansionPartyData party = m_Parties.Get(partyId);
+		if (!party || partyId == -1)
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
+			return;
+		}
+		
+		ExpansionPartyPlayerData senderPartyMember = party.GetPlayer(sender.GetId());
+		if (!senderPartyMember)
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN").Error(sender);
+			return;
+		}
+		
+		if (!requestedByMember && !senderPartyMember.CanEdit())
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_OWNER").Error(sender);
+			return;
+		}
+
+		if (!party.ChangeMemberColor(uid, color))
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN").Error(sender);
+			return;
+		}
+
+		//! Save the party changes (AcceptInvite already removed the invite)
+		party.Save();
+
+		//! Inform all party members that a new player joined
+		UpdatePartyMembersServer(partyId);
 	}
 
 	bool OnReceivePartyClient(ParamsReadContext ctx, out ExpansionPartyData party)

@@ -33,8 +33,10 @@ modded class ItemBase
 
 	void Expansion_ReplaceWheelWithRuined()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.VEHICLES, this);
-
+#endif
+		
 		if (IsSetForDeletion())
 		{
 			//! Something else has likely already replaced the wheel and marked this one for deletion
@@ -94,5 +96,27 @@ class Expansion_Landrover_Wheel_Ruined: CarWheel_Ruined
 			ProcessDirectDamage(DT_CUSTOM, this, "Tire", "TransportHit", "0 0 0", 800);
 			SetHealth(0);
 		}
+	}
+};
+
+class ExpansionHydraulicHoses: ItemBase
+{
+	override void SetActions()
+	{
+		super.SetActions();
+		
+		AddAction(ActionDetach);
+		AddAction(ActionAttach);
+	}
+};
+
+class ExpansionIgniterPlug: ItemBase
+{
+	override void SetActions()
+	{
+		super.SetActions();
+		
+		AddAction(ActionDetach);
+		AddAction(ActionAttach);
 	}
 };

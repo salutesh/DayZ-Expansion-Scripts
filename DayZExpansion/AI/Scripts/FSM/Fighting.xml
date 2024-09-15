@@ -45,7 +45,6 @@
 				if (target)
 				{
 					position = target.GetPosition(unit, false);
-					auto aimPosition = position + target.GetAimOffset(unit);
 					fsm.DistanceToTargetSq = target.GetDistanceSq(unit, true);
 					
 					bool shouldBeMeleeing = false;
@@ -89,7 +88,7 @@
 					else if (!wantsLower)
 					{
 						minDist = 4.0;
-						if (speed == 0)
+						if (unit.m_eAI_IsInCover)
 							wantsRaise = true;
 					}
 					
@@ -109,7 +108,7 @@
 					else
 					{
 						unit.OverrideMovementDirection(false, 0);
-						if (itemTarget &amp;&amp; itemTarget.Expansion_IsExplosive() &amp;&amp; wantsLower &amp;&amp; fsm.DistanceToTargetSq &lt; target.GetMinDistanceSq())
+						if (itemTarget &amp;&amp; itemTarget.Expansion_IsExplosive() &amp;&amp; wantsLower &amp;&amp; fsm.DistanceToTargetSq &lt; target.GetMinDistanceSq(unit))
 							unit.OverrideMovementSpeed(true, 3);
 						else 
 							unit.OverrideMovementSpeed(false, 0);
@@ -117,10 +116,7 @@
 						movementDirection = 0;
 					}
 					
-					unit.LookAtPosition(aimPosition);
-					unit.AimAtPosition(aimPosition);
-					
-					if ((!itemTarget &amp;&amp; ((hands &amp;&amp; hands.IsWeapon()) || !target.CanMeleeIfClose(unit))) || (itemTarget &amp;&amp; itemTarget.Expansion_IsDanger()))
+					if ((!itemTarget &amp;&amp; ((hands &amp;&amp; hands.IsWeapon()) || target.GetMinDistance(unit) &gt; 0.0 || !target.CanMeleeIfClose(unit))) || (itemTarget &amp;&amp; itemTarget.Expansion_IsDanger()))
 					{
 						unit.OverrideTargetPosition(target);
 					}
@@ -214,8 +210,6 @@
 				
 				time += DeltaTime;
 				unit.OverrideTargetPosition(target);
-				unit.LookAtPosition(aimPosition);
-				unit.AimAtPosition(aimPosition);
 				
 				if (!unit.IsRaised() || !unit.IsWeaponRaiseCompleted())
 				{
@@ -271,15 +265,7 @@
 				
 				fsm.LastFireTime = GetGame().GetTime();
 				
-				unit.Expansion_GetUp();
-				
-				//! FIXME: Pistols fuck up the hand animation state.
-				//! Ugly workaround: Put away when entering melee.
-				auto hands = unit.GetItemInHands();
-				if (hands &amp;&amp; hands.IsKindOf("Pistol_Base"))
-				{
-					unit.eAI_TakeItemToInventory(hands);
-				}
+				unit.Expansion_GetUp(true);
 			</event_entry>
 			<event_exit>
 				unit.OverrideMovementDirection(false, 0);
@@ -291,18 +277,13 @@
 				if (!target)
 					return EXIT;
 				
-				auto aimOffset = target.GetAimOffset(unit);
-				
 				auto lowPosition = target.GetPosition(unit, false);
-				auto aimPosition = lowPosition + aimOffset;
 				
 				time += DeltaTime;
 				if (target.IsMechanicalTrap())
 					unit.OverrideTargetPosition(target);
 				else
 					unit.OverrideTargetPosition(lowPosition);
-				unit.LookAtPosition(aimPosition);
-				unit.AimAtPosition(aimPosition);
 				
 				fsm.DistanceToTargetSq = target.GetDistanceSq(unit, true);
 				
@@ -376,6 +357,8 @@
 				dst.target = unit.GetTarget();
 				if (!dst.target || !dst.target.IsMeleeViable(unit) || dst.target.GetThreat(unit) &lt; 0.4) return FAIL;
 				
+				if (dst.target.ShouldAvoid(unit)) return FAIL;
+				
 				return SUCCESS;
 			</guard>
 			<event />
@@ -412,6 +395,8 @@
 				
 				if (Math.RandomInt(0, 5) &gt; 0) return FAIL;  //! 1 in 5 chance to evade
 				
+				if (unit.eAI_IsDangerousAltitude()) return FAIL;  //! Don't evade if high above ground
+				
 				fsm.LastEvadeTime = missionTime;
 				
 				return SUCCESS;
@@ -447,7 +432,7 @@
 				}
 				else if (Class.CastTo(itemTarget, targetEntity))
 				{
-					// don't shoot at bandages or ammo/magazines, silly
+					// don't shoot at bandages, ammo/magazines, melee weapons, clothing or headtorches, silly
 					if (itemTarget.Expansion_CanBeUsedToBandage())
 						return FAIL;
 					if (itemTarget.IsMagazine())
@@ -455,6 +440,8 @@
 					if (itemTarget.IsWeapon())
 						return FAIL;
 					if (itemTarget.Expansion_IsMeleeWeapon())
+						return FAIL;
+					if (itemTarget.IsClothing())
 						return FAIL;
 				}
 				

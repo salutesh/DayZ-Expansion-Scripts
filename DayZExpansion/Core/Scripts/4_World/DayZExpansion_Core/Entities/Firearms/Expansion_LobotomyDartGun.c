@@ -28,7 +28,7 @@ class Expansion_LobotomyDartGun: FNX45_Base
 
 class Expansion_LobotomyDartGun_Debug: Expansion_LobotomyDartGun
 {
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	void Expansion_LobotomyDartGun_Debug()
 	{
 		if (GetGame().IsServer())

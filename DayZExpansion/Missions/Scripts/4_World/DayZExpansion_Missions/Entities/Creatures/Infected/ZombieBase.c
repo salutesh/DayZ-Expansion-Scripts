@@ -9,7 +9,7 @@ modded class ZombieBase
 		//GetInputController().OverrideAlertLevel(true, true, 1, m_Expansion_OverrideAlertLevel);
 	}
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	override bool HandleMindStateChange(int pCurrentCommandID, DayZInfectedInputController pInputController, float pDt)
 	{
 		if (m_Expansion_OverrideAlertLevel)

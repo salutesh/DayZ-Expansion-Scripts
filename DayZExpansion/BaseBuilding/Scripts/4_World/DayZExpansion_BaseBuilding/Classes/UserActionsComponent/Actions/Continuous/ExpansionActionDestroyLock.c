@@ -137,7 +137,7 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 		} else
 		{
 			string selection = targetItem.GetActionComponentName( target.GetComponentIndex() );
-			if ( !selection.Contains( "lock" ) && !targetItem.ExpansionIsOpenable( selection ) )
+			if ( !selection.Contains( "lock" ) && !selection.Contains( "door" ) && !targetItem.ExpansionIsOpenable( selection ) )
 				return false;
 		}
 

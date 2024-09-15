@@ -196,8 +196,8 @@ FrameWidgetClass ExpansionMarketMenuItemManager {
          image0 "set:dayz_gui image:inv_header_1"
          mode blend
          "src alpha" 1
-         "no wrap" 1
-         stretch 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
          "flip u" 0
          "flip v" 1
         }
@@ -274,8 +274,8 @@ FrameWidgetClass ExpansionMarketMenuItemManager {
            imageTexture "{EB294B6B8215EC25}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
            mode additive
            "src alpha" 1
-           "no wrap" 1
-           stretch 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
            "flip v" 1
            filter 1
           }
@@ -296,8 +296,8 @@ FrameWidgetClass ExpansionMarketMenuItemManager {
            imageTexture "{EB294B6B8215EC25}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
            mode additive
            "src alpha" 1
-           "no wrap" 1
-           stretch 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
            filter 1
           }
          }
@@ -329,17 +329,12 @@ FrameWidgetClass ExpansionMarketMenuItemManager {
            hexactsize 0
            vexactsize 0
            priority 2
-           scriptclass "ViewBinding"
+           scriptclass ""
            style Empty
            Padding 0
            Margin 0
            "Size To Content H" 1
            "Size To Content V" 1
-           {
-            ScriptParamsClass {
-             Binding_Name "PresetsDropdownElements"
-            }
-           }
           }
          }
         }
@@ -428,8 +423,8 @@ FrameWidgetClass ExpansionMarketMenuItemManager {
            imageTexture "{50590D86B12E21D3}DayZExpansion/Core/GUI/icons/hud/refresh_64x64.edds"
            mode blend
            "src alpha" 1
-           "no wrap" 1
-           stretch 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
           }
          }
          {
@@ -473,8 +468,8 @@ FrameWidgetClass ExpansionMarketMenuItemManager {
      image0 "set:dayz_gui image:inv_header_3"
      mode blend
      "src alpha" 1
-     "no wrap" 1
-     stretch 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
      {
       TextWidgetClass market_item_manager_header_text {
        position 0 0
@@ -536,8 +531,7 @@ FrameWidgetClass ExpansionMarketMenuItemManager {
            imageTexture "{EC53856041985A10}DayZExpansion/Core/GUI/icons/hud/cross_64x64.edds"
            mode additive
            "src alpha" 1
-           "no wrap" 0
-           stretch 1
+           "stretch mode" stretch_w_h
           }
          }
          {

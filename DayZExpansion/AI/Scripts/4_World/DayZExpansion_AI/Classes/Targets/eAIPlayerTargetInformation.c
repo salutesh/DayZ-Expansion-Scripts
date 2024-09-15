@@ -1,6 +1,8 @@
 class eAIPlayerTargetInformation: eAIEntityTargetInformation
 {
 	private DayZPlayerImplement m_Player;
+	bool m_HasProjectileWeaponInHands;
+	float m_DistanceThreshold = 1000.0;
 
 	void eAIPlayerTargetInformation(EntityAI target)
 	{
@@ -12,6 +14,9 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		if (m_Player.IsDamageDestroyed())
 			return 0.0;
 
+		if (m_Player.Expansion_HasAdminToolInvisibility())
+			return 0.0;
+
 		float levelFactor = 0.1;
 
 		if (ai)
@@ -19,14 +24,17 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			if (ai == m_Player)
 				return 0.0;
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 			auto hitch = new EXHitch(ai.ToString() + " eAIPlayerTargetInformation::CalculateThreat ", 20000);
 #endif
 
 			// the further away the player, the less likely they will be a threat
 			float distance = GetDistance(ai, true) + 0.1;
 
-			if (m_Player.IsUnconscious() || m_Player.IsRestrained())
+			if (m_Player.IsUnconscious())
+				return ExpansionMath.LinearConversion(0, 100, distance, 0.4, 0.2, false);
+
+			if (m_Player.IsRestrained())
 				return ExpansionMath.LinearConversion(0, 100, distance, 0.15, 0.1);
 
 			if (distance <= 100.0 && m_Player.GetParent() != ai.GetParent())
@@ -62,7 +70,12 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			float fromTargetDot = vector.Dot(m_Player.Expansion_GetAimDirection(), fromTargetDirection);
 
 			//! Enemy weapon
-			auto enemyHands = ItemBase.Cast(m_Player.GetHumanInventory().GetEntityInHands());
+			auto enemyHands = m_Player.GetHumanInventory().GetEntityInHands();
+
+			if (enemyHands && enemyHands.IsWeapon())
+				m_HasProjectileWeaponInHands = true;
+			else
+				m_HasProjectileWeaponInHands = false;
 
 			//! Guards won't aggro until the other player raises their weapon in their direction, starts melee fighting or shoots another player
 			//! Observers will never aggro and just look at the player
@@ -74,7 +87,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 
 				if (faction.IsGuard())
 				{
-					if (m_Player.IsRaised() && fromTargetDot >= 0.9 && ((enemyHands && enemyHands.IsWeapon()) || m_Player.IsFighting()))
+					if (m_Player.IsRaised() && fromTargetDot >= 0.9 && (m_HasProjectileWeaponInHands || m_Player.IsFighting()))
 						canEnterFightingState = true;
 					else if (m_Player.eAI_UpdateAgressionTimeout(150.0 - distance))
 						canEnterFightingState = true;
@@ -123,7 +136,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 					//! Enemy weapon is raised or enemy is close
 					if (m_Player.IsRaised() || distance <= 30 || hasLOS)
 					{
-						AdjustThreatLevelBasedOnWeapon(enemyHands, distance, levelFactor, hasLOS);
+						AdjustThreatLevelBasedOnWeapon(enemyHands, distance, levelFactor, hasLOS, m_DistanceThreshold);
 
 						if (m_Player.IsRaised())
 							levelFactor *= ExpansionMath.LinearConversion(0, 1000, distance, 2.0, 1.0);
@@ -135,6 +148,16 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);
+	}
+
+	override float GetMinDistance(eAIBase ai = null, float distance = 0.0)
+	{
+		if (distance > m_DistanceThreshold && (ai.eAI_IsLowVitals() || (m_HasProjectileWeaponInHands && !ai.m_eAI_HasProjectileWeaponInHands)))
+			return 1000.0;  //! Flee
+		else if (ai.m_eAI_HasProjectileWeaponInHands)  //! Only reset after AI has projectile weapon, irrespective of enemy weapon
+			return 0.0;
+
+		return m_MinDistance;
 	}
 
 	float ProcessVehicleThreat(eAIBase ai, float distance)
@@ -152,7 +175,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		return levelFactor;
 	}
 
-	static bool AdjustThreatLevelBasedOnWeapon(EntityAI weapon, float distance, inout float levelFactor, bool hasLOS = true)
+	static bool AdjustThreatLevelBasedOnWeapon(EntityAI weapon, float distance, inout float levelFactor, bool hasLOS = true, out float distanceThreshold = 0.0)
 	{
 		Weapon_Base gun;
 		if (!Class.CastTo(gun, weapon))
@@ -171,22 +194,26 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		if (gun.IsInherited(BoltActionRifle_Base) || gun.IsInherited(BoltRifle_Base) || (Class.CastTo(optics, gun.GetAttachedOptics()) && optics.GetZeroingDistanceZoomMax() >= distance))
 		{
 			levelFactor *= 7.333333;  //! If either AI or target have a 7.62x54 mm bolt rifle, threat level 0.4 at 500 m
+
+			distanceThreshold = 150.0;
 		}
 		else if (gun.IsInherited(Rifle_Base))  //! Rifle_Base also includes shotguns
 		{
 			levelFactor *= 5.0;  //! If either AI or target have a 5.56x45 mm rifle, threat level 0.4 at 250 m
+			
+			distanceThreshold = 75.0;
 		}
 		else if (gun.IsKindOf("Pistol_Base"))
 		{
 			levelFactor *= 5.0;  //! If either AI or target have a 19x9 mm pistol, threat level 0.4 at 50 m
+			
+			distanceThreshold = 35.0;
 		}
-		else if (gun.IsInherited(Weapon_Base))  //! In theory this condition should never be reached
+		else  //! In theory this condition should never be reached
 		{
 			levelFactor *= 5.0;  //! If either AI or target have a 5.56x45 mm weapon, threat level 0.4 at 250 m
-		}
-		else
-		{
-			return false;
+			
+			distanceThreshold = 100.0;
 		}
 
 		if (!hasLOS)

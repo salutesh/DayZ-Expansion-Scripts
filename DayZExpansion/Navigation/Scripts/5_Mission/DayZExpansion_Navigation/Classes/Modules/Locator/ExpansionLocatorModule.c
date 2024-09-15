@@ -87,14 +87,10 @@ class ExpansionLocatorModule: CF_ModuleGame
 		IngameHud hud = IngameHud.Cast( mission.GetHud() );
 		if ( !hud || !hud.GetExpanisonLocatorUI() )
 			return;
-
-		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
-		if ( !player )
-			return;
 		
 		ExpansionLocatorArray shortestLocation = null;
 		float shortestDistanceSq = int.MAX;
-		vector myPos = player.GetPosition();
+		vector myPos = GetGame().GetCurrentCameraPosition();
 		vector myPos2D = Vector( myPos[0], 0, myPos[2] );
 
 		foreach (ExpansionLocatorArray loc: m_AreaArray)

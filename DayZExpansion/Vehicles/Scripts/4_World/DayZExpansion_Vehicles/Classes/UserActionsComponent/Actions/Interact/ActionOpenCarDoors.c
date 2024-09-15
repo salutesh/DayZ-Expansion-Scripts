@@ -5,9 +5,8 @@ modded class ActionOpenCarDoors
 		if (!super.ActionCondition(player, target, item))
 			return false;
 
-		auto hcv = player.GetCommand_Vehicle();
-		CarScript car;
-		if (hcv && Class.CastTo(car, hcv.GetTransport()) && car.IsLocked())
+		ExpansionVehicle vehicle;
+		if (ExpansionVehicle.Get(vehicle, player) && vehicle.IsLocked())
 			return false;
 
 		return true;

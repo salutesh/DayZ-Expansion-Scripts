@@ -1,7 +1,6 @@
 class eAIItemHazardTargetInformation: eAIItemTargetInformation
 {
 	float m_Range;
-	float m_MinDistance;
 
 	override void DeferredInit()
 	{
@@ -98,15 +97,5 @@ class eAIItemHazardTargetInformation: eAIItemTargetInformation
 			return true;
 
 		return false;  //! @note will also be removed if no longer active (i.e. not armed/destroyed)
-	}
-
-	override float GetMinDistance(eAIBase ai = null)
-	{
-		return m_MinDistance;
-	}
-
-	override float GetMinDistanceSq(eAIBase ai = null)
-	{
-		return m_MinDistance * m_MinDistance;
 	}
 };

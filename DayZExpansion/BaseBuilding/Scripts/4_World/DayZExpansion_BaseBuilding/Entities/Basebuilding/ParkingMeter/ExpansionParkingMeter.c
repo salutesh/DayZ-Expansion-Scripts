@@ -396,7 +396,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 			{
 				if (!isUnderRoof)
 					energy_delta *= 1.0 - sunshine;
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.BASEBUILDING, this, "::OnWork - consuming energy " + energy_delta);
 			#endif
 				carBattery.GetCompEM().ConsumeEnergy(energy_delta);
@@ -411,7 +411,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 					energy_delta * 2.0;  //! EVR gives a boost to recharging
 				else
 					energy_delta *= sunshine;
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.BASEBUILDING, this, "::OnWork - recharging energy " + energy_delta);
 			#endif
 				carBattery.GetCompEM().AddEnergy(energy_delta);

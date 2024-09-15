@@ -13,7 +13,7 @@ class eAIDamageHandler
 
 	bool OnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		m_HitCounter++;
 
 		EXTrace.PrintHit(EXTrace.AI, m_Entity, ToString() + "::OnDamageCalculated[" + m_HitCounter + "]", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
@@ -115,7 +115,7 @@ class eAIDamageHandler
 			{
 				damageMultiplier *= speedCoef;
 
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.AI, m_Entity, ToString() + "::OnDamageCalculated[" + m_HitCounter + "] override dmg coef " + speedCoef + " -> " + damageMultiplier);
 			#endif
 
@@ -141,7 +141,7 @@ class eAIDamageHandler
 
 	void ProcessDamage(int damageType, EntityAI source, DayZPlayerImplement sourcePlayer, string dmgZone, string ammo, vector modelPos, float damageCoef = 1.0)
 	{
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.PrintHit(EXTrace.AI, m_Entity, ToString() + "::ProcessDamage[" + m_HitCounter + "]", null, damageType, source, -1, dmgZone, ammo, modelPos, damageCoef);
 	#endif
 

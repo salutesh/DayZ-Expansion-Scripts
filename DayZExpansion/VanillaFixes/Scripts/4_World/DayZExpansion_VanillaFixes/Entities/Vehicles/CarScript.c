@@ -1,11 +1,24 @@
 modded class CarScript
 {
+#ifdef DAYZ_1_25
 	int s_Expansion_OnBeforeEngineStart_Client_RPCID;
 
 	void CarScript()
 	{
 		if (!s_Expansion_OnBeforeEngineStart_Client_RPCID)
 			s_Expansion_OnBeforeEngineStart_Client_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_Expansion_OnBeforeEngineStart_Client");
+	}
+#endif
+
+	//! https://feedback.bistudio.com/T184230
+	override int GetCarDoorsState(string slotType)
+	{
+		int state = super.GetCarDoorsState(slotType);
+
+		if (state == -1)
+			return CarDoorState.DOORS_MISSING;
+
+		return state;
 	}
 
 	//! Prevent being able to glitch through base walls etc when getting out vehicle
@@ -101,6 +114,7 @@ modded class CarScript
 		return shape;
 	}
 
+#ifdef DAYZ_1_25
 	//! "Failed engine start" sounds not working https://feedback.bistudio.com/T177537
 	override bool OnBeforeEngineStart()
 	{
@@ -121,4 +135,5 @@ modded class CarScript
 	{
 		OnBeforeEngineStart();
 	}
+#endif
 }

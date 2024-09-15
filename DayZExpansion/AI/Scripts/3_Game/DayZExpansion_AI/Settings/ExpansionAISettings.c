@@ -15,7 +15,7 @@
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 10;
+	static const int VERSION = 11;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -40,8 +40,10 @@ class ExpansionAISettings: ExpansionSettingBase
 	bool CanRecruitGuards;
 
 	ref TStringArray PreventClimb = {};
+	ref TStringArray ExcludedRoamingLocations = {};
+	ref TStringArray ExcludedRoamingBuildings = {};
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	float FormationScale;
 #endif
 
@@ -99,7 +101,7 @@ class ExpansionAISettings: ExpansionSettingBase
 			return false;
 		}
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		if ( !ctx.Read( FormationScale ) )
 		{
 			Error("ExpansionAISettings::OnRecieve FormationScale");
@@ -136,7 +138,7 @@ class ExpansionAISettings: ExpansionSettingBase
 		ctx.Write( CanRecruitGuards );
 		ctx.Write( CanRecruitFriendly );
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		ctx.Write( FormationScale );
 #endif
 	}
@@ -197,7 +199,7 @@ class ExpansionAISettings: ExpansionSettingBase
 		CanRecruitFriendly = s.CanRecruitFriendly;
 		CanRecruitGuards = s.CanRecruitGuards;
 		PreventClimb.Copy(s.PreventClimb);
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		FormationScale = s.FormationScale;
 #endif
 	}
@@ -265,7 +267,7 @@ class ExpansionAISettings: ExpansionSettingBase
 				if (m_Version < 2)
 				{
 					Manners = settingsDefault.Manners;
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 					FormationScale = settingsDefault.FormationScale;
 #endif
 				}
@@ -358,7 +360,7 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		PreventClimb.Clear();
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		FormationScale = 0.15;
 #endif
 

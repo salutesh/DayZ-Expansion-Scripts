@@ -1,4 +1,5 @@
 #ifdef SERVER
+#ifdef DAYZ_1_25
 //! "Failed engine start" sounds not working https://feedback.bistudio.com/T177537
 modded class ActionStartEngine
 {
@@ -21,4 +22,5 @@ modded class ActionStartEngine
 		}
 	}
 }
+#endif
 #endif

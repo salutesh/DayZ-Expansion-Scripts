@@ -65,7 +65,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	//! Client
 	protected void RPC_ReceiveFactionReputation(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
+#endif
 		
 		PlayerBase clientPB = PlayerBase.Cast(GetGame().GetPlayer());
 		if (!clientPB)
@@ -88,7 +90,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	
 	override void OnClientPrepare(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
+#endif
 
 		auto cArgs = CF_EventPlayerPrepareArgs.Cast(args);
 
@@ -98,7 +102,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
 	#endif
 
@@ -106,7 +110,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 		
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		EXTrace.Add(trace, cArgs.Player);
 		EXTrace.Add(trace, cArgs.Identity);
 	#endif
@@ -117,7 +121,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 	override void OnClientDisconnect(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
+#endif
 
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
 
@@ -128,8 +134,10 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	//! Load player data early so it's available in StartingEquipSetup
 	protected void LoadPlayerData(PlayerIdentity identity)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
-
+#endif 
+		
 		//! Check if hardline player data file exists and load it
 		string playerUID = identity.GetId();
 		auto data = m_HardlinePlayerData[playerUID];
@@ -167,7 +175,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 	protected void SetupClientData(PlayerBase player, PlayerIdentity identity)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
 		EXTrace.Add(trace, player);
 		EXTrace.Add(trace, identity);
@@ -179,7 +187,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	
 	void OnEntityKilled(EntityAI victim, Object killer)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
 		EXTrace.Add(trace, victim);
 		EXTrace.Add(trace, killer);
@@ -265,7 +273,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	
 	protected void HandlePlayerKilledEntity(PlayerBase killer, EntityAI victim, int reputation)
 	{		
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
+#endif 
 		
 		bool isFriendly;
 	#ifdef EXPANSIONMODAI
@@ -282,8 +292,10 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	
 	protected void HandlePlayerKilledPlayer(PlayerBase killer, PlayerBase victim, int reputation, bool victimIsAI = false)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
-		
+#endif 
+			
 		bool isFriendly = false;
 		
 	#ifdef EXPANSIONMODGROUPS
@@ -311,7 +323,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		}
 	#endif
 		
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		ModulePrint(ToString() + "::HandlePlayerKilledPlayer - Are killer and victim friendly to each other? " + isFriendly);
 	#endif
 		
@@ -325,7 +337,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		
 	protected void HandlePlayerDeath(PlayerBase victim)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
+#endif 
 		
 		int repToRemove = GetExpansionSettings().GetHardline().ReputationLossOnDeath;
 		
@@ -339,8 +353,10 @@ class ExpansionHardlineModule: CF_ModuleWorld
 #ifdef EXPANSIONMODAI
 	protected void HandlePlayerKilledByAI(PlayerBase victim, PlayerBase killer, int reputation)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
-
+#endif 
+		
 		HandlePlayerDeath(victim);
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnPlayerKilledAI(killer, victim, reputation);
 	}
@@ -348,7 +364,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 	void OnPlayerAction(PlayerBase player, int reputation)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
+#endif 
 		
 		if (reputation == 0)
 			return;
@@ -368,7 +386,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	
 	static void ModulePrint(string text)
 	{
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.HARDLINE, s_Instance, text);
 	#endif
 	}

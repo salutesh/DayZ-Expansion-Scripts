@@ -58,7 +58,10 @@ PanelWidgetClass ExpansionATMMenuPlayerEntry {
      vexactsize 0
      scriptclass "ViewBinding"
      text "Test"
-     font "gui/fonts/etelkatextpro22"
+     font "gui/fonts/sdf_MetronBook24"
+     "bold text" 0
+     "exact text" 1
+     "exact text size" 22
      "text valign" center
      {
       ScriptParamsClass {

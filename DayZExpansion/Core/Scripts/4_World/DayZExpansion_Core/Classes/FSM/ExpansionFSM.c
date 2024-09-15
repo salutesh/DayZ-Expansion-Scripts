@@ -97,7 +97,7 @@ class ExpansionFSM
 		{
 			m_Transitions.Insert(transition);
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.AI, this, "AddTransition NULL -> " + transition.GetDestination() + " | count: " + m_Transitions.Count());
 		#endif
 		}
@@ -225,7 +225,7 @@ class ExpansionFSM
 	 */
 	int Update(float pDt, int pSimulationPrecision)
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Profile(EXTrace.AI, this);
 #endif
 

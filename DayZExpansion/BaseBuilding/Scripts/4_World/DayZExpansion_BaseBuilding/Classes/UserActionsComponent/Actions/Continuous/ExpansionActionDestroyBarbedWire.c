@@ -12,8 +12,6 @@
 
 class ExpansionActionDestroyBarbedWire : ExpansionActionDestroyBase
 {
-	string m_SlotName;
-
 	override bool SetupCondition()
 	{
 		return GetExpansionSettings().GetRaid(false).IsLoaded();
@@ -37,13 +35,13 @@ class ExpansionActionDestroyBarbedWire : ExpansionActionDestroyBase
 
 		Object targetObject = target.GetObject();
 
+		EntityAI targetEntity;
 		if ( targetObject.IsInherited( ExpansionBarbedWire ) )
 		{
 			return true;
-		} else
-		{
-			BaseBuildingBase base_building = BaseBuildingBase.Cast( targetObject );
-						
+		}
+		else if (Class.CastTo(targetEntity, targetObject))
+		{			
 			string selection = targetObject.GetActionComponentName( target.GetComponentIndex() );
 			
 			if ( selection.Length() > 0 )
@@ -53,11 +51,12 @@ class ExpansionActionDestroyBarbedWire : ExpansionActionDestroyBase
 				{
 					selection = selection.Substring( 0, delimiter_index );
 					
-					BarbedWire barbed_wire = BarbedWire.Cast( base_building.FindAttachmentBySlotName( selection ) );
+					BarbedWire barbed_wire = BarbedWire.Cast( targetEntity.FindAttachmentBySlotName( selection ) );
 					if ( barbed_wire && barbed_wire.IsMounted() )
 					{
+					#ifndef SERVER
 						m_TargetName = barbed_wire.GetDisplayName();
-						m_SlotName = selection;
+					#endif
 
 						return true;
 					}
@@ -76,14 +75,17 @@ class ExpansionActionDestroyBarbedWire : ExpansionActionDestroyBase
 
 	override Object GetActualTargetObject( Object targetObject )
 	{
+		EntityAI targetEntity;
 		if ( targetObject.IsInherited( ExpansionBarbedWire ) )
 		{
 			return targetObject;
-		} else
-		{
-			BaseBuildingBase base_building = BaseBuildingBase.Cast( targetObject );
-			return base_building.FindAttachmentBySlotName( m_SlotName );
 		}
+		else if (Class.CastTo(targetEntity, targetObject))
+		{
+			return targetEntity.GetAttachmentByType( BarbedWire );
+		}
+
+		return null;
 	}
 
 	override bool Expansion_CheckSuccess(ActionData action_data)

@@ -491,14 +491,10 @@ modded class ItemBase
 			mass = GetWeight() / 1000;
 		vector force = velocity * mass;
 
-		CarScript car;
-		ExpansionVehicleBase vehicle;
-		bool exploded;
-		if ((Class.CastTo(car, parent) && car.IsExploded()) || (Class.CastTo(vehicle, parent) && vehicle.IsExploded()))
-			exploded = true;
+		ExpansionVehicle vehicle;
 
 		//! If parent is exploded vehicle, make parts fly off violently
-		if (exploded)
+		if (ExpansionVehicle.Get(vehicle, parent) && vehicle.IsExploded())
 		{
 			if (!force.Length())
 				force = GetDirection(); //! If vehicle is standing still, use direction vector instead of velocity

@@ -87,7 +87,7 @@ class ExpansionActionPaint: ActionContinuousBase
 
 		super.OnStartServer( action_data );
 
-		CarScript car;
+		ExpansionVehicle vehicle;
 		ItemBase item;
 
 		string spraySkin;
@@ -97,9 +97,9 @@ class ExpansionActionPaint: ActionContinuousBase
 		if ( skinIndex == -1 )
 			return;
 		
-		if ( Class.CastTo( car, action_data.m_Target.GetObject() ) )
+		if ( ExpansionVehicle.Get( vehicle, action_data.m_Target.GetObject() ) )
 		{
-			car.ExpansionSetSkin( skinIndex );
+			vehicle.SetSkin( skinIndex );
 		} else if ( Class.CastTo( item, action_data.m_Target.GetObject() ) ) 
 		{
 			item.ExpansionSetSkin( skinIndex );

@@ -220,7 +220,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		//! Restore state of opened windows/door/gate
 		if ( m_Expansion_IsOpened || m_Expansion_IsOpened1 || m_Expansion_IsOpened2 || m_Expansion_IsOpened3 || m_Expansion_IsOpened4 )
-			Open( "" );
+			Expansion_Open( "" );
 	}
 
 	override bool CanReleaseAttachment( EntityAI attachment )
@@ -620,7 +620,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return false;
 	}
 	
-	override void Open( string selection ) 
+	override void Expansion_Open( string selection ) 
 	{	
 		if ( IsMissionHost() && m_Expansion_HasWindow )
 		{
@@ -675,7 +675,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		SetSynchDirty();
 	}
 	
-	override void Close( string selection ) 
+	override void Expansion_Close( string selection ) 
 	{	
 		if ( GetGame().IsServer() && m_Expansion_HasWindow )
 		{
@@ -751,11 +751,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		if ( m_Expansion_HasDoor )
 		{
-			Open( m_Expansion_CurrentBuild + "_door" );
+			Expansion_Open( m_Expansion_CurrentBuild + "_door" );
 		} else if ( m_Expansion_HasGate )
 		{
-			Open( m_Expansion_CurrentBuild + "_gate_l" );
-			Open( m_Expansion_CurrentBuild + "_gate_r" );
+			Expansion_Open( m_Expansion_CurrentBuild + "_gate_l" );
+			Expansion_Open( m_Expansion_CurrentBuild + "_gate_r" );
 		}
 	}
 
@@ -763,13 +763,13 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	{
 		if ( m_Expansion_HasDoor && ExpansionIsOpened() )
 		{
-			Close( m_Expansion_CurrentBuild + "_door" );
+			Expansion_Close( m_Expansion_CurrentBuild + "_door" );
 		} else if ( m_Expansion_HasGate )
 		{
 			if ( GetAnimationPhase( m_Expansion_CurrentBuild + "_gate_l_rotate" ) > 0.5 )
-				Close( m_Expansion_CurrentBuild + "_gate_l" );
+				Expansion_Close( m_Expansion_CurrentBuild + "_gate_l" );
 			if ( GetAnimationPhase( m_Expansion_CurrentBuild + "_gate_r_rotate" ) > 0.5 )
-				Close( m_Expansion_CurrentBuild + "_gate_r" );
+				Expansion_Close( m_Expansion_CurrentBuild + "_gate_r" );
 		}
 
 		ExpansionLock();

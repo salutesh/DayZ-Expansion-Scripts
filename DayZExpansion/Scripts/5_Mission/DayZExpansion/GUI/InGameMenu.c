@@ -21,6 +21,7 @@ modded class InGameMenu
 	protected float m_Distance;
 	protected float m_Playtime;
 	protected float m_PlayersKilled;
+	protected float m_AIKilled;
 	protected float m_InfectedKilled;
 	protected float m_AnimalsKilled;
 	protected float m_LongestShot;
@@ -34,6 +35,7 @@ modded class InGameMenu
 	protected TextWidget m_AnimalsKilledVal;
 	protected TextWidget m_InfectedKilledVal;
 	protected TextWidget m_PlayersKilledVal;
+	protected TextWidget m_AIKilledVal;
 	protected TextWidget m_TimeSurvivedVal;
 	protected ButtonWidget m_DeadScreenStatsHideButton;
 	protected TextWidget m_DeadSceenStatsPanelTitle;
@@ -109,6 +111,9 @@ modded class InGameMenu
 		m_AnimalsKilledVal	 = TextWidget.Cast(m_DeadScreenRoot.FindAnyWidget("AnimalsKilledValue"));
 		m_InfectedKilledVal = TextWidget.Cast(m_DeadScreenRoot.FindAnyWidget("InfectedKilledValue"));
 		m_PlayersKilledVal = TextWidget.Cast(m_DeadScreenRoot.FindAnyWidget("PlayersKilledValue"));
+	#ifdef ENFUSION_AI_PROJECT
+		m_AIKilledVal = TextWidget.Cast(m_DeadScreenRoot.FindAnyWidget("AIKilledValue"));
+	#endif
 		m_TimeSurvivedVal = TextWidget.Cast(m_DeadScreenRoot.FindAnyWidget("TimeSurvivedValue"));
 		m_DeadScreenStatsHideButton = ButtonWidget.Cast( m_DeadScreenRoot.FindAnyWidget("bHide"));
 
@@ -178,6 +183,9 @@ modded class InGameMenu
 		m_Distance = player_stats.m_Distance;
 		m_Playtime = player_stats.m_Playtime;
 		m_PlayersKilled = player_stats.m_PlayersKilled;
+	#ifdef ENFUSION_AI_PROJECT
+		m_AIKilled = player_stats.m_AIKilled;
+	#endif
 		m_InfectedKilled = player_stats.m_InfectedKilled;
 		m_AnimalsKilled = player_stats.m_AnimalsKilled;
 		m_LongestShot = player_stats.m_LongestShot;
@@ -199,6 +207,12 @@ modded class InGameMenu
 			m_AnimalsKilledVal.SetText(ExpansionStatic.GetValueString(m_AnimalsKilled));
 			m_InfectedKilledVal.SetText(ExpansionStatic.GetValueString(m_InfectedKilled));
 			m_PlayersKilledVal.SetText(ExpansionStatic.GetValueString(m_PlayersKilled));
+		#ifdef ENFUSION_AI_PROJECT
+			m_AIKilledVal.SetText(ExpansionStatic.GetValueString(m_AIKilled));
+			m_AIKilledVal.Show(true);
+		#else
+			m_AIKilledVal.Show(false);
+		#endif
 			m_TimeSurvivedVal.SetText(ExpansionStatic.GetTimeString(m_Playtime));
 		}
 	}

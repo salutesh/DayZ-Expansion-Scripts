@@ -29,9 +29,6 @@ class ExpansionRemovedObject: OLinkT
 [CF_RegisterModule(ExpansionWorldObjectsModule)]
 class ExpansionWorldObjectsModule: CF_ModuleWorld
 {
-	static const string MISSION_OBJECT_FILES_FOLDER = "$mission:expansion\\objects\\";
-	static const string MISSION_TRADER_FILES_FOLDER = "$mission:expansion\\traders\\";
-
 	static ref array<Object> s_FirePlacesToDelete = new array<Object>;
 
 	static ref map<Object, ref ExpansionRemovedObject> s_RemovedObjects = new map<Object, ref ExpansionRemovedObject>;
@@ -39,8 +36,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	override void OnInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
-
+#endif
+		
 		super.OnInit();
 		
 		EnableMissionStart();
@@ -53,8 +52,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
  	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
-
+#endif
+		
 		super.OnMissionStart(sender, args);
 
 		if (!GetGame().IsServer())
@@ -71,8 +72,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	override void OnMissionFinish(Class sender, CF_EventArgs args)
  	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
-
+#endif
+		
 		super.OnMissionFinish(sender, args);
 
 		RestoreRemovedObjects();
@@ -81,8 +84,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static void RestoreRemovedObjects()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule);
-
+#endif
+		
 		foreach (Object obj, ExpansionRemovedObject removedObj: s_RemovedObjects)
 		{
 			if (!obj || !removedObj)
@@ -99,8 +104,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
-
+#endif
+		
 		super.OnInvokeConnect(sender, args);
 
 //! If Expansion Main is loaded, removed objects are sent as part of general settings RPC to avoid race conditions (building interiors checks if object was removed)
@@ -127,8 +134,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static void WriteRemovedObjects(ParamsWriteContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule);
-
+#endif
+		
 		ctx.Write(s_RemovedObjects.Count());
 		foreach (Object obj, ExpansionRemovedObject removedObj: s_RemovedObjects)
 		{
@@ -140,8 +149,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 	//! Client only!
 	static void RPC_RemoveObjects(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule);
-
+#endif
+		
 		int count;
 		ctx.Read(count);
 		while (count)
@@ -178,23 +189,36 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		array<string> objectFiles;
 		array<string> traderFiles;
 
-		if ( loadObjects && FileExist( MISSION_OBJECT_FILES_FOLDER ) )
+		if ( loadObjects )
 		{
-			objectFiles = ExpansionStatic.FindFilesInLocation(MISSION_OBJECT_FILES_FOLDER, EXPANSION_MAPPING_EXT);
-			if (objectFiles.Count() >= 0)
+			if (FileExist( EXPANSION_MISSION_OBJECTS_FOLDER ))
 			{
-				LoadMissionObjects(objectFiles);
+				objectFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_MISSION_OBJECTS_FOLDER, EXPANSION_MAPPING_EXT);
+				if (objectFiles.Count() >= 0)
+				{
+					LoadMissionObjects(objectFiles);
+				}
+			}
+			else
+			{
+				ExpansionStatic.MakeDirectoryRecursive(EXPANSION_MISSION_OBJECTS_FOLDER);
 			}
 		}
 
 	#ifdef EXPANSIONMODMARKET
-		if ( loadTraders && FileExist( MISSION_TRADER_FILES_FOLDER ) )
+		if ( loadTraders )
 		{
-			traderFiles = ExpansionStatic.FindFilesInLocation(MISSION_TRADER_FILES_FOLDER, EXPANSION_MAPPING_EXT);
-			if (traderFiles.Count() >= 0)
+			if (FileExist( EXPANSION_MISSION_TRADERS_FOLDER ))
 			{
-
-				LoadMissionTraders(traderFiles);
+				traderFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_MISSION_TRADERS_FOLDER, EXPANSION_MAPPING_EXT);
+				if (traderFiles.Count() >= 0)
+				{
+					LoadMissionTraders(traderFiles);
+				}
+			}
+			else
+			{
+				ExpansionStatic.MakeDirectoryRecursive(EXPANSION_MISSION_TRADERS_FOLDER);
 			}
 		}
 	#endif
@@ -216,7 +240,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	static void LoadMissionObjectsFile( string name )
 	{
-		string filePath = MISSION_OBJECT_FILES_FOLDER + name;
+		string filePath = EXPANSION_MISSION_OBJECTS_FOLDER + name;
 		LoadObjectsFile(filePath);
 
 		CF_Log.Debug( "Created all objects from mission object file: " + filePath );
@@ -234,8 +258,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static void LoadObjectsFile(string filePath, array<Object> createdObjects = NULL)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule, filePath);
-
+#endif
+		
 		FileHandle file = OpenFile( filePath, FileMode.READ );
 		if ( !file )
 			return;
@@ -421,7 +447,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static void ProcessObject(Object obj)
 	{
-#ifdef EXPANSIONTRACE
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule);
 #endif
 
@@ -684,13 +710,13 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	static void LoadMissionTradersFile( string name )
 	{
-#ifdef EXPANSIONTRACE
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule);
 #endif
 
 		CF_Log.Debug( "Attempting to load mission trader file: " + name );
 
-		string filePath = MISSION_TRADER_FILES_FOLDER + name;
+		string filePath = EXPANSION_MISSION_TRADERS_FOLDER + name;
 		LoadTradersFile(filePath);
 
 		CF_Log.Debug( "Created all traders from mission trader file: " + filePath );
@@ -698,8 +724,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static void LoadTradersFile( string filePath )
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule, filePath);
-
+#endif
+		
 		FileHandle file = OpenFile( filePath, FileMode.READ );
 		if ( !file )
 			return;
@@ -753,6 +781,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 				#ifdef ENFUSION_AI_PROJECT
 				ExpansionTraderAIBase traderAI;
 				#endif
+				if (fileName == string.Empty)
+					EXError.Warn(null, string.Format("Entity %1 from file %2 has no associated trader filename", className, filePath), {});
+				else
+					EXPrint("LoadMissionTradersFile trader " + trader + " fileName " + fileName);
 				if ( Class.CastTo( traderNPC, obj ) )
 					traderNPC.LoadTrader(fileName);
 				else if ( Class.CastTo( traderStatic, obj ) )
@@ -761,13 +793,9 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 					traderZombie.LoadTrader(fileName);
 				#ifdef ENFUSION_AI_PROJECT
 				else if ( Class.CastTo( traderAI, obj ) )
-					traderAI.LoadTrader(fileName);
-				#endif
-				EXPrint("LoadMissionTradersFile trader " + trader + " fileName " + fileName);
-			
-				#ifdef EXPANSIONMODAI
-				if ( traderAI )
 				{
+					traderAI.LoadTrader(fileName);
+
 					eAIGroup ownerGrp = traderAI.GetGroup();
 					for ( j = 0; j < positions.Count(); j++ )
 					{
@@ -778,8 +806,14 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 					ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
 				}
 				#endif
+				else
+					EXError.Warn(null, string.Format("Entity %1 from file %2 is not a valid trader classname", className, filePath), {});
 
 				CF_Log.Debug( "  Created" );
+			}
+			else
+			{
+				EXError.Error(null, string.Format("Object %1 from file %2 is not a valid trader classname", className, filePath), {});
 			}
 		}
 

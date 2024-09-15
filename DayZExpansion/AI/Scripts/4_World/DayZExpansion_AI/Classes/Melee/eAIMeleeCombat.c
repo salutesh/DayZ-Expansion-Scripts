@@ -24,8 +24,10 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 	
 	override protected void TargetSelection()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Profile(EXTrace.AI, this);
-
+#endif 
+		
 		vector hitPos;
 
 		// Calculate max distances
@@ -116,8 +118,10 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 	override protected bool HitZoneSelectionRaycast(out vector hitPos, out int hitZone, out Object target, bool useCamera)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Profile(EXTrace.AI, this);
-
+#endif 
+		
 		vector pos;
 		vector playerDir = m_AI.GetDirection();
 		MiscGameplayFunctions.GetHeadBonePos(m_AI, pos);
@@ -136,7 +140,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		set<Object> hitObjects = new set<Object>;
 		vector hitNormal;
 
-		if (DayZPhysics.RaycastRV(m_RayStart, m_RayEnd, hitPos, hitNormal, hitZone, hitObjects, null, m_AI, true, false, ObjIntersectIFire, 0.0, CollisionFlags.ALLOBJECTS) && hitObjects.Count() > 0)
+		if (DayZPhysics.RaycastRV(m_RayStart, m_RayEnd, hitPos, hitNormal, hitZone, hitObjects, null, m_AI, false, false, ObjIntersectIFire, 0.0, CollisionFlags.ALLOBJECTS) && hitObjects.Count() > 0)
 		{
 			EntityAI hitEntity;
 
@@ -147,6 +151,9 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 				target = hitObject;
 				m_ForceUntargetable = false;
+
+				if (hitObject.IsBuilding())
+					continue;
 
 				//! Opponent is inside car - targeting range is shorter in that case
 				PlayerBase playerTarget = PlayerBase.Cast(target);
@@ -168,9 +175,12 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 					}
 				}
 
-				return true;
+				break;
 			}
 		}
+
+		if (target)
+			return true;
 
 		return false;
 	}

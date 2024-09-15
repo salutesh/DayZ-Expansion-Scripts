@@ -41,7 +41,7 @@ static ExpansionVehicleGearbox Expansion_CreateGearbox(EntityAI vehicle, string 
 	{
 	case ExpansionVehicleGearboxType.ADVANCED:
 		return new ExpansionVehicleGearboxAdvanced(vehicle, path);
-	case ExpansionVehicleGearboxType.DEFAULT:
+	default:
 		return new ExpansionVehicleGearboxDefault(vehicle, path);
 	}
 

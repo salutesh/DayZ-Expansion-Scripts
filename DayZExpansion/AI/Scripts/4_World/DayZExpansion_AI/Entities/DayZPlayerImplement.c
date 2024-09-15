@@ -1,6 +1,6 @@
 modded class DayZPlayerImplement
 {
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	static int DEBUG_EXPANSION_AI_CLIMB;
 	static bool DEBUG_EXPANSION_AI_VEHICLE;
 #endif
@@ -12,6 +12,7 @@ modded class DayZPlayerImplement
 	private eAIGroup m_Expansion_FormerGroup;
 	protected typename m_eAI_FactionType;
 	private int m_eAI_GroupID;
+	int m_eAI_GroupMemberID = -1;  //! Only unique within current group
 	private int m_eAI_FactionTypeID;
 	private int m_eAI_FactionTypeIDSynch;
 	private int m_eAI_GroupMemberIndex;
@@ -27,7 +28,7 @@ modded class DayZPlayerImplement
 
 	float m_eAI_DamageReceivedMultiplier = 1.0;
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #ifndef SERVER
 	autoptr array<Shape> m_Expansion_DebugShapes = new array<Shape>();
 #endif
@@ -38,7 +39,7 @@ modded class DayZPlayerImplement
 		if (!GetGame())
 			return;
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.AI, this, "~DayZPlayerImplement");
 	#endif
 
@@ -47,7 +48,7 @@ modded class DayZPlayerImplement
 
 	override void Expansion_Init()
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 #endif
 
@@ -142,7 +143,7 @@ modded class DayZPlayerImplement
 
 	void SetGroup(eAIGroup group, bool autoDeleteFormerGroupIfEmpty = true)
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + group, "" + autoDeleteFormerGroupIfEmpty);
 #endif
 
@@ -153,7 +154,11 @@ modded class DayZPlayerImplement
 		{
 			m_eAI_Group.RemoveMember(this, autoDeleteFormerGroupIfEmpty);
 
+			if (IsAI() && m_eAI_Group.m_Persist && m_eAI_Group.m_BaseName)
+				eAI_DeletePersistentFiles();
+
 			m_eAI_GroupID = -1;
+			m_eAI_GroupMemberID = -1;
 
 			EXTrace.Print(EXTrace.AI, this, "Current AI group: " + m_eAI_Group);
 			if (!autoDeleteFormerGroupIfEmpty)
@@ -166,6 +171,7 @@ modded class DayZPlayerImplement
 		if (m_eAI_Group)
 		{
 			m_eAI_GroupID = m_eAI_Group.GetID();
+			m_eAI_GroupMemberID = m_eAI_Group.m_NextGroupMemberID++;
 			int factionTypeID = m_eAI_Group.GetFaction().GetTypeID();
 			if (factionTypeID != m_eAI_FactionTypeID)
 				eAI_SetFactionTypeID(factionTypeID);
@@ -180,6 +186,18 @@ modded class DayZPlayerImplement
 
 		if (GetGame().IsDedicatedServer())
 			SetSynchDirty();
+	}
+
+	void eAI_DeletePersistentFiles()
+	{
+		string path = m_eAI_Group.GetStorageDirectory() + m_eAI_GroupMemberID.ToString();
+
+		string aiDir = path + "\\";
+		ExpansionStatic.DeleteDirectoryStructureRecursive(aiDir, ".bin");
+
+		string aiPath = path + ".bin";
+		if (FileExist(aiPath))
+			DeleteFile(aiPath);
 	}
 
 	eAIGroup GetGroup()
@@ -225,7 +243,7 @@ modded class DayZPlayerImplement
 
 	void eAI_SetFactionTypeID(int id)
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + id);
 #endif
 
@@ -362,7 +380,7 @@ modded class DayZPlayerImplement
 	//! Suppress "couldn't kill player" in server logs when AI gets killed
 	Hive GetHive()
 	{
-		#ifdef DIAG
+		#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 		#endif
 
@@ -404,7 +422,7 @@ modded class DayZPlayerImplement
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy[" + m_eAI_DamageHandler.m_HitCounter + "]", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	#endif
 
@@ -529,7 +547,7 @@ modded class DayZPlayerImplement
 			case type.GetNoiseParamsShout():
 				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseShout", noiseMultiplier);
 				break;
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			default:
 				EXTrace.Print(EXTrace.AI, this, "::AddNoise " + noisePar + " " + noiseMultiplier);
 				break;
@@ -537,7 +555,7 @@ modded class DayZPlayerImplement
 		}
 	}
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #ifndef SERVER
 	void AddShape(Shape shape)
 	{

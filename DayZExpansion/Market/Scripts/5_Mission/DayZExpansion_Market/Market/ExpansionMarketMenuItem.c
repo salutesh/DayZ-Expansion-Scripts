@@ -46,6 +46,8 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	protected Widget market_item_fastsell;
 	protected Widget market_item_info_sell_price_panel;
 	
+	protected Widget market_item_overlay;
+	
 	protected vector m_ItemPreviewOrientation = vector.Zero;
 	protected int m_ItemPreviewRotationX = 0;
 	protected int m_ItemPreviewRotationY = 0;
@@ -58,6 +60,8 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	
 	protected bool m_CanBuy;
 	protected bool m_CanSell;
+	protected bool m_HasRepBuy = true;
+	protected bool m_HasRepSell = true;
 
 	void ExpansionMarketMenuItem(ExpansionMarketMenu menu, ExpansionMarketItem item)
 	{
@@ -136,11 +140,10 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		
 		if (skinIndex > -1 && m_Object)
 		{
-			if (m_Object.IsInherited(CarScript))
+			auto vehicle = ExpansionVehicle.Get(m_Object);
+			if (vehicle)
 			{
-				CarScript car = CarScript.Cast(m_Object);
-				if (car)
-					car.ExpansionSetSkin(skinIndex);
+				vehicle.SetSkin(skinIndex);
 			}
 			else if (m_Object.IsInherited(ItemBase))
 			{
@@ -207,9 +210,14 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		
 		m_CanBuy = GetMarketMenu().GetMarketTrader().CanBuyItem(GetMarketItem().ClassName);
 		m_CanSell = GetMarketMenu().GetMarketTrader().CanSellItem(GetMarketItem().ClassName);
+	
+		OnSetView();
 
 		UpdateView();
 	}
+
+	//! This is here for overrides
+	void OnSetView();
 	
 	void UpdatePreviewObject()
 	{
@@ -236,9 +244,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			
 			if (m_IncludeAttachments)
 			{
-				#ifdef EXPANSIONMODMARKET_DEBUG
+			#ifdef EXPANSIONMODMARKET_DEBUG
 				EXLogPrint("ExpansionMarketMenuItem::UpdatePreviewObject - Attachments count:" + GetMarketItem().SpawnAttachments.Count() + " for item " + previewClassName);
-				#endif
+			#endif
 				SpawnAttachments(GetMarketItem(), m_Object);
 			}
 
@@ -272,9 +280,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 
 	void UpdateView()
 	{
-		#ifdef EXPANSIONMODMARKET_DEBUG
+	#ifdef EXPANSIONMODMARKET_DEBUG
 		EXLogPrint("ExpansionMarketMenuItem::UpdateView - Start");
-		#endif
+	#endif
 		
 		if (!m_ItemController)
 			return;
@@ -289,9 +297,14 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		m_PlayerStock = m_MarketModule.GetAmountInInventory(GetMarketItem(), m_MarketModule.LocalGetEntityInventory());
 		
 		UpdatePrices();
-			
-		if (m_CanBuy)
-		{		
+
+		bool canOnlyBuy = m_CanBuy && !m_CanSell;
+		bool canOnlySell = !m_CanBuy && m_CanSell;
+		bool isOutOfStock;
+		
+		//! Market stock and buy
+		if (m_CanBuy && m_HasRepBuy)
+		{
 			if (m_ItemStock > 0)
 			{
 				if (GetMarketItem().IsStaticStock())
@@ -301,20 +314,32 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			}
 			else
 			{
-				if (GetMarketItem().MaxStockThreshold > 0)
+				if (GetMarketItem().MaxStockThreshold > 0) 
+				{
+					isOutOfStock = true;
 					m_ItemController.ItemMarketStock = "#STR_EXPANSION_MARKET_ITEM_NOTINSTOCK";
+				}
 				else
 					m_ItemController.ItemMarketStock = "";
 			}
 		}
 		else
 		{
-			m_ItemController.ItemMarketStock = "#STR_EXPANSION_MARKET_ITEM_CANT_BUY";
+			if (m_CanBuy && GetMarketItem().MaxStockThreshold > 0 && m_ItemStock < 1) 
+				isOutOfStock = !GetMarketItem().IsStaticStock();
+
+			if (canOnlySell && m_HasRepSell)
+				m_ItemController.ItemMarketStock = "";
+			else if (m_HasRepBuy)
+				m_ItemController.ItemMarketStock = "#STR_EXPANSION_MARKET_ITEM_CANT_BUY";
+			else
+				m_ItemController.ItemMarketStock = "NOT ENOUGH REP";
 		}
 		
 		m_ItemController.NotifyPropertyChanged("ItemMarketStock");
 		
-		if (m_CanSell)
+		//! Player stock and sell
+		if (m_CanSell && m_HasRepSell)
 		{
 			if (m_PlayerStock >= 0)
 				m_ItemController.ItemPlayerStock = m_PlayerStock.ToString() + " #STR_EXPANSION_MARKET_ITEM_ONPLAYER";
@@ -323,10 +348,33 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		}
 		else
 		{
-			m_ItemController.ItemPlayerStock = "#STR_EXPANSION_MARKET_ITEM_CANT_SELL";
+			if (canOnlyBuy && m_HasRepBuy)
+				m_ItemController.ItemPlayerStock = "";
+			else if (m_HasRepSell)
+				m_ItemController.ItemPlayerStock = "#STR_EXPANSION_MARKET_ITEM_CANT_SELL";
+			else
+				m_ItemController.ItemPlayerStock = "NOT ENOUGH REP";
 		}
 
 		m_ItemController.NotifyPropertyChanged("ItemPlayerStock");
+		
+		bool shouldDisplayOverlay;
+		if (canOnlyBuy)
+			shouldDisplayOverlay = !m_HasRepBuy || isOutOfStock;
+		else if (canOnlySell)
+			shouldDisplayOverlay = !m_HasRepSell;
+		else if (!m_HasRepSell && !m_HasRepBuy)
+			shouldDisplayOverlay = true;
+		
+		if (shouldDisplayOverlay)
+		{
+			market_item_overlay.Show(true);
+			if (isOutOfStock && canOnlyBuy)
+				m_ItemController.OverlayText = "#STR_EXPANSION_MARKET_ITEM_NOTINSTOCK";
+			else
+				m_ItemController.OverlayText = "NOT ENOUGH REPUTATION";  //! TODO: Translation
+			m_ItemController.NotifyPropertyChanged("OverlayText");
+		}
 				
 		UpdateButtons();
 
@@ -340,21 +388,21 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		
 		GetMarketItem().m_UpdateView = false;
 
-		#ifdef EXPANSIONMODMARKET_DEBUG
+	#ifdef EXPANSIONMODMARKET_DEBUG
 		EXPrint("ExpansionMarketMenuItem::UpdateView - End");
-		#endif
+	#endif
 	}
 	
 	void UpdateButtons()
 	{
 		bool showFastBuy;
-		if (m_CanBuy && m_ItemStock > 0 && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice)
+		if (m_CanBuy && m_HasRepBuy && m_ItemStock > 0 && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice)
 			showFastBuy = true;
 
 		market_item_fastbuy.Show(showFastBuy);
 
 		bool showFastSell;
-		if (m_CanSell && m_PlayerStock > 0 && m_SellPrice > -1)
+		if (m_CanSell && m_HasRepSell && m_PlayerStock > 0 && m_SellPrice > -1)
 			showFastSell = true;
 
 		market_item_fastsell.Show(showFastSell);
@@ -363,7 +411,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	void UpdatePrices()
 	{
 		//! Buy price
-		if (m_CanBuy)
+		if (m_CanBuy && m_HasRepBuy)
 		{
 			int price = 0;
 			//! Can't pass in GetMarketItem() to FindPriceOfPurchase directly, causes NULL pointer. Fuck you EnforceScript.
@@ -381,7 +429,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		market_item_info_buy_price_icon.Show(m_BuyPrice > -1);
 
 		//! Sell price
-		if (m_CanSell)
+		if (m_CanSell && m_HasRepSell)
 		{
 			array<EntityAI> items;
 			if (m_PlayerStock != 0)
@@ -432,7 +480,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			percent = Math.Round((itemStock / GetMarketItem().MaxStockThreshold) * 100);
 		}
 
-		if (!percent || !m_CanBuy || !check)
+		if (!percent || !m_CanBuy || !check || !m_HasRepBuy)
 		{
 			//! Color red
 			return ARGB(255, 192, 57, 43);
@@ -702,6 +750,16 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		return m_CanBuy;
 	}
 	
+	bool HasRepSell()
+	{
+		return m_HasRepSell;
+	}
+	
+	bool HasRepBuy()
+	{
+		return m_HasRepBuy;
+	}
+	
 	int GetCurrentSelectedSkinIndex()
 	{
 		return m_CurrentSelectedSkinIndex;
@@ -717,4 +775,5 @@ class ExpansionMarketMenuItemController: ExpansionViewController
 	string ItemSellPrice;
 	Object Preview;
 	string CurrencyIcon;
+	string OverlayText;
 };

@@ -75,7 +75,7 @@ class ExpansionDialogButton_P2PMarketMenu_Accept: ExpansionDialogButton_Text
 			m_P2PMarketMenu = ExpansionP2PMarketMenu.Cast(m_MenuDialog.GetParentView());
 
 		SetButtonText("#STR_EXPANSION_ACCEPT");
-		SetTextColor(ARGB(255, 220, 220, 220));
+		SetTextColor(-10178716);
 	}
 
 	override void OnButtonClick()
@@ -108,7 +108,7 @@ class ExpansionDialogButton_P2PMarketMenu_Cancel: ExpansionDialogButton_Text
 			m_P2PMarketMenu = ExpansionP2PMarketMenu.Cast(m_MenuDialog.GetParentView());
 
 		SetButtonText("#STR_EXPANSION_CANCEL");
-		SetTextColor(ARGB(255, 220, 220, 220));
+		SetTextColor(-3657166);
 	}
 
 	override void OnButtonClick()

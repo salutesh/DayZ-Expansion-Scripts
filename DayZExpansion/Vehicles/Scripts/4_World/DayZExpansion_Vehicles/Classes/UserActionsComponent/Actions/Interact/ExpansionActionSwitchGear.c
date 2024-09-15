@@ -30,24 +30,16 @@ class ExpansionActionSwitchGear: ActionInteractBase
 		return "Toggle Gear";
 	}
 
-	override bool Can( PlayerBase player, ActionTarget target, ItemBase item )
-	{
-		return super.Can( player, target, item );
-	}
-
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
-		ExpansionHumanCommandVehicle expVehCommand = player.GetCommand_ExpansionVehicle();
-		if (!vehCommand && !expVehCommand)
+		auto vehicle = ExpansionVehicle.Get(player);
+		if (!vehicle)
 			return false;
 
-		CarScript car;
-		if (vehCommand && (!Class.CastTo(car, vehCommand.GetTransport()) || vehCommand.GetVehicleSeat() != DayZPlayerConstants.VEHICLESEAT_DRIVER) && !car.HasGear())
+		if (!vehicle.IsPlayerInSeat(player, DayZPlayerConstants.VEHICLESEAT_DRIVER))
 			return false;
 
-		ExpansionVehicleBase vehicle;
-		if (expVehCommand && (!Class.CastTo(vehicle, expVehCommand.GetExpansionVehicle()) || expVehCommand.GetVehicleSeat() != DayZPlayerConstants.VEHICLESEAT_DRIVER) && !vehicle.HasGear())
+		if (!vehicle.HasGear())
 			return false;
 
 		return false;
@@ -55,13 +47,8 @@ class ExpansionActionSwitchGear: ActionInteractBase
 
 	override void OnExecuteServer( ActionData action_data )
 	{
-		CarScript car;
-		if ( Class.CastTo( car, action_data.m_Player.GetParent() ) )
-			car.SwitchGear();
-
-		ExpansionVehicleBase vehicle;
-		if ( Class.CastTo( vehicle, action_data.m_Player.GetParent() ) )
-			vehicle.SwitchGear();
+		auto vehicle = ExpansionVehicle.Get(action_data.m_Player);
+		vehicle.SwitchGear();
 	}
 	
 	override bool CanBeUsedInVehicle()

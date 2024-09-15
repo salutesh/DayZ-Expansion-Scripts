@@ -29,11 +29,8 @@ modded class PlayerBase
 	void ~PlayerBase()
 	{
 		//! Making sure we remove tha call for CreateGraveCross when ever the player base entity gets destroyed
-		if ( GetGame() && GetExpansionSettings().GetGeneral().EnableGravecross )
+		if (GetGame() && Expansion_IsGravecrossEnabled())
 		{
-		#ifdef ENFUSION_AI_PROJECT
-			if (!IsAI())
-		#endif
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CreateGraveCross);
 		}
 	}
@@ -53,46 +50,54 @@ modded class PlayerBase
 			m_Expansion_SuicideItem = GetItemInHands();
 	}
 
+	bool Expansion_IsGravecrossEnabled()
+	{
+		if (Expansion_IsAI())
+			return GetExpansionSettings().GetGeneral().EnableAIGravecross;
+
+		return GetExpansionSettings().GetGeneral().EnableGravecross;
+	}
+
 	override void EEKilled( Object killer )
 	{
-		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
+		if (Expansion_IsGravecrossEnabled())
 		{
-			#ifdef ENFUSION_AI_PROJECT
-			if (!IsAI())
+			if (!Expansion_IsAI())
 			{
-			#endif
-
 				float playtime = StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
 				if (playtime > 0)
 					Expansion_SetPlaytimeForGraveCross(playtime);
-
-				EntityAI handEntity = GetHumanInventory().GetEntityInHands();
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, GetExpansionSettings().GetGeneral().GravecrossSpawnTimeDelay * 1000, false, handEntity);
-
-			#ifdef ENFUSION_AI_PROJECT
 			}
-			#endif
+
+			EntityAI handEntity = GetHumanInventory().GetEntityInHands();
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, GetExpansionSettings().GetGeneral().GravecrossSpawnTimeDelay * 1000, false, handEntity);
 		}
 
 		super.EEKilled(killer);
 
-		if (GetExpansionSettings().GetNotification().EnableKillFeed && GetIdentity())
+		if (GetExpansionSettings().GetNotification().EnableKillFeed)
 		{
-			if ( m_KillfeedModule )
+			if (!Expansion_IsAI() || GetExpansionSettings().GetNotification().KillFeedAI)
 			{
-				m_KillfeedModule.OnPlayerKilled( this, killer );
+				if ( m_KillfeedModule )
+				{
+					m_KillfeedModule.OnPlayerKilled( this, killer );
+				}
 			}
 		}
 	}
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-		if ( GetExpansionSettings().GetNotification().EnableKillFeed && GetIdentity() )
+		if ( GetExpansionSettings().GetNotification().EnableKillFeed )
 		{
-			if ( m_KillfeedModule && !IPADACK() )
+			if (!Expansion_IsAI() || GetExpansionSettings().GetNotification().KillFeedAI)
 			{
-				UpdateIPADACK( !IsAlive() );
-				m_KillfeedModule.OnPlayerHitBy( damageType, this, source, ammo );
+				if ( m_KillfeedModule && !IPADACK() )
+				{
+					UpdateIPADACK( !IsAlive() );
+					m_KillfeedModule.OnPlayerHitBy( damageType, this, source, ammo );
+				}
 			}
 		}
 
@@ -125,7 +130,7 @@ modded class PlayerBase
 		//! if we change cross object and not using ECE_TRACE this needs to be adjusted!
 		float offsetY = 0.6;
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXPrint(ToString() + "::CreateGraveCross playtime " + m_Expansion_GraveCross_Playtime + " threshold " + lifetimeThreshhold);
 	#endif
 
@@ -180,6 +185,19 @@ modded class PlayerBase
 
 		grave.MoveAttachmentsFromEntity(this, handEntity, ground, GetOrientation());
 		grave.SetOrientation(GetOrientation());
+
+		if (GetExpansionSettings().GetLog())
+		{
+			string name = m_KillfeedModule.GetIdentityName(this);
+			if (GetIdentity())
+			{
+				GetExpansionSettings().GetLog().PrintLog(string.Format("[GraveStone] Spawned GraveStone for player %1 (%2) at position %3", name, GetIdentity().GetId(), ground));
+			}
+			else
+			{
+				GetExpansionSettings().GetLog().PrintLog(string.Format("[GraveStone] Spawned GraveStone for %1 at position %2", name, ground));
+			}
+		}
 
 		if (deleteBody)
 		{

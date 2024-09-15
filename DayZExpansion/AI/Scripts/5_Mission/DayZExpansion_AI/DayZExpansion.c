@@ -25,6 +25,8 @@ modded class DayZExpansion
 		#endif
 
 		m_Instance_5 = this;
+
+		m_RPCManager.RegisterServer("SpectateAI");
     }
 
 	static DayZExpansion Get5()
@@ -36,16 +38,26 @@ modded class DayZExpansion
 		return m_Instance_5;
 	}
 
-	override void eAI_Spectate(DayZPlayer player, PlayerIdentity sender)
+	override void SpectateAI(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+		if (GetGame().IsMultiplayer())
+		{
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
+		}
+
 	#ifdef JM_COT
 		JMPlayerModule module;
 		if (CF_Modules<JMPlayerModule>.Get(module))
 		{
 			eAIBase ai;
-			if (Class.CastTo(ai, player) && ai != m_eAI_SpectatedAI)
+			if (Class.CastTo(ai, target) && ai != m_eAI_SpectatedAI)
 			{
+			#ifndef SERVER
 				m_eAI_SpectatedAI = ai;
+				auto rpc = m_RPCManager.CreateRPC("SpectateAI");
+				rpc.Expansion_Send(ai, true);
+			#endif
 				module.StartSpectatingAI(ai, sender);
 			}
 			else if (CurrentActiveCamera)

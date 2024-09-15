@@ -30,7 +30,7 @@ class Expansion_Taser_Base: FNX45_Base
 
 class Expansion_Taser_Debug: Expansion_Taser_Base
 {
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	void Expansion_Taser_Debug()
 	{
 		if (GetGame().IsServer())

@@ -26,7 +26,7 @@ class DayZExpansion: ExpansionWorld
 	// ------------------------------------------------------------
 	void DayZExpansion()
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this);
 #endif
 	
@@ -42,7 +42,7 @@ class DayZExpansion: ExpansionWorld
 		if (!GetGame())
 			return;
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		Print("~DayZExpansion");
 #endif
 	}
@@ -52,7 +52,7 @@ class DayZExpansion: ExpansionWorld
 	// ------------------------------------------------------------
 	void Expansion_LoadVersion()
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this);
 #endif
 	
@@ -102,7 +102,7 @@ static DayZExpansion GetDayZExpansion()
 
 static void CreateDayZExpansion()
 {
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC);
 #endif
 	
@@ -121,7 +121,7 @@ static void CreateDayZExpansion()
 
 static void DestroyDayZExpansion()
 {
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC);
 #endif
 

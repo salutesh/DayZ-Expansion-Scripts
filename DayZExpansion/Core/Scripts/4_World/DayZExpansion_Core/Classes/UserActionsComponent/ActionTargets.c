@@ -19,7 +19,7 @@ modded class ActionTarget
 	{
 		ExpansionNavmeshCarver navmeshCarver;
 		if (Class.CastTo(navmeshCarver, object))
-			m_Object = navmeshCarver.Expansion_GetObject();
+			m_Object = navmeshCarver.Expansion_GetAssociatedObject();
 	}
 
 	Object GetParentOrObject()

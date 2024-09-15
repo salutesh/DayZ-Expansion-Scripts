@@ -32,6 +32,8 @@ class ExpansionTerritory
 	protected string TerritoryFlagTexturePath;
 	protected autoptr array<ref ExpansionTerritoryMember> TerritoryMembers;
 	protected autoptr array<ref ExpansionTerritoryInvite> Invites;
+	protected int LastMemberLeaveTimestamp;
+	protected int PartyID;
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritory Constructor
@@ -114,10 +116,13 @@ class ExpansionTerritory
 	#endif
 
 		int memberIndex = TerritoryMembers.Find(member);
-		
+
 		if ( memberIndex > -1 )
 		{
 			TerritoryMembers.Remove( memberIndex );
+		
+			auto now = CF_Date.Now(true);
+			LastMemberLeaveTimestamp = now.GetTimestamp();
 		}
 	}
 	
@@ -148,7 +153,30 @@ class ExpansionTerritory
 	{
 		Invites = invites;
 	}
+
+	bool IsInviteCooldownActive()
+	{
+		if (GetInviteCooldown() > 0)
+			return true;
+
+		return false;
+	}
 	
+	/**
+	 * @brief Get remaining invite cooldown time in seconds
+	 */
+	int GetInviteCooldown()
+	{
+		auto now = CF_Date.Now(true);
+		int timestamp = now.GetTimestamp();
+
+		int elapsedTime = timestamp - LastMemberLeaveTimestamp;
+		if (elapsedTime < GetExpansionSettings().GetTerritory().InviteCooldown)
+			return GetExpansionSettings().GetTerritory().InviteCooldown - elapsedTime;
+
+		return 0;
+	}
+
 	// ------------------------------------------------------------
 	// Expansion AddTerritoryInvite
 	// ------------------------------------------------------------	
@@ -344,6 +372,10 @@ class ExpansionTerritory
 			Invites[index].OnStoreSave(ctx);
 			index++;
 		}
+
+		ctx.Write(LastMemberLeaveTimestamp);
+
+		ctx.Write(PartyID);
 	}
 	
 	// ------------------------------------------------------------
@@ -396,6 +428,18 @@ class ExpansionTerritory
 			Invites.Insert(invite); 
 			index++;
 		}
+		
+		if (ctx.GetVersion() < 50)
+			return true;
+
+		if (!ctx.Read(LastMemberLeaveTimestamp))
+			return false;
+		
+		if (ctx.GetVersion() < 51)
+			return true;
+
+		if (!ctx.Read(PartyID))
+			return false;
 		
 		return true;
 	}
@@ -480,5 +524,24 @@ class ExpansionTerritory
 		}
 		
 		return true;
+	}
+
+	void SetPartyID(int id)
+	{
+		PartyID = id;
+	}
+
+	int GetPartyID()
+	{
+		return PartyID;
+	}
+
+	bool IsPartyMember(PlayerBase targetPlayer)
+	{
+		#ifdef EXPANSIONMODGROUPS
+		if (targetPlayer.Expansion_GetPartyID() == PartyID)
+			return true;
+		#endif
+		return false;
 	}
 };

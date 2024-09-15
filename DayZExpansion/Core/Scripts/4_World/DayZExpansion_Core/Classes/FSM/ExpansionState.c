@@ -24,7 +24,7 @@ class ExpansionState
 	{
 		m_Transitions.Insert(transition);
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.AI, this, "AddTransition -> " + transition.GetDestination() + " | count: " + m_Transitions.Count());
 	#endif
 	}

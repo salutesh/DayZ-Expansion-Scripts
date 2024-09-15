@@ -1,7 +1,7 @@
 PanelWidgetClass ExpansionMarketItem {
  visible 1
  position 0 0
- size 1 0.5
+ size 0.193 0.5
  hexactpos 0
  vexactpos 0
  hexactsize 0
@@ -22,6 +22,7 @@ PanelWidgetClass ExpansionMarketItem {
    style Default
    {
     PanelWidgetClass market_item_preview_container {
+     clipchildren 0
      ignorepointer 1
      color 0 0 0 1
      position 0 -0.11
@@ -86,7 +87,7 @@ PanelWidgetClass ExpansionMarketItem {
       TextWidgetClass market_item_header_text {
        visible 1
        ignorepointer 1
-       size 1 26
+       size 0.96 22
        halign center_ref
        valign center_ref
        hexactpos 0
@@ -96,7 +97,9 @@ PanelWidgetClass ExpansionMarketItem {
        scriptclass "ViewBinding"
        style Normal
        text "ITEM DISPLAY NAME"
-       "exact text" 0
+       font "gui/fonts/sdf_MetronBook24"
+       "exact text" 1
+       "exact text size" 22
        "size to text h" 0
        "size to text v" 0
        "text halign" center
@@ -109,19 +112,21 @@ PanelWidgetClass ExpansionMarketItem {
       }
       TextWidgetClass market_item_header_text_small {
        visible 0
+       clipchildren 0
        ignorepointer 1
-       size 1 1
+       size 0.96 16
        halign center_ref
        valign center_ref
        hexactpos 0
        vexactpos 0
        hexactsize 0
-       vexactsize 0
+       vexactsize 1
        scriptclass "ViewBinding"
        style Normal
        text "ITEM DISPLAY NAME"
-       font "gui/fonts/etelkatextpro16"
-       "exact text" 0
+       font "gui/fonts/sdf_MetronBook24"
+       "exact text" 1
+       "exact text size" 16
        "size to text h" 0
        "size to text v" 0
        "text halign" center
@@ -135,18 +140,19 @@ PanelWidgetClass ExpansionMarketItem {
       TextWidgetClass market_item_header_text_verysmall {
        visible 0
        ignorepointer 1
-       size 1 1
+       size 0.96 12
        halign center_ref
        valign center_ref
        hexactpos 0
        vexactpos 0
        hexactsize 0
-       vexactsize 0
+       vexactsize 1
        scriptclass "ViewBinding"
        style Normal
        text "ITEM DISPLAY NAME"
-       font "gui/fonts/etelkatextpro12"
-       "exact text" 0
+       font "gui/fonts/sdf_MetronBook24"
+       "exact text" 1
+       "exact text size" 12
        "size to text h" 0
        "size to text v" 0
        "text halign" center
@@ -160,17 +166,17 @@ PanelWidgetClass ExpansionMarketItem {
       TextWidgetClass market_item_header_text_smallerthensmall {
        visible 0
        ignorepointer 1
-       size 1 1
+       size 0.96 8
        halign center_ref
        valign center_ref
        hexactpos 0
        vexactpos 0
        hexactsize 0
-       vexactsize 0
+       vexactsize 1
        scriptclass "ViewBinding"
        style Normal
        text "ITEM DISPLAY NAME"
-       font "gui/fonts/etelkatextpro"
+       font "gui/fonts/sdf_MetronBook24"
        "exact text" 1
        "exact text size" 8
        "size to text h" 0
@@ -242,6 +248,7 @@ PanelWidgetClass ExpansionMarketItem {
          scriptclass "ViewBinding"
          style None
          text "0"
+         font "gui/fonts/sdf_MetronBook24"
          "text offset" 0 0
          "exact text" 0
          "size to text h" 1
@@ -281,8 +288,8 @@ PanelWidgetClass ExpansionMarketItem {
            image0 ""
            mode blend
            "src alpha" 1
-           "no wrap" 1
-           stretch 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
            {
             ScriptParamsClass {
              Binding_Name "CurrencyIcon"
@@ -341,8 +348,8 @@ PanelWidgetClass ExpansionMarketItem {
            image0 ""
            mode blend
            "src alpha" 1
-           "no wrap" 1
-           stretch 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
            {
             ScriptParamsClass {
              Binding_Name "CurrencyIcon"
@@ -365,6 +372,7 @@ PanelWidgetClass ExpansionMarketItem {
          scriptclass "ViewBinding"
          style None
          text "0"
+         font "gui/fonts/sdf_MetronBook24"
          "text offset" 0 0
          "exact text" 0
          "size to text h" 1
@@ -418,6 +426,7 @@ PanelWidgetClass ExpansionMarketItem {
        scriptclass "ViewBinding"
        style None
        text "Stock: 5"
+       font "gui/fonts/sdf_MetronBook24"
        "exact text" 0
        "text halign" right
        "text valign" center
@@ -440,6 +449,7 @@ PanelWidgetClass ExpansionMarketItem {
        scriptclass "ViewBinding"
        style None
        text "On You: 4"
+       font "gui/fonts/sdf_MetronBook24"
        "exact text" 0
        "text valign" center
        {
@@ -461,7 +471,7 @@ PanelWidgetClass ExpansionMarketItem {
      vexactpos 0
      hexactsize 1
      vexactsize 1
-     priority 899
+     priority 800
      style blank
      {
       ButtonWidgetClass market_item_info_button {
@@ -494,8 +504,8 @@ PanelWidgetClass ExpansionMarketItem {
          imageTexture "{C0B1B0599B00CBE8}DayZExpansion/Core/GUI/icons/hud/info_64x64.edds"
          mode blend
          "src alpha" 1
-         "no wrap" 1
-         stretch 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
         }
        }
        {
@@ -509,6 +519,46 @@ PanelWidgetClass ExpansionMarketItem {
    {
     ScriptParamsClass {
      Relay_Command "OnItemButtonClick"
+    }
+   }
+  }
+  PanelWidgetClass market_item_overlay {
+   visible 0
+   ignorepointer 1
+   color 0.8667 0.149 0.149 0.1961
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 801
+   style rover_sim_colorable
+   {
+    RichTextWidgetClass market_item_overlay_text {
+     ignorepointer 1
+     color 1 0.7059 0.0941 1
+     position 0 0.35
+     size 0.8 0.05
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 801
+     scriptclass "ViewBinding"
+     text "TEST ME"
+     font "gui/fonts/etelkatextpro22"
+     "exact text" 1
+     "size to text h" 1
+     "size to text v" 1
+     "text halign" center
+     "text valign" center
+     wrap 1
+     {
+      ScriptParamsClass {
+       Binding_Name "OverlayText"
+      }
+     }
     }
    }
   }
@@ -595,6 +645,7 @@ PanelWidgetClass ExpansionMarketItem {
      hexactsize 0
      vexactsize 1
      text "#STR_EXPANSION_MARKET_BUY"
+     font "gui/fonts/sdf_MetronBook24"
      "bold text" 0
      "exact text" 0
      "size to text h" 0
@@ -659,6 +710,7 @@ PanelWidgetClass ExpansionMarketItem {
      hexactsize 0
      vexactsize 1
      text "#STR_EXPANSION_MARKET_SELL"
+     font "gui/fonts/sdf_MetronBook24"
      "bold text" 0
      "exact text" 0
      "size to text h" 0

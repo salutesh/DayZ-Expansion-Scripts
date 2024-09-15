@@ -256,7 +256,9 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 
 	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, typename.EnumToString(InventoryLocationType, oldLoc.GetType()), typename.EnumToString(InventoryLocationType, newLoc.GetType()));
+#endif
 
 		super.EEItemLocationChanged(oldLoc, newLoc);
 
@@ -267,7 +269,9 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 	//void Expansion_DirtSync_FuckDayZ()
 	void Expansion_FinalizeLoot()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		array<EntityAI> lootItems = new array<EntityAI>;
 		GetInventory().EnumerateInventory(InventoryTraversalType.LEVELORDER, lootItems);

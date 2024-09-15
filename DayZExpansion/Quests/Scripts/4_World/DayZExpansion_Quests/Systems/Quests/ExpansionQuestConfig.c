@@ -126,7 +126,11 @@ class ExpansionQuestConfigV20Base: ExpansionQuestConfigV19Base
 
 class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 {
+	[NonSerialized()]
 	static const int CONFIGVERSION = 22;
+
+	[NonSerialized()]
+	static string FILENAME = "NONE";
 	
 	bool SuppressQuestLogOnCompetion = false;
 	bool Active = true;
@@ -600,7 +604,9 @@ class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 
 	static ExpansionQuestConfig Load(string fileName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, ExpansionQuestConfig);
+#endif
 
 		bool save;
 		EXTrace.Print(EXTrace.QUESTS, null, "Load existing configuration file:" + fileName);
@@ -780,7 +786,9 @@ class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 
 	bool ValidateQuestConfiguration(string fileName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		bool save;
 
@@ -1126,7 +1134,9 @@ class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 
 	void OnSend(ParamsWriteContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		int i;
 

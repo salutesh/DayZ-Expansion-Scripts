@@ -89,22 +89,22 @@ class ExpansionStove: PortableGasStove
 		return false;
 	}
 
-	override void Open( string selection ) 
+	override void Expansion_Open( string selection ) 
 	{
 		//! Door open animation
 		if (selection == "doors1")
 			SetAnimationPhase( "doors1", 1 );
 		
-		super.Open( selection );
+		super.Expansion_Open( selection );
 	}
 	
-	override void Close( string selection ) 
+	override void Expansion_Close( string selection ) 
 	{
 		//! Door open animation
 		if (selection == "doors1")
 			SetAnimationPhase( "doors1", 0 );
 		
-		super.Close( selection );
+		super.Expansion_Close( selection );
 	}
 
 	override void EEItemAttached(EntityAI item, string slot_name)

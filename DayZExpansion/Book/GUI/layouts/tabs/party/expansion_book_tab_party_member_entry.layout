@@ -51,7 +51,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEntry {
      image0 "set:expansion_iconset image:icon_group"
      mode blend
      "src alpha" 1
-     stretch 1
+     "stretch mode" stretch_w_h
      {
       ScriptParamsClass {
        Debug_Logging 0
@@ -73,10 +73,13 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEntry {
      priority 1
      scriptclass "ViewBinding"
      text "#STR_EXPANSION_BOOK_CATEGORY_NAME"
-     font "gui/fonts/etelkatextpro22"
+     font "gui/fonts/sdf_metronbook24"
      "text color" 0 0 0 1
      "text offset" 5 1
-     "exact text" 0
+     "bold text" 1
+     "exact text" 1
+     "exact text size" 16
+     "size to text v" 1
      "text valign" center
      {
       ScriptParamsClass {
@@ -99,7 +102,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEntry {
      image0 "set:book_assets image:menu_element_1"
      mode blend
      "src alpha" 1
-     stretch 1
+     "stretch mode" stretch_w_h
      {
       ScriptParamsClass {
        Binding_Name "Background"

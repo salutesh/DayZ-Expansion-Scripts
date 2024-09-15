@@ -65,22 +65,23 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	protected ref ScriptInvoker m_P2PMarketMenuListingsInvoker; //! Client
 	protected ref ScriptInvoker m_P2PMarketMenuCallbackInvoker; //! Client
 
-	protected ref TStringArray m_Vehicles = {"CarScript"};
-	protected ref TStringArray m_Aircraft = {"ExpansionHelicopterScript"};
-	protected ref TStringArray m_Watercraft = {"ExpansionBoatScript"};
 	static ref TStringArray m_HardcodedExcludes = {"AugOptic", "Magnum_Cylinder", "Magnum_Ejector", "M97DummyOptics"};
 
 	void ExpansionP2PMarketModule()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-		
+#endif 
+				
 		s_Instance = this;
 	}
 
 	override void OnInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-		
+#endif 
+			
 		EnableMissionStart();
 		EnableMissionLoaded();
 		EnableInvokeConnect();
@@ -110,8 +111,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-		
+#endif 
+				
 		#ifdef SERVER
 			if (GetExpansionSettings().GetP2PMarket().Enabled)
 			{
@@ -125,7 +128,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif
 		
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 			ServerModuleInit();
@@ -136,7 +141,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 		
 		super.OnInvokeConnect(sender, args);
 
@@ -167,7 +174,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected void ServerModuleInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 		
 		//! Server only
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
@@ -184,7 +193,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected void ClientModuleInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 		
 		if (GetGame().IsClient())
 		{
@@ -195,8 +206,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected void LoadP2PMarketServerData()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		//! Move existing configs (if any) from old to new location
 		string dataDir = GetP2PMarketDataDirectory();
 		array<string> p2pMarketFilesExisting = ExpansionStatic.FindFilesInLocation(dataDir, ".json");
@@ -268,7 +281,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected void LoadP2PMarketTraderData(string fileName, string path)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 		
 		ExpansionP2PMarketTraderConfig traderConfig = ExpansionP2PMarketTraderConfig.Load(path + fileName);
 		if (!traderConfig)
@@ -299,8 +314,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected void LoadListingData(int traderID, string fileName, string path)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-		
+#endif 
+			
 		ExpansionP2PMarketListing listingData = ExpansionP2PMarketListing.Load(path + fileName);
 		if (!listingData)
 			return;
@@ -338,8 +355,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Server
 	void AddTradingPlayer(int traderID, string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		int id;
 		if (!m_TradingPlayers.Find(playerUID, id))
 			m_TradingPlayers.Insert(playerUID, traderID);
@@ -348,7 +367,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Client
 	void RemoveTradingPlayer(string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 		
 		auto rpc = Expansion_CreateRPC("RPC_RemoveTradingPlayer");
 		rpc.Write(playerUID);
@@ -358,8 +379,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RemoveTradingPlayer(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		string playerUID;
 		if (!ctx.Read(playerUID))
 			return;
@@ -372,8 +395,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Server
 	void SendUpdatedTraderData(int traderID, string senderUID, ExpansionP2PMarketModuleCallback callback = 0, string type = string.Empty, int price = 0)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		ExpansionP2PMarketModuleCallback menuCallback;
 		foreach (string playerUID, int id: m_TradingPlayers)
 		{
@@ -396,8 +421,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Client
 	void GetSaleFromListing(ExpansionP2PMarketListing listing, int traderID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		TIntArray globalID = listing.GetGlobalID();
 
 		auto rpc = Expansion_CreateRPC("RPC_RequestSaleFromListing");
@@ -409,8 +436,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RequestSaleFromListing(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		int traderID;
 		if (!ctx.Read(traderID))
 		{
@@ -506,8 +535,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Client
 	void RequestAllPlayerSales(int traderID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		auto rpc = Expansion_CreateRPC("RPC_RequestAllPlayerSales");
 		rpc.Write(traderID);
 		rpc.Expansion_Send(true);
@@ -516,8 +547,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RequestAllPlayerSales(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		int traderID;
 		if (!ctx.Read(traderID))
 			return;
@@ -609,8 +642,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Client
 	void RequestSendBMTraderData(int traderID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		auto rpc = Expansion_CreateRPC("RPC_RequestBMTraderData");
 		rpc.Write(traderID);
 		rpc.Expansion_Send(true);
@@ -619,8 +654,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RequestBMTraderData(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		int traderID = -1;
 		if (!ctx.Read(traderID))
 			return;
@@ -631,8 +668,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Server
 	void SendBMTraderData(int traderID, PlayerIdentity identity, string traderName = string.Empty, string iconName = string.Empty, ExpansionP2PMarketModuleCallback callback = 0, string type = string.Empty, int price = 0)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(traderID);
 		if (!traderConfig)
 		{
@@ -688,8 +727,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Client
 	protected void RPC_SendBMTraderData(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		int traderID;
 		if (!ctx.Read(traderID))
 		{
@@ -781,8 +822,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Client
 	void RequestListBMItem(int traderID, Entity item, int price)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		auto rpc = Expansion_CreateRPC("RPC_RequestListBMItem");
 		rpc.Write(traderID);
 		rpc.Write(price);
@@ -792,8 +835,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RequestListBMItem(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		auto settings = GetExpansionSettings().GetP2PMarket();
 		int playerListingsCount = GetPlayerListingsCount(identity.GetId());
 		if (settings.MaxListings != -1 && playerListingsCount >= settings.MaxListings)
@@ -864,29 +909,29 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		int wheelsRequiredAmount;
 		array<EntityAI> slotItems;
 		//! If the object is a vehicle we check for paired keys and unpair/delete them all and remove the pairing from the vehicle.
-		CarScript car;
-		if (Class.CastTo(car, objEntity))
+		ExpansionVehicle vehicle;
+		if (ExpansionVehicle.Get(vehicle, objEntity))
 		{
 		#ifdef EXPANSIONMODVEHICLE
-			if (car.GetLockedState() == ExpansionVehicleLockState.FORCEDUNLOCKED)
+			if (vehicle.GetLockState() == ExpansionVehicleLockState.FORCEDUNLOCKED)
 			{
 				CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleLockpicked, type);
 				return;
 			}
 		#endif
 
-			slotItems = GetSlotItems(car, doorsRequiredAmount, wheelsRequiredAmount);
+			slotItems = GetSlotItems(vehicle.GetEntity(), doorsRequiredAmount, wheelsRequiredAmount);
 
 			foreach (EntityAI slotItemCar: slotItems)
 			{
-				EXPrint(ToString() + "::RPC_RequestListBMItem - " + car.GetType() + " | Slots Item: " + slotItemCar.GetType());
+				EXPrint(ToString() + "::RPC_RequestListBMItem - " + vehicle.GetType() + " | Slots Item: " + slotItemCar.GetType());
 				if (slotItemCar.IsInherited(CarDoor))
 					doorsCount++;
 				else if (slotItemCar.IsInherited(CarWheel))
 					wheelsCount++;
 			}
 
-			if (doorsCount < doorsRequiredAmount || wheelsCount < wheelsRequiredAmount || !car.Expansion_IsVehicleFunctional(true))
+			if (doorsCount < doorsRequiredAmount || wheelsCount < wheelsRequiredAmount || !vehicle.IsFunctional(true))
 			{
 				CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleMissingAttachment, type);
 				return;
@@ -899,10 +944,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			}
 
 		#ifdef EXPANSIONMODVEHICLE
-			if (car.HasKey())
+			if (vehicle.HasKey())
 			{
 				array<ExpansionCarKey> carKeys = new array<ExpansionCarKey>;
-				ExpansionCarKey.GetKeysForVehicle(car, carKeys);
+				ExpansionCarKey.GetKeysForVehicle(vehicle, carKeys);
 
 				for (int i = 0; i < carKeys.Count(); ++i)
 				{
@@ -914,7 +959,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 					GetGame().ObjectDelete(carKey);
 				}
 
-				car.ResetKeyPairing();
+				vehicle.ResetKeyPairing();
 			}
 		#endif
 		}
@@ -932,20 +977,20 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		newListing.SetTraderID(traderID);
 		newListing.SetListingState(ExpansionP2PMarketListingState.LISTED);
 
-		if (!StoreItem(newListing, objEntity))
-		{
-			Error(ToString() + "::RPC_RequestListBMItem - Could not store listing item!");
-			return;
-		}
-	
-		AddListing(traderID, newListing);
-		newListing.Save();
-
 		if (!m_MarketModule.RemoveMoney(listingPrice, player, currencies))
 		{
 			Error(ToString() + "::RPC_RequestListBMItem - Could not remove money from player!");
 			return;
 		}
+		
+		if (!StoreItem(newListing, objEntity))
+		{
+			Error(ToString() + "::RPC_RequestListBMItem - Could not store listing item!");
+			return;
+		}
+
+		AddListing(traderID, newListing);
+		newListing.Save();
 
 		SendUpdatedTraderData(traderID, identity.GetId(), ExpansionP2PMarketModuleCallback.ItemListed, type, price);
 		
@@ -959,7 +1004,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	void AddListing(int traderID, ExpansionP2PMarketListing listing)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 		
 		array<ref ExpansionP2PMarketListing> listings;
 		if (m_P2PListingsData.Find(traderID, listings))
@@ -983,8 +1030,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	void Callback(PlayerIdentity identity, ExpansionP2PMarketModuleCallback callback, string type = string.Empty, int price = 0, int listingPriceString = 0, Object blockingObject = null)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		auto rpc = Expansion_CreateRPC("RPC_Callback");
 		rpc.Write(callback);
 		rpc.Write(type);
@@ -997,8 +1046,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Client
 	void RequestPurchaseBMItem(ExpansionP2PMarketListing listing)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		if (!listing.IsGlobalIDValid())
 		{
 			Error(ToString() + "::RequestPurchaseBMItem - Listing global ID is invalid!");
@@ -1017,8 +1068,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RequestPurchaseBMItem(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		int traderID;
 		if (!ctx.Read(traderID))
 		{
@@ -1094,27 +1147,27 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 		vector spawnPositionVehicle;
 		bool isVehicle = false;
-		string vehicleType = "";
-		if (ExpansionStatic.IsAnyOf(listing.GetClassName(), m_Aircraft))
+
+		ExpansionVehicleType vehicleType = ExpansionVehicle.GetVehicleType(listing.GetClassName());
+		switch (vehicleType)
 		{
-			spawnPositionVehicle = traderConfig.GetAircraftSpawnPosition();
-			isVehicle = true;
-			vehicleType = "Aircraft";
-		}
-		else if (ExpansionStatic.IsAnyOf(listing.GetClassName(), m_Watercraft))
-		{
-			spawnPositionVehicle = traderConfig.GetWatercraftSpawnPosition();
-			isVehicle = true;
-			vehicleType = "Watercraft";
-		}
-		else if (ExpansionStatic.IsAnyOf(listing.GetClassName(), m_Vehicles))
-		{
-			spawnPositionVehicle = traderConfig.GetVehicleSpawnPosition();
-			isVehicle = true;
-			vehicleType = "Car";
+			case ExpansionVehicleType.WATER:
+				spawnPositionVehicle = traderConfig.GetWatercraftSpawnPosition();
+				break;
+			case ExpansionVehicleType.AIR:
+				spawnPositionVehicle = traderConfig.GetAircraftSpawnPosition();
+				break;
+			case ExpansionVehicleType.LAND:
+			case ExpansionVehicleType.RAILTRACK:
+				spawnPositionVehicle = traderConfig.GetVehicleSpawnPosition();
+				break;
 		}
 
-		EXPrint(ToString() + "::RPC_RequestPurchaseBMItem - Object is " + vehicleType + " | Spawn position: " + spawnPositionVehicle);
+		if (vehicleType != ExpansionVehicleType.NONE)
+		{
+			isVehicle = true;
+			EXPrint(ToString() + "::RPC_RequestPurchaseBMItem - Vehicle type is " + typename.EnumToString(ExpansionVehicleType, vehicleType) + " | Spawn position: " + spawnPositionVehicle);
+		}
 
 		if (isVehicle && spawnPositionVehicle == vector.Zero)
 		{
@@ -1146,24 +1199,23 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		EntityAI playerEntity;
 		Class.CastTo(playerEntity, player);
 		int amount = 1;
-		CarScript car;
-		if (Class.CastTo(car, loadedEntity))
+		ExpansionVehicle vehicle;
+		if (ExpansionVehicle.Get(vehicle, loadedEntity))
 		{
-			EXPrint(ToString() + "::RPC_RequestPurchaseBMItem - Change position of " + car.GetType() + " | Current position: " + car.GetPosition());
+			EXPrint(ToString() + "::RPC_RequestPurchaseBMItem - Change position of " + vehicle.GetType() + " | Current position: " + vehicle.GetPosition());
 
-			car.SetPosition(spawnPositionVehicle);
-			car.PlaceOnSurface();
-			dBodyActive(car, ActiveState.ACTIVE);
-			car.Synchronize();
+			EntityAI vehicleEntity = vehicle.GetEntity();
+			vehicleEntity.SetPosition(spawnPositionVehicle);
+			vehicleEntity.PlaceOnSurface();
+			dBodyActive(vehicleEntity, ActiveState.ACTIVE);
+			vehicle.Synchronize();
 
-			EXPrint(ToString() + "::RPC_RequestPurchaseBMItem - New position of " + car.GetType() + " | Position: " + car.GetPosition());
+			EXPrint(ToString() + "::RPC_RequestPurchaseBMItem - New position of " + vehicle.GetType() + " | Position: " + vehicle.GetPosition());
 
 			key = ExpansionCarKey.Cast(ExpansionItemSpawnHelper.SpawnOnParent("ExpansionCarKey", player, playerEntity, amount));
-			car.PairKeyTo(key);
-			if (!car.IsLocked())
-			{
-				car.LockCar(key); //! Lock car if not locked already
-			}
+			vehicle.PairKey(key);
+			if (!vehicle.IsLocked())
+				vehicle.Lock(key); //! Lock vehicle if not locked already
 		}
 	#endif
 
@@ -1232,8 +1284,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Client
 	protected void RPC_Callback(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		int callback;
 		if (!ctx.Read(callback))
 		{
@@ -1311,8 +1365,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected bool StoreItem(ExpansionP2PMarketListing listing, EntityAI itemEntity)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		if (!itemEntity)
 		{
 			Error(ToString() + "::StoreItem - Could not get item entity!");
@@ -1333,8 +1389,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected bool LoadItem(ExpansionP2PMarketListing listing, PlayerBase player, out EntityAI loadedEntity = null)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-
+#endif 
+		
 		if (!ExpansionEntityStorageModule.RestoreFromFile(listing.GetEntityStorageFileName(), loadedEntity, null, player))
 		{
 			Error(ToString() + "::LoadItem - Could not restore item " + listing.GetClassName() + " from file " + listing.GetEntityStorageFileName());
@@ -1393,7 +1451,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	ExpansionP2PMarketTraderConfig GetP2PTraderConfigByID(int id)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 		
 		ExpansionP2PMarketTraderConfig config;
 		if (m_P2PTraderConfig.Find(id, config))
@@ -1424,7 +1484,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	static int GetDiscountPrice(int price)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, ExpansionP2PMarketModule);
+#endif 
 		
 		int discountPrice = Math.Round((price / 100) * GetExpansionSettings().GetP2PMarket().ListingOwnerDiscountPercent);
 		return (price - discountPrice);
@@ -1434,7 +1496,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! If so we clean the listed item up form the market and entity storage.
 	protected void CheckListingsTimes()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 		
 		int timedif;
 		int maxListingTime = GetExpansionSettings().GetP2PMarket().MaxListingTime;
@@ -1467,7 +1531,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected int GetPlayerListingsCount(string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 		
 		int count;
 		foreach (int traderID, array<ref ExpansionP2PMarketListing> listings: m_P2PListingsData)
@@ -1484,14 +1550,18 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected array<ref ExpansionP2PMarketListing> GetTraderListings(int traderID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 		
 		return m_P2PListingsData[traderID];
 	}
 
 	protected ExpansionP2PMarketListing GetListingByGlobalID(int traderID, TIntArray globalID, bool globalTrader = false)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 
 		ExpansionP2PMarketListing listing;
 
@@ -1527,7 +1597,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected bool RemoveListingByGlobalID(int traderID, TIntArray globalID, bool globalTrader = false)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 
 		if (traderID > -1 && !globalTrader)
 		{
@@ -1564,7 +1636,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected bool RemoveListing(int traderID, array<ref ExpansionP2PMarketListing> listings, int index)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+#endif 
 		
 		ExpansionP2PMarketListing listing = listings[index];
 		listings.RemoveOrdered(index);

@@ -131,7 +131,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	
 	void ExSetDepositedItems(ExpansionPersonalStorageContainer container)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 		
 		m_Container = container;
 		m_ContainerHub = container.Expansion_GetPersonalStorageHub();
@@ -200,7 +202,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	void SetDepositedItems(int storageID, array<ref ExpansionPersonalStorageItem> depositedItems = null, string displayName = string.Empty, string displayIcon = string.Empty)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 		
 		int itemsCount;
 		
@@ -281,7 +285,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	void UpdatePlayerItems()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 		
 		if (!m_PlayerItems)
 			m_PlayerItems = new array <ref ExpansionPersonalStorageItem>;
@@ -376,14 +382,18 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	void SetSelectedMenuItem(ExpansionPersonalStorageMenuItem item)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 		
 		m_SelectedPlayerItem = item;
 	}
 	
 	void SetSelectedPlayerItem(ExpansionPersonalStorageMenuItem item)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 		
 		if (!item || !item.GetPlayerItem())
 			return;
@@ -1003,7 +1013,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	void OnBackClick()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 		
 		ClearSelected();
 
@@ -1019,8 +1031,10 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	void OnDepositButtonClick()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this, typename.EnumToString(ExpansionPersonalStorageMenuViewState, m_ViewState));
-		
+#endif
+
 		if (m_ViewState == ExpansionPersonalStorageMenuViewState.ViewPlayerItems)
 		{
 			m_BrowseHeader.Hide();
@@ -1045,7 +1059,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	
 	void OnBrowseButtonClick()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 
 		ClearSelected();
 		
@@ -1065,7 +1081,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	protected void ShowDepositView()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 				
 		tabs_panel.Show(true);
 		market_filter_panel.Show(true);
@@ -1087,7 +1105,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	protected void ShowBrowseView()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 				
 		m_BrowseHeader.Show();
 		tabs_panel.Show(true);
@@ -1131,7 +1151,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	void OnConfirmButtonClick()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 		
 		if (m_RequestsLocked)
 		{
@@ -1151,7 +1173,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	void OnConfirmDepositClick()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 		
 		if (!m_SelectedPlayerItem || !m_SelectedPlayerItem.GetPlayerItem() || m_RequestsLocked)
 		{
@@ -1182,7 +1206,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	void OnConfirmRetrieveClick()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 		
 		if (!m_SelectedPlayerItem || !m_SelectedPlayerItem.GetPlayerItem() || m_RequestsLocked)
 		{
@@ -1213,7 +1239,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	protected void ClearSelected()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 		
 		m_SelectedPlayerItem = null;
 		m_SelectedPreviewObject = null;
@@ -1347,8 +1375,10 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	void OnModuleCallback(int callback)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this, typename.EnumToString(ExpansionPersonalStorageModuleCallback, callback));
-		
+#endif 
+
 		switch (callback)
 		{
 			case ExpansionPersonalStorageModuleCallback.ItemStored:
@@ -1418,7 +1448,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	override void OnShow()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 		
 		super.OnShow();
 		
@@ -1428,7 +1460,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	override void OnHide()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+#endif
 		
 		if (!GetGame())
 			return;
@@ -1648,7 +1682,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	void ModuleDebugPrint(string text)
 	{
 	#ifdef EXPANSIONMODPERSONALSTORAGEDEBUG
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this, text);
+#endif
 	#endif
 	}
 };

@@ -14,8 +14,10 @@ modded class PlayerBase
 {
 	override void OnPlayerLoaded()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
-
+#endif 
+		
 		//! Workaround for vanilla timing bug. It's basically chance if OnPlayerLoaded gets called before or after OnRespawnEvent is received on client,
 		//! which has the effect that if a server is using respawnTime > 0 and OnRespawnEvent is received before OnPlayerLoaded is called,
 		//! then the respawn timer screen may be closed before the countdown finishes due to the call to GetGame().GetUIManager().CloseAll() in OnPlayerLoaded.

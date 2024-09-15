@@ -101,7 +101,9 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 
 	override void Save(string fileName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName);
+#endif
 
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";

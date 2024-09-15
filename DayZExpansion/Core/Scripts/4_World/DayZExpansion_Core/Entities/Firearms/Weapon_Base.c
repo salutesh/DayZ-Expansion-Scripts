@@ -10,31 +10,159 @@
  *
 */
 
+enum ExpansionWeaponType
+{
+	Handgun,
+	Shotgun,
+	Submachinegun,
+	Assault,
+	Marksman,
+	GenericRifle,
+	Launcher,
+	Archery
+};
+
+class ExpansionWeaponInfo
+{
+	ref map<ExpansionFireMode, int> m_FireModes = new map<ExpansionFireMode, int>();
+	ref TStringArray m_ChamberableFrom = {};
+	float m_AvgDmg;
+	float m_ReloadTimeMin = float.MAX;
+	float m_DPS;
+	ExpansionWeaponType m_WeaponType;
+
+	void ExpansionWeaponInfo(Weapon_Base weapon)
+	{
+		string type = weapon.GetType();
+
+		//! Fire modes
+		TStringArray modes = {};
+		weapon.ConfigGetTextArray("modes", modes);
+		foreach (int i, string mode: modes)
+		{
+			ExpansionFireMode fireMode = typename.StringToEnum(ExpansionFireMode, mode);
+			if (fireMode != -1)
+			{
+				float reloadTime = GetGame().ConfigGetFloat(CFG_WEAPONSPATH + " " + type + " " + mode + " reloadTime");
+				if (reloadTime > 0.0 && reloadTime < m_ReloadTimeMin)
+					m_ReloadTimeMin = reloadTime;
+			#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.WEAPONS, null, type + " mode " + mode + " reload time " + reloadTime);
+			#endif
+				m_FireModes[fireMode] = i;
+			}
+		}
+
+		//! Compatible ammo
+		weapon.ConfigGetTextArray("chamberableFrom", m_ChamberableFrom);
+
+		//! Avg dmg
+		string bulletType;
+		float dmg;
+		int count;
+		foreach (string ammoType: m_ChamberableFrom)
+		{
+			if (GetGame().ConfigGetText(CFG_MAGAZINESPATH + " " + ammoType + " ammo", bulletType))
+			{
+				dmg = GetGame().ConfigGetFloat(CFG_AMMO + " " + bulletType + " DamageApplied Health damage");
+				if (dmg > 0.0)
+				{
+					m_AvgDmg += dmg;
+					count++;
+				}
+			}
+		}
+		if (count > 0)
+			m_AvgDmg /= count;
+
+		//! DPS
+		if (m_ReloadTimeMin < float.MAX && !weapon.IsInherited(DoubleBarrel_Base))
+			m_DPS = m_AvgDmg / m_ReloadTimeMin;
+		else
+			m_DPS = m_AvgDmg;
+
+		//! Weapon type
+		if (weapon.IsInherited(Archery_Base))
+		{
+			m_WeaponType = ExpansionWeaponType.Archery;
+		}
+		else if (weapon.IsKindOf("Pistol_Base"))
+		{
+			m_WeaponType = ExpansionWeaponType.Handgun;
+		}
+		else if (weapon.IsKindOf("Shotgun_Base") || m_ChamberableFrom.Find("Ammo_12gaPellets") > -1)
+		{
+			m_WeaponType = ExpansionWeaponType.Shotgun;
+		}
+		else if (m_ReloadTimeMin < 0.1 && (m_FireModes.Contains(ExpansionFireMode.FullAuto) || m_FireModes.Contains(ExpansionFireMode.Burst)))
+		{
+			if (m_AvgDmg < 75)  //! Use Bullet_9x39 health dmg as threshold
+				m_WeaponType = ExpansionWeaponType.Submachinegun;
+			else
+				m_WeaponType = ExpansionWeaponType.Assault;
+		}
+		else if (weapon.ShootsExplosiveAmmo())
+		{
+			m_WeaponType = ExpansionWeaponType.Launcher;
+		}
+		else if (m_AvgDmg >= 110 && weapon.GetMuzzleCount() == 1 && weapon.Expansion_HasAttachmentSlot((TStringArray){"weaponOptics", "weaponOpticsAK", "weaponOpticsAug", "weaponOpticsHunting", "weaponOpticsMosin", "ExpansionSniperOptics"}))
+		{
+			//! @note SSG-82 creates SSG82Optic on weaponOpticsAug slot during init
+			m_WeaponType = ExpansionWeaponType.Marksman;
+		}
+		else
+		{
+			m_WeaponType = ExpansionWeaponType.GenericRifle;
+		}
+
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.WEAPONS, null, type + " " + typename.EnumToString(ExpansionWeaponType, m_WeaponType) + " avg dmg " + m_AvgDmg + " DPS " + m_DPS);
+	#endif
+	}
+}
+
 modded class Weapon_Base
 {
-	static ref map<string, ref map<ExpansionFireMode, int>> s_Expansion_FireModes = new map<string, ref map<ExpansionFireMode, int>>();
+	static ref map<string, ref ExpansionWeaponInfo> s_Expansion_WeaponInfo = new map<string, ref ExpansionWeaponInfo>();
+	ref ExpansionWeaponInfo m_Expansion_WeaponInfo;
 
 	void Weapon_Base()
 	{
 		string type = GetType();
-		if (!s_Expansion_FireModes[type])
+
+		if (!s_Expansion_WeaponInfo.Find(type, m_Expansion_WeaponInfo))
 		{
-			auto fireModes = new map<ExpansionFireMode, int>();
-			s_Expansion_FireModes[type] = fireModes;
-			TStringArray modes = new TStringArray();
-			ConfigGetTextArray("modes", modes);
-			for (int i = 0; i < modes.Count(); i++)
-			{
-				ExpansionFireMode fireMode = typename.StringToEnum(ExpansionFireMode, modes[i]);
-				if (fireMode != -1)
-				{
-				#ifdef DIAG
-					EXTrace.Print(EXTrace.WEAPONS, this, "mode " + modes[i]);
-				#endif
-					fireModes[fireMode] = i;
-				}
-			}
+			m_Expansion_WeaponInfo = new ExpansionWeaponInfo(this);
+			s_Expansion_WeaponInfo[type] = m_Expansion_WeaponInfo;
 		}
+	}
+
+	override float Expansion_GetDPS()
+	{
+		return m_Expansion_WeaponInfo.m_DPS;
+	}
+
+	ExpansionWeaponType Expansion_GetWeaponType()
+	{
+		return m_Expansion_WeaponInfo.m_WeaponType;
+	}
+
+	/**
+	 * @brief check if mag or ammo pile is compatible with weapon
+	 */
+	bool Expansion_IsCompatibleMag(int muzzleIndex, Magazine mag)
+	{
+		if (mag.IsAmmoPile())
+		{
+			if (CanChamberFromMag(muzzleIndex, mag))
+				return true;
+		}
+		else if (TestAttachMagazine(muzzleIndex, mag, false, true))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	//! Return -1 on unknown state
@@ -115,7 +243,16 @@ modded class Weapon_Base
 	bool Expansion_IsChambered()
 	{
 		int mi = GetCurrentMuzzle();
-		return !IsChamberEmpty(mi) && !IsChamberFiredOut(mi);
+
+		return Expansion_IsChambered(mi);
+	}
+
+	bool Expansion_IsChambered(int mi)
+	{
+		if (!IsChamberEmpty(mi) && !IsChamberFiredOut(mi))
+			return true;
+
+		return false;
 	}
 
 	bool Expansion_HasAmmo(out Magazine mag = null)
@@ -127,31 +264,41 @@ modded class Weapon_Base
 		if (!IsChamberEmpty(mi) && !IsChamberFiredOut(mi))
 			return true;
 
-		if (HasInternalMagazine(mi) && GetInternalMagazineCartridgeCount(mi))
-			return true;
-
-		mag = GetMagazine(mi);
-		if (mag && mag.GetAmmoCount())
+		if (Expansion_GetMagazineAmmoCount(mi, mag) > 0)
 			return true;
 
 		return false;
 	}
 
+	int Expansion_GetMagazineAmmoCount(out Magazine mag = null)
+	{
+		int mi = GetCurrentMuzzle();
+
+		return Expansion_GetMagazineAmmoCount(mi, mag);
+	}
+
+	int Expansion_GetMagazineAmmoCount(int mi, out Magazine mag = null)
+	{
+		if (HasInternalMagazine(mi))
+			return GetInternalMagazineCartridgeCount(mi);
+
+		mag = GetMagazine(mi);
+		if (mag)
+			return mag.GetAmmoCount();
+
+		return 0;
+	}
+
 	bool Expansion_SetFireMode(ExpansionFireMode fireMode)
 	{
-		string type = GetType();
-		auto fireModes = s_Expansion_FireModes[type];
-		if (!fireModes)
-			return false;
-
 		int fireModeIndex;
-		if (!fireModes.Find(fireMode, fireModeIndex))
+		if (!m_Expansion_WeaponInfo.m_FireModes.Find(fireMode, fireModeIndex))
 			return false;
 
 		int muzzleIndex = GetCurrentMuzzle();
 		if (GetCurrentMode(muzzleIndex) != fireModeIndex)
 		{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.WEAPONS, this, "::Expansion_SetFireMode - setting mode " + typename.EnumToString(ExpansionFireMode, fireMode));
 		#endif
 			OnFireModeChange(fireModeIndex);
@@ -166,12 +313,11 @@ modded class Weapon_Base
 	{
 		int muzzleIndex = GetCurrentMuzzle();
 		int mode = GetCurrentMode(muzzleIndex);
-		string type = GetType();
-		foreach (ExpansionFireMode fireMode, int i: s_Expansion_FireModes[type])
+		foreach (ExpansionFireMode fireMode, int i: m_Expansion_WeaponInfo.m_FireModes)
 		{
 			if (mode == i)
 			{
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.WEAPONS, this, "::Expansion_GetFireMode - current mode " + typename.EnumToString(ExpansionFireMode, fireMode));
 			#endif
 				return fireMode;

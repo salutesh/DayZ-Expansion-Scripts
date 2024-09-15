@@ -66,7 +66,11 @@ class ExpansionQuestNPCDataBase
 
 class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 {
+	[NonSerialized()]
 	static const int CONFIGVERSION = 6;
+	
+	[NonSerialized()]
+	static string FILENAME = "NONE";
 	
 	bool Active = true;
 	
@@ -227,7 +231,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		questNPC.Update();
 		if (!questNPC.m_Expansion_NetsyncData)
 			questNPC.m_Expansion_NetsyncData = new ExpansionNetsyncData(questNPC);
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		NPCName = NPCName + " | ID: " + ID;
 	#endif
 		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
@@ -265,7 +269,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		questNPC.SetPosition(Position);
 		questNPC.SetOrientation(Orientation);
 		questNPC.Update();
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		NPCName = NPCName + " | ID: " + ID;
 	#endif
 		if (!questNPC.m_Expansion_NetsyncData)
@@ -320,7 +324,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	    if (Orientation)
 	        questObject.SetOrientation(Orientation);
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		NPCName = NPCName + " | ID: " + ID;
 	#endif
 	    questObject.m_Expansion_NetsyncData.Set(0, NPCName);
@@ -383,7 +387,9 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 	void Save(string fileName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, EXPANSION_QUESTS_NPCS_FOLDER + fileName);
+#endif
 
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";

@@ -37,7 +37,7 @@ modded class MissionGameplay
 
 		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		if (player && player.DEBUG_EXPANSION_AI_VEHICLE && g_Expansion_Car && g_ExpansionNavMesh)
 		{
 			g_ExpansionNavMesh.DebugScripts();

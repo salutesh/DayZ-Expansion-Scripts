@@ -23,10 +23,6 @@ class ExpansionSpawnSettingsBase: ExpansionSettingBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnSettingsBase()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnSettingsBase");
-#endif
-
 		SpawnLocations = new array<ref ExpansionSpawnLocation>;
 		StartingClothing = new ExpansionStartingClothing;
 	}
@@ -78,10 +74,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
-#endif
-		
 		if (!ctx.Read(EnableRespawnCooldowns))
 		{
 			Error("ExpansionSpawnSettings::OnRecieve EnableRespawnCooldowns");
@@ -138,10 +130,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
-#endif
-		
 		ctx.Write( EnableRespawnCooldowns );
 		ctx.Write( RespawnCooldown );
 		ctx.Write( TerritoryRespawnCooldown );
@@ -155,9 +143,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
-#endif
 		if ( !IsMissionHost() )
 		{
 			return 0;
@@ -173,10 +158,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionSpawnSettingsBase s)
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
-
 		StartingClothing = s.StartingClothing;
 		EnableSpawnSelection = s.EnableSpawnSelection;
 		SpawnOnTerritory = s.SpawnOnTerritory;
@@ -203,10 +184,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
-#endif
-
 		m_IsLoaded = true;
 			
 		//! Move existing settings file over from old location in $profile to new location in $mission
@@ -318,10 +295,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	override void Update( ExpansionSettingBase setting )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Update").Add(setting);
-#endif
-
 		super.Update( setting );
 
 		ExpansionSettings.SI_Spawn.Invoke();
@@ -403,10 +376,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsChernarus()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsChernarus");
-#endif
-
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -531,10 +500,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsLivonia()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsLivonia");
-#endif
-
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -606,10 +571,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsSandbox()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsSandbox");
-#endif
-
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -677,10 +638,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsDeerisle()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsDeerisle");
-#endif
-
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -743,10 +700,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsNamalsk()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsNamalsk");
-#endif
-
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -869,10 +822,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsChiemsee()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsChiemsee");
-#endif
-
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -910,10 +859,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsEsseker()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsEsseker");
-#endif
-
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -1029,10 +974,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsRostow()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsRostow");
-#endif
-
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -1052,10 +993,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsBanov()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsBanov");
-#endif
-
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -1131,10 +1068,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsValning()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsValning");
-#endif
-
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -1154,10 +1087,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsTakistanPlus()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsTakistanPlus");
-#endif
-
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 

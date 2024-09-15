@@ -24,7 +24,9 @@ class ExpansionQuestHUDDeliveryEntry: ExpansionScriptView
 
 	void ExpansionQuestHUDDeliveryEntry(ExpansionQuestObjectiveDelivery delivery, int count, ExpansionQuestHUDObjective objectiveEntry)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		m_Delivery = delivery;
 		m_Count = count;
@@ -36,7 +38,9 @@ class ExpansionQuestHUDDeliveryEntry: ExpansionScriptView
 
 	void SetView()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		if (m_Delivery)
 		{

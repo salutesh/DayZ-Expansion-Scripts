@@ -813,6 +813,26 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
          "text offset" 5 0
          "text valign" center
         }
+        SliderWidgetClass member_info_color_value {
+         visible 0
+         clipchildren 0
+         ignorepointer 0
+         color 1 0 0 1
+         size 0.8 10
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         style Default
+         "no focus" 0
+         "next down" ""
+         minimum -16711680
+         maximum 16711680
+         current 0
+         "fill in" 1
+         "listen to input" 1
+        }
        }
       }
       PanelWidgetClass member_perm_invite_spacer {

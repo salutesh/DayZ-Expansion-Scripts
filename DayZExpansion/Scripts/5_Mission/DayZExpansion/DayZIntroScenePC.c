@@ -138,7 +138,9 @@ modded class DayZIntroScenePC
 
 	void Expansion_SetupCharacter(bool characterCreation = false)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.StartStack(EXTrace.MISC, this, "characterCreation " + characterCreation);
+#endif
 
 		m_Character.Expansion_SetPosition(g_Game.ConfigGetVector(m_Expansion_CustomScene + " PlayerPosition"));
 		m_Character.Expansion_SetOrientation(g_Game.ConfigGetVector(m_Expansion_CustomScene + " PlayerOrientation"));

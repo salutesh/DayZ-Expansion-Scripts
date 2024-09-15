@@ -6,7 +6,7 @@ class ExpansionNavMesh
 {
 	autoptr array<ref ExpansionNavMeshPolygon> m_Polygons = new array<ref ExpansionNavMeshPolygon>();
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	autoptr array<Shape> m_DebugShapes = new array<Shape>();
 #endif
 
@@ -19,7 +19,7 @@ class ExpansionNavMesh
 
 	void ~ExpansionNavMesh()
 	{
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		DestroyDebugShapes();
 	#endif
 	}
@@ -73,10 +73,12 @@ class ExpansionNavMesh
 	 * @param end The target position for the path to reach
 	 * @param path [out] An array of vectors
 	 */
-	void FindPath(vector start, vector end, PGFilter filter, out array<vector> path)
+	bool FindPath(vector start, vector end, PGFilter filter, out array<vector> path)
 	{
 		ExpansionNavMeshPolygon startPoly = SamplePolygon(start, start);
 		ExpansionNavMeshPolygon endPoly = SamplePolygon(end, end);
+
+		int count;
 
 		if (startPoly == endPoly)
 		{
@@ -84,6 +86,8 @@ class ExpansionNavMesh
 			path.Resize(2);
 			path[0] = start;
 			path[1] = end;
+
+			count = 2;
 		}
 		else
 		{
@@ -91,30 +95,41 @@ class ExpansionNavMesh
 
 			AStar<ExpansionNavMeshPolygon>.Perform(startPoly, endPoly, filter, polyPath);
 
-			int count = polyPath.Count();
-			path.Resize(count);
+			count = polyPath.Count();
 
-			// AStar produces the path in reverse order
-			for (int i = 0; i < count; i++)
-			{				
-				int j = count - (i + 1);
-				path[j] = polyPath[i].m_Position;
-			}
-
-			// Update the first position in the path with the start input
-			path[0] = start;
-
-			// Check if a path was found to reach the destination
-			ExpansionNavMeshPolygon finalPoly = polyPath[0];
-			if (finalPoly == endPoly)
+			if (count)
 			{
-				// Set the final position to the real end if it is within the polygon
-				path[count - 1] = end;
+				path.Resize(count);
+
+				// AStar produces the path in reverse order
+				for (int i = 0; i < count; i++)
+				{				
+					int j = count - (i + 1);
+					path[j] = polyPath[i].m_Position;
+				}
+
+				// Update the first position in the path with the start input
+				path[0] = start;
+
+				// Check if a path was found to reach the destination
+				ExpansionNavMeshPolygon finalPoly = polyPath[0];
+				if (finalPoly == endPoly)
+				{
+					// Set the final position to the real end if it is within the polygon
+					path[count - 1] = end;
+				}
 			}
 		}
 
-		// Debug viewing
-		m_LastFoundPath = path;
+		if (count)
+		{
+			// Debug viewing
+			m_LastFoundPath = path;
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -209,7 +224,7 @@ class ExpansionNavMesh
 		return true;
 	}
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	void DrawDebug(Object parent)
 	{
 #ifdef EAI_TRACE

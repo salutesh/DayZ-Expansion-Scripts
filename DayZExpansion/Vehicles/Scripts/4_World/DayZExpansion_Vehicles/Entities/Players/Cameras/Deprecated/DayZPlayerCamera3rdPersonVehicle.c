@@ -179,6 +179,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 
 		pOutResult.m_fIgnoreParentRoll		= 1.0;
 		pOutResult.m_fIgnoreParentPitch 	= 1.0;
+		pOutResult.m_fIgnoreParentYaw 		= 0.0;
 		pOutResult.m_fInsideCamera		  	= 0.0;
 		pOutResult.m_fUseHeading 			= 0.0;
 		pOutResult.m_iDirectBone			= -1.0;

@@ -108,9 +108,9 @@ modded class Hologram
 		bool isFloating = SetHologramPosition(player.GetPosition(), minProjectionDistance, maxProjectionDistance, contactPosition);
 		SetIsFloating(isFloating);
 		
-		#ifdef DEVELOPER
+		#ifdef DIAG_DEVELOPER
 		DrawDebugArrow(minProjectionDistance, maxProjectionDistance);
-		if ( DiagMenu.GetBool(DiagMenuIDs.DM_HOLOGRAM) )
+		if (DiagMenu.GetBool(DiagMenuIDs.MISC_HOLOGRAM))
 		{
 			Debug.DrawSphere(GetProjectionPosition(), 0.1, 0x99FF0000, ShapeFlags.ONCE|ShapeFlags.TRANSP|ShapeFlags.NOOUTLINE);
 		}

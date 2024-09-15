@@ -4,6 +4,18 @@ modded class AnimalBase
 
 	ExpansionNavmeshCarver m_Expansion_NavmeshCarver;
 
+	protected int m_Expansion_NavmeshCarverNetIdLow;
+	protected int m_Expansion_NavmeshCarverNetIdHigh;
+
+	void AnimalBase()
+	{
+		if (ConfigGetBool("useExpansionNavMeshCarver"))
+		{
+			RegisterNetSyncVariableInt("m_Expansion_NavmeshCarverNetIdLow");
+			RegisterNetSyncVariableInt("m_Expansion_NavmeshCarverNetIdHigh");
+		}
+	}
+
 	//! Workaround for vanilla passing killed entity as killer to EEKilled since 1.20
 	//! Just check if killer is killed entity in EEKilled and then use m_Expansion_LastDamageSource instead of killer
 	//! Vanilla events are fired in this order for each hit:
@@ -14,7 +26,7 @@ modded class AnimalBase
 	{
 		bool applyDamage = super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		EXTrace.PrintHit(EXTrace.MISC, this, "EEOnDamageCalculated - apply damage? " + applyDamage, damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 #endif
 
@@ -24,7 +36,7 @@ modded class AnimalBase
 		return applyDamage;
 	}
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 		EXTrace.PrintHit(EXTrace.MISC, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
@@ -79,8 +91,18 @@ modded class AnimalBase
 			vector pos1 = GetBonePositionWS(idx1);
 			vector pos2 = GetBonePositionWS(idx2);
 			vector pos3 = GetBonePositionWS(idx3);
+
 			pos3[1] = pos2[1];
+
 			dir = vector.Direction(pos1, pos3);
+
+			EXTrace.Print(EXTrace.MISC, this, string.Format("head to back leg %2 m", dir.Length()));
+
+			//! Animal_UrsusArctos = ~1.7..1.8 m
+			//! Animal_BosTaurus = ~2.1 m
+			if (dir.Length() < 1.7)  //! Not a large animal
+				return;
+
 			pos = pos1 + dir * 0.55;
 			pos[1] = GetPosition()[1];
 		}
@@ -90,11 +112,12 @@ modded class AnimalBase
 			pos = GetPosition();
 		}
 
-		EXTrace.Print(EXTrace.AI, this, "Creating navmesh carver at " + pos);
+		EXTrace.Print(EXTrace.MISC, this, "Creating navmesh carver at " + pos);
 		if (Class.CastTo(m_Expansion_NavmeshCarver, GetGame().CreateObjectEx("ExpansionLargeAnimalNavmeshCarver", pos, ECE_CREATEPHYSICS | ECE_NOLIFETIME | ECE_KEEPHEIGHT)))
 		{
 			m_Expansion_NavmeshCarver.SetDirection(dir);
-			m_Expansion_NavmeshCarver.Expansion_SetObject(this);
+			m_Expansion_NavmeshCarver.Expansion_SetAssociatedObject(this);
+			m_Expansion_NavmeshCarver.GetNetworkID(m_Expansion_NavmeshCarverNetIdLow, m_Expansion_NavmeshCarverNetIdHigh);
 		}
 	}
 
@@ -104,5 +127,19 @@ modded class AnimalBase
 			m_Expansion_NavmeshCarver.SetPosition(vector.Zero);  //! So skinned items are not placed on top of navmesh carver
 
 		super.SetAsSkinned();
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		if (!m_Expansion_NavmeshCarver && (m_Expansion_NavmeshCarverNetIdLow != 0 || m_Expansion_NavmeshCarverNetIdHigh != 0))
+		{
+			if (Class.CastTo(m_Expansion_NavmeshCarver, GetGame().GetObjectByNetworkId(m_Expansion_NavmeshCarverNetIdLow, m_Expansion_NavmeshCarverNetIdHigh)))
+			{
+				EXTrace.Print(EXTrace.MISC, this, "OnVariablesSynchronized - navmesh carver " + m_Expansion_NavmeshCarver);
+				m_Expansion_NavmeshCarver.Expansion_SetAssociatedObject(this);
+			}
+		}
 	}
 }

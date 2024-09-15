@@ -65,7 +65,7 @@ class ExpansionSHA256
 	{
 		Update("76561197968396131");
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		Print(HexDigest());
 	#endif
 
@@ -76,7 +76,7 @@ class ExpansionSHA256
 
 		string id = PlayerIdentity.Expansion_EncodeDigest(digest);
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		Print(id);
 	#endif
 
@@ -146,8 +146,9 @@ class ExpansionSHA256
 
 	static void Update(string input, bool reset = true, bool finalize = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PROFILING, ExpansionSHA256);
-
+#endif
 		if (reset && IsDirty())
 			Reset();
 

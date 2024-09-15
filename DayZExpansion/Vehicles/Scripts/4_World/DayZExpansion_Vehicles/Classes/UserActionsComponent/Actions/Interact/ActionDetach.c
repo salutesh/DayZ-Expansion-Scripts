@@ -14,12 +14,10 @@ modded class ActionDetach
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		EntityAI tgt_parent = EntityAI.Cast( target.GetParent() );
-		CarScript car;
-
-		if ( Class.CastTo( car, target.GetParent() ) )
+		auto vehicle = ExpansionVehicle.Get(target.GetParent());
+		if ( vehicle )
 		{
-			if ( car.IsLocked() )
+			if ( vehicle.IsLocked() )
 			{
 				return false;
 			}
@@ -32,12 +30,12 @@ modded class ActionDetach
 	{
 		super.OnExecuteServer(action_data);
 
-		CarScript car;
-		if (Class.CastTo(car, action_data.m_Target.GetParent()))
+		auto vehicle = ExpansionVehicle.Get(action_data.m_Target.GetParent());
+		if (vehicle)
 		{
 			if (action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleAttachments)
 			{
-				GetExpansionSettings().GetLog().PrintLog("[VehicleAttachments] Player " + action_data.m_Player.GetIdentity().GetName() + " (uid=" + action_data.m_Player.GetIdentity().GetId() + ") detached " + action_data.m_Target.GetObject().GetDisplayName() + " (type=" + action_data.m_Target.GetObject().GetType() + ") from vehicle " + car.GetDisplayName() + "(id=" + car.GetVehiclePersistentIDString() + " pos=" + car.GetPosition() + ")");
+				GetExpansionSettings().GetLog().PrintLog("[VehicleAttachments] Player " + action_data.m_Player.GetIdentity().GetName() + " (uid=" + action_data.m_Player.GetIdentity().GetId() + ") detached " + action_data.m_Target.GetObject().GetDisplayName() + " (type=" + action_data.m_Target.GetObject().GetType() + ") from vehicle " + vehicle.GetDisplayName() + "(id=" + vehicle.GetPersistentIDString() + " pos=" + vehicle.GetPosition() + ")");
 			}
 		}
 	}

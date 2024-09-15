@@ -36,7 +36,7 @@ modded class CarScript
 	{
 		Human reserved = m_Expansion_ReservedSeats[posIdx];
 
-		if (!reserved)
+		if (!reserved || (!reserved.IsAlive() && !CrewMember(posIdx)))
 			return false;
 
 		return reserved != crewMember;

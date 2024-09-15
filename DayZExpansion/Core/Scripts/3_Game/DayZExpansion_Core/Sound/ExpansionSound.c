@@ -40,7 +40,7 @@ class ExpansionSound
 		if (m_IsLinked)
 			Unlink();
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.SOUND, this, "::~ExpansionSound() " + m_SoundSet.m_Name + " ID " + m_SoundSet.m_ID + " " + m_Position + " " + m_Parent + " " + m_FadeIn + " " + m_FadeOut + " " + m_Loop);
 	#endif
 	}
@@ -87,7 +87,7 @@ class ExpansionSound
 
 	void Play(float fadeIn = -1.0, float fadeOut = -1.0, int loop = -1)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.SOUND, this, m_SoundSet.m_Name, "ID " + m_SoundSet.m_ID, m_Position.ToString(), "" + m_Parent, fadeIn.ToString(), fadeOut.ToString(), loop.ToString());
 	#endif
 
@@ -162,7 +162,7 @@ class ExpansionSound
 
 	void Stop(float fadeOut = -1.0)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.SOUND, this, m_SoundSet.m_Name, "ID " + m_SoundSet.m_ID, m_Position.ToString(), "" + m_Parent, fadeOut.ToString());
 	#endif
 
@@ -224,7 +224,7 @@ class ExpansionSound
 
 	void FadeIn(float duration = -1.0)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.SOUND, this, m_SoundSet.m_Name, "ID " + m_SoundSet.m_ID, m_Position.ToString(), "" + m_Parent, duration.ToString());
 	#endif
 
@@ -283,7 +283,7 @@ class ExpansionSound
 
 	void FadeOut(float duration = -1.0)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.SOUND, this, m_SoundSet.m_Name, "ID " + m_SoundSet.m_ID, m_Position.ToString(), "" + m_Parent, duration.ToString());
 	#endif
 
@@ -345,7 +345,7 @@ class ExpansionSound
 
 	void SetVolume(float volume)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.SOUND, this, m_SoundSet.m_Name, "ID " + m_SoundSet.m_ID, m_Position.ToString(), "" + m_Parent, volume.ToString());
 	#endif
 
@@ -362,7 +362,7 @@ class ExpansionSound
 
 	protected void OnStop()
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.SOUND, this, m_SoundSet.m_Name, "ID " + m_SoundSet.m_ID);
 	#endif
 
@@ -382,7 +382,7 @@ class ExpansionSound
 
 		m_IsLinked = false;
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.SOUND, this, "::Unlink()");
 	#endif
 	}

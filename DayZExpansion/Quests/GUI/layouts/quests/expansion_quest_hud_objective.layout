@@ -40,16 +40,15 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
      hexactsize 0
      vexactsize 0
      scriptclass "ViewBinding"
-     font "gui/fonts/sdf_MetronBook24"
+     style None
+     font "gui/fonts/sdf_metronlight24"
      "text offset" 5 0
      "bold text" 1
      "exact text" 1
      "exact text size" 14
-     "size to text h" 0
+     "size to text h" 1
      "size to text v" 1
      wrap 1
-     "condense whitespace" 1
-     "strip newlines" 1
      {
       ScriptParamsClass {
        Binding_Name "ObjectiveName"
@@ -67,15 +66,14 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
      hexactsize 0
      vexactsize 0
      scriptclass "ViewBinding"
-     font "gui/fonts/sdf_MetronBook24"
+     style None
+     font "gui/fonts/sdf_metronlight24"
      "text offset" 5 0
      "exact text" 1
      "exact text size" 14
      "size to text h" 1
      "size to text v" 1
      wrap 1
-     "condense whitespace" 1
-     "strip newlines" 1
      {
       ScriptParamsClass {
        Binding_Name "ObjectiveTimeLimit"
@@ -92,7 +90,6 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
      vexactsize 0
      Padding 0
      Margin 0
-     "Size To Content H" 1
      "Size To Content V" 1
      content_halign center
      {
@@ -105,17 +102,15 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
        hexactsize 0
        vexactsize 0
        scriptclass "ViewBinding"
-       style DayZBold
-       font "gui/fonts/sdf_MetronBook24"
+       style None
+       font "gui/fonts/sdf_metronlight24"
        "text offset" 5 0
-       "bold text" 1
+       "bold text" 0
        "exact text" 1
        "exact text size" 14
        "size to text h" 1
        "size to text v" 1
        wrap 1
-       "condense whitespace" 1
-       "strip newlines" 1
        {
         ScriptParamsClass {
          Binding_Name "ObjectiveTarget"
@@ -133,31 +128,26 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
      vexactsize 0
      Padding 0
      Margin 0
-     "Size To Content H" 1
      "Size To Content V" 1
-     content_halign center
      {
       RichTextWidgetClass ObjectiveValue {
        ignorepointer 1
-       size 0.97 1
-       halign right_ref
+       size 1 1
        hexactpos 0
        vexactpos 0
        hexactsize 0
        vexactsize 0
        scriptclass "ViewBinding"
-       text "5000/5000"
-       font "gui/fonts/sdf_MetronBook24"
-       "text offset" 2 0
+       style None
+       font "gui/fonts/sdf_metronlight24"
+       "text offset" 12 0
+       "bold text" 0
        "exact text" 1
        "exact text size" 14
        "size to text h" 1
        "size to text v" 1
        "text halign" right
-       "text valign" center
        wrap 1
-       "condense whitespace" 1
-       "strip newlines" 1
        {
         ScriptParamsClass {
          Binding_Name "ObjectiveValue"

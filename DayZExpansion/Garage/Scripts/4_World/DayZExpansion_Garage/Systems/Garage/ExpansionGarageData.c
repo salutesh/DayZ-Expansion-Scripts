@@ -107,13 +107,13 @@ class ExpansionGarageData: ExpansionGarageDataBase
 			if (garageDataBase.m_Version < 3)
 			{
 				Object obj;
-				CarScript vehicle;
+				ExpansionVehicle vehicle;
 				foreach (ExpansionGarageVehicleData vehicleDataV3: garageData.m_Vehicles)
 				{
 					obj = GetGame().CreateObject(vehicleDataV3.m_ClassName, "0 0 0", true);
 					if (obj)
 					{
-						if (Class.CastTo(vehicle, obj))
+						if (ExpansionVehicle.Get(vehicle, obj))
 						{
 							float modelZeroPointFromGround = vehicle.GetModelZeroPointDistanceFromGround();
 							vehicleDataV3.m_Position = Vector(vehicleDataV3.m_Position[0], vehicleDataV3.m_Position[1] - modelZeroPointFromGround, vehicleDataV3.m_Position[2]);

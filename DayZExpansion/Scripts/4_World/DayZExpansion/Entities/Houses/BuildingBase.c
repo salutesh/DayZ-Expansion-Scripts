@@ -34,9 +34,6 @@ modded class BuildingBase
 #endif
 
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
-
-		if (GetGame().IsServer())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(OnSettingsUpdated);
 	}
 		
 	// ------------------------------------------------------------
@@ -51,6 +48,14 @@ modded class BuildingBase
 		ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
 	}
 	
+	override void DeferredInit()
+	{
+		super.DeferredInit();
+
+		if (GetGame().IsServer())
+			OnSettingsUpdated();
+	}
+
 	// ------------------------------------------------------------
 	// OnSettingsUpdated
 	// ------------------------------------------------------------

@@ -51,8 +51,10 @@ class ExpansionMissionModule: CF_ModuleWorld
 		if (!GetGame())
 			return;
 
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MISSIONS, this);
-
+#endif
+		
 		ExpansionSettings.SI_Mission.Remove( OnSettingsUpdated );
 
 		if(m_lowPlayerCheckRunning)
@@ -147,8 +149,10 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MISSIONS, this);
-	
+#endif
+		
 		super.OnMissionLoaded(sender, args);
 
 		GenerateMissionTypes();
@@ -194,9 +198,12 @@ class ExpansionMissionModule: CF_ModuleWorld
 		//! DayZ rewritten Contaminated Areas
 		missionTypenames.Insert( ExpansionMissionEventContaminatedArea );
 		
-	#ifdef EXPANSION_MISSION_AI_ENABLE
+	#ifdef EXPANSION_MISSION_HORDE
 		//! Zombie Horde
 		missionTypenames.Insert( ExpansionMissionEventHorde );
+	#endif
+	
+	#ifdef EXPANSION_MISSION_AI_ENABLE
 		//! AI General missions (Patrol, Faction War, Protecting Loot)
 		missionTypenames.Insert( ExpansionMissionEventAI );
 	#endif
@@ -223,10 +230,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	protected void SaveMissions()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MISSIONS, this, "SaveMissions");
-#endif
-	
 		for ( int i = 0; i < m_Missions.Count(); i++ )
 		{
 			m_Missions[i].SaveMission();
@@ -283,10 +286,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	protected void DefaultMissions()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MISSIONS, this, "DefaultMissions");
-#endif
-	
 		foreach (string missionClassName, typename missionType: m_MissionTypes)
 		{
 			ExpansionMissionEventBase missionEvent = ExpansionMissionEventBase.Cast( missionType.Spawn() );
@@ -325,10 +324,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	protected void LoadMissions()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MISSIONS, this, "LoadMissions");
-#endif
-	
 		TStringArray fileNames = ExpansionStatic.FindFilesInLocation(EXPANSION_MISSIONS_FOLDER, ".json");
 
 		foreach ( string fileName: fileNames )
@@ -375,8 +370,10 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void StartNewMissions()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-
+#endif
+		
 		if ( !m_MissionSettings || !m_MissionSettings.Enabled || m_Missions.Count() == 0 )
 			return;
 
@@ -425,8 +422,10 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 	void StartNewMissionsInternal()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-
+#endif
+		
 		if ( m_Missions.Count() == 0 )
 			return;
 
@@ -460,10 +459,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RemoveMission( ExpansionMissionEventBase mission )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MISSIONS, this, "RemoveMission");
-#endif
-	
 		m_RunningMissions.RemoveItem( mission );
 		
 		m_AvailableMissions[m_Missions.Find(mission)] = mission.Weight;
@@ -478,7 +473,9 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	protected bool FindNewMission()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
+#endif
 		
 		int index = ExpansionStatic.GetWeightedRandom( m_AvailableMissions );
 

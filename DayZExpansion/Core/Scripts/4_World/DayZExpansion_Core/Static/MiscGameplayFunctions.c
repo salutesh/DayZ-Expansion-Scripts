@@ -49,23 +49,12 @@ modded class MiscGameplayFunctions
 			}
 		}
 		
-		CarScript car;
-		if (Class.CastTo(car, item))
+		ExpansionVehicle vehicle = ExpansionVehicle.Get(item);
+		if (vehicle)
 		{
-			if (car.Expansion_GetVehicleCrew().Count() > 0)
+			if (vehicle.GetCrew().Count() > 0)
 				return false;
 		}
-		#ifdef EXPANSIONMODVEHICLE
-		else
-		{
-			ExpansionVehicleBase vehicle;
-			if (Class.CastTo(vehicle, item))
-			{
-				if (vehicle.Expansion_GetVehicleCrew().Count() > 0)
-					return false;
-			}
-		}
-		#endif
 
 		return true;
 	}
@@ -80,23 +69,12 @@ modded class MiscGameplayFunctions
 
 		if (!item.GetHierarchyParent())
 		{
-			CarScript car;
-			if (Class.CastTo(car, item))
+			auto vehicle = ExpansionVehicle.Get(item);
+			if (vehicle)
 			{
-				if (car.m_Expansion_CargoCount > 0)
+				if (vehicle.GetCargoCount() > 0)
 					return true;
 			}
-			#ifdef EXPANSIONMODVEHICLE
-			else
-			{
-				ExpansionVehicleBase vehicle;
-				if (Class.CastTo(vehicle, item))
-				{
-					if (vehicle.m_Expansion_CargoCount > 0)
-						return true;
-				}
-			}
-			#endif
 		}
 
 		//! Check if any of the item's attachments has any cargo
@@ -121,19 +99,11 @@ modded class MiscGameplayFunctions
 
 		if (!entity.GetHierarchyParent())
 		{
-			CarScript car;
-			if (Class.CastTo(car, entity))
+			auto vehicle = ExpansionVehicle.Get(entity);
+			if (vehicle)
 			{
-				cargoCount += car.m_Expansion_CargoCount;
+				cargoCount += vehicle.GetCargoCount();
 			}
-			#ifdef EXPANSIONMODVEHICLE
-			else
-			{
-				ExpansionVehicleBase vehicle;
-				if (Class.CastTo(vehicle, entity))
-					cargoCount += vehicle.m_Expansion_CargoCount;
-			}
-			#endif
 		}
 
 		for (int i = 0; i < entity.GetInventory().AttachmentCount(); i++)
@@ -145,8 +115,42 @@ modded class MiscGameplayFunctions
 		return cargoCount;
 	}
 
+	static array<EntityAI> Expansion_GetCargoItems(EntityAI entity, bool includeAttachments = false)
+	{
+		array<EntityAI> cargoItems = {};
+
+		int i;
+
+		CargoBase cargo = entity.GetInventory().GetCargo();
+
+		if (cargo)
+		{
+			int cargoCount = cargo.GetItemCount();
+			for (i = 0; i < cargoCount; i++)
+			{
+				EntityAI cargoItem = cargo.GetItem(i);
+				cargoItems.Insert(cargoItem);
+				cargoItems.InsertAll(Expansion_GetCargoItems(cargoItem));
+			}
+		}
+
+		for (i = 0; i < entity.GetInventory().AttachmentCount(); i++)
+		{
+			EntityAI attachment = entity.GetInventory().GetAttachmentFromIndex(i);
+			if (includeAttachments)
+				cargoItems.Insert(attachment);
+			cargoItems.InsertAll(Expansion_GetCargoItems(attachment));
+		}
+
+		return cargoItems;
+	}
+
 	static bool Expansion_MoveCargo(EntityAI src, EntityAI dst, InventoryMode mode = InventoryMode.SERVER)
 	{
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, MiscGameplayFunctions);
+	#endif
+
 		if (!src.GetInventory() || !dst.GetInventory())
 			return false;
 
@@ -162,20 +166,66 @@ modded class MiscGameplayFunctions
 		if (!dstCargo)
 			return false;
 
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Moving " + cargoCount + " cargo items to " + dst);
+	#endif
+
 		auto srcLoc = new InventoryLocation;
 		auto dstLoc = new InventoryLocation;
 
+		int moved;
 		for (int i = cargoCount - 1; i >= 0; i--)
 		{
 			EntityAI item = cargo.GetItem(i);
 			item.GetInventory().GetCurrentInventoryLocation(srcLoc);
 			dstLoc.SetCargo(dst, item, srcLoc.GetIdx(), srcLoc.GetRow(), srcLoc.GetCol(), srcLoc.GetFlip());
 			if (!dstLoc.IsValid() || !item.GetInventory().TakeToDst(mode, srcLoc, dstLoc))
-				return false;
+				break;
+			moved++;
+		#ifdef DIAG_DEVELOPER
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Moved " + item + " to " + dst);
+		#endif
 		}
 
-		EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Moved " + cargoCount + " cargo items to " + dst);
+		#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Moved " + moved + "/" + cargoCount + " cargo items to " + dst);
+		#endif
 
 		return true;
+	}
+
+	/**
+	 * @brief Transfer <amount> catridges from this mag to destination mag
+	 * 
+	 * @param dst mag to transfer cartridges to
+	 * @param amount Number of cartridges to transfer
+	 * @param resetDstAmmoCount Reset destination ammo count to zero before transfer
+	 * @param totalDamage Will be set to total cartridge damage of all successfully transferred cartridges
+	 * 
+	 * @return Number of successfully transferred cartridges
+	 */
+	static int Expansion_TransferCartridges(Magazine src, Magazine dst, int amount, bool resetDstAmmoCount = true, out float totalDamage = 0.0)
+	{
+		if (resetDstAmmoCount)
+			dst.ServerSetAmmoCount(0);
+
+		amount = Math.Min(amount, Math.Min(src.GetAmmoCount(), dst.GetAmmoMax() - dst.GetAmmoCount()));
+
+		int numberOfTransferredCartridges;
+		for (int i = 0; i < amount; ++i)
+		{
+			float damage;
+			string cartrige_name;
+			if (src.ServerAcquireCartridge(damage, cartrige_name) && dst.ServerStoreCartridge(damage, cartrige_name))
+			{
+				numberOfTransferredCartridges++;
+				totalDamage += damage;
+			}
+		}
+
+		dst.SetSynchDirty();
+		src.SetSynchDirty();
+
+		return numberOfTransferredCartridges;
 	}
 }

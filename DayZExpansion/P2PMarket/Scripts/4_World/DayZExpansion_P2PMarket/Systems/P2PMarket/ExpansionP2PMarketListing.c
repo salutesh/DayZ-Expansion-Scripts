@@ -52,20 +52,20 @@ class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 			m_OwnerName = owner.GetIdentity().GetName();
 		}
 
-		CarScript car;
-		if (Class.CastTo(car, object))
+		ExpansionVehicle vehicle;
+		if (ExpansionVehicle.Get(vehicle, object))
 		{
-			if (!car.m_Expansion_GlobalID.m_IsSet)
-				car.m_Expansion_GlobalID.Acquire();
+			if (!vehicle.GetGlobalID().m_IsSet)
+				vehicle.GetGlobalID().Acquire();
 
 			for (int i = 0; i < 4; i++)
-				m_GlobalID[i] = car.m_Expansion_GlobalID.m_ID[i];
+				m_GlobalID[i] = vehicle.GetGlobalID().m_ID[i];
 
 		#ifdef EXPANSIONMODVEHICLE
-			if (car.ExpansionGetCurrentSkinName() != string.Empty)
+			if (vehicle.GetCurrentSkinName() != string.Empty)
 			{
-				m_SkinName = car.ExpansionGetCurrentSkinName();
-				m_SkinIndex = car.ExpansionGetCurrentSkinIndex();
+				m_SkinName = vehicle.GetCurrentSkinName();
+				m_SkinIndex = vehicle.GetCurrentSkinIndex();
 			}
 		#endif
 		}

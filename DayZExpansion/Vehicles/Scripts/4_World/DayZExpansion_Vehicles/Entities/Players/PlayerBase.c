@@ -38,18 +38,8 @@ modded class PlayerBase
 	override void SetActions( out TInputActionMap InputActionMap )
 	{
 		super.SetActions( InputActionMap );
-		
-		AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
 
-#ifdef DIAG
-		AddAction( ExpansionActionPushVehicle, InputActionMap );
-#endif
 		AddAction( ExpansionActionHelicopterHoverRefill, InputActionMap );
-
-		AddAction( ExpansionVehicleActionStartEngine, InputActionMap );
-		AddAction( ExpansionVehicleActionStopEngine, InputActionMap );
-
-		AddAction( ExpansionActionSwitchSeats, InputActionMap );
 
 		AddAction( ExpansionActionNextEngine, InputActionMap );
 		AddAction( ExpansionActionNextEngineInput, InputActionMap );
@@ -58,7 +48,6 @@ modded class PlayerBase
 		AddAction(ExpansionActionUnlockVehicle, InputActionMap);
 
 		AddAction( ExpansionActionPickVehicleLock, InputActionMap );
-		AddAction( ExpansionVehicleActionPickLock, InputActionMap );
 		AddAction( ExpansionActionChangeVehicleLock, InputActionMap );
 
 		#ifdef EXPANSION_VEHICLE_TOWING
@@ -68,6 +57,8 @@ modded class PlayerBase
 		AddAction( ExpansionActionVehicleConnectTow, InputActionMap );
 		AddAction( ExpansionActionVehicleDisconnectTow, InputActionMap );
 		#endif
+
+		AddAction( ExpansionActionSwitchSeats, InputActionMap );
 	}
 	
 	override void EOnContact( IEntity other, Contact extra )
@@ -97,11 +88,13 @@ modded class PlayerBase
 	{
 		bool hasParent = false;
 
-		if ( GetParent() || GetCommand_Vehicle() )
+		if ( Expansion_GetParent() )
 			hasParent = true;
 
+#ifdef DAYZ_1_25
 		if ( m_ExPlayerLinkType != ExpansionPlayerLink.NONE )
 			hasParent = true;
+#endif
 
 		if ( m_TransportHitRegistered )
 			return;
@@ -208,6 +201,7 @@ modded class PlayerBase
         super.OnDisconnect();
     }
 
+#ifdef DAYZ_1_25
 	override void TryHideItemInHands(bool hide, bool force = false)
 	{
 		if (!hide && Expansion_IsAttached())
@@ -216,25 +210,36 @@ modded class PlayerBase
 			super.TryHideItemInHands(false, true);
 			return;
 		}
-
+		
 		super.TryHideItemInHands(hide, force);
 	}
+#endif
 
 	bool Expansion_IsInVehicleSeatOrAttached( )
 	{
+	#ifndef DAYZ_1_25
+		EXError.WarnOnce(this, "DEPRECATED");
+	#endif
+
 		return m_Expansion_WasInVehicleSeatOrAttached;
 	}
 
 	void Expansion_SetIsInVehicleSeatOrAttached( bool state )
 	{
+	#ifndef DAYZ_1_25
+		EXError.WarnOnce(this, "DEPRECATED");
+	#endif
+
 		m_Expansion_WasInVehicleSeatOrAttached = state;
 	}
 
 	override bool IsInVehicle()
 	{
+#ifdef DAYZ_1_25
 		if (Expansion_IsAttached())
 			return false;
-
+#endif
+		
 		if (super.IsInVehicle())
 			return true;
 
@@ -283,6 +288,7 @@ modded class PlayerBase
 			OnVehicleSeatDriverLeft();
 	}
 
+#ifdef DAYZ_1_25
 	override void OnExpansionAttachTo( Object obj, vector transform[4] )
 	{
 		super.OnExpansionAttachTo(obj, transform);
@@ -296,6 +302,7 @@ modded class PlayerBase
 
 		Expansion_SetIsInVehicleSeatOrAttached( false );
 	}
+#endif
 
 	override bool HeadingModel( float pDt, SDayZPlayerHeadingModel pModel )
 	{
@@ -311,32 +318,67 @@ modded class PlayerBase
 			m_Expansion_CarKeys.Remove(idx);
 	}
 
-	bool HasKeyForCar(CarScript car)
+	ExpansionCarKey GetKeyForCar(CarScript car)
 	{
-		if (!car.HasKey())
-			return false;
+		return GetKeyForCar((EntityAI) car);
+	}
+
+	ExpansionCarKey GetKeyForCar(EntityAI entity)
+	{
+		auto vehicle = ExpansionVehicle.Get(entity, true);
+
+		if (!vehicle)
+			return null;
+
+		return GetKeyForCar(vehicle);
+	}
+	
+	ExpansionCarKey GetKeyForCar(ExpansionVehicleBase vehicle)
+	{
+		return GetKeyForCar((EntityAI) vehicle);
+	}
+
+	ExpansionCarKey GetKeyForCar(ExpansionVehicle vehicle)
+	{
+		if (!vehicle.HasKey())
+			return NULL;
 
 		foreach (ExpansionCarKey key: m_Expansion_CarKeys)
 		{
-			if (key.IsPairedTo(car))
-				return true;
+			if (key.IsInherited(ExpansionCarAdminKey))
+				return key;
+
+			if (key.IsPairedTo(vehicle))
+				return key;
 		}
+
+		return NULL;
+	}
+
+	bool HasKeyForCar(CarScript car)
+	{
+		return HasKeyForCar((EntityAI) car);
+	}
+
+	bool HasKeyForCar(EntityAI entity)
+	{
+		if (GetKeyForCar(entity))
+			return true;
+
+		return false;
+	}
+
+	bool HasKeyForCar(ExpansionVehicle vehicle)
+	{
+		if (GetKeyForCar(vehicle))
+			return true;
 
 		return false;
 	}
 	
 	bool HasKeyForCar(ExpansionVehicleBase vehicle)
 	{
-		if (!vehicle.HasKey())
-			return false;
-
-		foreach (ExpansionCarKey key: m_Expansion_CarKeys)
-		{
-			if (key.IsPairedTo(vehicle))
-				return true;
-		}
-
-		return false;
+		return HasKeyForCar((EntityAI) vehicle);
 	}
 
 	/**
@@ -354,6 +396,14 @@ modded class PlayerBase
 
 		auto ctx = storage[DZ_Expansion_Vehicles];
 		if (!ctx) return;
+
+	#ifndef DAYZ_1_25
+		//! 1.26+
+		if (Expansion_GetParent())
+			m_Expansion_WasInVehicleSeatOrAttached = true;
+		else
+			m_Expansion_WasInVehicleSeatOrAttached = false;
+	#endif
 
 		ctx.Write(m_Expansion_WasInVehicleSeatOrAttached);
 		ctx.Write(m_Expansion_SessionTimeStamp);
@@ -413,9 +463,11 @@ modded class PlayerBase
 		//todo: branchless ??
 		if ( GetGame().IsServer() ) 
 		{
-			EXPrint(ToString() + "::PlacePlayerOnGround - player pos " + GetPosition() + " was in vehicle " + m_Expansion_WasInVehicleSeatOrAttached + " is attached " + Expansion_IsAttached() + " " + GetParent());
+			IEntity attachmentParent = Expansion_GetParent();
 
-			if ( !Expansion_IsAttached() && !GetParent() )
+			EXPrint(ToString() + "::PlacePlayerOnGround - player pos " + GetPosition() + " was in vehicle " + m_Expansion_WasInVehicleSeatOrAttached + " is attached to " + attachmentParent);
+			
+			if (!attachmentParent)
 			{
 				vector rayStart = GetPosition() + "0 0.6 0";
 
@@ -514,23 +566,6 @@ modded class PlayerBase
 
 			//! Enable fall damage again - after a delay or player may still die from it
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SetAllowDamageEx, 1500, false, "FallDamage", true);
-		}
-	}
-	
-	override void OnVehicleSeatDriverEnter()
-	{
-		super.OnVehicleSeatDriverEnter();
-
-		ExpansionHumanCommandVehicle exhcv = GetCommand_ExpansionVehicle();
-		if (exhcv && exhcv.GetObject())
-		{
-			ExpansionVehicleBase vehicle = ExpansionVehicleBase.Cast(exhcv.GetObject());
-			if (vehicle)
-			{
-				vehicle.ExpansionSetLastDriverUID(this);
-				if (IsMissionHost())
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(vehicle.ExpansionResetLastDriverUIDSynch, 1000, false);
-			}
 		}
 	}
 };

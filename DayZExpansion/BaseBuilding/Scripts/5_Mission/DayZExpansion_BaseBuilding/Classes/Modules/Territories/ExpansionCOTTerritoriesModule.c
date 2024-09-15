@@ -335,7 +335,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		if ( obj.IsInherited( WorldContainer_Base ) ) // improvised tent, bin, fridge, mostly scrapped items
 			return true;
 	
-		if ( obj.IsInherited( CarScript ) ) // Cars
+		if ( ExpansionVehicle.Get(obj) ) // Vehicles
 			return true;
 		
 		if ( obj.IsInherited( ExpansionGunrack ) ) // Gunrack

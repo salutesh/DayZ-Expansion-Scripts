@@ -1,13 +1,15 @@
-#define _ARMA_
-
 class CfgPatches
 {
 	class DayZExpansion_Worlds_ChernarusPlus_Gloom
 	{
-		units[] = {};
-		weapons[] = {};
-		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Surfaces_Bliss","DZ_Worlds_Chernarusplus_World"};
+		units[]={};
+		weapons[]={};
+		requiredVersion=0.1;
+		requiredAddons[]=
+		{
+			"DZ_Surfaces_Bliss",
+			"DZ_Worlds_Chernarusplus_World"
+		};
 	};
 };
 class CfgWorlds
@@ -259,9 +261,9 @@ class CfgWorlds
 	class VolFog;
 	class DefaultWorld
 	{
-		oceanMaterial = "{5DCC3416E18F592C}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean.emat";
-		oceanNiceMaterial = "{71A6259AA29D1AFA}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean_Nice.emat";
-		oceanStormMaterial = "{52820612B43B2E7B}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean_Storm.emat";
+		oceanMaterial="{5DCC3416E18F592C}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean.emat";
+		oceanNiceMaterial="{71A6259AA29D1AFA}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean_Nice.emat";
+		oceanStormMaterial="{52820612B43B2E7B}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean_Storm.emat";
 		class Weather
 		{
 			class Overcast
@@ -282,234 +284,288 @@ class CfgWorlds
 			{
 				class C_Night: C_Night
 				{
-					ambient[] = {0.016,0.0316,0.048};
-					filmGrainIntensity = 0.0;
-					desiredLuminanceCoef = 0;
+					ambient[]={0.016000001,0.031599998,0.048};
+					filmGrainIntensity=0;
+					desiredLuminanceCoef=0;
 				};
 				class C_Astro1: C_Astro1
 				{
-					ambient[] = {0.032,0.0632,0.096};
-					desiredLuminanceCoef = 0;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.032000002,0.063199997,0.096000001};
+					desiredLuminanceCoef=0;
+					filmGrainIntensity=0;
 				};
 				class C_Astro2: C_Astro2
 				{
-					ambient[] = {0.032,0.0632,0.096};
-					desiredLuminanceCoef = 0;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.032000002,0.063199997,0.096000001};
+					desiredLuminanceCoef=0;
+					filmGrainIntensity=0;
 				};
 				class C_Astro3: C_Astro3
 				{
-					ambient[] = {0.032,0.0632,0.096};
-					desiredLuminanceCoef = 0;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.032000002,0.063199997,0.096000001};
+					desiredLuminanceCoef=0;
+					filmGrainIntensity=0;
 				};
 				class C_Nautical1: C_Nautical1
 				{
-					ambient[] = {0.064,0.1264,0.192};
-					desiredLuminanceCoef = 0;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.064000003,0.12639999,0.192};
+					desiredLuminanceCoef=0;
+					filmGrainIntensity=0;
 				};
 				class C_Nautical2: C_Nautical2
 				{
-					ambient[] = {0.064,0.1264,0.192};
-					desiredLuminanceCoef = 0.0;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.064000003,0.12639999,0.192};
+					desiredLuminanceCoef=0;
+					filmGrainIntensity=0;
 				};
 				class C_Nautical3: C_Nautical3
 				{
-					ambient[] = {0.064,0.1264,0.192};
-					desiredLuminanceCoef = 0.0;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.064000003,0.12639999,0.192};
+					desiredLuminanceCoef=0;
+					filmGrainIntensity=0;
 				};
 				class C_Civil1: C_Civil1
 				{
-					ambient[] = {0.128,0.2528,0.384};
-					desiredLuminanceCoef = 0.05;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.12800001,0.25279999,0.384};
+					desiredLuminanceCoef=0.050000001;
+					filmGrainIntensity=0;
 				};
 				class C_Civil2: C_Civil2
 				{
-					ambient[] = {{0.128,0.2528,0.384},0.2};
-					desiredLuminanceCoef = 0.25;
-					filmGrainIntensity = 0.0;
+					ambient[]=
+					{
+						{0.12800001,0.25279999,0.384},
+						0.2
+					};
+					desiredLuminanceCoef=0.25;
+					filmGrainIntensity=0;
 				};
 				class C_Civil3: C_Civil3
 				{
-					ambient[] = {0.2,0.23,0.45};
-					desiredLuminanceCoef = 0.3;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.2,0.23,0.44999999};
+					desiredLuminanceCoef=0.30000001;
+					filmGrainIntensity=0;
 				};
 				class C_Day0: C_Day0
 				{
-					ambient[] = {0.2,0.23,0.45};
-					desiredLuminanceCoef = 0.35;
-					filmGrainIntensity = 0;
+					ambient[]={0.2,0.23,0.44999999};
+					desiredLuminanceCoef=0.34999999;
+					filmGrainIntensity=0;
 				};
 				class C_Day4: C_Day4
 				{
-					ambient[] = {{0.2,0.23,0.45},7.4};
-					desiredLuminanceCoef = 0.35;
-					filmGrainIntensity = 0;
+					ambient[]=
+					{
+						{0.2,0.23,0.44999999},
+						7.4000001
+					};
+					desiredLuminanceCoef=0.34999999;
+					filmGrainIntensity=0;
 				};
 				class C_Day8: C_Day8
 				{
-					ambient[] = {{0.12,0.18,0.37},10.4};
-					desiredLuminanceCoef = 0.45;
-					filmGrainIntensity = 0;
+					ambient[]=
+					{
+						{0.12,0.18000001,0.37},
+						10.4
+					};
+					desiredLuminanceCoef=0.44999999;
+					filmGrainIntensity=0;
 				};
 				class C_Day12: C_Day12
 				{
-					ambient[] = {{0.12,0.18,0.34},9};
-					desiredLuminanceCoef = 0.54;
-					filmGrainIntensity = 0;
+					ambient[]=
+					{
+						{0.12,0.18000001,0.34},
+						9
+					};
+					desiredLuminanceCoef=0.54000002;
+					filmGrainIntensity=0;
 				};
 				class C_Day16: C_Day16
 				{
-					ambient[] = {{0.12,0.18,0.32},9};
-					desiredLuminanceCoef = 0.6;
-					filmGrainIntensity = 0;
+					ambient[]=
+					{
+						{0.12,0.18000001,0.31999999},
+						9
+					};
+					desiredLuminanceCoef=0.60000002;
+					filmGrainIntensity=0;
 				};
 				class C_Day35: C_Day35
 				{
-					ambient[] = {{0.12,0.18,0.32},9};
-					desiredLuminanceCoef = 0.64;
-					filmGrainIntensity = 0;
+					ambient[]=
+					{
+						{0.12,0.18000001,0.31999999},
+						9
+					};
+					desiredLuminanceCoef=0.63999999;
+					filmGrainIntensity=0;
 				};
 				class C_Day60: C_Day60
 				{
-					ambient[] = {{0.12,0.18,0.32},9};
-					desiredLuminanceCoef = 0.68;
-					filmGrainIntensity = 0;
+					ambient[]=
+					{
+						{0.12,0.18000001,0.31999999},
+						9
+					};
+					desiredLuminanceCoef=0.68000001;
+					filmGrainIntensity=0;
 				};
 				class O_Night: O_Night
 				{
-					ambient[] = {0.036,0.057,0.085};
-					desiredLuminanceCoef = 0.0;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.035999998,0.057,0.085000001};
+					desiredLuminanceCoef=0;
+					filmGrainIntensity=0;
 				};
 				class O_Astro1: O_Astro1
 				{
-					ambient[] = {0.036,0.057,0.085};
-					desiredLuminanceCoef = 0.0;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.035999998,0.057,0.085000001};
+					desiredLuminanceCoef=0;
+					filmGrainIntensity=0;
 				};
 				class O_Nautical1: O_Nautical1
 				{
-					ambient[] = {0.036,0.057,0.085};
-					desiredLuminanceCoef = 0.0;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.035999998,0.057,0.085000001};
+					desiredLuminanceCoef=0;
+					filmGrainIntensity=0;
 				};
 				class O_Civil1: O_Civil1
 				{
-					ambient[] = {0.1,0.18,0.29};
-					desiredLuminanceCoef = 0.0;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.1,0.18000001,0.28999999};
+					desiredLuminanceCoef=0;
+					filmGrainIntensity=0;
 				};
 				class O_Civil2: O_Civil2
 				{
-					ambient[] = {0.145,0.227,0.349};
-					desiredLuminanceCoef = 0.05;
-					filmGrainIntensity = 0.0;
+					ambient[]={0.145,0.227,0.34900001};
+					desiredLuminanceCoef=0.050000001;
+					filmGrainIntensity=0;
 				};
 				class O_Day0: O_Day0
 				{
-					ambient[] = {0.145,0.227,0.349};
-					desiredLuminanceCoef = 0.3;
-					filmGrainIntensity = 0;
+					ambient[]={0.145,0.227,0.34900001};
+					desiredLuminanceCoef=0.30000001;
+					filmGrainIntensity=0;
 				};
 				class O_Day4: O_Day4
 				{
-					ambient[] = {{0.145,0.227,0.349},9};
-					desiredLuminanceCoef = 0.4;
-					filmGrainIntensity = 0;
+					ambient[]=
+					{
+						{0.145,0.227,0.34900001},
+						9
+					};
+					desiredLuminanceCoef=0.40000001;
+					filmGrainIntensity=0;
 				};
 				class O_Day8: O_Day8
 				{
-					ambient[] = {{0.145,0.227,0.349},9};
-					desiredLuminanceCoef = 0.45;
-					filmGrainIntensity = 0;
+					ambient[]=
+					{
+						{0.145,0.227,0.34900001},
+						9
+					};
+					desiredLuminanceCoef=0.44999999;
+					filmGrainIntensity=0;
 				};
 				class O_Day12: O_Day12
 				{
-					ambient[] = {{0.145,0.227,0.349},9};
-					desiredLuminanceCoef = 0.53;
-					filmGrainIntensity = 0;
+					ambient[]=
+					{
+						{0.145,0.227,0.34900001},
+						9
+					};
+					desiredLuminanceCoef=0.52999997;
+					filmGrainIntensity=0;
 				};
 				class O_Day35: O_Day35
 				{
-					ambient[] = {{0.15,0.2,0.25},9};
-					desiredLuminanceCoef = 0.58;
-					filmGrainIntensity = 0;
+					ambient[]=
+					{
+						{0.15000001,0.2,0.25},
+						9
+					};
+					desiredLuminanceCoef=0.57999998;
+					filmGrainIntensity=0;
 				};
 				class O_Day60: O_Day60
 				{
-					ambient[] = {{0.2,0.24,0.29},9};
-					desiredLuminanceCoef = 0.6;
-					filmGrainIntensity = 0;
+					ambient[]=
+					{
+						{0.2,0.23999999,0.28999999},
+						9
+					};
+					desiredLuminanceCoef=0.60000002;
+					filmGrainIntensity=0;
 				};
 			};
-			dayTemperature = 18;
-			nightTemperature = 4;
-			minHeight = -10;
-			shoreTop = 0;
-			peakWaveTop = -1;
-			peakWaveBottom = -5;
+			dayTemperature=18;
+			nightTemperature=4;
+			minHeight=-10;
+			shoreTop=0;
+			peakWaveTop=-1;
+			peakWaveBottom=-5;
 			class VolFog
 			{
-				CameraFog = 0;
-				Item1[] = {20,1.0,0.97,0.63,1.0};
-				Item2[] = {250,0.12,0.77,0.3,0.39};
-				Item3[] = {1000,0.21,0.16,0.63,0.6};
-				Item4[] = {2000,0.01,0.02,0.03,0.72};
+				CameraFog=0;
+				Item1[]={20,1,0.97000003,0.63,1};
+				Item2[]={250,0.12,0.76999998,0.30000001,0.38999999};
+				Item3[]={1000,0.20999999,0.16,0.63,0.60000002};
+				Item4[]={2000,0.0099999998,0.02,0.029999999,0.72000003};
 			};
 		};
-		clouds[] = {"DZ\Data\data\mrak1.p3d","DZ\Data\data\mrak2.p3d","DZ\Data\data\mrak3.p3d","DZ\Data\data\mrak4.p3d"};
-		starsIntensity = 0.141;
-		hazeDistCoef = -1.0;
-		hazeFogCoef = 2.0;
-		volFogOffset = 2.0;
-		oceanMaterial = "{5DCC3416E18F592C}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean.emat";
-		oceanNiceMaterial = "{71A6259AA29D1AFA}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean_Nice.emat";
-		oceanStormMaterial = "{52820612B43B2E7B}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean_Storm.emat";
-		satelliteNormalBlendStart = 100;
-		satelliteNormalBlendEnd = 500;
-		flareMinDistance = 2;
-		flareMinDistanceLerp = 1;
-		farLightSpotMul = 2;
-		farLightPointMul = 2;
-		minTreesInForestSquare = 10;
-		minRocksInRockSquare = 5;
-		soundMapAttenCoef = 0.01;
+		clouds[]=
+		{
+			"DZ\Data\data\mrak1.p3d",
+			"DZ\Data\data\mrak2.p3d",
+			"DZ\Data\data\mrak3.p3d",
+			"DZ\Data\data\mrak4.p3d"
+		};
+		starsIntensity=0.141;
+		hazeDistCoef=-1;
+		hazeFogCoef=2;
+		volFogOffset=2;
+		oceanMaterial="{5DCC3416E18F592C}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean.emat";
+		oceanNiceMaterial="{71A6259AA29D1AFA}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean_Nice.emat";
+		oceanStormMaterial="{52820612B43B2E7B}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean_Storm.emat";
+		satelliteNormalBlendStart=100;
+		satelliteNormalBlendEnd=500;
+		flareMinDistance=2;
+		flareMinDistanceLerp=1;
+		farLightSpotMul=2;
+		farLightPointMul=2;
+		minTreesInForestSquare=10;
+		minRocksInRockSquare=5;
+		soundMapAttenCoef=0.0099999998;
 		class Subdivision: Subdivision
 		{
 			class Fractal: Fractal
 			{
-				rougness = 5;
-				maxRoad = 0.02;
-				maxTrack = 0.5;
-				maxSlopeFactor = 0.05;
+				rougness=5;
+				maxRoad=0.02;
+				maxTrack=0.5;
+				maxSlopeFactor=0.050000001;
 			};
 			class WhiteNoise: WhiteNoise
 			{
-				rougness = 2;
-				maxRoad = 0.01;
-				maxTrack = 0.05;
-				maxSlopeFactor = 0.0025;
+				rougness=2;
+				maxRoad=0.0099999998;
+				maxTrack=0.050000001;
+				maxSlopeFactor=0.0024999999;
 			};
-			minY = 0;
-			minSlope = 0.02;
+			minY=0;
+			minSlope=0.02;
 		};
 		class Lighting: DefaultLighting
 		{
-			groundReflection[] = {0.06,0.06,0.03};
-			moonObjectColorFull[] = {0.9,0.9,1,0.7};
-			moonHaloObjectColorFull[] = {0.9,0.9,1,0.01};
-			moonsetObjectColor[] = {0.9,0.75,0.4};
-			moonsetHaloObjectColor[] = {0.9,0.5,0.2};
-			nightAngle = 5;
-			sunSunset = 20;
-			endSunset = 10;
+			groundReflection[]={0.059999999,0.059999999,0.029999999};
+			moonObjectColorFull[]={0.89999998,0.89999998,1,0.69999999};
+			moonHaloObjectColorFull[]={0.89999998,0.89999998,1,0.0099999998};
+			moonsetObjectColor[]={0.89999998,0.75,0.40000001};
+			moonsetHaloObjectColor[]={0.89999998,0.5,0.2};
+			nightAngle=5;
+			sunSunset=20;
+			endSunset=10;
 		};
 	};
 };

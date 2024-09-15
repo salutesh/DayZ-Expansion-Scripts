@@ -32,41 +32,25 @@ class ExpansionActionLockVehicle: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		CarScript car;
+		ExpansionVehicle vehicle;
 		ExpansionCarKey key;
 
 		//! The intention is for vehicles to only be lockable if player has its key (or admin key) in hand
 
-		//! Is the player inside a vehicle ?
-		if ( player.GetCommand_Vehicle() )
-		{
-			if ( !Class.CastTo( car, player.GetCommand_Vehicle().GetTransport() ) )
-			{
-				return false;
-			}
-		} else
-		{
-			//! Is this a "car" ?
-			if ( !Class.CastTo( car, target.GetParentOrObject() ) )
-			{
-				return false;
-			}
-		}
+		if ( !ExpansionVehicle.Get(vehicle, player) && !ExpansionVehicle.Get(vehicle, target.GetParentOrObject()) )
+			return false;
 
-		// Key in the player hand ?
 		if ( !Class.CastTo( key, player.GetItemInHands() ) )
 		{
 			return false;
 		}
 
-		// Key is paired to this "car" ?
-		if ( !car.IsCarKeys( key ) && !key.IsInherited( ExpansionCarAdminKey ) )
+		if ( !vehicle.IsPairedTo( key ) && !key.IsInherited( ExpansionCarAdminKey ) )
 		{
 			return false;
 		}
 
-		// Is the car already locked ?
-		if ( car.IsLocked() || car.Expansion_IsReadyToLock() )
+		if ( vehicle.IsLocked() || vehicle.IsReadyToLock() )
 		{
 			return false;
 		}
@@ -78,26 +62,19 @@ class ExpansionActionLockVehicle: ActionInteractBase
 	{
 		super.OnStartServer( action_data );
 				
-		CarScript car;
+		ExpansionVehicle vehicle;
 		ExpansionCarKey key;
 
-		if ( action_data.m_Player.GetCommand_Vehicle() )
+		if ( ExpansionVehicle.Get(vehicle, action_data.m_Player) || ExpansionVehicle.Get(vehicle, action_data.m_Target.GetParentOrObject()) )
 		{
-			car = CarScript.Cast( action_data.m_Player.GetCommand_Vehicle().GetTransport() );
-		} else
-		{
-			car = CarScript.Cast( action_data.m_Target.GetParentOrObject() );
 			key = ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() );
-		}
-		
-		if ( car )
-		{
-			car.LockCar( key );
+
+			vehicle.Lock( key );
 
 			if ( GetExpansionSettings().GetLog().AdminTools && key && key.IsInherited( ExpansionCarAdminKey ) )
-				GetExpansionSettings().GetLog().PrintLog("[AdminTools] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " used the  "+ key.GetType() +" to lock " + car.GetType() + " (id=" + car.GetVehiclePersistentIDString() + " pos=" + car.GetPosition() + ")");
+				GetExpansionSettings().GetLog().PrintLog("[AdminTools] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " used the  "+ key.GetType() +" to lock " + vehicle.GetType() + " (id=" + vehicle.GetPersistentIDString() + " pos=" + vehicle.GetPosition() + ")");
 			else if ( GetExpansionSettings().GetLog().VehicleCarKey && key )
-				GetExpansionSettings().GetLog().PrintLog("[VehicleCarKey] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " used the  "+ key.GetType() +" to lock " + car.GetType() + " (id=" + car.GetVehiclePersistentIDString() + " pos=" + car.GetPosition() + ")");
+				GetExpansionSettings().GetLog().PrintLog("[VehicleCarKey] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " used the  "+ key.GetType() +" to lock " + vehicle.GetType() + " (id=" + vehicle.GetPersistentIDString() + " pos=" + vehicle.GetPosition() + ")");
 		}
 	}
 

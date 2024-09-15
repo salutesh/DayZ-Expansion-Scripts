@@ -1,13 +1,14 @@
-#define _ARMA_
-
 class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_Gyro
 	{
-		units[] = {};
-		weapons[] = {};
-		requiredVersion = 0.1;
-		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
+		units[]={};
+		weapons[]={};
+		requiredVersion=0.1;
+		requiredAddons[]=
+		{
+			"DayZExpansion_Vehicles_Data"
+		};
 	};
 };
 class CfgVehicles
@@ -38,90 +39,118 @@ class CfgVehicles
 	class Suspension;
 	class ExpansionGyrocopterWreck: ExpansionWreck
 	{
-		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_GYROCOPTER";
-		model = "DayZExpansion\Vehicles\Air\Gyro\GyrocopterWreck.p3d";
+		scope=2;
+		displayname="$STR_EXPANSION_VEHICLE_GYROCOPTER";
+		model="DayZExpansion\Vehicles\Air\Gyro\GyrocopterWreck.p3d";
 		class Cargo
 		{
-			itemsCargoSize[] = {5,2};
+			itemsCargoSize[]={5,2};
 		};
 	};
 	class ExpansionGyrocopter: ExpansionHelicopterScript
 	{
-		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_GYROCOPTER";
-		model = "DayZExpansion\Vehicles\Air\Gyro\Gyrocopter.p3d";
-		modelZeroPointDistanceFromGround = 0.0;
-		vehicleClass = "Expansion_Helicopter";
-		wreck = "ExpansionGyrocopterWreck";
-		fuelCapacity = 50;
-		fuelConsumption = 31;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet","KeyChain"};
+		scope=2;
+		displayname="$STR_EXPANSION_VEHICLE_GYROCOPTER";
+		model="DayZExpansion\Vehicles\Air\Gyro\Gyrocopter.p3d";
+		modelZeroPointDistanceFromGround=0;
+		vehicleClass="Expansion_Helicopter";
+		wreck="ExpansionGyrocopterWreck";
+		fuelCapacity=50;
+		fuelConsumption=31;
+		attachments[]=
+		{
+			"ExpansionHelicopterBattery",
+			"Reflector_1_1",
+			"SparkPlug",
+			"NivaWheel_1_1",
+			"NivaWheel_1_2",
+			"NivaWheel_2_1",
+			"NivaWheel_2_2",
+			"CamoNet",
+			"KeyChain"
+		};
 		class GUIInventoryAttachmentsProps
 		{
 			class Engine
 			{
-				name = "$STR_attachment_Engine0";
-				description = "";
-				icon = "cat_vehicle_engine";
-				attachmentSlots[] = {"ExpansionHelicopterBattery","SparkPlug"};
+				name="$STR_attachment_Engine0";
+				description="";
+				icon="cat_vehicle_engine";
+				attachmentSlots[]=
+				{
+					"ExpansionHelicopterBattery",
+					"SparkPlug"
+				};
 			};
 			class Body
 			{
-				name = "$STR_attachment_Body0";
-				description = "";
-				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","CamoNet","KeyChain"};
+				name="$STR_attachment_Body0";
+				description="";
+				icon="cat_vehicle_body";
+				attachmentSlots[]=
+				{
+					"Reflector_1_1",
+					"CamoNet",
+					"KeyChain"
+				};
 			};
 		};
 		class AnimationSources
 		{
 			class rotor
 			{
-				source = "user";
-				animPeriod = 0.001;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.001;
+				initPhase=0;
 			};
 			class rear_rotor
 			{
-				source = "user";
-				animPeriod = 0.001;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.001;
+				initPhase=0;
 			};
 			class hiderotor
 			{
-				source = "user";
-				animPeriod = 0.0009999999;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.00099999993;
+				initPhase=0;
 			};
 			class hiderotorblur
 			{
-				source = "user";
-				animPeriod = 0.0009999999;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.00099999993;
+				initPhase=0;
 			};
 			class cyclicForward
 			{
-				source = "user";
-				animPeriod = 0.25;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.25;
+				initPhase=0;
 			};
 			class cyclicAside
 			{
-				source = "user";
-				animPeriod = 0.25;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.25;
+				initPhase=0;
 			};
 		};
 		class Sounds
 		{
-			thrust = 0.6;
-			thrustTurbo = 1;
-			thrustGentle = 0.3;
-			thrustSmoothCoef = 0.1;
-			camposSmoothCoef = 0.03;
-			soundSetsFilter[] = {"Expansion_Gyro_Engine_Ext_SoundSet","Expansion_Gyro_Rotor_Ext_SoundSet"};
-			soundSetsInt[] = {"Expansion_Gyro_Engine_Int_SoundSet","Expansion_Gyro_Rotor_Int_SoundSet"};
+			thrust=0.60000002;
+			thrustTurbo=1;
+			thrustGentle=0.30000001;
+			thrustSmoothCoef=0.1;
+			camposSmoothCoef=0.029999999;
+			soundSetsFilter[]=
+			{
+				"Expansion_Gyro_Engine_Ext_SoundSet",
+				"Expansion_Gyro_Rotor_Ext_SoundSet"
+			};
+			soundSetsInt[]=
+			{
+				"Expansion_Gyro_Engine_Int_SoundSet",
+				"Expansion_Gyro_Rotor_Int_SoundSet"
+			};
 		};
 		class DamageSystem: DamageSystem
 		{
@@ -129,8 +158,35 @@ class CfgVehicles
 			{
 				class Health
 				{
-					hitpoints = 2750;
-					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					hitpoints=2750;
+					healthLevels[]=
+					{
+						
+						{
+							1,
+							{}
+						},
+						
+						{
+							0.69999999,
+							{}
+						},
+						
+						{
+							0.5,
+							{}
+						},
+						
+						{
+							0.30000001,
+							{}
+						},
+						
+						{
+							0,
+							{}
+						}
+					};
 				};
 			};
 			class DamageZones
@@ -139,41 +195,162 @@ class CfgVehicles
 				{
 					class Health
 					{
-						hitpoints = 500;
-						transferToGlobalCoef = 1;
-						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva.rvmat"}},{0.7,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva.rvmat"}},{0.5,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"}},{0.3,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"}},{0.0,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"}}};
+						hitpoints=500;
+						transferToGlobalCoef=1;
+						healthLevels[]=
+						{
+							
+							{
+								1,
+								
+								{
+									"dz\vehicles\wheeled\offroadhatchback\data\engine_niva.rvmat"
+								}
+							},
+							
+							{
+								0.69999999,
+								
+								{
+									"dz\vehicles\wheeled\offroadhatchback\data\engine_niva.rvmat"
+								}
+							},
+							
+							{
+								0.5,
+								
+								{
+									"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"
+								}
+							},
+							
+							{
+								0.30000001,
+								
+								{
+									"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"
+								}
+							},
+							
+							{
+								0,
+								
+								{
+									"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"
+								}
+							}
+						};
 					};
-					fatalInjuryCoef = 0.001;
-					memoryPoints[] = {"dmgZone_engine"};
-					componentNames[] = {"dmgZone_engine"};
-					inventorySlots[] = {"ExpansionHelicopterBattery","SparkPlug"};
-					inventorySlotsCoefs[] = {0.2,0.2,0.01,0.4};
+					fatalInjuryCoef=0.001;
+					memoryPoints[]=
+					{
+						"dmgZone_engine"
+					};
+					componentNames[]=
+					{
+						"dmgZone_engine"
+					};
+					inventorySlots[]=
+					{
+						"ExpansionHelicopterBattery",
+						"SparkPlug"
+					};
+					inventorySlotsCoefs[]={0.2,0.2,0.0099999998,0.40000001};
 				};
 				class FuelTank
 				{
 					class Health
 					{
-						hitpoints = 300;
-						transferToGlobalCoef = 0;
-						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+						hitpoints=300;
+						transferToGlobalCoef=0;
+						healthLevels[]=
+						{
+							
+							{
+								1,
+								{}
+							},
+							
+							{
+								0.69999999,
+								{}
+							},
+							
+							{
+								0.5,
+								{}
+							},
+							
+							{
+								0.30000001,
+								{}
+							},
+							
+							{
+								0,
+								{}
+							}
+						};
 					};
-					fatalInjuryCoef = -1;
-					componentNames[] = {"dmgZone_fuelTank"};
-					inventorySlots[] = {};
+					fatalInjuryCoef=-1;
+					componentNames[]=
+					{
+						"dmgZone_fuelTank"
+					};
+					inventorySlots[]={};
 				};
 				class Reflector_1_1
 				{
-					fatalInjuryCoef = -1;
-					memoryPoints[] = {"dmgZone_lights_1_1"};
-					componentNames[] = {"dmgZone_lights_1_1"};
+					fatalInjuryCoef=-1;
+					memoryPoints[]=
+					{
+						"dmgZone_lights_1_1"
+					};
+					componentNames[]=
+					{
+						"dmgZone_lights_1_1"
+					};
 					class Health
 					{
-						hitpoints = 20;
-						transferToGlobalCoef = 0;
-						healthLevels[] = {{1.0,{},{}},{0.7,{}},{0.5,{},{}},{0.3,{}},{0.0,{},{}}};
+						hitpoints=20;
+						transferToGlobalCoef=0;
+						healthLevels[]=
+						{
+							
+							{
+								1,
+								{},
+								{}
+							},
+							
+							{
+								0.69999999,
+								{}
+							},
+							
+							{
+								0.5,
+								{},
+								{}
+							},
+							
+							{
+								0.30000001,
+								{}
+							},
+							
+							{
+								0,
+								{},
+								{}
+							}
+						};
 					};
-					inventorySlots[] = {"Reflector_1_1"};
-					inventorySlotsCoefs[] = {1.0};
+					inventorySlots[]=
+					{
+						"Reflector_1_1"
+					};
+					inventorySlotsCoefs[]={1};
 				};
 			};
 		};
@@ -181,233 +358,273 @@ class CfgVehicles
 		{
 			class Driver: Driver
 			{
-				actionSel = "seat_driver";
-				proxyPos = "crewDriver";
-				getInPos = "pos driver";
-				getInDir = "pos driver dir";
+				actionSel="seat_driver";
+				proxyPos="crewDriver";
+				getInPos="pos driver";
+				getInDir="pos driver dir";
 			};
 		};
 		class Cargo
 		{
-			itemsCargoSize[] = {5,2};
-			allowOwnedCargoManipulation = 1;
-			openable = 0;
+			itemsCargoSize[]={5,2};
+			allowOwnedCargoManipulation=1;
+			openable=0;
 		};
 		class SimulationModule: SimulationModule
 		{
-			maxSpeed = 100;
-			altitudeFullForce = 1000;
-			altitudeNoForce = 2000;
-			bodyFrictionCoef = 4.0;
-			liftForceCoef = 1.6;
-			bankForceCoef = 0.1;
-			tailForceCoef = 8.0;
-			linearFrictionCoef[] = {16.0,0.04,0.04};
-			angularFrictionCoef = 1.5;
+			maxSpeed=100;
+			altitudeFullForce=1000;
+			altitudeNoForce=2000;
+			bodyFrictionCoef=4;
+			liftForceCoef=1.6;
+			bankForceCoef=0.1;
+			tailForceCoef=8;
+			linearFrictionCoef[]={16,0.039999999,0.039999999};
+			angularFrictionCoef=1.5;
 			class Rotor
 			{
-				minAutoRotateSpeed = 2.0;
-				maxAutoRotateSpeed = 10.0;
-				startUpTime = 5.0;
+				minAutoRotateSpeed=2;
+				maxAutoRotateSpeed=10;
+				startUpTime=5;
 			};
 			class AntiTorque
 			{
-				speed = 1.5;
-				max = 0.04;
+				speed=1.5;
+				max=0.039999999;
 			};
 			class Cyclic
 			{
-				forceCoefficient = 1.5;
+				forceCoefficient=1.5;
 				class Forward
 				{
-					speed = 10.0;
-					max = 1.0;
-					coefficient = 0.3;
-					animation = "cyclicForward";
+					speed=10;
+					max=1;
+					coefficient=0.30000001;
+					animation="cyclicForward";
 				};
 				class Side
 				{
-					speed = 10.0;
-					max = 1.0;
-					coefficient = 0.3;
-					animation = "cyclicAside";
+					speed=10;
+					max=1;
+					coefficient=0.30000001;
+					animation="cyclicAside";
 				};
 			};
 		};
 	};
 	class ExpansionBigGyrocopter: ExpansionGyrocopter
 	{
-		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_GYROCOPTER";
-		model = "DayZExpansion\Vehicles\Air\Gyro\Gyrocopter_big.p3d";
-		modelZeroPointDistanceFromGround = 0.0;
-		vehicleClass = "Expansion_Helicopter";
-		wreck = "ExpansionGyrocopterWreck";
-		fuelCapacity = 50;
-		fuelConsumption = 31;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet","KeyChain"};
+		scope=2;
+		displayname="$STR_EXPANSION_VEHICLE_GYROCOPTER";
+		model="DayZExpansion\Vehicles\Air\Gyro\Gyrocopter_big.p3d";
+		modelZeroPointDistanceFromGround=0;
+		vehicleClass="Expansion_Helicopter";
+		wreck="ExpansionGyrocopterWreck";
+		fuelCapacity=50;
+		fuelConsumption=31;
+		attachments[]=
+		{
+			"ExpansionHelicopterBattery",
+			"Reflector_1_1",
+			"SparkPlug",
+			"NivaWheel_1_1",
+			"NivaWheel_1_2",
+			"NivaWheel_2_1",
+			"NivaWheel_2_2",
+			"CamoNet",
+			"KeyChain"
+		};
 		class GUIInventoryAttachmentsProps
 		{
 			class Engine
 			{
-				name = "$STR_attachment_Engine0";
-				description = "";
-				icon = "cat_vehicle_engine";
-				attachmentSlots[] = {"ExpansionHelicopterBattery","SparkPlug"};
+				name="$STR_attachment_Engine0";
+				description="";
+				icon="cat_vehicle_engine";
+				attachmentSlots[]=
+				{
+					"ExpansionHelicopterBattery",
+					"SparkPlug"
+				};
 			};
 			class Body
 			{
-				name = "$STR_attachment_Body0";
-				description = "";
-				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","CamoNet","KeyChain"};
+				name="$STR_attachment_Body0";
+				description="";
+				icon="cat_vehicle_body";
+				attachmentSlots[]=
+				{
+					"Reflector_1_1",
+					"CamoNet",
+					"KeyChain"
+				};
 			};
 		};
 		class Crew: Crew
 		{
 			class Driver: Driver
 			{
-				actionSel = "seat_driver";
-				proxyPos = "crewDriver";
-				getInPos = "pos driver";
-				getInDir = "pos driver dir";
+				actionSel="seat_driver";
+				proxyPos="crewDriver";
+				getInPos="pos driver";
+				getInDir="pos driver dir";
 			};
 			class CoDriver: CoDriver
 			{
-				actionSel = "seat_codriver";
-				proxyPos = "crewcoDriver";
-				getInPos = "pos driver";
-				getInDir = "pos driver dir";
+				actionSel="seat_codriver";
+				proxyPos="crewcoDriver";
+				getInPos="pos driver";
+				getInDir="pos driver dir";
 			};
 		};
 		class SimulationModule: SimulationModule
 		{
-			maxSpeed = 100;
-			altitudeFullForce = 1000;
-			altitudeNoForce = 2000;
-			bodyFrictionCoef = 4.0;
-			liftForceCoef = 1.6;
-			bankForceCoef = 0.1;
-			tailForceCoef = 8.0;
-			linearFrictionCoef[] = {16.0,0.04,0.04};
-			angularFrictionCoef = 1.5;
+			maxSpeed=100;
+			altitudeFullForce=1000;
+			altitudeNoForce=2000;
+			bodyFrictionCoef=4;
+			liftForceCoef=1.6;
+			bankForceCoef=0.1;
+			tailForceCoef=8;
+			linearFrictionCoef[]={16,0.039999999,0.039999999};
+			angularFrictionCoef=1.5;
 			class Rotor
 			{
-				minAutoRotateSpeed = 2.0;
-				maxAutoRotateSpeed = 10.0;
-				startUpTime = 5.0;
+				minAutoRotateSpeed=2;
+				maxAutoRotateSpeed=10;
+				startUpTime=5;
 			};
 			class AntiTorque
 			{
-				speed = 1.5;
-				max = 0.04;
+				speed=1.5;
+				max=0.039999999;
 			};
 			class Cyclic
 			{
-				forceCoefficient = 1.5;
+				forceCoefficient=1.5;
 				class Forward
 				{
-					speed = 10.0;
-					max = 1.0;
-					coefficient = 0.3;
-					animation = "cyclicForward";
+					speed=10;
+					max=1;
+					coefficient=0.30000001;
+					animation="cyclicForward";
 				};
 				class Side
 				{
-					speed = 10.0;
-					max = 1.0;
-					coefficient = 0.3;
-					animation = "cyclicAside";
+					speed=10;
+					max=1;
+					coefficient=0.30000001;
+					animation="cyclicAside";
 				};
 			};
 		};
 	};
 	class ExpansionBigGyrocopterWreck: ExpansionWreck
 	{
-		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_GYROCOPTER";
-		model = "DayZExpansion\Vehicles\Air\Gyro\GyrocopterWreck.p3d";
+		scope=2;
+		displayname="$STR_EXPANSION_VEHICLE_GYROCOPTER";
+		model="DayZExpansion\Vehicles\Air\Gyro\GyrocopterWreck.p3d";
 		class Cargo
 		{
-			itemsCargoSize[] = {5,2};
+			itemsCargoSize[]={5,2};
 		};
 	};
 	class Vehicle_ExpansionGyrocopter: ExpansionVehicleHelicopterBase
 	{
-		scope = 0;
-		displayname = "$STR_EXPANSION_VEHICLE_GYROCOPTER";
-		model = "DayZExpansion\Vehicles\Air\Gyro\Gyrocopter.p3d";
-		modelZeroPointDistanceFromGround = 0.0;
-		vehicleClass = "Expansion_Helicopter";
-		wreck = "ExpansionGyrocopterWreck";
-		fuelCapacity = 50;
-		fuelConsumption = 31;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug"};
+		scope=0;
+		displayname="$STR_EXPANSION_VEHICLE_GYROCOPTER";
+		model="DayZExpansion\Vehicles\Air\Gyro\Gyrocopter.p3d";
+		modelZeroPointDistanceFromGround=0;
+		vehicleClass="Expansion_Helicopter";
+		wreck="ExpansionGyrocopterWreck";
+		fuelCapacity=50;
+		fuelConsumption=31;
+		attachments[]=
+		{
+			"ExpansionHelicopterBattery",
+			"Reflector_1_1",
+			"SparkPlug"
+		};
 		class GUIInventoryAttachmentsProps
 		{
 			class Engine
 			{
-				name = "$STR_attachment_Engine0";
-				description = "";
-				icon = "cat_vehicle_engine";
-				attachmentSlots[] = {"ExpansionHelicopterBattery","SparkPlug"};
+				name="$STR_attachment_Engine0";
+				description="";
+				icon="cat_vehicle_engine";
+				attachmentSlots[]=
+				{
+					"ExpansionHelicopterBattery",
+					"SparkPlug"
+				};
 			};
 			class Body
 			{
-				name = "$STR_attachment_Body0";
-				description = "";
-				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1"};
+				name="$STR_attachment_Body0";
+				description="";
+				icon="cat_vehicle_body";
+				attachmentSlots[]=
+				{
+					"Reflector_1_1"
+				};
 			};
 		};
 		class AnimationSources
 		{
 			class rotor
 			{
-				source = "user";
-				animPeriod = 0.001;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.001;
+				initPhase=0;
 			};
 			class rear_rotor
 			{
-				source = "user";
-				animPeriod = 0.001;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.001;
+				initPhase=0;
 			};
 			class hiderotor
 			{
-				source = "user";
-				animPeriod = 0.0009999999;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.00099999993;
+				initPhase=0;
 			};
 			class hiderotorblur
 			{
-				source = "user";
-				animPeriod = 0.0009999999;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.00099999993;
+				initPhase=0;
 			};
 			class cyclicForward
 			{
-				source = "user";
-				animPeriod = 0.25;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.25;
+				initPhase=0;
 			};
 			class cyclicAside
 			{
-				source = "user";
-				animPeriod = 0.25;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.25;
+				initPhase=0;
 			};
 		};
-		class Sounds
+		class ExpansionSounds
 		{
-			thrust = 0.6;
-			thrustTurbo = 1;
-			thrustGentle = 0.3;
-			thrustSmoothCoef = 0.1;
-			camposSmoothCoef = 0.03;
-			soundSetsFilter[] = {"Expansion_Gyro_Engine_Ext_SoundSet","Expansion_Gyro_Rotor_Ext_SoundSet"};
-			soundSetsInt[] = {"Expansion_Gyro_Engine_Int_SoundSet","Expansion_Gyro_Rotor_Int_SoundSet"};
+			thrust=0.60000002;
+			thrustTurbo=1;
+			thrustGentle=0.30000001;
+			thrustSmoothCoef=0.1;
+			camposSmoothCoef=0.029999999;
+			soundSetsFilter[]=
+			{
+				"Expansion_Gyro_Engine_Ext_SoundSet",
+				"Expansion_Gyro_Rotor_Ext_SoundSet"
+			};
+			soundSetsInt[]=
+			{
+				"Expansion_Gyro_Engine_Int_SoundSet",
+				"Expansion_Gyro_Rotor_Int_SoundSet"
+			};
 		};
 		class DamageSystem: DamageSystem
 		{
@@ -415,8 +632,35 @@ class CfgVehicles
 			{
 				class Health
 				{
-					hitpoints = 2750;
-					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					hitpoints=2750;
+					healthLevels[]=
+					{
+						
+						{
+							1,
+							{}
+						},
+						
+						{
+							0.69999999,
+							{}
+						},
+						
+						{
+							0.5,
+							{}
+						},
+						
+						{
+							0.30000001,
+							{}
+						},
+						
+						{
+							0,
+							{}
+						}
+					};
 				};
 			};
 		};
@@ -424,56 +668,56 @@ class CfgVehicles
 		{
 			class Driver: Driver
 			{
-				actionSel = "seat_driver";
-				proxyPos = "crewDriver";
-				getInPos = "pos driver";
-				getInDir = "pos driver dir";
+				actionSel="seat_driver";
+				proxyPos="crewDriver";
+				getInPos="pos driver";
+				getInDir="pos driver dir";
 			};
 		};
 		class Cargo
 		{
-			itemsCargoSize[] = {5,2};
-			allowOwnedCargoManipulation = 1;
-			openable = 0;
+			itemsCargoSize[]={5,2};
+			allowOwnedCargoManipulation=1;
+			openable=0;
 		};
 		class SimulationModule: SimulationModule
 		{
-			maxSpeed = 100;
-			altitudeFullForce = 1000;
-			altitudeNoForce = 2000;
-			bodyFrictionCoef = 4.0;
-			liftForceCoef = 1.6;
-			bankForceCoef = 0.1;
-			tailForceCoef = 8.0;
-			linearFrictionCoef[] = {16.0,0.04,0.04};
-			angularFrictionCoef = 1.5;
+			maxSpeed=100;
+			altitudeFullForce=1000;
+			altitudeNoForce=2000;
+			bodyFrictionCoef=4;
+			liftForceCoef=1.6;
+			bankForceCoef=0.1;
+			tailForceCoef=8;
+			linearFrictionCoef[]={16,0.039999999,0.039999999};
+			angularFrictionCoef=1.5;
 			class Rotor
 			{
-				minAutoRotateSpeed = 2.0;
-				maxAutoRotateSpeed = 10.0;
-				startUpTime = 5.0;
+				minAutoRotateSpeed=2;
+				maxAutoRotateSpeed=10;
+				startUpTime=5;
 			};
 			class AntiTorque
 			{
-				speed = 1.5;
-				max = 0.04;
+				speed=1.5;
+				max=0.039999999;
 			};
 			class Cyclic
 			{
-				forceCoefficient = 1.5;
+				forceCoefficient=1.5;
 				class Forward
 				{
-					speed = 10.0;
-					max = 1.0;
-					coefficient = 0.3;
-					animation = "cyclicForward";
+					speed=10;
+					max=1;
+					coefficient=0.30000001;
+					animation="cyclicForward";
 				};
 				class Side
 				{
-					speed = 10.0;
-					max = 1.0;
-					coefficient = 0.3;
-					animation = "cyclicAside";
+					speed=10;
+					max=1;
+					coefficient=0.30000001;
+					animation="cyclicAside";
 				};
 			};
 			class Axles: Axles
@@ -482,24 +726,24 @@ class CfgVehicles
 				{
 					class Suspension: Suspension
 					{
-						swayBar = 1;
-						stiffness = 1;
-						compression = 1;
-						damping = 1;
-						travelMaxUp = 0;
-						travelMaxDown = 0;
+						swayBar=1;
+						stiffness=1;
+						compression=1;
+						damping=1;
+						travelMaxUp=0;
+						travelMaxDown=0;
 					};
 				};
 				class Rear: Rear
 				{
 					class Suspension: Suspension
 					{
-						swayBar = 1;
-						stiffness = 1;
-						compression = 1;
-						damping = 1;
-						travelMaxUp = 0;
-						travelMaxDown = 0;
+						swayBar=1;
+						stiffness=1;
+						compression=1;
+						damping=1;
+						travelMaxUp=0;
+						travelMaxDown=0;
 					};
 				};
 			};

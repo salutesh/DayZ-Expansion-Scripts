@@ -33,6 +33,10 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 	ExpansionVehicleBase m_Vehicle;
 #endif
 	Transport m_Transport;
+	Car m_Car;
+#ifndef DAYZ_1_25
+	Boat m_Boat;
+#endif
 
 	int m_SeatIndex;
 	int m_SeatAnim;
@@ -65,6 +69,10 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 		Class.CastTo(m_Vehicle, vehicle);
 #endif
 		Class.CastTo(m_Transport, vehicle);
+		Class.CastTo(m_Car, vehicle);
+#ifndef DAYZ_1_25
+		Class.CastTo(m_Boat, vehicle);
+#endif
 
 		m_SeatIndex = seatIdx;
 		m_SeatAnim = seat_anim;
@@ -243,31 +251,37 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 
 		m_Table.SetVehicleType(this, m_VehicleType);
 
-		if (m_Transport)
+		if (m_SeatIndex == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 		{
-			if (m_SeatIndex == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+			if (m_Car)
 			{
-				Car car = Car.Cast(m_Transport);
-
-				m_Table.SetVehicleSteering(this, car.GetSteering());
-				m_Table.SetVehicleThrottle(this, car.GetThrust());
-				m_Table.SetVehicleBrake(this, car.GetBrake() != 0.0);
+				m_Table.SetVehicleSteering(this, m_Car.GetSteering());
+				m_Table.SetVehicleThrottle(this, m_Car.GetThrust());
+				m_Table.SetVehicleBrake(this, m_Car.GetBrake() != 0.0);
 				m_Table.SetVehicleClutch(this, m_ClutchState);
 			}
-		}
-#ifdef EXPANSIONMODVEHICLE
-		else if (m_Vehicle)
-		{
-			/*
-			ExpansionVehicleSimulation simulation = m_Vehicle.m_Simulation;
-
-			m_Table.SetVehicleSteering(this, simulation.GetSteering());
-			m_Table.SetVehicleThrottle(this, simulation.GetThrottle());
-			m_Table.SetVehicleBrake(this, simulation.GetBrake() != 0.0);
-			m_Table.SetVehicleClutch(this, simulation.GetClutch());
-			*/
-		}
+#ifndef DAYZ_1_25
+			else if (m_Boat)
+			{
+				m_Table.SetVehicleSteering(this, m_Boat.GetSteering());
+				m_Table.SetVehicleThrottle(this, m_Boat.GetThrottle());
+				m_Table.SetVehicleClutch(this, m_ClutchState);
+			}
 #endif
+#ifdef EXPANSIONMODVEHICLE
+			else if (m_Vehicle)
+			{
+				/*
+				ExpansionVehicleSimulation simulation = m_Vehicle.m_Simulation;
+
+				m_Table.SetVehicleSteering(this, simulation.GetSteering());
+				m_Table.SetVehicleThrottle(this, simulation.GetThrottle());
+				m_Table.SetVehicleBrake(this, simulation.GetBrake() != 0.0);
+				m_Table.SetVehicleClutch(this, simulation.GetClutch());
+				*/
+			}
+#endif
+		}
 
 		m_Time += pDt;
 		if (m_State != m_PreviousState)

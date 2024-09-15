@@ -126,4 +126,9 @@ class Vehicle_ExpansionZodiacBoat: ExpansionVehicleBoatBase
 
 		return "refill";
 	}
+
+	override bool LeavingSeatDoesAttachment(int posIdx)
+	{
+		return true;
+	}
 };

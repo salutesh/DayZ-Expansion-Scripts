@@ -236,6 +236,32 @@ class ExpansionVodnik: ExpansionBoatScript
 		UpdateVisuals();
 	}
 
+	override bool CanDisplayAttachmentCategory( string category_name )
+	{
+		if ( !super.CanDisplayAttachmentCategory( category_name ) )
+			return false;
+	
+		category_name.ToLower();		
+		if ( category_name.Contains("engine") )
+		{
+			if ( m_ExpansionVehicle.AllDoorsClosed() )
+				return false;
+		}
+				
+		return true;
+	}
+
+	override bool CanDisplayCargo()
+	{
+		if ( !super.CanDisplayCargo() )
+			return false;
+		
+		if ( m_ExpansionVehicle.AllDoorsClosed() )
+			return false;
+		
+		return true;
+	}
+
 	override int GetCarDoorsState(string slotType)
 	{
 #ifdef EXPANSIONTRACE
@@ -482,7 +508,7 @@ class ExpansionVodnik: ExpansionBoatScript
 		return false;
 	}
 
-	override bool IsCar()
+	override bool Expansion_IsCar()
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsCar");

@@ -59,7 +59,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	
 	override void OnInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		super.OnInit();
 		
@@ -82,7 +84,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void StartSpawnSelection(PlayerBase player, PlayerIdentity identity)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 	
 		if (!IsMissionHost())
 			return;
@@ -140,7 +144,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	void CheckResumeSpawnSelection(PlayerBase player, PlayerIdentity identity)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		if (!player)
 			return;
@@ -167,7 +173,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_ShowSpawnMenu(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		int normalCount;
 		if (!ctx.Read(normalCount))
@@ -234,7 +242,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	#endif
 
 		//! Game is ready to show menu
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().CreateSVMenu("ExpansionSpawnSelectionMenu"));
 		//! In case spawn select menu could not be created, player will stay at original position and spawn select won't show
@@ -258,7 +268,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	array<ref ExpansionSpawnLocation> GetTerritoryList(string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		array<ref ExpansionSpawnLocation> spawnLocations = new array<ref ExpansionSpawnLocation>;
 		if (!IsMissionHost())
@@ -305,7 +317,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void RequestPlacePlayerAtTempSafePosition()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		//! FIXME (or not): Moving the player causes desync. Just skip it for now.
 		//! We have the teleport sync juncture, maybe we can use that here?!
@@ -320,7 +334,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void SelectSpawn(int index, int spawnPointIndex, string locKey, bool isTerritory, bool useCooldown)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this, index.ToString(), spawnPointIndex.ToString(), locKey, isTerritory.ToString(), useCooldown.ToString());
+#endif
 
 		m_SpawnSelected = true;
 		if (ProcessCooldown(GetGame().GetPlayer().GetIdentity(), locKey, isTerritory, useCooldown, false))
@@ -339,7 +355,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	//! Return true if point index already had a cooldown (that hasn't expired), false otherwise.
 	bool ProcessCooldown(PlayerIdentity sender, string locKey, bool isTerritory, bool useCooldown, bool addCooldown = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this, locKey, isTerritory.ToString(), useCooldown.ToString(), addCooldown.ToString());
+#endif
 
 		bool hasCooldown = false;
 		if (GetExpansionSettings().GetSpawn().EnableRespawnCooldowns && useCooldown)
@@ -381,7 +399,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_SelectSpawn(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		int pointIndex;
 		if (!ctx.Read(pointIndex))
@@ -403,7 +423,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_SelectSpawn(PlayerIdentity sender, int pointIndex, int spawnPointIndex, bool isTerritory)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this, pointIndex.ToString(), spawnPointIndex.ToString());
+#endif
 
 		string playerUID = sender.GetId();
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
@@ -467,7 +489,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Callback()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 		
 		auto rpc = Expansion_CreateRPC("RPC_Callback");
 		rpc.Expansion_Send(true);
@@ -478,7 +502,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_Callback(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 		
 		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 		if (!spawnSelectionMenu || !spawnSelectionMenu.IsVisible())
@@ -492,7 +518,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void EndSpawnSelection(PlayerBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		if (!IsMissionHost())
 			return;
@@ -538,7 +566,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	
 	void ResetItemWetness(EntityAI parent)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		array<EntityAI> items = new array<EntityAI>;
 		items.Reserve(parent.GetInventory().CountInventory());
@@ -557,7 +587,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_CloseSpawnMenu(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 		
 		//! Use CallLater to make menu disappear *after* player position has updated on client
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_CloseSpawnMenu, 1000, false);
@@ -568,7 +600,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_CloseSpawnMenu()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		if (!IsMissionClient())
 			return;
@@ -582,7 +616,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	void SetExpansionStartingGear(PlayerBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		if (!IsMissionHost())
 			return;
@@ -644,7 +680,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	private void AddItem(PlayerBase player, ExpansionStartingGearItem gearItem, inout EntityAI parent)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.RESPAWN, this, "" + player, gearItem.ClassName, "" + parent);
+#endif
 
 		if (!gearItem.ClassName)
 			return;
@@ -652,7 +690,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		int remainingAmount = gearItem.Quantity;  //! SpawnOnParent will deduct spawned amount!
 		EntityAI item = EntityAI.Cast(ExpansionItemSpawnHelper.SpawnOnParent(gearItem.ClassName, player, parent, remainingAmount, gearItem.Quantity, gearItem.Attachments, -1, true));
 
+#ifdef EXTRACE
 		EXTrace.Add(trace, "" + item);
+#endif
 
 		if (!item)
 			return;
@@ -720,7 +760,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	void ExpansionEquipCharacter(PlayerBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		if ( !IsMissionHost() )
 			return;
@@ -777,7 +819,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		super.OnMissionStart(sender, args);
 
@@ -811,7 +855,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	override void OnMissionFinish(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		super.OnMissionFinish(sender, args);
 
@@ -824,7 +870,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	void Save()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		FileSerializer file = new FileSerializer;
 		if (file.Open(s_FileName, FileMode.WRITE))
@@ -846,7 +894,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	void SaveCooldowns(string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		string cooldownsFile = s_CooldownsFolder + playerUID + ".bin";
 
@@ -884,7 +934,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	void Load()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		if (!FileExist(s_FileName))
 			return;
@@ -914,7 +966,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	void AddCooldown(string playerUID, string key, bool isTerritory)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 		
 		bool hasCooldownEntry = false;
 		//! Check if player has a exiting cooldown entry for this spawn point key
@@ -980,7 +1034,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RespawnCountdownCheck(string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
@@ -1081,7 +1137,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_CheckPlayerCooldowns(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		int cooldownsCount;
 		if (!ctx.Read(cooldownsCount))
@@ -1137,7 +1195,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
+#endif
 
 		super.OnInvokeConnect(sender, args);
 

@@ -383,7 +383,7 @@ modded class IngameHud
 				#ifdef EXPANSIONMODAI
 					if (m_FactionName != string.Empty)
 					{
-						nameText = "[" + m_FactionName + "] " + nameText;
+						nameText = string.Format("[%1] %2", m_FactionName, nameText);
 					}
 				#endif
 

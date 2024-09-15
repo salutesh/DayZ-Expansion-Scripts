@@ -90,7 +90,9 @@ class ExpansionVehicleCover: ExpansionEntityStoragePlaceholder
 		super.SetActions();
 
 		AddAction(ExpansionActionUncoverVehicle);
+	#ifdef DAYZ_1_25
 		AddAction(ExpansionActionBoardBuoyantObject);
+	#endif
 	}
 
 	override string GetDisplayName()

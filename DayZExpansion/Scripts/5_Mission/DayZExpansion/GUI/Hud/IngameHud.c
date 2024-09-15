@@ -64,14 +64,11 @@ modded class IngameHud
 		if (m_NVPanel)
 		{
 			m_NVPanel.Show(false);
-
 			m_NVBatteryIcon = ImageWidget.Cast(m_NVPanel.FindAnyWidget("NVBatteryIcon"));
-
 			m_NVBatteryIcon.LoadImageFile(0, "DayZExpansion/Core/GUI/icons/hud/battery_empty_64x64.edds");
 			m_NVBatteryIcon.LoadImageFile(1, "DayZExpansion/Core/GUI/icons/hud/battery_low_64x64.edds");
 			m_NVBatteryIcon.LoadImageFile(2, "DayZExpansion/Core/GUI/icons/hud/battery_med_64x64.edds");
 			m_NVBatteryIcon.LoadImageFile(3, "DayZExpansion/Core/GUI/icons/hud/battery_high_64x64.edds");
-
 			m_NVBatteryVal = TextWidget.Cast(m_NVPanel.FindAnyWidget("NVBatteryVal"));
 		}
 
@@ -82,9 +79,9 @@ modded class IngameHud
 	{
 		super.Update(timeslice);
 
-		if (m_NVPanel.IsVisible())
+		if (m_NVPanel && m_NVPanel.IsVisible())
 		{
-			UpdateNV();
+			Expansion_RefreshNVBatteryState(m_NVBatteryState);
 		}
 	}
 
@@ -267,7 +264,7 @@ modded class IngameHud
 
 	void Expansion_UpdateFromSettings(bool checkLoaded)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(true, this, "checkLoaded " + checkLoaded);
 	#endif
 
@@ -291,6 +288,9 @@ modded class IngameHud
 		m_NotifiersIdealColor = settings.HUDColors.Get("NotifiersIdealColor");
 		m_NotifiersHalfColor = settings.HUDColors.Get("NotifiersHalfColor");
 		m_NotifiersLowColor = settings.HUDColors.Get("NotifiersLowColor");
+
+		if (!m_BadgeNotifierDivider)
+			return;
 
 		m_BadgeNotifierDivider.SetColor(m_NotifierDividerColor);
 
@@ -316,20 +316,20 @@ modded class IngameHud
 			m_EarPlugsPanel.Show(m_HudState && m_ExpansionEarplugState);
 	}
 
-	void ShowNV(bool show)
+	void Expansion_ShowNV(bool show)
 	{
 		m_ExpansionHudNVState = show;
 		RefreshHudVisibility();
 	}
 
-	bool GetNVState()
+	bool Expansion_GetNVState()
 	{
 		return m_ExpansionHudNVState;
 	}
 
-	protected void RefreshNVBatteryState(int percent)
+	protected void Expansion_RefreshNVBatteryState(int percent)
 	{
-		 if (percent <= 10)
+		if (percent <= 10)
 		{
 			//! 0 - 10% Energy
 			m_NVBatteryIcon.SetImage(0);
@@ -357,22 +357,17 @@ modded class IngameHud
 		m_NVBatteryVal.SetText(percent.ToString() + "%");
 	}
 
-	void SetNVBatteryState(int percent)
+	void Expansion_SetNVBatteryState(int percent)
 	{
 		m_NVBatteryState = percent;
 	}
 
-	protected void UpdateNV()
-	{
-		RefreshNVBatteryState(m_NVBatteryState);
-	}
-
-	bool GetEarplugsState()
+	bool Expansion_GetEarplugsState()
 	{
 		return m_ExpansionEarplugState;
 	}
 
-	void ToggleEarplugs()
+	void Expansion_ToggleEarplugs()
 	{
 		m_ExpansionEarplugState = !m_ExpansionEarplugState;
 
@@ -395,7 +390,7 @@ modded class IngameHud
 		RefreshHudVisibility();
 	}
 
-	void UpdateEarplugs()
+	void Expansion_UpdateEarplugs()
 	{
 		if (GetExpansionClientSettings())
 		{

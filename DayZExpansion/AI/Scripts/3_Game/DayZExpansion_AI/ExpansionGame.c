@@ -25,7 +25,7 @@ modded class ExpansionGame
 
 	void RPC_SetInGroup(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
@@ -50,5 +50,5 @@ modded class ExpansionGame
 		m_InGroup = group;
 	}
 
-	void eAI_Spectate(DayZPlayer player, PlayerIdentity sender);
+	void SpectateAI(PlayerIdentity sender, Object target, ParamsReadContext ctx);
 };

@@ -39,46 +39,4 @@ modded class DayZPlayerImplementJumpClimb
 
 		return false;
 	}
-
-	//! @note if the same climb command returns different climb test results (e.g. isClimb or isClimbOver true on server, but false on client)
-	//! this causes desync and teleportation of player to sea. Disabled climb attach for this reason, attaching will be handled by raycast.
-/*
-	override void JumpOrClimb()
-	{
-#ifdef DIAG
-		auto trace = CF_Trace_1(EXTrace.PLAYER, this).Add(m_Player);
-#endif
-
-		SHumanCommandClimbSettings hcls = m_Player.GetDayZPlayerType().CommandClimbSettingsW();
-
-		if (m_Player.m_MovementState.m_iMovement != DayZPlayerConstants.MOVEMENTIDX_IDLE)
-			hcls.m_fFwMaxDistance = 2.5;
-		else
-			hcls.m_fFwMaxDistance = 1.2;
-
-		HumanCommandClimb.DoClimbTest(m_Player, m_Player.m_ExClimbResult, 0);
-		if (m_Player.m_ExClimbResult.m_bIsClimb || m_Player.m_ExClimbResult.m_bIsClimbOver)
-		{
-			int climbType = GetClimbType(m_Player.m_ExClimbResult.m_fClimbHeight);
-
-			if (m_Player.CallExpansionClimbCode())
-			{
-				if (climbType != -1 && m_Player.CanClimb(climbType, m_Player.m_ExClimbResult))
-				{
-					m_Player.Expansion_OnClimbStart(climbType);
-					m_Player.StopHandEvent();
-
-					if (climbType == 1)
-						m_Player.DepleteStamina(EStaminaModifiers.VAULT);
-					else if (climbType == 2)
-						m_Player.DepleteStamina(EStaminaModifiers.CLIMB);
-				}
-
-				return;
-			}
-		}
-
-		super.JumpOrClimb();
-	}
-*/
 };

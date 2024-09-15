@@ -15,7 +15,7 @@ class ExpansionActionDismissAI: ActionInteractBase
 	void ExpansionActionDismissAI()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_GESTUREMOD_MOVE;
-		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
+		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
 		m_HUDCursorIcon = CursorIcons.Cursor;
 		m_Text = "#STR_EXPANSION_AI_DISMISS";
 	}
@@ -24,6 +24,11 @@ class ExpansionActionDismissAI: ActionInteractBase
 	{
 		m_ConditionItem = new CCINone;
 		m_ConditionTarget = new CCTCursor;
+	}
+
+	override bool CanBeUsedSwimming()
+	{
+		return true;
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )

@@ -21,17 +21,11 @@ modded class MissionGameplay
 	//! Modules
 	protected ref ExpansionAutorunModule m_AutoRunModule;
 
-	// ------------------------------------------------------------
-	// Constructor
-	// ------------------------------------------------------------
 	void MissionGameplay()
 	{
 		CF_Modules<ExpansionAutorunModule>.Get(m_AutoRunModule);
 	}
 
-	// ------------------------------------------------------------
-	// OnUpdate
-	// ------------------------------------------------------------
 	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
 	{
 		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
@@ -53,14 +47,14 @@ modded class MissionGameplay
 				if (input.LocalPress( "UAExpansionEarplugsToggle", false )  && !viewMenu)
 				{
 					if (generalSettings.EnableEarPlugs)
-						m_Hud.ToggleEarplugs();
+						m_Hud.Expansion_ToggleEarplugs();
 				}
 
 				//! Toggle Player list menu
 				if (input.LocalPress("UAExpansionPlayerListToggle", false) && !m_Expansion_PlayerListTogglePressed)
 				{
 					m_Expansion_PlayerListTogglePressed = true;
-					OnPlayerListTogglePressed();
+					Expansion_TogglePlayerList();
 				}
 				else if (input.LocalRelease("UAExpansionPlayerListToggle", false) || input.LocalValue("UAExpansionPlayerListToggle", false) == 0)
 				{
@@ -90,15 +84,12 @@ modded class MissionGameplay
 			if (m_Expansion_NVUpdateTick > 0.1)
 			{
 				m_Expansion_NVUpdateTick = 0.0;
-				PlayerCheckNV(player);
+				Expansion_PlayerCheckNV(player);
 			}
 		}
 	}
 
-	// ------------------------------------------------------------
-	// Expansion PlayerCheckNV
-	// ------------------------------------------------------------
-	void PlayerCheckNV(PlayerBase player)
+	void Expansion_PlayerCheckNV(PlayerBase player)
 	{
 		if (!m_Hud || !player)
 			return;
@@ -108,13 +99,13 @@ modded class MissionGameplay
 		{
 			if (camera.IsCameraNV())
 			{
-				if (!m_Hud.GetNVState())
-					m_Hud.ShowNV(true);
+				if (!m_Hud.Expansion_GetNVState())
+					m_Hud.Expansion_ShowNV(true);
 			}
 			else
 			{
-				if (m_Hud.GetNVState())
-					m_Hud.ShowNV(false);
+				if (m_Hud.Expansion_GetNVState())
+					m_Hud.Expansion_ShowNV(false);
 
 				return;
 			}
@@ -122,21 +113,10 @@ modded class MissionGameplay
 
 		ItemBase nvItem = player.Expansion_GetNVItem();
 		if (nvItem)
-			m_Hud.SetNVBatteryState(nvItem.Expansion_GetBatteryEnergy());
+			m_Hud.Expansion_SetNVBatteryState(nvItem.Expansion_GetBatteryEnergy());
 	}
 
-	// ------------------------------------------------------------
-	// Expansion GetNVBatteryState
-	// ------------------------------------------------------------
-	void GetNVBatteryState(NVGoggles googles)
-	{
-		Error("DEPRECATED");
-	}
-
-	// ------------------------------------------------------------
-	// Override OnPlayerListTogglePressed
-	// ------------------------------------------------------------
-	void OnPlayerListTogglePressed()
+	void Expansion_TogglePlayerList()
 	{
 		if (GetExpansionSettings().GetPlayerList().EnablePlayerList)
 		{
@@ -154,10 +134,6 @@ modded class MissionGameplay
 		}
 	}
 
-	// ------------------------------------------------------------
-	// Expansion OnKeyPress
-	//! Includes key-press commands for some inputs in menus
-	// ------------------------------------------------------------
 	override void OnKeyPress(int key)
 	{
 		super.OnKeyPress(key);
@@ -167,22 +143,22 @@ modded class MissionGameplay
 		{
 			case KeyCode.KC_PRIOR:
 			{
-				if (m_Hud.GetEarplugsState())
+				if (m_Hud.Expansion_GetEarplugsState())
 				{
 					GetExpansionClientSettings().EarplugLevel = Math.Clamp(GetExpansionClientSettings().EarplugLevel + 0.01, 0.0, 1.0);
 					GetExpansionClientSettings().Save();
-					m_Hud.UpdateEarplugs();
+					m_Hud.Expansion_UpdateEarplugs();
 				}
 				break;
 			}
 
 			case KeyCode.KC_NEXT:
 			{
-				if (m_Hud.GetEarplugsState())
+				if (m_Hud.Expansion_GetEarplugsState())
 				{
 					GetExpansionClientSettings().EarplugLevel = Math.Clamp(GetExpansionClientSettings().EarplugLevel - 0.01, 0.0, 1.0);
 					GetExpansionClientSettings().Save();
-					m_Hud.UpdateEarplugs();
+					m_Hud.Expansion_UpdateEarplugs();
 				}
 				break;
 			}

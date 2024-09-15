@@ -14,14 +14,19 @@ modded class ItemBase
 
 	void ItemBase()
 	{
-		RegisterNetSyncVariableBool("m_Expansion_IsTowing");
+		int numTowConnections = Expansion_NumberTowConnections();
 
-		RegisterNetSyncVariableInt("m_Expansion_TowConnectionSynchMask");
+		if (numTowConnections > 0)
+		{
+			RegisterNetSyncVariableBool("m_Expansion_IsTowing");
 
-		RegisterNetSyncVariableInt("m_Expansion_ChildTowNetworkIDLow");
-		RegisterNetSyncVariableInt("m_Expansion_ChildTowNetworkIDHigh");
+			RegisterNetSyncVariableInt("m_Expansion_TowConnectionSynchMask");
 
-		for (int i = 0; i < Expansion_NumberTowConnections(); i++)
+			RegisterNetSyncVariableInt("m_Expansion_ChildTowNetworkIDLow");
+			RegisterNetSyncVariableInt("m_Expansion_ChildTowNetworkIDHigh");
+		}
+
+		for (int i = 0; i < numTowConnections; i++)
 		{
 			m_Expansion_Connections[i] = new ExpansionTowConnection();
 		}
@@ -142,10 +147,6 @@ modded class ItemBase
 
 	int Expansion_NumberTowConnections()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAutoHoverTargetHeight");
-#endif
-
 		return 0;
 	}
 
@@ -224,6 +225,11 @@ modded class ItemBase
 		return false;
 	}
 
+	bool Expansion_IsBike()
+	{
+		return false;
+	}
+
 	bool Expansion_IsBoat()
 	{
 		return false;
@@ -239,18 +245,17 @@ modded class ItemBase
 		return false;
 	}
 
-	bool Expansion_CanPlayerAttach()
+	bool Expansion_IsDuck()
 	{
-#ifdef EXPANSION_PLAYER_ATTACHMENT_CANATTACH_OVERRIDE
-		m_Expansion_CanPlayerAttach = true;
-#endif
-
-		return m_Expansion_CanPlayerAttach;
+		return false;
 	}
 
 	override bool Expansion_CanObjectAttach(Object obj)
 	{
-		return Expansion_CanPlayerAttach();
+		if (obj.IsMan())
+			return Expansion_CanPlayerAttach();
+
+		return false;
 	}
 
 	override void OnVariablesSynchronized()

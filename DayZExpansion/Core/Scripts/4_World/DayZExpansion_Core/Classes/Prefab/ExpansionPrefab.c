@@ -11,7 +11,7 @@ class ExpansionPrefab : ExpansionPrefabObject
 
 	static ExpansionPrefab Load(string name, bool forceReload = false)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.LOADOUTS, ExpansionPrefab);
 	#endif
 
@@ -27,6 +27,7 @@ class ExpansionPrefab : ExpansionPrefabObject
 			s_Prefabs.Insert(name, prefab);
 		}
 
+		prefab.m_Name = name;
 		prefab.m_Path = EXPANSION_LOADOUT_FOLDER + name + ".json";
 		if (FileExist(prefab.m_Path))
 		{

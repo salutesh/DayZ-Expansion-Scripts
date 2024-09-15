@@ -79,15 +79,20 @@ class ExpansionActionOpen: ActionInteractBase
 	
 	override void OnStartServer( ActionData action_data )
 	{
-		if ( !m_Target || ( m_Target.ExpansionIsLocked() && !m_Target.IsKnownUser( action_data.m_Player ) ) )
+		ItemBase tgtItem;
+		if ( !Class.CastTo( tgtItem, action_data.m_Target.GetObject() ) )
+			if ( !Class.CastTo( tgtItem, action_data.m_Target.GetParent() ) )
+				return;
+
+		if ( !tgtItem || ( tgtItem.ExpansionIsLocked() && !tgtItem.IsKnownUser( action_data.m_Player ) ) )
 			return;
 
-		string selection = m_Target.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
+		string selection = tgtItem.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
 
-		if ( m_Target.ExpansionIsLocked() )
-			m_Target.UnlockAndOpen( selection );
+		if ( tgtItem.ExpansionIsLocked() )
+			tgtItem.UnlockAndOpen( selection );
 		else
-			m_Target.Open( selection );
+			tgtItem.Expansion_Open( selection );
 
 	#ifdef EXPANSIONMODAI
 		if (action_data.m_Player)

@@ -125,10 +125,10 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 		if (!texture)
 			return;
 		
-		m_FlagPreview.LoadImageFile( 0, texture.Path );
+		m_FlagPreview.LoadImageFile( 0, texture.TexturePath );
 		m_FlagPreview.Show( true );
 		
-		m_CurrentSelectedTexture = texture.Path;
+		m_CurrentSelectedTexture = texture.TexturePath;
 	}
 
 	void ChangeFlag()

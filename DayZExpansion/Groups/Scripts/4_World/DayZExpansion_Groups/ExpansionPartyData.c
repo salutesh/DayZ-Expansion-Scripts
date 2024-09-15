@@ -12,9 +12,11 @@
 
 class ExpansionPartyData
 {
-	static const int GROUP_TAG_LENGTH = 4;
+	static const int GROUP_TAG_LENGTH = 5;
 	static const string GROUP_TAG_START = "[";
 	static const string GROUP_TAG_END = "] ";
+	const autoptr TStringArray RANDOM_NAMES = {"Blaze","Phoenix","Titan","Shadow","Vortex","Hunter","Ranger","Striker","Knight","Reaper","Ghost","Nomad","Guardian","Wraith","Maverick","Falcon","Rogue","Viper","Tempest","Dragon","Raven","Storm","Sentinel","Specter","Inferno","Thunder","Wolf","Vanguard","Nebula","Eclipse","Fury","Spartan","Raider","Doom","Valkyrie","Titan","Hawk","Legion","Frost","Arcane","Leviathan","Cipher","Zephyr","Sabre","Blitz","Kraken","Chimera","Seraph","Astral","Zenith"};
+	const autoptr TStringArray RANDOM_ADJECTIVES = {"Fiery","Eternal","Mystic","Crimson","Iron","Vengeful","Celestial","Savage","Arcane","Dark","Swift","Fearless","Unseen","Shadowed","Radiant","Fallen","Noble","Relentless","Silent","Ruthless","Brave","Infinite","Cunning","Grim","Fierce","Ancient","Frostbound","Luminous","Daring","Ethereal","Thunderous","Ferocious","Mysterious","Reckless","Merciless","Glorious","Ruthless","Zealous","Resolute","Unyielding","Intrepid","Magnificent","Brave","Unstoppable","Heroic","Swift","Tenacious","Vigorous","Resolute","Dreaded"};
 
 	protected int PartyID;
 
@@ -29,6 +31,7 @@ class ExpansionPartyData
 
 	protected ref map< string, ExpansionPartyPlayerData > PlayersMap;
 	protected ref map< string, ExpansionPartyInviteData > InvitesMap;
+	protected int LastMemberLeaveTimestamp;
 #ifdef EXPANSIONMODNAVIGATION
 	protected ref map< string, ExpansionMarkerData > MarkersMap;
 	//! Server
@@ -151,7 +154,12 @@ class ExpansionPartyData
 		if (!PartyTag)
 			return "";
 
-		string tag = PartyTag.Substring(0, GROUP_TAG_LENGTH);
+		string tag;
+
+		if (PartyTag.Length() > GROUP_TAG_LENGTH)
+			tag = PartyTag.Substring(0, GROUP_TAG_LENGTH);
+		else
+			tag = PartyTag;
 
 		return GROUP_TAG_START + tag + GROUP_TAG_END;
 	}
@@ -204,9 +212,11 @@ class ExpansionPartyData
 		ExpansionPartyPlayerData player = new ExpansionPartyPlayerData(this);
 		player.UID = pPb.GetIdentityUID();
 		player.OnJoin( pPb );
+		player.SetupColor();
 		OnJoin( player );
+
 	#ifdef EXPANSIONMODNAVIGATION
-		player.CreateMarker();
+		player.InitMarker();
 	#endif
 		player.SetPermissions(ExpansionPartyPlayerPermissions.NONE);
 
@@ -273,6 +283,29 @@ class ExpansionPartyData
 		return false;
 	}
 
+	bool IsInviteCooldownActive()
+	{
+		if (GetInviteCooldown() > 0)
+			return true;
+
+		return false;
+	}
+
+	/**
+	 * @brief Get remaining invite cooldown time in seconds
+	 */
+	int GetInviteCooldown()
+	{
+		auto now = CF_Date.Now(true);
+		int timestamp = now.GetTimestamp();
+
+		int elapsedTime = timestamp - LastMemberLeaveTimestamp;
+		if (elapsedTime < GetExpansionSettings().GetParty().InviteCooldown)
+			return GetExpansionSettings().GetParty().InviteCooldown - elapsedTime;
+
+		return 0;
+	}
+
 	// ------------------------------------------------------------
 	// Expansion AddInvite
 	// ------------------------------------------------------------
@@ -308,6 +341,22 @@ class ExpansionPartyData
 			Players.RemoveItem(player);
 			PlayersMap.Remove(uid);
 			OnLeave( player );
+
+			auto now = CF_Date.Now(true);
+			LastMemberLeaveTimestamp = now.GetTimestamp();
+			
+			return true;
+		}
+
+		return false;
+	}
+
+	bool ChangeMemberColor(string uid, int color)
+	{
+		ExpansionPartyPlayerData player = PlayersMap.Get(uid);
+		if (player)
+		{
+			player.SetColor(color);
 			return true;
 		}
 
@@ -582,27 +631,23 @@ class ExpansionPartyData
 			ctx.Write( Players[index].Permissions );
 
 		#ifdef EXPANSIONMODNAVIGATION
+			bool hasMarker = false;
+
 			if ( Players[index].Marker && (settings.ShowPartyMemberMapMarkers || settings.ShowPartyMember3DMarkers) )
 			{
-				bool hasMarker = true;
-				if ( !Players[index].Marker.GetObject() )
+				if ( Players[index].Marker.GetObject() )
 				{
-					hasMarker = false;
-					// todo: update marker, maybe player respawned?
-				}
-				else
-				{
+					hasMarker = true;
 					Players[index].Marker.Update();
 				}
-
-				ctx.Write( hasMarker );
-
-				if ( hasMarker )
-					Players[index].Marker.OnSend( ctx );
-			} else
-			{
-				ctx.Write( false );
 			}
+
+			ctx.Write( hasMarker );
+
+			if ( hasMarker )
+				Players[index].Marker.OnSend( ctx );
+			else
+				ctx.Write(Players[index].m_TempMarkerData.GetColor());
 
 			if ( Players[index].QuickMarker && settings.EnableQuickMarker )
 			{
@@ -696,8 +741,8 @@ class ExpansionPartyData
 			if ( !player )
 			{
 				player = new ExpansionPartyPlayerData(this);
-				PlayersMap.Insert( uid, player );
 				Players.Insert( player );
+				PlayersMap.Insert( uid, player );
 			}
 
 			player.UID = uid;
@@ -728,10 +773,17 @@ class ExpansionPartyData
 					player.Marker.SetName(player.Name);
 				player.Marker.Set3D(settings.ShowPartyMember3DMarkers);
 				player.Marker.SetIcon(ExpansionIcons.Get("Persona"));
-			} else
+			}
+			else
 			{
 				if ( player.Marker )
 					delete player.Marker;
+
+				int color;
+				if (!ctx.Read(color))
+					return false;
+
+				player.SetColor(color);
 			}
 
 			bool hasQuickMarker;
@@ -755,6 +807,7 @@ class ExpansionPartyData
 					delete player.QuickMarker;
 			}
 		#endif
+
 		}
 
 		for ( index = 0; index < checkArr.Count(); ++index )
@@ -894,8 +947,10 @@ class ExpansionPartyData
 		}
 
 		//! Always write money deposited so it doesn't cause issues when market is added later
-		ctx.Write( MoneyDeposited );
+		ctx.Write(MoneyDeposited);
 		ctx.Write(PartyTag);
+
+		ctx.Write(LastMemberLeaveTimestamp);
 	}
 
 	// ------------------------------------------------------------
@@ -922,22 +977,28 @@ class ExpansionPartyData
 			return false;
 
 		for ( i = 0; i < countPlayers; ++i )
-			Players.Insert( new ExpansionPartyPlayerData(this) );
+		{
+			auto player = new ExpansionPartyPlayerData(this);
 
-		for ( i = 0; i < Players.Count(); ++i )
-			if ( Expansion_Assert_False( Players[i].OnStoreLoad( ctx, version ), "Failed reading player [" + i + "]" ) )
+			if ( Expansion_Assert_False( player.OnStoreLoad( ctx, version ), "Failed reading player [" + i + "]" ) )
 				return false;
+
+			Players.Insert(player);
+		}
 
 		int countInvites;
 		if ( Expansion_Assert_False( ctx.Read( countInvites ), "Failed reading invite count" ) )
 			return false;
 
 		for ( i = 0; i < countInvites; ++i )
-			Invites.Insert( new ExpansionPartyInviteData );
+		{
+			auto invite = new ExpansionPartyInviteData;
 
-		for ( i = 0; i < Invites.Count(); ++i )
-			if ( Expansion_Assert_False( Invites[i].OnStoreLoad( ctx, version ), "Failed reading invite [" + i + "]" ) )
+			if ( Expansion_Assert_False( invite.OnStoreLoad( ctx, version ), "Failed reading invite [" + i + "]" ) )
 				return false;
+
+			Invites.Insert(invite);
+		}
 
 		//! Always read markers so you don't loose them if Navigation mod is not loaded
 		int countMarkers;
@@ -945,9 +1006,6 @@ class ExpansionPartyData
 			return false;
 
 		for ( i = 0; i < countMarkers; ++i )
-			Markers.Insert( ExpansionMarkerData.Create( ExpansionMapMarkerType.PARTY ) );
-
-		for ( i = 0; i < Markers.Count(); ++i )
 		{
 			string marker_uid;
 
@@ -960,10 +1018,14 @@ class ExpansionPartyData
 				marker_uid = "marker_old_" + i;
 			}
 
-			Markers[i].SetUID( marker_uid );
+			auto marker = ExpansionMarkerData.Create( ExpansionMapMarkerType.PARTY );
 
-			if ( Expansion_Assert_False( Markers[i].OnStoreLoad( ctx, version ), "Failed reading marker [" + i + "]" ) )
+			marker.SetUID( marker_uid );
+
+			if ( Expansion_Assert_False( marker.OnStoreLoad( ctx, version ), "Failed reading marker [" + i + "]" ) )
 				return false;
+
+			Markers.Insert(marker);
 		}
 
 		//! Read money deposited so it doesn't cause issues when market is added later
@@ -984,6 +1046,12 @@ class ExpansionPartyData
 		else if ( GetExpansionSettings().GetParty().ForcePartyToHaveTags )
 		{
 			PartyTag = PartyName.Substring(0, GROUP_TAG_LENGTH);
+		}
+
+		if (version >= 42)
+		{
+			if ( Expansion_Assert_False( ctx.Read( LastMemberLeaveTimestamp ), "Failed reading LastMemberLeaveTimestamp" ) )
+				return false;
 		}
 
 		return true;

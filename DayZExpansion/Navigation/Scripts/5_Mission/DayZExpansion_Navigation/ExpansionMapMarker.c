@@ -135,6 +135,8 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			if (HasBeenInitialized())
 				SetFromMarkerData();
 		}
+
+		m_Icon.Show(m_CurrentExpansionIcon || m_CurrentIcon != string.Empty);
 	}
 
 	void SetFromMarkerData()

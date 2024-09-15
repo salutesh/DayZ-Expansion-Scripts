@@ -170,6 +170,13 @@ class ExpansionTooltipPlayerListEntry: ExpansionScriptView
 		text = new StringLocaliser(ExpansionStatic.GetValueString(player_stats.m_PlayersKilled) + " Killed");
 		entry = new ExpansionTooltipSectionPlayerListEntry("Persona", lable, text);
 		controller.Sections.Insert(entry);
+
+	#ifdef ENFUSION_AI_PROJECT
+		lable = new StringLocaliser("STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_AI_KILLS");
+		text = new StringLocaliser(ExpansionStatic.GetValueString(player_stats.m_AIKilled) + " Killed");
+		entry = new ExpansionTooltipSectionPlayerListEntry("Persona", lable, text);
+		controller.Sections.Insert(entry);
+	#endif
 		
 		lable = new StringLocaliser("STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_ZOMBIE_KILLS");
 		text = new StringLocaliser(ExpansionStatic.GetValueString(player_stats.m_InfectedKilled) + " Killed");

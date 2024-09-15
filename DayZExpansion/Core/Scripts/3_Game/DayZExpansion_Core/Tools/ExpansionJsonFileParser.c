@@ -659,7 +659,7 @@ class ExpansionJSONObject: ExpansionJSONCollection
 	}
 }
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #define EXPANSIONJSON_DIAG
 #endif
 
@@ -900,7 +900,7 @@ class ExpansionJSON: ExpansionJSONElementBase
 
 	bool Parse(string data)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this);
 	#endif
 

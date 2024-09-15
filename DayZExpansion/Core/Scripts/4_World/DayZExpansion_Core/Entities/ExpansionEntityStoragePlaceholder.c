@@ -76,20 +76,20 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 		return super.GetDisplayName();
 	}
 
-	static bool Expansion_HasPlaceholder(CarScript vehicle, bool includeGarage = false)
+	static bool Expansion_HasPlaceholder(ExpansionVehicle vehicle, bool includeGarage = false)
 	{
-		if (vehicle.m_Expansion_GlobalID.IsZero())
+		if (vehicle.GetGlobalID().IsZero())
 			return false;
 
 		foreach (auto placeholder: s_Expansion_AllPlaceholders)
 		{
-#ifdef EXPANSIONMODGARAGE
+#ifdef DZ_Expansion_Garage
 			//! Dealt with by garage module
 			if (!includeGarage && placeholder.IsInherited(ExpansionGarageVehicle))
 				continue;
 #endif
 
-			if (vehicle.m_Expansion_GlobalID.IsEqual(placeholder.m_Expansion_StoredEntityGlobalID.m_ID))
+			if (vehicle.GetGlobalID().IsEqual(placeholder.m_Expansion_StoredEntityGlobalID.m_ID))
 			{
 				string type;
 				placeholder.m_Expansion_NetsyncData.Get(0, type);
@@ -251,15 +251,9 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 		ExpansionGlobalID gid;
 		TIntArray entityGlobalID = new TIntArray;
 
-		CarScript vehicle;
-		if (Class.CastTo(vehicle, entity))
-			gid = vehicle.m_Expansion_GlobalID;
-
-#ifdef EXPANSIONMODVEHICLE
-		ExpansionVehicleBase exVehicle;
-		if (Class.CastTo(exVehicle, entity))
-			gid = exVehicle.m_Expansion_GlobalID;
-#endif
+		ExpansionVehicle vehicle;
+		if (ExpansionVehicle.Get(vehicle, entity))
+			gid = vehicle.GetGlobalID();
 
 		if (!gid)
 			gid = new ExpansionGlobalID();

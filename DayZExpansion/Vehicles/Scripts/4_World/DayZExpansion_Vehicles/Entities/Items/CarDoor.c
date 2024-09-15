@@ -45,8 +45,8 @@ modded class CarDoor
 	{
 		bool ret;
 
-		CarScript vehicle;
-		if (Class.CastTo(vehicle, GetHierarchyParent()))
+		ExpansionVehicle vehicle;
+		if (ExpansionVehicle.Get(vehicle, GetHierarchyParent()))
 		{
 			if (vehicle.IsLocked())
 			{
@@ -54,7 +54,7 @@ modded class CarDoor
 				ret = true;
 			}
 
-			string ownerName = vehicle.Expansion_GetOwnerName();
+			string ownerName = vehicle.GetOwnerName();
 			if (ownerName)
 			{
 				if (!output)

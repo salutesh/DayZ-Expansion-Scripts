@@ -40,8 +40,9 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.GENERAL_ITEMS, this);
-
+#endif
 		super.OnMissionStart(sender, args);
 
 #ifdef SERVER
@@ -77,8 +78,9 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 
 	private void LoadQueuedEntityActions()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, this);
-
+#endif
 		if (!FileExist(m_QueuedEntityActionsFileName))
 			return;
 
@@ -210,8 +212,10 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 	//! Do not use directly in OnStoreLoad! Earliest is AfterStoreLoad or DeferredInit.
 	void QueueEntityActions(EntityAI entity, int actions)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, this, entity.ToString());
-
+#endif
+		
 		int b1, b2, b3, b4;
 		entity.GetPersistentID(b1, b2, b3, b4);
 

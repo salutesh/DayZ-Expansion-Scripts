@@ -175,7 +175,7 @@ class ExpansionCodeLock: ItemBase
 			ExpansionUnlock();
 			ItemBase item;
 			if (parent.GetInventory() && parent.GetInventory().IsInventoryLocked() && Class.CastTo(item, parent) && !item.IsOpen())
-				item.Open();
+				item.Expansion_Open("");
 			ExpansionDropServer( PlayerBase.Cast( player ) );
 		}
 	}
@@ -194,7 +194,7 @@ class ExpansionCodeLock: ItemBase
 		UnlockServer( EntityAI.Cast( killer ), GetHierarchyParent() );
 	}
 		
-	static TStringArray Expansion_GetInventorySlots()
+	static TStringArray Expansion_GetCodeLockInventorySlots()
 	{
 		if (!s_Expansion_InventorySlots.Count())
 			GetGame().ConfigGetTextArray("CfgVehicles ExpansionCodeLock inventorySlot", s_Expansion_InventorySlots);

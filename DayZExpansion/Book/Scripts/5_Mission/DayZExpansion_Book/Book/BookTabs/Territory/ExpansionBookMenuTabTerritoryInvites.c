@@ -53,6 +53,12 @@ class ExpansionBookMenuTabTerritoryInvites: ExpansionBookMenuTabBase
 	
 	override string GetTabName()
 	{
+		if ( m_TerritoryModule.GetTerritoryInvites() )
+		{
+			int count = m_TerritoryModule.GetTerritoryInvites().Count();
+			if ( count > 0 )
+				return "#STR_EXPANSION_BOOK_TAB_TERRITORY_INVITES ("+count+")";
+		}
 		return "#STR_EXPANSION_BOOK_TAB_TERRITORY_INVITES";
 	}
 	

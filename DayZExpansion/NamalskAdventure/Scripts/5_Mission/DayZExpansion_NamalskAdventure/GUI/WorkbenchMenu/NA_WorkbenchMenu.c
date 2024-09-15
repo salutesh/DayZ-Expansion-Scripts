@@ -172,6 +172,7 @@ class NA_WorkbenchMenu: ExpansionScriptViewMenu
 		array<ref NA_WorkbenchRecipeIngredient> ingredients = m_SelectedRecipe.GetIngredients();
 		foreach (NA_WorkbenchRecipeIngredient ingredient: ingredients)
 		{
+			overallNeeded = 0;
 			string typeName = ingredient.GetType();
 			int needed = ingredient.GetQuantity();
 			
@@ -185,7 +186,7 @@ class NA_WorkbenchMenu: ExpansionScriptViewMenu
 				overallCount += invType.GetStackAmount();
 		}
 		
-		if (overallCount == overallNeeded)
+		if (overallCount >= overallNeeded)
 			m_CanCraft = true;
 		
 		if (m_CanCraft)

@@ -2,6 +2,8 @@ enum eAICommands
 {
 	// Movement
 	MOV_STOP,
+	MOV_FLANK,
+	MOV_ROAM,
 	MOV_GOTO,
 	MOV_RTF, // Return to formation
 	MOV_GETIN,
@@ -45,5 +47,6 @@ enum eAICommands
 	DEB_TARGET_DESTROY,
 	DEB_EXPORTPATROL,
 	DEB_UNLIMITEDRELOAD,
+	DEB_DBGOBJECTS,
 	DEB_SPECTATE
 };

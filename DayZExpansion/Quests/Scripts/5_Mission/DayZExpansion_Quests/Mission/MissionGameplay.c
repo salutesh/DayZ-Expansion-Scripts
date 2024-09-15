@@ -30,7 +30,9 @@ modded class MissionGameplay
 
 	void InitExpansionQuestHud()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
+#endif
 
 		if (!m_ExpansionQuestHUD)
 		{

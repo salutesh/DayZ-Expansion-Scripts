@@ -22,9 +22,11 @@ modded class ItemManager
 	
 	void Expansion_OnSettingsReceived()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
 		EXTrace.Add(trace, "EnableItemRarity " + GetExpansionSettings().GetHardline().EnableItemRarity);
 		EXTrace.Add(trace, "tooltip " + m_TooltipWidget);
+#endif
 
 		Expansion_InitHardlineRarityWidget();
 	}

@@ -49,7 +49,9 @@ class ExpansionTempQuestHolder
 	
 	void OnSend(ParamsWriteContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		ctx.Write(ID);
 		ctx.Write(ClassName);
@@ -71,7 +73,9 @@ class ExpansionTempQuestHolder
 	
 	bool OnRecieve(ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		if (!ctx.Read(ID))
 		{
@@ -142,7 +146,9 @@ class ExpansionTempQuestHolderPosition
 	
 	void OnSend(ParamsWriteContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		ctx.Write(Position);
 		ctx.Write(Orientation);
@@ -150,7 +156,9 @@ class ExpansionTempQuestHolderPosition
 	
 	bool OnRecieve(ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		if (!ctx.Read(Position))
 		{

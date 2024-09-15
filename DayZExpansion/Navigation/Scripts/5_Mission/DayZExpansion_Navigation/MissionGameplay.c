@@ -20,8 +20,6 @@ modded class MissionGameplay
 	ref MapMenu m_Expansion_MapMenu;
 	ref ExpansionMapMenu m_Expansion_ExpansionMapMenu;
 
-	private int m_MarkerVisibilityMode;
-
 	void MissionGameplay()
 	{
 		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
@@ -115,62 +113,135 @@ modded class MissionGameplay
 				}
 			}
 
-			if (m_MarkerModule)
+			if (m_MarkerModule && !viewMenu)
 			{
-				if (input.LocalPress("UAExpansion3DMarkerToggle", false) && !viewMenu)
+				bool updateToggleStates;
+
+				if (Expansion_CheckIndividualMarkerToggle(input))
 				{
-					switch (m_MarkerVisibilityMode)
+					updateToggleStates = true;
+				}
+				else if (input.LocalPress("UAExpansion3DMarkerToggle", false))
+				{
+					//! Toggle between hidden and previously set visibility state for each marker category
+
+					int visibility;
+					int previousVisibility;
+
+					visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.SERVER);
+					visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PARTY);
+					visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PLAYER);
+					visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PERSONAL);
+					visibility &= EXPANSION_MARKER_VIS_WORLD;
+
+					previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.SERVER);
+					previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PARTY);
+					previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PLAYER);
+					previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PERSONAL);
+					previousVisibility &= EXPANSION_MARKER_VIS_WORLD;
+
+					if (!visibility)
 					{
-						// Stage 0: "Enabled all 3D Markers" 
-						// enable ALL 3D Markers again, doesnt matter which one
-						case 0:
-						
-							GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLEALL_OFF", ""));
-							m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-							m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
-							m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
-							m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
-						break;
-						// Stage 1: "Disabled all Server 3D Markers" 
-						// hide ONLY Server 3D Markers
-						case 1:
-							GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLESERVER_ON", ""));
-							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-						break;
-						// Stage 2: "Disabled all Personal Party 3D Markers" 
-						// hide ONLY server and all personal markers from the Party (except Member 3D Markers and privat personal 3D Markers)
-						// TO ONLY SEE MEMBER 3D AND YOUR OWN PERSONAL 3D MARKERS!
-						case 2:
-							GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLEPARTY_ON", ""));
-							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
-						break;
-						// Stage 3: "Disabled all Personal 3D Markers" 
-						// hide ONLY server and all personal and party markers (except Member 3D Markers)
-						// TO ONLY SEE MEMBER 3D MARKERS!
-						case 3:
-							GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLEPERSONAL_ON", ""));
-							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
-						break;
-						// Stage 4: "Disabled all 3D Markers" 
-						// hide ALL 3D Markers, doesnt matter which one
-						case 4:
-							GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLEALL_ON", ""));
-							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
-							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
-							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
-						break;
+						//! We are restoring previous visibility
+						GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLE_ALL_SHOW", ""));
 					}
 
-					if (m_Expansion_ExpansionMapMenu)
-						m_Expansion_ExpansionMapMenu.GetMarkerList().UpdateToggleStates();
+					if (!visibility && !previousVisibility)
+					{
+						//! No 3D markers visible currently and previously, toggle all on.
+						//! This will only happen if player has hidden all marker categories manually in map menu.
+						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
+					}
+					else if (!visibility)
+					{
+						//! Default behavior when none shown. Restore previous visibility for all marker categories.
+						m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
+					}
+					else
+					{
+						//! Default behavior when any shown. Hide markers.
+						GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLE_ALL_HIDE", ""));
+						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
+					}
 
-					m_MarkerVisibilityMode++;
-					if ( m_MarkerVisibilityMode > 4 )
-						m_MarkerVisibilityMode = 0;
+					updateToggleStates = true;
 				}
+
+				if (updateToggleStates && m_Expansion_ExpansionMapMenu)
+					m_Expansion_ExpansionMapMenu.GetMarkerList().UpdateToggleStates();
 			}
 		}
+	}
+
+	bool Expansion_CheckIndividualMarkerToggle(Input input)
+	{
+		bool toggle;
+
+		//! @note we check all individual toggles because they may be bound to the same key, so we don't want to return early
+
+		if (Expansion_CheckIndividualMarkerToggle(input, ExpansionMapMarkerType.PARTY))
+			toggle = true;
+
+		if (Expansion_CheckIndividualMarkerToggle(input, ExpansionMapMarkerType.PERSONAL))
+			toggle = true;
+
+		if (Expansion_CheckIndividualMarkerToggle(input, ExpansionMapMarkerType.PLAYER))
+			toggle = true;
+
+		if (Expansion_CheckIndividualMarkerToggle(input, ExpansionMapMarkerType.SERVER))
+			toggle = true;
+
+		return toggle;
+	}
+
+	bool Expansion_CheckIndividualMarkerToggle(Input input, ExpansionMapMarkerType type)
+	{
+		string name;
+
+		switch (type)
+		{
+			case ExpansionMapMarkerType.PARTY:
+				name = "Group";
+				break;
+			case ExpansionMapMarkerType.PERSONAL:
+				name = "Personal";
+				break;
+			case ExpansionMapMarkerType.PLAYER:
+				name = "Player";
+				break;
+			case ExpansionMapMarkerType.SERVER:
+				name = "Server";
+				break;
+		}
+
+		string action = string.Format("UAExpansion%1MarkersToggle", name);
+
+		if (input.LocalPress(action, false))
+		{
+			if ((m_MarkerModule.GetVisibility(type) & EXPANSION_MARKER_VIS_WORLD) == 0)
+			{
+				GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", string.Format("#STR_EXPANSION_MARKERTOGGLE_%1_SHOW", name), ""));
+				m_MarkerModule.SetVisibility(type, EXPANSION_MARKER_VIS_WORLD);
+			}
+			else
+			{
+				GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", string.Format("#STR_EXPANSION_MARKERTOGGLE_%1_HIDE", name), ""));
+				m_MarkerModule.RemoveVisibility(type, EXPANSION_MARKER_VIS_WORLD);
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	override void OnMissionFinish()

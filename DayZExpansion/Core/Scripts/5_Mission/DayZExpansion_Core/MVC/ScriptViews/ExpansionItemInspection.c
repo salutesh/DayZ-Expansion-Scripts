@@ -629,7 +629,9 @@ class ExpansionItemInspection: ExpansionItemInspectionBase
 	
 	void SetParentView(ScriptView parentView)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, this, "Parent view: " + parentView);
+#endif
 		
 		m_ParentView = parentView;
 	}

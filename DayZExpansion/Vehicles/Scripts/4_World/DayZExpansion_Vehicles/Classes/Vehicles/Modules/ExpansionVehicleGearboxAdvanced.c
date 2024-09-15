@@ -81,17 +81,17 @@ class ExpansionVehicleGearboxAdvanced : ExpansionVehicleGearbox
 		if (m_TargetGear > Count() - 1)
 			m_TargetGear = Count() - 1;
 
-		auto hcv = ExpansionHumanCommandVehicle.Cast(pDriver.GetCommand_Script());
-		if (hcv)
-		{
+		//auto hcv = pDriver.GetCommand_Vehicle();
+		//if (hcv)
+		//{
 			if (m_TargetGear != m_Gear && (m_ClutchState == 0 || m_ClutchState == 3))
 			{
-				hcv.SignalGearChange();
+				//hcv.SignalGearChange();
 
 				m_ClutchState = 2;
 				m_Time = 0;
 			}
-		}
+		//}
 	}
 
 	override void PreSimulate(ExpansionPhysicsState pState)

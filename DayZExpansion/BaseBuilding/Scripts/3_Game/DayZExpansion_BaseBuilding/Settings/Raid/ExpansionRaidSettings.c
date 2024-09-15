@@ -34,11 +34,18 @@ class ExpansionRaidSchedule
 
 	void Validate()
 	{
-		string weekday = Weekday;
-		weekday.ToUpper();
-		m_WeekdayIndex = WEEKDAYS.Find(weekday);
-		if (m_WeekdayIndex == -1)
-			Error(ToString() + " Invalid weekday " + Weekday);
+		if (Weekday)
+		{
+			string weekday = Weekday;
+			weekday.ToUpper();
+			m_WeekdayIndex = WEEKDAYS.Find(weekday);
+			if (m_WeekdayIndex == -1)
+				EXError.Error(this, "Invalid weekday " + Weekday, {});
+		}
+		else
+		{
+			m_WeekdayIndex = -1;  //! Everyday
+		}
 
 		if (StartHour > 23)
 			Error(ToString() + " Invalid start hour " + StartHour);
@@ -564,7 +571,7 @@ class ExpansionRaidSettings: ExpansionSettingBase
 
 		foreach (auto schedule: Schedule)
 		{
-			if (weekdayIndex != schedule.m_WeekdayIndex)
+			if (schedule.m_WeekdayIndex != -1 && weekdayIndex != schedule.m_WeekdayIndex)
 				continue;
 
 			int current = now.GetHours() * 60 + now.GetMinutes();

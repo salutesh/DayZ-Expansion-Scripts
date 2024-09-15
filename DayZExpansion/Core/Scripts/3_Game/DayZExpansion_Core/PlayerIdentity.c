@@ -164,4 +164,32 @@ modded class PlayerIdentity
 
 		return uid;
 	}
+
+	static PlayerIdentity Expansion_GetIdentityByPlainId(string steamId)
+	{
+		array<PlayerIdentity> identities = {};
+		GetGame().GetPlayerIndentities(identities);
+
+		foreach (PlayerIdentity identity: identities)
+		{
+			if (identity.GetPlainId() == steamId)
+				return identity;
+		}
+
+		return null;
+	}
+
+	static PlayerIdentity Expansion_GetIdentityById(string id)
+	{
+		array<PlayerIdentity> identities = {};
+		GetGame().GetPlayerIndentities(identities);
+
+		foreach (PlayerIdentity identity: identities)
+		{
+			if (identity.GetId() == id)
+				return identity;
+		}
+
+		return null;
+	}
 }

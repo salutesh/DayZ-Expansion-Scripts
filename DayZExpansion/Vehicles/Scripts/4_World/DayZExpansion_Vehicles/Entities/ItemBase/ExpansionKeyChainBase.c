@@ -92,21 +92,15 @@ class ExpansionKeyChainBase : ItemBase
 	protected string Expansion_GetPersistentIDString()
 	{
 		int a, b, c, d;
-		CarScript vehicle;
+		ExpansionVehicle vehicle;
 		ExpansionCarKey key;
-		if (Class.CastTo(vehicle, GetHierarchyParent()))
+		if (ExpansionVehicle.Get(vehicle, GetHierarchyParent()))
 		{
-			a = vehicle.GetPersistentIDA();
-			b = vehicle.GetPersistentIDB();
-			c = vehicle.GetPersistentIDC();
-			d = vehicle.GetPersistentIDD();
+			vehicle.GetMasterKeyPersistentID(a, b, c, d);
 		}
 		else if (Class.CastTo(key, GetHierarchyParent()))
 		{
-			a = key.GetPersistentIDA();
-			b = key.GetPersistentIDB();
-			c = key.GetPersistentIDC();
-			d = key.GetPersistentIDD();
+			key.GetMasterKeyPersistentID(a, b, c, d);
 		}
 
 		return ExpansionStatic.GetPersistentIDString(a, b, c, d);
@@ -142,19 +136,24 @@ class ExpansionKeyChainBase : ItemBase
 
 	void Expansion_AssignOwner(string ownerUID, string ownerName, bool send = true)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.VEHICLES, this);
-
+#endif 
+		
 		if (ownerUID == m_Expansion_OwnerUID && ownerName == m_Expansion_OwnerName)
 			return;
 
 		m_Expansion_OwnerUID = ownerUID;
-		EXTrace.Add(trace, m_Expansion_OwnerUID);
 		m_Expansion_OwnerName = ownerName;
-		EXTrace.Add(trace, m_Expansion_OwnerName);
 		m_Expansion_NetsyncData.Set(0, m_Expansion_OwnerName);
 		if (send)
 			m_Expansion_NetsyncData.Send(null);
 		Expansion_LockSlot(true);
+		
+#ifdef EXTRACE
+		EXTrace.Add(trace, m_Expansion_OwnerUID);
+		EXTrace.Add(trace, m_Expansion_OwnerName);
+#endif 
 	}
 
 	void Expansion_ResetOwner()

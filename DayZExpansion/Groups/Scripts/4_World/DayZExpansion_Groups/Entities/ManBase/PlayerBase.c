@@ -14,6 +14,7 @@ modded class PlayerBase
 {
 	protected ExpansionPartyPlayerData m_Expansion_PartyPlayerData; //! Server only
 	protected int m_Expansion_PartyID = -1; //! Client and Server
+	protected int m_ExpansionPartyLeaveTimestamp; //! Server only
 
 	override void Init()
 	{
@@ -28,6 +29,35 @@ modded class PlayerBase
 
 		AddAction(ActionInviteToGroup, InputActionMap);
 	}
+
+	#ifdef EXPANSION_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
+	{
+		super.CF_OnStoreSave(storage);
+
+		auto ctx = storage[DZ_Expansion_Groups];
+		if (!ctx) return;
+
+		ctx.Write(m_ExpansionPartyLeaveTimestamp);
+	}
+	
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
+	{
+		if (!super.CF_OnStoreLoad(storage))
+			return false;
+
+		auto ctx = storage[DZ_Expansion_Groups];
+		if (!ctx) return true;
+		
+		if (ctx.GetVersion() < 50)
+			return true;
+
+		if (!ctx.Read(m_ExpansionPartyLeaveTimestamp))
+			return false;
+
+		return true;
+	}
+	#endif
 	
 	int Expansion_GetPartyID()
 	{
@@ -62,11 +92,38 @@ modded class PlayerBase
 		if (super.Expansion_IsFriendly(other))
 			return true;
 
-	#ifdef EXPANSIONMODGROUPS
-		if (Expansion_GetParty() == other.Expansion_GetParty())
+		if (m_Expansion_PartyID != -1 && m_Expansion_PartyID == other.Expansion_GetPartyID())
 			return true;
-	#endif
 
 		return false;
+	}
+
+	void Expansion_OnLeaveParty()
+	{
+		auto now = CF_Date.Now(true);
+		m_ExpansionPartyLeaveTimestamp = now.GetTimestamp();
+	}
+	
+	bool Expansion_IsPartyInviteCooldownActive()
+	{
+		if (Expansion_GetPartyInviteCooldown() > 0)
+			return true;
+
+		return false;
+	}
+
+	/**
+	 * @brief Get remaining invite cooldown time in seconds
+	 */
+	int Expansion_GetPartyInviteCooldown()
+	{
+		auto now = CF_Date.Now(true);
+		int timestamp = now.GetTimestamp();
+
+		int elapsedTime = timestamp - m_ExpansionPartyLeaveTimestamp;
+		if (elapsedTime < GetExpansionSettings().GetParty().InviteCooldown)
+			return GetExpansionSettings().GetParty().InviteCooldown - elapsedTime;
+
+		return 0;
 	}
 };

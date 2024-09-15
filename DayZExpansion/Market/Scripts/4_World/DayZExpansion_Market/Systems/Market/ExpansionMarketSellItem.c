@@ -56,7 +56,7 @@ class ExpansionMarketSell
 	// ------------------------------------------------------------
 	// ExpansionMarketSell AddItem
 	// ------------------------------------------------------------
-	void AddItem(int remainAmount, int takenAmount, float incrementStockModifier, EntityAI item, string className = "")
+	void AddSellItem(int takenAmount, float addStockAmount, EntityAI item, string className = "")
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "AddItem");
@@ -69,18 +69,18 @@ class ExpansionMarketSell
 		}
 		
 		ExpansionMarketSellItem itemSell = new ExpansionMarketSellItem;
-		itemSell.RemainAmount = remainAmount;
+		itemSell.TakenAmount = takenAmount;
 		itemSell.ItemRep = item;
 		itemSell.ClassName = className;
 		Sell.Insert(itemSell);
 
-		itemSell.AddStockAmount = takenAmount * incrementStockModifier;
+		itemSell.AddStockAmount = addStockAmount;
 	}
 }
 
 class ExpansionMarketSellItem
 {
-	int RemainAmount;
+	int TakenAmount;
 	EntityAI ItemRep;
 	string ClassName;
 
@@ -94,7 +94,7 @@ class ExpansionMarketSellItem
 	{
 		Print("ExpansionMarketSellItem::Debug - ExpansionMarketSellItem[" + i + "]: ");
 		Print("ExpansionMarketSellItem::Debug - ClassName: " + ClassName);
-		Print("ExpansionMarketSellItem::Debug - RemainAmount: " + RemainAmount);
+		Print("ExpansionMarketSellItem::Debug - TakenAmount: " + TakenAmount);
 		Print("ExpansionMarketSellItem::Debug - AddStockAmount: " + AddStockAmount);
 	}
 	
@@ -106,14 +106,23 @@ class ExpansionMarketSellItem
 		if (!ItemRep)
 			return;
 
-		if (RemainAmount == 0)
+		//! @note if TakenAmount is zero item is destroyed without checking amount
+		int remainAmount;
+		if (TakenAmount > 0)
+		{
+			int amount = ExpansionMarketModule.GetInstance().GetItemAmount(ItemRep);
+			remainAmount = amount - TakenAmount;
+		}
+
+		if (remainAmount <= 0)
 		{
 			#ifdef EXPANSIONMODVEHICLE
-			if (ItemRep.IsInherited(CarScript) || ItemRep.IsInherited(ExpansionVehicleBase))
+			auto vehicle = ExpansionVehicle.Get(ItemRep);
+			if (vehicle)
 			{
 				//! Delete all keys for vehicle
 				array< ExpansionCarKey > keys;
-				ExpansionCarKey.GetKeysForVehicle(ItemRep, keys);
+				ExpansionCarKey.GetKeysForVehicle(vehicle, keys);
 				foreach (ExpansionCarKey key : keys)
 				{
 					GetGame().ObjectDelete(key);
@@ -130,15 +139,15 @@ class ExpansionMarketSellItem
 		Ammunition_Base ammo;
 		if (Class.CastTo(mag, ItemRep))
 		{
-			mag.ServerSetAmmoCount(RemainAmount);
+			mag.ServerSetAmmoCount(remainAmount);
 		}
 		else if (Class.CastTo(ammo, ItemRep))
 		{
-			ammo.ServerSetAmmoCount(RemainAmount);
+			ammo.ServerSetAmmoCount(remainAmount);
 		}
 		else if ( Class.CastTo(itm, ItemRep)) 
 		{
-			itm.SetQuantity(RemainAmount);
+			itm.SetQuantity(remainAmount);
 		}
 	}
 }

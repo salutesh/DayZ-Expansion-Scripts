@@ -238,8 +238,11 @@ class ExpansionLootSpawner
 
 	static bool IsPlayerNearby(EntityAI container, float radius)
 	{
-		vector pos = container.GetPosition();
-		
+		return IsPlayerNearby(container.GetPosition(), radius);
+	}
+
+	static bool IsPlayerNearby(vector pos, float radius)
+	{
 		if (GetCEApi())
 			return !GetCEApi().AvoidPlayer(pos, radius);
 

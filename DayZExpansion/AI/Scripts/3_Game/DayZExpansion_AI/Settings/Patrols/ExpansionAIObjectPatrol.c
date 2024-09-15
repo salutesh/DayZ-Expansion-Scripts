@@ -14,7 +14,7 @@ class ExpansionAIObjectPatrol: ExpansionAIDynamicSpawnBase
 {
 	string ClassName;           // Any valid BuildingBase type
 
-	void ExpansionAIObjectPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -1, float maxdistradius = -1, string classname = "Wreck_UH1Y")
+	void ExpansionAIObjectPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, int unlimitedreload = 0, float chance = 1.0, float mindistradius = -1, float maxdistradius = -1, string classname = "Wreck_UH1Y")
 	{
 		ClassName = classname;
 		DefaultSpread();
@@ -72,7 +72,7 @@ class ExpansionAIObjectPatrol: ExpansionAIDynamicSpawnBase
 			for (int i = 0; i < amountofwaypoints; i++)
 			{
 				waypoint = ExpansionMath.GetRandomPointInRing(position, MinSpreadRadius, MaxSpreadRadius);
-				waypoint = ExpansionStatic.GetSurfacePosition(waypoint);
+				waypoint = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
 
 				waypoints.Insert(waypoint);
 			}
@@ -89,7 +89,7 @@ class ExpansionAIObjectPatrol: ExpansionAIDynamicSpawnBase
 			while (true)
 			{
 				waypoint = ExpansionMath.GetRandomPointAtDegrees(position, angle, MinSpreadRadius, MaxSpreadRadius);
-				waypoint = ExpansionStatic.GetSurfacePosition(waypoint);
+				waypoint = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
 
 				waypoints.Insert(waypoint);
 
@@ -125,4 +125,9 @@ class ExpansionAIObjectPatrol: ExpansionAIDynamicSpawnBase
 class ExpansionAICrashPatrol: ExpansionAIObjectPatrol
 {
 	string EventName;
+};
+
+class ExpansionAIObjectPatrol_V19: ExpansionAIObjectPatrol
+{
+	string LoadoutFile;
 };

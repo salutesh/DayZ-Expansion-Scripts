@@ -20,7 +20,7 @@ modded class CF_Localiser
 		return Set(index, value, translates);
 	}
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 	override CF_Localiser Set(int index, string value, bool translates)
 	{
 		if (translates)

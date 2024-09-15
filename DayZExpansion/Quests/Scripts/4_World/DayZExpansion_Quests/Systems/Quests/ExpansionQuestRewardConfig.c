@@ -57,7 +57,7 @@ class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigV1
 
 	bool IsVehicle()
 	{
-		return GetGame().IsKindOf(ClassName, "CarScript") || GetGame().IsKindOf(ClassName, "ExpansionVehicleBase");
+		return ExpansionStatic.IsVehicle(ClassName);
 	}
 
 	void AddAttachment(string name)

@@ -324,4 +324,9 @@ class Vehicle_ExpansionUtilityBoat: ExpansionVehicleBoatBase
 			}
 		}
 	}
+
+	override bool LeavingSeatDoesAttachment(int posIdx)
+	{
+		return true;
+	}
 };

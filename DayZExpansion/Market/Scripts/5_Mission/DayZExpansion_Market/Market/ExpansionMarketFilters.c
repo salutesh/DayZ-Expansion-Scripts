@@ -36,6 +36,7 @@ class ExpansionMarketFilters
 	protected ref map<string, ref TStringArray> m_AttachmentsMap;
 	protected ref ExpansionMarketOutputs m_MarketOutputs;
 	protected ref ExpansionMarketModule m_MarketModule;
+	protected ref ExpansionMarketMenu m_Menu;
 
 	void ExpansionMarketFilters()
 	{
@@ -52,6 +53,12 @@ class ExpansionMarketFilters
 		{
 			m_MarketOutputs = new ExpansionMarketOutputs;
 		}
+	}
+
+	//! Only added this because I didn't want to change signature of ExpansionMarketFilters constructor
+	void SetMenu(ExpansionMarketMenu menu)
+	{
+		m_Menu = menu;
 	}
 
 	TStringArray GetPrimaryWeaponMagazines()

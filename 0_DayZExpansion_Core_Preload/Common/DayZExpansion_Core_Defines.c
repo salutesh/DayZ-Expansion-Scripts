@@ -35,6 +35,15 @@
 //#define EXPANSIONEXPRINT
 //#define EXPANSIONTRACE
 
+// currently is only removed on internal builds and remains on diag/retail. Consider also removing on retail for performance gains
+#ifndef DEVELOPER
+#define EXTRACE
+#endif
+
+#ifdef DIAG
+#define EXTRACE_DIAG
+#endif
+
 //! Enable it if you want to enable logging with EXLogPrint
 //#define EXPANSIONEXLOGPRINT
 

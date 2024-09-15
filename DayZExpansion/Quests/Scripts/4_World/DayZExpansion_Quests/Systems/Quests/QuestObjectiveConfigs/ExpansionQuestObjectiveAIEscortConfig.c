@@ -168,7 +168,9 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 	
 	override void Save(string fileName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this, EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName);
+#endif
 
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";

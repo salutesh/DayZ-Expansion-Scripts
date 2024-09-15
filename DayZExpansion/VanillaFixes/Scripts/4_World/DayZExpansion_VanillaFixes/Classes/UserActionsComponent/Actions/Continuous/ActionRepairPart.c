@@ -20,11 +20,11 @@ modded class ActionRepairPart
 
 		Object target_object = target.GetObject();
 
-		if ( target_object && target_object.CanUseConstruction() )
+		BaseBuildingBase base_building;
+		if ( target_object && target_object.CanUseConstruction() && Class.CastTo(base_building, target_object) )
 		{
 			string part_name = target_object.GetActionComponentName( target.GetComponentIndex() );
 			
-			BaseBuildingBase base_building = BaseBuildingBase.Cast( target_object );
 			Construction construction = base_building.GetConstruction();
 			ConstructionPart construction_part = construction.GetConstructionPart( part_name );
 			

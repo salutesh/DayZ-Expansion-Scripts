@@ -178,7 +178,7 @@ class ExpansionVehicleBikeBase: ExpansionVehicleBase
 		return 3;
 	}
 
-	override bool IsCar()
+	override bool Expansion_IsCar()
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsCar");

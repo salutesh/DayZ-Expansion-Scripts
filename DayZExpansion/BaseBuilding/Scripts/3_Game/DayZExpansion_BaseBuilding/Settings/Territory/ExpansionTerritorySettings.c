@@ -36,10 +36,16 @@ class ExpansionTerritorySettingsV2: ExpansionTerritorySettingsBase
  **/
 class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 {
-	static const int VERSION = 3;
+	static const int VERSION = 5;
 	
 	float TerritoryInviteAcceptRadius;	//! Players need to be in this radius to be able to accept a territory invite
 	bool AuthenticateCodeLockIfTerritoryMember;   //! Territory members don't have to enter code on codelocks in territory
+
+	//! Added with version 4
+	int InviteCooldown;
+	
+	//! Added with version 5
+	bool OnlyInviteGroupMember;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -124,6 +130,8 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 
 		TerritoryInviteAcceptRadius = s.TerritoryInviteAcceptRadius;
 		AuthenticateCodeLockIfTerritoryMember = s.AuthenticateCodeLockIfTerritoryMember;
+		InviteCooldown = s.InviteCooldown;
+		OnlyInviteGroupMember = s.OnlyInviteGroupMember;
 		
 		ExpansionTerritorySettingsBase sb = s;
 		CopyInternal( sb );
@@ -194,6 +202,12 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 					TerritoryInviteAcceptRadius = settingsV2.TerritoryAuthenticationRadius;
 				}
 
+				if (m_Version < 4)
+					InviteCooldown = settingsDefault.InviteCooldown;
+
+				if (m_Version < 5)
+					OnlyInviteGroupMember = settingsDefault.OnlyInviteGroupMember;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -233,6 +247,8 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 		MaxTerritoryPerPlayer = 1;
 		TerritoryInviteAcceptRadius = 150.0;
 		AuthenticateCodeLockIfTerritoryMember = false;
+		InviteCooldown = 0;
+		OnlyInviteGroupMember = false;
 	}
 	
 	// ------------------------------------------------------------

@@ -21,8 +21,10 @@ class ExpansionSpawnLocation
 
 	void SetLocation(string name, array< vector > positions, int territoryID = -1)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.SETTINGS, this);
-			
+#endif
+				
 		Name = name;
 		
 		Positions = new array< vector >;

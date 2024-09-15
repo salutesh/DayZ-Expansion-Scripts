@@ -24,7 +24,9 @@ class ExpansionQuestObjectiveEventBase
 
 	void ExpansionQuestObjectiveEventBase(ExpansionQuest quest)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		m_Quest = quest;
 	}
@@ -33,7 +35,9 @@ class ExpansionQuestObjectiveEventBase
 	{
 		if (GetGame())
 		{
+#ifdef EXTRACE
 			auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 			DeassignObjectiveOnClasses();
 		}
@@ -107,7 +111,9 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when objective time-limit is reached.
 	void OnTimeLimitReached()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 				
 		//! Call MissionBase::Expansion_OnObjectiveTimeLimitReached for override in init.c
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnObjectiveTimeLimitReached(this);
@@ -125,7 +131,9 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when objective has a time-limit to update the current remainig time in the persistent quest data of the quest players.
 	void SyncTimeLimitTime()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		m_TimeLimit = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(this.OnTimeLimitReached) / 1000;
 
@@ -136,7 +144,9 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when the player starts or continues the quest.
 	bool OnStart(bool continues)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (m_TimeLimit > -1)
 		{
@@ -172,7 +182,9 @@ class ExpansionQuestObjectiveEventBase
 	//! ToDo: Dokumentation
 	void AssignObjectiveOnClasses()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		set<typename> allocationTypeNames = m_ObjectiveConfig.GetAllocationTypeNames();
 		if (!allocationTypeNames)
@@ -225,7 +237,9 @@ class ExpansionQuestObjectiveEventBase
 	//! ToDo: Dokumentation
 	void DeassignObjectiveOnClasses()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		set<typename> allocationTypeNames = m_ObjectiveConfig.GetAllocationTypeNames();
 		if (!allocationTypeNames)
@@ -271,7 +285,9 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when the player starts the quest.
 	bool OnEventStart()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		SetInitialized(true);
 		SetIsActive(true);
@@ -282,7 +298,9 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when the player continues the quest after a server restart/reconnect.
 	bool OnContinue()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		SetInitialized(true);
 		SetIsActive(true);
@@ -295,7 +313,9 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when quest is completed and turned-in.
 	bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		SetInitialized(false);
 		SetIsActive(false);
@@ -313,7 +333,9 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when objective is completed
 	bool OnComplete()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		SetCompleted(true);
 		RemoveObjectiveMarkers();
@@ -330,7 +352,9 @@ class ExpansionQuestObjectiveEventBase
 
 	bool OnIncomplete()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		SetCompleted(false);
 
@@ -342,7 +366,9 @@ class ExpansionQuestObjectiveEventBase
 
 	bool OnCancel()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		SetInitialized(false);
 		SetIsActive(false);
@@ -358,7 +384,9 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when the quest gets cleaned up.
 	bool OnCleanup()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (m_TimeLimit > -1)
 		{
@@ -413,7 +441,9 @@ class ExpansionQuestObjectiveEventBase
 
 	void CreateObjectiveMarker(vector pos, string name, int visibility = -1)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (visibility < 0)
 			visibility = EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP;
@@ -442,7 +472,9 @@ class ExpansionQuestObjectiveEventBase
 
 	void RemoveObjectiveMarkers()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		if (!m_Quest.GetQuestConfig().IsGroupQuest())
 		{

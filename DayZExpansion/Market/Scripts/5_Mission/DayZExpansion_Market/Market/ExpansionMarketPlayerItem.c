@@ -56,23 +56,19 @@ class ExpansionMarketPlayerItem
 			ContainerItems.Clear();
 			ContainerItemsCount = 0;
 
-			for ( int i = 0; i < items.Count(); i++ )
+			foreach (EntityAI item: items)
 			{
-				if (items[i] == Item)
+				if (item == Item)
 					continue;
 
 				//! Skip attachments without cargo on vehicles
-				if (items[i].GetInventory().IsAttachment() && !MiscGameplayFunctions.Expansion_HasAnyCargo(items[i]))
+				if (item.GetInventory().IsAttachment() && !MiscGameplayFunctions.Expansion_HasAnyCargo(item))
 				{
-					if (items[i].GetHierarchyParent().IsInherited(CarScript))
+					if (ExpansionVehicle.Get(item.GetHierarchyParent()))
 						continue;
-					#ifdef EXPANSIONMODVEHICLE
-					else if (items[i].GetHierarchyParent().IsInherited(ExpansionVehicleBase))
-						continue;
-					#endif
 				}
 
-				string name = items[i].GetType();
+				string name = item.GetType();
 				int count;
 
 				if (ContainerItems.Find(name, count))
@@ -90,21 +86,11 @@ class ExpansionMarketPlayerItem
 			if (!ContainerItemsCount)
 			{
 				//! Inventory not yet initialized on client, use netsynched cargo count
-				CarScript car;
-				if (Class.CastTo(car, Item))
+				ExpansionVehicle vehicle;
+				if (ExpansionVehicle.Get(vehicle, Item))
 				{
-					ContainerItemsCount = car.m_Expansion_CargoCount;
+					ContainerItemsCount = vehicle.GetCargoCount();
 				}
-				#ifdef EXPANSIONMODVEHICLE
-				else
-				{
-					ExpansionVehicleBase vehicle;
-					if (Class.CastTo(vehicle, Item))
-					{
-						ContainerItemsCount = vehicle.m_Expansion_CargoCount;
-					}
-				}
-				#endif
 			}
 		}
 	}

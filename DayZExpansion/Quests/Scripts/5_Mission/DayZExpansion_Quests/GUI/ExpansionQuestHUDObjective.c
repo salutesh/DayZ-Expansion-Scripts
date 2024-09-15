@@ -30,12 +30,20 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 	void ExpansionQuestHUDObjective(ExpansionQuestObjectiveData objective, ExpansionQuestConfig questConfig, ExpansionQuestState state)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());
 		m_Objective = objective;
 		m_QuestConfig = questConfig;
 		m_QuestState = state;
+	}
+
+	void ~ExpansionQuestHUDObjective()
+	{
+		if (GetGame() && ObjectiveName)
+			GetGame().GetCallQueue(CALL_CATEGORY_GUI).Remove(ObjectiveName.SetSize);
 	}
 
 	override string GetLayoutFile()
@@ -50,7 +58,9 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 	void SetEntryObjective()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 
 		int count;
 		int amount;
@@ -78,6 +88,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 			m_QuestHUDObjectiveController.ObjectiveName = objectiveState + m_ObjectiveConfig.GetObjectiveText();
 			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveName");
+			GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(ObjectiveName.SetSize, 100, false, 1.0, 1.0, true);
 		}
 
 		UpdateTimeLimit();
@@ -307,7 +318,9 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 	void UpdateObjectiveData(ExpansionQuestObjectiveData objectiveData)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+#endif
 		
 		m_Objective = objectiveData;
 		
@@ -427,13 +440,11 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 	void UpdateDistance()
 	{
-		vector objectivePos;
+		vector objectivePos = m_Objective.GetObjectivePosition();
 	#ifdef EXPANSIONMODAI
 		if (m_ObjectiveConfig.IsInherited(ExpansionQuestObjectiveAIEscortConfig))
 			objectivePos = m_ObjectiveConfig.GetPosition();  //! We want pos of target location, not current objective (VIP) pos
-		else
 	#endif
-			objectivePos = m_Objective.GetObjectivePosition();
 		vector playerPos = GetGame().GetPlayer().GetPosition();
 		int currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
 		m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";

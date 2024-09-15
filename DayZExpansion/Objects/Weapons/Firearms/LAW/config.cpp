@@ -1,20 +1,22 @@
-#define _ARMA_
-
 class CfgPatches
 {
 	class DayZExpansion_Objects_Firearms_LAW
 	{
-		units[] = {};
-		weapons[] = {};
-		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Weapons_Firearms","DayZExpansion_Sounds_Weapons_RPG7"};
+		units[]={};
+		weapons[]={};
+		requiredVersion=0.1;
+		requiredAddons[]=
+		{
+			"DZ_Weapons_Firearms",
+			"DayZExpansion_Sounds_Weapons_RPG7"
+		};
 	};
 };
 class CfgAmmoTypes
 {
 	class AType_ExpansionRocketLAW
 	{
-		name = "ExpansionRocketLAW";
+		name="ExpansionRocketLAW";
 	};
 };
 class CfgAmmo
@@ -22,48 +24,51 @@ class CfgAmmo
 	class Bullet_Base;
 	class ExpansionRocketLAW: Bullet_Base
 	{
-		scope = 2;
-		casing = "FxCartridge_Expansion_M203";
-		round = "FxRound_Expansion_M203";
-		spawnPileType = "ExpansionAmmoRPG";
-		hit = 0;
-		model = "\dz\weapons\ammunition\rocket_rpg7_inflight.p3d";
-		indirectHit = 0;
-		indirectHitRange = 0;
-		tracerScale = 2;
-		caliber = 0.01;
-		deflecting = 5;
-		impactBehaviour = 1;
-		initSpeed = 115;
-		typicalSpeed = 115;
-		timeToLive = 30;
-		airFriction = -0.00315;
-		weight = 0.26;
-		supersonicCrackNear[] = {};
-		supersonicCrackFar[] = {};
+		scope=2;
+		casing="FxCartridge_Expansion_M203";
+		round="FxRound_Expansion_M203";
+		spawnPileType="ExpansionAmmoRPG";
+		hit=0;
+		model="\dz\weapons\ammunition\rocket_rpg7_inflight.p3d";
+		indirectHit=0;
+		indirectHitRange=0;
+		tracerScale=2;
+		caliber=0.0099999998;
+		deflecting=5;
+		impactBehaviour=1;
+		initSpeed=115;
+		typicalSpeed=115;
+		timeToLive=30;
+		airFriction=-0.00315;
+		weight=0.25999999;
+		supersonicCrackNear[]={};
+		supersonicCrackFar[]={};
 		class DamageApplied
 		{
-			type = "Projectile";
-			dispersion = 0;
-			bleedThreshold = 1;
-			defaultDamageOverride[] = {{0.5,1}};
+			type="Projectile";
+			dispersion=0;
+			bleedThreshold=1;
+			defaultDamageOverride[]=
+			{
+				{0.5,1}
+			};
 			class Health
 			{
-				damage = 5;
+				damage=5;
 			};
 			class Blood
 			{
-				damage = 0;
+				damage=0;
 			};
 			class Shock
 			{
-				damage = 15;
+				damage=15;
 			};
 		};
 		class NoiseHit
 		{
-			strength = 15;
-			type = "shot";
+			strength=15;
+			type="shot";
 		};
 	};
 };
@@ -72,23 +77,65 @@ class CfgMagazines
 	class Ammunition_Base;
 	class ExpansionAmmoLAW: Ammunition_Base
 	{
-		scope = 2;
-		itemSize[] = {4,2};
-		displayName = "$STR_EXPANSION_M27_LAW_WARHEAD";
-		descriptionShort = "$STR_CfgMagazines_Ammo_LAW_HE1";
-		model = "\dz\weapons\launchers\law\law_rocket.p3d";
-		rotationFlags = 34;
-		weight = 1800;
-		count = 1;
-		ammo = "ExpansionRocketLAW";
+		scope=2;
+		itemSize[]={4,2};
+		displayName="$STR_EXPANSION_M27_LAW_WARHEAD";
+		descriptionShort="$STR_CfgMagazines_Ammo_LAW_HE1";
+		model="\dz\weapons\launchers\law\law_rocket.p3d";
+		rotationFlags=34;
+		weight=1800;
+		count=1;
+		ammo="ExpansionRocketLAW";
 		class DamageSystem
 		{
 			class GlobalHealth
 			{
 				class Health
 				{
-					hitpoints = 100;
-					healthLevels[] = {{1.0,{"DZ\weapons\launchers\law\data\law_rocket.rvmat"}},{0.7,{"DZ\weapons\launchers\law\data\law_rocket.rvmat"}},{0.5,{"DZ\weapons\launchers\law\data\law_rocket_damage.rvmat"}},{0.3,{"DZ\weapons\launchers\law\data\law_rocket_damage.rvmat"}},{0.0,{"DZ\weapons\launchers\law\data\law_rocket_destruct.rvmat"}}};
+					hitpoints=100;
+					healthLevels[]=
+					{
+						
+						{
+							1,
+							
+							{
+								"DZ\weapons\launchers\law\data\law_rocket.rvmat"
+							}
+						},
+						
+						{
+							0.69999999,
+							
+							{
+								"DZ\weapons\launchers\law\data\law_rocket.rvmat"
+							}
+						},
+						
+						{
+							0.5,
+							
+							{
+								"DZ\weapons\launchers\law\data\law_rocket_damage.rvmat"
+							}
+						},
+						
+						{
+							0.30000001,
+							
+							{
+								"DZ\weapons\launchers\law\data\law_rocket_damage.rvmat"
+							}
+						},
+						
+						{
+							0,
+							
+							{
+								"DZ\weapons\launchers\law\data\law_rocket_destruct.rvmat"
+							}
+						}
+					};
 				};
 			};
 		};
@@ -100,33 +147,44 @@ class CfgWeapons
 	class Mode_Single;
 	class ExpansionLAWBase: SKS
 	{
-		scope = 0;
-		weight = 3200;
-		absorbency = 0;
-		repairableWithKits[] = {5,1};
-		repairCosts[] = {30,25};
-		PPDOFProperties[] = {};
-		ironsightsExcludingOptics[] = {};
-		DisplayMagazine = 0;
-		WeaponLength = 0.78105503;
-		chamberSize = 1;
-		chamberedRound = "";
-		chamberableFrom[] = {"ExpansionAmmoLAW"};
-		magazines[] = {};
-		ejectType = 3;
-		recoilModifier[] = {2.5,2.5,2.5};
-		swayModifier[] = {1,1,1};
-		reloadAction = "ReloadIZH18";
-		shotAction = "";
-		modes[] = {"Single"};
+		scope=0;
+		weight=3200;
+		absorbency=0;
+		repairableWithKits[]={5,1};
+		repairCosts[]={30,25};
+		PPDOFProperties[]={};
+		ironsightsExcludingOptics[]={};
+		DisplayMagazine=0;
+		WeaponLength=0.78105503;
+		chamberSize=1;
+		chamberedRound="";
+		chamberableFrom[]=
+		{
+			"ExpansionAmmoLAW"
+		};
+		magazines[]={};
+		ejectType=3;
+		recoilModifier[]={2.5,2.5,2.5};
+		swayModifier[]={1,1,1};
+		reloadAction="ReloadIZH18";
+		shotAction="";
+		modes[]=
+		{
+			"Single"
+		};
 		class Single: Mode_Single
 		{
-			soundSetShot[] = {"Expansion_RPG_Shot_SoundSet","IZH18_Tail_SoundSet","IZH18_InteriorTail_SoundSet"};
-			reloadTime = 1;
-			recoil = "recoil_izh18";
-			recoilProne = "recoil_izh18_prone";
-			dispersion = 0.001;
-			magazineSlot = "magazine";
+			soundSetShot[]=
+			{
+				"Expansion_RPG_Shot_SoundSet",
+				"IZH18_Tail_SoundSet",
+				"IZH18_InteriorTail_SoundSet"
+			};
+			reloadTime=1;
+			recoil="recoil_izh18";
+			recoilProne="recoil_izh18_prone";
+			dispersion=0.001;
+			magazineSlot="magazine";
 		};
 		class Particles
 		{
@@ -134,34 +192,39 @@ class CfgWeapons
 			{
 				class MuzzleFlash
 				{
-					ignoreIfSuppressed = 1;
-					overrideParticle = "weapon_shot_m4a1_01";
-					illuminateWorld = 1;
-					overridePoint = "Usti hlavne";
+					ignoreIfSuppressed=1;
+					overrideParticle="weapon_shot_m4a1_01";
+					illuminateWorld=1;
+					overridePoint="Usti hlavne";
 				};
 				class ChamberFlash
 				{
-					overridePoint = "dust_point";
-					overrideParticle = "weapon_dust_izh18_01";
+					overridePoint="dust_point";
+					overrideParticle="weapon_dust_izh18_01";
 				};
 			};
 		};
 	};
 	class ExpansionLAW: ExpansionLAWBase
 	{
-		scope = 2;
-		vehicleClass = "Expansion_Launchers";
-		displayName = "$STR_EXPANSION_M27_LAW";
-		descriptionShort = "$STR_cfgWeapons_LAW1";
-		model = "\dz\weapons\launchers\law\law.p3d";
-		attachments[] = {};
-		baseAttachments[] = {};
-		itemSize[] = {8,6};
-		dexterity = 3.6;
+		scope=2;
+		vehicleClass="Expansion_Launchers";
+		displayName="$STR_EXPANSION_M27_LAW";
+		descriptionShort="$STR_cfgWeapons_LAW1";
+		model="\dz\weapons\launchers\law\law.p3d";
+		attachments[]={};
+		baseAttachments[]={};
+		itemSize[]={8,6};
+		dexterity=3.5999999;
 		class Damage
 		{
-			tex[] = {};
-			mat[] = {"DZ\weapons\pistols\flaregun\data\flaregun.rvmat","DZ\weapons\pistols\flaregun\data\flaregun_damage.rvmat","DZ\weapons\pistols\flaregun\data\flaregun_destruct.rvmat"};
+			tex[]={};
+			mat[]=
+			{
+				"DZ\weapons\pistols\flaregun\data\flaregun.rvmat",
+				"DZ\weapons\pistols\flaregun\data\flaregun_damage.rvmat",
+				"DZ\weapons\pistols\flaregun\data\flaregun_destruct.rvmat"
+			};
 		};
 		class DamageSystem
 		{
@@ -169,9 +232,35 @@ class CfgWeapons
 			{
 				class Health
 				{
-					hitpoints = 100;
-					healthLabels[] = {1,0.7,0.5,0.3,0};
-					healthLevels[] = {{1,{"DZ\weapons\pistols\fnx45\data\herstal45.rvmat"}},{0.5,{"DZ\weapons\pistols\fnx45\data\herstal45_damage.rvmat"}},{0,{"DZ\weapons\pistols\fnx45\data\herstal45_destruct.rvmat"}}};
+					hitpoints=100;
+					healthLabels[]={1,0.69999999,0.5,0.30000001,0};
+					healthLevels[]=
+					{
+						
+						{
+							1,
+							
+							{
+								"DZ\weapons\pistols\fnx45\data\herstal45.rvmat"
+							}
+						},
+						
+						{
+							0.5,
+							
+							{
+								"DZ\weapons\pistols\fnx45\data\herstal45_damage.rvmat"
+							}
+						},
+						
+						{
+							0,
+							
+							{
+								"DZ\weapons\pistols\fnx45\data\herstal45_destruct.rvmat"
+							}
+						}
+					};
 				};
 			};
 		};
@@ -181,92 +270,92 @@ class CfgWeapons
 			{
 				class SmokeCloud1
 				{
-					overrideParticle = "weapon_shot_winded_smoke";
+					overrideParticle="weapon_shot_winded_smoke";
 				};
 				class MuzzleFlash
 				{
-					overrideParticle = "weapon_shot_m4a1_01";
-					ignoreIfSuppressed = 1;
-					illuminateWorld = 1;
+					overrideParticle="weapon_shot_m4a1_01";
+					ignoreIfSuppressed=1;
+					illuminateWorld=1;
 				};
 				class MuzzleFlashStar
 				{
-					overrideParticle = "weapon_shot_Flame_3D_4star";
-					overridePoint = "StarFlash";
+					overrideParticle="weapon_shot_Flame_3D_4star";
+					overridePoint="StarFlash";
 				};
 				class GasPistonBurstR
 				{
-					overrideParticle = "weapon_shot_chamber_smoke";
-					overridePoint = "GasPiston";
-					overrideDirectionVector[] = {0,0,0};
+					overrideParticle="weapon_shot_chamber_smoke";
+					overridePoint="GasPiston";
+					overrideDirectionVector[]={0,0,0};
 				};
 				class GasPistonBurstL
 				{
-					overrideParticle = "weapon_shot_chamber_smoke";
-					overridePoint = "GasPiston";
-					overrideDirectionVector[] = {180,0,0};
+					overrideParticle="weapon_shot_chamber_smoke";
+					overridePoint="GasPiston";
+					overrideDirectionVector[]={180,0,0};
 				};
 				class GasPistonSmokeRaiseR
 				{
-					overrideParticle = "weapon_shot_chamber_smoke_raise";
-					overridePoint = "GasPiston";
-					overrideDirectionVector[] = {0,0,0};
+					overrideParticle="weapon_shot_chamber_smoke_raise";
+					overridePoint="GasPiston";
+					overrideDirectionVector[]={0,0,0};
 				};
 				class GasPistonSmokeRaiseL
 				{
-					overrideParticle = "weapon_shot_chamber_smoke_raise";
-					overridePoint = "GasPiston";
-					overrideDirectionVector[] = {180,0,0};
+					overrideParticle="weapon_shot_chamber_smoke_raise";
+					overridePoint="GasPiston";
+					overrideDirectionVector[]={180,0,0};
 				};
 			};
 			class OnOverheating
 			{
-				shotsToStartOverheating = 3;
-				maxOverheatingValue = 30;
-				overheatingDecayInterval = 2;
+				shotsToStartOverheating=3;
+				maxOverheatingValue=30;
+				overheatingDecayInterval=2;
 				class SmokingBarrel1
 				{
-					overridePoint = "GasPiston";
-					positionOffset[] = {0.05,-0.02,0};
-					overrideParticle = "smoking_barrel_small";
-					onlyWithinOverheatLimits[] = {0.0,0.2};
-					onlyWithinRainLimits[] = {0,0.2};
+					overridePoint="GasPiston";
+					positionOffset[]={0.050000001,-0.02,0};
+					overrideParticle="smoking_barrel_small";
+					onlyWithinOverheatLimits[]={0,0.2};
+					onlyWithinRainLimits[]={0,0.2};
 				};
 				class SmokingBarrelHot1
 				{
-					overridePoint = "GasPiston";
-					positionOffset[] = {0.12,-0.02,0};
-					overrideParticle = "smoking_barrel";
-					onlyWithinOverheatLimits[] = {0.2,0.6};
-					onlyWithinRainLimits[] = {0,0.2};
+					overridePoint="GasPiston";
+					positionOffset[]={0.12,-0.02,0};
+					overrideParticle="smoking_barrel";
+					onlyWithinOverheatLimits[]={0.2,0.60000002};
+					onlyWithinRainLimits[]={0,0.2};
 				};
 				class SmokingBarrelHot3
 				{
-					overridePoint = "GasPiston";
-					positionOffset[] = {0.21,-0.02,0};
-					overrideParticle = "smoking_barrel_heavy";
-					onlyWithinOverheatLimits[] = {0.6,1};
-					onlyWithinRainLimits[] = {0,0.2};
+					overridePoint="GasPiston";
+					positionOffset[]={0.20999999,-0.02,0};
+					overrideParticle="smoking_barrel_heavy";
+					onlyWithinOverheatLimits[]={0.60000002,1};
+					onlyWithinRainLimits[]={0,0.2};
 				};
 				class Steam
 				{
-					overrideParticle = "smoking_barrel_steam_small";
-					positionOffset[] = {0.4,0.02,0};
-					onlyWithinOverheatLimits[] = {0,0.5};
-					onlyWithinRainLimits[] = {0.2,1};
+					overrideParticle="smoking_barrel_steam_small";
+					positionOffset[]={0.40000001,0.02,0};
+					onlyWithinOverheatLimits[]={0,0.5};
+					onlyWithinRainLimits[]={0.2,1};
 				};
 				class Steam2
 				{
-					overrideParticle = "smoking_barrel_steam";
-					positionOffset[] = {0.45,0.02,0};
-					onlyWithinOverheatLimits[] = {0.5,1};
-					onlyWithinRainLimits[] = {0.2,1};
+					overrideParticle="smoking_barrel_steam";
+					positionOffset[]={0.44999999,0.02,0};
+					onlyWithinOverheatLimits[]={0.5,1};
+					onlyWithinRainLimits[]={0.2,1};
 				};
 				class ChamberSmokeRaise
 				{
-					overrideParticle = "smoking_barrel_small";
-					overridePoint = "Nabojnicestart";
-					onlyWithinOverheatLimits[] = {0.5,1};
+					overrideParticle="smoking_barrel_small";
+					overridePoint="Nabojnicestart";
+					onlyWithinOverheatLimits[]={0.5,1};
 				};
 			};
 		};
@@ -277,9 +366,9 @@ class CfgVehicles
 	class HouseNoDestruct;
 	class Expansion_LAW_Explosion: HouseNoDestruct
 	{
-		scope = 2;
-		model = "\DZ\data\lightpoint.p3d";
-		ammoType = "ExpansionRocket_Ammo";
+		scope=2;
+		model="\DZ\data\lightpoint.p3d";
+		ammoType="ExpansionRocket_Ammo";
 	};
 };
 class CfgNonAIVehicles
@@ -287,8 +376,8 @@ class CfgNonAIVehicles
 	class ProxyWeapon;
 	class ProxyRocket_law: ProxyWeapon
 	{
-		scope = 2;
-		simulation = "magazine";
-		model = "DZ\weapons\ammunition\rocket_rpg7.p3d";
+		scope=2;
+		simulation="magazine";
+		model="DZ\weapons\ammunition\rocket_rpg7.p3d";
 	};
 };

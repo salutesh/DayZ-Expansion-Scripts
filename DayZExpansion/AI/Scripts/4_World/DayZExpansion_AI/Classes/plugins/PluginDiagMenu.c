@@ -1,4 +1,4 @@
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 modded class PluginDiagMenu
 {
 	protected string m_ExpansionTextDiagsAIMenu         = "EXP AI";

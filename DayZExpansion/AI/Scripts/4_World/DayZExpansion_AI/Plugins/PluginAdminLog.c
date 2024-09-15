@@ -37,12 +37,7 @@ modded class PluginAdminLog
 			string name = player.GetDisplayName();
 
 			if (name == m_Expansion_SurvivorDisplayName)
-			{
-				name = player.GetType();
-				int index = ExpansionString.LastIndexOf(name, "_");
-				if (index > -1)
-					name = name.Substring(index + 1, name.Length() - index - 1);
-			}
+				name = player.Expansion_GetSurvivorName();
 
 			playerPrefix = "AI \"" + name + "\"" + playerPrefix.Substring(7, playerPrefix.Length() - 7);
 		}

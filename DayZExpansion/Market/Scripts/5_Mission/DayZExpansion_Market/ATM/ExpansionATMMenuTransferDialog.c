@@ -75,6 +75,7 @@ class ExpansionATMMenuTransferDialogButton_Accept: ExpansionDialogButton_Text
 			m_TransferDialog = ExpansionATMMenuTransferDialog.Cast(m_Dialog);
 		
 		SetButtonText("ACCEPT");
+		SetTextColor(-10178716);
 	}
 	
 	override void OnButtonClick()
@@ -95,6 +96,7 @@ class ExpansionATMMenuTransferDialogButton_Cancel: ExpansionDialogButton_Text
 			m_TransferDialog = ExpansionATMMenuTransferDialog.Cast(m_Dialog);
 		
 		SetButtonText("CANCEL");
+		SetTextColor(-3657166);
 	}
 	
 	override void OnButtonClick()
@@ -171,6 +173,7 @@ class ExpansionATMMenuPartyTransferDialogButton_Accept: ExpansionDialogButton_Te
 			m_PartyTransferDialog = ExpansionATMMenuPartyTransferDialog.Cast(m_Dialog);
 		
 		SetButtonText("ACCEPT");
+		SetTextColor(-10178716);
 	}
 	
 	override void OnButtonClick()
@@ -191,6 +194,7 @@ class ExpansionATMMenuPartyTransferDialogButton_Cancel: ExpansionDialogButton_Te
 			m_PartyTransferDialog = ExpansionATMMenuPartyTransferDialog.Cast(m_Dialog);
 		
 		SetButtonText("CANCEL");
+		SetTextColor(-3657166);
 	}
 	
 	override void OnButtonClick()

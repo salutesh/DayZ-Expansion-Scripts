@@ -41,8 +41,15 @@ modded class MissionServer
 			eAIFaction faction = eAIFaction.Create(factionName);
 			if (faction)
 			{
-				EXTrace.Print(EXTrace.AI, player, "Setting faction " + faction.ToString());
-				eAIGroup group = eAIGroup.GetGroupByLeader(player, true, faction);
+				if (faction.IsInvincible() || faction.IsObserver() || faction.IsPassive())
+				{
+					EXError.Warn(player, "Cannot set faction to invincible, observer or passive", {});
+				}
+				else
+				{
+					EXTrace.Print(EXTrace.AI, player, "Setting faction " + faction.ToString());
+					eAIGroup group = eAIGroup.GetGroupByLeader(player, true, faction);
+				}
 			}
 		}
 	}
@@ -66,5 +73,17 @@ modded class MissionServer
         GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAIPatrolManager.InitPatrols, 10000, false);
 		//! According to the community this fix the issue of zombies not aggroing
 		//! Dont ask how, dont ask why
+	}
+
+	override void PlayerDisconnected( PlayerBase player, PlayerIdentity identity, string uid )
+	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+#endif
+
+		super.PlayerDisconnected( player, identity, uid );
+
+		if (PlayerBase.Expansion_GetOnlinePlayersCount() == 0)
+			eAIGroup.SaveAllPersistentGroups();
 	}
 };

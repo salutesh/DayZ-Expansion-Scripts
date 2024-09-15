@@ -19,7 +19,9 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 {
 	void ExpansionGlobalChatModule()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		GetPermissionsManager().RegisterPermission("Admin.Chat");
 	}
@@ -35,9 +37,11 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 	//! @note This RPC is only ever sent/received in MP
 	void RPC_AddChatMessage(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
-		ChatMessageEventParams data;
+		ExpansionChatMessageEventParams data;
 
 		if (!ctx.Read(data))
 			return;
@@ -50,10 +54,29 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 	#endif
 	}
 
-	void AddChatMessage_Server(PlayerIdentity sender, Object target, ParamsReadContext ctx, ChatMessageEventParams data)
+	void FilterBlacklistedWords(inout string text)
+	{
+		foreach (string word: GetExpansionSettings().GetChat().BlacklistedWords)
+		{
+			ExpansionString.Replace(text, word, "***", true);
+		}
+	}
+
+	void AddChatMessage_Server(PlayerIdentity sender, Object target, ParamsReadContext ctx, ExpansionChatMessageEventParams data)
 	{
 		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+
 		data.param2 = sender.GetName();
+		string originalText = data.param3;
+		FilterBlacklistedWords(data.param3);
+		data.param5 = sender.GetId();
+
+	#ifdef EXPANSIONMODGROUPS
+		ExpansionPartyData party = player.Expansion_GetParty();
+
+		if (party && GetExpansionSettings().GetParty().DisplayPartyTag)
+			data.param6 = party.GetPartyTagFormatted();
+	#endif
 
 		auto rpc = Expansion_CreateRPC("RPC_AddChatMessage");
 		rpc.Write(data);
@@ -61,14 +84,14 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 		switch (data.param1)
 		{
 			case ExpansionChatChannels.CCTransport:
-				CarScript vehicle;
-				if (Class.CastTo(vehicle, player.GetParent()))
+				auto vehicle = ExpansionVehicle.Get(player, false, true);
+				if (vehicle)
 				{
 					//! Only send RPC to vehicle crew
-					set<Human> crew = vehicle.Expansion_GetVehicleCrew();
+					set<Human> crew = vehicle.GetCrew(true, true);
 					foreach (Human crewMember: crew)
 					{
-						rpc.Expansion_Send(vehicle, true, crewMember.GetIdentity());
+						rpc.Expansion_Send(vehicle.GetEntity(), true, crewMember.GetIdentity());
 					}
 				}
 
@@ -76,29 +99,29 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 
 #ifdef EXPANSIONMODGROUPS
 			case ExpansionChatChannels.CCTeam:
-				int partyID = player.Expansion_GetPartyID();
-				if (partyID >= 0)
+				if (party)
 				{
-					rpc.Write(partyID);
+					rpc.Write(party.GetPartyID());
 
 					//! Only send RPC to party players
-					ExpansionPartyData party = player.Expansion_GetParty();
-					if (party)
+					array<ref ExpansionPartyPlayerData> players = party.GetPlayers();
+					foreach (ExpansionPartyPlayerData partyMember: players)
 					{
-						array<ref ExpansionPartyPlayerData> players = party.GetPlayers();
-						foreach (ExpansionPartyPlayerData partyMember: players)
+						PlayerBase partyPlayer = partyMember.Player;
+						if (partyPlayer && partyPlayer.GetIdentity())
 						{
-							PlayerBase partyPlayer = partyMember.Player;
-							if (partyPlayer && partyPlayer.GetIdentity())
-							{
-								rpc.Expansion_Send(true, partyPlayer.GetIdentity());
-							}
+							rpc.Expansion_Send(true, partyPlayer.GetIdentity());
 						}
 					}
 				}
 				
 				break;
 #endif
+
+			case ExpansionChatChannels.CCDirect:
+				float range = GetVoiceRange(player);
+				player.Expansion_SendNear(rpc, player.GetPosition(), range, null, true);
+				break;
 
 			default:
 				//! Send RPC to everyone (global)
@@ -112,21 +135,44 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 		if (GetExpansionSettings().GetLog().Chat)
 		{
 			string channelName = GetChannelName(data.param1);
-			string uid = sender.GetId();
 
-			GetExpansionSettings().GetLog().PrintLog("[Chat - " + channelName + "](\"" + data.param2 + "\"(id=" + uid + ")): " + data.param3);
-			GetGame().AdminLog("[Chat - " + channelName + "](\"" + data.param2 + "\"(id=" + uid + ")): " + data.param3);
+			GetExpansionSettings().GetLog().PrintLog("[Chat - " + channelName + "](\"" + data.param2 + "\"(id=" + data.param5 + ")): " + originalText);
+			GetGame().AdminLog("[Chat - " + channelName + "](\"" + data.param2 + "\"(id=" + data.param5 + ")): " + originalText);
 		}
 	}
 
-	void AddChatMessage_Client(PlayerIdentity sender, Object target, ParamsReadContext ctx, ChatMessageEventParams data)
+	float GetVoiceRange(Object player)
+	{
+		int voiceLevel = GetGame().GetVoiceLevel(player);
+		float range;
+
+		switch (voiceLevel)
+		{
+			case VoiceLevel.Whisper:
+				range = 9.0;
+				break;
+			case VoiceLevel.Shout:
+				range = 60.0;
+				break;
+			default:
+				//! Talk
+				range = 30.0;
+				break;
+		}
+
+		EXTrace.Print(EXTrace.CHAT, this, "GetVoiceRange " + player + " voice level " + voiceLevel + " range " + range);
+
+		return range;
+	}
+
+	void AddChatMessage_Client(PlayerIdentity sender, Object target, ParamsReadContext ctx, ExpansionChatMessageEventParams data)
 	{
 		switch (data.param1)
 		{
 			case ExpansionChatChannels.CCTransport:
-				Object localParent = Object.Cast(g_Game.GetPlayer().GetParent());
 				//! `target` will only be non-NULL if player is in same network bubble as sender
-				if (target && target.IsTransport() && localParent == target)
+				ExpansionVehicle vehicle;
+				if (ExpansionVehicle.Get(vehicle, g_Game.GetPlayer(), false, true) && vehicle.GetEntity() == target)
 					break;
 				else
 					return;
@@ -199,8 +245,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 					break;
 				}
 
-				CarScript vehicle;
-				if (Class.CastTo(vehicle, player.GetParent()) && GetExpansionSettings().GetChat().EnableTransportChat)
+				if (ExpansionVehicle.Get(player, false, true) && GetExpansionSettings().GetChat().EnableTransportChat)
 				{
 					return true;
 				}

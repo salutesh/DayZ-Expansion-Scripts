@@ -10,11 +10,26 @@
  *
 */
 
+enum ExpansionLocationType
+{
+	CAMP = 1,
+	HILL = 2,
+	LOCAL = 4,
+	LOCALOFFICE = 8,
+	MARINE = 16,
+	RAILROADSTATION = 32,
+	RUIN = 64,
+	SETTLEMENT = 128,
+	VIEWPOINT = 256
+}
+
 /**@class		ExpansionLocatorStatic
  * @brief		This class handle expansion locator system
  **/
 class ExpansionLocatorStatic
 {
+	static const ref TStringArray SETTLEMENTS = {"Capital", "City", "Village"};
+
 	static int GetRadius( string type )
 	{
 		//! Most maps use these types.
@@ -26,7 +41,7 @@ class ExpansionLocatorStatic
 		if ( type.Contains( "City" ) )
 			return 500;
 
-		if ( type.Contains( "Village" ) )
+		if ( type.Contains( "Village" ) || type.Contains( "Suburb" ) )
 			return 200;
 
 		if ( type.Contains( "Camp" ) )
@@ -38,13 +53,27 @@ class ExpansionLocatorStatic
 		return 100;
 	}
 
-	static array<ref ExpansionLocatorArray> GetWorldLocations()
+	static array<ref ExpansionLocatorArray> GetWorldLocations(int include = 0)
 	{
+		if (!include)
+		{
+			include |= ExpansionLocationType.CAMP;
+			include |= ExpansionLocationType.HILL;
+			include |= ExpansionLocationType.LOCAL;
+			include |= ExpansionLocationType.MARINE;
+			include |= ExpansionLocationType.RUIN;
+			include |= ExpansionLocationType.SETTLEMENT;
+		}
+
 		array<ref ExpansionLocatorArray> areaArray = new array< ref ExpansionLocatorArray >;
 
-		string location_config_path = "CfgWorlds " + GetGame().GetWorldName() + " Names";
+		string worldName = GetGame().GetWorldName();
+		string location_config_path = "CfgWorlds " + worldName + " Names";
 		int classNamesCount = GetGame().ConfigGetChildrenCount( location_config_path );
 		
+		worldName.ToLower();
+
+		int index;
 		for ( int l = 0; l < classNamesCount; ++l ) 
 		{
 			string location_class_name;
@@ -70,28 +99,49 @@ class ExpansionLocatorStatic
 				continue;
 			}
 
-			if ( location_type.Contains( "LocalOffice" ) )
+			if ( (include & ExpansionLocationType.CAMP) == 0 && location_type.Contains( "Camp" ) )
 				continue;
 			
-			if ( location_type.Contains( "ViewPoint" ) )
+			if ( (include & ExpansionLocationType.HILL) == 0 && location_type.Contains( "Hill" ) )
 				continue;
 			
-			if ( location_type.Contains( "RailroadStation" ) )
+			if ( (include & ExpansionLocationType.LOCAL) == 0 && location_type.Contains( "Local" ) )
 				continue;
 
-			if ( location_class_name.Contains( "ZalivGuba" ) )
+			if ( (include & ExpansionLocationType.LOCALOFFICE) == 0 && location_type.Contains( "LocalOffice" ) )
 				continue;
 			
-			if ( location_class_name.Contains( "Dubovo" ) )
-				location_type = "Village";
+			if ( (include & ExpansionLocationType.MARINE) == 0 && location_type.Contains( "Marine" ) )
+				continue;
 			
-			if ( location_class_name.Contains( "Novoselki" ) )
-				location_type = "Village";
+			if ( (include & ExpansionLocationType.RAILROADSTATION) == 0 && location_type.Contains( "RailroadStation" ) )
+				continue;
 			
-			if ( location_class_name.Contains( "Vysotovo" ) )
-				location_type = "Village";
+			if ( (include & ExpansionLocationType.RUIN) == 0 && location_type.Contains( "Ruin" ) )
+				continue;
 
-			areaArray.Insert( new ExpansionLocatorArray( Vector( location_position[0], 0, location_position[1] ), location_name, location_type ) );
+			if ( (include & ExpansionLocationType.SETTLEMENT) == 0 && ExpansionString.ContainsAny(location_type, ExpansionLocatorStatic.SETTLEMENTS) )
+				continue;
+
+			if ( (include & ExpansionLocationType.VIEWPOINT) == 0 && location_type.Contains( "ViewPoint" ) )
+				continue;
+
+			if (worldName == "chernarusplus")
+			{
+				if ( location_class_name.Contains( "ZalivGuba" ) )
+					continue;
+				
+				if ( location_class_name.Contains( "Dubovo" ) )
+					location_type = "Suburb";
+				
+				if ( location_class_name.Contains( "Novoselki" ) )
+					location_type = "Suburb";
+				
+				if ( location_class_name.Contains( "Vysotovo" ) )
+					location_type = "Suburb";
+			}
+
+			areaArray.Insert( new ExpansionLocatorArray( Vector( location_position[0], 0, location_position[1] ), location_class_name, location_name, location_type, null, index++ ) );
 		}
 
 		return areaArray;

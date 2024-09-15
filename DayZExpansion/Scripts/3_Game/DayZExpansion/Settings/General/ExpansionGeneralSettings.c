@@ -15,10 +15,11 @@
  **/
 class ExpansionGeneralSettings: ExpansionSettingBase
 {
-	static const int VERSION = 14;
+	static const int VERSION = 15;
 
 	bool DisableShootToUnlock;
 	bool EnableGravecross;
+	bool EnableAIGravecross;
 	bool GravecrossDeleteBody;
 	float GravecrossTimeThreshold;
 	float GravecrossSpawnTimeDelay;
@@ -208,6 +209,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 #endif
 		
 		EnableGravecross = s.EnableGravecross;
+		EnableAIGravecross = s.EnableAIGravecross;
 		DisableShootToUnlock = s.DisableShootToUnlock;
 		GravecrossDeleteBody = s.GravecrossDeleteBody;
 		GravecrossTimeThreshold = s.GravecrossTimeThreshold;
@@ -330,6 +332,11 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 					}
 				}
 
+				if (m_Version < 15)
+				{
+					EnableAIGravecross = settingsDefault.EnableAIGravecross;
+				}				
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -372,6 +379,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		
 		DisableShootToUnlock = false;
 		EnableGravecross = false;
+		EnableAIGravecross = false;
 		GravecrossDeleteBody = true;
 		GravecrossTimeThreshold = 1200;
 		GravecrossSpawnTimeDelay = 180;
@@ -384,7 +392,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		
 		EnableHUDNightvisionOverlay = true;
 
-		DisableMagicCrosshair = true;
+		DisableMagicCrosshair = false;
 		
 		EnableAutoRun = true;
 		

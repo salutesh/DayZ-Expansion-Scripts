@@ -24,7 +24,7 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 
 		if (ai)
 		{
-			if (m_Transport == ai.GetParent())
+			if (m_Transport == ai.Expansion_GetParent())
 				return 0.0;
 
 			//! Any AI, even passive, will react if vehicle is speeding towards them
@@ -125,7 +125,7 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 
 				vector lr = fromTargetDirection.Perpend();
 
-				#ifdef DIAG
+				#ifdef DIAG_DEVELOPER
 				ai.Expansion_DebugObject(98, pos, "ExpansionDebugBox_Red", fromTargetDirection);
 				ai.Expansion_DebugObject(100, tpos + fullVelocity, "ExpansionDebugNoticeMe_Orange", fullVelocity);
 				#endif
@@ -153,7 +153,7 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 					//sideStepAngle = 90;  //! If AI is on the left of vehicle movement axis (vehicle viewpoint), go right (AI viewpoint)
 					sideStepAngle = 0.0001;  //! Non-zero so ForceSideStep doesn't override it
 
-					#ifdef DIAG
+					#ifdef DIAG_DEVELOPER
 					ai.Expansion_DebugObject(99, pos + lr * 2, "ExpansionDebugArrow", lr);
 					#endif
 
@@ -164,7 +164,7 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 					//sideStepAngle = -90;  //! If AI is on the right of vehicle movement axis (vehicle viewpoint), go left (AI viewpoint)
 					sideStepAngle = -0.0001;  //! Non-zero so ForceSideStep doesn't override it
 
-					#ifdef DIAG
+					#ifdef DIAG_DEVELOPER
 					ai.Expansion_DebugObject(99, pos - lr * 2, "ExpansionDebugArrow", -lr);
 					#endif
 	

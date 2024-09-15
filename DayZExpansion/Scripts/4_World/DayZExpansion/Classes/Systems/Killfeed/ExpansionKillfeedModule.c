@@ -118,8 +118,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 	void ResetKillfeed(PlayerBase player, Object source = null)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player, "" + source);
-
+#endif
+		
 		m_Player = player;
 		m_PlayerName = GetIdentityName( player );
 
@@ -159,8 +161,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		if ( !player || player.IsAlive() )
 			return;
 
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "damage type: " + damageType, "" + player, "" + source, ammo);
-
+#endif
+		
 		switch ( damageType )
 		{
 			case DT_CUSTOM:
@@ -204,8 +208,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 	void OnPlayerKilled( PlayerBase player, Object source )
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(true, this, "" + player, "" + source);
-
+#endif 
+		
 		if ( !WasHitCheckDone() )
 		{
 			if ( !source )
@@ -252,31 +258,18 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 	private bool OnTransportHit(PlayerBase player, EntityAI source)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player, "" + source);
-
+#endif 
+		
 		if ( player && !player.IsAlive() && source )
 		{
-			bool isVehicle = source.IsInherited( CarScript );
-#ifdef EXPANSIONMODVEHICLE
-			if (!isVehicle)
-				isVehicle = source.IsInherited( ExpansionVehicleBase );
-#endif
-			
-			if ( isVehicle )	//! Vehicle Hit
+			ExpansionVehicle vehicle;
+			if ( ExpansionVehicle.Get(vehicle, source) )	//! Vehicle Hit
 			{
 				ResetKillfeed(player, source);
 
-				CarScript car = CarScript.Cast( source );
-				if ( car )
-					m_SourcePlayer = PlayerBase.Cast( car.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) );
-#ifdef EXPANSIONMODVEHICLE
-				if (!m_SourcePlayer)
-				{
-					ExpansionVehicleBase vehicle = ExpansionVehicleBase.Cast( source );
-					if ( vehicle )
-						m_SourcePlayer = PlayerBase.Cast( vehicle.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) );
-				}
-#endif
+				m_SourcePlayer = PlayerBase.Cast( vehicle.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) );
 
 				if (m_SourcePlayer)
 				{
@@ -291,8 +284,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 				ExpansionKillFeedMessageType msgType;
 				string icon;
 
-#ifdef EXPANSIONMODVEHICLE
-				if ( source.IsInherited( ExpansionHelicopterScript ) || source.IsInherited( ExpansionVehicleHelicopterBase ) )	//! Vehicle Hit - Helicopter
+				if ( vehicle.IsHelicopter() )	//! Vehicle Hit - Helicopter
 				{
 					if ( m_SourcePlayer )
 						msgType = ExpansionKillFeedMessageType.HELI_HIT_DRIVER;
@@ -300,7 +292,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 						msgType = ExpansionKillFeedMessageType.HELI_HIT_NODRIVER;
 					icon = "Helicopter";
 				}
-				else if ( source.IsInherited( ExpansionBoatScript ) || source.IsInherited( ExpansionVehicleBoatBase ) )	//! Vehicle Hit - Boat
+				else if ( vehicle.IsBoat() )	//! Vehicle Hit - Boat
 				{
 					if ( m_SourcePlayer )
 						msgType = ExpansionKillFeedMessageType.BOAT_HIT_DRIVER;
@@ -308,7 +300,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 						msgType = ExpansionKillFeedMessageType.BOAT_HIT_NODRIVER;
 					icon = "Boat";
 				}
-				else if ( source.IsInherited( ExpansionVehiclePlaneBase ) )	//! Vehicle Hit - Plane
+				else if ( vehicle.IsPlane() )	//! Vehicle Hit - Plane
 				{
 					if ( m_SourcePlayer )
 						msgType = ExpansionKillFeedMessageType.PLANE_HIT_DRIVER;
@@ -316,7 +308,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 						msgType = ExpansionKillFeedMessageType.PLANE_HIT_NODRIVER;
 					icon = "Plane";
 				}
-				else if ( source.IsInherited( ExpansionVehicleBikeBase ) )	//! Vehicle Hit - Bike
+				else if ( vehicle.IsBike() )	//! Vehicle Hit - Bike
 				{
 					if ( m_SourcePlayer )
 						msgType = ExpansionKillFeedMessageType.BIKE_HIT_DRIVER;
@@ -324,7 +316,6 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 						msgType = ExpansionKillFeedMessageType.BIKE_HIT_NODRIVER;
 					icon = "Bike";
 				}
-#endif
 
 				if (!msgType)	//! Vehicle Hit - Car
 				{
@@ -352,8 +343,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 	private bool DoKillfeed(ExpansionKillFeedMessageType msgType, string icon = "Human Skull", string param1 = "", string param2 = "", string param3 = "")
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, typename.EnumToString(ExpansionKillFeedMessageType, msgType), icon, param1, param2, param3);
-
+#endif 
+		
 		if( !KillFeedCheckServerSettings(msgType) )
 			return false;
 
@@ -369,8 +362,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 	bool WasHitCheckDone()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + m_HitCheckDone);
-
+#endif 
+		
 		return m_HitCheckDone;
 	}
 
@@ -378,7 +373,9 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 	{
 		m_HitCheckDone = false;
 
+#ifdef EXTRACE
 		EXTrace.Start(EXTrace.KILLFEED, this, "" + m_HitCheckDone);
+#endif 
 	}
 
 	protected int CalcBlood(PlayerBase player)
@@ -397,8 +394,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		m_StatEnergy = player.GetStatEnergy();
 		m_Blood = CalcBlood(player);
 
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player, " water: " + m_StatWater.Get(), " food: " + m_StatEnergy.Get(), " blood: " + m_Blood, " health: " + player.GetHealth());
-
+#endif 
+		
 		ResetKillfeed(player);
 
 		//! Checks performed in order of potency/priority
@@ -464,15 +463,11 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 	bool OnKilledByVehicleCrash(PlayerBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player);
-
-		HumanCommandVehicle hcv = player.GetCommand_Vehicle();
-		CarScript car;
-
-#ifdef EXPANSIONMODVEHICLE
-		ExpansionHumanCommandVehicle ehcv = player.GetCommand_ExpansionVehicle();
-		ExpansionVehicleBase vehicle;
-#endif
+#endif 
+		
+		ExpansionVehicle vehicle;
 
 		array<string> passenger_names;
 		IEntity child;
@@ -481,24 +476,24 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		string icon;
 
 		//! Check if player died as driver in vehicle
-		if ( hcv && Class.CastTo( car, hcv.GetTransport() ) && GetGame().GetTickTime() - car.m_Expansion_CrewKilledTimestamp < 0.1 )
+		if ( ExpansionVehicle.Get( vehicle, player ) && GetGame().GetTickTime() - vehicle.GetCrewKilledTimestamp() < 0.1 )
 		{
-			Human driver = car.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
+			Human driver = vehicle.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
 			if (driver && driver != player)
 				return true;  //! Only driver should trigger killfeed message (will include passengers)
 
 			ResetKillfeed(player);
 
-			m_Source = car;
-			m_SourceType = car.GetType();
+			m_Source = vehicle.GetEntity();
+			m_SourceType = vehicle.GetType();
 
 			passenger_names = new array<string>;
 
 			//! Seated players
 			Human crew;
-			for (int i = 0; i < car.CrewSize(); i++)
+			for (int i = 0; i < vehicle.CrewSize(); i++)
 			{
-				crew = car.CrewMember(i);
+				crew = vehicle.CrewMember(i);
 				if (!crew || !crew.GetIdentity())
 					continue;
 
@@ -507,7 +502,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 			}
 
 			//! Attached players
-			child = car.GetChildren();
+			child = vehicle.GetEntity().GetChildren();
 			while (child)
 			{
 				crew = Human.Cast(child);
@@ -534,54 +529,44 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 					formatted_names = current_name;
 				}
 
-#ifdef EXPANSIONMODVEHICLE
-				if ( car.IsHelicopter() )
+				if ( vehicle.IsHelicopter() )
 					msgType = ExpansionKillFeedMessageType.HELI_CRASH_CREW;
-				else if ( car.IsBoat() )
+				else if ( vehicle.IsBoat() )
 					msgType = ExpansionKillFeedMessageType.BOAT_CRASH_CREW;
 				else
-#endif
 					msgType = ExpansionKillFeedMessageType.CAR_CRASH_CREW;
 			}
 			else
 			{
-#ifdef EXPANSIONMODVEHICLE
-				if ( car.IsHelicopter() )
+				if ( vehicle.IsHelicopter() )
 					msgType = ExpansionKillFeedMessageType.HELI_CRASH;
-				else if ( car.IsBoat() )
+				else if ( vehicle.IsBoat() )
 					msgType = ExpansionKillFeedMessageType.BOAT_CRASH;
 				else
-#endif
 					msgType = ExpansionKillFeedMessageType.CAR_CRASH;
 			}
 
-#ifdef EXPANSIONMODVEHICLE
-			if ( car.IsHelicopter() )
+			if ( vehicle.IsHelicopter() )
 				icon = "Helicopter";
-			else if ( car.IsBoat() )
+			else if ( vehicle.IsBoat() )
 				icon = "Boat";
 			else
-#endif
 				icon = "Vehicle Crash";
 
 			DoKillfeed(msgType, icon, m_SourceType, formatted_names);
 
 			return true;
 		}
-#ifdef EXPANSIONMODVEHICLE
-		else if ( ehcv && Class.CastTo( vehicle, ehcv.GetObject() ) )
-		{
-			//! TODO
-		}
-#endif
 
 		return false;
 	}
 
 	bool OnPlayerSuicide(PlayerBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player);
-
+#endif 
+		
 		//! Check if player suicided via emote
 		if (!player.CommitedSuicide())
 			return false;
@@ -615,8 +600,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 	void OnKilledByWeapon(PlayerBase player, Object source)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player, "" + source);
-
+#endif 
+		
 		ResetKillfeed(player, source);
 
 		m_SourcePlayer = PlayerBase.Cast( EntityAI.Cast( source ).GetHierarchyParent() );
@@ -655,8 +642,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 	void OnKilledByPlayer(PlayerBase player, Object source)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player, "" + source);
-
+#endif 
+		
 		ResetKillfeed(player, source);
 
 		m_SourcePlayer = PlayerBase.Cast(EntityAI.Cast(source));
@@ -679,8 +668,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 	void OnKilledByZombie(PlayerBase player, Object source)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player, "" + source);
-
+#endif 
+		
 		ZombieBase zombie = ZombieBase.Cast(EntityAI.Cast(source));
 		if (zombie)
 		{
@@ -692,8 +683,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 	void OnKilledByAnimal(PlayerBase player, Object source)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player, "" + source);
-
+#endif 
+		
 		AnimalBase animal = AnimalBase.Cast(EntityAI.Cast(source));
 		if (animal)
 		{
@@ -711,8 +704,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 	void OnKilledByUnknown(PlayerBase player, Object source)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player, "" + source);
-
+#endif 
+		
 		ResetKillfeed(player, source);
 
 		DoKillfeed(ExpansionKillFeedMessageType.KILLED_UNKNOWN, "Human Skull", m_SourceType);
@@ -720,8 +715,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 	void OnDiedUnknown(PlayerBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player);
-
+#endif
+		
 		ResetKillfeed(player);
 
 		DoKillfeed(ExpansionKillFeedMessageType.DIED_UNKNOWN, "Human Skull");
@@ -756,7 +753,6 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 				return GetExpansionSettings().GetNotification().KillFeedCarCrash;
 			case ExpansionKillFeedMessageType.CAR_CRASH_CREW:
 				return GetExpansionSettings().GetNotification().KillFeedCarCrashCrew;
-#ifdef EXPANSIONMODVEHICLE
 			case ExpansionKillFeedMessageType.HELI_HIT_DRIVER:
 				return GetExpansionSettings().GetNotification().KillFeedHeliHitDriver;
 			case ExpansionKillFeedMessageType.HELI_HIT_NODRIVER:
@@ -781,7 +777,6 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 				return GetExpansionSettings().GetNotification().KillFeedBikeHitDriver;
 			case ExpansionKillFeedMessageType.BIKE_HIT_NODRIVER:
 				return GetExpansionSettings().GetNotification().KillFeedBikeHitNoDriver;*/
-#endif
 			case ExpansionKillFeedMessageType.BARBEDWIRE:
 				return GetExpansionSettings().GetNotification().KillFeedBarbedWire;
 			case ExpansionKillFeedMessageType.FIRE:
@@ -957,7 +952,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		return message;
 	}
 
-	private string GetIdentityName( Man player )
+	string GetIdentityName( Man player )
 	{
 		PlayerIdentity identity = player.GetIdentity();
 
@@ -969,13 +964,35 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 			eAIBase ai;
 			if (name == m_Expansion_SurvivorDisplayName && Class.CastTo(ai, player))
 			{
+				name = player.GetType();
+				int index = ExpansionString.LastIndexOf(name, "_");
+				if (index > -1)
+					displayName = name.Substring(index + 1, name.Length() - index - 1);
+
 				name = ai.GetGroup().GetName();
 				if (name == string.Empty)
-					name = string.Format("%1 (%2)", displayName, ai.GetGroup().GetFaction().GetDisplayName());
+					name = string.Format("AI %1 (%2)", displayName, ai.GetGroup().GetFaction().GetDisplayName());
+				else
+					name = string.Format("AI %1 (%2)", displayName, name);
 			}
 		#endif
 			return name;
 		}
+	#ifdef EXPANSIONMODGROUPS
+		if (GetExpansionSettings().GetParty().DisplayPartyTag)
+		{
+			PlayerBase pb;
+			if (Class.CastTo(pb, player))
+			{
+				ExpansionPartyData partyData = pb.Expansion_GetParty();
+				if (partyData)
+				{
+					if ( partyData.GetPartyTag() != string.Empty )
+						return string.Format("%1%2", partyData.GetPartyTagFormatted(), identity.GetName());
+				}
+			}
+		}
+	#endif
 
 		return identity.GetName();
 	}
@@ -988,8 +1005,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 		if (kill_data)
 		{
+#ifdef EXTRACE
 			auto trace = EXTrace.Start(EXTrace.KILLFEED, this, kill_data.Message, kill_data.Icon, kill_data.FeedParam1, kill_data.FeedParam2, kill_data.FeedParam3, kill_data.FeedParam4);
-
+#endif 
+			
 			StringLocaliser loc = GetLocaliser(kill_data);
 			if ( GetExpansionSettings().GetNotification().KillFeedMessageType == ExpansionAnnouncementType.NOTIFICATION )
 			{

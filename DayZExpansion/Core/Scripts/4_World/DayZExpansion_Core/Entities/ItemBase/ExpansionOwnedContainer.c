@@ -49,7 +49,7 @@ class ExpansionOwnedContainer: Container_Base
 
 			m_Expansion_OwnerUID = PlayerIdentity.Expansion_PlainIdToId(steamId);
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.MISC, this, "::Expansion_UpdateOwner - owner " + m_Expansion_OwnerUID);
 			EXTrace.Print(EXTrace.MISC, this, "::Expansion_UpdateOwner - owner steam64 " + steamId);
 		#endif
@@ -184,7 +184,7 @@ class ExpansionOwnedContainer: Container_Base
 			m_Expansion_OwnerPlainID0 = m_Expansion_OwnerPlainID[0];
 			m_Expansion_OwnerPlainID1 = m_Expansion_OwnerPlainID[1];
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.MISC, this, "::ExpansionSetContainerOwner - owner " + m_Expansion_OwnerUID);
 			EXTrace.Print(EXTrace.MISC, this, "::ExpansionSetContainerOwner - owner steam64 " + identity.GetPlainId());
 		#endif
@@ -209,7 +209,7 @@ class ExpansionOwnedContainer: Container_Base
 		m_Expansion_OwnerPlainID[0] = m_Expansion_OwnerPlainID0;
 		m_Expansion_OwnerPlainID[1] = m_Expansion_OwnerPlainID1;
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.MISC, this, "::ExpansionSetContainerOwner - owner " + m_Expansion_OwnerUID);
 		EXTrace.Print(EXTrace.MISC, this, "::ExpansionSetContainerOwner - owner steam64 " + steamId);
 	#endif

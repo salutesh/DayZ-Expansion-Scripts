@@ -643,6 +643,7 @@ class ExpansionPersonalStorageSettings: ExpansionPersonalStorageSettingsBase
 		cat_Vehicles.SetDisplayName("Vehicles");
 		cat_Vehicles.SetIconPath("set:dayz_inventory image:cat_vehicle_body");
 		cat_Vehicles.AddIncluded("CarScript");
+		cat_Vehicles.AddIncluded("BoatScript");
 		MenuCategories.Insert(cat_Vehicles);
 
 	#ifdef EXPANSIONMODVEHICLE

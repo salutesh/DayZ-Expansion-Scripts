@@ -65,42 +65,34 @@ modded class Chat
 
 	override void Add(ChatMessageEventParams params)
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "Add");
-	#endif
-
-		if (m_ExpansionUseChat)
+		if (!m_ExpansionUseChat)
 		{
-			if (CanMute(params.param1) && IsPlayerMuted(params.param2))
-				return;
-	
-			if (m_ExChatUI)
-				m_ExChatUI.Add(params);
-			
+			super.Add(params);
 			return;
 		}
-		
-		super.Add(params);
+
+		ExpansionChatMessageEventParams exParams;
+		if (CanMute(params.param1) && Class.CastTo(exParams, params) && IsPlayerMuted(exParams.param5))
+			return;
+
+		if (m_ExChatUI)
+			m_ExChatUI.Add(params);
 	}
 
 	override void AddInternal(ChatMessageEventParams params)
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "AddInternal");
-	#endif
-		
-		if (m_ExpansionUseChat)
+		if (!m_ExpansionUseChat)
 		{
-			if (CanMute(params.param1) && IsPlayerMuted(params.param2))
-				return;
-	
-			if (m_ExChatUI)
-				m_ExChatUI.AddInternal(params);
-			
+			super.AddInternal(params);
 			return;
 		}
-		
-		super.AddInternal(params);
+
+		ExpansionChatMessageEventParams exParams;
+		if (CanMute(params.param1) && Class.CastTo(exParams, params) && IsPlayerMuted(exParams.param5))
+			return;
+
+		if (m_ExChatUI)
+			m_ExChatUI.AddInternal(params);
 	}
 
 	override void Clear()
@@ -116,20 +108,15 @@ modded class Chat
 		super.Clear();
 	}
 
-	bool IsPlayerMuted(string playerName)
+	bool IsPlayerMuted(string uid)
 	{
-		ExpansionClientSettings clientSettings = GetExpansionClientSettings();
-
-		if (clientSettings.MutedPlayers.Count() == 0)
+		if (!uid)
 			return false;
 
-		foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
-		{
-			if (player.m_PlayerName == playerName)
-			{
-				return clientSettings.MutedPlayers.Find(player.m_RUID) > -1;
-			}
-		}
+		ExpansionClientSettings clientSettings = GetExpansionClientSettings();
+
+		if (clientSettings.MutedPlayers.Find(uid) > -1)
+			return true;
 
 		return false;
 	}

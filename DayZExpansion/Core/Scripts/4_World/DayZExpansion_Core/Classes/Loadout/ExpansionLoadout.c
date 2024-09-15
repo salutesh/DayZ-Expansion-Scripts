@@ -8,7 +8,7 @@ class ExpansionHumanLoadout
 
 	static void Init()
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.LOADOUTS, ExpansionHumanLoadout);
 	#endif
 
@@ -3198,7 +3198,7 @@ class ExpansionHumanLoadout
 
 	static bool Apply(EntityAI other, string file, bool forceReload = false)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.LOADOUTS, ExpansionHumanLoadout);
 	#endif
 

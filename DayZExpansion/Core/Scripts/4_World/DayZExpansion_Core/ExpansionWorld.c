@@ -19,7 +19,7 @@ class ExpansionWorld: ExpansionGame
 
 	void ExpansionWorld()
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this);
 #endif
 
@@ -42,14 +42,14 @@ class ExpansionWorld: ExpansionGame
 		if (!GetGame())
 			return;
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		Print("~ExpansionWorld");
 #endif
 	}
 
 	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType) 
 	{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		if (EXTrace.WEAPONS)
 		{
 			string msg = "::FirearmEffects ";
@@ -125,7 +125,7 @@ class ExpansionWorld: ExpansionGame
 
 	static void PlayFellPlantSound(Object plant, bool sendToClient = false)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.SOUND, ExpansionWorld, "" + sendToClient);
 	#endif
 
@@ -161,6 +161,10 @@ class ExpansionWorld: ExpansionGame
 			return BuildingBase;
 		else if (entity.IsInherited(CarScript))
 			return CarScript;
+	#ifndef DAYZ_1_25
+		else if (entity.IsInherited(BoatScript))
+			return BoatScript;
+	#endif
 		else if (entity.IsInherited(DayZPlayerImplement))
 			return DayZPlayerImplement;
 		//else if (entity.IsInherited(HelicopterScript))
@@ -272,7 +276,7 @@ class ExpansionWorld: ExpansionGame
 	 */
 	override void Lobotomize(DayZCreatureAI creature)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this, "" + creature, "" + creature.GetAIAgent());
 	#endif
 
@@ -304,7 +308,7 @@ class ExpansionWorld: ExpansionGame
 				return;
 			}
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.MISC, this, "Lobotomizing " + creature);
 		#endif
 
@@ -316,11 +320,11 @@ class ExpansionWorld: ExpansionGame
 			{
 				string templateName = creature.ConfigGetString("aiAgentTemplate");
 				AIWorld aiWorld = GetGame().GetWorld().GetAIWorld();
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.MISC, this, "Creating AI group " + templateName);
 			#endif
 				AIGroup aiGroup = aiWorld.CreateGroup(templateName);
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.MISC, this, "Initializing AI agent " + aiGroup);
 			#endif
 				creature.InitAIAgent(aiGroup);
@@ -347,7 +351,7 @@ class ExpansionWorld: ExpansionGame
 
 	override void LobotomySync(DayZCreatureAI creature, bool isLobotomized = false)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this, "" + creature, "" + creature.GetAIAgent());
 	#endif
 
@@ -363,7 +367,7 @@ class ExpansionWorld: ExpansionGame
 
 	void RPC_LobotomySync(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this);
 	#endif
 
@@ -371,7 +375,7 @@ class ExpansionWorld: ExpansionGame
 		if (!ctx.Read(isLobotomized))
 			return;
 
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		EXTrace.Add(trace, isLobotomized);
 	#endif
 

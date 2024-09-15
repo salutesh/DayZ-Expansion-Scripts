@@ -18,7 +18,7 @@ modded class NotificationSystem
 
 	void NotificationSystem()
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.NOTIFICATIONS, this);
 #endif
 

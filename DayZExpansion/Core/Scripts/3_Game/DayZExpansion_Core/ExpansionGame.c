@@ -16,13 +16,14 @@ class ExpansionGame
 	ref ExpansionRPCManager m_RPCManager = new ExpansionRPCManager(this);
 
 	bool m_IsLoaded;
+	int m_InstanceId;
 
 	// ------------------------------------------------------------
 	// ExpansionGame Constructor
 	// ------------------------------------------------------------
 	void ExpansionGame()
 	{
-#ifdef DIAG
+#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this);
 #endif
 
@@ -39,7 +40,7 @@ class ExpansionGame
 		
 		DestroyExpansionUIManager();
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 		Print("~ExpansionGame");
 #endif
 	}
@@ -84,6 +85,8 @@ class ExpansionGame
 	// ------------------------------------------------------------	
 	void OnStart()
 	{
+		//! @note ServerConfigGetInt will return zero in OnMissionFinish, so we cache the value
+		m_InstanceId = GetGame().ServerConfigGetInt("instanceId");
 	}
 	
 	// ------------------------------------------------------------

@@ -121,7 +121,9 @@ class ExpansionAirdropContainerBase: Container_Base
 
 	override void EEDelete( EntityAI parent )
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
+#endif
 		
 		DestroyLight();
 		
@@ -278,7 +280,7 @@ class ExpansionAirdropContainerBase: Container_Base
 			vector transform[4];
 			GetTransform( transform );
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			m_Expansion_SimulationTimeAccumulator += dt;
 			if (m_Expansion_SimulationTimeAccumulator >= 1.0)
 			{
@@ -332,8 +334,10 @@ class ExpansionAirdropContainerBase: Container_Base
 
 	void Expansion_SetHasLanded()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-
+#endif 
+		
 		m_HasLanded = true;
 
 		dBodySetDamping(this, 0.5, 0.5);

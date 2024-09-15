@@ -14,6 +14,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 {
 	ref ExpansionBookMenuTabPlayerProfileController m_PlayerProfileController;
 
+	Widget profile_ai_kills_spacer;
 	Widget hardline_reputation_spacer;
 
 	Widget hab_suicides_spacer;
@@ -72,6 +73,8 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	#endif
 
 		UpdateUIElements();
+
+		profile_blood_spacer.Show(false);
 	}
 
 	void ~ExpansionBookMenuTabPlayerProfile()
@@ -94,10 +97,16 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 
 		stats.Acquire(player);
 
+		array<string> profile_properties = {"ProfileTimePlayed", "ProfileLongestShot", "ProfilePlayerKills", "ProfileZombieKills", "ProfileAnimalKills", "ProfileDistanceTraveled", "ProfileWeight"};
+
 		//! Profile stats
 		m_PlayerProfileController.ProfileTimePlayed = ExpansionStatic.GetTimeString(stats.m_Playtime);
 		m_PlayerProfileController.ProfileLongestShot = ExpansionStatic.GetDistanceString(stats.m_LongestShot);
 		m_PlayerProfileController.ProfilePlayerKills = ExpansionStatic.GetValueString(stats.m_PlayersKilled) + " Kills";
+	#ifdef ENFUSION_AI_PROJECT
+		m_PlayerProfileController.ProfileAIKills = ExpansionStatic.GetValueString(stats.m_AIKilled) + " Kills";
+		profile_properties.Insert("ProfileAIKills");
+	#endif
 		m_PlayerProfileController.ProfileZombieKills = ExpansionStatic.GetValueString(stats.m_InfectedKilled) + " Kills";
 		m_PlayerProfileController.ProfileAnimalKills = ExpansionStatic.GetValueString(stats.m_AnimalsKilled) + " Kills";
 
@@ -123,14 +132,12 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 			m_PlayerProfileController.HaB_Raid = ExpansionStatic.GetValueString( g_HeroesAndBanditsPlayer.getStat("Raid") );
 			m_PlayerProfileController.HaB_Suicides = ExpansionStatic.GetValueString( g_HeroesAndBanditsPlayer.getStat("Sucide") );
 
-			m_PlayerProfileController.NotifyPropertiesChanged({"HaB_Affinity", "HaB_Level", "HaB_Humanity", "HaB_Medic", "HaB_Raid", "HaB_Suicides"});
+			profile_properties.InsertAll({"HaB_Affinity", "HaB_Level", "HaB_Humanity", "HaB_Medic", "HaB_Raid", "HaB_Suicides"});
 		}
 	#endif
 
 		m_PlayerProfileController.ProfileDistanceTraveled = ExpansionStatic.GetDistanceString(stats.m_Distance);
 		m_PlayerProfileController.ProfileWeight = ExpansionStatic.GetWeightString(stats.m_Weight);
-
-		array<string> profile_properties = {"ProfileTimePlayed", "ProfileLongestShot", "ProfilePlayerKills", "ProfileZombieKills", "ProfileAnimalKills", "ProfileDistanceTraveled", "ProfileWeight"};
 		
 		if (player.HasBloodTypeVisible())
 		{
@@ -138,6 +145,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 			bool positive;
 			m_PlayerProfileController.PlayerBloodType = BloodTypes.GetBloodTypeName(player.GetBloodType(), type, positive);
 			profile_properties.Insert("PlayerBloodType");
+			profile_blood_spacer.Show(true);
 		}
 		else
 		{
@@ -198,6 +206,12 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 
 	void UpdateUIElements()
 	{
+	#ifdef ENFUSION_AI_PROJECT
+		profile_ai_kills_spacer.Show(true);
+	#else
+		profile_ai_kills_spacer.Show(false);
+	#endif
+
 		//! Heroes and bandits
 		hab_suicides_spacer.Show(m_ShowHaBStats);
 		hab_affinity_spacer.Show(m_ShowHaBStats);
@@ -329,6 +343,7 @@ class ExpansionBookMenuTabPlayerProfileController: ExpansionViewController
 	string ProfileTimePlayed;
 	string ProfileLongestShot;
 	string ProfilePlayerKills;
+	string ProfileAIKills;
 	string ProfileZombieKills;
 	string ProfileAnimalKills;
 	string ProfileDistanceTraveled;

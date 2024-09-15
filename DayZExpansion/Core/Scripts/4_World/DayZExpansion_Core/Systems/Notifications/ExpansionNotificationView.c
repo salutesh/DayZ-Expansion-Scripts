@@ -65,11 +65,8 @@ class ExpansionNotificationView: ScriptView
 	
 	void ShowNotification() 
 	{
-		if (GetExpansionClientSettings().ShowNotifications && GetExpansionClientSettings().NotificationSound && GetGame() && GetGame().GetPlayer() && (!m_Data.m_LeaveJoinNotif || (m_Data.m_LeaveJoinNotif && GetExpansionClientSettings().NotificationSoundLeaveJoin)))
-		{
-			if (GetGame().ConfigIsExisting("CfgSoundSets Expansion_Hint_Sound_SoundSet"))  //! Hint sound is part of Licensed
-				SEffectManager.PlaySoundOnObject("Expansion_Hint_Sound_SoundSet", GetGame().GetPlayer(), 0, 0.15, false);
-		}
+		if (GetExpansionClientSettings().ShowNotifications && GetExpansionClientSettings().NotificationSound )
+			PlaySound();
 		
 		GetLayoutRoot().Show(true);
 		
@@ -78,12 +75,26 @@ class ExpansionNotificationView: ScriptView
 		
 		SetView();
 	}
+
+	void PlaySound()
+	{
+		if ( GetGame() && GetGame().GetPlayer() && (!m_Data.m_LeaveJoinNotif || (m_Data.m_LeaveJoinNotif && GetExpansionClientSettings().NotificationSoundLeaveJoin) ))
+		{
+			if (GetGame().ConfigIsExisting("CfgSoundSets "+ GetSoundSet()))  //! Hint sound is part of Licensed
+				SEffectManager.PlaySoundOnObject(GetSoundSet(), GetGame().GetPlayer(), 0, 0.15, false);
+		}
+	}
+
+	string GetSoundSet()
+	{
+		return "Expansion_Hint_Sound_SoundSet";
+	}
 	
 	override typename GetControllerType() 
 	{
 		return ExpansionNotificationViewController;
 	}
-		
+	
 	void SetView()
 	{
 		array<string> propertiesToChange = new array<string>;
@@ -299,6 +310,8 @@ class ExpansionNotificationViewActivity: ExpansionNotificationView
 		return ExpansionNotificationViewActivityController;
 	}
 	
+	override void PlaySound() {}
+	
 	override string GetLayoutFile() 
 	{
 		return "DayZExpansion/Core/GUI/layouts/expansion_notification_activity.layout";
@@ -312,6 +325,8 @@ class ExpansionNotificationViewKillfeed: ExpansionNotificationView
 	{
 		return ExpansionNotificationViewKillfeedController;
 	}
+	
+	override void PlaySound() {}
 	
 	override string GetLayoutFile() 
 	{

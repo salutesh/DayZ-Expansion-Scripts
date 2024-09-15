@@ -17,7 +17,7 @@ class DZ_Expansion_BaseBuilding : ModStructure
 	{
 		super.LoadData();
 
-		SetStorageVersion(49);
+		SetStorageVersion(51);
 	}
 };
 #endif

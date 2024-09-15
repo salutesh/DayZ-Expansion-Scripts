@@ -20,7 +20,7 @@ modded class InspectMenuNew
 		auto trace = CF_Trace_2(ExpansionTracing.UI, "InspectMenuNew", "UpdateItemInfoLiquidType").Add(root_widget).Add(item);
 #endif
 
-		if ( item.IsInherited( ZombieBase ) || item.IsInherited( Car ) ) return;
+		if ( item.IsInherited( ZombieBase ) || item.IsTransport() ) return;
 		
 		ItemBase item_base = ItemBase.Cast( item );
 		
@@ -78,7 +78,7 @@ modded class InspectMenuNew
 					//! If it's a light color, change text to black
 					float lab_l, lab_a, lab_b;
 					ExpansionColor.sRGBToLab(r, g, b, lab_l, lab_a, lab_b);
-				#ifdef DIAG
+				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionColor, string.Format("sRGBToLab A %1 R %2 G %3 B %4 -> L* %5 a* %6 b* %7 %8 %9", a, r, g, b, lab_l, lab_a, lab_b, widget_name, text));
 				#endif
 					if (lab_l > 90.0)

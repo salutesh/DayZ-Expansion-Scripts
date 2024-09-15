@@ -18,15 +18,15 @@ modded class ActionSwitchSeats
 
 		if (GetGame().IsServer() && action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEnter)
 		{
-			CarScript car;
-			if (Class.CastTo(car, action_data.m_Target.GetObject()))
+			auto vehicle = ExpansionVehicle.Get(action_data.m_Target.GetObject());
+			if (vehicle)
 			{
 				int componentIndex = action_data.m_Target.GetComponentIndex();
-				int crew_index = car.CrewPositionIndex(componentIndex);
+				int crew_index = vehicle.CrewPositionIndex(componentIndex);
 				string seat;
 				if (crew_index == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 				{
-					if (car.IsHelicopter() || car.IsPlane())
+					if (vehicle.IsHelicopter() || vehicle.IsPlane())
 						seat = "pilot";
 					else
 						seat = "driver";
@@ -36,8 +36,35 @@ modded class ActionSwitchSeats
 					seat = "passenger";
 				}
 
-				GetExpansionSettings().GetLog().PrintLog("[VehicleEnter] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] switched seats in vehicle " + car.GetDisplayName() + " (id=" + car.GetVehiclePersistentIDString() + " pos=" + car.GetPosition() + ") to " + seat);
+				GetExpansionSettings().GetLog().PrintLog("[VehicleEnter] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] switched seats in vehicle " + vehicle.GetDisplayName() + " (id=" + vehicle.GetPersistentIDString() + " pos=" + vehicle.GetPosition() + ") to " + seat);
 			}
 		}
+	}
+}
+
+class ExpansionActionSwitchSeats: ActionSwitchSeats
+{
+	static ref TTypenameArray s_Expansion_VehicleTypes = {ExpansionBus, Vehicle_ExpansionBus};
+
+	override void CreateConditionComponents()  
+	{
+		m_ConditionItem = new CCINone;
+
+		//! Hack fix switch seats not showing up in bus if set to CCTObject
+		//! Having this here makes the action show up, but switching seats in bus does nothing :-(
+		m_ConditionTarget = new CCTNone;
+	}
+
+	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
+	{
+		IEntity parent = player.GetParent();
+
+		if (!parent)
+			return false;
+
+		if (!ExpansionStatic.IsAnyOf(parent, s_Expansion_VehicleTypes))
+			return false;
+
+		return super.ActionCondition(player, target, item);
 	}
 }

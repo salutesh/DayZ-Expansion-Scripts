@@ -27,7 +27,8 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	protected float m_MessageFadeoutDuration = 3.0;  //! Duration of fading messages out effect (seconds)
 
 	protected Widget m_Parent;
-	protected GridSpacerWidget ContentRows;
+	protected Widget ChatPanel;
+	protected WrapSpacerWidget ContentRows;
 	protected Widget MutePanel;
 	protected ScrollWidget MuteScroller;
 	protected ButtonWidget MuteListButton;
@@ -38,11 +39,11 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 	protected ExpansionClientUIChatSize m_ChatSize;
 
-	bool m_ChatHover;
-
 	void ExpansionChatUIWindow(Widget parent, Chat chat)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		m_Parent = parent;
 		m_Chat = chat;
@@ -65,7 +66,9 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 	void ~ExpansionChatUIWindow()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		m_ChatLines.Clear();
 		ExpansionClientSettings().SI_UpdateSetting.Remove(OnSettingChanged);
@@ -73,7 +76,9 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 	void CreateChatLines()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		if (!ContentRows)
 			return;
@@ -94,7 +99,9 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 	void OnSettingChanged()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		m_MessageTimeTheshold = GetExpansionClientSettings().HUDChatMessageTimeThreshold;
 		m_MessageFadeoutDuration = GetExpansionClientSettings().HUDChatFadeOut;
@@ -118,7 +125,9 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 	void Add(ChatMessageEventParams params)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		int channel =  params.param1;
 
@@ -158,13 +167,24 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 	void AddInternal(ChatMessageEventParams params)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
 		ExpansionChatMessage message = new ExpansionChatMessage();
 		message.Channel = params.param1;
 		message.From = params.param2;
 		message.Text = params.param3;
 		message.SetColorByName(params.param4);
+
+		ExpansionChatMessageEventParams exParams;
+		if (Class.CastTo(exParams, params))
+		{
+			message.UID = exParams.param5;
+		#ifdef EXPANSIONMODGROUPS
+			message.PlayerTag = exParams.param6;
+		#endif
+		}
 
 		if (message.From == "BattlEye")
 		{
@@ -179,6 +199,8 @@ class ExpansionChatUIWindow: ExpansionScriptView
 				message.Text = message.Text.Substring(16, message.Text.Length() - 16).Trim();
 			}
 		}
+
+		message.FormatText();
 
 		message.TimeStamp = GetGame().GetTickTime();
 
@@ -195,14 +217,57 @@ class ExpansionChatUIWindow: ExpansionScriptView
 			m_ChatParams.Remove(m_ChatParams.Count() - 1);
 		}
 
+		SetChatMessage(message);
+	}
+
+	void SetChatMessage(ExpansionChatMessage message)
+	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
+
+		int count = m_ChatLines.Count();
+		if (count != MAX_MESSAGES)  //! Still creating chat lines
+			return;
+
+		if (message.IsMuted)
+			return;
+
 		if (GetExpansionClientSettings().HUDChatToggle)
 			GetLayoutRoot().Show(true);
 
-		RefreshChatMessages();
+		int idx = count - 1;
+
+		ExpansionChatLineBase chatLine = m_ChatLines[0];
+
+		bool isChatHistoryVisible = IsVisible();
+
+		int firstVisibleMessageIndex = count - MAX_MESSAGES_VISIBLE;
+		for (int i = 0; i < idx; i++)
+		{
+			m_ChatLines[i] = m_ChatLines[i + 1];
+			m_ChatLines[i].GetLayoutRoot().SetSort(i);
+		}
+
+		m_ChatLines[idx] = chatLine;
+
+		chatLine.Set(message);
+		chatLine.GetLayoutRoot().SetSort(idx);
+		chatLine.Show();
+
+		if (!isChatHistoryVisible)
+		{
+			float time = GetGame().GetTickTime();
+			chatLine.FadeOutLater(m_MessageTimeTheshold - (time - message.TimeStamp), m_MessageFadeoutDuration);
+		}
 	}
 
-	void RefreshChatMessages()
+	void RefreshChatMessages(bool setMessages = true)
 	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
+
 		int count = m_ChatLines.Count();
 		if (count != MAX_MESSAGES)  //! Still creating chat lines
 			return;
@@ -221,8 +286,10 @@ class ExpansionChatUIWindow: ExpansionScriptView
 				ExpansionChatMessage message = m_ChatParams[i++];
 				if (message.IsMuted)
 					continue;
-					
-				m_ChatLines[idx].Set(message);
+
+				if (setMessages)
+					m_ChatLines[idx].Set(message);
+
 				m_ChatLines[idx].Show();
 				
 				if (isChatHistoryVisible)
@@ -234,7 +301,8 @@ class ExpansionChatUIWindow: ExpansionScriptView
 			}
 			else
 			{
-				m_ChatLines[idx].Set(NULL);
+				if (setMessages)
+					m_ChatLines[idx].Set(NULL);
 
 				//! Make sure the number of lines that fit in the visible area of the chathistory box
 				//! are always shown even if empty so new messages appear at the bottom
@@ -244,36 +312,19 @@ class ExpansionChatUIWindow: ExpansionScriptView
 					m_ChatLines[idx].Hide();
 			}
 
+			m_ChatLines[idx].GetLayoutRoot().SetSort(idx);
+
 			idx--;
 		}
 	}
 
 	void ShowChatMessages(bool show = true)
 	{
-		int count = m_ChatLines.Count();
-		if (count != MAX_MESSAGES)  //! Still creating chat lines
-			return;
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
+#endif
 
-		int firstVisibleMessageIndex = count - MAX_MESSAGES_VISIBLE;
-		int i;
-		int idx = count - 1;
-		float time = GetGame().GetTickTime();
-		float showMessageTimestamp = time - m_MessageTimeTheshold;
-		while (i < m_ChatParams.Count())
-		{
-			ExpansionChatMessage message = m_ChatParams[i++];
-			if (message.IsMuted)
-				continue;
-			
-			if (show)
-				m_ChatLines[idx].SetAlphaEx(1.0);
-			else if (idx < firstVisibleMessageIndex || message.TimeStamp < showMessageTimestamp)
-				m_ChatLines[idx].SetAlphaEx(0.0);
-			else
-				m_ChatLines[idx].FadeOutLater(m_MessageTimeTheshold - (time - message.TimeStamp), m_MessageFadeoutDuration);
-
-			idx--;
-		}
+		RefreshChatMessages(false);
 	}
 
 	override string GetLayoutFile()
@@ -345,13 +396,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
-		EXTrace.Print(EXTrace.CHAT, this, "::OnMouseEnter - Widget: " + w.GetName());
-		if ((w == ChatScroller || w == ContentRows || w.GetName() == "ChatItemWidget" || w.GetName() == "ChatItemButton"))
-		{
-			m_ChatHover = true;
-			return true;
-		}
-		else if (w == MuteListButton)
+		if (w == MuteListButton)
 		{
 			MuteListButtonIcon.SetColor(ARGB(200, 0, 0, 0));
 			return true;
@@ -362,15 +407,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-		if (enterW)
-			EXTrace.Print(EXTrace.CHAT, this, "::OnMouseLeave - Widget: " + w.GetName() + " | Enter Widget: " + enterW.GetName());
-
-		if ((w == ChatScroller || w == ContentRows || w.GetName() == "ChatItemWidget" || w.GetName() == "ChatItemButton") && (!enterW || (enterW != ChatScroller && enterW != ContentRows && enterW.GetName() != "ChatItemWidget" && enterW.GetName() != "ChatItemButton")))
-		{
-			m_ChatHover = false;
-			return true;
-		}
-		else if (w == MuteListButton)
+		if (w == MuteListButton)
 		{
 			MuteListButtonIcon.SetColor(ARGB(200, 255, 255, 255));
 			return true;
@@ -379,11 +416,35 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		return false;
 	}
 
+	bool IsMouseLeftDown()
+	{
+		if (GetMouseState(MouseState.LEFT) & MB_PRESSED_MASK)
+			return true;
+
+		return false;
+	}
+
+	bool IsMouseInChatPanel()
+	{
+		int x, y;
+		GetMousePos(x, y);
+
+		float chatPanelW, chatPanelH;
+		float chatPanelX, chatPanelY;
+		ChatPanel.GetScreenSize(chatPanelW, chatPanelH);
+		ChatPanel.GetScreenPos(chatPanelX, chatPanelY);
+	
+		if (x > chatPanelX && x < chatPanelX + chatPanelW && y > chatPanelY && y < chatPanelY + chatPanelH)
+			return true;
+
+		return false;
+	}
+
 	override void Expansion_Update()
 	{
 		//! Scroll new messages into view, but only if chat input is not open
 		//! OR if mouse is not hovering chat area
-		if (ChatScroller && (!IsVisible() || !m_ChatHover))
+		if (ChatScroller && (!IsVisible() || (!IsMouseLeftDown() && !IsMouseInChatPanel())))
 			ChatScroller.VScrollToPos01(1.0);  //! STAY DOWN YOU FUCKER
 	}
 
@@ -409,22 +470,25 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		}
 	}
 
-	void Mute(string playerName)
+	void Mute(string uid)
 	{
 		ExpansionClientSettings clientSettings = GetExpansionClientSettings();
 		foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
 		{
-			if (player.m_PlayerName == playerName)
+			if (player.m_RUID == uid)
 			{
 				if (clientSettings.MutedPlayers.Find(player.m_RUID) == -1)
 				{
-					EXTrace.StartStack(EXTrace.CHAT, this, "Mute " + player.m_RUID + " " + playerName + " " + clientSettings.MutedPlayers.Count());
+#ifdef EXTRACE
+					auto trace = EXTrace.StartStack(EXTrace.CHAT, this, "Mute " + player.m_RUID + " " + player.m_PlayerName + " " + clientSettings.MutedPlayers.Count());
+#endif
+					
 					clientSettings.MutedPlayers.Insert(player.m_RUID);
 					if (clientSettings.MutedPlayers.Count() > 100)
 						clientSettings.MutedPlayers.RemoveOrdered(0);
 					clientSettings.Save();
 					UpdateMuteList();
-					UpdateMute(playerName, true);
+					UpdateMute(player.m_RUID, true);
 				}
 				break;
 			}
@@ -440,15 +504,15 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		{
 			clientSettings.MutedPlayers.RemoveOrdered(index);
 			clientSettings.Save();
-			UpdateMute(playerName, false);
+			UpdateMute(playerUID, false);
 		}
 	}
 
-	void UpdateMute(string playerName, bool mute)
+	void UpdateMute(string uid, bool mute)
 	{
 		foreach (ExpansionChatMessage message: m_ChatParams)
 		{
-			if (message.From == playerName)
+			if (message.UID == uid)
 			{
 				//! https://feedback.bistudio.com/T173348
 				if (mute && m_Chat.CanMute(message.Channel))

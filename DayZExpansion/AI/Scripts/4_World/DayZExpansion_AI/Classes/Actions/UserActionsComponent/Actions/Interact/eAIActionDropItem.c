@@ -51,6 +51,6 @@ class eAIActionDropItem : ActionSingleUseBase
 	override void OnExecuteServer(ActionData action_data)
 	{
 		eAIBase ai = eAIBase.Cast(action_data.m_Player);
-		ai.eAI_DropItemImpl(action_data.m_MainItem, ai.eAI_GetItemThreatOverride(action_data.m_MainItem));
+		ai.eAI_DropItemImpl(action_data.m_MainItem, ai.eAI_GetThreatOverride(action_data.m_MainItem));
 	}
 }

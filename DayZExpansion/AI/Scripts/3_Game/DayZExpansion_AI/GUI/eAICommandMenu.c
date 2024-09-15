@@ -224,6 +224,8 @@ class eAICommandMenu: UIScriptedMenu
 		else if (category == eAICommandCategories.CAT_MOVEMENT)
 		{
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_STOP, "Stop", eAICommandCategories.CAT_MOVEMENT));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_FLANK, "Flank", eAICommandCategories.CAT_MOVEMENT));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_ROAM, "Roam", eAICommandCategories.CAT_MOVEMENT));
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_GOTO, "Go To...", eAICommandCategories.CAT_MOVEMENT));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_RTF, "Rejoin", eAICommandCategories.CAT_MOVEMENT));
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_GETIN, "Get In", eAICommandCategories.CAT_MOVEMENT));
@@ -261,7 +263,10 @@ class eAICommandMenu: UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_DUMP, "Dump State", eAICommandCategories.CAT_STATUS));
 			if (GetExpansionSettings().GetAI().IsAdmin())
 			{
-				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_UNLIMITEDRELOAD, "Toggle Unlimited Reload", eAICommandCategories.CAT_STATUS));
+			#ifdef DIAG_DEVELOPER
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGOBJECTS, "Debug Objects", eAICommandCategories.CAT_STATUS));
+			#endif
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_UNLIMITEDRELOAD, "Unlimited Reload", eAICommandCategories.CAT_STATUS));
 			#ifdef JM_COT
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPECTATE, "Spectate AI", eAICommandCategories.CAT_STATUS));
 			#endif

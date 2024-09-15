@@ -14,15 +14,8 @@ modded class ActionAnimateCarSelection
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		CarScript car;
-		if ( target && Class.CastTo( car, target.GetObject() ) )
-		{
-			if ( car.IsLocked() )
-				return false;
-		}
-
-		ExpansionVehicleBase vehicle;
-		if ( target && Class.CastTo( vehicle, target.GetObject() ) )
+		auto vehicle = ExpansionVehicle.Get(target.GetObject());
+		if ( vehicle )
 		{
 			if ( vehicle.IsLocked() )
 				return false;

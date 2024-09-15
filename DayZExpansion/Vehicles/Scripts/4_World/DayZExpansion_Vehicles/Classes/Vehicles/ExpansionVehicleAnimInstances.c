@@ -47,23 +47,6 @@ class ExpansionVehicleAnimInstances
 	// Cars
 	static int EXPANSION_BUS = VehicleAnimInstances.HMMWV;
 
-#ifdef SURVIVOR_ANIMS
-	// Boats
-	static int EXPANSION_UTILITY_BOAT = VehicleAnimInstances.HMMWV;
-	static int EXPANSION_ZODIAC = CustomVehicleAnimInstances.HELICOPTER;
-	static int EXPANSION_LHD = CustomVehicleAnimInstances.HELICOPTER;
-
-	// Bikes
-	static int EXPANSION_TT650 = CustomVehicleAnimInstances.MOTORCYCLE;
-	static int EXPANSION_N250 = CustomVehicleAnimInstances.MOTORCYCLE;
-	static int EXPANSION_OLDBIKE = CustomVehicleAnimInstances.MOTORCYCLE;
-
-	// Helicopters
-	static int EXPANSION_MH6 = CustomVehicleAnimInstances.HELICOPTER;
-	static int EXPANSION_MERLIN = CustomVehicleAnimInstances.HELICOPTER;
-	static int EXPANSION_UH1H = CustomVehicleAnimInstances.HELICOPTER;
-	static int EXPANSION_GYROCOPTER = CustomVehicleAnimInstances.HELICOPTER;
-#else
 	// Boats
 	static int EXPANSION_UTILITY_BOAT = VehicleAnimInstances.SEDAN;
 	static int EXPANSION_ZODIAC = VehicleAnimInstances.SEDAN;
@@ -79,7 +62,6 @@ class ExpansionVehicleAnimInstances
 	static int EXPANSION_MERLIN = VehicleAnimInstances.SEDAN;
 	static int EXPANSION_UH1H = VehicleAnimInstances.HMMWV;
 	static int EXPANSION_GYROCOPTER = VehicleAnimInstances.SEDAN;
-#endif
 
 #endif
 };

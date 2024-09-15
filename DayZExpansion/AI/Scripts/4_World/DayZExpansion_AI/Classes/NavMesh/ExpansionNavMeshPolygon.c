@@ -119,7 +119,7 @@ class ExpansionNavMeshPolygon : PathNode
 
 	void DrawDebug(Object parent, ExpansionNavMesh navmesh)
 	{
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "DrawDebug");
 #endif

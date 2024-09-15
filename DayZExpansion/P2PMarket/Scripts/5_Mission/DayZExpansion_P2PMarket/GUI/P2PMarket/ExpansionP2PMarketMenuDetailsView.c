@@ -440,7 +440,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 
 			string priceText = listing_price_editbox.GetText();
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXPrint(ToString() + "::OnChange - price text: " + priceText);
 		#endif
 
@@ -453,13 +453,13 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 				priceText.Replace(decimalSeparator, ".");
 			priceText.Replace(" ", "");
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXPrint(ToString() + "::OnChange - price text after conversion of localized input: " + priceText);
 		#endif
 
 			float priceFloat = priceText.ToFloat();  //! Will be nan if not a valid number
 
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			EXPrint(ToString() + "::OnChange - price after conversion to float: " + priceFloat.ToString());
 			if (priceFloat == "nan".ToFloat())
 				EXPrint(ToString() + "::OnChange - price is nan");
@@ -498,7 +498,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 				m_ListCost = Math.Ceil(price * m_P2PMarketSettings.ListingPricePercent / 100);
 				listCostString = m_P2PMarketMenu.GetDisplayPrice(m_ListCost, false, true, true);
 
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXPrint(ToString() + "::OnChange - valid price " + price);
 			#endif
 			}
@@ -509,7 +509,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 				m_ListCost = -1;
 				listCostString = "";
 
-			#ifdef DIAG
+			#ifdef DIAG_DEVELOPER
 				EXPrint(ToString() + "::OnChange - invalid price " + price);
 			#endif
 			}

@@ -18,6 +18,7 @@ class ExpansionPathPoint
 
 	vector GetPosition()
 	{
+	#ifdef EXPANSION_AI_ATTACHMENT_PATH_FINDING
 		if (Parent)
 		{
 			vector transform[4];
@@ -25,6 +26,7 @@ class ExpansionPathPoint
 
 			return Position.Multiply4(transform);
 		}
+	#endif
 
 		return Position;
 	}
@@ -121,20 +123,23 @@ class ExpansionPathPoint
 		NavMesh = other.NavMesh;
 	}
 
-	void FindPath(ExpansionPathHandler pathFinding, inout array<vector> path)
+	bool FindPath(ExpansionPathHandler pathFinding, inout array<vector> path, out int pathGlueIdx = -1)
 	{
 		vector transform[4];
 		pathFinding.m_Unit.GetTransform(transform);
 		
-		FindPathFrom(transform[3], pathFinding, path);
+		return FindPathFrom(transform[3], pathFinding, path, pathGlueIdx);
 	}
 
-	void FindPathFrom(vector startPos, ExpansionPathHandler pathFinding, inout array<vector> path)
+	bool FindPathFrom(vector startPos, ExpansionPathHandler pathFinding, inout array<vector> path, out int pathGlueIdx = -1)
 	{
+		bool found;
+
 		int i;
 		
 		PGFilter filter = pathFinding.GetFilter();
 		
+	#ifdef EXPANSION_AI_ATTACHMENT_PATH_FINDING
 		if (Parent)
 		{
 			vector transform[4];
@@ -142,7 +147,7 @@ class ExpansionPathPoint
 			
 			startPos = startPos.InvMultiply4(transform);
 
-			NavMesh.FindPath(startPos, Position, filter, path);
+			found = NavMesh.FindPath(startPos, Position, filter, path);
 			
 			for (i = 0; i < path.Count(); i++)
 			{
@@ -151,12 +156,112 @@ class ExpansionPathPoint
 		}
 		else
 		{
-			pathFinding.m_AIWorld.FindPath(startPos, Position, filter, path);
-		}
+	#endif
+			found = pathFinding.m_AIWorld.FindPath(startPos, Position, filter, path);
 
-	#ifdef DIAG
-		pathFinding.m_Unit.Expansion_DebugObject(11110, startPos, "ExpansionDebugNoticeMe_Blue", pathFinding.m_Unit.GetDirection());
+			//! Deal with the case where AI is on top of an object and needs to take a leap of faith
+			//! because there is no navmesh connection to ground
+			if (!found || (path.Count() == 2 && !Math.IsPointInCircle(Position, 1.0, path[1]) && Math.IsPointInCircle(pathFinding.m_Unit.GetPosition(), 0.55, path[1])))
+			{
+				pathGlueIdx = path.Count();
+
+			#ifdef EXPANSION_AI_DEBUG_UNREACHABLE
+				if (!found || pathFinding.m_IsTargetUnreachable)
+				{
+					if (!pathFinding.m_IsUnreachable)
+						ExpansionStatic.MessageNearPlayers(pathFinding.m_Unit.GetPosition(), 100.0, pathFinding.m_Unit.ToString() + " unreachable IN (" + path.Count() + ")");
+				}
+			#endif
+
+				vector endPos;
+
+				if (found)
+					endPos = path[1];
+				else
+					endPos = startPos;
+
+				array<vector> tempPath = {};
+
+				vector dir = vector.Direction(endPos, Position);
+				vector targetPos;
+
+				if (dir.LengthSq() > 10000.0)  //! Limit to 100 m so we have a chance the path actually ends at endPos
+				{
+					targetPos = endPos + dir.Normalized() * 100.0;  //! Let's just hope this doesn't turn a reachable Position into unreachable...
+				}
+				else
+				{
+					targetPos = Position;
+				}
+
+				if (pathFinding.m_AIWorld.FindPath(targetPos, endPos, filter, tempPath))
+				{
+					found = false;
+
+					int count = tempPath.Count();
+					vector tempEnd = tempPath[count - 1];
+					vector checkPos = tempEnd;
+					checkPos[1] = Math.Max(Math.Max(endPos[1], checkPos[1]), pathFinding.m_Unit.GetPosition()[1]) + 0.5;
+					if (count > 2 || vector.DistanceSq(tempEnd, endPos) > 0.0001)
+					{
+						for (i = count - 1; i >= 0; i--)
+						{
+							//if (tempPath[i][1] - endPos[1] < 2.5)
+								path.Insert(tempPath[i]);
+							//else
+								//break;
+						}
+
+						//if (i < 0)
+							//pathFinding.m_IsUnreachable =  false;
+
+						if (Math.IsPointInCircle(tempEnd, 10.0, endPos) && tempEnd[1] - endPos[1] < 2.5 && !pathFinding.IsBlockedPhysically(endPos + "0 0.5 0", checkPos))
+						{
+							vector surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(tempEnd);
+							//! Swim start water level = 1.5 m, see DayZPlayerUtils::CheckWaterLevel
+							if (pathFinding.m_Unit.IsSwimming() || GetGame().GetWaterDepth(surfacePosition) <= 1.5)
+							{
+								eAICommandMove move = pathFinding.m_Unit.GetCommand_MoveAI();
+								if (move && !move.IsBlocked())
+									found = true;
+							}
+						}
+					}
+				}
+				else
+				{
+					found = false;
+				}
+
+				pathFinding.m_IsTargetUnreachable = !found;
+				pathFinding.m_IsUnreachable = !found;
+
+			#ifdef EXPANSION_AI_DEBUG_UNREACHABLE
+				if (found)
+				{
+					string prefix;
+
+					if (pathFinding.m_IsUnreachable)
+						prefix = "un";
+
+					ExpansionStatic.MessageNearPlayers(pathFinding.m_Unit.GetPosition(), 100.0, pathFinding.m_Unit.ToString() + " " + prefix + "reachable OUT (" + path.Count() + ")");
+				}
+			#endif
+			}
+	#ifdef EXPANSION_AI_ATTACHMENT_PATH_FINDING
+		}
+	#endif
+
+	#ifdef DIAG_DEVELOPER
+		pathFinding.m_Unit.Expansion_DebugObject(11110, startPos - "0 3.0 0", "ExpansionDebugNoticeMe_Blue", pathFinding.m_Unit.GetDirection());
 		//EXTrace.Print(EXTrace.AI, pathFinding.m_Unit, "FindPath " + path.Count() + " points");
 	#endif
+
+	#ifdef EXPANSION_AI_DEBUG_UNREACHABLE
+		if (path.Count() == 0)
+			ExpansionStatic.MessageNearPlayers(pathFinding.m_Unit.GetPosition(), 100.0, pathFinding.m_Unit.ToString() + " no path found");
+	#endif
+
+		return found;
 	}
 };

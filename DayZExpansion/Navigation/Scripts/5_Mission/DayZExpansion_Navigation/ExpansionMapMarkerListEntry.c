@@ -95,8 +95,18 @@ class ExpansionMapMarkerListEntry: ScriptedWidgetEventHandler
 		
 		if (m_Marker && m_Marker.GetMarkerData())
 		{
-			m_Icon.LoadImageFile(0, ExpansionIcons.GetPath(m_Marker.GetMarkerData().GetIconName()));
-			m_Icon.SetImage(0);
+			string icon = ExpansionIcons.GetPath(m_Marker.GetMarkerData().GetIconName());
+			if ( icon != string.Empty )
+			{
+				m_Icon.LoadImageFile(0, icon);
+				m_Icon.SetImage(0);
+				m_Icon.Show(true);
+			}
+			else
+			{
+				m_Icon.Show(false);
+			}
+			
 			m_Icon.SetColor(m_Marker.GetMarkerData().GetColor());
 			m_Text = m_Marker.GetMarkerData().GetName();
 			m_Name.SetText(m_Text);
@@ -159,8 +169,17 @@ class ExpansionMapMarkerListEntry: ScriptedWidgetEventHandler
 	{
 		if (m_Marker != NULL && m_Marker.GetMarkerData())
 		{
-			m_Icon.LoadImageFile(0, ExpansionIcons.GetPath(m_Marker.GetMarkerData().GetIconName()));
-			m_Icon.SetImage(0);
+			string icon = ExpansionIcons.GetPath(m_Marker.GetMarkerData().GetIconName());
+			if ( icon != string.Empty )
+			{
+				m_Icon.LoadImageFile(0, icon);
+				m_Icon.SetImage(0);
+				m_Icon.Show(true);
+			}
+			else
+			{
+				m_Icon.Show(false);
+			}
 			m_Icon.SetColor(m_Marker.GetMarkerData().GetColor());
 			m_Text = m_Marker.GetMarkerData().GetName();
 			m_Name.SetText(m_Text);

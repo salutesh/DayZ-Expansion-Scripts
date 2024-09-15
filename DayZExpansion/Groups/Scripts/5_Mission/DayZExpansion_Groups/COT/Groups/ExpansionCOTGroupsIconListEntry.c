@@ -55,7 +55,7 @@ class ExpansionCOTGroupsIconListEntry: ScriptedWidgetEventHandler
 		ExpansionIcon icon = ExpansionIcons.Get(m_IconIndex);
 		if (icon)
 		{
-			m_Icon.LoadImageFile(0, icon.Path);
+			m_Icon.LoadImageFile(0, icon.IconPath);
 			m_IconName.SetText(icon.Name);
 		}
 	}

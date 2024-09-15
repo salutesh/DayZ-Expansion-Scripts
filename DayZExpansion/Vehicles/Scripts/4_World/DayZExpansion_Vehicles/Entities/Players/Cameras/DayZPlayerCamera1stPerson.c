@@ -31,7 +31,7 @@ modded class DayZPlayerCamera1stPerson
 		{
 			pOutResult.m_CameraTM[3] = m_Ex_Player.GetBonePositionMS(m_iBoneIndex);
 
-			pOutResult.m_CollisionIgnoreEntity = m_Ex_Player.GetParent();
+			pOutResult.m_CollisionIgnoreEntity = m_Ex_Player.Expansion_GetParent();
 			pOutResult.m_fIgnoreParentRoll = 1.0;
 			pOutResult.m_fIgnoreParentPitch = 1.0;
 			pOutResult.m_iDirectBone = -1.0;

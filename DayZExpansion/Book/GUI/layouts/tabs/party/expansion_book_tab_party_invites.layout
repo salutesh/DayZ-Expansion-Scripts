@@ -45,24 +45,29 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
        image0 "set:book_assets image:menu_element_2"
        mode blend
        "src alpha" 1
-       stretch 1
-      }
-      TextWidgetClass book_invites_options_label {
-       ignorepointer 1
-       color 0 0 0 1
-       size 1 0.08
-       halign center_ref
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       priority 1
-       text "#STR_EXPANSION_BOOK_GROUP_INVITES_LIST_TITLE"
-       font "gui/fonts/etelkatextpro22"
-       "exact text" 0
-       "exact text size" 24
-       "text halign" center
-       "text valign" center
+       "stretch mode" stretch_w_h
+       {
+        TextWidgetClass book_invites_options_label {
+         ignorepointer 1
+         color 0 0 0 1
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         text "#STR_EXPANSION_BOOK_GROUP_INVITES_LIST_TITLE"
+         font "gui/fonts/sdf_metronbook24"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 16
+         "size to text v" 1
+         "text halign" center
+         "text valign" center
+        }
+       }
       }
       GridSpacerWidgetClass book_invites_options_spacer {
        ignorepointer 1
@@ -101,8 +106,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
            vexactsize 0
            priority 1
            text "#STR_EXPANSION_BOOK_TERRITORY_INVITE_ACCEPT"
-           font "gui/fonts/etelkatextpro22"
-           "exact text" 0
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 16
+           "size to text v" 1
            "text halign" center
            "text valign" center
           }
@@ -118,7 +126,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
            image0 "set:book_assets image:menu_element_1"
            mode blend
            "src alpha" 1
-           stretch 1
+           "stretch mode" stretch_w_h
           }
          }
          {
@@ -151,8 +159,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
            vexactsize 0
            priority 1
            text "#STR_EXPANSION_BOOK_TERRITORY_INVITE_DECLINE"
-           font "gui/fonts/etelkatextpro22"
-           "exact text" 0
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 16
+           "size to text v" 1
            "text halign" center
            "text valign" center
           }
@@ -168,7 +179,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
            image0 "set:book_assets image:menu_element_2"
            mode blend
            "src alpha" 1
-           stretch 1
+           "stretch mode" stretch_w_h
           }
          }
          {
@@ -200,8 +211,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
            vexactsize 0
            priority 1
            text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
-           font "gui/fonts/etelkatextpro22"
-           "exact text" 0
+           font "gui/fonts/sdf_metronbook24"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 16
+           "size to text v" 1
            "text halign" center
            "text valign" center
           }
@@ -217,7 +231,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
            image0 "set:book_assets image:menu_element_3"
            mode blend
            "src alpha" 1
-           stretch 1
+           "stretch mode" stretch_w_h
           }
          }
          {
@@ -276,23 +290,6 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
      vexactsize 0
      priority 2
      {
-      TextWidgetClass invites_info_label {
-       ignorepointer 1
-       color 0 0 0 1
-       size 1 0.08
-       halign center_ref
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       priority 1
-       text "#STR_EXPANSION_BOOK_PARTY_INVITES_INFO"
-       font "gui/fonts/etelkatextpro22"
-       "exact text" 0
-       "exact text size" 24
-       "text halign" center
-       "text valign" center
-      }
       ImageWidgetClass invites_info_label_background {
        ignorepointer 1
        size 440 45
@@ -304,10 +301,32 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
        image0 "set:book_assets image:menu_element_5"
        mode blend
        "src alpha" 1
-       stretch 1
+       "stretch mode" stretch_w_h
+       {
+        TextWidgetClass invites_info_label {
+         ignorepointer 1
+         color 0 0 0 1
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         text "#STR_EXPANSION_BOOK_PARTY_INVITES_INFO"
+         font "gui/fonts/sdf_metronbook24"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 16
+         "size to text v" 1
+         "text halign" center
+         "text valign" center
+        }
+       }
       }
       PanelWidgetClass invite_info_content_left {
-       visible 0
+       visible 1
        color 0.349 0.2 0.1451 1
        position 0 0.05582
        size 1 0.87786
@@ -350,9 +369,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_GROUP_NAME"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
              "exact text" 1
-             "exact text size" 22
+             "exact text size" 16
+             "size to text v" 1
              "text valign" center
             }
             TextWidgetClass party_name_value {
@@ -366,9 +387,10 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
              hexactsize 0
              vexactsize 0
              scriptclass "ViewBinding"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
              "exact text" 1
-             "exact text size" 22
+             "exact text size" 16
+             "size to text v" 1
              "text halign" right
              "text valign" center
              {
@@ -400,9 +422,11 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_GROUP_ID"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
+             "bold text" 1
              "exact text" 1
-             "exact text size" 22
+             "exact text size" 16
+             "size to text v" 1
              "text valign" center
             }
             TextWidgetClass party_id_value {
@@ -416,9 +440,10 @@ FrameWidgetClass ExpansionBookMenuTabPartyInvites {
              hexactsize 0
              vexactsize 0
              scriptclass "ViewBinding"
-             font "gui/fonts/etelkatextpro22"
+             font "gui/fonts/sdf_metronbook24"
              "exact text" 1
-             "exact text size" 22
+             "exact text size" 16
+             "size to text v" 1
              "text halign" right
              "text valign" center
              {

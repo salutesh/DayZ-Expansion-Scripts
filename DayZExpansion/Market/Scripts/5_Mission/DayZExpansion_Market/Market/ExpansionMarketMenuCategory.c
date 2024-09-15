@@ -66,7 +66,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 	protected string m_CategoryInfo_ItemCount;
 	protected bool m_Sorted;
 	
-	protected GridSpacerWidget category_items;
+	protected WrapSpacerWidget category_items;
 	protected  ButtonWidget category_button;
 	protected ImageWidget category_expand_icon;
 	protected ImageWidget category_collapse_icon;
@@ -193,7 +193,9 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 
 	void SortItems()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+#endif
 
 		int i;
 		ExpansionMarketMenuItem menuItem;
@@ -253,14 +255,14 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 				menuItem.SetMenuIdx(index);
 			}
 			menuItem.SetSort(index, false);
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 			PrintFormat("SortItems %1->%2 %3 %4", i, index, menuItem.GetItemSortName(), menuItem.GetBuyPrice());
 		#endif
 		}
 
 		m_Sorted = true;
 
-	//#ifdef DIAG
+	//#ifdef DIAG_DEVELOPER
 		//for (i = 0; i < m_CategoryController.MarketItems.Count(); i++)
 		//{
 			//menuItem = m_CategoryController.MarketItems[i];

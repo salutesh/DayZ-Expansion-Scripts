@@ -17,13 +17,19 @@
 class ExpansionLocatorArray
 {
 	vector position;
+	string classname;
 	string name;
 	string type;
+	Object object;
+	int index;
 	
-	void ExpansionLocatorArray( vector pos, string Name, string Type ) 
+	void ExpansionLocatorArray( vector pos, string className, string displayName, string typeName, Object obj = null, int idx = -1 ) 
 	{
 		this.position = pos;
-		this.name = Name;
-		this.type = Type;
+		this.classname = className;
+		this.name = displayName;
+		this.type = typeName;
+		this.object = obj;
+		this.index = idx;
 	}
 }

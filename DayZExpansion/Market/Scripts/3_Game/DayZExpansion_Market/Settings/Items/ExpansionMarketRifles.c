@@ -32,6 +32,7 @@ class ExpansionMarketRifles: ExpansionMarketCategory
 		AddItem("Winchester70", 			500,	1000,	1,		100);
 		AddItem("SSG82", 					450,	1000,	1,		100,	{"Mag_SSG82_5rnd"});
 		AddItem("SKS", 						450,	1000,	1,		100,	{"SKS_Bayonet"});
+		AddItem("M14", 						500,	1000,	1,		100,	{"M14_10Rnd","M14_20Rnd"});
 
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_Kar98", 			500,	1000,	1,		100);

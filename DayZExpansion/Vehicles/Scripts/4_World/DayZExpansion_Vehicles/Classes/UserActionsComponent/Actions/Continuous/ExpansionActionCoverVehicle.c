@@ -53,28 +53,16 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 		string placeholderType;
 		string vehicleModel;
 
-		CarScript vehicle;
-		ExpansionVehicleBase exVehicle;
-		if (Class.CastTo(vehicle, targetObject))
+		auto vehicle = ExpansionVehicle.Get(targetObject);
+		if (vehicle)
 		{
-			if (!vehicle.Expansion_CanCover())
+			if (!vehicle.CanCover())
 				return false;
 
 			if (!GetGame().IsDedicatedServer())
 			{
-				placeholderType = vehicle.Expansion_GetPlaceholderType(item.GetType());
-				vehicleModel = vehicle.ConfigGetString("model");
-			}
-		}
-		else if (Class.CastTo(exVehicle, targetObject))
-		{
-			if (!exVehicle.Expansion_CanCover())
-				return false;
-
-			if (!GetGame().IsDedicatedServer())
-			{
-				placeholderType = exVehicle.Expansion_GetPlaceholderType(item.GetType());
-				vehicleModel = exVehicle.ConfigGetString("model");
+				placeholderType = vehicle.GetPlaceholderType(item.GetType());
+				vehicleModel = vehicle.GetEntity().ConfigGetString("model");
 			}
 		}
 		else
@@ -103,19 +91,13 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 		string id;
 		string type = entity.GetType();
 
-		CarScript vehicle;
-		ExpansionVehicleBase exVehicle;
+		auto vehicle = ExpansionVehicle.Get(entity);
 		ExpansionEntityStoragePlaceholder placeholder;
 		bool result;
-		if (Class.CastTo(vehicle, entity))
+		if (vehicle)
 		{
-			id = vehicle.m_Expansion_GlobalID.IDToHex();
-			result = vehicle.Expansion_CoverVehicle(action_data.m_MainItem, placeholder);
-		}
-		else if (Class.CastTo(exVehicle, entity))
-		{
-			id = exVehicle.m_Expansion_GlobalID.IDToHex();
-			result = exVehicle.Expansion_CoverVehicle(action_data.m_MainItem, placeholder);
+			id = vehicle.GetGlobalID().IDToHex();
+			result = vehicle.Cover(action_data.m_MainItem, placeholder);
 		}
 		
 		if (GetExpansionSettings().GetLog().VehicleCover)
@@ -123,7 +105,7 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 			if (result)
 				GetExpansionSettings().GetLog().PrintLog("[VehicleCover] Player \"%1\" (id=%2 pos=%3) covered vehicle \"%4\" (GlobalID=%5 pos=%6)!", action_data.m_Player.GetIdentity().GetName(), action_data.m_Player.GetIdentity().GetId(), action_data.m_Player.GetPosition().ToString(), type, id, placeholder.GetPosition().ToString());
 			else
-				GetExpansionSettings().GetLog().PrintLog("[VehicleCover] ERROR: Player \"%1\" (id=%2 pos=%3) tried to cover vehicle \"%4\" (GlobalID=%5 pos=%6) but it failed!", action_data.m_Player.GetIdentity().GetName(), action_data.m_Player.GetIdentity().GetId(), action_data.m_Player.GetPosition().ToString(), entity.GetType(), id, entity.GetPosition().ToString());
+				GetExpansionSettings().GetLog().PrintLog("[VehicleCover] ERROR: Player \"%1\" (id=%2 pos=%3) tried to cover vehicle \"%4\" (GlobalID=%5 pos=%6) but it failed!", action_data.m_Player.GetIdentity().GetName(), action_data.m_Player.GetIdentity().GetId(), action_data.m_Player.GetPosition().ToString(), type, id, entity.GetPosition().ToString());
 		}
 	}
 }

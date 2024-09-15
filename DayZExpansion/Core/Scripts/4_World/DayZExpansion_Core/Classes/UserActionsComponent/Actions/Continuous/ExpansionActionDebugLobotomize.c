@@ -119,7 +119,7 @@ class ExpansionActionDebugLobotomize: ActionContinuousBase
 	
 	override void OnFinishProgressServer(ActionData action_data)
 	{
-	#ifdef DIAG
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC, this);
 	#endif
 
