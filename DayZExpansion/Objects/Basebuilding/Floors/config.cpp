@@ -1,13 +1,21 @@
-#define _ARMA_
-
 class CfgPatches
 {
 	class DayZExpansion_Objects_BaseBuilding_Floors
 	{
-		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data"};
-		units[] = {"ExpansionFloorKit","ExpansionRoofKit","ExpansionFloor6x6","ExpansionFloor3x3","ExpansionFloor3x6"};
-		weapons[] = {};
+		requiredVersion=0.1;
+		requiredAddons[]=
+		{
+			"DZ_Data"
+		};
+		units[]=
+		{
+			"ExpansionFloorKit",
+			"ExpansionRoofKit",
+			"ExpansionFloor6x6",
+			"ExpansionFloor3x3",
+			"ExpansionFloor3x6"
+		};
+		weapons[]={};
 	};
 };
 class CfgVehicles
@@ -16,96 +24,160 @@ class CfgVehicles
 	class ExpansionBaseBuilding;
 	class ExpansionFloorKit: ExpansionKitLarge
 	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_BB_FLOOR_KIT";
-		descriptionShort = "$STR_EXPANSION_BB_FLOOR_KIT_DESC";
-		placingTypes[] = {"ExpansionFloor6x6KitPlacing"};
+		scope=2;
+		displayName="$STR_EXPANSION_BB_FLOOR_KIT";
+		descriptionShort="$STR_EXPANSION_BB_FLOOR_KIT_DESC";
+		placingTypes[]=
+		{
+			"ExpansionFloor6x6KitPlacing"
+		};
 	};
 	class ExpansionRoofKit: ExpansionFloorKit
 	{
-		displayName = "$STR_EXPANSION_BB_ROOF_KIT";
-		descriptionShort = "$STR_EXPANSION_BB_ROOF_KIT_DESC";
+		displayName="$STR_EXPANSION_BB_ROOF_KIT";
+		descriptionShort="$STR_EXPANSION_BB_ROOF_KIT_DESC";
 	};
 	class ExpansionFloorBaseKitPlacing: ExpansionFloorKit
 	{
-		scope = 1;
-		model = "\DayZExpansion\Objects\Basebuilding\Floors\Floor_6x6_Placing.p3d";
-		slopeTolerance = 0.85;
-		hiddenSelections[] = {"placing"};
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1.0,co)"};
+		scope=1;
+		model="\DayZExpansion\Objects\Basebuilding\Floors\Floor_6x6_Placing.p3d";
+		slopeTolerance=0.85000002;
+		hiddenSelections[]=
+		{
+			"placing"
+		};
+		hiddenSelectionsTextures[]=
+		{
+			"#(argb,8,8,3)color(1,1,1,1.0,co)"
+		};
 	};
 	class ExpansionFloor6x6KitPlacing: ExpansionFloorBaseKitPlacing
 	{
-		scope = 1;
-		displayname = "$STR_EXPANSION_BB_FLOOR_6X6_PLACE";
-		model = "\DayZExpansion\Objects\Basebuilding\Floors\Floor_6x6_Placing.p3d";
-		deployType = "ExpansionFloor6x6";
+		scope=1;
+		displayname="$STR_EXPANSION_BB_FLOOR_6X6_PLACE";
+		model="\DayZExpansion\Objects\Basebuilding\Floors\Floor_6x6_Placing.p3d";
+		deployType="ExpansionFloor6x6";
 		class ExpansionSnapping
 		{
-			type = "FLOOR";
-			xOffset = 3;
-			yOffset = 0;
-			zOffset = 3;
-			xSize = 6;
-			ySize = 0.1;
-			zSize = 6;
+			type="FLOOR";
+			xOffset=3;
+			yOffset=0;
+			zOffset=3;
+			xSize=6;
+			ySize=0.1;
+			zSize=6;
 		};
 	};
 	class ExpansionFloor3x3KitPlacing: ExpansionFloorBaseKitPlacing
 	{
-		scope = 1;
-		displayname = "$STR_EXPANSION_BB_FLOOR_3X3_PLACE";
-		model = "\DayZExpansion\Objects\Basebuilding\Floors\Floor_3x3_Placing.p3d";
-		deployType = "ExpansionFloor3x3";
+		scope=1;
+		displayname="$STR_EXPANSION_BB_FLOOR_3X3_PLACE";
+		model="\DayZExpansion\Objects\Basebuilding\Floors\Floor_3x3_Placing.p3d";
+		deployType="ExpansionFloor3x3";
 		class ExpansionSnapping
 		{
-			type = "FLOOR";
-			xOffset = 1.5;
-			yOffset = 0;
-			zOffset = 1.5;
-			xSize = 3;
-			ySize = 0.1;
-			zSize = 3;
+			type="FLOOR";
+			xOffset=1.5;
+			yOffset=0;
+			zOffset=1.5;
+			xSize=3;
+			ySize=0.1;
+			zSize=3;
 		};
 	};
 	class ExpansionFloor3x6KitPlacing: ExpansionFloorBaseKitPlacing
 	{
-		scope = 1;
-		displayname = "$STR_EXPANSION_BB_FLOOR_3X6_PLACE";
-		model = "\DayZExpansion\Objects\Basebuilding\Floors\Floor_3x6_Placing.p3d";
-		deployType = "ExpansionFloor3x6";
+		scope=1;
+		displayname="$STR_EXPANSION_BB_FLOOR_3X6_PLACE";
+		model="\DayZExpansion\Objects\Basebuilding\Floors\Floor_3x6_Placing.p3d";
+		deployType="ExpansionFloor3x6";
 		class ExpansionSnapping
 		{
-			type = "FLOOR";
-			xOffset = 1.5;
-			yOffset = 0;
-			zOffset = 3;
-			xSize = 3;
-			ySize = 0.1;
-			zSize = 6;
+			type="FLOOR";
+			xOffset=1.5;
+			yOffset=0;
+			zOffset=3;
+			xSize=3;
+			ySize=0.1;
+			zSize=6;
 		};
 	};
 	class ExpansionFloorBase: ExpansionBaseBuilding
 	{
-		scope = 0;
-		displayname = "$STR_EXPANSION_BB_FLOOR_BASE";
-		model = "\DayZExpansion\Objects\Basebuilding\Floors\Floor_6x6.p3d";
-		vehicleClass = "Expansion_Construction";
-		createProxyPhysicsOnInit = "true";
-		createdProxiesOnInit[] = {"Deployed"};
-		bounding = "BSphere";
-		overrideDrawArea = "3.0";
-		forceFarBubble = "true";
-		physLayer = "item_large";
-		rotationFlags = 2;
+		scope=0;
+		displayname="$STR_EXPANSION_BB_FLOOR_BASE";
+		model="\DayZExpansion\Objects\Basebuilding\Floors\Floor_6x6.p3d";
+		vehicleClass="Expansion_Construction";
+		createProxyPhysicsOnInit="true";
+		createdProxiesOnInit[]=
+		{
+			"Deployed"
+		};
+		bounding="BSphere";
+		overrideDrawArea="3.0";
+		forceFarBubble="true";
+		physLayer="item_large";
+		rotationFlags=2;
 		class DamageSystem
 		{
 			class GlobalHealth
 			{
 				class Health
 				{
-					hitpoints = 30000;
-					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_roof_01.rvmat"}},{0.7,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01_damage.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor_damaged.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_roof_01_damage.rvmat"}},{0.5,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01_damage.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor_damaged.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_roof_01_damage.rvmat"}},{0.3,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01_destruct.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor_destruct.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_roof_01.rvmat"}},{0.0,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor.rvmat"}}};
+					hitpoints=30000;
+					healthLevels[]=
+					{
+						
+						{
+							1,
+							
+							{
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01.rvmat",
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor.rvmat",
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_roof_01.rvmat"
+							}
+						},
+						
+						{
+							0.69999999,
+							
+							{
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01_damage.rvmat",
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor_damaged.rvmat",
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_roof_01_damage.rvmat"
+							}
+						},
+						
+						{
+							0.5,
+							
+							{
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01_damage.rvmat",
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor_damaged.rvmat",
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_roof_01_damage.rvmat"
+							}
+						},
+						
+						{
+							0.30000001,
+							
+							{
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01_destruct.rvmat",
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor_destruct.rvmat",
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_roof_01.rvmat"
+							}
+						},
+						
+						{
+							0,
+							
+							{
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01.rvmat",
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor.rvmat",
+								"DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor.rvmat"
+							}
+						}
+					};
 				};
 			};
 			class GlobalArmor
@@ -114,85 +186,103 @@ class CfgVehicles
 				{
 					class Health
 					{
-						damage = 1;
+						damage=1;
 					};
 					class Blood
 					{
-						damage = 0;
+						damage=0;
 					};
 					class Shock
 					{
-						damage = 0;
+						damage=0;
 					};
 				};
 				class Projectile
 				{
 					class Health
 					{
-						damage = 1;
+						damage=1;
 					};
 					class Blood
 					{
-						damage = 0;
+						damage=0;
 					};
 					class Shock
 					{
-						damage = 0;
+						damage=0;
 					};
 				};
 				class FragGrenade
 				{
 					class Health
 					{
-						damage = 1;
+						damage=1;
 					};
 					class Blood
 					{
-						damage = 0;
+						damage=0;
 					};
 					class Shock
 					{
-						damage = 0;
+						damage=0;
 					};
 				};
 			};
 		};
-		attachments[] = {"Att_ExpansionLumber","Material_Nails","Material_WoodenPlanks"};
+		attachments[]=
+		{
+			"Att_ExpansionLumber",
+			"Material_Nails",
+			"Material_WoodenPlanks"
+		};
 		class GUIInventoryAttachmentsProps
 		{
 			class Material
 			{
-				name = "$STR_CfgVehicles_Fence_Att_Category_Materials";
-				description = "";
-				attachmentSlots[] = {"Att_ExpansionLumber","Material_Nails","Material_WoodenPlanks"};
-				icon = "cat_bb_material";
-				selection = "interact";
+				name="$STR_CfgVehicles_Fence_Att_Category_Materials";
+				description="";
+				attachmentSlots[]=
+				{
+					"Att_ExpansionLumber",
+					"Material_Nails",
+					"Material_WoodenPlanks"
+				};
+				icon="cat_bb_material";
+				selection="interact";
 			};
 		};
 		class AnimationSources
 		{
 			class AnimSourceShown
 			{
-				source = "user";
-				animPeriod = 0.01;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.0099999998;
+				initPhase=0;
 			};
 			class AnimSourceHidden
 			{
-				source = "user";
-				animPeriod = 0.01;
-				initPhase = 1;
+				source="user";
+				animPeriod=0.0099999998;
+				initPhase=1;
 			};
 			class AnimRotate
 			{
-				source = "user";
-				animPeriod = 0.01;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.0099999998;
+				initPhase=0;
 			};
-			class Deployed: AnimSourceHidden{};
-			class wood_base: AnimSourceHidden{};
-			class wood_floorframe: AnimSourceHidden{};
-			class wood_floorfinished: AnimSourceHidden{};
+			class Deployed: AnimSourceHidden
+			{
+			};
+			class wood_base: AnimSourceHidden
+			{
+			};
+			class wood_floorframe: AnimSourceHidden
+			{
+			};
+			class wood_floorfinished: AnimSourceHidden
+			{
+			};
 		};
 		class Construction
 		{
@@ -200,77 +290,86 @@ class CfgVehicles
 			{
 				class wood_base
 				{
-					name = "$STR_EXPANSION_BB_WOOD_FLOOR_BASE";
-					is_base = 1;
-					id = 1;
-					required_parts[] = {};
-					conflicted_parts[] = {};
-					collision_data[] = {};
-					build_action_type = 10;
-					dismantle_action_type = 10;
-					material_type = 1;
-					snapping_show[] = {};
+					name="$STR_EXPANSION_BB_WOOD_FLOOR_BASE";
+					is_base=1;
+					id=1;
+					required_parts[]={};
+					conflicted_parts[]={};
+					collision_data[]={};
+					build_action_type=10;
+					dismantle_action_type=10;
+					material_type=1;
+					snapping_show[]={};
 					class Materials
 					{
 						class Material1
 						{
-							type = "ExpansionLumber3";
-							slot_name = "Att_ExpansionLumber";
-							quantity = 4;
+							type="ExpansionLumber3";
+							slot_name="Att_ExpansionLumber";
+							quantity=4;
 						};
 					};
 				};
 				class wood_floorframe
 				{
-					name = "$STR_EXPANSION_BB_WOOD_FLOOR_FRAME";
-					is_base = 0;
-					id = 2;
-					required_parts[] = {"wood_base"};
-					conflicted_parts[] = {"wood_hatchframe"};
-					collision_data[] = {};
-					build_action_type = 10;
-					dismantle_action_type = 10;
-					material_type = 2;
+					name="$STR_EXPANSION_BB_WOOD_FLOOR_FRAME";
+					is_base=0;
+					id=2;
+					required_parts[]=
+					{
+						"wood_base"
+					};
+					conflicted_parts[]=
+					{
+						"wood_hatchframe"
+					};
+					collision_data[]={};
+					build_action_type=10;
+					dismantle_action_type=10;
+					material_type=2;
 					class Materials
 					{
 						class Material1
 						{
-							type = "WoodenPlank";
-							slot_name = "Material_WoodenPlanks";
-							quantity = 5;
+							type="WoodenPlank";
+							slot_name="Material_WoodenPlanks";
+							quantity=5;
 						};
 						class Material2
 						{
-							type = "Nail";
-							slot_name = "Material_Nails";
-							quantity = 15;
+							type="Nail";
+							slot_name="Material_Nails";
+							quantity=15;
 						};
 					};
 				};
 				class wood_floorfinished
 				{
-					name = "$STR_EXPANSION_BB_WOOD_FLOOR_FINISHED";
-					is_base = 0;
-					id = 3;
-					required_parts[] = {"wood_floorframe"};
-					conflicted_parts[] = {};
-					collision_data[] = {};
-					build_action_type = 10;
-					dismantle_action_type = 10;
-					material_type = 2;
+					name="$STR_EXPANSION_BB_WOOD_FLOOR_FINISHED";
+					is_base=0;
+					id=3;
+					required_parts[]=
+					{
+						"wood_floorframe"
+					};
+					conflicted_parts[]={};
+					collision_data[]={};
+					build_action_type=10;
+					dismantle_action_type=10;
+					material_type=2;
 					class Materials
 					{
 						class Material1
 						{
-							type = "WoodenPlank";
-							slot_name = "Material_WoodenPlanks";
-							quantity = 5;
+							type="WoodenPlank";
+							slot_name="Material_WoodenPlanks";
+							quantity=5;
 						};
 						class Material2
 						{
-							type = "Nail";
-							slot_name = "Material_Nails";
-							quantity = 15;
+							type="Nail";
+							slot_name="Material_Nails";
+							quantity=15;
 						};
 					};
 				};
@@ -278,164 +377,248 @@ class CfgVehicles
 		};
 		class ExpansionSnapping
 		{
-			type = "FLOOR";
-			default_hide[] = {};
+			type="FLOOR";
+			default_hide[]={};
 			class Pos_0
 			{
 				class Dir_0
 				{
-					allow[] = {"FLOOR","RAMP","STAIR"};
-					offset[] = {1,1,1};
+					allow[]=
+					{
+						"FLOOR",
+						"RAMP",
+						"STAIR"
+					};
+					offset[]={1,1,1};
 				};
 				class Dir_1
 				{
-					allow[] = {"WALL"};
-					offset[] = {2};
+					allow[]=
+					{
+						"WALL"
+					};
+					offset[]={2};
 				};
 				class Dir_2
 				{
-					allow[] = {"WALL","STAIR"};
-					offset[] = {4,3};
+					allow[]=
+					{
+						"WALL",
+						"STAIR"
+					};
+					offset[]={4,3};
 				};
 				class Dir_3
 				{
-					allow[] = {"RAMP"};
-					offset[] = {1};
+					allow[]=
+					{
+						"RAMP"
+					};
+					offset[]={1};
 				};
 			};
 			class Pos_1
 			{
 				class Dir_0
 				{
-					allow[] = {"FLOOR","RAMP","STAIR"};
-					offset[] = {1,1,1};
+					allow[]=
+					{
+						"FLOOR",
+						"RAMP",
+						"STAIR"
+					};
+					offset[]={1,1,1};
 				};
 				class Dir_1
 				{
-					allow[] = {"WALL"};
-					offset[] = {2};
+					allow[]=
+					{
+						"WALL"
+					};
+					offset[]={2};
 				};
 				class Dir_2
 				{
-					allow[] = {"WALL","STAIR"};
-					offset[] = {4,3};
+					allow[]=
+					{
+						"WALL",
+						"STAIR"
+					};
+					offset[]={4,3};
 				};
 				class Dir_3
 				{
-					allow[] = {"RAMP"};
-					offset[] = {1};
+					allow[]=
+					{
+						"RAMP"
+					};
+					offset[]={1};
 				};
 			};
 			class Pos_2
 			{
 				class Dir_0
 				{
-					allow[] = {"FLOOR","RAMP","STAIR"};
-					offset[] = {1,1,1};
+					allow[]=
+					{
+						"FLOOR",
+						"RAMP",
+						"STAIR"
+					};
+					offset[]={1,1,1};
 				};
 				class Dir_1
 				{
-					allow[] = {"WALL"};
-					offset[] = {2};
+					allow[]=
+					{
+						"WALL"
+					};
+					offset[]={2};
 				};
 				class Dir_2
 				{
-					allow[] = {"WALL","STAIR"};
-					offset[] = {4,3};
+					allow[]=
+					{
+						"WALL",
+						"STAIR"
+					};
+					offset[]={4,3};
 				};
 				class Dir_3
 				{
-					allow[] = {"RAMP"};
-					offset[] = {1};
+					allow[]=
+					{
+						"RAMP"
+					};
+					offset[]={1};
 				};
 			};
 			class Pos_3
 			{
 				class Dir_0
 				{
-					allow[] = {"FLOOR","RAMP","STAIR"};
-					offset[] = {1,1,1};
+					allow[]=
+					{
+						"FLOOR",
+						"RAMP",
+						"STAIR"
+					};
+					offset[]={1,1,1};
 				};
 				class Dir_1
 				{
-					allow[] = {"WALL"};
-					offset[] = {2};
+					allow[]=
+					{
+						"WALL"
+					};
+					offset[]={2};
 				};
 				class Dir_2
 				{
-					allow[] = {"WALL","STAIR"};
-					offset[] = {4,3};
+					allow[]=
+					{
+						"WALL",
+						"STAIR"
+					};
+					offset[]={4,3};
 				};
 				class Dir_3
 				{
-					allow[] = {"RAMP"};
-					offset[] = {1};
+					allow[]=
+					{
+						"RAMP"
+					};
+					offset[]={1};
 				};
 			};
 			class Pos_10
 			{
 				class Dir_0
 				{
-					allow[] = {"RAMP"};
-					offset[] = {1};
+					allow[]=
+					{
+						"RAMP"
+					};
+					offset[]={1};
 				};
 			};
 			class Pos_11
 			{
 				class Dir_0
 				{
-					allow[] = {"RAMP"};
-					offset[] = {1};
+					allow[]=
+					{
+						"RAMP"
+					};
+					offset[]={1};
 				};
 			};
 			class Pos_12
 			{
 				class Dir_0
 				{
-					allow[] = {"RAMP"};
-					offset[] = {1};
+					allow[]=
+					{
+						"RAMP"
+					};
+					offset[]={1};
 				};
 			};
 			class Pos_13
 			{
 				class Dir_0
 				{
-					allow[] = {"RAMP"};
-					offset[] = {1};
+					allow[]=
+					{
+						"RAMP"
+					};
+					offset[]={1};
 				};
 			};
 		};
 	};
 	class ExpansionFloor6x6: ExpansionFloorBase
 	{
-		scope = 2;
-		model = "\DayZExpansion\Objects\Basebuilding\Floors\Floor_6x6.p3d";
+		scope=2;
+		model="\DayZExpansion\Objects\Basebuilding\Floors\Floor_6x6.p3d";
 		class AnimationSources
 		{
 			class AnimSourceShown
 			{
-				source = "user";
-				animPeriod = 0.01;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.0099999998;
+				initPhase=0;
 			};
 			class AnimSourceHidden
 			{
-				source = "user";
-				animPeriod = 0.01;
-				initPhase = 1;
+				source="user";
+				animPeriod=0.0099999998;
+				initPhase=1;
 			};
 			class AnimRotate
 			{
-				source = "user";
-				animPeriod = 0.01;
-				initPhase = 0;
+				source="user";
+				animPeriod=0.0099999998;
+				initPhase=0;
 			};
-			class Deployed: AnimSourceHidden{};
-			class wood_base: AnimSourceHidden{};
-			class wood_floorframe: AnimSourceHidden{};
-			class wood_floorfinished: AnimSourceHidden{};
-			class wood_hatchframe: AnimSourceHidden{};
-			class wood_hatchfinished: AnimSourceHidden{};
+			class Deployed: AnimSourceHidden
+			{
+			};
+			class wood_base: AnimSourceHidden
+			{
+			};
+			class wood_floorframe: AnimSourceHidden
+			{
+			};
+			class wood_floorfinished: AnimSourceHidden
+			{
+			};
+			class wood_hatchframe: AnimSourceHidden
+			{
+			};
+			class wood_hatchfinished: AnimSourceHidden
+			{
+			};
 		};
 		class Construction: Construction
 		{
@@ -443,132 +626,150 @@ class CfgVehicles
 			{
 				class wood_base
 				{
-					name = "$STR_EXPANSION_BB_WOOD_FLOOR_BASE";
-					is_base = 1;
-					id = 1;
-					required_parts[] = {};
-					conflicted_parts[] = {};
-					collision_data[] = {};
-					build_action_type = 10;
-					dismantle_action_type = 10;
-					material_type = 1;
-					snapping_show[] = {};
+					name="$STR_EXPANSION_BB_WOOD_FLOOR_BASE";
+					is_base=1;
+					id=1;
+					required_parts[]={};
+					conflicted_parts[]={};
+					collision_data[]={};
+					build_action_type=10;
+					dismantle_action_type=10;
+					material_type=1;
+					snapping_show[]={};
 					class Materials
 					{
 						class Material1
 						{
-							type = "ExpansionLumber3";
-							slot_name = "Att_ExpansionLumber";
-							quantity = 4;
+							type="ExpansionLumber3";
+							slot_name="Att_ExpansionLumber";
+							quantity=4;
 						};
 					};
 				};
 				class wood_floorframe
 				{
-					name = "$STR_EXPANSION_BB_WOOD_FLOOR_FRAME";
-					is_base = 0;
-					id = 2;
-					required_parts[] = {"wood_base"};
-					conflicted_parts[] = {"wood_hatchframe"};
-					collision_data[] = {};
-					build_action_type = 10;
-					dismantle_action_type = 10;
-					material_type = 2;
+					name="$STR_EXPANSION_BB_WOOD_FLOOR_FRAME";
+					is_base=0;
+					id=2;
+					required_parts[]=
+					{
+						"wood_base"
+					};
+					conflicted_parts[]=
+					{
+						"wood_hatchframe"
+					};
+					collision_data[]={};
+					build_action_type=10;
+					dismantle_action_type=10;
+					material_type=2;
 					class Materials
 					{
 						class Material1
 						{
-							type = "WoodenPlank";
-							slot_name = "Material_WoodenPlanks";
-							quantity = 5;
+							type="WoodenPlank";
+							slot_name="Material_WoodenPlanks";
+							quantity=5;
 						};
 						class Material2
 						{
-							type = "Nail";
-							slot_name = "Material_Nails";
-							quantity = 15;
+							type="Nail";
+							slot_name="Material_Nails";
+							quantity=15;
 						};
 					};
 				};
 				class wood_floorfinished
 				{
-					name = "$STR_EXPANSION_BB_WOOD_FLOOR_FINISHED";
-					is_base = 0;
-					id = 3;
-					required_parts[] = {"wood_floorframe"};
-					conflicted_parts[] = {};
-					collision_data[] = {};
-					build_action_type = 10;
-					dismantle_action_type = 10;
-					material_type = 2;
+					name="$STR_EXPANSION_BB_WOOD_FLOOR_FINISHED";
+					is_base=0;
+					id=3;
+					required_parts[]=
+					{
+						"wood_floorframe"
+					};
+					conflicted_parts[]={};
+					collision_data[]={};
+					build_action_type=10;
+					dismantle_action_type=10;
+					material_type=2;
 					class Materials
 					{
 						class Material1
 						{
-							type = "WoodenPlank";
-							slot_name = "Material_WoodenPlanks";
-							quantity = 5;
+							type="WoodenPlank";
+							slot_name="Material_WoodenPlanks";
+							quantity=5;
 						};
 						class Material2
 						{
-							type = "Nail";
-							slot_name = "Material_Nails";
-							quantity = 15;
+							type="Nail";
+							slot_name="Material_Nails";
+							quantity=15;
 						};
 					};
 				};
 				class wood_hatchframe
 				{
-					name = "$STR_EXPANSION_BB_WOOD_HATCH_FRAME";
-					is_base = 0;
-					id = 4;
-					required_parts[] = {"wood_base"};
-					conflicted_parts[] = {"wood_floorframe"};
-					collision_data[] = {};
-					build_action_type = 10;
-					dismantle_action_type = 10;
-					material_type = 2;
-					snapping_show[] = {4,5};
+					name="$STR_EXPANSION_BB_WOOD_HATCH_FRAME";
+					is_base=0;
+					id=4;
+					required_parts[]=
+					{
+						"wood_base"
+					};
+					conflicted_parts[]=
+					{
+						"wood_floorframe"
+					};
+					collision_data[]={};
+					build_action_type=10;
+					dismantle_action_type=10;
+					material_type=2;
+					snapping_show[]={4,5};
 					class Materials
 					{
 						class Material1
 						{
-							type = "WoodenPlank";
-							slot_name = "Material_WoodenPlanks";
-							quantity = 5;
+							type="WoodenPlank";
+							slot_name="Material_WoodenPlanks";
+							quantity=5;
 						};
 						class Material2
 						{
-							type = "Nail";
-							slot_name = "Material_Nails";
-							quantity = 15;
+							type="Nail";
+							slot_name="Material_Nails";
+							quantity=15;
 						};
 					};
 				};
 				class wood_hatchfinished
 				{
-					name = "$STR_EXPANSION_BB_WOOD_HATCH_FINISHED";
-					is_base = 0;
-					id = 5;
-					required_parts[] = {"wood_hatchframe"};
-					conflicted_parts[] = {};
-					collision_data[] = {};
-					build_action_type = 10;
-					dismantle_action_type = 10;
-					material_type = 2;
+					name="$STR_EXPANSION_BB_WOOD_HATCH_FINISHED";
+					is_base=0;
+					id=5;
+					required_parts[]=
+					{
+						"wood_hatchframe"
+					};
+					conflicted_parts[]={};
+					collision_data[]={};
+					build_action_type=10;
+					dismantle_action_type=10;
+					material_type=2;
 					class Materials
 					{
 						class Material1
 						{
-							type = "WoodenPlank";
-							slot_name = "Material_WoodenPlanks";
-							quantity = 5;
+							type="WoodenPlank";
+							slot_name="Material_WoodenPlanks";
+							quantity=5;
 						};
 						class Material2
 						{
-							type = "Nail";
-							slot_name = "Material_Nails";
-							quantity = 15;
+							type="Nail";
+							slot_name="Material_Nails";
+							quantity=15;
 						};
 					};
 				};
@@ -576,99 +777,135 @@ class CfgVehicles
 		};
 		class ExpansionSnapping: ExpansionSnapping
 		{
-			default_hide[] = {4,5};
+			default_hide[]={4,5};
 			class Pos_4
 			{
 				class Dir_0
 				{
-					allow[] = {"STAIR"};
-					offset[] = {2};
+					allow[]=
+					{
+						"STAIR"
+					};
+					offset[]={2};
 				};
 			};
 			class Pos_5
 			{
 				class Dir_0
 				{
-					allow[] = {"STAIR"};
-					offset[] = {2};
+					allow[]=
+					{
+						"STAIR"
+					};
+					offset[]={2};
 				};
 			};
 			class Pos_6
 			{
 				class Dir_0
 				{
-					allow[] = {"STAIR"};
-					offset[] = {4};
+					allow[]=
+					{
+						"STAIR"
+					};
+					offset[]={4};
 				};
 				class Dir_1
 				{
-					allow[] = {"STAIR"};
-					offset[] = {5};
+					allow[]=
+					{
+						"STAIR"
+					};
+					offset[]={5};
 				};
 			};
 			class Pos_7
 			{
 				class Dir_0
 				{
-					allow[] = {"STAIR"};
-					offset[] = {4};
+					allow[]=
+					{
+						"STAIR"
+					};
+					offset[]={4};
 				};
 				class Dir_1
 				{
-					allow[] = {"STAIR"};
-					offset[] = {5};
+					allow[]=
+					{
+						"STAIR"
+					};
+					offset[]={5};
 				};
 			};
 			class Pos_8
 			{
 				class Dir_0
 				{
-					allow[] = {"STAIR"};
-					offset[] = {4};
+					allow[]=
+					{
+						"STAIR"
+					};
+					offset[]={4};
 				};
 				class Dir_1
 				{
-					allow[] = {"STAIR"};
-					offset[] = {5};
+					allow[]=
+					{
+						"STAIR"
+					};
+					offset[]={5};
 				};
 			};
 			class Pos_9
 			{
 				class Dir_0
 				{
-					allow[] = {"STAIR"};
-					offset[] = {4};
+					allow[]=
+					{
+						"STAIR"
+					};
+					offset[]={4};
 				};
 				class Dir_1
 				{
-					allow[] = {"STAIR"};
-					offset[] = {5};
+					allow[]=
+					{
+						"STAIR"
+					};
+					offset[]={5};
 				};
 			};
 		};
 	};
 	class ExpansionFloor3x3: ExpansionFloorBase
 	{
-		scope = 2;
-		model = "\DayZExpansion\Objects\Basebuilding\Floors\Floor_3x3.p3d";
+		scope=2;
+		model="\DayZExpansion\Objects\Basebuilding\Floors\Floor_3x3.p3d";
 	};
 	class ExpansionFloor3x6: ExpansionFloorBase
 	{
-		scope = 2;
-		model = "\DayZExpansion\Objects\Basebuilding\Floors\Floor_3x6.p3d";
+		scope=2;
+		model="\DayZExpansion\Objects\Basebuilding\Floors\Floor_3x6.p3d";
 		class ExpansionSnapping: ExpansionSnapping
 		{
 			class Pos_4
 			{
 				class Dir_0
 				{
-					allow[] = {"STAIR"};
-					offset[] = {1};
+					allow[]=
+					{
+						"STAIR"
+					};
+					offset[]={1};
 				};
 				class Dir_1
 				{
-					allow[] = {"STAIR"};
-					offset[] = {1};
+					allow[]=
+					{
+						"STAIR"
+					};
+					offset[]={1};
 				};
 			};
 		};

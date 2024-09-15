@@ -1,13 +1,14 @@
-#define _ARMA_
-
 class CfgPatches
 {
 	class DayZExpansion_Worlds_ChernarusPlus_Rays
 	{
-		units[] = {};
-		weapons[] = {};
-		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Worlds_Chernarusplus_World"};
+		units[]={};
+		weapons[]={};
+		requiredVersion=0.1;
+		requiredAddons[]=
+		{
+			"DZ_Worlds_Chernarusplus_World"
+		};
 	};
 };
 class CfgWorlds
@@ -261,158 +262,164 @@ class CfgWorlds
 	{
 		class Weather: Weather
 		{
-			dayTemperature = 18;
-			nightTemperature = 4;
-			minHeight = 100;
-			shoreTop = 10;
-			peakWaveTop = 1000;
-			peakWaveBottom = -1000;
+			dayTemperature=18;
+			nightTemperature=4;
+			minHeight=100;
+			shoreTop=10;
+			peakWaveTop=1000;
+			peakWaveBottom=-1000;
 			class VolFog: VolFog
 			{
-				CameraFog = 1;
-				Item1[] = {800,0.06,0.93,0.13,1};
-				Item2[] = {1300,0.02,0.9,0.05,1};
+				CameraFog=1;
+				Item1[]={800,0.059999999,0.93000001,0.13,1};
+				Item2[]={1300,0.02,0.89999998,0.050000001,1};
 			};
 			class Overcast: Overcast
 			{
 				class Weather1: Weather1
 				{
-					overcast = 0;
-					lightingOvercast = 0;
-					sky = "DZ\data\data\sky_clear_sky.paa";
-					skyR = "DZ\data\data\sky_clear_lco.paa";
-					horizon = "DZ\data\data\sky_clear_horizont_sky.paa";
-					alpha = 0;
-					bright = 0;
-					speed = 0.1;
-					size = 0.5;
-					height = 1;
-					through = 0;
-					diffuse = 1;
-					cloudDiffuse = 1;
-					waves = 100;
+					overcast=0;
+					lightingOvercast=0;
+					sky="DZ\data\data\sky_clear_sky.paa";
+					skyR="DZ\data\data\sky_clear_lco.paa";
+					horizon="DZ\data\data\sky_clear_horizont_sky.paa";
+					alpha=0;
+					bright=0;
+					speed=0.1;
+					size=0.5;
+					height=1;
+					through=0;
+					diffuse=1;
+					cloudDiffuse=1;
+					waves=100;
 				};
 				class Weather2: Weather2
 				{
-					overcast = 0.3;
-					lightingOvercast = 0.3;
-					sky = "DZ\data\data\sky_almostclear_sky.paa";
-					skyR = "DZ\data\data\sky_almostclear_lco.paa";
-					horizon = "DZ\data\data\sky_almostclear_horizont_sky.paa";
-					alpha = 0.1;
-					bright = 0.2;
-					speed = 0.3;
-					size = 0.55;
-					height = 0.9;
-					through = 0;
-					diffuse = 1;
-					cloudDiffuse = 1;
-					waves = 100;
+					overcast=0.30000001;
+					lightingOvercast=0.30000001;
+					sky="DZ\data\data\sky_almostclear_sky.paa";
+					skyR="DZ\data\data\sky_almostclear_lco.paa";
+					horizon="DZ\data\data\sky_almostclear_horizont_sky.paa";
+					alpha=0.1;
+					bright=0.2;
+					speed=0.30000001;
+					size=0.55000001;
+					height=0.89999998;
+					through=0;
+					diffuse=1;
+					cloudDiffuse=1;
+					waves=100;
 				};
 				class Weather3: Weather3
 				{
-					overcast = 0.5;
-					lightingOvercast = 0.5;
-					sky = "DZ\data\data\sky_semicloudy_sky.paa";
-					skyR = "DZ\data\data\sky_semicloudy_lco.paa";
-					horizon = "DZ\data\data\sky_semicloudy_horizont_sky.paa";
-					alpha = 0.25;
-					bright = 0.2;
-					speed = 0.5;
-					size = 0.65;
-					height = 0.85;
-					through = 0;
-					diffuse = 1;
-					cloudDiffuse = 1;
-					waves = 100;
+					overcast=0.5;
+					lightingOvercast=0.5;
+					sky="DZ\data\data\sky_semicloudy_sky.paa";
+					skyR="DZ\data\data\sky_semicloudy_lco.paa";
+					horizon="DZ\data\data\sky_semicloudy_horizont_sky.paa";
+					alpha=0.25;
+					bright=0.2;
+					speed=0.5;
+					size=0.64999998;
+					height=0.85000002;
+					through=0;
+					diffuse=1;
+					cloudDiffuse=1;
+					waves=100;
 				};
 				class Weather4: Weather4
 				{
-					overcast = 0.7;
-					lightingOvercast = 0.7;
-					sky = "DZ\data\data\sky_cloudy_sky.paa";
-					skyR = "DZ\data\data\sky_cloudy_lco.paa";
-					horizon = "DZ\data\data\sky_cloudy_horizont_sky.paa";
-					alpha = 0.35;
-					bright = 0.2;
-					speed = 0.75;
-					size = 0.85;
-					height = 0.8;
-					through = 0;
-					diffuse = 1;
-					cloudDiffuse = 1;
-					waves = 100;
+					overcast=0.69999999;
+					lightingOvercast=0.69999999;
+					sky="DZ\data\data\sky_cloudy_sky.paa";
+					skyR="DZ\data\data\sky_cloudy_lco.paa";
+					horizon="DZ\data\data\sky_cloudy_horizont_sky.paa";
+					alpha=0.34999999;
+					bright=0.2;
+					speed=0.75;
+					size=0.85000002;
+					height=0.80000001;
+					through=0;
+					diffuse=1;
+					cloudDiffuse=1;
+					waves=100;
 				};
 				class Weather5: Weather5
 				{
-					overcast = 1.01;
-					lightingOvercast = 1;
-					sky = "DZ\data\data\sky_mostlycloudy_sky.paa";
-					skyR = "DZ\data\data\sky_mostlycloudy_lco.paa";
-					horizon = "DZ\data\data\sky_mostlycloudy_horizont_sky.paa";
-					alpha = 0.35;
-					bright = 0.1;
-					speed = 0.8;
-					size = 1;
-					height = 0.75;
-					through = 0;
-					diffuse = 1;
-					cloudDiffuse = 1;
-					waves = 100;
+					overcast=1.01;
+					lightingOvercast=1;
+					sky="DZ\data\data\sky_mostlycloudy_sky.paa";
+					skyR="DZ\data\data\sky_mostlycloudy_lco.paa";
+					horizon="DZ\data\data\sky_mostlycloudy_horizont_sky.paa";
+					alpha=0.34999999;
+					bright=0.1;
+					speed=0.80000001;
+					size=1;
+					height=0.75;
+					through=0;
+					diffuse=1;
+					cloudDiffuse=1;
+					waves=100;
 				};
 			};
 		};
-		envTexture = "DZ\Data\data\env_co.paa";
-		clouds[] = {"DZ\Data\data\mrak1.p3d","DZ\Data\data\mrak2.p3d","DZ\Data\data\mrak3.p3d","DZ\Data\data\mrak4.p3d"};
-		skyObject = "DZ\Data\data\obloha.p3d";
-		starsObject = "DZ\Data\data\stars.p3d";
-		pointObject = "DZ\Data\data\point.p3d";
-		horizontObject = "DZ\Data\data\horizont.p3d";
-		haloObject = "DZ\Data\data\sunHalo.p3d";
-		sunObject = "DZ\Data\data\sun.p3d";
-		rainbowObject = "DZ\Data\data\rainbow.p3d";
-		moonObject = "DZ\Data\data\moon.p3d";
-		starsIntensity = 0.141;
-		hazeDistCoef = 0;
-		hazeFogCoef = 1;
-		satelliteNormalBlendStart = 100;
-		satelliteNormalBlendEnd = 500;
-		flareMinDistance = 2;
-		flareMinDistanceLerp = 1;
-		farLightSpotMul = 2;
-		farLightPointMul = 2;
-		minTreesInForestSquare = 10;
-		minRocksInRockSquare = 5;
-		soundMapAttenCoef = 0.01;
+		envTexture="DZ\Data\data\env_co.paa";
+		clouds[]=
+		{
+			"DZ\Data\data\mrak1.p3d",
+			"DZ\Data\data\mrak2.p3d",
+			"DZ\Data\data\mrak3.p3d",
+			"DZ\Data\data\mrak4.p3d"
+		};
+		skyObject="DZ\Data\data\obloha.p3d";
+		starsObject="DZ\Data\data\stars.p3d";
+		pointObject="DZ\Data\data\point.p3d";
+		horizontObject="DZ\Data\data\horizont.p3d";
+		haloObject="DZ\Data\data\sunHalo.p3d";
+		sunObject="DZ\Data\data\sun.p3d";
+		rainbowObject="DZ\Data\data\rainbow.p3d";
+		moonObject="DZ\Data\data\moon.p3d";
+		starsIntensity=0.141;
+		hazeDistCoef=0;
+		hazeFogCoef=1;
+		satelliteNormalBlendStart=100;
+		satelliteNormalBlendEnd=500;
+		flareMinDistance=2;
+		flareMinDistanceLerp=1;
+		farLightSpotMul=2;
+		farLightPointMul=2;
+		minTreesInForestSquare=10;
+		minRocksInRockSquare=5;
+		soundMapAttenCoef=0.0099999998;
 		class Subdivision: Subdivision
 		{
 			class Fractal: Fractal
 			{
-				rougness = 5;
-				maxRoad = 0.02;
-				maxTrack = 0.5;
-				maxSlopeFactor = 0.05;
+				rougness=5;
+				maxRoad=0.02;
+				maxTrack=0.5;
+				maxSlopeFactor=0.050000001;
 			};
 			class WhiteNoise: WhiteNoise
 			{
-				rougness = 2;
-				maxRoad = 0.01;
-				maxTrack = 0.05;
-				maxSlopeFactor = 0.0025;
+				rougness=2;
+				maxRoad=0.0099999998;
+				maxTrack=0.050000001;
+				maxSlopeFactor=0.0024999999;
 			};
-			minY = 0;
-			minSlope = 0.02;
+			minY=0;
+			minSlope=0.02;
 		};
 		class Lighting: DefaultLighting
 		{
-			groundReflection[] = {0.06,0.06,0.03};
-			moonObjectColorFull[] = {0.9,0.9,1,0.7};
-			moonHaloObjectColorFull[] = {0.9,0.9,1,0.01};
-			moonsetObjectColor[] = {0.9,0.75,0.4};
-			moonsetHaloObjectColor[] = {0.9,0.5,0.2};
-			nightAngle = 5;
-			sunSunset = 20;
-			endSunset = 10;
+			groundReflection[]={0.059999999,0.059999999,0.029999999};
+			moonObjectColorFull[]={0.89999998,0.89999998,1,0.69999999};
+			moonHaloObjectColorFull[]={0.89999998,0.89999998,1,0.0099999998};
+			moonsetObjectColor[]={0.89999998,0.75,0.40000001};
+			moonsetHaloObjectColor[]={0.89999998,0.5,0.2};
+			nightAngle=5;
+			sunSunset=20;
+			endSunset=10;
 		};
 	};
 };
