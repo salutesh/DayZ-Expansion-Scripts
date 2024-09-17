@@ -70,8 +70,10 @@ class ExpansionMarketSell
 		
 		ExpansionMarketSellItem itemSell = new ExpansionMarketSellItem;
 		itemSell.TakenAmount = takenAmount;
-		itemSell.ItemRep = item;
+		itemSell.ItemRep = item;  //! Can be NULL! (ammo in mags/ammopiles are not entities)
 		itemSell.ClassName = className;
+		if (item)
+			itemSell.IsEntity = true;
 		Sell.Insert(itemSell);
 
 		itemSell.AddStockAmount = addStockAmount;
@@ -83,6 +85,7 @@ class ExpansionMarketSellItem
 	int TakenAmount;
 	EntityAI ItemRep;
 	string ClassName;
+	bool IsEntity;
 
 	//! Amount to be added to trader stock when selling (including modifiers)
 	float AddStockAmount;

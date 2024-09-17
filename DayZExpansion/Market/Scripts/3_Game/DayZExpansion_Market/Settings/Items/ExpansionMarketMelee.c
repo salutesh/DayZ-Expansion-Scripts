@@ -20,17 +20,17 @@ class ExpansionMarketMelee: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MEELE_WEAPONS";
 		m_FileName = "Melee_Weapons";
 		
-		AddItem("BrassKnuckles_Dull", 		15,		30,		1,		100);
-		AddItem("BrassKnuckles_Shiny", 		15,		30,		1,		100);
-		AddItem("StunBaton", 				15,		30,		1,		100);
-		AddItem("Broom", 					15,	 	30,		1,		100);
-		AddItem("Broom_Birch", 				15,	 	30,		1,		100);
-		AddItem("Pipe", 					25,		50,		1,		100);
-		AddItem("CattleProd", 				25,		50,		1,		100);
-		AddItem("BaseballBat", 				35,		70,		1,		100);
-		AddItem("NailedBaseballBat", 		45,		90,		1,		100);
-		AddItem("BarbedBaseballBat", 		45,		90,		1,		100);
+		AddItem("brassknuckles_dull", 	260, 	430,	1,100);
+		AddItem("brassknuckles_shiny", 	1815, 	3025,	1,100);
+		//AddItem("StunBaton", 				15,		30,		1,		100);
+		AddItem("broom", 	285, 	475,	1,100);
+		AddItem("broom_birch", 	1080, 	1800,	1,100);
+		AddItem("pipe", 	610, 	1015,	1,100);
+		//AddItem("CattleProd", 				25,		50,		1,		100);
+		AddItem("baseballbat", 	230, 	385,	1,100);
+		//AddItem("NailedBaseballBat", 		45,		90,		1,		100);
+		//AddItem("BarbedBaseballBat", 		45,		90,		1,		100);
 		//! 1.21+
-		AddItem("Mace", 					50,		150,	1,		100);
+		AddItem("mace", 	355, 	595,	1,100);
 	}
 };

@@ -1346,6 +1346,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		objs.Insert(obj);
 
+		ExpansionMarketReserve reserve = player.GetMarketReserve();
+		foreach (ExpansionMarketReserveItem reserved: reserve.Reserved)
+		{
+			if (!reserved.CreatedObj && reserved.ClassName == item.ClassName)
+				reserved.CreatedObj = obj;
+		}
+
 		if (spawnedAmounts)
 			spawnedAmounts[item.ClassName] = spawnedAmounts[item.ClassName] + spawnAmount - remainingAmount;
 		
@@ -1651,6 +1658,11 @@ class ExpansionMarketModule: CF_ModuleWorld
 		ItemBase money;
 		int playerWorth;
 
+	#ifdef SERVER
+		auto settings = GetExpansionSettings().GetMarket();
+	#endif
+		TStringArray disallowedMoney = {};
+
 		if (player)
 		{
 			array<EntityAI> items = new array<EntityAI>;
@@ -1662,9 +1674,21 @@ class ExpansionMarketModule: CF_ModuleWorld
 			{
 				if (Class.CastTo(money, item) && money.ExpansionIsMoney())
 				{
+					if (money.IsSetForDeletion())
+						continue;
+
 					//! Make sure we don't use items as money that should not be included, like attachments (e.g. Dogtags that are attached to the player itself) or that are in nested containers (1.25 change).
 					if (!MiscGameplayFunctions.Expansion_IsLooseEntity(money))
 						continue;
+
+				#ifdef SERVER
+					if (settings.DisallowUnpersisted && !ExpansionWorld.IsStoreLoaded(money) && !ExpansionWorld.IsStoreSaved(money))
+					{
+						//! Only allow to use money items that have been persisted
+						disallowedMoney.Insert(money.GetDisplayName());
+						continue;
+					}
+				#endif
 
 					string type = money.GetType();
 					type.ToLower();
@@ -1755,7 +1779,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 			if (foundAmount > amount - minAmount)
 			{
-				return playerWorth >= amount;
+				return CheckMoney(playerWorth, amount, disallowedMoney, player);
 			}
 		}
 
@@ -1801,7 +1825,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 					remainingAmount -= toReserve * denomPrice;
 				}
 				
-				return playerWorth >= amount;
+				return CheckMoney(playerWorth, amount, disallowedMoney, player);
 			}
 			else
 			{
@@ -1818,6 +1842,17 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 
 		MarketModulePrint("FindMoneyAndCountTypes - not enough money found - end and return false!");
+		return false;
+	}
+
+	bool CheckMoney(int playerWorth, int amount, TStringArray disallowedMoney, PlayerBase player)
+	{
+		if (playerWorth >= amount)
+			return true;
+
+		if (disallowedMoney.Count() > 0 && player)
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", string.Format("You can't use %1 right now because it hasn't been persisted to game storage yet. Please wait at least 15-20 seconds.", ExpansionString.JoinStrings(disallowedMoney))).Error(player.GetIdentity());
+
 		return false;
 	}
 
@@ -2635,6 +2670,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		if (objs.Count())
 		{
+			TStringArray itemIDs = {};
+			itemIDs.Reserve(objs.Count());
+			
 			foreach (ExpansionMarketReserveItem currentReservedItem: reserve.Reserved)
 			{
 				int spawnedAmount = spawnedAmounts[currentReservedItem.ClassName];
@@ -2650,6 +2688,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 					zone.RemoveStock(currentReservedItem.ClassName, currentReservedItem.Amount, false);
 					spawnedAmounts[currentReservedItem.ClassName] = spawnedAmount - currentReservedItem.Amount;
 				}
+
+				string itemID;
+				if (currentReservedItem.ClassName == itemClassName)
+					itemID = ExpansionStatic.GetInstanceID(currentReservedItem.CreatedObj);
+				else if (!currentReservedItem.CreatedObj)  //! Ammo in mags/ammopiles are not entities
+					itemID = string.Format("%1 x%2", currentReservedItem.ClassName, currentReservedItem.Amount);
+				else
+					itemID = currentReservedItem.CreatedObj.ToString();
+				itemIDs.Insert(itemID);
 			}
 
 			int removed = RemoveMoney(player, reserve.Price);
@@ -2664,22 +2711,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 			CheckSpawn(player, parent, attachmentNotAttached);
 
-			TStringArray itemIDs = {};
-			itemIDs.Reserve(objs.Count());
-			
-			foreach (Object boughtItem: objs)
-			{
-				string itemID;
-				string className = boughtItem.GetType();
-				className.ToLower();
-				if (className == itemClassName)
-					itemID = ExpansionStatic.GetInstanceID(boughtItem);
-				else
-					itemID = boughtItem.ToString();
-				itemIDs.Insert(itemID);
-			}
-
-			string itemsDetail = string.Format("x%1 (%2)", reserve.TotalAmount, ExpansionString.JoinStrings(itemIDs));
+			string itemsDetail = string.Format("x%1 (%2)", reserve.TotalAmount, ExpansionString.JoinStrings(itemIDs, ", ", true));
 
 			ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has bought %3 %4 from the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8) for a price of %9.", player.GetIdentity().GetName(), player.GetIdentity().GetId(), reserve.RootItem.ClassName, itemsDetail, reserve.Trader.GetTraderMarket().m_FileName, reserve.Trader.GetDisplayName(), reserve.Trader.GetTraderZone().m_DisplayName, reserve.Trader.GetTraderZone().Position.ToString(), reserve.Price));	
 			
@@ -3086,19 +3118,47 @@ class ExpansionMarketModule: CF_ModuleWorld
 		int count = sell.Sell.Count();
 		TStringArray itemIDs = {};
 		itemIDs.Reserve(count);
+		TStringArray disallowedItems = {};
 		
+	#ifdef SERVER
+		auto settings = GetExpansionSettings().GetMarket();
+	#endif
+
 		for (int j = count - 1; j >= 0; j--)
 		{
 			auto sellItem = sell.Sell[j];
 			string itemID;
 			if (sellItem.ClassName == itemClassName)
 				itemID = ExpansionStatic.GetInstanceID(sellItem.ItemRep);
+			else if (!sellItem.IsEntity)  //! Ammo in mags/ammopiles are not entities
+				itemID = string.Format("%1 x%2", sellItem.ClassName, (int)sellItem.AddStockAmount);
 			else
 				itemID = sellItem.ItemRep.ToString();
 			itemIDs.Insert(itemID);
+			if (sellItem.IsEntity)
+			{
+			#ifdef SERVER
+				if (settings.DisallowUnpersisted && !ExpansionWorld.IsStoreLoaded(sellItem.ItemRep) && !ExpansionWorld.IsStoreSaved(sellItem.ItemRep))
+				{
+					//! Only allow to sell items that have been persisted
+					disallowedItems.Insert(sellItem.ItemRep.GetDisplayName());
+					continue;
+				}
+			#endif
+
+				if (!sellItem.ItemRep.IsPendingDeletion())
+					sellItem.DestroyItem();
+			}
 			zone.AddStock(sellItem.ClassName, sellItem.AddStockAmount);
-			if (!sellItem.ItemRep.IsPendingDeletion())
-				sellItem.DestroyItem();
+		}
+
+		if (disallowedItems.Count() > 0)
+		{
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", string.Format("You can't sell %1 right now because it hasn't been persisted to game storage yet. Please wait at least 15-20 seconds.", ExpansionString.JoinStrings(disallowedItems, ", ", true))).Error(player.GetIdentity());
+
+			player.ClearMarketSell();
+
+			return;
 		}
 
 		string itemsDetail = string.Format("x%1 (%2)", sell.TotalAmount, ExpansionString.JoinStrings(itemIDs, ", ", true));

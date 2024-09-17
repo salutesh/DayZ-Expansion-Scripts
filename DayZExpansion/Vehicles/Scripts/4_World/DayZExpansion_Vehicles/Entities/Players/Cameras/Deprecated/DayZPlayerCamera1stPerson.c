@@ -24,21 +24,20 @@ modded class DayZPlayerCamera1stPerson
 
 		ExpansionVehicleBase vehicle;
 		CarScript car;
-		Class.CastTo( car, m_pPlayer.GetParent() );
-		DayZPlayerImplement player = DayZPlayerImplement.Cast( m_pPlayer );
+		Class.CastTo( car, m_Ex_Player.Expansion_GetParent() );
 
-		if ( Class.CastTo( vehicle, m_pPlayer.GetParent() ) || player.Expansion_IsAttached() )
+		if ( Class.CastTo( vehicle, m_Ex_Player.Expansion_GetParent() ) || m_Ex_Player.Expansion_IsAttached() )
 		{
 			pOutResult.m_fInsideCamera = 0.0;
-			player.SetHeadInvisible_Ex( true );
+			m_Ex_Player.SetHeadInvisible_Ex( true );
 		}
 		else
 		{
-			GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY).Call( player.SetHeadInvisible_Ex, false );
+			GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY).Call( m_Ex_Player.SetHeadInvisible_Ex, false );
 			return;
 		}
 		
-		if ( m_pPlayer.GetCommand_Vehicle() || player.GetCommand_ExpansionVehicle() )
+		if ( m_pPlayer.GetCommand_Vehicle() || m_Ex_Player.GetCommand_ExpansionVehicle() )
 		{
 			return;
 		}

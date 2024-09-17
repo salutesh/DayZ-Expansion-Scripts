@@ -23,21 +23,21 @@ class ExpansionMarketSkirtsAndDresses: ExpansionMarketCategory
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_SKIRTS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_DRESSES");
 		m_FileName = "Skirts_And_Dresses";
 		
-		AddItem("Skirt_Blue", 						30,		60,		1,		100, null, {"Skirt_Red", "Skirt_White", "Skirt_Yellow"});
-		/*AddItem("Skirt_Red", 						30,		60,		1,		100);
-		AddItem("Skirt_White", 						30,		60,		1,		100);
-		AddItem("Skirt_Yellow", 					30,		60,		1,		100);*/
+		AddItem("skirt_blue", 	630, 	1050,	1,100,null,{"Skirt_Red","Skirt_White","Skirt_Yellow"});
+		AddItem("skirt_red", 	630, 	1050,	1,100);
+		AddItem("skirt_white", 	630, 	1050,	1,100);
+		AddItem("skirt_yellow", 	630, 	1050,	1,100);
 		
-		AddItem("MiniDress_Pink", 					35,		70,		1,		100, null, {"MiniDress_PinkChecker", "MiniDress_RedChecker", "MiniDress_BlueChecker", "MiniDress_BlueWithDots", "MiniDress_WhiteChecker", "MiniDress_BrownChecker", "MiniDress_GreenChecker"});
-		/*AddItem("MiniDress_PinkChecker", 			35,		70,		1,		100);
-		AddItem("MiniDress_RedChecker", 			35,		70,		1,		100);
-		AddItem("MiniDress_BlueChecker", 			35,		70,		1,		100);
-		AddItem("MiniDress_BlueWithDots", 			35,		70,		1,		100);
-		AddItem("MiniDress_WhiteChecker", 			35,		70,		1,		100);
-		AddItem("MiniDress_BrownChecker", 			35,		70,		1,		100);
-		AddItem("MiniDress_GreenChecker", 			35,		70,		1,		100);*/
+		AddItem("minidress_pink", 	200, 	335,	1,100,null,{"MiniDress_PinkChecker","MiniDress_RedChecker","MiniDress_BlueChecker","MiniDress_BlueWithDots","MiniDress_WhiteChecker","MiniDress_BrownChecker","MiniDress_GreenChecker"});
+		AddItem("minidress_pinkchecker", 	200, 	335,	1,100);
+		AddItem("minidress_redchecker", 	200, 	335,	1,100);
+		AddItem("minidress_bluechecker", 	200, 	335,	1,100);
+		AddItem("minidress_bluewithdots", 	200, 	335,	1,100);
+		AddItem("minidress_whitechecker", 	200, 	335,	1,100);
+		AddItem("minidress_brownchecker", 	200, 	335,	1,100);
+		AddItem("minidress_greenchecker", 	200, 	335,	1,100);
 		
-		AddItem("NurseDress_Blue", 					40,		80,		1,		100, null, {"NurseDress_White"});
-		//AddItem("NurseDress_White", 				40,		80,		1,		100);
+		AddItem("nursedress_blue", 	645, 	1075,	1,100,null,{"NurseDress_White"});
+		AddItem("nursedress_white", 	645, 	1075,	1,100);
 	}
 };

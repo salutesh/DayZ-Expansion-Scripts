@@ -29,13 +29,10 @@ class ExpansionMarketTraderWeapons: ExpansionMarketTrader
 		Categories.Insert("Pistols");
 		Categories.Insert("Sniper_Rifles");
 		Categories.Insert("Shotguns");
-		
-		// LAUNCHERS
-		AddItem("Flaregun");
-	
-	#ifdef EXPANSIONMODWEAPONS	
+		Categories.Insert("Launchers");
 		Categories.Insert("Crossbows");
-
+	
+	#ifdef EXPANSIONMODWEAPONS
 		//! Specify CanBuyAndSellAsAttachmentOnly to hide them from the "Ammo" category (these items are available in the "Special" trader)
 		AddItem("ExpansionAmmoLAW", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 		AddItem("ExpansionAmmoRPG", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);

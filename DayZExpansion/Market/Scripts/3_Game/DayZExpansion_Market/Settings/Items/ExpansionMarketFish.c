@@ -28,5 +28,15 @@ class ExpansionMarketFish: ExpansionMarketCategory
 		AddItem("Carp", 						20,			40,			1,		100);
 		AddItem("Sardines", 					20,			40,			1,		100);
 		AddItem("Mackerel", 					20,			40,			1,		100);
+
+		#ifndef DAYZ_1_25
+		AddItem("SteelheadTroutFilletMeat", 	8,			16,			1,		100);
+		
+		AddItem("SteelheadTrout", 					20,			40,			1,		100);
+		AddItem("WalleyePollock", 					20,			40,			1,		100);
+		AddItem("RedCaviar", 					20,			40,			1,		100);
+
+		AddItem("Shrimp", 					20,			40,			1,		100);
+		#endif
 	}
 };

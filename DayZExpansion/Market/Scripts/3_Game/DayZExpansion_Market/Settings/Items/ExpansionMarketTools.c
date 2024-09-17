@@ -20,33 +20,39 @@ class ExpansionMarketTools: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_TOOLS";
 		m_FileName = "Tools";
 		
-		AddItem("Screwdriver", 					3,		6,		1,		100);
-		AddItem("Wrench", 						3,		6,		1,		100);
-		AddItem("Pliers", 						4,		8,		1,		100);
-		AddItem("Whetstone", 					5,		10,		1,		100);
-		AddItem("Hammer", 						7,		14,		1,		100);
-		AddItem("Hacksaw", 						7,		14,		1,		100);
-		AddItem("HandSaw", 						7,		14,		1,		100);
-		AddItem("CanOpener", 					10,		20,		1,		100);
-		AddItem("Hatchet", 						10,		20,		1,		100);
-		AddItem("Lockpick", 					20,	 	40,		1,		100);
+		AddItem("screwdriver", 	325, 	545,	1,100);
+		AddItem("wrench", 	325, 	545,	1,100);
+		AddItem("pliers", 	325, 	545,	1,100);
+		AddItem("whetstone", 	375, 	625,	1,100);
+		AddItem("hammer", 	520, 	865,	1,100);
+		AddItem("hacksaw", 	450, 	750,	1,100);
+		AddItem("handsaw", 	450, 	750,	1,100);
+		AddItem("canopener", 	260, 	430,	1,100);
+		AddItem("hatchet", 	250, 	420,	1,100);
+		AddItem("lockpick", 	175, 	295,	1,100);
 		
-		AddItem("LugWrench", 					4,	 	8,		1,		100);
-		AddItem("PipeWrench", 					5,	 	10,		1,		100);
-		AddItem("FryingPan", 					5,	 	10,		1,		100);
-		AddItem("Sickle", 						5,	 	10,		1,		100);
-		AddItem("Crowbar", 						5,	 	10,		1,		100);
-		AddItem("Shovel", 						6,	 	12,		1,		100);
-		AddItem("Pickaxe", 						10,	 	20,		1,		100);
-		AddItem("SledgeHammer", 				12,	 	24,		1,		100);
-		AddItem("FarmingHoe", 					12,	 	24,		1,		100);
-		AddItem("WoodAxe", 						20,	 	40,		1,		100);
-		AddItem("FirefighterAxe", 				30,	 	60,		1,		100);
-		AddItem("Pitchfork", 					30,	 	60,		1,		100);
-		AddItem("Blowtorch", 					250,	500,	1,		100, {"SmallGasCanister"});
+		AddItem("lugwrench", 	610, 	1015,	1,100);
+		AddItem("pipewrench", 	440, 	735,	1,100);
+		AddItem("fryingpan", 	270, 	450,	1,100);
+		AddItem("sickle", 	1125, 	1875,	1,100);
+		AddItem("crowbar", 	610, 	1015,	1,100);
+		AddItem("shovel", 	2390, 	3980,	1,100);
+		AddItem("pickaxe", 	2700, 	4495,	1,100);
+		AddItem("sledgehammer", 	4485, 	7470,	1,100);
+		AddItem("farminghoe", 	265, 	440,	1,100);
+		AddItem("woodaxe", 	1955, 	3255,	1,100);
+		AddItem("firefighteraxe", 	490, 	820,	1,100);
+		AddItem("pitchfork", 	395, 	655,	1,100);
+		AddItem("blowtorch", 	670, 	1115,	1,100,{"SmallGasCanister"});
+
+		AddItem("fieldshovel", 	1425, 	2375,	1,100);
+		AddItem("meattenderizer", 	285, 	475,	1,100);
+		#ifndef DAYZ_1_25
+		AddItem("iceaxe", 	245, 	410,	1,100);
+		#endif
 	#ifdef EXPANSIONMODBASEBUILDING
-		AddItem("ExpansionPropaneTorch", 		250,	500,	1,		100);
-		AddItem("ExpansionBoltCutters", 		200,	450,	1,		100);
+		AddItem("ExpansionPropaneTorch", 		950, 	1500,	1,		100);
+		AddItem("ExpansionBoltCutters", 		390, 	620,	1,		100);
 	#endif
 	}
 };

@@ -21,12 +21,12 @@ class ExpansionMarketMuzzles: ExpansionMarketCategory
 		m_FileName = "Muzzles";
 		
 		// COMPENSATORS
-		AddItem("Mosin_Compensator", 			150,	300,	1,		100);
-		AddItem("MP5_Compensator", 				200,	400,	1,		100);
+		AddItem("mosin_compensator", 	1065, 	1775,	1,100);
+		AddItem("mp5_compensator", 	1790, 	2985,	1,100);
 		
 		// SUPRESSORS
-		AddItem("M4_Suppressor", 				25,		27,		1,		100);
-		AddItem("AK_Suppressor", 				25,		27,		1,		100);
-		AddItem("PistolSuppressor", 			15,		17,		1,		100);
+		AddItem("m4_suppressor", 	4855, 	8090,	1,100);
+		AddItem("ak_suppressor", 	4855, 	8090,	1,100);
+		AddItem("pistolsuppressor", 	2815, 	4690,	1,100);
 	}
 };

@@ -869,6 +869,12 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 		}
 
+		if (objEntity.IsSetForDeletion())
+		{
+			Error(ToString() + "::RPC_RequestListBMItem - target is about to be deleted.");
+			return;
+		}
+
 		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
 		if (!player)
 		{
@@ -963,6 +969,14 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			}
 		#endif
 		}
+
+	#ifdef SERVER
+		if (settings.DisallowUnpersisted && !ExpansionWorld.IsStoreLoaded(objEntity) && !ExpansionWorld.IsStoreSaved(objEntity))
+		{
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", string.Format("You can't list %1 right now because it hasn't been persisted to game storage yet. Please wait at least 15-20 seconds.", objEntity.GetDisplayName())).Error(player.GetIdentity());
+			return;
+		}
+	#endif
 
 		ExpansionP2PMarketListing newListing = new ExpansionP2PMarketListing();
 		newListing.SetFromItem(objEntity, player);

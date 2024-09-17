@@ -60,12 +60,15 @@ class ExpansionActionPayParkingFine: ActionInteractBase
 			return false;
 		
 		#ifdef SERVER
-		if ( m_Vehicle.HasKey() )
+		if (GetExpansionSettings().GetMarket().SZVehicleParkingFineUseKey)
 		{
-			if (!player.HasKeyForCar(m_Vehicle))
+			if ( m_Vehicle.HasKey() )
 			{
-				ExpansionNotification("STR_EXPANSION_ERROR_TITLE", "STR_EXPANSION_MARKET_FINE_MISSING_KEY").Error(player.GetIdentity());
-				return false;
+				if (!player.HasKeyForCar(m_Vehicle))
+				{
+					ExpansionNotification("STR_EXPANSION_ERROR_TITLE", "STR_EXPANSION_MARKET_FINE_MISSING_KEY").Error(player.GetIdentity());
+					return false;
+				}
 			}
 		}
 		#endif

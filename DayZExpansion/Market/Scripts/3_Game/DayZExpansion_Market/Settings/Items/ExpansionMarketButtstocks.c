@@ -20,29 +20,27 @@ class ExpansionMarketButtstocks: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BUTTSTOCKS";
 		m_FileName = "Buttstocks";
 		
-		AddItem("MP5k_StockBttstck", 			100,	200,	1,		100);
+		AddItem("mp5k_stockbttstck", 	1290, 	2150,	1,100);
 
-		AddItem("Fal_OeBttstck", 				100,	200,	1,		100);
-		AddItem("Fal_FoldingBttstck", 			150,	300,	1,		100);
+		AddItem("fal_oebttstck", 	1705, 	2840,	1,100);
+		AddItem("fal_foldingbttstck", 	1705, 	2840,	1,100);
 
-		AddItem("Saiga_Bttstck", 				150,	300,	1,		100);
+		AddItem("saiga_bttstck", 	1280, 	2130,	1,100);
 
-		AddItem("AKS74U_Bttstck", 				150,	300,	1,		100);
+		AddItem("aks74u_bttstck", 	5950, 	9915,	1,100);
 
-		AddItem("AK74_WoodBttstck", 			150,	300,	1,		100);
+		AddItem("ak74_woodbttstck", 	1280, 	2130,	1,100);
 
-		AddItem("AK_PlasticBttstck", 			100,	200,	1,		100);
-		AddItem("AK_WoodBttstck", 				150,	300,	1,		100);
-		AddItem("AK_FoldingBttstck", 			250,	500,	1,		100);
+		AddItem("ak_plasticbttstck", 	1280, 	2130,	1,100);
+		AddItem("ak_woodbttstck", 	1280, 	2130,	1,100);
+		AddItem("ak_foldingbttstck", 	1280, 	2130,	1,100);
 
-		AddItem("M4_OEBttstck", 				150,	300,	1,		100);
-		AddItem("M4_MPBttstck", 				150,	300,	1,		100);
-		AddItem("M4_CQBBttstck", 				150,	300,	1,		100);
+		AddItem("m4_oebttstck", 	1280, 	2130,	1,100);
+		AddItem("m4_mpbttstck", 	1280, 	2130,	1,100);
+		AddItem("m4_cqbbttstck", 	1280, 	2130,	1,100);
 
-		AddItem("PP19_Bttstck", 				150,	300,	1,		100);
+		AddItem("pp19_bttstck", 	1290, 	2150,	1,100);
 			
-		AddItem("GhillieAtt_Tan", 				220,	440,	1,		100, null, {"GhillieAtt_Woodland", "GhillieAtt_Mossy"});
-		//AddItem("GhillieAtt_Woodland", 			220,	440,	1,		100);
-		//AddItem("GhillieAtt_Mossy", 			220,	440,	1,		100);
+		AddItem("GhillieAtt_Tan", 				2630,	4390,	1,		100, null, {"GhillieAtt_Woodland", "ghillieatt_mossy","ghillieatt_winter"});
 	}
 };

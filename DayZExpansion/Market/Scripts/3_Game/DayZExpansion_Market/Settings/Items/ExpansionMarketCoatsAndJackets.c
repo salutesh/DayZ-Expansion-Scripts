@@ -20,109 +20,95 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_COATS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_JACKETS");
 		m_FileName = "Coats_And_Jackets";
 
-		AddItem("LabCoat", 								10,		20,		1,		100);
+		AddItem("labcoat", 	640, 	1065,	1,100);
 
-		AddItem("TrackSuitJacket_Black", 				15,		30,		1,		100, null, {"TrackSuitJacket_Blue", "TrackSuitJacket_Green", "TrackSuitJacket_LightBlue", "TrackSuitJacket_Red"});
-		/*AddItem("TrackSuitJacket_Blue", 				15,		30,		1,		100);
-		AddItem("TrackSuitJacket_Green", 				15,		30,		1,		100);
-		AddItem("TrackSuitJacket_LightBlue", 			15,		30,		1,		100);
-		AddItem("TrackSuitJacket_Red", 					15,		30,		1,		100);*/
+		AddItem("tracksuitjacket_black", 	990, 	1645,	1,100,null,{"TrackSuitJacket_Blue","TrackSuitJacket_Green","TrackSuitJacket_LightBlue","TrackSuitJacket_Red"});
+		AddItem("tracksuitjacket_blue", 	635, 	1060,	1,100);
+		AddItem("tracksuitjacket_green", 	530, 	885,	1,100);
+		AddItem("tracksuitjacket_lightblue", 	530, 	885,	1,100);
+		AddItem("tracksuitjacket_red", 	635, 	1060,	1,100);
+		
+		#ifndef DAYZ_1_25
+		AddItem("downjacket_blue", 	145, 	240,	1,100,null,{"downjacket_green","downjacket_orange","downjacket_red"});
+		#endif
 
-		AddItem("DenimJacket", 							18,		36,		1,		100);
+		AddItem("denimjacket", 	210, 	350,	1,100);
 
-		AddItem("WoolCoat_Red", 						18,		36,		1,		100, null, {"WoolCoat_Blue", "WoolCoat_Beige", "WoolCoat_RedCheck", "WoolCoat_BlueCheck", "WoolCoat_GreyCheck", "WoolCoat_BrownCheck", "WoolCoat_Black", "WoolCoat_BlackCheck", "WoolCoat_Green"});
-		/*AddItem("WoolCoat_Blue", 						18,		36,		1,		100);
-		AddItem("WoolCoat_Beige", 						18,		36,		1,		100);
-		AddItem("WoolCoat_RedCheck", 					18,		36,		1,		100);
-		AddItem("WoolCoat_BlueCheck", 					18,		36,		1,		100);
-		AddItem("WoolCoat_GreyCheck", 					18,		36,		1,		100);
-		AddItem("WoolCoat_BrownCheck", 					18,		36,		1,		100);*/
-		AddItem("WoolCoat_Black", 						19,		38,		1,		100);
-		AddItem("WoolCoat_BlackCheck", 					19,		38,		1,		100);
-		AddItem("WoolCoat_Green", 						20,		40,		1,		100);
+		AddItem("woolcoat_red", 	810, 	1350,	1,100,null,{"WoolCoat_Blue","WoolCoat_Beige","WoolCoat_RedCheck","WoolCoat_BlueCheck","WoolCoat_GreyCheck","WoolCoat_BrownCheck","WoolCoat_Black","WoolCoat_BlackCheck","WoolCoat_Green"});
+		AddItem("woolcoat_blue", 	1005, 	1675,	1,100);
+		AddItem("woolcoat_beige", 	1145, 	1910,	1,100);
+		AddItem("woolcoat_redcheck", 	810, 	1350,	1,100);
+		AddItem("woolcoat_bluecheck", 	1005, 	1675,	1,100);
+		AddItem("woolcoat_greycheck", 	650, 	1080,	1,100);
+		AddItem("woolcoat_browncheck", 	1445, 	2410,	1,100);
+		AddItem("woolcoat_black", 	1460, 	2430,	1,100);
+		AddItem("woolcoat_blackcheck", 	1445, 	2410,	1,100);
+		AddItem("woolcoat_green", 	1015, 	1690,	1,100);
 	
 	#ifdef EXPANSIONMOD
-		AddItem("RidersJacket_Black", 					20,		40,		1,		100, null, {"ExpansionRidersJacketBrown", "ExpansionRidersJacketDarkBlue"});
-		/*AddItem("ExpansionRidersJacketBrown", 		20,		40,		1,		100);
-		AddItem("ExpansionRidersJacketDarkBlue", 		20,		40,		1,		100);*/
+		AddItem("ridersjacket_black", 	835, 	1390,	1,100,null,{"ExpansionRidersJacketBrown","ExpansionRidersJacketDarkBlue"});
 	#else
-		AddItem("RidersJacket_Black", 					20,		40,		1,		100);
+		AddItem("ridersjacket_black", 	835, 	1390,	1,100);
 	#endif
 	
-		AddItem("FirefighterJacket_Beige", 				24,		48,		1,		100, null, {"FirefighterJacket_Black"});
-		AddItem("FirefighterJacket_Black", 				24,		48,		1,		100);
+		AddItem("firefighterjacket_beige", 	355, 	590,	1,100,null,{"FirefighterJacket_Black"});
+		AddItem("firefighterjacket_black", 	355, 	590,	1,100);
 		
-		AddItem("JumpsuitJacket_Blue", 					26,		52,		1,		100, null, {"JumpsuitJacket_Gray", "JumpsuitJacket_Green", "JumpsuitJacket_Red"});
-		/*AddItem("JumpsuitJacket_Gray", 				26,		52,		1,		100);
-		AddItem("JumpsuitJacket_Green", 				26,		52,		1,		100);
-		AddItem("JumpsuitJacket_Red", 					26,		52,		1,		100);*/
+		AddItem("jumpsuitjacket_blue", 	1815, 	3030,	1,100,null,{"JumpsuitJacket_Gray","JumpsuitJacket_Green","JumpsuitJacket_Red"});
+		AddItem("jumpsuitjacket_gray", 	1170, 	1955,	1,100);
+		AddItem("jumpsuitjacket_red", 	1170, 	1955,	1,100);
 
-		AddItem("BomberJacket_Brown", 					26,		52,		1,		100, null, {"BomberJacket_Blue", "BomberJacket_Grey", "BomberJacket_Maroon", "BomberJacket_SkyBlue", "BomberJacket_Black", "BomberJacket_Olive"});
-		/*AddItem("BomberJacket_Blue", 					26,		52,		1,		100);
-		AddItem("BomberJacket_Grey", 					26,		52,		1,		100);
-		AddItem("BomberJacket_Maroon", 					26,		52,		1,		100);
-		AddItem("BomberJacket_SkyBlue", 				26,		52,		1,		100);*/
-		AddItem("BomberJacket_Black", 					28,		56,		1,		100);
-		AddItem("BomberJacket_Olive", 					30,		60,		1,		100);
+		AddItem("bomberjacket_brown", 	1005, 	1675,	1,100,null,{"BomberJacket_Blue","BomberJacket_Grey","BomberJacket_Maroon","BomberJacket_SkyBlue","BomberJacket_Black","BomberJacket_Olive"});
+		AddItem("bomberjacket_olive", 	7045, 	11745,	1,100);
 
-		AddItem("QuiltedJacket_Blue", 					26,		52,		1,		100, null, {"QuiltedJacket_Red", "QuiltedJacket_Grey", "QuiltedJacket_Orange", "QuiltedJacket_Yellow", "QuiltedJacket_Violet", "QuiltedJacket_Black", "QuiltedJacket_Green"});
-		/*AddItem("QuiltedJacket_Red", 					26,		52,		1,		100);
-		AddItem("QuiltedJacket_Grey", 					26,		52,		1,		100);
-		AddItem("QuiltedJacket_Orange", 				26,		52,		1,		100);
-		AddItem("QuiltedJacket_Yellow", 				26,		52,		1,		100);
-		AddItem("QuiltedJacket_Violet", 				26,		52,		1,		100);*/
-		AddItem("QuiltedJacket_Black", 					28,		56,		1,		100);
-		AddItem("QuiltedJacket_Green", 					30,		60,		1,		100);
+		AddItem("quiltedjacket_blue", 	1125, 	1875,	1,100,null,{"QuiltedJacket_Red","QuiltedJacket_Grey","QuiltedJacket_Orange","QuiltedJacket_Yellow","QuiltedJacket_Violet","QuiltedJacket_Black","QuiltedJacket_Green"});
+		AddItem("quiltedjacket_red", 	990, 	1645,	1,100);
+		AddItem("quiltedjacket_orange", 	990, 	1645,	1,100);
+		AddItem("quiltedjacket_yellow", 	990, 	1645,	1,100);
+		AddItem("quiltedjacket_violet", 	990, 	1645,	1,100);
+		AddItem("quiltedjacket_black", 	1420, 	2370,	1,100);
+		AddItem("quiltedjacket_green", 	1420, 	2370,	1,100);
 
-		AddItem("PrisonUniformJacket", 					28,		56,		1,		100);
+		AddItem("prisonuniformjacket", 	355, 	590,	1,100);
 
-		AddItem("PoliceJacketOrel", 					32,		64,		1,		100);
-		AddItem("PoliceJacket", 						34,		68,		1,		100);
+		AddItem("policejacketorel", 	660, 	1100,	1,100);
+		AddItem("policejacket", 	660, 	1100,	1,100);
+		#ifndef DAYZ_1_25
+		AddItem("bushlatpolicejacket_blue", 	4740, 	7895,	1,100);
+		#endif
 
-		AddItem("ParamedicJacket_Blue", 				36,		72,		1,		100, null, {"ParamedicJacket_Crimson", "ParamedicJacket_Green"});
-		/*AddItem("ParamedicJacket_Crimson", 				36,		72,		1,		100);
-		AddItem("ParamedicJacket_Green", 				36,		72,		1,		100);*/
+		AddItem("paramedicjacket_blue", 	645, 	1075,	1,100,null,{"ParamedicJacket_Crimson","ParamedicJacket_Green"});
 
-		AddItem("HikingJacket_Black", 					36,		72,		1,		100, null, {"HikingJacket_Red", "HikingJacket_Blue", "HikingJacket_Green"});
-		/*AddItem("HikingJacket_Red", 					36,		72,		1,		100);
-		AddItem("HikingJacket_Blue", 					38,	76,		1,		100);*/
-		AddItem("HikingJacket_Green", 					40,		80,		1,		100);
+		AddItem("hikingjacket_black", 	1125, 	1875,	1,100,null,{"HikingJacket_Red","HikingJacket_Blue","HikingJacket_Green"});
+		AddItem("hikingjacket_green", 	1420, 	2370,	1,100);
 	
-		AddItem("Raincoat_Pink", 						70,		140,	1,		100, null, {"Raincoat_Orange", "Raincoat_Yellow", "Raincoat_Red", "Raincoat_Blue", "Raincoat_Black", "Raincoat_Green"});
-		/*AddItem("Raincoat_Orange", 					70,		140,	1,		100);
-		AddItem("Raincoat_Yellow", 						70,		140,	1,		100);
-		AddItem("Raincoat_Red", 						70,		140,	1,		100);
-		AddItem("Raincoat_Blue", 						70,		140,	1,		100);
-		AddItem("Raincoat_Black", 						80,		160,	1,		100);*/
-		AddItem("Raincoat_Green", 						100,	200,	1,		100);
+		AddItem("raincoat_pink", 	245, 	405,	1,100,null,{"Raincoat_Orange","Raincoat_Yellow","Raincoat_Red","Raincoat_Blue","Raincoat_Black","Raincoat_Green"});
 
-		AddItem("TTsKOJacket_Camo", 					100,	200,	1,		100);		
+		AddItem("ttskojacket_camo", 	1035, 	1725,	1,100);
 
-		AddItem("BDUJacket", 							100,	200,	1,		100);
+		AddItem("bdujacket", 	1055, 	1755,	1,100);
 
-		AddItem("HuntingJacket_Autumn", 				120,	240,	1,		100, null, {"HuntingJacket_Brown", "HuntingJacket_Spring", "HuntingJacket_Summer", "HuntingJacket_Winter"});
-		/*AddItem("HuntingJacket_Brown", 					120,	240,	1,		100);
-		AddItem("HuntingJacket_Spring", 				120,	240,	1,		100);
-		AddItem("HuntingJacket_Summer", 				120,	240,	1,		100);
-		AddItem("HuntingJacket_Winter", 				120,	240,	1,		100);*/
+		AddItem("huntingjacket_autumn", 	4310, 	7180,	1,100,null,{"HuntingJacket_Brown","HuntingJacket_Spring","HuntingJacket_Summer","HuntingJacket_Winter"});
+		AddItem("huntingjacket_brown", 	4235, 	7055,	1,100);
+		AddItem("huntingjacket_spring", 	4455, 	7430,	1,100);
+		AddItem("huntingjacket_summer", 	3355, 	5595,	1,100);
+		AddItem("huntingjacket_winter", 	4385, 	7305,	1,100);
 
-		AddItem("M65Jacket_Black", 						130,	260,	1,		100, null, {"M65Jacket_Khaki", "M65Jacket_Tan", "M65Jacket_Olive"});
-		/*AddItem("M65Jacket_Khaki", 						130,	260,	1,		100);
-		AddItem("M65Jacket_Tan", 						130,	260,	1,		100);
-		AddItem("M65Jacket_Olive", 						130,	260,	1,		100);*/
+		AddItem("m65jacket_black", 	7105, 	11845,	1,100,null,{"M65Jacket_Khaki","M65Jacket_Tan","M65Jacket_Olive"});
+		AddItem("m65jacket_olive", 	7830, 	13055,	1,100);
 		
-		AddItem("GorkaEJacket_Summer", 					140,	280,	1,		100, null, {"GorkaEJacket_Flat", "GorkaEJacket_Autumn", "GorkaEJacket_PautRev"});
-		/*AddItem("GorkaEJacket_Flat", 					140,	280,	1,		100);
-		AddItem("GorkaEJacket_Autumn", 					140,	280,	1,		100);
-		AddItem("GorkaEJacket_PautRev", 				140,	280,	1,		100);*/
+		AddItem("gorkaejacket_summer", 	1055, 	1755,	1,100,null,{"GorkaEJacket_Flat","GorkaEJacket_Autumn","GorkaEJacket_PautRev","GorkaEJacket_Winter"});
 		
-		AddItem("USMCJacket_Desert", 					140,	280,	1,		100, null, {"USMCJacket_Woodland"});
-		AddItem("USMCJacket_Woodland", 					155,	310,	1,		100);
+		AddItem("usmcjacket_desert", 	1055, 	1755,	1,100,null,{"USMCJacket_Woodland"});
+		AddItem("usmcjacket_woodland", 	1055, 	1755,	1,100);
 		
-		AddItem("NBCJacketGray", 						250,	500,	1,		100);
-		AddItem("NBCJacketYellow", 						250,	500,	1,		100);
+		AddItem("nbcjacketgray", 	7900, 	13165,	1,100,null,{"nbcjacketyellow","nbcjacketwhite"});
 		
-	//! 1.21+
-		AddItem("Chainmail", 							375,	650,	1,		100);
+		AddItem("chainmail", 	355, 	595,	1,100);
+		
+		#ifndef DAYZ_1_25
+		AddItem("omkjacket_navy", 	145, 	240,	1,100);
+		AddItem("navyuniformjacket", 	145, 	240,	1,100);
+		#endif
 	}
 };

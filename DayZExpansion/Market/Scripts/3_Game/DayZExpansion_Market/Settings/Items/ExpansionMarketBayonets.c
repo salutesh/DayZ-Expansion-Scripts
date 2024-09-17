@@ -20,13 +20,13 @@ class ExpansionMarketBayonets: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BAYONETS";
 		m_FileName = "Bayonets";
 		
-		AddItem("Mosin_Bayonet", 				100,	200,	1,		100);
-		AddItem("SKS_Bayonet", 					100,	200,	1,		100);
-		AddItem("M9A1_Bayonet", 				150,	300,	1,		100);
-		AddItem("AK_Bayonet", 					150,	300,	1,		100);
+		AddItem("mosin_bayonet", 	1390, 	2315,	1,100);
+		AddItem("sks_bayonet", 	3590, 	5985,	1,100);
+		AddItem("m9a1_bayonet", 	3150, 	5245,	1,100);
+		AddItem("ak_bayonet", 	3150, 	5245,	1,100);
 
 	#ifdef EXPANSIONMODWEAPONS
-		AddItem("Expansion_Kar98_Bayonet", 		100,	200,	1,		100);
+		AddItem("Expansion_Kar98_Bayonet", 		1390, 	2315,	1,		100);
 	#endif
 	}
 };

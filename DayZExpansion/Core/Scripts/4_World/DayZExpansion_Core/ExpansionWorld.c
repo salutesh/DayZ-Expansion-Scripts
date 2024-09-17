@@ -386,4 +386,28 @@ class ExpansionWorld: ExpansionGame
 		else if (Class.CastTo(zombie, target))
 			zombie.Expansion_SetLobotomized(isLobotomized);
 	}
+
+	static bool IsStoreLoaded(EntityAI entity)
+	{
+		ItemBase item;
+		ExpansionVehicle vehicle;
+		if (Class.CastTo(item, entity))
+			return item.Expansion_IsStoreLoaded();
+		else if (ExpansionVehicle.Get(vehicle, entity))
+			return vehicle.IsStoreLoaded();
+
+		return false;
+	}
+
+	static bool IsStoreSaved(EntityAI entity)
+	{
+		ItemBase item;
+		ExpansionVehicle vehicle;
+		if (Class.CastTo(item, entity))
+			return item.Expansion_IsStoreSaved();
+		else if (ExpansionVehicle.Get(vehicle, entity))
+			return vehicle.IsStoreSaved();
+
+		return false;
+	}
 };

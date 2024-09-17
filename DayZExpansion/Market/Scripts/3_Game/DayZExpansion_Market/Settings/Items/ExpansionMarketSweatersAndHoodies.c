@@ -20,16 +20,16 @@ class ExpansionMarketSweatersAndHoodies: ExpansionMarketCategory
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_SWEATERS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_HOODIES");
 		m_FileName = "Sweaters_And_Hoodies";
 
-		AddItem("Sweater_Gray", 						20,		40,		1,		100);
-		AddItem("Sweater_Blue", 						20,		40,		1,		100);
-		AddItem("Sweater_Red", 							20,		40,		1,		100);
-		AddItem("Sweater_Green", 						25,		50,		1,		100);
+		AddItem("sweater_gray", 	635, 	1060,	1,100);
+		AddItem("sweater_blue", 	1125, 	1875,	1,100);
+		AddItem("sweater_red", 	635, 	1060,	1,100);
+		AddItem("sweater_green", 	4190, 	6980,	1,100);
 
-		AddItem("Hoodie_Blue", 							30,		60,		1,		100);
-		AddItem("Hoodie_Black", 						30,		60,		1,		100);
-		AddItem("Hoodie_Brown", 						30,		60,		1,		100);
-		AddItem("Hoodie_Grey", 							30,		60,		1,		100);
-		AddItem("Hoodie_Red", 							30,		60,		1,		100);
-		AddItem("Hoodie_Green", 						35,		70,		1,		100);
+		AddItem("hoodie_blue", 	620, 	1035,	1,100);
+		AddItem("hoodie_black", 	610, 	1015,	1,100);
+		AddItem("hoodie_brown", 	620, 	1035,	1,100);
+		AddItem("hoodie_grey", 	620, 	1035,	1,100);
+		AddItem("hoodie_red", 	620, 	1035,	1,100);
+		AddItem("hoodie_green", 	610, 	1015,	1,100);
 	}
 };

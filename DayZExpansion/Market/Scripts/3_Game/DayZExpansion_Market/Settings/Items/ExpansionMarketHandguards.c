@@ -20,17 +20,17 @@ class ExpansionMarketHandguards: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HANDGUARDS";
 		m_FileName = "Handguards";
 			
-		AddItem("MP5_PlasticHndgrd", 			100,		200,		1,		100);
-		AddItem("MP5_RailHndgrd", 				150,		300,		1,		100);
+		AddItem("mp5_plastichndgrd", 	1805, 	3010,	1,100);
+		AddItem("mp5_railhndgrd", 	1805, 	3010,	1,100);
 
-		AddItem("AK74_Hndgrd", 					150,		300,		1,		100);
+		AddItem("ak74_hndgrd", 	1790, 	2985,	1,100);
 
-		AddItem("AK_WoodHndgrd", 				200,		400,		1,		100);
-		AddItem("AK_RailHndgrd", 				200,		400,		1,		100);
-		AddItem("AK_PlasticHndgrd", 			200,		400,		1,		100);
+		AddItem("ak_woodhndgrd", 	1790, 	2985,	1,100);
+		AddItem("ak_railhndgrd", 	1790, 	2985,	1,100);
+		AddItem("ak_plastichndgrd", 	1790, 	2985,	1,100);
 		
-		AddItem("M4_PlasticHndgrd", 			150,		300,		1,		100);
-		AddItem("M4_RISHndgrd", 				200,		400,		1,		100);
-		AddItem("M4_MPHndgrd", 					200,		400,		1,		100);
+		AddItem("m4_plastichndgrd", 	1790, 	2985,	1,100);
+		AddItem("m4_rishndgrd", 	1790, 	2985,	1,100);
+		AddItem("m4_mphndgrd", 	1790, 	2985,	1,100);
 	}
 };

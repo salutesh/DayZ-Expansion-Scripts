@@ -206,9 +206,10 @@ class ExpansionP2PMarketSettingsBase: ExpansionSettingBase
 
 class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 
 	int SalesDepositTime;
+	bool DisallowUnpersisted;
 
 	[NonSerialized()]
 	bool m_IsLoaded;
@@ -323,6 +324,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 	#endif
 
 		SalesDepositTime = s.SalesDepositTime;
+		DisallowUnpersisted = s.DisallowUnpersisted;
 
 		ExpansionP2PMarketSettingsBase sb = s;
 		CopyInternal(sb);
@@ -375,10 +377,16 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 			{
 				EXPrint("[ExpansionP2PMarketSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_P2PMARKET_SETTINGS + "\" to v" + VERSION);
 
-				CopyInternal(settingsBase);
-
 				if (settingsBase.m_Version < 1)
+				{
+					CopyInternal(settingsBase);
 					SalesDepositTime = settingsDefault.SalesDepositTime;
+				}
+				else
+				{
+					JsonFileLoader<ExpansionP2PMarketSettings>.JsonLoadFile(EXPANSION_P2PMARKET_SETTINGS, this);
+					DisallowUnpersisted = settingsDefault.DisallowUnpersisted;
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -435,6 +443,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 		ListingOwnerDiscountPercent = 70; //! 70% discount on the listed item price for the item owner.
 		ListingPricePercent = 30; //! 30% of the given listing price need to be paied to list a item.
 		SalesDepositTime = 691200; //! 8 days by default.
+		DisallowUnpersisted = false;
 
 		DefaultMenuCategories();
 

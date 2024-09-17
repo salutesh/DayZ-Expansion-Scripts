@@ -20,23 +20,23 @@ class ExpansionMarketOptics: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_OPTICS";
 		m_FileName = "Optics";
 		
-		AddItem("PistolOptic", 					100,		200,	1,		100);
-		AddItem("ReflexOptic", 					150,		300,	1,		100,	{"Battery9V"});
-		AddItem("M4_CarryHandleOptic", 			150,		300,	1,		100);
-		AddItem("BUISOptic", 					150,		300,	1,		100);
-		AddItem("FNP45_MRDSOptic", 				250,		500,	1,		100,	{"Battery9V"});
-		AddItem("ACOGOptic", 					300,		600,	1,		100);
-		AddItem("ACOGOptic_6x", 				1200,		2400,	1,		100);
-		AddItem("M68Optic", 					500,		1000,	1,		100,	{"Battery9V"});
-		AddItem("M4_T3NRDSOptic", 				500,		1000,	1,		100,	{"Battery9V"});
-		AddItem("KobraOptic", 					600,		1200,	1,		100,	{"Battery9V"});		
-		AddItem("KashtanOptic", 				700,		1400,	1,		100);
-		AddItem("PUScopeOptic", 				900,		1800,	1,		100);
-		AddItem("HuntingOptic", 				1000,		2000,	1,		100);
-		AddItem("PSO1Optic", 					1100,		2200,	1,		100,	{"Battery9V"});
-		AddItem("PSO11Optic", 					1400,		2800,	1,		100,	{"Battery9V"});
-		AddItem("KazuarOptic", 					2200,		4400,	1,		100,	{"Battery9V"});
-		AddItem("StarlightOptic", 				2400,		4800,	1,		100,	{"Battery9V"});
+		AddItem("pistoloptic", 	6050, 	10085,	1,100);
+		AddItem("reflexoptic", 	5070, 	8450,	1,100,{"Battery9V"});
+		AddItem("m4_carryhandleoptic", 	1490, 	2485,	1,100);
+		AddItem("buisoptic", 	5185, 	8640,	1,100);
+		AddItem("fnp45_mrdsoptic", 	9810, 	16355,	1,100,{"Battery9V"});
+		AddItem("acogoptic", 	1480, 	2465,	1,100);
+		AddItem("acogoptic_6x", 	7985, 	13310,	1,100);
+		AddItem("m68optic", 	1440, 	2400,	1,100,{"Battery9V"});
+		AddItem("m4_t3nrdsoptic", 	6540, 	10905,	1,100,{"Battery9V"});
+		AddItem("kobraoptic", 	1440, 	2400,	1,100,{"Battery9V"});
+		AddItem("kashtanoptic", 	1440, 	2400,	1,100);
+		AddItem("puscopeoptic", 	1070, 	1785,	1,100);
+		AddItem("huntingoptic", 	4715, 	7855,	1,100);
+		AddItem("pso1optic", 	1440, 	2400,	1,100,{"Battery9V"});
+		AddItem("pso11optic", 	6430, 	10715,	1,100,{"Battery9V"});
+		AddItem("kazuaroptic", 	4405, 	7345,	1,100,{"Battery9V"});
+		AddItem("starlightoptic", 	4405, 	7345,	1,100,{"Battery9V"});
 		
 	#ifdef EXPANSIONMODWEAPONS	
 		AddItem("Expansion_M1A_RailAtt", 		150,		300,	1,		100);

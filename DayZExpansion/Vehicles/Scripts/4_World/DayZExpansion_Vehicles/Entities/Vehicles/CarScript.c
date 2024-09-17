@@ -399,46 +399,55 @@ modded class CarScript
 
 	void Expansion_AssignOwner(notnull Man player, bool send = true)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().AssignOwner");
 		m_ExpansionVehicle.AssignOwner(player, send);
 	}
 
 	void Expansion_AssignOwner(notnull PlayerIdentity owner, bool send = true)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().AssignOwner");
 		m_ExpansionVehicle.AssignOwner(owner, send);
 	}
 
 	void Expansion_AssignOwner(string ownerUID, string ownerName, bool send = true)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().AssignOwner");
 		m_ExpansionVehicle.AssignOwner(ownerUID, ownerName, send);
 	}
 
 	bool Expansion_IsOwner(notnull Man player)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().IsOwner");
 		return m_ExpansionVehicle.IsOwner(player);
 	}
 
 	bool Expansion_IsOwner(notnull PlayerIdentity identity)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().IsOwner");
 		return m_ExpansionVehicle.IsOwner(identity);
 	}
 
 	bool Expansion_IsOwner(string playerUID)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().IsOwner");
 		return m_ExpansionVehicle.IsOwner(playerUID);
 	}
 
 	void Expansion_ResetOwner()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().ResetOwner");
 		m_ExpansionVehicle.ResetOwner();
 	}
 
 	string Expansion_GetOwnerName()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetOwnerName");
 		return m_ExpansionVehicle.GetOwnerName();
 	}
 
 	string Expansion_GetOwnerUID()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetOwnerUID");
 		return m_ExpansionVehicle.GetOwnerUID();
 	}
 
@@ -563,57 +572,62 @@ modded class CarScript
 
 	float Expansion_LockComplexity()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetLockComplexity");
 		return m_ExpansionVehicle.GetLockComplexity();
 	}
 
 	protected void KeyMessage(string message)
 	{
-		EXError.WarnOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED");
 	}
 
 	bool IsLocked()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().IsLocked");
 		return m_ExpansionVehicle.IsLocked();
 	}
 
 	bool Expansion_IsReadyToLock()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().IsReadyToLock");
 		return m_ExpansionVehicle.IsReadyToLock();
 	}
 
 	int GetPersistentIDA()
 	{
-		EXError.ErrorOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED");
 		return 0;
 	}
 
 	int GetPersistentIDB()
 	{
-		EXError.ErrorOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED");
 		return 0;
 	}
 
 	int GetPersistentIDC()
 	{
-		EXError.ErrorOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED");
 		return 0;
 	}
 
 	int GetPersistentIDD()
 	{
-		EXError.ErrorOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED");
 		return 0;
 	}
 
 	//! ID of the paired master key
 	string GetPersistentIDString()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetMasterKeyPersistentIDString");
 		return m_ExpansionVehicle.GetMasterKeyPersistentIDString();
 	}
 
 	//! ID of the vehicle itself
 	string GetVehiclePersistentIDString()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetPersistentIDString");
 		return m_ExpansionVehicle.GetPersistentIDString();
 	}
 
@@ -639,11 +653,13 @@ modded class CarScript
 
 	bool HasKey()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().HasKey");
 		return m_ExpansionVehicle.HasKey();
 	}
 
 	void PairKeyTo(ExpansionCarKey key)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().PairKey");
 		m_ExpansionVehicle.PairKey(key);
 	}
 
@@ -652,52 +668,61 @@ modded class CarScript
 	 */
 	void ResetKeyPairing()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().ResetKeyPairing");
 		m_ExpansionVehicle.ResetKeyPairing();
 	}
 
 	bool CanBeLocked()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().CanBeLocked");
 		return m_ExpansionVehicle.CanBeLocked();
 	}
 
 	void OnCarDoorOpened(string source)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnDoorOpened");
 		m_ExpansionVehicle.OnDoorOpened(source);
 	}
 
 	void OnCarDoorClosed(string source)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnDoorClosed");
 		m_ExpansionVehicle.OnDoorClosed(source);
 	}
 
 	bool IsCarKeys(ExpansionCarKey key)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().IsPairedTo");
 		return m_ExpansionVehicle.IsPairedTo(key);
 	}
 
 	void LockCar(ExpansionCarKey key)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().Lock");
 		m_ExpansionVehicle.Lock(key);
 	}
 
 	void UnlockCar(ExpansionCarKey key)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().Unlock");
 		m_ExpansionVehicle.Unlock(key);
 	}
 
 	void UnlockCarWithoutKey(ExpansionVehicleLockState lockState = ExpansionVehicleLockState.FORCEDUNLOCKED)
 	{
-		EXError.WarnOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().ForceUnlock");
 		m_ExpansionVehicle.ForceUnlock(lockState);
 	}
 
 	void OnCarLocked()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnLocked");
 		m_ExpansionVehicle.OnLocked();
 	}
 
 	void OnCarUnlocked()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnUnlocked");
 		m_ExpansionVehicle.OnUnlocked();
 	}
 
@@ -1336,22 +1361,25 @@ modded class CarScript
 
 	bool CanUpdateCarLock(float pDt)
 	{
+		EXError.Error(this, "DEPRECATED, do not use!");
 		return m_ExpansionVehicle.CanUpdateLock(pDt);
 	}
 
 	int DoorCount()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().DoorCount");
 		return m_ExpansionVehicle.DoorCount();
 	}
 
 	bool AllDoorsClosed()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().AllDoorsClosed");
 		return m_ExpansionVehicle.AllDoorsClosed();
 	}
 
 	void UpdateCarLock(float pDt)
 	{
-		EXError.WarnOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED, do not use!");
 	}
 
 	bool CanUpdateHealth(float pDt)
@@ -3405,16 +3433,19 @@ modded class CarScript
 
 	bool Expansion_CoverVehicle(EntityAI cover = null, out ExpansionEntityStoragePlaceholder placeholder = null)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().Cover");
 		return m_ExpansionVehicle.Cover(cover, placeholder);
 	}
 
 	bool Expansion_CanCover()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().CanCover");
 		return m_ExpansionVehicle.CanCover();
 	}
 
 	string Expansion_GetPlaceholderType(string coverType)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetPlaceholderType");
 		return m_ExpansionVehicle.GetPlaceholderType(coverType);
 	}
 
@@ -3447,6 +3478,7 @@ modded class CarScript
 
 	float GetModelZeroPointDistanceFromGround()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetModelZeroPointDistanceFromGround");
 		return m_ExpansionVehicle.GetModelZeroPointDistanceFromGround();
 	}
 

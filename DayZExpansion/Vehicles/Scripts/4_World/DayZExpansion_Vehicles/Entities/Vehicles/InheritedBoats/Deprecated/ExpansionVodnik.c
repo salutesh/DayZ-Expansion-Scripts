@@ -214,7 +214,7 @@ class ExpansionVodnik: ExpansionBoatScript
 
 	override void UpdateVisuals()
 	{
-		if ( AllDoorsClosed() )
+		if ( m_ExpansionVehicle.AllDoorsClosed() )
 		{
 			ShowSelection( "antiwater" );
 		} else {

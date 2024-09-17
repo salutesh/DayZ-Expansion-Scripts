@@ -24,50 +24,44 @@ class ExpansionMarketSupplies: ExpansionMarketCategory
 		m_FileName = "Supplies";
 		
 		AddItem("Paper", 						2,		4,		1,		100);
-		AddItem("Pen_Black", 					2,		4,		1,		100, null, {"Pen_Blue", "Pen_Green", "Pen_Red"});
-		AddItem("Rope", 						4,		8,		1,		100);
-		AddItem("TannedLeather", 				4,		8,		1,		100);
-		AddItem("AntiPestsSpray", 				8,		16,		1,		100);
-		AddItem("MetalWire", 					15,		30,		1,		100);
-		AddItem("EpoxyPutty", 					15,		30,		1,		100);
-		AddItem("DuctTape", 					20,		40,		1,		100);
-		AddItem("Pot", 							25,	 	50,		1,		100);
-		AddItem("HandcuffKeys", 				35,		70,		1,		100);
-		AddItem("Handcuffs", 					50,		100,	1,		100);
-		AddItem("Netting", 						50,		100,	1,		100);
-		AddItem("BurlapSack", 					50,		100,	1,		100);
-		AddItem("WoodenPlank", 					50,		100,	1,		100);
-		AddItem("MetalPlate", 					100,	200,	1,		100);
-		AddItem("SmallGasCanister", 			80,		160,	1,		100);
-		AddItem("MediumGasCanister", 			100,	200,	1,		100);
-		AddItem("LargeGasCanister", 			200,	400,	1,		100);
+		AddItem("pen_black", 	340, 	570,	1,100,null,{"Pen_Blue","Pen_Green","Pen_Red"});
+		AddItem("rope", 	450, 	750,	1,100);
+		// Crafted
+		//AddItem("TannedLeather", 				4,		8,		1,		100);
+		//AddItem("AntiPestsSpray", 				8,		16,		1,		100);
+		AddItem("metalwire", 	450, 	750,	1,100);
+		AddItem("epoxyputty", 	610, 	1015,	1,100);
+		AddItem("ducttape", 	330, 	545,	1,100);
+		AddItem("pot", 	285, 	475,	1,100);
+		AddItem("handcuffkeys", 	645, 	1075,	1,100);
+		AddItem("handcuffs", 	615, 	1025,	1,100);
+		AddItem("netting", 	495, 	830,	1,100);
+		AddItem("burlapsack", 	450, 	750,	1,100);
+		AddItem("WoodenPlank", 					50,		250,	1,		100);
+		AddItem("metalplate", 	305, 	505,	1,100);
+		AddItem("smallgascanister", 	125, 	210,	1,100);
+		AddItem("mediumgascanister", 	125, 	210,	1,100);
+		AddItem("largegascanister", 	125, 	210,	1,100);
+		AddItem("tripod", 	540, 	895,	1,100);
+		AddItem("beartrap", 	895, 	1490,	1,100);
+		AddItem("bear_beige", 	215, 	355,	1,100,null,{"bear_dark","bear_pink","bear_white"});
 		//----------------------------------------------------------------------------------------------------------
 		//! Keep in mind here that players can buy the Nail boxes and get 70 nails from 1 box!
 		// They should not get more or the same amount of the nail box price back when they sell these 70 nails!
 		//----------------------------------------------------------------------------------------------------------
-		AddItem("NailBox", 						300,	600,	1,		100);
-		AddItem("Nail", 						3,		6,		1,		100);
+		AddItem("nailbox", 	450, 	750,	1,100);
+		AddItem("Nail", 5,		10,		1,		100);
 		//----------------------------------------------------------------------------------------------------------
-		AddItem("BarbedWire", 					450,	900,	1,		100);
-		AddItem("Fabric", 						600,	1200,	1,		100);
-		AddItem("Camonet", 						600,	1200,	1,		100);
-		AddItem("HescoBox", 					650,	1300,	1,		100);
-		AddItem("PowerGenerator", 				3000,	6000,	1,		100);
+		AddItem("barbedwire", 	495, 	825,	1,100);
+		AddItem("fabric", 	300, 	500,	1,100);
+		AddItem("camonet", 	1260, 	2100,	1,100);
+		AddItem("HescoBox", 					1300,	2250,	1,		100);
+		AddItem("powergenerator", 	275, 	455,	1,100);
 
 	#ifdef EXPANSIONMODBASEBUILDING
-		//AddItem("ExpansionLumber0_5", 		50,		100,	1,		100);
-		AddItem("ExpansionLumber1", 			50,		100,	1,		100);
-		AddItem("ExpansionLumber1_5", 			50,		100,	1,		100);
-		AddItem("ExpansionLumber3", 			50,		100,	1,		100);
-		
-		//! For the BaseBuilding update
-		//AddItem("ExpansionCement", 			150,	300,	1,		100);
-		//AddItem("ExpansionBricks", 			500,	1000,	1,		100);
-		
-		//AddItem("ExpansionMixerKit", 			400,	800,	1,		100);
-		//AddItem("ExpansionMixerTank", 		400,	800,	1,		100);
-		//AddItem("ExpansionMixerMotor", 		400,	800,	1,		100);
-		//AddItem("ExpansionMixerHandle", 		400,	800,	1,		100);
+		AddItem("ExpansionLumber1", 			50,		300,	1,		100);
+		AddItem("ExpansionLumber1_5", 			50,		300,	1,		100);
+		AddItem("ExpansionLumber3", 			50,		300,	1,		100);
 	#endif
 	}
 };

@@ -20,11 +20,16 @@ class ExpansionMarketHostersAndPouches: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HOLSTERS";
 		m_FileName = "Holsters_And_Pouches";
 
-		AddItem("ChestHolster", 				60,			120,		1,		100);
-		AddItem("PlateCarrierHolster", 			60,			120,		1,		100,	null, {"PlateCarrierHolster_Green", "PlateCarrierHolster_Black","PlateCarrierHolster_Camo"});
-		AddItem("PlateCarrierHolster_Camo", 	80,			120,		1,		100);
-		AddItem("PlateCarrierPouches", 			100,		200,		1,		100,	null, {"PlateCarrierPouches_Green", "PlateCarrierPouches_Black","PlateCarrierPouches_Camo"});
-		AddItem("PlateCarrierPouches_Camo", 	120,		200,		1,		100);
-		AddItem("NylonKnifeSheath", 			30,			60,			1,		100);
+		AddItem("chestholster", 	1075, 	1795,	1,100);
+		
+		AddItem("platecarrierholster", 	1035, 	1725,	1,100,null,{"PlateCarrierHolster_Green","PlateCarrierHolster_Black","PlateCarrierHolster_Camo","platecarrierholster_winter"});
+		AddItem("platecarrierholster_camo", 	7105, 	11845,	1,100);
+		AddItem("platecarrierholster_winter", 	1080, 	1800,	1,100);
+
+		AddItem("platecarrierpouches", 	1035, 	1725,	1,100,null,{"PlateCarrierPouches_Green","PlateCarrierPouches_Black","PlateCarrierPouches_Camo","platecarrierpouches_winter"});
+		AddItem("platecarrierpouches_camo", 	7105, 	11845,	1,100);
+		AddItem("platecarrierpouches_winter", 	1190, 	1980,	1,100);
+
+		AddItem("nylonknifesheath", 	515, 	855,	1,100);
 	}
 };

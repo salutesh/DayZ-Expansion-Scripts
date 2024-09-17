@@ -21,6 +21,6 @@ class ExpansionMarketCrossbows: ExpansionMarketCategory
 		m_FileName = "Crossbows";
 	
 		//! 1.21+
-		AddItem("Crossbow_Autumn", 	800,	1600,	1,		100, null, {"Crossbow_Black","Crossbow_Summer","Crossbow_Wood"});
+		AddItem("crossbow_autumn", 	555, 	930,	1,100,null,{"Crossbow_Black","Crossbow_Summer","Crossbow_Wood"});
 	}
 };

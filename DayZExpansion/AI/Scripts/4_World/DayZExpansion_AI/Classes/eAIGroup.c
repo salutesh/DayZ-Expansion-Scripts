@@ -898,10 +898,13 @@ class eAIGroup
 			}
 		}
 	#else
-		if (m_Members.Count() > 1)
-			GetDayZGame().GetExpansionGame().SetInGroup(true);
-		else
-			GetDayZGame().GetExpansionGame().SetInGroup(false);
+		if (!GetGame().IsMultiplayer())
+		{
+			if (m_Members.Count() > 1)
+				GetDayZGame().GetExpansionGame().SetInGroup(true);
+			else
+				GetDayZGame().GetExpansionGame().SetInGroup(false);
+		}
 	#endif
 	}
 

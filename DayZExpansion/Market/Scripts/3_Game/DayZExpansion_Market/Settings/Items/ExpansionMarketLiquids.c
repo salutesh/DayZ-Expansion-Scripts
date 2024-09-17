@@ -20,7 +20,7 @@ class ExpansionMarketLiquids: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LIQUIDS";
 		m_FileName = "Liquids";
 
-		AddItem("EngineOil", 					70,		140,	1,		100);	
-		AddItem("CanisterGasoline", 			300,	600,	1,		100);
+		AddItem("EngineOil", 			80,		260,	1,		100);	
+		AddItem("canistergasoline", 	245, 	405,	1,100);
 	}
 };

@@ -23,38 +23,37 @@ class ExpansionMarketShirtsAndTShirts: ExpansionMarketCategory
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_SHIRTS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_TSHIRTS");
 		m_FileName = "Shirts_And_TShirts";
 
-
-		AddItem("TShirt_Blue", 							8,		16,		1,		100, null, {"TShirt_OrangeWhiteStripes", "TShirt_Red", "TShirt_RedBlackStripes", "TShirt_Beige", "TShirt_Grey", "TShirt_Black", "TShirt_Green", "TShirt_White"});
-		/*AddItem("TShirt_OrangeWhiteStripes", 			8,		16,		1,		100);
-		AddItem("TShirt_Red", 							8,		16,		1,		100);
-		AddItem("TShirt_RedBlackStripes", 				8,		16,		1,		100);*/
-		AddItem("TShirt_Beige", 						10,		20,		1,		100);
-		AddItem("TShirt_Grey", 							10,		20,		1,		100);
-		AddItem("TShirt_Black", 						12,		24,		1,		100, null, {"TShirt_10thAnniversary"});
-		AddItem("TShirt_Green", 						12,		24,		1,		100);
+		AddItem("tshirt_blue", 	440, 	740,	1,100,null,{"TShirt_OrangeWhiteStripes","TShirt_Red","TShirt_RedBlackStripes","TShirt_Beige","TShirt_Grey","TShirt_Black","TShirt_Green","TShirt_White"});
+		AddItem("tshirt_orangewhitestripes", 	440, 	740,	1,100);
+		AddItem("tshirt_red", 	440, 	740,	1,100);
+		AddItem("tshirt_redblackstripes", 	440, 	740,	1,100);
+		AddItem("tshirt_beige", 	440, 	740,	1,100);
+		AddItem("tshirt_grey", 	440, 	740,	1,100);
+		AddItem("tshirt_black", 	440, 	740,	1,100,null,{"Tshirt_10thAnniversary"});
+		AddItem("tshirt_green", 	440, 	740,	1,100);
 		
 	#ifdef EXPANSIONMOD
-		AddItem("ExpansionTee", 						12,		24,		1,		100);
+		AddItem("ExpansionTee", 550, 	950,	1,		100);
 	#endif
 
-		AddItem("TelnyashkaShirt", 						14,		28,		1,		100);
+		AddItem("telnyashkashirt", 	210, 	355,	1,100);
 
-		AddItem("Shirt_BlueCheck", 						16,		32,		1,		100, null, {"Shirt_BlueCheckBright", "Shirt_RedCheck", "Shirt_WhiteCheck", "Shirt_PlaneBlack", "Shirt_GreenCheck"});
-		/*AddItem("Shirt_BlueCheckBright", 				16,		32,		1,		100);
-		AddItem("Shirt_RedCheck", 						16,		32,		1,		100);
-		AddItem("Shirt_WhiteCheck", 					16,		32,		1,		100);*/
-		AddItem("Shirt_PlaneBlack",						17,		34,		1,		100);
-		AddItem("Shirt_GreenCheck", 					18,		36,		1,		100);
+		AddItem("shirt_bluecheck", 	610, 	1015,	1,100,null,{"Shirt_BlueCheckBright","Shirt_RedCheck","Shirt_WhiteCheck","Shirt_PlaneBlack","Shirt_GreenCheck"});
+		AddItem("shirt_bluecheckbright", 	610, 	1015,	1,100);
+		AddItem("shirt_redcheck", 	610, 	1015,	1,100);
+		AddItem("shirt_whitecheck", 	610, 	1015,	1,100);
+		AddItem("shirt_planeblack", 	945, 	1575,	1,100);
+		AddItem("shirt_greencheck", 	610, 	1015,	1,100);
 		
-		AddItem("MedicalScrubsShirt_Blue", 				20,		40,		1,		100, null, {"MedicalScrubsShirt_Green", "MedicalScrubsShirt_White"});
-		/*AddItem("MedicalScrubsShirt_Green", 			20,		40,		1,		100);
-		AddItem("MedicalScrubsShirt_White", 			20,		40,		1,		100);*/
+		AddItem("medicalscrubsshirt_blue", 	650, 	1080,	1,100,null,{"MedicalScrubsShirt_Green","MedicalScrubsShirt_White"});
+		AddItem("medicalscrubsshirt_green", 	650, 	1080,	1,100);
+		AddItem("medicalscrubsshirt_white", 	650, 	1080,	1,100);
 		
-		AddItem("ChernarusSportShirt", 					25,		50,		1,		100);
+		AddItem("chernarussportshirt", 	235, 	390,	1,100);
 
-		AddItem("TacticalShirt_Grey", 					36,		72,		1,		100, null, {"TacticalShirt_Tan", "TacticalShirt_Black", "TacticalShirt_Olive"});
-		AddItem("TacticalShirt_Tan", 					37,		74,		1,		100);
-		AddItem("TacticalShirt_Black", 					38,		76,		1,		100);
-		AddItem("TacticalShirt_Olive", 					40,		80,		1,		100);
+		AddItem("tacticalshirt_grey", 	1035, 	1725,	1,100,null,{"TacticalShirt_Tan","TacticalShirt_Black","TacticalShirt_Olive"});
+		AddItem("tacticalshirt_tan", 	1035, 	1725,	1,100);
+		AddItem("tacticalshirt_black", 	6925, 	11545,	1,100);
+		AddItem("tacticalshirt_olive", 	1035, 	1725,	1,100);
 	}
 };

@@ -20,25 +20,21 @@ class ExpansionMarketLights: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LIGHTS";
 		m_FileName = "Lights";
 		
-		AddItem("Chemlight_Blue", 				2,		4,		1,		100, null, {"Chemlight_Green", "Chemlight_Red", "Chemlight_White", "Chemlight_Yellow"});
-		/*AddItem("Chemlight_Green", 				2,		4,		1,		100);
-		AddItem("Chemlight_Red", 				2,		4,		1,		100);
-		AddItem("Chemlight_White", 				2,		4,		1,		100);
-		AddItem("Chemlight_Yellow", 			2,		4,		1,		100);*/
+		AddItem("chemlight_blue", 	370, 	615,	1,100,null,{"Chemlight_Green","Chemlight_Red","Chemlight_White","Chemlight_Yellow"});
 
-		AddItem("Roadflare", 					4,		8,		1,		100);
-		AddItem("Matchbox", 					6,		12,		1,		100);
-		AddItem("FireworksLauncher", 			500,	1000,	1,		100);
-		AddItem("PetrolLighter", 				8,		16,		1,		100);
-		AddItem("Flashlight", 					15,		30,		1,		100,	{"Battery9V"});
-		AddItem("XmasLights", 					25,		50,		1,		100);
-		AddItem("PortableGasLamp", 				25,		50,		1,		100,	{"MediumGasCanister"});
-		AddItem("PortableGasStove", 			30,		60,		1,		100,	{"MediumGasCanister"});
-		AddItem("Headtorch_Black", 				40,		80,		1,		100,	{"Battery9V"}, {"Headtorch_Grey"});
-		//AddItem("Headtorch_Grey", 				40,		80,		1,		100,	{"Battery9V"});
-		AddItem("Spotlight", 					600,	1200,	1,		100);
+		AddItem("roadflare", 	5670, 	9445,	1,100);
+		AddItem("matchbox", 	265, 	445,	1,100);
+		AddItem("fireworkslauncher", 	495, 	825,	1,100);
+		AddItem("petrollighter", 	270, 	450,	1,100);
+		AddItem("flashlight", 	170, 	280,	1,100,{"Battery9V"});
+		AddItem("xmaslights", 	260, 	430,	1,100);
+		AddItem("portablegaslamp", 	750, 	1250,	1,100,{"MediumGasCanister"});
+		AddItem("portablegasstove", 	365, 	605,	1,100,{"MediumGasCanister"});
+		AddItem("headtorch_black", 	1770, 	2955,	1,100,{"Battery9V"},{"Headtorch_Grey"});
+		AddItem("headtorch_grey", 	1770, 	2955,	1,100,{"Battery9V"});
+		AddItem("spotlight", 	670, 	1115,	1,100);
 		
-		AddItem("UniversalLight", 					120,	240,	1,		100);
-		AddItem("TLRLight", 					120,	240,	1,		100);
+		AddItem("universallight", 	2855, 	4760,	1,100);
+		AddItem("tlrlight", 	2855, 	4760,	1,100);
 	}
 };

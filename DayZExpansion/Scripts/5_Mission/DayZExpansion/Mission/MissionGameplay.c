@@ -39,7 +39,7 @@ modded class MissionGameplay
 				//! Autorun
 				if (input.LocalPress("UAExpansionAutoRunToggle", false))
 				{
-					if (!player.GetParent() && generalSettings.EnableAutoRun)
+					if (!player.Expansion_IsInVehicleCmd() && generalSettings.EnableAutoRun)
 						m_AutoRunModule.AutoRun();
 				}
 

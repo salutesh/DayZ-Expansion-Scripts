@@ -63,7 +63,7 @@ modded class PlayerBase
 	
 	override void EOnContact( IEntity other, Contact extra )
 	{
-		if( !IsAlive() || GetParent() == other || !IsMissionHost() )
+		if( !IsAlive() || Expansion_GetParent() == other || !IsMissionHost() )
 			return;
 
 		Transport transport;

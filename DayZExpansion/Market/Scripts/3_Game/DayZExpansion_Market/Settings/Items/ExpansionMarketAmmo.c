@@ -23,63 +23,48 @@ class ExpansionMarketAmmo: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_AMMO";
 		m_FileName = "Ammo";
 
-		AddItem("Ammo_12gaPellets", 						5,		10,		1,		500);
-		AddItem("Ammo_12gaRubberSlug", 						4,		8,		1,		500);
-		AddItem("Ammo_12gaSlug", 							5,		10,		1,		500);
+		AddItem("ammo_12gapellets", 	30, 	50,	1,500);
+		AddItem("ammo_12garubberslug", 	45, 	80,	1,500);
+		AddItem("ammo_12gaslug", 	25, 	45,	1,500);
 		
-		AddItem("Ammo_22", 									2,		4,		1,		500);
+		AddItem("ammo_22", 	30, 	50,	1,500);
 		
-		AddItem("Ammo_308Win", 								2,		4,		1,		500,	null, {"Ammo_308WinTracer"});
-		AddItem("Ammo_308WinTracer", 						4,		8,		1,		500);
+		AddItem("ammo_308win", 	40, 	65,	1,500,null,{"Ammo_308WinTracer"});
+		AddItem("ammo_308wintracer", 	445, 	745,	1,500);
 		
-		AddItem("Ammo_357", 								2,		4,		1,		500);
-		AddItem("Ammo_380", 								2,		4,		1,		500);
-		AddItem("Ammo_45ACP", 								2,		4,		1,		500);
+		AddItem("ammo_357", 	15, 	25,	1,500);
+		AddItem("ammo_380", 	35, 	55,	1,500);
+		AddItem("ammo_45acp", 	75, 	120,	1,500);
 		
-		AddItem("Ammo_545x39", 								2,		4,		1,		500, null, {"Ammo_545x39Tracer"});
-		AddItem("Ammo_545x39Tracer", 						4,		8,		1,		500);
+		AddItem("ammo_545x39", 	85, 	140,	1,500,null,{"Ammo_545x39Tracer"});
+		AddItem("ammo_545x39tracer", 	105, 	180,	1,500);
 		
-		AddItem("Ammo_556x45", 								2,		4,		1,		500, null, {"Ammo_556x45Tracer"});
-		AddItem("Ammo_556x45Tracer", 						4,		8,		1,		500);
+		AddItem("ammo_556x45", 	305, 	505,	1,500,null,{"Ammo_556x45Tracer"});
+		AddItem("ammo_556x45tracer", 	225, 	370,	1,500);
 		
-		AddItem("Ammo_762x39", 								2,		4,		1,		500, null, {"Ammo_762x39Tracer"});
-		AddItem("Ammo_762x39Tracer", 						4,		8,		1,		500);
+		AddItem("ammo_762x39", 	90, 	150,	1,500,null,{"Ammo_762x39Tracer"});
+		AddItem("ammo_762x39tracer", 	425, 	710,	1,500);
 		
-		AddItem("Ammo_762x54", 								2,		4,		1,		500, null, {"Ammo_762x54Tracer"});
-		AddItem("Ammo_762x54Tracer", 						4,		8,		1,		500);
+		AddItem("ammo_762x54", 	155, 	255,	1,500,null,{"Ammo_762x54Tracer"});
+		AddItem("ammo_762x54tracer", 	595, 	990,	1,500);
 		
-		AddItem("Ammo_9x19", 								2,		4,		1,		500);
-		AddItem("Ammo_9x39", 								2,		4,		1,		500, null, {"Ammo_9x39AP"});
-		AddItem("Ammo_9x39AP", 								4,		8,		1,		500);
+		AddItem("ammo_9x19", 	15, 	25,	1,500);
+		AddItem("ammo_9x39", 	115, 	190,	1,500,null,{"Ammo_9x39AP"});
+		AddItem("ammo_9x39ap", 	390, 	655,	1,500);
 
-		AddItem("Ammo_Flare", 								7,		14,		1,		500, null, {"Ammo_FlareBlue", "Ammo_FlareGreen", "Ammo_FlareRed"});
+		AddItem("ammo_flare", 	60, 	100,	1,500,null,{"Ammo_FlareBlue","Ammo_FlareGreen","Ammo_FlareRed"});
 
-		AddItem("Ammo_40mm_Explosive", 						500,    1000,	1,	    500, null, {"Ammo_40mm_ChemGas", "Ammo_40mm_Smoke_Black", "Ammo_40mm_Smoke_Green", "Ammo_40mm_Smoke_White", "Ammo_40mm_Smoke_Red"});
+		AddItem("ammo_40mm_explosive", 	4490, 	7480,	1,500,null,{"Ammo_40mm_Chemgas","Ammo_40mm_Smoke_Black","Ammo_40mm_Smoke_Green","Ammo_40mm_Smoke_White","Ammo_40mm_Smoke_Red"});
 
-		//! 1.21+
-		AddItem("Ammo_HuntingBolt", 						5,		10,		1,		500);
+		AddItem("ammo_huntingbolt", 	215, 	355,	1,500);
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("ExpansionAmmoLAW", 						400,	800,	1,		500);
 		AddItem("ExpansionAmmoRPG", 						400,	800,	1,		500);
 
-		/*
-		AddItem("Ammo_Expansion_M203_Smoke_White", 			300,	600,	1,		500, null, {"Ammo_Expansion_M203_Smoke_Red", "Ammo_Expansion_M203_Smoke_Green", "Ammo_Expansion_M203_Smoke_Yellow", "Ammo_Expansion_M203_Smoke_Purple"});
-		AddItem("Ammo_Expansion_M203_Smoke_Red", 			300,	600,	1,		500);
-		AddItem("Ammo_Expansion_M203_Smoke_Green", 			300,	600,	1,		500);
-		AddItem("Ammo_Expansion_M203_Smoke_Yellow", 		300,	600,	1,		500);
-		AddItem("Ammo_Expansion_M203_Smoke_Purple", 		300,	600,	1,		500);
-		*/
-
 		AddItem("Ammo_Expansion_M203_Smoke_Teargas", 		450,	900,	1,		500);
 
 		AddItem("Ammo_Expansion_M203_Sticky_Smoke_White", 	300,	600,	1,		500, null, {"Ammo_Expansion_M203_Sticky_Smoke_Red", "Ammo_Expansion_M203_Sticky_Smoke_Green", "Ammo_Expansion_M203_Sticky_Smoke_Yellow", "Ammo_Expansion_M203_Sticky_Smoke_Purple"});
-		/*AddItem("Ammo_Expansion_M203_Sticky_Smoke_Red", 	300,	600,	1,		500);
-		AddItem("Ammo_Expansion_M203_Sticky_Smoke_Green", 	300,	600,	1,		500);
-		AddItem("Ammo_Expansion_M203_Sticky_Smoke_Yellow", 	300,	600,	1,		500);
-		AddItem("Ammo_Expansion_M203_Sticky_Smoke_Purple", 	300,	600,	1,		500);*/
 		AddItem("Ammo_Expansion_M203_Sticky_Smoke_Teargas", 450,	900,	1,		500);
-
-		//AddItem("Ammo_Expansion_M203_HE", 					500,	1000,	1,		500);
 		
 		AddItem("Ammo_Expansion_46x30", 					2,		5,	  	1,		500);
 		AddItem("Ammo_Expansion_338", 						2,		5,	  	1,		500);

@@ -20,59 +20,73 @@ class ExpansionMarketBackpacks: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BACKPACKS";
 		m_FileName = "Backpacks";
 		
-		AddItem("ChildBag_Red", 					20,			40,			1,		100, null, {"ChildBag_Blue", "ChildBag_Green"});
-		//AddItem("ChildBag_Blue", 					20,			40,			1,		100);
-		AddItem("ChildBag_Green", 					25,			50,			1,		100);
+		AddItem("childbag_red", 	765, 	1280,	1,100,null,{"ChildBag_Blue","ChildBag_Green"});
+		AddItem("childbag_blue", 	765, 	1280,	1,100);
+		AddItem("childbag_green", 	765, 	1280,	1,100);
 		
-		AddItem("DryBag_Orange", 					30,			60,			1,		100, null, {"DryBag_Yellow", "DryBag_Blue", "DryBag_Black", "DryBag_Red", "DryBag_Green"});
-		/*AddItem("DryBag_Yellow", 					30,			60,			1,		100);
-		AddItem("DryBag_Blue", 						30,			60,			1,		100);
-		AddItem("DryBag_Black", 					30,			60,			1,		100);
-		AddItem("DryBag_Red", 						30,			60,			1,		100);*/
-		AddItem("DryBag_Green", 					35,			70,			1,		100);
+		AddItem("drybag_orange", 	2030, 	3385,	1,100,null,{"DryBag_Yellow","DryBag_Blue","DryBag_Black","DryBag_Red","DryBag_Green"});
+		AddItem("drybag_black", 	2050, 	3415,	1,100);
+		AddItem("drybag_green", 	2065, 	3445,	1,100);
 		
-		AddItem("TaloonBag_Blue", 					50,			100,		1,		100, null, {"TaloonBag_Orange", "TaloonBag_Violet", "TaloonBag_Green"});
-		/*AddItem("TaloonBag_Orange", 				50,			100,		1,		100);
-		AddItem("TaloonBag_Violet", 				50,			100,		1,		100);*/
-		AddItem("TaloonBag_Green", 					70,			140,		1,		100);
+		AddItem("taloonbag_blue", 	1260, 	2100,	1,100,null,{"TaloonBag_Orange","TaloonBag_Violet","TaloonBag_Green"});
+		AddItem("taloonbag_orange", 	890, 	1485,	1,100);
+		AddItem("taloonbag_green", 	890, 	1485,	1,100);
 	
-		AddItem("SmershBag", 						100,		200,		1,		100);
+		AddItem("smershbag", 	3415, 	5695,	1,100);
 		
-		AddItem("AssaultBag_Black", 				110,		220,		1,		100, null, {"AssaultBag_Green", "AssaultBag_Ttsko"});
-		//AddItem("AssaultBag_Green", 				110,		220,		1,		100);
-		AddItem("AssaultBag_Ttsko", 				130,		260,		1,		100);
+		#ifndef DAYZ_1_25
+		AddItem("assaultbag_black", 	6195, 	10330,	1,100,null,{"AssaultBag_Green","AssaultBag_Ttsko","AssaultBag_Winter"});
+		AddItem("assaultbag_winter", 	1190, 	1980,	1,100);
+		#else
+		AddItem("assaultbag_black", 	6195, 	10330,	1,100,null,{"AssaultBag_Green","AssaultBag_Ttsko"});
+		#endif
 		
-		AddItem("HuntingBag", 						130,		260,		1,		100);
+		AddItem("huntingbag", 	3660, 	6100,	1,100,null,{"huntingbag_hannah"});
+		
+		AddItem("waterproofbag_green", 	365, 	605,	1,100,null,{"waterproofbag_orange","waterproofbag_yellow"});
 	
-	#ifdef EXPANSIONMOD	
-		AddItem("TortillaBag", 						180,		360,		1,		100, null, {"ExpansionDesertTortilla"});
+#ifdef EXPANSIONMOD
+	#ifndef DAYZ_1_25
+		AddItem("tortillabag", 	1170, 	1945,	1,100,null,{"ExpansionDesertTortilla","TortillaBag_Winter"});
 	#else
-		AddItem("TortillaBag", 						180,		360,		1,		100);
-	#endif	
+		AddItem("tortillabag", 	1170, 	1945,	1,100,null,{"ExpansionDesertTortilla"});
+	#endif
+#else
+	#ifndef DAYZ_1_25
+		AddItem("tortillabag", 	1170, 	1945,	1,100,null,{"TortillaBag_Winter"});
+	#else
+		AddItem("tortillabag", 	1170, 	1945,	1,100);
+	#endif
+#endif
 	
 	#ifdef EXPANSIONMOD
-		AddItem("CoyoteBag_Brown", 					180,		360,		1,		100, null, {"CoyoteBag_Green", "ExpansionCoyoteBlack"});
-		/*AddItem("CoyoteBag_Green", 				180,		360,		1,		100);
-		AddItem("ExpansionCoyoteBlack", 			180,		360,		1,		100);*/
+		#ifndef DAYZ_1_25
+		AddItem("coyotebag_brown", 	7820, 	13030,	1,100,null,{"CoyoteBag_Green","coyotebag_winter","ExpansionCoyoteBlack"});
+		AddItem("coyotebag_winter", 	1190, 	1980,	1,100);
+		#else
+		AddItem("coyotebag_brown", 	7820, 	13030,	1,100,null,{"CoyoteBag_Green","ExpansionCoyoteBlack"});
+		#endif
 	#else
-		AddItem("CoyoteBag_Brown", 					180,		360,		1,		100, null, {"CoyoteBag_Green"});
+		#ifndef DAYZ_1_25
+		AddItem("coyotebag_brown", 	7820, 	13030,	1,100,null,{"CoyoteBag_Green","coyotebag_winter"});
+		AddItem("coyotebag_winter", 	1190, 	1980,	1,100);
+		#else
+		AddItem("coyotebag_brown", 	7820, 	13030,	1,100,null,{"CoyoteBag_Green"});
+		#endif
 	#endif	
 
-		AddItem("MountainBag_Red", 					300,		600,		1,		100, null, {"MountainBag_Blue", "MountainBag_Orange", "MountainBag_Green"});
-		/*AddItem("MountainBag_Blue", 				300,		600,		1,		100);
-		AddItem("MountainBag_Orange", 				300,		600,		1,		100);
-		AddItem("MountainBag_Green", 				300,		600,		1,		100);*/
+		AddItem("mountainbag_red", 	1025, 	1705,	1,100,null,{"MountainBag_Blue","MountainBag_Orange","MountainBag_Green"});
 		
-		AddItem("AliceBag_Green", 					400,		800,		1,		100, null, {"AliceBag_Black", "AliceBag_Camo"});
-		//AddItem("AliceBag_Black", 				400,		800,		1,		100);
-		AddItem("AliceBag_Camo", 					500,		1000,		1,		100);
+		AddItem("alicebag_green", 	3505, 	5840,	1,100,null,{"AliceBag_Black","AliceBag_Camo"});
+		AddItem("alicebag_black", 	3505, 	5840,	1,100);
+		AddItem("alicebag_camo", 	3505, 	5840,	1,100);
 		
-	#ifndef DAYZ_1_21
-		AddItem("Slingbag_Black", 					120,		300,		1,		100, null, {"Slingbag_Brown", "Slingbag_Gray"});
-		AddItem("DuffelBagSmall_Camo", 				120,		300,		1,		100, null, {"DuffelBagSmall_Green", "DuffelBagSmall_Medical"});
-		AddItem("CanvasBag_Medical", 				120,		300,		1,		100, null, {"CanvasBag_Olive"});
-		AddItem("ArmyPouch_Beige", 					120,		300,		1,		100, null, {"ArmyPouch_Black", "ArmyPouch_Camo", "ArmyPouch_Green"});
-		AddItem("DrysackBag_Green", 				120,		300,		1,		100, null, {"DrysackBag_Orange", "DrysackBag_Yellow"});
-	#endif
+		AddItem("slingbag_black", 	925, 	1545,	1,100,null,{"Slingbag_Brown","Slingbag_Gray"});
+		AddItem("duffelbagsmall_camo", 	5390, 	8980,	1,100,null,{"DuffelBagSmall_Green","DuffelBagSmall_Medical"});
+		AddItem("canvasbag_medical", 	3325, 	5540,	1,100,null,{"CanvasBag_Olive"});
+		AddItem("armypouch_beige", 	2580, 	4305,	1,100,null,{"ArmyPouch_Black","ArmyPouch_Camo","ArmyPouch_Green"});
+
+		// Crafted item !
+		//AddItem("DrysackBag_Green", 				120,		300,		1,		100, null, {"DrysackBag_Orange", "DrysackBag_Yellow"});
 	}
 };

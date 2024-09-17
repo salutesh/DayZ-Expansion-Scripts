@@ -71,7 +71,7 @@ class ExpansionMarketSettingsV3: ExpansionMarketSettingsBaseV2
  **/
 class ExpansionMarketSettings: ExpansionMarketSettingsBase
 {
-	static const int VERSION = 13;
+	static const int VERSION = 15;
 
 	bool UseWholeMapForATMPlayerList;
 	float SellPricePercent;
@@ -92,8 +92,11 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	
 	float MaxSZVehicleParkingTime;
 	int SZVehicleParkingTicketFine;
+	bool SZVehicleParkingFineUseKey;
 	
 	autoptr array<ref ExpansionMarketSpawnPosition> TrainSpawnPositions;
+
+	bool DisallowUnpersisted;
 	
 	[NonSerialized()]
 	protected autoptr map<int, ref ExpansionMarketCategory> m_Categories;
@@ -365,6 +368,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		
 		NetworkBatchSize = s.NetworkBatchSize;
 
+		DisallowUnpersisted = s.DisallowUnpersisted;
+
 		MaxVehicleDistanceToTrader = s.MaxVehicleDistanceToTrader;
 		MaxLargeVehicleDistanceToTrader = s.MaxLargeVehicleDistanceToTrader;
 		
@@ -374,6 +379,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		VehicleKeys.Copy(s.VehicleKeys);
 
 		SZVehicleParkingTicketFine = s.SZVehicleParkingTicketFine;
+		SZVehicleParkingFineUseKey = s.SZVehicleParkingFineUseKey;
 
 		int i;
 		ExpansionMarketSpawnPosition position;
@@ -517,10 +523,13 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		MaxPartyDepositMoney = 100000;
 		UseWholeMapForATMPlayerList = false;
 		
+		DisallowUnpersisted = false;
+
 		Currencies.Insert("expansionbanknotehryvnia");
 
 		MaxSZVehicleParkingTime = 30 * 60;  //! 30 minutes
 		SZVehicleParkingTicketFine = 0;
+		SZVehicleParkingFineUseKey = true;
 
 		VehicleKeys.Insert("ExpansionCarKey");
 	}
@@ -1062,6 +1071,15 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 				if (settingsBase.m_Version < 12 && !MaxSZVehicleParkingTime)
 				{
 					MaxSZVehicleParkingTime = settingsDefault.MaxSZVehicleParkingTime;
+				}
+				if (settingsBase.m_Version < 14)
+				{
+					SZVehicleParkingFineUseKey = settingsDefault.SZVehicleParkingFineUseKey;
+				}
+
+				if (settingsBase.m_Version < 15)
+				{
+					DisallowUnpersisted = settingsDefault.DisallowUnpersisted;
 				}
 
 				m_Version = VERSION;

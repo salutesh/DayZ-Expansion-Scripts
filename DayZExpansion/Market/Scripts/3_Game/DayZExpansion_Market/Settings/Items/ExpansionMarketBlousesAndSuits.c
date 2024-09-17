@@ -20,27 +20,18 @@ class ExpansionMarketBlousesAndSuits: ExpansionMarketCategory
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_BLOUSES" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_SUITS");
 		m_FileName = "Blouses_And_Suits";
 
-		AddItem("Blouse_Blue", 							16,		32,		1,		100, null, {"Blouse_Violet", "Blouse_White", "Blouse_Green"});
-		/*AddItem("Blouse_Violet", 						16,		32,		1,		100);
-		AddItem("Blouse_White", 						16,		32,		1,		100);*/
-		AddItem("Blouse_Green", 						18,		36,		1,		100);
+		AddItem("blouse_blue", 	280, 	470,	1,100,null,{"Blouse_Violet","Blouse_White","Blouse_Green"});
 			
-		AddItem("ManSuit_Beige", 						18,		36,		1,		100, null, {"ManSuit_Black", "ManSuit_Blue", "ManSuit_Brown", "ManSuit_DarkGrey", "ManSuit_Khaki", "ManSuit_LightGrey", "ManSuit_White"});
-		/*AddItem("ManSuit_Black", 						18,		36,		1,		100);
-		AddItem("ManSuit_Blue", 						18,		36,		1,		100);
-		AddItem("ManSuit_Brown", 						18,		36,		1,		100);
-		AddItem("ManSuit_DarkGrey",						18,		36,		1,		100);
-		AddItem("ManSuit_Khaki", 						18,		36,		1,		100);
-		AddItem("ManSuit_LightGrey", 					18,		36,		1,		100);
-		AddItem("ManSuit_White", 						18,		36,		1,		100);*/
+		AddItem("mansuit_beige", 	830, 	1380,	1,100,null,{"ManSuit_Black","ManSuit_Blue","ManSuit_Brown","ManSuit_DarkGrey","ManSuit_Khaki","ManSuit_LightGrey","ManSuit_White"});
+		AddItem("mansuit_white", 	690, 	1150,	1,100);
 			
-		AddItem("WomanSuit_Beige", 						18,		36,		1,		100, null, {"WomanSuit_Black", "WomanSuit_Blue", "WomanSuit_Brown", "WomanSuit_DarkGrey", "WomanSuit_Khaki", "WomanSuit_LightGrey", "WomanSuit_White"});
-		/*AddItem("WomanSuit_Black", 					18,		36,		1,		100);
-		AddItem("WomanSuit_Blue", 						18,		36,		1,		100);
-		AddItem("WomanSuit_Brown", 						18,		36,		1,		100);
-		AddItem("WomanSuit_DarkGrey", 					18,		36,		1,		100);
-		AddItem("WomanSuit_Khaki", 						18,		36,		1,		100);
-		AddItem("WomanSuit_LightGrey", 					18,		36,		1,		100);
-		AddItem("WomanSuit_White", 						18,		36,		1,		100);*/
+		AddItem("womansuit_beige", 	830, 	1380,	1,100,null,{"WomanSuit_Black","WomanSuit_Blue","WomanSuit_Brown","WomanSuit_DarkGrey","WomanSuit_Khaki","WomanSuit_LightGrey","WomanSuit_White"});
+		AddItem("womansuit_black", 	1285, 	2140,	1,100);
+		AddItem("womansuit_blue", 	1285, 	2140,	1,100);
+		AddItem("womansuit_brown", 	1285, 	2140,	1,100);
+		AddItem("womansuit_darkgrey", 	830, 	1380,	1,100);
+		AddItem("womansuit_khaki", 	830, 	1380,	1,100);
+		AddItem("womansuit_lightgrey", 	830, 	1380,	1,100);
+		AddItem("womansuit_white", 	690, 	1150,	1,100);
 	}
 };

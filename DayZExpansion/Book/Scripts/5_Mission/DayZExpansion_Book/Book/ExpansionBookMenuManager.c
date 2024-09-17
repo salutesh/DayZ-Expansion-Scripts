@@ -61,7 +61,7 @@ class ExpansionBookMenuManager
 		#endif
 		
 		#ifdef EXPANSIONMODGROUPS
-		if (GetExpansionSettings().GetBook().EnablePartyTab)
+		if (GetExpansionSettings().GetBook().EnablePartyTab && GetExpansionSettings().GetParty().EnableParties)
 		{
 			m_PartyTab = new ExpansionBookMenuTabParty(book_menu);
 			m_Tabs.Insert(m_PartyTab);

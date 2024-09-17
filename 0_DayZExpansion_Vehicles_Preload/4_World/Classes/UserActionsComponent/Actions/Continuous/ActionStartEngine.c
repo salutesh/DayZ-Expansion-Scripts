@@ -43,7 +43,11 @@ modded class ActionStartEngine
 		return false;
 	}
 
+#ifdef WORKBENCH
+	override static bool Expansion_ActionConditionStatic(PlayerBase player, ActionTarget target, ItemBase item, out ExpansionVehicle vehicle)
+#else
 	static bool Expansion_ActionConditionStatic(PlayerBase player, ActionTarget target, ItemBase item, out ExpansionVehicle vehicle)
+#endif
 	{
 		if (!ExpansionVehicle.Get(vehicle, player))
 			return false;
@@ -143,7 +147,11 @@ modded class ActionStartEngine
 		Expansion_OnFinishProgressServerStatic(action_data);
 	}
 
+#ifdef WORKBENCH
+	override static void Expansion_OnFinishProgressServerStatic(ActionData action_data)
+#else
 	static void Expansion_OnFinishProgressServerStatic(ActionData action_data)
+#endif
 	{
 		ExpansionVehicle vehicle;
 		if (ExpansionVehicle.Get(vehicle, action_data.m_Player))

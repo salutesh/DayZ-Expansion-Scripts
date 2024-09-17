@@ -525,7 +525,7 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 
 		//! Ray input
 		vector start = pos;
-		vector end = pos - Vector(0, GetModelZeroPointDistanceFromGround() + offset, 0);
+		vector end = pos - Vector(0, m_ExpansionVehicle.GetModelZeroPointDistanceFromGround() + offset, 0);
 
 		//! Ray output
 		vector hit;
