@@ -20,37 +20,41 @@ class ExpansionMarketFood: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FOOD";
 		m_FileName = "Food";
 
-		AddItem("Zagorky", 						10,			20,			1,		100);
-		AddItem("ZagorkyChocolate", 			10,			20,			1,		100);
-		AddItem("ZagorkyPeanuts", 				10,			20,			1,		100);
+		AddItem("zagorky", 	1225, 	2045,	1,100);
+		AddItem("zagorkychocolate", 	780, 	1300,	1,100);
+		AddItem("zagorkypeanuts", 	400, 	665,	1,100);
 
-		AddItem("PowderedMilk", 				10,			20,			1,		100);
-		AddItem("BoxCerealCrunchin", 			12,			24,			1,		100);
-		AddItem("Rice", 						13,			26,			1,		100);
+		AddItem("powderedmilk", 	940, 	1565,	1,100);
+		AddItem("boxcerealcrunchin", 	640, 	1065,	1,100);
+		AddItem("rice", 	560, 	930,	1,100);
 
-		AddItem("Marmalade", 					13,			26,			1,		100);
-		AddItem("Honey", 						13,			26,			1,		100);
+		AddItem("marmalade", 	675, 	1130,	1,100);
+		AddItem("honey", 	1075, 	1790,	1,100);
 
-		AddItem("SaltySticks", 					15,			30,			1,		100);
-		AddItem("Crackers", 					15,			30,			1,		100);
-		AddItem("Chips", 						15,			30,			1,		100);
+		AddItem("saltysticks", 	700, 	1165,	1,100);
+		AddItem("crackers", 	700, 	1165,	1,100);
+		AddItem("chips", 	795, 	1320,	1,100);
 
-		AddItem("Pajka", 						15,			30,			1,		100);
-		AddItem("Pate", 						15,			30,			1,		100);
-		AddItem("BrisketSpread", 				15,			30,			1,		100);
+		AddItem("pajka", 	700, 	1165,	1,100);
+		AddItem("pate", 	700, 	1165,	1,100);
+		AddItem("brisketspread", 	795, 	1320,	1,100);
 
-		AddItem("SardinesCan", 					15,			30,			1,		100);
-		AddItem("TunaCan", 						15,			30,			1,		100);		
-		AddItem("DogFoodCan", 					15,			30,			1,		100);
-		AddItem("CatFoodCan", 					15,			30,			1,		100);
-		AddItem("PorkCan", 						15,			30,			1,		100);
-		AddItem("Lunchmeat", 					15,			30,			1,		100);
+		AddItem("sardinescan", 	765, 	1275,	1,100);
+		AddItem("tunacan", 	1105, 	1840,	1,100);
+		AddItem("dogfoodcan", 	1030, 	1715,	1,100);
+		AddItem("catfoodcan", 	1075, 	1790,	1,100);
+		AddItem("porkcan", 	1030, 	1715,	1,100);
+		AddItem("lunchmeat", 	950, 	1585,	1,100);
 
-		AddItem("UnknownFoodCan", 				15,			30,			1,		100);
-		AddItem("PeachesCan", 					15,			30,			1,		100);
-		AddItem("SpaghettiCan", 				20,			40,			1,		100);
-		AddItem("BakedBeansCan", 				20,			40,			1,		100);
-		AddItem("TacticalBaconCan", 			20,			40,			1,		100);
+		AddItem("unknownfoodcan", 	315, 	520,	1,100);
+		AddItem("peachescan", 	930, 	1550,	1,100);
+		AddItem("spaghettican", 	1075, 	1790,	1,100);
+		AddItem("bakedbeanscan", 	935, 	1560,	1,100);
+		AddItem("tacticalbaconcan", 	1240, 	2070,	1,100);
+		
+		#ifndef DAYZ_1_25
+		AddItem("crabcan", 	175, 	290,	1,100);
+		#endif
 	
 	#ifdef EXPANSIONMOD	
 		AddItem("ExpansionBread1", 				15,			30,			1,		100);

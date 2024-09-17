@@ -80,6 +80,7 @@ class ExpansionMarketReserveItem
 	string ClassName;
 	int Amount;
 	int Price;
+	Object CreatedObj;
 
 	void Debug(int i)
 	{

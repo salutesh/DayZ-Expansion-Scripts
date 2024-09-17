@@ -693,7 +693,9 @@ class ExpansionStatic: ExpansionStaticCore
 	static string GetInstanceID(Class instance)
 	{
 		string repr = instance.ToString();
-		return repr.Substring(repr.IndexOf("<") + 1, 8);
+		int start = repr.IndexOf("<") + 1;
+		int len = repr.Length() - start - 1;
+		return repr.Substring(start, len);
 	}
 
 	// -----------------------------------------------------------

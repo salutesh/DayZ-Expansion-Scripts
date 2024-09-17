@@ -20,84 +20,90 @@ class ExpansionMarketHelmets: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HELMETS";
 		m_FileName = "Helmets";
 
-		AddItem("ConstructionHelmet_Blue", 			30,		60,		1,		100, null, {"ConstructionHelmet_Orange", "ConstructionHelmet_Red", "ConstructionHelmet_White", "ConstructionHelmet_Yellow", "ConstructionHelmet_Lime"});
-		/*AddItem("ConstructionHelmet_Orange", 		30,		60,		1,		100);
-		AddItem("ConstructionHelmet_Red", 			30,		60,		1,		100);
-		AddItem("ConstructionHelmet_White", 		30,		60,		1,		100);
-		AddItem("ConstructionHelmet_Yellow", 		30,		60,		1,		100);*/
-		AddItem("ConstructionHelmet_Lime", 			33,		66,		1,		100);
+		AddItem("constructionhelmet_blue", 	480, 	800,	1,100,null,{"ConstructionHelmet_Orange","ConstructionHelmet_Red","ConstructionHelmet_White","ConstructionHelmet_Yellow","ConstructionHelmet_Lime"});
+		AddItem("constructionhelmet_orange", 	480, 	800,	1,100);
+		AddItem("constructionhelmet_red", 	480, 	800,	1,100);
+		AddItem("constructionhelmet_white", 	480, 	800,	1,100);
+		AddItem("constructionhelmet_yellow", 	480, 	800,	1,100);
+		AddItem("constructionhelmet_lime", 	480, 	800,	1,100);
 		
-		AddItem("SkateHelmet_Blue",					45,		90,		1,		100, null, {"SkateHelmet_Gray", "SkateHelmet_Red", "SkateHelmet_Black", "SkateHelmet_Green"});
-		/*AddItem("SkateHelmet_Gray", 				45,		90,		1,		100);
-		AddItem("SkateHelmet_Red", 					45,		90,		1,		100);*/
-		AddItem("SkateHelmet_Black", 				47,		94,		1,		100);
-		AddItem("SkateHelmet_Green", 				50,		100,	1,		100);
+		AddItem("skatehelmet_blue", 	205, 	340,	1,100,null,{"SkateHelmet_Gray","SkateHelmet_Red","SkateHelmet_Black","SkateHelmet_Green"});
+		AddItem("skatehelmet_gray", 	205, 	340,	1,100);
+		AddItem("skatehelmet_red", 	205, 	340,	1,100);
+		AddItem("skatehelmet_black", 	205, 	340,	1,100);
+		AddItem("skatehelmet_green", 	205, 	340,	1,100);
 
-		AddItem("HockeyHelmet_Blue", 				50,		100,	1,		100, null, {"HockeyHelmet_Red", "HockeyHelmet_White", "HockeyHelmet_Black"});
-		/*AddItem("HockeyHelmet_Red", 				50,		100,	1,		100);
-		AddItem("HockeyHelmet_White", 				50,		100,	1,		100);*/
-		AddItem("HockeyHelmet_Black", 				55,		110,	1,		100);
+		AddItem("hockeyhelmet_blue", 	205, 	340,	1,100,null,{"HockeyHelmet_Red","HockeyHelmet_White","HockeyHelmet_Black"});
+		AddItem("hockeyhelmet_red", 	205, 	340,	1,100);
+		AddItem("hockeyhelmet_white", 	205, 	340,	1,100);
+		AddItem("hockeyhelmet_black", 	205, 	340,	1,100);
 
-		AddItem("DirtBikeHelmet_Mouthguard", 		15,		30,		1,		100);
-		AddItem("DirtBikeHelmet_Visor", 			25,		50,		1,		100);
+		AddItem("dirtbikehelmet_mouthguard", 	210, 	355,	1,100);
+		AddItem("dirtbikehelmet_visor", 	210, 	355,	1,100);
 		
-		AddItem("DirtBikeHelmet_Chernarus", 		60,		120,	1,		100, {"DirtBikeHelmet_Mouthguard", "DirtBikeHelmet_Visor"}, {"DirtBikeHelmet_Police", "DirtBikeHelmet_Red", "DirtBikeHelmet_Green", "DirtBikeHelmet_Blue", "DirtBikeHelmet_Black", "DirtBikeHelmet_Khaki"});
-		/*AddItem("DirtBikeHelmet_Police", 			60,		120,	1,		100, {"DirtBikeHelmet_Mouthguard", "DirtBikeHelmet_Visor"});
-		AddItem("DirtBikeHelmet_Red", 				60,		120,	1,		100, {"DirtBikeHelmet_Mouthguard", "DirtBikeHelmet_Visor"});
-		AddItem("DirtBikeHelmet_Green", 			60,		120,	1,		100, {"DirtBikeHelmet_Mouthguard", "DirtBikeHelmet_Visor"});
-		AddItem("DirtBikeHelmet_Blue", 				60,		120,	1,		100, {"DirtBikeHelmet_Mouthguard", "DirtBikeHelmet_Visor"});*/
-		AddItem("DirtBikeHelmet_Black", 			65,		130,	1,		100, {"DirtBikeHelmet_Mouthguard", "DirtBikeHelmet_Visor"});
-		AddItem("DirtBikeHelmet_Khaki", 			70,		140,	1,		100, {"DirtBikeHelmet_Mouthguard", "DirtBikeHelmet_Visor"});
+		AddItem("dirtbikehelmet_chernarus", 	215, 	360,	1,100,{"DirtBikeHelmet_Mouthguard","DirtBikeHelmet_Visor"},{"DirtBikeHelmet_Police","DirtBikeHelmet_Red","DirtBikeHelmet_Green","DirtBikeHelmet_Blue","DirtBikeHelmet_Black","DirtBikeHelmet_Khaki"});
+		AddItem("dirtbikehelmet_police", 	215, 	360,	1,100,{"DirtBikeHelmet_Mouthguard","DirtBikeHelmet_Visor"});
+		AddItem("dirtbikehelmet_red", 	215, 	360,	1,100,{"DirtBikeHelmet_Mouthguard","DirtBikeHelmet_Visor"});
+		AddItem("dirtbikehelmet_green", 	215, 	360,	1,100,{"DirtBikeHelmet_Mouthguard","DirtBikeHelmet_Visor"});
+		AddItem("dirtbikehelmet_blue", 	215, 	360,	1,100,{"DirtBikeHelmet_Mouthguard","DirtBikeHelmet_Visor"});
+		AddItem("dirtbikehelmet_black", 	215, 	360,	1,100,{"DirtBikeHelmet_Mouthguard","DirtBikeHelmet_Visor"});
+		AddItem("dirtbikehelmet_khaki", 	215, 	360,	1,100,{"DirtBikeHelmet_Mouthguard","DirtBikeHelmet_Visor"});
 
-		AddItem("MotoHelmet_Lime", 					70,		140,	1,		100, null, {"MotoHelmet_Blue", "MotoHelmet_Red", "MotoHelmet_Yellow", "MotoHelmet_White", "MotoHelmet_Grey", "MotoHelmet_Black", "MotoHelmet_Green", "DarkMotoHelmet_Lime", "DarkMotoHelmet_Blue", "DarkMotoHelmet_Red", "DarkMotoHelmet_White", "DarkMotoHelmet_Grey", "DarkMotoHelmet_Black", "DarkMotoHelmet_Green"});
-		/*AddItem("MotoHelmet_Blue", 				70,		140,	1,		100);
-		AddItem("MotoHelmet_Red", 					70,		140,	1,		100);
-		AddItem("MotoHelmet_White", 				70,		140,	1,		100);*/
-		AddItem("MotoHelmet_Grey", 					75,		150,	1,		100);
-		AddItem("MotoHelmet_Black",					75,		150,	1,		100);
-		AddItem("MotoHelmet_Green", 				80,		160,	1,		100);
+		AddItem("motohelmet_lime", 	655, 	1095,	1,100,null,{"MotoHelmet_Blue","MotoHelmet_Red","MotoHelmet_Yellow","MotoHelmet_White","MotoHelmet_Grey","MotoHelmet_Black","MotoHelmet_Green","DarkMotoHelmet_Lime","DarkMotoHelmet_Blue","DarkMotoHelmet_Red","DarkMotoHelmet_White","DarkMotoHelmet_Grey","DarkMotoHelmet_Black","DarkMotoHelmet_Green"});
+		AddItem("motohelmet_blue", 	790, 	1315,	1,100);
+		AddItem("motohelmet_red", 	655, 	1095,	1,100);
+		AddItem("motohelmet_white", 	655, 	1095,	1,100);
+		AddItem("motohelmet_grey", 	1395, 	2325,	1,100);
+		AddItem("motohelmet_black", 	1395, 	2325,	1,100);
+		AddItem("motohelmet_green", 	790, 	1315,	1,100);
 
-		AddItem("DarkMotoHelmet_Grey", 				80,		170,	1,		100);
-		AddItem("DarkMotoHelmet_Lime", 				80,		170,	1,		100);
-		AddItem("DarkMotoHelmet_Blue", 				80,		170,	1,		100);
-		AddItem("DarkMotoHelmet_Red", 				80,		170,	1,		100);
-		AddItem("DarkMotoHelmet_White", 			80,		170,	1,		100);
-		AddItem("DarkMotoHelmet_Black", 			85,		170,	1,		100);
-		AddItem("DarkMotoHelmet_Green", 			90,		180,	1,		100);
-		AddItem("DarkMotoHelmet_Yellow", 			90,		180,	1,		100);
-		AddItem("DarkMotoHelmet_YellowScarred", 	90,		180,	1,		100);
+		AddItem("darkmotohelmet_grey", 	1420, 	2365,	1,100);
+		AddItem("darkmotohelmet_lime", 	670, 	1115,	1,100);
+		AddItem("darkmotohelmet_blue", 	800, 	1335,	1,100);
+		AddItem("darkmotohelmet_red", 	670, 	1115,	1,100);
+		AddItem("darkmotohelmet_white", 	670, 	1115,	1,100);
+		AddItem("darkmotohelmet_black", 	1420, 	2365,	1,100);
+		AddItem("darkmotohelmet_green", 	800, 	1335,	1,100);
+		AddItem("darkmotohelmet_yellow", 	670, 	1115,	1,100);
+		AddItem("darkmotohelmet_yellowscarred", 	145, 	240,	1,100);
 
-		AddItem("TankerHelmet", 					100,	200,	1,		100);
+		AddItem("tankerhelmet", 	7045, 	11745,	1,100);
 		
-		AddItem("GreatHelm", 						320,	440,	1,		100);
+		AddItem("greathelm", 	355, 	590,	1,100);
 	
-		AddItem("ZSh3PilotHelmet", 					130,	260,	1,		100, null, {"ZSh3PilotHelmet_Green", "ZSh3PilotHelmet_Black"});
+		AddItem("zsh3pilothelmet", 	6925, 	11545,	1,100,null,{"ZSh3PilotHelmet_Green","ZSh3PilotHelmet_Black"});
 		AddItem("ZSh3PilotHelmet_Green", 			135,	270,	1,		100);
 		AddItem("ZSh3PilotHelmet_Black", 			135,	270,	1,		100);
 			
-		AddItem("FirefightersHelmet_Red", 			150,	300,	1,		100, null, {"FirefightersHelmet_White", "FirefightersHelmet_Yellow"});
-		/*AddItem("FirefightersHelmet_White", 		150,	300,	1,		100);
-		AddItem("FirefightersHelmet_Yellow", 		150,	300,	1,		100);*/
+		AddItem("firefightershelmet_red", 	355, 	590,	1,100,null,{"FirefightersHelmet_White","FirefightersHelmet_Yellow"});
 				
 	#ifdef EXPANSIONMOD
-		AddItem("Mich2001Helmet", 					150,	300,	1,		100, null, {"ExpansionMich2001Desert"});
+		AddItem("mich2001helmet", 	7830, 	13055,	1,100,null,{"ExpansionMich2001Desert"});
 		//AddItem("ExpansionMich2001Desert", 		150,	300,	1,		100);
 	#else
-		AddItem("Mich2001Helmet", 					150,	300,	1,		100);
+		AddItem("mich2001helmet", 	7830, 	13055,	1,100);
 	#endif
 		
-		AddItem("GorkaHelmetVisor", 				50,		100,	1,		100);
-		AddItem("GorkaHelmet", 						240,	480,	1,		100, {"GorkaHelmetVisor"}, {"GorkaHelmet_Black"});
+		AddItem("gorkahelmetvisor", 	5490, 	9150,	1,100);
+		AddItem("gorkahelmet", 	5730, 	9550,	1,100,{"GorkaHelmetVisor"},{"GorkaHelmet_Black"});
 		//AddItem("GorkaHelmet_Black", 				240,	480,	1,		100, {"GorkaHelmetVisor"});
 
-		AddItem("Ssh68Helmet", 						250,	500,	1,		100);
+		AddItem("ssh68helmet", 	990, 	1650,	1,100);
 
-		AddItem("BallisticHelmet_UN", 				250,	500,	1,		100, null, {"BallisticHelmet_Black", "BallisticHelmet_Green"});
-		AddItem("BallisticHelmet_Black", 			300,	600,	1,		100);
-		AddItem("BallisticHelmet_Green", 			350,	700,	1,		100);
+		#ifndef DAYZ_1_25
+		AddItem("ballistichelmet_un", 	1060, 	1770,	1,100,null,{"BallisticHelmet_Black","BallisticHelmet_Green","BallisticHelmet_BDU","BallisticHelmet_Desert","BallisticHelmet_Woodland","BallisticHelmet_Navy","BallisticHelmet_Winter"});
+		#else
+		AddItem("ballistichelmet_un", 	1060, 	1770,	1,100,null,{"BallisticHelmet_Black","BallisticHelmet_Green","BallisticHelmet_BDU","BallisticHelmet_Desert","BallisticHelmet_Woodland"});
+		#endif
+		AddItem("ballistichelmet_bdu", 	1060, 	1770,	1,100);
+		AddItem("ballistichelmet_woodland", 	1060, 	1770,	1,100);
+		#ifndef DAYZ_1_25
+		AddItem("ballistichelmet_navy", 	145, 	240,	1,100);
+		AddItem("ballistichelmet_winter", 	1080, 	1800,	1,100);
+		#endif
 
 		//! 1.21+
-		AddItem("Chainmail_Coif", 					350,	500,	1,		100);
-		AddItem("NorseHelm", 						450,	800,	1,		100);
+		AddItem("chainmail_coif", 	355, 	595,	1,100);
+		AddItem("norsehelm", 	145, 	240,	1,100);
 	}
 };

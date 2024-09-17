@@ -20,12 +20,12 @@ class ExpansionMarketBatteries: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BATTERIES";
 		m_FileName = "Batteries";
 
-		AddItem("Battery9V",					10,			20,			1,		100);
-		AddItem("CarBattery", 					100,		200,		1,		100);
-		AddItem("TruckBattery", 				180,		360,		1,		100);
+		AddItem("battery9v", 	155, 	260,	1,100);
+		AddItem("carbattery", 	485, 	810,	1,100);
+		AddItem("truckbattery", 	535, 	895,	1,100);
 	#ifdef EXPANSIONMODVEHICLE
-		AddItem("ExpansionHelicopterBattery", 	250,		500,		1,		100);
-		//AddItem("ExpansionAircraftBattery", 	250,		500,		1,		100);
+		AddItem("ExpansionHelicopterBattery", 	735, 	1095,		1,		100);
+		//AddItem("ExpansionAircraftBattery", 	735, 	1095,		1,		100);
 	#endif
 	}
 };

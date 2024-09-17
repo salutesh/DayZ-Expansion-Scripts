@@ -20,22 +20,22 @@ class ExpansionMarketPistols: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_PISTOLS";
 		m_FileName = "Pistols";
 
-		AddItem("MakarovIJ70", 				100,	200,	1,		100,	{"Mag_IJ70_8Rnd"});
-		AddItem("Derringer_Black", 			200,	600,	1,	    100,	null, {"Derringer_Grey", "Derringer_Pink"});
-		AddItem("CZ75", 					135,	270,	1,		100,	{"Mag_CZ75_15Rnd"});
-		AddItem("FNX45", 					175,	350,	1,		100,	{"Mag_FNX45_15Rnd"});
-		AddItem("Glock19", 					300,	600,	1,		100,	{"Mag_Glock_15Rnd"});
-		AddItem("MKII", 					320,	640,	1,		100,	{"Mag_MKII_10Rnd"});
-		AddItem("Colt1911", 				340,	680,	1,		100,	{"Mag_1911_7Rnd"});
-		AddItem("Engraved1911", 			340,	680,	1,		100,	{"Mag_1911_7Rnd"});
-		AddItem("Magnum", 					400,	800,	1,		100);
-		AddItem("Deagle", 					400,	800,	1,		100,	{"Mag_Deagle_9Rnd"}, {"Deagle_Gold"});
-		AddItem("Deagle_Gold", 				500,	1000,	1,		100,	{"Mag_Deagle_9Rnd"});
-		AddItem("P1", 						250,	400,	1,		100,	{"Mag_P1_8Rnd"});
-		AddItem("Longhorn",					200,	400,	1,		100);
+		AddItem("makarovij70", 	470, 	785,	1,100,{"Mag_IJ70_8Rnd"});
+		AddItem("derringer_black", 	365, 	610,	1,100,null,{"Derringer_Grey","Derringer_Pink"});
+		AddItem("cz75", 	735, 	1230,	1,100,{"Mag_CZ75_15Rnd"});
+		AddItem("fnx45", 	4705, 	7845,	1,100,{"Mag_FNX45_15Rnd"});
+		AddItem("glock19", 	510, 	850,	1,100,{"Mag_Glock_15Rnd"});
+		AddItem("mkii", 	625, 	1040,	1,100,{"Mag_MKII_10Rnd"});
+		AddItem("colt1911", 	3210, 	5345,	1,100,{"Mag_1911_7Rnd"});
+		AddItem("engraved1911", 	3235, 	5390,	1,100,{"Mag_1911_7Rnd"});
+		AddItem("magnum", 	235, 	390,	1,100);
+		AddItem("deagle", 	225, 	375,	1,100,{"Mag_Deagle_9Rnd"},{"Deagle_Gold"});
+		AddItem("deagle_gold", 	240, 	400,	1,100,{"Mag_Deagle_9Rnd"});
+		AddItem("p1", 	520, 	865,	1,100,{"Mag_P1_8Rnd"});
+		AddItem("longhorn", 	1960, 	3270,	1,100);
 
 	#ifdef EXPANSIONMODWEAPONS	
-		AddItem("Expansion_M9", 			175,	350,	1,		100,	{"Mag_Expansion_M9_15Rnd"});
+		AddItem("Expansion_M9", 			4600, 	7800,	1,		100,	{"Mag_Expansion_M9_15Rnd"});
 	#endif
 	}
 };

@@ -21,20 +21,17 @@ class ExpansionMarketVegetables: ExpansionMarketCategory
 		m_FileName = "Fruit_And_Vegetables";
 
 		AddItem("Apple", 						7,		9,		1,		100);
-		AddItem("GreenBellPepper", 				7,		9,		1,		100);
-		AddItem("Zucchini", 					10,		12,		1,		100);
+		AddItem("greenbellpepper", 	940, 	1570,	1,100);
+		AddItem("zucchini", 	1015, 	1690,	1,100);
 		AddItem("Pumpkin", 						15,		17,		1,		100);
 		AddItem("SlicedPumpkin", 				7,		9,		1,		100);
-		AddItem("PotatoSeed", 					7,		9,		1,		100);
+		AddItem("potatoseed", 	950, 	1585,	1,100);
 		AddItem("Potato", 						7,		9,		1,		100);
-		AddItem("Tomato", 						7,		9,		1,		100);
+		AddItem("tomato", 	940, 	1570,	1,100);
 		AddItem("SambucusBerry", 				7,		9,		1,		100);
 		AddItem("CaninaBerry", 					7,		9,		1,		100);
 		AddItem("Plum", 						7,		9,		1,		100);
 		AddItem("Pear", 						7,		9,		1,		100);
-		//AddItem("Kiwi", 						7,		9,		1,		100);
-		//AddItem("Orange", 					7,		9,		1,		100);
-		//AddItem("Banana", 					7,		9,		1,		100);
 				
 		AddItem("AgaricusMushroom", 			7,		9,		1,		100);
 		AddItem("AmanitaMushroom", 				7,		9,		1,		100);
@@ -44,5 +41,6 @@ class ExpansionMarketVegetables: ExpansionMarketCategory
 		AddItem("AuriculariaMushroom", 			7,		9,		1,		100);
 		AddItem("BoletusMushroom", 				7,		9,		1,		100);
 		AddItem("PleurotusMushroom", 			7,		9,		1,		100);
+		AddItem("CraterellusMushroom", 			7,		9,		1,		100);
 	}
 };

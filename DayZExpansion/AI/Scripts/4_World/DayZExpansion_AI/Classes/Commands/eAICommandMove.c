@@ -1475,15 +1475,15 @@ class eAICommandMove: ExpansionHumanCommandScript
 				isAboveGround = true;
 
 			if (m_Unit.IsSwimming())
-				PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
+				SetHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
 			//! Enable sharpest turns if turning around while running or sprinting
 			else if (!m_Unit.IsRaised() && Math.AbsFloat(m_TurnDifference) > 135.0 && m_MovementSpeed >= 2.0)
-				PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.05, 30.0);
+				SetHeading(-turnTargetActual * Math.DEG2RAD, 0.05, 30.0);
 			//! Enable sharper turns if above ground or waypoint is not final but close and not avoiding obstacles
 			else if (!m_Unit.IsRaised() && (isAboveGround || (!isPathPointFinal && m_WaypointDistance2DSq < 8.0 * Math.Max(m_MovementSpeed, 1.0) && m_OverrideMovementTimeout <= 0)))
-				PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.15, 30.0);
+				SetHeading(-turnTargetActual * Math.DEG2RAD, 0.15, 30.0);
 			else
-				PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
+				SetHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
 		}
 
 		if (m_WeaponFire && !m_IsTagWeaponFire)
@@ -1492,17 +1492,6 @@ class eAICommandMove: ExpansionHumanCommandScript
 			m_WeaponFire = false;
 		}
 	}
-
-#ifndef DAYZ_1_25
-	override void PreAnim_SetFilteredHeading(float pYawAngle, float pFilterDt, float pMaxYawSpeed)
-	{
-		float angle = m_Unit.GetOrientation()[0];
-		//m_Unit.SetOrientation(Vector(angle + m_TurnDifference * m_DT / pFilterDt, 0, 0));
-		m_Unit.SetOrientation(Vector(Math.SmoothCD(angle, angle + m_TurnDifference, m_SmoothVel, pFilterDt, 1000, m_DT), 0, 0));
-		//if (Math.AbsFloat(m_TurnDifference) < 0.01)
-			//m_SmoothVel[0] = 0.0;
-	}
-#endif
 
 	float GetWaterDepth(vector position)
 	{

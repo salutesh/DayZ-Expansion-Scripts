@@ -23,24 +23,24 @@ class ExpansionMarketSniperRifles: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_SNIPER_RIFLES";
 		m_FileName = "Sniper_Rifles";
 
-		AddItem("VSS", 						1600,	3200,	1,		100,	{"Mag_VSS_10Rnd"});
-		AddItem("ASVAL", 					1600,	3200,	1,		100,	{"Mag_VAL_20Rnd"});
-		AddItem("Vikhr", 					1500,	3200,	1,		100,	{"Mag_Vikhr_30Rnd"});
-		AddItem("B95", 						1700,	3400,	1,		100);
-		AddItem("SVD", 						2000,	4000,	1,		100,	{"Mag_SVD_10Rnd"});
-		AddItem("SV98", 					2000,	4000,	1,		100,	{"Mag_SV98_10Rnd"});
+		AddItem("vss", 	5885, 	9810,	1,100,{"Mag_VSS_10Rnd"});
+		AddItem("asval", 	6770, 	11285,	1,100,{"Mag_VAL_20Rnd"});
+		AddItem("vikhr", 	6040, 	10070,	1,100,{"Mag_Vikhr_30Rnd"});
+		AddItem("b95", 	4205, 	7005,	1,100);
+		AddItem("svd", 	1225, 	2040,	1,100,{"Mag_SVD_10Rnd"});
+		AddItem("sv98", 	4425, 	7370,	1,100,{"Mag_SV98_10Rnd"});
 
 		if (ExpansionStatic.GetCanonicalWorldName() == "enoch")
 		{
-			AddItem("Scout_Livonia", 		2100,	4200,	1,		100,	{"Mag_Scout_5Rnd"});
+		AddItem("scout_livonia", 	3670, 	6120,	1,100,{"Mag_Scout_5Rnd"});
 		}
 		else if (ExpansionStatic.GetCanonicalWorldName() == "chernarusplus")
 		{
-			AddItem("Scout_Chernarus", 		2100,	4200,	1,		100,	{"Mag_Scout_5Rnd"});
+		AddItem("scout_chernarus", 	3610, 	6020,	1,100,{"Mag_Scout_5Rnd"});
 		}
 		else
 		{
-			AddItem("Scout", 				2100,	4200,	1,		100,	{"Mag_Scout_5Rnd"});
+		AddItem("scout", 	305, 	510,	1,100,{"Mag_Scout_5Rnd"});
 		}
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_AWM", 			5000,	10000,	1,		100,	{"Mag_Expansion_AWM_5rnd"});

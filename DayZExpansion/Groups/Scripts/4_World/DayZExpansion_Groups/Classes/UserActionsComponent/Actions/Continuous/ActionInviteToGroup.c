@@ -26,12 +26,15 @@ class ActionInviteToGroup: ActionInteractBase
 	}
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
-	{		
+	{
 		PlayerBase targetPlayer = PlayerBase.Cast(target.GetParentOrObject());
 		if (!targetPlayer || !targetPlayer.IsAlive())
 			return false;
 		
 		if (!targetPlayer.GetIdentity())
+			return false;
+
+		if ( !GetExpansionSettings().GetParty().EnableParties )
 			return false;
 		
 		if (targetPlayer.Expansion_GetPartyID() > -1)

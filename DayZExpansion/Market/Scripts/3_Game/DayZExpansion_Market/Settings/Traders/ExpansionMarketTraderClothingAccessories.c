@@ -36,5 +36,7 @@ class ExpansionMarketTraderClothingAccessories: ExpansionMarketTrader
 		Categories.Insert("Holsters_And_Pouches");
 		Categories.Insert("Ghillies");
 		Categories.Insert("Belts");
+		
+		AddItem("gasmask_filter", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 	}
 }

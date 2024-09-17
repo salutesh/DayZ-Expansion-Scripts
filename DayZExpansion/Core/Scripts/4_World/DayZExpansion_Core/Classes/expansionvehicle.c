@@ -70,9 +70,25 @@ class ExpansionVehicle
 		else if (Class.CastTo(player, entity))
 		{
 			if (includeAttached)
+			{
+				//! Expansion_GetParent will both check GetParent (which will satisfy any players with
+				//! VehicleCmd aka sitting in vehicle seats as well as custom player attachment systems of
+				//! Expansion under DayZ 1.25 and 3rd party mods) as well as DayZ 1.26 vanilla PhysicsGetLinkedEntity
 				return Get(player.Expansion_GetParent());
+			}
 			else
-				return Get(player.GetParent());
+			{
+				//! Don't use GetParent here since it is used for player attachment by Expansion (only under DayZ 1.25)
+				//! and potentially other vehicle mods that do not use vanilla 1.26 attachment system
+				auto vehCmd = player.GetCommand_Vehicle();
+				if (vehCmd)
+					return Get(vehCmd.GetTransport(), errorOnFailure);
+			#ifdef EXPANSIONMODVEHICLE
+				auto exVehCmd = player.GetCommand_ExpansionVehicle();
+				if (exVehCmd)
+					return Get(exVehCmd.GetObject(), errorOnFailure);
+			#endif
+			}
 		}
 		
 

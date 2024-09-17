@@ -20,8 +20,9 @@ class ExpansionMarketBandanas: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BANDANAS";
 		m_FileName = "Bandanas";
 
-		AddItem("Bandana_Blue", 					6,		12,		1,		100, null, {"Bandana_Pink", "Bandana_Yellow", "Bandana_RedPattern", "Bandana_BlackPattern", "Bandana_PolkaPattern"});
-		AddItem("Bandana_Greenpattern", 			8,		16,		1,		100);
-		AddItem("Bandana_CamoPattern", 				10,		20,		1,		100);
+		AddItem("bandana_redpattern", 	215, 	355,	1,100,null,{"Bandana_Pink","Bandana_Yellow","Bandana_Redpattern","Bandana_Blue","Bandana_Polkapattern"});
+		AddItem("bandana_greenpattern", 	1135, 	1895,	1,100);
+		AddItem("bandana_camopattern", 	1135, 	1895,	1,100);
+		AddItem("bandana_blackpattern", 	1135, 	1895,	1,100);
 	}
 };

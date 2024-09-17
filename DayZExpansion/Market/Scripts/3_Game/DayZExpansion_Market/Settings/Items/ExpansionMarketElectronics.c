@@ -20,17 +20,17 @@ class ExpansionMarketElectronics: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_ELECTRONICS";
 		m_FileName = "Electronics";
 
-		AddItem("PersonalRadio", 					10,		20,		1,		100,	{"Battery9V"});
-		AddItem("Megaphone", 						30,		60,		1,		100,	{"Battery9V"});
-		AddItem("ElectronicRepairKit", 				35,		70,		1,		100);
-		AddItem("CableReel", 						40,		80,		1,		100);
-		AddItem("BatteryCharger", 					40,		80,		1,		100);
-		AddItem("BaseRadio", 						50,		100,	1,		100,	{"CarBattery"});
-		AddItem("Rangefinder", 						60,		120,	1,		100,	{"Battery9V"});
-		AddItem("NVGoggles", 						400,	800,	1,		100,	{"Battery9V"});
+		AddItem("personalradio", 	710, 	1180,	1,100,{"Battery9V"});
+		AddItem("megaphone", 	3030, 	5050,	1,100,{"Battery9V"});
+		AddItem("electronicrepairkit", 	610, 	1015,	1,100);
+		AddItem("cablereel", 	550, 	915,	1,100);
+		AddItem("batterycharger", 	670, 	1115,	1,100);
+		AddItem("baseradio", 	9695, 	16160,	1,100,{"CarBattery"});
+		AddItem("rangefinder", 	815, 	1355,	1,100,{"Battery9V"});
+		AddItem("nvgoggles", 	5415, 	9025,	1,100,{"Battery9V"});
 		
-		AddItem("AlarmClock_Blue", 					30,		80,		1,		100, null, {"AlarmClock_Green", "AlarmClock_Red"});
-		AddItem("KitchenTimer", 					30,		80,		1,		100);
+		AddItem("alarmclock_blue", 	370, 	615,	1,100,null,{"AlarmClock_Green","AlarmClock_Red"});
+		AddItem("kitchentimer", 	285, 	475,	1,100);
 		
 		#ifdef NAMALSK_SURVIVAL
 		AddItem("dzn_tool_watch", 					40,		100,	1,		100, null, {"dzn_tool_watch2"});

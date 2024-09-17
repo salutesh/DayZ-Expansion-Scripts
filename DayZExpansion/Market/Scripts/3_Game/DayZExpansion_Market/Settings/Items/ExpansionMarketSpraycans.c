@@ -29,31 +29,23 @@ class ExpansionMarketSpraycans: ExpansionMarketCategory
 		//AddItem("ExpansionSpraycanBlueRust",			100,	200,	1,		100);	//! NOT READY
 		
 		AddItem("ExpansionSpraycanRed",			100,	200,	1,		100, null, {"ExpansionSpraycanRedRust"});
-		//AddItem("ExpansionSpraycanRedRust",			100,	200,	1,		100);
 		
 		AddItem("ExpansionSpraycanGreen",			100,	200,	1,		100, null, {"ExpansionSpraycanGreenRust", "ExpansionSpraycanLightGreen"});
-		/*AddItem("ExpansionSpraycanGreenRust",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanLightGreen",			100,	200,	1,		100);*/
 		
 		AddItem("ExpansionSpraycanBlack",			100,	200,	1,		100, null, {"ExpansionSpraycanBlackRust"});
-		//AddItem("ExpansionSpraycanBlackRust",			100,	200,	1,		100);
 		
 		AddItem("ExpansionSpraycanOrange",			100,	200,	1,		100);
 		
 		AddItem("ExpansionSpraycanWhite",			100,	200,	1,		100, null, {"ExpansionSpraycanWhiteRust"});
-		//AddItem("ExpansionSpraycanWhiteRust",			100,	200,	1,		100);
 		
 		AddItem("ExpansionSpraycanGrey",			100,	200,	1,		100, null, {"ExpansionSpraycanGreyRust"});
-		//AddItem( "ExpansionSpraycanGreyRust",			100,	200,	1,		100);
 		
 		AddItem("ExpansionSpraycanYellow",			100,	200,	1,		100, null, {"ExpansionSpraycanYellowRust"});
-		//AddItem("ExpansionSpraycanYellowRust",			100,	200,	1,		100);
 		
 		//AddItem("ExpansionSpraycanYellowBright",			100,	200,	1,		100);	//! NOT READY
 		//AddItem("ExpansionSpraycanYellowBrightRust",			100,	200,	1,		100);	//! NOT READY
 		
 		AddItem("ExpansionSpraycanWine",			100,	200,	1,		100, null, {"ExpansionSpraycanWineRust"});
-		//AddItem("ExpansionSpraycanWineRust",			100,	200,	1,		100);
 		
 		//AddItem("ExpansionSpraycanLime",			100,	200,	1,		100);	//! NOT READY
 		
@@ -94,31 +86,12 @@ class ExpansionMarketSpraycans: ExpansionMarketCategory
 		
 		//! MH6
 		AddItem("ExpansionSpraycanMh6Blueline",			100,	200,	1,		100, null, {"ExpansionSpraycanMh6Digital", "ExpansionSpraycanMh6Elliptical", "ExpansionSpraycanMh6Furious", "ExpansionSpraycanMh6GrayWatcher", "ExpansionSpraycanMh6Jeans", "ExpansionSpraycanMh6Resistance", "ExpansionSpraycanMh6Shadow", "ExpansionSpraycanMh6Sheriff", "ExpansionSpraycanMh6Speedy", "ExpansionSpraycanMh6Sunset", "ExpansionSpraycanMh6Vrana", "ExpansionSpraycanMh6Wasp", "ExpansionSpraycanMh6Wave"});
-		/*AddItem("ExpansionSpraycanMh6Digital",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMh6Elliptical",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMh6Furious",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMh6GrayWatcher",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMh6Jeans",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMh6Resistance",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMh6Shadow",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMh6Sheriff",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMh6Speedy",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMh6Sunset",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMh6Vrana",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMh6Wasp",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMh6Wave",			100,	200,	1,		100);*/
 		
 		//! UH1H
 		AddItem("ExpansionSpraycanUh1hMedical",			100,	200,	1,		100, null, {"ExpansionSpraycanUh1hUber", "ExpansionSpraycanUh1hResistance", "ExpansionSpraycanUh1hCivilian"});
-		/*AddItem("ExpansionSpraycanUh1hUber",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanUh1hResistance",			100,	200,	1,		100);*/
 		
 		//! MERLIN
 		AddItem("ExpansionSpraycanMerlinDahoman",			100,	200,	1,		100, null, {"ExpansionSpraycanMerlinIon", "ExpansionSpraycanMerlinPresident", "ExpansionSpraycanMerlinVrana", "ExpansionSpraycanMerlinWave"});
-		/*AddItem("ExpansionSpraycanMerlinIon",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMerlinPresident",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMerlinVrana",			100,	200,	1,		100);
-		AddItem("ExpansionSpraycanMerlinWave",			100,	200,	1,		100);*/
 		
 		//! BUS
 		AddItem("ExpansionSpraycanBusWeeb",			100,	200,	1,		100);

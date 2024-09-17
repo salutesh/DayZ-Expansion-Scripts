@@ -20,17 +20,17 @@ class ExpansionMarketKnifes: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_KNIFES";
 		m_FileName = "Knifes";
 		
-		AddItem("KitchenKnife", 				8,		16,		1,		100);
-		AddItem("SteakKnife", 					9,		18,		1,		100);
-		AddItem("HuntingKnife", 				9,		18,		1,		100);
-		AddItem("CombatKnife", 					10,		20,		1,		100);
-		AddItem("KukriKnife", 					10,		20,		1,		100);
-		AddItem("FangeKnife", 					10,		20,		1,		100);
-		AddItem("Machete", 						12,		24,		1,		100);
-		AddItem("CrudeMachete", 				12,		24,		1,		100);
-		AddItem("OrientalMachete", 				12,		24,		1,		100);
-		AddItem("Cleaver", 						10,		20,		1,		100);
+		AddItem("kitchenknife", 	370, 	615,	1,100);
+		AddItem("steakknife", 	580, 	960,	1,100);
+		AddItem("huntingknife", 	855, 	1425,	1,100);
+		AddItem("combatknife", 	1385, 	2310,	1,100);
+		AddItem("kukriknife", 	370, 	615,	1,100);
+		AddItem("fangeknife", 	910, 	1515,	1,100);
+		AddItem("machete", 	2180, 	3630,	1,100);
+		AddItem("crudemachete", 	3715, 	6190,	1,100);
+		AddItem("orientalmachete", 	355, 	590,	1,100);
+		AddItem("cleaver", 	285, 	475,	1,100);
 		//! 1.21+
-		AddItem("Sword", 						80,		300,	1,		100);
+		AddItem("sword", 	355, 	595,	1,100);
 	}
 };

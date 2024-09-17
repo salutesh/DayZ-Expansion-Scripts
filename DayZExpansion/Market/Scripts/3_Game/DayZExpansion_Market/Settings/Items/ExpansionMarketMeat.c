@@ -29,8 +29,15 @@ class ExpansionMarketMeat: ExpansionMarketCategory
 		AddItem("CowSteakMeat", 				8,		16,		1,		100);
 		AddItem("SheepSteakMeat", 				8,		16,		1,		100);
 		AddItem("ChickenBreastMeat", 			8,		16,		1,		100);
-	#ifdef EXPANSIONMOD	
+	#ifndef DAYZ_1_25
 		AddItem("RabbitLegMeat", 				8,		16,		1,		100);
+		AddItem("FoxSteakMeat", 				8,		16,		1,		100);
+		AddItem("MouflonSteakMeat", 				8,		16,		1,		100);
+		AddItem("ReindeerSteakMeat", 				8,		16,		1,		100);
+	#else
+	#ifdef EXPANISONMOD
+		AddItem("RabbitLegMeat", 				8,		16,		1,		100);
+	#endif
 	#endif
 	}
 };

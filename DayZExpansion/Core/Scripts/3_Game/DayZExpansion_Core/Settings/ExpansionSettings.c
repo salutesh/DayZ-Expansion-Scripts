@@ -250,12 +250,9 @@ class ExpansionSettings
 			else
 				msg += "received!";
 
-			EXTrace trace;
 			if (count)
 			{
-				EXPrint("WARNING: " + msg + " (there have been " + count + " more suppressed warnings)");
-				trace = EXTrace.StartStack(true, this);
-				trace.SetStart(5);
+				EXError.Warn(this, "WARNING: " + msg + " (there have been " + count + " more suppressed warnings)");
 			}
 			else
 			{

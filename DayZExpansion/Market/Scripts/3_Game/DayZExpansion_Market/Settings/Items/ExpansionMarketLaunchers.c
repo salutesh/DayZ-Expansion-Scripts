@@ -20,8 +20,8 @@ class ExpansionMarketLaunchers: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LAUNCHERS";
 		m_FileName = "Launchers";
 	
-		AddItem("Flaregun", 			500,		1000,		1,		100);
-		AddItem("M79", 		            2500,		5000,		1,		100);
+		AddItem("flaregun", 	795, 	1325,	1,100);
+		AddItem("m79", 	9025, 	15045,	1,100);
 
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("ExpansionLAW", 		2500,		5000,		1,		100);

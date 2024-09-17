@@ -20,8 +20,8 @@ class ExpansionMarketLocks: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LOCKS";
 		m_FileName = "Locks";
 
-		AddItem("CombinationLock", 				700,		1400,		1,		100);
-		AddItem("CombinationLock4", 			900,		1800,		1,		100);
+		AddItem("combinationlock", 	450, 	750,	1,100);
+		AddItem("combinationlock4", 	450, 	750,	1,100);
 	#ifdef EXPANSIONMODBASEBUILDING		
 		AddItem("ExpansionCodeLock", 			1500,		3000,		1,		100);
 	#endif

@@ -26,9 +26,13 @@ class ExpansionMarketBoats: ExpansionMarketCategory
 	#ifdef DAYZ_1_25
 		AddItem("ExpansionZodiacBoat", 			22000,		44000,		1,		10,		{"TruckBattery","GlowPlug"});
 	#else
-		AddItem("Boat_01_Orange", 			22000,		44000,		1,		10,		{"SparkPlug"}, {"Boat_01_Black", "Boat_01_Blue", "Boat_01_Camo"});
+		AddItem("boat_01_orange", 	22680, 	37800,	1,10,{"SparkPlug"},{"Boat_01_Black","Boat_01_Blue","Boat_01_Camo"});
 	#endif
 		AddItem("ExpansionLHD", 			300000000,	600000000,		1,		1,		{"TruckBattery","GlowPlug","HeadlightH7","HeadlightH7"});
+	#else
+	#ifndef DAYZ_1_25
+		AddItem("boat_01_orange", 	22680, 	37800,	1,10,{"SparkPlug"},{"Boat_01_Black","Boat_01_Blue","Boat_01_Camo"});
+	#endif
 	#endif
 	}
 };

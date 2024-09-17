@@ -167,6 +167,14 @@ modded class DayZGame
 		#ifdef DEVELOPER
 			version_info += "_Internal";
 		#endif
+		
+		#ifdef EXTRACE
+			version_info += "_Tracing";
+		#endif
+		
+		#ifdef EXTRACE_DIAG
+			version_info += "_TracingDiag";
+		#endif
 
 		string version;
 		GetVersion(version);

@@ -20,27 +20,45 @@ class ExpansionMarketMasks: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MASKS";
 		m_FileName = "Masks";
 
-		AddItem("SurgicalMask", 					15,		30,		1,		100);
+		AddItem("surgicalmask", 	625, 	1045,	1,100);
 				
-		AddItem("NioshFaceMask", 					40,		80,		1,		100);
+		AddItem("nioshfacemask", 	560, 	935,	1,100);
 		
-		AddItem("HockeyMask", 						40,		80,		1,		100);
+		AddItem("hockeymask", 	205, 	340,	1,100);
+		
+		#ifndef DAYZ_1_25
+		AddItem("shemag_brown", 	70, 	115,	1,100,null,{"shemag_green","shemag_red","shemag_white"});
+		#endif
 
-		AddItem("BalaclavaMask_Beige", 				50,		100,	1,		100, null, {"BalaclavaMask_Blue", "BalaclavaMask_Pink", "BalaclavaMask_White", "BalaclavaMask_Blackskull", "BalaclavaMask_Black", "BalaclavaMask_Green"});
-		AddItem("BalaclavaMask_Blackskull",			55,		110,	1,		100);
-		AddItem("BalaclavaMask_Black", 				55,		110,	1,		100);
-		AddItem("BalaclavaMask_Green", 				60,		120,	1,		100);
-				
-		AddItem("Balaclava3Holes_Beige", 			50,		100,	1,		100, null, {"Balaclava3Holes_Blue", "Balaclava3Holes_Black", "Balaclava3Holes_Green"});
-		AddItem("Balaclava3Holes_Black", 			55,		110,	1,		100);
-		AddItem("Balaclava3Holes_Green", 			60,		120,	1,		100);
+		#ifndef DAYZ_1_25
+		AddItem("balaclavamask_beige", 	1245, 	2070,	1,100,null,{"BalaclavaMask_Blue","BalaclavaMask_Pink","BalaclavaMask_White","BalaclavaMask_Blackskull","BalaclavaMask_Black","BalaclavaMask_Green","BalaclavaMask_BDU","BalaclavaMask_Chain","BalaclavaMask_Pig"});
+		#else
+		AddItem("balaclavamask_beige", 	1245, 	2070,	1,100,null,{"BalaclavaMask_Blue","BalaclavaMask_Pink","BalaclavaMask_White","BalaclavaMask_Blackskull","BalaclavaMask_Black","BalaclavaMask_Green"});
+		#endif
+		AddItem("balaclavamask_blackskull", 	7105, 	11845,	1,100);
+		AddItem("balaclavamask_black", 	2115, 	3525,	1,100);
+		AddItem("balaclavamask_green", 	1745, 	2905,	1,100);
+		#ifndef DAYZ_1_25
+		AddItem("balaclavamask_bdu", 	7045, 	11745,	1,100);
+		#endif
 		
-		AddItem("WeldingMask", 						70,		140,	1,		100);
+		#ifndef DAYZ_1_25
+		AddItem("balaclava3holes_beige", 	1005, 	1675,	1,100,null,{"Balaclava3Holes_Blue","Balaclava3Holes_Black","Balaclava3Holes_Green","Balaclava3Holes_White"});
+		#else
+		AddItem("balaclava3holes_beige", 	1005, 	1675,	1,100,null,{"Balaclava3Holes_Blue","Balaclava3Holes_Black","Balaclava3Holes_Green"});
+		#endif
+		AddItem("balaclava3holes_black", 	1840, 	3065,	1,100);
+		AddItem("balaclava3holes_green", 	1445, 	2410,	1,100);
+		#ifndef DAYZ_1_25
+		AddItem("balaclava3holes_white", 	655, 	1090,	1,100);
+		#endif
 		
-		AddItem("GasMask", 							120,	240,	1,		100);
-		AddItem("GP5GasMask", 						120,	240,	1,		100);
-		AddItem("AirborneMask", 					200,	400,	1,		100);
+		AddItem("weldingmask", 	500, 	835,	1,100);
+		
+		AddItem("gasmask", 	3070, 	5120,	1,100);
+		AddItem("gp5gasmask", 	7105, 	11845,	1,100,{"gasmask_filter"});
+		AddItem("airbornemask", 	460, 	765,	1,100,{"gasmask_filter"});
 
-		AddItem("MimeMask_Female", 					60,		160,	1,		100, null, {"MimeMask_Male"});
+		AddItem("mimemask_female", 	355, 	590,	1,100,null,{"MimeMask_Male"});
 	}
 };

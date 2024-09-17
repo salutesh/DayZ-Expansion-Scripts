@@ -20,36 +20,37 @@ class ExpansionMarketGloves: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_GLOVES";
 		m_FileName = "Gloves";
 
-		AddItem("SurgicalGloves_Blue", 				5,		10,		1,		100, null, {"SurgicalGloves_LightBlue", "SurgicalGloves_Green", "SurgicalGloves_White"});
-		/*AddItem("SurgicalGloves_LightBlue",		5,		10,		1,		100);
-		AddItem("SurgicalGloves_Green", 			5,		10,		1,		100);
-		AddItem("SurgicalGloves_White", 			5,		10,		1,		100);*/
+		AddItem("surgicalgloves_blue", 	640, 	1065,	1,100,null,{"SurgicalGloves_LightBlue","SurgicalGloves_Green","SurgicalGloves_White"});
 		
-		AddItem("WorkingGloves_Yellow", 			25,		50,		1,		100, null, {"WorkingGloves_Black", "WorkingGloves_Beige", "WorkingGloves_Brown"});
-		AddItem("WorkingGloves_Black", 				30,		60,		1,		100);
-		AddItem("WorkingGloves_Beige", 				30,		60,		1,		100);
-		AddItem("WorkingGloves_Brown", 				30,		60,		1,		100);
+		AddItem("workinggloves_yellow", 	370, 	615,	1,100,null,{"WorkingGloves_Black","WorkingGloves_Beige","WorkingGloves_Brown"});
+		AddItem("workinggloves_black", 	375, 	625,	1,100);
+		AddItem("workinggloves_beige", 	370, 	615,	1,100);
+		AddItem("workinggloves_brown", 	370, 	615,	1,100);
 	
 	#ifdef EXPANSIONMOD
-		AddItem("TacticalGloves_Black", 			35,		70,		1,		100, null, {"TacticalGloves_Beige", "TacticalGloves_Green", "ExpansionTacticalGlovesDesert"});
-		//AddItem("ExpansionTacticalGlovesDesert", 	35,		70,		1,		100);
+		AddItem("tacticalgloves_black", 	1055, 	1755,	1,100,null,{"TacticalGloves_Beige","TacticalGloves_Green","ExpansionTacticalGlovesDesert"});
 	#else
-		AddItem("TacticalGloves_Black", 			35,		70,		1,		100, null, {"TacticalGloves_Beige", "TacticalGloves_Green"});
+		AddItem("tacticalgloves_black", 	1055, 	1755,	1,100,null,{"TacticalGloves_Beige","TacticalGloves_Green"});
 	#endif
-		//AddItem("TacticalGloves_Beige", 			35,		70,		1,		100);
-		//AddItem("TacticalGloves_Green", 			35,		70,		1,		100);
+		AddItem("tacticalgloves_beige", 	1055, 	1755,	1,100);
+		AddItem("tacticalgloves_green", 	1055, 	1755,	1,100);
 	
-		AddItem("OMNOGloves_Gray", 					40,		80,		1,		100, null, {"OMNOGloves_Brown"});
+		AddItem("omnogloves_gray", 	4430, 	7385,	1,100,null,{"OMNOGloves_Brown"});
 		
-		AddItem("NBCGlovesGray", 					80,		160,	1,		100, null, {"NBCGlovesYellow"});
-		AddItem("NBCGlovesYellow", 					65,		130,	1,		100);
+		AddItem("nbcglovesgray", 	7900, 	13165,	1,100,null,{"NBCGlovesYellow"});
 		
 		//! 1.21+
-		AddItem("WoolGloves_Green", 			35,		70,		1,		100, null, {"WoolGloves_Black", "WoolGloves_Tan", "WoolGloves_White"});
-	#ifndef DAYZ_1_21
-		AddItem("WoolGlovesFingerless_Green", 	35,		70,		1,		100, null, {"WoolGlovesFingerless_Black", "WoolGlovesFingerless_Tan", "WoolGlovesFingerless_White"});
-	#else
-		AddItem("WoolGlovesFingerless_Green", 	35,		70,		1,		100, null, {"WoolGlovesFingerless_Black", "WoolGlovesFingerless_Tan"});
-	#endif
+		AddItem("woolgloves_green", 	3905, 	6505,	1,100,null,{"WoolGloves_Black","WoolGloves_Tan","WoolGloves_White","woolgloves_christmasblue","woolgloves_christmasred"});
+		AddItem("woolglovesfingerless_green", 	3970, 	6620,	1,100,null,{"WoolGlovesFingerless_Black","WoolGlovesFingerless_Tan","WoolGlovesFingerless_White","woolglovesfingerless_christmasblue","woolglovesfingerless_christmasred"});
+
+		#ifndef DAYZ_1_25
+		AddItem("skigloves_90s", 	145, 	240,	1,100,null,{"skigloves_blue","skigloves_red"});
+		AddItem("skigloves_blue", 	145, 	240,	1,100);
+		AddItem("skigloves_red", 	145, 	240,	1,100);
+		#endif
+		
+		AddItem("paddedgloves_beige", 	175, 	295,	1,100,null,{"paddedgloves_brown","paddedgloves_threat"});
+		AddItem("paddedgloves_brown", 	280, 	470,	1,100);
+		AddItem("paddedgloves_threat", 	650, 	1080,	1,100);
 	}
 };

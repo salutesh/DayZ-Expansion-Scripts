@@ -20,85 +20,86 @@ class ExpansionMarketMagazines: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MAGAZINES";
 		m_FileName = "Magazines";
 
-		AddItem("Mag_IJ70_8Rnd", 				30,		60,		1,		100);
+		AddItem("mag_ij70_8rnd", 	425, 	705,	1,100);
 
-		AddItem("Mag_CZ75_15Rnd", 				40,		80,		1,		100);
+		AddItem("mag_cz75_15rnd", 	665, 	1105,	1,100);
 
-		AddItem("Mag_Glock_15Rnd", 				40,		80,		1,		100);
+		AddItem("mag_glock_15rnd", 	530, 	880,	1,100);
 
-		AddItem("Mag_MKII_10Rnd", 				40,		80,		1,		100);
+		AddItem("mag_mkii_10rnd", 	500, 	830,	1,100);
 
-		AddItem("Mag_1911_7Rnd", 				40,		80,		1,		100);
+		AddItem("mag_1911_7rnd", 	2565, 	4275,	1,100);
 
-		AddItem("Mag_FNX45_15Rnd", 				40,		80,		1,		100);
+		AddItem("mag_fnx45_15rnd", 	4235, 	7060,	1,100);
 
-		AddItem("Mag_Deagle_9Rnd", 				45,		90,		1,		100);
+		AddItem("mag_deagle_9rnd", 	190, 	320,	1,100);
 
-		AddItem("Mag_CZ527_5rnd", 				60,		120,	1,		100);
+		AddItem("mag_cz527_5rnd", 	685, 	1140,	1,100);
 
-		AddItem("Mag_CZ61_20Rnd", 				100,	200,	1,		100);
+		AddItem("mag_cz61_20rnd", 	1340, 	2230,	1,100);
 
-		AddItem("Mag_PP19_64Rnd", 				100,	200,	1,		100);
+		AddItem("mag_pp19_64rnd", 	1665, 	2775,	1,100);
 
-		AddItem("Mag_UMP_25Rnd", 				150,	300,	1,		100);
+		AddItem("mag_ump_25rnd", 	1840, 	3070,	1,100);
 
-		AddItem("Mag_MP5_15Rnd", 				150,	300,	1,		100);
-		AddItem("Mag_MP5_30Rnd", 				200,	400,	1,		100);
+		AddItem("mag_mp5_15rnd", 	1665, 	2775,	1,100);
+		AddItem("mag_mp5_30rnd", 	1875, 	3125,	1,100);
 
-		AddItem("Mag_FAL_20Rnd", 				100,	200,	1,		100);
+		AddItem("mag_fal_20rnd", 	535, 	895,	1,100);
 
-		AddItem("Mag_Saiga_5Rnd", 				100,	200,	1,		100);
-		AddItem("Mag_Saiga_8Rnd", 				220,	440,	1,		100);
-		AddItem("Mag_Saiga_Drum20Rnd", 			480,	960,	1,		100);
+		AddItem("mag_saiga_5rnd", 	3360, 	5600,	1,100);
+		AddItem("mag_saiga_8rnd", 	3360, 	5600,	1,100);
+		AddItem("mag_saiga_drum20rnd", 	6655, 	11095,	1,100);
 
-		AddItem("Mag_AKM_30Rnd", 				220,	440,	1,		100);
-		AddItem("Mag_AKM_Palm30Rnd", 			220,	440,	1,		100);
-		AddItem("Mag_AKM_Drum75Rnd", 			480,	960,	1,		100);
+		AddItem("mag_akm_30rnd", 	2995, 	4995,	1,100);
+		AddItem("mag_akm_palm30rnd", 	2720, 	4530,	1,100);
+		AddItem("mag_akm_drum75rnd", 	11750, 	19580,	1,100);
 		
-		AddItem("Mag_AK101_30Rnd", 				220,	440,	1,		100);
+		AddItem("mag_ak101_30rnd", 	1210, 	2015,	1,100);
 
-		AddItem("Mag_AK74_30Rnd", 				220,	440,	1,		100);
-		AddItem("Mag_AK74_45Rnd", 				300,	600,	1,		100);
+		AddItem("mag_ak74_30rnd", 	2650, 	4415,	1,100);
+		AddItem("mag_ak74_45rnd", 	2665, 	4440,	1,100);
 
-		AddItem("Mag_STANAG_30Rnd", 			220,	440,	1,		100);
+		AddItem("mag_stanag_30rnd", 	2695, 	4490,	1,100);
 		AddItem("Mag_STANAGCoupled_30Rnd", 		220,	440,	1,		100);
-		AddItem("Mag_STANAG_60Rnd", 			480,	960,	1,		100);
+		AddItem("mag_stanag_60rnd", 	2105, 	3510,	1,100);
 
-		AddItem("Mag_CMAG_10Rnd", 				120,	240,	1,		100);
-		AddItem("Mag_CMAG_20Rnd", 				180,	360,	1,		100);
-		AddItem("Mag_CMAG_30Rnd", 				220,	440,	1,		100);
-		AddItem("Mag_CMAG_40Rnd", 				300,	600,	1,		100);
+		AddItem("mag_cmag_10rnd", 	2865, 	4780,	1,100);
+		AddItem("mag_cmag_20rnd", 	1420, 	2370,	1,100);
+		AddItem("mag_cmag_30rnd", 	630, 	1055,	1,100);
+		AddItem("mag_cmag_40rnd", 	2710, 	4515,	1,100);
 	
-		AddItem("Mag_VSS_10Rnd", 				220,	440,	1,		100);
-		AddItem("Mag_VAL_20Rnd", 				280,	560,	1,		100);
-		AddItem("Mag_Vikhr_30Rnd", 				310,	580,	1,		100);
+		AddItem("mag_vss_10rnd", 	5390, 	8985,	1,100);
+		AddItem("mag_val_20rnd", 	5435, 	9060,	1,100);
+		AddItem("mag_vikhr_30rnd", 	4660, 	7765,	1,100);
 
 		//AddItem("Mag_Ruger1022_10Rnd", 		4,		8,		1,		100);
-		AddItem("Mag_Ruger1022_15Rnd", 			250,	500,	1,		100);
-		AddItem("Mag_Ruger1022_30Rnd", 			310,	620,	1,		100);
+		AddItem("mag_ruger1022_15rnd", 	445, 	740,	1,100);
+		AddItem("mag_ruger1022_30rnd", 	360, 	600,	1,100);
 
-		AddItem("Mag_SVD_10Rnd", 				250,	500,	1,		100);
+		AddItem("mag_svd_10rnd", 	1085, 	1805,	1,100);
 
-		AddItem("Mag_SV98_10Rnd", 				275,	500,	1,		100);
+		AddItem("mag_sv98_10rnd", 	2210, 	3685,	1,100);
 
-		AddItem("Mag_Scout_5Rnd", 				250,	500,	1,		100);
+		AddItem("mag_scout_5rnd", 	1420, 	2365,	1,100);
 
 		//AddItem("Mag_CLIP762x54_5Rnd", 		1,		12,		1,		100);
 		//AddItem("Mag_CLIP762x39_10Rnd", 		5,		7,		1,		100);
 		
-		AddItem("Mag_FAMAS_25Rnd", 				220,	440,	1,		100);
+		AddItem("mag_famas_25rnd", 	1085, 	1805,	1,100);
 		
-		AddItem("Mag_Aug_30Rnd", 				220,	440,	1,		100);
+		AddItem("mag_aug_30rnd", 	1085, 	1805,	1,100);
 
-		AddItem("Mag_P1_8Rnd", 					45,		90,		1,		100);
+		AddItem("mag_p1_8rnd", 	390, 	645,	1,100);
 
-		AddItem("Mag_CZ550_4rnd", 				150,	250,	1,		100);
-		AddItem("Mag_CZ550_10rnd", 				210,	320,	1,		100);
+		// unused ?
+		//AddItem("Mag_CZ550_4rnd", 				150,	250,	1,		100);
+		AddItem("mag_cz550_10rnd", 	3325, 	5540,	1,100);
 
-		AddItem("Mag_SSG82_5rnd", 				180,	280,	1,		100);
+		AddItem("mag_ssg82_5rnd", 	3960, 	6600,	1,100);
 		
-		AddItem("Mag_M14_10Rnd", 				200,	400,	1,		100);
-		AddItem("Mag_M14_20Rnd", 				260,	520,	1,		100);
+		AddItem("mag_m14_10rnd", 	3960, 	6600,	1,100);
+		AddItem("mag_m14_20rnd", 	3995, 	6655,	1,100);
 
 	#ifdef EXPANSIONMODWEAPONS	
 		AddItem("Mag_Expansion_Taser", 			20,		40,		1,		100);

@@ -20,29 +20,33 @@ class ExpansionMarketMedical: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MEDICALS";
 		m_FileName = "Medical";
 
-		AddItem("CharcoalTablets", 				2,		4,		1,		100);
-		AddItem("BandageDressing", 				3,		6,		1,		100);
-		AddItem("DisinfectantAlcohol", 			4,		8,		1,		100);
-		AddItem("PurificationTablets", 			5,		10,		1,		100);
-		AddItem("BloodTestKit", 				5,		10,		1,		100);
+		AddItem("charcoaltablets", 	350, 	580,	1,100);
+		AddItem("bandagedressing", 	855, 	1425,	1,100);
+		AddItem("disinfectantalcohol", 	105, 	170,	1,100);
+		AddItem("purificationtablets", 	310, 	520,	1,100);
+		AddItem("bloodtestkit", 	895, 	1490,	1,100);
+		AddItem("gasmask_filter", 	360, 	595,	1,100);
+		#ifndef DAYZ_1_25
+		AddItem("chelatingtablets", 	930, 	1555,	1,100);
+		#endif
 		//AddItem("InjectionVial", 				5,		10,		1,		100);
-		AddItem("Thermometer", 					5,		10,		1,		100);
-		AddItem("VitaminBottle", 				6,		12,		1,		100);
-		AddItem("DisinfectantSpray", 			8,		16,		1,		100);
-		AddItem("TetracyclineAntibiotics", 		8,		16,		1,		100);
-		AddItem("PainkillerTablets", 			10,		20,		1,		100);
+		AddItem("thermometer", 	365, 	610,	1,100);
+		AddItem("vitaminbottle", 	40, 	65,	1,100);
+		AddItem("disinfectantspray", 	145, 	245,	1,100);
+		AddItem("tetracyclineantibiotics", 	350, 	580,	1,100);
+		AddItem("painkillertablets", 	350, 	580,	1,100);
 		//AddItem("Rag",						5,		10,		1,		100);
 		//AddItem("Syringe", 					8,		16,		1,		100);
-		AddItem("StartKitIV", 					10,		20,		1,		100);
-		AddItem("Heatpack", 					10,		20,		1,		100);
-		AddItem("SalineBag", 					15,		30,		1,		100);
-		AddItem("BloodBagEmpty", 				18,		36,		1,		100);
-		AddItem("FirstAidKit", 					20,		40,		1,		100);
-		AddItem("Epinephrine", 					20,		40,		1,		100);
-		AddItem("Morphine", 					25,		50,		1,		100);
+		AddItem("startkitiv", 	855, 	1425,	1,100);
+		AddItem("heatpack", 	775, 	1295,	1,100);
+		AddItem("salinebag", 	855, 	1425,	1,100);
+		AddItem("bloodbagempty", 	855, 	1425,	1,100);
+		AddItem("firstaidkit", 	700, 	1170,	1,100);
+		AddItem("epinephrine", 	855, 	1425,	1,100);
+		AddItem("morphine", 	880, 	1465,	1,100);
 		//AddItem("Splint", 					5,		10,		1,		100);
-		AddItem("IodineTincture", 				30,		60,		1,		100);
+		AddItem("iodinetincture", 	145, 	245,	1,100);
 		//AddItem("Defibrillator", 				35,		70,		1,		100,	{"Battery9V"});
-		AddItem("AntiChemInjector", 				100,		200,		1,		100);
+		AddItem("anticheminjector", 	2015, 	3360,	1,100);
 	}
 };

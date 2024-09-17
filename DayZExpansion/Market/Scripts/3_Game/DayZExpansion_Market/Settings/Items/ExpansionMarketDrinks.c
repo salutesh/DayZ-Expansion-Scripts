@@ -20,16 +20,19 @@ class ExpansionMarketDrinks: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_DRINKS";
 		m_FileName = "Drinks";
 
-		AddItem("SodaCan_Pipsi", 			10,			20,			1,		100);
-		AddItem("SodaCan_Cola", 			10,			20,			1,		100);
-		AddItem("SodaCan_Spite", 			10,			20,			1,		100);
-		AddItem("SodaCan_Kvass", 			10,			20,			1,		100);
-		AddItem("SodaCan_Fronta", 			10,			20,			1,		100);
-		AddItem("WaterBottle", 				15,			30,			1,		100);
-		AddItem("Canteen", 					18,			36,			1,		100);
-		AddItem("Vodka", 					22,			44,			1,		100);
+		AddItem("sodacan_pipsi", 	605, 	1005,	1,100);
+		AddItem("sodacan_cola", 	605, 	1005,	1,100);
+		AddItem("sodacan_spite", 	605, 	1005,	1,100);
+		AddItem("sodacan_kvass", 	605, 	1005,	1,100);
+		AddItem("sodacan_fronta", 	605, 	1005,	1,100);
+		AddItem("waterbottle", 	65, 	105,	1,100);
+		AddItem("canteen", 	725, 	1210,	1,100);
+		#ifndef DAYZ_1_25
+		AddItem("glassbottle", 	130, 	220,	1,100);
+		AddItem("filteringbottle", 	145, 	240,	1,100);
+		#endif
 	#ifdef EXPANSIONMOD
-		AddItem("ExpansionMilkBottle", 		15,			30,			1,		100);
+		AddItem("ExpansionMilkBottle", 		130,		220,		1,		100);
 	#endif
 	}
 };

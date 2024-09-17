@@ -20,27 +20,27 @@ class ExpansionMarketVests: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_VESTS";
 		m_FileName = "Vests";
 
-		AddItem("ReflexVest", 					5,			10,			1,		100);
+		AddItem("reflexvest", 	520, 	870,	1,100);
 		
-		AddItem("PoliceVest", 					35,			70,			1,		100);
+		AddItem("policevest", 	660, 	1100,	1,100);
 		
-		AddItem("PressVest_Blue", 				85,			170,		1,		100, null, {"PressVest_LightBlue"});
-		AddItem("PressVest_LightBlue", 			90,			180,		1,		100);
+		AddItem("pressvest_blue", 	2525, 	4205,	1,100,null,{"PressVest_LightBlue"});
+		AddItem("pressvest_lightblue", 	2525, 	4205,	1,100);
 		
-		AddItem("UKAssVest_Black", 				90,			180,		1,		100, null, {"UKAssVest_Khaki", "UKAssVest_Olive", "UKAssVest_Camo"});
-		/*AddItem("UKAssVest_Khaki", 			90,			180,		1,		100);
-		AddItem("UKAssVest_Olive", 				90,			180,		1,		100);*/
-		AddItem("UKAssVest_Camo", 				100,		200,		1,		100);
+		AddItem("ukassvest_black", 	1025, 	1710,	1,100,null,{"UKAssVest_Khaki","UKAssVest_Olive","UKAssVest_Camo","ukassvest_winter"});
+		AddItem("ukassvest_camo", 	1060, 	1770,	1,100);
+		AddItem("ukassvest_winter", 	1080, 	1800,	1,100);
 
-		AddItem("SmershVest", 					150,		300,		1,		100);
+		AddItem("smershvest", 	5490, 	9150,	1,100);
 			
-		AddItem("HighCapacityVest_Black", 		200,		400,		1,		100, null, {"HighCapacityVest_Olive"});
-		AddItem("HighCapacityVest_Olive", 		230,		460,		1,		100);
+		AddItem("highcapacityvest_black", 	7105, 	11845,	1,100,null,{"HighCapacityVest_Olive"});
+		AddItem("highcapacityvest_olive", 	7830, 	13055,	1,100);
 		
-		AddItem("PlateCarrierVest", 			250,		500,		1,		100, null, {"PlateCarrierVest_Green", "PlateCarrierVest_Black", "PlateCarrierVest_Camo"});
-		AddItem("PlateCarrierVest_Camo", 		275,		500,		1,		100);
-		AddItem("HuntingVest", 					90,			500,		1,		100);
-		//! 1.21+
-		AddItem("Chestplate", 					150,	500,	1,		100);
+		AddItem("platecarriervest", 	7230, 	12045,	1,100,null,{"PlateCarrierVest_Green","PlateCarrierVest_Black","PlateCarrierVest_Camo","platecarriervest_winter"});
+		AddItem("platecarriervest_camo", 	7105, 	11845,	1,100);
+		AddItem("platecarriervest_winter", 	1080, 	1800,	1,100);
+		AddItem("huntingvest", 	645, 	1075,	1,100,null,{"huntingvest_winter"});
+		
+		AddItem("chestplate", 	355, 	590,	1,100);
 	}
 };

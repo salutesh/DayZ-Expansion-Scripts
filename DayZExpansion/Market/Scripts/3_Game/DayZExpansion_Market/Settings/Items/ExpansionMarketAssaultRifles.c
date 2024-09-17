@@ -20,20 +20,20 @@ class ExpansionMarketAssaultRifles: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_ASSAULT_RIFLES";
 		m_FileName = "Assault_Rifles";
 
-		AddItem("FAL", 					1700,		2000,	1,		100,	{"Fal_OeBttstck","Mag_FAL_20Rnd"});
-		AddItem("AKM", 					1500,		3000,	1,		100,	{"AK_WoodBttstck","AK_WoodHndgrd","Mag_AKM_30Rnd"});
-		AddItem("AK101", 				1500,		3000,	1,		100,	{"AK_PlasticBttstck","AK_PlasticHndgrd","Mag_AK101_30Rnd"});
-		AddItem("AK74", 				1600,		3200,	1,		100,	{"AK74_WoodBttstck","AK74_Hndgrd","Mag_AK74_30Rnd"});
-		AddItem("M4A1", 				1600,		3000,	1,		100,	{"M4_CarryHandleOptic","Mag_STANAG_30Rnd","M4_OEBttstck","M4_PlasticHndgrd"});
-		AddItem("M16A2", 				1500,		3200,	1,		100,	{"Mag_STANAG_30Rnd"});
-		AddItem("FAMAS", 				1500,		3200,	1,		100,	{"Mag_FAMAS_25Rnd"});
+		AddItem("fal", 	6020, 	10030,	1,100,{"Fal_OeBttstck","Mag_FAL_20Rnd"});
+		AddItem("akm", 	6715, 	11190,	1,100,{"AK_WoodBttstck","AK_WoodHndgrd","Mag_AKM_30Rnd"});
+		AddItem("ak101", 	2730, 	4550,	1,100,{"AK_PlasticBttstck","AK_PlasticHndgrd","Mag_AK101_30Rnd"});
+		AddItem("ak74", 	5940, 	9900,	1,100,{"AK74_WoodBttstck","AK74_Hndgrd","Mag_AK74_30Rnd"});
+		AddItem("m4a1", 	1225, 	2040,	1,100,{"M4_CarryHandleOptic","Mag_STANAG_30Rnd","M4_OEBttstck","M4_PlasticHndgrd"});
+		AddItem("m16a2", 	2730, 	4550,	1,100,{"Mag_STANAG_30Rnd"});
+		AddItem("famas", 	2730, 	4550,	1,100,{"Mag_FAMAS_25Rnd"});
 		
-		AddItem("Aug", 					1600,		3200,	1,		100,	{"Mag_Aug_30Rnd"});
-		AddItem("AugShort", 			1500,		3200,	1,		100,	{"Mag_Aug_30Rnd"});
+		AddItem("aug", 	1225, 	2040,	1,100,{"Mag_Aug_30Rnd"});
+		AddItem("augshort", 	2730, 	4550,	1,100,{"Mag_Aug_30Rnd"});
 	
 	#ifdef EXPANSIONMODWEAPONS	
-		AddItem("Expansion_M16", 		160,		560,	1,		100,	{"Mag_STANAG_30Rnd"});
-		AddItem("Expansion_G36", 		160,		560,	1,		100,	{"Mag_Expansion_G36_30Rnd"});
+		AddItem("Expansion_M16", 		2730, 	4550,	1,		100,	{"Mag_STANAG_30Rnd"});
+		AddItem("Expansion_G36", 		1225, 	2040,	1,		100,	{"Mag_Expansion_G36_30Rnd"});
 	#endif
 	}
 };

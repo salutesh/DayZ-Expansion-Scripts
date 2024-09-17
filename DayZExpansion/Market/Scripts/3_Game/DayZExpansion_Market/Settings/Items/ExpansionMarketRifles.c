@@ -23,21 +23,21 @@ class ExpansionMarketRifles: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_RIFLES";
 		m_FileName = "Rifles";
 
-		AddItem("Izh18", 					350,	700,	1,		100);
-		AddItem("Ruger1022", 				350,	700,	1,		100,	{"Mag_Ruger1022_15Rnd"});
-		AddItem("Repeater", 				350,	700,	1,		100);
-		AddItem("Mosin9130", 				400,	800,	1,		100);
-		AddItem("CZ527", 					500,	1000,	1,		100,	{"Mag_CZ527_5Rnd"});
-		AddItem("CZ550", 					500,	1000,	1,		100,	{"Mag_CZ550_4Rnd"});
-		AddItem("Winchester70", 			500,	1000,	1,		100);
-		AddItem("SSG82", 					450,	1000,	1,		100,	{"Mag_SSG82_5rnd"});
-		AddItem("SKS", 						450,	1000,	1,		100,	{"SKS_Bayonet"});
-		AddItem("M14", 						500,	1000,	1,		100,	{"M14_10Rnd","M14_20Rnd"});
+		AddItem("izh18", 	530, 	885,	1,100);
+		AddItem("ruger1022", 	865, 	1440,	1,100,{"Mag_Ruger1022_15Rnd"});
+		AddItem("repeater", 	1500, 	2500,	1,100);
+		AddItem("mosin9130", 	1230, 	2050,	1,100);
+		AddItem("cz527", 	780, 	1300,	1,100,{"Mag_CZ527_5Rnd"});
+		AddItem("cz550", 	3725, 	6210,	1,100,{"mag_cz550_10rnd"});
+		AddItem("winchester70", 	3725, 	6210,	1,100);
+		AddItem("ssg82", 	3960, 	6600,	1,100,{"Mag_SSG82_5rnd"});
+		AddItem("sks", 	980, 	1635,	1,100,{"SKS_Bayonet"});
+		AddItem("m14", 	6715, 	11190,	1,100,{"M14_10Rnd","M14_20Rnd"});
 
 	#ifdef EXPANSIONMODWEAPONS
-		AddItem("Expansion_Kar98", 			500,	1000,	1,		100);
-		AddItem("Expansion_M14", 			500,	1000,	1,		100,	{"Mag_Expansion_M14_10Rnd"});
-		AddItem("Expansion_M1A", 			500,	1000,	1,		100,	{"Mag_Expansion_M14_10Rnd"});
+		AddItem("Expansion_Kar98", 			1230, 	2050,	1,		100);
+		AddItem("Expansion_M14", 			6715, 	11190,	1,		100,	{"Mag_Expansion_M14_10Rnd"});
+		AddItem("Expansion_M1A", 			6715, 	11190,	1,		100,	{"Mag_Expansion_M14_10Rnd"});
 	#endif
 	}
 };

@@ -20,10 +20,10 @@ class ExpansionMarketGardening: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_GARDENING";
 		m_FileName = "Gardening";
 		
-		AddItem("GardenLime", 					4,		8,		1,		100, null, {});
-		AddItem("PepperSeeds", 					4,		8,		1,		100, null, {});
-		AddItem("TomatoSeeds", 					4,		8,		1,		100, null, {});
-		AddItem("ZucchiniSeeds", 				6,		12,		1,		100, null, {});
-		AddItem("PumpkinSeeds", 				10,		20,		1,		100, null, {});
+		AddItem("gardenlime", 	355, 	595,	1,100,null,{});
+		AddItem("pepperseedspack", 	350, 	585,	1,100);
+		AddItem("tomatoseedspack", 	350, 	585,	1,100);
+		AddItem("zucchiniseedspack", 	350, 	585,	1,100);
+		AddItem("pumpkinseedspack", 	350, 	585,	1,100);
 	}
 };
