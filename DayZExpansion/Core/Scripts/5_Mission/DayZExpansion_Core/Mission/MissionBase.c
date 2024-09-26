@@ -21,7 +21,7 @@ modded class MissionBase
 			return;
 
 #ifdef DIAG_DEVELOPER
-		Print("~MissionBase");
+		Print("[DayZ Expansion] ~MissionBase");
 #endif
 	}
 

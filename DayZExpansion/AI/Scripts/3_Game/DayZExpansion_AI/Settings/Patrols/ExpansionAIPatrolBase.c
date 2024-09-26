@@ -80,6 +80,9 @@ class ExpansionAISpawnBase
 
 	int GetLootingBehaviour()
 	{
+		if (!LootingBehaviour)
+			SetDefaultLootingBehaviour();
+
 		int bitmask;
 
 		TStringArray lootingBehaviors = {};
@@ -177,6 +180,20 @@ class ExpansionAISpawnBase
 		ExpansionSHA256.Update(Name);
 		m_BaseName = ExpansionSHA256.HexDigest();
 		ExpansionSHA256.Reset();
+	}
+
+	void Log(string msg)
+	{
+		auto settings = GetExpansionSettings().GetLog();
+		if (IsInherited(ExpansionAIObjectPatrol))
+		{
+			if (settings.AIObjectPatrol)
+				settings.PrintLog("[AI Object Patrol] %1", msg);
+		}
+		else if (settings.AIPatrol)
+		{
+			settings.PrintLog("[AI Patrol] %1", msg);
+		}
 	}
 };
 

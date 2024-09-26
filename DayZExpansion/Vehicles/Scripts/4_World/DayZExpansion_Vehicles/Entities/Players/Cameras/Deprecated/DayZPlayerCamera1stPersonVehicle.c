@@ -22,41 +22,39 @@ modded class DayZPlayerCamera1stPersonVehicle
 		super.OnUpdate( pDt, pOutResult );
 		
 		ExpansionVehicleBase exVehicle;
-		m_bForceFreeLook = Class.CastTo( exVehicle, m_pPlayer.GetParent() );
+		m_bForceFreeLook = Class.CastTo( exVehicle, m_Ex_Player.Expansion_GetParent() );
 		m_bForceFreeLook = false;
 		
 		pOutResult.m_fUseHeading			= 0.0;
-
-		PlayerBase pb = PlayerBase.Cast(m_pPlayer);
 		
 		if ( exVehicle )
 		{
 			pOutResult.m_fUseHeading		= 1.0;
 			pOutResult.m_fInsideCamera 		= 0.0;
-			pb.SetHeadInvisible_Ex( true );
+			m_Ex_Player.SetHeadInvisible_Ex( true );
 		} else
 		{
-			pb.SetHeadInvisible_Ex( false );
+			m_Ex_Player.SetHeadInvisible_Ex( false );
 		}
 
 		bool isFreeLook = false;
 		bool isHeliParent = false;
 
 		ExpansionHelicopterScript d_heli;
-		if ( Class.CastTo( d_heli, m_pPlayer.GetParent() ) )
+		if ( Class.CastTo( d_heli, m_Ex_Player.Expansion_GetParent() ) )
 		{
 			isHeliParent = true;
 			isFreeLook = d_heli.IsFreeLook();
 		}
 
 		ExpansionVehicleHelicopterBase heli;
-		if ( Class.CastTo( heli, m_pPlayer.GetParent() ) )
+		if ( Class.CastTo( heli, m_Ex_Player.Expansion_GetParent() ) )
 		{
 			isHeliParent = true;
 			isFreeLook = heli.IsFreeLook();
 		}
 
-		if ( isHeliParent && !isFreeLook && pb.Expansion_IsDriver() )
+		if ( isHeliParent && !isFreeLook && m_Ex_Player.Expansion_IsDriver() )
 		{
 			m_fUpDownAngle = 0;
 			m_fLeftRightAngle = 0;

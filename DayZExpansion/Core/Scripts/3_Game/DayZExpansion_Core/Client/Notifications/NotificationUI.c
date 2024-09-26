@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 modded class NotificationUI
 {
 	void NotificationUI()
@@ -22,3 +23,4 @@ modded class NotificationUI
 		NotificationSystem.GetInstance().m_OnNotificationRemoved.Remove( RemoveNotification );
 	}
 };
+#endif

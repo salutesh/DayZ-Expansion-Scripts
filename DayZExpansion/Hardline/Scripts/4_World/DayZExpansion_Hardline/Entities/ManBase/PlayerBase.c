@@ -191,7 +191,9 @@ modded class PlayerBase
 	{
 	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
+		EXTrace.Add(trace, eAIFaction.GetTypeByID(oldFactionTypeID));
 		EXTrace.Add(trace, oldFactionTypeID);
+		EXTrace.Add(trace, eAIFaction.GetTypeByID(newFactionTypeID));
 		EXTrace.Add(trace, newFactionTypeID);
 	#endif
 
@@ -210,7 +212,7 @@ modded class PlayerBase
 		if (persistFaction)
 		{
 			oldFactionTypeID = m_Expansion_HardlineData.FactionID;
-			EXTrace.Print(EXTrace.HARDLINE, this, "eAI_OnFactionChange - faction persistence enabled - old faction: " + oldFactionTypeID);
+			EXTrace.Print(EXTrace.HARDLINE, this, "eAI_OnFactionChange - faction persistence enabled - old faction: " + eAIFaction.GetTypeByID(oldFactionTypeID) + " ID " + oldFactionTypeID);
 		}
 
 		if (newFactionTypeID != oldFactionTypeID)

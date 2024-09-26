@@ -24,6 +24,19 @@ modded class DayZPlayerImplement
 		return ExpansionHumanCommandVehicle.Cast(GetCommand_Script());
 	}
 
+	override bool Expansion_IsInVehicleCmd()
+	{
+		if (super.Expansion_IsInVehicleCmd())
+			return true;
+
+	#ifdef EXPANSIONMODVEHICLE
+		if (GetCommand_ExpansionVehicle())
+			return true;
+	#endif
+
+		return false;
+	}
+
 	ExpansionVehicleBase GetExpansionTransport()
 	{
 		ExpansionHumanCommandVehicle script;

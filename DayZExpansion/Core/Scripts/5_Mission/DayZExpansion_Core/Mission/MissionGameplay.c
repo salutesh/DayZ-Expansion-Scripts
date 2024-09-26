@@ -15,8 +15,10 @@
  **/
 modded class MissionGameplay
 {
+#ifdef EXPANSIONUI
 	protected static ref ExpansionItemTooltip m_EXItemTooltip;
 	protected static ref ExpansionItemInspection m_EXItemInspection;
+#endif
 
 	// ------------------------------------------------------------
 	// Destructor
@@ -114,13 +116,18 @@ modded class MissionGameplay
 			inputIsFocused = true;
 
 		UIScriptedMenu menu = m_UIManager.GetMenu();
+	#ifdef EXPANSIONUI
 		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
+	#else
+		ExpansionScriptViewMenuBase viewMenu;
+	#endif
 
 		Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 	}
 
 	void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
 	{
+	#ifdef EXPANSIONUI
 		//! Close current opened expansion script view menu when ESC is pressed
 		if (viewMenu && viewMenu.IsVisible() && input.LocalPress("UAUIBack", false))
 		{
@@ -134,8 +141,10 @@ modded class MissionGameplay
 				viewMenu.GetLayoutRoot().Show(true);
 			}
 		}
+	#endif
 	}
 
+#ifdef EXPANSIONUI
 	// ------------------------------------------------------------
 	// Pause
 	// ------------------------------------------------------------	
@@ -157,14 +166,17 @@ modded class MissionGameplay
 		if (GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
 			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseAll();
 	}
+#endif
 
 	// ------------------------------------------------------------
 	// IsMenuOpened
 	// ------------------------------------------------------------
 	bool IsMenuOpened()
 	{
+	#ifdef EXPANSIONUI
 		if (GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
 			return true;
+	#endif
 		
 		return false;
 	}
@@ -194,6 +206,7 @@ modded class MissionGameplay
 	{
 		super.OnMissionFinish();
 		
+	#ifdef EXPANSIONUI
 		//! Close and destroy any open ScriptView menus. This will return control to the player and unlock all inputs
 		ExpansionUIManager manager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();
 		ExpansionScriptViewMenuBase menu = manager.GetMenu();
@@ -201,12 +214,14 @@ modded class MissionGameplay
 		{
 			manager.CloseMenu();
 		}
+	#endif
 
         Expansion_ForceEnableMovementInputs();
 
 		GetDayZExpansion().OnFinish();
 	}
 	
+#ifdef EXPANSIONUI
 	static ExpansionItemTooltip Expansion_GetItemTooltip()
 	{
 		if (!m_EXItemTooltip)
@@ -318,4 +333,5 @@ modded class MissionGameplay
 			parentView.GetLayoutRoot().Show(false);
 		}
 	}
+#endif
 };

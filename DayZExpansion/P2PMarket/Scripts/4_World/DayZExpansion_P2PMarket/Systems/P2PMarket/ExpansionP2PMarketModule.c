@@ -251,6 +251,12 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	#endif
 		bmTrader01.SetLoadoutFile("YellowKingLoadout");
 		bmTrader01.AddCurrency("expansionbanknotehryvnia");
+
+		bmTrader01.m_RequiredFaction = "";
+		bmTrader01.m_UseReputation = false;
+		bmTrader01.m_MinRequiredReputation = 0;
+		bmTrader01.m_MaxRequiredReputation = int.MAX;
+		bmTrader01.m_RequiredCompletedQuestID = -1;
 		
 		if (worldname.IndexOf("chernarus") > -1)
 		{
@@ -610,7 +616,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 					}
 					else 
 					{
-						string globalIDText = ExpansionStatic.IntToHex(listing.GetGlobalID());	//! @note: For logging purposes only
+						string globalIDText = listing.GetEntityStorageBaseName();	//! @note: For logging purposes only
 						Error(ToString() + "::RPC_RequestAllPlayerSales - could not remove listing " + globalIDText + " from trader ID " + listingsTraderID);
 						ExpansionNotification("RPC_RequestAllPlayerSales", "Could not remove listing " + globalIDText + " from trader ID " + listingsTraderID).Error(identity);
 						return;
@@ -1196,7 +1202,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 		}
 		
-		string globalIDText = ExpansionStatic.IntToHex(listing.GetGlobalID());	//! @note: For logging purposes only
+		string globalIDText = listing.GetEntityStorageBaseName();	//! @note: For logging purposes only
 			
 		EntityAI loadedEntity;
 		if (!LoadItem(listing, player, loadedEntity))
@@ -1376,6 +1382,30 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	{
 		return ExpansionMarketModule.GetDisplayPriceEx(price, shorten, format, includeDisplayCurrencyName, trader.m_DisplayCurrencyValue, trader.m_DisplayCurrencyPrecision, trader.m_DisplayCurrencyName);
 	}
+	
+	bool CheckCanUseTrader(PlayerBase player, ExpansionP2PMarketTraderConfig trader)
+	{
+	#ifdef ENFUSION_AI_PROJECT
+		if (GetGame().IsServer() && trader.m_RequiredFaction != "")
+		{
+			if (!player.GetGroup() || player.GetGroup().GetFaction().GetName() != trader.m_RequiredFaction)
+			{
+				string factionDisplayname;
+			#ifdef EXPANSIONMODAI
+				eAIFaction faction = eAIFaction.Create(trader.m_RequiredFaction);
+				factionDisplayname = faction.GetDisplayName();
+			#else
+				factionDisplayname = trader.m_RequiredFaction;
+			#endif
+				ExpansionNotification("STR_EXPANSION_AI_FACTION", new StringLocaliser("STR_EXPANSION_AI_REQUIRED_FACTION_TRADER", factionDisplayname), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(player.GetIdentity());
+
+				return false;
+			}
+		}
+	#endif
+
+		return true;
+	}
 
 	protected bool StoreItem(ExpansionP2PMarketListing listing, EntityAI itemEntity)
 	{
@@ -1535,7 +1565,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 					if (listing && (listing.GetListingState() == ExpansionP2PMarketListingState.LISTED || listing.GetListingState() == ExpansionP2PMarketListingState.SOLD) && !listing.HasCooldown(salesDepositTime, timedif, currentTime))
 					{
 						P2PDebugPrint("::CheckListingsTimes - Cleanup listed item from BM Trader with ID: " + traderID + " | Item Name: " + listing.GetClassName());
-						DeleteFile(listing.GetEntityStorageFileName());
+						ExpansionEntityStorageModule.DeleteFiles(listing.GetEntityStorageBaseName());
 						listings.RemoveOrdered(i);
 					}
 				}
@@ -1657,9 +1687,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		ExpansionP2PMarketListing listing = listings[index];
 		listings.RemoveOrdered(index);
 
-		DeleteFile(listing.GetEntityStorageFileName());
-		string fileName = ExpansionStatic.IntToHex(listing.GetGlobalID());
-		string filePath = GetP2PMarketDataDirectory() + "P2PTrader_" + traderID + "_Listings\\" + fileName + ".json";
+		string baseName = listing.GetEntityStorageBaseName();
+		ExpansionEntityStorageModule.DeleteFiles(baseName);
+		string filePath = GetP2PMarketDataDirectory() + "P2PTrader_" + traderID + "_Listings\\" + baseName + ".json";
 		if (FileExist(filePath))
 			return DeleteFile(filePath);
 		return false;

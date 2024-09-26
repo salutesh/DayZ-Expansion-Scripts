@@ -18,7 +18,7 @@ modded class DayZPlayerCamera1stPerson
 		super.Ex_OnUpdate(pDt, pOutResult);
 
 		ExpansionVehicleBase vehicle;
-		if (Class.CastTo(vehicle, m_Ex_Player.GetParent()) || m_Ex_Player.Expansion_IsAttached())
+		if (Class.CastTo(vehicle, m_Ex_Player.Expansion_GetParent()) || m_Ex_Player.Expansion_IsAttached())
 		{
 			pOutResult.m_fInsideCamera = 0.0;
 			m_Ex_ForceHideHead = true;

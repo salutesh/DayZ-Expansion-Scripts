@@ -27,6 +27,9 @@ class CF_DoublyLinkedNodes<Class T>
 		auto trace = CF_Trace_0(true, this);
 #endif
 
+		if (!g_Game)
+			return;
+
 		m_Head = null;
 	}
 
@@ -150,6 +153,9 @@ class CF_DoublyLinkedNode<Class T>
 		auto trace = CF_Trace_0(true, this);
 #endif
 
+		if (!g_Game)
+			return;
+
 		Unlink();
 	}
 
@@ -217,6 +223,9 @@ class CF_DoublyLinkedNodes_WeakRef<Class T>
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(true, this);
 #endif
+
+		if (!g_Game)
+			return;
 
 		m_Head = null;
 	}
@@ -340,6 +349,9 @@ class CF_DoublyLinkedNode_WeakRef<Class T>
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(true, this);
 #endif
+
+		if (!g_Game)
+			return;
 
 		Unlink();
 	}

@@ -534,8 +534,10 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void OnUnconsciousStart()
 	{
+	#ifdef EXPANSIONUI
 		if (IsMissionClient())
 			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseAll();
+	#endif
 
 		super.OnUnconsciousStart();
 
@@ -555,8 +557,10 @@ modded class PlayerBase
 
 	override void OnRestrainStart()
 	{
+	#ifdef EXPANSIONUI
 		if (IsMissionClient())
 			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseAll();
+	#endif
 
 		super.OnRestrainStart();
 	}

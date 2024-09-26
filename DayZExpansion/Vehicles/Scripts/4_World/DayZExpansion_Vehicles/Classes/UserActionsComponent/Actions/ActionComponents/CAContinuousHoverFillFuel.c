@@ -18,7 +18,7 @@ class CAContinuousHoverFillFuel : CAContinuousBase
 	//---------------------------------------------------------------------------
 	override void Setup( ActionData action_data )
 	{
-		auto vehicle = ExpansionVehicle.Get(action_data.m_Player.GetParent());
+		auto vehicle = ExpansionVehicle.Get(action_data.m_Player);
 		
 		m_TimeElpased = 0;
 		m_SpentQuantity = 0;
@@ -108,14 +108,10 @@ class CAContinuousHoverFillFuel : CAContinuousBase
 		
 		if ( GetGame().IsServer() )
 		{
-			ExpansionHelicopterScript car = ExpansionHelicopterScript.Cast(action_data.m_Player.GetParent());
-			ExpansionVehicleHelicopterBase Expcar = ExpansionVehicleHelicopterBase.Cast(action_data.m_Player.GetParent());
+			auto vehicle = ExpansionVehicle.Get(action_data.m_Player);
 			
-			if ( car )
-				car.Fill( CarFluid.FUEL, (m_SpentQuantity * 0.001) );
-			
-			if ( Expcar )
-				Expcar.Fill( CarFluid.FUEL, (m_SpentQuantity * 0.001) );
+			if ( vehicle )
+				vehicle.FillFluid( CarFluid.FUEL, (m_SpentQuantity * 0.001) );
 		}
 		
 		m_SpentQuantity = 0;

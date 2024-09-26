@@ -59,7 +59,7 @@ class ExpansionRPCManager
 
 	void ~ExpansionRPCManager()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		if (!m_OwnerIsObject)

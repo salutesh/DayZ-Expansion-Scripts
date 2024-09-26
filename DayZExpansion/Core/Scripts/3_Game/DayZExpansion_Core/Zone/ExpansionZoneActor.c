@@ -10,12 +10,12 @@
  *
 */
 
-static ExpansionZoneActor g_ExpansionZoneActorHead = null;
-static ExpansionZoneActor g_ExpansionZoneActorCurrent = null;
-
 class ExpansionZoneActor
 {
 	static const int COUNT = ExpansionZoneType.Count;
+
+	static ExpansionZoneActor s_Head = null;
+	static ExpansionZoneActor s_Current = null;
 
 	ExpansionZoneActor m_Next = null;
 	ExpansionZoneActor m_Prev = null;
@@ -30,15 +30,15 @@ class ExpansionZoneActor
 		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "ExpansionZoneActor");
 #endif
 
-		m_Next = g_ExpansionZoneActorHead;
+		m_Next = s_Head;
 		m_Prev = null;
 
-		if (g_ExpansionZoneActorHead)
+		if (s_Head)
 		{
-			g_ExpansionZoneActorHead.m_Prev = this;
+			s_Head.m_Prev = this;
 		}
 
-		g_ExpansionZoneActorHead = this;
+		s_Head = this;
 	}
 
 	void ~ExpansionZoneActor()
@@ -47,17 +47,20 @@ class ExpansionZoneActor
 		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "~ExpansionZoneActor");
 #endif
 
-		if (!g_ExpansionZoneActorHead)
+		if (!g_Game)
 			return;
 
-		if (g_ExpansionZoneActorHead == this)
+		if (!s_Head)
+			return;
+
+		if (s_Head == this)
 		{
-			g_ExpansionZoneActorHead = m_Next;
+			s_Head = m_Next;
 		}
 
-		if (g_ExpansionZoneActorCurrent == this)
+		if (s_Current == this)
 		{
-			g_ExpansionZoneActorCurrent = m_Next;
+			s_Current = m_Next;
 		}
 
 		if (m_Next)
@@ -80,28 +83,28 @@ class ExpansionZoneActor
 		int index = 0;
 		bool passedHead = false;
 
-		if (!g_ExpansionZoneActorCurrent)
+		if (!s_Current)
 		{
-			g_ExpansionZoneActorCurrent = g_ExpansionZoneActorHead;
+			s_Current = s_Head;
 			passedHead = true;
 		}
 
 		for (int i = 0; i < COUNT; i++)
 			ExpansionZone.s_InsideBuffer[i] = false;
 
-		while (g_ExpansionZoneActorCurrent)
+		while (s_Current)
 		{
-			ExpansionZoneActor next = g_ExpansionZoneActorCurrent.m_Next;
-			g_ExpansionZoneActorCurrent.OnUpdate();
-			g_ExpansionZoneActorCurrent = next;
+			ExpansionZoneActor next = s_Current.m_Next;
+			s_Current.OnUpdate();
+			s_Current = next;
 
 			if ((index++) > max)
 				return;
 
 			// small chance duplicate entries will be processed, but doing a proper check will prove to be ineffcient
-			if (!passedHead && !g_ExpansionZoneActorCurrent)
+			if (!passedHead && !s_Current)
 			{
-				g_ExpansionZoneActorCurrent = g_ExpansionZoneActorHead;
+				s_Current = s_Head;
 				passedHead = true;
 			}
 		}
@@ -127,7 +130,7 @@ class ExpansionZoneActor
 
 		m_Position = GetPosition();
 
-		ExpansionZone element = g_ExpansionZoneHead;
+		ExpansionZone element = ExpansionZone.s_Head;
 		while (element)
 		{
 			element.Check(m_Position);
@@ -210,7 +213,7 @@ class ExpansionZoneEntity<Class T> : ExpansionZoneActor
 
 		m_Position = m_Instance.GetPosition();
 
-		ExpansionZone element = g_ExpansionZoneHead;
+		ExpansionZone element = ExpansionZone.s_Head;
 		while (element)
 		{
 			element.Check(m_Position);

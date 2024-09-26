@@ -153,13 +153,13 @@ class ExpansionSettingBase
 			//! Use original src path for info line
 			string infoLine = "Info: '" + srcPath + "' has moved to '" + dstPath + "'.";
 
-			ExpansionString src = new ExpansionString(srcPath);
+			ExpansionString src = srcPath;
 			int lastIdx = src.LastIndexOf("\\");
 			if (lastIdx == srcPath.Length() - 1)
 			{
 				//! It's a directory. Strip trailing backslash and go again
 				srcPath = srcPath.Substring(0, lastIdx);
-				src = new ExpansionString(srcPath);
+				src = srcPath;
 				lastIdx = src.LastIndexOf("\\");
 			}
 

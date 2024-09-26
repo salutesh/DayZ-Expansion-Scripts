@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionDialogContent_Editbox: ExpansionDialogContentBase
 {
 	ref ExpansionDialogContent_EditboxController m_EditboxController;
@@ -54,3 +55,4 @@ class ExpansionDialogContent_EditboxController: ExpansionViewController
 {
 	string EditBox;
 };
+#endif

@@ -157,7 +157,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 				//! Opponent is inside car - targeting range is shorter in that case
 				PlayerBase playerTarget = PlayerBase.Cast(target);
-				if (playerTarget && playerTarget.IsInVehicle())
+				if (playerTarget && playerTarget.Expansion_IsInVehicleCmd())
 				{
 					if (vector.DistanceSq(m_RayStart, hitPos) > Math.SqrFloat(GetRange() * 0.5))
 					{

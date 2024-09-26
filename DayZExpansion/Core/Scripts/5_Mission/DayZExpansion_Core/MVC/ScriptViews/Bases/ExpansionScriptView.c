@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionScriptView: ExpansionScriptViewBase
 {
 	protected ref Timer m_UpdateTimer;
@@ -69,3 +70,4 @@ class ExpansionScriptView: ExpansionScriptViewBase
 	
 	void Expansion_Update();
 }
+#endif

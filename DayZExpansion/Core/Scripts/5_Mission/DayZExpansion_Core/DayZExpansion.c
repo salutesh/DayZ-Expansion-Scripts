@@ -93,11 +93,16 @@ class DayZExpansion: ExpansionWorld
 	}
 }
 
-static ref DayZExpansion g_exDayZ;
+static ref DayZExpansion g_exDayZ;  //! Legacy, do not use!
 
 static DayZExpansion GetDayZExpansion()
 {
-	return g_exDayZ;
+	DayZExpansion expansion;
+
+	if (Class.CastTo(expansion, GetDayZGame().GetExpansionGame()))
+		return expansion;
+
+	return null;
 }
 
 static void CreateDayZExpansion()
@@ -105,18 +110,11 @@ static void CreateDayZExpansion()
 #ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISC);
 #endif
-	
-	if ( g_exDayZ )
-	{
-		return;
-	}
 
-	if (Class.CastTo(g_exDayZ, GetDayZGame().GetExpansionGame()))
+	if (GetDayZGame().GetExpansionGame())
 		return;
 
-	g_exDayZ = new DayZExpansion;
-
-	GetDayZGame().SetExpansionGame( g_exDayZ );
+	GetDayZGame().SetExpansionGame(new DayZExpansion);
 }
 
 static void DestroyDayZExpansion()
@@ -125,5 +123,7 @@ static void DestroyDayZExpansion()
 		auto trace = EXTrace.Start(EXTrace.MISC);
 #endif
 
-	g_exDayZ = null;
+	EXError.Error(null, "DEPRECATED");
+
+	GetDayZGame().SetExpansionGame(null);
 }

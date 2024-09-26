@@ -371,6 +371,18 @@ modded class DayZPlayerImplement
 	}
 #endif
 
+	/**
+	 * @brief meant as a reliable way to check if player is sitting in vehicle seat as GetParent()
+	 * will also return attached players if not using vanilla DayZ 1.26 attachment system
+	 */
+	bool Expansion_IsInVehicleCmd()
+	{
+		if (GetCommand_Vehicle())
+			return true;
+
+		return false;
+	}
+
 	void Expansion_DebugObject_Deferred(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero, float lifetime = 300.0, int flags = 0)
 	{
 #ifdef DIAG_DEVELOPER

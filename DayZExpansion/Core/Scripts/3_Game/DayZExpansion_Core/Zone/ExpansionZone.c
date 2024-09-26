@@ -1,9 +1,8 @@
-
-static ref ExpansionZone g_ExpansionZoneHead;
-
 class ExpansionZone
 {
 	static const int COUNT = ExpansionZoneType.Count;
+
+	static ref ExpansionZone s_Head;
 
 	static bool s_InsideBuffer[COUNT];
 
@@ -21,11 +20,11 @@ class ExpansionZone
 
 		m_Type = type;
 
-		m_Next = g_ExpansionZoneHead;
+		m_Next = s_Head;
 		if (m_Next)
 			m_Next.m_Prev = this;
 
-		g_ExpansionZoneHead = this;
+		s_Head = this;
 	}
 
 	void ~ExpansionZone()
@@ -34,11 +33,14 @@ class ExpansionZone
 		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "~ExpansionZone");
 #endif
 
-		if (g_ExpansionZoneHead)
+		if (!g_Game)
+			return;
+
+		if (s_Head)
 		{
-			if (g_ExpansionZoneHead == this)
+			if (s_Head == this)
 			{
-				g_ExpansionZoneHead = m_Next;
+				s_Head = m_Next;
 			}
 
 			if (m_Next)

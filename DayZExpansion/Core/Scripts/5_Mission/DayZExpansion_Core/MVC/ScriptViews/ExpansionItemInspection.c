@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionItemInspectionBase: ExpansionScriptView
 {
 	protected ref ExpansionItemInspectionController m_ItemInspectionController;
@@ -793,3 +794,4 @@ class ExpansionItemInspectionController: ExpansionViewController
 	string ItemDescription;
 	Object ItemPreview;
 };
+#endif

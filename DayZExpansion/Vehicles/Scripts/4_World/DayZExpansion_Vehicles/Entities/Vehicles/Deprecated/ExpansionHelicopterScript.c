@@ -374,7 +374,7 @@ class ExpansionHelicopterScript: CarScript
 		vector orientation = GetOrientation();
 
 		ExpansionWreck wreck;
-		vector modelBottomPos = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround(), 0));
+		vector modelBottomPos = ModelToWorld(Vector(0, -m_ExpansionVehicle.GetModelZeroPointDistanceFromGround(), 0));
 		position[1] = modelBottomPos[1] + 1;
 		if (Class.CastTo(wreck, GetGame().CreateObjectEx(GetWreck(), position, ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH)))
 		{
@@ -468,7 +468,7 @@ class ExpansionHelicopterScript: CarScript
 		super.ExpansionOnExplodeClient(damageType, ammoType);
 
 		PlayerBase player;
-		if (!IsMissionOffline() && Class.CastTo(player, GetGame().GetPlayer()) && player.GetParent() == this)
+		if (!IsMissionOffline() && Class.CastTo(player, GetGame().GetPlayer()) && player.Expansion_GetParent() == this)
 		{
 			bool isCrew;
 
@@ -503,7 +503,9 @@ class ExpansionHelicopterScript: CarScript
 
 	protected void Expansion_PlayerUnlinkFall(PlayerBase player, bool replaceWithDummy = false)
 	{
-		player.UnlinkFromLocalSpace();
+		if (player.GetParent())
+			player.UnlinkFromLocalSpace();
+
 		player.DisableSimulation(false);
 
 		if (replaceWithDummy)
@@ -527,7 +529,7 @@ class ExpansionHelicopterScript: CarScript
 			vector position = player.GetPosition();
 
 			vector ground = ExpansionStatic.GetSurfaceWaterPosition(position);
-			vector modelBottomPos = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround(), 0));
+			vector modelBottomPos = ModelToWorld(Vector(0, -m_ExpansionVehicle.GetModelZeroPointDistanceFromGround(), 0));
 			vector start = Vector(position[0], modelBottomPos[1] - 0.1, position[2]);
 			vector end = Vector(position[0], ground[1], position[2]);
 
@@ -601,7 +603,7 @@ class ExpansionHelicopterScript: CarScript
 				float f = m_Simulation.m_RotorSpeed;
 				if (f > 0)
 				{
-					vector modelBottomPos = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround(), 0));
+					vector modelBottomPos = ModelToWorld(Vector(0, -m_ExpansionVehicle.GetModelZeroPointDistanceFromGround(), 0));
 					f *= ExpansionMath.LinearConversion(0, 0.5, modelBottomPos[1] - m_Expansion_IsLandedHitPos[1], 0, 1, true);
 				}
 				angularVelocity[0] = angularVelocity[0] * f;
@@ -814,8 +816,9 @@ class ExpansionHelicopterScript: CarScript
 
 		m_LastKnownPosition = pos;
 
-		vector start = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround() + 0.5, 0));
-		vector end = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround() - 0.5, 0));
+		float modelZPDistFromGround = m_ExpansionVehicle.GetModelZeroPointDistanceFromGround();
+		vector start = ModelToWorld(Vector(0, -modelZPDistFromGround + 0.5, 0));
+		vector end = ModelToWorld(Vector(0, -modelZPDistFromGround - 0.5, 0));
 
 		float surfaceY = GetGame().SurfaceY(pos[0], pos[2]);
 		if (start[1] - surfaceY < 1)
@@ -840,6 +843,7 @@ class ExpansionHelicopterScript: CarScript
 
 		bool hit = DayZPhysics.RaycastRV(start, end, m_Expansion_IsLandedHitPos, hitNormal, hitindex, hitObjects, NULL, this);
 
+		Human crew;
 		if (hit && hitObjects.Count() > 0)
 		{
 			//! Ignore objects that are children (pilot, passengers...)
@@ -848,6 +852,10 @@ class ExpansionHelicopterScript: CarScript
 			{
 				if (hitObject.GetParent() == this)
 					hitChildCount++;
+			#ifndef DAYZ_1_25
+				else if (Class.CastTo(crew, hitObject) && crew.PhysicsGetLinkedEntity() == this)
+					hitChildCount++;
+			#endif
 			}
 			hit = hitChildCount < hitObjects.Count();
 		}

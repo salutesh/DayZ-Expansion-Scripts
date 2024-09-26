@@ -214,7 +214,7 @@ class ExpansionVodnik: ExpansionBoatScript
 
 	override void UpdateVisuals()
 	{
-		if ( AllDoorsClosed() )
+		if ( m_ExpansionVehicle.AllDoorsClosed() )
 		{
 			ShowSelection( "antiwater" );
 		} else {
@@ -434,6 +434,19 @@ class ExpansionVodnik: ExpansionBoatScript
 			break;
 		}
 		return true;
+	}
+
+	override bool Expansion_CanGetInSeat(PlayerBase player, int seatIdx)
+	{
+		//! Allow getting in driver & codriver seat
+		if (seatIdx < 2)
+			return true;
+
+		//! Only allow getting in passenger seats if attached
+		if (player.Expansion_GetParent() == this)
+			return true;
+
+		return false;
 	}
 
 	override float GetActionDistanceFuel()

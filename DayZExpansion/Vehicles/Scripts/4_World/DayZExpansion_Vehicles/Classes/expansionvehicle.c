@@ -1,5 +1,7 @@
 modded class ExpansionVehicle
 {
+	static ref TStringArray m_DoorNames = {"door", "hood", "trunk"};
+
 	protected float m_BoundingRadius;
 	protected vector m_BoundingBox[2];
 
@@ -43,6 +45,7 @@ modded class ExpansionVehicle
 		int count;
 		string path;
 		ExpansionDoor door;
+		string slotName;
 
 		if (vehicle.ConfigIsExisting("ExpansionAttachments"))
 		{
@@ -60,7 +63,7 @@ modded class ExpansionVehicle
 				if (door.m_IsDoor)
 					m_CanBeLocked = true;
 
-				string slotName = door.m_InventorySlot;
+				slotName = door.m_InventorySlot;
 				slotName.ToLower();
 
 				m_Doors.Insert(slotName, door);
@@ -74,12 +77,14 @@ modded class ExpansionVehicle
 
 			foreach (string doorName: doors)
 			{
-				if (!m_Doors.Contains(doorName))
+				slotName = doorName;
+				slotName.ToLower();
+
+				if (!m_Doors.Contains(slotName))
 				{
 					door = new ExpansionDoor(this, doorName, string.Empty);
 
-					doorName.ToLower();
-					m_Doors.Insert(doorName, door);
+					m_Doors.Insert(slotName, door);
 
 					m_CanBeLocked = true;
 				}
@@ -87,9 +92,40 @@ modded class ExpansionVehicle
 		}
 		else
 		{
-			//! TODO: Determine doors from attachment slot names
-			//TStringArray attachments = {};
-			//vehicle.ConfigGetTextArray("attachments", attachments);
+			//! Determine doors from attachment slot names
+			TStringArray attachments = {};
+			vehicle.ConfigGetTextArray("attachments", attachments);
+
+			foreach (string attachmentSlotName: attachments)
+			{
+				int slotId = InventorySlots.GetSlotIdFromString(attachmentSlotName);
+				if (slotId == InventorySlots.INVALID || !InventorySlots.GetShowForSlotId(slotId))
+					continue;
+
+				slotName = attachmentSlotName;
+				slotName.ToLower();
+
+				if (!ExpansionString.ContainsAny(slotName, m_DoorNames))
+				{
+					string selection;
+					InventorySlots.GetSelectionForSlotId(slotId, selection);
+					if (!selection)
+						continue;
+
+					selection.ToLower();
+					if (!ExpansionString.ContainsAny(selection, m_DoorNames))
+						continue;
+				}
+
+				if (!m_Doors.Contains(slotName))
+				{
+					door = new ExpansionDoor(this, attachmentSlotName, string.Empty);
+
+					m_Doors.Insert(slotName, door);
+
+					m_CanBeLocked = true;
+				}
+			}
 		}
 
 		if (GetGame().IsServer())
@@ -425,17 +461,21 @@ modded class ExpansionVehicle
 		if (key && !IsPairedTo(key) && !key.IsInherited(ExpansionCarAdminKey))
 			return;
 
+		ExpansionVehicleLockState previousLockState = m_LockState;
+
 		SetLockState(ExpansionVehicleLockState.UNLOCKED);
 		KeyMessage("Unlock::UNLOCKED");
 
-		OnUnlocked();
+		OnUnlocked(previousLockState);
 	}
 
 	void ForceUnlock(ExpansionVehicleLockState lockState = ExpansionVehicleLockState.FORCEDUNLOCKED)
 	{
+		ExpansionVehicleLockState previousLockState = m_LockState;
+
 		SetLockState(lockState);
 
-		OnUnlocked();
+		OnUnlocked(previousLockState);
 	}
 
 	override bool IsLocked()
@@ -535,9 +575,10 @@ modded class ExpansionVehicle
 
 	void UpdateLock(float dt)
 	{
+		ExpansionVehicleLockState previousLockState = m_LockState;
 		ExpansionVehicleLockState lockState;
 
-		if (m_LockState == ExpansionVehicleLockState.READY_TO_FORCELOCK)
+		if (previousLockState == ExpansionVehicleLockState.READY_TO_FORCELOCK)
 			lockState = ExpansionVehicleLockState.FORCEDLOCKED;
 		else if (AllDoorsClosed() || !GetExpansionSettings().GetVehicle().VehicleRequireAllDoors)
 			lockState = ExpansionVehicleLockState.LOCKED;
@@ -546,9 +587,9 @@ modded class ExpansionVehicle
 		{
 			SetLockState(lockState);
 
-			KeyMessage("UpdateLock::" + typename.EnumToString(ExpansionVehicleLockState, m_LockState));
+			KeyMessage("UpdateLock::" + typename.EnumToString(ExpansionVehicleLockState, lockState));
 
-			OnLocked();
+			OnLocked(previousLockState);
 		}
 	}
 

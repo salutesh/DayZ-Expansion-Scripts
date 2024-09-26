@@ -10,7 +10,6 @@
  *
 */
 
-#ifndef EXPANSION_OBSOLETE_CAMERA
 modded class DayZPlayerCameraBase
 {
 	PlayerBase m_Ex_Player;
@@ -22,6 +21,7 @@ modded class DayZPlayerCameraBase
 		Class.CastTo(m_Ex_Player, pPlayer);
 	}
 
+#ifndef EXPANSION_OBSOLETE_CAMERA
 	override void OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
 	{
 		ForceFreelook(false);
@@ -59,5 +59,5 @@ modded class DayZPlayerCameraBase
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(m_Ex_Player.SetHeadInvisible_Ex, false);
 		}
 	}
-};
 #endif
+};

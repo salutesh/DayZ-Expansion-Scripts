@@ -1466,16 +1466,19 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	void ExpansionSetLastDriverUID(PlayerBase player)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().SetLastDriverUID");
 		m_ExpansionVehicle.SetLastDriverUID(player);
 	}
 
 	void ExpansionResetLastDriverUIDSynch()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().ResetLastDriverUIDSynch");
 		m_ExpansionVehicle.ResetLastDriverUIDSynch();
 	}
 
 	string ExpansionGetLastDriverUID()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetLastDriverUID");
 		return m_ExpansionVehicle.GetLastDriverUID();
 	}
 
@@ -2873,6 +2876,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	ExpansionVehicleLockState GetLockedState()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetLockState");
 		return m_ExpansionVehicle.GetLockState();
 	}
 
@@ -2883,42 +2887,45 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	bool IsLocked()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().IsLocked");
 		return m_ExpansionVehicle.IsLocked();
 	}
 
 	int GetPersistentIDA()
 	{
-		EXError.ErrorOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED");
 		return 0;
 	}
 
 	int GetPersistentIDB()
 	{
-		EXError.ErrorOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED");
 		return 0;
 	}
 
 	int GetPersistentIDC()
 	{
-		EXError.ErrorOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED");
 		return 0;
 	}
 
 	int GetPersistentIDD()
 	{
-		EXError.ErrorOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED");
 		return 0;
 	}
 
 	//! ID of the paired master key
 	string GetPersistentIDString()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetMasterKeyPersistentIDString");
 		return m_ExpansionVehicle.GetMasterKeyPersistentIDString();
 	}
 
 	//! ID of the vehicle itself
 	string GetVehiclePersistentIDString()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetPersistentIDString");
 		return m_ExpansionVehicle.GetPersistentIDString();
 	}
 
@@ -2945,16 +2952,19 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	// ------------------------------------------------------------
 	void SetLockedState(ExpansionVehicleLockState newLockState)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().SetLockState");
 		m_ExpansionVehicle.SetLockState(newLockState);
 	}
 
 	bool HasKey()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().HasKey");
 		return m_ExpansionVehicle.HasKey();
 	}
 
 	void PairKeyTo(ExpansionCarKey key)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().PairKey");
 		m_ExpansionVehicle.PairKey(key);
 	}
 
@@ -2963,42 +2973,49 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	 */
 	void ResetKeyPairing()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().ResetKeyPairing");
 		m_ExpansionVehicle.ResetKeyPairing();
 	}
 
 	bool CanBeLocked()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().CanBeLocked");
 		return m_ExpansionVehicle.CanBeLocked();
 	}
 
 	void OnCarDoorOpened(string source)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnDoorOpened");
 		m_ExpansionVehicle.OnDoorOpened(source);
 	}
 
 	void OnCarDoorClosed(string source)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnDoorClosed");
 		m_ExpansionVehicle.OnDoorClosed(source);
 	}
 
 	bool IsCarKeys(ExpansionCarKey key)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().IsPairedTo");
 		return m_ExpansionVehicle.IsPairedTo(key);
 	}
 
 	void LockCar(ExpansionCarKey key = NULL)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().Lock");
 		m_ExpansionVehicle.Lock(key);
 	}
 
 	void UnlockCar(ExpansionCarKey key = NULL)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().Unlock");
 		m_ExpansionVehicle.Unlock(key);
 	}
 
 	void UnlockCarWithoutKey(ExpansionVehicleLockState lockState = ExpansionVehicleLockState.FORCEDUNLOCKED)
 	{
-		EXError.WarnOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().ForceUnlock");
 		m_ExpansionVehicle.ForceUnlock(lockState);
 	}
 
@@ -3012,22 +3029,25 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	bool CanUpdateCarLock(float pDt)
 	{
+		EXError.Error(this, "DEPRECATED, do not use!");
 		return m_ExpansionVehicle.CanUpdateLock(pDt);
 	}
 
 	bool DoorCount()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().DoorCount");
 		return m_ExpansionVehicle.DoorCount();
 	}
 
 	bool AllDoorsClosed()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().AllDoorsClosed");
 		return m_ExpansionVehicle.AllDoorsClosed();
 	}
 
 	void UpdateCarLock(float pDt)
 	{
-		EXError.WarnOnce(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED");
 	}
 
 	void OnHornSoundPlay()
@@ -3357,16 +3377,19 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	bool Expansion_CoverVehicle(EntityAI cover = null, out ExpansionEntityStoragePlaceholder placeholder = null)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().Cover");
 		return m_ExpansionVehicle.Cover(cover, placeholder);
 	}
 
 	bool Expansion_CanCover()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().CanCover");
 		return m_ExpansionVehicle.CanCover();
 	}
 
 	string Expansion_GetPlaceholderType(string coverType)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetPlaceholderType");
 		return m_ExpansionVehicle.GetPlaceholderType(coverType);
 	}
 
@@ -3415,6 +3438,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	void Expansion_SetAllDoorsAnimationPhase(float phase)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().SetAllDoorsAnimationPhase");
 		m_ExpansionVehicle.SetAllDoorsAnimationPhase(phase);
 	}
 
@@ -4227,6 +4251,11 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		return Expansion_CanObjectAttach(obj);
 	}
 
+	bool Expansion_CanGetInSeat(PlayerBase player, int seatIdx)
+	{
+		return true;
+	}
+
 	bool Expansion_CanPlayerAttach()
 	{
 		return ConfigGetFloat("animPhysDetachSpeed") > 0;
@@ -4288,6 +4317,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	float GetModelZeroPointDistanceFromGround()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetModelZeroPointDistanceFromGround()");
 		return m_ExpansionVehicle.GetModelZeroPointDistanceFromGround();
 	}
 
@@ -4366,6 +4396,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	
 	set<Human> Expansion_GetVehicleCrew(bool playersOnly = true, bool includeAttached = true)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetCrew()");
 		return m_ExpansionVehicle.GetCrew(playersOnly, includeAttached);
 	}
 

@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 modded class ScriptedViewBase
 {
 	void SetSort(int sort, bool immedUpdate = true)
@@ -22,3 +23,4 @@ modded class ScriptedViewBase
 		return GetLayoutRoot().GetSort();
 	}
 };
+#endif

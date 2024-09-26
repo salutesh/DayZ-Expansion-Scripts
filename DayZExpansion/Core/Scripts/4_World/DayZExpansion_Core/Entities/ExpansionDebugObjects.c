@@ -30,7 +30,7 @@ class ExpansionDebugObject: Building
 		RegisterNetSyncVariableBool("m_Expansion_DrawDebugSignal");
 
 #ifndef SERVER
-		ExpansionString es = new ExpansionString(GetType());
+		ExpansionString es = GetType();
 
 		if (es.EndsWith("_Red"))
 			m_Expansion_DebugColor = 0xFFFF0000;

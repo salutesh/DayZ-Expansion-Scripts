@@ -172,7 +172,8 @@ class CF_ModStorageObject<Class T> : CF_ModStorageBase
 		if (modsRead < numMods)
 			return false;
 
-		m_Entity.CF_OnStoreLoad(loadedMods);
+		if (!m_Entity.CF_OnStoreLoad(loadedMods))
+			ErrorEx(m_Entity.ToString() + "::CF_OnStoreLoad failed", ErrorExSeverity.WARNING);
 
 		// Reset the stream for 'OnStoreSave'
 		foreach (auto mod : ModLoader.s_CF_ModStorages)

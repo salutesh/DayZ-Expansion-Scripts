@@ -73,11 +73,14 @@ class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 		ItemBase itemIB;
 		if (Class.CastTo(itemIB, object))
 		{
-			auto globalID = new ExpansionGlobalID;
-			globalID.Acquire();
+			if (!itemIB.m_Expansion_GlobalID)
+				itemIB.m_Expansion_GlobalID = new ExpansionGlobalID;
+
+			if (!itemIB.m_Expansion_GlobalID.m_IsSet)
+				itemIB.m_Expansion_GlobalID.Acquire();
 
 			for (int j = 0; j < 4; j++)
-				m_GlobalID[j] = globalID.m_ID[j];
+				m_GlobalID[j] = itemIB.m_Expansion_GlobalID.m_ID[j];
 		}
 
 		//m_ListingState = ExpansionP2PMarketListingState.LISTED;
@@ -149,9 +152,14 @@ class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 		return true;
 	}
 
+	string GetEntityStorageBaseName()
+	{
+		return ExpansionStatic.IntToHex(m_GlobalID);
+	}
+
 	string GetEntityStorageFileName()
 	{
-		return ExpansionEntityStorageModule.GetFileName(ExpansionStatic.IntToHex(m_GlobalID));
+		return ExpansionEntityStorageModule.GetFileName(GetEntityStorageBaseName());
 	}
 
 	void SetListingTime()

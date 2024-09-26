@@ -78,6 +78,7 @@ modded class ModifiersManager
 
 					default:
 						EXError.Error(this, "Unsupported variable type " + varType);
+						ctx.Write(Expansion_ModStorageDataType.INVALID);
 						break;
 				}
 			}
@@ -210,7 +211,7 @@ modded class ModifiersManager
 
 					default:
 						EXError.Error(this, "Unsupported variable type " + varType);
-						return false;
+						break;
 				}
 
 				n++;

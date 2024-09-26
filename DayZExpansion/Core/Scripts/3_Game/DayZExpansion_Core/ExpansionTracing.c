@@ -208,7 +208,10 @@ class EXTrace
 		if (m_Silent)
 		{
 			float elapsed = TickCount(m_Ticks) * 0.0001;
-			ProcessStack(1, m_Start, true, false, elapsed);
+			if (m_FuncName)
+				Profile(elapsed);
+			else
+				ProcessStack(1, m_Start, true, false, elapsed);
 		}
 		else
 		{
@@ -479,6 +482,11 @@ class EXTrace
 		m_Depth = depth;
 	}
 
+	void SetFuncName(string funcName)
+	{
+		m_FuncName = funcName;
+	}
+
 	void SetStart(int start)
 	{
 		m_Start = start;
@@ -719,6 +727,20 @@ class EXTrace
 
 		auto trace = new EXTrace(null, typeName, false);
 		trace.SetSilent(true);
+		return trace;
+	}
+
+	static EXTrace Profile(bool yes, typename typeName, string funcName)
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes)
+			return null;
+#endif
+
+		auto trace = new EXTrace(null, typeName, false);
+		trace.SetSilent(true);
+		trace.SetFuncName(funcName);
 		return trace;
 	}
 #endif

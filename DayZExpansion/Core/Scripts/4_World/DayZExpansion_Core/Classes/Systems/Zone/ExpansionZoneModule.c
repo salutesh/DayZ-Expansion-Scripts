@@ -86,7 +86,7 @@ class ExpansionZoneModule : CF_ModuleWorld
 
 		int count = 0;
 
-		ExpansionZone element = g_ExpansionZoneHead;
+		ExpansionZone element = ExpansionZone.s_Head;
 		while (element)
 		{
 			Print(element.ToStr());
@@ -131,7 +131,7 @@ class ExpansionZoneModule : CF_ModuleWorld
 
 		position[1] = 0;
 
-		ExpansionZone element = g_ExpansionZoneHead;
+		ExpansionZone element = ExpansionZone.s_Head;
 		while (element)
 		{
 			element.Check(position);

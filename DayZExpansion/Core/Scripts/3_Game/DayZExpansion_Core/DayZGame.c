@@ -77,6 +77,10 @@ modded class DayZGame
 		if (EXTrace.PROFILING)
 			EXTrace.DumpProfilingData();
 #endif
+
+		m_ExpansionGame = null;
+
+		Print("[DayZ Expansion] ~DayZGame");
 	}
 
 	void Expansion_FilterPlayerCharacters()

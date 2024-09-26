@@ -82,7 +82,7 @@ class eAIDamageHandler
 							{
 								eAIEntityTargetInformation info;
 
-								if (player && player.IsInTransport())
+								if (player && player.Expansion_IsInVehicleCmd())
 								{
 									CarScript vehicle;
 									if (Class.CastTo(vehicle, player.GetParent()))

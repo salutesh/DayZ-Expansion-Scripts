@@ -49,6 +49,8 @@ modded class ItemBase
 
 	ref ExpansionSoundSet m_Expansion_DestroySound_SoundSet;
 
+	ref ExpansionGlobalID m_Expansion_GlobalID;
+
 	void ItemBase()
 	{
 		m_Expansion_IsAdminTool = ConfigGetBool("expansionIsAdminTool");
@@ -81,6 +83,11 @@ modded class ItemBase
 			displayName.Replace("$UNT$", "");
 
 		return displayName;
+	}
+
+	ExpansionGlobalID Expansion_GetGlobalID()
+	{
+		return m_Expansion_GlobalID;
 	}
 	
 	//============================================
@@ -120,6 +127,16 @@ modded class ItemBase
 		if (!ctx) return;
 
 		ctx.Write(m_CurrentSkinName);
+
+		if (m_Expansion_GlobalID && m_Expansion_GlobalID.m_IsSet)
+		{
+			ctx.Write(true);
+			m_Expansion_GlobalID.OnStoreSave(ctx);
+		}
+		else
+		{
+			ctx.Write(false);
+		}
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -136,6 +153,22 @@ modded class ItemBase
 
 		if (!ctx.Read(m_CurrentSkinName))
 			return false;
+
+		if (ctx.GetVersion() < 52)
+			return true;
+
+		bool hasGlobalID;
+		if (!ctx.Read(hasGlobalID))
+			return false;
+
+		if (hasGlobalID)
+		{
+			if (!m_Expansion_GlobalID)
+				m_Expansion_GlobalID = new ExpansionGlobalID();
+
+			if (!m_Expansion_GlobalID.OnStoreLoad(ctx))
+				return false;
+		}
 
 		return true;
 	}

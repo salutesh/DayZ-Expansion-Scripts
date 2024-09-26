@@ -164,13 +164,14 @@ modded class CarScript
 
 	bool IsInSafeZone()
 	{
-		EXError.WarnOnce(this, "DEPRECATED: Please use Expansion_IsInSafeZone");
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().IsInSafeZone");
 		return Expansion_IsInSafeZone();
 	}
 
 	// ------------------------------------------------------------
 	bool Expansion_IsInSafeZone()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().IsInSafeZone");
 		return m_ExpansionVehicle.IsInSafeZone();
 	}
 
@@ -215,16 +216,19 @@ modded class CarScript
 
 	void SetLockedState(ExpansionVehicleLockState newLockState)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().SetLockState");
 		m_ExpansionVehicle.SetLockState(newLockState);
 	}
 
 	ExpansionVehicleLockState GetLockedState()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetLockState");
 		return m_ExpansionVehicle.GetLockState();
 	}
 
 	void Expansion_SetAllDoorsAnimationPhase(float phase)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().SetAllDoorsAnimationPhase");
 		m_ExpansionVehicle.SetAllDoorsAnimationPhase(phase);
 	}
 
@@ -241,6 +245,11 @@ modded class CarScript
 			return false;
 
 		return m_ExpansionVehicle.CanBeDamaged();
+	}
+
+	bool Expansion_CanGetInSeat(PlayerBase player, int seatIdx)
+	{
+		return true;
 	}
 
 	bool Expansion_CanObjectAttach(Object obj)
@@ -420,26 +429,31 @@ modded class CarScript
 
 	void ExpansionSetLastDriverUID(PlayerBase player)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().SetLastDriverUID");
 		m_ExpansionVehicle.SetLastDriverUID(player);
 	}
 
 	void ExpansionResetLastDriverUIDSynch()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().ResetLastDriverUIDSynch");
 		m_ExpansionVehicle.ResetLastDriverUIDSynch();
 	}
 
 	string ExpansionGetLastDriverUID()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetLastDriverUID");
 		return m_ExpansionVehicle.GetLastDriverUID();
 	}
 
 	set<Human> Expansion_GetVehicleCrew(bool playersOnly = true, bool includeAttached = true)
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetCrew");
 		return m_ExpansionVehicle.GetCrew(playersOnly, includeAttached);
 	}
 
 	void Expansion_ForceCrewGetOut()
 	{
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().ForceCrewGetOut");
 		m_ExpansionVehicle.ForceCrewGetOut();
 	}
 

@@ -28,6 +28,7 @@ class eAIDynamicPatrol : eAIPatrol
 	eAIGroup m_Group;
 	float m_TimeSinceLastSpawn;
 	bool m_CanSpawn;
+	private bool m_IsSpawned;
 	private bool m_WasGroupDestroyed;
 	private eAIDynamicPatrolSphereTrigger m_Trigger;
 
@@ -67,7 +68,7 @@ class eAIDynamicPatrol : eAIPatrol
 			}
 		}
 		else {
-			Log(config, "WARNING: NumberOfAI shouldn't be set to 0, skipping this patrol...");
+			Log("WARNING: NumberOfAI shouldn't be set to 0, skipping this patrol...");
 			return false;
 		}
 
@@ -91,9 +92,9 @@ class eAIDynamicPatrol : eAIPatrol
 
 			if (startpos == vector.Zero)
 			{
-				Log(config, "!!! ERROR !!!");
-				Log(config, "Couldn't find a spawn location. First waypoint is set to 0 0 0 or could not be read by the system (validate your file with a json validator)");
-				Log(config, "!!! ERROR !!!");
+				Log("!!! ERROR !!!");
+				Log("Couldn't find a spawn location. First waypoint is set to 0 0 0 or could not be read by the system (validate your file with a json validator)");
+				Log("!!! ERROR !!!");
 				return false;
 			}
 		}
@@ -127,9 +128,9 @@ class eAIDynamicPatrol : eAIPatrol
 		
 		if (m_MinimumRadius > m_MaximumRadius)
 		{
-			Log(config, "!!! ERROR !!!");
-			Log(config, "MinDistRadius (" + m_MinimumRadius + ") should be smaller than MaxDistRadius (" + m_MaximumRadius + ")");
-			Log(config, "!!! ERROR !!!");
+			Log("!!! ERROR !!!");
+			Log("MinDistRadius (" + m_MinimumRadius + ") should be smaller than MaxDistRadius (" + m_MaximumRadius + ")");
+			Log("!!! ERROR !!!");
 			float actualMax = m_MinimumRadius;
 			m_MinimumRadius = m_MaximumRadius;
 			m_MaximumRadius = actualMax;
@@ -308,10 +309,10 @@ class eAIDynamicPatrol : eAIPatrol
 
 		m_WasGroupDestroyed = true;
 
-		if (s_NumberOfDynamicPatrols)
-			s_NumberOfDynamicPatrols--;
+		Log(GetNameForLog() + " bots were wiped out (spawn position " + m_Position + ", " + (m_NumberOfAI - m_Group.Count()) + "/" + m_NumberOfAI + " deceased)");
 
-		Log(m_Config, GetNameForLog() + " bots were wiped out (spawn position " + m_Position + ", " + (m_NumberOfAI - m_Group.Count()) + "/" + m_NumberOfAI + " deceased)");
+		if (s_NumberOfDynamicPatrols)
+			UpdatePatrolCount(-1);
 
 		return true;
 	}
@@ -351,9 +352,9 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 
 		if (loaded)
-			Log(m_Config, "Loaded " + m_Group.Count() + "/" + m_NumberOfAI + " persistent " + GetNameForLog() + " bots at " + m_Position);
+			Log("Loaded " + m_Group.Count() + "/" + m_NumberOfAI + " persistent " + GetNameForLog() + " bots at " + m_Position);
 		else
-			Log(m_Config, "Spawning " + m_NumberOfAI + " " + GetNameForLog() + " bots at " + m_Position);
+			Log("Spawning " + m_NumberOfAI + " " + GetNameForLog() + " bots at " + m_Position);
 
 		m_WasGroupDestroyed = false;
 
@@ -381,7 +382,10 @@ class eAIDynamicPatrol : eAIPatrol
 			eAIGroup.s_PersistentGroups.Insert(m_Group);
 
 		m_Group.SetName(m_Config.Name);
-		m_Group.SetFaction(m_Faction);
+
+		if (!loaded)
+			m_Group.SetFaction(m_Faction);
+
 		m_Group.SetFormation(m_Formation);
 
 		if (!loaded && m_NumberOfAI > 1)
@@ -403,7 +407,9 @@ class eAIDynamicPatrol : eAIPatrol
 		if (!loaded && m_NumberOfAI > 1)
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(SpawnAI_Deferred, 1);
 
-		s_NumberOfDynamicPatrols++;
+		m_IsSpawned = true;
+
+		UpdatePatrolCount(1);
 	}
 
 	void SpawnAI_Deferred(int i)
@@ -430,11 +436,15 @@ class eAIDynamicPatrol : eAIPatrol
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 		#endif
 
+		if (!m_IsSpawned)
+			return;
+
+		m_IsSpawned = false;
 		m_TimeSinceLastSpawn = 0;
 
 		if (m_Group)
 		{
-			Log(m_Config, "Despawning " + m_Group.Count() + " " + GetNameForLog() + " bots (spawn position " + m_Position + ", " + (m_NumberOfAI - m_Group.Count()) + "/" + m_NumberOfAI + " deceased)");
+			Log("Despawning " + m_Group.Count() + " " + GetNameForLog() + " bots (spawn position " + m_Position + ", " + (m_NumberOfAI - m_Group.Count()) + "/" + m_NumberOfAI + " deceased)");
 
 			if (m_Group.m_Persist && m_Group.Count() && m_Group.m_BaseName)
 			{
@@ -447,7 +457,7 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 
 		if (!m_WasGroupDestroyed && s_NumberOfDynamicPatrols)
-			s_NumberOfDynamicPatrols--;
+			UpdatePatrolCount(-1);
 	}
 
 	override void OnUpdate()
@@ -498,6 +508,12 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 	}
 
+	private void UpdatePatrolCount(int delta)
+	{
+		s_NumberOfDynamicPatrols += delta;
+		Log("Global patrol count: " + s_NumberOfDynamicPatrols);
+	}
+
 	override void Debug()
 	{
 		super.Debug();
@@ -514,20 +530,39 @@ class eAIDynamicPatrol : eAIPatrol
 		string name = m_Config.Name;
 		if (name == string.Empty)
 			name = m_Faction.GetName();
+		else
+			name = string.Format("%1 (%2)", name, m_Faction.GetName());
 
 		return name;
 	}
 
 	static void Log(ExpansionAIDynamicSpawnBase config, string msg)
 	{
-		if (config && config.IsInherited(ExpansionAIObjectPatrol))
+		Error("DEPRECATED, use ExpansionAISpawnBase::Log");
+
+		if (config)
 		{
-			if (GetExpansionSettings().GetLog().AIObjectPatrol)
-				GetExpansionSettings().GetLog().PrintLog("[AI Object Patrol] " + msg);
+			config.Log(msg);
 		}
-		else if (GetExpansionSettings().GetLog().AIPatrol)
+		else
 		{
-			GetExpansionSettings().GetLog().PrintLog("[AI Patrol] " + msg);
+			auto settings = GetExpansionSettings().GetLog();
+			if (settings.AIPatrol)
+				settings.PrintLog("[AI Patrol] %1", msg);
+		}
+	}
+
+	void Log(string msg)
+	{
+		auto settings = GetExpansionSettings().GetLog();
+		if (m_Config && m_Config.IsInherited(ExpansionAIObjectPatrol))
+		{
+			if (settings.AIObjectPatrol)
+				settings.PrintLog("[AI Object Patrol %1] %2", m_ID.ToStringLen(5), msg);
+		}
+		else if (settings.AIPatrol)
+		{
+			settings.PrintLog("[AI Patrol %1] %2", m_ID.ToStringLen(5), msg);
 		}
 	}
 };

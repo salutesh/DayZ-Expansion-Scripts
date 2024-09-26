@@ -384,7 +384,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		{
 			string type;
 			g_Game.ObjectGetType(obj, type);
-			auto exType = new ExpansionString(type);
+			ExpansionString exType = type;
 			bool match = false;
 			switch (doPartialMatch)
 			{
@@ -754,7 +754,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 			CF_Log.Debug( "Attempt to create mission trader " + className + " at " + position + " from file:" + filePath + ".");
 
-			obj = GetGame().CreateObject( className, position, false, GetGame().IsKindOf(className, "DZ_LightAI"), true );
+			obj = ExpansionGame.CreateObjectSafe( className, position, false, GetGame().IsKindOf(className, "DZ_LightAI"), true );
 			if (!obj)
 				continue;
 

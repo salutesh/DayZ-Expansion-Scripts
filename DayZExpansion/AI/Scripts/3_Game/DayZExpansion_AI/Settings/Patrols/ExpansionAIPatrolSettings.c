@@ -217,13 +217,15 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 					{
 						foreach (ExpansionAIObjectPatrol_V19 objPatrolV19: settingsV19.ObjectPatrols)
 						{
-							objPatrolV19.Loadout = objPatrolV19.LoadoutFile;
+							if (!objPatrolV19.Loadout)
+								objPatrolV19.Loadout = objPatrolV19.LoadoutFile;
 							ObjectPatrols.Insert(objPatrolV19);
 						}
 
 						foreach (ExpansionAIPatrol_V19 patrolV19: settingsV19.Patrols)
 						{
-							patrolV19.Loadout = patrolV19.LoadoutFile;
+							if (!patrolV19.Loadout)
+								patrolV19.Loadout = patrolV19.LoadoutFile;
 							Patrols.Insert(patrolV19);
 						}
 					}

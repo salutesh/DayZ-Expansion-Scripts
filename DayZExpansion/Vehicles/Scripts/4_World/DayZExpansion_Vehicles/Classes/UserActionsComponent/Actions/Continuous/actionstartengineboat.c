@@ -13,17 +13,13 @@
 #ifndef DAYZ_1_25
 modded class ActionStartEngineBoat
 {
-	//! Can NOT call super here
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		ExpansionVehicle vehicle;
-		if (ActionStartEngine.Expansion_ActionConditionStatic(player, target, item, vehicle))
-		{
-			if (vehicle.GetBoat())
-				return true;
-		}
+		if (!super.ActionCondition(player, target, item))
+			return false;
 
-		return false;
+		ExpansionVehicle vehicle;
+		return ActionStartEngine.Expansion_ActionConditionStatic(player, target, item, vehicle);
 	}
 
 	override bool Expansion_CheckSuccess(ActionData action_data)

@@ -1569,11 +1569,11 @@ class ExpansionStatic: ExpansionStaticCore
 	//! If `move` is true and copying is successful, removes srcDir afterwards if empty.
 	static bool CopyDirectoryTree(string srcDir, string dstDir, string ext = "", bool move = false)
 	{
-		ExpansionString srcDirEx = new ExpansionString(srcDir);
+		ExpansionString srcDirEx = srcDir;
 		if (srcDirEx.LastIndexOf("\\") != srcDir.Length() - 1)
 			srcDir += "\\";
 
-		ExpansionString dstDirEx = new ExpansionString(dstDir);
+		ExpansionString dstDirEx = dstDir;
 		if (dstDirEx.LastIndexOf("\\") != dstDir.Length() - 1)
 			dstDir += "\\";
 
@@ -1651,7 +1651,7 @@ class ExpansionStatic: ExpansionStaticCore
 	static bool CopyFileOrDirectoryTree(string srcPath, string dstPath, string ext = "", bool move = false, FileAttr fileAttr = 0)
 	{
 		bool isDir = (fileAttr & FileAttr.DIRECTORY);
-		ExpansionString srcPathEx = new ExpansionString(srcPath);
+		ExpansionString srcPathEx = srcPath;
 		if (!isDir && srcPathEx.LastIndexOf("\\") == srcPath.Length() - 1)
 			isDir = true;
 
@@ -1662,7 +1662,7 @@ class ExpansionStatic: ExpansionStaticCore
 		}
 		else
 		{
-			ExpansionString dstPathEx = new ExpansionString(dstPath);
+			ExpansionString dstPathEx = dstPath;
 			string dstDir = dstPath.Substring(0, dstPathEx.LastIndexOf("\\"));
 			if (!FileExist(dstDir) && !MakeDirectoryRecursive(dstDir))
 				return false;

@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionUIManager
 {
 	private ref ExpansionScriptViewMenuBase m_CurrentMenu;
@@ -140,3 +141,4 @@ class ExpansionUIManager
 		return ExpansionScriptViewMenuBase.Cast(className.ToType().Spawn());
 	}
 };
+#endif

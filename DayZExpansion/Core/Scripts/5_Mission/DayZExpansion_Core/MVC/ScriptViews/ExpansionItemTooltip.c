@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionItemTooltip: ExpansionItemInspectionBase
 {
 	protected ItemPreviewWidget ItemFrameWidget;
@@ -272,3 +273,4 @@ class ExpansionItemPreviewTooltipController: ExpansionViewController
 	string ItemName;
 	Object ItemPreview;
 };
+#endif

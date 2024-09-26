@@ -30,16 +30,26 @@ class ExpansionP2PMarketTraderConfigV1: ExpansionP2PMarketTraderConfigBase
 
 class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
 
 	string m_DisplayName = "Unknown";
 	string m_DisplayIcon = "Deliver";
-#ifdef EXPANSIONMODAI
+
+	// AI
 	string m_Faction = "InvincibleObservers";
 	ref array<vector> m_Waypoints;
 	int m_EmoteID = EmoteConstants.ID_EMOTE_WATCHING;
 	bool m_EmoteIsStatic;
-#endif
+	string m_RequiredFaction;
+
+	// Hardline
+	bool m_UseReputation;
+	int m_MinRequiredReputation;
+	int m_MaxRequiredReputation;
+
+	// Quests
+	int m_RequiredCompletedQuestID;
+
 	bool m_IsGlobalTrader;
 	
 	autoptr TStringArray m_Currencies;
@@ -220,6 +230,16 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 
 			if (traderConfig.m_Version < 7 && !traderConfig.m_DisplayCurrencyValue)
 				traderConfig.m_DisplayCurrencyValue = 1;
+
+
+			if (traderConfig.m_Version < 8)
+			{
+				traderConfig.m_RequiredFaction = "";
+				traderConfig.m_UseReputation = false;
+				traderConfig.m_MinRequiredReputation = 0;
+				traderConfig.m_MaxRequiredReputation = int.MAX;
+				traderConfig.m_RequiredCompletedQuestID = -1;
+			}
 			
 			traderConfig.m_Version = VERSION;
 		
@@ -244,7 +264,7 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 
 	void Spawn()
 	{
-		Object obj = GetGame().CreateObjectEx(m_ClassName, m_Position, ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
+		Object obj = ExpansionGame.CreateObjectExSafe(m_ClassName, m_Position, ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
 
 	#ifdef ENFUSION_AI_PROJECT
 		if (!obj || (!obj.IsInherited(ExpansionP2PMarketTraderStatic) && !obj.IsInherited(ExpansionP2PMarketTraderNPC) && !obj.IsInherited(ExpansionP2PMarketTraderNPCAI)))

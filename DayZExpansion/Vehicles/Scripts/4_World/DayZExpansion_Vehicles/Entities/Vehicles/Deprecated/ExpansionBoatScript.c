@@ -391,13 +391,15 @@ class ExpansionBoatScript: CarScript
 
 		if ( !isAboveWater )
 		{
-			if ( AllDoorsClosed() && !m_EngineDestroyed && !m_Exploded )
+			bool allDoorsClosed = m_ExpansionVehicle.AllDoorsClosed();
+
+			if ( allDoorsClosed && !m_EngineDestroyed && !m_Exploded )
 			{
 				m_ExpansionSink += pDt * 0.001;
 			}
 			else
 			{
-				if ( !AllDoorsClosed() )
+				if ( !allDoorsClosed )
 					m_ExpansionSink -= pDt * 0.025;
 
 				if ( m_EngineDestroyed )
@@ -409,7 +411,7 @@ class ExpansionBoatScript: CarScript
 		}
 		else if ( !m_EngineDestroyed && !m_Exploded )
 		{
-			if ( AllDoorsClosed() )
+			if ( m_ExpansionVehicle.AllDoorsClosed() )
 			{
 				m_ExpansionSink += pDt * 0.005;
 			} else {
@@ -530,7 +532,7 @@ class ExpansionBoatScript: CarScript
 	{
 		super.OnUpdate( dt );
 
-		if ( AllDoorsClosed() )
+		if ( m_ExpansionVehicle.AllDoorsClosed() )
 			m_DrownTime = 0;  //! Prevent vanilla engine drown damage
 	}
 

@@ -252,11 +252,29 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 		TIntArray entityGlobalID = new TIntArray;
 
 		ExpansionVehicle vehicle;
+		ItemBase item;
 		if (ExpansionVehicle.Get(vehicle, entity))
+		{
 			gid = vehicle.GetGlobalID();
 
-		if (!gid)
+			if (!gid)
+			{
+				Error("Vehicle doesn't have global ID: " + entity);
+				return false;
+			}
+		}
+		else if (Class.CastTo(item, entity))
+		{
+			if (!item.m_Expansion_GlobalID)
+				item.m_Expansion_GlobalID = new ExpansionGlobalID();
+
+			gid = item.m_Expansion_GlobalID;
+		}
+		else
+		{
+			EXError.Warn(null, "Entity doesn't have trackable global ID: " + entity);
 			gid = new ExpansionGlobalID();
+		}
 
 		if (!gid.m_IsSet)
 			gid.Acquire();

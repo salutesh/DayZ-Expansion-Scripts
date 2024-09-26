@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionDialogButton_Text: ExpansionDialogButtonBase
 {
 	ref ExpansionDialogButton_TextController m_TextButtonController;
@@ -72,3 +73,4 @@ class ExpansionDialogButton_TextController: ExpansionViewController
 {
 	string ButtonText;
 };
+#endif
