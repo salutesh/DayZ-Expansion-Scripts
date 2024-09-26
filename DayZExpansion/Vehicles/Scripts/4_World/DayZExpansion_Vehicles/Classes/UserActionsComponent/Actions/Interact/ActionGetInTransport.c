@@ -33,10 +33,13 @@ modded class ActionGetInTransport
 		if (!vehicle)
 			return false;
 
-		// Temp fix for being able to enter Uh1h despite being locked
-		ExpansionUh1h uh1h = ExpansionUh1h.Cast(vehicle.GetEntity());
-		if (vehicle.DoorCount() <= 0 || uh1h)
-			return !vehicle.IsLocked();
+		int componentIdx = target.GetComponentIndex();
+		int seatIdx = vehicle.CrewPositionIndex(componentIdx);
+		if (!vehicle.CanGetInSeat(player, seatIdx))
+			return false;
+
+		if (vehicle.IsLocked())
+			return false;
 
 		return true;
 	}

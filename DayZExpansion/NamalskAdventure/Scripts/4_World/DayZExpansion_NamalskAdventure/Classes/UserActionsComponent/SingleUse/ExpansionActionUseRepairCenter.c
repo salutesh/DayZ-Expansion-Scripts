@@ -15,9 +15,7 @@ class ExpansionActionUseRepairCenter: ActionInteractBase
 {
 	void ExpansionActionUseRepairCenter()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_INTERACTONCE;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
@@ -54,9 +52,7 @@ class ExpansionActionUseRepairCenter: ActionInteractBase
 	
 	override void OnExecuteClient(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		super.OnExecuteClient(action_data);
 		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("NA_WorkbenchMenu");
@@ -64,9 +60,7 @@ class ExpansionActionUseRepairCenter: ActionInteractBase
 	
 	override void OnExecuteServer(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		PlayerBase player;
 		if (!Class.CastTo(player, action_data.m_Player))

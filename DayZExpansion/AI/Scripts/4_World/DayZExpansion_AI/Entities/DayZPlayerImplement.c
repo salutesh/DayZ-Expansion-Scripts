@@ -244,7 +244,7 @@ modded class DayZPlayerImplement
 	void eAI_SetFactionTypeID(int id)
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.AI, this, "" + id);
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + eAIFaction.GetTypeByID(id), "" + id);
 #endif
 
 		int oldFactionTypeID = m_eAI_FactionTypeID;

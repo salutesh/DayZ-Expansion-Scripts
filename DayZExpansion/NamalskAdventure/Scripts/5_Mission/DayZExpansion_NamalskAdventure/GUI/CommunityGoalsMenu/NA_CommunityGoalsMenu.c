@@ -27,9 +27,7 @@ class NA_CommunityGoalsMenu: ExpansionScriptViewMenu
 
 	void NA_CommunityGoalsMenu()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		Class.CastTo(m_CommunityGoalsMenuController, GetController());
 		
@@ -39,9 +37,7 @@ class NA_CommunityGoalsMenu: ExpansionScriptViewMenu
 	
 	void ~NA_CommunityGoalsMenu()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		ExpansionCommunityGoalsModule.GetModuleInstance().GetCommunityGoalsMenuSI().Remove(SetCommunityGoals);
 	}
@@ -58,9 +54,7 @@ class NA_CommunityGoalsMenu: ExpansionScriptViewMenu
 	
 	void SetCommunityGoals(array<ref ExpansionCommunityGoal> goals)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::SetCommunityGoals - Goals: " + goals.Count());
 		
 		foreach (ExpansionCommunityGoal goal: goals)
@@ -71,9 +65,7 @@ class NA_CommunityGoalsMenu: ExpansionScriptViewMenu
 	
 	void RequestCommunityGoalDetails(int goalID)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::RequestCommunityGoalDetails - Goal ID: " + goalID);
 
 		m_SelectedGoalID = goalID;
@@ -86,9 +78,7 @@ class NA_CommunityGoalsMenu: ExpansionScriptViewMenu
 	
 	void SetCommunityGoalDetails(array<ref ExpansionCommunityGoalPlayerData> validContributors)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::SetCommunityGoalDetails - Contributers: " + validContributors.Count());
 		
 		m_CommunityGoalsMenuController.CommunityGoalContributers.Clear();
@@ -136,9 +126,7 @@ class NA_CommunityGoalsMenu: ExpansionScriptViewMenu
 	
 	void OnExitClick()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		CloseMenu();
 	}
@@ -152,9 +140,7 @@ class NA_CommunityGoalsMenu: ExpansionScriptViewMenu
 	
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		if (w == exit_button)
 		{
@@ -174,9 +160,7 @@ class NA_CommunityGoalsMenu: ExpansionScriptViewMenu
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		if (w == exit_button)
 		{
@@ -223,9 +207,7 @@ class NA_CommunityGoalsMenuEntry: ExpansionScriptView
 
 	void NA_CommunityGoalsMenuEntry(NA_CommunityGoalsMenu menu, ExpansionCommunityGoal goal)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		Class.CastTo(m_CommunityGoalsMenuEntryController, GetController());
 		
@@ -273,9 +255,7 @@ class NA_CommunityGoalsMenuEntry: ExpansionScriptView
 	
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		if (w == entry_button)
 		{
@@ -291,9 +271,7 @@ class NA_CommunityGoalsMenuEntry: ExpansionScriptView
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		if (w == entry_button)
 		{
@@ -324,9 +302,7 @@ class NA_CommunityGoalsContributorEntry: ExpansionScriptView
 
 	void NA_CommunityGoalsContributorEntry(ExpansionCommunityGoalPlayerData contributor, int goalID)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		Class.CastTo(m_CommunityGoalsContributorEntryController, GetController());
 		

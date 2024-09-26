@@ -47,9 +47,7 @@ class ExpansionActionOpenCommunityGoalsMenu: ActionInteractBase
 
 	override void OnExecuteClient(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.OnExecuteClient(action_data);
 		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("NA_CommunityGoalsMenu");
@@ -57,9 +55,7 @@ class ExpansionActionOpenCommunityGoalsMenu: ActionInteractBase
 
 	override void OnExecuteServer(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		Expansion_CommunityGoals_Board goals_board;
 		if (!Class.CastTo(goals_board, action_data.m_Target.GetObject()))

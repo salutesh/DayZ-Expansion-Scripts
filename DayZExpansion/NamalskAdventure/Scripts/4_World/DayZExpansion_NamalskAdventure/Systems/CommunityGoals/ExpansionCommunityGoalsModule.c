@@ -26,18 +26,14 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	void ExpansionCommunityGoalsModule()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		s_ModuleInstance = this;
 	}
 
 	override void OnInit()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.OnInit();
 
@@ -52,9 +48,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected void CreateDirectoryStructure()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		if (!FileExist(s_dataFolderPath))
 		{
@@ -65,9 +59,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.OnMissionStart(sender, args);
 
@@ -80,9 +72,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.OnMissionLoaded(sender, args);
 		
@@ -97,9 +87,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected void ServerModuleInit()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		//! Server only
 		SpawnCommunityGoalBoards(); //! @note: Spawn community goal boards
@@ -107,9 +95,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected void ClientModuleInit()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_CommunityGoalsMenuInvoker = new ScriptInvoker();
 		m_CommunityGoalsMenuDetailsInvoker = new ScriptInvoker();
@@ -117,9 +103,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected void LoadCommunityGoalsServerData()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (FileExist(s_dataFolderPath + "CommunityGoals.json"))
 		{
@@ -139,9 +123,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected void GetCommunityGoalsData(string file)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_ServerData = ExpansionCommunityGoalsData.Load(file);
 		if (!m_ServerData)
@@ -155,9 +137,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected void LoadCommunityGoals()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_CommunityGoals = new map<int, ref ExpansionCommunityGoal>;
 		if (m_ServerData.GetCommunityGoalsData() && m_ServerData.GetCommunityGoalsData().Count() > 0)
@@ -189,9 +169,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected void GetCommunityGoalsPlayerData(string path)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		array<string> files = new array<string>;
 		files = ExpansionStatic.FindFilesInLocation(path, ".json");
@@ -213,9 +191,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	void UpdateCommunityGoalPlayerData(string uid, string name, int goalID, int points)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		ExpansionCommunityGoalPlayerData communityGoalPlayerData;
 		if (m_CommunityGoalsPlayerData.Find(uid, communityGoalPlayerData))
@@ -241,9 +217,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	array<ref ExpansionCommunityGoalPlayerData> GetCommunityGoalContributors(int goalID)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ModuleDebugPrint("::GetCommunityGoalContributors - Search for valid contributors for community goal ID: " + goalID);
 
 		array<ref ExpansionCommunityGoalPlayerData> validContributers = new array<ref ExpansionCommunityGoalPlayerData>;
@@ -266,9 +240,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	void UpdateCommunityGoal(PlayerBase player, int goalID, int progress)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		ExpansionCommunityGoal communityGoal;
 		if (!m_CommunityGoals.Find(goalID, communityGoal))
@@ -295,9 +267,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	bool GetCommunityGoalState(int goalID)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		ExpansionCommunityGoal communityGoal;
 		if (!m_CommunityGoals.Find(goalID, communityGoal))
@@ -308,9 +278,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected void OnCommunityGoalReached(int id, inout ExpansionCommunityGoal communityGoal)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnCommunityGoalReached(id, communityGoal);
 
@@ -329,9 +297,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected void SpawnCommunityGoalBoards()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		//! Community boards
 		array<ref ExpansionCommunityGoalsBoard> communityGoalsBoards = m_ServerData.GetCommunityGoalsBoards();
@@ -357,9 +323,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	void SendCommunityGoalData(Object target, PlayerIdentity identity)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -407,9 +371,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected void RPC_SendCommunityGoalData(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		int goalsCount;
 		if (!ctx.Read(goalsCount))
@@ -436,9 +398,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	void RequestCommunityGoalDetails(int goalID)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ModuleDebugPrint("::RequestCommunityGoalDetails - Request community goal details for goal with ID: " + goalID);
 
 		if (!GetGame().IsClient())
@@ -454,9 +414,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected void RPC_RequestCommunityGoalDetails(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		int goalID;
 		if (!ctx.Read(goalID))
@@ -482,9 +440,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 	protected void RPC_SendCommunityGoalDetails(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		int contributorCount;
 		if (!ctx.Read(contributorCount))

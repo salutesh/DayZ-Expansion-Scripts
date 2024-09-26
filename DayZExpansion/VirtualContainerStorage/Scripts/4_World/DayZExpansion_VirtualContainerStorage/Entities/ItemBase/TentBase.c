@@ -15,24 +15,20 @@ modded class TentBase
 {
 	void TentBase()
 	{
-		m_Expansion_GlobalID = new ExpansionGlobalID();
+		if (!m_Expansion_GlobalID)
+			m_Expansion_GlobalID = new ExpansionGlobalID();
 		RegisterNetSyncVariableBool("m_Expansion_HasEntityStorage");
 	}
 
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		super.CF_OnStoreSave(storage);
-
-		auto ctx = storage[DZ_Expansion_BaseBuilding];
-		if (!ctx) return;
-
 		#ifdef SERVER
 		if (!m_Expansion_GlobalID.m_IsSet)
 			m_Expansion_GlobalID.Acquire();
 		#endif
 
-		m_Expansion_GlobalID.OnStoreSave(ctx);
+		super.CF_OnStoreSave(storage);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -43,7 +39,8 @@ modded class TentBase
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return true;
 
-		if (ctx.GetVersion() < 45)
+		int version = ctx.GetVersion();
+		if (version < 45 || version >= 52)
 			return true;
 
 		if (!m_Expansion_GlobalID.OnStoreLoad(ctx))

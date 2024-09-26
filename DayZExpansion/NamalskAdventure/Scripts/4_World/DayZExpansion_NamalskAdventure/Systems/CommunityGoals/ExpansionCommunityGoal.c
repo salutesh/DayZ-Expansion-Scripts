@@ -61,18 +61,14 @@ class ExpansionCommunityGoal
 
     void AddProgress(int progress)
     {
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
         GoalProgress = GoalProgress + progress;
     }
 
 	void SetFinished()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		Finished = true;
 	}
@@ -104,9 +100,7 @@ class ExpansionCommunityGoal
 
 	void OnSend(ParamsWriteContext ctx)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-#endif
 
 		ctx.Write(ID);
 		#ifdef EXPANSIONMODAI

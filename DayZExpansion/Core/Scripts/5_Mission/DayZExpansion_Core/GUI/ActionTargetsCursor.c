@@ -12,6 +12,7 @@
 
 modded class ActionTargetsCursor
 {
+#ifdef EXPANSIONUI
 	override void Update()
 	{
 		//! Don't show floating widget if any script view menu is opened
@@ -24,6 +25,7 @@ modded class ActionTargetsCursor
 
 		super.Update();
 	}
+#endif
 
 #ifdef DIAG
 	override protected string GetActionDesc(ActionBase action)

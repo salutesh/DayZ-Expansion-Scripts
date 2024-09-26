@@ -18,9 +18,7 @@ class StaticObj_Lamp_Harbour extends House
 
     void StaticObj_Lamp_Harbour()
     {
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
         RegisterNetSyncVariableBool("m_LightState");
     }
@@ -34,9 +32,7 @@ class StaticObj_Lamp_Harbour extends House
 
     void SpawnLight()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		m_Light = ScriptedLightBase.CreateLight(ExpansionStreetLight, GetPosition());
         m_Light.SetDiffuseColor(1.0, 0.7, 0.4);
@@ -71,9 +67,7 @@ class StaticObj_Lamp_Harbour extends House
 	
 	protected void UpdateLightState(bool state)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		if (m_LightState)
 		{

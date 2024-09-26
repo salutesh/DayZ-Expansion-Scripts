@@ -34,12 +34,8 @@ modded class PluginAdminLog
 
 		if (player.IsAI())
 		{
-			string name = player.GetDisplayName();
-
-			if (name == m_Expansion_SurvivorDisplayName)
-				name = player.Expansion_GetSurvivorName();
-
-			playerPrefix = "AI \"" + name + "\"" + playerPrefix.Substring(7, playerPrefix.Length() - 7);
+			//! Replace "Player" with "AI"
+			playerPrefix = "AI" + playerPrefix.Substring(6, playerPrefix.Length() - 6);
 		}
 
 		eAIGroup group = player.GetGroup();

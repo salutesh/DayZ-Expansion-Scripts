@@ -81,9 +81,7 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 	
 	void SetTeleportLocations()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		
 		m_TeleporterClientData = ExpansionTeleporterModule.GetModuleInstance().GetTeleporterClientData();
 		if (!m_TeleporterClientData)
@@ -224,9 +222,7 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 	
 	protected void SetLocationMapPosition(vector position, string displayName = "")
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		
 		TeleportMap.SetScale(0.1);
 	    TeleportMap.SetMapPos(position);
@@ -402,9 +398,7 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 	
 	override void Expansion_Update()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		
 		if (m_PlayerArrowMarker)
 			m_PlayerArrowMarker.Update(0.1);

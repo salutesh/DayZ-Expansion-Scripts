@@ -14,16 +14,12 @@ class NA_CleanAmmo extends RecipeBase
 {
 	void NA_CleanAmmo()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 	}
 	
 	override void Init()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		m_Name = "Clean";
 		m_IsInstaRecipe = false;//should this recipe be performed instantly without animation
@@ -83,9 +79,7 @@ class NA_CleanAmmo extends RecipeBase
 
 	override bool CanDo(ItemBase ingredients[], PlayerBase player)//final check for recipe's validity
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		PluginCleaning module_cleaning;
 		Class.CastTo(module_cleaning, GetPlugin(PluginCleaning));
@@ -98,9 +92,7 @@ class NA_CleanAmmo extends RecipeBase
 
 	override void Do(ItemBase ingredients[], PlayerBase player,array<ItemBase> results, float specialty_weight)//gets called upon recipe's completion
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		PluginCleaning module_cleaning;
 		Class.CastTo(module_cleaning, GetPlugin(PluginCleaning));

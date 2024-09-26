@@ -26,7 +26,7 @@ class Expansion_EffectHolder_Base: House
 	protected bool m_DelayVFX = true;
 	protected float m_IdleParticleDelay;
 
-#ifdef DIAG_DEVELOPER
+#ifdef DIAG
 #ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_ServerMarker;
 #endif
@@ -34,9 +34,7 @@ class Expansion_EffectHolder_Base: House
 
 	void Expansion_EffectHolder_Base()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		SetEventMask(EntityEvent.INIT); //! @ToDO: Not sure if even needed. Check that!
 	}
@@ -53,22 +51,18 @@ class Expansion_EffectHolder_Base: House
 
 	override void EEDelete(EntityAI parent)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		CleanupEffect();
 	}
 
 	void CleanupEffect()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		if (GetGame() && GetGame().IsServer())
 		{
-		#ifdef DIAG_DEVELOPER
+		#ifdef DIAG
 		#ifdef EXPANSIONMODNAVIGATION
 			if (!m_ServerMarker)
 				return;
@@ -93,9 +87,7 @@ class Expansion_EffectHolder_Base: House
 
 	override void EEInit()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.EEInit();
 
@@ -104,9 +96,7 @@ class Expansion_EffectHolder_Base: House
 
 	protected void InitEffect()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (!GetGame().IsDedicatedServer())
 		{
@@ -121,18 +111,14 @@ class Expansion_EffectHolder_Base: House
 
 	protected void InitEffectClient()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		UpdateVisualState();
 	}
 
 	protected void InitEffectServer()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		//! Remove grass
 		Object cc_object = GetGame().CreateObjectEx(OBJECT_CLUTTER_CUTTER , GetWorldPosition(), ECE_PLACE_ON_SURFACE);
@@ -144,12 +130,10 @@ class Expansion_EffectHolder_Base: House
 
 	protected void DestroyClutterCutter(Object clutter_cutter)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		GetGame().ObjectDelete(clutter_cutter);
 
-	#ifdef DIAG_DEVELOPER
+	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
@@ -161,9 +145,7 @@ class Expansion_EffectHolder_Base: House
 
 	protected bool PlayParticle(out Particle particle, int particle_type)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (!particle && GetGame() && (!GetGame().IsDedicatedServer()))
 		{
@@ -177,9 +159,7 @@ class Expansion_EffectHolder_Base: House
 	//! Returns true if particle stopped, false if not
 	protected bool StopParticle(out Particle particle)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (particle && GetGame() && (!GetGame().IsDedicatedServer()))
 		{
@@ -194,34 +174,26 @@ class Expansion_EffectHolder_Base: House
 
 	protected void ParticleIdleStop()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		StopParticle(m_ParticleIdle);
 	}
 
 	protected void ParticleActivatedStop()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		StopParticle(m_ParticleActivated);
 	}
 
 	protected void UpdateVisualState()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateEffectVFX_Deferred, 0, false);
 	}
 
 	//! @note: This method updates the anomaly visual effects (VFX) in a deferred manner based on the provided `state`.
 	protected void UpdateEffectVFX_Deferred(ExpansionAnomalyState state)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		//! Stop current particle effects
 		ParticleIdleStop();
@@ -252,9 +224,7 @@ class Expansion_EffectHolder_Base: House
 	//! @note: Synchronizes variables and updates visual state of the particle depending on the anomaly state.
 	override void OnVariablesSynchronized()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.OnVariablesSynchronized();
 

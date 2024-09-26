@@ -16,7 +16,8 @@ modded class Container_Base
 
 	void Container_Base()
 	{
-		m_Expansion_GlobalID = new ExpansionGlobalID();
+		if (!m_Expansion_GlobalID)
+			m_Expansion_GlobalID = new ExpansionGlobalID();
 		RegisterNetSyncVariableBool("m_Expansion_HasEntityStorage");
 	}
 
@@ -41,17 +42,12 @@ modded class Container_Base
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		super.CF_OnStoreSave(storage);
-
-		auto ctx = storage[DZ_Expansion_BaseBuilding];
-		if (!ctx) return;
-
 		#ifdef SERVER
 		if (!m_Expansion_GlobalID.m_IsSet)
 			m_Expansion_GlobalID.Acquire();
 		#endif
 
-		m_Expansion_GlobalID.OnStoreSave(ctx);
+		super.CF_OnStoreSave(storage);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -72,7 +68,7 @@ modded class Container_Base
 				return false;
 		}
 
-		if (version < 43)
+		if (version < 43 || version >= 52)
 			return true;
 
 		if (!m_Expansion_GlobalID.OnStoreLoad(ctx))

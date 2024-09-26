@@ -4251,6 +4251,11 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		return Expansion_CanObjectAttach(obj);
 	}
 
+	bool Expansion_CanGetInSeat(PlayerBase player, int seatIdx)
+	{
+		return true;
+	}
+
 	bool Expansion_CanPlayerAttach()
 	{
 		return ConfigGetFloat("animPhysDetachSpeed") > 0;

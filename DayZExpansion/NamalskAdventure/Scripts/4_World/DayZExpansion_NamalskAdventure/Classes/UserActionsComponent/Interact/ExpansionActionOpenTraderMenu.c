@@ -37,14 +37,14 @@ modded class ExpansionActionOpenTraderMenu
 				//! Check if player has completed required quest
 				if (!ExpansionQuestModule.GetModuleInstance().HasCompletedQuest(questID, action_data.m_Player.GetIdentity().GetId()))
 				{
-					ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
-					if (!questConfig)
+					ExpansionQuestConfig questConig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
+					if (!questConig)
 					{
 						Error(ToString() + "::OnExecuteServer - Could not get quest config for quest ID: " + questID);
 						return;
 					}
 		
-					ExpansionNotification(new StringLocaliser("Trader locked!"), new StringLocaliser("You have no access to this trader yet. You need to compelete the quest " + questConfig.GetTitle() + " first to use this trader."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create(action_data.m_Player.GetIdentity());
+					ExpansionNotification(new StringLocaliser("Trader locked!"), new StringLocaliser("You have no access to this trader yet. You need to compelete the quest " + questConig.GetTitle() + " first to use this trader."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create(action_data.m_Player.GetIdentity());
 					return;
 				}
 			}

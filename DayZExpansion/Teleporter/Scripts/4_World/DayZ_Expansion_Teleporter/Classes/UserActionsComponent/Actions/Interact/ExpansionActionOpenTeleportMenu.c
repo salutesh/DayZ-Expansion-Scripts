@@ -72,9 +72,7 @@ class ExpansionActionOpenTeleportMenu: ActionInteractBase
 	 **/
 	override void OnExecuteServer(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-#endif
 
 		super.OnExecuteServer(action_data);
 

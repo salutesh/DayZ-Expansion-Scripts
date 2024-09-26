@@ -14,7 +14,6 @@ modded class ItemBase
 {
 	bool m_Expansion_HasEntityStorage;
 	bool m_Expansion_RestoringContents;
-	ref ExpansionGlobalID m_Expansion_GlobalID;
 
 	override void DeferredInit()
 	{
@@ -35,8 +34,13 @@ modded class ItemBase
 	{
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && m_Expansion_GlobalID && m_Expansion_GlobalID.m_IsSet)
 		{
-			if (GetHierarchyRoot() != ExpansionEntityStorageModule.GetSavedEntityToBeDeleted())
-				ExpansionEntityStorageModule.DeleteFiles(m_Expansion_GlobalID.IDToHex());
+			EntityAI savedEntityToBeDeleted = ExpansionEntityStorageModule.GetSavedEntityToBeDeleted();
+			if (this != savedEntityToBeDeleted && GetHierarchyRoot() != savedEntityToBeDeleted)
+			{
+				string name = m_Expansion_GlobalID.IDToHex();
+				if (ExpansionEntityStorageModule.DeleteFiles(name))
+					EXPrint(this, "EEDelete - deleted " + name + " from entity storage");
+			}
 		}
 
 		super.EEDelete(parent);

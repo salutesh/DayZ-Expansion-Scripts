@@ -274,7 +274,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		{
 			PrintFormat("%1::GetPersonalStorageItemData - Delete personal storage file %2 and entity storage file %3 as the associated item %4 does not exist!", ToString(), path + fileName, itemData.GetEntityStorageFileName(), itemData.GetClassName());
 			DeleteFile(path + fileName); //! Delete the personal storage item JSON file.
-			DeleteFile(itemData.GetEntityStorageFileName()); //! Delete the entity storage .bin file.
+			ExpansionEntityStorageModule.DeleteFiles(itemData.GetEntityStorageBaseName()); //! Delete the entity storage .bin file.
 			itemData = null;
 			return;
 		}
@@ -809,15 +809,15 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			ExpansionPersonalStorageItem item = items[i];
 			if (item.IsGlobalIDValid() && item.IsGlobalIDEqual(globalID))
 			{
-				DeleteFile(item.GetEntityStorageFileName());
+				ExpansionEntityStorageModule.DeleteFiles(item.GetEntityStorageBaseName());
 				items.RemoveOrdered(i);
 			}
 		}
 
 		m_ItemsData.Insert(playerUID, items);
 
-		string fileName = ExpansionStatic.IntToHex(globalID);
-		string filePath = GetPersonalStorageDataDirectory() + playerUID + "\\" + fileName + ".json";
+		string baseName = ExpansionStatic.IntToHex(globalID);
+		string filePath = GetPersonalStorageDataDirectory() + playerUID + "\\" + baseName + ".json";
 		if (FileExist(filePath))
 			DeleteFile(filePath);
 	}

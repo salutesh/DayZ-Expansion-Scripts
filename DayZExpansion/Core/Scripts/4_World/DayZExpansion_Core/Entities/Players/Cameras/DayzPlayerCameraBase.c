@@ -30,6 +30,7 @@ modded class DayZPlayerCameraBase
 		return super.UpdateLRAngle(pAngle, pMin, pMax, pDt);
 	}
 
+#ifdef EXPANSIONUI
 	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
 	{
 		ExpansionScriptViewMenuBase viewMenu = GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu();
@@ -40,4 +41,5 @@ modded class DayZPlayerCameraBase
 
 		super.OnUpdate( pDt, pOutResult );
 	}
+#endif
 }

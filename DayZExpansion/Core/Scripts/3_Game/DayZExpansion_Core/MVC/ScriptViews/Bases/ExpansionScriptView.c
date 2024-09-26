@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionViewController: ViewController
 {
 	void ExpansionViewController()
@@ -107,3 +108,4 @@ class ExpansionScriptViewBase: ScriptView
 	{
 	}
 }
+#endif

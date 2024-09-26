@@ -182,7 +182,7 @@
 				
 				if (!unit.eAI_HasAmmoForFirearm(fsm.weapon, dst.magazine)) return FAIL;
 				
-				#ifdef DIAG
+				#ifdef EXTRACE_DIAG
 				if (!dst.magazine)
 					EXTrace.Start0(EXTrace.AI, this, "Reloading " + fsm.weapon + " from internal mag");
 				else

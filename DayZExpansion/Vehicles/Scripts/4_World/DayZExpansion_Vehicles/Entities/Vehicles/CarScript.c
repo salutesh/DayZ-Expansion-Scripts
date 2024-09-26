@@ -717,13 +717,11 @@ modded class CarScript
 	void OnCarLocked()
 	{
 		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnLocked");
-		m_ExpansionVehicle.OnLocked();
 	}
 
 	void OnCarUnlocked()
 	{
 		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnUnlocked");
-		m_ExpansionVehicle.OnUnlocked();
 	}
 
 	void OnHornSoundPlay()
@@ -3523,7 +3521,7 @@ modded class CarScript
 
 	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
 	{
-#ifdef EXTRACE_DIAG
+#ifdef EXPANSION_ONCONTACT_TRACING
 		auto trace = EXTrace.Start(ExpansionTracing.VEHICLES, this);
 		EXTrace.Add(trace, zoneName);
 		EXTrace.Add(trace, localPos);

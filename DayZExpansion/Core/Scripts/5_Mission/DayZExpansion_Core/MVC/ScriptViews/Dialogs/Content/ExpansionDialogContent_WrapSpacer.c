@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionDialogContent_WrapSpacer: ExpansionDialogContentBase
 {
 	ref ExpansionDialogContent_WrapSpacerController m_WrapSpacerController;
@@ -93,3 +94,4 @@ class ExpansionDialogContent_WrapSpacer_EntryController: ExpansionViewController
 {
 	string EntryText;
 };
+#endif

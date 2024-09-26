@@ -2451,11 +2451,11 @@ class eAIBase: PlayerBase
 	 * 
 	 * @return true if item was previously remembered
 	 * 
-	 * @note items are remembered by their type name and health
+	 * @note items are remembered by their type name and position (fractional digits rounded to two decimals)
 	 */
 	bool eAI_ForgetRecentlyDroppedItem(ItemBase item)
 	{
-		string key = string.Format("%1|%2", item.GetType(), (int) Math.Round(item.GetHealth()));
+		string key = string.Format("%1@%2", item.GetType(), ExpansionStatic.VectorToString(item.GetPosition()));
 		if (m_eAI_RecentlyDroppedItems.Contains(key))
 		{
 			m_eAI_RecentlyDroppedItems.Remove(key);
@@ -2493,13 +2493,13 @@ class eAIBase: PlayerBase
 	/**
 	 * @brief remember recently dropped item
 	 * 
-	 * @note items are remembered by their type name and health
+	 * @note items are remembered by their type name and position (fractional digits rounded to two decimals)
 	 */
 	void eAI_RememberRecentlyDroppedItem(ItemBase item)
 	{
 		eAI_ForgetStaleRecentlyDroppedItems();
 
-		string key = string.Format("%1|%2", item.GetType(), (int) Math.Round(item.GetHealth()));
+		string key = string.Format("%1@%2", item.GetType(), ExpansionStatic.VectorToString(item.GetPosition()));
 		m_eAI_RecentlyDroppedItems[key] = GetGame().GetTickTime();
 
 		EXTrace.Print(EXTrace.AI, this, "Recently dropped items: " + m_eAI_RecentlyDroppedItems.Count());
@@ -2510,11 +2510,11 @@ class eAIBase: PlayerBase
 	 * 
 	 * @return true if item was dropped 5 minutes ago or less
 	 * 
-	 * @note items are remembered by their type name and health
+	 * @note items are remembered by their type name and position (fractional digits rounded to two decimals)
 	 */
 	bool eAI_WasItemRecentlyDropped(ItemBase item)
 	{
-		string key = string.Format("%1|%2", item.GetType(), (int) Math.Round(item.GetHealth()));
+		string key = string.Format("%1@%2", item.GetType(), ExpansionStatic.VectorToString(item.GetPosition()));
 		float timeDropped;
 		if (m_eAI_RecentlyDroppedItems.Find(key, timeDropped) && GetGame().GetTickTime() - timeDropped <= 300.0)
 			return true;
@@ -3849,23 +3849,28 @@ class eAIBase: PlayerBase
 		#ifdef JM_COT
 			if (spectators)
 			{
-				string name = GetDisplayName();
-
-				if (m_AdminLog && name == m_AdminLog.m_Expansion_SurvivorDisplayName)
-					name = Expansion_GetSurvivorName();
-
 				string itemName = dstItem.Expansion_GetDisplayNameRaw();
 
 				foreach (PlayerBase spectator: spectators)
 				{
 					if (spectator)
-						ExpansionNotification(name, itemName, "Open Hand", ARGB(255, 248, 228, 51), 1.0, ExpansionNotificationType.ACTIVITY).Create(spectator.GetIdentity());
+						ExpansionNotification(GetCachedName(), itemName, "Open Hand", ARGB(255, 248, 228, 51), 1.0, ExpansionNotificationType.ACTIVITY).Create(spectator.GetIdentity());
 				}
 			}
 		#endif
 		}
 
 		return dst;
+	}	
+	
+	override string GetCachedName()
+	{
+		m_CachedPlayerName = GetDisplayName();
+
+		if (m_AdminLog && m_CachedPlayerName == m_AdminLog.m_Expansion_SurvivorDisplayName)
+			m_CachedPlayerName = Expansion_GetSurvivorName();
+
+		return m_CachedPlayerName;
 	}
 
 	//! @note INTERNAL USE ONLY

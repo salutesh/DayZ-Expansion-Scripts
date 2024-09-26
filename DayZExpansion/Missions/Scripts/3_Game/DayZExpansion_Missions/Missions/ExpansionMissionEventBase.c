@@ -10,10 +10,10 @@
  *
 */
 
-static ref ScriptInvoker SI_OnMissionEnd = new ScriptInvoker();
-
 class ExpansionMissionEventBase
 {
+	static ref ScriptInvoker SI_OnMissionEnd = new ScriptInvoker();
+
 	int m_Version;
 
 	bool Enabled;

@@ -213,7 +213,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		if (GetGame().IsKindOf(ClassName, "DZ_LightAI"))  //! Only true for animals and Zs
 			flags |= ECE_INITAI;
 
-		Object obj = GetGame().CreateObjectEx(ClassName, Position, flags);
+		Object obj = ExpansionGame.CreateObjectExSafe(ClassName, Position, flags);
  		ExpansionQuestNPCBase questNPC;
 		if (!ExpansionQuestNPCBase.CastTo(questNPC, obj))
 	    {
@@ -255,7 +255,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	{
 		Position = ExpansionAIPatrol.GetPlacementPosition(Position);
 		
-		Object obj = GetGame().CreateObject(ClassName, Position);
+		Object obj = ExpansionGame.CreateObjectSafe(ClassName, Position);
 		if (!obj)
 			return NULL;
 
@@ -309,7 +309,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 	ExpansionQuestStaticObject SpawnObject()
 	{
-	    Object obj = GetGame().CreateObjectEx(ClassName, Position, ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+	    Object obj = ExpansionGame.CreateObjectExSafe(ClassName, Position, ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
 	    ExpansionQuestStaticObject questObject;
 	    if (!ExpansionQuestStaticObject.CastTo(questObject, obj))
 	    {

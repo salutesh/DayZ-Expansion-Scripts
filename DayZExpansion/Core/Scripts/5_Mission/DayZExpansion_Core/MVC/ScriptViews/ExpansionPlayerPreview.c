@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionPlayerPreview
 {
 	protected static const float POSITION_PLAYER_PREVIEW_W_THRESHOLD_MIN = 1.5;
@@ -295,3 +296,4 @@ class ExpansionPlayerPreview
 		return false;
 	}
 }
+#endif

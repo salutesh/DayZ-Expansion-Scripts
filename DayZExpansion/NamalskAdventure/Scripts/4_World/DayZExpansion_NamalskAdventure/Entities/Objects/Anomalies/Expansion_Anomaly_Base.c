@@ -65,7 +65,7 @@ class Expansion_Anomaly_Base: ItemBase
 	protected ExpansionAnomalyState m_PrevAnonmalyState = ExpansionAnomalyState.NONE;
 	protected ExpansionAnomalyState m_VisualState = ExpansionAnomalyState.NONE;
 
-	#ifdef DIAG_DEVELOPER
+	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_ServerMarker;
 	#endif
@@ -139,7 +139,7 @@ class Expansion_Anomaly_Base: ItemBase
 		if (m_AnomalyTrigger)
 			GetGame().ObjectDelete(m_AnomalyTrigger);
 
-		#ifdef DIAG_DEVELOPER
+		#ifdef DIAG
 		#ifdef EXPANSIONMODNAVIGATION
 		if (!m_ServerMarker)
 			return;
@@ -225,7 +225,7 @@ class Expansion_Anomaly_Base: ItemBase
 	#endif
 		GetGame().ObjectDelete(clutter_cutter);
 
-		#ifdef DIAG_DEVELOPER
+		#ifdef DIAG
 		#ifdef EXPANSIONMODNAVIGATION
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
@@ -686,9 +686,7 @@ class Expansion_Anomaly_Base: ItemBase
 
 	protected void DropAnormalyItems_Deferred()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		DropAnormalyItems();
 	}
@@ -831,9 +829,7 @@ class Expansion_Anomaly_Base: ItemBase
 	//! Otherwise these events will not work or fire!
 	/*override void EOnTouch(IEntity other, int extra)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::EOnTouch - Entity: " + other.ToString());
 
 		if (GetGame().IsServer())
@@ -844,9 +840,7 @@ class Expansion_Anomaly_Base: ItemBase
 
 	override void EOnContact(IEntity other, Contact extra)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::EOnContact - Entity: " + other.ToString());
 
 		if (GetGame().IsServer())
@@ -857,9 +851,7 @@ class Expansion_Anomaly_Base: ItemBase
 
 	void ContactEvent(IEntity other, vector position)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::ContactEvent - Entity: " + other.ToString() + " | Position: " + position);
 
 		if (GetGame().IsServer() && !m_ContactEventProcessing)

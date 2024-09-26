@@ -1,10 +1,13 @@
 class eAIPatrol : Managed
 {
 	private static autoptr array<ref eAIPatrol> m_AllPatrols = new array<ref eAIPatrol>();
+	private static int s_NextID;
 	static const float UPDATE_RATE_IN_SECONDS = 5.0;
 	
 	private ref Timer m_Timer;
 	private bool m_IsBeingDestroyed;
+
+	protected int m_ID;
 
 	/**
 	 * @brief Destroys a patrol
@@ -31,6 +34,7 @@ class eAIPatrol : Managed
 		#endif
 
 		m_AllPatrols.Insert(this);
+		m_ID = s_NextID++;
 	}
 
 	/**

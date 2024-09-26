@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 modded class DayZPlayerCamera3rdPerson
 {
 	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
@@ -24,3 +25,4 @@ modded class DayZPlayerCamera3rdPerson
 		super.OnUpdate( pDt, pOutResult );
 	}
 }
+#endif

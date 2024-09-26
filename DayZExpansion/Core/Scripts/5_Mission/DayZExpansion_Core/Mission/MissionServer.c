@@ -272,7 +272,7 @@ modded class MissionServer
 	        if (name == string.Empty)
 	            continue;
 	        
-			ExpansionString exName = new ExpansionString(name);
+			ExpansionString exName = name;
 			if (exName.EndsWith("_Base"))
 			{
 				continue;

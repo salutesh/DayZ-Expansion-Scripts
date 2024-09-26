@@ -10,11 +10,9 @@
  *
 */
 
-//! Versioning
-//! Change this main version define every time there is an update (or at least everytime there are changes to public API)!
-#define EXPANSION_1_8_46
+//! Versioning - LEGACY, consider adding defines for specific features instead when needed
 //! GEQ = Greater than or equal
-//! Do *not* remove GEQ defines, only add new ones every time there is an update (or at least everytime there are changes to public API)!
+//! Do *not* remove old version defines!
 #define EXPANSION_GEQ_1_7_0
 #define EXPANSION_GEQ_1_7_17
 #define EXPANSION_GEQ_1_7_24
@@ -30,6 +28,9 @@
 #define EXPANSION_GEQ_1_8_28
 #define EXPANSION_GEQ_1_8_33
 #define EXPANSION_GEQ_1_8_46
+
+//! Features
+#define EXPANSION_GLOBALID_ITEMBASE_CORE
 
 //! Enable it if you want to enable logging with EXPrint
 //#define EXPANSIONEXPRINT
@@ -85,3 +86,10 @@
 #ifdef SERVER //! Don't comment these, diag exe server crashes
 #define EXPANSION_DEBUG_SHAPES_DISABLE
 #endif
+
+#ifdef DabsFramework
+#define EXPANSIONUI
+#endif
+
+//! Versioning - NEW - do NOT add/change manually, will be added/changed during build with CI.bat!
+#define EXPANSION_1_9_6

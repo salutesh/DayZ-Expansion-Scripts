@@ -14,9 +14,7 @@ class ExpansionActionInsertSupplyCrateKey: ActionSingleUseBase
 {
 	void ExpansionActionInsertSupplyCrateKey()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_Text = "Insert Key";
 	}
@@ -56,9 +54,7 @@ class ExpansionActionInsertSupplyCrateKey: ActionSingleUseBase
 
 	override void OnStartServer(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		Expansion_SupplyCrate_Base crate = Expansion_SupplyCrate_Base.Cast(action_data.m_Target.GetObject());
 		if (crate)
@@ -70,9 +66,7 @@ class ExpansionActionInsertSupplyCrateKey: ActionSingleUseBase
 
 	override void OnExecuteClient(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		Expansion_SupplyCrate_Base crate = Expansion_SupplyCrate_Base.Cast(action_data.m_Target.GetObject());
 		if (crate)
@@ -84,9 +78,7 @@ class ExpansionActionInsertSupplyCrateKey: ActionSingleUseBase
 
 	protected void AttachKey(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		Expansion_SupplyCrate_Base crate = Expansion_SupplyCrate_Base.Cast(action_data.m_Target.GetObject());
 		Expansion_SupplyCrate_Key_Base key = Expansion_SupplyCrate_Key_Base.Cast(action_data.m_MainItem);

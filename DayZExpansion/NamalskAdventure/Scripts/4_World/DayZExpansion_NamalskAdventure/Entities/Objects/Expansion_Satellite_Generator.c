@@ -81,9 +81,7 @@ class Expansion_Satellite_Generator: PowerGenerator
 	
 	override void AfterStoreLoad()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		GetGame().ObjectDelete(this);
 	}
 };

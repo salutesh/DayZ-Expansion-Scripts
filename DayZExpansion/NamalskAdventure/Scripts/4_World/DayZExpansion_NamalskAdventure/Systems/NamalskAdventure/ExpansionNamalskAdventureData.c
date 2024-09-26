@@ -36,9 +36,7 @@ class ExpansionNamalskAdventureData: ExpansionNamalskAdventureDataBase
 
 	static ExpansionNamalskAdventureData Load(string fileName)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, null, "::ExpansionNamalskAdventureData - Load");
-#endif
 
 		CF_Log.Info("[ExpansionNamalskAdventureData] Load existing namalsk adventure server data file:" + fileName);
 		ExpansionNamalskAdventureDataBase dataBase;
@@ -66,18 +64,14 @@ class ExpansionNamalskAdventureData: ExpansionNamalskAdventureDataBase
 
 	void Save()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		ExpansionJsonFileParser<ExpansionNamalskAdventureData>.Save(ExpansionNamalskModule.s_dataFolderPath + "ServerData.json", this);
 	}
 
 	static void Save(ExpansionNamalskAdventureData data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, null, "::ExpansionNamalskAdventureData - Save");
-#endif
 
 		ExpansionJsonFileParser<ExpansionNamalskAdventureData>.Save(ExpansionNamalskModule.s_dataFolderPath + "ServerData.json", data);
 	}

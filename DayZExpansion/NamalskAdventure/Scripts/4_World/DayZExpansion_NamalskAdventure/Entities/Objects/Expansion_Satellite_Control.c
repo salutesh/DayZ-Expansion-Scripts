@@ -14,7 +14,7 @@
 #ifdef EXPANSION_NAMALSK_ADVENTURE
 class Expansion_Satellite_Control: ItemBase
 {
-	#ifdef DIAG_DEVELOPER
+	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_ServerMarker;
 	#endif
@@ -34,9 +34,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	void Expansion_Satellite_Control()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		RegisterNetSyncVariableBool("m_CanActivate");
 		RegisterNetSyncVariableBool("m_IsSatelliteActive");
@@ -55,7 +53,7 @@ class Expansion_Satellite_Control: ItemBase
 
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		#ifdef DIAG_DEVELOPER
+		#ifdef DIAG
 		#ifdef EXPANSIONMODNAVIGATION
 		if (!m_ServerMarker)
 			return;
@@ -74,9 +72,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	override void EEInit()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.EEInit();
 
@@ -85,9 +81,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	protected void InitSatelliteControl()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		#ifdef SERVER
 		InitSatelliteControlServer();
@@ -96,11 +90,9 @@ class Expansion_Satellite_Control: ItemBase
 
 	protected void InitSatelliteControlServer()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
-		#ifdef DIAG_DEVELOPER
+		#ifdef DIAG
 		#ifdef EXPANSIONMODNAVIGATION
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
 		#endif
@@ -109,9 +101,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	void SetLinkedSatellite(SV_Abandoned_Sattelite_Antenna satellite)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_LinkedSatellite = satellite;
 	}
@@ -119,9 +109,7 @@ class Expansion_Satellite_Control: ItemBase
 	#ifdef EXPANSIONMODTELEPORTER
 	void SetLinkedTeleporter(Expansion_Teleporter_Big teleporter)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_LinkedTeleporter = teleporter;
 	}
@@ -134,9 +122,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	void SetActivateState(bool state)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_CanActivate = state;
 
@@ -145,9 +131,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	void SetSatelliteState(bool state)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_IsSatelliteActive = state;
 
@@ -159,9 +143,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	void SetSatelliteBooting(bool state)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_IsSatelliteBooting = state;
 
@@ -170,9 +152,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	bool CanActivate()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		EXTrace.Add(trace, m_IsSatelliteActive);
 		EXTrace.Add(trace, m_IsSatelliteBooting);
 		EXTrace.Add(trace, m_CanActivate);
@@ -193,9 +173,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	void StartSatellite()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_Boot");
 		rpc.Write(m_LinkedSatellite);
@@ -209,9 +187,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	void BootSatellite()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_Active");
 		rpc.Write(m_LinkedSatellite);
@@ -230,9 +206,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	void StopSatellite()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_Shutdown");
 		rpc.Write(m_LinkedSatellite);
@@ -250,9 +224,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	override void OnVariablesSynchronized()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::OnVariablesSynchronized - Satellite active: " + m_IsSatelliteActive.ToString());
 
 		super.OnVariablesSynchronized();
@@ -265,9 +237,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	protected void PlaySFXBoot(EntityAI satellite)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (!GetGame().IsDedicatedServer())
 		{
@@ -282,9 +252,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	protected void PlaySFXActive(EntityAI satellite)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (!GetGame().IsDedicatedServer() && !m_RunSFX)
 		{
@@ -363,13 +331,11 @@ class Expansion_Satellite_Control: ItemBase
 		return false;
 	}
 
-	#ifdef DIAG_DEVELOPER
+	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
 	void CreateDebugMarker()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		ExpansionMarkerModule markerModule;
 		if (CF_Modules<ExpansionMarkerModule>.Get(markerModule))

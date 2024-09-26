@@ -22,9 +22,7 @@ class ExpansionAnomalyHUDMarker: ScriptView
 
 	void ExpansionAnomalyHUDMarker(ExpansionAnomalyHUD hud, string anomalyType, vector anomalyPos)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		m_HudMarkerController = ExpansionAnomalyHUDMarkerController.Cast(GetController());
 		
@@ -54,9 +52,7 @@ class ExpansionAnomalyHUDMarker: ScriptView
 	
 	void SetWidgetPositionFromWorldPosition()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 	   	float x, y;
 		m_AnomalyHud.GetMarkerPanelWidget().GetParent().GetPos(x, y);
@@ -104,9 +100,7 @@ class ExpansionAnomalyHUDMarker: ScriptView
 	
 	protected void CreateUpdateTimer()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (!m_UpdateTimer && GetUpdateTickRate() != -1)
 		{
@@ -117,9 +111,7 @@ class ExpansionAnomalyHUDMarker: ScriptView
 	
 	protected void DestroyUpdateTimer()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		if (m_UpdateTimer)
 		{
@@ -144,9 +136,7 @@ class ExpansionAnomalyHUD: ScriptView
 
 	void ExpansionAnomalyHUD()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		m_HudController = ExpansionAnomalyHUDController.Cast(GetController());
 		
@@ -165,9 +155,7 @@ class ExpansionAnomalyHUD: ScriptView
 	
 	void Destroy()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		if (!g_Game)
 			return;
@@ -177,9 +165,7 @@ class ExpansionAnomalyHUD: ScriptView
 
 	void UpdateRadar()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		ref map<string, vector> anomalies = new map<string, vector>;
 		vector camDir = GetGame().GetCurrentCameraDirection();
@@ -242,9 +228,7 @@ modded class dzn_apsi
 
 	override void InitHud()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		super.InitHud();
 

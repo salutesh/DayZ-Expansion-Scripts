@@ -54,6 +54,22 @@ class ExpansionActionOpenP2PMarketMenu: ActionInteractBase
 		if (!settings.Enabled)
 			return false;
 
+#ifdef SERVER
+		int traderID = -1;
+		if (object)
+			traderID = object.GetP2PTraderID();
+		else if (npc)
+			traderID = npc.GetP2PTraderID();
+	#ifdef ENFUSION_AI_PROJECT
+		else if (npcAI)
+			traderID = npcAI.GetP2PTraderID();
+	#endif
+
+		ExpansionP2PMarketTraderConfig traderConfig = ExpansionP2PMarketModule.GetModuleInstance().GetP2PTraderConfigByID(traderID);
+		if (!ExpansionP2PMarketModule.GetModuleInstance().CheckCanUseTrader(player, traderConfig))
+			return false;
+#endif
+
 		return true;
 	}
 

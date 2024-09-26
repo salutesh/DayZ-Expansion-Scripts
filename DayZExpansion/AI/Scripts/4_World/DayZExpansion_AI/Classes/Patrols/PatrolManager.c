@@ -40,9 +40,9 @@ class ExpansionAIPatrolManager
 		{
 			if (!patrol.Waypoints || !patrol.Waypoints.Count())
 			{
-				eAIDynamicPatrol.Log(patrol, "!!! ERROR !!!");
-				eAIDynamicPatrol.Log(patrol, "No waypoints (validate your file with a json validator)");
-				eAIDynamicPatrol.Log(patrol, "!!! ERROR !!!");
+				patrol.Log("!!! ERROR !!!");
+				patrol.Log("No waypoints (validate your file with a json validator)");
+				patrol.Log("!!! ERROR !!!");
 				continue;
 			}
 

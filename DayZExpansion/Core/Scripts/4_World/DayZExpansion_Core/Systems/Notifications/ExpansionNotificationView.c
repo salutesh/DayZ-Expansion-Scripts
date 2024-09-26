@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionNotificationView: ScriptView
 {
 	ExpansionNotificationViewController m_NotificationViewController;	
@@ -352,3 +353,4 @@ class ExpansionNotificationViewMarketController: ExpansionNotificationViewContro
 class ExpansionNotificationViewGarage: ExpansionNotificationViewMarket
 {
 };
+#endif

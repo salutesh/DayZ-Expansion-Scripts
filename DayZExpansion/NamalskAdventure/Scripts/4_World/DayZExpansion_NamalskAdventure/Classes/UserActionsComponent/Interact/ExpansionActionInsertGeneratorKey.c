@@ -14,9 +14,7 @@ class ExpansionActionInsertGeneratorKey: ActionSingleUseBase
 {
 	void ExpansionActionInsertGeneratorKey()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_Text = "Insert Key";
 	}
@@ -43,9 +41,7 @@ class ExpansionActionInsertGeneratorKey: ActionSingleUseBase
 
 	override void OnStartServer(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		if (GetGame().IsMultiplayer())
 			return;
@@ -56,9 +52,7 @@ class ExpansionActionInsertGeneratorKey: ActionSingleUseBase
 	
 	override void OnExecuteClient(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		ClearInventoryReservationEx(action_data);
 		AttachKey(action_data);
@@ -66,9 +60,7 @@ class ExpansionActionInsertGeneratorKey: ActionSingleUseBase
 	
 	protected void AttachKey(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		Expansion_Bunker_Generator generator = Expansion_Bunker_Generator.Cast(action_data.m_Target.GetObject());
 		Expansion_Bunker_Generator_Key key = Expansion_Bunker_Generator_Key.Cast(action_data.m_MainItem);		

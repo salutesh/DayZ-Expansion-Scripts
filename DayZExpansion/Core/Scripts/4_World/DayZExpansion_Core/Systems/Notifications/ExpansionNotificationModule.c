@@ -13,6 +13,7 @@
 /**@class		ExpansionNotificationModule
  * @brief		This class handle notification toasts system
  **/
+#ifdef EXPANSIONUI
 [CF_RegisterModule(ExpansionNotificationModule)]
 class ExpansionNotificationModule: CF_ModuleWorld
 {
@@ -268,3 +269,4 @@ class ExpansionNotificationModule: CF_ModuleWorld
 		m_NotificationHUD = new ExpansionNotificationHUD;
 	}
 };
+#endif

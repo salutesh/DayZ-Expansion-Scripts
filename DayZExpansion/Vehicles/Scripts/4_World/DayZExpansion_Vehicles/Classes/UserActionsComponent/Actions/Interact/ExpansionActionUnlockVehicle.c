@@ -69,7 +69,8 @@ class ExpansionActionUnlockVehicle: ActionInteractBase
 		}
 
 		//! @note we explicitly check for LOCKED state instead of IsLocked() as we don't want to be able to unlock if forced locked
-		if ( vehicle.GetLockState() != ExpansionVehicleLockState.LOCKED )
+		ExpansionVehicleLockState lockState = vehicle.GetLockState();
+		if ( lockState != ExpansionVehicleLockState.LOCKED && lockState != ExpansionVehicleLockState.READY_TO_LOCK )
 			return false;
 		
 		return true;

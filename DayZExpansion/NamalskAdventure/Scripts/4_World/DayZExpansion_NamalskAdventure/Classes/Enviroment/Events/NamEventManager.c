@@ -15,9 +15,7 @@ modded class NamEventManager
 {
 	override void StartEvent(typename event_type, bool force = false)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.StartEvent(event_type, force);
 
@@ -27,9 +25,7 @@ modded class NamEventManager
 
 	override void CancelEvent(typename event_type)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.CancelEvent(event_type);
 
@@ -39,13 +35,11 @@ modded class NamEventManager
 
 	override private void ServerEventThread()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.ServerEventThread();
 
-	#ifdef DIAG_DEVELOPER
+	#ifdef DIAG
 		ExpansionNotification(new StringLocaliser("NAMALSK EVENT MANAGER"), new StringLocaliser("SERVER EVENT THREAD - %1", m_LastEventType.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
 	#endif
 	}

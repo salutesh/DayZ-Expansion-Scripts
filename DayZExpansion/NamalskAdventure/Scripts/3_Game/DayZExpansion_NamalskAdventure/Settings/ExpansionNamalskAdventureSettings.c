@@ -68,9 +68,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 	override bool OnRecieve(ParamsReadContext ctx)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_IsLoaded = true;
 
@@ -79,16 +77,12 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 	override void OnSend(ParamsWriteContext ctx)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 	}
 
 	override int Send(PlayerIdentity identity)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (!IsMissionHost())
 			return 0;
@@ -102,9 +96,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 	protected void CopyInternal(ExpansionNamalskAdventureSettingsBase s)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		EnableAnomalies = s.EnableAnomalies;
 		EnableDynamic = s.EnableDynamic;
@@ -136,18 +128,14 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 	override void Unload()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_IsLoaded = false;
 	}
 
 	override bool OnLoad()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_IsLoaded = true;
 
@@ -237,9 +225,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 	override bool OnSave()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		Print("[ExpansionNamalskAdventureSettings] Saving settings");
 		JsonFileLoader<ExpansionNamalskAdventureSettings>.JsonSaveFile(EXPANSION_NAMALSKADVENTURE_SETTINGS, this);
@@ -248,9 +234,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 	override void Update(ExpansionSettingBase setting)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.Update( setting );
 
@@ -259,9 +243,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 	override void Defaults()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_Version = VERSION;
 
@@ -289,9 +271,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 	protected void DefaultNamalskAnomalies()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		array<string> anomalies = {"Expansion_Anomaly_Singularity", "Expansion_Anomaly_Teleport"};
 		array<ref ExpansionLoot> anomaly_loot = new array<ref ExpansionLoot>;
@@ -375,9 +355,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	#ifdef EXPANSIONMODMARKET
 	protected void DefaultNamalskMerchantData()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		//! Merchant positions
 		MerchantPositions.Insert(new ExpansionMerchantPosition(1, Vector(6831.73, 16.4077, 11346.5), Vector(310.0, 0, 0)));

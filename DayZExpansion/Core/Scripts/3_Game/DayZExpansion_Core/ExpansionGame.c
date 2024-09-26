@@ -12,7 +12,9 @@
 
 class ExpansionGame
 {
+#ifdef EXPANSIONUI
 	ref ExpansionUIManager m_ExUIManager;
+#endif
 	ref ExpansionRPCManager m_RPCManager = new ExpansionRPCManager(this);
 
 	bool m_IsLoaded;
@@ -27,7 +29,9 @@ class ExpansionGame
 		auto trace = EXTrace.Start(EXTrace.MISC, this);
 #endif
 
+	#ifdef EXPANSIONUI
 		CreateExpansionUIManager();
+	#endif
 	}
 
 	// ------------------------------------------------------------
@@ -38,13 +42,16 @@ class ExpansionGame
 		if (!GetGame())
 			return;
 		
+	#ifdef EXPANSIONUI
 		DestroyExpansionUIManager();
+	#endif
 
 #ifdef DIAG_DEVELOPER
 		Print("~ExpansionGame");
 #endif
 	}
 	
+#ifdef EXPANSIONUI
 	// ------------------------------------------------------------
 	// ExpansionGame CreateExpansionUIManager
 	// ------------------------------------------------------------		
@@ -71,6 +78,66 @@ class ExpansionGame
 	ExpansionUIManager GetExpansionUIManager()
 	{
 		return m_ExUIManager;
+	}
+#endif
+
+	/**
+	 * @brief like CreateObject, but won't create objects that have scope = 0 or no model
+	 */
+	static Object CreateObjectSafe(string type, vector pos, bool create_local = false, bool init_ai = false, bool create_physics = true)
+	{
+	/*
+		int flags;
+
+		if (create_local)
+			flags |= ECE_LOCAL
+
+		if (init_ai)
+			flags |= ECE_INITAI;
+
+		if (create_physics)
+			flags |= ECE_CREATEPHYSICS;
+
+		return CreateObjectExSafe(type, pos, flags);
+	*/
+		if (IsSafeToSpawn(type))
+			return GetGame().CreateObject(type, pos, create_local, init_ai, create_physics);
+
+		return null;
+	}
+
+	/**
+	 * @brief like CreateObjectEx, but won't create objects that have scope = 0 or no model
+	 */
+	static Object CreateObjectExSafe(string type, vector pos, int iFlags, int iRotation = RF_DEFAULT)
+	{
+		if (IsSafeToSpawn(type))
+			return GetGame().CreateObjectEx(type, pos, iFlags, iRotation);
+
+		return null;
+	}
+
+	static bool IsSafeToSpawn(string type)
+	{
+		TStringArray paths = {CFG_VEHICLESPATH, CFG_WEAPONSPATH, CFG_MAGAZINESPATH};
+
+		string model;
+
+		foreach (string path: paths)
+		{
+			if (GetGame().ConfigIsExisting(path + " " + type))
+			{
+				if (!GetGame().ConfigGetInt(path + " " + type + " scope"))
+					return false;
+
+				if (!GetGame().ConfigGetText(path + " " + type + " model", model) || !model || model == "bmp")
+					return false;
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	// ------------------------------------------------------------

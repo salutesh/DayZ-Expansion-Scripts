@@ -19,7 +19,7 @@ class Expansion_Teleporter_Base: BuildingSuper
 	protected int m_TeleporterID;	 //! Unique teleporter id. Used to get and identify the teleporter in the teleporter module.
 	protected bool m_IsActive;
 
-#ifdef DIAG_DEVELOPER
+#ifdef DIAG
 #ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_ServerMarker;
 #endif
@@ -40,7 +40,7 @@ class Expansion_Teleporter_Base: BuildingSuper
 	
 	void ~Expansion_Teleporter_Base()
 	{
-	#ifdef DIAG_DEVELOPER
+	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
 		if (!m_ServerMarker)
 			return;
@@ -55,9 +55,7 @@ class Expansion_Teleporter_Base: BuildingSuper
 	
 	override void EEInit()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 
 		super.EEInit();
 
@@ -66,9 +64,7 @@ class Expansion_Teleporter_Base: BuildingSuper
 	
 	protected void InitTeleporter()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 
 		#ifndef SERVER
 		InitTeleporterClient();
@@ -79,18 +75,14 @@ class Expansion_Teleporter_Base: BuildingSuper
 	
 	protected void InitTeleporterClient()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 	}
 
 	protected void InitTeleporterServer()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 
-	#ifdef DIAG_DEVELOPER
+	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
 	#endif
@@ -130,9 +122,7 @@ class Expansion_Teleporter_Base: BuildingSuper
 	
 	void SetActive(bool state)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		
 		m_IsActive = state;
 		
@@ -164,13 +154,11 @@ class Expansion_Teleporter_Base: BuildingSuper
 		return false;
 	}
 
-#ifdef DIAG_DEVELOPER
+#ifdef DIAG
 #ifdef EXPANSIONMODNAVIGATION
 	void CreateDebugMarker()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
@@ -232,9 +220,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	
 	void CleanupTeleporterVFX()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 	
 		if (m_ParticleIdle)
 			StopParticle();
@@ -245,9 +231,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	
 	override protected void InitTeleporterClient()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		
 		super.InitTeleporterClient();
 		
@@ -268,18 +252,14 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	
 	protected void SetVisualState(ExpansionTeleporterState state)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 
 		m_VisualState = state;
 	}
 	
 	protected void PlayParticle()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 
 		if (!m_ParticleIdle && GetGame() && (!GetGame().IsDedicatedServer()))
 			m_ParticleIdle = Particle.PlayOnObject(GetTeleporterIdleParticle(), this, "0 0.2 0");
@@ -288,9 +268,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	//! Returns true if particle stopped, false if not
 	protected bool StopParticle()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 
 		if (m_ParticleIdle && GetGame() && (!GetGame().IsDedicatedServer()))
 		{
@@ -305,33 +283,25 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	
 	protected void SoundIdleStart()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		PlaySoundSetLoop(m_Sound, SOUND_IDLE, 1.0, 1.0);
 	}
 
 	protected void SoundStop()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		StopSoundSet(m_Sound);
 	}
 
 	protected void SoundActivatedStart()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		PlaySoundSet(m_SoundActivated, SOUND_ACTIVATED, 1.0, 1.0);
 	}
 
 	protected void UpdateVisualState(ExpansionTeleporterState state)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		DebugTrace("::UpdateVisualState - Teleporter state is: " + typename.EnumToString(ExpansionTeleporterState, state));
 		
 		#ifndef SERVER
@@ -342,9 +312,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	//! @note: This method updates the teleporters visual effects (VFX) in a deferred manner based on the provided `state`.
 	protected void UpdateTeleporterVFX_Deferred(int state)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		
 		//! Stop current effects
 		StopParticle();
@@ -390,9 +358,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	
 	protected void TurnOnUnstableEmitor()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 
 		if (!m_ParticleIdle)
 		{
@@ -406,9 +372,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 
 	protected void TurnOffUnstableEmitor()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 
 		if (!m_ParticleIdle)
 		{
@@ -422,9 +386,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	
 	protected void TurnOnActivatedEmitor()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 
 		if (!m_ParticleIdle)
 		{
@@ -438,9 +400,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 
 	protected void TurnOffActivatedEmitor()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 
 		if (!m_ParticleIdle)
 		{
@@ -454,9 +414,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 
 	protected void CreateIdleParticle(int state)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		
 		//! Create idle VFX particle
 		if (!m_ParticleIdle)
@@ -470,9 +428,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	//! @note: Synchronizes variables and updates visual state of the particle depending on the anomaly state.
 	override void OnVariablesSynchronized()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		
 		if (m_VisualState != m_TeleporterState)
 			UpdateVisualState(m_TeleporterState);

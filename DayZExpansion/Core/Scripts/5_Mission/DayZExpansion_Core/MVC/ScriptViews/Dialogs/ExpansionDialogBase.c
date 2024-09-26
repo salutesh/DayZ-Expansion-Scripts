@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionDialogContentSpacer: ExpansionDialogContentBase
 {
 	void ExpansionDialogContentSpacer(ExpansionDialogBase dialog)
@@ -150,3 +151,4 @@ class ExpansionDialogContentBase: ExpansionScriptView
 		return m_Dialog;
 	}
 };
+#endif

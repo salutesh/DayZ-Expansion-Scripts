@@ -44,7 +44,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	protected ExpansionSupplyCrateKeyType m_ValidKeyType;
 	
-	#ifdef DIAG_DEVELOPER
+	#ifdef DIAG
 #ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_ServerMarker;
 #endif
@@ -68,7 +68,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 		if (GetGame())
 			CleanupSupplyCrate();
 		
-	#ifdef DIAG_DEVELOPER
+	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
 		if (!m_ServerMarker)
 			return;
@@ -83,9 +83,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	void CleanupSupplyCrate()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (s_Expansion_AllSupplyCrates)
 			s_Expansion_AllSupplyCrates.Remove(m_Expansion_SupplyCrateNode);
@@ -97,9 +95,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	override void EEInit()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.EEInit();
 
@@ -110,7 +106,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 		SetSynchDirty();
 		
-	#ifdef DIAG_DEVELOPER
+	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
     #ifdef SERVER
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
@@ -121,9 +117,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	override void EEItemAttached(EntityAI item, string slot_name)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::EEItemAttached - Item: " + item.ToString() + " | Slot:" + slot_name);
 
 		super.EEItemAttached(item, slot_name);
@@ -147,9 +141,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::EEItemDetached - Item: " + item.ToString() + " | Slot:" + slot_name);
 
 		super.EEItemDetached(item, slot_name);
@@ -173,9 +165,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	void SetLockState(bool state)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::SetLockState - State: " + state.ToString());
 
 		m_IsLocked = state;
@@ -205,9 +195,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	void OpenCrate()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		SpawnLoot();
 		SetAnimationPhase("Door1", 1.0);
@@ -218,9 +206,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	void CloseCrate()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		ClearCrateLoot();
 		SetAnimationPhase("Door1", 0);
@@ -232,9 +218,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	void ClearCrateLoot()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		array<EntityAI> items = new array<EntityAI>;
 		items.Reserve(GetInventory().CountInventory());
@@ -251,9 +235,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	
 	void SpawnLoot()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		int lootCount = m_CrateLoot.Count();
 
@@ -267,9 +249,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	void Expansion_SetCanReceiveItems(bool state)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		m_Expansion_CanReceiveItems = true;
 	}
 
@@ -280,9 +260,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	
 	void SetLastCloseTime()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		m_LastCloseTime = CF_Date.Now(true).GetTimestamp();
 	}
@@ -294,9 +272,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	
 	void SetLastOpenTime()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		m_LastOpenTime = CF_Date.Now(true).GetTimestamp();
 	}
@@ -308,9 +284,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	
 	void EndLootDelay()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		m_LootDelay = false;
 		
@@ -327,9 +301,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	
 	void SetValidKeyType(ExpansionSupplyCrateKeyType keyType)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::SetValidKeyType - Key type: " + typename.EnumToString(ExpansionSupplyCrateKeyType, keyType));
 		
 		m_ValidKeyType = keyType;
@@ -337,9 +309,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	
 	protected void SoundDecompressStart()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		PlaySoundSet(m_SoundDecompress, DECOMPRESS_SOUND, 0, 0);
 	}
 	
@@ -411,9 +381,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	override void OnVariablesSynchronized()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.OnVariablesSynchronized();
 		
@@ -422,9 +390,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	
 	protected void UpdateSupplyCrateVFX_Deferred()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		ExDebugPrint("::UpdateSupplyCrateVFX_Deferred - Is locked: " + m_IsLocked.ToString());
 		ExDebugPrint("::UpdateSupplyCrateVFX_Deferred - Is opened: " + m_IsOpened.ToString());
@@ -438,9 +404,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	override void AfterStoreLoad()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.AfterStoreLoad();
 		
@@ -454,13 +418,11 @@ class Expansion_SupplyCrate_Base: Container_Base
 		#endif
 	}
 	
-#ifdef DIAG_DEVELOPER
+#ifdef DIAG
 #ifdef EXPANSIONMODNAVIGATION
 	void CreateDebugMarker()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
@@ -475,9 +437,7 @@ class Expansion_SupplyCrate_Bunker_Orange extends Expansion_SupplyCrate_Base
 {
 	void Expansion_SupplyCrate_Bunker_Orange()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		SetValidKeyType(ExpansionSupplyCrateKeyType.BUNKER);
 	}
@@ -487,9 +447,7 @@ class Expansion_SupplyCrate_Bunker_Green extends Expansion_SupplyCrate_Base
 {
 	void Expansion_SupplyCrate_Bunker_Green()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		SetValidKeyType(ExpansionSupplyCrateKeyType.BUNKER);
 	}
@@ -499,9 +457,7 @@ class Expansion_SupplyCrate_Bunker_Brown extends Expansion_SupplyCrate_Base
 {
 	void Expansion_SupplyCrate_Bunker_Brown()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		SetValidKeyType(ExpansionSupplyCrateKeyType.BUNKER);
 	}
@@ -511,9 +467,7 @@ class Expansion_SupplyCrate_World_T1_Orange extends Expansion_SupplyCrate_Base
 {
 	void Expansion_SupplyCrate_World_T1_Orange()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		SetValidKeyType(ExpansionSupplyCrateKeyType.WORLD_T1);
 	}
@@ -523,9 +477,7 @@ class Expansion_SupplyCrate_World_T1_Green extends Expansion_SupplyCrate_Base
 {
 	void Expansion_SupplyCrate_World_T1_Green()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		SetValidKeyType(ExpansionSupplyCrateKeyType.WORLD_T1);
 	}
@@ -535,9 +487,7 @@ class Expansion_SupplyCrate_World_T1_Brown extends Expansion_SupplyCrate_Base
 {
 	void Expansion_SupplyCrate_World_T1_Brown()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		SetValidKeyType(ExpansionSupplyCrateKeyType.WORLD_T1);
 	}
@@ -549,9 +499,7 @@ class Expansion_SupplyCrate_Key_Base extends ItemBase
 	
 	void SetKeyType(ExpansionSupplyCrateKeyType keyType)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::SetKeyType - Key type: " + typename.EnumToString(ExpansionSupplyCrateKeyType, keyType));
 		
 		m_KeyType = keyType;
@@ -581,9 +529,7 @@ class Expansion_SupplyCrate_Bunker_Key extends Expansion_SupplyCrate_Key_Base
 {
 	void Expansion_SupplyCrate_Bunker_Key()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		SetKeyType(ExpansionSupplyCrateKeyType.BUNKER);
 	}
@@ -593,9 +539,7 @@ class Expansion_SupplyCrate_WorldT1_Key extends Expansion_SupplyCrate_Key_Base
 {
 	void Expansion_SupplyCrate_WorldT1_Key()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		SetKeyType(ExpansionSupplyCrateKeyType.WORLD_T1);
 	}

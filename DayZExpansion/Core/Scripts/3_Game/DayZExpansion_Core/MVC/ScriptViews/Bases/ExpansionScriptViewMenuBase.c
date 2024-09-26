@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionScriptViewMenuBase: ExpansionScriptViewBase
 {
 	void LockControls(bool lockMovement = true);
@@ -30,3 +31,7 @@ class ExpansionScriptViewMenuBase: ExpansionScriptViewBase
 		return true;
 	}
 };
+#else
+//! Dummy for MissionGameplay::Expansion_OnUpdate
+typedef bool ExpansionScriptViewMenuBase;
+#endif

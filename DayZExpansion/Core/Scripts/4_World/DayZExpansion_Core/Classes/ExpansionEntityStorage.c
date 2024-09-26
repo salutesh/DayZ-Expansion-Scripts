@@ -579,6 +579,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			parent = player;
 		EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Restore_Phase1 " + type + " inventory location type " + typename.EnumToString(InventoryLocationType, ilt));
 		InventoryLocation il;
+		string errorMsg;
 		switch (ilt)
 		{
 			case InventoryLocationType.GROUND:
@@ -598,7 +599,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				}
 				else
 				{
-					EXError.Error(null, "Couldn't create " + type + " on ground at " + position);
+					errorMsg = "Couldn't create " + type + " on ground at " + position;
 				}
 				break;
 			case InventoryLocationType.ATTACHMENT:
@@ -614,14 +615,14 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				if (entity)
 					parent.GetInventory().SetSlotLock(slotId, slotLocked);
 				else
-					EXError.Error(null, "Couldn't create " + type + " on " + parent);
+					errorMsg = "Couldn't create " + type + " on " + parent;
 				break;
 			case InventoryLocationType.HANDS:
 				il = new InventoryLocation();
 				il.SetHands(parent, null);
 				entity = GameInventory.LocationCreateEntity(il, type, ECE_IN_INVENTORY, RF_DEFAULT);
 				if (!entity)
-					EXError.Error(null, "Couldn't create " + type + " in hands of " + parent);
+					errorMsg = "Couldn't create " + type + " in hands of " + parent;
 				break;
 			case InventoryLocationType.CARGO:
 			case InventoryLocationType.PROXYCARGO:
@@ -637,7 +638,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 					return ErrorFalse(type + ": Couldn't read cargo flip");
 				entity = parent.GetInventory().CreateEntityInCargoEx(type, idx, row, col, flip);  //! Only way to get flip correct
 				if (!entity)
-					EXError.Error(null, "Couldn't create " + type + " in cargo of " + parent);
+					errorMsg = "Couldn't create " + type + " in cargo of " + parent;
 				break;
 			default:
 				return ErrorFalse(type + ": Unknown inventory location type " + typename.EnumToString(InventoryLocationType, ilt));
@@ -663,7 +664,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		}
 
 		if (!entity)
+		{
+			EXError.Error(null, errorMsg);
 			return false;
+		}
 
 		if (!level)
 		{
@@ -980,25 +984,34 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return s_LastRestoredVersion;
 	}
 
-	static void DeleteFiles(string name)
+	static bool DeleteFiles(string name)
 	{
 		string folderName = GetStorageDirectory() + name;
 		string fileName = folderName + EXT;
+
 		if (FileExist(fileName))
 		{
-			DeleteFile(fileName);
+			if (!DeleteFile(fileName))
+				EXError.Error(null, "[EntityStorage] couldn't delete " + fileName);
 
 			if (FileExist(folderName))
 			{
 				TStringArray files = ExpansionStatic.FindFilesInLocation(folderName + "\\", EXT);
+
 				foreach (string baseName: files)
 				{
-					DeleteFile(folderName + "\\" + baseName);
+					if (!DeleteFile(folderName + "\\" + baseName))
+						EXError.Error(null, "[EntityStorage] couldn't delete " + folderName + "\\" + baseName);
 				}
 
-				DeleteFile(folderName);
+				if (!DeleteFile(folderName))
+					EXError.Error(null, "[EntityStorage] couldn't delete " + folderName);
+				else
+					return true;
 			}
 		}
+
+		return false;
 	}
 
 	//! @brief saves entity and all its children (attachments/cargo) to file.
@@ -1015,7 +1028,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		string basePath;
 		TStringArray orphanedFiles;
-		auto exFileName = new ExpansionString(fileName);
+		ExpansionString exFileName = fileName;
 		if (exFileName.EndsWith(EXT))
 		{
 			basePath = fileName.Substring(0, fileName.Length() - EXT.Length());
@@ -1060,7 +1073,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		auto hitch = new EXHitch("[ExpansionEntityStorage] ");
 
 		string basePath;
-		auto exFileName = new ExpansionString(fileName);
+		ExpansionString exFileName = fileName;
 		if (exFileName.EndsWith(EXT))
 			basePath = fileName.Substring(0, fileName.Length() - EXT.Length());
 

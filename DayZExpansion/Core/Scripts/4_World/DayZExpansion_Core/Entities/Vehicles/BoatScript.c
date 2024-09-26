@@ -190,6 +190,11 @@ modded class BoatScript
 		return false;
 	}
 
+	bool Expansion_CanGetInSeat(PlayerBase player, int seatIdx)
+	{
+		return true;
+	}
+
 	bool Expansion_CanObjectAttach(Object obj)
 	{
 		if (obj.IsMan())

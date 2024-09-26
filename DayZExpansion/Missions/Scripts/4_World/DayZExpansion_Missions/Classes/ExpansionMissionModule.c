@@ -43,17 +43,13 @@ class ExpansionMissionModule: CF_ModuleWorld
 		ExpansionSettings.SI_Mission.Insert( OnSettingsUpdated );
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionMissionModule()
+	override void OnMissionFinish(Class sender, CF_EventArgs args)
 	{
-		if (!GetGame())
-			return;
-
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MISSIONS, this);
 #endif
+		
+		super.OnMissionFinish(sender, args);
 		
 		ExpansionSettings.SI_Mission.Remove( OnSettingsUpdated );
 
@@ -63,7 +59,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 			m_lowPlayerCheckRunning = false;
 		}
 
-		SI_OnMissionEnd.Remove( RemoveMission );
+		ExpansionMissionEventBase.SI_OnMissionEnd.Remove( RemoveMission );
 	}
 	
 	// ------------------------------------------------------------
@@ -74,8 +70,9 @@ class ExpansionMissionModule: CF_ModuleWorld
 		super.OnInit();
 
 		EnableMissionLoaded();
+		EnableMissionFinish();
 
-		SI_OnMissionEnd.Insert( RemoveMission );
+		ExpansionMissionEventBase.SI_OnMissionEnd.Insert( RemoveMission );
 
 		m_Missions = new array< ref ExpansionMissionEventBase >;
 

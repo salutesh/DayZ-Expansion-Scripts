@@ -44,18 +44,14 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 
 	void ExpansionAnomalyAreaBase_Dynamic()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		RegisterNetSyncVariableInt("m_DecayState");
 	}
 
 	override void EEOnCECreate()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		//! We get the PPE index for future usage and synchronization ( we must do it here for dynamic as it is not read through file )
 		if (GetGame().IsServer())
@@ -147,9 +143,7 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 	// Set the new state of the Area
 	void SetDecayState(int newState)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (m_DecayState != newState)
 		{
@@ -165,9 +159,7 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 
 	override void EEInit()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		//! We make sure we have the particle array
 		if (!m_ToxicClouds)
@@ -209,9 +201,7 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 	//! We spawn particles and setup trigger
 	override void InitZone()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_DecayState = eAreaDecayStage.LIVE;
 		SetSynchDirty();
@@ -221,9 +211,7 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 
 	override void InitZoneServer()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.InitZoneServer();
 
@@ -236,9 +224,7 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 
 	void SpawnItems()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		ExDebugPrint("---------============ Spawning items at pos:" + m_Position);
 		foreach (int j, string type:SPAWN_ITEM_TYPE)
@@ -262,9 +248,7 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 
 	override void InitZoneClient()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		super.InitZoneClient();
 
@@ -277,9 +261,7 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 
 	override void OnParticleAllocation(ParticleManager pm, array<ParticleSource> particles)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.OnParticleAllocation(pm, particles);
 
@@ -303,9 +285,7 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 
 	override void CreateTrigger(vector pos, int radius)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.CreateTrigger(pos, radius);
 
@@ -320,9 +300,7 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 
 	void PlayFX()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (GetGame().IsServer())
 		{
@@ -346,18 +324,14 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 
 	void PlayExplosionLight()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_ShellLight = ShellLight.Cast(ScriptedLightBase.CreateLight(ShellLight, m_OffsetPos));
 	}
 
 	void PlayFlareVFX()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (GetGame().IsClient() || (GetGame().IsServer() && !GetGame().IsMultiplayer()))
 		{
@@ -371,18 +345,14 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 
 	override void EEDelete(EntityAI parent)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.EEDelete(parent);
 	}
 
 	override void OnVariablesSynchronized()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		super.OnVariablesSynchronized();
 

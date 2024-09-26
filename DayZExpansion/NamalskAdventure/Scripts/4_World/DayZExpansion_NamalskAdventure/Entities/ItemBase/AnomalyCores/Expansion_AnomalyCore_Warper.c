@@ -41,9 +41,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 	void Expansion_AnomalyCore_Warper()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		SetEventMask(EntityEvent.CONTACT | EntityEvent.TOUCH);
 		SetFlags(EntityFlags.TRIGGER, false);
@@ -51,9 +49,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 	override protected void OnExplode()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (GetGame().IsServer())
 		{
@@ -64,9 +60,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 	override void OnActivateFinished()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (GetGame().IsServer())
 		{
@@ -79,9 +73,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 	//! Condition checks on given entity.
 	protected bool EntityConditions(IEntity other)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		Object entityObj;
 		Object.CastTo(entityObj, other);
@@ -111,9 +103,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 	protected void ProcessEntityEvents(IEntity other)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		ExDebugPrint("::ProcessEntityEvents - Entity: " + other.ToString());
 
 		if (other)
@@ -215,9 +205,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 	protected void PlayVFX()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (!GetGame().IsDedicatedServer())
 		{
@@ -229,9 +217,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 	protected void PlaySFX()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (!GetGame().IsDedicatedServer())
 			PlaySoundSet(m_ActivatedSound, "EasterEgg_Catch_SoundSet", 0, 0);
@@ -239,9 +225,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 	protected void PlayVFXTarget(vector pos)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (!GetGame().IsDedicatedServer())
 		{
@@ -253,9 +237,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 	protected void PlaySFXTarget(vector pos)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (!GetGame().IsDedicatedServer())
 		{
@@ -270,9 +252,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 	override void EOnTouch(IEntity other, int extra)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (m_CoreState != ExpansionAnomalyCoreState.DESTROYED)
 			return;
@@ -288,9 +268,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 	override void EOnContact(IEntity other, Contact extra)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (m_CoreState != ExpansionAnomalyCoreState.ACTIVATED)
 			return;

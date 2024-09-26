@@ -10,49 +10,54 @@
  *
 */
 
-class ExpansionString
+class ExpansionString: string
 {
 	const string ZERO_WIDTH_SPACE = "​"; //! This may look like an empty string, but it is not. It's a zero-width space as UTF-8;
 
-	protected string m_String;
+/*
+	protected string value;
 
 	void ExpansionString(string str)
 	{
-		m_String = str;
+		value = str;
 	}
 
 	string Get()
 	{
-		return m_String;
+		return value;
 	}
+*/
 
 	string BaseName()
 	{
-		return BaseName(m_String);
+		string tmp = value;
+		tmp.Replace("\\", "/");
+		int index = tmp.LastIndexOf("/");
+		if (index > -1)
+			return value.Substring(index + 1, value.Length() - index - 1);
+		return value;
 	}
 
 	static string BaseName(string fileName)
 	{
-		fileName.Replace("\\", "/");
-		int index = LastIndexOf(fileName, "/");
-		if (index > -1)
-			return fileName.Substring(index + 1, fileName.Length() - index);
-		return fileName;
+		ExpansionString tmp = fileName;
+		return tmp.BaseName();
 	}
 
 	string DirName()
 	{
-		return DirName(m_String);
+		string tmp = value;
+		tmp.Replace("\\", "/");
+		int index = tmp.LastIndexOf("/");
+		if (index > -1)
+			return value.Substring(0, index);
+		return value;
 	}
 
 	static string DirName(string fileName)
 	{
-		string tmp = fileName;
-		tmp.Replace("\\", "/");
-		int index = LastIndexOf(tmp, "/");
-		if (index > -1)
-			return fileName.Substring(0, index);
-		return fileName;
+		ExpansionString tmp = fileName;
+		return tmp.DirName();
 	}
 
 	//! Neat little hash function, good for small datasets (< 64 k)
@@ -168,7 +173,7 @@ class ExpansionString
 
 	bool StartsWith(string prefix)
 	{
-		return m_String.IndexOf(prefix) == 0;
+		return value.IndexOf(prefix) == 0;
 	}
 
 	static bool StartsWith(string str, string prefix)
@@ -178,73 +183,76 @@ class ExpansionString
 
 	bool StartsWithIgnoreCase(string prefix)
 	{
-		return StartsWithIgnoreCase(m_String, prefix);
+		ExpansionString tmp = value;
+		tmp.ToLower();
+		prefix.ToLower();
+		return tmp.StartsWith(prefix);
 	}
 
 	static bool StartsWithIgnoreCase(string str, string prefix)
 	{
-		str.ToLower();
-		prefix.ToLower();
-		return StartsWith(str, prefix);
+		ExpansionString tmp = str;
+		return tmp.StartsWithIgnoreCase(prefix);
 	}
 
 	bool EndsWith(string suffix, out int index = -1)
 	{
-		return EndsWith(m_String, suffix, index);
+		int suffixLength = suffix.Length();
+		if (value.Length() < suffixLength)
+			return false;
+		index = value.LastIndexOf(suffix);
+		return index == value.Length() - suffixLength;
 	}
 
 	static bool EndsWith(string str, string suffix, out int index = -1)
 	{
-		int suffixLength = suffix.Length();
-		if (str.Length() < suffixLength)
-			return false;
-		index = LastIndexOf(str, suffix);
-		return index == str.Length() - suffixLength;
+		ExpansionString tmp = str;
+		return tmp.EndsWith(suffix, index);
 	}
 
 	bool EndsWithIgnoreCase(string suffix, out int index = -1)
 	{
-		return EndsWithIgnoreCase(m_String, suffix, index);
+		ExpansionString tmp = value;
+		tmp.ToLower();
+		suffix.ToLower();
+		return tmp.EndsWith(suffix, index);
 	}
 
 	static bool EndsWithIgnoreCase(string str, string suffix, out int index = -1)
 	{
-		str.ToLower();
-		suffix.ToLower();
-		return EndsWith(str, suffix, index);
+		ExpansionString tmp = str;
+		return tmp.EndsWithIgnoreCase(suffix, index);
 	}
 
 	bool Equals(string cmp)
 	{
-		return m_String == cmp;
+		return value == cmp;
 	}
 
 	//! DEPRECATED, alias for EqualsIgnoreCase
 	bool EqualsCaseInsensitive(string cmp)
 	{
 		Error("DEPRECATED, use EqualsIgnoreCase");
-		return EqualsIgnoreCase(m_String, cmp);
+		return EqualsIgnoreCase(cmp);
 	}
 
 	bool EqualsIgnoreCase(string cmp)
 	{
-		return EqualsIgnoreCase(m_String, cmp);
+		ExpansionString tmp = value;
+		tmp.ToLower();
+		cmp.ToLower();
+		return tmp == cmp;
 	}
 
 	static bool EqualsIgnoreCase(string str, string cmp)
 	{
-		str.ToLower();
-		cmp.ToLower();
-		return str == cmp;
+		ExpansionString tmp = str;
+		return tmp.EqualsIgnoreCase(cmp);
 	}
 
+/*
 	//! Reimplement LastIndexOf (vanilla string.LastIndexOf is broken...)
 	int LastIndexOf(string sample)
-	{
-		return LastIndexOf(m_String, sample);
-	}
-
-	static int LastIndexOf(string str, string sample)
 	{
 		if (sample == string.Empty)
 			return 0;
@@ -252,7 +260,7 @@ class ExpansionString
 		int lastIdx = -1;
 		while (true)
 		{
-			idx = str.IndexOfFrom(idx + 1, sample);
+			idx = value.IndexOfFrom(idx + 1, sample);
 			if (idx > -1)
 				lastIdx = idx;
 			else
@@ -260,50 +268,62 @@ class ExpansionString
 		}
 		return lastIdx;
 	}
+*/
+
+	static int LastIndexOf(string str, string sample)
+	{
+		return str.LastIndexOf(sample);
+	}
 
 	string JustifyLeft(int length, string pad)
 	{
-		return JustifyLeft(m_String, length, pad);
+		string tmp = value;
+		length = length - value.Length();
+
+		for (int index = 0; index < length; index++)
+		{
+			tmp += pad;
+		}
+
+		return tmp;
 	}
 
 	static string JustifyLeft(string str, int length, string pad)
 	{
-		length = length - str.Length();
-
-		for (int index = 0; index < length; index++)
-		{
-			str += pad;
-		}
-
-		return str;
+		ExpansionString tmp = str;
+		return tmp.JustifyLeft(length, pad);
 	}
 
 	string JustifyRight(int length, string pad)
 	{
-		return JustifyRight(m_String, length, pad);
+		string tmp = value;
+		length = length - value.Length();
+
+		for (int index = 0; index < length; index++)
+		{
+			tmp = pad + tmp;
+		}
+
+		return tmp;
 	}
 
 	static string JustifyRight(string str, int length, string pad)
 	{
-		length = length - str.Length();
-
-		for (int index = 0; index < length; index++)
-		{
-			str = pad + str;
-		}
-
-		return str;
+		ExpansionString tmp = str;
+		return tmp.JustifyRight(length, pad);
 	}
 
+/*
 	//! Reimplement ToAscii (vanilla string.ToAscii is broken...)
 	int ToAscii(int index = 0)
 	{
-		return m_String[index].Hash();
+		return value[index].Hash();
 	}
+*/
 
 	static int ToAscii(string str, int index = 0)
 	{
-		return str[index].Hash();
+		return str[index].ToAscii();
 	}
 
 	/**
@@ -315,7 +335,7 @@ class ExpansionString
 	 */
 	string RemoveFirstChar() 
 	{
-		return m_String.Substring( 1, m_String.Length() - 1 );
+		return value.Substring( 1, value.Length() - 1 );
 	}
 
 	static string RemoveFirstChar( string str ) 
@@ -325,25 +345,27 @@ class ExpansionString
 
 	string StripExtension(string ext = string.Empty)
 	{
-		return StripExtension(m_String, ext);
-	}
-
-	static string StripExtension(string str, string ext = string.Empty)
-	{
 		if (ext == string.Empty)
 		{
-			int index = LastIndexOf(str, ".");
+			int index = value.LastIndexOf(".");
 
 			if (index > -1)
-				return str.Substring(0, index);
+				return value.Substring(0, index);
 
-			return str;
+			return value;
 		}
 
-		if (EndsWithIgnoreCase(str, ext))
-			return str.Substring( 0, str.Length() - ext.Length() );
+		ExpansionString tmp = value;
+		if (tmp.EndsWithIgnoreCase(ext))
+			return value.Substring( 0, value.Length() - ext.Length() );
 
-		return str;
+		return value;
+	}
+
+	static string StripExtension(string str, string ext)
+	{
+		ExpansionString tmp = str;
+		return tmp.StripExtension(ext);
 	}
 
 	/**
@@ -355,7 +377,7 @@ class ExpansionString
 	 */
 	string RemoveLastChar() 
 	{
-		return m_String.Substring( 0, m_String.Length() - 1 );
+		return value.Substring( 0, value.Length() - 1 );
 	}
 
 	static string RemoveLastChar( string str ) 
@@ -384,7 +406,7 @@ class ExpansionString
 		{
 			if (glue && output)
 				output += glue;
-			output += strings[i].Get();
+			output += strings[i];
 			i += delta;
 		}
 
@@ -440,3 +462,5 @@ class ExpansionString
 		return StrCmp(a, b);
 	}
 }
+
+typedef string ExpansionString;

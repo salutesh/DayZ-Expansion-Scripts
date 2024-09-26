@@ -16,9 +16,7 @@ class ExpansionActionRemoveGeneratorKey: ActionInteractBase
 
 	void ExpansionActionRemoveGeneratorKey()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ATTACHITEM;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
@@ -60,9 +58,7 @@ class ExpansionActionRemoveGeneratorKey: ActionInteractBase
 
 	override void OnExecuteServer(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		Expansion_Bunker_Generator generator = Expansion_Bunker_Generator.Cast(action_data.m_Target.GetObject());
 		if (generator)

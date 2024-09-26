@@ -15,9 +15,7 @@ class ExpansionActionUseTeleporter: ActionInteractBase
 {
 	void ExpansionActionUseTeleporter()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_INTERACTONCE;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
 		m_HUDCursorIcon = CursorIcons.CloseDoors;
@@ -58,9 +56,7 @@ class ExpansionActionUseTeleporter: ActionInteractBase
 
 	override void OnStartServer(ActionData action_data)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		
 		Expansion_Teleporter_Big teleporter = Expansion_Teleporter_Big.Cast(action_data.m_Target.GetObject());
 		Expansion_KeyCard_Teleporter keyCard = Expansion_KeyCard_Teleporter.Cast(action_data.m_Player.GetHumanInventory().GetEntityInHands());

@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionScriptViewFadeTimer: TimerBase
 {
 	private ExpansionScriptViewBase m_ScriptView;
@@ -129,3 +130,4 @@ class ExpansionScriptViewFadeTimer: TimerBase
 		}
 	}
 };
+#endif

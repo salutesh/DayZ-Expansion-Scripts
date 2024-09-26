@@ -79,7 +79,11 @@ modded class DayZGame
 		}
 
 		auto menu = GetUIManager().GetMenu();
+	#ifdef EXPANSIONUI
 		auto scriptViewMenu = GetExpansionGame().GetExpansionUIManager().GetMenu();
+	#else
+		bool scriptViewMenu;
+	#endif
 
 		if ((menu && menu.UseMouse()) || scriptViewMenu)
 		{

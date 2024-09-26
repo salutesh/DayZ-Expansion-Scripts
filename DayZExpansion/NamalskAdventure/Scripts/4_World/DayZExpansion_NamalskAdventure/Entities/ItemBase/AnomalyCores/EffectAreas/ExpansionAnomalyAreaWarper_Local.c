@@ -22,9 +22,7 @@ class ExpansionAnomalyAreaWarper_Local: ExpansionAnomalyAreaBase_Dynamic
 
 	override void SetupZoneData(EffectAreaParams params)
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		params.m_ParamPartId 		= ParticleList.EXPANSION_PARTICLE_ANOMALY_AREA_WARPER;
 		params.m_ParamInnerRings 	= 0;
@@ -42,9 +40,7 @@ class ExpansionAnomalyAreaWarper_Local: ExpansionAnomalyAreaBase_Dynamic
 
 	override void EEInit()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
 		{
@@ -55,9 +51,7 @@ class ExpansionAnomalyAreaWarper_Local: ExpansionAnomalyAreaBase_Dynamic
 
 	override void SpawnItems()
 	{
-#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
 		//! Override base funcionality as we don't want any items spawned here
 	}
 

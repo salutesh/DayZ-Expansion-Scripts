@@ -499,6 +499,10 @@ class eAIGroup
 
 	void SetFaction(eAIFaction f)
 	{
+#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.StartStack(EXTrace.AI, this, "" + f);
+#endif
+
 		if (!f)
 		{
 			Error("Cannot set NULL faction");
@@ -1137,6 +1141,10 @@ class eAIGroup
 			else
 				serializer.Write(vector.Zero);
 
+		#ifdef DIAG_DEVELOPER
+			EXTrace.Print(EXTrace.AI, eAIGroup, "Save - writing faction " + GetFaction() + " ID " + GetFaction().GetTypeID());
+		#endif
+
 			serializer.Write(GetFaction().GetTypeID());
 			serializer.Write(m_Name);
 
@@ -1207,6 +1215,11 @@ class eAIGroup
 				return EXError.ErrorFalse(null, "Couldn't read factionTypeID from " + fileName);
 
 			eAIFaction faction = eAIFaction.CreateByID(factionTypeID);
+
+		#ifdef DIAG_DEVELOPER
+			EXTrace.Print(EXTrace.AI, eAIGroup, "Load - Read faction " + faction + " ID " + factionTypeID);
+		#endif
+
 			group = CreateGroup(faction);
 
 			string name;

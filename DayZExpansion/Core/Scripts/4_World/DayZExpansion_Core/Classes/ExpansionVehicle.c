@@ -591,6 +591,12 @@ class ExpansionVehicle
 		return false;
 	}
 
+	bool CanGetInSeat(PlayerBase player, int seatIdx)
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return false;
+	}
+
 	void OnVariablesSynchronized()
 	{
 	}
@@ -782,11 +788,11 @@ class ExpansionVehicle
 		}
 	}
 
-	void OnLocked()
+	void OnLocked(ExpansionVehicleLockState previousLockState)
 	{
 	}
 
-	void OnUnlocked()
+	void OnUnlocked(ExpansionVehicleLockState previousLockState)
 	{
 	}
 
@@ -1126,6 +1132,11 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 		return m_Vehicle.CrewCanGetThrough(posIdx);
 	}
 
+	override bool CanGetInSeat(PlayerBase player, int seatIdx)
+	{
+		return m_Vehicle.Expansion_CanGetInSeat(player, seatIdx);
+	}
+
 	override void CloseAllDoors()
 	{
 		m_Vehicle.Expansion_CloseAllDoors();
@@ -1354,7 +1365,7 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 		return m_Vehicle.Expansion_GetPhysicsState();
 	}
 
-	override void OnLocked()
+	override void OnLocked(ExpansionVehicleLockState previousLockState)
 	{
 		KeyMessage("OnLocked");
 
@@ -1365,12 +1376,21 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 		}
 	}
 
-	override void OnUnlocked()
+	override void OnUnlocked(ExpansionVehicleLockState previousLockState)
 	{
 		KeyMessage("OnUnlocked");
 
 		if (GetGame().IsServer())
 		{
+			switch (previousLockState)
+			{
+				case ExpansionVehicleLockState.LOCKED:
+				case ExpansionVehicleLockState.FORCEDLOCKED:
+					break;
+				default:
+					return;
+			}
+
 			auto rpc = m_Vehicle.m_Expansion_RPCManager.CreateRPC("RPC_PlayLockSound");
 			PlayerBase.Expansion_SendNear(rpc, GetEntity().GetPosition(), 20.0, GetEntity(), true);
 		}

@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONUI
 class ExpansionNotificationHUD: ExpansionScriptViewBase
 {
 	protected ExpansionNotificationHUDController m_NotificationHUDController;
@@ -209,3 +210,4 @@ class ExpansionNotificationHUDController: ExpansionViewController
 	ref ObservableCollection<ref ExpansionNotificationViewKillfeed> NotificationKillfeedElements = new ObservableCollection<ref ExpansionNotificationViewKillfeed>(this);
 	ref ObservableCollection<ref ExpansionNotificationViewMarket> NotificationMarketElements = new ObservableCollection<ref ExpansionNotificationViewMarket>(this);
 }
+#endif
