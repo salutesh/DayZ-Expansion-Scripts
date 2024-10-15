@@ -2853,6 +2853,10 @@ class CfgVehicles
 				"offroad_Engine_Ext_Rpm4_SoundSet",
 				"offroad_Engine_Ext_Rpm5_SoundSet",
 				"offroad_Engine_Ext_Broken_SoundSet",
+				"offroad_Tires_ice_slow_Ext_SoundSet",
+				"offroad_Tires_ice_fast_Ext_SoundSet",
+				"offroad_Tires_snow_slow_Ext_SoundSet",
+				"offroad_Tires_snow_fast_Ext_SoundSet",
 				"offroad_Tires_rock_slow_Ext_SoundSet",
 				"offroad_Tires_rock_fast_Ext_SoundSet",
 				"offroad_Tires_grass_slow_Ext_SoundSet",
@@ -2864,7 +2868,7 @@ class CfgVehicles
 				"offroad_Tires_asphalt_fast_Ext_SoundSet",
 				"offroad_Tires_water_slow_Ext_SoundSet",
 				"offroad_Tires_water_fast_Ext_SoundSet",
-				"Offroad_skid_dirt_SoundSet",
+				"offroad_skid_dirt_SoundSet",
 				"offroad_dirt_turn_SoundSet",
 				"offroad_Rain_Ext_SoundSet",
 				"offroad_damper_left_SoundSet",
@@ -2872,7 +2876,6 @@ class CfgVehicles
 			};
 			soundSetsInt[]=
 			{
-				"Offroad_Tires_Asphalt_Slow_General_Int_SoundSet",
 				"Offroad_Tires_Asphalt_Fast_General_Int_SoundSet",
 				"Offroad_Wind_SoundSet"
 			};

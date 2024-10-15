@@ -51,6 +51,7 @@ class ExpansionAIObjectPatrol: ExpansionAIDynamicSpawnBase
 		}
 	}
 
+	//! @note behavior param is deprecated and should not be used
 	override TVectorArray GetWaypoints(vector position = vector.Zero, int beh = eAIWaypointBehavior.HALT)
 	{
 		TVectorArray waypoints = new TVectorArray;
@@ -62,12 +63,9 @@ class ExpansionAIObjectPatrol: ExpansionAIDynamicSpawnBase
 		if (MaxSpreadRadius < MinSpreadRadius)
 			MaxSpreadRadius = MinSpreadRadius + 5;
 
-		if (ClassName == "ContaminatedArea_Static" || ClassName == "ContaminatedArea_Dynamic" || beh == eAIWaypointBehavior.HALT)
+		if (ClassName == "ContaminatedArea_Static" || ClassName == "ContaminatedArea_Dynamic")
 		{
-			if (beh == eAIWaypointBehavior.HALT)
-				amountofwaypoints = 1;
-			else
-				amountofwaypoints = Math.RandomIntInclusive(4, 8);
+			amountofwaypoints = Math.RandomIntInclusive(4, 8);
 
 			for (int i = 0; i < amountofwaypoints; i++)
 			{

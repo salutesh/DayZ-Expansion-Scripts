@@ -33,6 +33,8 @@ class eAIBase: PlayerBase
 	static float s_eAI_LastCEUpdateTime;
 	static ref set<Object> s_eAI_TakenCoverObjects = new set<Object>;
 
+	private ref eAICallbacks m_eAI_Callbacks = new eAICallbacks(this);
+
 	protected autoptr eAIFSM m_FSM;
 	bool m_eAI_IsFightingFSM;
 	bool m_eAI_ShouldTakeCover;
@@ -64,6 +66,8 @@ class eAIBase: PlayerBase
 	int m_eAI_CurrentTarget_NetIDHighSync;
 	ref eAINoiseTargetInformation m_eAI_NoiseTargetInfo = new eAINoiseTargetInformation();
 	int m_eAI_NoiseTarget;
+	private bool m_eAI_HasLOS;
+	EntityAI m_eAI_HitscanEntity;
 
 	// Command handling
 	private ExpansionHumanCommandScript m_eAI_Command;
@@ -988,6 +992,9 @@ class eAIBase: PlayerBase
 		// Get all magazines in (player) inventory
 		foreach (Magazine magazine: m_eAI_Magazines)
 		{
+			if (!magazine)
+				continue;
+
 			ammo_pile_count = magazine.GetAmmoCount();
 
 			// magazines (get magazine with max ammo count)
@@ -1350,6 +1357,12 @@ class eAIBase: PlayerBase
 			m_eAI_CurrentThreatToSelf = 0.0;
 			m_eAI_CurrentThreatToSelfActive = 0.0;
 		}
+
+		if (m_eAI_PreviousThreatToSelf != m_eAI_CurrentThreatToSelf)
+			m_eAI_Callbacks.OnThreatLevelChanged(m_eAI_PreviousThreatToSelf, m_eAI_CurrentThreatToSelf);
+
+		if (m_eAI_PreviousThreatToSelfActive != m_eAI_CurrentThreatToSelfActive)
+			m_eAI_Callbacks.OnActiveThreatLevelChanged(m_eAI_PreviousThreatToSelfActive, m_eAI_CurrentThreatToSelfActive);
 	}
 
 	/*!
@@ -1709,7 +1722,7 @@ class eAIBase: PlayerBase
 				report.Insert(indent + string.Format("|  |- Has internal mag (%1/%2)", ammoCount, weapon.GetInternalMagazineMaxCartridgeCount(mi)));
 
 			Magazine mag = null;
-			if (eAI_HasAmmoForFirearm(weapon, mag, true) && mag && mag != attachedMag)
+			if (m_eAI_EvaluatedFirearmTypes.Find(weapon.Type(), mag) && mag && mag != attachedMag && mag.GetAmmoCount() > 0)
 				report.Insert(indent + string.Format("|  \\- Has ammo/mag to reload %1 (%2/%3)", mag.GetType(), mag.GetAmmoCount(), mag.GetAmmoMax()));
 			else
 				report.Insert(indent + "|  \\- Has no ammo/mag to reload");
@@ -3090,9 +3103,17 @@ class eAIBase: PlayerBase
 	void eAI_CheckIsInCover()
 	{
 		if (m_eAI_CurrentCoverObject && Math.IsPointInCircle(GetPosition(), 0.55, m_eAI_CurrentCoverPosition))
+		{
+			if (!m_eAI_IsInCover)
+				m_eAI_Callbacks.OnEnterCover(m_eAI_CurrentCoverObject);
 			m_eAI_IsInCover = true;
+		}
 		else
+		{
+			if (m_eAI_IsInCover)
+				m_eAI_Callbacks.OnLeaveCover(m_eAI_CurrentCoverObject);
 			m_eAI_IsInCover = false;
+		}
 	}
 
 	void OverrideTargetPosition(eAITarget target, bool isFinal = true)
@@ -3768,7 +3789,7 @@ class eAIBase: PlayerBase
 		 * NO_SLOT_AUTO_ASSIGN = 64
 		 */
 		if (!flags)
-			flags = FindInventoryLocationType.ATTACHMENT | FindInventoryLocationType.ANY_CARGO;
+			flags = FindInventoryLocationType.ATTACHMENT | FindInventoryLocationType.CARGO;
 
 		if (!GetInventory().FindFirstFreeLocationForNewEntity(src.GetType(), flags, location))
 			return null;
@@ -3876,7 +3897,7 @@ class eAIBase: PlayerBase
 	//! @note INTERNAL USE ONLY
 	void eAI_OnInventoryEnter(ItemBase item)
 	{
-		eAI_AddItem(item);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(eAI_AddItem, item);  //! Add in next tick to make sure we're not instantly adding items created by ObjectCreate(Ex) and similar methods where item setup (quantity etc) is performed in script after creation
 	}
 
 	//! @note INTERNAL USE ONLY
@@ -3894,7 +3915,8 @@ class eAIBase: PlayerBase
 	//! @note INTERNAL USE ONLY
 	private void eAI_AddItem(ItemBase item)
 	{
-		if (!item || item.GetHierarchyRootPlayer() != this)
+		//! @note since call to eAI_AddItem is deferred, we need to do these checks here
+		if (!item || item.GetHierarchyRootPlayer() != this || item.IsDamageDestroyed())
 			return;
 
 		Weapon_Base weapon;
@@ -3941,15 +3963,18 @@ class eAIBase: PlayerBase
 	}
 
 	//! @note INTERNAL USE ONLY
-	void eAI_OnMagAttached(Magazine mag)
+	void eAI_OnMagAttached(EntityAI parent, int slot_id, Magazine mag)
 	{
+		//! If mag is attached, remove from available mags
 		eAI_RemoveMag(mag);
 	}
 
 	//! @note INTERNAL USE ONLY
-	void eAI_OnMagDetached(Magazine mag)
+	void eAI_OnMagDetached(EntityAI parent, int slot_id, Magazine mag)
 	{
-		eAI_AddMag(mag);
+		//! If mag is detached, add to available mags
+		if (!mag.IsDamageDestroyed() && parent != this)
+			eAI_AddMag(mag);
 	}
 
 	//! @note INTERNAL USE ONLY
@@ -4017,21 +4042,36 @@ class eAIBase: PlayerBase
 
 		//! Ammo/magazines
 		Magazine mag;
-		if (Class.CastTo(mag, item) && !item.GetInventory().IsAttachment())
+		if (Class.CastTo(mag, item))
 		{
 			EXTrace.Print(EXTrace.AI, this, "eAI_RemoveItem - mag " + item);
-			eAI_RemoveMag(mag);
+			eAI_RemoveMag(mag, true);
 		}
 	}
 
 	//! @note INTERNAL USE ONLY
-	private void eAI_RemoveMag(Magazine mag)
+	private void eAI_RemoveMag(Magazine mag, bool checkAttached = false)
 	{
 		int removeIndex = m_eAI_Magazines.Find(mag);
 		if (removeIndex >= 0)
+		{
 			m_eAI_Magazines.RemoveOrdered(removeIndex);
+			if (checkAttached && mag.GetInventory().IsAttachment())
+				EXError.Warn(this, "Removed mag is attached but was tracked as available for reload " + ExpansionStatic.GetDebugInfo(mag) + ", parent " + ExpansionStatic.GetDebugInfo(mag.GetHierarchyParent()));
+		}
 
-		EXTrace.Print(EXTrace.AI, this, "eAI_RemoveMag - " + mag + " index " + removeIndex);
+		EXTrace.Print(EXTrace.AI, this, "eAI_RemoveMag - " + mag + " index " + removeIndex + " remaining " + m_eAI_Magazines.Count());
+
+		for (int i = m_eAI_Magazines.Count() - 1; i >= 0; i--)
+		{
+			mag = m_eAI_Magazines[i];
+			if (!mag)
+			{
+				EXError.Warn(this, "NULL entry found in magazines tracked for reload at index " + i);
+				m_eAI_Magazines.Remove(i);
+			}
+		}
+
 		//! Force re-evaluation of any gun (loot) targets/guns in inventory
 		eAI_EvaluateFirearmTypes();
 	}
@@ -4040,6 +4080,9 @@ class eAIBase: PlayerBase
 	{
 		foreach (Magazine mag: m_eAI_Magazines)
 		{
+			if (!mag)
+				continue;
+
 			if (mag.GetType() == type)
 				return true;
 		}
@@ -4051,6 +4094,9 @@ class eAIBase: PlayerBase
 	{
 		foreach (Magazine mag: m_eAI_Magazines)
 		{
+			if (!mag)
+				continue;
+
 			if (mag.GetType() == type && mag.GetAmmoCount() > 0)
 				return true;
 		}
@@ -4089,6 +4135,9 @@ class eAIBase: PlayerBase
 
 		foreach (Magazine mag: m_eAI_Magazines)
 		{
+			if (!mag)
+				continue;
+
 			if (mag.GetType() == type)
 				ammoCount += mag.GetAmmoCount();
 		}
@@ -4102,6 +4151,9 @@ class eAIBase: PlayerBase
 
 		foreach (Magazine mag: m_eAI_Magazines)
 		{
+			if (!mag)
+				continue;
+
 			if (mag.GetType() == type)
 				count++;
 		}
@@ -4115,6 +4167,9 @@ class eAIBase: PlayerBase
 
 		foreach (Magazine mag: m_eAI_Magazines)
 		{
+			if (!mag)
+				continue;
+
 			if (mag.GetType() == type && mag.GetAmmoCount() > 0)
 				count++;
 		}
@@ -4445,13 +4500,15 @@ class eAIBase: PlayerBase
 		else
 			m_eAI_HasProjectileWeaponInHands = false;
 
+		eAITarget previousTarget = m_eAI_Targets[0];
 		UpdateTargets(pDt, entityInHands);
 		if (eAI_RemoveTargets() || m_eAI_UpdateTargetsTick == 0)
 			eAI_PrioritizeTargets();
 		//if (m_eAI_SyncCurrentTarget)
 			//eAI_SyncCurrentTarget();
 
-		bool hasLOS = EnforceLOS();
+		bool hadLOS = m_eAI_HasLOS;
+		m_eAI_HasLOS = EnforceLOS();
 
 	#ifdef DIAG_DEVELOPER
 		if (!m_eAI_Targets.Count())
@@ -4461,9 +4518,10 @@ class eAIBase: PlayerBase
 		}
 	#endif
 
-		if (!hasLOS && m_eAI_NoiseTarget > 0)
+		eAITarget currentTarget;
+		if (!m_eAI_HasLOS && m_eAI_NoiseTarget > 0)
 		{
-			eAITarget currentTarget = m_eAI_Targets[0];
+			currentTarget = m_eAI_Targets[0];
 			m_eAI_Targets[0] = m_eAI_Targets[m_eAI_NoiseTarget];
 			m_eAI_Targets[m_eAI_NoiseTarget] = currentTarget;
 #ifdef DIAG_DEVELOPER
@@ -4473,10 +4531,30 @@ class eAIBase: PlayerBase
 			m_eAI_NoiseTarget = 0;
 		}
 
+		currentTarget = m_eAI_Targets[0];
+
+		if (!currentTarget)
+		{
+			if (previousTarget)
+				m_eAI_Callbacks.OnNoMoreTargets();
+		}
+		else if (currentTarget != previousTarget)
+		{
+			m_eAI_Callbacks.OnTargetSelected(currentTarget);
+		}
+
+		if (m_eAI_HasLOS != hadLOS)
+		{
+			if (m_eAI_HasLOS)
+				m_eAI_Callbacks.OnLOS(currentTarget);
+			else
+				m_eAI_Callbacks.OnLOSLost(currentTarget);
+		}
+
 		DetermineThreatToSelf(pDt);
 		ReactToThreatChange(pDt, entityInHands);
 
-		eAI_HandleAiming(pDt, hasLOS);
+		eAI_HandleAiming(pDt, m_eAI_HasLOS);
 
 		if (pCurrentCommandID != DayZPlayerConstants.COMMANDID_CLIMB)
 			m_PathFinding.OnUpdate(pDt, simulationPrecision);
@@ -4493,7 +4571,7 @@ class eAIBase: PlayerBase
 
 		if (m_eAI_SideStepTimeout > 0)
 		{
-			if (hasLOS && m_eAI_SideStepCancelOnLOS)
+			if (m_eAI_HasLOS && m_eAI_SideStepCancelOnLOS)
 				m_eAI_SideStepTimeout = 0.0;
 			else
 				m_eAI_SideStepTimeout -= pDt;
@@ -5243,6 +5321,8 @@ class eAIBase: PlayerBase
 		if (!GetGame())
 			return false;
 
+		m_eAI_HitscanEntity = null;
+
 		if (!m_eAI_Targets.Count())
 		{
 			return false;
@@ -5383,7 +5463,18 @@ class eAIBase: PlayerBase
 			//	break;
 			//}
 
-			if (obj != targetEntity && obj != parent)
+			if (obj == targetEntity)
+			{
+				//! Right on target
+				state.m_LOS = true;
+				m_eAI_HitscanEntity = hitEntity;
+			}
+			else if (obj == parent)
+			{
+				state.m_LOS = true;
+				//! @note not setting hitscan entity here because we want the actual projectile to penetrate
+			}
+			else
 			{
 				if (Class.CastTo(player, obj))
 				{
@@ -5397,20 +5488,21 @@ class eAIBase: PlayerBase
 						sideStep = m_eAI_IsFightingFSM;  //! Sidestep if we are in fighting FSM
 					}
 				}
-				else if ((isCreatureTarget && (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase))) || ((obj.IsTree() || obj.IsBush()) && contactToTargetDistSq <= 4 && state.m_ThreatLevelActive >= 0.4) || contactToTargetDistSq <= 0.0625)
+				else if (isCreatureTarget && (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase)))
 				{
-					//! If object is zombie, animal or tree/bush but not the target or its parent, we don't care if they get shot when they are in the way
+					//! If object is zombie or animal but not the target or its parent, we don't care if they get shot when they are in the way
 					state.m_LOS = true;
+					m_eAI_HitscanEntity = hitEntity;
 				}
+				else if (((obj.IsTree() || obj.IsBush()) && contactToTargetDistSq <= 4 && state.m_ThreatLevelActive >= 0.4) || contactToTargetDistSq <= 0.0625)
+				{
+					//! If object is tree/bush but not the target or its parent, we don't care if they get shot when they are in the way
+					state.m_LOS = true;
+					//! @note not setting hitscan entity here because we want the actual projectile to penetrate
+				}
+			}
 
-				break;
-			}
-			else
-			{
-				//! Right on target
-				state.m_LOS = true;
-				break;
-			}
+			break;
 		}
 
 		if (state.m_LOS && !hadLOS)
@@ -5815,7 +5907,7 @@ class eAIBase: PlayerBase
 			{
 				InventoryLocation il = new InventoryLocation;
 
-				if (mag.IsAmmoPile() && GetInventory().FindFreeLocationFor(currentMag, FindInventoryLocationType.ANY_CARGO, il))
+				if (mag.IsAmmoPile() && GetInventory().FindFreeLocationFor(currentMag, FindInventoryLocationType.CARGO, il))
 				{
 #ifdef EXTRACE
 					trace = EXTrace.Start0(EXTrace.AI, this, "Detaching mag " + wpn + " " + currentMag);
@@ -5939,6 +6031,9 @@ class eAIBase: PlayerBase
 
 		foreach (Magazine magToFill: m_eAI_Magazines)
 		{
+			if (!magToFill)
+				continue;
+
 			if (magToFill.IsAmmoPile())
 				continue;
 
@@ -6637,9 +6732,19 @@ class eAIBase: PlayerBase
 		if (!item)
 			return false;
 
-		InventoryLocation il_dst;
+		EntityAI hands = GetHumanInventory().GetEntityInHands();
+		if (hands)
+		{
+		#ifdef DIAG_DEVELOPER
+			EXError.Error(this, string.Format("Cannot take %1 to hands - current hands entity: %2", item, hands));
+		#endif
+			return false;
+		}
 
-		if (eAI_FindFreeInventoryLocationFor(item, FindInventoryLocationType.HANDS, il_dst))
+		InventoryLocation il_dst = new InventoryLocation;
+		il_dst.SetHands(this, item);
+
+		if (il_dst.IsValid())
 		{
 			if (!item.IsTakeable() || item.Expansion_IsInventoryLocked())
 				item.Expansion_SetLootable(true);
@@ -6661,6 +6766,12 @@ class eAIBase: PlayerBase
 			}
 		}
 
+	#ifdef DIAG_DEVELOPER
+		InventoryLocation il_src = new InventoryLocation;
+		item.GetInventory().GetCurrentInventoryLocation(il_src);
+		EXError.Error(this, string.Format("Cannot take %1 to hands - src %2 dst %3", item, ExpansionStatic.DumpToString(il_src), ExpansionStatic.DumpToString(il_dst)));
+	#endif
+
 		//! If we couldn't take, make sure we don't try again
 		if (item && !item.IsSetForDeletion())
 			eAI_ThreatOverride(item, true);
@@ -6680,11 +6791,19 @@ class eAIBase: PlayerBase
 		 * NO_SLOT_AUTO_ASSIGN = 64
 		 */
 		if (!flags)
-			flags = FindInventoryLocationType.ATTACHMENT | FindInventoryLocationType.ANY_CARGO;
+			flags = FindInventoryLocationType.ATTACHMENT | FindInventoryLocationType.CARGO;
 
 		il_dst = new InventoryLocation();
 
-		return GetInventory().FindFreeLocationFor(item, flags, il_dst);
+		if (GetInventory().FindFreeLocationFor(item, flags, il_dst))
+		{
+			if (GameInventory.LocationCanAddEntity(il_dst))
+				return true;
+
+			il_dst.Reset();  //! Invalidate location
+		}
+
+		return false;
 	}
 
 	bool eAI_TakeItemToInventory(ItemBase item, bool useAction = true)
@@ -6747,25 +6866,24 @@ class eAIBase: PlayerBase
 
 			if (currentlyWornGear)
 			{
-				//! Drop whole cargo of target item before taking
-				item.Expansion_DropAllCargo();
-
 				il_dst = new InventoryLocation();
-				currentlyWornGear.GetInventory().GetCurrentInventoryLocation(il_dst);
 
-				if (!eAI_DropItemImpl(currentlyWornGear, true))
+				if (currentlyWornGear.GetInventory().GetCurrentInventoryLocation(il_dst) && eAI_DropItemImpl(currentlyWornGear, true) && CanReceiveAttachment(item, il_dst.GetSlot()))
 				{
-					eAI_ThreatOverride(item, true);
-					return false;
-				}
+					//! Drop whole cargo of target item before taking
+					item.Expansion_DropAllCargo();
 
-				//il_dst.SetAttachment(this, item, il_dst.GetSlot());
-				il_dst.SetItem(item);
+					//il_dst.SetAttachment(this, item, il_dst.GetSlot());
+					il_dst.SetItem(item);
 
-				if (il_dst.IsValid())
 					EXTrace.Print(EXTrace.AI, this, "Swapping " + currentlyWornGear + " for " + item);
 
-				transferCargo = true;
+					transferCargo = true;
+				}
+				else if (il_dst.IsValid())
+				{
+					il_dst.Reset();  //! Invalidate location
+				}
 			}
 			else if (canWear)
 			{

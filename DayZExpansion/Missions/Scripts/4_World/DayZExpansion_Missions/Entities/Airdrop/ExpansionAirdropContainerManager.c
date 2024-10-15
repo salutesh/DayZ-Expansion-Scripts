@@ -263,7 +263,7 @@ class ExpansionAirdropContainerManager
 		
 		string markerName = "#STR_EXPANSION_AIRDROP_SYSTEM_TITLE";
 		if ( GetExpansionSettings().GetAirdrop().ShowAirdropTypeOnMarker )
-			markerName = m_Container.GetDisplayName();
+			markerName = m_Container.Expansion_GetDisplayNameRaw();
 		
 		vector surfacePosition = ExpansionStatic.GetSurfacePosition(m_Container.m_SpawnPosition);
 

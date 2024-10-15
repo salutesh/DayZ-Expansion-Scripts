@@ -31,6 +31,7 @@ class eAIDynamicPatrol : eAIPatrol
 	private bool m_IsSpawned;
 	private bool m_WasGroupDestroyed;
 	private eAIDynamicPatrolSphereTrigger m_Trigger;
+	private string m_NameForLog;
 
 	void ~eAIDynamicPatrol()
 	{
@@ -58,45 +59,33 @@ class eAIDynamicPatrol : eAIPatrol
 
 		m_Config = config;
 
-		if (config.NumberOfAI != 0)
+		if (config.NumberOfAI == 0)
 		{
-			if (config.NumberOfAI < 0)
-			{
-				m_NumberOfAI = Math.RandomIntInclusive(1, -config.NumberOfAI);
-			} else {
-				m_NumberOfAI = config.NumberOfAI;
-			}
-		}
-		else {
 			Log("WARNING: NumberOfAI shouldn't be set to 0, skipping this patrol...");
 			return false;
 		}
 
-		m_WaypointBehaviour = config.GetBehaviour();
-		m_Waypoints = config.GetWaypoints(startpos, m_WaypointBehaviour);
+		m_Waypoints = config.GetWaypoints(startpos);
 
 		if (config.Persist && config.m_BaseName)
 		{
 			string fileName = eAIGroup.GetStorageDirectory(config.m_BaseName) + eAIGroup.BASENAME;
 			if (FileExist(fileName))
 				eAIGroup.ReadPosition(fileName, startpos);
+			else
+				startpos = GetInitialSpawnPosition();
+		}
+		else
+		{
+			startpos = GetInitialSpawnPosition();
 		}
 
 		if (startpos == vector.Zero)
 		{
-			int startPosIndex;
-			ExpansionAIPatrol patrolWithWaypoints;
-			if (Class.CastTo(patrolWithWaypoints, config) && patrolWithWaypoints.UseRandomWaypointAsStartPoint)
-				startPosIndex = Math.RandomInt(0, m_Waypoints.Count());
-			startpos = m_Waypoints[startPosIndex];
-
-			if (startpos == vector.Zero)
-			{
-				Log("!!! ERROR !!!");
-				Log("Couldn't find a spawn location. First waypoint is set to 0 0 0 or could not be read by the system (validate your file with a json validator)");
-				Log("!!! ERROR !!!");
-				return false;
-			}
+			Log("!!! ERROR !!!");
+			Log("Couldn't find a spawn location. First waypoint is set to 0 0 0 or could not be read by the system (validate your file with a json validator)");
+			Log("!!! ERROR !!!");
+			return false;
 		}
 
 		m_Position = startpos;
@@ -135,10 +124,6 @@ class eAIDynamicPatrol : eAIPatrol
 			m_MinimumRadius = m_MaximumRadius;
 			m_MaximumRadius = actualMax;
 		}
-
-		m_Formation = eAIFormation.Create(config.Formation);
-		m_Formation.SetLooseness(config.FormationLooseness);
-		m_Faction = eAIFaction.Create(config.Faction);
 
 		float accuracyMin;
 		if (config.AccuracyMin <= 0)
@@ -185,20 +170,21 @@ class eAIDynamicPatrol : eAIPatrol
 		if (config.Units && config.Units.Count())
 			SetUnits(config.Units);
 
-		m_MovementSpeedLimit = config.GetSpeed();
-		m_MovementThreatSpeedLimit = config.GetThreatSpeed();
-		//m_AccuracyMin = accuracyMin;
-		//m_AccuracyMax = accuracyMax;
 		m_CanSpawn = true;
-		if (m_Faction == null) m_Faction = new eAIFactionCivilian();
-		if (m_Formation == null) m_Formation = new eAIFormationVee();
-
-		if (m_Config.Loadout == "")
-			m_Config.Loadout = m_Faction.GetDefaultLoadout();
 
 		if (autoStart) Start();
 
 		return true;
+	}
+
+	vector GetInitialSpawnPosition()
+	{
+		int startPosIndex;
+		ExpansionAIPatrol patrolWithWaypoints;
+		//! For object patrols, we always use random waypoint as startpoint, for patrols with fixed waypoints, only if random is set
+		if (!Class.CastTo(patrolWithWaypoints, m_Config) || patrolWithWaypoints.UseRandomWaypointAsStartPoint)
+			startPosIndex = Math.RandomInt(0, m_Waypoints.Count());
+		return m_Waypoints[startPosIndex];
 	}
 
 	static bool InitSettings()
@@ -309,7 +295,9 @@ class eAIDynamicPatrol : eAIPatrol
 
 		m_WasGroupDestroyed = true;
 
-		Log(GetNameForLog() + " bots were wiped out (spawn position " + m_Position + ", " + (m_NumberOfAI - m_Group.Count()) + "/" + m_NumberOfAI + " deceased)");
+		Log(m_NameForLog + " bots were wiped out (spawn position " + m_Position + ", " + (m_NumberOfAI - m_Group.Count()) + "/" + m_NumberOfAI + " deceased)");
+
+		m_Position = GetInitialSpawnPosition();  //! Reset spawn position for next spawn
 
 		if (s_NumberOfDynamicPatrols)
 			UpdatePatrolCount(-1);
@@ -352,11 +340,37 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 
 		if (loaded)
-			Log("Loaded " + m_Group.Count() + "/" + m_NumberOfAI + " persistent " + GetNameForLog() + " bots at " + m_Position);
+		{
+			m_NumberOfAI = m_Group.Count();
+			m_Faction = m_Group.GetFaction();
+
+			SetNameForLog();
+
+			Log("Loaded " + m_NumberOfAI + " persistent " + m_NameForLog + " bots at " + m_Position);
+		}
 		else
-			Log("Spawning " + m_NumberOfAI + " " + GetNameForLog() + " bots at " + m_Position);
+		{
+			if (m_Config.NumberOfAI < 0)
+			{
+				m_NumberOfAI = Math.RandomIntInclusive(1, -m_Config.NumberOfAI);
+			} else {
+				m_NumberOfAI = m_Config.NumberOfAI;
+			}
+
+			m_Faction = eAIFaction.Create(m_Config.Faction);
+			if (m_Faction == null) m_Faction = new eAIFactionCivilian();
+			if (m_Config.Loadout == "")
+				m_Config.Loadout = m_Faction.GetDefaultLoadout();
+
+			SetNameForLog();
+
+			Log("Spawning " + m_NumberOfAI + " " + m_NameForLog + " bots at " + m_Position);
+		}
 
 		m_WasGroupDestroyed = false;
+
+		m_MovementSpeedLimit = m_Config.GetSpeed();
+		m_MovementThreatSpeedLimit = m_Config.GetThreatSpeed();
 
 		eAIBase ai;
 		if (!loaded)
@@ -386,8 +400,12 @@ class eAIDynamicPatrol : eAIPatrol
 		if (!loaded)
 			m_Group.SetFaction(m_Faction);
 
+		m_Formation = eAIFormation.Create(m_Config.Formation);
+		if (m_Formation == null) m_Formation = new eAIFormationVee();
+		m_Formation.SetLooseness(m_Config.FormationLooseness);
 		m_Group.SetFormation(m_Formation);
 
+		m_WaypointBehaviour = m_Config.GetBehaviour();
 		if (!loaded && m_NumberOfAI > 1)
 			m_Group.SetWaypointBehaviour(eAIWaypointBehavior.HALT);  //! Only start moving after all AI spawned
 		else
@@ -444,16 +462,21 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (m_Group)
 		{
-			Log("Despawning " + m_Group.Count() + " " + GetNameForLog() + " bots (spawn position " + m_Position + ", " + (m_NumberOfAI - m_Group.Count()) + "/" + m_NumberOfAI + " deceased)");
+			Log("Despawning " + m_Group.Count() + " " + m_NameForLog + " bots (spawn position " + m_Position + ", " + (m_NumberOfAI - m_Group.Count()) + "/" + m_NumberOfAI + " deceased)");
 
 			if (m_Group.m_Persist && m_Group.Count() && m_Group.m_BaseName)
 			{
 				m_Group.Save(true);
 				m_TimeSinceLastSpawn = m_RespawnTime;  //! Allow "respawn" instantly if persistent group wasn't killed
+				m_Position = m_Group.GetLeader().GetPosition();  //! Update spawn position for next spawn
 			}
 
 			m_Group.ClearAI(true, deferDespawnUntilLoosingAggro);
 			m_Group = null;
+		}
+		else
+		{
+			Log("Despawning " + m_NameForLog + " patrol (spawn position " + m_Position + ")");
 		}
 
 		if (!m_WasGroupDestroyed && s_NumberOfDynamicPatrols)
@@ -473,6 +496,9 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (!m_Group || m_WasGroupDestroyed)
 		{
+			if (m_IsSpawned && !m_WasGroupDestroyed)  //! Group is NULL but not killed so was deleted behind our back, need to do cleanup
+				Despawn();
+
 			m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
 			//! https://feedback.bistudio.com/T173348
 			if (!m_CanSpawn && m_RespawnTime > -1 && m_TimeSinceLastSpawn >= m_RespawnTime)
@@ -489,16 +515,12 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 		else
 		{
-			//! CE API is only available after game is loaded
-			if (!GetCEApi())
-				return;
-
 			vector patrolPos = m_Position;
 			DayZPlayerImplement leader = m_Group.GetLeader();
 			if (leader)
 				patrolPos = leader.GetPosition();
 
-			if ((m_WasGroupDestroyed && m_Group.DeceasedCount() == 0) || GetCEApi().AvoidPlayer(patrolPos, m_DespawnRadius))
+			if ((m_WasGroupDestroyed && m_Group.DeceasedCount() == 0) || AvoidPlayer(patrolPos, m_DespawnRadius))
 			{
 				if (!m_WasGroupDestroyed)
 					m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
@@ -506,6 +528,59 @@ class eAIDynamicPatrol : eAIPatrol
 					Despawn();
 			}
 		}
+	}
+
+	bool CanBeTriggeredBy(PlayerBase player)
+	{
+		if (!player.IsAlive())
+			return false;
+
+		//! Actual players can always trigger
+		if (player.GetIdentity())
+			return true;
+
+		if (!m_Config.CanBeTriggeredByAI)
+			return false;
+
+		//! Determine if AI can trigger
+		eAIGroup group = player.GetGroup();
+		if (!group)
+			return false;
+
+		//! Can't trigger ourself or prevent from despawn
+		if (group == m_Group)
+			return false;
+
+		eAIFaction faction = group.GetFaction();
+
+		if (faction.IsInvincible())
+			return false;
+
+		if (faction.IsObserver())
+			return false;
+
+		if (faction.IsPassive())
+			return false;
+
+		return true;
+	}
+
+	bool AvoidPlayer(vector patrolPos, float radius)
+	{
+		if (m_Config.CanBeTriggeredByAI || !GetCEApi())
+		{
+			set<PlayerBase> players = PlayerBase.Expansion_GetInCircle(patrolPos, radius);
+
+			foreach (auto player: players)
+			{
+				if (CanBeTriggeredBy(player))
+					return false;
+			}
+
+			return true;
+		}
+
+		return GetCEApi().AvoidPlayer(patrolPos, radius);
 	}
 
 	private void UpdatePatrolCount(int delta)
@@ -525,15 +600,18 @@ class eAIDynamicPatrol : eAIPatrol
 		Print(WasGroupDestroyed());
 	}
 
+	private void SetNameForLog()
+	{
+		m_NameForLog = m_Config.Name;
+		if (m_NameForLog == string.Empty)
+			m_NameForLog = m_Faction.GetName();
+		else
+			m_NameForLog = string.Format("%1 (%2)", m_NameForLog, m_Faction.GetName());
+	}
+
 	string GetNameForLog()
 	{
-		string name = m_Config.Name;
-		if (name == string.Empty)
-			name = m_Faction.GetName();
-		else
-			name = string.Format("%1 (%2)", name, m_Faction.GetName());
-
-		return name;
+		return m_NameForLog;
 	}
 
 	static void Log(ExpansionAIDynamicSpawnBase config, string msg)

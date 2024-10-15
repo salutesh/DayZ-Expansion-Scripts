@@ -13,24 +13,13 @@
 #ifdef JM_COT
 #ifdef EXPANSIONCOTESPMODULE
 #ifdef JM_COT_EXPTRANSITION_1
-modded class JMESPMetaCar
+modded class JMESPMeta
 #else
 class JMESPMetaCar : JMESPMeta
 #endif
 {
-	ExpansionESPModificationModule exp_Module;
-
-	UIActionText m_Action_Code;
-
 	UIActionButton m_Action_UnPair;
 	UIActionButton m_Action_UnLock;
-
-	override void Create( JMESPModule mod )
-	{
-		CF_Modules<ExpansionESPModificationModule>.Get(exp_Module);
-
-		super.Create( mod );
-	}
 
 	override void CreateActions( Widget parent )
 	{
@@ -58,6 +47,8 @@ class JMESPMetaCar : JMESPMeta
 		if ( eid != UIEvent.CLICK )
 			return;
 
+		ExpansionESPModificationModule exp_Module;
+		CF_Modules<ExpansionESPModificationModule>.Get(exp_Module);
 		exp_Module.CarUnPair( target );
 	}
 
@@ -66,6 +57,8 @@ class JMESPMetaCar : JMESPMeta
 		if ( eid != UIEvent.CLICK )
 			return;
 
+		ExpansionESPModificationModule exp_Module;
+		CF_Modules<ExpansionESPModificationModule>.Get(exp_Module);
 		exp_Module.CarUnLock( target );
 	}
 };

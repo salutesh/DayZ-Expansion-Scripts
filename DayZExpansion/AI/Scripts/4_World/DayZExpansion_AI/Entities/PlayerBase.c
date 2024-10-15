@@ -151,6 +151,23 @@ modded class PlayerBase
 	{
 	}
 
+	static set<PlayerBase> Expansion_GetInCircle(vector center, float radius)
+	{
+		set<PlayerBase> players = new set<PlayerBase>;
+
+		auto node = s_Expansion_AllPlayers.m_Head;
+
+		while (node)
+		{
+			if (Math.IsPointInCircle(center, radius, node.m_Value.GetPosition()))
+				players.Insert(node.m_Value);
+
+			node = node.m_Next;
+		}
+
+		return players;
+	}
+
 	/**
 	 * @brief Check if other player is considered a helper.
 	 * 

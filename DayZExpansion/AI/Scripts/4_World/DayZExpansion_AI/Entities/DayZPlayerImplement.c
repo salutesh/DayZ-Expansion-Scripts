@@ -549,7 +549,8 @@ modded class DayZPlayerImplement
 				break;
 		#ifdef DIAG_DEVELOPER
 			default:
-				EXTrace.Print(EXTrace.AI, this, "::AddNoise " + noisePar + " " + noiseMultiplier);
+				if (noisePar)
+					EXTrace.Print(EXTrace.AI, this, "::AddNoise " + noisePar + " " + noiseMultiplier);
 				break;
 		#endif
 		}

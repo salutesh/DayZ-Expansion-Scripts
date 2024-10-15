@@ -178,7 +178,7 @@ class CfgVehicles
 				"offroad_Tires_asphalt_fast_Ext_SoundSet",
 				"offroad_Tires_water_slow_Ext_SoundSet",
 				"offroad_Tires_water_fast_Ext_SoundSet",
-				"Offroad_skid_dirt_SoundSet",
+				"offroad_skid_dirt_SoundSet",
 				"offroad_dirt_turn_SoundSet",
 				"offroad_Rain_Ext_SoundSet",
 				"offroad_damper_left_SoundSet",

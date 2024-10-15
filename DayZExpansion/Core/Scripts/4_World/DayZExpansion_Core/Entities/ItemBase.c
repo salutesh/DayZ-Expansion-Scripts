@@ -995,6 +995,11 @@ modded class ItemBase
 	{
 		super.OnWorkStart();
 
+		Expansion_OnWorkStart();
+	}
+
+	void Expansion_OnWorkStart()
+	{
 		PlayerBase pb;
 		if (!m_Expansion_IsWorking && Class.CastTo(pb, GetHierarchyRootPlayer()))
 			pb.Expansion_OnInventoryUpdate(this, true, true);
@@ -1006,8 +1011,13 @@ modded class ItemBase
 	{
 		super.OnWorkStop();
 
+		Expansion_OnWorkStop();
+	}
+
+	void Expansion_OnWorkStop()
+	{
 		PlayerBase pb;
-		if (Class.CastTo(pb, GetHierarchyRootPlayer()))
+		if (m_Expansion_IsWorking && Class.CastTo(pb, GetHierarchyRootPlayer()))
 			pb.Expansion_OnInventoryUpdate(this, true, true);
 
 		m_Expansion_IsWorking = false;
@@ -1063,20 +1073,8 @@ modded class ItemBase
 	 */
 	string Expansion_GetDisplayNameRaw()
 	{
-		string path;
-		string displayName;
-
-		if (IsWeapon())
-			path = CFG_WEAPONSPATH;
-		else if (IsMagazine())
-			path = CFG_MAGAZINESPATH;
-		else
-			path = CFG_VEHICLESPATH;
-
-		//! Send localization key and let client handle localization
-		if (GetGame().ConfigGetTextRaw(path + " " + GetType() + " displayName", displayName))
-			GetGame().FormatRawConfigStringKeys(displayName);
-
+		string displayName = ConfigGetStringRaw("displayName");
+		GetGame().FormatRawConfigStringKeys(displayName);
 		return displayName;
 	}
 

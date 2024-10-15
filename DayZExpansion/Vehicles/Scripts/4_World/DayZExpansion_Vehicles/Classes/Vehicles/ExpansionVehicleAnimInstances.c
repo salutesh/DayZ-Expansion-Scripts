@@ -24,23 +24,23 @@ class ExpansionVehicleAnimInstances
 #ifdef EXPANSIONMODANIMATIONS
 
 	// Cars - Expansion - using Expansion anims
-	static int EXPANSION_BUS = 10;
+	static int EXPANSION_BUS = 11;
 
 	// Boats
-	static int EXPANSION_UTILITY_BOAT = 9;
-	static int EXPANSION_ZODIAC = 11;
-	static int EXPANSION_LHD = 11;
+	static int EXPANSION_UTILITY_BOAT = 10;
+	static int EXPANSION_ZODIAC = 12;
+	static int EXPANSION_LHD = 12;
 
 	// Bikes
-	static int EXPANSION_TT650 = 12;
-	static int EXPANSION_N250 = 13;
-	static int EXPANSION_OLDBIKE = 15;
+	static int EXPANSION_TT650 = 13;
+	static int EXPANSION_N250 = 14;
+	static int EXPANSION_OLDBIKE = 16;
 
 	// Helicopters
-	static int EXPANSION_MH6 = 11;
-	static int EXPANSION_MERLIN = 14;
-	static int EXPANSION_UH1H = 11;
-	static int EXPANSION_GYROCOPTER = 11;
+	static int EXPANSION_MH6 = 12;
+	static int EXPANSION_MERLIN = 15;
+	static int EXPANSION_UH1H = 12;
+	static int EXPANSION_GYROCOPTER = 12;
 
 #else
 

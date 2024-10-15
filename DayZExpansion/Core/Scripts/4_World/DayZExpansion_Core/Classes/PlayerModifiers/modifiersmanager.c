@@ -97,10 +97,6 @@ modded class ModifiersManager
 			if (!ctx.Read(modifierId))
 				return false;
 
-			bool trackAttachedTime = false;
-			if (!ctx.Read(trackAttachedTime))
-				return false;
-
 			int time = -1;
 			if (!ctx.Read(time))
 				return false;

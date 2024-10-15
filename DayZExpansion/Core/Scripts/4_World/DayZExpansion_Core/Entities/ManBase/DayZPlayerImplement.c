@@ -290,6 +290,27 @@ modded class DayZPlayerImplement
 	
 	void Expansion_OnSyncJuncture(int pJunctureID, ParamsReadContext pCtx)
 	{
+#ifdef EXTRACE_DIAG
+		EXTrace trace;
+#endif
+
+		switch (pJunctureID)
+		{
+		case DayZPlayerSyncJunctures.EXPANSION_SJ_TELEPORT:
+#ifdef EXTRACE_DIAG
+			trace = EXTrace.Start(EXTrace.PLAYER, this, typename.EnumToString(DayZPlayerSyncJunctures, pJunctureID));
+#endif
+		
+			vector position;
+			vector orientation;
+
+			DayZPlayerSyncJunctures.ExpansionReadTeleport(pCtx, position, orientation);
+
+			SetPosition(position);
+			SetOrientation(orientation);
+
+			break;
+		}
 	}
 	
 	void Expansion_UpdateActualVelocity(float pDt)

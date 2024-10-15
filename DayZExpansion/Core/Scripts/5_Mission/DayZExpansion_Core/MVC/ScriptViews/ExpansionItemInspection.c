@@ -546,19 +546,6 @@ class ExpansionItemInspectionBase: ExpansionScriptView
 		{
 			text = "#inv_inspect_drenched";
 			color = Colors.COLOR_DRENCHED;
-
-		#ifdef NAMALSK_SURVIVAL
-			if ((wetness > STATE_FREEZING) && (wetness <= STATE_FROZEN) )
-			{
-				text = "#nam_inv_ins_freezing";
-				color = COLOR_FROZEN;
-			}
-			else if(wetness > STATE_FROZEN )
-			{
-				text = "#nam_inv_ins_frozen";
-				color = COLOR_FROZEN;
-			}
-		#endif
 		}
 
 		ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);

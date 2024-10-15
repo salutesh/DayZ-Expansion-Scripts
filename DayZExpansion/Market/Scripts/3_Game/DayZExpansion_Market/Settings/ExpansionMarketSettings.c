@@ -144,7 +144,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		if (!MarketSystemEnabled && !ATMSystemEnabled)
 			return;
 
-		array< string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_MARKET_FOLDER, ".json");
+		array< string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_MARKET_FOLDER, ".json", true);
 
 		if (!files.Count())
 		{
@@ -186,7 +186,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		if (FileExist(folderNameOld))
 			MoveSettings(folderNameOld, EXPANSION_TRADER_ZONES_FOLDER);
 
-		array<string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_TRADER_ZONES_FOLDER, ".json");
+		array<string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_TRADER_ZONES_FOLDER, ".json", true);
 
 		if (!files.Count())
 		{
@@ -221,7 +221,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		if (!MarketSystemEnabled)
 			return;
 
-		array< string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_TRADER_FOLDER, ".json");
+		array< string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_TRADER_FOLDER, ".json", true);
 
 		if (!files.Count())
 		{

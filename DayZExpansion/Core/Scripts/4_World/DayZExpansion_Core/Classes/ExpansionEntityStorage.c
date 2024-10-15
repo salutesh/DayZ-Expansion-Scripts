@@ -610,12 +610,25 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				if (entityStorageVersion >= 9 && !ctx.Read(slotLocked))
 					return ErrorFalse(type + ": Couldn't read slot locked state");
 				il = new InventoryLocation();
-				il.SetAttachment(parent, null, slotId);
-				entity = GameInventory.LocationCreateEntity(il, type, ECE_IN_INVENTORY, RF_DEFAULT);
+				//! Some 3rd party mods create default attachments in EEInit without checking slots, boo!
+				entity = parent.GetInventory().FindAttachment(slotId);
+				if (entity && entity.GetType() != type)
+				{
+					//! If it's not of the correct type, trash it
+					entity.GetInventory().GetCurrentInventoryLocation(il);
+					GameInventory.LocationRemoveEntity(il);
+					il.Reset();
+					GetGame().ObjectDelete(entity);
+				}
+				if (!entity || entity.ToDelete())
+				{
+					il.SetAttachment(parent, null, slotId);
+					entity = GameInventory.LocationCreateEntity(il, type, ECE_IN_INVENTORY, RF_DEFAULT);
+				}
 				if (entity)
 					parent.GetInventory().SetSlotLock(slotId, slotLocked);
 				else
-					errorMsg = "Couldn't create " + type + " on " + parent;
+					errorMsg = "Couldn't create " + type + " on " + parent + " in slot " + InventorySlots.GetSlotName(slotId);
 				break;
 			case InventoryLocationType.HANDS:
 				il = new InventoryLocation();
@@ -645,21 +658,30 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				break;
 		}
 
-		if (ilt != InventoryLocationType.GROUND)
+		if (!entity && ilt != InventoryLocationType.GROUND)
 		{
-			if (!level && !entity && player)
+			string locInfo;
+			if (!level && player)
 			{
 				//! Try to create in player inventory, falling back to owned container
 				entity = ExpansionItemSpawnHelper.SpawnInInventorySecure(type, player, parent);
 				//! Try to create on ground at player pos
 				if (!entity && Class.CastTo(entity, GetGame().CreateObjectEx(type, player.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
-					EXError.Warn(null, "ExpansionEntityStorage::Restore_Phase1 - WARNING: Couldn't create " + type + " on " + parent + ", created at player position " + player.GetPosition() + " instead");
+				{
+					if (il)
+						locInfo = " " + ExpansionStatic.DumpToString(il);
+					EXError.Warn(null, "ExpansionEntityStorage::Restore_Phase1 - WARNING: Couldn't create " + type + " on " + parent + locInfo + ", created at player position " + player.GetPosition() + " instead");
+				}
 			}
-			else if (!entity && parent)
+			else if (parent)
 			{
 				//! Try to create at parent position
 				if (Class.CastTo(entity, GetGame().CreateObjectEx(type, parent.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
-					EXError.Warn(null, "ExpansionEntityStorage::Restore_Phase1 - WARNING: Couldn't create " + type + " on " + parent + ", created at parent position " + parent.GetPosition() + " instead");
+				{
+					if (il)
+						locInfo = " " + ExpansionStatic.DumpToString(il);
+					EXError.Warn(null, "ExpansionEntityStorage::Restore_Phase1 - WARNING: Couldn't create " + type + " on " + parent + locInfo + ", created at parent position " + parent.GetPosition() + " instead");
+				}
 			}
 		}
 
