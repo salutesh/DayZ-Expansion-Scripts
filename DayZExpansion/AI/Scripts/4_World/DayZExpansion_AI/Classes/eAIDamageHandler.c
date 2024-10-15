@@ -1,5 +1,17 @@
 class eAIDamageHandler
 {
+	static ref TStringArray s_HumanDmgZonesForRedirect = {
+		"Torso",
+		"LeftArm",
+		"LeftHand",
+		"RightArm",
+		"RightHand",
+		"LeftLeg",
+		"LeftFoot",
+		"RightLeg",
+		"RightFoot"
+	};
+
 	EntityAI m_Entity;
 	eAIEntityTargetInformation m_TargetInformation;
 	bool m_ProcessDamage;
@@ -31,6 +43,37 @@ class eAIDamageHandler
 
 		if (!m_ProcessDamage)
 		{
+			eAIBase ai;
+			if (Class.CastTo(ai, sourcePlayer))
+			{
+				if (damageType == DT_FIRE_ARM)
+				{
+					EntityAI hitscanEntity = ai.m_eAI_HitscanEntity;
+
+					//! Work-around for 1st shot on new entity hitting previously hit entity due to vanilla bug with Weapon::Fire
+					if (hitscanEntity && hitscanEntity.GetHierarchyRoot() != m_Entity.GetHierarchyRoot() && m_Entity.GetHierarchyRoot().IsDamageDestroyed())
+					{
+						//! Redirect damage to correct entity
+					#ifdef DIAG_DEVELOPER
+						EXTrace.Print(EXTrace.AI, ai, "Wrong entity hit " + ExpansionStatic.GetHierarchyInfo(m_Entity) + ", redirecting dmg to " + ExpansionStatic.GetHierarchyInfo(hitscanEntity));
+					#endif
+						//! Make sure that damage transfer to attachments works correctly
+						if (hitscanEntity.IsMan())
+						{
+							if (!m_Entity.IsMan())
+								dmgZone = s_HumanDmgZonesForRedirect.GetRandomElement();
+						}
+						else if (hitscanEntity.IsZombie())
+						{
+							if (!m_Entity.IsZombie())
+								dmgZone = "Head";
+						}
+						hitscanEntity.ProcessDirectDamage(damageType, source, dmgZone, ammo, modelPos, speedCoef);
+						return false;
+					}
+				}
+			}
+
 			float damageMultiplier = 1.0;
 
 			DayZPlayerImplement player;
@@ -56,13 +99,12 @@ class eAIDamageHandler
 				switch (damageType)
 				{
 					case DT_FIRE_ARM:
-						eAIBase ai;
-						if (Class.CastTo(ai, sourcePlayer))
+						if (ai)
 						{
 							if (sourcePlayer == m_Entity)
 							{
 								//! This shouldn't be possible because AI don't use suicide emote
-								EXPrint(ToString() + " WARNING: Game encountered an impossible state (AI damage source is firearm in AI's own hands)");
+								EXError.Warn(this, "WARNING: Game encountered an impossible state (AI damage source is firearm in AI's own hands)", {});
 								return false;
 							}
 

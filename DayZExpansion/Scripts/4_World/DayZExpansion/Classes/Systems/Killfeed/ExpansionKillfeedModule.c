@@ -1010,11 +1010,11 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 #endif 
 			
 			StringLocaliser loc = GetLocaliser(kill_data);
-			if ( GetExpansionSettings().GetNotification().KillFeedMessageType == ExpansionAnnouncementType.NOTIFICATION )
+			if ( GetExpansionSettings().GetNotification(false).KillFeedMessageType == ExpansionAnnouncementType.NOTIFICATION )
 			{
 				ExpansionNotification("STR_EXPANSION_KILLFEED_TITLE", loc, ExpansionIcons.GetPath(kill_data.Icon), COLOR_EXPANSION_NOTIFICATION_EXPANSION, 5, ExpansionNotificationType.KILLFEED).Create();
 			}
-			else if ( GetExpansionSettings().GetNotification().KillFeedMessageType == ExpansionAnnouncementType.CHAT )
+			else if ( GetExpansionSettings().GetNotification(false).KillFeedMessageType == ExpansionAnnouncementType.CHAT )
 			{
 				GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", "#STR_EXPANSION_KILLFEED_TITLE" + " - " + loc.Format(), "" ) );
 			}

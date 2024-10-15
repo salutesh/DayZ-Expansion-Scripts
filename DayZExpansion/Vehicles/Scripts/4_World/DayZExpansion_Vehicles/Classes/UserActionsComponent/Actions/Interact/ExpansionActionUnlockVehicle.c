@@ -25,11 +25,6 @@ class ExpansionActionUnlockVehicle: ActionInteractBase
 		m_ConditionTarget = new CCTNone;
 	}
 
-	override string GetText()
-	{
-		return "#unlock";
-	}
-
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{		
 		ExpansionVehicle vehicle;
@@ -70,10 +65,19 @@ class ExpansionActionUnlockVehicle: ActionInteractBase
 
 		//! @note we explicitly check for LOCKED state instead of IsLocked() as we don't want to be able to unlock if forced locked
 		ExpansionVehicleLockState lockState = vehicle.GetLockState();
-		if ( lockState != ExpansionVehicleLockState.LOCKED && lockState != ExpansionVehicleLockState.READY_TO_LOCK )
-			return false;
+		switch (lockState)
+		{
+			case ExpansionVehicleLockState.LOCKED:
+				m_Text = "#unlock";
+				return true;
+
+			case ExpansionVehicleLockState.READY_TO_LOCK:
+				m_Text = "#STR_EXPANSION_VEHICLE_CANCEL_LOCK";
+				return true;
+		}
+
+		return false;
 		
-		return true;
 	}
 	
 	override void OnStartServer( ActionData action_data )

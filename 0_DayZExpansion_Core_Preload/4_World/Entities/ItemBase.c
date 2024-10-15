@@ -179,13 +179,9 @@ modded class ItemBase
 		return !Expansion_IsInventoryLocked();
 	}
 
-	bool Expansion_IsInventoryLocked()
+	bool Expansion_IsInventoryLocked(out int lockType = 0, out EntityAI lockedEntity = null, bool checkParent = true)
 	{
-		EntityAI root = GetHierarchyRoot();
-		if (root != this && root.GetInventory() && root.GetInventory().IsInventoryLocked())
-			return true;
-
-		return GetInventory().IsInventoryLocked();
+		return ExpansionStatic.IsInventoryLocked(this, lockType, lockedEntity, checkParent);
 	}
 
 	//! --------------------------------------------------------------------------------------------------------------

@@ -595,25 +595,25 @@ modded class CarScript
 
 	int GetPersistentIDA()
 	{
-		EXError.Error(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetMasterKeyPersistentID");
 		return 0;
 	}
 
 	int GetPersistentIDB()
 	{
-		EXError.Error(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetMasterKeyPersistentID");
 		return 0;
 	}
 
 	int GetPersistentIDC()
 	{
-		EXError.Error(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetMasterKeyPersistentID");
 		return 0;
 	}
 
 	int GetPersistentIDD()
 	{
-		EXError.Error(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().GetMasterKeyPersistentID");
 		return 0;
 	}
 
@@ -633,22 +633,22 @@ modded class CarScript
 
 	void SetPersistentIDA(int newIDA)
 	{
-		EXError.Error(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().SetMasterKeyPersistentID");
 	}
 
 	void SetPersistentIDB(int newIDB)
 	{
-		EXError.Error(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().SetMasterKeyPersistentID");
 	}
 
 	void SetPersistentIDC(int newIDC)
 	{
-		EXError.Error(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().SetMasterKeyPersistentID");
 	}
 
 	void SetPersistentIDD(int newIDD)
 	{
-		EXError.Error(this, "DEPRECATED");
+		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().SetMasterKeyPersistentID");
 	}
 
 	bool HasKey()

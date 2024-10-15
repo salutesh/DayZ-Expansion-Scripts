@@ -33,11 +33,9 @@ class ExpansionDoor
 
 		slot.ToLower();
 
-#ifdef EXPANSION_VEHICLE_DOOR_JOINTS
 		if (rootPath == string.Empty)
 		{
 			m_IsDoor = true;
-			m_IsValid = false;
 			
 			if (!m_Selection)
 			{
@@ -59,8 +57,6 @@ class ExpansionDoor
 		}
 		else
 		{
-			m_IsValid = true;
-			
 			string path;
 
 			path = rootPath + " selection";
@@ -80,9 +76,6 @@ class ExpansionDoor
 			m_IsValid = true;
 
 		UpdateTransforms();
-#else
-		m_IsDoor = true;
-#endif
 
 		string selection = m_Selection;
 		selection.ToLower();
@@ -93,12 +86,13 @@ class ExpansionDoor
 			m_IsTrunk = true;
 
 	#ifdef DIAG_DEVELOPER
-		EXTrace.Print(EXTrace.VEHICLES, this, string.Format("%1 %2 %3 isDoor %4 isHood %5 isTrunk %6", vehicle.GetType(), m_InventorySlot, m_InventorySlotID, m_IsDoor, m_IsHood, m_IsTrunk));
+		EXTrace.Print(EXTrace.VEHICLES, this, string.Format("%1 %2 %3 isDoor %4 isHood %5 isTrunk %6", vehicle, m_InventorySlot, m_InventorySlotID, m_IsDoor, m_IsHood, m_IsTrunk));
 	#endif
 	}
 
 	void UpdateTransforms()
 	{
+#ifdef EXPANSION_VEHICLE_DOOR_JOINTS
 		if (!m_IsValid)
 			return;
 		
@@ -139,6 +133,7 @@ class ExpansionDoor
 
 		Math3D.MatrixInvMultiply4(m_Transform0, m_ProxyTransform, m_Transform1);
 		m_Transform1[3] = -m_Transform1[3];
+#endif
 	}
 
 	void OnUpdate(float pDt)

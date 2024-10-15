@@ -81,10 +81,12 @@ class eAICommandMenu: UIScriptedMenu
 
 	static void OpenMenu()
 	{
+		#ifndef EDITOR
 		if (!instance)
 			instance = new eAICommandMenu();
 
 		GetGame().GetUIManager().ShowScriptedMenu(instance, null);
+		#endif
 	}
 
 	//============================================

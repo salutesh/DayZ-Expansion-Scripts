@@ -698,6 +698,179 @@ class ExpansionStatic: ExpansionStaticCore
 		return repr.Substring(start, len);
 	}
 
+	/**
+	 * @brief Get instance dbg info as string (null-safe if instance is managed)
+	 * 
+	 * @param instance
+	 * @param checkParent  When determining if inventory locked, don't check parent if set to false
+	 * 
+	 * @return instance dbg name + instance id, followed by indicators for pending deletion and inventory locked (if applicable)
+	 * 
+	 * @code
+	 * 	string info = ExpansionStatic.GetEntityDebugInfo(GetGame().GetPlayer());
+	 * 	Print(info);
+	 * 	
+	 * 	>> info = 'PlayerBase:1:INSTANCETYPE_CLIENT<59d0b5f5>'
+	 * @endcode
+	 */
+	static string GetDebugInfo(Class instance, bool checkParent = true)
+	{
+		if (!instance)
+			return "null";
+
+		string dbgInfo = string.Format("%1<%2>", instance.GetDebugName(), GetInstanceID(instance));
+
+		Object obj;
+		if (Class.CastTo(obj, instance))
+		{
+			if (obj.IsDamageDestroyed())
+				dbgInfo += "[DEAD]";
+
+			//! Is object marked to be deleted soon?
+			if (obj.ToDelete())
+				dbgInfo += "[TO_DELETE]";
+
+			//! Is parent being deleted?
+			if (obj.IsPendingDeletion())
+				dbgInfo += "[PENDING_DELETION]";
+		}
+
+		EntityAI entity;
+		if (Class.CastTo(entity, instance))
+		{
+			//! Has EntityAI::SetPrepareToDelete been called?
+			if (entity.IsPreparedToDelete())
+				dbgInfo += "[PREPARED_TO_DELETE]";
+
+			//! Has EntityAI::EEDelete been called?
+			if (entity.m_PendingDelete)
+				dbgInfo += "[EE_DELETE]";
+
+			int lockType;
+			EntityAI lockedEntity;
+			if (IsInventoryLocked(entity, lockType, lockedEntity, checkParent))
+			{
+				string lockTypeInfo;
+
+				switch (lockType)
+				{
+					case LOCK_FROM_SCRIPT:
+						lockTypeInfo = "LOCK";
+						break;
+
+					case HIDE_INV_FROM_SCRIPT:
+						lockTypeInfo = "HIDE_INV";
+						break;
+				}
+
+				if (lockedEntity != entity)
+					dbgInfo += string.Format("[%1=%2]", lockTypeInfo, lockedEntity);
+				else
+					dbgInfo += string.Format("[%1]", lockTypeInfo);
+			}
+		}
+
+		return dbgInfo;
+	}
+
+	static string GetHierarchyInfo(EntityAI entity)
+	{
+		string hierarchyInfo = GetDebugInfo(entity, false);
+		EntityAI parent = entity.GetHierarchyParent();
+		auto il = new InventoryLocation;
+
+		while (parent)
+		{
+			if (parent.IsMan())
+				hierarchyInfo += " on ";
+			else
+				hierarchyInfo += " in ";
+
+			if (entity.GetInventory().GetCurrentInventoryLocation(il))
+			{
+				if (il.GetType() == InventoryLocationType.ATTACHMENT)
+					hierarchyInfo += string.Format("slot %1 of ", InventorySlots.GetSlotName(il.GetSlot()));
+			}
+
+			hierarchyInfo += GetDebugInfo(parent, false);
+
+			entity = parent;
+			parent = parent.GetHierarchyParent();
+		}
+
+		return hierarchyInfo;
+	}
+
+	//! Better version of InventoryLocation.DumpToString (includes item/parent dbg info, slot name instead of ID, and whether loc is valid)
+	static string DumpToString(InventoryLocation loc)
+	{
+		if (!loc)
+			return "{ null }";
+
+		string res = "{ type=" + typename.EnumToString(InventoryLocationType, loc.GetType());
+
+		if (loc.GetType() != InventoryLocationType.UNKNOWN)
+		{
+			res += " item=" + GetDebugInfo(loc.GetItem());
+
+			if (loc.GetType() != InventoryLocationType.GROUND)
+				res += " parent=" + GetDebugInfo(loc.GetParent());
+		}
+
+		switch (loc.GetType())
+		{
+			case InventoryLocationType.UNKNOWN:
+				break;
+			case InventoryLocationType.GROUND:
+				vector pos = loc.GetPos();
+				float dir[4];
+				loc.GetDir( dir );
+				res += " pos=(" + pos[0] + ", " + pos[1] + ", " + pos[2] + ")";
+				res += " dir=(" + dir[0] + ", " + dir[1] + ", " + dir[2] + ", " + dir[3] + ")";
+				break;
+			case InventoryLocationType.ATTACHMENT:
+				res += " slot=" + InventorySlots.GetSlotName(loc.GetSlot());
+				break;
+			case InventoryLocationType.CARGO:
+			case InventoryLocationType.PROXYCARGO:
+				res += " idx=" + loc.GetIdx() + " row=" + loc.GetRow() + " col=" + loc.GetCol() + " f=" + loc.GetFlip();
+				break;
+			case InventoryLocationType.HANDS:
+				break;
+		#ifndef DAYZ_1_25
+			case InventoryLocationType.VEHICLE:
+				res += " idx=" + loc.GetIdx();
+				break;
+		#endif
+			default:
+				res += "??";
+				break;
+		}
+
+		res += " valid=" + loc.IsValid().ToString();
+		res += " }";
+
+		return res;
+	}
+
+	string GetDisplayNameRaw(Object obj)
+	{
+		string path;
+		string displayName;
+
+		if (obj.IsWeapon())
+			path = CFG_WEAPONSPATH;
+		else if (obj.IsMagazine())
+			path = CFG_MAGAZINESPATH;
+		else
+			path = CFG_VEHICLESPATH;
+
+		if (GetGame().ConfigGetTextRaw(path + " " + obj.GetType() + " displayName", displayName))
+			GetGame().FormatRawConfigStringKeys(displayName);
+
+		return displayName;
+	}
+
 	// -----------------------------------------------------------
 	// Expansion String GetItemDisplayNameWithType
 	// -----------------------------------------------------------
@@ -1444,27 +1617,30 @@ class ExpansionStatic: ExpansionStaticCore
 		return -1;
 	}
 
-	static array< string > FindInLocation( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES )
+	static array< string > FindInLocation( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES, bool recursive = false )
 	{
 #ifdef PLATFORM_LINUX
 	#ifdef DAYZ_1_25
-		return FindInLocationImpl_Linux_T179707(folder, ext, mode);
+		return FindInLocationImpl_Linux_T179707(folder, ext, mode, recursive);
 	#else
-		return FindInLocationImpl(folder, ext, mode);
+		return FindInLocationImpl(folder, ext, mode, recursive);
 	#endif
 #else
-		return FindInLocationImpl(folder, ext, mode);
+		return FindInLocationImpl(folder, ext, mode, recursive);
 #endif
 	}
 
-	static array< string > FindInLocationImpl( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES )
+	static array< string > FindInLocationImpl( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES, bool recursive = false )
 	{
 		array< string > files = new array< string >;
 		if (!FileExist(folder))
 			return files;
 		string fileName;
 		FileAttr fileAttr;
-		FindFileHandle findFileHandle = FindFile( folder + "*" + ext, fileName, fileAttr, 0 );
+		string pattern = folder + "*";
+		if (!recursive)
+			pattern += ext;
+		FindFileHandle findFileHandle = FindFile( pattern, fileName, fileAttr, 0 );
 		if ( findFileHandle )
 		{
 			bool isValid = true;
@@ -1483,9 +1659,22 @@ class ExpansionStatic: ExpansionStaticCore
 				if (fileAttr & FileAttr.DIRECTORY)
 					isDir = true;
 
-				if (fileName.Length() > 0 && ((includeFiles && !isDir) || (includeDirs && isDir)))
+				if (fileName.Length() > 0)
 				{
-					files.Insert( fileName );
+					if ((includeFiles && !isDir) || (includeDirs && isDir))
+					{
+						if (!recursive || ExpansionString.EndsWithIgnoreCase(fileName, ext))
+							files.Insert( fileName );
+					}
+
+					if (recursive && isDir)
+					{
+						TStringArray subFolderFileNames = FindInLocationImpl(folder + fileName + "\\", ext, mode, true);
+						foreach (string subFolderFileName: subFolderFileNames)
+						{
+							files.Insert( fileName + "\\" + subFolderFileName );
+						}
+					}
 				}
 
 				isValid = FindNextFile(findFileHandle, fileName, fileAttr);
@@ -1493,12 +1682,19 @@ class ExpansionStatic: ExpansionStaticCore
 
 			CloseFindFile( findFileHandle );
 		}
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.MISC, null, "FindInLocationImpl " + folder + "*" + ext + " mode=" + typename.EnumToString(ExpansionFindFileMode, mode) + " recursive=" + recursive.ToString());
+		foreach (string file: files)
+		{
+			EXTrace.Print(EXTrace.MISC, null, folder + file);
+		}
+	#endif
 		return files;
 	}
 
 	//! Workaround for https://feedback.bistudio.com/T179707 (will be fixed in 1.26)
 	//! @note will only find files, not directories
-	static array<string> FindInLocationImpl_Linux_T179707(string folder, string ext = "", int mode = ExpansionFindFileMode.FILES)
+	static array<string> FindInLocationImpl_Linux_T179707(string folder, string ext = "", int mode = ExpansionFindFileMode.FILES, bool recursive = false)
 	{
 		array<string> files = new array< string >;
 		if (!FileExist(folder))
@@ -1524,8 +1720,20 @@ class ExpansionStatic: ExpansionStaticCore
 			FileHandle file;
 			while (isValid)
 			{
-				if (fileName.Length() > 0 && (!ext || ExpansionString.EndsWithIgnoreCase(fileName, ext)))
-					files.Insert(fileName);
+				if (fileName.Length() > 0)
+				{
+					if (!ext || ExpansionString.EndsWithIgnoreCase(fileName, ext))
+						files.Insert(fileName);
+
+					if (recursive)
+					{
+						TStringArray subFolderFileNames = FindInLocationImpl_Linux_T179707(folder + fileName + "\\", ext, mode, true);
+						foreach (string subFolderFileName: subFolderFileNames)
+						{
+							files.Insert( fileName + "\\" + subFolderFileName );
+						}
+					}
+				}
 
 				isValid = FindNextFile(findFileHandle, fileName, fileAttr);
 			}
@@ -1535,14 +1743,14 @@ class ExpansionStatic: ExpansionStaticCore
 		return files;
 	}
 
-	static array< string > FindFilesInLocation( string folder, string ext = "" )
+	static array< string > FindFilesInLocation( string folder, string ext = "", bool recursive = false )
 	{
-		return FindInLocation(folder, ext, ExpansionFindFileMode.FILES);
+		return FindInLocation(folder, ext, ExpansionFindFileMode.FILES, recursive);
 	}
 
-	static array< string > FindDirectoriesInLocation( string folder, string ext = "" )
+	static array< string > FindDirectoriesInLocation( string folder, string ext = "", bool recursive = false )
 	{
-		return FindInLocation(folder, ext, ExpansionFindFileMode.DIRECTORIES);
+		return FindInLocation(folder, ext, ExpansionFindFileMode.DIRECTORIES, recursive);
 	}
 
 	static bool MakeDirectoryRecursive(string path)
@@ -2120,6 +2328,36 @@ class ExpansionStatic: ExpansionStaticCore
 				UnlockInventoryRecursive(attachmentEntity, lockType);
 		}
 		entity.GetInventory().UnlockInventory(lockType);
+	}
+
+	/**
+	 * @brief Check whether inventory of entity or its parent is locked
+	 * 
+	 * @param [out] lockType      Set to LOCK_FROM_SCRIPT or HIDE_INV_FROM_SCRIPT if locked
+	 * @param [out] lockedEntity  Set to entity whose inventory is locked (i.e. entity itself or parent)
+	 * 
+	 * @param checkParent         Don't check parent if set to false
+	 * 
+	 * @return true if entity or parent is locked, else false
+	 */
+	static bool IsInventoryLocked(EntityAI entity, out int lockType = 0, out EntityAI lockedEntity = null, bool checkParent = true)
+	{
+		if (entity.GetInventory().IsInventoryLocked())
+		{
+			if (entity.GetInventory().IsInventoryLockedForLockType(HIDE_INV_FROM_SCRIPT))
+				lockType = HIDE_INV_FROM_SCRIPT;
+			else
+				lockType = LOCK_FROM_SCRIPT;
+
+			lockedEntity = entity;
+
+			return true;
+		}
+
+		if (checkParent && entity.GetHierarchyParent())
+			return IsInventoryLocked(entity.GetHierarchyParent(), lockType, lockedEntity, false);
+
+		return false;
 	}
 
 	//! Only kept for compatibility with old mods, remove after next update

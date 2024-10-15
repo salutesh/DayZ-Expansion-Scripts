@@ -70,15 +70,20 @@ modded class ItemBase
 			return;
 		}
 
+		if (!GetGame().IsServer())
+			return;
+
 		EXTrace.Print(EXTrace.AI, this, "::OnInventoryEnter - " + player);
 
-		if (!IsDamageDestroyed())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(ai.eAI_OnInventoryEnter, this);  //! Add in next tick to make sure we're not instantly adding items created by ObjectCreate(Ex) and similar methods where item setup (quantity etc) is performed in script after creation
+		ai.eAI_OnInventoryEnter(this);
 	}
 
 	override void OnInventoryExit(Man player)
 	{
 		super.OnInventoryExit(player);
+
+		if (!GetGame().IsServer())
+			return;
 
 		eAIBase ai;
 		if (!Class.CastTo(ai, player))
@@ -93,16 +98,19 @@ modded class ItemBase
 	{
 		super.OnWasAttached(parent, slot_id);
 
+		if (!GetGame().IsServer())
+			return;
+
 		eAIBase ai;
-		if (!Class.CastTo(ai, GetHierarchyRootPlayer()))
+		if (!Class.CastTo(ai, parent.GetHierarchyRootPlayer()))
 			return;
 
 		//! If mag was attached to item that's in AI possession, remove from tracked list
 		Magazine mag;
 		if (Class.CastTo(mag, this))
 		{
-			EXTrace.Print(EXTrace.AI, this, "::OnWasAttached - " + ai);
-			ai.eAI_OnMagAttached(mag);
+			EXTrace.Print(EXTrace.AI, this, "::OnWasAttached - " + ai + " " + parent + " " + InventorySlots.GetSlotName(slot_id));
+			ai.eAI_OnMagAttached(parent, slot_id, mag);
 		}
 	}
 
@@ -110,16 +118,19 @@ modded class ItemBase
 	{
 		super.OnWasDetached(parent, slot_id);
 
+		if (!GetGame().IsServer())
+			return;
+
 		eAIBase ai;
-		if (!Class.CastTo(ai, GetHierarchyRootPlayer()))
+		if (!Class.CastTo(ai, parent.GetHierarchyRootPlayer()))
 			return;
 
 		//! If mag was detached from item that's in AI possession, add to tracked list
 		Magazine mag;
-		if (Class.CastTo(mag, this) && !IsDamageDestroyed())
+		if (Class.CastTo(mag, this))
 		{
-			EXTrace.Print(EXTrace.AI, this, "::OnWasDetached - " + ai);
-			ai.eAI_OnMagDetached(mag);
+			EXTrace.Print(EXTrace.AI, this, "::OnWasDetached - " + ai + " " + parent + " " + InventorySlots.GetSlotName(slot_id));
+			ai.eAI_OnMagDetached(parent, slot_id, mag);
 		}
 	}
 

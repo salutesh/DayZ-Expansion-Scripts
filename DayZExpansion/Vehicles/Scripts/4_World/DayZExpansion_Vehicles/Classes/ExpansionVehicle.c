@@ -512,7 +512,7 @@ modded class ExpansionVehicle
 		if (settings.IsLoaded() && settings.VehicleLockedAllowInventoryAccess)
 			return true;
 
-		if (settings.IsLoaded() && settings.VehicleLockedAllowInventoryAccessWithoutDoors && !AllDoorsClosed())
+		if (settings.IsLoaded() && settings.VehicleLockedAllowInventoryAccessWithoutDoors && !AllDoorsClosedEx())
 			return true;
 
 		//! @note we explicitly check for LOCKED state instead of IsLocked() as we don't want to be able to access inventory if forced locked
@@ -522,9 +522,83 @@ modded class ExpansionVehicle
 		return true;
 	}
 
+	/**
+	 * @brief checks if all doors are closed
+	 * 
+	 * @note implementation in ExpansionVehicleT (in Expansion-Core) relies on GetCarDoorsState
+	 * actually returning correct values for all doors, so shouldn't be used for non-Expansion
+	 * vehicles. Use AllDoorsClosedEx instead.
+	 */
 	bool AllDoorsClosed(bool includeHoodAndTrunk = true)
 	{
 		EXError.Error(this, "NOT IMPLEMENTED");
+		return false;
+	}
+
+	/**
+	 * @brief checks if all doors are closed (more reliable version of AllDoorsClosed)
+	 * 
+	 * @note deliberately doesn't use GetCarDoorsState since 3rd party mods often do not
+	 * implement that correctly and consistently (or at all) when needed...
+	 */
+	bool AllDoorsClosedEx(bool includeHoodAndTrunk = true)
+	{
+		foreach (ExpansionDoor door: m_Doors)
+		{
+			if (!includeHoodAndTrunk && (door.m_IsHood || door.m_IsTrunk))
+				continue;
+
+			if (!door.m_IsValid)
+				continue;
+
+			//! Check if door missing
+			if (!door.m_Door)
+			{
+				if (door.m_InventorySlotID == InventorySlots.INVALID)
+					return false;
+
+				if (!Class.CastTo(door.m_Door, GetEntity().GetInventory().FindAttachment(door.m_InventorySlotID)))
+					return false;
+			}
+
+			//! Check if door closed
+			if (TranslateAnimationPhaseToCarDoorState(door.m_Animation) != CarDoorState.DOORS_CLOSED)
+				return false;
+		}
+
+		return true;
+	}
+
+	CarDoorState TranslateAnimationPhaseToCarDoorState(string animation)
+	{
+		if (GetEntity().GetAnimationPhase(animation) > 0.5)
+			return CarDoorState.DOORS_OPEN;
+		else
+			return CarDoorState.DOORS_CLOSED;
+	}
+
+	bool CanDisplayAttachmentSlotCategory(string slotName)
+	{
+		EntityAI vehicle = GetEntity();
+
+		if (vehicle.ConfigIsExisting("GUIInventoryAttachmentsProps"))
+		{
+			string path = "CfgVehicles " + vehicle.GetType() + " GUIInventoryAttachmentsProps";
+			int count = GetGame().ConfigGetChildrenCount(path);
+
+			for (int i = 0; i < count; i++)
+			{
+				string attachmentCategory;
+				GetGame().ConfigGetChildName(path, i, attachmentCategory);
+
+				TStringArray attachmentSlots = {};
+				GetGame().ConfigGetTextArray(path + " " + attachmentCategory + " attachmentSlots", attachmentSlots);
+
+				if (ExpansionStatic.StringArrayContainsIgnoreCase(attachmentSlots, slotName))
+					return vehicle.CanDisplayAttachmentCategory(attachmentCategory);
+			}
+		}
+
 		return false;
 	}
 
@@ -580,7 +654,7 @@ modded class ExpansionVehicle
 
 		if (previousLockState == ExpansionVehicleLockState.READY_TO_FORCELOCK)
 			lockState = ExpansionVehicleLockState.FORCEDLOCKED;
-		else if (AllDoorsClosed() || !GetExpansionSettings().GetVehicle().VehicleRequireAllDoors)
+		else if (AllDoorsClosedEx() || !GetExpansionSettings().GetVehicle().VehicleRequireAllDoors)
 			lockState = ExpansionVehicleLockState.LOCKED;
 
 		if (lockState)
@@ -642,7 +716,6 @@ modded class ExpansionVehicle
 	{
 		if (GetGame().IsServer())
 		{
-#ifdef EXPANSION_VEHICLE_DOOR_JOINTS
 			ExpansionDoor door;
 			string slotNameLower = slotName;
 			slotNameLower.ToLower();
@@ -650,7 +723,6 @@ modded class ExpansionVehicle
 			{
 				door.SetDoor(CarDoor.Cast(item));
 			}
-#endif
 		}
 
 		if (item.IsInherited(ExpansionKeyChainBase))
@@ -662,6 +734,17 @@ modded class ExpansionVehicle
 
 	void OnItemDetached(EntityAI item, string slotName)
 	{
+		if (GetGame().IsServer())
+		{
+			ExpansionDoor door;
+			string slotNameLower = slotName;
+			slotNameLower.ToLower();
+			if (m_Doors.Find(slotNameLower, door))
+			{
+				door.SetDoor(null);
+			}
+		}
+
 		if (item.IsInherited(ExpansionKeyChainBase))
 			m_KeyChain = null;
 	}

@@ -819,7 +819,9 @@ class ExpansionPathHandler
 		m_IsJumpClimb = false;
 		m_DoClimbTestEx = false;
 
-		if (m_Count > 1 + m_PointIdx && !CheckFallHeight())
+		//! Only check fall height if path endpoint (i.e. near potential edge) so we don't get stuck
+		//! on certain structures upper level (e.g. Land_Barn_Metal_Big or Land_Mil_GuardTower) 
+		if (m_Count == 1 + m_PointIdx && !CheckFallHeight())
 			return;
 
 		int P_STATE = -1;

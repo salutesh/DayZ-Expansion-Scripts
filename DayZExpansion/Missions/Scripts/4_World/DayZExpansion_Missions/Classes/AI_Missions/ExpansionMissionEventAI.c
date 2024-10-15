@@ -129,13 +129,13 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 				#endif
 				}
 			#ifdef EXPANSIONMODVEHICLE
-				if (car)
+				if (vehicle)
 				{
 					if ( shouldLock )
 					{
 						key = ExpansionCarKey.Cast( SpawnObject("ExpansionCarKey") );
-						car.PairKeyTo(key);
-						car.LockCar(key);
+						vehicle.PairKey(key);
+						vehicle.Lock(key);
 					}
 				}
 			#endif
@@ -159,15 +159,17 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 					int soldiercount = m_Soldiers.Count() - 1;
 					int pickedSoldierId = Math.RandomInt(0, m_Soldiers.Count() );
 					eAIGroup group = eAIGroup.Cast(m_Soldiers[soldiercount].m_Group);
-					DayZPlayerImplement member = DayZPlayerImplement.Cast(group.GetMember(pickedSoldierId));
-					member.GetInventory().TakeEntityToCargo(InventoryMode.SERVER, key);
-
 					Print("soldiercount =>"+soldiercount);
 					Print("pickedSoldierId =>"+pickedSoldierId);
 					Print("m_Soldiers[soldiercount] =>"+m_Soldiers[soldiercount]);
 					Print("group =>"+group);
-					Print("group.GetMember(pickedSoldierId) =>"+group.GetMember(pickedSoldierId));
-					Print("member =>"+member);
+					if (group)
+					{
+						DayZPlayerImplement member = DayZPlayerImplement.Cast(group.GetMember(pickedSoldierId));
+						member.GetInventory().TakeEntityToCargo(InventoryMode.SERVER, key);
+						Print("group.GetMember(pickedSoldierId) =>"+group.GetMember(pickedSoldierId));
+						Print("member =>"+member);
+					}
 				}
 			#endif
 			}

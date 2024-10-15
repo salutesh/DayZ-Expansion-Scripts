@@ -553,12 +553,55 @@ class eAICommandMove: ExpansionHumanCommandScript
 			if (m_IsSwimming)
 				velocity[1] = 0.0;  //! Set vertical velocity to zero to nullify effect of tide
 
-			//! Prone movement speed = ~0.424 m/s (~0.18 squared)
+			/**
+			 * Measured movement speeds (avg)
+			 * 
+			 * ================================================================
+			 * Full health
+			 * ================================================================
+			 * Empty handed     m/s               squared
+			 * ----------------------------------------------------------------
+			 * Prone            ~0.42459290       ~0.180279
+			 * Crouch walk      ~1.31864166       ~1.738816
+			 * Crouch run       ~3.5893068        ~12.883123
+			 * Walk             ~1.52753647       ~2.333367
+			 * Jog              ~4.08504166       ~16.687565
+			 * Sprint           ~6.75593681       ~45.642682
+			 * ----------------------------------------------------------------
+			 * Rifle in hands   m/s
+			 * ----------------------------------------------------------------
+			 * Prone            ~0.48079174       ~0.231160
+			 * Crouch walk      ~1.31665192       ~1.733572
+			 * Crouch run       ~3.19667952       ~10.218759
+			 * Walk             1.362             1.855044
+			 * Jog              ~3.64278882       ~13.269910
+			 * Sprint           ~6.70817238       ~44.999576
+			 * 
+			 * ================================================================
+			 * Injured (5% health)
+			 * ================================================================
+			 * Rifle in hands   m/s               squared
+			 * ----------------------------------------------------------------
+			 * Prone            (same as full health)
+			 * Crouch walk      ~1.075639         ~1.156999
+			 * Crouch run       ~1.07554892       ~1.156805
+			 * Walk             ~1.22531954       ~1.501407
+			 * Jog              ~2.02479724       ~4.099803
+			 * Sprint           ~2.03242218       ~4.130739
+			 */
 			float speedThreshold;
-			if (m_Stance == 2)
+			if (m_Stance == 2)  //! Prone
+			{
 				speedThreshold = 0.1;
+			}
 			else
-				speedThreshold = 1.0;
+			{
+				if (m_Stance == 1 || m_MovementSpeed < 2.0)  //! Crouch or walk
+					speedThreshold = 1.0;
+				else
+					speedThreshold = 2.0 * m_MovementSpeed;  //! Jog/sprint
+				speedThreshold *= (1.0 - m_Unit.m_InjuryHandler.GetInjuryAnimValue() * 0.9);
+			}
 			if (velocity.LengthSq() < speedThreshold && !m_Unit.GetActionManager().GetRunningAction() && !m_Unit.IsRaised())
 				m_PositionTime += pDt;  //! We don't seem to be actually moving
 			else
@@ -1086,16 +1129,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 				float leaderSpeed = leader.Expansion_GetActualVelocity().LengthSq();
 				//if (EXTrace.AI && leaderSpeed > 0.0)
 					//EXPrint(leader.ToString() + " velocity " + leaderSpeed);
-				/**
-				 * Movement speeds (approx)
-				 * 
-				 * Empty handed, walk: 2.3 m/s
-				 * Rifle in hand, walk: 1.87733 m/s
-				 * Axe in hand, walk: 2.37429 m/s
-				 * Pistol in hand, walk: 2.3 m/s
-				 * Knife in hand, walk: 2.3 m/s
-				 */
-				if (leaderSpeed > 1.8)
+				if (leaderSpeed > 1.7)
 					matchLeaderSpeed = true;
 			}
 		}
@@ -1198,7 +1232,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			if (ExpansionMath.Distance2DSq(position, m_PathFinding.GetEnd()) >= m_MinFinal)
 				SetTargetSpeed(Math.Lerp(m_MovementSpeed, Math.Min(1.0, speedLimit), pDt * 2.0));
 		}
-		else if (m_Unit.IsRaised())
+		else if (m_Unit.IsRaised() || ExpansionMath.RelAngle(m_PathDirNormalized.VectorToAngles()[1]) < -40.0)
 		{
 		//#ifdef DIAG_DEVELOPER
 			//dbgObj = m_Unit.m_Expansion_DebugObjects[11108];
@@ -1478,7 +1512,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 				SetHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
 			//! Enable sharpest turns if turning around while running or sprinting
 			else if (!m_Unit.IsRaised() && Math.AbsFloat(m_TurnDifference) > 135.0 && m_MovementSpeed >= 2.0)
-				SetHeading(-turnTargetActual * Math.DEG2RAD, 0.05, 30.0);
+				SetHeading(-turnTargetActual * Math.DEG2RAD, 0.1, 30.0);
 			//! Enable sharper turns if above ground or waypoint is not final but close and not avoiding obstacles
 			else if (!m_Unit.IsRaised() && (isAboveGround || (!isPathPointFinal && m_WaypointDistance2DSq < 8.0 * Math.Max(m_MovementSpeed, 1.0) && m_OverrideMovementTimeout <= 0)))
 				SetHeading(-turnTargetActual * Math.DEG2RAD, 0.15, 30.0);

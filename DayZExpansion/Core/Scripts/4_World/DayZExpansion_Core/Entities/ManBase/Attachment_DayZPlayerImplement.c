@@ -445,22 +445,10 @@ modded class DayZPlayerImplement
 		CF_Trace trace;
 #endif
 
+		super.Expansion_OnSyncJuncture(pJunctureID, pCtx);
+
 		switch (pJunctureID)
 		{
-		case DayZPlayerSyncJunctures.EXPANSION_SJ_TELEPORT:
-#ifdef EXTRACE_DIAG
-			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_SJ_TELEPORT");
-#endif
-		
-			vector position;
-			vector orientation;
-
-			DayZPlayerSyncJunctures.ExpansionReadTeleport(pCtx, position, orientation);
-
-			SetPosition(position);
-			SetOrientation(orientation);
-
-			break;
 		case DayZPlayerSyncJunctures.EXPANSION_SJ_NEXT_LINK:
 #ifdef EXTRACE_DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_SJ_NEXT_LINK");
