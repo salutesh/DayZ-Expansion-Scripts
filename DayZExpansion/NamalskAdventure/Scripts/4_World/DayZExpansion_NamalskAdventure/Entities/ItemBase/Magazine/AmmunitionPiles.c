@@ -26,7 +26,9 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 {
 	override void EEInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		super.EEInit();
 
@@ -35,7 +37,9 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 
 	protected void InitBolt()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		//! Server only
 		#ifdef SERVER
@@ -46,7 +50,9 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 	//! Server
 	protected void InitBoltServer()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		//! Spawn the core item into the anomaly.
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnCoreItem, 500, false);
@@ -55,13 +61,17 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 	//! Server
 	protected void SpawnCoreItem()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		ExpansionItemSpawnHelper.SpawnInInventory(GetAmomalyCoreName(), this);
 	}
 	
 	override void EEParentedTo(EntityAI parent)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		ExDebugPrint("::EEParentedTo - Parent: " + parent.ToString() + " | Position: " + parent.GetPosition());
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(HandleBoltParented, 100, false);
@@ -69,7 +79,9 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		ExDebugPrint("::EEItemDetached - Item: " + item.ToString() + " | Slot:" + slot_name);
 		
 		//! Server only
@@ -85,7 +97,9 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 	//! Server
 	protected void HandleAnomalyCoreDetach()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		vector pos = GetPosition();
 		float surfaceY = GetGame().SurfaceY(pos[0], pos[2]);
@@ -121,7 +135,9 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 	//! Server
 	protected void HandleDisassemble()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		Magazine boltMag;
 		if (Class.CastTo(boltMag, this))
@@ -144,7 +160,9 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 	//! Server
 	protected void HandleBoltParented()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		if (GetGame().IsServer())
 		{

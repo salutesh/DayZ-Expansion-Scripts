@@ -26,7 +26,9 @@ modded class Land_Underground_Panel
 
 	void SetLinkedFakePanel(Land_Underground_Panel panel)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		m_LinkedFakePanel = panel;
 	}

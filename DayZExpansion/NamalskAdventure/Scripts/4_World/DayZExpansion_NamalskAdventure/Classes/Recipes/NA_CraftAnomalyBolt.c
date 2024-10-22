@@ -58,7 +58,9 @@ class NA_CraftAnomalyBolt extends RecipeBase
 
 	override void Do(ItemBase ingredients[], PlayerBase player, array<ItemBase> results, float specialty_weight)//gets called upon recipe's completion
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		float resultHealth;
 		

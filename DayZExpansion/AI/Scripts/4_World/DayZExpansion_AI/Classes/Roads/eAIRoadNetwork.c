@@ -361,9 +361,9 @@ class eAIRoadNetwork
 			if (obj.IsInherited(Camera)) continue;
 			if (obj.IsInherited(Particle)) continue;
 			if (obj.IsInherited(DayZCreature)) continue;
-			if (obj.IsInherited(Man)) continue;
-			if (obj.IsInherited(Transport)) continue;
-			if (obj.IsInherited(ItemBase)) continue;
+			if (obj.IsMan()) continue;
+			if (obj.IsTransport()) continue;
+			if (obj.IsItemBase()) continue;
 
 			LOD geometry = obj.GetLODByName("geometry");
 			if (!geometry || !eAIRoadNode.ObjectIsRoad(obj, geometry)) continue;

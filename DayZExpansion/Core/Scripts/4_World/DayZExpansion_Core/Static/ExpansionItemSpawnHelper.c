@@ -207,6 +207,7 @@ class ExpansionItemSpawnHelper
 				player.Expansion_SetTemporaryOwnedContainer(newStorage);
 
 				parent = newStorage;
+				playerStorage = newStorage;
 			}
 		}
 
@@ -384,7 +385,9 @@ class ExpansionItemSpawnHelper
 				}
 				*/
 
-				if (/*takeToDst && */parent.LocalTakeToDst(src, dst))
+				//! Special snowflake: Hands. Has to use ServerTakeToDst, not LocalTakeDst, else desync. WHY game, WHY.
+				//! Just use ServerTakeToDst always.
+				if (/*takeToDst && */parent.ServerTakeToDst(src, dst))
 				{
 				#ifdef SERVER
 					GetGame().RemoteObjectTreeCreate(newEntity);

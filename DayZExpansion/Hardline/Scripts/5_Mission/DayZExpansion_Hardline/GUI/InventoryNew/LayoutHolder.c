@@ -13,30 +13,33 @@
 modded class LayoutHolder
 {
 	protected int m_ExpansionBaseColor = -1;
-	protected bool m_ExpansionUseRarityColor;
+	
+	void Expansion_UpdateItemRarity();
 
-	protected void Expansion_UpdateItemRarity()
-	{
-	}
-
-	protected void Expansion_UpdateItemRarityEx(ItemBase item, Widget colorWidget)
+	protected void Expansion_UpdateItemRarityEx(ItemBase item, Widget colorWidget, bool hide = false)
 	{
 		auto settings = GetExpansionSettings().GetHardline(false);
-		if (item && settings.IsLoaded() && settings.EnableItemRarity && settings.UseItemRarityOnInventoryIcons && GetExpansionClientSettings().RarityColorToggle)
+
+		bool show;
+
+		if (!hide && item && settings.IsLoaded() && settings.EnableItemRarity && settings.UseItemRarityOnInventoryIcons && GetExpansionClientSettings().RarityColorToggle)
 		{
 			if (m_ExpansionBaseColor == -1)
 				m_ExpansionBaseColor = colorWidget.GetColor();
 			
 			ExpansionHardlineItemRarity rarity = item.Expansion_GetRarity();
-			int color;
-			string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, rarity);
-			ExpansionStatic.GetVariableIntByName(ExpansionHardlineItemRarityColor, rarityName, color);
-			colorWidget.SetColor(color);
-			m_ExpansionUseRarityColor = true;
+			if (rarity > settings.DefaultItemRarity)
+			{
+				int color;
+				string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, rarity);
+				ExpansionStatic.GetVariableIntByName(ExpansionHardlineItemRarityColor, rarityName, color);
+				colorWidget.SetColor(color);
+				show = true;
+			}
 		}
+
+		colorWidget.Show(show);
 	}
 
-	protected void Expansion_ResetColor()
-	{
-	}
+	protected void Expansion_ResetColor();
 }

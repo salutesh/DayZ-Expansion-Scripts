@@ -12,7 +12,7 @@
 
 class StaticObj_Misc_SupplyBox1_DE extends House 
 {
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_ServerMarker;
 #endif
@@ -20,7 +20,7 @@ class StaticObj_Misc_SupplyBox1_DE extends House
 
     void ~StaticObj_Misc_SupplyBox1_DE()
 	{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 		#ifdef EXPANSIONMODNAVIGATION
 			if (!m_ServerMarker)
 				return;
@@ -36,7 +36,7 @@ class StaticObj_Misc_SupplyBox1_DE extends House
     override void EEInit()
 	{
         super.EEInit();
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 	#ifdef EXPANSIONMODNAVIGATION
     #ifdef SERVER
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
@@ -45,11 +45,13 @@ class StaticObj_Misc_SupplyBox1_DE extends House
 	#endif
 	}
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #ifdef EXPANSIONMODNAVIGATION
 	void CreateDebugMarker()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
@@ -62,7 +64,7 @@ class StaticObj_Misc_SupplyBox1_DE extends House
 
 class StaticObj_Misc_SupplyBox2_DE extends House 
 {
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_ServerMarker;
 #endif
@@ -70,7 +72,7 @@ class StaticObj_Misc_SupplyBox2_DE extends House
 
     void ~StaticObj_Misc_SupplyBox2_DE()
 	{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 		#ifdef EXPANSIONMODNAVIGATION
 			if (!m_ServerMarker)
 				return;
@@ -86,7 +88,7 @@ class StaticObj_Misc_SupplyBox2_DE extends House
     override void EEInit()
 	{
         super.EEInit();
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 	#ifdef EXPANSIONMODNAVIGATION
     #ifdef SERVER
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
@@ -95,11 +97,13 @@ class StaticObj_Misc_SupplyBox2_DE extends House
 	#endif
 	}
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #ifdef EXPANSIONMODNAVIGATION
 	void CreateDebugMarker()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
@@ -112,7 +116,7 @@ class StaticObj_Misc_SupplyBox2_DE extends House
 
 class StaticObj_Misc_SupplyBox3_DE extends House 
 {
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_ServerMarker;
 #endif
@@ -120,7 +124,7 @@ class StaticObj_Misc_SupplyBox3_DE extends House
 
     void ~StaticObj_Misc_SupplyBox3_DE()
 	{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 		#ifdef EXPANSIONMODNAVIGATION
 			if (!m_ServerMarker)
 				return;
@@ -136,7 +140,7 @@ class StaticObj_Misc_SupplyBox3_DE extends House
     override void EEInit()
 	{
         super.EEInit();
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 	#ifdef EXPANSIONMODNAVIGATION
     #ifdef SERVER
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
@@ -145,11 +149,13 @@ class StaticObj_Misc_SupplyBox3_DE extends House
 	#endif
 	}
 
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #ifdef EXPANSIONMODNAVIGATION
 	void CreateDebugMarker()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);

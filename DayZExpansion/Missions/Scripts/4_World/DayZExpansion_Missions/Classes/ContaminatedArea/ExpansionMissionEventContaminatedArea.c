@@ -10,15 +10,6 @@ class ExpansionMissionEventContaminatedArea: ExpansionMissionEventBase
 
 	[NonSerialized()] autoptr ExpansionZone m_Zone;
 
-	[NonSerialized()]
-	static int m_LocationsCount = -1;
-
-	[NonSerialized()]
-	static ref array < ref ExpansionLocatorArray > m_AvailableLocations = new array < ref ExpansionLocatorArray >;
-
-	[NonSerialized()]
-	static ref array < ref ExpansionLocatorArray > m_SelectedLocations = new array < ref ExpansionLocatorArray >;
-
 	// ------------------------------------------------------------
 	// Expansion ExpansionMissionEventContaminatedArea
 	// ------------------------------------------------------------
@@ -112,28 +103,6 @@ class ExpansionMissionEventContaminatedArea: ExpansionMissionEventBase
 		}
 	}
 
-	override int MaxDefaultMissions()
-	{
-		//! Unknown map
-		if ( m_LocationsCount == -1 )
-		{
-			//! Get possible locations from world config
-			array< ref ExpansionLocatorArray > locs = ExpansionLocatorStatic.GetWorldLocations();
-
-			for ( int i = 0; i < locs.Count(); i ++ )
-			{
-				if ( locs[i].type.Contains( "Capital" ) || locs[i].type.Contains( "City" ) || locs[i].type.Contains( "Village" ) )
-				{
-					m_AvailableLocations.Insert( locs[i] );
-				}
-			}
-
-			m_LocationsCount = m_AvailableLocations.Count();
-		}
-
-		return Math.Min( m_LocationsCount, 13 );
-	}
-
 	override protected string OnDefaultMission(int index)
 	{
 		Enabled = false;
@@ -159,6 +128,11 @@ class ExpansionMissionEventContaminatedArea: ExpansionMissionEventBase
 		Data.ParticleName = "graphics/particles/contaminated_area_gas_bigass";
 
 		return ExpansionMissionContaminatedRandom( index );
+	}
+
+	override protected string DefaultMission( int index )
+	{
+		return ExpansionMissionContaminatedChernarus(index);
 	}
 
 	protected string ExpansionMissionContaminatedChernarus(int index)
@@ -240,61 +214,10 @@ class ExpansionMissionEventContaminatedArea: ExpansionMissionEventBase
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
-		if ( m_AvailableLocations.Count() == 0 )
-		{
-			//! Fall back to Chernarus defaults
-			return ExpansionMissionContaminatedChernarus( idx );
-		}
-
-		int locIdx;
-
-		if ( m_SelectedLocations.Count() == 0 )
-		{
-			//! Pick a random first location
-			locIdx = m_AvailableLocations.GetRandomIndex();
-		} else
-		{
-			//! Search for a location that is at least some distance from already picked locations
-			array< int > candidates = new array< int >;
-
-			int minDistance = 1500;
-
-			while ( m_SelectedLocations.Count() + candidates.Count() < MaxDefaultMissions() )
-			{
-				for ( int i = 0; i < m_AvailableLocations.Count(); i++ )
-				{
-					for ( int j = 0; j < m_SelectedLocations.Count(); j ++ )
-					{
-						float distance = vector.Distance( m_AvailableLocations[i].position, m_SelectedLocations[j].position );
-
-						if ( distance > minDistance )
-						{
-							candidates.Insert( i );
-						}
-					}
-				}
-
-				if ( minDistance == 0 )
-					break;
-
-				//! In case we didn't find enough candidates, reduce min distance and try again
-				minDistance -= 250;
-			}
-
-			locIdx = candidates.GetRandomElement();
-		}
-
-		ExpansionLocatorArray loc = m_AvailableLocations[locIdx];
-
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXPrint("ExpansionMissionEventContaminatedArea::ExpansionMissionContaminatedRandom - " + loc.name);
-		#endif
-
-		m_SelectedLocations.Insert( loc );
-
-		m_AvailableLocations.Remove( locIdx );
-
-		MissionName = loc.name;
+		ExpansionLocatorArray loc;
+		string fname = RandomMission(idx, loc);
+		if (!loc)
+			return fname;
 
 		Data.Pos = {loc.position[0], 0, loc.position[2]};
 		Data.Radius = ExpansionLocatorStatic.GetRadius( loc.type );
@@ -305,8 +228,6 @@ class ExpansionMissionEventContaminatedArea: ExpansionMissionEventBase
 		Data.OuterRingToggle = 1;
 		Data.OuterPartDist = 50;
 
-		string fname = MissionName;
-		fname.Replace( " ", "-" );
 		return fname;
 	}
 };

@@ -31,7 +31,9 @@ class ExpansionPropUniversalLight extends ItemBase
 	
 	override void EEInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		super.EEInit();
 		
@@ -135,7 +137,9 @@ class ExpansionPropUniversalLight extends ItemBase
 	
 	override void OnWasAttached(EntityAI parent, int slot_id)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		super.OnWasAttached(parent, slot_id);
 		
@@ -192,7 +196,9 @@ class ExpansionPropUniversalLight extends ItemBase
 	
 	override void OnVariablesSynchronized()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		super.OnVariablesSynchronized();
 		

@@ -15,6 +15,9 @@ class ExpansionWeaponUtils
 	//! Maps ammo type to health type to damage applied
 	static ref map<string, ref map<string, float>> s_DamageAppliedByAmmo = new map<string, ref map<string, float>>();
 
+	//! Maps bullet type to health type to damage applied
+	static ref map<string, ref map<string, float>> s_DamageAppliedByBullet = new map<string, ref map<string, float>>();
+
 	//! Maps weapon classname to init speed mult
 	static ref map<string, float> s_InitSpeedMultipliers = new map<string, float>();
 
@@ -23,24 +26,41 @@ class ExpansionWeaponUtils
 		map<string, float> healthTypeMap;
 		float damageApplied;
 
-		if (!s_DamageAppliedByAmmo.Find(ammoTypeName, healthTypeMap))
+		if (s_DamageAppliedByAmmo.Find(ammoTypeName, healthTypeMap))
 		{
-			healthTypeMap = new map<string, float>;
-			s_DamageAppliedByAmmo.Insert(ammoTypeName, healthTypeMap);
+			damageApplied = healthTypeMap[healthType];
 		}
-
-		if (!healthTypeMap.Find(healthType, damageApplied))
+		else
 		{
 			string bulletTypeNamePath = "CfgMagazines " + ammoTypeName + " ammo";
 			if (GetGame().ConfigIsExisting(bulletTypeNamePath))
 			{
 				string bulletTypeName = GetGame().ConfigGetTextOut(bulletTypeNamePath);
-				string damageAppliedPath = "CfgAmmo " + bulletTypeName + " DamageApplied " + healthType + " damage";
-				if (GetGame().ConfigIsExisting(damageAppliedPath))
-					damageApplied = GetGame().ConfigGetFloat(damageAppliedPath);
+				damageApplied = GetDamageAppliedByBullet(bulletTypeName, healthType);
+				s_DamageAppliedByAmmo[ammoTypeName] = s_DamageAppliedByBullet[bulletTypeName];
 			}
-			healthTypeMap.Insert(healthType, damageApplied);
-			//EXPrint(ammoTypeName + " " + healthType + " " + damageApplied, " [ExpansionWeaponUtils] ");
+		}
+
+		return damageApplied;
+	}
+
+	static float GetDamageAppliedByBullet(string bulletTypeName, string healthType="Health")
+	{
+		map<string, float> healthTypeMap;
+		float damageApplied;
+
+		if (!s_DamageAppliedByBullet.Find(bulletTypeName, healthTypeMap))
+		{
+			healthTypeMap = new map<string, float>;
+			s_DamageAppliedByBullet[bulletTypeName] = healthTypeMap;
+		}
+
+		if (!healthTypeMap.Find(healthType, damageApplied))
+		{
+			string damageAppliedPath = "CfgAmmo " + bulletTypeName + " DamageApplied " + healthType + " damage";
+			if (GetGame().ConfigIsExisting(damageAppliedPath))
+				damageApplied = GetGame().ConfigGetFloat(damageAppliedPath);
+			healthTypeMap[healthType] = damageApplied;
 		}
 
 		return damageApplied;

@@ -304,7 +304,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 				missionMeta.MissionPath = missionEvent.GetPath();
 				missionMeta.MissionType = missionClassName;
-				missionMeta.MissionEvent = missionEvent;
 
 				m_MissionSettings.Missions.Insert( missionMeta );
 
@@ -353,7 +352,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 			missionMeta.MissionPath = missionEvent.GetPath();
 			missionMeta.MissionType = missionClassName;
-			missionMeta.MissionEvent = missionEvent;
 
 			m_MissionSettings.Missions.Insert( missionMeta );
 
@@ -501,7 +499,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		missionMeta.MissionPath = evt.GetPath();
 		missionMeta.MissionType = GetMissionType( evt ).ToString();
-		missionMeta.MissionEvent = evt;
 
 		m_MissionSettings.Missions.Insert( missionMeta );
 

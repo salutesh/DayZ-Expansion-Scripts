@@ -41,6 +41,15 @@ class ExpansionMissionEventBase
 
 	[NonSerialized()]
 	private bool m_IsRunning;
+
+	[NonSerialized()]
+	static ref map < typename, int > s_LocationsCount = new map < typename, int >;
+
+	[NonSerialized()]
+	static ref map < typename, ref array < ref ExpansionLocatorArray > > s_AvailableLocations = new map < typename, ref array < ref ExpansionLocatorArray > >;
+
+	[NonSerialized()]
+	static ref map < typename, ref array < ref ExpansionLocatorArray > > s_SelectedLocations = new map < typename, ref array < ref ExpansionLocatorArray > >;
 	
 	// ------------------------------------------------------------
 	// ExpansionMissionEventBase Constructor
@@ -104,13 +113,115 @@ class ExpansionMissionEventBase
 	protected string OnDefaultMission( int index )
 	{
 	}
+
+	protected string DefaultMission( int index )
+	{
+	}
+
+	protected string RandomMission(int idx, out ExpansionLocatorArray loc)
+	{
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
+		#endif
+
+		typename type = Type();
+
+		array<ref ExpansionLocatorArray> availableLocs = s_AvailableLocations[type];
+
+		if ( availableLocs.Count() == 0 )
+		{
+			//! Fall back to defaults
+			return DefaultMission( idx );
+		}
+
+		Weight = 1;  //! As locations are chosen randomly, set all weights equal
+
+		int locIdx;
+
+		array<ref ExpansionLocatorArray> selectedLocs = s_SelectedLocations[type];
+
+		if ( selectedLocs.Count() == 0 )
+		{
+			//! Pick a random first location
+			locIdx = availableLocs.GetRandomIndex();
+		} else
+		{
+			//! Search for a location that is at least some distance from already picked locations
+			array< int > candidates = new array< int >;
+
+			int minDistance = 1500;
+
+			while ( selectedLocs.Count() + candidates.Count() < MaxDefaultMissions() )
+			{
+				foreach ( int i, auto availableLoc: availableLocs )
+				{
+					foreach ( int j, auto selectedLoc: selectedLocs )
+					{
+						float distance = vector.Distance( availableLoc.position, selectedLoc.position );
+
+						if ( distance > minDistance )
+						{
+							candidates.Insert( i );
+						}
+					}
+				}
+
+				if ( minDistance == 0 )
+					break;
+
+				//! In case we didn't find enough candidates, reduce min distance and try again
+				minDistance -= 250;
+			}
+
+			locIdx = candidates.GetRandomElement();
+		}
+
+		loc = availableLocs[locIdx];
+
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXPrint(this, "OnDefaultMission - " + loc.name);
+		#endif
+
+		selectedLocs.Insert( loc );
+
+		availableLocs.Remove( locIdx );
+
+		if (MissionName)
+			MissionName += "_" + loc.classname;
+		else
+			MissionName = loc.classname;
+
+		return MissionName;
+	}
 	
 	// ------------------------------------------------------------
 	// ExpansionMissionEventBase MaxDefaultMissions
 	// ------------------------------------------------------------
 	int MaxDefaultMissions()
 	{
-		return 1;
+		typename type = Type();
+
+		if ( !s_LocationsCount.Contains(type) )
+		{
+			//! Get possible locations from world config
+			array< ref ExpansionLocatorArray > locs = ExpansionLocatorStatic.GetWorldLocations();
+
+			array< ref ExpansionLocatorArray > availableLocs = {};
+
+			foreach (auto loc: locs)
+			{
+				if ( loc.type.Contains( "Capital" ) || loc.type.Contains( "City" ) || loc.type.Contains( "Village" ) )
+				{
+					availableLocs.Insert( loc );
+				}
+			}
+
+			s_LocationsCount[type] = availableLocs.Count();
+			s_AvailableLocations[type] = availableLocs;
+			s_SelectedLocations[type] = {};
+		}
+
+		return Math.Min( s_LocationsCount[type], 13 );
 	}
 	
 	// ------------------------------------------------------------

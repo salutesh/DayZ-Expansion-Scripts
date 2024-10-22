@@ -209,9 +209,9 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			
 			distanceThreshold = 35.0;
 		}
-		else  //! In theory this condition should never be reached
+		else  //! Archery or unknown
 		{
-			levelFactor *= 5.0;  //! If either AI or target have a 5.56x45 mm weapon, threat level 0.4 at 250 m
+			levelFactor *= 5.0;
 			
 			distanceThreshold = 100.0;
 		}

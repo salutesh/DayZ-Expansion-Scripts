@@ -16,7 +16,9 @@ class ExpansionActionRemoveSupplyCrateKey: ActionInteractBase
 
 	void ExpansionActionRemoveSupplyCrateKey()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ATTACHITEM;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
@@ -58,7 +60,9 @@ class ExpansionActionRemoveSupplyCrateKey: ActionInteractBase
 
 	override void OnExecuteServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		Expansion_SupplyCrate_Base crate = Expansion_SupplyCrate_Base.Cast(action_data.m_Target.GetObject());
 		if (crate)

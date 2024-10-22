@@ -19,7 +19,9 @@ class ExpansionBunkerEntranceTriggerBase: Trigger
 
 	void ExpansionBunkerEntranceTriggerBase()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		SetEventMask(EntityEvent.ENTER | EntityEvent.LEAVE);
 
 		m_TeleportingPlayers = new array<PlayerBase>;
@@ -27,19 +29,25 @@ class ExpansionBunkerEntranceTriggerBase: Trigger
 
 	override protected void AddInsider(Object obj)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		//! Do nothing..
 	}
 
 	override protected void RemoveInsiderByObject(Object object)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		//! Do nothing..
 	}
 
 	override void EOnEnter(IEntity other, int extra)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (!EntityConditions(other))
 			return;
@@ -53,7 +61,9 @@ class ExpansionBunkerEntranceTriggerBase: Trigger
 
 	override void EOnLeave(IEntity other, int extra)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		PlayerBase player = PlayerBase.Cast(other);
 		int findIndex = m_TeleportingPlayers.Find(player);
@@ -64,7 +74,9 @@ class ExpansionBunkerEntranceTriggerBase: Trigger
 	//! Condition checks on given entity.
 	protected bool EntityConditions(IEntity other)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		ExDebugPrint("::EntityConditions - Entity: " + other.ToString());
 
 		PlayerBase player = PlayerBase.Cast(other);
@@ -79,7 +91,9 @@ class ExpansionBunkerEntranceTriggerBase: Trigger
 
 	void SetTriggerRadius(int radius)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		SetCollisionSphere(radius);
 	}
 

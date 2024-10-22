@@ -31,6 +31,7 @@ class eAICommandManagerClient : eAICommandManager
 		m_Expansion_RPCManager.RegisterServer("RPC_DumpState");
 		m_Expansion_RPCManager.RegisterServer("RPC_UnlimitedReload");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugObjects");
+		m_Expansion_RPCManager.RegisterServer("RPC_DebugDamage");
 	}
 
 	override bool Send(eAICommands cmd)
@@ -69,6 +70,10 @@ class eAICommandManagerClient : eAICommandManager
 
 			case eAICommands.DEB_DBGOBJECTS:
 				m_Expansion_RPCManager.SendRPC("RPC_DebugObjects");
+				return true;
+
+			case eAICommands.DEB_DBGDAMAGE:
+				m_Expansion_RPCManager.SendRPC("RPC_DebugDamage");
 				return true;
 
 			case eAICommands.FOR_VEE:
@@ -444,6 +449,29 @@ class eAICommandManagerClient : eAICommandManager
 		}
 
 		ExpansionNotification("EXPANSION AI", "Debug objects " + onOff).Info(sender);
+	}
+	
+	void RPC_DebugDamage(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		if (GetGame().IsMultiplayer())
+		{
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
+		}
+	
+		DayZPlayerImplement.s_eAI_DebugDamage = !DayZPlayerImplement.s_eAI_DebugDamage;
+
+		string onOff;
+		if (DayZPlayerImplement.s_eAI_DebugDamage)
+			onOff = "ON";
+		else
+			onOff = "OFF";
+
+		ExpansionNotification("EXPANSION AI", "Debug damage " + onOff).Info(sender);
 	}
 	
 	void RPC_ReqFormRejoin(PlayerIdentity sender, Object target, ParamsReadContext ctx)

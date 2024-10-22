@@ -14,7 +14,9 @@ class ExpansionActionRemoveSparkPlug: ActionInteractBase
 {
 	void ExpansionActionRemoveSparkPlug()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_INTERACTONCE;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
 	}
@@ -27,7 +29,9 @@ class ExpansionActionRemoveSparkPlug: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		EntityAI target_EAI = EntityAI.Cast(target.GetObject());
 		string selection = target_EAI.GetActionComponentName(target.GetComponentIndex());

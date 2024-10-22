@@ -165,7 +165,7 @@ class eAITarget
 			canYeet = true;
 
 		EntityAI entity = GetEntity();
-		if (!entity || (entity.IsInherited(ItemBase) && (!IsMechanicalTrap() || IsExplosive())) || (entity.IsTransport() && !canYeet))
+		if (!entity || (entity.IsItemBase() && (!IsMechanicalTrap() || IsExplosive())) || (entity.IsTransport() && !canYeet))
 			return false;
 
 		DayZPlayerImplement player;

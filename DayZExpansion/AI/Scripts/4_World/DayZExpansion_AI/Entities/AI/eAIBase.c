@@ -2680,7 +2680,7 @@ class eAIBase: PlayerBase
 		if (target)
 			targetEntity = target.GetEntity();
 
-		if (targetEntity && !targetEntity.IsInherited(ItemBase))
+		if (targetEntity && !targetEntity.IsItemBase())
 		{
 			targetEntity.GetNetworkID(m_eAI_CurrentTarget_NetIDLow, m_eAI_CurrentTarget_NetIDHigh);
 		}
@@ -2777,7 +2777,7 @@ class eAIBase: PlayerBase
 		else
 		{
 			/*
-			if (root && !root.IsInherited(ItemBase))
+			if (root && !root.IsItemBase())
 			{
 				eAITargetInformation info;
 				eAI_ProcessTarget(root, ourGroup, info);
@@ -5357,7 +5357,7 @@ class eAIBase: PlayerBase
 			return false;
 		}
 
-		bool isItemTarget = targetEntity.IsInherited(ItemBase);
+		bool isItemTarget = targetEntity.IsItemBase();
 
 		string boneName;
 		if (IsRaised())
@@ -5422,7 +5422,7 @@ class eAIBase: PlayerBase
 				return false;
 		}
 
-		bool isCreatureTarget = targetEntity.IsInherited(DayZCreatureAI);
+		bool isCreatureTarget = targetEntity.IsDayZCreature();
 
 		if (results.Count() && results[0].IsBuilding())
 		{
@@ -5443,12 +5443,18 @@ class eAIBase: PlayerBase
 
 		Object hitObj;
 		EntityAI hitEntity;
+		EntityAI hitEntityRoot;
+		bool isCreatureHit;
 		foreach (Object obj: results)
 		{
 			hitObj = obj;
 
 			if (Class.CastTo(hitEntity, obj))
-				obj = hitEntity.GetHierarchyRoot();
+			{
+				hitEntityRoot = hitEntity.GetHierarchyRoot();
+				isCreatureHit = hitEntityRoot.IsDayZCreature();
+				obj = hitEntityRoot;
+			}
 
 			//! Tree with player more than 2 m away from contact pos
 			if (obj.IsTree() && contactToTargetDistSq > 4 && !state.m_SearchPositionUpdateCount)
@@ -5488,7 +5494,7 @@ class eAIBase: PlayerBase
 						sideStep = m_eAI_IsFightingFSM;  //! Sidestep if we are in fighting FSM
 					}
 				}
-				else if (isCreatureTarget && (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase)))
+				else if (isCreatureTarget && isCreatureHit)
 				{
 					//! If object is zombie or animal but not the target or its parent, we don't care if they get shot when they are in the way
 					state.m_LOS = true;
