@@ -14,7 +14,7 @@
 #ifdef EXPANSION_NAMALSK_ADVENTURE
 class SV_Abandoned_Sattelite_Antenna extends House
 {
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_ServerMarker;
 #endif
@@ -29,7 +29,7 @@ class SV_Abandoned_Sattelite_Antenna extends House
 	
 	void ~SV_Abandoned_Sattelite_Antenna()
 	{
-		#ifdef DIAG
+		#ifdef DIAG_DEVELOPER
 		#ifdef EXPANSIONMODNAVIGATION
 			if (!m_ServerMarker)
 				return;
@@ -44,7 +44,9 @@ class SV_Abandoned_Sattelite_Antenna extends House
 	
 	override void EEInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		super.EEInit();
 
@@ -53,7 +55,9 @@ class SV_Abandoned_Sattelite_Antenna extends House
 	
 	protected void InitSatellite()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (!GetGame().IsDedicatedServer())
 		{
@@ -68,7 +72,9 @@ class SV_Abandoned_Sattelite_Antenna extends House
 	
 	void SetSatelliteActive(bool state)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		if (state)
 		{
@@ -85,24 +91,32 @@ class SV_Abandoned_Sattelite_Antenna extends House
 	
 	void OnSatelliteStateActiveStart()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 	}
 	
 	void OnSatelliteStateActiveEnd()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 	}
 	
 	protected void InitSatelliteClient()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 	}
 
 	protected void InitSatelliteServer()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 	#ifdef EXPANSIONMODNAVIGATION
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
 	#endif
@@ -114,11 +128,13 @@ class SV_Abandoned_Sattelite_Antenna extends House
 		return m_IsActive;
 	}
 	
-#ifdef DIAG
+#ifdef DIAG_DEVELOPER
 #ifdef EXPANSIONMODNAVIGATION
 	void CreateDebugMarker()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);

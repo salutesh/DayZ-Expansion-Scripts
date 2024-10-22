@@ -26,13 +26,15 @@ modded class EVRStorm
 	
 	override void InitPhaseServer()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		m_EVRStormPhase = ExpansionEVRStormPhase.INIT_PHASE;
 		ExpansionNamalskModule.GetModuleInstance().OnEVRStormInitPhaseServer();
 		ExpansionAnomaliesModule.GetModuleInstance().OnEVRStormInitPhaseServer();
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		ExpansionNotification(new StringLocaliser("EVR STORM"), new StringLocaliser("INIT PHASE STARTED"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
 	#endif
 
@@ -41,13 +43,15 @@ modded class EVRStorm
 
 	override void MidPhaseServer()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		m_EVRStormPhase = ExpansionEVRStormPhase.MID_PHASE;
 		ExpansionNamalskModule.GetModuleInstance().OnEVRStormMidPhaseServer();
 		ExpansionAnomaliesModule.GetModuleInstance().OnEVRStormMidPhaseServer();
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		ExpansionNotification(new StringLocaliser("EVR STORM"), new StringLocaliser("MID PHASE STARTED"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
 	#endif
 
@@ -56,7 +60,9 @@ modded class EVRStorm
 
 	override void EndPhaseServer()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		m_EVRStormPhase = ExpansionEVRStormPhase.END_PHASE;
 
@@ -67,7 +73,7 @@ modded class EVRStorm
 
 		m_EVRStormPhase = ExpansionEVRStormPhase.NONE;
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		ExpansionNotification(new StringLocaliser("EVR STORM"), new StringLocaliser("END PHASE STARTED"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
 	#endif
 
@@ -75,7 +81,9 @@ modded class EVRStorm
 
 	override void CreateBlowoutFinalServer()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		m_EVRStormPhase = ExpansionEVRStormPhase.BLOWOUT;
 
@@ -84,14 +92,16 @@ modded class EVRStorm
 		ExpansionNamalskModule.GetModuleInstance().OnEVRStormFinalBlowout();
 		ExpansionAnomaliesModule.GetModuleInstance().OnEVRStormFinalBlowout();
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		ExpansionNotification(new StringLocaliser("EVR STORM"), new StringLocaliser("EVR STORM BLOWOUT"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
 	#endif
 	}
 	
 	override void OnEVRFinished(notnull SurvivorBase player)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (!player.GetIdentity())
 			return;
@@ -101,7 +111,7 @@ modded class EVRStorm
 		ExpansionNamalskModule.GetModuleInstance().OnEVRStormFinished(player);
 		ExpansionAnomaliesModule.GetModuleInstance().OnEVRStormFinished(player);
 
-	#ifdef DIAG
+	#ifdef DIAG_DEVELOPER
 		ExpansionNotification(new StringLocaliser("EVR STORM"), new StringLocaliser("EVR STORM FINISHED"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create(player.GetIdentity());
 	#endif
 	}

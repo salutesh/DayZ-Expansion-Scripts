@@ -1,0 +1,17 @@
+ImageWidgetClass rootFrame {
+ ignorepointer 1
+ position 1 0
+ size 24 24
+ halign right_ref
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ priority 300
+ imageTexture "{64BF02433439B6A4}DayZExpansion/Hardline/GUI/icons/edge_topright_48x48.edds"
+ mode blend
+ "src alpha" 1
+ "clamp mode" clamp
+ "stretch mode" stretch_w_h
+ filter 1
+}

@@ -45,6 +45,9 @@ modded class BuildingBase
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this, GetType());
 #endif
 
+		if (!g_Game)
+			return;
+
 		ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
 	}
 	

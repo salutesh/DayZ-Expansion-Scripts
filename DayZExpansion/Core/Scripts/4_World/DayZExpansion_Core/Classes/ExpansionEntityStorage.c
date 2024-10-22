@@ -467,7 +467,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	static bool Restore(ParamsReadContext ctx, FileSerializer file, string basePath = string.Empty, inout EntityAI entity = null, EntityAI parent = null, EntityAI placeholder = null, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0, int elapsed = 0, bool deleteRestored = true)
 	{
 	#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule);
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, basePath, "entity=" + ExpansionStatic.GetDebugInfo(entity, false), "parent=" + ExpansionStatic.GetDebugInfo(parent, false), "placeholder=" + ExpansionStatic.GetDebugInfo(placeholder, false), "player=" + ExpansionStatic.GetDebugInfo(player, false), "version=" + entityStorageVersion, "type=" + type, "level=" + level, "elapsed=" + elapsed, "deleteRestored=" + deleteRestored);
 	#endif
 
 		if (!level)
@@ -558,8 +558,14 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	static int Restore_Phase1(ParamsReadContext ctx, out EntityAI entity, EntityAI parent, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0)
 	{
 	#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule);
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "entity=" + ExpansionStatic.GetDebugInfo(entity, false), "parent=" + ExpansionStatic.GetDebugInfo(parent, false), "player=" + ExpansionStatic.GetDebugInfo(player, false), "version=" + entityStorageVersion, "type=" + type, "level=" + level);
 	#endif
+
+		if (entity)
+		{
+			EXError.Warn(null, "[EntityStorage] Passed in entity is not NULL! " + ExpansionStatic.GetHierarchyInfo(entity));
+			entity = null;
+		}
 
 		//! 1a) entity type
 		if (!level || !type)
@@ -610,17 +616,25 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				if (entityStorageVersion >= 9 && !ctx.Read(slotLocked))
 					return ErrorFalse(type + ": Couldn't read slot locked state");
 				il = new InventoryLocation();
-				//! Some 3rd party mods create default attachments in EEInit without checking slots, boo!
-				entity = parent.GetInventory().FindAttachment(slotId);
-				if (entity && entity.GetType() != type)
+				if (level)
 				{
-					//! If it's not of the correct type, trash it
-					entity.GetInventory().GetCurrentInventoryLocation(il);
-					GameInventory.LocationRemoveEntity(il);
-					il.Reset();
-					GetGame().ObjectDelete(entity);
+					//! Some 3rd party mods create default attachments in EEInit without checking slots, boo!
+					//! If it's a different type, create restored entity elsewhere, else use existing attachment
+					entity = parent.GetInventory().FindAttachment(slotId);
+					if (entity)
+					{
+						if (entity.GetType() != type)
+						{
+							EXError.Warn(null, "[EntityStorage] Existing attachment " + entity.GetType() + " on " + parent + " is blocking entity to be restored " + type + ", will try to create in inventory");
+							entity = null;
+						}
+						else
+						{
+							EXError.Warn(null, "[EntityStorage] Using existing attachment " + entity.GetType() + " on " + parent);
+						}
+					}
 				}
-				if (!entity || entity.ToDelete())
+				if (!entity)
 				{
 					il.SetAttachment(parent, null, slotId);
 					entity = GameInventory.LocationCreateEntity(il, type, ECE_IN_INVENTORY, RF_DEFAULT);
@@ -703,7 +717,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	static bool Restore_Phase2(ParamsReadContext ctx, string basePath, EntityAI entity, EntityAI placeholder = null, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0, int elapsed = 0, bool deleteRestored = true)
 	{
 	#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "" + entity.GetType());
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, basePath, "entity=" + ExpansionStatic.GetDebugInfo(entity, false), "placeholder=" + ExpansionStatic.GetDebugInfo(placeholder, false), "player=" + ExpansionStatic.GetDebugInfo(player, false), "version=" + entityStorageVersion, "type=" + type, "level=" + level, "elapsed=" + elapsed, "deleteRestored=" + deleteRestored);
 	#endif
 
 		//! 2) attachments + cargo
@@ -745,6 +759,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				file = context.m_Context;
 			}
 
+			child = null;
 			if (!Restore(ctx, file, basePath, child, entity, null, player, entityStorageVersion, type, level + 1, elapsed))
 			{
 				if (entityStorageVersion < 7)
@@ -770,7 +785,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	static bool Restore_Phase3a(ParamsReadContext ctx, EntityAI entity, int entityStorageVersion)
 	{
 	#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "" + entity.GetType());
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "entity=" + ExpansionStatic.GetDebugInfo(entity, false), "version=" + entityStorageVersion);
 	#endif
 
 		int i;
@@ -934,7 +949,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	static void Restore_Phase3b(EntityAI entity, int elapsed)
 	{
 	#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "" + entity.GetType());
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, "entity=" + ExpansionStatic.GetDebugInfo(entity, false), "elapsed=" + elapsed);
 	#endif
 
 		//! 8) Process wetness/temperature/decay
@@ -1070,7 +1085,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	static bool RestoreFromFile(string fileName, inout EntityAI entity = null, EntityAI placeholder = null, PlayerBase player = null, bool deleteRestored = true)
 	{
 	#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule);
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionEntityStorageModule, fileName, "entity=" + ExpansionStatic.GetDebugInfo(entity, false), "placeholder=" + ExpansionStatic.GetDebugInfo(placeholder, false), "player=" + ExpansionStatic.GetDebugInfo(player, false), "deleteRestored=" + deleteRestored);
 	#endif
 
 		FileSerializer file = new FileSerializer();

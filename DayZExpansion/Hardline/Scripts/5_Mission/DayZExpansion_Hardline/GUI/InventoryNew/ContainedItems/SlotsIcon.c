@@ -10,18 +10,43 @@
  *
 */
 
-modded class SlotsIcon
+modded class SlotsContainer
 {
-	void SlotsIcon(LayoutHolder parent, Widget root, int index, EntityAI slot_parent) 
+	void SlotsContainer(LayoutHolder parent, EntityAI slot_parent) 
 	{
-		GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(this.Expansion_UpdateItemRarity, 100, false);
+		GetExpansionClientSettings().SI_UpdateSetting.Insert(Expansion_OnSettingsUpdated);
+		ExpansionSettings.SI_Hardline.Insert(Expansion_OnSettingsUpdated);
 	}
 	
+	void ~SlotsContainer()
+	{
+		GetExpansionClientSettings().SI_UpdateSetting.Remove(Expansion_OnSettingsUpdated);
+		ExpansionSettings.SI_Hardline.Remove(Expansion_OnSettingsUpdated);
+	}
+	
+	protected void Expansion_OnSettingsUpdated()
+	{
+		foreach	(SlotsIcon icon: m_Icons)
+		{
+			icon.Expansion_UpdateItemRarity();
+		}
+	}
+}
+
+modded class SlotsIcon
+{
+	protected ImageWidget m_Expansion_RarityColor;
+	void SlotsIcon(LayoutHolder parent, Widget root, int index, EntityAI slot_parent) 
+	{
+		m_Expansion_RarityColor = ImageWidget.Cast(GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_icon_rarity.layout", m_ItemPreview));
+		m_Expansion_RarityColor.Show(false);
+	}
+
 	override void Init(EntityAI obj, bool reservation = false)
 	{
 		super.Init(obj, reservation);
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(this.Expansion_UpdateItemRarity, 100, false);
+		Expansion_UpdateItemRarity();
 	}
 	
 	override void SetItemPreview() 
@@ -31,16 +56,21 @@ modded class SlotsIcon
 		Expansion_UpdateItemRarity();
 	}
 	
-	override protected void Expansion_UpdateItemRarity()
+	override void ClearRemainSelected()
 	{
-		Expansion_UpdateItemRarityEx(m_Item, m_ColWidget);
-
-		if (m_ExpansionUseRarityColor)
-			m_ColWidget.Show(true);
+		super.ClearRemainSelected();
+		
+		if (!m_Item)
+			m_Expansion_RarityColor.Show(false);
 	}
-
+	
+	override void Expansion_UpdateItemRarity()
+	{
+		Expansion_UpdateItemRarityEx(m_Item, m_Expansion_RarityColor, m_Reserved);
+	}
+	
 	override protected void Expansion_ResetColor()
 	{
-		m_ColWidget.SetColor(m_ExpansionBaseColor);
+		m_Expansion_RarityColor.SetColor(m_ExpansionBaseColor);
 	}
 };

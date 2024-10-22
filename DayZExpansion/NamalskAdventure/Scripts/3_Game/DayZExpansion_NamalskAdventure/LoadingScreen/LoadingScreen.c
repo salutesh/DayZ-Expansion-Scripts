@@ -29,7 +29,9 @@ class CustomLoadingScreenData
 
 	void CustomLoadingScreenData()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		m_ExBackgrounds = new array<ref CustomLoadingScreenBackground>;
 		JsonFileLoader<array<ref CustomLoadingScreenBackground>>.JsonLoadFile("DayZExpansion/NamalskAdventure/Scripts/Data/LoadingImages.json", m_ExBackgrounds);
@@ -43,7 +45,9 @@ modded class UiHintPanel
 
 	override protected void LoadContentList()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		if (!m_ExCustomLoadingScreenData)
 			m_ExCustomLoadingScreenData = new CustomLoadingScreenData();
@@ -74,7 +78,9 @@ modded class LoginScreenBase
 
 	void LoginScreenBase()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		m_ExCustomLoadingScreenData = new CustomLoadingScreenData();
 
@@ -120,7 +126,9 @@ modded class LoginScreenBase
 
 	protected int GetRandomBackroundIndex()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		int index = Math.RandomIntInclusive(0, (m_ExCustomLoadingScreenData.m_ExBackgrounds.Count() - 1));
 		int searchCount;
@@ -134,7 +142,9 @@ modded class LoginScreenBase
 
 	protected void SetBackgroundImage(int index)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		CustomLoadingScreenBackground background = m_ExCustomLoadingScreenData.m_ExBackgrounds.Get(index);
 		if (background && background.ImagePath != string.Empty)
@@ -153,7 +163,9 @@ modded class LoginQueueBase
 	
 	override Widget Init()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		layoutRoot = super.Init();
 
@@ -179,7 +191,9 @@ modded class LoginTimeBase
 	
 	override Widget Init()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		layoutRoot = super.Init();
 		
@@ -216,7 +230,9 @@ modded class LoadingScreen
 
 	void LoadingScreen(DayZGame game)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		m_ExCustomLoadingScreenData = new CustomLoadingScreenData();
 		if (!m_ExCustomLoadingScreenData)
@@ -321,14 +337,18 @@ modded class LoadingScreen
 	//! Method called when loading progress has finished.
 	override void Dec()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		super.Dec();
 	}
 
 	override void EndLoading()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		super.EndLoading();
 	}
@@ -351,7 +371,9 @@ modded class LoadingScreen
 
 	override void ShowEx(DayZGame game)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		super.ShowEx(game);
 
@@ -382,7 +404,9 @@ modded class LoadingScreen
 
 	protected void SetBackgroundImage(int index)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		CustomLoadingScreenBackground background = m_ExCustomLoadingScreenData.m_ExBackgrounds.Get(index);
 		if (background && background.ImagePath != string.Empty)

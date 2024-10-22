@@ -4,6 +4,8 @@ modded class DayZPlayerImplement
 	static int DEBUG_EXPANSION_AI_CLIMB;
 	static bool DEBUG_EXPANSION_AI_VEHICLE;
 #endif
+
+	static bool s_eAI_DebugDamage;
 	
 	private ref eAIPlayerTargetInformation m_TargetInformation = new eAIPlayerTargetInformation(this);
 	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);

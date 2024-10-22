@@ -26,7 +26,9 @@ class NA_WorkbenchMenu: ExpansionScriptViewMenu
 
 	void NA_WorkbenchMenu()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		Class.CastTo(m_WorkbenchMenuController, GetController());
 		
@@ -37,7 +39,9 @@ class NA_WorkbenchMenu: ExpansionScriptViewMenu
 	
 	protected void RegisterRecipes()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		if (!m_WorkbenchRecipes)
 			m_WorkbenchRecipes = new array<ref NA_WorkbenchRecipe>;
@@ -93,7 +97,9 @@ class NA_WorkbenchMenu: ExpansionScriptViewMenu
 	
 	void SetWorkbenchItems(Expansion_3DPrinter printer)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		ExDebugPrint("::SetWorkbenchItems - 3D Printer: " + printer.ToString());
 
@@ -161,7 +167,9 @@ class NA_WorkbenchMenu: ExpansionScriptViewMenu
 	
 	void OnRecipeSelected(NA_WorkbenchRecipe recipe)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		m_CanCraft = false;
 		int overallNeeded = 0;
@@ -226,7 +234,9 @@ class NA_WorkbenchMenu: ExpansionScriptViewMenu
 	
 	protected void SetFuel(int fuel_percentage)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		fuel_pointer.SetRotation(0, 0, fuel_percentage * 260 - 130, true);
 	}
@@ -280,7 +290,9 @@ class NA_WorkbenchMenuItem: ExpansionScriptView
 	
 	void NA_WorkbenchMenuItem(ItemBase item)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		Class.CastTo(m_WorkbenchMenuItemController, GetController());
 		
@@ -324,7 +336,9 @@ class NA_WorkbenchMenuRecipe: ExpansionScriptView
 	
 	void NA_WorkbenchMenuRecipe(NA_WorkbenchRecipe recipe, NA_WorkbenchMenu menu)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		Class.CastTo(m_WorkbenchMenuRecipeController, GetController());
 		

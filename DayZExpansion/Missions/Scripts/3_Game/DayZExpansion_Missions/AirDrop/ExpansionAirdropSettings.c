@@ -575,6 +575,7 @@ class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
 			case "namalsk":
+			case "sakhal":
 				Containers.Insert( new ExpansionLootContainer( "ExpansionAirdropContainer_Military_WinterCamo", 0, 20, Loot, Infected, itemCount, infectedCount ) );
 				break;
 			default:

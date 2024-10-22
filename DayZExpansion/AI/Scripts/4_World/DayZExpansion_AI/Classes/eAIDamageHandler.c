@@ -29,6 +29,57 @@ class eAIDamageHandler
 		m_HitCounter++;
 
 		EXTrace.PrintHit(EXTrace.AI, m_Entity, ToString() + "::OnDamageCalculated[" + m_HitCounter + "]", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		if (DayZPlayerImplement.s_eAI_DebugDamage && m_Entity.GetHierarchyRoot().IsMan())
+		{
+			//! Prevent death by health or blood dmg (can still bleed out from cuts)
+
+			float dmg = damageResult.GetDamage(dmgZone, "Health");
+			float transferToGlobalCoef = 1.0;
+
+			if (dmgZone)
+			{
+				string path;
+
+				if (m_Entity.IsMagazine())
+					path = CFG_MAGAZINESPATH;
+				else if (m_Entity.IsWeapon())
+					path = CFG_WEAPONSPATH;
+				else
+					path = CFG_VEHICLESPATH;
+
+				path += " " + m_Entity.GetType() + " DamageSystem DamageZones " + dmgZone + " Health transferToGlobalCoef";
+
+				if (GetGame().ConfigIsExisting(path))
+					transferToGlobalCoef = GetGame().ConfigGetFloat(path);
+			}
+
+			EXTrace.Print(EXTrace.AI, m_Entity, "Global damage: " + (dmg * transferToGlobalCoef));
+			EXTrace.Print(EXTrace.AI, m_Entity, "Global health: " + m_Entity.GetHealth("", "Health"));
+
+			if (dmgZone)
+				EXTrace.Print(EXTrace.AI, m_Entity, dmgZone + " health: " + m_Entity.GetHealth(dmgZone, "Health"));
+
+			if (dmg * transferToGlobalCoef >= Math.Floor(m_Entity.GetHealth("", "Health")))
+				return false;
+
+			if (m_Entity.IsMan())
+			{
+				if (dmgZone == "Head")
+				{
+					//! If head health goes to zero, character dies
+					if (dmg >= Math.Floor(m_Entity.GetHealth(dmgZone, "Health")))
+						return false;
+				}
+
+				//! Any damage to brain is certain death, HP don't matter
+				if (dmgZone == "Brain")
+					return false;
+
+				if (Math.Floor(m_Entity.GetHealth("", "Blood")) - damageResult.GetDamage(dmgZone, "Blood") <= 2600)
+					return false;
+			}
+		}
 	#endif
 
 		DayZPlayerImplement sourcePlayer;
@@ -51,25 +102,55 @@ class eAIDamageHandler
 					EntityAI hitscanEntity = ai.m_eAI_HitscanEntity;
 
 					//! Work-around for 1st shot on new entity hitting previously hit entity due to vanilla bug with Weapon::Fire
-					if (hitscanEntity && hitscanEntity.GetHierarchyRoot() != m_Entity.GetHierarchyRoot() && m_Entity.GetHierarchyRoot().IsDamageDestroyed())
+					if (hitscanEntity)
 					{
-						//! Redirect damage to correct entity
-					#ifdef DIAG_DEVELOPER
-						EXTrace.Print(EXTrace.AI, ai, "Wrong entity hit " + ExpansionStatic.GetHierarchyInfo(m_Entity) + ", redirecting dmg to " + ExpansionStatic.GetHierarchyInfo(hitscanEntity));
-					#endif
-						//! Make sure that damage transfer to attachments works correctly
-						if (hitscanEntity.IsMan())
+						EntityAI rootEntity = m_Entity.GetHierarchyRoot();
+
+						if (hitscanEntity.GetHierarchyRoot() != rootEntity && rootEntity.IsDamageDestroyed() && !ai.m_eAI_QueuedShots)
 						{
-							if (!m_Entity.IsMan())
-								dmgZone = s_HumanDmgZonesForRedirect.GetRandomElement();
+							//! Only redirect for root entity, children will be dealt with by parent dmg handler
+
+							if (rootEntity == m_Entity)
+							{
+								//! Redirect damage to correct entity
+
+								//! Make sure that damage transfer to attachments works correctly
+								if (hitscanEntity.IsMan())
+								{
+									if (!m_Entity.IsMan())
+									{
+										TStringArray dmgZones = {};
+										m_Entity.GetDamageZones(dmgZones);
+										if (dmgZones.Find(dmgZone) == -1)
+											dmgZone = s_HumanDmgZonesForRedirect.GetRandomElement();
+									}
+								}
+								else if (hitscanEntity.IsZombie())
+								{
+									if (!m_Entity.IsZombie())
+										dmgZone = "Head";
+								}
+								else if (hitscanEntity.IsAnimal())
+								{
+									if (!m_Entity.IsAnimal())
+										dmgZone = "Zone_Head";
+								}
+
+							#ifdef DIAG_DEVELOPER
+								EXTrace.Print(EXTrace.AI, ai, "Wrong entity hit " + ExpansionStatic.GetHierarchyInfo(m_Entity) + ", redirecting dmg to " + ExpansionStatic.GetHierarchyInfo(hitscanEntity) + " " + dmgZone);
+							#endif
+
+								hitscanEntity.ProcessDirectDamage(damageType, source, dmgZone, ammo, modelPos, speedCoef);
+							}
+						#ifdef DIAG_DEVELOPER
+							else
+							{
+								EXTrace.Print(EXTrace.AI, ai, "Wrong entity hit " + ExpansionStatic.GetHierarchyInfo(m_Entity) + ", ignoring dmg");
+							}
+						#endif
+
+							return false;
 						}
-						else if (hitscanEntity.IsZombie())
-						{
-							if (!m_Entity.IsZombie())
-								dmgZone = "Head";
-						}
-						hitscanEntity.ProcessDirectDamage(damageType, source, dmgZone, ammo, modelPos, speedCoef);
-						return false;
 					}
 				}
 			}

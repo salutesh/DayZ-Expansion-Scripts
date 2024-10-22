@@ -9,7 +9,6 @@ class CfgPatches
 		{
 			"DZ_Worlds_Chernarusplus_World"
 		};
-		worlds[]={};
 	};
 };
 class CfgWorlds

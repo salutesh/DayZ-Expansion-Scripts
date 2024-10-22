@@ -18,6 +18,9 @@ class CfgLiquidDefinitions
 		type=65536;
 		displayName="$STR_EXPANSION_MILK_LIQUID";
 		flammability=10;
+		liquidFreezeThreshold=0;
+		liquidThawThreshold=0;
+		liquidBoilingThreshold=150;
 		color="EXPANSION_MILK";
 		class Nutrition
 		{
@@ -26,6 +29,7 @@ class CfgLiquidDefinitions
 			water=100;
 			nutritionalIndex=100;
 			toxicity=-5;
+			digestibility=2;
 		};
 	};
 };

@@ -255,27 +255,74 @@ modded class MissionGameplay
 			m_Expansion_ExpansionMapMenu.CloseMapMenu(true); //! Safely destroys expansion map menu
 	}
 
+	override protected void HandleMapToggleByKeyboardShortcut(Man player)
+	{
+		//! Suppress vanilla map key handling if Expansion map enabled and should be used
+		auto settings = GetExpansionSettings().GetMap();
+		PlayerBase pb;
+		if (!settings.EnableMap || !settings.CanOpenMapWithKeyBinding || (settings.NeedMapItemForKeyBinding && Class.CastTo(pb, player) && !pb.HasItemMap() && !pb.HasItemGPS()))
+			super.HandleMapToggleByKeyboardShortcut(player);
+	}
+
+#ifdef EXTRACE_DIAG
+	//! Help figure out where input exclude/restriction is called from
+
+	override void RemoveActiveInputExcludes(array<string> excludes, bool bForceSupress = false)
+	{
+		auto trace = EXTrace.StartStack(EXTrace.MISC, this, ExpansionString.JoinStrings(excludes), "bForceSupress " + bForceSupress);
+
+		super.RemoveActiveInputExcludes(excludes, bForceSupress);
+	}
+		
+	override void RemoveActiveInputRestriction(int restrictor)
+	{
+		auto trace = EXTrace.StartStack(EXTrace.MISC, this, typename.EnumToString(EInputRestrictors, restrictor));
+
+		super.RemoveActiveInputRestriction(restrictor);
+	}
+
+	override void AddActiveInputExcludes(array<string> excludes)
+	{
+		auto trace = EXTrace.StartStack(EXTrace.MISC, this, ExpansionString.JoinStrings(excludes));
+
+		super.AddActiveInputExcludes(excludes);
+	}
+
+	override void AddActiveInputRestriction(int restrictor)
+	{
+		auto trace = EXTrace.StartStack(EXTrace.MISC, this, typename.EnumToString(EInputRestrictors, restrictor));
+
+		super.AddActiveInputRestriction(restrictor);
+	}
+#endif
+
 	void ToggleMapMenu(PlayerBase player)
 	{
-		if (!GetExpansionSettings().GetMap().EnableMap)
+		bool show_map;
+
+		auto settings = GetExpansionSettings().GetMap();
+
+		if (!GetGame().GetUIManager().GetMenu() && settings.CanOpenMapWithKeyBinding)
 		{
-			bool show_map;
+			if (settings.NeedMapItemForKeyBinding)
+			{
+				if (player.HasItemMap() || player.HasItemGPS())
+					show_map = true;
+			}
+			else
+			{
+				show_map = true;
+			}
+		}
+
+		if (!settings.EnableMap)
+		{
 			if (m_Expansion_MapMenu && m_Expansion_MapMenu.IsVisible())
 			{
 				m_Expansion_MapMenu.CloseMapMenu();
 			}
-			else if (!GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding)
+			else 
 			{
-				if (GetExpansionSettings().GetMap().NeedMapItemForKeyBinding)
-				{
-					if (player.HasItemMap() || player.HasItemGPS())
-						show_map = true;
-				}
-				else
-				{
-					show_map = true;
-				}
-
 				if (show_map)
 				{
 					if (m_Expansion_MapMenu)
@@ -295,18 +342,8 @@ modded class MissionGameplay
 			{
 				m_Expansion_ExpansionMapMenu.CloseMapMenu();
 			}
-			else if (!GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding)
+			else
 			{
-				if (GetExpansionSettings().GetMap().NeedMapItemForKeyBinding)
-				{
-					if (player.HasItemMap() || player.HasItemGPS())
-						show_map = true;
-				}
-				else
-				{
-					show_map = true;
-				}
-
 				if (show_map)
 				{
 					if (m_Expansion_ExpansionMapMenu)

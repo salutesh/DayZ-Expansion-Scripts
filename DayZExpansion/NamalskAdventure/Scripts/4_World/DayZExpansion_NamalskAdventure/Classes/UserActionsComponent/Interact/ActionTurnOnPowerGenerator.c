@@ -17,15 +17,25 @@ modded class ActionTurnOnPowerGenerator
 		Expansion_Satellite_Generator satelliteGen;
 		if (Class.CastTo(satelliteGen, target.GetObject()))
 		{
-			if (satelliteGen.HasEnergyManager() && satelliteGen.GetCompEM().CanSwitchOn() && satelliteGen.HasSparkplug() && satelliteGen.GetCompEM().CanWork())
+			bool hasEnergyManager = satelliteGen.HasEnergyManager();
+			bool canSwitchOn = satelliteGen.GetCompEM().CanSwitchOn();
+			bool hasSparkplug = satelliteGen.HasSparkplug();
+			bool canWork = satelliteGen.GetCompEM().CanWork();
+			
+			Print(ToString() + "::ActionCondition - Has energy manager=" + hasEnergyManager + " | Can switch on=" + canSwitchOn + " | Has sparkplug=" + hasSparkplug + " | Can work=" + canWork);
+			if (hasEnergyManager && canSwitchOn && hasSparkplug && canWork)
 			{
 				string selection = satelliteGen.GetActionComponentName(target.GetComponentIndex());
-				if (satelliteGen.IsSwitch(selection))
+				//if (satelliteGen.IsSwitch(selection)) //ToDo: Condition is borked, need to check what changed on the generator model and its selecten that we used here
 					return true;
 			}
+		}
+
+		if (!super.ActionCondition(player, target, item))
+		{
 			return false;
 		}
 
-		return super.ActionCondition(player, target, item);
+		return false;
 	}
 };

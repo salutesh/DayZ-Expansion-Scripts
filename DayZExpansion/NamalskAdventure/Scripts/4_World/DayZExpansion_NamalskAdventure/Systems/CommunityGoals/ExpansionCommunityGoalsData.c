@@ -35,7 +35,9 @@ class ExpansionCommunityGoalsData: ExpansionCommunityGoalsDataBase
 
 	static ExpansionCommunityGoalsData Load(string fileName)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, null, "::ExpansionCommunityGoalsData - Load");
+#endif 
 
 		CF_Log.Info("[ExpansionCommunityGoalsData] Load existing community goals server data file:" + fileName);
 		ExpansionCommunityGoalsDataBase dataBase;
@@ -63,21 +65,27 @@ class ExpansionCommunityGoalsData: ExpansionCommunityGoalsDataBase
 
 	void Save()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		ExpansionJsonFileParser<ExpansionCommunityGoalsData>.Save(ExpansionCommunityGoalsModule.s_dataFolderPath + "CommunityGoals.json", this);
 	}
 
 	static void Save(ExpansionCommunityGoalsData data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, null, "::ExpansionCommunityGoalsData - Save");
+#endif
 
 		ExpansionJsonFileParser<ExpansionCommunityGoalsData>.Save(ExpansionCommunityGoalsModule.s_dataFolderPath + "CommunityGoals.json", data);
 	}
 
 	void SetCommunityGoal(ExpansionCommunityGoal goal)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (!CommunityGoals)
 			CommunityGoals = new array<ref ExpansionCommunityGoal>;
@@ -105,7 +113,9 @@ class ExpansionCommunityGoalsData: ExpansionCommunityGoalsDataBase
 
 	void AddCommunityGoalBoard(ExpansionCommunityGoalsBoard goalBoard)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		CommunityGoalsBoards.Insert(goalBoard);
 		Save();
@@ -123,7 +133,9 @@ class ExpansionCommunityGoalsData: ExpansionCommunityGoalsDataBase
 
 	ExpansionCommunityGoal GetCommunityGoalDataByID(int id)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 	    ExpansionCommunityGoal goal;
 	  	foreach (int i, ExpansionCommunityGoal goalData: CommunityGoals)
@@ -144,7 +156,9 @@ class ExpansionCommunityGoalsData: ExpansionCommunityGoalsDataBase
 
 	protected void DefaultCommunityGoals()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (!CommunityGoals)
 			return;
@@ -182,7 +196,9 @@ class ExpansionCommunityGoalsData: ExpansionCommunityGoalsDataBase
 
 	protected void DefaultCommunityBoards()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		if (!CommunityGoalsBoards)
 			return;

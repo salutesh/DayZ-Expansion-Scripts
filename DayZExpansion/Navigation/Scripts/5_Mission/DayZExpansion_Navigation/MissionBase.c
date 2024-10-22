@@ -19,10 +19,17 @@ modded class MissionBase
 		switch (id)
 		{
 		case MENU_MAP:
-			if (GetExpansionSettings().GetMap().UseMapOnMapItem)
-				menu = new ExpansionMapMenu;
-			else
-				menu = new MapMenu;
+			auto settings = GetExpansionSettings().GetMap();
+			if (settings.EnableMap && settings.UseMapOnMapItem)
+			{
+				PlayerBase pb;
+				if (Class.CastTo(pb, GetGame().GetPlayer()))
+				{
+					ActionBase action = pb.GetActionManager().GetRunningAction();
+					if (action && action.Type() == ActionUnfoldMap)
+						menu = new ExpansionMapMenu;
+				}
+			}
 			break;
 		case MENU_EXPANSION_MAP:
 			menu = new ExpansionMapMenu;

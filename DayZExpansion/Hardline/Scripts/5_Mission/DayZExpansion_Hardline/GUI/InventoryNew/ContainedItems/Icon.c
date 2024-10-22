@@ -10,17 +10,43 @@
  *
 */
 
+modded class CargoContainer
+{
+	void CargoContainer( LayoutHolder parent, bool is_attachment = false )
+	{
+		GetExpansionClientSettings().SI_UpdateSetting.Insert(Expansion_OnSettingsUpdated);
+		ExpansionSettings.SI_Hardline.Insert(Expansion_OnSettingsUpdated);
+	}
+	
+	void ~CargoContainer()
+	{
+		GetExpansionClientSettings().SI_UpdateSetting.Remove(Expansion_OnSettingsUpdated);
+		ExpansionSettings.SI_Hardline.Remove(Expansion_OnSettingsUpdated);
+	}
+	
+	protected void Expansion_OnSettingsUpdated()
+	{
+		foreach	(Icon icon: m_Icons)
+		{
+			icon.Expansion_UpdateItemRarity();
+		}
+	}
+}
+
 modded class Icon
 {
+	protected ImageWidget m_Expansion_RarityColor;
+
 	void Icon( LayoutHolder parent, bool hands_icon = false )
 	{
-		Expansion_UpdateItemRarity();
+		m_Expansion_RarityColor = ImageWidget.Cast(GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_icon_rarity.layout", m_ItemPreview));
+		m_Expansion_RarityColor.Show(false);
 	}
 	
 	override void InitEx(EntityAI obj, bool refresh = true)
 	{
 		super.InitEx(obj, refresh);
-		
+
 		Expansion_UpdateItemRarity();
 	}
 	
@@ -45,13 +71,19 @@ modded class Icon
 		Expansion_UpdateItemRarity();
 	}
 	
-	override protected void Expansion_UpdateItemRarity()
+	override void Expansion_UpdateItemRarity()
 	{
-		Expansion_UpdateItemRarityEx(m_Item, m_ColorWidget);
+		Expansion_UpdateItemRarityEx(m_Item, m_Expansion_RarityColor, m_HandsIcon);
 	}
 
 	override protected void Expansion_ResetColor()
 	{
-		m_ColorWidget.SetColor(m_ExpansionBaseColor);
+		m_Expansion_RarityColor.SetColor(m_ExpansionBaseColor);
+	}
+	
+	override void InitLock(EntityAI parent, EntityAI obj, int x_pos, int y_pos, bool flip)
+	{
+		super.InitLock(parent, obj, x_pos, y_pos, flip);
+		m_Expansion_RarityColor.Show(false);
 	}
 };

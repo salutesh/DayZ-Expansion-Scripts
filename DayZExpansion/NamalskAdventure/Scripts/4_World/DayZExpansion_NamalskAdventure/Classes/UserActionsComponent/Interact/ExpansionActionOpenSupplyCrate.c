@@ -16,7 +16,9 @@ class ExpansionActionOpenSupplyCrate: ActionInteractBase
 
 	void ExpansionActionOpenSupplyCrate()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENLID;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
@@ -49,7 +51,9 @@ class ExpansionActionOpenSupplyCrate: ActionInteractBase
 	
 	override void OnStartServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 
 		float phase;
 

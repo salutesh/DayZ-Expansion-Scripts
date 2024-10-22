@@ -14,7 +14,9 @@ class ExpansionActionUseSatelliteControl: ActionInteractBase
 {
 	void ExpansionActionUseSatelliteControl()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_INTERACTONCE;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
 		m_HUDCursorIcon = CursorIcons.CloseDoors;
@@ -53,7 +55,9 @@ class ExpansionActionUseSatelliteControl: ActionInteractBase
 
 	override void OnStartServer(ActionData action_data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+#endif
 		
 		Expansion_Satellite_Control satControl = Expansion_Satellite_Control.Cast(action_data.m_Target.GetObject());
 		if (satControl)

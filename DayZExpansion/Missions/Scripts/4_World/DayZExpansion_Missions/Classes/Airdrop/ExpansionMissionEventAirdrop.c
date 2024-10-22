@@ -44,15 +44,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 	[NonSerialized()]
 	ExpansionAirdropContainerBase m_Container;
 
-	[NonSerialized()]
-	static int m_LocationsCount = -1;
-
-	[NonSerialized()]
-	static ref array < ref ExpansionLocatorArray > m_AvailableLocations = new array < ref ExpansionLocatorArray >;
-
-	[NonSerialized()]
-	static ref array < ref ExpansionLocatorArray > m_SelectedLocations = new array < ref ExpansionLocatorArray >;
-
 	// ------------------------------------------------------------
 	// Expansion ExpansionMissionEventAirdrop
 	// ------------------------------------------------------------
@@ -377,23 +368,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		}
 
 		//! Unknown map
-		if ( m_LocationsCount == -1 )
-		{
-			//! Get possible locations from world config
-			array< ref ExpansionLocatorArray > locs = ExpansionLocatorStatic.GetWorldLocations();
-
-			for ( int i = 0; i < locs.Count(); i ++ )
-			{
-				if ( locs[i].type.Contains( "Capital" ) || locs[i].type.Contains( "City" ) || locs[i].type.Contains( "Village" ) )
-				{
-					m_AvailableLocations.Insert( locs[i] );
-				}
-			}
-
-			m_LocationsCount = m_AvailableLocations.Count();
-		}
-
-		return Math.Min( m_LocationsCount, 13 );
+		return super.MaxDefaultMissions();
 	}
 	
 	// ------------------------------------------------------------
@@ -475,6 +450,11 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		
 		//! Map unknown, loading default config with random locations from map
 		return ExpansionMissionAirdropRandom( index );
+	}
+
+	override protected string DefaultMission( int index )
+	{
+		return ExpansionMissionAirdropChernarus(index);
 	}
 
 	// ------------------------------------------------------------
@@ -822,61 +802,10 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
-		if ( m_AvailableLocations.Count() == 0 )
-		{
-			//! Fall back to Chernarus defaults
-			return ExpansionMissionAirdropChernarus( idx );
-		}
-
-		Weight = 1;  //! As locations are chosen randomly, set all weights equal
-
-		int locIdx;
-
-		if ( m_SelectedLocations.Count() == 0 )
-		{
-			//! Pick a random first location
-			locIdx = m_AvailableLocations.GetRandomIndex();
-		} else
-		{
-			//! Search for a location that is at least some distance from already picked locations
-			array< int > candidates = new array< int >;
-
-			int minDistance = 1500;
-
-			while ( m_SelectedLocations.Count() + candidates.Count() < MaxDefaultMissions() )
-			{
-				for ( int i = 0; i < m_AvailableLocations.Count(); i++ )
-				{
-					for ( int j = 0; j < m_SelectedLocations.Count(); j ++ )
-					{
-						float distance = vector.Distance( m_AvailableLocations[i].position, m_SelectedLocations[j].position );
-
-						if ( distance > minDistance )
-						{
-							candidates.Insert( i );
-						}
-					}
-				}
-
-				if ( minDistance == 0 )
-					break;
-
-				//! In case we didn't find enough candidates, reduce min distance and try again
-				minDistance -= 250;
-			}
-
-			locIdx = candidates.GetRandomElement();
-		}
-
-		ExpansionLocatorArray loc = m_AvailableLocations[locIdx];
-
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXPrint("ExpansionMissionEventAirdrop::ExpansionMissionAirdropRandom - " + loc.name);
-		#endif
-
-		m_SelectedLocations.Insert( loc );
-
-		m_AvailableLocations.Remove( locIdx );
+		ExpansionLocatorArray loc;
+		string fname = RandomMission(idx, loc);
+		if (!loc)
+			return fname;
 
 		int radius = ExpansionLocatorStatic.GetRadius( loc.type );
 
@@ -905,10 +834,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 
 		DropLocation = new ExpansionAirdropLocation( x, y, 100, loc.name );
 
-		MissionName = MissionName + "_" + DropLocation.Name;
-
-		string fname = MissionName;
-		fname.Replace( " ", "-" );
 		return fname;
 	}
 	

@@ -145,6 +145,10 @@ class EXError
 		{
 			string prefix = typename.EnumToString(ErrorExSeverity, severity);
 			prefix.ToLower();
+
+			if (!s_Start)
+				s_Start = CF_Date.Now();
+
 			baseName = string.Format("%1_%2.log", prefix, s_Start.GetISODateTime("_", "-"));
 			s_BaseNames[severity] = baseName;
 		}
