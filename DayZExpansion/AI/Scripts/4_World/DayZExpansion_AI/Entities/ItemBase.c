@@ -27,7 +27,7 @@ modded class ItemBase
 
 	override void EEKilled(Object killer)
 	{
-		m_TargetInformation.OnDeath();
+		m_TargetInformation.OnDeath(killer);
 
 		super.EEKilled(killer);
 
@@ -52,9 +52,16 @@ modded class ItemBase
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-		m_TargetInformation.OnHit();
+		m_TargetInformation.OnHit(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	}
+
+	override void EEHealthLevelChanged(int oldLevel, int newLevel, string zone)
+	{
+		m_TargetInformation.OnHealthLevelChanged(oldLevel, newLevel, zone);
+
+		super.EEHealthLevelChanged(oldLevel, newLevel, zone);
 	}
 
 	override void OnInventoryEnter(Man player)

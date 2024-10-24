@@ -394,7 +394,7 @@ modded class DayZPlayerImplement
 
 	override void EEKilled(Object killer)
 	{
-		m_TargetInformation.OnDeath();
+		m_TargetInformation.OnDeath(killer);
 
 		super.EEKilled(killer);
 
@@ -430,7 +430,7 @@ modded class DayZPlayerImplement
 
 		m_eAI_LastHitTime = GetGame().GetTickTime();
 
-		m_TargetInformation.OnHit();
+		m_TargetInformation.OnHit(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
@@ -479,6 +479,17 @@ modded class DayZPlayerImplement
 		{
 			vehicle.GetTargetInformation().AddFriendlyAI(this);
 		}
+	}
+
+	override void EEHealthLevelChanged(int oldLevel, int newLevel, string zone)
+	{
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.AI, this, "EEHealthLevelChanged " + oldLevel + " -> " + newLevel + " " + zone);
+	#endif
+
+		m_TargetInformation.OnHealthLevelChanged(oldLevel, newLevel, zone);
+
+		super.EEHealthLevelChanged(oldLevel, newLevel, zone);
 	}
 
 	bool eAI_UpdateAgressionTimeout(float timeThreshold)

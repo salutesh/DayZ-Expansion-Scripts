@@ -68,6 +68,7 @@ class eAIBase: PlayerBase
 	int m_eAI_NoiseTarget;
 	private bool m_eAI_HasLOS;
 	EntityAI m_eAI_HitscanEntity;
+	Object m_eAI_HitObject;
 
 	// Command handling
 	private ExpansionHumanCommandScript m_eAI_Command;
@@ -4384,15 +4385,16 @@ class eAIBase: PlayerBase
 			else
 				aimPosition = target.GetPosition(this, !isServer) + target.GetAimOffset(this);
 
+			if ((!isServer || (IsRaised() && m_eAI_CurrentThreatToSelfActive > 0.152) || (!IsRaised() && m_eAI_CurrentThreatToSelfActive > 0.15) || houseWithDoors) && lookAim)
+				aimDirectionRecalculate = true;
+
 			if (isServer)
 			{
-				if ((m_eAI_CurrentThreatToSelfActive > 0.1 || houseWithDoors) && lookAim)
+				if (aimDirectionRecalculate || (!IsRaised() && (m_eAI_CurrentThreatToSelfActive > 0.1 || houseWithDoors) && lookAim))
 					lookDirectionRecalculate = true;
 
 				LookAtPosition(aimPosition, lookDirectionRecalculate);
 			}
-			if ((!isServer || (IsRaised() && m_eAI_CurrentThreatToSelfActive > 0.152) || (!IsRaised() && m_eAI_CurrentThreatToSelfActive > 0.15) || houseWithDoors) && lookAim)
-				aimDirectionRecalculate = true;
 
 			AimAtPosition(aimPosition, aimDirectionRecalculate);
 		}

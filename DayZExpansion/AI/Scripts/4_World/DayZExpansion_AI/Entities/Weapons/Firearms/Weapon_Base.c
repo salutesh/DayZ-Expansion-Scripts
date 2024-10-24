@@ -54,6 +54,8 @@ modded class Weapon_Base
 	{
 		super.EEFired(muzzleType, mode, ammoType);
 
+		Man owner = GetHierarchyRootPlayer();
+
 		if (GetGame().IsServer())
 		{
 			float time = GetGame().GetTickTime();
@@ -66,9 +68,15 @@ modded class Weapon_Base
 					eAINoiseSystem.AddNoise(this, CFG_WEAPONSPATH + " " + GetType() + " NoiseShoot", strengthMultiplier, eAINoiseType.SHOT);
 			}
 		}
+		else if (owner)
+		{
+			ExpansionGame exGame = GetDayZGame().GetExpansionGame();
+			if (!exGame.m_FirearmFXSource || owner.GetIdentity())
+				exGame.m_FirearmFXSource = this;
+		}
 
 		eAIBase ai;
-		if (!Class.CastTo(ai, GetHierarchyRootPlayer()) || !ai.GetTarget()) return;
+		if (!Class.CastTo(ai, owner) || !ai.GetTarget()) return;
 
 		typename type = ai.GetTarget().info.Type();
 
@@ -136,6 +144,68 @@ modded class Weapon_Base
 			}
 		}
 #endif
+	}
+
+	/**
+	 * @brief calculate projectile speed coefficient at position based on ammo
+	 * 
+	 * @param ammoType  e.g. "Bullet_308"
+	 * @param hitPosition  position of bullet impact
+	 * 
+	 * @return speed coefficient
+	 */
+	float eAI_CalculateProjectileSpeedCoefAtPosition(string ammoType, vector hitPosition)
+	{
+		//! Cannot use barrel position since highly inaccurate on server
+		vector begPos = GetPosition();
+
+		float airFriction = GetGame().ConfigGetFloat("CfgAmmo " + ammoType + " airFriction");
+		float distance = vector.Distance(begPos, hitPosition);
+
+		return Math.Pow(Math.EULER, airFriction * distance);
+	}
+
+	/**
+	 * @brief calculate projectile damage coefficient at position based on ammo
+	 * 
+	 * @param ammoType  e.g. "Bullet_308"
+	 * @param hitPosition  position of bullet impact
+	 * @param damageOverride
+	 * @param [out] speed
+	 * 
+	 * @return damage coefficient
+	 */
+	float eAI_CalculateProjectileDamageCoefAtPosition(string ammoType, vector hitPosition, float damageOverride = 1.0, out float speed = 0.0)
+	{
+		float initSpeed = GetGame().ConfigGetFloat("CfgAmmo " + ammoType + " initSpeed");
+		float initSpeedMultiplier = ConfigGetFloat("initSpeedMultiplier");
+
+		if (initSpeedMultiplier)
+			initSpeed *= initSpeedMultiplier;
+
+		float typicalSpeed = GetGame().ConfigGetFloat("CfgAmmo " + ammoType + " typicalSpeed");
+
+		typicalSpeed *= damageOverride;
+
+		float speedCoef = eAI_CalculateProjectileSpeedCoefAtPosition(ammoType, hitPosition);
+
+		speed = initSpeed * speedCoef;
+
+		float dmgCoef;
+
+		if (typicalSpeed != initSpeed)
+		{
+			if (speed > typicalSpeed)
+				dmgCoef = 1.0;
+			else
+				dmgCoef = speed / typicalSpeed;
+		}
+		else
+		{
+			dmgCoef = speedCoef;
+		}
+
+		return dmgCoef;
 	}
 
 	/**

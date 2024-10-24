@@ -16,6 +16,8 @@ class eAIDamageHandler
 	eAIEntityTargetInformation m_TargetInformation;
 	bool m_ProcessDamage;
 	int m_HitCounter;
+	float m_LastHitTime;
+	eAIBase m_LastSourceAI;
 
 	void eAIDamageHandler(EntityAI entity, eAIEntityTargetInformation info)
 	{
@@ -94,6 +96,8 @@ class eAIDamageHandler
 
 		if (!m_ProcessDamage)
 		{
+			EntityAI rootEntity = m_Entity.GetHierarchyRoot();
+
 			eAIBase ai;
 			if (Class.CastTo(ai, sourcePlayer))
 			{
@@ -104,8 +108,6 @@ class eAIDamageHandler
 					//! Work-around for 1st shot on new entity hitting previously hit entity due to vanilla bug with Weapon::Fire
 					if (hitscanEntity)
 					{
-						EntityAI rootEntity = m_Entity.GetHierarchyRoot();
-
 						if (hitscanEntity.GetHierarchyRoot() != rootEntity && rootEntity.IsDamageDestroyed() && !ai.m_eAI_QueuedShots)
 						{
 							//! Only redirect for root entity, children will be dealt with by parent dmg handler
@@ -117,12 +119,30 @@ class eAIDamageHandler
 								//! Make sure that damage transfer to attachments works correctly
 								if (hitscanEntity.IsMan())
 								{
+									//! Do not redirect consecutive hits (within 2 ms, well below fastest fire rate of any firearm) to human target.
+									//! Consecutive hits can happen if entity is not wearing clothing items that could stop the projectile when it 
+									//! penetrates, so to avoid checking clothing of hitscan entity, we just ignore the subsequent hit.
+									//! An example of consecutive hits would be LeftArm followed by Torso from the same projectile if the shot 
+									//! originated from the left side of entity.
+
+									float time = GetGame().GetTickTime();
+
+									if (ai == m_LastSourceAI && time - m_LastHitTime < 0.002)
+									{
+									#ifdef DIAG_DEVELOPER
+										EXTrace.Print(EXTrace.AI, ai, "Wrong entity hit " + ExpansionStatic.GetHierarchyInfo(m_Entity) + ", ignoring dmg because last hit from " + ai + " was less than 2 ms ago");
+									#endif
+										return false;
+									}
+
+									m_LastHitTime = time;
+									m_LastSourceAI = ai;
+
 									if (!m_Entity.IsMan())
 									{
-										TStringArray dmgZones = {};
-										m_Entity.GetDamageZones(dmgZones);
-										if (dmgZones.Find(dmgZone) == -1)
-											dmgZone = s_HumanDmgZonesForRedirect.GetRandomElement();
+										//! Do not redirect from non-human entity to Head or Brain, redirect to Torso instead
+										if (s_HumanDmgZonesForRedirect.Find(dmgZone) == -1)
+											dmgZone = "Torso";
 									}
 								}
 								else if (hitscanEntity.IsZombie())
@@ -136,8 +156,46 @@ class eAIDamageHandler
 										dmgZone = "Zone_Head";
 								}
 
+								vector aiPos = ai.GetPosition();
+								vector hitscanPos = hitscanEntity.GetPosition();
+
+								float distSq = vector.DistanceSq(aiPos, m_Entity.GetPosition());
+								float hitscanDistSq = vector.DistanceSq(aiPos, hitscanPos);
+
+								if (Math.AbsFloat(distSq - hitscanDistSq) > 4.0)
+								{
+									//! Recalculate speed coef if distance difference of entity and hitscan entity to AI is more than 2 m
+
+									Weapon_Base weapon;
+									if (Class.CastTo(weapon, source))
+									{
+										//! Since there's no way to get damageOverride in script, calculated coef may be too low.
+										//! Nothing we can do about it though.
+										float dmgCoef = weapon.eAI_CalculateProjectileDamageCoefAtPosition(ammo, hitscanPos);
+										if (dmgCoef < speedCoef)
+											speedCoef = dmgCoef;
+									}
+									else
+									{
+										//! Should not be possible, but just in case
+									#ifdef DIAG_DEVELOPER
+										EXTrace.Print(EXTrace.AI, ai, "Wrong entity hit " + ExpansionStatic.GetHierarchyInfo(m_Entity) + " dist " + Math.Sqrt(distSq) + ", ignoring dmg because " + ExpansionStatic.GetHierarchyInfo(hitscanEntity) + " dist " + Math.Sqrt(hitscanDistSq) + " is too far and cannot determine AI weapon");
+									#endif
+										return false;
+									}
+								}
+
 							#ifdef DIAG_DEVELOPER
-								EXTrace.Print(EXTrace.AI, ai, "Wrong entity hit " + ExpansionStatic.GetHierarchyInfo(m_Entity) + ", redirecting dmg to " + ExpansionStatic.GetHierarchyInfo(hitscanEntity) + " " + dmgZone);
+								bool dbgObjEnabled = DayZPlayerImplement.s_Expansion_DebugObjects_Enabled;
+								DayZPlayerImplement.s_Expansion_DebugObjects_Enabled = true;
+								vector dir = vector.Direction(aiPos, modelPos);
+								dir[1] = 0;
+								ai.Expansion_DebugObject(-1, modelPos, "ExpansionDebugNoticeMe_Red", dir);
+								dir = vector.Direction(aiPos, hitscanPos);
+								dir[1] = 0;
+								ai.Expansion_DebugObject(-2, hitscanPos, "ExpansionDebugNoticeMe", dir);
+								DayZPlayerImplement.s_Expansion_DebugObjects_Enabled = dbgObjEnabled;
+								EXTrace.Print(EXTrace.AI, ai, "Wrong entity hit " + ExpansionStatic.GetHierarchyInfo(m_Entity) + " dist " + Math.Sqrt(distSq) + ", redirecting dmg to " + ExpansionStatic.GetHierarchyInfo(hitscanEntity) + " dist " + Math.Sqrt(hitscanDistSq) + " " + dmgZone + " " + speedCoef);
 							#endif
 
 								hitscanEntity.ProcessDirectDamage(damageType, source, dmgZone, ammo, modelPos, speedCoef);
@@ -159,7 +217,7 @@ class eAIDamageHandler
 
 			DayZPlayerImplement player;
 			bool isPlayerItem;
-			if (Class.CastTo(player, m_Entity.GetHierarchyRootPlayer()))
+			if (Class.CastTo(player, rootEntity))
 			{
 				if (m_Entity.IsInventoryItem())
 				{
