@@ -24,7 +24,7 @@ class CfgMods
 		credits="$STR_MOD_EXPANSION_AUTHOR";
 		extra=0;
 		type="mod";
-		name="$STR_MOD_EXPANSION_NAME";
+		name="DayZ Expansion - Namalsk Adventure";
 		picture="DayZExpansion/GUI/textures/expansion_icon.edds";
 		logo="DayZExpansion/GUI/textures/expansion_icon.edds";
 		logoSmall="DayZExpansion/GUI/textures/expansion_icon.edds";

@@ -714,7 +714,7 @@ class ExpansionEffectAreaMergedCluster
 	 * 
 	 * @return true if path intersects cylinder, else false
 	 */
-	bool FindClosestPointOutsideCluster(vector start, inout vector end, float avoidanceDirection = 1.0, bool ignoreHeight = false, out EffectArea closestArea = null, DayZPlayerImplement player = null)
+	bool FindClosestPointOutsideCluster(vector start, inout vector end, float avoidanceDirection = 1.0, bool ignoreHeight = false, out EffectArea closestArea = null)
 	{
 	#ifdef DIAG_DEVELOPER
 		vector dir;
@@ -755,12 +755,6 @@ class ExpansionEffectAreaMergedCluster
 
 				foreach (int i, auto area: m_Areas)
 				{
-				#ifdef DIAG_DEVELOPER
-					dir = area.m_Position - start;
-					dir[1] = 0;
-					player.Expansion_DebugObject(3143 + i, area.m_Position - "0 1.5 0", "ExpansionDebugNoticeMe_Yellow", dir);
-				#endif
-
 					center[0] = area.m_Position[0];
 					center[2] = area.m_Position[2];
 
@@ -801,25 +795,10 @@ class ExpansionEffectAreaMergedCluster
 			//! for checking whether or not startpoint is in circle.
 			//! We still need to check intersection to take into account line from start to endpoint in this case.
 			if (!Math.IsPointInCircle(center, closestArea.m_Radius + 3.0, start) && !Math3D.IntersectRayCylinder(start, end, center, closestArea.m_Radius, height))
-			{
-			#ifdef DIAG_DEVELOPER
-				//dir = end - start;
-				//dir[1] = 0;
-				//player.Expansion_DebugObject(3141, end - "0 1.5 0", "ExpansionDebugNoticeMe_Black", dir, start);
-				player.Expansion_DebugObject(3143 + m_Areas.Count(), vector.Zero, "ExpansionDebugNoticeMe_White");
-			#endif
 				return false;
-			}
 
 			float perpendicularDistance = avoidanceDirection * avoidanceDistance;
 			end = ExpansionMath.GetClosestPointOutsideRadius(start, end, center, radius, perpendicularDistance);
-
-		#ifdef DIAG_DEVELOPER
-			//player.Expansion_DebugObject(3141, vector.Zero, "ExpansionDebugNoticeMe_Black");
-			dir = ground - start;
-			dir[1] = 0;
-			player.Expansion_DebugObject(3143 + m_Areas.Count(), ground, "ExpansionDebugNoticeMe_White", dir, end, 300.0, ShapeFlags.NOZBUFFER);
-		#endif
 
 			return true;
 		}
@@ -840,13 +819,13 @@ class ExpansionEffectAreaMergedClusters: array<ref ExpansionEffectAreaMergedClus
 	 * 
 	 * @return true if path intersects cylinder, else false
 	 */
-	bool FindClosestPointOutsideAnyCluster(vector start, inout vector end, float avoidanceDirection = 1.0, bool ignoreHeight = false, out EffectArea closestArea = null, DayZPlayerImplement player = null)
+	bool FindClosestPointOutsideAnyCluster(vector start, inout vector end, float avoidanceDirection = 1.0, bool ignoreHeight = false, out EffectArea closestArea = null)
 	{
 		bool found;
 
 		foreach (auto cluster: this)
 		{
-			found = cluster.FindClosestPointOutsideCluster(start, end, avoidanceDirection, ignoreHeight, closestArea, player);
+			found = cluster.FindClosestPointOutsideCluster(start, end, avoidanceDirection, ignoreHeight, closestArea);
 
 			if (found)
 				break;

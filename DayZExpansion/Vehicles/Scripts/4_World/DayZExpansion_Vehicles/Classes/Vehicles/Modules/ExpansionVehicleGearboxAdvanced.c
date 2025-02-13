@@ -18,7 +18,7 @@ class ExpansionVehicleGearboxAdvanced : ExpansionVehicleGearbox
 
 	int m_ClutchState; // 0 - nothing, 1 - waiting, 2 - pressing, 3 - reached, 4 - releasing
 
-	void ExpansionVehicleGearboxAdvanced(EntityAI pVehicle, string rootPath)
+	void ExpansionVehicleGearboxAdvanced(EntityAI vehicle, string rootPath)
 	{
 		string path;
 

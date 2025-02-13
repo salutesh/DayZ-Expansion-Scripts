@@ -1,4 +1,4 @@
-class ExpansionStaticCore
+class ExpansionStaticCore: Managed
 {
 	string CF_GetISOTime()
 	{

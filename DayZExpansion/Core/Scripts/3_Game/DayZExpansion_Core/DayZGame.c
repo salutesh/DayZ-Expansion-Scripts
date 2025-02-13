@@ -48,6 +48,7 @@ modded class DayZGame
 		EXLogPrint(ToString() + " Start time (UTC) " + CF_Date.Epoch(m_Expansion_StartTimestampUTC).Format(CF_Date.DATETIME));
 		EXLogPrint(ToString() + " Runtime since start (seconds) " + GetTickTime());
 
+		CF_Log.s_Expansion_StaticCore = CF_Log.s_Expansion_Static;
 		CF_Log.s_Expansion_Static = new ExpansionStatic;
 
 		if (!FileExist(EXPANSION_FOLDER))
@@ -79,6 +80,7 @@ modded class DayZGame
 #endif
 
 		m_ExpansionGame = null;
+		CF_Log.s_Expansion_Static = CF_Log.s_Expansion_StaticCore;
 
 		Print("[DayZ Expansion] ~DayZGame");
 	}

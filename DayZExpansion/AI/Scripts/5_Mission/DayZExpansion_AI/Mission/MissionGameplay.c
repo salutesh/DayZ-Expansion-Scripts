@@ -71,29 +71,22 @@ modded class MissionGameplay
 			}
 		}
 		
+		// Show/hide & update ai aggresion cooldown timer
 		if (player && player.GetHumanInventory())
 		{
-			if (player.GetPlayerState() == EPlayerStates.ALIVE && !player.IsUnconscious())
+			bool cooldownVisible = m_Hud.Expansion_IsAggressionCooldownVisible();
+			int aggressionCooldown = player.eAI_GetLastAggressionCooldown();
+			if (m_Hud.Expansion_CanShowHUDElements(player) && aggressionCooldown > 0)
 			{
-				if (viewMenu || menu)
-				{
-					m_Hud.Expansion_GetCooldownIndicator().Hide();
-				}
-				else
-				{
-					if (player.eAI_GetLastAggressionCooldown() > 0)
-					{
-						m_Hud.Expansion_GetCooldownIndicator().Show();
-					}
-					else
-					{
-						m_Hud.Expansion_GetCooldownIndicator().Hide();
-					}
-				}
+				if (!cooldownVisible)
+					m_Hud.Expansion_ShowAggressionCooldown(true);
+
+				m_Hud.Expansion_UpdateAggressionCooldown(player, aggressionCooldown);
 			}
 			else
 			{
-				m_Hud.Expansion_GetCooldownIndicator().Hide();
+				if (cooldownVisible)
+					m_Hud.Expansion_ShowAggressionCooldown(false);
 			}
 		}
 	}

@@ -11,10 +11,16 @@ modded class DayZPlayerImplement
 	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
 
 	private eAIGroup m_eAI_Group;
+
+	[eAIAttribute<eAIGroup>.Register("m_Expansion_FormerGroup")]
 	private eAIGroup m_Expansion_FormerGroup;
+
 	protected typename m_eAI_FactionType;
 	private int m_eAI_GroupID;
+
+	[eAIAttribute<int>.Register("m_eAI_GroupMemberID")]
 	int m_eAI_GroupMemberID = -1;  //! Only unique within current group
+
 	private int m_eAI_FactionTypeID;
 	private int m_eAI_FactionTypeIDSynch;
 	private int m_eAI_GroupMemberIndex;
@@ -28,6 +34,7 @@ modded class DayZPlayerImplement
 	float m_eAI_LastHitTime;
 	float m_eAI_LastNoiseTime;
 
+	[eAIAttribute<float>.Register("m_eAI_DamageReceivedMultiplier")]
 	float m_eAI_DamageReceivedMultiplier = 1.0;
 
 #ifdef DIAG_DEVELOPER
@@ -143,7 +150,7 @@ modded class DayZPlayerImplement
 		return true;
 	}
 
-	void SetGroup(eAIGroup group, bool autoDeleteFormerGroupIfEmpty = true)
+	void SetGroup(eAIGroup group, bool autoDeleteFormerGroupIfEmpty = true, int groupMemberIndex = -1)
 	{
 #ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + group, "" + autoDeleteFormerGroupIfEmpty);
@@ -178,7 +185,11 @@ modded class DayZPlayerImplement
 			if (factionTypeID != m_eAI_FactionTypeID)
 				eAI_SetFactionTypeID(factionTypeID);
 
-			SetGroupMemberIndex(m_eAI_Group.AddMember(this));
+			if (groupMemberIndex == -1)
+				SetGroupMemberIndex(m_eAI_Group.AddMember(this));
+			else
+				m_eAI_Group.SetGroupMemberIndex(this, groupMemberIndex);
+
 			EXTrace.Print(EXTrace.AI, this, "Group ID: " + m_eAI_GroupID);
 		}
 		else if (m_eAI_FactionTypeID != -1)

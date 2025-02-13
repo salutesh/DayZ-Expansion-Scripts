@@ -1,8 +1,9 @@
-
 modded class DayZPlayerCameras
 {
 	static override void RegisterCameras( DayZPlayerType pType )
 	{
+		//! TODO: Very ugly to have to do that here, since the whole function body needs to be kept in sync with vanilla, which is easily forgotten.
+		//! Wish there was super for static methods :-/
 		JMAnimRegister.Register( pType );
 
 		pType.ResetCameraCreators();
@@ -66,6 +67,7 @@ modded class DayZPlayerCameras
 		RegisterTransitionTime(DAYZCAMERA_3RD_PRO_RAISED, DAYZCAMERA_3RD_CRO_RAISED, 0.7, false);
 		RegisterTransitionTime(DAYZCAMERA_3RD_PRO_RAISED, DAYZCAMERA_3RD_ERC, 0.9, false);
 		RegisterTransitionTime(DAYZCAMERA_3RD_PRO_RAISED, DAYZCAMERA_3RD_ERC_RAISED, 0.9, false);
+		RegisterTransitionTime(DAYZCAMERA_3RD_PRO_RAISED, DAYZCAMERA_3RD_ERC_RAISED_MELEE, 0.9, false);
 		
 		//! vehicle cameras
 		RegisterTransitionTime(DAYZCAMERA_3RD_VEHICLE, DAYZCAMERA_3RD_ERC, 0.7, false);

@@ -90,7 +90,7 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 	float m_PreviousContactVelocity;
 	float m_DifferentialSlipRatio;
 
-	void ExpansionVehicleWheel(EntityAI pVehicle, string pName, ExpansionVehicleAxle pAxle)
+	void ExpansionVehicleWheel(EntityAI vehicle, string pName, ExpansionVehicleAxle pAxle)
 	{
 		m_Name = pName;
 		m_Axle = pAxle;

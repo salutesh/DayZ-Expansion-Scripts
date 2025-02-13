@@ -299,12 +299,28 @@ class EXTimeIt
 
 	void EXTimeIt()
 	{
+		Start();
+	}
+
+	void Start()
+	{
 		m_Ticks = TickCount(0);
 	}
 
 	int GetElapsed()
 	{
 		return TickCount(m_Ticks);
+	}
+
+	float GetElapsedMS()
+	{
+		return TickCount(m_Ticks) * 0.0001;
+	}
+
+	void Log()
+	{
+		int elapsed = TickCount(m_Ticks);
+		PrintFormat("%1 elapsed: %3ms", ExpansionStatic.GetISOTime(), (elapsed / 10000.0).ToString());
 	}
 }
 
@@ -320,6 +336,12 @@ class EXHitch: EXTimeIt
 	}
 
 	void ~EXHitch()
+	{
+		if (GetGame())
+			Log();
+	}
+
+	override void Log()
 	{
 		int elapsed = TickCount(m_Ticks);
 		if (elapsed > m_Threshold)
@@ -1005,6 +1027,12 @@ class ExpansionStatic: ExpansionStaticCore
 		return ClippingInfo(className, minMax);
 	}
 
+	static float GetBoundingRadius(Object obj)
+	{
+		vector minMax[2];
+		return obj.ClippingInfo(minMax);
+	}
+
 	static float ClippingInfo(string className, out vector minMax[2])
 	{
 		float radius;
@@ -1253,7 +1281,7 @@ class ExpansionStatic: ExpansionStaticCore
 	//! TODO: Maybe use CF_Byte after next CF update?
 	static TIntArray IntToByteArray(int n)
 	{
-		TIntArray bytes();
+		TIntArray bytes = {};
 
 		for (int i = 0; i < 4; i++)
 			bytes.Insert((n >> (24 - i * 8)) & 255);
@@ -1795,7 +1823,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static bool MakeDirectoryRecursive(string path)
 	{
-		TStringArray parts();
+		TStringArray parts = {};
 		path.Split("\\", parts);
 		path = "";
 		foreach (string part: parts)
@@ -2560,7 +2588,7 @@ class ExpansionStatic: ExpansionStaticCore
 	static string VectorToString(vector vec, ExpansionVectorToString format = ExpansionVectorToString.Beautify, int precision = 2)
 	{
 		float m = Math.Pow(10, precision);
-		TStringArray output();
+		TStringArray output = {};
 
 		for (int i = 0; i < 3; i++)
 			output.Insert((Math.Round(vec[i] * m) / m).ToString());

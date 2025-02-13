@@ -26,9 +26,7 @@ class CfgMods
 				files[]=
 				{
 					"0_DayZExpansion_PersonalStorage_Preload/Common",
-					"DayZExpansion/0_PersonalStorage_Preload/Common",
-					"0_DayZExpansion_PersonalStorage_Preload/1_Core",
-					"DayZExpansion/0_PersonalStorage_Preload/1_Core"
+					"0_DayZExpansion_PersonalStorage_Preload/1_Core"
 				};
 			};
 			class gameLibScriptModule
@@ -36,9 +34,7 @@ class CfgMods
 				files[]=
 				{
 					"0_DayZExpansion_PersonalStorage_Preload/Common",
-					"DayZExpansion/0_PersonalStorage_Preload/Common",
-					"0_DayZExpansion_PersonalStorage_Preload/2_GameLib",
-					"DayZExpansion/0_PersonalStorage_Preload/2_GameLib"
+					"0_DayZExpansion_PersonalStorage_Preload/2_GameLib"
 				};
 			};
 			class gameScriptModule
@@ -46,9 +42,7 @@ class CfgMods
 				files[]=
 				{
 					"0_DayZExpansion_PersonalStorage_Preload/Common",
-					"DayZExpansion/0_PersonalStorage_Preload/Common",
-					"0_DayZExpansion_PersonalStorage_Preload/3_Game",
-					"DayZExpansion/0_PersonalStorage_Preload/3_Game"
+					"0_DayZExpansion_PersonalStorage_Preload/3_Game"
 				};
 			};
 			class worldScriptModule
@@ -56,9 +50,7 @@ class CfgMods
 				files[]=
 				{
 					"0_DayZExpansion_PersonalStorage_Preload/Common",
-					"DayZExpansion/0_PersonalStorage_Preload/Common",
-					"0_DayZExpansion_PersonalStorage_Preload/4_World",
-					"DayZExpansion/0_PersonalStorage_Preload/4_World"
+					"0_DayZExpansion_PersonalStorage_Preload/4_World"
 				};
 			};
 			class missionScriptModule
@@ -66,9 +58,7 @@ class CfgMods
 				files[]=
 				{
 					"0_DayZExpansion_PersonalStorage_Preload/Common",
-					"DayZExpansion/0_PersonalStorage_Preload/Common",
-					"0_DayZExpansion_PersonalStorage_Preload/5_Mission",
-					"DayZExpansion/0_PersonalStorage_Preload/5_Mission"
+					"0_DayZExpansion_PersonalStorage_Preload/5_Mission"
 				};
 			};
 		};

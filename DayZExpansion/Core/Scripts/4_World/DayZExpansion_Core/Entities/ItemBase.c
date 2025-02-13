@@ -287,7 +287,7 @@ modded class ItemBase
 			ConfigGetTextArray("inventorySlot", inventorySlot);
 			if (inventorySlot.Find("Shoulder") == -1 && inventorySlot.Find("Melee") == -1 && inventorySlot.Find("Knife") == -1)
 			{
-				TStringArray itemInfo();
+				TStringArray itemInfo = {};
 				ConfigGetTextArray("itemInfo", itemInfo);
 				if (itemInfo.Find("Knife") == -1 && itemInfo.Find("Axe") == -1)
 				{

@@ -70,11 +70,11 @@ FrameWidgetClass ContainerWidget {
          vexactsize 1
          priority 100
          image0 ""
-         imageTexture "{CFB9777C69079462}gui/textures/Marker.edds"
+         imageTexture "{CFB9777C69079462}gui/textures/marker.edds"
          mode blend
          "src alpha" 1
-         "no wrap" 1
-         stretch 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
          "flip u" 0
          "flip v" 0
          Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
@@ -93,11 +93,11 @@ FrameWidgetClass ContainerWidget {
          vexactsize 1
          priority 100
          image0 ""
-         imageTexture "{C1B3283734F04D70}gui/textures/Marker_Arrow.edds"
+         imageTexture "{C1B3283734F04D70}gui/textures/marker_arrow.edds"
          mode blend
          "src alpha" 1
-         "no wrap" 1
-         stretch 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
          "flip u" 0
          "flip v" 0
          Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
@@ -216,8 +216,8 @@ FrameWidgetClass ContainerWidget {
                  imageTexture "{E47EDB5A7ABE48BD}DayZExpansion/Navigation/GUI/textures/legend_compass.edds"
                  mode blend
                  "src alpha" 1
-                 "no wrap" 1
-                 stretch 1
+                 "clamp mode" clamp
+                 "stretch mode" stretch_w_h
                 }
                 ImageWidgetClass Tools_Compass_Arrow {
                  ignorepointer 1
@@ -232,8 +232,8 @@ FrameWidgetClass ContainerWidget {
                  imageTexture "{BC3132558F82CCA7}DayZExpansion/Navigation/GUI/textures/legend_compass_needle.edds"
                  mode blend
                  "src alpha" 1
-                 "no wrap" 1
-                 stretch 1
+                 "clamp mode" clamp
+                 "stretch mode" stretch_w_h
                 }
                 TextWidgetClass Tools_Compass_Azimuth {
                  ignorepointer 1

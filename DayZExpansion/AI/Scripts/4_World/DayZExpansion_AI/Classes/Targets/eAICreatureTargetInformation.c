@@ -7,6 +7,11 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 		Class.CastTo(m_Creature, target);
 	}
 
+	override bool IsCreature()
+	{
+		return true;
+	}
+
 	override vector GetAimOffset(eAIBase ai = null)
 	{
 		vector pos;

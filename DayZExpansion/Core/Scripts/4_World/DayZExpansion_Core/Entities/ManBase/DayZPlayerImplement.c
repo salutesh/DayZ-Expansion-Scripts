@@ -16,6 +16,9 @@ modded class DayZPlayerImplement
 
 	ref ExpansionHumanST m_ExpansionST;
 
+#ifdef EXPANSIONMODAI
+	[eAIAttribute<bool>.Register("m_Expansion_CanBeLooted")]
+#endif
 	protected bool m_Expansion_CanBeLooted = true;
 
 	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<DayZPlayerImplement>(this);
@@ -420,11 +423,11 @@ modded class DayZPlayerImplement
 #endif
 	}
 
-	void Expansion_DebugObject(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero, float lifetime = 300.0, int flags = 0)
+	Object Expansion_DebugObject(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero, float lifetime = 300.0, int flags = 0)
 	{
 #ifdef DIAG_DEVELOPER
 		if (!s_Expansion_DebugObjects_Enabled)
-			return;
+			return null;
 
 		Object obj = m_Expansion_DebugObjects[i];
 
@@ -437,7 +440,7 @@ modded class DayZPlayerImplement
 			if (obj)
 				GetGame().ObjectDelete(obj);
 			if (position == vector.Zero)
-				return;
+				return null;
 			int iFlags;
 			#ifdef SERVER
 			iFlags = ECE_NOLIFETIME;
@@ -446,7 +449,7 @@ modded class DayZPlayerImplement
 			#endif
 			obj = GetGame().CreateObjectEx(type, position, iFlags);
 			if (!obj)
-				return;
+				return null;
 			m_Expansion_DebugObjects[i] = obj;
 			#ifdef SERVER
 			EntityAI ent;
@@ -473,6 +476,10 @@ modded class DayZPlayerImplement
 				dbgObj.Expansion_SetDebugLineFlags(flags);
 			}
 		}
+
+		return obj;
+#else
+		return null;
 #endif
 	}
 

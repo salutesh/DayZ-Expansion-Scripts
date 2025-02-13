@@ -1,13 +1,61 @@
+class ExpansionLadder
+{
+	string m_Name;
+	int m_Index;
+	string m_Type;
+	//int m_PosCount;
+	int m_ConCount;
+	int m_ConDirCount;
+	//vector m_Pos[2];
+	vector m_Con[2];
+	vector m_ConDir[2];
+	//vector m_Btm;
+	//vector m_Top;
+	//vector m_Dir;
+
+	void ExpansionLadder(string name, int index, string type)
+	{
+		m_Name = name;
+		m_Index = index;
+		m_Type = type;
+	}
+
+	static void InsertVertex(vector vertex, inout vector target[2], inout int count)
+	{
+		if (count == 0)
+		{
+			target[count++] = vertex;
+		}
+		else
+		{
+			vector v0 = target[0];
+
+			if (vertex[1] < v0[1])
+			{
+				target[0] = vertex;
+				target[1] = v0;
+			}
+			else
+			{
+				target[1] = vertex;
+			}
+		}
+	}
+}
+
 [eAIRegisterDynamicPatrolSpawner(BuildingBase)]
 modded class BuildingBase
 {
 	static ref TStringArray s_eAI_PreventClimb;
+	static ref map<string, ref map<int, ref ExpansionLadder>> s_Expansion_BuildingsWithLadders = new map<string, ref map<int, ref ExpansionLadder>>;
 
 	ref eAIDynamicPatrolSpawner<BuildingBase> m_eAI_DynamicPatrolSpawner;
 	ref map<int, int> m_eAI_LastDoorInteractionTime = new map<int, int>;
 	ref map<int, ref eAIDoorTargetInformation> m_eAI_DoorTargetInformation;
 	bool m_eAI_PreventClimb;
 	ref map<int, float> m_eAI_DoorAnimationTime;
+	ref map<int, ref ExpansionLadder> m_Expansion_Ladders;
+	int m_Expansion_LaddersCount = -1;
 
 	void BuildingBase()
 	{
@@ -40,9 +88,11 @@ modded class BuildingBase
 				//"land_cementworks",
 				"land_city_firestation",
 				"land_city_stand",
+				"land_dieselpowerplant_tank_big",
 				"land_garage",
 				"land_guardhouse",
 				"land_house",
+				"land_lighthouse",
 				"land_misc_polytunnel",
 				"land_misc_greenhouse",
 				"land_misc_trailroof",
@@ -57,12 +107,14 @@ modded class BuildingBase
 				"land_mil_tent",
 				"land_office1",
 				"land_office2",
+				"land_pier_crane2_base",  //! Sakhal
 				"land_rail_station",
 				"land_shed",
 				"land_tenement",
 				"land_train_wagon_box",  //! Pathfinding won't find a path out of the wagon, that's the only reason it's excluded
 				"land_village_healthcare",
 				"land_village_store",
+				"land_warheadstorage_entrance",  //! Sakhal
 				"land_water_station",
 				"land_workshop",
 				"sign"
@@ -151,6 +203,25 @@ modded class BuildingBase
 		return time;
 	}
 
+	vector eAI_GetRoamingPosition(vector position)
+	{
+		vector destinationPosition = GetPosition();
+
+		vector minMax[2];
+		if (!Expansion_IsEnterable() && GetCollisionBox(minMax))
+		{
+			minMax[0][1] = 0.0;
+			minMax[1][1] = 0.0;
+			float extension = vector.Distance(minMax[0], minMax[1]) * 0.5 + 1.0;
+
+			position[1] = destinationPosition[1];
+			vector dir = vector.Direction(position, destinationPosition);
+			destinationPosition = destinationPosition - dir.Normalized() * extension;
+		}
+
+		return destinationPosition;
+	}
+
 	/**
 	 * @brief If this is a building, return whether it can be entered or not
 	 */
@@ -185,6 +256,146 @@ modded class BuildingBase
 			return true;
 
 		return false;
+	}
+
+	//! Vanilla GetLaddersCount seems to always return 0?
+	int Expansion_GetLaddersCount()
+	{
+		if (m_Expansion_LaddersCount != -1)
+			return m_Expansion_LaddersCount;
+
+		string type = GetType();
+		if (s_Expansion_BuildingsWithLadders.Find(type, m_Expansion_Ladders))
+		{
+			m_Expansion_LaddersCount = m_Expansion_Ladders.Count();
+			return m_Expansion_LaddersCount;
+		}
+
+	#ifdef DIAG_DEVELOPER
+		auto trace = EXTrace.Start(EXTrace.AI, this, type);
+	#endif
+
+		m_Expansion_Ladders = new map<int, ref ExpansionLadder>;
+		s_Expansion_BuildingsWithLadders[type] = m_Expansion_Ladders;
+		m_Expansion_LaddersCount = 0;
+
+		int i;
+
+		LOD memory = GetLODByName(LOD.NAME_MEMORY);
+		if (memory)
+		{
+			array<Selection> selections = {};
+			if (memory.GetSelections(selections))
+			{
+				LOD geometry = GetLODByName(LOD.NAME_GEOMETRY);
+				string ladderType = "metal";
+
+				for (i = 0; i < geometry.GetPropertyCount(); i++)
+				{
+					if (geometry.GetPropertyName(i) == "laddertype")
+					{
+						ladderType = geometry.GetPropertyValue(i);
+						break;
+					}
+				}
+
+				ExpansionLadder currentLadder;
+
+				foreach (Selection selection: selections)
+				{
+					string name = selection.GetName();
+
+					if (name.IndexOf("ladder") == 0)
+					{
+						string ladderName;
+						int ladderIndex = -1;
+
+						int underscoreIndex = name.IndexOf("_");
+						if (underscoreIndex > 6)
+						{
+							ladderName = name.Substring(0, underscoreIndex);
+							ladderIndex = name.Substring(6, underscoreIndex - 6).ToInt();
+						}
+						else if (name.Length() > 6)
+						{
+							ladderName = name;
+							ladderIndex = name.Substring(6, name.Length() - 6).ToInt();
+						}
+
+						if (ladderIndex > -1)
+						{
+							if (!m_Expansion_Ladders.Find(ladderIndex, currentLadder))
+							{
+								currentLadder = new ExpansionLadder(ladderName, ladderIndex, ladderType);
+								m_Expansion_Ladders[ladderIndex] = currentLadder;
+
+							#ifdef DIAG_DEVELOPER
+								EXTrace.Print(EXTrace.AI, this, ladderName);
+								EXTrace.Print(EXTrace.AI, this, " index " + ladderIndex);
+							#endif
+							}
+
+						#ifdef DIAG_DEVELOPER
+							EXTrace.Print(EXTrace.AI, this, " " + name);
+						#endif
+
+							int vertexCount = selection.GetVertexCount();
+							for (i = 0; i < vertexCount; i++)
+							{
+								int vertexIndex = selection.GetLODVertexIndex(i);
+								if (vertexIndex > -1)
+								{
+									vector vertex = memory.GetVertexPosition(vertexIndex);
+
+									switch (name)
+									{
+										//case ladderName:
+											//currentLadder.InsertVertex(vertex, currentLadder.m_Pos, currentLadder.m_PosCount);
+											//break;
+										//case ladderName + "_bottom_front":
+											//currentLadder.m_Btm = vertex;
+											//break;
+										//case ladderName + "_top_front":
+											//currentLadder.m_Top = vertex;
+											//break;
+										case ladderName + "_con":
+											currentLadder.InsertVertex(vertex, currentLadder.m_Con, currentLadder.m_ConCount);
+											break;
+										case ladderName + "_con_dir":
+											currentLadder.InsertVertex(vertex, currentLadder.m_ConDir, currentLadder.m_ConDirCount);
+											break;
+										//case ladderName + "_dir":
+											//currentLadder.m_Dir = vertex;
+											//break;
+									}
+
+								#ifdef DIAG_DEVELOPER
+									EXTrace.Print(EXTrace.AI, this, "  vertex " + vertex);
+								#endif
+								}
+							}
+						}
+					}
+				}
+
+			#ifdef DIAG_DEVELOPER
+				foreach (ExpansionLadder ladder: m_Expansion_Ladders)
+				{
+					EXTrace.Print(EXTrace.AI, this, ladder.m_Name);
+					EXTrace.Print(EXTrace.AI, this, " index " + ladder.m_Index);
+					EXTrace.Print(EXTrace.AI, this, " type " + ladder.m_Type);
+					EXTrace.Print(EXTrace.AI, this, " con[0] " + ladder.m_Con[0]);
+					EXTrace.Print(EXTrace.AI, this, " con[1] " + ladder.m_Con[1]);
+					EXTrace.Print(EXTrace.AI, this, " con_dir[0] " + ladder.m_ConDir[0]);
+					EXTrace.Print(EXTrace.AI, this, " con_dir[1] " + ladder.m_ConDir[1]);
+				}
+			#endif
+
+				m_Expansion_LaddersCount = m_Expansion_Ladders.Count();
+			}
+		}
+
+		return m_Expansion_LaddersCount;
 	}
 };
 

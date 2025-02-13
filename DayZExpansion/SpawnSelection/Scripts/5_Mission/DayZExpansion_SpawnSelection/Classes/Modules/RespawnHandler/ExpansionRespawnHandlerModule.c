@@ -726,7 +726,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			item.GetInventory().CreateAttachment("Battery9V");  //! TODO: Should probably be able to deal with arbitrary power sources?
 	}
 
-	string GetRandomLoadout(ref array<ref ExpansionSpawnGearLoadouts> loadouts)
+	string GetRandomLoadout(array<ref ExpansionSpawnGearLoadouts> loadouts)
 	{
 		bool IsZero = false;
 		while (!IsZero)

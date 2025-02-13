@@ -29,8 +29,10 @@ modded class BoatScript
 
 	void ~BoatScript()
 	{
+	#ifndef DIAG_DEVELOPER
 		if (!GetGame())
 			return;
+	#endif
 
 		if (s_Expansion_AllVehicles)
 			s_Expansion_AllVehicles.Remove(m_Expansion_Node);

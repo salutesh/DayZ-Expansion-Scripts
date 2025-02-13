@@ -10,59 +10,44 @@
  *
 */
 
-class ExpansionCooldownIndicator: ExpansionScriptView
+class ExpansionCooldownIndicator: ScriptedWidgetEventHandler
 {
-	protected ref ExpansionCooldownIndicatorController m_CooldownController;
-	protected float m_LastCooldown;
+	protected Widget m_LayoutRoot;
+	protected TextWidget m_CooldownText;
+	
+	protected int m_LastCooldown;
+	protected bool m_IsVisible;
 
-	void ExpansionCooldownIndicator()
+	void ExpansionCooldownIndicator(Widget parent)
 	{
-		Class.CastTo(m_CooldownController, GetController());
+		m_LayoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/AI/GUI/layouts/expansion_cooldown_indicator.layout", parent);
+		m_CooldownText = TextWidget.Cast(m_LayoutRoot.FindAnyWidget("CooldownText"));
 	}
-
-	override typename GetControllerType()
+	
+	void Show(bool state)
 	{
-		return ExpansionCooldownIndicatorController;
+		m_IsVisible = state;
+		m_LayoutRoot.Show(state);
 	}
-
-	override string GetLayoutFile()
+	
+	bool IsVisible()
 	{
-		return "DayZExpansion/AI/GUI/layouts/expansion_cooldown_indicator.layout";
+		return m_IsVisible;
 	}
-
-	protected void SetView()
-	{	
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
-		if (!player)
-			return;
-		
-		float cooldown = player.eAI_GetLastAggressionCooldown();
+	
+	void UpdateCooldown(PlayerBase player, int cooldown)
+	{
 		if (cooldown != m_LastCooldown)
 		{
 			m_LastCooldown = cooldown;
+
+			string text;
 			if (cooldown > 0)
-				m_CooldownController.Text = ExpansionStatic.FormatTime(cooldown, false, false);
-			else
-				m_CooldownController.Text = "";
-			m_CooldownController.NotifyPropertyChanged("Text");
+			{
+				text = ExpansionStatic.FormatTime(cooldown, false, false);
+			}
+			
+			m_CooldownText.SetText(text);
 		}
 	}
-
-	override float GetUpdateTickRate()
-	{
-		return 0.5;
-	}
-
-	override void Expansion_Update()
-	{
-		if (!IsVisible())
-			return;
-
-		SetView();
-	}
-};
-
-class ExpansionCooldownIndicatorController: ExpansionViewController
-{
-	string Text;
-};
+}

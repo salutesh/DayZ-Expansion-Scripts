@@ -16,7 +16,9 @@
 //! Used for groups mod debugging
 //#define EXPANSIONMODGROUPS_DEBUG
 
+#ifdef EXPANSIONUI
 #define EXPANSIONMODGROUPSHUD
+#endif
 
 #ifndef EXPANSIONMONITORMODULE
 #define EXPANSIONMONITORMODULE

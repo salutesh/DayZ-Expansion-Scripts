@@ -6,6 +6,8 @@ class ExpansionState_TraversingWaypoints: eAIState
 	vector waypoint;
 	vector previousWaypoint;
 	bool gotUp;
+	float waypointTime;
+	float leaveThreshold;
 
 	override void OnEntry(string Event, ExpansionState From)
 	{
@@ -16,6 +18,7 @@ class ExpansionState_TraversingWaypoints: eAIState
 		if (behaviour == eAIWaypointBehavior.ROAMING && waypoint == vector.Zero)
 		{
 			waypoint = unit.GetGroup().FindClosestRoamingLocationPosition();
+			leaveThreshold = Math.RandomFloat(5.0, 15.0);
 		}
 	}
 
@@ -87,9 +90,16 @@ class ExpansionState_TraversingWaypoints: eAIState
 			
 			if (behaviour == eAIWaypointBehavior.ROAMING)
 			{
-				unit.GetGroup().SetRoamingLocationReached(waypointReached);
-				previousWaypoint = waypoint;
-				waypoint = unit.GetGroup().FindClosestRoamingLocationPosition();
+				waypointTime += DeltaTime;
+				
+				if ((!unit.m_eAI_Ladder && Math.IsPointInCircle(pathFinding.GetTarget(), 30.0, position)) || waypointTime >= leaveThreshold)
+				{
+					unit.GetGroup().SetRoamingLocationReached(waypointReached);
+					previousWaypoint = waypoint;
+					waypoint = unit.GetGroup().FindClosestRoamingLocationPosition();
+					waypointTime = 0;
+					leaveThreshold = Math.RandomFloat(5.0, 15.0);
+				}
 			}
 			else if (behaviour == eAIWaypointBehavior.HALT || path.Count() == 1 || pathFinding.m_IsUnreachable)
 			{

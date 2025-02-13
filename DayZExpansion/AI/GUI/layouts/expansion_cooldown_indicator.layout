@@ -1,5 +1,5 @@
-FrameWidgetClass ExpansionCooldownIndicator {
- visible 0
+FrameWidgetClass CooldownIndicator {
+ visible 1
  clipchildren 0
  position 0 0
  size 288 32
@@ -7,9 +7,9 @@ FrameWidgetClass ExpansionCooldownIndicator {
  vexactpos 1
  hexactsize 1
  vexactsize 1
- scriptclass "ExpansionCooldownIndicatorController"
+ scriptclass ""
  {
-  PanelWidgetClass SpecializationPanel {
+  PanelWidgetClass Panel {
    visible 1
    clipchildren 1
    size 288 32
@@ -21,9 +21,9 @@ FrameWidgetClass ExpansionCooldownIndicator {
    priority 1
    style blank
    {
-    ImageWidgetClass BattleIcon {
+    ImageWidgetClass Icon {
      visible 1
-     color 0.9412 0.149 0.149 1
+     color 1 0 0 0.549
      position 36 0
      size 32 32
      valign center_ref
@@ -34,15 +34,15 @@ FrameWidgetClass ExpansionCooldownIndicator {
      fixaspect fixwidth
      priority 999
      image0 "set:expansion_notification_iconset image:icon_bandit"
-     mode additive
+     mode blend
      "src alpha" 1
-     "no wrap" 1
-     stretch 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
      "flip u" 0
      "flip v" 0
      filter 1
     }
-    PanelWidgetClass BattleTimePanel {
+    PanelWidgetClass TextPanel {
      visible 1
      clipchildren 0
      position 72 0
@@ -55,23 +55,21 @@ FrameWidgetClass ExpansionCooldownIndicator {
      fixaspect fixwidth
      priority 999
      {
-      TextWidgetClass TextWidget0 {
+      TextWidgetClass CooldownText {
        ignorepointer 1
-       color 0.9412 0.149 0.149 1
-       size 180 22
+       color 1 0 0 0.8235
+       size 180 1
        valign center_ref
        hexactpos 1
        vexactpos 1
        hexactsize 1
-       vexactsize 1
-       scriptclass "ViewBinding"
+       vexactsize 0
+       scriptclass ""
        text "MM:SS"
+       font "gui/fonts/sdf_metronbook72"
+       "exact text" 1
+       "exact text size" 22
        "text valign" center
-       {
-        ScriptParamsClass {
-         Binding_Name "Text"
-        }
-       }
       }
      }
     }

@@ -18,7 +18,7 @@ class ExpansionDialog_InviteTerritory: ExpansionDialogBookBase
 	ref ExpansionDialogButton_Text_TerritroyInvite_Cancel m_CancelButton;	
 	ref ExpansionBookMenuTabTerritory m_TerritoryTab;
 		
-	void ExpansionDialog_InviteTerritory(ExpansionScriptView parentView)
+	void ExpansionDialog_InviteTerritory(ScriptView parentView)
 	{
 		m_ParentView = parentView;
 		

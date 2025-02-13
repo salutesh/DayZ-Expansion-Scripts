@@ -9,6 +9,11 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 		Class.CastTo(m_Zombie, target);
 	}
 
+	override bool IsZombie()
+	{
+		return true;
+	}
+
 	override bool IsCrawling()
 	{
 		return m_Crawling;

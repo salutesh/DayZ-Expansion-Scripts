@@ -84,8 +84,10 @@ class ExpansionHumanST
 		m_CMD_Land = hai.BindCommand( "CMD_Land" );
 		m_CMD_Swim = hai.BindCommand( "CMD_Swim" );
 
-		m_CMD_Turn = hai.BindCommand( "CMD_Turn" );
-		m_CMD_StopTurn = hai.BindCommand( "CMD_StopTurn" );
+	#ifdef EXPANSIONMODAI
+		m_CMD_Turn = hai.BindCommand( "CMD_eAI_Turn" );
+		m_CMD_StopTurn = hai.BindCommand( "CMD_eAI_StopTurn" );
+	#endif
 		
 		m_CMD_WeaponFire = hai.BindCommand( "CMD_WeaponFire" );
 
@@ -105,7 +107,9 @@ class ExpansionHumanST
 		m_VAR_MovementSpeed = hai.BindVariableFloat( "MovementSpeed" );
 		m_VAR_MovementDirection = hai.BindVariableFloat( "MovementDirection" );
 
-		m_VAR_TurnAmount = hai.BindVariableFloat( "TurnAmount" );
+	#ifdef EXPANSIONMODAI
+		m_VAR_TurnAmount = hai.BindVariableFloat( "eAI_TurnAmount" );
+	#endif
 
 		m_VAR_WaterLevel = hai.BindVariableFloat( "WaterLevel" );
 
@@ -134,13 +138,16 @@ class ExpansionHumanST
 	#ifdef EXPANSIONMODAI
 		m_VAR_AimX = hai.BindVariableFloat( "eAI_AimX" );
 		m_VAR_AimY = hai.BindVariableFloat( "eAI_AimY" );
+
+		m_VAR_Raised = hai.BindVariableBool( "eAI_Raised" );
 	#endif
 
-		m_VAR_Raised = hai.BindVariableBool( "Raised" );
 		m_VAR_ADS = hai.BindVariableBool( "ADS" );
 		m_VAR_Stance = hai.BindVariableInt( "Stance" );
 
-		m_VAR_Lean = hai.BindVariableFloat( "Lean" );
+	#ifdef EXPANSIONMODAI
+		m_VAR_Lean = hai.BindVariableFloat( "eAI_Lean" );
+	#endif
 
 		m_TAG_WeaponFire = hai.BindTag("TagWeaponFire");
 	}
@@ -150,9 +157,19 @@ class ExpansionHumanST
 		script.PreAnim_CallCommand( m_CMD_Fall, pParamInt, pParamFloat );
 	}
 
+	void CallFall( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_Fall, pParamInt, pParamFloat );
+	}
+
 	void CallFallCancel( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
 	{
 		script.PreAnim_CallCommand( m_CMD_FallCancel, pParamInt, pParamFloat );
+	}
+
+	void CallFallCancel( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_FallCancel, pParamInt, pParamFloat );
 	}
 
 	void CallJump( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
@@ -160,9 +177,19 @@ class ExpansionHumanST
 		script.PreAnim_CallCommand( m_CMD_Jump, pParamInt, pParamFloat );
 	}
 
+	void CallJump( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_Jump, pParamInt, pParamFloat );
+	}
+
 	void CallLand( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
 	{
 		script.PreAnim_CallCommand( m_CMD_Land, pParamInt, pParamFloat );
+	}
+
+	void CallLand( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_Land, pParamInt, pParamFloat );
 	}
 
 	void CallSwim( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
@@ -170,9 +197,19 @@ class ExpansionHumanST
 		script.PreAnim_CallCommand( m_CMD_Swim, pParamInt, pParamFloat );
 	}
 
+	void CallSwim( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_Swim, pParamInt, pParamFloat );
+	}
+
 	void CallTurn( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
 	{
 		script.PreAnim_CallCommand( m_CMD_Turn, pParamInt, pParamFloat );
+	}
+
+	void CallTurn( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_Turn, pParamInt, pParamFloat );
 	}
 
 	void CallStopTurn( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
@@ -180,9 +217,19 @@ class ExpansionHumanST
 		script.PreAnim_CallCommand( m_CMD_StopTurn, pParamInt, pParamFloat );
 	}
 
+	void CallStopTurn( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_StopTurn, pParamInt, pParamFloat );
+	}
+
 	void CallWeaponFire( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
 	{
 		script.PreAnim_CallCommand( m_CMD_WeaponFire, pParamInt, pParamFloat );
+	}
+
+	void CallWeaponFire( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_WeaponFire, pParamInt, pParamFloat );
 	}
 
 	//void CallParachutePull( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
@@ -200,9 +247,19 @@ class ExpansionHumanST
 		script.PreAnim_CallCommand( m_CMD_Vehicle_GetIn, pParamInt, pParamFloat );
 	}
 
+	void CallVehicleGetIn( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_Vehicle_GetIn, pParamInt, pParamFloat );
+	}
+
 	void CallVehicleSwitchSeat( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
 	{
 		script.PreAnim_CallCommand( m_CMD_Vehicle_SwitchSeat, pParamInt, pParamFloat );
+	}
+
+	void CallVehicleSwitchSeat( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_Vehicle_SwitchSeat, pParamInt, pParamFloat );
 	}
 
 	void CallVehicleGetOut( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
@@ -210,9 +267,19 @@ class ExpansionHumanST
 		script.PreAnim_CallCommand( m_CMD_Vehicle_GetOut, pParamInt, pParamFloat );
 	}
 
+	void CallVehicleGetOut( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_Vehicle_GetOut, pParamInt, pParamFloat );
+	}
+
 	void CallVehicleClimbOut( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
 	{
 		script.PreAnim_CallCommand( m_CMD_Vehicle_ClimbOut, pParamInt, pParamFloat );
+	}
+
+	void CallVehicleClimbOut( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_Vehicle_ClimbOut, pParamInt, pParamFloat );
 	}
 
 	void CallVehicleCrawlOut( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
@@ -220,9 +287,19 @@ class ExpansionHumanST
 		script.PreAnim_CallCommand( m_CMD_Vehicle_CrawlOut, pParamInt, pParamFloat );
 	}
 
+	void CallVehicleCrawlOut( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_Vehicle_CrawlOut, pParamInt, pParamFloat );
+	}
+
 	void CallVehicleJumpOut( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
 	{
 		script.PreAnim_CallCommand( m_CMD_Vehicle_JumpOut, pParamInt, pParamFloat );
+	}
+
+	void CallVehicleJumpOut( DayZPlayer player, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		player.AnimCallCommand( m_CMD_Vehicle_JumpOut, pParamInt, pParamFloat );
 	}
 
 	//void CallGuitar( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
@@ -240,9 +317,19 @@ class ExpansionHumanST
 		script.PreAnim_SetFloat( m_VAR_MovementSpeed, param );
 	}
 
+	void SetMovementSpeed( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_MovementSpeed, param );
+	}
+
 	void SetMovementDirection( HumanCommandScript script, float param )
 	{
 		script.PreAnim_SetFloat( m_VAR_MovementDirection, param );
+	}
+
+	void SetMovementDirection( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_MovementDirection, param );
 	}
 
 	void SetTurnAmount( HumanCommandScript script, float param )
@@ -250,9 +337,19 @@ class ExpansionHumanST
 		script.PreAnim_SetFloat( m_VAR_TurnAmount, param );
 	}
 
+	void SetTurnAmount( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_TurnAmount, param );
+	}
+
 	void SetWaterLevel( HumanCommandScript script, float param )
 	{
 		script.PreAnim_SetFloat( m_VAR_WaterLevel, param );
+	}
+
+	void SetWaterLevel( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_WaterLevel, param );
 	}
 
 	bool IsLandEarlyExit( HumanCommandScript script )
@@ -265,14 +362,29 @@ class ExpansionHumanST
 		script.PreAnim_SetInt( m_VAR_VehicleType, param );
 	}
 
+	void SetVehicleType( DayZPlayer player, int param )
+	{
+		player.AnimSetInt( m_VAR_VehicleType, param );
+	}
+
 	void SetVehicleSteering( HumanCommandScript script, float param )
 	{
 		script.PreAnim_SetFloat( m_VAR_VehicleSteering, param );
 	}
 
+	void SetVehicleSteering( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_VehicleSteering, param );
+	}
+
 	void SetVehicleThrottle( HumanCommandScript script, float param )
 	{
 		script.PreAnim_SetFloat( m_VAR_VehicleThrottle, param );
+	}
+
+	void SetVehicleThrottle( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_VehicleThrottle, param );
 	}
 	
 	void SetVehicleClutch( HumanCommandScript script, float param )
@@ -280,9 +392,19 @@ class ExpansionHumanST
 		script.PreAnim_SetFloat( m_VAR_VehicleClutch, param );
 	}
 	
+	void SetVehicleClutch( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_VehicleClutch, param );
+	}
+	
 	void SetVehicleBrake( HumanCommandScript script, bool param )
 	{
 		script.PreAnim_SetBool( m_VAR_VehicleBrake, param );
+	}
+	
+	void SetVehicleBrake( DayZPlayer player, bool param )
+	{
+		player.AnimSetBool( m_VAR_VehicleBrake, param );
 	}
 	
 	void SetVehicleAccelerationFB( HumanCommandScript script, float param )
@@ -290,9 +412,19 @@ class ExpansionHumanST
 		script.PreAnim_SetFloat( m_VAR_VehicleAccelerationFB, param );
 	}
 	
+	void SetVehicleAccelerationFB( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_VehicleAccelerationFB, param );
+	}
+	
 	void SetVehicleAccelerationLR( HumanCommandScript script, float param )
 	{
 		script.PreAnim_SetFloat( m_VAR_VehicleAccelerationLR, param );
+	}
+	
+	void SetVehicleAccelerationLR( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_VehicleAccelerationLR, param );
 	}
 
 	bool IsLeaveVehicle( HumanCommandScript script )
@@ -310,14 +442,29 @@ class ExpansionHumanST
 		script.PreAnim_SetBool( m_VAR_Look, param );
 	}
 
+	void SetLook( DayZPlayer player, bool param )
+	{
+		player.AnimSetBool( m_VAR_Look, param );
+	}
+
 	void SetLookDirX( HumanCommandScript script, float param )
 	{
 		script.PreAnim_SetFloat( m_VAR_LookDirX, param );
 	}
 
+	void SetLookDirX( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_LookDirX, param );
+	}
+
 	void SetLookDirY( HumanCommandScript script, float param )
 	{
 		script.PreAnim_SetFloat( m_VAR_LookDirY, param );
+	}
+
+	void SetLookDirY( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_LookDirY, param );
 	}
 
 	//void SetGuitarChord( HumanCommandScript script, int param )
@@ -335,9 +482,19 @@ class ExpansionHumanST
 		script.PreAnim_SetFloat( m_VAR_AimX, param );
 	}
 
+	void SetAimX( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_AimX, param );
+	}
+
 	void SetAimY( HumanCommandScript script, float param )
 	{
 		script.PreAnim_SetFloat( m_VAR_AimY, param );
+	}
+
+	void SetAimY( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_AimY, param );
 	}
 
 	void SetRaised( HumanCommandScript script, bool param )
@@ -345,9 +502,19 @@ class ExpansionHumanST
 		script.PreAnim_SetBool( m_VAR_Raised, param );
 	}
 
+	void SetRaised( DayZPlayer player, bool param )
+	{
+		player.AnimSetBool( m_VAR_Raised, param );
+	}
+
 	void SetADS( HumanCommandScript script, bool param )
 	{
 		script.PreAnim_SetBool( m_VAR_ADS, param );
+	}
+
+	void SetADS( DayZPlayer player, bool param )
+	{
+		player.AnimSetBool( m_VAR_ADS, param );
 	}
 
 	void SetStance( HumanCommandScript script, int param )
@@ -355,8 +522,18 @@ class ExpansionHumanST
 		script.PreAnim_SetInt( m_VAR_Stance, param );
 	}
 
+	void SetStance( DayZPlayer player, int param )
+	{
+		player.AnimSetInt( m_VAR_Stance, param );
+	}
+
 	void SetLean( HumanCommandScript script, float param )
 	{
 		script.PreAnim_SetFloat( m_VAR_Lean, param );
+	}
+
+	void SetLean( DayZPlayer player, float param )
+	{
+		player.AnimSetFloat( m_VAR_Lean, param );
 	}
 };

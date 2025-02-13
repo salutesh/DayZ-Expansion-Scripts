@@ -94,6 +94,11 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 	protected void ClearPlayerParty()
 	{
+		foreach (ExpansionPartyData party: m_Parties)
+		{
+			delete party;
+		}
+
 		m_Parties.Clear();
 		m_PartyIDs.Clear();
 		m_Party = NULL;

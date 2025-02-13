@@ -12,7 +12,7 @@ PanelWidgetClass ExpansionEarPlugs {
  priority 1
  {
   ImageWidgetClass EarIcon {
-   position -0.2287 42.82
+   position -0.188 75
    size 36 36
    halign center_ref
    valign bottom_ref
@@ -25,8 +25,8 @@ PanelWidgetClass ExpansionEarPlugs {
    imageTexture "{F21E94676064DA7D}DayZExpansion/Core/GUI/icons/hud/ear_64x64.edds"
    mode blend
    "src alpha" 1
-   "no wrap" 0
-   stretch 1
+   "clamp mode" clamp
+   "stretch mode" stretch_w_h
    "flip u" 0
    rotation 0 0 15
   }

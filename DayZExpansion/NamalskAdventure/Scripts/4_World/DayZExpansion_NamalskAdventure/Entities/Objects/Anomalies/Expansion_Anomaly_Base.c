@@ -970,7 +970,7 @@ class Expansion_Anomaly_Base: ItemBase
 		return false;
 	}
 
-	override bool CanPutIntoHands(EntityAI player)
+	override bool CanPutIntoHands(EntityAI parent)
 	{
 		return false;
 	}

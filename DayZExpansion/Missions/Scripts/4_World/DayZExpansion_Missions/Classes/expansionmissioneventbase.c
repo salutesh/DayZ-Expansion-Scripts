@@ -13,6 +13,7 @@
 class ExpansionMissionEventBase
 {
 	static ref ScriptInvoker SI_OnMissionEnd = new ScriptInvoker();
+	static autoptr PGFilter s_Filter;
 
 	int m_Version;
 
@@ -407,5 +408,37 @@ class ExpansionMissionEventBase
 	// update tick for the mission
 	void Event_OnUpdate( float delta )
 	{
+	}
+
+	protected vector SampleSpawnPosition( vector position, float maxRadius, float innerRadius )
+	{
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
+		#endif
+		
+		float a = Math.RandomFloatInclusive( 0.0, 1.0 ) * Math.PI2;
+		float r = maxRadius * Math.RandomFloatInclusive( innerRadius / maxRadius, 1 );
+
+		float spawnX = r * Math.Cos( a );
+		float spawnZ = r * Math.Sin( a );
+
+		vector nPosition = "0 0 0";
+
+		nPosition[0] = position[0] + spawnX;
+		nPosition[2] = position[2] + spawnZ;
+		nPosition[1] = GetGame().SurfaceY( nPosition[0], nPosition[2] );
+
+		AIWorld aiWorld = GetGame().GetWorld().GetAIWorld();
+
+		if (!s_Filter)
+		{
+			s_Filter = new PGFilter();
+			s_Filter.SetFlags( PGPolyFlags.NONE, PGPolyFlags.NONE, PGPolyFlags.NONE );
+			s_Filter.SetCost( PGAreaType.TERRAIN, 10 );
+		}
+
+		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, s_Filter, nPosition );
+		
+		return nPosition;
 	}
 };

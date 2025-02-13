@@ -56,7 +56,7 @@ modded class MissionGameplay
 		#endif
 
 			bool show;
-			if (isAliveConscious && !menu && !viewMenu && !m_Expansion_HideQuestHUD && !isCOTOpen && !m_Hud.IsHideHudPlayer())
+			if (!m_Expansion_HideQuestHUD && !isCOTOpen && m_Hud.Expansion_CanShowHUDElements(player))
 				show = true;
 
 			if (m_ExpansionQuestHUD.IsVisible() != show)

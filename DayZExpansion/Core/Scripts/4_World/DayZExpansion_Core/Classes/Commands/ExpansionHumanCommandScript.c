@@ -24,6 +24,10 @@ class ExpansionHumanCommandScript : HumanCommandScript
 	private float m_LookLR;
 	private float m_LookUD;
 
+	private int m_CurrentStance = DayZPlayerConstants.STANCEIDX_ERECT;
+	private int m_CurrentMovement = DayZPlayerConstants.MOVEMENT_IDLE;
+	private float m_CurrentLeaning;
+
 	void ExpansionHumanCommandScript(DayZPlayerImplement player, ExpansionHumanST table)
 	{
 		m_Player = player;
@@ -81,6 +85,45 @@ class ExpansionHumanCommandScript : HumanCommandScript
 		m_DebugShapes.Clear();
 #endif
 	}
+
+	void SetCurrentStance(int stance)
+	{
+		m_CurrentStance = stance;
+	}
+
+#ifndef DAYZ_1_26
+	//! @note under 1.27, DayZPlayer::IsPlayerInStance will call GetCurrentStance
+	override int GetCurrentStance()
+	{
+		return m_CurrentStance;
+	}
+#endif
+
+	void SetCurrentMovement(int movement)
+	{
+		m_CurrentMovement = movement;
+	}
+
+#ifndef DAYZ_1_26
+	//! @note under 1.27, DayZPlayer::IsPlayerInStance will call GetCurrentMovement
+	override int GetCurrentMovement()
+	{
+		return m_CurrentMovement;
+	}
+#endif
+
+	void SetCurrentLeaning(float leaning)
+	{
+		m_CurrentLeaning = leaning;
+	}
+
+#ifndef DAYZ_1_26
+	//! @note under 1.27, DayZPlayer::IsPlayerInStance will call GetCurrentLeaning
+	override float GetCurrentLeaning()
+	{
+		return m_CurrentLeaning;
+	}
+#endif
 
 	override void PreAnimUpdate(float pDt)
 	{

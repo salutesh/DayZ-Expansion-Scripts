@@ -258,26 +258,27 @@ modded class IngameHud
 	override void RefreshHudVisibility()
 	{
 		super.RefreshHudVisibility();
-
+		
+		bool showHUDElements = Expansion_CanShowHUDElements();
 		if (m_GPSPanel)
-			m_GPSPanel.Show(m_HudState && m_ExpansionGPSState && m_ExpansionGPSSetting);
+			m_GPSPanel.Show(showHUDElements && m_ExpansionGPSState && m_ExpansionGPSSetting);
 
 		if (m_GPSMapPanel)
-			m_GPSMapPanel.Show(m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapState && m_ExpansionGPSSetting);
+			m_GPSMapPanel.Show(showHUDElements && m_ExpansionGPSState && m_ExpansionGPSMapState && m_ExpansionGPSSetting);
 
 		if (m_PlayerArrowMarker)
 		{
-			if (m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapState && m_ExpansionGPSSetting && (m_ExpansionGPSPosSetting == 1 || m_ExpansionGPSPosSetting == 2))
+			if (showHUDElements && m_ExpansionGPSState && m_ExpansionGPSMapState && m_ExpansionGPSSetting && (m_ExpansionGPSPosSetting == 1 || m_ExpansionGPSPosSetting == 2))
 				m_PlayerArrowMarker.Show(true);
 			else
 				m_PlayerArrowMarker.Show(false);
 		}
 
 		if (m_MapStatsPanel)
-			m_MapStatsPanel.Show(m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapStatsState && m_ExpansionGPSSetting);
+			m_MapStatsPanel.Show(showHUDElements && m_ExpansionGPSState && m_ExpansionGPSMapStatsState && m_ExpansionGPSSetting);
 
 		if (m_CompassPanel)
-			m_CompassPanel.Show(m_HudState && m_ExpansionCompassSetting && m_ExpansionCompassState && m_ExpansionCompassToggle);
+			m_CompassPanel.Show(showHUDElements && m_ExpansionCompassSetting && m_ExpansionCompassState && m_ExpansionCompassToggle);
 	}
 
 	void RefreshGPS()
@@ -527,8 +528,9 @@ modded class IngameHud
 		m_HasGPSItem = state;
 	}
 
+	//DEPRECATED
 	override bool Expansion_GetHudState()
 	{
-		return GetHudState();
-	};
-};
+		return Expansion_CanShowHUDElements();
+	}
+}

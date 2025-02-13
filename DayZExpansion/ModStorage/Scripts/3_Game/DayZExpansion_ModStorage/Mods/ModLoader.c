@@ -1,4 +1,5 @@
 #ifdef EXPANSION_MODSTORAGE
+#ifndef CF_MODSTORAGE
 modded class ModLoader
 {
 	override static bool _CF_ReadModStorage(Serializer ctx, int version, inout array<ref CF_ModStorage> unloadedMods, inout int stackIndex, inout CF_ModStorageMap loadedMods)
@@ -120,4 +121,5 @@ modded class ModLoader
 		return true;
 	}
 };
+#endif
 #endif

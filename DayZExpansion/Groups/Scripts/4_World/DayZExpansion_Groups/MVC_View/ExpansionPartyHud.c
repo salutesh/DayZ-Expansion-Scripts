@@ -17,7 +17,7 @@ class ExpansionPartyHud: ExpansionScriptViewBase
 	void ExpansionPartyHud()
 	{		
 		if (!m_PartyHUDController)
-			m_PartyHUDController = ExpansionPartyHudController.Cast(GetController());		
+			m_PartyHUDController = ExpansionPartyHudController.Cast(GetController());	
 	}
 		
 	override string GetLayoutFile() 
@@ -38,6 +38,9 @@ class ExpansionPartyHud: ExpansionScriptViewBase
 	
 	void UpdateMembers(map<string, string> members)
 	{
+		if (!GetExpansionSettings().IsLoaded(ExpansionPartySettings))
+			return;
+		
 		array<string> currentMembers = new array<string>;
 		for (int i = m_PartyHUDController.PartyHUDMemberElements.Count() - 1; i >= 0; i--)
 		{

@@ -1,0 +1,1203 @@
+PanelWidgetClass VehiclePanel {
+ clipchildren 0
+ position 1 40
+ size 457 218
+ valign bottom_ref
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ fixaspect fixwidth
+ priority 1
+ {
+  PanelWidgetClass SpeedPanel {
+   visible 1
+   clipchildren 0
+   size 214 201
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style blank
+   {
+    ImageWidgetClass SpeedDial {
+     clipchildren 0
+     color 0.6275 0.6275 0.6275 1
+     size 195 164
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     image0 ""
+     imageTexture "{DD4435A772DFE53F}gui/textures/cardial_big.edds"
+     mode blend
+     "src alpha" 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
+     filter 1
+     nocache 0
+    }
+    ImageWidgetClass SpeedPointer {
+     visible 1
+     clipchildren 0
+     position 0 -0.15
+     size 18 111
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     image0 "set:dayz_gui image:large_pointer"
+     mode blend
+     "src alpha" 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
+     filter 1
+     nocache 0
+     pivot 0.5 0.77
+    }
+    TextWidgetClass SpeedValue {
+     position 0 16
+     size 1 36
+     halign center_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style None
+     text "124"
+     font "gui/fonts/sdf_metronbook72"
+     "shadow offset" 0.5 0.5
+     "exact text" 0
+     "exact text size" 30
+     "size to text h" 0
+     "size to text v" 0
+     "text halign" center
+     "text valign" center
+    }
+    TextWidgetClass SpeedLabel {
+     size 1 18
+     halign center_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style None
+     text "km/h"
+     font "gui/fonts/sdf_metronbook72"
+     "shadow offset" 1 1
+     "exact text" 0
+     "size to text h" 0
+     "size to text v" 0
+     "text halign" center
+     "text valign" center
+    }
+    ImageWidgetClass BatteryLight {
+     visible 1
+     position 0 -45
+     size 38 38
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     image0 "set:dayz_gui image:battery"
+     mode blend
+     "src alpha" 1
+    }
+    ImageWidgetClass EngineLight {
+     visible 1
+     position -45 -15
+     size 38 38
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     image0 "set:dayz_gui image:icon_engine_alert"
+     mode blend
+     "src alpha" 1
+    }
+    ImageWidgetClass LightsIcon {
+     position 45 -15
+     size 26 26
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     fixaspect inside
+     image0 "set:dayz_gui image:loading_screen_bulb"
+     mode blend
+     "src alpha" 1
+    }
+    PanelWidgetClass AutoHoverIndicator {
+     visible 1
+     position 0 40
+     size 68 18
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style blank
+     {
+      TextWidgetClass AutoHoverIcon {
+       color 0.1529 0.6824 0.3765 1
+       size 18 18
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       text "A"
+       font "gui/fonts/sdf_metronbook72"
+       "shadow size" 6
+       "bold text" 0
+       "exact text" 0
+       "exact text size" 24
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass CenterIndicators {
+   visible 1
+   clipchildren 0
+   position 18 0
+   size 38 1
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 0
+   priority 1
+   style blank
+   "no focus" 0
+   {
+    PanelWidgetClass AligmentIndicator {
+     visible 1
+     clipchildren 0
+     color 0.5294 0.5294 0.5294 1
+     size 5 172.5
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style rover_sim_colorable
+     "no focus" 0
+     {
+      ProgressBarWidgetClass AligmentProgressBar {
+       visible 1
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       style Quantity
+       maximum 1
+       current 0.5
+       vertical 1
+       flipped 1
+      }
+      PanelWidgetClass HorizonLine_L {
+       ignorepointer 1
+       color 0.6275 0.6275 0.6275 1
+       position -8 0
+       size 8 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass HorizonLine_R {
+       ignorepointer 1
+       color 0.6275 0.6275 0.6275 1
+       position -8 0
+       size 8 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass CurrentAlignmentIndicator {
+       visible 1
+       clipchildren 0
+       position 0 -26
+       size 40 30
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style blank
+       {
+        TextWidgetClass CurrentAlignmentValue {
+         clipchildren 0
+         position 0.08 0
+         size 1 12
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         style None
+         text "45#STR_EXPANSION_DEGREES"
+         font "gui/fonts/sdf_metronbook72"
+         "shadow size" 4
+         "shadow color" 0 0 0 1
+         "shadow offset" 2 2
+         "bold text" 1
+         "exact text" 0
+         "exact text size" 12
+         "text halign" center
+        }
+        TextWidgetClass CurrentAlignmentLabel {
+         visible 0
+         clipchildren 0
+         position 0 11
+         size 1 12
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style None
+         text "#STR_EXPANSION_DEGREES"
+         font "gui/fonts/sdf_metronbook72"
+         "shadow size" 4
+         "shadow offset" 1 1
+         "italic text" 0
+         "exact text" 0
+         "size to text h" 0
+         "size to text v" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass ThrustIndicator {
+     visible 1
+     clipchildren 0
+     color 0.5294 0.5294 0.5294 1
+     size 5 172.5
+     halign right_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style rover_sim_colorable
+     "no focus" 0
+     {
+      ProgressBarWidgetClass ThrustProgressBar {
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       style Quantity
+       minimum -0.2
+       maximum 1
+       current 0
+       vertical 1
+       flipped 1
+      }
+      PanelWidgetClass Thrust100 {
+       ignorepointer 1
+       color 0.6275 0.6275 0.6275 1
+       position -8 0
+       size 8 2
+       halign right_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass Thrust50 {
+       ignorepointer 1
+       color 0.6275 0.6275 0.6275 1
+       position -8 -0.082
+       size 8 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass Thrust0 {
+       ignorepointer 1
+       color 0.6275 0.6275 0.6275 1
+       position -8 0.16
+       size 8 2
+       halign right_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass ThrustN20 {
+       ignorepointer 1
+       color 0.6275 0.6275 0.6275 1
+       position -8 0
+       size 8 2
+       halign right_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      TextWidgetClass Thrust100_Label {
+       visible 0
+       clipchildren 0
+       color 0.6275 0.6275 0.6275 1
+       position 17 -5
+       size 1 0
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       style None
+       text "100%"
+       font "gui/fonts/metronbook-bold48"
+       "shadow size" 4
+       "shadow offset" 1 1
+       "italic text" 0
+       "exact text" 1
+       "exact text size" 12
+       "size to text h" 1
+       "size to text v" 1
+       "text valign" center
+      }
+      TextWidgetClass Thrust50_Label {
+       visible 0
+       clipchildren 0
+       color 0.6275 0.6275 0.6275 1
+       position 17 -0.082
+       size 1 0
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style None
+       text "50%"
+       font "gui/fonts/metronbook-bold48"
+       "shadow size" 4
+       "shadow offset" 1 1
+       "italic text" 0
+       "exact text" 1
+       "exact text size" 12
+       "size to text h" 1
+       "size to text v" 1
+       "text valign" center
+      }
+      TextWidgetClass Thrust0_Label {
+       visible 0
+       clipchildren 0
+       color 0.6275 0.6275 0.6275 1
+       position 17 0.13
+       size 1 0
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style None
+       text "0%"
+       font "gui/fonts/metronbook-bold48"
+       "shadow size" 4
+       "shadow offset" 1 1
+       "italic text" 0
+       "exact text" 1
+       "exact text size" 12
+       "size to text h" 1
+       "size to text v" 1
+       "text valign" center
+      }
+      TextWidgetClass ThrustN20_Label {
+       visible 0
+       clipchildren 0
+       color 0.6275 0.6275 0.6275 1
+       position 17 -5
+       size 1 0
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       style None
+       text "-20%"
+       font "gui/fonts/metronbook-bold48"
+       "shadow size" 4
+       "shadow offset" 1 1
+       "italic text" 0
+       "exact text" 1
+       "exact text size" 12
+       "size to text h" 1
+       "size to text v" 1
+       "text valign" center
+      }
+      PanelWidgetClass CurrentThrustIndicator {
+       visible 1
+       clipchildren 0
+       position 0 -26
+       size 40 30
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style blank
+       {
+        TextWidgetClass CurrentThrustValue {
+         clipchildren 0
+         position 0.12 0
+         size 1 12
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         style None
+         text "100%"
+         font "gui/fonts/sdf_metronbook72"
+         "shadow size" 4
+         "shadow color" 0 0 0 1
+         "shadow offset" 2 2
+         "bold text" 1
+         "exact text" 0
+         "exact text size" 12
+         "text halign" center
+        }
+        TextWidgetClass CurrentThrustLabel {
+         visible 0
+         clipchildren 0
+         position 0 11
+         size 1 12
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style None
+         text "%"
+         font "gui/fonts/sdf_metronbook72"
+         "shadow size" 4
+         "shadow offset" 1 1
+         "italic text" 0
+         "exact text" 0
+         "size to text h" 0
+         "size to text v" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  ImageWidgetClass VehicleHudBg {
+   visible 1
+   color 0 0 0 1
+   position 0 0
+   size 1.2 1.2
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   imageTexture "{203A18D5F4B1DBF9}gui/imagesets/vehicle_hud_shadow.edds"
+   mode blend
+   "src alpha" 1
+   "clamp mode" clamp
+   "stretch mode" stretch_w_h
+  }
+  PanelWidgetClass RightIndicators {
+   visible 1
+   clipchildren 0
+   position 9.5 0
+   size 158 1
+   halign right_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 0
+   priority 1
+   style blank
+   "no focus" 0
+   {
+    PanelWidgetClass LeftColumn {
+     visible 1
+     clipchildren 0
+     position 0 0
+     size 68 206.5
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 1
+     style blank
+     {
+      PanelWidgetClass FuelIndicator {
+       visible 1
+       size 68 80
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style blank
+       {
+        ImageWidgetClass FuelDial {
+         color 0.6275 0.6275 0.6275 1
+         position 0 0
+         size 68 56
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 ""
+         imageTexture "{22721E7344C22D6A}gui/textures/cardial_small.edds"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         "flip u" 1
+         Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
+         "Transition width" 0.8
+         Progress 0.75
+        }
+        ImageWidgetClass FuelDialLow {
+         color 1 0 0 1
+         position 0 0
+         size 68 56
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         priority 1
+         image0 ""
+         imageTexture "{22721E7344C22D6A}gui/textures/cardial_small.edds"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         "flip u" 0
+         Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
+         "Transition width" 0.2
+         Progress 0.25
+        }
+        ImageWidgetClass FuelPointer {
+         clipchildren 0
+         position 0 -0.15
+         size 13 40
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         image0 "set:dayz_gui image:small_pointer"
+         mode blend
+         "src alpha" 1
+         filter 1
+         rotation 0 0 -40
+         pivot 0.5 0.7
+        }
+        ImageWidgetClass FuelLight {
+         position 0 0
+         size 30 30
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         fixaspect inside
+         image0 "set:dayz_gui image:fuel"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         filter 1
+         nocache 0
+        }
+       }
+      }
+      PanelWidgetClass ClimbPanel {
+       visible 1
+       clipchildren 0
+       size 75 100
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style blank
+       {
+        ImageWidgetClass ClimbDial {
+         visible 1
+         clipchildren 1
+         color 0.6275 0.6275 0.6275 1
+         position 0 -5
+         size 75 75
+         halign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         priority 1
+         image0 ""
+         imageTexture "{692FB6DF5BAC1AD2}DayZExpansion/Vehicles/GUI/textures/climb_simple.edds"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         filter 1
+         nocache 0
+         {
+          ImageWidgetClass ClimbPointer {
+           visible 1
+           clipchildren 0
+           position 0 -0.11
+           size 13 40
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           priority 1
+           image0 "set:dayz_gui image:small_pointer"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           "flip u" 0
+           "flip v" 0
+           filter 1
+           nocache 0
+           rotation 0 0 -90
+           pivot 0.5 0.7
+          }
+          PanelWidgetClass ClimbIndicator {
+           visible 1
+           clipchildren 0
+           position 0 -22
+           size 1 0.4
+           halign center_ref
+           valign bottom_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           style blank
+           {
+            TextWidgetClass ClimbValue {
+             clipchildren 0
+             size 1 12
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+             style None
+             text "0"
+             font "gui/fonts/sdf_metronbook72"
+             "shadow size" 4
+             "shadow color" 0 0 0 1
+             "shadow offset" 2 2
+             "bold text" 1
+             "exact text" 0
+             "exact text size" 12
+             "text halign" center
+            }
+            TextWidgetClass ClimbLabel {
+             visible 1
+             clipchildren 0
+             position 0 11
+             size 1 12
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 1
+             style None
+             text "m/s"
+             font "gui/fonts/sdf_metronbook72"
+             "shadow size" 4
+             "shadow offset" 1 1
+             "italic text" 0
+             "exact text" 0
+             "size to text h" 0
+             "size to text v" 0
+             "text halign" center
+             "text valign" center
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass RightColumn {
+     visible 1
+     clipchildren 0
+     size 68 206.5
+     halign right_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 1
+     style blank
+     {
+      PanelWidgetClass HydraulicFluidIndicator {
+       visible 1
+       position 0 0
+       size 68 80
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style blank
+       {
+        ImageWidgetClass HydraulicFluidDial {
+         color 0.6275 0.6275 0.6275 1
+         position 0 0
+         size 68 56
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 ""
+         imageTexture "{22721E7344C22D6A}gui/textures/cardial_small.edds"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         "flip u" 1
+         Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
+         "Transition width" 0.8
+         Progress 0.75
+        }
+        ImageWidgetClass HydraulicFluidDialLow {
+         color 1 0 0 1
+         position 0 0
+         size 68 56
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         priority 1
+         image0 ""
+         imageTexture "{22721E7344C22D6A}gui/textures/cardial_small.edds"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         "flip u" 0
+         Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
+         "Transition width" 0.2
+         Progress 0.25
+        }
+        ImageWidgetClass HydraulicFluidPointer {
+         clipchildren 0
+         position 0 -0.15
+         size 13 40
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         image0 "set:dayz_gui image:small_pointer"
+         mode blend
+         "src alpha" 1
+         filter 1
+         rotation 0 0 -40
+         pivot 0.5 0.7
+        }
+        ImageWidgetClass HydraulicFluidLight {
+         visible 1
+         position 0 -0.04
+         size 32 32
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         fixaspect inside
+         image0 "set:dayz_inventory image:gascanister"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         filter 1
+         nocache 0
+         {
+          ImageWidgetClass HydraulicFluidLight1 {
+           visible 1
+           inheritalpha 0
+           position 0 0
+           size 8 11
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           fixaspect inside
+           image0 "set:expansion_iconset image:water_full"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           filter 1
+           nocache 0
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass ALTPanel {
+       visible 1
+       clipchildren 0
+       size 75 100
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style blank
+       {
+        ImageWidgetClass ALTDial {
+         visible 1
+         clipchildren 1
+         color 0.6275 0.6275 0.6275 1
+         position 0 -5
+         size 75 75
+         halign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         priority 1
+         image0 ""
+         imageTexture "{9046BD33338AA8D8}DayZExpansion/Vehicles/GUI/textures/altimeter_simple.edds"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         filter 1
+         nocache 0
+         {
+          ImageWidgetClass ALTPointerTE {
+           visible 1
+           clipchildren 0
+           position 0 -0.11
+           size 13 40
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           priority 2
+           image0 "set:dayz_gui image:small_pointer"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           filter 1
+           nocache 0
+           pivot 0.5 0.7
+          }
+          ImageWidgetClass ALTPointerH {
+           visible 1
+           clipchildren 0
+           color 0.7804 0.149 0.3176 1
+           position 0 -0.11
+           size 13 40
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           image0 "set:dayz_gui image:small_pointer"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           filter 1
+           nocache 0
+           pivot 0.5 0.7
+          }
+          ImageWidgetClass ALTPointerTH {
+           visible 1
+           clipchildren 0
+           color 0.2039 0.5961 0.8588 1
+           position 0 -0.11
+           size 13 40
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           priority 1
+           image0 "set:dayz_gui image:small_pointer"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           filter 1
+           nocache 0
+           pivot 0.5 0.7
+          }
+          PanelWidgetClass ALTIndicator {
+           visible 1
+           clipchildren 0
+           position 0 -22
+           size 1 0.4
+           halign center_ref
+           valign bottom_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           style blank
+           {
+            TextWidgetClass ALTValue {
+             clipchildren 0
+             position 0 0
+             size 1 12
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+             style None
+             text "0"
+             font "gui/fonts/sdf_metronbook72"
+             "shadow size" 4
+             "shadow color" 0 0 0 1
+             "shadow offset" 2 2
+             "bold text" 1
+             "exact text" 0
+             "exact text size" 16
+             "text halign" center
+            }
+            TextWidgetClass ALTLabel {
+             clipchildren 0
+             position 0 11
+             size 1 12
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 1
+             style None
+             text "m"
+             font "gui/fonts/sdf_metronbook72"
+             "shadow size" 4
+             "shadow offset" 1 1
+             "italic text" 0
+             "exact text" 0
+             "size to text h" 0
+             "size to text v" 0
+             "text halign" center
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass HoverALTIndicator {
+           visible 0
+           clipchildren 0
+           position 0 75
+           size 1 0.4
+           halign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           style blank
+           {
+            TextWidgetClass HoverALTValue {
+             clipchildren 0
+             size 0.33 16
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+             style None
+             text "0"
+             font "gui/fonts/sdf_metronbook72"
+             "shadow size" 4
+             "shadow color" 0 0 0 1
+             "shadow offset" 2 2
+             "bold text" 1
+             "exact text" 0
+             "exact text size" 16
+             "text halign" center
+            }
+            TextWidgetClass HoverALTLabel {
+             clipchildren 0
+             position 0 12
+             size 1 18
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 1
+             style None
+             text "m"
+             font "gui/fonts/sdf_metronbook72"
+             "shadow size" 4
+             "shadow offset" 1 1
+             "italic text" 0
+             "exact text" 0
+             "size to text h" 0
+             "size to text v" 0
+             "text halign" center
+             "text valign" center
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass ShieldIndicator {
+     visible 1
+     position 0 -22
+     size 68 30
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style blank
+     {
+      ImageWidgetClass ShieldIcon {
+       size 30 30
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "{4FE21B47020414D0}DayZExpansion/Core/GUI/icons/hud/shield_64x64.edds"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+       filter 1
+       nocache 0
+      }
+     }
+    }
+    PanelWidgetClass OutdoorTempIndicator {
+     visible 0
+     clipchildren 0
+     size 68 14
+     halign center_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style blank
+     {
+      TextWidgetClass OutdoorTempValue {
+       clipchildren 0
+       color 0.9843 0.9882 0.9961 1
+       size 30 14
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       text "Temp: 0C"
+       font "gui/fonts/sdf_metronbook72"
+       "shadow size" 6
+       "bold text" 0
+       "exact text" 1
+       "exact text size" 12
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+   }
+  }
+ }
+}

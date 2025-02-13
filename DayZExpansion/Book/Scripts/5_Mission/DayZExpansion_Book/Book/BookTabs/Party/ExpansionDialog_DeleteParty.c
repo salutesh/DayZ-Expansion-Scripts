@@ -18,7 +18,7 @@ class ExpansionDialog_DeleteParty: ExpansionDialogBookBase
 	protected ref ExpansionDialogButton_Text_PartyDelete_Cancel m_CancelButton;	
 	protected ref ExpansionBookMenuTabParty m_PartyTab;
 		
-	void ExpansionDialog_DeleteParty(ExpansionScriptView parentView)
+	void ExpansionDialog_DeleteParty(ScriptView parentView)
 	{
 		m_ParentView = parentView;
 		

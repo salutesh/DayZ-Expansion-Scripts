@@ -181,6 +181,17 @@ class ExpansionString: string
 		return str.IndexOf(prefix) == 0;
 	}
 
+	static bool StartsWithAny(string text, TStringArray words)
+	{
+		foreach (string word: words)
+		{
+			if (ExpansionString.StartsWith(text, word))
+				return true;
+		}
+
+		return false;
+	}
+
 	bool StartsWithIgnoreCase(string prefix)
 	{
 		ExpansionString tmp = value;

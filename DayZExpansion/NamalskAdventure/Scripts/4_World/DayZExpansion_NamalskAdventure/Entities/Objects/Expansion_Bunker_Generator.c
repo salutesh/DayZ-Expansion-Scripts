@@ -320,7 +320,7 @@ class Expansion_Bunker_Generator: House
 		return false;
 	}
 
-	override bool CanPutIntoHands(EntityAI player)
+	override bool CanPutIntoHands(EntityAI parent)
 	{
 		return false;
 	}

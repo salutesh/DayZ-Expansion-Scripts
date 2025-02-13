@@ -599,9 +599,14 @@ class ExpansionItemSpawnHelper
 		switch (location.GetType())
 		{
 			case InventoryLocationType.GROUND:
+				int flags = ECE_OBJECT_SWAP;
+				if (src.IsKindOf("DZ_LightAI"))
+					flags |= ECE_INITAI;
 				//! XXX: LocationCreateEntity with ECE_PLACE_ON_SURFACE broke somewhere around 1.20 (object rotation isn't applied)
-				//dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_PLACE_ON_SURFACE, RF_DEFAULT);
-				dst = EntityAI.Cast(GetGame().CreateObjectEx(src.GetType(), location.GetPos(), ECE_PLACE_ON_SURFACE));
+				//dst = GameInventory.LocationCreateEntity(location, src.GetType(), flags, RF_DEFAULT);
+				dst = EntityAI.Cast(GetGame().CreateObjectEx(src.GetType(), location.GetPos(), flags));
+				if (dst && !src.GetHierarchyParent())
+					dst.SetOrientation(src.GetOrientation());
 				break;
 			case InventoryLocationType.ATTACHMENT:
 				dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_IN_INVENTORY, RF_DEFAULT);
@@ -655,6 +660,17 @@ class ExpansionItemSpawnHelper
 					cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
 					dLocation.SetCargo(dst, null, cLocation.GetIdx(), cLocation.GetRow(), cLocation.GetCol(), cLocation.GetFlip());
 					Clone(cSrc, recursively, dLocation);
+				}
+			}
+
+			if (src.IsMan())
+			{
+				Man player = Man.Cast(src);
+				EntityAI entityInHands = player.GetHumanInventory().GetEntityInHands();
+				if (entityInHands)
+				{
+					dLocation.SetHands(dst, null);
+					Clone(entityInHands, recursively, dLocation);
 				}
 			}
 		}
@@ -729,7 +745,7 @@ class ExpansionItemSpawnHelper
 		}
 
 		//! 7) global health and damage zones
-		TStringArray dmgZones();
+		TStringArray dmgZones = {};
 		src.GetDamageZones(dmgZones);
 		dst.SetHealth(src.GetHealth());
 		foreach (string dmgZone: dmgZones)

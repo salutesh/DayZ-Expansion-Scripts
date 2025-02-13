@@ -118,14 +118,19 @@ class eAITarget
 		return info != null;
 	}
 
+	bool IsCreature()
+	{
+		return info.IsCreature();
+	}
+
+	bool IsDoor()
+	{
+		return info.IsDoor();
+	}
+
 	bool IsEntity()
 	{
 		return info.IsEntity();
-	}
-
-	EntityAI GetEntity()
-	{
-		return info.GetEntity();
 	}
 
 	bool IsExplosive()
@@ -133,9 +138,54 @@ class eAITarget
 		return info.IsExplosive();
 	}
 
+	bool IsGroup()
+	{
+		return info.IsGroup();
+	}
+
+	bool IsHazard()
+	{
+		return info.IsHazard();
+	}
+
+	bool IsInanimate()
+	{
+		return info.IsInanimate();
+	}
+
+	bool IsItem()
+	{
+		return info.IsItem();
+	}
+
 	bool IsMechanicalTrap()
 	{
 		return info.IsMechanicalTrap();
+	}
+
+	bool IsNoise()
+	{
+		return info.IsNoise();
+	}
+
+	bool IsPlayer()
+	{
+		return info.IsPlayer();
+	}
+
+	bool IsVehicle()
+	{
+		return info.IsVehicle();
+	}
+
+	bool IsZombie()
+	{
+		return info.IsZombie();
+	}
+
+	EntityAI GetEntity()
+	{
+		return info.GetEntity();
 	}
 
 	vector GetPosition(eAIBase ai = null, bool actual = false)

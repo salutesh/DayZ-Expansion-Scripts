@@ -76,6 +76,16 @@ class ExpansionScriptViewBase: ScriptView
 	{
 		return All;
 	}
+
+	static void DestroyAll()
+	{
+		for (int i = All.Count() - 1; i >= 0; i--)
+		{
+			ExpansionScriptViewBase scriptView;
+			if (Class.CastTo(scriptView, All[i]))
+				scriptView.Destroy();
+		}
+	}
 	
 	static ScriptView GetSciptViewByClassName(string name)
 	{

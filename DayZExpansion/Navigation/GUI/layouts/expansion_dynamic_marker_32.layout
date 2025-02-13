@@ -1,5 +1,5 @@
 FrameWidgetClass rootFrame {
- visible 0
+ visible 1
  clipchildren 0
  ignorepointer 1
  size 1 1
@@ -58,8 +58,8 @@ FrameWidgetClass rootFrame {
        imageTexture "{B40287E36A28B065}DayZExpansion/Core/GUI/icons/hud/marker_64x64.edds"
        mode blend
        "src alpha" 1
-       "no wrap" 1
-       stretch 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
        "Transition width" 0
       }
      }

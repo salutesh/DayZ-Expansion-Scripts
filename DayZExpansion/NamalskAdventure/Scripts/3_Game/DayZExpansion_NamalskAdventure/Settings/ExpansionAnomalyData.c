@@ -141,7 +141,9 @@ class ExpansionAnomalyDynamic: ExpansionAnomalyStatic
 	//! This reduces the number of collision checks and distance calculations required and should improve server performance.
 	array<vector> GeneratePositions(vector center, float squareSize, int amount, int distanceToPos = 0)
 	{
+	#ifdef EXTRACE
 	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	#endif
 
 	    array<vector> positions = new array<vector>;
 		vector position;

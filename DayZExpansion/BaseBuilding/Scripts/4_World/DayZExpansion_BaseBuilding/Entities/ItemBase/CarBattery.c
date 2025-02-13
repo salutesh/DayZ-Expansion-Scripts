@@ -13,7 +13,7 @@
 #ifdef EXPANSIONMODGARAGE
 modded class CarBattery
 {
-	override bool CanPutIntoHands(EntityAI player)
+	override bool CanPutIntoHands(EntityAI parent)
 	{
 		if (HasEnergyManager())
 		{

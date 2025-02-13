@@ -20,7 +20,7 @@
 				}
 				
 				auto cmd = unit.GetCommand_MoveAI();
-				if (!unit.m_eAI_CurrentCoverObject || !cmd || cmd.GetWaypoint() != unit.m_eAI_CurrentCoverPosition)
+				if (!unit.m_eAI_CurrentCoverObject || !cmd || unit.m_eAI_CommandMove.GetWaypoint() != unit.m_eAI_CurrentCoverPosition)
 				{
 					unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() * 0.333333);
 					unit.OverrideMovementDirection(false, 0);
@@ -296,7 +296,7 @@
 			<event_update>
 				if (unit.IsUnconscious()) return EXIT;
 				
-				if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning() || !unit.GetCommand_Script())
+				if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning() || !unit.GetCommand_MoveAI())
 				{
 					time += DeltaTime;
 					if (time &gt; 10)  //! Looks like something went terribly wrong
@@ -391,7 +391,7 @@
 			<event_update>
 				if (unit.IsUnconscious()) return EXIT;
 				
-				if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning() || !unit.GetCommand_Script())
+				if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning() || !unit.GetCommand_MoveAI())
 				{
 					time += DeltaTime;
 					if (time &gt; 10)  //! Looks like something went terribly wrong
@@ -766,11 +766,6 @@
 								return FAIL;
 							else
 								preferExplosiveAmmo = true;
-						}
-						else
-						{
-							if (!hands.ShootsExplosiveAmmo())
-								return FAIL;
 						}
 					}
 				}
@@ -1152,7 +1147,13 @@
 				dst.group = unit.GetGroup();
 				if (!dst.group) return FAIL;
 				
-				if (unit.GetThreatToSelf() &gt;= 0.4 || dst.group.IsInCombat()) return FAIL;
+				if (unit.GetThreatToSelf() &gt;= 0.4) return FAIL;
+				
+				if (dst.group.IsInCombat())
+				{
+					eAITarget target = unit.GetTarget();
+					if (target &amp;&amp; !target.IsItem() &amp;&amp; unit.GetThreatToSelf(true) &gt;= 0.4) return FAIL;
+				}
 				
 				if (dst.group.GetFormationState() != eAIGroupFormationState.IN) return FAIL;
 				
@@ -1176,7 +1177,13 @@
 				auto group = unit.GetGroup();
 				if (!group) return FAIL;
 				
-				if (unit.GetThreatToSelf() &gt;= 0.4 || group.IsInCombat()) return FAIL;
+				if (unit.GetThreatToSelf() &gt;= 0.4) return FAIL;
+				
+				if (group.IsInCombat())
+				{
+					eAITarget target = unit.GetTarget();
+					if (target &amp;&amp; !target.IsItem() &amp;&amp; unit.GetThreatToSelf(true) &gt;= 0.4) return FAIL;
+				}
 				
 				if (group.GetFormationState() != eAIGroupFormationState.IN) return FAIL;
 				
@@ -1184,7 +1191,7 @@
 				auto leader = group.GetFormationLeader();
 				if (leader &amp;&amp; leader != unit) return FAIL;
 				if (leader.IsInTransport()) return FAIL;
-				if (group.GetWaypoints().Count() == 0) return FAIL;
+				if (group.GetWaypoints().Count() == 0 &amp;&amp; group.GetWaypointBehaviour() != eAIWaypointBehavior.ROAMING) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -1207,10 +1214,10 @@
 				if (group.GetFormationState() != eAIGroupFormationState.FLANK &amp;&amp; !group.IsInCombat()) return FAIL;
 				
 				dst.target = unit.GetTarget();
-				if (!dst.target || dst.target.info.IsInherited(eAIItemTargetInformation))
+				if (!dst.target || dst.target.IsItem() || unit.GetThreatToSelf(true) &lt; 0.4)
 					return FAIL;
 				
-				if (!unit.eAI_IsInFlankRange(dst.target)) return FAIL;
+				//if (!unit.eAI_IsInFlankRange(dst.target)) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -1226,7 +1233,7 @@
 			<guard>
 				auto group = unit.GetGroup();
 				if (group.GetFormationState() != eAIGroupFormationState.IN) return SUCCESS;
-				if (unit.GetThreatToSelf() &gt;= 0.4 || !group || group.GetFormationLeader() != unit || group.GetWaypoints().Count() == 0) return SUCCESS;
+				if (unit.GetThreatToSelf() &gt;= 0.4 || !group || group.GetFormationLeader() != unit || (group.GetWaypoints().Count() == 0 &amp;&amp; group.GetWaypointBehaviour() != eAIWaypointBehavior.ROAMING)) return SUCCESS;
 				
 				return FAIL;
 			</guard>
@@ -1258,7 +1265,7 @@
 			</editor_data>
 			<guard>
 				auto group = unit.GetGroup();
-				if (group &amp;&amp; (group.GetFormationState() == eAIGroupFormationState.FLANK || group.IsInCombat()) &amp;&amp; src.target &amp;&amp; !src.target.info.IsInherited(eAIItemTargetInformation) &amp;&amp; unit.eAI_IsInFlankRange(src.target)) return FAIL;
+				if (group &amp;&amp; (group.GetFormationState() == eAIGroupFormationState.FLANK || group.IsInCombat()) &amp;&amp; src.target &amp;&amp; !src.target.IsItem() &amp;&amp; unit.GetThreatToSelf(true) &gt;= 0.4 /*&amp;&amp; unit.eAI_IsInFlankRange(src.target)*/) return FAIL;
 				
 				return SUCCESS;
 			</guard>

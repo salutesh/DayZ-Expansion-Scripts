@@ -36,8 +36,10 @@ class ExpansionVehicle
 
 	void ~ExpansionVehicle()
 	{
+	#ifndef DIAG_DEVELOPER
 		if (!GetGame())
 			return;
+	#endif
 
 		if (s_All)
 			s_All.Remove(m_Node);

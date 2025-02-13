@@ -274,6 +274,10 @@ class eAIGroup
 		if (Count() == 0)
 			return vector.Zero;
 
+	#ifdef DIAG_DEVELOPER
+		auto timeIt = new EXTimeIt();
+	#endif
+
 		auto leader = GetFormationLeader();
 		vector position = leader.GetPosition();
 
@@ -287,7 +291,7 @@ class eAIGroup
 
 		float distSq;
 		int distKey;
-		TFloatArray distances = {};
+		TIntArray distances = {};
 		map<int, BuildingBase> buildingsByDistance;
 
 		//! Excluded buildings are structures where the pathfinding won't generate a good path.
@@ -303,6 +307,7 @@ class eAIGroup
 			"Land_HouseBlock_1F4",  //! Path endpoint behind unopenable lattice door
 			"Land_Boathouse",  //! When AI falls into water it will likely get stuck under pier due to path always leading under it
 			"Land_Mine_Building",  //! Stairs
+			"Land_Shed_W2",  //! Pathfinding tends to find a way in, but not out.
 			"Land_Tenement_Big"  //! AI can get stuck on upper floors when climbing the broken stairs
 		};
 
@@ -313,6 +318,9 @@ class eAIGroup
 		if (m_RoamingLocationReachedTimestamp > 0.0)
 			locationTime = GetGame().GetTickTime() - m_RoamingLocationReachedTimestamp;
 
+		BuildingBase building;
+		string buildingType;
+
 		eAIBase ai;
 		if (Class.CastTo(ai, leader) && ai.m_eAI_PotentialCoverObjects.Count() > 0 && locationTime < Math.RandomFloat(300.0, 600.0))
 		{
@@ -320,11 +328,11 @@ class eAIGroup
 
 			foreach (Object obj: ai.m_eAI_PotentialCoverObjects)
 			{
-				BuildingBase building;
 				if (!Class.CastTo(building, obj) || building.GetDoorCount() == 0)
 					continue;
 
-				if (ExpansionStatic.IsAnyOf(obj, excludedBuildings))
+				buildingType = building.GetType();
+				if (ExpansionString.StartsWithAny(buildingType, excludedBuildings))
 					continue;
 
 				if (m_VisitedBuildings.Find(building) > -1)
@@ -344,27 +352,17 @@ class eAIGroup
 		string destinationName;
 	#endif
 
+		BuildingBase destinationBuilding;
+
 		if (distances.Count() > 0)
 		{
 			distances.Sort();
 
-			BuildingBase destinationBuilding = buildingsByDistance[distances[0]];
+			destinationBuilding = buildingsByDistance[distances[0]];
 
 			m_VisitedBuildings.Insert(destinationBuilding);
 
-			destinationPosition = destinationBuilding.GetPosition();
-
-			vector minMax[2];
-			if (!destinationBuilding.Expansion_IsEnterable() && destinationBuilding.GetCollisionBox(minMax))
-			{
-				minMax[0][1] = 0.0;
-				minMax[1][1] = 0.0;
-				float extension = vector.Distance(minMax[0], minMax[1]) * 0.5 + 1.0;
-
-				position[1] = destinationPosition[1];
-				vector dir = vector.Direction(position, destinationPosition);
-				destinationPosition = destinationPosition - dir.Normalized() * extension;
-			}
+			destinationPosition = destinationBuilding.eAI_GetRoamingPosition(position);
 
 			if (ai && ai.GetMovementSpeedLimit() >= 2)
 				ai.SetMovementSpeedLimit(2, true);
@@ -377,6 +375,10 @@ class eAIGroup
 		}
 		else
 		{
+			//! Initial
+			if (m_RoamingLocations.Count() == 0)
+				ExpansionArray<ExpansionLocatorArray>.RefCopy(ExpansionWorld.Cast(GetDayZGame().GetExpansionGame()).GetAIRoamingLocations(), m_RoamingLocations);
+
 			map<int, ref ExpansionLocatorArray> locationsByDistance = new map<int, ref ExpansionLocatorArray>;
 
 			foreach (ExpansionLocatorArray location: m_RoamingLocations)
@@ -406,23 +408,27 @@ class eAIGroup
 					m_VisitedCrashSites.Remove(i);
 			}
 
-			CF_DoublyLinkedNode_WeakRef<CrashBase> node = CrashBase.s_Expansion_HeliCrashes.m_Head;
-			while (node)
+			//! If last visited roaming location wasn't a helicrash, consider helicrashes
+			if (!m_RoamingLocation || m_RoamingLocation.type != "StaticHeliCrash")
 			{
-				CrashBase crash = node.m_Value;
+				CF_DoublyLinkedNode_WeakRef<CrashBase> node = CrashBase.s_Expansion_HeliCrashes.m_Head;
+				while (node)
+				{
+					CrashBase crash = node.m_Value;
 
-				node = node.m_Next;
+					node = node.m_Next;
 
-				if (m_VisitedCrashSites.Find((Object)crash) > -1)
-					continue;
+					if (m_VisitedCrashSites.Find((Object)crash) > -1)
+						continue;
 
-				//! @note we shave off a zero by taking the 10% value to make it less likely to run into 32-bit integer limits
-				distSq = vector.DistanceSq(position, crash.GetPosition()) * 0.1;
-				distSq *= Math.RandomFloat(0.64, 1.44);  //! Bit of randomization (+/- 20%)
+					//! @note we shave off a zero by taking the 10% value to make it less likely to run into 32-bit integer limits
+					distSq = vector.DistanceSq(position, crash.GetPosition()) * 0.1;
+					distSq *= Math.RandomFloat(0.64, 1.44);  //! Bit of randomization (+/- 20%)
 
-				distKey = distSq;
-				distances.Insert(distKey);
-				locationsByDistance[distKey] = new ExpansionLocatorArray(crash.GetPosition(), crash.GetType(), "", "StaticHeliCrash", crash);
+					distKey = distSq;
+					distances.Insert(distKey);
+					locationsByDistance[distKey] = new ExpansionLocatorArray(crash.GetPosition(), crash.GetType(), "", "StaticHeliCrash", crash);
+				}
 			}
 
 			if (distances.Count() == 0)
@@ -432,19 +438,91 @@ class eAIGroup
 
 			ExpansionLocatorArray destination = locationsByDistance[distances[0]];
 
+		#ifdef DIAG_DEVELOPER
+			destinationName = destination.classname;
+			if (destination.name)
+				destinationName += " (" + destination.name + ")";
+		#endif
+
 			if (destination.type != "StaticHeliCrash")
 			{
-				float radius = ExpansionLocatorStatic.GetRadius(destination.type) * 0.25;
-				destinationPosition = ExpansionMath.GetRandomPointInCircle(destination.position, radius);
+				float radius = ExpansionLocatorStatic.GetRadius(destination.type);
+
+				vector center = ExpansionStatic.GetSurfacePosition(destination.position);
+				float extent = Math.Min(Math.Max(radius, 200), 400);
+				vector min = Vector(center[0] - extent, center[1] - extent, center[2] - extent);
+				vector max = Vector(center[0] + extent, center[1] + extent, center[2] + extent);
+	
+			#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.AI, this, "Searching for buildings in " + destinationName + " at " + ExpansionStatic.VectorToString(center));
+				EXTrace.Print(EXTrace.AI, this, "Location radius " + radius);
+				EXTrace.Print(EXTrace.AI, this, "Box side length " + (extent * 2));
+				auto timeIt2 = new EXTimeIt();
+			#endif
+
+				array<EntityAI> entities = {};
+				array<EntityAI> candidates = {};
+				DayZPlayerUtils.SceneGetEntitiesInBox(min, max, candidates, QueryFlags.STATIC | QueryFlags.ORIGIN_DISTANCE);
+
+			#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.AI, this, "Found " + candidates.Count() + " candidates (" + timeIt2.GetElapsedMS() + "ms)");
+				timeIt2.Start();
+			#endif
+
+				//! Pick a random candidate, if candidate is not excluded, loop ends instantly. If candidate is excluded,
+				//! it is removed from the pool and loop is repeated until a suitable candidate is found, all candidates have been exhausted
+				//! or limit is reached.
+				//! In the general case, we only have to check a few candidates until we find one that's not excluded.
+				//! In the optimal case, we only have to check one even if there are multiple candidates.
+				//! In the worst case, we check up to 100 with no match, but this case should be rare.
+				//! This approach is about 50 times faster on avg compared to pre-filtering the entities before picking.
+				int n;
+				EntityAI candidate;
+				for (n = 1; n <= candidates.Count() && n <= 100; n++)
+				{
+					int index = candidates.GetRandomIndex();
+					candidate = candidates[index];
+
+					if (Class.CastTo(destinationBuilding, candidate) && destinationBuilding.GetDoorCount() > 0)
+					{
+						buildingType = destinationBuilding.GetType();
+						if (!ExpansionString.StartsWithAny(buildingType, excludedBuildings))
+							break;
+					}
+
+					candidates.Remove(index);
+				}
+
+				if (n <= candidates.Count() && n <= 100)
+				{
+				#ifdef DIAG_DEVELOPER
+					EXTrace.Print(EXTrace.AI, this, "Found suitable candidate after " + n + " random picks (" + timeIt2.GetElapsedMS() + "ms)");
+				#endif
+
+					m_VisitedBuildings.Insert(destinationBuilding);
+					destinationPosition = destinationBuilding.eAI_GetRoamingPosition(position);
+
+				#ifdef DIAG_DEVELOPER
+					destinationName = destinationBuilding.GetType() + " in " + destinationName;
+				#endif
+				}
+				else
+				{
+				#ifdef DIAG_DEVELOPER
+					if (n > 1)
+						EXTrace.Print(EXTrace.AI, this, "Found no suitable candidate after " + n + " random picks (" + timeIt2.GetElapsedMS() + "ms)");
+				#endif
+
+					destinationPosition = ExpansionMath.GetRandomPointInCircle(destination.position, radius * 0.25);
+					destinationPosition = ExpansionStatic.GetSurfaceRoadPosition(destinationPosition[0], destinationPosition[2], RoadSurfaceDetection.CLOSEST);
+				}
 			}
 			else
 			{
 				m_VisitedCrashSites.Insert(destination.object);
 				destinationPosition = ExpansionMath.GetRandomPointInRing(destination.position, 5.0, 20.0);
+				destinationPosition = ExpansionStatic.GetSurfaceRoadPosition(destinationPosition[0], destinationPosition[2], RoadSurfaceDetection.CLOSEST);
 			}
-
-			//! TODO: For map locations, use SceneGetEntitiesInBox to get closest building in radius (and add to visited buildings)
-			destinationPosition = ExpansionStatic.GetSurfaceRoadPosition(destinationPosition[0], destinationPosition[2], RoadSurfaceDetection.CLOSEST);
 
 			//! If next destination is > 500 m from formation leader position, "forget" visited buildings
 			if (vector.DistanceSq(position, destinationPosition) > 250000.0)
@@ -456,16 +534,10 @@ class eAIGroup
 				ai.SetMovementSpeedLimit(3, true);
 
 			m_RoamingLocation = destination;
-
-		#ifdef DIAG_DEVELOPER
-			destinationName = destination.classname;
-			if (destination.name)
-				destinationName += " (" + destination.name + ")";
-		#endif
 		}
 
 	#ifdef DIAG_DEVELOPER
-		string msg = "Selected " + destinationName + " at " + ExpansionStatic.VectorToString(destinationPosition);
+		string msg = "Selected " + destinationName + " at " + ExpansionStatic.VectorToString(destinationPosition) + " (" + timeIt.GetElapsedMS() + "ms)";
 		EXTrace.Print(EXTrace.AI, leader, msg);
 		ExpansionStatic.MessageNearPlayers(position, 100.0, leader.ToString() + " " + msg);
 	#endif
@@ -734,22 +806,31 @@ class eAIGroup
 		if (!IsMember(leader))
 			AddMember(leader);
 
-		DayZPlayerImplement temp = m_Members[0];
-		if (temp == leader)
+		SetGroupMemberIndex(leader, 0);
+	}
+
+	void SetGroupMemberIndex(DayZPlayerImplement member, int index)
+	{
+		DayZPlayerImplement temp = m_Members[index];
+		if (temp == member)
 			return;
 
-		m_Members[0] = leader;
-		m_Members[0].SetGroupMemberIndex(0);
+		m_Members[index] = member;
+		member.SetGroupMemberIndex(index);
 
-		for (int i = 1; i < Count(); i++)
+		if (!temp)
+			return;
+
+		int i = index + 1;
+
+		for (; i < Count(); i++)
 		{
-			if (m_Members[i] && m_Members[i] == leader)
-			{
-				m_Members[i] = temp;
-				m_Members[i].SetGroupMemberIndex(i);
-				return;
-			}
+			if (m_Members[i] == member)
+				break;
 		}
+
+		m_Members[i] = temp;
+		temp.SetGroupMemberIndex(i);
 	}
 
 	DayZPlayerImplement GetLeader()
@@ -768,6 +849,17 @@ class eAIGroup
 #endif
 
 		return m_Form;
+	}
+
+	void SetFormationLeader(DayZPlayerImplement leader)
+	{
+		if (!IsMember(leader))
+			AddMember(leader);
+
+		if (GetLeader() == GetFormationLeader())
+			SetGroupMemberIndex(leader, 0);
+		else
+			SetGroupMemberIndex(leader, 1);
 	}
 
 	DayZPlayerImplement GetFormationLeader()
@@ -941,8 +1033,32 @@ class eAIGroup
 	#endif
 	}
 
+	/**
+	 * @brief Set whether group is in combat
+	 * 
+	 * @note If previously in combat, will only set false state if no group members are in fighting FSM
+	 */
 	void SetIsInCombat(bool state)
 	{
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + state);
+	#endif
+
+		if (!state && m_IsInCombat)
+		{
+			eAIBase ai;
+			foreach (DayZPlayerImplement member: m_Members)
+			{
+				if (Class.CastTo(ai, member) && ai.m_eAI_IsFightingFSM)
+				{
+				#ifdef EXTRACE_DIAG
+					EXTrace.Print(EXTrace.AI, this, "Not setting state, AI group members still in combat");
+				#endif
+					return;
+				}
+			}
+		}
+
 		m_IsInCombat = state;
 	}
 

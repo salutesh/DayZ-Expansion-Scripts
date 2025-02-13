@@ -9,6 +9,8 @@ modded class ActionConstructor
 		actions.Insert(eAIActionTakeItemToHands);
 		actions.Insert(eAIActionTakeItem);
 		actions.Insert(eAIActionDropItem);
+		actions.Insert(eAIActionOpenDoorsDummy);
+		actions.Insert(eAIActionCloseDoorsDummy);
 
 		actions.Insert(ExpansionActionRecruitAI);
 		actions.Insert(ExpansionActionDismissAI);

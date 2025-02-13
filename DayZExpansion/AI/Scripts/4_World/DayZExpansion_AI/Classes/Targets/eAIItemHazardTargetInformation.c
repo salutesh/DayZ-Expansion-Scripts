@@ -52,6 +52,11 @@ class eAIItemHazardTargetInformation: eAIItemTargetInformation
 		EXTrace.Print(EXTrace.AI, this, m_Item.ToString() + " (" + m_Item.GetType() + ") range " + m_Range + " min distance " + m_MinDistance);
 	}
 
+	override bool IsHazard()
+	{
+		return true;
+	}
+
 	override bool IsActive()
 	{
 		if (!super.IsActive())

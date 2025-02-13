@@ -18,7 +18,7 @@ class ExpansionDialog_LeaveParty: ExpansionDialogBookBase
 	protected ref ExpansionDialogButton_Text_PartyLeave_Cancel m_CancelButton;	
 	protected ref ExpansionBookMenuTabParty m_PartyTab;
 		
-	void ExpansionDialog_LeaveParty(ExpansionScriptView parentView)
+	void ExpansionDialog_LeaveParty(ScriptView parentView)
 	{
 		m_ParentView = parentView;
 		

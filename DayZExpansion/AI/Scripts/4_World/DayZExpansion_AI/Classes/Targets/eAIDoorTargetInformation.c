@@ -11,6 +11,11 @@ class eAIDoorTargetInformation: eAIEntityTargetInformation
 		m_Position = position;
 	}
 
+	override bool IsDoor()
+	{
+		return true;
+	}
+
 	override bool IsInanimate()
 	{
 		return true;
@@ -49,7 +54,7 @@ class eAIDoorTargetInformation: eAIEntityTargetInformation
 				//! If current AI target is not a door and path to target is blocked,
 				//! increase threat lvl so AI targets this door
 				eAITarget target = ai.GetTarget();
-				if (target && !target.info.IsInherited(eAIDoorTargetInformation))
+				if (target && !target.IsDoor())
 				{
 					auto pathHandler = ai.GetPathFinding();
 					if (pathHandler.m_IsBlocked)

@@ -77,7 +77,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 	static int ForceUpdateCategoryID = -1;
 	protected ref ExpansionMarketMenuCategoryColorHandler m_ColorHandler;
 	
-	void ExpansionMarketMenuCategory(ExpansionMarketMenu menu, ExpansionMarketCategory category, ref map<string, ref array<ExpansionMarketItem>> tempItems)
+	void ExpansionMarketMenuCategory(ExpansionMarketMenu menu, ExpansionMarketCategory category, map<string, ref array<ExpansionMarketItem>> tempItems)
 	{
 		m_MarketMenu = menu;
 		m_Category = category;

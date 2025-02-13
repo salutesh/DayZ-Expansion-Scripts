@@ -48,7 +48,7 @@ class ExpansionVehicleAxle : ExpansionVehicleRotational
 	float m_TravelMaxDown;
 	float m_TravelMax;
 
-	void ExpansionVehicleAxle(EntityAI pVehicle, string pName, int pIndex)
+	void ExpansionVehicleAxle(EntityAI vehicle, string pName, int pIndex)
 	{
 		m_Name = pName;
 		m_Index = pIndex;

@@ -59,7 +59,7 @@ class ExpansionColor
 
 	static int ToARGB(string format)
 	{
-		TStringArray parts();
+		TStringArray parts = {};
 		if (format.IndexOf(",") > -1)
 			format.Split(",", parts);
 		else if (format.IndexOf(" ") > -1)

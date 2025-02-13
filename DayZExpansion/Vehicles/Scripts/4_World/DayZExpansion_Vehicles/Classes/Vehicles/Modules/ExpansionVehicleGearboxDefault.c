@@ -14,7 +14,7 @@ class ExpansionVehicleGearboxDefault : ExpansionVehicleGearboxAdvanced
 {
 	float m_Reverse;
 
-	void ExpansionVehicleGearboxDefault(EntityAI pVehicle, string rootPath)
+	void ExpansionVehicleGearboxDefault(EntityAI vehicle, string rootPath)
 	{
 		string path;
 		

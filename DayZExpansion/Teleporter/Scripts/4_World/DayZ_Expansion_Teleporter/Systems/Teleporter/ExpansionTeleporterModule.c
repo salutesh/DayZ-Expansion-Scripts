@@ -45,14 +45,18 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	void ExpansionTeleporterModule()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		s_Instance = this;
 	}
 
 	override void OnInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		EnableMissionStart();
 		Expansion_EnableRPCManager();
@@ -70,7 +74,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		m_TeleporterData = new map<int, ref ExpansionTeleportData>;
 
@@ -86,7 +92,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	protected void ClientModuleInit()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		if (GetGame().IsClient())
 		{
@@ -100,7 +108,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	protected void LoadTeleporterServerData()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		array<string> teleporterFiles = ExpansionStatic.FindFilesInLocation(s_TeleporterDataFolderPath, ".json");
 		if (teleporterFiles && teleporterFiles.Count() > 0)
@@ -118,7 +128,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	protected void CreateDefaultTeleporterData()
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		ExpansionTeleportData teleporterData = new ExpansionTeleportData();
 		teleporterData.SetID(1);
@@ -167,7 +179,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	protected void GetTeleporterData(string fileName, string path)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		ExpansionTeleportData teleporterData = ExpansionTeleportData.Load(path + fileName);
 		if (!teleporterData)
@@ -180,7 +194,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 #ifdef EXPANSION_NAMALSK_ADVENTURE
 	void AddPlayerToTeleporter(int teleporterID, string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 		EXTrace.Add(trace, teleporterID);
 		EXTrace.Add(trace, playerUID);
 		
@@ -194,7 +210,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	
 	void RemovePlayerFromTeleporter(int teleporterID, string playerUID)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 		
 		array<string> playerUIDs = m_PlayerTeleporterMap[teleporterID];
 		int foundIndex = -1;
@@ -218,7 +236,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	
 	void OnTeleporterKeyCardUsed(Expansion_Teleporter_Big teleporterObj, Expansion_KeyCard_Teleporter keyCard)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 		
 		PlayerBase player = PlayerBase.Cast(keyCard.GetHierarchyRootPlayer());
 		if (!player)
@@ -256,7 +276,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	
 	void DeactivateTeleporter(Expansion_Teleporter_Big teleporterObj)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 		
 		if (teleporterObj.IsActive())
 		{
@@ -268,7 +290,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	//! Server
 	void RequestOpenTeleporterMenu(PlayerIdentity identity, ExpansionTeleportData teleporterData)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		if (!teleporterData)
 		{
@@ -284,7 +308,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	//! Client
 	protected void RPC_RequestOpenTeleporterMenu(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		if (m_TeleporterClientData)
 			m_TeleporterClientData = null;
@@ -309,7 +335,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	//! Client
 	void RequestTeleport(ExpansionTeleportPositionEntry pos, vector teleporterObjPos)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		if (!GetGame().IsClient())
 		{
@@ -326,7 +354,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RequestTeleport(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(senderRPC);
 		if (!player)
@@ -359,7 +389,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	void TeleportPlayer(vector pos, vector ori, PlayerBase player, vector teleporterObjPos = vector.Zero)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		if (teleporterObjPos != vector.Zero)
 		{
@@ -377,7 +409,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	//! Server
 	void ExitTeleport(PlayerBase player, ExpansionTeleportData teleportData)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -410,7 +444,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	//! Server
 	void PlayTeleportSound(vector position, int sound)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -427,7 +463,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	//! Client
 	protected void RPC_PlayTeleportSound(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		vector position;
 		if (!ctx.Read(position))
@@ -460,7 +498,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	void AddTeleporterData(ExpansionTeleportData data)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		if (!m_TeleporterData.Contains(data.GetID()))
 			m_TeleporterData.Insert(data.GetID(), data);

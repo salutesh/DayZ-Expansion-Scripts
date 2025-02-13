@@ -71,7 +71,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 #endif
 
 		m_ChatLines.Clear();
-		ExpansionClientSettings().SI_UpdateSetting.Remove(OnSettingChanged);
+		GetExpansionClientSettings().SI_UpdateSetting.Remove(OnSettingChanged);
 	}
 
 	void CreateChatLines()

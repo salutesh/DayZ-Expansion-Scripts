@@ -17,7 +17,6 @@ class CfgMods
 	{
 		dir="DayZExpansion/VanillaFixes";
 		credits="$STR_MOD_EXPANSION_AUTHOR";
-		creditsJson="DayZExpansion/Core/Scripts/Data/Credits.json";
 		extra=0;
 		type="mod";
 		name="DayZ Expansion - VanillaFixes";
