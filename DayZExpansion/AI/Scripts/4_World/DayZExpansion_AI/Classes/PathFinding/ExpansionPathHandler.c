@@ -2,21 +2,18 @@ class ExpansionPathHandler
 {
 	static const float PATH_RECALCULATE_THRESHOLD = 5.0;
 
+	ref EXTimeIt m_TimeIt;
+
 	eAIBase m_Unit;
 	vector m_UnitVelocity;
 	float m_Time;
 	float m_MinTimeUntilNextUpdate;
 
-	autoptr PGFilter m_PathFilter;
-	autoptr PGFilter m_PathFilter_NoJumpClimb;
+	PGFilter m_PathFilter;
+	PGFilter m_PathFilter_NoJumpClimb;
 	//autoptr PGFilter m_CheckFilter;
-	autoptr PGFilter m_BlockFilter;
-	autoptr PGFilter m_AllFilter;
-	int m_IncludeFlags;
-	int m_IncludeFlags_NoJumpClimb;
-	int m_ExcludeFlags;
-	int m_ExcludeFlags_NoJumpClimb;
-	int m_ExclusiveFlags;
+	PGFilter m_BlockFilter;
+	PGFilter m_AllFilter;
 
 	ref ExpansionPathPoint m_Current;
 	ref ExpansionPathPoint m_Target;
@@ -24,6 +21,10 @@ class ExpansionPathHandler
 	vector m_TargetPosition;
 	bool m_IsTargetUnreachable;
 	bool m_IsSwimmingEnabled;
+#ifdef DIAG_DEVELOPER
+	string m_LastDbgMsg;
+	vector m_LastTargetPosition;
+#endif
 
 	bool m_OverridingPosition;
 
@@ -54,17 +55,19 @@ class ExpansionPathHandler
 
 	void ExpansionPathHandler(eAIBase unit)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "ExpansionPathHandler").Add(unit);
-#endif
-
 		m_Unit = unit;
 
-		m_PathFilter = new PGFilter();
-		m_PathFilter_NoJumpClimb = new PGFilter();
+#ifdef EXTRACE_DIAG
+		m_TimeIt = new EXHitch(m_Unit.ToString() + " ExpansionPathHandler::OnUpdate ", 20000);
+#else
+		m_TimeIt = new EXTimeIt();
+#endif
+
+		m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter;
+		m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoJumpClimb;
 		//m_CheckFilter = new PGFilter();
-		m_BlockFilter = new PGFilter();
-		m_AllFilter = new PGFilter();
+		m_BlockFilter = ExpansionPathFilters.GetInstance().m_BlockFilter;
+		m_AllFilter = ExpansionPathFilters.GetInstance().m_AllFilter;
 
 		m_AIWorld = GetGame().GetWorld().GetAIWorld();
 
@@ -74,99 +77,12 @@ class ExpansionPathHandler
 		m_Next0 = new ExpansionPathPoint();
 		m_Next1 = new ExpansionPathPoint();
 
-		SetPathFilter();
 		EnableSwimming();  //! Start with swimming enabled (helps on Sakhal if AI is standing on ice floe)
-	}
-
-	private void SetPathFilter()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "SetPathFilter");
-#endif
-
-		m_PathFilter = new PGFilter();
-
-		/** @note
-		 * PGPolyFlags.DISABLED is for closed doors
-		 * PGPolyFlags.DOOR is for opened doors
-		 * PGPolyFlags.INSIDE is for inside buildings
-		 * 
-		 * High cost for DOOR_OPENED to path around door (the physics object, the doorway will still be used)
-		 */
-		m_IncludeFlags = PGPolyFlags.UNREACHABLE | PGPolyFlags.DISABLED | PGPolyFlags.WALK | PGPolyFlags.DOOR | PGPolyFlags.INSIDE | PGPolyFlags.LADDER;
-		m_ExcludeFlags = PGPolyFlags.CRAWL | PGPolyFlags.CROUCH | PGPolyFlags.SWIM_SEA | PGPolyFlags.SWIM;
-		m_ExclusiveFlags = PGPolyFlags.NONE;
-
-		if (eAIBase.AI_HANDLEVAULTING)
-		{
-			m_IncludeFlags |= PGPolyFlags.SPECIAL;
-		}
-		else
-		{
-			m_ExcludeFlags |= PGPolyFlags.SPECIAL;
-		}
-
-		m_PathFilter.SetCost(PGAreaType.LADDER, 1.0);
-		m_PathFilter.SetCost(PGAreaType.CRAWL, 10.0);
-		m_PathFilter.SetCost(PGAreaType.CROUCH, 10.0);
-		m_PathFilter.SetCost(PGAreaType.FENCE_WALL, 5.0);  //! Vault
-		m_PathFilter.SetCost(PGAreaType.JUMP, 10.0);  //! Climb
-		m_PathFilter.SetCost(PGAreaType.WATER, 5.0);
-		m_PathFilter.SetCost(PGAreaType.WATER_DEEP, 10.0);
-		m_PathFilter.SetCost(PGAreaType.WATER_SEA, 5.0);
-		m_PathFilter.SetCost(PGAreaType.WATER_SEA_DEEP, 10.0);
-
-		m_PathFilter.SetCost(PGAreaType.DOOR_CLOSED, 4.0);
-		m_PathFilter.SetCost(PGAreaType.DOOR_OPENED, 10000.0);
-
-		m_PathFilter.SetCost(PGAreaType.ROADWAY, 4.0);
-		m_PathFilter.SetCost(PGAreaType.TREE, 1.0);
-
-		m_PathFilter.SetCost(PGAreaType.OBJECTS_NOFFCON, 5.0);
-		m_PathFilter.SetCost(PGAreaType.OBJECTS, 5.0);
-		m_PathFilter.SetCost(PGAreaType.TERRAIN, 4.0);
-		m_PathFilter.SetCost(PGAreaType.BUILDING, 1.0);
-		m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 4.0);
-
-		m_PathFilter.SetFlags(m_IncludeFlags, m_ExcludeFlags, m_ExclusiveFlags);
-
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.LADDER, 1.0);
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.CRAWL, 10.0);
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.CROUCH, 10.0);
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.FENCE_WALL, 1000.0);  //! Vault
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.JUMP, 1000.0);  //! Climb
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.WATER, 5.0);
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.WATER_DEEP, 10.0);
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.WATER_SEA, 5.0);
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.WATER_SEA_DEEP, 10.0);
-
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.DOOR_CLOSED, 4.0);
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.DOOR_OPENED, 10000.0);
-
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.ROADWAY, 4.0);
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.TREE, 1.0);
-
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.OBJECTS_NOFFCON, 5.0);
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.OBJECTS, 5.0);
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.TERRAIN, 4.0);
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.BUILDING, 1.0);
-		m_PathFilter_NoJumpClimb.SetCost(PGAreaType.ROADWAY_BUILDING, 4.0);
-
-		m_IncludeFlags_NoJumpClimb = m_IncludeFlags & ~PGPolyFlags.SPECIAL;
-		m_ExcludeFlags_NoJumpClimb = m_ExcludeFlags | PGPolyFlags.SPECIAL;
-
-		m_PathFilter_NoJumpClimb.SetFlags(m_IncludeFlags_NoJumpClimb, m_ExcludeFlags_NoJumpClimb, m_ExclusiveFlags);
-
-		//! Block filter - only used to check if path is blocked. MUST use SAME flags as normal pathfilter EXCEPT door
-		m_BlockFilter.SetFlags(m_IncludeFlags & ~(PGPolyFlags.DOOR | PGPolyFlags.DISABLED), m_ExcludeFlags | PGPolyFlags.DOOR | PGPolyFlags.DISABLED, m_ExclusiveFlags);
-
-		//! 'All' filter - only used to check if point can be sampled
-		m_AllFilter.SetFlags(PGPolyFlags.ALL & ~(PGPolyFlags.CRAWL | PGPolyFlags.CROUCH), PGPolyFlags.CRAWL | PGPolyFlags.CROUCH, PGPolyFlags.NONE);
 	}
 
 	void SetAllowJumpClimb(bool allow, float timeout = 0)
 	{
-		if (!allow && allow != m_AllowJumpClimb)
+		if (!allow && allow != m_AllowJumpClimb && m_TargetPosition != vector.Zero)
 			m_Recalculate = true;
 
 		m_AllowJumpClimb = allow;
@@ -190,17 +106,16 @@ class ExpansionPathHandler
 			if (m_IsSwimmingEnabled)
 				return;
 
-			int swim = PGPolyFlags.SWIM_SEA | PGPolyFlags.SWIM;
-			m_PathFilter.SetFlags(m_IncludeFlags | swim, m_ExcludeFlags & ~swim, m_ExclusiveFlags);
-			m_PathFilter_NoJumpClimb.SetFlags(m_IncludeFlags_NoJumpClimb | swim, m_ExcludeFlags_NoJumpClimb & ~swim, m_ExclusiveFlags);
+			m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter_Swimming;
+			m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoJumpClimb_Swimming;
 		}
 		else
 		{
 			if (!m_IsSwimmingEnabled)
 				return;
 
-			m_PathFilter.SetFlags(m_IncludeFlags, m_ExcludeFlags, m_ExclusiveFlags);
-			m_PathFilter_NoJumpClimb.SetFlags(m_IncludeFlags_NoJumpClimb, m_ExcludeFlags_NoJumpClimb, m_ExclusiveFlags);
+			m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter;
+			m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoJumpClimb;
 		}
 
 	#ifdef DIAG_DEVELOPER
@@ -286,9 +201,8 @@ class ExpansionPathHandler
 	/**
 	 * @brief Check if path is blocked physically
 	 */
-	bool IsBlockedPhysically(vector start, vector end, out vector hitPos = vector.Zero, out vector hitNormal = vector.Zero)
+	bool IsBlockedPhysically(vector start, vector end, out vector hitPos = vector.Zero, out vector hitNormal = vector.Zero, out int contactComponent = -1, out Object hitObj = null)
 	{
-		int contactComponent;
 		set<Object> results = new set<Object>;
 		bool hit;
 
@@ -299,8 +213,13 @@ class ExpansionPathHandler
 
 		if (hit)
 		{
-			if (results.Count() && ExpansionStatic.CanObstruct(results[0]))
-				return true;
+			if (results.Count())
+			{
+				hitObj = results[0];
+
+				if (ExpansionStatic.CanObstruct(hitObj))
+					return true;
+			}
 		}
 
 		return false;
@@ -538,12 +457,10 @@ class ExpansionPathHandler
 	void OnUpdate(float pDt, int pSimulationPrecision)
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI, this);
-
-		auto hitch = new EXHitch(m_Unit.ToString() + " ExpansionPathHandler::OnUpdate ", 20000);
-#else
-		auto hitch = new EXTimeIt();
+		auto trace = EXTrace.Profile(EXTrace.AI, this, "OnUpdate");
 #endif
+
+		m_TimeIt.Start();
 
 		m_Time += pDt;
 
@@ -597,6 +514,10 @@ class ExpansionPathHandler
 		{
 			UpdatePoint(m_TargetReference, m_TargetPosition);
 
+		#ifdef DIAG_DEVELOPER
+			string dbgMsg;
+		#endif
+
 			if (!m_TargetReference.Parent)
 			{
 				//vector oldPos = m_TargetReference.Position;
@@ -623,7 +544,7 @@ class ExpansionPathHandler
 				{
 				#ifdef DIAG_DEVELOPER
 					if (!m_IsTargetUnreachable)
-						ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, m_Unit.ToString() + " target unreachable " + ExpansionStatic.VectorToString(m_TargetPosition, ExpansionVectorToString.Labels));
+						dbgMsg = "target unreachable";
 				#endif
 
 					//inPos = oldPos;
@@ -633,7 +554,7 @@ class ExpansionPathHandler
 				{
 				#ifdef DIAG_DEVELOPER
 					if (!m_IsTargetUnreachable)
-						ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, m_Unit.ToString() + " target in deep water " + ExpansionStatic.VectorToString(m_TargetPosition, ExpansionVectorToString.Labels));
+						dbgMsg = "target in deep water";
 				#endif
 
 					m_IsTargetUnreachable = true;
@@ -642,6 +563,31 @@ class ExpansionPathHandler
 				{
 					m_IsTargetUnreachable = false;
 				}
+
+			#ifdef DIAG_DEVELOPER
+				Object dbgConeRed;
+				Object dbgConeWhite;
+
+				if (vector.DistanceSq(inPos, m_TargetPosition) >= 0.01)
+				{
+					m_Unit.Expansion_DebugObject(33333, m_TargetPosition, "ExpansionDebugSphereSmall_Red");
+					dbgConeRed = m_Unit.Expansion_DebugObject(44444, m_TargetPosition + "0 0.06 0", "ExpansionDebugConeSmall_Red");
+				}
+				else
+				{
+					m_Unit.Expansion_DebugObject(33333, vector.Zero, "ExpansionDebugSphereSmall_Red");
+					m_Unit.Expansion_DebugObject(44444, vector.Zero, "ExpansionDebugConeSmall_Red");
+				}
+
+				m_Unit.Expansion_DebugObject(55555, inPos, "ExpansionDebugSphereSmall_White");
+				dbgConeWhite = m_Unit.Expansion_DebugObject(66666, inPos + "0 0.06 0", "ExpansionDebugConeSmall_White");
+
+				if (dbgConeRed)
+					dbgConeRed.SetOrientation("0 180 0");
+
+				if (dbgConeWhite)
+					dbgConeWhite.SetOrientation("0 180 0");
+			#endif
 
 				m_TargetReference.Position = inPos;
 			}
@@ -773,9 +719,45 @@ class ExpansionPathHandler
 			//Print(F_STATE);
 
 			UpdateNext();
+
+			//! @note normally, we would check m_Count <= 2, but there are certain structures where this won't work if we are on the roof
+			//! and need to go down a ladder e.g. Land_City_Stand_*
+			if (!m_IsTargetUnreachable && m_Count <= 3 && m_Unit.m_eAI_BuildingWithLadder)
+			{
+				vector end = GetEnd();
+
+				if (Math.IsPointInCircle(end, 0.55, m_Current.Position) && vector.DistanceSq(end, GetTarget()) >= 4.0)
+				{
+					if (!m_Unit.m_eAI_Ladder || !m_Unit.eAI_IsCloseToLadderEntryPoint())
+					{
+					#ifdef DIAG_DEVELOPER
+						dbgMsg = "target unreachable from path endpoint";
+					#endif
+
+						m_IsTargetUnreachable = true;
+					}
+				}
+			}
+
+		#ifdef DIAG_DEVELOPER
+			if (dbgMsg != string.Empty && (dbgMsg != m_LastDbgMsg || vector.DistanceSq(m_LastTargetPosition, m_TargetPosition) > 1.0))
+			{
+				m_LastDbgMsg = dbgMsg;
+				m_LastTargetPosition = m_TargetPosition;
+
+				dbgMsg += " " + ExpansionStatic.VectorToString(m_TargetPosition, ExpansionVectorToString.Labels);
+				dbgMsg += " (" + vector.Distance(m_Current.Position, m_TargetPosition) + " m)";
+
+				ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, m_Unit.ToString() + " " + dbgMsg);
+			}
+		#endif
 		}
 
-		m_MinTimeUntilNextUpdate = pDt + hitch.GetElapsed() * 0.0002;
+		m_MinTimeUntilNextUpdate = pDt + m_TimeIt.GetElapsed() * 0.0002;
+
+	#ifdef EXTRACE_DIAG
+		m_TimeIt.Log();
+	#endif
 
 #ifdef EAI_DEBUG_PATH
 #ifndef SERVER
@@ -918,11 +900,14 @@ class ExpansionPathHandler
 			//! Prevent fall from a large height (e.g. building top) - path direction check
 			vector checkDirection = vector.Direction(m_Unit.GetPosition(), m_Points[1 + m_PointIdx]);
 			float len = checkDirection.Length();
-			if (!m_Unit.eAI_IsFallSafe(checkDirection.Normalized() * (len + 2.0), 1339))
+			if ((!m_Unit.m_eAI_Ladder || !m_Unit.eAI_IsCloseToLadderEntryPoint()) && !m_Unit.eAI_IsFallSafe(checkDirection.Normalized() * (len + 2.0), true, 1339))
 			{
 			#ifdef DIAG_DEVELOPER
 				if (!m_IsUnreachable)
-					EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " unreachable (not fall safe)");
+				{
+					EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " unreachable (path endpoint not fall safe)");
+					ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, m_Unit.ToString() + " unreachable (path endpoint not fall safe)");
+				}
 			#endif
 				m_IsUnreachable = true;
 				m_IsTargetUnreachable = true;
@@ -1020,12 +1005,33 @@ class ExpansionPathHandler
 		return m_Count - m_PointIdx;
 	}
 
+	vector GetCurrentPoint()
+	{
+		if (m_Count > m_PointIdx)
+			return m_Points[m_PointIdx];
+
+		return m_Points[m_Count - 1];
+	}
+
+	vector GetNextPoint()
+	{
+		if (m_Count > 1 + m_PointIdx)
+			return m_Points[1 + m_PointIdx];
+
+		return m_Points[m_Count - 1];
+	}
+
 	vector GetEnd()
 	{
 		if (m_Count > m_PointIdx)
 			return m_Points[m_Count - 1];
 
 		return m_Unit.GetPosition();
+	}
+
+	int GetRemainingCount()
+	{
+		return m_Count - m_PointIdx;
 	}
 
 	void UpdatePoint(inout ExpansionPathPoint point, vector position)
@@ -1107,7 +1113,8 @@ class ExpansionPathHandler
 		//auto trace = EXTrace.StartStack(EXTrace.AI, m_Unit, "forceUpdate " + forceUpdate);
 	//#endif
 
-		m_Recalculate = true;
+		if (m_TargetPosition != vector.Zero)
+			m_Recalculate = true;
 		m_SuppressRecalculate = false;
 		if (forceUpdate)
 			m_Time = PATH_RECALCULATE_THRESHOLD;

@@ -16,8 +16,10 @@ modded class Wreck_UH1Y
 
 	void ~Wreck_UH1Y()
 	{
+	#ifndef DIAG_DEVELOPER
 		if (!GetGame())
 			return;
+	#endif
 
 		if (s_Expansion_HeliCrashes)
 			s_Expansion_HeliCrashes.Remove(m_Expansion_Node);

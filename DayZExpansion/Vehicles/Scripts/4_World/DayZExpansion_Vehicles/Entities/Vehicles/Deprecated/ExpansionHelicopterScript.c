@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -151,6 +151,11 @@ class ExpansionHelicopterScript: CarScript
 			dBodyActive(this, ActiveState.ACTIVE);
 		}
 	}
+	
+	override string GetVehicleType()
+	{
+		return "ExpansionVehicleTypeHelicopter";
+	}
 
 	bool IsAutoHover()
 	{
@@ -200,6 +205,14 @@ class ExpansionHelicopterScript: CarScript
 		super.EEItemDetached(item, slot_name);
 
 		m_Simulation.OnDetach(slot_name, item);
+	}
+
+	override void EEOnCECreate()
+	{
+		super.EEOnCECreate();
+
+		//! CarFluid.OIL is used as hydraulic fluid for helis. TODO: Remove this after adding capability to refill hydraulic fluid
+		Fill(CarFluid.OIL, GetFluidCapacity(CarFluid.OIL));
 	}
 
 	//! Expansion helis do not seem to receive vanilla OnContact for frontal collisions, but some 3rd party ones do.

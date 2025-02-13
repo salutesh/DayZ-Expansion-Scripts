@@ -27,13 +27,13 @@ class ExpansionVehicleModule
 	bool m_Animate;
 	bool m_Network;
 
-	void ExpansionVehicleModule(EntityAI pVehicle)
+	void ExpansionVehicleModule(EntityAI vehicle)
 	{
-		m_Vehicle = pVehicle;
+		m_Vehicle = vehicle;
 
-		auto vehicle = ExpansionVehicleBase.Cast(m_Vehicle);
-		if (vehicle)
-			m_Controller = vehicle.m_Controller;
+		auto vehicleBase = ExpansionVehicleBase.Cast(m_Vehicle);
+		if (vehicleBase)
+			m_Controller = vehicleBase.m_Controller;
 
 		auto car = CarScript.Cast(m_Vehicle);
 		if (car)

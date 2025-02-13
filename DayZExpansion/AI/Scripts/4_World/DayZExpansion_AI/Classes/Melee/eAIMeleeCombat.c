@@ -24,8 +24,8 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 	
 	override protected void TargetSelection()
 	{
-#ifdef EXTRACE
-		auto trace = EXTrace.Profile(EXTrace.AI, this);
+#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Profile(EXTrace.AI, this, "TargetSelection");
 #endif 
 		
 		vector hitPos;
@@ -118,8 +118,8 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 	override protected bool HitZoneSelectionRaycast(out vector hitPos, out int hitZone, out Object target, bool useCamera)
 	{
-#ifdef EXTRACE
-		auto trace = EXTrace.Profile(EXTrace.AI, this);
+#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Profile(EXTrace.AI, this, "HitZoneSelectionRaycast");
 #endif 
 		
 		vector pos;
@@ -202,7 +202,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		else
 			m_eAI_MeleeAttackType = m_AI.GetMeleeFightLogic().eAI_GetAttackTypeByDistanceToTarget(EntityAI.Cast(m_TargetObject), m_TargetType);
 
-		m_AI.SetOrientation(m_AI.GetOrientation());
+		//m_AI.SetOrientation(m_AI.GetOrientation());
 
 		//! https://feedback.bistudio.com/T173348
 		if (m_HitType == EMeleeHitType.HEAVY || m_HitType == EMeleeHitType.WPN_STAB)

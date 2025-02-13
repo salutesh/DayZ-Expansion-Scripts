@@ -53,7 +53,7 @@ class eAITargetInformationState
 		#ifdef EXPANSION_AI_ITEM_TARGET_REQUIRE_LOS
 			if (m_LOS || !m_Info.IsEntity())
 		#else
-			if (m_LOS || !m_Info.IsEntity() || m_Info.IsInherited(eAIItemTargetInformation))
+			if (m_LOS || !m_Info.IsEntity() || m_Info.IsItem())
 		#endif
 			{
 				//! Threat level rises slowly if below fighting threshold and AI has not been attacked by player,
@@ -79,7 +79,7 @@ class eAITargetInformationState
 				else
 					threatMin = 0.4;  //! Prevent leaving combat state while flanking
 			#ifdef EXPANSION_AI_ITEM_TARGET_REQUIRE_LOS
-				if (m_Info.IsInherited(eAIItemTargetInformation))
+				if (m_Info.IsItem())
 					m_ThreatLevelActive = Math.Min(0.3999, m_ThreatLevel);  //! No interpolation for item targets
 				else
 			#endif
@@ -114,7 +114,7 @@ class eAITargetInformationState
 				//! Start search after first AI in group reaches initial search position
 				bool updateSearchPosition = m_AI.GetGroup().m_UpdateSearchPosition;
 
-				if (m_Info.IsInherited(eAINoiseTargetInformation))
+				if (m_Info.IsNoise())
 				{
 					//! The distance check may not work for noise targets since position is randomly generated
 					//! in a radius around actual noise source and may not be reachable, so we rely on time-based updates.

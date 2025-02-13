@@ -99,7 +99,7 @@ class cfgExpansionCharacterScenes
 			PlayerPosition[]={12553.7,7.9398599,3561.0901};
 			PlayerOrientation[]={76.412003,342.15601,0};
 			fov=0.17199899;
-			date[]={2017,11,2,0,0};
+			date[]={2017,11,2,17,0};
 			overcast=0.89999998;
 			rain=0.2;
 			fog=1;

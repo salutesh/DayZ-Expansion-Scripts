@@ -9,6 +9,11 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		Class.CastTo(m_Player, target);
 	}
 
+	override bool IsPlayer()
+	{
+		return true;
+	}
+
 	override float CalculateThreat(eAIBase ai = null)
 	{
 		if (m_Player.IsDamageDestroyed())

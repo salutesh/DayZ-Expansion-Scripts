@@ -16,8 +16,10 @@ modded class Wreck_Mi8_Crashed
 
 	void ~Wreck_Mi8_Crashed()
 	{
+	#ifndef DIAG_DEVELOPER
 		if (!GetGame())
 			return;
+	#endif
 
 		if (s_Expansion_HeliCrashes)
 			s_Expansion_HeliCrashes.Remove(m_Expansion_Node);

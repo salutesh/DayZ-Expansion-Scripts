@@ -74,4 +74,16 @@ class eAINoiseSystem
 		eAINoiseParams params = GetNoiseParams(path);
 		SI_OnNoiseAdded.Invoke(null, position, lifetime, params, strengthMultiplier);
 	}
+
+	[CF_EventSubscriber(ScriptCaller.Create(eAINoiseSystem.OnGameDestroy), CF_LifecycleEvents.OnGameDestroy)]
+	static void OnGameDestroy()
+	{
+		if (s_NoiseParams)
+		{
+			foreach (eAINoiseParams params: s_NoiseParams)
+			{
+				delete params;
+			}
+		}
+	}
 }

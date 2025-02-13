@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -1086,6 +1086,15 @@ modded class CarScript
 			return ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
 
 		return super.GetBattery();
+	}
+	
+	int Expansion_GetBatteryEnergy()
+	{
+		ItemBase battery = GetBattery();
+		if (battery)
+			return Math.Ceil(battery.GetQuantity() / battery.GetQuantityMax() * 100);
+
+		return 0;
 	}
 
 	bool IsBatteryWorking()
@@ -2245,10 +2254,13 @@ modded class CarScript
 				{
 					//! Vehicle has become inactive after initial store load. Force position/orientation to stored values.
 					m_Expansion_ForcedStoreLoadedPositionAndOrientation = true;
-					Expansion_ForcePositionAndOrientation(m_Position, m_Orientation);
+					if (m_Position != vector.Zero && m_Orientation != vector.Zero)
+					{
+						Expansion_ForcePositionAndOrientation(m_Position, m_Orientation);
 #ifdef DIAG_DEVELOPER
-					EXTrace.Print(EXTrace.VEHICLES, this, "CarScript::EOnSimulate - restored pos/ori " + GetPosition() + " " + GetOrientation());
+						EXTrace.Print(EXTrace.VEHICLES, this, "CarScript::EOnSimulate - restored pos/ori " + GetPosition() + " " + GetOrientation());
 #endif
+					}
 				}
 			}
 		}

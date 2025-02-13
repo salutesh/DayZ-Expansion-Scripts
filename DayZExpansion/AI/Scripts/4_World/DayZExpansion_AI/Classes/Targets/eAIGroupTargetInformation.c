@@ -7,6 +7,11 @@ class eAIGroupTargetInformation: eAITargetInformation
 		m_Target = target;
 	}
 
+	override bool IsGroup()
+	{
+		return true;
+	}
+
 	override EntityAI GetEntity()
 	{
 		return m_Target.GetLeader();

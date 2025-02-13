@@ -23,106 +23,11 @@
 				return EXIT;
 			</event_update>
 		</state>
-		<state name="Reloading">
-			<variables>
-				<variable name="magazine" type="Magazine" />
-				<variable name="time" type="float" />
-			</variables>
+		<state name="Reloading" class="ExpansionState_Reloading">
 			<editor_data>
 				<position x="457.565289256198" y="477.213223140496" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-				time = 0;
-				if (unit.m_eAI_IsInCover &amp;&amp; unit.eAI_GetStance() == eAIStance.ERECT)
-					unit.OverrideStance(DayZPlayerConstants.STANCEIDX_CROUCH);
-				unit.ReloadWeaponAI(fsm.weapon, magazine);
-			</event_entry>
-			<event_exit>
-				if (unit.eAI_IsSideStepping())
-					unit.eAI_CancelSidestep();
-				if (unit.eAI_ShouldGetUp())
-					unit.Expansion_GetUp();
-			</event_exit>
-			<event_update>
-				if (!unit.GetWeaponManager() || unit.IsUnconscious()) return EXIT;
-				
-				if (!fsm.weapon) return EXIT;
-				
-				if (unit.GetWeaponManager().IsRunning() || unit.GetActionManager().GetRunningAction())
-				{
-					time += DeltaTime;
-					if (time &gt; 12)  //! Looks like something went terribly wrong
-					{
-						EXPrint(unit.ToString() + " Weapon_Reloading - Reloading - timeout");
-						unit.eAI_Unbug("reload");
-						return EXIT;
-					}
-					
-					vector position;
-					
-					auto target = unit.GetTarget();
-					if (target &amp;&amp; unit.GetThreatToSelf() &gt;= 0.4)
-					{
-						if (!unit.m_eAI_IsInCover)
-							unit.OverrideTargetPosition(target, true);
-						
-						if (!unit.eAI_IsSideStepping() &amp;&amp; unit.eAI_HasLOS(target))
-						{
-							float distSq = target.GetDistanceSq(unit, true);
-							if (distSq &lt;= 9.0)
-							{
-								float movementDirection;
-								if (Math.RandomIntInclusive(0, 1))
-									movementDirection = Math.RandomFloat(135, 180);
-								else
-									movementDirection = Math.RandomFloat(-135, -180);
-								unit.eAI_ForceSideStep(Math.RandomFloat(1, 1.5), null, movementDirection);
-								unit.OverrideMovementSpeed(false, 0);
-							}
-							//! If we have a bolt action rifle with ammo in internal or attached mag, circle around player while cycling action
-							else if (distSq &lt; 100.0 &amp;&amp; fsm.weapon.IsInherited(BoltActionRifle_Base) &amp;&amp; fsm.weapon.Expansion_HasAmmo())
-							{
-								unit.eAI_ForceSideStep(Math.RandomFloat(1, 1.5), null, 0.0, false);
-								unit.OverrideMovementSpeed(false, 0);
-							}
-						}
-					}
-					else
-					{
-						auto group = unit.GetGroup();
-						if (group)
-						{
-							if (group.GetFormationLeader() != unit)
-								position = group.GetFormationPosition(unit);
-							else
-								position = group.GetCurrentWaypoint();
-						}
-					
-						if (position != vector.Zero)
-							unit.OverrideTargetPosition(position);
-					}
-				
-					return CONTINUE;
-				}
-				
-				if (fsm.weapon.IsDamageDestroyed())
-				{
-					unit.eAI_DropItem(fsm.weapon);
-				}
-				else if (fsm.weapon.IsChamberEmpty(fsm.weapon.GetCurrentMuzzle()))
-				{
-					fsm.failed_attempts++;
-					EXPrint(unit.ToString() + " Weapon_Reloading - Reloading - failed (" + fsm.failed_attempts + ")");
-					fsm.weapon.ValidateAndRepair();
-				}
-				else
-				{
-					fsm.failed_attempts = 0;
-				}
-				
-				return EXIT;
-			</event_update>
 		</state>
 		<state name="Reloading_Fail">
 			<variables>
@@ -188,6 +93,8 @@
 				else
 					EXTrace.Start0(EXTrace.AI, this, "Reloading " + fsm.weapon + " from mag " + dst.magazine);
 				#endif
+				
+				dst.weapon = fsm.weapon;
 				
 				return SUCCESS;
 			</guard>

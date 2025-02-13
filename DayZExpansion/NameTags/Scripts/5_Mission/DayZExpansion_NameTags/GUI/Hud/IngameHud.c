@@ -3,13 +3,12 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-
 
 modded class IngameHud
 {
@@ -30,18 +29,31 @@ modded class IngameHud
 	protected float m_MaxViewRange;
 	protected bool m_IsMember = false;
 	protected bool m_IsFriendly = false;
-#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 	protected bool m_ShowFaction;
 	protected string m_FactionName;
-#endif
+	#endif
 
-#ifdef EXPANSIONMODHARDLINE
+	#ifdef EXPANSIONMODHARDLINE
 	protected ExpansionHardlineItemRarity m_CurrentTaggedItemRarity = -1;
-#endif
+	#endif
 
 	protected ref array<string>	m_AttachmentSlotNames;
 	protected string m_CurrentTaggedItemIcon;
-
+	
+	void ~IngameHud()
+	{
+		m_CurrentTaggedItem = null;
+		m_CurrentTaggedNPC = null;
+		m_CurrentTaggedObject = null;		
+		
+		if (m_AttachmentSlotNames)
+			m_AttachmentSlotNames.Clear();
+		
+		if (m_PlayerTag && m_PlayerTag.ToString() != "INVALID")
+			m_PlayerTag.Unlink();
+	}
+	
 	array<string> GetItemSlots(EntityAI e)
 	{
 		TStringArray searching_in = new TStringArray;
@@ -52,15 +64,15 @@ modded class IngameHud
 		array<string> attachments_slots	= new array<string>;
 		for (int s = 0; s < searching_in.Count(); ++s)
 		{
-			string cfg_name = searching_in.Get( s );
+			string cfg_name = searching_in.Get(s);
 			string path = cfg_name + " " + e.GetType();
 
-			if ( GetGame().ConfigIsExisting( path ) )
+			if (GetGame().ConfigIsExisting(path))
 			{
 				GetGame().ConfigGetTextArray(path + " attachments", attachments_slots);
 				if (e.IsWeapon() && (!e.ConfigIsExisting("DisplayMagazine") || e.ConfigGetBool("DisplayMagazine")))
 				{
-					attachments_slots.Insert( "magazine" );
+					attachments_slots.Insert("magazine");
 				}
 
 				return attachments_slots;
@@ -134,16 +146,16 @@ modded class IngameHud
 			return;
 
 		m_MaxViewRange = GetExpansionSettings().GetNameTags().PlayerTagViewRange;
-	#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 		m_ShowFaction = GetExpansionSettings().GetNameTags().ShowPlayerFaction;
-	#endif
+		#endif
 
 		bool showPlayerTags = GetExpansionSettings().GetNameTags().EnablePlayerTags;
 		bool showNPCTags = GetExpansionSettings().GetNameTags().ShowNPCTags;
 		bool useRarityColor;
-	#ifdef EXPANSIONMODHARDLINE
+		#ifdef EXPANSIONMODHARDLINE
 		useRarityColor = GetExpansionSettings().GetNameTags().UseRarityColorForItemInHands;
-	#endif
+		#endif
 		bool showPlayerItem = GetExpansionSettings().GetNameTags().ShowPlayerItemInHands;
 		bool safeZone = GetExpansionSettings().GetNameTags().OnlyInSafeZones;
 		bool territory = GetExpansionSettings().GetNameTags().OnlyInTerritories;
@@ -160,13 +172,13 @@ modded class IngameHud
 		m_CurrentTaggedNPC = null;
 		m_AttachmentSlotNames = null;
 
-	#ifdef EXPANSIONMODHARDLINE
+		#ifdef EXPANSIONMODHARDLINE
 		m_CurrentTaggedItemRarity = -1;
-	#endif
+		#endif
 
-	#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 		m_FactionName = "";
-	#endif
+		#endif
 
 		m_IsMember = false;
 		m_IsFriendly = false;
@@ -177,11 +189,11 @@ modded class IngameHud
 		bool isInSafeZone;
 		if (safeZone && playerA && playerA.Expansion_IsInSafeZone())
 			isInSafeZone = true;
-	#ifdef EXPANSIONMODBASEBUILDING
+		#ifdef EXPANSIONMODBASEBUILDING
 		bool isInTerritory;
 		if (territory && playerA && playerA.IsInTerritory())
 			isInTerritory = true;
-	#endif
+		#endif
 
 		foreach (Man player : ClientData.m_PlayerBaseList)
 		{
@@ -196,10 +208,10 @@ modded class IngameHud
 					check = true;
 				else if (safeZone && isInSafeZone && playerB && playerB.Expansion_IsInSafeZone())
 					check = true;
-			#ifdef EXPANSIONMODBASEBUILDING
+				#ifdef EXPANSIONMODBASEBUILDING
 				else if (territory && isInTerritory && playerB && playerB.IsInTerritory())
 					check = true;
-			#endif
+				#endif
 
 				if (!check)
 					continue;
@@ -222,39 +234,39 @@ modded class IngameHud
 
 				ExpansionNPCBase expNPCBase;
 				Class.CastTo(expNPCBase, resultObj);
-			#ifdef EXPANSIONMODAI
+				#ifdef EXPANSIONMODAI
 				eAINPCBase expAINPCBase;
 				Class.CastTo(expAINPCBase, resultObj);
 				eAIBase eAI;
 				Class.CastTo(eAI, resultObj);
-			#endif
+				#endif
 
 				if (resultObj == player)
 				{
-				#ifdef EXPANSIONMODAI
+					#ifdef EXPANSIONMODAI
 					if (!playerB.IsAI() && playerB.GetIdentity() && showPlayerTags)
-				#else
+					#else
 					if (playerB.GetIdentity() && showPlayerTags)
-				#endif
+					#endif
 					{
 						m_CurrentTaggedPlayer = playerB;
-					#ifdef EXPANSIONMODGROUPS
+						#ifdef EXPANSIONMODGROUPS
 						GetGroup(m_CurrentTaggedPlayer);
-					#endif
+						#endif
 						break;
 					}
-				/*#ifdef EXPANSIONMODAI
+					/*#ifdef EXPANSIONMODAI
 					else if (playerB.IsAI() && showNPCTags)
 					{
 						m_CurrentTaggedNPC = playerB;
 						break;
 					}
-				#endif*/
+					#endif*/
 				}
 				else if (resultObj == entityInHands && showPlayerItem)
 				{
 					m_CurrentTaggedItem = entityInHands;
-				#ifdef EXPANSIONMODHARDLINE
+					#ifdef EXPANSIONMODHARDLINE
 					if (useRarityColor)
 					{
 						ItemBase itemIB;
@@ -262,7 +274,7 @@ modded class IngameHud
 						if (itemIB)
 							m_CurrentTaggedItemRarity = itemIB.Expansion_GetRarity();
 					}
-				#endif
+					#endif
 
 					m_AttachmentSlotNames = GetItemSlots(entityInHands);
 					for (int i = 0; i < m_AttachmentSlotNames.Count(); i++ )
@@ -287,7 +299,7 @@ modded class IngameHud
 					m_CurrentTaggedNPC = expNPCBase;
 					break;
 				}
-			#ifdef EXPANSIONMODAI
+				#ifdef EXPANSIONMODAI
 				else if (expAINPCBase && showNPCTags)
 				{
 					m_CurrentTaggedNPC = expAINPCBase;
@@ -298,7 +310,7 @@ modded class IngameHud
 					m_CurrentTaggedNPC = eAI;
 					break;
 				}
-			#endif
+				#endif
 				else
 				{
 					if (showNPCTags)
@@ -360,10 +372,10 @@ modded class IngameHud
 			m_PlayerTag.SetPos(SCREEN_X, SCREEN_Y);
 		}
 
-	#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 		if (m_ShowFaction)
 			GetFaction(m_CurrentTaggedPlayer);
-	#endif
+		#endif
 
 		m_PlayerSpineIndex = m_CurrentTaggedPlayer.GetBoneIndex("Spine2");
 		vector player_pos = m_CurrentTaggedPlayer.GetBonePositionWS(m_PlayerSpineIndex);
@@ -380,12 +392,12 @@ modded class IngameHud
 					m_PlayerTagText.SetColor(ARGB(255, 230, 230, 230));
 					m_PlayerTagText.SetAlpha(Math.Clamp(m_PlayerTagText.GetAlpha() + timeslice * 10, 0, 1));
 
-				#ifdef EXPANSIONMODAI
+					#ifdef EXPANSIONMODAI
 					if (m_FactionName != string.Empty)
 					{
 						nameText = string.Format("[%1] %2", m_FactionName, nameText);
 					}
-				#endif
+					#endif
 
 					if (m_IsFriendly || m_IsMember)
 					{
@@ -419,10 +431,10 @@ modded class IngameHud
 			m_PlayerTag.SetPos(SCREEN_X, SCREEN_Y);
 		}
 
-	#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 		if (m_ShowFaction)
 			GetFaction(m_CurrentTaggedNPC);
-	#endif
+		#endif
 
 		m_PlayerSpineIndex = m_CurrentTaggedNPC.GetBoneIndex("Spine2");
 		vector player_pos = m_CurrentTaggedNPC.GetBonePositionWS(m_PlayerSpineIndex);
@@ -446,18 +458,18 @@ modded class IngameHud
 					DayZPlayerImplement npcPlayer = m_CurrentTaggedNPC;
 					ExpansionNPCBase expNPCBase;
 					Class.CastTo(expNPCBase, npcPlayer);
-				#ifdef EXPANSIONMODAI
+					#ifdef EXPANSIONMODAI
 					eAINPCBase expAINPCBase;
 					Class.CastTo(expAINPCBase, npcPlayer);
 					eAIBase eAI;
 					Class.CastTo(eAI, npcPlayer);
-				#endif
+					#endif
 
 					if (expNPCBase)
 					{
 						expNPCBase.m_Expansion_NetsyncData.Get(0, npcName);
 						expNPCBase.m_Expansion_NetsyncData.Get(1, icon);
-					#ifdef EXPANSIONMODQUESTS
+						#ifdef EXPANSIONMODQUESTS
 						ExpansionQuestNPCBase expQuestNPCBase;
 						if (Class.CastTo(expQuestNPCBase, expNPCBase))
 						{
@@ -468,14 +480,14 @@ modded class IngameHud
 								iconColor = ARGB(255, 255, 180, 24);
 							}
 						}
-					#endif
+						#endif
 					}
-				#ifdef EXPANSIONMODAI
+					#ifdef EXPANSIONMODAI
 					else if (expAINPCBase)
 					{
 						expAINPCBase.m_Expansion_NetsyncData.Get(0, npcName);
 						expAINPCBase.m_Expansion_NetsyncData.Get(1, icon);
-					#ifdef EXPANSIONMODQUESTS
+						#ifdef EXPANSIONMODQUESTS
 						ExpansionQuestNPCAIBase expQuestNPCAIBase;
 						if (Class.CastTo(expQuestNPCAIBase, expAINPCBase))
 						{
@@ -486,7 +498,7 @@ modded class IngameHud
 								iconColor = ARGB(255, 255, 180, 24);
 							}
 						}
-					#endif
+						#endif
 					}
 					else if (eAI)
 					{
@@ -495,7 +507,7 @@ modded class IngameHud
 						
 						icon = "{3364F58EF7F7FBE3}DayZExpansion/Core/GUI/icons/misc/T_Soldier_256x256.edds";
 					}
-				#endif
+					#endif
 					else if (npcPlayer)
 					{
 						npcPlayer.m_Expansion_NetsyncData.Get(0, npcName);
@@ -504,12 +516,12 @@ modded class IngameHud
 
 					nameText = npcName;
 
-				#ifdef EXPANSIONMODAI
+					#ifdef EXPANSIONMODAI
 					if (m_FactionName != string.Empty)
 					{
 						nameText = "[" + m_FactionName + "] " + nameText;
 					}
-				#endif
+					#endif
 
 					if (m_IsFriendly)
 					{
@@ -561,7 +573,7 @@ modded class IngameHud
 		string iconPath = "{C5A0666669DF90D2}DayZExpansion/Core/GUI/icons/hud/eye_64x64.edds";
 		string nameText = m_CurrentTaggedItem.GetDisplayName();
 		int iconColor = ARGB(255, 230, 230, 230);
-	#ifdef EXPANSIONMODHARDLINE
+		#ifdef EXPANSIONMODHARDLINE
 		if (m_CurrentTaggedItemRarity > ExpansionHardlineItemRarity.NONE)
 		{
 			string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, m_CurrentTaggedItemRarity);
@@ -577,9 +589,9 @@ modded class IngameHud
 		{
 			m_PlayerTagText.SetColor(ARGB(255, 230, 230, 230));
 		}
-	#else
+		#else
 		m_PlayerTagText.SetColor(ARGB(255, 230, 230, 230));
-	#endif
+		#endif
 
 		if (m_CurrentTaggedItemIcon != string.Empty)
 		{
@@ -643,7 +655,7 @@ modded class IngameHud
 						staticObject.m_Expansion_NetsyncData.Get(1, icon);
 					}
 
-				#ifdef EXPANSIONMODQUESTS
+					#ifdef EXPANSIONMODQUESTS
 					ExpansionQuestStaticObject staticQuestObject;
 					if (Class.CastTo(staticQuestObject, staticObject))
 					{
@@ -654,7 +666,7 @@ modded class IngameHud
 							iconColor = ARGB(255, 255, 180, 24);
 						}
 					}
-				#endif
+					#endif
 
 					if (icon != string.Empty)
 					{
@@ -678,7 +690,7 @@ modded class IngameHud
 		return false;
 	}
 
-#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 	protected void GetFaction(DayZPlayerImplement player)
 	{
 		eAIGroup localGroup;
@@ -706,9 +718,9 @@ modded class IngameHud
 		if (playerFaction.IsFriendly(localFaction))
 			m_IsFriendly = true;
 	}
-#endif
+	#endif
 
-#ifdef EXPANSIONMODGROUPS
+	#ifdef EXPANSIONMODGROUPS
 	protected void GetGroup(Man player)
 	{
 		ExpansionPartyModule partyModule;
@@ -720,9 +732,9 @@ modded class IngameHud
 				m_IsMember = true;
 		}
 	}
-#endif
+	#endif
 
-#ifdef EXPANSIONMODQUESTS
+	#ifdef EXPANSIONMODQUESTS
 	bool ShowQuestMarker(PlayerBase player, int questNPCID)
 	{
 		map<int, ref ExpansionQuestConfig> questConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigs();
@@ -741,22 +753,19 @@ modded class IngameHud
 
 		return false;
 	}
-#endif
+	#endif
 
 	override void Update(float timeslice)
 	{
 		super.Update(timeslice);
 
-		UIScriptedMenu topMenu = GetGame().GetUIManager().GetMenu();
-		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
-		if ((topMenu || viewMenu || IsHideHudPlayer()) && m_PlayerTag)
+		if (!Expansion_CanShowHUDElements() && m_PlayerTag)
 		{
 			Expansion_ClearPlayerTagWidgets(timeslice);
 		}
-		else if (!topMenu && !viewMenu && !IsHideHudPlayer())
+		else
 		{
-			//! Player Tags
-			if (GetExpansionSettings().GetNameTags(false).IsLoaded() && (GetExpansionSettings().GetNameTags().EnablePlayerTags || GetExpansionSettings().GetNameTags().ShowPlayerItemInHands))
+			if (GetExpansionSettings().GetNameTags(false).IsLoaded() && (GetExpansionSettings().GetNameTags().EnablePlayerTags || GetExpansionSettings().GetNameTags().ShowPlayerItemInHands || GetExpansionSettings().GetNameTags().ShowNPCTags))
 			{
 				Expansion_RefreshPlayerTagsEx();
 				//! Always make sure to fade the fucker out :-)

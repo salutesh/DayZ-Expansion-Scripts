@@ -44,7 +44,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		m_ReputationChangeTimer = new Timer(CALL_CATEGORY_GUI);
 		m_ReputationChangeFadeOut = new Timer(CALL_CATEGORY_GUI);
 		
-		Widget stancePanel = m_Hud.GetStancePanel();
+		Widget stancePanel = m_Hud.Expansion_GetStancePanel();
 		if (stancePanel && CoveredIndicator)
 		{
 			stancePanel.ClearFlags(WidgetFlags.CLIPCHILDREN);
@@ -201,6 +201,9 @@ class ExpansionHardlineHUD: ExpansionScriptView
 #ifdef EXPANSIONMOD
 	protected void SetIndicatorColor()
 	{
+		if (!GetExpansionSettings().GetGeneral(false).IsLoaded())
+			return;
+
 		int color = GetExpansionSettings().GetGeneral().HUDColors.Get("ReputationBaseColor");
 		if (GetExpansionSettings().GetHardline().MaxReputation > 0)
 		{

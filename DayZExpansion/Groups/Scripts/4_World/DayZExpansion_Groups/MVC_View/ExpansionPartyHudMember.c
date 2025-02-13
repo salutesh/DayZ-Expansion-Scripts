@@ -14,81 +14,80 @@
 class ExpansionPartyHudMember: ExpansionScriptViewBase
 {
 	protected ref ExpansionPartyHudMemberController m_PartyMemberController;
-	protected ProgressBarWidget PlayerHealth;
-	protected Widget PlayerBloodPanel;
-	protected Widget PlayerStates;
-	protected Widget PlayerStances;
-	
-	protected ImageWidget Bones;
-	protected ImageWidget Sick;
-	protected ImageWidget Poisoned;
-	protected ImageWidget Bleeding;
-	protected TextWidget BleedingCount;
-
-	protected ImageWidget StanceProne;
-	protected ImageWidget StanceCrouch;
-	protected ImageWidget StanceStand;
-	protected ImageWidget StanceStandWalk;
-	protected ImageWidget StanceCar;
-	protected ImageWidget StanceHeli;
-	protected ImageWidget StanceBoat;
-	protected ImageWidget StanceDead;
-	protected ImageWidget StanceUncon;
-	protected TextWidget PlayerDistance;
-	
-	protected int m_CurrentHealth;
-	protected int m_CurrentBlood;
 	
 	string m_PlayerID;
 	protected string m_PlayerPlainID;
 	protected string m_PlayerName;
+	protected vector m_CurrentPosition;
+	protected bool m_ShowDistance;
 	
 	protected ref Timer m_UpdateTimer;
-	
+	#ifdef EXPANSIONMONITORMODULE
+	protected ProgressBarWidget PlayerHealth;
+	protected ImageWidget Bones;
+	protected ImageWidget Sickness;
+	protected ImageWidget Poisoned;
+	protected ImageWidget Bleeding;
+	protected TextWidget BleedingCount;
+	protected ImageWidget Stance;
+	protected Widget PlayerStatesPanel;
+	protected WrapSpacerWidget PlayerStances;
+	protected TextWidget PlayerDistance;
+	protected Widget PlayerBloodPanel;
+
+	protected int m_CurrentHealth;
+	protected int m_CurrentBlood;
+	protected bool m_ShowStates;
+	protected bool m_ShowStances;
+	protected bool m_ShowBlood;
+	protected ExpansionMonitorModule m_MonitorModule;
+	protected DayZPlayer m_ClientPlayer;
+	#endif
+
 	void ExpansionPartyHudMember(string playerID, string playerPlainID, string playerName)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GROUPS, this, playerPlainID, playerName);
-#endif
+		#endif
 
 		m_PlayerID = playerID;
 		m_PlayerPlainID = playerPlainID;
 		m_PlayerName = playerName;
 		
 		m_PartyMemberController = ExpansionPartyHudMemberController.Cast(GetController());
+
+		#ifdef EXPANSIONMONITORMODULE
+		m_ClientPlayer = GetGame().GetPlayer();
+		m_ShowDistance = GetExpansionSettings().GetParty().ShowHUDMemberDistance;
+		m_ShowStates = GetExpansionSettings().GetParty().ShowHUDMemberStates;
+		m_ShowStances = GetExpansionSettings().GetParty().ShowHUDMemberStance;
+		m_ShowBlood = GetExpansionSettings().GetParty().ShowHUDMemberBlood;
 		
-#ifdef EXPANSIONMONITORMODULE
-		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
-		if (monitorModule)
+		m_MonitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
+		if (m_MonitorModule)
 		{
-			monitorModule.m_StatsInvoker.Insert(OnDataRecived);
-			monitorModule.m_StatesInvoker.Insert(OnStateDataRecived);
+			m_MonitorModule.m_StatsInvoker.Insert(OnDataRecived);
+			m_MonitorModule.m_StatesInvoker.Insert(OnStateDataRecived);
 		}
-#endif
-		
-		CreateUpdateTimer();
-		
+		#endif
+
 		SetView();
+		CreateUpdateTimer();
 	}
 	
 	void ~ExpansionPartyHudMember()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
-#endif
+		#endif
 
-#ifdef EXPANSIONMONITORMODULE
-		if (!GetExpansionSettings().IsLoaded(ExpansionPartySettings))
-			return;
-
-		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
-		if (monitorModule)
+		#ifdef EXPANSIONMONITORMODULE
+		if (m_MonitorModule)
 		{
-			monitorModule.m_StatsInvoker.Remove(OnDataRecived);
-			if (GetExpansionSettings().GetParty().ShowHUDMemberStates || GetExpansionSettings().GetParty().ShowHUDMemberStance)
-				monitorModule.m_StatesInvoker.Remove(OnStateDataRecived);
+			m_MonitorModule.m_StatsInvoker.Remove(OnDataRecived);
+			m_MonitorModule.m_StatesInvoker.Remove(OnStateDataRecived);
 		}
-#endif
+		#endif
 		
 		DestroyUpdateTimer();
 	}
@@ -107,27 +106,57 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	{
 		m_PartyMemberController.PlayerName = m_PlayerName;
 		m_PartyMemberController.NotifyPropertyChanged("PlayerName");
+				
+		#ifdef EXPANSIONMONITORMODULE
+		PlayerDistance.Show(m_ShowDistance);
+		PlayerStances.Show(m_ShowStances);
 		
-		if (GetExpansionSettings().GetParty().ShowHUDMemberDistance)
-			PlayerDistance.Show(true);
+		if (m_ShowStances)
+		{
+			Stance.LoadImageFile(0, "set:dayz_gui image:stance_prone");
+			Stance.LoadImageFile(1, "set:dayz_gui image:stance_crouch");
+			Stance.LoadImageFile(2, "set:dayz_gui image:stance_stand");
+			Stance.LoadImageFile(3, "set:dayz_gui image:stance_walk");
+			Stance.LoadImageFile(4, "set:dayz_gui image:stance_car");
+			Stance.LoadImageFile(5, "dayzexpansion\core\gui\icons\misc\T_Helicopter_256x256.edds");
+			Stance.LoadImageFile(6, "dayzexpansion\core\gui\icons\misc\T_Boat_256x256.edds");
+			Stance.LoadImageFile(7, "dayzexpansion\core\gui\icons\misc\T_HumanSkull_256x256.edds");
+			Stance.LoadImageFile(8, "dayzexpansion\core\gui\icons\misc\T_Medic_Box_256x256.edds");
+		}
+		
+		if (m_ShowStates && m_ShowStances)
+		{
+			Widget playerStatsPanel = GetLayoutRoot().FindAnyWidget("PlayerStats");
+			if (PlayerStatesPanel && playerStatsPanel && PlayerStances)
+			{
+				float wStatesPanel, hStatesPanel, wStatsPanel, hStatsPanel, wStancesPanel, hStancesPanel;
+				PlayerStatesPanel.GetSize(wStatesPanel, hStatesPanel);
+				playerStatsPanel.GetSize(wStatsPanel, hStatsPanel);
+				PlayerStances.GetSize(wStancesPanel, hStancesPanel);
+				wStatesPanel = wStatsPanel + wStancesPanel;
+				PlayerStatesPanel.SetSize(wStatesPanel ,hStatesPanel);
+			}
+		}
+		#endif
 	}
 	
-	void OnDataRecived( ExpansionSyncedPlayerStats player_stats)
+	void OnDataRecived(ExpansionSyncedPlayerStats player_stats)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PLAYER_MONITOR, this, player_stats.m_PlainID);
-#endif
+		#endif
 
-		if (m_PlayerPlainID != player_stats.m_PlainID || !player_stats.m_HasBaseStats) return;
-
+		if (m_PlayerPlainID != player_stats.m_PlainID || !player_stats.m_HasBaseStats) 
+			return;
+		
 		SetStats(player_stats);
 	}
 	
 	void OnStateDataRecived(ExpansionSyncedPlayerStates player_states)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.PLAYER_MONITOR, this, player_states.m_PlainID);
-#endif
+		#endif
 
 		if (m_PlayerPlainID != player_states.m_PlainID) 
 			return;
@@ -137,7 +166,15 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	void SetStats(ExpansionSyncedPlayerStats player_stats)
 	{
-		PlayerBloodPanel.Show(GetExpansionSettings().GetParty().ShowHUDMemberBlood);
+		#ifdef EXPANSIONMONITORMODULE
+		if (m_ShowDistance && m_ClientPlayer)
+		{
+			vector playerPos = m_ClientPlayer.GetPosition();
+			float distance = vector.Distance(player_stats.m_Position, playerPos);
+			float round = Math.Round(distance);
+			m_PartyMemberController.PlayerDistance = round.ToString() + " m";
+			m_PartyMemberController.NotifyPropertyChanged("PlayerDistance");
+		}
 
 		if (m_CurrentHealth != player_stats.m_Health)
 		{
@@ -154,7 +191,8 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 			PlayerHealth.SetColor(color);
 		}
 	
-		if (GetExpansionSettings().GetParty().ShowHUDMemberBlood && m_CurrentBlood != player_stats.m_Blood)
+		PlayerBloodPanel.Show(m_ShowBlood);
+		if (m_ShowBlood && m_CurrentBlood != player_stats.m_Blood)
 		{
 			m_CurrentBlood = player_stats.m_Blood;
 			
@@ -164,17 +202,9 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 			m_PartyMemberController.PlayerBloodVal = m_CurrentBlood.ToString() + "%";
 			m_PartyMemberController.NotifyPropertyChanged("PlayerBloodVal");
 		}
-		
-		if (GetExpansionSettings().GetParty().ShowHUDMemberDistance && GetGame().GetPlayer())
-		{
-			vector playerPos = GetGame().GetPlayer().GetPosition();
-			float distance = vector.Distance( player_stats.m_Position, playerPos);
-			float round = Math.Round(distance);
-			m_PartyMemberController.PlayerDistance = round.ToString() + " m";
-			m_PartyMemberController.NotifyPropertyChanged("PlayerDistance");
-		}
+		#endif
 	}
-	
+
 	int GetHealthColor(int health)
 	{
 		int color;
@@ -204,169 +234,71 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	void SetStates(ExpansionSyncedPlayerStates player_states)
 	{
-		PlayerStates.Show(GetExpansionSettings().GetParty().ShowHUDMemberStates);
-		PlayerStances.Show(GetExpansionSettings().GetParty().ShowHUDMemberStance);
-
-		if (GetExpansionSettings().GetParty().ShowHUDMemberStates)
+		#ifdef EXPANSIONMONITORMODULE
+		if (m_ShowStates)
 		{
-			Bones = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("Bones"));
-			if (Bones && player_states.m_Bones > 0)
+			bool brokenBones = (player_states.m_Bones != 0);
+			bool isSick = (player_states.m_Cholera != 0 || player_states.m_Infection != 0 || player_states.m_Influenza != 0 || player_states.m_Salmonella != 0);
+			bool isPoisoned = (player_states.m_Poison != 0);
+			bool isBleeding = (player_states.m_Cuts != 0);
+			
+			Bones.Show(brokenBones);
+			Sickness.Show(isSick);
+			Poisoned.Show(isPoisoned);
+			Bleeding.Show(isBleeding);
+			BleedingCount.Show(isBleeding);
+			string bleedingCount;
+			
+			if (isBleeding)
 			{
-				Bones.Show(true);
-			}
-			else if (Bones && player_states.m_Bones <= 0)
-			{
-				Bones.Show(false);
-			}
-	
-			Sick = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("Sick"));
-			if (Sick && (player_states.m_Sick > 0 || player_states.m_Cholera > 0 || player_states.m_Infection > 0 || player_states.m_Influenza > 0 || player_states.m_Salmonella > 0))
-			{
-				Sick.Show(true);
-			}
-			else if (Sick && (player_states.m_Sick <= 0 || player_states.m_Cholera <= 0 || player_states.m_Infection <= 0 || player_states.m_Influenza <= 0 || player_states.m_Salmonella <= 0))
-			{
-				Sick.Show(false);
-			}
-		
-			Poisoned = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("Poisoned"));
-			if (Poisoned && player_states.m_Poison > 0)
-			{
-				Poisoned.Show(true);
-			}
-			else if (Poisoned && player_states.m_Poison <= 0)
-			{
-				Poisoned.Show(false);
+				bleedingCount = player_states.m_Cuts.ToString();
 			}
 			
-			Bleeding = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("Bleeding"));
-			if (Bleeding && BleedingCount && player_states.m_Cuts > 0)
-			{
-				Bleeding.Show(true);
-				BleedingCount.Show(true);
-				BleedingCount.SetText(player_states.m_Cuts.ToString());
-			}
-			else if (Bleeding && BleedingCount && player_states.m_Cuts <= 0)
-			{
-				Bleeding.Show(false);
-				BleedingCount.Show(false);
-				BleedingCount.SetText("");
-			}
+			BleedingCount.SetText(bleedingCount);
+
+			bool showStatesPanel = (brokenBones || isSick || isPoisoned || isBleeding);
+			PlayerStatesPanel.Show(showStatesPanel);
 		}
 		
-		if (GetExpansionSettings().GetParty().ShowHUDMemberStance && player_states.m_Stance > 0)
+		int stanceID = player_states.m_Stance;		
+		if (m_ShowStances && stanceID != 0)
 		{
-			UpdateStance(player_states.m_Stance);
+			UpdateStance(stanceID);
 		}
+		#endif
 	}
 	
 	void UpdateStance(ExpansionPlayerStanceStatus stance)
 	{
-		StanceStand = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("StanceStand"));
-		StanceStandWalk = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("StanceStandWalk"));
-		StanceCrouch = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("StanceCrouch"));
-		StanceProne = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("StanceProne"));
-		StanceCar = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("StanceCar"));
-		StanceHeli = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("StanceHeli"));
-		StanceBoat = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("StanceBoat"));
-		StanceDead = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("StanceDead"));
-		StanceUncon = ImageWidget.Cast(GetLayoutRoot().FindAnyWidget("StanceUncon"));
-			
+		#ifdef EXPANSIONMONITORMODULE
 		switch (stance)
 		{
 		case ExpansionPlayerStanceStatus.STAND:
-			StanceStand.Show(true);
-			StanceStandWalk.Show(false);
-			StanceCrouch.Show(false);
-			StanceProne.Show(false);
-			StanceCar.Show(false);
-			StanceHeli.Show(false);
-			StanceBoat.Show(false);
-			StanceDead.Show(false);
-			StanceUncon.Show(false);
+			Stance.SetImage(2);
 			break;
 		case ExpansionPlayerStanceStatus.CROUCH:
-			StanceStand.Show(false);
-			StanceStandWalk.Show(false);
-			StanceCrouch.Show(true);
-			StanceProne.Show(false);
-			StanceCar.Show(false);
-			StanceHeli.Show(false);
-			StanceBoat.Show(false);
-			StanceDead.Show(false);
-			StanceUncon.Show(false);
+			Stance.SetImage(1);
 			break;
 		case ExpansionPlayerStanceStatus.PRONE:
-			StanceStand.Show(false);
-			StanceStandWalk.Show(false);
-			StanceCrouch.Show(false);
-			StanceProne.Show(true);
-			StanceCar.Show(false);
-			StanceHeli.Show(false);
-			StanceBoat.Show(false);
-			StanceDead.Show(false);
-			StanceUncon.Show(false);
+			Stance.SetImage(0);
 			break;
 		case ExpansionPlayerStanceStatus.CAR:
-			StanceStand.Show(false);
-			StanceStandWalk.Show(false);
-			StanceCrouch.Show(false);
-			StanceProne.Show(false);
-			StanceCar.Show(true);
-			StanceHeli.Show(false);
-			StanceBoat.Show(false);
-			StanceDead.Show(false);
-			StanceUncon.Show(false);
+			Stance.SetImage(4);
 			break;
 		case ExpansionPlayerStanceStatus.HELICOPTER:
-			StanceStand.Show(false);
-			StanceStandWalk.Show(false);
-			StanceCrouch.Show(false);
-			StanceProne.Show(false);
-			StanceCar.Show(false);
-			StanceHeli.Show(true);
-			StanceHeli.LoadImageFile(0, ExpansionIcons.GetPath("Helicopter"));
-			StanceHeli.SetImage(0);
-			StanceBoat.Show(false);
-			StanceDead.Show(false);
-			StanceUncon.Show(false);
+			Stance.SetImage(5);
 			break;
 		case ExpansionPlayerStanceStatus.BOAT:
-			StanceStand.Show(false);
-			StanceStandWalk.Show(false);
-			StanceCrouch.Show(false);
-			StanceProne.Show(false);
-			StanceCar.Show(false);
-			StanceHeli.Show(false);
-			StanceBoat.Show(true);
-			StanceBoat.LoadImageFile(0, ExpansionIcons.GetPath("Boat"));
-			StanceBoat.SetImage(0);
-			StanceDead.Show(false);
-			StanceUncon.Show(false);
+			Stance.SetImage(6);
 			break;
 		case ExpansionPlayerStanceStatus.DEAD:
-			StanceStand.Show(false);
-			StanceStandWalk.Show(false);
-			StanceCrouch.Show(false);
-			StanceProne.Show(false);
-			StanceCar.Show(false);
-			StanceHeli.Show(false);
-			StanceBoat.Show(false);
-			StanceDead.Show(true);
-			StanceUncon.Show(false);
+			Stance.SetImage(7);
 			break;
 		case ExpansionPlayerStanceStatus.UNCONSCIOUS:
-			StanceStand.Show(false);
-			StanceStandWalk.Show(false);
-			StanceCrouch.Show(false);
-			StanceProne.Show(false);
-			StanceCar.Show(false);
-			StanceHeli.Show(false);
-			StanceBoat.Show(false);
-			StanceDead.Show(false);
-			StanceUncon.Show(true);
+			Stance.SetImage(8);
 			break;
 		}
+		#endif
 	}
 		
 	float GetUpdateTickRate()
@@ -376,26 +308,26 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	void Expansion_Update()
 	{
-	#ifdef EXPANSIONMONITORMODULE
-		if (!GetExpansionSettings().IsLoaded(ExpansionPartySettings))
-			return;
-
-		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
-		if (monitorModule)
+		#ifdef EXPANSIONMONITORMODULE
+		if (m_MonitorModule)
 		{
-			if (GetExpansionSettings().GetParty().ShowHUDMemberStates || GetExpansionSettings().GetParty().ShowHUDMemberStance)
-				monitorModule.RequestPlayerStatsAndStates(m_PlayerPlainID);
-			else
-				monitorModule.RequestPlayerStats(m_PlayerPlainID);
+			if (m_ShowStates && !m_ShowStances)
+			{
+				m_MonitorModule.RequestPlayerStats(m_PlayerPlainID);
+			}
+			else if (m_ShowStates && m_ShowStances)
+			{
+				m_MonitorModule.RequestPlayerStatsAndStates(m_PlayerPlainID);
+			}
 		}
-	#endif
+		#endif
 	}
 	
 	void CreateUpdateTimer()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
-#endif
+		#endif
 		
 		if (!m_UpdateTimer && GetUpdateTickRate() != -1)
 		{
@@ -412,5 +344,5 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 			m_UpdateTimer = null;
 		}
 	}
-};
+}
 #endif

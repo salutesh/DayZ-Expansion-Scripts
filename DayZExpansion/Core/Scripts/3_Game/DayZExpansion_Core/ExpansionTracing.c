@@ -273,7 +273,7 @@ class EXTrace
 		string stack;
 		DumpStackString(stack);
 
-		TStringArray stacka();
+		TStringArray stacka = {};
 		stack.Split("\n", stacka);
 
 		int n = start;
@@ -714,6 +714,20 @@ class EXTrace
 
 		auto trace = new EXTrace(instance, NULLTYPE, false);
 		trace.SetSilent(true);
+		return trace;
+	}
+
+	static EXTrace Profile(bool yes, Class instance, string funcName)
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes)
+			return null;
+#endif
+
+		auto trace = new EXTrace(instance, NULLTYPE, false);
+		trace.SetSilent(true);
+		trace.SetFuncName(funcName);
 		return trace;
 	}
 

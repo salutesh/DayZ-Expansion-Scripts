@@ -47,7 +47,7 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 	float m_Angle;
 	int m_Flap;
 
-	void ExpansionVehicleAerofoil(EntityAI pVehicle, string pName)
+	void ExpansionVehicleAerofoil(EntityAI vehicle, string pName)
 	{
 		m_Name = pName;
 

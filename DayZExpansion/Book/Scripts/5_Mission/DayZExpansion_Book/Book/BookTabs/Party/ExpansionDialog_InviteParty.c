@@ -18,7 +18,7 @@ class ExpansionDialog_InviteParty: ExpansionDialogBookBase
 	protected ref ExpansionDialogButton_Text_PartyInvite_Cancel m_CancelButton;	
 	protected ref ExpansionBookMenuTabParty m_PartyTab;
 		
-	void ExpansionDialog_InviteParty(ExpansionScriptView parentView)
+	void ExpansionDialog_InviteParty(ScriptView parentView)
 	{
 		m_ParentView = parentView;
 		

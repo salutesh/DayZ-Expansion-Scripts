@@ -26,7 +26,7 @@ class CfgMods
 				files[]=
 				{
 					"0_DayZExpansion_Missions_Preload/Common",
-					"0_DayZExpansion_Missions_Preload/1_Missions"
+					"0_DayZExpansion_Missions_Preload/1_Core"
 				};
 			};
 			class gameLibScriptModule

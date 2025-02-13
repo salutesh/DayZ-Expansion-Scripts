@@ -65,7 +65,9 @@ class ExpansionTeleportPosition
 
 	void OnSend(ParamsWriteContext ctx)
 	{
+#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+#endif
 
 		ctx.Write(m_DisplayName);
 		ctx.Write(m_Faction);

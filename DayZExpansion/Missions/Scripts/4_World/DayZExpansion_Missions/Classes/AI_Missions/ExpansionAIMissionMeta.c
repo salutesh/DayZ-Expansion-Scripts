@@ -24,7 +24,7 @@ class ExpansionAIMissionMeta
 	// ------------------------------------------------------------
 	// Expansion ExpansionAIMissionMeta
 	// ------------------------------------------------------------
-	void ExpansionAIMissionMeta(ref ExpansionSettingNotificationData notifstart, ref ExpansionSettingNotificationData notifaction, ref ExpansionSettingNotificationData notifend, ref ExpansionSettingMarkerData marker)
+	void ExpansionAIMissionMeta(ExpansionSettingNotificationData notifstart, ExpansionSettingNotificationData notifaction, ExpansionSettingNotificationData notifend, ExpansionSettingMarkerData marker)
 	{
 		NotificationStart 	= notifstart;
 		NotificationAction 	= notifaction;

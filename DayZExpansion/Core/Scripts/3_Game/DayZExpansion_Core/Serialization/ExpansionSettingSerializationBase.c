@@ -44,7 +44,7 @@ class ExpansionSettingSerializationBase
 
 	protected bool FindClassInstanceAndVariable()
 	{
-		array<string> arr();
+		array<string> arr = {};
 		m_Variable.Split( ".", arr );
 
 		m_ActualInstance = m_Instance;

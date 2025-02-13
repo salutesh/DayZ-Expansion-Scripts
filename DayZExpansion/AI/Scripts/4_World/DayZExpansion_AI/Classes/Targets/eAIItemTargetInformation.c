@@ -16,6 +16,11 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 		return true;
 	}
 
+	override bool IsItem()
+	{
+		return true;
+	}
+
 	override bool IsExplosive()
 	{
 		return m_Item.Expansion_IsExplosive();
@@ -82,7 +87,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 					}
 				//}
 				//if (ai.eAI_IsUnreachable(distance, 4.0, m_Item.GetCenter()) || (distance <= 4.0 && ai.eAI_IsItemObstructed(m_Item)))
-				if (isUnreachable || (isNear && ai.eAI_IsItemObstructed(m_Item)) || GetGame().GetTime() - target.found_at_time > target.max_time)
+				if (isUnreachable || (isNear && (distance > 4.0 || ai.eAI_IsItemObstructed(m_Item))) || GetGame().GetTime() - target.found_at_time > target.max_time)
 				{
 					//! Item is above or below where AI can reach or item is obstructed
 					ai.eAI_ThreatOverride(m_Item, true);

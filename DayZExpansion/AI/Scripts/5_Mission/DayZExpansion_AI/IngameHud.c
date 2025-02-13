@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -17,21 +17,33 @@ modded class IngameHud
 	override void Init(Widget hud_panel_widget)
 	{
 		super.Init(hud_panel_widget);
-
-		if (m_LeftHudPanelWidget)
-		{
-			m_CooldownIndicator = new ExpansionCooldownIndicator();
-			m_LeftHudPanelWidget.AddChild(m_CooldownIndicator.GetLayoutRoot(), true);
-		}
+		
+		Widget leftHUDPanel = m_HudPanelWidget.FindAnyWidget("LeftHUDPanel");
+		m_CooldownIndicator = new ExpansionCooldownIndicator(leftHUDPanel);
+		m_CooldownIndicator.Show(false);
+	}
+	
+	void Expansion_UpdateAggressionCooldown(PlayerBase player, int cooldown)
+	{
+		if (!m_CooldownIndicator)
+			return;
+		
+		m_CooldownIndicator.UpdateCooldown(player, cooldown);
 	}
 
-	ExpansionCooldownIndicator Expansion_GetCooldownIndicator()
+	void Expansion_ShowAggressionCooldown(bool state)
 	{
-		return m_CooldownIndicator;
-	}
+		if (!m_CooldownIndicator)
+			return;
 
-	bool Expansion_CooldownVisible()
+		m_CooldownIndicator.Show(state);
+	}
+	
+	bool Expansion_IsAggressionCooldownVisible()
 	{
-		return m_CooldownIndicator.IsVisible();
+		if (m_CooldownIndicator)
+			return m_CooldownIndicator.IsVisible();
+
+		return false;
 	}
 };

@@ -15,29 +15,40 @@ modded class IngameHud
 {
 	protected ref ExpansionPartyHud m_PartyHUD;
 	protected bool m_ExpansionPartyHUDState;
+	protected ExpansionPartyModule m_PartyModule;
+	protected bool m_ShowPartyHUD;
 
+	void IngameHud()
+	{
+		m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
+	}
+	
 	void ~IngameHud()
 	{
-		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
+		if (m_ShowPartyHUD)
 		{
-			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
-			if (partyModule && partyModule.m_PartyHUDInvoker)
-				partyModule.m_PartyHUDInvoker.Remove(UpdatePartyHUD);
+			if (m_PartyModule && m_PartyModule.m_PartyHUDInvoker)
+				m_PartyModule.m_PartyHUDInvoker.Remove(UpdatePartyHUD);
 		}
 	}
 
 	override void Update( float timeslice )
 	{
 		super.Update(timeslice);
+		
+		if (!GetExpansionSettings().GetParty(false).IsLoaded())
+			return;
+		
+		if (!m_ShowPartyHUD)
+			m_ShowPartyHUD = GetExpansionSettings().GetParty().ShowPartyMemberHUD;
 
-		if (GetExpansionSettings().GetParty(false).IsLoaded() && GetExpansionSettings().GetParty().ShowPartyMemberHUD)
+		if (m_ShowPartyHUD)
 		{
 			if (!m_PartyHUD)
 			{
 				m_PartyHUD = new ExpansionPartyHud();
-				ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
-				if (partyModule && partyModule.m_PartyHUDInvoker)
-					partyModule.m_PartyHUDInvoker.Insert(UpdatePartyHUD);
+				if (m_PartyModule && m_PartyModule.m_PartyHUDInvoker)
+					m_PartyModule.m_PartyHUDInvoker.Insert(UpdatePartyHUD);
 			}
 		}
 	}
@@ -48,10 +59,9 @@ modded class IngameHud
 			return;
 
 		map<string, string> partyPlayers = new map<string, string>;
-		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
-		if (partyModule)
+		if (m_PartyModule)
 		{
-			ExpansionPartyData partyData = partyModule.GetParty();
+			ExpansionPartyData partyData = m_PartyModule.GetParty();
 			if (partyData && partyData.GetPlayers().Count() > 0)
 			{
 				array<ref ExpansionPartyPlayerData> members = partyData.GetPlayers();

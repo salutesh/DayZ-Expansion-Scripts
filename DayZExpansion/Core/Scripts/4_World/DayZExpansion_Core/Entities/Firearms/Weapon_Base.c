@@ -24,6 +24,8 @@ enum ExpansionWeaponType
 
 class ExpansionWeaponInfo
 {
+	static ref TStringArray OPTICS = {"weaponOptics", "weaponOpticsAK", "weaponOpticsAug", "weaponOpticsHunting", "weaponOpticsMosin", "ExpansionSniperOptics"};
+
 	ref map<ExpansionFireMode, int> m_FireModes = new map<ExpansionFireMode, int>();
 	ref TStringArray m_ChamberableFrom = {};
 	float m_AvgDmg;
@@ -115,7 +117,7 @@ class ExpansionWeaponInfo
 		{
 			m_WeaponType = ExpansionWeaponType.Launcher;
 		}
-		else if (m_AvgDmg >= 110 && weapon.GetMuzzleCount() == 1 && weapon.Expansion_HasAttachmentSlot((TStringArray){"weaponOptics", "weaponOpticsAK", "weaponOpticsAug", "weaponOpticsHunting", "weaponOpticsMosin", "ExpansionSniperOptics"}))
+		else if (m_AvgDmg >= 110 && weapon.GetMuzzleCount() == 1 && weapon.Expansion_HasAttachmentSlot(OPTICS))
 		{
 			//! @note SSG-82 creates SSG82Optic on weaponOpticsAug slot during init
 			m_WeaponType = ExpansionWeaponType.Marksman;

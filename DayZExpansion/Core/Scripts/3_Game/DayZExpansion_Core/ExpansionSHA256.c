@@ -46,7 +46,7 @@ class ExpansionSHA256
 	protected static int s_BufferIndex;
 
 	protected static bool s_Reset = Reset();
-	protected static bool s_Test = Test();
+	protected static bool s_Test = DoUnitTest();
 
 	static bool Reset()
 	{
@@ -61,7 +61,7 @@ class ExpansionSHA256
 		return true;
 	}
 
-	protected static bool Test()
+	protected static bool DoUnitTest()
 	{
 		Update("76561197968396131");
 
@@ -81,7 +81,10 @@ class ExpansionSHA256
 	#endif
 
 		if (id != "XoIwo96jCqOGY-Rs9_PlsZf1YHNQ-ey54aBO8cuT0VY=")
+		{
 			Error("ExpansionSHA256 generated wrong hash!");
+			return false;
+		}
 
 		return true;
 	}

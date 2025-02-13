@@ -213,15 +213,15 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	ref ExpansionHelicopterScriptRotor m_Main;
 	ref ExpansionHelicopterScriptRotor m_Tail;
 
-	void ExpansionVehicleHelicopter_OLD(EntityAI pVehicle)
+	void ExpansionVehicleHelicopter_OLD(EntityAI vehicle)
 	{
 		m_NoiseParams = new NoiseParams();
 		m_NoiseParams.Load("HeliExpansionNoise");
 
 		m_SelfDebugWindow = true;
 
-		m_Main = new ExpansionHelicopterScriptRotor(pVehicle, "Main");
-		m_Tail = new ExpansionHelicopterScriptRotor(pVehicle, "Tail");
+		m_Main = new ExpansionHelicopterScriptRotor(vehicle, "Main");
+		m_Tail = new ExpansionHelicopterScriptRotor(vehicle, "Tail");
 	}
 
 	void ~ExpansionVehicleHelicopter_OLD()

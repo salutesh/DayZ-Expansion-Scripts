@@ -1,7 +1,10 @@
 {
     "Departments": [{
             "DepartmentName": "DAYZ EXPANSION",
-            "Sections": []
+            "Sections": [{
+                    "SectionName": "",
+                    "SectionLines": []
+            }]
         },
         {
             "DepartmentName": "",
@@ -59,7 +62,7 @@
         {
             "DepartmentName": "",
             "Sections": [{
-                "SectionName": "#STR_EXPANSION_CREDITS_COMMUNITYMANAGE",
+                "SectionName": "#STR_EXPANSION_CREDITS_COMMUNITY_MANAGER",
                 "SectionLines": [
                     "George Thurston - Thurston"
                 ]
@@ -243,9 +246,16 @@
         {
             "DepartmentName": "#legal_notices",
             "Sections": [{
-                    "SectionName": "Our work is licensed under:",
+                    "SectionName": "",
                     "SectionLines": [
+						"Our work in DayZ Expansion (unless otherwise noted) is licensed under:",
                         "Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)"
+                    ]
+                },
+                {
+                    "SectionName": "DayZ Expansion Licensed",
+                    "SectionLines": [
+                        "DayZ Expansion Licensed contains material from Bohemia Interactive that has been licensed under ADPL-SA."
                     ]
                 },
                 {
@@ -277,13 +287,6 @@
                     "SectionName": "Recast Navigation",
                     "SectionLines": [
                         "Copyright (c) 2009-2010 Mikko Mononen memon@inside.org"
-                    ]
-                },
-                {
-                    "SectionName": "Main Menu Song",
-                    "SectionLines": [
-                        "Song: 'The Climb - by Scott Buckley' is under a creative commons license.",
-                        "Music promoted by BreakingCopyright: https://www.youtube.com/watch?v=cHo2qvFLOQo"
                     ]
                 },
                 {

@@ -68,8 +68,10 @@ modded class PlayerBase
 	
 	void ~PlayerBase()
 	{
+	#ifndef DIAG_DEVELOPER
 		if (!GetGame())
 			return;
+	#endif
 	
 		if ( m_PlayerUID && s_Expansion_AllPlayersUID.Get( m_PlayerUID ) == this )
 		{

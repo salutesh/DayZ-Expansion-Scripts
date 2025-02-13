@@ -21,7 +21,7 @@ class CfgMods
 		inputs="DayZExpansion/Quests/Scripts/Data/Inputs.xml";
 		extra=0;
 		type="mod";
-		name="$STR_MOD_EXPANSION_NAME";
+		name="DayZ Expansion - Quests";
 		picture="DayZExpansion/GUI/textures/expansion_icon.edds";
 		logo="DayZExpansion/GUI/textures/expansion_icon.edds";
 		logoSmall="DayZExpansion/GUI/textures/expansion_icon.edds";

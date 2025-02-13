@@ -566,7 +566,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static void ProcessGear(EntityAI entity, string gear)
 	{
-		TStringArray tokens();
+		TStringArray tokens = {};
 		gear.Split(",", tokens);
 
 		foreach (string token: tokens)

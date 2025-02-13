@@ -123,7 +123,5 @@ static void DestroyDayZExpansion()
 		auto trace = EXTrace.Start(EXTrace.MISC);
 #endif
 
-	EXError.Error(null, "DEPRECATED");
-
 	GetDayZGame().SetExpansionGame(null);
 }

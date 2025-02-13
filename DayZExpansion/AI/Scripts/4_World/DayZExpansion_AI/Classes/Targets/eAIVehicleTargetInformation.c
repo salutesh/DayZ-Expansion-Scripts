@@ -10,6 +10,11 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 		Class.CastTo(m_Transport, target);
 	}
 
+	override bool IsVehicle()
+	{
+		return true;
+	}
+
 	override bool IsInanimate()
 	{
 		return true;

@@ -836,40 +836,4 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 
 		return fname;
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion SampleSpawnPosition
-	// ------------------------------------------------------------
-	private vector SampleSpawnPosition( vector position, float maxRadius, float innerRadius )
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-		#endif
-		
-		float a = Math.RandomFloatInclusive( 0.0, 1.0 ) * Math.PI2;
-		float r = maxRadius * Math.RandomFloatInclusive( innerRadius / maxRadius, 1 );
-
-		float spawnX = r * Math.Cos( a );
-		float spawnZ = r * Math.Sin( a );
-
-		vector nPosition = "0 0 0";
-
-		nPosition[0] = position[0] + spawnX;
-		nPosition[2] = position[2] + spawnZ;
-		nPosition[1] = GetGame().SurfaceY( nPosition[0], nPosition[2] );
-
-		AIWorld aiWorld = GetGame().GetWorld().GetAIWorld();
-
-		PGFilter filter = new PGFilter();
-		filter.SetFlags( PGPolyFlags.NONE, PGPolyFlags.NONE, PGPolyFlags.NONE );
-		filter.SetCost( PGAreaType.TERRAIN, 10 );
-
-		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, filter, nPosition );
-
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::SampleSpawnPosition - End and return nPosition: " + nPosition.ToString() );
-		#endif
-		
-		return nPosition;
-	}
 };

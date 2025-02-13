@@ -261,7 +261,7 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	void DumpClassNameJSON(string mustContain = "")
 	{
-		array<string> classNames();
+		array<string> classNames = {};
 		Param1<array<string>> dump = new Param1<array<string>>(classNames);
 		
 		for (int i = 0; i < GetGame().ConfigGetChildrenCount("CfgVehicles"); i++)

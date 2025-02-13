@@ -16,6 +16,11 @@ class eAINoiseTargetInformation: eAITargetInformation
 		return str;
 	}
 
+	override bool IsNoise()
+	{
+		return true;
+	}
+
 	void SetNoiseParams(EntityAI source, vector position, float strength, float lifetime, float threatLevel)
 	{
 		m_Source = source;

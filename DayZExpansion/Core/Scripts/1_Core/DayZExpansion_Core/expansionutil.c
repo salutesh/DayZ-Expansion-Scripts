@@ -8,3 +8,15 @@ class ExpansionUtil<Class T>
 		b = c;
 	}
 }
+
+class ExpansionUtil2<Class T1, Class T2>
+{
+	static void RefCopy(map<T1, ref T2> from, map<T1, ref T2> to)
+	{
+		to.Clear();
+		foreach (T1 key, T2 value: from)
+		{
+			to[key] = value;
+		}
+	}
+}

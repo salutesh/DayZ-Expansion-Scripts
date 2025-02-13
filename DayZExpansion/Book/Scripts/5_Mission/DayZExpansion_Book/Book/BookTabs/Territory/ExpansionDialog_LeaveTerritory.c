@@ -18,7 +18,7 @@ class ExpansionDialog_LeaveTerritory: ExpansionDialogBookBase
 	ref ExpansionDialogButton_Text_TerritroyLeave_Cancel m_CancelButton;
 	ref ExpansionBookMenuTabTerritory m_TerritoryTab;
 	
-	void ExpansionDialog_LeaveTerritory(ExpansionScriptView parentView)
+	void ExpansionDialog_LeaveTerritory(ScriptView parentView)
 	{
 		m_ParentView = parentView;
 		

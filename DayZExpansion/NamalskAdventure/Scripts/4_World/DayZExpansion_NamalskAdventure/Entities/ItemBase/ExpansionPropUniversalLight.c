@@ -169,7 +169,7 @@ class ExpansionPropUniversalLight extends ItemBase
 		return true;
 	}
 
-	override bool CanPutIntoHands(EntityAI player)
+	override bool CanPutIntoHands(EntityAI parent)
 	{
 		return false;
 	}

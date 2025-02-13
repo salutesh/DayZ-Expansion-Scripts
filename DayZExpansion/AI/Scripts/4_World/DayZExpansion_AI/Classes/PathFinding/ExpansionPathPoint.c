@@ -9,12 +9,16 @@ class ExpansionPathPoint
 
 	ExpansionPathPoint Next;
 
-	autoptr PGFilter m_Filter;
+#ifdef EAI_DEBUG_PATH
+#ifndef SERVER
+	PGFilter m_Filter;
 
 	void ExpansionPathPoint()
 	{
-		m_Filter = new PGFilter();
+		m_Filter = ExpansionPathFilters.GetInstance().m_PointFilter;
 	}
+#endif
+#endif
 
 	vector GetPosition()
 	{
@@ -56,6 +60,8 @@ class ExpansionPathPoint
 		}
 	}
 
+#ifdef EAI_DEBUG_PATH
+#ifndef SERVER
 	void UpdateFlags(ExpansionPathHandler handler)
 	{
 		float distance = 1.0;
@@ -85,20 +91,6 @@ class ExpansionPathPoint
 		
 		m_Filter.SetFlags(flag, PGPolyFlags.NONE, PGPolyFlags.NONE);
 		
-		m_Filter.SetCost(PGAreaType.NONE, 10.0);
-		m_Filter.SetCost(PGAreaType.TERRAIN, 10.0);
-		m_Filter.SetCost(PGAreaType.DOOR_OPENED, 10.0);
-		m_Filter.SetCost(PGAreaType.DOOR_CLOSED, 10.0);
-		m_Filter.SetCost(PGAreaType.OBJECTS, 10.0);
-		m_Filter.SetCost(PGAreaType.BUILDING, 10.0);
-		m_Filter.SetCost(PGAreaType.ROADWAY, 10.0);
-		m_Filter.SetCost(PGAreaType.ROADWAY_BUILDING, 10.0);
-		m_Filter.SetCost(PGAreaType.LADDER, 10.0);
-		m_Filter.SetCost(PGAreaType.CRAWL, 10.0);
-		m_Filter.SetCost(PGAreaType.CROUCH, 10.0);
-		m_Filter.SetCost(PGAreaType.FENCE_WALL, 10.0);
-		m_Filter.SetCost(PGAreaType.JUMP, 10.0);
-		
 		vector direction = vector.Direction(Position, Next.Position).Normalized();
 		
 		vector p0 = Position - (direction * distance);
@@ -115,6 +107,8 @@ class ExpansionPathPoint
 
 		return 0;
 	}
+#endif
+#endif
 
 	void Copy(ExpansionPathPoint other)
 	{
@@ -196,9 +190,9 @@ class ExpansionPathPoint
 
 			//! Deal with the case where AI is on top of an object and needs to take a leap of faith
 			//! because there is no navmesh connection to ground
-			if (!found || (path.Count() == 2 && !Math.IsPointInCircle(Position, 1.0, path[1]) && Math.IsPointInCircle(pathFinding.m_Unit.GetPosition(), 0.55, path[1])))
+			if ((!found || (path.Count() == 2 && !Math.IsPointInCircle(Position, 1.0, path[1]) && Math.IsPointInCircle(pathFinding.m_Unit.GetPosition(), 0.55, path[1]))) && !pathFinding.m_Unit.m_eAI_BuildingWithLadder)
 			{
-				pathGlueIdx = path.Count();
+				//pathGlueIdx = path.Count();
 
 			#ifdef EXPANSION_AI_DEBUG_UNREACHABLE
 				if (!found || pathFinding.m_IsTargetUnreachable)
@@ -210,9 +204,11 @@ class ExpansionPathPoint
 
 				vector endPos;
 
+			/*
 				if (found)
 					endPos = path[1];
 				else
+			*/
 					endPos = startPos;
 
 				array<vector> tempPath = {};
@@ -240,6 +236,7 @@ class ExpansionPathPoint
 					vector tempEnd = tempPath[count - 1];
 					if (count > 2 || vector.DistanceSq(tempEnd, endPos) > 0.0001)
 					{
+					/*
 						TVectorArray toTempEnd = {};
 						if (pathFinding.m_AIWorld.FindPath(startPos, tempEnd, filter, toTempEnd))
 						{
@@ -248,29 +245,35 @@ class ExpansionPathPoint
 							endPos = path[pathGlueIdx - 1];
 						}
 
-						for (i = count - 1; i >= 0; i--)
-						{
-							//if (tempPath[i][1] - endPos[1] < 2.5)
-								path.Insert(tempPath[i]);
-							//else
-								//break;
-						}
-
-						//if (i < 0)
-							//pathFinding.m_IsUnreachable =  false;
-
+						endPos[1] = Math.Max(endPos[1], startPos[1]);
+					*/
 						vector checkPos = tempEnd;
-						checkPos[1] = Math.Max(Math.Max(endPos[1], checkPos[1]), pathFinding.m_Unit.GetPosition()[1]) + 1.5;
+						checkPos[1] = Math.Max(Math.Max(endPos[1], checkPos[1]), pathFinding.m_Unit.GetPosition()[1]) + 0.5;
 
-						if (Math.IsPointInCircle(tempEnd, 10.0, endPos) && tempEnd[1] - endPos[1] < 2.5 && !pathFinding.IsBlockedPhysically(endPos + "0 1.5 0", checkPos))
+						//! Always test these objects/locations when making changes:
+						//! stockyard_oremound1.p3d (on the highest spot), e.g. on Sakhal at <13432.2, 10.5049, 11843.2>
+						//! Land_Shed_W2 (inside) on Chernarus at <3144, 7932>
+						if (Math.IsPointInCircle(tempEnd, 10.0, endPos) && tempEnd[1] - endPos[1] < 2.5 && !pathFinding.IsBlockedPhysically(endPos + "0 0.5 0", checkPos))
 						{
-							vector surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(tempEnd);
-							//! Swim start water level = 1.5 m, see DayZPlayerUtils::CheckWaterLevel
-							if (isSwimming || pathFinding.m_IsSwimmingEnabled || GetGame().GetWaterDepth(surfacePosition) <= 1.5)
+							vector surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(checkPos);
+							if (isSwimming || !pathFinding.IsBlockedPhysically(checkPos, surfacePosition + "0 0.5 0"))
 							{
-								eAICommandMove move = pathFinding.m_Unit.GetCommand_MoveAI();
-								if (move && !move.IsBlocked())
+								//! Swim start water level = 1.5 m, see DayZPlayerUtils::CheckWaterLevel
+								if (pathFinding.m_IsSwimmingEnabled || GetGame().GetWaterDepth(surfacePosition) <= 1.5)
 								{
+									path.Clear();
+									pathGlueIdx = 0;
+									for (i = count - 1; i >= 0; i--)
+									{
+										//if (tempPath[i][1] - endPos[1] < 2.5)
+											path.Insert(tempPath[i]);
+										//else
+											//break;
+									}
+
+									//if (i < 0)
+										//pathFinding.m_IsUnreachable =  false;
+
 									found = true;
 									pathFinding.m_Time = -15.0;  //! Longer delay until next path recalculation
 								}

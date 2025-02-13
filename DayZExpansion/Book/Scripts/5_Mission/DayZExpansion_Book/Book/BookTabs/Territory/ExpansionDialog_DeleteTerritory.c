@@ -18,7 +18,7 @@ class ExpansionDialog_DeleteTerritory: ExpansionDialogBookBase
 	ref ExpansionDialogButton_Text_TerritroyDelete_Cancel m_CancelButton;	
 	ref ExpansionBookMenuTabTerritory m_TerritoryTab;
 		
-	void ExpansionDialog_DeleteTerritory(ExpansionScriptView parentView)
+	void ExpansionDialog_DeleteTerritory(ScriptView parentView)
 	{
 		m_ParentView = parentView;
 		

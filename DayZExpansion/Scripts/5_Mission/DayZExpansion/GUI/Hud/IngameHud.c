@@ -309,11 +309,13 @@ modded class IngameHud
 	{
 		super.RefreshHudVisibility();
 
+		bool hudState = Expansion_CanShowHUDElements();
+
 		if (m_NVPanel)
-			m_NVPanel.Show(m_HudState && m_ExpansionHudNVState && m_ExpansionNVSetting);
+			m_NVPanel.Show(hudState && m_ExpansionHudNVState && m_ExpansionNVSetting);
 
 		if (m_EarPlugsPanel)
-			m_EarPlugsPanel.Show(m_HudState && m_ExpansionEarplugState);
+			m_EarPlugsPanel.Show(hudState && m_ExpansionEarplugState);
 	}
 
 	void Expansion_ShowNV(bool show)

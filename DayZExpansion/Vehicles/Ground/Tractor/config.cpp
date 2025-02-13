@@ -679,8 +679,8 @@ class CfgVehicles
 		fuelCapacity=67;
 		fuelConsumption=13;
 		batterySlot="CarBattery";
-		dashboardMatOn="dz\vehicles\wheeled\transitbus\data\ikarus_dashboarde.rvmat";
-		dashboardMatOff="dz\vehicles\wheeled\transitbus\data\ikarus_dashboard.rvmat";
+		dashboardMatOn="DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_on.rvmat";
+		dashboardMatOff="DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat";
 		frontReflectorMatOn="dz\vehicles\wheeled\civiliansedan\data\civiliansedan_lights.rvmat";
 		frontReflectorMatOff="dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat";
 		brakeReflectorMatOn="dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights_e.rvmat";

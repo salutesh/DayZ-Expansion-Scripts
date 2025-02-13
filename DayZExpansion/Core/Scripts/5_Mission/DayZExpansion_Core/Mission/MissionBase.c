@@ -20,6 +20,8 @@ modded class MissionBase
 		if (!GetGame())
 			return;
 
+		DestroyDayZExpansion();
+
 #ifdef DIAG_DEVELOPER
 		Print("[DayZ Expansion] ~MissionBase");
 #endif

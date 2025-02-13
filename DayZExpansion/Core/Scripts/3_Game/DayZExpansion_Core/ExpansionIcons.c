@@ -324,7 +324,7 @@ class ExpansionIcons
 
 	static array<ExpansionIcon> Sorted()
 	{
-		TStringArray namesSorted();
+		TStringArray namesSorted = {};
 
 		foreach (ExpansionIcon icon: s_Icons.m_Icons)
 		{

@@ -67,7 +67,7 @@ class ExpansionVehicleGearbox : ExpansionVehicleRotational
 
 	float m_DeltaVelocity;
 
-	void ExpansionVehicleGearbox(EntityAI pVehicle, string rootPath)
+	void ExpansionVehicleGearbox(EntityAI vehicle, string rootPath)
 	{
 		m_Clutch = 0;
 		m_Gear = 0;

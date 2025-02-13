@@ -62,8 +62,8 @@ modded class NotificationSystem
 		if ( IsMissionHost() )
 		{
 			auto rpc = s_Expansion_RPCManager.CreateRPC("RPC_ExpansionCreateNotification");
-			rpc.Write( title );
-			rpc.Write( text );
+			CF_Localiser.Write(rpc, title);
+			CF_Localiser.Write(rpc, text);
 			rpc.Write( icon );
 			rpc.Write( color );
 			rpc.Write( time );
@@ -85,13 +85,13 @@ modded class NotificationSystem
 		Create_Expansion( new CF_Localiser( title ), new CF_Localiser( text ), icon, color, time, sendTo, type, obj );
 	}
 
-	static void ExpansionCreateNotification( ref CF_Localiser title, ref CF_Localiser text, string icon, int color, float time = 3, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+	static void ExpansionCreateNotification( CF_Localiser title, CF_Localiser text, string icon, int color, float time = 3, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
 	{	
 		if ( IsMissionHost() )
 		{
 			auto rpc = s_Expansion_RPCManager.CreateRPC("RPC_ExpansionCreateNotification");
-			rpc.Write( title );
-			rpc.Write( text );
+			CF_Localiser.Write(rpc, title);
+			CF_Localiser.Write(rpc, text);
 			rpc.Write( icon );
 			rpc.Write( color );
 			rpc.Write( time );
@@ -152,10 +152,12 @@ modded class NotificationSystem
 #endif
 		
 		CF_Localiser title = new CF_Localiser( "" );
+		//! @note can't use CF_Localiser.Read here since we don't control the sending side
 		if ( !ctx.Read( title ) )
 			return;
 
 		CF_Localiser text = new CF_Localiser( "" );
+		//! @note can't use CF_Localiser.Read here since we don't control the sending side
 		if ( !ctx.Read( text ) )
 			return;
 
@@ -198,11 +200,11 @@ modded class NotificationSystem
 #endif
 
 		CF_Localiser title = new CF_Localiser( "" );
-		if ( !ctx.Read( title ) )
+		if ( !CF_Localiser.Read( ctx, title ) )
 			return;
 
 		CF_Localiser text = new CF_Localiser( "" );
-		if ( !ctx.Read( text ) )
+		if ( !CF_Localiser.Read( ctx, text ) )
 			return;
 
 		string icon;

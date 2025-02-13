@@ -207,15 +207,11 @@ modded class MissionGameplay
 		super.OnMissionFinish();
 		
 	#ifdef EXPANSIONUI
-		//! Close and destroy any open ScriptView menus. This will return control to the player and unlock all inputs
-		ExpansionUIManager manager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();
-		ExpansionScriptViewMenuBase menu = manager.GetMenu();
-		if (menu)
-		{
-			manager.CloseMenu();
-		}
+		//! Close and destroy any ScriptViews
+		ExpansionScriptViewBase.DestroyAll();
 	#endif
 
+		//! This will return control to the player and unlock all inputs
         Expansion_ForceEnableMovementInputs();
 
 		GetDayZExpansion().OnFinish();

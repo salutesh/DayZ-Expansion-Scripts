@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -27,14 +27,11 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		s_Instance = this;
 
 		ExpansionSettings.SI_Map.Insert(OnSettingsUpdated);
-#ifdef EXPANSIONMODGROUPS
+		#ifdef EXPANSIONMODGROUPS
 		ExpansionSettings.SI_Party.Insert(OnSettingsUpdated);
-#endif
+		#endif
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule Destructor
-	// ------------------------------------------------------------
 	void ~ExpansionMarkerModule()
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
@@ -44,18 +41,15 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		delete m_3DMarkers;
 		
 		ExpansionSettings.SI_Map.Remove(OnSettingsUpdated);
-#ifdef EXPANSIONMODGROUPS
+		#ifdef EXPANSIONMODGROUPS
 		ExpansionSettings.SI_Party.Remove(OnSettingsUpdated);
-#endif
+		#endif
 
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMarkerModule::~ExpansionMarkerModule - End");
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule OnInit
-	// ------------------------------------------------------------
+
 	override void OnInit()
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
@@ -82,10 +76,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		EXPrint("ExpansionMarkerModule::OnInit - End");
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule OnMissionLoaded
-	// ------------------------------------------------------------
+
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
@@ -144,10 +135,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		EXPrint("ExpansionMarkerModule::OnMissionLoaded - End");
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule OnMissionFinish
-	// ------------------------------------------------------------
+
 	override void OnMissionFinish(Class sender, CF_EventArgs args)
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
@@ -178,10 +166,6 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		#endif
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule OnSettingsUpdated
-	// ------------------------------------------------------------
-	
 	void OnSettingsUpdated()
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
@@ -194,10 +178,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		EXPrint("ExpansionMarkerModule::OnSettingsUpdated - End");
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule SaveLocalServerMarkers
-	// ------------------------------------------------------------
+
 	void SaveLocalServerMarkers()
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
@@ -233,10 +214,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		EXPrint("ExpansionMarkerModule::SaveLocalServerMarkers - End");
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule ReadLocalServerMarkers
-	// ------------------------------------------------------------	
+
 	bool ReadLocalServerMarkers()
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
@@ -245,66 +223,58 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		
 		FileSerializer ctx = new FileSerializer;
 
-		if ( ctx.Open( EXPANSION_CLIENT_MARKERS, FileMode.READ ) )
+		if (ctx.Open(EXPANSION_CLIENT_MARKERS, FileMode.READ))
 		{
 			int version;
-			if ( !ctx.Read( version ) )
+			if (!ctx.Read(version))
 			{
 				ctx.Close();
 				return false;
 			}
 
-			if ( version >= 8 )
+			if (version >= 8)
 			{
 				int countVis = 5;
-
 				if (version < 41)
 				{
-					if ( Expansion_Assert_False( ctx.Read( countVis ), "[" + this + "] Failed reading m_Visibility array length" ) )
+					if (Expansion_Assert_False(ctx.Read(countVis), "[" + this + "] Failed reading m_Visibility array length"))
 					{
 						ctx.Close();
-						
 						#ifdef EXPANSION_MARKER_MODULE_DEBUG
 						EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
 						#endif
-						
 						return false;
 					}
 				}
 
 				int j;
 				int vis;
-				for ( j = 0; j < countVis; ++j )
+				for (j = 0; j < countVis; ++j)
 				{
-					if ( Expansion_Assert_False( ctx.Read( vis ), "[" + this + "] Failed reading m_Visibility[" + j + "]" ) )
+					if (Expansion_Assert_False(ctx.Read(vis), "[" + this + "] Failed reading m_Visibility[" + j + "]"))
 					{
 						ctx.Close();
-						
 						#ifdef EXPANSION_MARKER_MODULE_DEBUG
 						EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
 						#endif
-						
 						return false;
 					}
 
 					m_Visibility[j] = vis;
-
 					if (version < 41)
 						m_PreviousVisibility[j] = vis;
 				}
 
 				if (version >= 41)
 				{
-					for ( j = 0; j < countVis; ++j )
+					for (j = 0; j < countVis; ++j)
 					{
-						if ( Expansion_Assert_False( ctx.Read( vis ), "[" + this + "] Failed reading m_PreviousVisibility[" + j + "]" ) )
+						if (Expansion_Assert_False(ctx.Read( vis ), "[" + this + "] Failed reading m_PreviousVisibility[" + j + "]"))
 						{
 							ctx.Close();
-							
 							#ifdef EXPANSION_MARKER_MODULE_DEBUG
 							EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
 							#endif
-							
 							return false;
 						}
 
@@ -314,96 +284,94 @@ class ExpansionMarkerModule: CF_ModuleWorld
 			}
 
 			int countArray;
-			if ( Expansion_Assert_False( ctx.Read( countArray ), "[" + this + "] Failed reading countArray" ) )
+			if (Expansion_Assert_False(ctx.Read(countArray), "[" + this + "] Failed reading countArray"))
 			{
 				ctx.Close();
-				
 				#ifdef EXPANSION_MARKER_MODULE_DEBUG
 				EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
 				#endif
-				
 				return false;
 			}
 
-			if ( version < 8 )
+			if (version < 8)
 			{
-				m_AllData.Insert( new ExpansionMarkerClientData() );
+				m_AllData.Insert(new ExpansionMarkerClientData());
 			}
 
-			for ( int u = 0; u < countArray; ++u )
+			for (int u = 0; u < countArray; ++u)
 			{
 				string ip;
 				int port;
 				
-				if ( Expansion_Assert_False( ctx.Read( ip ), "[" + this + "] Failed reading ip" ) )
+				if (Expansion_Assert_False(ctx.Read(ip), "[" + this + "] Failed reading ip"))
 				{
 					#ifdef EXPANSION_MARKER_MODULE_DEBUG
 					EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
 					#endif
-					
 					return false;
 				}
 				
-				if ( Expansion_Assert_False( ctx.Read( port ), "[" + this + "] Failed reading port" ) )
+				if (Expansion_Assert_False(ctx.Read(port), "[" + this + "] Failed reading port"))
 				{
 					#ifdef EXPANSION_MARKER_MODULE_DEBUG
 					EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
 					#endif
-					
 					return false;
 				}
 
 				ExpansionMarkerClientData newServer = null;
-				for ( int i = 0; i < m_AllData.Count(); ++i )
+				for (int i = 0; i < m_AllData.Count(); ++i)
 				{
-					if ( m_AllData[i].Equals( ip, port ) )
+					if (m_AllData[i].Equals(ip, port))
 					{
 						newServer = m_AllData[i];
 						break;
 					}
 				}
 				
-				if ( !newServer )
+				if (!newServer)
 				{
 					newServer = new ExpansionMarkerClientData();
 					newServer.m_IP = ip;
 					newServer.m_Port = port;
-					m_AllData.Insert( newServer );
+					m_AllData.Insert(newServer);
 				}
 				
-				if ( !newServer.OnStoreLoad( ctx, version ) )
+				if (!newServer.OnStoreLoad(ctx, version))
 				{
 					ctx.Close();
-					
 					#ifdef EXPANSION_MARKER_MODULE_DEBUG
 					EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
 					#endif
-					
 					return false;
 				}
 			}
 			
-			if ( version < 10 )
+			if (version < 10)
 			{
-				for ( int l1 = 1; l1 < m_AllData.Count(); ++l1 )
-					for ( int l2 = l1; l2 < m_AllData.Count(); ++l2 )
-						if ( m_AllData[l1].Equals( m_AllData[l2] ) )
+				for (int l1 = 1; l1 < m_AllData.Count(); ++l1)
+				{
+					for (int l2 = l1; l2 < m_AllData.Count(); ++l2)
+					{
+						if (m_AllData[l1].Equals(m_AllData[l2]))
 						{
 							m_AllData.Remove(l2);
 							l2 -= 1;
 						}
+					}
+				}
 			}
 		}
 		else
 		{
-			SetVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
-			SetVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
-			SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
-			SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
+			SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+			SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+			SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+			SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
 		}
 
 		//! Override quick markers, so they are always visible no matter what
-		SetVisibility( ExpansionMapMarkerType.PARTY_QUICK, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
+		SetVisibility(ExpansionMapMarkerType.PARTY_QUICK, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
 
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return true");
@@ -411,10 +379,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		
 		return true;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule CreateServerMarker
-	// ------------------------------------------------------------
+
 	ExpansionMarkerData CreateServerMarker( string name, string icon, vector position, int color, bool marker3D, string uid = "" )
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
@@ -460,10 +425,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		
 		return NULL;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule RemoveServerMarker
-	// ------------------------------------------------------------	
+
 	void RemoveServerMarker( string uid )
 	{
 		if ( !IsMissionHost() || !GetExpansionSettings().GetMap() )		
@@ -471,10 +433,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		GetExpansionSettings().GetMap().RemoveServerMarker( uid );
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule CreateMarker
-	// ------------------------------------------------------------
+
 	bool CreateMarker(  ExpansionMarkerData data )
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
@@ -487,11 +446,11 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		case ExpansionMapMarkerType.PERSONAL:
 			m_CurrentData.PersonalInsert( data );
 			break;
-#ifdef EXPANSIONMODGROUPS
+		#ifdef EXPANSIONMODGROUPS
 		case ExpansionMapMarkerType.PARTY:
 			m_CurrentData.PartyInsert( data );
 			break;
-#endif
+		#endif
 		default:
 			Error( "Marker type " + typename.EnumToString( ExpansionMapMarkerType, type ) + " not supported." );
 			return false;
@@ -505,10 +464,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		return true;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule RemovePersonalMarkerByUID
-	// ------------------------------------------------------------
+
 	bool RemovePersonalMarkerByUID(string uid)
 	{
 		int index;
@@ -527,10 +483,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule UpdateMarker
-	// ------------------------------------------------------------
+
 	bool UpdateMarker(  ExpansionMarkerData data )
 	{		
 		int type = data.GetType();
@@ -539,11 +492,11 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		case ExpansionMapMarkerType.PERSONAL:
 			// doesn't have to do anything
 			break;
-#ifdef EXPANSIONMODGROUPS
+		#ifdef EXPANSIONMODGROUPS
 		case ExpansionMapMarkerType.PARTY:
 			m_CurrentData.PartyUpdate( data );
 			break;
-#endif
+		#endif
 		default:
 			Error( "Marker type " + typename.EnumToString( ExpansionMapMarkerType, type ) + " not supported." );
 			return false;
@@ -553,10 +506,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		return true;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule GetData
-	// ------------------------------------------------------------
+
 	ExpansionMarkerClientData GetData()
 	{
 		return m_CurrentData;
@@ -577,9 +527,9 @@ class ExpansionMarkerModule: CF_ModuleWorld
 			m_TimeAccumulator = 0;
 		}
 
-		for ( int i = m_3DMarkers.Count() - 1; i >= 0; i-- )
+		for (int i = m_3DMarkers.Count() - 1; i >= 0; i--)
 		{
-			if ( !m_3DMarkers[i] || !m_3DMarkers[i].Update( update.DeltaTime ) )
+			if (!m_3DMarkers[i] || !m_3DMarkers[i].Update(update.DeltaTime))
 			{
 				Expansion3DMarker marker = m_3DMarkers[i];
 				m_3DMarkers.Remove(i);
@@ -588,10 +538,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		}
 	}
 	#endif
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule CanCreateMarker
-	// ------------------------------------------------------------
+
 	private bool CanCreateMarker( ExpansionMarkerData other, out Expansion3DMarker marker )
 	{		
 		if ( other.GetType() != ExpansionMapMarkerType.PARTY_QUICK )
@@ -640,21 +587,18 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule Refresh
-	// ------------------------------------------------------------
+
 	void Refresh()
 	{		
-		if ( !m_CurrentData )
+		if (!m_CurrentData)
 			return;
 
 		if (!GetExpansionSettings().GetMap(false).IsLoaded())
 			return;
-#ifdef EXPANSIONMODGROUPS
+		#ifdef EXPANSIONMODGROUPS
 		if (!GetExpansionSettings().GetParty(false).IsLoaded())
 			return;
-#endif
+		#endif
 
 		//Print( "ExpansionMarkerModule::Refresh" );
 
@@ -680,10 +624,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		// CanCreateMarker != removal
 		// CanCreate3DMarker != removal
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule SetVisibility
-	// ------------------------------------------------------------
+
 	int SetVisibility(  ExpansionMarkerData data, int vis )
 	{
 		int type = data.GetType();
@@ -692,22 +633,19 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		{
 		case ExpansionMapMarkerType.PERSONAL:
 			return m_CurrentData.PersonalSetVisibility( data, vis );
-#ifdef EXPANSIONMODGROUPS
+		#ifdef EXPANSIONMODGROUPS
 		case ExpansionMapMarkerType.PARTY:
 			return m_CurrentData.PartySetVisibility( data.GetUID(), vis );
 		case ExpansionMapMarkerType.PLAYER:
 			return m_CurrentData.PartyPlayerSetVisibility( data.GetUID(), vis );
-#endif
+		#endif
 		case ExpansionMapMarkerType.SERVER:
 			return m_CurrentData.ServerSetVisibility( data.GetUID(), vis );
 		}
 
 		return 0;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule FlipVisibility
-	// ------------------------------------------------------------
+
 	int FlipVisibility(  ExpansionMarkerData data, int vis )
 	{
 		int type = data.GetType();
@@ -716,22 +654,19 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		{
 		case ExpansionMapMarkerType.PERSONAL:
 			return m_CurrentData.PersonalFlipVisibility( data, vis );
-#ifdef EXPANSIONMODGROUPS
+		#ifdef EXPANSIONMODGROUPS
 		case ExpansionMapMarkerType.PARTY:
 			return m_CurrentData.PartyFlipVisibility( data.GetUID(), vis );
 		case ExpansionMapMarkerType.PLAYER:
 			return m_CurrentData.PartyPlayerFlipVisibility( data.GetUID(), vis );
-#endif
+		#endif
 		case ExpansionMapMarkerType.SERVER:
 			return m_CurrentData.ServerFlipVisibility( data.GetUID(), vis );
 		}
 
 		return 0;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule RemoveVisibility
-	// ------------------------------------------------------------
+
 	int RemoveVisibility(  ExpansionMarkerData data, int vis )
 	{
 		int type = data.GetType();
@@ -740,22 +675,19 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		{
 		case ExpansionMapMarkerType.PERSONAL:
 			return m_CurrentData.PersonalRemoveVisibility( data, vis );
-#ifdef EXPANSIONMODGROUPS
+		#ifdef EXPANSIONMODGROUPS
 		case ExpansionMapMarkerType.PARTY:
 			return m_CurrentData.PartyRemoveVisibility( data.GetUID(), vis );
 		case ExpansionMapMarkerType.PLAYER:
 			return m_CurrentData.PartyPlayerRemoveVisibility( data.GetUID(), vis );
-#endif
+		#endif
 		case ExpansionMapMarkerType.SERVER:
 			return m_CurrentData.ServerRemoveVisibility( data.GetUID(), vis );
 		}
 
 		return 0;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule SetVisibility
-	// ------------------------------------------------------------
+
 	int SetVisibility( int type, int vis )
 	{
 		type -= 1;
@@ -764,10 +696,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		return m_Visibility[type];
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule FlipVisibility
-	// ------------------------------------------------------------
+
 	int FlipVisibility( int type, int vis )
 	{
 		type -= 1;
@@ -782,10 +711,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		return m_Visibility[type];
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule RemoveVisibility
-	// ------------------------------------------------------------
+
 	int RemoveVisibility( int type, int vis )
 	{
 		type -= 1;
@@ -804,10 +730,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		return m_Visibility[type];
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule ClearVisibility
-	// ------------------------------------------------------------
+
 	int ClearVisibility( int type )
 	{
 		type -= 1;
@@ -815,10 +738,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		m_Visibility[type] = 0;
 		return m_Visibility[type];
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule GetVisibility
-	// ------------------------------------------------------------
+
 	int GetVisibility( int type )
 	{
 		type -= 1;
@@ -833,58 +753,45 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		return m_PreviousVisibility[type];
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule IsVisible
-	// ------------------------------------------------------------
 	bool IsVisible( int type )
 	{
 		type -= 1;
 		
 		return m_Visibility[type] != 0;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule IsWorldVisible
-	// ------------------------------------------------------------
+
 	bool IsWorldVisible( int type )
 	{
 		type -= 1;
 
 		if ( type == ExpansionMapMarkerType.SERVER && !GetExpansionSettings().GetMap().EnableServerMarkers )
 			return false;
-	#ifdef EXPANSIONMODGROUPS
+		#ifdef EXPANSIONMODGROUPS
 		if ( type == ExpansionMapMarkerType.PARTY_QUICK && !GetExpansionSettings().GetParty().EnableQuickMarker )
 			return false;
 		if ( type == ExpansionMapMarkerType.PLAYER && !GetExpansionSettings().GetParty().ShowPartyMember3DMarkers )
 			return false;
-	#endif
+		#endif
 		
 		return (m_Visibility[type] & EXPANSION_MARKER_VIS_WORLD) != 0;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule IsMapVisible
-	// ------------------------------------------------------------
+
 	bool IsMapVisible( int type )
 	{
 		type -= 1;
 
 		if ( type == ExpansionMapMarkerType.SERVER && !GetExpansionSettings().GetMap().EnableServerMarkers )
 			return false;
-	#ifdef EXPANSIONMODGROUPS
+		#ifdef EXPANSIONMODGROUPS
 		if ( type == ExpansionMapMarkerType.PARTY_QUICK && !GetExpansionSettings().GetParty().EnableQuickMarker )
 			return false;
 		if ( type == ExpansionMapMarkerType.PLAYER && !GetExpansionSettings().GetParty().ShowPartyMemberMapMarkers )
 			return false;
-	#endif
+		#endif
 
 		return (m_Visibility[type] & EXPANSION_MARKER_VIS_MAP) != 0;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule CreateDeathMarkerServer
-	// Called on server
-	// ------------------------------------------------------------	
+
 	void CreateDeathMarkerServer(vector pos, PlayerIdentity identity)
 	{
 		if (!IsMissionHost())
@@ -894,16 +801,12 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		rpc.Write(pos);
 		rpc.Expansion_Send(true, identity);
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule RPC_CreateDeathMarker
-	// Called on client
-	// ------------------------------------------------------------
+
 	private void RPC_CreateDeathMarker(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXPANSIONTRACE
+		#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.MARKER, this, "RPC_CreateDeathMarker").Add(sender).Add(ctx);
-#endif
+		#endif
 		
 		vector pos;
 		if (!ctx.Read(pos))
@@ -913,11 +816,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		
 		CreateDeathMarkerClient(pos);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule CreateDeathMarker
-	// Called on client
-	// ------------------------------------------------------------
+
 	void CreateDeathMarkerClient(vector pos)
 	{
 		ExpansionMarkerData markerData;

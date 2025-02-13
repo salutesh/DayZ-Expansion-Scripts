@@ -1,4 +1,5 @@
 #ifdef EXPANSION_MODSTORAGE
+#ifndef CF_MODSTORAGE
 modded class CF_ModStorage
 {
 	static const int VERSION = 5;
@@ -226,4 +227,5 @@ modded class CF_ModStorage
 		m_MaxIdx++;
 	}
 };
+#endif
 #endif

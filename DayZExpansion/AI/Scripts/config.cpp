@@ -24,7 +24,7 @@ class CfgMods
 		action="";
 		hideName=0;
 		hidePicture=0;
-		name="Enfusion AI System";
+		name="DayZ Expansion - AI";
 		credits="Enfusion AI and DayZ Expansion";
 		author="Enfusion AI and DayZ Expansion";
 		authorID="";

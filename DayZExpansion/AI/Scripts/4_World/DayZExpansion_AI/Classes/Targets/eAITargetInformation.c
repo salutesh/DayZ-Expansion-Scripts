@@ -64,6 +64,16 @@ class eAITargetInformation
 		return false;
 	}
 
+	bool IsCreature()
+	{
+		return false;
+	}
+
+	bool IsDoor()
+	{
+		return false;
+	}
+
 	bool IsEntity()
 	{
 		return false;
@@ -74,12 +84,47 @@ class eAITargetInformation
 		return false;
 	}
 
-	bool IsMechanicalTrap()
+	bool IsGroup()
+	{
+		return false;
+	}
+
+	bool IsHazard()
 	{
 		return false;
 	}
 
 	bool IsInanimate()
+	{
+		return false;
+	}
+
+	bool IsItem()
+	{
+		return false;
+	}
+
+	bool IsMechanicalTrap()
+	{
+		return false;
+	}
+
+	bool IsNoise()
+	{
+		return false;
+	}
+
+	bool IsPlayer()
+	{
+		return false;
+	}
+
+	bool IsVehicle()
+	{
+		return false;
+	}
+
+	bool IsZombie()
 	{
 		return false;
 	}

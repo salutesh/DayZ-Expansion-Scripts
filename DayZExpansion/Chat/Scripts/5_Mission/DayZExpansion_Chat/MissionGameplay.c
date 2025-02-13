@@ -277,7 +277,7 @@ modded class MissionGameplay
 	{
 		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-		if (isAliveConscious && !inputIsFocused && !menu && !viewMenu && m_ExpansionUseChat)
+		if (m_ExpansionUseChat && !inputIsFocused && m_Hud.Expansion_CanShowHUDElements(player))
 		{
 			//! Open main chat input and window
 			if (input.LocalPress("UAChat", false))

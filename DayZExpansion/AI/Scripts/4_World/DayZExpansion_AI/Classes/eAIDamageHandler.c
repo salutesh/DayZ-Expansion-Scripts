@@ -150,7 +150,8 @@ class eAIDamageHandler
 	#ifdef DIAG_DEVELOPER
 		m_HitCounter++;
 
-		EXTrace.PrintHit(EXTrace.AI, m_Entity, ToString() + "::OnDamageCalculated[" + m_HitCounter + "]", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		if (!m_Entity.IsTransport() || ammo != "EnviroDmg")
+			EXTrace.PrintHit(EXTrace.AI, m_Entity, ToString() + "::OnDamageCalculated[" + m_HitCounter + "]", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	#endif
 
 		DayZPlayerImplement sourcePlayer;

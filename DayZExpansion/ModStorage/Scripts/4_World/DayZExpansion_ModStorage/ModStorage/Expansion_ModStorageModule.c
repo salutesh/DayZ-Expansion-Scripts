@@ -9,14 +9,14 @@
 class Expansion_ModStorageModule : CF_ModuleWorld
 {
 	static const string s_FileName = "modstorageplayers.bin";
-	protected static string s_FilePath;
-	protected static bool s_FileExist;
+	protected string m_FilePath;
 
 	//! We only need to keep track of players, because if s_FileName exists,
 	//! we already know that all items that are not in player inventory are OK to load from modstorage
 	//! because they have been saved prior (as long as the server ran for a couple minutes at least)
 	protected autoptr map<string, ref Param1<bool>> m_IDs = new map<string, ref Param1<bool>>();
 	protected bool m_IsLoaded;
+	protected bool m_FileExist;
 
 	protected autoptr FileSerializer m_Serializer;
 
@@ -31,20 +31,20 @@ class Expansion_ModStorageModule : CF_ModuleWorld
 		Load();
 
 		PlayerBase player = PlayerBase.Cast(entity.GetHierarchyRootPlayer());
-#ifdef EXPANSION_MODSTORAGE_DEBUG_SAVE
-		if (player)
-			EXPrint("[MODSTORAGE] AddEntity " + entity + " player identity = " + player.GetIdentity() + " id = " + player.Expansion_GetQueuedIdentityId());
-#endif
-		if (!player || !player.Expansion_GetQueuedIdentityId())
-		{
+		if (!player)
 			return;
-		}
 
 		string id = player.Expansion_GetQueuedIdentityId();
-		if (!_AddPlayer(id, false))
-		{
+
+#ifdef EXPANSION_MODSTORAGE_DEBUG_SAVE
+		EXPrint("[MODSTORAGE] AddEntity " + entity + " player identity = " + player.GetIdentity() + " id = " + id);
+#endif
+
+		if (!id)
 			return;
-		}
+
+		if (!_AddPlayer(id, false))
+			return;
 
 		m_Serializer.Write(id);
 	}
@@ -60,19 +60,19 @@ class Expansion_ModStorageModule : CF_ModuleWorld
 		Load();
 
 		PlayerBase player = PlayerBase.Cast(entity.GetHierarchyRootPlayer());
-#ifdef EXPANSION_MODSTORAGE_DEBUG_LOAD
-		if (player)
-			EXPrint("[MODSTORAGE] IsEntity " + entity + " player identity = " + player.GetIdentity() + " id = " + player.Expansion_GetQueuedIdentityId());
-#endif
-		if (!player || !player.Expansion_GetQueuedIdentityId())
-		{
-			return s_FileExist;
-		}
+		if (!player)
+			return m_FileExist;
+
+		string id = player.Expansion_GetQueuedIdentityId();
 
 #ifdef EXPANSION_MODSTORAGE_DEBUG_LOAD
-		EXPrint("[MODSTORAGE] IsEntity " + entity + " " + m_IDs[player.Expansion_GetQueuedIdentityId()]);
+		EXPrint("[MODSTORAGE] IsEntity " + entity + " player identity = " + player.GetIdentity() + " id = " + id);
 #endif
-		return m_IDs[player.Expansion_GetQueuedIdentityId()] != null;
+
+		if (!id)
+			return m_FileExist;
+
+		return m_IDs[id] != null;
 	}
 
 	/**
@@ -101,17 +101,17 @@ class Expansion_ModStorageModule : CF_ModuleWorld
 			MakeDirectory(folder);
 		}
 
-		s_FilePath = folder + s_FileName;
+		m_FilePath = folder + s_FileName;
 
 		if (m_Serializer) m_Serializer.Close();
 
 		// Clear existing ids
 		m_IDs.Clear();
 
-		s_FileExist = FileExist(s_FilePath);
-		if (s_FileExist)
+		m_FileExist = FileExist(m_FilePath);
+		if (m_FileExist)
 		{
-			_Open(m_Serializer, s_FilePath, FileMode.READ);
+			_Open(m_Serializer, m_FilePath, FileMode.READ);
 			string id;
 			while (true)
 			{
@@ -121,11 +121,11 @@ class Expansion_ModStorageModule : CF_ModuleWorld
 			}
 			m_Serializer.Close();
 
-			_Open(m_Serializer, s_FilePath, FileMode.APPEND);
+			_Open(m_Serializer, m_FilePath, FileMode.APPEND);
 		}
 		else
 		{
-			_Open(m_Serializer, s_FilePath, FileMode.WRITE);
+			_Open(m_Serializer, m_FilePath, FileMode.WRITE);
 		}
 	}
 
