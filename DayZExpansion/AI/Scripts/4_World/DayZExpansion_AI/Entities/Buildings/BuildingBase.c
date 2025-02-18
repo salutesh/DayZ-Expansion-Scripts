@@ -90,6 +90,8 @@ modded class BuildingBase
 				"land_city_stand",
 				"land_dieselpowerplant_tank_big",
 				"land_garage",
+				"land_geoplant_coolingstack",  //! Sakhal
+				"land_geoplant_mainhall_right",  //! Sakhal
 				"land_guardhouse",
 				"land_house",
 				"land_lighthouse",

@@ -72,24 +72,12 @@ static void DestroyNotificationSystem()
 		g_exNotificationBase = null;
 }
 
-class ExpansionNotificationTemplate<Class T>
+class ExpansionNotificationTemplateBase
 {
-	protected T m_Title;
-	protected T m_Text;
 	protected string m_Icon;
 	protected int m_Color;
 	protected float m_Time;
 	protected ExpansionNotificationType m_Type;
-	
-	void ExpansionNotificationTemplate( T title, T text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST)
-	{
-		m_Title = title;
-		m_Text = text;
-		m_Icon = icon;
-		m_Color = color;
-		m_Time = time;
-		m_Type = type;
-	}
 
 	void Create( PlayerIdentity identity = NULL )
 	{
@@ -98,10 +86,6 @@ class ExpansionNotificationTemplate<Class T>
 
 	void Create( string icon, int color, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 	{
-		if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().EnableNotification )
-		{
-			NotificationSystem.Create_Expansion( m_Title, m_Text, icon, color, m_Time, identity, type );
-		}
 	}
 
 	void Error( PlayerIdentity identity = NULL )
@@ -129,22 +113,74 @@ class ExpansionNotificationTemplate<Class T>
 	}
 }
 
-static ExpansionNotificationTemplate<CF_Localiser> ExpansionNotification( CF_Localiser title, CF_Localiser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
+class ExpansionNotificationTemplate<Class T>: ExpansionNotificationTemplateBase
 {
-	return new ExpansionNotificationTemplate<CF_Localiser>( title, text, icon, color, time, type );
+	protected T m_Title;
+	protected T m_Text;
+	
+	void ExpansionNotificationTemplate( T title, T text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST)
+	{
+		m_Title = title;
+		m_Text = text;
+		m_Icon = icon;
+		m_Color = color;
+		m_Time = time;
+		m_Type = type;
+	}
+
+	override void Create( string icon, int color, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
+	{
+		if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().EnableNotification )
+		{
+			NotificationSystem.Create_Expansion( m_Title, m_Text, icon, color, m_Time, identity, type );
+		}
+	}
 }
 
-static ExpansionNotificationTemplate<string> ExpansionNotification( string title, string text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
+class ExpansionNotificationLocaliser: ExpansionNotificationTemplateBase
 {
-	return new ExpansionNotificationTemplate<string>( title, text, icon, color, time, type );
+	protected ref CF_Localiser m_Title;
+	protected ref CF_Localiser m_Text;
+	
+	void ExpansionNotificationLocaliser( CF_Localiser title, CF_Localiser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST)
+	{
+		m_Title = title;
+		m_Text = text;
+		m_Icon = icon;
+		m_Color = color;
+		m_Time = time;
+		m_Type = type;
+	}
+
+	override void Create( string icon, int color, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
+	{
+		if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().EnableNotification )
+		{
+			NotificationSystem.Create_Expansion( m_Title, m_Text, icon, color, m_Time, identity, type );
+		}
+	}
 }
 
-static ExpansionNotificationTemplate<CF_Localiser> ExpansionNotification( string title, CF_Localiser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
+static ExpansionNotificationTemplateBase ExpansionNotification( CF_Localiser title, CF_Localiser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 {
-	return ExpansionNotification( new CF_Localiser( title ), text, icon, color, time, type );
+	return new ExpansionNotificationLocaliser( title, text, icon, color, time, type );
 }
 
-static ExpansionNotificationTemplate<CF_Localiser> ExpansionNotification( CF_Localiser title, string text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
+static ExpansionNotificationTemplateBase ExpansionNotification( string title, string text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 {
-	return ExpansionNotification( title, new CF_Localiser( text ), icon, color, time, type );
+	CF_Localiser titleLocaliser = new CF_Localiser( title );
+	CF_Localiser textLocaliser = new CF_Localiser( text );
+	return new ExpansionNotificationLocaliser( titleLocaliser, textLocaliser, icon, color, time, type );
+}
+
+static ExpansionNotificationTemplateBase ExpansionNotification( string title, CF_Localiser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
+{
+	CF_Localiser titleLocaliser = new CF_Localiser( title );
+	return ExpansionNotification( titleLocaliser, text, icon, color, time, type );
+}
+
+static ExpansionNotificationTemplateBase ExpansionNotification( CF_Localiser title, string text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
+{
+	CF_Localiser textLocaliser = new CF_Localiser( text );
+	return ExpansionNotification( title, textLocaliser, icon, color, time, type );
 }

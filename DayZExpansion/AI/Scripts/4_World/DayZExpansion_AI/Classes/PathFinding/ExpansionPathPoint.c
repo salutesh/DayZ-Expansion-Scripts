@@ -190,7 +190,7 @@ class ExpansionPathPoint
 
 			//! Deal with the case where AI is on top of an object and needs to take a leap of faith
 			//! because there is no navmesh connection to ground
-			if ((!found || (path.Count() == 2 && !Math.IsPointInCircle(Position, 1.0, path[1]) && Math.IsPointInCircle(pathFinding.m_Unit.GetPosition(), 0.55, path[1]))) && !pathFinding.m_Unit.m_eAI_BuildingWithLadder)
+			if ((!found || (path.Count() == 2 && !Math.IsPointInCircle(Position, 1.0, path[1]) && Math.IsPointInCircle(pathFinding.m_Unit.GetPosition(), 0.55, path[1]))) && !pathFinding.m_Unit.m_eAI_Ladder)
 			{
 				//pathGlueIdx = path.Count();
 
@@ -211,7 +211,8 @@ class ExpansionPathPoint
 			*/
 					endPos = startPos;
 
-				array<vector> tempPath = {};
+				array<vector> tempPath = pathFinding.m_TempPoints;
+				tempPath.Clear();
 
 				vector dir = vector.Direction(endPos, Position);
 				vector targetPos;
@@ -233,6 +234,9 @@ class ExpansionPathPoint
 						tempPath = OptimizePathForSwimming(tempPath, pathFinding);
 
 					int count = tempPath.Count();
+
+					pathFinding.m_TempCount = count;
+
 					vector tempEnd = tempPath[count - 1];
 					if (count > 2 || vector.DistanceSq(tempEnd, endPos) > 0.0001)
 					{
@@ -250,12 +254,23 @@ class ExpansionPathPoint
 						vector checkPos = tempEnd;
 						checkPos[1] = Math.Max(Math.Max(endPos[1], checkPos[1]), pathFinding.m_Unit.GetPosition()[1]) + 0.5;
 
+						vector surfaceEndPosition = ExpansionStatic.GetSurfaceRoadPosition(endPos);
+						vector surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(checkPos);
+					#ifdef DIAG_DEVELOPER
+						Object dbgObj = pathFinding.m_Unit.Expansion_DebugObject(88889, surfaceEndPosition, "ExpansionDebugConeSmall_Cyan");
+						if (dbgObj)
+							dbgObj.SetOrientation("0 180 0");
+						dbgObj = pathFinding.m_Unit.Expansion_DebugObject(88888, surfacePosition, "ExpansionDebugConeSmall_Yellow");
+						if (dbgObj)
+							dbgObj.SetOrientation("0 180 0");
+					#endif
+
 						//! Always test these objects/locations when making changes:
 						//! stockyard_oremound1.p3d (on the highest spot), e.g. on Sakhal at <13432.2, 10.5049, 11843.2>
 						//! Land_Shed_W2 (inside) on Chernarus at <3144, 7932>
-						if (Math.IsPointInCircle(tempEnd, 10.0, endPos) && tempEnd[1] - endPos[1] < 2.5 && !pathFinding.IsBlockedPhysically(endPos + "0 0.5 0", checkPos))
+						//! Small ice lake on Sakhal, e.g. at <11014.1, 42.3505, 7414.21>
+						if (Math.IsPointInCircle(tempEnd, 10.0, endPos) && surfacePosition[1] - surfaceEndPosition[1] < 2.5 && !pathFinding.IsBlockedPhysically(endPos + "0 0.5 0", checkPos))
 						{
-							vector surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(checkPos);
 							if (isSwimming || !pathFinding.IsBlockedPhysically(checkPos, surfacePosition + "0 0.5 0"))
 							{
 								//! Swim start water level = 1.5 m, see DayZPlayerUtils::CheckWaterLevel
@@ -273,6 +288,8 @@ class ExpansionPathPoint
 
 									//if (i < 0)
 										//pathFinding.m_IsUnreachable =  false;
+
+									pathFinding.m_TempCount = 0;
 
 									found = true;
 									pathFinding.m_Time = -15.0;  //! Longer delay until next path recalculation

@@ -16,7 +16,6 @@
 
 enum ExpansionPlayerStanceStatus
 {
-	UNKNOWN,
 	STAND,
 	CROUCH,
 	PRONE,
@@ -33,12 +32,12 @@ class ExpansionSyncedPlayerStates
 	string m_PlainID;
 	
 	int m_Bones;
-	int m_Sick;
-	int m_Cholera;
-	int m_Influenza;
-	int m_Salmonella;
-	int m_Poison;
-	int m_Infection;
+	bool m_Sick;
+	bool m_Cholera;
+	bool m_Influenza;
+	bool m_Salmonella;
+	bool m_Poison;
+	bool m_Infection;
 	int m_Cuts;
 	ExpansionPlayerStanceStatus m_Stance;
 

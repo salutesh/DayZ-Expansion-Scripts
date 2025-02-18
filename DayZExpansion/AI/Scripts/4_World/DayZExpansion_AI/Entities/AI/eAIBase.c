@@ -82,19 +82,19 @@ class eAIBase: PlayerBase
 	float m_eAI_CurrentThreatToSelfActive;
 	float m_eAI_PreviousThreatToSelfActive;
 
-	[eAIAttribute<float>.Register("m_eAI_AccuracyMin")]
+	//[eAIAttribute<float>.Register("m_eAI_AccuracyMin")]
 	float m_eAI_AccuracyMin;
 
-	[eAIAttribute<float>.Register("m_eAI_AccuracyMax")]
+	//[eAIAttribute<float>.Register("m_eAI_AccuracyMax")]
 	float m_eAI_AccuracyMax;
 
-	[eAIAttribute<float>.Register("m_eAI_ThreatDistanceLimit")]
+	//[eAIAttribute<float>.Register("m_eAI_ThreatDistanceLimit")]
 	float m_eAI_ThreatDistanceLimit;
 
-	[eAIAttribute<float>.Register("m_eAI_NoiseInvestigationDistanceLimit")]
+	//[eAIAttribute<float>.Register("m_eAI_NoiseInvestigationDistanceLimit")]
 	float m_eAI_NoiseInvestigationDistanceLimit;
 
-	[eAIAttribute<float>.Register("m_eAI_DamageMultiplier")]
+	//[eAIAttribute<float>.Register("m_eAI_DamageMultiplier")]
 	float m_eAI_DamageMultiplier;
 
 	bool m_eAI_SyncCurrentTarget;
@@ -123,19 +123,19 @@ class eAIBase: PlayerBase
 	vector m_eAI_LadderEntryPoint;
 	vector m_eAI_LadderDirPoint;
 
-	[eAIAttribute<BuildingBase>.Register("m_eAI_BuildingWithLadder")]
+	//[eAIAttribute<BuildingBase>.Register("m_eAI_BuildingWithLadder")]
 	BuildingBase m_eAI_BuildingWithLadder;
 	
-	[eAIAttribute<eAILadders>.Register("m_eAI_Ladders")]
+	//[eAIAttribute<eAILadders>.Register("m_eAI_Ladders")]
 	ref eAILadders m_eAI_Ladders = new eAILadders;
 
-	[eAIAttribute<int>.Register("m_eAI_LadderLoops")]
+	//[eAIAttribute<int>.Register("m_eAI_LadderLoops")]
 	int m_eAI_LadderLoops;
 
-	[eAIAttribute<BuildingBase>.Register("m_eAI_LastClimbedBuildingWithLadder")]
+	//[eAIAttribute<BuildingBase>.Register("m_eAI_LastClimbedBuildingWithLadder")]
 	BuildingBase m_eAI_LastClimbedBuildingWithLadder;
 
-	[eAIAttribute<ExpansionLadder>.Register("m_eAI_LastClimbedLadder")]
+	//[eAIAttribute<ExpansionLadder>.Register("m_eAI_LastClimbedLadder")]
 	ref ExpansionLadder m_eAI_LastClimbedLadder;
 
 	bool m_eAI_PreferLadder;
@@ -180,16 +180,16 @@ class eAIBase: PlayerBase
 	private bool m_MovementSpeedActive;
 	private int m_MovementSpeed;
 
-	[eAIAttribute<int>.Register("m_MovementSpeedLimit")]
+	//[eAIAttribute<int>.Register("m_MovementSpeedLimit")]
 	private int m_MovementSpeedLimit = 3;
 
-	[eAIAttribute<int>.Register("m_MovementSpeedLimitUnderThreat")]
+	//[eAIAttribute<int>.Register("m_MovementSpeedLimitUnderThreat")]
 	private int m_MovementSpeedLimitUnderThreat = 3;
 
-	[eAIAttribute<int>.Register("m_eAI_RoamingMovementSpeedLimit")]
+	//[eAIAttribute<int>.Register("m_eAI_RoamingMovementSpeedLimit")]
 	int m_eAI_RoamingMovementSpeedLimit;
 
-	[eAIAttribute<int>.Register("m_eAI_SpeedLimitPreference")]
+	//[eAIAttribute<int>.Register("m_eAI_SpeedLimitPreference")]
 	int m_eAI_SpeedLimitPreference = 3;
 
 	private bool m_MovementDirectionActive;
@@ -233,15 +233,15 @@ class eAIBase: PlayerBase
 	private bool m_eAI_SideStepCancelOnLOS;
 	private float m_eAI_PositionOverrideTimeout;
 
-	[eAIAttribute<int>.Register("m_eAI_UnlimitedReload")]
+	//[eAIAttribute<int>.Register("m_eAI_UnlimitedReload")]
 	private int m_eAI_UnlimitedReload;
 
 	bool m_eAI_IsUnlimitedReloadAll;
 
-	[eAIAttribute<float>.Register("m_eAI_SniperProneDistanceThreshold")]
+	//[eAIAttribute<float>.Register("m_eAI_SniperProneDistanceThreshold")]
 	private float m_eAI_SniperProneDistanceThreshold;
 
-	[eAIAttribute<int>.Register("m_eAI_LootingBehavior")]
+	//[eAIAttribute<int>.Register("m_eAI_LootingBehavior")]
 	int m_eAI_LootingBehavior = eAILootingBehavior.DEFAULT;
 
 	// Path Finding
@@ -299,17 +299,17 @@ class eAIBase: PlayerBase
 
 	ref set<Man> m_eAI_InteractingPlayers = new set<Man>;
 
-	[eAIAttribute<bool>.Register("m_eAI_DespawnOnLoosingAggro")]
+	//[eAIAttribute<bool>.Register("m_eAI_DespawnOnLoosingAggro")]
 	bool m_eAI_DespawnOnLoosingAggro;
 
 	//ref IsObjectObstructedCache m_eAI_IsItemObstructedCache = new IsObjectObstructedCache(vector.Zero, 1);
-	[eAIAttribute<eAIThreatOverride>.Register("m_eAI_ThreatOverride")]
+	//[eAIAttribute<eAIThreatOverride>.Register("m_eAI_ThreatOverride")]
 	ref eAIThreatOverride m_eAI_ThreatOverride = new eAIThreatOverride;
 
-	[eAIAttribute<ItemBase>.Register("m_eAI_LastDroppedItem")]
+	//[eAIAttribute<ItemBase>.Register("m_eAI_LastDroppedItem")]
 	ItemBase m_eAI_LastDroppedItem;
 
-	[eAIAttribute<eAIRecentlyDroppedItems>.Register("m_eAI_RecentlyDroppedItems")]
+	//[eAIAttribute<eAIRecentlyDroppedItems>.Register("m_eAI_RecentlyDroppedItems")]
 	ref eAIRecentlyDroppedItems m_eAI_RecentlyDroppedItems = new eAIRecentlyDroppedItems;
 
 	ref Timer m_eAI_ClientUpdateTimer;
@@ -319,7 +319,7 @@ class eAIBase: PlayerBase
 
 	int m_eAI_Meme;
 
-	[eAIAttribute<int>.Register("m_eAI_MemeLevel")]
+	//[eAIAttribute<int>.Register("m_eAI_MemeLevel")]
 	int m_eAI_MemeLevel;
 
 	float m_eAI_Lean;
@@ -3639,7 +3639,6 @@ class eAIBase: PlayerBase
 		else
 		{
 			m_eAI_Ladder = null;
-			m_eAI_LadderLoops = 0;
 
 		#ifdef DIAG_DEVELOPER
 			Expansion_DebugObject(740038, vector.Zero, "ExpansionDebugBox_Yellow");
@@ -3768,6 +3767,7 @@ class eAIBase: PlayerBase
 		#endif
 
 			m_eAI_BuildingWithLadder = building;
+			m_eAI_LadderLoops = 0;
 		}
 		else if (!m_eAI_BuildingWithLadder)
 		{
@@ -3843,15 +3843,15 @@ class eAIBase: PlayerBase
 		float radius = ExpansionStatic.GetBoundingRadius(m_eAI_BuildingWithLadder);
 		vector position = m_ExTransformPlayer[3];
 
+	#ifdef DIAG_DEVELOPER
+		string msg;
+	#endif
+
 		//! If neither target position nor player position is in radius of building, ignore building and ladders
-		if (((!Math.IsPointInCircle(center, radius, targetPos) || m_eAI_DangerousAreaAvoidancePosition != vector.Zero) && !Math.IsPointInCircle(center, radius, position)) || m_eAI_LadderLoops == 3)
+		if (((!Math.IsPointInCircle(center, radius, targetPos) || m_eAI_DangerousAreaAvoidancePosition != vector.Zero) && !Math.IsPointInCircle(center, radius, position)))
 		{
 		#ifdef DIAG_DEVELOPER
-			string msg;
-			if (m_eAI_LadderLoops == 3)
-				msg = "Exceeded maximum ladder loops";
-			else
-				msg = "Target position or AI no longer in radius of " + m_eAI_BuildingWithLadder.GetType();
+			msg = "Target position or AI no longer in radius of " + m_eAI_BuildingWithLadder.GetType();
 			EXTrace.Print(EXTrace.AI, this, msg);
 			ExpansionStatic.MessageNearPlayers(position, 100, ToString() + " " + msg);
 		#endif
@@ -3860,6 +3860,23 @@ class eAIBase: PlayerBase
 			m_eAI_Ladder = null;
 			m_eAI_PreferLadder = false;
 			m_eAI_LadderLoops = 0;
+			return false;
+		}
+
+		if (m_eAI_LadderLoops == 3)
+		{
+		#ifdef DIAG_DEVELOPER
+			if (m_eAI_Ladder)
+			{
+				msg = "Exceeded maximum ladder loops";
+				EXTrace.Print(EXTrace.AI, this, msg);
+				ExpansionStatic.MessageNearPlayers(position, 100, ToString() + " " + msg);
+			}
+		#endif
+
+			m_eAI_Ladder = null;
+			m_eAI_PreferLadder = false;
+
 			return false;
 		}
 
@@ -5606,8 +5623,8 @@ class eAIBase: PlayerBase
 				m_eAI_IsOnLadder = false;
 				m_eAI_Ladder = null;
 				m_eAI_PreferLadder = false;
-				if (m_eAI_LadderClimbDirection < 0)
-					m_eAI_Recreate = true;  //! Hack fix for vanilla bug with spinning while falling (each time) after climbing ladder
+				//if (m_eAI_LadderClimbDirection < 0)
+					//m_eAI_Recreate = true;  //! Hack fix for vanilla bug with spinning while falling (each time) after climbing ladder
 				m_eAI_LadderLoops = 0;
 			}
 
@@ -5664,7 +5681,7 @@ class eAIBase: PlayerBase
 			if (m_eAI_IsOnLadder)
 			{
 				m_eAI_IsOnLadder = false;
-				m_eAI_Recreate = true;  //! Hack fix for vanilla bug with spinning while falling (each time) after climbing ladder
+				//m_eAI_Recreate = true;  //! Hack fix for vanilla bug with spinning while falling (each time) after climbing ladder
 			}
 
 			return;
@@ -5701,7 +5718,7 @@ class eAIBase: PlayerBase
 		}
 		else if (m_eAI_Ladder && m_eAI_BuildingWithLadder && m_eAI_CommandTime > 1.0)
 		{
-			if (eAI_IsInLadderRadius(m_eAI_LadderEntryPoint))
+			if (eAI_IsInLadderRadius(m_eAI_LadderEntryPoint) && Math.IsPointInCircle(m_PathFinding.GetEnd(), 0.55, playerPosition))
 			{
 				bool ladderUnreachable;
 
@@ -7558,6 +7575,8 @@ class eAIBase: PlayerBase
 		}
 		
 		GetMovementState(m_MovementState);
+
+		float angle;
 		
 		switch (m_MovementState.m_CommandTypeId)
 		{
@@ -7590,13 +7609,14 @@ class eAIBase: PlayerBase
 
 				break;
 
-			case DayZPlayerConstants.COMMANDID_ACTION:
+			//case DayZPlayerConstants.COMMANDID_ACTION:
+			//! Vanilla
 			case DayZPlayerConstants.COMMANDID_CLIMB:
 			case DayZPlayerConstants.COMMANDID_LADDER:
-			case DayZPlayerConstants.COMMANDID_MELEE:
-			case DayZPlayerConstants.COMMANDID_MELEE2:
+				m_fLastHeadingDiff = 0;
+				return false;
+
 			case DayZPlayerConstants.COMMANDID_MOVE:
-			/*
 				//! Vanilla
 				HumanCommandMove hcm = GetCommand_Move();
 				if (hcm.IsStandingFromBack())
@@ -7604,26 +7624,45 @@ class eAIBase: PlayerBase
 					m_fLastHeadingDiff = 0;
 					return false;
 				}
-			*/
-			//case DayZPlayerConstants.COMMANDID_SWIM:
+
 				//! Needed to place AI in correct orientation while moving
-				if (!PhysicsIsFalling(false))
+				//if (!PhysicsIsFalling(false))
+				//{
+					angle = GetOrientation()[0] * Math.DEG2RAD;
+					pModel.m_fHeadingAngle = angle;
+					pModel.m_fOrientationAngle = angle;
+					m_fLastHeadingDiff = 0;
+					return true;
+				//}
+			//#ifdef DIAG_DEVELOPER
+				//else
+				//{
+					//EXTrace.Print(EXTrace.AI, this, "HeadingModel PhysicsIsFalling " + Expansion_CommandIDToString(m_MovementState.m_CommandTypeId) + " headingAngle=" + pModel.m_fHeadingAngle + " orientationAngle=" + pModel.m_fOrientationAngle);
+				//}
+			//#endif
+
+				//break;
+
+			case DayZPlayerConstants.COMMANDID_SWIM:
+				//! Needed to place AI in correct orientation while moving
+				if (m_MovementState.m_iMovement > 0)
 				{
-					float angle = GetOrientation()[0] * Math.DEG2RAD;
+					angle = GetOrientation()[0] * Math.DEG2RAD;
 					pModel.m_fHeadingAngle = angle;
 					pModel.m_fOrientationAngle = angle;
 					m_fLastHeadingDiff = 0;
 					return true;
 				}
-			#ifdef DIAG_DEVELOPER
-				else
-				{
-					EXTrace.Print(EXTrace.AI, this, "HeadingModel PhysicsIsFalling " + Expansion_CommandIDToString(m_MovementState.m_CommandTypeId) + " headingAngle=" + pModel.m_fHeadingAngle + " orientationAngle=" + pModel.m_fOrientationAngle);
-				}
-			#endif
-				break;
+
+				//! Needed to prevent AI from spinning in place after going down ladder
+				pModel.m_fOrientationAngle = pModel.m_fHeadingAngle;
+				SetOrientation(Vector(pModel.m_fHeadingAngle * Math.RAD2DEG, 0, 0));
+				m_fLastHeadingDiff = 0;
+				return true;
 
 			//! Needed to prevent AI from spinning in place after going down ladder
+			case DayZPlayerConstants.COMMANDID_MELEE:
+			case DayZPlayerConstants.COMMANDID_MELEE2:
 			case DayZPlayerConstants.COMMANDID_FALL:
 				pModel.m_fOrientationAngle = pModel.m_fHeadingAngle;
 				SetOrientation(Vector(pModel.m_fHeadingAngle * Math.RAD2DEG, 0, 0));
@@ -8399,7 +8438,7 @@ class eAIBase: PlayerBase
 		else
 			hcls.m_fFwMaxDistance = 1.2;
 
-		//SetOrientation(GetOrientation());
+		SetOrientation(GetOrientation());
 		HumanCommandClimb.DoClimbTest(this, m_ExClimbResult, 0);
 
 		if (m_ExClimbResult.m_bIsClimb || m_ExClimbResult.m_bIsClimbOver)

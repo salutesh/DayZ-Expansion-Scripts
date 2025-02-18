@@ -15,11 +15,8 @@ class ExpansionPartyHudMemberController: ExpansionViewController
 {
 	Object PlayerObject;
 	int PlayerHealth;
-	string PlayerHealthVal;
 	int PlayerBlood;
-	string PlayerBloodVal;
 	string PlayerName;
-	string PlayerRangIcon;
 	string PlayerDistance;
 }
 #endif

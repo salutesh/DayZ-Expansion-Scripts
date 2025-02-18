@@ -317,14 +317,14 @@ class ExpansionMonitorModule: CF_ModuleWorld
 
 	private void UpdateStates(ExpansionSyncedPlayerStates states, PlayerBase player, bool send = false)
 	{
-		states.m_Bones = BonesState(player);
+		states.m_Bones = player.GetBrokenLegs();
 		states.m_Sick = IsBrainSick(player);
 		states.m_Cholera = HasCholera(player);
 		states.m_Influenza = HasInfluenza(player);
 		states.m_Salmonella = HasSalmonella(player);
 		states.m_Poison = HasFoodPoison(player);
 		states.m_Infection= HasWoundInfection(player);
-		states.m_Cuts = HasCuts(player);
+		states.m_Cuts = GetCuts(player);
 		states.m_Stance = GetPlayerStance(player);
 		
 		if (!send)
@@ -516,22 +516,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	static int BonesState(PlayerBase player)
 	{
-		int bonesState;
-		eBrokenLegs state = player.GetBrokenLegs();
-		if (state == eBrokenLegs.NO_BROKEN_LEGS)
-		{
-			bonesState = 0;
-		}
-		else if (state == eBrokenLegs.BROKEN_LEGS)
-		{
-			bonesState = 1;
-		}
-		else if (state == eBrokenLegs.BROKEN_LEGS_SPLINT)
-		{
-			bonesState = 2;
-		}
+		EXError.Warn(null, "DEPRECATED, use player.GetBrokenLegs()");
 		
-		return bonesState;
+		return player.GetBrokenLegs();
 	}
 	
 	// ------------------------------------------------------------
@@ -614,6 +601,13 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	static int HasCuts(PlayerBase player)
 	{
+		EXError.Warn(null, "DEPRECATED, use GetCuts");
+
+		return GetCuts(player);
+	}
+
+	static int GetCuts(PlayerBase player)
+	{
 		int cuts;
 		cuts = player.GetBleedingSourceCount();
 		if (player.IsBleeding() && cuts > 0)
@@ -628,7 +622,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	static ExpansionPlayerStanceStatus GetPlayerStance(PlayerBase player)
 	{
-		ExpansionPlayerStanceStatus stance = ExpansionPlayerStanceStatus.UNKNOWN;
+		ExpansionPlayerStanceStatus stance = ExpansionPlayerStanceStatus.STAND;
 		ExpansionVehicle vehicle;
 		
 		if (!ExpansionVehicle.Get(vehicle, player))

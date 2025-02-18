@@ -30,6 +30,8 @@ class ExpansionPathHandler
 
 	int m_Count;
 	int m_PrevCount;
+	int m_TempCount;
+	int m_PrevTempCount;
 	int m_PointIdx;
 	int m_PathGlueIdx;
 	vector m_PrevPoint;
@@ -41,6 +43,7 @@ class ExpansionPathHandler
 
 	ref array<ref ExpansionPathPoint> m_Path = new array<ref ExpansionPathPoint>();
 	ref array<vector> m_Points = new array<vector>();
+	ref array<vector> m_TempPoints = new array<vector>();
 	int m_DrawDebug_PointIdx;
 
 	bool m_Recalculate;
@@ -318,6 +321,8 @@ class ExpansionPathHandler
 #endif
 
 #ifdef EAI_DEBUG_PATH
+		int i;
+
 #ifndef SERVER
 		//m_Unit.AddShape(Shape.CreateSphere(0xFFFF0000, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Current.GetPosition(), 0.3));
 		//m_Unit.AddShape(Shape.CreateSphere(0xFF00FF00, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Target.GetPosition(), 0.3));
@@ -327,7 +332,6 @@ class ExpansionPathHandler
 		//m_Unit.AddShape(Shape.CreateSphere(0xFFFF00AA, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Next0.GetPosition(), 0.3));
 		//m_Unit.AddShape(Shape.CreateSphere(0xFFAA00FF, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Next1.GetPosition(), 0.3));
 
-		int i;
 		vector points[2];
 
 		vector offset = vector.Zero;
@@ -444,7 +448,7 @@ class ExpansionPathHandler
 			m_Unit.Expansion_DebugObject(11111 + m_DrawDebug_PointIdx, m_Points[m_DrawDebug_PointIdx++], debugObj, vector.Zero, origin, 3, ShapeFlags.NOZBUFFER);
 		}
 
-		for (int i = m_PrevCount - 1; i > m_Count - 1; i--)
+		for (i = m_PrevCount - 1; i > m_Count - 1; i--)
 		{
 			m_Unit.Expansion_DeleteDebugObject(11111 + i);
 		}
@@ -749,6 +753,34 @@ class ExpansionPathHandler
 				dbgMsg += " (" + vector.Distance(m_Current.Position, m_TargetPosition) + " m)";
 
 				ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, m_Unit.ToString() + " " + dbgMsg);
+			}
+		#endif
+
+		#ifdef EAI_DEBUG_PATH
+			//! UNUSED temp points
+			if (m_TempCount > 0)
+			{
+				vector origin;
+				for (i = 0; i < m_TempCount; i++)
+				{
+					if (i > 0)
+						origin = m_TempPoints[i - 1];
+					else
+						origin = vector.Zero;
+
+					Object dbgObj = m_Unit.Expansion_DebugObject(77777 + i, m_TempPoints[i], "ExpansionDebugConeSmall_Orange", vector.Zero, origin, 3, ShapeFlags.NOZBUFFER);
+					if (dbgObj)
+						dbgObj.SetOrientation("0 180 0");
+				}
+
+				for (i = m_PrevTempCount - 1; i > m_TempCount - 1; i--)
+				{
+					m_Unit.Expansion_DeleteDebugObject(77777 + i);
+				}
+
+				m_PrevTempCount = m_TempCount;
+
+				m_TempCount = 0;
 			}
 		#endif
 		}

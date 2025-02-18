@@ -38,9 +38,6 @@ class ExpansionPartyHud: ExpansionScriptViewBase
 	
 	void UpdateMembers(map<string, string> members)
 	{
-		if (!GetExpansionSettings().IsLoaded(ExpansionPartySettings))
-			return;
-		
 		array<string> currentMembers = new array<string>;
 		for (int i = m_PartyHUDController.PartyHUDMemberElements.Count() - 1; i >= 0; i--)
 		{

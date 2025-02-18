@@ -23,5 +23,18 @@ modded class IngameHud
 
 		super.Init(hud_panel_widget);
 	}
+
+#ifdef DAYZ_1_26
+	override void HideVehicleInfo()
+	{
+		if (m_ActiveVehicleHUD)
+		{
+			m_CurrentVehicle	= null;
+			m_VehicleGearCount	= -1;
+		}
+
+		super.HideVehicleInfo();
+	}
+#endif
 };
 #endif
