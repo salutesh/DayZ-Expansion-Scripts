@@ -47,10 +47,10 @@ class ExpansionMissionEventBase
 	static ref map < typename, int > s_LocationsCount = new map < typename, int >;
 
 	[NonSerialized()]
-	static ref map < typename, ref array < ref ExpansionLocatorArray > > s_AvailableLocations = new map < typename, ref array < ref ExpansionLocatorArray > >;
+	static ref map < typename, ref array < ref ExpansionLocation > > s_AvailableLocations = new map < typename, ref array < ref ExpansionLocation > >;
 
 	[NonSerialized()]
-	static ref map < typename, ref array < ref ExpansionLocatorArray > > s_SelectedLocations = new map < typename, ref array < ref ExpansionLocatorArray > >;
+	static ref map < typename, ref array < ref ExpansionLocation > > s_SelectedLocations = new map < typename, ref array < ref ExpansionLocation > >;
 	
 	// ------------------------------------------------------------
 	// ExpansionMissionEventBase Constructor
@@ -119,7 +119,7 @@ class ExpansionMissionEventBase
 	{
 	}
 
-	protected string RandomMission(int idx, out ExpansionLocatorArray loc)
+	protected string RandomMission(int idx, out ExpansionLocation loc)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
@@ -127,7 +127,7 @@ class ExpansionMissionEventBase
 
 		typename type = Type();
 
-		array<ref ExpansionLocatorArray> availableLocs = s_AvailableLocations[type];
+		array<ref ExpansionLocation> availableLocs = s_AvailableLocations[type];
 
 		if ( availableLocs.Count() == 0 )
 		{
@@ -139,7 +139,7 @@ class ExpansionMissionEventBase
 
 		int locIdx;
 
-		array<ref ExpansionLocatorArray> selectedLocs = s_SelectedLocations[type];
+		array<ref ExpansionLocation> selectedLocs = s_SelectedLocations[type];
 
 		if ( selectedLocs.Count() == 0 )
 		{
@@ -158,7 +158,7 @@ class ExpansionMissionEventBase
 				{
 					foreach ( int j, auto selectedLoc: selectedLocs )
 					{
-						float distance = vector.Distance( availableLoc.position, selectedLoc.position );
+						float distance = vector.Distance( availableLoc.Position, selectedLoc.Position );
 
 						if ( distance > minDistance )
 						{
@@ -180,7 +180,7 @@ class ExpansionMissionEventBase
 		loc = availableLocs[locIdx];
 
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXPrint(this, "OnDefaultMission - " + loc.name);
+		EXPrint(this, "OnDefaultMission - " + loc.Name);
 		#endif
 
 		selectedLocs.Insert( loc );
@@ -188,9 +188,9 @@ class ExpansionMissionEventBase
 		availableLocs.Remove( locIdx );
 
 		if (MissionName)
-			MissionName += "_" + loc.classname;
+			MissionName += "_" + loc.m_ClassName;
 		else
-			MissionName = loc.classname;
+			MissionName = loc.m_ClassName;
 
 		return MissionName;
 	}
@@ -205,13 +205,13 @@ class ExpansionMissionEventBase
 		if ( !s_LocationsCount.Contains(type) )
 		{
 			//! Get possible locations from world config
-			array< ref ExpansionLocatorArray > locs = ExpansionLocatorStatic.GetWorldLocations();
+			array< ref ExpansionLocation > locs = ExpansionLocation.GetWorldLocations();
 
-			array< ref ExpansionLocatorArray > availableLocs = {};
+			array< ref ExpansionLocation > availableLocs = {};
 
 			foreach (auto loc: locs)
 			{
-				if ( loc.type.Contains( "Capital" ) || loc.type.Contains( "City" ) || loc.type.Contains( "Village" ) )
+				if ( loc.Type.Contains( "Capital" ) || loc.Type.Contains( "City" ) || loc.Type.Contains( "Village" ) )
 				{
 					availableLocs.Insert( loc );
 				}

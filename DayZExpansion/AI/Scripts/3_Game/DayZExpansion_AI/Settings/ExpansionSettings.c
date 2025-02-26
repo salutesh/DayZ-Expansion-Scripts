@@ -28,6 +28,7 @@ modded class ExpansionSettings
 	{
 		super.Init();
 
+		Init(ExpansionAILocationSettings);
 		Init(ExpansionAISettings, true);
 		Init(ExpansionAIPatrolSettings);
 	}
@@ -49,5 +50,10 @@ modded class ExpansionSettings
 	ExpansionAIPatrolSettings GetAIPatrol(bool checkLoaded = true)
 	{
 		return ExpansionAIPatrolSettings.Cast(Get(ExpansionAIPatrolSettings, checkLoaded));
+	}
+
+	ExpansionAILocationSettings GetAILocation(bool checkLoaded = true)
+	{
+		return ExpansionAILocationSettings.Cast(Get(ExpansionAILocationSettings, checkLoaded));
 	}
 };

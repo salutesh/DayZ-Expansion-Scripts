@@ -802,12 +802,12 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
-		ExpansionLocatorArray loc;
+		ExpansionLocation loc;
 		string fname = RandomMission(idx, loc);
 		if (!loc)
 			return fname;
 
-		int radius = ExpansionLocatorStatic.GetRadius( loc.type );
+		int radius = loc.Radius;
 
 		float offset_x = Math.RandomFloatInclusive( -radius, radius );
 		float offset_y = Math.RandomFloatInclusive( -radius, radius );
@@ -824,15 +824,15 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		if ( offset_y >= 0 && offset_y < 100 )
 			offset_y = 100;
 		
-		float x = loc.position[0] + offset_x;
-		float y = loc.position[2] + offset_y;
+		float x = loc.Position[0] + offset_x;
+		float y = loc.Position[2] + offset_y;
 
 		float size = GetDayZGame().GetWorldSize();
 
 		x = Math.Min( Math.Max( x, 500 ), size - 500 );
 		y = Math.Min( Math.Max( y, 500 ), size - 500 );
 
-		DropLocation = new ExpansionAirdropLocation( x, y, 100, loc.name );
+		DropLocation = new ExpansionAirdropLocation( x, y, 100, loc.Name );
 
 		return fname;
 	}

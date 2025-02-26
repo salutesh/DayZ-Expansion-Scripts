@@ -19,6 +19,7 @@ class ExpansionPathHandler
 	ref ExpansionPathPoint m_Target;
 	ref ExpansionPathPoint m_TargetReference;
 	vector m_TargetPosition;
+	vector m_CurrentTargetPosition;
 	bool m_IsTargetUnreachable;
 	bool m_IsSwimmingEnabled;
 #ifdef DIAG_DEVELOPER
@@ -517,6 +518,8 @@ class ExpansionPathHandler
 		if (recalculate)
 		{
 			UpdatePoint(m_TargetReference, m_TargetPosition);
+
+			m_CurrentTargetPosition = m_TargetPosition;
 
 		#ifdef DIAG_DEVELOPER
 			string dbgMsg;
@@ -1145,8 +1148,10 @@ class ExpansionPathHandler
 		//auto trace = EXTrace.StartStack(EXTrace.AI, m_Unit, "forceUpdate " + forceUpdate);
 	//#endif
 
-		if (m_TargetPosition != vector.Zero)
-			m_Recalculate = true;
+		if (m_TargetPosition == vector.Zero)
+			return;
+
+		m_Recalculate = true;
 		m_SuppressRecalculate = false;
 		if (forceUpdate)
 			m_Time = PATH_RECALCULATE_THRESHOLD;

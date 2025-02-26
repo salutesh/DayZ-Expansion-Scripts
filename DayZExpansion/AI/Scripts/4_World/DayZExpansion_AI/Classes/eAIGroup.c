@@ -38,11 +38,11 @@ class eAIGroup
 	bool m_BackTracking;
 	vector m_CurrentWaypoint;
 
-	ref array<ref ExpansionLocatorArray> m_RoamingLocations = {};
+	ref array<ref ExpansionAIRoamingLocation> m_RoamingLocations = {};
 	//vector m_CurrentRoamingLocationPosition;
 	ref set<BuildingBase> m_VisitedBuildings = new set<BuildingBase>;
 	ref set<Object> m_VisitedCrashSites =  new set<Object>;
-	ref ExpansionLocatorArray m_RoamingLocation;
+	ref ExpansionAIRoamingLocation m_RoamingLocation;
 	float m_RoamingLocationReachedTimestamp;
 	int m_ClearVisitedBuildingsOnLocationReached;
 
@@ -287,31 +287,14 @@ class eAIGroup
 				//return m_CurrentRoamingLocationPosition;
 		//}
 
-		auto settings = GetExpansionSettings().GetAI();
+		auto settings = GetExpansionSettings().GetAILocation();
 
 		float distSq;
 		int distKey;
 		TIntArray distances = {};
 		map<int, BuildingBase> buildingsByDistance;
 
-		//! Excluded buildings are structures where the pathfinding won't generate a good path.
-		//! TODO: Possibly move excludes to cover obj discovery in eAIBase::UpdateTargets?
-		//!       Testing necessary. Is that even a problem for taking cover (since it's temporary) or just
-		//!       for roaming (target position won't change unless reached)?
-		//! @note classnames can be for groups of buildings (e.g. Land_House_1W09 has a yellow variant)
-		TStringArray excludedBuildings = {
-			"Land_CementWorks_Hall2_Grey",  //! Unsuitable path endpoint
-			"Land_Factory_Small",  //! Unsuitable path endpoint
-			"Land_House_1W09",  //! Path endpoint between opened door and wall leading to AI running in circles trying to reach point
-			"Land_House_2W03",  //! Unsuitable path endpoint
-			"Land_HouseBlock_1F4",  //! Path endpoint behind unopenable lattice door
-			"Land_Boathouse",  //! When AI falls into water it will likely get stuck under pier due to path always leading under it
-			"Land_Mine_Building",  //! Stairs
-			"Land_Shed_W2",  //! Pathfinding tends to find a way in, but not out.
-			"Land_Tenement_Big"  //! AI can get stuck on upper floors when climbing the broken stairs
-		};
-
-		excludedBuildings.InsertAll(settings.ExcludedRoamingBuildings);
+		TStringArray excludedBuildings = settings.ExcludedRoamingBuildings;
 
 		//! When looting buildings, stay at most 10 minutes (600 seconds) in the area before moving on to next map location
 		float locationTime;
@@ -367,7 +350,7 @@ class eAIGroup
 			if (ai && ai.GetMovementSpeedLimit() >= 2)
 				ai.SetMovementSpeedLimit(2, true);
 
-			m_RoamingLocation = new ExpansionLocatorArray(destinationPosition, destinationBuilding.GetType(), "", "Building", destinationBuilding);
+			m_RoamingLocation = new ExpansionAIRoamingLocation(destinationPosition, 30.0, "", "Building", destinationBuilding.GetType(), destinationBuilding);
 
 		#ifdef DIAG_DEVELOPER
 			destinationName = destinationBuilding.GetType();
@@ -377,19 +360,19 @@ class eAIGroup
 		{
 			//! Initial
 			if (m_RoamingLocations.Count() == 0)
-				ExpansionArray<ExpansionLocatorArray>.RefCopy(ExpansionWorld.Cast(GetDayZGame().GetExpansionGame()).GetAIRoamingLocations(), m_RoamingLocations);
+				ExpansionArray<ExpansionAIRoamingLocation>.RefCopy(settings.RoamingLocations, m_RoamingLocations);
 
-			map<int, ref ExpansionLocatorArray> locationsByDistance = new map<int, ref ExpansionLocatorArray>;
+			map<int, ref ExpansionAIRoamingLocation> locationsByDistance = new map<int, ref ExpansionAIRoamingLocation>;
 
-			foreach (ExpansionLocatorArray location: m_RoamingLocations)
+			foreach (ExpansionAIRoamingLocation location: m_RoamingLocations)
 			{
-				if (location.position == vector.Zero)
+				if (!location.Enabled)
 					continue;  //! excluded
 
 				//! @note we shave off a zero by taking the 10% value to make it less likely to run into 32-bit integer limits
-				distSq = vector.DistanceSq(position, location.position) * 0.1;
+				distSq = vector.DistanceSq(position, location.Position) * 0.1;
 
-				//if (location.type.Contains("ViewPoint") || location.type.Contains("Hill"))
+				//if (location.Type.Contains("ViewPoint") || location.Type.Contains("Hill"))
 					//distSq *= Math.RandomFloat(9.0, 10.0);  //! Make less likely to be picked by increasing distance by some large random factor
 				//else
 					distSq *= Math.RandomFloat(0.64, 1.44);  //! Bit of randomization (+/- 20%)
@@ -400,7 +383,7 @@ class eAIGroup
 			}
 
 			if (distances.Count() < 2)
-				ExpansionArray<ExpansionLocatorArray>.RefCopy(ExpansionWorld.Cast(GetDayZGame().GetExpansionGame()).GetAIRoamingLocations(), m_RoamingLocations);
+				ExpansionArray<ExpansionAIRoamingLocation>.RefCopy(settings.RoamingLocations, m_RoamingLocations);
 
 			for (int i = m_VisitedCrashSites.Count() - 1; i >= 0; i--)
 			{
@@ -409,7 +392,7 @@ class eAIGroup
 			}
 
 			//! If last visited roaming location wasn't a helicrash, consider helicrashes
-			if (!m_RoamingLocation || m_RoamingLocation.type != "StaticHeliCrash")
+			if (!m_RoamingLocation || m_RoamingLocation.Type != "StaticHeliCrash")
 			{
 				CF_DoublyLinkedNode_WeakRef<CrashBase> node = CrashBase.s_Expansion_HeliCrashes.m_Head;
 				while (node)
@@ -427,28 +410,26 @@ class eAIGroup
 
 					distKey = distSq;
 					distances.Insert(distKey);
-					locationsByDistance[distKey] = new ExpansionLocatorArray(crash.GetPosition(), crash.GetType(), "", "StaticHeliCrash", crash);
+					locationsByDistance[distKey] = new ExpansionAIRoamingLocation(crash.GetPosition(), 30.0, "", "StaticHeliCrash", crash.GetType(), crash);
 				}
 			}
 
 			if (distances.Count() == 0)
-				return GetFormationLeader().GetPosition();
+				return vector.Zero;
 
 			distances.Sort();
 
-			ExpansionLocatorArray destination = locationsByDistance[distances[0]];
+			ExpansionAIRoamingLocation destination = locationsByDistance[distances[0]];
 
 		#ifdef DIAG_DEVELOPER
-			destinationName = destination.classname;
-			if (destination.name)
-				destinationName += " (" + destination.name + ")";
+			destinationName = destination.Name;
 		#endif
 
-			if (destination.type != "StaticHeliCrash")
+			if (destination.Type != "StaticHeliCrash")
 			{
-				float radius = ExpansionLocatorStatic.GetRadius(destination.type);
+				float radius = destination.Radius;
 
-				vector center = ExpansionStatic.GetSurfacePosition(destination.position);
+				vector center = ExpansionStatic.GetSurfacePosition(destination.Position);
 				float extent = Math.Min(Math.Max(radius, 200), 400);
 				vector min = Vector(center[0] - extent, center[1] - extent, center[2] - extent);
 				vector max = Vector(center[0] + extent, center[1] + extent, center[2] + extent);
@@ -460,7 +441,6 @@ class eAIGroup
 				auto timeIt2 = new EXTimeIt();
 			#endif
 
-				array<EntityAI> entities = {};
 				array<EntityAI> candidates = {};
 				DayZPlayerUtils.SceneGetEntitiesInBox(min, max, candidates, QueryFlags.STATIC | QueryFlags.ORIGIN_DISTANCE);
 
@@ -513,14 +493,14 @@ class eAIGroup
 						EXTrace.Print(EXTrace.AI, this, "Found no suitable candidate after " + n + " random picks (" + timeIt2.GetElapsedMS() + "ms)");
 				#endif
 
-					destinationPosition = ExpansionMath.GetRandomPointInCircle(destination.position, radius * 0.25);
+					destinationPosition = ExpansionMath.GetRandomPointInCircle(destination.Position, radius * 0.25);
 					destinationPosition = ExpansionStatic.GetSurfaceRoadPosition(destinationPosition[0], destinationPosition[2], RoadSurfaceDetection.CLOSEST);
 				}
 			}
 			else
 			{
-				m_VisitedCrashSites.Insert(destination.object);
-				destinationPosition = ExpansionMath.GetRandomPointInRing(destination.position, 5.0, 20.0);
+				m_VisitedCrashSites.Insert(destination.m_Object);
+				destinationPosition = ExpansionMath.GetRandomPointInRing(destination.Position, 5.0, 20.0);
 				destinationPosition = ExpansionStatic.GetSurfaceRoadPosition(destinationPosition[0], destinationPosition[2], RoadSurfaceDetection.CLOSEST);
 			}
 
@@ -547,7 +527,7 @@ class eAIGroup
 
 	void SetRoamingLocationReached(bool clearVisitedBuildings = false)
 	{
-		if (m_RoamingLocation && m_RoamingLocation.type != "Building")
+		if (m_RoamingLocation && m_RoamingLocation.Type != "Building")
 		{
 			bool clearVisitedBuildingsOnLocationReached;
 
@@ -575,7 +555,7 @@ class eAIGroup
 				m_RoamingLocationReachedTimestamp = GetGame().GetTickTime();
 
 			//! Remove destination from roaming locations if not a helicrash (helicrashes are events and not in roaming locations)
-			if (m_RoamingLocation.type != "StaticHeliCrash")
+			if (m_RoamingLocation.Type != "StaticHeliCrash")
 				m_RoamingLocations.RemoveItemUnOrdered(m_RoamingLocation);
 		}
 	}
@@ -1312,9 +1292,9 @@ class eAIGroup
 			}
 
 			serializer.Write(m_RoamingLocations.Count());
-			foreach (ExpansionLocatorArray location: m_RoamingLocations)
+			foreach (ExpansionAIRoamingLocation location: m_RoamingLocations)
 			{
-				serializer.Write(location.index);
+				serializer.Write(location.m_Index);
 			}
 
 			serializer.Close();
@@ -1426,11 +1406,11 @@ class eAIGroup
 					locIndices.Insert(index);
 				}
 
-				array<ref ExpansionLocatorArray> locations = ExpansionWorld.Cast(GetDayZGame().GetExpansionGame()).GetAIRoamingLocations();
+				array<ref ExpansionAIRoamingLocation> locations = GetExpansionSettings().GetAILocation().RoamingLocations;
 
 				foreach (int locIdx: locIndices)
 				{
-					ExpansionLocatorArray location = locations[locIdx];
+					ExpansionAIRoamingLocation location = locations[locIdx];
 					if (location)
 						group.m_RoamingLocations.Insert(location);
 				}

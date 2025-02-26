@@ -112,6 +112,7 @@ modded class BuildingBase
 				"land_pier_crane2_base",  //! Sakhal
 				"land_rail_station",
 				"land_shed",
+				"land_tank_big3",  //! Sakhal
 				"land_tenement",
 				"land_train_wagon_box",  //! Pathfinding won't find a path out of the wagon, that's the only reason it's excluded
 				"land_village_healthcare",
@@ -257,6 +258,11 @@ modded class BuildingBase
 		if (type.IndexOf("land_wreck_") == 0)
 			return true;
 
+		return false;
+	}
+
+	bool Expansion_IsUndergroundEntrance()
+	{
 		return false;
 	}
 

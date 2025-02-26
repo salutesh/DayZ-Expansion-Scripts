@@ -440,7 +440,7 @@ class eAICommandMove: ExpansionHumanCommand
 						m_PathFinding.m_IsUnreachable = true;
 						m_PathFinding.m_IsTargetUnreachable = true;
 					}
-					else if ((m_PathFinding.m_IsUnreachable || m_PathFinding.m_IsTargetUnreachable) && m_Unit.m_eAI_BuildingWithLadder && m_PathFinding.m_Count > 0)
+					else if ((m_PathFinding.m_IsUnreachable || m_PathFinding.m_IsTargetUnreachable) && m_Unit.m_eAI_BuildingWithLadder && m_PathFinding.m_Count > 0 && !m_PathFinding.m_IsBlocked)
 					{
 						m_PathFinding.ForceRecalculate();
 					}
@@ -1218,11 +1218,30 @@ class eAICommandMove: ExpansionHumanCommand
 			m_UpdatePath = false;
 		}
 
-		if (m_Unit.m_eAI_Ladder && !m_Unit.m_eAI_IsOnLadder && m_Unit.m_eAI_BuildingWithLadder && m_PathFinding.GetRemainingCount() <= 2)
+		/**
+		 * If AI has a ladder it tries to reach, is not on ladder, has a building with ladder and current raw (not navmesh sampled)
+		 * target position is ladder entrypoint, we check if the ladder is reachable, and discard it if not
+		 */
+		if (m_Unit.m_eAI_Ladder && !m_Unit.m_eAI_IsOnLadder && m_Unit.m_eAI_BuildingWithLadder && m_PathFinding.m_CurrentTargetPosition == m_Unit.m_eAI_LadderEntryPoint)
 		{
 			vector end = m_PathFinding.GetEnd();
 
-			if (Math.IsPointInCircle(end, 0.55, position) && Math.IsPointInCircle(m_Unit.m_eAI_LadderEntryPoint, UAMaxDistances.LADDERS, m_PathFinding.GetTarget()) && (vector.DistanceSq(end, m_PathFinding.GetTarget()) >= 4.0 || !m_Unit.eAI_IsCloseToLadderEntryPoint() || !m_Unit.eAI_CanReachLadderEntryPoint()))
+			/**
+			 * This comically complex check deals with discarding unreachable ladders if any of the following conditions is true:
+			 * 
+			 * - Navmesh sampled target position is not close enough to ladder entrypoint
+			 * OR
+			 * - Path endpoint is reasonably close to navmesh sampled target (so we know we are at the end),
+			 *   but path endpoint is not close enough to ladder entrypoint
+			 * OR
+			 * - AI has no more path points on way to target position and is close to path endpoint, but...
+			 *   ...path endpoint is too far from navmesh sampled target
+			 *   OR
+			 *   ...AI is too far from ladder entrypoint
+			 *   OR
+			 *   ...AI cannot reach ladder entrypoint (e.g. physically blocked)
+			 */
+			if (!Math.IsPointInCircle(m_Unit.m_eAI_LadderEntryPoint, UAMaxDistances.LADDERS, m_PathFinding.GetTarget()) || (vector.DistanceSq(end, m_PathFinding.GetTarget()) < 4.0 && !Math.IsPointInCircle(m_Unit.m_eAI_LadderEntryPoint, UAMaxDistances.LADDERS, end)) || (m_PathFinding.GetRemainingCount() <= 2 && Math.IsPointInCircle(end, 0.55, position) && (vector.DistanceSq(end, m_PathFinding.GetTarget()) >= 4.0 || !m_Unit.eAI_IsCloseToLadderEntryPoint() || !m_Unit.eAI_CanReachLadderEntryPoint())))
 			{
 				//! Remove unreachable ladder from pool
 				if (m_Unit.m_eAI_BuildingWithLadder.Expansion_GetLaddersCount() > 1)
@@ -1242,7 +1261,7 @@ class eAICommandMove: ExpansionHumanCommand
 			//SetTargetSpeed(Math.Lerp(m_MovementSpeed, 3.0, pDt * 4.0));
 			m_TargetSpeed = 3.0;
 		}
-		else if (m_Unit.m_eAI_PositionIsFinal)
+		else if (m_Unit.m_eAI_PositionIsFinal || m_PathFinding.m_IsUnreachable || m_Unit.m_eAI_IsAttachedToMovingParent || m_Unit.GetFSM().IsInState("Idle"))
 		{
 		//#ifdef DIAG_DEVELOPER
 			//dbgObj = m_Unit.m_Expansion_DebugObjects[11106];
@@ -1673,9 +1692,9 @@ class eAICommandMove: ExpansionHumanCommand
 
 			float turnTargetActual = m_TurnTarget;
 
-			auto parent = Object.Cast(m_Player.Expansion_GetParent());
-			if (parent)
-				turnTargetActual -= parent.GetOrientation()[0];
+			//auto parent = Object.Cast(m_Player.Expansion_GetParent());
+			//if (parent)
+				//turnTargetActual -= parent.GetOrientation()[0];
 
 			if (turnTargetActual > 180.0)
 				turnTargetActual -= 360.0;
@@ -1957,11 +1976,6 @@ class eAICommandMove: ExpansionHumanCommand
 				case "Land_Castle_Wall1_End1_nolc":
 				case "Land_Castle_Wall1_End2_nolc":
 					return true;
-				//! AI cannot open/pass bunker door (not implemented, requires interaction with PunchedCard slot next to door)
-				case "Land_Underground_Entrance":
-					if (m_PathFinding.m_IsBlocked)
-						return true;
-					break;
 			}
 		}
 

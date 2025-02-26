@@ -251,11 +251,15 @@ class ExpansionPathPoint
 
 						endPos[1] = Math.Max(endPos[1], startPos[1]);
 					*/
+						//! Extend tempEnd out a bit (from endPos) so we can get off roofs (e.g. the porch of Land_Factory_Small)
+						vector endToTemp = tempEnd - endPos;
+						endToTemp[1] = 0;
+						tempEnd = tempEnd + endToTemp.Normalized() * 0.5;
 						vector checkPos = tempEnd;
 						checkPos[1] = Math.Max(Math.Max(endPos[1], checkPos[1]), pathFinding.m_Unit.GetPosition()[1]) + 0.5;
 
 						vector surfaceEndPosition = ExpansionStatic.GetSurfaceRoadPosition(endPos);
-						vector surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(checkPos);
+						vector surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(tempEnd);
 					#ifdef DIAG_DEVELOPER
 						Object dbgObj = pathFinding.m_Unit.Expansion_DebugObject(88889, surfaceEndPosition, "ExpansionDebugConeSmall_Cyan");
 						if (dbgObj)
@@ -269,7 +273,9 @@ class ExpansionPathPoint
 						//! stockyard_oremound1.p3d (on the highest spot), e.g. on Sakhal at <13432.2, 10.5049, 11843.2>
 						//! Land_Shed_W2 (inside) on Chernarus at <3144, 7932>
 						//! Small ice lake on Sakhal, e.g. at <11014.1, 42.3505, 7414.21>
-						if (Math.IsPointInCircle(tempEnd, 10.0, endPos) && surfacePosition[1] - surfaceEndPosition[1] < 2.5 && !pathFinding.IsBlockedPhysically(endPos + "0 0.5 0", checkPos))
+						float climbHeight = surfacePosition[1] - surfaceEndPosition[1];
+						float fallHeight = surfaceEndPosition[1] - surfacePosition[1];
+						if (Math.IsPointInCircle(tempEnd, 10.0, endPos) && climbHeight < 2.5 && fallHeight < DayZPlayerImplementFallDamage.HEALTH_HEIGHT_LOW && !pathFinding.IsBlockedPhysically(endPos + "0 0.5 0", checkPos))
 						{
 							if (isSwimming || !pathFinding.IsBlockedPhysically(checkPos, surfacePosition + "0 0.5 0"))
 							{

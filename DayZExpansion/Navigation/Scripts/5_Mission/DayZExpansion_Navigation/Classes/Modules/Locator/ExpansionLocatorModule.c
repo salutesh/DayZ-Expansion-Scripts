@@ -16,7 +16,7 @@
 [CF_RegisterModule(ExpansionLocatorModule)]
 class ExpansionLocatorModule: CF_ModuleGame
 {
-	protected autoptr array<ref ExpansionLocatorArray> m_AreaArray;
+	protected autoptr array<ref ExpansionLocation> m_AreaArray;
 	protected string m_CurrentAreaName;
 	float m_Time;
 	
@@ -37,7 +37,7 @@ class ExpansionLocatorModule: CF_ModuleGame
 
 		if ( !m_AreaArray )
 		{
-			m_AreaArray = ExpansionLocatorStatic.GetWorldLocations();
+			m_AreaArray = ExpansionLocation.GetWorldLocations();
 		}
 	}
 	
@@ -88,14 +88,14 @@ class ExpansionLocatorModule: CF_ModuleGame
 		if ( !hud || !hud.GetExpanisonLocatorUI() )
 			return;
 		
-		ExpansionLocatorArray shortestLocation = null;
+		ExpansionLocation shortestLocation = null;
 		float shortestDistanceSq = int.MAX;
 		vector myPos = GetGame().GetCurrentCameraPosition();
 		vector myPos2D = Vector( myPos[0], 0, myPos[2] );
 
-		foreach (ExpansionLocatorArray loc: m_AreaArray)
+		foreach (ExpansionLocation loc: m_AreaArray)
 		{
-			float distanceSq = vector.DistanceSq( myPos2D, loc.position );
+			float distanceSq = vector.DistanceSq( myPos2D, loc.Position );
 
 			if ( distanceSq <= shortestDistanceSq )
 			{
@@ -106,12 +106,12 @@ class ExpansionLocatorModule: CF_ModuleGame
 
 		if ( shortestLocation )
 		{
-			float radius = ExpansionLocatorStatic.GetRadius( shortestLocation.type );
+			float radius = shortestLocation.Radius;
 			if (shortestDistanceSq <= radius * radius )
 			{
-				if ( m_CurrentAreaName != shortestLocation.name )
+				if ( m_CurrentAreaName != shortestLocation.Name )
 				{
-					m_CurrentAreaName = shortestLocation.name;					
+					m_CurrentAreaName = shortestLocation.Name;
 					hud.GetExpanisonLocatorUI().OnShowCityClient( m_CurrentAreaName );
 				}
 

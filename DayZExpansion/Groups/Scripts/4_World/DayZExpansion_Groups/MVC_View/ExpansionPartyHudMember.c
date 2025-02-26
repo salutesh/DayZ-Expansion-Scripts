@@ -289,15 +289,15 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 		if (!m_Settings.IsLoaded())
 			return;
 
-		if (m_MonitorModule && m_Settings.ShowHUDMemberStates)
+		if (m_MonitorModule)
 		{
-			if (!m_Settings.ShowHUDMemberStance)
+			if (m_Settings.ShowHUDMemberStates || m_Settings.ShowHUDMemberStance)
 			{
-				m_MonitorModule.RequestPlayerStats(m_PlayerPlainID);
+				m_MonitorModule.RequestPlayerStatsAndStates(m_PlayerPlainID);
 			}
 			else
 			{
-				m_MonitorModule.RequestPlayerStatsAndStates(m_PlayerPlainID);
+				m_MonitorModule.RequestPlayerStats(m_PlayerPlainID);
 			}
 		}
 		#endif

@@ -153,4 +153,9 @@ modded class EffectArea
 
 		return true;
 	}
+
+	bool eAI_IsDangerousToAI(eAIBase ai)
+	{
+		return ai.Expansion_CanBeDamaged();  //! Treat unknown areas as dangerous if AI can be damaged
+	}
 }

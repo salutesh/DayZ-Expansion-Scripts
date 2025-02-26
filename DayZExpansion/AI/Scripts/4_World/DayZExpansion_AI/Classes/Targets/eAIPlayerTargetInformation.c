@@ -42,7 +42,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			if (m_Player.IsRestrained())
 				return ExpansionMath.LinearConversion(0, 100, distance, 0.15, 0.1);
 
-			if (distance <= 100.0 && m_Player.GetParent() != ai.GetParent())
+			if (distance <= 100.0 && m_Player.Expansion_GetParent() != ai.Expansion_GetParent())
 			{
 				//! Any AI, even passive, will react if vehicle is speeding towards them
 				//! Vehicles WITHOUT drivers are handled by vehicle target info

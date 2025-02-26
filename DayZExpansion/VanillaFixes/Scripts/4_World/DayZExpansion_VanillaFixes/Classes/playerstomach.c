@@ -1,4 +1,4 @@
-#ifndef DAYZ_1_25
+#ifdef DAYZ_1_26
 //! Bugfix for 1.26 always trying to read temp regardless of version https://feedback.bistudio.com/T183495
 modded class PlayerStomach
 {
@@ -14,23 +14,18 @@ modded class PlayerStomach
 		{
 			return false;
 		}
-
 		for(int i = 0; i < count; i++)
 		{
 			int value, agents, temperature;
 			if (!ctx.Read(value))
-			{
 				return false;
-			}	
+	
 			if (!ctx.Read(agents))
-			{
 				return false;
-			}
 			//! Bugfix for 1.26 always trying to read temp regardless of version
 			if (version >= 140 && !ctx.Read(temperature))
-			{
 				return false;
-			}
+
 			if (checksum == CHECKSUM)//if checksum matches, add to stomach, otherwise throw the data away but go through the de-serialization to keep the stream intact
 			{
 				int amount = value >> quantity_bit_offset;//isolate amount bits

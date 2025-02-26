@@ -1,36 +1,51 @@
 /**
- * ExpansionLocatorStatic.c
+ * ExpansionLocation.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-enum ExpansionLocationType
-{
-	CAMP = 1,
-	HILL = 2,
-	LOCAL = 4,
-	LOCALOFFICE = 8,
-	MARINE = 16,
-	RAILROADSTATION = 32,
-	RUIN = 64,
-	SETTLEMENT = 128,
-	VIEWPOINT = 256
-}
 
-/**@class		ExpansionLocatorStatic
- * @brief		This class handle expansion locator system
- **/
-class ExpansionLocatorStatic
+class ExpansionLocation
 {
 	static const ref TStringArray SETTLEMENTS = {"Capital", "City", "Village"};
 
-	static int GetRadius( string type )
+	string Name;
+	vector Position;
+	float Radius;
+	string Type;
+
+	[NonSerialized()]
+	string m_ClassName;
+
+	[NonSerialized()]
+	Object m_Object;
+
+	[NonSerialized()]
+	int m_Index;
+	
+	void ExpansionLocation(vector position = vector.Zero, float radius = 0, string name = string.Empty, string type = string.Empty, string className = string.Empty, Object obj = null, int index = -1)
+	{
+		Init(position, radius, name, type, className, obj, index);
+	}
+
+	void Init(vector position, float radius, string name = string.Empty, string type = string.Empty, string className = string.Empty, Object obj = null, int index = -1)
+	{
+		Name = name;
+		Position = position;
+		Radius = radius;
+		Type = type;
+		m_ClassName = className;
+		m_Object = obj;
+		m_Index = index;
+	}
+
+	static float GetRadius(string type)
 	{
 		//! Most maps use these types.
 		//! One exception is Rostow which prepends "Name", e.g. "NameCapital", "NameCity" etc.
@@ -53,7 +68,15 @@ class ExpansionLocatorStatic
 		return 100;
 	}
 
-	static array<ref ExpansionLocatorArray> GetWorldLocations(int include = 0)
+	static array<ref ExpansionLocation> GetWorldLocations(int include = 0)
+	{
+		return ExpansionLocationT<ExpansionLocation>.GetWorldLocations(ExpansionLocation, include);
+	}
+}
+
+class ExpansionLocationT<Class T>: ExpansionLocation
+{
+	static array<ref T> GetWorldLocations(typename type, int include = 0)
 	{
 		if (!include)
 		{
@@ -65,7 +88,7 @@ class ExpansionLocatorStatic
 			include |= ExpansionLocationType.SETTLEMENT;
 		}
 
-		array<ref ExpansionLocatorArray> areaArray = new array< ref ExpansionLocatorArray >;
+		array<ref T> areaArray = {};
 
 		string worldName = GetGame().GetWorldName();
 		string location_config_path = "CfgWorlds " + worldName + " Names";
@@ -90,12 +113,12 @@ class ExpansionLocatorStatic
 			GetGame().ConfigGetText( location_type_path, location_type );
 			GetGame().ConfigGetText( location_name_path, location_name );
 
-			TFloatArray location_position = new TFloatArray;
+			TFloatArray location_position = {};
 			GetGame().ConfigGetFloatArray( location_position_path, location_position );
 			
 			if (location_position == null || location_position.Count() != 2)
 			{
-				//Error("ExpansionLocatorStatic::GetWorldLocations location_position.Count() != 2 count : " + location_position.Count());
+				//Error("ExpansionLocation::GetWorldLocations location_position.Count() != 2 count : " + location_position.Count());
 				continue;
 			}
 
@@ -120,7 +143,7 @@ class ExpansionLocatorStatic
 			if ( (include & ExpansionLocationType.RUIN) == 0 && location_type.Contains( "Ruin" ) )
 				continue;
 
-			if ( (include & ExpansionLocationType.SETTLEMENT) == 0 && ExpansionString.ContainsAny(location_type, ExpansionLocatorStatic.SETTLEMENTS) )
+			if ( (include & ExpansionLocationType.SETTLEMENT) == 0 && ExpansionString.ContainsAny(location_type, ExpansionLocation.SETTLEMENTS) )
 				continue;
 
 			if ( (include & ExpansionLocationType.VIEWPOINT) == 0 && location_type.Contains( "ViewPoint" ) )
@@ -141,7 +164,13 @@ class ExpansionLocatorStatic
 					location_type = "Suburb";
 			}
 
-			areaArray.Insert( new ExpansionLocatorArray( Vector( location_position[0], 0, location_position[1] ), location_class_name, location_name, location_type, null, index++ ) );
+			T loc;
+			if (Class.CastTo(loc, type.Spawn()))
+			{
+				float radius = GetRadius(location_type);
+				loc.Init(Vector(location_position[0], 0, location_position[1]), radius, location_name, location_type, location_class_name, null, index++);
+				areaArray.Insert(loc);
+			}
 		}
 
 		return areaArray;

@@ -12,38 +12,39 @@
 
 modded class IngameHud
 {
-	protected bool m_ExpansionHudNVState;
-	protected bool m_ExpansionEarplugState;
-	protected bool m_ExpansionNVSetting;
+	protected bool m_Expansion_NVState;
+	protected bool m_Expansion_EarplugsState;
+	protected bool m_Expansion_EnableNVOverlay;
 	protected bool m_Expansion_UseHUDColors;
 
-	protected Widget m_NVPanel;
-	protected ImageWidget m_NVBatteryIcon;
-	protected TextWidget m_NVBatteryVal;
-	protected int m_NVBatteryState;
+	protected Widget m_Expansion_BadgeNotifierDivider;  //! @note the widget itself is vanilla
+	protected Widget m_Expansion_NVPanel;
+	protected ImageWidget m_Expansion_NVBatteryIcon;
+	protected TextWidget m_Expansion_NVBatteryVal;
+	protected int m_Expansion_NVBatteryState;
 
-	protected int BATTERY_EMPTY_COLOR = ARGB(255, 231, 76, 60);
-	protected int BATTERY_LOW_COLOR = ARGB(255, 243, 156, 18);
-	protected int BATTERY_MED_COLOR = ARGB(255, 113, 204, 46);
-	protected int BATTERY_FULL_COLOR = ARGB(255, 46, 204, 113);
+	protected static const int EXPANSION_BATTERY_EMPTY_COLOR = ARGB(255, 231, 76, 60);
+	protected static const int EXPANSION_BATTERY_LOW_COLOR = ARGB(255, 243, 156, 18);
+	protected static const int EXPANSION_BATTERY_MED_COLOR = ARGB(255, 113, 204, 46);
+	protected static const int EXPANSION_BATTERY_FULL_COLOR = ARGB(255, 46, 204, 113);
 
-	protected int m_StaminaBarColorFull = ARGB(255, 255, 255, 255);
-	protected int m_StaminaBarColorHalf = ARGB(255, 255, 255, 255);
-	protected int m_StaminaBarColorLow = ARGB(255, 255, 255, 255);
-	protected int m_NotifierDividerColor = ARGB(255, 220, 220, 220);
-	protected int m_TemperatureBurningColor = ARGB(255, 220, 0, 0);
-	protected int m_TemperatureHotColor = ARGB(255, 220, 220, 0);
-	protected int m_TemperatureIdealColor = ARGB(255, 220, 220, 220);
-	protected int m_TemperatureColdColor = ARGB(255, 0, 206, 209);
-	protected int m_TemperatureFreezingColor = ARGB(255, 30, 144, 220);
-	protected int m_NotifiersIdealColor = ARGB(255, 220, 220, 220);
-	protected int m_NotifiersHalfColor = ARGB(255, 220, 220, 0);
-	protected int m_NotifiersLowColor = ARGB(255, 220, 0, 0);
+	protected int m_Expansion_StaminaBarColorFull = ARGB(255, 255, 255, 255);
+	protected int m_Expansion_StaminaBarColorHalf = ARGB(255, 255, 255, 255);
+	protected int m_Expansion_StaminaBarColorLow = ARGB(255, 255, 255, 255);
+	protected int m_Expansion_NotifierDividerColor = ARGB(255, 220, 220, 220);
+	protected int m_Expansion_TemperatureBurningColor = ARGB(255, 220, 0, 0);
+	protected int m_Expansion_TemperatureHotColor = ARGB(255, 220, 220, 0);
+	protected int m_Expansion_TemperatureIdealColor = ARGB(255, 220, 220, 220);
+	protected int m_Expansion_TemperatureColdColor = ARGB(255, 0, 206, 209);
+	protected int m_Expansion_TemperatureFreezingColor = ARGB(255, 30, 144, 220);
+	protected int m_Expansion_NotifiersIdealColor = ARGB(255, 220, 220, 220);
+	protected int m_Expansion_NotifiersHalfColor = ARGB(255, 220, 220, 0);
+	protected int m_Expansion_NotifiersLowColor = ARGB(255, 220, 0, 0);
 
 	protected ref map<int, ref Param2<int, int>> m_Expansion_DisplayTendencyNormalCache = new map<int, ref Param2<int, int>>;
 	protected ref map<int, ref Param2<int, int>> m_Expansion_DisplayTendencyTempCache = new map<int, ref Param2<int, int>>;
 
-	protected Widget m_EarPlugsPanel;
+	protected Widget m_Expansion_EarplugsPanel;
 
 	void IngameHud()
 	{
@@ -60,28 +61,30 @@ modded class IngameHud
 	{
 		super.Init(hud_panel_widget);
 
-		m_NVPanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/expansion_night_vision.layout");
-		if (m_NVPanel)
+		m_Expansion_BadgeNotifierDivider = m_HudPanelWidget.FindAnyWidget("BadgeNotifierDivider");
+	
+		m_Expansion_NVPanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/expansion_night_vision.layout");
+		if (m_Expansion_NVPanel)
 		{
-			m_NVPanel.Show(false);
-			m_NVBatteryIcon = ImageWidget.Cast(m_NVPanel.FindAnyWidget("NVBatteryIcon"));
-			m_NVBatteryIcon.LoadImageFile(0, "DayZExpansion/Core/GUI/icons/hud/battery_empty_64x64.edds");
-			m_NVBatteryIcon.LoadImageFile(1, "DayZExpansion/Core/GUI/icons/hud/battery_low_64x64.edds");
-			m_NVBatteryIcon.LoadImageFile(2, "DayZExpansion/Core/GUI/icons/hud/battery_med_64x64.edds");
-			m_NVBatteryIcon.LoadImageFile(3, "DayZExpansion/Core/GUI/icons/hud/battery_high_64x64.edds");
-			m_NVBatteryVal = TextWidget.Cast(m_NVPanel.FindAnyWidget("NVBatteryVal"));
+			m_Expansion_NVPanel.Show(false);
+			m_Expansion_NVBatteryIcon = ImageWidget.Cast(m_Expansion_NVPanel.FindAnyWidget("NVBatteryIcon"));
+			m_Expansion_NVBatteryIcon.LoadImageFile(0, "DayZExpansion/Core/GUI/icons/hud/battery_empty_64x64.edds");
+			m_Expansion_NVBatteryIcon.LoadImageFile(1, "DayZExpansion/Core/GUI/icons/hud/battery_low_64x64.edds");
+			m_Expansion_NVBatteryIcon.LoadImageFile(2, "DayZExpansion/Core/GUI/icons/hud/battery_med_64x64.edds");
+			m_Expansion_NVBatteryIcon.LoadImageFile(3, "DayZExpansion/Core/GUI/icons/hud/battery_high_64x64.edds");
+			m_Expansion_NVBatteryVal = TextWidget.Cast(m_Expansion_NVPanel.FindAnyWidget("NVBatteryVal"));
 		}
 
-		m_EarPlugsPanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/expansion_earplugs.layout");
+		m_Expansion_EarplugsPanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/expansion_earplugs.layout");
 	}
 
 	override void Update(float timeslice)
 	{
 		super.Update(timeslice);
 
-		if (m_NVPanel && m_NVPanel.IsVisible())
+		if (m_Expansion_NVPanel && m_Expansion_NVPanel.IsVisible())
 		{
-			Expansion_RefreshNVBatteryState(m_NVBatteryState);
+			Expansion_RefreshNVBatteryState(m_Expansion_NVBatteryState);
 		}
 	}
 
@@ -106,23 +109,23 @@ modded class IngameHud
 			switch (status)
 			{
 				case 2:
-					w.SetColor(LinearColor.Lerp(m_NotifiersIdealColor, m_NotifiersHalfColor, BlendMode.NORMAL, 0.5));
+					w.SetColor(LinearColor.Lerp(m_Expansion_NotifiersIdealColor, m_Expansion_NotifiersHalfColor, BlendMode.NORMAL, 0.5));
 					m_TendencyStatusCritical.Remove(w);
 					break;
 				case 3:
-					w.SetColor(m_NotifiersHalfColor);
+					w.SetColor(m_Expansion_NotifiersHalfColor);
 					m_TendencyStatusCritical.Remove(w);				//! Remove from blinking group
 					break;
 				case 4:
-					w.SetColor(m_NotifiersLowColor);
+					w.SetColor(m_Expansion_NotifiersLowColor);
 					m_TendencyStatusCritical.Remove(w);				//! Remove from blinking group
 					break;
 				case 5:
 					if (!m_TendencyStatusCritical.Contains(w))
-						m_TendencyStatusCritical.Insert(w, m_NotifiersLowColor);	//! Add to blinking group
+						m_TendencyStatusCritical.Insert(w, m_Expansion_NotifiersLowColor);	//! Add to blinking group
 					break;
 				default:
-					w.SetColor(m_NotifiersIdealColor);
+					w.SetColor(m_Expansion_NotifiersIdealColor);
 					m_TendencyStatusCritical.Remove(w);
 					break;
 			}
@@ -158,41 +161,41 @@ modded class IngameHud
 		switch (status)
 		{
 			case 2:
-				w.SetColor(m_TemperatureHotColor);		//WARNING_PLUS
+				w.SetColor(m_Expansion_TemperatureHotColor);		//WARNING_PLUS
 				m_TendencyStatusCritical.Remove(w);
 				w.SetImage(1);
 				break;
 			case 3:
-				w.SetColor(m_TemperatureBurningColor);		//CRITICAL_PLUS
+				w.SetColor(m_Expansion_TemperatureBurningColor);		//CRITICAL_PLUS
 				m_TendencyStatusCritical.Remove(w);
 				w.SetImage(0);
 				break;
 			case 4:
 				if (!m_TendencyStatusCritical.Contains(w))		//BLINKING_PLUS
 				{
-					m_TendencyStatusCritical.Insert(w, m_TemperatureBurningColor);
+					m_TendencyStatusCritical.Insert(w, m_Expansion_TemperatureBurningColor);
 				}
 				w.SetImage(0);
 				break;
 			case 5:
-				w.SetColor(m_TemperatureColdColor);		//WARNING_MINUS
+				w.SetColor(m_Expansion_TemperatureColdColor);		//WARNING_MINUS
 				m_TendencyStatusCritical.Remove(w);
 				w.SetImage(3);
 				break;
 			case 6:
-				w.SetColor(m_TemperatureFreezingColor);	//CRITICAL_MINUS
+				w.SetColor(m_Expansion_TemperatureFreezingColor);	//CRITICAL_MINUS
 				m_TendencyStatusCritical.Remove(w);
 				w.SetImage(4);
 				break;
 			case 7:													//BLINKING_MINUS
 				if (!m_TendencyStatusCritical.Contains(w))
 				{
-					m_TendencyStatusCritical.Insert(w, m_TemperatureFreezingColor);
+					m_TendencyStatusCritical.Insert(w, m_Expansion_TemperatureFreezingColor);
 				}
 				w.SetImage(4);
 				break;
 			default:
-				w.SetColor(m_TemperatureIdealColor);
+				w.SetColor(m_Expansion_TemperatureIdealColor);
 				m_TendencyStatusCritical.Remove(w);
 				w.SetImage(2);
 				break;
@@ -235,15 +238,15 @@ modded class IngameHud
 		if (fraction <= 0.5)
 		{
 			//! 0.0..0.5
-			color1 = m_StaminaBarColorLow;
-			color2 = m_StaminaBarColorHalf;
+			color1 = m_Expansion_StaminaBarColorLow;
+			color2 = m_Expansion_StaminaBarColorHalf;
 			t = fraction / 0.5;
 		}
 		else
 		{
 			//! >0.5..1.0
-			color1 = m_StaminaBarColorHalf;
-			color2 = m_StaminaBarColorFull;
+			color1 = m_Expansion_StaminaBarColorHalf;
+			color2 = m_Expansion_StaminaBarColorFull;
 			t = (fraction - 0.5) / 0.5;
 		}
 
@@ -270,29 +273,29 @@ modded class IngameHud
 
 		ExpansionGeneralSettings settings = GetExpansionSettings().GetGeneral(checkLoaded);
 
-		m_ExpansionNVSetting = settings.EnableHUDNightvisionOverlay;
+		m_Expansion_EnableNVOverlay = settings.EnableHUDNightvisionOverlay;
 		m_Expansion_UseHUDColors = settings.UseHUDColors;
 
 		if (!m_Expansion_UseHUDColors)
 			return;
 
-		m_StaminaBarColorFull = settings.HUDColors.Get("StaminaBarColor");
-		m_StaminaBarColorHalf = settings.HUDColors.Get("StaminaBarColorHalf");
-		m_StaminaBarColorLow = settings.HUDColors.Get("StaminaBarColorLow");
-		m_NotifierDividerColor = settings.HUDColors.Get("NotifierDividerColor");
-		m_TemperatureBurningColor = settings.HUDColors.Get("TemperatureBurningColor");
-		m_TemperatureHotColor = settings.HUDColors.Get("TemperatureHotColor");
-		m_TemperatureIdealColor = settings.HUDColors.Get("TemperatureIdealColor");
-		m_TemperatureColdColor = settings.HUDColors.Get("TemperatureColdColor");
-		m_TemperatureFreezingColor = settings.HUDColors.Get("TemperatureFreezingColor");
-		m_NotifiersIdealColor = settings.HUDColors.Get("NotifiersIdealColor");
-		m_NotifiersHalfColor = settings.HUDColors.Get("NotifiersHalfColor");
-		m_NotifiersLowColor = settings.HUDColors.Get("NotifiersLowColor");
+		m_Expansion_StaminaBarColorFull = settings.HUDColors.Get("StaminaBarColor");
+		m_Expansion_StaminaBarColorHalf = settings.HUDColors.Get("StaminaBarColorHalf");
+		m_Expansion_StaminaBarColorLow = settings.HUDColors.Get("StaminaBarColorLow");
+		m_Expansion_NotifierDividerColor = settings.HUDColors.Get("NotifierDividerColor");
+		m_Expansion_TemperatureBurningColor = settings.HUDColors.Get("TemperatureBurningColor");
+		m_Expansion_TemperatureHotColor = settings.HUDColors.Get("TemperatureHotColor");
+		m_Expansion_TemperatureIdealColor = settings.HUDColors.Get("TemperatureIdealColor");
+		m_Expansion_TemperatureColdColor = settings.HUDColors.Get("TemperatureColdColor");
+		m_Expansion_TemperatureFreezingColor = settings.HUDColors.Get("TemperatureFreezingColor");
+		m_Expansion_NotifiersIdealColor = settings.HUDColors.Get("NotifiersIdealColor");
+		m_Expansion_NotifiersHalfColor = settings.HUDColors.Get("NotifiersHalfColor");
+		m_Expansion_NotifiersLowColor = settings.HUDColors.Get("NotifiersLowColor");
 
-		if (!m_BadgeNotifierDivider)
+		if (!m_Expansion_BadgeNotifierDivider)
 			return;
 
-		m_BadgeNotifierDivider.SetColor(m_NotifierDividerColor);
+		m_Expansion_BadgeNotifierDivider.SetColor(m_Expansion_NotifierDividerColor);
 
 		foreach (int normalKey, Param2<int, int> normalValue: m_Expansion_DisplayTendencyNormalCache)
 		{
@@ -311,22 +314,22 @@ modded class IngameHud
 
 		bool hudState = Expansion_CanShowHUDElements();
 
-		if (m_NVPanel)
-			m_NVPanel.Show(hudState && m_ExpansionHudNVState && m_ExpansionNVSetting);
+		if (m_Expansion_NVPanel)
+			m_Expansion_NVPanel.Show(hudState && m_Expansion_NVState && m_Expansion_EnableNVOverlay);
 
-		if (m_EarPlugsPanel)
-			m_EarPlugsPanel.Show(hudState && m_ExpansionEarplugState);
+		if (m_Expansion_EarplugsPanel)
+			m_Expansion_EarplugsPanel.Show(hudState && m_Expansion_EarplugsState);
 	}
 
 	void Expansion_ShowNV(bool show)
 	{
-		m_ExpansionHudNVState = show;
+		m_Expansion_NVState = show;
 		RefreshHudVisibility();
 	}
 
 	bool Expansion_GetNVState()
 	{
-		return m_ExpansionHudNVState;
+		return m_Expansion_NVState;
 	}
 
 	protected void Expansion_RefreshNVBatteryState(int percent)
@@ -334,46 +337,46 @@ modded class IngameHud
 		if (percent <= 10)
 		{
 			//! 0 - 10% Energy
-			m_NVBatteryIcon.SetImage(0);
-			m_NVBatteryIcon.SetColor(BATTERY_EMPTY_COLOR);
+			m_Expansion_NVBatteryIcon.SetImage(0);
+			m_Expansion_NVBatteryIcon.SetColor(EXPANSION_BATTERY_EMPTY_COLOR);
 		}
 		else if (percent <= 33)
 		{
 			//! 10 - 33% Energy
-			m_NVBatteryIcon.SetImage(1);
-			m_NVBatteryIcon.SetColor(BATTERY_LOW_COLOR);
+			m_Expansion_NVBatteryIcon.SetImage(1);
+			m_Expansion_NVBatteryIcon.SetColor(EXPANSION_BATTERY_LOW_COLOR);
 		}
 		else if (percent <= 66)
 		{
 			//! 33 - 66% Energy
-			m_NVBatteryIcon.SetImage(2);
-			m_NVBatteryIcon.SetColor(BATTERY_MED_COLOR);
+			m_Expansion_NVBatteryIcon.SetImage(2);
+			m_Expansion_NVBatteryIcon.SetColor(EXPANSION_BATTERY_MED_COLOR);
 		}
 		else
 		{
 			//! 66 - 100% Energy
-			m_NVBatteryIcon.SetImage(3);
-			m_NVBatteryIcon.SetColor(BATTERY_FULL_COLOR);
+			m_Expansion_NVBatteryIcon.SetImage(3);
+			m_Expansion_NVBatteryIcon.SetColor(EXPANSION_BATTERY_FULL_COLOR);
 		}
 
-		m_NVBatteryVal.SetText(percent.ToString() + "%");
+		m_Expansion_NVBatteryVal.SetText(percent.ToString() + "%");
 	}
 
 	void Expansion_SetNVBatteryState(int percent)
 	{
-		m_NVBatteryState = percent;
+		m_Expansion_NVBatteryState = percent;
 	}
 
 	bool Expansion_GetEarplugsState()
 	{
-		return m_ExpansionEarplugState;
+		return m_Expansion_EarplugsState;
 	}
 
 	void Expansion_ToggleEarplugs()
 	{
-		m_ExpansionEarplugState = !m_ExpansionEarplugState;
+		m_Expansion_EarplugsState = !m_Expansion_EarplugsState;
 
-		if (m_ExpansionEarplugState)
+		if (m_Expansion_EarplugsState)
 		{
 			if (GetExpansionClientSettings())
 			{

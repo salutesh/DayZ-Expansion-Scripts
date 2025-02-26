@@ -214,13 +214,13 @@ class ExpansionMissionEventContaminatedArea: ExpansionMissionEventBase
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
-		ExpansionLocatorArray loc;
+		ExpansionLocation loc;
 		string fname = RandomMission(idx, loc);
 		if (!loc)
 			return fname;
 
-		Data.Pos = {loc.position[0], 0, loc.position[2]};
-		Data.Radius = ExpansionLocatorStatic.GetRadius( loc.type );
+		Data.Pos = {loc.Position[0], 0, loc.Position[2]};
+		Data.Radius = loc.Radius;
 		Data.PosHeight = 26;
 		Data.NegHeight = 10;
 		Data.InnerRingCount = 1;
