@@ -150,7 +150,7 @@ class ExpansionAILocationSettings: ExpansionSettingBase
 		include |= ExpansionLocationType.SETTLEMENT;
 		//include |= ExpansionLocationType.VIEWPOINT;
 
-		RoamingLocations = ExpansionLocationT<ExpansionAIRoamingLocation>.GetWorldLocations(ExpansionAIRoamingLocation, include);
+		RoamingLocations = ExpansionLocationT<ExpansionAIRoamingLocation>.GetWorldLocations(include);
 
 		if (RoamingLocations.Count() == 0)
 			EXPrint(this, "Map " + GetGame().GetWorldName() + " has no locations!");

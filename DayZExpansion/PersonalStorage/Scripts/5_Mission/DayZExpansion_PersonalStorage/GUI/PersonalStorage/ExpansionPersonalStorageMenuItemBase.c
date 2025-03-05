@@ -15,7 +15,7 @@ class ExpansionPersonalStorageMenuItemBase: ExpansionScriptView
 	protected ref ExpansionPersonalStorageMenuItemBaseController m_PersonalStorageMenuItemBaseController;
 	protected ref ExpansionPersonalStorageModule m_PersonalStorageModule;
 	protected ref ExpansionPersonalStorageMenu m_PersonalStorageMenu;
-	protected ref ExpansionItemTooltip m_ItemTooltip;
+	protected ExpansionItemTooltip m_ItemTooltip;
 	protected ref ExpansionPersonalStorageItemBase m_Item;
 
 	protected EntityAI m_Object;

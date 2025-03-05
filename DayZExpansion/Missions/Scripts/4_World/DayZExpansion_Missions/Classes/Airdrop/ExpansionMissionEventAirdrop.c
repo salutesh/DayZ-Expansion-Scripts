@@ -34,12 +34,14 @@ class ExpansionMissionEventAirdropV0: ExpansionMissionEventAirdropBase
 
 class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 {
-	static const int VERSION = 1;
+	static const int VERSION = 2;
+
+	string AirdropPlaneClassName;
 
 	ref array < ref ExpansionLoot > Loot = {};
 
 	[NonSerialized()]
-	ExpansionAirdropPlane m_Plane;
+	ExpansionAirdropPlaneBase m_Plane;
 
 	[NonSerialized()]
 	ExpansionAirdropContainerBase m_Container;
@@ -68,6 +70,8 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		
 		if ( IsMissionHost() )
 		{
+			auto settings = GetExpansionSettings().GetAirdrop();
+
 			ExpansionLootContainer container;
 
 			if ( Loot.Count() == 0 || Infected.Count() == 0 )
@@ -79,9 +83,9 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 				//! Get all containers enabled for mission use that match our container name (or any if random)
 				string containerName = Container;
 				containerName.ToLower();
-				for ( int i = 0; i < GetExpansionSettings().GetAirdrop().Containers.Count(); i++ )
+				for ( int i = 0; i < settings.Containers.Count(); i++ )
 				{
-					container = GetExpansionSettings().GetAirdrop().Containers[i];
+					container = settings.Containers[i];
 					if ( ( container.Usage == 0 || container.Usage == 1 ) && ( container.Container == Container || containerName == "random" ) )
 					{
 						containers.Insert( container );
@@ -155,7 +159,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 			#endif
 
 			if ( ItemCount <= 0 )
-				ItemCount = GetExpansionSettings().GetAirdrop().ItemCount;
+				ItemCount = settings.ItemCount;
 
 			container = new ExpansionLootContainer( Container, 1, 1, Loot, Infected, ItemCount, InfectedCount, false, FallSpeed );
 
@@ -168,7 +172,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 				airdropCreatedMsg = new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED", DropLocation.Name );
 			}
 	
-			m_Plane = ExpansionAirdropPlane.CreatePlane( Vector( DropLocation.x, 0, DropLocation.z ), DropLocation.Name, DropLocation.Radius, Height, Speed, container, warningProximityMsg, airdropCreatedMsg, MissionMaxTime );
+			m_Plane = ExpansionAirdropPlaneBase.CreatePlane( AirdropPlaneClassName, Vector( DropLocation.x, 0, DropLocation.z ), DropLocation.Name, DropLocation.Radius, Height, Speed, container, warningProximityMsg, airdropCreatedMsg, MissionMaxTime );
 			
 			if ( m_Plane )
 			{
@@ -185,7 +189,10 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 	
 	override bool CanEnd()
 	{
-		return !m_Container || !ExpansionLootSpawner.IsPlayerNearby(m_Container, 1100);
+		if ((!m_Plane || m_Plane.AirdropCreated()) && (!m_Container || (m_Container.HasLanded() && !ExpansionLootSpawner.IsPlayerNearby(m_Container, 1100))))
+			return true;
+
+		return false;
 	}
 
 	// ------------------------------------------------------------
@@ -194,7 +201,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 	// handle mission cleanup
 	override void Event_OnEnd()
 	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
@@ -392,6 +399,8 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		}
 
 		MissionMaxTime = 1200; // 20 minutes
+
+		AirdropPlaneClassName = "";
 
 		Speed = 25.0;
 		Height = 450.0;

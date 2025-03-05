@@ -52,6 +52,11 @@ class ExpansionOptionSettingWidget: ScriptedWidgetEventHandler
 			Error( "ExpansionOptionSettingWidget construction failed!" );
 		}
 	}
+
+	void ~ExpansionOptionSettingWidget()
+	{
+		m_Menu = null;
+	}
 	
 	// -----------------------------------------------------------
 	// ExpansionOptionSettingWidget Apply

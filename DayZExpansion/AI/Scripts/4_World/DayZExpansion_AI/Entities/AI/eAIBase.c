@@ -996,7 +996,7 @@ class eAIBase: PlayerBase
 
 	bool eAI_ShouldBandage()
 	{
-		if (IsBleeding() && GetGame().GetTickTime() - m_eAI_LastHitTime > 10 && (m_eAI_DangerousAreaCount == 0 || m_eAI_ProtectionLevels[DEF_CHEMICAL] >= 6.0) && (m_eAI_CurrentThreatToSelfActive < 0.4 || GetHealth01("", "Blood") < 0.7 || !m_eAI_Targets.Count() || GetTarget().IsItem() || GetTarget().IsNoise()))
+		if (IsBleeding() && GetGame().GetTickTime() - m_eAI_LastHitTime > 10 && (!m_eAI_EffectArea || !m_eAI_EffectArea.eAI_IsDangerousToAI(this)) && (m_eAI_CurrentThreatToSelfActive < 0.4 || GetHealth01("", "Blood") < 0.7 || !m_eAI_Targets.Count() || GetTarget().IsItem() || GetTarget().IsNoise()))
 			return true;
 
 		return false;

@@ -55,7 +55,7 @@ class CfgVehicles
 		destroyOnEmpty=0;
 		varQuantityDestroyOnMin=0;
 		varLiquidTypeInit=65536;
-		liquidContainerType="1 + 2 + 4 + 8 + 16 + 32 + 64 + 128 + 256 + 512 + 1024 + 2048 + 4096 + 8192 + 16384 + 32768 + 65536  - (1 + 2 + 4 + 8 + 16 + 32 + 64 + 128 + 256)";
+		liquidContainerType="512 + 1024 + 2048 + 4096 + 8192 + 16384 + 65536 + 131072 + 262144 + 524288 + 2097152 + 4194304";
 		varQuantityInit=500;
 		varQuantityMin=0;
 		varQuantityMax=500;

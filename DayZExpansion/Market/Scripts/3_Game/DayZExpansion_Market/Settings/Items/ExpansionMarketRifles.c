@@ -36,7 +36,6 @@ class ExpansionMarketRifles: ExpansionMarketCategory
 
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_Kar98", 			1230, 	2050,	1,		100);
-		AddItem("Expansion_M14", 			6715, 	11190,	1,		100,	{"Mag_Expansion_M14_10Rnd"});
 		AddItem("Expansion_M1A", 			6715, 	11190,	1,		100,	{"Mag_Expansion_M14_10Rnd"});
 	#endif
 	}

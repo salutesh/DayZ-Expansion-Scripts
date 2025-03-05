@@ -37,7 +37,7 @@ modded class MiscGameplayFunctions
 
 	override static void FilterObstructedObjectsByGrouping(vector origin, float range, float distanceDelta, array<Object> objects, array<Object> obstructingObjects, out array<Object> filteredObjects, bool doDistanceCheck = false, bool checkIfDistanceCanBeIgnored = false, float maxDist = 0)
 	{
-		//! Mostly vanilla
+		//! Mostly vanilla except altered collision box check for Expansion BB
 		//! Had to duplicate this so our versions of CanIgnoreDistanceCheck and IsObjectObstructedEx gets used and not the vanilla one
 
 		array<Object> vicinityObjects= new array<Object>;
@@ -94,6 +94,7 @@ modded class MiscGameplayFunctions
 			vector worldPos = obstrObj.GetWorldPosition();
 			vector min, max;
 			vector minMax[2];
+			//! This one next line different from vanilla (added collision box check for Expansion BB)
 			if ( obstrObj.GetCollisionBox(minMax) || ( obstrObj.IsInherited( ExpansionBaseBuilding ) && ExpansionBaseBuilding.Cast( obstrObj ).ExpansionGetCollisionBox( minMax ) ) )
 			{
 				min = minMax[0];
@@ -165,7 +166,7 @@ modded class MiscGameplayFunctions
 	override static bool IsObjectObstructedEx(Object object, IsObjectObstructedCache cache, bool doDistanceCheck = false, vector distanceCheckPos = "0 0 0", float maxDist = 0)
 	{
 		//! Vanilla
-		//! Had to duplicate this so our version of IsObjectObstructedFilter gets used and not the vanilla one
+		//! Had to duplicate this so our version of IsObjectObstructedFilterEx gets used and not the vanilla one
 
 		if (!object)
 			return true;
@@ -175,20 +176,56 @@ modded class MiscGameplayFunctions
 			return true;
 
 		cache.ObjectCenterPos = object.GetCenter();
-			
-		if (IsObjectObstructedProxy(object, cache, player))
-			return true;
 
-		DayZPhysics.RaycastRV( cache.RaycastStart, cache.ObjectCenterPos, cache.ObjectContactPos, cache.ObjectContactDir, cache.ContactComponent, cache.HitObjects, object, GetGame().GetPlayer(), false, false, ObjIntersectFire, 0.0, CollisionFlags.ALLOBJECTS );
-
-		return IsObjectObstructedFilter(object, cache, player);
+		return IsObjectObstructedFilterEx(object, cache, player);
 	}
 
-	override static bool IsObjectObstructedFilter(Object object, IsObjectObstructedCache cache, PlayerBase player)
+	override static bool IsObjectObstructedFilterEx(Object object, IsObjectObstructedCache cache, PlayerBase player, int geometryTypeOverride = -1)
 	{
+		//! Vanilla START
+
+		//first proxy geometries
+		RaycastRVParams rayInput = new RaycastRVParams(cache.RaycastStart, cache.ObjectCenterPos, player);
+		rayInput.flags = CollisionFlags.ALLOBJECTS;
+		if (geometryTypeOverride != -1)
+			rayInput.type = geometryTypeOverride; //default 'ObjIntersectView'
+		DayZPhysics.RaycastRVProxy(rayInput, cache.HitProxyObjects);
+		int count;
+		int i;
+		
+		if (cache.HitProxyObjects)
+		{
+			count = cache.HitProxyObjects.Count();
+			Object parent;
+			for (i = 0; i < count; ++i)
+			{
+				if (cache.HitProxyObjects[i].hierLevel > 0) //parent has to exist, skipping nullcheck
+				{
+					parent = cache.HitProxyObjects[i].parent;
+					if (parent && !parent.IsMan() && parent.CanProxyObstruct())
+					{
+						if (parent != object || (parent == object && object.CanProxyObstructSelf()))
+							return true;
+					}	
+				}
+			}
+		}
+		
+		//second, regular raycast
+		int geometry = ObjIntersectFire; //default for the RV raycast
+		if (geometryTypeOverride != -1)
+			geometry = geometryTypeOverride;
+		DayZPhysics.RaycastRV(cache.RaycastStart, cache.ObjectCenterPos, cache.ObjectContactPos, cache.ObjectContactDir, cache.ContactComponent, cache.HitObjects, object, GetGame().GetPlayer(), false, false, geometry, 0.0, CollisionFlags.ALLOBJECTS);
+
+		//! Vanilla END
+
+		//! -------------------------------------------------------------------
+
+		//! Expansion START
+
 		#ifdef EXPANSION_VICINITY_DEBUG
 		string tmp;
-		int count;
+		count = 0;
 		foreach ( Object potObstrObj : cache.HitObjects )
 		{
 			if ( tmp )
@@ -246,16 +283,31 @@ modded class MiscGameplayFunctions
 
 		if ( doAdditionalCheck )
 		{
-			//! We are only interested in large items
-			PhxInteractionLayers layerMask = PhxInteractionLayers.ITEM_LARGE;
+			//! No idea what ITEM_LARGE even hits, but not basebuilding - keeping it just in case
+			//! ITEM_SMALL hits barrels etc
+			//! BUILDING actually hits basebuilding, tents
+			PhxInteractionLayers layerMask = PhxInteractionLayers.ITEM_LARGE | PhxInteractionLayers.ITEM_SMALL | PhxInteractionLayers.BUILDING;
 
+			Object hitObject;
 			vector hitPosition;
+			vector hitNormal;
+			float hitFraction;
 
-			if ( DayZPhysics.SphereCastBullet( cache.RaycastStart, cache.ObjectCenterPos, 0.1, layerMask, player, NULL, hitPosition, NULL, NULL ) )
+			if ( DayZPhysics.SphereCastBullet( cache.RaycastStart, cache.ObjectCenterPos, 0.1, layerMask, player, hitObject, hitPosition, hitNormal, hitFraction ) )
 			{
+				if (hitObject == object)
+				{
+					#ifdef EXPANSION_VICINITY_DEBUG
+					EXPrint(object.ToString() + " hit " + hitPosition + " " + hitObject + " - not obstructed");
+					#endif
+					return false;
+				}
+
+				//! XXX: The below code is probably(?) obsolete since it was written at a time when Bullet raycasts always returned NULL for hitObject,
+				//! but this has since been fixed in the game, so we could just return true (obstructed)
+
 				//! Check if the object itself was hit or something in front.
-				//! As hitObject from RayCastBullet/SphereCastBullet is always NULL (no point in even passing the variable in,
-				//! it will never get set), we have to do some jumping though hoops to determine what was actually hit.
+				//! We have to do some jumping though hoops to determine what was actually hit.
 
 				bool hasCollisionBox;
 				vector minMax[2];
@@ -307,6 +359,8 @@ modded class MiscGameplayFunctions
 			}
 			#endif
 		}
+
+		//! Expansion END
 
 		#ifdef EXPANSION_VICINITY_DEBUG
 		EXPrint(object.ToString() + " not obstructed");

@@ -70,13 +70,13 @@ class ExpansionLocation
 
 	static array<ref ExpansionLocation> GetWorldLocations(int include = 0)
 	{
-		return ExpansionLocationT<ExpansionLocation>.GetWorldLocations(ExpansionLocation, include);
+		return ExpansionLocationT<ExpansionLocation>.GetWorldLocations(include);
 	}
 }
 
-class ExpansionLocationT<Class T>: ExpansionLocation
+class ExpansionLocationT<Class T>
 {
-	static array<ref T> GetWorldLocations(typename type, int include = 0)
+	static array<ref T> GetWorldLocations(int include = 0)
 	{
 		if (!include)
 		{
@@ -165,9 +165,9 @@ class ExpansionLocationT<Class T>: ExpansionLocation
 			}
 
 			T loc;
-			if (Class.CastTo(loc, type.Spawn()))
+			if (Class.CastTo(loc, ((typename)T).Spawn()))
 			{
-				float radius = GetRadius(location_type);
+				float radius = ExpansionLocation.GetRadius(location_type);
 				loc.Init(Vector(location_position[0], 0, location_position[1]), radius, location_name, location_type, location_class_name, null, index++);
 				areaArray.Insert(loc);
 			}

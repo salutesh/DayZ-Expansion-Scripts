@@ -1,13 +1,13 @@
 class cfgPatches
 {
-	class BuilderItems_rocks_sakhal
+	class BuilderItems_structures_sakhal
 	{
 		units[]={};
 		weapons[]={};
 		requiredVersion=0.1;
 		requiredAddons[]=
 		{
-			"DZ_Rocks_Sakhal"
+			"DZ_Structures_Sakhal"
 		};
 	};
 };

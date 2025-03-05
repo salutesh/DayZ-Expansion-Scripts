@@ -289,7 +289,8 @@ class ExpansionAirdropContainerBase: Container_Base
 				float fallSpeed = m_Expansion_PreviousAltitude - position[1];
 				EXTrace.Print(EXTrace.MISSIONS, this, "EOnSimulate - dt " + dt + " - fall speed " + fallSpeed + " m/s");
 				m_Expansion_PreviousAltitude = position[1];
-				GetGame().CreateObjectEx("ExpansionDebugRodBig", position, ECE_NOLIFETIME);
+				if (DayZPlayerImplement.s_Expansion_DebugObjects_Enabled)
+					GetGame().CreateObjectEx("ExpansionDebugRodBig", position, ECE_NOLIFETIME);
 			}
 		#endif
 

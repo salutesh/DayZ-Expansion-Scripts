@@ -41,7 +41,9 @@ class ExpansionAirdropSettingsV4: ExpansionAirdropSettingsBase
 
 class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 {
-	static const int VERSION = 5;
+	static const int VERSION = 6;
+
+	string AirdropPlaneClassName;
 	
 	ref array < ref ExpansionLootContainer > Containers = {};
 
@@ -129,7 +131,10 @@ class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 				{
 					ExpansionAirdropSettingsV4 configV4;
 					if (!ExpansionJsonFileParser<ExpansionAirdropSettingsV4>.Load(EXPANSION_AIRDROP_SETTINGS, configV4))
+					{
+						Defaults();
 						return false;
+					}
 
 					CopyInternal(configbase);
 
@@ -153,6 +158,17 @@ class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 						ExpansionLootContainer newcontainer = containerV1.Convert();
 						Containers.Insert( newcontainer );
 					}
+				}
+				else
+				{
+					if (!ExpansionJsonFileParser<ExpansionAirdropSettings>.Load(EXPANSION_AIRDROP_SETTINGS, this))
+					{
+						Defaults();
+						return false;
+					}
+
+					if (m_Version < 6 && !AirdropPlaneClassName)
+						AirdropPlaneClassName = defaults.AirdropPlaneClassName;
 				}
 
 				if (configbase.m_Version < 4)
@@ -220,6 +236,8 @@ class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 		InfectedSpawnInterval = 250;
 
 		ItemCount = 50;
+
+		AirdropPlaneClassName = "";
 
 		Containers.Clear();
 	}

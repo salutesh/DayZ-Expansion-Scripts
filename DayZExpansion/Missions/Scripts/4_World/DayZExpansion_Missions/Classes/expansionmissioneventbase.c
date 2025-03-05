@@ -67,7 +67,7 @@ class ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void ~ExpansionMissionEventBase()
 	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
@@ -352,7 +352,7 @@ class ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void End()
 	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		

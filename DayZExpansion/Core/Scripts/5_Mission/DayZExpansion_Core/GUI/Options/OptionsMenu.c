@@ -14,6 +14,12 @@ modded class OptionsMenu
 {
 	protected ref OptionsMenuExpansion m_ExpansionTab;
 	
+	void ~OptionsMenu()
+	{
+		if (m_ExpansionTab)
+			delete m_ExpansionTab;
+	}
+
 	override Widget Init()
 	{
 		layoutRoot = super.Init();

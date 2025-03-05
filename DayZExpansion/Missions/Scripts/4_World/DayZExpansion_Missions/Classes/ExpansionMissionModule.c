@@ -71,6 +71,9 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		EnableMissionLoaded();
 		EnableMissionFinish();
+		EnableInvokeConnect();
+		Expansion_EnableRPCManager();
+		Expansion_RegisterClientRPC("RPC_CreateAirdropPlane");
 
 		ExpansionMissionEventBase.SI_OnMissionEnd.Insert( RemoveMission );
 
@@ -83,6 +86,61 @@ class ExpansionMissionModule: CF_ModuleWorld
 		m_RunningMissions = new array< ExpansionMissionEventBase >;
 
 		ExpansionMissionSettings.SI_OnSave.Insert( SaveMissions );
+	}
+
+	override void OnInvokeConnect(Class sender, CF_EventArgs args)
+	{
+		super.OnInvokeConnect(sender, args);
+
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAirdropPlaneBase.Expansion_SendCreatePlanesOnClient, 1000, false, cArgs.Player);
+	}
+
+	//! Client
+	void RPC_CreateAirdropPlane(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		int planeID;
+		if (!ctx.Read(planeID))
+			return;
+
+		if (ExpansionAirdropPlaneBase.s_Expansion_AirdropPlanes[planeID])
+			return;
+
+		string planeClassName;
+		if (!ctx.Read(planeClassName))
+			return;
+
+		vector spawnPoint;
+		if (!ctx.Read(spawnPoint))
+			return;
+
+		vector dropPosition;
+		if (!ctx.Read(dropPosition))
+			return;
+
+		bool heightIsRelativeToGround;
+		if (!ctx.Read(heightIsRelativeToGround))
+			return;
+
+		float height;
+		if (!ctx.Read(height))
+			return;
+
+		float followTerrainFrac;
+		if (!ctx.Read(followTerrainFrac))
+			return;
+
+		float speed;
+		if (!ctx.Read(speed))
+			return;
+
+		auto plane = ExpansionAirdropPlaneBase.Cast(GetGame().CreateObjectEx(planeClassName, spawnPoint, ECE_AIRBORNE | ECE_LOCAL) );
+
+		plane.Expansion_SetAirdropPlaneID(planeID);
+		plane.SetupPlane(dropPosition, "", 0.0, heightIsRelativeToGround, height, followTerrainFrac, speed, null);
+		plane.Expansion_EnableUpdate();
+		plane.Expansion_PlayEngineSoundLoop();
 	}
 
 	void CallAirdrop(vector position)
@@ -129,7 +187,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		container = new ExpansionLootContainer( container.Container, 2, 1, container.Loot, infected, itemCount, infectedCount, false, container.FallSpeed );
 
-		ExpansionAirdropPlane plane = ExpansionAirdropPlane.CreatePlane( Vector( position[0], 0, position[2] ), "", GetExpansionSettings().GetAirdrop().Radius, GetExpansionSettings().GetAirdrop().Height, GetExpansionSettings().GetAirdrop().Speed, container, new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER" ) );
+		ExpansionAirdropPlaneBase plane = ExpansionAirdropPlane.CreatePlane( Vector( position[0], 0, position[2] ), "", GetExpansionSettings().GetAirdrop().Radius, GetExpansionSettings().GetAirdrop().Height, GetExpansionSettings().GetAirdrop().Speed, container, new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER" ) );
 
 		if ( plane )
 		{

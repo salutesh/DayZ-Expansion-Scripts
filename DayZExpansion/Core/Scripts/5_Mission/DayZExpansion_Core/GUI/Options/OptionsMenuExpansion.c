@@ -67,6 +67,20 @@ class OptionsMenuExpansion: ScriptedWidgetEventHandler
 		}
 	}
 	
+	void ~OptionsMenuExpansion()
+	{
+		if (m_OptionsWidgets)
+		{
+			foreach (auto w: m_OptionsWidgets)
+			{
+				if (w)
+					delete w;
+			}
+
+			m_OptionsWidgets.Clear();
+		}
+	}
+	
 	// -----------------------------------------------------------
 	// OptionsMenuExpansion IsChanged
 	// -----------------------------------------------------------

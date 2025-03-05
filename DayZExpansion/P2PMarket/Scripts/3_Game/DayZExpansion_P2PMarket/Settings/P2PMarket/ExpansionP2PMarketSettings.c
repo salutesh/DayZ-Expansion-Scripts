@@ -999,7 +999,6 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 		sub_Cat_Weapons_Rifles.AddIncluded("SSG82_Base");
 	#ifdef EXPANSIONMODWEAPONS
 		sub_Cat_Weapons_Rifles.AddIncluded("Expansion_Kar98_Base");
-		sub_Cat_Weapons_Rifles.AddIncluded("Expansion_M14_Base");
 		sub_Cat_Weapons_Rifles.AddIncluded("Expansion_M1A_Base");
 	#endif
 		cat_Weapons.AddSubCategory(sub_Cat_Weapons_Rifles);
