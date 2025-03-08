@@ -40,6 +40,8 @@ class ExpansionAirdropContainerBase: Container_Base
 
 	vector m_SpawnPosition;  //! @note position where container is spawned, not necessarily where it lands!
 
+	float m_Expansion_LastUpdateTickTime;
+
 #ifdef EXPANSIONMODAI
 	ref eAIDynamicPatrolSpawner<ExpansionAirdropContainerBase> m_eAI_DynamicPatrolSpawner;
 #endif
@@ -58,7 +60,13 @@ class ExpansionAirdropContainerBase: Container_Base
 		RegisterNetSyncVariableBool("m_IsLooted");
 		RegisterNetSyncVariableBool("m_Expansion_HideCargoWhileParachuteIsDeployed");
 		
-		SetEventMask( EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.SIMULATE ); 
+		//SetEventMask( EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.SIMULATE );
+
+		if (GetGame().IsServer())
+		{
+			m_Expansion_LastUpdateTickTime = GetGame().GetTickTime();
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_Update, 25, true);
+		}
 
 		SetAnimationPhase( "parachute", 1 );	
 		
@@ -83,6 +91,12 @@ class ExpansionAirdropContainerBase: Container_Base
 			s_Expansion_SpawnParticle_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_SpawnParticle");
 	}
 	
+	void ~ExpansionAirdropContainerBase()
+	{
+		if (GetGame() && GetGame().IsServer() && GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM))
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_Update);
+	}
+
 	override void EEInit()
 	{
 		super.EEInit();
@@ -94,13 +108,13 @@ class ExpansionAirdropContainerBase: Container_Base
 			SetAnimationPhase( "parachute", 0 );
 			SetOrientation( Vector( GetOrientation()[0], 0, 0 ) );
 			SetDirection( GetDirection() );
-			CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
-			EnableDynamicCCD( true );
-			SetDynamicPhysicsLifeTime( -1 );
+			//CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
+			//EnableDynamicCCD( true );
+			//SetDynamicPhysicsLifeTime( -1 );
 			
 			m_StartTime = GetGame().GetTime();
 
-			dBodySetDamping(this, 0.0, 1.0);
+			//dBodySetDamping(this, 0.0, 1.0);
 
 			m_Expansion_PreviousAltitude = GetPosition()[1];
 		}
@@ -216,11 +230,28 @@ class ExpansionAirdropContainerBase: Container_Base
 		}
 	}
 
+/*
 	override void EOnSimulate(IEntity other, float dt)
 	{
 		if (!GetGame().IsServer())
 			return;
 
+		Expansion_OnUpdate(dt);
+	}
+*/
+
+	void Expansion_Update()
+	{
+		float time = GetGame().GetTickTime();
+		float dt = time - m_Expansion_LastUpdateTickTime;
+
+		Expansion_OnUpdate(dt);
+
+		m_Expansion_LastUpdateTickTime = time;
+	}
+
+	void Expansion_OnUpdate(float dt)
+	{
 		//! Get current velocity
 		vector velocity = GetVelocity(this);
 
@@ -228,10 +259,11 @@ class ExpansionAirdropContainerBase: Container_Base
 		{
 			if (velocity.LengthSq() < 0.0001 && dBodyGetAngularVelocity(this).LengthSq() < 0.0001)
 			{
-				EnableDynamicCCD(false);
-				SetDynamicPhysicsLifeTime(0);
+				//EnableDynamicCCD(false);
+				//SetDynamicPhysicsLifeTime(0);
 
-				ClearEventMask(EntityEvent.SIMULATE);
+				//ClearEventMask(EntityEvent.SIMULATE);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_Update);
 
 				EXTrace.Print(EXTrace.MISSIONS, this, "EOnSimulate - stopped - updating pathgraph region");
 
@@ -255,10 +287,12 @@ class ExpansionAirdropContainerBase: Container_Base
 					windImpact = windImpact - Vector(velocity[0], 0.0, velocity[2]);
 
 					//! Apply directional wind impact
-					dBodyApplyImpulse(this, windImpact * dt * 0.5);
+					//dBodyApplyImpulse(this, windImpact * dt * 0.5);
+					velocity[0] = velocity[0] + windImpact[0] * dt * 0.5;
+					velocity[2] = velocity[2] + windImpact[2] * dt * 0.5;
 
 					//! Get updated velocity
-					velocity = GetVelocity(this);
+					//velocity = GetVelocity(this);
 
 					//! Rotate to updated direction of movement
 					vector dirNormalized = velocity.Normalized();
@@ -273,12 +307,14 @@ class ExpansionAirdropContainerBase: Container_Base
 
 			//! Apply fall speed accounting for gravitational acceleration
 			//! (effective fall speed will roughly match computed value from InitAirdrop)
-			velocity[1] = -m_Expansion_FallSpeed * 0.44;
+			//velocity[1] = -m_Expansion_FallSpeed * 0.44;
+			velocity[1] = -m_Expansion_FallSpeed * dt;
 
-			SetVelocity(this, velocity);
+			//SetVelocity(this, velocity);
 
 			vector transform[4];
 			GetTransform( transform );
+			transform[3] = transform[3] + velocity;
 
 		#ifdef DIAG_DEVELOPER
 			m_Expansion_SimulationTimeAccumulator += dt;
@@ -323,12 +359,15 @@ class ExpansionAirdropContainerBase: Container_Base
 			foreach (Object result: results)
 			{
 				//! Bushes do not have collision, so we deal with them here
-				if (result.IsBush() && !result.IsDamageDestroyed())
+				if ((result.IsBush() || result.IsTree()) && !result.IsDamageDestroyed())
 					ExpansionWorld.CheckTreeContact(result, 7500, true);
 			}
 
-			return true;
+			//return true;
 		}
+
+		if (start[1] <= ExpansionStatic.GetSurfaceRoadPosition(start, RoadSurfaceDetection.CLOSEST)[1] + 0.05)
+			return true;
 
 		return false;
 	}
@@ -341,9 +380,9 @@ class ExpansionAirdropContainerBase: Container_Base
 		
 		m_HasLanded = true;
 
-		dBodySetDamping(this, 0.5, 0.5);
+		//dBodySetDamping(this, 0.5, 0.5);
 
-		SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );
+		//SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );
 
 		//! Set parachute animation phase so parachute is hidden
 		SetAnimationPhase( "parachute", 1 );

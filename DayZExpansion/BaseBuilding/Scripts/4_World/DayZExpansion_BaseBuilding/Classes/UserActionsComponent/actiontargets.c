@@ -5,19 +5,35 @@ modded class ActionTargets
 	{
 		float utility = super.ComputeUtility(pTarget, pRayStart, pRayEnd, cursorTarget, hitPos);
 
-		if (pTarget == cursorTarget && utility > 0 && pTarget.IsItemBase())
+		ItemBase targetItem;
+		if (pTarget == cursorTarget && utility > 0 && Class.CastTo(targetItem, pTarget))
 		{
-			PhxInteractionLayers layerMask = PhxInteractionLayers.ITEM_LARGE | PhxInteractionLayers.ITEM_SMALL | PhxInteractionLayers.BUILDING;
-
-			Object hitObject;
-			vector hitPosition;
-			vector hitNormal;
-			float hitFraction;
-
-			if (DayZPhysics.RayCastBullet(pRayStart, pRayEnd, layerMask, m_Player, hitObject, hitPosition, hitNormal, hitFraction))
+			auto settings = GetExpansionSettings().GetBaseBuilding(false);
+			if (settings.PreventItemAccessThroughObstructingItems)
 			{
-				if (hitObject != pTarget)
-					return -1;
+				PhxInteractionLayers layerMask;
+				layerMask |= PhxInteractionLayers.BUILDING;
+				layerMask |= PhxInteractionLayers.DOOR;
+				layerMask |= PhxInteractionLayers.VEHICLE;
+				layerMask |= PhxInteractionLayers.ROADWAY;
+				layerMask |= PhxInteractionLayers.TERRAIN;
+				layerMask |= PhxInteractionLayers.ITEM_LARGE;
+				layerMask |= PhxInteractionLayers.ITEM_SMALL;
+				layerMask |= PhxInteractionLayers.FENCE;
+
+				Object hitObject;
+				vector hitPosition;
+				vector hitNormal;
+				float hitFraction;
+
+				if (DayZPhysics.RayCastBullet(pRayStart, pRayEnd, layerMask, m_Player, hitObject, hitPosition, hitNormal, hitFraction))
+				{
+					//! If hit object is item that can obstruct and is not attached to target item (or vice versa),
+					//! prevent interaction by setting utility to -1
+					ItemBase hitItem;
+					if (Class.CastTo(hitItem, hitObject) && hitItem.Expansion_CanObstruct() && hitItem.GetHierarchyRoot() != targetItem.GetHierarchyRoot())
+						return -1;
+				}
 			}
 		}
 

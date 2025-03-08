@@ -30,7 +30,7 @@ class CfgVehicles
 	{
 		vehicleClass="Expansion_Airdrop";
 		scope=2;
-		model="\DayZExpansion\Missions\Objects\stardestroyer_edit1.p3d";
+		model="\DayZExpansion\Missions\Objects\stardestroyer_edit2.p3d";
 		forceFarBubble="true";
 	};
 	class ExpansionAirdropContainerBase: Container_Base

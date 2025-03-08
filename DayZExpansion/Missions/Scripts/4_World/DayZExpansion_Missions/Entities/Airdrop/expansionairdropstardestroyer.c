@@ -80,6 +80,6 @@ class ExpansionAirdropStarDestroyer: ExpansionAirdropPlaneBase
 
 	override float Expansion_GetDropOffset()
 	{
-		return 220;
+		return 250;
 	}
 }

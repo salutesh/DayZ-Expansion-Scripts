@@ -162,26 +162,26 @@ class ExpansionAirdropPlaneBase: House
 
 		//! Make plane spawn opposite from drop location relative to map center
 
-		if (dropPosition[0] < worldCenter[0])
+		if (dropPosition[0] < worldCenter[0] * 0.75)
 		{
 			//! Don't spawn from west
 			directions.RemoveItem(0);
 			minX = size - worldCenter[0] * 0.5;
 		}
-		else if (dropPosition[0] > worldCenter[0])
+		else if (dropPosition[0] > worldCenter[0] * 1.25)
 		{
 			//! Don't spawn from east
 			directions.RemoveItem(2);
 			maxX = worldCenter[0] * 0.5;
 		}
 
-		if (dropPosition[2] < worldCenter[2])
+		if (dropPosition[2] < worldCenter[2] * 0.75)
 		{
 			//! Don't spawn from south
 			directions.RemoveItem(1);
 			minY = size - worldCenter[2] * 0.5;
 		}
-		else if (dropPosition[2] > worldCenter[2])
+		else if (dropPosition[2] > worldCenter[2] * 1.25)
 		{
 			//! Don't spawn from north
 			directions.RemoveItem(3);
