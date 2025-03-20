@@ -20,8 +20,8 @@ modded class DayZGame
 	protected string m_ExpansionLastestVersion;
 	protected ref ExpansionGame m_ExpansionGame;
 
-	protected int m_Expansion_StartTime;
-	protected int m_Expansion_StartTimeUTC;
+	protected float m_Expansion_StartTime;
+	protected float m_Expansion_StartTimeUTC;
 	protected int m_Expansion_StartTimestamp;
 	protected int m_Expansion_StartTimestampUTC;
 
@@ -198,15 +198,15 @@ modded class DayZGame
 		version_widget.SetText(version_info);
 	}
 
-	int ExpansionCalculateStartTime(CF_Date date)
+	float ExpansionCalculateStartTime(CF_Date date)
 	{
-		int time = date.GetHours() * 3600 + date.GetMinutes() * 60 + date.GetSeconds() - (int) GetTickTime();
+		float time = date.GetHours() * 3600 + date.GetMinutes() * 60 + date.GetSeconds() - GetTickTime();
 		if (time < 0)
 			time += 24 * 3600;
 		return time;
 	}
 
-	int ExpansionGetStartTime(bool useUTC = false)
+	float ExpansionGetStartTime(bool useUTC = false)
 	{
 		if (useUTC)
 			return m_Expansion_StartTimeUTC;

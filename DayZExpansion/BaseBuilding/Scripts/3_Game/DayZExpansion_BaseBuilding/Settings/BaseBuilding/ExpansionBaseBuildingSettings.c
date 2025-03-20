@@ -133,6 +133,8 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		ctx.Read(DismantleFlagMode);
 		ctx.Read(FlagMenuMode);
 
+		ctx.Read(PreventItemAccessThroughObstructingItems);
+
 		ctx.Read(EnableVirtualStorage);
 		ctx.Read(VirtualStorageExcludedContainers);
 		
@@ -178,6 +180,8 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		ctx.Write(DismantleFlagMode);
 		ctx.Write(FlagMenuMode);
 
+		ctx.Write(PreventItemAccessThroughObstructingItems);
+
 		ctx.Write(EnableVirtualStorage);
 		ctx.Write(VirtualStorageExcludedContainers);
 	}
@@ -218,6 +222,8 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		DismantleFlagMode = s.DismantleFlagMode;
 		CodelockAttachMode = s.CodelockAttachMode;
 		FlagMenuMode = s.FlagMenuMode;
+
+		PreventItemAccessThroughObstructingItems = s.PreventItemAccessThroughObstructingItems;
 
 		BuildZoneRequiredCustomMessage = s.BuildZoneRequiredCustomMessage;
 		

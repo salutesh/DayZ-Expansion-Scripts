@@ -13,7 +13,7 @@ class CfgPatches
 };
 class CfgMods
 {
-	class DZ_Expansion_Teleporter
+	class EXPANSIONMODTELEPORTER
 	{
 		dir="DayZExpansion/Teleporter";
 		credits="$STR_MOD_EXPANSION_AUTHOR";
@@ -34,6 +34,10 @@ class CfgMods
 			"Game",
 			"World",
 			"Mission"
+		};
+		defines[]=
+		{
+			"EXPANSIONMODTELEPORTER"
 		};
 		class defs
 		{

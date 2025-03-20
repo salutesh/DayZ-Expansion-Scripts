@@ -3,6 +3,7 @@ modded class CF_Log
 	static ref ExpansionStaticCore s_Expansion_StaticCore;
 	static ref ExpansionStaticCore s_Expansion_Static = new ExpansionStaticCore;
 
+#ifndef CF_LOG_TIMESTAMP
 	override static void Trace(string message, string param1 = "", string param2 = "", string param3 = "", string param4 = "", string param5 = "", string param6 = "", string param7 = "", string param8 = "", string param9 = "")
 	{
 		if (Level > CF_LogLevel.TRACE) return;
@@ -48,6 +49,7 @@ modded class CF_Log
 
 		PrintStack();
 	}
+#endif
 
 	static void PrintStack()
 	{

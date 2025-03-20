@@ -23,7 +23,12 @@ class ExpansionAirdropPlaneBase: House
 	float m_Distance;
 
 	float m_Speed;
+	float m_CurrentSpeed;
+	float m_DropSpeed;
+	float m_DropProximityDist;
 	float m_Height;
+	float m_CurrentHeight;
+	float m_DropHeight;
 	float m_FollowTerrainFraction;
 
 	bool m_HeightIsRelativeToGroundLevel;
@@ -98,10 +103,8 @@ class ExpansionAirdropPlaneBase: House
 
 	void ~ExpansionAirdropPlaneBase()
 	{
-	#ifndef DIAG_DEVELOPER
 		if (!GetGame())
 			return;
-	#endif
 
 		Expansion_DisableUpdate();
 
@@ -244,7 +247,7 @@ class ExpansionAirdropPlaneBase: House
 	// ------------------------------------------------------------
 	// ExpansionAirdropPlane SetupPlane
 	// ------------------------------------------------------------
-	void SetupPlane(vector dropPosition, string name, float maxRadius, bool heightIsRelativeToGround, float height, float followTerrainFrac, float speed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL, float containerLifeTime = 0.0)
+	void SetupPlane(vector dropPosition, string name, float maxRadius, bool heightIsRelativeToGround, float height, float dropHeight, float followTerrainFrac, float speed, float dropSpeed, float dropProximityDist, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL, float containerLifeTime = 0.0)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
@@ -254,8 +257,13 @@ class ExpansionAirdropPlaneBase: House
 
 		m_HeightIsRelativeToGroundLevel = heightIsRelativeToGround;
 		m_Height = height;
+		m_CurrentHeight = height;
+		m_DropHeight = dropHeight;
 		m_FollowTerrainFraction = followTerrainFrac;
 		m_Speed = speed;
+		m_CurrentSpeed = speed;
+		m_DropSpeed = dropSpeed;
+		m_DropProximityDist = dropProximityDist;
 		
 		// Message( PlayerBase.Cast( GetGame().GetPlayer() ), "m_Speed " + m_Speed );
 		// Message( PlayerBase.Cast( GetGame().GetPlayer() ), "speed " + speed );
@@ -320,8 +328,19 @@ class ExpansionAirdropPlaneBase: House
 			vector position = GetPosition();
 			vector velocity = Vector( Math.Cos( m_HeadingAngle ), 0, Math.Sin( m_HeadingAngle ) );
 
-			velocity[0] = velocity[0] * m_Speed;
-			velocity[2] = velocity[2] * m_Speed;
+			if (Math.IsPointInCircle(m_AirdropPosition, m_DropProximityDist, position))
+			{
+				m_CurrentSpeed = Math.Lerp(m_CurrentSpeed, m_DropSpeed, dt);
+				m_CurrentHeight = Math.Lerp(m_CurrentHeight, m_DropHeight, dt);
+			}
+			else
+			{
+				m_CurrentSpeed = Math.Lerp(m_CurrentSpeed, m_Speed, dt);
+				m_CurrentHeight = Math.Lerp(m_CurrentHeight, m_Height, dt);
+			}
+
+			velocity[0] = velocity[0] * m_CurrentSpeed;
+			velocity[2] = velocity[2] * m_CurrentSpeed;
 
 			float altitude = position[1];
 			float targetAltitude;
@@ -333,7 +352,7 @@ class ExpansionAirdropPlaneBase: House
 				//! Plane will be at this pos in 1s - react to terrain elevation changes in advance
 				terrainY = GetTerrainY( position + velocity );
 
-				targetAltitude = Math.Lerp( altitude, terrainY + m_Height, m_FollowTerrainFraction );
+				targetAltitude = Math.Lerp( altitude, terrainY + m_CurrentHeight, m_FollowTerrainFraction );
 
 				//! Altitude buffer for smoothing
 
@@ -379,7 +398,7 @@ class ExpansionAirdropPlaneBase: House
 					float f = Math.Min( Math.Max( angles[0] / 45.0 * signScale, 0 ), 1.0 );
 
 					float allowedAltitudeDelta;
-					float allowedAltitudeDeltaNominal = m_Speed * dt;  //! Nominal at abs pitch angle of 45 deg
+					float allowedAltitudeDeltaNominal = m_CurrentSpeed * dt;  //! Nominal at abs pitch angle of 45 deg
 					float allowedAltitudeDeltaMin = allowedAltitudeDeltaNominal * 0.10;  //! 10% of nominal, still allows decent reaction time
 
 					allowedAltitudeDelta = Math.Lerp( allowedAltitudeDeltaMin, allowedAltitudeDeltaNominal, f );
@@ -403,23 +422,23 @@ class ExpansionAirdropPlaneBase: House
 
 				terrainY = GetTerrainY(m_AirdropPosition);
 
-				targetAltitude = terrainY + m_Height;
+				targetAltitude = terrainY + m_CurrentHeight;
 				altitude = targetAltitude;
 			}
 			else
 			{
-				targetAltitude = m_Height;
+				targetAltitude = m_CurrentHeight;
 			}
 
 			float delta = targetAltitude - altitude;
 
-			if ( m_Speed > 0 )
+			if ( m_CurrentSpeed > 0 )
 			{
 				//! Adjust pitch
 				if (IsBuilding())
-					angles[0] = -45.0 * ( delta / m_Speed );
+					angles[0] = -45.0 * ( delta / m_CurrentSpeed );
 				else
-					angles[0] = 45.0 * ( delta / m_Speed );
+					angles[0] = 45.0 * ( delta / m_CurrentSpeed );
 				SetAngles( angles );
 			}
 
@@ -526,16 +545,13 @@ class ExpansionAirdropPlaneBase: House
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
-		if ( !IsMissionHost() )
-			return false;
+		vector position = GetPosition();
 
-		if ( GetPosition()[0] == 0 || GetPosition()[2] == 0 )
+		if ( position[0] == 0 || position[2] == 0 )
 			return false;
 
 		if ( m_AirdropPosition[0] == 0 || m_AirdropPosition[2] == 0 )
 			return false;
-
-		vector position = GetPosition();
 
 		bool drop = false;
 
@@ -546,7 +562,7 @@ class ExpansionAirdropPlaneBase: House
 
 		m_WarningProximity = false;
 
-		if ( distance <= 1500 && !m_HasWarnedProximity )
+		if ( distance <= m_DropProximityDist && !m_HasWarnedProximity )
 		{
 			m_HasWarnedProximity = true;
 			m_WarningProximity = true;	
@@ -562,13 +578,13 @@ class ExpansionAirdropPlaneBase: House
 	}
 
 	//! Server
-	static ExpansionAirdropPlaneBase CreatePlane(vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL, float containerLifeTime = 0.0)
+	static ExpansionAirdropPlaneBase CreatePlane(vector dropPosition, string name, float maxRadius, float height, float dropHeight, float speed, float dropSpeed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL, float containerLifeTime = 0.0)
 	{
-		return CreatePlane("", dropPosition, name, maxRadius, height, speed, container, warningProximityMsg, airdropCreatedMsg, containerLifeTime);
+		return CreatePlane("", dropPosition, name, maxRadius, height, dropHeight, speed, dropSpeed, container, warningProximityMsg, airdropCreatedMsg, containerLifeTime);
 	}
 
 	//! Server
-	static ExpansionAirdropPlaneBase CreatePlane(string planeClassName, vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL, float containerLifeTime = 0.0)
+	static ExpansionAirdropPlaneBase CreatePlane(string planeClassName, vector dropPosition, string name, float maxRadius, float height, float dropHeight, float speed, float dropSpeed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL, float containerLifeTime = 0.0)
 	{
 		vector spawnPoint = GetSpawnPoint( dropPosition, height );
 
@@ -599,7 +615,7 @@ class ExpansionAirdropPlaneBase: House
 		auto plane = ExpansionAirdropPlaneBase.Cast( GetGame().CreateObjectEx(planeClassName, spawnPoint, ECE_AIRBORNE | ECE_LOCAL) );
 
 		plane.Expansion_SetAirdropPlaneID(s_Expansion_AirdropPlaneNextID++);
-		plane.SetupPlane( dropPosition, name, maxRadius, settings.HeightIsRelativeToGroundLevel, height, settings.FollowTerrainFraction, speed, container, warningProximityMsg, airdropCreatedMsg, containerLifeTime );
+		plane.SetupPlane( dropPosition, name, maxRadius, settings.HeightIsRelativeToGroundLevel, height, dropHeight, settings.FollowTerrainFraction, speed, dropSpeed, settings.DropZoneProximityDistance, container, warningProximityMsg, airdropCreatedMsg, containerLifeTime );
 
 		plane.Expansion_SendCreatePlaneOnClient();
 
@@ -617,8 +633,11 @@ class ExpansionAirdropPlaneBase: House
 		rpc.Write(m_AirdropPosition);
 		rpc.Write(m_HeightIsRelativeToGroundLevel);
 		rpc.Write(m_Height);
+		rpc.Write(m_DropHeight);
 		rpc.Write(m_FollowTerrainFraction);
 		rpc.Write(m_Speed);
+		rpc.Write(m_DropSpeed);
+		rpc.Write(m_DropProximityDist);
 		rpc.Expansion_Send(true, identity);
 	}
 
@@ -662,11 +681,15 @@ class ExpansionAirdropPlaneBase: House
 		#ifndef DAYZ_1_20
 		flags |= ECE_DYNAMIC_PERSISTENCY;
 		#endif
-		Object obj = GetGame().CreateObjectEx(container, dropPosition, flags);
+		Object obj = GetGame().CreateObjectEx("ExpansionAirdropContainerBase_Server", dropPosition, flags);
 
 		#ifdef DIAG_DEVELOPER
 		if (DayZPlayerImplement.s_Expansion_DebugObjects_Enabled)
-			GetGame().CreateObjectEx("ExpansionDebugRodBig", ExpansionStatic.GetSurfacePosition(dropPosition), ECE_NOLIFETIME);
+		{
+			EntityAI dbgEnt;
+			if (Class.CastTo(dbgEnt, GetGame().CreateObjectEx("ExpansionDebugRodBig", ExpansionStatic.GetSurfacePosition(dropPosition), ECE_NOLIFETIME)))
+				dbgEnt.SetLifetime(600);
+		}
 		#endif
 		
 		ExpansionAirdropContainerBase drop;
@@ -694,7 +717,7 @@ class ExpansionAirdropPlaneBase: House
 			if (m_ContainerLifetime > 0)
 				drop.SetLifetimeMax(m_ContainerLifetime);
 
-			drop.InitAirdrop(m_LootContainer.Loot, m_LootContainer.Infected, m_LootContainer.ItemCount, m_LootContainer.InfectedCount, m_LootContainer.FallSpeed, Math.Min(m_SpawnRadius * 0.01, 1.0));
+			drop.InitAirdrop(container, m_LootContainer.Loot, m_LootContainer.Infected, m_LootContainer.ItemCount, m_LootContainer.InfectedCount, m_LootContainer.FallSpeed, Math.Min(m_SpawnRadius * 0.01, 1.0));
 		}
 
 		return drop;

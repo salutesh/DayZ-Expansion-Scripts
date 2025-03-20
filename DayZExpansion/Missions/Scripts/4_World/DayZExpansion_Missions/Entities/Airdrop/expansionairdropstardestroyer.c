@@ -7,12 +7,12 @@ class ExpansionAirdropStarDestroyer: ExpansionAirdropPlaneBase
 	float m_Expansion_WarpedOutDist = 1375;  //! Distance when fully warped out
 	float m_Expansion_WarpedInScale = 16;  //! Scale when fully warped in
 
-	override void SetupPlane(vector dropPosition, string name, float maxRadius, bool heightIsRelativeToGround, float height, float followTerrainFrac, float speed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL, float containerLifeTime = 0.0)
+	override void Expansion_EnableUpdate()
 	{
 		//! We disable terrain following as it would look awkward for such a huge object
-		followTerrainFrac = 0.0;
+		m_FollowTerrainFraction = 0.0;
 
-		super.SetupPlane(dropPosition, name, maxRadius, heightIsRelativeToGround, height, followTerrainFrac, speed, container, warningProximityMsg, airdropCreatedMsg, containerLifeTime);
+		super.Expansion_EnableUpdate();
 	}
 
 #ifndef SERVER

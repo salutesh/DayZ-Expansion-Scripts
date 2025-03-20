@@ -15,7 +15,9 @@ class ExpansionMissionEventAirdropBase: ExpansionMissionEventBase
 	bool ShowNotification;
 	
 	float Height;
+	float DropZoneHeight;
 	float Speed;
+	float DropZoneSpeed;
 
 	string Container;
 	float FallSpeed = 4.5;
@@ -34,7 +36,7 @@ class ExpansionMissionEventAirdropV0: ExpansionMissionEventAirdropBase
 
 class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 
 	string AirdropPlaneClassName;
 
@@ -172,7 +174,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 				airdropCreatedMsg = new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED", DropLocation.Name );
 			}
 	
-			m_Plane = ExpansionAirdropPlaneBase.CreatePlane( AirdropPlaneClassName, Vector( DropLocation.x, 0, DropLocation.z ), DropLocation.Name, DropLocation.Radius, Height, Speed, container, warningProximityMsg, airdropCreatedMsg, MissionMaxTime );
+			m_Plane = ExpansionAirdropPlaneBase.CreatePlane( AirdropPlaneClassName, Vector( DropLocation.x, 0, DropLocation.z ), DropLocation.Name, DropLocation.Radius, Height, DropZoneHeight, Speed, DropZoneSpeed, container, warningProximityMsg, airdropCreatedMsg, MissionMaxTime );
 			
 			if ( m_Plane )
 			{
@@ -304,6 +306,15 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 					return;
 				}
 
+				if (airdropBase.m_Version < 3)
+				{
+					if (!DropZoneHeight)
+						DropZoneHeight = Height;
+
+					if (!DropZoneSpeed)
+						DropZoneSpeed = Speed;
+				}
+
 				m_Version = VERSION;
 
 				ExpansionJsonFileParser<ExpansionMissionEventAirdrop>.Save(m_FileName, this);
@@ -403,7 +414,9 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		AirdropPlaneClassName = "";
 
 		Speed = 25.0;
+		DropZoneSpeed = Speed;
 		Height = 450.0;
+		DropZoneHeight = Height;
 		
 		ShowNotification = true;
 

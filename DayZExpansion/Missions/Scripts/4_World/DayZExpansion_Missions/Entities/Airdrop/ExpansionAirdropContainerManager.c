@@ -151,9 +151,9 @@ class ExpansionAirdropContainerManager
 
 		vector spawnPos = spawnPosStr.ToVector();
 
-		auto rpc = ExpansionScriptRPC.Create(ExpansionAirdropContainerBase.s_Expansion_SpawnParticle_RPCID);
+		auto rpc = ExpansionScriptRPC.Create(ExpansionMissionModule.s_Expansion_SpawnParticle_RPCID);
 		rpc.Write( spawnPos );
-		PlayerBase.Expansion_Send(rpc, m_Container, true);
+		PlayerBase.Expansion_SendFar(rpc, m_Container.GetPosition(), null, true);
 	}
 
 	void SpawnInfected()
@@ -266,7 +266,10 @@ class ExpansionAirdropContainerManager
 		
 		string markerName = "#STR_EXPANSION_AIRDROP_SYSTEM_TITLE";
 		if ( GetExpansionSettings().GetAirdrop().ShowAirdropTypeOnMarker )
-			markerName = m_Container.Expansion_GetDisplayNameRaw();
+		{
+			markerName = m_Container.ConfigGetStringRaw("displayName");
+			GetGame().FormatRawConfigStringKeys(markerName);
+		}
 		
 		vector surfacePosition = ExpansionStatic.GetSurfacePosition(m_Container.m_SpawnPosition);
 

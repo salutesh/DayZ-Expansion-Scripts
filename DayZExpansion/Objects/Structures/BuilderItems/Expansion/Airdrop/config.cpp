@@ -17,14 +17,14 @@ class CfgVehicles
 	class bldr_expansion_Airdrop_Crate_Base: HouseNoDestruct
 	{
 		scope=1;
-		model="\DayZExpansion\Objects\airdrop\container.p3d";
+		model="\DayZExpansion\Missions\Objects\container.p3d";
 		hiddenSelections[]=
 		{
 			"body"
 		};
 		hiddenSelectionsTextures[]=
 		{
-			"DayZExpansion\Objects\Airdrop\data\Airdrop_co.paa"
+			"DayZExpansion\Missions\Objects\data\Airdrop_co.paa"
 		};
 	};
 	class bldr_expansion_Airdrop_Crate_Base_Grounded: bldr_expansion_Airdrop_Crate_Base
@@ -43,56 +43,56 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[]=
 		{
-			"DayZExpansion\Objects\Airdrop\data\Airdrop_basebuilding_co.paa"
+			"DayZExpansion\Missions\Objects\data\Airdrop_basebuilding_co.paa"
 		};
 	};
 	class bldr_expansion_Airdrop_Crate_Military: bldr_expansion_Airdrop_Crate_Base
 	{
 		hiddenSelectionsTextures[]=
 		{
-			"DayZExpansion\Objects\Airdrop\data\Airdrop_mil_co.paa"
+			"DayZExpansion\Missions\Objects\data\Airdrop_mil_co.paa"
 		};
 	};
 	class bldr_expansion_Airdrop_Crate_Medical: bldr_expansion_Airdrop_Crate_Base
 	{
 		hiddenSelectionsTextures[]=
 		{
-			"DayZExpansion\Objects\Airdrop\data\Airdrop_med_co.paa"
+			"DayZExpansion\Missions\Objects\data\Airdrop_med_co.paa"
 		};
 	};
 	class bldr_expansion_Airdrop_Crate_General: bldr_expansion_Airdrop_Crate_Base
 	{
 		hiddenSelectionsTextures[]=
 		{
-			"DayZExpansion\Objects\Airdrop\data\Airdrop_co.paa"
+			"DayZExpansion\Missions\Objects\data\Airdrop_co.paa"
 		};
 	};
 	class bldr_expansion_Airdrop_Crate_Basebuilding_Grounded: bldr_expansion_Airdrop_Crate_Base_Grounded
 	{
 		hiddenSelectionsTextures[]=
 		{
-			"DayZExpansion\Objects\Airdrop\data\Airdrop_basebuilding_co.paa"
+			"DayZExpansion\Missions\Objects\data\Airdrop_basebuilding_co.paa"
 		};
 	};
 	class bldr_expansion_Airdrop_Crate_Military_Grounded: bldr_expansion_Airdrop_Crate_Base_Grounded
 	{
 		hiddenSelectionsTextures[]=
 		{
-			"DayZExpansion\Objects\Airdrop\data\Airdrop_mil_co.paa"
+			"DayZExpansion\Missions\Objects\data\Airdrop_mil_co.paa"
 		};
 	};
 	class bldr_expansion_Airdrop_Crate_Medical_Grounded: bldr_expansion_Airdrop_Crate_Base_Grounded
 	{
 		hiddenSelectionsTextures[]=
 		{
-			"DayZExpansion\Objects\Airdrop\data\Airdrop_med_co.paa"
+			"DayZExpansion\Missions\Objects\data\Airdrop_med_co.paa"
 		};
 	};
 	class bldr_expansion_Airdrop_Crate_General_Grounded: bldr_expansion_Airdrop_Crate_Base_Grounded
 	{
 		hiddenSelectionsTextures[]=
 		{
-			"DayZExpansion\Objects\Airdrop\data\Airdrop_co.paa"
+			"DayZExpansion\Missions\Objects\data\Airdrop_co.paa"
 		};
 	};
 	class bldr_expansion_Airdrop_Plane: HouseNoDestruct

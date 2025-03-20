@@ -1010,12 +1010,19 @@ class ExpansionStatic: ExpansionStaticCore
 	//! (vanilla ItemBase::CanObstruct will always return true on server as it is only meant to be called on client because it relies on g_Game.GetPlayer)
 	static bool CanObstruct(Object obj)
 	{
+		//! TODO: Move ItemBase::Expansion_CanObstruct from BaseBuilding to Core
 		if (obj.IsItemBase())
 		{
-			if (obj.ConfigGetString("physLayer") == "item_large")
-				return true;
+			if (obj.ConfigGetString("physLayer") != "item_large")
+				return false;
+	
+			if (!obj.ConfigGetBool("carveNavmesh"))
+				return false;
 
-			return false;
+			if (obj.ConfigGetString("forceFarBubble") != "true")
+				return false;
+
+			return true;
 		}
 
 		return obj.CanObstruct();
@@ -1461,11 +1468,18 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static string GetISOTime(bool useUTC = false, bool include_ms = true, string delimHMS = ":")
 	{
+	#ifndef CF_LOG_TIMESTAMP
 		if ( include_ms && GetDayZGame() )
 		{
-			//! Accurate, including milliseconds
 			return FormatTime(GetDayZGame().ExpansionGetStartTime(useUTC) + GetDayZGame().GetTickTime(), true, true, true, delimHMS);
 		}
+	#else
+		if ( include_ms )
+		{
+			//! Accurate, including milliseconds
+			return CF_Log.FormatTime(useUTC, delimHMS);
+		}
+	#endif
 		else
 		{
 			//! Next best thing
@@ -1496,7 +1510,11 @@ class ExpansionStatic: ExpansionStaticCore
 	//! Fast accurate time in seconds, not including years/months/days
 	static float GetTime(bool useUTC = false)
 	{
+	#ifndef CF_LOG_TIMESTAMP
 		return GetDayZGame().ExpansionGetStartTime(useUTC) + GetDayZGame().GetTickTime();
+	#else
+		return CF_Log.s_TimestampHelper.GetTime(useUTC) * 0.001;
+	#endif
 	}
 
 	static string GetTimeString( float total_time, bool include_seconds = false )

@@ -18,6 +18,8 @@ class ExpansionMissionModule: CF_ModuleWorld
 	static ref ScriptInvoker SI_Started = new ScriptInvoker();
 	static ref ScriptInvoker SI_Ended = new ScriptInvoker();
 
+	static int s_Expansion_SpawnParticle_RPCID;
+
 	private autoptr array< ref ExpansionMissionEventBase > m_Missions;
 	private autoptr ref array< float > m_AvailableMissions;
 	private autoptr map< typename, ref array< ExpansionMissionEventBase > > m_MissionsTyped;
@@ -74,6 +76,10 @@ class ExpansionMissionModule: CF_ModuleWorld
 		EnableInvokeConnect();
 		Expansion_EnableRPCManager();
 		Expansion_RegisterClientRPC("RPC_CreateAirdropPlane");
+		Expansion_RegisterClientRPC("RPC_CreateAirdropContainer");
+		Expansion_RegisterClientRPC("RPC_SynchContainerStateToClient");
+		s_Expansion_SpawnParticle_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_SpawnParticle");
+		Expansion_RegisterClientRPC("RPC_DeleteAirdropContainer");
 
 		ExpansionMissionEventBase.SI_OnMissionEnd.Insert( RemoveMission );
 
@@ -95,6 +101,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAirdropPlaneBase.Expansion_SendCreatePlanesOnClient, 1000, false, cArgs.Player);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAirdropContainerBase.Expansion_SendCreateContainersOnClient, 1000, false, cArgs.Player);
 	}
 
 	//! Client
@@ -127,6 +134,10 @@ class ExpansionMissionModule: CF_ModuleWorld
 		if (!ctx.Read(height))
 			return;
 
+		float dropHeight;
+		if (!ctx.Read(dropHeight))
+			return;
+
 		float followTerrainFrac;
 		if (!ctx.Read(followTerrainFrac))
 			return;
@@ -135,12 +146,111 @@ class ExpansionMissionModule: CF_ModuleWorld
 		if (!ctx.Read(speed))
 			return;
 
+		float dropSpeed;
+		if (!ctx.Read(dropSpeed))
+			return;
+
+		float dropProximityDist;
+		if (!ctx.Read(dropProximityDist))
+			return;
+
 		auto plane = ExpansionAirdropPlaneBase.Cast(GetGame().CreateObjectEx(planeClassName, spawnPoint, ECE_AIRBORNE | ECE_LOCAL) );
 
 		plane.Expansion_SetAirdropPlaneID(planeID);
-		plane.SetupPlane(dropPosition, "", 0.0, heightIsRelativeToGround, height, followTerrainFrac, speed, null);
+		plane.SetupPlane(dropPosition, "", 0.0, heightIsRelativeToGround, height, dropHeight, followTerrainFrac, speed, dropSpeed, dropProximityDist, null);
 		plane.Expansion_EnableUpdate();
 		plane.Expansion_PlayEngineSoundLoop();
+	}
+
+	//! Client
+	void RPC_CreateAirdropContainer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		int containerID;
+		if (!ctx.Read(containerID))
+			return;
+
+		if (ExpansionAirdropContainerBase.s_Expansion_AirdropContainers[containerID])
+			return;
+
+		string className;
+		if (!ctx.Read(className))
+			return;
+
+		vector spawnPoint;
+		if (!ctx.Read(spawnPoint))
+			return;
+
+		vector orientation;
+		if (!ctx.Read(orientation))
+			return;
+
+		float fallSpeed;
+		if (!ctx.Read(fallSpeed))
+			return;
+
+		float windImpactStrength;
+		if (!ctx.Read(windImpactStrength))
+			return;
+
+		auto container = ExpansionAirdropContainerBase.Cast(GetGame().CreateObjectEx(className, spawnPoint, ECE_AIRBORNE | ECE_LOCAL) );
+		container.SetOrientation(orientation);
+
+		container.Expansion_SetAirdropContainerID(containerID);
+		container.InitAirdropClient(fallSpeed, windImpactStrength);
+		container.Expansion_EnableUpdate();
+	}
+
+	//! Client
+	void RPC_SynchContainerStateToClient(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		int containerID;
+		if (!ctx.Read(containerID))
+			return;
+
+		ExpansionAirdropContainerBase container;
+		if (!ExpansionAirdropContainerBase.s_Expansion_AirdropContainers.Find(containerID, container))
+			return;
+
+		container.Expansion_ReadState(ctx);
+	}
+
+	//! Client
+	void RPC_SpawnParticle(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		vector spawnPos;
+		if (!ctx.Read( spawnPos ))
+			return;
+		
+		SpawnParticle( spawnPos );
+	}
+
+	protected void SpawnParticle( vector spawnPos )
+	{
+		//! Play spawn sound
+		SEffectManager.PlaySound( "Expansion_Airdrop_ZSpawn_SoundSet", spawnPos );
+
+		//! Create dirt particle
+		Particle particle = Particle.PlayInWorld( ParticleList.IMPACT_DIRT_RICOCHET, spawnPos );
+
+		particle.ScaleParticleParam( EmitorParam.SIZE, 10 );
+		particle.ScaleParticleParam( EmitorParam.BIRTH_RATE, 5 );
+		particle.ScaleParticleParam( EmitorParam.BIRTH_RATE_RND, 5 );
+		particle.ScaleParticleParam( EmitorParam.LIFETIME, 5 );
+		particle.ScaleParticleParam( EmitorParam.LIFETIME_RND, 5 );
+	}
+
+	//! Client
+	void RPC_DeleteAirdropContainer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		int containerID;
+		if (!ctx.Read(containerID))
+			return;
+
+		ExpansionAirdropContainerBase container;
+		if (!ExpansionAirdropContainerBase.s_Expansion_AirdropContainers.Find(containerID, container))
+			return;
+
+		container.Delete();
 	}
 
 	void CallAirdrop(vector position)
@@ -148,10 +258,12 @@ class ExpansionMissionModule: CF_ModuleWorld
 		array< ref ExpansionLootContainer > containers = new array< ref ExpansionLootContainer >;
 		ExpansionLootContainer container;
 
+		auto settings = GetExpansionSettings().GetAirdrop();
+
 		//! Get all containers enabled for player-called supply drop use
-		for ( int i = 0; i < GetExpansionSettings().GetAirdrop().Containers.Count(); i++ )
+		for ( int i = 0; i < settings.Containers.Count(); i++ )
 		{
-			container = GetExpansionSettings().GetAirdrop().Containers[i];
+			container = settings.Containers[i];
 			if ( container.Usage == 0 || container.Usage == 2 )
 			{
 				containers.Insert( container );
@@ -175,7 +287,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 				
 		int itemCount = container.ItemCount;
 		if ( container.ItemCount <= 0 )
-			itemCount = GetExpansionSettings().GetAirdrop().ItemCount;  //! Only kept for backwards compatibility, should be set per container
+			itemCount = settings.ItemCount;  //! Only kept for backwards compatibility, should be set per container
 
 		TStringArray infected;
 		int infectedCount;
@@ -187,7 +299,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		container = new ExpansionLootContainer( container.Container, 2, 1, container.Loot, infected, itemCount, infectedCount, false, container.FallSpeed );
 
-		ExpansionAirdropPlaneBase plane = ExpansionAirdropPlane.CreatePlane( Vector( position[0], 0, position[2] ), "", GetExpansionSettings().GetAirdrop().Radius, GetExpansionSettings().GetAirdrop().Height, GetExpansionSettings().GetAirdrop().Speed, container, new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER" ) );
+		ExpansionAirdropPlaneBase plane = ExpansionAirdropPlane.CreatePlane( Vector( position[0], 0, position[2] ), "", settings.Radius, settings.Height, settings.DropZoneHeight, settings.Speed, settings.DropZoneSpeed, container, new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER" ) );
 
 		if ( plane )
 		{
@@ -423,7 +535,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void StartNewMissions()
 	{
-#ifdef EXTRACE
+#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 #endif
 		
@@ -439,7 +551,9 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 			int playerCount = players.Count();
 
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 			CF_Log.Debug( "ExpansionMissionModule::StartNewMissions - ["+ playerCount + "/" + m_MissionSettings.MinPlayersToStartMissions +"] players" );
+		#endif
 
 			//! If player count is too low
 			if ( playerCount < m_MissionSettings.MinPlayersToStartMissions )
