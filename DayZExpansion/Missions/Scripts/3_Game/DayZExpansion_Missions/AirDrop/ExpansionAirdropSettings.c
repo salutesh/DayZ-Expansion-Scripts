@@ -22,8 +22,10 @@ class ExpansionAirdropSettingsBase: ExpansionSettingBase
 	bool HeightIsRelativeToGroundLevel;
 
 	float Height;
+	float DropZoneHeight;
 	float FollowTerrainFraction;
 	float Speed;
+	float DropZoneSpeed;
 	float Radius;
 	float InfectedSpawnRadius;
 
@@ -41,7 +43,10 @@ class ExpansionAirdropSettingsV4: ExpansionAirdropSettingsBase
 
 class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 {
-	static const int VERSION = 5;
+	static const int VERSION = 7;
+
+	string AirdropPlaneClassName;
+	float DropZoneProximityDistance;
 	
 	ref array < ref ExpansionLootContainer > Containers = {};
 
@@ -68,6 +73,9 @@ class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionAirdropSettings s )
 	{
+		AirdropPlaneClassName = s.AirdropPlaneClassName;
+		DropZoneProximityDistance = s.DropZoneProximityDistance;
+
 		ExpansionArray<ExpansionLootContainer>.RefCopy(s.Containers, Containers);
 		
 		ExpansionAirdropSettingsBase sb = s;
@@ -81,8 +89,10 @@ class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 		ShowAirdropTypeOnMarker = s.ShowAirdropTypeOnMarker;
 		HeightIsRelativeToGroundLevel = s.HeightIsRelativeToGroundLevel;
 		Height = s.Height;
+		DropZoneHeight = s.DropZoneHeight;
 		FollowTerrainFraction = s.FollowTerrainFraction;
 		Speed = s.Speed;
+		DropZoneSpeed = s.DropZoneSpeed;
 		Radius = s.Radius;
 		InfectedSpawnRadius = s.InfectedSpawnRadius;
 		InfectedSpawnInterval = s.InfectedSpawnInterval;
@@ -129,7 +139,10 @@ class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 				{
 					ExpansionAirdropSettingsV4 configV4;
 					if (!ExpansionJsonFileParser<ExpansionAirdropSettingsV4>.Load(EXPANSION_AIRDROP_SETTINGS, configV4))
+					{
+						Defaults();
 						return false;
+					}
 
 					CopyInternal(configbase);
 
@@ -154,9 +167,32 @@ class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 						Containers.Insert( newcontainer );
 					}
 				}
+				else
+				{
+					if (!ExpansionJsonFileParser<ExpansionAirdropSettings>.Load(EXPANSION_AIRDROP_SETTINGS, this))
+					{
+						Defaults();
+						return false;
+					}
+				}
 
 				if (configbase.m_Version < 4)
 					HideCargoWhileParachuteIsDeployed = defaults.HideCargoWhileParachuteIsDeployed;
+
+				if (configbase.m_Version < 6 && !AirdropPlaneClassName)
+					AirdropPlaneClassName = defaults.AirdropPlaneClassName;
+
+				if (configbase.m_Version < 7)
+				{
+					if (!DropZoneHeight)
+						DropZoneHeight = Height;
+
+					if (!DropZoneSpeed)
+						DropZoneSpeed = Speed;
+
+					if (!DropZoneProximityDistance)
+						DropZoneProximityDistance = defaults.DropZoneProximityDistance;
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -213,13 +249,18 @@ class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 		HeightIsRelativeToGroundLevel = true;
 
 		Height = 450;
+		DropZoneHeight = Height;
 		FollowTerrainFraction = 0.5;
 		Speed = 35;
+		DropZoneSpeed = Speed;
 		Radius = 1;
 		InfectedSpawnRadius = 50;
 		InfectedSpawnInterval = 250;
 
 		ItemCount = 50;
+
+		AirdropPlaneClassName = "";
+		DropZoneProximityDistance = 1500;
 
 		Containers.Clear();
 	}

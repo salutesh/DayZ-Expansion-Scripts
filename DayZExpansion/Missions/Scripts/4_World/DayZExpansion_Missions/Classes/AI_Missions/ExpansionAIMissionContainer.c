@@ -20,10 +20,7 @@ class ExpansionAIMissionContainer
 
 	vector Position;
 	vector Orientation;
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionAIMissionContainer
-	// ------------------------------------------------------------
+
 	void ExpansionAIMissionContainer(TStringArray classnames, vector position, vector orientation = "0 0 0", bool islocked = false)
 	{
 		Classnames = classnames;

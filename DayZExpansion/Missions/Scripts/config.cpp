@@ -39,6 +39,10 @@ class CfgMods
 			"World",
 			"Mission"
 		};
+		defines[]=
+		{
+			"EXPANSION_MISSIONS_CONTAINER_NEW"
+		};
 		class defs
 		{
 			class widgetStyles

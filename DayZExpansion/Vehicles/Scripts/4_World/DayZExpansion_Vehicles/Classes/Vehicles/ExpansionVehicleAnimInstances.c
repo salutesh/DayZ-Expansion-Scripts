@@ -45,7 +45,7 @@ class ExpansionVehicleAnimInstances
 #else
 
 	// Cars
-	static int EXPANSION_BUS = VehicleAnimInstances.HMMWV;
+	static int EXPANSION_BUS = VehicleAnimInstances.SEDAN;
 
 	// Boats
 	static int EXPANSION_UTILITY_BOAT = VehicleAnimInstances.SEDAN;

@@ -143,11 +143,11 @@ modded class PlayerBase
 		m_eAI_FactionModifiers = null;
 	}
 
-	void Expansion_OnDangerousAreaEnterServer(EffectArea area, EffectTrigger trigger)
+	void Expansion_OnDangerousAreaEnterServer(EffectArea area, Trigger trigger)
 	{
 	}
 
-	void Expansion_OnDangerousAreaExitServer(EffectArea area, EffectTrigger trigger)
+	void Expansion_OnDangerousAreaExitServer(EffectArea area, Trigger trigger)
 	{
 	}
 

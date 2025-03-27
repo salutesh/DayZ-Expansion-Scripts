@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2024 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -62,9 +62,9 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 	void ExpansionP2PMarketTraderConfig()
 	{
 		m_Version = VERSION;
-	#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 		m_Waypoints = new array<vector>;
-	#endif
+		#endif
 		m_Currencies = new TStringArray; 
 	}
 
@@ -160,7 +160,7 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 		return m_DisplayIcon;
 	}
 
-#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 	string GetFaction()
 	{
 		return m_Faction;
@@ -180,7 +180,7 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 	{
 		return m_EmoteIsStatic;
 	}
-#endif
+	#endif
 
 	bool IsGlobalTrader()
 	{
@@ -209,7 +209,8 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 
 		if (traderConfig.m_Version < VERSION)
 		{
-			if (traderConfig.m_Version < 2)
+			//! Commented this to make ExpansionP2PMarketModule::AddListing protected
+			/*if (traderConfig.m_Version < 2)
 			{
 				ExpansionP2PMarketTraderConfigV1 traderConfigV1;
 				if (!ExpansionJsonFileParser<ExpansionP2PMarketTraderConfigV1>.Load(fileName, traderConfigV1))
@@ -223,7 +224,7 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 					ExpansionP2PMarketModule.GetModuleInstance().AddListing(1, listing);
 					listing.Save();
 				}
-			}
+			}*/
 			
 			if (traderConfig.m_Version < 6 && !traderConfig.m_Currencies.Count())
 				traderConfig.AddCurrency("expansionbanknotehryvnia");
@@ -266,29 +267,29 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 	{
 		Object obj = ExpansionGame.CreateObjectExSafe(m_ClassName, m_Position, ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
 
-	#ifdef ENFUSION_AI_PROJECT
+		#ifdef ENFUSION_AI_PROJECT
 		if (!obj || (!obj.IsInherited(ExpansionP2PMarketTraderStatic) && !obj.IsInherited(ExpansionP2PMarketTraderNPC) && !obj.IsInherited(ExpansionP2PMarketTraderNPCAI)))
-	#else
+		#else
 		if (!obj || (!obj.IsInherited(ExpansionP2PMarketTraderStatic) && !obj.IsInherited(ExpansionP2PMarketTraderNPC)))
-	#endif
+		#endif
 		{
 			if (obj)
 				GetGame().ObjectDelete(obj);
-			Error(ToString() + "::Spawn - Tried to spawn P2P market trader with unsuported type name: " + m_ClassName);
+			EXError.Error(this, "::Spawn - Tried to spawn P2P market trader with unsuported type name: " + m_ClassName);
 			return;
 		}
 
 		auto object = ExpansionP2PMarketTraderStatic.Cast(obj);
 		auto npc = ExpansionP2PMarketTraderNPC.Cast(obj);
-	#ifdef ENFUSION_AI_PROJECT
+		#ifdef ENFUSION_AI_PROJECT
 		auto npcAI = ExpansionP2PMarketTraderNPCAI.Cast(obj);
-	#endif
+		#endif
 
-	#ifdef ENFUSION_AI_PROJECT
+		#ifdef ENFUSION_AI_PROJECT
 		if (!object && !npc && !npcAI)
-	#else
+		#else
 		if (!object && !npc)
-	#endif
+		#endif
 		{
 			GetGame().ObjectDelete(obj);
 			Error(ToString() + "::Spawn - Could not spawn NPC: " + m_ClassName);
@@ -311,7 +312,7 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 			npc.m_Expansion_NetsyncData.Set(0, m_DisplayName);
 			npc.m_Expansion_NetsyncData.Set(1, m_DisplayIcon);
 		}
-	#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 		else if (npcAI)
 		{
 			npcAI.SetP2PTraderID(m_TraderID);
@@ -346,14 +347,14 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 					aiGroup.m_CurrentWaypointIndex = idx;
 			}
 		}
-	#endif
+		#endif
 	}
 
 	protected bool LoadItem(ExpansionP2PMarketListing listing, PlayerBase player = null, out EntityAI loadedEntity = null)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		if (!ExpansionEntityStorageModule.RestoreFromFile(listing.GetEntityStorageFileName(), loadedEntity, null, player))
 		{

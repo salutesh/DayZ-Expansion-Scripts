@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -13,11 +13,13 @@
 class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 {
 	protected ref ExpansionP2PMarketMenuListingController m_P2PMarketMenuListingController;
+	//protected ref ExpansionP2PMarketListing m_Listing;
 	protected ExpansionP2PMarketListing m_Listing;
 
 	protected bool m_IsOwnedItem;
 	protected bool m_IsSoldItem;
 
+	protected WrapSpacerWidget panel_background;
 	protected Widget time_panel;
 	protected Widget name_panel;
 	protected WrapSpacerWidget price_panel;
@@ -28,8 +30,10 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 	protected TextWidget name_text;
 	protected Widget sold_icon_panel;
 	protected ImageWidget sold_icon;
-	
 	protected Widget quickbuy_panel;
+	protected ButtonWidget quickbuy_button;
+	protected WrapSpacerWidget quickbuy_background;
+	protected Widget item_preview_panel;
 	
 	protected int m_RemaningTime;
 
@@ -38,7 +42,7 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 		Class.CastTo(m_P2PMarketMenuListingController, GetController());
 
 		m_Listing = ExpansionP2PMarketListing.Cast(item);
-		
+
 		if (m_Listing.GetListingState() == ExpansionP2PMarketListingState.LISTED)
 		{
 			m_P2PMarketMenu.GetListingsWrapSpacer().AddChild(GetLayoutRoot());
@@ -88,10 +92,10 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 			SetIsSoldItem();
 		}
 		
-	#ifdef EXPANSIONMODHARDLINE
+		#ifdef EXPANSIONMODHARDLINE
 		if (GetExpansionSettings().GetHardline().EnableItemRarity)
 			SetRarityColor(m_Listing.GetRarity());
-	#endif
+		#endif
 	}
 
 	protected void SetIsOwnedItem()
@@ -105,7 +109,7 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 		int discountPercent = GetExpansionSettings().GetP2PMarket().ListingOwnerDiscountPercent;
 		
 		auto localiser = new CF_Localiser("STR_EXPANSION_MARKET_P2P_DISCOUNT", discountPercent.ToString());
-		m_P2PMarketMenuListingController.Discount = localiser.Format();
+		m_P2PMarketMenuListingController.Discount = "(" + localiser.Format() + ")";
 		m_P2PMarketMenuListingController.NotifyPropertyChanged("Discount");
 
 		m_P2PMarketMenuListingController.Price = m_P2PMarketMenu.GetDisplayPrice(discountPrice);
@@ -135,6 +139,7 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 	
 	void OnQuickBuyClick()
 	{
+		ErrorEx("Menu: " + m_P2PMarketMenu, ErrorExSeverity.INFO);
 		m_P2PMarketMenu.QuickbuyListing(this);
 	}
 
@@ -160,9 +165,7 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 			int currentTime = CF_Date.Now(true).GetTimestamp();
 			int elapsed = (currentTime - listingTime);
 
-			EXPrint(ToString() + "::UpdatePreviewObject - Time elapsed: " + ExpansionStatic.GetTimeString(elapsed));
 			FoodStageType processedFoodStage = food_item.Expansion_GetProcessedFoodStageDecay(elapsed, false);
-			EXPrint(ToString() + "::UpdatePreviewObject - Processed food stage: " + typename.EnumToString(FoodStageType, processedFoodStage));
 			foodStage = food_item.GetFoodStage();
 			foodStage.ChangeFoodStage(processedFoodStage);
 			
@@ -175,6 +178,8 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 		int button = args.GetMouseButton();
 		bool buttonState = args.GetButtonState();
 		
+		ErrorEx(string.Format("Menu: %1 | Button: %2 | Button state: %3", m_P2PMarketMenu, typename.EnumToString(MouseState, button), buttonState), ErrorExSeverity.INFO);
+		
 		if (button == MouseState.LEFT && buttonState)
 		{
 			if (!m_IsSoldItem)
@@ -183,7 +188,7 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 			}
 			else
 			{
-				m_P2PMarketMenu.GetSaleFromListing(m_Listing);
+				m_P2PMarketMenu.GetSaleFromListing(m_Listing.GetGlobalID());
 			}
 		}
 	}
@@ -210,9 +215,9 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 			if (button == MouseState.MIDDLE && m_Object && m_Listing)
 			{
 				int rarity = -1;
-#ifdef EXPANSIONMODHARDLINE
+				#ifdef EXPANSIONMODHARDLINE
 				rarity = m_Listing.GetRarity();
-#endif
+				#endif
 				MissionGameplay.InspectItem(m_P2PMarketMenu, m_Object, m_Listing.GetHealthLevel(), m_Listing.GetLiquidType(), m_Listing.IsBloodContainer(), m_Listing.GetQuantityType(), m_Listing.GetQuantity(), m_Object.GetQuantityMax(), m_Listing.GetFoodStageType(), m_Listing.GetClassName(), rarity);
 				return true;
 			}
@@ -223,27 +228,38 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 	
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
-		if (w != NULL && w == item_button)
+		if (w != NULL)
 		{
-			if (!m_ItemTooltip && m_Object && m_Listing)
+			if (w == item_button)
 			{
-				int rarity = -1;
-#ifdef EXPANSIONMODHARDLINE
-				rarity = m_Listing.GetRarity();
-#endif
-				m_ItemTooltip = MissionGameplay.SetItemTooltip(m_Object, m_Listing.GetHealthLevel(), m_Listing.GetLiquidType(), m_Listing.IsBloodContainer(), m_Listing.GetQuantityType(), m_Listing.GetQuantity(), m_Object.GetQuantityMax(), m_Listing.GetFoodStageType(), m_Listing.GetClassName(), rarity);
+				if (!m_ItemTooltip && m_Object && m_Listing)
+				{
+					int rarity = -1;
+					#ifdef EXPANSIONMODHARDLINE
+					rarity = m_Listing.GetRarity();
+					#endif
+					m_ItemTooltip = MissionGameplay.SetItemTooltip(m_Object, m_Listing.GetHealthLevel(), m_Listing.GetLiquidType(), m_Listing.IsBloodContainer(), m_Listing.GetQuantityType(), m_Listing.GetQuantity(), m_Object.GetQuantityMax(), m_Listing.GetFoodStageType(), m_Listing.GetClassName(), rarity);
+				}
+	
+				item_name_text.SetColor(ARGB(255, 0, 0, 0));
+				time_text.SetColor(ARGB(255, 0, 0, 0));
+				discount_text.SetColor(ARGB(255, 0, 0, 0));
+				price_text.SetColor(ARGB(255, 0, 0, 0));
+				price_icon.SetColor(ARGB(255, 0, 0, 0));
+				name_text.SetColor(ARGB(255, 0, 0, 0));
+				panel_background.SetColor(ARGB(40, 255, 255, 255));
+				quickbuy_panel.SetColor(ARGB(40, 255, 255, 255));
+				item_preview_panel.SetColor(ARGB(140, 0, 0, 0));
+				
+				if (m_IsSoldItem)
+				{
+					sold_icon.SetColor(ARGB(255, 0, 0, 0));
+				}
+				return true;
 			}
-
-			item_name_text.SetColor(ARGB(255, 0, 0, 0));
-			time_text.SetColor(ARGB(255, 0, 0, 0));
-			discount_text.SetColor(ARGB(255, 0, 0, 0));
-			price_text.SetColor(ARGB(255, 0, 0, 0));
-			price_icon.SetColor(ARGB(255, 0, 0, 0));
-			name_text.SetColor(ARGB(255, 0, 0, 0));
-			
-			if (m_IsSoldItem)
+			else if (w == quickbuy_button)
 			{
-				sold_icon.SetColor(ARGB(255, 0, 0, 0));
+				quickbuy_background.SetColor(ARGB(140, 39, 174, 96));
 			}
 		}
 
@@ -252,47 +268,57 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-		if (w != NULL && w == item_button)
+		if (w != NULL)
 		{
-			if (m_ItemTooltip)
+			if (w == item_button)
 			{
-				MissionGameplay.Expansion_DestroyItemTooltip();
-				m_ItemTooltip = null;
-			}
-
-		#ifdef EXPANSIONMODHARDLINE
-			if (m_RarityColor != -1)
-			{
-				item_name_text.SetColor(m_RarityColor);
-			}
-			else
-			{
+				if (m_ItemTooltip)
+				{
+					MissionGameplay.Expansion_DestroyItemTooltip();
+					m_ItemTooltip = null;
+				}
+	
+				#ifdef EXPANSIONMODHARDLINE
+				if (m_RarityColor != -1)
+				{
+					item_name_text.SetColor(m_RarityColor);
+				}
+				else
+				{
+					item_name_text.SetColor(ARGB(255, 255, 255, 255));
+				}
+				#else
 				item_name_text.SetColor(ARGB(255, 255, 255, 255));
+				#endif
+				
+				if (!m_IsOwnedItem && !m_IsSoldItem)
+				{
+					price_text.SetColor(ARGB(255, 255, 255, 255));
+					price_icon.SetColor(ARGB(255, 255, 255, 255));
+				}
+				else if (m_IsOwnedItem && !m_IsSoldItem)
+				{
+					price_text.SetColor(ARGB(255, 255, 255, 255));
+					price_icon.SetColor(ARGB(255, 255, 255, 255));
+					discount_text.SetColor(ARGB(255, 26, 188, 156));
+				}
+				else if (m_IsSoldItem)
+				{
+					price_text.SetColor(ARGB(255, 26, 188, 156));
+					price_icon.SetColor(ARGB(255, 26, 188, 156));
+					sold_icon.SetColor(ARGB(255, 226, 65, 66));
+				}
+	
+				time_text.SetColor(ARGB(255, 255, 255, 255));
+				name_text.SetColor(ARGB(255, 255, 255, 255));
+				panel_background.SetColor(ARGB(140, 0, 0, 0));
+				quickbuy_panel.SetColor(ARGB(140, 0, 0, 0));
+				item_preview_panel.SetColor(ARGB(140, 255, 255, 255));
 			}
-		#else
-			item_name_text.SetColor(ARGB(255, 255, 255, 255));
-		#endif
-			
-			if (!m_IsOwnedItem && !m_IsSoldItem)
+			else if (w == quickbuy_button)
 			{
-				price_text.SetColor(ARGB(255, 255, 255, 255));
-				price_icon.SetColor(ARGB(255, 255, 255, 255));
+				quickbuy_background.SetColor(ARGB(255, 39, 39, 45));
 			}
-			else if (m_IsOwnedItem && !m_IsSoldItem)
-			{
-				price_text.SetColor(ARGB(255, 255, 255, 255));
-				price_icon.SetColor(ARGB(255, 255, 255, 255));
-				discount_text.SetColor(ARGB(255, 26, 188, 156));
-			}
-			else if (m_IsSoldItem)
-			{
-				price_text.SetColor(ARGB(255, 26, 188, 156));
-				price_icon.SetColor(ARGB(255, 26, 188, 156));
-				sold_icon.SetColor(ARGB(255, 226, 65, 66));
-			}
-
-			time_text.SetColor(ARGB(255, 255, 255, 255));
-			name_text.SetColor(ARGB(255, 255, 255, 255));
 		}
 
 		return false;

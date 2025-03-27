@@ -16,7 +16,7 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 	protected string m_ClassName;
 	protected int m_Amount;
 	protected array<string> m_Attachments;
-	protected ref ExpansionItemTooltip m_ItemTooltip;
+	protected ExpansionItemTooltip m_ItemTooltip;
 	protected bool m_IsRewardEntry;
 	protected ExpansionQuestMenu m_QuestMenu;
 	protected ExpansionQuestRewardConfig m_QuestRewardConfig;

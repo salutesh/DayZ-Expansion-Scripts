@@ -18,7 +18,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	protected ref ExpansionMarketModule m_MarketModule;
 	protected ref ExpansionMarketMenu m_MarketMenu;
 	protected ref ExpansionMarketMenuItemTooltip m_Tooltip;
-	protected ref ExpansionItemTooltip m_ItemTooltip;
+	protected ExpansionItemTooltip m_ItemTooltip;
 	protected string m_ItemSortName;
 
 	protected int m_MenuIdx;

@@ -18,6 +18,8 @@ class ExpansionMissionModule: CF_ModuleWorld
 	static ref ScriptInvoker SI_Started = new ScriptInvoker();
 	static ref ScriptInvoker SI_Ended = new ScriptInvoker();
 
+	static int s_Expansion_SpawnParticle_RPCID;
+
 	private autoptr array< ref ExpansionMissionEventBase > m_Missions;
 	private autoptr ref array< float > m_AvailableMissions;
 	private autoptr map< typename, ref array< ExpansionMissionEventBase > > m_MissionsTyped;
@@ -33,9 +35,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 	protected bool m_InitialMission;	// Are the first missions after a server restart started yet ?
 
-	// ------------------------------------------------------------
-	// ExpansionMissionModule Constructor
-	// ------------------------------------------------------------
 	void ExpansionMissionModule()
 	{
 		s_Instance = this;
@@ -61,16 +60,20 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		ExpansionMissionEventBase.SI_OnMissionEnd.Remove( RemoveMission );
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule OnInit
-	// ------------------------------------------------------------
+
 	override void OnInit()
 	{
 		super.OnInit();
 
 		EnableMissionLoaded();
 		EnableMissionFinish();
+		EnableInvokeConnect();
+		Expansion_EnableRPCManager();
+		Expansion_RegisterClientRPC("RPC_CreateAirdropPlane");
+		Expansion_RegisterClientRPC("RPC_CreateAirdropContainer");
+		Expansion_RegisterClientRPC("RPC_SynchContainerStateToClient");
+		s_Expansion_SpawnParticle_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_SpawnParticle");
+		Expansion_RegisterClientRPC("RPC_DeleteAirdropContainer");
 
 		ExpansionMissionEventBase.SI_OnMissionEnd.Insert( RemoveMission );
 
@@ -85,15 +88,190 @@ class ExpansionMissionModule: CF_ModuleWorld
 		ExpansionMissionSettings.SI_OnSave.Insert( SaveMissions );
 	}
 
+	override void OnInvokeConnect(Class sender, CF_EventArgs args)
+	{
+		super.OnInvokeConnect(sender, args);
+
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAirdropPlaneBase.Expansion_SendCreatePlanesOnClient, 1000, false, cArgs.Player);
+
+		if (ExpansionAirdropContainerBase.s_Expansion_CreateContainerOnClient)
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAirdropContainerBase.Expansion_SendCreateContainersOnClient, 1000, false, cArgs.Player);
+	}
+
+	//! Client
+	void RPC_CreateAirdropPlane(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		int planeID;
+		if (!ctx.Read(planeID))
+			return;
+
+		if (ExpansionAirdropPlaneBase.s_Expansion_AirdropPlanes[planeID])
+			return;
+
+		string planeClassName;
+		if (!ctx.Read(planeClassName))
+			return;
+
+		vector position;
+		if (!ctx.Read(position))
+			return;
+
+		vector spawnPoint;
+		if (!ctx.Read(spawnPoint))
+			return;
+
+		vector dropPosition;
+		if (!ctx.Read(dropPosition))
+			return;
+
+		bool heightIsRelativeToGround;
+		if (!ctx.Read(heightIsRelativeToGround))
+			return;
+
+		float height;
+		if (!ctx.Read(height))
+			return;
+
+		float dropHeight;
+		if (!ctx.Read(dropHeight))
+			return;
+
+		float followTerrainFrac;
+		if (!ctx.Read(followTerrainFrac))
+			return;
+
+		float speed;
+		if (!ctx.Read(speed))
+			return;
+
+		float dropSpeed;
+		if (!ctx.Read(dropSpeed))
+			return;
+
+		float dropProximityDist;
+		if (!ctx.Read(dropProximityDist))
+			return;
+
+		auto plane = ExpansionAirdropPlaneBase.Cast(GetGame().CreateObjectEx(planeClassName, position, ECE_AIRBORNE | ECE_LOCAL) );
+
+		plane.Expansion_SetAirdropPlaneID(planeID);
+		plane.Expansion_SetupPlane(spawnPoint, dropPosition, "", 0.0, heightIsRelativeToGround, height, dropHeight, followTerrainFrac, speed, dropSpeed, dropProximityDist, null);
+		plane.Expansion_EnableUpdate();
+		plane.Expansion_PlayEngineSoundLoop();
+	}
+
+	//! Client
+	void RPC_CreateAirdropContainer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		int containerID;
+		if (!ctx.Read(containerID))
+			return;
+
+		if (ExpansionAirdropContainerBase.s_Expansion_AirdropContainers[containerID])
+			return;
+
+		string className;
+		if (!ctx.Read(className))
+			return;
+
+		vector spawnPoint;
+		if (!ctx.Read(spawnPoint))
+			return;
+
+		vector orientation;
+		if (!ctx.Read(orientation))
+			return;
+
+		float fallSpeed;
+		if (!ctx.Read(fallSpeed))
+			return;
+
+		float windImpactStrength;
+		if (!ctx.Read(windImpactStrength))
+			return;
+
+		bool fxEnabled;
+		if (!ctx.Read(fxEnabled))
+			return;
+
+		bool hasDiscardedParachute;
+		if (!ctx.Read(hasDiscardedParachute))
+			return;
+
+		auto container = ExpansionAirdropContainerBase.Cast(GetGame().CreateObjectEx(className, spawnPoint, ECE_AIRBORNE | ECE_LOCAL) );
+		container.SetOrientation(orientation);
+
+		container.Expansion_SetAirdropContainerID(containerID);
+		container.Expansion_InitAirdropClient(fallSpeed, windImpactStrength, fxEnabled, hasDiscardedParachute);
+		container.Expansion_EnableUpdate();
+	}
+
+	//! Client
+	void RPC_SynchContainerStateToClient(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		int containerID;
+		if (!ctx.Read(containerID))
+			return;
+
+		ExpansionAirdropContainerBase container;
+		if (!ExpansionAirdropContainerBase.s_Expansion_AirdropContainers.Find(containerID, container))
+			return;
+
+		container.Expansion_ReadState(ctx);
+	}
+
+	//! Client
+	void RPC_SpawnParticle(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		vector spawnPos;
+		if (!ctx.Read( spawnPos ))
+			return;
+		
+		SpawnParticle( spawnPos );
+	}
+
+	protected void SpawnParticle( vector spawnPos )
+	{
+		//! Play spawn sound
+		SEffectManager.PlaySound( "Expansion_Airdrop_ZSpawn_SoundSet", spawnPos );
+
+		//! Create dirt particle
+		Particle particle = Particle.PlayInWorld( ParticleList.IMPACT_DIRT_RICOCHET, spawnPos );
+
+		particle.ScaleParticleParam( EmitorParam.SIZE, 10 );
+		particle.ScaleParticleParam( EmitorParam.BIRTH_RATE, 5 );
+		particle.ScaleParticleParam( EmitorParam.BIRTH_RATE_RND, 5 );
+		particle.ScaleParticleParam( EmitorParam.LIFETIME, 5 );
+		particle.ScaleParticleParam( EmitorParam.LIFETIME_RND, 5 );
+	}
+
+	//! Client
+	void RPC_DeleteAirdropContainer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		int containerID;
+		if (!ctx.Read(containerID))
+			return;
+
+		ExpansionAirdropContainerBase container;
+		if (!ExpansionAirdropContainerBase.s_Expansion_AirdropContainers.Find(containerID, container))
+			return;
+
+		container.Delete();
+	}
+
 	void CallAirdrop(vector position)
 	{
 		array< ref ExpansionLootContainer > containers = new array< ref ExpansionLootContainer >;
 		ExpansionLootContainer container;
 
+		auto settings = GetExpansionSettings().GetAirdrop();
+
 		//! Get all containers enabled for player-called supply drop use
-		for ( int i = 0; i < GetExpansionSettings().GetAirdrop().Containers.Count(); i++ )
+		for ( int i = 0; i < settings.Containers.Count(); i++ )
 		{
-			container = GetExpansionSettings().GetAirdrop().Containers[i];
+			container = settings.Containers[i];
 			if ( container.Usage == 0 || container.Usage == 2 )
 			{
 				containers.Insert( container );
@@ -117,7 +295,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 				
 		int itemCount = container.ItemCount;
 		if ( container.ItemCount <= 0 )
-			itemCount = GetExpansionSettings().GetAirdrop().ItemCount;  //! Only kept for backwards compatibility, should be set per container
+			itemCount = settings.ItemCount;  //! Only kept for backwards compatibility, should be set per container
 
 		TStringArray infected;
 		int infectedCount;
@@ -129,7 +307,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		container = new ExpansionLootContainer( container.Container, 2, 1, container.Loot, infected, itemCount, infectedCount, false, container.FallSpeed );
 
-		ExpansionAirdropPlane plane = ExpansionAirdropPlane.CreatePlane( Vector( position[0], 0, position[2] ), "", GetExpansionSettings().GetAirdrop().Radius, GetExpansionSettings().GetAirdrop().Height, GetExpansionSettings().GetAirdrop().Speed, container, new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER" ) );
+		ExpansionAirdropPlaneBase plane = ExpansionAirdropPlane.Expansion_CreatePlane( Vector( position[0], 0, position[2] ), "", settings.Radius, settings.Height, settings.DropZoneHeight, settings.Speed, settings.DropZoneSpeed, container, new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER" ) );
 
 		if ( plane )
 		{
@@ -141,9 +319,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMissionModule OnMissionLoaded
-	// ------------------------------------------------------------
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
 #ifdef EXTRACE
@@ -206,25 +381,16 @@ class ExpansionMissionModule: CF_ModuleWorld
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMissionModule IsServer
-	// ------------------------------------------------------------
 	override bool IsServer()
 	{
 		return true;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule IsClient
-	// ------------------------------------------------------------
+
 	override bool IsClient()
 	{
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule SaveMissions
-	// ------------------------------------------------------------
+
 	protected void SaveMissions()
 	{
 		for ( int i = 0; i < m_Missions.Count(); i++ )
@@ -232,10 +398,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 			m_Missions[i].SaveMission();
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule ProcessMissions
-	// ------------------------------------------------------------
+
 	protected void ProcessMissions()
 	{
 		for ( int i = 0; i < m_Missions.Count(); i++ )
@@ -243,10 +406,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 			ProcessMission( m_Missions[ i ] );
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule ProcessMission
-	// ------------------------------------------------------------
+
 	protected void ProcessMission( ExpansionMissionEventBase evt )
 	{
 		array< ExpansionMissionEventBase > missions;
@@ -261,10 +421,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 			m_MissionsTyped.Insert( evt.Type(), missions );
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule GetMissionType
-	// ------------------------------------------------------------
+
 	typename GetMissionType( ExpansionMissionEventBase evt )
 	{
 		foreach (string name, typename missionType: m_MissionTypes)
@@ -277,10 +434,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		return typename;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule DefaultMissions
-	// ------------------------------------------------------------
+
 	protected void DefaultMissions()
 	{
 		foreach (string missionClassName, typename missionType: m_MissionTypes)
@@ -314,10 +468,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 			}
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule LoadMissions
-	// ------------------------------------------------------------
+
 	protected void LoadMissions()
 	{
 		TStringArray fileNames = ExpansionStatic.FindFilesInLocation(EXPANSION_MISSIONS_FOLDER, ".json");
@@ -359,13 +510,10 @@ class ExpansionMissionModule: CF_ModuleWorld
 			m_Missions.Insert( missionEvent );
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule StartNewMissions
-	// ------------------------------------------------------------
+
 	void StartNewMissions()
 	{
-#ifdef EXTRACE
+#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 #endif
 		
@@ -381,7 +529,9 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 			int playerCount = players.Count();
 
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 			CF_Log.Debug( "ExpansionMissionModule::StartNewMissions - ["+ playerCount + "/" + m_MissionSettings.MinPlayersToStartMissions +"] players" );
+		#endif
 
 			//! If player count is too low
 			if ( playerCount < m_MissionSettings.MinPlayersToStartMissions )
@@ -440,18 +590,12 @@ class ExpansionMissionModule: CF_ModuleWorld
 			}
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule GetNumberRunningMissions
-	// ------------------------------------------------------------
+
 	int GetNumberRunningMissions()
 	{
 		return m_RunningMissions.Count();
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule RemoveMission
-	// ------------------------------------------------------------
+
 	void RemoveMission( ExpansionMissionEventBase mission )
 	{
 		m_RunningMissions.RemoveItem( mission );
@@ -462,10 +606,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissions, m_MissionSettings.TimeBetweenMissions, false );
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule FindNewMission
-	// ------------------------------------------------------------
+
 	protected bool FindNewMission()
 	{
 #ifdef EXTRACE
@@ -487,10 +628,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule AddMission
-	// ------------------------------------------------------------
+
 	void AddMission( ExpansionMissionEventBase evt )
 	{
 		m_Missions.Insert( evt );
@@ -504,10 +642,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		ProcessMission( evt );
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule DeleteMission
-	// ------------------------------------------------------------
+
 	bool DeleteMission( ExpansionMissionEventBase evt )
 	{
 		int idx = m_Missions.Find( evt );
@@ -522,10 +657,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		return true;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule StartMissionInternal
-	// ------------------------------------------------------------
+
 	private void StartMissionInternal( ExpansionMissionEventBase mission )
 	{
 		mission.Start();
@@ -534,10 +666,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		SI_Started.Invoke( mission );
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule StartMission
-	// ------------------------------------------------------------
+
 	bool StartMission( ExpansionMissionEventBase mission )
 	{
 		if ( m_RunningMissions.Count() >= m_MissionSettings.MaxMissions )
@@ -550,10 +679,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		return true;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule FindMission
-	// ------------------------------------------------------------
+
 	ExpansionMissionEventBase FindMission( string missionType, string missionName )
 	{
 		array< ExpansionMissionEventBase > missions = new array< ExpansionMissionEventBase >;
@@ -575,10 +701,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		return NULL;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule StartMission
-	// ------------------------------------------------------------
+
 	bool StartMission( string missionType, string missionName )
 	{
 		ExpansionMissionEventBase evt = FindMission( missionType, missionName );
@@ -587,10 +710,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		return StartMission( evt );
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule EndMission
-	// ------------------------------------------------------------
+
 	bool EndMission( string missionType, string missionName )
 	{
 		ExpansionMissionEventBase evt = FindMission( missionType, missionName );
@@ -601,10 +721,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		return true;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule Serialize
-	// ------------------------------------------------------------
+
 	array< ref ExpansionMissionSerializedType > Serialize()
 	{
 		array< ref ExpansionMissionSerializedType > serialized = new array< ref ExpansionMissionSerializedType >;

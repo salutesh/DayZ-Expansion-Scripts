@@ -500,7 +500,7 @@ class cfgWeapons
 		{
 			soundSetShot[]=
 			{
-				"MP5K_silencerPro_SoundSet",
+				"MP5K_silencer_SoundSet",
 				"MP5K_silencerTail_SoundSet",
 				"MP5K_silencerInteriorTail_SoundSet"
 			};
@@ -508,7 +508,7 @@ class cfgWeapons
 			{
 				
 				{
-					"MP5K_silencerPro_SoundSet",
+					"MP5K_silencer_SoundSet",
 					"MP5K_silencerTail_SoundSet",
 					"MP5K_silencerInteriorTail_SoundSet"
 				}
@@ -523,7 +523,7 @@ class cfgWeapons
 		{
 			soundSetShot[]=
 			{
-				"MP5K_silencerPro_SoundSet",
+				"MP5K_silencer_SoundSet",
 				"MP5K_silencerTail_SoundSet",
 				"MP5K_silencerInteriorTail_SoundSet"
 			};
@@ -547,7 +547,7 @@ class cfgWeapons
 		{
 			soundSetShot[]=
 			{
-				"MP5K_silencerPro_SoundSet",
+				"MP5K_silencer_SoundSet",
 				"MP5K_silencerTail_SoundSet",
 				"MP5K_silencerInteriorTail_SoundSet"
 			};
@@ -555,7 +555,7 @@ class cfgWeapons
 			{
 				
 				{
-					"MP5K_silencerPro_SoundSet",
+					"MP5K_silencer_SoundSet",
 					"MP5K_silencerTail_SoundSet",
 					"MP5K_silencerInteriorTail_SoundSet"
 				}

@@ -228,4 +228,18 @@ modded class MiscGameplayFunctions
 
 		return numberOfTransferredCartridges;
 	}
+	
+	static array<EntityAI> Expansion_GetEntitySlotItems(EntityAI entity)
+	{
+		array<EntityAI> slotItems = new array<EntityAI>;
+		for (int i = 0; i < entity.GetInventory().GetAttachmentSlotsCount(); i++)
+		{
+			int slot = entity.GetInventory().GetAttachmentSlotId(i);
+			EntityAI slotItem = entity.GetInventory().FindAttachment(slot);
+			if (slotItem)
+				slotItems.Insert(slotItem);
+		}
+
+		return slotItems;
+	}
 }

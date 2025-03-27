@@ -196,21 +196,22 @@ class ExpansionBoatHud : VehicleHudBase
 			if (batteryPercentage <= 10)
 			{
 				m_BoatBatteryLight.SetColor(BATTERY_EMPTY_COLOR);
+				m_BoatBatteryLight.Show(true);
 			}
 			else if (batteryPercentage <= 33)
 			{
 				m_BoatBatteryLight.SetColor(BATTERY_LOW_COLOR);
+				m_BoatBatteryLight.Show(true);
 			}
 			else if (batteryPercentage <= 66)
 			{
 				m_BoatBatteryLight.SetColor(BATTERY_MED_COLOR);
+				m_BoatBatteryLight.Show(true);
 			}
 			else
 			{
-				m_BoatBatteryLight.SetColor(BATTERY_FULL_COLOR);
+				m_BoatBatteryLight.Show(false);
 			}
-			
-			m_BoatBatteryLight.Show(true);
 		}
 		else
 		{

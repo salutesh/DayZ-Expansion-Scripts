@@ -10,7 +10,6 @@
  *
 */
 
-#ifdef EXPANSIONMODQUESTS_HUD_ENABLE
 class ExpansionQuestHUDDeliveryEntry: ExpansionScriptView
 {
 	protected ref ExpansionQuestHUDDeliveryEntryController m_QuestHUDDeliveryObjectiveController;
@@ -93,4 +92,3 @@ class ExpansionQuestHUDDeliveryEntryController: ExpansionViewController
 	string DeliveryName;
 	string DeliveryValue;
 };
-#endif

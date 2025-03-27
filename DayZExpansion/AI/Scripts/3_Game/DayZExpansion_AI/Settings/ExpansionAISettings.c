@@ -10,12 +10,18 @@
  *
 */
 
+class ExpansionAISettingsV11: ExpansionSettingBase
+{
+	ref TStringArray ExcludedRoamingLocations = {};
+	ref TStringArray ExcludedRoamingBuildings = {};
+}
+
 /**@class		ExpansionAISettings
  * @brief		Spawn settings class
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 11;
+	static const int VERSION = 12;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -40,8 +46,6 @@ class ExpansionAISettings: ExpansionSettingBase
 	bool CanRecruitGuards;
 
 	ref TStringArray PreventClimb = {};
-	ref TStringArray ExcludedRoamingLocations = {};
-	ref TStringArray ExcludedRoamingBuildings = {};
 
 #ifdef DIAG_DEVELOPER
 	float FormationScale;
@@ -295,6 +299,25 @@ class ExpansionAISettings: ExpansionSettingBase
 				{
 					LogAIHitBy = settingsDefault.LogAIHitBy;
 					LogAIKilled = settingsDefault.LogAIKilled;
+				}
+
+				if (m_Version < 12)
+				{
+					ExpansionAISettingsV11 settingsV11;
+					if (ExpansionJsonFileParser<ExpansionAISettingsV11>.Load(EXPANSION_AI_SETTINGS, settingsV11))
+					{
+						auto locationSettings = GetExpansionSettings().GetAILocation();
+
+						locationSettings.ExcludedRoamingBuildings.InsertAll(settingsV11.ExcludedRoamingBuildings);
+
+						foreach (auto loc: locationSettings.RoamingLocations)
+						{
+							if (settingsV11.ExcludedRoamingLocations.Find(loc.m_ClassName) > -1)
+								loc.Enabled = false;
+						}
+
+						locationSettings.Save();
+					}
 				}
 
 				m_Version = VERSION;

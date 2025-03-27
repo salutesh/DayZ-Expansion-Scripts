@@ -397,6 +397,8 @@
 				
 				if (unit.eAI_IsDangerousAltitude()) return FAIL;  //! Don't evade if high above ground
 				
+				if (unit.m_eAI_IsOnLadder) return FAIL;
+				
 				fsm.LastEvadeTime = missionTime;
 				
 				return SUCCESS;

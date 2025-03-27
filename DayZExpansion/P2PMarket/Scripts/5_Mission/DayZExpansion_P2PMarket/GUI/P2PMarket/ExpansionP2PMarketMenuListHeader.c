@@ -13,7 +13,7 @@
 class ExpansionP2PMarketMenuListHeader: ExpansionScriptView
 {
 	protected ref ExpansionP2PMarketMenuListHeaderController m_P2PMarketMenuListHeaderController;
-	protected ref ExpansionP2PMarketMenu m_P2PMarketMenu;
+	protected ExpansionP2PMarketMenu m_P2PMarketMenu;
 
 	protected ButtonWidget item_name_button;
 	protected TextWidget item_name_text;
@@ -35,6 +35,7 @@ class ExpansionP2PMarketMenuListHeader: ExpansionScriptView
 	protected bool m_TimeSortState;
 	protected bool m_PriceSortState;
 	protected bool m_OwnerSortState;
+	protected bool m_HighlightDisabled;
 
 	void ExpansionP2PMarketMenuListHeader(ExpansionP2PMarketMenu menu)
 	{
@@ -115,21 +116,27 @@ class ExpansionP2PMarketMenuListHeader: ExpansionScriptView
 			m_P2PMarketMenu.Listings_Filter_OwnerNameAZ();
 		}
 	}
-
-
-	override void OnShow()
+	
+	void SetListView(bool state)
 	{
-		super.OnShow();
-
-		/*item_name_icon.SetFlags(WidgetFlags.FLIPV);
-		time_icon.SetFlags(WidgetFlags.FLIPV);
-		price_icon.SetFlags(WidgetFlags.FLIPV);
-		player_name_icon.SetFlags(WidgetFlags.FLIPV);*/
+		for (int i = 1; i <= 3; i++)
+		{
+			Widget spacer = GetLayoutRoot().FindAnyWidget("spacer" + i);
+			if (spacer)
+				spacer.Show(!state);
+		}
+		
+		item_name_button.Enable(!state);
+		item_name_icon.Show(!state);
+		time_button.Show(!state);
+		price_button.Show(!state);
+		player_name_button.Show(!state);
+		m_HighlightDisabled = state;
 	}
 
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
-		if (w != NULL)
+		if (w != NULL && !m_HighlightDisabled)
 		{
 			if (w == item_name_button)
 			{
@@ -166,7 +173,7 @@ class ExpansionP2PMarketMenuListHeader: ExpansionScriptView
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-		if (w != NULL)
+		if (w != NULL && !m_HighlightDisabled)
 		{
 			if (w == item_name_button)
 			{

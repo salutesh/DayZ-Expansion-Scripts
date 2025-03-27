@@ -66,7 +66,7 @@
 				<position_destination x="1313" y="550.644739300538" />
 			</editor_data>
 			<guard>
-				if (vector.Distance(unit.GetPosition(), src.position) &gt; 0.5) return FAIL;
+				if (vector.DistanceSq(unit.GetPosition(), src.position) &gt; 1.0) return FAIL;
 				if (!src.transport.IsAreaAtDoorFree(src.seat)) return FAIL;
 				CarScript cs;
 				if (src.transport.CrewMember(src.seat) || (Class.CastTo(cs, src.transport) &amp;&amp; cs.Expansion_IsSeatReservedByOther(src.seat, unit))) return FAIL;
@@ -83,7 +83,7 @@
 				<position_destination x="1313" y="550.644739300538" />
 			</editor_data>
 			<guard>
-				if (vector.Distance(unit.GetPosition(), src.position) &lt; 0.5) return FAIL;
+				if (vector.DistanceSq(unit.GetPosition(), src.position) &lt; 1.0) return FAIL;
 				
 				if (unit.GetThreatToSelf() &gt;= 0.4) return FAIL;
 				
@@ -99,7 +99,7 @@
 				<position_destination x="1312.25419083697" y="629.019715945429" />
 			</editor_data>
 			<guard>
-				if (vector.Distance(unit.GetPosition(), src.position) &gt; 0.5) return FAIL;
+				if (vector.DistanceSq(unit.GetPosition(), src.position) &gt; 1.0) return FAIL;
 				if (unit.IsInTransport()) return FAIL;
 				if (!src.transport.CrewCanGetThrough(src.seat) || !src.transport.IsAreaAtDoorFree(src.seat)) return FAIL;
 				CarScript cs;

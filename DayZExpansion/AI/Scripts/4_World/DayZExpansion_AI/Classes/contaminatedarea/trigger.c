@@ -1,4 +1,4 @@
-modded class Trigger
+modded class CylinderTrigger
 {
 #ifdef DIAG_DEVELOPER
 	override protected Shape DrawDebugShape(vector pos, vector min, vector max, float radius, int color)

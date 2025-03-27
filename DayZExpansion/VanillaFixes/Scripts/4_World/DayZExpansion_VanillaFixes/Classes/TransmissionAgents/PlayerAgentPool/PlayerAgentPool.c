@@ -1,4 +1,4 @@
-#ifndef DAYZ_1_25
+#ifdef DAYZ_1_26
 //! Bugfix for 1.26 failing to load 1.25 agentpool https://feedback.bistudio.com/T183495
 modded class PlayerAgentPool
 {

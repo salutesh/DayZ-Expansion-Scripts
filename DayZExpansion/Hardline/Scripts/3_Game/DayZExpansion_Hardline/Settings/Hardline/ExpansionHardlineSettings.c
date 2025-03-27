@@ -1941,7 +1941,6 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_Kar98", ExpansionHardlineItemRarity.Rare);
-		AddItem("Expansion_M14", ExpansionHardlineItemRarity.Rare);
 		AddItem("Expansion_M1A", ExpansionHardlineItemRarity.Rare);
 	#endif
 

@@ -35,6 +35,9 @@ class ExpansionActionOpenPersonalStorage: ActionInteractBase
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
+		if (player.IsRestrained())
+			return false;
+		
 		ExpansionPersonalStorageHub hub;
 		if (!Class.CastTo(hub, target.GetObject()))
 			return false;

@@ -57,6 +57,8 @@ modded class PlayerBase
 	ref ExpansionEntity m_Expansion_Entity;
 
 	EntityAI m_Expansion_EntityToBeTakenToHands;
+	
+	protected ref ScriptInvoker	m_Expansion_OnRestrainedStateChaged;
 
 	void PlayerBase()
 	{
@@ -1101,6 +1103,22 @@ modded class PlayerBase
 
 		if (m_Expansion_EntityToBeTakenToHands == item)
 			m_Expansion_EntityToBeTakenToHands = null;
+	}
+	
+	override void OnRestrainChangeClient()
+	{
+		super.OnRestrainChangeClient();
+		
+		if (m_Expansion_OnRestrainedStateChaged)
+			m_Expansion_OnRestrainedStateChaged.Invoke(m_IsRestrained);
+	}
+	
+	ScriptInvoker Expansion_GetOnRestrainedStateChaged()
+	{
+		if (!m_Expansion_OnRestrainedStateChaged)
+			m_Expansion_OnRestrainedStateChaged = new ScriptInvoker();
+
+		return m_Expansion_OnRestrainedStateChaged;
 	}
 	
 #ifdef EXPANSION_MODSTORAGE

@@ -21,7 +21,7 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
    {
     PanelWidgetClass list_panel_background {
      ignorepointer 1
-     color 0.0745 0.0902 0.1059 1
+     color 0.1059 0.1059 0.1059 0.9412
      position 0 0
      size 1 1
      hexactpos 0
@@ -45,8 +45,8 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
        visible 1
        ignorepointer 1
        color 0.8627 0.8627 0.8627 1
-       position 0.025 0
        size 0.9 26
+       halign center_ref
        valign center_ref
        hexactpos 0
        vexactpos 0
@@ -55,10 +55,13 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
        scriptclass ""
        style Bold
        text "#STR_EXPANSION_MARKET_P2P_PREVIEW_LABEL"
-       "bold text" 0
+       font "gui/fonts/sdf_metronbook72"
+       "bold text" 1
        "text sharpness" 1.014
-       "exact text" 0
+       "exact text" 1
+       "exact text size" 20
        "size to text h" 1
+       "text halign" center
        "text valign" center
       }
      }
@@ -74,8 +77,11 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
      hexactsize 0
      vexactsize 1
      text "#STR_EXPANSION_MARKET_P2P_INFOBOX_WARNING_TITLE"
-     font "gui/fonts/MetronBook-BoldItalic48"
+     font "gui/fonts/sdf_metronbook72"
      "text color" 0.9451 0.7686 0.0588 1
+     "bold text" 1
+     "exact text" 1
+     "exact text size" 20
      "size to text h" 0
      "size to text v" 1
      "text halign" center
@@ -103,7 +109,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
        hexactsize 0
        vexactsize 1
        text "#STR_EXPANSION_MARKET_P2P_INFOBOX_EXPIREDSALES_TITLE"
-       font "gui/fonts/MetronBook-Bold22"
+       font "gui/fonts/sdf_metronbook72"
+       "bold text" 1
+       "exact text" 1
+       "exact text size" 20
        "size to text h" 0
        "size to text v" 1
        "text valign" center
@@ -116,8 +125,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
        hexactsize 0
        vexactsize 0
        scriptclass "ViewBinding"
-       font "gui/fonts/etelkatextpro22"
+       font "gui/fonts/sdf_metronbook72"
+       "bold text" 0
        "exact text" 1
+       "exact text size" 20
        "size to text h" 1
        "size to text v" 1
        wrap 1
@@ -147,7 +158,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
        hexactsize 0
        vexactsize 1
        text "#STR_EXPANSION_MARKET_P2P_INFOBOX_EXPIREDLISTING_TITLE"
-       font "gui/fonts/MetronBook-Bold22"
+       font "gui/fonts/sdf_metronbook72"
+       "bold text" 1
+       "exact text" 1
+       "exact text size" 20
        "size to text h" 0
        "size to text v" 1
        "text valign" center
@@ -160,8 +174,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
        hexactsize 0
        vexactsize 0
        scriptclass "ViewBinding"
-       font "gui/fonts/etelkatextpro22"
+       font "gui/fonts/sdf_metronbook72"
+       "bold text" 0
        "exact text" 1
+       "exact text size" 20
        "size to text h" 1
        "size to text v" 1
        wrap 1
@@ -190,7 +206,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
        hexactsize 0
        vexactsize 1
        text "#STR_EXPANSION_MARKET_P2P_INFOBOX_LISTINGFEE_TITLE"
-       font "gui/fonts/MetronBook-Bold22"
+       font "gui/fonts/sdf_metronbook72"
+       "bold text" 1
+       "exact text" 1
+       "exact text size" 20
        "size to text h" 0
        "size to text v" 1
        "text valign" center
@@ -203,8 +222,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
        hexactsize 0
        vexactsize 0
        scriptclass "ViewBinding"
-       font "gui/fonts/etelkatextpro22"
+       font "gui/fonts/sdf_metronbook72"
+       "bold text" 0
        "exact text" 1
+       "exact text size" 20
        "size to text h" 1
        "size to text v" 1
        wrap 1
@@ -234,8 +255,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
        hexactsize 0
        vexactsize 1
        text "#STR_EXPANSION_MARKET_P2P_INFOBOX_GENERALWARNING_DESC"
-       font "gui/fonts/MetronBook-Bold22"
+       font "gui/fonts/sdf_metronbook72"
+       "bold text" 1
        "exact text" 1
+       "exact text size" 20
        "size to text h" 1
        "size to text v" 1
        "text valign" center
@@ -273,7 +296,7 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
     }
     TextWidgetClass selected_name {
      ignorepointer 1
-     position 0 0.64
+     position 0 0.65
      size 0.95 46
      halign center_ref
      hexactpos 0
@@ -282,7 +305,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
      vexactsize 1
      scriptclass "ViewBinding"
      text "#STR_EXPANSION_MARKET_P2P_ITEMNAME"
-     font "gui/fonts/etelkatextpro48"
+     font "gui/fonts/sdf_metronbook72"
+     "bold text" 1
+     "exact text" 1
+     "exact text size" 24
      "text halign" center
      "text valign" center
      {
@@ -293,7 +319,7 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
     }
     WrapSpacerWidgetClass price_panel {
      ignorepointer 1
-     color 0 0 0 1
+     color 0.0745 0.0902 0.1059 1
      position 0 0.7
      size 0.95 142
      halign center_ref
@@ -301,7 +327,7 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
      vexactpos 0
      hexactsize 0
      vexactsize 1
-     style Expansion_01
+     style DayZDefaultPanel
      Padding 4
      Margin 10
      "Size To Content H" 1
@@ -349,7 +375,8 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          vexactsize 1
          scriptclass "ViewBinding"
          style Editor
-         font "gui/fonts/etelkatextpro"
+         "exact text" 0
+         font "gui/fonts/sdf_metronbook72"
          {
           ScriptParamsClass {
            Binding_Name "PriceEditBox"
@@ -365,8 +392,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          hexactsize 0
          vexactsize 1
          text "#STR_EXPANSION_MARKET_P2P_PRICE_LABEL"
-         font "gui/fonts/etelkatextpro28"
-         "exact text" 0
+         font "gui/fonts/sdf_metronbook72"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 20
          "size to text h" 0
          "size to text v" 0
          "text valign" center
@@ -392,7 +421,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          hexactsize 0
          vexactsize 1
          text "#STR_EXPANSION_MARKET_P2P_LISTINGCOST_LABEL"
-         font "gui/fonts/etelkatextpro28"
+         font "gui/fonts/sdf_metronbook72"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 20
          "size to text h" 0
          "text valign" center
         }
@@ -407,8 +439,9 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          vexactsize 1
          scriptclass "ViewBinding"
          text "#STR_EXPANSION_MARKET_P2P_NAN"
-         font "gui/fonts/etelkatextpro"
-         "exact text" 0
+         font "gui/fonts/sdf_metronbook72"
+         "exact text" 1
+         "exact text size" 20
          "text valign" center
          {
           ScriptParamsClass {
@@ -437,7 +470,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          hexactsize 0
          vexactsize 1
          text "#STR_EXPANSION_MARKET_P2P_LOWESTPRICE_LABEL"
-         font "gui/fonts/etelkatextpro28"
+         font "gui/fonts/sdf_metronbook72"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 20
          "size to text h" 0
          "text valign" center
         }
@@ -452,8 +488,9 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          vexactsize 1
          scriptclass "ViewBinding"
          text "#STR_EXPANSION_MARKET_P2P_NAN"
-         font "gui/fonts/etelkatextpro"
-         "exact text" 0
+         font "gui/fonts/sdf_metronbook72"
+         "exact text" 1
+         "exact text size" 20
          "text valign" center
          {
           ScriptParamsClass {
@@ -482,7 +519,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          hexactsize 0
          vexactsize 1
          text "#STR_EXPANSION_MARKET_P2P_HIGHESTPRICE_LABEL"
-         font "gui/fonts/etelkatextpro28"
+         font "gui/fonts/sdf_metronbook72"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 20
          "size to text h" 0
          "text valign" center
         }
@@ -497,8 +537,9 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          vexactsize 1
          scriptclass "ViewBinding"
          text "#STR_EXPANSION_MARKET_P2P_NAN"
-         font "gui/fonts/etelkatextpro"
-         "exact text" 0
+         font "gui/fonts/sdf_metronbook72"
+         "exact text" 1
+         "exact text size" 20
          "text valign" center
          {
           ScriptParamsClass {
@@ -528,7 +569,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          hexactsize 0
          vexactsize 1
          text "#STR_EXPANSION_MARKET_P2P_MARKETPRICE_LABEL"
-         font "gui/fonts/etelkatextpro28"
+         font "gui/fonts/sdf_metronbook72"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 20
          "size to text h" 0
          "text valign" center
         }
@@ -543,8 +587,9 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          vexactsize 1
          scriptclass "ViewBinding"
          text "#STR_EXPANSION_MARKET_P2P_NAN"
-         font "gui/fonts/etelkatextpro"
-         "exact text" 0
+         font "gui/fonts/sdf_metronbook72"
+         "exact text" 1
+         "exact text size" 20
          "text valign" center
          {
           ScriptParamsClass {
@@ -559,7 +604,7 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
     GridSpacerWidgetClass back_button_panel {
      ignorepointer 1
      color 0 0 0 1
-     position 0.15 0.02
+     position 0.03 0.02
      size 0.3 32
      halign right_ref
      valign bottom_ref
@@ -595,7 +640,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          hexactsize 0
          vexactsize 0
          text "#STR_EXPANSION_MARKET_P2P_BACK_BUTTON_LABEL"
-         font "gui/fonts/etelkatextpro22"
+         font "gui/fonts/sdf_metronbook72"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 20
          "text halign" center
          "text valign" center
         }
@@ -617,8 +665,8 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
      visible 0
      ignorepointer 1
      color 0 0 0 1
-     position 0.15 0.02
-     size 0.3 32
+     position 0.03 0.02
+     size 0.4 32
      valign bottom_ref
      hexactpos 0
      vexactpos 0
@@ -652,7 +700,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          hexactsize 0
          vexactsize 0
          scriptclass "ViewBinding"
-         font "gui/fonts/etelkatextpro22"
+         font "gui/fonts/sdf_metronbook72"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 20
          "text halign" center
          "text valign" center
          {
@@ -700,7 +751,7 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
      {
       PanelWidgetClass item_details_panel_background {
        ignorepointer 1
-       color 0.0745 0.0902 0.1059 1
+       color 0.1059 0.1059 0.1059 0.9412
        position 0 0
        size 1 1
        hexactpos 0
@@ -724,8 +775,8 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          visible 1
          ignorepointer 1
          color 0.8627 0.8627 0.8627 1
-         position 0.025 0
          size 0.9 26
+         halign center_ref
          valign center_ref
          hexactpos 0
          vexactpos 0
@@ -734,10 +785,13 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          scriptclass ""
          style Bold
          text "#STR_EXPANSION_MARKET_P2P_ITEMDETAILS_LABEL"
-         "bold text" 0
+         font "gui/fonts/sdf_metronbook72"
+         "bold text" 1
          "text sharpness" 1.014
-         "exact text" 0
+         "exact text" 1
+         "exact text size" 20
          "size to text h" 1
+         "text halign" center
          "text valign" center
         }
        }
@@ -778,45 +832,64 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
            hexactsize 0
            vexactsize 1
            text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_HEALTH_LABEL"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_metronbook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 20
+           "size to text h" 0
            "text valign" center
           }
-          ImageWidgetClass health_image {
-           visible 1
-           clipchildren 0
-           inheritalpha 0
+          WrapSpacerWidgetClass health_wraper {
            ignorepointer 1
-           color 0 1 0 1
-           position 0.44 0
-           size 24 24
+           size 0.5 26
            halign right_ref
-           valign center_ref
-           hexactpos 0
-           vexactpos 0
-           hexactsize 1
-           vexactsize 1
-           image0 ""
-           imageTexture "{0FCACAAF0A99273C}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"
-           mode additive
-           "src alpha" 1
-           "no wrap" 1
-           stretch 1
-           filter 1
-          }
-          TextWidgetClass health_value {
-           ignorepointer 1
-           size 0.43 26
-           halign right_ref
-           hexactpos 0
-           vexactpos 0
+           hexactpos 1
+           vexactpos 1
            hexactsize 0
            vexactsize 1
-           scriptclass "ViewBinding"
-           font "gui/fonts/etelkatextpro"
-           "text valign" center
+           content_halign center
+           content_valign center
            {
-            ScriptParamsClass {
-             Binding_Name "ItemHealth"
+            ImageWidgetClass health_image {
+             visible 1
+             clipchildren 0
+             inheritalpha 0
+             ignorepointer 1
+             color 0 1 0 1
+             position 0.44 0
+             size 24 24
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             image0 ""
+             imageTexture "{0FCACAAF0A99273C}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"
+             mode additive
+             "src alpha" 1
+             "clamp mode" clamp
+             "stretch mode" stretch_w_h
+             filter 1
+            }
+            TextWidgetClass health_value {
+             ignorepointer 1
+             size 0.43 26
+             halign right_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+             scriptclass "ViewBinding"
+             font "gui/fonts/sdf_metronbook72"
+             "exact text" 1
+             "exact text size" 20
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Binding_Name "ItemHealth"
+              }
+             }
             }
            }
           }
@@ -840,7 +913,11 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
            hexactsize 0
            vexactsize 1
            text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_CARGO_LABEL"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_metronbook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 20
+           "size to text h" 0
            "text valign" center
           }
           TextWidgetClass cargo_count_value {
@@ -853,7 +930,9 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
            hexactsize 0
            vexactsize 1
            scriptclass "ViewBinding"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_metronbook72"
+           "exact text" 1
+           "exact text size" 20
            "text valign" center
            {
             ScriptParamsClass {
@@ -881,7 +960,11 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
            hexactsize 0
            vexactsize 1
            text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_ATTACHMENTS_LABEL"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_metronbook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 20
+           "size to text h" 0
            "text valign" center
           }
           TextWidgetClass cargo_attachments_value {
@@ -894,7 +977,9 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
            hexactsize 0
            vexactsize 1
            scriptclass "ViewBinding"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_metronbook72"
+           "exact text" 1
+           "exact text size" 20
            "text valign" center
            {
             ScriptParamsClass {
@@ -961,7 +1046,11 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
            vexactsize 1
            scriptclass "ViewBinding"
            text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_QUANTITY_LABEL"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_metronbook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 20
+           "size to text h" 0
            "text valign" center
            {
             ScriptParamsClass {
@@ -980,7 +1069,9 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
            vexactsize 1
            scriptclass "ViewBinding"
            text "#STR_EXPANSION_MARKET_P2P_NAN"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_metronbook72"
+           "exact text" 1
+           "exact text size" 20
            "text halign" center
            "text valign" center
            {
@@ -1010,7 +1101,11 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
            hexactsize 0
            vexactsize 1
            text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_LIQUID_LABEL"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_metronbook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 20
+           "size to text h" 0
            "text valign" center
           }
           PanelWidgetClass liquid_color {
@@ -1035,7 +1130,9 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
              hexactsize 0
              vexactsize 0
              scriptclass "ViewBinding"
-             font "gui/fonts/etelkatextpro"
+             font "gui/fonts/sdf_metronbook72"
+             "exact text" 1
+             "exact text size" 20
              "text halign" center
              "text valign" center
              {
@@ -1067,7 +1164,11 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
            hexactsize 0
            vexactsize 1
            text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_FOOD_LABEL"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_metronbook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 20
+           "size to text h" 0
            "text valign" center
           }
           PanelWidgetClass foodstate_color {
@@ -1092,7 +1193,9 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
              hexactsize 0
              vexactsize 0
              scriptclass "ViewBinding"
-             font "gui/fonts/etelkatextpro"
+             font "gui/fonts/sdf_metronbook72"
+             "exact text" 1
+             "exact text size" 20
              "text halign" center
              "text valign" center
              {
@@ -1124,7 +1227,10 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
            hexactsize 0
            vexactsize 0
            text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_RARITY_LABEL"
-           font "gui/fonts/etelkatextpro"
+           font "gui/fonts/sdf_metronbook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 20
            "text valign" center
           }
           PanelWidgetClass rarity_color {
@@ -1149,7 +1255,9 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
              hexactsize 0
              vexactsize 0
              scriptclass "ViewBinding"
-             font "gui/fonts/etelkatextpro"
+             font "gui/fonts/sdf_metronbook72"
+             "exact text" 1
+             "exact text size" 20
              "text halign" center
              "text valign" center
              {
@@ -1166,7 +1274,7 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
       }
       WrapSpacerWidgetClass WrapSpacerWidget1 {
        ignorepointer 1
-       color 0 0 0 1
+       color 0.0745 0.0902 0.1059 1
        position 0 0.1
        size 0.95 0.48553
        halign center_ref
@@ -1183,7 +1291,6 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
         PanelWidgetClass item_details_attachments_panel {
          visible 1
          ignorepointer 1
-         color 0 0 0 1
          size 0.98 0.47
          halign center_ref
          hexactpos 0
@@ -1235,6 +1342,11 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
            hexactsize 0
            vexactsize 1
            text "#STR_EXPANSION_MARKET_P2P_ATTACHMENTS_LABEL"
+           font "gui/fonts/sdf_metronbook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 20
+           "text halign" center
           }
          }
         }
@@ -1302,6 +1414,11 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
            hexactsize 0
            vexactsize 1
            text "#STR_EXPANSION_MARKET_P2P_CARGO_LABEL"
+           font "gui/fonts/sdf_metronbook72"
+           "bold text" 1
+           "exact text" 1
+           "exact text size" 20
+           "text halign" center
           }
          }
         }
@@ -1334,7 +1451,7 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
      {
       PanelWidgetClass preview_panel_background {
        ignorepointer 1
-       color 0.0745 0.0902 0.1059 1
+       color 0.1059 0.1059 0.1059 0.9412
        position 0 0
        size 1 1
        hexactpos 0
@@ -1358,8 +1475,8 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          visible 1
          ignorepointer 1
          color 0.8627 0.8627 0.8627 1
-         position 0.025 0
          size 0.9 26
+         halign center_ref
          valign center_ref
          hexactpos 0
          vexactpos 0
@@ -1368,10 +1485,13 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          scriptclass ""
          style Bold
          text "#STR_EXPANSION_MARKET_P2P_INFORMATION_LABEL"
-         "bold text" 0
+         font "gui/fonts/sdf_metronbook72"
+         "bold text" 1
          "text sharpness" 1.014
-         "exact text" 0
+         "exact text" 1
+         "exact text size" 20
          "size to text h" 1
+         "text halign" center
          "text valign" center
         }
        }
@@ -1428,6 +1548,58 @@ FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
          {
           ScriptParamsClass {
            Binding_Name "ViewPlayerPreview"
+          }
+         }
+        }
+        PanelWidgetClass info_content {
+         visible 0
+         clipchildren 0
+         ignorepointer 1
+         size 36 36
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         style blank
+         {
+          ButtonWidgetClass info_button {
+           clipchildren 0
+           position 0 0
+           size 36 36
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           scriptclass "ViewBinding"
+           style Empty
+           {
+            ImageWidgetClass item_info_icon {
+             clipchildren 0
+             ignorepointer 1
+             keepsafezone 0
+             color 0.6275 0.8745 0.2314 1
+             position 0 0
+             size 36 36
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             image0 ""
+             imageTexture "{C0B1B0599B00CBE8}DayZExpansion/Core/GUI/icons/hud/info_64x64.edds"
+             mode blend
+             "src alpha" 1
+             "clamp mode" clamp
+             "stretch mode" stretch_w_h
+            }
+           }
+           {
+            ScriptParamsClass {
+            }
+           }
           }
          }
         }

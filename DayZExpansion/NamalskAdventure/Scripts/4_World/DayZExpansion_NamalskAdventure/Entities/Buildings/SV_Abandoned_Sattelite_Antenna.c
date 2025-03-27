@@ -11,7 +11,6 @@
 */
 
 //! @note: Can only be used when the BuildingsModPack mod by Starlv is loaded: https://steamcommunity.com/sharedfiles/filedetails/?id=2270098553
-#ifdef EXPANSION_NAMALSK_ADVENTURE
 class SV_Abandoned_Sattelite_Antenna extends House
 {
 #ifdef DIAG_DEVELOPER
@@ -144,4 +143,3 @@ class SV_Abandoned_Sattelite_Antenna extends House
 #endif
 #endif
 };
-#endif

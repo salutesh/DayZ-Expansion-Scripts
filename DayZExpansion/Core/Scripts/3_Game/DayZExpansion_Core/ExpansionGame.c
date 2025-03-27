@@ -32,6 +32,8 @@ class ExpansionGame
 	#ifdef EXPANSIONUI
 		CreateExpansionUIManager();
 	#endif
+		
+		ExpansionItemNameTabel.LoadNameTabel();
 	}
 
 	// ------------------------------------------------------------

@@ -11,7 +11,6 @@
 */
 
 //! @note: Can only be used when the BuildingsModPack mod by Starlv is loaded: https://steamcommunity.com/sharedfiles/filedetails/?id=2270098553
-#ifdef EXPANSION_NAMALSK_ADVENTURE
 class Expansion_Satellite_Control: ItemBase
 {
 	#ifdef DIAG_DEVELOPER
@@ -385,4 +384,3 @@ class Expansion_Satellite_Control: ItemBase
 		#endif
 	}
 };
-#endif

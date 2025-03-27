@@ -10,7 +10,6 @@
  *
 */
 
-#ifdef EXPANSIONMODQUESTS_HUD_ENABLE
 class ExpansionQuestHUD: ExpansionScriptView
 {
 	protected ref ExpansionQuestHUDController m_QuestHUDController;
@@ -207,4 +206,3 @@ class ExpansionQuestHUD: ExpansionScriptView
 };
 
 class ExpansionQuestHUDController: ExpansionViewController {};
-#endif

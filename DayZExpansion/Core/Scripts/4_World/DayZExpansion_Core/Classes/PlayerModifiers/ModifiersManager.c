@@ -44,41 +44,41 @@ modded class ModifiersManager
 					case bool:
 						bool vb;
 						paramType.GetVariableValue(param, i, vb);
-						ctx.Write(Expansion_ModStorageDataType.BOOL);
+						ctx.Write(CF_ModStorageDataType.BOOL);
 						ctx.Write(vb);
 						break;
 
 					case int:
 						int vi;
 						paramType.GetVariableValue(param, i, vi);
-						ctx.Write(Expansion_ModStorageDataType.INT);
+						ctx.Write(CF_ModStorageDataType.INT);
 						ctx.Write(vi);
 						break;
 
 					case float:
 						float vf;
 						paramType.GetVariableValue(param, i, vf);
-						ctx.Write(Expansion_ModStorageDataType.FLOAT);
+						ctx.Write(CF_ModStorageDataType.FLOAT);
 						ctx.Write(vf);
 						break;
 
 					case string:
 						string vs;
 						paramType.GetVariableValue(param, i, vs);
-						ctx.Write(Expansion_ModStorageDataType.STRING);
+						ctx.Write(CF_ModStorageDataType.STRING);
 						ctx.Write(vs);
 						break;
 
 					case vector:
 						vector vv;
 						paramType.GetVariableValue(param, i, vv);
-						ctx.Write(Expansion_ModStorageDataType.VECTOR);
+						ctx.Write(CF_ModStorageDataType.VECTOR);
 						ctx.Write(vv);
 						break;
 
 					default:
 						EXError.Error(this, "Unsupported variable type " + varType);
-						ctx.Write(Expansion_ModStorageDataType.INVALID);
+						ctx.Write(CF_ModStorageDataType.INVALID);
 						break;
 				}
 			}
@@ -160,7 +160,7 @@ modded class ModifiersManager
 
 				switch (varType)
 				{
-					case Expansion_ModStorageDataType.BOOL:
+					case CF_ModStorageDataType.BOOL:
 						if (!ctx.Read(vb))
 							return false;
 						if (i < paramVarCount && paramVarType == bool)
@@ -169,7 +169,7 @@ modded class ModifiersManager
 							EXError.Error(this, "Invalid variable index or type " + i + " " + paramVarType + ", expected bool");
 						break;
 
-					case Expansion_ModStorageDataType.INT:
+					case CF_ModStorageDataType.INT:
 						if (!ctx.Read(vi))
 							return false;
 						if (i < paramVarCount && paramVarType == int)
@@ -178,7 +178,7 @@ modded class ModifiersManager
 							EXError.Error(this, "Invalid variable index or type " + i + " " + paramVarType + ", expected int");
 						break;
 
-					case Expansion_ModStorageDataType.FLOAT:
+					case CF_ModStorageDataType.FLOAT:
 						if (!ctx.Read(vf))
 							return false;
 						if (i < paramVarCount && paramVarType == float)
@@ -187,7 +187,7 @@ modded class ModifiersManager
 							EXError.Error(this, "Invalid variable index or type " + i + " " + paramVarType + ", expected float");
 						break;
 
-					case Expansion_ModStorageDataType.STRING:
+					case CF_ModStorageDataType.STRING:
 						if (!ctx.Read(vs))
 							return false;
 						if (i < paramVarCount && paramVarType == string)
@@ -196,7 +196,7 @@ modded class ModifiersManager
 							EXError.Error(this, "Invalid variable index or type " + i + " " + paramVarType + ", expected string");
 						break;
 
-					case Expansion_ModStorageDataType.VECTOR:
+					case CF_ModStorageDataType.VECTOR:
 						if (!ctx.Read(vv))
 							return false;
 						if (i < paramVarCount && paramVarType == vector)

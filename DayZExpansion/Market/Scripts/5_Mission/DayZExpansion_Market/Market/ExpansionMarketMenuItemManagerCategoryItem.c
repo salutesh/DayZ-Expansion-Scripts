@@ -26,7 +26,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 	protected ref ExpansionMarketMenuTooltip m_Tooltip;
 	
 	protected EntityAI m_Object;
-	protected ref ExpansionItemTooltip m_ItemTooltip;
+	protected ExpansionItemTooltip m_ItemTooltip;
 	
 	void ExpansionMarketMenuItemManagerCategoryItem(string itemClassName, ExpansionMarketMenu menu)
 	{

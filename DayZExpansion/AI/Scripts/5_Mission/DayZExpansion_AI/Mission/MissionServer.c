@@ -65,6 +65,25 @@ modded class MissionServer
 		super.SyncRespawnModeInfo(identity);
 	}
 
+	override void OnMissionStart()
+	{
+		super.OnMissionStart();
+
+		Expansion_CreateAINoGoAreas();
+	}
+
+	void Expansion_CreateAINoGoAreas()
+	{
+		auto excludedAreas = GetExpansionSettings().GetAILocation().NoGoAreas;
+
+		foreach (auto areaConfig: excludedAreas)
+		{
+			ExpansionAINoGoArea area;
+			if (Class.CastTo(area, GetGame().CreateObjectEx("ExpansionAINoGoArea", areaConfig.Position, ECE_NONE)))
+				area.Expansion_Init(areaConfig);
+		}
+	}
+
 	override void OnMissionLoaded()
 	{
 		super.OnMissionLoaded();

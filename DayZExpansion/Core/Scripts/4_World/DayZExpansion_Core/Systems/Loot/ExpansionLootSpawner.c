@@ -187,6 +187,10 @@ class ExpansionLootSpawner
 
 	static void SpawnLoot(EntityAI container, array < ref ExpansionLoot > loot, int itemCount, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false, float damagePercentMin = 0, float damagePercentMax = 0 )
 	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, ExpansionLootSpawner);
+	#endif
+
 		if (itemCount < 0)
 			itemCount = Math.RandomInt(1, -itemCount);
 

@@ -20,10 +20,7 @@ class ExpansionSettingMarkerData: ExpansionColorSettingsBase
 	string Color;
 	vector Position;
 	bool Is3D;
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionSettingMarkerData
-	// ------------------------------------------------------------
+
 	void ExpansionSettingMarkerData(string name = "", string icon = "", string color = "", vector position = "0 0 0", bool is3d = false)
 	{
 		Name 		= name;

@@ -91,7 +91,10 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		ExpansionPersonalStorageContainer.SI_Expansion_OpenPersonalStorageMenu.Insert(ExSetDepositedItems);
 		m_PersonalStorageSettings = GetExpansionSettings().GetPersonalStorage();
 		m_BrowseHeader = new ExpansionPersonalStorageMenuBrowseHeader(this);
-		m_PlayerUID = GetGame().GetPlayer().GetIdentity().GetId();
+		
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		m_PlayerUID = player.GetIdentity().GetId();
+		player.Expansion_GetOnRestrainedStateChaged().Insert(OnRestrainedStateChaged);
 	}
 
 	void ~ExpansionPersonalStorageMenu()
@@ -117,6 +120,10 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		
 		if (m_PersonalStorageMenuController.PlayerCategories)
 			m_PersonalStorageMenuController.PlayerCategories.Clear();
+		
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		if (player)
+			player.Expansion_GetOnRestrainedStateChaged().Remove(OnRestrainedStateChaged);
 	}
 
 	override string GetLayoutFile()
@@ -323,7 +330,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 			m_PersonalStorageMenuController.PlayerItems.Clear();
 
-			array<EntityAI> slotItems = GetSlotItems(player);
+			array<EntityAI> slotItems = MiscGameplayFunctions.Expansion_GetEntitySlotItems(player);
 			array<string> slotNames = new array<string>;
 			slotNames.Insert("All");
 
@@ -959,20 +966,6 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 			}
 		}
 		return className;
-	}
-
-	array<EntityAI> GetSlotItems(PlayerBase player)
-	{
-		array<EntityAI> slotItems = new array<EntityAI>;
-		for (int i = 0; i < player.GetInventory().GetAttachmentSlotsCount(); i++)
-		{
-			int slot = player.GetInventory().GetAttachmentSlotId(i);
-			EntityAI slotItem = player.GetInventory().FindAttachment(slot);
-			if (slotItem)
-				slotItems.Insert(slotItem);
-		}
-
-		return slotItems;
 	}
 
 	void UpdateInventorySlotFilter(string slotName)
@@ -1670,6 +1663,14 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 			if (GetExpansionSettings().GetHardline().EnableItemRarity && Class.CastTo(item, preview))
 				item.Expansion_SetRarity(GetExpansionSettings().GetHardline().GetItemRarityByType(item.GetType()));
 		#endif
+		}
+	}
+	
+	void OnRestrainedStateChaged(bool isRestrained)
+	{
+		if (isRestrained)
+		{
+			OnExitClick();
 		}
 	}
 	

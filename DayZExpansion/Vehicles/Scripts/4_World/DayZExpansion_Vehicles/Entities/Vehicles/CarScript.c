@@ -1470,10 +1470,13 @@ modded class CarScript
 
 				if (fuelConsumption > 0.0)
 				{
+					//! @note this only applies to Expansion helis and Expansion boats,
+					//! fuel consumption for normal cars will always be 0 since it's handled by the game engine internally.
 					Leak(CarFluid.FUEL, fuelConsumption);
-					if (GetFluidFraction(CarFluid.FUEL) <= 0)
-						Expansion_EngineStop();
 				}
+
+				if (GetFluidFraction(CarFluid.FUEL) <= 0)
+					Expansion_EngineStop();
 			}
 		}
 
@@ -1583,6 +1586,14 @@ modded class CarScript
 		}
 
 		m_ExpansionVehicle.OnPostSimulate(timeSlice);
+	}
+
+	override void OnVehicleJumpOutServer(GetOutTransportActionData gotActionData)
+	{
+		//! Jump out damage should only apply for land vehicles, not helis, planes or boats, and only if player is not in godmode
+		//! For air vehicles, damage is dealt separately elsewhere after the fall
+		if (gotActionData.m_Player.Expansion_CanBeDamaged("FallDamage") && (Expansion_IsCar() || Expansion_IsBike()))
+			super.OnVehicleJumpOutServer(gotActionData);
 	}
 
 	//! @note only called for driver on client

@@ -16,9 +16,9 @@ modded class DayZPlayerImplement
 
 	ref ExpansionHumanST m_ExpansionST;
 
-#ifdef EXPANSIONMODAI
-	[eAIAttribute<bool>.Register("m_Expansion_CanBeLooted")]
-#endif
+//#ifdef EXPANSIONMODAI
+	//[eAIAttribute<bool>.Register("m_Expansion_CanBeLooted")]
+//#endif
 	protected bool m_Expansion_CanBeLooted = true;
 
 	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<DayZPlayerImplement>(this);

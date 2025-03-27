@@ -16,9 +16,6 @@ class ExpansionMissionEventHorde: ExpansionMissionEventBase
 	[NonSerialized()]
 	AIGroup m_AIGroup;
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionMissionEventHorde
-	// ------------------------------------------------------------
 	void ExpansionMissionEventHorde()
 	{
 #ifdef EXPANSIONTRACE

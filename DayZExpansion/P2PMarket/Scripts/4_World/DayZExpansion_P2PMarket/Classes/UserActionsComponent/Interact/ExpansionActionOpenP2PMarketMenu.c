@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -27,21 +27,24 @@ class ExpansionActionOpenP2PMarketMenu: ActionInteractBase
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
+		if (player.IsRestrained())
+			return false;
+
 		Object targetObject;
 		if (!Class.CastTo(targetObject, target.GetParentOrObject()))
 			return false;
 
 		auto object = ExpansionP2PMarketTraderStatic.Cast(targetObject);
 		auto npc = ExpansionP2PMarketTraderNPC.Cast(targetObject);
-	#ifdef ENFUSION_AI_PROJECT
+		#ifdef ENFUSION_AI_PROJECT
 		auto npcAI = ExpansionP2PMarketTraderNPCAI.Cast(targetObject);
-	#endif
+		#endif
 
-	#ifdef ENFUSION_AI_PROJECT
+		#ifdef ENFUSION_AI_PROJECT
 		if (!object && !npc && !npcAI)
-	#else
+		#else
 		if (!object && !npc)
-	#endif
+		#endif
 			return false;
 
 		if (!ExpansionP2PMarketModule.GetModuleInstance())
@@ -54,21 +57,21 @@ class ExpansionActionOpenP2PMarketMenu: ActionInteractBase
 		if (!settings.Enabled)
 			return false;
 
-#ifdef SERVER
+		#ifdef SERVER
 		int traderID = -1;
 		if (object)
 			traderID = object.GetP2PTraderID();
 		else if (npc)
 			traderID = npc.GetP2PTraderID();
-	#ifdef ENFUSION_AI_PROJECT
+		#ifdef ENFUSION_AI_PROJECT
 		else if (npcAI)
 			traderID = npcAI.GetP2PTraderID();
-	#endif
+		#endif
 
 		ExpansionP2PMarketTraderConfig traderConfig = ExpansionP2PMarketModule.GetModuleInstance().GetP2PTraderConfigByID(traderID);
 		if (!ExpansionP2PMarketModule.GetModuleInstance().CheckCanUseTrader(player, traderConfig))
 			return false;
-#endif
+		#endif
 
 		return true;
 	}
@@ -87,15 +90,15 @@ class ExpansionActionOpenP2PMarketMenu: ActionInteractBase
 
 		auto object = ExpansionP2PMarketTraderStatic.Cast(targetObject);
 		auto npc = ExpansionP2PMarketTraderNPC.Cast(targetObject);
-	#ifdef ENFUSION_AI_PROJECT
+		#ifdef ENFUSION_AI_PROJECT
 		auto npcAI = ExpansionP2PMarketTraderNPCAI.Cast(targetObject);
-	#endif
+		#endif
 
-	#ifdef ENFUSION_AI_PROJECT
+		#ifdef ENFUSION_AI_PROJECT
 		if (!object && !npc && !npcAI)
-	#else
+		#else
 		if (!object && !npc)
-	#endif
+		#endif
 			return;
 
 		int traderID = -1;
@@ -113,14 +116,14 @@ class ExpansionActionOpenP2PMarketMenu: ActionInteractBase
 			npc.m_Expansion_NetsyncData.Get(0, traderName);
 			npc.m_Expansion_NetsyncData.Get(1, iconName);
 		}
-	#ifdef ENFUSION_AI_PROJECT
+		#ifdef ENFUSION_AI_PROJECT
 		else if (npcAI)
 		{
 			traderID = npcAI.GetP2PTraderID();
 			npcAI.m_Expansion_NetsyncData.Get(0, traderName);
 			npcAI.m_Expansion_NetsyncData.Get(1, iconName);
 			
-		#ifdef EXPANSIONMODAI
+			#ifdef EXPANSIONMODAI
 			ExpansionP2PMarketTraderConfig traderConfig = ExpansionP2PMarketModule.GetModuleInstance().GetP2PTraderConfigByID(traderID);
 			if (traderConfig && traderConfig.GetEmoteID() > 0)
 			{
@@ -131,9 +134,9 @@ class ExpansionActionOpenP2PMarketMenu: ActionInteractBase
 					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
 				}
 			}
-		#endif
+			#endif
 		}
-	#endif
+		#endif
 
 		if (!ExpansionP2PMarketModule.GetModuleInstance())
 			return;
@@ -141,8 +144,13 @@ class ExpansionActionOpenP2PMarketMenu: ActionInteractBase
 		PlayerBase player = action_data.m_Player;
 		if (!player || !player.GetIdentity())
 			return;
-
-		ExpansionP2PMarketModule.GetModuleInstance().SendBMTraderData(traderID, player.GetIdentity(), traderName, iconName);
+		
+		ExpansionP2PMarketRequestData data = new ExpansionP2PMarketRequestData();
+		data.m_Init = true;
+		data.m_TraderID = traderID;
+		
 		ExpansionP2PMarketModule.GetModuleInstance().AddTradingPlayer(traderID, player.GetIdentity().GetId());
+		ExpansionP2PMarketModule.GetModuleInstance().SendCategoryListingsData(traderID, player.GetIdentity());
+		ExpansionP2PMarketModule.GetModuleInstance().SendBasicListingData(data, player.GetIdentity());
 	}
 };

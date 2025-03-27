@@ -142,6 +142,10 @@ class ExpansionBoatScript: CarScript
 
 	override string GetVehicleType()
 	{
+		//! Use car HUD instead of boat HUD if gearbox is automatic or there are more than the minimum 3 gears (reverse, neutral, forward/1st)
+		if (GearboxGetType() == CarGearboxType.AUTOMATIC || GetGearsCount() > 3)
+			return "VehicleTypeCar";
+
 		return "ExpansionVehicleTypeBoat";
 	}
 

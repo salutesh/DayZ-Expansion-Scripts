@@ -10,7 +10,6 @@
  *
 */
 
-#ifdef EXPANSIONMODQUESTS_HUD_ENABLE
 modded class MissionGameplay
 {
 	protected bool m_Expansion_QuestHUDTogglePressed;
@@ -141,4 +140,3 @@ modded class MissionGameplay
 		}
 	}
 };
-#endif

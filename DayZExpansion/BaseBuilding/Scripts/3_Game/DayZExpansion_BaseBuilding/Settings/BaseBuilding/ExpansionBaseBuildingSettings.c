@@ -61,11 +61,14 @@ class ExpansionBaseBuildingSettingsV2: ExpansionBaseBuildingSettingsBaseV2
  **/
 class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 
 	ExpansionCodelockAttachMode CodelockAttachMode;						//! 0 = only on Exp doors/gates | 1 = Exp doors/gates + vanilla fences (also works for BBP) | 2 = Exp doors/gates + vanilla fence (also works for BBP) & tents | 3 = Exp doors/gates + vanilla tents
 	ExpansionDismantleFlagMode DismantleFlagMode;					//! -1 = only territory members, no tools needed  | 0 = anyone, no tools needed | 1 = anyone, only with tools
 	ExpansionFlagMenuMode FlagMenuMode;											//! 0 = disabled | 1 = enabled | 2 = no flag choice
+
+	bool PreventItemAccessThroughObstructingItems;
+
 	bool EnableVirtualStorage;
 	autoptr TStringArray VirtualStorageExcludedContainers;
 
@@ -130,6 +133,8 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		ctx.Read(DismantleFlagMode);
 		ctx.Read(FlagMenuMode);
 
+		ctx.Read(PreventItemAccessThroughObstructingItems);
+
 		ctx.Read(EnableVirtualStorage);
 		ctx.Read(VirtualStorageExcludedContainers);
 		
@@ -175,6 +180,8 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		ctx.Write(DismantleFlagMode);
 		ctx.Write(FlagMenuMode);
 
+		ctx.Write(PreventItemAccessThroughObstructingItems);
+
 		ctx.Write(EnableVirtualStorage);
 		ctx.Write(VirtualStorageExcludedContainers);
 	}
@@ -215,6 +222,8 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		DismantleFlagMode = s.DismantleFlagMode;
 		CodelockAttachMode = s.CodelockAttachMode;
 		FlagMenuMode = s.FlagMenuMode;
+
+		PreventItemAccessThroughObstructingItems = s.PreventItemAccessThroughObstructingItems;
 
 		BuildZoneRequiredCustomMessage = s.BuildZoneRequiredCustomMessage;
 		
@@ -320,6 +329,9 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 
 				if (settingsBase.m_Version < 3)
 				{
+					//! Copy over old settings that haven't changed
+					CopyInternal(settingsBase);
+
 					ExpansionBaseBuildingSettingsV2 settings_v2;
 					JsonFileLoader<ExpansionBaseBuildingSettingsV2>.JsonLoadFile(EXPANSION_BASE_BUILDING_SETTINGS, settings_v2);
 
@@ -345,8 +357,8 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 					JsonFileLoader<ExpansionBaseBuildingSettings>.JsonLoadFile(EXPANSION_BASE_BUILDING_SETTINGS, this);
 				}
 
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
+				if (settingsBase.m_Version < 5)
+					PreventItemAccessThroughObstructingItems = settingsDefault.PreventItemAccessThroughObstructingItems;
 
 				m_Version = VERSION;
 				save = true;
@@ -446,6 +458,8 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		FlagMenuMode = ExpansionFlagMenuMode.Enabled;
 		GetTerritoryFlagKitAfterBuild = false;
 		
+		PreventItemAccessThroughObstructingItems = true;
+
 		VirtualStorageExcludedContainers.Insert("ExpansionAirdropContainerBase");
 
 	#ifdef EXPANSIONMODMARKET

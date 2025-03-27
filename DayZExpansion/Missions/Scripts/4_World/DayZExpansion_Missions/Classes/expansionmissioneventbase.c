@@ -47,27 +47,21 @@ class ExpansionMissionEventBase
 	static ref map < typename, int > s_LocationsCount = new map < typename, int >;
 
 	[NonSerialized()]
-	static ref map < typename, ref array < ref ExpansionLocatorArray > > s_AvailableLocations = new map < typename, ref array < ref ExpansionLocatorArray > >;
+	static ref map < typename, ref array < ref ExpansionLocation > > s_AvailableLocations = new map < typename, ref array < ref ExpansionLocation > >;
 
 	[NonSerialized()]
-	static ref map < typename, ref array < ref ExpansionLocatorArray > > s_SelectedLocations = new map < typename, ref array < ref ExpansionLocatorArray > >;
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase Constructor
-	// ------------------------------------------------------------
+	static ref map < typename, ref array < ref ExpansionLocation > > s_SelectedLocations = new map < typename, ref array < ref ExpansionLocation > >;
+
 	void ExpansionMissionEventBase()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase Destructor
-	// ------------------------------------------------------------
+
 	void ~ExpansionMissionEventBase()
 	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
@@ -93,24 +87,15 @@ class ExpansionMissionEventBase
 		Objective = mission.Objective;
 		Reward = mission.Reward;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase OnLoadMission
-	// ------------------------------------------------------------
+
 	protected void OnLoadMission()
 	{
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase OnSaveMission
-	// ------------------------------------------------------------
+
 	protected void OnSaveMission()
 	{
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase OnDefaultMission
-	// ------------------------------------------------------------
+
 	protected string OnDefaultMission( int index )
 	{
 	}
@@ -119,7 +104,7 @@ class ExpansionMissionEventBase
 	{
 	}
 
-	protected string RandomMission(int idx, out ExpansionLocatorArray loc)
+	protected string RandomMission(int idx, out ExpansionLocation loc)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
@@ -127,7 +112,7 @@ class ExpansionMissionEventBase
 
 		typename type = Type();
 
-		array<ref ExpansionLocatorArray> availableLocs = s_AvailableLocations[type];
+		array<ref ExpansionLocation> availableLocs = s_AvailableLocations[type];
 
 		if ( availableLocs.Count() == 0 )
 		{
@@ -139,7 +124,7 @@ class ExpansionMissionEventBase
 
 		int locIdx;
 
-		array<ref ExpansionLocatorArray> selectedLocs = s_SelectedLocations[type];
+		array<ref ExpansionLocation> selectedLocs = s_SelectedLocations[type];
 
 		if ( selectedLocs.Count() == 0 )
 		{
@@ -158,7 +143,7 @@ class ExpansionMissionEventBase
 				{
 					foreach ( int j, auto selectedLoc: selectedLocs )
 					{
-						float distance = vector.Distance( availableLoc.position, selectedLoc.position );
+						float distance = vector.Distance( availableLoc.Position, selectedLoc.Position );
 
 						if ( distance > minDistance )
 						{
@@ -180,7 +165,7 @@ class ExpansionMissionEventBase
 		loc = availableLocs[locIdx];
 
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXPrint(this, "OnDefaultMission - " + loc.name);
+		EXPrint(this, "OnDefaultMission - " + loc.Name);
 		#endif
 
 		selectedLocs.Insert( loc );
@@ -188,16 +173,13 @@ class ExpansionMissionEventBase
 		availableLocs.Remove( locIdx );
 
 		if (MissionName)
-			MissionName += "_" + loc.classname;
+			MissionName += "_" + loc.m_ClassName;
 		else
-			MissionName = loc.classname;
+			MissionName = loc.m_ClassName;
 
 		return MissionName;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase MaxDefaultMissions
-	// ------------------------------------------------------------
+
 	int MaxDefaultMissions()
 	{
 		typename type = Type();
@@ -205,13 +187,13 @@ class ExpansionMissionEventBase
 		if ( !s_LocationsCount.Contains(type) )
 		{
 			//! Get possible locations from world config
-			array< ref ExpansionLocatorArray > locs = ExpansionLocatorStatic.GetWorldLocations();
+			array< ref ExpansionLocation > locs = ExpansionLocation.GetWorldLocations();
 
-			array< ref ExpansionLocatorArray > availableLocs = {};
+			array< ref ExpansionLocation > availableLocs = {};
 
 			foreach (auto loc: locs)
 			{
-				if ( loc.type.Contains( "Capital" ) || loc.type.Contains( "City" ) || loc.type.Contains( "Village" ) )
+				if ( loc.Type.Contains( "Capital" ) || loc.Type.Contains( "City" ) || loc.Type.Contains( "Village" ) )
 				{
 					availableLocs.Insert( loc );
 				}
@@ -224,10 +206,7 @@ class ExpansionMissionEventBase
 
 		return Math.Min( s_LocationsCount[type], 13 );
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase LoadDefault
-	// ------------------------------------------------------------
+
 	string LoadDefault( int index )
 	{
 		Enabled = true;
@@ -247,18 +226,12 @@ class ExpansionMissionEventBase
 
 		return name;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase GetPath
-	// ------------------------------------------------------------
+
 	string GetPath()
 	{
 		return m_FileName;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase LoadMission
-	// ------------------------------------------------------------
+
 	void LoadMission( string file )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -272,10 +245,7 @@ class ExpansionMissionEventBase
 			OnLoadMission();
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase SaveMission
-	// ------------------------------------------------------------
+
 	void SaveMission()
 	{	
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -287,44 +257,29 @@ class ExpansionMissionEventBase
 			OnSaveMission();
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase CreateNotification
-	// ------------------------------------------------------------
+
 	void CreateNotification(  StringLocaliser text, string icon, float time = 3, PlayerIdentity identity = NULL )
 	{
 		ExpansionNotification(new StringLocaliser("STR_EXPANSION_MISSION_NOTIF_TITLE", m_EventName), text, icon, COLOR_EXPANSION_NOTIFICATION_MISSION, time).Create(identity);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase IsRunning
-	// ------------------------------------------------------------
+
 	bool IsRunning()
 	{
 		return m_IsRunning;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase GetElapsedTime
-	// ------------------------------------------------------------
+
 	float GetElapsedTime()
 	{
 		return m_CurrentMissionTime;
 	}
 
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase GetElapsedTime
-	// ------------------------------------------------------------
+
 	// Missions can end before the max time runs out so this may not be the right option for you
 	float GetMaxRemainingTime()
 	{
 		return MissionMaxTime - m_CurrentMissionTime;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase Start
-	// ------------------------------------------------------------
+
 	void Start()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -344,15 +299,15 @@ class ExpansionMissionEventBase
 	
 	bool CanEnd()
 	{
-		return true;
+		if (m_CurrentMissionTime >= MissionMaxTime)
+			return true;
+
+		return false;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase End
-	// ------------------------------------------------------------
 	void End()
 	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
@@ -367,10 +322,7 @@ class ExpansionMissionEventBase
 			Event_OnEnd();
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase OnUpdate
-	// ------------------------------------------------------------
+
 	void OnUpdate( float delta )
 	{
 		if ( GetGame().IsServer() )
@@ -379,32 +331,23 @@ class ExpansionMissionEventBase
 	
 			Event_OnUpdate( delta );
 	
-			if ( m_CurrentMissionTime >= MissionMaxTime && CanEnd() )
+			if ( CanEnd() )
 			{
 				End();
 			}
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase Event_OnStart
-	// ------------------------------------------------------------
+
 	// handle mission start
 	void Event_OnStart()
 	{
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase Event_OnEnd
-	// ------------------------------------------------------------
+
 	// handle mission cleanup
 	void Event_OnEnd()
 	{
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase Event_OnUpdate
-	// ------------------------------------------------------------
+
 	// update tick for the mission
 	void Event_OnUpdate( float delta )
 	{

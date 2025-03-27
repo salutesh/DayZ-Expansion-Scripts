@@ -18,6 +18,7 @@ class CfgMods
 	{
 		dir="DayZExpansion/Market";
 		credits="$STR_MOD_EXPANSION_AUTHOR";
+		inputs="DayZExpansion/Market/Scripts/Data/Inputs.xml";
 		extra=0;
 		type="mod";
 		name="DayZ Expansion - Market";

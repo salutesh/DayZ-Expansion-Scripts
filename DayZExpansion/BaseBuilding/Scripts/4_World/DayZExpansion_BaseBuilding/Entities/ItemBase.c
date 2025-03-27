@@ -302,6 +302,20 @@ modded class ItemBase
 		return false;
 	}
 	
+	bool Expansion_CanObstruct()
+	{
+		if (ConfigGetString("physLayer") != "item_large")
+			return false;
+	
+		if (!ConfigGetBool("carveNavmesh"))
+			return false;
+
+		if (ConfigGetString("forceFarBubble") != "true")
+			return false;
+
+		return true;
+	}
+
 	//============================================
 	// ExpansionIsOpenable
 	//============================================	

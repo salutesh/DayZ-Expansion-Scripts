@@ -136,13 +136,13 @@ class Expansion_EffectAreas: array<EffectArea>
 		auto trace = EXTrace.Start(EXTrace.AI, this, ExpansionStatic.GetDebugInfo(area));
 	#endif
 
+		//! @note cluster.m_Areas must only contain areas that are not contained (completely inside) other areas!
 		ExpansionEffectAreaMergedCluster cluster;
-		int count = Count();
 
-		for (int i = 0; i < count; i++)
+		Expansion_EffectAreas consumedAreas;
+
+		foreach (int i, EffectArea other: this)
 		{
-			EffectArea other = Get(i);
-
 		#ifndef SERVER
 			if (!other && GetGame().IsMultiplayer())
 			{
@@ -154,9 +154,24 @@ class Expansion_EffectAreas: array<EffectArea>
 			if (cluster != other.m_Expansion_MergedCluster && area.Expansion_IsOverlapping(other))
 			{
 				if (other.Expansion_Contains(area, false))
-					return;
+				{
+					cluster = other.m_Expansion_MergedCluster;
+					area.m_Expansion_MergedCluster = cluster;
+					break;
+				}
 
-				if (!cluster)
+				if (area.Expansion_Contains(other, false))
+				{
+					if (!consumedAreas)
+						consumedAreas = {};
+
+					consumedAreas.Insert(other);
+
+				#ifdef DIAG_DEVELOPER
+					EXTrace.Print(EXTrace.AI, this, other.ToString() + " is about to be consumed by encapsulating " + area);
+				#endif
+				}
+				else if (!cluster)
 				{
 					cluster = other.m_Expansion_MergedCluster;
 					cluster.m_Areas.Insert(area);
@@ -164,6 +179,10 @@ class Expansion_EffectAreas: array<EffectArea>
 				}
 				else
 				{
+				#ifdef DIAG_DEVELOPER
+					EXTrace.Print(EXTrace.AI, this, other.m_Expansion_MergedCluster.ToString() + " is about to be consumed by overlapping " + area);
+				#endif
+
 					cluster.m_Areas.InsertAll(other.m_Expansion_MergedCluster.m_Areas);
 					cluster.Update();
 				}
@@ -174,10 +193,22 @@ class Expansion_EffectAreas: array<EffectArea>
 
 		if (!cluster)
 		{
-			//! Not overlapping
+			//! Not overlapping or consumed all other areas
 			Expansion_EffectAreas areas = {};
 			areas.Insert(area);
 			cluster = new ExpansionEffectAreaMergedCluster(areas);
+		}
+
+		if (consumedAreas)
+		{
+			foreach (EffectArea consumedArea: consumedAreas)
+			{
+				consumedArea.m_Expansion_MergedCluster = cluster;
+
+			#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.AI, this, consumedArea.ToString() + " got consumed by encapsulating " + area);
+			#endif
+			}
 		}
 	}
 
@@ -255,6 +286,9 @@ class ExpansionEffectAreaMergedCluster
 #ifdef DIAG_DEVELOPER
 	void ~ExpansionEffectAreaMergedCluster()
 	{
+		if (GetGame())
+			EXTrace.Print(EXTrace.AI, this, "~ExpansionEffectAreaMergedCluster");
+
 		CleanupDebugShapes();
 	}
 #endif

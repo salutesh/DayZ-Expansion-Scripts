@@ -11,7 +11,6 @@ modded class ExpansionWorld
 	private bool m_NetworkGenerate;
 	private vector m_NetworkPosition;
 	private float m_NetworkRadius;
-	ref array<ref ExpansionLocatorArray> m_AIRoamingLocations; 
 
 	void ExpansionWorld()
 	{
@@ -20,29 +19,64 @@ modded class ExpansionWorld
 		m_Network = new eAIRoadNetwork();
 		//m_Network.Init();
 
-		if (GetGame().IsServer())
+		if (GetGame().IsDedicatedServer() || GetDayZGame().Expansion_IsMissionSinglePlayer())
 		{
-			int include;
-			include |= ExpansionLocationType.CAMP;
-			include |= ExpansionLocationType.HILL;
-			include |= ExpansionLocationType.LOCAL;
-			include |= ExpansionLocationType.LOCALOFFICE;
-			//include |= ExpansionLocationType.MARINE;
-			include |= ExpansionLocationType.RAILROADSTATION;
-			include |= ExpansionLocationType.RUIN;
-			include |= ExpansionLocationType.SETTLEMENT;
-			//include |= ExpansionLocationType.VIEWPOINT;
+			auto settings = GetExpansionSettings().GetAILocation();
 
-			m_AIRoamingLocations = ExpansionLocatorStatic.GetWorldLocations(include);
-
-			auto settings = GetExpansionSettings().GetAI();
-			for (int i = m_AIRoamingLocations.Count() - 1; i >= 0; i--)
-			{
-				auto location = m_AIRoamingLocations[i];
-				if (settings.ExcludedRoamingLocations.Find(location.classname) > -1)
-					location.position = vector.Zero;  //! excluded
-			}
+			if (settings.RoamingLocations.Count() == 0)
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GenerateRoamingLocations, 10000);
 		}
+	}
+
+	void GenerateRoamingLocations()
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		auto settings = GetExpansionSettings().GetAILocation();
+		auto excludedAreas = settings.NoGoAreas;
+
+		int worldSize = GetGame().GetWorld().GetWorldSize();
+		vector min = Vector(0, -1000, 0);
+		vector max = Vector(worldSize, 1000, worldSize);
+
+		int amount = Math.Pow(worldSize / 1500.0, 2.0);
+
+		array<EntityAI> candidates = {};
+		DayZPlayerUtils.SceneGetEntitiesInBox(min, max, candidates, QueryFlags.STATIC | QueryFlags.ORIGIN_DISTANCE);
+
+		EXPrint(this, "Found " + candidates.Count() + " static entities (buildings) on the map");
+
+		int locIdx = settings.RoamingLocations.Count();
+		EntityAI candidate;
+		while (candidates.Count() > 0 && settings.RoamingLocations.Count() < amount)
+		{
+			int index = candidates.GetRandomIndex();
+			candidate = candidates[index];
+			candidates.Remove(index);
+
+			if (!candidate.IsBuilding())
+				continue;
+
+			vector position = candidate.GetPosition();
+
+			if (excludedAreas.IsPointInside(position))
+				continue;
+
+			if (ExpansionString.StartsWithAny(candidate.GetType(), settings.ExcludedRoamingBuildings))
+				continue;
+
+			float radius = 100.0;
+			string name = "Random_" + (locIdx + 1);
+			string className = "Local_" + name;
+			settings.RoamingLocations.Insert(new ExpansionAIRoamingLocation(position, radius, name, "Local", className, null, locIdx++));
+		}
+
+		if (settings.RoamingLocations.Count() > 0)
+			settings.Save();
+
+		EXPrint(this, "Selected " + settings.RoamingLocations.Count() + " random buildings as locations for AI roaming");
 	}
 
 /*
@@ -180,11 +214,6 @@ modded class ExpansionWorld
 		}
 	}
 	*/
-
-	array<ref ExpansionLocatorArray> GetAIRoamingLocations()
-	{
-		return m_AIRoamingLocations;
-	}
 
 	/**
 	 * @brief fix firearm FX for redirected AI dmg

@@ -41,7 +41,7 @@ class ExpansionSHA256
 	};
 
 	protected static CF_Uint s_Hash[8];
-	protected static CF_Uint s_TotalBits;
+	protected static CF_Uint s_TotalBits[2];
 	protected static CF_Uint s_Buffer[64];
 	protected static int s_BufferIndex;
 
@@ -55,7 +55,8 @@ class ExpansionSHA256
 			s_Hash[i] = s_InitialHash[i];
 		}
 
-		s_TotalBits = 0;
+		s_TotalBits[0] = 0;
+		s_TotalBits[1] = 0;
 		s_BufferIndex = 0;
 
 		return true;
@@ -147,6 +148,17 @@ class ExpansionSHA256
 		s_Hash[7] = s_Hash[7].Add(h);
 	}
 
+	protected static void IncrementTotalBitsBy(CF_Uint amount)
+	{
+		CF_Uint max = 0xffffffff;
+		CF_Uint test = max - amount;
+
+		if (s_TotalBits[0].IsGt(test))
+			s_TotalBits[1] = s_TotalBits[1] + 1;
+
+		s_TotalBits[0] = s_TotalBits[0].Add(amount);
+	}
+
 	static void Update(string input, bool reset = true, bool finalize = true)
 	{
 #ifdef EXTRACE
@@ -157,11 +169,11 @@ class ExpansionSHA256
 
 		for (int i = 0; i < input.Length(); i++)
 		{
-			s_Buffer[s_BufferIndex++] = input[i].Hash();
+			s_Buffer[s_BufferIndex++] = input[i].ToAscii() & 255;
 			if (s_BufferIndex == 64)
 			{
 				Process();
-				s_TotalBits += 512;
+				IncrementTotalBitsBy(512);
 				s_BufferIndex = 0;
 			}
 		}
@@ -180,7 +192,7 @@ class ExpansionSHA256
 
 	static void Finalize()
 	{
-		CF_Uint totalBitsInMessage = s_TotalBits + s_BufferIndex * 8;
+		IncrementTotalBitsBy(s_BufferIndex * 8);
 
 		//! Pad the message
 		s_Buffer[s_BufferIndex++] = 0x80;
@@ -195,9 +207,12 @@ class ExpansionSHA256
 		}
 
 		//! Append the total bits at the end
-		for (int i = 56; i < 64; i++)
+		for (int i = 0, k = 63; i < 2; i++)
 		{
-			s_Buffer[i] = totalBitsInMessage.ShiftRight((63 - i) * 8) & 0xFF;
+			for (int j = 0; j < 4; j++)
+			{
+				s_Buffer[k--] = s_TotalBits[i].ShiftRight(j * 8) & 0xFF;
+			}
 		}
 
 		Process();

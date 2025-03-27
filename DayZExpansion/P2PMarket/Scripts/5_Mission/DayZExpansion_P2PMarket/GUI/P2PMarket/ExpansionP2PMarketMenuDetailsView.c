@@ -3,20 +3,21 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
+class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 {
 	protected ref ExpansionP2PMarketMenuDetailsViewController m_P2PMarketMenuDetailsController;
-	protected ref ExpansionP2PMarketMenu m_P2PMarketMenu;
-	protected ref ExpansionP2PMarketSettings m_P2PMarketSettings;
+	protected ExpansionP2PMarketMenu m_P2PMarketMenu;
+	protected ExpansionP2PMarketSettings m_P2PMarketSettings;
 	
 	protected ref ExpansionMarketMenuTooltip m_MarketPriceTooltip;
+	protected ref ExpansionP2PMarketMenuItemTooltip m_InfoTooltip;
 
 	protected ImageWidget health_image;
 	protected Widget item_quantity;
@@ -67,6 +68,8 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 	protected TextWidget info_title;
 	protected GridSpacerWidget info_grid;
 	protected RichTextWidget item_description;
+	protected Widget info_content;
+	protected ButtonWidget info_button;
 
 	void ExpansionP2PMarketMenuDetailsView(ExpansionP2PMarketMenu menu)
 	{
@@ -81,12 +84,27 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 			m_MarketPriceTooltip.SetContentOffset(-0.234375, 0.006944);
 			m_MarketPriceTooltip.AddEntry("#STR_EXPANSION_MARKET_P2P_MARKET_TOOLTIP_DESC");
 		}
+		
+		m_PlayerPreview = new ExpansionPlayerPreview(this, view_player_preview);
 	}
-
+	
 	void ~ExpansionP2PMarketMenuDetailsView()
 	{
 		if (m_PlayerPreview)
 			m_PlayerPreview = null;
+		
+		if (m_MarketPriceTooltip)
+			m_MarketPriceTooltip.Destroy();
+		
+		if (m_InfoTooltip)
+			m_InfoTooltip.Destroy();
+	}
+	
+	void UpdateItemInfoTooltip(ExpansionP2PMarketListingBase listing)
+	{
+		m_InfoTooltip = new ExpansionP2PMarketMenuItemTooltip(this);
+		m_InfoTooltip.Hide();
+		m_InfoTooltip.SetListing(listing);
 	}
 
 	override string GetLayoutFile()
@@ -194,6 +212,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 	
 	void UpdatePreview()
 	{
+		ErrorEx("", ErrorExSeverity.INFO);
 		if (!m_P2PMarketMenu.GetSelectedPreviewObject())
 			return;
 
@@ -201,6 +220,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 		
 		if (!UsePlayerPreview())
 		{
+			ErrorEx("Item Preview", ErrorExSeverity.INFO);
 			view_item_preview.Show(true);
 			view_player_preview.Show(false);
 			m_P2PMarketMenuDetailsController.ViewItemPreview = m_P2PMarketMenu.GetSelectedPreviewObject();
@@ -210,6 +230,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 		}
 		else
 		{
+			ErrorEx("Player Preview", ErrorExSeverity.INFO);
 			view_item_preview.Show(false);
 			view_player_preview.Show(true);
 
@@ -219,9 +240,16 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 			m_PlayerPreview.Update(previewClassName);
 		}
 	}
+	
+	override void ShowInfoButton(bool state)
+	{
+		info_content.Show(state);
+	}
 
 	override void UpdatePlayerPreviewObject(Object previewObject)
 	{
+		ErrorEx("Object: " + previewObject, ErrorExSeverity.INFO);
+
 		m_P2PMarketMenuDetailsController.ViewPlayerPreview = previewObject;
 		m_P2PMarketMenuDetailsController.NotifyPropertyChanged("ViewPlayerPreview");
 	}
@@ -437,7 +465,6 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 		if (w != NULL && w == listing_price_editbox)
 		{
 			bool valid = true;
-
 			string priceText = listing_price_editbox.GetText();
 
 		#ifdef DIAG_DEVELOPER
@@ -508,7 +535,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 				m_ListPrice = -1;
 				m_ListCost = -1;
 				listCostString = "";
-
+				listing_price_editbox.SetText("");
 			#ifdef DIAG_DEVELOPER
 				EXPrint(ToString() + "::OnChange - invalid price " + price);
 			#endif
@@ -544,6 +571,11 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 				
 				return true;
 			}
+			else if (w == info_button)
+			{
+				m_InfoTooltip.Show(true);
+				return true;
+			}
 		}
 
 		return false;
@@ -572,6 +604,11 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 				
 				return true;
 			}
+			else if (w == info_button)
+			{
+				m_InfoTooltip.Show(false);
+				return true;
+			}
 		}
 
 		return false;
@@ -582,12 +619,12 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionScriptView
 		if (w == view_item_preview)
 		{
 			GetGame().GetDragQueue().Call(this, "UpdateScale");
-			m_CharacterScaleDelta = wheel ;
+			m_CharacterScaleDelta = wheel;
 		}
 		else if (w == view_player_preview)
 		{
 			m_PlayerPreview.OnMouseWheel(w, x, y, wheel);
-			m_CharacterScaleDelta = wheel ;
+			m_CharacterScaleDelta = wheel;
 		}
 
 		return false;

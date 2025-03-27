@@ -20,10 +20,7 @@ class ExpansionAIMissionMeta
 	ref ExpansionSettingNotificationData NotificationEnd;
 
 	ref ExpansionSettingMarkerData Marker;
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionAIMissionMeta
-	// ------------------------------------------------------------
+
 	void ExpansionAIMissionMeta(ExpansionSettingNotificationData notifstart, ExpansionSettingNotificationData notifaction, ExpansionSettingNotificationData notifend, ExpansionSettingMarkerData marker)
 	{
 		NotificationStart 	= notifstart;

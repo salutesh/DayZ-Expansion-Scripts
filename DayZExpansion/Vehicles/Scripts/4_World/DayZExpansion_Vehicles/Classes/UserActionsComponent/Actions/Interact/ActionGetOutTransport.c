@@ -12,20 +12,12 @@
 
 modded class ActionGetOutTransport
 {
-#ifdef DAYZ_1_25
-	override void ProcessGetOutActionData(Car car, GetOutTransportActionData got_action_data)
-	{
-		super.ProcessGetOutActionData(car, got_action_data);
-
-		auto vehicle = ExpansionVehicle.Get(car);
-#else
 	//! 1.26+
 	override void ProcessGetOutTransportActionData(Transport veh, GetOutTransportActionData got_action_data)
 	{
 		super.ProcessGetOutTransportActionData(veh, got_action_data);
 
 		auto vehicle = ExpansionVehicle.Get(veh);
-#endif
 
 		HumanCommandVehicle vehCommand = got_action_data.m_Player.GetCommand_Vehicle();
 
@@ -34,6 +26,7 @@ modded class ActionGetOutTransport
 			if ( vehicle.CanObjectAttach(got_action_data.m_Player) && vehicle.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat()) )
 			{
 				got_action_data.m_WasJumpingOut = false;
+				got_action_data.m_WasJumpingOutAnim = false;
 			}
 
 			// Should prevent a few issues related to towing and server crashes
@@ -65,12 +58,9 @@ modded class ActionGetOutTransport
 		auto got_action_data = GetOutTransportActionData.Cast(action_data);
 
 		CarScript cs;
-	#ifdef DAYZ_1_25
-		Class.CastTo(cs, got_action_data.m_Car);
-	#else
 		//! 1.26+
 		Class.CastTo(cs, got_action_data.m_Vehicle);
-	#endif
+
 		if (cs && !cs.Expansion_IsCar() && !cs.Expansion_IsDuck())
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(action_data.m_Player.GetInventory().UnlockInventory, 1500, false, LOCK_FROM_SCRIPT); //! Unlock after delay to fix hand desync bug
 		else
@@ -81,12 +71,8 @@ modded class ActionGetOutTransport
 	{
 		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast(action_data);
 
-	#ifdef DAYZ_1_25
-		auto vehicle = ExpansionVehicle.Get(got_action_data.m_Car);
-	#else
 		//! 1.26+
 		auto vehicle = ExpansionVehicle.Get(got_action_data.m_Vehicle);
-	#endif
 
 		if (vehicle)
 		{

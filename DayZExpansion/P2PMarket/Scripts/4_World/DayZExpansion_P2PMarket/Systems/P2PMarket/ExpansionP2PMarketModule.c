@@ -3,47 +3,18 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-enum ExpansionP2PMarketModuleCallback
-{
-	Silent,  //! Silent callback w/o notification (just used to update menu)
-	ItemListed,
-	ItemPurchased,
-	SaleRetrieved,
-	AllSalesRetrieved,
-	MsgItemGotSold,
-	MsgTotalSold,
-	Error,
-	ErrorListingPriceTooLow,
-	ErrorNotEnoughMoney,
-	ErrorNotEnoughMoneyToList,
-	ErrorVehicleMissingAttachment,
-	ErrorVehicleRuinedAttachment,
-	ErrorNoVehicleSpawnPosition,
-	ErrorVehicleSpawnPositionBlocked,
-	ErrorVehicleLockpicked
-};
-
-class ExpansionP2PMarketPlayerInventory extends ExpansionMarketPlayerInventory
-{
-	override bool IsVehicleNearby(Object vehicle)
-	{
-		float maxDistance = 150.0;
-		if (vector.Distance(m_Player.GetPosition(), vehicle.GetPosition()) <= maxDistance)
-			return true;
-		return false;
-	}
-};
-
 [CF_RegisterModule(ExpansionP2PMarketModule)]
 class ExpansionP2PMarketModule: CF_ModuleWorld
 {
+	protected const int LISTINGS_PER_PAGE_COUNT = 14;
+	
 	protected static ExpansionP2PMarketModule s_Instance;
 	static string s_P2PMarketConfigFolderPath = "$mission:expansion\\p2pmarket\\";
 
@@ -55,33 +26,40 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	protected const float CHECK_TICK_TIME = 60.0;
 	protected ref ExpansionMarketModule m_MarketModule;
 
-	//! Server
-	protected ref map<int, ref ExpansionP2PMarketTraderConfig> m_P2PTraderConfig = new map<int, ref ExpansionP2PMarketTraderConfig>;
-	protected ref map<int, ref array<ref ExpansionP2PMarketListing>> m_P2PListingsData = new map<int, ref array<ref ExpansionP2PMarketListing>>;
-	protected ref map<string, int> m_TradingPlayers = new map<string, int>;
+	protected ref map<int, ref ExpansionP2PMarketTraderConfig> m_P2PTraderConfig = new map<int, ref ExpansionP2PMarketTraderConfig>; //! Server
+	protected ref map<int, ref array<ref ExpansionP2PMarketListing>> m_ListingsData = new map<int, ref array<ref ExpansionP2PMarketListing>>; //! Server
+	protected ref map<int, ref array<ref ExpansionP2PMarketListing>> m_SoldListingsData = new map<int, ref array<ref ExpansionP2PMarketListing>>; //! Server
+	protected ref map<int, ref array<ref ExpansionP2PMarketCategoryListings>> m_CategoryListings = new map<int, ref array<ref ExpansionP2PMarketCategoryListings>>; //! Server & Client
+	protected ref map<int, ref map<int, ref array<ref ExpansionP2PMarketCategoryListings>>> m_TraderCategoryListings = new map<int, ref map<int, ref array<ref ExpansionP2PMarketCategoryListings>>>; //! Server & Client
+	protected ref map<string, int> m_TradingPlayers = new map<string, int>; //! Server
+	protected ref map<string, ref ExpansionP2PMarketCounters> m_PlayerDataCounters = new map<string, ref ExpansionP2PMarketCounters>; //! Server
+	protected int m_ListingsCount; //! Server
+
+	protected ref ExpansionP2PMarketPlayerInventory m_LocalEntityInventory; //! Client
+	protected ref ScriptInvoker m_ListingsInvoker; //! Client
+	protected ref ScriptInvoker m_ListingDetailsInvoker; //! Client
+	protected ref ScriptInvoker m_CallbackInvoker; //! Client
+	protected ref ScriptInvoker m_UpdateInvoker; //! Client
 	
-	//! Client
-	protected ref ExpansionP2PMarketPlayerInventory m_LocalEntityInventory;
-	protected ref ScriptInvoker m_P2PMarketMenuListingsInvoker; //! Client
-	protected ref ScriptInvoker m_P2PMarketMenuCallbackInvoker; //! Client
+	protected ExpansionP2PMarketSettings m_P2PMarketSettings;
 
 	static ref TStringArray m_HardcodedExcludes = {"AugOptic", "Magnum_Cylinder", "Magnum_Ejector", "M97DummyOptics"};
 
 	void ExpansionP2PMarketModule()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif
 				
 		s_Instance = this;
 	}
 
 	override void OnInit()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
-			
+		#endif 
+	
 		EnableMissionStart();
 		EnableMissionLoaded();
 		EnableInvokeConnect();
@@ -93,11 +71,15 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		Expansion_RegisterServerRPC("RPC_RemoveTradingPlayer");
 		Expansion_RegisterServerRPC("RPC_RequestSaleFromListing");
 		Expansion_RegisterServerRPC("RPC_RequestAllPlayerSales");
-		Expansion_RegisterServerRPC("RPC_RequestBMTraderData");
-		Expansion_RegisterClientRPC("RPC_SendBMTraderData");
-		Expansion_RegisterServerRPC("RPC_RequestListBMItem");
+		Expansion_RegisterServerRPC("RPC_RequestBasicListingData");
+		Expansion_RegisterClientRPC("RPC_SendBasicListingData");
+		Expansion_RegisterClientRPC("RPC_SendCategoryListingsData");
+		Expansion_RegisterServerRPC("RPC_RequestListItem");
 		Expansion_RegisterClientRPC("RPC_Callback");
-		Expansion_RegisterServerRPC("RPC_RequestPurchaseBMItem");
+		Expansion_RegisterServerRPC("RPC_RequestPurchaseItem");
+		Expansion_RegisterServerRPC("RPC_RequestListingDetails");
+		Expansion_RegisterClientRPC("RPC_SendListingDetails");
+		Expansion_RegisterClientRPC("RPC_UpdateClientRequest");
 	}
 
 	protected void CreateDirectoryStructure()
@@ -111,26 +93,27 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 				
 		#ifdef SERVER
-			if (GetExpansionSettings().GetP2PMarket().Enabled)
-			{
-				CreateDirectoryStructure();
-				LoadP2PMarketServerData();
+		m_P2PMarketSettings = GetExpansionSettings().GetP2PMarket();
+		if (m_P2PMarketSettings.Enabled)
+		{
+			CreateDirectoryStructure();
+			LoadP2PMarketServerData();
 
-				m_Initialized = true;
-			}
+			m_Initialized = true;
+		}
 		#endif
 	}
 
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif
+		#endif
 		
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 			ServerModuleInit();
@@ -141,9 +124,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		super.OnInvokeConnect(sender, args);
 
@@ -151,38 +134,48 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
-			int moneyFromSales;
-			int salesCount;
-			foreach (int traderID, array<ref ExpansionP2PMarketListing>> listings: m_P2PListingsData)
+			string playerUID = cArgs.Identity.GetId();
+			//! Add counter data instance for connecting player
+			ExpansionP2PMarketCounters counters;
+			if (!m_PlayerDataCounters.Find(playerUID, counters))
 			{
-				foreach (ExpansionP2PMarketListing traderListing: listings)
+				counters = new ExpansionP2PMarketCounters();
+				m_PlayerDataCounters.Insert(playerUID, counters);
+			}
+			
+			//! Get all sales on player connection and display overall sold value in chat on players client
+			int totalIncome;
+			int salesCount;
+			foreach (int traderID, array<ref ExpansionP2PMarketListing>> listings: m_SoldListingsData)
+			{
+				foreach (ExpansionP2PMarketListing soldListing: listings)
 				{
-					if (traderListing.GetListingState() != ExpansionP2PMarketListingState.SOLD || traderListing.GetOwnerUID() != cArgs.Identity.GetId())
+					if (soldListing.GetListingState() != ExpansionP2PMarketListingState.SOLD || soldListing.GetOwnerUID() != playerUID)
 						continue;
 
-					moneyFromSales += traderListing.GetPrice();
+					totalIncome += soldListing.GetPrice();
 					salesCount++;
 				}
 			}
 
-			if (moneyFromSales > 0)
+			if (totalIncome > 0)
 			{
-				Callback(cArgs.Identity, ExpansionP2PMarketModuleCallback.MsgTotalSold, "", moneyFromSales, salesCount);
+				Callback(cArgs.Identity, ExpansionP2PMarketModuleCallback.MsgTotalSold, "", totalIncome, salesCount);
 			}
 		}
 	}
 
 	protected void ServerModuleInit()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		//! Server only
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
 			m_MarketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
-			
+
 			foreach (ExpansionP2PMarketTraderConfig config: m_P2PTraderConfig)
 			{
 				//! Spawn NPCs late so mapping already loaded
@@ -193,22 +186,24 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected void ClientModuleInit()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		if (GetGame().IsClient())
 		{
-			m_P2PMarketMenuListingsInvoker = new ScriptInvoker();
-			m_P2PMarketMenuCallbackInvoker = new ScriptInvoker();
+			m_ListingsInvoker = new ScriptInvoker();
+			m_ListingDetailsInvoker = new ScriptInvoker();
+			m_CallbackInvoker = new ScriptInvoker();
+			m_UpdateInvoker = new ScriptInvoker();
 		}
 	}
 
 	protected void LoadP2PMarketServerData()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif
 		
 		//! Move existing configs (if any) from old to new location
 		string dataDir = GetP2PMarketDataDirectory();
@@ -219,7 +214,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		}
 
 		array<string> p2pMarketFiles = ExpansionStatic.FindFilesInLocation(s_P2PMarketConfigFolderPath, ".json");
-		if (p2pMarketFiles.Count() > 0)
+		if (FileExist(GetP2PMarketDataDirectory()))
 		{
 			foreach (string fileName: p2pMarketFiles)
 			{
@@ -230,6 +225,348 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		{
 			CreateDefaultP2PTraderConfig();
 		}
+		
+		LoadListingCategories();
+		UpdateListingsCategoriesData();
+	}
+
+	//! Server
+	protected void LoadListingCategories()
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+	
+		int i;
+		ExpansionP2PMarketCategoryListings categoryData;
+		ExpansionP2PMarketMenuCategory menuCategory;
+		ExpansionP2PMarketMenuSubCategory subCategory;
+		ExpansionP2PMarketCategoryListings subCategoryData;
+		array<ref ExpansionP2PMarketMenuSubCategory> subCategories;
+		array<ref ExpansionP2PMarketCategoryListings> dataArray;
+	
+		//! Add "Uncategorized" category to menu settings
+		menuCategory = new ExpansionP2PMarketMenuCategory();
+		menuCategory.SetDisplayName("Uncategorized");
+		menuCategory.SetCategoryIndex(m_P2PMarketSettings.MenuCategories.Count());
+		menuCategory.SetIconPath("set:dayz_inventory image:missing");
+		m_P2PMarketSettings.MenuCategories.Insert(menuCategory);
+		
+		//! Initialize global category listings
+		for (i = 0; i < m_P2PMarketSettings.MenuCategories.Count(); i++)
+		{
+			menuCategory = m_P2PMarketSettings.MenuCategories[i];
+			menuCategory.SetCategoryIndex(i);
+	
+			dataArray = new array<ref ExpansionP2PMarketCategoryListings>;
+			categoryData = new ExpansionP2PMarketCategoryListings();
+			categoryData.m_CategoryIndex = i;
+			dataArray.Insert(categoryData);
+	
+			subCategories = menuCategory.GetSubCategories();
+			if (!subCategories)
+			{
+				m_CategoryListings.Set(i, dataArray);
+				continue;
+			}
+	
+			for (int j = 0; j < subCategories.Count(); j++)
+			{
+				subCategory = subCategories[j];
+				subCategory.SetCategoryIndex(i);
+				subCategory.SetSubCategoryIndex(j);
+				subCategoryData = new ExpansionP2PMarketCategoryListings();
+				subCategoryData.m_CategoryIndex = i;
+				subCategoryData.m_SubCategoryIndex = j;
+				dataArray.Insert(subCategoryData);
+			}
+	
+			m_CategoryListings.Set(i, dataArray);
+		}
+		
+		foreach (int index, array<ref ExpansionP2PMarketCategoryListings> lc: m_CategoryListings)
+		{
+		    P2PDebugPrint("[GLOBAL] Category Index: " + index + " | Data count: " + lc.Count());
+			foreach (ExpansionP2PMarketCategoryListings cle: lc)
+			{
+				 P2PDebugPrint("----- [CATEGORY] Category Index: " + cle.m_CategoryIndex + " | Sub catgory index: " + cle.m_SubCategoryIndex + " | Count: " + cle.m_Count);
+			}
+		}
+	
+		//! Initialize per-trader category listings
+		foreach (int traderID, ref array<ref ExpansionP2PMarketListing> listings: m_ListingsData)
+		{
+			map<int, ref array<ref ExpansionP2PMarketCategoryListings>> traderCategoryMap = new map<int, ref array<ref ExpansionP2PMarketCategoryListings>>;
+			for (int k = 0; k < m_P2PMarketSettings.MenuCategories.Count(); k++)
+			{
+				menuCategory = m_P2PMarketSettings.MenuCategories[k];
+				
+				dataArray = new array<ref ExpansionP2PMarketCategoryListings>;
+				categoryData = new ExpansionP2PMarketCategoryListings();
+				categoryData.m_CategoryIndex = k;
+				dataArray.Insert(categoryData);
+				
+				subCategories = menuCategory.GetSubCategories();
+				if (!subCategories)
+				{
+					traderCategoryMap.Set(k, dataArray);
+					continue;
+				}
+				
+				for (int m = 0; m < subCategories.Count(); m++)
+				{
+					subCategory = subCategories[m];
+					subCategoryData = new ExpansionP2PMarketCategoryListings();
+					subCategoryData.m_CategoryIndex = k;
+					subCategoryData.m_SubCategoryIndex = m;
+					dataArray.Insert(subCategoryData);
+				}
+				
+				traderCategoryMap.Set(k, dataArray);
+			}
+			
+			m_TraderCategoryListings.Set(traderID, traderCategoryMap);
+		}
+		
+		foreach(int tID, map<int, ref array<ref ExpansionP2PMarketCategoryListings>> tclm: m_TraderCategoryListings)
+		{
+			P2PDebugPrint("[TRADER] Trader ID: " + tID + " | Data count: " + tclm.Count());
+			foreach (int tIndex, array<ref ExpansionP2PMarketCategoryListings> tlc: tclm)
+			{
+			    P2PDebugPrint("----- [TRADER] Category Index: " + tIndex + " | Data count: " + tlc.Count());
+				foreach (ExpansionP2PMarketCategoryListings tcle: tlc)
+				{
+					 P2PDebugPrint("---------- [CATEGORY] Category Index: " + tcle.m_CategoryIndex + " | Sub catgory index: " + tcle.m_SubCategoryIndex + " | Count: " + tcle.m_Count);
+				}
+			}
+		}
+	}
+
+	protected void UpdateListingsCategoriesData()
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
+		int i;
+		ExpansionP2PMarketCategoryListings cd;
+		//! Reset all counts
+		foreach (int categoryIndex, array<ref ExpansionP2PMarketCategoryListings> categoryDataArray: m_CategoryListings)
+		{
+			for (i = 0; i < categoryDataArray.Count(); i++)
+			{
+				cd = categoryDataArray[i];
+				if (!cd) 
+					continue;
+				
+				cd.m_Count = 0;
+			}
+		}
+		
+		foreach (int traderID, map<int, ref array<ref ExpansionP2PMarketCategoryListings>> traderCategories: m_TraderCategoryListings)
+		{
+			foreach (int tCategoryIndex, array<ref ExpansionP2PMarketCategoryListings> tCategoryDataArray: traderCategories)
+			{
+				for (i = 0; i < tCategoryDataArray.Count(); i++)
+				{
+					cd = tCategoryDataArray[i];
+					if (!cd) 
+						continue;
+					
+					cd.m_Count = 0;
+				}
+			}
+		}
+
+		foreach (int lTraderID, array<ref ExpansionP2PMarketListing> listings: m_ListingsData)
+		{
+			UpdateTraderListingsCategoriesData(lTraderID, listings);
+		}
+	}
+	
+	protected void UpdateTraderListingsCategoriesData(int traderID, array<ref ExpansionP2PMarketListing> listings)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+
+		//! We go through all listings and determinine its category and sub-category and count them.
+		for (int i = 0; i < listings.Count(); i++)
+		{
+			ExpansionP2PMarketListing listing = listings[i];
+			if (!listing || listing.GetListingState() != ExpansionP2PMarketListingState.LISTED)
+				continue;
+			
+			if(!UpdateListingCategoryData(listing))
+			{
+				EXError.Warn(this, "::UpdateTraderListingsCategoriesData - Could not find any matching P2P market category for listing item: " + listing.GetClassName());
+			}
+		}
+	}
+	
+	protected bool UpdateListingCategoryData(ExpansionP2PMarketListing listing, bool removed = false)
+	{
+		P2PDebugPrint("UpdateListingCategoryData called for listing: " + listing.GetClassName() + " | Trader ID: " + listing.GetTraderID());
+
+		int traderID = listing.GetTraderID();
+		if (traderID <= 0)
+		{
+			EXError.Error(this, "::UpdateListingCategoryData - Listing data has invalid trader ID " + traderID + "!");
+			return false;
+		}
+
+		bool updatedTrader = ExUpdateListingCategoryData(listing, removed, m_CategoryListings);
+		bool updatedGlobal = ExUpdateListingCategoryData(listing, removed, m_TraderCategoryListings[traderID], false);
+
+		return (updatedGlobal && updatedTrader);
+	}
+	
+	protected bool ExUpdateListingCategoryData(ExpansionP2PMarketListing listing, bool removed, map<int, ref array<ref ExpansionP2PMarketCategoryListings>> categoryMap, bool updateListing = true)
+	{
+		if (!m_P2PMarketSettings)
+		{
+			EXError.Error(this, "::ExUpdateListingCategoryData - Could not get P2P market settings!");
+			return false;
+		}
+		
+		if (!m_P2PMarketSettings.MenuCategories)
+		{
+			ErrorEx("Could not get menu categories from settings!", ErrorExSeverity.ERROR);
+			return false;
+		}
+
+		if (!categoryMap)
+		{
+			ErrorEx("Could not get category map!", ErrorExSeverity.ERROR);
+			return false;
+		}
+		
+		string className = listing.GetClassName();
+		foreach (ExpansionP2PMarketMenuCategory menuCategory: m_P2PMarketSettings.MenuCategories)
+		{
+			if (!menuCategory)
+				continue;
+			
+			int categoryIndex = menuCategory.GetCategoryIndex();
+			string categoryName = menuCategory.GetDisplayName();
+
+			array<ref ExpansionP2PMarketCategoryListings> categoryDataArray = categoryMap[categoryIndex];
+			if (!categoryDataArray)
+			{
+				ErrorEx("Could not get category data array for index " + categoryIndex, ErrorExSeverity.ERROR);
+				continue;
+			}
+			else
+			{
+				P2PDebugPrint("Found category data array for index " + categoryIndex + " ...");
+			}
+			
+			// Pre-check inclusion/exclusion logic once
+			TStringArray included = menuCategory.GetIncluded();
+			TStringArray excluded = menuCategory.GetExcluded();
+
+			bool isIncluded = !included || included.Count() == 0 || ExpansionStatic.IsAnyOf(className, included);
+			bool isExcluded = excluded && excluded.Count() > 0 && ExpansionStatic.IsAnyOf(className, excluded);
+
+			if (!isIncluded || isExcluded)
+			{
+				P2PDebugPrint("Skipping " + className + " for category " + categoryIndex + " | Name: " + categoryName);
+				continue;
+			}
+			else
+			{
+				P2PDebugPrint("Adding " + className + " to category " + categoryIndex + " | Name: " + categoryName);
+			}
+
+			bool foundData = false;
+			bool foundSubData = false;
+
+			foreach (ExpansionP2PMarketCategoryListings categoryData: categoryDataArray)
+			{
+				if (!categoryData || categoryData.m_CategoryIndex != categoryIndex || categoryData.m_SubCategoryIndex != -1)
+					continue;
+				
+				P2PDebugPrint("Before update - categoryIndex: " + categoryIndex + " count: " + categoryData.m_Count);
+				
+				if (removed)
+				{
+					categoryData.m_Count = Math.Max(0, categoryData.m_Count - 1);
+				}
+				else
+				{
+					categoryData.m_Count++;
+				}
+				
+				P2PDebugPrint("After update - categoryIndex: " + categoryIndex + " count: " + categoryData.m_Count);
+
+				foundData = true;
+				break;
+			}
+			
+			if (updateListing)
+				listing.SetCategoryIndex(categoryIndex);
+
+			// Process subcategories using direct lookup
+			array<ref ExpansionP2PMarketMenuSubCategory> subCategories = menuCategory.GetSubCategories();
+			foreach (ExpansionP2PMarketMenuSubCategory menuSubCategory: subCategories)
+			{
+				if (!menuSubCategory)
+					continue;
+
+				int subCategoryIndex = menuSubCategory.GetSubCategoryIndex();
+				string subCategoryName = menuSubCategory.GetDisplayName();
+
+				// Pre-check inclusion/exclusion logic once
+				TStringArray subIncluded = menuSubCategory.GetIncluded();
+				TStringArray subExcluded = menuSubCategory.GetExcluded();
+
+				bool isSubIncluded = !subIncluded || ExpansionStatic.IsAnyOf(className, subIncluded);
+				bool isSubExcluded = subExcluded && ExpansionStatic.IsAnyOf(className, subExcluded);
+
+				if (!isSubIncluded || isSubExcluded)
+				{
+					P2PDebugPrint("Skipping " + className + " for sub category " + subCategoryIndex + " | Name: " + subCategoryName);
+					continue;
+				}
+				else
+				{
+					P2PDebugPrint("Adding " + className + " to sub category " + subCategoryIndex + " | Name: " + subCategoryName);
+				}
+				
+				foreach (ExpansionP2PMarketCategoryListings subCategoryData: categoryDataArray)
+				{
+					if (!subCategoryData || subCategoryData.m_SubCategoryIndex != subCategoryIndex)
+						continue;
+					
+					P2PDebugPrint("Before update - subCategoryIndex: " + subCategoryIndex + " count: " + subCategoryData.m_Count);
+					
+					if (removed)
+					{
+						subCategoryData.m_Count = Math.Max(0, subCategoryData.m_Count - 1);
+					}
+					else
+					{
+						subCategoryData.m_Count++;
+					}
+					
+					P2PDebugPrint("After update - subCategoryIndex: " + subCategoryIndex + " count: " + subCategoryData.m_Count);
+
+					foundSubData = true;
+					break;
+				}
+				
+				if (updateListing)
+					listing.SetSubCategoryIndex(subCategoryIndex);
+
+				if (foundSubData)
+					break;
+			}
+
+			if (foundData)
+				break;
+		}
+
+		return (foundData || foundSubData);
 	}
 
 	protected void CreateDefaultP2PTraderConfig()
@@ -244,11 +581,11 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		
 		bmTrader01 = new ExpansionP2PMarketTraderConfig();
 		bmTrader01.SetID(1);
-	#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 		bmTrader01.SetClassName("ExpansionP2PTraderAIIrena");
-	#else
+		#else
 		bmTrader01.SetClassName("ExpansionP2PTraderIrena");
-	#endif
+		#endif
 		bmTrader01.SetLoadoutFile("YellowKingLoadout");
 		bmTrader01.AddCurrency("expansionbanknotehryvnia");
 
@@ -287,9 +624,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected void LoadP2PMarketTraderData(string fileName, string path)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		ExpansionP2PMarketTraderConfig traderConfig = ExpansionP2PMarketTraderConfig.Load(path + fileName);
 		if (!traderConfig)
@@ -310,8 +647,12 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		{
 			foreach (string listingFileName: traderListings)
 			{
-				if (!FileExist(traderListingsPath + listingFileName))
+				string filePath = (traderListingsPath + listingFileName);
+				if (!FileExist(filePath))
+				{
+					EXError.Error(this, "::LoadP2PMarketTraderData - Could not find and load P2P trader listing file=" + filePath);
 					continue;
+				}
 
 				LoadListingData(traderID, listingFileName, traderListingsPath);
 			}
@@ -320,38 +661,87 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected void LoadListingData(int traderID, string fileName, string path)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
-			
-		ExpansionP2PMarketListing listingData = ExpansionP2PMarketListing.Load(path + fileName);
-		if (!listingData)
-			return;
+		#endif 
 
-		//! Check if the entity storage file still exists if the listing sate is not SOLD otherwise we delete the listing file and dont add it to the system.
-		if (listingData.GetListingState() == ExpansionP2PMarketListingState.LISTED)
+		string filePath = (path + fileName);
+		ExpansionP2PMarketListing listingData = ExpansionP2PMarketListing.Load(filePath);
+		if (!listingData)
 		{
-			P2PDebugPrint("::LoadListingData - Check if entity storage file still exists: " + listingData.GetEntityStorageFileName());
-			if (!FileExist(listingData.GetEntityStorageFileName()))
-			{
-				P2PDebugPrint("::LoadListingData - Entity stoage file " + listingData.GetEntityStorageFileName() + " does not exist anymore. Delete listing JSON..");
-				DeleteFile(path + fileName); //! Delete the listing JSON file.
-				listingData = null;
-				return;
-			}
+			EXError.Error(this, "::LoadListingData - Could not load listing data file with path=" + filePath);
+			return;
+		}
+
+		ExpansionP2PMarketListingState listingState = listingData.GetListingState(); 
+		if (listingState == ExpansionP2PMarketListingState.INVALID)
+		{
+			EXError.Error(this, "::LoadListingData - Listing state of loaded listing is invalid! Path=" + filePath);
+			return;
+		}
+		
+		//! We only want to check and load the entity storage .bin file when the listing state is on LISTED and not on SOLD
+		string listingESFilePath = listingData.GetEntityStorageFileName();
+		if (listingState == ExpansionP2PMarketListingState.LISTED && !FileExist(listingESFilePath))
+		{
+			EXError.Error(this, "::LoadListingData - Entity stoage file " + listingESFilePath + " does not exist anymore! Delete listing JSON..");
+			if (FileExist(filePath))
+				DeleteFile(filePath); //! Delete the listing JSON file.
+			listingData = null;
+			return;
 		}
 
 		listingData.SetTraderID(traderID);
+		
+		string globalIDText = ExpansionStatic.IntToHex(listingData.GetGlobalID());
 		array<ref ExpansionP2PMarketListing> listings;
-		if (m_P2PListingsData.Find(traderID, listings))
+		
+		ExpansionP2PMarketCounters counters;
+		if (!m_PlayerDataCounters.Find(listingData.GetOwnerUID(), counters))
 		{
-			listings.Insert(listingData);
+			counters = new ExpansionP2PMarketCounters();
+			m_PlayerDataCounters.Insert(listingData.GetOwnerUID(), counters);
 		}
-		else
+		
+		if (!counters)
 		{
-			listings = new array<ref ExpansionP2PMarketListing>;
-			listings.Insert(listingData);
-			m_P2PListingsData.Insert(traderID, listings);
+			EXError.Error(this, "::LoadListingData - Could not get counter data for player with UID " + listingData.GetOwnerUID());
+			return;
+		}
+		
+		if (listingState == ExpansionP2PMarketListingState.SOLD)
+		{
+			if (m_SoldListingsData.Find(traderID, listings) && listings && listings.Count())
+			{
+				listings.Insert(listingData);
+				counters.m_SoldListingsCount++;
+				counters.m_SoldTotalIncome += listingData.GetPrice();
+			}
+			else
+			{
+				listings = new array<ref ExpansionP2PMarketListing>;
+				listings.Insert(listingData);
+				m_SoldListingsData.Insert(traderID, listings);
+				counters.m_SoldListingsCount++;
+				counters.m_SoldTotalIncome += listingData.GetPrice();
+			}
+		}
+		else if (listingState == ExpansionP2PMarketListingState.LISTED)
+		{
+			if (m_ListingsData.Find(traderID, listings) && listings && listings.Count())
+			{
+				listings.Insert(listingData);
+				m_ListingsCount++;
+				counters.m_OwnedListingsCount++;
+			}
+			else
+			{
+				listings = new array<ref ExpansionP2PMarketListing>;
+				listings.Insert(listingData);
+				m_ListingsData.Insert(traderID, listings);
+				m_ListingsCount++;
+				counters.m_OwnedListingsCount++;
+			}
 		}
 	}
 
@@ -361,21 +751,26 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Server
 	void AddTradingPlayer(int traderID, string playerUID)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
-		int id;
-		if (!m_TradingPlayers.Find(playerUID, id))
-			m_TradingPlayers.Insert(playerUID, traderID);
+		m_TradingPlayers.Set(playerUID, traderID);
+		
+		ExpansionP2PMarketCounters counters;
+		if (!m_PlayerDataCounters.Find(playerUID, counters))
+		{
+			counters = new ExpansionP2PMarketCounters();
+			m_PlayerDataCounters.Insert(playerUID, counters);
+		}
 	}
 
 	//! Client
 	void RemoveTradingPlayer(string playerUID)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		auto rpc = Expansion_CreateRPC("RPC_RemoveTradingPlayer");
 		rpc.Write(playerUID);
@@ -385,9 +780,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RemoveTradingPlayer(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		string playerUID;
 		if (!ctx.Read(playerUID))
@@ -397,115 +792,102 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		if (m_TradingPlayers.Find(playerUID, traderID))
 			m_TradingPlayers.Remove(playerUID);
 	}
-
-	//! Server
-	void SendUpdatedTraderData(int traderID, string senderUID, ExpansionP2PMarketModuleCallback callback = 0, string type = string.Empty, int price = 0)
-	{
-#ifdef EXTRACE
-		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
-		
-		ExpansionP2PMarketModuleCallback menuCallback;
-		foreach (string playerUID, int id: m_TradingPlayers)
-		{
-			if (id != traderID)
-				continue;
-
-			PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
-			if (!player)
-				continue;
-
-			if (playerUID == senderUID)
-				menuCallback = callback;
-			else
-				menuCallback = ExpansionP2PMarketModuleCallback.Silent;
-
-			SendBMTraderData(traderID, player.GetIdentity(), "", "", menuCallback, type, price);
-		}
-	}
 	
 	//! Client
-	void GetSaleFromListing(ExpansionP2PMarketListing listing, int traderID)
+	void GetSaleFromListing(TIntArray globalID, int traderID, int pageIndex)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
-		
-		TIntArray globalID = listing.GetGlobalID();
+		#endif
 
 		auto rpc = Expansion_CreateRPC("RPC_RequestSaleFromListing");
 		rpc.Write(traderID);
 		rpc.Write(globalID);
+		rpc.Write(pageIndex);
 		rpc.Expansion_Send(true);
 	}
 	
 	//! Server
 	protected void RPC_RequestSaleFromListing(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		int traderID;
 		if (!ctx.Read(traderID))
 		{
-			Error(ToString() + "::RPC_RequestSaleFromListing - couldn't read trader ID!");
-			return;
-		}
-
-		if (traderID == -1)
-		{
-			Error(ToString() + "::RPC_RequestSaleFromListing - Trader ID is -1 (configuration error)");
-			ExpansionNotification("RPC_RequestSaleFromListing", "Trader ID is -1 (configuration error)").Error(identity);
-			return;
-		}
-		
-		ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(traderID);
-		if (!traderConfig)
-		{
-			Error(ToString() + "::RPC_RequestSaleFromListing - Could not get P2P trader data for ID " + traderID);
+			EXError.Error(this, "::RPC_RequestSaleFromListing - Couldn't read trader ID!");
 			return;
 		}
 
 		TIntArray globalID;
 		if (!ctx.Read(globalID))
 		{
-			Error(ToString() + "::RPC_RequestSaleFromListing - couldn't read global ID!");
+			EXError.Error(this, "::RPC_RequestSaleFromListing - Couldn't read global ID!");
 			return;
 		}
-
-		string playerUID = identity.GetId();
-		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
-		if (!player)
+		
+		ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(traderID);
+		if (!traderConfig)
+		{
+			EXError.Error(this, "::RPC_RequestSaleFromListing - Could not get P2P trader data for ID " + traderID);
 			return;
-
-		ExpansionP2PMarketListing listing = GetListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader());
+		}
+		
+		ExpansionP2PMarketListing listing = GetSoldListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader());
 		string globalIDText = ExpansionStatic.IntToHex(globalID);
 		if (!listing)
 		{
-			Error(ToString() + "::RPC_RequestSaleFromListing - couldn't find listing with global ID " + globalIDText);
+			EXError.Error(this, "::RPC_RequestSaleFromListing - Couldn't find listing with global ID " + globalIDText);
 			ExpansionNotification("RPC_RequestSaleFromListing", "Couldn't find listing with global ID " + globalIDText).Error(identity);
 			return;
 		}
-
-		if (listing.GetListingState() != ExpansionP2PMarketListingState.SOLD)
+		
+		int listingTraderID = listing.GetTraderID();
+		if (listingTraderID <= -1)
 		{
-			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that is not yet sold at trader ID " + traderID);
-			ExpansionNotification("RPC_RequestSaleFromListing", "This listing has not yet been sold").Error(identity);
+			EXError.Error(this, "::RPC_RequestSaleFromListing - Couldn't find listing with global ID " + globalIDText);
+			ExpansionNotification("RPC_RequestSaleFromListing", "Couldn't find listing with global ID " + globalIDText).Error(identity);
+			return;
+		}
+		
+		string playerUID = identity.GetId();
+		if (listing.GetOwnerUID() != playerUID)
+		{
+			EXError.Error(this, "::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that is not his own at trader ID " + traderID);
+			ExpansionNotification("RPC_RequestSaleFromListing", "You can't retrieve another player's profits").Error(identity);
+			return;
+		}
+		
+		int pageIndex;
+		if (!ctx.Read(pageIndex))
+		{
+			EXError.Error(this, "::RPC_RequestSaleFromListing - Couldn't read page index!");
 			return;
 		}
 
-		if (listing.GetOwnerUID() != playerUID)
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
+		if (!player)
+			return;
+		
+		ExpansionP2PMarketCounters counters;
+		if (!m_PlayerDataCounters.Find(playerUID, counters))
 		{
-			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that is not his own at trader ID " + traderID);
-			ExpansionNotification("RPC_RequestSaleFromListing", "You can't retrieve another player's profits").Error(identity);
+			counters = new ExpansionP2PMarketCounters();
+			m_PlayerDataCounters.Insert(playerUID, counters);
+		}
+		
+		if (!counters)
+		{
+			EXError.Error(this, "::RPC_RequestSaleFromListing - Could not get counter data for player with UID " + playerUID);
 			return;
 		}
 
 		int price = listing.GetPrice();
 		if (price <= 0)
 		{
-			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that has a price of 0. Price: " + price);
+			EXError.Error(this, "::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that has a price of 0. Price: " + price);
 			ExpansionNotification("RPC_RequestSaleFromListing", "You can't retrieve profits from a listing with a price of zero.").Error(identity);
 			return;
 		}
@@ -513,24 +895,41 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		string className = listing.GetClassName();
 		if (className == "")
 		{
-			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that has no type name. Class name: " + className);
+			EXError.Error(this, "::RPC_RequestSaleFromListing - player " + playerUID + " tried to retrieve profits from a listing that has no type name. Class name: " + className);
 			ExpansionNotification("RPC_RequestSaleFromListing", "You can't retrieve profits from a listing with no associated item(s).").Error(identity);
 			return;
 		}
 
-		if (!RemoveListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader()))
+		if (!RemoveSoldListingByGlobalID(listingTraderID, globalID, traderConfig.IsGlobalTrader(), false, true))
 		{
-			EXPrint(ToString() + " ::RPC_RequestSaleFromListing - could not remove listing " + globalIDText);
-			ExpansionNotification("RPC_RequestSaleFromListing", "Could not remove listing " + globalIDText).Error(identity);
+			EXError.Error(this, "::RPC_RequestSaleFromListing - Could not remove sold listing " + globalIDText);
+			ExpansionNotification("RPC_RequestSaleFromListing", "Could not remove sold listing " + globalIDText).Error(identity);
 			return;
 		}
+		
+		counters.m_SoldListingsCount--;
+		counters.m_SoldTotalIncome -= price;
 
 		EntityAI playerEntity = player;
 		TStringArray currencies = traderConfig.GetCurrencies();
 		m_MarketModule.SpawnMoneyInCurrency(player, playerEntity, price, currencies, false);
+		
+		if (counters.m_SoldListingsCount > 0)
+		{
+			ExpansionP2PMarketRequestData data = new ExpansionP2PMarketRequestData();
+			data.m_TraderID = traderID;
+			data.m_PageIndex = pageIndex;
+			data.m_CallbackType = ExpansionP2PMarketModuleCallback.SaleRetrieved;
+			data.m_MessageTypeName = className;
+			data.m_MessagePrice = price;
+			
+			SendBasicSoldListingData(data, identity);
+		}
+		else
+		{
+			Callback(identity, ExpansionP2PMarketModuleCallback.SaleRetrieved, className, price);
+		}
 
-		SendBMTraderData(traderID, identity, "", "", ExpansionP2PMarketModuleCallback.SaleRetrieved, className, price);
-	
 		if (GetExpansionSettings().GetLog().Market)
 		{
 			string priceStringLog = string.Format("%1 (%2)", price, GetDisplayPrice(traderConfig, price, false, false, true));
@@ -541,9 +940,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Client
 	void RequestAllPlayerSales(int traderID)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		auto rpc = Expansion_CreateRPC("RPC_RequestAllPlayerSales");
 		rpc.Write(traderID);
@@ -553,9 +952,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RequestAllPlayerSales(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		int traderID;
 		if (!ctx.Read(traderID))
@@ -563,20 +962,33 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 		if (traderID == -1)
 		{
-			Error(ToString() + "::RPC_RequestAllPlayerSales - Trader ID is -1 (configuration error)");
+			EXError.Error(this, "::RPC_RequestAllPlayerSales - Trader ID is -1 (configuration error)");
 			ExpansionNotification("RPC_RequestAllPlayerSales", "Trader ID is -1 (configuration error)").Error(identity);
 			return;
 		}
-
+	
 		string playerUID = identity.GetId();
 		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
 		if (!player)
 			return;
 		
+		ExpansionP2PMarketCounters counters;
+		if (!m_PlayerDataCounters.Find(playerUID, counters))
+		{
+			counters = new ExpansionP2PMarketCounters();
+			m_PlayerDataCounters.Insert(playerUID, counters);
+		}
+		
+		if (!counters)
+		{
+			EXError.Error(this, "::RPC_RequestAllPlayerSales - Could not get counter data for player with UID " + playerUID);
+			return;
+		}
+		
 		ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(traderID);
 		if (!traderConfig)
 		{
-			Error(ToString() + "::RPC_RequestAllPlayerSales - Could not get P2P trader data for ID " + traderID);
+			EXError.Error(this, "::RPC_RequestAllPlayerSales - Could not get P2P trader data for ID " + traderID);
 			return;
 		}
 
@@ -585,10 +997,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		{
 			//! If it's not a global trader, we have one entry for this trader + its listings
 			listingsData = new map<int, ref array<ref ExpansionP2PMarketListing>>;
-			listingsData[traderID] = m_P2PListingsData[traderID];
+			listingsData[traderID] = m_SoldListingsData[traderID];
 			if (!listingsData[traderID])
 			{
-				Error(ToString() + "::RPC_RequestAllPlayerSales - No listings for trader ID " + traderID);
+				EXError.Error(this, "::RPC_RequestAllPlayerSales - No listings for trader ID " + traderID);
 				ExpansionNotification("RPC_RequestAllPlayerSales", "No listings for trader ID " + traderID).Error(identity);
 				return;
 			}
@@ -596,30 +1008,26 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		else
 		{
 			//! If it's a global trader, we have an entry for each trader + its listings
-			listingsData = m_P2PListingsData;
+			listingsData = m_SoldListingsData;
 		}
 
 		int sold;
 		int price;
+		string globalIDText;
 
 		foreach (int listingsTraderID, array<ref ExpansionP2PMarketListing> traderListings: listingsData)
 		{
 			for (int j = traderListings.Count() - 1; j >= 0; j--)
 			{
 				ExpansionP2PMarketListing listing = traderListings[j];
+				globalIDText = ExpansionStatic.IntToHex(listing.GetGlobalID());
 				if (listing.GetListingState() == ExpansionP2PMarketListingState.SOLD && listing.GetOwnerUID() == playerUID)
 				{
-					if (RemoveListing(listingsTraderID, traderListings, j))
+					sold++;
+					price += listing.GetPrice();
+					if (!RemoveListing(listingsTraderID, traderListings, j, false, true, true))
 					{
-						sold++;
-						price += listing.GetPrice();
-					}
-					else 
-					{
-						string globalIDText = listing.GetEntityStorageBaseName();	//! @note: For logging purposes only
-						Error(ToString() + "::RPC_RequestAllPlayerSales - could not remove listing " + globalIDText + " from trader ID " + listingsTraderID);
-						ExpansionNotification("RPC_RequestAllPlayerSales", "Could not remove listing " + globalIDText + " from trader ID " + listingsTraderID).Error(identity);
-						return;
+						EXError.Error(this, "::RPC_RequestAllPlayerSales - Could not remove listing data for listing " + globalIDText + " at trader ID " + listingsTraderID);
 					}
 				}
 			}
@@ -627,292 +1035,924 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 		if (sold == 0)
 		{
-			EXPrint(ToString() + " ::RPC_RequestAllPlayerSales - No listings in SOLD state for player " + playerUID + " at trader ID " + traderID);
+			EXError.Error(this, "::RPC_RequestAllPlayerSales - No listings in SOLD state for player " + playerUID + " at trader ID " + traderID);
 			ExpansionNotification("RPC_RequestAllPlayerSales", "You have no sold listings at this trader").Error(identity);
 			return;
 		}
+		
+		counters.m_SoldListingsCount -= sold;
+		counters.m_SoldTotalIncome -= price;
 
 		EntityAI playerEntity = player;
 		TStringArray currencies = traderConfig.GetCurrencies();
 		m_MarketModule.SpawnMoneyInCurrency(player, playerEntity, price, currencies, false);
-
-		SendBMTraderData(traderID, identity, "", "", ExpansionP2PMarketModuleCallback.AllSalesRetrieved, "", price);
-	
+		
+		Callback(identity, ExpansionP2PMarketModuleCallback.AllSalesRetrieved, "", price);
+		
 		if (GetExpansionSettings().GetLog().Market)
 		{
 			string priceStringLog = string.Format("%1 (%2)", price, GetDisplayPrice(traderConfig, price, false, false, true));
 			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has retrieved " + sold + " sales for a total of " + priceStringLog + ".");
 		}
 	}
-
-	//! Client
-	void RequestSendBMTraderData(int traderID)
+	
+	//! Server
+	void SendUpdatedTraderData(ExpansionP2PMarketRequestData data, string senderUID)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif
+
+		data.Debug();
 		
-		auto rpc = Expansion_CreateRPC("RPC_RequestBMTraderData");
+		foreach (string playerUID, int id: m_TradingPlayers)
+		{
+			ErrorEx("Player UID: " + playerUID + " | Trader ID: " + id, ErrorExSeverity.INFO);		
+			ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(id);
+			if (!traderConfig)
+			{
+				EXError.Error(this, "::SendUpdatedTraderData - Could not get P2P trader data for ID " + id);
+				return;
+			}
+
+			if (traderConfig.IsGlobalTrader() || id == data.m_TraderID || data.m_ListingTraderID > -1 && id == data.m_ListingTraderID)
+			{
+				if (playerUID != senderUID)
+					data.m_CallbackType = ExpansionP2PMarketModuleCallback.Silent;
+				
+				PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
+				if (!player)
+					continue;
+				
+				if (playerUID == senderUID)
+				{
+					Callback(player.GetIdentity(), data.m_CallbackType, data.m_MessageTypeName, data.m_MessagePrice, data.m_MessagePriceString);
+				}
+	
+				ListingDataChanged(player.GetIdentity());
+				ErrorEx("Send updated player data to player! Player UID: " + playerUID + " | Trader ID: " + id, ErrorExSeverity.INFO);
+			}
+			#ifdef DIAG_DEVELOPER
+			else
+			{
+				ErrorEx("Skipped sending updated player data to player! Player UID: " + playerUID + " | Trader ID: " + id, ErrorExSeverity.INFO);
+			}
+			#endif
+		}
+	}
+	
+	//! Client
+	void RequestBasicListingData(int traderID, int pageIndex, bool soldListings, int categoryIndex = -1, int subCategoryIndex = -1, array<string> searchTypeNames = null, bool ownedListings = false)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+
+		auto rpc = Expansion_CreateRPC("RPC_RequestBasicListingData");
 		rpc.Write(traderID);
+		rpc.Write(pageIndex);
+		rpc.Write(soldListings);
+		rpc.Write(categoryIndex);
+		rpc.Write(subCategoryIndex);
+		rpc.Write(searchTypeNames);
+		rpc.Write(ownedListings);
 		rpc.Expansion_Send(true);
 	}
-
+	
 	//! Server
-	protected void RPC_RequestBMTraderData(PlayerIdentity identity, Object target, ParamsReadContext ctx)
+	protected void RPC_RequestBasicListingData(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif
 		
 		int traderID = -1;
 		if (!ctx.Read(traderID))
+		{
+			EXError.Error(this, "::RPC_RequestBasicListingData - Couldn't read trader ID!");
 			return;
+		}
+		
+		int pageIndex = 0;
+		if (!ctx.Read(pageIndex))
+		{
+			EXError.Error(this, "::RPC_RequestBasicListingData - Couldn't read page index!");
+			return;
+		}
+		
+		bool soldListings = false;
+		if (!ctx.Read(soldListings))
+		{
+			EXError.Error(this, "::RPC_RequestBasicListingData - Couldn't read sold listings boolean!");
+			return;
+		}
+		
+		int categoryIndex = -1;
+		if (!ctx.Read(categoryIndex))
+		{
+			EXError.Error(this, "::RPC_RequestBasicListingData - Couldn't read category index!");
+			return;
+		}
+		
+		int subCategoryIndex = -1;
+		if (!ctx.Read(subCategoryIndex))
+		{
+			EXError.Error(this, "::RPC_RequestBasicListingData - Couldn't read sub-category index!");
+			return;
+		}
+		
+		array<string> searchTypeNames = new array<string>;
+		if (!ctx.Read(searchTypeNames))
+		{
+			EXError.Error(this, "::RPC_RequestBasicListingData - Couldn't read seach type names!");
+			return;
+		}
+		
+		bool ownedListings = false;
+		if (!ctx.Read(ownedListings))
+		{
+			EXError.Error(this, "::RPC_RequestBasicListingData - Couldn't read owned listings bolean!");
+			return;
+		}
 
-		SendBMTraderData(traderID, identity);
+		ExpansionP2PMarketRequestData data = new ExpansionP2PMarketRequestData();
+		data.m_TraderID = traderID;
+		data.m_PageIndex = pageIndex;
+		data.m_CategoryIndex = categoryIndex;
+		data.m_SubCategoryIndex = subCategoryIndex;
+		data.m_SearchTypeNames = searchTypeNames;
+		data.m_OwnedListings = ownedListings;
+		
+		SendCategoryListingsData(traderID, identity);
+		
+		if (!soldListings)
+		{
+			SendBasicListingData(data, identity);
+		}
+		else
+		{
+			SendBasicSoldListingData(data, identity);
+		}
 	}
-
+	
 	//! Server
-	void SendBMTraderData(int traderID, PlayerIdentity identity, string traderName = string.Empty, string iconName = string.Empty, ExpansionP2PMarketModuleCallback callback = 0, string type = string.Empty, int price = 0)
+	void SendCategoryListingsData(int traderID, PlayerIdentity identity)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif
 		
 		ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(traderID);
 		if (!traderConfig)
 		{
-			Error(ToString() + "::SendBMTraderData - Could not get P2P trader data for ID " + traderID);
+			EXError.Error(this, "::SendCategoryListingsData - Could not get P2P trader data for ID " + traderID);
 			return;
 		}
-
-		int listingsCount;
-		array<ref ExpansionP2PMarketListing> listings;
-		if (!traderConfig.IsGlobalTrader())
+		
+		bool isGlobal = traderConfig.IsGlobalTrader();
+		map<int, ref array<ref ExpansionP2PMarketCategoryListings>> dataMap;
+		if (isGlobal)
 		{
-			listings = m_P2PListingsData[traderID];
-			if (!listings)
-				listings = new array<ref ExpansionP2PMarketListing>;
+			dataMap = m_CategoryListings;
 		}
 		else
 		{
-			listings = new array<ref ExpansionP2PMarketListing>;
-			foreach (int listingsTraderID, array<ref ExpansionP2PMarketListing> traderListings: m_P2PListingsData)
+			dataMap = m_TraderCategoryListings.Get(traderID);
+		}
+		
+		if (!dataMap)
+		{
+			EXError.Error(this, "::SendCategoryListingsData - Could not get P2P categroy data!");
+			return;
+		}
+		
+		auto rpc = Expansion_CreateRPC("RPC_SendCategoryListingsData");
+		rpc.Write(traderID);
+		rpc.Write(isGlobal);
+		int mapCount = dataMap.Count();
+		rpc.Write(mapCount);
+		
+		foreach (int categoryIndex, array<ref ExpansionP2PMarketCategoryListings> dataArray: dataMap)
+		{
+			rpc.Write(categoryIndex);
+			int dataCount = dataArray.Count();
+			rpc.Write(dataCount);
+			foreach (ExpansionP2PMarketCategoryListings data: dataArray)
 			{
-				foreach (auto traderListing: traderListings)
+				data.OnSend(rpc);
+			}
+		}
+				
+		rpc.Expansion_Send(true, identity);
+	}
+	
+	//! Client
+	protected void RPC_SendCategoryListingsData(PlayerIdentity identity, Object target, ParamsReadContext ctx)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+
+		int traderID;
+		if (!ctx.Read(traderID))
+		{
+			EXError.Error(this, "::RPC_SendCategoryListingsData - Couldn't read trader ID!");
+			return;
+		}
+
+		bool isGlobal;
+		if (!ctx.Read(isGlobal))
+		{
+			EXError.Error(this, "::RPC_SendCategoryListingsData - Couldn't read global trader boolean!");
+			return;
+		}
+
+		int mapCount;
+		if (!ctx.Read(mapCount))
+		{
+			EXError.Error(this, "::RPC_SendCategoryListingsData - Couldn't read category map data elements count!");
+			return;
+		}
+
+		if (isGlobal)
+		{
+			if (!m_CategoryListings)
+			{
+				m_CategoryListings = new map<int, ref array<ref ExpansionP2PMarketCategoryListings>>;
+			}
+			else
+			{
+				m_CategoryListings.Clear();
+			}
+		}
+		else
+		{
+			if (!m_TraderCategoryListings)
+			{
+				m_TraderCategoryListings = new map<int, ref map<int, ref array<ref ExpansionP2PMarketCategoryListings>>>;
+			}
+		}
+
+		for (int i = 0; i < mapCount; ++i)
+		{
+			int categoryIndex = -1;
+			if (!ctx.Read(categoryIndex))
+			{
+				EXError.Error(this, "::RPC_SendCategoryListingsData - Couldn't read category index!");
+				return;
+			}
+
+			int dataCount;
+			if (!ctx.Read(dataCount))
+			{
+				EXError.Error(this, "::RPC_SendCategoryListingsData - Couldn't read data count!");
+				return;
+			}
+
+			array<ref ExpansionP2PMarketCategoryListings> dataArray = new array<ref ExpansionP2PMarketCategoryListings>;
+			for (int j = 0; j < dataCount; ++j)
+			{
+				ExpansionP2PMarketCategoryListings data = new ExpansionP2PMarketCategoryListings();
+				if (!data.OnRecieve(ctx))
 				{
-					listings.Insert(traderListing);
+					EXError.Error(this, "::RPC_SendCategoryListingsData - Couldn't read ExpansionP2PMarketCategoryListings data! Index: " + categoryIndex);
+					return;
+				}
+
+				dataArray.Insert(data);
+			}
+
+			if (isGlobal)
+			{
+				m_CategoryListings.Set(categoryIndex, dataArray);
+			}
+			else
+			{
+				//! Preserve existing trader categories instead of overwriting them
+				if (!m_TraderCategoryListings.Contains(traderID))
+				{
+					m_TraderCategoryListings.Set(traderID, new map<int, ref array<ref ExpansionP2PMarketCategoryListings>>);
+				}
+
+				map<int, ref array<ref ExpansionP2PMarketCategoryListings>> traderMap = m_TraderCategoryListings.Get(traderID);
+				traderMap.Set(categoryIndex, dataArray);
+			}
+		}
+	}
+	
+	protected bool IsValidSearchListing(array<string> searchTypeNames, ExpansionP2PMarketListing listing)
+	{
+		string classNameLower;
+		bool hasChildWithName, hasName;
+		array<ref ExpansionP2PMarketContainerItem> containerItems = listing.GetContainerItems();
+		if (containerItems && containerItems.Count() > 0)
+		{
+			for (int i = 0; i < containerItems.Count(); i++)
+			{
+				ExpansionP2PMarketContainerItem containerItem = containerItems[i];
+				classNameLower = containerItem.GetClassName();
+				classNameLower.ToLower();
+
+				foreach(int index, string cTN: searchTypeNames)
+				{
+					if (classNameLower.IndexOf(cTN) > -1)
+						hasChildWithName = true;
 				}
 			}
 		}
 
-		P2PDebugPrint(ToString() + "::SendBMTraderData - global: " + traderConfig.IsGlobalTrader());
-		P2PDebugPrint(ToString() + "::SendBMTraderData - listings count: " + listings.Count());
+		classNameLower = listing.GetClassName();
+		classNameLower.ToLower();
 
-		TStringArray currencies = traderConfig.GetCurrencies();
-
-		auto rpc = Expansion_CreateRPC("RPC_SendBMTraderData");
-		rpc.Write(traderID);
-		rpc.Write(listings.Count());
-
-		foreach (auto listing: listings)
+		foreach(string tN: searchTypeNames)
 		{
-			listing.OnSend(rpc);
+			if (classNameLower.IndexOf(tN) > -1)
+				hasName = true;
 		}
 
-		rpc.Write(traderName);
-		rpc.Write(iconName);
-		rpc.Write(currencies);
-		rpc.Write(traderConfig.m_DisplayCurrencyValue);
-		rpc.Write(traderConfig.m_DisplayCurrencyName);
-		rpc.Write(callback);
-		rpc.Write(type);
-		rpc.Write(price);
+		return (hasName || hasChildWithName);
+	}
+	
+	//! Server
+	void SendBasicListingData(ExpansionP2PMarketRequestData data, PlayerIdentity identity)
+	{
+	    #ifdef EXTRACE
+	    auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+	    #endif
+	    
+	    data.Debug();
+	
+	    ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(data.m_TraderID);
+	    if (!traderConfig)
+	    {
+	        EXError.Error(this, "::SendBasicListingData - Could not get P2P trader data for ID " + data.m_TraderID);
+	        return;
+	    }
+	
+	    ExpansionP2PMarketCounters counters;
+	    m_PlayerDataCounters.Find(identity.GetId(), counters);
+	
+	    array<ref ExpansionP2PMarketListing> listingsToSend = new array<ref ExpansionP2PMarketListing>;
+	
+	    bool isGlobal = traderConfig.IsGlobalTrader();
+	    
+	    if (data.m_PageIndex > 0)
+	    {
+	        CheckPageIndex(data.m_PageIndex, data.m_TraderID, isGlobal, data.m_CategoryIndex, data.m_SubCategoryIndex, data.m_OwnedListings, identity.GetId());
+	    }
+	    
+		int listingStartIndex = data.m_PageIndex * LISTINGS_PER_PAGE_COUNT; // Where to start fetching listings
+		int listingsCount = 0; // Tracks how many valid listings we've considered so far
+		int traderListingsCount = 0;
+		int validListingsCount = 0;
+	
+	    P2PDebugPrint("Listing start index: " + listingStartIndex);
+	    
+	    //! Iterate through all available listings and collect the next 14 based on conditions
+	    foreach (int traderID, array<ref ExpansionP2PMarketListing> listingData: m_ListingsData)
+	    {
+	        P2PDebugPrint("Trader ID: " + traderID + " | Listings count: " + listingData.Count());	
+	        if (!isGlobal && traderID != data.m_TraderID)
+	            continue; // Skip traders that aren't the requested trader
+	
+	        if (traderID == data.m_TraderID)
+	            traderListingsCount = listingData.Count();
+	
+	        // Loop through the trader's listings and filter them
+	        for (int i = 0; i < listingData.Count(); i++)
+	        {
+	            ExpansionP2PMarketListing listing = listingData[i];
+	
+	            // Skip invalid listings
+	            if (!listing)
+	            {
+					P2PDebugPrint("[S1] - Skipping listing: " + listing.GetClassName() + " | Current count: " + listingsCount + " | Start index: " + listingStartIndex);
+	                continue;
+	            }
+
+				if (data.m_OwnedListings && listing.GetOwnerUID() != identity.GetId())
+				{
+					P2PDebugPrint("[S2] - Skipping listing: " + listing.GetClassName() + " | Current count: " + listingsCount + " | Start index: " + listingStartIndex);
+					continue;
+				}
+
+				if ((data.m_CategoryIndex > -1 && listing.GetCategoryIndex() != data.m_CategoryIndex) || (data.m_SubCategoryIndex > -1 && listing.GetSubCategoryIndex() != data.m_SubCategoryIndex))
+				{
+					P2PDebugPrint("[S3] - Skipping listing: " + listing.GetClassName() + " | Current count: " + listingsCount + " | Start index: " + listingStartIndex);
+					continue;
+				}
+
+				if ((data.m_SearchTypeNames.Count() > 0 && !IsValidSearchListing(data.m_SearchTypeNames, listing)))
+	            {
+					P2PDebugPrint("[S4] - Skipping listing: " + listing.GetClassName() + " | Current count: " + listingsCount + " | Start index: " + listingStartIndex);
+	                continue;
+	            }
+				
+				validListingsCount++;
+				
+	            // Only count valid listings
+	            if (listingsCount < listingStartIndex)
+	            {
+					P2PDebugPrint("[S5] - Skipping listing: " + listing.GetClassName() + " | Current count: " + listingsCount + " | Start index: " + listingStartIndex);
+	                listingsCount++;
+	                continue; // Skip listings from previous pages
+	            }
+	
+	            // Add valid listings to the response
+	            if (listingsToSend.Find(listing) == -1 && listingsToSend.Count() < LISTINGS_PER_PAGE_COUNT)
+	            {
+					P2PDebugPrint("Send listing: " + listing + " | Item: " + listing.GetClassName() + " | Current listings count: " + listingsCount);
+	                listingsToSend.Insert(listing);
+	            }
+	        }
+	    }
+		
+		int currentTotalListings;
+        if (isGlobal)
+        {
+            currentTotalListings = m_ListingsCount;
+            P2PDebugPrint("Global listings count: " + currentTotalListings);
+        }
+        else
+        {
+            currentTotalListings = traderListingsCount;
+            P2PDebugPrint("Trader listings count: " + currentTotalListings);
+        }
+	
+	    TStringArray currencies = traderConfig.GetCurrencies();
+	    
+	    auto rpc = Expansion_CreateRPC("RPC_SendBasicListingData");
+	    rpc.Write(false);
+	    rpc.Write(data.m_Init);
+	    rpc.Write(isGlobal);
+	
+	    if (data.m_Init)
+	    {
+	        rpc.Write(data.m_TraderID);
+	        rpc.Write(traderConfig.m_DisplayName);
+	        rpc.Write(traderConfig.m_DisplayIcon);
+	        rpc.Write(currencies);
+	        rpc.Write(traderConfig.m_DisplayCurrencyValue);
+	        rpc.Write(traderConfig.m_DisplayCurrencyName);
+	    }
+	
+	    rpc.Write(data.m_CallbackType);
+	    rpc.Write(data.m_MessageTypeName);
+	    rpc.Write(data.m_MessagePrice);
+	    rpc.Write(counters.m_SoldListingsCount);
+	    rpc.Write(counters.m_OwnedListingsCount);
+	    rpc.Write(currentTotalListings);
+	    rpc.Write(listingsToSend.Count());
+		rpc.Write(validListingsCount);
+	
+	    foreach (ExpansionP2PMarketListing listingToSend: listingsToSend)
+	    {
+	        listingToSend.OnSendBasic(rpc);
+	    }
+	
+	    rpc.Expansion_Send(true, identity);
+	}
+	
+	//! Server	
+	void SendBasicSoldListingData(ExpansionP2PMarketRequestData data, PlayerIdentity identity)
+	{
+	    #ifdef EXTRACE
+	    auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+	    #endif
+	    
+	    data.Debug();
+	
+	    ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(data.m_TraderID);
+	    if (!traderConfig)
+	    {
+	        EXError.Error(this, "::SendBasicSoldListingData - Could not get P2P trader data for ID " + data.m_TraderID);
+	        return;
+	    }
+	
+	    ExpansionP2PMarketCounters counters;
+	    m_PlayerDataCounters.Find(identity.GetId(), counters);
+	
+	    array<ref ExpansionP2PMarketListing> listingsToSend = new array<ref ExpansionP2PMarketListing>;
+	
+	    bool isGlobal = traderConfig.IsGlobalTrader();
+	    
+	    if (data.m_PageIndex > 0)
+	    {
+	        CheckPageIndex(data.m_PageIndex, data.m_TraderID, isGlobal, data.m_CategoryIndex, data.m_SubCategoryIndex, data.m_OwnedListings, identity.GetId());
+	    }
+	    
+	    int listingStartIndex = data.m_PageIndex * LISTINGS_PER_PAGE_COUNT; // Where to start fetching listings
+	    int listingsCount = 0; // Tracks how many valid listings we've considered so far
+	    int traderListingsCount = 0;
+		int validListingsCount = 0;
+	
+	    P2PDebugPrint("Listing start index: " + listingStartIndex);
+	    
+	    //! Iterate through all available listings and collect the next 14 based on conditions
+	    foreach (int traderID, array<ref ExpansionP2PMarketListing> listingData: m_SoldListingsData)
+	    {
+	        P2PDebugPrint("Trader ID: " + traderID + " | Listings count: " + listingData.Count());	
+	        if (!isGlobal && traderID != data.m_TraderID)
+	            continue; // Skip traders that aren't the requested trader
+	
+	        if (traderID == data.m_TraderID)
+	            traderListingsCount = listingData.Count();
+	
+	        // Loop through the trader's listings and filter them
+	        for (int i = 0; i < listingData.Count(); i++)
+	        {
+	            ExpansionP2PMarketListing listing = listingData[i];
+	
+	            // Skip invalid listings
+	            if (!listing)
+	            {
+					P2PDebugPrint("[S1] - Skipping listing: " + listing.GetClassName() + " | Current count: " + listingsCount + " | Start index: " + listingStartIndex);
+	                continue;
+	            }
+
+				if (listing.GetOwnerUID() != identity.GetId())
+				{
+					P2PDebugPrint("[S2] - Skipping listing: " + listing.GetClassName() + " | Current count: " + listingsCount + " | Start index: " + listingStartIndex);
+					continue;
+				}
+	
+	            // Only count valid listings
+	            if (listingsCount < listingStartIndex)
+	            {
+					P2PDebugPrint("[S5] - Skipping listing: " + listing.GetClassName() + " | Current count: " + listingsCount + " | Start index: " + listingStartIndex);
+	                listingsCount++;
+	                continue; // Skip listings from previous pages
+	            }
+				
+				validListingsCount++;
+				
+	            // Add valid listings to the response
+	            if (listingsToSend.Find(listing) == -1 && listingsToSend.Count() < LISTINGS_PER_PAGE_COUNT)
+	            {
+					P2PDebugPrint("Send listing: " + listing + " | Item: " + listing.GetClassName() + " | Current listings count: " + listingsCount);
+	                listingsToSend.Insert(listing);
+	            }
+	        }
+	    }
+		
+		int currentTotalListings;
+        if (isGlobal)
+        {
+            currentTotalListings = m_ListingsCount;
+            P2PDebugPrint("Global listings count: " + currentTotalListings);
+        }
+        else
+        {
+            currentTotalListings = traderListingsCount;
+            P2PDebugPrint("Trader listings count: " + currentTotalListings);
+        }
+	
+	    TStringArray currencies = traderConfig.GetCurrencies();
+	    
+	    auto rpc = Expansion_CreateRPC("RPC_SendBasicListingData");
+		rpc.Write(true);
+		rpc.Write(false);
+		rpc.Write(isGlobal);
+		rpc.Write(data.m_CallbackType);
+		rpc.Write(data.m_MessageTypeName);
+		rpc.Write(data.m_MessagePrice);
+		rpc.Write(counters.m_SoldListingsCount);
+		rpc.Write(counters.m_SoldTotalIncome);
+		rpc.Write(counters.m_OwnedListingsCount);
+		rpc.Write(currentTotalListings);
+		rpc.Write(listingsToSend.Count());
+		rpc.Write(validListingsCount);
+		
+		foreach (ExpansionP2PMarketListing listingToSend: listingsToSend)
+		{
+			listingToSend.OnSendBasic(rpc);
+		}
+
 		rpc.Expansion_Send(true, identity);
+	}
+	
+	//! Check if given page index is not to high after receiving a silent update and the page the player is currently on in the menu is not valid anymore because the amount of pages has changed (e.g., listing was brought).
+	protected bool CheckPageIndex(inout int pageIndex, int traderID, bool isGlobal, int categoryIndex = -1, int subCategoryIndex = -1, bool ownedListings = false, string playerUID = "")
+	{
+		P2PDebugPrint("Page index:" + pageIndex + " | Trader ID: " + traderID + " | Is global: " + isGlobal + " | Category index: " + categoryIndex + " | Sub-Category index: " + subCategoryIndex + " | Owned listings: " + ownedListings);
+		
+		int allListingsCount;
+		if (categoryIndex > -1 || subCategoryIndex > -1)
+		{
+			array<ref ExpansionP2PMarketCategoryListings> categoryListings;
+			if (isGlobal)
+			{
+				categoryListings = m_CategoryListings[categoryIndex];
+			}
+			else
+			{
+				map<int, ref array<ref ExpansionP2PMarketCategoryListings>> dataMap = m_TraderCategoryListings[traderID];
+				categoryListings = dataMap[categoryIndex];
+			}
+			
+			if (subCategoryIndex > -1)
+			{
+				foreach(ExpansionP2PMarketCategoryListings cl: categoryListings)
+				{
+					if (cl.m_SubCategoryIndex == subCategoryIndex)
+					{
+						allListingsCount = cl.m_Count;
+						break;
+					}
+				}
+			}
+			else
+			{
+				allListingsCount = categoryListings[0].m_Count;
+			}
+		}
+		else if (ownedListings && playerUID != "")
+		{
+			ExpansionP2PMarketCounters counters;
+			m_PlayerDataCounters.Find(playerUID, counters);
+			allListingsCount = counters.m_OwnedListingsCount;
+		}
+		else
+		{
+			if (isGlobal)
+			{
+				allListingsCount = m_ListingsCount;
+			}
+			else
+			{
+				allListingsCount = m_ListingsData[traderID].Count();
+			}
+		}
+		
+		P2PDebugPrint("All listings count: " + allListingsCount);
+		if (allListingsCount > 0)
+		{
+			int pages = allListingsCount / LISTINGS_PER_PAGE_COUNT;
+			if ((pages * LISTINGS_PER_PAGE_COUNT) < allListingsCount)
+				pages += 1;
+
+			P2PDebugPrint("Pages: " + pages + " | Page index: " + pageIndex);
+			if (pages < (pageIndex + 1))
+			{
+				pageIndex = Math.Max(0, pages - 1);
+				P2PDebugPrint("Modified page index: " + pageIndex);
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	//! Client
-	protected void RPC_SendBMTraderData(PlayerIdentity identity, Object target, ParamsReadContext ctx)
+	protected void RPC_SendBasicListingData(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif
 		
-		int traderID;
-		if (!ctx.Read(traderID))
+		bool soldListings = false;
+		if (!ctx.Read(soldListings))
 		{
-			Error(ToString() + "::RPC_SendBMTraderData - couldn't read trader ID");
+			EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read sold listings boolean!");
+			return;
+		}
+		
+		bool init = false;
+		if (!ctx.Read(init))
+		{
+			EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read init boolean!");
+			return;
+		}
+		
+		bool isGlobal = false;
+		if (!ctx.Read(isGlobal))
+		{
+			EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read global bolean!");
+			return;
+		}
+		
+		if (init)
+		{
+			int traderID = -1;
+			if (!ctx.Read(traderID))
+			{
+				EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read trader ID!");
+				return;
+			}
+			
+			string traderName;
+			if (!ctx.Read(traderName))
+			{
+				EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read trader name!");
+				return;
+			}
+			
+			string iconName;
+			if (!ctx.Read(iconName))
+			{
+				EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read menu icon path!");
+				return;
+			}
+			
+			TStringArray currencies;
+			if (!ctx.Read(currencies))
+			{
+				EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read currencies!");
+				return;
+			}
+	
+			int displayCurrencyValue;
+			if (!ctx.Read(displayCurrencyValue))
+			{
+				EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read trader currency value!");
+				return;
+			}
+	
+			string displayCurrencyName;
+			if (!ctx.Read(displayCurrencyName))
+			{
+				EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read trader currency name!");
+				return;
+			}
+		}
+		
+		int callbackType;
+		if (!ctx.Read(callbackType))
+		{
+			EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read callback type!");
 			return;
 		}
 
-		int listingsCount;
-		if (!ctx.Read(listingsCount))
+		string messageTypeName;
+		if (!ctx.Read(messageTypeName))
 		{
-			Error(ToString() + "::RPC_SendBMTraderData - couldn't read listing count");
+			EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read message type name!");
 			return;
 		}
+
+		int messagePrice;
+		if (!ctx.Read(messagePrice))
+		{
+			EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read message price!");
+			return;
+		}
+		
+		int soldListingsCount;
+		if (!ctx.Read(soldListingsCount))
+		{
+			EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read sold listings count!");
+			return;
+		}
+		
+		int soldTotalIncome;
+		if (soldListings)
+		{
+			if (!ctx.Read(soldTotalIncome))
+			{
+				EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read sold total icome!");
+				return;
+			}
+		}
+		
+		int ownedListingsCount;
+		if (!ctx.Read(ownedListingsCount))
+		{
+			EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read owned listings count!");
+			return;
+		}
+		
+		int currentTotalListings;
+		if (!ctx.Read(currentTotalListings))
+		{
+			EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read current total listings count!");
+			return;
+		}
+
+		int recivedListingsCount;
+		if (!ctx.Read(recivedListingsCount))
+		{
+			EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read listings to send count!");
+			return;
+		}
+		
+		int validListingsCount;
+		if (!ctx.Read(validListingsCount))
+		{
+			EXError.Error(this, "::RPC_SendBasicListingData - Couldn't read valid listings count!");
+			return;
+		}
+		
+		P2PDebugPrint("Current total listings count:" + currentTotalListings + " | Recived listings count: " + recivedListingsCount);
 
 		array<ref ExpansionP2PMarketListing> listings = new array<ref ExpansionP2PMarketListing>;
-		for (int i = 0; i < listingsCount; ++i)
+		for (int i = 0; i < recivedListingsCount; ++i)
 		{
 			ExpansionP2PMarketListing listing = new ExpansionP2PMarketListing();
-			if (!listing.OnRecieve(ctx))
+			if (!listing.OnRecieveBasic(ctx))
 			{
-				Error(ToString() + "::RPC_SendBMTraderData - couldn't receive listing " + i);
+				EXError.Error(this, "::RPC_SendBasicListingData - Couldn't receive listing " + i);
 				return;
 			}
 
 			listings.Insert(listing);
 		}
 
-		string traderName;
-		if (!ctx.Read(traderName))
+		ExpansionP2PMarketRecivedData data = new ExpansionP2PMarketRecivedData();
+		data.m_Listings = listings;
+		if (init)
 		{
-			Error(ToString() + "::RPC_SendBMTraderData - couldn't read trader name");
-			return;
+			data.m_TraderID = traderID;
+			data.m_IsGlobal = isGlobal;
+			data.m_TraderName = traderName;
+			data.m_IconName = iconName;
+			data.m_Currencies = currencies;
+			data.m_DisplayCurrencyValue = displayCurrencyValue;
+			data.m_DisplayCurrencyName = displayCurrencyName;
 		}
-
-		string iconName;
-		if (!ctx.Read(iconName))
-		{
-			Error(ToString() + "::RPC_SendBMTraderData - couldn't read trader icon");
-			return;
-		}
-
-		TStringArray currencies;
-		if (!ctx.Read(currencies))
-		{
-			Error(ToString() + "::RPC_SendBMTraderData - couldn't read trader currencies");
-			return;
-		}
-
-		int displayCurrencyValue;
-		if (!ctx.Read(displayCurrencyValue))
-		{
-			Error(ToString() + "::RPC_SendBMTraderData - couldn't read trader currency value");
-			return;
-		}
-
-		string displayCurrencyName;
-		if (!ctx.Read(displayCurrencyName))
-		{
-			Error(ToString() + "::RPC_SendBMTraderData - couldn't read trader currency name");
-			return;
-		}
-
-		int callback;
-		if (!ctx.Read(callback))
-		{
-			Error(ToString() + "::RPC_Callback - couldn't read callback");
-			return;
-		}
-
-		string type;
-		if (!ctx.Read(type))
-		{
-			Error(ToString() + "::RPC_Callback - couldn't read type");
-			return;
-		}
-
-		int price;
-		if (!ctx.Read(price))
-		{
-			Error(ToString() + "::RPC_Callback - couldn't read price");
-			return;
-		}
-
-		m_P2PMarketMenuListingsInvoker.Invoke(listings, traderID, traderName, iconName, currencies, displayCurrencyValue, displayCurrencyName);
-
-		m_P2PMarketMenuCallbackInvoker.Invoke(callback, type, price, 0, null);
+		
+		data.m_ListingsCount = currentTotalListings;
+		data.m_SoldListingsCount = soldListingsCount;
+		data.m_SoldTotalIncome = soldTotalIncome;
+		data.m_OwnedListingsCount = ownedListingsCount;
+		data.m_ValidListingsCount = validListingsCount;
+		
+		m_ListingsInvoker.Invoke(data, soldListings);
+		if (callbackType != ExpansionP2PMarketModuleCallback.None)
+			m_CallbackInvoker.Invoke(callbackType, messageTypeName, messagePrice, 0, null);
 	}
 
 	//! Client
-	void RequestListBMItem(int traderID, Entity item, int price)
+	void RequestListItem(int traderID, Entity item, int price)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif
 		
-		auto rpc = Expansion_CreateRPC("RPC_RequestListBMItem");
+		P2PDebugPrint("Trader ID: " + traderID + " | Item: " + item + " | Price " + price);
+		
+		auto rpc = Expansion_CreateRPC("RPC_RequestListItem");
 		rpc.Write(traderID);
 		rpc.Write(price);
 		rpc.Expansion_Send(item, true);
 	}
 
 	//! Server
-	protected void RPC_RequestListBMItem(PlayerIdentity identity, Object target, ParamsReadContext ctx)
+	protected void RPC_RequestListItem(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
-		
-		auto settings = GetExpansionSettings().GetP2PMarket();
-		int playerListingsCount = GetPlayerListingsCount(identity.GetId());
-		if (settings.MaxListings != -1 && playerListingsCount >= settings.MaxListings)
-		{
-			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_MAX_LISTING_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_MAX_LISTING_DESC", playerListingsCount.ToString(), settings.MaxListings.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
-			CallbackError(identity);
-			return;
-		}
+		#endif
 
 		int traderID;
 		if (!ctx.Read(traderID))
 		{
-			Error(ToString() + "::RPC_RequestListBMItem - Could not read traderID.");
+			EXError.Error(this, "::RPC_RequestListItem - Could not read traderID.");
 			return;
 		}
 
 		int price;
 		if (!ctx.Read(price))
 		{
-			Error(ToString() + "::RPC_RequestListBMItem - Could not read price.");
+			EXError.Error(this, "::RPC_RequestListItem - Could not read price.");
 			return;
 		}
 
+		if (!CanListItem(identity, target, price))
+		{
+			EXError.Error(this, "::RPC_RequestListItem - Listing conditions failed!");
+			return;
+		}
+		
+		ListItem(identity, target, traderID, price);
+	}
+
+	protected bool CanListItem(PlayerIdentity identity, Object target, int price)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
+		int playerListingsCount = GetPlayerListingsCount(identity.GetId());
+		if (m_P2PMarketSettings.MaxListings != -1 && playerListingsCount >= m_P2PMarketSettings.MaxListings)
+		{
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_MAX_LISTING_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_MAX_LISTING_DESC", playerListingsCount.ToString(), m_P2PMarketSettings.MaxListings.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
+			CallbackError(identity);
+			return false;
+		}
+		
 		EntityAI objEntity;
 		if (!Class.CastTo(objEntity, target))
 		{
-			Error(ToString() + "::RPC_RequestListBMItem - Could not get target object.");
-			return;
+			EXError.Error(this, "::RPC_RequestListItem - Could not get target object.");
+			CallbackError(identity);
+			return false;
 		}
 
 		if (objEntity.IsSetForDeletion())
 		{
-			Error(ToString() + "::RPC_RequestListBMItem - target is about to be deleted.");
-			return;
-		}
-
-		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
-		if (!player)
-		{
-			Error(ToString() + "::RPC_RequestListBMItem - Could not get player.");
-			return;
-		}
-		
-		ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(traderID);
-		if (!traderConfig)
-		{
-			Error(ToString() + "::RPC_RequestListBMItem - Could not get P2P trader data for ID " + traderID);
-			return;
-		}
-
-		string priceString = GetDisplayPrice(traderConfig, price, false, true, true);
-
-		string type = objEntity.GetType();
-		int listingPrice = Math.Ceil(price * settings.ListingPricePercent / 100);
-		string listingPriceString = GetDisplayPrice(traderConfig, listingPrice, false, true, true);
-		if (listingPrice <= 0)
-		{
-			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorListingPriceTooLow, type, price, listingPrice);
-			return;
-		}
-
-		array<int> monies = new array<int>;
-		TStringArray currencies = traderConfig.GetCurrencies();
-		int playerWorth = m_MarketModule.GetPlayerWorth(player, monies, currencies);
-		if (playerWorth <= 0 || playerWorth < listingPrice)
-		{
-			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorNotEnoughMoneyToList, type, price, listingPrice);
-			return;
+			EXError.Error(this, "::RPC_RequestListItem - target is about to be deleted.");
+			CallbackError(identity);
+			return false;
 		}
 
 		int doorsCount;
@@ -920,50 +1960,76 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		int wheelsCount;
 		int wheelsRequiredAmount;
 		array<EntityAI> slotItems;
+		string type = objEntity.GetType();
+		
 		//! If the object is a vehicle we check for paired keys and unpair/delete them all and remove the pairing from the vehicle.
 		ExpansionVehicle vehicle;
 		if (ExpansionVehicle.Get(vehicle, objEntity))
 		{
-		#ifdef EXPANSIONMODVEHICLE
+			#ifdef EXPANSIONMODVEHICLE
 			if (vehicle.GetLockState() == ExpansionVehicleLockState.FORCEDUNLOCKED)
 			{
 				CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleLockpicked, type);
-				return;
+				return false;
 			}
-		#endif
+			#endif
 
 			slotItems = GetSlotItems(vehicle.GetEntity(), doorsRequiredAmount, wheelsRequiredAmount);
-
 			foreach (EntityAI slotItemCar: slotItems)
 			{
-				EXPrint(ToString() + "::RPC_RequestListBMItem - " + vehicle.GetType() + " | Slots Item: " + slotItemCar.GetType());
 				if (slotItemCar.IsInherited(CarDoor))
+				{
 					doorsCount++;
+				}
 				else if (slotItemCar.IsInherited(CarWheel))
+				{
 					wheelsCount++;
+				}
 			}
 
 			if (doorsCount < doorsRequiredAmount || wheelsCount < wheelsRequiredAmount || !vehicle.IsFunctional(true))
 			{
 				CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleMissingAttachment, type);
-				return;
+				return false;
 			}
 
 			if (!CheckItemsCondition(slotItems))
 			{
 				CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleRuinedAttachment, type);
-				return;
+				return false;
 			}
 
-		#ifdef EXPANSIONMODVEHICLE
+			#ifdef EXPANSIONMODVEHICLE
 			if (vehicle.HasKey())
 			{
-				array<ExpansionCarKey> carKeys = new array<ExpansionCarKey>;
+				array<ExpansionCarKey> carKeys = new array<ExpansionCarKey>;				
+				bool hasCarKey = false;
+				ExpansionCarKey carKey;
+				int i;
+				
 				ExpansionCarKey.GetKeysForVehicle(vehicle, carKeys);
-
-				for (int i = 0; i < carKeys.Count(); ++i)
+				
+				for (i = 0; i < carKeys.Count(); ++i)
 				{
-					ExpansionCarKey carKey = carKeys[i];
+					carKey = carKeys[i];
+					if (!carKey)
+						continue;
+
+					if (carKey.GetHierarchyRootPlayer() && carKey.GetHierarchyRootPlayer() == identity.GetPlayer())
+					{
+						hasCarKey = true;
+					}
+				}
+				
+				if (!hasCarKey)
+				{
+					CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleKeysMissing, type);
+					return false;
+				}
+				
+				for (i = 0; i < carKeys.Count(); ++i)
+				{
+					carKey = carKeys[i];
 					if (!carKey)
 						continue;
 
@@ -973,22 +2039,52 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 				vehicle.ResetKeyPairing();
 			}
-		#endif
+			#endif
 		}
 
-	#ifdef SERVER
-		if (settings.DisallowUnpersisted && !ExpansionWorld.IsStoreLoaded(objEntity) && !ExpansionWorld.IsStoreSaved(objEntity))
+		#ifdef SERVER
+		if (m_P2PMarketSettings.DisallowUnpersisted && !ExpansionWorld.IsStoreLoaded(objEntity) && !ExpansionWorld.IsStoreSaved(objEntity))
 		{
-			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", string.Format("You can't list %1 right now because it hasn't been persisted to game storage yet. Please wait at least 15-20 seconds.", objEntity.GetDisplayName())).Error(player.GetIdentity());
+			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorPersistency, type);
+			return false;
+		}
+		#endif
+		
+		return true;
+	}
+	
+	protected void ListItem(PlayerIdentity identity, Object target, int traderID, int price, bool ignoreListingPrice = false)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
+		EntityAI objEntity;
+		if (!Class.CastTo(objEntity, target))
+		{
+			EXError.Error(this, "::ListItem - Could not get target object.");
 			return;
 		}
-	#endif
+		
+		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
+		if (!player)
+		{
+			EXError.Error(this, "::ListItem - Could not get player entity.");
+			return;
+		}
 
+		ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(traderID);
+		if (!traderConfig)
+		{
+			EXError.Error(this, "::ListItem - Could not get P2P trader data for ID " + traderID);
+			return;
+		}
+		
 		ExpansionP2PMarketListing newListing = new ExpansionP2PMarketListing();
 		newListing.SetFromItem(objEntity, player);
 		if (!newListing.IsGlobalIDValid())
 		{
-			Error(ToString() + "::RPC_RequestListBMItem - Global ID for new listing is invalid! Global ID: " + newListing.GetGlobalID());
+			EXError.Error(this, "::ListItem - Global ID for new listing is invalid! Global ID: " + newListing.GetGlobalID());
 			return;
 		}
 
@@ -996,24 +2092,53 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		newListing.SetListingTime();
 		newListing.SetTraderID(traderID);
 		newListing.SetListingState(ExpansionP2PMarketListingState.LISTED);
-
-		if (!m_MarketModule.RemoveMoney(listingPrice, player, currencies))
+		
+		if (!ignoreListingPrice)
 		{
-			Error(ToString() + "::RPC_RequestListBMItem - Could not remove money from player!");
-			return;
+			string type = objEntity.GetType();
+			int listingPrice = Math.Ceil(price * m_P2PMarketSettings.ListingPricePercent / 100);
+			string listingPriceString = GetDisplayPrice(traderConfig, listingPrice, false, true, true);
+			if (listingPrice <= 0)
+			{
+				CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorListingPriceTooLow, type, price, listingPrice);
+				return;
+			}
+	
+			array<int> monies = new array<int>;
+			TStringArray currencies = traderConfig.GetCurrencies();
+			int playerWorth = m_MarketModule.GetPlayerWorth(player, monies, currencies);
+			if (playerWorth <= 0 || playerWorth < listingPrice)
+			{
+				CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorNotEnoughMoneyToList, type, price, listingPrice);
+				return;
+			}
+			
+			if (!m_MarketModule.RemoveMoney(listingPrice, player, currencies))
+			{
+				EXError.Error(this, "::ListItem - Could not remove money from player!");
+				return;
+			}
 		}
 		
 		if (!StoreItem(newListing, objEntity))
 		{
-			Error(ToString() + "::RPC_RequestListBMItem - Could not store listing item!");
+			EXError.Error(this, "::ListItem - Could not store listing item!");
 			return;
 		}
 
 		AddListing(traderID, newListing);
 		newListing.Save();
-
-		SendUpdatedTraderData(traderID, identity.GetId(), ExpansionP2PMarketModuleCallback.ItemListed, type, price);
 		
+		UpdateListingCategoryData(newListing, false); //! Update global/trader p2p market category data
+
+		ExpansionP2PMarketRequestData data = new ExpansionP2PMarketRequestData();
+		data.m_TraderID = traderID;
+		data.m_CallbackType = ExpansionP2PMarketModuleCallback.ItemListed;
+		data.m_MessageTypeName = type;
+		data.m_MessagePrice = price;
+
+		SendUpdatedTraderData(data, identity.GetId()); //! Update listing data for all trading players at the same trader.
+
 		if (GetExpansionSettings().GetLog().Market)
 		{
 			string globalIDText = ExpansionStatic.IntToHex(newListing.GetGlobalID());
@@ -1022,23 +2147,64 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		}
 	}
 
-	void AddListing(int traderID, ExpansionP2PMarketListing listing)
+	protected void AddListing(int traderID, ExpansionP2PMarketListing listing)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif
+		
+		ExpansionP2PMarketCounters counters;
+		if (!m_PlayerDataCounters.Find(listing.GetOwnerUID(), counters))
+		{
+			counters = new ExpansionP2PMarketCounters();
+			m_PlayerDataCounters.Insert(listing.GetOwnerUID(), counters);
+		}
+		
+		if (!counters)
+		{
+			EXError.Error(this, "::AddListing - Could not get counter data for player with UID " + listing.GetOwnerUID());
+			return;
+		}
 		
 		array<ref ExpansionP2PMarketListing> listings;
-		if (m_P2PListingsData.Find(traderID, listings))
+		if (m_ListingsData.Find(traderID, listings))
 		{
 			if (listings.Find(listing) == -1)
+			{
 				listings.Insert(listing);
+				m_ListingsCount++;
+				counters.m_OwnedListingsCount++;
+			}
 		}
 		else
 		{
 			listings = new array<ref ExpansionP2PMarketListing>;
 			listings.Insert(listing);
-			m_P2PListingsData.Insert(traderID, listings);
+			m_ListingsData.Insert(traderID, listings);
+			m_ListingsCount++;
+			counters.m_OwnedListingsCount++;
+		}
+	}
+	
+	protected void AddSoldListing(int traderID, ExpansionP2PMarketListing listing)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+
+		array<ref ExpansionP2PMarketListing> listings;
+		if (m_SoldListingsData.Find(traderID, listings))
+		{
+			if (listings.Find(listing) == -1)
+			{
+				listings.Insert(listing);
+			}
+		}
+		else
+		{
+			listings = new array<ref ExpansionP2PMarketListing>;
+			listings.Insert(listing);
+			m_SoldListingsData.Insert(traderID, listings);
 		}
 	}
 	
@@ -1050,9 +2216,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	void Callback(PlayerIdentity identity, ExpansionP2PMarketModuleCallback callback, string type = string.Empty, int price = 0, int listingPriceString = 0, Object blockingObject = null)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		auto rpc = Expansion_CreateRPC("RPC_Callback");
 		rpc.Write(callback);
@@ -1063,39 +2229,152 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		rpc.Expansion_Send(true, identity);
 	}
 
-	//! Client
-	void RequestPurchaseBMItem(ExpansionP2PMarketListing listing)
+	//!Server
+	protected void ListingDataChanged(PlayerIdentity identity)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif
 		
-		if (!listing.IsGlobalIDValid())
-		{
-			Error(ToString() + "::RequestPurchaseBMItem - Listing global ID is invalid!");
+		auto rpc = Expansion_CreateRPC("RPC_UpdateClientRequest");
+		rpc.Expansion_Send(true, identity);
+	}
+	
+	//!Client
+	void RPC_UpdateClientRequest()
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
+		if (!GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
 			return;
-		}
+		
+		m_UpdateInvoker.Invoke();
+	}
 
-		int traderID = listing.GetTraderID();
-		TIntArray globalID = listing.GetGlobalID();
-
-		auto rpc = Expansion_CreateRPC("RPC_RequestPurchaseBMItem");
+	//!Client
+	void RequestListingDetails(int traderID, TIntArray globalID)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
+		auto rpc = Expansion_CreateRPC("RPC_RequestListingDetails");
 		rpc.Write(traderID);
 		rpc.Write(globalID);
 		rpc.Expansion_Send(true);
 	}
-
+	
 	//! Server
-	protected void RPC_RequestPurchaseBMItem(PlayerIdentity identity, Object target, ParamsReadContext ctx)
+	protected void RPC_RequestListingDetails(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif
 		
 		int traderID;
 		if (!ctx.Read(traderID))
 		{
-			Error(ToString() + "::RPC_RequestPurchaseBMItem - Could not read traderID.");
+			EXError.Error(this, "::RPC_RequestListingDetails - Could not read trader ID.");
+			CallbackError(identity);
+			return;
+		}
+		
+		TIntArray globalID;
+		if (!ctx.Read(globalID))
+		{
+			EXError.Error(this, "::RPC_RequestListingDetails - Could not read global ID.");
+			CallbackError(identity);
+			return;
+		}
+		
+		ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(traderID);
+		if (!traderConfig)
+		{
+			EXError.Error(this, "::RPC_RequestListingDetails - Could not get P2P trader data for ID " + traderID);
+			return;
+		}
+		
+		ExpansionP2PMarketListing listingToSend = GetListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader());
+		if (!listingToSend)
+		{
+			string globalIDText = ExpansionStatic.IntToHex(globalID);
+			EXError.Error(this, "::RPC_RequestListingDetails - Could not get listing to send! Trader ID: " + traderID + " | Global ID: " + globalIDText + " | Is global: " + traderConfig.IsGlobalTrader());
+			return;
+		}
+		
+		auto rpc = Expansion_CreateRPC("RPC_SendListingDetails");
+		listingToSend.OnSendDetails(rpc);
+		rpc.Expansion_Send(true, identity);
+	}
+	
+	//! Client
+	protected void RPC_SendListingDetails(PlayerIdentity identity, Object target, ParamsReadContext ctx)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
+		ExpansionP2PMarketListing listing = new ExpansionP2PMarketListing();
+		if (!listing.OnRecieveDetails(ctx))
+		{
+			EXError.Error(this, "::RPC_SendListingDetails - Could not read detailded listing data!");
+			CallbackError(identity);
+			return;
+		}
+		
+		m_ListingDetailsInvoker.Invoke(listing);
+	}
+	
+	//! Client
+	void RequestPurchaseItem(int traderID, ExpansionP2PMarketListing listing, int pageIndex, int categoryIndex, int subCategoryIndex, bool ownedListings)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
+		if (!listing.IsGlobalIDValid())
+		{
+			EXError.Error(this, "::RequestPurchaseItem - Listing global ID is invalid!");
+			return;
+		}
+
+		int listingTraderID = listing.GetTraderID();
+		TIntArray globalID = listing.GetGlobalID();
+		string globalIDText = listing.GetEntityStorageBaseName();	//! @note: For logging purposes only
+		P2PDebugPrint("Trader ID: " + traderID + " | Listing trader ID: " + listingTraderID + " | Global ID: " + globalIDText);
+		
+		auto rpc = Expansion_CreateRPC("RPC_RequestPurchaseItem");
+		rpc.Write(listingTraderID);
+		rpc.Write(traderID);
+		rpc.Write(globalID);
+		rpc.Write(pageIndex);
+		rpc.Write(categoryIndex);
+		rpc.Write(subCategoryIndex);
+		rpc.Write(ownedListings);
+		rpc.Expansion_Send(true);
+	}
+
+	//! Server
+	protected void RPC_RequestPurchaseItem(PlayerIdentity identity, Object target, ParamsReadContext ctx)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif 
+		
+		int listingTraderID;
+		if (!ctx.Read(listingTraderID))
+		{
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not read listing trader ID.");
+			CallbackError(identity);
+			return;
+		}
+		
+		int traderID;
+		if (!ctx.Read(traderID))
+		{
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not read trader ID.");
 			CallbackError(identity);
 			return;
 		}
@@ -1103,32 +2382,64 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		TIntArray globalID = new TIntArray;
 		if (!ctx.Read(globalID))
 		{
-			Error(ToString() + "::RPC_RequestPurchaseBMItem - Could not read globalID.");
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not read global ID.");
+			CallbackError(identity);
+			return;
+		}
+		
+		int pageIndex;
+		if (!ctx.Read(pageIndex))
+		{
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not read page Index.");
+			CallbackError(identity);
+			return;
+		}
+		
+		int categoryIndex;
+		if (!ctx.Read(categoryIndex))
+		{
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not read category Index.");
+			CallbackError(identity);
+			return;
+		}
+		
+		int subCategoryIndex;
+		if (!ctx.Read(subCategoryIndex))
+		{
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not read sub-category Index.");
+			CallbackError(identity);
+			return;
+		}
+		
+		bool ownedListings;
+		if (!ctx.Read(ownedListings))
+		{
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not read owned listings boolean.");
 			CallbackError(identity);
 			return;
 		}
 
-		ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(traderID);
+		ExpansionP2PMarketTraderConfig traderConfig = GetP2PTraderConfigByID(listingTraderID);
 		if (!traderConfig)
 		{
-			Error(ToString() + "::RPC_RequestPurchaseBMItem - Could not read traderConfig for ID: " + traderID);
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not read traderConfig for ID: " + listingTraderID);
 			CallbackError(identity);
 			return;
 		}
 
-		ExpansionP2PMarketListing listing = GetListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader());
+		ExpansionP2PMarketListing listing = GetListingByGlobalID(listingTraderID, globalID, traderConfig.IsGlobalTrader());
 		if (!listing)
 		{
-			Error(ToString() + "::RPC_RequestPurchaseBMItem - Could not get listing for ID: " + globalID + " | Trader ID: " + traderID);
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not get listing for ID: " + globalID + " | Trader ID: " + listingTraderID);
 			CallbackError(identity);
 			return;
 		}
 
 		string listingOwnerUID = listing.GetOwnerUID();
 		string playerUID = identity.GetId();
-		if (!identity || playerUID == string.Empty)
+		if (!identity || playerUID == "")
 		{
-			Error(ToString() + "::RPC_RequestPurchaseBMItem - Could not get player UID.");
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not get player UID.");
 			CallbackError(identity);
 			return;
 		}
@@ -1136,7 +2447,21 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
 		if (!player)
 		{
-			Error(ToString() + "::RPC_RequestPurchaseBMItem - Could not get player.");
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not get player.");
+			CallbackError(identity);
+			return;
+		}
+		
+		ExpansionP2PMarketCounters counters;
+		if (!m_PlayerDataCounters.Find(listingOwnerUID, counters))
+		{
+			counters = new ExpansionP2PMarketCounters();
+			m_PlayerDataCounters.Insert(listingOwnerUID, counters);
+		}
+		
+		if (!counters)
+		{
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not get counter data for player with UID " + playerUID);
 			CallbackError(identity);
 			return;
 		}
@@ -1145,10 +2470,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		if (listingOwnerUID == playerUID)
 			isOwner = true;
 
-		auto settings = GetExpansionSettings().GetP2PMarket();
 		int price = listing.GetPrice();
+		string typeName = listing.GetClassName();
 		string priceString = GetDisplayPrice(traderConfig, price, false, true, true);
-		int ownerDiscount = ((float) price / 100) * settings.ListingOwnerDiscountPercent;
+		int ownerDiscount = ((float) price / 100) * m_P2PMarketSettings.ListingOwnerDiscountPercent;
 		int ownerPrice = price - ownerDiscount;
 		string ownerPriceString = GetDisplayPrice(traderConfig, ownerPrice, false, true, true);
 		array<int> monies = new array<int>;
@@ -1156,19 +2481,19 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		int playerWorth = m_MarketModule.GetPlayerWorth(player, monies, currencies);
 		if (!isOwner && playerWorth < price)
 		{
-			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorNotEnoughMoney, listing.GetClassName(), price);
+			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorNotEnoughMoney, typeName, price);
 			return;
 		}
 		else if (isOwner && playerWorth < ownerPrice)
 		{
-			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorNotEnoughMoney, listing.GetClassName(), ownerPrice);
+			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorNotEnoughMoney, typeName, ownerPrice);
 			return;
 		}
 
 		vector spawnPositionVehicle;
 		bool isVehicle = false;
 
-		ExpansionVehicleType vehicleType = ExpansionVehicle.GetVehicleType(listing.GetClassName());
+		ExpansionVehicleType vehicleType = ExpansionVehicle.GetVehicleType(typeName);
 		switch (vehicleType)
 		{
 			case ExpansionVehicleType.WATER:
@@ -1186,34 +2511,38 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		if (vehicleType != ExpansionVehicleType.NONE)
 		{
 			isVehicle = true;
-			EXPrint(ToString() + "::RPC_RequestPurchaseBMItem - Vehicle type is " + typename.EnumToString(ExpansionVehicleType, vehicleType) + " | Spawn position: " + spawnPositionVehicle);
 		}
 
 		if (isVehicle && spawnPositionVehicle == vector.Zero)
 		{
-			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorNoVehicleSpawnPosition, listing.GetClassName());
+			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorNoVehicleSpawnPosition, typeName);
 			return;
 		}
 
 		Object blockingObject;
-		if (isVehicle && !ExpansionItemSpawnHelper.IsSpawnPositionFree(spawnPositionVehicle, Vector(0, 0, 0), listing.GetClassName(), blockingObject))
+		if (isVehicle && !ExpansionItemSpawnHelper.IsSpawnPositionFree(spawnPositionVehicle, Vector(0, 0, 0), typeName, blockingObject))
 		{
-			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleSpawnPositionBlocked, listing.GetClassName(), 0, 0, blockingObject);
+			CallbackError(identity, ExpansionP2PMarketModuleCallback.ErrorVehicleSpawnPositionBlocked, typeName, 0, 0, blockingObject);
 			return;
 		}
 		
 		string globalIDText = listing.GetEntityStorageBaseName();	//! @note: For logging purposes only
-			
 		EntityAI loadedEntity;
 		if (!LoadItem(listing, player, loadedEntity))
 		{
 			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASE_FAILED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_CANT_RESTORE_ITEM_DESC", globalIDText), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
 			CallbackError(identity);
-			Error(ToString() + "::RPC_RequestPurchaseBMItem - Could not restore stored item for listing: " + globalIDText);
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not restore stored item for listing: " + globalIDText);
 			return;
 		}
+		
+		ItemBase item = ItemBase.Cast(loadedEntity);
+		if (item)
+		{
+			item.Expansion_GetGlobalID().Acquire();
+		}
 
-	#ifdef EXPANSIONMODVEHICLE
+		#ifdef EXPANSIONMODVEHICLE
 		//! If the object is a vehicle we spawn a car key on the player and pair it to the vehicle
 		ExpansionCarKey key;
 		EntityAI playerEntity;
@@ -1222,53 +2551,70 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		ExpansionVehicle vehicle;
 		if (ExpansionVehicle.Get(vehicle, loadedEntity))
 		{
-			EXPrint(ToString() + "::RPC_RequestPurchaseBMItem - Change position of " + vehicle.GetType() + " | Current position: " + vehicle.GetPosition());
-
 			EntityAI vehicleEntity = vehicle.GetEntity();
 			vehicleEntity.SetPosition(spawnPositionVehicle);
 			vehicleEntity.PlaceOnSurface();
 			dBodyActive(vehicleEntity, ActiveState.ACTIVE);
 			vehicle.Synchronize();
 
-			EXPrint(ToString() + "::RPC_RequestPurchaseBMItem - New position of " + vehicle.GetType() + " | Position: " + vehicle.GetPosition());
-
 			key = ExpansionCarKey.Cast(ExpansionItemSpawnHelper.SpawnOnParent("ExpansionCarKey", player, playerEntity, amount));
 			vehicle.PairKey(key);
 			if (!vehicle.IsLocked())
 				vehicle.Lock(key); //! Lock vehicle if not locked already
 		}
-	#endif
+		#endif
 
 		if (!isOwner && !m_MarketModule.RemoveMoney(price, player, currencies))
 		{
-			Error(ToString() + "::RPC_RequestPurchaseBMItem - Could not remove money from player!");
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not remove money from player!");
 			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASE_FAILED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_CANT_REMOVE_MONEY_DESC"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
 			CallbackError(identity);
 			return;
 		}
 		else if (isOwner && !m_MarketModule.RemoveMoney(ownerPrice, player, currencies))
 		{
-			Error(ToString() + "::RPC_RequestPurchaseBMItem - Could not remove money from player!");
+			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not remove money from player!");
 			ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASE_FAILED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_CANT_REMOVE_MONEY_DESC"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
 			CallbackError(identity);
 			return;
 		}
 
+		UpdateListingCategoryData(listing, true); //! Update global/trader p2p market category data
+		
 		if (!isOwner)
 		{
-			listing.SetListingState(ExpansionP2PMarketListingState.SOLD);
-			listing.SetListingTime();
-			listing.Save();
+			ExpansionP2PMarketListing soldListing = new ExpansionP2PMarketListing();
+			soldListing.Copy(listing);
+
+			if (!RemoveListingByGlobalID(listingTraderID, globalID, traderConfig.IsGlobalTrader(), false, true))
+			{
+				soldListing = null;
+				EXError.Error(this, "::RPC_RequestPurchaseItem - Could not remove listing " + globalIDText);
+				ExpansionNotification("RPC_RequestPurchaseItem", "Could not remove listing " + globalIDText).Error(identity);
+				return;
+			}
+
+			soldListing.SetListingState(ExpansionP2PMarketListingState.SOLD);
+			soldListing.SetListingTime();
+			soldListing.Save();
+			
+			AddSoldListing(listingTraderID, soldListing);
+			
+			counters.m_SoldListingsCount++;
+			counters.m_SoldTotalIncome += listing.GetPrice();
+			counters.m_OwnedListingsCount--;
 		}
 		else
 		{
 			//! We remove the listing directly from the trader data as there is no need to
 			//! change the listing to the sold state when it is purchased by the listing owner.
-			if (!RemoveListingByGlobalID(traderID, globalID, traderConfig.IsGlobalTrader()))
+			if (!RemoveListingByGlobalID(listingTraderID, globalID, traderConfig.IsGlobalTrader(), false, true))
 			{
-				EXPrint(ToString() + " ::RPC_RequestPurchaseBMItem - could not remove listing " + globalIDText);
-				ExpansionNotification("RPC_RequestPurchaseBMItem", "Could not remove listing " + globalIDText).Error(identity);
+				EXError.Error(this, "::RPC_RequestPurchaseItem - Could not remove listing " + globalIDText);
+				ExpansionNotification("RPC_RequestPurchaseItem", "Could not remove listing " + globalIDText).Error(identity);
 			}
+
+			counters.m_OwnedListingsCount--;
 		}
 
 		int messagePrice;
@@ -1281,21 +2627,32 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			messagePrice = ownerPrice;
 		}
 
-		SendUpdatedTraderData(traderID, identity.GetId(), ExpansionP2PMarketModuleCallback.ItemPurchased, listing.GetClassName(), messagePrice);
+		ExpansionP2PMarketRequestData data = new ExpansionP2PMarketRequestData();
+		data.m_TraderID = traderID;
+		data.m_ListingTraderID = listingTraderID;
+		data.m_PageIndex = pageIndex;
+		data.m_CategoryIndex = categoryIndex;
+		data.m_SubCategoryIndex = subCategoryIndex;
+		data.m_OwnedListings = ownedListings;
+		data.m_CallbackType = ExpansionP2PMarketModuleCallback.ItemPurchased;
+		data.m_MessageTypeName = typeName;
+		data.m_MessagePrice = messagePrice;
+		
+		SendUpdatedTraderData(data, identity.GetId());
 		
 		if (!isOwner)
 		{
 			PlayerBase ownerPlayer = PlayerBase.GetPlayerByUID(listingOwnerUID);
 			if (ownerPlayer)
 			{
-				Callback(ownerPlayer.GetIdentity(), ExpansionP2PMarketModuleCallback.MsgItemGotSold, listing.GetClassName(), price);
+				Callback(ownerPlayer.GetIdentity(), ExpansionP2PMarketModuleCallback.MsgItemGotSold, typeName, price);
 			}
 		}
 		
 		if (GetExpansionSettings().GetLog().Market)
 		{
 			string messagePriceStringLog = string.Format("%1 (%2)", messagePrice, GetDisplayPrice(traderConfig, messagePrice, false, false, true));
-			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has purchased \"" + listing.GetClassName() + "\" for a price of " + messagePriceStringLog + " (globalID=" + globalIDText + ")");
+			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has purchased \"" + typeName + "\" for a price of " + messagePriceStringLog + " (globalID=" + globalIDText + ")");
 		}
 		
 		MissionBaseWorld missionWorld = MissionBaseWorld.Cast(GetGame().GetMission());
@@ -1308,42 +2665,42 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! Client
 	protected void RPC_Callback(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		int callback;
 		if (!ctx.Read(callback))
 		{
-			Error(ToString() + "::RPC_Callback - couldn't read callback");
+			EXError.Error(this, "::RPC_Callback - couldn't read callback");
 			return;
 		}
 
 		string type;
 		if (!ctx.Read(type))
 		{
-			Error(ToString() + "::RPC_Callback - couldn't read type");
+			EXError.Error(this, "::RPC_Callback - couldn't read type");
 			return;
 		}
 
 		int price;
 		if (!ctx.Read(price))
 		{
-			Error(ToString() + "::RPC_Callback - couldn't read price");
+			EXError.Error(this, "::RPC_Callback - couldn't read price");
 			return;
 		}
 
 		int option;
 		if (!ctx.Read(option))
 		{
-			Error(ToString() + "::RPC_Callback - couldn't read option");
+			EXError.Error(this, "::RPC_Callback - couldn't read option");
 			return;
 		}
 
 		Object blockingObject;
 		if (!ctx.Read(blockingObject))
 		{
-			Error(ToString() + "::RPC_Callback - couldn't read price");
+			EXError.Error(this, "::RPC_Callback - couldn't read price");
 			return;
 		}
 
@@ -1364,10 +2721,11 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 				priceString = ExpansionMarketModule.GetDisplayPriceEx(price);
 				localiser = new CF_Localiser("STR_EXPANSION_MARKET_P2P_MSG_ITEM_GOT_SOLD_NOTIFIER", displayName, priceString);
 				GetGame().Chat(localiser.Format(), "colorAction");
+				m_CallbackInvoker.Invoke(callback);
 				break;
 
 			default:
-				m_P2PMarketMenuCallbackInvoker.Invoke(callback, type, price, option, blockingObject);
+				m_CallbackInvoker.Invoke(callback, type, price, option, blockingObject);
 				break;
 		}
 	}
@@ -1389,44 +2747,44 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	
 	bool CheckCanUseTrader(PlayerBase player, ExpansionP2PMarketTraderConfig trader)
 	{
-	#ifdef ENFUSION_AI_PROJECT
+		#ifdef ENFUSION_AI_PROJECT
 		if (GetGame().IsServer() && trader.m_RequiredFaction != "")
 		{
 			if (!player.GetGroup() || player.GetGroup().GetFaction().GetName() != trader.m_RequiredFaction)
 			{
 				string factionDisplayname;
-			#ifdef EXPANSIONMODAI
+				#ifdef EXPANSIONMODAI
 				eAIFaction faction = eAIFaction.Create(trader.m_RequiredFaction);
 				factionDisplayname = faction.GetDisplayName();
-			#else
+				#else
 				factionDisplayname = trader.m_RequiredFaction;
-			#endif
+				#endif
 				ExpansionNotification("STR_EXPANSION_AI_FACTION", new StringLocaliser("STR_EXPANSION_AI_REQUIRED_FACTION_TRADER", factionDisplayname), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(player.GetIdentity());
 
 				return false;
 			}
 		}
-	#endif
+		#endif
 
 		return true;
 	}
 
 	protected bool StoreItem(ExpansionP2PMarketListing listing, EntityAI itemEntity)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		if (!itemEntity)
 		{
-			Error(ToString() + "::StoreItem - Could not get item entity!");
+			EXError.Error(this, "::StoreItem - Could not get item entity!");
 			return false;
 		}
 
 		bool success = ExpansionEntityStorageModule.SaveToFile(itemEntity, listing.GetEntityStorageFileName());
 		if (!success)
 		{
-			Error(ToString() + "::StoreVehicle - Could not store item entity!");
+			EXError.Error(this, "::StoreVehicle - Could not store item entity!");
 			return false;
 		}
 
@@ -1437,13 +2795,13 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected bool LoadItem(ExpansionP2PMarketListing listing, PlayerBase player, out EntityAI loadedEntity = null)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		if (!ExpansionEntityStorageModule.RestoreFromFile(listing.GetEntityStorageFileName(), loadedEntity, null, player))
 		{
-			Error(ToString() + "::LoadItem - Could not restore item " + listing.GetClassName() + " from file " + listing.GetEntityStorageFileName());
+			EXError.Error(this, "::LoadItem - Could not restore item " + listing.GetClassName() + " from file " + listing.GetEntityStorageFileName());
 			return false;
 		}
 
@@ -1499,9 +2857,9 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	ExpansionP2PMarketTraderConfig GetP2PTraderConfigByID(int id)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		ExpansionP2PMarketTraderConfig config;
 		if (m_P2PTraderConfig.Find(id, config))
@@ -1520,21 +2878,31 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		m_LocalEntityInventory = new ExpansionP2PMarketPlayerInventory(player);
 	}
 
-	ScriptInvoker GetP2PMarketMenuListingsSI()
+	ScriptInvoker GetListingsSI()
 	{
-		return m_P2PMarketMenuListingsInvoker;
+		return m_ListingsInvoker;
+	}
+	
+	ScriptInvoker GetListingDetailsSI()
+	{
+		return m_ListingDetailsInvoker;
 	}
 
-	ScriptInvoker GetP2PMarketMenuCallbackSI()
+	ScriptInvoker GetCallbackSI()
 	{
-		return m_P2PMarketMenuCallbackInvoker;
+		return m_CallbackInvoker;
+	}
+	
+	ScriptInvoker GetUpdateSI()
+	{
+		return m_UpdateInvoker;
 	}
 
 	static int GetDiscountPrice(int price)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, ExpansionP2PMarketModule);
-#endif 
+		#endif 
 		
 		int discountPrice = Math.Round((price / 100) * GetExpansionSettings().GetP2PMarket().ListingOwnerDiscountPercent);
 		return (price - discountPrice);
@@ -1544,33 +2912,51 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	//! If so we clean the listed item up form the market and entity storage.
 	protected void CheckListingsTimes()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		int timedif;
-		int maxListingTime = GetExpansionSettings().GetP2PMarket().MaxListingTime;
-		int salesDepositTime = GetExpansionSettings().GetP2PMarket().SalesDepositTime;
+		int maxListingTime = m_P2PMarketSettings.MaxListingTime;
+		int salesDepositTime = m_P2PMarketSettings.SalesDepositTime;
 		bool save;
+		int i;
 
-		if (!m_P2PListingsData || m_P2PListingsData.Count() == 0)
+		if (!m_ListingsData || m_ListingsData.Count() == 0)
 			return;
 
 		int currentTime = CF_Date.Now(true).GetTimestamp();
 
-		foreach (int traderID, array<ref ExpansionP2PMarketListing> listings: m_P2PListingsData)
+		foreach (int traderID, array<ref ExpansionP2PMarketListing> listings: m_ListingsData)
 		{
 			if (listings && listings.Count() > 0)
 			{
-				for (int i = listings.Count() - 1; i >= 0; i--)
+				for (i = listings.Count() - 1; i >= 0; i--)
 				{
 					ExpansionP2PMarketListing listing = listings[i];	
-					P2PDebugPrint("::CheckListingsTimes - Check lisitng: " + listing.GetEntityStorageFileName() + " | State: " + typename.EnumToString(ExpansionP2PMarketListingState, listing.GetListingState()) + " | Cooldown: " + listing.HasCooldown(salesDepositTime, timedif, currentTime));				
-					if (listing && (listing.GetListingState() == ExpansionP2PMarketListingState.LISTED || listing.GetListingState() == ExpansionP2PMarketListingState.SOLD) && !listing.HasCooldown(salesDepositTime, timedif, currentTime))
+					if (listing && !listing.HasCooldown(salesDepositTime, timedif, currentTime))
 					{
-						P2PDebugPrint("::CheckListingsTimes - Cleanup listed item from BM Trader with ID: " + traderID + " | Item Name: " + listing.GetClassName());
 						ExpansionEntityStorageModule.DeleteFiles(listing.GetEntityStorageBaseName());
 						listings.RemoveOrdered(i);
+					}
+				}
+			}
+		}
+		
+		if (!m_SoldListingsData || m_SoldListingsData.Count() == 0)
+			return;
+		
+		foreach (int soldTraderID, array<ref ExpansionP2PMarketListing> soldListings: m_SoldListingsData)
+		{
+			if (soldListings && soldListings.Count() > 0)
+			{
+				for (i = soldListings.Count() - 1; i >= 0; i--)
+				{
+					ExpansionP2PMarketListing soldListing = soldListings[i];	
+					if (soldListing && !soldListing.HasCooldown(salesDepositTime, timedif, currentTime))
+					{
+						ExpansionEntityStorageModule.DeleteFiles(soldListing.GetEntityStorageBaseName());
+						soldListings.RemoveOrdered(i);
 					}
 				}
 			}
@@ -1579,12 +2965,12 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected int GetPlayerListingsCount(string playerUID)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		int count;
-		foreach (int traderID, array<ref ExpansionP2PMarketListing> listings: m_P2PListingsData)
+		foreach (int traderID, array<ref ExpansionP2PMarketListing> listings: m_ListingsData)
 		{
 			foreach (ExpansionP2PMarketListing listing: listings)
 			{
@@ -1596,34 +2982,91 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		return count;
 	}
 
+	ExpansionP2PMarketCategoryListings GetCategoryListingsData(int categoryIndex, int subCategoryIndex = -1, int traderID = -1, bool isGlobal = false)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+
+		ExpansionP2PMarketCategoryListings categoryData;
+		array<ref ExpansionP2PMarketCategoryListings> dataArray;
+		if (isGlobal)
+		{
+			dataArray = m_CategoryListings[categoryIndex];
+		}
+		else
+		{
+			map<int, ref array<ref ExpansionP2PMarketCategoryListings>> categoriesMap = m_TraderCategoryListings[traderID];
+			dataArray = categoriesMap[categoryIndex];
+		}
+		
+		foreach (ExpansionP2PMarketCategoryListings data: dataArray)
+		{
+			if (subCategoryIndex == -1 && data.m_SubCategoryIndex == -1 || subCategoryIndex > -1 && data.m_SubCategoryIndex == subCategoryIndex)
+			{
+				categoryData = data;
+				break;
+			}
+		}
+	
+		return categoryData;
+	}
+		
 	protected array<ref ExpansionP2PMarketListing> GetTraderListings(int traderID)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
-		return m_P2PListingsData[traderID];
+		return m_ListingsData[traderID];
 	}
 
 	protected ExpansionP2PMarketListing GetListingByGlobalID(int traderID, TIntArray globalID, bool globalTrader = false)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
-
+		#endif
+		
+		string globalIDText = ExpansionStatic.IntToHex(globalID);
 		ExpansionP2PMarketListing listing;
-
 		if (traderID > -1 && !globalTrader)
 		{
-			array<ref ExpansionP2PMarketListing> listings = m_P2PListingsData[traderID];
+			array<ref ExpansionP2PMarketListing> listings = m_ListingsData[traderID];
 			if (listings)
-				listing = GetListingByGlobalID(listings, globalID);
+				listing = ExGetListingByGlobalID(listings, globalID);
 		}
-		else
+		else if (globalTrader)
 		{
-			foreach (int listingsTraderID, array<ref ExpansionP2PMarketListing> traderListings: m_P2PListingsData)
+			foreach (int listingsTraderID, array<ref ExpansionP2PMarketListing> dataListing: m_ListingsData)
 			{
-				listing = GetListingByGlobalID(traderListings, globalID);
+				listing = ExGetListingByGlobalID(dataListing, globalID);
+				if (listing)
+					break;
+			}
+		}
+
+		return listing;
+	}
+	
+	protected ExpansionP2PMarketListing GetSoldListingByGlobalID(int traderID, TIntArray globalID, bool globalTrader = false)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
+		string globalIDText = ExpansionStatic.IntToHex(globalID);
+		ExpansionP2PMarketListing listing;
+		if (traderID > -1 && !globalTrader)
+		{
+			array<ref ExpansionP2PMarketListing> listings = m_SoldListingsData[traderID];
+			if (listings)
+				listing = ExGetListingByGlobalID(listings, globalID);
+		}
+		else if (globalTrader)
+		{
+			foreach (int listingsTraderID, array<ref ExpansionP2PMarketListing> dataListing: m_SoldListingsData)
+			{
+				listing = ExGetListingByGlobalID(dataListing, globalID);
 				if (listing)
 					break;
 			}
@@ -1632,49 +3075,97 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		return listing;
 	}
 
-	protected ExpansionP2PMarketListing GetListingByGlobalID(array<ref ExpansionP2PMarketListing> listings, TIntArray globalID)
+	protected ExpansionP2PMarketListing ExGetListingByGlobalID(array<ref ExpansionP2PMarketListing> listings, TIntArray globalID)
 	{
+		string globalIDText = ExpansionStatic.IntToHex(globalID);
 		foreach (ExpansionP2PMarketListing listing: listings)
 		{
-			if (listing.IsGlobalIDValid() && listing.IsGlobalIDEqual(globalID))
+			bool isValid = listing.IsGlobalIDValid();
+			bool isEqual = listing.IsGlobalIDEqual(globalID);
+			string listingIDText = ExpansionStatic.IntToHex(listing.GetGlobalID());
+
+			if (isValid && isEqual)
 				return listing;
 		}
 
 		return null;
 	}
 
-	protected bool RemoveListingByGlobalID(int traderID, TIntArray globalID, bool globalTrader = false)
+	protected bool RemoveListingByGlobalID(int traderID, TIntArray globalID, bool globalTrader = false, bool deleteEntityStorageFile = false, bool deleteJSONFile = false)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 
 		if (traderID > -1 && !globalTrader)
 		{
-			array<ref ExpansionP2PMarketListing> listings = m_P2PListingsData[traderID];
-			if (listings)
-				return RemoveListingByGlobalID(traderID, listings, globalID);
+			array<ref ExpansionP2PMarketListing> listings = m_ListingsData[traderID];
+			if (listings && ExRemoveListingByGlobalID(traderID, listings, globalID, deleteEntityStorageFile, deleteJSONFile))
+			{
+				m_ListingsCount--;
+				return true;
+			}
 		}
 		else
 		{
-			foreach (int listingsTraderID, array<ref ExpansionP2PMarketListing> traderListings: m_P2PListingsData)
+			foreach (int listingsTraderID, array<ref ExpansionP2PMarketListing> dataListings: m_ListingsData)
 			{
-				if (RemoveListingByGlobalID(traderID, traderListings, globalID))
+				if (ExRemoveListingByGlobalID(traderID, dataListings, globalID, deleteEntityStorageFile, deleteJSONFile))
+				{
+					m_ListingsCount--;
 					return true;
+				}
 			}
 		}
 
 		return false;
 	}
 
-	protected bool RemoveListingByGlobalID(int traderID, array<ref ExpansionP2PMarketListing> listings, TIntArray globalID)
+	protected bool RemoveSoldListingByGlobalID(int traderID, TIntArray globalID, bool globalTrader = false, bool deleteEntityStorageFile = false, bool deleteJSONFile = false)
 	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif 
+		
+		if (traderID > -1 && !globalTrader)
+		{
+			array<ref ExpansionP2PMarketListing> listings = m_SoldListingsData[traderID];
+			if (listings && ExRemoveListingByGlobalID(traderID, listings, globalID, deleteEntityStorageFile, deleteJSONFile, true))
+			{
+				return true;
+			}
+		}
+		else
+		{
+			foreach (int listingsTraderID, array<ref ExpansionP2PMarketListing> dataListings: m_SoldListingsData)
+			{
+				if (ExRemoveListingByGlobalID(traderID, dataListings, globalID, deleteEntityStorageFile, deleteJSONFile, true))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+	
+	protected bool ExRemoveListingByGlobalID(int traderID, array<ref ExpansionP2PMarketListing> listings, TIntArray globalID, bool deleteEntityStorageFile = false, bool deleteJSONFile = false, bool soldListing = false)
+	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
+		string globalIDText = ExpansionStatic.IntToHex(globalID);
 		for (int i = listings.Count() - 1; i >= 0; i--)
 		{
 			ExpansionP2PMarketListing listing = listings[i];
-			if (listing.IsGlobalIDValid() && listing.IsGlobalIDEqual(globalID))
+			string listingIDText = ExpansionStatic.IntToHex(listing.GetGlobalID());
+			bool isValid = listing.IsGlobalIDValid();
+			bool isEqual = listing.IsGlobalIDEqual(globalID);
+
+			if (isValid && isEqual)
 			{
-				if (RemoveListing(traderID, listings, i))
+				if (RemoveListing(traderID, listings, i, deleteEntityStorageFile, deleteJSONFile, soldListing))
 					return true;
 			}
 		}
@@ -1682,21 +3173,75 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		return false;
 	}
 
-	protected bool RemoveListing(int traderID, array<ref ExpansionP2PMarketListing> listings, int index)
+	protected bool RemoveListing(int traderID, array<ref ExpansionP2PMarketListing> listings, int index, bool deleteEntityStorageFile = false, bool deleteJSONFile = false, bool soldListing = false)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif 
+		#endif 
 		
 		ExpansionP2PMarketListing listing = listings[index];
-		listings.RemoveOrdered(index);
-
+		if (!listing)
+		{
+			EXError.Error(this, "::RemoveListing - Failed to find listing data for index=" + index);
+			return false;
+		}
+		
 		string baseName = listing.GetEntityStorageBaseName();
-		ExpansionEntityStorageModule.DeleteFiles(baseName);
-		string filePath = GetP2PMarketDataDirectory() + "P2PTrader_" + traderID + "_Listings\\" + baseName + ".json";
-		if (FileExist(filePath))
-			return DeleteFile(filePath);
-		return false;
+		if (deleteEntityStorageFile)
+		{
+			if (!ExpansionEntityStorageModule.DeleteFiles(baseName))
+			{
+				EXError.Error(this, "::RemoveListing - Failed to delete listing entity storage file=" + baseName);
+				return false;
+			}
+		}
+		
+		if (deleteJSONFile)
+		{
+			string filePath = GetP2PMarketDataDirectory() + "P2PTrader_" + traderID + "_Listings\\" + baseName + ".json";
+			bool fileExists = FileExist(filePath);
+			if (!fileExists)
+			{
+				EXError.Error(this, "::RemoveListing - Failed to find listing file=" + filePath);
+				return false;
+			}
+			
+			bool deletedFile = DeleteFile(filePath);
+			if (!deletedFile)
+			{
+				EXError.Error(this, "::RemoveListing - Failed to delete listing file=" + filePath);
+				return false;
+			}
+		}
+
+		if (listings)
+		{
+			listings.RemoveOrdered(index);			
+			if (listings.Count() == 0)
+			{
+				if (!soldListing)
+				{
+					m_ListingsData.Remove(traderID);
+				}
+				else
+				{
+					m_SoldListingsData.Remove(traderID);
+				}
+			}
+			else
+			{
+				if (!soldListing)
+				{
+					m_ListingsData.Set(traderID, listings);
+				}
+				else
+				{
+					m_SoldListingsData.Set(traderID, listings);
+				}
+			}
+		}
+		
+		return true;
 	}
 
 	static bool ItemCheckEx(EntityAI item)
@@ -1717,16 +3262,16 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 				return false;
 		}
 
-	#ifdef WRDG_DOGTAGS
+		#ifdef WRDG_DOGTAGS
 		//! Don`t add players own dogtag
 		if (item.IsInherited(Dogtag_Base))
 		{
 			if (item.GetHierarchyRootPlayer())
 				return false;
 		}
-	#endif
+		#endif
 
-	#ifdef EXPANSIONMODQUESTS
+		#ifdef EXPANSIONMODQUESTS
 		//! Don`t add quest items
 		ItemBase itemIB;
 		if (Class.CastTo(itemIB, item))
@@ -1734,7 +3279,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			if (itemIB.Expansion_IsQuestItem() || itemIB.Expansion_IsQuestGiver())
 				return false;
 		}
-	#endif
+		#endif
 
 		if (!item.CanPutInCargo(null))
 			return false;
@@ -1774,8 +3319,8 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	void P2PDebugPrint(string text)
 	{
-	#ifdef EXPANSIONMODP2PMARKET_DEBUG
-		EXPrint(ToString() + text);
-	#endif
+		#ifdef EXPANSIONMODP2PMARKET_DEBUG
+		ErrorEx(text, ErrorExSeverity.INFO);
+		#endif
 	}
 };

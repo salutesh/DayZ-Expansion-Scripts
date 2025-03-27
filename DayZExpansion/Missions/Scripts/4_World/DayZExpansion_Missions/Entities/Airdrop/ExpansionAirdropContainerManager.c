@@ -146,11 +146,14 @@ class ExpansionAirdropContainerManager
 
 	void Send_SpawnParticle( string spawnPosStr )
 	{
+		if (!m_Container)
+			return;
+
 		vector spawnPos = spawnPosStr.ToVector();
 
-		auto rpc = ExpansionScriptRPC.Create(ExpansionAirdropContainerBase.s_Expansion_SpawnParticle_RPCID);
+		auto rpc = ExpansionScriptRPC.Create(ExpansionMissionModule.s_Expansion_SpawnParticle_RPCID);
 		rpc.Write( spawnPos );
-		PlayerBase.Expansion_Send(rpc, m_Container, true);
+		PlayerBase.Expansion_SendFar(rpc, m_Container.GetPosition(), null, true);
 	}
 
 	void SpawnInfected()
@@ -166,17 +169,22 @@ class ExpansionAirdropContainerManager
 			vector spawnPos = ExpansionMath.GetRandomPointInRing(m_Container.GetPosition(), InfectedSpawnRadius * 0.1, InfectedSpawnRadius);
 			spawnPos[1] = GetGame().SurfaceY( spawnPos[0], spawnPos[2] );
 
-			//! Have to convert vector to string for call queue
-
-			int additionalDelay;
-			if ( InfectedSpawnInterval > 0 )
-			{
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( Send_SpawnParticle, InfectedSpawnInterval * m_InfectedCount, false, spawnPos.ToString( false ) );
-				additionalDelay = Math.RandomFloat(100, 300);
-			}
-
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( CreateSingleInfected, InfectedSpawnInterval * m_InfectedCount + additionalDelay, false, spawnPos.ToString( false ), m_InfectedCount );
+			SpawnSingleInfected(spawnPos);
 		}
+	}
+
+	void SpawnSingleInfected(vector spawnPos)
+	{
+		//! Have to convert vector to string for call queue
+
+		int additionalDelay;
+		if ( InfectedSpawnInterval > 0 )
+		{
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( Send_SpawnParticle, InfectedSpawnInterval * m_InfectedCount, false, spawnPos.ToString( false ) );
+			additionalDelay = Math.RandomFloat(100, 300);
+		}
+
+		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( CreateSingleInfected, InfectedSpawnInterval * m_InfectedCount + additionalDelay, false, spawnPos.ToString( false ), m_InfectedCount );
 	}
 
 	void CreateSingleInfected( string spawnPosStr, int count )
@@ -263,16 +271,19 @@ class ExpansionAirdropContainerManager
 		
 		string markerName = "#STR_EXPANSION_AIRDROP_SYSTEM_TITLE";
 		if ( GetExpansionSettings().GetAirdrop().ShowAirdropTypeOnMarker )
-			markerName = m_Container.Expansion_GetDisplayNameRaw();
+		{
+			markerName = m_Container.ConfigGetStringRaw("displayName");
+			GetGame().FormatRawConfigStringKeys(markerName);
+		}
 		
-		vector surfacePosition = ExpansionStatic.GetSurfacePosition(m_Container.m_SpawnPosition);
+		vector surfacePosition = ExpansionStatic.GetSurfacePosition(m_Container.m_Expansion_SpawnPosition);
 
 		vector hitPosition;
 		vector contactDir;
 		int contactComponent;
 		set<Object> results = new set<Object>;
 
-		if (!DayZPhysics.RaycastRV(m_Container.m_SpawnPosition, surfacePosition, hitPosition, contactDir, contactComponent, results, null, m_Container))
+		if (!DayZPhysics.RaycastRV(m_Container.m_Expansion_SpawnPosition, surfacePosition, hitPosition, contactDir, contactComponent, results, null, m_Container))
 			hitPosition = surfacePosition;
 
 		m_ServerMarker = m_MarkerModule.CreateServerMarker( markerName, "Airdrop", hitPosition, ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation );

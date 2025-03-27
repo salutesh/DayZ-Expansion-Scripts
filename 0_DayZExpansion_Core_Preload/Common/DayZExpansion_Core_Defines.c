@@ -68,13 +68,6 @@
 //! Used for third party mods, if they want to know if expansion is loaded
 #define EXPANSIONMODCORE
 
-#ifndef CF_DOUBLYLINKEDNODES
-#define EXPANSION_DOUBLYLINKEDNODES
-#ifndef JM_COT_DOUBLYLINKEDNODES
-#define EXPANSION_DOUBLYLINKEDNODES_WEAKREF
-#endif
-#endif
-
 #ifdef CF_DebugUI
 #define EXPANSION_DEBUG_UI_AI
 #define EXPANSION_DEBUG_UI_HOLOGRAM
@@ -89,7 +82,11 @@
 
 #ifdef DabsFramework
 #define EXPANSIONUI
+#else
+#ifdef WORKBENCH
+#define EXPANSIONUI
+#endif
 #endif
 
 //! Versioning - NEW - do NOT add/change manually, will be added/changed during build with CI.bat!
-#define EXPANSION_1_9_15
+#define EXPANSION_1_9_18

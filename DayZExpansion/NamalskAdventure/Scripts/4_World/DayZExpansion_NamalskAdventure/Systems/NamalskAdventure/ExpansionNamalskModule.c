@@ -35,7 +35,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected bool m_EVRStormActive;
 	protected bool m_EVRStormBlowout;
 
-#ifdef EXPANSION_NAMALSK_ADVENTURE
 	protected SV_Abandoned_Sattelite_Antenna m_AbdonedSatellite;
 #ifdef EXPANSIONMODTELEPORTER
 	protected Expansion_Teleporter_Big m_SatelliteTeleporter;
@@ -88,7 +87,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected Land_Underground_Panel m_A1BunkerEntrancePanel;
 	protected Land_Underground_Panel_Lever m_A1BunkerEntranceLeaver;
 	protected Land_Underground_Panel_Lever m_A1BunkerFakeEntranceLeaver;
-#endif
 
 	protected const float SUPPLY_CRATES_CHECK_TIME = 60.0; //! 1 minute tick
 	protected float m_SupplyCratesCheckTimer;
@@ -229,13 +227,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		if (GetExpansionSettings().GetNamalskAdventure().EnableSupplyCrates)
 			SpawnSupplyCrates();
 
-	#ifdef EXPANSION_NAMALSK_ADVENTURE
 		if (GetExpansionSettings().GetNamalskAdventure().EnableAntennaEvent)
 			SpawnSatelliteAntennaObjects(); //! @note: Secret antenna event objects. Not finished yet!
 		
 		if (GetExpansionSettings().GetNamalskAdventure().EnableA1BunkerEvent)
 			SpawnA1Bunker(); //! @note: A1 bunker event objects.
-	#endif
 	}
 
 	protected void ClientModuleInit()
@@ -796,7 +792,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	#endif
 	*/
 
-#ifdef EXPANSION_NAMALSK_ADVENTURE
 	//! @note: Condition check if a EVR storm is currently active.
 	bool IsEVRStormActive()
 	{
@@ -1224,7 +1219,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker fake entrance panel at position: " + m_A1BunkerEntranceLeaver.GetPosition());
 		}
 	}
-#endif
 
 	//! @note: Method that handles spawning of configured supply crates in the ExpansionNamalskAdventureSettings class with there loot on mission load.
 	protected void SpawnSupplyCrates()
@@ -1267,7 +1261,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	//! @note: Server side update loop
 	protected void OnUpdateServer(float deltaTime)
 	{
-	#ifdef EXPANSION_NAMALSK_ADVENTURE
 	#ifdef NAMALSK_SURVIVAL
 		//! Satellite cry sound FX
 		m_SatelliteCryTimer += deltaTime;
@@ -1303,7 +1296,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			Expansion_SupplyCrate_Base.s_Expansion_AllSupplyCrates.Each(s_SupplyCratesCheckSC);
 			m_SupplyCratesCheckTimer = 0;
 		}
-	#endif
 
 		//! Events on EVR Storms - Not used yet
 		/*m_UpdateQueueTimer += deltaTime;
@@ -1319,7 +1311,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		}*/
 	}
 
-#ifdef EXPANSION_NAMALSK_ADVENTURE
 	protected void OnSupplyCrateCheck(Expansion_SupplyCrate_Base supplyCrate)
 	{
 #ifdef EXTRACE
@@ -1367,7 +1358,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			}
 		}
 	}
-#endif
 	
 	//! @note: Client side update loop
 	protected void OnUpdateClient(float deltaTime)
@@ -1376,7 +1366,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		if (m_ClientUpdateTimer >= CLIENT_UPDATE_TIME && GetGame().GetPlayer())
 		{
 			//! @note: Preload A1 Bunker objects on client when the client is near bunker entrance position. 
-		#ifdef EXPANSION_NAMALSK_ADVENTURE
 			float dist = vector.Distance(m_A1_Bunker_TeleporterPos, GetGame().GetPlayer().GetPosition());
 			if (dist < 200)
 			{
@@ -1395,7 +1384,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 				GetGame().PreloadObject("Expansion_Teleporter_Big", 3000);
 			#endif
 			}
-		#endif
 
 			m_ClientUpdateTimer = 0;
 		}

@@ -110,7 +110,7 @@ class eAIFormation
 
 	static typename GetType(string formationName)
 	{
-		if (formationName == "RANDOM")
+		if (formationName == "RANDOM" || formationName == "")
 			return s_FormationTypes.GetRandomElement();
 		return ("eAIFormation" + formationName).ToType();
 	}

@@ -1,21 +1,24 @@
 modded class ActionGetOutTransport
 {
-	override void OnStart(ActionData action_data)
+	override void ProcessGetOutTransportActionData(Transport veh, GetOutTransportActionData got_action_data)
 	{
-		super.OnStart(action_data);
+		super.ProcessGetOutTransportActionData(veh, got_action_data);
 
-		auto got_action_data = GetOutTransportActionData.Cast(action_data);
-		if (!got_action_data.m_WasJumpingOut)
+		//! @note 2 km/h is the speed damage threshold in EntityAI::RegisterTransportHit
+		if (got_action_data.m_Speed < 2)
+			return;
+
+		//! As long as driver is in seat, we don't need to target vehicle since driver will be targeted anyway if a threat
+		if (veh.CrewMemberIndex(got_action_data.m_Player) != DayZPlayerConstants.VEHICLESEAT_DRIVER)
 			return;
 
 		//! If player is targeted while jumping out vehicle, target vehicle
-		auto playerTargetInfo = action_data.m_Player.GetTargetInformation();
+		auto playerTargetInfo = got_action_data.m_Player.GetTargetInformation();
 		if (!playerTargetInfo.IsTargetted())
 			return;
 
-		auto vehCmd = action_data.m_Player.GetCommand_Vehicle();
 		CarScript vehicle;
-		if (!Class.CastTo(vehicle, vehCmd.GetTransport()))
+		if (!Class.CastTo(vehicle, veh))
 			return;
 	
 		auto vehicleTargetInfo = vehicle.GetTargetInformation();

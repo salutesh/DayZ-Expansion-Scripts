@@ -202,7 +202,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		else
 			m_eAI_MeleeAttackType = m_AI.GetMeleeFightLogic().eAI_GetAttackTypeByDistanceToTarget(EntityAI.Cast(m_TargetObject), m_TargetType);
 
-		//m_AI.SetOrientation(m_AI.GetOrientation());
+		m_AI.SetOrientation(m_AI.GetOrientation());
 
 		//! https://feedback.bistudio.com/T173348
 		if (m_HitType == EMeleeHitType.HEAVY || m_HitType == EMeleeHitType.WPN_STAB)

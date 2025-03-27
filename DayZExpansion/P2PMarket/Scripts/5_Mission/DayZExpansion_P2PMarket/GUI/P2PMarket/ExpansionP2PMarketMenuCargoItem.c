@@ -14,9 +14,6 @@ class ExpansionP2PMarketMenuCargoItem: ExpansionP2PMarketMenuItemBase
 {
 	void ExpansionP2PMarketMenuCargoItem(ExpansionP2PMarketListingBase item, ExpansionP2PMarketMenu menu)
 	{
-		EXPrint(ToString() + "::ExpansionP2PMarketMenuCargoItem - Container item: " + item.ToString());
-		EXPrint(ToString() + "::ExpansionP2PMarketMenuCargoItem - Container item class name: " + item.GetClassName());
-
 		SetView();
 	}
 

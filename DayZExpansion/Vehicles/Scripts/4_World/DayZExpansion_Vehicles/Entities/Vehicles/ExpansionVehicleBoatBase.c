@@ -37,6 +37,10 @@ class ExpansionVehicleBoatBase: ExpansionVehicleCarBase
 	
 	override string GetVehicleType()
 	{
+		//! Use car HUD instead of boat HUD if there are more than the minimum 3 gears (reverse, neutral, forward/1st)
+		if (m_Gearboxes[m_CurrentEngine] && m_Gearboxes[m_CurrentEngine].Count() > 3)
+			return "VehicleTypeCar";
+
 		return "ExpansionVehicleTypeBoat";
 	}
 

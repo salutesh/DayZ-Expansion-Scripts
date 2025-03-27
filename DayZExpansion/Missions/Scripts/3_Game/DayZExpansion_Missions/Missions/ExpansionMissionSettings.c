@@ -39,17 +39,11 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
-	// ------------------------------------------------------------
-	// ExpansionMissionSettings Constructor
-	// ------------------------------------------------------------
 	void ExpansionMissionSettings()
 	{		
 		Missions = new array< ref ExpansionMissionMeta >;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule OnRecieve
-	// ------------------------------------------------------------
+
 	//TODO: COT module sending optimization
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
@@ -58,17 +52,11 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMissionModule Send
-	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
 		//! Don't send to client
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMissionModule Copy
-	// ------------------------------------------------------------
 	override bool Copy( ExpansionSettingBase setting )
 	{
 		ExpansionMissionSettings s;
@@ -79,9 +67,6 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMissionModule CopyInternal
-	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionMissionSettings s )
 	{
 		int i = 0;
@@ -100,25 +85,16 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		MinPlayersToStartMissions = s.MinPlayersToStartMissions;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMissionModule IsLoaded
-	// ------------------------------------------------------------
 	override bool IsLoaded()
 	{
 		return m_IsLoaded;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMissionModule Unload
-	// ------------------------------------------------------------
 	override void Unload()
 	{
 		m_IsLoaded = false;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMissionModule OnLoad
-	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
 #ifdef EXPANSIONTRACE
@@ -173,9 +149,6 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		return missionSettingsExist;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMissionModule OnSave
-	// ------------------------------------------------------------
 	override bool OnSave()
 	{
 		Print("[ExpansionMissionSettings] Saving settings");
@@ -187,9 +160,6 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMissionModule Defaults
-	// ------------------------------------------------------------
 	override void Defaults()
 	{
 		m_Version = VERSION;

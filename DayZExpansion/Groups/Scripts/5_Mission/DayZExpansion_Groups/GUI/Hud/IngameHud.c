@@ -13,22 +13,24 @@
 #ifdef EXPANSIONMODGROUPSHUD
 modded class IngameHud
 {
-	protected ref ExpansionPartyHud m_PartyHUD;
+	protected ref ExpansionPartyHud m_Expansion_PartyHud;
 	protected bool m_ExpansionPartyHUDState;
-	protected ExpansionPartyModule m_PartyModule;
-	protected bool m_ShowPartyHUD;
+	protected ExpansionPartyModule m_Expansion_PartyModule;
+	protected bool m_Expansion_ShowPartyHUD;
+	ref ExpansionPartySettings m_Expansion_PartySettings;
 
 	void IngameHud()
 	{
-		m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
+		m_Expansion_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
+		m_Expansion_PartySettings = GetExpansionSettings().GetParty(false);
 	}
 	
 	void ~IngameHud()
 	{
-		if (m_ShowPartyHUD)
+		if (m_Expansion_ShowPartyHUD)
 		{
-			if (m_PartyModule && m_PartyModule.m_PartyHUDInvoker)
-				m_PartyModule.m_PartyHUDInvoker.Remove(UpdatePartyHUD);
+			if (m_Expansion_PartyModule && m_Expansion_PartyModule.m_PartyHUDInvoker)
+				m_Expansion_PartyModule.m_PartyHUDInvoker.Remove(UpdatePartyHUD);
 		}
 	}
 
@@ -36,32 +38,32 @@ modded class IngameHud
 	{
 		super.Update(timeslice);
 		
-		if (!GetExpansionSettings().GetParty(false).IsLoaded())
+		if (!m_Expansion_PartySettings.IsLoaded())
 			return;
 		
-		if (!m_ShowPartyHUD)
-			m_ShowPartyHUD = GetExpansionSettings().GetParty().ShowPartyMemberHUD;
+		if (!m_Expansion_ShowPartyHUD)
+			m_Expansion_ShowPartyHUD = m_Expansion_PartySettings.ShowPartyMemberHUD;
 
-		if (m_ShowPartyHUD)
+		if (m_Expansion_ShowPartyHUD)
 		{
-			if (!m_PartyHUD)
+			if (!m_Expansion_PartyHud)
 			{
-				m_PartyHUD = new ExpansionPartyHud();
-				if (m_PartyModule && m_PartyModule.m_PartyHUDInvoker)
-					m_PartyModule.m_PartyHUDInvoker.Insert(UpdatePartyHUD);
+				m_Expansion_PartyHud = new ExpansionPartyHud();
+				if (m_Expansion_PartyModule && m_Expansion_PartyModule.m_PartyHUDInvoker)
+					m_Expansion_PartyModule.m_PartyHUDInvoker.Insert(UpdatePartyHUD);
 			}
 		}
 	}
 
 	void UpdatePartyHUD()
 	{
-		if (!m_PartyHUD)
+		if (!m_Expansion_PartyHud)
 			return;
 
 		map<string, string> partyPlayers = new map<string, string>;
-		if (m_PartyModule)
+		if (m_Expansion_PartyModule)
 		{
-			ExpansionPartyData partyData = m_PartyModule.GetParty();
+			ExpansionPartyData partyData = m_Expansion_PartyModule.GetParty();
 			if (partyData && partyData.GetPlayers().Count() > 0)
 			{
 				array<ref ExpansionPartyPlayerData> members = partyData.GetPlayers();
@@ -70,12 +72,12 @@ modded class IngameHud
 					partyPlayers.Insert(members[i].UID, members[i].Name);
 				}
 
-				if (m_PartyHUD)
-					m_PartyHUD.UpdateMembers(partyPlayers);
+				if (m_Expansion_PartyHud)
+					m_Expansion_PartyHud.UpdateMembers(partyPlayers);
 			}
-			else if (!partyData && m_PartyHUD)
+			else if (!partyData && m_Expansion_PartyHud)
 			{
-				m_PartyHUD.ClearMembers();
+				m_Expansion_PartyHud.ClearMembers();
 			}
 		}
 	}
@@ -105,12 +107,12 @@ modded class IngameHud
 	{
 		super.RefreshHudVisibility();
 
-		if (m_PartyHUD)
+		if (m_Expansion_PartyHud)
 		{
-			if (m_IsHudVisible && m_ExpansionPartyHUDState)
-				m_PartyHUD.Show(true);
+			if (Expansion_CanShowHUDElements() && m_ExpansionPartyHUDState)
+				m_Expansion_PartyHud.Show(true);
 			else
-				m_PartyHUD.Show(false);
+				m_Expansion_PartyHud.Show(false);
 		}
 	}
 };

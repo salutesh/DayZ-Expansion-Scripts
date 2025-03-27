@@ -440,7 +440,7 @@ class eAICommandMove: ExpansionHumanCommand
 						m_PathFinding.m_IsUnreachable = true;
 						m_PathFinding.m_IsTargetUnreachable = true;
 					}
-					else if ((m_PathFinding.m_IsUnreachable || m_PathFinding.m_IsTargetUnreachable) && m_Unit.m_eAI_BuildingWithLadder && m_PathFinding.m_Count > 0)
+					else if ((m_PathFinding.m_IsUnreachable || m_PathFinding.m_IsTargetUnreachable) && m_Unit.m_eAI_BuildingWithLadder && m_PathFinding.m_Count > 0 && !m_PathFinding.m_IsBlocked)
 					{
 						m_PathFinding.ForceRecalculate();
 					}
@@ -503,6 +503,7 @@ class eAICommandMove: ExpansionHumanCommand
 		bool blockedRight;
 		bool blockedBackward;
 
+		bool moveLeft;
 		bool moveRight;
 		bool backPedal;
 		bool turnOverride;
@@ -553,7 +554,7 @@ class eAICommandMove: ExpansionHumanCommand
 
 		bool isBusy;
 
-		if (m_Unit.IsClimbing() || m_Unit.IsFalling() || m_Unit.IsFighting() || m_Unit.m_eAI_IsOnLadder)
+		if (m_Unit.IsClimbing() || m_Unit.IsFalling() || m_Unit.IsFighting())
 			isBusy = true;
 
 		//! Try and avoid obstacles if we are moving and not busy with other actions
@@ -622,7 +623,7 @@ class eAICommandMove: ExpansionHumanCommand
 					speedThreshold = 2.0 * m_MovementSpeed;  //! Jog/sprint
 				speedThreshold *= (1.0 - m_Unit.m_InjuryHandler.GetInjuryAnimValue() * 0.9);
 			}
-			if (velocity.LengthSq() < speedThreshold && !m_Unit.GetActionManager().GetRunningAction() && !m_Unit.IsRaised())
+			if (velocity.LengthSq() < speedThreshold && !m_Unit.GetActionManager().GetRunningAction() && !m_Unit.IsRaised() && !m_Unit.m_eAI_IsOnLadder)
 				m_Unit.m_eAI_PositionTime += pDt;  //! We don't seem to be actually moving
 			else
 				m_Unit.m_eAI_PositionTime = 0;
@@ -635,6 +636,9 @@ class eAICommandMove: ExpansionHumanCommand
 			//! Only check bwd if we are moving bwd, else check fwd
 			if (Math.AbsFloat(m_MovementDirection) >= 135)
 			{
+				if (m_Unit.m_eAI_IsOnLadder)
+					fb = "0 -1 0";
+
 				if (!m_Unit.IsRaised())
 				{
 					checkDir = position - 0.5 * fb;
@@ -655,8 +659,17 @@ class eAICommandMove: ExpansionHumanCommand
 			}
 			else
 			{
-				fb = m_PathDirNormalized;
-				checkDir = position + 0.5 * fb;
+				if (m_Unit.m_eAI_IsOnLadder)
+				{
+					fb = "0 1 0";
+					checkDir = position + 1.5 * fb;
+				}
+				else
+				{
+					fb = m_PathDirNormalized;
+					checkDir = position + 0.5 * fb;
+				}
+
 				blockedForward = this.Raycast(position, checkDir, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed, 0.5, true, m_BlockingObject, true);
 
 				if (!blockedForward && m_Unit.m_eAI_PositionTime > 3.0)
@@ -699,6 +712,14 @@ class eAICommandMove: ExpansionHumanCommand
 				m_OverrideMovementTimeout = 0;
 				m_OverrideTargetMovementDirection = 0;
 				m_ForceMovementDirection = true;
+			}
+			else if (m_Unit.m_eAI_IsOnLadder)
+			{
+				if (m_Unit.m_eAI_BlockedTime > 2.0)
+				{
+					m_Unit.m_eAI_LadderClimbDirection *= -1;
+					m_Unit.m_eAI_BlockedTime = 0;
+				}
 			}
 			//! Check left/right/bwd if blocked forward or already overriding movement
 			else if (blockedFwdOrBwd || m_OverrideMovementTimeout > 0)
@@ -751,9 +772,16 @@ class eAICommandMove: ExpansionHumanCommand
 					//! Ready to play pinball
 
 					//! Check which direction we want to move. Moving left is always the fall-through case
-					if ((blockedLeft && blockedRight) || m_TurnOverride)
+					if (m_TurnOverride)
 					{
 						turnOverride = true;
+					}
+					else if (blockedLeft && blockedRight)
+					{
+						//! This helps when on the catwalk of (e.g.) Land_Factory_Small so don't instantly start turning around
+						//! our own axis at the corners
+						if (m_Unit.m_eAI_BlockedTime > 0.2)
+							turnOverride = true;
 					}
 					else if (blockedLeft && !blockedRight)
 					{
@@ -775,12 +803,13 @@ class eAICommandMove: ExpansionHumanCommand
 								EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, already moving right, keep moving right");
 							#endif
 							}
-						#ifdef EAI_DEBUG_MOVE
 							else
 							{
+								moveLeft = true;
+							#ifdef EAI_DEBUG_MOVE
 								EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, already moving left, keep moving left");
+							#endif
 							}
-						#endif
 						}
 						//! 50% chance move right if neither blocked left/right
 						else if (Math.RandomIntInclusive(0, 1))
@@ -790,19 +819,21 @@ class eAICommandMove: ExpansionHumanCommand
 							EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, move right");
 						#endif
 						}
-					#ifdef EAI_DEBUG_MOVE
 						else
 						{
+							moveLeft = true;
+						#ifdef EAI_DEBUG_MOVE
 							EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, move left");
+						#endif
 						}
-					#endif
 					}
-				#ifdef EAI_DEBUG_MOVE
 					else
 					{
+						moveLeft = true;
+					#ifdef EAI_DEBUG_MOVE
 						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked right, move left");
+					#endif
 					}
-				#endif
 
 					if (backPedal)
 					{
@@ -860,7 +891,7 @@ class eAICommandMove: ExpansionHumanCommand
 						m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_OK, "0 0 0", "ExpansionDebugArrow_Blue");
 						m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_GO, position - 0.5 * lr + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow", -lr);
 					}
-					else
+					else if (moveLeft)
 					{
 						//! Go left
 						m_OverrideTargetMovementDirection = -90.0;
@@ -1124,22 +1155,38 @@ class eAICommandMove: ExpansionHumanCommand
 
 		if (m_MovementSpeed > 0.0 && m_Waypoint != position && m_Unit.m_eAI_PositionTime > 3.0 && !m_Unit.IsClimbing() && !m_Unit.IsFalling())
 		{
-			surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
-			if (waypoint[1] < surfacePosition[1])
-				waypoint = surfacePosition;
-
-			float distSq = vector.DistanceSq(position, waypoint);
-			if (distSq < 16.0 && Math.AbsFloat(waypoint[1] - position[1]) < 3.0)
+			if (m_BlockingObject && m_BlockingObject.IsBuilding())
 			{
-				m_Unit.SetPosition(waypoint);  //! OH GOD THE HACKS
-				hasReachedWaypoint = true;
-				m_Unit.m_eAI_PositionTime = 0.0;
+				if (m_PathFinding.m_IsJumpClimb)
+				{
+					if (m_PathFinding.m_AllowJumpClimb)
+						m_PathFinding.SetAllowJumpClimb(false, 15.0);
+				}
+				else
+				{
+					m_PathFinding.m_IsUnreachable = true;
+					m_PathFinding.m_IsTargetUnreachable = true;
+				}
+			}
+			else
+			{
+				surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
+				if (waypoint[1] < surfacePosition[1])
+					waypoint = surfacePosition;
 
-			#ifdef DIAG_DEVELOPER
-				msg = "Teleported from " + position + " to " + waypoint + " (" + Math.Sqrt(distSq) + " m)";
-				EXTrace.Print(EXTrace.AI, m_Unit, msg);
-				ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100, m_Unit.ToString() + " " + msg);
-			#endif
+				float distSq = vector.DistanceSq(position, waypoint);
+				if (distSq < 16.0 && Math.AbsFloat(waypoint[1] - position[1]) < 3.0)
+				{
+					m_Unit.SetPosition(waypoint);  //! OH GOD THE HACKS
+					hasReachedWaypoint = true;
+					m_Unit.m_eAI_PositionTime = 0.0;
+
+				#ifdef DIAG_DEVELOPER
+					msg = "Teleported from " + position + " to " + waypoint + " (" + Math.Sqrt(distSq) + " m)";
+					EXTrace.Print(EXTrace.AI, m_Unit, msg);
+					ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100, m_Unit.ToString() + " " + msg);
+				#endif
+				}
 			}
 		}
 
@@ -1187,11 +1234,30 @@ class eAICommandMove: ExpansionHumanCommand
 			m_UpdatePath = false;
 		}
 
-		if (m_PathFinding.m_IsTargetUnreachable && m_PathFinding.GetRemainingCount() <= 2 && !m_Unit.m_eAI_IsOnLadder && m_Unit.m_eAI_Ladder && m_Unit.m_eAI_BuildingWithLadder)
+		/**
+		 * If AI has a ladder it tries to reach, is not on ladder, has a building with ladder and current raw (not navmesh sampled)
+		 * target position is ladder entrypoint, we check if the ladder is reachable, and discard it if not
+		 */
+		if (m_Unit.m_eAI_Ladder && !m_Unit.m_eAI_IsOnLadder && m_Unit.m_eAI_BuildingWithLadder && m_PathFinding.m_CurrentTargetPosition == m_Unit.m_eAI_LadderEntryPoint)
 		{
 			vector end = m_PathFinding.GetEnd();
 
-			if (Math.IsPointInCircle(end, UAMaxDistances.LADDERS, position) && Math.IsPointInCircle(m_Unit.m_eAI_LadderEntryPoint, UAMaxDistances.LADDERS, m_PathFinding.GetTarget()) && vector.DistanceSq(end, m_PathFinding.GetTarget()) >= 4.0 && !m_Unit.eAI_IsCloseToLadderEntryPoint())
+			/**
+			 * This comically complex check deals with discarding unreachable ladders if any of the following conditions is true:
+			 * 
+			 * - Navmesh sampled target position is not close enough to ladder entrypoint
+			 * OR
+			 * - Path endpoint is reasonably close to navmesh sampled target (so we know we are at the end),
+			 *   but path endpoint is not close enough to ladder entrypoint
+			 * OR
+			 * - AI has no more path points on way to target position and is close to path endpoint, but...
+			 *   ...path endpoint is too far from navmesh sampled target
+			 *   OR
+			 *   ...AI is too far from ladder entrypoint
+			 *   OR
+			 *   ...AI cannot reach ladder entrypoint (e.g. physically blocked)
+			 */
+			if (!Math.IsPointInCircle(m_Unit.m_eAI_LadderEntryPoint, UAMaxDistances.LADDERS, m_PathFinding.GetTarget()) || (vector.DistanceSq(end, m_PathFinding.GetTarget()) < 4.0 && !Math.IsPointInCircle(m_Unit.m_eAI_LadderEntryPoint, UAMaxDistances.LADDERS, end)) || (m_PathFinding.GetRemainingCount() <= 2 && Math.IsPointInCircle(end, 0.55, position) && (vector.DistanceSq(end, m_PathFinding.GetTarget()) >= 4.0 || !m_Unit.eAI_IsCloseToLadderEntryPoint() || !m_Unit.eAI_CanReachLadderEntryPoint())))
 			{
 				//! Remove unreachable ladder from pool
 				if (m_Unit.m_eAI_BuildingWithLadder.Expansion_GetLaddersCount() > 1)
@@ -1211,7 +1277,7 @@ class eAICommandMove: ExpansionHumanCommand
 			//SetTargetSpeed(Math.Lerp(m_MovementSpeed, 3.0, pDt * 4.0));
 			m_TargetSpeed = 3.0;
 		}
-		else if (m_Unit.m_eAI_PositionIsFinal)
+		else if (m_Unit.m_eAI_PositionIsFinal || m_PathFinding.m_IsUnreachable || m_Unit.m_eAI_IsAttachedToMovingParent || m_Unit.GetFSM().IsInState("Idle"))
 		{
 		//#ifdef DIAG_DEVELOPER
 			//dbgObj = m_Unit.m_Expansion_DebugObjects[11106];
@@ -1365,7 +1431,7 @@ class eAICommandMove: ExpansionHumanCommand
 		}
 	#endif
 
-		if (m_Stance != -1 && (m_Stance != m_Unit.eAI_GetStance() || m_ForceStance) && m_StanceChangeTimeout <= 0.0 && !isBusy && !m_Unit.IsSwimming() && !m_Unit.GetEmoteManager().IsEmotePlaying() && !m_Unit.GetActionManager().GetRunningAction())
+		if (m_Stance != -1 && (m_Stance != m_Unit.eAI_GetStance() || m_ForceStance) && m_StanceChangeTimeout <= 0.0 && !isBusy && !m_Unit.IsSwimming() && !m_Unit.GetEmoteManager().IsEmotePlaying() && !m_Unit.GetActionManager().GetRunningAction() && !m_Unit.m_eAI_IsOnLadder)
 		{
 			//! Can't go from erect to prone or prone to erect directly, need to crouch first
 			//! else it breaks character to surface alignment and hitbox
@@ -1405,7 +1471,7 @@ class eAICommandMove: ExpansionHumanCommand
 			m_ForceStance = false;
 		}
 
-		if (!IsChangingStance() && !isBusy && !m_Unit.IsSwimming() && !m_Unit.GetEmoteManager().IsEmotePlaying())
+		if (!IsChangingStance() && !isBusy && !m_Unit.IsSwimming() && !m_Unit.GetEmoteManager().IsEmotePlaying() && !m_Unit.m_eAI_IsOnLadder)
 		{
 			//! Head position standing 1.6m, crouched 1m, prone 0.3m
 			//! + 0.2m = full character height (not including gear)
@@ -1642,9 +1708,9 @@ class eAICommandMove: ExpansionHumanCommand
 
 			float turnTargetActual = m_TurnTarget;
 
-			auto parent = Object.Cast(m_Player.Expansion_GetParent());
-			if (parent)
-				turnTargetActual -= parent.GetOrientation()[0];
+			//auto parent = Object.Cast(m_Player.Expansion_GetParent());
+			//if (parent)
+				//turnTargetActual -= parent.GetOrientation()[0];
 
 			if (turnTargetActual > 180.0)
 				turnTargetActual -= 360.0;
@@ -1782,16 +1848,18 @@ class eAICommandMove: ExpansionHumanCommand
 
 						if (!m_Unit.m_eAI_Ladder && building.Expansion_GetLaddersCount() > 0 && !m_Unit.eAI_IsExcludedBuildingWithLadder(building))
 						{
-						#ifdef DIAG_DEVELOPER
 							if (m_Unit.m_eAI_BuildingWithLadder != building)
 							{
+							#ifdef DIAG_DEVELOPER
 								string msg = "Bumped into building with ladder " + building.GetType();
 								EXTrace.Print(EXTrace.AI, this, msg);
 								ExpansionStatic.MessageNearPlayers(m_Unit.m_ExTransformPlayer[3], 100, m_Unit.ToString() + " " + msg);
-							}
-						#endif
+							#endif
 
-							m_Unit.m_eAI_BuildingWithLadder = building;
+								m_Unit.m_eAI_BuildingWithLadder = building;
+								m_Unit.m_eAI_LadderLoops = 0;
+							}
+
 							m_IsBlockedByBuildingWithLadder = true;
 						}
 					}
@@ -1924,11 +1992,6 @@ class eAICommandMove: ExpansionHumanCommand
 				case "Land_Castle_Wall1_End1_nolc":
 				case "Land_Castle_Wall1_End2_nolc":
 					return true;
-				//! AI cannot open/pass bunker door (not implemented, requires interaction with PunchedCard slot next to door)
-				case "Land_Underground_Entrance":
-					if (m_PathFinding.m_IsBlocked)
-						return true;
-					break;
 			}
 		}
 
