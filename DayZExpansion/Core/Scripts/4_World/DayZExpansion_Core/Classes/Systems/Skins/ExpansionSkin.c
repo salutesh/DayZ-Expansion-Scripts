@@ -15,8 +15,8 @@ class ExpansionSkin : Managed
 	ref array< ref ExpansionSkinHiddenSelection > HiddenSelections;
 	ref array< ref ExpansionSkinDamageZone > DamageZones;
 
-	string HornEXT;
-	string HornINT;
+	string HornLong;
+	string HornShort;
 	
 	void ExpansionSkin()
 	{

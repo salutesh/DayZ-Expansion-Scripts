@@ -13,29 +13,35 @@
 /**@class		ExpansionAirdropContainerBase
  * @brief		
  **/
-#ifdef EXPANSIONMODAI
-[eAIRegisterDynamicPatrolSpawner(ExpansionAirdropContainerBase)]
-#endif
 #ifdef SERVER
 class ExpansionAirdropContainerBase: Container_Base
 #else
 class ExpansionAirdropContainerBase: House
 #endif
 {
+#ifdef EXPANSION_MISSIONS_CONTAINER_CLIENT
+	static bool s_Expansion_CreateContainerOnClient = true;
+#else
+	static bool s_Expansion_CreateContainerOnClient = false;
+#endif
+
 	static ref map<int, ExpansionAirdropContainerBase> s_Expansion_AirdropContainers = new map<int, ExpansionAirdropContainerBase>;
 	static int s_Expansion_AirdropContainerNextID;
 
-	int m_Expansion_AirdropContainerID;
+	int m_Expansion_AirdropContainerID = -1;
 
 	string m_Expansion_ClientContainerType;
 
-	ref array<ref ExpansionLoot> m_Expansion_AirdropLoot;
-	int m_Expansion_ItemCount;
-
-	bool m_FromSettings;
-	protected bool m_HasLanded;
-	protected bool m_IsLooted;
+	protected bool m_Expansion_HasDiscardedParachute;
+	protected bool m_Expansion_HasDynamicPhysics;
+	protected bool m_Expansion_IsLooted;
+	IEntity m_Expansion_LastContact;
+	bool m_Expansion_InfectedSpawned;
+	bool m_Expansion_ForceCollisionInit;
+	Object m_Expansion_ForceCollisionInit_Object;
 	float m_Expansion_FallSpeed = 4.5;
+	float m_Expansion_FallSpeedAccumulator;
+	float m_Expansion_FallTimeAccumulator;
 	vector m_Expansion_WindImpact;
 	float m_Expansion_WindImpactStrength = 0.15;
 	float m_Expansion_SimulationTimeAccumulator;
@@ -43,19 +49,19 @@ class ExpansionAirdropContainerBase: House
 	int m_Expansion_SynchCount;
 	bool m_Expansion_HideCargoWhileParachuteIsDeployed;
 
-	private int m_StartTime;
-	
-	//! Light
-	ExpansionPointLight m_Light;
-	protected bool m_LightOn = true;
-	
-	//! Particle
-	Particle m_ParticleEfx;
+	private float m_Expansion_StartTime;
 
-	vector m_SpawnPosition;  //! @note position where container is spawned, not necessarily where it lands!
+	bool m_Expansion_AirdropContainerFX_Enabled = true;
+	bool m_Expansion_AirdropContainerFX_Enabled_Client = true;
+	ref ExpansionAirdropContainerFX m_Expansion_AirdropContainerFX = new ExpansionAirdropContainerFX(this);
+
+	vector m_Expansion_SpawnPosition;  //! @note position where container is spawned, not necessarily where it lands!
 	vector m_Expansion_Position;
+	vector m_Expansion_Center;
+	float m_Expansion_Height;
+	float m_Expansion_Radius;
 
-	//! MP client only
+	//! Used on MP client only
 	vector m_Expansion_PositionSynch;
 	vector m_Expansion_OrientationSynch;
 
@@ -68,24 +74,16 @@ class ExpansionAirdropContainerBase: House
 #endif
 #endif
 
-	// ------------------------------------------------------------
-	// Constructor
-	// ------------------------------------------------------------
 	void ExpansionAirdropContainerBase()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif	
-
-		//RegisterNetSyncVariableBool("m_LightOn");
-		//RegisterNetSyncVariableBool("m_IsLooted");
 		
 		//SetEventMask( EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.SIMULATE );
 
 		if (GetGame().IsServer())
 			Expansion_EnableUpdate();
-		
-		m_FromSettings = true;
 
 		if (GetGame().IsServer())
 		{
@@ -140,7 +138,7 @@ class ExpansionAirdropContainerBase: House
 
 		Expansion_DisableUpdate();
 
-		if (s_Expansion_AirdropContainers)
+		if (s_Expansion_AirdropContainers && m_Expansion_AirdropContainerID > -1)
 			s_Expansion_AirdropContainers.Remove(m_Expansion_AirdropContainerID);
 	}
 
@@ -150,9 +148,22 @@ class ExpansionAirdropContainerBase: House
 
 		//if (GetGame().IsServer())
 		//{
-			m_SpawnPosition = GetPosition();
-			m_Expansion_Position = m_SpawnPosition;
-			m_Expansion_PositionSynch = m_SpawnPosition;
+			m_Expansion_SpawnPosition = GetPosition();
+			m_Expansion_Position = m_Expansion_SpawnPosition;
+			m_Expansion_PositionSynch = m_Expansion_SpawnPosition;
+
+			vector minMax[2];
+			if (GetCollisionBox(minMax))
+			{
+				m_Expansion_Center = Vector((minMax[0][0] + minMax[1][0]) * 0.5, (minMax[0][1] + minMax[1][1]) * 0.5, (minMax[0][2] + minMax[1][2]) * 0.5);
+				m_Expansion_Height = minMax[1][1] - minMax[0][1];
+				m_Expansion_Radius = vector.Distance(minMax[0], minMax[1]) * 0.5;
+				EXTrace.Print(EXTrace.MISSIONS, this, "EEInit - center " + m_Expansion_Center + " height " + m_Expansion_Height + " radius " + m_Expansion_Radius);
+			}
+			else
+			{
+				EXError.Error(this, ConfigGetString("model") + " has no collision box!", {});
+			}
 
 		#ifndef SERVER
 			//! Show parachute on client
@@ -164,23 +175,34 @@ class ExpansionAirdropContainerBase: House
 			//CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
 			//EnableDynamicCCD( true );
 			//SetDynamicPhysicsLifeTime( -1 );
-			
-			m_StartTime = GetGame().GetTime();
+
+			m_Expansion_StartTime = GetGame().GetTickTime();
 
 			//dBodySetDamping(this, 0.0, 1.0);
 		//}
 	}
 
 	//! EOnContact will only fire on server
+	//! and only while entity physics are active (will also be set active if another active entity collides with this one, e.g. a vehicle)
 	override void EOnContact(IEntity other, Contact extra)
 	{
+	#ifdef DIAG_DEVELOPER
+		if (other != m_Expansion_LastContact)
+		{
+			EXTrace.Print(EXTrace.MISSIONS, this, "EOnContact other=" + ExpansionStatic.GetDebugInfo(other) + " isActive=" + dBodyIsActive(this) + " hasDynamicPhysics=" + m_Expansion_HasDynamicPhysics);
+			m_Expansion_LastContact = other;
+		}
+	#endif
+
 		ExpansionWorld.CheckTreeContact(other, 7500, true);
 
-		Object obj;
-		if (!m_HasLanded && Class.CastTo(obj, other))
+		m_Expansion_HasDynamicPhysics = true;
+
+		if (!m_Expansion_HasDiscardedParachute)
 		{
-			if (obj.IsBuilding() || obj.IsPlainObject() || obj.IsRock() || obj.IsScenery() || obj.IsTree())
-				Expansion_SetHasLanded();
+			Object obj;
+			if (!Class.CastTo(obj, other) || Expansion_CanCollideWith(obj))
+				Expansion_DiscardParachute();
 		}
 	}
 
@@ -190,15 +212,19 @@ class ExpansionAirdropContainerBase: House
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 #endif
 		
-		DestroyLight();
-		
-		StopSmokeEffect();
+		super.EEDelete(parent);
+
+		if (m_Expansion_AirdropContainerFX)
+			m_Expansion_AirdropContainerFX.Destroy();
 
 		if ( IsMissionHost() )
 		{
 			ExpansionAirdropContainerManagers.DeferredCleanup();
 
 			Expansion_SendDeleteContainerOnClient();
+
+			if (m_Expansion_ForceCollisionInit_Object)
+				m_Expansion_ForceCollisionInit_Object.Delete();
 		}
 	}
 
@@ -207,21 +233,9 @@ class ExpansionAirdropContainerBase: House
 		return false;
 	}
 
-	bool HasLanded()
+	bool Expansion_HasLanded()
 	{
-		return m_HasLanded;
-	}
-	
-	// ------------------------------------------------------------
-	// LoadFromMission
-	// ------------------------------------------------------------
-	void LoadFromMission(  Class mission )
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-		#endif	
-
-		m_FromSettings = false;
+		return m_Expansion_HasDiscardedParachute && !dBodyIsActive(this);
 	}
 	
 	void Expansion_SetAirdropContainerID(int containerID)
@@ -234,10 +248,7 @@ class ExpansionAirdropContainerBase: House
 		s_Expansion_AirdropContainers[containerID] = this;
 	}
 
-	// ------------------------------------------------------------
-	// InitAirdrop
-	// ------------------------------------------------------------
-	void InitAirdrop( string clientContainerType, array < ref ExpansionLoot > Loot, TStringArray infected, int ItemCount, int infectedCount, float fallSpeed = 4.5, float windImpact = 0.0 )
+	void Expansion_InitAirdrop( array < ref ExpansionLoot > Loot, TStringArray infected, int ItemCount, int infectedCount, float fallSpeed = 4.5, float windImpact = 0.0 )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
@@ -246,24 +257,23 @@ class ExpansionAirdropContainerBase: House
 		if ( IsMissionHost() )
 		{
 		#ifdef SERVER
-			//! Hide the server container on client
-			SetAnimationPhase( "parachute", 1 );
-			SetAnimationPhase( "camo", 1 );
+			if (s_Expansion_CreateContainerOnClient)
+			{
+				//! Hide the server container on client
+				SetAnimationPhase( "parachute", 1 );
+				SetAnimationPhase( "camo", 1 );
+
+				//! Disable server container FX on client (client container has its own, separate FX)
+				m_Expansion_AirdropContainerFX_Enabled = false;
+				SetSynchDirty();
+			}
 		#endif
 
 			ExpansionAirdropContainerManagers.Add( this, infected, infectedCount );
 
-			m_Expansion_ClientContainerType = clientContainerType;
+			m_Expansion_ClientContainerType = GetType() + "_Client";
 
-			if (!m_Expansion_HideCargoWhileParachuteIsDeployed)
-			{
-				ExpansionLootSpawner.SpawnLoot( this, Loot, ItemCount );
-			}
-			else
-			{
-				m_Expansion_AirdropLoot = Loot;
-				m_Expansion_ItemCount = ItemCount;
-			}
+			ExpansionLootSpawner.SpawnLoot( this, Loot, ItemCount );
 
 			if (fallSpeed <= 0)
 				fallSpeed = 4.5;
@@ -276,26 +286,36 @@ class ExpansionAirdropContainerBase: House
 			//! The higher the fall speed, the lesser the wind impact
 			m_Expansion_WindImpactStrength = ExpansionMath.LinearConversion(3.0, 6.0, m_Expansion_FallSpeed, 0.2, 0.1) * windImpact;
 
-			EXLogPrint(ToString() + " InitAirdrop - total weight (kg) " + totalWeightKg + " - nominal fall speed " + m_Expansion_FallSpeed + " m/s, wind impact strength " + m_Expansion_WindImpactStrength);
+			EXLogPrint(ToString() + " Expansion_InitAirdrop - total weight (kg) " + totalWeightKg + " - nominal fall speed " + m_Expansion_FallSpeed + " m/s, wind impact strength " + m_Expansion_WindImpactStrength);
 
-			Expansion_SetAirdropContainerID(s_Expansion_AirdropContainerNextID++);
-			Expansion_SendCreateContainerOnClient();
+			if (s_Expansion_CreateContainerOnClient)
+			{
+				Expansion_SetAirdropContainerID(s_Expansion_AirdropContainerNextID++);
+				Expansion_SendCreateContainerOnClient();
+			}
 		}
 	}
 
-	void InitAirdropClient(float fallSpeed, float windImpactStrength)
+	void Expansion_InitAirdropClient(float fallSpeed, float windImpactStrength, bool fxEnabled = true, bool hasDiscardedParachute = false)
 	{
 		m_Expansion_FallSpeed = fallSpeed;
 		m_Expansion_WindImpactStrength = windImpactStrength;
 
-		EXLogPrint(ToString() + " InitAirdropClient - nominal fall speed " + m_Expansion_FallSpeed + " m/s, wind impact strength " + m_Expansion_WindImpactStrength);
+		EXLogPrint(ToString() + " Expansion_InitAirdropClient - nominal fall speed " + m_Expansion_FallSpeed + " m/s, wind impact strength " + m_Expansion_WindImpactStrength);
 
-		UpdateLight();
-		CreateSmoke();
+		m_Expansion_AirdropContainerFX.Enable(fxEnabled);
+
+		m_Expansion_HasDiscardedParachute = hasDiscardedParachute;
+
+		if (hasDiscardedParachute)
+			SetAnimationPhase( "parachute", 1 );
 	}
 
 	void Expansion_SendCreateContainerOnClient(PlayerIdentity identity = null)
 	{
+		if (m_Expansion_AirdropContainerID == -1)
+			return;
+
 		auto rpc = ExpansionMissionModule.s_Instance.Expansion_CreateRPC("RPC_CreateAirdropContainer");
 		rpc.Write(m_Expansion_AirdropContainerID);
 		rpc.Write(m_Expansion_ClientContainerType);
@@ -303,6 +323,8 @@ class ExpansionAirdropContainerBase: House
 		rpc.Write(GetOrientation());
 		rpc.Write(m_Expansion_FallSpeed);
 		rpc.Write(m_Expansion_WindImpactStrength);
+		rpc.Write(m_Expansion_AirdropContainerFX_Enabled_Client);
+		rpc.Write(m_Expansion_HasDiscardedParachute);
 		rpc.Expansion_Send(true, identity);
 	}
 
@@ -324,6 +346,9 @@ class ExpansionAirdropContainerBase: House
 
 	void Expansion_SendDeleteContainerOnClient(PlayerIdentity identity = null)
 	{
+		if (m_Expansion_AirdropContainerID == -1)
+			return;
+
 		if (!ExpansionMissionModule.s_Instance)  //! Can be NULL on server shutdown
 			return;
 
@@ -336,30 +361,27 @@ class ExpansionAirdropContainerBase: House
 	{
 		super.EECargoOut(item);
 
-		CheckAirdrop();
+		Expansion_CheckAirdrop();
 	}
 
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
 		super.EEItemDetached(item, slot_name);
 
-		CheckAirdrop();
+		Expansion_CheckAirdrop();
 	}
 
-	// ------------------------------------------------------------
-	// CheckAirdrop
-	// ------------------------------------------------------------
-	void CheckAirdrop()
+	void Expansion_CheckAirdrop()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
-		if ( IsMissionHost() && !m_IsLooted && IsEmpty() )
+		if ( !m_Expansion_IsLooted && IsEmpty() )
 		{
-			m_IsLooted = true;
+			m_Expansion_IsLooted = true;
 
-			ToggleLight();
+			Expansion_DisableFX();
 
 			ExpansionAirdropContainerManager manager = ExpansionAirdropContainerManagers.Find( this );
 			if ( manager )
@@ -391,11 +413,7 @@ class ExpansionAirdropContainerBase: House
 	{
 		vector position = GetPosition();
 
-		//! Get current velocity
-		//vector velocity = GetVelocity(this);
-		vector velocity = position - m_Expansion_Position;
-
-		m_Expansion_Position = position;
+		vector transform[4];
 
 		bool guaranteed;
 
@@ -405,50 +423,64 @@ class ExpansionAirdropContainerBase: House
 
 			vector orientation = GetOrientation();
 
-			if (m_HasLanded && Expansion_IsFinal(position, orientation))
+			if (m_Expansion_HasDiscardedParachute && Expansion_IsFinal(position, orientation))
 			{
 				SetPosition(m_Expansion_PositionSynch);
 				SetOrientation(m_Expansion_OrientationSynch);
-
-				Expansion_DisableUpdate();
 			}
 			else
 			{
-				if (m_HasLanded)
+				if (m_Expansion_HasDiscardedParachute)
 					dt *= 2;
 
 				SetPosition(vector.Lerp(position, m_Expansion_PositionSynch, dt * 2));
 				SetOrientation(vector.Lerp(orientation, m_Expansion_OrientationSynch, dt * 2));
 			}
 		}
-		else if (m_HasLanded)
+		else if (m_Expansion_HasDiscardedParachute)
 		{
-			if (velocity.LengthSq() < 0.0001 && dBodyGetAngularVelocity(this).LengthSq() < 0.0001)
+			if (!dBodyIsActive(this))
 			{
-				//EnableDynamicCCD(false);
-				SetDynamicPhysicsLifeTime(0);
-
-				//ClearEventMask(EntityEvent.SIMULATE);
-				Expansion_DisableUpdate();
-
-				if (m_Expansion_HideCargoWhileParachuteIsDeployed && m_Expansion_AirdropLoot)
-					ExpansionLootSpawner.SpawnLoot( this, m_Expansion_AirdropLoot, m_Expansion_ItemCount );
-
-				EXTrace.Print(EXTrace.MISSIONS, this, "EOnSimulate - stopped - updating pathgraph region");
-
-				SetAffectPathgraph(false, true);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
-
-				if (GetGame().IsDedicatedServer())
+				if (Expansion_CheckLanded())
 				{
-					if (m_Expansion_SimulationTimeAccumulator > 0.0)
-						Expansion_SynchContainerStateToClient();
+					if (m_Expansion_HasDynamicPhysics)
+					{
+						//EnableDynamicCCD(false);
+						SetDynamicPhysicsLifeTime(0);
 
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SynchContainerStateToClient, 100, false, true, null);
+						m_Expansion_HasDynamicPhysics = false;
+						m_Expansion_LastContact = null;
+
+						//ClearEventMask(EntityEvent.SIMULATE);
+						//Expansion_DisableUpdate();
+
+						EXTrace.Print(EXTrace.MISSIONS, this, "Expansion_OnUpdate - inactive & has landed - updating pathgraph region");
+
+						SetAffectPathgraph(false, true);
+						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
+
+						if (GetGame().IsDedicatedServer())
+						{
+							if (m_Expansion_SimulationTimeAccumulator > 0.0)
+								Expansion_SynchContainerStateToClient();
+
+							GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SynchContainerStateToClient, 100, false, true, null);
+						}
+					}
+				}
+				else if (!m_Expansion_HasDynamicPhysics)
+				{
+					Expansion_CreateDynamicPhysics();
 				}
 			}
 			else if (GetGame().IsDedicatedServer())
 			{
+				if (GetAnimationPhase("camo") < 1)
+				{
+					GetTransform( transform );
+					MoveInTime( transform, dt );
+				}
+
 				m_Expansion_SimulationTimeAccumulator += dt;
 				if (m_Expansion_SimulationTimeAccumulator >= 0.1)
 				{
@@ -464,6 +496,12 @@ class ExpansionAirdropContainerBase: House
 		}
 		else if (!Expansion_CheckLanded())
 		{
+			//! Get current velocity
+			//vector currentVelocity = GetVelocity(this);
+			vector diff = position - m_Expansion_Position;
+			vector currentVelocity = diff * (1.0 / dt);
+			vector velocity = currentVelocity;
+
 			if ( m_Expansion_WindImpactStrength > 0.0 )
 			{
 				if (GetGame().GetWeather())
@@ -506,17 +544,19 @@ class ExpansionAirdropContainerBase: House
 
 			//SetVelocity(this, velocity);
 
-			vector transform[4];
 			GetTransform( transform );
 			transform[3] = transform[3] + velocity * dt;
 
 		#ifdef DIAG_DEVELOPER
+			m_Expansion_FallSpeedAccumulator += -diff[1];
+			m_Expansion_FallTimeAccumulator += dt;
 			m_Expansion_SimulationTimeAccumulatorDiag += dt;
 			if (m_Expansion_SimulationTimeAccumulatorDiag >= 1.0)
 			{
 				m_Expansion_SimulationTimeAccumulatorDiag = 0.0;
-				float fallSpeed = -velocity[1];
-				EXTrace.Print(EXTrace.MISSIONS, this, "EOnSimulate - dt " + dt + " - fall speed " + fallSpeed + " m/s");
+				float fallSpeed = -currentVelocity[1];
+				float fallSpeedAvg = m_Expansion_FallSpeedAccumulator / m_Expansion_FallTimeAccumulator;
+				EXTrace.Print(EXTrace.MISSIONS, this, "Expansion_OnUpdate - dt " + dt + " - fall speed " + fallSpeed + " m/s (avg " + fallSpeedAvg + ") - velocity " + currentVelocity.Length());
 				if (DayZPlayerImplement.s_Expansion_DebugObjects_Enabled)
 				{
 					EntityAI dbgEnt;
@@ -545,8 +585,10 @@ class ExpansionAirdropContainerBase: House
 		}
 		else
 		{
-			Expansion_SetHasLanded();
+			Expansion_DiscardParachute();
 		}
+
+		m_Expansion_Position = position;
 	}
 	
 	private bool Expansion_CheckLanded()
@@ -554,54 +596,109 @@ class ExpansionAirdropContainerBase: House
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
-		
+
 		//! Ray input
-		vector start = GetPosition();
-		vector end = GetPosition();
+		vector start = ModelToWorld(m_Expansion_Center);
+		start[1] = start[1] - m_Expansion_Height * 0.5;
+
+		vector surfacePos = ExpansionStatic.GetSurfaceRoadPosition(start, RoadSurfaceDetection.CLOSEST);
+
+		float altitude = start[1] - surfacePos[1];
+
+		if (altitude <= 0.05)
+			return true;
+
+		if (altitude > 0.5)
+		{
+			ExpansionAirdropContainerManager manager;
+
+			if (altitude <= 50 && !m_Expansion_ForceCollisionInit)
+			{
+				m_Expansion_ForceCollisionInit = true;
+
+				//! Raycast or roadsurface will ignore map objects whose collision hasn't been initialized.
+				//! Collision for map objects like rocks, structures etc only exists if there is a player or creature in a 100 m radius.
+				//! The player/creature does not have to be alive (but note that some dead animals like chicken, hares and foxes will be
+				//! replaced with a corpse item on death, so they won't work!).
+				//! To force collision init for any map objects at the drop position, if we have a list of zombies, just start spawning them.
+				//! If we don't have a list of zombies and no player is around, we spawn a random zombie on ground and kill it.
+				
+				manager = ExpansionAirdropContainerManagers.Find( this );
+				if (manager && manager.InfectedCount > 0)
+				{
+					manager.SpawnSingleInfected(surfacePos);
+				}
+				else if (!ExpansionLootSpawner.IsPlayerNearby(this, 100))
+				{
+					Object obj = GetGame().CreateObjectEx(ExpansionStatic.GetWorkingZombieClasses().GetRandomElement(), surfacePos, ECE_PLACE_ON_SURFACE | ECE_INITAI);
+					obj.SetHealth(0);
+					m_Expansion_ForceCollisionInit_Object = obj;
+				}
+			}
+
+			if (altitude <= 25 && !m_Expansion_InfectedSpawned)
+			{
+				m_Expansion_InfectedSpawned = true;
+				
+				manager = ExpansionAirdropContainerManagers.Find( this );
+				if (manager)
+				{
+					manager.SpawnInfected();
+				}
+			}
+		}
+
+		vector end = start;
 		
 		//! Ray output
-		vector hit;
 		vector hitpos;
+		vector hitdir;
 		int hitindex;
 		set<Object> results = new set<Object>;
 		
-		if (DayZPhysics.RaycastRV( start, end, hitpos, hit, hitindex, results, NULL, this, false, false, ObjIntersectFire, 0.5, CollisionFlags.ALLOBJECTS))
+		if (DayZPhysics.RaycastRV( start, end, hitpos, hitdir, hitindex, results, NULL, this, false, false, ObjIntersectView, 0.5, CollisionFlags.ALLOBJECTS))
 		{
+			int count = results.Count();
+			int collided;
+
 			foreach (Object result: results)
 			{
 				//! Bushes do not have collision, so we deal with them here
 				if ((result.IsBush() || result.IsTree()) && !result.IsDamageDestroyed())
 					ExpansionWorld.CheckTreeContact(result, 7500, true);
 
-				//! We consider anything that can obstruct as colliding as well as rocks, trees and vehicles
-				if (ExpansionStatic.CanObstruct(result) || result.IsRock() || result.IsTree() || result.IsTransport())
-					return true;
+				if (Expansion_CanCollideWith(result))
+					collided++;
 			}
-		}
 
-		if (start[1] <= ExpansionStatic.GetSurfaceRoadPosition(start, RoadSurfaceDetection.CLOSEST)[1] + 0.05)
-			return true;
+			if (count == 0 || collided > 0)
+				return true;
+		}
 
 		return false;
 	}
 
-	void Expansion_SetHasLanded()
+	bool Expansion_CanCollideWith(Object obj)
+	{
+		if (obj.IsInherited(ExpansionAirdropPlaneBase) || (obj.IsItemBase() && !ExpansionStatic.CanObstruct(obj)) || obj.IsBush())
+			return false;
+
+		return true;
+	}
+
+	void Expansion_DiscardParachute()
 	{
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 #endif 
 		
-		m_HasLanded = true;
+		m_Expansion_HasDiscardedParachute = true;
 
-		CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
-
-		dBodySetDamping(this, 0.5, 0.5);
-
-		SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );
+		Expansion_CreateDynamicPhysics();
 
 		//! Set parachute animation phase so parachute is hidden
 		SetAnimationPhase( "parachute", 1 );
-		
+
 		ExpansionAirdropContainerManager manager = ExpansionAirdropContainerManagers.Find( this );
 		if ( manager )
 		{
@@ -610,7 +707,8 @@ class ExpansionAirdropContainerBase: House
 			if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation )
 				manager.CreateServerMarker(); //! Set server map marker on drop position
 
-			manager.SpawnInfected();
+			if (!m_Expansion_InfectedSpawned)
+				manager.SpawnInfected();
 		}
 
 	#ifdef EXPANSIONMODAI
@@ -623,26 +721,29 @@ class ExpansionAirdropContainerBase: House
 		SetSynchDirty();
 		Expansion_SynchContainerStateToClient();
 	}
-
-	// ------------------------------------------------------------
-	// Expansion OnVariablesSynchronized
-	// ------------------------------------------------------------
-	override void OnVariablesSynchronized()
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-		#endif
-		
-		super.OnVariablesSynchronized();
-		
-		//UpdateLight();
-
-		//if ( !m_LightOn )
-			//StopSmokeEffect();
-	}
 	
+	void Expansion_CreateDynamicPhysics()
+	{
+		EXTrace.Print(EXTrace.MISSIONS, this, "Creating dynamic physics");
+
+		CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
+
+		dBodySetDamping(this, 0.5, 0.5);
+
+		SetDynamicPhysicsLifeTime( (GetGame().GetTickTime() - m_Expansion_StartTime) + 30 );
+
+		m_Expansion_HasDynamicPhysics = true;
+	}
+
 	void Expansion_SynchContainerStateToClient(bool guaranteed = true, PlayerIdentity identity = null)
 	{
+		if (m_Expansion_AirdropContainerID == -1)
+			return;
+
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.MISSIONS, this, "Expansion_SynchContainerStateToClient guaranteed=" + guaranteed + " identity=" + identity);
+	#endif
+
 		auto rpc = ExpansionMissionModule.s_Instance.Expansion_CreateRPC("RPC_SynchContainerStateToClient");
 
 		rpc.Write(m_Expansion_AirdropContainerID);
@@ -657,8 +758,8 @@ class ExpansionAirdropContainerBase: House
 		rpc.Write(orientation[1]);
 		rpc.Write(orientation[2]);
 
-		rpc.Write(m_LightOn);
-		rpc.Write(m_HasLanded);
+		rpc.Write(m_Expansion_AirdropContainerFX_Enabled_Client);
+		rpc.Write(m_Expansion_HasDiscardedParachute);
 
 		if (guaranteed || identity)
 			rpc.Expansion_Send(guaranteed, identity);
@@ -696,16 +797,19 @@ class ExpansionAirdropContainerBase: House
 
 		m_Expansion_OrientationSynch = Vector(yaw, pitch, roll);
 
-		if (!ctx.Read(m_LightOn))
+		bool fxEnabled;
+		if (!ctx.Read(fxEnabled))
 			return false;
 
-		bool hasLanded;
-		if (!ctx.Read(hasLanded))
+		m_Expansion_AirdropContainerFX.Enable(fxEnabled);
+
+		bool hasDiscardedParachute;
+		if (!ctx.Read(hasDiscardedParachute))
 			return false;
 
-		if (hasLanded && !m_HasLanded)
+		if (hasDiscardedParachute && !m_Expansion_HasDiscardedParachute)
 		{
-			m_HasLanded = true;
+			m_Expansion_HasDiscardedParachute = true;
 			SetAnimationPhase( "parachute", 1 );
 		}
 
@@ -729,147 +833,35 @@ class ExpansionAirdropContainerBase: House
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	// CreateLight
-	// Create Chemlight object on server side (light is on client side)
-	// ------------------------------------------------------------
-	protected void CreateLight()
+	void Expansion_DisableFX()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
-				
-		if ( !GetGame().IsServer() || !GetGame().IsMultiplayer() ) //! Client side
-		{
-			if ( !m_Light ) 
-			{
-				vector container_pos = GetPosition();
-				
-				m_Light = CreateAirdropLight();
-				
-				m_Light.SetDiffuseColor( 1, 0.1, 0.1 );
-				m_Light.SetRadiusTo( 20 );
-				m_Light.SetBrightnessTo( 0.6 );
-				m_Light.SetFlareVisible( true );
-				m_Light.AttachOnObject( this, GetMemoryPointPos("light") );
-			}
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// CreateAirdropLight
-	// Return default ExpansionPointLight object
-	// ------------------------------------------------------------
-	ExpansionPointLight CreateAirdropLight()
-	{
-		return ExpansionPointLight.Cast( ScriptedLightBase.CreateLight(ExpansionPointLight) );
-	}
-	
-	// ------------------------------------------------------------
-	// ToggleLight
-	// ------------------------------------------------------------
-	void ToggleLight()
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-		#endif
-		
-		m_LightOn = !m_LightOn;
-		
-		Expansion_SynchContainerStateToClient();
-	}
-	
-	// ------------------------------------------------------------
-	// UpdateLight
-	// ------------------------------------------------------------
-	void UpdateLight()
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-		#endif
-		
-		if ( !GetGame().IsServer() || !GetGame().IsMultiplayer() ) // Client side
-		{
-			if ( m_LightOn )
-			{
-				if ( !m_Light )
-				{
-					m_Light = CreateAirdropLight();
-				
-					m_Light.SetDiffuseColor( 1, 0.1, 0.1 );
-					m_Light.SetRadiusTo( 20 );
-					m_Light.SetBrightnessTo( 0.6 );
-					m_Light.SetFlareVisible( true );
-					m_Light.AttachOnObject( this, GetMemoryPointPos("light") );
-				}
-			}
-			else
-			{		
-				if ( m_Light )
-				{
-					m_Light.FadeOut();
-					m_Light = null;
-				}
-			}
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// DestroyLight
-	// ------------------------------------------------------------
-	protected void DestroyLight()
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-		#endif
-		
-		if ( m_Light )
-			m_Light.Destroy();
-	}
-		
-	// ------------------------------------------------------------
-	// CreateSmoke
-	// Create the particle effect on client side only!
-	// ------------------------------------------------------------
-	protected void CreateSmoke()
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-		#endif
-		
-		if ( !GetGame().IsServer() || !GetGame().IsMultiplayer() ) //! Client side
-		{
-			m_ParticleEfx = Particle.PlayOnObject(ParticleList.EXPANSION_AIRDROP_SMOKE, this, GetMemoryPointPos("light") );
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// StopSmokeEffect
-	// ------------------------------------------------------------
-	protected void StopSmokeEffect()
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-		#endif
-		
-		if ( IsMissionClient() )
-		{	
-			if ( m_ParticleEfx )
-			{
-				m_ParticleEfx.Stop();
 
-				m_ParticleEfx = null;
-			}
+		if (m_Expansion_AirdropContainerFX_Enabled)
+		{
+			m_Expansion_AirdropContainerFX_Enabled = false;
+			SetSynchDirty();
+		}
+		else
+		{
+			m_Expansion_AirdropContainerFX_Enabled_Client = false;
+			Expansion_SynchContainerStateToClient();
 		}
 	}
 };
 
+#ifdef EXPANSIONMODAI
+[eAIRegisterDynamicPatrolSpawner(ExpansionAirdropContainerBase_Server)]
+#endif
 #ifdef SERVER
 class ExpansionAirdropContainerBase_Server: ExpansionAirdropContainerBase
 {
 	void ExpansionAirdropContainerBase_Server()
 	{
-		RegisterNetSyncVariableBool("m_HasLanded");
+		RegisterNetSyncVariableBool("m_Expansion_AirdropContainerFX_Enabled");
+		RegisterNetSyncVariableBool("m_Expansion_HasDiscardedParachute");
 		RegisterNetSyncVariableBool("m_Expansion_HideCargoWhileParachuteIsDeployed");
 	
 		SetEventMask( EntityEvent.INIT | EntityEvent.CONTACT );
@@ -885,18 +877,21 @@ class ExpansionAirdropContainerBase_Server: ExpansionAirdropContainerBase
 #else
 class ExpansionAirdropContainerBase_Server: Container_Base
 {
-	protected bool m_HasLanded;
+	bool m_Expansion_AirdropContainerFX_Enabled = true;
+	ref ExpansionAirdropContainerFX m_Expansion_AirdropContainerFX = new ExpansionAirdropContainerFX(this);
+	protected bool m_Expansion_HasDiscardedParachute;
 	bool m_Expansion_HideCargoWhileParachuteIsDeployed;
 
 	void ExpansionAirdropContainerBase_Server()
 	{
-		RegisterNetSyncVariableBool("m_HasLanded");
+		RegisterNetSyncVariableBool("m_Expansion_AirdropContainerFX_Enabled");
+		RegisterNetSyncVariableBool("m_Expansion_HasDiscardedParachute");
 		RegisterNetSyncVariableBool("m_Expansion_HideCargoWhileParachuteIsDeployed");
 	}
 
 	override bool IsInventoryVisible()
 	{
-		return m_HasLanded || !m_Expansion_HideCargoWhileParachuteIsDeployed;
+		return m_Expansion_HasDiscardedParachute || !m_Expansion_HideCargoWhileParachuteIsDeployed;
 	}
 
 	override bool CanPutIntoHands( EntityAI parent )
@@ -911,6 +906,17 @@ class ExpansionAirdropContainerBase_Server: Container_Base
 
 	override void SetActions()
 	{
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
+		#endif
+		
+		super.OnVariablesSynchronized();
+		
+		m_Expansion_AirdropContainerFX.Enable(m_Expansion_AirdropContainerFX_Enabled);
 	}
 };
 class ExpansionAirdropContainerBase_Client: ExpansionAirdropContainerBase

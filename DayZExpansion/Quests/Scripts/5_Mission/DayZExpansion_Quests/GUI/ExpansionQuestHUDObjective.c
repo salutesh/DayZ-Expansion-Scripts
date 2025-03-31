@@ -10,7 +10,6 @@
  *
 */
 
-#ifdef EXPANSIONMODQUESTS_HUD_ENABLE
 class ExpansionQuestHUDObjective: ExpansionScriptView
 {
 	protected ref ExpansionQuestHUDObjectiveController m_QuestHUDObjectiveController;
@@ -477,4 +476,3 @@ class ExpansionQuestHUDObjectiveController: ExpansionViewController
 	string ObjectiveValue;
 	string ObjectiveTimeLimit;
 };
-#endif

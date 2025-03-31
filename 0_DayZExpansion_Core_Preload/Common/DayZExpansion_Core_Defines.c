@@ -82,7 +82,11 @@
 
 #ifdef DabsFramework
 #define EXPANSIONUI
+#else
+#ifdef WORKBENCH
+#define EXPANSIONUI
+#endif
 #endif
 
 //! Versioning - NEW - do NOT add/change manually, will be added/changed during build with CI.bat!
-#define EXPANSION_1_9_21
+#define EXPANSION_1_9_22

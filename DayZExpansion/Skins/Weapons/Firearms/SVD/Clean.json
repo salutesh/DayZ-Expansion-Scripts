@@ -6,7 +6,5 @@
 			"RVMaterial": "DZ\\weapons\\firearms\\svd\\data\\svd.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

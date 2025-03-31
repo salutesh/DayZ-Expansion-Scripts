@@ -271,15 +271,17 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 			m_Controller.m_State[m_EngineIndex] = false;
 		}
 
-		CarScript car;
-		ExpansionVehicleBase vehicle;
-		bool canBeDamaged;
-		if (Class.CastTo(car, m_Vehicle))
-			canBeDamaged = car.CanBeDamaged();
-		else if (Class.CastTo(vehicle, m_Vehicle))
-			canBeDamaged = vehicle.CanBeDamaged();
+		auto vehicle = ExpansionVehicle.Get(m_Vehicle);
 
-		if (canBeDamaged)
+		//! @note helicopters are special - they have a CarScript engine, but it will never be on, and its RPM as well as throttle will always be zero.
+		//! Yet, it will be used to process engine health and fuel consumption.
+
+		if (!vehicle.IsHelicopter() && !vehicle.EngineIsOn(m_EngineIndex))
+			return;
+
+		CarScript car = vehicle.GetCar();
+
+		if (vehicle.CanBeDamaged())
 		{
 			if (m_RPM >= m_RPMRedline)
 			{
@@ -314,7 +316,7 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 			}
 		}
 
-		if (m_RPM >= m_RPMIdle || (car && car.Expansion_IsHelicopter()) || (vehicle && vehicle.Expansion_IsHelicopter()))
+		if (m_RPM >= m_RPMIdle || vehicle.IsHelicopter() || vehicle.GetThrottle(m_EngineIndex) > 0)
 		{
 			pOutFuel += m_FuelConsumption * pDt / 3600.0;
 		}

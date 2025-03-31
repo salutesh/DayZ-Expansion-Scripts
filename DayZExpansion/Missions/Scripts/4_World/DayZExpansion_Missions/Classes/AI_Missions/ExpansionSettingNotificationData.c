@@ -19,10 +19,7 @@ class ExpansionSettingNotificationData: ExpansionColorSettingsBase
 	string Description;
 	string Icon;
 	string Color;
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionSettingNotificationData
-	// ------------------------------------------------------------
+
 	void ExpansionSettingNotificationData(string title = "", string description = "", string icon = "", string color = "")
 	{
 		Title 		= title;

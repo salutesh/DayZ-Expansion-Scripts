@@ -101,7 +101,7 @@ class ExpansionBoatHud : VehicleHudBase
 		m_BoatSpeedValue.SetText(Math.AbsInt(m_CurrentBoat.GetSpeedometer()).ToString());
 		
 		int engineHealthLevel = m_CurrentBoat.GetHealthLevel("Engine");
-		int fuelTankHealthLevel = m_CurrentBoat.GetHealthLevel("FuelTank");
+		float fuelFraction = m_CurrentBoat.GetFluidFraction(CarFluid.FUEL);
 		bool invulnerable = m_CurrentBoat.m_State.m_IsInvulnerable;
 		bool newHealth = false;
 		
@@ -147,17 +147,20 @@ class ExpansionBoatHud : VehicleHudBase
 		}
 		
 		//! fuel tank
-		if (fuelTankHealthLevel <= GameConstants.STATE_WORN)
-		{
-			m_BoatFuelLight.SetColor(Colors.WHITE);
-			m_BoatFuelLight.SetAlpha(1);
-			m_BoatFuelLight.Show(true);	
+		if (fuelFraction > 0.45)
+		{	
+			m_BoatFuelLight.SetAlpha(0);
 		}
-		else if (fuelTankHealthLevel > GameConstants.STATE_WORN)
+		else
 		{
-			m_BoatFuelLight.SetColor(ItemManager.GetItemHealthColor(fuelTankHealthLevel));
+			if (fuelFraction > 0.15)
+				m_BoatFuelLight.SetColor(Colors.COLOR_DAMAGED);	
+			else if (fuelFraction > 0)
+				m_BoatFuelLight.SetColor(Colors.COLOR_BADLY_DAMAGED);	
+			else 
+				m_BoatFuelLight.SetColor(Colors.COLOR_RUINED);	
+		
 			m_BoatFuelLight.SetAlpha(1);
-			m_BoatFuelLight.Show(true);
 		}
 		
 		//! shield indicator

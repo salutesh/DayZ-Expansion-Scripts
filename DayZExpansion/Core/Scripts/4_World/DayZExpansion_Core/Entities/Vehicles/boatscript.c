@@ -229,6 +229,11 @@ modded class BoatScript
 		EngineStop();
 	}
 
+	float Expansion_GetThrottle()
+	{
+		return GetThrottle();
+	}
+
 	bool Expansion_IsVehicleFunctional(bool checkOptionalParts = false, set<typename> missingComponents = null)
 	{
 		if (IsDamageDestroyed())

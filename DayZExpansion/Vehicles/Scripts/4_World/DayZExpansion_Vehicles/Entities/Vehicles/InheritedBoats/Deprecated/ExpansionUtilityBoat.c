@@ -29,6 +29,11 @@ class ExpansionUtilityBoat: ExpansionBoatScript
 		m_CarHornLongSoundName	= "Expansion_Utility_Horn_Ext_SoundSet";
 	}
 
+	override string GetVehicleType()
+	{
+		return "VehicleTypeCar";
+	}
+
 	override int GetAnimInstance()
 	{
 #ifdef EXPANSIONTRACE

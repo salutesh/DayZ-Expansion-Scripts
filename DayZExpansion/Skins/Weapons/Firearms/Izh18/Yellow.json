@@ -6,7 +6,5 @@
 			"RVMaterial": "DayZExpansion\\Objects\\Weapons\\Firearms\\Vanilla\\Skins\\izh18_camo.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

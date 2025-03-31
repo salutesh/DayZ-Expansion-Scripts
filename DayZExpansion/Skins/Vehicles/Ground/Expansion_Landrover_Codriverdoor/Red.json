@@ -1,5 +1,6 @@
 {
-	"HiddenSelections": [{
+	"HiddenSelections": [
+		{
 			"HiddenSelection": "body_inside",
 			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\red\\lr_body_inside_red_co.paa",
 			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_body_inside.rvmat"
@@ -10,7 +11,7 @@
 			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_body_outdoor.rvmat"
 		}
 	],
-    "DamageZones": [
+	"DamageZones": [
 		{
 			"Zone": "Door_Outside",
 			"HiddenSelections": [
@@ -67,7 +68,5 @@
 				}
 			]
 		}
-	],
-	"HornEXT": "Expansion_Horn_Ext_SoundSet",
-	"HornINT": "Expansion_Horn_Int_SoundSet"
+	]
 }

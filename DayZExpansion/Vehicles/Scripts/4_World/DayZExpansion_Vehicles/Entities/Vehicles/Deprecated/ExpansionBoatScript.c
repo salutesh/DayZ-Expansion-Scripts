@@ -41,13 +41,15 @@ class ExpansionBoatScript: CarScript
 
 	float m_Expansion_SDSCheckTime;
 
-	float m_ExpansionSink;
+	float m_Expansion_BuoyancyFactor;
+
+	protected bool m_Expansion_StartingSoundPlayed;
 
 	void ExpansionBoatScript()
 	{
 		//! Values
 		m_Offset = 0.75;
-		m_ExpansionSink = 1.0;
+		m_Expansion_BuoyancyFactor = 1.0;
 
 		int i;
 		int count;
@@ -92,13 +94,18 @@ class ExpansionBoatScript: CarScript
 		m_CarDoorOpenSound = "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound = "offroad_door_close_SoundSet";
 
-		//if ( GetGame().IsServer() )
-		//{
-			//int selectionIndex = GetHiddenSelectionIndex("antiwater");
-			//SetObjectTexture(selectionIndex, "dz\\data\\data\\antiwater_ca.paa");
-			//SetObjectMaterial(selectionIndex, "dayzexpansion\\particles\\materials\\world\\data\\expansion_material_antiwater.rvmat");
-			//GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(UpdateVisuals);
-		//}
+		if ( GetGame().IsServer() )
+		{
+			int selectionIndex = GetHiddenSelectionIndex("antiwater");
+			if (selectionIndex > -1)
+			{
+				SetObjectTexture(selectionIndex, "dz\\data\\data\\antiwater_ca.paa");
+				SetObjectMaterial(selectionIndex, "dz\\data\\data\\antiwater.rvmat");
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(UpdateVisuals);
+			}
+
+			m_Expansion_SDSCheckTime = GetGame().GetTickTime();
+		}
 	}
 
 	void ~ExpansionBoatScript()
@@ -224,8 +231,6 @@ class ExpansionBoatScript: CarScript
 				thrust *= -1.0;
 				if ( thrust > 0.0 )
 					thrust = -thrust;
-
-				steering = -steering;
 			}
 			else if (gear == CarGear.NEUTRAL)
 			{
@@ -238,18 +243,16 @@ class ExpansionBoatScript: CarScript
 				thrust *= 1.0;
 				if ( thrust < 0.0 )
 					thrust = -thrust;
-
-				steering = steering;
 			}
 
 			m_TurnTarget += Math.Clamp(steering - m_TurnTarget, -40.0 * dt, 40.0 * dt);
 			m_ThrustTarget += Math.Clamp(thrust - m_ThrustTarget, -40.0 * dt, 40.0 * dt);
 		}
 
-		//! Not used ATM
-		m_Controller.SetSteering(m_TurnTarget);
-		m_Controller.SetThrottle(thrust);
-		m_Controller.SetBrake(brake);
+		m_Controller.SetSteering(steering);
+
+		m_Controller.SetThrottle(thrust, 1);
+		m_Controller.SetBrake(brake, 1);
 	}
 
 	protected override void OnParticleUpdate(float pDt)
@@ -309,16 +312,18 @@ class ExpansionBoatScript: CarScript
 
 	protected override void OnAnimationUpdate(float pDt)
 	{
-		m_RotorAnimationPosition += m_Thrust * 10 * 0.0001;
+		m_RotorAnimationPosition += m_Thrust * 0.001;
 
 		if (m_RotorAnimationPosition >= 1)
 			m_RotorAnimationPosition -= 1;
+		else if (m_RotorAnimationPosition < 0)
+			m_RotorAnimationPosition += 1;
 
 		SetAnimationPhase("rotor", m_RotorAnimationPosition);
 
 		SetAnimationPhase("compasspointer", GetOrientation()[0] * Math.DEG2RAD);
 
-		SetAnimationPhase("drivingWheel", m_Controller.GetSteering());
+		//SetAnimationPhase("drivingWheel", m_Controller.GetSteering());
 
 		super.OnAnimationUpdate(pDt);
 	}
@@ -360,7 +365,7 @@ class ExpansionBoatScript: CarScript
 		bool isAboveWater;
 		float buoyancyForce;
 
-		if (m_ExpansionSink < 0.1)
+		if (m_Expansion_BuoyancyFactor < 0.1)
 		{
 			if (dBodyIsActive(this))
 			{
@@ -404,40 +409,40 @@ class ExpansionBoatScript: CarScript
 
 			if ( allDoorsClosed && !m_EngineDestroyed && !m_Exploded )
 			{
-				m_ExpansionSink += pDt * 0.001;
+				m_Expansion_BuoyancyFactor += pDt * 0.001;
 			}
 			else
 			{
 				if ( !allDoorsClosed )
-					m_ExpansionSink -= pDt * 0.025;
+					m_Expansion_BuoyancyFactor -= pDt * 0.025;
 
 				if ( m_EngineDestroyed )
-					m_ExpansionSink -= pDt * 0.025;
+					m_Expansion_BuoyancyFactor -= pDt * 0.025;
 
 				if ( m_Exploded )
-					m_ExpansionSink -= pDt * 0.05;
+					m_Expansion_BuoyancyFactor -= pDt * 0.05;
 			}
 		}
 		else if ( !m_EngineDestroyed && !m_Exploded )
 		{
 			if ( m_ExpansionVehicle.AllDoorsClosed() )
 			{
-				m_ExpansionSink += pDt * 0.005;
+				m_Expansion_BuoyancyFactor += pDt * 0.005;
 			} else {
-				m_ExpansionSink += pDt * 0.05;
+				m_Expansion_BuoyancyFactor += pDt * 0.05;
 			}
 		}
 
-		if ( m_ExpansionSink > 1.0 )
+		if ( m_Expansion_BuoyancyFactor > 1.0 )
 		{
-			m_ExpansionSink = 1.0;
+			m_Expansion_BuoyancyFactor = 1.0;
 		}
-		else if (m_ExpansionSink < 0.001)
+		else if (m_Expansion_BuoyancyFactor < 0.001)
 		{
-			m_ExpansionSink = 0.0;
+			m_Expansion_BuoyancyFactor = 0.0;
 		}
 
-		buoyancyForce = buoyancyForce * m_ExpansionSink;
+		buoyancyForce = buoyancyForce * m_Expansion_BuoyancyFactor;
 
 		float waterContactCoef = Math.Clamp(Math.Sign(buoyancyForce), 0, 1);
 
@@ -769,6 +774,22 @@ class ExpansionBoatScript: CarScript
 		return false;
 	}
 
+	override void OnEngineStart(int index)
+	{
+		super.OnEngineStart(index);
+
+		if (index > 0)
+			HandleEngineSound(CarEngineSoundState.START_OK);
+	}
+
+	override void OnEngineStop(int index)
+	{
+		super.OnEngineStop(index);
+
+		if (index > 0)
+			HandleEngineSound(CarEngineSoundState.STOP_OK);
+	}
+
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();
@@ -785,11 +806,6 @@ class ExpansionBoatScript: CarScript
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "OnSound").Add(ctrl).Add(oldValue);
 #endif
-
-		if (Expansion_EngineIsOn(0))
-		{
-			return super.OnSound(ctrl, oldValue);
-		}
 
 		if (Expansion_EngineIsOn(1))
 		{
@@ -820,6 +836,34 @@ class ExpansionBoatScript: CarScript
 		}
 
 		return super.OnSound(ctrl, oldValue);
+	}
+
+	override void HandleEngineSound(CarEngineSoundState state)
+	{
+	#ifndef SERVER
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.StartStack(EXTrace.VEHICLES, this, typename.EnumToString(CarEngineSoundState, state));
+	#endif
+		switch (state)
+		{
+			case CarEngineSoundState.STARTING:
+				if (m_Expansion_StartingSoundPlayed)
+					return;
+				m_Expansion_StartingSoundPlayed = true;
+				break;
+
+			case CarEngineSoundState.START_NO_FUEL:
+			case CarEngineSoundState.START_NO_BATTERY:
+			case CarEngineSoundState.START_NO_SPARKPLUG:
+			case CarEngineSoundState.STOP_OK:
+			case CarEngineSoundState.STOP_NO_FUEL:
+			case CarEngineSoundState.NONE:
+				m_Expansion_StartingSoundPlayed = false;
+				break;
+		}
+
+		super.HandleEngineSound(state);
+	#endif
 	}
 
 	override CarLightBase CreateRearLight()

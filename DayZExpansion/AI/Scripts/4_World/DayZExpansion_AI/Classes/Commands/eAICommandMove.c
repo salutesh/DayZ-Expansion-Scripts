@@ -1155,22 +1155,38 @@ class eAICommandMove: ExpansionHumanCommand
 
 		if (m_MovementSpeed > 0.0 && m_Waypoint != position && m_Unit.m_eAI_PositionTime > 3.0 && !m_Unit.IsClimbing() && !m_Unit.IsFalling())
 		{
-			surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
-			if (waypoint[1] < surfacePosition[1])
-				waypoint = surfacePosition;
-
-			float distSq = vector.DistanceSq(position, waypoint);
-			if (distSq < 16.0 && Math.AbsFloat(waypoint[1] - position[1]) < 3.0)
+			if (m_BlockingObject && m_BlockingObject.IsBuilding())
 			{
-				m_Unit.SetPosition(waypoint);  //! OH GOD THE HACKS
-				hasReachedWaypoint = true;
-				m_Unit.m_eAI_PositionTime = 0.0;
+				if (m_PathFinding.m_IsJumpClimb)
+				{
+					if (m_PathFinding.m_AllowJumpClimb)
+						m_PathFinding.SetAllowJumpClimb(false, 15.0);
+				}
+				else
+				{
+					m_PathFinding.m_IsUnreachable = true;
+					m_PathFinding.m_IsTargetUnreachable = true;
+				}
+			}
+			else
+			{
+				surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
+				if (waypoint[1] < surfacePosition[1])
+					waypoint = surfacePosition;
 
-			#ifdef DIAG_DEVELOPER
-				msg = "Teleported from " + position + " to " + waypoint + " (" + Math.Sqrt(distSq) + " m)";
-				EXTrace.Print(EXTrace.AI, m_Unit, msg);
-				ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100, m_Unit.ToString() + " " + msg);
-			#endif
+				float distSq = vector.DistanceSq(position, waypoint);
+				if (distSq < 16.0 && Math.AbsFloat(waypoint[1] - position[1]) < 3.0)
+				{
+					m_Unit.SetPosition(waypoint);  //! OH GOD THE HACKS
+					hasReachedWaypoint = true;
+					m_Unit.m_eAI_PositionTime = 0.0;
+
+				#ifdef DIAG_DEVELOPER
+					msg = "Teleported from " + position + " to " + waypoint + " (" + Math.Sqrt(distSq) + " m)";
+					EXTrace.Print(EXTrace.AI, m_Unit, msg);
+					ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100, m_Unit.ToString() + " " + msg);
+				#endif
+				}
 			}
 		}
 

@@ -6,7 +6,5 @@
 			"RVMaterial": "DayZExpansion\\Vehicles\\Water\\Zodiac\\Data\\zodiac.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

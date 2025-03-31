@@ -514,9 +514,6 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				return false;
 			else if (result == SKIP)
 				return true;
-
-			if (!parent && entity.IsTransport() && dBodyIsSet(entity))
-				dBodyActive(entity, ActiveState.INACTIVE);
 		}
 
 		if (!file)

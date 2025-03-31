@@ -19,9 +19,6 @@ class ExpansionAIMissionLoot
 	int ItemCount;
 	ref array < ref ExpansionLoot > Loot;
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionAIMissionLoot
-	// ------------------------------------------------------------
 	void ExpansionAIMissionLoot(array < ref ExpansionAIMissionContainer > containers, int itemcount, array < ref ExpansionLoot > loot)
 	{
 		Containers = containers;

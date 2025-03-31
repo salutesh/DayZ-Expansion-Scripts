@@ -640,6 +640,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		m_Controller.SetThrottle(m_MainRotorSpeedTarget, HELICOPTER_CONTROLLER_INDEX);
 		m_Controller.SetBrake(0, HELICOPTER_CONTROLLER_INDEX);
+
+		if (GetGame().IsServer())
+			AnimateCyclic();
 	}
 
 	override void PreSimulate(ExpansionPhysicsState pState)
@@ -1052,9 +1055,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_Vehicle.SetAnimationPhase("attitudeDiveRTD", m_Vehicle.GetDirection()[1]);
 		m_Vehicle.SetAnimationPhase("attitudeBankRTD", m_Vehicle.GetOrientation()[2] / 360);
 
-		m_Vehicle.SetAnimationPhase("cyclicForward", m_CyclicForwardTarget);
-		m_Vehicle.SetAnimationPhase("cyclicAside", -m_CyclicSideTarget);
-
 		//! Particles, only client-side
 		if (!IsMissionClient())
 			return;
@@ -1145,6 +1145,12 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				m_WaterParticle.Stop();
 			}
 		}
+	}
+
+	void AnimateCyclic()
+	{
+		m_Vehicle.SetAnimationPhase("cyclicForward", m_CyclicForwardTarget);
+		m_Vehicle.SetAnimationPhase("cyclicAside", -m_CyclicSideTarget);
 	}
 
 	void AnimateRotors()

@@ -6,7 +6,5 @@
 			"RVMaterial": "DayZExpansion\\Objects\\Weapons\\Firearms\\Rifles\\M1A\\data\\M1A.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

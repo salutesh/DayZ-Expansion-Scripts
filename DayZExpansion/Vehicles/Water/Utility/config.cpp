@@ -102,29 +102,29 @@ class CfgVehicles
 			{
 				actionSel="seat_codriver";
 				proxyPos="crewCoDriver";
-				getInPos="pos cargo";
-				getInDir="pos cargo dir";
+				getInPos="pos_codriver";
+				getInDir="pos_codriver_dir";
 			};
 			class Cargo1
 			{
 				actionSel="seat_cargo1";
 				proxyPos="crewCargo1";
-				getInPos="pos cargo";
-				getInDir="pos cargo dir";
+				getInPos="pos_cargo1";
+				getInDir="pos_cargo1_dir";
 			};
 			class Cargo2
 			{
 				actionSel="seat_cargo2";
 				proxyPos="crewCargo2";
-				getInPos="pos cargo";
-				getInDir="pos cargo dir";
+				getInPos="pos_cargo2";
+				getInDir="pos_cargo2_dir";
 			};
 			class Cargo3
 			{
 				actionSel="seat_cargo3";
 				proxyPos="crewCargo3";
-				getInPos="pos cargo";
-				getInDir="pos cargo dir";
+				getInPos="pos_cargo3";
+				getInDir="pos_cargo3_dir";
 			};
 		};
 		class AnimationSources
@@ -173,8 +173,8 @@ class CfgVehicles
 			class Gearbox
 			{
 				type="GEARBOX_MANUAL";
-				reverse=3.526;
-				ratios[]={3.6670001,2.0999999,1.3609999,1};
+				reverse=1;
+				ratios[]={1};
 			};
 		};
 		class GUIInventoryAttachmentsProps

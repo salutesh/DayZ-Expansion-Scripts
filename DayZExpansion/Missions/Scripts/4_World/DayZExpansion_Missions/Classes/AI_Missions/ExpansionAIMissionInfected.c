@@ -19,10 +19,7 @@ class ExpansionAIMissionInfected
 	vector Position;
 	float SpawnRadius;
 	int Amount;
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionAIMissionInfected
-	// ------------------------------------------------------------
+
 	void ExpansionAIMissionInfected(TStringArray classnames, vector position, float radius, int amount)
 	{
 		Classnames = classnames;

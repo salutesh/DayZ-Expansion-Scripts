@@ -138,6 +138,8 @@ modded class Weapon_Base
 	static ref map<string, ref ExpansionWeaponInfo> s_Expansion_WeaponInfo = new map<string, ref ExpansionWeaponInfo>();
 	ref ExpansionWeaponInfo m_Expansion_WeaponInfo;
 
+	int m_Expansion_FireModeIndexSync;
+
 	void Weapon_Base()
 	{
 		string type = GetType();
@@ -147,6 +149,48 @@ modded class Weapon_Base
 			m_Expansion_WeaponInfo = new ExpansionWeaponInfo(this);
 			s_Expansion_WeaponInfo[type] = m_Expansion_WeaponInfo;
 		}
+
+		RegisterNetSyncVariableInt("m_Expansion_FireModeIndexSync", 0, 15); 
+	}
+
+	override void AfterStoreLoad()
+	{
+		super.AfterStoreLoad();
+
+		m_Expansion_FireModeIndexSync = GetCurrentMode(GetCurrentMuzzle());
+		SetSynchDirty();
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		Expansion_UpdateFireMode();
+	}
+
+	void Expansion_UpdateFireMode()
+	{
+		int muzzleCount = GetMuzzleCount();
+		bool changed;
+
+		for (int muzzleIndex = 0; muzzleIndex < muzzleCount; muzzleIndex++)
+		{
+			int mode = GetCurrentMode(muzzleIndex);
+
+		#ifdef DIAG_DEVELOPER
+			EXTrace.Print(EXTrace.WEAPONS, this, "Expansion_UpdateFireMode muzzle=" + muzzleIndex + " mode=" + mode + " m_Expansion_FireModeIndexSync=" + m_Expansion_FireModeIndexSync);
+		#endif
+
+			//! @note there will only ever be mismatch if firemode wasn't changed by a player (e.g. AI)
+			if (mode != m_Expansion_FireModeIndexSync)
+			{
+				SetCurrentMode(muzzleIndex, m_Expansion_FireModeIndexSync);
+				changed = true;
+			}
+		}
+
+		if (changed)
+			OnFireModeChange(m_Expansion_FireModeIndexSync);
 	}
 
 	override float Expansion_GetDPS()
@@ -301,24 +345,70 @@ modded class Weapon_Base
 		return 0;
 	}
 
-	bool Expansion_SetFireMode(ExpansionFireMode fireMode)
+	/**
+	 * @brief Set fire mode for all muzzles
+	 * 
+	 * @param fireMode
+	 * @param [out] changed  true if fire mode was changed on at least one muzzle
+	 * 
+	 * @return true if fire mode is valid
+	 * 
+	 * @note Expansion fire mode enum is NOT the same as fire mode index used by SetCurrentMode/GetCurrentMode,
+	 * so translation between the two is handled.
+	 */
+	bool Expansion_SetFireMode(ExpansionFireMode fireMode, out bool changed = false)
 	{
 		int fireModeIndex;
 		if (!m_Expansion_WeaponInfo.m_FireModes.Find(fireMode, fireModeIndex))
 			return false;
 
-		int muzzleIndex = GetCurrentMuzzle();
-		if (GetCurrentMode(muzzleIndex) != fireModeIndex)
+		int muzzleCount = GetMuzzleCount();
+
+		for (int muzzleIndex = 0; muzzleIndex < muzzleCount; muzzleIndex++)
 		{
-		#ifdef DIAG_DEVELOPER
-			EXTrace.Print(EXTrace.WEAPONS, this, "::Expansion_SetFireMode - setting mode " + typename.EnumToString(ExpansionFireMode, fireMode));
-		#endif
+			if (GetCurrentMode(muzzleIndex) != fireModeIndex)
+			{
+			#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.WEAPONS, this, "::Expansion_SetFireMode - setting muzzle " + muzzleIndex + " mode " + typename.EnumToString(ExpansionFireMode, fireMode));
+			#endif
+				SetCurrentMode(muzzleIndex, fireModeIndex);
+				changed = true;
+			}
+		}
+
+		if (changed)
+		{
 			OnFireModeChange(fireModeIndex);
-			SetCurrentMode(muzzleIndex, fireModeIndex);
+		#ifdef SERVER
 			Synchronize();
+		#endif
 		}
 
 		return true;
+	}
+
+	//! @note called by engine when changing mode with SetNextMuzzleMode, on both client+server if player was initiating (client gets called first),
+	//! but needs to be called explicitly if firemode is changed in other ways.
+	//! We also need to make sure to always sync firemode index to client.
+	override void OnFireModeChange(int fireMode)
+	{
+	#ifdef DIAG_DEVELOPER
+		auto trace = EXTrace.StartStack(EXTrace.WEAPONS, this, "fireMode=" + fireMode);
+	#endif
+
+		super.OnFireModeChange(fireMode);
+
+		m_Expansion_FireModeIndexSync = fireMode;
+
+	#ifdef SERVER
+		SetSynchDirty();
+	#else
+	#ifdef DIAG_DEVELOPER
+		Man player = GetHierarchyRootPlayer();
+		string msg = string.Format("%1 %2<%3> fireMode %4", player, GetType(), ExpansionStatic.GetInstanceID(this), fireMode);
+		GetGame().Chat(msg, "colorAction");
+	#endif
+	#endif
 	}
 
 	ExpansionFireMode Expansion_GetFireMode()

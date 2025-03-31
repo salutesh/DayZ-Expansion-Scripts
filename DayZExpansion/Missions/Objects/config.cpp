@@ -35,10 +35,11 @@ class CfgVehicles
 	};
 	class ExpansionAirdropContainerBase_Server: Container_Base
 	{
-		scope=2;
+		scope=0;
 		vehicleClass="Expansion_Airdrop";
 		displayName="$STR_EXPANSION_AIRDROP";
 		model="\DayZExpansion\Missions\Objects\container.p3d";
+		overrideDrawArea="3.0";
 		forceFarBubble="true";
 		carveNavmesh=1;
 		itemsCargoSize[]={10,100};
@@ -127,16 +128,23 @@ class CfgVehicles
 			"DayZExpansion\Missions\Objects\data\Airdrop_co.paa"
 		};
 	};
-	class ExpansionAirdropContainer: ExpansionAirdropContainerBase_Client
+	class ExpansionAirdropContainer: ExpansionAirdropContainerBase_Server
 	{
 		scope=2;
-		displayName="$STR_EXPANSION_AIRDROP";
 		hiddenSelectionsTextures[]=
 		{
 			"DayZExpansion\Missions\Objects\data\Airdrop_co.paa"
 		};
 	};
-	class ExpansionAirdropContainer_Grey: ExpansionAirdropContainerBase_Client
+	class ExpansionAirdropContainer_Client: ExpansionAirdropContainerBase_Client
+	{
+		scope=1;
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Missions\Objects\data\Airdrop_co.paa"
+		};
+	};
+	class ExpansionAirdropContainer_Grey: ExpansionAirdropContainerBase_Server
 	{
 		scope=2;
 		hiddenSelectionsTextures[]=
@@ -144,7 +152,15 @@ class CfgVehicles
 			"DayZExpansion\Missions\Objects\data\Airdrop_grey_co.paa"
 		};
 	};
-	class ExpansionAirdropContainer_Blue: ExpansionAirdropContainerBase_Client
+	class ExpansionAirdropContainer_Grey_Client: ExpansionAirdropContainerBase_Client
+	{
+		scope=1;
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Missions\Objects\data\Airdrop_grey_co.paa"
+		};
+	};
+	class ExpansionAirdropContainer_Blue: ExpansionAirdropContainerBase_Server
 	{
 		scope=2;
 		hiddenSelectionsTextures[]=
@@ -152,7 +168,15 @@ class CfgVehicles
 			"DayZExpansion\Missions\Objects\data\Airdrop_blue_co.paa"
 		};
 	};
-	class ExpansionAirdropContainer_Olive: ExpansionAirdropContainerBase_Client
+	class ExpansionAirdropContainer_Blue_Client: ExpansionAirdropContainerBase_Client
+	{
+		scope=1;
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Missions\Objects\data\Airdrop_blue_co.paa"
+		};
+	};
+	class ExpansionAirdropContainer_Olive: ExpansionAirdropContainerBase_Server
 	{
 		scope=2;
 		hiddenSelectionsTextures[]=
@@ -160,7 +184,15 @@ class CfgVehicles
 			"DayZExpansion\Missions\Objects\data\Airdrop_olive_co.paa"
 		};
 	};
-	class ExpansionAirdropContainer_Medical: ExpansionAirdropContainerBase_Client
+	class ExpansionAirdropContainer_Olive_Client: ExpansionAirdropContainerBase_Client
+	{
+		scope=1;
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Missions\Objects\data\Airdrop_olive_co.paa"
+		};
+	};
+	class ExpansionAirdropContainer_Medical: ExpansionAirdropContainerBase_Server
 	{
 		scope=2;
 		displayName="$STR_EXPANSION_MEDICAL_AIRDROP";
@@ -169,7 +201,16 @@ class CfgVehicles
 			"DayZExpansion\Missions\Objects\data\Airdrop_med_co.paa"
 		};
 	};
-	class ExpansionAirdropContainer_Military: ExpansionAirdropContainerBase_Client
+	class ExpansionAirdropContainer_Medical_Client: ExpansionAirdropContainerBase_Client
+	{
+		scope=1;
+		displayName="$STR_EXPANSION_MEDICAL_AIRDROP";
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Missions\Objects\data\Airdrop_med_co.paa"
+		};
+	};
+	class ExpansionAirdropContainer_Military: ExpansionAirdropContainerBase_Server
 	{
 		scope=2;
 		displayName="$STR_EXPANSION_MILITARY_AIRDROP";
@@ -178,7 +219,16 @@ class CfgVehicles
 			"DayZExpansion\Missions\Objects\data\Airdrop_mil_co.paa"
 		};
 	};
-	class ExpansionAirdropContainer_Military_GreenCamo: ExpansionAirdropContainerBase_Client
+	class ExpansionAirdropContainer_Military_Client: ExpansionAirdropContainerBase_Client
+	{
+		scope=1;
+		displayName="$STR_EXPANSION_MILITARY_AIRDROP";
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Missions\Objects\data\Airdrop_mil_co.paa"
+		};
+	};
+	class ExpansionAirdropContainer_Military_GreenCamo: ExpansionAirdropContainer_Military
 	{
 		scope=2;
 		hiddenSelectionsTextures[]=
@@ -186,7 +236,15 @@ class CfgVehicles
 			"DayZExpansion\Missions\Objects\data\Airdrop_mil_green_camo_co.paa"
 		};
 	};
-	class ExpansionAirdropContainer_Military_MarineCamo: ExpansionAirdropContainerBase_Client
+	class ExpansionAirdropContainer_Military_GreenCamo_Client: ExpansionAirdropContainer_Military_Client
+	{
+		scope=1;
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Missions\Objects\data\Airdrop_mil_green_camo_co.paa"
+		};
+	};
+	class ExpansionAirdropContainer_Military_MarineCamo: ExpansionAirdropContainer_Military
 	{
 		scope=2;
 		hiddenSelectionsTextures[]=
@@ -194,7 +252,15 @@ class CfgVehicles
 			"DayZExpansion\Missions\Objects\data\Airdrop_mil_marine_camo_co.paa"
 		};
 	};
-	class ExpansionAirdropContainer_Military_OliveCamo: ExpansionAirdropContainerBase_Client
+	class ExpansionAirdropContainer_Military_MarineCamo_Client: ExpansionAirdropContainer_Military_Client
+	{
+		scope=1;
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Missions\Objects\data\Airdrop_mil_marine_camo_co.paa"
+		};
+	};
+	class ExpansionAirdropContainer_Military_OliveCamo: ExpansionAirdropContainer_Military
 	{
 		scope=2;
 		hiddenSelectionsTextures[]=
@@ -202,7 +268,15 @@ class CfgVehicles
 			"DayZExpansion\Missions\Objects\data\Airdrop_mil_olive_camo_co.paa"
 		};
 	};
-	class ExpansionAirdropContainer_Military_OliveCamo2: ExpansionAirdropContainerBase_Client
+	class ExpansionAirdropContainer_Military_OliveCamo_Client: ExpansionAirdropContainer_Military_Client
+	{
+		scope=1;
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Missions\Objects\data\Airdrop_mil_olive_camo_co.paa"
+		};
+	};
+	class ExpansionAirdropContainer_Military_OliveCamo2: ExpansionAirdropContainer_Military
 	{
 		scope=2;
 		hiddenSelectionsTextures[]=
@@ -210,7 +284,15 @@ class CfgVehicles
 			"DayZExpansion\Missions\Objects\data\Airdrop_mil_olive_camo2_co.paa"
 		};
 	};
-	class ExpansionAirdropContainer_Military_WinterCamo: ExpansionAirdropContainerBase_Client
+	class ExpansionAirdropContainer_Military_OliveCamo2_Client: ExpansionAirdropContainer_Military_Client
+	{
+		scope=1;
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Missions\Objects\data\Airdrop_mil_olive_camo2_co.paa"
+		};
+	};
+	class ExpansionAirdropContainer_Military_WinterCamo: ExpansionAirdropContainer_Military
 	{
 		scope=2;
 		hiddenSelectionsTextures[]=
@@ -218,9 +300,26 @@ class CfgVehicles
 			"DayZExpansion\Missions\Objects\data\Airdrop_mil_winter_camo_co.paa"
 		};
 	};
-	class ExpansionAirdropContainer_Basebuilding: ExpansionAirdropContainerBase_Client
+	class ExpansionAirdropContainer_Military_WinterCamo_Client: ExpansionAirdropContainer_Military_Client
+	{
+		scope=1;
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Missions\Objects\data\Airdrop_mil_winter_camo_co.paa"
+		};
+	};
+	class ExpansionAirdropContainer_Basebuilding: ExpansionAirdropContainerBase_Server
 	{
 		scope=2;
+		displayName="$STR_EXPANSION_BASEBUILDING_AIRDROP";
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Missions\Objects\data\Airdrop_basebuilding_co.paa"
+		};
+	};
+	class ExpansionAirdropContainer_Basebuilding_Client: ExpansionAirdropContainerBase_Client
+	{
+		scope=1;
 		displayName="$STR_EXPANSION_BASEBUILDING_AIRDROP";
 		hiddenSelectionsTextures[]=
 		{

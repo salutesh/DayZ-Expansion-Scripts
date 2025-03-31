@@ -6,7 +6,5 @@
 			"RVMaterial": "dz\\weapons\\shotguns\\mp133\\data\\mp133.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

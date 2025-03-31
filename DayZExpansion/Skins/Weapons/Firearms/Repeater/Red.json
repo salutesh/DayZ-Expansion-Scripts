@@ -6,7 +6,5 @@
 			"RVMaterial": "DayZExpansion\\Objects\\Weapons\\Firearms\\Vanilla\\Skins\\repeater_camo.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

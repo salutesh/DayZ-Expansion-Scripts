@@ -6,7 +6,5 @@
 			"RVMaterial": "DayZExpansion\\Objects\\Weapons\\Firearms\\Vanilla\\Skins\\ruger1022_camo.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

@@ -19,9 +19,6 @@ class ExpansionAirdropLocation
 	string Name;
 	float Radius;
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionAirdropLocation
-	// ------------------------------------------------------------
 	void ExpansionAirdropLocation(float xx, float zz, float radius, string name)
 	{
 		x = xx;

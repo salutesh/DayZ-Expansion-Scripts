@@ -737,6 +737,7 @@ class CfgVehicles
 		weight=45000;
 		physLayer="item_large";
 		allowOwnedCargoManipulation=1;
+		overrideDrawArea="8.0";
 		forceFarBubble="true";
 		attachments[]=
 		{

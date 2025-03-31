@@ -770,6 +770,7 @@ class CfgVehicles
 		weight=1000000;
 		physLayer="item_large";
 		allowOwnedCargoManipulation=1;
+		overrideDrawArea="3.0";
 		forceFarBubble="true";
 		rotationFlags=2;
 		itemsCargoSize[]={10,100};
@@ -841,6 +842,7 @@ class CfgVehicles
 		weight=1000000;
 		physLayer="item_large";
 		allowOwnedCargoManipulation=1;
+		overrideDrawArea="3.0";
 		forceFarBubble="true";
 		rotationFlags=2;
 		itemsCargoSize[]={10,100};

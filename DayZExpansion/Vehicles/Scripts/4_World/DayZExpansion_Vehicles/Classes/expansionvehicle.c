@@ -767,7 +767,7 @@ modded class ExpansionVehicle
 		}
 	}
 
-	void OnDoorOpened(string source)
+	override void OnDoorOpened(string selection)
 	{
 		if (HasKey())
 		{
@@ -779,7 +779,7 @@ modded class ExpansionVehicle
 		}
 	}
 
-	void OnDoorClosed(string source)
+	override void OnDoorClosed(string selection)
 	{
 	}
 

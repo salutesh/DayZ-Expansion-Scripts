@@ -38,9 +38,11 @@ class Vehicle_ExpansionZodiacBoat: ExpansionVehicleBoatBase
 		case 0:
 			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
 		case 1:
-			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_R;
+			return DayZPlayerConstants.VEHICLESEAT_CODRIVER;
 		case 2:
 			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_L;
+		case 3:
+			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_R;
 		}
 
 		return 0;
@@ -61,6 +63,11 @@ class Vehicle_ExpansionZodiacBoat: ExpansionVehicleBoatBase
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachDoorsFromSeat").Add(pDoorsSelection).Add(pCurrentSeat);
 #endif
 
+		return true;
+	}
+
+	override bool CanReachSeatFromSeat(int currentSeat, int nextSeat)
+	{
 		return true;
 	}
 

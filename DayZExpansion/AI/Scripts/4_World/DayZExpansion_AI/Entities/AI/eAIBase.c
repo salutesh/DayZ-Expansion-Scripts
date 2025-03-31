@@ -42,7 +42,6 @@ class eAIBase: PlayerBase
 		"pole",
 		"sign",
 		"busstop",
-		"rock",
 		"stairs",
 		"farm_strawstack",
 		"misc_walkover",
@@ -909,6 +908,8 @@ class eAIBase: PlayerBase
 		if (!eAI_HasLOS())
 			return;
 
+		bool changedFireMode;
+
 		if (m_eAI_QueuedShots > 0)
 		{
 			//! Continue firing in current mode until all queued shots fired
@@ -924,14 +925,14 @@ class eAIBase: PlayerBase
 
 			if (distSq < 200)
 			{
-				if (Math.RandomFloat(0.0, 1.0) > 0.60 || !weapon.Expansion_SetFireMode(ExpansionFireMode.FullAuto))
-					burst = weapon.Expansion_SetFireMode(ExpansionFireMode.Burst);
+				if (Math.RandomFloat(0.0, 1.0) > 0.60 || !weapon.Expansion_SetFireMode(ExpansionFireMode.FullAuto, changedFireMode))
+					burst = weapon.Expansion_SetFireMode(ExpansionFireMode.Burst, changedFireMode);
 				else
 					fullAuto = true;
 			}
 			else if (distSq < 1500)
 			{
-				burst = weapon.Expansion_SetFireMode(ExpansionFireMode.Burst);
+				burst = weapon.Expansion_SetFireMode(ExpansionFireMode.Burst, changedFireMode);
 			}
 
 			if (burst)
@@ -947,12 +948,18 @@ class eAIBase: PlayerBase
 			}
 			else
 			{
-				weapon.Expansion_SetFireMode(ExpansionFireMode.SemiAuto);
+				weapon.Expansion_SetFireMode(ExpansionFireMode.SemiAuto, changedFireMode);
 			}
 		}
 		else
 		{
-			weapon.Expansion_SetFireMode(ExpansionFireMode.SemiAuto);
+			weapon.Expansion_SetFireMode(ExpansionFireMode.SemiAuto, changedFireMode);
+		}
+
+		if (changedFireMode)
+		{
+			m_eAI_MinTimeTillNextFire = GetGame().GetTime() + Math.RandomIntInclusive(200, 300);
+			return;
 		}
 
 	#ifdef DIAG_DEVELOPER
@@ -6938,6 +6945,21 @@ class eAIBase: PlayerBase
 					GetWeaponManager().DetachMagazine(il);
 					return;
 				}
+				else
+				{
+					//! Inventory is full, drop sth we don't need
+					foreach (Magazine othermag: m_eAI_Magazines)
+					{
+						if (!othermag)
+							continue;
+
+						if (!eAI_HasWeaponForMagazine(othermag))
+						{
+							eAI_DropItemImpl(othermag);
+							break;
+						}
+					}
+				}
 
 				//! If mag to reload from is ammo pile but current mag doesn't fit in inventory,
 				//! we fall through here to load single bullet or eject casing
@@ -8529,7 +8551,7 @@ class eAIBase: PlayerBase
 		//! As we are essentially using Zombie pathfinding, we may encounter situations where the path will go through a fence
 		//! that Zs would be able to jump (e.g. wall_indfnc_9.p3d) but player AI would not due to HumanCommandClimb.DoClimbTest not letting us.
 		//! Use ExpansionClimb.DoClimbTest with alwaysAllowClimb = true instead.
-		if (m_PathFinding.m_DoClimbTestEx || IsSwimming())
+		if (m_PathFinding.m_DoClimbTestEx)
 		{
 			ExpansionClimb.DoClimbTest(this, m_ExClimbResult, true);
 			if (m_ExClimbResult.m_bIsClimb || m_ExClimbResult.m_bIsClimbOver)
@@ -8747,8 +8769,7 @@ class eAIBase: PlayerBase
 					return false;
 				}
 
-				//! @note AI should NEVER climb rocks, it can make them "fall into" the rock and through the map
-				if (object.IsRock() || ExpansionString.ContainsAny(debugName, s_eAI_PreventClimb))
+				if (ExpansionString.ContainsAny(debugName, s_eAI_PreventClimb))
 				{
 					if (EXTrace.AI)
 						EXTrace.Print(true, this, "eAI_CanClimbOn false " + Debug.GetDebugName(parent) + " is scenery? " + object.IsScenery() + " is plain? " + object.IsPlainObject());

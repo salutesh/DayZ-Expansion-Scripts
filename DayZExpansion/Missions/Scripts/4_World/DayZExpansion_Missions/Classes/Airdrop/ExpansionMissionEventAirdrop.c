@@ -48,9 +48,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 	[NonSerialized()]
 	ExpansionAirdropContainerBase m_Container;
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionMissionEventAirdrop
-	// ------------------------------------------------------------
 	void ExpansionMissionEventAirdrop()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -60,10 +57,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		m_EventName = "Airdrop";
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion Event_OnStart
-	// ------------------------------------------------------------
-	// handle mission start
 	override void Event_OnStart()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -73,6 +66,12 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		if ( IsMissionHost() )
 		{
 			auto settings = GetExpansionSettings().GetAirdrop();
+
+			if (Speed <= 0)
+				Speed = settings.Speed;
+
+			if (DropZoneSpeed <= 0)
+				DropZoneSpeed = settings.DropZoneSpeed;
 
 			ExpansionLootContainer container;
 
@@ -174,7 +173,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 				airdropCreatedMsg = new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED", DropLocation.Name );
 			}
 	
-			m_Plane = ExpansionAirdropPlaneBase.CreatePlane( AirdropPlaneClassName, Vector( DropLocation.x, 0, DropLocation.z ), DropLocation.Name, DropLocation.Radius, Height, DropZoneHeight, Speed, DropZoneSpeed, container, warningProximityMsg, airdropCreatedMsg, MissionMaxTime );
+			m_Plane = ExpansionAirdropPlaneBase.Expansion_CreatePlane( AirdropPlaneClassName, Vector( DropLocation.x, 0, DropLocation.z ), DropLocation.Name, DropLocation.Radius, Height, DropZoneHeight, Speed, DropZoneSpeed, container, warningProximityMsg, airdropCreatedMsg, MissionMaxTime );
 			
 			if ( m_Plane )
 			{
@@ -191,16 +190,18 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 	
 	override bool CanEnd()
 	{
-		if ((!m_Plane || m_Plane.AirdropCreated()) && (!m_Container || (m_Container.HasLanded() && !ExpansionLootSpawner.IsPlayerNearby(m_Container, 1100))))
-			return true;
+		if (!m_Plane || m_Plane.Expansion_AirdropCreated())
+		{
+			if (!m_Container)
+				return true;  //! If container has been deleted, end instantly
+
+			if (m_Container.Expansion_HasLanded() && !ExpansionLootSpawner.IsPlayerNearby(m_Container, 1100))
+				return super.CanEnd();  //! End if no-one is near landed container and mission max time reached
+		}
 
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion Event_OnEnd
-	// ------------------------------------------------------------
-	// handle mission cleanup
 	override void Event_OnEnd()
 	{
 		#ifdef EXTRACE_DIAG
@@ -220,11 +221,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 			}
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Event_OnUpdate
-	// ------------------------------------------------------------
-	// update tick for the mission
+
 	override void Event_OnUpdate( float delta )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -235,9 +232,9 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		{
 			if ( m_Plane )
 			{			
-				if ( m_Plane.AirdropCreated() && !m_Container )
+				if ( m_Plane.Expansion_AirdropCreated() && !m_Container )
 				{	
-					m_Container = m_Plane.GetContainer();
+					m_Container = m_Plane.Expansion_GetContainer();
 					
 					if ( m_Container )
 					{
@@ -250,7 +247,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 			{
 				m_Container.SetHealth("", "", 0.0);
 				m_Container.SetLifetimeMax(0.0);
-				m_Container.ToggleLight();
+				m_Container.Expansion_DisableFX();
 			}
 		}
 	}
@@ -270,10 +267,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		ExpansionMissionEventBase missionBase = mission;
 		Copy(missionBase);
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion OnLoadMission
-	// ------------------------------------------------------------
+
 	protected override void OnLoadMission()
 	{
 #ifdef EXPANSIONTRACE
@@ -325,10 +319,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 			}
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion OnSaveMission
-	// ------------------------------------------------------------
+
 	protected override void OnSaveMission()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -340,10 +331,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 			ExpansionJsonFileParser<ExpansionMissionEventAirdrop>.Save(m_FileName, this);
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion MaxDefaultMissions
-	// ------------------------------------------------------------
+
 	override int MaxDefaultMissions()
 	{
 		switch (ExpansionStatic.GetCanonicalWorldName())
@@ -388,10 +376,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		//! Unknown map
 		return super.MaxDefaultMissions();
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion OnDefaultMission
-	// ------------------------------------------------------------
+
 	protected override string OnDefaultMission( int index )
 	{
 		Enabled = true;
@@ -479,9 +464,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		return ExpansionMissionAirdropChernarus(index);
 	}
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionMissionAirdropChernarus
-	// ------------------------------------------------------------
 	string ExpansionMissionAirdropChernarus(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -542,9 +524,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		return fname;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionMissionAirdropLivonia
-	// ------------------------------------------------------------
 	string ExpansionMissionAirdropLivonia(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -602,9 +581,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		return fname;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionMissionAirdropDeerIsle
-	// ------------------------------------------------------------
 	string ExpansionMissionAirdropDeerIsle(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -665,9 +641,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		return fname;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionMissionAirdropNamalsk
-	// ------------------------------------------------------------
 	string ExpansionMissionAirdropNamalsk(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -716,9 +689,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		return fname;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionMissionAirdropSandbox
-	// ------------------------------------------------------------
 	string ExpansionMissionAirdropSandbox(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -755,9 +725,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		return fname;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionMissionAirdropChiemsee
-	// ------------------------------------------------------------
 	string ExpansionMissionAirdropChiemsee(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG

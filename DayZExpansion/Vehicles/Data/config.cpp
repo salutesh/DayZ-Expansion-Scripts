@@ -712,6 +712,7 @@ class CfgVehicles
 	class ExpansionWreck: Container_Base
 	{
 		scope=0;
+		overrideDrawArea="3.0";
 		forceFarBubble="true";
 		carveNavmesh=1;
 		itemsCargoSize[]={10,100};

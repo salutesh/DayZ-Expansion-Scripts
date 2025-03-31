@@ -6,7 +6,5 @@
 			"RVMaterial": "dz\\weapons\\firearms\\cz527\\data\\cz527.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

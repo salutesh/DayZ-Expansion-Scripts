@@ -284,10 +284,12 @@ class CfgVehicles
 			"light_1_2",
 			"light_2_2",
 			"light_dashboard",
-			"med"
+			"med",
+			"antiwater"
 		};
 		hiddenSelectionsTextures[]=
 		{
+			"",
 			"",
 			"",
 			"",
@@ -301,6 +303,7 @@ class CfgVehicles
 		};
 		hiddenSelectionsMaterials[]=
 		{
+			"",
 			"",
 			"",
 			"",

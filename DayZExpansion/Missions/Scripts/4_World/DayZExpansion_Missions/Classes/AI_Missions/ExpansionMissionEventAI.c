@@ -37,9 +37,6 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	[NonSerialized()]
 	bool m_MissionEnd;
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionMissionEventAI
-	// ------------------------------------------------------------
 	void ExpansionMissionEventAI()
 	{
 		m_EventName = "AI";
@@ -239,14 +236,24 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 
 	override bool CanEnd()
 	{
+		int containers;
+
 		//! Check if a player is nearby any container in a 1100 meter radius
 		foreach (auto container: m_Containers)
 		{
-			if (container && ExpansionLootSpawner.IsPlayerNearby(container, 1100))
-				return false;
+			if (container)
+			{
+				if (ExpansionLootSpawner.IsPlayerNearby(container, 1100))
+					return false;
+
+				containers++;
+			}
 		}
 
-		return true;
+		if (containers == 0)
+			return true;  //! If all containers have been deleted, end instantly
+
+		return super.CanEnd();
 	}
 
 	override void Event_OnEnd()
@@ -318,9 +325,6 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	{
 		JsonFileLoader<ExpansionMissionEventAI>.JsonSaveFile( m_FileName, this );
 	}
-	// ------------------------------------------------------------
-	// Expansion MaxDefaultMissions
-	// ------------------------------------------------------------
 	override int MaxDefaultMissions()
 	{
 		switch (ExpansionStatic.GetCanonicalWorldName())
@@ -390,9 +394,6 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 		return "Error_You_Shouldnt_Be_Seeing_This";
 	}
 
-	// ------------------------------------------------------------
-	// Expansion OnDefaultChernarusMission
-	// ------------------------------------------------------------
 	string OnDefaultChernarusMission(int idx)
 	{
 		array<vector> patrol = new array<vector>();
@@ -568,9 +569,6 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 		return fname;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion OnDefaultChernarusMission
-	// ------------------------------------------------------------
 	string OnDefaultNamalskMission(int idx)
 	{
 		return "null";

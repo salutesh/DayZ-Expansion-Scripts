@@ -6,7 +6,5 @@
 			"RVMaterial": "DZ\\weapons\\firearms\\UMP45\\data\\ump45.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

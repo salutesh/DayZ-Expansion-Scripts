@@ -10,9 +10,6 @@ class ExpansionMissionEventContaminatedArea: ExpansionMissionEventBase
 
 	[NonSerialized()] autoptr ExpansionZone m_Zone;
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionMissionEventContaminatedArea
-	// ------------------------------------------------------------
 	void ExpansionMissionEventContaminatedArea()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG

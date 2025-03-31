@@ -6,7 +6,5 @@
 			"RVMaterial": "dz\\weapons\\firearms\\mosin9130\\data\\mosin_sawn.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

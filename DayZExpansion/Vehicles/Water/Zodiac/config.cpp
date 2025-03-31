@@ -39,8 +39,8 @@ class CfgVehicles
 		model="\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
 		modelZeroPointDistanceFromGround=0.43000001;
 		vehicleClass="Expansion_Boat";
-		fuelCapacity=192;
-		fuelConsumption=21;
+		fuelCapacity=25;
+		fuelConsumption=5.5;
 		animPhysDetachSpeed=100;
 		attachments[]=
 		{
@@ -76,6 +76,38 @@ class CfgVehicles
 			allowOwnedCargoManipulation=1;
 			openable=0;
 		};
+		class Crew
+		{
+			class Driver
+			{
+				actionSel="seat_driver";
+				proxyPos="crewDriver";
+				getInPos="pos_driver";
+				getInDir="pos_driver_dir";
+				isDriver=1;
+			};
+			class Cargo1
+			{
+				actionSel="seat_cargo1";
+				proxyPos="crewCargo1";
+				getInPos="pos_cargo1";
+				getInDir="pos_cargo1_dir";
+			};
+			class Cargo2
+			{
+				actionSel="seat_cargo2";
+				proxyPos="crewCargo2";
+				getInPos="pos_cargo2";
+				getInDir="pos_cargo2_dir";
+			};
+			class Cargo3
+			{
+				actionSel="seat_Cargo3";
+				proxyPos="crewCargo3";
+				getInPos="pos_cargo3";
+				getInDir="pos_cargo3_dir";
+			};
+		};
 		class GUIInventoryAttachmentsProps
 		{
 			class Engine
@@ -105,12 +137,6 @@ class CfgVehicles
 		class AnimationSources
 		{
 			class antiwater
-			{
-				source="user";
-				animPeriod=0.0099999998;
-				initPhase=1;
-			};
-			class waterramp
 			{
 				source="user";
 				animPeriod=0.0099999998;
@@ -381,8 +407,8 @@ class CfgVehicles
 		model="\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
 		modelZeroPointDistanceFromGround=0.43000001;
 		vehicleClass="Expansion_Boat";
-		fuelCapacity=192;
-		fuelConsumption=21;
+		fuelCapacity=25;
+		fuelConsumption=5.5;
 		animPhysDetachSpeed=100;
 		attachments[]=
 		{

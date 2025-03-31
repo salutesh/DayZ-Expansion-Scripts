@@ -10,7 +10,7 @@ class ExpansionAirdropStarDestroyer: ExpansionAirdropPlaneBase
 	override void Expansion_EnableUpdate()
 	{
 		//! We disable terrain following as it would look awkward for such a huge object
-		m_FollowTerrainFraction = 0.0;
+		m_Expansion_FollowTerrainFraction = 0.0;
 
 		super.Expansion_EnableUpdate();
 	}
@@ -27,12 +27,12 @@ class ExpansionAirdropStarDestroyer: ExpansionAirdropPlaneBase
 		}
 
 		vector orientation = GetOrientation();
-		orientation[0] = m_HeadingAngleDeg;
+		orientation[0] = m_Expansion_HeadingAngleDeg;
 		
 		float scale = 0.0;
 
 		Man player = GetGame().GetPlayer();
-		if (player && Math.IsPointInCircle(m_AirdropPosition, m_Expansion_WarpedOutDist, player.GetPosition()))
+		if (player && Math.IsPointInCircle(m_Expansion_AirdropPosition, m_Expansion_WarpedOutDist, player.GetPosition()))
 		{
 			float dist = vector.Distance(player.GetPosition(), GetPosition());
 			float warpedOutDist = m_Expansion_WarpedOutDist;
@@ -46,10 +46,10 @@ class ExpansionAirdropStarDestroyer: ExpansionAirdropPlaneBase
 
 			float visibility = Math.Min(fogVisibility, Math.Min(overcastVisibility, Math.Min(rainVisibility, snowVisibility)));
 
-			if (warpedOutDist * visibility > m_Speed * 0.5)
+			if (warpedOutDist * visibility > m_Expansion_Speed * 0.5)
 				warpedOutDist *= visibility;
 
-			float warpedInDist = warpedOutDist - m_Speed * 0.5;  //! 0.5 s for warp-in
+			float warpedInDist = warpedOutDist - m_Expansion_Speed * 0.5;  //! 0.5 s for warp-in
 
 			scale = ExpansionMath.PowerConversion(warpedOutDist, warpedInDist, dist, 0.0, m_Expansion_WarpedInScale, 3.0);
 
@@ -59,7 +59,7 @@ class ExpansionAirdropStarDestroyer: ExpansionAirdropPlaneBase
 				SEffectManager.Expansion_PlaySoundOnObject("Expansion_StarDestroyer_WarpIn_SoundSet", this, 0.1, 0.1);
 				PlaySoundSetLoop(m_Expansion_EngineSound, "Expansion_StarDestroyer_Engine_SoundSet", 1.0, 1.0);
 			}
-			else if (scale == m_Expansion_WarpedInScale && dist > m_Expansion_DistToPlayer && dist > (warpedInDist - m_Speed * 5) * 0.82 && !m_Expansion_WarpOut)
+			else if (scale == m_Expansion_WarpedInScale && dist > m_Expansion_DistToPlayer && dist > (warpedInDist - m_Expansion_Speed * 5) * 0.82 && !m_Expansion_WarpOut)
 			{
 				m_Expansion_WarpOut = true;
 				SEffectManager.Expansion_PlaySoundOnObject("Expansion_StarDestroyer_WarpOut_SoundSet", this, 0.1, 0.1);

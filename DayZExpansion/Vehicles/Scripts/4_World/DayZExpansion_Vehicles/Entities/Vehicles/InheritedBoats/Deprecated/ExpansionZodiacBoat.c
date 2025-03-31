@@ -23,6 +23,9 @@ class ExpansionZodiacBoat: ExpansionBoatScript
 		m_TurnCoef = 0.05;
 
 		m_Offset = 0.97;
+
+		m_EngineStartOK = "boat_01_engine_start_SoundSet";
+		m_EngineStopFuel = "boat_01_engine_stop_no_fuel_SoundSet";
 	}
 
 	override int GetAnimInstance()
@@ -45,12 +48,55 @@ class ExpansionZodiacBoat: ExpansionBoatScript
 		case 0:
 			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
 		case 1:
-			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_R;
+			return DayZPlayerConstants.VEHICLESEAT_CODRIVER;
 		case 2:
 			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_L;
+		case 3:
+			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_R;
 		}
 
 		return 0;
+	}
+
+	override int Expansion_EngineStartAnimation()
+	{
+		return DayZPlayerConstants.CMD_ACTIONMOD_STARTENGINE;
+	}
+
+	override int Expansion_EngineStopAnimation()
+	{
+		return DayZPlayerConstants.CMD_ACTIONMOD_STOPENGINE;
+	}
+
+	override void HandleEngineSound(CarEngineSoundState state)
+	{
+	#ifndef SERVER
+		EffectSound sound = null;
+
+		m_CarEngineLastSoundState = state;
+		
+		switch (state)
+		{
+			case CarEngineSoundState.STARTING:
+				break;
+
+			case CarEngineSoundState.START_NO_FUEL:
+				sound = SEffectManager.PlaySound("boat_01_engine_start_no_fuel_SoundSet", ModelToWorld(GetEnginePos()));
+				sound.SetAutodestroy(true);
+				break;
+
+			case CarEngineSoundState.STOP_OK:
+				sound = SEffectManager.PlaySound("boat_01_engine_stop_SoundSet", ModelToWorld(GetEnginePos()));
+				sound.SetAutodestroy(true);
+
+				SetEngineStarted(false);
+				break;
+
+			default:
+				super.HandleEngineSound(state);
+				break;
+		}
+	#endif
 	}
 
 	override bool CrewCanGetThrough(int posIdx)
@@ -69,6 +115,11 @@ class ExpansionZodiacBoat: ExpansionBoatScript
 #endif
 
 		return false;
+	}
+
+	override bool CanReachSeatFromSeat(int currentSeat, int nextSeat)
+	{
+		return true;
 	}
 
 	override bool IsVitalCarBattery()

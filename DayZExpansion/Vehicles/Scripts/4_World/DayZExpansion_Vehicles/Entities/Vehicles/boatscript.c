@@ -1,6 +1,8 @@
 #ifndef DAYZ_1_25
 modded class BoatScript
 {
+	protected float m_Expansion_FuelCheckTime;
+
 #ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
@@ -68,6 +70,20 @@ modded class BoatScript
 	override void EOnPostSimulate(IEntity other, float timeSlice)
 	{
 		m_ExpansionVehicle.OnPostSimulate(timeSlice);
+
+		if (GetGame().IsServer())
+		{
+			m_Expansion_FuelCheckTime += timeSlice;
+
+			if (m_Expansion_FuelCheckTime > GameConstants.CARS_FLUIDS_TICK)
+			{
+				//! @note this is for additional fuel consumption (FuelConsumptionPercent != 100)
+				if (EngineIsOn())
+					m_ExpansionVehicle.ConsumeFuelOverTime(m_Expansion_FuelCheckTime);
+	
+				m_Expansion_FuelCheckTime = 0;
+			}
+		}
 	}
 
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
@@ -147,9 +163,29 @@ modded class BoatScript
 		return 1;
 	}
 
+	int Expansion_EngineGetCurrent()
+	{
+		return 0;
+	}
+
 	string Expansion_EngineGetName()
 	{
 		return "Boat";
+	}
+
+	float Expansion_EngineGetRPM(int index)
+	{
+		return EngineGetRPM();
+	}
+
+	float Expansion_EngineGetRPMIdle(int index)
+	{
+		return EngineGetRPMIdle();
+	}
+
+	bool Expansion_EngineIsOn(int index)
+	{
+		return EngineIsOn();
 	}
 
 	bool Expansion_HasGear()
@@ -222,6 +258,19 @@ modded class BoatScript
 	int Expansion_EngineStopAnimation()
 	{
 		return DayZPlayerConstants.CMD_ACTIONMOD_STOPENGINE;
+	}
+
+	float Expansion_GetThrottle(int index)
+	{
+		return GetThrottle();
+	}
+
+	void Expansion_OnDoorOpened(string selection)
+	{
+	}
+
+	void Expansion_OnDoorClosed(string selection)
+	{
 	}
 };
 #endif

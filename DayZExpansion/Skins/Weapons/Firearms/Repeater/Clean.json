@@ -6,7 +6,5 @@
 			"RVMaterial": "dz\\weapons\\firearms\\repeater\\data\\repeater.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

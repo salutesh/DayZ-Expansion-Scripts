@@ -64,14 +64,6 @@ modded class CarScript
 	protected int m_Expansion_MaximumEngine;
 	protected int m_Expansion_CurrentEngine;
 
-	// Horn
-	protected EffectSound m_HornSound;
-
-	protected string m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
-	protected string m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
-	protected bool m_HornPlaying;
-	protected bool m_HornSynchRemote;
-
 	// Explosion
 	protected bool m_Exploded;
 	protected bool m_ExplodedSynchRemote;
@@ -161,10 +153,6 @@ modded class CarScript
 	#ifdef DAYZ_1_25
 		RegisterNetSyncVariableBool("m_Expansion_AcceptingAttachment");
 	#endif
-
-		RegisterNetSyncVariableBool("m_HornSynchRemote");
-
-		RegisterNetSyncVariableBool("m_Expansion_EngineIsOn");
 
 #ifndef EXPANSION_VEHICLE_DESYNC_PROTECTION_DISABLE
 		m_State.RegisterSync_CarScript("m_State");
@@ -260,13 +248,13 @@ modded class CarScript
 		else
 			m_Expansion_Mass = dBodyGetMass(this);
 
-		path = "CfgVehicles " + GetType() + " hornSoundSetEXT";
+		path = "CfgVehicles " + GetType() + " hornLongSoundSet";
 		if (GetGame().ConfigIsExisting(path))
-			m_HornSoundSetEXT = GetGame().ConfigGetTextOut(path);
+			m_CarHornLongSoundName = GetGame().ConfigGetTextOut(path);
 
-		path = "CfgVehicles " + GetType() + " hornSoundSetINT";
+		path = "CfgVehicles " + GetType() + " hornShortSoundSet";
 		if (GetGame().ConfigIsExisting(path))
-			m_HornSoundSetINT = GetGame().ConfigGetTextOut(path);
+			m_CarHornShortSoundName = GetGame().ConfigGetTextOut(path);
 
 		if (GetGame().IsServer())
 		{
@@ -530,7 +518,10 @@ modded class CarScript
 			{
 				//! Setting state to inactive fixes issues with vehicles being simulated at server start (jumpy helis, boats being always active when in water, not needed for cars)
 				if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionBoatScript))
+				{
+					EXTrace.Print(EXTrace.VEHICLES, this, "DeferredInit - isStoreLoaded - missionLoaded - setting ActiveState.INACTIVE");
 					dBodyActive(this, ActiveState.INACTIVE);
+				}
 			}
 
 			SetSynchDirty();
@@ -680,14 +671,22 @@ modded class CarScript
 
 	void OnCarDoorOpened(string source)
 	{
-		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnDoorOpened");
+		EXError.Error(this, "DEPRECATED, use Expansion_OnDoorOpened");
 		m_ExpansionVehicle.OnDoorOpened(source);
 	}
 
 	void OnCarDoorClosed(string source)
 	{
-		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnDoorClosed");
+		EXError.Error(this, "DEPRECATED, use Expansion_OnDoorClosed");
 		m_ExpansionVehicle.OnDoorClosed(source);
+	}
+
+	void Expansion_OnDoorOpened(string selection)
+	{
+	}
+
+	void Expansion_OnDoorClosed(string selection)
+	{
 	}
 
 	bool IsCarKeys(ExpansionCarKey key)
@@ -722,44 +721,6 @@ modded class CarScript
 	void OnCarUnlocked()
 	{
 		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnUnlocked");
-	}
-
-	void OnHornSoundPlay()
-	{
-		string soundFile = m_HornSoundSetEXT;
-		if (GetGame().GetPlayer().IsCameraInsideVehicle())
-			soundFile = m_HornSoundSetINT;
-
-		m_HornSound = SEffectManager.PlaySoundOnObject(soundFile, this);
-		m_HornSound.SetSoundAutodestroy(true);
-		m_HornSound.SetSoundLoop(true);
-	}
-
-	void OnHornSoundStop()
-	{
-		m_HornSound.SetSoundLoop(false);
-		m_HornSound.SoundStop();
-	}
-
-	void PlayHorn()
-	{
-		m_HornSynchRemote = true;
-		m_HornPlaying = false;
-
-		SetSynchDirty();
-	}
-
-	void StopHorn()
-	{
-		m_HornSynchRemote = false;
-		m_HornPlaying = true;
-
-		SetSynchDirty();
-	}
-
-	bool IsSoundSynchRemote()
-	{
-		return m_HornSynchRemote;
 	}
 
 	override void Explode(int damageType, string ammoType = "")
@@ -1175,6 +1136,14 @@ modded class CarScript
 		return Expansion_CanObjectAttach(obj);
 	}
 
+	float Expansion_GetThrottle(int index)
+	{
+		if (index == 0)
+			return GetThrust();
+
+		return m_Controller.GetThrottle(index);
+	}
+
 	override bool Expansion_IsVehicleFunctional(bool checkOptionalParts = false, set<typename> missingComponents = null)
 	{
 		if (!super.Expansion_IsVehicleFunctional(checkOptionalParts, missingComponents))
@@ -1416,7 +1385,7 @@ modded class CarScript
 
 			m_FuelTankHealth = GetHealth01("FuelTank", "");
 
-			if (Expansion_EngineIsOn())
+			if (EngineIsOn() || Expansion_EnginesOn())
 			{
 				CheckVitalItem(IsVitalCarBattery(), "CarBattery");
 				CheckVitalItem(IsVitalTruckBattery(), "TruckBattery");
@@ -1468,12 +1437,10 @@ modded class CarScript
 				if (oil > 0.0 && m_EngineHealth < 0.25)
 					LeakFluid(CarFluid.OIL);
 
-				if (fuelConsumption > 0.0)
-				{
-					Leak(CarFluid.FUEL, fuelConsumption);
-					if (GetFluidFraction(CarFluid.FUEL) <= 0)
-						Expansion_EngineStop();
-				}
+				m_ExpansionVehicle.ConsumeFuel(fuelConsumption);
+
+				if (GetFluidFraction(CarFluid.FUEL) <= 0)
+					Expansion_EngineStop();
 			}
 		}
 
@@ -1555,27 +1522,10 @@ modded class CarScript
 		return Expansion_EngineIsOn();
 	}
 
-	bool CanUpdateHorn(float pDt)
-	{
-		return m_HornPlaying && IsMissionHost();
-	}
-
-	void UpdateHorn(float pDt)
-	{
-		NoiseParams npar = new NoiseParams();
-		npar.LoadFromPath("CfgVehicles " + GetType() + " NoiseCarHorn");
-		//GetGame().GetNoiseSystem().AddNoise( this, npar );
-	}
-
 	override void EOnPostSimulate(IEntity other, float timeSlice)
 	{
 		//! Prevent vanilla fluid checks from running
 		m_Time = -1;
-
-		if (CanUpdateHorn(timeSlice))
-		{
-			UpdateHorn(timeSlice);
-		}
 
 		if (CanUpdateHealth(timeSlice))
 		{
@@ -2194,6 +2144,8 @@ modded class CarScript
 			}
 		}
 
+		bool isActive = dBodyIsActive(this);
+
 		if (GetGame().IsClient())
 		{
 			m_IsPhysicsHost = driver == GetGame().GetPlayer();
@@ -2226,6 +2178,8 @@ modded class CarScript
 
 				if (Expansion_ShouldDisableSimulation())
 				{
+					if (isActive)
+						EXTrace.Print(EXTrace.VEHICLES, this, "no driver - CanSimulate - ShouldDisableSimulation - setting ActiveState.INACTIVE");
 					dBodyActive(this, ActiveState.INACTIVE);
 					return;
 				}
@@ -2246,8 +2200,6 @@ modded class CarScript
 		//! If driver managed to get in vehicle before forcing initial storeloaded position, skip it
 		if (driver && m_Expansion_IsStoreLoaded && !m_Expansion_ForcedStoreLoadedPositionAndOrientation)
 			m_Expansion_ForcedStoreLoadedPositionAndOrientation = true;
-
-		bool isActive = dBodyIsActive(this);
 
 		if (!isActive)
 		{
@@ -2411,14 +2363,19 @@ modded class CarScript
 		if (module.IsInherited(ExpansionVehicleEngineBase))
 		{
 			auto engine = ExpansionVehicleEngineBase.Cast(module);
-			engine.m_EngineIndex = m_Engines.Count() + 1;
-			RegisterNetSyncVariableBool("m_Expansion_EngineSync" + engine.m_EngineIndex);
+			engine.m_EngineIndex = m_Engines.Count();
+			if (engine.m_EngineIndex > 0)
+				RegisterNetSyncVariableBool("m_Expansion_EngineSync" + engine.m_EngineIndex);
 			if (engine.m_EngineIndex >= 4)
 			{
 				Error(GetType() + ": " + engine.m_EngineIndex + " engines added were added, max is 4.");
 			}
 
 			m_Engines.Insert(engine);
+
+		#ifdef DIAG_DEVELOPER
+			EXTrace.Print(EXTrace.VEHICLES, this, "Added " + engine + " index " + engine.m_EngineIndex);
+		#endif
 
 			m_Expansion_MaximumEngine = m_Engines.Count();
 			return;
@@ -2427,7 +2384,7 @@ modded class CarScript
 		if (module.IsInherited(ExpansionVehicleGearbox))
 		{
 			auto gearbox = ExpansionVehicleGearbox.Cast(module);
-			gearbox.m_GearIndex = m_Gearboxes.Count() + 1;
+			gearbox.m_GearIndex = m_Gearboxes.Count();
 			if (gearbox.m_GearIndex >= 4)
 			{
 				Error(GetType() + ": " + gearbox.m_GearIndex + " gearboxes added were added, max is 4.");
@@ -2436,6 +2393,10 @@ modded class CarScript
 			m_Gearboxes.Insert(gearbox);
 			return;
 		}
+
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.VEHICLES, this, "Added " + module);
+	#endif
 	}
 
 	string Expansion_EngineGetName()
@@ -2486,6 +2447,16 @@ modded class CarScript
 		m_Expansion_CurrentEngine++;
 		if (m_Expansion_CurrentEngine >= m_Expansion_MaximumEngine)
 			m_Expansion_CurrentEngine = m_Expansion_MinimumEngine;
+
+		if (m_Expansion_CurrentEngine > 0)
+		{
+			if (Expansion_IsBoat())
+			{
+				int gear = GetGear();
+				if (gear > CarGear.FIRST)
+					ShiftTo(CarGear.FIRST);
+			}
+		}
 
 		SetSynchDirty();
 	}
@@ -2568,6 +2539,14 @@ modded class CarScript
 		return m_Engines[index].m_RPM;
 	}
 
+	float Expansion_EngineGetRPMIdle(int index)
+	{
+		if (index == 0)
+			return EngineGetRPMIdle();
+
+		return m_Engines[index].m_RPMIdle;
+	}
+
 	/**
 	 * @brief Returns true when engine is running, false otherwise.
 	 */
@@ -2620,8 +2599,8 @@ modded class CarScript
 		if (m_Exploded)
 			return false;
 
-		//! Vanilla does this check for us in OnBeforeEngineStart() if it's a car
-		if (!IsCar() && GetFluidFraction(CarFluid.FUEL) <= 0)
+		//! Vanilla does this check for us in OnBeforeEngineStart() if engine 0 is selected
+		if (Expansion_EngineGetCurrent() > 0 && GetFluidFraction(CarFluid.FUEL) <= 0)
 		{
 			return false;
 		}
@@ -2980,7 +2959,7 @@ modded class CarScript
 		super.OnEngineStop();
 
 		//! Something (probably vanilla?) is calling OnEngineStop in a loop on client, EVEN IF ENGINE IS RUNNING WHYYY WTF
-		//! Prevent this by checking netsynched var that tells us if engine is really stopped or not
+		//! Prevent this by checking var that tells us if engine is really stopped or not
 		if (GetGame().IsClient() && m_Expansion_EngineIsOn)
 			return;
 
@@ -3044,17 +3023,6 @@ modded class CarScript
 			{
 				OnEngineStop(3);
 			}
-		}
-
-		if (IsSoundSynchRemote() && !m_HornPlaying)
-		{
-			m_HornPlaying = true;
-			OnHornSoundPlay();
-		}
-		else if (!IsSoundSynchRemote() && m_HornPlaying)
-		{
-			m_HornPlaying = false;
-			OnHornSoundStop();
 		}
 
 		if (m_ExplodedSynchRemote && !m_Exploded)
@@ -3317,14 +3285,14 @@ modded class CarScript
 			return;
 		}
 
-		if (m_CurrentSkin.HornEXT != "")
+		if (m_CurrentSkin.HornLong != "")
 		{
-			m_HornSoundSetEXT = m_CurrentSkin.HornEXT;
+			m_CarHornLongSoundName = m_CurrentSkin.HornLong;
 		}
 
-		if (m_CurrentSkin.HornINT != "")
+		if (m_CurrentSkin.HornShort != "")
 		{
-			m_HornSoundSetINT = m_CurrentSkin.HornINT;
+			m_CarHornShortSoundName = m_CurrentSkin.HornShort;
 		}
 
 		for (int i = 0; i < m_CurrentSkin.HiddenSelections.Count(); i++)

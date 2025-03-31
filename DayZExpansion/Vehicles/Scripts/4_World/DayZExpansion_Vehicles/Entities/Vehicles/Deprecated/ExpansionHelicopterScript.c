@@ -83,6 +83,7 @@ class ExpansionHelicopterScript: CarScript
 		ExpansionVehicleHelicopter_OLD simulation = new ExpansionVehicleHelicopter_OLD(this);
 		m_Simulation = simulation;
 		AddModule(m_Simulation);
+		RegisterNetSyncVariableBool("m_Expansion_EngineSync1");
 
 		RegisterNetSyncVariableFloat("m_Simulation.m_RotorSpeed");
 		
@@ -634,6 +635,19 @@ class ExpansionHelicopterScript: CarScript
 	override bool Expansion_EngineIsSpinning()
 	{
 		return m_Simulation.m_RotorSpeed > 0;
+	}
+
+	override float Expansion_GetThrottle()
+	{
+		return m_Simulation.m_RotorSpeed;
+	}
+
+	override float Expansion_GetThrottle(int index)
+	{
+		if (index == 0)
+			return 0;
+
+		return m_Simulation.m_RotorSpeed;
 	}
 
 	bool Expansion_IsRotorDamaged()

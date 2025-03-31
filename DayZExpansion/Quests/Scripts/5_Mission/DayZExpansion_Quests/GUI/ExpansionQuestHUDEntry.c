@@ -10,7 +10,6 @@
  *
 */
 
-#ifdef EXPANSIONMODQUESTS_HUD_ENABLE
 class ExpansionQuestHUDEntry: ExpansionScriptView
 {
 	protected ref ExpansionQuestHUDEntryController m_QuestHUDEntryController;
@@ -152,4 +151,3 @@ class ExpansionQuestHUDEntryController: ExpansionViewController
 	string QuestName;
 	string ObjectiveText;
 };
-#endif
