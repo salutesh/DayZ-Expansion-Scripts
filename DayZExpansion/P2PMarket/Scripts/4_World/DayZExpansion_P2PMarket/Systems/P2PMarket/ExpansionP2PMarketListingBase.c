@@ -289,8 +289,7 @@ class ExpansionP2PMarketListingBase
 		if (!m_ListingObject)
 			return;
 
-		array< EntityAI > items = new array< EntityAI >;
-		m_ListingObject.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+		array<EntityAI> items = MiscGameplayFunctions.Expansion_GetItems(m_ListingObject);
 
 		m_ContainerItems.Clear();
 
@@ -298,50 +297,55 @@ class ExpansionP2PMarketListingBase
 		if (m_ListingObject.IsInherited(MagazineStorage))
 			GetAmmoForMagazine(m_ListingObject);
 
-		for (int i = 0; i < items.Count(); i++)
+		InventoryLocation lcn = new InventoryLocation();
+
+		foreach (EntityAI item: items)
 		{
-			EntityAI item = items[i];
-			if (item == m_ListingObject)
+			lcn.Reset();
+			item.GetInventory().GetCurrentInventoryLocation(lcn);
+
+			if (lcn.GetType() == InventoryLocationType.ATTACHMENT)
+			{
+				//! Skip items in hidden attachment slots
+				if (!InventorySlots.GetShowForSlotId(lcn.GetSlot()))
+					continue;
+			}
+
+			//! Hardcoded excluded type names where the item should never get added and shown in the menu.
+			if (ExpansionP2PMarketModule.m_HardcodedExcludes.Find(item.GetType()) > -1)
 				continue;
 
-			if (item.GetInventory().IsAttachment() && m_ListingObject.GetInventory().HasAttachment(item) || item.GetInventory().IsInCargo() && m_ListingObject.GetInventory().HasEntityInCargo(item))
+			if (!ExpansionP2PMarketModule.ItemCheckEx(item))
+				m_IsExcluded = true;
+
+			ExpansionP2PMarketContainerItem containerItem = new ExpansionP2PMarketContainerItem();
+			containerItem.SetFromItem(item);
+			
+			if (!m_IsExcluded && containerItem.IsExcluded())
+				m_IsExcluded = true;
+			
+			//! If item is a BB kit then make sure we cant deposit the attached rope..
+			KitBase kitBase;
+			if (Class.CastTo(kitBase, m_ListingObject) && item.GetType() == "Rope")
+				containerItem.SetExcluded(true);
+
+			m_ContainerItems.Insert(containerItem);
+
+			#ifdef EXPANSIONMODHARDLINE
+			ItemBase itemIB;
+			if (Class.CastTo(itemIB, item))
 			{
-				//! Hardcoded excluded type names where the item should never get added and shown in the menu.
-				if (ExpansionP2PMarketModule.m_HardcodedExcludes.Find(item.GetType()) > -1)
-					continue;
-
-				if (!ExpansionP2PMarketModule.ItemCheckEx(item))
-					m_IsExcluded = true;
-
-				ExpansionP2PMarketContainerItem containerItem = new ExpansionP2PMarketContainerItem();
-				containerItem.SetFromItem(item);
-				
-				if (!m_IsExcluded && containerItem.IsExcluded())
-					m_IsExcluded = true;
-				
-				//! If item is a BB kit then make sure we cant deposit the attached rope..
-				KitBase kitBase;
-				if (Class.CastTo(kitBase, m_ListingObject) && item.GetType() == "Rope")
-					containerItem.SetExcluded(true);
-	
-				m_ContainerItems.Insert(containerItem);
-
-				#ifdef EXPANSIONMODHARDLINE
-				ItemBase itemIB;
-				if (Class.CastTo(itemIB, item))
+				auto settings = GetExpansionSettings().GetHardline();
+				if (settings.EnableItemRarity)
 				{
-					auto settings = GetExpansionSettings().GetHardline();
-					if (settings.EnableItemRarity)
+					ExpansionHardlineItemRarity rarity = itemIB.Expansion_GetRarity();
+					if (rarity != ExpansionHardlineItemRarity.NONE)
 					{
-						ExpansionHardlineItemRarity rarity = itemIB.Expansion_GetRarity();
-						if (rarity != ExpansionHardlineItemRarity.NONE)
-						{
-							containerItem.SetRarity(rarity);
-						}
+						containerItem.SetRarity(rarity);
 					}
 				}
-				#endif
 			}
+			#endif
 		}
 	}
 };

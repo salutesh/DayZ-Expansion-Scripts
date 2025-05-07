@@ -246,7 +246,7 @@ modded class ItemBase
 		return false;
 	}
 
-	bool Expansion_TryTurningOnAnyLightsOrNVG(out float nightVisibility, PlayerBase player, bool skipNonNVG = false, bool skipNVG = false)
+	bool Expansion_TryTurningOnAnyLightsOrNVG(inout float nightVisibility, PlayerBase player, bool skipNonNVG = false, bool skipNVG = false)
 	{
 		if ( !skipNVG && !player.IsUnconscious() && !player.IsRestrained() )
 		{
@@ -254,7 +254,7 @@ modded class ItemBase
 			if (goggles)
 			{
 				goggles.RotateGoggles(false);
-				nightVisibility = 0.35;
+				nightVisibility = 0.35 + nightVisibility * 0.65;
 				EXTrace.Print(EXTrace.AI, player, "switched on " + goggles.ToString());
 				return true;
 			}
@@ -270,7 +270,7 @@ modded class ItemBase
 				ItemBase itemChild = ItemBase.Cast(FindAttachmentBySlotName("helmetFlashlight"));
 				if ( itemChild.Expansion_TryTurningOn() )
 				{
-					nightVisibility = 0.15;
+					nightVisibility = 0.15 + nightVisibility * 0.85;
 					EXTrace.Print(EXTrace.AI, player, "switched on " + itemChild.ToString());
 					return true;
 				}
@@ -280,7 +280,7 @@ modded class ItemBase
 			{
 				if ( Expansion_TryTurningOn() )
 				{
-					nightVisibility = 0.15;
+					nightVisibility = 0.15 + nightVisibility * 0.85;
 					EXTrace.Print(EXTrace.AI, player, "switched on head torch");
 					return true;
 				}
@@ -289,7 +289,7 @@ modded class ItemBase
 			{
 				if ( Expansion_TryTurningOn() )
 				{
-					nightVisibility = 0.15;
+					nightVisibility = 0.15 + nightVisibility * 0.85;
 					EXTrace.Print(EXTrace.AI, player, "switched on " + ToString());
 					return true;
 				}
@@ -299,7 +299,7 @@ modded class ItemBase
 		return false;
 	}
 
-	bool Expansion_TryTurningOffAnyLightsOrNVG(PlayerBase player, bool skipNVG = false)
+	bool Expansion_TryTurningOffAnyLightsOrNVG(PlayerBase player, bool skipNVG = false, bool force = false)
 	{
 		if ( !skipNVG && !player.IsUnconscious() && !player.IsRestrained() )
 		{
@@ -315,17 +315,17 @@ modded class ItemBase
 		ActionManagerBase actionManager = player.GetActionManager();
 		ActionTarget atrg = new ActionTarget(this, null, -1, vector.Zero, -1);
 
-		if ( actionManager.GetAction(ActionTurnOffHelmetFlashlight).Can(player, atrg, this) )
+		if ( IsInherited(HelmetBase) && (force || actionManager.GetAction(ActionTurnOffHelmetFlashlight).Can(player, atrg, this)) )
 		{
 			ItemBase itemChild = ItemBase.Cast(FindAttachmentBySlotName("helmetFlashlight"));
-			if ( itemChild.Expansion_TryTurningOff() )
+			if ( itemChild && itemChild.Expansion_TryTurningOff() )
 			{
 				EXTrace.Print(EXTrace.AI, player, "switched off " + itemChild.ToString());
 				return true;
 			}
 		}
 
-		if ( IsInherited(Headtorch_ColorBase) && actionManager.GetAction(ActionTurnOffHeadtorch).Can(player, atrg, this) )
+		if ( IsInherited(Headtorch_ColorBase) && (force || actionManager.GetAction(ActionTurnOffHeadtorch).Can(player, atrg, this)) )
 		{
 			if ( Expansion_TryTurningOff() )
 			{
@@ -333,7 +333,7 @@ modded class ItemBase
 				return true;
 			}
 		}
-		else if ( actionManager.GetAction(ActionTurnOffWhileInHands).Can(player, atrg, this) )
+		else if ( force || actionManager.GetAction(ActionTurnOffWhileInHands).Can(player, atrg, this) )
 		{
 			if ( Expansion_TryTurningOff() )
 			{

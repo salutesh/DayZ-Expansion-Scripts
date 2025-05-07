@@ -67,6 +67,12 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		{
 			auto settings = GetExpansionSettings().GetAirdrop();
 
+			if (Speed <= 0)
+				Speed = settings.Speed;
+
+			if (DropZoneSpeed <= 0)
+				DropZoneSpeed = settings.DropZoneSpeed;
+
 			ExpansionLootContainer container;
 
 			if ( Loot.Count() == 0 || Infected.Count() == 0 )

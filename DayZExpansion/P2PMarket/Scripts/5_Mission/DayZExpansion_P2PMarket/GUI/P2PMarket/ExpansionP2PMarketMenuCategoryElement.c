@@ -53,7 +53,7 @@ class ExpansionP2PMarketMenuCategoryElement: ExpansionScriptView
 			int subCategoryIndex;
 			array<ref ExpansionP2PMarketMenuSubCategory> subCategories = m_Category.GetSubCategories();
 			
-			for (int i = 0; i < subCategories.Count(); i++)
+			for (int i = 0; i < subCategories.Count(); ++i)
 			{
 				ExpansionP2PMarketMenuSubCategory subCategory = subCategories[i];
 				subCategoryIndex++;
@@ -89,7 +89,7 @@ class ExpansionP2PMarketMenuCategoryElement: ExpansionScriptView
 		m_P2PMarketMenuCategoryController.CategoryItemsCount = itemsCountText;
 		m_P2PMarketMenuCategoryController.NotifyPropertyChanged("CategoryItemsCount");
 
-		for (int i = 0; i < m_P2PMarketMenuCategoryController.SubCategories.Count(); i++)
+		for (int i = 0; i < m_P2PMarketMenuCategoryController.SubCategories.Count(); ++i)
 		{
 			ExpansionP2PMarketMenuSubCategoryElement subCategory = m_P2PMarketMenuCategoryController.SubCategories[i];
 			subCategory.UpdateData();

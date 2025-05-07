@@ -291,13 +291,13 @@ class eAICommandMove: ExpansionHumanCommand
 		return m_TargetMovementDirection;
 	}
 
+	//! TODO: Remove force param, it's an artefact of the old HumanCommandScript code
 	bool OverrideStance(int stance, bool force = false)
 	{
-		if (m_Stance != stance)
+		if (m_Unit.m_eAI_StancePreference != stance)
 		{
-			m_ForceStance = force;
+			//m_ForceStance = force;
 
-			m_Stance = stance;
 			m_Unit.m_eAI_StancePreference = stance;
 
 		//#ifdef DIAG_DEVELOPER
@@ -428,7 +428,7 @@ class eAICommandMove: ExpansionHumanCommand
 						checkDirection.Normalize();
 					}
 
-					if ((!m_Unit.m_eAI_Ladder || !m_Unit.eAI_IsCloseToLadderEntryPoint()) && !m_Unit.eAI_IsFallSafe(checkDirection * 2.0))
+					if ((!m_Unit.m_eAI_Ladder || (!m_Unit.m_eAI_IsOnLadder && !m_Unit.eAI_IsCloseToLadderEntryPoint())) && !m_Unit.eAI_IsFallSafe(checkDirection * 2.0))
 					{
 					#ifdef DIAG_DEVELOPER
 						if (!m_PathFinding.m_IsUnreachable)
@@ -440,7 +440,7 @@ class eAICommandMove: ExpansionHumanCommand
 						m_PathFinding.m_IsUnreachable = true;
 						m_PathFinding.m_IsTargetUnreachable = true;
 					}
-					else if ((m_PathFinding.m_IsUnreachable || m_PathFinding.m_IsTargetUnreachable) && m_Unit.m_eAI_BuildingWithLadder && m_PathFinding.m_Count > 0 && !m_PathFinding.m_IsBlocked)
+					else if ((m_PathFinding.m_IsUnreachable || m_PathFinding.m_IsTargetUnreachable) && m_Unit.m_eAI_BuildingWithLadder && !m_Unit.m_eAI_IsOnLadder && m_PathFinding.m_Count > 0 && !m_PathFinding.m_IsBlocked)
 					{
 						m_PathFinding.ForceRecalculate();
 					}
@@ -531,7 +531,10 @@ class eAICommandMove: ExpansionHumanCommand
 					EXTrace.Print(EXTrace.AI, this, "eAICommandMove::StartTurnOverride -" + msg);
 					ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100, m_Unit.GetType() + msg);
 				#endif
-					m_TurnDirection = -m_TurnDirection;
+					if (m_Stance == DayZPlayerConstants.STANCEIDX_PRONE)
+						m_TurnOverride = 0;
+					else
+						m_TurnDirection = -m_TurnDirection;
 				}
 			}
 			else
@@ -645,7 +648,7 @@ class eAICommandMove: ExpansionHumanCommand
 					blockedBackward = this.Raycast(position, checkDir, backwardPos, outNormal, hitFraction, checkDir, 0.5, true, m_BlockingObject);
 				}
 
-				if (!blockedBackward && m_Unit.m_eAI_PositionTime > 3.0)
+				if (!blockedBackward && m_Unit.m_eAI_PositionTime > 4.0)
 					blockedBackward = true;
 
 				if (blockedBackward)
@@ -672,7 +675,7 @@ class eAICommandMove: ExpansionHumanCommand
 
 				blockedForward = this.Raycast(position, checkDir, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed, 0.5, true, m_BlockingObject, true);
 
-				if (!blockedForward && m_Unit.m_eAI_PositionTime > 3.0)
+				if (!blockedForward && m_Unit.m_eAI_PositionTime > 4.0)
 					blockedForward = true;
 
 				if (blockedForward)
@@ -728,12 +731,12 @@ class eAICommandMove: ExpansionHumanCommand
 				vector checkLeft = position + 0.25 * lr;
 				vector checkRight = position - 0.25 * lr;
 				blockedLeft = this.Raycast(position, checkLeft, leftPos, outNormal, hitFraction, checkDir + lr, 0.5);
-				if (!blockedLeft && m_Unit.m_eAI_PositionTime > 3.0)
+				if (!blockedLeft && m_Unit.m_eAI_PositionTime > 4.0)
 					blockedLeft = true;
 				if (blockedLeft)
 					m_Unit.Expansion_DebugObject_Deferred(BLOCKED_LEFT_HITPOSITION, leftPos, "ExpansionDebugBox_Purple", outNormal);
 				blockedRight = this.Raycast(position, checkRight, rightPos, outNormal, hitFraction, checkDir - lr, 0.5);
-				if (!blockedRight && m_Unit.m_eAI_PositionTime > 3.0)
+				if (!blockedRight && m_Unit.m_eAI_PositionTime > 4.0)
 					blockedRight = true;
 				if (blockedRight)
 					m_Unit.Expansion_DebugObject_Deferred(BLOCKED_RIGHT_HITPOSITION, rightPos, "ExpansionDebugBox_Purple", outNormal);
@@ -771,17 +774,32 @@ class eAICommandMove: ExpansionHumanCommand
 				{
 					//! Ready to play pinball
 
-					//! Check which direction we want to move. Moving left is always the fall-through case
+					//! Check which direction we want to move
 					if (m_TurnOverride)
 					{
 						turnOverride = true;
 					}
 					else if (blockedLeft && blockedRight)
 					{
-						//! This helps when on the catwalk of (e.g.) Land_Factory_Small so don't instantly start turning around
-						//! our own axis at the corners
-						if (m_Unit.m_eAI_BlockedTime > 0.2)
-							turnOverride = true;
+						switch (m_Stance)
+						{
+							case DayZPlayerConstants.STANCEIDX_PRONE:
+								if (m_Unit.m_eAI_BlockedTime > 10.0)
+									turnOverride = true;
+								break;
+
+							default:
+								//! This helps when on the catwalk of (e.g.) Land_Factory_Small so don't instantly start turning around
+								//! our own axis at the corners
+								if (m_Unit.m_eAI_BlockedTime > 0.2)
+									turnOverride = true;
+								break;
+						}
+					}
+
+					if (turnOverride)
+					{
+						//! Don't set movement direction
 					}
 					else if (blockedLeft && !blockedRight)
 					{
@@ -791,8 +809,18 @@ class eAICommandMove: ExpansionHumanCommand
 						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked left, move right");
 					#endif
 					}
-					else if (!blockedLeft && !blockedRight)
+					else if (!blockedLeft && blockedRight)
 					{
+						//! Go left if blocked right
+						moveLeft = true;
+					#ifdef EAI_DEBUG_MOVE
+						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked right, move left");
+					#endif
+					}
+					else
+					{
+						//! No direction blocked or both directions blocked
+
 						if (m_OverrideMovementTimeout > 0)
 						{
 							//! If already moving right, keep moving right
@@ -811,7 +839,7 @@ class eAICommandMove: ExpansionHumanCommand
 							#endif
 							}
 						}
-						//! 50% chance move right if neither blocked left/right
+						//! 50% chance move right
 						else if (Math.RandomIntInclusive(0, 1))
 						{
 							moveRight = true;
@@ -826,13 +854,6 @@ class eAICommandMove: ExpansionHumanCommand
 							EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, move left");
 						#endif
 						}
-					}
-					else
-					{
-						moveLeft = true;
-					#ifdef EAI_DEBUG_MOVE
-						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked right, move left");
-					#endif
 					}
 
 					if (backPedal)
@@ -1155,24 +1176,27 @@ class eAICommandMove: ExpansionHumanCommand
 
 		if (m_MovementSpeed > 0.0 && m_Waypoint != position && m_Unit.m_eAI_PositionTime > 3.0 && !m_Unit.IsClimbing() && !m_Unit.IsFalling())
 		{
-			if (m_BlockingObject && m_BlockingObject.IsBuilding())
+			if (m_BlockingObject && !m_BlockingObject.IsPlainObject() && !m_BlockingObject.IsRock())
 			{
-				if (m_PathFinding.m_IsJumpClimb)
+				if (m_BlockingObject.IsBuilding())
 				{
-					if (m_PathFinding.m_AllowJumpClimb)
-						m_PathFinding.SetAllowJumpClimb(false, 15.0);
-				}
-				else
-				{
-					m_PathFinding.m_IsUnreachable = true;
-					m_PathFinding.m_IsTargetUnreachable = true;
+					if (m_PathFinding.m_IsJumpClimb)
+					{
+						if (m_PathFinding.m_AllowJumpClimb)
+							m_PathFinding.SetAllowJumpClimb(false, 15.0);
+					}
+					else
+					{
+						m_PathFinding.m_IsUnreachable = true;
+						m_PathFinding.m_IsTargetUnreachable = true;
+					}
 				}
 			}
-			else
+			else if (m_PathFinding.m_PathGlueIdx == -1)  //! Don't use inverse path for teleport
 			{
-				surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
-				if (waypoint[1] < surfacePosition[1])
-					waypoint = surfacePosition;
+				//surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
+				//if (waypoint[1] < surfacePosition[1])
+				//	waypoint = surfacePosition;
 
 				float distSq = vector.DistanceSq(position, waypoint);
 				if (distSq < 16.0 && Math.AbsFloat(waypoint[1] - position[1]) < 3.0)
@@ -1511,7 +1535,7 @@ class eAICommandMove: ExpansionHumanCommand
 			}
 			else if (m_Unit.m_eAI_StancePreference != -1 && m_Stance != m_Unit.m_eAI_StancePreference && !DayZPhysics.RaycastRV(position + "0 0.3 0", position + Vector(0, 0.5 + (2.0 - m_Unit.m_eAI_StancePreference) * 0.75, 0), hitPosition, hitNormal, contactComponent, results, null, m_Unit, false, false, ObjIntersectView, 0.1))
 			{
-				m_ForceStance = true;
+				//m_ForceStance = true;
 				m_Stance = m_Unit.m_eAI_StancePreference;
 
 			#ifdef DIAG_DEVELOPER

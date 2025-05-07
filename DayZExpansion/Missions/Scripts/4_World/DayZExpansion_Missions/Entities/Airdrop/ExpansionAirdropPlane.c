@@ -26,6 +26,8 @@ class ExpansionAirdropPlaneBase: House
 	float m_Expansion_CurrentSpeed;
 	float m_Expansion_DropSpeed;
 	float m_Expansion_DropProximityDist;
+	float m_Expansion_DropProximityDistFar;
+	float m_Expansion_DropProximityDistNear;
 	float m_Expansion_Height;
 	float m_Expansion_CurrentHeight;
 	float m_Expansion_DropHeight;
@@ -256,6 +258,20 @@ class ExpansionAirdropPlaneBase: House
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
+		if (speed <= 0)
+		{
+			EXError.Error(this, "Airdrop configuration error: Plane speed can't be zero or lower!", {});
+			ExpansionNotification("Airdrop configuration error", "Plane speed can't be zero or lower!").Error();
+			speed = 35.0;
+		}
+
+		if (dropSpeed <= 0)
+		{
+			EXError.Error(this, "Airdrop configuration error: Plane drop speed can't be zero or lower!", {});
+			ExpansionNotification("Airdrop configuration error", "Plane drop speed can't be zero or lower!").Error();
+			dropSpeed = speed;
+		}
+
 		m_Expansion_SpawnPoint = spawnPoint;
 		m_Expansion_HeightIsRelativeToGroundLevel = heightIsRelativeToGround;
 		m_Expansion_Height = height;
@@ -266,6 +282,11 @@ class ExpansionAirdropPlaneBase: House
 		m_Expansion_CurrentSpeed = speed;
 		m_Expansion_DropSpeed = dropSpeed;
 		m_Expansion_DropProximityDist = dropProximityDist;
+		if (m_Expansion_DropProximityDist > 0)
+		{
+			m_Expansion_DropProximityDistFar = m_Expansion_DropProximityDist + Math.Max(Math.AbsFloat(height - dropHeight) * 2, 500);
+			m_Expansion_DropProximityDistNear = m_Expansion_DropProximityDist * (m_Expansion_DropProximityDist / m_Expansion_DropProximityDistFar);
+		}
 		
 		// Message( PlayerBase.Cast( GetGame().GetPlayer() ), "m_Expansion_Speed " + m_Expansion_Speed );
 		// Message( PlayerBase.Cast( GetGame().GetPlayer() ), "speed " + speed );
@@ -327,15 +348,20 @@ class ExpansionAirdropPlaneBase: House
 			vector position = GetPosition();
 			vector velocity = Vector( Math.Cos( m_Expansion_HeadingAngle ), 0, Math.Sin( m_Expansion_HeadingAngle ) );
 
-			if (Math.IsPointInCircle(m_Expansion_AirdropPosition, m_Expansion_DropProximityDist, position))
+			if (m_Expansion_DropProximityDistFar > 0)
 			{
-				m_Expansion_CurrentSpeed = Math.Lerp(m_Expansion_CurrentSpeed, m_Expansion_DropSpeed, dt);
-				m_Expansion_CurrentHeight = Math.Lerp(m_Expansion_CurrentHeight, m_Expansion_DropHeight, dt);
+				float dist2D = ExpansionMath.Distance2D(position, m_Expansion_AirdropPosition);
+				float t = ExpansionMath.LinearConversion(m_Expansion_DropProximityDistFar, m_Expansion_DropProximityDistNear, dist2D, 0, 1);
+
+				t = Easing.EaseInOutSine(t);
+
+				m_Expansion_CurrentSpeed = Math.Lerp(m_Expansion_Speed, m_Expansion_DropSpeed, t);
+				m_Expansion_CurrentHeight = Math.Lerp(m_Expansion_Height, m_Expansion_DropHeight, t);
 			}
 			else
 			{
-				m_Expansion_CurrentSpeed = Math.Lerp(m_Expansion_CurrentSpeed, m_Expansion_Speed, dt);
-				m_Expansion_CurrentHeight = Math.Lerp(m_Expansion_CurrentHeight, m_Expansion_Height, dt);
+				m_Expansion_CurrentSpeed = m_Expansion_Speed;
+				m_Expansion_CurrentHeight = m_Expansion_Height;
 			}
 
 			velocity[0] = velocity[0] * m_Expansion_CurrentSpeed;
@@ -552,7 +578,7 @@ class ExpansionAirdropPlaneBase: House
 
 		m_Expansion_WarningProximity = false;
 
-		if ( distance <= m_Expansion_DropProximityDist && !m_Expansion_HasWarnedProximity )
+		if ( distance < m_Expansion_DropProximityDist && !m_Expansion_HasWarnedProximity )
 		{
 			m_Expansion_HasWarnedProximity = true;
 			m_Expansion_WarningProximity = true;	

@@ -10,13 +10,13 @@
 			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\grey\\lr_body_outdoor_grey_co.paa",
 			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_body_outdoor.rvmat"
 		},
-	    {
+		{
 			"HiddenSelection": "bottom",
 			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_bottom_co.paa",
 			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_bottom.rvmat"
 		}
 	],
-    "DamageZones": [
+	"DamageZones": [
 		{
 			"Zone": "Chassis",
 			"HiddenSelections": [
@@ -352,8 +352,6 @@
 					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_destruct.rvmat"
 				}
 			]
-		}		
-	],
-	"HornEXT": "Expansion_Horn_Ext_SoundSet",
-	"HornINT": "Expansion_Horn_Int_SoundSet"
+		}
+	]
 }

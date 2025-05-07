@@ -330,7 +330,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 			m_PersonalStorageMenuController.PlayerItems.Clear();
 
-			array<EntityAI> slotItems = MiscGameplayFunctions.Expansion_GetEntitySlotItems(player);
+			array<EntityAI> slotItems = MiscGameplayFunctions.Expansion_GetAttachments(player);
 			array<string> slotNames = new array<string>;
 			slotNames.Insert("All");
 
@@ -862,110 +862,10 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		m_ItemDetailsView.GetHealthImageWidget().SetColor(color | 0x7F000000);
 	}
 
-	protected bool ItemCheck(EntityAI item)
-	{
-		if (!ItemCheckEx(item))
-			return false;
-
-		//! Don't add the optic attachment on AUG's.
-		if (item.GetType() == "AugOptic")
-			return false;
-		
-		//! Don`t add items that have excuded items in cargo
-		array<EntityAI> cargoItems = new array<EntityAI>;
-		item.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, cargoItems);
-		foreach (EntityAI cargoItem: cargoItems)
-		{
-			if (!ItemCheckEx(cargoItem))
-				return false;
-		}
-
-		return true;
-	}
-
-	protected bool ItemCheckEx(EntityAI item)
-	{
-		if (ExpansionStatic.IsAnyOf(item, GetExpansionSettings().GetPersonalStorage().ExcludedClassNames))
-			return false;
-
-		if (item.IsRuined())
-			return false;
-
-		//! Don`t add rotten food items
-		Edible_Base foodItem;
-		if (Class.CastTo(foodItem, item) && foodItem.HasFoodStage())
-		{
-			FoodStage foodStage = foodItem.GetFoodStage();
-			FoodStageType foodStageType = foodStage.GetFoodStageType();
-			if (foodStageType == FoodStageType.ROTTEN || foodStageType == FoodStageType.BURNED)
-				return false;
-		}
-
-	#ifdef WRDG_DOGTAGS
-		//! Don`t add players own dogtag
-		if (item.IsInherited(Dogtag_Base))
-		{
-			if (item.GetHierarchyRootPlayer())
-				return false;
-		}
-	#endif
-
-	#ifdef EXPANSIONMODQUESTS
-		//! Don`t add quest items
-		ItemBase itemIB;
-		if (Class.CastTo(itemIB, item))
-		{
-			if (itemIB.Expansion_IsQuestItem() || itemIB.Expansion_IsQuestGiver())
-				return false;
-		}
-	#endif
-
-		//! Don`t add any active items.
-		if (item.HasEnergyManager())
-		{
-			if (item.GetCompEM().IsWorking())
-				return false;
-		}
-
-		return true;
-	}
-
+	//! This method allows mods to override GetPreviewClassName while still keeping the original code in one place
 	string GetPreviewClassName(string className, bool ignoreBaseBuildingKits = false)
 	{
-		if (GetGame().ConfigIsExisting("CfgVehicles " + className + "_ExpansionMarketPreview"))
-		{
-			return className + "_ExpansionMarketPreview";
-		}
-		else if (!ignoreBaseBuildingKits && className.IndexOf("kit") == className.Length() - 3)
-		{
-			//! Special handling for Expansion
-			if (GetGame().IsKindOf(className, "ExpansionKitLarge"))
-			{
-				string path = "CfgVehicles " + className + " placingTypes";
-				if (GetGame().ConfigIsExisting(path))
-				{
-					TStringArray placingTypes = new TStringArray;
-					GetGame().ConfigGetTextArray(path, placingTypes);
-					foreach (string placingType : placingTypes)
-					{
-						path = "CfgVehicles " + placingType + " deployType";
-						if (GetGame().ConfigIsExisting(path))
-						{
-							return GetGame().ConfigGetTextOut(path);
-						}
-					}
-				}
-			}
-
-			if (className == "fencekit" || className == "watchtowerkit" || className == "territoryflagkit")
-			{
-				//! Item name is kit name without "kit" at the end
-				string previewClassName = className.Substring(0, className.Length() - 3);
-				if (GetGame().ConfigIsExisting("CfgVehicles " + previewClassName))
-					return previewClassName;
-			}
-		}
-		return className;
+		return ExpansionStatic.GetPreviewClassName(className, ignoreBaseBuildingKits);
 	}
 
 	void UpdateInventorySlotFilter(string slotName)

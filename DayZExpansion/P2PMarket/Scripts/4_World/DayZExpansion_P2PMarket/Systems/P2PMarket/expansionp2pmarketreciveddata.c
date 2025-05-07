@@ -12,12 +12,12 @@
 
 class ExpansionP2PMarketRecivedData
 {
-	array<ref ExpansionP2PMarketListing> m_Listings; 
+	ref array<ref ExpansionP2PMarketListing> m_Listings = {}; 
 	int m_TraderID = -1; 
 	bool m_IsGlobal;
 	string m_TraderName = "";
 	string m_IconName = ""; 
-	TStringArray m_Currencies; 
+	ref TStringArray m_Currencies = {}; 
 	int m_DisplayCurrencyValue = -1; 
 	string m_DisplayCurrencyName = ""; 
 	int m_ListingsCount = 0; 
@@ -33,6 +33,7 @@ class ExpansionP2PMarketRecivedData
 		ErrorEx("Is global: " + m_IsGlobal, ErrorExSeverity.INFO);
 		ErrorEx("Trader name: " + m_TraderName, ErrorExSeverity.INFO);
 		ErrorEx("Icon path: " + m_IconName, ErrorExSeverity.INFO);
+		ErrorEx("Currencies: " + ExpansionString.JoinStrings(m_Currencies), ErrorExSeverity.INFO);
 		ErrorEx("Display currency value: " + m_DisplayCurrencyValue, ErrorExSeverity.INFO);
 		ErrorEx("Display currency name: " + m_DisplayCurrencyName, ErrorExSeverity.INFO);
 		ErrorEx("Listings count: " + m_ListingsCount, ErrorExSeverity.INFO);

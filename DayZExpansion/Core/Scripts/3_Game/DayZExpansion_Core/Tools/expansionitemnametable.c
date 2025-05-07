@@ -1,5 +1,5 @@
 /**
- * ExpansionItemNameTabel.c
+ * ExpansionItemNameTable.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,10 +10,10 @@
  *
 */
 
-class ExpansionItemNameTabel
+class ExpansionItemNameTable
 {
-	static ref map<string, ref array<string>> s_NameTabel = new map<string, ref array<string>>;
-	static void LoadNameTabel()
+	static ref map<string, ref array<string>> s_NameTable = new map<string, ref array<string>>;
+	static void LoadNameTable()
 	{
 		array<string> configClasses = {CFG_WEAPONSPATH, CFG_MAGAZINESPATH, CFG_VEHICLESPATH};
 		foreach(string configClass: configClasses)
@@ -23,6 +23,11 @@ class ExpansionItemNameTabel
 			{
 				string childName;
 				GetGame().ConfigGetChildName(configClass, i, childName);
+				
+				int scope = GetGame().ConfigGetInt(configClass + " " + childName + " scope");
+				if (scope != 2)
+					continue;
+				
 				string displayName;
 				GetGame().ConfigGetText(configClass + " " + childName + " displayName", displayName);
 				displayName.ToLower();
@@ -32,18 +37,18 @@ class ExpansionItemNameTabel
 					continue;
 				
 				array<string> currentTypes;
-				if (!s_NameTabel.Find(displayName, currentTypes))
+				if (!s_NameTable.Find(displayName, currentTypes))
 					currentTypes = new array<string>;
 				
 				if (currentTypes.Find(childName) == -1)
 					currentTypes.Insert(childName);
 				
-				s_NameTabel.Set(displayName, currentTypes);
+				s_NameTable.Set(displayName, currentTypes);
 			}
 		}
 		
 		#ifdef DIAG_DEVELOPER
-		foreach(string dN, array<string> tN: s_NameTabel)
+		foreach(string dN, array<string> tN: s_NameTable)
 		{
 			ErrorEx("Display name:" + dN + " | Types count: " + tN.Count(), ErrorExSeverity.INFO);
 			foreach(string t: tN)
@@ -56,11 +61,10 @@ class ExpansionItemNameTabel
 	
 	static array<string> GetTypeNamesByString(string displayName)
 	{
-		array<string> validTypeNames = new array<string>;
-		
+		TStringArray validTypeNames = {};
 		string lowerName = displayName;
 		lowerName.ToLower();
-		TStringArray tokens = new TStringArray;
+		TStringArray tokens = {};
 		lowerName.Split(" ", tokens);
 		
 		set<string> dST = new set<string>;
@@ -69,14 +73,14 @@ class ExpansionItemNameTabel
 			dST.Insert(sM);
 		}
 		
-		foreach(string dN, array<string> tN: s_NameTabel)
+		foreach(string dN, array<string> tN: s_NameTable)
 		{
 			#ifdef DIAG_DEVELOPER
 			ErrorEx("Display name: " + dN + " | Types count: " + tN.Count(), ErrorExSeverity.INFO);
 			#endif
 			
-			TStringArray dNT = new TStringArray;
-			if (dN.Contains(" "))
+			TStringArray dNT = {};
+			if (dN.IndexOf(" ") > -1)
 				dN.Split(" ", dNT);
 			else
 				dNT.Insert(dN);
@@ -94,7 +98,7 @@ class ExpansionItemNameTabel
 					#ifdef DIAG_DEVELOPER
 					ErrorEx("Compare [" + nW + "] with [" + dW + "]", ErrorExSeverity.INFO);
 					#endif
-					if (nW.IndexOf(dW) != -1 || nW.Contains(dW))
+					if (nW.IndexOf(dW) != -1)
 					{
 						#ifdef DIAG_DEVELOPER
 						ErrorEx("Compare [" + nW + "] with [" + dW + "] - LEGIT", ErrorExSeverity.INFO);

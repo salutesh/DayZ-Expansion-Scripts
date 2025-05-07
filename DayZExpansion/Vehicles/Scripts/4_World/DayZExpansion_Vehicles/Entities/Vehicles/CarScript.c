@@ -54,6 +54,7 @@ modded class CarScript
 	protected float m_AltitudeNoForce; // (m)
 
 	protected float m_Expansion_Mass;
+	protected float m_Expansion_ApproxMass;
 
 	// ------------------------------------------------------------ //
 	// Member values                                                //
@@ -63,14 +64,6 @@ modded class CarScript
 	protected int m_Expansion_MinimumEngine;
 	protected int m_Expansion_MaximumEngine;
 	protected int m_Expansion_CurrentEngine;
-
-	// Horn
-	protected EffectSound m_HornSound;
-
-	protected string m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
-	protected string m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
-	protected bool m_HornPlaying;
-	protected bool m_HornSynchRemote;
 
 	// Explosion
 	protected bool m_Exploded;
@@ -161,10 +154,6 @@ modded class CarScript
 	#ifdef DAYZ_1_25
 		RegisterNetSyncVariableBool("m_Expansion_AcceptingAttachment");
 	#endif
-
-		RegisterNetSyncVariableBool("m_HornSynchRemote");
-
-		RegisterNetSyncVariableBool("m_Expansion_EngineIsOn");
 
 #ifndef EXPANSION_VEHICLE_DESYNC_PROTECTION_DISABLE
 		m_State.RegisterSync_CarScript("m_State");
@@ -260,13 +249,43 @@ modded class CarScript
 		else
 			m_Expansion_Mass = dBodyGetMass(this);
 
-		path = "CfgVehicles " + GetType() + " hornSoundSetEXT";
-		if (GetGame().ConfigIsExisting(path))
-			m_HornSoundSetEXT = GetGame().ConfigGetTextOut(path);
+	#ifdef DIAG_DEVELOPER
+		PrintFormat("%1 mass %2", this, m_Expansion_Mass);
+	#endif
 
-		path = "CfgVehicles " + GetType() + " hornSoundSetINT";
+		//! Approx. mass used for tree collisions
+		if (Expansion_IsHelicopter())
+		{
+			//! Ok to just use actual mass
+			m_Expansion_ApproxMass = m_Expansion_Mass;
+		}
+		else
+		{
+			//! 3rd party modded vehicle physical mass is all over the place, so calculate approx. mass based on ext volume and avg bulk density
+			vector minMax[2];
+			GetCollisionBox(minMax);
+			float w = minMax[1][0] - minMax[0][0];
+			float h = minMax[1][1] - minMax[0][1];
+			float d = minMax[1][2] - minMax[0][2];
+			float volume = w * h * d;
+			//! Based on real-world counterparts dimensions and mass:
+			//! Avg bulk density (mass divided by external volume) for Ada, Olga, Sarka and Gunther is around 108 kg/m3
+			//! Avg bulk density for typical motorcycles is around 100 kg/m3
+			float density = 100.0;
+			m_Expansion_ApproxMass = volume * density;
+
+		#ifdef DIAG_DEVELOPER
+			PrintFormat("%1 dim. %2 x %3 x %4 volume %5 approx. mass %6", this, w, h, d, volume, m_Expansion_ApproxMass);
+		#endif
+		}
+
+		path = "CfgVehicles " + GetType() + " hornLongSoundSet";
 		if (GetGame().ConfigIsExisting(path))
-			m_HornSoundSetINT = GetGame().ConfigGetTextOut(path);
+			m_CarHornLongSoundName = GetGame().ConfigGetTextOut(path);
+
+		path = "CfgVehicles " + GetType() + " hornShortSoundSet";
+		if (GetGame().ConfigIsExisting(path))
+			m_CarHornShortSoundName = GetGame().ConfigGetTextOut(path);
 
 		if (GetGame().IsServer())
 		{
@@ -530,7 +549,10 @@ modded class CarScript
 			{
 				//! Setting state to inactive fixes issues with vehicles being simulated at server start (jumpy helis, boats being always active when in water, not needed for cars)
 				if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionBoatScript))
+				{
+					EXTrace.Print(EXTrace.VEHICLES, this, "DeferredInit - isStoreLoaded - missionLoaded - setting ActiveState.INACTIVE");
 					dBodyActive(this, ActiveState.INACTIVE);
+				}
 			}
 
 			SetSynchDirty();
@@ -680,14 +702,22 @@ modded class CarScript
 
 	void OnCarDoorOpened(string source)
 	{
-		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnDoorOpened");
+		EXError.Error(this, "DEPRECATED, use Expansion_OnDoorOpened");
 		m_ExpansionVehicle.OnDoorOpened(source);
 	}
 
 	void OnCarDoorClosed(string source)
 	{
-		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnDoorClosed");
+		EXError.Error(this, "DEPRECATED, use Expansion_OnDoorClosed");
 		m_ExpansionVehicle.OnDoorClosed(source);
+	}
+
+	void Expansion_OnDoorOpened(string selection)
+	{
+	}
+
+	void Expansion_OnDoorClosed(string selection)
+	{
 	}
 
 	bool IsCarKeys(ExpansionCarKey key)
@@ -722,44 +752,6 @@ modded class CarScript
 	void OnCarUnlocked()
 	{
 		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnUnlocked");
-	}
-
-	void OnHornSoundPlay()
-	{
-		string soundFile = m_HornSoundSetEXT;
-		if (GetGame().GetPlayer().IsCameraInsideVehicle())
-			soundFile = m_HornSoundSetINT;
-
-		m_HornSound = SEffectManager.PlaySoundOnObject(soundFile, this);
-		m_HornSound.SetSoundAutodestroy(true);
-		m_HornSound.SetSoundLoop(true);
-	}
-
-	void OnHornSoundStop()
-	{
-		m_HornSound.SetSoundLoop(false);
-		m_HornSound.SoundStop();
-	}
-
-	void PlayHorn()
-	{
-		m_HornSynchRemote = true;
-		m_HornPlaying = false;
-
-		SetSynchDirty();
-	}
-
-	void StopHorn()
-	{
-		m_HornSynchRemote = false;
-		m_HornPlaying = true;
-
-		SetSynchDirty();
-	}
-
-	bool IsSoundSynchRemote()
-	{
-		return m_HornSynchRemote;
 	}
 
 	override void Explode(int damageType, string ammoType = "")
@@ -976,6 +968,15 @@ modded class CarScript
 
 	void RPC_Expansion_ControllerSync(PlayerIdentity sender, ParamsReadContext ctx)
 	{
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		if (GetNetworkMoveStrategy() == NetworkMoveStrategy.PHYSICS)
+		{
+			debug;
+			return;
+		}
+	#endif
+		
 		if (m_Controller)
 		{
 			PlayerBase driverBase;
@@ -996,6 +997,13 @@ modded class CarScript
 	{
 		if (IsMissionOffline())
 			return;
+		
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		// sent part of 'PawnMove'
+		if (GetNetworkMoveStrategy() == NetworkMoveStrategy.PHYSICS)
+			return;
+	#endif
 
 		auto rpc = m_Expansion_RPCManager.CreateRPC(s_Expansion_ControllerSync_RPCID);
 
@@ -1175,6 +1183,14 @@ modded class CarScript
 		return Expansion_CanObjectAttach(obj);
 	}
 
+	float Expansion_GetThrottle(int index)
+	{
+		if (index == 0)
+			return GetThrust();
+
+		return m_Controller.GetThrottle(index);
+	}
+
 	override bool Expansion_IsVehicleFunctional(bool checkOptionalParts = false, set<typename> missingComponents = null)
 	{
 		if (!super.Expansion_IsVehicleFunctional(checkOptionalParts, missingComponents))
@@ -1228,17 +1244,6 @@ modded class CarScript
 #endif
 
 		return false;
-	}
-
-	override bool OnBeforeSwitchLights(bool toOn)
-	{
-		SetCarBatteryStateForVanilla(true);
-
-		bool ret = super.OnBeforeSwitchLights(toOn);
-
-		SetCarBatteryStateForVanilla(false);
-
-		return ret;
 	}
 
 	override bool OnBeforeEngineStart()
@@ -1416,7 +1421,7 @@ modded class CarScript
 
 			m_FuelTankHealth = GetHealth01("FuelTank", "");
 
-			if (Expansion_EngineIsOn())
+			if (EngineIsOn() || Expansion_EnginesOn())
 			{
 				CheckVitalItem(IsVitalCarBattery(), "CarBattery");
 				CheckVitalItem(IsVitalTruckBattery(), "TruckBattery");
@@ -1468,12 +1473,7 @@ modded class CarScript
 				if (oil > 0.0 && m_EngineHealth < 0.25)
 					LeakFluid(CarFluid.OIL);
 
-				if (fuelConsumption > 0.0)
-				{
-					//! @note this only applies to Expansion helis and Expansion boats,
-					//! fuel consumption for normal cars will always be 0 since it's handled by the game engine internally.
-					Leak(CarFluid.FUEL, fuelConsumption);
-				}
+				m_ExpansionVehicle.ConsumeFuel(fuelConsumption);
 
 				if (GetFluidFraction(CarFluid.FUEL) <= 0)
 					Expansion_EngineStop();
@@ -1558,27 +1558,10 @@ modded class CarScript
 		return Expansion_EngineIsOn();
 	}
 
-	bool CanUpdateHorn(float pDt)
-	{
-		return m_HornPlaying && IsMissionHost();
-	}
-
-	void UpdateHorn(float pDt)
-	{
-		NoiseParams npar = new NoiseParams();
-		npar.LoadFromPath("CfgVehicles " + GetType() + " NoiseCarHorn");
-		//GetGame().GetNoiseSystem().AddNoise( this, npar );
-	}
-
 	override void EOnPostSimulate(IEntity other, float timeSlice)
 	{
 		//! Prevent vanilla fluid checks from running
 		m_Time = -1;
-
-		if (CanUpdateHorn(timeSlice))
-		{
-			UpdateHorn(timeSlice);
-		}
 
 		if (CanUpdateHealth(timeSlice))
 		{
@@ -1612,6 +1595,15 @@ modded class CarScript
 	void Expansion_AddWheels()
 	{
 		if (ToDelete())
+			return;
+
+		// CreateAttachment will de-reference on a nullptr when spawning in for some ItemPreviewWidget as the PhysicsComponent doesn't exist (ECE_CREATEPHYSICS not used)
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		if (!GetPhysics())
+	#else
+		if (!dBodyIsSet(this))
+	#endif
 			return;
 
 		if (!m_Expansion_WheelsToAdd.Count())
@@ -2077,6 +2069,36 @@ modded class CarScript
 		return false;
 	}
 
+#ifndef DAYZ_1_27
+	//! 1.28+
+	override void OnInput(float dt)
+	{
+		super.OnInput(dt);
+
+		// only if car is using new networking
+		if (GetNetworkMoveStrategy() == NetworkMoveStrategy.PHYSICS)
+		{
+			Human driver = CrewDriver();
+			DayZPlayerImplement player;
+			if (IsAuthority() && !driver)
+			{
+				// reset inputs
+			}
+			else if (IsOwner() && Class.CastTo(player, driver))
+			{
+				// this looks stupid, what?
+				m_State.m_DeltaTime = dt;
+		
+				// damn i had bad ideas
+				m_Event_Control.Control(m_State, player);
+		
+				// sort of sensible
+				Expansion_OnHandleController(player, dt);
+			}
+		}
+	}
+#endif
+
 	void Expansion_HandleController(DayZPlayerImplement driver, float dt)
 	{
 		if (CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) != driver)
@@ -2184,6 +2206,7 @@ modded class CarScript
 
 		DayZPlayerImplement driver = DayZPlayerImplement.Cast(CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER));
 
+		//! TODO: MOVE THIS OUT OF HERE!
 		//! Detect if pilot has been disconnected
 		if (!driver && m_Expansion_HasPilot)
 		{
@@ -2197,9 +2220,11 @@ modded class CarScript
 			}
 		}
 
+		bool isActive = dBodyIsActive(this);
+
 		if (GetGame().IsClient())
 		{
-			m_IsPhysicsHost = driver == GetGame().GetPlayer();
+			m_IsPhysicsHost = IsOwner();
 		}
 		else if (GetGame().IsServer())
 		{
@@ -2229,6 +2254,8 @@ modded class CarScript
 
 				if (Expansion_ShouldDisableSimulation())
 				{
+					if (isActive)
+						EXTrace.Print(EXTrace.VEHICLES, this, "no driver - CanSimulate - ShouldDisableSimulation - setting ActiveState.INACTIVE");
 					dBodyActive(this, ActiveState.INACTIVE);
 					return;
 				}
@@ -2249,8 +2276,6 @@ modded class CarScript
 		//! If driver managed to get in vehicle before forcing initial storeloaded position, skip it
 		if (driver && m_Expansion_IsStoreLoaded && !m_Expansion_ForcedStoreLoadedPositionAndOrientation)
 			m_Expansion_ForcedStoreLoadedPositionAndOrientation = true;
-
-		bool isActive = dBodyIsActive(this);
 
 		if (!isActive)
 		{
@@ -2302,6 +2327,7 @@ modded class CarScript
 
 			return;
 		}
+		
 		//! 1.19
 		m_Controller.m_Yaw = GetSteering();
 		//m_Controller.m_Throttle[0] = GetThrust();
@@ -2350,18 +2376,28 @@ modded class CarScript
 			m_State.EstimateTransform(dt, m_DbgTransform);
 #endif
 		}
-
-		if (m_IsPhysicsHost && GetGame().IsClient())
+		
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		if (GetNetworkMoveStrategy() == NetworkMoveStrategy.PHYSICS)
 		{
-			NetworkSend();
+			m_State.ApplySimulation(dt);
 		}
+		else
+	#endif
+		{
+			if (m_IsPhysicsHost && GetGame().IsClient())
+			{
+				NetworkSend();
+			}
 
 #ifndef EXPANSION_VEHICLE_DESYNC_PROTECTION_DISABLE
-		m_State.ApplySimulation_CarScript(dt, m_IsPhysicsHost, driver);
+			m_State.ApplySimulation_CarScript(dt, m_IsPhysicsHost, driver);
 #else
-		m_State.ApplySimulation(dt);
+			m_State.ApplySimulation(dt);
 #endif
-
+		}
+	
 		OnPostSimulation(dt);
 
 		if (GetGame().IsServer())
@@ -2414,14 +2450,19 @@ modded class CarScript
 		if (module.IsInherited(ExpansionVehicleEngineBase))
 		{
 			auto engine = ExpansionVehicleEngineBase.Cast(module);
-			engine.m_EngineIndex = m_Engines.Count() + 1;
-			RegisterNetSyncVariableBool("m_Expansion_EngineSync" + engine.m_EngineIndex);
+			engine.m_EngineIndex = m_Engines.Count();
+			if (engine.m_EngineIndex > 0)
+				RegisterNetSyncVariableBool("m_Expansion_EngineSync" + engine.m_EngineIndex);
 			if (engine.m_EngineIndex >= 4)
 			{
 				Error(GetType() + ": " + engine.m_EngineIndex + " engines added were added, max is 4.");
 			}
 
 			m_Engines.Insert(engine);
+
+		#ifdef DIAG_DEVELOPER
+			EXTrace.Print(EXTrace.VEHICLES, this, "Added " + engine + " index " + engine.m_EngineIndex);
+		#endif
 
 			m_Expansion_MaximumEngine = m_Engines.Count();
 			return;
@@ -2430,7 +2471,7 @@ modded class CarScript
 		if (module.IsInherited(ExpansionVehicleGearbox))
 		{
 			auto gearbox = ExpansionVehicleGearbox.Cast(module);
-			gearbox.m_GearIndex = m_Gearboxes.Count() + 1;
+			gearbox.m_GearIndex = m_Gearboxes.Count();
 			if (gearbox.m_GearIndex >= 4)
 			{
 				Error(GetType() + ": " + gearbox.m_GearIndex + " gearboxes added were added, max is 4.");
@@ -2439,6 +2480,10 @@ modded class CarScript
 			m_Gearboxes.Insert(gearbox);
 			return;
 		}
+
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.VEHICLES, this, "Added " + module);
+	#endif
 	}
 
 	string Expansion_EngineGetName()
@@ -2489,6 +2534,16 @@ modded class CarScript
 		m_Expansion_CurrentEngine++;
 		if (m_Expansion_CurrentEngine >= m_Expansion_MaximumEngine)
 			m_Expansion_CurrentEngine = m_Expansion_MinimumEngine;
+
+		if (m_Expansion_CurrentEngine > 0)
+		{
+			if (Expansion_IsBoat())
+			{
+				int gear = GetGear();
+				if (gear > CarGear.FIRST)
+					ShiftTo(CarGear.FIRST);
+			}
+		}
 
 		SetSynchDirty();
 	}
@@ -2571,6 +2626,14 @@ modded class CarScript
 		return m_Engines[index].m_RPM;
 	}
 
+	float Expansion_EngineGetRPMIdle(int index)
+	{
+		if (index == 0)
+			return EngineGetRPMIdle();
+
+		return m_Engines[index].m_RPMIdle;
+	}
+
 	/**
 	 * @brief Returns true when engine is running, false otherwise.
 	 */
@@ -2623,8 +2686,8 @@ modded class CarScript
 		if (m_Exploded)
 			return false;
 
-		//! Vanilla does this check for us in OnBeforeEngineStart() if it's a car
-		if (!IsCar() && GetFluidFraction(CarFluid.FUEL) <= 0)
+		//! Vanilla does this check for us in OnBeforeEngineStart() if engine 0 is selected
+		if (Expansion_EngineGetCurrent() > 0 && GetFluidFraction(CarFluid.FUEL) <= 0)
 		{
 			return false;
 		}
@@ -2671,6 +2734,9 @@ modded class CarScript
 				return false;
 		}
 
+		if (!m_ExpansionVehicle.OnBeforeEngineStart(index))
+			return false;
+
 		return true;
 	}
 
@@ -2710,6 +2776,8 @@ modded class CarScript
 
 			UpdateLights();
 		}
+
+		m_ExpansionVehicle.OnEngineStart(index);
 
 		SetSynchDirty();
 
@@ -2762,6 +2830,8 @@ modded class CarScript
 			m_EngineBeforeStart = false;
 #endif
 		}
+
+		m_ExpansionVehicle.OnEngineStop(index);
 
 		SetSynchDirty();
 	}
@@ -2983,7 +3053,7 @@ modded class CarScript
 		super.OnEngineStop();
 
 		//! Something (probably vanilla?) is calling OnEngineStop in a loop on client, EVEN IF ENGINE IS RUNNING WHYYY WTF
-		//! Prevent this by checking netsynched var that tells us if engine is really stopped or not
+		//! Prevent this by checking var that tells us if engine is really stopped or not
 		if (GetGame().IsClient() && m_Expansion_EngineIsOn)
 			return;
 
@@ -3047,17 +3117,6 @@ modded class CarScript
 			{
 				OnEngineStop(3);
 			}
-		}
-
-		if (IsSoundSynchRemote() && !m_HornPlaying)
-		{
-			m_HornPlaying = true;
-			OnHornSoundPlay();
-		}
-		else if (!IsSoundSynchRemote() && m_HornPlaying)
-		{
-			m_HornPlaying = false;
-			OnHornSoundStop();
 		}
 
 		if (m_ExplodedSynchRemote && !m_Exploded)
@@ -3320,14 +3379,14 @@ modded class CarScript
 			return;
 		}
 
-		if (m_CurrentSkin.HornEXT != "")
+		if (m_CurrentSkin.HornLong != "")
 		{
-			m_HornSoundSetEXT = m_CurrentSkin.HornEXT;
+			m_CarHornLongSoundName = m_CurrentSkin.HornLong;
 		}
 
-		if (m_CurrentSkin.HornINT != "")
+		if (m_CurrentSkin.HornShort != "")
 		{
-			m_HornSoundSetINT = m_CurrentSkin.HornINT;
+			m_CarHornShortSoundName = m_CurrentSkin.HornShort;
 		}
 
 		for (int i = 0; i < m_CurrentSkin.HiddenSelections.Count(); i++)
@@ -3575,7 +3634,10 @@ modded class CarScript
 			}
 		}
 
-		ExpansionWorld.CheckTreeContact(other, data.Impulse, true);
+		float velocity = data.RelativeVelocityBefore.Length();
+		float momentum = m_Expansion_ApproxMass * velocity;
+
+		ExpansionWorld.CheckTreeContact(other, momentum, true);
 
 		if (GetGame().IsServer() && (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed))
 		{
@@ -3592,8 +3654,7 @@ modded class CarScript
 
 			if (m_Expansion_CollisionDamageMinSpeed)
 			{
-				float minSpeedSq = m_Expansion_CollisionDamageMinSpeed * m_Expansion_CollisionDamageMinSpeed;
-				if (data.RelativeVelocityBefore.LengthSq() < minSpeedSq && !otherVehicleEngineOn)
+				if (velocity < m_Expansion_CollisionDamageMinSpeed && !otherVehicleEngineOn)
 					return;
 
 				float dmg = data.Impulse * m_dmgContactCoef;
@@ -3703,6 +3764,12 @@ modded class CarScript
 				float collisionDamage = dmg * GetExpansionSettings().GetVehicle().VehicleSpeedDamageMultiplier;
 				if (collisionDamage > 0)
 					ProcessDirectDamage(DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", collisionDamage, pddfFlags);
+			}
+
+			Object targetEntity = Object.Cast(data[0].other);
+			if (targetEntity && targetEntity.IsTree() && !targetEntity.IsDamageDestroyed())
+			{
+				SEffectManager.CreateParticleServer(targetEntity.GetPosition(), new TreeEffecterParameters("TreeEffecter", 1.0, 0.1));
 			}
 		}
 

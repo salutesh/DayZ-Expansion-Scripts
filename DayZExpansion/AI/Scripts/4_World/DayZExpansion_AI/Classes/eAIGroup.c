@@ -52,6 +52,9 @@ class eAIGroup
 	protected bool m_IsInCombat;
 	bool m_DangerousAreaAvoidanceDirection;
 
+	bool m_Leave;
+	bool m_ForcePatrolDespawn;
+
 	// return the group owned by leader, otherwise create a new one.
 	static eAIGroup GetGroupByLeader(DayZPlayerImplement leader, bool createIfNoneExists = true, eAIFaction faction = null, bool autoDeleteFormerGroupIfEmpty = true)
 	{
@@ -1155,6 +1158,8 @@ class eAIGroup
 
 			ai.eAI_Despawn();
 		}
+
+		m_ForcePatrolDespawn = false;
 	}
 
 	/**

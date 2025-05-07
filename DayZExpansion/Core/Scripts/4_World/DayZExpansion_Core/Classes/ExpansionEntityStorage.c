@@ -514,9 +514,6 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				return false;
 			else if (result == SKIP)
 				return true;
-
-			if (!parent && entity.IsTransport() && dBodyIsSet(entity))
-				dBodyActive(entity, ActiveState.INACTIVE);
 		}
 
 		if (!file)
@@ -1064,9 +1061,12 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return s_LastRestoredVersion;
 	}
 
-	static bool DeleteFiles(string name)
+	static bool DeleteFiles(string name, string storageDirectory = string.Empty)
 	{
-		string folderName = GetStorageDirectory() + name;
+		if (storageDirectory == string.Empty)
+			storageDirectory = GetStorageDirectory();
+
+		string folderName = storageDirectory + name;
 		string fileName = folderName + EXT;
 
 		if (FileExist(fileName))

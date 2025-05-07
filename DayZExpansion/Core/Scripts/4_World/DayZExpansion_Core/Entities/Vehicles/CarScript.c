@@ -276,6 +276,11 @@ modded class CarScript
 		return ConfigGetFloat("animPhysDetachSpeed") > 0;
 	}
 
+	float Expansion_GetThrottle()
+	{
+		return GetThrust();
+	}
+
 	bool Expansion_IsVehicleFunctional(bool checkOptionalParts = false, set<typename> missingComponents = null)
 	{
 		if (IsDamageDestroyed())

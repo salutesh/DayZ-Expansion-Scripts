@@ -173,10 +173,12 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	float m_CyclicForward;
 	float m_CyclicForwardTarget;
 	float m_CyclicForwardHydraulicCoef;
+	float m_CyclicForwardInputVal;
 
 	float m_CyclicSide;
 	float m_CyclicSideTarget;
 	float m_CyclicSideHydraulicCoef;
+	float m_CyclicSideInputVal;
 
 	float m_AutoHoverAltitude;
 	bool m_AutoHover;
@@ -468,19 +470,162 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_EnableHelicopterExplosions = GetExpansionSettings().GetVehicle().EnableHelicopterExplosions;
 	}
 
-	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
+
+#ifndef DAYZ_1_27
+	//! Client
+	override event void ObtainMove(PawnMove pMove)
 	{
-		if (!m_Initialized || !pDriver)
+		super.ObtainMove(pMove);
+		
+		ExpansionHelicopterScriptMove move = ExpansionHelicopterScriptMove.Cast(pMove);
+		
+		move.m_AutoHover = m_AutoHover;
+		move.m_EngineOn = m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX];
+		
+		move.m_MainRotorSpeedTarget = m_MainRotorSpeedTarget;
+		move.m_BackRotorSpeedTarget = m_BackRotorSpeedTarget;
+		move.m_CyclicForwardTarget = m_CyclicForwardTarget;
+		move.m_CyclicSideTarget = m_CyclicSideTarget;
+		
+		move.m_AutoHoverSpeedX = m_AutoHoverSpeed[0];
+		move.m_AutoHoverAltitude = m_AutoHoverAltitude;
+		move.m_AutoHoverSpeedZ = m_AutoHoverSpeed[2];
+
+		move.m_IsFreeLook = m_IsFreeLook;
+	}
+	
+	//! Server
+	override event void ConsumeMove(PawnMove pMove)
+	{
+		super.ConsumeMove(pMove);
+
+		ExpansionHelicopterScriptMove move = ExpansionHelicopterScriptMove.Cast(pMove);
+
+		if (move)
+		{
+			if (move.m_AutoHover >= 0)
+				m_AutoHover = move.m_AutoHover;
+			
+			//if (move.m_EngineOn >= 0)
+			//	m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX] = move.m_EngineOn;
+			
+			m_MainRotorSpeedTarget = move.m_MainRotorSpeedTarget;
+			m_BackRotorSpeedTarget = move.m_BackRotorSpeedTarget;
+			m_CyclicForwardTarget = move.m_CyclicForwardTarget;
+			m_CyclicSideTarget = move.m_CyclicSideTarget;
+			
+			m_AutoHoverSpeed[0] = move.m_AutoHoverSpeedX;
+			m_AutoHoverAltitude = move.m_AutoHoverAltitude;
+			m_AutoHoverSpeed[2] = move.m_AutoHoverSpeedZ;
+			
+			m_IsFreeLook = move.m_IsFreeLook;
+
+			UpdateController();
+		}
+	}
+
+	//! Client
+	override event bool ReplayMove(PawnMove pMove)
+	{
+		ExpansionHelicopterScriptMove move = ExpansionHelicopterScriptMove.Cast(pMove);
+		
+		if (move.m_AutoHover >= 0)
+			m_AutoHover = move.m_AutoHover;
+
+		//if (move.m_EngineOn >= 0)
+		//	m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX] = move.m_EngineOn;
+		
+		m_MainRotorSpeedTarget = move.m_MainRotorSpeedTarget;
+		m_BackRotorSpeedTarget = move.m_BackRotorSpeedTarget;
+		m_CyclicForwardTarget = move.m_CyclicForwardTarget;
+		m_CyclicSideTarget = move.m_CyclicSideTarget;
+			
+		m_AutoHoverSpeed[0] = move.m_AutoHoverSpeedX;
+		m_AutoHoverAltitude = move.m_AutoHoverAltitude;
+		m_AutoHoverSpeed[2] = move.m_AutoHoverSpeedZ;
+			
+		m_IsFreeLook = move.m_IsFreeLook;
+
+		return true;
+	}
+
+	//! Server
+	override event void ObtainState(/*inout*/ PawnOwnerState pState)
+	{
+		ExpansionHelicopterScriptOwnerState state = ExpansionHelicopterScriptOwnerState.Cast(pState);
+		
+		state.m_RotorSpeed = m_RotorSpeed;
+		state.m_EngineState = m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX];
+		
+		state.m_MainRotorSpeed = m_MainRotorSpeed;
+		state.m_BackRotorSpeed = m_BackRotorSpeed;
+		
+		state.m_Hydraulic = m_Hydraulic;
+		
+		state.m_CyclicForward = m_CyclicForward;
+		state.m_CyclicSide = m_CyclicSide;
+		
+		state.m_AutoHover = m_AutoHover;
+	}
+
+	//! Client
+	override event void RewindState(PawnOwnerState pState, /*inout*/ PawnMove pMove, inout NetworkRewindType pRewindType)
+	{
+		// possibly in dynamic collision, reverts to something like the old correction system
+		if (pRewindType == NetworkRewindType.ADDITIVE)
 			return;
 
-		UAInterface input = pDriver.GetInputInterface();
+		ExpansionHelicopterScriptOwnerState state = ExpansionHelicopterScriptOwnerState.Cast(pState);
+		ExpansionHelicopterScriptMove move = ExpansionHelicopterScriptMove.Cast(pMove);
+		
+		m_RotorSpeed = state.m_RotorSpeed;
+		m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX] = state.m_EngineState;
+		
+		m_MainRotorSpeed = state.m_MainRotorSpeed;
+		m_BackRotorSpeed = state.m_BackRotorSpeed;
+		
+		m_Hydraulic = state.m_Hydraulic;
+		
+		// set to -1 so hydraulic coefs are forced to be recalculated
+		m_HydraulicPrev = -1.0;
+		
+		m_CyclicForward = state.m_CyclicForward;
+		m_CyclicSide = state.m_CyclicSide;
+		
+		m_AutoHover = state.m_AutoHover;
+	}
+#endif
+
+	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
+	{
+		if (!m_Initialized || !pDriver || pState.m_HaltPhysics)
+			return;
+
+		UAInterface inputInterface;
+		Input input;
+
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		if (m_Transport.GetNetworkMoveStrategy() == NetworkMoveStrategy.PHYSICS)
+		{
+		#ifdef SERVER
+			return;
+		#endif
+
+			input = GetGame().GetInput();
+		}
+		else
+	#endif
+		{
+			inputInterface = pDriver.GetInputInterface();
+		}
 
 #ifdef COMPONENT_SYSTEM
 		if (IsMissionClient())
 		{
 			if (GetExpansionClientSettings().UseHelicopterMouseControl)
 			{
-				bool isFreelook = input.SyncedValue("UAExpansionHeliFreeLook");
+				bool isFreelook = InputValue(inputInterface, input, "UAExpansionHeliFreeLook");
 
 				if (isFreelook && !m_WasFreeLookPressed)
 				{
@@ -504,23 +649,23 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			}
 		}
 
-		float c_up = input.SyncedValue("UAExpansionHeliCollectiveUp");
-		float c_down = input.SyncedValue("UAExpansionHeliCollectiveDown");
+		float c_up = InputValue(inputInterface, input, "UAExpansionHeliCollectiveUp");
+		float c_down = InputValue(inputInterface, input, "UAExpansionHeliCollectiveDown");
 
-		float at_left = input.SyncedValue("UAExpansionHeliAntiTorqueLeft");
-		float at_right = input.SyncedValue("UAExpansionHeliAntiTorqueRight");
+		float at_left = InputValue(inputInterface, input, "UAExpansionHeliAntiTorqueLeft");
+		float at_right = InputValue(inputInterface, input, "UAExpansionHeliAntiTorqueRight");
 
-		float c_forward = input.SyncedValue("UAExpansionHeliCyclicForward");
-		float c_backward = input.SyncedValue("UAExpansionHeliCyclicBackward");
+		float c_forward = InputValue(inputInterface, input, "UAExpansionHeliCyclicForward");
+		float c_backward = InputValue(inputInterface, input, "UAExpansionHeliCyclicBackward");
 
-		float c_left = input.SyncedValue("UAExpansionHeliCyclicLeft");
-		float c_right = input.SyncedValue("UAExpansionHeliCyclicRight");
+		float c_left = InputValue(inputInterface, input, "UAExpansionHeliCyclicLeft");
+		float c_right = InputValue(inputInterface, input, "UAExpansionHeliCyclicRight");
 #else
 		if (IsMissionClient())
 		{
 			if (GetExpansionClientSettings().UseHelicopterMouseControl)
 			{
-				bool isFreelook = input.SyncedValue_ID(UAExpansionHeliFreeLook);
+				bool isFreelook = InputValue_ID(inputInterface, input, UAExpansionHeliFreeLook);
 
 				if (isFreelook && !m_WasFreeLookPressed)
 				{
@@ -544,26 +689,29 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			}
 		}
 
-		float c_up = input.SyncedValue_ID(UAExpansionHeliCollectiveUp);
-		float c_down = input.SyncedValue_ID(UAExpansionHeliCollectiveDown);
+		float c_up = InputValue_ID(inputInterface, input, UAExpansionHeliCollectiveUp);
+		float c_down = InputValue_ID(inputInterface, input, UAExpansionHeliCollectiveDown);
 
-		float at_left = input.SyncedValue_ID(UAExpansionHeliAntiTorqueLeft);
-		float at_right = input.SyncedValue_ID(UAExpansionHeliAntiTorqueRight);
+		float at_left = InputValue_ID(inputInterface, input, UAExpansionHeliAntiTorqueLeft);
+		float at_right = InputValue_ID(inputInterface, input, UAExpansionHeliAntiTorqueRight);
 
-		float c_forward = input.SyncedValue_ID(UAExpansionHeliCyclicForward);
-		float c_backward = input.SyncedValue_ID(UAExpansionHeliCyclicBackward);
+		float c_forward = InputValue_ID(inputInterface, input, UAExpansionHeliCyclicForward);
+		float c_backward = InputValue_ID(inputInterface, input, UAExpansionHeliCyclicBackward);
 
-		float c_left = input.SyncedValue_ID(UAExpansionHeliCyclicLeft);
-		float c_right = input.SyncedValue_ID(UAExpansionHeliCyclicRight);
+		float c_left = InputValue_ID(inputInterface, input, UAExpansionHeliCyclicLeft);
+		float c_right = InputValue_ID(inputInterface, input, UAExpansionHeliCyclicRight);
 #endif
+
+		m_CyclicForwardInputVal = c_forward - c_backward;
+		m_CyclicSideInputVal = c_left - c_right;
 
 		if (!IsFreeLook())
 		{
-			c_forward += input.SyncedValue_ID(UAAimDown) * m_MouseVertSens;
-			c_backward += input.SyncedValue_ID(UAAimUp) * m_MouseVertSens;
+			c_forward += InputValue_ID(inputInterface, input, UAAimDown) * m_MouseVertSens;
+			c_backward += InputValue_ID(inputInterface, input, UAAimUp) * m_MouseVertSens;
 
-			c_left += input.SyncedValue_ID(UAAimLeft) * m_MouseHorzSens;
-			c_right += input.SyncedValue_ID(UAAimRight) * m_MouseHorzSens;
+			c_left += InputValue_ID(inputInterface, input, UAAimLeft) * m_MouseHorzSens;
+			c_right += InputValue_ID(inputInterface, input, UAAimRight) * m_MouseHorzSens;
 		}
 		
 		if (IsAutoHover() && pDriver && !GetGame().IsDedicatedServer() && GetExpansionClientSettings().TurnOffAutoHoverDuringFlight)
@@ -623,8 +771,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 		else
 		{
-			m_CyclicForwardTarget = c_forward - c_backward;
-			m_CyclicSideTarget = c_left - c_right;
+			m_CyclicForwardTarget = m_CyclicForwardInputVal;
+			m_CyclicSideTarget = m_CyclicSideInputVal;
 
 			m_AutoHoverAltitude = pState.m_Transform[3][1];
 			m_AutoHoverSpeed = "0 0 0";
@@ -633,6 +781,11 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			m_MainRotorSpeedTarget = Math.Clamp(mainRotorInput, -0.25 * pState.m_DeltaTime, 0.25 * pState.m_DeltaTime) + m_MainRotorSpeed;
 		}
 
+		UpdateController();
+	}
+
+	void UpdateController()
+	{
 		//! Not used ATM
 		m_Controller.SetYaw(m_BackRotorSpeedTarget);
 		m_Controller.SetRoll(m_CyclicSideTarget);
@@ -640,6 +793,22 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		m_Controller.SetThrottle(m_MainRotorSpeedTarget, HELICOPTER_CONTROLLER_INDEX);
 		m_Controller.SetBrake(0, HELICOPTER_CONTROLLER_INDEX);
+	}
+
+	float InputValue(UAInterface inputInterface, Input input, string action)
+	{
+		if (input)
+			return input.LocalValue(action);
+
+		return inputInterface.SyncedValue(action);
+	}
+
+	float InputValue_ID(UAInterface inputInterface, Input input, int action)
+	{
+		if (input)
+			return input.LocalValue_ID(action);
+
+		return inputInterface.SyncedValue_ID(action);
 	}
 
 	override void PreSimulate(ExpansionPhysicsState pState)
@@ -741,11 +910,20 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			if (!m_Hit && !pState.m_HasDriver && !IsAutoHover())
 			{
+			#ifdef DAYZ_1_27
 				m_MainRotorSpeedTarget = Math.RandomFloatInclusive(-1, 1);
 				m_BackRotorSpeedTarget = Math.RandomFloatInclusive(-1, 1);
 
 				m_CyclicSideTarget = Math.RandomFloatInclusive(-1, 1);
 				m_CyclicForwardTarget = Math.RandomFloatInclusive(-1, 1);
+			#else
+				//! 1.28+
+				m_MainRotorSpeedTarget = m_Transport.RandomFloat(-1, 1);
+				m_BackRotorSpeedTarget = m_Transport.RandomFloat(-1, 1);
+
+				m_CyclicSideTarget = m_Transport.RandomFloat(-1, 1);
+				m_CyclicForwardTarget = m_Transport.RandomFloat(-1, 1);
+			#endif
 			}
 			else if (IsAutoHover())
 			{
@@ -799,22 +977,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 		else
 		{
-			if (pState.m_HasDriver)
-			{
-				m_MainRotorSpeedTarget = 0;
-				m_BackRotorSpeedTarget = 0;
-
-				m_CyclicForwardTarget *= 0.25;
-				m_CyclicSideTarget *= 0.25;
-			}
-			else
-			{
-				m_MainRotorSpeedTarget = 0;
-				m_BackRotorSpeedTarget = 0;
-
-				m_CyclicForwardTarget = 0;
-				m_CyclicSideTarget = 0;
-			}
+			m_CyclicForwardTarget = 0;
+			m_CyclicSideTarget = 0;
 		}
 
 		float change;
@@ -1052,9 +1216,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_Vehicle.SetAnimationPhase("attitudeDiveRTD", m_Vehicle.GetDirection()[1]);
 		m_Vehicle.SetAnimationPhase("attitudeBankRTD", m_Vehicle.GetOrientation()[2] / 360);
 
-		m_Vehicle.SetAnimationPhase("cyclicForward", m_CyclicForwardTarget);
-		m_Vehicle.SetAnimationPhase("cyclicAside", -m_CyclicSideTarget);
-
 		//! Particles, only client-side
 		if (!IsMissionClient())
 			return;
@@ -1145,6 +1306,12 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				m_WaterParticle.Stop();
 			}
 		}
+	}
+
+	void AnimateCyclic()
+	{
+		m_Vehicle.SetAnimationPhase("cyclicForward", m_CyclicForwardInputVal);
+		m_Vehicle.SetAnimationPhase("cyclicAside", -m_CyclicSideInputVal);
 	}
 
 	void AnimateRotors()

@@ -6,7 +6,5 @@
 			"RVMaterial": "DZ\\weapons\\firearms\\MP5\\data\\mp5k_body.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

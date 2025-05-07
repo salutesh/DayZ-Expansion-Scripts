@@ -60,8 +60,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	void ExpansionSpawnSettings()
 	{
 		StartingGear = new ExpansionStartingGear;
-		MaleLoadouts = new ref array<ref ExpansionSpawnGearLoadouts>;
-		FemaleLoadouts = new ref array<ref ExpansionSpawnGearLoadouts>;
+		MaleLoadouts = new array<ref ExpansionSpawnGearLoadouts>;
+		FemaleLoadouts = new array<ref ExpansionSpawnGearLoadouts>;
 	}
 	
 	int GetCooldown(bool territory = false)

@@ -76,17 +76,12 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	float m_AirDragArea;
 	float m_AirDragConstant;
 
-	EffectSound m_HornSound;
-
-	string m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
-	string m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
+	string m_HornLongSoundSet;
+	string m_HornShortSoundSet;
 
 	bool m_Exploded;
 	bool m_ExplodedSynchRemote;
 	int m_ExplosionSize;
-
-	bool m_HornPlaying;
-	bool m_HornSynchRemote;
 
 	ref array<float> m_SoundVariables;
 	ref array<string> m_SoundControls;
@@ -365,7 +360,6 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		else
 			m_side_2_2Pos = "0 0 0";
 
-		RegisterNetSyncVariableBool("m_HornSynchRemote");
 		RegisterNetSyncVariableBool("m_ExplodedSynchRemote");
 
 		RegisterNetSyncVariableFloat("m_FuelAmmount", 0, 0, 4);
@@ -576,24 +570,16 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 			}
 		}
 
-		string cHSSE = "hornSoundSetEXT";
+		string cHSSE = "hornLongSoundSet";
 		if (ConfigIsExisting(cHSSE))
 		{
-			m_HornSoundSetEXT = ConfigGetString(cHSSE);
-		}
-		else
-		{
-			m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
+			m_HornLongSoundSet = ConfigGetString(cHSSE);
 		}
 
-		string cHSSI = "hornSoundSetINT";
+		string cHSSI = "hornShortSoundSet";
 		if (ConfigIsExisting(cHSSI))
 		{
-			m_HornSoundSetINT = ConfigGetString(cHSSI);
-		}
-		else
-		{
-			m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
+			m_HornShortSoundSet = ConfigGetString(cHSSI);
 		}
 
 		m_FluidCapacities = new array<float>();
@@ -2078,7 +2064,12 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		UpdateLights();
 	}
 
+#ifdef DAYZ_1_27
 	void OnUpdate(float dt)
+#else
+	//! 1.28+
+	override void OnUpdate(float dt)
+#endif
 	{
 		/*
 //-----------------------------------------------------/
@@ -2395,7 +2386,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		return Expansion_EngineStopAnimation(m_CurrentEngine);
 	}
 
-	int EngineGetCurrent()
+	int Expansion_EngineGetCurrent()
 	{
 		if (m_CurrentEngine < 0)
 			m_CurrentEngine = 0;
@@ -2421,25 +2412,30 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	float EngineGetRPMMax()
 	{
-		return EngineGetRPMMax(m_CurrentEngine);
+		return Expansion_EngineGetRPMMax(m_CurrentEngine);
 	}
 
 	//! Returns engine's maximal working rpm without damaging the engine.
 	float EngineGetRPMRedline()
 	{
-		return EngineGetRPMRedline(m_CurrentEngine);
+		return Expansion_EngineGetRPMRedline(m_CurrentEngine);
 	}
 
 	//! Returns engine's rpm value.
 	float EngineGetRPM()
 	{
-		return EngineGetRPM(m_CurrentEngine);
+		return Expansion_EngineGetRPM(m_CurrentEngine);
+	}
+
+	float EngineGetRPMIdle()
+	{
+		return Expansion_EngineGetRPMIdle(m_CurrentEngine);
 	}
 
 	//! Returns true when engine is running, false otherwise.
 	bool EngineIsOn()
 	{
-		return EngineIsOn(m_CurrentEngine);
+		return Expansion_EngineIsOn(m_CurrentEngine);
 	}
 
 	//! Starts the engine.
@@ -2465,25 +2461,30 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	}
 
 	//! Returns engine's max rpm before engine blows up.
-	float EngineGetRPMMax(int index)
+	float Expansion_EngineGetRPMMax(int index)
 	{
 		return m_Engines[index].m_RPMMax;
 	}
 
 	//! Returns engine's maximal working rpm without damaging the engine.
-	float EngineGetRPMRedline(int index)
+	float Expansion_EngineGetRPMRedline(int index)
 	{
 		return m_Engines[index].m_RPMRedline;
 	}
 
 	//! Returns engine's rpm value.
-	float EngineGetRPM(int index)
+	float Expansion_EngineGetRPM(int index)
 	{
 		return m_Engines[index].m_RPM;
 	}
 
+	float Expansion_EngineGetRPMIdle(int index)
+	{
+		return m_Engines[index].m_RPMIdle;
+	}
+
 	//! Returns true when engine is running, false otherwise.
-	bool EngineIsOn(int index)
+	bool Expansion_EngineIsOn(int index)
 	{
 		return m_Controller.m_State[index];
 	}
@@ -2539,6 +2540,9 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		else
 			Expansion_SetEngineSoundState(CarEngineSoundState.STARTING);
 
+		if (!m_ExpansionVehicle.OnBeforeEngineStart(index))
+			return false;
+
 		return result;
 	}
 
@@ -2550,6 +2554,8 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		UpdateLights();
 		
 		Expansion_HandleEngineSound(CarEngineSoundState.START_OK);
+
+		m_ExpansionVehicle.OnEngineStart(index);
 	}
 
 	//! Stops the engine.
@@ -2582,6 +2588,8 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		UpdateLights();
 		
 		Expansion_HandleEngineSound(CarEngineSoundState.STOP_OK);
+
+		m_ExpansionVehicle.OnEngineStop(index);
 	}
 
 	int EnginesOn()
@@ -2632,7 +2640,12 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		\param[in] other object with which the vehicle is colliding
 		\param[in] data contact properties
 	*/
+#ifdef DAYZ_1_27
 	void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
+#else
+	//! 1.28+
+	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
+#endif
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "OnContact").Add(zoneName).Add(localPos).Add(other).Add(data);
@@ -2977,14 +2990,22 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	void OnCarDoorOpened(string source)
 	{
-		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnDoorOpened");
+		EXError.Error(this, "DEPRECATED, use Expansion_OnDoorOpened");
 		m_ExpansionVehicle.OnDoorOpened(source);
 	}
 
 	void OnCarDoorClosed(string source)
 	{
-		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().OnDoorClosed");
+		EXError.Error(this, "DEPRECATED, use Expansion_OnDoorClosed");
 		m_ExpansionVehicle.OnDoorClosed(source);
+	}
+
+	void Expansion_OnDoorOpened(string selection)
+	{
+	}
+
+	void Expansion_OnDoorClosed(string selection)
+	{
 	}
 
 	bool IsCarKeys(ExpansionCarKey key)
@@ -3040,44 +3061,6 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	void UpdateCarLock(float pDt)
 	{
 		EXError.Error(this, "DEPRECATED");
-	}
-
-	void OnHornSoundPlay()
-	{
-		string soundFile = m_HornSoundSetEXT;
-		if (GetGame().GetPlayer().IsCameraInsideVehicle())
-			soundFile = m_HornSoundSetINT;
-
-		m_HornSound = SEffectManager.PlaySoundOnObject(soundFile, this);
-		m_HornSound.SetSoundAutodestroy(true);
-		m_HornSound.SetSoundLoop(true);
-	}
-
-	void OnHornSoundStop()
-	{
-		m_HornSound.SetSoundLoop(false);
-		m_HornSound.SoundStop();
-	}
-
-	void PlayHorn()
-	{
-		m_HornSynchRemote = true;
-		m_HornPlaying = false;
-
-		SetSynchDirty();
-	}
-
-	void StopHorn()
-	{
-		m_HornSynchRemote = false;
-		m_HornPlaying = true;
-
-		SetSynchDirty();
-	}
-
-	bool IsSoundSynchRemote()
-	{
-		return m_HornSynchRemote;
 	}
 
 	override void Explode(int damageType, string ammoType = "")
@@ -3666,6 +3649,16 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	EntityAI GetRadiator()
 	{
 		return m_Radiator;
+	}
+
+	float Expansion_GetThrottle()
+	{
+		return m_Controller.GetThrottle();
+	}
+
+	float Expansion_GetThrottle(int index)
+	{
+		return m_Controller.GetThrottle(index);
 	}
 
 	bool Expansion_IsVehicleFunctional(bool checkOptionalParts = false, set<typename> missingComponents = null)

@@ -395,7 +395,7 @@ modded class Weapon_Base
 		return super.ProcessWeaponAbortEvent(e);
 	}
 
-	override bool Expansion_TryTurningOnAnyLightsOrNVG(out float nightVisibility, PlayerBase player, bool skipNonNVG = false, bool skipNVG = false)
+	override bool Expansion_TryTurningOnAnyLightsOrNVG(inout float nightVisibility, PlayerBase player, bool skipNonNVG = false, bool skipNVG = false)
 	{
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
@@ -404,7 +404,8 @@ modded class Weapon_Base
 		ItemOptics optic;
 		if (!skipNVG && Class.CastTo(optic, GetAttachedOptics()) && optic.GetCurrentNVType() != NVTypes.NONE)
 		{
-			nightVisibility = optic.GetZeroingDistanceZoomMax() * 0.001;
+			float opticVisibility = Math.Min(optic.GetZeroingDistanceZoomMax() * 0.001, 1.0);
+			nightVisibility = opticVisibility + nightVisibility * (1.0 - opticVisibility);
 			EXTrace.Print(EXTrace.AI, player, "switched on " + optic.ToString());
 			return true;
 		}
@@ -433,7 +434,7 @@ modded class Weapon_Base
 			if ( itemChild && itemChild.Expansion_TryTurningOn() )
 			{
 				FlashlightOn();
-				nightVisibility = 0.15;
+				nightVisibility = 0.15 + nightVisibility * 0.85;
 				EXTrace.Print(EXTrace.AI, player, "switched on " + itemChild.ToString());
 				return true;
 			}
@@ -442,7 +443,7 @@ modded class Weapon_Base
 		return false;
 	}
 
-	override bool Expansion_TryTurningOffAnyLightsOrNVG(PlayerBase player, bool skipNVG = false)
+	override bool Expansion_TryTurningOffAnyLightsOrNVG(PlayerBase player, bool skipNVG = false, bool force = false)
 	{
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
@@ -453,7 +454,7 @@ modded class Weapon_Base
 		CastTo(mngr_client, player.GetActionManager());
 		atrg = new ActionTarget(this, null, -1, vector.Zero, -1.0);
 
-		if ( mngr_client.GetAction(ActionTurnOffWeaponFlashlight).Can(player, atrg, this) )
+		if ( force || mngr_client.GetAction(ActionTurnOffWeaponFlashlight).Can(player, atrg, this) )
 		{
 			ItemBase itemChild;
 			if ( IsInherited(Rifle_Base) )

@@ -21,6 +21,9 @@ class ExpansionVehicleAnimInstances
 	static int EXPANSION_TRACTOR = VehicleAnimInstances.V3S;
 	static int EXPANSION_UAZ = VehicleAnimInstances.SEDAN;
 
+	// Boats - Expansion - using vanilla anims
+	static int EXPANSION_ZODIAC = VehicleAnimInstances.ZODIAC;
+
 #ifdef EXPANSIONMODANIMATIONS
 
 	// Cars - Expansion - using Expansion anims
@@ -28,7 +31,6 @@ class ExpansionVehicleAnimInstances
 
 	// Boats
 	static int EXPANSION_UTILITY_BOAT = 10;
-	static int EXPANSION_ZODIAC = 12;
 	static int EXPANSION_LHD = 12;
 
 	// Bikes
@@ -48,8 +50,7 @@ class ExpansionVehicleAnimInstances
 	static int EXPANSION_BUS = VehicleAnimInstances.SEDAN;
 
 	// Boats
-	static int EXPANSION_UTILITY_BOAT = VehicleAnimInstances.SEDAN;
-	static int EXPANSION_ZODIAC = VehicleAnimInstances.SEDAN;
+	static int EXPANSION_UTILITY_BOAT = VehicleAnimInstances.ZODIAC;
 	static int EXPANSION_LHD = VehicleAnimInstances.SEDAN;
 
 	// Bikes

@@ -59,6 +59,86 @@ modded class MiscGameplayFunctions
 		return true;
 	}
 
+	//! Used by p2p market and personal storage, couldn't think of a better name/place for it
+	static bool Expansion_ItemCheck(EntityAI item, TStringArray excludedClassNames = null)
+	{
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.StartStack(EXTrace.GENERAL_ITEMS, MiscGameplayFunctions);
+	#endif
+
+		if (item.IsRuined())
+			return false;
+
+		if (!item.CanPutInCargo(null))
+			return false;
+
+		if (excludedClassNames && ExpansionStatic.IsAnyOf(item, excludedClassNames))
+			return false;
+
+		//! Don`t add rotten food items
+		Edible_Base foodItem;
+		if (Class.CastTo(foodItem, item) && foodItem.HasFoodStage())
+		{
+			FoodStage foodStage = foodItem.GetFoodStage();
+			FoodStageType foodStageType = foodStage.GetFoodStageType();
+			if (foodStageType == FoodStageType.ROTTEN || foodStageType == FoodStageType.BURNED)
+				return false;
+		}
+
+		ExplosivesBase explosive;
+		if (Class.CastTo(explosive, item) && explosive.Expansion_IsLive())
+			return false;
+
+		#ifdef WRDG_DOGTAGS
+		//! Don`t add players own dogtag
+		if (item.IsInherited(Dogtag_Base))
+		{
+			if (!Expansion_IsLooseEntity(item, true))
+				return false;
+		}
+		#endif
+
+		#ifdef EXPANSIONMODQUESTS
+		//! Don`t add quest items
+		ItemBase itemIB;
+		if (Class.CastTo(itemIB, item))
+		{
+			if (itemIB.Expansion_IsQuestItem() || itemIB.Expansion_IsQuestGiver())
+				return false;
+		}
+		#endif
+
+		return true;
+	}
+
+	//! @brief returns the direct children (attachments/cargo)
+	static array<EntityAI> Expansion_GetItems(EntityAI item)
+	{
+		array<EntityAI> items = {};
+		GameInventory inventory = item.GetInventory();
+
+		if (inventory)
+		{
+			int i;
+
+			for (i = 0; i < inventory.AttachmentCount(); ++i)
+			{
+				items.Insert(inventory.GetAttachmentFromIndex(i));
+			}
+
+			CargoBase cargo = inventory.GetCargo();
+			if (cargo)
+			{
+				for (i = 0; i < cargo.GetItemCount(); ++i)
+				{
+					items.Insert(cargo.GetItem(i));
+				}
+			}
+		}
+
+		return items;
+	}
+
 	//! @brief check if entity or any attachment has cargo, use this instead of entity.HasAnyCargo()
 	//! because the latter will return false on client if inventory has not been initialized yet
 	//! @note uninitialized inventory currently only dealt with if entity is a vehicle
@@ -229,17 +309,16 @@ modded class MiscGameplayFunctions
 		return numberOfTransferredCartridges;
 	}
 	
-	static array<EntityAI> Expansion_GetEntitySlotItems(EntityAI entity)
+	static array<EntityAI> Expansion_GetAttachments(EntityAI entity)
 	{
-		array<EntityAI> slotItems = new array<EntityAI>;
-		for (int i = 0; i < entity.GetInventory().GetAttachmentSlotsCount(); i++)
+		array<EntityAI> attachments = {};
+		for (int i = 0; i < entity.GetInventory().AttachmentCount(); ++i)
 		{
-			int slot = entity.GetInventory().GetAttachmentSlotId(i);
-			EntityAI slotItem = entity.GetInventory().FindAttachment(slot);
-			if (slotItem)
-				slotItems.Insert(slotItem);
+			EntityAI attachment = entity.GetInventory().GetAttachmentFromIndex(i);
+			if (attachment)
+				attachments.Insert(attachment);
 		}
 
-		return slotItems;
+		return attachments;
 	}
 }

@@ -124,42 +124,10 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 		return false;
 	}
 
+	//! This method allows mods to override GetPreviewClassName while still keeping the original code in one place
 	string GetPreviewClassName(string className, bool ignoreBaseBuildingKits = false)
 	{
-		if (GetGame().ConfigIsExisting("CfgVehicles " + className + "_ExpansionMarketPreview"))
-		{
-			return className + "_ExpansionMarketPreview";
-		}
-		else if (!ignoreBaseBuildingKits && className.IndexOf("kit") == className.Length() - 3)
-		{
-			//! Special handling for Expansion
-			if (GetGame().IsKindOf(className, "ExpansionKitLarge"))
-			{
-				string path = "CfgVehicles " + className + " placingTypes";
-				if (GetGame().ConfigIsExisting(path))
-				{
-					TStringArray placingTypes = new TStringArray;
-					GetGame().ConfigGetTextArray(path, placingTypes);
-					foreach (string placingType : placingTypes)
-					{
-						path = "CfgVehicles " + placingType + " deployType";
-						if (GetGame().ConfigIsExisting(path))
-						{
-							return GetGame().ConfigGetTextOut(path);
-						}
-					}
-				}
-			}
-
-			if (className == "fencekit" || className == "watchtowerkit" || className == "territoryflagkit")
-			{
-				//! Item name is kit name without "kit" at the end
-				string previewClassName = className.Substring(0, className.Length() - 3);
-				if (GetGame().ConfigIsExisting("CfgVehicles " + previewClassName))
-					return previewClassName;
-			}
-		}
-		return className;
+		return m_P2PMarketMenu.GetPreviewClassName(className, ignoreBaseBuildingKits);
 	}
 
 	void SpawnAttachments(array<ref ExpansionP2PMarketContainerItem> attachments, EntityAI parent, int skinIndex = 0)
@@ -216,7 +184,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 		if (!m_P2PMarketMenu.GetSelectedPreviewObject())
 			return;
 
-		string previewClassName = GetPreviewClassName(m_P2PMarketMenu.GetSelectedPreviewObject().ClassName());
+		string previewClassName = GetPreviewClassName(m_P2PMarketMenu.GetSelectedPreviewObject().GetType());
 		
 		if (!UsePlayerPreview())
 		{
@@ -494,7 +462,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 
 			string allowedCharacters = "0123456789.e";
 			int pointCount;
-			for (int i = 0; i < priceText.Length(); i++)
+			for (int i = 0; i < priceText.Length(); ++i)
 			{
 				string c = priceText[i];
 

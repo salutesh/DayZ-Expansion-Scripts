@@ -1,7 +1,6 @@
 class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 {
 	eAIBase m_AI;
-	EntityAI m_Hands;
 	bool m_eAI_MeleeHeavy;
 	float m_eAI_MeleeAttackType;
 
@@ -187,9 +186,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 	bool eAI_SetupMelee(bool wasHit = false)
 	{
-		m_Hands = m_AI.GetHumanInventory().GetEntityInHands();
-
-		Reset(InventoryItem.Cast(m_Hands), GetMeleeHitType(), wasHit);
+		Reset(m_AI.GetItemInHands(), GetMeleeHitType(), wasHit);
 		TargetSelection();
 		if (m_HitType == EMeleeHitType.NONE || !m_TargetObject)
 		{
@@ -213,33 +210,37 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		return true;
 	}
 
-	void Start()
+	bool Start()
 	{
 		if (!eAI_SetupMelee())
-			return;
+			return false;
 
 		m_AI.StartCommand_Melee2(EntityAI.Cast(m_TargetObject), m_eAI_MeleeHeavy, m_eAI_MeleeAttackType, m_HitPositionWS);
 
 		eAI_DepleteStaminaAndApplyShock();
+
+		return true;
 	}
 
-	void Combo(HumanCommandMelee2 hcm2)
+	bool Combo(HumanCommandMelee2 hcm2)
 	{
 		bool wasHit;
 		if (GetFinisherType() == -1)
 			wasHit = true;
 
 		if (!eAI_SetupMelee(wasHit))
-			return;
+			return false;
 
 		hcm2.ContinueCombo(m_eAI_MeleeHeavy, m_eAI_MeleeAttackType, EntityAI.Cast(m_TargetObject), m_HitPositionWS);
 
 		eAI_DepleteStaminaAndApplyShock();
+
+		return true;
 	}
 
 	void OnHit()
 	{
-		m_AI.GetMeleeFightLogic().eAI_EvaluateHit(InventoryItem.Cast(m_Hands));
+		m_AI.GetMeleeFightLogic().eAI_EvaluateHit(m_Weapon);
 	}
 
 	void eAI_DepleteStaminaAndApplyShock()
@@ -303,15 +304,15 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 	EMeleeHitType GetMeleeHitType()
 	{
-		if (m_Hands && m_Hands.IsWeapon())
+		if (m_Weapon && m_Weapon.IsWeapon())
 		{
 			if (m_AI.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
 			{
-				if (m_Hands.HasBayonetAttached())
+				if (m_Weapon.HasBayonetAttached())
 				{
 					return EMeleeHitType.WPN_STAB;
 				}
-				else if (m_Hands.HasButtstockAttached())
+				else if (m_Weapon.HasButtstockAttached())
 				{
 					return EMeleeHitType.WPN_HIT_BUTTSTOCK;
 				}
@@ -333,5 +334,16 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		}
 
 		return EMeleeHitType.LIGHT;
+	}
+
+	//! Vanilla GetRange is protected...
+	float eAI_GetRange()
+	{
+		return GetRange();
+	}
+
+	InventoryItem eAI_GetWeapon()
+	{
+		return m_Weapon;
 	}
 };

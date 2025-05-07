@@ -6,7 +6,5 @@
 			"RVMaterial": "dz\\weapons\\firearms\\Ruger1022\\data\\ruger1022.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

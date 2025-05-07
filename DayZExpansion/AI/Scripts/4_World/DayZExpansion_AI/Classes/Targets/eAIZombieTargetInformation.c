@@ -85,8 +85,18 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 
 		if (ai)
 		{
+			if (ai.eAI_GetThreatOverride(m_Target))
+				return 0.0;
+
 			//! The further away the zombie, the less likely it will be a threat
 			float distance = GetDistance(ai, true);
+
+			//! If not reachable, ignore if we don't have a gun
+			if (distance > 2.0 && !ai.m_eAI_HasProjectileWeaponInHands && Math.IsPointInCircle(m_Target.GetPosition(), 2.0, ai.GetPosition()))
+			{
+				ai.eAI_ThreatOverride(m_Target, true);
+				return 0.0;
+			}
 
 			if (!levelFactor)
 			{
@@ -122,7 +132,7 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 
 	override float GetMinDistance(eAIBase ai = null, float distance = 0.0)
 	{
-		if (ai && (ai.m_eAI_AcuteDangerTargetCount > 1 || ai.eAI_IsLowVitals()))
+		if (ai && (ai.m_eAI_AcuteDangerTargetCount > Math.Floor(ai.GetGroup().Count() * 1.4) || ai.eAI_IsLowVitals()))
 			return 100.0;  //! Flee
 
 		return m_MinDistance;

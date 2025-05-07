@@ -132,7 +132,13 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 		if ( !GetExpansionClientSettings().AutoOpenLockMenuAfterPlacing )
 			return;
 
-		if ( !targetItem.HasCode() )
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Expansion_OpenCodeLockUI, 250, false, targetItem);
+#endif
+	}
+
+	void Expansion_OpenCodeLockUI(ItemBase targetItem)
+	{
+		if ( targetItem && targetItem.ExpansionGetCodeLock() && !targetItem.HasCode() )
 		{
 			ExpansionCodeLockUI menu = ExpansionCodeLockUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_CODELOCK_MENU, NULL ) );
 			if ( menu )
@@ -142,6 +148,5 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 				menu.SetTarget( targetItem, "" );
 			}
 		}
-#endif
 	}
 };

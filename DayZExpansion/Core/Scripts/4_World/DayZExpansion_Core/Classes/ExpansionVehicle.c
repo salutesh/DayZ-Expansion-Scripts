@@ -29,6 +29,11 @@ class ExpansionVehicle
 
 	protected float m_CrewKilledTimestamp;
 
+	protected float m_FuelConsumption;
+#ifdef DIAG_DEVELOPER
+	protected float m_FuelConsumption_Prev;
+#endif
+
 	void ExpansionVehicle()
 	{
 		m_Node = s_All.Add(this);
@@ -195,6 +200,14 @@ class ExpansionVehicle
 		EXError.Error(this, "NOT IMPLEMENTED");
 		return null;
 	}
+
+#ifdef FEATURE_NETWORK_RECONCILIATION
+	NetworkMoveStrategy GetNetworkMoveStrategy()
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return NetworkMoveStrategy.NONE;
+	}
+#endif
 
 	string GetPersistentIDString()
 	{
@@ -400,10 +413,36 @@ class ExpansionVehicle
 		return 0;
 	}
 
+	bool OnBeforeEngineStart(int index = 0)
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return false;
+	}
+
+	void OnEngineStart(int index = 0)
+	{
+	}
+
+	void OnEngineStop(int index = 0)
+	{
+	}
+
 	bool EngineIsOn()
 	{
 		EXError.Error(this, "NOT IMPLEMENTED");
 		return false;
+	}
+
+	bool EngineIsOn(int index)
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return false;
+	}
+
+	int EngineGetRunningAboveOrAtIdleRPMCount()
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return 0;
 	}
 
 	void EngineStart()
@@ -422,6 +461,12 @@ class ExpansionVehicle
 		return 0;
 	}
 
+	int EngineGetCurrent()
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return -1;
+	}
+
 	void EngineSetNext()
 	{
 		EXError.Error(this, "NOT IMPLEMENTED");
@@ -431,6 +476,28 @@ class ExpansionVehicle
 	{
 		EXError.Error(this, "NOT IMPLEMENTED");
 		return string.Empty;
+	}
+
+	float GetThrottle()
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return 0;
+	}
+
+	float GetThrottle(int index)
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return 0;
+	}
+
+	void ConsumeFuel(float fuelConsumption)
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+	}
+
+	void ConsumeFuelOverTime(float dt)
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
 	}
 
 	bool HasGear()
@@ -812,6 +879,14 @@ class ExpansionVehicle
 		}
 	}
 
+	void OnDoorOpened(string selection)
+	{
+	}
+
+	void OnDoorClosed(string selection)
+	{
+	}
+
 	void OnLocked(ExpansionVehicleLockState previousLockState)
 	{
 	}
@@ -853,6 +928,8 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 		m_IsHelicopter = vehicle.Expansion_IsHelicopter();
 		m_IsPlane = vehicle.Expansion_IsPlane();
 		m_IsDuck = vehicle.Expansion_IsDuck();
+
+		m_FuelConsumption = GetGame().ConfigGetFloat("CfgVehicles " + vehicle.GetType() + " fuelConsumption");
 	}
 
 	override void Init()
@@ -889,6 +966,13 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	{
 		return m_Vehicle.m_Expansion_GlobalID;
 	}
+	
+#ifdef FEATURE_NETWORK_RECONCILIATION
+	override NetworkMoveStrategy GetNetworkMoveStrategy()
+	{
+		return m_Vehicle.GetNetworkMoveStrategy();
+	}
+#endif
 
 	override void SetSkin(int skinIndex)
 	{
@@ -1067,6 +1151,11 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	#else
 		m_Vehicle.EngineStop();
 	#endif
+	}
+
+	override float GetThrottle()
+	{
+		return m_Vehicle.Expansion_GetThrottle();
 	}
 
 	override int CrewSize()
@@ -1415,6 +1504,11 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 		return m_Vehicle.Expansion_EngineGetCount();
 	}
 
+	override int EngineGetCurrent()
+	{
+		return m_Vehicle.Expansion_EngineGetCurrent();
+	}
+
 	override void EngineSetNext()
 	{
 		m_Vehicle.Expansion_EngineSetNext();
@@ -1423,6 +1517,117 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	override string EngineGetName()
 	{
 		return m_Vehicle.Expansion_EngineGetName();
+	}
+
+	override bool OnBeforeEngineStart(int index = 0)
+	{
+		if (GetGame().IsClient())
+			return true;
+
+		float engineHealth = GetEntity().GetHealth01("Engine", "");
+		//! @note chance when engine is damaged (health level 0.5)
+		float chance = GetExpansionSettings().GetVehicle().DamagedEngineStartupChancePercent / 100.0;
+		//! @note calculated chance follows a power curve (linear if chance == 0.5)
+		float chanceMin = 0.0025;
+		bool clamp = chance == 0;
+
+		if (chance < chanceMin)
+			chance = chanceMin;
+
+		chance = Math.Pow(engineHealth, -ExpansionMath.Log2(chance));
+
+		if (clamp)
+			chance = ExpansionMath.LinearConversion(chanceMin, 1.0, chance, 0.0, 1.0);
+
+		if (chance >= Math.RandomFloatInclusive(0.0, 1.0))
+			return true;
+
+		return false;
+	}
+
+	override void OnEngineStart(int index = 0)
+	{
+		if (GetGame().IsServer() && GetExpansionSettings().GetLog().VehicleEngine)
+			GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player \"{1:name}\" (id={1:id}) started vehicle {2:name} (id={2:persistent_id} pos={2:position})", CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER), GetEntity());
+	}
+
+	override void OnEngineStop(int index = 0)
+	{
+		if (GetGame().IsServer() && GetExpansionSettings().GetLog().VehicleEngine)
+			GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player \"{1:name}\" (id={1:id}) stopped vehicle {2:name} (id={2:persistent_id} pos={2:position})", CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER), GetEntity());
+	}
+
+	override bool EngineIsOn(int index)
+	{
+		return m_Vehicle.Expansion_EngineIsOn(index);
+	}
+
+	override float GetThrottle(int index)
+	{
+		return m_Vehicle.Expansion_GetThrottle(index);
+	}
+
+	override int EngineGetRunningAboveOrAtIdleRPMCount()
+	{
+		int count;
+
+		for (int i = 0; i < m_Vehicle.Expansion_EngineGetCount(); ++i)
+		{
+			if (m_Vehicle.Expansion_EngineGetRPM(i) >= m_Vehicle.Expansion_EngineGetRPMIdle(i) || m_Vehicle.Expansion_GetThrottle(i) > 0)
+				count++;
+		}
+
+		return count;
+	}
+
+	override void ConsumeFuel(float fuelConsumption)
+	{
+		float fuelConsumptionNominal = fuelConsumption;
+
+		float fuelConsumptionPct = GetExpansionSettings().GetVehicle().FuelConsumptionPercent;
+
+		if (fuelConsumptionPct != 100)
+			fuelConsumption *= fuelConsumptionPct * 0.01;
+
+		//! @note fuel consumption for engine 0 is handled by the game internally, so we need to subtract nominal fuel consumption.
+		//! If resulting consumption is negative, FuelConsumptionPercent was set to below 100% (= add some fuel back after consumption)
+		if (m_Vehicle.Expansion_EngineGetRPM(0) >= m_Vehicle.Expansion_EngineGetRPMIdle(0) || m_Vehicle.Expansion_GetThrottle(0) > 0)
+			fuelConsumption -= fuelConsumptionNominal / EngineGetRunningAboveOrAtIdleRPMCount();
+
+	#ifdef DIAG_DEVELOPER
+		if (EXTrace.VEHICLES && fuelConsumption != m_FuelConsumption_Prev)
+		{
+			EXTrace.Print(true, this, m_Vehicle.GetType() + " fuel consumption (liters/s) " + fuelConsumption + " (" + fuelConsumptionPct + "%%)");
+			m_FuelConsumption_Prev = fuelConsumption;
+		}
+	#endif
+
+		if (fuelConsumption != 0.0)
+		{
+			int fluid;
+			if (m_Vehicle.IsInherited(Boat))
+				fluid = BoatFluid.FUEL;
+			else
+				fluid = CarFluid.FUEL;
+
+			if (fuelConsumption < 0.0)
+			{
+				//! Will only be negative if engine 0 is on with FuelConsumptionPercent < 100
+
+				//! Need to make sure to only add fuel if not already depleted else we will never run out of fuel
+				if (m_Vehicle.GetFluidFraction(fluid) > 0)
+					m_Vehicle.Fill(fluid, -fuelConsumption);
+			}
+			else
+			{
+				m_Vehicle.Leak(fluid, fuelConsumption);
+			}
+		}
+	}
+
+	override void ConsumeFuelOverTime(float dt)
+	{
+		ConsumeFuel(m_FuelConsumption * dt / 3600.0);
 	}
 
 	override bool HasGear()
@@ -1438,6 +1643,20 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	override ExpansionPhysicsState GetPhysicsState()
 	{
 		return m_Vehicle.Expansion_GetPhysicsState();
+	}
+
+	override void OnDoorOpened(string selection)
+	{
+		super.OnDoorOpened(selection);
+
+		m_Vehicle.Expansion_OnDoorOpened(selection);
+	}
+
+	override void OnDoorClosed(string selection)
+	{
+		super.OnDoorClosed(selection);
+
+		m_Vehicle.Expansion_OnDoorClosed(selection);
 	}
 
 	override void OnLocked(ExpansionVehicleLockState previousLockState)

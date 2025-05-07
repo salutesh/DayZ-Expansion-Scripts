@@ -171,7 +171,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			if (!GetExpansionSettings().GetQuest().EnableQuests)
 			{
-				EXError.Warn(this, "[Expansion Quests] Quest system is disabled in quest settings. Cancel module initialisation..", {});
+				QuestModulePrint(ToString() + " [Expansion Quests] Quest system is disabled in quest settings. Cancel module initialisation..");
 				return;
 			}
 			
@@ -2989,7 +2989,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestNPCData existingNPCData;
 		if (!m_QuestsNPCs.Find(id, existingNPCData))
 		{
-			EXError.Info(this, "[Expansion Quests] Adding quest NPC with ID " + id + " from loaded file " + questNPCData.FILENAME, {});
+			QuestModulePrint(ToString() + " [Expansion Quests] Adding quest NPC with ID " + id + " from loaded file " + questNPCData.FILENAME);
 			m_QuestsNPCs.Insert(id, questNPCData);
 		}
 		else
@@ -3018,7 +3018,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			ExpansionQuestNPCData existingNPCData;
 			if (!m_QuestsNPCs.Find(questNPCData.GetID(), existingNPCData))
 			{
-				EXError.Info(this, "[Expansion Quests] Adding quest NPC with ID " + questNPCData.GetID() + " from loaded file " + fileName, {});
+				QuestModulePrint(ToString() + " [Expansion Quests] Adding quest NPC with ID " + questNPCData.GetID() + " from loaded file " + fileName);
 				questNPCData.FILENAME = fileName;
 				m_QuestsNPCs.Insert(questNPCData.GetID(), questNPCData);
 			}

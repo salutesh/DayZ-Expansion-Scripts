@@ -10,6 +10,132 @@
  *
 */
 
+#ifndef DAYZ_1_27
+//! 1.28+
+class ExpansionHelicopterScriptMove : CarScriptMove
+{
+	// Event: -1 means unset, 0 is false, 1 is true
+	int m_AutoHover = -1;
+	int m_EngineOn = -1;
+	
+	float m_MainRotorSpeedTarget;
+	float m_BackRotorSpeedTarget;
+	
+	float m_CyclicForwardTarget;
+	float m_CyclicSideTarget;
+	
+	float m_AutoHoverSpeedX;
+	float m_AutoHoverAltitude;
+	float m_AutoHoverSpeedZ;
+
+	bool m_IsFreeLook;
+	
+	protected override event void Write(PawnMoveWriter ctx, PawnMove prev)
+	{
+		super.Write(ctx, prev);
+
+		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
+
+		ctx.Write(m_AutoHover);
+		ctx.Write(m_EngineOn);
+		
+		ctx.Write(m_MainRotorSpeedTarget);
+		ctx.Write(m_BackRotorSpeedTarget);
+		ctx.Write(m_CyclicForwardTarget);
+		ctx.Write(m_CyclicSideTarget);
+
+		ctx.Write(m_AutoHoverSpeedX);
+		ctx.Write(m_AutoHoverAltitude);
+		ctx.Write(m_AutoHoverSpeedZ);
+
+		ctx.Write(m_IsFreeLook);
+	}
+
+	protected override event void Read(PawnMoveReader ctx, PawnMove prev)
+	{
+		super.Read(ctx, prev);
+
+		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
+		
+		ctx.Read(m_AutoHover);
+		ctx.Read(m_EngineOn);
+		
+		ctx.Read(m_MainRotorSpeedTarget);
+		ctx.Read(m_BackRotorSpeedTarget);
+		ctx.Read(m_CyclicForwardTarget);
+		ctx.Read(m_CyclicSideTarget);
+
+		ctx.Read(m_AutoHoverSpeedX);
+		ctx.Read(m_AutoHoverAltitude);
+		ctx.Read(m_AutoHoverSpeedZ);
+
+		ctx.Read(m_IsFreeLook);
+	}
+
+	protected override event int EstimateMaximumSize()
+	{
+		int size = super.EstimateMaximumSize();
+		size += 10 * 4; // num float variables multiplied by size of float
+		return size;
+	}
+};
+
+class ExpansionHelicopterScriptOwnerState : CarScriptOwnerState
+{
+	float m_RotorSpeed;
+	bool m_EngineState;
+	
+	float m_MainRotorSpeed;
+	float m_BackRotorSpeed;
+	
+	float m_Hydraulic;
+	
+	float m_CyclicForward;
+	float m_CyclicSide;
+	
+	bool m_AutoHover;
+	
+	protected override event void Write(PawnStateWriter ctx)
+	{
+		super.Write(ctx);
+
+		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
+		
+		ctx.Write(m_RotorSpeed);
+		ctx.Write(m_EngineState);
+		ctx.Write(m_MainRotorSpeed);
+		ctx.Write(m_BackRotorSpeed);
+		ctx.Write(m_Hydraulic);
+		ctx.Write(m_CyclicForward);
+		ctx.Write(m_CyclicSide);
+		ctx.Write(m_AutoHover);
+	}
+
+	protected override event void Read(PawnStateReader ctx)
+	{
+		super.Read(ctx);
+
+		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
+		
+		ctx.Read(m_RotorSpeed);
+		ctx.Read(m_EngineState);
+		ctx.Read(m_MainRotorSpeed);
+		ctx.Read(m_BackRotorSpeed);
+		ctx.Read(m_Hydraulic);
+		ctx.Read(m_CyclicForward);
+		ctx.Read(m_CyclicSide);
+		ctx.Read(m_AutoHover);
+	}
+
+	protected override event int EstimateMaximumSize()
+	{
+		int size = super.EstimateMaximumSize();
+		size += 8 * 4; // num float variables multiplied by size of float
+		return size;
+	}
+};
+#endif
+
 /**@class		ExpansionHelicopterScript
  * @brief		This class handle helicopter movement and physics
  **/
@@ -83,8 +209,11 @@ class ExpansionHelicopterScript: CarScript
 		ExpansionVehicleHelicopter_OLD simulation = new ExpansionVehicleHelicopter_OLD(this);
 		m_Simulation = simulation;
 		AddModule(m_Simulation);
+		RegisterNetSyncVariableBool("m_Expansion_EngineSync1");
 
 		RegisterNetSyncVariableFloat("m_Simulation.m_RotorSpeed");
+		RegisterNetSyncVariableFloat("m_Simulation.m_CyclicForwardInputVal");
+		RegisterNetSyncVariableFloat("m_Simulation.m_CyclicSideInputVal");
 		
 		m_CarDoorOpenSound 		= "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound 	= "offroad_door_close_SoundSet";
@@ -131,6 +260,64 @@ class ExpansionHelicopterScript: CarScript
 	void ~ExpansionHelicopterScript()
 	{
 	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		m_Simulation.AnimateCyclic();
+	}
+
+#ifndef DAYZ_1_27
+//! 1.28+
+	override protected event typename GetOwnerStateType()
+	{
+		return ExpansionHelicopterScriptOwnerState;
+	}
+	
+	override protected event typename GetMoveType()
+	{
+		return ExpansionHelicopterScriptMove;
+	}
+
+	protected override event void ObtainMove(PawnMove pMove)
+	{
+		super.ObtainMove(pMove);
+
+		m_Simulation.ObtainMove(pMove);
+	}
+
+	protected override event void ConsumeMove(PawnMove pMove)
+	{
+		super.ConsumeMove(pMove);
+
+		m_Simulation.ConsumeMove(pMove);
+	}
+
+	protected override event bool ReplayMove(PawnMove pMove)
+	{
+		if (!super.ReplayMove(pMove))
+		{
+			return false;
+		}
+
+		return m_Simulation.ReplayMove(pMove);
+	}
+
+	protected override event void ObtainState(/*inout*/ PawnOwnerState pState)
+	{
+		super.ObtainState(pState);
+
+		m_Simulation.ObtainState(pState);
+	}
+
+	protected override event void RewindState(PawnOwnerState pState, /*inout*/ PawnMove pMove, inout NetworkRewindType pRewindType)
+	{
+		super.RewindState(pState, pMove, pRewindType);
+
+		m_Simulation.RewindState(pState, pMove, pRewindType);
+	}
+#endif
 
 	override void LongDeferredInit()
 	{
@@ -634,6 +821,19 @@ class ExpansionHelicopterScript: CarScript
 	override bool Expansion_EngineIsSpinning()
 	{
 		return m_Simulation.m_RotorSpeed > 0;
+	}
+
+	override float Expansion_GetThrottle()
+	{
+		return m_Simulation.m_RotorSpeed;
+	}
+
+	override float Expansion_GetThrottle(int index)
+	{
+		if (index == 0)
+			return 0;
+
+		return m_Simulation.m_RotorSpeed;
 	}
 
 	bool Expansion_IsRotorDamaged()

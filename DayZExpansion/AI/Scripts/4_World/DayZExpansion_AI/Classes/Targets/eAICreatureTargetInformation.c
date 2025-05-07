@@ -47,9 +47,19 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 #ifdef EXTRACE_DIAG
 			auto hitch = new EXHitch(ai.ToString() + " eAICreatureTargetInformation::CalculateThreat ", 20000);
 #endif
+			if (ai.eAI_GetThreatOverride(m_Target))
+				return 0.0;
 
 			// the further away the creature, the less likely it will be a threat
 			float distance = GetDistance(ai, true) + 0.1;
+
+			//! If not reachable, ignore if we don't have a gun
+			if (distance > 2.0 && !ai.m_eAI_HasProjectileWeaponInHands && Math.IsPointInCircle(m_Target.GetPosition(), 2.0, ai.GetPosition()))
+			{
+				ai.eAI_ThreatOverride(m_Target, true);
+				return 0.0;
+			}
+
 			levelFactor = 10 / distance;
 			if (levelFactor > 1.0)
 				levelFactor = Math.Pow(levelFactor, 2.0);
@@ -75,7 +85,7 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 
 	override float GetMinDistance(eAIBase ai = null, float distance = 0.0)
 	{
-		if (ai && (ai.m_eAI_AcuteDangerTargetCount > 2 || ai.eAI_IsLowVitals() || (!ai.m_eAI_HasProjectileWeaponInHands && m_Creature.m_Expansion_IsBigGame && !ai.GetGroup().GetFaction().GetMeleeDamageMultiplier() < 100)))
+		if (ai && (ai.m_eAI_AcuteDangerTargetCount > ai.GetGroup().Count() + 1 || ai.eAI_IsLowVitals() || (!ai.m_eAI_HasProjectileWeaponInHands && m_Creature.m_Expansion_IsBigGame && !ai.GetGroup().GetFaction().GetMeleeDamageMultiplier() < 100)))
 			return 100.0;  //! Flee
 
 		return m_MinDistance;

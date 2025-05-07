@@ -6,7 +6,5 @@
 			"RVMaterial": "dz\\weapons\\firearms\\winchester70\\data\\winchester70_color.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

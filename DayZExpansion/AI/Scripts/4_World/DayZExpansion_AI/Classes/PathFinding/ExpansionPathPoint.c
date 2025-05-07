@@ -192,7 +192,7 @@ class ExpansionPathPoint
 			//! because there is no navmesh connection to ground
 			if ((!found || (path.Count() == 2 && !Math.IsPointInCircle(Position, 1.0, path[1]) && Math.IsPointInCircle(pathFinding.m_Unit.GetPosition(), 0.55, path[1]))) && !pathFinding.m_Unit.m_eAI_Ladder)
 			{
-				//pathGlueIdx = path.Count();
+				pathGlueIdx = path.Count();
 
 			#ifdef EXPANSION_AI_DEBUG_UNREACHABLE
 				if (!found || pathFinding.m_IsTargetUnreachable)

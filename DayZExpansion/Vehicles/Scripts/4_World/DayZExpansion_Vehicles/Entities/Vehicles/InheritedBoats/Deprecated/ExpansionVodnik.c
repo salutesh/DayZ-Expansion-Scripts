@@ -48,6 +48,10 @@ class ExpansionVodnik: ExpansionBoatScript
 		m_EngineStartBattery	= "Offroad_02_engine_failed_start_battery_SoundSet";
 		m_EngineStartPlug		= "Offroad_02_engine_failed_start_sparkplugs_SoundSet";
 		m_EngineStartFuel		= "Offroad_02_engine_failed_start_fuel_SoundSet";
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		m_EngineStop 			= "Offroad_02_engine_stop_SoundSet";
+	#endif
 		m_EngineStopFuel		= "offroad_engine_stop_fuel_SoundSet";
 
 		m_CarDoorOpenSound		= "offroad_02_door_open_SoundSet";
@@ -174,6 +178,16 @@ class ExpansionVodnik: ExpansionBoatScript
 		return 0;
 	}
 
+	override int Expansion_EngineStartAnimation()
+	{
+		return DayZPlayerConstants.CMD_ACTIONMOD_STARTENGINE;
+	}
+
+	override int Expansion_EngineStopAnimation()
+	{
+		return DayZPlayerConstants.CMD_ACTIONMOD_STOPENGINE;
+	}
+
 	override string GetDoorSelectionNameFromSeatPos(int posIdx)
 	{
 #ifdef EXPANSIONTRACE
@@ -214,11 +228,19 @@ class ExpansionVodnik: ExpansionBoatScript
 
 	override void UpdateVisuals()
 	{
-		if ( m_ExpansionVehicle.AllDoorsClosed() )
+		int selectionIndex = GetHiddenSelectionIndex("antiwater");
+		if (selectionIndex < 0)
+			return;
+
+		if ( m_ExpansionVehicle.AllDoorsClosed() && m_Expansion_BuoyancyFactor == 1.0 )
 		{
 			ShowSelection( "antiwater" );
+			SetObjectTexture(selectionIndex, "dz\\data\\data\\antiwater_ca.paa");
+			SetObjectMaterial(selectionIndex, "dz\\data\\data\\antiwater.rvmat");
 		} else {
 			HideSelection( "antiwater" );
+			SetObjectTexture(selectionIndex, "");
+			SetObjectMaterial(selectionIndex, "");
 		}
 	}
 
@@ -226,14 +248,14 @@ class ExpansionVodnik: ExpansionBoatScript
 	{
 		super.EEItemAttached( item, slot_name );
 
-		UpdateVisuals();
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
 	}
 
 	override void EEItemDetached( EntityAI item, string slot_name )
 	{
 		super.EEItemDetached( item, slot_name );
 
-		UpdateVisuals();
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
 	}
 
 	override bool CanDisplayAttachmentCategory( string category_name )
@@ -305,6 +327,16 @@ class ExpansionVodnik: ExpansionBoatScript
 		}
 
 		return CarDoorState.DOORS_MISSING;
+	}
+
+	override void Expansion_OnDoorOpened(string selection)
+	{
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
+	}
+
+	override void Expansion_OnDoorClosed(string selection)
+	{
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
 	}
 
 	override float OnSound(CarSoundCtrl ctrl, float oldValue)

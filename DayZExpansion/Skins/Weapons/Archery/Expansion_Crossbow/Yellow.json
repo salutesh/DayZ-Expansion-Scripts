@@ -6,7 +6,5 @@
 			"RVMaterial": "dz\\weapons\\archery\\crossbow\\data\\crossbow_painted.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

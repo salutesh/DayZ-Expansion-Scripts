@@ -54,9 +54,6 @@ modded class ActionGetInTransport
 				bool isBoat = car.Expansion_IsBoat();
 				bool isPlane = car.Expansion_IsPlane();
 
-				GetUApi().GetInputByName("UACarLeft").ForceDisable(!isCar);
-				GetUApi().GetInputByName("UACarRight").ForceDisable(!isCar);
-
 				if (isPlane)
 				{
 					GetUApi().GetInputByName("UACarShiftGearUp").ForceDisable(isPlane);
@@ -74,6 +71,8 @@ modded class ActionGetInTransport
 				}
 				else
 				{
+					GetUApi().GetInputByName("UACarLeft").ForceDisable(!isCar);
+					GetUApi().GetInputByName("UACarRight").ForceDisable(!isCar);
 					GetUApi().GetInputByName("UACarShiftGearUp").ForceDisable(!isCar);
 					GetUApi().GetInputByName("UACarShiftGearDown").ForceDisable(!isCar);
 				}

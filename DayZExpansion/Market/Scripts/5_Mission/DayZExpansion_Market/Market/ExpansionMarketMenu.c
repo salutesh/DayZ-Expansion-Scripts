@@ -1910,49 +1910,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		return ExpansionStatic.GetItemDisplayNameWithType(type, m_TypeDisplayNames);
 	}
 
+	//! This method allows mods to override GetPreviewClassName while still keeping the original code in one place
 	string GetPreviewClassName(string className, bool ignoreBaseBuildingKits = false)
 	{
-		if (GetGame().ConfigIsExisting("CfgVehicles " + className + "_ExpansionMarketPreview"))
-		{
-			return className + "_ExpansionMarketPreview";
-		}
-		else if (!ignoreBaseBuildingKits && className.IndexOf("kit") == className.Length() - 3)
-		{
-			/*************************************************************************************************************************
-			 * WARNING: Only TESTED basebuilding items!
-			 * Most mods do NOT have the necessary rvConfig entries to get a reasonable preview and/or can cause client CTD if used!
-			 * Do NOT add other classnames unless they are GUARANTEED to work properly in market menu!
-			 *************************************************************************************************************************/
-
-			//! Expansion
-			if (GetGame().IsKindOf(className, "ExpansionKitLarge"))
-			{
-				string path = "CfgVehicles " + className + " placingTypes";
-				if (GetGame().ConfigIsExisting(path))
-				{
-					TStringArray placingTypes = new TStringArray;
-					GetGame().ConfigGetTextArray(path, placingTypes);
-					foreach (string placingType : placingTypes)
-					{
-						path = "CfgVehicles " + placingType + " deployType";
-						if (GetGame().ConfigIsExisting(path))
-						{
-							return GetGame().ConfigGetTextOut(path);
-						}
-					}
-				}
-			}
-
-			//! Vanilla
-			if (className == "fencekit" || className == "watchtowerkit" || className == "territoryflagkit")
-			{
-				//! Item name is kit name without "kit" at the end
-				string previewClassName = className.Substring(0, className.Length() - 3);
-				if (GetGame().ConfigIsExisting("CfgVehicles " + previewClassName))
-					return previewClassName;
-			}
-		}
-		return className;
+		return ExpansionStatic.GetPreviewClassName(className, ignoreBaseBuildingKits);
 	}
 
 	void OnIncrementQuantityButtonClick()

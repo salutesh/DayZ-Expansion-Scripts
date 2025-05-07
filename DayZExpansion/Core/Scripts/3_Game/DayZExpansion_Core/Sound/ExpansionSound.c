@@ -15,7 +15,7 @@ class ExpansionSound
 	ExpansionSoundSet m_SoundSet;
 	vector m_Position;
 	Object m_Parent;
-	EffectSound m_Sound;
+	ref EffectSound m_Sound;
 	float m_FadeIn;
 	float m_FadeOut;
 	bool m_Loop;

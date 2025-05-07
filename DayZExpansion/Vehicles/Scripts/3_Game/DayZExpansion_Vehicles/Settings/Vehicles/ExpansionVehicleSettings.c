@@ -57,7 +57,7 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 20;
+	static const int VERSION = 21;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
@@ -67,6 +67,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 	float DesyncInvulnerabilityTimeoutSeconds;  //! Timeout for temporary vehicle godmode during desync. Set to 0 to disable.
 
 	float DamagedEngineStartupChancePercent;
+
+	float FuelConsumptionPercent;
 
 	bool EnableVehicleCovers;
 	bool AllowCoveringDEVehicles;  //! Allow covering of vehicles spawned via dynamic events (events.xml)
@@ -425,6 +427,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 				if (settingsBase.m_Version < 19)
 					ShowVehicleOwners = settingsDefault.ShowVehicleOwners;
 
+				if (settingsBase.m_Version < 21 && !FuelConsumptionPercent)
+					FuelConsumptionPercent = settingsDefault.FuelConsumptionPercent;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -513,6 +518,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		DesyncInvulnerabilityTimeoutSeconds = 3.0;
 
 		DamagedEngineStartupChancePercent = 100.0;
+
+		FuelConsumptionPercent = 100.0;
 
 #ifndef CARCOVER
 		EnableVehicleCovers = true;

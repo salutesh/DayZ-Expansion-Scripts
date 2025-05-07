@@ -282,10 +282,28 @@ class ExpansionPhysicsState
 #endif
 				//! If <VehicleResyncTimeout> seconds after we desynced we are still desynced, halt vehicle physics updates on client
 				m_HaltPhysics = true;
+
+				//! Let the server know we halted physics
+				SendPing(true);
 			}
 		}
+		
+	//#ifndef DAYZ_1_27
+		////! 1.28+
+		//CarScript car = CarScript.Cast(m_Entity);
 
+		//// if there is deterministic physics on the client, then we do not need to worry about any freeze in network traffic from the 
+		//// server to the client as any input the client applied will have the same output on the server as long as the client can send 
+		//// messages.
+		//// 
+		//// usually only outgoing messages from the server to the client are throttled. Incoming messages from client to server for 
+		//// inputs are never throttled.
+		//bool usesDeterministicPhysics = car.GetNetworkMoveStrategy() == NetworkMoveStrategy.PHYSICS;
+
+		//if (isServer || usesDeterministicPhysics || !isPhysHost || !m_HaltPhysics)
+	//#else
 		if (isServer || !isPhysHost || !m_HaltPhysics)
+	//#endif
 		{
 			ApplySimulation(pDt);
 		}
@@ -399,9 +417,22 @@ class ExpansionPhysicsState
 	void OnPing(ParamsReadContext ctx)
 	{
 		m_TimeSincePing = 0;
-		ctx.Read(m_ClientDesync);
+
+		bool clientDesync;
+		ctx.Read(clientDesync);
+
+		if (clientDesync && m_ClientDesync)
+		{
+			m_HaltPhysics = true;
+		}
+		else
+		{
+			m_ClientDesync = clientDesync;
+			m_HaltPhysics = false;
+		}
+
 #ifdef EXTRACE
-		auto trace = EXTrace.Start(EXTrace.VEHICLES, m_Entity, "Received client ping - desynced " + m_ClientDesync);
+		auto trace = EXTrace.Start(EXTrace.VEHICLES, m_Entity, "Received client ping - desynced " + m_ClientDesync + " halt physics " + m_HaltPhysics);
 #endif
 	}
 

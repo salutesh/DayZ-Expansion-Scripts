@@ -8,6 +8,7 @@
 	<preset>
 		<input name="UAExpansionConfirm">
 			<btn name="kReturn" />
+			<btn name="kNumpadEnter" />
 		</input>
 	</preset>
 </modded_inputs>

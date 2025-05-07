@@ -33,6 +33,9 @@ modded class TerritoryFlag
 
 	protected bool m_Expansion_SkipSetRefresherActive;
 
+	int m_Expansion_BBCodeLockCount;
+	int m_Expansion_ItemCodeLockCount;
+
 	// ------------------------------------------------------------
 	// TerritoryFlag Constructor
 	// ------------------------------------------------------------
@@ -455,6 +458,36 @@ modded class TerritoryFlag
 		#endif
 	}
 	
+	void Expansion_EnforceMaxCodeLocks()
+	{
+		float territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
+
+		vector center = GetPosition();
+		vector min = Vector(center[0] - territorySize, center[1] - territorySize, center[2] - territorySize);
+		vector max = Vector(center[0] + territorySize, center[1] + territorySize, center[2] + territorySize);
+
+		array<EntityAI> entities = {};
+		DayZPlayerUtils.SceneGetEntitiesInBox(min, max, entities);
+
+		float territorySizeSq = territorySize * territorySize;
+
+		bool notify = true;
+
+		foreach (EntityAI entity: entities)
+		{
+			ItemBase item;
+			if (Class.CastTo(item, entity))
+			{
+				ExpansionCodeLock codeLock = item.ExpansionGetCodeLock();
+				if (codeLock && vector.DistanceSq(item.GetPosition(), GetPosition()) <= territorySizeSq)
+				{
+					if (item.Expansion_EnforceMaxCodeLocksPerTerritoryEx(this, codeLock, true, notify))
+						notify = false;
+				}
+			}
+		}
+	}
+
 	void Expansion_AttachDefaultFlag(PlayerBase player = null)
 	{
 		if (!FindAttachmentBySlotName("Material_FPole_Flag"))

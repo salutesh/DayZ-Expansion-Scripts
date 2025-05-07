@@ -28,9 +28,6 @@ class ExpansionVehicleEngine_CarScript : ExpansionVehicleEngineBase
 
 		Class.CastTo(m_Car, m_Vehicle);
 
-		if (!m_Car.IsHelicopter())
-			m_FuelConsumption = 0.0;
-
 		m_RPMRedline = m_Car.EngineGetRPMRedline();
 		m_RPMMax = m_Car.EngineGetRPMMax();
 	}

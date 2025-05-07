@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -151,6 +151,21 @@ class ExpansionP2PMarketMenuItemBase: ExpansionP2PMarketMenuViewBase
 			FoodStage foodStage = food_item.GetFoodStage();
 			foodStage.ChangeFoodStage(m_Item.GetFoodStageType());
 		}
+	}
+	
+	void CloseItemInspection(bool handelParent = false)
+	{
+		ExpansionItemInspection expItemInspection = MissionGameplay.Expansion_GetItemInspection();
+		if (expItemInspection)
+		{
+			if (handelParent)
+			{
+				expItemInspection.OnBackButtonClick();
+			}
+			expItemInspection.GetCloseInspectionSI().Remove(CloseItemInspection);
+		}
+		
+		m_P2PMarketMenu.SetIsInspectingItem(false, null);
 	}
 };
 

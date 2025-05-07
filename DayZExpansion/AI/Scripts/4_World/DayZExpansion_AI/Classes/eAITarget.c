@@ -238,7 +238,8 @@ class eAITarget
 
 		float distSq = GetDistanceSq(ai, true);
 
-		if (distSq > 6.0025)
+		float range = ai.m_eMeleeCombat.eAI_GetRange();
+		if (distSq > range * range)
 			return false;
 
 		//if (distSq > 3.0625 && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))

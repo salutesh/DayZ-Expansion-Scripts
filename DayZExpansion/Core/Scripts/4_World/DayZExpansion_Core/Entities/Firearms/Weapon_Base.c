@@ -31,6 +31,7 @@ class ExpansionWeaponInfo
 	float m_AvgDmg;
 	float m_ReloadTimeMin = float.MAX;
 	float m_DPS;
+	int m_FireRate;  //! rounds per second
 	bool m_AutoReload;
 	ExpansionWeaponType m_WeaponType;
 
@@ -88,10 +89,16 @@ class ExpansionWeaponInfo
 			m_AvgDmg /= count;
 
 		//! DPS
-		if (m_ReloadTimeMin < float.MAX && m_AutoReload)
+		if (m_AvgDmg > 0 && m_ReloadTimeMin < float.MAX && m_AutoReload)
+		{
 			m_DPS = m_AvgDmg / m_ReloadTimeMin;
+			m_FireRate = m_DPS / m_AvgDmg;
+		}
 		else
+		{
 			m_DPS = m_AvgDmg;
+			m_FireRate = 1;
+		}
 
 		//! Weapon type
 		if (weapon.IsInherited(Archery_Base))
@@ -165,24 +172,55 @@ modded class Weapon_Base
 	{
 		super.OnVariablesSynchronized();
 
-		int muzzleIndex = GetCurrentMuzzle();
-		int mode = GetCurrentMode(muzzleIndex);
+		Expansion_UpdateFireMode();
+	}
 
-	#ifdef DIAG_DEVELOPER
-		EXTrace.Print(EXTrace.WEAPONS, this, "OnVariablesSynchronized mode=" + mode + " m_Expansion_FireModeIndexSync=" + m_Expansion_FireModeIndexSync);
-	#endif
+	void Expansion_UpdateFireMode()
+	{
+		int muzzleCount = GetMuzzleCount();
+		bool changed;
 
-		//! @note there will only ever be mismatch if firemode wasn't changed by a player (e.g. AI)
-		if (mode != m_Expansion_FireModeIndexSync)
+		for (int muzzleIndex = 0; muzzleIndex < muzzleCount; muzzleIndex++)
 		{
-			SetCurrentMode(muzzleIndex, m_Expansion_FireModeIndexSync);
-			OnFireModeChange(m_Expansion_FireModeIndexSync);
+			int mode = GetCurrentMode(muzzleIndex);
+
+		#ifdef DIAG_DEVELOPER
+			EXTrace.Print(EXTrace.WEAPONS, this, "Expansion_UpdateFireMode muzzle=" + muzzleIndex + " mode=" + mode + " m_Expansion_FireModeIndexSync=" + m_Expansion_FireModeIndexSync);
+		#endif
+
+			//! @note there will only ever be mismatch if firemode wasn't changed by a player (e.g. AI)
+			if (mode != m_Expansion_FireModeIndexSync)
+			{
+				SetCurrentMode(muzzleIndex, m_Expansion_FireModeIndexSync);
+				changed = true;
+			}
 		}
+
+		if (changed)
+			OnFireModeChange(m_Expansion_FireModeIndexSync);
 	}
 
 	override float Expansion_GetDPS()
 	{
 		return m_Expansion_WeaponInfo.m_DPS;
+	}
+
+	/**
+	 * @brief return current DPS capability of the weapon (depending on presence of mag)
+	 */
+	float Expansion_GetCurrentDPS()
+	{
+		int mi = GetCurrentMuzzle();
+
+		if (!HasInternalMagazine(mi) && !GetMagazine(mi))
+			return m_Expansion_WeaponInfo.m_AvgDmg;
+
+		return m_Expansion_WeaponInfo.m_DPS;
+	}
+
+	float Expansion_GetAvgDmgPerShot()
+	{
+		return m_Expansion_WeaponInfo.m_AvgDmg;
 	}
 
 	ExpansionWeaponType Expansion_GetWeaponType()
@@ -333,10 +371,10 @@ modded class Weapon_Base
 	}
 
 	/**
-	 * @brief Set fire mode
+	 * @brief Set fire mode for all muzzles
 	 * 
 	 * @param fireMode
-	 * @param [out] changed  true if fire mode was changed
+	 * @param [out] changed  true if fire mode was changed on at least one muzzle
 	 * 
 	 * @return true if fire mode is valid
 	 * 
@@ -349,18 +387,26 @@ modded class Weapon_Base
 		if (!m_Expansion_WeaponInfo.m_FireModes.Find(fireMode, fireModeIndex))
 			return false;
 
-		int muzzleIndex = GetCurrentMuzzle();
-		if (GetCurrentMode(muzzleIndex) != fireModeIndex)
+		int muzzleCount = GetMuzzleCount();
+
+		for (int muzzleIndex = 0; muzzleIndex < muzzleCount; muzzleIndex++)
 		{
-		#ifdef DIAG_DEVELOPER
-			EXTrace.Print(EXTrace.WEAPONS, this, "::Expansion_SetFireMode - setting mode " + typename.EnumToString(ExpansionFireMode, fireMode));
-		#endif
-			SetCurrentMode(muzzleIndex, fireModeIndex);
+			if (GetCurrentMode(muzzleIndex) != fireModeIndex)
+			{
+			#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.WEAPONS, this, "::Expansion_SetFireMode - setting muzzle " + muzzleIndex + " mode " + typename.EnumToString(ExpansionFireMode, fireMode));
+			#endif
+				SetCurrentMode(muzzleIndex, fireModeIndex);
+				changed = true;
+			}
+		}
+
+		if (changed)
+		{
 			OnFireModeChange(fireModeIndex);
 		#ifdef SERVER
 			Synchronize();
 		#endif
-			changed = true;
 		}
 
 		return true;
@@ -371,7 +417,7 @@ modded class Weapon_Base
 	//! We also need to make sure to always sync firemode index to client.
 	override void OnFireModeChange(int fireMode)
 	{
-	#ifdef DIAG_DEVELOPER
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.StartStack(EXTrace.WEAPONS, this, "fireMode=" + fireMode);
 	#endif
 

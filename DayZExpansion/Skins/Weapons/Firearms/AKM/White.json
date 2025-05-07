@@ -6,7 +6,5 @@
 			"RVMaterial": "dz\\weapons\\firearms\\AKM\\data\\AKM.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

@@ -85,7 +85,7 @@ class ExpansionP2PMarketMenuCategoryBase
 		int i;
 		int includedCount = Included.Count();
 		ctx.Write(includedCount);
-		for (i = 0; i < Included.Count(); i++)
+		for (i = 0; i < Included.Count(); ++i)
 		{
 			string includedTypeName = Included[i];
 			ctx.Write(includedTypeName);
@@ -93,7 +93,7 @@ class ExpansionP2PMarketMenuCategoryBase
 
 		int excludedCount = Excluded.Count();
 		ctx.Write(excludedCount);
-		for (i = 0; i < Excluded.Count(); i++)
+		for (i = 0; i < Excluded.Count(); ++i)
 		{
 			string excludedTypeName = Excluded[i];
 			ctx.Write(excludedTypeName);
@@ -123,7 +123,7 @@ class ExpansionP2PMarketMenuCategoryBase
 			else
 				Included.Clear();
 
-			for (i = 0; i < includedCount; i++)
+			for (i = 0; i < includedCount; ++i)
 			{
 				string includedTypeName;
 				if (!ctx.Read(includedTypeName))
@@ -144,7 +144,7 @@ class ExpansionP2PMarketMenuCategoryBase
 			else
 				Excluded.Clear();
 
-			for (i = 0; i < excludedCount; i++)
+			for (i = 0; i < excludedCount; ++i)
 			{
 				string excludedTypeName;
 				if (!ctx.Read(excludedTypeName))
@@ -183,7 +183,7 @@ class ExpansionP2PMarketMenuCategory: ExpansionP2PMarketMenuCategoryBase
 
 		int subCategoriesCount = SubCategories.Count();
 		ctx.Write(subCategoriesCount);
-		for (int i = 0; i < SubCategories.Count(); i++)
+		for (int i = 0; i < SubCategories.Count(); ++i)
 		{
 			SubCategories[i].OnSend(ctx);
 		}
@@ -204,7 +204,7 @@ class ExpansionP2PMarketMenuCategory: ExpansionP2PMarketMenuCategoryBase
 			else
 				SubCategories.Clear();
 
-			for (int i = 0; i < subCategoriesCount; i++)
+			for (int i = 0; i < subCategoriesCount; ++i)
 			{
 				ExpansionP2PMarketMenuSubCategory subCategory = new ExpansionP2PMarketMenuSubCategory();
 				if (!subCategory.OnRecieve(ctx))
@@ -306,7 +306,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 			else
 				MenuCategories.Clear();
 
-			for (int i = 0; i < menuCatergoriesCount; i++)
+			for (int i = 0; i < menuCatergoriesCount; ++i)
 			{
 				ExpansionP2PMarketMenuCategory menuCategory = new ExpansionP2PMarketMenuCategory();
 				menuCategory.OnRecieve(ctx);
@@ -337,7 +337,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 
 		int menuCatergoriesCount = MenuCategories.Count();
 		ctx.Write(menuCatergoriesCount);
-		for (int i = 0; i < MenuCategories.Count(); i++)
+		for (int i = 0; i < MenuCategories.Count(); ++i)
 		{
 			MenuCategories[i].OnSend(ctx);
 		}

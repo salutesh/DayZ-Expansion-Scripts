@@ -49,7 +49,6 @@
 			<input name="UAExpansionBikeGentle" loc="STR_EXPANSION_BIKE_GENTLE" />
 			<input name="UAExpansionBikeTurbo" loc="STR_EXPANSION_BIKE_TURBO" />
 
-			<input name="UAExpansionCarHorn" loc="STR_EXPANSION_VEHICLE_HORN" />
 			<input name="UAExpansionCarRefill" loc="STR_EXPANSION_VEHICLE_REFILL" />
 		</actions>
 		
@@ -75,7 +74,6 @@
 			<input name="UAExpansionBoatRotateLeft" />
 			<input name="UAExpansionBoatRotateRight" />
 			<input name="UAExpansionBoatTurbo" />
-			<input name="UAExpansionCarHorn" />
 			<input name="UAExpansionCarRefill" />
 		</exclude>
 		
@@ -125,7 +123,6 @@
 			<input name="UAExpansionBikeRotateRight" />
 			<input name="UAExpansionBikeGentle" />
 			<input name="UAExpansionBikeTurbo" />
-			<input name="UAExpansionCarHorn" />
 			<input name="UAExpansionCarRefill" />
 		</sorting>
 	</inputs>
@@ -260,9 +257,6 @@
 		</input>
 		<input name="UAExpansionBikeTurbo">
 			<btn name="kLShift" />
-		</input>
-		<input name="UAExpansionCarHorn">
-			<btn name="kH" />
 		</input>
 		<input name="UAExpansionCarRefill">
 			<btn name="kR" />

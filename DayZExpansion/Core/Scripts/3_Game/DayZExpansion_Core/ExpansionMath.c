@@ -849,4 +849,28 @@ class ExpansionMath
 		//! Should never reach this point, just here to make code compile as we need a return value
 		return 0;
 	}
+
+	static float Max(TFloatArray values)
+	{
+		float max = values[0];
+
+		for (int i = 1; i < values.Count(); ++i)
+		{
+			max = Math.Max(max, values[i]);
+		}
+
+		return max;
+	}
+
+	static float Min(TFloatArray values)
+	{
+		float min = values[0];
+
+		for (int i = 1; i < values.Count(); ++i)
+		{
+			min = Math.Min(min, values[i]);
+		}
+
+		return min;
+	}
 }

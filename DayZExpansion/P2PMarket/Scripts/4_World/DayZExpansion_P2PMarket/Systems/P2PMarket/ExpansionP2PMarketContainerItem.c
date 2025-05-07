@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2024 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -120,7 +120,7 @@ class ExpansionP2PMarketContainerItem: ExpansionP2PMarketListingBase
 		if (m_ContainerItems.Count())
 			m_ContainerItems.Clear();
 
-		for (int i = 0; i < containerItemsCount; i++)
+		for (int i = 0; i < containerItemsCount; ++i)
 		{
 			ExpansionP2PMarketContainerItem containerItem = new ExpansionP2PMarketContainerItem();
 			if (!containerItem.OnRecieveBasic(ctx))

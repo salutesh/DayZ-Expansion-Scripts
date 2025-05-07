@@ -24,6 +24,7 @@ class ExpansionP2PMarketRequestData
 	int m_MessagePrice = 0;
 	int m_MessagePriceString = 0;
 	bool m_OwnedListings = false;
+	string m_GlobalIDText = "";
 	
 	void Debug()
 	{
@@ -39,5 +40,6 @@ class ExpansionP2PMarketRequestData
 		ErrorEx("Message price: " + m_MessagePrice, ErrorExSeverity.INFO);
 		ErrorEx("Message price string: " + m_MessagePriceString, ErrorExSeverity.INFO);
 		ErrorEx("Owned listings: " + m_OwnedListings, ErrorExSeverity.INFO);
+		ErrorEx("Global ID text: " + m_GlobalIDText, ErrorExSeverity.INFO);
 	}
 };

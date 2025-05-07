@@ -218,7 +218,12 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 				#ifdef EXPANSIONMODHARDLINE
 				rarity = m_Listing.GetRarity();
 				#endif
-				MissionGameplay.InspectItem(m_P2PMarketMenu, m_Object, m_Listing.GetHealthLevel(), m_Listing.GetLiquidType(), m_Listing.IsBloodContainer(), m_Listing.GetQuantityType(), m_Listing.GetQuantity(), m_Object.GetQuantityMax(), m_Listing.GetFoodStageType(), m_Listing.GetClassName(), rarity);
+				ExpansionItemInspection expItemInspection = MissionGameplay.InspectItem(m_P2PMarketMenu, m_Object, m_Listing.GetHealthLevel(), m_Listing.GetLiquidType(), m_Listing.IsBloodContainer(), m_Listing.GetQuantityType(), m_Listing.GetQuantity(), m_Object.GetQuantityMax(), m_Listing.GetFoodStageType(), m_Listing.GetClassName(), rarity);
+				if (expItemInspection)
+				{
+					expItemInspection.GetCloseInspectionSI().Insert(CloseItemInspection);
+					m_P2PMarketMenu.SetIsInspectingItem(true, this);
+				}
 				return true;
 			}
 		}

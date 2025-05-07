@@ -271,22 +271,29 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 			m_Controller.m_State[m_EngineIndex] = false;
 		}
 
-		CarScript car;
-		ExpansionVehicleBase vehicle;
-		bool canBeDamaged;
-		if (Class.CastTo(car, m_Vehicle))
-			canBeDamaged = car.CanBeDamaged();
-		else if (Class.CastTo(vehicle, m_Vehicle))
-			canBeDamaged = vehicle.CanBeDamaged();
+		auto vehicle = ExpansionVehicle.Get(m_Vehicle);
 
-		if (canBeDamaged)
+		//! @note helicopters are special - they have a CarScript engine, but it will never be on, and its RPM as well as throttle will always be zero.
+		//! Yet, it will be used to process engine health and fuel consumption.
+
+		if (!vehicle.IsHelicopter() && !vehicle.EngineIsOn(m_EngineIndex))
+			return;
+
+		CarScript car = vehicle.GetCar();
+
+		if (vehicle.CanBeDamaged())
 		{
 			if (m_RPM >= m_RPMRedline)
 			{
 				if (m_RPM > m_RPMMax && GetExpansionSettings().GetVehicle().RevvingOverMaxRPMRuinsEngineInstantly)
 					dmg += m_Vehicle.GetMaxHealth(m_DamageZone, "") * 0.05;
 
+			#ifdef DAYZ_1_27
 				dmg += m_RPM * 0.001 * Math.RandomFloat(0.02, 1.0) * pDt;
+			#else
+				//! 1.28+
+				dmg += m_RPM * 0.001 * m_Transport.RandomFloat(0.02, 1.0) * pDt;
+			#endif
 
 				//! 1.19+
 				if (car)
@@ -300,7 +307,12 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 
 			if (pCoolant >= 0 && pCoolant < 0.5)
 			{
+			#ifdef DAYZ_1_27
 				dmg += (1.0 - pCoolant) * Math.RandomFloat(0.02, 10.00) * pDt;
+			#else
+				//! 1.28+
+				dmg += (1.0 - pCoolant) * m_Transport.RandomFloat(0.02, 10.00) * pDt;
+			#endif
 			}
 
 			if (pOil < 1.0)
@@ -314,7 +326,7 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 			}
 		}
 
-		if (m_RPM >= m_RPMIdle || (car && car.Expansion_IsHelicopter()) || (vehicle && vehicle.Expansion_IsHelicopter()))
+		if (m_RPM >= m_RPMIdle || vehicle.IsHelicopter() || vehicle.GetThrottle(m_EngineIndex) > 0)
 		{
 			pOutFuel += m_FuelConsumption * pDt / 3600.0;
 		}

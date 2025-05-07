@@ -42,7 +42,7 @@ class ExpansionStairBase: ExpansionBaseBuilding
 
 	override bool IsLastStageBuilt()
 	{
-		return IsPartBuilt( m_Expansion_CurrentBuild + "_tread" ) );
+		return IsPartBuilt( m_Expansion_CurrentBuild + "_tread" );
 	}
 
 	override void OnVariablesSynchronized()

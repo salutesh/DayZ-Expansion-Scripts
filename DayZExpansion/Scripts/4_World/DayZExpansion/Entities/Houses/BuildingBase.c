@@ -112,7 +112,7 @@ modded class BuildingBase
 			if (component != -1)
 			{
 				int doorIndex = GetDoorIndex(component);
-				if (IsDoorLocked(doorIndex))
+				if (doorIndex != 1 && IsDoorLocked(doorIndex))
 				{
 					return false;
 				}

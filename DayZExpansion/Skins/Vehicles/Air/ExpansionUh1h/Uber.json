@@ -11,7 +11,5 @@
 			"RVMaterial": "DayZExpansion\\Vehicles\\Air\\Uh1h\\data\\uh1d_in.rvmat"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "Expansion_Horn_Ext_SoundSet",
-	"HornINT": "Expansion_Horn_Int_SoundSet"
+	"DamageZones": []
 }

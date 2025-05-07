@@ -30,7 +30,7 @@ class ExpansionFloorBase: ExpansionBaseBuilding
 
 	override bool IsLastStageBuilt()
 	{
-		return IsPartBuilt( m_Expansion_CurrentBuild + "_floorfinished" ) || IsPartBuilt( m_Expansion_CurrentBuild + "_hatchfinished" ) );
+		return IsPartBuilt( m_Expansion_CurrentBuild + "_floorfinished" ) || IsPartBuilt( m_Expansion_CurrentBuild + "_hatchfinished" );
 	}
 
 	bool IsRoof()

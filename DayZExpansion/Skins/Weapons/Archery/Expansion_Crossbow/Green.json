@@ -5,7 +5,5 @@
 			"RVTexture": "dz\\weapons\\archery\\crossbow\\data\\crossbow_green_co.paa"
 		}
 	],
-	"DamageZones": [],
-	"HornEXT": "",
-	"HornINT": ""
+	"DamageZones": []
 }

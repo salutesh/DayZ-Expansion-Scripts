@@ -27,17 +27,21 @@ class eAICommandManagerClient : eAICommandManager
 		m_Expansion_RPCManager.RegisterServer("RPC_ClearWaypoints");
 
 		m_Expansion_RPCManager.RegisterServer("RPC_SetMovementSpeed");
+		m_Expansion_RPCManager.RegisterServer("RPC_SetStance");
 
 		m_Expansion_RPCManager.RegisterServer("RPC_DumpState");
 		m_Expansion_RPCManager.RegisterServer("RPC_UnlimitedReload");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugObjects");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugDamage");
+
+		m_Expansion_RPCManager.RegisterServer("RPC_SitRep");
 	}
 
 	override bool Send(eAICommands cmd)
 	{
 		ExpansionScriptRPC rpc;
 		Object target;
+		eAIBase ai;
 
 		switch (cmd)
 		{
@@ -127,6 +131,12 @@ class eAICommandManagerClient : eAICommandManager
 				m_Expansion_RPCManager.SendRPC("RPC_SetMovementSpeed", new Param1<int>(m_MovementSpeedLimit));
 				return true;
 			
+			case eAICommands.MOV_ERECT:
+			case eAICommands.MOV_CROUCH:
+			case eAICommands.MOV_PRONE:
+				m_Expansion_RPCManager.SendRPC("RPC_SetStance", new Param1<int>(cmd - eAICommands.MOV_ERECT));
+				return true;
+			
 			case eAICommands.DEB_TARGET_CREATE:
 				eAIBase.Get(0).CreateDebugApple();
 				return true;
@@ -138,6 +148,13 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.STA_DUMP:
 				rpc = m_Expansion_RPCManager.CreateRPC("RPC_DumpState");
 				rpc.Expansion_Send(GetAIAtCursorOrNearest(), true);
+				return true;
+
+			case eAICommands.STA_SITREP:
+				ai = GetAIAtCursorOrNearest();
+				SitRep(GetGame().GetPlayer(), ai);
+				rpc = m_Expansion_RPCManager.CreateRPC("RPC_SitRep");
+				rpc.Expansion_Send(ai, true);
 				return true;
 
 			case eAICommands.DEB_SPECTATE:
@@ -600,6 +617,9 @@ class eAICommandManagerClient : eAICommandManager
 				newForm = new eAIFormationVee(g);
 				break;
 		}
+
+		newForm.SetScale(-1);
+
 		g.SetFormation(newForm);
 	}
 
@@ -716,6 +736,29 @@ class eAICommandManagerClient : eAICommandManager
 				ai.eAI_SetSpeedLimitPreference(speed);
 		}
 	}
+	
+	void RPC_SetStance(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		int stance;
+		if (!ctx.Read(stance))
+			return;
+
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
+		
+		eAIBase ai;
+
+		for (int i = 0; i < g.Count(); i++)
+		{
+			if (Class.CastTo(ai, g.GetMember(i)))
+				ai.OverrideStance(stance);
+		}
+	}
 
 	void RPC_DumpState(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
@@ -779,6 +822,103 @@ class eAICommandManagerClient : eAICommandManager
 		{
 			CloseFile(file);
 			ExpansionNotification("EXPANSION AI", string.Format("State dumped to %1", fileName)).Info(sender);
+		}
+	}
+
+	void SitRep(Man player, eAIBase ai)
+	{
+		if (!player || !ai)
+			return;
+
+		if (GetExpansionSettings().GetAI().IsAdmin(player.GetIdentity()) || player == ai.GetGroup().GetLeader())
+		{
+			float fVisibility = Environment.Expansion_GetDynVolFogVisibilityEx(ai.GetPosition()[1]) * 1000;
+			int iVisibility = Math.Round(fVisibility);
+			string sVisibility = iVisibility.ToString();
+
+			vector dir = GetGame().GetCurrentCameraDirection();
+			vector ori = dir.VectorToAngles();
+			ori[1] = 0;
+			ori[2] = 0;
+			dir = ori.AnglesToVector();
+			vector pos = ai.GetPosition() + dir * fVisibility;
+			ai.Expansion_DebugObject(30261796, pos, "ExpansionDebugRodBig_Red");
+
+			PlayerBase pb;
+			if (Class.CastTo(pb, player))
+				pb.MessageStatus(string.Format("%1 dynamic volumetric fog visibility: %2 m", ai, iVisibility));
+
+			//! The following is just for the memes
+			string soundSetPrefix = "Expansion_AI_";
+
+			if (ai.ConfigGetBool("woman"))
+				soundSetPrefix += "Female_";
+			else
+				return;  //! Didn't bother to create male soundsets for the meme
+
+			string soundSet;
+
+			PlaySoundOnObject(soundSetPrefix + "i_can_see", ai);
+			int delay = 817;
+
+			if (iVisibility < 3)
+			{
+				soundSet = soundSetPrefix + "jack_shit";
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
+			}
+			else
+			{
+				soundSet = string.Format(soundSetPrefix + "%1", sVisibility[0]);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
+				delay += 730;
+
+				if (iVisibility % 1000 == 0)
+				{
+					soundSet = soundSetPrefix + "thousand";
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
+					delay += 943;
+				}
+				else if (iVisibility % 100 == 0)
+				{
+					soundSet = soundSetPrefix + "hundred";
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
+					delay += 887;
+				}
+				else
+				{
+					for (int i = 1; i < sVisibility.Length(); i++)
+					{
+						soundSet = string.Format(soundSetPrefix + "%1", sVisibility[i]);
+						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
+						delay += 730;
+					}
+				}
+
+				soundSet = soundSetPrefix + "meters";
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
+			}
+		}
+	}
+
+	void PlaySoundOnObject(string soundSet, Object obj)
+	{
+		SEffectManager.Expansion_PlaySoundOnObject(soundSet + "_SoundSet", obj);
+	}
+
+	void RPC_SitRep(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		eAIBase ai;
+		if (Class.CastTo(ai, target))
+		{
+			if (GetExpansionSettings().GetAI().IsAdmin(sender) || sender.GetPlayer() == ai.GetGroup().GetLeader())
+			{
+				float fVisibility = ai.m_Expansion_Visibility * 1000;
+				int iVisibility = Math.Round(fVisibility);
+
+				PlayerBase pb;
+				if (Class.CastTo(pb, sender.GetPlayer()))
+					pb.MessageStatus(string.Format("%1 visibility: %2 m", ai, iVisibility));
+			}
 		}
 	}
 };

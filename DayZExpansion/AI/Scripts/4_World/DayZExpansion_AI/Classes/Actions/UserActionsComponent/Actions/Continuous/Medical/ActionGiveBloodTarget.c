@@ -33,7 +33,7 @@ modded class ActionGiveBloodTarget
 			int bloodTypeTarget = ai.GetStatBloodType().Get();
 			if (agents || !BloodTypes.MatchBloodCompatibility(bloodType, bloodTypeTarget))
 			{
-				action_data.m_Player.m_eAI_LastAggressionTime = ExpansionStatic.GetTime(true);  //! Aggro guards in area (if any)
+				action_data.m_Player.m_eAI_LastAggressionTime = ExpansionStatic.GetTimestamp(true);  //! Aggro guards in area (if any)
 				if (!ai.Expansion_CanBeDamaged())
 					return;
 			}

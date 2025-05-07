@@ -157,7 +157,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 
 	override float GetMinDistance(eAIBase ai = null, float distance = 0.0)
 	{
-		if (distance > m_DistanceThreshold && (ai.eAI_IsLowVitals() || (m_HasProjectileWeaponInHands && !ai.m_eAI_HasProjectileWeaponInHands && m_Player.IsRaised())))
+		if (distance > m_DistanceThreshold && (ai.eAI_IsLowVitals() || (m_HasProjectileWeaponInHands && !ai.m_eAI_HasProjectileWeaponInHands && (m_Player.IsRaised() || (m_Player.GetGroup() && m_Player.GetGroup().Count() > ai.GetGroup().Count())))))
 			return 1000.0;  //! Flee
 		else if (ai.m_eAI_HasProjectileWeaponInHands)  //! Only reset after AI has projectile weapon, irrespective of enemy weapon
 			return 0.0;
@@ -200,13 +200,13 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		{
 			levelFactor *= 7.333333;  //! If either AI or target have a 7.62x54 mm bolt rifle, threat level 0.4 at 500 m
 
-			distanceThreshold = 150.0;
+			distanceThreshold = 75.0;
 		}
 		else if (gun.IsInherited(Rifle_Base))  //! Rifle_Base also includes shotguns
 		{
 			levelFactor *= 5.0;  //! If either AI or target have a 5.56x45 mm rifle, threat level 0.4 at 250 m
 			
-			distanceThreshold = 75.0;
+			distanceThreshold = 55.0;
 		}
 		else if (gun.IsKindOf("Pistol_Base"))
 		{

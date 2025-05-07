@@ -20,7 +20,7 @@ enum ExpansionP2PMarketListingState
 class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 {
 	[NonSerialized()]
-	static const int VERSION = 1;
+	static const int VERSION = 2;
 
 	[NonSerialized()]
 	protected int m_TraderID = -1;
@@ -63,7 +63,7 @@ class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 			if (!vehicle.GetGlobalID().m_IsSet)
 				vehicle.GetGlobalID().Acquire();
 
-			for (int i = 0; i < 4; i++)
+			for (int i = 0; i < 4; ++i)
 				m_GlobalID[i] = vehicle.GetGlobalID().m_ID[i];
 
 			#ifdef EXPANSIONMODVEHICLE
@@ -137,7 +137,7 @@ class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 
 	bool IsGlobalIDEqual(TIntArray id)
 	{
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; ++i)
 		{
 			if (m_GlobalID[i] != id[i])
 				return false;
@@ -148,7 +148,7 @@ class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 
 	bool IsGlobalIDEqual(ExpansionP2PMarketListing listing)
 	{
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; ++i)
 		{
 			if (m_GlobalID[i] != listing.m_GlobalID[i])
 				return false;
@@ -161,10 +161,25 @@ class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 	{
 		return ExpansionStatic.IntToHex(m_GlobalID);
 	}
+	
+	string GetListingDirectory()
+	{
+		return ExpansionP2PMarketModule.GetP2PMarketDataDirectory() + "traderID_" + m_TraderID + "\\listings\\";
+	}
+
+	string GetListingFileName()
+	{
+		return GetListingDirectory() + GetEntityStorageBaseName() + ".json";
+	}
+
+	string GetEntityStorageDirectory()
+	{
+		return ExpansionP2PMarketModule.GetP2PMarketDataDirectory() + "traderID_" + m_TraderID + "\\entitystorage\\";
+	}
 
 	string GetEntityStorageFileName()
 	{
-		return ExpansionEntityStorageModule.GetFileName(GetEntityStorageBaseName());
+		return GetEntityStorageDirectory() + GetEntityStorageBaseName() + ExpansionEntityStorageModule.EXT;
 	}
 
 	void SetListingTime()
@@ -255,38 +270,89 @@ class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 		CopyFromBaseClass(listing);
 		
 		m_TraderID = listing.m_TraderID;
-		m_CategoryIndex = listing.m_CategoryIndex;
-		m_SubCategoryIndex = listing.m_SubCategoryIndex;
-		m_GlobalID = listing.m_GlobalID;
+		m_GlobalID.Copy(listing.m_GlobalID);
 		m_OwnerUID = listing.m_OwnerUID;
-		m_Price = listing.m_Price;;
+		m_Price = listing.m_Price;
 		m_ListingTime = listing.m_ListingTime;
 		m_ListingState = listing.m_ListingState;
 		m_OwnerName = listing.m_OwnerName;
 	}
 
-	static ExpansionP2PMarketListing Load(string fileName)
+	static ExpansionP2PMarketListing Load(string fileName, int traderID)
 	{
-		//CF_Log.Info("[ExpansionP2PMarketListing]  Load existing P2P market listing file:" + fileName);
-		ExpansionP2PMarketListingBase dataBase;
-		if (!ExpansionJsonFileParser<ExpansionP2PMarketListingBase>.Load(fileName, dataBase))
+		ErrorEx("[P2P Market] Load existing P2P market listing file=" + fileName + " | Trader ID=" + traderID, ErrorExSeverity.INFO);
+		
+		ExpansionP2PMarketListing data;
+		if (!ExpansionJsonFileParser<ExpansionP2PMarketListing>.Load(fileName, data))
 			return NULL;
 		
+		data.SetTraderID(traderID);
+		
 		bool save;
-		ExpansionP2PMarketListing data = new ExpansionP2PMarketListing();
-		if (dataBase.m_Version < VERSION)
+		if (data.m_Version < VERSION)
 		{
+			ErrorEx("[P2P Market] Convert existing P2P market listing file=" + fileName + " | File version=" + data.m_Version + " | New version=" + VERSION, ErrorExSeverity.INFO);
 			save = true;
-			data.CopyFromBaseClass(dataBase);
-			data.m_Version = VERSION;
 			
+			if (data.m_Version < 2)
+			{
+				//! Migrate older listing and entity storage files from old to new location
+				string baseName = data.GetEntityStorageBaseName();
+				string extES = ExpansionEntityStorageModule.EXT;
+				int instanceID = GetGame().ServerConfigGetInt("instanceId");
+				string srcPathES = ExpansionEntityStorageModule.GetStorageDirectory() + baseName;  //! old path
+				string srcES = srcPathES + extES;
+				
+				string subDir = data.GetEntityStorageDirectory(); //! new sub dir
+				string dstPathES = subDir + baseName;  //! new path
+				string dstES = dstPathES + extES;
+
+				bool foundESOldFile = FileExist(srcES);
+				bool foundESNewFile = FileExist(dstES);
+
+				ErrorEx("[P2P Market] Old file=" + srcES + " | Found=" + foundESOldFile, ErrorExSeverity.INFO);
+				ErrorEx("[P2P Market] New file=" + dstES + " | Found=" + foundESNewFile, ErrorExSeverity.INFO);
+
+				if (!foundESNewFile && foundESOldFile)
+				{
+					ErrorEx("[P2P Market] Found file=" + srcES, ErrorExSeverity.INFO);
+					ErrorEx("[P2P Market] New destination file is missing at=" + dstES, ErrorExSeverity.INFO);
+					
+					if (!FileExist(subDir))
+					{
+						ErrorEx("[P2P Market] Create new entity storage sub dir=" + subDir, ErrorExSeverity.INFO);
+						ExpansionStatic.MakeDirectoryRecursive(subDir);
+					}
+					
+					if (CopyFile(srcES, dstES))
+					{
+						ErrorEx("[P2P Market] Copied file=" + srcES + " to destination=" + dstES, ErrorExSeverity.INFO);
+						
+						//! If the .bin file has an accompanying folder, move it and delete old .bin file after folder was successfully moved.
+						//! If the .bin file has no accompanying folder, just delete the old .bin file.
+						if (!FileExist(srcPathES) || ExpansionStatic.CopyDirectoryTree(srcPathES, dstPathES, extES, true))
+						{
+							ErrorEx("[P2P Market] Delete old file=" + srcES, ErrorExSeverity.INFO);
+							DeleteFile(srcES);
+						}
+					}
+					else
+					{
+						EXError.Warn(null, string.Format("[P2P Market] Couldn't copy \"%1\" to \"%2\"", srcES, dstES), {});
+					}
+				}
+				else if (!foundESOldFile && data.m_ListingState != ExpansionP2PMarketListingState.SOLD)
+				{
+					//! If this listing is not sold and has no accompanying .bin file, DON'T save it to new location and return null
+					EXError.Error(null, "ExpansionP2PMarketListing::Load - Entity storage file " + srcES + " does not exist anymore!", {});
+					return null;
+				}
+			}
+			
+			data.m_Version = VERSION;
+						
 			if (save)
 				Save(data);
-		}
-		else
-		{
-			if (!ExpansionJsonFileParser<ExpansionP2PMarketListing>.Load(fileName, data))
-				return NULL;
 		}
 
 		//! Make sure stored global IDs are registered. This needs to happen before loading storage!
@@ -312,14 +378,14 @@ class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 
 	static void Save(ExpansionP2PMarketListing listingData)
 	{
-		string traderListingsPath = ExpansionP2PMarketModule.GetP2PMarketDataDirectory() + "P2PTrader_" + listingData.GetTraderID() + "_Listings\\";
-		if (!FileExist(traderListingsPath) && !ExpansionStatic.MakeDirectoryRecursive(traderListingsPath))
+		string listingsPath = listingData.GetListingDirectory();
+		if (!FileExist(listingsPath) && !ExpansionStatic.MakeDirectoryRecursive(listingsPath))
 		{
 			return;
 		}
 
-		string fileName = ExpansionStatic.IntToHex(listingData.GetGlobalID());
-		ExpansionJsonFileParser<ExpansionP2PMarketListing>.Save(traderListingsPath + fileName + ".json", listingData);
+		string baseName = listingData.GetEntityStorageBaseName();
+		ExpansionJsonFileParser<ExpansionP2PMarketListing>.Save(listingsPath + baseName + ".json", listingData);
 	}
 
 	void Save()

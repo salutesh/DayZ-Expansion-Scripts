@@ -41,7 +41,7 @@ class ExpansionLootVariantV1: ExpansionLootBase
 
 class ExpansionLootV1 : ExpansionLootVariantV1
 {
-	int QuantityPercent;
+	float QuantityPercent;
 	int Max;
 	int Min;
 	ref array< ref ExpansionLootVariantV1 > Variants;
@@ -90,7 +90,7 @@ class ExpansionLootVariant: ExpansionLootBase
 
 class ExpansionLoot : ExpansionLootVariant
 {
-	int QuantityPercent;
+	float QuantityPercent;
 	int Max;
 	int Min;
 	ref array< ref ExpansionLootVariant > Variants;

@@ -28,7 +28,7 @@ modded class ActionCollectBloodTarget
 		eAIBase ai;
 		if (Class.CastTo(ai, action_data.m_Target.GetObject()) && ai.GetGroup().GetFaction().IsGuard())
 		{
-			action_data.m_Player.m_eAI_LastAggressionTime = ExpansionStatic.GetTime(true);  //! Aggro guards in area (if any)
+			action_data.m_Player.m_eAI_LastAggressionTime = ExpansionStatic.GetTimestamp(true);  //! Aggro guards in area (if any)
 			if (!ai.Expansion_CanBeDamaged())
 				return;
 		}

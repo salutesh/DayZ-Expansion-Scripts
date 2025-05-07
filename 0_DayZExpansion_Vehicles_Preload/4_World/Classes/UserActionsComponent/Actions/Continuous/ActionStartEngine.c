@@ -91,37 +91,7 @@ modded class ActionStartEngine
 		return false;
 	}
 
-	override void OnFinishProgress(ActionData action_data)
-	{
-		ExpansionVehicle vehicle;
-		if (ExpansionVehicle.Get(vehicle, action_data.m_Player))
-		{
-			if (vehicle.GetExpansionVehicleBase())
-			{
-				//! START vanilla ActionContinuousBase
-				if (LogManager.IsActionLogEnable())
-					Debug.ActionLog("Time stamp: " + action_data.m_Player.GetSimulationTimeStamp(), this.ToString() , "n/a", "OnFinishProgress", action_data.m_Player.ToString());
-				if (GetGame().IsServer())
-				{
-					OnFinishProgressServer(action_data);
-			
-					if (m_AdminLog)
-						m_AdminLog.OnContinouousAction( action_data );
-				}
-				else
-				{
-					OnFinishProgressClient(action_data);
-				}
-				action_data.m_WasExecuted = false;
-				//! END vanilla ActionContinuousBase
-
-				return;
-			}
-		}
-
-		super.OnFinishProgress(action_data);
-	}
-
+#ifdef DAYZ_1_27
 	override void OnFinishProgressClient(ActionData action_data)
 	{
 		ExpansionVehicle vehicle;
@@ -137,37 +107,43 @@ modded class ActionStartEngine
 		super.OnFinishProgressClient(action_data);
 	}
 
-	//! Can NOT call super here
 	override void OnFinishProgressServer(ActionData action_data)
-	{
-		Expansion_OnFinishProgressServerStatic(action_data);
-	}
-
-	static void Expansion_OnFinishProgressServerStatic(ActionData action_data)
 	{
 		ExpansionVehicle vehicle;
 		if (ExpansionVehicle.Get(vehicle, action_data.m_Player))
 		{
-			float engineHealth = vehicle.GetEntity().GetHealth01("Engine", "");
-			//! @note chance when engine is damaged (health level 0.5)
-			float chance = GetExpansionSettings().GetVehicle().DamagedEngineStartupChancePercent / 100.0;
-			//! @note calculated chance follows a power curve (linear if chance == 0.5)
-			float chanceMin = 0.0025;
-			bool clamp = chance == 0;
-			if (chance < chanceMin)
-				chance = chanceMin;
-			chance = Math.Pow(engineHealth, -ExpansionMath.Log2(chance));
-			if (clamp)
-				chance = ExpansionMath.LinearConversion(chanceMin, 1.0, chance, 0.0, 1.0);
-			if (chance >= Math.RandomFloatInclusive(0.0, 1.0))
+			auto exVehicle = vehicle.GetExpansionVehicleBase();
+
+			if (vehicle.EngineGetCurrent() > 0 || exVehicle)
 			{
 				vehicle.EngineStart();
-				
-				if (action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEngine)
-					GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" [uid=" + action_data.m_Player.GetIdentity().GetId() + "] started vehicle " + vehicle.GetDisplayName() + " (id=" + vehicle.GetPersistentIDString() + " pos=" + vehicle.GetPosition() + ")");
+				return;
 			}
 		}
+
+		super.OnFinishProgressServer(action_data);
 	}
+#else
+	//! 1.28+
+	override void OnFinishProgress(ActionData action_data)
+	{
+		ExpansionVehicle vehicle;
+		if (ExpansionVehicle.Get(vehicle, action_data.m_Player))
+		{
+			auto exVehicle = vehicle.GetExpansionVehicleBase();
+
+			if (vehicle.EngineGetCurrent() > 0 || exVehicle)
+			{
+				if (GetGame().IsServer() || exVehicle)
+					vehicle.EngineStart();
+
+				return;
+			}
+		}
+
+		super.OnFinishProgress(action_data);
+	}
+#endif
 
 	override bool Expansion_CheckSuccess(ActionData action_data)
 	{

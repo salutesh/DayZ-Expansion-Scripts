@@ -354,7 +354,7 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 	{
 		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-		#endif 
+		#endif
 		
 		if (!ExpansionEntityStorageModule.RestoreFromFile(listing.GetEntityStorageFileName(), loadedEntity, null, player))
 		{

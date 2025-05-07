@@ -33,7 +33,7 @@ class ExpansionGame
 		CreateExpansionUIManager();
 	#endif
 		
-		ExpansionItemNameTabel.LoadNameTabel();
+		ExpansionItemNameTable.LoadNameTable();
 	}
 
 	// ------------------------------------------------------------

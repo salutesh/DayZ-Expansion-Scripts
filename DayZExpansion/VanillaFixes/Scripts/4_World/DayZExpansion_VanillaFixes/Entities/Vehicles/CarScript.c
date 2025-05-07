@@ -1,15 +1,5 @@
 modded class CarScript
 {
-#ifdef DAYZ_1_25
-	int s_Expansion_OnBeforeEngineStart_Client_RPCID;
-
-	void CarScript()
-	{
-		if (!s_Expansion_OnBeforeEngineStart_Client_RPCID)
-			s_Expansion_OnBeforeEngineStart_Client_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_Expansion_OnBeforeEngineStart_Client");
-	}
-#endif
-
 	//! https://feedback.bistudio.com/T184230
 	override int GetCarDoorsState(string slotType)
 	{
@@ -113,27 +103,4 @@ modded class CarScript
 		shape.SetMatrix(transform);
 		return shape;
 	}
-
-#ifdef DAYZ_1_25
-	//! "Failed engine start" sounds not working https://feedback.bistudio.com/T177537
-	override bool OnBeforeEngineStart()
-	{
-		bool ret = super.OnBeforeEngineStart();
-
-		m_EngineStartDoOnce = false;  // make engine start fail sounds play reliably, not just every other time engine is attempted to start
-
-		return ret;
-	}
-
-	void Expansion_SendOnBeforeEngineStart()
-	{
-		auto rpc = m_Expansion_RPCManager.CreateRPC(s_Expansion_OnBeforeEngineStart_Client_RPCID);
-		PlayerBase.Expansion_SendNear(rpc, GetPosition(), 50.0, this, true);
-	}
-
-	void RPC_Expansion_OnBeforeEngineStart_Client(PlayerIdentity sender, ParamsReadContext ctx)
-	{
-		OnBeforeEngineStart();
-	}
-#endif
 }

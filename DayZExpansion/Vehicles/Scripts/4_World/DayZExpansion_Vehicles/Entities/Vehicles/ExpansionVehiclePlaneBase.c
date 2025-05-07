@@ -191,7 +191,7 @@ class ExpansionVehiclePlaneBase: ExpansionVehicleBase
 		}
 		case CarSoundCtrl.RPM:
 		{
-			return EngineGetRPM(0);
+			return Expansion_EngineGetRPM(0);
 		}
 		case CarSoundCtrl.ENGINE:
 		{
