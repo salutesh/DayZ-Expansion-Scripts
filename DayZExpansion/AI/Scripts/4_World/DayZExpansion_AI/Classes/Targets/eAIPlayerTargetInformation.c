@@ -14,6 +14,27 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		return true;
 	}
 
+	override bool IsRaised()
+	{
+		if (m_Player.IsRaised())
+			return true;
+
+		return false;
+	}
+
+	override bool IsFighting()
+	{
+		if (m_Player.m_eAI_AttackCooldown > 0 || m_Player.IsFighting())
+			return true;
+
+		return false;
+	}
+
+	override float GetAttackCooldown()
+	{
+		return m_Player.m_eAI_AttackCooldown;
+	}
+
 	override float CalculateThreat(eAIBase ai = null)
 	{
 		if (m_Player.IsDamageDestroyed())

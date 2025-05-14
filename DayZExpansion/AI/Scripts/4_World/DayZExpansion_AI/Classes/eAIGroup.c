@@ -74,6 +74,17 @@ class eAIGroup
 		return group;
 	}
 
+	static eAIGroup GetGamePlayerGroup()
+	{
+		DayZPlayerImplement player;
+		eAIGroup group;
+
+		if (Class.CastTo(player, GetGame().GetPlayer()))
+			group = player.GetGroup();
+
+		return group;
+	}
+
 	override string GetDebugName()
 	{
 		string str = ToString();

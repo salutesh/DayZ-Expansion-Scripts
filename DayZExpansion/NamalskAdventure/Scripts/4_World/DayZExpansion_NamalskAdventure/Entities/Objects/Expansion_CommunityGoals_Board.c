@@ -18,28 +18,20 @@ class Expansion_CommunityGoals_Board: House
 
 	void Expansion_CommunityGoals_Board()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		
 		#ifdef EXPANSIONMODAI
 		RegisterNetSyncVariableInt("m_FactionID");
 		#endif
 	}
-
-	void ~Expansion_CommunityGoals_Board()
-	{
-		if (!GetGame())
-			return;
-
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-	}
-
+	
 	override void EEInit()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		super.EEInit();
 	}
@@ -105,9 +97,9 @@ class Expansion_CommunityGoals_Board: House
 
 	override void AfterStoreLoad()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		super.AfterStoreLoad();
 

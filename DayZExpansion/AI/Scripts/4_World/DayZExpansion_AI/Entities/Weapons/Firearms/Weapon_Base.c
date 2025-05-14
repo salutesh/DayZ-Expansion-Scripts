@@ -18,6 +18,8 @@ modded class Weapon_Base
 
 	float m_eAI_LastFiredTime;
 
+	eAINoiseParams m_eAI_NoiseParams;
+
 	bool Hitscan(vector begin_point, vector direction, eAIBase ai, out Object hitObject, out vector hitPosition, out vector hitNormal, out int contactComponent)
 	{
 		return Hitscan(begin_point, direction, 1100.0, ai, this, hitObject, hitPosition, hitNormal, contactComponent);
@@ -158,7 +160,7 @@ modded class Weapon_Base
 				m_eAI_LastFiredTime = time;
 				float strengthMultiplier = GetPropertyModifierObject().eAI_GetNoiseShootModifier();
 				if (strengthMultiplier)
-					eAINoiseSystem.AddNoise(this, CFG_WEAPONSPATH + " " + GetType() + " NoiseShoot", strengthMultiplier, eAINoiseType.SHOT);
+					eAINoiseSystem.AddNoiseEx(this, eAI_GetNoiseParams(), strengthMultiplier);
 			}
 		}
 		else if (owner)
@@ -167,6 +169,30 @@ modded class Weapon_Base
 			if (!exGame.m_FirearmFXSource || owner.GetIdentity())
 				exGame.m_FirearmFXSource = this;
 		}
+	}
+
+	eAINoiseParams eAI_GetNoiseParams()
+	{
+		if (!m_eAI_NoiseParams)
+			m_eAI_NoiseParams = eAINoiseSystem.GetNoiseParams(CFG_WEAPONSPATH + " " + GetType() + " NoiseShoot", eAINoiseType.SHOT);
+
+		return m_eAI_NoiseParams;
+	}
+
+	override bool eAI_IsSilent()
+	{
+		//! Vanilla suppressors reduce noise by -0.85 (improvised) to -0.93 (AK/M4/pistol)
+		//! We consider anything that results in a noise strength below 70 as silent (to have some headroom)
+		//! @note vanilla noise strength values are multiplied by 10 in eAINoiseSystem if noise type is shot!
+		float strengthMultiplier = GetPropertyModifierObject().eAI_GetNoiseShootModifier();
+		if (strengthMultiplier)
+		{
+			eAINoiseParams params = eAI_GetNoiseParams();
+			if (params.m_Strength * strengthMultiplier >= 70)
+				return false;
+		}
+
+		return true;
 	}
 
 	void eAI_DebugFire(bool hit, vector begin_point, vector direction, eAIBase ai, eAITarget target, Object hitObject, vector hitPosition)

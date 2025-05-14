@@ -75,6 +75,21 @@ class eAINoiseSystem
 		SI_OnNoiseAdded.Invoke(null, position, lifetime, params, strengthMultiplier);
 	}
 
+	static void AddNoiseEx(EntityAI source, eAINoiseParams params, float strengthMultiplier = 1.0)
+	{
+		SI_OnNoiseAdded.Invoke(source, vector.Zero, -1, params, strengthMultiplier);
+	}
+
+	static void AddNoiseEx(EntityAI source, vector position, eAINoiseParams params, float strengthMultiplier = 1.0)
+	{
+		SI_OnNoiseAdded.Invoke(source, position, -1, params, strengthMultiplier);
+	}
+
+	static void AddNoiseEx(vector position, float lifetime, eAINoiseParams params, float strengthMultiplier = 1.0)
+	{
+		SI_OnNoiseAdded.Invoke(null, position, lifetime, params, strengthMultiplier);
+	}
+
 	[CF_EventSubscriber(ScriptCaller.Create(eAINoiseSystem.OnGameDestroy), CF_LifecycleEvents.OnGameDestroy)]
 	static void OnGameDestroy()
 	{

@@ -269,19 +269,6 @@ modded class PlayerBase
 
 		return name;
 	}
-	
-	static set< PlayerBase > GetAll()
-	{
-		Error("DEPRECATED - please use linked list s_Expansion_AllPlayers");
-		set<PlayerBase> allPlayers = new set<PlayerBase>;
-		auto node = s_Expansion_AllPlayers.m_Head;
-		while (node)
-		{
-			allPlayers.Insert(node.m_Value);
-			node = node.m_Next;
-		}
-		return allPlayers;
-	}
 
 	static set<PlayerBase> Expansion_GetInSphere(vector position, int radius)
 	{

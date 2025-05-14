@@ -26,17 +26,17 @@ class Expansion_EffectHolder_Base: House
 	protected bool m_DelayVFX = true;
 	protected float m_IdleParticleDelay;
 
-#ifdef DIAG_DEVELOPER
-#ifdef EXPANSIONMODNAVIGATION
+	#ifdef DIAG_DEVELOPER
+	#ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_ServerMarker;
-#endif
-#endif
+	#endif
+	#endif
 
 	void Expansion_EffectHolder_Base()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		SetEventMask(EntityEvent.INIT); //! @ToDO: Not sure if even needed. Check that!
 	}
@@ -45,31 +45,33 @@ class Expansion_EffectHolder_Base: House
 	{
 		if (!GetGame())
 			return;
-
+		
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		#endif
 		
 		CleanupEffect();
 	}
 
 	override void EEDelete(EntityAI parent)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		CleanupEffect();
 	}
 
 	void CleanupEffect()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		
 		if (GetGame() && GetGame().IsServer())
 		{
-		#ifdef DIAG_DEVELOPER
-		#ifdef EXPANSIONMODNAVIGATION
+			#ifdef DIAG_DEVELOPER
+			#ifdef EXPANSIONMODNAVIGATION
 			if (!m_ServerMarker)
 				return;
 
@@ -77,8 +79,8 @@ class Expansion_EffectHolder_Base: House
 			CF_Modules<ExpansionMarkerModule>.Get(markerModule);
 			if (markerModule)
 				markerModule.RemoveServerMarker(m_ServerMarker.GetUID());
-		#endif
-		#endif
+			#endif
+			#endif
 		}
 
 		if (GetGame() && !GetGame().IsDedicatedServer())
@@ -93,9 +95,9 @@ class Expansion_EffectHolder_Base: House
 
 	override void EEInit()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		super.EEInit();
 
@@ -104,9 +106,9 @@ class Expansion_EffectHolder_Base: House
 
 	protected void InitEffect()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		if (!GetGame().IsDedicatedServer())
 		{
@@ -121,18 +123,18 @@ class Expansion_EffectHolder_Base: House
 
 	protected void InitEffectClient()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		
 		UpdateVisualState();
 	}
 
 	protected void InitEffectServer()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		//! Remove grass
 		Object cc_object = GetGame().CreateObjectEx(OBJECT_CLUTTER_CUTTER , GetWorldPosition(), ECE_PLACE_ON_SURFACE);
@@ -144,26 +146,26 @@ class Expansion_EffectHolder_Base: House
 
 	protected void DestroyClutterCutter(Object clutter_cutter)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		GetGame().ObjectDelete(clutter_cutter);
 
-	#ifdef DIAG_DEVELOPER
-	#ifdef EXPANSIONMODNAVIGATION
+		#ifdef DIAG_DEVELOPER
+		#ifdef EXPANSIONMODNAVIGATION
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
 		if (markerModule)
 			markerModule.CreateServerMarker(GetType(), "Anomaly", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 52, 152, 219), true);
-	#endif
-	#endif
+		#endif
+		#endif
 	}
 
 	protected bool PlayParticle(out Particle particle, int particle_type)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		if (!particle && GetGame() && (!GetGame().IsDedicatedServer()))
 		{
@@ -177,9 +179,9 @@ class Expansion_EffectHolder_Base: House
 	//! Returns true if particle stopped, false if not
 	protected bool StopParticle(out Particle particle)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		if (particle && GetGame() && (!GetGame().IsDedicatedServer()))
 		{
@@ -194,34 +196,34 @@ class Expansion_EffectHolder_Base: House
 
 	protected void ParticleIdleStop()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		StopParticle(m_ParticleIdle);
 	}
 
 	protected void ParticleActivatedStop()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		StopParticle(m_ParticleActivated);
 	}
 
 	protected void UpdateVisualState()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateEffectVFX_Deferred, 0, false);
 	}
 
 	//! @note: This method updates the anomaly visual effects (VFX) in a deferred manner based on the provided `state`.
 	protected void UpdateEffectVFX_Deferred(ExpansionAnomalyState state)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		//! Stop current particle effects
 		ParticleIdleStop();
@@ -252,9 +254,9 @@ class Expansion_EffectHolder_Base: House
 	//! @note: Synchronizes variables and updates visual state of the particle depending on the anomaly state.
 	override void OnVariablesSynchronized()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		super.OnVariablesSynchronized();
 
@@ -263,9 +265,9 @@ class Expansion_EffectHolder_Base: House
 
 	protected void ExDebugPrint(string text)
 	{
-	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
-	#endif
+		#endif
 	}
 };
 

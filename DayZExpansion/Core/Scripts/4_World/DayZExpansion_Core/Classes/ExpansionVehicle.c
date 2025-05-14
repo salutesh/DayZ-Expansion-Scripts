@@ -805,10 +805,38 @@ class ExpansionVehicle
 			{
 				PlayerBase player = PlayerBase.GetPlayerByUID(m_LastDriverUID);
 				if (player)
-					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", string.Format("%1 at %2 was deleted after exceeding the maximum allowed safezone parking time of %3.", GetDisplayName(), ExpansionStatic.VectorToString(GetPosition(), ExpansionVectorToString.Labels), ExpansionStatic.GetTimeString(lifetime, true))).Error(player.GetIdentity());
+				{
+					string displayName = GetDisplayName();
+					string posText = ExpansionStatic.VectorToString(GetPosition(), ExpansionVectorToString.Labels);
+					string lifetimeText = ExpansionStatic.GetTimeString(lifetime, true);
+					CF_Localiser localiser = new CF_Localiser("STR_EXPANSION_SAFEZONE_VEHICLE_CLEANUP_1", displayName, posText, lifetimeText);
+					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", localiser).Error(player.GetIdentity());
+				}
 			}
 
-			vehicle.Delete();
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeleteVehicleWhenCrewLeft, 3000, false, lifetime);
+		}
+	}
+
+	void DeleteVehicleWhenCrewLeft(float lifetime)
+	{
+		if (!GetCrew(false, false).Count())
+		{
+			//! If we have last driver UID, notify player that their vehicle is being deleted
+			if (m_LastDriverUID)
+			{
+				PlayerBase player = PlayerBase.GetPlayerByUID(m_LastDriverUID);
+				if (player)
+				{
+					string displayName = GetDisplayName();
+					string posText = ExpansionStatic.VectorToString(GetPosition(), ExpansionVectorToString.Labels);
+					string lifetimeText = ExpansionStatic.GetTimeString(lifetime, true);
+					CF_Localiser localiser = new CF_Localiser("STR_EXPANSION_SAFEZONE_VEHICLE_CLEANUP_2", displayName, posText, lifetimeText);
+					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", localiser).Error(player.GetIdentity());
+				}
+			}
+
+			GetEntity().Delete();
 		}
 	}
 
@@ -1329,6 +1357,11 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 
 	override void ForceCrewGetOut()
 	{
+	#ifndef DAYZ_1_27
+		//! TODO/FIXME ForceCrewGetOut doesn't work under DayZ 1.28 or newer
+		return;
+	#endif
+
 		auto crew = GetCrew(false, false);
 		foreach (auto member: crew)
 		{

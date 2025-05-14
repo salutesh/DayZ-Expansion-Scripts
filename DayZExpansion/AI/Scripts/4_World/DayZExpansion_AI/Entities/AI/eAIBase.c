@@ -148,14 +148,13 @@ class eAIBase: PlayerBase
 	private Transport m_eAI_Transport;
 	private int m_eAI_Transport_SeatIndex;
 
-	private bool m_eAI_Melee;
-	private bool m_eAI_MeleeDidHit;
-	private int m_eAI_MeleeTime;
+	int m_eAI_MeleeTime;
 
 	private ref eAIAimingProfile m_AimingProfile;
 
 	private ref eAIActionManager m_eActionManager;
 	ref eAIMeleeCombat m_eMeleeCombat;
+	ref eAIMeleeFightLogic_LightHeavy m_eAI_MeleeFightLogic;
 
 	bool m_eAI_FallHasLanded;
 	float m_eAI_FallYVelZeroTime;
@@ -405,9 +404,10 @@ class eAIBase: PlayerBase
 		m_AimingProfile = new eAIAimingProfile(this);
 
 		m_eMeleeCombat = new eAIMeleeCombat(this);
-
 		m_MeleeCombat = m_eMeleeCombat;
-		m_MeleeFightLogic = new DayZPlayerMeleeFightLogic_LightHeavy(this);
+
+		m_eAI_MeleeFightLogic = new eAIMeleeFightLogic_LightHeavy(this);
+		m_MeleeFightLogic = m_eAI_MeleeFightLogic;
 
 		m_WeaponManager = new eAIWeaponManager(this);
 		m_ShockHandler = new eAIShockHandler(this);
@@ -566,9 +566,9 @@ class eAIBase: PlayerBase
 
 		if (GetGame().IsServer() && !m_eMeleeCombat.eAI_GetWeapon())
 		{
-			m_eMeleeCombat.Reset(null, m_eMeleeCombat.GetMeleeHitType(), false);
+			m_eMeleeCombat.Reset(null, EMeleeHitType.NONE, false);
 
-		#ifdef DIAG_DEVELOPER
+		#ifdef EXPANSION_AI_MELEEDBG_CHATTY
 			ExpansionStatic.MessageNearPlayers(GetPosition(), 100, ToString() + " DeferredInit - melee weapon (in hands) null range " + m_eMeleeCombat.eAI_GetRange());
 		#endif
 		}
@@ -1029,14 +1029,14 @@ class eAIBase: PlayerBase
 		if (!IsBleeding())
 			return false;
 
-		if (GetGame().GetTickTime() - m_eAI_LastHitTime <= 10)
-			return false;
-
 		if (m_eAI_DangerousAreaCount > 0 && m_eAI_IsInDangerByArea)
 			return false;
 		
-		if (m_eAI_CurrentThreatToSelfActive >= 0.4)
+		if (m_eAI_CurrentThreatToSelfActive >= 0.4 || m_eAI_IsFightingFSM)
 		{
+			if (GetGame().GetTickTime() - m_eAI_LastHitTime <= 10)
+				return false;
+
 			if (GetHealth01("", "Blood") >= 0.7 && m_eAI_Targets.Count() > 0 && !GetTarget().IsItem() && !GetTarget().IsNoise())
 				return false;
 		}
@@ -1052,6 +1052,10 @@ class eAIBase: PlayerBase
 
 		if (source && source.IsDayZCreature() && m_eAI_ThreatOverride.Contains(source))
 			eAI_ThreatOverride(source, false);
+
+		//! If we are currently blocking, go out of block so we can start going on offense
+		if (m_eAI_MeleeFightLogic.IsInBlock())
+			m_eAI_MeleeFightLogic.eAI_EndBlock();
 	}
 
 	override void EEKilled(Object killer)
@@ -1586,6 +1590,15 @@ class eAIBase: PlayerBase
 			return m_eAI_CurrentThreatToSelf;
 
 		return m_eAI_CurrentThreatToSelfActive;
+	}
+
+	EntityAI eAI_GetTargetEntity()
+	{
+		eAITarget target = GetTarget();
+		if (target)
+			return target.GetEntity();
+
+		return null;
 	}
 
 	//! @note all targets except item targets (no state)
@@ -2781,30 +2794,52 @@ class eAIBase: PlayerBase
 						return true;
 				}
 
-				string curGearProjDmgPath = "CfgVehicles " + currentlyWornGear.GetType() + " DamageSystem GlobalArmor Projectile Health damage";
-				string tgtGearProjDmgPath = "CfgVehicles " + targetItem.GetType() + " DamageSystem GlobalArmor Projectile Health damage";
+				string curGearArmorPath = "CfgVehicles " + currentlyWornGear.GetType() + " DamageSystem GlobalArmor";
+				string tgtGearArmorPath = "CfgVehicles " + targetItem.GetType() + " DamageSystem GlobalArmor";
+				string curGearDmgPath;
+				string tgtGearDmgPath;
 
-				float curGearProjDmg = 1.0;
-				float tgtGearProjDmg = 1.0;
-
-				if (GetGame().ConfigIsExisting(curGearProjDmgPath))
+				//! Always prefer comparing to current gear projectile health damage even if target item doesn't have any,
+				//! That way we don't downgrade from an item that has projectile armor to one that doesn't
+				if (GetGame().ConfigIsExisting(curGearArmorPath + " Projectile"))
 				{
-					curGearProjDmg = GetGame().ConfigGetFloat(curGearProjDmgPath);
-					EXTrace.Print(EXTrace.AI, this, "Current gear " + currentlyWornGear.GetType() + " armor dmg " + curGearProjDmg);
+					curGearDmgPath = curGearArmorPath + " Projectile Health damage";
+					tgtGearDmgPath = tgtGearArmorPath + " Projectile Health damage";
+				}
+				else
+				{
+					curGearDmgPath = curGearArmorPath + " Melee Health damage";
+					tgtGearDmgPath = tgtGearArmorPath + " Melee Health damage";
 				}
 
-				if (GetGame().ConfigIsExisting(tgtGearProjDmgPath))
+				float curGearDmg = 1.0;
+				float tgtGearDmg = 1.0;
+
+				if (GetGame().ConfigIsExisting(curGearDmgPath))
 				{
-					tgtGearProjDmg = GetGame().ConfigGetFloat(tgtGearProjDmgPath);
-					EXTrace.Print(EXTrace.AI, this, "Target gear " + targetItem.GetType() + " armor dmg " + tgtGearProjDmg);
+					curGearDmg = GetGame().ConfigGetFloat(curGearDmgPath);
+				#ifdef DIAG_DEVELOPER
+					EXTrace.Print(EXTrace.AI, this, "Current gear " + currentlyWornGear.GetType() + " armor dmg " + curGearDmg);
+				#endif
 				}
 
-				if (tgtGearProjDmg < curGearProjDmg || (tgtGearProjDmg == curGearProjDmg && (targetItem.GetHealth() > currentlyWornGear.GetHealth() || tgtCargoSize > curCargoSize)))
+				if (GetGame().ConfigIsExisting(tgtGearDmgPath))
+				{
+					tgtGearDmg = GetGame().ConfigGetFloat(tgtGearDmgPath);
+				#ifdef DIAG_DEVELOPER
+					EXTrace.Print(EXTrace.AI, this, "Target gear " + targetItem.GetType() + " armor dmg " + tgtGearDmg);
+				#endif
+				}
+
+				//! @note higher health level = worse! 0 = pristine, 1 = worn, 2 = damaged, 3 = badly damaged, 4 = ruined
+				if (tgtGearDmg < curGearDmg || (tgtGearDmg == curGearDmg && targetItem.GetHealthLevel() < currentlyWornGear.GetHealthLevel()))
 				{
 					if (!eAI_WasItemRecentlyDropped(targetItem))
 						return true;
+				#ifdef DIAG_DEVELOPER
 					else
 						EXPrint(this, "Ignoring item for swap because it was recently dropped: " + targetItem + " (type=" + targetItem.GetType() + " health=" + targetItem.GetHealth() + ")");
+				#endif
 				}
 			}
 		}
@@ -3339,7 +3374,7 @@ class eAIBase: PlayerBase
 
 	void Notify_Melee(bool melee = true)
 	{
-		if (melee && !m_eAI_Melee)
+		if (melee && !m_eAI_MeleeFightLogic.m_eAI_Melee)
 		{
 			Expansion_GetUp();
 
@@ -3347,7 +3382,7 @@ class eAIBase: PlayerBase
 				s_eAI_LoveSound02_SoundSet.Play(this);
 		}
 
-		m_eAI_Melee = melee;
+		m_eAI_MeleeFightLogic.m_eAI_Melee = melee;
 	}
 
 	override void OnCommandMelee2Start()
@@ -3447,6 +3482,33 @@ class eAIBase: PlayerBase
 
 		if (GetGame().IsServer())
 			eAI_UpdateProtectionLevels(item, -1, slot_name);
+	}
+
+	override void EEItemIntoHands(EntityAI item)
+	{
+		super.EEItemIntoHands(item);
+
+		//! Set melee weapon so we can use GetRange()
+		m_eMeleeCombat.Reset(InventoryItem.Cast(item), EMeleeHitType.NONE, false);
+
+	#ifdef EXPANSION_AI_MELEEDBG_CHATTY
+		ExpansionStatic.MessageNearPlayers(GetPosition(), 100, ToString() + " EEItemIntoHands " + item + " melee range " + m_eMeleeCombat.eAI_GetRange());
+	#endif
+	}
+
+	override void EEItemOutOfHands(EntityAI item)
+	{
+		super.EEItemOutOfHands(item);
+
+		if (!ToDelete() && m_eMeleeCombat.eAI_GetWeapon() == item)
+		{
+			//! Set melee so we can use GetRange()
+			m_eMeleeCombat.Reset(null, EMeleeHitType.NONE, false);
+
+		#ifdef EXPANSION_AI_MELEEDBG_CHATTY
+			ExpansionStatic.MessageNearPlayers(GetPosition(), 100, ToString() + " EEItemOutOfHands " + item + " melee range (fists) " + m_eMeleeCombat.eAI_GetRange());
+		#endif
+		}
 	}
 
 	void eAI_UpdateProtectionLevels(EntityAI entity, int value, string slotName = string.Empty)
@@ -4958,16 +5020,6 @@ class eAIBase: PlayerBase
 	void eAI_OnInventoryExit(ItemBase item)
 	{
 		eAI_RemoveItem(item);
-
-		if (!ToDelete() && m_eMeleeCombat.eAI_GetWeapon() == item)
-		{
-			//! Set melee so we can use GetRange()
-			m_eMeleeCombat.Reset(null, m_eMeleeCombat.GetMeleeHitType(), false);
-
-		#ifdef DIAG_DEVELOPER
-			ExpansionStatic.MessageNearPlayers(GetPosition(), 100, ToString() + " eAI_RemoveItem - melee weapon (in hands) null range " + m_eMeleeCombat.eAI_GetRange());
-		#endif
-		}
 	}
 
 	//! @note INTERNAL USE ONLY
@@ -4992,16 +5044,6 @@ class eAIBase: PlayerBase
 				if (Class.CastTo(attRoot, item.Expansion_GetAttachmentRoot()))
 					m_Expansion_ActiveVisibilityEnhancers.Insert(attRoot);
 			}
-		}
-
-		if (item == GetHumanInventory().GetEntityInHands())
-		{
-			//! Set melee weapon so we can use GetRange()
-			m_eMeleeCombat.Reset(item, m_eMeleeCombat.GetMeleeHitType(), false);
-
-		#ifdef DIAG_DEVELOPER
-			ExpansionStatic.MessageNearPlayers(GetPosition(), 100, ToString() + " eAI_AddItem - melee weapon (in hands) " + item + " range " + m_eMeleeCombat.eAI_GetRange());
-		#endif
 		}
 
 		Weapon_Base weapon;
@@ -5910,33 +5952,7 @@ class eAIBase: PlayerBase
 		}
 		else if (actualCommandID == DayZPlayerConstants.COMMANDID_MELEE2)
 		{
-			HumanCommandMelee2 hcm2 = GetCommand_Melee2();
-			if (hcm2)
-			{
-				if (hcm2.WasHit())
-				{
-					m_eMeleeCombat.OnHit();
-
-					m_eAI_MeleeDidHit = true;
-				}
-
-				if (m_eAI_Melee && m_eAI_MeleeDidHit && hcm2.IsInComboRange())
-				{
-					m_eAI_Melee = false;
-					m_eAI_MeleeTime = GetGame().GetTime();
-
-					m_eMeleeCombat.Combo(hcm2);
-				}
-			}
-		}
-		else if (m_eAI_Melee)
-		{
-			m_eAI_Melee = false;
-
-			if (!m_eMeleeCombat.Start())
-				eAI_SkipMelee("setting up attack failed", currentTarget.info, true);
-			else
-				eAI_SkipMelee("melee succeeded", currentTarget.info, false);
+			//! Nothing
 		}
 		else if (m_eAI_Transport)
 		{
@@ -5983,8 +5999,6 @@ class eAIBase: PlayerBase
 			//! Nothing
 		}
 
-		m_eAI_MeleeDidHit = false;
-
 		if (!m_eAI_SkipScript && eAI_IsLocomotionCmd(actualCommandID))
 		{
 			vector lookTargetRelAngles = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
@@ -5993,9 +6007,9 @@ class eAIBase: PlayerBase
 			if (IsRaised())
 			{
 				//! Need to adjust look direction when aiming
-				lookTargetRelAngles[0] = lookTargetRelAngles[0] - aimTargetRelAngles[0];
+				lookTargetRelAngles[0] = 0;
 				if (entityInHands && entityInHands.IsWeapon())
-					lookTargetRelAngles[1] = lookTargetRelAngles[1] - aimTargetRelAngles[1];
+					lookTargetRelAngles[1] = 0;
 			}
 
 			//! We want to interpolate rel angles for looking! Otherwise, if the conversion to rel angles happens later,
@@ -6275,14 +6289,14 @@ class eAIBase: PlayerBase
 				ori[0] = Math.RandomFloat(-22.0 * f, 22.0 * f);
 			}
 		}
-		else if (m_PathFinding.GetRemainingCount() == 2 && !Math.IsPointInCircle(m_PathFinding.GetEnd(), 0.55, m_ExTransformPlayer[3]))
+		else if (m_PathFinding.GetRemainingCount() == 2 && !Math.IsPointInCircle(m_PathFinding.GetEnd(), 0.55, m_ExTransformPlayer[3]) && !m_FSM.IsInState("Idle"))
 		{
 			//! Look and aim towards current waypoint so we turn in direction we can go.
 			//! This helps with movement towards ladder or when unreachable due to fallheight check
 			pos = m_PathFinding.GetCurrentPoint();
 			pos[1] = GetBonePositionWS(GetBoneIndexByName("neck"))[1];
 		}
-		else if (m_PathFinding.GetRemainingCount() > 2)
+		else if (m_PathFinding.GetRemainingCount() > 2 && !m_FSM.IsInState("Idle"))
 		{
 			//! Look and aim towards next waypoint so we turn in direction we can go.
 			//! This helps with movement towards ladder or when unreachable due to fallheight check
@@ -6545,15 +6559,31 @@ class eAIBase: PlayerBase
 
 		Object parent;
 
-		if (targetPlayer && (!Class.CastTo(parent, targetPlayer.Expansion_GetParent()) || !parent.IsTransport()))
+		if (targetPlayer)
 		{
-			//! If targeting a player and parent is NULL or not transport, check if we are facing target
-			//! (horizontal aim/look direction, not movement direction)
-			vector toTargetDirection = vector.Direction(GetPosition(), endPos);
-			float toTargetAngle = toTargetDirection.VectorToAngles()[0];
-			float aimAngle = GetAimDirection().VectorToAngles()[0];
-			if (Math.AbsFloat(ExpansionMath.AngleDiff2(toTargetAngle, aimAngle)) > 135)  //! AI is facing away
-				return false;
+			//! If targeting a player, and player is not in vehicle, or vehicle engine is not on,
+			//! or vehicle is farther away than 150 m and not a helicopter, check if we are facing target
+			//! (look direction, not movement direction)
+			ExpansionVehicle vehicle;
+			float distSq = dir.LengthSq();
+			if (!Class.CastTo(parent, targetPlayer.Expansion_GetParent()) || !ExpansionVehicle.Get(vehicle, parent) || !vehicle.EngineIsOn() || (distSq > 22500 && !vehicle.IsHelicopter()))
+			{
+				vector toTargetAngles = dir.VectorToAngles();
+				float toTargetAngleH = toTargetAngles[0];
+				//float toTargetAngleV = toTargetAngles[1];
+				vector lookAngles = GetLookDirection().VectorToAngles();
+				float lookAngleH = lookAngles[0];
+				//float lookAngleV = lookAngles[1];
+				float angleDiffH = ExpansionMath.AngleDiff2(toTargetAngleH, lookAngleH);
+				//float angleDiffV = ExpansionMath.AngleDiff2(toTargetAngleV, lookAngleV);
+				float dist = Math.Sqrt(distSq);
+				//! FOV shall fall off steeply with distance
+				float threshH = ExpansionMath.PowerConversion(5, 300, dist, 90, 45, 6);
+				//float threshV = ExpansionMath.PowerConversion(5, 300, dist, 60, 30, 6);
+				//if (Math.AbsFloat(angleDiffH) > threshH || Math.AbsFloat(angleDiffV) > threshV)  //! Player is outside AI FOV
+				if (Math.AbsFloat(angleDiffH) > threshH)  //! Player is outside AI FOV
+					return false;
+			}
 		}
 
 		bool isCreatureTarget = targetEntity.IsDayZCreature();
@@ -6838,9 +6868,11 @@ class eAIBase: PlayerBase
 		return false;
 	}
 
-	bool eAI_IsUnreachable(float distanceSq, float minDistanceSq, vector position)
+	bool eAI_IsUnreachable(float minDistance, vector position)
 	{
-		if (distanceSq > minDistanceSq && Math.IsPointInCircle(position, Math.Sqrt(minDistanceSq), GetPosition()))
+		vector aiPosition = GetPosition();
+
+		if (Math.AbsFloat(position[1] - aiPosition[1]) > minDistance && Math.IsPointInCircle(position, minDistance, aiPosition))
 			return true;
 
 		return false;
@@ -6890,7 +6922,7 @@ class eAIBase: PlayerBase
 
 	bool eAI_HasLOS()
 	{
-		return eAI_HasLOS(GetTarget());
+		return m_eAI_HasLOS;
 	}
 
 	/**
@@ -7643,6 +7675,40 @@ class eAIBase: PlayerBase
 		{
 			m_LiftWeapon_player = weap.LiftWeaponCheck(this);
 		}
+	}
+
+	override bool CanConsumeStamina(EStaminaConsumers consumer)
+	{
+		switch (consumer)
+		{
+			//! Don't consume stamina for melee against creatures/Zs
+			case EStaminaConsumers.MELEE_HEAVY:
+			case EStaminaConsumers.MELEE_EVADE:
+				eAITarget target = GetTarget();  //! The current prioritized target
+				if (target && (target.IsCreature() || target.IsZombie()))
+					return true;
+				break;
+		}
+
+		return super.CanConsumeStamina(consumer);
+	}
+
+	//! @note this is marked as deprecated in vanilla but still used by vanilla melee fight logic...
+	override void DepleteStamina(EStaminaModifiers modifier, float dT = -1)
+	{
+		switch (modifier)
+		{
+			//! Don't consume stamina for melee against creatures/Zs
+			case EStaminaModifiers.MELEE_LIGHT:
+			case EStaminaModifiers.MELEE_HEAVY:
+			case EStaminaModifiers.MELEE_EVADE:
+				EntityAI targetEntity = m_MeleeCombat.GetTargetEntity();  //! The actual melee target
+				if (targetEntity && targetEntity.IsDayZCreature())
+					return;
+				break;
+		}
+
+		super.DepleteStamina(modifier, dT);
 	}
 
 	bool CanRaiseWeapon()
@@ -8622,9 +8688,23 @@ class eAIBase: PlayerBase
 			m_Expansion_EmoteID = 0;
 	}
 
+	//! Radians!
+	override float Expansion_GetHeadingAngle()
+	{
+		//! XXX: Should we sync m_eAI_AimRelAngles[0] to client? Seems overkill though
+		//return (m_eAI_AimRelAngles[0] - GetOrientation()[0]) * Math.DEG2RAD;
+		return -GetOrientation()[0] * Math.DEG2RAD;
+	}
+
 	override vector Expansion_GetHeadingVector()
 	{
-		return Vector(GetOrientation()[0], 0, 0).AnglesToVector();
+		vector dir = vector.Zero;
+		//! XXX: Should we sync m_eAI_AimRelAngles[0] to client? Seems overkill though
+		//float headingAngle = (m_eAI_AimRelAngles[0] - GetOrientation()[0]) * Math.DEG2RAD;
+		float headingAngle = -GetOrientation()[0] * Math.DEG2RAD;
+		dir[0] = Math.Cos(headingAngle + Math.PI_HALF);
+		dir[2] = Math.Sin(headingAngle + Math.PI_HALF);
+		return dir.Normalized();
 	}
 
 	override float Expansion_GetMovementSpeed()

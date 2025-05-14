@@ -7,6 +7,7 @@ enum eAICommandCategories
 	CAT_FORMATION,
 	CAT_STATUS,
 	CAT_DEBUG,
+	CAT_FACTION,
 	CAT_EMPTY
 };
 
@@ -29,6 +30,30 @@ class eAICommandMenuItem
 	string GetName()
 	{
 		return m_Name;
+	}
+
+	string GetCategoryName()
+	{
+		string name = m_Name;
+
+		eAIGroup group;
+
+		switch (m_ID)
+		{
+			case eAICommandCategories.CAT_FACTION:
+				group = eAIGroup.GetGamePlayerGroup();
+				if (group)
+					name = group.GetFaction().GetName();
+				break;
+
+			case eAICommandCategories.CAT_FORMATION:
+				group = eAIGroup.GetGamePlayerGroup();
+				if (group)
+					name = group.GetFormation().GetName();
+				break;
+		}
+
+		return name;
 	}
 
 	int GetID()
@@ -237,6 +262,7 @@ class eAICommandMenu: UIScriptedMenu
 			if (GetExpansionSettings().GetAI().IsAdmin())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DEBUG, "Spawn", eAICommandCategories.CATEGORIES));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_FACTION, "Faction", eAICommandCategories.CATEGORIES));
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_STATUS, "Status", eAICommandCategories.CATEGORIES));
 			}
 			break;
@@ -271,12 +297,12 @@ class eAICommandMenu: UIScriptedMenu
 
 		case eAICommandCategories.CAT_FORMATION:
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_VEE, "Vee", eAICommandCategories.CAT_FORMATION));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVVEE, "IVee", eAICommandCategories.CAT_FORMATION));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVVEE, "InvVee", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_FILE, "File", eAICommandCategories.CAT_FORMATION));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVFILE, "IFile", eAICommandCategories.CAT_FORMATION));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_WALL, "Wall", eAICommandCategories.CAT_FORMATION));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVFILE, "InvFile", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_COL, "Column", eAICommandCategories.CAT_FORMATION));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVCOL, "IColumn", eAICommandCategories.CAT_FORMATION));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVCOL, "InvColumn", eAICommandCategories.CAT_FORMATION));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_WALL, "Wall", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_CIRCLE, "Circle", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_CIRCLEDOT, "CircleDot", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_STAR, "Star", eAICommandCategories.CAT_FORMATION));
@@ -322,6 +348,24 @@ class eAICommandMenu: UIScriptedMenu
 			}
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_AIMAP, "AI Menu", eAICommandCategories.CAT_DEBUG));
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_GRPMGR, "Group Manager", eAICommandCategories.CAT_DEBUG));
+			break;
+
+		case eAICommandCategories.CAT_FACTION:
+			foreach (int factionId, typename factionType: eAIRegisterFaction.s_FactionTypes)
+			{
+				eAIFaction faction = eAIFaction.Cast(factionType.Spawn());
+				if (!faction.IsInvincible())
+				{
+					string name = faction.GetName();
+					switch (name)
+					{
+						case "YeetBrigade":
+							name = "Yeet";
+							break;
+					}
+					gesture_items.Insert(new eAICommandMenuItem(factionId, name, eAICommandCategories.CAT_FACTION));
+				}
+			}
 			break;
 
 		case eAICommandCategories.CAT_EMPTY:
@@ -449,9 +493,6 @@ class eAICommandMenu: UIScriptedMenu
 		{
 			m_CategoryNameText = TextWidget.Cast(layoutRoot.FindAnyWidget(CATEGORY_NAME));
 		}
-		
-		if (!name)
-			name = "AI";
 
 		m_CategoryNameText.SetText(name);
 	}
@@ -588,9 +629,15 @@ class eAICommandMenu: UIScriptedMenu
 			w.GetUserData(gesture_item);
 
 			if (gesture_item.GetCategory() == eAICommandCategories.CATEGORIES)
-				RefreshGestures(gesture_item.GetID(), gesture_item.GetName());
+			{
+				string name = gesture_item.GetCategoryName();
+
+				RefreshGestures(gesture_item.GetID(), name);
+			}
 			else
+			{
 				ExecuteSelectedItem();
+			}
 		}
 	}
 
@@ -604,7 +651,16 @@ class eAICommandMenu: UIScriptedMenu
 				instance.m_SelectedItem.GetUserData(selected);
 
 				if (selected)
+				{
 					g_Game.GetExpansionGame().GetCommandManager().Send(selected.GetID());
+
+					switch (selected.GetCategory())
+					{
+						case eAICommandCategories.CAT_FACTION:
+						case eAICommandCategories.CAT_FORMATION:
+							UpdateCategoryName(selected.GetName());
+					}
+				}
 			}
 		}
 	}

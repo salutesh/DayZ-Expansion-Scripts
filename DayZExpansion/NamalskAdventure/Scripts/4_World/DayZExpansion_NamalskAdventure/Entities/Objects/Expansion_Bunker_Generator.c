@@ -41,9 +41,9 @@ class Expansion_Bunker_Generator: House
 
 	void Expansion_Bunker_Generator()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		
 		m_Expansion_BunkerGeneratorNode = s_Expansion_AllBunkerGenerators.Add(this);
 		
@@ -54,8 +54,10 @@ class Expansion_Bunker_Generator: House
 	{
 		if (!GetGame())
 			return;
-
+		
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		#endif
 		
 		if (s_Expansion_AllBunkerGenerators)
 			s_Expansion_AllBunkerGenerators.Remove(m_Expansion_BunkerGeneratorNode);
@@ -63,9 +65,9 @@ class Expansion_Bunker_Generator: House
 
 	override void EEInit()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		super.EEInit();
 
@@ -92,9 +94,9 @@ class Expansion_Bunker_Generator: House
 
 	void StartLoopSound()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
 		{
@@ -113,9 +115,9 @@ class Expansion_Bunker_Generator: House
 
 	override void OnWorkStart()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
 		{
@@ -152,9 +154,9 @@ class Expansion_Bunker_Generator: House
 
 	override void OnWork(float consumed_energy)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
 		{
@@ -169,9 +171,9 @@ class Expansion_Bunker_Generator: House
 
 	override void OnWorkStop()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
 		{
@@ -199,9 +201,9 @@ class Expansion_Bunker_Generator: House
 
 	override void EEItemAttached(EntityAI item, string slot_name)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		super.EEItemAttached(item, slot_name);
 
@@ -226,9 +228,9 @@ class Expansion_Bunker_Generator: House
 
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		super.EEItemDetached(item, slot_name);
 
@@ -272,9 +274,9 @@ class Expansion_Bunker_Generator: House
 	
 	void SetLastActivationTime()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		
 		m_LastActivationTime = CF_Date.Now(true).GetTimestamp();
 	}
@@ -298,9 +300,9 @@ class Expansion_Bunker_Generator: House
 
 	override void OnVariablesSynchronized()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		super.OnVariablesSynchronized();
 	}
@@ -347,9 +349,9 @@ class Expansion_Bunker_Generator: House
 
 	override void AfterStoreLoad()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		super.AfterStoreLoad();
 

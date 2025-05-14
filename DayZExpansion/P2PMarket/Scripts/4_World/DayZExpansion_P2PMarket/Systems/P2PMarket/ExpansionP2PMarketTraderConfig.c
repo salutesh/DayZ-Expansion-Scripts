@@ -252,15 +252,16 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 
 		return traderConfig;
 	}
-
-	void Save()
-	{
-		Save(this);
-	}
-
+	
 	static void Save(ExpansionP2PMarketTraderConfig traderConfig)
 	{
-		ExpansionJsonFileParser<ExpansionP2PMarketTraderConfig>.Save(ExpansionP2PMarketModule.s_P2PMarketConfigFolderPath + "P2PTrader_" + traderConfig.m_TraderID + ".json", traderConfig);
+		string traderConfigPath = ExpansionP2PMarketModule.s_P2PMarketConfigFolderPath;
+		if (!FileExist(traderConfigPath) && !ExpansionStatic.MakeDirectoryRecursive(traderConfigPath))
+		{
+			return;
+		}
+		
+		ExpansionJsonFileParser<ExpansionP2PMarketTraderConfig>.Save(traderConfigPath + "P2PTrader_" + traderConfig.m_TraderID + ".json", traderConfig);
 	}
 
 	void Spawn()

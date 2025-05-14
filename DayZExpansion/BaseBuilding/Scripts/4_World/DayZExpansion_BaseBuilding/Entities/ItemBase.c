@@ -180,7 +180,7 @@ modded class ItemBase
 
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
-		super.EEItemAttached(item, slot_name);
+		super.EEItemDetached(item, slot_name);
 
 		if (item.IsInherited(ExpansionCodeLock))
 		{

@@ -94,11 +94,11 @@ class ExpansionNamalskAdventureData: ExpansionNamalskAdventureDataBase
 
 	array<int> GetUsedMerchantItemSets()
 	{
-		return LastMerchantItemSets:
+		return LastMerchantItemSets;
 	}
 
 	array<int> GetUsedMerchantPositions()
 	{
-		return LastMerchantPositions:
+		return LastMerchantPositions;
 	}
 };

@@ -24,6 +24,12 @@ class eAIFormation
 		m_Group = group;
 	}
 
+	string GetName()
+	{
+		string cls = Type().ToString();
+		return cls.Substring(12, cls.Length() - 12);
+	}
+
 	/**
 	 * @brief Abstract function that returns the position in local space relative to the formation transformation at any given time.
 	 */

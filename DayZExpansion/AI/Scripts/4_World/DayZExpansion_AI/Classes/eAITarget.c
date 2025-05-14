@@ -57,6 +57,23 @@ class eAITarget
 		return info.IsActive();
 	}
 
+	//! Players only
+	bool IsRaised()
+	{
+		return info.IsRaised();
+	}
+
+	//! Creatures/Players
+	bool IsFighting()
+	{
+		return info.IsFighting();
+	}
+
+	float GetAttackCooldown()
+	{
+		return info.GetAttackCooldown();
+	}
+
 	bool AddAI(eAIBase ai)
 	{
 		if (ai_list.Find(ai) != -1)
@@ -242,33 +259,25 @@ class eAITarget
 		if (distSq > range * range)
 			return false;
 
-		//if (distSq > 3.0625 && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
-			//return false;
-
 		EntityAI entityInHands = ai.GetHumanInventory().GetEntityInHands();
 
 		Weapon_Base weapon;
 		bool hasAmmo;
 		if (Class.CastTo(weapon, entityInHands))
 		{
-			//! FIXME: Pistols fuck up the hand animation state (left hand stays on pistol after melee)
-			if (weapon.IsKindOf("Pistol_Base"))
+			if (!ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
 				return false;
 
 			if (weapon.Expansion_GetMagazineAmmoCount() > 0)
-			{
 				hasAmmo = true;
-
-				if (distSq > 1.0)
-					return false;
-			}
-
-			if (weapon && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
-				return false;
+		}
+		else if (entityInHands && !entityInHands.IsMeleeWeapon())
+		{
+			return false;
 		}
 
-		//! We don't punch the bear or the zombie if we have a firearm with ammo - unless it's explosive ammo
-		if (GetEntity().IsInherited(Animal_UrsusArctos) || GetEntity().IsInherited(ZombieBase))
+		//! We don't punch the bear or multiple zombies/wolves if we have a firearm with ammo - unless it's explosive ammo
+		if (GetEntity().IsInherited(Animal_UrsusArctos) || ai.m_eAI_AcuteDangerTargetCount > 1)
 		{
 			if (hasAmmo && !weapon.ShootsExplosiveAmmo())
 				return false;

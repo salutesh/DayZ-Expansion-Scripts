@@ -353,4 +353,9 @@ modded class ItemBase
 
 		return null;
 	}
+
+	bool eAI_IsSilent()
+	{
+		return true;
+	}
 };

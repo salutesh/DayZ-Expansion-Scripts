@@ -19,6 +19,19 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 		return m_Crawling;
 	}
 
+	override bool IsFighting()
+	{
+		if (m_Zombie.m_eAI_AttackCooldown > 0 || m_Zombie.GetCommand_Attack())
+			return true;
+
+		return false;
+	}
+
+	override float GetAttackCooldown()
+	{
+		return m_Zombie.m_eAI_AttackCooldown;
+	}
+
 	override vector GetAimOffset(eAIBase ai = null)
 	{
 		string boneName;
@@ -59,7 +72,12 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 			return 0.0;
 
 		if (!m_Zombie.Expansion_IsDanger())
+		{
+			if (GetVelocity(m_Zombie).LengthSq() > 0.277777)
+				return 0.101;  //! Just above "look at"/remove threshold of 0.1
+
 			return 0.0;
+		}
 
 		float levelFactor;
 
@@ -92,7 +110,7 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 			float distance = GetDistance(ai, true);
 
 			//! If not reachable, ignore if we don't have a gun
-			if (distance > 2.0 && !ai.m_eAI_HasProjectileWeaponInHands && Math.IsPointInCircle(m_Target.GetPosition(), 2.0, ai.GetPosition()))
+			if (!ai.m_eAI_HasProjectileWeaponInHands && ai.eAI_IsUnreachable(2.0, m_Target.GetPosition()))
 			{
 				ai.eAI_ThreatOverride(m_Target, true);
 				return 0.0;

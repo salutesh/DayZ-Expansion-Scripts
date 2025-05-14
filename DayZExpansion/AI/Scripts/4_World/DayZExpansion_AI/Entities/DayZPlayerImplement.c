@@ -37,6 +37,8 @@ modded class DayZPlayerImplement
 	[eAIAttribute<float>.Register("m_eAI_DamageReceivedMultiplier")]
 	float m_eAI_DamageReceivedMultiplier = 1.0;
 
+	float m_eAI_AttackCooldown;  //! Melee attack cooldown
+
 #ifdef DIAG_DEVELOPER
 #ifndef SERVER
 	autoptr array<Shape> m_Expansion_DebugShapes = new array<Shape>();
@@ -594,6 +596,9 @@ modded class DayZPlayerImplement
 
 	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
 	{
+		if (m_eAI_AttackCooldown > 0)
+			m_eAI_AttackCooldown -= pDt;
+
 #ifndef SERVER
 		for (int i = m_Expansion_DebugShapes.Count() - 1; i >= 0; i--)
 			m_Expansion_DebugShapes[i].Destroy();

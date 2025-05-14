@@ -86,7 +86,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 							isNear = true;
 					}
 				//}
-				//if (ai.eAI_IsUnreachable(distance, 4.0, m_Item.GetCenter()) || (distance <= 4.0 && ai.eAI_IsItemObstructed(m_Item)))
+				//if (ai.eAI_IsUnreachable(2.0, m_Item.GetCenter()) || (distance <= 4.0 && ai.eAI_IsItemObstructed(m_Item)))
 				if (isUnreachable || (isNear && (distance > 4.0 || ai.eAI_IsItemObstructed(m_Item))) || GetGame().GetTime() - target.found_at_time > target.max_time)
 				{
 					//! Item is above or below where AI can reach or item is obstructed
@@ -168,9 +168,14 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 					if (!ai.eAI_HasWeaponForMagazine(targetMag))
 						return 0.0;
 
-					if (ai.m_eAI_IsUnlimitedReloadAll || (ai.m_eAI_LootingBehavior & eAILootingBehavior.UPGRADE) == 0)
+					if (ai.m_eAI_IsUnlimitedReloadAll)
 					{
 						if (ai.eAI_HasMagazineType(m_Item.GetType()))
+							return 0.0;
+					}
+					else if ((ai.m_eAI_LootingBehavior & eAILootingBehavior.UPGRADE) == 0)
+					{
+						if (ai.eAI_HasMagazineTypeWithAmmo(m_Item.GetType()))
 							return 0.0;
 					}
 					else if (ai.eAI_GetMagazineTypeWithAmmoCount(m_Item.GetType()) >= 3)

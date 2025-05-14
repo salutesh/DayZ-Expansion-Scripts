@@ -1480,7 +1480,7 @@ class eAICommandMove: ExpansionHumanCommand
 				m_StanceChangeTimeout = 0.75;  //! Safety
 			}
 
-		#ifdef DIAG_DEVELOPER
+		#ifdef EXPANSION_AI_STANCEDBG_CHATTY
 			ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, m_Unit.ToString() + " set stance " + m_Unit.eAI_GetStance() + " -> " + m_Stance);
 		#endif
 
@@ -1646,7 +1646,7 @@ class eAICommandMove: ExpansionHumanCommand
 					break;
 			}
 
-			if ((!tacticalLean || !m_Unit.IsRaised()) && !meme && Math.AbsFloat(m_Unit.m_eAI_Lean) > 0.0)
+			if ((!m_Unit.m_eAI_HasProjectileWeaponInHands || ((!tacticalLean || !m_Unit.IsRaised()) && !meme)) && Math.AbsFloat(m_Unit.m_eAI_Lean) > 0.0)
 			{
 				//! Always return to neutral state
 				returnToNeutral = true;
@@ -1856,8 +1856,11 @@ class eAICommandMove: ExpansionHumanCommand
 
 					blockingObject = obj;
 				}
-				else if (obj.IsDayZCreature() && !obj.IsDamageDestroyed() && !m_Unit.IsRaised())
+				else if (obj.IsDayZCreature())
 				{
+					if (obj.IsDamageDestroyed() || m_Unit.IsRaised() || m_Unit.eAI_GetTargetEntity() == obj)
+						continue;
+
 					hit = true;
 
 					blockingObject = obj;
@@ -1945,9 +1948,20 @@ class eAICommandMove: ExpansionHumanCommand
 					}
 				}
 
-				if (hitObject && !hitObject.IsBush())
+				if (hitObject)
 				{
-					blockingObject = hitObject;
+					if (hitObject.IsMan())
+					{
+						if (hitObject.IsDamageDestroyed() || m_Unit.IsRaised() || m_Unit.eAI_GetTargetEntity() == hitObject)
+							return false;
+
+						blockingObject = hitObject;
+					}
+					else if (!hitObject.IsBush())
+					{
+						blockingObject = hitObject;
+					}
+
 					return true;
 				}
 			}

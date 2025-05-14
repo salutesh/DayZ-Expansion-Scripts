@@ -84,9 +84,6 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	protected void CreateDirectoryStructure()
 	{
-		if (!FileExist(s_P2PMarketConfigFolderPath))
-			ExpansionStatic.MakeDirectoryRecursive(s_P2PMarketConfigFolderPath);
-
 		if (!FileExist(GetP2PMarketDataDirectory()))
 			ExpansionStatic.MakeDirectoryRecursive(GetP2PMarketDataDirectory());
 	}
@@ -220,17 +217,18 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			ExpansionStatic.CopyFileOrDirectoryTree(dataDir + existingFile, s_P2PMarketConfigFolderPath + existingFile, "", true);
 		}
 
-		array<string> p2pMarketFiles = ExpansionStatic.FindFilesInLocation(s_P2PMarketConfigFolderPath, ".json");
-		if (FileExist(GetP2PMarketDataDirectory()))
+		if (FileExist(s_P2PMarketConfigFolderPath))
 		{
-			foreach (string fileName: p2pMarketFiles)
+			array<string> p2pTraderFiles = ExpansionStatic.FindFilesInLocation(s_P2PMarketConfigFolderPath, ".json");
+			foreach (string fileName: p2pTraderFiles)
 			{
 				LoadP2PMarketTraderData(fileName, s_P2PMarketConfigFolderPath);
 			}
 		}
 		else
 		{
-			CreateDefaultP2PTraderConfig();
+			if (ExpansionStatic.MakeDirectoryRecursive(s_P2PMarketConfigFolderPath))
+				CreateDefaultP2PTraderConfig();
 		}
 		
 		LoadListingCategories();
@@ -624,7 +622,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			bmTrader01.SetVehicleSpawnPosition(mapPos);
 		}
 		
-		bmTrader01.Save();
+		ExpansionP2PMarketTraderConfig.Save(bmTrader01);
 		if (addToConfigArray)
 			m_P2PTraderConfig.Insert(1, bmTrader01);
 	}

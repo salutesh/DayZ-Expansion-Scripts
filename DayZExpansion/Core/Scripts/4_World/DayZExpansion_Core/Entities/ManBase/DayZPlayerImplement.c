@@ -356,9 +356,19 @@ modded class DayZPlayerImplement
 		return m_Expansion_ActualVelocity;
 	}
 
+	//! Radians!
+	float Expansion_GetHeadingAngle()
+	{
+		return GetInputController().GetHeadingAngle();
+	}
+
 	vector Expansion_GetHeadingVector()
 	{
-		return Vector(-GetInputController().GetHeadingAngle() * Math.RAD2DEG, 0, 0).AnglesToVector();
+		vector dir = vector.Zero;
+		float headingAngle = GetInputController().GetHeadingAngle();
+		dir[0] = Math.Cos(headingAngle + Math.PI_HALF);
+		dir[2] = Math.Sin(headingAngle + Math.PI_HALF);
+		return dir.Normalized();
 	}
 
 	float Expansion_GetMovementSpeed()

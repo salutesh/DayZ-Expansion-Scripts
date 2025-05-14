@@ -113,6 +113,7 @@ class ExpansionNotPlayerBase: ManBase
 		}
 		
 		AdjustBandana(item,slot_name);
+		AdjustShemag(item,slot_name);
 	}
 	
 	// 1184
@@ -290,9 +291,9 @@ class ExpansionNotPlayerBase: ManBase
 	void UpdateCorpseState()
 	{
 		UpdateCorpseStateVisual();
-		if (m_CorpseState > 0)
+		if (m_CorpseState > 0 && !GetIsFrozen())
 			SetDecayEffects(Math.AbsInt(m_CorpseState));
-		else if (m_CorpseState < 0)
+		else
 			SetDecayEffects();//no params means remove the effects
 		m_CorpseStateLocal = m_CorpseState;
 	}
@@ -539,6 +540,23 @@ class ExpansionNotPlayerBase: ManBase
 	void AdjustBandana(EntityAI item, string slot_name)
 	{
 		if (Bandana_ColorBase.Cast(item))
+		{
+			if (slot_name == "Headgear")
+			{
+				item.SetSimpleHiddenSelectionState(0,1);
+				item.SetSimpleHiddenSelectionState(1,0);
+			}
+			else if (slot_name == "Mask")
+			{
+				item.SetSimpleHiddenSelectionState(0,0);
+				item.SetSimpleHiddenSelectionState(1,1);
+			}
+		}
+	}
+	
+	void AdjustShemag(EntityAI item, string slot_name)
+	{
+		if (Shemag_ColorBase.Cast(item))
 		{
 			if (slot_name == "Headgear")
 			{

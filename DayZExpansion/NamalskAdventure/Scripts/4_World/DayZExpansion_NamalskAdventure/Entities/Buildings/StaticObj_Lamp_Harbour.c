@@ -71,9 +71,9 @@ class StaticObj_Lamp_Harbour extends House
 	
 	protected void UpdateLightState(bool state)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		
 		if (m_LightState)
 		{
@@ -95,8 +95,10 @@ class StaticObj_Lamp_Harbour extends House
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();
-
+		
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		#endif
 
 		if (m_LightState != m_LightStateClient)
 			UpdateLightState(m_LightState);

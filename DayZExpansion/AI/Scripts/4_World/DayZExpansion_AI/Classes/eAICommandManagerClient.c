@@ -16,6 +16,8 @@ class eAICommandManagerClient : eAICommandManager
 		m_Expansion_RPCManager.RegisterServer("RPC_SpawnBear");
 		m_Expansion_RPCManager.RegisterServer("RPC_ClearAllAI");
 
+		m_Expansion_RPCManager.RegisterServer("RPC_SetFaction");
+
 		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormationChange");
 		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormRejoin");
 		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormStop");
@@ -37,7 +39,7 @@ class eAICommandManagerClient : eAICommandManager
 		m_Expansion_RPCManager.RegisterServer("RPC_SitRep");
 	}
 
-	override bool Send(eAICommands cmd)
+	override bool Send(int cmd)
 	{
 		ExpansionScriptRPC rpc;
 		Object target;
@@ -160,6 +162,11 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.DEB_SPECTATE:
 				GetDayZGame().GetExpansionGame().SpectateAI(null, GetAIAtCursorOrNearest(), null);
 				return true;
+
+			default:
+				if (eAIRegisterFaction.s_FactionTypes.Contains(cmd))
+					m_Expansion_RPCManager.SendRPC("RPC_SetFaction", new Param1<int>(cmd));
+				break;
 		}
 		
 		return false;
@@ -408,6 +415,37 @@ class eAICommandManagerClient : eAICommandManager
 		eAIGroup.Admin_ClearAllAI();
 	}
 	
+	void RPC_SetFaction(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		int factionID;
+		if (!ctx.Read(factionID)) return;
+
+		if (GetGame().IsMultiplayer())
+		{
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
+		}
+
+		typename factionType;
+		if (!eAIRegisterFaction.s_FactionTypes.Find(factionID, factionType))
+			return;
+
+		eAIFaction faction = eAIFaction.Cast(factionType.Spawn());
+
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = player.GetGroup();
+
+		if (g)
+			g.SetFaction(faction);
+		else
+			player.SetGroup(eAIGroup.CreateGroup(faction));
+	}
+
 	void RPC_UnlimitedReload(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 	#ifdef EXTRACE
