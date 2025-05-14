@@ -737,6 +737,7 @@ class CfgVehicles
 	{
 		scope=0;
 		vehicleClass="Expansion_Helicopter";
+		useNewNetworking=0;
 		attachments[]=
 		{
 			"ExpansionHelicopterBattery",
@@ -1128,6 +1129,7 @@ class CfgVehicles
 	{
 		scope=0;
 		vehicleClass="Expansion_Boat";
+		useNewNetworking=0;
 		displayName="";
 		model="";
 		fuelCapacity=192;

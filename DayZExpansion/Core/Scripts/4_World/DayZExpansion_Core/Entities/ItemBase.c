@@ -1026,6 +1026,26 @@ modded class ItemBase
 	}
 
 	/**
+	 * @brief return the root the item is atached to
+	 * 
+	 * I.e. if this item is a scope attached to a gun in cargo, return the gun.
+	 * If the item isn't attached to anything, return the item itself.
+	 */
+	EntityAI Expansion_GetAttachmentRoot()
+	{
+		EntityAI root = this;
+		EntityAI parent = GetHierarchyParent();
+
+		while (parent && root.GetInventory().IsAttachment())
+		{
+			root = parent;
+			parent = parent.GetHierarchyParent();
+		}
+
+		return root;
+	}
+
+	/**
 	 * @brief return the root item of the hierarchy
 	 * 
 	 * I.e. if this item is a scope attached to a gun on a player's shoulder, return the gun.
@@ -1523,27 +1543,28 @@ modded class ItemBase
 		if (max_quantity > 0) // Some items, like books, have max_quantity set to 0 => division by ZERO error in quantity_ratio
 		{
 			quantity_ratio = Math.Round((item_quantity / max_quantity) * 100);
-			if (ConfigGetString("stackedUnit") == "pc.")
+			string stackedUnit = ConfigGetString("stackedUnit");
+			if (stackedUnit == "pc." || stackedUnit == "pills")
 			{
 				quantity_output = item_quantity;
 				quantityType = ExpansionItemQuantityType.PC;
 			}
-			else if (ConfigGetString("stackedUnit") == "percentage")
+			else if (stackedUnit == "percentage")
 			{
 				quantity_output = quantity_ratio;
 				quantityType = ExpansionItemQuantityType.PERCENTAGE;
 			}
-			else if (ConfigGetString("stackedUnit") == "g")
+			else if (stackedUnit == "g")
 			{
 				quantity_output = quantity_ratio;
 				quantityType = ExpansionItemQuantityType.GRAM;
 			}
-			else if (ConfigGetString("stackedUnit") == "ml")
+			else if (stackedUnit == "ml")
 			{
 				quantity_output = quantity_ratio;
 				quantityType = ExpansionItemQuantityType.MILLILITER;
 			}
-			else if (ConfigGetString("stackedUnit") == "w" || HasEnergyManager())
+			else if (stackedUnit == "w" || HasEnergyManager())
 			{
 				quantity_output = quantity_ratio;
 				quantityType = ExpansionItemQuantityType.POWER;

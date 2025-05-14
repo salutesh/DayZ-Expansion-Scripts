@@ -1081,7 +1081,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 #endif
 
-		if (Expansion_Assert_False(IsMissionHost(), "[" + this + "] SendNotificationToMembers shall only be called on server!"));
+		if (Expansion_Assert_False(IsMissionHost(), "[" + this + "] SendNotificationToMembers shall only be called on server!"))
 			return;
 		
 		array<ref ExpansionPartyPlayerData> players = party.GetPlayers();

@@ -1,8 +1,6 @@
 class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 {
 	eAIBase m_AI;
-	EntityAI m_Hands;
-	bool m_eAI_MeleeHeavy;
 	float m_eAI_MeleeAttackType;
 
 	void eAIMeleeCombat(DayZPlayerImplement player)
@@ -22,6 +20,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		return false;
 	}
 	
+	//! Omits 2nd pass because it is not needed and EXPENSIVE on server
 	override protected void TargetSelection()
 	{
 #ifdef EXTRACE_DIAG
@@ -39,7 +38,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		// Second one is to see if that target is still in range before applying damage to it
 		// m_WasHit means the hit event occured, so this is the second call
 
-		if (m_WasHit && CanObjectBeTargeted(m_TargetObject))
+		if (m_WasHit && GetFinisherType() == -1 && CanObjectBeTargeted(m_TargetObject))
 		{
 			hitPos = m_TargetObject.GetDamageZonePos(m_HitZoneName);
 
@@ -123,12 +122,15 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 #endif 
 		
 		vector pos;
-		vector playerDir = m_AI.GetDirection();
+		//vector playerDir = m_AI.GetDirection();
 		MiscGameplayFunctions.GetHeadBonePos(m_AI, pos);
 		vector dir = vector.Direction(pos, m_AI.GetAimPosition()).Normalized();
 		
 		//! Prevents targeting of objects behind player
-		if (vector.Dot(dir, playerDir) < 0.5)
+		float angle = m_AI.GetOrientation()[0];
+		float aimAngle = dir.VectorToAngles()[0];
+		//if (vector.Dot(dir, playerDir) < 0.5)
+		if (Math.AbsFloat(ExpansionMath.AngleDiff2(angle, aimAngle)) > 60.0)
 		{
 			return false;
 		}
@@ -142,8 +144,6 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 		if (DayZPhysics.RaycastRV(m_RayStart, m_RayEnd, hitPos, hitNormal, hitZone, hitObjects, null, m_AI, false, false, ObjIntersectIFire, 0.0, CollisionFlags.ALLOBJECTS) && hitObjects.Count() > 0)
 		{
-			EntityAI hitEntity;
-
 			foreach (Object hitObject: hitObjects)
 			{
 				if (hitObject.IsBush())
@@ -185,88 +185,93 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		return false;
 	}
 
-	bool eAI_SetupMelee(bool wasHit = false)
+	override void Update(InventoryItem weapon, EMeleeHitType hitMask, bool wasHitEvent = false)
 	{
-		m_Hands = m_AI.GetHumanInventory().GetEntityInHands();
+		Reset(weapon, hitMask, wasHitEvent);
 
-		Reset(InventoryItem.Cast(m_Hands), GetMeleeHitType(), wasHit);
 		TargetSelection();
-		if (m_HitType == EMeleeHitType.NONE || !m_TargetObject)
-		{
-			return false;
-		}
-
-		ItemBase item;
-		if (Class.CastTo(item, m_TargetObject) && item.Expansion_IsMechanicalTrap())
-			m_eAI_MeleeAttackType = 1.0;  //! Always use in-place attack for mechanical traps, as we don't want to step into it due to the forward movement
-		else
-			m_eAI_MeleeAttackType = m_AI.GetMeleeFightLogic().eAI_GetAttackTypeByDistanceToTarget(EntityAI.Cast(m_TargetObject), m_TargetType);
+		SetFinisherType(TrySelectFinisherType(weapon, GetTargetEntity()));
 
 		m_AI.SetOrientation(m_AI.GetOrientation());
-
-		//! https://feedback.bistudio.com/T173348
-		if (m_HitType == EMeleeHitType.HEAVY || m_HitType == EMeleeHitType.WPN_STAB)
-			m_eAI_MeleeHeavy = true;
-		else
-			m_eAI_MeleeHeavy = false;
-
-		return true;
 	}
 
-	void Start()
+	//! Vanilla code is a bit inefficient, we can do better
+	override protected int TrySelectFinisherType(InventoryItem weapon, EntityAI target)
 	{
-		if (!eAI_SetupMelee())
-			return;
+		if (m_WasHit)
+			return -1;
 
-		m_AI.StartCommand_Melee2(EntityAI.Cast(m_TargetObject), m_eAI_MeleeHeavy, m_eAI_MeleeAttackType, m_HitPositionWS);
-
-		eAI_DepleteStaminaAndApplyShock();
-	}
-
-	void Combo(HumanCommandMelee2 hcm2)
-	{
-		bool wasHit;
-		if (GetFinisherType() == -1)
-			wasHit = true;
-
-		if (!eAI_SetupMelee(wasHit))
-			return;
-
-		hcm2.ContinueCombo(m_eAI_MeleeHeavy, m_eAI_MeleeAttackType, EntityAI.Cast(m_TargetObject), m_HitPositionWS);
-
-		eAI_DepleteStaminaAndApplyShock();
-	}
-
-	void OnHit()
-	{
-		m_AI.GetMeleeFightLogic().eAI_EvaluateHit(InventoryItem.Cast(m_Hands));
-	}
-
-	void eAI_DepleteStaminaAndApplyShock()
-	{
-		int shock;
-
-		switch (m_HitType)
+		if (target && target.CanBeBackstabbed() && weapon && (weapon.IsMeleeFinisher() || m_HitType == EMeleeHitType.WPN_STAB) && !weapon.IsRuined())
 		{
-		case EMeleeHitType.HEAVY:
-		case EMeleeHitType.SPRINT:
-		case EMeleeHitType.WPN_STAB:
-		case EMeleeHitType.WPN_HIT_BUTTSTOCK:
-		case EMeleeHitType.WPN_HIT:
-			m_DZPlayer.DepleteStamina(EStaminaModifiers.MELEE_HEAVY);
-			shock = PlayerConstants.BROKEN_LEGS_HEAVY_MELEE_SHOCK;
-			break;
-		default:
-			m_DZPlayer.DepleteStamina(EStaminaModifiers.MELEE_LIGHT);
-			shock = PlayerConstants.BROKEN_LEGS_LIGHT_MELEE_SHOCK;
-			break;
+			vector dir = target.GetPosition() - m_DZPlayer.GetPosition();
+
+			IEntity hitEntity;
+			vector hitPos, hitNormal;
+			
+			float moveFraction = m_DZPlayer.CollisionMoveTest(dir, vector.Zero, 1.0, target, hitEntity, hitPos, hitNormal);
+			if (moveFraction < 1.0)
+				return -1;
+
+			ZombieBase targetZombie = ZombieBase.Cast(target);;
+			if (targetZombie)
+			{
+				//! check if attacker is in right pos and angle against victim
+				if (!eAI_IsEntityBehindEntityInAngle(m_DZPlayer, target, 60))
+				{
+					return -1;
+				}
+				
+				int mindState = targetZombie.GetMindStateSynced();
+				//! Check if the infected is aware of the player
+				if (mindState >= DayZInfectedConstants.MINDSTATE_DISTURBED)
+				{
+					return -1;
+				}
+			}
+
+			if (weapon.IsWeapon())
+			{
+				return EMeleeHitType.WPN_STAB_FINISHER;
+			}
+			else
+			{
+				bool playGenericFinisherAnimation;
+
+				if (targetZombie)
+					playGenericFinisherAnimation = targetZombie.IsCrawling();
+				else
+					playGenericFinisherAnimation = true;
+
+				if (playGenericFinisherAnimation)
+					return EMeleeHitType.FINISHER_GENERIC;
+				else
+					return DetermineSpecificFinisherType(ItemBase.Cast(weapon));
+			}
 		}
 
-		if (m_AI.GetBrokenLegs() == eBrokenLegs.BROKEN_LEGS)
-		{
-			m_AI.m_ShockHandler.SetShock(shock);
-			m_AI.m_ShockHandler.CheckValue(true);
-		}
+		return -1;
+	}
+
+	bool eAI_IsEntityBehindEntityInAngle(EntityAI source, EntityAI target, float angle)
+	{
+		vector targetDirection = target.GetDirection();
+		vector toSourceDirection = (source.GetPosition() - target.GetPosition());
+
+		targetDirection[1] = 0;
+		toSourceDirection[1] = 0;
+
+		targetDirection.Normalize();
+		toSourceDirection.Normalize();
+
+		float cosFi = vector.Dot(targetDirection, toSourceDirection);
+		vector cross = targetDirection * toSourceDirection;
+
+		int hitDir = Math.Acos(cosFi) * Math.RAD2DEG;
+		
+		if (cross[1] < 0)
+			hitDir = -hitDir;
+		
+		return hitDir <= (-180 + angle) || hitDir >= (180 - angle);
 	}
 
 	static void eAI_ApplyYeetForce(notnull eAIEntityTargetInformation info, float yeetForce, vector sourcePosition, vector yeetFactors)
@@ -301,37 +306,20 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		}
 	}
 
-	EMeleeHitType GetMeleeHitType()
+	//! Vanilla GetRange is protected...
+	float eAI_GetRange()
 	{
-		if (m_Hands && m_Hands.IsWeapon())
-		{
-			if (m_AI.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
-			{
-				if (m_Hands.HasBayonetAttached())
-				{
-					return EMeleeHitType.WPN_STAB;
-				}
-				else if (m_Hands.HasButtstockAttached())
-				{
-					return EMeleeHitType.WPN_HIT_BUTTSTOCK;
-				}
-		
-				return EMeleeHitType.WPN_HIT;
-			}
-		
-			return EMeleeHitType.NONE;
-		}
+		return GetRange();
+	}
 
-		if (m_AI.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
-		{
-			if (m_AI.IsSprintFull())
-			{
-				return EMeleeHitType.SPRINT;
-			}
+	float eAI_GetRangeSq()
+	{
+		float range = GetRange();
+		return range * range;
+	}
 
-			return EMeleeHitType.HEAVY;
-		}
-
-		return EMeleeHitType.LIGHT;
+	InventoryItem eAI_GetWeapon()
+	{
+		return m_Weapon;
 	}
 };

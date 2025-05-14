@@ -28,6 +28,10 @@ class ExpansionBus: CarScript
 		m_EngineStartBattery = "Truck_01_engine_failed_start_battery_SoundSet";
 		m_EngineStartPlug = "Truck_01_engine_failed_start_sparkplugs_SoundSet";
 		m_EngineStartFuel = "Truck_01_engine_failed_start_fuel_SoundSet";
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		m_EngineStop = "Truck_01_engine_stop_SoundSet";
+	#endif
 		m_EngineStopFuel = "Truck_01_engine_stop_fuel_SoundSet";
 
 		m_CarDoorOpenSound = "Truck_01_door_open_SoundSet";

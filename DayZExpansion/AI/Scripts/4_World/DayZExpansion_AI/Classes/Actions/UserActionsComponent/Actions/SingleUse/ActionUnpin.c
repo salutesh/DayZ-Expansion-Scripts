@@ -5,6 +5,6 @@ modded class ActionUnpin
 		super.OnExecute(action_data);
 
 		if (GetGame().IsServer() && !action_data.m_MainItem.IsInherited(SmokeGrenadeBase))
-			action_data.m_Player.m_eAI_LastAggressionTime = ExpansionStatic.GetTime(true);  //! Aggro guards in area (if any)
+			action_data.m_Player.m_eAI_LastAggressionTime = ExpansionStatic.GetTimestamp(true);  //! Aggro guards in area (if any)
 	}
 }

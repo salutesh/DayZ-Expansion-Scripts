@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -40,24 +40,14 @@ modded class MissionGameplay
 			GetGame().GetWorld().SetObjectViewDistance(GetExpansionClientSettings().ObjectViewDistance);
 	}
 
-	void Expansion_ForceEnableMovementInputs()
+	void Expansion_EnableAllInputs()
 	{
-		const array<string> inputs = 
-		{
-			"UAMoveForward",
-			"UAMoveBack",
-			"UAMoveLeft",
-			"UAMoveRight",
-			"UATurbo",
-			"UAWalkRunTemp",
-			"UAWalkRunToggle",
-			"UALeanLeft",
-			"UALeanRight"
-		};
+		TIntArray inputIDs = new TIntArray;
+		GetUApi().GetActiveInputs(inputIDs);
 
-		foreach (string input : inputs)
+		foreach (int input : inputIDs)
 		{
-			GetUApi().GetInputByName(input).ForceDisable(false);
+			GetUApi().GetInputByID(input).ForceDisable(false);
 		}
 
 		GetUApi().UpdateControls();
@@ -194,9 +184,9 @@ modded class MissionGameplay
 
 		super.OnMissionLoaded();
 
-	#ifdef DAYZ_1_25
+		#ifdef DAYZ_1_25
 		Expansion_UpdateWorldViewDistances();
-	#endif
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -212,7 +202,9 @@ modded class MissionGameplay
 	#endif
 
 		//! This will return control to the player and unlock all inputs
-        Expansion_ForceEnableMovementInputs();
+		Expansion_EnableAllInputs();
+		if (PPEffects.m_BlurMenu > 0)
+			PPEffects.SetBlurMenu(0.0);
 
 		GetDayZExpansion().OnFinish();
 	}
@@ -230,6 +222,7 @@ modded class MissionGameplay
 	{
 		if (m_EXItemTooltip)
 		{
+			m_EXItemTooltip.Hide();
 			m_EXItemTooltip.Destroy();
 			m_EXItemTooltip = null;
 		}
@@ -294,7 +287,7 @@ modded class MissionGameplay
 		}
 	}
 
-	static void InspectItem(ScriptView parentView, Object object)
+	static ExpansionItemInspection InspectItem(ScriptView parentView, Object object)
 	{
 		ExpansionItemInspection itemInspection = Expansion_GetItemInspection();
 		if (itemInspection)
@@ -304,9 +297,11 @@ modded class MissionGameplay
 			itemInspection.SetParentView(parentView);
 			parentView.GetLayoutRoot().Show(false);
 		}
+		
+		return itemInspection;
 	}
 	
-	static void InspectItem(ScriptView parentView, Object object, int healthLevel, int liquidType, bool isBloodContainer, int quantityType, float quantity, int quantityMax, int foodStage, string className, int rarity = -1)
+	static ExpansionItemInspection InspectItem(ScriptView parentView, Object object, int healthLevel, int liquidType, bool isBloodContainer, int quantityType, float quantity, int quantityMax, int foodStage, string className, int rarity = -1)
 	{
 		ExpansionItemInspection itemInspection = Expansion_GetItemInspection();
 		if (itemInspection)
@@ -328,6 +323,8 @@ modded class MissionGameplay
 			itemInspection.SetParentView(parentView);
 			parentView.GetLayoutRoot().Show(false);
 		}
+		
+		return itemInspection;
 	}
 #endif
 };

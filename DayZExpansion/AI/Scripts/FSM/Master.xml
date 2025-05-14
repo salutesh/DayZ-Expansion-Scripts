@@ -6,38 +6,11 @@
 		<file name="Reloading" />
 	</files>
 	<states default="Idle">
-		<state name="Idle">
-			<variables />
+		<state name="Idle" class="ExpansionState_Idle">
 			<editor_data>
 				<position x="544" y="329" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-				auto hands = unit.GetItemInHands();
-				if (hands &amp;&amp; hands.HasEnergyManager() &amp;&amp; hands.GetCompEM().IsWorking() &amp;&amp; hands.GetCompEM().CanSwitchOff())
-				{
-					hands.GetCompEM().SwitchOff();
-				}
-				
-				auto cmd = unit.GetCommand_MoveAI();
-				if (!unit.m_eAI_CurrentCoverObject || !cmd || unit.m_eAI_CommandMove.GetWaypoint() != unit.m_eAI_CurrentCoverPosition)
-				{
-					unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() * 0.333333);
-					unit.OverrideMovementDirection(false, 0);
-					unit.OverrideMovementSpeed(true, 0);
-					
-					if (unit.eAI_ShouldGetUp())
-						unit.Expansion_GetUp();
-				}
-				else
-				{
-					unit.m_eAI_TargetPositionIsFinal = true;
-				}
-			</event_entry>
-			<event_exit />
-			<event_update>
-				return EXIT;
-			</event_update>
 		</state>
 		<state name="Unconscious">
 			<variables>
@@ -70,6 +43,12 @@
 				
 				return CONTINUE;
 			</event_update>
+		</state>
+		<state name="Leave" class="ExpansionState_Leave">
+			<editor_data>
+				<position x="902.021210954633" y="262.363165761721" />
+				<size width="150" height="40" />
+			</editor_data>
 		</state>
 		<state name="Interacting">
 			<variables />
@@ -118,7 +97,7 @@
 				if (!group) return EXIT;
 				unit.OverrideTargetPosition(group.GetFormationPosition(unit));
 				
-				if (!gotUp &amp;&amp; unit.Expansion_GetMovementSpeed() &gt; 0)
+				if (!gotUp &amp;&amp; unit.Expansion_GetMovementSpeed() &gt; 0 &amp;&amp; unit.GetGroup().GetLeader().IsAI())
 				{
 					unit.Expansion_GetUp(true);
 					gotUp = true;
@@ -218,319 +197,29 @@
 			<event_exit />
 			<event_update />
 		</state>
-		<state name="Weapon_Unjamming">
-			<variables>
-				<variable name="weapon" type="Weapon_Base" />
-				<variable name="time" type="float" />
-				<variable name="failed_attempts" type="int" />
-			</variables>
+		<state name="Weapon_Unjamming" class="ExpansionState_Unjamming">
 			<editor_data>
 				<position x="241.678975886238" y="283.953840426607" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-				time = 0;
-				unit.RaiseWeapon(false);
-				
-				unit.StartActionObject(eAIActionWeaponUnjam, null);
-			</event_entry>
-			<event_exit>
-				unit.OverrideMovementDirection(false, 0);
-			</event_exit>
-			<event_update>
-				if (!unit.GetWeaponManager() || unit.IsUnconscious()) return EXIT;
-				
-				if (unit.GetWeaponManager().IsRunning())
-				{
-					time += DeltaTime;
-					if (time &gt; 10)  //! Looks like something went terribly wrong
-					{
-						EXPrint(unit.ToString() + " Weapon_Unjamming - timeout");
-						unit.eAI_Unbug("unjam");
-						return EXIT;
-					}
-					
-					auto target = unit.GetTarget();
-					if (target &amp;&amp; target.GetDistanceSq(unit, true) &lt;= 2.25)
-					{
-						unit.OverrideMovementDirection(true, -180);
-					}
-				
-					return CONTINUE;
-				}
-				
-				if (unit.GetWeaponManager().CanUnjam(weapon))
-				{
-					failed_attempts++;
-					EXPrint(unit.ToString() + " Weapon_Unjamming - failed (" + failed_attempts + ")");
-					weapon.ValidateAndRepair();
-				}
-				else
-				{
-					failed_attempts = 0;
-				}
-				
-				return EXIT;
-			</event_update>
 		</state>
-		<state name="TakeItemToHands">
-			<variables>
-				<variable name="item" type="ItemBase" />
-				<variable name="time" type="float" />
-				<variable name="loweringWeapon" type="bool" />
-			</variables>
+		<state name="TakeItemToHands" class="ExpansionState_TakeItemToHands">
 			<editor_data>
 				<position x="275.340877794781" y="547.920853681019" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-				#ifdef DIAG
-				EXTrace.Print(EXTrace.AI, unit, "TakeItemToHands " + item.ToString());
-				#endif
-				time = 0;
-				loweringWeapon = false;
-				if (unit.GetEmoteManager().IsEmotePlaying())
-					unit.GetEmoteManager().ServerRequestEmoteCancel();
-			</event_entry>
-			<event_exit />
-			<event_update>
-				if (unit.IsUnconscious()) return EXIT;
-				
-				if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning() || !unit.GetCommand_MoveAI())
-				{
-					time += DeltaTime;
-					if (time &gt; 10)  //! Looks like something went terribly wrong
-					{
-						EXPrint(unit.ToString() + " TakeItemToHands - timeout");
-						unit.eAI_Unbug("take to hands");
-						time = 0;
-						return EXIT;
-					}
-					
-					return CONTINUE;
-				}
-				
-				//! Taking items to hands while raised breaks hands! Wait until lowered
-				if (unit.IsRaised())
-				{
-					loweringWeapon = true;
-					unit.RaiseWeapon(false);
-					time = 0;
-				}
-				
-				if (loweringWeapon)
-				{
-					if (time &lt; 0.5)
-					{
-						time += DeltaTime;
-						return CONTINUE;
-					}
-					
-					time = 0;
-					loweringWeapon = false;
-				}
-				
-				ItemBase hands = unit.GetItemInHands();
-				if (item &amp;&amp; hands != item &amp;&amp; !item.Expansion_GetRootPlayerAliveExcluding(unit))
-				{
-					if (unit.eAI_GetThreatOverride(item))
-					{
-						//! If we can't take the item, exit
-						if (!unit.eAI_TakeItemToInventoryDropShoulderImpl(item))
-							return EXIT;
-					}
-					else if (hands)
-					{
-						//! Try to put current hand item in inventory (shoulder slot or cargo), drop if not possible
-						if (!unit.eAI_TakeItemToInventoryDropShoulderImpl(hands))
-							unit.eAI_DropItem(hands, false, true, false);
-						else if (unit.m_eAI_LastDroppedItem == item)
-							unit.eAI_ThreatOverride(item, false);
-						else
-							unit.m_eAI_LastDroppedItem = null;
-					}
-					else if (!unit.eAI_TakeItemToHands(item))
-					{
-						unit.eAI_Unbug("take to hands");
-						return EXIT;
-					}
-				}
-				
-				if (time &lt; 0.5)
-				{
-					time += DeltaTime;
-					return CONTINUE;
-				}
-				
-				if (unit.GetActionManager().GetRunningAction())
-					return CONTINUE;
-				
-				return EXIT;
-			</event_update>
 		</state>
-		<state name="TakeItemToInventory">
-			<variables>
-				<variable name="item" type="ItemBase" />
-				<variable name="time" type="float" />
-				<variable name="loweringWeapon" type="bool" />
-			</variables>
+		<state name="TakeItemToInventory" class="ExpansionState_TakeItemToInventory">
 			<editor_data>
 				<position x="375.340877794781" y="647.920853681019" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-				#ifdef DIAG
-				EXTrace.Print(EXTrace.AI, unit, "TakeItemToInventory " + item.ToString());
-				#endif
-				time = 0;
-				loweringWeapon = false;
-				if (unit.GetEmoteManager().IsEmotePlaying())
-					unit.GetEmoteManager().ServerRequestEmoteCancel();
-			</event_entry>
-			<event_exit />
-			<event_update>
-				if (unit.IsUnconscious()) return EXIT;
-				
-				if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning() || !unit.GetCommand_MoveAI())
-				{
-					time += DeltaTime;
-					if (time &gt; 10)  //! Looks like something went terribly wrong
-					{
-						EXPrint(unit.ToString() + " TakeItemToInventory - timeout");
-						unit.eAI_Unbug("take to inventory");
-						time = 0;
-						return EXIT;
-					}
-					
-					return CONTINUE;
-				}
-				
-				//! Taking items while raised breaks hands! Wait until lowered
-				if (unit.IsRaised())
-				{
-					loweringWeapon = true;
-					unit.RaiseWeapon(false);
-					time = 0;
-				}
-				
-				if (loweringWeapon)
-				{
-					if (time &lt; 0.5)
-					{
-						time += DeltaTime;
-						return CONTINUE;
-					}
-					
-					time = 0;
-					loweringWeapon = false;
-				}
-				
-				if (item &amp;&amp; !item.Expansion_GetRootPlayerAliveExcluding(null))
-				{
-					if (unit.eAI_GetThreatOverride(item))
-						return EXIT;
-					
-					if (!unit.eAI_TakeItemToInventory(item))
-					{
-						unit.eAI_Unbug("take to inventory");
-						return EXIT;
-					}
-				}
-				
-				if (time &lt; 0.5)
-				{
-					time += DeltaTime;
-					return CONTINUE;
-				}
-				
-				if (unit.GetActionManager().GetRunningAction())
-					return CONTINUE;
-				
-				return EXIT;
-			</event_update>
 		</state>
-		<state name="Bandaging_Self">
-			<variables>
-				<variable name="last_bandage_attempt_time" type="int" />
-				<variable name="bandage" type="ItemBase" />
-				<variable name="timeout" type="float" />
-				<variable name="time" type="float" />
-				<variable name="bleedingSourceCount" type="int" />
-			</variables>
+		<state name="Bandaging_Self" class="ExpansionState_Bandaging_Self">
 			<editor_data>
 				<position x="246.619877794781" y="467.752853681019" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-				last_bandage_attempt_time = GetGame().GetTime();
-				bleedingSourceCount = unit.GetBleedingSourceCount();
-				time = 0;
-				float effectivity = bandage.GetBandagingEffectivity();
-				if (effectivity &gt; 0)
-					timeout = UATimeSpent.BANDAGE / effectivity + 8.0;
-				else
-					timeout = 16.0;
-				unit.OverrideStance(DayZPlayerConstants.STANCEIDX_CROUCH);
-			</event_entry>
-			<event_exit>
-				//! If we had dropped another item to take bandage to hands, restore item threat
-				if (unit.m_eAI_LastDroppedItem &amp;&amp; !unit.m_eAI_LastDroppedItem.Expansion_CanBeUsedToBandage())
-					unit.eAI_ThreatOverride(unit.m_eAI_LastDroppedItem, false);
-				
-				if (bandage)
-				{
-					if (bandage.IsDamageDestroyed() || !unit.eAI_TakeItemToInventory(bandage))
-					{
-						unit.eAI_DropItem(bandage);
-					}
-				}
-			</event_exit>
-			<event_update>
-				if (unit.IsUnconscious()) return EXIT;
-				
-				if (unit.eAI_IsChangingStance())
-					return CONTINUE;
-				
-				if (unit.GetActionManager().GetRunningAction())
-				{
-					if (unit.GetBleedingSourceCount() != bleedingSourceCount)
-					{
-						bleedingSourceCount = unit.GetBleedingSourceCount();
-						time = 0;
-					}
-
-					time += DeltaTime;
-					if (time &gt; timeout)  //! Looks like something went terribly wrong
-					{
-						EXPrint(unit.ToString() + " Bandaging_Self - timeout");
-						unit.eAI_Unbug("bandage");
-						time = 0;
-						return EXIT;
-					}
-					
-					return CONTINUE;
-				}
-				else if (unit.eAI_ShouldBandage())
-				{
-					if (bandage)
-					{
-						if (unit.IsBleeding() &amp;&amp; !bandage.IsDamageDestroyed())
-						{
-							last_bandage_attempt_time = GetGame().GetTime();
-							time = 0;
-							
-							unit.StartActionObject(ActionBandageSelf, null);
-							
-							return CONTINUE;
-						}
-					}
-				}
-				
-				if (unit.Expansion_GetUp(true))
-					return CONTINUE;
-				
-				return EXIT;
-			</event_update>
 		</state>
 		<state name="PlayEmote">
 			<variables />
@@ -575,6 +264,25 @@
 			<event />
 			<from_state name="Unconscious" />
 			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="892.021210954633" y="273.262936077279" />
+				<position_destination x="704" y="351.086651264055" />
+			</editor_data>
+			<guard>
+				if (unit.IsUnconscious()) return FAIL;
+				
+				auto group = unit.GetGroup();
+				if (!group) return FAIL;
+				if (group.IsInCombat()) return FAIL;
+				if (!group.m_Leave) return FAIL;
+				
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state />
+			<to_state name="Leave" />
 		</transition>
 		<transition>
 			<editor_data>
@@ -746,7 +454,18 @@
 					if (target)
 					{
 						if (target.IsMechanicalTrap() &amp;&amp; target.IsActive() &amp;&amp; !target.IsExplosive() &amp;&amp; !target.CanPutInCargo(unit))
+						{
 							preferMelee = true;
+						}
+						else if (target.IsZombie())
+						{
+							if ((hasMeleeInHands || (!hands.eAI_IsSilent() &amp;&amp; GetGame().GetTime() - dst.requestSwapToMeleeForZombieTime &gt; 60000)) &amp;&amp; unit.m_eAI_AcuteDangerPlayerTargetCount == 0 &amp;&amp; unit.m_eAI_AcuteDangerTargetCount &lt;= 1 &amp;&amp; unit.eAI_HasLOS() &amp;&amp; unit.GetHealth01() &gt; 0.8)
+							{
+								preferMelee = true;
+								if (!hasMeleeInHands)
+									dst.requestSwapToMeleeForZombieTime = GetGame().GetTime();
+							}
+						}
 					}
 					
 					if (preferMelee)

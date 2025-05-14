@@ -107,20 +107,51 @@ class ExpansionWorld: ExpansionGame
 
 	static void CheckTreeContact(IEntity other, float impulse, bool sendToClient = false)
 	{
+		//! Impulse examples:
+		//! ~15000 = Offroadhatchback at ~40 km/h
+		//! ~24000 = OffroadHatchback at ~70 km/h
+		//! ~75000 = MH6 at ~160 km/h
+		//! ~200000-300000 = Merlin at ~160 km/h
+
 		if (impulse < 7500)
 			return;
 
 		Plant plant;
-		if (!Plant.CastTo(plant, other))
+		if (!Plant.CastTo(plant, other) || plant.IsDamageDestroyed())
 			return;
 
+		vector minMax[2];
+		if (plant.GetCollisionBox(minMax))
+		{
+			float height = minMax[1][1] - minMax[0][1];
+
+			//! Tree tiers:
+			//! _1s/_1sb ~4 m
+			//! _1f ~8 m
+			//! _2d ~16 m
+			//! _2s ~17 m
+			//! _2sb ~18 m
+			//! _3d ~24 m
+			//! _3s ~26 m
+			//! _3f ~28 m
+
+			//! Require a minimum impulse based on tree height. E.g. a 5 m tree will require an impulse of 15k to be felled.
+			if (impulse < height * 3000)
+				return;
+		}
+
+		//! @note server segfault under DayZ 1.28 Experimental if setting plant health to zero in same frame as contact event, so defer using Call
 		if (GetGame().IsServer())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(FellPlant, plant, sendToClient);
+	}
+
+	static void FellPlant(Plant plant, bool sendToClient = false)
+	{
+		if (plant && !plant.IsDamageDestroyed())
 		{
 			PlayFellPlantSound(plant, sendToClient);
 			plant.SetHealth(0);
 		}
-
-		dBodyDestroy(plant);
 	}
 
 	static void PlayFellPlantSound(Object plant, bool sendToClient = false)

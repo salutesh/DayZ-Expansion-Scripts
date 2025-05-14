@@ -33,7 +33,8 @@ class ExpansionATMMenuTransferDialog: ExpansionDialogBase
 		{
 			m_Text = new ExpansionDialogContent_Text(this);
 			AddContent(m_Text);
-			m_Text.SetText(string.Format("Are you sure you want to transfer %1 to the player %2", m_Amount, m_Player.m_PlayerName));
+			CF_Localiser localiser = new CF_Localiser("STR_EXPANSION_ATM_PLAYER_TRANSFER_CONFIRM", m_Amount.ToString(), m_Player.m_PlayerName);
+			m_Text.SetText(localiser.Format());
 			m_Text.Show();
 		}
 				
@@ -130,7 +131,8 @@ class ExpansionATMMenuPartyTransferDialog: ExpansionDialogBase
 		{
 			m_Text = new ExpansionDialogContent_Text(this);
 			AddContent(m_Text);
-			m_Text.SetText(string.Format("Are you sure you want to transfer %1 to the %2 party deposit?", m_Amount, m_Party.GetPartyName()));
+			CF_Localiser localiser = new CF_Localiser("STR_EXPANSION_ATM_PARTY_TRANSFER_CONFIRM", m_Amount.ToString(), m_Party.GetPartyName());
+			m_Text.SetText(localiser.Format());
 			m_Text.Show();
 		}
 				

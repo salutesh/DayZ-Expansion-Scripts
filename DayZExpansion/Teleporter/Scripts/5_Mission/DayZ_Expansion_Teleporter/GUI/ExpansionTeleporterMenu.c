@@ -81,9 +81,9 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 	
 	void SetTeleportLocations()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
+		#endif
 		
 		m_TeleporterClientData = ExpansionTeleporterModule.GetModuleInstance().GetTeleporterClientData();
 		if (!m_TeleporterClientData)
@@ -101,11 +101,11 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 		m_TeleporterMenuController.Positions.Clear();
 		
 		string displayName = m_TeleporterClientData.GetDisplayName();
-	#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 		string factionName = m_TeleporterClientData.GetFaction();
 		if (factionName != string.Empty)
 			displayName = "[" + factionName + "] " + displayName;
-	#endif
+		#endif
 		
 		if (displayName != string.Empty)
 		{
@@ -145,9 +145,9 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 				}
 			}
 		}
-	#endif
+		#endif
 		
-	#ifdef EXPANSIONMODHARDLINE
+		#ifdef EXPANSIONMODHARDLINE
 		if (GetExpansionSettings().GetHardline().UseReputation)
 		{
 			int reputationRequirement = position.GetReputation();
@@ -163,9 +163,9 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 				}
 			}
 		}
-	#endif
+		#endif
 		
-	#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 		string factionName = position.GetFaction();
 		bool isInFaction;
 		bool isInInOtherFaction;
@@ -209,14 +209,16 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 				return false;
 			}
 		}
-	#endif
+		#endif
 		
 		return true;
 	}
 	
 	protected void SetMapPosition(vector position)
 	{
+		#ifdef EXTRACE
 	    auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		#endif
 		
 		PositionMap.SetScale(0.1);
 	    PositionMap.SetMapPos(position);
@@ -224,9 +226,9 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 	
 	protected void SetLocationMapPosition(vector position, string displayName = "")
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
+		#endif
 		
 		TeleportMap.SetScale(0.1);
 	    TeleportMap.SetMapPos(position);
@@ -402,9 +404,9 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 	
 	override void Expansion_Update()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
+		#endif
 		
 		if (m_PlayerArrowMarker)
 			m_PlayerArrowMarker.Update(0.1);

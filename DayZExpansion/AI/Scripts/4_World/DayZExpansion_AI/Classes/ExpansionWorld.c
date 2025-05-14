@@ -19,7 +19,7 @@ modded class ExpansionWorld
 		m_Network = new eAIRoadNetwork();
 		//m_Network.Init();
 
-		if (GetGame().IsDedicatedServer() || GetDayZGame().Expansion_IsMissionSinglePlayer())
+		if (GetGame().IsDedicatedServer())
 		{
 			auto settings = GetExpansionSettings().GetAILocation();
 

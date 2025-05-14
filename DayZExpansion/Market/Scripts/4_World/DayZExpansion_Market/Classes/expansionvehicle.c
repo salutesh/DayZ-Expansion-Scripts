@@ -48,13 +48,22 @@ modded class ExpansionVehicle
 				PlayerBase player = PlayerBase.GetPlayerByUID(m_LastDriverUID);
 				if (player)
 				{
-					string text = string.Format("%1 at %2 was given a parking fine of %3 for exceeding the allowed safezone parking time of %4.", GetDisplayName(), ExpansionStatic.VectorToString(GetPosition(), ExpansionVectorToString.Labels), fine, ExpansionStatic.GetTimeString(settings.MaxSZVehicleParkingTime, true));
+					CF_Localiser localiser;
+					string displayName = GetDisplayName();
+					string posText = ExpansionStatic.VectorToString(GetPosition(), ExpansionVectorToString.Labels);
+					string fineText = fine.ToString();
+					string parkingTimeText = ExpansionStatic.GetTimeString(settings.MaxSZVehicleParkingTime, true);
 					if (m_SZCleanup)
 					{
 						float lifetime = GetExpansionSettings().GetSafeZone().VehicleLifetimeInSafeZone;
-						text += string.Format(" The vehicle will be deleted in %1 if not moved out of the safezone.", ExpansionStatic.GetTimeString(lifetime - m_SZParkingTime, true));
+						string lifetimeText = ExpansionStatic.GetTimeString(Math.Max(lifetime - m_SZParkingTime, 0), true);
+						localiser = new CF_Localiser("STR_EXPANSION_MARKET_PARKING_FINE_VEHICLE_SAFEZONE_CLEANUP", displayName, posText, fineText, parkingTimeText, lifetimeText);
 					}
-					ExpansionNotification("STR_EXPANSION_MARKET_TITLE", text).Error(player.GetIdentity());
+					else
+					{
+						localiser = new CF_Localiser("STR_EXPANSION_MARKET_PARKING_FINE", displayName, posText, fineText, parkingTimeText);
+					}
+					ExpansionNotification("STR_EXPANSION_MARKET_TITLE", localiser).Error(player.GetIdentity());
 				}
 			}
 		}

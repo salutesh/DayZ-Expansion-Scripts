@@ -63,7 +63,10 @@ WrapSpacerWidgetClass ExpansionP2PMarketMenuCargoItem {
      hexactsize 0
      vexactsize 1
      scriptclass "ViewBinding"
-     font "gui/fonts/etelkatextpro22"
+     font "gui/fonts/sdf_metronbook72"
+     "bold text" 1
+     "exact text" 1
+     "exact text size" 20
      "text valign" center
      {
       ScriptParamsClass {

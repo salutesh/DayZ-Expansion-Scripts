@@ -31,6 +31,10 @@ modded class MissionServer
 	{
 		super.InvokeOnConnect(player, identity);
 
+		GetDayZGame().m_eAI_PlayerCount++;
+
+		eAIDynamicPatrol.LoadBalancing_Schedule();
+
 		if (player.GetGroup())
 			return;
 
@@ -102,7 +106,11 @@ modded class MissionServer
 
 		super.PlayerDisconnected( player, identity, uid );
 
+		GetDayZGame().m_eAI_PlayerCount--;
+
 		if (PlayerBase.Expansion_GetOnlinePlayersCount() == 0)
 			eAIGroup.SaveAllPersistentGroups();
+
+		eAIDynamicPatrol.LoadBalancing_Schedule();
 	}
 };

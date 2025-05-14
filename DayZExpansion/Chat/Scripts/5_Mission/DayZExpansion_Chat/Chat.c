@@ -42,7 +42,10 @@ modded class Chat
 		#endif
 		
 		if (m_ExChatUI)
+		{
 			m_ExChatUI.Show();
+			GetExpansionClientSettings().HUDChatToggle = true;
+		}
 	}
 
 	void OnChatInputHide()

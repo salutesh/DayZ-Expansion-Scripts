@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -12,6 +12,9 @@
 
 class ExpansionP2PMarketMenuCategoryBase
 {
+	[NonSerialized()]
+	protected int m_CategoryIndex = -1;
+	
 	protected string DisplayName;
 	protected string IconPath;
 	protected ref TStringArray Included;
@@ -62,16 +65,27 @@ class ExpansionP2PMarketMenuCategoryBase
 	{
 		return Excluded;
 	}
+	
+	void SetCategoryIndex(int index)
+	{
+		m_CategoryIndex = index;
+	}
+	
+	int GetCategoryIndex()
+	{
+		return m_CategoryIndex;
+	}
 
 	void OnSend(ParamsWriteContext ctx)
 	{
+		ctx.Write(m_CategoryIndex);
 		ctx.Write(DisplayName);
 		ctx.Write(IconPath);
 
 		int i;
 		int includedCount = Included.Count();
 		ctx.Write(includedCount);
-		for (i = 0; i < Included.Count(); i++)
+		for (i = 0; i < Included.Count(); ++i)
 		{
 			string includedTypeName = Included[i];
 			ctx.Write(includedTypeName);
@@ -79,7 +93,7 @@ class ExpansionP2PMarketMenuCategoryBase
 
 		int excludedCount = Excluded.Count();
 		ctx.Write(excludedCount);
-		for (i = 0; i < Excluded.Count(); i++)
+		for (i = 0; i < Excluded.Count(); ++i)
 		{
 			string excludedTypeName = Excluded[i];
 			ctx.Write(excludedTypeName);
@@ -88,13 +102,20 @@ class ExpansionP2PMarketMenuCategoryBase
 
 	bool OnRecieve(ParamsReadContext ctx)
 	{
-		ctx.Read(DisplayName);
-		ctx.Read(IconPath);
+		if (!ctx.Read(m_CategoryIndex))
+			return false;
 
-		int i;
+		if (!ctx.Read(DisplayName))
+			return false;
+
+		if (!ctx.Read(IconPath))
+			return false;
+
 		int includedCount;
-		ctx.Read(includedCount);
-
+		if (!ctx.Read(includedCount))
+			return false;
+		
+		int i;
 		if (includedCount > 0)
 		{
 			if (!Included)
@@ -102,16 +123,19 @@ class ExpansionP2PMarketMenuCategoryBase
 			else
 				Included.Clear();
 
-			for (i = 0; i < includedCount; i++)
+			for (i = 0; i < includedCount; ++i)
 			{
 				string includedTypeName;
-				ctx.Read(includedTypeName);
+				if (!ctx.Read(includedTypeName))
+					return false;
+
 				Included.Insert(includedTypeName);
 			}
 		}
 
 		int excludedCount;
-		ctx.Read(excludedCount);
+		if (!ctx.Read(excludedCount))
+			return false;
 
 		if (excludedCount > 0)
 		{
@@ -120,10 +144,12 @@ class ExpansionP2PMarketMenuCategoryBase
 			else
 				Excluded.Clear();
 
-			for (i = 0; i < excludedCount; i++)
+			for (i = 0; i < excludedCount; ++i)
 			{
 				string excludedTypeName;
-				ctx.Read(excludedTypeName);
+				if (!ctx.Read(excludedTypeName))
+					return false;
+
 				Excluded.Insert(excludedTypeName);
 			}
 		}
@@ -138,8 +164,6 @@ class ExpansionP2PMarketMenuCategory: ExpansionP2PMarketMenuCategoryBase
 
 	void ExpansionP2PMarketMenuCategory()
 	{
-		Included = new TStringArray;
-		Excluded = new TStringArray;
 		SubCategories = new array<ref ExpansionP2PMarketMenuSubCategory>;
 	}
 
@@ -159,7 +183,7 @@ class ExpansionP2PMarketMenuCategory: ExpansionP2PMarketMenuCategoryBase
 
 		int subCategoriesCount = SubCategories.Count();
 		ctx.Write(subCategoriesCount);
-		for (int i = 0; i < SubCategories.Count(); i++)
+		for (int i = 0; i < SubCategories.Count(); ++i)
 		{
 			SubCategories[i].OnSend(ctx);
 		}
@@ -170,7 +194,8 @@ class ExpansionP2PMarketMenuCategory: ExpansionP2PMarketMenuCategoryBase
 		super.OnRecieve(ctx);
 
 		int subCategoriesCount;
-		ctx.Read(subCategoriesCount);
+		if (!ctx.Read(subCategoriesCount))
+			return false;
 
 		if (subCategoriesCount > 0)
 		{
@@ -179,10 +204,12 @@ class ExpansionP2PMarketMenuCategory: ExpansionP2PMarketMenuCategoryBase
 			else
 				SubCategories.Clear();
 
-			for (int i = 0; i < subCategoriesCount; i++)
+			for (int i = 0; i < subCategoriesCount; ++i)
 			{
 				ExpansionP2PMarketMenuSubCategory subCategory = new ExpansionP2PMarketMenuSubCategory();
-				subCategory.OnRecieve(ctx);
+				if (!subCategory.OnRecieve(ctx))
+					return false;
+
 				SubCategories.Insert(subCategory);
 			}
 		}
@@ -191,7 +218,38 @@ class ExpansionP2PMarketMenuCategory: ExpansionP2PMarketMenuCategoryBase
 	}
 };
 
-class ExpansionP2PMarketMenuSubCategory: ExpansionP2PMarketMenuCategoryBase {};
+class ExpansionP2PMarketMenuSubCategory: ExpansionP2PMarketMenuCategoryBase 
+{
+	[NonSerialized()]
+	protected int m_SubCategoryIndex = -1;
+	
+	void SetSubCategoryIndex(int index)
+	{
+		m_SubCategoryIndex = index;
+	}
+	
+	int GetSubCategoryIndex()
+	{
+		return m_SubCategoryIndex;
+	}
+	
+	override void OnSend(ParamsWriteContext ctx)
+	{
+		super.OnSend(ctx);
+
+		ctx.Write(m_SubCategoryIndex);
+	}
+
+	override bool OnRecieve(ParamsReadContext ctx)
+	{
+		super.OnRecieve(ctx);
+		
+		if (!ctx.Read(m_SubCategoryIndex))
+			return false;
+
+		return true;
+	}
+};
 
 class ExpansionP2PMarketSettingsBase: ExpansionSettingBase
 {
@@ -248,7 +306,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 			else
 				MenuCategories.Clear();
 
-			for (int i = 0; i < menuCatergoriesCount; i++)
+			for (int i = 0; i < menuCatergoriesCount; ++i)
 			{
 				ExpansionP2PMarketMenuCategory menuCategory = new ExpansionP2PMarketMenuCategory();
 				menuCategory.OnRecieve(ctx);
@@ -279,7 +337,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 
 		int menuCatergoriesCount = MenuCategories.Count();
 		ctx.Write(menuCatergoriesCount);
-		for (int i = 0; i < MenuCategories.Count(); i++)
+		for (int i = 0; i < MenuCategories.Count(); ++i)
 		{
 			MenuCategories[i].OnSend(ctx);
 		}

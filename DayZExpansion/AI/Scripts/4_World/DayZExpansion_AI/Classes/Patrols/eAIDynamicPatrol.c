@@ -1,12 +1,19 @@
 class eAIDynamicPatrol : eAIPatrol
 {
 	static ExpansionAIPatrolSettings s_AIPatrolSettings;
-	private static int s_NumberOfDynamicPatrols;
+	private static int s_PatrolCount;
+
+	static ref map<string, ref ExpansionAIPatrolLoadBalancing> s_LoadBalancing = new map<string, ref ExpansionAIPatrolLoadBalancing>;
+	static ref ExpansionAIPatrolLoadBalancing s_LoadBalancingGlobal;
+	static bool s_LoadBalancing_IsScheduled;
 
 	ref ExpansionAIDynamicSpawnBase m_Config;
+	ref ExpansionAIPatrolLoadBalancing m_LoadBalancing;
+	ref ExpansionAIPatrolLoadBalancingTracker m_PatrolCountTracker;
 	vector m_Position;
 	autoptr array<vector> m_Waypoints;
 	eAIWaypointBehavior m_WaypointBehaviour;
+	int m_WaypointIdx;
 	float m_MinimumRadius;
 	float m_MaximumRadius;
 	float m_DespawnRadius;
@@ -18,6 +25,7 @@ class eAIDynamicPatrol : eAIPatrol
 	int m_DespawnTime; // if all players outside despawn radius, ticks up time. When despawn time reached, patrol is deleted
 	ref eAIFaction m_Faction;
 	ref eAIFormation m_Formation;
+	float m_FormationScale;
 	float m_AccuracyMin; // zero or negative = use general setting
 	float m_AccuracyMax; // zero or negative = use general setting
 	float m_ThreatDistanceLimit; // zero or negative = use general setting
@@ -59,6 +67,35 @@ class eAIDynamicPatrol : eAIPatrol
 
 		m_Config = config;
 
+		if (!m_Config.LoadBalancingCategory)
+		{
+			switch (m_Config.ClassName())
+			{
+				case "ExpansionAIObjectPatrol":
+					m_Config.LoadBalancingCategory = "ObjectPatrol";
+					break;
+
+				case "ExpansionAIPatrol":
+					m_Config.LoadBalancingCategory = "Patrol";
+					break;
+
+				case "ExpansionQuestAISpawn":
+					m_Config.LoadBalancingCategory = "Quest";
+					break;
+
+			#ifdef DIAG_DEVELOPER
+				default:
+					EXTrace.Print(EXTrace.AI, this, "LoadBalancingCategory does not exist " + m_Config.ClassName());
+					break;
+			#endif
+			}
+		}
+
+		if (!s_AIPatrolSettings.LoadBalancingCategories[m_Config.LoadBalancingCategory])
+			m_Config.LoadBalancingCategory = "Global";
+
+		LoadBalancing_Update();
+
 		if (config.NumberOfAI == 0)
 		{
 			Log("WARNING: NumberOfAI shouldn't be set to 0, skipping this patrol...");
@@ -71,9 +108,28 @@ class eAIDynamicPatrol : eAIPatrol
 		{
 			string fileName = eAIGroup.GetStorageDirectory(config.m_BaseName) + eAIGroup.BASENAME;
 			if (FileExist(fileName))
+			{
 				eAIGroup.ReadPosition(fileName, startpos);
+
+				if (config.GetBehaviour() != eAIWaypointBehavior.ROAMING)
+				{
+					//! Since this patrol is using waypoints, find the closest one
+					float minDistSq = float.MAX;
+					foreach (int idx, vector waypoint: m_Waypoints)
+					{
+						float distSq = vector.DistanceSq(startpos, waypoint);
+						if (distSq < minDistSq)
+						{
+							minDistSq = distSq;
+							m_WaypointIdx = idx;
+						}
+					}
+				}
+			}
 			else
+			{
 				startpos = GetInitialSpawnPosition();
+			}
 		}
 		else
 		{
@@ -89,6 +145,11 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 
 		m_Position = startpos;
+
+		if (config.FormationScale <= 0)
+			m_FormationScale = s_AIPatrolSettings.FormationScale;
+		else
+			m_FormationScale = config.FormationScale;
 
 		if (config.RespawnTime == -2)
 			m_RespawnTime = s_AIPatrolSettings.RespawnTime;
@@ -190,7 +251,11 @@ class eAIDynamicPatrol : eAIPatrol
 	static bool InitSettings()
 	{
 		if ( !s_AIPatrolSettings )
+		{
 			s_AIPatrolSettings = GetExpansionSettings().GetAIPatrol();
+
+			LoadBalancing_Setup();
+		}
 
 		return s_AIPatrolSettings.Enabled;
 	}
@@ -299,7 +364,7 @@ class eAIDynamicPatrol : eAIPatrol
 
 		m_Position = GetInitialSpawnPosition();  //! Reset spawn position for next spawn
 
-		if (s_NumberOfDynamicPatrols)
+		if (s_PatrolCount)
 			UpdatePatrolCount(-1);
 
 		return true;
@@ -313,11 +378,90 @@ class eAIDynamicPatrol : eAIPatrol
 		if (!m_CanSpawn)
 			return false;
 
-		int maxPatrols = GetExpansionSettings().GetAI().MaximumDynamicPatrols;
-		if (maxPatrols > -1 && s_NumberOfDynamicPatrols >= maxPatrols)
+		return CanStay(1);
+	}
+
+	bool CanStay(int delta)
+	{
+	#ifdef SERVER
+		if (m_LoadBalancing && m_LoadBalancing != s_LoadBalancingGlobal)
+		{
+			if (m_LoadBalancing.MaxPatrols > -1 && m_PatrolCountTracker.m_PatrolCount + delta > m_LoadBalancing.MaxPatrols)
+				return false;
+		}
+
+		if (s_LoadBalancingGlobal && s_LoadBalancingGlobal.MaxPatrols > -1 && s_PatrolCount + delta > s_LoadBalancingGlobal.MaxPatrols)
 			return false;
+	#endif
 
 		return true;
+	}
+
+	override void LoadBalancing_Update()
+	{
+		m_LoadBalancing = s_LoadBalancing[m_Config.LoadBalancingCategory];
+
+		if (m_LoadBalancing)
+			m_PatrolCountTracker = m_LoadBalancing.m_PatrolCountTracker;
+
+		if (m_Group)
+			m_Group.m_Leave = !CanStay(0);
+
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.AI, this, m_Config.Name + " LoadBalancing_Update category " + m_Config.LoadBalancingCategory + " " + m_LoadBalancing);
+	#endif
+	}
+
+	static void LoadBalancing_Setup()
+	{
+		int playerCount = GetDayZGame().m_eAI_PlayerCount;
+
+		s_LoadBalancingGlobal = null;
+
+		foreach (string name, auto categories: s_AIPatrolSettings.LoadBalancingCategories)
+		{
+			s_LoadBalancing[name] = null;
+
+			foreach (auto loadBalancing: categories)
+			{
+				if (playerCount < loadBalancing.MinPlayers || (loadBalancing.MaxPlayers > 0 && playerCount > loadBalancing.MaxPlayers))
+					continue;
+
+			#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.AI, eAIDynamicPatrol, "LoadBalancing_Setup category " + name + " " + loadBalancing + " minPlayers " + loadBalancing.MinPlayers + " maxPlayers " +  loadBalancing.MaxPlayers + " maxPatrols " +  loadBalancing.MaxPatrols);
+			#endif
+
+				s_LoadBalancing[name] = loadBalancing;
+
+				if (name == "Global")
+					s_LoadBalancingGlobal = loadBalancing;
+
+				break;
+			}
+		}
+	}
+
+	static void LoadBalancing_UpdateAll()
+	{
+		LoadBalancing_Setup();
+
+		foreach (auto patrol: s_AllPatrols)
+		{
+			patrol.LoadBalancing_Update();
+		}
+
+		s_LoadBalancing_IsScheduled = false;
+	}
+
+	//! @note called everytime a player connects/disconnects
+	static void LoadBalancing_Schedule()
+	{
+		if (s_LoadBalancing_IsScheduled)
+			return;
+
+		s_LoadBalancing_IsScheduled = true;
+		
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadBalancing_UpdateAll, 10000, false);
 	}
 
 	void Spawn()
@@ -343,6 +487,7 @@ class eAIDynamicPatrol : eAIPatrol
 		{
 			m_NumberOfAI = m_Group.Count();
 			m_Faction = m_Group.GetFaction();
+			m_Group.m_CurrentWaypointIndex = m_WaypointIdx;
 
 			SetNameForLog();
 
@@ -402,6 +547,7 @@ class eAIDynamicPatrol : eAIPatrol
 
 		m_Formation = eAIFormation.Create(m_Config.Formation);
 		if (m_Formation == null) m_Formation = new eAIFormationVee();
+		m_Formation.SetScale(m_FormationScale);
 		m_Formation.SetLooseness(m_Config.FormationLooseness);
 		m_Group.SetFormation(m_Formation);
 
@@ -480,7 +626,7 @@ class eAIDynamicPatrol : eAIPatrol
 			Log("Despawning " + m_NameForLog + " patrol (spawn position " + m_Position + ")");
 		}
 
-		if (!m_WasGroupDestroyed && s_NumberOfDynamicPatrols)
+		if (!m_WasGroupDestroyed && s_PatrolCount)
 			UpdatePatrolCount(-1);
 	}
 
@@ -521,11 +667,11 @@ class eAIDynamicPatrol : eAIPatrol
 			if (leader)
 				patrolPos = leader.GetPosition();
 
-			if ((m_WasGroupDestroyed && m_Group.DeceasedCount() == 0) || AvoidPlayer(patrolPos, m_DespawnRadius))
+			if ((m_WasGroupDestroyed && m_Group.DeceasedCount() == 0) || AvoidPlayer(patrolPos, m_DespawnRadius) || m_Group.m_ForcePatrolDespawn)
 			{
 				if (!m_WasGroupDestroyed)
 					m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
-				if (m_TimeSinceLastSpawn >= m_DespawnTime)
+				if (m_TimeSinceLastSpawn >= m_DespawnTime || m_Group.m_ForcePatrolDespawn)
 					Despawn();
 			}
 		}
@@ -586,19 +732,79 @@ class eAIDynamicPatrol : eAIPatrol
 
 	private void UpdatePatrolCount(int delta)
 	{
-		s_NumberOfDynamicPatrols += delta;
-		Log("Global patrol count: " + s_NumberOfDynamicPatrols);
+		s_PatrolCount += delta;
+		Log("Global patrol count: " + s_PatrolCount);
+
+		if (m_PatrolCountTracker && (!s_LoadBalancingGlobal || m_PatrolCountTracker != s_LoadBalancingGlobal.m_PatrolCountTracker))
+		{
+			m_PatrolCountTracker.m_PatrolCount += delta;
+			Log(m_Config.LoadBalancingCategory + " category patrol count: " + m_PatrolCountTracker.m_PatrolCount);
+		}
+
+		if (s_LoadBalancingGlobal)
+		{
+			s_LoadBalancingGlobal.m_PatrolCountTracker.m_PatrolCount += delta;
+
+			int patrolCount = s_LoadBalancingGlobal.m_PatrolCountTracker.m_PatrolCount;
+			if (patrolCount != s_PatrolCount)
+				CF.FormatError("Global category patrol count %1 doesn't match internal global patrol count %2", patrolCount.ToString(), s_PatrolCount.ToString());
+		}
+	}
+
+	static void OnDebugAll()
+	{
+		Print(s_LoadBalancingGlobal);
+		if (s_LoadBalancingGlobal)
+		{
+			Print(s_LoadBalancingGlobal.MinPlayers);
+			Print(s_LoadBalancingGlobal.MaxPlayers);
+			Print(s_LoadBalancingGlobal.MaxPatrols);
+			Print(s_LoadBalancingGlobal.m_PatrolCountTracker.m_PatrolCount);
+		}
 	}
 
 	override void Debug()
 	{
 		super.Debug();
 		
+		Print(m_Config.Name);
+		Print(m_NameForLog);
+
+		Print(m_Trigger);
+		Print(m_Position);
+		Print(m_MinimumRadius);
+		Print(m_MaximumRadius);
+		Print(m_DespawnRadius);
+
 		Print(m_Group);
+		if (m_Group)
+		{
+			bool canStay = CanStay(0);
+			Print(canStay);
+			Print(m_Group.m_Leave);
+		}
+
 		Print(m_TimeSinceLastSpawn);
+		bool canSpawn = CanSpawn();
+		Print(canSpawn);
 		Print(m_CanSpawn);
+		Print(m_IsSpawned);
+
+		Print(m_Config.NumberOfAI);
 		Print(m_NumberOfAI);
-		Print(WasGroupDestroyed());
+		Print(m_RespawnTime);
+		Print(m_DespawnTime);
+		Print(m_WasGroupDestroyed);
+
+		Print(m_Config.LoadBalancingCategory);
+		Print(m_LoadBalancing);
+		if (m_LoadBalancing)
+		{
+			Print(m_LoadBalancing.MinPlayers);
+			Print(m_LoadBalancing.MaxPlayers);
+			Print(m_LoadBalancing.MaxPatrols);
+			Print(m_LoadBalancing.m_PatrolCountTracker.m_PatrolCount);
+		}
 	}
 
 	private void SetNameForLog()

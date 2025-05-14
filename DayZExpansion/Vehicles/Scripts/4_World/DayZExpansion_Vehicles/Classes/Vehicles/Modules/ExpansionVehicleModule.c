@@ -13,6 +13,7 @@
 class ExpansionVehicleModule
 {
 	EntityAI m_Vehicle;
+	Transport m_Transport;
 	ExpansionController m_Controller;
 
 	vector m_Position;
@@ -30,6 +31,7 @@ class ExpansionVehicleModule
 	void ExpansionVehicleModule(EntityAI vehicle)
 	{
 		m_Vehicle = vehicle;
+		Class.CastTo(m_Transport, vehicle);
 
 		auto vehicleBase = ExpansionVehicleBase.Cast(m_Vehicle);
 		if (vehicleBase)
@@ -62,6 +64,27 @@ class ExpansionVehicleModule
 	}
 
 	void SettingsChanged()
+	{
+	}
+
+	event void ObtainMove(PawnMove pMove)
+	{
+	}
+
+	event void ConsumeMove(PawnMove pMove)
+	{
+	}
+
+	event bool ReplayMove(PawnMove pMove)
+	{
+		return true;
+	}
+
+	event void ObtainState(/*inout*/ PawnOwnerState pState)
+	{
+	}
+
+	event void RewindState(PawnOwnerState pState, /*inout*/ PawnMove pMove, inout NetworkRewindType pRewindType)
 	{
 	}
 

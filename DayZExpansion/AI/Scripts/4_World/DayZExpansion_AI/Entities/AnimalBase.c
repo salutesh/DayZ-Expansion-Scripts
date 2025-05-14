@@ -5,6 +5,7 @@ modded class AnimalBase
 	bool m_Expansion_Airborne;
 	float m_Expansion_AirbornePeakAltitude;
 	bool m_Expansion_IsBigGame;
+	float m_eAI_AttackCooldown;
 
 	void AnimalBase()
 	{
@@ -81,6 +82,26 @@ modded class AnimalBase
 		}
 
 		return super.ModCommandHandlerBefore(pDt, pCurrentCommandID, pCurrentCommandFinished);
+	}
+
+	override bool ModCommandHandlerInside(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
+	{
+		if (super.ModCommandHandlerInside(pDt, pCurrentCommandID, pCurrentCommandFinished))
+			return true;
+
+		DayZAnimalInputController inputController = GetInputController();
+		if (inputController.IsAttack())
+			m_eAI_AttackCooldown = 0.500001;  //! Just above EVADE_COOLDOWN
+
+		return false;
+	}
+
+	override void CommandHandler(float dt, int currentCommandID, bool currentCommandFinished)
+	{
+		if (m_eAI_AttackCooldown > 0)
+			m_eAI_AttackCooldown -= dt;
+
+		super.CommandHandler(dt, currentCommandID, currentCommandFinished);
 	}
 
 	override protected void EOnContact(IEntity other, Contact extra)

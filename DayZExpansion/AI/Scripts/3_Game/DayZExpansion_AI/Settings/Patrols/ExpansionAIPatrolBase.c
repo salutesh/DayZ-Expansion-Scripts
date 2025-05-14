@@ -16,6 +16,7 @@ class ExpansionAISpawnBase
 	bool Persist;   // Patrol will be saved & restored between server restarts unless all members of it are killed
 	string Faction;                     // Raiders, Mercenaries, West, East, Guards, Civilian, Passive
 	string Formation;                   // Column, File, Vee, Wall or RANDOM
+	float FormationScale;
 	float FormationLooseness;
 	string Loadout;                 // a json file containing the loadout of this team - if empty, will use the default loadout of the faction
 	ref TStringArray Units = {};        // If non-empty, pick from these AI classnames when spawning
@@ -209,6 +210,8 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 	string WaypointInterpolation;
 	float DespawnTime;					// if all players outside despawn radius, ticks up time. When despawn time reached, patrol is deleted. If set to -1, will use general setting instead
 	float RespawnTime;	                // Time in seconds before the dead group will respawn. If set to -1, they won't respawn, if set to -2, will use the general setting instead
+	string LoadBalancingCategory;       // Category name to use for load balancing. Needs matching entry in AIPatrolSetttings::LoadBalancingCategories.
+	                                    // If left empty, will use "ObjectPatrols" for object patrols, "Patrols" for normal patrols, or "Global".
 
 	void ExpansionAIDynamicSpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, int unlimitedreload = 0, float chance = 1.0, float mindistradius = -1, float maxdistradius = -1)
 	{

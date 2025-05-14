@@ -16,6 +16,7 @@ class eAITargetInformationState
 	Object m_LOSRaycastHitObject;
 	vector m_LOSRaycastHitPosition;
 #endif
+	bool m_SkipMelee;
 
 	void eAITargetInformationState(eAIBase ai, eAITargetInformation info, bool initialUpdate = true)
 	{
@@ -60,7 +61,7 @@ class eAITargetInformationState
 				//! unless player is in vehicle (parent non-null)
 				float distanceFactor;
 				DayZPlayerImplement player;
-				if (m_ThreatLevelActive < 0.4 && !m_AI.GetGroup().GetFaction().IsObserver() && Class.CastTo(player, m_Info.GetEntity()) && !player.GetParent() && ExpansionStatic.GetTime(true) - player.m_eAI_LastAggressionTime > 1.0)
+				if (m_ThreatLevelActive < 0.4 && !m_AI.GetGroup().GetFaction().IsObserver() && Class.CastTo(player, m_Info.GetEntity()) && !player.GetParent() && ExpansionStatic.GetTimestamp(true) - player.m_eAI_LastAggressionTime > 1)
 					distanceFactor = m_SearchDirection.Length() * 3;
 				if (distanceFactor > 0)
 				{

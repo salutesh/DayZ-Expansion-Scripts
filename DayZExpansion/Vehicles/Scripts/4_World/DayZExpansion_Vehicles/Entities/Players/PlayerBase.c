@@ -159,7 +159,13 @@ modded class PlayerBase
 			auto hcv = GetCommand_Vehicle();
 
 			CarScript car;
+		#ifndef DAYZ_1_27
+			// 1.28+
+			// check if the car is not using new networking
+			if (Class.CastTo(car, hcv.GetTransport()) && car.GetNetworkMoveStrategy() != NetworkMoveStrategy.PHYSICS)
+		#else
 			if (Class.CastTo(car, hcv.GetTransport()))
+		#endif
 			{
 				if (!hcv.IsGettingIn() && !hcv.IsGettingOut() && !hcv.IsSwitchSeat())
 				{

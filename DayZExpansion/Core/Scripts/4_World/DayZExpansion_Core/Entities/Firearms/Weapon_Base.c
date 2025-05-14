@@ -31,6 +31,7 @@ class ExpansionWeaponInfo
 	float m_AvgDmg;
 	float m_ReloadTimeMin = float.MAX;
 	float m_DPS;
+	int m_FireRate;  //! rounds per second
 	bool m_AutoReload;
 	ExpansionWeaponType m_WeaponType;
 
@@ -88,10 +89,16 @@ class ExpansionWeaponInfo
 			m_AvgDmg /= count;
 
 		//! DPS
-		if (m_ReloadTimeMin < float.MAX && m_AutoReload)
+		if (m_AvgDmg > 0 && m_ReloadTimeMin < float.MAX && m_AutoReload)
+		{
 			m_DPS = m_AvgDmg / m_ReloadTimeMin;
+			m_FireRate = m_DPS / m_AvgDmg;
+		}
 		else
+		{
 			m_DPS = m_AvgDmg;
+			m_FireRate = 1;
+		}
 
 		//! Weapon type
 		if (weapon.IsInherited(Archery_Base))
@@ -196,6 +203,24 @@ modded class Weapon_Base
 	override float Expansion_GetDPS()
 	{
 		return m_Expansion_WeaponInfo.m_DPS;
+	}
+
+	/**
+	 * @brief return current DPS capability of the weapon (depending on presence of mag)
+	 */
+	float Expansion_GetCurrentDPS()
+	{
+		int mi = GetCurrentMuzzle();
+
+		if (!HasInternalMagazine(mi) && !GetMagazine(mi))
+			return m_Expansion_WeaponInfo.m_AvgDmg;
+
+		return m_Expansion_WeaponInfo.m_DPS;
+	}
+
+	float Expansion_GetAvgDmgPerShot()
+	{
+		return m_Expansion_WeaponInfo.m_AvgDmg;
 	}
 
 	ExpansionWeaponType Expansion_GetWeaponType()
@@ -392,7 +417,7 @@ modded class Weapon_Base
 	//! We also need to make sure to always sync firemode index to client.
 	override void OnFireModeChange(int fireMode)
 	{
-	#ifdef DIAG_DEVELOPER
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.StartStack(EXTrace.WEAPONS, this, "fireMode=" + fireMode);
 	#endif
 

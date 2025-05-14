@@ -70,10 +70,11 @@ class ExpansionZodiacBoat: ExpansionBoatScript
 
 	override void HandleEngineSound(CarEngineSoundState state)
 	{
+		SetCarEngineSoundState(state);
+		m_CarEngineLastSoundState = state;
+
 	#ifndef SERVER
 		EffectSound sound = null;
-
-		m_CarEngineLastSoundState = state;
 		
 		switch (state)
 		{

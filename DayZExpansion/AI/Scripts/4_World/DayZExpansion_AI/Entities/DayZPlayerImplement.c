@@ -28,14 +28,16 @@ modded class DayZPlayerImplement
 
 	private bool m_eAI_IsPassive;
 
-	float m_eAI_LastAggressionTime;
-	float m_eAI_LastAggressionTimeout;
+	int m_eAI_LastAggressionTime;
+	int m_eAI_LastAggressionTimeout;
 
 	float m_eAI_LastHitTime;
 	float m_eAI_LastNoiseTime;
 
 	[eAIAttribute<float>.Register("m_eAI_DamageReceivedMultiplier")]
 	float m_eAI_DamageReceivedMultiplier = 1.0;
+
+	float m_eAI_AttackCooldown;  //! Melee attack cooldown
 
 #ifdef DIAG_DEVELOPER
 #ifndef SERVER
@@ -507,13 +509,13 @@ modded class DayZPlayerImplement
 		super.EEHealthLevelChanged(oldLevel, newLevel, zone);
 	}
 
-	bool eAI_UpdateAgressionTimeout(float timeThreshold)
+	bool eAI_UpdateAgressionTimeout(int timeThreshold)
 	{
 		if (!m_eAI_LastAggressionTime)
 			return false;
 
-		float time = ExpansionStatic.GetTime(true);
-		float timeout = timeThreshold - (time - m_eAI_LastAggressionTime);
+		int time = ExpansionStatic.GetTimestamp(true);
+		int timeout = timeThreshold - (time - m_eAI_LastAggressionTime);
 		bool active;
 		if (timeout > 0)
 			active = true;
@@ -527,9 +529,9 @@ modded class DayZPlayerImplement
 		return active;
 	}
 
-	float eAI_GetLastAggressionCooldown()
+	int eAI_GetLastAggressionCooldown()
 	{
-		float cooldown = m_eAI_LastAggressionTimeout - ExpansionStatic.GetTime(true);
+		int cooldown = m_eAI_LastAggressionTimeout - ExpansionStatic.GetTimestamp(true);
 		if (cooldown > 0)
 			return cooldown;
 
@@ -594,6 +596,9 @@ modded class DayZPlayerImplement
 
 	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
 	{
+		if (m_eAI_AttackCooldown > 0)
+			m_eAI_AttackCooldown -= pDt;
+
 #ifndef SERVER
 		for (int i = m_Expansion_DebugShapes.Count() - 1; i >= 0; i--)
 			m_Expansion_DebugShapes[i].Destroy();

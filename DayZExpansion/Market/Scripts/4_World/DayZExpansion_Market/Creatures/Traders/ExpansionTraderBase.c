@@ -582,6 +582,63 @@ class ExpansionTraderZombieBase: ZombieBase
 	{
 		return true;
 	}
+
+	override bool Expansion_IsDanger()
+	{
+		return false;
+	}
+
+	override void HandleMove(int pCurrentCommandID)
+	{
+		//! Move slowly, don't scare the customer
+
+		DayZInfectedInputController ic = GetInputController();
+
+		float speed = ic.GetMovementSpeed();
+
+		if (ic.GetMovementSpeed() > 1)
+		{
+			speed = 1;
+			ic.OverrideMovementSpeed(true, speed);
+		}
+		else
+		{
+			ic.OverrideMovementSpeed(false, speed);
+		}
+
+		m_MovementSpeed = speed;
+		if (Math.AbsFloat(m_LastMovementSpeed - m_MovementSpeed) >= 0.9 && m_LastMovementSpeed != m_MovementSpeed)
+		{
+			SetSynchDirty();
+		}
+		
+		m_LastMovementSpeed = m_MovementSpeed;
+	}
+
+	override bool HandleMindStateChange(int pCurrentCommandID, DayZInfectedInputController pInputController, float pDt)
+	{
+		//! Be calm but attentive to the customer's needs
+
+		m_MindState = pInputController.GetMindState();
+		if (m_LastMindState != m_MindState)
+		{
+			DayZInfectedCommandMove moveCommand = GetCommand_Move();
+
+			if (moveCommand && !moveCommand.IsTurning())
+				moveCommand.SetIdleState(0);
+
+			m_LastMindState = m_MindState;
+			m_AttackCooldownTime = 0.0;
+			SetSynchDirty();
+		}
+
+		return false;
+	}
+
+	override bool FightLogic(int pCurrentCommandID, DayZInfectedInputController pInputController, float pDt)
+	{
+		//! Be nice, don't fight with the customer
+	}
 };
 
 #ifdef ENFUSION_AI_PROJECT

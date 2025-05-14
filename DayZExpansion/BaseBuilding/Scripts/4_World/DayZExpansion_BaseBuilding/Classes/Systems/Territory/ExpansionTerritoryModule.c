@@ -14,6 +14,7 @@
 class ExpansionTerritoryModule: CF_ModuleWorld
 {
 	static ref ScriptInvoker SI_Callback = new ScriptInvoker();
+	static ExpansionTerritoryModule s_Instance;
 
 	///////////////////////// STATIC VARS /////////////////////////////////
 	static const int 									m_TerritorySize_Level_1 = 50;
@@ -46,6 +47,8 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		EXLogPrint("ExpansionTerritoryModule::ExpansionTerritoryModule - Start");
 		#endif
 			
+		s_Instance = this;
+
 		//Server
 		m_TerritoryFlags = new map<int, TerritoryFlag>;
 		m_NextTerritoryID = 0;
@@ -446,6 +449,8 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_CREATED", territoryName), EXPANSION_NOTIFICATION_ICON_TERRITORY).Success(sender);
 		
+		flag.Expansion_EnforceMaxCodeLocks();
+
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_CreateTerritory - End");
 		#endif

@@ -1,6 +1,6 @@
 class eAIPatrol : Managed
 {
-	private static autoptr array<ref eAIPatrol> m_AllPatrols = new array<ref eAIPatrol>();
+	protected static autoptr array<ref eAIPatrol> s_AllPatrols = new array<ref eAIPatrol>();
 	private static int s_NextID;
 	static const float UPDATE_RATE_IN_SECONDS = 5.0;
 	
@@ -20,8 +20,8 @@ class eAIPatrol : Managed
 		auto trace = CF_Trace_1("eAIPatrol", "DeletePatrol").Add(patrol);
 		#endif
 
-		int index = m_AllPatrols.Find(patrol);
-		m_AllPatrols.Remove(index);
+		int index = s_AllPatrols.Find(patrol);
+		s_AllPatrols.Remove(index);
 	}
 
 	/**
@@ -33,7 +33,7 @@ class eAIPatrol : Managed
 		auto trace = CF_Trace_0(this, "eAIPatrol");
 		#endif
 
-		m_AllPatrols.Insert(this);
+		s_AllPatrols.Insert(this);
 		m_ID = s_NextID++;
 	}
 
@@ -49,32 +49,47 @@ class eAIPatrol : Managed
 		if (!GetGame())
 			return;
 
-		int idx = m_AllPatrols.Find(this);
-		if (idx != -1) m_AllPatrols.RemoveOrdered(idx);
+		int idx = s_AllPatrols.Find(this);
+		if (idx != -1) s_AllPatrols.RemoveOrdered(idx);
 
 		Stop();
 	}
 	
 	static void DebugAll()
 	{
-		Print("DebugAll");
-		Print(m_AllPatrols.Count());
-		foreach (auto patrol : m_AllPatrols)
+		Print("=== eAIPatrol::DebugAll =========================================");
+
+		int allPatrols_Count = s_AllPatrols.Count();
+		Print(allPatrols_Count);
+
+		eAIDynamicPatrol.OnDebugAll();
+
+		foreach (auto patrol : s_AllPatrols)
 		{
 			patrol.Debug();
 		}
+
+		Print("=================================================================");
 	}
-	
+
 	static void DeleteAll()
 	{
-		m_AllPatrols.Clear();
+		s_AllPatrols.Clear();
 	}
 	
 	void Debug()
 	{
-		Print(Type());
+		string title = string.Format("--- %1::Debug ", this);
+		for (int i = title.Length(); i < 65; i++) title += "-";
+		PrintFormat(title);
 		Print(m_Timer);
+		Print(m_ID);
 	}
+
+	void LoadBalancing_Update()
+	{
+	}
+
 	/**
 	 * @brief Destroys this patrol on the next frame
 	 */

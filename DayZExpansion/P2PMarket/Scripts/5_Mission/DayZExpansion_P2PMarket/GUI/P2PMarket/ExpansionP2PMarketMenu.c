@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -17,19 +17,24 @@ enum ExpansionP2PMarketMenuViewState
 	ViewList = 2,
 	ViewSales = 3,
 	DetailViewPlayerItem = 4,
-	DetailViewListingItem = 5
+	DetailViewListingItem = 5,
+	InspectListingItem = 6
 };
 
 class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 {
+	protected const int LISTINGS_PER_PAGE_COUNT = 14;
+	protected const int PAGES_BUTTONS_COUNT = 10;
+	
 	protected ref ExpansionP2PMarketMenuController m_P2PMarketMenuController;
-	protected ref ExpansionP2PMarketModule m_P2PMarketModule;
-	protected ref ExpansionMarketModule m_MarketModule;
+	protected ExpansionP2PMarketModule m_P2PMarketModule;
+	protected ExpansionMarketModule m_MarketModule;
 
 	protected ref array<ref ExpansionP2PMarketPlayerItem> m_PlayerItems = {};
 	protected ref array<ref ExpansionP2PMarketMenuListing> m_ItemListings = {};
 	protected ref array<ref ExpansionP2PMarketMenuListing> m_SoldListings = {};
 	protected int m_SoldListingsCount;
+	protected int m_ListingsCount;
 
 	protected ExpansionP2PMarketMenuItem m_SelectedPlayerItem;
 	protected ExpansionP2PMarketMenuListing m_SelectedListing;
@@ -37,6 +42,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 	protected ref array<ref ExpansionP2PMarketContainerItem> m_SelectedContainerItems = {};
 
 	protected int m_TraderID = -1;
+	protected bool m_GlobalTrader;
 	protected ref TStringArray m_Currencies;
 	protected int m_DisplayCurrencyValue = 1;
 	protected string m_DisplayCurrencyName;
@@ -83,11 +89,17 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 	protected GridSpacerWidget tabs_panel;
 	protected ButtonWidget tabs_button_browse;
 	protected TextWidget tabs_button_browse_text;
+	protected WrapSpacerWidget tabs_button_browse_bg;
+	
 	protected ButtonWidget tabs_button_list;
 	protected TextWidget tabs_button_list_text;
+	protected WrapSpacerWidget tabs_button_list_bg;
+	
 	protected ButtonWidget tabs_button_sales;
 	protected TextWidget tabs_button_sales_text;
+	protected WrapSpacerWidget tabs_button_sales_bg;
 
+	protected GridSpacerWidget exit_button_panel;
 	protected ButtonWidget exit_button;
 	protected TextWidget exit_button_text;
 
@@ -101,9 +113,19 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 	protected GridSpacerWidget toggle_categories_panel;
 
 	protected GridSpacerWidget retrieve_button_panel;
-	protected Widget player_sales_panel;
 
-	protected ref ExpansionP2PMarketSettings m_P2PMarketSettings;
+	protected GridSpacerWidget player_sales_content;
+	
+	protected WrapSpacerWidget pages_spacer;
+	protected ButtonWidget navigation_page_first;
+	protected ButtonWidget navigation_page_prev;
+	protected ButtonWidget navigation_page_next;
+	protected ButtonWidget navigation_page_last;
+	
+	protected ButtonWidget market_filter_clear;
+	protected ImageWidget market_filter_clear_icon;
+
+	protected ExpansionP2PMarketSettings m_P2PMarketSettings;
 
 	protected ref ExpansionP2PMarketMenuDetailsView m_ItemDetailsView;
 	protected ExpansionP2PMarketMenuViewState m_ViewState = ExpansionP2PMarketMenuViewState.ViewBrowse;
@@ -115,39 +137,78 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	protected string m_PlayerUID;
 
+	protected int m_CategoryIndex = -1;
+	protected int m_SubCategoryIndex = -1;
+
+	protected int m_PageIndex = 0;
+	protected int m_PageStartNum;
+	protected int m_PageEndNum;
+	protected int m_PagesCount;
+	protected ref array<ButtonWidget> m_BtnPages;
+
+	protected int m_SoldTotalIncome;
+	protected bool m_InitPhase = true;
+	protected bool m_OwnedListings;
+	protected bool m_AllListings;
+	protected int m_OwnedListingsCount;
+	protected int m_ValidListingsCount;
+	protected bool m_UseValidListingsCount;
+	protected ExpansionP2PMarketMenuItemBase m_InspectingElement;
+
 	void ExpansionP2PMarketMenu()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif
+		#endif
 
 		Class.CastTo(m_P2PMarketMenuController, GetController());
 		Class.CastTo(m_P2PMarketModule, CF_ModuleCoreManager.Get(ExpansionP2PMarketModule));
 		Class.CastTo(m_MarketModule, CF_ModuleCoreManager.Get(ExpansionMarketModule));
 
-		m_P2PMarketModule.GetP2PMarketMenuListingsSI().Insert(SetTraderItems);
-		m_P2PMarketModule.GetP2PMarketMenuCallbackSI().Insert(OnModuleCallback);
-
+		m_P2PMarketModule.GetListingsSI().Insert(SetTraderItems);
+		m_P2PMarketModule.GetListingDetailsSI().Insert(OnListingDetailsRecived);
+		m_P2PMarketModule.GetCallbackSI().Insert(OnModuleCallback);
+		m_P2PMarketModule.GetUpdateSI().Insert(OnListingsUpdate);
+		
 		m_P2PMarketSettings = GetExpansionSettings().GetP2PMarket();
 
 		m_ItemDetailsView = new ExpansionP2PMarketMenuDetailsView(this);
 		m_ItemDetailsView.Hide();
 
 		m_ListHeader = new ExpansionP2PMarketMenuListHeader(this);
+		inventory_header.AddChild(m_ListHeader.GetLayoutRoot());
+		m_ListHeader.SetSort(0, false);
 
 		m_PlayerUID = GetGame().GetPlayer().GetIdentity().GetId();
+		
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		if (player)
+			player.Expansion_GetOnRestrainedStateChaged().Insert(OnRestrainedStateChaged);
+		
+		m_BtnPages = new array<ButtonWidget>;
+		for (int i = 1; i <= PAGES_BUTTONS_COUNT; ++i)
+		{
+			ButtonWidget page_button = ButtonWidget.Cast(GetLayoutRoot().FindAnyWidget("navigation_page" + i));
+			if (page_button)
+			{
+				page_button.Show(false);
+				m_BtnPages.Insert(page_button);
+			}
+		}
 	}
 
 	void ~ExpansionP2PMarketMenu()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif
+		#endif
 		
 		if (m_P2PMarketModule)
 		{
-			m_P2PMarketModule.GetP2PMarketMenuListingsSI().Remove(SetTraderItems);
-			m_P2PMarketModule.GetP2PMarketMenuCallbackSI().Remove(OnModuleCallback);
+			m_P2PMarketModule.GetListingsSI().Remove(SetTraderItems);
+			m_P2PMarketModule.GetListingDetailsSI().Remove(OnListingDetailsRecived);
+			m_P2PMarketModule.GetCallbackSI().Remove(OnModuleCallback);
+			m_P2PMarketModule.GetUpdateSI().Remove(OnListingsUpdate);
 		}
 
 		if (m_ItemDetailsView)
@@ -167,10 +228,20 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 		if (m_SoldListings)
 			m_SoldListings.Clear();
-
+		
+		for (int i = 0; i < m_P2PMarketMenuController.PlayerItems.Count(); ++i)
+		{
+			ExpansionP2PMarketMenuItem playerItem = m_P2PMarketMenuController.PlayerItems[i];
+			playerItem.Destroy();
+		}
+		
 		m_P2PMarketMenuController.PlayerItems.Clear();
 		m_P2PMarketMenuController.ListingCategories.Clear();
 		m_P2PMarketMenuController.PlayerCategories.Clear();
+		
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		if (player)
+			player.Expansion_GetOnRestrainedStateChaged().Remove(OnRestrainedStateChaged);
 	}
 
 	override string GetLayoutFile()
@@ -183,62 +254,109 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		return ExpansionP2PMarketMenuController;
 	}
 
-	void SetTraderItems(array<ref ExpansionP2PMarketListing> listings, int traderID, string traderName = string.Empty, string iconName = string.Empty, TStringArray currencies = null, int displayCurrencyValue = 1, string displayCurrencyName = string.Empty)
+	void SetTraderItems(ExpansionP2PMarketRecivedData data, bool soldListings)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif
+		#endif
 		
-		EXPrint(ToString() + "::SetTraderItems - ID: " + traderID);
-		EXPrint(ToString() + "::SetTraderItems - Trader Name: " + traderName);
-		EXPrint(ToString() + "::SetTraderItems - Listings array: " + listings.ToString());
-		EXPrint(ToString() + "::SetTraderItems - Listings count: " + listings.Count());
-		EXPrint(ToString() + "::SetTraderItems - Currencies: " + currencies);
-
-		m_TraderID = traderID;
-
-		if (traderName != string.Empty)
+		data.Debug();
+		
+		if (m_InitPhase)
 		{
-			m_P2PMarketMenuController.TraderName = traderName;
-			m_P2PMarketMenuController.NotifyPropertyChanged("TraderName");
+			if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewBrowse)
+			{
+				tabs_button_browse_bg.SetColor(ARGB(140, 255, 255, 255));
+				tabs_button_browse_text.SetColor(ARGB(255, 0, 0, 0));
+				listing_category_all_button.SetColor(ARGB(140, 255, 255, 255));
+				listing_category_all_text.SetColor(ARGB(255, 0, 0, 0));
+				listing_category_all_icon.SetColor(ARGB(255, 0, 0, 0));
+				listing_category_all_count.SetColor(ARGB(255, 0, 0, 0));
+				m_AllListings = true;
+			}
+			
+			if (data.m_TraderID > -1)
+			{
+				m_TraderID = data.m_TraderID;
+				m_GlobalTrader = data.m_IsGlobal;
+			}
+	
+			if (data.m_TraderName != "")
+			{
+				#ifdef DIAG_DEVELOPER
+				string nameAddition;
+				if (m_GlobalTrader)
+				{
+					nameAddition = " [GLOBAL]";
+				}
+				nameAddition += " - [" + data.m_TraderID + "]";
+				m_P2PMarketMenuController.TraderName = data.m_TraderName + nameAddition;
+				#else
+				m_P2PMarketMenuController.TraderName = data.m_TraderName;
+				#endif
+				m_P2PMarketMenuController.NotifyPropertyChanged("TraderName");
+			}
+	
+			if (data.m_IconName != "")
+			{
+				m_P2PMarketMenuController.MarketIcon = ExpansionIcons.GetPath(data.m_IconName);
+				if (m_P2PMarketMenuController.MarketIcon == "")
+					m_P2PMarketMenuController.MarketIcon = data.m_IconName;
+	
+				m_P2PMarketMenuController.NotifyPropertyChanged("MarketIcon");
+			}
+			
+			if (data.m_Currencies && data.m_Currencies.Count())
+			{
+				m_Currencies = data.m_Currencies;
+			}
+	
+			if (data.m_DisplayCurrencyValue > -1)
+			{
+				m_DisplayCurrencyValue = data.m_DisplayCurrencyValue;
+			}
+			
+			if (data.m_DisplayCurrencyName != "")
+			{
+				m_DisplayCurrencyName = data.m_DisplayCurrencyName;
+				m_DisplayCurrencyPrecision = ExpansionStatic.GetPrecision(m_DisplayCurrencyValue);
+			}
+		}
+		
+		if (m_TraderID == -1)
+		{
+			EXError.Error(this, "::SetTraderItems - Trader ID is invalid: " + m_TraderID);
 		}
 
-		if (iconName != string.Empty)
-		{
-			m_P2PMarketMenuController.MarketIcon = ExpansionIcons.GetPath(iconName);
-			if (m_P2PMarketMenuController.MarketIcon == "")
-				m_P2PMarketMenuController.MarketIcon = iconName;
+		m_SoldListingsCount = data.m_SoldListingsCount;
+		if (!m_UseValidListingsCount)
+			m_ListingsCount = data.m_ListingsCount;
+		else
+			m_ListingsCount = data.m_ValidListingsCount;
 
-			m_P2PMarketMenuController.NotifyPropertyChanged("MarketIcon");
-		}
-
-		m_Currencies = currencies;
-		m_DisplayCurrencyValue = displayCurrencyValue;
-		m_DisplayCurrencyName = displayCurrencyName;
-		m_DisplayCurrencyPrecision = ExpansionStatic.GetPrecision(m_DisplayCurrencyValue);
-
-		m_ItemListings.Clear();
-
+		m_ItemListings.Clear();		
 		m_SoldListings.Clear();
-
-		inventory_header.AddChild(m_ListHeader.GetLayoutRoot());
-		m_ListHeader.SetSort(0, false);
-
+		
+		array<ref ExpansionP2PMarketListing> listings = data.m_Listings;
 		if (listings && listings.Count() > 0)
 		{
+			if (soldListings)
+			{
+				m_SoldTotalIncome = data.m_SoldTotalIncome;
+				m_P2PMarketMenuController.PlayerSales = GetDisplayPrice(m_SoldTotalIncome, false, true, true);
+				m_P2PMarketMenuController.PlayerSoldListings = m_SoldListingsCount.ToString();
+				m_P2PMarketMenuController.NotifyPropertiesChanged({"PlayerSales", "PlayerSoldListings"});
+			}
+			
 			foreach (ExpansionP2PMarketListing listing: listings)
 			{
-				if (!listing)
-					continue;
-
 				ExpansionP2PMarketMenuListing newListing = new ExpansionP2PMarketMenuListing(listing, this);
-				if (listing.GetListingState() == ExpansionP2PMarketListingState.LISTED)
+				if (!soldListings)
 				{
 					m_ItemListings.Insert(newListing);
 				}
-				else if (listing.GetListingState() == ExpansionP2PMarketListingState.SOLD && listing.GetOwnerUID() == m_PlayerUID)
+				else
 				{
-					m_SoldListingsCount++;
 					m_SoldListings.Insert(newListing);
 				}
 			}
@@ -254,51 +372,66 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		{
 			tabs_button_sales.Show(false);
 		}
-
-		for (int j = m_P2PMarketMenuController.ListingCategories.Count() - 1; j >= 0; j--)
+		
+		//! Get and set all listing categories
+		if (m_InitPhase)
 		{
-			m_P2PMarketMenuController.ListingCategories[j].Destroy();
-			m_P2PMarketMenuController.ListingCategories.RemoveOrdered(j);
+			foreach (int i, ExpansionP2PMarketMenuCategory category: m_P2PMarketSettings.MenuCategories)
+			{
+				if (i == m_P2PMarketSettings.MenuCategories.Count() - 1)
+				{
+					StringLocaliser sl = new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTCATEGORISED");
+					category.SetDisplayName(sl.Format());
+				}
+				
+				ExpansionP2PMarketMenuCategoryElement categoryElement = new ExpansionP2PMarketMenuCategoryElement(this, category);
+				m_P2PMarketMenuController.ListingCategories.Insert(categoryElement);
+			}
 		}
-
-		array<ref ExpansionP2PMarketMenuCategory> menuCategories = m_P2PMarketSettings.MenuCategories;
-		foreach (ExpansionP2PMarketMenuCategory category: menuCategories)
+		else
 		{
-			ExpansionP2PMarketMenuCategoryElement categoryElement = new ExpansionP2PMarketMenuCategoryElement(this, category);
-			m_P2PMarketMenuController.ListingCategories.Insert(categoryElement);
+			for (int j = m_P2PMarketMenuController.ListingCategories.Count() - 1; j >= 0; --j)
+			{
+				m_P2PMarketMenuController.ListingCategories[j].UpdateData();
+			}
 		}
 
 		//! Get and set all listings count
 		string listingsCountText = "[0]";
-		int listingsCount = listings.Count();
-		if (listingsCount > 0)
-			listingsCountText = "[" + listingsCount + "]";
+		if (data.m_ListingsCount > 0)
+			listingsCountText = "[" + data.m_ListingsCount + "]";
 
 		m_P2PMarketMenuController.AllListingsCount = listingsCountText;
 		m_P2PMarketMenuController.NotifyPropertyChanged("AllListingsCount");
 
 		//! Get and set player listings count
 		string playerListingsCountText = "[0]";
-		int playerListingsCount = GetOwnedListingsCount();
-		if (playerListingsCount > 0)
-			playerListingsCountText = "[" + playerListingsCount + "]";
+		if (data.m_OwnedListingsCount > 0)
+		{
+			m_OwnedListingsCount = data.m_OwnedListingsCount;
+			playerListingsCountText = "[" + data.m_OwnedListingsCount + "]";
+		}
 
 		m_P2PMarketMenuController.PlayerListingsCount = playerListingsCountText;
 		m_P2PMarketMenuController.NotifyPropertyChanged("PlayerListingsCount");
 		
+		UpdatePageButtons();
+		UpdatePlayerCurrency();
 		loading.Show(false);
+		m_InitPhase = false;
 	}
 
-	void UpdatePlayerItems()
+	protected void UpdatePlayerItems()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif
-		
+		#endif
+
 		m_PlayerItems.Clear();
 
 		m_P2PMarketModule.EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
 		array<EntityAI> items = m_P2PMarketModule.LocalGetEntityInventory();
+		
 		if (items && items.Count() > 0)
 		{
 			foreach (EntityAI item: items)
@@ -319,7 +452,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 			m_P2PMarketMenuController.PlayerItems.Clear();
 
 			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
-			array<EntityAI> slotItems = GetSlotItems(player);
+			array<EntityAI> slotItems = MiscGameplayFunctions.Expansion_GetAttachments(player);
 			array<string> slotNames = new array<string>;
 			slotNames.Insert("All");
 
@@ -328,9 +461,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 				if (!playerItem.GetItem())
 					continue;
 
-				for (int i = 0; i < slotItems.Count(); i++)
+				for (int s = 0; s < slotItems.Count(); ++s)
 				{
-					EntityAI slotItem = slotItems[i];
+					EntityAI slotItem = slotItems[s];
 					if (!slotItem)
 						continue;
 
@@ -361,27 +494,20 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 				m_P2PMarketMenuController.PlayerCategories.Insert(inventoryCategoryElement);
 			}
 		}
+		
+		loading.Show(false);
+	}
+	
+	void AddPlayerItem()
+	{
+		
 	}
 
-	array<EntityAI> GetSlotItems(PlayerBase player)
+	protected void UpdatePlayerCurrency()
 	{
-		array<EntityAI> slotItems = new array<EntityAI>;
-		for (int i = 0; i < player.GetInventory().GetAttachmentSlotsCount(); i++)
-		{
-			int slot = player.GetInventory().GetAttachmentSlotId(i);
-			EntityAI slotItem = player.GetInventory().FindAttachment(slot);
-			if (slotItem)
-				slotItems.Insert(slotItem);
-		}
-
-		return slotItems;
-	}
-
-	void UpdatePlayerCurrency()
-	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif
+		#endif
 		
 		array<int> monies = new array<int>;
 		m_PlayerWorth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, m_Currencies);
@@ -392,71 +518,94 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	void OnModuleCallback(int callback, string type = string.Empty, int price = 0, int listingPrice = 0, Object blockingObject = null)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif
+		#endif
 
 		switch (m_ViewState)
 		{
 			case ExpansionP2PMarketMenuViewState.ViewList:
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdatePlayerItems, 250);
 				if (market_filter_box.GetText() != string.Empty)
-					OnSearchFilterChange();
+					SearchInPlayerItems();
 				break;
 
 			case ExpansionP2PMarketMenuViewState.ViewBrowse:
 				if (market_filter_box.GetText() != string.Empty)
-					OnSearchFilterChange();
+					OnConfirmSearch();
 				break;
 		}
-
+		
 		string displayName = ExpansionStatic.GetItemDisplayNameWithType(type);
 		string priceString = GetDisplayPrice(price, false, true, true);
 		string listingPriceString = GetDisplayPrice(listingPrice, false, true, true);
-
+		
+		int i;
 		switch (callback)
 		{
 			case ExpansionP2PMarketModuleCallback.ItemListed:
-				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PLACED_SALE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PLACED_SALE_DESC", displayName, priceString), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.TOAST).Create();
+			{
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PLACED_SALE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PLACED_SALE_DESC", displayName, priceString), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 3, ExpansionNotificationType.TOAST).Create();
 				break;
-
+			}
 			case ExpansionP2PMarketModuleCallback.ItemPurchased:
-				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASED_DESC", displayName, priceString), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.TOAST).Create();
+			{
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASED_DESC", displayName, priceString), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 3, ExpansionNotificationType.TOAST).Create();
 				break;
-
+			}
 			case ExpansionP2PMarketModuleCallback.SaleRetrieved:
-				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_ITEM_DESC", displayName, priceString), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.TOAST).Create();
+			{
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_ITEM_DESC", displayName, priceString), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 3, ExpansionNotificationType.TOAST).Create();
+				if (m_SoldListings.Count() == 0)
+				{
+					tabs_button_sales.Show(false);
+					OnBrowseButtonClick();
+				}
+				else
+				{
+					GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdatePlayerCurrency, 100);
+				}
 				break;
-
+			}
 			case ExpansionP2PMarketModuleCallback.AllSalesRetrieved:
-				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_ALL_ITEMS_DESC", priceString), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.TOAST).Create();
+			{
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_RETRIEVED_ALL_ITEMS_DESC", priceString), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 3, ExpansionNotificationType.TOAST).Create();
+				tabs_button_sales.Show(false);
+				OnBrowseButtonClick();
 				break;
-
+			}
 			case ExpansionP2PMarketModuleCallback.ErrorListingPriceTooLow:
+			{
 				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_PRICE_LOW_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_PRICE_LOW_DESC", displayName, priceString, listingPriceString), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create();
 				break;
-
+			}
 			case ExpansionP2PMarketModuleCallback.ErrorNotEnoughMoneyToList:
+			{
 				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NOT_ENOUGH_MONEY_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NOT_ENOUGH_MONEY_DESC", displayName, priceString, listingPriceString), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create();
 				break;
-
+			}
 			case ExpansionP2PMarketModuleCallback.ErrorNotEnoughMoney:
+			{
 				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NOT_ENOUGH_MONEY_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_NOT_ENOUGH_MONEY", displayName, priceString), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create();
 				break;
-
+			}
 			case ExpansionP2PMarketModuleCallback.ErrorVehicleMissingAttachment:
+			{
 				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_VEH_MISSING_ATT_ERROR_DESC", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create();
 				break;
-
+			}
 			case ExpansionP2PMarketModuleCallback.ErrorVehicleRuinedAttachment:
+			{
 				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_RUINED_ATT_ERROR_DESC", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create();
 				break;
-
+			}
 			case ExpansionP2PMarketModuleCallback.ErrorNoVehicleSpawnPosition:
+			{
 				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASE_FAILED_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_NO_VEH_SPAWN_DESC", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create();
 				break;
-
+			}
 			case ExpansionP2PMarketModuleCallback.ErrorVehicleSpawnPositionBlocked:
+			{
 				PlayerBase blockingPlayer;
 				string blockingObjectDisplayName;
 				if (Class.CastTo(blockingPlayer, blockingObject) && blockingPlayer.GetIdentity())
@@ -471,58 +620,135 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 				StringLocaliser localiser = new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_BLOCKED_VEH_SPAWN_DESC", displayName, blockingObjectDisplayName, positionString);
 				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PURCHASE_FAILED_TITLE"), localiser, ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create();
 				break;
-
+			}
 			case ExpansionP2PMarketModuleCallback.ErrorVehicleLockpicked:
+			{
 				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_VEHICLE_LOCKPICKED_DESC", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create();
 				break;
+			}
+			case ExpansionP2PMarketModuleCallback.ErrorVehicleKeysMissing:
+			{
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_VEHICLE_KEYS_MISSING", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create();
+				break;
+			}
+			case ExpansionP2PMarketModuleCallback.ErrorPersistency:
+			{
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_LISTING_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_MARKET_P2P_NOTIF_PERSISTENCY_MISSING", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create();
+				break;
+			}
+			case ExpansionP2PMarketModuleCallback.MsgItemGotSold:
+			{
+				tabs_button_sales.Show(true);
+				break;
+			}
 		}
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdatePlayerCurrency, 250);
-		OnBackClick();
 		m_RequestsLocked = false;
 	}
-
-	string GetPreviewClassName(string className, bool ignoreBaseBuildingKits = false)
+	
+	void OnListingsUpdate(string globalIDText = "")
 	{
-		if (GetGame().ConfigIsExisting("CfgVehicles " + className + "_ExpansionMarketPreview"))
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
+		//! Cleanup removed listing if its currently in players listing items
+		if (globalIDText != "")
 		{
-			return className + "_ExpansionMarketPreview";
-		}
-		else if (!ignoreBaseBuildingKits && className.IndexOf("kit") == className.Length() - 3)
-		{
-			//! Special handling for Expansion
-			if (GetGame().IsKindOf(className, "ExpansionKitLarge"))
+			for (int i = m_ItemListings.Count() - 1; i >= 0; --i)
 			{
-				string path = "CfgVehicles " + className + " placingTypes";
-				if (GetGame().ConfigIsExisting(path))
+				ExpansionP2PMarketMenuListing listing = m_ItemListings[i];
+				if (listing.GetListing().GetEntityStorageBaseName() == globalIDText)
 				{
-					TStringArray placingTypes = new TStringArray;
-					GetGame().ConfigGetTextArray(path, placingTypes);
-					foreach (string placingType : placingTypes)
+					//! Close item inspection if client is currently inspecting a listing item or one of its cargo/attachment items in the details view.
+					if (m_ViewState == ExpansionP2PMarketMenuViewState.InspectListingItem)
 					{
-						path = "CfgVehicles " + placingType + " deployType";
-						if (GetGame().ConfigIsExisting(path))
+						if (m_InspectingElement)
 						{
-							return GetGame().ConfigGetTextOut(path);
+							ExpansionP2PMarketMenuListing listingElement;
+							if (Class.CastTo(listingElement, m_InspectingElement))
+							{
+								if (listingElement.GetListing().GetEntityStorageBaseName() == globalIDText)
+								{
+									m_InspectingElement.CloseItemInspection(true);
+								}
+							}
+							
+							ExpansionP2PMarketMenuCargoItem cargoElement;
+							if (Class.CastTo(cargoElement, m_InspectingElement))	
+							{
+								if (cargoElement.GetParent() && ExpansionP2PMarketMenuListing.Cast(cargoElement.GetParent()).GetListing().GetEntityStorageBaseName() == globalIDText)
+								{
+									m_InspectingElement.CloseItemInspection(true);
+									
+									ClearSelected();
+									GetDetailsView().Hide();
+						
+									categories_panel.Show(true);
+									inventory_panel.Show(true);
+									player_items_scroller.Show(true);
+									details_panel.Show(false);
+							
+									tabs_panel.Show(true);
+									market_filter_panel.Show(true);
+									categories_panel.Show(true);
+									m_PreviousViewState = m_ViewState;
+									m_ViewState = ExpansionP2PMarketMenuViewState.ViewList;
+									ShowListView();
+								}
+							}							
 						}
 					}
+					
+					listing.Hide();
+					listing.Destroy();
+	
+					m_ItemListings.RemoveOrdered(i);
 				}
 			}
-
-			if (className == "fencekit" || className == "watchtowerkit" || className == "territoryflagkit")
+		}
+		
+		switch (m_ViewState)
+		{
+			case ExpansionP2PMarketMenuViewState.ViewSales:
 			{
-				//! Item name is kit name without "kit" at the end
-				string previewClassName = className.Substring(0, className.Length() - 3);
-				if (GetGame().ConfigIsExisting("CfgVehicles " + previewClassName))
-					return previewClassName;
+				m_P2PMarketModule.RequestBasicListingData(m_TraderID, m_PageIndex, true, m_CategoryIndex, m_SubCategoryIndex);
+				break;
+			}
+			case ExpansionP2PMarketMenuViewState.ViewBrowse:
+			{
+				if (m_ItemListings && m_ItemListings.Count() < LISTINGS_PER_PAGE_COUNT)
+				{
+					array<string> searchTypeNames;
+					string searchText = market_filter_box.GetText();
+					if (searchText != "")
+					{
+						searchTypeNames = ExpansionItemNameTable.GetTypeNamesByString(searchText);
+					}
+				
+					m_P2PMarketModule.RequestBasicListingData(m_TraderID, m_PageIndex, false, m_CategoryIndex, m_SubCategoryIndex, searchTypeNames);
+				}
+				break;
+			}
+			case ExpansionP2PMarketMenuViewState.ViewList:
+			case ExpansionP2PMarketMenuViewState.DetailViewPlayerItem:
+			{
+				UpdatePlayerCurrency();
+				UpdatePlayerItems();
+				break;
 			}
 		}
-		return className;
+	}
+
+	//! This method allows mods to override GetPreviewClassName while still keeping the original code in one place
+	string GetPreviewClassName(string className, bool ignoreBaseBuildingKits = false)
+	{
+		return ExpansionStatic.GetPreviewClassName(className, ignoreBaseBuildingKits);
 	}
 
 	//! Gets price text and checks if it contains only numbers.
 	//! Returns price as positive int if check passed, else displays error notification and returns -1.
-	int GetCheckPrice()
+	protected int GetCheckPrice()
 	{
 		int price = GetDetailsView().GetListPrice();
 		
@@ -571,9 +797,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 				text = "#inv_inspect_pristine";
 				color = Colors.COLOR_PRISTINE;
 				break;
-			}
 
 			default:
+			}
 			{
 				text = "#STR_EXPANSION_ERROR_TITLE";
 				color = Colors.COLOR_PRISTINE;
@@ -594,9 +820,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		GetDetailsView().ShowItemCargoCount(false);
 		GetDetailsView().ShowItemAttachmentsCount(false);
 		GetDetailsView().ShowItemFoodState(false);
-	#ifdef EXPANSIONMODHARDLINE
+		#ifdef EXPANSIONMODHARDLINE
 		GetDetailsView().ShowItemRarity(false);
-	#endif
+		#endif
 	}
 
 	void SetSelectedPlayerItem(ExpansionP2PMarketMenuItem item)
@@ -711,7 +937,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 			}
 		}
 
-	#ifdef EXPANSIONMODHARDLINE
+		#ifdef EXPANSIONMODHARDLINE
 		if (item.GetPlayerItem().GetRarity() != ExpansionHardlineItemRarity.NONE)
 		{
 			string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, item.GetPlayerItem().GetRarity());
@@ -737,12 +963,12 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 			GetDetailsView().ShowItemRarity(true);
 		}
-	#endif
+		#endif
 
 		GetDetailsView().ClearAttachments();
 		GetDetailsView().ClearCargo();
 
-		if (item.GetPlayerItem().GetContainerItemsCount() > 0)
+		if (item.GetPlayerItem().GetContainerItems().Count() > 0)
 		{
 			int cargoItemsCount = 0;
 			int attachmentsCount = 0;
@@ -750,25 +976,20 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 			if (containerItems && containerItems.Count() > 0)
 			{
 				ExpansionP2PMarketMenuCargoItem containerElement;
-				for (int i = 0; i < containerItems.Count(); i++)
+				for (int i = 0; i < containerItems.Count(); ++i)
 				{
 					ExpansionP2PMarketContainerItem containerItem = item.GetPlayerItem().GetContainerItems().Get(i);
 					if (!containerItem)
 						continue;
 
-					EXPrint(ToString() + "::SetSelectedListingItem - Container item: " + containerItem.ToString());
-					EXPrint(ToString() + "::SetSelectedListingItem - Container item class name: " + containerItem.GetClassName());
-
 					containerElement = new ExpansionP2PMarketMenuCargoItem(containerItem, this);
 					if (!containerItem.IsAttached())
 					{
-						EXPrint(ToString() + "::SetSelectedListingItem - Add Container item " + containerItem.GetClassName() + " as cargo item.");
 						GetDetailsView().AddCargoEntry(containerElement);
 						cargoItemsCount++;
 					}
 					else
 					{
-						EXPrint(ToString() + "::SetSelectedListingItem - Add Container item " + containerItem.GetClassName() + " as attachment item.");
 						GetDetailsView().AddAttachmentEntry(containerElement);
 						attachmentsCount++;
 					}
@@ -778,19 +999,14 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 					{
 						foreach (ExpansionP2PMarketContainerItem containerItemOfContainerItem: containerItemsOfContainerItem)
 						{
-							EXPrint(ToString() + "::SetSelectedListingItem - Cargo item of container item: " + containerItemOfContainerItem.ToString());
-							EXPrint(ToString() + "::SetSelectedListingItem - Cargo item of container item class name: " + containerItemOfContainerItem.GetClassName());
-
 							containerElement = new ExpansionP2PMarketMenuCargoItem(containerItemOfContainerItem, this);
 							if (!containerItemOfContainerItem.IsAttached())
 							{
-								EXPrint(ToString() + "::SetSelectedListingItem - Add Cargo item of container item " + containerItemOfContainerItem.GetClassName() + " as cargo item.");
 								GetDetailsView().AddCargoEntry(containerElement);
 								cargoItemsCount++;
 							}
 							else
 							{
-								EXPrint(ToString() + "::SetSelectedListingItem - Add Cargo item of container item " + containerItemOfContainerItem.GetClassName() + " as attachment item.");
 								GetDetailsView().AddAttachmentEntry(containerElement);
 								attachmentsCount++;
 							}
@@ -875,6 +1091,8 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 		GetDetailsView().Show();
 		GetDetailsView().UpdatePreview();
+		
+		GetDetailsView().UpdateItemInfoTooltip(m_SelectedPlayerItem.GetItem());
 
 		m_PreviousViewState = m_ViewState;
 		m_ViewState = ExpansionP2PMarketMenuViewState.DetailViewPlayerItem;
@@ -1043,29 +1261,36 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		GetDetailsView().ResetPreview();
 		m_SelectedListing = listing;
 		m_SelectedPlayerItem = null;
-		m_SelectedPreviewObject = listing.GetPreviewObject();
-
-		m_SelectedContainerItems = listing.GetListing().GetContainerItems();
+		m_P2PMarketModule.RequestListingDetails(m_TraderID, listing.GetListing().GetGlobalID());
+	}
+	
+	void OnListingDetailsRecived(ExpansionP2PMarketListing itemListing)
+	{
+		if (!m_SelectedListing || !itemListing)
+			return;
+		
+		m_SelectedPreviewObject = m_SelectedListing.GetPreviewObject();
+		m_SelectedContainerItems = itemListing.GetContainerItems();
 
 		GetDetailsView().SetViewListing();
-		GetDetailsView().GetDetailsViewController().SelectedName = listing.GetPreviewObject().GetDisplayName();
+		GetDetailsView().GetDetailsViewController().SelectedName = m_SelectedListing.GetPreviewObject().GetDisplayName();
 		GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("SelectedName");
 
-		if (!listing.GetPreviewObject().IsInherited(ZombieBase) || !listing.GetPreviewObject().IsTransport())
+		if (!m_SelectedListing.GetPreviewObject().IsInherited(ZombieBase) || !m_SelectedListing.GetPreviewObject().IsTransport())
 		{
-			GetDetailsView().GetDetailsViewController().ItemDescription = ExpansionStatic.GetItemDescriptionWithType(listing.GetListing().GetClassName());
+			GetDetailsView().GetDetailsViewController().ItemDescription = ExpansionStatic.GetItemDescriptionWithType(m_SelectedListing.GetListing().GetClassName());
 			GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("ItemDescription");
 			GetDetailsView().GetItemDescriptionWidget().Update();
 		}
 
-		if (listing.IsOwnerdItem())
+		if (m_SelectedListing.IsOwnerdItem())
 		{
-			int discountPrice = ExpansionP2PMarketModule.GetDiscountPrice(listing.GetListing().GetPrice());
+			int discountPrice = ExpansionP2PMarketModule.GetDiscountPrice(itemListing.GetPrice());
 			GetDetailsView().GetDetailsViewController().ListingPrice = GetDisplayPrice(discountPrice, false, true, true);
 		}
 		else
 		{
-			GetDetailsView().GetDetailsViewController().ListingPrice = GetDisplayPrice(listing.GetListing().GetPrice(), false, true, true);
+			GetDetailsView().GetDetailsViewController().ListingPrice = GetDisplayPrice(itemListing.GetPrice(), false, true, true);
 		}
 
 		GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("ListingPrice");
@@ -1087,44 +1312,44 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 		HideItemDetailElements();
 
-		UpdateItemInfoDamage(listing.GetListing().GetHealthLevel());
+		UpdateItemInfoDamage(itemListing.GetHealthLevel());
 
-		listing.GetListing().UpdateContainerItems();
+		itemListing.UpdateContainerItems();
 
-		if (listing.GetListing().GetLiquidType() != -1)
+		if (itemListing.GetLiquidType() != -1)
 		{
-			bool isBloodContainer = ExpansionStatic.IsAnyOf(listing.GetListing().GetClassName(), m_BloodContainers);
+			bool isBloodContainer = ExpansionStatic.IsAnyOf(itemListing.GetClassName(), m_BloodContainers);
 			int liquidColor;
 			GetDetailsView().ShowItemLiquid(true);
-			GetDetailsView().GetDetailsViewController().LiquidType = GetLiquidTypeString(listing.GetListing().GetLiquidType(), isBloodContainer, liquidColor);
+			GetDetailsView().GetDetailsViewController().LiquidType = GetLiquidTypeString(itemListing.GetLiquidType(), isBloodContainer, liquidColor);
 			GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("LiquidType");
 			GetDetailsView().SetLiquidColor(liquidColor);
 		}
 
-		if (listing.GetListing().GetFoodStageType() != -1)
+		if (itemListing.GetFoodStageType() != -1)
 		{
 			int foodStageColor;
 			GetDetailsView().ShowItemFoodState(true);
-			GetDetailsView().GetDetailsViewController().FoodState = GetFoodStageString(listing.GetListing().GetFoodStageType(), foodStageColor);
+			GetDetailsView().GetDetailsViewController().FoodState = GetFoodStageString(itemListing.GetFoodStageType(), foodStageColor);
 			GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("FoodState");
 			GetDetailsView().SetFoodStateColor(foodStageColor);
 		}
 
-		if (listing.GetListing().GetQuantity() > 0)
+		if (itemListing.GetQuantity() > 0)
 		{
 			int quantityColor;
-			if (listing.GetListing().GetQuantityType() == ExpansionItemQuantityType.POWER || listing.GetListing().GetQuantityType() == ExpansionItemQuantityType.MILLILITER || listing.GetListing().GetQuantityType() == ExpansionItemQuantityType.PERCENTAGE || listing.GetListing().GetQuantityType() == ExpansionItemQuantityType.GRAM)
+			if (itemListing.GetQuantityType() == ExpansionItemQuantityType.POWER || itemListing.GetQuantityType() == ExpansionItemQuantityType.MILLILITER || itemListing.GetQuantityType() == ExpansionItemQuantityType.PERCENTAGE || itemListing.GetQuantityType() == ExpansionItemQuantityType.GRAM)
 			{
 				GetDetailsView().GetDetailsViewController().QuantityText = "#STR_EXPANSION_MARKET_P2P_ITEMINFO_QUANTITY_LABEL";
 				GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("QuantityText");
-				GetDetailsView().GetQuantityBarWidget().SetCurrent(listing.GetListing().GetQuantity());
-				GetDetailsView().GetDetailsViewController().ItemQuantity = GetQuantityString(listing.GetListing().GetQuantityType(), listing.GetListing().GetQuantity(), quantityColor);;
+				GetDetailsView().GetQuantityBarWidget().SetCurrent(itemListing.GetQuantity());
+				GetDetailsView().GetDetailsViewController().ItemQuantity = GetQuantityString(itemListing.GetQuantityType(), itemListing.GetQuantity(), quantityColor);;
 				GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("ItemQuantity");
 				GetDetailsView().ShowQuantityBar(true);
 			}
-			else if (listing.GetListing().GetQuantityType() == ExpansionItemQuantityType.HEATISOLATION)
+			else if (itemListing.GetQuantityType() == ExpansionItemQuantityType.HEATISOLATION)
 			{
-				int quantity = listing.GetListing().GetQuantity();
+				int quantity = itemListing.GetQuantity();
 				string isolationText;
 				int isolationColor;
 				if (quantity <= GameConstants.HEATISO_THRESHOLD_BAD)
@@ -1159,11 +1384,11 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 				GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("ItemQuantity");
 				GetDetailsView().ShowQuantityColor(true, isolationColor);
 			}
-			else if (listing.GetListing().GetQuantityType() == ExpansionItemQuantityType.PC)
+			else if (itemListing.GetQuantityType() == ExpansionItemQuantityType.PC)
 			{
 				GetDetailsView().GetDetailsViewController().QuantityText = "#STR_EXPANSION_MARKET_P2P_ITEMINFO_QUANTITY_LABEL";
 				GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("QuantityText");
-				GetDetailsView().GetDetailsViewController().ItemQuantity = GetQuantityString(listing.GetListing().GetQuantityType(),listing.GetListing().GetQuantity(), quantityColor);
+				GetDetailsView().GetDetailsViewController().ItemQuantity = GetQuantityString(itemListing.GetQuantityType(), itemListing.GetQuantity(), quantityColor);
 				GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("ItemQuantity");
 				GetDetailsView().ShowItemQuantity(true);
 			}
@@ -1172,31 +1397,27 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		GetDetailsView().ClearAttachments();
 		GetDetailsView().ClearCargo();
 
-		if (listing.GetListing().GetContainerItemsCount() > 0)
+		if (itemListing.GetContainerItems().Count() > 0)
 		{
 			GetDetailsView().ShowItemCargoCount(true);
-			GetDetailsView().GetDetailsViewController().CargoItemsCount = listing.GetListing().GetContainerItemsCount().ToString();
+			GetDetailsView().GetDetailsViewController().CargoItemsCount = itemListing.GetContainerItems().Count().ToString();
 			GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("CargoItemsCount");
 
 			int cargoItemsCount;
 			int attachmentsCount;
-			array<ref ExpansionP2PMarketContainerItem> containerItems = listing.GetListing().GetContainerItems();
+			array<ref ExpansionP2PMarketContainerItem> containerItems = itemListing.GetContainerItems();
 			if (containerItems && containerItems.Count() > 0)
 			{
 				ExpansionP2PMarketMenuCargoItem containerElement;
-				for (int i = 0; i < containerItems.Count(); i++)
+				for (int i = 0; i < containerItems.Count(); ++i)
 				{
 					ExpansionP2PMarketContainerItem containerItem = containerItems[i];
 					if (!containerItem)
 						continue;
 
-					EXPrint(ToString() + "::SetSelectedListingItem - Container item: " + containerItem.ToString());
-					EXPrint(ToString() + "::SetSelectedListingItem - Container item class name: " + containerItem.GetClassName());
-
-					containerElement = new ExpansionP2PMarketMenuCargoItem(containerItem, this);
-					if (!containerElement)
-						continue;
-
+					containerElement = new ExpansionP2PMarketMenuCargoItem(containerItem, this);				
+					containerElement.SetParent(m_SelectedListing);
+					
 					if (!containerItem.IsAttached())
 					{
 						GetDetailsView().AddCargoEntry(containerElement);
@@ -1214,6 +1435,8 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 						foreach (ExpansionP2PMarketContainerItem containerItemOfContainerItem: containerItemsOfContainerItem)
 						{
 							containerElement = new ExpansionP2PMarketMenuCargoItem(containerItemOfContainerItem, this);
+							containerElement.SetParent(m_SelectedListing);
+
 							if (!containerItemOfContainerItem.IsAttached())
 							{
 								GetDetailsView().AddCargoEntry(containerElement);
@@ -1244,10 +1467,10 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 			}
 		}
 
-	#ifdef EXPANSIONMODHARDLINE
-		if (listing.GetListing().GetRarity() != ExpansionHardlineItemRarity.NONE)
+		#ifdef EXPANSIONMODHARDLINE
+		if (itemListing.GetRarity() != ExpansionHardlineItemRarity.NONE)
 		{
-			string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, listing.GetListing().GetRarity());
+			string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, itemListing.GetRarity());
 			string rarityText = "#STR_EXPANSION_HARDLINE_" + rarityName;
 			int rarityColor;
 			typename type = ExpansionHardlineItemRarityColor;
@@ -1270,7 +1493,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 			GetDetailsView().ShowItemRarity(true);
 		}
-	#endif
+		#endif
 
 		GetDetailsView().Show();
 		GetDetailsView().UpdatePreview();
@@ -1299,12 +1522,19 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		}
 	}
 
-	void GetSaleFromListing(ExpansionP2PMarketListing listing)
+	void GetSaleFromListing(TIntArray globalID)
 	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
+		if (m_RequestsLocked)
+			return;
+		
 		if (m_SoldListingsCount - 1 == 0)
 			OnBrowseButtonClick();	//! Switch from sales to browse view when there is no sales left.
 
-		m_P2PMarketModule.GetSaleFromListing(listing, m_TraderID);
+		m_P2PMarketModule.GetSaleFromListing(globalID, m_TraderID, m_PageIndex);
 	}
 
 	protected void ClearSelected()
@@ -1424,57 +1654,21 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		}
 	}
 
-	void SetCategory_OwnedListings()
-	{
-		foreach (ExpansionP2PMarketMenuListing entry: m_ItemListings)
-		{
-			if (!entry || !entry.GetListing())
-				continue;
-
-			if (entry.GetListing().GetOwnerUID() != m_PlayerUID)
-			{
-				entry.Hide();
-			}
-			else
-			{
-				entry.Show();
-			}
-		}
-	}
-
-	int GetOwnedListingsCount()
-	{
-		int count;
-		foreach (ExpansionP2PMarketMenuListing entry: m_ItemListings)
-		{
-			if (!entry || !entry.GetListing())
-				continue;
-
-			if (entry.GetListing().GetOwnerUID() == m_PlayerUID)
-				count++;
-		}
-
-		return count;
-	}
-
-	void SetCategory_All()
-	{
-		foreach (ExpansionP2PMarketMenuListing entry: m_ItemListings)
-		{
-			if (!entry || !entry.GetListing())
-				continue;
-
-			entry.Show();
-		}
-	}
-
-	//! FILTERS
 	void OnListButtonClick()
 	{
+		if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewList)
+			return;
+		
 		if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewBrowse)
 		{
-			m_ListHeader.Hide();
+			m_ListHeader.SetListView(true);
 			tabs_panel.Show(false);
+		}
+		
+		if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewSales)
+		{
+			retrieve_button_panel.Show(false);
+			player_sales_content.Show(false);
 		}
 
 		if (m_ViewState == ExpansionP2PMarketMenuViewState.DetailViewPlayerItem || m_ViewState == ExpansionP2PMarketMenuViewState.DetailViewListingItem)
@@ -1498,6 +1692,13 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	void OnBrowseButtonClick()
 	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
+		if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewBrowse)
+			return;
+		
 		if (m_ViewState == ExpansionP2PMarketMenuViewState.DetailViewPlayerItem || m_ViewState == ExpansionP2PMarketMenuViewState.DetailViewListingItem)
 		{
 			ClearSelected();
@@ -1508,8 +1709,15 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 			player_items_scroller.Show(false);
 			details_panel.Show(false);
 		}
+		
+		if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewSales)
+		{
+			player_sales_content.Show(false);
+			retrieve_button_panel.Show(false);
+		}
 
 		m_ListHeader.Show();
+		m_ListHeader.SetListView(false);
 		tabs_panel.Show(true);
 		market_filter_panel.Show(true);
 		categories_panel.Show(true);
@@ -1520,9 +1728,13 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	void OnSalesButtonClick()
 	{
+		if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewSales)
+			return;
+		
 		if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewBrowse)
 		{
-			m_ListHeader.Hide();
+			//m_ListHeader.Hide();
+			m_ListHeader.SetListView(true);
 		}
 
 		if (m_ViewState == ExpansionP2PMarketMenuViewState.DetailViewPlayerItem || m_ViewState == ExpansionP2PMarketMenuViewState.DetailViewListingItem)
@@ -1539,16 +1751,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		categories_panel.Show(false);
 		inventory_panel.Show(true);
 		retrieve_button_panel.Show(true);
-		player_sales_panel.Show(true);
-
-		int allSales;
-		foreach (ExpansionP2PMarketMenuListing soldListing: m_SoldListings)
-		{
-			allSales += soldListing.GetListing().GetPrice();
-		}
-
-		m_P2PMarketMenuController.PlayerSales = GetDisplayPrice(allSales, false, true, true);
-		m_P2PMarketMenuController.NotifyPropertyChanged("PlayerSales");
+		player_sales_content.Show(true);
 
 		m_PreviousViewState = m_ViewState;
 		m_ViewState = ExpansionP2PMarketMenuViewState.ViewSales;
@@ -1557,7 +1760,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	void OnRetrieveAllSalesClick()
 	{
-		if (m_ViewState != ExpansionP2PMarketMenuViewState.ViewSales)
+		if (m_ViewState != ExpansionP2PMarketMenuViewState.ViewSales || m_RequestsLocked)
 			return;
 
 		m_P2PMarketModule.RequestAllPlayerSales(m_TraderID);
@@ -1565,6 +1768,10 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	protected void ShowBrowseView()
 	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		#endif
+		
 		inventory_scroller.Show(true);
 		player_items_scroller.Show(false);
 		sold_items_scroller.Show(false);
@@ -1572,8 +1779,19 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		listing_categories_content.Show(true);
 		player_categories_content.Show(false);
 		toggle_categories_panel.Show(true);
+		
+		tabs_button_list_bg.SetColor(ARGB(255, 19, 23, 27));
+		tabs_button_list_text.SetColor(ARGB(255, 255, 255, 255));
+		tabs_button_sales_bg.SetColor(ARGB(255, 19, 23, 27));
+		tabs_button_sales_text.SetColor(ARGB(255, 255, 255, 255));
 
-		m_P2PMarketModule.RequestSendBMTraderData(m_TraderID);
+		m_PageIndex = 0;
+		m_OwnedListings = false;
+		m_CategoryIndex = -1;
+		m_SubCategoryIndex = -1;
+		m_PageStartNum = 1;
+		
+		m_P2PMarketModule.RequestBasicListingData(m_TraderID, 0, false);
 	}
 
 	protected void ShowListView()
@@ -1581,11 +1799,17 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		inventory_scroller.Show(false);
 		player_items_scroller.Show(true);
 		sold_items_scroller.Show(false);
+		pages_spacer.Show(false);
 
 		listing_categories_content.Show(false);
 		player_categories_content.Show(true);
 		toggle_categories_panel.Show(false);
-
+		
+		tabs_button_browse_bg.SetColor(ARGB(255, 19, 23, 27));
+		tabs_button_browse_text.SetColor(ARGB(255, 255, 255, 255));
+		tabs_button_sales_bg.SetColor(ARGB(255, 19, 23, 27));
+		tabs_button_sales_text.SetColor(ARGB(255, 255, 255, 255));
+		
 		UpdatePlayerItems();
 	}
 
@@ -1599,6 +1823,19 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 		listing_categories_content.Show(false);
 		player_categories_content.Show(false);
+
+		m_PageIndex = 0;
+		m_OwnedListings = false;
+		m_CategoryIndex = -1;
+		m_SubCategoryIndex = -1;
+		m_PageStartNum = 1;
+		
+		tabs_button_browse_bg.SetColor(ARGB(255, 19, 23, 27));
+		tabs_button_browse_text.SetColor(ARGB(255, 255, 255, 255));
+		tabs_button_list_bg.SetColor(ARGB(255, 19, 23, 27));
+		tabs_button_list_text.SetColor(ARGB(255, 255, 255, 255));
+		
+		m_P2PMarketModule.RequestBasicListingData(m_TraderID, 0, true);
 	}
 
 	void Listings_Filter_ClassNameAZ()
@@ -1644,29 +1881,127 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 	//! CATEGORIES
 	void OnClickCategory_Listings()
 	{
-		SetCategory_OwnedListings();
+		m_PageIndex = 0;
+		m_OwnedListings = true;
+		m_AllListings = false;
+		m_CategoryIndex = -1;
+		m_SubCategoryIndex = -1;
+		m_PageStartNum = 1;
+
+		listing_category_listings_button.SetColor(ARGB(140, 255, 255, 255));
+		listing_category_listings_text.SetColor(ARGB(255, 0, 0, 0));
+		listing_category_listings_icon.SetColor(ARGB(255, 0, 0, 0));
+		listing_category_listings_count.SetColor(ARGB(255, 0, 0, 0));
+		
+		listing_category_all_button.SetColor(ARGB(255, 0, 0, 0));
+		listing_category_all_text.SetColor(ARGB(255, 255, 255, 255));
+		listing_category_all_icon.SetColor(ARGB(255, 255, 255, 255));
+		listing_category_all_count.SetColor(ARGB(255, 255, 255, 255));
+
+		for (int i = 0; i < m_P2PMarketMenuController.ListingCategories.Count(); ++i)
+		{
+			ExpansionP2PMarketMenuCategoryElement category = m_P2PMarketMenuController.ListingCategories[i];			
+			category.SetSelected(false);
+			
+			ObservableCollection<ref ExpansionP2PMarketMenuSubCategoryElement> subCategories = category.GetSubCategories();
+			for (int j = 0; j < subCategories.Count(); ++j)
+			{
+				ExpansionP2PMarketMenuSubCategoryElement subCategory = subCategories[j]; 
+				subCategory.SetSelected(false);
+			}
+		}
+		
+		m_P2PMarketModule.RequestBasicListingData(m_TraderID, 0, false, -1, -1, null, m_OwnedListings);
 	}
 
 	void OnClickCategory_All()
 	{
-		SetCategory_All();
-	}
+		m_PageIndex = 0;
+		m_OwnedListings = false;
+		m_AllListings = true;
+		m_CategoryIndex = -1;
+		m_SubCategoryIndex = -1;
+		m_PageStartNum = 1;
 
-	void UpdateMenuCategory(ExpansionP2PMarketMenuCategoryBase category)
-	{
-		foreach (ExpansionP2PMarketMenuListing entry: m_ItemListings)
+		listing_category_all_button.SetColor(ARGB(140, 255, 255, 255));
+		listing_category_all_text.SetColor(ARGB(255, 0, 0, 0));
+		listing_category_all_icon.SetColor(ARGB(255, 0, 0, 0));
+		listing_category_all_count.SetColor(ARGB(255, 0, 0, 0));
+		
+		listing_category_listings_button.SetColor(ARGB(255, 0, 0, 0));
+		listing_category_listings_text.SetColor(ARGB(255, 255, 255, 255));
+		listing_category_listings_icon.SetColor(ARGB(255, 255, 255, 255));
+		listing_category_listings_count.SetColor(ARGB(255, 255, 255, 255));
+		
+		for (int i = 0; i < m_P2PMarketMenuController.ListingCategories.Count(); ++i)
 		{
-			TStringArray included = category.GetIncluded();
-			TStringArray excluded = category.GetExcluded();
-			if (ExpansionStatic.IsAnyOf(entry.GetPreviewObject(), included) && !ExpansionStatic.IsAnyOf(entry.GetPreviewObject(), excluded))
+			ExpansionP2PMarketMenuCategoryElement category = m_P2PMarketMenuController.ListingCategories[i];			
+			category.SetSelected(false);
+			
+			ObservableCollection<ref ExpansionP2PMarketMenuSubCategoryElement> subCategories = category.GetSubCategories();
+			for (int j = 0; j < subCategories.Count(); ++j)
 			{
-				entry.Show();
-			}
-			else
-			{
-				entry.Hide();
+				ExpansionP2PMarketMenuSubCategoryElement subCategory = subCategories[j]; 
+				subCategory.SetSelected(false);
 			}
 		}
+
+		m_P2PMarketModule.RequestBasicListingData(m_TraderID, m_PageIndex, false, m_CategoryIndex, m_SubCategoryIndex, null, m_OwnedListings);
+	}
+
+	void UpdateMenuCategory(ExpansionP2PMarketCategoryListings categoryData)
+	{
+		for (int i = 0; i < m_P2PMarketMenuController.ListingCategories.Count(); ++i)
+		{
+			ExpansionP2PMarketMenuCategoryElement category = m_P2PMarketMenuController.ListingCategories[i];
+			bool isSelected = (category.GetCategoryData() == categoryData);
+			bool isChildSelected = false;
+			
+			category.SetSelected(isSelected);
+			
+			ObservableCollection<ref ExpansionP2PMarketMenuSubCategoryElement> subCategories = category.GetSubCategories();
+			for (int j = 0; j < subCategories.Count(); ++j)
+			{
+				ExpansionP2PMarketMenuSubCategoryElement subCategory = subCategories[j]; 
+				isChildSelected = (subCategory.GetCategoryData() == categoryData);
+				subCategory.SetSelected(isChildSelected);
+			}
+		}
+
+		listing_category_listings_button.SetColor(ARGB(255, 0, 0, 0));
+		listing_category_listings_text.SetColor(ARGB(255, 255, 255, 255));
+		listing_category_listings_icon.SetColor(ARGB(255, 255, 255, 255));
+		listing_category_listings_count.SetColor(ARGB(255, 255, 255, 255));
+
+		listing_category_all_button.SetColor(ARGB(255, 0, 0, 0));
+		listing_category_all_text.SetColor(ARGB(255, 255, 255, 255));
+		listing_category_all_icon.SetColor(ARGB(255, 255, 255, 255));
+		listing_category_all_count.SetColor(ARGB(255, 255, 255, 255));
+		
+		m_PageIndex = 0;	
+		m_OwnedListings = false;
+		m_AllListings = false;
+		m_CategoryIndex = categoryData.m_CategoryIndex;
+		m_SubCategoryIndex = categoryData.m_SubCategoryIndex;
+		m_PageStartNum = 1;
+		
+		if (market_filter_box.GetText() != "")
+			market_filter_box.SetText("");
+
+		m_P2PMarketModule.RequestBasicListingData(m_TraderID, m_PageIndex, false, m_CategoryIndex, m_SubCategoryIndex, null, m_OwnedListings);
+	}
+	
+	void OnConfirmSearch()
+	{
+		m_PageIndex = 0;
+		m_OwnedListings = false;
+		m_PageStartNum = 1;
+		
+		string searchText = market_filter_box.GetText();
+		ErrorEx("" + m_UseValidListingsCount, ErrorExSeverity.INFO);
+		m_UseValidListingsCount = (searchText != "");
+		array<string> searchTypeNames = ExpansionItemNameTable.GetTypeNamesByString(searchText);
+		m_P2PMarketModule.RequestBasicListingData(m_TraderID, m_PageIndex, false, m_CategoryIndex, m_SubCategoryIndex, searchTypeNames, m_OwnedListings);
 	}
 
 	//! MENU EVENTS
@@ -1724,6 +2059,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	void OnConfirmListingClick()
 	{
+		ErrorEx("Requests locked: " + m_RequestsLocked, ErrorExSeverity.INFO);
 		if (!m_SelectedPlayerItem || !m_SelectedPlayerItem.GetPlayerItem() || m_RequestsLocked)
 			return;
 
@@ -1732,36 +2068,32 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 			return;
 
 		m_RequestsLocked = true;
-		m_P2PMarketModule.RequestListBMItem(m_TraderID, playerItem, m_CurrentItemPrice);
-
+		m_P2PMarketModule.RequestListItem(m_TraderID, playerItem, m_CurrentItemPrice);
 		GetDetailsView().UpdatePreview();
-
 		OnBackClick();
 	}
 
 	void OnPurchaseListingClick()
 	{
+		ErrorEx("Requests locked: " + m_RequestsLocked, ErrorExSeverity.INFO);
 		if (!m_SelectedListing || !m_SelectedListing.GetListing() || m_RequestsLocked)
 			return;
 
 		m_RequestsLocked = true;
-		m_P2PMarketModule.RequestPurchaseBMItem(m_SelectedListing.GetListing());
-
+		m_P2PMarketModule.RequestPurchaseItem(m_TraderID, m_SelectedListing.GetListing(), m_PageIndex, m_CategoryIndex, m_SubCategoryIndex, m_OwnedListings);
 		GetDetailsView().UpdatePreview();
-
 		OnBackClick();
 	}
 
 	void QuickbuyListing(ExpansionP2PMarketMenuListing listing)
 	{
+		ErrorEx("Requests locked: " + m_RequestsLocked, ErrorExSeverity.INFO);
 		if (!listing || !listing.GetListing() || m_RequestsLocked)
 			return;
 
 		m_RequestsLocked = true;
-		m_P2PMarketModule.RequestPurchaseBMItem(listing.GetListing());
-		
+		m_P2PMarketModule.RequestPurchaseItem(m_TraderID, listing.GetListing(), m_PageIndex, m_CategoryIndex, m_SubCategoryIndex, m_OwnedListings);
 		GetDetailsView().UpdatePreview();
-		
 		OnBrowseButtonClick();
 	}
 
@@ -1778,7 +2110,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	void UpdateInventorySlotFilter(string slotName)
 	{
-		for (int i = 0; i < m_P2PMarketMenuController.PlayerItems.Count(); i++)
+		for (int i = 0; i < m_P2PMarketMenuController.PlayerItems.Count(); ++i)
 		{
 			ExpansionP2PMarketMenuItem playerItem = m_P2PMarketMenuController.PlayerItems[i];
 			if (playerItem.GetPlayerItem().GetSlotName() != slotName && slotName != "All")
@@ -1801,7 +2133,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		}
 		else
 		{
-			for (int i = 0; i < m_P2PMarketMenuController.PlayerItems.Count(); i++)
+			for (int i = 0; i < m_P2PMarketMenuController.PlayerItems.Count(); ++i)
 			{
 				ExpansionP2PMarketMenuItem playerItem = m_P2PMarketMenuController.PlayerItems[i];
 				if (playerItem.GetPlayerItem().GetSlotName() == slotName)
@@ -1812,23 +2144,57 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		return count;
 	}
 
-	protected void OnSearchFilterChange()
+	void OnSearchFilterChange()
 	{
-		bool hasChildWithName;
-		ObservableCollection<ref ExpansionP2PMarketMenuItem> cargoEntries;
-		ExpansionP2PMarketMenuItem cargoEntry;
-		string displayName;
-		string searchText = market_filter_box.GetText();
-		searchText.ToLower();
-
 		if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewList)
 		{
 			SearchInPlayerItems();
 		}
 		else if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewBrowse)
 		{
-			SearchInListings();
+			OnConfirmSearch();
 		}
+	}
+	
+	protected bool IsValidSearchListing(string searchText, ExpansionP2PMarketListing listing)
+	{
+		bool hasName;
+		bool hasChildWithName;
+		string displayName;
+		
+		TStringArray tokens = new TStringArray;
+		searchText.Split(" ", tokens);
+		
+		array<ref ExpansionP2PMarketContainerItem> containerItems = listing.GetContainerItems();
+		if (containerItems && containerItems.Count() > 0)
+		{
+			for (int i = 0; i < containerItems.Count(); ++i)
+			{
+				ExpansionP2PMarketContainerItem containerItem = containerItems[i];
+				displayName = ExpansionStatic.GetItemDisplayNameWithType(containerItem.GetClassName());
+				displayName.ToLower();			
+				
+				foreach(string sC: tokens)
+				{
+					if (displayName.IndexOf(sC) != -1)
+						hasChildWithName = true;
+				}
+			}
+		}
+		
+		displayName = ExpansionStatic.GetItemDisplayNameWithType(listing.GetClassName());
+		displayName.ToLower();
+
+		foreach(string sM: tokens)
+		{
+			if (displayName.IndexOf(sM) != -1)
+				hasName = true;
+		}
+		
+		if (hasName || hasChildWithName)
+			return true;
+
+		return false;
 	}
 
 	protected void SearchInPlayerItems()
@@ -1839,88 +2205,60 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		bool hasChildWithName;
 		string displayName;
 		string searchText = market_filter_box.GetText();
-		searchText.ToLower();
+		TStringArray tokens;
+		if (searchText != "")
+		{
+			searchText.ToLower();
+			tokens = new TStringArray;
+			searchText.Split(" ", tokens);
+		}
 
-		for (int j = 0; j < m_P2PMarketMenuController.PlayerItems.Count(); j++)
+		for (int j = 0; j < m_P2PMarketMenuController.PlayerItems.Count(); ++j)
 		{
 			ExpansionP2PMarketMenuItem playerItem = m_P2PMarketMenuController.PlayerItems[j];
 			if (playerItem && playerItem.GetPreviewObject())
 			{
 				if (!playerItem.IsVisible() || searchText == string.Empty)
+				{
 					playerItem.Show();
+				}
 
 				hasChildWithName = false;
 				ObservableCollection<ref ExpansionP2PMarketMenuItem> cargoEntries = playerItem.GetCargoItemElemens();
 				if (cargoEntries && cargoEntries.Count() > 0)
 				{
-					for (int k = 0; k < cargoEntries.Count(); k++)
+					for (int k = 0; k < cargoEntries.Count(); ++k)
 					{
 						ExpansionP2PMarketMenuItem cargoEntry = cargoEntries[k];
+						if (!cargoEntry.IsVisible() || searchText == string.Empty)
+						{
+							cargoEntry.Show();
+							continue;
+						}
+						
 						displayName = cargoEntry.GetPreviewObject().GetDisplayName();
 						displayName.ToLower();
-
-						if (!cargoEntry.IsVisible() || searchText == string.Empty)
-							cargoEntry.Show();
-
-						if (displayName.IndexOf(searchText) == -1)
+						foreach(string sC: tokens)
 						{
+							if (displayName.IndexOf(searchText) > -1)
+							{
+								hasChildWithName = true;
+							}
+						}
+						
+						if (!hasChildWithName)
 							cargoEntry.Hide();
-						}
-						else
-						{
-							hasChildWithName = true;
-						}
 					}
 				}
 			}
 
 			displayName = playerItem.GetPreviewObject().GetDisplayName();
 			displayName.ToLower();
-
-			if (displayName.IndexOf(searchText) == -1 && !hasChildWithName)
-				playerItem.Hide();
-		}
-	}
-
-	protected void SearchInListings()
-	{
-		if (!m_ItemListings || m_ItemListings.Count() == 0)
-			return;
-
-		bool hasChildWithName;
-		string displayName;
-		string searchText = market_filter_box.GetText();
-		searchText.ToLower();
-
-		for (int i = 0; i < m_ItemListings.Count(); i++)
-		{
-			ExpansionP2PMarketMenuListing entry = m_ItemListings[i];
-			if (entry && entry.GetPreviewObject())
+			foreach(string sM: tokens)
 			{
-				if (!entry.IsVisible() || searchText == string.Empty)
-					entry.Show();
-
-				hasChildWithName = false;
-				array<ref ExpansionP2PMarketContainerItem> containerItems = entry.GetListing().GetContainerItems();
-				if (containerItems && containerItems.Count() > 0)
-				{
-					for (int k = 0; k < containerItems.Count(); k++)
-					{
-						ExpansionP2PMarketContainerItem containerItem = containerItems[k];
-						displayName = ExpansionStatic.GetItemDisplayNameWithType(containerItem.GetClassName());
-						displayName.ToLower();
-
-						if (displayName.IndexOf(searchText) != -1)
-							hasChildWithName = true;
-					}
-				}
+				if (displayName.IndexOf(searchText) == -1 && !hasChildWithName)
+					playerItem.Hide();
 			}
-
-			displayName = entry.GetPreviewObject().GetDisplayName();
-			displayName.ToLower();
-
-			if (displayName.IndexOf(searchText) == -1 && !hasChildWithName)
-				entry.Hide();
 		}
 	}
 
@@ -1944,7 +2282,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 				string soundName = "";
 				EffectSound sound;
 
-				for (int i = 0; i < events_sources_count; i++)
+				for (int i = 0; i < events_sources_count; ++i)
 				{
 					string soundWeapons;
 					GetGame().ConfigGetChildName(path, i, soundWeapons);
@@ -1968,7 +2306,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 	void OnToggleCategoriesClick()
 	{
 		m_CategoriesToggleState = !m_CategoriesToggleState;
-		for (int i = 0; i < m_P2PMarketMenuController.ListingCategories.Count(); i++)
+		for (int i = 0; i < m_P2PMarketMenuController.ListingCategories.Count(); ++i)
 		{
 			ExpansionP2PMarketMenuCategoryElement categoryElement = m_P2PMarketMenuController.ListingCategories[i];
 			if (!categoryElement)
@@ -1978,27 +2316,253 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		}
 	}
 
+	void UpdatePageButtons()
+	{
+		int entriesCount = 0;
+	    if (m_CategoryIndex > -1 || m_SubCategoryIndex > -1)
+	    {
+	        ExpansionP2PMarketCategoryListings categoryData = m_P2PMarketModule.GetCategoryListingsData(m_CategoryIndex, m_SubCategoryIndex, m_TraderID, m_GlobalTrader);
+	        if (categoryData)
+	        {
+	            entriesCount = categoryData.m_Count;
+	        }
+	    }
+	    else if (m_OwnedListings)
+	    {
+	        entriesCount = m_OwnedListingsCount;
+	    }
+	    else
+		{
+			if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewSales)
+				entriesCount = m_SoldListingsCount;
+			else if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewBrowse)
+				entriesCount = m_ListingsCount;
+		}
+		
+		m_PagesCount = Math.Ceil(entriesCount / LISTINGS_PER_PAGE_COUNT);
+		if (m_PagesCount > 1)
+		{
+			pages_spacer.Show(true);
+	
+			int btn_index_center = Math.Round(PAGES_BUTTONS_COUNT / 2) - 1; 
+			m_PageStartNum = 1;
+			m_PageEndNum = PAGES_BUTTONS_COUNT;
+			
+			if (m_PagesCount <= PAGES_BUTTONS_COUNT)
+			{
+				m_PageEndNum = m_PagesCount;
+				
+				// Pages are less like buttons - changing selected button
+				for (int i = 1; i <= m_BtnPages.Count(); ++i)
+				{
+					bool is_page_button_enable = (i <= m_PagesCount);
+					int page_index = (i - 1);
+					m_BtnPages[page_index].Show(is_page_button_enable);
+					m_BtnPages[page_index].SetText(i.ToString());
+					
+					if (m_PageIndex == page_index)
+					{
+						m_BtnPages[page_index].SetState(true);
+					}
+					else
+					{
+						m_BtnPages[page_index].SetState(false);
+					}
+				}
+			}
+			else
+			{
+				// Pages are more like buttons				
+				if (m_PageIndex > btn_index_center)
+				{
+					m_PageStartNum = m_PageIndex - btn_index_center + 1;
+					m_PageEndNum = m_PageIndex + (PAGES_BUTTONS_COUNT - btn_index_center);
+					if (m_PageEndNum > m_PagesCount)
+					{
+						// Right side (end of pages)
+						m_PageStartNum -= m_PageEndNum - m_PagesCount;
+						m_PageEndNum -= m_PageEndNum - m_PagesCount;
+					}
+				}
+				
+				
+				// Button Selection
+				int selected_btn_index = m_PageIndex;
+				if (m_PageIndex > btn_index_center)
+				{
+					if (m_PageEndNum == m_PagesCount)
+					{
+						//Right
+						 selected_btn_index = PAGES_BUTTONS_COUNT - (m_PagesCount - m_PageIndex);
+					}
+					else
+					{
+						//Center
+						selected_btn_index = btn_index_center;
+					}
+				}
+				
+				for (int j = 0; j < m_BtnPages.Count(); ++j)
+				{
+					m_BtnPages[j].SetText((m_PageStartNum + j).ToString());
+					m_BtnPages[j].SetState((j == selected_btn_index));
+					m_BtnPages[j].Show(true);
+				}
+			}
+			
+			// Button GoTo Prev Page
+			if (m_PageIndex > 0)
+			{
+				navigation_page_prev.SetText("<");
+				navigation_page_prev.Enable(true);
+			}
+			else
+			{
+				navigation_page_prev.SetText("");
+				navigation_page_prev.Enable(false);					
+			}
+			
+			// Button GoTo Next Page
+			if (m_PageIndex < (m_PagesCount - 1))
+			{
+				navigation_page_next.SetText(">");
+				navigation_page_next.Enable(true);
+			}
+			else
+			{
+				navigation_page_next.SetText("");
+				navigation_page_next.Enable(false);
+			}
+			
+			// Button GoTo First Page
+			if (m_PageStartNum == 1)
+			{
+				navigation_page_first.SetText("");
+				navigation_page_first.Enable(false);
+			}
+			else
+			{
+				navigation_page_first.SetText("<<");
+				navigation_page_first.Enable(true);
+			}
+			
+			// Button GoTo Last Page
+			if (m_PageEndNum == m_PagesCount)
+			{
+				navigation_page_last.SetText("");
+				navigation_page_last.Enable(false);
+			}
+			else
+			{
+				navigation_page_last.SetText(">>");
+				navigation_page_last.Enable(true);
+			}
+		}
+		else
+		{
+			pages_spacer.Show(false);
+		}
+	}
+	
+	void OnClickPagePrev()
+	{
+		if (m_PageIndex > 0)
+		{
+			SetPageIndex(m_PageIndex - 1);
+		}
+		else
+		{
+			SetPageIndex(m_PagesCount - 1);
+		}
+	}
+	
+	void OnClickPageNext()
+	{
+		if (m_PageIndex < (m_PagesCount - 1))
+		{
+			SetPageIndex(m_PageIndex + 1);
+		}
+		else
+		{
+			SetPageIndex(0);
+		}
+	}
+	
+	void OnClickPageEnd()
+	{
+		SetPageIndex(m_PagesCount - 1);
+	}
+	
+	void OnClickPageFirst()
+	{
+		SetPageIndex(0);
+	}
+	
+	bool OnClickPage(Widget w)
+	{
+		for (int i = 0; i < m_BtnPages.Count(); ++i)
+		{
+			if (m_BtnPages[i] == w)
+			{
+				//SetPageIndex(i);
+				SetPageIndex(m_PageStartNum + i - 1);
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	override bool OnClick(Widget w, int x, int y, int button)
+	{
+		super.OnClick(w, x, y, button);
+		
+		if (w == market_filter_box)
+		{
+			SetFocus(market_filter_box);
+		}
+		else if (button == MouseState.LEFT)
+		{
+			bool click = OnClickPage(w);
+			if (click)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	void SetPageIndex(int page_index)
+	{
+		m_PageIndex = page_index;
+		
+		bool soldListings;
+		if (m_ViewState == ExpansionP2PMarketMenuViewState.ViewSales)
+		{
+			soldListings = true;
+		}
+		
+		array<string> searchTypeNames;
+		string searchText = market_filter_box.GetText();
+		if (searchText != "")
+		{
+			searchTypeNames = ExpansionItemNameTable.GetTypeNamesByString(searchText);
+		}
+		
+		m_P2PMarketModule.RequestBasicListingData(m_TraderID, m_PageIndex, soldListings, m_CategoryIndex, m_SubCategoryIndex, searchTypeNames, m_OwnedListings);
+	}
+
 	override void OnShow()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif
+		#endif
 		
 		super.OnShow();
 
 		loading.Show(true);
 		SetFocus(GetLayoutRoot());
-	}
-
-	override bool OnChange(Widget w, int x, int y, bool finished)
-	{
-		if (w == market_filter_box)
-		{
-			OnSearchFilterChange();
-			return true;
-		}
-
-		return false;
 	}
 
 	override bool OnMouseEnter(Widget w, int x, int y)
@@ -2007,42 +2571,60 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		{
 			if (w == tabs_button_browse)
 			{
-				tabs_button_browse.SetColor(ARGB(255, 255, 255, 255));
+				tabs_button_browse_bg.SetColor(ARGB(140, 255, 255, 255));
 				tabs_button_browse_text.SetColor(ARGB(255, 0, 0, 0));
+				return true;
 			}
 			else if (w == tabs_button_list)
 			{
-				tabs_button_list.SetColor(ARGB(255, 255, 255, 255));
+				tabs_button_list_bg.SetColor(ARGB(140, 255, 255, 255));
 				tabs_button_list_text.SetColor(ARGB(255, 0, 0, 0));
+				return true;
 			}
+			else if (w == tabs_button_sales)
+			{
+				tabs_button_sales_bg.SetColor(ARGB(140, 255, 255, 255));
+				tabs_button_sales_text.SetColor(ARGB(255, 0, 0, 0));
+				return true;
+			}	
 			else if (w == exit_button)
 			{
-				exit_button.SetColor(ARGB(255, 255, 255, 255));
+				exit_button_panel.SetColor(ARGB(140, 255, 255, 255));
 				exit_button_text.SetColor(ARGB(255, 0, 0, 0));
+				return true;
 			}
 			else if (w == retrieve_button)
 			{
-				retrieve_button.SetColor(ARGB(255, 255, 255, 255));
+				retrieve_button.SetColor(ARGB(140, 255, 255, 255));
 				retrieve_button_text.SetColor(ARGB(255, 0, 0, 0));
+				return true;
 			}
 			else if (w == listing_category_listings_button)
 			{
-				listing_category_listings_button.SetColor(ARGB(255, 255, 255, 255));
+				listing_category_listings_button.SetColor(ARGB(140, 255, 255, 255));
 				listing_category_listings_text.SetColor(ARGB(255, 0, 0, 0));
 				listing_category_listings_icon.SetColor(ARGB(255, 0, 0, 0));
 				listing_category_listings_count.SetColor(ARGB(255, 0, 0, 0));
+				return true;
 			}
 			else if (w == listing_category_all_button)
 			{
-				listing_category_all_button.SetColor(ARGB(255, 255, 255, 255));
+				listing_category_all_button.SetColor(ARGB(140, 255, 255, 255));
 				listing_category_all_text.SetColor(ARGB(255, 0, 0, 0));
 				listing_category_all_icon.SetColor(ARGB(255, 0, 0, 0));
 				listing_category_all_count.SetColor(ARGB(255, 0, 0, 0));
+				return true;
 			}
 			else if (w == toggle_categories_button)
 			{
-				toggle_categories_button.SetColor(ARGB(255, 255, 255, 255));
+				toggle_categories_panel.SetColor(ARGB(140, 255, 255, 255));
 				toggle_categories_text.SetColor(ARGB(255, 0, 0, 0));
+				return true;
+			}
+			else if (w == market_filter_clear)
+			{
+				market_filter_clear_icon.SetColor(ARGB(140, 255, 180, 24));
+				return true;
 			}
 		}
 
@@ -2053,44 +2635,62 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 	{
 		if (w != NULL)
 		{
-			if (w == tabs_button_browse)
+			if (w == tabs_button_browse && m_ViewState != ExpansionP2PMarketMenuViewState.ViewBrowse)
 			{
-				tabs_button_browse.SetColor(ARGB(255, 19, 23, 27));
+				tabs_button_browse_bg.SetColor(ARGB(255, 19, 23, 27));
 				tabs_button_browse_text.SetColor(ARGB(255, 255, 255, 255));
+				return true;
 			}
-			else if (w == tabs_button_list)
+			else if (w == tabs_button_list && m_ViewState != ExpansionP2PMarketMenuViewState.ViewList)
 			{
-				tabs_button_list.SetColor(ARGB(255, 19, 23, 27));
+				tabs_button_list_bg.SetColor(ARGB(255, 19, 23, 27));
 				tabs_button_list_text.SetColor(ARGB(255, 255, 255, 255));
+				return true;
+			}
+			else if (w == tabs_button_sales && m_ViewState != ExpansionP2PMarketMenuViewState.ViewSales)
+			{
+				tabs_button_sales_bg.SetColor(ARGB(255, 19, 23, 27));
+				tabs_button_sales_text.SetColor(ARGB(255, 255, 255, 255));
+				return true;
 			}
 			else if (w == exit_button)
 			{
-				exit_button.SetColor(ARGB(255, 0, 0, 0));
+				exit_button_panel.SetColor(ARGB(255, 0, 0, 0));
 				exit_button_text.SetColor(ARGB(255, 255, 255, 255));
+				return true;
 			}
 			else if (w == retrieve_button)
 			{
 				retrieve_button.SetColor(ARGB(255, 0, 0, 0));
 				retrieve_button_text.SetColor(ARGB(255, 255, 255, 255));
+				return true;
 			}
-			else if (w == listing_category_listings_button)
+			else if (w == listing_category_listings_button && !m_OwnedListings)
 			{
 				listing_category_listings_button.SetColor(ARGB(255, 0, 0, 0));
 				listing_category_listings_text.SetColor(ARGB(255, 255, 255, 255));
 				listing_category_listings_icon.SetColor(ARGB(255, 255, 255, 255));
 				listing_category_listings_count.SetColor(ARGB(255, 255, 255, 255));
+				return true;
 			}
-			else if (w == listing_category_all_button)
+			else if (w == listing_category_all_button && !m_AllListings)
 			{
 				listing_category_all_button.SetColor(ARGB(255, 0, 0, 0));
 				listing_category_all_text.SetColor(ARGB(255, 255, 255, 255));
 				listing_category_all_icon.SetColor(ARGB(255, 255, 255, 255));
 				listing_category_all_count.SetColor(ARGB(255, 255, 255, 255));
+				return true;
 			}
 			else if (w == toggle_categories_button)
 			{
-				toggle_categories_button.SetColor(ARGB(255, 0, 0, 0));
+				toggle_categories_panel.SetColor(ARGB(255, 0, 0, 0));
 				toggle_categories_text.SetColor(ARGB(255, 255, 255, 255));
+				return true;
+			}
+			else if (w == market_filter_clear)
+			{
+				market_filter_clear_icon.SetColor(ARGB(255, 251, 252, 254));
+				return true;
 			}
 		}
 
@@ -2174,30 +2774,24 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 		return count;
 	}
-
-	int GetViewState()
+	
+	void SetIsInspectingItem(bool state, ExpansionP2PMarketMenuItemBase element)
 	{
-		return m_ViewState;
+		if (state)
+		{
+			m_ViewState = ExpansionP2PMarketMenuViewState.InspectListingItem;
+		}
+		else
+		{
+			m_ViewState = ExpansionP2PMarketMenuViewState.ViewBrowse;
+		}
+
+		m_InspectingElement = element;
 	}
 
-	override void OnHide()
+	ExpansionP2PMarketMenuViewState GetViewState()
 	{
-#ifdef EXTRACE
-		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-#endif
-
-		super.OnHide();
-
-		m_P2PMarketModule.RemoveTradingPlayer(m_PlayerUID);
-
-		if (m_ItemDetailsView)
-			m_ItemDetailsView.Destroy();
-
-		if (m_ListHeader)
-			m_ListHeader.Destroy();
-
-		if (m_MenuDialog)
-			m_MenuDialog.Destroy();
+		return m_ViewState;
 	}
 
 	string GetDisplayPrice(int price, bool shorten = false, bool format = true, bool includeDisplayCurrencyName = false)
@@ -2208,6 +2802,44 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 	int GetDisplayCurrencyValue()
 	{
 		return m_DisplayCurrencyValue;
+	}
+	
+	void OnRestrainedStateChaged(bool isRestrained)
+	{
+		if (isRestrained)
+		{
+			OnExitClick();
+		}
+	}
+	
+	int GetPageIndex()
+	{
+		return m_PageIndex;
+	}
+	
+	int GetTraderID()
+	{
+		return m_TraderID;
+	}
+	
+	bool IsGlobalTrader()
+	{
+		return m_GlobalTrader;
+	}
+	
+	EditBoxWidget GetSearchFilterBox()
+	{
+		return market_filter_box;
+	}
+	
+	int GetCategoryIndex()
+	{
+		return m_CategoryIndex;
+	}
+	
+	int GetSubCategoryIndex()
+	{
+		return m_SubCategoryIndex;
 	}
 };
 
@@ -2220,6 +2852,7 @@ class ExpansionP2PMarketMenuController: ExpansionViewController
 	string TraderName;
 	string MarketIcon;
 	string PlayerSales;
+	string PlayerSoldListings;
 	ref ObservableCollection<ref ExpansionP2PMarketMenuItem> PlayerItems = new ObservableCollection<ref ExpansionP2PMarketMenuItem>(this);
 	ref ObservableCollection<ref ExpansionP2PMarketMenuCategoryElement> ListingCategories = new ObservableCollection<ref ExpansionP2PMarketMenuCategoryElement>(this);
 	ref ObservableCollection<ref ExpansionP2PMarketMenuInventoryCategoryElement> PlayerCategories = new ObservableCollection<ref ExpansionP2PMarketMenuInventoryCategoryElement>(this);

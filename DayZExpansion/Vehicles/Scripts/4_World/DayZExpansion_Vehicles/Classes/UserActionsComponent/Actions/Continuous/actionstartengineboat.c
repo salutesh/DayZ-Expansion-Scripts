@@ -10,7 +10,6 @@
  *
 */
 
-#ifndef DAYZ_1_25
 modded class ActionStartEngineBoat
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
@@ -33,4 +32,3 @@ modded class ActionStartEngineBoat
 		return false;
 	}
 };
-#endif

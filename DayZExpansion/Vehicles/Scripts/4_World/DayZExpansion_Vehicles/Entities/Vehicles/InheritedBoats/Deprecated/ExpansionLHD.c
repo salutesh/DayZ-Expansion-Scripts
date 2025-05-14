@@ -1,4 +1,4 @@
-class ExpansionLHD : ExpansionZodiacBoat
+class ExpansionLHD : ExpansionBoatScript
 {
 	autoptr array<Object> m_Parts = new array<Object>();
 
@@ -83,6 +83,57 @@ class ExpansionLHD : ExpansionZodiacBoat
 #endif
 
 		return ExpansionVehicleAnimInstances.EXPANSION_LHD;
+	}
+
+	override int GetSeatAnimationType(int posIdx)
+	{
+		switch (posIdx)
+		{
+		case 0:
+			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
+		}
+
+		return 0;
+	}
+
+	override bool IsVitalCarBattery()
+	{
+		return false;
+	}
+
+	override bool IsVitalTruckBattery()
+	{
+		return true;
+	}
+
+	override bool IsVitalSparkPlug()
+	{
+		return false;
+	}
+
+	override bool IsVitalRadiator()
+	{
+		return false;
+	}
+
+	override bool IsVitalGlowPlug()
+	{
+		return true;
+	}
+
+	override bool IsVitalEngineBelt()
+	{
+		return false;
+	}
+
+	override void OnDebugSpawn()
+	{
+		GetInventory().CreateInInventory("GlowPlug");
+		GetInventory().CreateInInventory("TruckBattery");
+		GetInventory().CreateInInventory("HeadlightH7");
+		GetInventory().CreateInInventory("HeadlightH7");
+
+		Fill(CarFluid.FUEL, GetFluidCapacity(CarFluid.FUEL));
 	}
 	
 	override void EOnSimulate(IEntity other, float dt)

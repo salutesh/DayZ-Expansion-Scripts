@@ -79,7 +79,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		m_Missions = new array< ref ExpansionMissionEventBase >;
 
-		m_AvailableMissions = new ref array< float >;
+		m_AvailableMissions = new array< float >;
 
 		m_MissionsTyped = new map< typename, ref array< ExpansionMissionEventBase > >;
 

@@ -90,42 +90,10 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 		return false;
 	}
 
+	//! This method allows mods to override GetPreviewClassName while still keeping the original code in one place
 	string GetPreviewClassName(string className, bool ignoreBaseBuildingKits = false)
 	{
-		if (GetGame().ConfigIsExisting("CfgVehicles " + className + "_ExpansionMarketPreview"))
-		{
-			return className + "_ExpansionMarketPreview";
-		}
-		else if (!ignoreBaseBuildingKits && className.IndexOf("kit") == className.Length() - 3)
-		{
-			//! Special handling for Expansion
-			if (GetGame().IsKindOf(className, "ExpansionKitLarge"))
-			{
-				string path = "CfgVehicles " + className + " placingTypes";
-				if (GetGame().ConfigIsExisting(path))
-				{
-					TStringArray placingTypes = new TStringArray;
-					GetGame().ConfigGetTextArray(path, placingTypes);
-					foreach (string placingType : placingTypes)
-					{
-						path = "CfgVehicles " + placingType + " deployType";
-						if (GetGame().ConfigIsExisting(path))
-						{
-							return GetGame().ConfigGetTextOut(path);
-						}
-					}
-				}
-			}
-
-			if (className == "fencekit" || className == "watchtowerkit" || className == "territoryflagkit")
-			{
-				//! Item name is kit name without "kit" at the end
-				string previewClassName = className.Substring(0, className.Length() - 3);
-				if (GetGame().ConfigIsExisting("CfgVehicles " + previewClassName))
-					return previewClassName;
-			}
-		}
-		return className;
+		return m_PersonalStorageMenu.GetPreviewClassName(className, ignoreBaseBuildingKits);
 	}
 
 	void SpawnAttachments(array<ref ExpansionPersonalStorageContainerItem> attachments, EntityAI parent, int skinIndex = 0)

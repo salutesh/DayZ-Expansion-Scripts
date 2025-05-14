@@ -50,6 +50,10 @@ class ExpansionUAZ: CarScript
 		m_EngineStartBattery = "Hatchback_02_engine_failed_start_battery_SoundSet";
 		m_EngineStartPlug = "Hatchback_02_engine_failed_start_sparkplugs_SoundSet";
 		m_EngineStartFuel = "Hatchback_02_engine_failed_start_fuel_SoundSet";
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		m_EngineStop = "offroad_engine_stop_SoundSet";
+	#endif
 		m_EngineStopFuel = "offroad_engine_stop_fuel_SoundSet";
 
 		m_CarDoorOpenSound = "offroad_door_open_SoundSet";

@@ -3,21 +3,27 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-class ExpansionP2PMarketMenuItemBase: ExpansionScriptView
+class ExpansionP2PMarketMenuViewBase: ExpansionScriptView
+{
+	void ShowInfoButton(bool state);
+};
+
+class ExpansionP2PMarketMenuItemBase: ExpansionP2PMarketMenuViewBase
 {
 	protected ref ExpansionP2PMarketMenuItemBaseController m_P2PMarketMenuItemBaseController;
-	protected ref ExpansionP2PMarketModule m_P2PMarketModule;
-	protected ref ExpansionP2PMarketMenu m_P2PMarketMenu;
-	protected ref ExpansionItemTooltip m_ItemTooltip;
+	protected ExpansionP2PMarketModule m_P2PMarketModule;
+	protected ExpansionP2PMarketMenu m_P2PMarketMenu;
+	protected ExpansionItemTooltip m_ItemTooltip;
 	protected ref ExpansionItemInspection m_ItemInspection;
 	protected ref ExpansionP2PMarketListingBase m_Item;
+	//protected ExpansionP2PMarketListingBase m_Item;
 
 	protected EntityAI m_Object;
 	protected ButtonWidget item_button;
@@ -122,7 +128,6 @@ class ExpansionP2PMarketMenuItemBase: ExpansionScriptView
 			array<ref ExpansionP2PMarketContainerItem> containerItems = m_Item.GetContainerItems();
 			if (containerItems.Count() > 0)
 			{
-				EXPrint(ToString() + "::UpdatePreviewObject - Attachments count:" + containerItems.Count() + " for item " + previewClassName);
 				SpawnAttachments(containerItems, m_Object, m_Item.GetSkinIndex());
 			}
 
@@ -146,6 +151,21 @@ class ExpansionP2PMarketMenuItemBase: ExpansionScriptView
 			FoodStage foodStage = food_item.GetFoodStage();
 			foodStage.ChangeFoodStage(m_Item.GetFoodStageType());
 		}
+	}
+	
+	void CloseItemInspection(bool handelParent = false)
+	{
+		ExpansionItemInspection expItemInspection = MissionGameplay.Expansion_GetItemInspection();
+		if (expItemInspection)
+		{
+			if (handelParent)
+			{
+				expItemInspection.OnBackButtonClick();
+			}
+			expItemInspection.GetCloseInspectionSI().Remove(CloseItemInspection);
+		}
+		
+		m_P2PMarketMenu.SetIsInspectingItem(false, null);
 	}
 };
 

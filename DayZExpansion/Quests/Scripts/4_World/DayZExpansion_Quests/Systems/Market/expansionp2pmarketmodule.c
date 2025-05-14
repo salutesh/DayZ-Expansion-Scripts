@@ -41,5 +41,5 @@ modded class ExpansionP2PMarketModule
 
 		return true;
 	}
-};
+}
 #endif

@@ -299,8 +299,7 @@ class ExpansionPersonalStorageItemBase
 		if (!m_Object)
 			return;
 
-		array<EntityAI> items = new array<EntityAI>;
-		m_Object.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+		array<EntityAI> items = MiscGameplayFunctions.Expansion_GetItems(m_Object);
 
 		m_ContainerItems.Clear();
 		m_ContainerItemsCount = 0;
@@ -309,59 +308,63 @@ class ExpansionPersonalStorageItemBase
 		if (m_Object.IsInherited(MagazineStorage))
 			GetAmmoForMagazine(m_Object);
 
-		for (int i = 0; i < items.Count(); i++)
-		{
-			EntityAI item = items[i];
-			if (item == m_Object)
-				continue;
+		InventoryLocation lcn = new InventoryLocation();
 
-			if (item.GetInventory().IsAttachment() && m_Object.GetInventory().HasAttachment(item) || item.GetInventory().IsInCargo() && m_Object.GetInventory().HasEntityInCargo(item))
+		foreach (EntityAI item: items)
+		{
+			lcn.Reset();
+			item.GetInventory().GetCurrentInventoryLocation(lcn);
+
+			if (lcn.GetType() == InventoryLocationType.ATTACHMENT)
 			{
+				//! Skip items in hidden attachment slots
+				if (!InventorySlots.GetShowForSlotId(lcn.GetSlot()))
+					continue;
+
 				//! Skip attachments without cargo on vehicles
-				if (item.GetInventory().IsAttachment() && !MiscGameplayFunctions.Expansion_HasAnyCargo(item))
+				if (!MiscGameplayFunctions.Expansion_HasAnyCargo(item))
 				{
 					if (ExpansionVehicle.Get(item.GetHierarchyParent()))
 						continue;
 				}
+			}
 
-				//! Hardcoded excluded type names where the item should never get added and shown in the menu.
-				if (ExpansionPersonalStorageModule.m_HardcodedExcludes.Find(item.GetType()) > -1)
-					continue;
+			//! Hardcoded excluded type names where the item should never get added and shown in the menu.
+			if (ExpansionPersonalStorageModule.m_HardcodedExcludes.Find(item.GetType()) > -1)
+				continue;
 
-				if (!ExpansionPersonalStorageModule.ItemCheckEx(item))
-					m_IsExcluded = true;
+			if (!ExpansionPersonalStorageModule.ItemCheckEx(item))
+				m_IsExcluded = true;
 
-				ExpansionPersonalStorageContainerItem containerItem = new ExpansionPersonalStorageContainerItem();
-				containerItem.SetFromItem(item, m_OwnerUID);
-				
-				if (!m_IsExcluded && containerItem.IsExcluded())
-					m_IsExcluded = true;
-				
-				//! If item is a BB kit then make sure we cant deposit the attached rope..
-				KitBase kitBase;
-				if (Class.CastTo(kitBase, m_Object) && item.GetType() == "Rope")
-					containerItem.SetExcluded(true);
-				
-				m_ContainerItems.Insert(containerItem);
-				m_ContainerItemsCount++;
+			ExpansionPersonalStorageContainerItem containerItem = new ExpansionPersonalStorageContainerItem();
+			containerItem.SetFromItem(item, m_OwnerUID);
+			
+			if (!m_IsExcluded && containerItem.IsExcluded())
+				m_IsExcluded = true;
+			
+			//! If item is a BB kit then make sure we cant deposit the attached rope..
+			KitBase kitBase;
+			if (Class.CastTo(kitBase, m_Object) && item.GetType() == "Rope")
+				containerItem.SetExcluded(true);
+			
+			m_ContainerItems.Insert(containerItem);
+			m_ContainerItemsCount++;
 
-			#ifdef EXPANSIONMODHARDLINE
-				ItemBase itemIB;
-				if (Class.CastTo(itemIB, item))
+		#ifdef EXPANSIONMODHARDLINE
+			ItemBase itemIB;
+			if (Class.CastTo(itemIB, item))
+			{
+				auto settings = GetExpansionSettings().GetHardline();
+				if (settings.EnableItemRarity)
 				{
-					auto settings = GetExpansionSettings().GetHardline();
-					if (settings.EnableItemRarity)
+					ExpansionHardlineItemRarity rarity = itemIB.Expansion_GetRarity();
+					if (rarity != ExpansionHardlineItemRarity.NONE)
 					{
-						ExpansionHardlineItemRarity rarity = itemIB.Expansion_GetRarity();
-						if (rarity != ExpansionHardlineItemRarity.NONE)
-						{
-							containerItem.SetRarity(rarity);
-						}
+						containerItem.SetRarity(rarity);
 					}
 				}
-			#endif
-
 			}
+		#endif
 		}
 	}
 	

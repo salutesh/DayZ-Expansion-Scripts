@@ -43,7 +43,9 @@ class ExpansionBoatScript: CarScript
 
 	float m_Expansion_BuoyancyFactor;
 
+#ifdef DAYZ_1_27
 	protected bool m_Expansion_StartingSoundPlayed;
+#endif
 
 	void ExpansionBoatScript()
 	{
@@ -89,6 +91,10 @@ class ExpansionBoatScript: CarScript
 		m_EngineStartBattery = "offroad_engine_failed_start_battery_SoundSet";
 		m_EngineStartPlug = "offroad_engine_failed_start_sparkplugs_SoundSet";
 		m_EngineStartFuel = "offroad_engine_failed_start_fuel_SoundSet";
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		m_EngineStop = "offroad_engine_stop_SoundSet";
+	#endif
 		m_EngineStopFuel = "offroad_engine_stop_fuel_SoundSet";
 		
 		m_CarDoorOpenSound = "offroad_door_open_SoundSet";
@@ -328,12 +334,22 @@ class ExpansionBoatScript: CarScript
 		super.OnAnimationUpdate(pDt);
 	}
 
+#ifndef DAYZ_1_27
+	//! 1.28+
+	override protected void CheckVitalItem(bool isVital, string slot_name)
+#else
 	override protected void CheckVitalItem(bool isVital, string itemName)
+#endif
 	{
 		if (!isVital)
 			return;
 
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		EntityAI item = FindAttachmentBySlotName(slot_name);
+	#else
 		EntityAI item = FindAttachmentBySlotName(itemName);
+	#endif
 
 		if (!item)
 			Expansion_EngineStop(1);
@@ -787,7 +803,12 @@ class ExpansionBoatScript: CarScript
 		super.OnEngineStop(index);
 
 		if (index > 0)
+		{
 			HandleEngineSound(CarEngineSoundState.STOP_OK);
+
+			if (Expansion_EngineIsOn(0))
+				m_EngineStarted = true;
+		}
 	}
 
 	override void OnVariablesSynchronized()
@@ -807,7 +828,7 @@ class ExpansionBoatScript: CarScript
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "OnSound").Add(ctrl).Add(oldValue);
 #endif
 
-		if (Expansion_EngineIsOn(1))
+		if (Expansion_EngineIsOn(1) && (!Expansion_EngineIsOn(0) || !m_EngineStarted))
 		{
 			switch (ctrl)
 			{
@@ -838,6 +859,7 @@ class ExpansionBoatScript: CarScript
 		return super.OnSound(ctrl, oldValue);
 	}
 
+#ifdef DAYZ_1_27
 	override void HandleEngineSound(CarEngineSoundState state)
 	{
 	#ifndef SERVER
@@ -865,6 +887,7 @@ class ExpansionBoatScript: CarScript
 		super.HandleEngineSound(state);
 	#endif
 	}
+#endif
 
 	override CarLightBase CreateRearLight()
 	{

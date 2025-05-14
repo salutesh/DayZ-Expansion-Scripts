@@ -148,6 +148,23 @@ class eAITargetInformation
 		return false;
 	}
 
+	//! Players only
+	bool IsRaised()
+	{
+		return false;
+	}
+
+	//! Creatures/Players
+	bool IsFighting()
+	{
+		return false;
+	}
+
+	float GetAttackCooldown()
+	{
+		return 0;
+	}
+
 	/**
 	 * @brief Abstract function. Get the position for the AI within the target. Each AI could have their own position for the target.
 	 *

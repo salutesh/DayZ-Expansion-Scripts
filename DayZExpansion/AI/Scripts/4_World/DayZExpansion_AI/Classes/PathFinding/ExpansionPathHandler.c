@@ -56,6 +56,8 @@ class ExpansionPathHandler
 	bool m_IsUnreachable;
 	bool m_AllowJumpClimb = true;
 	float m_AllowJumpClimb_Timeout;
+	bool m_AllowClosedDoors = true;
+	float m_AllowClosedDoors_Timeout;
 
 	void ExpansionPathHandler(eAIBase unit)
 	{
@@ -87,7 +89,7 @@ class ExpansionPathHandler
 	void SetAllowJumpClimb(bool allow, float timeout = 0)
 	{
 		if (!allow && allow != m_AllowJumpClimb && m_TargetPosition != vector.Zero)
-			m_Recalculate = true;
+			ForceRecalculate(true);
 
 		m_AllowJumpClimb = allow;
 
@@ -110,16 +112,32 @@ class ExpansionPathHandler
 			if (m_IsSwimmingEnabled)
 				return;
 
-			m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter_Swimming;
-			m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoJumpClimb_Swimming;
+			if (m_AllowClosedDoors)
+			{
+				m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter_Swimming;
+				m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoJumpClimb_Swimming;
+			}
+			else
+			{
+				m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter_NoClosedDoors_Swimming;
+				m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoClosedDoors_NoJumpClimb_Swimming;
+			}
 		}
 		else
 		{
 			if (!m_IsSwimmingEnabled)
 				return;
 
-			m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter;
-			m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoJumpClimb;
+			if (m_AllowClosedDoors)
+			{
+				m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter;
+				m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoJumpClimb;
+			}
+			else
+			{
+				m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter_NoClosedDoors;
+				m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoClosedDoors_NoJumpClimb;
+			}
 		}
 
 	#ifdef DIAG_DEVELOPER
@@ -130,6 +148,53 @@ class ExpansionPathHandler
 			ForceRecalculate(true);
 
 		m_IsSwimmingEnabled = enable;
+	}
+
+	void AllowClosedDoors(bool allow = true, float timeout = 0, bool forceUpdate = true)
+	{
+		if (allow)
+		{
+			if (m_AllowClosedDoors)
+				return;
+
+			if (m_IsSwimmingEnabled)
+			{
+				m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter_Swimming;
+				m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoJumpClimb_Swimming;
+			}
+			else
+			{
+				m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter;
+				m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoJumpClimb;
+			}
+		}
+		else
+		{
+			if (!m_AllowClosedDoors)
+				return;
+
+			if (m_IsSwimmingEnabled)
+			{
+				m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter_NoClosedDoors_Swimming;
+				m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoClosedDoors_NoJumpClimb_Swimming;
+			}
+			else
+			{
+				m_PathFilter = ExpansionPathFilters.GetInstance().m_PathFilter_NoClosedDoors;
+				m_PathFilter_NoJumpClimb = ExpansionPathFilters.GetInstance().m_PathFilter_NoClosedDoors_NoJumpClimb;
+			}
+
+			m_AllowClosedDoors_Timeout = timeout;
+		}
+
+	#ifdef DIAG_DEVELOPER
+		ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, m_Unit.ToString() + " AllowClosedDoors " + allow + " forceUpdate " + forceUpdate);
+	#endif
+
+		if (forceUpdate)
+			ForceRecalculate(true);
+
+		m_AllowClosedDoors = allow;
 	}
 
 /*
@@ -472,6 +537,13 @@ class ExpansionPathHandler
 		if (m_AllowJumpClimb_Timeout > 0)
 			m_AllowJumpClimb_Timeout -= pDt;
 
+		if (m_AllowClosedDoors_Timeout > 0)
+		{
+			m_AllowClosedDoors_Timeout -= pDt;
+			if (m_AllowClosedDoors_Timeout <= 0)
+				AllowClosedDoors(true, 0, false);
+		}
+
 		bool recalculate;
 
 		int i;
@@ -729,13 +801,13 @@ class ExpansionPathHandler
 
 			//! @note normally, we would check m_Count <= 2, but there are certain structures where this won't work if we are on the roof
 			//! and need to go down a ladder e.g. Land_City_Stand_*
-			if (!m_IsTargetUnreachable && m_Count <= 3 && m_Unit.m_eAI_BuildingWithLadder)
+			if (!m_IsTargetUnreachable && m_Count <= 3 && m_Unit.m_eAI_CommandTime > 1.0 && m_Unit.m_eAI_BuildingWithLadder)
 			{
 				vector end = GetEnd();
 
 				if (Math.IsPointInCircle(end, 0.55, m_Current.Position) && vector.DistanceSq(end, GetTarget()) >= 4.0)
 				{
-					if (!m_Unit.m_eAI_Ladder || !m_Unit.eAI_IsCloseToLadderEntryPoint())
+					if (!m_Unit.m_eAI_Ladder || (!m_Unit.m_eAI_IsOnLadder && !m_Unit.eAI_IsCloseToLadderEntryPoint()))
 					{
 					#ifdef DIAG_DEVELOPER
 						dbgMsg = "target unreachable from path endpoint";
@@ -935,7 +1007,7 @@ class ExpansionPathHandler
 			//! Prevent fall from a large height (e.g. building top) - path direction check
 			vector checkDirection = vector.Direction(m_Unit.GetPosition(), m_Points[1 + m_PointIdx]);
 			float len = checkDirection.Length();
-			if ((!m_Unit.m_eAI_Ladder || !m_Unit.eAI_IsCloseToLadderEntryPoint()) && !m_Unit.eAI_IsFallSafe(checkDirection.Normalized() * (len + 2.0), true, 1339))
+			if ((!m_Unit.m_eAI_Ladder || (!m_Unit.m_eAI_IsOnLadder && !m_Unit.eAI_IsCloseToLadderEntryPoint())) && !m_Unit.eAI_IsFallSafe(checkDirection.Normalized() * (len + 2.0), true, 1339))
 			{
 			#ifdef DIAG_DEVELOPER
 				if (!m_IsUnreachable)

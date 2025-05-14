@@ -48,6 +48,10 @@ class ExpansionVodnik: ExpansionBoatScript
 		m_EngineStartBattery	= "Offroad_02_engine_failed_start_battery_SoundSet";
 		m_EngineStartPlug		= "Offroad_02_engine_failed_start_sparkplugs_SoundSet";
 		m_EngineStartFuel		= "Offroad_02_engine_failed_start_fuel_SoundSet";
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		m_EngineStop 			= "Offroad_02_engine_stop_SoundSet";
+	#endif
 		m_EngineStopFuel		= "offroad_engine_stop_fuel_SoundSet";
 
 		m_CarDoorOpenSound		= "offroad_02_door_open_SoundSet";
@@ -172,6 +176,16 @@ class ExpansionVodnik: ExpansionBoatScript
 		}
 
 		return 0;
+	}
+
+	override int Expansion_EngineStartAnimation()
+	{
+		return DayZPlayerConstants.CMD_ACTIONMOD_STARTENGINE;
+	}
+
+	override int Expansion_EngineStopAnimation()
+	{
+		return DayZPlayerConstants.CMD_ACTIONMOD_STOPENGINE;
 	}
 
 	override string GetDoorSelectionNameFromSeatPos(int posIdx)

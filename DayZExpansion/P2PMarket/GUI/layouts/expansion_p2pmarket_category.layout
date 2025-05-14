@@ -1,4 +1,7 @@
-WrapSpacerWidgetClass ExpansionP2PMarketMenuCategoryElement {
+GridSpacerWidgetClass ExpansionP2PMarketMenuCategoryElement {
+ visible 1
+ inheritalpha 0
+ ignorepointer 1
  color 0 0 0 1
  size 1 26
  hexactpos 1
@@ -7,44 +10,28 @@ WrapSpacerWidgetClass ExpansionP2PMarketMenuCategoryElement {
  vexactsize 1
  priority 2
  scriptclass "ExpansionP2PMarketMenuCategoryElementController"
- style Expansion_01
+ style Colorable
  Padding 0
  Margin 0
  "Size To Content H" 1
  "Size To Content V" 1
- content_halign right
+ Columns 1
+ Rows 2
  {
   ButtonWidgetClass button_element {
+   visible 1
+   color 0.0745 0.0902 0.1059 1
    size 1 1
    hexactpos 1
    vexactpos 1
    hexactsize 0
    vexactsize 0
    scriptclass "ViewBinding"
-   style Expansion_01
+   style Colorable
    {
-    ImageWidgetClass element_icon {
-     visible 0
-     ignorepointer 1
-     position 0.01 0
-     size 24 24
-     valign center_ref
-     hexactpos 0
-     vexactpos 1
-     hexactsize 1
-     vexactsize 1
-     image0 ""
-     imageTexture "{EB294B6B8215EC25}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
-     mode blend
-     "src alpha" 1
-     "no wrap" 1
-     stretch 1
-     "flip v" 0
-    }
     ImageWidgetClass category_icon {
      visible 1
      ignorepointer 1
-     position 0.14 0
      size 24 24
      valign center_ref
      hexactpos 0
@@ -55,20 +42,23 @@ WrapSpacerWidgetClass ExpansionP2PMarketMenuCategoryElement {
      imageTexture "{EC8EDC01E1CEFBB0}DayZExpansion/Core/GUI/icons/hud/menu_64x64.edds"
      mode blend
      "src alpha" 1
-     "no wrap" 1
-     stretch 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
     }
     TextWidgetClass button_element_text {
      ignorepointer 1
-     position 0.23 0
-     size 0.42 1
-     halign right_ref
+     position 32 0
+     size 0.5 1
      valign center_ref
-     hexactpos 0
+     hexactpos 1
      vexactpos 0
      hexactsize 0
      vexactsize 0
      scriptclass "ViewBinding"
+     font "gui/fonts/sdf_metronbook72"
+     "bold text" 1
+     "exact text" 1
+     "exact text size" 20
      "text valign" center
      {
       ScriptParamsClass {
@@ -79,7 +69,7 @@ WrapSpacerWidgetClass ExpansionP2PMarketMenuCategoryElement {
     TextWidgetClass category_items_count {
      ignorepointer 1
      position 0.03 0
-     size 0.15 1
+     size 0.3 1
      halign right_ref
      valign center_ref
      hexactpos 0
@@ -87,6 +77,11 @@ WrapSpacerWidgetClass ExpansionP2PMarketMenuCategoryElement {
      hexactsize 0
      vexactsize 0
      scriptclass "ViewBinding"
+     font "gui/fonts/sdf_metronbook72"
+     "bold text" 1
+     "exact text" 1
+     "exact text size" 20
+     "text halign" right
      "text valign" center
      {
       ScriptParamsClass {
@@ -104,16 +99,16 @@ WrapSpacerWidgetClass ExpansionP2PMarketMenuCategoryElement {
   WrapSpacerWidgetClass sub_category_content {
    visible 0
    ignorepointer 1
-   size 0.9 0.5
-   halign right_ref
+   size 1 0.5
    hexactpos 0
    vexactpos 0
    hexactsize 0
    vexactsize 0
    scriptclass "ViewBinding"
+   Padding 0
+   Margin 0
    "Size To Content V" 1
-   content_halign center
-   content_valign center
+   content_halign right
    {
     ScriptParamsClass {
      Binding_Name "SubCategories"

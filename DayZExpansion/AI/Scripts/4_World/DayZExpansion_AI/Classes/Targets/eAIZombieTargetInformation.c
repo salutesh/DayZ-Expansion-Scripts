@@ -19,6 +19,19 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 		return m_Crawling;
 	}
 
+	override bool IsFighting()
+	{
+		if (m_Zombie.m_eAI_AttackCooldown > 0 || m_Zombie.GetCommand_Attack())
+			return true;
+
+		return false;
+	}
+
+	override float GetAttackCooldown()
+	{
+		return m_Zombie.m_eAI_AttackCooldown;
+	}
+
 	override vector GetAimOffset(eAIBase ai = null)
 	{
 		string boneName;
@@ -59,7 +72,12 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 			return 0.0;
 
 		if (!m_Zombie.Expansion_IsDanger())
+		{
+			if (GetVelocity(m_Zombie).LengthSq() > 0.277777)
+				return 0.101;  //! Just above "look at"/remove threshold of 0.1
+
 			return 0.0;
+		}
 
 		float levelFactor;
 
@@ -85,8 +103,18 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 
 		if (ai)
 		{
+			if (ai.eAI_GetThreatOverride(m_Target))
+				return 0.0;
+
 			//! The further away the zombie, the less likely it will be a threat
 			float distance = GetDistance(ai, true);
+
+			//! If not reachable, ignore if we don't have a gun
+			if (!ai.m_eAI_HasProjectileWeaponInHands && ai.eAI_IsUnreachable(2.0, m_Target.GetPosition()))
+			{
+				ai.eAI_ThreatOverride(m_Target, true);
+				return 0.0;
+			}
 
 			if (!levelFactor)
 			{
@@ -122,7 +150,7 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 
 	override float GetMinDistance(eAIBase ai = null, float distance = 0.0)
 	{
-		if (ai && (ai.m_eAI_AcuteDangerTargetCount > 1 || ai.eAI_IsLowVitals()))
+		if (ai && (ai.m_eAI_AcuteDangerTargetCount > Math.Floor(ai.GetGroup().Count() * 1.4) || ai.eAI_IsLowVitals()))
 			return 100.0;  //! Flee
 
 		return m_MinDistance;

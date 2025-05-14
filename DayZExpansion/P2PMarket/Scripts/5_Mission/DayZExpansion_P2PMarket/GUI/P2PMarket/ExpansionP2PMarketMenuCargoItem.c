@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -14,9 +14,6 @@ class ExpansionP2PMarketMenuCargoItem: ExpansionP2PMarketMenuItemBase
 {
 	void ExpansionP2PMarketMenuCargoItem(ExpansionP2PMarketListingBase item, ExpansionP2PMarketMenu menu)
 	{
-		EXPrint(ToString() + "::ExpansionP2PMarketMenuCargoItem - Container item: " + item.ToString());
-		EXPrint(ToString() + "::ExpansionP2PMarketMenuCargoItem - Container item class name: " + item.GetClassName());
-
 		SetView();
 	}
 
@@ -35,9 +32,9 @@ class ExpansionP2PMarketMenuCargoItem: ExpansionP2PMarketMenuItemBase
 		m_P2PMarketMenuItemBaseController.ItemName = displayText;
 		m_P2PMarketMenuItemBaseController.NotifyPropertyChanged("ItemName");
 	
-	#ifdef EXPANSIONMODHARDLINE
+		#ifdef EXPANSIONMODHARDLINE
 		SetRarityColor(m_Item.GetRarity());
-	#endif
+		#endif
 	}
 
 	override string GetLayoutFile()
@@ -52,9 +49,16 @@ class ExpansionP2PMarketMenuCargoItem: ExpansionP2PMarketMenuItemBase
 			if (button == MouseState.MIDDLE && m_Object && m_Item)
 			{
 				int rarity = -1;
-#ifdef EXPANSIONMODHARDLINE
+				#ifdef EXPANSIONMODHARDLINE
 				rarity = m_Item.GetRarity();
-#endif
+				#endif
+				ExpansionItemInspection expItemInspection = MissionGameplay.InspectItem(m_P2PMarketMenu, m_Object, m_Item.GetHealthLevel(), m_Item.GetLiquidType(), m_Item.IsBloodContainer(), m_Item.GetQuantityType(), m_Item.GetQuantity(), m_Object.GetQuantityMax(), m_Item.GetFoodStageType(), m_Item.GetClassName(), rarity);
+				if (expItemInspection)
+				{
+					expItemInspection.GetCloseInspectionSI().Insert(CloseItemInspection);
+					m_P2PMarketMenu.SetIsInspectingItem(true, this);
+				}
+				
 				MissionGameplay.InspectItem(m_P2PMarketMenu, m_Object, m_Item.GetHealthLevel(), m_Item.GetLiquidType(), m_Item.IsBloodContainer(), m_Item.GetQuantityType(), m_Item.GetQuantity(), m_Object.GetQuantityMax(), m_Item.GetFoodStageType(), m_Item.GetClassName(), rarity);
 				return true;
 			}
@@ -70,9 +74,9 @@ class ExpansionP2PMarketMenuCargoItem: ExpansionP2PMarketMenuItemBase
 			if (!m_ItemTooltip && m_Object && m_Item)
 			{
 				int rarity = -1;
-#ifdef EXPANSIONMODHARDLINE
+				#ifdef EXPANSIONMODHARDLINE
 				rarity = m_Item.GetRarity();
-#endif
+				#endif
 				m_ItemTooltip = MissionGameplay.SetItemTooltip(m_Object, m_Item.GetHealthLevel(), m_Item.GetLiquidType(), m_Item.IsBloodContainer(), m_Item.GetQuantityType(), m_Item.GetQuantity(), m_Object.GetQuantityMax(), m_Item.GetFoodStageType(), m_Item.GetClassName(), rarity);
 			}
 
@@ -93,7 +97,7 @@ class ExpansionP2PMarketMenuCargoItem: ExpansionP2PMarketMenuItemBase
 				m_ItemTooltip = null;
 			}
 
-		#ifdef EXPANSIONMODHARDLINE
+			#ifdef EXPANSIONMODHARDLINE
 			if (m_RarityColor != -1)
 			{
 				item_name_text.SetColor(m_RarityColor);
@@ -102,9 +106,9 @@ class ExpansionP2PMarketMenuCargoItem: ExpansionP2PMarketMenuItemBase
 			{
 				item_name_text.SetColor(ARGB(255, 255, 255, 255));
 			}
-		#else
+			#else
 			item_name_text.SetColor(ARGB(255, 255, 255, 255));
-		#endif
+			#endif
 
 			return true;
 		}

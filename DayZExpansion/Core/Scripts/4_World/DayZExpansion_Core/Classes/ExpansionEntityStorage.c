@@ -1061,9 +1061,12 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return s_LastRestoredVersion;
 	}
 
-	static bool DeleteFiles(string name)
+	static bool DeleteFiles(string name, string storageDirectory = string.Empty)
 	{
-		string folderName = GetStorageDirectory() + name;
+		if (storageDirectory == string.Empty)
+			storageDirectory = GetStorageDirectory();
+
+		string folderName = storageDirectory + name;
 		string fileName = folderName + EXT;
 
 		if (FileExist(fileName))

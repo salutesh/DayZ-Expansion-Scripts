@@ -2,9 +2,12 @@ enum eAICommandCategories
 {
 	CATEGORIES,	//special category selection
 	CAT_MOVEMENT,
+	CAT_MOVEMENT_SPEED,
+	CAT_MOVEMENT_STANCE,
 	CAT_FORMATION,
 	CAT_STATUS,
 	CAT_DEBUG,
+	CAT_FACTION,
 	CAT_EMPTY
 };
 
@@ -27,6 +30,30 @@ class eAICommandMenuItem
 	string GetName()
 	{
 		return m_Name;
+	}
+
+	string GetCategoryName()
+	{
+		string name = m_Name;
+
+		eAIGroup group;
+
+		switch (m_ID)
+		{
+			case eAICommandCategories.CAT_FACTION:
+				group = eAIGroup.GetGamePlayerGroup();
+				if (group)
+					name = group.GetFaction().GetName();
+				break;
+
+			case eAICommandCategories.CAT_FORMATION:
+				group = eAIGroup.GetGamePlayerGroup();
+				if (group)
+					name = group.GetFormation().GetName();
+				break;
+		}
+
+		return name;
 	}
 
 	int GetID()
@@ -65,6 +92,8 @@ class eAICommandMenu: UIScriptedMenu
 	protected bool m_IsCategorySelected;
 	protected bool m_IsMenuClosing;
 	protected int m_CurrentCategory;
+	protected ref TIntArray m_MenuPathCategories = {};
+	protected ref TStringArray m_MenuPathNames = {};
 
 	//instance
 	static ref eAICommandMenu instance;
@@ -180,33 +209,48 @@ class eAICommandMenu: UIScriptedMenu
 	//============================================
 	// Gestures
 	//============================================
-	protected void RefreshGestures(eAICommandCategories category_id = -1)
+	protected void RefreshGestures(eAICommandCategories category_id = -1, string name = "")
 	{
 		//create gestures content (widgets) based on categories
 		if (category_id > -1)
 		{
 			GetGestureItems(m_GestureItems, category_id);
 			m_CurrentCategory = category_id;
+			instance.m_IsCategorySelected = true;
+			if (m_MenuPathCategories.Find(category_id) == -1)
+			{
+				m_MenuPathCategories.Insert(category_id);
+				m_MenuPathNames.Insert(name);
+			}
+			else
+			{
+				int index = m_MenuPathCategories.Count() - 1;
+				m_MenuPathCategories.Remove(index);
+				m_MenuPathNames.Remove(index);
+			}
 		}
 		else
 		{
 			GetGestureItems(m_GestureItems, eAICommandCategories.CATEGORIES);
 			m_CurrentCategory = -1;
 			instance.m_IsCategorySelected = false;
+			m_MenuPathCategories.Clear();
+			m_MenuPathNames.Clear();
 		}
 
 		CreateGestureContent();
 
 		UpdateToolbar();
+		UpdateCategoryName(name);
 	}
 
 	protected void GetGestureItems(out array < ref eAICommandMenuItem > gesture_items, eAICommandCategories category)
 	{
 		gesture_items.Clear();
 
-		//All categories
-		if (category == eAICommandCategories.CATEGORIES)
+		switch (category)
 		{
+		case eAICommandCategories.CATEGORIES:
 			// only show if we are in a group
 			if (GetDayZGame().GetExpansionGame().InGroup())
 			{
@@ -218,47 +262,54 @@ class eAICommandMenu: UIScriptedMenu
 			if (GetExpansionSettings().GetAI().IsAdmin())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DEBUG, "Spawn", eAICommandCategories.CATEGORIES));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_FACTION, "Faction", eAICommandCategories.CATEGORIES));
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_STATUS, "Status", eAICommandCategories.CATEGORIES));
 			}
-		}
+			break;
 
-		//Category 1 - Movement
-		else if (category == eAICommandCategories.CAT_MOVEMENT)
-		{
+		case eAICommandCategories.CAT_MOVEMENT:
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_STOP, "Stop", eAICommandCategories.CAT_MOVEMENT));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_FLANK, "Flank", eAICommandCategories.CAT_MOVEMENT));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_ROAM, "Roam", eAICommandCategories.CAT_MOVEMENT));
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_GOTO, "Go To...", eAICommandCategories.CAT_MOVEMENT));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_RTF, "Rejoin", eAICommandCategories.CAT_MOVEMENT));
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_GETIN, "Get In", eAICommandCategories.CAT_MOVEMENT));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_SETWP, "Set Waypoint", eAICommandCategories.CAT_MOVEMENT));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_SETWP, "    Set\nWaypoint", eAICommandCategories.CAT_MOVEMENT));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_CLEARWP, "     Clear\nWaypoints  ", eAICommandCategories.CAT_MOVEMENT));
 			if (GetExpansionSettings().GetAI().IsAdmin())
-				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_EXPORTPATROL, "Export Patrol", eAICommandCategories.CAT_MOVEMENT));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_CLEARWP, "Clear Waypoints", eAICommandCategories.CAT_MOVEMENT));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_WALK, "Walk", eAICommandCategories.CAT_MOVEMENT));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_JOG, "Jog", eAICommandCategories.CAT_MOVEMENT));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_SPRINT, "Sprint", eAICommandCategories.CAT_MOVEMENT));
-		}
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_EXPORTPATROL, "Export\n Patrol", eAICommandCategories.CAT_MOVEMENT));
 
-		//Category 2 - Formation
-		else if (category == eAICommandCategories.CAT_FORMATION)
-		{
+			gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_MOVEMENT_STANCE, "Stance", eAICommandCategories.CATEGORIES));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_MOVEMENT_SPEED, "Speed", eAICommandCategories.CATEGORIES));
+			break;
+
+		case eAICommandCategories.CAT_MOVEMENT_SPEED:
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_WALK, "Walk", eAICommandCategories.CAT_MOVEMENT_SPEED));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_JOG, "Jog", eAICommandCategories.CAT_MOVEMENT_SPEED));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_SPRINT, "Sprint", eAICommandCategories.CAT_MOVEMENT_SPEED));
+			break;
+
+		case eAICommandCategories.CAT_MOVEMENT_STANCE:
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_ERECT, "Stand", eAICommandCategories.CAT_MOVEMENT_STANCE));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_CROUCH, "Crouch", eAICommandCategories.CAT_MOVEMENT_STANCE));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.MOV_PRONE, "Prone", eAICommandCategories.CAT_MOVEMENT_STANCE));
+			break;
+
+		case eAICommandCategories.CAT_FORMATION:
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_VEE, "Vee", eAICommandCategories.CAT_FORMATION));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVVEE, "IVee", eAICommandCategories.CAT_FORMATION));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVVEE, "InvVee", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_FILE, "File", eAICommandCategories.CAT_FORMATION));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVFILE, "IFile", eAICommandCategories.CAT_FORMATION));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_WALL, "Wall", eAICommandCategories.CAT_FORMATION));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVFILE, "InvFile", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_COL, "Column", eAICommandCategories.CAT_FORMATION));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVCOL, "IColumn", eAICommandCategories.CAT_FORMATION));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVCOL, "InvColumn", eAICommandCategories.CAT_FORMATION));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_WALL, "Wall", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_CIRCLE, "Circle", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_CIRCLEDOT, "CircleDot", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_STAR, "Star", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_STARDOT, "StarDot", eAICommandCategories.CAT_FORMATION));
-		}
+			break;
 
-		//Category 3 - Status
-		else if (category == eAICommandCategories.CAT_STATUS)
-		{
+		case eAICommandCategories.CAT_STATUS:
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_SITREP, "Report Situation", eAICommandCategories.CAT_STATUS));
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_POSITION, "Report Position", eAICommandCategories.CAT_STATUS));
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_THREATS, "Report Threats", eAICommandCategories.CAT_STATUS));
@@ -274,11 +325,12 @@ class eAICommandMenu: UIScriptedMenu
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPECTATE, "Spectate AI", eAICommandCategories.CAT_STATUS));
 			#endif
 			}
-		}
+		#ifdef DIAG_DEVELOPER
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_SITREP, "Report", eAICommandCategories.CAT_STATUS));
+		#endif
+			break;
 
-		//Category 4 - Debug
-		else if (category == eAICommandCategories.CAT_DEBUG)
-		{
+		case eAICommandCategories.CAT_DEBUG:
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNALLY, "Friendly", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_CLEARALL, "Clear AI", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNBEAR, "Bear", eAICommandCategories.CAT_DEBUG));
@@ -296,11 +348,29 @@ class eAICommandMenu: UIScriptedMenu
 			}
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_AIMAP, "AI Menu", eAICommandCategories.CAT_DEBUG));
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_GRPMGR, "Group Manager", eAICommandCategories.CAT_DEBUG));
-		}
+			break;
 
-		else if (category == eAICommandCategories.CAT_EMPTY)
-		{
+		case eAICommandCategories.CAT_FACTION:
+			foreach (int factionId, typename factionType: eAIRegisterFaction.s_FactionTypes)
+			{
+				eAIFaction faction = eAIFaction.Cast(factionType.Spawn());
+				if (!faction.IsInvincible())
+				{
+					string name = faction.GetName();
+					switch (name)
+					{
+						case "YeetBrigade":
+							name = "Yeet";
+							break;
+					}
+					gesture_items.Insert(new eAICommandMenuItem(factionId, name, eAICommandCategories.CAT_FACTION));
+				}
+			}
+			break;
+
+		case eAICommandCategories.CAT_EMPTY:
 			Close();
+			break;
 		}
 
 		if (gesture_items.Count() == 1)
@@ -423,9 +493,6 @@ class eAICommandMenu: UIScriptedMenu
 		{
 			m_CategoryNameText = TextWidget.Cast(layoutRoot.FindAnyWidget(CATEGORY_NAME));
 		}
-		
-		if (!name || name.Length() == 0)
-			name = "eAI Commands";
 
 		m_CategoryNameText.SetText(name);
 	}
@@ -469,14 +536,7 @@ class eAICommandMenu: UIScriptedMenu
 	//! LMB
 	void OnMousePressLeft( Widget w )
 	{
-		if (instance.m_IsCategorySelected)
-		{
-			ExecuteSelectedItem();
-		}
-		else
-		{
-			ExecuteSelectedCategory( w );
-		}
+		ExecuteSelected(w);
 	}
 	
 	//! RMB
@@ -503,14 +563,7 @@ class eAICommandMenu: UIScriptedMenu
 	
 	void OnControllerPressSelect( Widget w )
 	{
-		if (instance.m_IsCategorySelected)
-		{
-			ExecuteSelectedItem();
-		}
-		else
-		{
-			ExecuteSelectedCategory( w );
-		}
+		ExecuteSelected(w);
 	}
 	
 	void OnControllerPressBack( Widget w )
@@ -568,27 +621,22 @@ class eAICommandMenu: UIScriptedMenu
 		}
 	}
 
-	protected void ExecuteSelectedCategory(Widget w)
+	protected void ExecuteSelected(Widget w)
 	{
-		//only when category is not picked yet
 		if (w)
 		{
 			eAICommandMenuItem gesture_item;
 			w.GetUserData(gesture_item);
 
-			//is category
-			if (!instance.m_IsCategorySelected && gesture_item.GetCategory() == eAICommandCategories.CATEGORIES)
+			if (gesture_item.GetCategory() == eAICommandCategories.CATEGORIES)
 			{
-				//set category selected
-				instance.m_IsCategorySelected = true;
+				string name = gesture_item.GetCategoryName();
 
-				//show selected category gestures
-				GetGestureItems(m_GestureItems, gesture_item.GetID());
-				CreateGestureContent();
-				RefreshGestures(gesture_item.GetID());
-
-				//update category name text
-				UpdateCategoryName(gesture_item.GetName());
+				RefreshGestures(gesture_item.GetID(), name);
+			}
+			else
+			{
+				ExecuteSelectedItem();
 			}
 		}
 	}
@@ -603,16 +651,32 @@ class eAICommandMenu: UIScriptedMenu
 				instance.m_SelectedItem.GetUserData(selected);
 
 				if (selected)
+				{
 					g_Game.GetExpansionGame().GetCommandManager().Send(selected.GetID());
+
+					switch (selected.GetCategory())
+					{
+						case eAICommandCategories.CAT_FACTION:
+						case eAICommandCategories.CAT_FORMATION:
+							UpdateCategoryName(selected.GetName());
+					}
+				}
 			}
 		}
 	}
 	
-	//only moves to the GestureCategories.CATEGORIES for now
 	protected void BackOneLevel()
 	{
-		RefreshGestures();
-		UpdateCategoryName( "" );
+		eAICommandCategories category_id = -1;
+		string name;
+		int index = m_MenuPathCategories.Count() - 2;
+		if (index >= 0)
+		{
+			category_id = m_MenuPathCategories[index];
+			name = m_MenuPathNames[index];
+		}
+
+		RefreshGestures(category_id, name);
 	}
 
 	bool IsMenuClosing()

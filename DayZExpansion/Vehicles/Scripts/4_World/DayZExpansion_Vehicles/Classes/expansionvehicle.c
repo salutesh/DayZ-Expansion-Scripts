@@ -393,7 +393,10 @@ modded class ExpansionVehicle
 
 	bool HasKey()
 	{
-		return m_LockState != ExpansionVehicleLockState.NOLOCK;
+		if (m_MasterKeyPersistentIDA && m_MasterKeyPersistentIDB && m_MasterKeyPersistentIDC && m_MasterKeyPersistentIDD)
+			return true;
+
+		return false;
 	}
 
 	void PairKey(notnull ExpansionCarKey key)

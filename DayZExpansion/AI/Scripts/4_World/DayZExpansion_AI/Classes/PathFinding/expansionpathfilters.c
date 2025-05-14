@@ -4,8 +4,12 @@ class ExpansionPathFilters
 
 	autoptr PGFilter m_PathFilter;
 	autoptr PGFilter m_PathFilter_NoJumpClimb;
+	autoptr PGFilter m_PathFilter_NoClosedDoors;
+	autoptr PGFilter m_PathFilter_NoClosedDoors_NoJumpClimb;
 	autoptr PGFilter m_PathFilter_Swimming;
 	autoptr PGFilter m_PathFilter_NoJumpClimb_Swimming;
+	autoptr PGFilter m_PathFilter_NoClosedDoors_Swimming;
+	autoptr PGFilter m_PathFilter_NoClosedDoors_NoJumpClimb_Swimming;
 	autoptr PGFilter m_BlockFilter;
 	autoptr PGFilter m_AllFilter;
 	
@@ -15,16 +19,32 @@ class ExpansionPathFilters
 
 	int m_IncludeFlags;
 	int m_IncludeFlags_NoJumpClimb;
+	int m_IncludeFlags_NoClosedDoors;
+	int m_IncludeFlags_NoClosedDoors_NoJumpClimb;
 	int m_ExcludeFlags;
 	int m_ExcludeFlags_NoJumpClimb;
+	int m_ExcludeFlags_NoClosedDoors;
+	int m_ExcludeFlags_NoClosedDoors_NoJumpClimb;
+	int m_IncludeFlags_Swimming;
+	int m_IncludeFlags_NoJumpClimb_Swimming;
+	int m_IncludeFlags_NoClosedDoors_Swimming;
+	int m_IncludeFlags_NoClosedDoors_NoJumpClimb_Swimming;
+	int m_ExcludeFlags_Swimming;
+	int m_ExcludeFlags_NoJumpClimb_Swimming;
+	int m_ExcludeFlags_NoClosedDoors_Swimming;
+	int m_ExcludeFlags_NoClosedDoors_NoJumpClimb_Swimming;
 	int m_ExclusiveFlags;
 
 	private void ExpansionPathFilters()
 	{
 		m_PathFilter = new PGFilter();
-		m_PathFilter_Swimming = new PGFilter();
 		m_PathFilter_NoJumpClimb = new PGFilter();
+		m_PathFilter_NoClosedDoors = new PGFilter();
+		m_PathFilter_NoClosedDoors_NoJumpClimb = new PGFilter();
+		m_PathFilter_Swimming = new PGFilter();
 		m_PathFilter_NoJumpClimb_Swimming = new PGFilter();
+		m_PathFilter_NoClosedDoors_Swimming = new PGFilter();
+		m_PathFilter_NoClosedDoors_NoJumpClimb_Swimming = new PGFilter();
 		m_BlockFilter = new PGFilter();
 		m_AllFilter = new PGFilter();
 
@@ -49,14 +69,35 @@ class ExpansionPathFilters
 		}
 
 		m_IncludeFlags_NoJumpClimb = m_IncludeFlags & ~PGPolyFlags.SPECIAL;
+		m_IncludeFlags_NoClosedDoors = m_IncludeFlags & ~PGPolyFlags.DISABLED;
+		m_IncludeFlags_NoClosedDoors_NoJumpClimb = m_IncludeFlags_NoJumpClimb & ~PGPolyFlags.DISABLED;
 		m_ExcludeFlags_NoJumpClimb = m_ExcludeFlags | PGPolyFlags.SPECIAL;
-
-		SetupFilters(m_PathFilter, m_PathFilter_NoJumpClimb);
-		SetupFilters(m_PathFilter_Swimming, m_PathFilter_NoJumpClimb_Swimming);
+		m_ExcludeFlags_NoClosedDoors = m_ExcludeFlags | PGPolyFlags.DISABLED;
+		m_ExcludeFlags_NoClosedDoors_NoJumpClimb = m_ExcludeFlags_NoJumpClimb | PGPolyFlags.DISABLED;
 
 		int swim = PGPolyFlags.SWIM_SEA | PGPolyFlags.SWIM;
-		m_PathFilter_Swimming.SetFlags(m_IncludeFlags | swim, m_ExcludeFlags & ~swim, m_ExclusiveFlags);
-		m_PathFilter_NoJumpClimb_Swimming.SetFlags(m_IncludeFlags_NoJumpClimb | swim, m_ExcludeFlags_NoJumpClimb & ~swim, m_ExclusiveFlags);
+		m_IncludeFlags_Swimming = m_IncludeFlags | swim;
+		m_IncludeFlags_NoJumpClimb_Swimming = m_IncludeFlags_NoJumpClimb | swim;
+		m_IncludeFlags_NoClosedDoors_Swimming = m_IncludeFlags_Swimming & ~PGPolyFlags.DISABLED;
+		m_IncludeFlags_NoClosedDoors_NoJumpClimb_Swimming = m_IncludeFlags_NoJumpClimb_Swimming & ~PGPolyFlags.DISABLED;
+		m_ExcludeFlags_Swimming = m_ExcludeFlags & ~swim;
+		m_ExcludeFlags_NoJumpClimb_Swimming = m_ExcludeFlags_NoJumpClimb & ~swim;
+		m_ExcludeFlags_NoClosedDoors_Swimming = m_ExcludeFlags_Swimming | PGPolyFlags.DISABLED;
+		m_ExcludeFlags_NoClosedDoors_NoJumpClimb_Swimming = m_ExcludeFlags_NoJumpClimb_Swimming | PGPolyFlags.DISABLED;
+
+		SetFilterCost(m_PathFilter, m_PathFilter_NoJumpClimb);
+		SetFilterCost(m_PathFilter_NoClosedDoors, m_PathFilter_NoClosedDoors_NoJumpClimb);
+		SetFilterCost(m_PathFilter_Swimming, m_PathFilter_NoJumpClimb_Swimming);
+		SetFilterCost(m_PathFilter_NoClosedDoors_Swimming, m_PathFilter_NoClosedDoors_NoJumpClimb_Swimming);
+
+		m_PathFilter.SetFlags(m_IncludeFlags, m_ExcludeFlags, m_ExclusiveFlags);
+		m_PathFilter_NoClosedDoors.SetFlags(m_IncludeFlags_NoClosedDoors, m_ExcludeFlags_NoClosedDoors, m_ExclusiveFlags);
+		m_PathFilter_NoJumpClimb.SetFlags(m_IncludeFlags_NoJumpClimb, m_ExcludeFlags_NoJumpClimb, m_ExclusiveFlags);
+		m_PathFilter_NoClosedDoors_NoJumpClimb.SetFlags(m_IncludeFlags_NoClosedDoors_NoJumpClimb, m_ExcludeFlags_NoClosedDoors_NoJumpClimb, m_ExclusiveFlags);
+		m_PathFilter_Swimming.SetFlags(m_IncludeFlags_Swimming, m_ExcludeFlags_Swimming, m_ExclusiveFlags);
+		m_PathFilter_NoJumpClimb_Swimming.SetFlags(m_IncludeFlags_NoJumpClimb_Swimming, m_ExcludeFlags_NoJumpClimb_Swimming, m_ExclusiveFlags);
+		m_PathFilter_NoClosedDoors_Swimming.SetFlags(m_IncludeFlags_NoClosedDoors_Swimming, m_ExcludeFlags_NoClosedDoors_Swimming, m_ExclusiveFlags);
+		m_PathFilter_NoClosedDoors_NoJumpClimb_Swimming.SetFlags(m_IncludeFlags_NoClosedDoors_NoJumpClimb_Swimming, m_ExcludeFlags_NoClosedDoors_NoJumpClimb_Swimming, m_ExclusiveFlags);
 
 		//! Block filter - only used to check if path is blocked. MUST use SAME flags as normal pathfilter EXCEPT door
 		m_BlockFilter.SetFlags(m_IncludeFlags & ~(PGPolyFlags.DOOR | PGPolyFlags.DISABLED), m_ExcludeFlags | PGPolyFlags.DOOR | PGPolyFlags.DISABLED, m_ExclusiveFlags);
@@ -87,7 +128,7 @@ class ExpansionPathFilters
 	{
 	}
 
-	private void SetupFilters(PGFilter filter, PGFilter filterNoJumpClimb)
+	private void SetFilterCost(PGFilter filter, PGFilter filterNoJumpClimb)
 	{
 		filter.SetCost(PGAreaType.LADDER, 1.0);
 		filter.SetCost(PGAreaType.CRAWL, 10.0);
@@ -111,8 +152,6 @@ class ExpansionPathFilters
 		filter.SetCost(PGAreaType.BUILDING, 1.0);
 		filter.SetCost(PGAreaType.ROADWAY_BUILDING, 4.0);
 
-		filter.SetFlags(m_IncludeFlags, m_ExcludeFlags, m_ExclusiveFlags);
-
 		filterNoJumpClimb.SetCost(PGAreaType.LADDER, 1.0);
 		filterNoJumpClimb.SetCost(PGAreaType.CRAWL, 10.0);
 		filterNoJumpClimb.SetCost(PGAreaType.CROUCH, 10.0);
@@ -134,8 +173,6 @@ class ExpansionPathFilters
 		filterNoJumpClimb.SetCost(PGAreaType.TERRAIN, 4.0);
 		filterNoJumpClimb.SetCost(PGAreaType.BUILDING, 1.0);
 		filterNoJumpClimb.SetCost(PGAreaType.ROADWAY_BUILDING, 4.0);
-
-		filterNoJumpClimb.SetFlags(m_IncludeFlags_NoJumpClimb, m_ExcludeFlags_NoJumpClimb, m_ExclusiveFlags);
 	}
 
 	static ExpansionPathFilters GetInstance()

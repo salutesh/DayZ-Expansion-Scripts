@@ -10,38 +10,8 @@
  *
 */
 
-#ifndef DAYZ_1_25
 modded class ActionStopEngineBoat
 {
-	override void OnExecuteClient(ActionData action_data)
-	{
-		super.OnExecuteClient(action_data);
-
-		auto vehicle = ExpansionVehicle.Get(action_data.m_Player);
-
-		if (vehicle)
-		{
-			if (vehicle.EngineIsOn())  //! Super may already have stopped the engine
-				vehicle.EngineStop();
-		}
-	}
-
-	override void OnExecuteServer(ActionData action_data)
-	{
-		super.OnExecuteServer(action_data);
-
-		auto vehicle = ExpansionVehicle.Get(action_data.m_Player);
-
-		if (vehicle)
-		{
-			if (vehicle.EngineIsOn())  //! Super may already have stopped the engine
-				vehicle.EngineStop();
-
-			if (action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEngine)
-				GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player \"{1:name}\" (id={1:id}) stopped vehicle {2:name} (id={2:persistent_id} pos={2:position})", action_data.m_Player, vehicle.GetEntity());
-		}
-	}
-
 	override bool Expansion_CheckSuccess(ActionData action_data)
 	{
 		ExpansionVehicle vehicle;
@@ -53,4 +23,3 @@ modded class ActionStopEngineBoat
 		return false;
 	}
 };
-#endif

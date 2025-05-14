@@ -396,7 +396,7 @@ class eAIDamageHandler
 		}
 
 		if (m_Entity.IsMan() && sourcePlayer && sourcePlayer != m_Entity)
-			sourcePlayer.m_eAI_LastAggressionTime = ExpansionStatic.GetTime(true);  //! Aggro guards in area (if any)
+			sourcePlayer.m_eAI_LastAggressionTime = ExpansionStatic.GetTimestamp(true);  //! Aggro guards in area (if any)
 
 		return true;
 	}

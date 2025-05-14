@@ -36,7 +36,7 @@ class ExpansionTerritorySettingsV2: ExpansionTerritorySettingsBase
  **/
 class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 {
-	static const int VERSION = 5;
+	static const int VERSION = 6;
 	
 	float TerritoryInviteAcceptRadius;	//! Players need to be in this radius to be able to accept a territory invite
 	bool AuthenticateCodeLockIfTerritoryMember;   //! Territory members don't have to enter code on codelocks in territory
@@ -46,6 +46,9 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 	
 	//! Added with version 5
 	bool OnlyInviteGroupMember;
+
+	int MaxCodeLocksOnBBPerTerritory;
+	int MaxCodeLocksOnItemsPerTerritory;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -208,6 +211,12 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 				if (m_Version < 5)
 					OnlyInviteGroupMember = settingsDefault.OnlyInviteGroupMember;
 
+				if (m_Version < 6 && !MaxCodeLocksOnBBPerTerritory)
+					MaxCodeLocksOnBBPerTerritory = settingsDefault.MaxCodeLocksOnBBPerTerritory;
+
+				if (m_Version < 6 && !MaxCodeLocksOnItemsPerTerritory)
+					MaxCodeLocksOnItemsPerTerritory = settingsDefault.MaxCodeLocksOnItemsPerTerritory;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -249,6 +258,8 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 		AuthenticateCodeLockIfTerritoryMember = false;
 		InviteCooldown = 0;
 		OnlyInviteGroupMember = false;
+		MaxCodeLocksOnBBPerTerritory = -1;
+		MaxCodeLocksOnItemsPerTerritory = -1;
 	}
 	
 	// ------------------------------------------------------------

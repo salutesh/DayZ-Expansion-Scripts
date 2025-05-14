@@ -59,10 +59,8 @@ modded class BuildingBase
 
 	void BuildingBase()
 	{
-		if (!GetGame().IsServer())
-			return;
-
-		m_eAI_DynamicPatrolSpawner = new eAIDynamicPatrolSpawner<BuildingBase>(this);
+		if (GetGame().IsServer())
+			m_eAI_DynamicPatrolSpawner = new eAIDynamicPatrolSpawner<BuildingBase>(this);
 	}
 
 	override void DeferredInit()
@@ -73,7 +71,7 @@ modded class BuildingBase
 			return;
 
 		//! Do not init patrols on CrashBase unless created by CE (EEOnCECreate/AfterStoreLoad will take care of init in that case)
-		if (!IsInherited(CrashBase))
+		if (!IsInherited(CrashBase) && m_eAI_DynamicPatrolSpawner)
 		{
 			m_eAI_DynamicPatrolSpawner.Init();
 		}
@@ -89,6 +87,9 @@ modded class BuildingBase
 				"land_city_firestation",
 				"land_city_stand",
 				"land_dieselpowerplant_tank_big",
+				"land_farm_cowsheda",
+				"land_farm_cowshedb",
+				"land_farm_cowshedc",
 				"land_garage",
 				"land_geoplant_coolingstack",  //! Sakhal
 				"land_geoplant_mainhall_right",  //! Sakhal
@@ -112,6 +113,7 @@ modded class BuildingBase
 				"land_pier_crane2_base",  //! Sakhal
 				"land_rail_station",
 				"land_shed",
+				"land_slum_house6",
 				"land_tank_big3",  //! Sakhal
 				"land_tenement",
 				"land_train_wagon_box",  //! Pathfinding won't find a path out of the wagon, that's the only reason it's excluded
@@ -279,7 +281,7 @@ modded class BuildingBase
 			return m_Expansion_LaddersCount;
 		}
 
-	#ifdef DIAG_DEVELOPER
+	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this, type);
 	#endif
 

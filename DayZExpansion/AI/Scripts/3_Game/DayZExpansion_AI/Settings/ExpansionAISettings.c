@@ -21,7 +21,7 @@ class ExpansionAISettingsV11: ExpansionSettingBase
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 12;
+	static const int VERSION = 13;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -32,8 +32,6 @@ class ExpansionAISettings: ExpansionSettingBase
 	float DamageReceivedMultiplier;
 
 	autoptr TStringArray Admins = {};
-
-	int MaximumDynamicPatrols;
 
 	bool Vaulting;
 
@@ -47,9 +45,7 @@ class ExpansionAISettings: ExpansionSettingBase
 
 	ref TStringArray PreventClimb = {};
 
-#ifdef DIAG_DEVELOPER
 	float FormationScale;
-#endif
 
 	autoptr TStringArray PlayerFactions = {};  //! If non-empty, player will automatically join one of these factions on connect
 
@@ -69,30 +65,6 @@ class ExpansionAISettings: ExpansionSettingBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
 #endif
 
-		if ( !ctx.Read( AccuracyMin ) )
-		{
-			Error("ExpansionAISettings::OnRecieve AccuracyMin");
-			return false;
-		}
-
-		if ( !ctx.Read( AccuracyMax ) )
-		{
-			Error("ExpansionAISettings::OnRecieve AccuracyMax");
-			return false;
-		}
-
-		if ( !ctx.Read( Vaulting ) )
-		{
-			Error("ExpansionAISettings::OnRecieve Vaulting");
-			return false;
-		}
-
-		if ( !ctx.Read( Manners ) )
-		{
-			Error("ExpansionAISettings::OnRecieve Manners");
-			return false;
-		}
-
 		if ( !ctx.Read( CanRecruitGuards ) )
 		{
 			Error("ExpansionAISettings::OnRecieve CanRecruitGuards");
@@ -104,14 +76,6 @@ class ExpansionAISettings: ExpansionSettingBase
 			Error("ExpansionAISettings::OnRecieve CanRecruitFriendly");
 			return false;
 		}
-
-#ifdef DIAG_DEVELOPER
-		if ( !ctx.Read( FormationScale ) )
-		{
-			Error("ExpansionAISettings::OnRecieve FormationScale");
-			return false;
-		}
-#endif
 
 		if ( !ctx.Read( m_IsAdmin ) )
 		{
@@ -135,16 +99,8 @@ class ExpansionAISettings: ExpansionSettingBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
 #endif
 
-		ctx.Write( AccuracyMin );
-		ctx.Write( AccuracyMax );
-		ctx.Write( Vaulting );
-		ctx.Write( Manners );
 		ctx.Write( CanRecruitGuards );
 		ctx.Write( CanRecruitFriendly );
-
-#ifdef DIAG_DEVELOPER
-		ctx.Write( FormationScale );
-#endif
 	}
 
 	// ------------------------------------------------------------
@@ -195,7 +151,6 @@ class ExpansionAISettings: ExpansionSettingBase
 		DamageMultiplier = s.DamageMultiplier;
 		DamageReceivedMultiplier = s.DamageReceivedMultiplier;
 		Admins.Copy(s.Admins);
-		MaximumDynamicPatrols = s.MaximumDynamicPatrols;
 		Vaulting = s.Vaulting;
 		SniperProneDistanceThreshold = s.SniperProneDistanceThreshold;
 		Manners = s.Manners;
@@ -203,9 +158,7 @@ class ExpansionAISettings: ExpansionSettingBase
 		CanRecruitFriendly = s.CanRecruitFriendly;
 		CanRecruitGuards = s.CanRecruitGuards;
 		PreventClimb.Copy(s.PreventClimb);
-#ifdef DIAG_DEVELOPER
 		FormationScale = s.FormationScale;
-#endif
 	}
 
 	// ------------------------------------------------------------
@@ -264,16 +217,11 @@ class ExpansionAISettings: ExpansionSettingBase
 						AccuracyMin = settingsDefault.AccuracyMin;
 					if (!AccuracyMax)
 						AccuracyMax = settingsDefault.AccuracyMax;
-					if (!MaximumDynamicPatrols)
-						MaximumDynamicPatrols = settingsDefault.MaximumDynamicPatrols;
 				}
 
 				if (m_Version < 2)
 				{
 					Manners = settingsDefault.Manners;
-#ifdef DIAG_DEVELOPER
-					FormationScale = settingsDefault.FormationScale;
-#endif
 				}
 
 				if (m_Version < 4)
@@ -319,6 +267,9 @@ class ExpansionAISettings: ExpansionSettingBase
 						locationSettings.Save();
 					}
 				}
+
+				if (m_Version < 13 && !FormationScale)
+					FormationScale = settingsDefault.FormationScale;
 
 				m_Version = VERSION;
 				save = true;
@@ -369,8 +320,6 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		Admins.Clear();
 
-		MaximumDynamicPatrols = -1;
-
 		Vaulting = true;
 
 		SniperProneDistanceThreshold = 0.0;
@@ -383,9 +332,7 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		PreventClimb.Clear();
 
-#ifdef DIAG_DEVELOPER
-		FormationScale = 0.15;
-#endif
+		FormationScale = 1.0;
 
 		PlayerFactions.Clear();
 

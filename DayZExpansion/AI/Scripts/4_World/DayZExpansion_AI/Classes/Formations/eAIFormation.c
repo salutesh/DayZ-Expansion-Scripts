@@ -5,7 +5,7 @@ class eAIFormation
 	static autoptr TTypenameArray s_FormationTypes = {eAIFormationColumn, eAIFormationInvColumn, eAIFormationFile, eAIFormationInvFile, eAIFormationVee, eAIFormationInvVee, eAIFormationWall, eAIFormationCircle, eAIFormationCircleDot, eAIFormationStar, eAIFormationStarDot};
 
 	private vector m_Transform[4];
-	private float m_Scale;
+	private float m_Scale = 1.0;
 
 	protected eAIGroup m_Group;
 
@@ -15,7 +15,6 @@ class eAIFormation
 	void eAIFormation(eAIGroup group = null)
 	{
 		m_Group = group;
-		m_Scale = 1.0;
 
 		UpdateTransform(vector.Zero, vector.Forward);
 	}
@@ -23,6 +22,12 @@ class eAIFormation
 	void SetGroup(eAIGroup group)
 	{
 		m_Group = group;
+	}
+
+	string GetName()
+	{
+		string cls = Type().ToString();
+		return cls.Substring(12, cls.Length() - 12);
 	}
 
 	/**
@@ -93,15 +98,21 @@ class eAIFormation
 
 	void SetScale(float separation)
 	{
+		if (separation <= 0)
+		{
+			auto settings = GetExpansionSettings().GetAI();
+		#ifdef DIAG_DEVELOPER
+			separation = Math.Max(settings.FormationScale, 0.1);
+		#else
+			separation = Math.Max(settings.FormationScale, 1.0);
+		#endif
+		}
+
 		m_Scale = separation;
 	}
 
 	float GetScale()
 	{
-#ifdef DIAG_DEVELOPER
-		m_Scale = GetExpansionSettings().GetAI().FormationScale;
-#endif
-
 		return m_Scale;
 	}
 

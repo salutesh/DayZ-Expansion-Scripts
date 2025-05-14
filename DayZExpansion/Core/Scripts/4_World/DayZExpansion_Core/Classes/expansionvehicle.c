@@ -201,6 +201,14 @@ class ExpansionVehicle
 		return null;
 	}
 
+#ifdef FEATURE_NETWORK_RECONCILIATION
+	NetworkMoveStrategy GetNetworkMoveStrategy()
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return NetworkMoveStrategy.NONE;
+	}
+#endif
+
 	string GetPersistentIDString()
 	{
 		return ExpansionStatic.GetPersistentIDString(GetEntity());
@@ -403,6 +411,20 @@ class ExpansionVehicle
 	{
 		EXError.Error(this, "NOT IMPLEMENTED");
 		return 0;
+	}
+
+	bool OnBeforeEngineStart(int index = 0)
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return false;
+	}
+
+	void OnEngineStart(int index = 0)
+	{
+	}
+
+	void OnEngineStop(int index = 0)
+	{
 	}
 
 	bool EngineIsOn()
@@ -783,10 +805,38 @@ class ExpansionVehicle
 			{
 				PlayerBase player = PlayerBase.GetPlayerByUID(m_LastDriverUID);
 				if (player)
-					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", string.Format("%1 at %2 was deleted after exceeding the maximum allowed safezone parking time of %3.", GetDisplayName(), ExpansionStatic.VectorToString(GetPosition(), ExpansionVectorToString.Labels), ExpansionStatic.GetTimeString(lifetime, true))).Error(player.GetIdentity());
+				{
+					string displayName = GetDisplayName();
+					string posText = ExpansionStatic.VectorToString(GetPosition(), ExpansionVectorToString.Labels);
+					string lifetimeText = ExpansionStatic.GetTimeString(lifetime, true);
+					CF_Localiser localiser = new CF_Localiser("STR_EXPANSION_SAFEZONE_VEHICLE_CLEANUP_1", displayName, posText, lifetimeText);
+					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", localiser).Error(player.GetIdentity());
+				}
 			}
 
-			vehicle.Delete();
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeleteVehicleWhenCrewLeft, 3000, false, lifetime);
+		}
+	}
+
+	void DeleteVehicleWhenCrewLeft(float lifetime)
+	{
+		if (!GetCrew(false, false).Count())
+		{
+			//! If we have last driver UID, notify player that their vehicle is being deleted
+			if (m_LastDriverUID)
+			{
+				PlayerBase player = PlayerBase.GetPlayerByUID(m_LastDriverUID);
+				if (player)
+				{
+					string displayName = GetDisplayName();
+					string posText = ExpansionStatic.VectorToString(GetPosition(), ExpansionVectorToString.Labels);
+					string lifetimeText = ExpansionStatic.GetTimeString(lifetime, true);
+					CF_Localiser localiser = new CF_Localiser("STR_EXPANSION_SAFEZONE_VEHICLE_CLEANUP_2", displayName, posText, lifetimeText);
+					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", localiser).Error(player.GetIdentity());
+				}
+			}
+
+			GetEntity().Delete();
 		}
 	}
 
@@ -944,6 +994,13 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	{
 		return m_Vehicle.m_Expansion_GlobalID;
 	}
+	
+#ifdef FEATURE_NETWORK_RECONCILIATION
+	override NetworkMoveStrategy GetNetworkMoveStrategy()
+	{
+		return m_Vehicle.GetNetworkMoveStrategy();
+	}
+#endif
 
 	override void SetSkin(int skinIndex)
 	{
@@ -1300,6 +1357,11 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 
 	override void ForceCrewGetOut()
 	{
+	#ifndef DAYZ_1_27
+		//! TODO/FIXME ForceCrewGetOut doesn't work under DayZ 1.28 or newer
+		return;
+	#endif
+
 		auto crew = GetCrew(false, false);
 		foreach (auto member: crew)
 		{
@@ -1488,6 +1550,44 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	override string EngineGetName()
 	{
 		return m_Vehicle.Expansion_EngineGetName();
+	}
+
+	override bool OnBeforeEngineStart(int index = 0)
+	{
+		if (GetGame().IsClient())
+			return true;
+
+		float engineHealth = GetEntity().GetHealth01("Engine", "");
+		//! @note chance when engine is damaged (health level 0.5)
+		float chance = GetExpansionSettings().GetVehicle().DamagedEngineStartupChancePercent / 100.0;
+		//! @note calculated chance follows a power curve (linear if chance == 0.5)
+		float chanceMin = 0.0025;
+		bool clamp = chance == 0;
+
+		if (chance < chanceMin)
+			chance = chanceMin;
+
+		chance = Math.Pow(engineHealth, -ExpansionMath.Log2(chance));
+
+		if (clamp)
+			chance = ExpansionMath.LinearConversion(chanceMin, 1.0, chance, 0.0, 1.0);
+
+		if (chance >= Math.RandomFloatInclusive(0.0, 1.0))
+			return true;
+
+		return false;
+	}
+
+	override void OnEngineStart(int index = 0)
+	{
+		if (GetGame().IsServer() && GetExpansionSettings().GetLog().VehicleEngine)
+			GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player \"{1:name}\" (id={1:id}) started vehicle {2:name} (id={2:persistent_id} pos={2:position})", CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER), GetEntity());
+	}
+
+	override void OnEngineStop(int index = 0)
+	{
+		if (GetGame().IsServer() && GetExpansionSettings().GetLog().VehicleEngine)
+			GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player \"{1:name}\" (id={1:id}) stopped vehicle {2:name} (id={2:persistent_id} pos={2:position})", CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER), GetEntity());
 	}
 
 	override bool EngineIsOn(int index)

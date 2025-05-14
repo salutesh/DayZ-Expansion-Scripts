@@ -7,7 +7,7 @@ WrapSpacerWidgetClass ExpansionP2PMarketMenuItem {
  vexactsize 1
  priority 2
  scriptclass "ExpansionP2PMarketMenuItemController"
- style DayZDefaultPanelSides
+ style Empty
  Padding 0
  Margin 0
  "Size To Content H" 1
@@ -15,7 +15,6 @@ WrapSpacerWidgetClass ExpansionP2PMarketMenuItem {
  content_halign right
  {
   ButtonWidgetClass item_button {
-   color 0 0 0 1
    size 1 48
    halign center_ref
    hexactpos 0
@@ -23,114 +22,204 @@ WrapSpacerWidgetClass ExpansionP2PMarketMenuItem {
    hexactsize 0
    vexactsize 1
    scriptclass "ViewBinding"
-   style DayZDefaultButton
+   style Empty
    {
-    PanelWidgetClass tree_elements {
-     visible 0
+    WrapSpacerWidgetClass item_background {
      ignorepointer 1
-     position 0.005 0
-     size 0.021 1
-     valign center_ref
+     color 0 0 0 0.549
+     size 1 1
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     {
-      PanelWidgetClass tree_panel_1 {
-       ignorepointer 1
-       color 1 1 1 0.1961
-       position 0 -11
-       size 2 20
-       valign center_ref
-       hexactpos 1
-       vexactpos 1
-       hexactsize 1
-       vexactsize 1
-       style rover_sim_colorable
-      }
-      PanelWidgetClass tree_panel_2 {
-       ignorepointer 1
-       color 1 1 1 0.1961
-       size 14 2
-       valign center_ref
-       hexactpos 1
-       vexactpos 1
-       hexactsize 1
-       vexactsize 1
-       style rover_sim_colorable
-      }
-      PanelWidgetClass tree_panel_3 {
-       visible 0
-       ignorepointer 1
-       color 1 1 1 0.1961
-       position 0 11
-       size 2 20
-       valign center_ref
-       hexactpos 1
-       vexactpos 1
-       hexactsize 1
-       vexactsize 1
-       style rover_sim_colorable
-      }
-     }
+     style DayZDefaultPanel
     }
-    PanelWidgetClass panel {
+    GridSpacerWidgetClass content {
      ignorepointer 1
-     position 0.01 0
-     size 0.98 48
-     halign center_ref
+     position 0.005 0
+     size 1 48
      valign center_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 1
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     content_valign center
+     Columns 2
+     Rows 1
      {
-      PanelWidgetClass item_preview_panel {
+      PanelWidgetClass tree_elements {
+       visible 0
        ignorepointer 1
-       color 1 1 1 0.1961
-       size 46 46
+       position 0.005 0
+       size 0.021 1
        valign center_ref
        hexactpos 0
        vexactpos 0
-       hexactsize 1
-       vexactsize 1
-       style Outline
+       hexactsize 0
+       vexactsize 0
        {
-        ItemPreviewWidgetClass item_preview {
+        PanelWidgetClass tree_panel_1 {
          ignorepointer 1
-         size 46 46
-         halign center_ref
+         color 1 1 1 0.1961
+         position 0 -11
+         size 2 20
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         style rover_sim_colorable
+        }
+        PanelWidgetClass tree_panel_2 {
+         ignorepointer 1
+         color 1 1 1 0.1961
+         size 14 2
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         style rover_sim_colorable
+        }
+        PanelWidgetClass tree_panel_3 {
+         visible 0
+         ignorepointer 1
+         color 1 1 1 0.1961
+         position 0 11
+         size 2 20
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         style rover_sim_colorable
+        }
+       }
+      }
+      GridSpacerWidgetClass panel {
+       ignorepointer 1
+       position 0.015 0
+       size 0.98 48
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       Padding 4
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       content_valign center
+       Columns 3
+       Rows 1
+       {
+        PanelWidgetClass info_content {
+         visible 0
+         clipchildren 0
+         ignorepointer 1
+         size 36 36
          valign center_ref
          hexactpos 0
          vexactpos 0
          hexactsize 1
          vexactsize 1
-         scriptclass "ViewBinding"
+         style blank
          {
-          ScriptParamsClass {
-           Binding_Name "Preview"
+          ButtonWidgetClass info_button {
+           clipchildren 0
+           position 0 0
+           size 36 36
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           scriptclass "ViewBinding"
+           style Empty
+           {
+            ImageWidgetClass item_info_icon {
+             clipchildren 0
+             ignorepointer 1
+             keepsafezone 0
+             color 0.6275 0.8745 0.2314 1
+             position 0 0
+             size 36 36
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             image0 ""
+             imageTexture "{C0B1B0599B00CBE8}DayZExpansion/Core/GUI/icons/hud/info_64x64.edds"
+             mode blend
+             "src alpha" 1
+             "clamp mode" clamp
+             "stretch mode" stretch_w_h
+            }
+           }
+           {
+            ScriptParamsClass {
+            }
+           }
           }
          }
         }
-       }
-      }
-      TextWidgetClass item_name_text {
-       ignorepointer 1
-       position 0.04 0
-       size 0.3 48
-       hexactpos 0
-       vexactpos 1
-       hexactsize 0
-       vexactsize 1
-       scriptclass "ViewBinding"
-       font "gui/fonts/etelkatextpro22"
-       "exact text" 0
-       "size to text h" 0
-       "size to text v" 0
-       "text valign" center
-       {
-        ScriptParamsClass {
-         Binding_Name "ItemName"
+        PanelWidgetClass item_preview_panel {
+         ignorepointer 1
+         color 1 1 1 0.549
+         position 0.03 0
+         size 46 46
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         style Outline
+         {
+          ItemPreviewWidgetClass item_preview {
+           ignorepointer 1
+           size 46 46
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           scriptclass "ViewBinding"
+           {
+            ScriptParamsClass {
+             Binding_Name "Preview"
+            }
+           }
+          }
+         }
+        }
+        TextWidgetClass item_name_text {
+         ignorepointer 1
+         position 0.07 0
+         size 0.3 48
+         hexactpos 0
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         font "gui/fonts/sdf_metronbook72"
+         "bold text" 1
+         "exact text" 1
+         "exact text size" 20
+         "size to text h" 1
+         "size to text v" 0
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "ItemName"
+          }
+         }
         }
        }
       }
@@ -145,15 +234,19 @@ WrapSpacerWidgetClass ExpansionP2PMarketMenuItem {
   }
   WrapSpacerWidgetClass cargo_content {
    visible 0
+   clipchildren 0
    ignorepointer 1
-   size 0.96 0.5
+   size 0.95 0.5
    halign right_ref
    hexactpos 0
    vexactpos 0
    hexactsize 0
    vexactsize 0
+   scaled 1
    scriptclass "ViewBinding"
    style Empty
+   Padding 2
+   Margin 2
    "Size To Content V" 1
    content_halign right
    {

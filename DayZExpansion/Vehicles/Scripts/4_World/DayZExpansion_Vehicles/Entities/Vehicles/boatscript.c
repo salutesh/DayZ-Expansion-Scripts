@@ -245,6 +245,31 @@ modded class BoatScript
 		return null;
 	}
 
+	override bool OnBeforeEngineStart()
+	{
+		if (!super.OnBeforeEngineStart())
+			return false;
+
+		if (!m_ExpansionVehicle.OnBeforeEngineStart(0))
+			return false;
+
+		return true;
+	}
+
+	override void OnEngineStart()
+	{
+		super.OnEngineStart();
+
+		m_ExpansionVehicle.OnEngineStart(0);
+	}
+
+	override void OnEngineStop()
+	{
+		super.OnEngineStop();
+
+		m_ExpansionVehicle.OnEngineStop(0);
+	}
+
 	void Expansion_EngineStart()
 	{
 		EngineStart();

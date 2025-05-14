@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -355,7 +355,8 @@ class ExpansionItemInspectionBase: ExpansionScriptView
 			if (max_quantity > 0) // Some items, like books, have max_quantity set to 0 => division by ZERO error in quantity_ratio
 			{
 				string quantity_str;
-				if (m_Item.ConfigGetString("stackedUnit") == "pc.")
+				string stackedUnit = m_Item.ConfigGetString("stackedUnit");
+				if (stackedUnit == "pc." || stackedUnit == "pills")
 				{
 					if (item_quantity == 1)
 					{
@@ -368,21 +369,21 @@ class ExpansionItemInspectionBase: ExpansionScriptView
 						color = Colors.COLOR_DEFAULT;	
 					}		
 				}
-				else if (m_Item.ConfigGetString("stackedUnit") == "percentage")
+				else if (stackedUnit == "percentage")
 				{
 					quantity_ratio = Math.Round((item_quantity / max_quantity) * 100);
 					quantity_str = "#inv_inspect_remaining " + quantity_ratio.ToString() + "#inv_inspect_percent";
 					text = quantity_str;
 					color = Colors.COLOR_DEFAULT;	
 				}
-				else if (m_Item.ConfigGetString("stackedUnit") == "g")
+				else if (stackedUnit == "g")
 				{
 					quantity_ratio = Math.Round((item_quantity / max_quantity) * 100);
 					quantity_str = "#inv_inspect_remaining " + quantity_ratio.ToString() + "#inv_inspect_percent";
 					text = quantity_str;
 					color = Colors.COLOR_DEFAULT;			
 				}
-				else if (m_Item.ConfigGetString("stackedUnit") == "ml")
+				else if (stackedUnit == "ml")
 				{
 					quantity_ratio = Math.Round((item_quantity / max_quantity) * 100);
 					quantity_str = "#inv_inspect_remaining " + quantity_ratio.ToString() + "#inv_inspect_percent";
@@ -574,8 +575,23 @@ class ExpansionItemInspection: ExpansionItemInspectionBase
 	protected int m_CharacterScaleDelta;
 	protected vector m_CharacterOrientation;
 	
-	protected ref ScriptView m_ParentView;
+	protected ScriptView m_ParentView;
+	protected ref ScriptInvoker m_OnInspectCloseSI;
 	
+	void ExpansionItemInspection()
+	{
+		m_OnInspectCloseSI = new ScriptInvoker();
+	}
+	
+	void ~ExpansionItemInspection()
+	{
+		if (m_OnInspectCloseSI)
+		{
+			m_OnInspectCloseSI.Clear();
+			m_OnInspectCloseSI = null;
+		}
+	}
+		
 	override string GetLayoutFile()
 	{
 		return "DayZExpansion/Core/GUI/layouts/mvc/expansion_item_inspection.layout";
@@ -617,9 +633,9 @@ class ExpansionItemInspection: ExpansionItemInspectionBase
 	
 	void SetParentView(ScriptView parentView)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, this, "Parent view: " + parentView);
-#endif
+		#endif
 		
 		m_ParentView = parentView;
 	}
@@ -681,7 +697,10 @@ class ExpansionItemInspection: ExpansionItemInspectionBase
 		if (m_ParentView)
 			m_ParentView.GetLayoutRoot().Show(true);
 
-		MissionGameplay.Expansion_DestroyItemInspection();
+		if (m_OnInspectCloseSI)
+			m_OnInspectCloseSI.Invoke(false);
+		
+		MissionGameplay.Expansion_DestroyItemInspection();		
 	}
 	
 	override bool OnMouseEnter(Widget w, int x, int y)
@@ -762,6 +781,11 @@ class ExpansionItemInspection: ExpansionItemInspectionBase
 			float new_y = y - (m_CharacterScaleDelta / 8);
 			ItemPreview.SetPos(new_x, new_y);
 		}
+	}
+
+	ScriptInvoker GetCloseInspectionSI()
+	{
+		return m_OnInspectCloseSI;
 	}
 };
 

@@ -54,6 +54,7 @@ modded class CarScript
 	protected float m_AltitudeNoForce; // (m)
 
 	protected float m_Expansion_Mass;
+	protected float m_Expansion_ApproxMass;
 
 	// ------------------------------------------------------------ //
 	// Member values                                                //
@@ -247,6 +248,36 @@ modded class CarScript
 			m_Expansion_Mass = GetGame().ConfigGetFloat(path);
 		else
 			m_Expansion_Mass = dBodyGetMass(this);
+
+	#ifdef DIAG_DEVELOPER
+		PrintFormat("%1 mass %2", this, m_Expansion_Mass);
+	#endif
+
+		//! Approx. mass used for tree collisions
+		if (Expansion_IsHelicopter())
+		{
+			//! Ok to just use actual mass
+			m_Expansion_ApproxMass = m_Expansion_Mass;
+		}
+		else
+		{
+			//! 3rd party modded vehicle physical mass is all over the place, so calculate approx. mass based on ext volume and avg bulk density
+			vector minMax[2];
+			GetCollisionBox(minMax);
+			float w = minMax[1][0] - minMax[0][0];
+			float h = minMax[1][1] - minMax[0][1];
+			float d = minMax[1][2] - minMax[0][2];
+			float volume = w * h * d;
+			//! Based on real-world counterparts dimensions and mass:
+			//! Avg bulk density (mass divided by external volume) for Ada, Olga, Sarka and Gunther is around 108 kg/m3
+			//! Avg bulk density for typical motorcycles is around 100 kg/m3
+			float density = 100.0;
+			m_Expansion_ApproxMass = volume * density;
+
+		#ifdef DIAG_DEVELOPER
+			PrintFormat("%1 dim. %2 x %3 x %4 volume %5 approx. mass %6", this, w, h, d, volume, m_Expansion_ApproxMass);
+		#endif
+		}
 
 		path = "CfgVehicles " + GetType() + " hornLongSoundSet";
 		if (GetGame().ConfigIsExisting(path))
@@ -937,6 +968,15 @@ modded class CarScript
 
 	void RPC_Expansion_ControllerSync(PlayerIdentity sender, ParamsReadContext ctx)
 	{
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		if (GetNetworkMoveStrategy() == NetworkMoveStrategy.PHYSICS)
+		{
+			debug;
+			return;
+		}
+	#endif
+		
 		if (m_Controller)
 		{
 			PlayerBase driverBase;
@@ -957,6 +997,13 @@ modded class CarScript
 	{
 		if (IsMissionOffline())
 			return;
+		
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		// sent part of 'PawnMove'
+		if (GetNetworkMoveStrategy() == NetworkMoveStrategy.PHYSICS)
+			return;
+	#endif
 
 		auto rpc = m_Expansion_RPCManager.CreateRPC(s_Expansion_ControllerSync_RPCID);
 
@@ -1197,17 +1244,6 @@ modded class CarScript
 #endif
 
 		return false;
-	}
-
-	override bool OnBeforeSwitchLights(bool toOn)
-	{
-		SetCarBatteryStateForVanilla(true);
-
-		bool ret = super.OnBeforeSwitchLights(toOn);
-
-		SetCarBatteryStateForVanilla(false);
-
-		return ret;
 	}
 
 	override bool OnBeforeEngineStart()
@@ -1559,6 +1595,15 @@ modded class CarScript
 	void Expansion_AddWheels()
 	{
 		if (ToDelete())
+			return;
+
+		// CreateAttachment will de-reference on a nullptr when spawning in for some ItemPreviewWidget as the PhysicsComponent doesn't exist (ECE_CREATEPHYSICS not used)
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		if (!GetPhysics())
+	#else
+		if (!dBodyIsSet(this))
+	#endif
 			return;
 
 		if (!m_Expansion_WheelsToAdd.Count())
@@ -2024,6 +2069,36 @@ modded class CarScript
 		return false;
 	}
 
+#ifndef DAYZ_1_27
+	//! 1.28+
+	override void OnInput(float dt)
+	{
+		super.OnInput(dt);
+
+		// only if car is using new networking
+		if (GetNetworkMoveStrategy() == NetworkMoveStrategy.PHYSICS)
+		{
+			Human driver = CrewDriver();
+			DayZPlayerImplement player;
+			if (IsAuthority() && !driver)
+			{
+				// reset inputs
+			}
+			else if (IsOwner() && Class.CastTo(player, driver))
+			{
+				// this looks stupid, what?
+				m_State.m_DeltaTime = dt;
+		
+				// damn i had bad ideas
+				m_Event_Control.Control(m_State, player);
+		
+				// sort of sensible
+				Expansion_OnHandleController(player, dt);
+			}
+		}
+	}
+#endif
+
 	void Expansion_HandleController(DayZPlayerImplement driver, float dt)
 	{
 		if (CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) != driver)
@@ -2131,6 +2206,7 @@ modded class CarScript
 
 		DayZPlayerImplement driver = DayZPlayerImplement.Cast(CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER));
 
+		//! TODO: MOVE THIS OUT OF HERE!
 		//! Detect if pilot has been disconnected
 		if (!driver && m_Expansion_HasPilot)
 		{
@@ -2148,7 +2224,7 @@ modded class CarScript
 
 		if (GetGame().IsClient())
 		{
-			m_IsPhysicsHost = driver == GetGame().GetPlayer();
+			m_IsPhysicsHost = IsOwner();
 		}
 		else if (GetGame().IsServer())
 		{
@@ -2251,6 +2327,7 @@ modded class CarScript
 
 			return;
 		}
+		
 		//! 1.19
 		m_Controller.m_Yaw = GetSteering();
 		//m_Controller.m_Throttle[0] = GetThrust();
@@ -2299,18 +2376,28 @@ modded class CarScript
 			m_State.EstimateTransform(dt, m_DbgTransform);
 #endif
 		}
-
-		if (m_IsPhysicsHost && GetGame().IsClient())
+		
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		if (GetNetworkMoveStrategy() == NetworkMoveStrategy.PHYSICS)
 		{
-			NetworkSend();
+			m_State.ApplySimulation(dt);
 		}
+		else
+	#endif
+		{
+			if (m_IsPhysicsHost && GetGame().IsClient())
+			{
+				NetworkSend();
+			}
 
 #ifndef EXPANSION_VEHICLE_DESYNC_PROTECTION_DISABLE
-		m_State.ApplySimulation_CarScript(dt, m_IsPhysicsHost, driver);
+			m_State.ApplySimulation_CarScript(dt, m_IsPhysicsHost, driver);
 #else
-		m_State.ApplySimulation(dt);
+			m_State.ApplySimulation(dt);
 #endif
-
+		}
+	
 		OnPostSimulation(dt);
 
 		if (GetGame().IsServer())
@@ -2647,6 +2734,9 @@ modded class CarScript
 				return false;
 		}
 
+		if (!m_ExpansionVehicle.OnBeforeEngineStart(index))
+			return false;
+
 		return true;
 	}
 
@@ -2686,6 +2776,8 @@ modded class CarScript
 
 			UpdateLights();
 		}
+
+		m_ExpansionVehicle.OnEngineStart(index);
 
 		SetSynchDirty();
 
@@ -2738,6 +2830,8 @@ modded class CarScript
 			m_EngineBeforeStart = false;
 #endif
 		}
+
+		m_ExpansionVehicle.OnEngineStop(index);
 
 		SetSynchDirty();
 	}
@@ -3540,7 +3634,10 @@ modded class CarScript
 			}
 		}
 
-		ExpansionWorld.CheckTreeContact(other, data.Impulse, true);
+		float velocity = data.RelativeVelocityBefore.Length();
+		float momentum = m_Expansion_ApproxMass * velocity;
+
+		ExpansionWorld.CheckTreeContact(other, momentum, true);
 
 		if (GetGame().IsServer() && (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed))
 		{
@@ -3557,8 +3654,7 @@ modded class CarScript
 
 			if (m_Expansion_CollisionDamageMinSpeed)
 			{
-				float minSpeedSq = m_Expansion_CollisionDamageMinSpeed * m_Expansion_CollisionDamageMinSpeed;
-				if (data.RelativeVelocityBefore.LengthSq() < minSpeedSq && !otherVehicleEngineOn)
+				if (velocity < m_Expansion_CollisionDamageMinSpeed && !otherVehicleEngineOn)
 					return;
 
 				float dmg = data.Impulse * m_dmgContactCoef;
@@ -3668,6 +3764,12 @@ modded class CarScript
 				float collisionDamage = dmg * GetExpansionSettings().GetVehicle().VehicleSpeedDamageMultiplier;
 				if (collisionDamage > 0)
 					ProcessDirectDamage(DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", collisionDamage, pddfFlags);
+			}
+
+			Object targetEntity = Object.Cast(data[0].other);
+			if (targetEntity && targetEntity.IsTree() && !targetEntity.IsDamageDestroyed())
+			{
+				SEffectManager.CreateParticleServer(targetEntity.GetPosition(), new TreeEffecterParameters("TreeEffecter", 1.0, 0.1));
 			}
 		}
 

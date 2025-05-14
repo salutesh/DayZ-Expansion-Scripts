@@ -57,6 +57,8 @@ modded class PlayerBase
 	ref ExpansionEntity m_Expansion_Entity;
 
 	EntityAI m_Expansion_EntityToBeTakenToHands;
+	
+	protected ref ScriptInvoker	m_Expansion_OnRestrainedStateChaged;
 
 	void PlayerBase()
 	{
@@ -266,19 +268,6 @@ modded class PlayerBase
 			name = name.Substring(index + 1, name.Length() - index - 1);
 
 		return name;
-	}
-	
-	static set< PlayerBase > GetAll()
-	{
-		Error("DEPRECATED - please use linked list s_Expansion_AllPlayers");
-		set<PlayerBase> allPlayers = new set<PlayerBase>;
-		auto node = s_Expansion_AllPlayers.m_Head;
-		while (node)
-		{
-			allPlayers.Insert(node.m_Value);
-			node = node.m_Next;
-		}
-		return allPlayers;
 	}
 
 	static set<PlayerBase> Expansion_GetInSphere(vector position, int radius)
@@ -1101,6 +1090,22 @@ modded class PlayerBase
 
 		if (m_Expansion_EntityToBeTakenToHands == item)
 			m_Expansion_EntityToBeTakenToHands = null;
+	}
+	
+	override void OnRestrainChangeClient()
+	{
+		super.OnRestrainChangeClient();
+		
+		if (m_Expansion_OnRestrainedStateChaged)
+			m_Expansion_OnRestrainedStateChaged.Invoke(m_IsRestrained);
+	}
+	
+	ScriptInvoker Expansion_GetOnRestrainedStateChaged()
+	{
+		if (!m_Expansion_OnRestrainedStateChaged)
+			m_Expansion_OnRestrainedStateChaged = new ScriptInvoker();
+
+		return m_Expansion_OnRestrainedStateChaged;
 	}
 	
 #ifdef EXPANSION_MODSTORAGE

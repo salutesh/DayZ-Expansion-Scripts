@@ -842,45 +842,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	static bool ItemCheckEx(EntityAI item)
 	{
-		if (ExpansionStatic.IsAnyOf(item, GetExpansionSettings().GetPersonalStorage().ExcludedClassNames))
-			return false;
-
-		if (item.IsRuined())
-			return false;
-
-		//! Don`t add rotten food items
-		Edible_Base foodItem;
-		if (Class.CastTo(foodItem, item) && foodItem.HasFoodStage())
-		{
-			FoodStage foodStage = foodItem.GetFoodStage();
-			FoodStageType foodStageType = foodStage.GetFoodStageType();
-			if (foodStageType == FoodStageType.ROTTEN || foodStageType == FoodStageType.BURNED)
-				return false;
-		}
-
-	#ifdef WRDG_DOGTAGS
-		//! Don`t add players own dogtag
-		if (item.IsInherited(Dogtag_Base))
-		{
-			if (item.GetHierarchyRootPlayer())
-				return false;
-		}
-	#endif
-
-	#ifdef EXPANSIONMODQUESTS
-		//! Don`t add quest items
-		ItemBase itemIB;
-		if (Class.CastTo(itemIB, item))
-		{
-			if (itemIB.Expansion_IsQuestItem() || itemIB.Expansion_IsQuestGiver())
-				return false;
-		}
-	#endif
-		
-		if (!item.CanPutInCargo(null))
-			return false;
-		
-		return true;
+		return MiscGameplayFunctions.Expansion_ItemCheck(item, GetExpansionSettings().GetPersonalStorage().ExcludedClassNames);
 	}
 
 	array<EntityAI> LocalGetEntityInventory()

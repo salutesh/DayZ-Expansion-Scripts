@@ -92,7 +92,112 @@ modded class ItemBase
 		super.EEItemAttached(item, slot_name);
 
 		if (item.IsInherited(ExpansionCodeLock))
+		{
 			Expansion_RegisterLockRPCs();
+
+			if (GetGame().IsServer())
+			{
+				//! If max is reached during storage load, the codelock will NOT be dropped
+				bool loaded = GetDayZGame().GetExpansionGame().IsLoaded();
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_EnforceMaxCodeLocksPerTerritory, item, loaded, loaded);
+			}
+		}
+	}
+
+	/**
+	 * @brief enforce max codelocks per territory
+	 * 
+	 * @return true if limit reached or exceeded
+	 */
+	bool Expansion_EnforceMaxCodeLocksPerTerritory(ItemBase codeLock, bool dropCodeLock = true, bool notify = true)
+	{
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Start(EXTrace.BASEBUILDING, this, codeLock.ToString(), dropCodeLock.ToString(), notify.ToString());
+	#endif
+
+		auto settings = GetExpansionSettings().GetTerritory();
+
+		TerritoryFlag flag = ExpansionTerritoryModule.s_Instance.GetFlagAtPosition3D(GetPosition(), settings.TerritorySize);
+
+		return Expansion_EnforceMaxCodeLocksPerTerritoryEx(flag, codeLock, dropCodeLock, notify);
+	}
+
+	bool Expansion_EnforceMaxCodeLocksPerTerritoryEx(TerritoryFlag flag, ItemBase codeLock, bool dropCodeLock = true, bool notify = true)
+	{
+		bool limitReached;
+
+		if (flag)
+		{
+			auto settings = GetExpansionSettings().GetTerritory();
+
+			int limit;
+			int count;
+			string logMsg;
+			string msgID;
+
+			if (IsInherited(BaseBuildingBase))
+			{
+				limit = settings.MaxCodeLocksOnBBPerTerritory;
+				count = flag.m_Expansion_BBCodeLockCount++;
+				msgID = "STR_EXPANSION_TERRITORY_ERROR_MAX_CODELOCKS_ON_BB";
+				logMsg = "Territory \"%1\" exceeds max allowed codelocks on basebuilding structures (%2/%3)";
+			}
+			else
+			{
+				limit = settings.MaxCodeLocksOnItemsPerTerritory;
+				count = flag.m_Expansion_ItemCodeLockCount++;
+				msgID = "STR_EXPANSION_TERRITORY_ERROR_MAX_CODELOCKS_ON_ITEMS";
+				logMsg = "Territory \"%1\" exceeds max allowed codelocks on items (%2/%3)";
+			}
+
+			if (limit > -1 && count >= limit)
+			{
+				limitReached = true;
+
+				//! Log if we exceeded the limit even before attaching this codelock
+				if (count > limit)
+					GetExpansionSettings().GetLog().PrintLog(logMsg, flag.GetTerritory().GetTerritoryName(), count.ToString(), limit.ToString());
+
+				if (dropCodeLock)
+					codeLock.ExpansionDropServer(null);  //! @note dropping will fire EEItemDetached and decrement codelock in territory count
+
+				if (notify)
+				{
+					//! TODO: Implement function to notify players in radius similar to ExpansionStatic.MessageNearPlayers
+					auto players = PlayerBase.Expansion_GetInSphere(GetPosition(), settings.TerritorySize);
+
+					foreach (PlayerBase player: players)
+					{
+						if (player.GetIdentity())
+							ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new CF_Localiser(msgID, count.ToString(), limit.ToString())).Error(player.GetIdentity());
+					}
+				}
+			}
+		}
+
+		return limitReached;
+	}
+
+	override void EEItemDetached(EntityAI item, string slot_name)
+	{
+		super.EEItemDetached(item, slot_name);
+
+		if (item.IsInherited(ExpansionCodeLock))
+		{
+			if (GetGame().IsServer())
+			{
+				auto settings = GetExpansionSettings().GetTerritory();
+				auto flag = ExpansionTerritoryModule.s_Instance.GetFlagAtPosition3D(GetPosition(), settings.TerritorySize);
+
+				if (flag)
+				{
+					if (IsInherited(BaseBuildingBase))
+						flag.m_Expansion_BBCodeLockCount--;
+					else
+						flag.m_Expansion_ItemCodeLockCount--;
+				}
+			}
+		}
 	}
 
 	override void EEInit()
@@ -613,7 +718,7 @@ modded class ItemBase
 	*/
 	ExpansionCodeLock ExpansionGetCodeLock()
 	{
-		return ExpansionCodeLock.Cast(GetAttachmentByConfigTypeName("ExpansionCodeLock"));
+		return ExpansionCodeLock.Cast(GetAttachmentByType(ExpansionCodeLock));
 	}
 
 	void SetSlotLock( EntityAI parent, bool state )

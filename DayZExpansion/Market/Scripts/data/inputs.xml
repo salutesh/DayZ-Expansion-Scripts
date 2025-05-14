@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<modded_inputs>
+	<inputs>
+		<actions>
+			<input name="UAExpansionConfirm" loc="" visible="false" />
+		</actions>
+	</inputs>
+	<preset>
+		<input name="UAExpansionConfirm">
+			<btn name="kReturn" />
+			<btn name="kNumpadEnter" />
+		</input>
+	</preset>
+</modded_inputs>

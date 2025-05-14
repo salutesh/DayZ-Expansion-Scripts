@@ -21,13 +21,19 @@ class ExpansionActionPayParkingFineCB: ActionContinuousBaseCB
 
 class ExpansionActionPayParkingFine: ActionInteractBase
 {
-	ExpansionVehicle m_Vehicle;  //! client only!
+	#ifndef SERVER
+	ref CF_Localiser m_Expansion_Localiser;  //! client only!
+	#endif
 
 	void ExpansionActionPayParkingFine()
 	{
 		//m_CallbackClass = ExpansionActionPayParkingFineCB;
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_PICKUP_INVENTORY;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
+
+		#ifndef SERVER
+		m_Expansion_Localiser = new CF_Localiser("STR_EXPANSION_MARKET_PAY_FINE");
+		#endif
 	}
 
 	override void CreateConditionComponents()  
@@ -46,31 +52,37 @@ class ExpansionActionPayParkingFine: ActionInteractBase
 		return true;
 	}
 
+	#ifndef SERVER
 	override string GetText()
 	{
-		return string.Format("Pay fine (%1)", m_Vehicle.GetParkingFine());
+		return m_Expansion_Localiser.Format();
 	}
+	#endif
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		if (!ExpansionVehicle.Get(m_Vehicle, target.GetParentOrObject()) && !ExpansionVehicle.Get(m_Vehicle, player))
+		ExpansionVehicle vehicle;
+
+		if (!ExpansionVehicle.Get(vehicle, target.GetParentOrObject()) && !ExpansionVehicle.Get(vehicle, player))
 			return false;
 
-		if (!m_Vehicle.GetParkingFine())
+		if (!vehicle.GetParkingFine())
 			return false;
 		
 		#ifdef SERVER
 		if (GetExpansionSettings().GetMarket().SZVehicleParkingFineUseKey)
 		{
-			if ( m_Vehicle.HasKey() )
+			if ( vehicle.HasKey() )
 			{
-				if (!player.HasKeyForCar(m_Vehicle))
+				if (!player.HasKeyForCar(vehicle))
 				{
 					ExpansionNotification("STR_EXPANSION_ERROR_TITLE", "STR_EXPANSION_MARKET_FINE_MISSING_KEY").Error(player.GetIdentity());
 					return false;
 				}
 			}
 		}
+		#else
+		m_Expansion_Localiser.Set(0, vehicle.GetParkingFine());
 		#endif
 
 		return true;

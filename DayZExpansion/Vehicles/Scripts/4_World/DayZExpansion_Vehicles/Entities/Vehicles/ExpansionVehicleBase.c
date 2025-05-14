@@ -2064,7 +2064,12 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		UpdateLights();
 	}
 
+#ifdef DAYZ_1_27
 	void OnUpdate(float dt)
+#else
+	//! 1.28+
+	override void OnUpdate(float dt)
+#endif
 	{
 		/*
 //-----------------------------------------------------/
@@ -2535,6 +2540,9 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		else
 			Expansion_SetEngineSoundState(CarEngineSoundState.STARTING);
 
+		if (!m_ExpansionVehicle.OnBeforeEngineStart(index))
+			return false;
+
 		return result;
 	}
 
@@ -2546,6 +2554,8 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		UpdateLights();
 		
 		Expansion_HandleEngineSound(CarEngineSoundState.START_OK);
+
+		m_ExpansionVehicle.OnEngineStart(index);
 	}
 
 	//! Stops the engine.
@@ -2578,6 +2588,8 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		UpdateLights();
 		
 		Expansion_HandleEngineSound(CarEngineSoundState.STOP_OK);
+
+		m_ExpansionVehicle.OnEngineStop(index);
 	}
 
 	int EnginesOn()
@@ -2628,7 +2640,12 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		\param[in] other object with which the vehicle is colliding
 		\param[in] data contact properties
 	*/
+#ifdef DAYZ_1_27
 	void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
+#else
+	//! 1.28+
+	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
+#endif
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "OnContact").Add(zoneName).Add(localPos).Add(other).Add(data);

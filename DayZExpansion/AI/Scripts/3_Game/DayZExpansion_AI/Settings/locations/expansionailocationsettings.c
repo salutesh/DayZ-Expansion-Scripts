@@ -53,7 +53,7 @@ class ExpansionAINoGoAreas: array<ExpansionAINoGoAreaConfig>
 class ExpansionAILocationSettings: ExpansionSettingBase
 {
 	static const string PATH = EXPANSION_MISSION_SETTINGS_FOLDER + "AILocationSettings.json";
-	static const int VERSION = 1;
+	static const int VERSION = 2;
 
 	ref array<ref ExpansionAIRoamingLocation> RoamingLocations = {};
 	ref TStringArray ExcludedRoamingBuildings = {};
@@ -102,6 +102,12 @@ class ExpansionAILocationSettings: ExpansionSettingBase
 
 				auto settingsDefault = new ExpansionAILocationSettings;
 				settingsDefault.Defaults();
+
+				foreach (string excluded: settingsDefault.ExcludedRoamingBuildings)
+				{
+					if (ExcludedRoamingBuildings.Find(excluded) == -1)
+						ExcludedRoamingBuildings.Insert(excluded);
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -169,7 +175,9 @@ class ExpansionAILocationSettings: ExpansionSettingBase
 			"Land_Boathouse",  //! When AI falls into water it will likely get stuck under pier due to path always leading under it
 			"Land_Mine_Building",  //! Stairs
 			"Land_Shed_W2",  //! Pathfinding tends to find a way in, but not out.
-			"Land_Tenement_Big"  //! AI can get stuck on upper floors when climbing the broken stairs
+			"Land_Tenement_Big",  //! AI can get stuck on upper floors when climbing the broken stairs
+			"Land_Misc_Toilet_Mobile",  //! Too many door interactions
+			"Land_Ship_Medium2"  //! AI can get stuck
 		};
 	}
 

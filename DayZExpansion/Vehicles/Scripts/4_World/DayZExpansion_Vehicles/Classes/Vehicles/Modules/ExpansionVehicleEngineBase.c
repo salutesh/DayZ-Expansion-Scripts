@@ -288,7 +288,12 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 				if (m_RPM > m_RPMMax && GetExpansionSettings().GetVehicle().RevvingOverMaxRPMRuinsEngineInstantly)
 					dmg += m_Vehicle.GetMaxHealth(m_DamageZone, "") * 0.05;
 
+			#ifdef DAYZ_1_27
 				dmg += m_RPM * 0.001 * Math.RandomFloat(0.02, 1.0) * pDt;
+			#else
+				//! 1.28+
+				dmg += m_RPM * 0.001 * m_Transport.RandomFloat(0.02, 1.0) * pDt;
+			#endif
 
 				//! 1.19+
 				if (car)
@@ -302,7 +307,12 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 
 			if (pCoolant >= 0 && pCoolant < 0.5)
 			{
+			#ifdef DAYZ_1_27
 				dmg += (1.0 - pCoolant) * Math.RandomFloat(0.02, 10.00) * pDt;
+			#else
+				//! 1.28+
+				dmg += (1.0 - pCoolant) * m_Transport.RandomFloat(0.02, 10.00) * pDt;
+			#endif
 			}
 
 			if (pOil < 1.0)

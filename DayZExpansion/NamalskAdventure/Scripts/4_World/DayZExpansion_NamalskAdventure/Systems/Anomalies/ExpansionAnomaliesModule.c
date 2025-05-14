@@ -59,9 +59,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	void ExpansionAnomaliesModule()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		s_ModuleInstance = this;
 
@@ -72,9 +72,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	override void OnInit()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		super.OnInit();
 
@@ -90,9 +90,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		super.OnMissionLoaded(sender, args);
 
@@ -120,9 +120,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	//! @note: Spawns all configured anomalies from the NamalskAdventureSettings class.
 	protected void SpawnAnomalies()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		if (GetExpansionSettings().GetNamalskAdventure().EnableDynamic)
 		{
@@ -216,13 +216,13 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	#ifdef NAMALSK_SURVIVAL
 	void OnNamalskEventStart(typename eventType)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
-	#ifdef DIAG_DEVELOPER
+		#ifdef DIAG_DEVELOPER
 		ExpansionNotification(new StringLocaliser("NAMALSK EVENT STARTED"), new StringLocaliser("%1 EVENT STARTED", eventType.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
-	#endif
+		#endif
 
 		if (eventType == EVRStorm || eventType == EVRStormDeadly)
 		{
@@ -239,13 +239,13 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	void OnNamalskEventCancel(typename eventType)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
-	#ifdef DIAG_DEVELOPER
+		#ifdef DIAG_DEVELOPER
 		ExpansionNotification(new StringLocaliser("NAMALSK EVENT CANCELED"), new StringLocaliser("%1 EVENT CANCELED", eventType.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
-	#endif
+		#endif
 
 		m_LastNamalskEvent = eventType;
 		if (eventType == EVRStorm || eventType == EVRStormDeadly)
@@ -255,9 +255,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	//! @note: Handles events that should start when ever a EVR storm event starts.
 	void OnEVRStormInitPhaseServer()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		
 		m_DestabilizeAnomalies = true;
 	}
@@ -265,9 +265,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	//! @note: Handles events that should start when ever a EVR storm mid phase starts.
 	void OnEVRStormMidPhaseServer()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 	}
 
 	//! @note: Handles events that should start when ever the EVR storm final blowout starts.
@@ -283,9 +283,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	//! @note: Handles events that should start when ever a EVR storm event end phase starts.
 	void OnEVRStormEndPhaseServer()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		NamEventManager event_manager;
 	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
@@ -299,20 +299,20 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	//! Gets called on every active player on the server.
 	void OnEVRStormFinished(SurvivorBase player)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 	}
 	#endif
 
 	//! @note: Condition check if a EVR storm is currently active.
 	bool IsEVRStormActive()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
-	#ifdef NAMALSK_SURVIVAL
+		#ifdef NAMALSK_SURVIVAL
 	    NamEventManager event_manager;
 	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
 
@@ -323,17 +323,17 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		EVRStormDeadly stormDeadly = EVRStormDeadly.Cast(event_manager.GetEvent(EVRStormDeadly));
 		if (storm && storm.GetEVRStormPhase() > ExpansionEVRStormPhase.NONE || stormDeadly && stormDeadly.GetEVRStormPhase() > ExpansionEVRStormPhase.NONE)
 	   		return true;
-	#endif
+		#endif
 
 		return false;
 	}
 	
-#ifdef NAMALSK_SURVIVAL
+	#ifdef NAMALSK_SURVIVAL
 	bool HasActiveLEHSSuit(PlayerBase player)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		int slot_id_lehsSuit = InventorySlots.GetSlotIdFromString("LEHS");
 		dzn_lehs lehsSuit = dzn_lehs.Cast(player.GetInventory().FindAttachment(slot_id_lehsSuit));
@@ -366,13 +366,13 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		ModuleDebugPrint("::OnEnterAnomalyServer - Return TRUE");
 		return true;
 	}
-#endif
+	#endif
 
 	void ProcessCargoDamage(EntityAI parent, int minDmg, int maxDmg)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		ModuleDebugPrint("::ProcessCargoDamage - Entity: " + parent.GetType() + " | Entity parent: " + parent.GetParent().ToString());
 
 		array<EntityAI> items = new array<EntityAI>;
@@ -399,7 +399,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	//! This reduces the number of collision checks and distance calculations required and should improve server performance.
 	static array<vector> GeneratePositions(vector center, float squareSize, int amount, int distanceToPos = 0)
 	{
+		#ifdef EXTRACE
 	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, ExpansionAnomaliesModule);
+		#endif
 
 	    array<vector> positions = new array<vector>;
 		vector position;
@@ -452,21 +454,21 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	    return positions;
 	}
 
-#ifdef NAMALSK_SURVIVAL
+	#ifdef NAMALSK_SURVIVAL
 	void OnEVRStormStartAnomaly(Expansion_Anomaly_Base anomaly)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		anomaly.SetAnomalyUnstable();
 	}
 
 	void OnEVRStormFinalBlowoutAnomaly(Expansion_Anomaly_Base anomaly)
     {
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		if (anomaly.SurviviedEVRStormsCount() > 0)
 		{
@@ -501,18 +503,18 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	void OnEVRStormStartCore(Expansion_AnomalyCore_Base anomalyCore)
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		anomalyCore.SetAnomalyCoreUnstable();
 	}
 
 	void OnEVRStormFinalBlowoutCore(Expansion_AnomalyCore_Base anomalyCore)
     {
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 
 		if (!anomalyCore.CanUnsatabilize())
 			return;
@@ -558,9 +560,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	protected void OnEVRStormActive()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		
 		if (m_Expansion_ProcessedAnomaliesCount < Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count)
 		{
@@ -591,9 +593,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	protected void OnEVRStormBlowout()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		
 		if (m_Expansion_ProcessedAnomaliesBlowouts < Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count)
 		{
@@ -625,9 +627,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	protected void OnSpawnAnomalies()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		
 		if (!m_DynamicSpawned)
 		{
@@ -676,9 +678,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	
 	protected void OnStabilizeAnomalies()
 	{
-#ifdef EXTRACE
+		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-#endif
+		#endif
 		
 		if (m_Expansion_ProcessedAnomaliesStabilisations < Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count)
 		{
@@ -698,7 +700,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 			ModuleDebugPrint(ToString() + "::OnStabilizeAnomalies - m_DestabilizeAnomalies: " + m_DestabilizeAnomalies.ToString());
 		}
 	}
-#endif
+	#endif
 
 	static ExpansionAnomaliesModule GetModuleInstance()
 	{
@@ -707,8 +709,8 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	void ModuleDebugPrint(string text)
 	{
-	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
-	#endif
+		#endif
 	}
 };

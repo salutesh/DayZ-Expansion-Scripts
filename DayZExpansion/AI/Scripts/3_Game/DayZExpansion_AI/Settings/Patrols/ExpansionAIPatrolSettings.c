@@ -13,6 +13,9 @@
 class ExpansionAIPatrolSettingsBase: ExpansionSettingBase
 {
     bool Enabled;
+
+	float FormationScale;
+
 	float DespawnTime;				    // If all players outside despawn radius, ticks up time. When despawn time reached, patrol is deleted.
 	float RespawnTime;				    // Time in seconds before the dead patrol will respawn. If set to -1, they won't respawn
 	float MinDistRadius;			    // If the player is closer than MinDistRadius from the spawn point, the patrol won't spawn
@@ -46,22 +49,18 @@ class ExpansionAIPatrolSettingsV19
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 22;
+	static const int VERSION = 24;
 
-	ref array< ref ExpansionAIObjectPatrol > ObjectPatrols;
-	ref array< ref ExpansionAIPatrol > Patrols;
+	ref map<string, ref array<ref ExpansionAIPatrolLoadBalancing>> LoadBalancingCategories = new map<string, ref array<ref ExpansionAIPatrolLoadBalancing>>;
+
+	ref array< ref ExpansionAIObjectPatrol > ObjectPatrols = {};
+	ref array< ref ExpansionAIPatrol > Patrols = {};
 
 	[NonSerialized()]
 	private ref TStringArray m_UniquePersistentPatrolNames;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
-
-    void ExpansionAIPatrolSettings()
-    {
-        ObjectPatrols = new array< ref ExpansionAIObjectPatrol >;
-        Patrols = new array< ref ExpansionAIPatrol >;
-    }
 	
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
@@ -120,6 +119,7 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 	private void CopyInternal(  ExpansionAIPatrolSettingsBase s )
 	{
 		Enabled = s.Enabled;
+		FormationScale = s.FormationScale;
 		RespawnTime = s.RespawnTime;
 		DespawnTime = s.DespawnTime;
 		MinDistRadius = s.MinDistRadius;
@@ -158,11 +158,11 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 
 		bool settingsExist = FileExist(EXPANSION_AIPATROL_SETTINGS);
 
+		int version;
+
 		if (settingsExist)
 		{
 			EXPrint("[ExpansionAIPatrolSettings] Load existing setting file:" + EXPANSION_AIPATROL_SETTINGS);
-
-			int version;
 
 			//! Try loading settings base
 			ExpansionAIPatrolSettingsBase settingsBase;
@@ -247,6 +247,12 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 				if (version < 17 && !DamageReceivedMultiplier)
 					DamageReceivedMultiplier = settingsDefault.DamageReceivedMultiplier;
 
+				if (version < 23 && !LoadBalancingCategories.Count())
+					LoadBalancingCategories = settingsDefault.LoadBalancingCategories;
+
+				if (version < 24)
+					FormationScale = settingsDefault.FormationScale;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -260,42 +266,6 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 					patrol.MinSpreadRadius = 1;
 					patrol.MaxSpreadRadius = 100;
 				}
-
-				if (version < 4)
-					patrol.UpdateSettings();
-
-				if (version < 6)
-				{
-					if (patrol.MaxDistRadius <= 0)
-						patrol.DespawnRadius = -2;
-					else
-						patrol.DespawnRadius = patrol.MaxDistRadius * 1.1;
-				}
-
-				if (version < 7)
-					patrol.Formation = "RANDOM";
-
-				if (version < 8)
-				{
-					patrol.DespawnTime = -1;
-					patrol.AccuracyMin = -1;
-					patrol.AccuracyMax = -1;
-				}
-
-				if (version < 11)
-				{
-					patrol.ThreatDistanceLimit = -1.0;
-					patrol.DamageMultiplier = -1.0;
-				}
-
-				if (version < 16)
-					patrol.NoiseInvestigationDistanceLimit = -1.0;
-
-				if (version < 17 && !patrol.DamageReceivedMultiplier)
-					patrol.DamageReceivedMultiplier = -1.0;
-
-				if (version < 22 && !patrol.LootingBehaviour)
-					patrol.SetDefaultLootingBehaviour();
 
 				if (patrol.Persist)
 				{
@@ -331,46 +301,10 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 					}
 				}
 
-				if (version < 4)
-					objectPatrol.UpdateSettings();
-
-				if (version < 6)
-				{
-					if (objectPatrol.MaxDistRadius <= 0)
-						objectPatrol.DespawnRadius = -2;
-					else
-						objectPatrol.DespawnRadius = objectPatrol.MaxDistRadius * 1.1;
-				}
-
-				if (version < 7)
-					objectPatrol.Formation = "RANDOM";
-
-				if (version < 8)
-				{
-					objectPatrol.DespawnTime = -1;
-					objectPatrol.AccuracyMin = -1;
-					objectPatrol.AccuracyMax = -1;
-				}
-
 				if (version < 9)
 				{
 					objectPatrol.RespawnTime = -2;
 				}
-
-				if (version < 11)
-				{
-					objectPatrol.ThreatDistanceLimit = -1.0;
-					objectPatrol.DamageMultiplier = -1.0;
-				}
-
-				if (version < 16)
-					objectPatrol.NoiseInvestigationDistanceLimit = -1.0;
-
-				if (version < 17 && !objectPatrol.DamageReceivedMultiplier)
-					objectPatrol.DamageReceivedMultiplier = -1.0;
-
-				if (version < 22 && !objectPatrol.LootingBehaviour)
-					objectPatrol.SetDefaultLootingBehaviour();
 
 				if (!objectPatrol.ClassName)
 				{
@@ -404,10 +338,46 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 			save = true;
 		}
 
+		foreach (auto categories: LoadBalancingCategories)
+		{
+			auto tracker = new ExpansionAIPatrolLoadBalancingTracker;
+
+			foreach (auto category: categories)
+			{
+				category.m_PatrolCountTracker = tracker;
+			}
+		}
+
+		ExpansionAIPatrols<ExpansionAIPatrol>.OnLoadPatrols(Patrols, version);
+		ExpansionAIPatrols<ExpansionAIObjectPatrol>.OnLoadPatrols(ObjectPatrols, version);
+		OnLoadObjectPatrols(version);
+
 		if (save)
 			Save();
 		
 		return settingsExist;
+	}
+
+	void OnLoadObjectPatrols(int version)
+	{
+		foreach (auto patrol: ObjectPatrols)
+		{
+			if (version < 23 && patrol.LoadBalancingCategory == "")
+			{
+				switch (patrol.ClassName)
+				{
+					case "Wreck_UH1Y":
+					case "Wreck_Mi8_Crashed":
+						patrol.LoadBalancingCategory = "HelicopterWreck";
+						break;
+
+					case "ContaminatedArea_Static":
+					case "ContaminatedArea_Dynamic":
+						patrol.LoadBalancingCategory = "ContaminatedArea";
+						break;
+				}
+			}
+		}
 	}
 
 	// ------------------------------------------------------------
@@ -433,6 +403,9 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 		m_Version = VERSION;
 
         Enabled = true;
+
+		FormationScale = -1;
+
         RespawnTime = -1;
         DespawnTime = 600;
         #ifdef DIAG_DEVELOPER
@@ -449,12 +422,32 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 		NoiseInvestigationDistanceLimit = -1;
 		DamageMultiplier = -1;
 		DamageReceivedMultiplier = -1;
+
+		//! maxplayers = 60
+		//! aicount_per_patrol = 3
+		//! cost_per_ai = 1.5
+		//! maxpatrols = (maxplayers - curplayers) / (aicount_per_patrol * cost_per_ai)
+		LoadBalancingCategories["Global"] = {
+			new ExpansionAIPatrolLoadBalancing(0, 10, 10),
+			new ExpansionAIPatrolLoadBalancing(11, 20, 8),
+			new ExpansionAIPatrolLoadBalancing(21, 30, 6),
+			new ExpansionAIPatrolLoadBalancing(31, 40, 4),
+			new ExpansionAIPatrolLoadBalancing(41, 50, 2),
+			new ExpansionAIPatrolLoadBalancing(51, 255, 0)
+		};
+		LoadBalancingCategories["ObjectPatrol"] = {new ExpansionAIPatrolLoadBalancing(0, 255, 5)};
+		LoadBalancingCategories["Patrol"] = {new ExpansionAIPatrolLoadBalancing(0, 255, 5)};
+		LoadBalancingCategories["Quest"] = {new ExpansionAIPatrolLoadBalancing(0, 255, -1)};
+		LoadBalancingCategories["HelicopterWreck"] = {new ExpansionAIPatrolLoadBalancing(0, 255, 3)};
+		LoadBalancingCategories["ContaminatedArea"] = {new ExpansionAIPatrolLoadBalancing(0, 255, 2)};
+		LoadBalancingCategories["Example"] = {new ExpansionAIPatrolLoadBalancing(0, 255, -1)};
     
         string worldName = ExpansionStatic.GetCanonicalWorldName();
 
         DefaultObjectPatrols(worldName);
         DefaultPatrols(worldName);
 	}
+
     void DefaultObjectPatrols(string worldName)
     {
         switch (worldName)
@@ -628,5 +621,53 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 	override string SettingName()
 	{
 		return "AI Patrol Settings";
+	}
+};
+
+class ExpansionAIPatrols<Class T>
+{
+	static void OnLoadPatrols(array<ref T> patrols, int version)
+	{
+		foreach (auto patrol: patrols)
+		{
+			if (version < 4)
+				patrol.UpdateSettings();
+
+			if (version < 6)
+			{
+				if (patrol.MaxDistRadius <= 0)
+					patrol.DespawnRadius = -2;
+				else
+					patrol.DespawnRadius = patrol.MaxDistRadius * 1.1;
+			}
+
+			if (version < 7)
+				patrol.Formation = "RANDOM";
+
+			if (version < 8)
+			{
+				patrol.DespawnTime = -1;
+				patrol.AccuracyMin = -1;
+				patrol.AccuracyMax = -1;
+			}
+
+			if (version < 11)
+			{
+				patrol.ThreatDistanceLimit = -1.0;
+				patrol.DamageMultiplier = -1.0;
+			}
+
+			if (version < 16)
+				patrol.NoiseInvestigationDistanceLimit = -1.0;
+
+			if (version < 17 && !patrol.DamageReceivedMultiplier)
+				patrol.DamageReceivedMultiplier = -1.0;
+
+			if (version < 22 && !patrol.LootingBehaviour)
+				patrol.SetDefaultLootingBehaviour();
+
+			if (version < 24)
+				patrol.FormationScale = -1;
+		}
 	}
 };

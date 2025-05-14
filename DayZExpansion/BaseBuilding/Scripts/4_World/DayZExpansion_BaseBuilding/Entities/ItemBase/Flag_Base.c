@@ -16,7 +16,7 @@ modded class Flag_Base
 	{
 		super.OnWasAttached(parent,slot_id);
 		
-		if ( parent.IsKindOf("TerritoryFlag") )
+		if ( parent.IsInherited(TerritoryFlag) )
         	SetAllowDamage(false);
 	}
 	
@@ -24,7 +24,7 @@ modded class Flag_Base
 	{
 		super.OnWasDetached(parent,slot_id);
 		
-		if ( parent.IsKindOf("TerritoryFlag") )
+		if ( parent.IsInherited(TerritoryFlag) )
         	SetAllowDamage(true);
 	}
 };

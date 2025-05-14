@@ -12,6 +12,9 @@ enum eAICommands
 	MOV_WALK,
 	MOV_JOG,
 	MOV_SPRINT,
+	MOV_ERECT,
+	MOV_CROUCH,
+	MOV_PRONE,
 	// Formation 
 	FOR_VEE,
 	FOR_INVVEE,

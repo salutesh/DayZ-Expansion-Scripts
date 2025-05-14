@@ -1006,6 +1006,51 @@ class ExpansionStatic: ExpansionStaticCore
 		return cfg_des;
 	}
 
+	static string GetPreviewClassName(string className, bool ignoreBaseBuildingKits = false)
+	{
+		if (GetGame().ConfigIsExisting("CfgVehicles " + className + "_ExpansionMarketPreview"))
+		{
+			return className + "_ExpansionMarketPreview";
+		}
+		else if (!ignoreBaseBuildingKits && className.IndexOf("kit") == className.Length() - 3)
+		{
+			/*************************************************************************************************************************
+			 * WARNING: Only TESTED basebuilding items!
+			 * Most mods do NOT have the necessary rvConfig entries to get a reasonable preview and/or can cause client CTD if used!
+			 * Do NOT add other classnames unless they are GUARANTEED to work properly in market menu!
+			 *************************************************************************************************************************/
+
+			//! Expansion
+			if (GetGame().IsKindOf(className, "ExpansionKitLarge"))
+			{
+				string path = "CfgVehicles " + className + " placingTypes";
+				if (GetGame().ConfigIsExisting(path))
+				{
+					TStringArray placingTypes = new TStringArray;
+					GetGame().ConfigGetTextArray(path, placingTypes);
+					foreach (string placingType : placingTypes)
+					{
+						path = "CfgVehicles " + placingType + " deployType";
+						if (GetGame().ConfigIsExisting(path))
+						{
+							return GetGame().ConfigGetTextOut(path);
+						}
+					}
+				}
+			}
+
+			//! Vanilla
+			if (className == "fencekit" || className == "watchtowerkit" || className == "territoryflagkit")
+			{
+				//! Item name is kit name without "kit" at the end
+				string previewClassName = className.Substring(0, className.Length() - 3);
+				if (GetGame().ConfigIsExisting("CfgVehicles " + previewClassName))
+					return previewClassName;
+			}
+		}
+		return className;
+	}
+
 	//! Will return sensible result on server for all objects, including ItemBase
 	//! (vanilla ItemBase::CanObstruct will always return true on server as it is only meant to be called on client because it relies on g_Game.GetPlayer)
 	static bool CanObstruct(Object obj)
@@ -1975,6 +2020,14 @@ class ExpansionStatic: ExpansionStaticCore
 		}
 
 		return true;
+	}
+
+	static void DeleteFiles( string folder, array< string > files )
+	{
+		for ( int i = 0; i < files.Count(); i++ )
+		{
+			DeleteFile( folder + files[i] );
+		}
 	}
 
 	#ifdef ENFUSION_AI_PROJECT

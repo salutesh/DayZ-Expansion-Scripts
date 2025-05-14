@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2025 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -12,14 +12,14 @@
 
 class ExpansionP2PMarketListingBase
 {
-	[NonSerialized()];
+	[NonSerialized()]
 	protected EntityAI m_ListingObject;
 	
 	int m_Version;
 	string m_ClassName;
 	string m_SkinName;
 
-	[NonSerialized()];
+	[NonSerialized()]
 	int m_SkinIndex;
 
 	int m_HealthLevel;
@@ -29,14 +29,13 @@ class ExpansionP2PMarketListingBase
 	bool m_IsBloodContainer;
 	int m_FoodStageType = -1;
 
-#ifdef EXPANSIONMODHARDLINE
+	#ifdef EXPANSIONMODHARDLINE
 	ExpansionHardlineItemRarity m_Rarity = ExpansionHardlineItemRarity.NONE;
-#endif
+	#endif
 
-	int m_ContainerItemsCount;
 	autoptr array<ref ExpansionP2PMarketContainerItem> m_ContainerItems;
 
-	[NonSerialized()];
+	[NonSerialized()]
 	protected bool m_IsExcluded;
 
 	void ExpansionP2PMarketListingBase()
@@ -52,11 +51,6 @@ class ExpansionP2PMarketListingBase
 	void SetClassName(string name)
 	{
 		m_ClassName = name;
-	}
-
-	int GetContainerItemsCount()
-	{
-		return m_ContainerItemsCount;
 	}
 
 	array<ref ExpansionP2PMarketContainerItem> GetContainerItems()
@@ -129,7 +123,7 @@ class ExpansionP2PMarketListingBase
 		m_QuantityType = type;
 	}
 
-#ifdef EXPANSIONMODHARDLINE
+	#ifdef EXPANSIONMODHARDLINE
 	void SetRarity(ExpansionHardlineItemRarity rarity)
 	{
 		m_Rarity = rarity;
@@ -139,7 +133,7 @@ class ExpansionP2PMarketListingBase
 	{
 		return m_Rarity;
 	}
-#endif
+	#endif
 
 	string GetSkinName()
 	{
@@ -219,7 +213,7 @@ class ExpansionP2PMarketListingBase
 				ammoItem.SetFromItem(ammo);
 				ammoItem.SetExcluded(true);
 
-			#ifdef EXPANSIONMODHARDLINE
+				#ifdef EXPANSIONMODHARDLINE
 				auto settings = GetExpansionSettings().GetHardline();
 				if (settings.EnableItemRarity)
 				{
@@ -227,10 +221,9 @@ class ExpansionP2PMarketListingBase
 					if (rarity > ExpansionHardlineItemRarity.NONE)
 						ammoItem.SetRarity(rarity);
 				}
-			#endif
+				#endif
 
 				m_ContainerItems.Insert(ammoItem);
-				m_ContainerItemsCount++;
 			}
 		}
 	}
@@ -277,14 +270,14 @@ class ExpansionP2PMarketListingBase
 				m_FoodStageType = foodStageType;
 			}
 
-		#ifdef EXPANSIONMODHARDLINE
+			#ifdef EXPANSIONMODHARDLINE
 			if (GetExpansionSettings().GetHardline().EnableItemRarity)
 			{
 				ExpansionHardlineItemRarity rarity = itemIB.Expansion_GetRarity();
 				if (rarity > ExpansionHardlineItemRarity.NONE)
 					m_Rarity = rarity;
 			}
-		#endif
+			#endif
 		}
 		
 		if (!ExpansionP2PMarketModule.ItemCheckEx(object))
@@ -296,72 +289,63 @@ class ExpansionP2PMarketListingBase
 		if (!m_ListingObject)
 			return;
 
-		array< EntityAI > items = new array< EntityAI >;
-		m_ListingObject.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+		array<EntityAI> items = MiscGameplayFunctions.Expansion_GetItems(m_ListingObject);
 
 		m_ContainerItems.Clear();
-		m_ContainerItemsCount = 0;
 
 		//! If the main item entity is a maganzine we want to get the ammo data and create a container entry for it.
 		if (m_ListingObject.IsInherited(MagazineStorage))
 			GetAmmoForMagazine(m_ListingObject);
 
-		for (int i = 0; i < items.Count(); i++)
+		InventoryLocation lcn = new InventoryLocation();
+
+		foreach (EntityAI item: items)
 		{
-			EntityAI item = items[i];
-			if (item == m_ListingObject)
+			lcn.Reset();
+			item.GetInventory().GetCurrentInventoryLocation(lcn);
+
+			if (lcn.GetType() == InventoryLocationType.ATTACHMENT)
+			{
+				//! Skip items in hidden attachment slots
+				if (!InventorySlots.GetShowForSlotId(lcn.GetSlot()))
+					continue;
+			}
+
+			//! Hardcoded excluded type names where the item should never get added and shown in the menu.
+			if (ExpansionP2PMarketModule.m_HardcodedExcludes.Find(item.GetType()) > -1)
 				continue;
 
-			if (item.GetInventory().IsAttachment() && m_ListingObject.GetInventory().HasAttachment(item) || item.GetInventory().IsInCargo() && m_ListingObject.GetInventory().HasEntityInCargo(item))
-			{
-				//! Hardcoded excluded type names where the item should never get added and shown in the menu.
-				if (ExpansionP2PMarketModule.m_HardcodedExcludes.Find(item.GetType()) > -1)
-					continue;
+			if (!ExpansionP2PMarketModule.ItemCheckEx(item))
+				m_IsExcluded = true;
 
-				if (!ExpansionP2PMarketModule.ItemCheckEx(item))
-					m_IsExcluded = true;
+			ExpansionP2PMarketContainerItem containerItem = new ExpansionP2PMarketContainerItem();
+			containerItem.SetFromItem(item);
+			
+			if (!m_IsExcluded && containerItem.IsExcluded())
+				m_IsExcluded = true;
+			
+			//! If item is a BB kit then make sure we cant deposit the attached rope..
+			KitBase kitBase;
+			if (Class.CastTo(kitBase, m_ListingObject) && item.GetType() == "Rope")
+				containerItem.SetExcluded(true);
 
-				ExpansionP2PMarketContainerItem containerItem = new ExpansionP2PMarketContainerItem();
-				containerItem.SetFromItem(item);
-				
-				if (!m_IsExcluded && containerItem.IsExcluded())
-					m_IsExcluded = true;
-				
-				//! If item is a BB kit then make sure we cant deposit the attached rope..
-				KitBase kitBase;
-				if (Class.CastTo(kitBase, m_ListingObject) && item.GetType() == "Rope")
-					containerItem.SetExcluded(true);
-	
-				m_ContainerItems.Insert(containerItem);
-				m_ContainerItemsCount++;
+			m_ContainerItems.Insert(containerItem);
 
 			#ifdef EXPANSIONMODHARDLINE
-				ItemBase itemIB;
-				if (Class.CastTo(itemIB, item))
+			ItemBase itemIB;
+			if (Class.CastTo(itemIB, item))
+			{
+				auto settings = GetExpansionSettings().GetHardline();
+				if (settings.EnableItemRarity)
 				{
-					auto settings = GetExpansionSettings().GetHardline();
-					if (settings.EnableItemRarity)
+					ExpansionHardlineItemRarity rarity = itemIB.Expansion_GetRarity();
+					if (rarity != ExpansionHardlineItemRarity.NONE)
 					{
-						ExpansionHardlineItemRarity rarity = itemIB.Expansion_GetRarity();
-						if (rarity != ExpansionHardlineItemRarity.NONE)
-						{
-							containerItem.SetRarity(rarity);
-						}
+						containerItem.SetRarity(rarity);
 					}
 				}
+			}
 			#endif
-
-			}
-		}
-
-		if (!m_ContainerItemsCount)
-		{
-			//! Inventory not yet initialized on client, use netsynched cargo count
-			ExpansionVehicle vehicle;
-			if (ExpansionVehicle.Get(vehicle, m_ListingObject))
-			{
-				m_ContainerItemsCount = vehicle.GetCargoCount();
-			}
 		}
 	}
 };
