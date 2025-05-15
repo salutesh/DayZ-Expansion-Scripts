@@ -702,9 +702,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		float c_right = InputValue_ID(inputInterface, input, UAExpansionHeliCyclicRight);
 #endif
 
-		m_CyclicForwardInputVal = c_forward - c_backward;
-		m_CyclicSideInputVal = c_left - c_right;
-
 		if (!IsFreeLook())
 		{
 			c_forward += InputValue_ID(inputInterface, input, UAAimDown) * m_MouseVertSens;
@@ -713,6 +710,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			c_left += InputValue_ID(inputInterface, input, UAAimLeft) * m_MouseHorzSens;
 			c_right += InputValue_ID(inputInterface, input, UAAimRight) * m_MouseHorzSens;
 		}
+
+		m_CyclicForwardInputVal = c_forward - c_backward;
+		m_CyclicSideInputVal = c_left - c_right;
 		
 		if (IsAutoHover() && pDriver && !GetGame().IsDedicatedServer() && GetExpansionClientSettings().TurnOffAutoHoverDuringFlight)
 		{
