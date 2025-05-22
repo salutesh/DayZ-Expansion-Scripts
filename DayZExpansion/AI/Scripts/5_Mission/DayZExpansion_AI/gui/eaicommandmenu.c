@@ -1,16 +1,3 @@
-enum eAICommandCategories
-{
-	CATEGORIES,	//special category selection
-	CAT_MOVEMENT,
-	CAT_MOVEMENT_SPEED,
-	CAT_MOVEMENT_STANCE,
-	CAT_FORMATION,
-	CAT_STATUS,
-	CAT_DEBUG,
-	CAT_FACTION,
-	CAT_EMPTY
-};
-
 class eAICommandMenuItem
 {
 	protected int m_ID;
@@ -50,6 +37,10 @@ class eAICommandMenuItem
 				group = eAIGroup.GetGamePlayerGroup();
 				if (group)
 					name = group.GetFormation().GetName();
+				break;
+
+			case eAICommandCategories.CAT_DAMAGE_IN:
+				name = "Damage In";
 				break;
 		}
 
@@ -251,19 +242,87 @@ class eAICommandMenu: UIScriptedMenu
 		switch (category)
 		{
 		case eAICommandCategories.CATEGORIES:
-			// only show if we are in a group
-			if (GetDayZGame().GetExpansionGame().InGroup())
+			/**
+			 * @note the menu items are ordered in a way so that their positions in the menu
+			 *       are preserved as much as possible to aid muscle memory
+			 * 
+			 * 
+			 *       Admin w/o group:
+			 * 
+			 *             Spawn
+			 *         -           -
+			 *      /                 \
+			 *                        
+			 *    |                     |
+			 *                           
+			 *    |                     |
+			 *   Status             Faction
+			 *      \                 /
+			 *         -           -
+			 *             -----
+			 * 
+			 * 
+			 *       Admin in group:
+			 * 
+			 *           Movement
+			 *         -           -
+			 *      /                 \
+			 *   Spawn             Formation
+			 *    |                     |
+			 *                           
+			 *    |                     |
+			 *   Status             Faction
+			 *      \                 /
+			 *         -           -
+			 *            Looting
+			 * 
+			 * 
+			 *    Not an admin, in group:
+			 * 
+			 *           Movement
+			 *         -           -
+			 *      /                 \
+			 *                        
+			 *    |                     |
+			 *   Report            Formation
+			 *    |                     |
+			 *                        
+			 *      \                 /
+			 *         -           -
+			 *            Looting
+			 */
+			if (GetExpansionSettings().GetAI().IsAdmin())
+			{
+				if (GetDayZGame().GetExpansionGame().InGroup())
+				{
+					gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_MOVEMENT, "Movement", eAICommandCategories.CATEGORIES));
+					gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_FORMATION, "Formation", eAICommandCategories.CATEGORIES));
+				}
+				else
+				{
+					gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DEBUG, "Spawn", eAICommandCategories.CATEGORIES));
+				}
+
+				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_FACTION, "Faction", eAICommandCategories.CATEGORIES));
+
+				if (GetDayZGame().GetExpansionGame().InGroup())
+				{
+					gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_LOOTINGBEHAVIOUR, " Looting", eAICommandCategories.CATEGORIES));
+				}
+
+				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_STATUS, "Status", eAICommandCategories.CATEGORIES));
+
+				if (GetDayZGame().GetExpansionGame().InGroup())
+				{
+					gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DEBUG, "Spawn", eAICommandCategories.CATEGORIES));
+				}
+			}
+			else if (GetDayZGame().GetExpansionGame().InGroup())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_MOVEMENT, "Movement", eAICommandCategories.CATEGORIES));
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_FORMATION, "Formation", eAICommandCategories.CATEGORIES));
-				//gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_STATUS, "Status", eAICommandCategories.CATEGORIES));
-			}
-			// only show if we are an admin
-			if (GetExpansionSettings().GetAI().IsAdmin())
-			{
-				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DEBUG, "Spawn", eAICommandCategories.CATEGORIES));
-				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_FACTION, "Faction", eAICommandCategories.CATEGORIES));
-				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_STATUS, "Status", eAICommandCategories.CATEGORIES));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_LOOTINGBEHAVIOUR, " Looting", eAICommandCategories.CATEGORIES));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_SITREP, "Report", eAICommandCategories.CATEGORIES));
 			}
 			break;
 
@@ -300,13 +359,51 @@ class eAICommandMenu: UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVVEE, "InvVee", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_FILE, "File", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVFILE, "InvFile", eAICommandCategories.CAT_FORMATION));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_WALL, "Wall", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_COL, "Column", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_INVCOL, "InvColumn", eAICommandCategories.CAT_FORMATION));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_WALL, "Wall", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_CIRCLE, "Circle", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_CIRCLEDOT, "CircleDot", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_STAR, "Star", eAICommandCategories.CAT_FORMATION));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_STARDOT, "StarDot", eAICommandCategories.CAT_FORMATION));
+			break;
+
+		case eAICommandCategories.CAT_LOOTINGBEHAVIOUR:
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.ALL, "All", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.DEFAULT, "Default", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.BANDAGES, "Bandages", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.WEAPONS, "Weapons", eAICommandCategories.CATEGORIES));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING, "Clothing", eAICommandCategories.CATEGORIES));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_LOOTINGBEHAVIOUR_CLOTHING_BACK, "Bags", eAICommandCategories.CATEGORIES));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.UPGRADE, "Upgrade", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			break;
+
+		case eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING:
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING, "All", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_VEST, "Vests", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_BODY, "Tops", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_HIPS, "Belts", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_LEGS, "Pants", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_HEADGEAR, "Headgear", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_MASK, "Masks", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_EYEWEAR, "Eyewear", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_GLOVES, "Gloves", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_FEET, "Shoes", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_ARMBAND, "Armbands", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			break;
+
+		case eAICommands.BEH_LOOT + eAILootingBehavior.WEAPONS:
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.WEAPONS, "All", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.WEAPONS_FIREARMS, "Firearms", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.WEAPONS_LAUNCHERS, "Launchers", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.WEAPONS_MELEE, "Melee", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			break;
+
+		case eAICommandCategories.CAT_LOOTINGBEHAVIOUR_CLOTHING_BACK:
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_BACK_LARGE + eAILootingBehavior.CLOTHING_BACK_MEDIUM + eAILootingBehavior.CLOTHING_BACK_SMALL, "All", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_BACK_LARGE, "Large", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_BACK_MEDIUM, "Medium", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_BACK_SMALL, "Small", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			break;
 
 		case eAICommandCategories.CAT_STATUS:
@@ -317,30 +414,41 @@ class eAICommandMenu: UIScriptedMenu
 			if (GetExpansionSettings().GetAI().IsAdmin())
 			{
 			#ifdef DIAG_DEVELOPER
-				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGOBJECTS, "Debug Objects", eAICommandCategories.CAT_STATUS));
-				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGDAMAGE, "Debug Damage", eAICommandCategories.CAT_STATUS));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGOBJECTS, " Debug\nObjects", eAICommandCategories.CAT_STATUS));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGDAMAGE, " Debug\nDamage", eAICommandCategories.CAT_STATUS));
 			#endif
-				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_UNLIMITEDRELOAD, "Unlimited Reload", eAICommandCategories.CAT_STATUS));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DAMAGE_IN, "Damage\n In/Out", eAICommandCategories.CATEGORIES));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_UNLIMITEDRELOAD, "Unlimited\n  Reload", eAICommandCategories.CATEGORIES));
 			#ifdef JM_COT
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPECTATE, "Spectate AI", eAICommandCategories.CAT_STATUS));
 			#endif
 			}
-		#ifdef DIAG_DEVELOPER
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_SITREP, "Report", eAICommandCategories.CAT_STATUS));
-		#endif
+			break;
+
+		case eAICommandCategories.CAT_UNLIMITEDRELOAD:
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_UNLIMITEDRELOAD_ALL, "All", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_UNLIMITEDRELOAD_ANIMALS, "Animals", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_UNLIMITEDRELOAD_INFECTED, "Infected", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_UNLIMITEDRELOAD_PLAYERS, "Players", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_UNLIMITEDRELOAD_VEHICLES, "Vehicles", eAICommandCategories.CAT_DEBUG));
+			break;
+
+		case eAICommandCategories.CAT_DAMAGE_IN:
+		case eAICommandCategories.CAT_DAMAGE_OUT:
+			for (int i = 0; i < 20; ++i)
+			{
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DAMAGE + i, string.Format("%1%%", 100 - i * 5), category));
+			}
 			break;
 
 		case eAICommandCategories.CAT_DEBUG:
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNALLY, "Friendly", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNALLY, "Companion", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_CLEARALL, "Clear AI", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNBEAR, "Bear", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNWOLF, "Wolf", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNZOM, "Zombie", eAICommandCategories.CAT_DEBUG));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNSENTRY, "Mercenary", eAICommandCategories.CAT_DEBUG));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNSHAMAN, "Shaman", eAICommandCategories.CAT_DEBUG));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNGUARD, "Guard", eAICommandCategories.CAT_DEBUG));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNYEET, "Yeet", eAICommandCategories.CAT_DEBUG));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNPASSIVE, "Passive", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_SPAWNFACTION, "Other", eAICommandCategories.CATEGORIES));
 			if (IsMissionOffline())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_TARGET_CREATE, "Create Debug Apple", eAICommandCategories.CAT_DEBUG));
@@ -351,6 +459,7 @@ class eAICommandMenu: UIScriptedMenu
 			break;
 
 		case eAICommandCategories.CAT_FACTION:
+		case eAICommandCategories.CAT_SPAWNFACTION:
 			foreach (int factionId, typename factionType: eAIRegisterFaction.s_FactionTypes)
 			{
 				eAIFaction faction = eAIFaction.Cast(factionType.Spawn());
@@ -363,10 +472,11 @@ class eAICommandMenu: UIScriptedMenu
 							name = "Yeet";
 							break;
 					}
-					gesture_items.Insert(new eAICommandMenuItem(factionId, name, eAICommandCategories.CAT_FACTION));
+					gesture_items.Insert(new eAICommandMenuItem(factionId, name, category));
 				}
 			}
 			break;
+
 
 		case eAICommandCategories.CAT_EMPTY:
 			Close();
@@ -652,13 +762,19 @@ class eAICommandMenu: UIScriptedMenu
 
 				if (selected)
 				{
-					g_Game.GetExpansionGame().GetCommandManager().Send(selected.GetID());
+					g_Game.GetExpansionGame().GetCommandManager().Send(selected.GetID(), selected.GetCategory());
 
 					switch (selected.GetCategory())
 					{
 						case eAICommandCategories.CAT_FACTION:
+						case eAICommandCategories.CAT_SPAWNFACTION:
 						case eAICommandCategories.CAT_FORMATION:
 							UpdateCategoryName(selected.GetName());
+							break;
+
+						case eAICommandCategories.CAT_DAMAGE_IN:
+							RefreshGestures(eAICommandCategories.CAT_DAMAGE_OUT, "Damage Out");
+							break;
 					}
 				}
 			}

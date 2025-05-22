@@ -29,6 +29,40 @@ modded class MissionGameplay
 		GetDayZGame().GetExpansionGame().SetInGroup(false);
 	}
 
+	override void OnEvent(EventType eventTypeId, Param params)
+	{
+		switch (eventTypeId)
+		{
+			case ChatMessageEventTypeID:
+				ChatMessageEventParams chat_params = ChatMessageEventParams.Cast(params);
+				//! Intercept AI messages and alter them in-place
+				if (chat_params.param1 == ChatChannelType.System && (chat_params.param4 == "AI" || chat_params.param4 == "friendlyAI"))
+				{
+					int index = chat_params.param3.IndexOf(":");
+					if (index > -1)
+					{
+						//! Change channel type so that sender field is used by Expansion Chat
+						if (chat_params.param4 == "friendlyAI")
+							chat_params.param1 = ExpansionChatChannels.CCTeam;
+						else
+							chat_params.param1 = ChatChannelType.Direct;
+
+						//! Extract AI name from message body and place into sender field
+						chat_params.param2 = chat_params.param3.Substring(0, index);
+
+						//! Remove AI name from message body
+						chat_params.param3 = chat_params.param3.Substring(index + 1, chat_params.param3.Length() - index - 1);
+					}
+
+					//! Remove color style
+					chat_params.param4 = "";
+				}
+				break;
+		}
+
+		super.OnEvent(eventTypeId, params);
+	}
+
 	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
 	{
 		#ifdef EAI_TRACE
@@ -67,7 +101,7 @@ modded class MissionGameplay
 		{
 			if (player && player.GetGroup() && !player.IsRaised())
 			{
-				GetDayZExpansion().GetCommandManager().Send(eAICommands.MOV_SETWP);
+				GetDayZExpansion().GetCommandManager().Send(eAICommands.MOV_SETWP, eAICommandCategories.CAT_MOVEMENT);
 			}
 		}
 		

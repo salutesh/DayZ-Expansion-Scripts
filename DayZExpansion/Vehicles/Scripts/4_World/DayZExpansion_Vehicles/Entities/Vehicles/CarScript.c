@@ -129,6 +129,8 @@ modded class CarScript
 	ref map<string, int> m_Expansion_WheelsToAdd = new map<string, int>();
 	int m_Expansion_AttachedWheelsCount;
 
+	ref TIntArray m_Expansion_NonGUIAttachmentSlotIds = {};
+
 	protected ref EffVehicleSmoke m_Expansion_ExhaustFx[3];
 	protected vector m_Expansion_ExhaustPtcPos[3];
 	protected vector m_Expansion_ExhaustPtcDir[3];
@@ -287,6 +289,9 @@ modded class CarScript
 		if (GetGame().ConfigIsExisting(path))
 			m_CarHornShortSoundName = GetGame().ConfigGetTextOut(path);
 
+		TStringArray attachmentSlotNames = {};
+		ConfigGetTextArray("attachments", attachmentSlotNames);
+
 		if (GetGame().IsServer())
 		{
 			auto settings = GetExpansionSettings().GetVehicle();
@@ -302,8 +307,6 @@ modded class CarScript
 			if ((IsHelicopter() || IsBoat()) && wheels.Count() < 4)
 			{
 				//! Make sure we have at least four wheels
-				TStringArray attachmentSlotNames = new TStringArray();
-				ConfigGetTextArray("attachments", attachmentSlotNames);
 				foreach (string attachmentSlotName: attachmentSlotNames)
 				{
 					attachmentSlotName.ToLower();
@@ -316,6 +319,38 @@ modded class CarScript
 			{
 				wheelType.ToLower();
 				m_Expansion_WheelsToAdd[wheelType] = m_Expansion_WheelsToAdd[wheelType] + 1;
+			}
+		}
+
+		path = CFG_VEHICLESPATH + " " + GetType() + " GUIInventoryAttachmentsProps";
+		if (GetGame().ConfigIsExisting(path))
+		{
+			count = GetGame().ConfigGetChildrenCount(path);
+
+			if (count > 0)
+			{
+				TStringArray guiAtts = {};
+
+				for (i = 0; i < count; ++i)
+				{
+					string attCatName;
+					GetGame().ConfigGetChildName(path, i, attCatName);
+
+					string attSlotsPath = path + " " + attCatName + " attachmentSlots";
+					if (GetGame().ConfigIsExisting(attSlotsPath))
+					{
+						TStringArray attSlots = {};
+						GetGame().ConfigGetTextArray(attSlotsPath, attSlots);
+
+						guiAtts.InsertAll(attSlots);
+					}
+				}
+
+				foreach (string attSlotName: attachmentSlotNames)
+				{
+					if (!ExpansionStatic.StringArrayContainsIgnoreCase(guiAtts, attSlotName))
+						m_Expansion_NonGUIAttachmentSlotIds.Insert(InventorySlots.GetSlotIdFromString(attSlotName));
+				}
 			}
 		}
 
@@ -1299,6 +1334,14 @@ modded class CarScript
 			if (GetGame().IsServer())
 				item.SetAllowDamage(false);
 		#endif
+		}
+
+		int slotID = InventorySlots.GetSlotIdFromString(slot_name);
+		if (!InventorySlots.GetShowForSlotId(slotID) || m_Expansion_NonGUIAttachmentSlotIds.Find(slotID) > -1)
+		{
+			ItemBase ib;
+			if (Class.CastTo(ib, item))
+				ib.Expansion_SetCanPhysicsDrop(false);
 		}
 
 		super.EEItemAttached(item, slot_name);

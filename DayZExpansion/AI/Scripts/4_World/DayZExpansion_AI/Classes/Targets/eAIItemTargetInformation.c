@@ -156,7 +156,11 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 							}
 						}
 					}
-					else if ((itemInHands.Expansion_IsMeleeWeapon() || gunInHands) && m_Item.Expansion_IsMeleeWeapon())
+					else if (itemInHands.Expansion_IsMeleeWeapon() && m_Item.Expansion_IsMeleeWeapon() && itemInHands.Expansion_CompareDPS(m_Item) >= 0)
+					{
+						return 0.0;
+					}
+					else if (gunInHands && m_Item.Expansion_IsMeleeWeapon())
 					{
 						return 0.0;
 					}

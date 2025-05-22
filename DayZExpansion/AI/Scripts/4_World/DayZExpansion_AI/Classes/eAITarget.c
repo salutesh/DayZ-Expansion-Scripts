@@ -58,6 +58,12 @@ class eAITarget
 	}
 
 	//! Players only
+	bool IsUnconscious()
+	{
+		return info.IsUnconscious();
+	}
+
+	//! Players only
 	bool IsRaised()
 	{
 		return info.IsRaised();
@@ -284,8 +290,7 @@ class eAITarget
 		}
 		else
 		{
-			PlayerBase player;
-			if (Class.CastTo(player, GetEntity()) && player.IsUnconscious())
+			if (IsUnconscious())
 				return false;
 		}
 

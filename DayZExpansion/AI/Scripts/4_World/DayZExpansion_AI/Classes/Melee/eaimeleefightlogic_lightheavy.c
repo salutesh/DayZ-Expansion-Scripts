@@ -91,8 +91,8 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 					}
 				#endif
 				}
-				//! Enemy starts attacking, start blocking
-				else if (target.GetAttackCooldown() > 0)
+				//! Enemy starts attacking, start blocking if not a player (blocking against player only when moving backwards)
+				else if (!target.IsPlayer() && target.GetAttackCooldown() > 0)
 				{
 				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.AI, m_AI, "HandleFightLogic - start blocking attack (cooldown " + target.GetAttackCooldown() + " " + target.IsFighting() +  ")");
@@ -172,6 +172,8 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 			return false;
 		}
 
+		bool startMeleeSuccess;
+
 		//! Start or continue a melee attack
 		if (m_eAI_Melee || (pContinueAttack && isFireWeapon))
 		{
@@ -181,8 +183,6 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 			if (hcm)
 			{
 				m_eAI_IsInCombo = false;
-
-				bool startMeleeSuccess;
 
 				//! melee with firearm
 				if (isFireWeapon)
@@ -208,28 +208,27 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 					}
 				}
 
-				m_AI.m_eAI_SkipScript = startMeleeSuccess;
-
 				if (startMeleeSuccess)
 					m_AI.eAI_SkipMelee("starting melee succeeded", target.info, false);
 				else
 					m_AI.eAI_SkipMelee("starting melee failed", target.info, true);
-
-				return startMeleeSuccess;
 			}
 			//! combo hits - when we are already in Melee command
 			else if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_MELEE2)
 			{
 				m_IsInComboRange = m_AI.GetCommand_Melee2().IsInComboRange();
-				//! IsInComboRange doesn't work very well due to staggering animation of target. Only do combo if within 60% range
-				if (m_IsInComboRange && target.GetDistanceSq(m_AI, true) <= m_eAI_MeleeCombat.eAI_GetRangeSq() * 0.36)
+				//! Only attempt combo if target is still ahead
+				if (m_IsInComboRange && m_eAI_MeleeCombat.eAI_IsAimingAhead())
 				{
-					return HandleComboHit(pCurrentCommandID, pInputs, itemInHands, pMovementState, pContinueAttack);
+					startMeleeSuccess = HandleComboHit(pCurrentCommandID, pInputs, itemInHands, pMovementState, pContinueAttack);
 				}
 			}
 		}
 
-		return false;
+		if (startMeleeSuccess)
+			eAI_UpdateAttackCooldown();
+
+		return startMeleeSuccess;
 	}
 	
 	//! NOTE: Only singular (or first) hits, combo attacks are handled in combo

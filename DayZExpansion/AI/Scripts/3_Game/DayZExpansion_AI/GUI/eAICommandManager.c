@@ -1,4 +1,4 @@
 class eAICommandManager
 {
-	bool Send(eAICommands cmd) {};
+	bool Send(int cmd, int category) {};
 };

@@ -1,13 +1,7 @@
 modded class PluginAdminLog
 {
-	string m_Expansion_SurvivorDisplayName;
 	bool m_eAI_LogAIHitBy;
 	bool m_eAI_LogAIKilled;
-
-	void PluginAdminLog()
-	{
-		m_Expansion_SurvivorDisplayName = GetGame().ConfigGetTextOut(CFG_VEHICLESPATH + " SurvivorBase displayName");
-	}
 
 	override void OnInit()
 	{

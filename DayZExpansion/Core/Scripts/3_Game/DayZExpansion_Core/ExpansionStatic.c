@@ -370,7 +370,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static ref TStringArray s_VehicleClassNames = {"CarScript", "BoatScript", "ExpansionVehicleBase", "HypeTrain_PartBase"};
 
-	static string BitmaskEnumToString(typename e, int enumValue)
+	static string BitmaskEnumToString(typename e, int enumValue, string delim = "|")
 	{
 		int cnt = e.GetVariableCount();
 		int val;
@@ -378,10 +378,20 @@ class ExpansionStatic: ExpansionStaticCore
 		string ret;
 		for (int i = 0; i < cnt; i++)
 		{
-			if (e.GetVariableType(i) == int && e.GetVariableValue(null, i, val) && (enumValue & val) == val)
+			if (e.GetVariableType(i) == int && e.GetVariableValue(null, i, val))
 			{
+				if (val != 0)
+				{
+					if ((enumValue & val) != val)
+						continue;
+				}
+				else if (enumValue != 0)
+				{
+					continue;
+				}
+
 				if (ret.Length() > 0)
-					ret += "|";
+					ret += delim;
 				ret += e.GetVariableName(i);
 			}
 		}
@@ -2163,7 +2173,9 @@ class ExpansionStatic: ExpansionStaticCore
      *    orientation     object orientation if param is object, else an error is thrown
      * 
      * @param p1..p9      Parameter values. Note if you want to pass in primitives like bool, int, float, string or vector,
-     *                    you need to wrap them in ExpansionPrimitiveT
+     *                    you need to wrap them in EXTypeT.
+     *                    The most convenient way to do that is to use EXBool/EXFloat/EXInt/EXString/EXVector, e.g. 
+     *                    `auto p = new EXInt(42)`
 	 * 
 	 * @return formatted string
 	 *
@@ -2263,8 +2275,8 @@ class ExpansionStatic: ExpansionStaticCore
 				switch (propertyName)
 				{
 					case "name":
-						if (Class.CastTo(player, p) && player.GetIdentity())
-							output += player.GetIdentity().GetName();
+						if (Class.CastTo(player, p))
+							output += GetDayZGame().GetExpansionGame().GetPlayerName(player);
 						else if (Class.CastTo(obj, p))
 							output += obj.GetDisplayName();
 						else
@@ -2276,9 +2288,9 @@ class ExpansionStatic: ExpansionStaticCore
 						break;
 
 					case "id":
-						if (Class.CastTo(player, p) && player.GetIdentity())
+						if (Class.CastTo(player, p))
 						{
-							output += player.GetIdentity().GetId();
+							output += GetDayZGame().GetExpansionGame().GetPlayerID(player);
 						}
 						else if (Class.CastTo(obj, p))
 						{
@@ -2293,8 +2305,8 @@ class ExpansionStatic: ExpansionStaticCore
 						break;
 
 					case "identity_id":
-						if (Class.CastTo(player, p) && player.GetIdentity())
-							output += player.GetIdentity().GetId();
+						if (Class.CastTo(player, p))
+							output += GetDayZGame().GetExpansionGame().GetPlayerID(player);
 						else
 							output += "0";
 						break;
@@ -2360,13 +2372,13 @@ class ExpansionStatic: ExpansionStaticCore
 			}
 			else
 			{
-				ExpansionPrimitive primitive;
-				if (Class.CastTo(primitive, p))
+				EXType type;
+				if (Class.CastTo(type, p))
 				{
-					if (primitive.GetValueType() == vector)
-						output += VectorToString(ExpansionPrimitiveT<vector>.Cast(primitive).GetValue());
+					if (type.GetValueType() == vector)
+						output += VectorToString(EXTypeT<vector>.Cast(type).GetValue());
 					else
-						output += primitive.ToString(false, false, false);
+						output += type.ToString(false, false, false);
 				}
 				else
 				{

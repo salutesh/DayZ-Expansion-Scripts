@@ -109,7 +109,9 @@ class ExpansionDebugObject: Building
 		SetSynchDirty();
 #else
 		Debug.RemoveShape(m_Expansion_DebugLine);
-		m_Expansion_DebugLine = Debug.DrawLine(origin, GetPosition(), m_Expansion_DebugColor, m_Expansion_DebugLineFlags);
+
+		if (origin != vector.Zero)
+			m_Expansion_DebugLine = Debug.DrawLine(origin, GetPosition(), m_Expansion_DebugColor, m_Expansion_DebugLineFlags);
 #endif
 	}
 }

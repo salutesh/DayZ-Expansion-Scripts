@@ -14,6 +14,11 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		return true;
 	}
 
+	override bool IsUnconscious()
+	{
+		return m_Player.IsUnconscious();
+	}
+
 	override bool IsRaised()
 	{
 		if (m_Player.IsRaised())

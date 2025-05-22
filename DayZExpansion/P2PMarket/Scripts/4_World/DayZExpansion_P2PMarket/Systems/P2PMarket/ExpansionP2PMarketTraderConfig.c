@@ -351,21 +351,6 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 		#endif
 	}
 
-	protected bool LoadItem(ExpansionP2PMarketListing listing, PlayerBase player = null, out EntityAI loadedEntity = null)
-	{
-		#ifdef EXTRACE
-		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
-		#endif
-		
-		if (!ExpansionEntityStorageModule.RestoreFromFile(listing.GetEntityStorageFileName(), loadedEntity, null, player))
-		{
-			Error(ToString() + "::LoadItem - Could not restore item " + listing.GetClassName() + " from file " + listing.GetEntityStorageFileName());
-			return false;
-		}
-
-		return true;
-	}
-
 	void OnSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(m_TraderID);

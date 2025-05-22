@@ -198,4 +198,27 @@ modded class PlayerBase
 
 		return false;
 	}
+
+	void eAI_Message(eAIBase sender, string fmt, Class p1 = null, Class p2 = null, Class p3 = null, Class p4 = null, Class p5 = null, Class p6 = null, Class p7 = null, Class p8 = null, Class p9 = null)
+	{
+		string text = ExpansionStatic.FormatString(fmt, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+
+		eAI_Message(sender, "%1", text);
+	}
+
+	void eAI_Message(eAIBase sender, string fmt, string p1 = "", string p2 = "", string p3 = "", string p4 = "", string p5 = "", string p6 = "", string p7 = "", string p8 = "", string p9 = "")
+	{
+		string name = sender.GetCachedName();
+		string body = string.Format(fmt, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+		string text = string.Format("%1: %2", name, body);
+
+		string style;
+		
+		if (sender.GetGroup() == GetGroup())
+			style = "friendlyAI";
+		else
+			style = "AI";
+
+		Message(text, style);
+	}
 };

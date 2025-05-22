@@ -211,6 +211,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			return;
 		}
 		
+		m_SpawnSelected = false;
+		EXPrint(this, "RPC_ShowSpawnMenu - m_SpawnSelected " + m_SpawnSelected);
+
 		//! Call this periodically via call queue (will check if game is ready to show menu, then clean itself up)
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_ShowSpawnMenu, 1, true, spawnlist, territoryspawnlist);
 	}
@@ -338,7 +341,12 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this, index.ToString(), spawnPointIndex.ToString(), locKey, isTerritory.ToString(), useCooldown.ToString());
 #endif
 
-		m_SpawnSelected = true;
+		if (m_SpawnSelected)
+		{
+			EXPrint(this, "SelectSpawn - m_SpawnSelected " + m_SpawnSelected);
+			return;
+		}
+
 		if (ProcessCooldown(GetGame().GetPlayer().GetIdentity(), locKey, isTerritory, useCooldown, false))
 			return;
 
@@ -349,6 +357,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		rpc.Write(spawnPointIndex);
 		rpc.Write(isTerritory);
 		rpc.Expansion_Send(true);
+
+		m_SpawnSelected = true;
+		EXPrint(this, "SelectSpawn - m_SpawnSelected " + m_SpawnSelected);
 	}
 	
 	//! Check existing cooldowns and add if none present.
@@ -506,6 +517,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 #endif
 		
+		m_SpawnSelected = false;
+		EXPrint(this, "RPC_Callback - m_SpawnSelected " + m_SpawnSelected);
+
 		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 		if (!spawnSelectionMenu || !spawnSelectionMenu.IsVisible())
 			return;
@@ -607,6 +621,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		if (!IsMissionClient())
 			return;
 		
+		m_SpawnSelected = false;
+		EXPrint(this, "Exec_CloseSpawnMenu - m_SpawnSelected " + m_SpawnSelected);
+
 		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 		if (spawnSelectionMenu)
 		{

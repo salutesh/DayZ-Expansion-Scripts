@@ -310,7 +310,7 @@ modded class DayZPlayerImplement
 		{
 		case DayZPlayerSyncJunctures.EXPANSION_SJ_TELEPORT:
 #ifdef EXTRACE_DIAG
-			trace = EXTrace.Start(EXTrace.PLAYER, this, typename.EnumToString(DayZPlayerSyncJunctures, pJunctureID));
+			trace = EXTrace.Start(EXTrace.PLAYER, this, "EXPANSION_SJ_TELEPORT");
 #endif
 		
 			vector position;
@@ -445,6 +445,8 @@ modded class DayZPlayerImplement
 		if (!obj || obj.GetType() != type)
 			createObject = true;
 
+		bool hideObject;
+
 		if (createObject)
 		{
 			if (obj)
@@ -469,6 +471,14 @@ modded class DayZPlayerImplement
 		}
 		else
 		{
+			if (position == vector.Zero)
+			{
+				//! Move below ground to hide instead of <0,0,0> so object stays in netbubble
+				position = obj.GetPosition();
+				position[1] = position[1] - 1000;
+				hideObject = true;
+			}
+
 			obj.SetPosition(position);
 		}
 
@@ -477,7 +487,7 @@ modded class DayZPlayerImplement
 			obj.SetDirection(direction);
 		}
 
-		if (origin != vector.Zero)
+		if (origin != vector.Zero || hideObject)
 		{
 			ExpansionDebugObject dbgObj;
 			if (Class.CastTo(dbgObj, obj))

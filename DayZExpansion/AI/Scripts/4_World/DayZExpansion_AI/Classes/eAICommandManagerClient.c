@@ -4,7 +4,8 @@ class eAICommandManagerClient : eAICommandManager
 	ref ExpansionRPCManager m_Expansion_RPCManager;
 
 	int m_MovementSpeedLimit = eAIMovementSpeed.SPRINT;  //! Client
-	bool m_UnlimitedReload;  //! Server
+	int m_UnlimitedReload;  //! Client
+	int m_LootingBehavior = eAILootingBehavior.DEFAULT;  //! Client
 
 	void eAICommandManagerClient()
 	{
@@ -35,11 +36,14 @@ class eAICommandManagerClient : eAICommandManager
 		m_Expansion_RPCManager.RegisterServer("RPC_UnlimitedReload");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugObjects");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugDamage");
+		m_Expansion_RPCManager.RegisterServer("RPC_SetDamageInOut");
 
 		m_Expansion_RPCManager.RegisterServer("RPC_SitRep");
+
+		m_Expansion_RPCManager.RegisterServer("RPC_SetLootingBehavior");
 	}
 
-	override bool Send(int cmd)
+	override bool Send(int cmd, int category)
 	{
 		ExpansionScriptRPC rpc;
 		Object target;
@@ -48,12 +52,7 @@ class eAICommandManagerClient : eAICommandManager
 		switch (cmd)
 		{
 			case eAICommands.DEB_SPAWNALLY:
-			case eAICommands.DEB_SPAWNSENTRY:
-			case eAICommands.DEB_SPAWNGUARD:
-			case eAICommands.DEB_SPAWNPASSIVE:
-			case eAICommands.DEB_SPAWNSHAMAN:
-			case eAICommands.DEB_SPAWNYEET:
-				m_Expansion_RPCManager.SendRPC("RPC_SpawnAI", new Param3<int, vector, int>(cmd, ExpansionStatic.GetCursorHitPos(), m_MovementSpeedLimit));
+				m_Expansion_RPCManager.SendRPC("RPC_SpawnAI", new Param5<int, vector, int, int, int>(cmd, ExpansionStatic.GetCursorHitPos(), m_MovementSpeedLimit, m_UnlimitedReload, m_LootingBehavior));
 				return true;
 			
 			case eAICommands.DEB_CLEARALL:
@@ -70,8 +69,24 @@ class eAICommandManagerClient : eAICommandManager
 				m_Expansion_RPCManager.SendRPC("RPC_SpawnBear", new Param1<vector>(ExpansionStatic.GetCursorHitPos()));
 				return true;
 
-			case eAICommands.DEB_UNLIMITEDRELOAD:
-				m_Expansion_RPCManager.SendRPC("RPC_UnlimitedReload");
+			case eAICommands.DEB_UNLIMITEDRELOAD_ALL:
+			case eAICommands.DEB_UNLIMITEDRELOAD_ANIMALS:
+			case eAICommands.DEB_UNLIMITEDRELOAD_INFECTED:
+			case eAICommands.DEB_UNLIMITEDRELOAD_PLAYERS:
+			case eAICommands.DEB_UNLIMITEDRELOAD_VEHICLES:
+				int unlimitedReload = cmd - eAICommands.DEB_UNLIMITEDRELOAD_ALL;
+
+				if (!unlimitedReload)
+					unlimitedReload = eAITargetType.ALL_OR;
+				else
+					unlimitedReload = Math.Pow(2, unlimitedReload);
+
+				if ((m_UnlimitedReload & unlimitedReload) == unlimitedReload)
+					m_UnlimitedReload &= ~unlimitedReload;
+				else
+					m_UnlimitedReload |= unlimitedReload;
+
+				m_Expansion_RPCManager.SendRPC("RPC_UnlimitedReload", new Param1<int>(m_UnlimitedReload));
 				return true;
 
 			case eAICommands.DEB_DBGOBJECTS:
@@ -153,10 +168,37 @@ class eAICommandManagerClient : eAICommandManager
 				return true;
 
 			case eAICommands.STA_SITREP:
-				ai = GetAIAtCursorOrNearest();
-				SitRep(GetGame().GetPlayer(), ai);
-				rpc = m_Expansion_RPCManager.CreateRPC("RPC_SitRep");
-				rpc.Expansion_Send(ai, true);
+				PlayerBase player;
+				if (Class.CastTo(player, GetGame().GetPlayer()))
+				{
+					bool isAdmin = GetExpansionSettings().GetAI().IsAdmin();
+
+					ai = GetAIAtCursorOrNearest();
+
+					//! If not admin, only allow sitrep from AI in group
+					if (ai && !isAdmin && ai.GetGroup() != player.GetGroup())
+						ai = null;
+
+					if (!ai && player.GetGroup())
+					{
+						//! Select 1st AI in group
+						for (int i = 0; i < player.GetGroup().Count(); ++i)
+						{
+							if (Class.CastTo(ai, player.GetGroup().GetMember(i)))
+								break;
+						}
+					}
+
+					if (ai)
+					{
+					#ifdef DIAG_DEVELOPER
+						SitRep_Client(player, ai);
+					#endif
+
+						rpc = m_Expansion_RPCManager.CreateRPC("RPC_SitRep");
+						rpc.Expansion_Send(ai, true);
+					}
+				}
 				return true;
 
 			case eAICommands.DEB_SPECTATE:
@@ -165,13 +207,44 @@ class eAICommandManagerClient : eAICommandManager
 
 			default:
 				if (eAIRegisterFaction.s_FactionTypes.Contains(cmd))
-					m_Expansion_RPCManager.SendRPC("RPC_SetFaction", new Param1<int>(cmd));
+				{
+					if (category == eAICommandCategories.CAT_FACTION)
+						m_Expansion_RPCManager.SendRPC("RPC_SetFaction", new Param1<int>(cmd));
+					else
+						m_Expansion_RPCManager.SendRPC("RPC_SpawnAI", new Param5<int, vector, int, int, int>(cmd, ExpansionStatic.GetCursorHitPos(), m_MovementSpeedLimit, m_UnlimitedReload, m_LootingBehavior));
+					return true;
+				}
+				else if (cmd < eAICommands.DEB_DAMAGE_COUNT)
+				{
+					ai = GetAIAtCursorOrNearest();
+					if (ai)
+					{
+						rpc = m_Expansion_RPCManager.CreateRPC("RPC_SetDamageInOut");
+						rpc.Write(cmd);
+						rpc.Write(category);
+						rpc.Expansion_Send(ai, true);
+					}
+					return true;
+				}
+				else if (cmd - eAICommands.BEH_LOOT >= 0)
+				{
+					int lootingBehavior = cmd - eAICommands.BEH_LOOT;
+
+					if ((m_LootingBehavior & lootingBehavior) == lootingBehavior)
+						m_LootingBehavior &= ~lootingBehavior;
+					else
+						m_LootingBehavior |= lootingBehavior;
+
+					rpc = m_Expansion_RPCManager.SendRPC("RPC_SetLootingBehavior", new Param1<int>(m_LootingBehavior));
+					return true;
+				}
 				break;
 		}
 		
 		return false;
 	}
 
+	//! @note returns only alive AI
 	eAIBase GetAIAtCursorOrNearest()
 	{
 		Object target;
@@ -180,12 +253,15 @@ class eAICommandManagerClient : eAICommandManager
 		eAIBase targetAI;
 		if (!Class.CastTo(targetAI, target))
 		{
-			//! Dump state of nearest AI
+			//! Get nearest AI
 			vector cameraPosition = GetGame().GetCurrentCameraPosition();
 			float minDistSq = float.MAX;
 			array<eAIBase> allAI = eAIBase.eAI_GetAll();
 			foreach (eAIBase ai: allAI)
 			{
+				if (!ai.IsAlive())
+					continue;
+
 				float distSq = vector.DistanceSq(cameraPosition, ai.GetPosition());
 				if (distSq < minDistSq)
 				{
@@ -281,6 +357,12 @@ class eAICommandManagerClient : eAICommandManager
 		int speed;
 		if (!ctx.Read(speed)) return;
 
+		int unlimitedReload;
+		if (!ctx.Read(unlimitedReload)) return;
+
+		int lootingBehavior;
+		if (!ctx.Read(lootingBehavior)) return;
+
 		if (GetGame().IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
@@ -300,26 +382,13 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.DEB_SPAWNALLY:
 				ai = SpawnAI_Helper(player);
 				ai.eAI_SetSpeedLimitPreference(speed);
+				ai.eAI_SetUnlimitedReload(unlimitedReload);
+				ai.eAI_SetLootingBehavior(lootingBehavior);
 				break;
-			case eAICommands.DEB_SPAWNSENTRY:
-				ai = SpawnAI_Sentry(pos);
-				ai.GetGroup().SetFaction(new eAIFactionMercenaries());
-				break;
-			case eAICommands.DEB_SPAWNGUARD:
-				ai = SpawnAI_Sentry(pos);
-				ai.GetGroup().SetFaction(new eAIFactionGuards());
-				break;
-			case eAICommands.DEB_SPAWNPASSIVE:
-				ai = SpawnAI_Sentry(pos);
-				ai.GetGroup().SetFaction(new eAIFactionPassive());
-				break;
-			case eAICommands.DEB_SPAWNSHAMAN:
-				ai = SpawnAI_Sentry(pos);
-				ai.GetGroup().SetFaction(new eAIFactionShamans());
-				break;
-			case eAICommands.DEB_SPAWNYEET:
-				ai = SpawnAI_Sentry(pos, "YeetBrigadeLoadout");
-				ai.GetGroup().SetFaction(new eAIFactionYeetBrigade());
+			default:
+				eAIFaction faction = eAIFaction.CreateByID(command);
+				ai = SpawnAI_Sentry(pos, faction.GetDefaultLoadout());
+				ai.GetGroup().SetFaction(faction);
 				break;
 		}
 	}
@@ -452,21 +521,58 @@ class eAICommandManagerClient : eAICommandManager
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
+		int unlimitedReload;
+		if (!ctx.Read(unlimitedReload)) return;
+
 		if (GetGame().IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
 		}
-	
-		eAIBase.s_eAI_UnlimitedReload = !eAIBase.s_eAI_UnlimitedReload;
 
-		string onOff;
-		if (eAIBase.s_eAI_UnlimitedReload)
-			onOff = "ON";
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = player.GetGroup();
+
+		if (g)
+		{
+			for (int i = 0; i < g.Count(); ++i)
+			{
+				eAIBase ai;
+				if (Class.CastTo(ai, g.GetMember(i)))
+					ai.eAI_SetUnlimitedReload(unlimitedReload);
+			}
+		}
 		else
-			onOff = "OFF";
+		{
+			eAIBase.s_eAI_UnlimitedReload = unlimitedReload;
 
-		ExpansionNotification("EXPANSION AI", "Unlimited reload " + onOff).Info(sender);
+			if (unlimitedReload == eAITargetType.ALL || unlimitedReload == eAITargetType.ALL_OR)
+				eAIBase.s_eAI_UnlimitedReloadAll = true;
+			else
+				eAIBase.s_eAI_UnlimitedReloadAll = false;
+		}
+
+		string msg;
+
+		if (unlimitedReload)
+		{
+			string targetTypes = ExpansionStatic.BitmaskEnumToString(eAITargetType, unlimitedReload);
+			targetTypes.Replace("|ALL_OR", "");
+			targetTypes.Replace("|", ", ");
+			msg = "for targets of type " + targetTypes;
+		}
+		else
+		{
+			msg = "OFF";
+		}
+
+		if (g)
+			msg += " (your group)";
+		else
+			msg += " (global)";
+
+		ExpansionNotification("EXPANSION AI", "Unlimited reload " + msg).Info(sender);
 	}
 	
 	void RPC_DebugObjects(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -527,6 +633,70 @@ class eAICommandManagerClient : eAICommandManager
 			onOff = "OFF";
 
 		ExpansionNotification("EXPANSION AI", "Debug damage " + onOff).Info(sender);
+	}
+
+	void RPC_SetDamageInOut(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		int cmd;
+		if (!ctx.Read(cmd)) return;
+
+		int category;
+		if (!ctx.Read(category)) return;
+
+		if (GetGame().IsMultiplayer())
+		{
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
+		}
+
+		eAIBase ai;
+		if (Class.CastTo(ai, target))
+		{
+			eAIGroup group = ai.GetGroup();
+
+			int dmg = 100 - cmd * 5;
+			float multiplier = dmg * 0.01;
+
+			for (int i = 0; i < group.Count(); ++i)
+			{
+				if (Class.CastTo(ai, group.GetMember(i)))
+				{
+					if (category == eAICommandCategories.CAT_DAMAGE_IN)
+						ai.eAI_SetDamageReceivedMultiplier(multiplier);
+					else
+						ai.eAI_SetDamageMultiplier(multiplier);
+				}
+			}
+
+			string groupdesc;
+
+			if (group.GetName())
+				groupdesc = string.Format("\"%1\"", group.GetName());
+			else
+				groupdesc = string.Format("ID %1", group.GetID());
+
+			PlayerBase leader;
+			if (Class.CastTo(leader, group.GetLeader()))
+			{
+				groupdesc += " of ";
+
+				if (leader.Expansion_IsAI())
+					groupdesc += "AI ";
+				else
+					groupdesc += "player ";
+
+				groupdesc += leader.GetCachedName();
+			}
+
+			if (category == eAICommandCategories.CAT_DAMAGE_IN)
+				ExpansionNotification("EXPANSION AI", "Damage In " + dmg.ToString() + "%% for group " + groupdesc).Info(sender);
+			else
+				ExpansionNotification("EXPANSION AI", "Damage Out " + dmg.ToString() + "%% for group " + groupdesc).Info(sender);
+		}
 	}
 	
 	void RPC_ReqFormRejoin(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -596,13 +766,6 @@ class eAICommandManagerClient : eAICommandManager
 		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
 		g.SetFormationState(eAIGroupFormationState.IN);
 		g.SetWaypointBehaviour(eAIWaypointBehavior.ROAMING);
-
-		eAIBase ai;
-		for (int i = 0; i < g.Count(); i++)
-		{
-			if (Class.CastTo(ai, g.GetMember(i)))
-				ai.eAI_SetLootingBehavior(eAILootingBehavior.ALL);
-		}
 	}
 	
 	void RPC_ReqFormationChange(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -863,11 +1026,8 @@ class eAICommandManagerClient : eAICommandManager
 		}
 	}
 
-	void SitRep(Man player, eAIBase ai)
+	void SitRep_Client(notnull PlayerBase player, notnull eAIBase ai)
 	{
-		if (!player || !ai)
-			return;
-
 		if (GetExpansionSettings().GetAI().IsAdmin(player.GetIdentity()) || player == ai.GetGroup().GetLeader())
 		{
 			float fVisibility = Environment.Expansion_GetDynVolFogVisibilityEx(ai.GetPosition()[1]) * 1000;
@@ -881,10 +1041,6 @@ class eAICommandManagerClient : eAICommandManager
 			dir = ori.AnglesToVector();
 			vector pos = ai.GetPosition() + dir * fVisibility;
 			ai.Expansion_DebugObject(30261796, pos, "ExpansionDebugRodBig_Red");
-
-			PlayerBase pb;
-			if (Class.CastTo(pb, player))
-				pb.MessageStatus(string.Format("%1 dynamic volumetric fog visibility: %2 m", ai, iVisibility));
 
 			//! The following is just for the memes
 			string soundSetPrefix = "Expansion_AI_";
@@ -945,17 +1101,157 @@ class eAICommandManagerClient : eAICommandManager
 
 	void RPC_SitRep(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
+		PlayerBase player;
 		eAIBase ai;
-		if (Class.CastTo(ai, target))
+		if (Class.CastTo(player, sender.GetPlayer()) && Class.CastTo(ai, target))
 		{
-			if (GetExpansionSettings().GetAI().IsAdmin(sender) || sender.GetPlayer() == ai.GetGroup().GetLeader())
+			if (GetExpansionSettings().GetAI().IsAdmin(sender) || player == ai.GetGroup().GetLeader())
 			{
-				float fVisibility = ai.m_Expansion_Visibility * 1000;
-				int iVisibility = Math.Round(fVisibility);
+				eAIGroup group = ai.GetGroup();
 
-				PlayerBase pb;
-				if (Class.CastTo(pb, sender.GetPlayer()))
-					pb.MessageStatus(string.Format("%1 visibility: %2 m", ai, iVisibility));
+				for (int i = 0; i < group.Count(); ++i)
+				{
+					if (Class.CastTo(ai, group.GetMember(i)))
+						SitRep_Server(player, ai);
+				}
+			}
+		}
+	}
+
+	//! @note the number of lines is chosen such that it fits in the Expansion Chat box
+	void SitRep_Server(notnull PlayerBase player, notnull eAIBase ai)
+	{
+		//! Position & visibility
+		string visibility = Math.Round(ai.m_Expansion_Visibility * 1000).ToString();
+		string volFogVisibility = Math.Round((ai.m_Environment.Expansion_GetDynVolFogVisibility() + 0.001) * 1000).ToString();
+		string position = ExpansionStatic.VectorToString(ai.GetPosition(), ExpansionVectorToString.Labels);
+		player.eAI_Message(ai, "Position %1", position);
+		player.eAI_Message(ai, "Visibility %1 m (volumetric fog %2 m)", visibility, volFogVisibility);
+
+		//! Health
+		string health = Math.Round(ai.GetHealth01() * 100).ToString();
+		string blood = Math.Round(ai.GetHealth01("", "Blood") * 100).ToString();
+		if (ai.IsUnconscious())
+			player.eAI_Message(ai, "Health %1%% blood %2%% (unconscious)", health, blood);
+		else
+			player.eAI_Message(ai, "Health %1%% blood %2%%", health, blood);
+
+		//! Weapon
+		ItemBase itemInHands = ai.GetItemInHands();
+		if (itemInHands)
+		{
+			Weapon_Base weapon;
+			if (Class.CastTo(weapon, itemInHands))
+			{
+				int ammo = weapon.Expansion_GetMagazineAmmoCount();
+
+				if (ammo == 0 && weapon.Expansion_IsChambered())
+					ammo = 1;
+
+				player.eAI_Message(ai, "Weapon %1 (%2 rounds)", weapon.GetType(), ammo.ToString());
+			}
+			else
+			{
+				player.eAI_Message(ai, "Item in hands %1", itemInHands.GetType());
+			}
+		}
+
+		//! Threats
+		int threats = ai.m_eAI_AcuteDangerTargetCount + ai.m_eAI_AcuteDangerPlayerTargetCount;
+		player.eAI_Message(ai, "Threats %1", threats.ToString());
+
+		//! Current focus
+		eAITarget target = ai.GetTarget();
+		if (target)
+		{
+			string desc;
+			string info;
+
+			EntityAI targetEntity = target.GetEntity();
+			if (targetEntity)
+			{
+				if (target.IsPlayer())
+				{
+					bool isPlayerMoving;
+					bool friendly;
+
+					if (ai.GetGroup() == DayZPlayerImplement.Cast(targetEntity).GetGroup())
+						info = "companion";
+					else if (ai.PlayerIsEnemy(targetEntity, false, isPlayerMoving, friendly) && !friendly)
+						info = "hostile";
+					else
+						info = "neutral";
+				}
+				else if (target.GetThreat() >= 0.4)
+				{
+					if (target.IsItem())
+						info = "loot";
+					else
+						info = "hostile";
+				}
+				else
+				{
+					info = "neutral";
+				}
+
+				desc = string.Format("%1 (%2)", ExpansionStatic.FormatString("{1:name}", targetEntity), info);
+			}
+			else if (target.IsNoise())
+			{
+				desc = string.Format("noise at %1", ExpansionStatic.VectorToString(target.GetPosition(ai)));
+			}
+
+			player.eAI_Message(ai, "Current focus %1", desc);
+		}
+	}
+
+	void RPC_SetLootingBehavior(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		int lootingBehavior;
+        if (!ctx.Read(lootingBehavior)) return;
+
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = player.GetGroup();
+		if (g)
+		{
+			int bitmask = -1;
+
+			for (int i = 0; i < g.Count(); ++i)
+			{
+				eAIBase ai;
+				if (Class.CastTo(ai, g.GetMember(i)))
+				{
+					if (bitmask == -1)
+						bitmask = ai.m_eAI_LootingBehavior;  //! Set all AI to the same looting behavior as the 1st AI in group
+
+					ai.eAI_SetLootingBehavior(lootingBehavior);
+				}
+			}
+
+			if (bitmask > -1)
+			{
+				int behavior;
+				string msg;
+
+				if ((bitmask & lootingBehavior) == bitmask)
+				{
+					behavior = lootingBehavior & ~bitmask;  //! The added behavior
+					msg = "+";
+				}
+				else
+				{
+					behavior = bitmask & ~lootingBehavior;  //! The removed behavior
+					msg = "-";
+				}
+
+				msg += typename.EnumToString(eAILootingBehavior, behavior);
+
+				ExpansionNotification("EXPANSION AI", "Looting behavior " + msg).Info(sender);
 			}
 		}
 	}
