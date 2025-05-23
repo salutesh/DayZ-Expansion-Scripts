@@ -143,6 +143,11 @@ class eAITargetInformation
 		return true;
 	}
 
+	bool IsUnconscious()
+	{
+		return false;
+	}
+
 	bool IsCrawling()
 	{
 		return false;

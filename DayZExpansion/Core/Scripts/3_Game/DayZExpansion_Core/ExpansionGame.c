@@ -53,6 +53,16 @@ class ExpansionGame
 #endif
 	}
 	
+	string GetPlayerID(Man player)
+	{
+		return string.Empty;
+	}
+
+	string GetPlayerName(Man player)
+	{
+		return string.Empty;
+	}
+
 #ifdef EXPANSIONUI
 	// ------------------------------------------------------------
 	// ExpansionGame CreateExpansionUIManager

@@ -20,6 +20,7 @@ modded class ItemBase
 	protected int m_Expansion_AttachIDC;
 	protected int m_Expansion_AttachIDD;
 	protected dBlock m_Expansion_Block;
+	protected bool m_Expansion_CanPhysicsDrop = true;
 	
 	void ItemBase()
 	{
@@ -465,10 +466,10 @@ modded class ItemBase
 	bool Expansion_ParentDrops(EntityAI parent)
 	{
 		if (Transport.Cast(parent))
-			return true;
+			return m_Expansion_CanPhysicsDrop;
 
 		if (ExpansionVehicleBase.Cast(parent))
-			return true;
+			return m_Expansion_CanPhysicsDrop;
 
 		return false;
 	}
@@ -514,5 +515,10 @@ modded class ItemBase
 
 		GetInventory().TakeToDst(invMode, src, dst);
 		ThrowPhysically(null, force);
+	}
+
+	void Expansion_SetCanPhysicsDrop(bool state)
+	{
+		m_Expansion_CanPhysicsDrop = state;
 	}
 };

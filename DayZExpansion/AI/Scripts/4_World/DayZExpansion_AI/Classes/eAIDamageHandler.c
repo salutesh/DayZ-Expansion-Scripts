@@ -383,6 +383,11 @@ class eAIDamageHandler
 
 				if (!isPlayerItem && damageMultiplier != 0.0)
 				{
+
+					//! Calling ProcessDirectDamage with source being any static/baked entity segfaults (https://feedback.bistudio.com/T192088)
+					if (source && !source.IsItemBase() && !source.IsDayZCreature() && !source.IsMan() && !source.IsTransport())
+						source = m_Entity;
+
 					//! Need to use Call() to avoid inconsistent damage
 					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(ProcessDamage, damageType, source, sourcePlayer, dmgZone, ammo, modelPos, damageMultiplier);
 				}

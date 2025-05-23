@@ -31,7 +31,8 @@ class eAIBase: PlayerBase
 	static bool AI_HANDLEDOORS = true;
 	static bool AI_HANDLEVAULTING = true;
 
-	static bool s_eAI_UnlimitedReload;
+	static int s_eAI_UnlimitedReload;
+	static int s_eAI_UnlimitedReloadAll;
 
 	private static autoptr array<eAIBase> s_AllAI = new array<eAIBase>();
 	static float s_eAI_LastCEUpdateTime;
@@ -59,6 +60,8 @@ class eAIBase: PlayerBase
 		"misc_advertcolumn",
 		"misc_coil"
 	};
+
+	static string s_Expansion_SurvivorDisplayName = GetGame().ConfigGetTextOut(CFG_VEHICLESPATH + " SurvivorBase displayName");
 
 	private ref eAICallbacks m_eAI_Callbacks = new eAICallbacks(this);
 
@@ -110,6 +113,9 @@ class eAIBase: PlayerBase
 	float m_eAI_PurgeFiredShotsTick;
 	Object m_eAI_HitObject;
 	int m_eAI_DiscardedShot_DbgIdx = -8;
+	float m_eAI_DbgThreshAngleH;
+	float m_eAI_DbgLookAngleH;
+	int m_eAI_DbgLOSAngles = -1;
 
 	// Command handling
 	ref eAICommandMove m_eAI_CommandMove;
@@ -178,6 +184,13 @@ class eAIBase: PlayerBase
 	private vector m_eAI_AimDirectionTarget_ModelSpace;
 	private bool m_eAI_AimDirection_Recalculate;
 	private vector m_eAI_AimDirectionPrev;
+
+	//! Dynamic FOV (detection angle) depending on distance to target
+	static float m_eAI_FOVNear_DistThreshold = 0;
+	static float m_eAI_FOVFar_DistThreshold = 125;
+	static float m_eAI_FOVNear_HalfAngleH = 120;  //! Half angle! FOV = angle * 2
+	static float m_eAI_FOVFar_HalfAngleH = 45;  //! Half angle! FOV = angle * 2
+	static float m_eAI_FOVRolloffExponent = 2.0;  //! 1.0 = linear
 
 	private bool m_MovementSpeedActive;
 	private int m_MovementSpeed;
@@ -464,6 +477,9 @@ class eAIBase: PlayerBase
 		RegisterNetSyncVariableFloat("m_eAI_AccuracyMax");
 		//RegisterNetSyncVariableInt("m_eAI_CurrentTarget_NetIDLow");
 		//RegisterNetSyncVariableInt("m_eAI_CurrentTarget_NetIDHigh");
+	//#ifdef DIAG_DEVELOPER
+		//RegisterNetSyncVariableInt("m_eAI_DbgLOSAngles");
+	//#endif
 
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 
@@ -1340,7 +1356,7 @@ class eAIBase: PlayerBase
 
 	bool eAI_IsTargetUnlimitedReload()
 	{
-		if (s_eAI_UnlimitedReload)
+		if (s_eAI_UnlimitedReloadAll)
 			return true;
 
 		if (m_eAI_IsUnlimitedReloadAll)
@@ -1349,25 +1365,27 @@ class eAIBase: PlayerBase
 		if (!m_eAI_LastEngagedTargetType)
 			return false;
 
+		int unlimitedReload = s_eAI_UnlimitedReload | m_eAI_UnlimitedReload;
+
 		switch (m_eAI_LastEngagedTargetType)
 		{
 			case eAICreatureTargetInformation:
-				if (m_eAI_UnlimitedReload & eAITargetType.ANIMAL)
+				if (unlimitedReload & eAITargetType.ANIMAL)
 					return true;
 				break;
 
 			case eAIZombieTargetInformation:
-				if (m_eAI_UnlimitedReload & eAITargetType.INFECTED)
+				if (unlimitedReload & eAITargetType.INFECTED)
 					return true;
 				break;
 
 			case eAIPlayerTargetInformation:
-				if (m_eAI_UnlimitedReload & eAITargetType.PLAYER)
+				if (unlimitedReload & eAITargetType.PLAYER)
 					return true;
 				break;
 
 			case eAIVehicleTargetInformation:
-				if (m_eAI_UnlimitedReload & eAITargetType.VEHICLE)
+				if (unlimitedReload & eAITargetType.VEHICLE)
 					return true;
 				break;
 		}
@@ -1472,6 +1490,19 @@ class eAIBase: PlayerBase
 	void eAI_SetLootingBehavior(int bitmask)
 	{
 		m_eAI_LootingBehavior = bitmask;
+
+		array<EntityAI> toRemove = {};
+
+		foreach (EntityAI entity, bool state: m_eAI_ThreatOverride)
+		{
+			if (entity && entity.IsItemBase())
+				toRemove.Insert(entity);
+		}
+
+		foreach (EntityAI item: toRemove)
+		{
+			m_eAI_ThreatOverride.Remove(item);
+		}
 	}
 	
 	override void SetFallYDiff(float value)
@@ -1480,17 +1511,6 @@ class eAIBase: PlayerBase
 
 		m_eAI_FallHasLanded = false;
 		m_eAI_FallYVelZeroTime = 0;
-	}
-
-	override bool IsFighting()
-	{
-		if (super.IsFighting())
-			return true;
-
-		if (m_eAI_MeleeTime > 0 && GetGame().GetTime() - m_eAI_MeleeTime < 1500)
-			return true;
-
-		return false;
 	}
 
 	eAIAimingProfile GetAimingProfile()
@@ -1735,6 +1755,17 @@ class eAIBase: PlayerBase
 		if (GetGroup().GetFormationLeader() == this)
 			isFormLeader = true;
 		report.Insert(indent + string.Format("|- Is formation leader %1", isFormLeader.ToString()));
+
+		report.Insert(indent + "|- Looting behavior");
+		TStringArray lootingBehaviors = {};
+		ExpansionStatic.BitmaskEnumToString(eAILootingBehavior, m_eAI_LootingBehavior).Split("|", lootingBehaviors);
+		foreach (int l, string behavior: lootingBehaviors)
+		{
+			if (l < lootingBehaviors.Count() - 1)
+				report.Insert(indent + string.Format("|  |- %1", behavior));
+			else
+				report.Insert(indent + string.Format("|  \\- %1", behavior));
+		}
 
 		auto fsmState = GetFSM().GetState();
 		if (fsmState)
@@ -2621,7 +2652,7 @@ class eAIBase: PlayerBase
 			return false;
 		}
 
-		if (entity.IsItemBase() || entity.IsZombie())
+		if (entity.IsItemBase() || entity.IsZombie() || entity.IsAnimal())
 		{
 			if (info.ShouldRemove(this))
 				return false;
@@ -5004,7 +5035,7 @@ class eAIBase: PlayerBase
 	{
 		m_CachedPlayerName = GetDisplayName();
 
-		if (m_AdminLog && m_CachedPlayerName == m_AdminLog.m_Expansion_SurvivorDisplayName)
+		if (m_CachedPlayerName == s_Expansion_SurvivorDisplayName)
 			m_CachedPlayerName = Expansion_GetSurvivorName();
 
 		return m_CachedPlayerName;
@@ -5587,6 +5618,37 @@ class eAIBase: PlayerBase
 			m_eAI_AimDirectionTarget_ModelSpace = vector.Direction(neck, m_eAI_AimPosition_WorldSpace).Normalized().InvMultiply3(m_ExTransformPlayer);
 		}
 
+	#ifdef DIAG_DEVELOPER
+	#ifdef SERVER
+		vector dir = GetLookDirection();
+		dir[1] = 0;
+		vector fwd = neck + dir;
+		Expansion_DebugObject(-100, fwd, "ExpansionDebugSphereSmall_Blue", vector.Zero, neck);
+		dir = Vector(m_eAI_LookRelAngles[0] - m_eAI_DbgThreshAngleH, 0, 0).AnglesToVector().Multiply3(m_ExTransformPlayer);
+		dir[1] = 0;
+		vector left = neck + dir;
+		Expansion_DebugObject(-101, left, "ExpansionDebugSphereSmall", vector.Zero, neck);
+		dir = Vector(m_eAI_LookRelAngles[0] + m_eAI_DbgThreshAngleH, 0, 0).AnglesToVector().Multiply3(m_ExTransformPlayer);
+		dir[1] = 0;
+		vector right = neck + dir;
+		Expansion_DebugObject(-102, right, "ExpansionDebugSphereSmall", vector.Zero, neck);
+/*
+	#else
+		if (m_eAI_DbgLOSAngles != -1)
+		{
+			float decodedThreshAngleH = (int)(m_eAI_DbgLOSAngles & 0x0000ffff);
+			decodedThreshAngleH = decodedThreshAngleH / 65535 * 360;
+
+			float decodedLookAngleH = (int)((m_eAI_DbgLOSAngles & 0xffff0000) >> 16);
+			decodedLookAngleH = decodedLookAngleH / 65535 * 360;
+
+			//! @note doesn't really work well with half angles >= 90 deg
+			Debug.DrawCone(neck, 1.0, decodedThreshAngleH * Math.DEG2RAD, -decodedLookAngleH * Math.DEG2RAD + Math.PI_HALF, Colors.GREEN, ShapeFlags.ONCE);
+		}
+*/
+	#endif
+	#endif
+
 		if (target)
 			return true;
 
@@ -5801,7 +5863,7 @@ class eAIBase: PlayerBase
 		HumanInputController hic = GetInputController();
 
 		//if (hic && pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT && !pCurrentCommandFinished && m_eAI_Command)
-		if (hic && actualCommandID == DayZPlayerConstants.COMMANDID_MOVE && !pCurrentCommandFinished)
+		if (hic && !pCurrentCommandFinished)
 		{
 			//eAICommandVehicle vehicleCmd;
 			//if (!Class.CastTo(vehicleCmd, m_eAI_Command) || !vehicleCmd.IsGettingIn())
@@ -5999,31 +6061,31 @@ class eAIBase: PlayerBase
 			//! Nothing
 		}
 
+		vector lookTargetRelAngles = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
+		vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
+
+		if (IsRaised())
+		{
+			//! Need to adjust look direction when aiming
+			lookTargetRelAngles[0] = lookTargetRelAngles[0] - aimTargetRelAngles[0];
+			if (entityInHands && entityInHands.IsWeapon())
+				lookTargetRelAngles[1] = 0;
+		}
+
+		//! We want to interpolate rel angles for looking! Otherwise, if the conversion to rel angles happens later,
+		//! there will be a sudden jump in the unit's head rotation between 180 and -180 due to the way the head animation is set up
+		lookTargetRelAngles[0] = ExpansionMath.RelAngle(lookTargetRelAngles[0]);
+		lookTargetRelAngles[1] = ExpansionMath.RelAngle(lookTargetRelAngles[1]);
+
+		lookTargetRelAngles[1] = Math.Clamp(lookTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
+
+		//TODO: quaternion slerp instead for better, accurate results
+		m_eAI_LookRelAngles = ExpansionMath.InterpolateAngles(m_eAI_LookRelAngles, lookTargetRelAngles, pDt, Math.RandomFloat(3.0, 5.0), Math.RandomFloat(1.0, 3.0));
+
+		m_eAI_CommandMove.SetLookAnglesRel(m_eAI_LookRelAngles[0], m_eAI_LookRelAngles[1]);
+
 		if (!m_eAI_SkipScript && eAI_IsLocomotionCmd(actualCommandID))
 		{
-			vector lookTargetRelAngles = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
-			vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
-
-			if (IsRaised())
-			{
-				//! Need to adjust look direction when aiming
-				lookTargetRelAngles[0] = 0;
-				if (entityInHands && entityInHands.IsWeapon())
-					lookTargetRelAngles[1] = 0;
-			}
-
-			//! We want to interpolate rel angles for looking! Otherwise, if the conversion to rel angles happens later,
-			//! there will be a sudden jump in the unit's head rotation between 180 and -180 due to the way the head animation is set up
-			lookTargetRelAngles[0] = ExpansionMath.RelAngle(lookTargetRelAngles[0]);
-			lookTargetRelAngles[1] = ExpansionMath.RelAngle(lookTargetRelAngles[1]);
-
-			lookTargetRelAngles[1] = Math.Clamp(lookTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
-
-			//TODO: quaternion slerp instead for better, accurate results
-			m_eAI_LookRelAngles = ExpansionMath.InterpolateAngles(m_eAI_LookRelAngles, lookTargetRelAngles, pDt, Math.RandomFloat(3.0, 5.0), Math.RandomFloat(1.0, 3.0));
-
-			m_eAI_CommandMove.SetLookAnglesRel(m_eAI_LookRelAngles[0], m_eAI_LookRelAngles[1]);
-
 			eAICommandMove ecm;
 
 			int performCommand;
@@ -6181,6 +6243,7 @@ class eAIBase: PlayerBase
 	{
 		switch (cmdID)
 		{
+			case DayZPlayerConstants.COMMANDID_MELEE2:
 			case DayZPlayerConstants.COMMANDID_MOVE:
 			case DayZPlayerConstants.COMMANDID_LADDER:
 			case DayZPlayerConstants.COMMANDID_SWIM:
@@ -6576,13 +6639,44 @@ class eAIBase: PlayerBase
 				//float lookAngleV = lookAngles[1];
 				float angleDiffH = ExpansionMath.AngleDiff2(toTargetAngleH, lookAngleH);
 				//float angleDiffV = ExpansionMath.AngleDiff2(toTargetAngleV, lookAngleV);
-				float dist = Math.Sqrt(distSq);
-				//! FOV shall fall off steeply with distance
-				float threshH = ExpansionMath.PowerConversion(5, 300, dist, 90, 45, 6);
-				//float threshV = ExpansionMath.PowerConversion(5, 300, dist, 60, 30, 6);
+				float threshAngleH;
+				float nearHalfAngleH = Math.Max(m_eAI_FOVNear_HalfAngleH, 95);
+				float farHalfAngleH = Math.Max(m_eAI_FOVFar_HalfAngleH, 45);
+				float farDistThresh = Math.Max(m_eAI_FOVFar_DistThreshold, 60);
+				if (farHalfAngleH == nearHalfAngleH || distSq <= m_eAI_FOVNear_DistThreshold * m_eAI_FOVNear_DistThreshold)
+				{
+					threshAngleH = nearHalfAngleH;
+				}
+				else if (distSq < farDistThresh * farDistThresh)
+				{
+					float dist = Math.Sqrt(distSq);
+					//! FOV roll-off with distance
+					float t = ExpansionMath.LinearConversion(m_eAI_FOVNear_DistThreshold, farDistThresh, dist, 0, 1);
+					t = Easing.EaseInOutPow(t, m_eAI_FOVRolloffExponent);
+					threshAngleH = ExpansionMath.LinearConversion(0, 1, t, nearHalfAngleH, farHalfAngleH);
+				}
+				else
+				{
+					threshAngleH = farHalfAngleH;
+				}
+			#ifdef DIAG_DEVELOPER
+				m_eAI_DbgThreshAngleH = threshAngleH;
+				m_eAI_DbgLookAngleH = lookAngleH;
+				//int encodedThreshAngleH = threshAngleH / 360.0 * 65535;
+				//int encodedLookAngleH = lookAngleH / 360.0 * 65535;
+				//encodedLookAngleH = encodedLookAngleH << 16;
+				//m_eAI_DbgLOSAngles = encodedThreshAngleH | encodedLookAngleH;
+			#endif
 				//if (Math.AbsFloat(angleDiffH) > threshH || Math.AbsFloat(angleDiffV) > threshV)  //! Player is outside AI FOV
-				if (Math.AbsFloat(angleDiffH) > threshH)  //! Player is outside AI FOV
+				if (Math.AbsFloat(angleDiffH) > threshAngleH)  //! Player is outside AI FOV
+				{
+				#ifdef DIAG_DEVELOPER
+					Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugSphereSmall");
+					Expansion_DebugObject_Deferred(19, contactPos, "ExpansionDebugSphereSmall_Red", dir, begPos);
+				#endif
+					
 					return false;
+				}
 			}
 		}
 
@@ -7498,7 +7592,7 @@ class eAIBase: PlayerBase
 			m_WeaponRaisedPrev = m_WeaponRaised;
 			m_WeaponRaisedTimer = 0.0;
 
-			if (g_Game.IsServer() && GetCommand_MoveAI())
+			if (g_Game.IsServer())
 			{
 				AnimSetBool(m_ExpansionST.m_VAR_Raised, m_WeaponRaised);
 				if (!m_WeaponRaised)

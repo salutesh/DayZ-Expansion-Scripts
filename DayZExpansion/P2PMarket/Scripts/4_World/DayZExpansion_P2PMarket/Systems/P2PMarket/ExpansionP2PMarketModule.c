@@ -3139,7 +3139,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		return false;
 	}
 
-	protected bool RemoveListing(notnull ExpansionP2PMarketListing listing, array<ref ExpansionP2PMarketListing> listings, int index, bool deleteEntityStorageFile = false, bool deleteJSONFile = false, bool soldListing = false)
+	protected bool RemoveListing(notnull ExpansionP2PMarketListing listing, notnull array<ref ExpansionP2PMarketListing> listings, int index, bool deleteEntityStorageFile = false, bool deleteJSONFile = false, bool soldListing = false)
 	{
 		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
@@ -3148,11 +3148,8 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		if (deleteEntityStorageFile)
 		{
 			string baseName = listing.GetEntityStorageBaseName();
-			if (!ExpansionEntityStorageModule.DeleteFiles(baseName, listing.GetEntityStorageDirectory()))
-			{
-				EXError.Error(this, "::RemoveListing - Failed to delete listing entity storage file=" + baseName);
-				return false;
-			}
+			//! @note ExpansionEntityStorageModule::DeleteFiles does its own error logging, no need to repeat logging here
+			ExpansionEntityStorageModule.DeleteFiles(baseName, listing.GetEntityStorageDirectory());
 		}
 		
 		if (deleteJSONFile)
@@ -3161,48 +3158,61 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			bool fileExists = FileExist(filePath);
 			if (!fileExists)
 			{
-				EXError.Error(this, "::RemoveListing - Failed to find listing file=" + filePath);
-				return false;
+				EXError.Warn(this, "::RemoveListing - Failed to find listing file=" + filePath);
 			}
-			
-			bool deletedFile = DeleteFile(filePath);
-			if (!deletedFile)
+			else
 			{
-				EXError.Error(this, "::RemoveListing - Failed to delete listing file=" + filePath);
+				bool deletedFile = DeleteFile(filePath);
+				if (!deletedFile)
+				{
+					EXError.Error(this, "::RemoveListing - Failed to delete listing file=" + filePath);
+				}
+			}
+		}
+
+		//! Sanity check that the passed in listing is indeed the listing at the passed in index in the array.
+		//! This shouldn't be possible to fail unless there is an error in the calling code (wrong listing, listings array, or index passed in)
+		if (listings[index] != listing)
+		{
+			EXError.Error(this, "::RemoveListing - Listing at index " + index + " of passed in listings array does not match passed in listing!");
+
+			index = listings.Find(listing);
+
+			if (index == -1)
+			{
+				EXError.Error(this, "::RemoveListing - Listing with ID=" + listing.GetEntityStorageBaseName() + " not found in passed in listings array!");
+				//! This is the only failure state where we should return false since we have to abort processing
 				return false;
 			}
 		}
 
-		if (listings)
+		listings.RemoveOrdered(index);
+
+		if (listings.Count() == 0)
 		{
-			listings.RemoveOrdered(index);
+			int traderID = listing.GetTraderID();
 
-			if (listings.Count() == 0)
+			if (!soldListing)
 			{
-				int traderID = listing.GetTraderID();
-
-				if (!soldListing)
-				{
-					m_ListingsData.Remove(traderID);
-				}
-				else
-				{
-					m_SoldListingsData.Remove(traderID);
-				}
-			}
-
-			ExpansionP2PMarketCounters counters = GetPlayerDataCounters(listing.GetOwnerUID());
-
-			if (soldListing)
-			{
-				counters.m_SoldListingsCount--;
-				counters.m_SoldTotalIncome -= listing.GetPrice();
+				m_ListingsData.Remove(traderID);
 			}
 			else
 			{
-				m_ListingsCount--;
-				counters.m_OwnedListingsCount--;
+				m_SoldListingsData.Remove(traderID);
 			}
+		}
+
+		ExpansionP2PMarketCounters counters = GetPlayerDataCounters(listing.GetOwnerUID());
+
+		if (soldListing)
+		{
+			counters.m_SoldListingsCount--;
+			counters.m_SoldTotalIncome -= listing.GetPrice();
+		}
+		else
+		{
+			m_ListingsCount--;
+			counters.m_OwnedListingsCount--;
 		}
 		
 		return true;

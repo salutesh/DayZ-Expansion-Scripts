@@ -69,7 +69,7 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 		if (!result)
 		{
 			if (GetExpansionSettings().GetLog().VehicleCover)
-				GetExpansionSettings().GetLog().PrintLog("[VehicleCover] ERROR: Player \"{1:name}\" (id={1:id} pos={1:position}) tried to uncover vehicle \"{2}\" (GlobalID={3} pos={4:position}) but it failed!", action_data.m_Player, new ExpansionPrimitiveT<string>(type), new ExpansionPrimitiveT<string>(id), placeholder);
+				GetExpansionSettings().GetLog().PrintLog("[VehicleCover] ERROR: Player \"{1:name}\" (id={1:id} pos={1:position}) tried to uncover vehicle \"{2}\" (GlobalID={3} pos={4:position}) but it failed!", action_data.m_Player, new EXString(type), new EXString(id), placeholder);
 			return;
 		}
 
@@ -107,6 +107,6 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 		GetGame().ObjectDelete(placeholder);
 		
 		if (GetExpansionSettings().GetLog().VehicleCover)
-			GetExpansionSettings().GetLog().PrintLog("[VehicleCover] Player \"{1:name}\" (id={1:id} pos={1:position}) uncovered vehicle \"{2:type}\" (GlobalID={3} pos={2:position})!", action_data.m_Player, entity, new ExpansionPrimitiveT<string>(id));
+			GetExpansionSettings().GetLog().PrintLog("[VehicleCover] Player \"{1:name}\" (id={1:id} pos={1:position}) uncovered vehicle \"{2:type}\" (GlobalID={3} pos={2:position})!", action_data.m_Player, entity, new EXString(id));
 	}
 }

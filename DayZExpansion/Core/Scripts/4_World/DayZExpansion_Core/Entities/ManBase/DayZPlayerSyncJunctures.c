@@ -24,7 +24,9 @@ modded class DayZPlayerSyncJunctures
 
 	static void ExpansionTeleport(DayZPlayer pPlayer, vector position, vector orientation = "0 0 0")
 	{
-		auto trace = CF_Trace_0(EXTrace.PLAYER, null);
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.PLAYER, DayZPlayerSyncJunctures);
+	#endif
 
 		ScriptJunctureData ctx = new ScriptJunctureData;
 		ctx.Write(EXPANSION_SJ_TELEPORT);
@@ -37,7 +39,9 @@ modded class DayZPlayerSyncJunctures
 
 	static bool ExpansionReadTeleport(ParamsReadContext pCtx, out vector position, out vector orientation)
 	{
-		auto trace = CF_Trace_0(EXTrace.PLAYER, null);
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.PLAYER, DayZPlayerSyncJunctures);
+	#endif
 
 		pCtx.Read(position);
 		pCtx.Read(orientation);
@@ -47,7 +51,9 @@ modded class DayZPlayerSyncJunctures
 
 	static void ExpansionSendNextLink(DayZPlayer pPlayer)
 	{
-		auto trace = CF_Trace_0(EXTrace.PLAYER, null);
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.PLAYER, DayZPlayerSyncJunctures);
+	#endif
 
 		ScriptJunctureData ctx = new ScriptJunctureData;
 		ctx.Write(EXPANSION_SJ_NEXT_LINK);
@@ -57,14 +63,18 @@ modded class DayZPlayerSyncJunctures
 
 	static bool ExpansionReadNextLink(ParamsReadContext pCtx)
 	{
-		auto trace = CF_Trace_0(EXTrace.PLAYER, null);
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.PLAYER, DayZPlayerSyncJunctures);
+	#endif
 
 		return true;
 	}
 
 	static void ExpansionSendGetInTransportUnlink(DayZPlayer pPlayer)
 	{
-		auto trace = CF_Trace_0(EXTrace.PLAYER, null);
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.PLAYER, DayZPlayerSyncJunctures);
+	#endif
 
 		ScriptJunctureData ctx = new ScriptJunctureData;
 		ctx.Write(EXPANSION_SJ_GET_IN_TRANSPORT_UNLINK);
@@ -74,14 +84,18 @@ modded class DayZPlayerSyncJunctures
 
 	static bool ExpansionReadGetInTransportUnlink(ParamsReadContext pCtx)
 	{
-		auto trace = CF_Trace_0(EXTrace.PLAYER, null);
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.PLAYER, DayZPlayerSyncJunctures);
+	#endif
 
 		return true;
 	}
 
 	static void ExpansionSendPerformClimb(DayZPlayer pPlayer, bool performClimb, bool performClimbAttach)
 	{
-		auto trace = CF_Trace_0(EXTrace.PLAYER, null);
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.PLAYER, DayZPlayerSyncJunctures);
+	#endif
 
 		ScriptJunctureData ctx = new ScriptJunctureData;
 		ctx.Write(EXPANSION_SJ_PERFORM_CLIMB);
@@ -94,7 +108,9 @@ modded class DayZPlayerSyncJunctures
 
 	static bool ExpansionReadPerformClimb(ParamsReadContext pCtx, out bool performClimb, out bool performClimbAttach)
 	{
-		auto trace = CF_Trace_0(EXTrace.PLAYER, null);
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.PLAYER, DayZPlayerSyncJunctures);
+	#endif
 
 		pCtx.Read(performClimb);
 		pCtx.Read(performClimbAttach);
@@ -103,7 +119,9 @@ modded class DayZPlayerSyncJunctures
 
 	static void ExpansionSendForceUnlink(DayZPlayer pPlayer)
 	{
-		auto trace = CF_Trace_0(EXTrace.PLAYER, null);
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.PLAYER, DayZPlayerSyncJunctures);
+	#endif
 
 		ScriptJunctureData ctx = new ScriptJunctureData;
 		ctx.Write(EXPANSION_SJ_FORCE_UNLINK);
@@ -113,7 +131,9 @@ modded class DayZPlayerSyncJunctures
 
 	static bool ExpansionReadForceUnlink(ParamsReadContext pCtx)
 	{
-		auto trace = CF_Trace_0(EXTrace.PLAYER, null);
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.PLAYER, DayZPlayerSyncJunctures);
+	#endif
 
 		return true;
 	}

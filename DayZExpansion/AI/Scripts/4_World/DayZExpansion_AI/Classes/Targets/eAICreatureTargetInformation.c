@@ -52,8 +52,8 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 
 		if (!m_Creature.Expansion_IsDanger())
 		{
-			if (GetVelocity(m_Creature).LengthSq() > 0.277777)
-				return 0.101;  //! Just above "look at"/remove threshold of 0.1
+			if (ai && GetVelocity(m_Creature).LengthSq() > 0.277777)  //! 1 km/h
+				return ExpansionMath.LinearConversion(0.0, 90.0, GetDistance(ai, true), 0.15, 0.0);  //! 0.1 at 30 m
 
 			return 0.0;
 		}

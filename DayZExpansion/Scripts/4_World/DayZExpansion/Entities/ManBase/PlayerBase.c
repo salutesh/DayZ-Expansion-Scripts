@@ -26,10 +26,12 @@ modded class PlayerBase
 		m_HasCalledKillFeed = false;
 	}
 
-	void ~PlayerBase()
+	override void EEDelete(EntityAI parent)
 	{
-		//! Making sure we remove tha call for CreateGraveCross when ever the player base entity gets destroyed
-		if (GetGame() && Expansion_IsGravecrossEnabled())
+		super.EEDelete(parent);
+
+		//! Making sure we remove tha call for CreateGraveCross when ever the player base entity gets deleted
+		if (Expansion_IsGravecrossEnabled())
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CreateGraveCross);
 		}

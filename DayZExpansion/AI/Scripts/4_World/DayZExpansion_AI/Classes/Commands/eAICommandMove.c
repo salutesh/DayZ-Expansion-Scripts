@@ -1437,8 +1437,19 @@ class eAICommandMove: ExpansionHumanCommand
 		}
 		else
 		{
-			m_MovementDirection += ExpansionMath.AngleDiff2(m_MovementDirection, m_TargetMovementDirection) * dirChangeSpeed;
-			m_MovementDirection = Math.Clamp(m_MovementDirection, -180.0, 180.0);
+			if (Math.AbsFloat(m_MovementDirection) == 180 && m_TargetMovementDirection == 0)
+			{
+				m_MovementDirection = 0;
+			}
+			else if (m_MovementDirection == 0 && Math.AbsFloat(m_TargetMovementDirection) == 180)
+			{
+				m_MovementDirection = m_TargetMovementDirection;
+			}
+			else
+			{
+				m_MovementDirection += ExpansionMath.AngleDiff2(m_MovementDirection, m_TargetMovementDirection) * dirChangeSpeed;
+				m_MovementDirection = Math.Clamp(m_MovementDirection, -180.0, 180.0);
+			}
 		}
 
 	#ifdef DIAG_DEVELOPER
@@ -1583,7 +1594,7 @@ class eAICommandMove: ExpansionHumanCommand
 		//m_TurnPrevious = m_Turn;
 
 		bool tacticalLean;
-		if (Math.AbsFloat(m_Unit.m_eAI_LeanTarget) > 0)
+		if (Math.AbsFloat(m_Unit.m_eAI_LeanTarget) > 0 && !m_Unit.IsFighting())
 			tacticalLean = true;
 
 		if ((tacticalLean || Math.AbsFloat(m_Unit.m_eAI_Lean) > 0.0 || m_Unit.m_eAI_MemeLevel) && !m_Unit.IsClimbing() && !m_Unit.IsFalling() && !m_Unit.IsSwimming())

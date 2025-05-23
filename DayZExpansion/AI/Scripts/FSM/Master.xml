@@ -510,7 +510,7 @@
 						}
 					}
 					
-					if (targetItem &amp;&amp; ((targetItem.IsWeapon() &amp;&amp; (!preferExplosiveAmmo || targetItem.ShootsExplosiveAmmo())) || (!preferExplosiveAmmo &amp;&amp; targetItem.Expansion_IsMeleeWeapon() &amp;&amp; !hasMeleeInHands)) &amp;&amp; !targetItem.Expansion_GetRootPlayerAliveExcluding(null) &amp;&amp; !targetItem.IsSetForDeletion())
+					if (targetItem &amp;&amp; ((targetItem.IsWeapon() &amp;&amp; (!preferExplosiveAmmo || targetItem.ShootsExplosiveAmmo())) || (!preferExplosiveAmmo &amp;&amp; targetItem.Expansion_IsMeleeWeapon() &amp;&amp; (!hasMeleeInHands || hands.Expansion_CompareDPS(targetItem) &lt; 0))) &amp;&amp; !targetItem.Expansion_GetRootPlayerAliveExcluding(null) &amp;&amp; !targetItem.IsSetForDeletion())
 					{
 						if (target.GetDistanceSq(unit, true) &lt;= 4.0 &amp;&amp; target.GetThreat(unit) &gt; 0.1 &amp;&amp; !unit.eAI_IsItemObstructed(targetItem))
 						{

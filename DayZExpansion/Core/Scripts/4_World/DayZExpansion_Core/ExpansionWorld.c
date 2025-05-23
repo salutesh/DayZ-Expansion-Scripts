@@ -47,6 +47,32 @@ class ExpansionWorld: ExpansionGame
 #endif
 	}
 
+	override string GetPlayerID(Man player)
+	{
+		PlayerIdentity identity = player.GetIdentity();
+		if (identity)
+			return identity.GetId();
+
+		PlayerBase pb;
+		if (Class.CastTo(pb, player))
+			return pb.GetCachedID();
+
+		return string.Empty;
+	}
+
+	override string GetPlayerName(Man player)
+	{
+		PlayerIdentity identity = player.GetIdentity();
+		if (identity)
+			return identity.GetName();
+
+		PlayerBase pb;
+		if (Class.CastTo(pb, player))
+			return pb.GetCachedName();
+
+		return string.Empty;
+	}
+
 	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType) 
 	{
 #ifdef DIAG_DEVELOPER

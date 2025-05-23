@@ -13,9 +13,37 @@
 modded class DayZGame
 {
 	//! Workaround for respawn timer closing prematurely (see accompanying changes to OnPlayerLoaded in 4_World/DayZExpansion_VanillaFixes/PlayerBase.c)
-	LoginTimeBase GetLoginTimeScreen()
+	LoginTimeBase Expansion_GetLoginTimeScreen()
 	{
 		return m_LoginTimeScreen;
+	}
+
+	void Expansion_RestoreRespawnTimeScreen()
+	{
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		if ((!m_LoginTimeScreen || m_LoginTimeScreen.IsClosing()) && m_LoginTime > 0)
+	#else
+		if (!m_LoginTimeScreen && m_LoginTime > 0)
+	#endif
+		{
+			if (m_LoginTimeScreen)
+			{
+				UIMenuPanel parentUIMenuPanel = m_LoginTimeScreen.GetParentMenu();
+				EXError.Info(this, "Respawn time screen is closing, entering new using parent " + parentUIMenuPanel);
+				EnterLoginTime(parentUIMenuPanel);
+			}
+			else
+			{
+				UIScriptedMenu parentUIScriptedMenu = GetUIManager().GetMenu();
+				EXError.Info(this, "Respawn time screen is null, entering new using parent " + parentUIScriptedMenu);
+				EnterLoginTime(parentUIScriptedMenu);
+			}
+		
+			m_LoginTimeScreen.SetRespawn(true);
+			m_LoginTimeScreen.SetTime(m_LoginTime);
+			m_LoginTimeScreen.Show();
+		}
 	}
 
 	#ifndef SERVER

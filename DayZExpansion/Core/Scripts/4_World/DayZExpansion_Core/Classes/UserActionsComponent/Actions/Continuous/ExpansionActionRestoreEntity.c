@@ -75,8 +75,8 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 
 				if (GetExpansionSettings().GetLog().EntityStorage)
 				{
-					auto type = new ExpansionPrimitiveT<string>(placeholder.Expansion_GetStoredEntityType());
-					auto id = new ExpansionPrimitiveT<string>(placeholder.m_Expansion_StoredEntityGlobalID.IDToHex());
+					auto type = new EXString(placeholder.Expansion_GetStoredEntityType());
+					auto id = new EXString(placeholder.m_Expansion_StoredEntityGlobalID.IDToHex());
 					GetExpansionSettings().GetLog().PrintLog("[EntityStorage] ERROR: Player \"{1:name}\" (id={1:id} pos={1:position}) tried to restore entity \"{2}\" (GlobalID={3} pos={4:position}) but it failed! (missing data?)", player, type, id, placeholder);
 				}
 			}
@@ -154,13 +154,13 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 			ExpansionNotification("Entity Storage", "Could not restore " + placeholder.Expansion_GetStoredEntityDisplayName()).Error(action_data.m_Player.GetIdentity());
 
 			if (log && GetExpansionSettings().GetLog().EntityStorage)
-				GetExpansionSettings().GetLog().PrintLog("[EntityStorage] ERROR: Player \"{1:name}\" (id={1:id} pos={1:position}) tried to restore entity \"{2}\" (GlobalID={3} pos={4:position}) but it failed!", action_data.m_Player, new ExpansionPrimitiveT<string>(type), new ExpansionPrimitiveT<string>(id), placeholder);
+				GetExpansionSettings().GetLog().PrintLog("[EntityStorage] ERROR: Player \"{1:name}\" (id={1:id} pos={1:position}) tried to restore entity \"{2}\" (GlobalID={3} pos={4:position}) but it failed!", action_data.m_Player, new EXString(type), new EXString(id), placeholder);
 
 			return false;
 		}
 		
 		if (log && GetExpansionSettings().GetLog().EntityStorage)
-			GetExpansionSettings().GetLog().PrintLog("[EntityStorage] Player \"{1:name}\" (id={1:id} pos={1:position}) restored entity \"{2:type}\" (GlobalID={3} pos={2:position})", action_data.m_Player, entity, new ExpansionPrimitiveT<string>(id));
+			GetExpansionSettings().GetLog().PrintLog("[EntityStorage] Player \"{1:name}\" (id={1:id} pos={1:position}) restored entity \"{2:type}\" (GlobalID={3} pos={2:position})", action_data.m_Player, entity, new EXString(id));
 
 		return true;
 	}

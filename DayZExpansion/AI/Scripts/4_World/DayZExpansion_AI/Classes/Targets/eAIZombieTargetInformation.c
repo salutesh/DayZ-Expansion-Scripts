@@ -73,8 +73,8 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 
 		if (!m_Zombie.Expansion_IsDanger())
 		{
-			if (GetVelocity(m_Zombie).LengthSq() > 0.277777)
-				return 0.101;  //! Just above "look at"/remove threshold of 0.1
+			if (ai && GetVelocity(m_Zombie).LengthSq() > 0.1388)  //! 0.5 km/h
+				return ExpansionMath.LinearConversion(0.0, 15.0, GetDistance(ai, true), 0.15, 0.0);  //! 0.1 at 5 m
 
 			return 0.0;
 		}

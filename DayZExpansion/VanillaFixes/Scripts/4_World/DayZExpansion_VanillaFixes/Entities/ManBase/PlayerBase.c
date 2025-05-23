@@ -22,36 +22,24 @@ modded class PlayerBase
 		//! which has the effect that if a server is using respawnTime > 0 and OnRespawnEvent is received before OnPlayerLoaded is called,
 		//! then the respawn timer screen may be closed before the countdown finishes due to the call to GetGame().GetUIManager().CloseAll() in OnPlayerLoaded.
 
-		Hud hud;
-		LoginTimeBase loginTimeScreen = GetDayZGame().GetLoginTimeScreen();
+		bool hasRespawnTimeScreen;
+
+		LoginTimeBase loginTimeScreen = GetDayZGame().Expansion_GetLoginTimeScreen();
+	#ifndef DAYZ_1_27
+		//! 1.28+
+		if (loginTimeScreen && loginTimeScreen.IsRespawn() && loginTimeScreen.IsVisible() && !loginTimeScreen.IsClosing())
+	#else
 		if (loginTimeScreen && loginTimeScreen.IsRespawn() && loginTimeScreen.IsVisible())
+	#endif
 		{
-			hud = m_Hud;
-			m_Hud = null;
+			hasRespawnTimeScreen = true;
 		}
 
 		super.OnPlayerLoaded();
 
-		if (hud)
+		if (IsControlledPlayer() && m_Hud && hasRespawnTimeScreen)
 		{
-			m_Hud = hud;
-
-			//! The following is almost equivalent to the relevant part in vanilla OnPlayerLoaded,
-			//! EXCEPT we DON'T call GetGame().GetUIManager().CloseAll()
-			if (IsControlledPlayer())
-			{
-				m_Hud.UpdateBloodName();
-				PPERequesterBank.GetRequester(PPERequester_DeathDarkening).Stop();
-				PPERequesterBank.GetRequester(PPERequester_ShockHitReaction).Stop();
-				PPERequesterBank.GetRequester(PPERequester_UnconEffects).Stop();
-				//GetGame().GetUIManager().CloseAll();
-				GetGame().GetMission().SetPlayerRespawning(false);
-				GetGame().GetMission().OnPlayerRespawned(this);
-				
-				m_Hud.ShowHudUI( true );
-				m_Hud.ShowQuickbarUI(true);
-				m_Hud.UpdateQuickbarGlobalVisibility();
-			}
+			GetDayZGame().Expansion_RestoreRespawnTimeScreen();
 		}
 	}
 };

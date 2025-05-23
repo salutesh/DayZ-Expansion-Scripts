@@ -115,6 +115,24 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		}
 	}
 
+	bool eAI_IsAimingAhead(out vector pos = vector.Zero, out vector dir = vector.Zero)
+	{
+		//vector playerDir = m_AI.GetDirection();
+		MiscGameplayFunctions.GetHeadBonePos(m_AI, pos);
+		dir = vector.Direction(pos, m_AI.GetAimPosition()).Normalized();
+		
+		//! Prevents targeting of objects behind player
+		float angle = m_AI.GetOrientation()[0];
+		float aimAngle = dir.VectorToAngles()[0];
+		//if (vector.Dot(dir, playerDir) < 0.5)
+		if (Math.AbsFloat(ExpansionMath.AngleDiff2(angle, aimAngle)) > 60.0)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	override protected bool HitZoneSelectionRaycast(out vector hitPos, out int hitZone, out Object target, bool useCamera)
 	{
 #ifdef EXTRACE_DIAG
@@ -122,15 +140,9 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 #endif 
 		
 		vector pos;
-		//vector playerDir = m_AI.GetDirection();
-		MiscGameplayFunctions.GetHeadBonePos(m_AI, pos);
-		vector dir = vector.Direction(pos, m_AI.GetAimPosition()).Normalized();
+		vector dir;
 		
-		//! Prevents targeting of objects behind player
-		float angle = m_AI.GetOrientation()[0];
-		float aimAngle = dir.VectorToAngles()[0];
-		//if (vector.Dot(dir, playerDir) < 0.5)
-		if (Math.AbsFloat(ExpansionMath.AngleDiff2(angle, aimAngle)) > 60.0)
+		if (!eAI_IsAimingAhead(pos, dir))
 		{
 			return false;
 		}
@@ -146,7 +158,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		{
 			foreach (Object hitObject: hitObjects)
 			{
-				if (hitObject.IsBush())
+				if (hitObject.IsBush() || hitObject.IsTree())
 					continue;
 
 				target = hitObject;
@@ -187,6 +199,16 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 	override void Update(InventoryItem weapon, EMeleeHitType hitMask, bool wasHitEvent = false)
 	{
+		if (wasHitEvent)
+		{
+			//! Combo hit - keep weapon and reset state not related to target
+			m_HitType = hitMask;
+			m_SprintAttack = hitMask == EMeleeHitType.SPRINT;
+			m_WeaponMode = SelectWeaponMode(weapon);
+			m_WasHit = true;
+			return;
+		}
+
 		Reset(weapon, hitMask, wasHitEvent);
 
 		TargetSelection();
