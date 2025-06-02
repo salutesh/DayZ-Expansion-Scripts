@@ -1,10 +1,16 @@
 modded class ZombieBase
 {
 	private ref eAIZombieTargetInformation m_TargetInformation = new eAIZombieTargetInformation(this);
-	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
+	ref eAIDamageHandler m_eAI_DamageHandler;
 	bool m_Expansion_Airborne;
 	float m_Expansion_AirbornePeakAltitude;
 	float m_eAI_AttackCooldown;  //! vanilla m_AttackCoolDownTime unfortunately only ticks down in FightAttackLogic, not ChaseAttackLogic, and is sped up
+
+	void ZombieBase()
+	{
+		if (GetGame().IsServer())
+			m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
+	}
 
 	eAIZombieTargetInformation GetTargetInformation()
 	{

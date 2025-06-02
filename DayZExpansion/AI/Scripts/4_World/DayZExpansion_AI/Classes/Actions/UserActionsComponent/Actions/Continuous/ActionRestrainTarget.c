@@ -32,11 +32,10 @@ modded class ActionRestrainTarget
 			float threat = 1.0;
 
 			auto info = action_data.m_Player.GetTargetInformation();
-			auto target = info.AddAI(ai);
+			auto target = info.AddAI(ai, -1, false);
 
-			auto state = ai.eAI_GetTargetInformationState(info, false);
-			if (threat > state.m_ThreatLevelActive)
-				state.SetInitial(threat, action_data.m_Player.GetPosition());
+			if (threat > target.m_ThreatLevelActive)
+				target.SetInitial(threat, action_data.m_Player.GetPosition());
 		}
 
 		super.OnStartServer(action_data);

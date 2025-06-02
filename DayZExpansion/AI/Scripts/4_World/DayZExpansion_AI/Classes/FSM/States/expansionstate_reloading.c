@@ -48,9 +48,9 @@ class ExpansionState_Reloading: eAIState
 				if (!unit.m_eAI_IsInCover)
 					unit.OverrideTargetPosition(target, true);
 				
-				if (!unit.eAI_IsSideStepping() && unit.eAI_HasLOS(target))
+				if (!unit.eAI_IsSideStepping() && target.m_LOS)
 				{
-					float distSq = target.GetDistanceSq(unit, true);
+					float distSq = target.GetDistanceSq(true);
 					if (distSq <= 9.0)
 					{
 						float movementDirection;

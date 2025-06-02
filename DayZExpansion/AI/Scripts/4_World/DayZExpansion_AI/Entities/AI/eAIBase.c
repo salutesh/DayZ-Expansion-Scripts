@@ -23,6 +23,7 @@ enum eAIStance
 typedef map<BuildingBase, ref map<int, ref ExpansionLadder>> eAILadders;
 typedef map<EntityAI, bool> eAIThreatOverride;
 typedef map<string, float> eAIRecentlyDroppedItems;
+typedef map<eAITargetInformation, ref eAITarget> eAITargetInformationStates;
 
 class eAIBase: PlayerBase
 {
@@ -79,7 +80,7 @@ class eAIBase: PlayerBase
 #ifdef DIAG_DEVELOPER
 	bool m_eAI_PrintCurrentTarget;
 #endif
-	private autoptr map<eAITargetInformation, ref eAITargetInformationState> m_eAI_TargetInformationStates;
+	ref eAITargetInformationStates m_eAI_TargetInformationStates = new eAITargetInformationStates;
 	float m_ThreatClearedTimeout;
 	float m_eAI_CurrentThreatToSelf;
 	float m_eAI_PreviousThreatToSelf;
@@ -410,7 +411,6 @@ class eAIBase: PlayerBase
 		super.Init();
 
 		m_eAI_Targets = {};
-		m_eAI_TargetInformationStates = new map<eAITargetInformation, ref eAITargetInformationState>();
 
 		m_eAI_ProtectionLevels = new map<int, float>;
 
@@ -809,7 +809,7 @@ class eAIBase: PlayerBase
 		}
 
 		//! Are we targeting them and aggro?
-		if (eAI_GetTargetThreat(player.GetTargetInformation()) > 0.2)
+		if (eAI_GetCachedThreat(player.GetTargetInformation()) > 0.2)
 			targeted = true;
 
 		if (player.GetGroup())
@@ -831,7 +831,7 @@ class eAIBase: PlayerBase
 			eAIBase ai;
 			float ourThreatToThem;
 			if (Class.CastTo(ai, player))
-				ourThreatToThem = ai.eAI_GetTargetThreat(GetTargetInformation());
+				ourThreatToThem = ai.eAI_GetCachedThreat(GetTargetInformation());
 			if (!targeted && !player.GetGroup().GetFaction().IsObserver() && ourThreatToThem > 0.2)
 				targeted = true;
 
@@ -953,7 +953,7 @@ class eAIBase: PlayerBase
 		{
 			//! Determine firing mode
 
-			float distSq = GetTarget().GetDistanceSq(this, true);
+			float distSq = GetTarget().GetDistanceSq(true);
 
 			bool burst;
 			bool fullAuto;
@@ -1100,7 +1100,7 @@ class eAIBase: PlayerBase
 	#endif
 
 		array<ref eAITargetInformation> targets = {};
-		foreach (eAITargetInformation info, eAITargetInformationState state: m_eAI_TargetInformationStates)
+		foreach (eAITargetInformation info, eAITarget state: m_eAI_TargetInformationStates)
 		{
 			if (info)
 				targets.Insert(info);
@@ -1138,9 +1138,16 @@ class eAIBase: PlayerBase
 
 	void eAI_DebugTargetInformationStates()
 	{
-		foreach (eAITargetInformation info, eAITargetInformationState state: m_eAI_TargetInformationStates)
+		int i;
+
+		foreach (eAITargetInformation info, eAITarget state: m_eAI_TargetInformationStates)
 		{
-			EXPrint(this, "Debug: Not removed during target cleanup " + info.GetDebugName() + " " + state);
+			if (info)
+				EXPrint(this, "Debug: Not removed during target cleanup " + info.GetDebugName() + " " + state);
+			else
+				EXPrint(this, "Debug: NULL key in target information at index " + i + " " + state);
+
+			++i;
 		}
 	}
 
@@ -1533,18 +1540,18 @@ class eAIBase: PlayerBase
 		return m_eAI_Targets[index];
 	}
 
-	void OnAddTarget(eAITarget target)
+	void eAI_AddTarget(eAITarget target)
 	{
 		m_eAI_Targets.Insert(target);
 		if (m_eAI_Targets.Count() == 1)
 			m_eAI_SyncCurrentTarget = true;
 #ifdef DIAG_DEVELOPER
 		m_eAI_PrintCurrentTarget = true;
-		EXTrace.Print(EXTrace.AI, this, "OnAddTarget " + target.GetDebugName() + " - found at time " + target.found_at_time + " - max time " + target.max_time + " - target count " + m_eAI_Targets.Count());
+		EXTrace.Print(EXTrace.AI, this, "eAI_AddTarget " + target.GetDebugName() + " - found at time " + target.m_FoundAtTime + " - max time " + target.m_MaxTime + " - target count " + m_eAI_Targets.Count());
 #endif
 	}
 
-	void OnRemoveTarget(eAITarget target)
+	void eAI_RemoveTarget(eAITarget target)
 	{
 		int removeIndex = m_eAI_Targets.Find(target);
 		if (removeIndex >= 0)
@@ -1555,7 +1562,7 @@ class eAIBase: PlayerBase
 			if (removeIndex < m_eAI_NoiseTarget)
 				m_eAI_NoiseTarget--;
 		}
-		eAI_RemoveTargetInfoState(target.info);
+		eAI_RemoveTargetInfoState(target.m_Info);
 		if (target.IsNoise())
 		{
 			if (m_eAI_CurrentThreatToSelfActive < 0.4 && !Math.RandomInt(0, 3))
@@ -1564,7 +1571,7 @@ class eAIBase: PlayerBase
 		}
 #ifdef DIAG_DEVELOPER
 		m_eAI_PrintCurrentTarget = true;
-		EXTrace.Print(EXTrace.AI, this, "OnRemoveTarget " + target.GetDebugName() + " - time remaining " + (target.found_at_time + target.max_time - GetGame().GetTime()) + " - target count " + m_eAI_Targets.Count());
+		EXTrace.Print(EXTrace.AI, this, "eAI_RemoveTarget " + target.GetDebugName() + " - time remaining " + (target.m_FoundAtTime + target.m_MaxTime - GetGame().GetTime()) + " - target count " + m_eAI_Targets.Count());
 #endif
 	}
 
@@ -1583,7 +1590,7 @@ class eAIBase: PlayerBase
 
 	void eAI_UpdateAcuteDangerTargetCount(eAITarget target, int delta)
 	{
-		switch (target.info.Type())
+		switch (target.m_Info.Type())
 		{
 			case eAICreatureTargetInformation:
 			case eAIZombieTargetInformation:
@@ -1622,9 +1629,9 @@ class eAIBase: PlayerBase
 	}
 
 	//! @note all targets except item targets (no state)
-	float eAI_GetTargetThreat(eAITargetInformation info, bool ignoreLOS = false)
+	float eAI_GetCachedThreat(eAITargetInformation info, bool ignoreLOS = false)
 	{
-		eAITargetInformationState state;
+		eAITarget state;
 		if (m_eAI_TargetInformationStates.Find(info, state))
 		{
 			if (ignoreLOS)
@@ -1645,8 +1652,8 @@ class eAIBase: PlayerBase
 		{
 			auto target = GetTarget();
 
-			eAITargetInformationState state;
-			m_eAI_CurrentThreatToSelf = target.GetThreat(this, state);
+			eAITargetInformationState state = target;
+			m_eAI_CurrentThreatToSelf = target.GetThreat();
 
 			if (!state)
 			{
@@ -1676,32 +1683,28 @@ class eAIBase: PlayerBase
 	 * 
 	 * @param[out] created Will be set to true if new state was created.
 	 * 
-	 * @return eAITargetInformationState
+	 * @return eAITarget
 	 */
-	eAITargetInformationState eAI_GetTargetInformationState(eAITargetInformation info, bool initialUpdate = true, out bool created = false)
+	eAITarget eAI_GetTargetInformationState(eAITargetInformation info, bool initialUpdate = true, out bool created = false)
 	{
-		eAITargetInformationState state;
+		eAITarget state;
 		if (!m_eAI_TargetInformationStates.Find(info, state))
 		{
 #ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.AI, this, "Adding new target info state for " + info.GetDebugName());
 #endif
-			state = new eAITargetInformationState(this, info, initialUpdate);
-			m_eAI_TargetInformationStates[info] = state;
-			created = true;
+			return info.GetTargetForAIEx(this, initialUpdate, created);
 		}
 
 		return state;
 	}
 
-	bool eAI_SkipMelee(string msg, eAITargetInformation info, bool skip = false)
+	bool eAI_SkipMelee(string msg, eAITarget state, bool skip = false)
 	{
-		auto state = eAI_GetTargetInformationState(info);
-
 		if ((skip && !state.m_SkipMelee) || (!skip && state.m_SkipMelee))
 		{
 		#ifdef DIAG_DEVELOPER
-			msg = string.Format("[MELEE] %1 (pos=%2) %3 (tgt=%4)", this, ExpansionStatic.VectorToString(GetPosition()), msg, info.GetEntity());
+			msg = string.Format("[MELEE] %1 (pos=%2) %3 (tgt=%4)", this, ExpansionStatic.VectorToString(GetPosition()), msg, state.GetEntity());
 			EXPrint(msg);
 			ExpansionStatic.MessageNearPlayers(GetPosition(), 100, msg);
 		#endif
@@ -1873,21 +1876,12 @@ class eAIBase: PlayerBase
 		array<ref eAITarget> targets = {};
 		ExpansionArray<eAITarget>.RefCopy(m_eAI_Targets, targets);
 
-		foreach (eAITargetInformation info, eAITargetInformationState state: m_eAI_TargetInformationStates)
+		foreach (eAITargetInformation info, eAITarget state: m_eAI_TargetInformationStates)
 		{
-			bool tracked = false;
-
-			foreach (eAITarget trackedTarget: targets)
-			{
-				if (trackedTarget.info == info)
-				{
-					tracked = true;
-					break;
-				}
-			}
+			bool tracked = state.m_IsTracked;
 
 			if (!tracked)
-				targets.Insert(new eAITarget(GetGroup(), -1, -1, info));
+				targets.Insert(state);
 		}
 
 		foreach (int i, eAITarget target: targets)
@@ -1898,7 +1892,7 @@ class eAIBase: PlayerBase
 			DayZPlayerImplement player = null;
 			ItemBase item = null;
 
-			string targetInfo = target.info.ClassName().Substring(3, target.info.ClassName().Length() - 20);
+			string targetInfo = target.m_Info.ClassName().Substring(3, target.m_Info.ClassName().Length() - 20);
 			if (target.GetEntity())
 			{
 				if (Class.CastTo(player, target.GetEntity()) && player.GetIdentity())
@@ -1906,7 +1900,7 @@ class eAIBase: PlayerBase
 				else
 					targetInfo += " " + Debug.GetDebugName(target.GetEntity());
 
-				if (target.found_at_time < 0)
+				if (!target.m_IsTracked)
 					targetInfo += " (untracked)";
 
 				Class.CastTo(item, target.GetEntity());
@@ -1943,8 +1937,8 @@ class eAIBase: PlayerBase
 				report.Insert(indent + string.Format("|  |- Is ignored item %1", isIgnoredItem.ToString()));
 			}
 
-			eAITargetInformationState targetInfoState = null;
-			report.Insert(indent + string.Format("|  |- Absolute threat to AI %1", target.GetThreat(this, targetInfoState)));
+			eAITargetInformationState targetInfoState = target;
+			report.Insert(indent + string.Format("|  |- Absolute threat to AI %1", target.GetThreat()));
 
 			if (targetInfoState)
 			{
@@ -1967,21 +1961,21 @@ class eAIBase: PlayerBase
 				}
 			#endif
 
-				report.Insert(indent + string.Format("|  |- Actual position %1", ExpansionStatic.VectorToString(target.GetPosition(this, true), ExpansionVectorToString.Plain)));
-				report.Insert(indent + string.Format("|  |- Actual distance to AI %1 m", target.GetDistance(this, true)));
+				report.Insert(indent + string.Format("|  |- Actual position %1", ExpansionStatic.VectorToString(target.GetPosition(true), ExpansionVectorToString.Plain)));
+				report.Insert(indent + string.Format("|  |- Actual distance to AI %1 m", target.GetDistance(true)));
 
 				if (targetInfoState)
 				{
-					report.Insert(indent + string.Format("|  |- Search position %1", ExpansionStatic.VectorToString(target.GetPosition(this), ExpansionVectorToString.Plain)));
-					report.Insert(indent + string.Format("|  |- Search distance to AI %1 m", target.GetDistance(this)));
+					report.Insert(indent + string.Format("|  |- Search position %1", ExpansionStatic.VectorToString(target.GetPosition(), ExpansionVectorToString.Plain)));
+					report.Insert(indent + string.Format("|  |- Search distance to AI %1 m", target.GetDistance()));
 				}
 			}
 
-			if (target.found_at_time > -1)
+			if (target.m_IsTracked)
 			{
-				string foundAtTime = ExpansionStatic.FormatTime(GetDayZGame().ExpansionGetStartTimestamp(true) + target.found_at_time * 0.001, true, true, true);
+				string foundAtTime = ExpansionStatic.FormatTime(GetDayZGame().ExpansionGetStartTimestamp(true) + target.m_FoundAtTime * 0.001, true, true, true);
 				report.Insert(indent + string.Format("|  |- Found at time %1 UTC", foundAtTime));
-				report.Insert(indent + string.Format("|  \\- Max time %1s", target.max_time * 0.001));
+				report.Insert(indent + string.Format("|  \\- Max time %1s", target.m_MaxTime * 0.001));
 			}
 			else
 			{
@@ -2603,7 +2597,7 @@ class eAIBase: PlayerBase
 
 		i = 0;
 
-		foreach (eAITargetInformation info, eAITargetInformationState state: m_eAI_TargetInformationStates)
+		foreach (eAITargetInformation info, eAITarget state: m_eAI_TargetInformationStates)
 		{
 			if (!info)
 			{
@@ -2613,7 +2607,7 @@ class eAIBase: PlayerBase
 				break;
 			}
 			//! Purge if out of range
-			else if (info.IsItem() && !Math.IsPointInCircle(center, 500.0, info.GetPosition(this)))
+			else if (info.IsItem() && !Math.IsPointInCircle(center, 500.0, info.GetPosition()))
 			////! Purge if last threat level update was longer than 120 s ago
 			//else if (info.IsItem() && timestamp - state.m_ThreatLevelUpdateTimestamp > 120.0)
 			{
@@ -2662,15 +2656,15 @@ class eAIBase: PlayerBase
 			return false;
 		}
 
-		int num_ai_in_group_targetting = 0;
-		if (m_eAI_Targets.Count() > 0 && m_eAI_CurrentThreatToSelf >= 0.4 && info.IsTargetted(group, num_ai_in_group_targetting))
+		int num_ai_in_group_tracking = 0;
+		if (m_eAI_Targets.Count() > 0 && m_eAI_CurrentThreatToSelf >= 0.4 && info.IsTrackedBy(group, num_ai_in_group_tracking))
 		{
 			int group_count = group.Count();
-			float num_ai_in_group_not_targeting = group_count - num_ai_in_group_targetting;
-			if (!num_ai_in_group_not_targeting)
+			int num_ai_in_group_not_tracking = group_count - num_ai_in_group_tracking;
+			if (!num_ai_in_group_not_tracking)
 				return false;
 			float threatLevel = info.GetThreat(this);
-			float frac = num_ai_in_group_not_targeting / group_count;
+			float frac = num_ai_in_group_not_tracking / group_count;
 			if ((frac * threatLevel) < (1.0 / group_count))
 				return false;
 		}
@@ -3009,7 +3003,7 @@ class eAIBase: PlayerBase
 		if (GetGroup() == group)
 			return;
 
-		//! Since targets are per-group, need to clear if group changed.
+		//! Since target information is tracked per-group, need to clear if group changed.
 		//! m_eAI_Targets can be NULL at this point because it's set in Init which is called from vanilla PlayerBase ctor,
 		//! but group is assigned in DayZPlayerImplement ctor
 		if (m_eAI_Targets)
@@ -3017,7 +3011,7 @@ class eAIBase: PlayerBase
 			for (int i = m_eAI_Targets.Count() - 1; i >= 0; i--)
 			{
 				eAITarget target = m_eAI_Targets[i];
-				target.RemoveAI(this);
+				target.Remove();
 			}
 		}
 
@@ -3039,12 +3033,12 @@ class eAIBase: PlayerBase
 		for (int i = count - 1; i >= 0; i--)
 		{
 			eAITarget target = m_eAI_Targets[i];
-			if (target.ShouldRemove(this))
+			if (target.ShouldRemove())
 			{
 #ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.AI, this, "eAI_RemoveTargets - removing target " + target.GetDebugName());
 #endif
-				target.RemoveAI(this);
+				target.Remove();
 			}
 		}
 
@@ -3076,7 +3070,7 @@ class eAIBase: PlayerBase
 
 		foreach (int i, eAITarget target: m_eAI_Targets)
 		{
-			threat = target.GetThreat(this);
+			threat = target.GetThreat();
 			if (threat > max_threat)
 			{
 				max_threat_idx = i;
@@ -3162,7 +3156,7 @@ class eAIBase: PlayerBase
 	{
 		eAITarget target = GetTarget();
 		if (target)
-			target.RemoveAI(this);
+			target.Remove();
 		if (m_eAI_CurrentTarget_NetIDLow == 0 && m_eAI_CurrentTarget_NetIDHigh == 0)
 			return;
 		Object entity = GetGame().GetObjectByNetworkId(m_eAI_CurrentTarget_NetIDLow, m_eAI_CurrentTarget_NetIDHigh);
@@ -3271,14 +3265,16 @@ class eAIBase: PlayerBase
 
 			m_eAI_NoiseTargetInfo.SetNoiseParams(source, position, strength, lifetime, threatLevel);
 
-			auto state = eAI_GetTargetInformationState(m_eAI_NoiseTargetInfo);
-			state.UpdatePosition(true);
-
 			int max_time = lifetime * 1000;
-			if (!m_eAI_NoiseTargetInfo.IsTargettedBy(this))
-				m_eAI_NoiseTargetInfo.AddAI(this, max_time);
-			else
-				m_eAI_NoiseTargetInfo.Update(ourGroup, max_time);
+			bool created;
+
+			eAITarget state = m_eAI_NoiseTargetInfo.AddAI(this, max_time, true, created);
+
+			if (!created)
+			{
+				state.UpdatePosition(true);
+				state.UpdateFoundAtTime();
+			}
 		}
 
 	#ifdef DIAG_DEVELOPER
@@ -4239,10 +4235,10 @@ class eAIBase: PlayerBase
 			return;
 
 		vector pos;
-		vector dir = target.GetDirection(this);
+		vector dir = target.GetDirection();
 
 		float dist = dir.Length();
-		float minDist = target.GetMinDistance(this, dist);
+		float minDist = target.GetMinDistance(dist);
 		bool allowJumpClimb = true;
 		bool keepMinDistToTarget;
 		bool cannotMelee;
@@ -4263,11 +4259,11 @@ class eAIBase: PlayerBase
 		}
 		else
 		{
-			if (!IsRaised() && target.IsEntity() && !target.CanMeleeIfClose(this))
+			if (!IsRaised() && target.IsEntity() && !target.CanMeleeIfClose())
 				cannotMelee = true;
 
 			//! While weapon is raised and we have LOS or action/weapon manager is running (e.g. reload/unjam), reposition/seek cover
-			if ((IsRaised() && eAI_HasLOS(target)) || GetActionManager().GetRunningAction() || GetWeaponManager().IsRunning() || cannotMelee)
+			if ((IsRaised() && target.m_LOS) || GetActionManager().GetRunningAction() || GetWeaponManager().IsRunning() || cannotMelee)
 			{
 				allowJumpClimb = false;
 				//EXTrace.Print(EXTrace.AI, this, "Positioning - flank time reset " + m_eAI_FlankTime);
@@ -4435,7 +4431,7 @@ class eAIBase: PlayerBase
 
 				if (keepMinDistToTarget)
 				{
-					targetPos = target.GetPosition(this, true);
+					targetPos = target.GetPosition(true);
 					minDistSq = minDist * minDist;
 				}
 
@@ -4592,7 +4588,7 @@ class eAIBase: PlayerBase
 		}
 		else
 		{
-			pos = target.GetPosition(this);
+			pos = target.GetPosition();
 		}
 
 		//EXTrace.Print(EXTrace.AI, this, "Positioning - pos " + pos + " dist " + dist + " minDist " + minDist + " cover obj " + m_eAI_CurrentCoverObject);
@@ -4623,7 +4619,7 @@ class eAIBase: PlayerBase
 
 	bool eAI_IsInFlankRange(eAITarget target)
 	{
-		return eAI_IsInFlankRange(target.GetDistance(this));
+		return eAI_IsInFlankRange(target.GetDistance());
 	}
 
 	bool eAI_IsInFlankRange(float dist)
@@ -5456,8 +5452,7 @@ class eAIBase: PlayerBase
 
 		if (target)
 		{
-			DayZPlayerImplement player;
-			if (Class.CastTo(player, target.GetEntity()) && player.Expansion_GetParent() && eAI_GetTargetThreat(target.info, true) > 0.2)
+			if (target.IsPlayer() && target.GetParent() && target.GetCachedThreat(true) > 0.2)
 				return true;
 		}
 
@@ -5580,7 +5575,7 @@ class eAIBase: PlayerBase
 			if (houseWithDoors)
 				aimPosition = prevWaypoint + (neck - GetPosition());
 			else
-				aimPosition = target.GetPosition(this, !isServer) + target.GetAimOffset(this);
+				aimPosition = target.GetPosition(!isServer) + target.GetAimOffset();
 
 			if ((!isServer || (IsRaised() && m_eAI_CurrentThreatToSelfActive > 0.152) || (!IsRaised() && m_eAI_CurrentThreatToSelfActive > 0.15) || houseWithDoors) && lookAim)
 				aimDirectionRecalculate = true;
@@ -5792,7 +5787,7 @@ class eAIBase: PlayerBase
 			m_eAI_Targets[0] = m_eAI_Targets[m_eAI_NoiseTarget];
 			m_eAI_Targets[m_eAI_NoiseTarget] = currentTarget;
 #ifdef DIAG_DEVELOPER
-			float noiseThreatLevelActive = eAI_GetTargetInformationState(m_eAI_Targets[0].info).m_ThreatLevelActive;
+			float noiseThreatLevelActive = m_eAI_Targets[0].m_ThreatLevelActive;
 			EXTrace.Print(EXTrace.AI, this, "eAI_PrioritizeTargets - prioritizing noise target " + m_eAI_NoiseTarget + " " + m_eAI_Targets[0].GetDebugName() + " threat lvl " + m_eAI_CurrentThreatToSelfActive + " -> " + noiseThreatLevelActive);
 #endif
 			m_eAI_NoiseTarget = 0;
@@ -5977,12 +5972,17 @@ class eAIBase: PlayerBase
 
 					if (hccState == ClimbStates.STATE_ONTOP)
 					{
-						float dist2DSq = ExpansionMath.Distance2DSq(playerPosition, m_PathFinding.GetCurrentPoint());
+						float dist2DSq = ExpansionMath.Distance2DSq(playerPosition, m_PathFinding.GetNextPoint());
 					#ifdef DIAG_DEVELOPER
-						EXTrace.Print(EXTrace.AI, this, "pos " + playerPosition + " waypoint " + m_PathFinding.GetCurrentPoint() + " dist2DSq " + dist2DSq);
+						EXTrace.Print(EXTrace.AI, this, "pos " + playerPosition + " next waypoint " + m_PathFinding.GetNextPoint() + " dist2DSq " + dist2DSq);
 					#endif
-						if (dist2DSq < 9.0)
+						if (dist2DSq < 4.0)
+						{
+						#ifdef DIAG_DEVELOPER
+							Expansion_DebugObject(-1000, m_PathFinding.GetNextPoint(), "ExpansionDebugNoticeMe_Blue", GetDirection());
+						#endif
 							m_PathFinding.UpdateNext(true);
+						}
 					}
 				}
 			}
@@ -6548,9 +6548,7 @@ class eAIBase: PlayerBase
 			return false;
 		}
 
-		auto state = m_eAI_TargetInformationStates[target.info];
-		if (!state)
-			return false;
+		eAITargetInformationState state = target;
 
 		PlayerBase targetPlayer;
 		if (Class.CastTo(targetPlayer, targetEntity) && targetPlayer.Expansion_HasAdminToolInvisibility())
@@ -6577,8 +6575,8 @@ class eAIBase: PlayerBase
 			boneName = "Head";
 
 		vector begPos = GetBonePositionWS(GetBoneIndexByName(boneName));
-		vector aimOffset = target.GetAimOffset(this);
-		vector dir = vector.Direction(begPos, target.GetPosition(this, true) + aimOffset);
+		vector aimOffset = target.GetAimOffset();
+		vector dir = vector.Direction(begPos, target.GetPosition(true) + aimOffset);
 		//! Extend LOS ray by some amount because some targets like doors have inaccurate position and ray would not hit otherwise
 		vector endPos = begPos + dir + dir.Normalized() * 0.5;
 
@@ -6745,7 +6743,7 @@ class eAIBase: PlayerBase
 						//! Target is item and item is in player inventory
 						state.m_LOS = true;
 					}
-					else if (eAI_GetTargetThreat(player.GetTargetInformation()) < 0.2)
+					else if (eAI_GetCachedThreat(player.GetTargetInformation()) < 0.2)
 					{
 						sideStep = m_eAI_IsFightingFSM;  //! Sidestep if we are in fighting FSM
 					}
@@ -6804,7 +6802,7 @@ class eAIBase: PlayerBase
 				return state.m_LOS;
 
 			//! First check if we are roughly moving in target direction
-			//! @note vector.Direction(GetPosition(), GetTarget().GetPosition(this)).Normalized() returns zero vector,
+			//! @note vector.Direction(GetPosition(), GetTarget().GetPosition()).Normalized() returns zero vector,
 			//! have to first assign target position to variable. Why is this language so INCREDIBLY fucked? :-(
 			vector targetPos = state.m_SearchPosition;
 			vector targetDirection = vector.Direction(GetPosition(), targetPos).Normalized();
@@ -6827,7 +6825,7 @@ class eAIBase: PlayerBase
 
 		vector p1 = GetPosition();
 		vector p2 = p1 + m_PathFinding.m_PathSegmentDirection;
-		vector p = target.GetPosition(this);
+		vector p = target.GetPosition();
 
 		if (vector.DistanceSq(p1, p) < vector.DistanceSq(p2, p))
 		{
@@ -7025,24 +7023,16 @@ class eAIBase: PlayerBase
 	 * @note WARNING: When not passing in current target, returns cached (last calculated) LOS info which may be stale!
 	 * Use with care!
 	 */
-	bool eAI_HasLOS(eAITarget target)
-	{
-		if (!target)
-			return false;
-
-		return eAI_HasLOS(target.info);
-	}
-
 	bool eAI_HasLOS(eAITargetInformation info)
 	{
 		if (!info.IsEntity())
 			return false;
 
-		auto state = m_eAI_TargetInformationStates[info];
-		if (!state)
-			return false;
+		eAITarget target = info.GetTargetForAI(this);
+		if (target)
+			return target.m_LOS;
 
-		return state.m_LOS;
+		return false;
 	}
 
 	void eAI_SetIsFightingFSM(bool state)

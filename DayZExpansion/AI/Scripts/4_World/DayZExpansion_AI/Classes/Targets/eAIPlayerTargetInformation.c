@@ -9,6 +9,11 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		Class.CastTo(m_Player, target);
 	}
 
+	override IEntity GetParent()
+	{
+		return m_Player.Expansion_GetParent();
+	}
+
 	override bool IsPlayer()
 	{
 		return true;

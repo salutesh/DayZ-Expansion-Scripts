@@ -157,7 +157,7 @@ class ExpansionMapping
 		Mapping.Insert( "Chernogorsk_Grass1NoCollision" );
 		Mapping.Insert( "Chernogorsk_Grass2NoCollision" );
 		Mapping.Insert( "Chernogorsk_HighschoolNoCollision" );
-		Mapping.Insert( "DebugIslandNoCollision" );
+		//Mapping.Insert( "DebugIslandNoCollision" );  //! DayZ will not create objects outside map bounds
 		Mapping.Insert( "ElektrozavodskNoCollision" );
 		Mapping.Insert( "EvacuationNoCollision" );
 		Mapping.Insert( "GorkaNoCollision" );
@@ -167,7 +167,7 @@ class ExpansionMapping
 		Mapping.Insert( "KamyshovoNoCollision" );
 		Mapping.Insert( "Krutoy_CapNoCollision" );
 		Mapping.Insert( "MyshkinoNoCollision" );
-		Mapping.Insert( "NWAFenhanced" );
+		//Mapping.Insert( "NWAFenhanced" );  //! Obsolete since vanilla NWAF changes in 1.23
 		Mapping.Insert( "NadezhdinoNoCollision" );
 		Mapping.Insert( "Radom_StuffNoCollision" );
 		Mapping.Insert( "RoadsNoCollision" );

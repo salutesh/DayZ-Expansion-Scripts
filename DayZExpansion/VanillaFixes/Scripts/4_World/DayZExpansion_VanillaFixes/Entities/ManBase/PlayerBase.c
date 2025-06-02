@@ -10,6 +10,7 @@
  *
 */
 
+#ifndef SERVER
 modded class PlayerBase
 {
 	override void OnPlayerLoaded()
@@ -24,22 +25,26 @@ modded class PlayerBase
 
 		bool hasRespawnTimeScreen;
 
-		LoginTimeBase loginTimeScreen = GetDayZGame().Expansion_GetLoginTimeScreen();
-	#ifndef DAYZ_1_27
-		//! 1.28+
-		if (loginTimeScreen && loginTimeScreen.IsRespawn() && loginTimeScreen.IsVisible() && !loginTimeScreen.IsClosing())
-	#else
-		if (loginTimeScreen && loginTimeScreen.IsRespawn() && loginTimeScreen.IsVisible())
-	#endif
+		if (IsControlledPlayer() && m_Hud)
 		{
-			hasRespawnTimeScreen = true;
+			LoginTimeBase loginTimeScreen = GetDayZGame().Expansion_GetLoginTimeScreen();
+		#ifndef DAYZ_1_27
+			//! 1.28+
+			if (loginTimeScreen && loginTimeScreen.IsRespawn() && loginTimeScreen.IsVisible() && !loginTimeScreen.IsClosing())
+		#else
+			if (loginTimeScreen && loginTimeScreen.IsRespawn() && loginTimeScreen.IsVisible())
+		#endif
+			{
+				hasRespawnTimeScreen = true;
+			}
 		}
 
 		super.OnPlayerLoaded();
 
-		if (IsControlledPlayer() && m_Hud && hasRespawnTimeScreen)
+		if (hasRespawnTimeScreen)
 		{
 			GetDayZGame().Expansion_RestoreRespawnTimeScreen();
 		}
 	}
 };
+#endif

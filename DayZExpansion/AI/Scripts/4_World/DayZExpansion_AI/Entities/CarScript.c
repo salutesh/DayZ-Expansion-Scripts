@@ -1,7 +1,13 @@
 modded class CarScript
 {
 	private ref eAIVehicleTargetInformation m_TargetInformation = new eAIVehicleTargetInformation(this);
-	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
+	ref eAIDamageHandler m_eAI_DamageHandler;
+
+	void CarScript()
+	{
+		if (GetGame().IsServer())
+			m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
+	}
 
 	eAIVehicleTargetInformation GetTargetInformation()
 	{

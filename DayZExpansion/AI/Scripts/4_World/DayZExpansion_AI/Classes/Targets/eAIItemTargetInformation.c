@@ -43,7 +43,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 		return true;
 	}
 
-	override vector GetPosition(eAIBase ai = null, bool actual = false)
+	override vector GetPosition(eAIBase ai = null, bool actual = false, eAITargetInformationState state = null)
 	{
 		return m_Item.GetCenter();
 	}
@@ -69,7 +69,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 
 			eAITarget target = ai.GetTarget();
 			//! @note The dBodyIsactive check is to avoid checking items while they are thrown physically
-			if (target && target.info == this && !dBodyIsActive(m_Item))
+			if (target && target.m_Info == this && !dBodyIsActive(m_Item))
 			{
 				bool isUnreachable;
 				bool isNear;
@@ -87,7 +87,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 					}
 				//}
 				//if (ai.eAI_IsUnreachable(2.0, m_Item.GetCenter()) || (distance <= 4.0 && ai.eAI_IsItemObstructed(m_Item)))
-				if (isUnreachable || (isNear && (distance > 4.0 || ai.eAI_IsItemObstructed(m_Item))) || GetGame().GetTime() - target.found_at_time > target.max_time)
+				if (isUnreachable || (isNear && (distance > 4.0 || ai.eAI_IsItemObstructed(m_Item))) || GetGame().GetTime() - target.m_FoundAtTime > target.m_MaxTime)
 				{
 					//! Item is above or below where AI can reach or item is obstructed
 					ai.eAI_ThreatOverride(m_Item, true);

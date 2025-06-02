@@ -21,7 +21,7 @@ class eAIDoorTargetInformation: eAIEntityTargetInformation
 		return true;
 	}
 
-	override vector GetPosition(eAIBase ai = null, bool actual = false)
+	override vector GetPosition(eAIBase ai = null, bool actual = false, eAITargetInformationState state = null)
 	{
 		return m_Position;
 	}

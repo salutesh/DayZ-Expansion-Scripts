@@ -45,28 +45,33 @@ class eAINoiseTargetInformation: eAITargetInformation
 		return m_ThreatLevel;
 	}
 
-	override vector GetPosition(eAIBase ai = null, bool actual = false)
+	override vector GetPosition(eAIBase ai = null, bool actual = false, eAITargetInformationState state = null)
 	{
 		if (actual || !ai)
 			return m_Position;
 
-		auto state = ai.eAI_GetTargetInformationState(this);
-		state.UpdatePosition();
+		bool created;
+
+		if (!state)
+			state = GetTargetForAIEx(ai, true, created);
+
+		if (!created)
+			state.UpdatePosition();
 
 		return state.m_SearchPosition;
 	}
 
-	override vector GetDirection(eAIBase ai, bool actual = false)
+	override vector GetDirection(eAIBase ai, bool actual = false, eAITargetInformationState state = null)
 	{
 		return vector.Direction(ai.GetPosition(), m_Position);
 	}
 
-	override float GetDistance(eAIBase ai, bool actual = false)
+	override float GetDistance(eAIBase ai, bool actual = false, eAITargetInformationState state = null)
 	{
 		return vector.Distance(ai.GetPosition(), m_Position);
 	}
 
-	override float GetDistanceSq(eAIBase ai, bool actual = false)
+	override float GetDistanceSq(eAIBase ai, bool actual = false, eAITargetInformationState state = null)
 	{
 		return vector.DistanceSq(ai.GetPosition(), m_Position);
 	}

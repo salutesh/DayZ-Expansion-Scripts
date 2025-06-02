@@ -14,6 +14,11 @@ class eAICommandMenuItem
 		m_Category = category;
 	}
 
+	void SetName(string name)
+	{
+		m_Name = name;
+	}
+
 	string GetName()
 	{
 		return m_Name;
@@ -31,12 +36,6 @@ class eAICommandMenuItem
 				group = eAIGroup.GetGamePlayerGroup();
 				if (group)
 					name = group.GetFaction().GetName();
-				break;
-
-			case eAICommandCategories.CAT_FORMATION:
-				group = eAIGroup.GetGamePlayerGroup();
-				if (group)
-					name = group.GetFormation().GetName();
 				break;
 
 			case eAICommandCategories.CAT_DAMAGE_IN:
@@ -239,6 +238,8 @@ class eAICommandMenu: UIScriptedMenu
 	{
 		gesture_items.Clear();
 
+		int i;
+
 		switch (category)
 		{
 		case eAICommandCategories.CATEGORIES:
@@ -368,6 +369,24 @@ class eAICommandMenu: UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_STARDOT, "StarDot", eAICommandCategories.CAT_FORMATION));
 			break;
 
+		case eAICommandCategories.CAT_FORMATION_SCALE:
+			for (i = 0; i < 5; i++)
+			{
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_SCALE_1X + i, string.Format("%1x", i + 1), eAICommandCategories.CAT_FORMATION_SCALE));
+			}
+			break;
+
+		case eAICommandCategories.CAT_FORMATION_LOOSENESS:
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_LOOSENESS_00, "0 m", eAICommandCategories.CAT_FORMATION_LOOSENESS));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_LOOSENESS_05, "0.5 m", eAICommandCategories.CAT_FORMATION_LOOSENESS));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_LOOSENESS_10, "1 m", eAICommandCategories.CAT_FORMATION_LOOSENESS));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_LOOSENESS_15, "1.5 m", eAICommandCategories.CAT_FORMATION_LOOSENESS));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_LOOSENESS_20, "2 m", eAICommandCategories.CAT_FORMATION_LOOSENESS));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_LOOSENESS_30, "3 m", eAICommandCategories.CAT_FORMATION_LOOSENESS));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_LOOSENESS_40, "4 m", eAICommandCategories.CAT_FORMATION_LOOSENESS));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.FOR_LOOSENESS_50, "5 m", eAICommandCategories.CAT_FORMATION_LOOSENESS));
+			break;
+
 		case eAICommandCategories.CAT_LOOTINGBEHAVIOUR:
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.ALL, "All", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.DEFAULT, "Default", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
@@ -436,7 +455,7 @@ class eAICommandMenu: UIScriptedMenu
 
 		case eAICommandCategories.CAT_DAMAGE_IN:
 		case eAICommandCategories.CAT_DAMAGE_OUT:
-			for (int i = 0; i < 20; ++i)
+			for (i = 0; i < 20; ++i)
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DAMAGE + i, string.Format("%1%%", 100 - i * 5), category));
 			}
@@ -768,12 +787,20 @@ class eAICommandMenu: UIScriptedMenu
 					{
 						case eAICommandCategories.CAT_FACTION:
 						case eAICommandCategories.CAT_SPAWNFACTION:
-						case eAICommandCategories.CAT_FORMATION:
+						case eAICommandCategories.CAT_FORMATION_LOOSENESS:
 							UpdateCategoryName(selected.GetName());
 							break;
 
 						case eAICommandCategories.CAT_DAMAGE_IN:
 							RefreshGestures(eAICommandCategories.CAT_DAMAGE_OUT, "Damage Out");
+							break;
+
+						case eAICommandCategories.CAT_FORMATION:
+							RefreshGestures(eAICommandCategories.CAT_FORMATION_SCALE, "Scale");
+							break;
+
+						case eAICommandCategories.CAT_FORMATION_SCALE:
+							RefreshGestures(eAICommandCategories.CAT_FORMATION_LOOSENESS, "Looseness");
 							break;
 					}
 				}

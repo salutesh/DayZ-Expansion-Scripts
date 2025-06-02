@@ -1,7 +1,5 @@
 modded class DayZGame
 {
-	int m_eAI_PlayerCount;
-
 	void DayZGame()
 	{
 		TStringArray supportedGraphNames = {

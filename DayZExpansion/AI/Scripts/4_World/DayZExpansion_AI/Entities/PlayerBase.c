@@ -184,7 +184,7 @@ modded class PlayerBase
 			if (!ai.PlayerIsEnemy(this))
 				return true;
 
-			if (ai.GetGroup().GetFaction().IsGuard() && ai.eAI_GetTargetThreat(GetTargetInformation()) < 0.4)
+			if (ai.GetGroup().GetFaction().IsGuard() && ai.eAI_GetCachedThreat(GetTargetInformation()) < 0.4)
 				return true;
 		}
 		else if (checkIfWeAreHelper && Class.CastTo(ai, this))
@@ -192,7 +192,7 @@ modded class PlayerBase
 			if (!ai.PlayerIsEnemy(other))
 				return true;
 
-			if (ai.GetGroup().GetFaction().IsGuard() && ai.eAI_GetTargetThreat(other.GetTargetInformation()) < 0.4)
+			if (ai.GetGroup().GetFaction().IsGuard() && ai.eAI_GetCachedThreat(other.GetTargetInformation()) < 0.4)
 				return true;
 		}
 

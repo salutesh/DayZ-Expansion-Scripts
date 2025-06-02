@@ -25,6 +25,9 @@ class eAICommandManagerClient : eAICommandManager
 		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormFlank");
 		m_Expansion_RPCManager.RegisterServer("RPC_ReqFormRoam");
 
+		m_Expansion_RPCManager.RegisterServer("RPC_SetFormationScale");
+		m_Expansion_RPCManager.RegisterServer("RPC_SetFormationLooseness");
+
 		m_Expansion_RPCManager.RegisterServer("RPC_SetWaypoint");
 		m_Expansion_RPCManager.RegisterServer("RPC_ExportPatrol");
 		m_Expansion_RPCManager.RegisterServer("RPC_ClearWaypoints");
@@ -109,6 +112,25 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.FOR_STAR:
 			case eAICommands.FOR_STARDOT:
 				m_Expansion_RPCManager.SendRPC("RPC_ReqFormationChange", new Param1<int>(cmd));
+				return true;
+
+			case eAICommands.FOR_SCALE_1X:
+			case eAICommands.FOR_SCALE_2X:
+			case eAICommands.FOR_SCALE_3X:
+			case eAICommands.FOR_SCALE_4X:
+			case eAICommands.FOR_SCALE_5X:
+				m_Expansion_RPCManager.SendRPC("RPC_SetFormationScale", new Param1<int>(cmd));
+				return true;
+
+			case eAICommands.FOR_LOOSENESS_00:
+			case eAICommands.FOR_LOOSENESS_05:
+			case eAICommands.FOR_LOOSENESS_10:
+			case eAICommands.FOR_LOOSENESS_15:
+			case eAICommands.FOR_LOOSENESS_20:
+			case eAICommands.FOR_LOOSENESS_30:
+			case eAICommands.FOR_LOOSENESS_40:
+			case eAICommands.FOR_LOOSENESS_50:
+				m_Expansion_RPCManager.SendRPC("RPC_SetFormationLooseness", new Param1<int>(cmd));
 				return true;
 			
 			case eAICommands.MOV_STOP:
@@ -745,7 +767,7 @@ class eAICommandManagerClient : eAICommandManager
 		eAIBase ai;
 		for (int i = 0; i < g.Count(); i++)
 		{
-			if (Class.CastTo(ai, g.GetMember(i)) && ai.GetTarget() && ai.eAI_HasLOS(ai.GetTarget()) && ai.eAI_IsInFlankRange(ai.GetTarget()))
+			if (Class.CastTo(ai, g.GetMember(i)) && ai.GetTarget() && ai.GetTarget().m_LOS && ai.eAI_IsInFlankRange(ai.GetTarget()))
 			{
 				g.SetFormationState(eAIGroupFormationState.FLANK);
 				return;
@@ -822,6 +844,67 @@ class eAICommandManagerClient : eAICommandManager
 		newForm.SetScale(-1);
 
 		g.SetFormation(newForm);
+	}
+
+	void RPC_SetFormationScale(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		int command;
+        if (!ctx.Read(command)) return;
+
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
+
+		float scale = command - eAICommands.FOR_SCALE_1X + 1;
+
+		g.GetFormation().SetScale(scale);
+	}
+
+	void RPC_SetFormationLooseness(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		int command;
+        if (!ctx.Read(command)) return;
+
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+
+		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
+
+		float looseness;
+
+		switch (command)
+		{
+			case eAICommands.FOR_LOOSENESS_05:
+				looseness = 0.5;
+				break;
+			case eAICommands.FOR_LOOSENESS_10:
+				looseness = 1.0;
+				break;
+			case eAICommands.FOR_LOOSENESS_15:
+				looseness = 1.5;
+				break;
+			case eAICommands.FOR_LOOSENESS_20:
+				looseness = 2.0;
+				break;
+			case eAICommands.FOR_LOOSENESS_30:
+				looseness = 3.0;
+				break;
+			case eAICommands.FOR_LOOSENESS_40:
+				looseness = 4.0;
+				break;
+			case eAICommands.FOR_LOOSENESS_50:
+				looseness = 5.0;
+				break;
+		}
+
+		g.GetFormation().SetLooseness(looseness);
 	}
 
 	void RPC_SetWaypoint(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -1198,7 +1281,7 @@ class eAICommandManagerClient : eAICommandManager
 			}
 			else if (target.IsNoise())
 			{
-				desc = string.Format("noise at %1", ExpansionStatic.VectorToString(target.GetPosition(ai)));
+				desc = string.Format("noise at %1", ExpansionStatic.VectorToString(target.GetPosition()));
 			}
 
 			player.eAI_Message(ai, "Current focus %1", desc);

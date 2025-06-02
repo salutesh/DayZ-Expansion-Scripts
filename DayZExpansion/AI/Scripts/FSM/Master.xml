@@ -512,7 +512,7 @@
 					
 					if (targetItem &amp;&amp; ((targetItem.IsWeapon() &amp;&amp; (!preferExplosiveAmmo || targetItem.ShootsExplosiveAmmo())) || (!preferExplosiveAmmo &amp;&amp; targetItem.Expansion_IsMeleeWeapon() &amp;&amp; (!hasMeleeInHands || hands.Expansion_CompareDPS(targetItem) &lt; 0))) &amp;&amp; !targetItem.Expansion_GetRootPlayerAliveExcluding(null) &amp;&amp; !targetItem.IsSetForDeletion())
 					{
-						if (target.GetDistanceSq(unit, true) &lt;= 4.0 &amp;&amp; target.GetThreat(unit) &gt; 0.1 &amp;&amp; !unit.eAI_IsItemObstructed(targetItem))
+						if (target.GetDistanceSq(true) &lt;= 4.0 &amp;&amp; target.GetThreat() &gt; 0.1 &amp;&amp; !unit.eAI_IsItemObstructed(targetItem))
 						{
 							dst.item = targetItem;
 							EXTrace.Print(EXTrace.AI, unit, "Taking target " + targetItem + " to hands because not prefering melee but prefering target over " + hands);
@@ -526,7 +526,7 @@
 						
 						//! If we have no non-explosive ammo weapon and target is not an item and distance is at least 30 m,
 						//! use explosive ammo weapon if we have any
-						if (!item &amp;&amp; target &amp;&amp; !targetItem &amp;&amp; target.GetDistanceSq(unit) &gt; 30.0)
+						if (!item &amp;&amp; target &amp;&amp; !targetItem &amp;&amp; target.GetDistanceSq() &gt; 30.0)
 							item = unit.eAI_GetWeaponToUse(true, true);
 					}
 					
@@ -614,10 +614,10 @@
 				if (targetItem.Expansion_IsLiveExplosive() || (!isClothing &amp;&amp; !targetItem.CanPutInCargo(unit)))
 					return FAIL;
 				
-				if (target.GetDistanceSq(unit, true) &gt; 4.0 || unit.eAI_IsItemObstructed(targetItem))
+				if (target.GetDistanceSq(true) &gt; 4.0 || unit.eAI_IsItemObstructed(targetItem))
 					return FAIL;
 				
-				if (target.GetThreat(unit) &lt;= 0.1)
+				if (target.GetThreat() &lt;= 0.1)
 					return FAIL;
 				
 				if (targetItem.IsWeapon())

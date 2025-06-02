@@ -70,6 +70,9 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 	protected RichTextWidget item_description;
 	protected Widget info_content;
 	protected ButtonWidget info_button;
+	
+	protected ScrollWidget item_details_attachments_scroller;
+	protected ScrollWidget item_details_cargo_scroller;
 
 	void ExpansionP2PMarketMenuDetailsView(ExpansionP2PMarketMenu menu)
 	{
@@ -422,12 +425,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 	{
 		return m_MarketPriceTooltip;
 	}
-
-	override void OnShow()
-	{
-		super.OnShow();
-	}
-
+	
 	override bool OnChange(Widget w, int x, int y, bool finished)
 	{
 		if (w != NULL && w == listing_price_editbox)
@@ -641,6 +639,14 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 		}
 
 		return false;
+	}
+	
+	override void OnShow()
+	{
+		super.OnShow();
+		
+		item_details_attachments_scroller.VScrollToPos01(0);
+		item_details_cargo_scroller.VScrollToPos01(0);
 	}
 
 	override void OnHide()

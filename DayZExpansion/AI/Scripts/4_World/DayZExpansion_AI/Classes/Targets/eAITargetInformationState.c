@@ -23,8 +23,11 @@ class eAITargetInformationState
 		m_AI = ai;
 		m_Info = info;
 
-		UpdatePosition(initialUpdate);
-		UpdateThreat(initialUpdate);
+		if (initialUpdate)
+		{
+			UpdatePosition(true);
+			UpdateThreat(true);
+		}
 	}
 
 	void SetInitial(float threat, vector position)
@@ -98,7 +101,7 @@ class eAITargetInformationState
 			auto hitch = new EXHitch(m_AI.ToString() + " eAITargetInformationState::UpdatePosition ", 20000);
 #endif
 
-			if (force || (m_LOS && m_AI.GetTarget().info == m_Info))
+			if (force || (m_LOS && m_AI.GetTarget().m_Info == m_Info))
 			{
 				//! Update last known target position
 				m_LastKnownPosition = m_Info.GetPosition(m_AI, true);
@@ -145,5 +148,14 @@ class eAITargetInformationState
 				}
 			}
 		}
+	}
+
+	//! Return cached threat level (may be 0.0 if not yet calculated)
+	float GetCachedThreat(bool ignoreLOS = false)
+	{
+		if (ignoreLOS)
+			return m_ThreatLevel;
+
+		return m_ThreatLevelActive;
 	}
 };

@@ -14,7 +14,7 @@ modded class ActionGetOutTransport
 
 		//! If player is targeted while jumping out vehicle, target vehicle
 		auto playerTargetInfo = got_action_data.m_Player.GetTargetInformation();
-		if (!playerTargetInfo.IsTargetted())
+		if (!playerTargetInfo.IsTracked())
 			return;
 
 		CarScript vehicle;
@@ -22,16 +22,16 @@ modded class ActionGetOutTransport
 			return;
 	
 		auto vehicleTargetInfo = vehicle.GetTargetInformation();
-		foreach (int groupId, eAITarget target: playerTargetInfo.m_Groups)
+		foreach (eAIBase ai, eAITarget target: playerTargetInfo.m_Targets)
 		{
-			foreach (eAIBase ai: target.ai_list)
-			{
-				if ( !ai )
-					continue;
-				
-				EXPrint(ai.ToString() + " (group " + groupId + ") targeting " + vehicle);
-				vehicleTargetInfo.AddAI(ai, 120000);
-			}
+			if (!ai)
+				continue;
+
+			if (!target.m_IsTracked)
+				continue;
+			
+			EXPrint(ai.ToString() + " (group " + ai.GetGroup().GetID() + ") targeting " + vehicle);
+			vehicleTargetInfo.AddAI(ai, 120000);
 		}
 	}
 }

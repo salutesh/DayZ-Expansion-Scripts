@@ -24,6 +24,11 @@ class eAIEntityTargetInformation: eAITargetInformation
 		return m_Target;
 	}
 
+	override IEntity GetParent()
+	{
+		return m_Target.GetParent();
+	}
+
 	override string GetEntityDebugName()
 	{
 		string str = m_TargetDebugName;
@@ -59,40 +64,45 @@ class eAIEntityTargetInformation: eAITargetInformation
 		return !m_Target.IsDamageDestroyed();
 	}
 
-	override vector GetPosition(eAIBase ai = null, bool actual = false)
+	override vector GetPosition(eAIBase ai = null, bool actual = false, eAITargetInformationState state = null)
 	{
 		if (actual || !ai)
 			return m_Target.GetPosition();
 
-		auto state = ai.eAI_GetTargetInformationState(this);
-		state.UpdatePosition();
+		bool created;
+
+		if (!state)
+			state = GetTargetForAIEx(ai, true, created);
+
+		if (!created)
+			state.UpdatePosition();
 
 		return state.m_SearchPosition;
 	}
 
-	override float GetThreat(eAIBase ai = null, out eAITargetInformationState state = null, out bool created = false)
+	override float GetThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		if (!IsActive())
 			return 0.0;
 
-		return super.GetThreat(ai, state, created);
+		return super.GetThreat(ai, state);
 	}
 
-	override vector GetDirection(eAIBase ai, bool actual = false)
+	override vector GetDirection(eAIBase ai, bool actual = false, eAITargetInformationState state = null)
 	{
-		vector position = GetPosition(ai, actual);
+		vector position = GetPosition(ai, actual, state);
 		return vector.Direction(ai.GetPosition(), position);
 	}
 
-	override float GetDistance(eAIBase ai, bool actual = false)
+	override float GetDistance(eAIBase ai, bool actual = false, eAITargetInformationState state = null)
 	{
-		vector position = GetPosition(ai, actual);
+		vector position = GetPosition(ai, actual, state);
 		return vector.Distance(ai.GetPosition(), position);
 	}
 
-	override float GetDistanceSq(eAIBase ai, bool actual = false)
+	override float GetDistanceSq(eAIBase ai, bool actual = false, eAITargetInformationState state = null)
 	{
-		vector position = GetPosition(ai, actual);
+		vector position = GetPosition(ai, actual, state);
 		return vector.DistanceSq(ai.GetPosition(), position);
 	}
 

@@ -176,17 +176,15 @@ class Land_Lighthouse: House
 {
 	protected Object m_Expansion_Lighthouse_Lamp;
 
-	void ~Land_Lighthouse()
+	override void EEDelete(EntityAI parent)
 	{
-		if (!GetGame())
-			return;
 
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.LIGHTHOUSE, this);
 #endif 
+		super.EEDelete(parent);
 
-		//! @note destructor runs on server even if lighthouse object is not destroyed?!?
-		//Expansion_DeleteLamp();
+		Expansion_DeleteLamp();
 	}
 
 	void Expansion_DeleteLamp()

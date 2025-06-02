@@ -2,33 +2,12 @@ class CfgPatches
 {
 	class DayZExpansion_Dta_World
 	{
-		units[]=
-		{
-			"ExpansionAirCondBig",
-			"ExpansionAirCondSmall",
-			"ExpansionWoodDoorPlanks",
-			"ExpansionGasMeter",
-			"ExpansionBarricadingWindow",
-			"ExpansionLadderLong",
-			"ExpansionLadderMedium",
-			"ExpansionLadderShort",
-			"ExpansionLadderTop",
-			"ExpansionLightCondBottom",
-			"ExpansionLightCondConn",
-			"ExpansionLightCondCorn",
-			"ExpansionLightCondMid",
-			"ExpansionLightCondTop",
-			"ExpansionAirCondA",
-			"ExpansionAirCondB",
-			"ExpansionAntenaBigRoof",
-			"ExpansionAntenaSmallRoofA",
-			"ExpansionAntenaSmallRoofB"
-		};
+		units[]={};
 		weapons[]={};
 		requiredVersion=0.1;
 		requiredAddons[]=
 		{
-			"DZ_Vehicles_Wheeled"
+			"DZ_Structures"
 		};
 	};
 };

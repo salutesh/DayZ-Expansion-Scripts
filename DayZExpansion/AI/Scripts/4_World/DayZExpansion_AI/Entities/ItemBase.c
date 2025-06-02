@@ -1,7 +1,7 @@
 modded class ItemBase
 {
 	private ref eAIItemTargetInformation m_TargetInformation;
-	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
+	ref eAIDamageHandler m_eAI_DamageHandler;
 
 	bool m_Expansion_IsOwnerPlayer;
 	float m_eAI_LastRecordedImpactTime;
@@ -9,6 +9,9 @@ modded class ItemBase
 	void ItemBase()
 	{
 		m_TargetInformation = CreateTargetInformation();
+
+		if (GetGame().IsServer())
+			m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
 	}
 
 	protected eAIItemTargetInformation CreateTargetInformation()

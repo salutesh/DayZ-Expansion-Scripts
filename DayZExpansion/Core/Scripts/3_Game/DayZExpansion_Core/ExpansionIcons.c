@@ -239,7 +239,11 @@ class ExpansionIcons
 		AddIcon("GitHub", "set:expansion_iconset image:icon_github");
 		AddIcon("Homepage", "set:expansion_iconset image:icon_home");
 		AddIcon("Forums", "set:expansion_iconset image:icon_forums");
+#ifdef DabsFramework
+		AddIcon("Twitter", "set:brand image:x_twitter");
+#else
 		AddIcon("Twitter", "set:expansion_iconset image:icon_twitter");
+#endif
 		AddIcon("YouTube", "set:expansion_iconset image:icon_youtube");
 		AddIcon("Patreon", "set:expansion_iconset image:icon_patreon");
 		AddIcon("Guilded", "set:expansion_iconset image:icon_guilded");

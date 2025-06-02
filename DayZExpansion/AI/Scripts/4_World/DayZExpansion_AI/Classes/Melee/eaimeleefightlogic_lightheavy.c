@@ -209,9 +209,9 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 				}
 
 				if (startMeleeSuccess)
-					m_AI.eAI_SkipMelee("starting melee succeeded", target.info, false);
+					m_AI.eAI_SkipMelee("starting melee succeeded", target, false);
 				else
-					m_AI.eAI_SkipMelee("starting melee failed", target.info, true);
+					m_AI.eAI_SkipMelee("starting melee failed", target, true);
 			}
 			//! combo hits - when we are already in Melee command
 			else if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_MELEE2)
@@ -290,7 +290,7 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 		{
 			eAITarget target = m_AI.GetTarget();
 			if (target)
-				m_AI.eAI_SkipMelee("missed melee target", target.info, true);
+				m_AI.eAI_SkipMelee("missed melee target", target, true);
 		}
 	}
 

@@ -492,7 +492,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 			DropLocation = new ExpansionAirdropLocation( 2351, 5393, 100, "Zelenogorsk" );
 			break;
 		case 5:
-			DropLocation = new ExpansionAirdropLocation( 2036, 7491, 100, "Myshkinko" );
+			DropLocation = new ExpansionAirdropLocation( 2036, 7491, 100, "Myshkino" );
 			break;
 		case 6:
 			DropLocation = new ExpansionAirdropLocation( 11125, 14040, 100, "Novodmitrovsk" );
