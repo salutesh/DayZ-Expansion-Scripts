@@ -835,11 +835,12 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 			}
 		}
 
-		auto item = ItemBase.Cast(other);
-		if (item && !dBodyIsDynamic(item) && item.Expansion_CarContactActivates() && !item.GetHierarchyParent())
-		{
-			item.ExpansionCreateDynamicFromContact(this, extra.Position, extra);
-		}
+		//! DayZ 1.28 broke this (segfault with certain items like wheels)
+		//auto item = ItemBase.Cast(other);
+		//if (item && !dBodyIsDynamic(item) && item.Expansion_CarContactActivates() && !item.GetHierarchyParent())
+		//{
+			//item.ExpansionCreateDynamicFromContact(this, extra.Position, extra);
+		//}
 
 		if (s_ExpansionPhysicsStructure_Enabled)
 		{

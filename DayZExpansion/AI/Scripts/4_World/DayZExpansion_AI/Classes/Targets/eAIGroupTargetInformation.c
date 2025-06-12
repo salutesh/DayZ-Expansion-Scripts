@@ -17,7 +17,7 @@ class eAIGroupTargetInformation: eAITargetInformation
 		return m_Target.GetLeader();
 	}
 
-	override vector GetPosition(eAIBase ai = null, bool actual = false)
+	override vector GetPosition(eAIBase ai = null, bool actual = false, eAITargetInformationState state = null)
 	{
 		if (!GetEntity())
 			return "0 0 0";

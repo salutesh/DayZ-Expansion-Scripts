@@ -1,7 +1,7 @@
 modded class AnimalBase
 {
 	private ref eAICreatureTargetInformation m_TargetInformation = new eAICreatureTargetInformation(this);
-	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
+	ref eAIDamageHandler m_eAI_DamageHandler;
 	bool m_Expansion_Airborne;
 	float m_Expansion_AirbornePeakAltitude;
 	bool m_Expansion_IsBigGame;
@@ -9,6 +9,9 @@ modded class AnimalBase
 
 	void AnimalBase()
 	{
+		if (GetGame().IsServer())
+			m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
+
 		vector minMax[2];
 		float radius;
 

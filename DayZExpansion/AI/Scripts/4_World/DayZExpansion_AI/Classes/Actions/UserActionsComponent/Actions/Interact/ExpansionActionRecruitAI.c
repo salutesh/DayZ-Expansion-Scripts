@@ -68,7 +68,7 @@ class ExpansionActionRecruitAI: ActionInteractBase
 			if (!settings.CanRecruitGuards)
 				return false;
 
-			if (GetGame().IsServer() && tAI.eAI_GetTargetThreat(player.GetTargetInformation()) > 0.2)
+			if (GetGame().IsServer() && tAI.eAI_GetCachedThreat(player.GetTargetInformation()) > 0.2)
 			{
 				ExpansionNotification("STR_EXPANSION_HOSTILE", "STR_EXPANSION_AI_CANNOT_RECRUIT_HOSTILE_TEMP").Error(player.GetIdentity());
 				return false;

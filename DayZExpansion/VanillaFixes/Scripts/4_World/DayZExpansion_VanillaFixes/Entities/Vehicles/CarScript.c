@@ -1,16 +1,5 @@
 modded class CarScript
 {
-	//! https://feedback.bistudio.com/T184230
-	override int GetCarDoorsState(string slotType)
-	{
-		int state = super.GetCarDoorsState(slotType);
-
-		if (state == -1)
-			return CarDoorState.DOORS_MISSING;
-
-		return state;
-	}
-
 	//! Prevent being able to glitch through base walls etc when getting out vehicle
 	//! Mostly a verbatim copy of vanilla IsAreaAtDoorFree, but stretches the extents so that the whole area from door to
 	//! get out position is checked, and has exception for our BB because it has no collision box (TODO: why?! we should fix this)

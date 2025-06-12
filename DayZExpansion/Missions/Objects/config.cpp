@@ -7,7 +7,30 @@ class CfgPatches
 		requiredVersion=0.1;
 		requiredAddons[]=
 		{
-			"DZ_Data"
+			"DZ_Weapons_Melee"
+		};
+	};
+};
+class CfgAmmo
+{
+	class MeleeDamage;
+	class ExpansionAirdropContainerDamage: MeleeDamage
+	{
+		class DamageApplied
+		{
+			type="Falling";
+			class Health
+			{
+				damage=100;
+			};
+			class Blood
+			{
+				damage=0;
+			};
+			class Shock
+			{
+				damage=0;
+			};
 		};
 	};
 };

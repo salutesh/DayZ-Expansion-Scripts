@@ -15,6 +15,7 @@ class ExpansionScriptRPC: ScriptRPC
 {
 	static const int EXPANSION_RPC_UNTARGETED = 1506850293;  //! "DayZ Expansion".Hash()
 	static const int EXPANSION_RPC_TARGETED = 1506850294;  //! "DayZ Expansion".Hash() + 1
+	static const int EXPANSION_RPC_SJ = 1506850295;  //! "DayZ Expansion".Hash() + 2
 
 	int m_Expansion_RPCID;
 	Object m_Expansion_Target;

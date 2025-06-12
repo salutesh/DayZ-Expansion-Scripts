@@ -118,7 +118,7 @@ class ExpansionAISpawnBase
 		else
 		{
 			//! Make sure position is not under terrain
-			float surfaceY = GetGame().SurfaceRoadY3D(pos[0], pos[1], pos[2], RoadSurfaceDetection.CLOSEST);
+			float surfaceY = ExpansionStatic.GetSurfaceRoadY3D(pos[0], pos[1], pos[2], RoadSurfaceDetection.CLOSEST);
 			if (pos[1] < surfaceY)
 				pos[1] = surfaceY;
 		}

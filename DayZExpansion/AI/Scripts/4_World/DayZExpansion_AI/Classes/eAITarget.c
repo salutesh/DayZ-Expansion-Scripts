@@ -1,25 +1,11 @@
-class eAITarget
+class eAITarget: eAITargetInformationState
 {
-	eAIGroup group;
-	int groupID;
-	int found_at_time;
-	int max_time;
-	autoptr set<eAIBase> ai_list;
-	eAITargetInformation info;
+	eAIGroup m_Group;
+	int m_GroupID;
+	int m_FoundAtTime;
+	int m_MaxTime;
 
-	void eAITarget(eAIGroup _group, int _found_at_time, int _max_time, eAITargetInformation _info)
-	{
-		group = _group;
-		groupID = group.GetID();
-		found_at_time = _found_at_time;
-		if (_max_time != -1)
-			max_time = _max_time;
-		else
-			max_time = 120000;
-
-		ai_list = new set<eAIBase>();
-		info = _info;
-	}
+	bool m_IsTracked;
 
 #ifdef DIAG_DEVELOPER
 	void ~eAITarget()
@@ -27,12 +13,52 @@ class eAITarget
 		if (!GetGame())
 			return;
 
-		if (info)
-			EXTrace.Print(EXTrace.AI, this, "~eAITarget() " + info.GetDebugName());
+		if (m_Info)
+			EXTrace.Print(EXTrace.AI, this, "~eAITarget() " + m_Info.GetDebugName());
 		else
 			EXTrace.Print(EXTrace.AI, this, "~eAITarget()");
 	}
 #endif
+
+	/**
+	 * @brief Start tracking this target
+	 * 
+	 * @param maxTime time to track this target for
+	 */
+	void Track(int maxTime = -1)
+	{
+		if (m_IsTracked)
+		{
+			EXError.Warn(this, "Already tracked");
+			return;
+		}
+
+		m_IsTracked = true;
+
+		m_FoundAtTime = GetGame().GetTime();
+
+		if (maxTime != -1)
+			m_MaxTime = maxTime;
+		else
+			m_MaxTime = 120000;
+
+		m_Group = m_AI.GetGroup();
+		m_GroupID = m_Group.GetID();
+
+		int count;
+
+		if (!m_Info.m_Groups.Find(m_GroupID, count))
+			m_Group.OnTargetTrackingStart(m_Info);
+
+		++count;
+
+		if (count > m_Group.Count())
+			EXError.Error(this, string.Format("Number of AI tracking %1 (%2) can't be above number of AI in group ID %3 (%4)", GetDebugName(), count, m_GroupID, m_Group.Count()));
+		else
+			m_Info.m_Groups[m_GroupID] = count;
+
+		m_AI.eAI_AddTarget(this);
+	}
 
 	/**
 	 * @brief Debugging information about the target
@@ -44,197 +70,164 @@ class eAITarget
 		string str = ToString();
 
 		str += ", ";
-		str += "group=" + group.GetDebugName();
+		str += "ai=" + m_AI.GetDebugName();
 
 		str += ", ";
-		str += "info=" + info.GetDebugName();
+		str += "info=" + m_Info.GetDebugName();
 
 		return str;
 	}
 
 	bool IsActive()
 	{
-		return info.IsActive();
+		return m_Info.IsActive();
 	}
 
 	//! Players only
 	bool IsUnconscious()
 	{
-		return info.IsUnconscious();
+		return m_Info.IsUnconscious();
 	}
 
 	//! Players only
 	bool IsRaised()
 	{
-		return info.IsRaised();
+		return m_Info.IsRaised();
 	}
 
 	//! Creatures/Players
 	bool IsFighting()
 	{
-		return info.IsFighting();
+		return m_Info.IsFighting();
 	}
 
 	float GetAttackCooldown()
 	{
-		return info.GetAttackCooldown();
+		return m_Info.GetAttackCooldown();
 	}
 
-	bool AddAI(eAIBase ai)
+	void Update(int maxTime = -1)
 	{
-		if (ai_list.Find(ai) != -1)
-			return false;
+		UpdateFoundAtTime();
 
-#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.AI, this, "" + ai);
-#endif
-
-		ai_list.Insert(ai);
-		return true;
+		if (maxTime != -1)
+			m_MaxTime = maxTime;
 	}
 
-	void Update(int _max_time = -1)
+	void Remove()
 	{
-		found_at_time = GetGame().GetTime();
-		if (_max_time != -1)
-			max_time = _max_time;
+		m_Info.RemoveAI(m_AI);
 	}
 
-	bool RemoveAI(eAIBase ai)
+	void UpdateFoundAtTime()
 	{
-		int idx = ai_list.Find(ai);
-
-#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.AI, this, "" + ai, "" + idx);
-#endif
-
-		if (idx == -1)
-			return false;
-
-		ai_list.Remove(idx);
-
-		ai.OnRemoveTarget(this);
-
-		if (CountAI() == 0)
-		{
-			if (group)
-				group.OnTargetRemoved(info);
-
-			info.m_Groups.Remove(groupID);
-		}
-
-		return true;
-	}
-
-	int FindAI(eAIBase ai)
-	{
-		return ai_list.Find(ai);
-	}
-
-	int CountAI()
-	{
-		return ai_list.Count();
+		m_FoundAtTime = GetGame().GetTime();
 	}
 
 	bool HasInfo()
 	{
-		return info != null;
+		return m_Info != null;
 	}
 
 	bool IsCreature()
 	{
-		return info.IsCreature();
+		return m_Info.IsCreature();
 	}
 
 	bool IsDoor()
 	{
-		return info.IsDoor();
+		return m_Info.IsDoor();
 	}
 
 	bool IsEntity()
 	{
-		return info.IsEntity();
+		return m_Info.IsEntity();
 	}
 
 	bool IsExplosive()
 	{
-		return info.IsExplosive();
+		return m_Info.IsExplosive();
 	}
 
 	bool IsGroup()
 	{
-		return info.IsGroup();
+		return m_Info.IsGroup();
 	}
 
 	bool IsHazard()
 	{
-		return info.IsHazard();
+		return m_Info.IsHazard();
 	}
 
 	bool IsInanimate()
 	{
-		return info.IsInanimate();
+		return m_Info.IsInanimate();
 	}
 
 	bool IsItem()
 	{
-		return info.IsItem();
+		return m_Info.IsItem();
 	}
 
 	bool IsMechanicalTrap()
 	{
-		return info.IsMechanicalTrap();
+		return m_Info.IsMechanicalTrap();
 	}
 
 	bool IsNoise()
 	{
-		return info.IsNoise();
+		return m_Info.IsNoise();
 	}
 
 	bool IsPlayer()
 	{
-		return info.IsPlayer();
+		return m_Info.IsPlayer();
 	}
 
 	bool IsVehicle()
 	{
-		return info.IsVehicle();
+		return m_Info.IsVehicle();
 	}
 
 	bool IsZombie()
 	{
-		return info.IsZombie();
+		return m_Info.IsZombie();
 	}
 
 	EntityAI GetEntity()
 	{
-		return info.GetEntity();
+		return m_Info.GetEntity();
 	}
 
-	vector GetPosition(eAIBase ai = null, bool actual = false)
+	IEntity GetParent()
 	{
-		return info.GetPosition(ai, actual);
+		return m_Info.GetParent();
 	}
 
-	vector GetAimOffset(eAIBase ai = null)
+	vector GetPosition(bool actual = false)
 	{
-		return info.GetAimOffset(ai);
+		return m_Info.GetPosition(m_AI, actual, this);
 	}
 
-	float GetThreat(eAIBase ai = null, out eAITargetInformationState state = null)
+	vector GetAimOffset()
 	{
-		return info.GetThreat(ai, state);
+		return m_Info.GetAimOffset(m_AI);
+	}
+
+	float GetThreat()
+	{
+		return m_Info.GetThreat(m_AI, this);
 	}
 
 	bool CanPutInCargo(EntityAI parent)
 	{
-		return info.CanPutInCargo(parent);
+		return m_Info.CanPutInCargo(parent);
 	}
 
-	bool CanMeleeIfClose(eAIBase ai)
+	bool CanMeleeIfClose()
 	{
 		bool canYeet;
-		if (ai.GetGroup().GetFaction().GetMeleeYeetForce() >= 1.0)
+		if (m_AI.GetGroup().GetFaction().GetMeleeYeetForce() >= 1.0)
 			canYeet = true;
 
 		EntityAI entity = GetEntity();
@@ -254,24 +247,24 @@ class eAITarget
 		return true;
 	}
 
-	bool IsMeleeViable(eAIBase ai)
+	bool IsMeleeViable()
 	{
-		if (!CanMeleeIfClose(ai))
+		if (!CanMeleeIfClose())
 			return false;
 
-		float distSq = GetDistanceSq(ai, true);
+		float distSq = GetDistanceSq(true);
 
-		float range = ai.m_eMeleeCombat.eAI_GetRange();
+		float range = m_AI.m_eMeleeCombat.eAI_GetRange();
 		if (distSq > range * range)
 			return false;
 
-		EntityAI entityInHands = ai.GetHumanInventory().GetEntityInHands();
+		EntityAI entityInHands = m_AI.GetHumanInventory().GetEntityInHands();
 
 		Weapon_Base weapon;
 		bool hasAmmo;
 		if (Class.CastTo(weapon, entityInHands))
 		{
-			if (!ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
+			if (!m_AI.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
 				return false;
 
 			if (weapon.Expansion_GetMagazineAmmoCount() > 0)
@@ -283,7 +276,7 @@ class eAITarget
 		}
 
 		//! We don't punch the bear or multiple zombies/wolves if we have a firearm with ammo - unless it's explosive ammo
-		if (GetEntity().IsInherited(Animal_UrsusArctos) || ai.m_eAI_AcuteDangerTargetCount > 1)
+		if (GetEntity().IsInherited(Animal_UrsusArctos) || m_AI.m_eAI_AcuteDangerTargetCount > 1 || GetGame().GetTime() - m_AI.m_eAI_MeleeTime < 3000)
 		{
 			if (hasAmmo && !weapon.ShootsExplosiveAmmo())
 				return false;
@@ -297,38 +290,38 @@ class eAITarget
 		return true;
 	}
 
-	bool ShouldRemove(eAIBase ai = null)
+	bool ShouldRemove()
 	{
-		return !info.IsActive() || (found_at_time + max_time <= GetGame().GetTime() && info.ShouldRemove(ai));
+		return !m_Info.IsActive() || (m_FoundAtTime + m_MaxTime <= GetGame().GetTime() && m_Info.ShouldRemove(m_AI));
 	}
 
-	bool ShouldAvoid(eAIBase ai = null, float distance = 0.0)
+	bool ShouldAvoid(float distance = 0.0)
 	{
-		return info.ShouldAvoid(ai, distance);
+		return m_Info.ShouldAvoid(m_AI, distance);
 	}
 
-	float GetMinDistance(eAIBase ai = null, float distance = 0.0)
+	float GetMinDistance(float distance = 0.0)
 	{
-		return info.GetMinDistance(ai, distance);
+		return m_Info.GetMinDistance(m_AI, distance);
 	}
 
-	float GetMinDistanceSq(eAIBase ai = null, float distance = 0.0)
+	float GetMinDistanceSq(float distance = 0.0)
 	{
-		return info.GetMinDistanceSq(ai, distance);
+		return m_Info.GetMinDistanceSq(m_AI, distance);
 	}
 
-	vector GetDirection(eAIBase ai, bool actual = false)
+	vector GetDirection(bool actual = false)
 	{
-		return info.GetDirection(ai, actual);
+		return m_Info.GetDirection(m_AI, actual, this);
 	}
 
-	float GetDistance(eAIBase ai, bool actual = false)
+	float GetDistance(bool actual = false)
 	{
-		return info.GetDistance(ai, actual);
+		return m_Info.GetDistance(m_AI, actual, this);
 	}
 
-	float GetDistanceSq(eAIBase ai, bool actual = false)
+	float GetDistanceSq(bool actual = false)
 	{
-		return info.GetDistanceSq(ai, actual);
+		return m_Info.GetDistanceSq(m_AI, actual, this);
 	}
 };

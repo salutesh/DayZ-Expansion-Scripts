@@ -57,7 +57,7 @@ modded class Weapon_Base
 		eAITarget target = ai.GetTarget();
 		EntityAI targetEntity = target.GetEntity();
 
-		typename type = target.info.Type();
+		typename type = target.m_Info.Type();
 
 #ifdef DIAG_DEVELOPER
 		if (EXTrace.AI && ai.m_eAI_LastEngagedTargetType != type)

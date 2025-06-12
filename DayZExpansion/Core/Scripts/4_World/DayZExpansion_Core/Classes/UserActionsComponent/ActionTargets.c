@@ -15,7 +15,7 @@
  **/
 modded class ActionTarget
 {
-	void ActionTarget(Object object, Object parent, int componentIndex, vector cursorHitPos, float utility)
+	void ActionTarget(Object object, Object parent, int componentIndex, vector cursorHitPos, float utility, string surfaceName = "")
 	{
 		ExpansionNavmeshCarver navmeshCarver;
 		if (Class.CastTo(navmeshCarver, object))

@@ -95,6 +95,9 @@ class ExpansionBoatHud : VehicleHudBase
 	
 	override void RefreshVehicleHud(float timeslice)
 	{
+		if (!m_CurrentBoat)
+			return;
+
 		float speedValue = Math.AbsFloat(m_CurrentBoat.GetSpeedometer() / 400);
 		
 		m_BoatSpeedPointer.SetRotation(0, 0, speedValue * 260 - 130, true);

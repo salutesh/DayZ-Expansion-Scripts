@@ -62,7 +62,9 @@ class ExpansionLocatorUI: ScriptedWidgetEventHandler
 
 		if ( !m_PlaySound )
 		{
-			SEffectManager.PlaySoundOnObject( "Expansion_Print1_SoundSet", GetGame().GetPlayer() );
+			//! GetGame().GetPlayer() can be NULL during respawn
+			if (GetGame().GetPlayer())
+				SEffectManager.PlaySoundOnObject( "Expansion_Print1_SoundSet", GetGame().GetPlayer() );
 			m_PlaySound = true;
 		}
 		
@@ -70,7 +72,9 @@ class ExpansionLocatorUI: ScriptedWidgetEventHandler
 		{	
 			if ( !m_PlaySoundTime )
 			{
-				SEffectManager.PlaySoundOnObject( "Expansion_Print2_SoundSet", GetGame().GetPlayer() );
+				//! GetGame().GetPlayer() can be NULL during respawn
+				if (GetGame().GetPlayer())
+					SEffectManager.PlaySoundOnObject( "Expansion_Print2_SoundSet", GetGame().GetPlayer() );
 				m_PlaySoundTime = true;
 			}
 			

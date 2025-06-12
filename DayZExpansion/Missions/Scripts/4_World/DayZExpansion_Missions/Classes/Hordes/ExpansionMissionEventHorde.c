@@ -147,7 +147,7 @@ class ExpansionMissionEventHorde: ExpansionMissionEventBase
 		case 5:
 			Weight = 30;
 			Position = Vector( 2036, 0, 7491 );
-			MissionName = "Myshkinko";
+			MissionName = "Myshkino";
 			break;
 		case 6:
 			Weight = 35;

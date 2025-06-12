@@ -13,8 +13,12 @@
 class ExpansionItemNameTable
 {
 	static ref map<string, ref array<string>> s_NameTable = new map<string, ref array<string>>;
+
 	static void LoadNameTable()
 	{
+		if (s_NameTable.Count() > 0)
+			return;
+
 		array<string> configClasses = {CFG_WEAPONSPATH, CFG_MAGAZINESPATH, CFG_VEHICLESPATH};
 		foreach(string configClass: configClasses)
 		{
@@ -38,12 +42,13 @@ class ExpansionItemNameTable
 				
 				array<string> currentTypes;
 				if (!s_NameTable.Find(displayName, currentTypes))
+				{
 					currentTypes = new array<string>;
+					s_NameTable[displayName] = currentTypes;
+				}
 				
 				if (currentTypes.Find(childName) == -1)
 					currentTypes.Insert(childName);
-				
-				s_NameTable.Set(displayName, currentTypes);
 			}
 		}
 		

@@ -80,6 +80,7 @@ modded class BuildingBase
 		{
 			//! Hardcoded defaults (AI will vault those buildings' edges otherwise or climb on ledges unnecessarily)
 			s_eAI_PreventClimb = {
+				"land_boat_",  //! Sakhal, pathfinding won't find a path off the boat
 				"land_busstop",
 				"land_camp_house",
 				"land_castle_bergfrit",

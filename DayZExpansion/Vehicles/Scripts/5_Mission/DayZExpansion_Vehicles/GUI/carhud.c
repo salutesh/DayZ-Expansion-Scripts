@@ -32,6 +32,9 @@ modded class CarHud
 	{
 		super.RefreshVehicleHud(timeslice);
 
+		if (!m_CurrentVehicle)
+			return;
+
 		int currentEngine = m_CurrentVehicle.Expansion_EngineGetCurrent();
 
 		if (currentEngine > 0)

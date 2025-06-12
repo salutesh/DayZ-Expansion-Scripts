@@ -8,7 +8,7 @@ modded class DayZPlayerImplement
 	static bool s_eAI_DebugDamage;
 	
 	private ref eAIPlayerTargetInformation m_TargetInformation = new eAIPlayerTargetInformation(this);
-	ref eAIDamageHandler m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
+	ref eAIDamageHandler m_eAI_DamageHandler;
 
 	private eAIGroup m_eAI_Group;
 
@@ -44,6 +44,12 @@ modded class DayZPlayerImplement
 	autoptr array<Shape> m_Expansion_DebugShapes = new array<Shape>();
 #endif
 #endif
+
+	void DayZPlayerImplement()
+	{
+		if (GetGame().IsServer())
+			m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
+	}
 
 	void ~DayZPlayerImplement()
 	{

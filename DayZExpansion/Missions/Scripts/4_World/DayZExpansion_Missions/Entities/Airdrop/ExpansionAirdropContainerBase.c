@@ -33,6 +33,7 @@ class ExpansionAirdropContainerBase: House
 	string m_Expansion_ClientContainerType;
 
 	protected bool m_Expansion_HasDiscardedParachute;
+	protected bool m_Expansion_HasCollided;
 	protected bool m_Expansion_HasDynamicPhysics;
 	protected bool m_Expansion_IsLooted;
 	IEntity m_Expansion_LastContact;
@@ -48,6 +49,7 @@ class ExpansionAirdropContainerBase: House
 	float m_Expansion_SimulationTimeAccumulatorDiag;
 	int m_Expansion_SynchCount;
 	bool m_Expansion_HideCargoWhileParachuteIsDeployed;
+	bool m_Expansion_ExplodeAirVehiclesOnCollision;
 
 	private float m_Expansion_StartTime;
 
@@ -189,7 +191,7 @@ class ExpansionAirdropContainerBase: House
 	#ifdef DIAG_DEVELOPER
 		if (other != m_Expansion_LastContact)
 		{
-			EXTrace.Print(EXTrace.MISSIONS, this, "EOnContact other=" + ExpansionStatic.GetDebugInfo(other) + " isActive=" + dBodyIsActive(this) + " hasDynamicPhysics=" + m_Expansion_HasDynamicPhysics);
+			EXTrace.Print(EXTrace.MISSIONS, this, "EOnContact other=" + ExpansionStatic.GetDebugInfo(other) + " isActive(this)=" + dBodyIsActive(this) + " hasDynamicPhysics(this)=" + m_Expansion_HasDynamicPhysics);
 			m_Expansion_LastContact = other;
 		}
 	#endif
@@ -198,12 +200,34 @@ class ExpansionAirdropContainerBase: House
 
 		m_Expansion_HasDynamicPhysics = true;
 
-		if (!m_Expansion_HasDiscardedParachute)
+		Object obj;
+		if (!Class.CastTo(obj, other) || Expansion_CanCollideWith(obj))
 		{
-			Object obj;
-			if (!Class.CastTo(obj, other) || Expansion_CanCollideWith(obj))
-				Expansion_DiscardParachute();
+			if (obj)
+			{
+				if (Expansion_CanExplodeOther(obj))
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_ExplodeOther, obj);
+				else if (Expansion_CanCrushOther(obj))
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_CrushOther, obj);
+			}
+
+			if (!m_Expansion_HasDiscardedParachute && !m_Expansion_HasCollided)
+			{
+				m_Expansion_HasCollided = true;
+
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_DiscardParachute);
+			}
 		}
+	}
+
+	void Expansion_ExplodeOther(Object other)
+	{
+		other.Explode(DamageType.EXPLOSION, "Plastic_Explosive_Ammo");
+	}
+
+	void Expansion_CrushOther(Object other)
+	{
+		other.ProcessDirectDamage(DamageType.CUSTOM, this, "", "ExpansionAirdropContainerDamage", "0 0 0", 1.0);
 	}
 
 	override void EEDelete( EntityAI parent )
@@ -601,7 +625,7 @@ class ExpansionAirdropContainerBase: House
 		vector start = ModelToWorld(m_Expansion_Center);
 		start[1] = start[1] - m_Expansion_Height * 0.5;
 
-		vector surfacePos = ExpansionStatic.GetSurfaceRoadPosition(start, RoadSurfaceDetection.CLOSEST);
+		vector surfacePos = ExpansionStatic.GetSurfaceRoadPosition(start, RoadSurfaceDetection.UNDER);
 
 		float altitude = start[1] - surfacePos[1];
 
@@ -681,6 +705,44 @@ class ExpansionAirdropContainerBase: House
 	bool Expansion_CanCollideWith(Object obj)
 	{
 		if (obj.IsInherited(ExpansionAirdropPlaneBase) || (obj.IsItemBase() && !ExpansionStatic.CanObstruct(obj)) || obj.IsBush())
+			return false;
+
+		return true;
+	}
+
+	bool Expansion_CanCrushOther(Object other)
+	{
+		if (!other.IsMan() || !other.IsAlive() || GetPosition()[1] <= other.GetPosition()[1] + 1.1)
+			return false;
+
+		return true;
+	}
+
+	bool Expansion_CanExplodeOther(Object other)
+	{
+		//! Ignore if not a vehicle
+		if (!other.IsTransport())
+			return false;
+
+		//! Ignore if explosion on contact disabled
+		if (!m_Expansion_ExplodeAirVehiclesOnCollision)
+			return false;
+
+		//! Ignore if destroyed
+		if (other.IsDamageDestroyed())
+			return false;
+
+		//! Ignore if not active
+		if (!dBodyIsActive(other))
+			return false;
+
+		//! Ignore if not a heli or plane
+		ExpansionVehicle vehicle;
+		if (!ExpansionVehicle.Get(vehicle, other) || (!vehicle.IsHelicopter() && !vehicle.IsPlane()))
+			return false;
+
+		//! Ignore if engine off and not moving
+		if (!vehicle.EngineIsOn() && GetVelocity(other).LengthSq() < 0.01)
 			return false;
 
 		return true;
@@ -865,6 +927,8 @@ class ExpansionAirdropContainerBase_Server: ExpansionAirdropContainerBase
 		RegisterNetSyncVariableBool("m_Expansion_HideCargoWhileParachuteIsDeployed");
 	
 		SetEventMask( EntityEvent.INIT | EntityEvent.CONTACT );
+
+		m_Expansion_ExplodeAirVehiclesOnCollision = GetExpansionSettings().GetAirdrop().ExplodeAirVehiclesOnCollision;
 	}
 
 	override void AfterStoreLoad()

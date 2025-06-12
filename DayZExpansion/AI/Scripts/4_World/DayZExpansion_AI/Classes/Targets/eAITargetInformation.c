@@ -6,20 +6,10 @@
 class eAITargetInformation
 {
 	// in most circumstances an entity should only be in 1 group
-	autoptr map<int, ref eAITarget> m_Groups;  //! Contains all groups actively tracking this target
-
-	ref set<eAIBase> m_AI = new set<eAIBase>;  //! Contains all AI that know about this target (not necessarily actively tracking it)
+	ref map<int, int> m_Groups = new map<int, int>;  //! Contains all groups actively tracking this target
+	ref map<eAIBase, ref eAITarget> m_Targets = new map<eAIBase, ref eAITarget>;  //! Contains all AI that know about this target (not necessarily actively tracking it)
 
 	float m_MinDistance;
-
-	void eAITargetInformation()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "eAITargetInformation");
-#endif
-
-		m_Groups = new map<int, ref eAITarget>();
-	}
 
 	void ~eAITargetInformation()
 	{
@@ -51,6 +41,11 @@ class eAITargetInformation
 		auto trace = CF_Trace_0(this, "GetEntity");
 #endif
 
+		return null;
+	}
+
+	IEntity GetParent()
+	{
 		return null;
 	}
 
@@ -176,7 +171,7 @@ class eAITargetInformation
 	 * @param ai null default, gets the position for the AI if specified, otherwise returns a default value
 	 * @return EntityAI
 	 */
-	vector GetPosition(eAIBase ai = null, bool actual = false)
+	vector GetPosition(eAIBase ai = null, bool actual = false, eAITargetInformationState state = null)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "GetPosition").Add(ai);
@@ -206,7 +201,7 @@ class eAITargetInformation
 	 * @param ai null default, if given includes the AI in threat calculation
 	 * @return int
 	 */
-	float GetThreat(eAIBase ai = null, out eAITargetInformationState state = null, out bool created = false)
+	float GetThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "GetThreat").Add(ai);
@@ -215,14 +210,25 @@ class eAITargetInformation
 		if (!ai)
 			return CalculateThreat();
 
-		state = ai.eAI_GetTargetInformationState(this, true, created);
+		bool created;
 
-		if (created)
-			m_AI.Insert(ai);
+		if (!state)
+			state = GetTargetForAIEx(ai, true, created);
 
-		state.UpdateThreat();
+		if (!created)
+			state.UpdateThreat();
 
 		return state.m_ThreatLevel;
+	}
+
+	float GetCachedThreat(eAIBase ai, bool ignoreLOS = false)
+	{
+		eAITargetInformationState state = GetTargetForAI(ai);
+
+		if (state)
+			return state.GetCachedThreat(ignoreLOS);
+
+		return 0.0;
 	}
 
 	float CalculateThreat(eAIBase ai = null)
@@ -255,7 +261,7 @@ class eAITargetInformation
 		return minDist * minDist;
 	}
 
-	vector GetDirection(eAIBase ai, bool actual = false)
+	vector GetDirection(eAIBase ai, bool actual = false, eAITargetInformationState state = null)
 	{
 		return vector.Zero;
 	}
@@ -266,7 +272,7 @@ class eAITargetInformation
 	 * @param ai
 	 * @return float
 	 */
-	float GetDistance(eAIBase ai, bool actual = false)
+	float GetDistance(eAIBase ai, bool actual = false, eAITargetInformationState state = null)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "GetDistance").Add(ai);
@@ -275,7 +281,7 @@ class eAITargetInformation
 		return 0;
 	}
 
-	float GetDistanceSq(eAIBase ai, bool actual = false)
+	float GetDistanceSq(eAIBase ai, bool actual = false, eAITargetInformationState state = null)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "GetDistanceSq").Add(ai);
@@ -285,86 +291,71 @@ class eAITargetInformation
 	}
 
 	/**
-	 * @brief Refreshes the target time for the group
+	 * @brief Tells the target that the AI knows about it (not actively tracking)
 	 *
-	 * @param group the eAIGroup
-	 * @param max_time the new maximum time it should be targetting for, if -1 then not updated
+	 * @param ai eAIBase object
+	 * @param initialUpdate whether to update threat level and position on target creation
 	 */
-	void Update(eAIGroup group, int max_time = -1)
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_2(this, "Update").Add(group).Add(max_time);
-#endif
-
-		eAITarget target;
-		if (!m_Groups.Find(group.GetID(), target))
-			return;
-
-		target.found_at_time = GetGame().GetTime();
-		if (max_time != -1)
-			target.max_time = max_time;
-	}
-
-	/**
-	 * @brief Inserts the group into the target
-	 *
-	 * @param group_id group id of an eAIGroup
-	 */
-	eAITarget Insert(notnull eAIGroup group, int max_time = -1)
+	eAITarget InsertAI(eAIBase ai, bool initialUpdate = true)
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.AI, this, "" + group, "" + max_time);
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + ai, "" + initialUpdate);
 #endif
 
-		eAITarget target;
-		target = new eAITarget(group, GetGame().GetTime(), max_time, this);
-		if (!m_Groups.Insert(group.GetID(), target))
-			return null;
+		eAITarget target = new eAITarget(ai, this, initialUpdate);
 
-		group.OnTargetAdded(this);
+		m_Targets.Insert(ai, target);
+
+		ai.m_eAI_TargetInformationStates.Insert(this, target);
 
 		return target;
 	}
 
 	/**
-	 * @brief Tells the target that the AI is targeting it, inserting the group
+	 * @brief Tells the target that the AI is tracking it and returns a target object for the AI (creates if it doesn't exist)
 	 *
 	 * @param ai eAIBase object
-	 * @param max_time time the eAIBase will be targetting this target for
+	 * @param maxTime time the eAIBase will be tracking this target for, if -1 then the time isn't updated
+	 * @param initialUpdate whether to update threat level and position on target creation
 	 */
-	eAITarget Insert(eAIBase ai, int max_time = -1)
+	eAITarget AddAI(eAIBase ai, int maxTime = -1, bool initialUpdate = true, out bool created = false)
 	{
-#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.AI, this, "" + ai, "" + max_time);
-#endif
-
 		eAITarget target;
-		target = Insert(ai.GetGroup(), max_time);
-		if (!target)
-			return null;
-		if (target.AddAI(ai))
-			ai.OnAddTarget(target);
+
+		if (!m_Targets.Find(ai, target))
+		{
+			target = InsertAI(ai, initialUpdate);
+			created = true;
+		}
+
+		if (!target.m_IsTracked)
+			target.Track(maxTime);
+		else if (maxTime != -1)
+			target.m_MaxTime = maxTime;
+
 		return target;
 	}
 
 	/**
-	 * @brief Tells the target that the AI is targetting it. If the group didn't know about the target, insert the group
-	 *
-	 * @param ai eAIBase object
-	 * @param max_time time the eAIBase will be targetting this target for, if -1 then the time of the group isn't updated
+	 * @brief return target state for AI if it exists
 	 */
-	eAITarget AddAI(eAIBase ai, int max_time = -1)
+	eAITarget GetTargetForAI(eAIBase ai)
+	{
+		return m_Targets[ai];
+	}
+
+	/**
+	 * @brief return target state for AI (create if it doesn't exist)
+	 */
+	eAITarget GetTargetForAIEx(eAIBase ai, bool initialUpdate = true, out bool created = false)
 	{
 		eAITarget target;
-		int group_id = ai.GetGroup().GetID();
-		if (!m_Groups.Find(group_id, target))
-			return Insert(ai, max_time);
 
-		if (max_time != -1)
-			target.max_time = max_time;
-
-		if (target.AddAI(ai))
-			ai.OnAddTarget(target);
+		if (!m_Targets.Find(ai, target))
+		{
+			target = InsertAI(ai, initialUpdate);
+			created = true;
+		}
 
 		return target;
 	}
@@ -373,25 +364,24 @@ class eAITargetInformation
 	 * @brief Add/update target for all AI friendly to player
 	 * 
 	 * @param player
-	 * @param update If true (default) and AI is already targeting the target, update found_at_time and max_time
+	 * @param update If true (default) and AI is already targeting the target, update foundAtTime and maxTime
 	 * @param threat Initial threat level if non-zero
 	 */
-	void AddFriendlyAI(DayZPlayerImplement player, int max_time = -1, bool update = true, float threat = 0.0)
+	void AddFriendlyAI(DayZPlayerImplement player, int maxTime = -1, bool update = true, float threat = 0.0)
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.AI, this, "" + player, "" + max_time, "" + update, "" + threat);
+		auto trace = EXTrace.Start(EXTrace.AI, this, "" + player, "" + maxTime, "" + update, "" + threat);
 #endif
 
 		eAIBase ai;
 		if (Class.CastTo(ai, player))
-			m_AI.Insert(ai);
+			GetTargetForAIEx(ai, false);
 
 		eAIGroup group = player.GetGroup();
 		eAIFaction faction = group.GetFaction();
 		eAIGroup otherGroup;
-		eAITarget target;
 
-		foreach (eAIBase other: m_AI)
+		foreach (eAIBase other, eAITarget target: m_Targets)
 		{
 		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.AI, this, "" + other);
@@ -408,22 +398,18 @@ class eAITargetInformation
 					continue;
 			}
 
-			target = AddAI(other, max_time);
+			if (!target.m_IsTracked)
+				target.Track(maxTime);
+			else if (update)
+				target.Update(maxTime);
 
-			if (update)
-				target.Update(max_time);
-
-			if (threat > 0.0)
-			{
-				auto state = other.eAI_GetTargetInformationState(this, false);
-				if (threat > state.m_ThreatLevelActive)
-					state.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
-			}
+			if (threat > target.m_ThreatLevelActive)
+				target.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
 		}
 	}
 
 	/**
-	 * @brief Tells the target that the AI is no longer targetting it
+	 * @brief Tells the target that the AI is no longer tracking it
 	 *
 	 * @param ai eAIBase object
 	 */
@@ -433,200 +419,144 @@ class eAITargetInformation
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + ai);
 #endif
 
-		m_AI.RemoveItem(ai);
-
 		eAITarget target;
-		int group_id = ai.GetGroup().GetID();
-		if (!m_Groups.Find(group_id, target))
+		if (!m_Targets.Find(ai, target))
 			return false;
 
-		if (!target.RemoveAI(ai))
-			return false;
+		OnRemove(ai, target);
+		m_Targets.Remove(ai);
 
 		return true;
 	}
 
-	/**
-	 * @brief Tells the target that the group and it's AI is no longer targetting it
-	 *
-	 * @param group_id the ID of the eAIGroup
-	 */
-	void Remove(int group_id)
+	void OnRemove(eAIBase ai, eAITarget target)
 	{
-#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.AI, this, "" + group_id);
-#endif
+		if (ai)
+			ai.eAI_RemoveTarget(target);
 
-		eAITarget target;
-		if (!m_Groups.Find(group_id, target))
-			return;
+		int groupID = target.m_GroupID;
 
-		if (target.group)
+		eAIGroup group = target.m_Group;
+		if (!group)
 		{
-		#ifdef EXTRACE_DIAG
-			EXTrace.Add(trace, "leader " + target.group.GetLeader());
-		#endif
-
-			foreach (eAIBase ai : target.ai_list)
-			{
-				if (!ai)
-					continue;
-				
-				ai.OnRemoveTarget(target);
-
-				m_AI.RemoveItem(ai);
-			}
-
-			target.group.OnTargetRemoved(this);
+			m_Groups.Remove(target.m_GroupID);
+			return;
 		}
 
-		m_Groups.Remove(group_id);
-	}
+		int count;
 
-	/**
-	 * @brief Tells the target that the group and it's AI is no longer targetting it
-	 *
-	 * @param group the eAIGroup
-	 */
-	void Remove(eAIGroup group)
-	{
-		int group_id = group.GetID();
+		if (m_Groups.Find(groupID, count))
+		{
+			--count;
 
-		Remove(group_id);
+			if (count == 0)
+			{
+				group.OnTargetTrackingEnd(this);
+				m_Groups.Remove(groupID);
+			}
+			else if (count < 0)
+			{
+				EXError.Error(this, string.Format("Number of AI tracking %1 can't be below zero", GetDebugName()));
+			}
+			else
+			{
+				m_Groups[groupID] = count;
+			}
+		}
 	}
 
 	void RemoveFromAll()
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Start(EXTrace.AI, this, GetEntityDebugName());
+		auto trace = EXTrace.Start(EXTrace.AI, this, GetEntityDebugName(), "" + m_Targets.Count());
 #endif
 
-		foreach (int id, eAITarget target: m_Groups)
+		foreach (eAIBase ai, eAITarget target: m_Targets)
 		{
-			Remove(id);
+			if (target.m_IsTracked)
+				OnRemove(ai, target);
+			else if (ai)
+				ai.eAI_RemoveTargetInfoState(this);
 		}
 
-#ifdef DIAG_DEVELOPER
-		if (m_AI.Count())
-			EXTrace.Print(EXTrace.AI, this, "Removing AI that are not targeting");
-#endif
-		foreach (eAIBase ai: m_AI)
-		{
-			if (!ai)
-				continue;
-
-			ai.eAI_RemoveTargetInfoState(this);
-		}
+		m_Groups.Clear();
+		m_Targets.Clear();
 	}
 
 	/**
-	 * @brief Checks to see if any group/ai is currently targetting this target
+	 * @brief Checks to see if any group/ai is currently tracking this target
 	 *
-	 * @return bool true if being targetted, false otherwise
+	 * @return bool true if being tracked, false otherwise
 	 */
-	bool IsTargetted()
+	bool IsTracked()
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "IsTargetted");
-#endif
-
 		return m_Groups.Count() > 0;
 	}
 
 	/**
-	 * @brief Checks to see if the group specified is currently targetting this target
+	 * @brief Checks to see if the group specified is currently tracking this target
 	 *
 	 * @param group_id the group id of the eAIGroup
-	 * @return bool true if being targetted, false otherwise
+	 * @return bool true if being tracked, false otherwise
 	 */
-	bool IsTargetted(int group_id)
+	bool IsTrackedBy(int group_id)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "IsTargetted").Add(group_id);
-#endif
-
 		return m_Groups.Contains(group_id);
 	}
 
 	/**
-	 * @brief Checks to see if the group specified is currently targetting this target
+	 * @brief Checks to see if the group specified is currently tracking this target
 	 *
 	 * @param group the eAIGroup
-	 * @return bool true if being targetted, false otherwise
+	 * @return bool true if being tracked, false otherwise
 	 */
-	bool IsTargetted(notnull eAIGroup group)
+	bool IsTrackedBy(notnull eAIGroup group)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "IsTargetted").Add(group);
-#endif
-
 		return m_Groups.Contains(group.GetID());
 	}
 
 	/**
-	 * @brief Checks to see if the group specified is currently targetting this target
+	 * @brief Checks to see if the group specified is currently tracking this target
 	 *
 	 * @param group_id the group id of the eAIGroup
-	 * @return bool true if being targetted, false otherwise
+	 * @param [out] num_ai number of AI tracking this target
+	 * @return bool true if being tracked, false otherwise
 	 */
-	bool IsTargetted(int group_id, out int num_ai)
+	bool IsTrackedBy(int group_id, out int num_ai)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "IsTargetted").Add(group_id);
-#endif
-
-		eAITarget target;
-		if (!m_Groups.Find(group_id, target))
+		if (!m_Groups.Find(group_id, num_ai))
 			return false;
-
-		num_ai = target.ai_list.Count();
 
 		return true;
 	}
 
 	/**
-	 * @brief Checks to see if the group specified is currently targetting this target
+	 * @brief Checks to see if the group specified is currently tracking this target
 	 *
 	 * @param group the eAIGroup
-	 * @return bool true if being targetted, false otherwise
+	 * @return bool true if being tracked, false otherwise
 	 */
-	bool IsTargetted(notnull eAIGroup group, out int num_ai)
+	bool IsTrackedBy(notnull eAIGroup group, out int num_ai)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "IsTargetted").Add(group);
-#endif
-
-		eAITarget target;
-		if (!m_Groups.Find(group.GetID(), target))
+		if (!m_Groups.Find(group.GetID(), num_ai))
 			return false;
-
-		num_ai = target.ai_list.Count();
 
 		return true;
 	}
 
 	/**
-	 * @brief Checks to see if the AI specified is currently targetting this target
+	 * @brief Checks to see if the AI specified is currently tracking this target
 	 *
 	 * @param group the eAIGroup
-	 * @return bool true if being targetted, false otherwise
+	 * @return bool true if being tracked, false otherwise
 	 */
-	bool IsTargettedBy(eAIBase ai)
+	bool IsTrackedBy(eAIBase ai)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "IsTargettedBy").Add(ai);
-#endif
-
 		eAITarget target;
-		if (!m_Groups.Find(ai.GetGroup().GetID(), target))
+		if (!m_Targets.Find(ai, target))
 			return false;
 
-		return target.FindAI(ai) != -1;
-	}
-
-	eAITarget GetTarget(notnull eAIGroup group)
-	{
-		return m_Groups[group.GetID()];
+		return target.m_IsTracked;
 	}
 
 	//! entity specific implementations for abstracted call in eAIEntityTargetInformation

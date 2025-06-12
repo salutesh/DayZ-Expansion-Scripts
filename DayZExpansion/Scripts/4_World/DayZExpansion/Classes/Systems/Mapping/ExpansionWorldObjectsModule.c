@@ -15,21 +15,8 @@ modded class ExpansionWorldObjectsModule
 	static ref ScriptInvoker SI_LampEnable = new ScriptInvoker();
 	static ref ScriptInvoker SI_LampDisable = new ScriptInvoker();
 
-	private autoptr array< vector > m_LightGenerators;
+	private autoptr array< vector > m_LightGenerators = {};
 
-	private string m_WorldName;
- 	
-	// ------------------------------------------------------------
-	// ExpansionWorldObjectsModule Constructor
-	// ------------------------------------------------------------
-	void ExpansionWorldObjectsModule()
-	{
-		m_LightGenerators = new array< vector >;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion OnInit
-	// ------------------------------------------------------------
 	override void OnInit()
 	{
 		super.OnInit();
@@ -48,23 +35,24 @@ modded class ExpansionWorldObjectsModule
 		if (!GetGame().IsServer())
 			return;
 
-		m_WorldName = ExpansionStatic.GetCanonicalWorldName();
+		string worldName = ExpansionStatic.GetCanonicalWorldName();
 
 		if (GetExpansionSettings().GetGeneral().Mapping && GetExpansionSettings().GetGeneral().Mapping.UseCustomMappingModule)
 		{
 			foreach (string name: GetExpansionSettings().GetGeneral().Mapping.Mapping)
 			{
-				LoadObjectsFile(EXPANSION_MAPPING_FOLDER + m_WorldName + "/" + name + EXPANSION_MAPPING_EXT);
+				LoadObjectsFile(EXPANSION_MAPPING_FOLDER + worldName + "/" + name + EXPANSION_MAPPING_EXT);
 			}
 
 		}
 	}
 
-	// ------------------------------------------------------------
-	// Expansion OnMissionLoaded
-	// ------------------------------------------------------------
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.MAPPING, this);
+	#endif
+
 		super.OnMissionLoaded(sender, args);
 
 		if ( !IsMissionOffline() && IsMissionClient() )
@@ -74,11 +62,12 @@ modded class ExpansionWorldObjectsModule
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion RPC_TurnOn
-	// ------------------------------------------------------------	
 	private void RPC_TurnOn(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.MAPPING, this);
+	#endif
+
 		vector position;
 		if ( ctx.Read( position ) )
 		{
@@ -87,11 +76,12 @@ modded class ExpansionWorldObjectsModule
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion RPC_TurnOff
-	// ------------------------------------------------------------	
 	private void RPC_TurnOff(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.MAPPING, this);
+	#endif
+
 		vector position;
 		if ( ctx.Read( position ) )
 		{
@@ -100,35 +90,65 @@ modded class ExpansionWorldObjectsModule
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion RPC_Load
-	// ------------------------------------------------------------	
 	private void RPC_Load(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.MAPPING, this);
+	#endif
+
+		int count;
+		vector position;
+
 		if ( IsMissionHost() )
 		{
 			auto rpc = Expansion_CreateRPC("RPC_Load");
-			rpc.Write( m_LightGenerators );
-			rpc.Expansion_Send(true, senderRPC);
-		} else
-		{
-			ctx.Read( m_LightGenerators );
 
-			for ( int i = 0; i < m_LightGenerators.Count(); i++ )
+			count = m_LightGenerators.Count();
+
+			rpc.Write(count);
+
+			for (int i = 0; i < count; ++i)
 			{
-				SI_LampEnable.Invoke( m_LightGenerators[i] );
+				position = m_LightGenerators[i];
+				rpc.Write(position[0]);
+				rpc.Write(position[1]);
+				rpc.Write(position[2]);
+			}
+
+			rpc.Expansion_Send(true, senderRPC);
+		}
+		else
+		{
+			m_LightGenerators.Clear();
+
+			if (!ctx.Read(count))
+				return;
+
+			while (count--)
+			{
+				float x, y, z;
+
+				if (!ctx.Read(x))
+					return;
+
+				if (!ctx.Read(y))
+					return;
+
+				if (!ctx.Read(z))
+					return;
+
+				position = Vector(x, y, z);
+				m_LightGenerators.Insert(position);
+				SI_LampEnable.Invoke(position);
 			}
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion TurnOnGenerator
-	// ------------------------------------------------------------	
 	void TurnOnGenerator( vector position )
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("TurnOnGenerator - Start - " + position );
-		#endif
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.MAPPING, this);
+	#endif
 
 		m_LightGenerators.Insert( position );
 
@@ -141,20 +161,13 @@ modded class ExpansionWorldObjectsModule
 			rpc.Write( position );
 			rpc.Expansion_Send(true);
 		}
-
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("TurnOnGenerator - End - " + position );
-		#endif
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion TurnOffGenerator
-	// ------------------------------------------------------------	
 	void TurnOffGenerator( vector position )
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("TurnOffGenerator - Start - " + position );
-		#endif
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.MAPPING, this);
+	#endif
 
 		m_LightGenerators.RemoveItem( position );
 
@@ -168,9 +181,5 @@ modded class ExpansionWorldObjectsModule
 			rpc.Write( position );
 			rpc.Expansion_Send(true);
 		}
-
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("TurnOffGenerator - End - " + position );
-		#endif
 	}
 };

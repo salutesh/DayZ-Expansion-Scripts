@@ -3654,11 +3654,12 @@ modded class CarScript
 		EXTrace.Add(trace, data);
 #endif
 
-		auto item = ItemBase.Cast(other);
-		if (item && !dBodyIsDynamic(item) && item.Expansion_CarContactActivates() && !item.GetHierarchyParent())
-		{
-			item.ExpansionCreateDynamicFromContact(this, data.Position, data);
-		}
+		//! DayZ 1.28 broke this (segfault with certain items like wheels)
+		//auto item = ItemBase.Cast(other);
+		//if (item && !dBodyIsDynamic(item) && item.Expansion_CarContactActivates() && !item.GetHierarchyParent())
+		//{
+			//item.ExpansionCreateDynamicFromContact(this, data.Position, data);
+		//}
 
 		if (s_ExpansionPhysicsStructure_Enabled)
 		{

@@ -2549,7 +2549,33 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static vector GetSurfaceRoadPosition(float x, float y, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER)
 	{
-		return Vector(x, GetGame().SurfaceRoadY3D(x, y + 0.1, z, rsd), z);
+		return Vector(x, GetSurfaceRoadY3D(x, y + 0.1, z, rsd), z);
+	}
+
+	static float GetSurfaceRoadY3D(float x, float y, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER)
+	{
+		float roadY;
+
+		switch (rsd)
+		{
+			case RoadSurfaceDetection.CLOSEST:
+				//! CLOSEST doesn't always return actual closest surface https://feedback.bistudio.com/T192568
+				float roadY_Above = GetGame().SurfaceRoadY3D(x, y, z, RoadSurfaceDetection.ABOVE);
+				float roadY_Under = GetGame().SurfaceRoadY3D(x, y, z, RoadSurfaceDetection.UNDER);
+				float dist_Above = Math.AbsFloat(roadY_Above - y);
+				float dist_Under = Math.AbsFloat(roadY_Under - y);
+				if (dist_Above < dist_Under)
+					roadY = roadY_Above;
+				else
+					roadY = roadY_Under;
+				break;
+
+			default:
+				roadY = GetGame().SurfaceRoadY3D(x, y, z, rsd);
+				break;
+		}
+
+		return roadY;
 	}
 
 	static vector GetSurfaceRoadPosition(float x, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.LEGACY)

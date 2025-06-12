@@ -1,9 +1,9 @@
 //! Fix for vanilla bug of being able to access barrels etc through tent windows from certain angles
 modded class ActionTargets
 {
-	override private float ComputeUtility(Object pTarget, vector pRayStart, vector pRayEnd, Object cursorTarget, vector hitPos)
+	override private float ComputeUtility(Object pTarget, vector pRayStart, vector pRayEnd, Object cursorTarget, vector hitPos, SurfaceInfo surfaceInfo)
 	{
-		float utility = super.ComputeUtility(pTarget, pRayStart, pRayEnd, cursorTarget, hitPos);
+		float utility = super.ComputeUtility(pTarget, pRayStart, pRayEnd, cursorTarget, hitPos, surfaceInfo);
 
 		ItemBase targetItem;
 		if (pTarget == cursorTarget && utility > 0 && Class.CastTo(targetItem, pTarget))

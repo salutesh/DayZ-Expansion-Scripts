@@ -7,8 +7,7 @@ class CfgPatches
 		requiredVersion=0.1;
 		requiredAddons[]=
 		{
-			"DZ_Characters",
-			"DZ_Gear_Optics"
+			"DZ_Data"
 		};
 	};
 };

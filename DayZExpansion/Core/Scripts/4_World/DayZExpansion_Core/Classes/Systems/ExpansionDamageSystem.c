@@ -341,6 +341,15 @@ class ExpansionDamageSystem
 			//! Note that this only works as intended if damage source root is not a player,
 			//! else won't be able to get actual source's position in relation to target
 
+			//! Calling ProcessDirectDamage with source being any static/baked entity segfaults (https://feedback.bistudio.com/T192088)
+			if (!source.IsItemBase() && !source.IsDayZCreature() && !source.IsMan() && !source.IsTransport())
+			{
+				if (!target.IsItemBase() && !target.IsDayZCreature() && !target.IsMan() && !target.IsTransport())
+					return true;
+				else
+					source = target;
+			}
+
 			float dmg = damageResult.GetDamage(dmgZone, "Health");
 
 			float dmgDirectHit;

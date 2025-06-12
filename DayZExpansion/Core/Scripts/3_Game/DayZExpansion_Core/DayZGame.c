@@ -300,6 +300,13 @@ modded class DayZGame
 				else
 					EXTrace.Print(EXTrace.RPC, this, "Info: Targeted Expansion RPC received, but target doesn't exist");
 				break;
+			case ExpansionScriptRPC.EXPANSION_RPC_SJ:
+				int junctureID;
+				if (ctx.Read(junctureID))
+					m_ExpansionGame.OnSyncJuncture(target, junctureID, ctx);
+				else
+					EXError.Error(this, "Expansion Sync Juncture received, but couldn't read juncture ID");
+				break;
 			default:
 				super.OnRPC(sender, target, rpc_type, ctx);
 				break;

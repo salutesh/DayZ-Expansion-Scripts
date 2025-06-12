@@ -342,42 +342,27 @@ class CfgVehicles
 						
 						{
 							1,
-							
-							{
-								"DZ\vehicles\parts\data\glowplug.rvmat"
-							}
+							{}
 						},
 						
 						{
 							0.69999999,
-							
-							{
-								"DZ\vehicles\parts\data\glowplug.rvmat"
-							}
+							{}
 						},
 						
 						{
 							0.5,
-							
-							{
-								"DZ\vehicles\parts\data\glowplug_damage.rvmat"
-							}
+							{}
 						},
 						
 						{
 							0.30000001,
-							
-							{
-								"DZ\vehicles\parts\data\glowplug_damage.rvmat"
-							}
+							{}
 						},
 						
 						{
 							0,
-							
-							{
-								"DZ\vehicles\parts\data\glowplug_destruct.rvmat"
-							}
+							{}
 						}
 					};
 				};

@@ -44,15 +44,15 @@
 				auto target = unit.GetTarget();
 				if (target)
 				{
-					position = target.GetPosition(unit, false);
-					fsm.DistanceToTargetSq = target.GetDistanceSq(unit, true);
+					position = target.GetPosition(false);
+					fsm.DistanceToTargetSq = target.GetDistanceSq(true);
 					
 					bool shouldBeMeleeing = false;
 					
 					auto hands = unit.GetHumanInventory().GetEntityInHands();
 					auto targetEntity = target.GetEntity();
 					auto itemTarget = ItemBase.Cast(targetEntity);
-					if (itemTarget &amp;&amp; (!itemTarget.Expansion_IsExplosive() || unit.eAI_GetTargetThreat(target.info, true) &gt; 0.4))
+					if (itemTarget &amp;&amp; (!itemTarget.Expansion_IsExplosive() || target.GetCachedThreat(true) &gt; 0.4))
 					{
 						wantsLower = true;
 					}
@@ -127,7 +127,7 @@
 					else
 					{
 						unit.OverrideMovementDirection(false, 0);
-						if (itemTarget &amp;&amp; itemTarget.Expansion_IsExplosive() &amp;&amp; wantsLower &amp;&amp; fsm.DistanceToTargetSq &lt; target.GetMinDistanceSq(unit))
+						if (itemTarget &amp;&amp; itemTarget.Expansion_IsExplosive() &amp;&amp; wantsLower &amp;&amp; fsm.DistanceToTargetSq &lt; target.GetMinDistanceSq())
 							unit.OverrideMovementSpeed(true, 3);
 						else 
 							unit.OverrideMovementSpeed(false, 0);
@@ -135,7 +135,7 @@
 						movementDirection = 0;
 					}
 					
-					if ((!itemTarget &amp;&amp; ((hands &amp;&amp; hands.IsWeapon()) || target.GetMinDistance(unit) &gt; 0.0 || !target.CanMeleeIfClose(unit))) || (itemTarget &amp;&amp; itemTarget.Expansion_IsDanger()))
+					if ((!itemTarget &amp;&amp; ((hands &amp;&amp; hands.IsWeapon()) || target.GetMinDistance() &gt; 0.0 || !target.CanMeleeIfClose())) || (itemTarget &amp;&amp; itemTarget.Expansion_IsDanger()))
 					{
 						unit.OverrideTargetPosition(target);
 					}
@@ -224,8 +224,8 @@
 				if (!target)
 					return EXIT;
 				
-				auto lowPosition = target.GetPosition(unit, false);
-				auto aimPosition = lowPosition + target.GetAimOffset(unit);
+				auto lowPosition = target.GetPosition(false);
+				auto aimPosition = lowPosition + target.GetAimOffset();
 				
 				time += DeltaTime;
 				unit.OverrideTargetPosition(target);
@@ -296,8 +296,7 @@
 				
 				if (target)
 				{
-					auto state = unit.eAI_GetTargetInformationState(target.info);
-					state.m_SkipMelee = false;
+					target.m_SkipMelee = false;
 				}
 			</event_exit>
 			<event_update>
@@ -307,7 +306,7 @@
 				if (!target)
 					return EXIT;
 				
-				auto lowPosition = target.GetPosition(unit, false);
+				auto lowPosition = target.GetPosition(false);
 				
 				time += DeltaTime;
 				if (target.IsMechanicalTrap())
@@ -315,7 +314,7 @@
 				else
 					unit.OverrideTargetPosition(lowPosition);
 				
-				fsm.DistanceToTargetSq = target.GetDistanceSq(unit, true);
+				fsm.DistanceToTargetSq = target.GetDistanceSq(true);
 				
 				if (unit.IsFighting())
 				{
@@ -403,17 +402,16 @@
 				
 				if (unit.eAI_ShouldBandage() &amp;&amp; unit.GetBandageToUse()) return FAIL;
 				
-				// we are targetting an entity?
 				dst.target = unit.GetTarget();
 				if (!dst.target) return FAIL;
 				
-				if (!dst.target.IsMeleeViable(unit) || dst.target.GetThreat(unit) &lt; 0.4) return FAIL;
+				if (!dst.target.IsMeleeViable() || dst.target.GetThreat() &lt; 0.4) return FAIL;
 				
-				if (dst.target.ShouldAvoid(unit)) return FAIL;
+				if (dst.target.ShouldAvoid()) return FAIL;
 				
 				if (unit.m_eAI_HasProjectileWeaponInHands)
 				{
-					if (unit.eAI_SkipMelee("skipping melee", dst.target.info, false))
+					if (unit.eAI_SkipMelee("skipping melee", dst.target, false))
 						return FAIL;
 				}
 				
@@ -442,7 +440,7 @@
 				
 				if (!targetPlayer.IsRaised()) return FAIL;  //! Ignore if target player isn't raised
 				
-				if (!unit.eAI_HasLOS(target)) return FAIL;
+				if (!target.m_LOS) return FAIL;
 				
 				auto weapon = Weapon_Base.Cast(targetPlayer.GetHumanInventory().GetEntityInHands());
 				if (!weapon) return FAIL;  //! Ignore if target player doesn't have a firearm
@@ -480,7 +478,7 @@
 				PlayerBase player;
 				EntityAI targetEntity = dst.target.GetEntity();
 				ItemBase itemTarget;
-				float dist = dst.target.GetDistance(unit);
+				float dist = dst.target.GetDistance();
 				if (!targetEntity)
 				{
 					return FAIL;
@@ -509,7 +507,7 @@
 				
 				if (!Class.CastTo(dst.weapon, unit.GetItemInHands()) || dst.weapon.IsDamageDestroyed()) return FAIL;
 				
-				if (!unit.CanRaiseWeapon() || !unit.eAI_HasLOS(dst.target)) return FAIL;
+				if (!unit.CanRaiseWeapon() || !dst.target.m_LOS) return FAIL;
 				
 				if (!dst.weapon.Expansion_IsChambered()) return FAIL;
 				
@@ -523,7 +521,7 @@
 					minDist = dst.weapon.Expansion_GetMinSafeFiringDistance();
 				
 				if (dst.target.IsExplosive())
-					minDist = Math.Max(dst.target.GetMinDistance(unit), minDist);
+					minDist = Math.Max(dst.target.GetMinDistance(), minDist);
 				
 				if (minDist)
 				{
@@ -533,7 +531,7 @@
 					//! Avoid firing if other friendly units within minDist from tgt
 					float minDistSq = minDist * minDist;
 					
-					vector aimPosition = dst.target.GetPosition(unit) + dst.target.GetAimOffset(unit);
+					vector aimPosition = dst.target.GetPosition() + dst.target.GetAimOffset();
 					
 					vector min = Vector(aimPosition[0] - minDist, aimPosition[1] - minDist, aimPosition[2] - minDist);
 					vector max = Vector(aimPosition[0] + minDist, aimPosition[1] + minDist, aimPosition[2] + minDist);

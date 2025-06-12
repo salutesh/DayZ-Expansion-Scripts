@@ -75,14 +75,11 @@ modded class DayZIntroScenePC
 			world.SetDate(date.Get(0), date.Get(1), date.Get(2), date.Get(3), date.Get(4));
 		}
 
-		GetGame().ObjectDelete(m_Camera);
-		Class.CastTo(m_Camera, g_Game.CreateObject("staticcamera", g_Game.ConfigGetVector(scene_path + " CameraPosition"), true));
-
 		if (m_Camera)
 		{
+			m_Camera.SetPosition(g_Game.ConfigGetVector(scene_path + " CameraPosition"));
+
 			m_Camera.SetFOV(g_Game.ConfigGetFloat(m_Expansion_CustomScene + " fov"));
-			m_Camera.SetFocus(5.0, 0.0); //5.0, 1.0
-			m_Camera.SetActive(true);
 			m_Camera.SetOrientation(g_Game.ConfigGetVector(m_Expansion_CustomScene + " CameraOrientation"));
 
 			//! Equip Player with scene specific stuff here
@@ -93,24 +90,28 @@ modded class DayZIntroScenePC
 			ExpansionWorldObjectsModule.LoadObjects(mapping, true);
 		}
 
-		float overcast, rain, windspeed, fog;
-		overcast = g_Game.ConfigGetFloat(scene_path + " overcast");
-		rain = g_Game.ConfigGetFloat(scene_path + " rain");
-		fog = g_Game.ConfigGetFloat(scene_path + " fog");
-		windspeed = g_Game.ConfigGetFloat(scene_path + " windspeed");
-		m_Weather = g_Game.GetWeather();
+		float overcast = g_Game.ConfigGetFloat(scene_path + " overcast");
+		float rain = g_Game.ConfigGetFloat(scene_path + " rain");
+		float snowfall = g_Game.ConfigGetFloat(scene_path + " snowfall");
+		float fog = g_Game.ConfigGetFloat(scene_path + " fog");
+		float windspeed = g_Game.ConfigGetFloat(scene_path + " windspeed");
+
 		m_Weather.GetOvercast().SetLimits(overcast, overcast);
 		m_Weather.GetRain().SetLimits(rain, rain);
-		m_Weather.GetFog().SetLimits(fog, fog );
-		m_Weather.GetOvercast().Set(overcast, overcast, 0);
-		m_Weather.GetRain().Set(rain, rain, 0);
-		m_Weather.GetFog().Set(fog, fog, 0);
+		m_Weather.GetSnowfall().SetLimits(snowfall, snowfall);
+		//! Setting fog makes the client segfault when (re-)connecting to server from main menu under DayZ 1.28
+		//m_Weather.GetFog().SetLimits(fog, fog );
+
+		m_Weather.GetOvercast().Set(overcast, 0, 0);
+		m_Weather.GetRain().Set(rain, 0, 0);
+		m_Weather.GetSnowfall().Set(snowfall, 0, 0);
+		//! Setting fog makes the client segfault when (re-)connecting to server from main menu under DayZ 1.28
+		//m_Weather.GetFog().Set(fog, 0, 0);
 
 		if ( windspeed != -1 )
 		{
 			m_Weather.SetWindSpeed(windspeed);
 			m_Weather.SetWindMaximumSpeed(windspeed);
-			m_Weather.SetWindFunctionParams(windspeed,windspeed,0);
 		}
 
 		m_DeltaX = Math.AbsFloat(m_CharacterPos[0] - m_Camera.GetPosition()[0]);
@@ -219,6 +220,7 @@ modded class DayZIntroScenePC
 		float fov = g_Game.ConfigGetFloat(scene_path + " fov");
 		float overcast = g_Game.ConfigGetFloat(scene_path + " overcast");
 		float rain = g_Game.ConfigGetFloat(scene_path + " rain");
+		float snowfall = g_Game.ConfigGetFloat(scene_path + " snowfall");
 		float fog = g_Game.ConfigGetFloat(scene_path + " fog");
 		float windspeed = -1;
 		if ( g_Game.ConfigIsExisting(scene_path + " windspeed") ) 	windspeed = g_Game.ConfigGetFloat(scene_path + " windspeed");
@@ -231,8 +233,7 @@ modded class DayZIntroScenePC
 			world.SetDate(date.Get(0), date.Get(1), date.Get(2), date.Get(3), date.Get(4));
 		}
 	
-		GetGame().ObjectDelete( m_Camera );
-		Class.CastTo(m_Camera, g_Game.CreateObject("staticcamera", SnapToGround(position), true)); //Vector(position[0] , position[1] + 1, position[2])
+		if (m_Camera) m_Camera.SetPosition(SnapToGround(position));
 		
 		Math3D.MatrixIdentity4(m_CameraTrans);
 		
@@ -259,14 +260,18 @@ modded class DayZIntroScenePC
 			m_CharacterRot[0] = Math.Atan2(to_cam_dir[0], to_cam_dir[2]) * Math.RAD2DEG;
 		}
 		
-		m_Weather = g_Game.GetWeather();
+		
 		m_Weather.GetOvercast().SetLimits( overcast, overcast );
 		m_Weather.GetRain().SetLimits( rain, rain );
-		m_Weather.GetFog().SetLimits( fog, fog );
+		m_Weather.GetSnowfall().SetLimits( snowfall, snowfall );
+		//! Setting fog makes the client segfault when (re-)connecting to server from main menu under DayZ 1.28
+		//m_Weather.GetFog().SetLimits( fog, fog );
 		
 		m_Weather.GetOvercast().Set( overcast, 0, 0);
 		m_Weather.GetRain().Set( rain, 0, 0);
-		m_Weather.GetFog().Set( fog, 0, 0);
+		m_Weather.GetSnowfall().Set( snowfall, 0, 0);
+		//! Setting fog makes the client segfault when (re-)connecting to server from main menu under DayZ 1.28
+		//m_Weather.GetFog().Set( fog, 0, 0);
 		
 		if ( storm.Count() == 3 )
 		{
@@ -277,14 +282,9 @@ modded class DayZIntroScenePC
 		{
 			m_Weather.SetWindSpeed(windspeed);
 			m_Weather.SetWindMaximumSpeed(windspeed);
-			m_Weather.SetWindFunctionParams(1,1,1);
 		}
 		
 		m_Character.LoadCharacterData(m_CharacterPos, m_CharacterRot);
-		
-		PPEffects.Init(); //Deprecated, left in for legacy purposes only
-		
-		GetGame().GetCallQueue(CALL_CATEGORY_GUI).Call(SetInitPostprocesses);
 	}
 
 	bool Expansion_IsCustomScene()

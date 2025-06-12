@@ -414,7 +414,7 @@ class eAIDynamicPatrol : eAIPatrol
 
 	static void LoadBalancing_Setup()
 	{
-		int playerCount = GetDayZGame().m_eAI_PlayerCount;
+		int playerCount = PlayerBase.Expansion_GetOnlinePlayersCount();
 
 		s_LoadBalancingGlobal = null;
 

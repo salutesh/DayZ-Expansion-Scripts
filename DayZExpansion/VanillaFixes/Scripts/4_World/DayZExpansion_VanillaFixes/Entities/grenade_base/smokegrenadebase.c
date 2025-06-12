@@ -5,6 +5,7 @@ modded class SmokeGrenadeBase
 	//! which in turn causes ExplosivesBase::EEKilled to fire, which calls InitiateExplosion -> OnExplode,
 	//! which starts a timer to call DeleteSafe, which deletes the grenade and makes the smoke particle stop abruptly.
 	//! Prevent this by turning OnExplode into a no-op for chemical and nonlethal smoke grenades w/o defined ammo.
+	//! https://feedback.bistudio.com/T189673
 	override protected void OnExplode()
 	{
 		switch (GetGrenadeType())

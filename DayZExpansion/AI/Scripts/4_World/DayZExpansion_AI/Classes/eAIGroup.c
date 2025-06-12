@@ -663,37 +663,31 @@ class eAIGroup
 
 		eAIBase ai;
 		eAITarget target;
+		bool created;
 		foreach (DayZPlayerImplement member: m_Members)
 		{
 			if (Class.CastTo(ai, member))
 			{
-				target = info.AddAI(ai, max_time);
+				target = info.AddAI(ai, max_time, false, created);
 
-				if (update)
-				{
-					target.Update(max_time);
-					update = false;  //! Since targets are per-group, we only need to do this once per loop
-				}
+				if (!created && update)
+					target.UpdateFoundAtTime();
 
-				if (threat > 0.0)
-				{
-					auto state = ai.eAI_GetTargetInformationState(info, false);
-					if (threat > state.m_ThreatLevelActive)
-						state.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
-				}
+				if (threat > target.m_ThreatLevelActive)
+					target.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
 			}
 		}
 	}
 
 	/**
-	 * @brief Internal event fired when this group needs to know that is now targetting something
+	 * @brief Internal event fired when this group needs to know that any AI member is now tracking a target
 	 *
-	 * @param target The target being added
+	 * @param target The target being tracked
 	 */
-	void OnTargetAdded(eAITargetInformation target)
+	void OnTargetTrackingStart(eAITargetInformation target)
 	{
 #ifdef DIAG_DEVELOPER
-		EXTrace.Print(EXTrace.AI, this, "OnTargetAdded " + target.GetDebugName());
+		EXTrace.Print(EXTrace.AI, this, "OnTargetTrackingStart " + target.GetDebugName());
 #endif
 
 		m_Targets.Insert(target);
@@ -711,28 +705,19 @@ class eAIGroup
 	}
 
 	/**
-	 * @brief Internal event fired when this group needs to know that is no longer targetting something
+	 * @brief Internal event fired when this group needs to know that none of its AI members are tracking a target anymore
 	 *
 	 * @param target The target being removed
 	 */
-	void OnTargetRemoved(eAITargetInformation target)
+	void OnTargetTrackingEnd(eAITargetInformation target)
 	{
 #ifdef DIAG_DEVELOPER
-		EXTrace.Print(EXTrace.AI, this, "OnTargetRemoved " + target.GetDebugName());
+		EXTrace.Print(EXTrace.AI, this, "OnTargetTrackingEnd " + target.GetDebugName());
 #endif
 
 		m_Targets.RemoveItem(target);
 	}
 
-	/**
-	 * @brief This target is both used by the owned AI's and enemy groups.
-	 * The owned AI's will use this to get the position they should move to
-	 * The enemy AI's will use this similar to a normal entity if they are
-	 * targetting the group as a whole and not a singular AI. If they are
-	 * targetting a singular AI then they would use GetTargetInformation.
-	 *
-	 * @return the target
-	 */
 	eAIGroupTargetInformation GetTargetInformation()
 	{
 #ifdef EAI_TRACE

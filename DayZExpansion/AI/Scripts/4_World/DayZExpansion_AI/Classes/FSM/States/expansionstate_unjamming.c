@@ -32,7 +32,7 @@ class ExpansionState_Unjamming: eAIState
 			}
 			
 			auto target = unit.GetTarget();
-			if (target && target.GetDistanceSq(unit, true) <= 2.25)
+			if (target && target.GetDistanceSq(true) <= 2.25)
 			{
 				unit.OverrideMovementDirection(true, -180);
 			}
