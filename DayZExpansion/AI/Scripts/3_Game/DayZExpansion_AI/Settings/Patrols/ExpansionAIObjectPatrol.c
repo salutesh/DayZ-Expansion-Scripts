@@ -113,7 +113,23 @@ class ExpansionAIObjectPatrol: ExpansionAIDynamicSpawnBase
 		}
 
 		if (WaypointInterpolation)
-			return ExpansionMath.PathInterpolated(waypoints, typename.StringToEnum(ECurveType, WaypointInterpolation), MaxSpreadRadius > 0);
+		{
+			int curveType;
+
+			if (!ExpansionStatic.StringToEnumEx(ECurveType, WaypointInterpolation, curveType))
+			{
+				EXError.Error(null, string.Format("WaypointInterpolation \"%1\" is not one of the valid values, \"CatmullRom\", \"NaturalCubic\" or \"UniformCubic\"", WaypointInterpolation), {});
+			}
+			else
+			{
+				bool smooth;
+
+				if (MaxSpreadRadius > 0)
+					smooth = true;
+
+				return ExpansionMath.PathInterpolated(waypoints, curveType, smooth);
+			}
+		}
 
 		return waypoints;
 	}

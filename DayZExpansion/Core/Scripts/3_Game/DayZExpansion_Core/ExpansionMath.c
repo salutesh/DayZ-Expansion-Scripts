@@ -266,6 +266,12 @@ class ExpansionMath
 		auto trace = EXTrace.Start(EXTrace.PATH_INTERPOLATION, ExpansionMath);
 #endif
 
+		if (!ExpansionStatic.HasEnumValue(ECurveType, curveType))
+		{
+			EXError.Error(null, "Invalid ECurveType value " + curveType);
+			return path;
+		}
+
 		if (path.Count() < 3)
 			return path;
 

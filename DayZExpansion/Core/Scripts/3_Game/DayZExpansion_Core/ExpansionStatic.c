@@ -426,6 +426,20 @@ class ExpansionStatic: ExpansionStaticCore
 		return false;
 	}
 
+	static bool HasEnumValue(typename e, int enumValue)
+	{
+		int cnt = e.GetVariableCount();
+		int val;
+
+		for (int i = 0; i < cnt; i++)
+		{
+			if (e.GetVariableType(i) == int && e.GetVariableValue(null, i, val) && val == enumValue)
+				return true;
+		}
+
+		return false;
+	}
+
 	/**
 	 * @brief Float to string conversion
 	 * 
