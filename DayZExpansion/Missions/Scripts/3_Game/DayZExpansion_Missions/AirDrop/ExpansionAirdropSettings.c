@@ -43,10 +43,11 @@ class ExpansionAirdropSettingsV4: ExpansionAirdropSettingsBase
 
 class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
 
 	string AirdropPlaneClassName;
 	float DropZoneProximityDistance;
+	bool ExplodeAirVehiclesOnCollision;
 	
 	ref array < ref ExpansionLootContainer > Containers = {};
 
@@ -173,6 +174,12 @@ class ExpansionAirdropSettings: ExpansionAirdropSettingsBase
 					{
 						Defaults();
 						return false;
+					}
+
+					foreach (ExpansionLootContainer container: Containers)
+					{
+						if (configbase.m_Version < 8 && !container.ExplodeAirVehiclesOnCollision)
+							container.ExplodeAirVehiclesOnCollision = -1;
 					}
 				}
 

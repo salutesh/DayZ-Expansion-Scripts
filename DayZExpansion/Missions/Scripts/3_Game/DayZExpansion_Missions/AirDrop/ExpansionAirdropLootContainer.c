@@ -50,6 +50,7 @@ class ExpansionLootContainerV1: ExpansionLootContainerBase
 
 class ExpansionLootContainer: ExpansionLootContainerBase
 {
+	int ExplodeAirVehiclesOnCollision;
 	ref array < ref ExpansionLoot > Loot;
 
 	void ExpansionLootContainer( string container = "", int usage = -1, float weight = -1, array < ref ExpansionLoot > loot = NULL, TStringArray infected = NULL, int itemCount = -1, int infectedCount = -1, bool spawnInfectedForPlayerCalledDrops = false, float fallSpeed = 4.5 )

@@ -137,7 +137,10 @@ class ExpansionHelicopterHud : VehicleHudBase
 	}
 
 	override void RefreshVehicleHud(float timeslice)
-	{	
+	{
+		if (!m_CurrentHelicopter)
+			return;
+
 		//! altimeter
 		float altValue = m_CurrentHelicopter.GetPosition()[1];
 		float altTE = (altValue / 100) * 360;	//! 10m steps

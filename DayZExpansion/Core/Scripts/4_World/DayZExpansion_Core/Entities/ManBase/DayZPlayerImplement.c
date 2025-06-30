@@ -313,15 +313,18 @@ modded class DayZPlayerImplement
 			trace = EXTrace.Start(EXTrace.PLAYER, this, "EXPANSION_SJ_TELEPORT");
 #endif
 		
-			vector position;
-			vector orientation;
+			if (pCtx)
+			{
+				vector position;
+				vector orientation;
 
-			DayZPlayerSyncJunctures.ExpansionReadTeleport(pCtx, position, orientation);
+				DayZPlayerSyncJunctures.ExpansionReadTeleport(pCtx, position, orientation);
 
-			SetPosition(position);
-			SetOrientation(orientation);
+				SetPosition(position);
+				SetOrientation(orientation);
 
-			break;
+				break;
+			}
 		}
 	}
 	

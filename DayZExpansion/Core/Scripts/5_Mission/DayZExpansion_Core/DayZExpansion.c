@@ -91,6 +91,15 @@ class DayZExpansion: ExpansionWorld
 
 		super.OnLoaded();
 	}
+
+	override void OnSyncJuncture(Object target, int junctureID, ParamsReadContext ctx)
+	{
+		DayZPlayerImplement player;
+		if (Class.CastTo(player, target))
+			player.Expansion_OnSyncJuncture(junctureID, ctx);
+		else
+			EXError.Error(this, string.Format("Expansion Sync Juncture %1 received, but target %2 is not a player", junctureID, target));
+	}
 }
 
 static ref DayZExpansion g_exDayZ;  //! Legacy, do not use!

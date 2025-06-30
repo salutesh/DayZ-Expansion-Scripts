@@ -636,6 +636,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 				{
 					DoKillfeed(ExpansionKillFeedMessageType.WEAPON_EXPLOSION, "Grenade", m_SourceType);
 				}
+				else if (dBodyIsActive(source))
+				{
+					DoKillfeed(ExpansionKillFeedMessageType.KILLED_UNKNOWN, "Human Skull", m_SourceType);
+				}
 			}
 		}
 	}

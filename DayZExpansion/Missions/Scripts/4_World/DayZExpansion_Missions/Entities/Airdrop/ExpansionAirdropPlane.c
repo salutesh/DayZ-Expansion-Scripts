@@ -732,6 +732,12 @@ class ExpansionAirdropPlaneBase: House
 				drop.SetLifetimeMax(m_Expansion_ContainerLifetime);
 
 			drop.Expansion_InitAirdrop(m_Expansion_LootContainer.Loot, m_Expansion_LootContainer.Infected, m_Expansion_LootContainer.ItemCount, m_Expansion_LootContainer.InfectedCount, m_Expansion_LootContainer.FallSpeed, Math.Min(m_Expansion_SpawnRadius * 0.01, 1.0));
+
+			int explode = m_Expansion_LootContainer.ExplodeAirVehiclesOnCollision;
+			if (explode < 0)
+				explode = GetExpansionSettings().GetAirdrop().ExplodeAirVehiclesOnCollision;
+
+			drop.m_Expansion_ExplodeAirVehiclesOnCollision = explode;
 		}
 
 		return drop;

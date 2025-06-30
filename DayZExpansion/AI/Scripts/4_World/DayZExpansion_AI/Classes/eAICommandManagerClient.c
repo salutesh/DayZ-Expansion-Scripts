@@ -1219,6 +1219,9 @@ class eAICommandManagerClient : eAICommandManager
 		else
 			player.eAI_Message(ai, "Health %1%% blood %2%%", health, blood);
 
+		if (ai.GetBrokenLegs() == eBrokenLegs.BROKEN_LEGS)
+			player.eAI_Message(ai, "Broken legs", "");
+
 		//! Weapon
 		ItemBase itemInHands = ai.GetItemInHands();
 		if (itemInHands)

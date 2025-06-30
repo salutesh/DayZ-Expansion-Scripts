@@ -132,4 +132,44 @@ modded class DayZGame
 			GetInput().ChangeGameFocus(-1, INPUT_DEVICE_GAMEPAD);
 		}
 	}
+
+	void Expansion_SuppressVanillaInvalidImpactSurfaceSpam(Object directHit, inout string surface, string ammoType)
+	{
+		if (!ImpactMaterials.GetImpactEffect(surface, ammoType))
+		{
+			if (directHit)
+			{
+				string object_type = directHit.GetType();
+				
+				if ( object_type == "" )
+					object_type = "OBJECT_WITHOUT_CONFIG_CLASS";
+
+				if (surface == "")
+					EXError.ErrorOnce(this, string.Format("Object '%1' with model file: %2 has undefined 'Hit_...' material! Cannot play impact effect.", object_type, directHit.GetShapeName()), {});
+				else
+					EXError.WarnOnce(this, string.Format("Object '%1' with model file: %2 has unregistered surface impact material <%3>! Register this surface in ImpactMaterials (Script).", object_type, directHit.GetShapeName(), surface), {});
+			}
+
+			if (surface == "")
+				surface = "Hit_ErrorNoMaterial";
+			else
+				surface = "Hit_Undefined";
+		}
+	}
+
+	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal,
+		 vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType) 
+	{
+		Expansion_SuppressVanillaInvalidImpactSurfaceSpam(directHit, surface, ammoType);
+
+		super.FirearmEffects(source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
+	}
+
+	override void CloseCombatEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal,
+		 bool isWater, string ammoType) 
+	{
+		Expansion_SuppressVanillaInvalidImpactSurfaceSpam(directHit, surface, ammoType);
+
+		super.CloseCombatEffects(source, directHit, componentIndex, surface, pos, surfNormal, isWater, ammoType);
+	}
 }

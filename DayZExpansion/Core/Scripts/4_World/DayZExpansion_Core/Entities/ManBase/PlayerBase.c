@@ -806,7 +806,7 @@ modded class PlayerBase
 			ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", "STR_EXPANSION_SAFEZONE_LEFT", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(GetIdentity());
 	
 			if ( GetExpansionSettings().GetLog().Safezone )
-				GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"{1:name}\" (id={1:id} pos={1:position}) left the safezone" );
+				GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"{1:name}\" (id={1:id} pos={1:position}) left the safezone", this);
 		}
 	}
 
