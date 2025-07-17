@@ -21,7 +21,7 @@ class ExpansionAISettingsV11: ExpansionSettingBase
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 13;
+	static const int VERSION = 14;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -51,6 +51,9 @@ class ExpansionAISettings: ExpansionSettingBase
 
 	bool LogAIHitBy;
 	bool LogAIKilled;
+
+	bool EnableZombieVehicleAttackHandler;
+	bool EnableZombieVehicleAttackPhysics;
 
 	[NonSerialized()]
 	private bool m_IsAdmin;
@@ -338,6 +341,8 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		LogAIHitBy = true;
 		LogAIKilled = true;
+
+		EnableZombieVehicleAttackHandler = false;
 	}
 
 	// ------------------------------------------------------------

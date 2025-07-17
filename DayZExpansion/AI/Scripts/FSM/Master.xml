@@ -146,6 +146,7 @@
 			<event_update>
 				auto group = unit.GetGroup();
 				if (!group) return EXIT;
+				if (!unit.IsInTransport() &amp;&amp; unit.GetThreatToSelf() &gt;= 0.4) return EXIT;
 				
 				auto leader = group.GetFormationLeader();
 				//! @note leader can only briefly be null (disconnected/killed).

@@ -10,6 +10,12 @@
  *
 */
 
+enum ExpansionMarketStock
+{
+	Undefined = -3,  //! -3 for legacy 3rd party compat
+	Static = -2
+}
+
 class ExpansionMarketTraderZoneBase
 {
 	int m_Version;
@@ -440,7 +446,7 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 		if (!ItemExists(className))
 		{
 			Error("ExpansionMarketTraderZone::GetStock - Item " + className + " does not exist in trader zone!");
-			return -3; // -3 means the item does not exist in this trader zone
+			return ExpansionMarketStock.Undefined;
 		}
 
 		int stock = Stock.Get( className );

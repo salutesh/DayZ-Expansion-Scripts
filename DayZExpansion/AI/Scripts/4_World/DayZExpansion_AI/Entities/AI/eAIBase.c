@@ -2370,10 +2370,6 @@ class eAIBase: PlayerBase
 			hasMeleeWeapon = true;
 		}
 
-		ItemBase bandage;
-		if (IsBleeding())
-			bandage = GetBandageToUse();
-
 		float group_count = group.Count();
 		bool playerIsEnemy;
 
@@ -2521,10 +2517,9 @@ class eAIBase: PlayerBase
 								isWeaponOrNonEmptyMag = true;
 						}
 					}
-					else if (targetItem.Expansion_CanBeUsedToBandage())
+					else if (eAI_ShouldPickupBandage(targetItem))
 					{
-						if ((IsBleeding() && !bandage) || (!IsBleeding() && (m_eAI_LootingBehavior & eAILootingBehavior.BANDAGES) && m_eAI_Bandages.Count() < 3))
-							shouldPickupBandage = true;
+						shouldPickupBandage = true;
 					}
 					else if ((m_eAI_LootingBehavior & eAILootingBehavior.CLOTHING) && targetItem.IsClothing())
 					{
@@ -2536,6 +2531,7 @@ class eAIBase: PlayerBase
 
 						TStringArray inventorySlots = targetItem.Expansion_GetInventorySlots();
 						bool canWear = false;
+						ItemBase slotGear;
 						ItemBase currentlyWornGear;
 						int slotID = 0;
 						bool isBack = false;
@@ -2543,18 +2539,36 @@ class eAIBase: PlayerBase
 						foreach (string slot: inventorySlots)
 						{
 							slotID = InventorySlots.GetSlotIdFromString(slot);
-							if (GetInventory().HasAttachmentSlot(slotID) && eAI_ClothingLootCheck(slot, targetItem))
+							if (GetInventory().HasAttachmentSlot(slotID))
 							{
-								canWear = true;
-
 								if (slotID == InventorySlots.BACK)
 									isBack = true;
 
-								if (!Class.CastTo(currentlyWornGear, FindAttachmentBySlotName(slot)))
+								if (!Class.CastTo(slotGear, GetInventory().FindAttachment(slotID)))
 								{
 									//! Found empty slot
+
+									if (!eAI_ClothingLootingBehaviorCheck_Slot(slot, targetItem))
+										continue;
+
+									canWear = true;
 									currentlyWornGear = null;  //! null any gear that was found in another slot
+
 									break;
+								}
+								else if (eAI_ClothingLootingBehaviorCheck_Slot(slot, targetItem))
+								{
+									//! Found taken slot, potential upgrade
+
+									canWear = true;
+									currentlyWornGear = slotGear;
+								}
+								else if (eAI_ClothingLootingBehaviorCheck_Similarity())
+								{
+									//! Found taken slot, potential swap identical or similar
+
+									canWear = true;
+									currentlyWornGear = slotGear;
 								}
 							}
 						}
@@ -2773,9 +2787,6 @@ class eAIBase: PlayerBase
 	{
 		if (!currentlyWornGear)
 		{
-			if ((m_eAI_LootingBehavior & eAILootingBehavior.UPGRADE) == 0)
-				return false;
-
 			if (!eAI_WasItemRecentlyDropped(targetItem))
 			{
 				return true;
@@ -2792,12 +2803,7 @@ class eAIBase: PlayerBase
 
 		if (!currentlyWornGear.IsInherited(HelmetBase) || targetItem.IsInherited(HelmetBase))
 		{
-			if (currentlyWornGear.IsDamageDestroyed())
-			{
-				if ((m_eAI_LootingBehavior & eAILootingBehavior.UPGRADE) || targetItem.GetType() == currentlyWornGear.GetType())
-					return true;
-			}
-			else if (m_eAI_LootingBehavior & eAILootingBehavior.UPGRADE)
+			if (eAI_ClothingLootingBehaviorCheck_Selection(currentlyWornGear, targetItem))
 			{
 				//! Is target item better than what we currently have in some capacity?
 
@@ -2818,6 +2824,11 @@ class eAIBase: PlayerBase
 					else if (isBack && tgtCargoSize > curCargoSize)
 						return true;
 				}
+
+				//! Since destroyed clothing provides no protection whatsoever, always prefer target item if same or bigger cargo size,
+				//! even if recently dropped
+				if (currentlyWornGear.IsDamageDestroyed())
+					return true;
 
 				string curGearArmorPath = "CfgVehicles " + currentlyWornGear.GetType() + " DamageSystem GlobalArmor";
 				string tgtGearArmorPath = "CfgVehicles " + targetItem.GetType() + " DamageSystem GlobalArmor";
@@ -2874,6 +2885,18 @@ class eAIBase: PlayerBase
 
 	bool eAI_ClothingLootCheck(string slot, ItemBase item)
 	{
+		EXError.Error(this, "DEPRECATED - use eAI_ClothingLootingBehaviorCheck_Slot");
+		return eAI_ClothingLootingBehaviorCheck_Slot(slot, item);
+	}
+
+	/**
+	 * @brief Check if looting behavior allows respective slot
+	 * 
+	 * @param slot
+	 * @param item
+	 */
+	bool eAI_ClothingLootingBehaviorCheck_Slot(string slot, ItemBase item)
+	{
 		slot.ToUpper();
 
 		int behavior;
@@ -2912,6 +2935,51 @@ class eAIBase: PlayerBase
 
 		if (m_eAI_LootingBehavior & behavior)
 			return true;
+
+		return false;
+	}
+
+	/**
+	 * @brief Check if looting behavior generally allows identical or similar clothing
+	 */
+	bool eAI_ClothingLootingBehaviorCheck_Similarity()
+	{
+		if (m_eAI_LootingBehavior & (eAILootingBehavior.CLOTHING_IDENTICAL | eAILootingBehavior.CLOTHING_SIMILAR))
+			return true;
+
+		return false;
+	}
+
+	bool eAI_ClothingLootingBehaviorCheck_Selection(ItemBase currentlyWornGear, ItemBase targetItem)
+	{
+		//! @note similarity takes precedence and overrides upgrade!
+		if (eAI_ClothingLootingBehaviorCheck_Similarity())
+			return eAI_ClothingSimilarityCheck(currentlyWornGear, targetItem);
+		else if (m_eAI_LootingBehavior & eAILootingBehavior.UPGRADE)
+			return true;
+
+		return false;
+	}
+
+	/**
+	 * @brief Check if clothing item is identical (same type) or similar (same base type, e.g. TShirt_ColorBase) to currently worn gear
+	 */
+	bool eAI_ClothingSimilarityCheck(ItemBase currentlyWornGear, ItemBase targetItem)
+	{
+		if (m_eAI_LootingBehavior & eAILootingBehavior.CLOTHING_IDENTICAL)
+		{
+			if (targetItem.GetType() == currentlyWornGear.GetType())
+				return true;
+		}
+		else if (m_eAI_LootingBehavior & eAILootingBehavior.CLOTHING_SIMILAR)
+		{
+			string baseName;
+			if (g_Game.ConfigGetBaseName(CFG_VEHICLESPATH + " " + currentlyWornGear.GetType(), baseName))
+			{
+				if (ExpansionString.EndsWith(baseName, "_ColorBase") && ExpansionStatic.Is(targetItem, baseName))
+					return true;
+			}
+		}
 
 		return false;
 	}
@@ -8355,6 +8423,19 @@ class eAIBase: PlayerBase
 		else if (StartActionObject(eAIActionTakeItem, item))
 		{
 			return true;
+		}
+
+		return false;
+	}
+
+	bool eAI_ShouldPickupBandage(ItemBase item)
+	{
+		if (item.Expansion_CanBeUsedToBandage())
+		{
+			int bandages = m_eAI_Bandages.Count();
+
+			if ((IsBleeding() && bandages == 0) || (!IsBleeding() && (m_eAI_LootingBehavior & eAILootingBehavior.BANDAGES) && bandages < 3))
+				return true;
 		}
 
 		return false;

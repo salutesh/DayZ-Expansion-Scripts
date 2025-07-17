@@ -865,7 +865,11 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	bool IsFiltered()
 	{
 		//! NOTE: ShowSellables/ShowPurchasables needs to be checked separately because it can result in zero option filter strings
-		return m_FilterOptionStrings.Count() > 0 || GetSearchText() != "" || ShowSellables() || ShowPurchasables();
+
+		//! https://feedback.bistudio.com/T173348
+		if (m_FilterOptionStrings.Count() > 0 || GetSearchText() != "" || ShowSellables() || ShowPurchasables())
+			return true;
+		return false;
 	}
 
 	bool IsInFilter(string className)
@@ -2072,7 +2076,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 						if (m_MarketSell.Item && m_MarketSell.Item.ClassName != itemClassName)
 							EXLogPrint("MenuCallback - WARNING: MarketSell item class name " + m_MarketSell.Item.ClassName + " != " + itemClassName);
 						
-						EXLogPrint("===============================================================================");
+						EXLogPrint(ExpansionString.JustifyLeft("=", 80, "="));
 
 						EXLogPrint("| MARKET SELL REQUEST FAILED!");
 						EXLogPrint("| Price mismatch between client and server.");
@@ -2086,7 +2090,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 						auto sellDebug = new ExpansionMarketSellDebug(m_MarketSell, m_MarketModule.GetClientZone());
 						sellDebug.Dump();
 						
-						EXLogPrint("===============================================================================");
+						EXLogPrint(ExpansionString.JustifyLeft("=", 80, "="));
 					}
 				}
 				else
@@ -2398,7 +2402,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			attachmentIDs = GetCurrentSelectedAttachmentIDs();
 		}
 
-		m_MarketModule.RequestPurchase(GetSelectedMarketItem().ClassName, m_Quantity, m_BuyPrice, m_TraderObject, NULL, includeAttachments, GetSelectedMarketItemElement().GetCurrentSelectedSkinIndex(), attachmentIDs);
+		m_MarketModule.RequestPurchase(GetSelectedMarketItem().ItemID, m_Quantity, m_BuyPrice, m_TraderObject, NULL, includeAttachments, GetSelectedMarketItemElement().GetCurrentSelectedSkinIndex(), attachmentIDs);
 		if (m_PurchaseDialog)
 			m_PurchaseDialog.Hide();
 		
@@ -2463,7 +2467,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 		
 		SetMenuState(ExpansionMarketMenuState.REQUESTING_SELL);
-		m_MarketModule.RequestSell(GetSelectedMarketItem().ClassName, m_Quantity, m_SellPrice, m_TraderObject, m_MarketSell);
+		m_MarketModule.RequestSell(GetSelectedMarketItem().ItemID, m_Quantity, m_SellPrice, m_TraderObject, m_MarketSell);
 		if (m_SellDialog)
 			m_SellDialog.Hide();
 		

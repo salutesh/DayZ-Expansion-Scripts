@@ -69,7 +69,7 @@ class ExpansionMarketClientTraderZone: ExpansionMarketTraderZone
 		className.ToLower();
 
 		if ( !ItemExists( className ) )
-			return -3; // -3 means the item does not exist in this trader zone
+			return ExpansionMarketStock.Undefined;
 
 		if (actual)
 			Error(ToString() + "::GetStock - cannot get actual (non-reserved) stock on client!");

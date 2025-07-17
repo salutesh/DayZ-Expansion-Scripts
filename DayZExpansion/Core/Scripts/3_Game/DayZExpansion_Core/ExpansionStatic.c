@@ -320,7 +320,7 @@ class EXTimeIt
 	void Log()
 	{
 		int elapsed = TickCount(m_Ticks);
-		PrintFormat("%1 elapsed: %3ms", ExpansionStatic.GetISOTime(), (elapsed / 10000.0).ToString());
+		PrintFormat("%1 elapsed: %2ms", ExpansionStatic.GetISOTime(), (elapsed / 10000.0).ToString());
 	}
 }
 
@@ -1095,6 +1095,42 @@ class ExpansionStatic: ExpansionStaticCore
 		}
 
 		return obj.CanObstruct();
+	}
+
+	static TStringArray GetAnimationSources(string type, string source = "user")
+	{
+		TStringArray paths = {CFG_VEHICLESPATH, CFG_WEAPONSPATH, CFG_MAGAZINESPATH};
+		TStringArray animationSources = {};
+
+		foreach (string rootPath: paths)
+		{
+			string path = rootPath + " " + type;
+			if (GetGame().ConfigIsExisting(path))
+			{
+				string baseName;
+				if (GetGame().ConfigGetBaseName(path, baseName))
+					GetAnimationSourcesEx(rootPath + " " + baseName, animationSources, source);
+
+				GetAnimationSourcesEx(path, animationSources, source);
+			}
+		}
+
+		return animationSources;
+	}
+
+	static void GetAnimationSourcesEx(string path, notnull TStringArray animationSources, string source = "user")
+	{
+		string animPath = path + " AnimationSources";
+		int	childCount = GetGame().ConfigGetChildrenCount(animPath);
+		for (int i = 0; i < childCount; ++i)
+		{
+			string name;
+			if (GetGame().ConfigGetChildName(animPath, i, name))
+			{
+				if (GetGame().ConfigGetTextOut(animPath + " " + name + " source") == source)
+					animationSources.Insert(name);
+			}
+		}
 	}
 
 	static float GetBoundingRadius(string className)

@@ -1791,7 +1791,7 @@ modded class ItemBase
 
 	bool Expansion_CanBeUsedToBandage()
 	{
-		return IsInherited(Rag) || IsInherited(BandageDressing) || IsInherited(Bandana_ColorBase);
+		return IsInherited(Rag) || IsInherited(BandageDressing) || IsInherited(Bandana_ColorBase) || IsInherited(Shemag_ColorBase);
 	}
 
 	bool Expansion_CanUseVirtualStorage(bool restoreOverride = false)

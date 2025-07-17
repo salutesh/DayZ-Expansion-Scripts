@@ -87,7 +87,7 @@ modded class ZombieBase
 		if (super.ChaseAttackLogic(pCurrentCommandID, pInputController, pDt))
 		{
 			if (EXTrace.AI)
-				PrintFormat("%1 ChaseAttackLogic distance=%2 pitch=%3 type=%4 subtype=%5 %6 heavy=%7 cooldown=%8 probability=%9", this, m_ActualAttackType.m_Pitch, m_ActualAttackType.m_Distance, m_ActualAttackType.m_Type, m_ActualAttackType.m_Subtype, m_ActualAttackType.m_AmmoType, m_ActualAttackType.m_IsHeavy, m_ActualAttackType.m_Cooldown, m_ActualAttackType.m_Probability);
+				PrintFormat("%1 ChaseAttackLogic distance=%2 pitch=%3 type=%4 subtype=%5 %6 heavy=%7 cooldown=%8 probability=%9", this, m_ActualAttackType.m_Distance, m_ActualAttackType.m_Pitch, m_ActualAttackType.m_Type, m_ActualAttackType.m_Subtype, m_ActualAttackType.m_AmmoType, m_ActualAttackType.m_IsHeavy, m_ActualAttackType.m_Cooldown, m_ActualAttackType.m_Probability);
 
 			m_eAI_AttackCooldown = m_ActualAttackType.m_Cooldown;
 			return true;
@@ -101,7 +101,7 @@ modded class ZombieBase
 		if (super.FightAttackLogic(pCurrentCommandID, pInputController, pDt))
 		{
 			if (EXTrace.AI)
-				PrintFormat("%1 FightAttackLogic distance=%2 pitch=%3 type=%4 subtype=%5 %6 heavy=%7 cooldown=%8 probability=%9", this, m_ActualAttackType.m_Pitch, m_ActualAttackType.m_Distance, m_ActualAttackType.m_Type, m_ActualAttackType.m_Subtype, m_ActualAttackType.m_AmmoType, m_ActualAttackType.m_IsHeavy, m_ActualAttackType.m_Cooldown, m_ActualAttackType.m_Probability);
+				PrintFormat("%1 FightAttackLogic distance=%2 pitch=%3 type=%4 subtype=%5 %6 heavy=%7 cooldown=%8 probability=%9", this, m_ActualAttackType.m_Distance, m_ActualAttackType.m_Pitch, m_ActualAttackType.m_Type, m_ActualAttackType.m_Subtype, m_ActualAttackType.m_AmmoType, m_ActualAttackType.m_IsHeavy, m_ActualAttackType.m_Cooldown, m_ActualAttackType.m_Probability);
 
 			m_eAI_AttackCooldown = m_ActualAttackType.m_Cooldown;
 			return true;

@@ -33,10 +33,12 @@ enum eAILootingBehavior
 	CLOTHING_MELEE = 65536,
 	CLOTHING_SHOULDER = 131072,
 	CLOTHING_VEST = 262144,
-	CLOTHING = 524272,
+	CLOTHING_SIMILAR = 1048576,  //! Any clothing that is similar to currently worn clothing (same base type, e.g. TShirt_ColorBase)
+	CLOTHING_IDENTICAL = 2097152,  //! Any clothing that is identical to currently worn clothing (same type)
+	CLOTHING = 3670000,
 	UPGRADE = 524288,
 	DEFAULT = 7,  //! WEAPONS_FIREARMS | WEAPONS_LAUNCHERS | WEAPONS_MELEE
-	ALL = 1048575  //! WEAPONS | BANDAGES | CLOTHING | UPGRADE
+	ALL = 1048575  //! WEAPONS | BANDAGES | CLOTHING & ~(CLOTHING_SIMILAR | CLOTHING_IDENTICAL) | UPGRADE
 };
 
 enum eAIGroupFormationState

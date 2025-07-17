@@ -394,6 +394,8 @@ class eAICommandMenu: UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.WEAPONS, "Weapons", eAICommandCategories.CATEGORIES));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING, "Clothing", eAICommandCategories.CATEGORIES));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_LOOTINGBEHAVIOUR_CLOTHING_BACK, "Bags", eAICommandCategories.CATEGORIES));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_SIMILAR, "Similar", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_IDENTICAL, "Identical", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.UPGRADE, "Upgrade", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			break;
 

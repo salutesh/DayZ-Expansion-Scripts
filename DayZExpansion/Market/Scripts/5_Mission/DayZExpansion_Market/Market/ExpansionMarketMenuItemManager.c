@@ -53,6 +53,8 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	protected ref array<ref ExpansionMarketMenuItemManagerPreset> m_ItemManagerPresets;
 	protected ref array<ref ExpansionMarketMenuItemManagerPresetElement> m_PresetsDropdownElements;
 	
+	protected ExpansionMarketMenuItemManagerPreset m_CurrentPreset;
+	
 	void ExpansionMarketMenuItemManager(ExpansionMarketMenu marketMenu)
 	{
 		m_MarketMenu = marketMenu;
@@ -358,18 +360,22 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	
 	void SetAttachmentsFromPreset(ExpansionMarketMenuItemManagerPreset preset)
 	{
+		if (m_CurrentPreset && m_CurrentPreset == preset)
+			return;
+		
 		if (!IsPresetValidCheck(preset))
 		{
 			CreateErrorNotification("STR_EXPANSION_MARKET_PRESETS_ERROR_INVALID");
 			return;
 		}
-		
+				
 		m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.Clear();
 		foreach (string attachment: preset.ItemAttachments)
 		{
 			m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.Insert(attachment);
 		}
-	
+		
+		m_CurrentPreset = preset;
 		m_MarketItemManagerController.PresetName = preset.PresetName;
 		m_MarketItemManagerController.NotifyPropertyChanged("PresetName");
 		
@@ -377,7 +383,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	}
 	
 	bool IsPresetValidCheck(ExpansionMarketMenuItemManagerPreset preset)
-	{
+	{		
 		if (!preset.ItemAttachments || preset.ItemAttachments.Count() == 0)
 			return false;
 		
@@ -450,6 +456,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	void OnResetButtonClick()
 	{
 		m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.Clear();
+		m_CurrentPreset = null;
 		
 		UpdateMenuViews();
 	}

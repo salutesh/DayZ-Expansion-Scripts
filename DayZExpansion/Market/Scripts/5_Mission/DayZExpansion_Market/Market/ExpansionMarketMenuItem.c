@@ -446,7 +446,11 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			ExpansionMarketSell marketSell = new ExpansionMarketSell;
 			marketSell.Item = GetMarketItem();
 			marketSell.Trader = GetMarketMenu().GetTraderObject();
-			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_ItemStock, 1, marketSell, m_PlayerStock != 0 || m_IncludeAttachments);
+			bool includeAttachments;
+			//! https://feedback.bistudio.com/T193384
+			if (m_PlayerStock != 0 || m_IncludeAttachments)
+				includeAttachments = true;
+			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_ItemStock, 1, marketSell, includeAttachments);
 			m_SellPrice = marketSell.Price;
 
 			m_ItemController.ItemSellPrice = m_MarketMenu.GetDisplayPrice(m_SellPrice, true);

@@ -19,19 +19,15 @@ modded class ExpansionMarketMenuItemManagerPresetElement
 		{
 			int i;
 			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
-			array<string> removedAtts = new array<string>;
+			array<string> removedAtts = {};
 			array<string> atts = m_Preset.GetAttachments();
-			array<string> attsNormal = new array<string>;
-			atts.Insert(m_Preset.ClassName);
 			
-			StringLocaliser title = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_REPLOW");
-			StringLocaliser text;
+			CF_Localiser title = new CF_Localiser("STR_EXPANSION_HARDLINE_MARKET_REPLOW");
+			CF_Localiser text;
 			
-			for (i = 0; i < atts.Count(); i++)
+			for (i = atts.Count() - 1; i >= 0; --i)
 			{
 				string att = atts[i];
-				attsNormal.Insert(att);
-				att.ToLower();
 				ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(att);
 				if (rarity && !m_MarketMenuItemManager.GetMarketMenu().GetMarketModule().HasRepForRarity(player, rarity))
 				{
@@ -43,29 +39,21 @@ modded class ExpansionMarketMenuItemManagerPresetElement
 			if (removedAtts.Count() > 0)
 			{
 				string removedText;
-				for (i = 0; i < removedAtts.Count(); i++)
+				foreach (string removedAtt: removedAtts)
 				{
-					string removedAtt = removedAtts[i];
-					foreach (string nAtt: attsNormal)
+					string displayName = ExpansionStatic.GetItemDisplayNameWithType(removedAtt);
+					if (!removedText)
 					{
-						string attNormal = nAtt;
-						nAtt.ToLower();
-						if (nAtt == removedAtt)
-						{
-							string displayName = ExpansionStatic.GetItemDisplayNameWithType(attNormal);
-							if (i == 0)
-							{
-								removedText = displayName;
-							}
-							else
-							{
-								removedText = removedText + " | " + displayName;
-							}
-						}
+						removedText = displayName;
+					}
+					else
+					{
+						removedText = removedText + ", " + displayName;
 					}
 				}
 
-				text = new StringLocaliser("The following items have been removed from the preset because you don't have the required reputation to use them: " + removedText);
+				//! TODO: translation
+				text = new CF_Localiser("The following items have been removed from the preset because you don't have the required reputation to use them: " + removedText);
 				ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.MARKET).Create();
 			}
 		}
