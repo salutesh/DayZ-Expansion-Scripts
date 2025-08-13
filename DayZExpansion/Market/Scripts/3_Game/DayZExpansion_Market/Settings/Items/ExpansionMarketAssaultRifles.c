@@ -16,7 +16,6 @@ class ExpansionMarketAssaultRifles: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 4;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_ASSAULT_RIFLES";
 		m_FileName = "Assault_Rifles";
 

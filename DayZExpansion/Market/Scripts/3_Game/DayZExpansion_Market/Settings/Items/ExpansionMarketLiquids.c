@@ -16,7 +16,6 @@ class ExpansionMarketLiquids: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 35;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LIQUIDS";
 		m_FileName = "Liquids";
 

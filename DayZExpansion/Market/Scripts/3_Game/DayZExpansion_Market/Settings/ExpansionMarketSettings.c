@@ -495,6 +495,17 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		category.Defaults();
 		category.Save();
 		category.Finalize();
+
+		if (category.CategoryID == 0)
+			CF.FormatError("Category %1 has an ID of 0! Not calling super in Defaults()?", category.m_FileName);
+
+		ExpansionMarketCategory conflict = m_Categories[category.CategoryID];
+		if (conflict)
+		{
+			CF.FormatError("Category %1 conflicts with %2 (same ID: %3)", category.m_FileName, conflict.m_FileName, category.CategoryID.ToString());
+			return;
+		}
+
 		GetCategories().Set(category.CategoryID, category);
 		NetworkCategories.Insert(new ExpansionMarketNetworkCategory(category));
 	}

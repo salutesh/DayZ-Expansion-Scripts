@@ -239,12 +239,12 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		ExpansionMarketItem marketItem = ExpansionMarketCategory.GetGlobalItem( item );
 		if ( marketItem )
 		{
-			CF_Log.Debug("ExpansionMarketTrader::AddItem - Added item " + item + " to trader " + m_FileName + " items array");
+			CF_Log.Debug("ExpansionMarketTrader::AddItem - Added item " + item + " (ID " + marketItem.ItemID + ") to trader " + m_FileName + " items array");
 
 			return AddItemInternal( marketItem, buySell );
 		}
 
-		CF_Log.Warn( "[ExpansionMarketTrader] Error: The \"" + item + "\" does not exist in the market!" );
+		EXError.Error(null, "MARKET CONFIGURATION ERROR: Item " + item + " does not exist in market", {});
 
 		return NULL;
 	}
@@ -261,6 +261,12 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 	void AddItemInternal( ExpansionMarketTraderItem item )
 	{
+		if (Items.Contains(item.MarketItem.ClassName))
+		{
+			CF.FormatError("Item %1 has already been added to trader %2", item.MarketItem.ClassName, m_FileName);
+			return;
+		}
+
 		Items.Insert( item.MarketItem.ClassName, item.BuySell );
 
 		//! Inserting ordered by ID ensures same order of IDs as given to items by categories (only required on server for correct netsynch)

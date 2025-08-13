@@ -19,7 +19,6 @@ class ExpansionMarketSkirtsAndDresses: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 50;
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_SKIRTS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_DRESSES");
 		m_FileName = "Skirts_And_Dresses";
 		

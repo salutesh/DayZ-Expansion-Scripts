@@ -16,7 +16,6 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 15;
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_COATS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_JACKETS");
 		m_FileName = "Coats_And_Jackets";
 

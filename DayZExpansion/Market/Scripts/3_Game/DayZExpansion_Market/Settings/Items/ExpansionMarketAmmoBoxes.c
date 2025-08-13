@@ -19,7 +19,6 @@ class ExpansionMarketAmmoBoxes: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 2;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_AMMOBOXES";
 		m_FileName = "Ammo_Boxes";
 

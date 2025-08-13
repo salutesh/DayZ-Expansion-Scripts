@@ -104,19 +104,7 @@ class ExpansionMarketItem
 
 		QuantityPercent = quantityPercent;
 
-		SpawnAttachments = new array< string >;
-		if ( attachments )
-		{
-			foreach ( string attClsName : attachments )
-			{
-				attClsName.ToLower();
-				//! Check if attachment is not same classname as parent to prevent infinite recursion (user error)
-				if (attClsName == ClassName)
-					Error("[ExpansionMarketItem] Trying to add " + ClassName + " as attachment to itself!");
-				else
-					SpawnAttachments.Insert( attClsName );
-			}
-		}
+		SpawnAttachments = attachments;
 
 		Variants = new array< string >;
 		if ( variants )
@@ -171,10 +159,29 @@ class ExpansionMarketItem
 		if (EXTrace.MARKET && SellPricePercent != -1)
 			EXTrace.Print(true, this, ClassName + " SellPricePercent " + SellPricePercent);
 
+		SetAttachments(SpawnAttachments);
+
 #ifdef EXPANSIONMODHARDLINE
 		if (GetGame().IsServer())
 			m_Rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(ClassName);
 #endif
+	}
+
+	void SetAttachments(TStringArray attachments)
+	{
+		SpawnAttachments = new array< string >;
+		if ( attachments )
+		{
+			foreach ( string attClsName : attachments )
+			{
+				attClsName.ToLower();
+				//! Check if attachment is not same classname as parent to prevent infinite recursion (user error)
+				if (attClsName == ClassName)
+					EXError.Error(null, "MARKET CONFIGURATION ERROR: Trying to add " + ClassName + " as attachment to itself", {});
+				else
+					SpawnAttachments.Insert( attClsName );
+			}
+		}
 	}
 
 	void SetAttachmentsFromIDs()
@@ -186,7 +193,7 @@ class ExpansionMarketItem
 			if (attachment)
 				SpawnAttachments.Insert(attachment.ClassName);
 			else
-				EXPrint("ExpansionMarketItem::SetAttachmentsFromIDs - WARNING: Attachment ID " + attachmentID + " does not exist!");
+				EXError.Error(null, "MARKET CONFIGURATION ERROR: Attachment ID " + attachmentID + " does not exist for item " + ClassName + " (ID " + ItemID + ")", {});
 		}
 		m_AttachmentIDs = NULL;
 	}

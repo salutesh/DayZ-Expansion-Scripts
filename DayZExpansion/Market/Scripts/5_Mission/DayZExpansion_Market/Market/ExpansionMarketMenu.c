@@ -1636,8 +1636,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("UpdateItemFieldFromBasicNetSync - GetSelectedMarketItem().ClassName: " + GetSelectedMarketItem().ClassName);
 		MarketPrint("UpdateItemFieldFromBasicNetSync - m_TraderItemStock: " + m_TraderItemStock);
 		
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+
 		//! TODO: Give each transaction an unique ID and MarketSell?
-		m_MarketSell = new ExpansionMarketSell;
+		m_MarketSell = new ExpansionMarketSell(player);
 		m_MarketSell.Item = GetSelectedMarketItem();
 		m_MarketSell.Trader = m_TraderObject;
 		
@@ -1679,7 +1681,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			bool includeAttachments;
 			if (m_PlayerStock != 0 || m_SelectedMarketItemElement.GetIncludeAttachments())
 				includeAttachments = true;
-			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_TraderItemStock, m_Quantity, m_MarketSell, includeAttachments, m_LastFindSellPriceResult, m_LastFindSellPriceFailedClassName);
+			m_MarketModule.FindSellPrice(player, items, m_TraderItemStock, m_Quantity, m_MarketSell, includeAttachments, m_LastFindSellPriceResult, m_LastFindSellPriceFailedClassName);
 			m_SellPrice = m_MarketSell.Price;
 
 			market_item_sell_price_text.SetColor(color); 
@@ -1721,7 +1723,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 			int price = 0;
 			ExpansionMarketResult result = ExpansionMarketResult.Success;
-			m_MarketModule.FindPriceOfPurchase(GetSelectedMarketItem(), m_MarketModule.GetClientZone(), m_TraderMarket, m_Quantity, price, GetSelectedMarketItemElement().GetIncludeAttachments(), result);
+			m_MarketModule.FindPriceOfPurchaseEx(GetSelectedMarketItem(), m_MarketModule.GetClientZone(), m_TraderMarket, player, m_Quantity, price, GetSelectedMarketItemElement().GetIncludeAttachments(), result);
 			if (result == ExpansionMarketResult.IntegerOverflow)
 			{
 				m_BuyPrice = -1;
@@ -2034,6 +2036,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			msgId = typename.EnumToString(ExpansionVehicleType, option1);
 		}
 
+
 		switch (result)
 		{
 			case ExpansionMarketResult.SellSuccess:
@@ -2120,13 +2123,14 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_ATTACHMENT_OUT_OF_STOCK";
 
+				PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 				amount = option1;
 				includeAttachments = (bool) option2;
 				ExpansionMarketResult resultTmp;
 				ExpansionMarketReserve reserve;
 				map<string, int> removedStock;
 				m_OutOfStockList.Clear();
-				m_MarketModule.FindPriceOfPurchase(ExpansionMarketCategory.GetGlobalItem(itemClassName), m_MarketModule.GetClientZone(), m_TraderMarket, amount, price, includeAttachments, resultTmp, reserve, removedStock, m_OutOfStockList);
+				m_MarketModule.FindPriceOfPurchaseEx(ExpansionMarketCategory.GetGlobalItem(itemClassName), m_MarketModule.GetClientZone(), m_TraderMarket, player, amount, price, includeAttachments, resultTmp, reserve, removedStock, m_OutOfStockList);
 				if (m_OutOfStockList.Count())
 				{
 					loc = new StringLocaliser(text);
@@ -2203,9 +2207,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				{
 					loc = new StringLocaliser(text);
 					string displayName;
-					PlayerBase player = PlayerBase.Cast(object);
-					if (player && player.GetIdentity())
-						displayName = player.GetIdentityName();  //! So you can call 'em out in chat - unless it's yourself...
+					PlayerBase otherPlayer;
+					if (Class.CastTo(otherPlayer, object) && otherPlayer.GetIdentity())
+						displayName = otherPlayer.GetIdentityName();  //! So you can call 'em out in chat - unless it's yourself...
 					else
 						displayName = object.GetDisplayName();
 					text = loc.Format() + " (" + displayName + ")";

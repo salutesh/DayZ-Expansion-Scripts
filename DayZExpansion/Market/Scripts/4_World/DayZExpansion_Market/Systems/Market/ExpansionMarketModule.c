@@ -39,7 +39,9 @@ enum ExpansionMarketResult
 	IntegerOverflow
 }
 
-class ExpansionMarketSellDebugRows: array<ref TStringArray>
+typedef Param4<string, string, string, string> ExpansionMarketSellDebugRow;
+
+class ExpansionMarketSellDebugRows: array<ref ExpansionMarketSellDebugRow>
 {
 	void Insert(string label, int playerSentValue, int actualValue, string separator, bool compare = true)
 	{
@@ -48,15 +50,14 @@ class ExpansionMarketSellDebugRows: array<ref TStringArray>
 
 	void Insert(string label, string playerSentValue, string actualValue, string separator, bool compare = true)
 	{
-		TStringArray row = {};
-		row.Reserve(4);
-		row.Insert(ExpansionString.JustifyLeft(label, 22, separator));
-		row.Insert(ExpansionString.JustifyLeft(playerSentValue, 22, separator));
-		row.Insert(ExpansionString.JustifyLeft(actualValue, 22, separator));
+		string col1 = ExpansionString.JustifyLeft(label, 22, separator);
+		string col2 = ExpansionString.JustifyLeft(playerSentValue, 22, separator);
+		string col3 = ExpansionString.JustifyLeft(actualValue, 22, separator);
 		string symbol;
 		if (compare && playerSentValue != actualValue)
 			symbol = "X";
-		row.Insert(ExpansionString.JustifyLeft(symbol, 1, separator));
+		string col4 = ExpansionString.JustifyLeft(symbol, 1, separator);
+		auto row = new ExpansionMarketSellDebugRow(col1, col2, col3, col4);
 		Insert(row);
 	}
 
@@ -123,9 +124,7 @@ class ExpansionMarketSellDebugRows: array<ref TStringArray>
 					Insert("  " + varName, playerValue, serverValue, " ");
 					break;
 
-				default:
-					if (varName != "PriceTiers")
-						break;
+				case ExpansionMarketItemPriceTiers:
 					Insert("  " + varName, "", "", " ");
 					int count;
 					if (playerItem && serverItem)
@@ -657,11 +656,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		if (!GetItemCategory(sell.Item).IsExchange)
 		{
-			float sellPricePct = sell.Item.SellPricePercent;
-			if (sellPricePct < 0)
-				sellPricePct = zone.SellPricePercent;
-			if (sellPricePct < 0)
-				sellPricePct = GetExpansionSettings().GetMarket().SellPricePercent;
+			float sellPricePct = GetSellPricePercent(sell.Item, zone, sell.Trader.GetTraderMarket(), player);
 			initialSellPriceModifier = sellPricePct / 100;
 		}
 
@@ -764,7 +759,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 					price += singleItemPrice;
 
 					if (canSell && singleItemPrice != previousSingleItemPrice)
-						sellItem.PriceTiers.Insert(new ExpansionMarketItemPrice(singleItemPrice, stock + curAddedStock));
+						sellItem.PriceTiers.Insert(new ExpansionMarketItemPriceTier(singleItemPrice, stock + curAddedStock));
 
 					previousSingleItemPrice = singleItemPrice;
 				}
@@ -969,11 +964,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		if (!GetItemCategory(attachment).IsExchange)
 		{
-			float sellPricePct = attachment.SellPricePercent;
-			if (sellPricePct < 0)
-				sellPricePct = zone.SellPricePercent;
-			if (sellPricePct < 0)
-				sellPricePct = GetExpansionSettings().GetMarket().SellPricePercent;
+			float sellPricePct = GetSellPricePercent(attachment, zone, sell.Trader.GetTraderMarket(), sell.m_Player);
 			initialSellPriceModifier = sellPricePct / 100;
 		}
 
@@ -1014,7 +1005,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			price += singleAttachmentPrice;
 
 			if (canSell && singleAttachmentPrice != previousSingleAttachmentPrice)
-				sellItem.PriceTiers.Insert(new ExpansionMarketItemPrice(singleAttachmentPrice, stock + curAddedStock));
+				sellItem.PriceTiers.Insert(new ExpansionMarketItemPriceTier(singleAttachmentPrice, stock + curAddedStock));
 
 			previousSingleAttachmentPrice = singleAttachmentPrice;
 		}
@@ -1040,6 +1031,20 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return FindAttachmentsSellPrice(attachmentEntity, sell, addedStock, canSell, failedClassName);
 
 		return true;
+	}
+	
+	//! For 3rd-party modding override support
+	float GetSellPricePercent(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, PlayerBase player = null)
+	{
+		float sellPricePct = item.SellPricePercent;
+
+		if (sellPricePct < 0)
+			sellPricePct = zone.SellPricePercent;
+
+		if (sellPricePct < 0)
+			sellPricePct = GetExpansionSettings().GetMarket().SellPricePercent;
+
+		return sellPricePct;
 	}
 
 	//! Get sell price modifier, taking into account item condition (including quantity and food stage for food)
@@ -1198,10 +1203,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 		return amount;
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion Bool FindPurchasePriceAndReserve
-	// ------------------------------------------------------------
 	private bool FindPurchasePriceAndReserve(ExpansionMarketItem item, int amountWanted, out ExpansionMarketReserve reserved, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success)
+	{
+		EXError.ErrorOnce(this, "DEPRECATED, use FindPurchasePriceAndReserveEx");
+		return FindPurchasePriceAndReserveEx(item, null, amountWanted, reserved, includeAttachments, result);
+	}
+
+	private bool FindPurchasePriceAndReserveEx(ExpansionMarketItem item, PlayerBase player, int amountWanted, out ExpansionMarketReserve reserved, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success)
 	{
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
@@ -1209,7 +1217,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		if (!item)
 		{		
-			Error("FindPurchasePriceAndReserve - [ERROR]: ExpansionMarketItem is NULL!");
+			Error("FindPurchasePriceAndReserveEx - [ERROR]: ExpansionMarketItem is NULL!");
 			return false;
 		}
 		
@@ -1217,7 +1225,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		if (!zone)
 		{	
-			Error("FindPurchasePriceAndReserve - [ERROR]: ExpansionMarketTraderZone is NULL!");
+			Error("FindPurchasePriceAndReserveEx - [ERROR]: ExpansionMarketTraderZone is NULL!");
 			return false;
 		}
 
@@ -1225,40 +1233,43 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		if (!trader)
 		{	
-			Error("FindPurchasePriceAndReserve - [ERROR]: ExpansionMarketTrader is NULL!");
+			Error("FindPurchasePriceAndReserveEx - [ERROR]: ExpansionMarketTrader is NULL!");
 			return false;
 		}
 		
 		if (amountWanted < 0)
 		{
-			Error("FindPurchasePriceAndReserve - [ERROR]: Amount wanted is smaller then 0: " + amountWanted);
+			Error("FindPurchasePriceAndReserveEx - [ERROR]: Amount wanted is smaller then 0: " + amountWanted);
 			return false;
 		}
 		
-		MarketModulePrint("FindPurchasePriceAndReserve - Amount wanted: " + amountWanted);
+		MarketModulePrint("FindPurchasePriceAndReserveEx - Amount wanted: " + amountWanted);
 		
 		reserved.RootItem = item;
 		reserved.TotalAmount = amountWanted;
 		
 		int price;
-		if (!FindPriceOfPurchase(item, zone, trader, amountWanted, price, includeAttachments, result, reserved))
+		if (!FindPriceOfPurchaseEx(item, zone, trader, player, amountWanted, price, includeAttachments, result, reserved))
 		{
-			MarketModulePrint("FindPurchasePriceAndReserve - ExpansionMarketItem " + item.ClassName + " is out of stock, item is set to not be buyable or integer overflow! End and return false!");
+			MarketModulePrint("FindPurchasePriceAndReserveEx - ExpansionMarketItem " + item.ClassName + " is out of stock, item is set to not be buyable or integer overflow! End and return false!");
 			return false;
 		}
 
-		MarketModulePrint("FindPurchasePriceAndReserve - price: " + string.ToString(price));
+		MarketModulePrint("FindPurchasePriceAndReserveEx - price: " + string.ToString(price));
 					
-		MarketModulePrint("FindPurchasePriceAndReserve - End and return true!");		
+		MarketModulePrint("FindPurchasePriceAndReserveEx - End and return true!");		
 
 		return true;
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion Bool FindPriceOfPurchase
-	// ------------------------------------------------------------
-	//! Returns true if item and attachments (if any) are in stock, false otherwise
 	bool FindPriceOfPurchase(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, int amountWanted, inout int price, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success, out ExpansionMarketReserve reserved = NULL, inout map<string, int> removedStock = NULL, out TStringArray outOfStockList = NULL, int level = 0)
+	{
+		EXError.ErrorOnce(this, "DEPRECATED, use FindPriceOfPurchaseEx");
+		return FindPriceOfPurchaseEx(item, zone, trader, null, amountWanted, price, includeAttachments, result, reserved, removedStock, outOfStockList, level);
+	}
+
+	//! Returns true if item and attachments (if any) are in stock, false otherwise
+	bool FindPriceOfPurchaseEx(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, PlayerBase player, int amountWanted, inout int price, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success, out ExpansionMarketReserve reserved = NULL, inout map<string, int> removedStock = NULL, out TStringArray outOfStockList = NULL, int level = 0)
 	{
 		int stock;
 
@@ -1267,7 +1278,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		else
 			stock = zone.GetStock(item.ClassName);
 
-		MarketModulePrint("FindPriceOfPurchase - " + item.ClassName + " - stock " + stock + " wanted " + amountWanted);
+		MarketModulePrint("FindPriceOfPurchaseEx - " + item.ClassName + " - stock " + stock + " wanted " + amountWanted);
 
 		if (!removedStock)
 			removedStock = new map<string, int>;
@@ -1290,11 +1301,11 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return false;
 		}
 
-		MarketModulePrint("FindPriceOfPurchase - Class name: " + item.ClassName);
-		MarketModulePrint("FindPriceOfPurchase - Stock: " + (stock - curRemovedStock));
-		MarketModulePrint("FindPriceOfPurchase - Amount wanted: " + amountWanted);
+		MarketModulePrint("FindPriceOfPurchaseEx - Class name: " + item.ClassName);
+		MarketModulePrint("FindPriceOfPurchaseEx - Stock: " + (stock - curRemovedStock));
+		MarketModulePrint("FindPriceOfPurchaseEx - Amount wanted: " + amountWanted);
 
-		float priceModifier = zone.BuyPricePercent / 100;
+		float priceModifier = GetBuyPricePercent(item, zone, trader, player) / 100;
 
 		int itemPrice;  //! Item price (chosen amount, no atts)
 		int singleItemPrice;
@@ -1340,7 +1351,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 								continue;
 						}
 
-						if (!FindPriceOfPurchase(attachment, zone, trader, quantity, price, !isMagAmmo, result, reserved, removedStock, outOfStockList, level + 1))
+						if (!FindPriceOfPurchaseEx(attachment, zone, trader, player, quantity, price, !isMagAmmo, result, reserved, removedStock, outOfStockList, level + 1))
 						{
 							switch (result)
 							{
@@ -1357,7 +1368,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			}
 		}
 				
-		MarketModulePrint("FindPriceOfPurchase - " + item.ClassName + " - stock " + (stock - curRemovedStock) + " item price " + itemPrice);
+		MarketModulePrint("FindPriceOfPurchaseEx - " + item.ClassName + " - stock " + (stock - curRemovedStock) + " item price " + itemPrice);
 
 		itemPrice = Math.Round(itemPrice * priceModifier);
 
@@ -1376,11 +1387,17 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 
 		if (result == ExpansionMarketResult.Success)
-			MarketModulePrint("FindPriceOfPurchase - End and return true! price: " + price);
+			MarketModulePrint("FindPriceOfPurchaseEx - End and return true! price: " + price);
 		else
-			MarketModulePrint("FindPriceOfPurchase - End and return false! Zone stock is lower then requested amount or item is set to not be buyable!");
+			MarketModulePrint("FindPriceOfPurchaseEx - End and return false! Zone stock is lower then requested amount or item is set to not be buyable!");
 		
 		return result == ExpansionMarketResult.Success;
+	}
+	
+	//! For 3rd-party modding override support
+	float GetBuyPricePercent(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, PlayerBase player = null)
+	{
+		return zone.BuyPricePercent;
 	}
 
 	// ------------------------------------------------------------
@@ -2670,7 +2687,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		ExpansionMarketResult result;
 
 		//! Compare that price to the one the player sent
-		if (!FindPurchasePriceAndReserve(item, count, reservedList, includeAttachments, result) || reservedList.Price != currentPrice)
+		if (!FindPurchasePriceAndReserveEx(item, player, count, reservedList, includeAttachments, result) || reservedList.Price != currentPrice)
 		{
 			EXPrint("Exec_RequestPurchase - Player sent price: " + currentPrice);
 			EXPrint("Exec_RequestPurchase - Current stock: " + zone.GetStock(itemClassName, true));
@@ -3328,7 +3345,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		foreach (auto row: rows)
 		{
-			EXLogPrint(string.Format("| %1 | %2 | %3 | %4 |", row[0], row[1], row[2], row[3]));
+			EXLogPrint(string.Format("| %1 | %2 | %3 | %4 |", row.param1, row.param2, row.param3, row.param4));
 		}
 	}
 	

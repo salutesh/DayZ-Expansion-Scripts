@@ -16,7 +16,6 @@ class ExpansionMarketPants: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 45;
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_PANTS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_SHORTS");
 		m_FileName = "Pants_And_Shorts";
 

@@ -16,7 +16,6 @@ class ExpansionMarketSweatersAndHoodies: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 53;
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_SWEATERS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_HOODIES");
 		m_FileName = "Sweaters_And_Hoodies";
 

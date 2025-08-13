@@ -410,13 +410,15 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 
 	void UpdatePrices()
 	{
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+
 		//! Buy price
 		if (m_CanBuy && m_HasRepBuy)
 		{
 			int price = 0;
-			//! Can't pass in GetMarketItem() to FindPriceOfPurchase directly, causes NULL pointer. Fuck you EnforceScript.
+			//! Can't pass in GetMarketItem() to FindPriceOfPurchaseEx directly, causes NULL pointer. Fuck you EnforceScript.
 			ExpansionMarketItem item = GetMarketItem();
-			m_MarketModule.FindPriceOfPurchase(item, m_MarketModule.GetClientZone(), GetMarketMenu().GetMarketTrader(), 1, price, GetIncludeAttachments());
+			m_MarketModule.FindPriceOfPurchaseEx(item, m_MarketModule.GetClientZone(), GetMarketMenu().GetMarketTrader(), player, 1, price, GetIncludeAttachments());
 			m_BuyPrice = price;
 			m_ItemController.ItemBuyPrice = m_MarketMenu.GetDisplayPrice(m_BuyPrice, true);
 		}
@@ -443,14 +445,14 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 				items = new array<EntityAI>;
 			}
 
-			ExpansionMarketSell marketSell = new ExpansionMarketSell;
+			ExpansionMarketSell marketSell = new ExpansionMarketSell(player);
 			marketSell.Item = GetMarketItem();
 			marketSell.Trader = GetMarketMenu().GetTraderObject();
 			bool includeAttachments;
 			//! https://feedback.bistudio.com/T193384
 			if (m_PlayerStock != 0 || m_IncludeAttachments)
 				includeAttachments = true;
-			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_ItemStock, 1, marketSell, includeAttachments);
+			m_MarketModule.FindSellPrice(player, items, m_ItemStock, 1, marketSell, includeAttachments);
 			m_SellPrice = marketSell.Price;
 
 			m_ItemController.ItemSellPrice = m_MarketMenu.GetDisplayPrice(m_SellPrice, true);

@@ -16,7 +16,6 @@ class ExpansionMarketBandanas: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 6;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BANDANAS";
 		m_FileName = "Bandanas";
 

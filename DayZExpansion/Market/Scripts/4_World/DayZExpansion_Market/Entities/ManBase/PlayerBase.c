@@ -21,7 +21,7 @@ modded class PlayerBase
 	void PlayerBase()
 	{
 		m_MarketReserve = new ExpansionMarketReserve; 
-		m_MarketSell = new ExpansionMarketSell;
+		m_MarketSell = new ExpansionMarketSell(this);
 	}
 
 	override void SetActions( out TInputActionMap InputActionMap )

@@ -16,7 +16,6 @@ class ExpansionMarketExplosives: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 20;
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_EXPLOSIVES" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_GRENADES");
 		m_FileName = "Explosives_And_Grenades";
 		

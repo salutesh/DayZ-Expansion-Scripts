@@ -137,7 +137,7 @@ class ExpansionTraderObjectBase
 		{
 			if (fileName)
 			{
-				CF_Log.Error(ToString() + "::LoadTraderHost - ERROR: Trader does not exist: " + fileName);
+				EXError.Error(null, "MARKET CONFIGURATION ERROR: Trader does not exist: " + fileName, {});
 			}
 			return;
 		}
@@ -148,7 +148,7 @@ class ExpansionTraderObjectBase
 
 		if (!m_TraderZone)
 		{
-			CF_Log.Error(ToString() + "::LoadTraderHost - ERROR: Trader is not within a trader zone: " + m_TraderEntity + " " + m_TraderEntity.GetPosition());
+			EXError.Error(null, "MARKET CONFIGURATION ERROR: Trader is not within a trader zone: " + m_TraderEntity + " " + m_TraderEntity.GetPosition(), {});
 			return;
 		}
 

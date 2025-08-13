@@ -16,7 +16,6 @@ class ExpansionMarketBootsAndShoes: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 11;
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_BOOTS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_SHOES");
 		m_FileName = "Boots_And_Shoes";
 

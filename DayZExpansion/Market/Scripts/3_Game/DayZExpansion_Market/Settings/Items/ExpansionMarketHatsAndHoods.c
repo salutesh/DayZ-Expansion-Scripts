@@ -16,7 +16,6 @@ class ExpansionMarketHatsAndHoods: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 28;
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_HATS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_HOODS");
 		m_FileName = "Hats_And_Hoods";
 		

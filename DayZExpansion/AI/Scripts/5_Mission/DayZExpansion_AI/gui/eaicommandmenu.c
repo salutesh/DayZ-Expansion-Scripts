@@ -457,7 +457,7 @@ class eAICommandMenu: UIScriptedMenu
 
 		case eAICommandCategories.CAT_DAMAGE_IN:
 		case eAICommandCategories.CAT_DAMAGE_OUT:
-			for (i = 0; i < 20; ++i)
+			for (i = 0; i < eAICommands.DEB_DAMAGE_COUNT; ++i)
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DAMAGE + i, string.Format("%1%%", 100 - i * 5), category));
 			}

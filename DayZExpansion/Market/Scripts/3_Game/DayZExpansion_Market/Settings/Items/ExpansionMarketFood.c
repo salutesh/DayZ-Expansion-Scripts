@@ -16,7 +16,6 @@ class ExpansionMarketFood: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 24;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FOOD";
 		m_FileName = "Food";
 

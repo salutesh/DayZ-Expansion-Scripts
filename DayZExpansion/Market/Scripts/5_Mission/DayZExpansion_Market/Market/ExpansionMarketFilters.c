@@ -285,7 +285,8 @@ class ExpansionMarketFilters
 			{
 				int worth = m_MarketModule.GetPlayerWorth();
 				ExpansionMarketTraderZone zone = m_MarketModule.GetClientZone();
-				float priceModifier = zone.BuyPricePercent / 100;
+				ExpansionMarketTrader traderMarket = trader.GetTraderMarket();
+				PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 				foreach (ExpansionMarketTraderItem tItem: trader.GetTraderMarket().m_Items) 
 				{
 					if (tItem.BuySell == ExpansionMarketTraderBuySell.CanOnlySell)
@@ -302,6 +303,8 @@ class ExpansionMarketFilters
 						if (itemStock < 1)
 							continue;
 					}
+
+					float priceModifier = m_MarketModule.GetBuyPricePercent(tItem.MarketItem, zone, traderMarket, player) / 100;
 
 					//! We are only interested in the base item price here, not including attachments
 					int price = tItem.MarketItem.CalculatePrice(itemStock, priceModifier, true);

@@ -16,7 +16,6 @@ class ExpansionMarketHelicopters: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 29;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HELICOPTER";
 		m_FileName = "Helicopters";
 

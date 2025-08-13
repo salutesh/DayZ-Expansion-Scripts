@@ -16,7 +16,6 @@ class ExpansionMarketKits: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 31;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_KITS";
 		m_FileName = "Kits";
 		

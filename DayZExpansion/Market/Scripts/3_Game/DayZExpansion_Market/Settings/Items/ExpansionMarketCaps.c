@@ -16,7 +16,6 @@ class ExpansionMarketCaps: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 13;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_CAPS";
 		m_FileName = "Caps";
 		

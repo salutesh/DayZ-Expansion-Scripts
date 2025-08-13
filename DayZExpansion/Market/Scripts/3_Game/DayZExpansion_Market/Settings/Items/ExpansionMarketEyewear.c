@@ -16,7 +16,6 @@ class ExpansionMarketEyewear: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 21;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_EYEWEAR";
 		m_FileName = "Eyewear";
 

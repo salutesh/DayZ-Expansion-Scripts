@@ -16,7 +16,6 @@ class ExpansionMarketGloves: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 26;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_GLOVES";
 		m_FileName = "Gloves";
 

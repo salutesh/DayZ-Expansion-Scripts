@@ -19,7 +19,6 @@ class ExpansionMarketSubmachineGuns: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 19;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_SUBMACHINE_GUNS";
 		m_FileName = "Submachine_Guns";
 

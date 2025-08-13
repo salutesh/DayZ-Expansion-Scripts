@@ -235,6 +235,8 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 
 		item.m_StockOnly = tItem.MarketItem.m_StockOnly;
 
+		//! stockOnly true means trader was already netsynched
+		//! item.m_StockOnly true means it's a variant that's identical to its parent (sans classname obviously)
 		if (stockOnly || item.m_StockOnly)
 			return item;
 

@@ -20,8 +20,13 @@ modded class IngameHud
 		if (player && (player.GetPlayerState() != EPlayerStates.ALIVE || player.IsUnconscious()))
 			return false;
 
-		if (GetGame().GetUIManager().GetMenu() || GetDayZExpansion().GetExpansionUIManager().GetMenu())
+		if (GetGame().GetUIManager().GetMenu())
 			return false;
+
+	#ifdef EXPANSIONUI
+		if (GetDayZExpansion().GetExpansionUIManager().GetMenu())
+			return false;
+	#endif
 
 	#ifndef DAYZ_1_26
 		//! 1.27+

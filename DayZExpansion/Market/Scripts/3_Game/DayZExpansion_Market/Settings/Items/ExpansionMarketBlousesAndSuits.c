@@ -16,7 +16,6 @@ class ExpansionMarketBlousesAndSuits: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 9;
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_BLOUSES" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_SUITS");
 		m_FileName = "Blouses_And_Suits";
 

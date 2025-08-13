@@ -15,8 +15,8 @@
 enum eAIStance
 {
 	UNKNOWN = -1,
-	ERECT,
-	CROUCH,
+	STANDING,
+	CROUCHED,
 	PRONE
 }
 
@@ -191,7 +191,7 @@ class eAIBase: PlayerBase
 	static float m_eAI_FOVFar_DistThreshold = 125;
 	static float m_eAI_FOVNear_HalfAngleH = 120;  //! Half angle! FOV = angle * 2
 	static float m_eAI_FOVFar_HalfAngleH = 45;  //! Half angle! FOV = angle * 2
-	static float m_eAI_FOVRolloffExponent = 2.0;  //! 1.0 = linear
+	static float m_eAI_FOVTransitionExponent = 2.0;  //! 1.0 = linear
 
 	private bool m_MovementSpeedActive;
 	private int m_MovementSpeed;
@@ -676,6 +676,17 @@ class eAIBase: PlayerBase
 			}
 		*/
 		}
+	}
+
+	override void InsertAgent(int agent, float count = 1)
+	{
+		switch (agent)
+		{
+			case eAgents.WOUND_AGENT:
+				return;
+		}
+
+		super.InsertAgent(agent, count);
 	}
 
 	void eAI_Recreate()
@@ -1743,6 +1754,26 @@ class eAIBase: PlayerBase
 			indent.Replace("-", " ");
 		}
 
+		report.Insert(indent + string.Format("|- Name %1", GetCachedName()));
+
+		report.Insert(indent + string.Format("|- Position %1", ExpansionStatic.VectorToString(GetPosition(), ExpansionVectorToString.Plain)));
+
+		float visibility = Math.Round(m_Expansion_Visibility * 1000);
+		float volFogVisibility = Math.Round((m_Environment.Expansion_GetDynVolFogVisibility() + 0.001) * 1000);
+		report.Insert(indent + string.Format("|- Visibility %1 m (volumetric fog %2 m)", visibility, volFogVisibility));
+
+		report.Insert(indent + string.Format("|- Stance %1", typename.EnumToString(eAIStance, eAI_GetStance())));
+
+		ItemBase itemInHands = GetItemInHands();
+
+		if (IsRaised())
+		{
+			if (itemInHands && (itemInHands.IsWeapon() || itemInHands.Expansion_IsMeleeWeapon()))
+				report.Insert(indent + "|  \\- Weapon raised");
+			else
+				report.Insert(indent + "|  \\- Hands raised");
+		}
+
 		report.Insert(indent + string.Format("|- Speed limit normal/combat %1/%2", typename.EnumToString(eAIMovementSpeed, m_MovementSpeedLimit), typename.EnumToString(eAIMovementSpeed, m_MovementSpeedLimitUnderThreat)));
 		report.Insert(indent + string.Format("|- Current velocity %1 m/s", ExpansionStatic.FloatToString(Expansion_GetActualVelocity().Length())));
 
@@ -1759,16 +1790,49 @@ class eAIBase: PlayerBase
 			isFormLeader = true;
 		report.Insert(indent + string.Format("|- Is formation leader %1", isFormLeader.ToString()));
 
+		report.Insert(indent + string.Format("|- Accuracy min %1%% max %2%%", ExpansionStatic.FloatToString(m_eAI_AccuracyMin * 100), ExpansionStatic.FloatToString(m_eAI_AccuracyMax * 100)));
+		report.Insert(indent + string.Format("|- Damage in %1%% out %2%%", m_eAI_DamageReceivedMultiplier * 100, m_eAI_DamageMultiplier * 100));
+		report.Insert(indent + string.Format("|- Threat distance limit %1 m", ExpansionStatic.FloatToString(m_eAI_ThreatDistanceLimit)));
+		report.Insert(indent + string.Format("|- Noise investigation distance limit %1 m", ExpansionStatic.FloatToString(m_eAI_NoiseInvestigationDistanceLimit)));
+		report.Insert(indent + string.Format("|- Sniper prone distance threshold %1 m", ExpansionStatic.FloatToString(m_eAI_SniperProneDistanceThreshold)));
+
+		report.Insert(indent + "|- FOV");
+		report.Insert(indent + string.Format("|  |- Near to far FOV transition exponent %1", ExpansionStatic.FormatFloat(m_eAI_FOVTransitionExponent, 4, false, false)));
+		report.Insert(indent + string.Format("|  \\- Distance (m)   FOV (°)"));
+
+		if (m_eAI_FOVFar_DistThreshold != m_eAI_FOVNear_DistThreshold && m_eAI_FOVFar_HalfAngleH != m_eAI_FOVNear_HalfAngleH)
+		{
+			float fovDistRange = m_eAI_FOVFar_DistThreshold - m_eAI_FOVNear_DistThreshold;
+			int fovIndexMax = 8;
+			float fovDistInc = fovDistRange / fovIndexMax;
+			for (int fovIndex = 0; fovIndex <= fovIndexMax; ++fovIndex)
+			{
+				float fovDist = m_eAI_FOVNear_DistThreshold + fovDistInc * fovIndex;
+				float fovHalfAngleH = eAI_CalculateFOVHalfAngleH(fovDist * fovDist);
+				report.Insert(indent + string.Format("|     |- %1    %2",
+													 ExpansionString.JustifyLeft(ExpansionStatic.FormatFloat(fovDist, 3, false, false), 8, " "),
+													 ExpansionStatic.FormatFloat(fovHalfAngleH * 2, 2, false, false)));
+			}
+		}
+		eAI_FixupLastReportEntry(report);
+
 		report.Insert(indent + "|- Looting behavior");
 		TStringArray lootingBehaviors = {};
 		ExpansionStatic.BitmaskEnumToString(eAILootingBehavior, m_eAI_LootingBehavior).Split("|", lootingBehaviors);
-		foreach (int l, string behavior: lootingBehaviors)
+		foreach (string behavior: lootingBehaviors)
 		{
-			if (l < lootingBehaviors.Count() - 1)
-				report.Insert(indent + string.Format("|  |- %1", behavior));
-			else
-				report.Insert(indent + string.Format("|  \\- %1", behavior));
+			report.Insert(indent + string.Format("|  |- %1", behavior));
 		}
+		eAI_FixupLastReportEntry(report);
+
+		report.Insert(indent + "|- Unlimited reload");
+		TStringArray unlimitedReload = {};
+		ExpansionStatic.BitmaskEnumToString(eAITargetType, m_eAI_UnlimitedReload).Split("|", unlimitedReload);
+		foreach (string targetType: unlimitedReload)
+		{
+			report.Insert(indent + string.Format("|  |- %1", targetType));
+		}
+		eAI_FixupLastReportEntry(report);
 
 		auto fsmState = GetFSM().GetState();
 		if (fsmState)
@@ -1983,20 +2047,168 @@ class eAIBase: PlayerBase
 			}
 		}
 
-		report.Insert(indent + string.Format("|- Water %1%% Energy %2%% Heat %3%%", GetStatWater().Get() / GetStatWater().GetMax() * 100, GetStatEnergy().Get() / GetStatEnergy().GetMax() * 100, GetStatHeatComfort().Get() / GetStatHeatComfort().GetMax() * 100));
-		report.Insert(indent + string.Format("|- Health %1%% Blood %2%% Shock %3%%", GetHealth01() * 100, GetHealth01("", "Blood") * 100, GetHealth01("", "Shock") * 100));
-		report.Insert(indent + string.Format("|- Bleeding %1", GetBleedingSourceCount()));
+		string water = ExpansionStatic.FormatFloat(GetStatWater().Get() / GetStatWater().GetMax() * 100, 3, false, false);
+		string energy = ExpansionStatic.FormatFloat(GetStatEnergy().Get() / GetStatEnergy().GetMax() * 100, 4, false, false);
+		string heatComfort = ExpansionStatic.FormatFloat(GetStatHeatComfort().Get() / GetStatHeatComfort().GetMax() * 100, 1, false, false);
+		report.Insert(indent + string.Format("|- Water %1%% Energy %2%% Heat %3%%", water, energy, heatComfort));
 
-		bool hasBrokenLegs;
+		string health = ExpansionStatic.FormatFloat(GetHealth01() * 100, 1, false, false);
+		string blood = ExpansionStatic.FormatFloat(GetHealth01("", "Blood") * 100, 1, false, false);
+		string shock = ExpansionStatic.FormatFloat(GetHealth01("", "Shock") * 100, 1, false, false);
+		report.Insert(indent + string.Format("|- Health %1%% Blood %2%% Shock %3%%", health, blood, shock));
+
+		if (IsUnconscious())
+			report.Insert(indent + "|- Unconscious");
+
+		if (IsBleeding())
+		{
+			report.Insert(indent + string.Format("|- Bleeding %1", GetBleedingSourceCount()));
+
+			foreach (int bleedingBit, BleedingSource bleedingSource: m_BleedingManagerServer.m_BleedingSources)
+			{
+				float blood_scale = Math.InverseLerp(PlayerConstants.BLOOD_THRESHOLD_FATAL, PlayerConstants.BLEEDING_LOW_PRESSURE_BLOOD, GetHealth("GlobalHealth", "Blood"));
+				blood_scale = Math.Clamp(blood_scale, PlayerConstants.BLEEDING_LOW_PRESSURE_MIN_MOD, 1);
+				float flow = bleedingSource.m_FlowModifier;
+				switch (bleedingSource.m_Type)
+				{
+					case eBleedingSourceType.CONTAMINATED:
+						flow *= PlayerConstants.BLEEDING_SOURCE_BURN_MODIFIER;
+						break;
+				}
+				int bloodLoss = Math.Round(-PlayerConstants.BLEEDING_SOURCE_BLOODLOSS_PER_SEC * blood_scale * flow);
+				report.Insert(indent + string.Format("|  |- %1 %2 ml/s duration %3/%4 s %5", bleedingSource.m_Bone, bloodLoss, ExpansionStatic.FormatFloat(bleedingSource.m_ActiveTime, 3, false, false), bleedingSource.m_MaxTime, typename.EnumToString(eBleedingSourceType, bleedingSource.m_Type)));
+			}
+
+			eAI_FixupLastReportEntry(report);
+		}
+
 		if (GetBrokenLegs() == eBrokenLegs.BROKEN_LEGS)
-			hasBrokenLegs = true;
+			report.Insert(indent + "|- Broken legs");
 
-		report.Insert(indent + string.Format("|- Broken legs %1", hasBrokenLegs.ToString()));
+		if (GetAgents() > 0)
+		{
+			int totalAgents = m_AgentPool.m_VirusPool.Count();
+			report.Insert(indent + string.Format("|- Pathogens %1", totalAgents));
 
-		auto entityInHands = GetHumanInventory().GetEntityInHands();
+			foreach (int agentId, float agentCount: m_AgentPool.m_VirusPool)
+			{
+				string agentName = typename.EnumToString(eAgents, agentId);
+				int agentMax = PluginTransmissionAgents.GetAgentMaxCount(agentId);
+				int agentCountPrecision = Math.Max(5 - agentMax.ToString().Length(), 1);
+
+				EStatLevels immunityLevel = GetImmunityLevel();
+				EStatLevels agentPotency = m_AgentPool.m_PluginTransmissionAgents.GetAgentPotencyEx(agentId, this);
+
+				float growDelta;
+				if (agentPotency <= immunityLevel)
+				{
+					//! Agent can grow unless prevented by one of the active medical drugs
+					if (Expansion_CanAgentGrow(agentId))
+						growDelta = m_AgentPool.m_PluginTransmissionAgents.GetAgentInvasibilityEx(agentId, this);
+					else
+						growDelta = 0;
+				}
+				else
+				{
+					growDelta = -m_AgentPool.m_PluginTransmissionAgents.GetAgentDieOffSpeedEx(agentId, this);
+				}
+
+				string deltaIndicator;
+				if (growDelta > 0 && agentCount < agentMax)
+					deltaIndicator = "(+)";
+				else if (growDelta < 0)
+					deltaIndicator = "(-)";
+				else
+					deltaIndicator = "(=)";
+
+				report.Insert(indent + string.Format("|  |- %1 %2/%3 %4", agentName, ExpansionStatic.FormatFloat(agentCount, agentCountPrecision, false, false), agentMax, deltaIndicator));
+			}
+
+			eAI_FixupLastReportEntry(report);
+		}
+
+		eAI_SymptomReport(m_SymptomManager.m_SymptomQueuePrimary, report, "Primary symptoms", indent);
+
+		array<ref SymptomBase> secondarySymptoms = {};
+
+		foreach (SymptomBase symptom: m_SymptomManager.m_SymptomQueueSecondary)
+		{
+			if (symptom.GetType() == SymptomIDs.SYMPTOM_BLOODLOSS)  //! Always active, ignore. See SymptomManager::AutoactivateSymptoms
+				continue;
+
+			secondarySymptoms.Insert(symptom);
+		}
+
+		eAI_SymptomReport(secondarySymptoms, report, "Secondary symptoms", indent);
+
+		if (m_MedicalDrugsActive)
+		{
+			TStringArray medicalDrugs = {};
+			ExpansionStatic.BitmaskEnumToString(EMedicalDrugsType, m_MedicalDrugsActive).Split("|", medicalDrugs);
+
+			report.Insert(indent + "|- Active medication " + medicalDrugs.Count());
+
+			foreach (string medicalDrug: medicalDrugs)
+			{
+				report.Insert(indent + string.Format("|  |- %1", medicalDrug));
+			}
+
+			eAI_FixupLastReportEntry(report);
+		}
+
+		TIntArray ignoreModifiers = {
+			eModifiers.MDF_TEMPERATURE,
+			eModifiers.MDF_HUNGER,
+			eModifiers.MDF_THIRST,
+			eModifiers.MDF_HEALTH,
+			eModifiers.MDF_STOMACH,
+			eModifiers.MDF_IMMUNE_SYSTEM,
+			eModifiers.MDF_SHOCK,
+			eModifiers.MDF_TOXICITY,
+			eModifiers.MDF_BREATH_VAPOUR
+		};
+
+		if (IsUnconscious())
+			ignoreModifiers.Insert(eModifiers.MDF_UNCONSCIOUSNESS);
+
+		if (GetBrokenLegs())
+			ignoreModifiers.Insert(eModifiers.MDF_BROKEN_LEGS);
+
+		array<ModifierBase> activeModifiers = {};
+
+		foreach (ModifierBase modifier: m_ModifiersManager.m_ModifierListArray)
+		{
+			if (ignoreModifiers.Find(modifier.GetModifierID()) > -1)
+				continue;
+
+			if (modifier.IsActive())
+			{
+				if (modifier.GetModifierID() == eModifiers.MDF_BLOOD_REGEN && GetHealth01("", "Blood") == 1.0)
+					continue;
+
+				if (modifier.GetModifierID() == eModifiers.MDF_HEALTH_REGEN && GetHealth01() == 1.0)
+					continue;
+
+				activeModifiers.Insert(modifier);
+			}
+		}
+
+		if (activeModifiers.Count() > 0)
+		{
+			report.Insert(indent + "|- Active modifiers " + activeModifiers.Count());
+
+			foreach (ModifierBase activeModifier: activeModifiers)
+			{
+				string modifierActiveTime =  ExpansionStatic.FormatFloat(activeModifier.GetAttachedTime(), 3, false, false);
+				report.Insert(indent + string.Format("|  |- %1 duration %2 s", activeModifier.ClassName(), modifierActiveTime));
+			}
+
+			eAI_FixupLastReportEntry(report);
+		}
+
 		string itemName;
-		if (entityInHands)
-			itemName = Debug.GetDebugName(entityInHands);
+		if (itemInHands)
+			itemName = Debug.GetDebugName(itemInHands);
 		else
 			itemName = "NONE";
 		report.Insert(indent + string.Format("|- Item in hands %1", itemName));
@@ -2010,7 +2222,8 @@ class eAIBase: PlayerBase
 		{
 			report.Insert(indent + string.Format("|  |- %1 -> %2", weaponType, magToReload));
 		}
-		eAI_FixupLastReportEntry(report);
+		if (m_eAI_EvaluatedFirearmTypes.Count())
+			eAI_FixupLastReportEntry(report);
 
 		array<EntityAI> cargoItems = MiscGameplayFunctions.Expansion_GetCargoItems(this);
 		report.Insert(indent + string.Format("\\- Items in cargo %1", cargoItems.Count()));
@@ -2026,9 +2239,36 @@ class eAIBase: PlayerBase
 			else
 				report.Insert(indent + string.Format(".  |- %1", cargoItem.GetType()));
 		}
-		eAI_FixupLastReportEntry(report);
+		if (cargoItems.Count())
+			eAI_FixupLastReportEntry(report);
 
 		return report;
+	}
+
+	void eAI_SymptomReport(array<ref SymptomBase> symptoms, TStringArray report, string label, string indent = string.Empty)
+	{
+		int symptomCount = symptoms.Count();
+		if (symptomCount > 0)
+		{
+			report.Insert(indent + string.Format("|- %1 %2", label, symptomCount));
+
+			foreach (SymptomBase symptom: symptoms)
+			{
+				if (symptom.IsActivated())
+				{
+					if (symptom.m_Duration > 0)
+						report.Insert(indent + string.Format("|  |- %1 duration %2/%3 s", symptom.ClassName(), ExpansionStatic.FormatFloat(symptom.m_ActivatedTime, 3, false, false), symptom.m_Duration));
+					else
+						report.Insert(indent + string.Format("|  |- %1 duration %2 s", symptom.ClassName(), ExpansionStatic.FormatFloat(symptom.m_ActivatedTime, 3, false, false)));
+				}
+				else
+				{
+					report.Insert(indent + string.Format("|  |- %1 (inactive)", symptom.ClassName()));
+				}
+			}
+
+			eAI_FixupLastReportEntry(report);
+		}
 	}
 
 	void eAI_WeaponReport(array<Weapon_Base> weapons, TStringArray report, string indent = string.Empty)
@@ -2559,13 +2799,6 @@ class eAIBase: PlayerBase
 								else if (eAI_ClothingLootingBehaviorCheck_Slot(slot, targetItem))
 								{
 									//! Found taken slot, potential upgrade
-
-									canWear = true;
-									currentlyWornGear = slotGear;
-								}
-								else if (eAI_ClothingLootingBehaviorCheck_Similarity())
-								{
-									//! Found taken slot, potential swap identical or similar
 
 									canWear = true;
 									currentlyWornGear = slotGear;
@@ -3244,8 +3477,14 @@ class eAIBase: PlayerBase
 		auto trace = EXTrace.Profile(EXTrace.AI, this, "eAI_OnNoiseEvent");
 #endif
 
+		if (m_eAI_NoiseInvestigationDistanceLimit <= 0)
+			return;
+
+		if (IsUnconscious())
+			return;
+
 		float strength = params.m_Strength * strengthMultiplier;
-		if (strength <= 0 || m_eAI_NoiseInvestigationDistanceLimit <= 0 || IsUnconscious())
+		if (strength <= 0)
 			return;
 
 		EntityAI root;
@@ -6705,26 +6944,7 @@ class eAIBase: PlayerBase
 				//float lookAngleV = lookAngles[1];
 				float angleDiffH = ExpansionMath.AngleDiff2(toTargetAngleH, lookAngleH);
 				//float angleDiffV = ExpansionMath.AngleDiff2(toTargetAngleV, lookAngleV);
-				float threshAngleH;
-				float nearHalfAngleH = Math.Max(m_eAI_FOVNear_HalfAngleH, 95);
-				float farHalfAngleH = Math.Max(m_eAI_FOVFar_HalfAngleH, 45);
-				float farDistThresh = Math.Max(m_eAI_FOVFar_DistThreshold, 60);
-				if (farHalfAngleH == nearHalfAngleH || distSq <= m_eAI_FOVNear_DistThreshold * m_eAI_FOVNear_DistThreshold)
-				{
-					threshAngleH = nearHalfAngleH;
-				}
-				else if (distSq < farDistThresh * farDistThresh)
-				{
-					float dist = Math.Sqrt(distSq);
-					//! FOV roll-off with distance
-					float t = ExpansionMath.LinearConversion(m_eAI_FOVNear_DistThreshold, farDistThresh, dist, 0, 1);
-					t = Easing.EaseInOutPow(t, m_eAI_FOVRolloffExponent);
-					threshAngleH = ExpansionMath.LinearConversion(0, 1, t, nearHalfAngleH, farHalfAngleH);
-				}
-				else
-				{
-					threshAngleH = farHalfAngleH;
-				}
+				float threshAngleH = eAI_CalculateFOVHalfAngleH(distSq);
 			#ifdef DIAG_DEVELOPER
 				m_eAI_DbgThreshAngleH = threshAngleH;
 				m_eAI_DbgLookAngleH = lookAngleH;
@@ -6882,6 +7102,31 @@ class eAIBase: PlayerBase
 		}
 
 		return state.m_LOS;
+	}
+
+	float eAI_CalculateFOVHalfAngleH(float distSq)
+	{
+		float nearHalfAngleH = Math.Max(m_eAI_FOVNear_HalfAngleH, 95);
+		float farHalfAngleH = Math.Max(m_eAI_FOVFar_HalfAngleH, 45);
+
+		if (farHalfAngleH == nearHalfAngleH || distSq <= m_eAI_FOVNear_DistThreshold * m_eAI_FOVNear_DistThreshold)
+		{
+			return nearHalfAngleH;
+		}
+		else
+		{
+			float farDistThresh = Math.Max(m_eAI_FOVFar_DistThreshold, 60);
+
+			if (distSq < farDistThresh * farDistThresh)
+			{
+				float dist = Math.Sqrt(distSq) - m_eAI_FOVNear_DistThreshold;
+				float range = farDistThresh - m_eAI_FOVNear_DistThreshold;
+				float t = Easing.EaseInOutPow(dist / range, m_eAI_FOVTransitionExponent);
+				return ExpansionMath.LinearConversion(0, 1, t, nearHalfAngleH, farHalfAngleH);
+			}
+		}
+
+		return farHalfAngleH;
 	}
 
 	//! @note when leaning, aim animation direction needs to be adjusted for character rotation, see HandleWeapons
@@ -8941,10 +9186,25 @@ class eAIBase: PlayerBase
 			}
 		}
 
-		bool underWaterSurfacePathFinding = eAI_ShouldUseSurfaceUnderWaterForPathFinding();
+		//! If blocking object is NOT a floating item that should be climbed/jumped and is NOT a vehicle...
+		if (!climbFloatingItem && !isBlockingVehicle)
+		{
+			//! ...don't allow jump/climb if blocking object is an item
+			if (isBlockingItem)
+				return false;
 
-		if (((!m_PathFinding.m_IsJumpClimb && (!underWaterSurfacePathFinding || !hcm.IsBlocked())) || isBlockingItem) && !climbFloatingItem && !isBlockingVehicle)
-			return false;
+			//! If pathfinding doesn't indicate jump/climb...
+			if (!m_PathFinding.m_IsJumpClimb)
+			{
+				//! ...don't allow jump/climb if movement NOT blocked
+				if (!hcm.IsBlocked())
+					return false;
+
+				//! ...don't allow jump/climb if NOT on inverse path and NOT using underwater surface for pathfinding
+				if (m_PathFinding.m_PathGlueIdx == -1 && !eAI_ShouldUseSurfaceUnderWaterForPathFinding())
+					return false;
+			}
+		}
 
 		if ((m_eAI_PositionIsFinal && Math.Round(Expansion_GetMovementSpeed()) == 0.0) || !eAI_IsFallSafe(GetDirection() * 2.0, false))
 			return false;

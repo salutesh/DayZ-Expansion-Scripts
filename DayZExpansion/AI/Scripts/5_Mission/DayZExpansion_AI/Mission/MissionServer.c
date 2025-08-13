@@ -25,6 +25,13 @@ modded class MissionServer
 #endif
 
 		ExpansionHumanLoadout.Init();
+
+		PlayerBase.Expansion_RegisterInventoryItemType(ItemCompass);
+		PlayerBase.Expansion_RegisterInventoryItemType(ItemMap);
+		PlayerBase.Expansion_RegisterInventoryItemType(GPSReceiver);
+	#ifdef EXPANSIONMODNAVIGATION
+		PlayerBase.Expansion_RegisterInventoryItemType(ExpansionGPS);
+	#endif
 	}
 
 	override void InvokeOnConnect(PlayerBase player, PlayerIdentity identity)

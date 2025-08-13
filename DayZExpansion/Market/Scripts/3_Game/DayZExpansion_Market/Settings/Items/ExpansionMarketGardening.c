@@ -16,7 +16,6 @@ class ExpansionMarketGardening: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 25;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_GARDENING";
 		m_FileName = "Gardening";
 		

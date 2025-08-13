@@ -16,7 +16,6 @@ class ExpansionMarketHelmets: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 30;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HELMETS";
 		m_FileName = "Helmets";
 

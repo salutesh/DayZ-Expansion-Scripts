@@ -16,7 +16,6 @@ class ExpansionMarketTents: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 54;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_TENTS";
 		m_FileName = "Tents";
 	

@@ -16,7 +16,6 @@ class ExpansionMarketBayonets: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 64;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BAYONETS";
 		m_FileName = "Bayonets";
 		

@@ -32,6 +32,12 @@ static void Expansion_Error(string s, inout bool check = false)
 
 class EXTee
 {
+#ifdef SERVER
+	static const int MAX_PRINTABLE_TEXT_LENGTH = 1026;
+#else
+	static const int MAX_PRINTABLE_TEXT_LENGTH = 240;
+#endif
+
 	FileHandle m_File;
 	autoptr TStringArray m_PrintBuffer = {};
 	int m_BufferLength;
@@ -43,7 +49,8 @@ class EXTee
 
 	void ~EXTee()
 	{
-		Flush();
+		if (m_BufferLength > 0)
+			Flush();
 		if (m_File)
 			CloseFile(m_File);
 	}
@@ -64,9 +71,36 @@ class EXTee
 		if (print)
 		{
 			int strLen = str.Length();
-			//! @note max script log line length 256 characters
-			if (m_BufferLength + strLen >= 256)
-				Flush();
+
+			int bufferLength = m_BufferLength;
+			if (bufferLength > 0)
+			{
+				//! @note \n gets expanded to \r\n when printing, we need to deal with this by temporarily adjusting buffer length
+				bufferLength += m_PrintBuffer.Count() * 2;
+
+				if (bufferLength + strLen > MAX_PRINTABLE_TEXT_LENGTH)
+					Flush();
+			}
+
+			while (strLen > MAX_PRINTABLE_TEXT_LENGTH)
+			{
+				string chunk = str.Substring(0, MAX_PRINTABLE_TEXT_LENGTH);
+				int index = chunk.LastIndexOf(" ");  //! Try to break on whitespace if possible
+
+				if (index > -1)
+				{
+					index++;
+
+					if (index < MAX_PRINTABLE_TEXT_LENGTH)
+						chunk = str.Substring(0, index);
+				}
+
+				Print("" + chunk);
+
+				strLen -= index;
+				str = str.Substring(index, strLen);
+			}
+
 			m_PrintBuffer.Insert(str);
 			m_BufferLength += strLen;
 		}
@@ -637,7 +671,7 @@ class ExpansionStatic: ExpansionStaticCore
 			}
 			else
 			{
-				tmp = frac.ToString();
+				tmp = frac.ToString(false);
 				str += tmp.Substring(2, Math.Min(tmp.Length() - 2, precision));
 			}
 		}

@@ -16,7 +16,6 @@ class ExpansionMarketMelee: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 41;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MEELE_WEAPONS";
 		m_FileName = "Melee_Weapons";
 		

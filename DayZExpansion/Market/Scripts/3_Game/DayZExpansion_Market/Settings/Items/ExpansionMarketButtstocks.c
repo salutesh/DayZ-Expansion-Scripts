@@ -16,7 +16,6 @@ class ExpansionMarketButtstocks: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 12;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BUTTSTOCKS";
 		m_FileName = "Buttstocks";
 		

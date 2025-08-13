@@ -223,6 +223,15 @@ modded class ItemBase
 		return super.AreChildrenAccessible();
 	}
 
+	override void OnEnergyConsumed()
+	{
+		//! Refill energy while in AI inventory, essentially disabling energy consumption
+		if (eAIBase.Cast(GetHierarchyRoot()))
+			GetCompEM().SetEnergy0To1(1.0);
+		else
+			super.OnEnergyConsumed();
+	}
+
 	bool Expansion_TryTurningOn()
 	{
 		if ( HasEnergyManager() )

@@ -1,3 +1,10 @@
+enum ExpansionPositionKnowledgeType
+{
+	NONE,
+	COORDS_GRIDSECTOR,
+	COORDS_METERS
+}
+
 modded class PlayerBase
 {
 	ref TIntArray m_eAI_FactionModifiers;
@@ -166,6 +173,97 @@ modded class PlayerBase
 		}
 
 		return players;
+	}
+
+	bool Expansion_CanAgentGrow(int agentId)
+	{
+		typename e = EMedicalDrugsType;
+		int count = e.GetVariableCount();
+		for (int vIdx = 0; vIdx < count; ++vIdx)
+		{
+			int drugType;
+			if (e.GetVariableType(vIdx) == int && e.GetVariableValue(null, vIdx, drugType) && drugType != EMedicalDrugsType.NONE)
+			{
+				if ((m_MedicalDrugsActive & drugType) == drugType)
+				{
+					if (!m_AgentPool.m_PluginTransmissionAgents.GrowDuringMedicalDrugsAttack(agentId, drugType, this))
+					{
+						return false;
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	bool Expansion_HasEnergy(notnull ExpansionInventoryItemType itemType)
+	{
+		foreach (ItemBase item: itemType.Items)
+		{
+			if (item.GetCompEM() && item.GetCompEM().CanWork())
+				return true;
+		}
+
+		return false;
+	}
+
+	ExpansionPositionKnowledgeType Expansion_GetPositionKnowledgeType()
+	{
+		ExpansionInventoryItemType itemType;
+
+	#ifdef EXPANSIONMODNAVIGATION
+		itemType = Expansion_GetInventoryItemType(ExpansionGPS); 
+		if (itemType && Expansion_HasEnergy(itemType))
+			return ExpansionPositionKnowledgeType.COORDS_METERS;
+
+		auto mapSettings = GetExpansionSettings().GetMap();
+		if (mapSettings.EnableMap)
+		{
+			bool canUseMap = !mapSettings.NeedMapItemForKeyBinding;
+
+			if (!canUseMap && Expansion_GetInventoryCount(ItemMap) > 0)
+				canUseMap = true;
+
+			if (canUseMap)
+			{
+				//! We really should have an enum for ShowPlayerPosition in Navigation mod...
+				switch (mapSettings.ShowPlayerPosition)
+				{
+					case 1:
+						//! Player position is visible
+						return ExpansionPositionKnowledgeType.COORDS_METERS;
+
+					case 2:
+						//! Player position is visible if player has a compass
+						if (Expansion_GetInventoryCount(ItemCompass) > 0)
+							return ExpansionPositionKnowledgeType.COORDS_METERS;
+						break;
+				}
+			}
+		}
+	#endif
+
+		itemType = Expansion_GetInventoryItemType(GPSReceiver); 
+		if (itemType && Expansion_HasEnergy(itemType))
+			return ExpansionPositionKnowledgeType.COORDS_GRIDSECTOR;
+
+		return ExpansionPositionKnowledgeType.NONE;
+	}
+
+	bool Expansion_CanKnowGroupMemberDistance()
+	{
+	#ifdef EXPANSIONMODGROUPS
+		auto groupSettings = GetExpansionSettings().GetParty();
+
+		if (groupSettings.ShowPartyMember3DMarkers && groupSettings.ShowDistanceUnderPartyMembersMarkers)
+			return true;
+
+		if (groupSettings.ShowPartyMemberHUD && groupSettings.ShowHUDMemberDistance)
+			return true;
+	#endif
+
+		return false;
 	}
 
 	/**

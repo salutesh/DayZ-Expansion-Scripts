@@ -19,7 +19,6 @@ class ExpansionMarketSniperRifles: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 51;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_SNIPER_RIFLES";
 		m_FileName = "Sniper_Rifles";
 

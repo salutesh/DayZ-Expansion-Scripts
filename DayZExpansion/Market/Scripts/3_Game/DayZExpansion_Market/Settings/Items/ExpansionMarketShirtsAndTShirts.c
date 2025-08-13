@@ -19,7 +19,6 @@ class ExpansionMarketShirtsAndTShirts: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 48;
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_SHIRTS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_TSHIRTS");
 		m_FileName = "Shirts_And_TShirts";
 

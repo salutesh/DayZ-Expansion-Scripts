@@ -560,19 +560,23 @@ modded class DayZPlayerImplement
 		switch (noisePar)
 		{
 			case type.GetNoiseParamsStand():
+				if (Expansion_GetMovementSpeed() > 2.0)
+					noiseMultiplier *= 2.25;
+				else
+					noiseMultiplier *= 1.75;
 				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseStepStand", noiseMultiplier);
 				break;
 			case type.GetNoiseParamsCrouch():
-				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseStepCrouch", noiseMultiplier);
+				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseStepCrouch", noiseMultiplier * 4);
 				break;
 			case type.GetNoiseParamsProne():
-				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseStepProne", noiseMultiplier);
+				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseStepProne", noiseMultiplier * 4.8);
 				break;
 			case type.GetNoiseParamsLandLight():
-				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseLandLight", noiseMultiplier);
+				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseLandLight", noiseMultiplier * 3);
 				break;
 			case type.GetNoiseParamsLandHeavy():
-				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseLandHeavy", noiseMultiplier);
+				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseLandHeavy", noiseMultiplier * 2.25);
 				break;
 			case type.GetNoiseParamsWhisper():
 				eAINoiseSystem.AddNoise(this, cfgPath + "NoiseWhisper", noiseMultiplier);

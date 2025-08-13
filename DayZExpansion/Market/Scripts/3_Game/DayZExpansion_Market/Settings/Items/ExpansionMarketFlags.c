@@ -16,7 +16,6 @@ class ExpansionMarketFlags: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 63;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FLAGS";
 		m_FileName = "Flags";
 

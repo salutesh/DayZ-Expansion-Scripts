@@ -16,7 +16,6 @@ class ExpansionMarketBackpacks: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 5;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BACKPACKS";
 		m_FileName = "Backpacks";
 		

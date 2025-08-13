@@ -6,6 +6,8 @@ class eAICommandManagerClient : eAICommandManager
 	int m_MovementSpeedLimit = eAIMovementSpeed.SPRINT;  //! Client
 	int m_UnlimitedReload;  //! Client
 	int m_LootingBehavior = eAILootingBehavior.DEFAULT;  //! Client
+	int m_DamageIn = eAICommands.DEB_DAMAGE;  //! Client
+	int m_DamageOut = eAICommands.DEB_DAMAGE;  //! Client
 
 	void eAICommandManagerClient()
 	{
@@ -55,7 +57,7 @@ class eAICommandManagerClient : eAICommandManager
 		switch (cmd)
 		{
 			case eAICommands.DEB_SPAWNALLY:
-				m_Expansion_RPCManager.SendRPC("RPC_SpawnAI", new Param5<int, vector, int, int, int>(cmd, ExpansionStatic.GetCursorHitPos(), m_MovementSpeedLimit, m_UnlimitedReload, m_LootingBehavior));
+				SpawnAI(cmd);
 				return true;
 			
 			case eAICommands.DEB_CLEARALL:
@@ -138,15 +140,15 @@ class eAICommandManagerClient : eAICommandManager
 				return true;
 			
 			case eAICommands.MOV_FLANK:
-				m_Expansion_RPCManager.SendRPC("RPC_ReqFormFlank");
+				m_Expansion_RPCManager.SendRPC("RPC_ReqFormFlank", new Param1<int>(m_MovementSpeedLimit));
 				return true;
 			
 			case eAICommands.MOV_ROAM:
-				m_Expansion_RPCManager.SendRPC("RPC_ReqFormRoam");
+				m_Expansion_RPCManager.SendRPC("RPC_ReqFormRoam", new Param1<int>(m_MovementSpeedLimit));
 				return true;
 			
 			case eAICommands.MOV_RTF:
-				m_Expansion_RPCManager.SendRPC("RPC_ReqFormRejoin");
+				m_Expansion_RPCManager.SendRPC("RPC_ReqFormRejoin", new Param1<int>(m_MovementSpeedLimit));
 				return true;
 			
 			case eAICommands.MOV_SETWP:
@@ -190,6 +192,7 @@ class eAICommandManagerClient : eAICommandManager
 				return true;
 
 			case eAICommands.STA_SITREP:
+				//! @note sitrep should not disclose information that a player couldn't have by looking at his own status
 				PlayerBase player;
 				if (Class.CastTo(player, GetGame().GetPlayer()))
 				{
@@ -233,14 +236,19 @@ class eAICommandManagerClient : eAICommandManager
 					if (category == eAICommandCategories.CAT_FACTION)
 						m_Expansion_RPCManager.SendRPC("RPC_SetFaction", new Param1<int>(cmd));
 					else
-						m_Expansion_RPCManager.SendRPC("RPC_SpawnAI", new Param5<int, vector, int, int, int>(cmd, ExpansionStatic.GetCursorHitPos(), m_MovementSpeedLimit, m_UnlimitedReload, m_LootingBehavior));
+						SpawnAI(cmd);
 					return true;
 				}
-				else if (cmd < eAICommands.DEB_DAMAGE_COUNT)
+				else if (cmd >= eAICommands.DEB_DAMAGE && cmd < eAICommands.DEB_DAMAGE_COUNT)
 				{
 					ai = GetAIAtCursorOrNearest();
 					if (ai)
 					{
+						if (category == eAICommandCategories.CAT_DAMAGE_IN)
+							m_DamageIn = cmd;
+						else
+							m_DamageOut = cmd;
+
 						rpc = m_Expansion_RPCManager.CreateRPC("RPC_SetDamageInOut");
 						rpc.Write(cmd);
 						rpc.Write(category);
@@ -323,6 +331,19 @@ class eAICommandManagerClient : eAICommandManager
 		return ai;
 	}
 	
+	void SpawnAI(int cmd)
+	{
+		auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_SpawnAI");
+		rpc.Write(cmd);
+		rpc.Write(ExpansionStatic.GetCursorHitPos());
+		rpc.Write(m_MovementSpeedLimit);
+		rpc.Write(m_UnlimitedReload);
+		rpc.Write(m_LootingBehavior);
+		rpc.Write(m_DamageIn);
+		rpc.Write(m_DamageOut);
+		rpc.Expansion_Send(null, true);
+	}
+
 	eAIBase SpawnAIEx(vector pos, string loadout = "HumanLoadout.json")
 	{
 		eAIBase ai;
@@ -385,6 +406,12 @@ class eAICommandManagerClient : eAICommandManager
 		int lootingBehavior;
 		if (!ctx.Read(lootingBehavior)) return;
 
+		int damageIn;
+		if (!ctx.Read(damageIn)) return;
+
+		int damageOut;
+		if (!ctx.Read(damageOut)) return;
+
 		if (GetGame().IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
@@ -403,9 +430,12 @@ class eAICommandManagerClient : eAICommandManager
 		{
 			case eAICommands.DEB_SPAWNALLY:
 				ai = SpawnAI_Helper(player);
-				ai.eAI_SetSpeedLimitPreference(speed);
+				eAIGroup group = ai.GetGroup();
+				SetMovementSpeed(group, speed);
 				ai.eAI_SetUnlimitedReload(unlimitedReload);
 				ai.eAI_SetLootingBehavior(lootingBehavior);
+				ai.eAI_SetDamageReceivedMultiplier(1.0 - damageIn * (1.0 / eAICommands.DEB_DAMAGE_COUNT));
+				ai.eAI_SetDamageMultiplier(1.0 - damageOut * (1.0 / eAICommands.DEB_DAMAGE_COUNT));
 				break;
 			default:
 				eAIFaction faction = eAIFaction.CreateByID(command);
@@ -680,7 +710,7 @@ class eAICommandManagerClient : eAICommandManager
 		{
 			eAIGroup group = ai.GetGroup();
 
-			int dmg = 100 - cmd * 5;
+			int dmg = 100 - cmd * (100 / eAICommands.DEB_DAMAGE_COUNT);
 			float multiplier = dmg * 0.01;
 
 			for (int i = 0; i < group.Count(); ++i)
@@ -727,11 +757,16 @@ class eAICommandManagerClient : eAICommandManager
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
+		int speed;
+		if (!ctx.Read(speed)) return;
+
 		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 
 		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
 		g.SetFormationState(eAIGroupFormationState.IN);
 		g.SetWaypointBehaviourAuto(eAIWaypointBehavior.ONCE);
+
+		SetMovementSpeed(g, speed);
 	}
 	
 	void RPC_ReqFormStop(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -745,13 +780,6 @@ class eAICommandManagerClient : eAICommandManager
 		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
 		g.SetFormationState(eAIGroupFormationState.NONE);
 		g.SetWaypointBehaviour(eAIWaypointBehavior.HALT);
-
-		eAIBase ai;
-		for (int i = 0; i < g.Count(); i++)
-		{
-			if (Class.CastTo(ai, g.GetMember(i)))
-				ai.eAI_SetLootingBehavior(eAILootingBehavior.DEFAULT);
-		}
 	}
 	
 	void RPC_ReqFormFlank(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -759,6 +787,9 @@ class eAICommandManagerClient : eAICommandManager
 	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
+
+		int speed;
+		if (!ctx.Read(speed)) return;
 
 		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 
@@ -770,6 +801,7 @@ class eAICommandManagerClient : eAICommandManager
 			if (Class.CastTo(ai, g.GetMember(i)) && ai.GetTarget() && ai.GetTarget().m_LOS && ai.eAI_IsInFlankRange(ai.GetTarget()))
 			{
 				g.SetFormationState(eAIGroupFormationState.FLANK);
+				SetMovementSpeed(g, speed);
 				return;
 			}
 		}
@@ -783,11 +815,16 @@ class eAICommandManagerClient : eAICommandManager
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
+		int speed;
+		if (!ctx.Read(speed)) return;
+
 		auto player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 
 		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
 		g.SetFormationState(eAIGroupFormationState.IN);
 		g.SetWaypointBehaviour(eAIWaypointBehavior.ROAMING);
+
+		SetMovementSpeed(g, speed);
 	}
 	
 	void RPC_ReqFormationChange(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -1002,6 +1039,11 @@ class eAICommandManagerClient : eAICommandManager
 
 		eAIGroup g = eAIGroup.GetGroupByLeader(player, false);
 		
+		SetMovementSpeed(g, speed);
+	}
+
+	void SetMovementSpeed(eAIGroup g, int speed)
+	{
 		eAIBase ai;
 
 		DayZPlayerImplement formationLeader = g.GetFormationLeader();
@@ -1009,15 +1051,28 @@ class eAICommandManagerClient : eAICommandManager
 		{
 			if (Class.CastTo(ai, formationLeader))
 			{
-				ai.eAI_SetSpeedLimitPreference(speed);
-				speed = eAIMovementSpeed.SPRINT;  //! Allow other members to catch up with leader
+				if (speed > 0)
+				{
+					ai.SetMovementSpeedLimits(speed, eAIMovementSpeed.SPRINT);
+					if (speed < eAIMovementSpeed.SPRINT)
+						speed += 1;  //! Allow other members to catch up with leader
+				}
+				else
+				{
+					ai.SetMovementSpeedLimits(0, 0);
+				}
 			}
 		}
 
 		for (int i = 0; i < g.Count(); i++)
 		{
 			if (Class.CastTo(ai, g.GetMember(i)) && ai != formationLeader)
-				ai.eAI_SetSpeedLimitPreference(speed);
+			{
+				if (speed > 0)
+					ai.SetMovementSpeedLimits(speed, eAIMovementSpeed.SPRINT);
+				else
+					ai.SetMovementSpeedLimits(0, 0);
+			}
 		}
 	}
 	
@@ -1204,23 +1259,65 @@ class eAICommandManagerClient : eAICommandManager
 	//! @note the number of lines is chosen such that it fits in the Expansion Chat box
 	void SitRep_Server(notnull PlayerBase player, notnull eAIBase ai)
 	{
-		//! Position & visibility
+		//! Position
+		ExpansionPositionKnowledgeType pkt = ai.Expansion_GetPositionKnowledgeType();
+		if (pkt != ExpansionPositionKnowledgeType.NONE)
+		{
+			vector position = ai.GetPosition();
+			string positionInfo;
+
+			switch (pkt)
+			{
+				case ExpansionPositionKnowledgeType.COORDS_GRIDSECTOR:
+					array<int> coords = MapNavigationBehaviour.OrderedPositionNumbersFromGridCoords(ai);
+					string alt;
+					if (coords.Count() == MapNavigationBehaviour.DISPLAY_GRID_POS_MAX_CHARS_COUNT * 2 && coords[0] >= 0)
+					{
+						positionInfo = string.Format("X %1.%2%3 Y %4.%5%6", coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+						alt = string.Format("%1", Math.Round(position[1]));
+					}
+					else
+					{
+						positionInfo = "X -.-- Y -.--";
+						alt = "---";
+					}
+					positionInfo = string.Format("Grid %1 alt. %2 m", alt);
+					break;
+
+				case ExpansionPositionKnowledgeType.COORDS_METERS:
+					positionInfo = string.Format("Pos. %1 : %2 alt. %3 m", Math.Round(position[0]), Math.Round(position[2]), Math.Round(position[1]));
+					break;
+			}
+
+			if (ai.Expansion_CanKnowGroupMemberDistance() || player.Expansion_GetPositionKnowledgeType() != ExpansionPositionKnowledgeType.NONE)
+				player.eAI_Message(ai, "%1 dist. %2 m", positionInfo, Math.Round(vector.Distance(player.GetPosition(), position)).ToString());
+			else
+				player.eAI_Message(ai, "%1", positionInfo);
+		}
+
+		//! Visibility
 		string visibility = Math.Round(ai.m_Expansion_Visibility * 1000).ToString();
 		string volFogVisibility = Math.Round((ai.m_Environment.Expansion_GetDynVolFogVisibility() + 0.001) * 1000).ToString();
-		string position = ExpansionStatic.VectorToString(ai.GetPosition(), ExpansionVectorToString.Labels);
-		player.eAI_Message(ai, "Position %1", position);
 		player.eAI_Message(ai, "Visibility %1 m (volumetric fog %2 m)", visibility, volFogVisibility);
 
 		//! Health
 		string health = Math.Round(ai.GetHealth01() * 100).ToString();
 		string blood = Math.Round(ai.GetHealth01("", "Blood") * 100).ToString();
+		TStringArray statusEffects = {};
 		if (ai.IsUnconscious())
-			player.eAI_Message(ai, "Health %1%% blood %2%% (unconscious)", health, blood);
+			statusEffects.Insert("unconscious");
+		if (ai.IsBleeding())
+			statusEffects.Insert(string.Format("bleeding %1", ai.GetBleedingSourceCount()));
+		if (ai.GetBrokenLegs() == eBrokenLegs.BROKEN_LEGS)
+			statusEffects.Insert("broken legs");
+		if (ai.HasDisease())
+			statusEffects.Insert("sick");
+		if (ai.HasHealings())
+			statusEffects.Insert("meds");
+		if (statusEffects.Count() > 0)
+			player.eAI_Message(ai, "Health %1%% blood %2%% (%3)", health, blood, ExpansionString.JoinStrings(statusEffects));
 		else
 			player.eAI_Message(ai, "Health %1%% blood %2%%", health, blood);
-
-		if (ai.GetBrokenLegs() == eBrokenLegs.BROKEN_LEGS)
-			player.eAI_Message(ai, "Broken legs", "");
 
 		//! Weapon
 		ItemBase itemInHands = ai.GetItemInHands();
@@ -1248,7 +1345,7 @@ class eAICommandManagerClient : eAICommandManager
 
 		//! Current focus
 		eAITarget target = ai.GetTarget();
-		if (target)
+		if (target && (target.m_LOS || ai.m_eAI_IsFightingFSM))
 		{
 			string desc;
 			string info;
@@ -1284,7 +1381,20 @@ class eAICommandManagerClient : eAICommandManager
 			}
 			else if (target.IsNoise())
 			{
-				desc = string.Format("noise at %1", ExpansionStatic.VectorToString(target.GetPosition()));
+				switch (eAINoiseTargetInformation.Cast(target.m_Info).GetNoiseType())
+				{
+					case eAINoiseType.SHOT:
+						desc = "shot";
+						break;
+
+					case eAINoiseType.EXPLOSION:
+						desc = "explosion";
+						break;
+
+					default:
+						desc = "noise";
+						break;
+				}
 			}
 
 			player.eAI_Message(ai, "Current focus %1", desc);
@@ -1335,7 +1445,7 @@ class eAICommandManagerClient : eAICommandManager
 					msg = "-";
 				}
 
-				msg += typename.EnumToString(eAILootingBehavior, behavior);
+				msg += ExpansionStatic.BitmaskEnumToString(eAILootingBehavior, behavior, ", " + msg);
 
 				ExpansionNotification("EXPANSION AI", "Looting behavior " + msg).Info(sender);
 			}

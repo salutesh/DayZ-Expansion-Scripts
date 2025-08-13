@@ -16,7 +16,6 @@ class ExpansionMarketVests: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 58;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_VESTS";
 		m_FileName = "Vests";
 

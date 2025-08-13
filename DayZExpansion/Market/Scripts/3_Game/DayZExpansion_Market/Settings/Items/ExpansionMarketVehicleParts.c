@@ -16,7 +16,6 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 57;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_VEHICLE_PARTS";
 		m_FileName = "Vehicle_Parts";
 

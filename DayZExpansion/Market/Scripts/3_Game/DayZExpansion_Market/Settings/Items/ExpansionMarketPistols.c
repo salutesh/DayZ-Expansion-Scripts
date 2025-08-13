@@ -16,7 +16,6 @@ class ExpansionMarketPistols: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 46;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_PISTOLS";
 		m_FileName = "Pistols";
 

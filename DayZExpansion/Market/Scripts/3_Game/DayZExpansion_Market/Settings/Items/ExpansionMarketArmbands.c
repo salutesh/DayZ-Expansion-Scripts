@@ -16,7 +16,6 @@ class ExpansionMarketArmbands: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 3;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_ARMBANDS";
 		m_FileName = "Armbands";
 

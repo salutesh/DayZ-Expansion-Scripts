@@ -16,7 +16,6 @@ class ExpansionMarketEvent: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 60;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_EVENT";
 		m_FileName = "Event";
 

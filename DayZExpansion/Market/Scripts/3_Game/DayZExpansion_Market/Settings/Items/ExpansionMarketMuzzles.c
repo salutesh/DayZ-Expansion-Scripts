@@ -16,7 +16,6 @@ class ExpansionMarketMuzzles: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 42;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MUZZLES";
 		m_FileName = "Muzzles";
 		

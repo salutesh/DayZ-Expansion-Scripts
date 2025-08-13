@@ -91,7 +91,7 @@
 			</event_entry>
 			<event_exit>
 				if (speedLimit &gt; 0)
-					unit.SetMovementSpeedLimit(speedLimit);  //! Restore speed limit
+					unit.SetMovementSpeedLimit(unit.m_eAI_SpeedLimitPreference);  //! Restore speed limit
 			</event_exit>
 			<event_update>
 				if (!group) return EXIT;

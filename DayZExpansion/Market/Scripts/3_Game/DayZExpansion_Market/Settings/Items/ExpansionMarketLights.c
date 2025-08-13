@@ -16,7 +16,6 @@ class ExpansionMarketLights: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 34;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LIGHTS";
 		m_FileName = "Lights";
 		

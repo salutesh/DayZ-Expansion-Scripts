@@ -1083,7 +1083,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		GetDetailsView().GetDetailsViewController().InfoTextTwo = localiser.Format();
 		GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("InfoTextTwo");
 
-		int feePercent = m_P2PMarketSettings.ListingPricePercent;
+		int feePercent = m_P2PMarketModule.GetListingPricePercent(m_TraderID, PlayerBase.Cast(GetGame().GetPlayer()));
 
 		localiser = new CF_Localiser("STR_EXPANSION_MARKET_P2P_INFOBOX_LISTINGFEE_DESC", feePercent.ToString());
 		GetDetailsView().GetDetailsViewController().InfoTextThree = localiser.Format();
@@ -2030,7 +2030,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 			if (m_CurrentItemPrice == -1 || m_CurrentItemPrice == 0)
 				return;
 
-			int listingPrice = Math.Ceil(m_CurrentItemPrice * m_P2PMarketSettings.ListingPricePercent / 100);
+			int listingPrice = Math.Ceil(m_CurrentItemPrice * m_P2PMarketModule.GetListingPricePercent(m_TraderID, PlayerBase.Cast(GetGame().GetPlayer())) / 100);
 			string currentItemPriceString = GetDisplayPrice(m_CurrentItemPrice, false, true, true);
 			string listingPriceString = GetDisplayPrice(listingPrice, false, true, true);
 			localiser = new CF_Localiser("STR_EXPANSION_MARKET_P2P_CONFIRM_BUTTON_SELL_LABEL", m_SelectedPlayerItem.GetPreviewObject().GetDisplayName(), currentItemPriceString, listingPriceString);

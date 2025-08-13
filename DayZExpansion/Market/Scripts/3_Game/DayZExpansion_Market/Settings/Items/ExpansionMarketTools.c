@@ -16,7 +16,6 @@ class ExpansionMarketTools: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 55;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_TOOLS";
 		m_FileName = "Tools";
 		

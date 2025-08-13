@@ -10,6 +10,9 @@
  *
 */
 
+typedef Param2<int, float> ExpansionMarketItemPriceTier;
+typedef array<ref ExpansionMarketItemPriceTier> ExpansionMarketItemPriceTiers;
+
 class ExpansionMarketSell
 {
 	bool Valid;
@@ -25,12 +28,15 @@ class ExpansionMarketSell
 
 	ref array<ref ExpansionMarketSellItem> Sell;
 	
+	PlayerBase m_Player;
+
 	// ------------------------------------------------------------
 	// ExpansionMarketSell Constructor
 	// ------------------------------------------------------------
-	void ExpansionMarketSell()
+	void ExpansionMarketSell(PlayerBase player = null)
 	{
 		Sell = new array<ref ExpansionMarketSellItem>;
+		m_Player = player;
 	}
 	
 	// ------------------------------------------------------------
@@ -99,7 +105,7 @@ class ExpansionMarketSellItem
 
 	//! For debug purposes
 	int Price;
-	ref array<ref ExpansionMarketItemPrice> PriceTiers = {};
+	ref ExpansionMarketItemPriceTiers PriceTiers = {};
 		
 	// ------------------------------------------------------------
 	// ExpansionMarketSellItem Debug
@@ -278,7 +284,7 @@ class ExpansionMarketSellDebugItem
 	int SoldAmount;
 	float AddStockAmount;
 	int Price;
-	ref array<ref ExpansionMarketItemPrice> PriceTiers;
+	ref ExpansionMarketItemPriceTiers PriceTiers;
 
 	void ExpansionMarketSellDebugItem(ExpansionMarketSellItem sellItem = null, ExpansionMarketTraderZone zone = null)
 	{
@@ -361,9 +367,7 @@ class ExpansionMarketSellDebugItem
 			ctx.Read(price);
 			float stock;
 			ctx.Read(stock);
-			PriceTiers.Insert(new ExpansionMarketItemPrice(price, stock));
+			PriceTiers.Insert(new ExpansionMarketItemPriceTier(price, stock));
 		}
 	}
 }
-
-typedef Param2<int, float> ExpansionMarketItemPrice;

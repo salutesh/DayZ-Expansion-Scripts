@@ -19,7 +19,6 @@ class ExpansionMarketSupplies: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 52;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_SUPPLIES";
 		m_FileName = "Supplies";
 		

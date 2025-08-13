@@ -448,7 +448,12 @@ modded class CarScript
 
 	override bool NameOverride(out string output)
 	{
-		return m_ExpansionVehicle.NameOverride(output);
+		//! @note normally m_ExpansionVehicle cannot be NULL since it's set on CarScript instantiation,
+		//! but EntityAI initializes damagezones before we can set it and uses GetDisplayName if there are no damagezones configured
+		if (m_ExpansionVehicle)
+			return m_ExpansionVehicle.NameOverride(output);
+
+		return false;
 	}
 
 	void Expansion_AssignOwner(notnull Man player, bool send = true)
