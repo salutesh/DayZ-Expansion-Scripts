@@ -3,6 +3,7 @@
 	<files />
 	<variables>
 		<variable name="weapon" type="Weapon_Base" />
+		<variable name="magazine" type="Magazine" />
 		<variable name="last_attempt_time" type="int" />
 		<variable name="failed_attempts" type="int" />
 	</variables>
@@ -85,16 +86,21 @@
 				if (!fsm.weapon || fsm.weapon.IsDamageDestroyed())
 					return FAIL;
 				
-				if (!unit.eAI_HasAmmoForFirearm(fsm.weapon, dst.magazine)) return FAIL;
+				if (!fsm.magazine &amp;&amp; !fsm.weapon.Expansion_HasAmmo(fsm.magazine))
+				{
+					if (!unit.eAI_HasAmmoForFirearm(fsm.weapon, fsm.magazine))
+						return FAIL;
+				}
 				
 				#ifdef EXTRACE_DIAG
-				if (!dst.magazine)
+				if (!fsm.magazine)
 					EXTrace.Start0(EXTrace.AI, this, "Reloading " + fsm.weapon + " from internal mag");
 				else
-					EXTrace.Start0(EXTrace.AI, this, "Reloading " + fsm.weapon + " from mag " + dst.magazine);
+					EXTrace.Start0(EXTrace.AI, this, "Reloading " + fsm.weapon + " from mag " + fsm.magazine);
 				#endif
 				
 				dst.weapon = fsm.weapon;
+				dst.magazine = fsm.magazine;
 				
 				return SUCCESS;
 			</guard>

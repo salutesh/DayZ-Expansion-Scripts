@@ -1,392 +1,30 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <fsm name="Fighting" type="eAI">
 	<files />
-	<variables>
-		<variable name="LastFireTime" type="int" />
-		<variable name="TimeBetweenFiring" type="int" default="10000" />
-		<variable name="TimeBetweenFiringAndGettingUp" type="int" default="15000" />
-		<variable name="LastEvadeTime" type="int" />
-		<variable name="DistanceToTargetSq" type="float" />
-	</variables>
 	<states default="Positioning">
-		<state name="Positioning">
-			<variables>
-				<variable name="position" type="vector" />
-				<variable name="time" type="float" />
-				<variable name="movementDirection" type="float" />
-			</variables>
+		<state name="Positioning" class="ExpansionState_Fighting_Positioning">
 			<editor_data>
 				<position x="891" y="714" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-				time = 0;
-				
-				if (unit.eAI_ShouldGetUp())
-					unit.Expansion_GetUp();
-			</event_entry>
-			<event_exit>
-				unit.OverrideMovementDirection(false, 0);
-			</event_exit>
-			<event_update>
-				if (unit.eAI_IsChangingStance())
-					return CONTINUE;
-				
-				bool wantsLower = false;
-				bool wantsRaise = false;
-				
-				float speed = unit.Expansion_GetMovementSpeed();
-				
-				int timeSinceLastFire = GetGame().GetTime() - fsm.LastFireTime;
-				if (fsm.LastFireTime &gt; 0 &amp;&amp; timeSinceLastFire &gt; fsm.TimeBetweenFiring &amp;&amp; speed &gt; 0)
-					wantsLower = true;
-				
-				auto target = unit.GetTarget();
-				if (target)
-				{
-					position = target.GetPosition(false);
-					fsm.DistanceToTargetSq = target.GetDistanceSq(true);
-					
-					bool shouldBeMeleeing = false;
-					
-					auto hands = unit.GetHumanInventory().GetEntityInHands();
-					auto targetEntity = target.GetEntity();
-					auto itemTarget = ItemBase.Cast(targetEntity);
-					if (itemTarget &amp;&amp; (!itemTarget.Expansion_IsExplosive() || target.GetCachedThreat(true) &gt; 0.4))
-					{
-						wantsLower = true;
-					}
-					else if (!hands)
-					{
-						shouldBeMeleeing = true;
-					}
-					else if (hands.IsWeapon())
-					{
-						if (fsm.DistanceToTargetSq &lt;= unit.m_eMeleeCombat.eAI_GetRangeSq())
-							shouldBeMeleeing = true;
-					}
-					else if (hands.IsMeleeWeapon())
-					{
-						shouldBeMeleeing = true;
-					}
-					
-					float minDist;
-					float minDistSq;
-					
-					if (shouldBeMeleeing)
-					{
-						float rangeSq = unit.m_eMeleeCombat.eAI_GetRangeSq();
-						
-						float raiseRangeSqMult = 1;
-						float lowerRangeSqMult = 1;
-						
-						//! Only adjust range multipliers if not a creature (animal) since animal attacks cannot be blocked
-						//! so we want to raise later and lower earlier
-						if (!target.IsCreature() &amp;&amp; ((!unit.IsRaised() &amp;&amp; Math.RandomInt(0, 5) == 2) || (unit.IsRaised() &amp;&amp; !unit.IsWeaponRaiseCompleted())))
-						{
-							if (!unit.IsSprintFull() &amp;&amp; (target.IsRaised() || target.IsFighting()))
-							{
-								//! (range * n)^2 == range^2 * n^2
-								raiseRangeSqMult = 2.25;  //! 1.5^2
-								lowerRangeSqMult = 9;  //! 3^2
-							}
-						}
-						
-						if (fsm.DistanceToTargetSq &lt;= rangeSq * raiseRangeSqMult || target.IsUnconscious())
-							wantsRaise = true;
-						else if (fsm.DistanceToTargetSq &gt; rangeSq * lowerRangeSqMult)
-							wantsLower = true;
-						
-						if (target.IsUnconscious())
-							minDist = 2.0;
-						else
-							minDist = 1.0;
-					}
-					else if (!wantsLower)
-					{
-						minDist = 2.0;
-						if (unit.m_eAI_IsInCover)
-							wantsRaise = true;
-					}
-					
-					minDistSq = minDist * minDist;
-					
-					if (targetEntity &amp;&amp; !itemTarget &amp;&amp; (fsm.DistanceToTargetSq &lt;= minDistSq || (unit.m_eAI_PositionIsFinal &amp;&amp; unit.eAI_IsUnreachable(minDist, position))))
-					{
-						time += DeltaTime;
-						if (!movementDirection || time &gt; Math.RandomIntInclusive(1, 3))
-						{
-							if (Math.RandomIntInclusive(0, 1))
-								movementDirection = Math.RandomFloat(135, 180);
-							else
-								movementDirection = Math.RandomFloat(-135, -180);
-						}
-						unit.OverrideMovementDirection(true, movementDirection);
-						unit.OverrideMovementSpeed(true, 2);
-					}
-					else
-					{
-						unit.OverrideMovementDirection(false, 0);
-						if (itemTarget &amp;&amp; itemTarget.Expansion_IsExplosive() &amp;&amp; wantsLower &amp;&amp; fsm.DistanceToTargetSq &lt; target.GetMinDistanceSq())
-							unit.OverrideMovementSpeed(true, 3);
-						else 
-							unit.OverrideMovementSpeed(false, 0);
-						time = 0;
-						movementDirection = 0;
-					}
-					
-					if ((!itemTarget &amp;&amp; ((hands &amp;&amp; hands.IsWeapon()) || target.GetMinDistance() &gt; 0.0 || !target.CanMeleeIfClose())) || (itemTarget &amp;&amp; itemTarget.Expansion_IsDanger()))
-					{
-						unit.OverrideTargetPosition(target);
-					}
-					else
-					{
-						unit.OverrideTargetPosition(position);
-					}
-					
-					if (hands &amp;&amp; (hands.IsWeapon() || fsm.DistanceToTargetSq &lt;= 100.0))
-					{
-						if (hands.HasEnergyManager() &amp;&amp; !hands.GetCompEM().IsWorking() &amp;&amp; hands.GetCompEM().CanSwitchOn())
-							hands.GetCompEM().SwitchOn();
-					}
-				}
-				else
-				{
-					unit.OverrideMovementDirection(false, 0);
-					unit.OverrideMovementSpeed(false, 0);
-					unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * speed * 0.333333);
-				}
-				
-				if (wantsRaise &amp;&amp; unit.CanRaiseWeapon())
-				{
-					unit.RaiseWeapon(true);
-				}
-				else if (wantsLower || !unit.CanRaiseWeapon())
-				{
-					unit.RaiseWeapon(false);
-					unit.eAI_AdjustStance(fsm.LastFireTime, timeSinceLastFire, fsm.TimeBetweenFiringAndGettingUp);
-				}
-				
-				return EXIT;
-			</event_update>
 		</state>
-		<state name="Evade">
+		<state name="Evade" class="ExpansionState_Fighting_Evade">
 			<editor_data>
 				<position x="518.636363636364" y="715.727272727273" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-				unit.eAI_ForceSideStep(Math.RandomFloat(0.3, 0.5));
-				unit.OverrideMovementSpeed(true, 3);
-				auto target = unit.GetTarget();
-				if (target)
-					unit.OverrideTargetPosition(target);
-			</event_entry>
-			<event_exit>
-				unit.OverrideMovementSpeed(false, 0);
-			</event_exit>
-			<event_update>
-				if (unit.eAI_IsSideStepping())
-					return CONTINUE;
-				
-				return EXIT;
-			</event_update>
 		</state>
-		<state name="FireWeapon">
-			<variables>
-				<variable name="time" type="float" />
-				<variable name="target" type="eAITarget" />
-				<variable name="weapon" type="Weapon_Base" />
-			</variables>
+		<state name="FireWeapon" class="ExpansionState_Fighting_FireWeapon">
 			<editor_data>
 				<position x="618.636363636364" y="715.727272727273" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-				unit.RaiseWeapon(true);
-				
-				time = 0;
-				
-				fsm.LastFireTime = GetGame().GetTime();
-				
-				bool adjustStance = unit.eAI_AdjustStance(weapon, fsm.DistanceToTargetSq);
-				
-				#ifdef DIAG
-				if (adjustStance)
-					EXTrace.Print(EXTrace.AI, unit, "eAI_AdjustStance " + typename.EnumToString(eAIStance, unit.eAI_GetStance()));
-				#endif
-			</event_entry>
-			<event_exit />
-			<event_update>
-				if (unit.eAI_IsChangingStance())
-					return CONTINUE;
-				
-				if (!target)
-					return EXIT;
-				
-				auto lowPosition = target.GetPosition(false);
-				auto aimPosition = lowPosition + target.GetAimOffset();
-				
-				time += DeltaTime;
-				unit.OverrideTargetPosition(target);
-				
-				if (!unit.IsRaised() || !unit.IsWeaponRaiseCompleted())
-				{
-					unit.RaiseWeapon(true);
-				
-					if (time &gt;= 0.5)
-					{
-						time = 0;
-						return EXIT;
-					}
-				
-					// waiting for the weapon to be raised
-					return CONTINUE;
-				}
-				
-				auto neck = unit.GetBonePositionWS(unit.GetBoneIndexByName("neck"));
-				auto direction = vector.Direction(neck, aimPosition).Normalized();
-				auto weapon = unit.GetHumanInventory().GetEntityInHands();
-				
-				float threshold;
-				if (weapon &amp;&amp; weapon.ShootsExplosiveAmmo())
-					threshold = 0.96875;
-				else
-					threshold = 0.875;
-				
-				if (vector.Dot(unit.GetAimDirection(), direction) &lt; threshold)
-				{
-					if (time &gt;= 0.5)
-					{
-						time = 0;
-						return EXIT;
-					}
-				
-					// waiting for unit to face target
-					return CONTINUE;
-				}
-				
-				unit.TryFireWeapon();
-				
-				return EXIT;
-			</event_update>
 		</state>
-		<state name="Melee">
-			<variables>
-				<variable name="time" type="float" />
-				<variable name="target" type="eAITarget" />
-				<variable name="movementDirection" type="float" />
-				<variable name="isFighting" type="bool" />
-			</variables>
+		<state name="Melee" class="ExpansionState_Fighting_Melee">
 			<editor_data>
 				<position x="1155" y="711" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-				time = 0;
-				movementDirection = 0;
-				
-				fsm.LastFireTime = GetGame().GetTime();
-				
-				unit.Expansion_GetUp(true);
-			</event_entry>
-			<event_exit>
-				unit.OverrideMovementDirection(false, 0);
-				unit.Notify_Melee(false);
-				
-				if (target)
-				{
-					target.m_SkipMelee = false;
-				}
-			</event_exit>
-			<event_update>
-				if (unit.eAI_IsChangingStance())
-					return CONTINUE;
-				
-				if (!target)
-					return EXIT;
-				
-				auto lowPosition = target.GetPosition(false);
-				
-				time += DeltaTime;
-				if (target.IsMechanicalTrap())
-					unit.OverrideTargetPosition(target);
-				else
-					unit.OverrideTargetPosition(lowPosition);
-				
-				fsm.DistanceToTargetSq = target.GetDistanceSq(true);
-				
-				if (unit.IsFighting())
-				{
-					isFighting = true;
-					
-					//! If we are already meleeing, wait until raised again to avoid awkward animation
-					if (!unit.IsRaised() || !unit.IsWeaponRaiseCompleted())
-					{
-						unit.RaiseWeapon(true);
-					
-						if (time &lt; 0.5)
-						{
-							//! waiting for the weapon to be raised
-							return CONTINUE;
-						}
-					}
-				}
-				else
-				{
-					if (isFighting)
-					{
-						isFighting = false;
-						time = 0;
-					}
-				}
-				
-				vector direction = vector.Direction(unit.GetPosition(), lowPosition).Normalized();
-				float dot = vector.Dot(unit.GetDirection(), direction);
-				
-				//! 1 in 5 chance to move backwards if target is player and fighting
-				if (target.IsPlayer() &amp;&amp; (movementDirection || (target.IsFighting() &amp;&amp; Math.RandomInt(0, 5) == 2)) &amp;&amp; dot &gt;= 0.5 &amp;&amp; time &lt; Math.RandomFloat(0.5, 1.0))
-				{
-					if (!movementDirection)
-					{
-						if (Math.RandomIntInclusive(0, 1))
-							movementDirection = Math.RandomFloat(135, 180);
-						else
-							movementDirection = Math.RandomFloat(-135, -180);
-					}
-					unit.OverrideMovementDirection(true, movementDirection);
-					unit.OverrideMovementSpeed(true, 2);
-					
-					return EXIT;
-				}
-				
-				if (dot &lt; 0.866 &amp;&amp; (!target.IsInanimate() || target.IsMechanicalTrap()) &amp;&amp; !target.GetEntity().GetParent())
-				{
-					if (time &lt; Math.RandomFloat(1.5, 3.0))
-					{
-						if (fsm.DistanceToTargetSq &lt; 1.0)
-						{
-							if (Math.RandomIntInclusive(0, 1))
-								movementDirection = Math.RandomFloat(135, 180);
-							else
-								movementDirection = Math.RandomFloat(-135, -180);
-							
-							unit.OverrideMovementDirection(true, movementDirection);
-							unit.OverrideMovementSpeed(true, 2);
-						}
-						
-						//! waiting for unit to face target
-						return EXIT;
-					}
-				}
-				
-				unit.Notify_Melee();
-				time = 0;
-				movementDirection = 0;
-				unit.OverrideMovementDirection(false, 0);
-				
-				return EXIT;
-			</event_update>
 		</state>
 	</states>
 	<transitions>
@@ -402,16 +40,16 @@
 				
 				if (unit.eAI_ShouldBandage() &amp;&amp; unit.GetBandageToUse()) return FAIL;
 				
-				dst.target = unit.GetTarget();
-				if (!dst.target) return FAIL;
+				dst.m_Target = unit.GetTarget();
+				if (!dst.m_Target) return FAIL;
 				
-				if (!dst.target.IsMeleeViable() || dst.target.GetThreat() &lt; 0.4) return FAIL;
+				if (!dst.m_Target.IsMeleeViable() || dst.m_Target.GetThreat() &lt; 0.4) return FAIL;
 				
-				if (dst.target.ShouldAvoid()) return FAIL;
+				if (dst.m_Target.ShouldAvoid()) return FAIL;
 				
 				if (unit.m_eAI_HasProjectileWeaponInHands)
 				{
-					if (unit.eAI_SkipMelee("skipping melee", dst.target, false))
+					if (unit.eAI_SkipMelee("skipping melee", dst.m_Target, false))
 						return FAIL;
 				}
 				
@@ -430,7 +68,7 @@
 				int missionTime = GetGame().GetTime();
 				
 				Weapon_Base aiWeapon;
-				if (Class.CastTo(aiWeapon, unit.GetHumanInventory().GetEntityInHands()) &amp;&amp; missionTime - fsm.LastEvadeTime &lt; Math.RandomInt(2500, 5000)) return FAIL;
+				if (Class.CastTo(aiWeapon, unit.GetHumanInventory().GetEntityInHands()) &amp;&amp; missionTime - unit.m_eAI_LastEvadeTime &lt; Math.RandomInt(2500, 5000)) return FAIL;
 				
 				auto target = unit.GetTarget();
 				if (!target) return FAIL;
@@ -455,7 +93,7 @@
 				
 				if (unit.m_eAI_IsOnLadder) return FAIL;
 				
-				fsm.LastEvadeTime = missionTime;
+				unit.m_eAI_LastEvadeTime = missionTime;
 				
 				return SUCCESS;
 			</guard>
@@ -472,13 +110,13 @@
 				if (unit.IsRestrained()) return FAIL;
 				
 				// we are aiming at something?
-				dst.target = unit.GetTarget();
-				if (!dst.target) return FAIL;
+				dst.m_Target = unit.GetTarget();
+				if (!dst.m_Target) return FAIL;
 				
 				PlayerBase player;
-				EntityAI targetEntity = dst.target.GetEntity();
+				EntityAI targetEntity = dst.m_Target.GetEntity();
 				ItemBase itemTarget;
-				float dist = dst.target.GetDistance();
+				float dist = dst.m_Target.GetDistance();
 				if (!targetEntity)
 				{
 					return FAIL;
@@ -505,23 +143,21 @@
 				
 				if (unit.IsFighting()) return FAIL;
 				
-				if (!Class.CastTo(dst.weapon, unit.GetItemInHands()) || dst.weapon.IsDamageDestroyed()) return FAIL;
+				if (!Class.CastTo(dst.m_Weapon, unit.GetItemInHands()) || dst.m_Weapon.IsDamageDestroyed()) return FAIL;
 				
-				if (!unit.CanRaiseWeapon() || !dst.target.m_LOS) return FAIL;
+				if (!unit.CanRaiseWeapon() || !dst.m_Target.m_LOS) return FAIL;
 				
-				if (!dst.weapon.Expansion_IsChambered()) return FAIL;
+				if (!dst.m_Weapon.Expansion_IsChambered()) return FAIL;
 				
-				if (unit.GetWeaponManager().CanUnjam(dst.weapon)) return FAIL;
-				
-				if (unit.Expansion_GetVisibility(dist) == 0.0) return FAIL;
+				if (unit.GetWeaponManager().CanUnjam(dst.m_Weapon)) return FAIL;
 				
 				float minDist;
 				
-				if (dst.weapon.ShootsExplosiveAmmo())
-					minDist = dst.weapon.Expansion_GetMinSafeFiringDistance();
+				if (dst.m_Weapon.ShootsExplosiveAmmo())
+					minDist = dst.m_Weapon.Expansion_GetMinSafeFiringDistance();
 				
-				if (dst.target.IsExplosive())
-					minDist = Math.Max(dst.target.GetMinDistance(), minDist);
+				if (dst.m_Target.IsExplosive())
+					minDist = Math.Max(dst.m_Target.GetMinDistance(), minDist);
 				
 				if (minDist)
 				{
@@ -531,7 +167,7 @@
 					//! Avoid firing if other friendly units within minDist from tgt
 					float minDistSq = minDist * minDist;
 					
-					vector aimPosition = dst.target.GetPosition() + dst.target.GetAimOffset();
+					vector aimPosition = dst.m_Target.GetPosition() + dst.m_Target.GetAimOffset();
 					
 					vector min = Vector(aimPosition[0] - minDist, aimPosition[1] - minDist, aimPosition[2] - minDist);
 					vector max = Vector(aimPosition[0] + minDist, aimPosition[1] + minDist, aimPosition[2] + minDist);

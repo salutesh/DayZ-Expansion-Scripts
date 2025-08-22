@@ -20,6 +20,11 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 		return false;
 	}
 
+	override bool IsAcuteDanger(eAIBase ai = null)
+	{
+		return m_Creature.Expansion_IsDanger();
+	}
+
 	override float GetAttackCooldown()
 	{
 		return m_Creature.m_eAI_AttackCooldown;
@@ -90,7 +95,7 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 					eAIPlayerTargetInformation.AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
 			}
 
-			levelFactor *= ai.Expansion_GetVisibility(distance);
+			levelFactor *= ai.eAI_GetThreatDistanceFactor(distance);
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);

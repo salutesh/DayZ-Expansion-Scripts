@@ -23,16 +23,12 @@ class ExpansionMarketGloves: ExpansionMarketCategory
 		
 		AddItem("workinggloves_yellow", 	370, 	615,	1,100,null,{"WorkingGloves_Black","WorkingGloves_Beige","WorkingGloves_Brown"});
 		AddItem("workinggloves_black", 	375, 	625,	1,100);
-		AddItem("workinggloves_beige", 	370, 	615,	1,100);
-		AddItem("workinggloves_brown", 	370, 	615,	1,100);
 	
 	#ifdef EXPANSIONMOD
 		AddItem("tacticalgloves_black", 	1055, 	1755,	1,100,null,{"TacticalGloves_Beige","TacticalGloves_Green","ExpansionTacticalGlovesDesert"});
 	#else
 		AddItem("tacticalgloves_black", 	1055, 	1755,	1,100,null,{"TacticalGloves_Beige","TacticalGloves_Green"});
 	#endif
-		AddItem("tacticalgloves_beige", 	1055, 	1755,	1,100);
-		AddItem("tacticalgloves_green", 	1055, 	1755,	1,100);
 	
 		AddItem("omnogloves_gray", 	4430, 	7385,	1,100,null,{"OMNOGloves_Brown"});
 		
@@ -44,8 +40,6 @@ class ExpansionMarketGloves: ExpansionMarketCategory
 
 		#ifndef DAYZ_1_25
 		AddItem("skigloves_90s", 	145, 	240,	1,100,null,{"skigloves_blue","skigloves_red"});
-		AddItem("skigloves_blue", 	145, 	240,	1,100);
-		AddItem("skigloves_red", 	145, 	240,	1,100);
 		#endif
 		
 		AddItem("paddedgloves_beige", 	175, 	295,	1,100,null,{"paddedgloves_brown","paddedgloves_threat"});

@@ -27,6 +27,7 @@ class ExpansionMarketPlayerItem
 		Item = item;
 		ClassName = item.GetType();
 		DisplayName = item.GetDisplayName();
+		Count = 1;
 
 		if (item.IsWeapon())
 			IsWeapon = true;

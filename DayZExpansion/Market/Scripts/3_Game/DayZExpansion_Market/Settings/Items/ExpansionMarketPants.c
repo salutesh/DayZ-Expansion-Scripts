@@ -33,15 +33,10 @@ class ExpansionMarketPants: ExpansionMarketCategory
 		AddItem("breeches_green", 	620, 	1035,	1,100);
 
 		AddItem("slackspants_beige", 	280, 	465,	1,100,null,{"SlacksPants_Blue","SlacksPants_DarkGrey","SlacksPants_LightGrey","SlacksPants_White","SlacksPants_Brown","SlacksPants_Black","SlacksPants_Khaki"});
-		AddItem("slackspants_brown", 	280, 	465,	1,100);
-		AddItem("slackspants_black", 	280, 	465,	1,100);
-		AddItem("slackspants_khaki", 	280, 	465,	1,100);
 
 		AddItem("canvaspantsmidi_blue", 	175, 	295,	1,100,null,{"CanvasPantsMidi_Grey","CanvasPantsMidi_Red","CanvasPantsMidi_Violet","CanvasPantsMidi_Beige"});
-		AddItem("canvaspantsmidi_beige", 	175, 	295,	1,100);
 
 		AddItem("canvaspants_blue", 	170, 	290,	1,100,null,{"CanvasPants_Grey","CanvasPants_Red","CanvasPants_Violet","CanvasPants_Beige"});
-		AddItem("canvaspants_beige", 	170, 	290,	1,100);
 
 		AddItem("jumpsuitpants_blue", 	1645, 	2740,	1,100,null,{"JumpsuitPants_Green","JumpsuitPants_Grey","JumpsuitPants_Red"});
 		
@@ -54,19 +49,14 @@ class ExpansionMarketPants: ExpansionMarketCategory
 		AddItem("cargopants_beige", 	1875, 	3125,	1,100,null,{"CargoPants_Black","CargoPants_Blue","CargoPants_Green","CargoPants_Grey"});
 		
 		AddItem("shortjeans_blue", 	835, 	1390,	1,100,null,{"ShortJeans_Brown","ShortJeans_Darkblue","ShortJeans_Red","ShortJeans_Black","ShortJeans_Green"});
-		AddItem("shortjeans_black", 	835, 	1390,	1,100);
-		AddItem("shortjeans_green", 	835, 	1390,	1,100);
 
 		AddItem("jeans_blue", 	790, 	1320,	1,100,null,{"Jeans_Brown","Jeans_Grey","Jeans_BlueDark","Jeans_Green","Jeans_Black"});
-		AddItem("jeans_green", 	790, 	1320,	1,100);
-		AddItem("jeans_black", 	790, 	1320,	1,100);
 		
 		AddItem("ttskopants", 	1035, 	1725,	1,100);
 
 		AddItem("bdupants", 	1055, 	1755,	1,100);
 
 		AddItem("usmcpants_desert", 	1055, 	1755,	1,100,null,{"USMCPants_Woodland"});
-		AddItem("usmcpants_woodland", 	1055, 	1755,	1,100);
 
 		AddItem("policepantsorel", 	660, 	1100,	1,100);
 

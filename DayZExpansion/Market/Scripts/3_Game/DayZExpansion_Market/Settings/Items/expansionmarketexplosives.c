@@ -41,7 +41,6 @@ class ExpansionMarketExplosives: ExpansionMarketCategory
 		AddItem("m18smokegrenade_red", 	2070, 	3450,	1,100,null,{"M18SmokeGrenade_Green","M18SmokeGrenade_Yellow","M18SmokeGrenade_Purple","M18SmokeGrenade_White"});
 	#endif
 		AddItem("rdg2smokegrenade_black", 	1655, 	2760,	1,100,null,{"RDG2SmokeGrenade_White"});
-		AddItem("rdg2smokegrenade_white", 	1655, 	2760,	1,100);
 		
 	#ifdef EXPANSIONMODMISSIONS
 		// Airdrop smoke

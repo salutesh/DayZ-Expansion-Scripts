@@ -43,6 +43,12 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 	{
 		if (m_Object)
 			GetGame().ObjectDelete(m_Object);
+
+		if (m_Tooltip) 
+			m_Tooltip.Destroy();
+
+		if (m_ItemTooltip) 
+			m_ItemTooltip.Destroy();
 	}
 	
 	override string GetLayoutFile() 

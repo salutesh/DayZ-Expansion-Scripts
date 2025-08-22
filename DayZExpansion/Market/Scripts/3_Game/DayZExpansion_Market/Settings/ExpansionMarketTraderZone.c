@@ -256,7 +256,12 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 				EXPrint("ExpansionMarketTraderZone::GetNetworkItemSerialization - WARNING: Attachment '" + className + "' does not exist!");
 		}
 		item.Variants = new array< string >;
-		item.Variants.Copy(tItem.MarketItem.Variants);
+		foreach (string variant: tItem.MarketItem.Variants)
+		{
+			string networkVariant = variant;
+			networkVariant.Replace(item.ClassName, "*");
+			item.Variants.Insert(networkVariant);
+		}
 
 		//! Network optimization: Pack BuySell, Hardline item rarity (if loaded), QuantityPercent and SellPricePercent into one 32-bit int
 		//! (8 bits for BuySell and item rarity combined, 8 bits for QuantityPercent, 16 bits for SellPricePercent)

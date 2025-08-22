@@ -48,6 +48,9 @@ class ExpansionP2PMarketCategoryListings
 	
 	void Debug()
 	{
+		if (!EXTrace.P2PMARKET)
+			return;
+
 		ErrorEx("m_CategoryIndex: " + m_CategoryIndex, ErrorExSeverity.INFO);
 		ErrorEx("m_SubCategoryIndex: " + m_SubCategoryIndex, ErrorExSeverity.INFO);
 		ErrorEx("m_Count: " + m_Count, ErrorExSeverity.INFO);

@@ -1168,7 +1168,7 @@ class eAICommandManagerClient : eAICommandManager
 	{
 		if (GetExpansionSettings().GetAI().IsAdmin(player.GetIdentity()) || player == ai.GetGroup().GetLeader())
 		{
-			float fVisibility = Environment.Expansion_GetDynVolFogVisibilityEx(ai.GetPosition()[1]) * 1000;
+			float fVisibility = 1 + Environment.Expansion_GetDynVolFogVisibilityEx(ai.GetPosition()[1]) * 999;
 			int iVisibility = Math.Round(fVisibility);
 			string sVisibility = iVisibility.ToString();
 
@@ -1297,7 +1297,7 @@ class eAICommandManagerClient : eAICommandManager
 
 		//! Visibility
 		string visibility = Math.Round(ai.m_Expansion_Visibility * 1000).ToString();
-		string volFogVisibility = Math.Round((ai.m_Environment.Expansion_GetDynVolFogVisibility() + 0.001) * 1000).ToString();
+		string volFogVisibility = Math.Round(ai.m_eAI_DynVolFogVisibility * 1000).ToString();
 		player.eAI_Message(ai, "Visibility %1 m (volumetric fog %2 m)", visibility, volFogVisibility);
 
 		//! Health

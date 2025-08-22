@@ -232,13 +232,42 @@ modded class ItemBase
 			super.OnEnergyConsumed();
 	}
 
+	override void OnSwitchOn()
+	{
+		super.OnSwitchOn();
+
+		eAI_OnSwitchOn();
+	}
+
+	override void OnSwitchOff()
+	{
+		super.OnSwitchOff();
+
+		eAI_OnSwitchOff();
+	}
+
+	void eAI_OnSwitchOn()
+	{
+		eAIBase ai = eAI_GetHierarchyRootAI();
+		if (ai && eAI_GetNightVisibility() > 0)
+			ai.eAI_AddActiveVisibilityEnhancer(this);
+	}
+
+	void eAI_OnSwitchOff()
+	{
+		eAIBase ai = eAI_GetHierarchyRootAI();
+		if (ai)
+			ai.eAI_RemoveActiveVisibilityEnhancer(this);
+	}
+
 	bool Expansion_TryTurningOn()
 	{
 		if ( HasEnergyManager() )
 		{
-			if ( GetCompEM().CanWork() )
+			if ( GetCompEM().CanSwitchOn() && GetCompEM().CanWork() )
 			{
 				GetCompEM().SwitchOn();
+				EXTrace.Print(EXTrace.AI, GetHierarchyRootPlayer(), "switched on " + ToString());
 				return true;
 			}
 		}
@@ -249,9 +278,10 @@ modded class ItemBase
 	{
 		if ( HasEnergyManager() )
 		{
-			if ( GetCompEM().IsSwitchedOn() )
+			if ( GetCompEM().CanSwitchOff() )
 			{
 				GetCompEM().SwitchOff();
+				EXTrace.Print(EXTrace.AI, GetHierarchyRootPlayer(), "switched off " + ToString());
 				return true;
 			}
 		}
@@ -260,101 +290,75 @@ modded class ItemBase
 
 	bool Expansion_TryTurningOnAnyLightsOrNVG(inout float nightVisibility, PlayerBase player, bool skipNonNVG = false, bool skipNVG = false)
 	{
-		if ( !skipNVG && !player.IsUnconscious() && !player.IsRestrained() )
+		EXError.Error(this, "DEPRECATED, use Expansion_TryTurningOnAnyLightOrNVG(bool skipNonNVG, ...)");
+		if (Expansion_TryTurningOnAnyLightOrNVG(skipNonNVG, skipNVG))
+			return true;
+		return false;
+	}
+
+	ItemBase Expansion_TryTurningOnAnyLightOrNVG(bool skipNonNVG = false, bool skipNVG = false)
+	{
+		ItemBase item = Expansion_GetAnyLightOrNVG(skipNonNVG, skipNVG);
+
+		if (item && item.Expansion_TryTurningOn())
+			return item;
+
+		return null;
+	}
+
+	ItemBase Expansion_GetAnyLightOrNVG(bool skipNonNVG = false, bool skipNVG = false)
+	{
+		if (!skipNVG)
 		{
 			NVGoggles goggles = NVGoggles.Cast(FindAttachmentBySlotName("NVG"));
 			if (goggles)
-			{
-				goggles.RotateGoggles(false);
-				nightVisibility = 0.35 + nightVisibility * 0.65;
-				EXTrace.Print(EXTrace.AI, player, "switched on " + goggles.ToString());
-				return true;
-			}
+				return goggles;
 		}
-		
-		ActionManagerBase actionManager = player.GetActionManager();
-		ActionTarget atrg = new ActionTarget(this, null, -1, vector.Zero, -1);
 
-		if ( !skipNonNVG )
+		if (!skipNonNVG)
 		{
-			if ( actionManager.GetAction(ActionTurnOnHelmetFlashlight).Can(player, atrg, this) )
-			{
-				ItemBase itemChild = ItemBase.Cast(FindAttachmentBySlotName("helmetFlashlight"));
-				if ( itemChild.Expansion_TryTurningOn() )
-				{
-					nightVisibility = 0.15 + nightVisibility * 0.85;
-					EXTrace.Print(EXTrace.AI, player, "switched on " + itemChild.ToString());
-					return true;
-				}
-			}
+			ItemBase candidate;
 
-			if ( IsInherited(Headtorch_ColorBase) && actionManager.GetAction(ActionTurnOnHeadtorch).Can(player, atrg, this) )
-			{
-				if ( Expansion_TryTurningOn() )
-				{
-					nightVisibility = 0.15 + nightVisibility * 0.85;
-					EXTrace.Print(EXTrace.AI, player, "switched on head torch");
-					return true;
-				}
-			}
-			else if ( actionManager.GetAction(ActionTurnOnWhileInHands).Can(player, atrg, this) )
-			{
-				if ( Expansion_TryTurningOn() )
-				{
-					nightVisibility = 0.15 + nightVisibility * 0.85;
-					EXTrace.Print(EXTrace.AI, player, "switched on " + ToString());
-					return true;
-				}
-			}
+			if (!Class.CastTo(candidate, FindAttachmentBySlotName("helmetFlashlight")))
+				candidate = this;
+
+			TTypenameArray lights = {Flashlight, Headtorch_ColorBase, TLRLight, FlammableBase, UniversalLight};
+			if (ExpansionStatic.IsAnyOf(candidate, lights))
+				return candidate;
 		}
 
-		return false;
+		return null;
 	}
 
 	bool Expansion_TryTurningOffAnyLightsOrNVG(PlayerBase player, bool skipNVG = false, bool force = false)
 	{
-		if ( !skipNVG && !player.IsUnconscious() && !player.IsRestrained() )
-		{
-			NVGoggles goggles = NVGoggles.Cast(FindAttachmentBySlotName("NVG"));
-			if (goggles)
-			{
-				goggles.RotateGoggles(true);
-				EXTrace.Print(EXTrace.AI, player, "switched off " + goggles.ToString());
-				return true;
-			}
-		}
-
-		ActionManagerBase actionManager = player.GetActionManager();
-		ActionTarget atrg = new ActionTarget(this, null, -1, vector.Zero, -1);
-
-		if ( IsInherited(HelmetBase) && (force || actionManager.GetAction(ActionTurnOffHelmetFlashlight).Can(player, atrg, this)) )
-		{
-			ItemBase itemChild = ItemBase.Cast(FindAttachmentBySlotName("helmetFlashlight"));
-			if ( itemChild && itemChild.Expansion_TryTurningOff() )
-			{
-				EXTrace.Print(EXTrace.AI, player, "switched off " + itemChild.ToString());
-				return true;
-			}
-		}
-
-		if ( IsInherited(Headtorch_ColorBase) && (force || actionManager.GetAction(ActionTurnOffHeadtorch).Can(player, atrg, this)) )
-		{
-			if ( Expansion_TryTurningOff() )
-			{
-				EXTrace.Print(EXTrace.AI, player, "switched off head torch");
-				return true;
-			}
-		}
-		else if ( force || actionManager.GetAction(ActionTurnOffWhileInHands).Can(player, atrg, this) )
-		{
-			if ( Expansion_TryTurningOff() )
-			{
-				EXTrace.Print(EXTrace.AI, player, "switched off " + ToString());
-				return true;
-			}
-		}
-
+		EXError.Error(this, "DEPRECATED, use Expansion_TryTurningOffAnyLightOrNVG(bool skipNVG)");
+		if (Expansion_TryTurningOffAnyLightOrNVG(skipNVG))
+			return true;
 		return false;
+	}
+
+	ItemBase Expansion_TryTurningOffAnyLightOrNVG(bool skipNVG = false)
+	{
+		ItemBase item = Expansion_GetAnyLightOrNVG(false, skipNVG);
+
+		if (item && item.Expansion_TryTurningOff())
+			return item;
+
+		return null;
+	}
+
+	float eAI_GetNightVisibility(bool checkWorking = true)
+	{
+		//! Have to deal with NV optics here since ItemOptics is not moddable...
+		ItemOptics optic;
+		if (Class.CastTo(optic, this) && optic.GetCurrentNVType() != NVTypes.NONE)
+		{
+			if (!checkWorking || !HasEnergyManager() || GetCompEM().CanWork())
+				return Math.Min(optic.GetZeroingDistanceZoomMax() * 0.001, 1.0);
+		}
+
+		return 0.0;
 	}
 
 	Man Expansion_GetRootPlayerAliveExcluding(Man player)
@@ -369,5 +373,10 @@ modded class ItemBase
 	bool eAI_IsSilent()
 	{
 		return true;
+	}
+
+	eAIBase eAI_GetHierarchyRootAI()
+	{
+		return eAIBase.Cast(GetHierarchyRootPlayer());
 	}
 };

@@ -38,15 +38,18 @@ modded class WeaponAttachMagazine
 				}
 			*/
 
-				// move to LH
-				InventoryLocation lhand = new InventoryLocation;
-				lhand.SetAttachment(e.m_player, mag, InventorySlots.LEFTHAND);
-				if (GameInventory.LocationSyncMoveEntity(newSrc, lhand))
+				// move to LH - but only if not already in LH
+				if (newSrc.GetSlot() != InventorySlots.LEFTHAND)
 				{
-					if (LogManager.IsWeaponLogEnable()) { wpnDebugPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " WeaponAttachMagazine, ok - new magazine removed from inv (inv->LHand)"); }
+					InventoryLocation lhand = new InventoryLocation;
+					lhand.SetAttachment(e.m_player, mag, InventorySlots.LEFTHAND);
+					if (GameInventory.LocationSyncMoveEntity(newSrc, lhand))
+					{
+						if (LogManager.IsWeaponLogEnable()) { wpnDebugPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " WeaponAttachMagazine, ok - new magazine removed from inv (inv->LHand)"); }
+					}
+					else
+						Error("[wpnfsm] " + Object.GetDebugName(m_weapon) + " WeaponAttachMagazine, error - cannot new remove mag from inv");
 				}
-				else
-					Error("[wpnfsm] " + Object.GetDebugName(m_weapon) + " WeaponAttachMagazine, error - cannot new remove mag from inv");
 
 				InventoryLocation il = new InventoryLocation;
 				il.SetAttachment(m_weapon, mag, InventorySlots.MAGAZINE);
@@ -69,7 +72,7 @@ modded class WeaponAttachMagazine
 	{
 		EntityAI leftHandItem = e.m_player.GetInventory().FindAttachment(InventorySlots.LEFTHAND);
 
-		if (leftHandItem)
+		if (leftHandItem && newSrc.GetSlot() != InventorySlots.LEFTHAND)
 			EXError.Warn(this, ExpansionStatic.GetDebugInfo(e.m_player) + "WeaponAttachMagazine, warning - entity in LHand " + ExpansionStatic.GetDebugInfo(leftHandItem) + ", entity to be attached " + ExpansionStatic.DumpToString(newSrc));
 
 		Magazine mag = Magazine.Cast(leftHandItem);

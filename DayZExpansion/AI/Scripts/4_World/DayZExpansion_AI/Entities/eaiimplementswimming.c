@@ -1,4 +1,4 @@
-#ifdef ADM_Diving_Mod
+#ifdef AdmiralsDivingMod
 class eAIImplementSwimming: DayZPlayerImplementSwimming
 {
 	override bool CheckSwimmingStart(out vector waterLevel)

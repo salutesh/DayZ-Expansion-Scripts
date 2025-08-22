@@ -28,6 +28,9 @@ class ExpansionP2PMarketRequestData
 	
 	void Debug()
 	{
+		if (!EXTrace.P2PMARKET)
+			return;
+
 		ErrorEx("Init: " + m_Init, ErrorExSeverity.INFO);
 		ErrorEx("Trader ID: " + m_TraderID, ErrorExSeverity.INFO);
 		ErrorEx("Listing trader ID: " + m_ListingTraderID, ErrorExSeverity.INFO);

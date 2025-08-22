@@ -108,27 +108,11 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionDialogBase
 	void PopulateAttachmentsList()
 	{
 		ExpansionMarketModule marketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
-		ExpansionMarketPlayerItem playerItem;
-		array<ref ExpansionMarketPlayerItem> items = m_MarketMenu.GetPlayerItems();
-		
-		if (items.Count() == 0)
-			return;
 		
 		ExpansionDialogContentSpacer spacer;
 				
-		for (int j = 0; j < items.Count(); j++)
-		{
-			string itemName = items[j].ClassName;
-			itemName.ToLower();
-			
-			itemName = marketModule.GetMarketItemClassName(marketModule.GetTrader().GetTraderMarket(), itemName);
+		ExpansionMarketPlayerItem playerItem  = m_MarketMenu.GetPlayerItem(m_MarketMenu.GetSelectedMarketItem().ClassName);
 
-			if (itemName == m_MarketMenu.GetSelectedMarketItem().ClassName)
-			{
-				playerItem = items[j];
-			}
-		}
-		
 		if (playerItem)
 		{			
 			ExpansionDialogContent_WrapSpacer_Entry entry;

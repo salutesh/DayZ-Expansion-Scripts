@@ -376,17 +376,68 @@
 				if (unit.IsUnconscious()) return FAIL;
 				if (unit.IsSwimming()) return FAIL;
 				
-				if (!Class.CastTo(dst.sub_fsm.weapon, unit.GetItemInHands())) return FAIL;
+				Weapon_Base weapon;
+				if (!Class.CastTo(weapon, unit.GetItemInHands())) return FAIL;
 				
 				//! Allow sub-FSM to handle destroyed weapon so it gets dropped
-				if (dst.sub_fsm.weapon.IsDamageDestroyed()) return SUCCESS;
+				if (weapon.IsDamageDestroyed()) return SUCCESS;
 				
-				if (dst.sub_fsm.weapon.Expansion_IsChambered()) return FAIL;
+				Magazine magazine;
 				
-				if (unit.GetWeaponManager().CanUnjam(dst.sub_fsm.weapon)) return FAIL;
+				if (weapon.Expansion_IsChambered())
+				{
+					if (!unit.eAI_IsSafeToFillMag()) return FAIL;
+					
+					int mi = weapon.GetCurrentMuzzle();
+					
+					if (weapon.HasInternalMagazine(mi))
+					{
+						//! If this is a gun with internal mag and we are not in combat, reload when mag is not at capacity
+						//! even if chamber is not empty
+						if (weapon.GetInternalMagazineCartridgeCount(mi) &gt;= weapon.GetInternalMagazineMaxCartridgeCount(mi) - 1)
+							return FAIL;
+						
+						if (!unit.eAI_HasAmmoForFirearm(weapon, magazine))
+							return FAIL;
+					}
+					else
+					{
+						//! If this is a gun with attached mag and we are not in combat, reload when mag is empty
+						//! even if chamber is not empty
+						Magazine currentMag = weapon.GetMagazine(mi);
+						if (currentMag)
+						{
+							int ammoCount = currentMag.GetAmmoCount();
+							
+							//! Don't reload if attached mag is still at capacity
+							if (ammoCount &gt;= currentMag.GetAmmoMax() - 1)
+								return FAIL;
+							
+							if (!unit.eAI_HasAmmoForFirearm(weapon, magazine))
+								return FAIL;
+							
+							//! Don't swap magazine if attached mag is not empty
+							if (!magazine.IsAmmoPile() &amp;&amp; ammoCount &gt; 0)
+								return FAIL;
+						}
+						else
+						{
+							if (!unit.eAI_HasAmmoForFirearm(weapon, magazine))
+								return FAIL;
+							
+							if (magazine.IsAmmoPile())
+								return FAIL;
+						}
+					}
+				}
+				
+				if (unit.GetWeaponManager().CanUnjam(weapon)) return FAIL;
 				
 				// don't move to the state if the action manager is operating
 				if (!unit.GetActionManager() || unit.GetActionManager().GetRunningAction()) return FAIL;
+				
+				dst.sub_fsm.weapon = weapon;
+				dst.sub_fsm.magazine = magazine;
 				
 				return SUCCESS;
 			</guard>
@@ -460,7 +511,7 @@
 						}
 						else if (target.IsZombie())
 						{
-							if ((hasMeleeInHands || (!hands.eAI_IsSilent() &amp;&amp; GetGame().GetTime() - dst.requestSwapToMeleeForZombieTime &gt; 60000)) &amp;&amp; unit.m_eAI_AcuteDangerPlayerTargetCount == 0 &amp;&amp; unit.m_eAI_AcuteDangerTargetCount &lt;= 1 &amp;&amp; unit.eAI_HasLOS() &amp;&amp; unit.GetHealth01() &gt; 0.8)
+							if ((hasMeleeInHands || (!hands.eAI_IsSilent() &amp;&amp; GetGame().GetTime() - dst.requestSwapToMeleeForZombieTime &gt; 60000)) &amp;&amp; unit.m_eAI_SilentAttackViabilityTime &gt; 2.0 &amp;&amp; unit.eAI_HasLOS() &amp;&amp; unit.GetHealth01() &gt; 0.8)
 							{
 								preferMelee = true;
 								if (!hasMeleeInHands)

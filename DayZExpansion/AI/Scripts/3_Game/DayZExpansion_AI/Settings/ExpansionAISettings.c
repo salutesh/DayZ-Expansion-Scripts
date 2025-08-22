@@ -21,7 +21,7 @@ class ExpansionAISettingsV11: ExpansionSettingBase
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 14;
+	static const int VERSION = 15;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -54,6 +54,8 @@ class ExpansionAISettings: ExpansionSettingBase
 
 	bool EnableZombieVehicleAttackHandler;
 	bool EnableZombieVehicleAttackPhysics;
+
+	ref map<int, float> LightingConfigMinNightVisibilityMeters = new map<int, float>;
 
 	[NonSerialized()]
 	private bool m_IsAdmin;
@@ -162,6 +164,12 @@ class ExpansionAISettings: ExpansionSettingBase
 		CanRecruitGuards = s.CanRecruitGuards;
 		PreventClimb.Copy(s.PreventClimb);
 		FormationScale = s.FormationScale;
+		PlayerFactions.Copy(s.PlayerFactions);
+		LogAIHitBy = s.LogAIHitBy;
+		LogAIKilled = s.LogAIKilled;
+		EnableZombieVehicleAttackHandler = s.EnableZombieVehicleAttackHandler;
+		EnableZombieVehicleAttackPhysics = s.EnableZombieVehicleAttackPhysics;
+		LightingConfigMinNightVisibilityMeters.Copy(s.LightingConfigMinNightVisibilityMeters);
 	}
 
 	// ------------------------------------------------------------
@@ -274,6 +282,9 @@ class ExpansionAISettings: ExpansionSettingBase
 				if (m_Version < 13 && !FormationScale)
 					FormationScale = settingsDefault.FormationScale;
 
+				if (m_Version < 15 && LightingConfigMinNightVisibilityMeters.Count() == 0)
+					LightingConfigMinNightVisibilityMeters.Copy(settingsDefault.LightingConfigMinNightVisibilityMeters);
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -343,6 +354,23 @@ class ExpansionAISettings: ExpansionSettingBase
 		LogAIKilled = true;
 
 		EnableZombieVehicleAttackHandler = false;
+		EnableZombieVehicleAttackPhysics = false;
+
+		LightingConfigMinNightVisibilityMeters.Clear();
+		LightingConfigMinNightVisibilityMeters[0] = 100;  //! Assume bright night, min visibility 100 m
+		LightingConfigMinNightVisibilityMeters[1] = 10;  //! Assume dark night, min visibility 10 m
+	}
+
+	float GetDefaultMinVisibility(int lightingConfig)
+	{
+		switch (lightingConfig)
+		{
+			case 1:
+				return 0.01;  //! Assume dark night, min visibility 10 m
+				break;
+		}
+
+		return 0.1;  //! Assume bright night, min visibility 100 m
 	}
 
 	// ------------------------------------------------------------

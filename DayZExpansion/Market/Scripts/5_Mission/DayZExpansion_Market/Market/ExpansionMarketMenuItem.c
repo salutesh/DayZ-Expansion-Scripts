@@ -95,11 +95,27 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 
 	void ~ExpansionMarketMenuItem()
 	{	
-		if (m_Object)
+		if (m_Object && IsLocalPreview())
 			GetGame().ObjectDelete(m_Object);
 		
 		DestroyTooltip();
 		DestroyItemTooltip();
+	}
+
+	bool IsLocalPreview()
+	{
+		if (m_Object.GetHierarchyRootPlayer() != GetGame().GetPlayer())
+			return true;
+
+		return false;
+	}
+
+	bool IsPreview(EntityAI preview)
+	{
+		if (m_Object == preview)
+			return true;
+
+		return false;
 	}
 
 	override string GetLayoutFile() 
@@ -221,7 +237,21 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	
 	void UpdatePreviewObject()
 	{
+		if (m_Item.m_PreviewEntity)
+			m_Object = m_Item.m_PreviewEntity;
+		else
+			CreatePreviewObject();
+
+		m_ItemController.Preview = m_Object;
+		m_ItemController.NotifyPropertyChanged("Preview");
+	}
+	
+	void CreatePreviewObject()
+	{
 		string previewClassName = m_MarketMenu.GetPreviewClassName(GetMarketItem().ClassName);
+
+		if (m_Object && !IsLocalPreview())
+			m_Object = null;
 
 		ExpansionMarketMenu.CreatePreviewObject(previewClassName, m_Object);
 		
@@ -258,9 +288,6 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			if (!m_Variant)
 				SetExpansionSkin(m_CurrentSelectedSkinIndex);
 		}
-		
-		m_ItemController.Preview = m_Object;
-		m_ItemController.NotifyPropertyChanged("Preview");
 	}
 	
 	//! Spawn attachments and attachments on attachments

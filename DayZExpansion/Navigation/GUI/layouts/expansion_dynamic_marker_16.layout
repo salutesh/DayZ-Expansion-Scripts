@@ -27,52 +27,25 @@ FrameWidgetClass rootFrame {
    content_halign center
    content_valign center
    Columns 1
-   Rows 4
+   Rows 3
    {
-    WrapSpacerWidgetClass ImageSpacer {
+    ImageWidgetClass MarkerImage {
      clipchildren 0
      ignorepointer 1
-     position 0.118 0.122
-     size 1 0.4
-     hexactpos 0
-     vexactpos 0
-     hexactsize 0
-     vexactsize 0
-     Padding 0
-     Margin 0
-     "Size To Content H" 1
-     "Size To Content V" 1
-     content_halign center
-     {
-      ImageWidgetClass MarkerImage {
-       clipchildren 0
-       ignorepointer 1
-       position 0 0
-       size 16 16
-       halign center_ref
-       hexactpos 0
-       vexactpos 0
-       hexactsize 1
-       vexactsize 1
-       scaled 1
-       imageTexture "{B40287E36A28B065}DayZExpansion/Core/GUI/icons/hud/marker_64x64.edds"
-       mode blend
-       "src alpha" 1
-       "clamp mode" clamp
-       "stretch mode" stretch_w_h
-       "Transition width" 0
-      }
-     }
-    }
-    PanelWidgetClass TextSpacer0 {
-     ignorepointer 1
-     size 1 0.03
+     position 0 0
+     size 16 16
      halign center_ref
-     valign center_ref
      hexactpos 0
      vexactpos 0
-     hexactsize 0
-     vexactsize 0
+     hexactsize 1
+     vexactsize 1
+     scaled 1
+     imageTexture "{B40287E36A28B065}DayZExpansion/Core/GUI/icons/hud/marker_64x64.edds"
+     mode blend
+     "src alpha" 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
+     "Transition width" 0
     }
     TextWidgetClass MarkerText {
      visible 1
@@ -96,16 +69,6 @@ FrameWidgetClass rootFrame {
      "text halign" center
      "text valign" center
     }
-    PanelWidgetClass TextSpacer {
-     ignorepointer 1
-     size 1 0.03
-     halign center_ref
-     valign center_ref
-     hexactpos 0
-     vexactpos 0
-     hexactsize 0
-     vexactsize 0
-    }
     TextWidgetClass MarkerDistance {
      visible 1
      clipchildren 0
@@ -124,7 +87,7 @@ FrameWidgetClass rootFrame {
      "exact text" 1
      "exact text size" 10
      "size to text h" 0
-     "size to text v" 0
+     "size to text v" 1
      "text halign" center
      "text valign" center
     }

@@ -10,12 +10,19 @@
  *
 */
 
+enum ExpansionLampSelectionMode
+{
+	FARTHEST,
+	FARTHEST_RANDOM,
+	RANDOM
+}
+
 /**@class		ExpansionGeneralSettings
  * @brief		General settings class
  **/
 class ExpansionGeneralSettings: ExpansionSettingBase
 {
-	static const int VERSION = 15;
+	static const int VERSION = 16;
 
 	bool DisableShootToUnlock;
 	bool EnableGravecross;
@@ -25,6 +32,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	float GravecrossSpawnTimeDelay;
 	ref ExpansionMapping Mapping;
 	LampModeEnum EnableLamps;										//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on
+	int LampAmount_OneInX;  //! One in X lamps will have a light
+	string LampSelectionMode;
 	bool EnableGenerators;
 	bool EnableLighthouses;
 	bool EnableHUDNightvisionOverlay;
@@ -216,6 +225,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		GravecrossSpawnTimeDelay = s.GravecrossSpawnTimeDelay;
 		Mapping.Copy( s.Mapping );
 		EnableLamps = s.EnableLamps;
+		LampAmount_OneInX = s.LampAmount_OneInX;
+		LampSelectionMode = s.LampSelectionMode;
 		EnableGenerators = s.EnableGenerators;
 		EnableLighthouses = s.EnableLighthouses;
 		EnableHUDNightvisionOverlay = s.EnableHUDNightvisionOverlay;
@@ -335,7 +346,16 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 				if (m_Version < 15)
 				{
 					EnableAIGravecross = settingsDefault.EnableAIGravecross;
-				}				
+				}	
+
+				if (m_Version < 16)
+				{
+					if (!LampAmount_OneInX)
+						LampAmount_OneInX = settingsDefault.LampAmount_OneInX;
+
+					if (!LampSelectionMode)
+						LampSelectionMode = settingsDefault.LampSelectionMode;
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -387,6 +407,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		Mapping.Defaults();
 
 		EnableLamps = LampModeEnum.AlwaysOnEverywhere;
+		LampAmount_OneInX = 3;
+		LampSelectionMode = typename.EnumToString(ExpansionLampSelectionMode, ExpansionLampSelectionMode.FARTHEST_RANDOM);
 		EnableGenerators = false;
 		EnableLighthouses = true;
 		

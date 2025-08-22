@@ -71,7 +71,7 @@ class ExpansionMarketSettingsV3: ExpansionMarketSettingsBaseV2
  **/
 class ExpansionMarketSettings: ExpansionMarketSettingsBase
 {
-	static const int VERSION = 15;
+	static const int VERSION = 16;
 
 	bool UseWholeMapForATMPlayerList;
 	float SellPricePercent;
@@ -97,6 +97,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	autoptr array<ref ExpansionMarketSpawnPosition> TrainSpawnPositions;
 
 	bool DisallowUnpersisted;
+
+	bool DisableClientSellTransactionDetails;
 	
 	[NonSerialized()]
 	protected autoptr map<int, ref ExpansionMarketCategory> m_Categories;
@@ -278,6 +280,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		ctx.Read(s.SZVehicleParkingTicketFine);
 		#endif
 
+		ctx.Read(DisableClientSellTransactionDetails);
+
 		s.MarketMenuColors.OnReceive(ctx);
 
 		CopyInternal(s);
@@ -316,6 +320,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		#ifdef EXPANSIONMODVEHICLE
 		ctx.Write(SZVehicleParkingTicketFine);
 		#endif
+
+		ctx.Write(DisableClientSellTransactionDetails);
 
 		//! Do not send vehicle spawn positions (only used on server)
 

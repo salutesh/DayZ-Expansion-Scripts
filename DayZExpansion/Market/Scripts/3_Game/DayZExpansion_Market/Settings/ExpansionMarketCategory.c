@@ -201,21 +201,14 @@ class ExpansionMarketCategory
 		ExpansionMarketItem item;
 		if (s_GlobalItems.Find(newItem.ClassName, item) || s_GlobalItemsByID.Find(newItem.ItemID, item))
 		{
-			ExpansionMarketCategory cat = GetExpansionSettings().GetMarket().GetCategory(item.CategoryID);
-			string catInfo;
-			if (cat)
-				catInfo = cat.GetCategoryName() + " (ID " + item.CategoryID + ")";
-			else if (item.CategoryID == CategoryID && m_ItemsByID.Contains(item.ItemID))
-				catInfo = GetCategoryName() + " (ID " + CategoryID + ")";
-			else
-				catInfo = "ID " + item.CategoryID;
+			string catInfo = GetItemCategoryInfo(item);
 
-			string errorMsg = string.Format("MARKET CONFIGURATION ERROR: Item %1 (ID %2) in category %3 (ID %4) is duplicated in category %5 as %6 (ID %7)", newItem.ClassName, newItem.ItemID, GetCategoryName(), CategoryID, catInfo, item.ClassName, item.ItemID);
+			string errorMsg = string.Format("Item %1 (ID %2) in category %3 (ID %4) was already added in category %5 as %6 (ID %7)", newItem.ClassName, newItem.ItemID, GetCategoryName(), CategoryID, catInfo, item.ClassName, item.ItemID);
 
 			if (stackTraceOnDuplicate)
-				EXError.Error(this, errorMsg);
+				EXError.MarketCfgError(this, errorMsg, true);
 			else
-				EXError.Error(null, errorMsg, {});
+				EXError.MarketCfgError(null, errorMsg);
 
 			return true;
 		}
@@ -223,7 +216,7 @@ class ExpansionMarketCategory
 		return false;
 	}
 
-	protected string GetCategoryName()
+	string GetCategoryName()
 	{
 		if (m_FileName)
 			return m_FileName;
@@ -231,8 +224,29 @@ class ExpansionMarketCategory
 		return Widget.TranslateString(DisplayName);
 	}
 
+	string GetItemCategoryInfo(ExpansionMarketItem item)
+	{
+		ExpansionMarketCategory cat = GetExpansionSettings().GetMarket().GetCategory(item.CategoryID);
+		string catInfo;
+
+		if (cat)
+			catInfo = cat.GetCategoryName() + " (ID " + item.CategoryID + ")";
+		else if (item.CategoryID == CategoryID && m_ItemsByID.Contains(item.ItemID))
+			catInfo = GetCategoryName() + " (ID " + CategoryID + ")";
+		else
+			catInfo = "ID " + item.CategoryID;
+
+		return catInfo;
+	}
+
 	bool AddItemInternal(ExpansionMarketItem item, bool addToList = true, bool stackTraceOnDuplicate = true)
 	{
+		if (!item.ClassName.Trim())
+		{
+			EXError.MarketCfgError(null, "Item with empty ClassName in category " + GetCategoryName() + " (ID " + CategoryID + ")");
+			return false;
+		}
+
 		if (CheckDuplicate(item, stackTraceOnDuplicate))
 			return false;
 
@@ -274,18 +288,76 @@ class ExpansionMarketCategory
 		if (item.Variants.Count())
 		{
 			int variantId = -1;
+			string catInfo;
+			string errorMsg;
 
 			TStringArray variants = item.Variants;
 			item.Variants = new TStringArray;
 			foreach (string className : variants)
 			{
+			#ifdef DIAG_DEVELOPER
+				CF_Log.Debug("Processing variant " + className);
+			#endif
+
 				className.ToLower();
+				className.Replace("*", item.ClassName);
+
+				if (GetGame().IsServer())
+				{
+					if (!className.Trim())
+					{
+						errorMsg = string.Format("Empty variant for item %1 (ID %2) in category %3 (ID %4)", item.ClassName, item.ItemID, GetCategoryName(), CategoryID);
+
+						EXError.MarketCfgError(null, errorMsg);
+						continue;
+					}
+
+					if (className == item.ClassName)
+					{
+						errorMsg = string.Format("Item %1 (ID %2) in category %3 (ID %4) can't be added as variant of itself", className, item.ItemID, GetCategoryName(), CategoryID);
+
+						EXError.MarketCfgError(null, errorMsg);
+						continue;
+					}
+
+					if (item.m_IsVariant)
+					{
+						catInfo = GetItemCategoryInfo(item.m_Parent);
+
+						if (className == item.m_Parent.ClassName)
+						{
+							errorMsg = string.Format("Item %1 (ID %2) in category %3 can't be added as variant of %4 (ID %5) in category %6 (ID %7)\nbecause %4 is a variant of %1", className, item.m_Parent.ItemID, catInfo, item.ClassName, item.ItemID, GetCategoryName(), CategoryID);
+						}
+						else
+						{
+							errorMsg = string.Format("%1 can't be added as variant of %2 (ID %3) in category %4 (ID %5)\nbecause %2 is a variant of %6 (ID %7) in category %8", className, item.ClassName, item.ItemID, GetCategoryName(), CategoryID, item.m_Parent.ClassName, item.m_Parent.ItemID, catInfo);
+						}
+
+						EXError.MarketCfgError(null, errorMsg);
+						continue;
+					}
+				}
+
 				ExpansionMarketItem variant;
 				if (!m_Items.Find(className, variant))
 				{
 					if (variantIds)
-						variantId = variantIds[variantIdIdx];
+					{
+						if (variantIdIdx < variantIds.Count())
+						{
+							variantId = variantIds[variantIdIdx];
+						}
+						else
+						{
+							errorMsg = string.Format("Index %1 for variant %2 of %3 (ID %4) in category %5 (ID %6) is greater than or equal to variants count %7", variantIdIdx, className, item.ClassName, item.ItemID, GetCategoryName(), CategoryID, variantIds.Count());
+
+							Error(errorMsg);
+							continue;
+						}
+					}
+
 					variant = new ExpansionMarketItem( CategoryID, className, item.MinPriceThreshold, item.MaxPriceThreshold, item.MinStockThreshold, item.MaxStockThreshold, item.SpawnAttachments, NULL, item.SellPricePercent, item.QuantityPercent, variantId, item.m_AttachmentIDs );
+
 					//! Variants that do not already have an entry only need to synch stock, they will be automatically added on client
 					variant.m_StockOnly = true;
 
@@ -301,8 +373,25 @@ class ExpansionMarketCategory
 				}
 				else
 				{
+					if (GetGame().IsServer() && variant.m_IsVariant)
+					{
+						catInfo = GetItemCategoryInfo(variant.m_Parent);
+
+						errorMsg = string.Format("Variant %1 of %2 (ID %3) in category %4 (ID %5) was already added in category %6 as variant of %7 (ID %8)", className, item.ClassName, item.ItemID, GetCategoryName(), CategoryID, catInfo, variant.m_Parent.ClassName, variant.m_Parent.ItemID);
+
+						EXError.MarketCfgError(null, errorMsg);
+						continue;
+					}
+
+					//! 2nd and subsequent visits to same trader in this session will have stockonly variants still cached,
+					//! so we need to increment the index
 					if (variantIds && variant.m_StockOnly)
+					{
+					#ifdef DIAG_DEVELOPER
+						CF_Log.Debug("Variant " + className + " is stockonly, incrementing index");
+					#endif
 						variantIdIdx++;
+					}
 
 					CF_Log.Debug("Setting variant " + className + " (ID " + variant.ItemID + ") for item " + item.ClassName + " (ID " + item.ItemID + ")");
 				}

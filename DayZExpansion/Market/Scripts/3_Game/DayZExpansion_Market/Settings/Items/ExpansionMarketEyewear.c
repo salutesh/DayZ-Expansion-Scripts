@@ -20,9 +20,6 @@ class ExpansionMarketEyewear: ExpansionMarketCategory
 		m_FileName = "Eyewear";
 
 		AddItem("sportglasses_orange", 	260, 	430,	1,100,null,{"SportGlasses_Blue","SportGlasses_Black","SportGlasses_Green"});
-		AddItem("sportglasses_blue", 	260, 	430,	1,100);
-		AddItem("sportglasses_black", 	260, 	430,	1,100);
-		AddItem("sportglasses_green", 	260, 	430,	1,100);
 		
 		AddItem("thinframesglasses", 	210, 	350,	1,100);
 		AddItem("thickframesglasses", 	210, 	350,	1,100);

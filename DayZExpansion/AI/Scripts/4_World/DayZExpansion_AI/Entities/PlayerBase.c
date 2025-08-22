@@ -9,12 +9,156 @@ modded class PlayerBase
 {
 	ref TIntArray m_eAI_FactionModifiers;
 
+	bool m_eAI_IsLit;
+
+#ifndef SERVER
+	//! Client only!
+
+	//! Lights the player is in radius of
+	ref array<ScriptedLightBase> m_eAI_Lights;
+
+	ref ScriptCaller m_eAI_AddLightIfPlayerInLight = ScriptCaller.Create(eAI_AddLightIfPlayerInLight);
+
+	int m_eAI_ProcessedLights;
+
+	void ~PlayerBase()
+	{
+	#ifndef DIAG_DEVELOPER
+		if (!g_Game)
+			return;
+	#endif
+
+		if (m_eAI_Lights)
+		{
+			foreach (ScriptedLightBase light: m_eAI_Lights)
+			{
+				light.eAI_RemovePlayer(this);
+			}
+		}
+	}
+
+	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)	
+	{
+		super.CommandHandler(pDt, pCurrentCommandID, pCurrentCommandFinished);
+
+		eAI_ProcessLights();
+	}
+
+	void eAI_AddLightIfPlayerInLight(ScriptedLightBase light)
+	{
+		if (light.Type() != PersonalLight && light.eAI_IsVisible(true) && (light.eAI_IsLightOnPlayer(this) || light.eAI_IsPlayerInLight(this)))
+		{
+			if (!m_eAI_Lights || m_eAI_Lights.Find(light) == -1)
+				eAI_AddLight(light);
+		}
+	}
+
+	void eAI_RemoveLightsIfPlayerNotInLight(bool isNight = false)
+	{
+		for (int i = m_eAI_Lights.Count() - 1; i >= 0; --i)
+		{
+			ScriptedLightBase light = m_eAI_Lights[i];
+
+			if (!light.eAI_IsVisible(isNight) || (!light.eAI_IsLightOnPlayer(this) && !light.eAI_IsPlayerInLight(this)))
+				eAI_RemoveLightAtIndex(i);
+		}
+
+		if (m_eAI_IsLit && m_eAI_Lights.Count() == 0)
+			m_eAI_IsLit = false;
+	}
+
+	void eAI_AddLight(ScriptedLightBase light)
+	{
+		if (!m_eAI_Lights)
+			m_eAI_Lights = {};
+
+		int index = m_eAI_Lights.Insert(light);
+
+		light.eAI_AddPlayer(this);
+
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.AI, this, string.Format("[Lights] added %1 at index %2", light, index));
+	#endif
+
+		m_eAI_IsLit = true;
+	}
+
+	void eAI_RemoveLight(ScriptedLightBase light, bool removePlayerFromLight = true)
+	{
+		if (m_eAI_Lights)
+		{
+			int index = m_eAI_Lights.Find(light);
+
+			eAI_RemoveLightAtIndex(index, removePlayerFromLight);
+		}
+	}
+
+	void eAI_RemoveLightAtIndex(int index, bool removePlayerFromLight = true)
+	{
+		ScriptedLightBase light = m_eAI_Lights[index];
+
+		m_eAI_Lights.Remove(index);
+
+		if (removePlayerFromLight)
+			light.eAI_RemovePlayer(this);
+
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.AI, this, string.Format("[Lights] removed %1 at index %2", light, index));
+	#endif
+	}
+
+	void eAI_ProcessLights()
+	{
+		bool isLit = m_eAI_IsLit;
+		bool isNight = g_Game.GetWorld().IsNight();
+
+		if (isLit)
+			eAI_RemoveLightsIfPlayerNotInLight(isNight);
+
+		if (!ScriptedLightBase.s_eAI_LightNodes.m_Current)
+		{
+		//#ifdef DIAG_DEVELOPER
+			//EXTrace.Print(EXTrace.AI, this, string.Format("[Lights] processed %1 lights", m_eAI_ProcessedLights));
+		//#endif
+			m_eAI_ProcessedLights = 0;
+		}
+
+	#ifdef EXTRACE
+		auto trace = EXTrace.Profile(EXTrace.AI, ScriptedLightBase, "s_eAI_LightNodes::Each");
+	#endif
+
+		if (isNight && !m_eAI_IsLit)
+			m_eAI_ProcessedLights += ScriptedLightBase.s_eAI_LightNodes.Each(m_eAI_AddLightIfPlayerInLight, 30);
+
+	#ifdef EXTRACE
+		trace = null;
+	#endif
+
+		if (m_eAI_IsLit != isLit)
+		{
+		#ifdef DIAG_DEVELOPER
+			MessageStatus(string.Format("[CLIENT] %1 lit %2", GetIdentityName(), m_eAI_IsLit.ToString()));
+			EXTrace.Print(EXTrace.AI, this, string.Format("[Lights] %1 lit %2", GetIdentityName(), m_eAI_IsLit.ToString()));
+		#endif
+
+			auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_eAI_SetLit");
+			rpc.Write(m_eAI_IsLit);
+			rpc.Expansion_Send(true);
+		}
+	}
+#endif
+
 	override void Init()
 	{
 		super.Init();
 
 		if (!IsAI())
 			RegisterNetSyncVariableInt("m_eAI_LastAggressionTimeout");
+
+		if (!m_Expansion_RPCManager)
+			m_Expansion_RPCManager = new ExpansionRPCManager(this, ExpansionWorld.GetModdableRootType(this));
+
+		m_Expansion_RPCManager.RegisterServer("RPC_eAI_SetLit");
 	}
 
 	override void SetActions(out TInputActionMap InputActionMap)
@@ -148,6 +292,21 @@ modded class PlayerBase
 		}
 
 		m_eAI_FactionModifiers = null;
+	}
+
+	void RPC_eAI_SetLit(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		ctx.Read(m_eAI_IsLit);
+
+	#ifdef DIAG_DEVELOPER
+		MessageStatus(string.Format("[SERVER] %1 lit %2", GetIdentityName(), m_eAI_IsLit.ToString()));
+		EXTrace.Print(EXTrace.AI, this, string.Format("[Lights] %1 lit %2", GetIdentityName(), m_eAI_IsLit.ToString()));
+	#endif
+	}
+
+	override bool eAI_IsLit()
+	{
+		return m_eAI_IsLit;
 	}
 
 	void Expansion_OnDangerousAreaEnterServer(EffectArea area, Trigger trigger)

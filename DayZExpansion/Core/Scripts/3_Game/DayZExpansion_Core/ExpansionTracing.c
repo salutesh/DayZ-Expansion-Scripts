@@ -63,7 +63,7 @@ class EXTrace
 
 	static bool LIGHTHOUSE = IsEnabled();
 
-	static bool LIGHTS;
+	static bool LIGHTS = IsEnabled();
 
 	static bool LOADOUTS = IsEnabled();
 

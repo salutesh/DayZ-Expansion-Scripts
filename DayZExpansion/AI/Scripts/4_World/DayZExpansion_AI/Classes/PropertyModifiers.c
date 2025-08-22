@@ -13,6 +13,9 @@ modded class PropertyModifiers
 		{
 			EntityAI att = m_OwnerItem.GetInventory().GetAttachmentFromIndex(i);
 
+			if (att.IsDamageDestroyed())
+				continue;
+
 			m_eAI_NoiseShootModifier += att.ConfigGetFloat("noiseShootModifier");
 			if (m_eAI_NoiseShootModifier < 1.0)
 				break;  //! Guns can only have one suppressor, ok to break

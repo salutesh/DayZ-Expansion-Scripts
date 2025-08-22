@@ -41,6 +41,11 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		ExpansionSettings.SI_Mission.Insert( OnSettingsUpdated );
 	}
+
+	void ~ExpansionMissionModule()
+	{
+		ExpansionMissionSettings.SI_OnSave.Remove( SaveMissions );
+	}
 	
 	override void OnMissionFinish(Class sender, CF_EventArgs args)
 	{
@@ -307,7 +312,16 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		container = new ExpansionLootContainer( container.Container, 2, 1, container.Loot, infected, itemCount, infectedCount, false, container.FallSpeed );
 
-		ExpansionAirdropPlaneBase plane = ExpansionAirdropPlane.Expansion_CreatePlane( Vector( position[0], 0, position[2] ), "", settings.Radius, settings.Height, settings.DropZoneHeight, settings.Speed, settings.DropZoneSpeed, container, new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER" ) );
+		StringLocaliser warningProximityMsg;
+		StringLocaliser airdropCreatedMsg;
+
+		if (GetExpansionSettings().GetNotification().ShowPlayerAirdropClosingOn)
+			warningProximityMsg = new StringLocaliser("STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER");
+
+		if (GetExpansionSettings().GetNotification().ShowPlayerAirdropDropped)
+			airdropCreatedMsg = new StringLocaliser("STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER");
+
+		ExpansionAirdropPlaneBase plane = ExpansionAirdropPlane.Expansion_CreatePlane(Vector( position[0], 0, position[2] ), "", settings.Radius, settings.Height, settings.DropZoneHeight, settings.Speed, settings.DropZoneSpeed, container, warningProximityMsg, airdropCreatedMsg);
 
 		if ( plane )
 		{

@@ -5,27 +5,27 @@ class ExpansionAIPatrolManager
 		if (!eAIDynamicPatrol.InitSettings())
 			return NULL;
 
-		//! Init matching object patrol
-		foreach(ExpansionAIObjectPatrol patrol: eAIDynamicPatrol.s_AIPatrolSettings.ObjectPatrols)
+		type.ToLower();
+
+		array<ref ExpansionAIDynamicSpawnBase> patrols;
+		if (!eAIDynamicPatrol.s_AIPatrolSettings.m_ObjectPatrols.Find(type, patrols))
+			return null;
+
+		//! Find object patrol with a chance to spawn
+		foreach (ExpansionAIDynamicSpawnBase patrol: patrols)
 		{
-			if (!patrol.ClassName || !CF_String.EqualsIgnoreCase(patrol.ClassName, type))
-				continue;
-
 			auto dynPatrol = InitPatrol(patrol, position);
-			if (!dynPatrol)
-				continue;
-
-			//! Return dynamic patrol
-			return dynPatrol;
+			if (dynPatrol)
+				return dynPatrol;
 		}
 
-		return NULL;
+		return null;
 	}
 
 	static eAIDynamicPatrol InitPatrol(ExpansionAIDynamicSpawnBase patrol, vector position = vector.Zero)
 	{
 		if (patrol.Chance == 0.0 || patrol.Chance < Math.RandomFloat(0.0, 1.0))
-			return NULL;
+			return null;
 
 		return eAIDynamicPatrol.CreateEx(patrol, position);
 	}
@@ -35,14 +35,15 @@ class ExpansionAIPatrolManager
 		if (!eAIDynamicPatrol.InitSettings())
 			return;
 
-		//! Init all roaming patrols
-		foreach(ExpansionAIPatrol patrol: eAIDynamicPatrol.s_AIPatrolSettings.Patrols)
+		//! Init patrols w/ waypoints
+		foreach (int i, ExpansionAIDynamicSpawnBase patrol: eAIDynamicPatrol.s_AIPatrolSettings.m_Patrols)
 		{
 			if (!patrol.Waypoints || !patrol.Waypoints.Count())
 			{
-				patrol.Log("!!! ERROR !!!");
-				patrol.Log("No waypoints (validate your file with a json validator)");
-				patrol.Log("!!! ERROR !!!");
+				if (patrol.Name)
+					EXError.Error(null, "AIPatrolSettings.json: Patrol '" + patrol.Name + "' at index " + i + " has no waypoints", {});
+				else
+					EXError.Error(null, "AIPatrolSettings.json: Patrol at index " + i + " has no waypoints", {});
 				continue;
 			}
 

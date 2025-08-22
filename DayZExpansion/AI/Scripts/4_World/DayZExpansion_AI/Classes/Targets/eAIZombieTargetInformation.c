@@ -27,6 +27,14 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 		return false;
 	}
 
+	override bool IsAcuteDanger(eAIBase ai = null)
+	{
+		if (m_Zombie.Expansion_GetTarget() == ai)
+			return true;
+
+		return false;
+	}
+
 	override float GetAttackCooldown()
 	{
 		return m_Zombie.m_eAI_AttackCooldown;
@@ -137,7 +145,7 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 					eAIPlayerTargetInformation.AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
 			}
 
-			levelFactor *= ai.Expansion_GetVisibility(distance);
+			levelFactor *= ai.eAI_GetThreatDistanceFactor(distance);
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);
@@ -150,7 +158,7 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 
 	override float GetMinDistance(eAIBase ai = null, float distance = 0.0)
 	{
-		if (ai && (ai.m_eAI_AcuteDangerTargetCount > Math.Floor(ai.GetGroup().Count() * 1.4) || ai.eAI_IsLowVitals()))
+		if (ai && (ai.m_eAI_AcuteDangerTargetCount > 1 || ai.eAI_IsLowVitals()))
 			return 100.0;  //! Flee
 
 		return m_MinDistance;

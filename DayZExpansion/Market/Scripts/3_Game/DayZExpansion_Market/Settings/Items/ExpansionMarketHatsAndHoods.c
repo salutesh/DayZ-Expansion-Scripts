@@ -20,29 +20,22 @@ class ExpansionMarketHatsAndHoods: ExpansionMarketCategory
 		m_FileName = "Hats_And_Hoods";
 		
 		AddItem("medicalscrubshat_blue", 	655, 	1090,	1,100,null,{"MedicalScrubsHat_White","MedicalScrubsHat_Green"});
-		AddItem("medicalscrubshat_white", 	655, 	1090,	1,100);
-		AddItem("medicalscrubshat_green", 	655, 	1090,	1,100);
 
 	#ifdef EXPANSIONMOD
 		AddItem("cowboyhat_brown", 	1475, 	2460,	1,100,null,{"CowboyHat_black","CowboyHat_darkBrown","CowboyHat_green","ExpansionCowboyHatGator","ExpansionCowboyHatSnake","ExpansionCowboyHatRattleSnake"});
 	#else
 		AddItem("cowboyhat_brown", 	1475, 	2460,	1,100,null,{"CowboyHat_black","CowboyHat_darkBrown","CowboyHat_green"});
 		AddItem("cowboyhat_black", 	1440, 	2400,	1,100);
-		AddItem("cowboyhat_darkbrown", 	1475, 	2460,	1,100);
-		AddItem("cowboyhat_green", 	1475, 	2460,	1,100);
 	#endif
 
 		AddItem("militaryberet_chdkz", 	5585, 	9310,	1,100,null,{"MilitaryBeret_Red","MilitaryBeret_UN","MilitaryBeret_CDF","MilitaryBeret_NZ"});
-		AddItem("militaryberet_red", 	5585, 	9310,	1,100);
 		AddItem("militaryberet_un", 	1060, 	1770,	1,100);
-		AddItem("militaryberet_cdf", 	5585, 	9310,	1,100);
 		AddItem("militaryberet_nz", 	1060, 	1770,	1,100);
 
 		AddItem("beaniehat_pink", 	930, 	1550,	1,100,null,{"BeanieHat_Beige","BeanieHat_Blue","BeanieHat_Brown","BeanieHat_Grey","BeanieHat_Red","BeanieHat_Black","BeanieHat_Green"});
 		AddItem("beaniehat_blue", 	175, 	295,	1,100); // easier to find
 		
 		AddItem("ushanka_black", 	905, 	1510,	1,100,null,{"Ushanka_Blue","Ushanka_Green"});
-		AddItem("ushanka_blue", 	905, 	1510,	1,100);
 		AddItem("ushanka_green", 	170, 	285,	1,100);
 		
 		AddItem("booniehat_blue", 	820, 	1370,	1,100,null,{"BoonieHat_NavyBlue","BoonieHat_Orange","BoonieHat_Red","BoonieHat_Black","BoonieHat_Tan","BoonieHat_Olive","BoonieHat_DPM","BoonieHat_Dubok","BoonieHat_Flecktran","booniehat_winter"});

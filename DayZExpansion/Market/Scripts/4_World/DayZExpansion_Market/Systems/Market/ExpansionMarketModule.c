@@ -39,6 +39,16 @@ enum ExpansionMarketResult
 	IntegerOverflow
 }
 
+enum ExpansionMarketHealthLevel
+{
+	Pristine,
+	Worn,
+	Damaged,
+	BadlyDamaged,
+	Ruined,
+	NOT_APPLICABLE
+}
+
 typedef Param4<string, string, string, string> ExpansionMarketSellDebugRow;
 
 class ExpansionMarketSellDebugRows: array<ref ExpansionMarketSellDebugRow>
@@ -61,7 +71,7 @@ class ExpansionMarketSellDebugRows: array<ref ExpansionMarketSellDebugRow>
 		Insert(row);
 	}
 
-	void Insert(int index, ExpansionMarketSellDebugItem playerItem, ExpansionMarketSellDebugItem serverItem)
+	void Insert(int index, ExpansionMarketSellDebugItem playerItem, ExpansionMarketSellDebugItem serverItem, bool compare = true)
 	{
 		Insert("Item " + (index + 1).ToString(), "", "", " ", false);
 
@@ -83,7 +93,7 @@ class ExpansionMarketSellDebugRows: array<ref ExpansionMarketSellDebugRow>
 						type.GetVariableValue(playerItem, i, playerValue);
 					if (serverItem)
 						type.GetVariableValue(serverItem, i, serverValue);
-					Insert("  " + varName, playerValue, serverValue, " ");
+					Insert("  " + varName, playerValue, serverValue, " ", compare);
 					break;
 
 				case int:
@@ -93,6 +103,10 @@ class ExpansionMarketSellDebugRows: array<ref ExpansionMarketSellDebugRow>
 						type.GetVariableValue(playerItem, i, iPlayerValue);
 						if (varName == "Stock" && iPlayerValue < 0)
 							playerValue = typename.EnumToString(ExpansionMarketStock, iPlayerValue);
+						else if (varName == "EntityHealthLevel")
+							playerValue = typename.EnumToString(ExpansionMarketHealthLevel, iPlayerValue);
+						else if (varName == "EntityFoodStage")
+							playerValue = typename.EnumToString(FoodStageType, iPlayerValue);
 						else
 							playerValue = iPlayerValue.ToString();
 					}
@@ -102,10 +116,14 @@ class ExpansionMarketSellDebugRows: array<ref ExpansionMarketSellDebugRow>
 						type.GetVariableValue(serverItem, i, iServerValue);
 						if (varName == "Stock" && iServerValue < 0)
 							serverValue = typename.EnumToString(ExpansionMarketStock, iServerValue);
+						else if (varName == "EntityHealthLevel")
+							serverValue = typename.EnumToString(ExpansionMarketHealthLevel, iServerValue);
+						else if (varName == "EntityFoodStage")
+							serverValue = typename.EnumToString(FoodStageType, iServerValue);
 						else
 							serverValue = iServerValue.ToString();
 					}
-					Insert("  " + varName, playerValue, serverValue, " ");
+					Insert("  " + varName, playerValue, serverValue, " ", compare);
 					break;
 
 				case float:
@@ -121,11 +139,27 @@ class ExpansionMarketSellDebugRows: array<ref ExpansionMarketSellDebugRow>
 						type.GetVariableValue(serverItem, i, fServerValue);
 						serverValue = fServerValue.ToString();
 					}
-					Insert("  " + varName, playerValue, serverValue, " ");
+					Insert("  " + varName, playerValue, serverValue, " ", compare);
+					break;
+
+				case bool:
+					if (playerItem)
+					{
+						bool bPlayerValue;
+						type.GetVariableValue(playerItem, i, bPlayerValue);
+						playerValue = bPlayerValue.ToString();
+					}
+					if (serverItem)
+					{
+						bool bServerValue;
+						type.GetVariableValue(serverItem, i, bServerValue);
+						serverValue = bServerValue.ToString();
+					}
+					Insert("  " + varName, playerValue, serverValue, " ", compare);
 					break;
 
 				case ExpansionMarketItemPriceTiers:
-					Insert("  " + varName, "", "", " ");
+					Insert("  " + varName, "", "", " ", compare);
 					int count;
 					if (playerItem && serverItem)
 						count = Math.Max(playerItem.PriceTiers.Count(), serverItem.PriceTiers.Count());
@@ -145,11 +179,11 @@ class ExpansionMarketSellDebugRows: array<ref ExpansionMarketSellDebugRow>
 						string serverPriceAtStock = "";
 						if (serverItem && j < serverItem.PriceTiers.Count())
 						{
-							auto serverItemPrice = playerItem.PriceTiers[j];
+							auto serverItemPrice = serverItem.PriceTiers[j];
 							serverPriceAtStock = serverItemPrice.param1.ToString();
 							serverPriceAtStock += " at " + serverItemPrice.param2.ToString();
 						}
-						Insert("    Price at stock #", playerPriceAtStock, serverPriceAtStock, " ");
+						Insert("    Price at stock #", playerPriceAtStock, serverPriceAtStock, " ", compare);
 					}
 					break;
 			}
@@ -182,29 +216,186 @@ class ExpansionMarketPlayerInventory
 		auto trace = EXTrace.Start(ExpansionTracing.MARKET, this);
 #endif
 
-		array<EntityAI> items = new array<EntityAI>;
-		items.Reserve(m_Player.GetInventory().CountInventory());
+		array<EntityAI> playerAttachments = {};
+		array<EntityAI> itemAttachments = {};
+		array<EntityAI> cargoItemsWithAttachments = {};
 
-		m_Player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
-		AddPlayerItems(items);
+		EntityAI handItem = m_Player.GetHumanInventory().GetEntityInHands();
+		bool handItemIsEmpty;
 
+		if (handItem)
+			handItemIsEmpty = handItem.IsEmpty();
+
+		//! 1) add item in hands if empty 1st
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.MARKET, this, "PRIO 1 - item in hands w/o attachments and cargo:");
+	#endif
+		if (handItem && handItemIsEmpty)
+			AddPlayerItem(handItem);
+
+		//! 2) add items w/o attachments in cargo of hand item 2nd
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.MARKET, this, "PRIO 2 - items w/o attachments in cargo of item in hands:");
+	#endif
+		if (handItem)
+		{
+			AddDirectCargoItems(handItem, cargoItemsWithAttachments);
+			AddAttachmentsCargoItems(handItem, itemAttachments, cargoItemsWithAttachments, true);
+		}
+
+		//! 3) add items w/o attachments in cargo of player attachments 3rd
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.MARKET, this, "PRIO 3 - items w/o attachments in cargo of player attachments:");
+	#endif
+		AddAttachmentsCargoItems(m_Player, playerAttachments, cargoItemsWithAttachments);
+
+		//! 4) add items w/o attachments in cargo of attachments of player attachments 4th
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.MARKET, this, "PRIO 4 - items w/o attachments in cargo of attachments of player attachments:");
+	#endif
+		foreach (EntityAI attachment: playerAttachments)
+		{
+			AddAttachmentsCargoItems(attachment, itemAttachments, cargoItemsWithAttachments, true);
+		}
+
+		//! enumerate attachments of cargo items w/ attachments recursively
+		foreach (EntityAI cargoItem: cargoItemsWithAttachments)
+		{
+			AddAttachments(cargoItem, itemAttachments, true);
+		}
+
+		//! 5) add attachments of attachments 5th
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.MARKET, this, "PRIO 5 - attachments of items:");
+	#endif
+		AddPlayerItems(itemAttachments);
+
+		//! 6) add cargo items w/ attachments 6th
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.MARKET, this, "PRIO 6 - cargo items w/ attachments:");
+	#endif
+		AddPlayerItems(cargoItemsWithAttachments);
+
+		//! 7) add item in hands if NOT empty 7th
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.MARKET, this, "PRIO 7 - item in hands w/ attachments or cargo:");
+	#endif
+		if (handItem && !handItemIsEmpty)
+			AddPlayerItem(handItem);
+
+		//! 8) add player attachments 8th
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.MARKET, this, "PRIO 8 - player attachments:");
+	#endif
+		AddPlayerItems(playerAttachments);
+
+	#ifdef DIAG_DEVELOPER
+		int count = m_Player.GetInventory().CountInventory() - 1;
+		EXTrace.Print(EXTrace.MARKET, this, "::Enumerate - " + m_Inventory.Count() + "/" + count);
+	#endif
+
+		//! 9) add driven vehicles last
 		array<EntityAI> driven = GetNearbyDrivenVehicles();
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.MARKET, this, "PRIO 9 - driven vehicles:");
+	#endif
 		AddPlayerItems(driven, m_Inventory);
+	}
+
+	private void AddAttachmentsCargoItems(EntityAI entity, array<EntityAI> attachments, array<EntityAI> cargoItemsWithAttachments = null, bool recursive = false)
+	{
+		GameInventory inventory = entity.GetInventory();
+
+		int attachmentCount = inventory.AttachmentCount();
+
+		for (int i = 0; i < attachmentCount; ++i)
+		{
+			EntityAI attachment = inventory.GetAttachmentFromIndex(i);
+
+			AddDirectCargoItems(attachment, cargoItemsWithAttachments);
+
+			attachments.Insert(attachment);
+
+			if (recursive)
+				AddAttachmentsCargoItems(attachment, attachments, cargoItemsWithAttachments, true);
+		}
+	}
+
+	private void AddAttachments(EntityAI entity, array<EntityAI> attachments, bool recursive = false)
+	{
+		GameInventory inventory = entity.GetInventory();
+
+		int attachmentCount = inventory.AttachmentCount();
+
+		for (int i = 0; i < attachmentCount; ++i)
+		{
+			EntityAI attachment = inventory.GetAttachmentFromIndex(i);
+
+			attachments.Insert(attachment);
+
+			if (recursive)
+				AddAttachments(attachment, attachments, true);
+		}
+	}
+
+	private void AddDirectCargoItems(EntityAI entity, array<EntityAI> cargoItemsWithAttachments)
+	{
+		CargoBase cargo = entity.GetInventory().GetCargo();
+
+		if (cargo)
+		{
+			int cargoCount = cargo.GetItemCount();
+
+			for (int i = 0; i < cargoCount; i++)
+			{
+				EntityAI cargoItem = cargo.GetItem(i);
+
+				if (cargoItem.GetInventory().AttachmentCount() == 0)
+					AddPlayerItem(cargoItem);
+				else
+					cargoItemsWithAttachments.Insert(cargoItem);
+			}
+		}
+	}
+
+	private void AddPlayerItem(EntityAI item, array<EntityAI> existing = NULL)
+	{
+		if (!item || item.IsSetForDeletion())
+			return;
+
+		item = SubstituteOwnedVehicle(item);
+
+		if (existing && existing.Find(item) > -1)
+			return;
+
+	#ifdef DIAG_DEVELOPER
+		string hierarchy;
+		EntityAI entity = item;
+
+		while (entity != m_Player)
+		{
+			if (entity != item)
+				hierarchy += " <- ";
+
+			hierarchy += entity.GetType();
+
+			if (entity.GetInventory().IsInCargo())
+				hierarchy += " (in cargo)";
+
+			entity = entity.GetHierarchyParent();
+		}
+
+		EXTrace.Print(EXTrace.MARKET, this, "  " + hierarchy);
+	#endif
+
+		m_Inventory.Insert(item);
 	}
 
 	private void AddPlayerItems(array<EntityAI> items, array<EntityAI> existing = NULL)
 	{
 		foreach (EntityAI item: items)
 		{
-			if (!item || item.IsSetForDeletion())
-				continue;
-
-			item = SubstituteOwnedVehicle(item);
-
-			if (existing && existing.Find(item) > -1)
-				continue;
-
-			m_Inventory.Insert( item );
+			AddPlayerItem(item, existing);
 		}
 	}
 	
@@ -666,8 +857,16 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		int unsellablePrice;
 
-		foreach (EntityAI itemEntity: items) 
+		foreach (int i, EntityAI itemEntity: items) 
 		{
+			if (!itemEntity)
+			{
+			#ifdef DIAG_DEVELOPER
+				MarketModulePrint("FindSellPrice - NULL entry in items array at index " + i);
+			#endif
+				continue;
+			}
+
 			string itemClassName = itemEntity.GetType();
 			itemClassName.ToLower();
 			
@@ -709,6 +908,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 					continue;
 				}
 
+				float incrementStockModifier;
+				float modifier = GetSellPriceModifierEx(itemEntity, incrementStockModifier, initialSellPriceModifier);
+
 				if (canSell)
 				{
 					amountLeft = playerInventoryAmount - amountTaken;
@@ -718,13 +920,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 					MarketModulePrint("FindSellPrice - amount taken: " + amountTaken);
 					MarketModulePrint("FindSellPrice - amount left in inventory: " + amountLeft);
 					MarketModulePrint("FindSellPrice - amount still wanted: " + amountWanted);
-				}
 
-				float incrementStockModifier;
-				float modifier = GetSellPriceModifier(itemEntity, incrementStockModifier, initialSellPriceModifier);
-
-				if (canSell)
-				{
 					sellItem = sell.AddSellItem(amountTaken, amountTaken, incrementStockModifier, itemEntity, sell.Item.ClassName);
 					sell.TotalAmount += amountTaken;
 				}
@@ -808,6 +1004,16 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		if (result == ExpansionMarketResult.Success)
 		{
+			if (sell.TotalAmount > 0)
+			{
+				if (player)
+					EXError.Warn(null, string.Format("Warning: Player %1 (id=%2 pos=%3) wanted to sell %4 %5 but had only %6 sellable in inventory", player.GetCachedName(), player.GetCachedID(), ExpansionStatic.VectorToString(player.GetPosition()), sell.TotalAmount + amountWanted, sell.Item.ClassName, sell.TotalAmount));
+				else
+					EXError.Warn(null, string.Format("Warning: Player wanted to sell %1 %2 but had only %3 sellable in inventory", sell.TotalAmount + amountWanted, sell.Item.ClassName, sell.TotalAmount));
+
+				return true;
+			}
+
 			sell.Price = sell.Item.CalculatePrice(stock, initialSellPriceModifier);
 			result = ExpansionMarketResult.FailedNotInPlayerPossession;
 			MarketModulePrint("FindSellPrice - not in player possession");
@@ -971,7 +1177,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		float incrementStockModifier;
 		if (attachmentEntity)
 		{
-			modifier = GetSellPriceModifier(attachmentEntity, incrementStockModifier, initialSellPriceModifier);
+			modifier = GetSellPriceModifierEx(attachmentEntity, incrementStockModifier, initialSellPriceModifier);
 		}
 		else
 		{
@@ -1138,6 +1344,12 @@ class ExpansionMarketModule: CF_ModuleWorld
 		MarketModulePrint("GetSellPriceModifier " + item.ToString() + " (" + item.GetType() + ") -> " + modifier + " incrementStock " + incrementStockModifier);
 
 		return modifier;
+	}
+
+	//! For easier 3rd-party modding support, overriding statics is a pain
+	float GetSellPriceModifierEx(EntityAI item, out float incrementStockModifier, float modifier = 0.75)
+	{
+		return GetSellPriceModifier(item, incrementStockModifier, modifier);
 	}
 	
 	//! Check if item exists in trader, and if not, check if this is an Expansion skinned class (<Name>_<Skinname>) and return the skin base classname
@@ -3036,8 +3248,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 			rpc.Write(count);
 			rpc.Write(currentPrice);
 
-			auto sellDebug = new ExpansionMarketSellDebug(sell, GetClientZone());
-			sellDebug.OnSend(rpc);
+			bool disableSellDebug = GetExpansionSettings().GetMarket().DisableClientSellTransactionDetails;
+			rpc.Write(disableSellDebug);
+			if (!disableSellDebug)
+			{
+				auto sellDebug = new ExpansionMarketSellDebug(sell, GetClientZone());
+				sellDebug.OnSend(rpc);
+			}
 
 			rpc.Expansion_Send(trader.GetTraderEntity(), true);
 		}
@@ -3067,8 +3284,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!ctx.Read(currentPrice))
 			return;
 
+		bool disableSellDebug;
+		if (!ctx.Read(disableSellDebug))
+			return;
+
 		auto playerSentSellDebug = new ExpansionMarketSellDebug();
-		playerSentSellDebug.OnReceive(ctx, itemID);
+		if (!disableSellDebug)
+			playerSentSellDebug.OnReceive(ctx, itemID);
 
 		ExpansionTraderObjectBase trader = GetTraderFromObject(target);
 		if (!trader)
@@ -3185,7 +3407,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 				{
 					//! Check if there is a mismatch in the classnames the client sent to what the server sees
 
-					sellDebug = new ExpansionMarketSellDebug(sellList, sellList.Trader.GetTraderZone());
+					sellDebug = new ExpansionMarketSellDebug(sellList, zone);
 
 					bool clientSellListMismatch;
 					if (playerSentSellDebug.m_Items.Count() == sellDebug.m_Items.Count())
@@ -3271,10 +3493,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 			
 			EXLogPrint("| Result code: " + typename.EnumToString(ExpansionMarketResult, result));
 
-			if (result == ExpansionMarketResult.FailedStockChange || result == ExpansionMarketResult.FailedSellListMismatch)
-			{
-				MarketSellDebug(playerSentPrice, sellList.Price, playerSentSellDebug, sellDebug);
-			}
+			if (!sellDebug)
+				sellDebug = new ExpansionMarketSellDebug(sellList, zone);
+
+			MarketSellDebug(playerSentPrice, sellList.Price, playerSentSellDebug, sellDebug, player, trader);
 
 			EXLogPrint(ExpansionString.JustifyLeft("=", 80, "="));
 
@@ -3304,9 +3526,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 			EXLogPrint(ExpansionString.JustifyLeft("=", 80, "="));
 			EXLogPrint("| MARKET SELL REQUEST SUCCEEDED!");
 
-			sellDebug = new ExpansionMarketSellDebug(sellList, sellList.Trader.GetTraderZone());
+			sellDebug = new ExpansionMarketSellDebug(sellList, zone);
 
-			MarketSellDebug(playerSentPrice, sellList.Price, playerSentSellDebug, sellDebug);
+			MarketSellDebug(playerSentPrice, sellList.Price, playerSentSellDebug, sellDebug, player, trader);
 
 			EXLogPrint(ExpansionString.JustifyLeft("=", 80, "="));
 		}
@@ -3318,29 +3540,56 @@ class ExpansionMarketModule: CF_ModuleWorld
 		Exec_ConfirmSell(player, itemClassName);
 	}
 	
-	void MarketSellDebug(int playerSentPrice, int actualPrice, ExpansionMarketSellDebug playerSentSellDebug, ExpansionMarketSellDebug sellDebug)
+	void MarketSellDebug(int playerSentPrice, int actualPrice, ExpansionMarketSellDebug playerSentSellDebug, ExpansionMarketSellDebug sellDebug, PlayerBase player, ExpansionTraderObjectBase trader)
 	{
 		int playerSentItemsCount = playerSentSellDebug.m_Items.Count();
 		int itemsCount = sellDebug.m_Items.Count();
 		int count = Math.Max(playerSentItemsCount, itemsCount);
+
+		bool compare;
 		
 		EXLogPrint("|");
+
+		EXLogPrint(ExpansionStatic.FormatString("| Player: {1:name} id={1:id} pos={1:position}", player));
+
+		EntityAI traderEntity = trader.GetTraderEntity();
+		ExpansionMarketTrader traderMarket = trader.GetTraderMarket();
+		EXLogPrint(string.Format("| Trader: %1 type=%2.%3 pos=%4", traderEntity.GetDisplayName(), traderEntity.GetType(), traderMarket.m_FileName, ExpansionStatic.VectorToString(traderEntity.GetPosition())));
+
+		ExpansionMarketTraderZone zone = trader.GetTraderZone();
+		EXLogPrint(string.Format("| Zone: %1 pos=%2 radius=%3", zone.m_FileName, ExpansionStatic.VectorToString(zone.Position), zone.Radius));
+
+		EXLogPrint("|");
+
+		if (playerSentItemsCount == 0)
+			EXLogPrint("| Warning: Client transaction details not available, set DisableClientSellTransactionDetails to 0 in Market settings to enable");
+		else
+			compare = true;
 
 		ExpansionMarketSellDebugRows rows = {};
 
 		//! label clientvalue servervalue separator [compare]
 		rows.Insert("-", "-", "-", "-", false);
-		rows.Insert("Transaction data", "CLIENT", "SERVER", " ", false);
+		rows.Insert("Transaction details", "CLIENT", "SERVER", " ", false);
 		rows.Insert("-", "-", "-", "-", false);
 		rows.Insert("Total sell price", playerSentPrice, actualPrice, " ");
-		rows.Insert("Zone SellPricePercent", playerSentSellDebug.m_ZoneSellPricePercent, sellDebug.m_ZoneSellPricePercent, " ");
-		rows.Insert("Items", playerSentItemsCount, itemsCount, " ");
+
+		if (compare)
+		{
+			rows.Insert("Zone SellPricePercent", playerSentSellDebug.m_ZoneSellPricePercent, sellDebug.m_ZoneSellPricePercent, " ");
+			rows.Insert("Items", playerSentItemsCount, itemsCount, " ");
+		}
+		else
+		{
+			rows.Insert("Zone SellPricePercent", "", sellDebug.m_ZoneSellPricePercent.ToString(), " ", false);
+			rows.Insert("Items", "", itemsCount.ToString(), " ", false);
+		}
 
 		for (int i = 0; i < count; ++i)
 		{
 			ExpansionMarketSellDebugItem playerItem = playerSentSellDebug.m_Items[i];
 			ExpansionMarketSellDebugItem serverItem = sellDebug.m_Items[i];
-			rows.Insert(i, playerItem, serverItem);
+			rows.Insert(i, playerItem, serverItem, compare);
 		}
 
 		foreach (auto row: rows)

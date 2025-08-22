@@ -14,6 +14,7 @@ class CfgPatches
 };
 class CfgVehicles
 {
+	class HouseNoDestruct;
 	class Radio;
 	class ExpansionRadio: Radio
 	{
@@ -121,6 +122,10 @@ class CfgVehicles
 				url="http://amp.cesnet.cz:8000/cro1.ogg";
 			};
 		};
+	};
+	class ExpansionLampLightBase_Lamp: HouseNoDestruct
+	{
+		scope=1;
 	};
 };
 class CfgMods

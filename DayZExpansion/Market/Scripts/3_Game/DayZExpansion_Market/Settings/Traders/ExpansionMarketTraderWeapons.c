@@ -36,11 +36,11 @@ class ExpansionMarketTraderWeapons: ExpansionMarketTrader
 		//! Specify CanBuyAndSellAsAttachmentOnly to hide them from the "Ammo" category (these items are available in the "Special" trader)
 		AddItem("ExpansionAmmoLAW", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 		AddItem("ExpansionAmmoRPG", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
-		AddItem("Ammo_Expansion_M203_Smoke_White", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
+		//AddItem("Ammo_Expansion_M203_Smoke_White", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 		AddItem("Ammo_Expansion_M203_Smoke_Teargas", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 		AddItem("Ammo_Expansion_M203_Sticky_Smoke_White", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 		AddItem("Ammo_Expansion_M203_Sticky_Smoke_Teargas", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
-		AddItem("Ammo_Expansion_M203_HE", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
+		//AddItem("Ammo_Expansion_M203_HE", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 	#endif
 		
 		Categories.Insert("Melee_Weapons");

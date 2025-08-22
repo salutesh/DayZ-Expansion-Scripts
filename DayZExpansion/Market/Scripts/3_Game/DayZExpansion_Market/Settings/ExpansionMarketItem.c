@@ -74,6 +74,9 @@ class ExpansionMarketItem
 	[NonSerialized()]
 	bool m_UpdateView;
 	
+	[NonSerialized()]
+	EntityAI m_PreviewEntity;
+
 #ifdef EXPANSIONMODHARDLINE
 	[NonSerialized()]
 	int m_Rarity;
@@ -313,12 +316,19 @@ class ExpansionMarketItem
 			//! Add ammo "attachment" (use 1st ammo item) if not yet present and quantity is not zero
 			TStringArray ammoItems = new TStringArray;
 			GetGame().ConfigGetTextArray("CfgMagazines " + ClassName + " ammoItems", ammoItems);
-			if (ammoItems.Count())
+			foreach (string ammo: ammoItems)
 			{
-				string ammo = ammoItems[0];
 				ammo.ToLower();
-				if (SpawnAttachments.Find(ammo) == -1)
+				if (SpawnAttachments.Find(ammo) == -1 && ExpansionMarketCategory.GetGlobalItem(ammo, false))
+				{
 					SpawnAttachments.Insert(ammo);
+					break;
+				}
+			}
+
+			if (SpawnAttachments.Count() == 0)
+			{
+				EXError.MarketCfgWarn(null, string.Format("Magazine %1 has no specified ammo attachment, and the magazine's default ammo (%2) does not exist in market. The magazine will be empty when bought.", ClassName, ExpansionString.JoinStrings(ammoItems, " or ")));
 			}
 		}
 	}

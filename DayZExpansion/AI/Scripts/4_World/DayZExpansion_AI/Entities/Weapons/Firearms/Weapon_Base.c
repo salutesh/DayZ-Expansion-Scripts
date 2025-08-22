@@ -182,13 +182,13 @@ modded class Weapon_Base
 	override bool eAI_IsSilent()
 	{
 		//! Vanilla suppressors reduce noise by -0.85 (improvised) to -0.93 (AK/M4/pistol)
-		//! We consider anything that results in a noise strength below 70 as silent (to have some headroom)
-		//! @note vanilla noise strength values are multiplied by 10 in eAINoiseSystem if noise type is shot!
+		//! We consider anything that results in a noise strength below 250 as silent (to have some headroom)
+		//! @note vanilla noise strength values are multiplied by 34 in eAINoiseSystem if noise type is shot!
 		float strengthMultiplier = GetPropertyModifierObject().eAI_GetNoiseShootModifier();
 		if (strengthMultiplier)
 		{
 			eAINoiseParams params = eAI_GetNoiseParams();
-			if (params.m_Strength * strengthMultiplier >= 70)
+			if (params.m_Strength * strengthMultiplier >= 250)
 				return false;
 		}
 
@@ -369,6 +369,15 @@ modded class Weapon_Base
 	}
 
 	/**
+	 * @brief Sets firemode to fullauto or burst, if supported
+	 */
+	void eAI_SetFireModeAuto()
+	{
+		if (!Expansion_SetFireMode(ExpansionFireMode.FullAuto))
+			Expansion_SetFireMode(ExpansionFireMode.Burst);
+	}
+
+	/**
 	 * @fn	ProcessWeaponEvent
 	 * @brief	weapon's fsm handling of events
 	 * @NOTE: warning: ProcessWeaponEvent can be called only within DayZPlayer::HandleWeapons (or ::CommandHandler)
@@ -421,7 +430,26 @@ modded class Weapon_Base
 		return super.ProcessWeaponAbortEvent(e);
 	}
 
-	override bool Expansion_TryTurningOnAnyLightsOrNVG(inout float nightVisibility, PlayerBase player, bool skipNonNVG = false, bool skipNVG = false)
+	override ItemBase Expansion_TryTurningOnAnyLightOrNVG(bool skipNonNVG = false, bool skipNVG = false)
+	{
+		ItemBase item = Expansion_GetAnyLightOrNVG(skipNonNVG, skipNVG);
+
+		if (item)
+		{
+			if (item.IsInherited(ItemOptics) && (!item.HasEnergyManager() || item.GetCompEM().CanWork()))
+				return item;
+
+			if (item.Expansion_TryTurningOn())
+			{
+				FlashlightOn();
+				return item;
+			}
+		}
+
+		return null;
+	}
+
+	override ItemBase Expansion_GetAnyLightOrNVG(bool skipNonNVG = false, bool skipNVG = false)
 	{
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
@@ -429,78 +457,45 @@ modded class Weapon_Base
 
 		ItemOptics optic;
 		if (!skipNVG && Class.CastTo(optic, GetAttachedOptics()) && optic.GetCurrentNVType() != NVTypes.NONE)
+			return optic;
+
+		if (!skipNonNVG)
 		{
-			float opticVisibility = Math.Min(optic.GetZeroingDistanceZoomMax() * 0.001, 1.0);
-			nightVisibility = opticVisibility + nightVisibility * (1.0 - opticVisibility);
-			EXTrace.Print(EXTrace.AI, player, "switched on " + optic.ToString());
-			return true;
-		}
+			ItemBase flashlight;
 
-		if ( skipNonNVG )
-			return false;
-
-		ActionTarget atrg;
-		ActionManagerClient mngr_client;
-		CastTo(mngr_client, player.GetActionManager());
-		atrg = new ActionTarget(this, null, -1, vector.Zero, -1.0);
-
-		if ( mngr_client.GetAction(ActionTurnOnWeaponFlashlight).Can(player, atrg, this) )
-		{
-			ItemBase itemChild;
-
-			if ( IsInherited(Rifle_Base) )
-			{
-				itemChild = ItemBase.Cast(FindAttachmentBySlotName("weaponFlashlight"));
-			}
+			if (IsInherited(Rifle_Base))
+				flashlight = ItemBase.Cast(FindAttachmentBySlotName("weaponFlashlight"));
 			else if (IsInherited(Pistol_Base))
-			{
-				itemChild = ItemBase.Cast(FindAttachmentBySlotName("pistolFlashlight"));
-			}
+				flashlight = ItemBase.Cast(FindAttachmentBySlotName("pistolFlashlight"));
 
-			if ( itemChild && itemChild.Expansion_TryTurningOn() )
-			{
-				FlashlightOn();
-				nightVisibility = 0.15 + nightVisibility * 0.85;
-				EXTrace.Print(EXTrace.AI, player, "switched on " + itemChild.ToString());
-				return true;
-			}
+			if (flashlight)
+				return flashlight;
 		}
 
-		return false;
+		return null;
 	}
 
-	override bool Expansion_TryTurningOffAnyLightsOrNVG(PlayerBase player, bool skipNVG = false, bool force = false)
+	override ItemBase Expansion_TryTurningOffAnyLightOrNVG(bool skipNVG = false)
 	{
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 #endif
 
-		ActionTarget atrg;
-		ActionManagerClient mngr_client;
-		CastTo(mngr_client, player.GetActionManager());
-		atrg = new ActionTarget(this, null, -1, vector.Zero, -1.0);
+		ItemBase item = Expansion_GetAnyLightOrNVG(false, skipNVG);
 
-		if ( force || mngr_client.GetAction(ActionTurnOffWeaponFlashlight).Can(player, atrg, this) )
+		if (item)
 		{
-			ItemBase itemChild;
-			if ( IsInherited(Rifle_Base) )
-			{
-				itemChild = ItemBase.Cast(FindAttachmentBySlotName("weaponFlashlight"));
-			}
-			else if (IsInherited(Pistol_Base))
-			{
-				itemChild = ItemBase.Cast(FindAttachmentBySlotName("pistolFlashlight"));
-			}
+			if (item.IsInherited(ItemOptics))
+				return item;
 
-			if ( itemChild && itemChild.Expansion_TryTurningOff() )
+			if (item.Expansion_TryTurningOff())
 			{
 				FlashlightOff();
-				EXTrace.Print(EXTrace.AI, player, "switched off " + itemChild.ToString());
-				return true;
+				return item;
 			}
 		}
 
-		return false;
+		return null;
 	}
 
 	float Expansion_GetMinSafeFiringDistance()

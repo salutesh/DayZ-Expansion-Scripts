@@ -37,7 +37,8 @@ class ExpansionMarketMenuTooltip: ExpansionScriptView
 	
 	void ~ExpansionMarketMenuTooltip()
 	{
-		m_TooltipController.SpacerEntries.Clear();
+		if (m_TooltipController && m_TooltipController.SpacerEntries)
+			m_TooltipController.SpacerEntries.Clear();
 	}
 	
 	override string GetLayoutFile() 

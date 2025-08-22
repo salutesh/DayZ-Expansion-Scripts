@@ -23,9 +23,8 @@ modded class ExpansionWorldObjectsModule
 		
 		EnableMissionLoaded();
 
-		Expansion_RegisterBothRPC("RPC_Load");
-		Expansion_RegisterClientRPC("RPC_TurnOn");
-		Expansion_RegisterClientRPC("RPC_TurnOff");
+		Expansion_RegisterServerRPC("RPC_TurnOn");
+		Expansion_RegisterServerRPC("RPC_TurnOff");
 	}
  	
  	override void OnMissionStart(Class sender, CF_EventArgs args)
@@ -55,13 +54,10 @@ modded class ExpansionWorldObjectsModule
 
 		super.OnMissionLoaded(sender, args);
 
-		if ( !IsMissionOffline() && IsMissionClient() )
-		{
-			auto rpc = Expansion_CreateRPC("RPC_Load");
-			rpc.Expansion_Send(true );
-		}
+		if (GetGame().IsServer())
+			ExpansionLampLightBase.LateInitLamps();
 	}
-	
+
 	private void RPC_TurnOn(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
 	#ifdef EXTRACE
@@ -90,60 +86,6 @@ modded class ExpansionWorldObjectsModule
 		}
 	}
 	
-	private void RPC_Load(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
-	{
-	#ifdef EXTRACE
-		auto trace = EXTrace.Start(EXTrace.MAPPING, this);
-	#endif
-
-		int count;
-		vector position;
-
-		if ( IsMissionHost() )
-		{
-			auto rpc = Expansion_CreateRPC("RPC_Load");
-
-			count = m_LightGenerators.Count();
-
-			rpc.Write(count);
-
-			for (int i = 0; i < count; ++i)
-			{
-				position = m_LightGenerators[i];
-				rpc.Write(position[0]);
-				rpc.Write(position[1]);
-				rpc.Write(position[2]);
-			}
-
-			rpc.Expansion_Send(true, senderRPC);
-		}
-		else
-		{
-			m_LightGenerators.Clear();
-
-			if (!ctx.Read(count))
-				return;
-
-			while (count--)
-			{
-				float x, y, z;
-
-				if (!ctx.Read(x))
-					return;
-
-				if (!ctx.Read(y))
-					return;
-
-				if (!ctx.Read(z))
-					return;
-
-				position = Vector(x, y, z);
-				m_LightGenerators.Insert(position);
-				SI_LampEnable.Invoke(position);
-			}
-		}
-	}
-	
 	void TurnOnGenerator( vector position )
 	{
 	#ifdef EXTRACE
@@ -152,7 +94,7 @@ modded class ExpansionWorldObjectsModule
 
 		m_LightGenerators.Insert( position );
 
-		if ( IsMissionOffline() )
+		if (GetGame().IsServer())
 		{
 			SI_LampEnable.Invoke( position );
 		} else
@@ -171,7 +113,7 @@ modded class ExpansionWorldObjectsModule
 
 		m_LightGenerators.RemoveItem( position );
 
-		if ( IsMissionOffline() )
+		if (GetGame().IsServer())
 		{
 			SI_LampDisable.Invoke( position );
 		} 

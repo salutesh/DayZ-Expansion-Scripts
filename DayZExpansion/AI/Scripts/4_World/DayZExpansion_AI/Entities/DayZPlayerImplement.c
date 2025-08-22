@@ -376,6 +376,11 @@ modded class DayZPlayerImplement
 		return false;
 	}
 
+	bool eAI_IsLit()
+	{
+		return false;
+	}
+
 	override bool Expansion_CanBeDamaged(string ammo = string.Empty)
 	{
 		if (!super.Expansion_CanBeDamaged(ammo))

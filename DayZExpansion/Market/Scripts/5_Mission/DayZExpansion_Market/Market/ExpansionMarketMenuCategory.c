@@ -399,7 +399,8 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		for (int i = 0; i < m_CategoryController.MarketItems.Count(); i++)
 		{
 			ExpansionMarketMenuItem itemElement = m_CategoryController.MarketItems[i];
-			itemElement.Destroy();
+			if (itemElement)
+				itemElement.Destroy();
 		}
 
 		m_CategoryController.MarketItems.Clear();

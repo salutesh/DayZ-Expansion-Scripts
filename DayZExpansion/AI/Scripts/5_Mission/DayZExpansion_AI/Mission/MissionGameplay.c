@@ -97,7 +97,7 @@ modded class MissionGameplay
 			}
 		}
 
-		if (!inputIsFocused && input.LocalPress("eAISetWaypoint", false))
+		if (!inputIsFocused && input.LocalPress("eAISetWaypoint", false) && !menu && !viewMenu)
 		{
 			if (player && player.GetGroup() && !player.IsRaised())
 			{

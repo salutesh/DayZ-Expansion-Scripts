@@ -272,4 +272,30 @@ class eAIWeaponManager: WeaponManager
 		
 		return false;
 	}
+
+	bool CanLoadBullet_NoHandsCheck_NoChamberCheck(Weapon_Base wpn, Magazine mag, bool reservationCheck = true)
+	{
+		if ( !wpn || !mag )
+			return false;
+		
+		if( mag.IsDamageDestroyed() || wpn.IsDamageDestroyed())
+			return false;
+		
+		if( wpn.IsJammed(/*wpn.GetCurrentMuzzle()*/) )
+			return false;
+	
+		if( m_player.IsItemsToDelete())
+			return false;
+		
+		if ( reservationCheck && (m_player.GetInventory().HasInventoryReservation(wpn,null) || m_player.GetInventory().HasInventoryReservation(mag,null)))
+			return false;
+		
+		for( int i = 0; i < wpn.GetMuzzleCount(); i++)
+		{
+			if( wpn.CanChamberFromMag( i, mag ) )
+				return true;
+		}
+		
+		return false;
+	}
 };

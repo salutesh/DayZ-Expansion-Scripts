@@ -15,4 +15,9 @@ modded class SmokeGrenadeBase
 
 		Expansion_OnWorkStop();
 	}
+
+	override bool Expansion_IsExplosive()
+	{
+		return false;
+	}
 }

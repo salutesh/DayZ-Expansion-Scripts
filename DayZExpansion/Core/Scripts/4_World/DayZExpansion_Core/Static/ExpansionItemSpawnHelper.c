@@ -718,7 +718,7 @@ class ExpansionItemSpawnHelper
 		{
 			if (!srcItem.Expansion_IsLootable() && keepUnlootable)
 				dstItem.Expansion_SetLootable(false);
-			dstItem.m_Expansion_PreviousOwner = srcItem.m_Expansion_PreviousOwner;
+			dstItem.m_Expansion_PreviousOwner = srcItem.m_Expansion_CurrentOwner;
 		}
 
 		//! 5) special treatment for mags

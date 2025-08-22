@@ -71,27 +71,30 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 			//! @note The dBodyIsactive check is to avoid checking items while they are thrown physically
 			if (target && target.m_Info == this && !dBodyIsActive(m_Item))
 			{
-				bool isUnreachable;
-				bool isNear;
-				//if (ai.GetPathFinding().m_TargetPosition == GetPosition(ai))
-				//{
-					if (ai.GetPathFinding().m_IsUnreachable || ai.GetPathFinding().m_IsTargetUnreachable)
+				ExpansionPathHandler pathFinding = ai.GetPathFinding();
+
+				if (pathFinding.m_CurrentTargetPosition == GetPosition(ai))
+				{
+					bool isUnreachable;
+					bool isNear;
+
+					if (pathFinding.m_IsUnreachable || pathFinding.m_IsTargetUnreachable)
 					{
 						isUnreachable = true;
 					}
 					else
 					{
 						vector waypoint = ai.GetPosition();
-						if (ai.GetPathFinding().GetNext(waypoint) <= 2 && Math.IsPointInCircle(ai.GetPosition(), 0.55, waypoint))
+						if (pathFinding.GetNext(waypoint) <= 2 && Math.IsPointInCircle(ai.GetPosition(), 0.55, waypoint))
 							isNear = true;
 					}
-				//}
-				//if (ai.eAI_IsUnreachable(2.0, m_Item.GetCenter()) || (distance <= 4.0 && ai.eAI_IsItemObstructed(m_Item)))
-				if (isUnreachable || (isNear && (distance > 4.0 || ai.eAI_IsItemObstructed(m_Item))) || GetGame().GetTime() - target.m_FoundAtTime > target.m_MaxTime)
-				{
-					//! Item is above or below where AI can reach or item is obstructed
-					ai.eAI_ThreatOverride(m_Item, true);
-					return 0.1;
+
+					if (isUnreachable || (isNear && (distance > 4.0 || ai.eAI_IsItemObstructed(m_Item))) || GetGame().GetTime() - target.m_FoundAtTime > target.m_MaxTime)
+					{
+						//! Item is above or below where AI can reach or item is obstructed
+						ai.eAI_ThreatOverride(m_Item, true);
+						return 0.1;
+					}
 				}
 			}
 
@@ -214,7 +217,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 					}
 				}
 
-				if (!ai.eAI_HasLOS(this))
+				if (!ai.IsUnconscious() && m_Item.m_Expansion_PreviousOwner != ai && !ai.eAI_HasLOS(this))
 				{
 					//! Make sure we can react to other targets first
 					distance = Math.Sqrt(distance);

@@ -13,7 +13,7 @@
 class ExpansionRemovedObject: OLinkT
 {
 	ref ExpansionHash m_Expansion_Hash;
-	vector m_Transform[4];
+	vector m_Position;
 	bool m_IsSolid;
 
 	void ExpansionRemovedObject(Object init)
@@ -25,10 +25,9 @@ class ExpansionRemovedObject: OLinkT
 
 		m_Expansion_Hash = new ExpansionHash(type);
 
-		init.GetTransform(m_Transform);
+		m_Position = init.GetPosition();
 
-		vector hideMatrix[4] = {vector.Zero, vector.Zero, vector.Zero, m_Transform[3]};
-		init.SetTransform(hideMatrix);
+		init.SetPosition(m_Position - Vector(0, 1000, 0));
 
 		init.Update();
 
@@ -46,7 +45,7 @@ class ExpansionRemovedObject: OLinkT
 		if (GetGame().IsServer() && init.CanAffectPathgraph())
 			GetGame().GetWorld().MarkObjectForPathgraphUpdate(init);
 
-		EXTrace.Print(EXTrace.MAPPING, this, "Removed object " + init.GetDebugName() + " at " + m_Transform[3]);
+		EXTrace.Print(EXTrace.MAPPING, this, "Removed object " + init.GetDebugName() + " at " + m_Position);
 	}
 
 	void ~ExpansionRemovedObject()
@@ -54,7 +53,7 @@ class ExpansionRemovedObject: OLinkT
 		Object obj = Get();
 		if (obj)
 		{
-			obj.SetTransform(m_Transform);
+			obj.SetPosition(m_Position);
 
 			obj.Update();
 
@@ -65,7 +64,7 @@ class ExpansionRemovedObject: OLinkT
 			if (GetGame().IsDedicatedServer() && obj.CanAffectPathgraph())
 				GetGame().GetWorld().MarkObjectForPathgraphUpdate(obj);
 
-			EXTrace.Print(EXTrace.MAPPING, this, "Restored object " + obj.GetDebugName() + " at " + m_Transform[3]);
+			EXTrace.Print(EXTrace.MAPPING, this, "Restored object " + obj.GetDebugName() + " at " + m_Position);
 		}
 	}
 
@@ -216,7 +215,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		foreach (Object obj, ExpansionRemovedObject removedObj: s_RemovedObjects.m_RemovedObjects)
 		{
 			removedObj.m_Expansion_Hash.Write(ctx);
-			ctx.Write(removedObj.m_Transform[3]);
+			ctx.Write(removedObj.m_Position);
 		}
 	}
 

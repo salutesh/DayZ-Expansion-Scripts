@@ -101,6 +101,16 @@ class eAITarget: eAITargetInformationState
 		return m_Info.IsFighting();
 	}
 
+	bool IsAcuteDanger()
+	{
+		return m_Info.IsAcuteDanger(m_AI);
+	}
+
+	bool IsLit()
+	{
+		return m_Info.IsLit();
+	}
+
 	float GetAttackCooldown()
 	{
 		return m_Info.GetAttackCooldown();
@@ -267,7 +277,7 @@ class eAITarget: eAITargetInformationState
 			if (!m_AI.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
 				return false;
 
-			if (weapon.Expansion_GetMagazineAmmoCount() > 0)
+			if (weapon.Expansion_IsChambered())
 				hasAmmo = true;
 		}
 		else if (entityInHands && !entityInHands.IsMeleeWeapon())

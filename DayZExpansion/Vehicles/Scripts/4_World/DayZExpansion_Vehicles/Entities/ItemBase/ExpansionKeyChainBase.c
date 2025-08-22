@@ -17,6 +17,19 @@ class ExpansionKeyChainBase : ItemBase
 	#endif
 	}
 
+	void ~ExpansionKeyChainBase()
+	{
+		if (!g_Game)
+			return;
+
+	#ifdef SERVER
+		PlayerBase.s_Expansion_SI_OnPlayerConnected.Remove(Expansion_OnPlayerConnected);
+	#else
+		if (GetGame().IsClient())
+			m_Expansion_NetsyncData.SI_Receive.Remove(Expansion_UpdateOwnerName);
+	#endif
+	}
+
 	void Expansion_UpdateOwnerName()
 	{
 		m_Expansion_NetsyncData.Get(0, m_Expansion_OwnerName);

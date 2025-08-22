@@ -26,14 +26,30 @@ modded class StaminaHandler
 
 	override void Update(float deltaT, int pCurrentCommandID)
 	{
-		if (!m_Player.IsAI() || !m_Player.GetGroup().GetFaction().HasUnlimitedStamina())
-			super.Update(deltaT, pCurrentCommandID);
+		if (!m_Player)
+			return;
+
+		if (m_Player.IsAI())
+		{
+			eAIGroup group = m_Player.GetGroup();
+
+			if (!group)
+			{
+				CF.FormatError("%1 group is NULL", m_Player.ToString());
+				return;
+			}
+
+			if (group.GetFaction().HasUnlimitedStamina())
+				return;
+		}
+
+		super.Update(deltaT, pCurrentCommandID);
 	}
 
-	override void DepleteStamina(EStaminaModifiers modifier, float dT = -1)
+	override void DepleteStaminaEx(EStaminaModifiers modifier, float dT = -1, float coef = 1.0)
 	{
 		if (!m_Player.IsAI() || !m_Player.GetGroup().GetFaction().HasUnlimitedStamina())
-			super.DepleteStamina(modifier, dT);
+			super.DepleteStaminaEx(modifier, dT, coef);
 	}
 
 	override protected void StaminaProcessor_Move(HumanMovementState pHumanMovementState)

@@ -35,7 +35,7 @@ class ExpansionMarketTraderSpecial: ExpansionMarketTrader
 		AddItem("ExpansionAmmoLAW");
 		AddItem("ExpansionAmmoRPG");
 		
-		AddItem("Ammo_Expansion_M203_Smoke_White");
+		//AddItem("Ammo_Expansion_M203_Smoke_White");
 		//AddItem("Ammo_Expansion_M203_Smoke_Red");
 		//AddItem("Ammo_Expansion_M203_Smoke_Green");
 		//AddItem("Ammo_Expansion_M203_Smoke_Yellow");
@@ -51,7 +51,7 @@ class ExpansionMarketTraderSpecial: ExpansionMarketTrader
 
 		AddItem("Ammo_Expansion_M203_Sticky_Smoke_Teargas");
 
-		AddItem("Ammo_Expansion_M203_HE");
+		//AddItem("Ammo_Expansion_M203_HE");
 	#endif
 		// MISC
 		AddItem("Rangefinder");

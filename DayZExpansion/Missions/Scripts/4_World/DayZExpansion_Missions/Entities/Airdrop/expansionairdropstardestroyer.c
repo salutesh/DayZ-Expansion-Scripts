@@ -53,13 +53,16 @@ class ExpansionAirdropStarDestroyer: ExpansionAirdropPlaneBase
 
 			scale = ExpansionMath.PowerConversion(warpedOutDist, warpedInDist, dist, 0.0, m_Expansion_WarpedInScale, 3.0);
 
-			if (dist < m_Expansion_DistToPlayer && dist < warpedOutDist * 1.26 && !m_Expansion_WarpIn)
+			float warpInSoundDistThreshold = warpedOutDist * (1 + 0.26 * (m_Expansion_Speed / 77.0));
+			float warpOutSoundDistThreshold = (warpedInDist - m_Expansion_Speed * 5 * (m_Expansion_Speed / 77.0)) * 0.82;
+
+			if (dist < m_Expansion_DistToPlayer && dist < warpInSoundDistThreshold && !m_Expansion_WarpIn)
 			{
 				m_Expansion_WarpIn = true;
 				SEffectManager.Expansion_PlaySoundOnObject("Expansion_StarDestroyer_WarpIn_SoundSet", this, 0.1, 0.1);
 				PlaySoundSetLoop(m_Expansion_EngineSound, "Expansion_StarDestroyer_Engine_SoundSet", 1.0, 1.0);
 			}
-			else if (scale == m_Expansion_WarpedInScale && dist > m_Expansion_DistToPlayer && dist > (warpedInDist - m_Expansion_Speed * 5) * 0.82 && !m_Expansion_WarpOut)
+			else if (scale == m_Expansion_WarpedInScale && dist > m_Expansion_DistToPlayer && dist > warpOutSoundDistThreshold && !m_Expansion_WarpOut)
 			{
 				m_Expansion_WarpOut = true;
 				SEffectManager.Expansion_PlaySoundOnObject("Expansion_StarDestroyer_WarpOut_SoundSet", this, 0.1, 0.1);
