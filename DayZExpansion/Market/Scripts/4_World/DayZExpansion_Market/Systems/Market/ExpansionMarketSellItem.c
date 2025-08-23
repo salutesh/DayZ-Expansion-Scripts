@@ -345,7 +345,7 @@ class ExpansionMarketSellDebugItem
 			EntityHealthLevel = sellItem.ItemRep.GetHealthLevel();
 			EntityQuantity = sellItem.ItemRep.GetQuantity();
 			Edible_Base edible;
-			if (Class.CastTo(edible, sellItem.ItemRep))
+			if (Class.CastTo(edible, sellItem.ItemRep) && edible.HasFoodStage())
 				EntityFoodStage = edible.GetFoodStageType();
 			else
 				EntityFoodStage = FoodStageType.NONE;

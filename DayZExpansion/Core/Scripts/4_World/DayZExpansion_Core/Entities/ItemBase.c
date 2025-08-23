@@ -946,7 +946,12 @@ modded class ItemBase
 	//! Workaround for vanilla not initializing vehicle inv on client if not close to player (cargo count is used by e.g. market to show unsellable items)
 	void Expansion_UpdateParentCargoCount(InventoryLocation loc, int delta)
 	{
-		auto vehicle = ExpansionVehicle.Get(loc.GetParent());
+		Expansion_UpdateParentCargoCountEx(loc.GetParent(), delta);
+	}
+
+	void Expansion_UpdateParentCargoCountEx(EntityAI parent, int delta)
+	{
+		auto vehicle = ExpansionVehicle.Get(parent);
 		if (vehicle)
 		{
 			delta *= GetInventory().CountInventory();
@@ -1266,12 +1271,17 @@ modded class ItemBase
 	{
 		super.EEDelete(parent);
 
-		if (!m_Expansion_QueuedActions || GetHierarchyParent())
-			return;
-
-		//! Deferred removal of all entity actions from queue
-		ExpansionItemBaseModule.s_Instance.QueueEntityActions(this, -int.MAX);
-		m_Expansion_QueuedActions = 0;
+		if (parent)
+		{
+			if (parent.IsTransport())
+				Expansion_UpdateParentCargoCountEx(parent, -1);
+		}
+		else if (m_Expansion_QueuedActions)
+		{
+			//! Deferred removal of all entity actions from queue
+			ExpansionItemBaseModule.s_Instance.QueueEntityActions(this, -int.MAX);
+			m_Expansion_QueuedActions = 0;
+		}
 	}
 
 	override void OnCEUpdate()

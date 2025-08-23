@@ -167,13 +167,12 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 	
 	bool HasItemOnInventorySlot(EntityAI item)
 	{
-		array<string> slots = {"Back", "Vest", "Legs", "Body", "Hands", "Shoulder", "Melee", "Bow", "Hips", "Feet", "Armband", "Headgear", "Mask", "Eyewear", "LeftHand", "Gloves"};
-		foreach (string slot: slots)
+		HumanInventory inventory = GetGame().GetPlayer().GetHumanInventory();
+		for (int i = 0; i < inventory.AttachmentCount(); ++i)
 		{
-			if (GetGame().GetPlayer().FindAttachmentBySlotName(slot) == item /*&& MiscGameplayFunctions.Expansion_HasAnyCargo(item)*/)
-			{
+			EntityAI attachment = inventory.GetAttachmentFromIndex(i);
+			if (attachment == item)
 				return true;
-			}
 		}
 		return false;
 	}

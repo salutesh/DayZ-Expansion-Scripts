@@ -2449,7 +2449,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		if (!m_MarketModule)
 			return;
 		
-		if (GetExpansionClientSettings().MarketMenuSkipConfirmations)
+		ExpansionMarketPlayerItem playerItem = GetPlayerItem(m_SelectedMarketItem.ClassName);
+		if (!playerItem || !playerItem.Item)
+			return;
+
+		//! Only allow to skip confirmation for attachments that are not directly on hierarchy root (i.e. player or vehicle)
+		if (GetExpansionClientSettings().MarketMenuSkipConfirmations && !playerItem.IsRootAttachment())
 		{
 			OnConfirmSellButtonClick();
 		}

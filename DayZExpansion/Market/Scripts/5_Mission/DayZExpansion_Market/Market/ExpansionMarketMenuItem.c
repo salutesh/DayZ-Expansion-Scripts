@@ -104,7 +104,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 
 	bool IsLocalPreview()
 	{
-		if (m_Object.GetHierarchyRootPlayer() != GetGame().GetPlayer())
+		int low, high;
+		m_Object.GetNetworkID(low, high);
+		if (low == 0 && high == 0)
 			return true;
 
 		return false;
@@ -769,10 +771,18 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 
 	void OnFastSellButtonClick()
 	{
+		ExpansionMarketPlayerItem playerItem = m_MarketMenu.GetPlayerItem(GetMarketItem().ClassName);
+		if (!playerItem || !playerItem.Item)
+			return;
+
 		m_MarketMenu.SetItemInfo(this);
-		m_MarketMenu.OnConfirmSellButtonClick();
+		//! Show confirmation for attachments that are directly on hierarchy root (i.e. player or vehicle)
+		if (playerItem.IsRootAttachment())
+			m_MarketMenu.OnSellButtonClick();
+		else
+			m_MarketMenu.OnConfirmSellButtonClick();
 	}
-	
+
 	bool CanSell()
 	{
 		return m_CanSell;

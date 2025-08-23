@@ -21,6 +21,7 @@ class ExpansionMarketPlayerItem
 	bool IsWeapon = false;
 	bool IsMagazine = false;
 	bool IsAttached = false;
+	bool m_IsRootAttachment = false;
 
 	void ExpansionMarketPlayerItem(EntityAI item)
 	{
@@ -34,8 +35,11 @@ class ExpansionMarketPlayerItem
 
 		if (item.GetInventory().IsAttachment())
 		{
-			if (!item.GetHierarchyParent().IsInherited(SurvivorBase))
+			if (!item.GetHierarchyRootPlayer())
 				IsAttached = true;
+
+			if (item.GetHierarchyParent() == item.GetHierarchyRoot())
+				m_IsRootAttachment = true;
 		}
 
 		if (item.IsInherited(MagazineStorage))
@@ -122,6 +126,11 @@ class ExpansionMarketPlayerItem
 	bool IsAttached()
 	{
 		return IsAttached;
+	}
+	
+	bool IsRootAttachment()
+	{
+		return m_IsRootAttachment;
 	}
 
 	EntityAI GetItem()
