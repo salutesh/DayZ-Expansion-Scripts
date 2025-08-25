@@ -88,10 +88,7 @@ class ExpansionMarketPlayerInventory
 		foreach (EntityAI vehicle: driven)
 		{
 			if (m_Vehicles.Find(vehicle) == -1)
-			{
 				cargoItemsWithAttachments.Insert(vehicle);
-				AddAttachmentsAndCargo(vehicle, cargoItemsWithAttachments, cargoItems, true);
-			}
 		}
 
 		//! 4b) add cargo items in cargo of other items w/o attachments
@@ -272,11 +269,10 @@ class ExpansionMarketPlayerInventory
 		ExpansionCarKey key;
 		if (Class.CastTo(key, item) && key.IsMaster())
 		{
-			Object keyObject = key.GetKeyObject();
-
-			if (keyObject && IsVehicleNearby(keyObject))
+			EntityAI vehicle;
+			if (Class.CastTo(vehicle, key.GetKeyObject()) && key.GetHierarchyRoot() != vehicle && IsVehicleNearby(vehicle))
 			{
-				item = EntityAI.Cast(keyObject);
+				item = vehicle;
 				m_Vehicles.Insert(item);
 				m_VehicleInventoryCount += item.GetInventory().CountInventory() - 1;
 			}

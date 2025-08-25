@@ -15,6 +15,8 @@ modded class PlayerBase
 	protected ref ExpansionMarketReserve m_MarketReserve;
 	protected ref ExpansionMarketSell m_MarketSell;
 
+	ExpansionMarketItem m_Expansion_Item_NotEnoughRep;
+
 	// ------------------------------------------------------------
 	// PlayerBase Constructor
 	// ------------------------------------------------------------
@@ -93,6 +95,8 @@ modded class PlayerBase
 	{
 		m_MarketReserve.Valid = false;
 		m_MarketReserve.Reserved.Clear();
+
+		m_Expansion_Item_NotEnoughRep = null;
 	}
 	
 	// ------------------------------------------------------------
@@ -102,5 +106,7 @@ modded class PlayerBase
 	{
 		m_MarketSell.Valid = false;
 		m_MarketSell.Sell.Clear();
+
+		m_Expansion_Item_NotEnoughRep = null;
 	}
 }

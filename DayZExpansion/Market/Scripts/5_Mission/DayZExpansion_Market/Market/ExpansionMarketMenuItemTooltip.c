@@ -102,7 +102,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 					
 				}
 				
-				if (HasItemOnInventorySlot(m_PlayerItem.Item))
+				if (m_PlayerItem.IsEquipped())
 				{
 					itemInfoEntry = new ExpansionMarketMenuItemTooltipEntryItemInfo(this);
 					itemInfoEntry.SetText("#STR_EXPANSION_MARKET_ITEM_TOOLTIP_ONSLOT");

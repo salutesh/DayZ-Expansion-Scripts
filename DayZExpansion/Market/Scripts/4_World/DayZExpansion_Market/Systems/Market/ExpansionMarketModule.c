@@ -35,6 +35,8 @@ enum ExpansionMarketResult
 	FailedItemDoesNotExistInTrader,
 	FailedItemSpawn,
 	FailedSellListMismatch,
+	FailedNotEnoughRepBuy,
+	FailedNotEnoughRepSell,
 
 	IntegerOverflow
 }
@@ -224,6 +226,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 	
 	ref array<ref ExpansionMarketATM_Data> m_ATMData;
 
+#ifdef EXPANSIONMODHARDLINE
+	ref ExpansionHardlineSettings m_HardlineSettings;
+#endif
+
 	ref map<string, ExpansionMarketItem> m_AmmoItems;
 
 	static ref map<string, string> s_AmmoBullets = new map<string, string>;
@@ -334,6 +340,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 				ExpansionStatic.MakeDirectoryRecursive(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER);
 			}
 		}
+
+	#ifdef EXPANSIONMODHARDLINE
+		m_HardlineSettings = GetExpansionSettings().GetHardline(false);
+	#endif
 	}
 
 	// ------------------------------------------------------------
@@ -560,6 +570,11 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return false;
 		}
 		
+	#ifdef EXPANSIONMODHARDLINE
+		//! It's intended that we don't check return value since we only want to update result if needed, but continue otherwise
+		HasRepForItemRarity_Sell(player, sell.Item, result);
+	#endif
+
 		map<string, float> addedStock = new map<string, float>;
 
 		float curAddedStock;
@@ -610,7 +625,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 				if (playerInventoryAmount < 0)
 				{
 					//! Can't sell this
-					result = ExpansionMarketResult.FailedCannotSell;
+					if (result == ExpansionMarketResult.Success)
+						result = ExpansionMarketResult.FailedCannotSell;
 					playerInventoryAmount = Math.AbsInt(playerInventoryAmount);
 					canSell = false;
 				}
@@ -649,17 +665,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 					MarketModulePrint("FindSellPrice - amount left in inventory: " + amountLeft);
 					MarketModulePrint("FindSellPrice - amount still wanted: " + amountWanted);
 
-					sellItem = sell.AddSellItem(amountTaken, amountTaken, incrementStockModifier, itemEntity, sell.Item.ClassName);
+					sellItem = sell.AddSellItemEx(amountTaken, amountTaken, incrementStockModifier, itemEntity, sell.Item);
 					sell.TotalAmount += amountTaken;
 				}
 
 				//! Process all attachments (and attachments of attachments)
 				int currentPrice = sell.Price;
-				if (includeAttachments && !FindAttachmentsSellPrice(itemEntity, sell, addedStock, canSell, failedClassName))
-				{
-					result = ExpansionMarketResult.FailedItemDoesNotExistInTrader;
+				if (includeAttachments && !FindAttachmentsSellPriceEx(itemEntity, sell, addedStock, canSell, result, failedClassName))
 					return false;
-				}
 
 				int price = 0;
 				int singleItemPrice;
@@ -724,7 +737,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 				if (amountWanted == 0)
 				{
 					MarketModulePrint("FindSellPrice - End and return true");
-					result = ExpansionMarketResult.Success;
+					if (result != ExpansionMarketResult.FailedNotEnoughRepSell)
+						result = ExpansionMarketResult.Success;
 					return true;
 				}
 			}
@@ -760,6 +774,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 	}
 
 	bool FindAttachmentsSellPrice(EntityAI itemEntity, ExpansionMarketSell sell, inout map<string, float> addedStock = NULL, bool canSell = true, out string failedClassName = "")
+	{
+		EXError.ErrorOnce(this, "DEPRECATED, use FindAttachmentsSellPriceEx");
+
+		ExpansionMarketResult result;
+		return FindAttachmentsSellPriceEx(itemEntity, sell, addedStock, canSell, result, failedClassName);
+	}
+
+	bool FindAttachmentsSellPriceEx(EntityAI itemEntity, ExpansionMarketSell sell, inout map<string, float> addedStock = NULL, bool canSell = true, inout ExpansionMarketResult result = ExpansionMarketResult.Success, out string failedClassName = "")
 	{
 		ExpansionMarketTraderZone zone;
 
@@ -809,8 +831,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 					ammoItem = ExpansionMarketCategory.GetGlobalItem(ammoClassName, false);
 					if (!ammoItem)
 					{
-						EXPrint("FindAttachmentsSellPrice - market item " + ammoClassName + " (" + bulletClassName + ") does not exist");
+						EXPrint("FindAttachmentsSellPriceEx - market item " + ammoClassName + " (" + bulletClassName + ") does not exist");
 						failedClassName = ammoClassName;
+						result = ExpansionMarketResult.FailedItemDoesNotExistInTrader;
 						return false;
 					}
 					m_AmmoItems.Insert(bulletClassName, ammoItem);
@@ -830,7 +853,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 					if (increaseStockBy)
 						sellPriceModifier /= increaseStockBy;
 
-					if (!FindAttachmentsSellPriceInternal(ammoItem, NULL, sell, addedStock, zone, canSell, increaseStockBy, sellPriceModifier, failedClassName))
+					if (!FindAttachmentsSellPriceInternalEx(ammoItem, NULL, sell, addedStock, zone, canSell, increaseStockBy, sellPriceModifier, result, failedClassName))
 						return false;
 				}
 			}
@@ -860,7 +883,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			if (!attachment)
 				continue;
 
-			if (!FindAttachmentsSellPriceInternal(attachment, attachmentEntity, sell, addedStock, zone, canSell, 1, 0.75, failedClassName))
+			if (!FindAttachmentsSellPriceInternalEx(attachment, attachmentEntity, sell, addedStock, zone, canSell, 1, 0.75, result, failedClassName))
 				return false;
 		}
 
@@ -868,6 +891,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 	}
 
 	protected bool FindAttachmentsSellPriceInternal(ExpansionMarketItem attachment, EntityAI attachmentEntity, ExpansionMarketSell sell, inout map<string, float> addedStock, ExpansionMarketTraderZone zone, bool canSell = true, int amount = 1, float modifier = 0.75, out string failedClassName = "")
+	{
+		EXError.ErrorOnce(this, "DEPRECATED, use FindAttachmentsSellPriceInternalEx");
+
+		ExpansionMarketResult result;
+		return FindAttachmentsSellPriceInternalEx(attachment, attachmentEntity, sell, addedStock, zone, canSell, amount, modifier, result, failedClassName);
+	}
+
+	protected bool FindAttachmentsSellPriceInternalEx(ExpansionMarketItem attachment, EntityAI attachmentEntity, ExpansionMarketSell sell, inout map<string, float> addedStock, ExpansionMarketTraderZone zone, bool canSell = true, int amount = 1, float modifier = 0.75, inout ExpansionMarketResult result = ExpansionMarketResult.Success, out string failedClassName = "")
 	{
 		if (!sell.Trader.GetTraderMarket().Items[attachment.ClassName])
 		{
@@ -880,6 +911,11 @@ class ExpansionMarketModule: CF_ModuleWorld
 			//! This attachment cannot be sold to the trader, but we still allow to get rid of it (it will be deleted, and players won't receive money for it)
 			return true;
 		}
+
+	#ifdef EXPANSIONMODHARDLINE
+		//! It's intended that we don't check return value since we only want to update result if needed, but continue otherwise
+		HasRepForItemRarity_Sell(sell.m_Player, attachment, result);
+	#endif
 
 		int stock = 1;
 
@@ -917,7 +953,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		ExpansionMarketSellItem sellItem;
 
 		if (canSell)
-			sellItem = sell.AddSellItem(0, amount, incrementStockModifier, attachmentEntity, attachment.ClassName);
+			sellItem = sell.AddSellItemEx(0, amount, incrementStockModifier, attachmentEntity, attachment);
 
 		int price = 0;
 		int singleAttachmentPrice;
@@ -928,13 +964,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 				curAddedStock += incrementStockModifier;
 
 			if (ExpansionGame.IsMultiplayerServer())
-				MarketModulePrint(ToString() + "::FindAttachmentsSellPriceInternal - " + attachment.ClassName + " stock " + stock + " increment stock " + curAddedStock);
+				MarketModulePrint(ToString() + "::FindAttachmentsSellPriceInternalEx - " + attachment.ClassName + " stock " + stock + " increment stock " + curAddedStock);
 
 			singleAttachmentPrice = attachment.CalculatePrice(stock + curAddedStock, modifier);
 
-			//! TODO: Need to carry IntegerOverflow result back through call chain so it can be passed along
 			if (ExpansionMath.TestAdditionOverflow(price, singleAttachmentPrice))
+			{
+				result = ExpansionMarketResult.IntegerOverflow;
 				return false;
+			}
 
 			price += singleAttachmentPrice;
 
@@ -944,9 +982,11 @@ class ExpansionMarketModule: CF_ModuleWorld
 			previousSingleAttachmentPrice = singleAttachmentPrice;
 		}
 
-		//! TODO: Need to carry IntegerOverflow result back through call chain so it can be passed along
 		if (ExpansionMath.TestAdditionOverflow(sell.Price, price))
+		{
+			result = ExpansionMarketResult.IntegerOverflow;
 			return false;
+		}
 
 		if (canSell)
 			sellItem.Price = price;
@@ -962,7 +1002,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 
 		if (attachmentEntity)
-			return FindAttachmentsSellPrice(attachmentEntity, sell, addedStock, canSell, failedClassName);
+			return FindAttachmentsSellPriceEx(attachmentEntity, sell, addedStock, canSell, result, failedClassName);
 
 		return true;
 	}
@@ -1211,6 +1251,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 	//! Returns true if item and attachments (if any) are in stock, false otherwise
 	bool FindPriceOfPurchaseEx(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, PlayerBase player, int amountWanted, inout int price, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success, out ExpansionMarketReserve reserved = NULL, inout map<string, int> removedStock = NULL, out TStringArray outOfStockList = NULL, int level = 0)
 	{
+		return FindPriceOfPurchaseInternal(item, zone, trader, player, amountWanted, price, includeAttachments, result, reserved, removedStock, outOfStockList, level);
+	}
+
+	//! @note had to add this because FindPriceOfPurchaseEx uses `out` instead of `inout` for result, so calling it
+	//! recursively if result is not being changed in function body (which can happen) would overwrite result w/ default param.
+	//! Couldn't change FindPriceOfPurchaseEx signature because of 3rd party mods
+	protected bool FindPriceOfPurchaseInternal(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, PlayerBase player, int amountWanted, inout int price, bool includeAttachments = true, inout ExpansionMarketResult result = ExpansionMarketResult.Success, out ExpansionMarketReserve reserved = NULL, inout map<string, int> removedStock = NULL, out TStringArray outOfStockList = NULL, int level = 0)
+	{
 		int stock;
 
 		if (item.IsStaticStock())
@@ -1218,7 +1266,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		else
 			stock = zone.GetStock(item.ClassName);
 
-		MarketModulePrint("FindPriceOfPurchaseEx - " + item.ClassName + " - stock " + stock + " wanted " + amountWanted);
+		MarketModulePrint("FindPriceOfPurchaseInternal - " + item.ClassName + " - stock " + stock + " wanted " + amountWanted);
 
 		if (!removedStock)
 			removedStock = new map<string, int>;
@@ -1240,10 +1288,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 			result = ExpansionMarketResult.FailedCannotBuy;
 			return false;
 		}
+		
+	#ifdef EXPANSIONMODHARDLINE
+		//! It's intended that we don't check return value since we only want to update result if needed, but continue otherwise
+		HasRepForItemRarity_Purchase(player, item, result);
+	#endif
 
-		MarketModulePrint("FindPriceOfPurchaseEx - Class name: " + item.ClassName);
-		MarketModulePrint("FindPriceOfPurchaseEx - Stock: " + (stock - curRemovedStock));
-		MarketModulePrint("FindPriceOfPurchaseEx - Amount wanted: " + amountWanted);
+		MarketModulePrint("FindPriceOfPurchaseInternal - Class name: " + item.ClassName);
+		MarketModulePrint("FindPriceOfPurchaseInternal - Stock: " + (stock - curRemovedStock));
+		MarketModulePrint("FindPriceOfPurchaseInternal - Amount wanted: " + amountWanted);
 
 		float priceModifier = GetBuyPricePercent(item, zone, trader, player) / 100;
 
@@ -1291,7 +1344,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 								continue;
 						}
 
-						if (!FindPriceOfPurchaseEx(attachment, zone, trader, player, quantity, price, !isMagAmmo, result, reserved, removedStock, outOfStockList, level + 1))
+						if (!FindPriceOfPurchaseInternal(attachment, zone, trader, player, quantity, price, !isMagAmmo, result, reserved, removedStock, outOfStockList, level + 1))
 						{
 							switch (result)
 							{
@@ -1308,7 +1361,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			}
 		}
 				
-		MarketModulePrint("FindPriceOfPurchaseEx - " + item.ClassName + " - stock " + (stock - curRemovedStock) + " item price " + itemPrice);
+		MarketModulePrint("FindPriceOfPurchaseInternal - " + item.ClassName + " - stock " + (stock - curRemovedStock) + " item price " + itemPrice);
 
 		itemPrice = Math.Round(itemPrice * priceModifier);
 
@@ -1322,14 +1375,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		if (result == ExpansionMarketResult.Success && reserved)
 		{
-			reserved.AddReserved(zone, item.ClassName, amountWanted, (int) itemPrice);
+			reserved.AddReservedEx(zone, item, amountWanted, (int) itemPrice);
 			removedStock.Set(item.ClassName, 0);
 		}
 
 		if (result == ExpansionMarketResult.Success)
-			MarketModulePrint("FindPriceOfPurchaseEx - End and return true! price: " + price);
+			MarketModulePrint("FindPriceOfPurchaseInternal - End and return true! price: " + price);
 		else
-			MarketModulePrint("FindPriceOfPurchaseEx - End and return false! Zone stock is lower then requested amount or item is set to not be buyable!");
+			MarketModulePrint("FindPriceOfPurchaseInternal - End and return false! Zone stock is lower then requested amount or item is set to not be buyable!");
 		
 		return result == ExpansionMarketResult.Success;
 	}
@@ -2594,21 +2647,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 		}
 
-	#ifdef EXPANSIONMODHARDLINE
-		if (GetExpansionSettings().GetHardline().UseReputation && GetExpansionSettings().GetHardline().UseItemRarityForMarketPurchase)
-		{
-			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(itemClassName);
-			int required;
-			if (rarity && !HasRepForRarityEx(player, rarity, required))
-			{
-				StringLocaliser rankTitle = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_REPLOW");
-				StringLocaliser rankText = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_REPLOW_BUY_DESC", required.ToString());
-				ExpansionNotification(rankTitle, rankText, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 3, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
-				return;
-			}
-		}
-	#endif
-
 		//! Afterwards calculate the price of the items at that stock		
 		ExpansionMarketReserve reservedList = player.GetMarketReserve();		
 		reservedList.Trader = trader;
@@ -2627,7 +2665,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		ExpansionMarketResult result;
 
 		//! Compare that price to the one the player sent
-		if (!FindPurchasePriceAndReserveEx(item, player, count, reservedList, includeAttachments, result) || reservedList.Price != currentPrice)
+		if (!FindPurchasePriceAndReserveEx(item, player, count, reservedList, includeAttachments, result) || reservedList.Price != currentPrice || result == ExpansionMarketResult.FailedNotEnoughRepBuy)
 		{
 			EXPrint("Exec_RequestPurchase - Player sent price: " + currentPrice);
 			EXPrint("Exec_RequestPurchase - Current stock: " + zone.GetStock(itemClassName, true));
@@ -2667,6 +2705,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		if (result != ExpansionMarketResult.Success)
 		{
+			if (result == ExpansionMarketResult.FailedNotEnoughRepBuy)
+				itemClassName = player.m_Expansion_Item_NotEnoughRep.ClassName;
+
 			reservedList.ClearReserved(zone);
 			player.ClearMarketReserve();
 
@@ -3100,21 +3141,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			Callback(itemClassName, ExpansionMarketResult.FailedCannotSell, player.GetIdentity());
 			return;
 		}
-
-	#ifdef EXPANSIONMODHARDLINE
-		if (GetExpansionSettings().GetHardline().UseReputation && GetExpansionSettings().GetHardline().UseItemRarityForMarketSell)
-		{
-			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(itemClassName);
-			int required;
-			if (rarity && !HasRepForRarityEx(player, rarity, required))
-			{
-				StringLocaliser rankTitle = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_REPLOW");
-				StringLocaliser rankText = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_REPLOW_SELL_DESC", required.ToString());
-				ExpansionNotification(rankTitle, rankText, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 3, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
-				return;
-			}
-		}
-	#endif
 		
 		ExpansionMarketPlayerInventory inventory = new ExpansionMarketPlayerInventory(player);
 
@@ -3127,7 +3153,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		ExpansionMarketSellDebug sellDebug;
 
 		//! Compare that price to the one the player sent
-		if (!FindSellPrice(player, inventory.m_Inventory, stock, count, sellList, true, result, failedClassName) || sellList.Price != playerSentPrice)
+		if (!FindSellPrice(player, inventory.m_Inventory, stock, count, sellList, true, result, failedClassName) || sellList.Price != playerSentPrice || result == ExpansionMarketResult.FailedNotEnoughRepSell)
 		{
 			if (result == ExpansionMarketResult.Success)
 			{
@@ -3205,18 +3231,25 @@ class ExpansionMarketModule: CF_ModuleWorld
 			EXLogPrint(ExpansionString.JustifyLeft("=", 80, "="));
 			EXLogPrint("| MARKET SELL REQUEST FAILED!");
 
-			if (result == ExpansionMarketResult.FailedStockChange)
+			switch (result)
 			{
-				EXLogPrint("| Price mismatch between client and server.");
-			}
-			else if (result == ExpansionMarketResult.FailedSellListMismatch)
-			{
-				EXLogPrint("| Item list mismatch between client and server.");
-			}
-			else if (result == ExpansionMarketResult.FailedItemDoesNotExistInTrader)
-			{
-				EXLogPrint("| Item '" + failedClassName + "' does not exist in trader.");
-				itemClassName = failedClassName;
+				case ExpansionMarketResult.FailedStockChange:
+					EXLogPrint("| Price mismatch between client and server.");
+					break;
+
+				case ExpansionMarketResult.FailedSellListMismatch:
+					EXLogPrint("| Item list mismatch between client and server.");
+					break;
+
+				case ExpansionMarketResult.FailedItemDoesNotExistInTrader:
+					EXLogPrint("| Item '" + failedClassName + "' does not exist in trader.");
+					itemClassName = failedClassName;
+					break;
+
+				case ExpansionMarketResult.FailedNotEnoughRepSell:
+					itemClassName = player.m_Expansion_Item_NotEnoughRep.ClassName;
+					EXLogPrint("| Not enough rep for item '" + itemClassName + "'");
+					break;
 			}
 			
 			EXLogPrint("| Result code: " + typename.EnumToString(ExpansionMarketResult, result));
@@ -3821,18 +3854,17 @@ class ExpansionMarketModule: CF_ModuleWorld
 				item = GetExpansionSettings().GetMarket().UpdateMarketItem_Client(networkItems[i]);
 				m_ClientMarketZone.SetStock(networkItems[i].ClassName, networkItems[i].Stock);
 				int param1 = networkItems[i].Packed >> 24;
+			#ifdef EXPANSIONMODHARDLINE
 				//! @note EnfScript bug: Bit-shifting produces negative value. Workaround: Apply mask first (bitwise AND)
 				//! https://feedback.bistudio.com/T177670
 				int rarity = (param1 & 0xf0) >> 4;
-			#ifdef EXPANSIONMODHARDLINE
 				if (rarity)
 				{
-					GetExpansionSettings().GetHardline().ItemRarity[networkItems[i].ClassName] = rarity;
-				
-					foreach (string variant: networkItems[i].Variants)
-					{
-						GetExpansionSettings().GetHardline().ItemRarity[variant] = rarity;
-					}
+					m_HardlineSettings.ItemRarity[networkItems[i].ClassName] = rarity;
+
+					item.m_Rarity = rarity;
+					if (rarity != ExpansionHardlineItemRarity.NONE)
+						item.m_RequiredRep = m_HardlineSettings.GetReputationForRarity(rarity);
 				}
 			#endif
 				int buySell = param1 & 0x0f;
@@ -4094,7 +4126,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	#endif
 
 	#ifdef EXPANSIONMODHARDLINE
-		if (GetGame().IsServer() && GetExpansionSettings().GetHardline().UseReputation)
+		if (GetGame().IsServer() && m_HardlineSettings.UseReputation)
 		{
 			int minRep = trader.GetTraderMarket().MinRequiredReputation;
 			int maxRep = trader.GetTraderMarket().MaxRequiredReputation;
@@ -4115,16 +4147,85 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		return true;
 	}
+
+	//! Currently unused, not sure if needed in future
+	bool HasRepForRarity_Purchase(PlayerBase player, inout ExpansionMarketResult result, out ExpansionMarketItem failedItem)
+	{
+	#ifdef EXPANSIONMODHARDLINE
+		ExpansionMarketReserve reserve = player.GetMarketReserve();
+
+		foreach (ExpansionMarketReserveItem item: reserve.Reserved)
+		{
+			if (!HasRepForItemRarity_Purchase(player, item.m_Item, result))
+			{
+				failedItem = item.m_Item;
+				return false;
+			}
+		}
+	#endif
+
+		return true;
+	}
+
+	//! Currently unused, not sure if needed in future
+	bool HasRepForRarity_Sell(PlayerBase player, inout ExpansionMarketResult result, out ExpansionMarketItem failedItem)
+	{
+	#ifdef EXPANSIONMODHARDLINE
+		ExpansionMarketSell sell = player.GetMarketSell();
+
+		foreach (ExpansionMarketSellItem item: sell.Sell)
+		{
+			if (!HasRepForItemRarity_Sell(player, item.m_Item, result))
+			{
+				failedItem = item.m_Item;
+				return false;
+			}
+		}
+	#endif
+
+		return true;
+	}
 	
 #ifdef EXPANSIONMODHARDLINE
+	bool HasRepForItemRarity_Purchase(PlayerBase player, ExpansionMarketItem item, inout ExpansionMarketResult result)
+	{
+		if (m_HardlineSettings.UseItemRarityForMarketPurchase && m_HardlineSettings.UseReputation && !HasRepForItemRarity(player, item))
+		{
+			player.m_Expansion_Item_NotEnoughRep = item;
+			result = ExpansionMarketResult.FailedNotEnoughRepBuy;
+			return false;
+		}
+
+		return true;
+	}
+
+	bool HasRepForItemRarity_Sell(PlayerBase player, ExpansionMarketItem item, inout ExpansionMarketResult result)
+	{
+		if (m_HardlineSettings.UseItemRarityForMarketSell && m_HardlineSettings.UseReputation && !HasRepForItemRarity(player, item))
+		{
+			player.m_Expansion_Item_NotEnoughRep = item;
+			result = ExpansionMarketResult.FailedNotEnoughRepSell;
+			return false;
+		}
+
+		return true;
+	}
+
+	bool HasRepForItemRarity(PlayerBase player, ExpansionMarketItem item)
+	{
+		if (item.m_Rarity == ExpansionHardlineItemRarity.NONE)
+			return true;
+
+		return Math.AbsInt(player.Expansion_GetReputation()) >= Math.AbsInt(item.m_RequiredRep);
+	}
+
+	//! TODO: Deprecate this and use the methods above instead (HasRepForItemRarity)
 	bool HasRepForRarityEx(PlayerBase player, ExpansionHardlineItemRarity rarity, out int required = 0)
 	{
 		if (rarity == ExpansionHardlineItemRarity.NONE)
-		{
 			return true;
-		}
 
-		required = GetExpansionSettings().GetHardline().GetReputationForRarity(rarity);
+		required = m_HardlineSettings.GetReputationForRarity(rarity);
 		return Math.AbsInt(player.Expansion_GetReputation()) >= Math.AbsInt(required);
 	}
 #endif

@@ -80,6 +80,9 @@ class ExpansionMarketItem
 #ifdef EXPANSIONMODHARDLINE
 	[NonSerialized()]
 	int m_Rarity;
+
+	[NonSerialized()]
+	int m_RequiredRep;
 #endif
 
 	// ------------------------------------------------------------
@@ -163,12 +166,23 @@ class ExpansionMarketItem
 			EXTrace.Print(true, this, ClassName + " SellPricePercent " + SellPricePercent);
 
 		SetAttachments(SpawnAttachments);
+	}
 
 #ifdef EXPANSIONMODHARDLINE
-		if (GetGame().IsServer())
-			m_Rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(ClassName);
-#endif
+	void SetRarityAndRepReq()
+	{
+		if (m_StockOnly)
+		{
+			EXError.Warn(this, string.Format("%1: rarity and reputation requirements for stockonly netsync variants are set in ExpansionMarketCategory::AddVariants", ClassName));
+			return;
+		}
+
+		ExpansionHardlineSettings settings = GetExpansionSettings().GetHardline();
+		m_Rarity = settings.GetItemRarityByType(ClassName);
+		if (m_Rarity != ExpansionHardlineItemRarity.NONE)
+			m_RequiredRep = settings.GetReputationForRarity(m_Rarity);
 	}
+#endif
 
 	void SetAttachments(TStringArray attachments)
 	{

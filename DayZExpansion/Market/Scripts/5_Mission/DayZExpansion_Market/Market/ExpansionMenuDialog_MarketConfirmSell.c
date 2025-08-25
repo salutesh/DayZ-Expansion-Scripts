@@ -117,7 +117,7 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionDialogBase
 		{			
 			ExpansionDialogContent_WrapSpacer_Entry entry;
 			string name;
-			if (playerItem.IsRootAttachment() && playerItem.GetItem().GetHierarchyRootPlayer())
+			if (playerItem.IsEquipped())
 			{
 				name = ExpansionStatic.FormatString("{1:name}", playerItem.GetItem().GetHierarchyParent());
 				InventoryLocation il = new InventoryLocation();

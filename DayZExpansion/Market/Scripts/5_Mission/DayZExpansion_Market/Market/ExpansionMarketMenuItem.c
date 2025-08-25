@@ -400,8 +400,10 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			market_item_overlay.Show(true);
 			if (isOutOfStock && canOnlyBuy)
 				m_ItemController.OverlayText = "#STR_EXPANSION_MARKET_ITEM_NOTINSTOCK";
+		#ifdef EXPANSIONMODHARDLINE
 			else
-				m_ItemController.OverlayText = "#STR_EXPANSION_MARKET_ITEM_REP";
+				m_ItemController.OverlayText = string.Format("#STR_EXPANSION_MARKET_ITEM_REP (%1)", GetMarketItem().m_RequiredRep);
+		#endif
 			m_ItemController.NotifyPropertyChanged("OverlayText");
 		}
 				
@@ -776,8 +778,8 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			return;
 
 		m_MarketMenu.SetItemInfo(this);
-		//! Show confirmation for attachments that are directly on hierarchy root (i.e. player or vehicle)
-		if (playerItem.IsRootAttachment())
+		//! Show confirmation if attached/equipped
+		if (playerItem.IsAttachedOrEquipped())
 			m_MarketMenu.OnSellButtonClick();
 		else
 			m_MarketMenu.OnConfirmSellButtonClick();

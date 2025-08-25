@@ -61,28 +61,35 @@ class ExpansionMarketSell
 	
 	ExpansionMarketSellItem AddSellItem(int takenAmount, float addStockAmount, EntityAI item, string className = "")
 	{
-		EXError.ErrorOnce(this, "DEPRECATED, use AddSellItem(takenAmount, soldAmount, ...)");
+		EXError.ErrorOnce(this, "DEPRECATED, use AddSellItemEx");
 		int soldAmount = addStockAmount;
-		return AddSellItem(takenAmount, soldAmount, 1.0, item, className);
+		ExpansionMarketItem marketItem;
+		if (className)
+			marketItem = ExpansionMarketCategory.GetGlobalItem(className);
+		return AddSellItemEx(takenAmount, soldAmount, 1.0, item, marketItem);
 	}
 
 	ExpansionMarketSellItem AddSellItem(int takenAmount, int soldAmount, float incrementStockModifier, EntityAI item, string className = "")
 	{
+		EXError.ErrorOnce(this, "DEPRECATED, use AddSellItemEx");
+		ExpansionMarketItem marketItem;
+		if (className)
+			marketItem = ExpansionMarketCategory.GetGlobalItem(className);
+		return AddSellItemEx(takenAmount, soldAmount, 1.0, item, marketItem);
+	}
+
+	ExpansionMarketSellItem AddSellItemEx(int takenAmount, int soldAmount, float incrementStockModifier, EntityAI item, ExpansionMarketItem marketItem)
+	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "AddItem");
 #endif
-
-		if (!className && item)
-		{
-			className = item.GetType();
-			className.ToLower();
-		}
 		
 		ExpansionMarketSellItem itemSell = new ExpansionMarketSellItem;
+		itemSell.m_Item = marketItem;
 		itemSell.TakenAmount = takenAmount;
 		itemSell.SoldAmount = soldAmount;
 		itemSell.ItemRep = item;  //! Can be NULL! (ammo in mags/ammopiles are not entities)
-		itemSell.ClassName = className;
+		itemSell.ClassName = marketItem.ClassName;
 		if (item)
 			itemSell.IsEntity = true;
 		Sell.Insert(itemSell);
@@ -94,6 +101,7 @@ class ExpansionMarketSell
 
 class ExpansionMarketSellItem
 {
+	ExpansionMarketItem m_Item;
 	int TakenAmount;
 	int SoldAmount;
 	EntityAI ItemRep;
@@ -313,7 +321,7 @@ class ExpansionMarketSellDebugItem
 		if (!sellItem || !zone)
 			return;
 
-		ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(sellItem.ClassName);
+		ExpansionMarketItem item = sellItem.m_Item;
 		if (!item)
 			return;
 

@@ -537,8 +537,8 @@ PanelWidgetClass ExpansionMarketItem {
     RichTextWidgetClass market_item_overlay_text {
      ignorepointer 1
      color 1 0.7059 0.0941 1
-     position 0 0.35
-     size 0.8 0.05
+     position 0 0.14
+     size 0.8 0.5
      halign center_ref
      hexactpos 0
      vexactpos 0
@@ -550,7 +550,7 @@ PanelWidgetClass ExpansionMarketItem {
      font "gui/fonts/etelkatextpro22"
      "exact text" 1
      "size to text h" 1
-     "size to text v" 1
+     "size to text v" 0
      "text halign" center
      "text valign" center
      wrap 1

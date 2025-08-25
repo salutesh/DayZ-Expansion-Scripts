@@ -274,6 +274,9 @@ class ExpansionMarketCategory
 			{
 				item.AddDefaultAttachments();
 				AddVariants(item);
+			#ifdef EXPANSIONMODHARDLINE
+				item.SetRarityAndRepReq();
+			#endif
 			}
 		}
 
@@ -360,6 +363,10 @@ class ExpansionMarketCategory
 
 					//! Variants that do not already have an entry only need to synch stock, they will be automatically added on client
 					variant.m_StockOnly = true;
+				#ifdef EXPANSIONMODHARDLINE
+					variant.m_Rarity = item.m_Rarity;
+					variant.m_RequiredRep = item.m_RequiredRep;
+				#endif
 
 					CF_Log.Debug("Adding variant " + className + " (ID " + variant.ItemID + ", idx " + variantIdIdx + ") for item " + item.ClassName + " (ID " + item.ItemID + ")");
 

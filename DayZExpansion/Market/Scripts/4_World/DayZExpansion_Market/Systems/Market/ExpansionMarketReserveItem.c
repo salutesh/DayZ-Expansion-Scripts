@@ -48,14 +48,22 @@ class ExpansionMarketReserve
 
 	void AddReserved(ExpansionMarketTraderZone zone, string clsName, int amt, int pce)
 	{
+		EXError.ErrorOnce(this, "DEPRECATED, use AddReservedEx");
+		AddReservedEx(zone, ExpansionMarketCategory.GetGlobalItem(clsName), amt, pce);
+	}
+
+	void AddReservedEx(ExpansionMarketTraderZone zone, ExpansionMarketItem item, int amt, int pce)
+	{
 		Price += pce;
 		
 		if (zone)
 		{
-			zone.RemoveStock(clsName, amt, true);
+			zone.RemoveStock(item.ClassName, amt, true);
 		}
 
-		Reserved.Insert(new ExpansionMarketReserveItem(clsName, amt, pce ));
+		ExpansionMarketReserveItem reserveItem = new ExpansionMarketReserveItem(item.ClassName, amt, pce);
+		reserveItem.m_Item = item;
+		Reserved.Insert(reserveItem);
 	}
 
 	void ClearReserved( ExpansionMarketTraderZone zone )
@@ -77,6 +85,7 @@ class ExpansionMarketReserve
 
 class ExpansionMarketReserveItem
 {
+	ExpansionMarketItem m_Item;
 	string ClassName;
 	int Amount;
 	int Price;

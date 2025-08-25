@@ -2056,6 +2056,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		int color = COLOR_EXPANSION_NOTIFICATION_ERROR;
 		bool notify = true;
 		bool sale = result == ExpansionMarketResult.SellSuccess;
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 
 		if (result >= ExpansionMarketResult.FailedNoVehicleSpawnPositions && result <= ExpansionMarketResult.FailedVehicleSpawnOccupied)
 		{
@@ -2149,7 +2150,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_ATTACHMENT_OUT_OF_STOCK";
 
-				PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 				amount = option1;
 				includeAttachments = (bool) option2;
 				ExpansionMarketResult resultTmp;
@@ -2316,6 +2316,38 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				break;
 			}
 
+		#ifdef EXPANSIONMODHARDLINE
+			case ExpansionMarketResult.FailedNotEnoughRepBuy:
+			{
+				MarketPrint("MenuCallback - not enough rep to buy " + itemClassName);
+
+				title = "STR_EXPANSION_HARDLINE_MARKET_REPLOW";
+				text = "STR_EXPANSION_HARDLINE_MARKET_REPLOW_BUY_DESC";
+				ExpansionMarketItem itemBuy = ExpansionMarketCategory.GetGlobalItem(itemClassName);
+				string requiredRepBuyTxt = "<ITEM_NOT_FOUND>";
+				if (itemBuy)
+					requiredRepBuyTxt = itemBuy.m_RequiredRep.ToString();
+				loc = new StringLocaliser(text, requiredRepBuyTxt);
+				text = string.Format("%1: %2", GetDisplayName(itemClassName), loc.Format());
+				break;
+			}
+
+			case ExpansionMarketResult.FailedNotEnoughRepSell:
+			{
+				MarketPrint("MenuCallback - not enough rep to sell " + itemClassName);
+
+				title = "STR_EXPANSION_HARDLINE_MARKET_REPLOW";
+				text = "STR_EXPANSION_HARDLINE_MARKET_REPLOW_SELL_DESC";
+				ExpansionMarketItem itemSell = ExpansionMarketCategory.GetGlobalItem(itemClassName);
+				string requiredRepSellTxt = "<ITEM_NOT_FOUND>";
+				if (itemSell)
+					requiredRepSellTxt = itemSell.m_RequiredRep.ToString();
+				loc = new StringLocaliser(text, requiredRepSellTxt);
+				text = string.Format("%1: %2", GetDisplayName(itemClassName), loc.Format());
+				break;
+			}
+		#endif
+
 			default:
 			{
 				MarketPrint("MenuCallback - unknown error");
@@ -2453,8 +2485,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		if (!playerItem || !playerItem.Item)
 			return;
 
-		//! Only allow to skip confirmation for attachments that are not directly on hierarchy root (i.e. player or vehicle)
-		if (GetExpansionClientSettings().MarketMenuSkipConfirmations && !playerItem.IsRootAttachment())
+		//! Only allow to skip confirmation if not attached/equipped
+		if (GetExpansionClientSettings().MarketMenuSkipConfirmations && !playerItem.IsAttachedOrEquipped())
 		{
 			OnConfirmSellButtonClick();
 		}
