@@ -198,14 +198,14 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			m_QuatityTooltip.SetContentOffset(-0.273438, -0.104167);
 		}
 		
-		m_MarketMenuController.ShowSellables = GetExpansionClientSettings().MarketMenuFilterSellableState;
-		m_MarketMenuController.ShowPurchasables = GetExpansionClientSettings().MarketMenuFilterPurchasableState;
+		SetFilterSellables(GetExpansionClientSettings().MarketMenuFilterSellableState);
+		SetFilterPurchasables(GetExpansionClientSettings().MarketMenuFilterPurchasableState);
+
+		m_MarketMenuController.WasShowingSellables = m_MarketMenuController.ShowSellables;
+		m_MarketMenuController.WasShowingPurchasables = m_MarketMenuController.ShowPurchasables;
 
 		market_item_sellables_checkbox.SetChecked(m_MarketMenuController.ShowSellables);
 		market_item_purchasables_checkbox.SetChecked(m_MarketMenuController.ShowPurchasables);
-		
-		SetFilterSellables(GetExpansionClientSettings().MarketMenuFilterSellableState);
-		SetFilterPurchasables(GetExpansionClientSettings().MarketMenuFilterPurchasableState);
 		
 		if (!m_MarketMenuItemManager)
 		{

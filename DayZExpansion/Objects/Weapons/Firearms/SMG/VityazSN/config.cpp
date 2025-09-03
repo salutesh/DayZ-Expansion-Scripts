@@ -90,17 +90,26 @@ class cfgWeapons
 		{
 			soundSetShot[]=
 			{
-				"MP5K_Shot_SoundSet",
+				"MP5K_Shot_1st_SoundSet",
+				"MP5K_Shot_1st_iterior_SoundSet",
 				"MP5K_Tail_SoundSet",
-				"MP5K_InteriorTail_SoundSet"
+				"MP5K_InteriorTail_SoundSet",
+				"MP5K_Slapback_SoundSet",
+				"MP5K_Tail_2D_SoundSet"
 			};
 			soundSetShotExt[]=
 			{
 				
 				{
-					"MP5K_silencerPro_SoundSet",
+					"MP5K_1st_silencer_SoundSet",
 					"MP5K_silencerTail_SoundSet",
 					"MP5K_silencerInteriorTail_SoundSet"
+				},
+				
+				{
+					"MP5K_1st_silencerHomeMade_SoundSet",
+					"MP5K_silencerHomeMadeTail_SoundSet",
+					"MP5K_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
 			reloadTime=0.079999998;
@@ -111,19 +120,44 @@ class cfgWeapons
 		};
 		class FullAuto: Mode_FullAuto
 		{
+			soundSetShot1st[]=
+			{
+				"MP5K_Shot_1st_SoundSet",
+				"MP5K_Shot_1st_iterior_SoundSet"
+			};
 			soundSetShot[]=
 			{
 				"MP5K_Shot_SoundSet",
+				"MP5K_Shot_iterior_SoundSet",
 				"MP5K_Tail_SoundSet",
-				"MP5K_InteriorTail_SoundSet"
+				"MP5K_InteriorTail_SoundSet",
+				"MP5K_Slapback_SoundSet",
+				"MP5K_Tail_2D_SoundSet"
+			};
+			soundSetShotExt1st[]=
+			{
+				
+				{
+					"MP5K_1st_silencer_SoundSet"
+				},
+				
+				{
+					"MP5K_1st_silencerHomeMade_SoundSet"
+				}
 			};
 			soundSetShotExt[]=
 			{
 				
 				{
-					"MP5K_silencerPro_SoundSet",
+					"MP5K_silencer_SoundSet",
 					"MP5K_silencerTail_SoundSet",
 					"MP5K_silencerInteriorTail_SoundSet"
+				},
+				
+				{
+					"MP5K_silencerHomeMade_SoundSet",
+					"MP5K_silencerHomeMadeTail_SoundSet",
+					"MP5K_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
 			reloadTime=0.079999998;

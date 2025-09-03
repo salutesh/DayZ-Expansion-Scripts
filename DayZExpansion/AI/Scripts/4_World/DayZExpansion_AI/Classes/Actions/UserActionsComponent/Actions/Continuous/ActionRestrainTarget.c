@@ -66,7 +66,7 @@ modded class ActionRestrainTarget
 			{
 				Print("Restraining player with item in hands, first drop & then restrain");
 
-				ai.eAI_DropItemInHandsImpl(false, false);
+				ai.eAI_DropItemInHandsImpl(false, false, false);
 			}
 			else
 			{

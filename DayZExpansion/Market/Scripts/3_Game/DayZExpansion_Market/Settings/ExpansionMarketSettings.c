@@ -172,6 +172,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			NetworkCategories.Insert(new ExpansionMarketNetworkCategory(category));
 		}
 
+		ExpansionMarketCategory.AddDefaultAttachments();
+
 		//TraderPrint("LoadCategories - End");
 	}
 	
@@ -642,6 +644,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		AddDefaultCategory(new ExpansionMarketFlags);
 		AddDefaultCategory(new ExpansionMarketBayonets);
 		AddDefaultCategory(new ExpansionMarketFurnishings);
+
+		ExpansionMarketCategory.AddDefaultAttachments();
+
 		//TraderPrint("DefaultCategories - End");
 	}
 	

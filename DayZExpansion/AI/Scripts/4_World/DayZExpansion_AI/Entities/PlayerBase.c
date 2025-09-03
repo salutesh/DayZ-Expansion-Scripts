@@ -167,6 +167,7 @@ modded class PlayerBase
 
 		AddAction(ExpansionActionRecruitAI, InputActionMap);
 		AddAction(ExpansionActionDismissAI, InputActionMap);
+		AddAction(ExpansionActionOpenAIInventory, InputActionMap);
 	}
 
 	//! @note Only called for players not eAIBase since the latter overrides the commandhandler completely,

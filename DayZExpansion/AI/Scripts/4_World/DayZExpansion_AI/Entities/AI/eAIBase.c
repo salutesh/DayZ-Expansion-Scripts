@@ -178,6 +178,9 @@ class eAIBase: PlayerBase
 	private bool m_eAI_ShouldGetUp = true;
 	int m_eAI_StancePreference = -1;
 
+	bool m_eAI_IsRestrained;
+	bool m_eAI_IsInventoryVisible;
+
 	// Position for aiming/looking in the world
 	private vector m_eAI_LookPosition_WorldSpace;
 	private vector m_eAI_AimPosition_WorldSpace;
@@ -253,6 +256,11 @@ class eAIBase: PlayerBase
 	ItemBase m_eAI_BandageToUse;
 
 	ref map<typename, Magazine> m_eAI_EvaluatedFirearmTypes = new map<typename, Magazine>;
+
+#ifdef DIAG_DEVELOPER
+	EntityAI m_eAI_CompareWeapon;
+	EntityAI m_eAI_CurrentWeapon;
+#endif
 
 	Object m_eAI_SideStepObject;
 	private float m_eAI_SideStepTimeout;
@@ -485,6 +493,8 @@ class eAIBase: PlayerBase
 		}
 
 		m_Expansion_EnableBonePositionUpdate = true;
+
+		m_Expansion_RPCManager.RegisterServer("RPC_eAI_SetIsInventoryVisible");
 	}
 
 	override void Expansion_Init()
@@ -497,13 +507,14 @@ class eAIBase: PlayerBase
 		super.Expansion_Init();
 
 		RegisterNetSyncVariableBool("m_Expansion_CanBeLooted");
-		RegisterNetSyncVariableFloat("m_eAI_AccuracyMin");
-		RegisterNetSyncVariableFloat("m_eAI_AccuracyMax");
+		//RegisterNetSyncVariableFloat("m_eAI_AccuracyMin");
+		//RegisterNetSyncVariableFloat("m_eAI_AccuracyMax");
 		//RegisterNetSyncVariableInt("m_eAI_CurrentTarget_NetIDLow");
 		//RegisterNetSyncVariableInt("m_eAI_CurrentTarget_NetIDHigh");
 	//#ifdef DIAG_DEVELOPER
 		//RegisterNetSyncVariableInt("m_eAI_DbgLOSAngles");
 	//#endif
+		RegisterNetSyncVariableBool("m_eAI_IsInventoryVisible");
 
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 
@@ -2649,6 +2660,8 @@ class eAIBase: PlayerBase
 
 			EXTrace.Add(trace, "objects in near range " + m_eAI_PotentialTargetEntities.Count() + " time (ms) " + time + " timeAvg (ms) " + timeAvg);
 #endif
+
+			eAI_PurgeThreatOverride();
 		}
 
 		//! Get other players/AI in extended range (1000 m radius) - check one player per tick (30 players per second)
@@ -2785,26 +2798,12 @@ class eAIBase: PlayerBase
 				{
 					//! Check if we're interested in the item
 
-					bool shouldPickupBandage = false;
-					bool isWeaponOrNonEmptyMag = false;
-					bool isInterestingClothing = false;
+					bool shouldPickup = false;
 
 					if (targetItem.IsWeapon())
 					{
-						if (faction.IsWeaponPickupEnabled())
+						if (eAI_CanLootWeapon(targetItem, faction))
 						{
-							if (targetItem.ShootsExplosiveAmmo())
-							{
-								if ((m_eAI_LootingBehavior & eAILootingBehavior.WEAPONS_LAUNCHERS) == 0)
-									continue;
-								
-							}
-
-							if ((m_eAI_LootingBehavior & eAILootingBehavior.WEAPONS_FIREARMS) == 0)
-							{
-								continue;
-							}
-
 							//! Flaregun is simply too low damage to be of any use, we're better off even with melee.
 							//! Also, it causes NULL ptrs if fired on server side.
 							//! TODO: Maybe have a list of excludes?
@@ -2819,12 +2818,12 @@ class eAIBase: PlayerBase
 							}
 
 							if ((!hasFirearmWithAmmo && targetItem.Expansion_GetDPS() > 0) || (itemInHands && itemInHands.IsWeapon() && (m_eAI_LootingBehavior & eAILootingBehavior.UPGRADE) && eAI_WeaponSelection(itemInHands, targetItem)))
-								isWeaponOrNonEmptyMag = true;
+								shouldPickup = true;
 						}
 					}
 					else if (targetItem.Expansion_IsMeleeWeapon())
 					{
-						if (faction.IsWeaponPickupEnabled() && (m_eAI_LootingBehavior & eAILootingBehavior.WEAPONS_MELEE))
+						if (eAI_CanLootMeleeWeapon(targetItem, faction))
 						{
 							if (eAI_WasItemRecentlyDropped(targetItem))
 							{
@@ -2834,12 +2833,12 @@ class eAIBase: PlayerBase
 							}
 
 							if (!hasFirearmWithAmmo && (!hasMeleeWeapon || (itemInHands && itemInHands.Expansion_IsMeleeWeapon() && (m_eAI_LootingBehavior & eAILootingBehavior.UPGRADE) && itemInHands.Expansion_CompareDPS(targetItem) < 0)))
-								isWeaponOrNonEmptyMag = true;
+								shouldPickup = true;
 						}
 					}
 					else if (targetItem.IsMagazine())
 					{
-						if (faction.IsWeaponPickupEnabled())
+						if (faction.IsWeaponPickupEnabled() && (!targetItem.IsAmmoPile() || targetItem.Expansion_GetHealthDamage() > 0))
 						{
 							if ((m_eAI_LootingBehavior & eAILootingBehavior.WEAPONS_FIREARMS) == 0)
 							{
@@ -2848,12 +2847,12 @@ class eAIBase: PlayerBase
 							}
 
 							if (fireArm && Class.CastTo(mag, targetItem) && mag.GetAmmoCount())
-								isWeaponOrNonEmptyMag = true;
+								shouldPickup = true;
 						}
 					}
 					else if (eAI_ShouldPickupBandage(targetItem))
 					{
-						shouldPickupBandage = true;
+						shouldPickup = true;
 					}
 					else if ((m_eAI_LootingBehavior & eAILootingBehavior.CLOTHING) && targetItem.IsClothing())
 					{
@@ -2901,13 +2900,12 @@ class eAIBase: PlayerBase
 						}
 
 						if (canWear && eAI_ClothingSelection(currentlyWornGear, targetItem, isBack))
-							isInterestingClothing = true;
-
-						if (!isInterestingClothing)
+							shouldPickup = true;
+						else
 							eAI_ThreatOverride(targetItem, true);  //! Ignore by overriding threat so we don't have to do above checks again
 					}
 
-					if (!isWeaponOrNonEmptyMag && !shouldPickupBandage && !isInterestingClothing)
+					if (!shouldPickup)
 						continue;
 				}
 			}
@@ -3086,11 +3084,17 @@ class eAIBase: PlayerBase
 			if ((currentHealthLv > compareHealthLv && currentAttCount <= compareAttCount) || (currentHealthLv == compareHealthLv && currentAttCount < compareAttCount))
 			{
 			#ifdef DIAG_DEVELOPER
-				curWpnInfo = string.Format("%1 type=%2 dmg=%3 dps=%4 health=%5 attCount=%6", ExpansionStatic.GetHierarchyInfo(currentWeapon), typename.EnumToString(ExpansionWeaponType, currentWeaponType), currentWeapon.m_Expansion_WeaponInfo.m_AvgDmg, currentWeapon.Expansion_GetDPS(), currentWeapon.GetHealth(), currentWeapon.GetInventory().AttachmentCount());
+				if (m_eAI_CompareWeapon != compareWeapon || m_eAI_CurrentWeapon != currentWeapon)
+				{
+					m_eAI_CompareWeapon = compareWeapon;
+					m_eAI_CurrentWeapon = currentWeapon;
 
-				cmpWpnInfo = string.Format("%1 type=%2 dmg=%3 dps=%4 health=%5 attCount=%6", ExpansionStatic.GetHierarchyInfo(compareWeapon), typename.EnumToString(ExpansionWeaponType, compareWeaponType), compareWeapon.m_Expansion_WeaponInfo.m_AvgDmg, compareWeapon.Expansion_GetDPS(), compareWeapon.GetHealth(), compareWeapon.GetInventory().AttachmentCount());
+					curWpnInfo = string.Format("%1 type=%2 dmg=%3 dps=%4 health=%5 attCount=%6", ExpansionStatic.GetHierarchyInfo(currentWeapon), typename.EnumToString(ExpansionWeaponType, currentWeaponType), currentWeapon.m_Expansion_WeaponInfo.m_AvgDmg, currentWeapon.Expansion_GetDPS(), currentWeapon.GetHealth(), currentWeapon.GetInventory().AttachmentCount());
 
-				EXTrace.Print(EXTrace.AI, this, string.Format("eAI_WeaponSelection cur=%1 cmp=%2 curDPS == cmpDPS", curWpnInfo, cmpWpnInfo));
+					cmpWpnInfo = string.Format("%1 type=%2 dmg=%3 dps=%4 health=%5 attCount=%6", ExpansionStatic.GetHierarchyInfo(compareWeapon), typename.EnumToString(ExpansionWeaponType, compareWeaponType), compareWeapon.m_Expansion_WeaponInfo.m_AvgDmg, compareWeapon.Expansion_GetDPS(), compareWeapon.GetHealth(), compareWeapon.GetInventory().AttachmentCount());
+
+					EXTrace.Print(EXTrace.AI, this, string.Format("eAI_WeaponSelection cur=%1 cmp=%2 curDPS == cmpDPS", curWpnInfo, cmpWpnInfo));
+				}
 			#endif
 				return true;
 			}
@@ -3098,11 +3102,17 @@ class eAIBase: PlayerBase
 		else if (compareDPS > currentDPS)
 		{
 		#ifdef DIAG_DEVELOPER
-			curWpnInfo = string.Format("%1 type=%2 dmg=%3 dps=%4 health=%5 attCount=%6", ExpansionStatic.GetHierarchyInfo(currentWeapon), typename.EnumToString(ExpansionWeaponType, currentWeaponType), currentWeapon.m_Expansion_WeaponInfo.m_AvgDmg, currentWeapon.Expansion_GetDPS(), currentWeapon.GetHealth(), currentWeapon.GetInventory().AttachmentCount());
+			if (m_eAI_CompareWeapon != compareWeapon || m_eAI_CurrentWeapon != currentWeapon)
+			{
+				m_eAI_CompareWeapon = compareWeapon;
+				m_eAI_CurrentWeapon = currentWeapon;
 
-			cmpWpnInfo = string.Format("%1 type=%2 dmg=%3 dps=%4 health=%5 attCount=%6", ExpansionStatic.GetHierarchyInfo(compareWeapon), typename.EnumToString(ExpansionWeaponType, compareWeaponType), compareWeapon.m_Expansion_WeaponInfo.m_AvgDmg, compareWeapon.Expansion_GetDPS(), compareWeapon.GetHealth(), compareWeapon.GetInventory().AttachmentCount());
+				curWpnInfo = string.Format("%1 type=%2 dmg=%3 dps=%4 health=%5 attCount=%6", ExpansionStatic.GetHierarchyInfo(currentWeapon), typename.EnumToString(ExpansionWeaponType, currentWeaponType), currentWeapon.m_Expansion_WeaponInfo.m_AvgDmg, currentWeapon.Expansion_GetDPS(), currentWeapon.GetHealth(), currentWeapon.GetInventory().AttachmentCount());
 
-			EXTrace.Print(EXTrace.AI, this, string.Format("eAI_WeaponSelection cur=%1 cmp=%2 curDPS > cmpDPS", curWpnInfo, cmpWpnInfo));
+				cmpWpnInfo = string.Format("%1 type=%2 dmg=%3 dps=%4 health=%5 attCount=%6", ExpansionStatic.GetHierarchyInfo(compareWeapon), typename.EnumToString(ExpansionWeaponType, compareWeaponType), compareWeapon.m_Expansion_WeaponInfo.m_AvgDmg, compareWeapon.Expansion_GetDPS(), compareWeapon.GetHealth(), compareWeapon.GetInventory().AttachmentCount());
+
+				EXTrace.Print(EXTrace.AI, this, string.Format("eAI_WeaponSelection cur=%1 cmp=%2 cmpDPS > curDPS", curWpnInfo, cmpWpnInfo));
+			}
 		#endif
 			return true;
 		}
@@ -3140,11 +3150,13 @@ class eAIBase: PlayerBase
 				int curCargoSize;
 				int tgtCargoSize;
 
-				if (curCargo && tgtCargo)
+				if (curCargo)
+					curCargoSize = curCargo.GetWidth() * curCargo.GetHeight();
+
+				if (tgtCargo)
 				{
 					//! Always prefer larger cargo space which usually also reflects the other attributes of clothing
 					//! (military clothing usually has the largest cargo capacity and best protection)
-					curCargoSize = curCargo.GetWidth() * curCargo.GetHeight();
 					tgtCargoSize = tgtCargo.GetWidth() * tgtCargo.GetHeight();
 					if (tgtCargoSize < curCargoSize)
 						return false;
@@ -3250,6 +3262,15 @@ class eAIBase: PlayerBase
 					else if (itemSize > 20 && w > 0.3 && h > 0.45 && d > 0.2)
 						behavior = eAILootingBehavior.CLOTHING_BACK_MEDIUM;
 					else
+						behavior = eAILootingBehavior.CLOTHING_BACK_SMALL;
+				}
+				else
+				{
+					if (itemSize >= 30)  //! e.g. ghillie suit
+						behavior = eAILootingBehavior.CLOTHING_BACK_LARGE;
+					else if (itemSize >= 16)  //! e.g. ghillie cloak
+						behavior = eAILootingBehavior.CLOTHING_BACK_MEDIUM;
+					else  //! e.g. ghillie shrug
 						behavior = eAILootingBehavior.CLOTHING_BACK_SMALL;
 				}
 
@@ -5547,8 +5568,8 @@ class eAIBase: PlayerBase
 		if (mag && !mag.IsSetForDeletion())  //! eAI_FillMag may delete mag if empty
 			m_eAI_Magazines.Insert(mag);
 
-		//! Force re-evaluation of any gun (loot) targets/guns in inventory
-		eAI_EvaluateFirearmTypes();
+		//! Force re-evaluation of any gun/mag (loot) targets and guns/mags in inventory
+		m_eAI_EvaluatedFirearmTypes.Clear();
 	}
 
 	//! @note INTERNAL USE ONLY
@@ -5607,8 +5628,18 @@ class eAIBase: PlayerBase
 		if (removeIndex >= 0)
 		{
 			m_eAI_Magazines.RemoveOrdered(removeIndex);
-			if (checkAttached && mag.GetInventory().IsAttachment())
-				EXError.Warn(this, "Removed mag is attached but was tracked as available for reload " + ExpansionStatic.GetDebugInfo(mag) + ", parent " + ExpansionStatic.GetDebugInfo(mag.GetHierarchyParent()));
+			//! Warn if removed mag is attached to weapon
+			if (checkAttached)
+			{
+				InventoryLocation lcn = new InventoryLocation();
+				mag.GetInventory().GetCurrentInventoryLocation(lcn);
+				if (lcn.GetType() == InventoryLocationType.ATTACHMENT)
+				{
+					EntityAI parent = lcn.GetParent();
+					if (parent && parent.IsWeapon())
+						EXError.Warn(this, "Removed mag is attached to weapon but was tracked as available for reload " + ExpansionStatic.GetDebugInfo(mag) + ", parent " + ExpansionStatic.GetDebugInfo(parent));
+				}
+			}
 		}
 
 		EXTrace.Print(EXTrace.AI, this, "eAI_RemoveMag - " + mag + " index " + removeIndex + " remaining " + m_eAI_Magazines.Count());
@@ -7451,6 +7482,56 @@ class eAIBase: PlayerBase
 		return m_eAI_ThreatOverride[entity];
 	}
 
+	/**
+	 * @brief purge no longer existing or far (distance > 1000 m) entities from threat overrides
+	 */
+	void eAI_PurgeThreatOverride()
+	{
+		int currentCount = m_eAI_ThreatOverride.Count();
+
+		if (currentCount < 10)
+			return;
+
+	#ifdef DIAG_DEVELOPER
+		auto timeIt = new EXTimeIt();
+	#endif
+
+		array<EntityAI> threats = {};
+
+		foreach (EntityAI threat, bool state: m_eAI_ThreatOverride)
+		{
+			if (threat)
+				threats.Insert(threat);
+		}
+
+		int nullCount = currentCount - threats.Count();
+
+		if (nullCount > 0)
+		{
+		#ifdef DIAG_DEVELOPER
+			int farCount;
+		#endif
+
+			vector position = GetPosition();
+
+			m_eAI_ThreatOverride.Clear();
+
+			foreach (EntityAI candidate: threats)
+			{
+				if (Math.IsPointInCircle(position, 1000.0, candidate.GetPosition()))
+					m_eAI_ThreatOverride[candidate] = true;
+			#ifdef DIAG_DEVELOPER
+				else
+					farCount++;
+			#endif
+			}
+
+		#ifdef DIAG_DEVELOPER
+			EXTrace.Print(EXTrace.AI, this, string.Format("eAI_PurgeThreatOverride - purged %1 NULL and %2 far threat overrides in %3 ms", nullCount, farCount, timeIt.GetElapsedMS()));
+		#endif
+		}
+	}
+
 	bool eAI_HasLOS()
 	{
 		return m_eAI_HasLOS;
@@ -8560,6 +8641,92 @@ class eAIBase: PlayerBase
 		return StartAction(actionType, actionTgt, mainItem);
 	}
 
+	override void SetRestrained(bool is_restrained)
+	{
+		//! Set this flag to signify if we're not fake restrained (server only)
+		m_eAI_IsRestrained = is_restrained;
+
+		if (is_restrained)
+			m_eAI_IsInventoryVisible = false;
+
+		super.SetRestrained(is_restrained);
+
+		m_eAI_InteractingPlayers.Clear();
+	}
+	
+	override bool IsRestrained()
+	{
+		if (!super.IsRestrained())
+			return false;
+
+		if (!eAI_IsInventoryVisible())
+			return false;  //! Don't show "unrestrain" action if we're fake restrained while a player accesses AI inventory
+
+		return true;
+	}
+
+	override bool IsInventoryVisible()
+	{
+		if (!super.IsInventoryVisible())
+			return false;
+
+		if (!eAI_IsInventoryVisible())
+			return false;
+
+		return m_Expansion_CanBeLooted;
+	}
+	
+	void eAI_SetIsInventoryVisible(bool visible, notnull PlayerBase player)
+	{
+		if (g_Game.IsClient())
+		{
+			auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_eAI_SetIsInventoryVisible");
+			rpc.Write(visible);
+			rpc.Expansion_Send(true);
+		}
+		else
+		{
+			if (!visible)
+				eAI_RemoveInteractingPlayer(player);
+
+			if (m_eAI_InteractingPlayers.Count() == 0)
+			{
+				//! Fake restrain to make inventory accessible
+				//! Hacky, but works
+				m_IsRestrained = visible;
+				m_eAI_IsInventoryVisible = visible;
+				SetSynchDirty();
+			}
+
+			if (visible)
+				eAI_AddInteractingPlayer(player);
+		}
+	}
+
+	bool eAI_IsInventoryVisible()
+	{
+		if (!g_Game.IsDedicatedServer() && m_eAI_IsInventoryVisible)
+		{
+			//! Prevent other players not in group from seeing AI inventory
+			PlayerBase player;
+			if (Class.CastTo(player, g_Game.GetPlayer()) && player.GetGroup() != GetGroup())
+				return false;
+		}
+
+		return true;
+	}
+
+	void RPC_eAI_SetIsInventoryVisible(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		PlayerBase player;
+		bool visible;
+		if (Class.CastTo(player, sender.GetPlayer()) && player.GetGroup() == GetGroup() && ctx.Read(visible))
+		{
+			if (!m_eAI_IsRestrained && m_Expansion_CanBeLooted)
+				eAI_SetIsInventoryVisible(visible, player);
+		}
+	}
+
 	// @param LookWS a position in WorldSpace to look at
 	void LookAtPosition(vector pPositionWS, bool recalculate = true)
 	{
@@ -9024,6 +9191,38 @@ class eAIBase: PlayerBase
 		return false;
 	}
 
+	bool eAI_CanLootWeapon(ItemBase weapon, eAIFaction faction)
+	{
+		if (weapon.m_Expansion_PreviousOwner == this)
+			return true;
+
+		if (faction.IsWeaponPickupEnabled())
+		{
+			if (weapon.ShootsExplosiveAmmo())
+			{
+				if (m_eAI_LootingBehavior & eAILootingBehavior.WEAPONS_LAUNCHERS)
+					return true;
+			}
+			else if (m_eAI_LootingBehavior & eAILootingBehavior.WEAPONS_FIREARMS)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool eAI_CanLootMeleeWeapon(ItemBase weapon, eAIFaction faction)
+	{
+		if (weapon.m_Expansion_PreviousOwner == this)
+			return true;
+
+		if (faction.IsWeaponPickupEnabled() && (m_eAI_LootingBehavior & eAILootingBehavior.WEAPONS_MELEE))
+			return true;
+
+		return false;
+	}
+
 	bool eAI_ShouldPickupBandage(ItemBase item)
 	{
 		if (item.Expansion_CanBeUsedToBandage())
@@ -9051,7 +9250,7 @@ class eAIBase: PlayerBase
 		return false;
 	}
 
-	bool eAI_TakeItemToInventoryImpl(ItemBase item, FindInventoryLocationType flags = 0)
+	bool eAI_TakeItemToInventoryImpl(ItemBase item, FindInventoryLocationType flags = 0, bool threatOverrideOnFailure = true)
 	{
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + item);
@@ -9159,8 +9358,8 @@ class eAIBase: PlayerBase
 
 		if (!result)
 		{
-			//! If we couldn't take, make sure we don't try again
-			if (!item.IsSetForDeletion())
+			//! If we couldn't take to inventory, make sure we don't try again
+			if (threatOverrideOnFailure && !item.IsSetForDeletion())
 				eAI_ThreatOverride(item, true);
 
 			if (currentlyWornGear)
@@ -9253,7 +9452,7 @@ class eAIBase: PlayerBase
 		return result;
 	}
 
-	bool eAI_TakeItemToInventoryDropShoulderImpl(ItemBase item)
+	bool eAI_TakeItemToInventoryDropShoulderImpl(ItemBase item, bool threatOverrideOnFailureToTakeToInv = true)
 	{
 		if (item.IsWeapon())
 		{
@@ -9291,7 +9490,7 @@ class eAIBase: PlayerBase
 			}
 		}
 
-		if (!eAI_TakeItemToInventoryImpl(item))
+		if (!eAI_TakeItemToInventoryImpl(item, 0, threatOverrideOnFailureToTakeToInv))
 		{
 			//! If we failed to take item to inv, item is weapon and both shoulder and melee slots are taken,
 			//! drop one to make space for item and try again
@@ -9522,9 +9721,11 @@ class eAIBase: PlayerBase
 		bool climbFloatingItem;
 		bool isBlockingVehicle;
 
+		//! Offset is because AI, like players, can just run over small height differences unless walking slowly
+		float offset = 0.3;
+
 		//! Superjanky but allows climbing floating items with collision, e.g. Expansion basebuilding floors,
 		//! while preventing unwanted climbing on other items.
-		//! Offset of 0.5 is because AI, like players, can just run over small height differences unless walking slowly
 		if (blockingObject)
 		{
 			if (blockingObject.IsTransport())
@@ -9535,7 +9736,7 @@ class eAIBase: PlayerBase
 			{
 				isBlockingItem = true;
 
-				if (GetPosition()[1] + 0.5 < blockingObject.GetPosition()[1] || IsSwimming() || m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_WALK)
+				if (GetPosition()[1] + offset < blockingObject.GetPosition()[1] || IsSwimming() || m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_WALK)
 					climbFloatingItem = true;
 			}
 		}
@@ -9583,7 +9784,7 @@ class eAIBase: PlayerBase
 			//! AI, like players, can just run over small height differences unless walking slowly (avoids awkwardly climbing stairs)
 			//! @note hcls.m_fFwMinHeight cannot be used for this since it is too high (0.7)
 			//! @note this check is only needed for vanilla DoClimbTest, ExpansionClimb::DoClimbTest checks height internally
-			if ((m_ExClimbResult.m_fClimbHeight < 0.5 && !IsSwimming() && m_MovementState.m_iMovement != DayZPlayerConstants.MOVEMENTIDX_WALK) || m_ExClimbResult.m_fClimbHeight > hcls.m_fFwMaxHeight)
+			if ((m_ExClimbResult.m_fClimbHeight < offset && !IsSwimming() && m_MovementState.m_iMovement != DayZPlayerConstants.MOVEMENTIDX_WALK) || m_ExClimbResult.m_fClimbHeight > hcls.m_fFwMaxHeight)
 				return false;
 
 			return true;

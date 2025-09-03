@@ -16,6 +16,15 @@ modded class AnimalBase
 		}
 	}
 
+	void ~AnimalBase()
+	{
+		if (!g_Game)
+			return;
+
+		if (g_Game.IsServer() && ConfigGetBool("useExpansionNavMeshCarver"))
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_CheckCreateNavmeshCarver);
+	}
+
 	//! Workaround for vanilla passing killed entity as killer to EEKilled since 1.20
 	//! Just check if killer is killed entity in EEKilled and then use m_Expansion_LastDamageSource instead of killer
 	//! Vanilla events are fired in this order for each hit:

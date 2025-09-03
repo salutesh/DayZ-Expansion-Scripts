@@ -338,6 +338,19 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		}
 	}
 
+	void ~ExpansionTemporaryOwnedContainer()
+	{
+		if (!g_Game)
+			return;
+
+		if (!g_Game.IsDedicatedServer())
+		{
+			ScriptCallQueue callQueue = g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY);
+			callQueue.Remove(ExpansionCheckContainerOwner);
+			callQueue.Remove(Expansion_SetInvisible);
+		}
+	}
+
 	override void Expansion_OnOwnerSync()
 	{
 		super.Expansion_OnOwnerSync();

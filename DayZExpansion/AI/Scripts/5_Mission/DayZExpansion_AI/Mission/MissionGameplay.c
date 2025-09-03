@@ -124,4 +124,24 @@ modded class MissionGameplay
 			}
 		}
 	}
+
+	override void HideInventory()
+	{
+		super.HideInventory();
+
+		PlayerBase player;
+		if (Class.CastTo(player, GetGame().GetPlayer()))
+		{
+			eAIGroup group = player.GetGroup();
+			if (group)
+			{
+				for (int i = 0; i < group.Count(); ++i)
+				{
+					eAIBase ai;
+					if (Class.CastTo(ai, group.GetMember(i)) && ai.m_eAI_IsInventoryVisible)
+						ai.eAI_SetIsInventoryVisible(false, player);
+				}
+			}
+		}
+	}
 };

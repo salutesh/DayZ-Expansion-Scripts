@@ -266,13 +266,12 @@ class ExpansionMarketCategory
 	}
 	
 	//! Adds all variants to m_Items and finalizes the category for use
-	void Finalize(bool addVariantsAndDefaultAttachments = true)
+	void Finalize(bool addVariants = true)
 	{
-		if (addVariantsAndDefaultAttachments)
+		if (addVariants)
 		{
 			foreach (ExpansionMarketItem item : Items)
 			{
-				item.AddDefaultAttachments();
 				AddVariants(item);
 			#ifdef EXPANSIONMODHARDLINE
 				item.SetRarityAndRepReq();
@@ -285,6 +284,14 @@ class ExpansionMarketCategory
 		CF_Log.Debug("Finalized category " + GetCategoryName() + " (ID " + CategoryID + "), " + m_Items.Count() + " items");
 	}
 	
+	static void AddDefaultAttachments()
+	{
+		foreach (ExpansionMarketItem item: s_GlobalItems)
+		{
+			item.AddDefaultAttachments();
+		}
+	}
+
 	//! @note variantIds and variantIdIdx are client-only
 	void AddVariants(ExpansionMarketItem item, TIntArray variantIds = NULL, inout int variantIdIdx = -1)
 	{

@@ -1200,7 +1200,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		
 		if (!dataMap)
 		{
-			EXError.Error(this, "::SendCategoryListingsData - Could not get P2P categroy data!");
+			EXError.Error(this, "::SendCategoryListingsData - Could not get P2P category data!");
 			return;
 		}
 		

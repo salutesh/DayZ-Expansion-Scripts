@@ -10,6 +10,11 @@
  *
 */
 
+modded class GetOutTransportActionData
+{
+	int m_Expansion_SeatIdx;
+}
+
 modded class ActionGetOutTransport
 {
 	//! 1.26+
@@ -29,8 +34,10 @@ modded class ActionGetOutTransport
 				got_action_data.m_WasJumpingOutAnim = false;
 			}
 
+			got_action_data.m_Expansion_SeatIdx = vehicle.CrewMemberIndex(got_action_data.m_Player);
+
 			// Should prevent a few issues related to towing and server crashes
-			if (vehicle.CrewMemberIndex(got_action_data.m_Player) == DayZPlayerConstants.VEHICLESEAT_DRIVER && vehicle.IsTowing())
+			if (got_action_data.m_Expansion_SeatIdx == DayZPlayerConstants.VEHICLESEAT_DRIVER && vehicle.IsTowing())
 			{
 				vehicle.DestroyTow();
 			}
@@ -74,13 +81,15 @@ modded class ActionGetOutTransport
 		//! 1.26+
 		auto vehicle = ExpansionVehicle.Get(got_action_data.m_Vehicle);
 
+		super.OnEndServer(action_data);
+
 		if (vehicle)
 		{
 			if (vehicle.IsHelicopter())
 				vehicle.SetHasPilot(false);  //! So we are able to detect if pilot got disconnected or got out on own accord
-		}
 
-		super.OnEndServer(action_data);
+			vehicle.OnGotOut(action_data.m_Player, got_action_data.m_Expansion_SeatIdx);
+		}
 
 		if (vehicle && action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleLeave)
 		{

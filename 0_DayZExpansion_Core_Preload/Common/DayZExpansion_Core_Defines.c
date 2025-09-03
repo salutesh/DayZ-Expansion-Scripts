@@ -28,6 +28,7 @@
 #define EXPANSION_GEQ_1_8_28
 #define EXPANSION_GEQ_1_8_33
 #define EXPANSION_GEQ_1_8_46
+#define EXPANSION_GEQ_1_9_38
 
 //! Features
 #define EXPANSION_GLOBALID_ITEMBASE_CORE
@@ -89,4 +90,4 @@
 #endif
 
 //! Versioning - NEW - do NOT add/change manually, will be added/changed during build with CI.bat!
-#define EXPANSION_1_9_36
+#define EXPANSION_1_9_38

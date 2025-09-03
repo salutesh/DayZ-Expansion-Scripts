@@ -370,6 +370,11 @@ modded class ItemBase
 		return null;
 	}
 
+	float Expansion_GetHealthDamage()
+	{
+		return 0;
+	}
+
 	bool eAI_IsSilent()
 	{
 		return true;

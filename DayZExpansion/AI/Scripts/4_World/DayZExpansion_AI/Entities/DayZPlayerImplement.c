@@ -164,6 +164,12 @@ modded class DayZPlayerImplement
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + group, "" + autoDeleteFormerGroupIfEmpty);
 #endif
 
+		if (!group && Expansion_IsAI())
+		{
+			EXError.Error(this, "Setting AI group to NULL is NOT allowed");
+			return;
+		}
+
 		if (m_eAI_Group == group)
 			return;
 

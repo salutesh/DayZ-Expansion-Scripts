@@ -760,6 +760,10 @@ modded class CarScript
 	{
 	}
 
+	void Expansion_OnGotOut(PlayerBase player, int seatIdx)
+	{
+	}
+
 	bool IsCarKeys(ExpansionCarKey key)
 	{
 		EXError.Error(this, "DEPRECATED, use GetExpansionVehicle().IsPairedTo");

@@ -44,6 +44,11 @@ class Vehicle_ExpansionLHD : Vehicle_ExpansionZodiacBoat
 
 	void ~Vehicle_ExpansionLHD()
 	{
+		if (!g_Game)
+			return;
+
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(UpdateModels);
+
 		DeletePart(lhd1);
 		DeletePart(lhd2);
 		DeletePart(lhd3);

@@ -14,5 +14,6 @@ modded class ActionConstructor
 
 		actions.Insert(ExpansionActionRecruitAI);
 		actions.Insert(ExpansionActionDismissAI);
+		actions.Insert(ExpansionActionOpenAIInventory);
 	}
 };

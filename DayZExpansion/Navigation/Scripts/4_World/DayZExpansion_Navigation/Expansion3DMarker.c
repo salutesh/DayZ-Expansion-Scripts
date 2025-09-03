@@ -74,7 +74,6 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 		CF_Modules<ExpansionPartyModule>.Get(m_PartyModule);
 		#endif
 		
-		GetExpansionClientSettings().SI_UpdateSetting.Insert(RefreshAlphaMinColor);
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(OnSettingChanged);
 
 		m_Player = PlayerBase.Cast(GetGame().GetPlayer());
@@ -82,7 +81,6 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 
 	void ~Expansion3DMarker()
 	{
-		GetExpansionClientSettings().SI_UpdateSetting.Remove(RefreshAlphaMinColor);
 		GetExpansionClientSettings().SI_UpdateSetting.Remove(OnSettingChanged);
 		
 		if ( m_LayoutRoot )
@@ -372,6 +370,12 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 	void SetMarkerData(ExpansionMarkerData data)
 	{
 		m_MarkerData = data;
+
+		Refresh();
+	}
+
+	void Refresh()
+	{
 		RefreshAlphaMinColor();
 		m_Text_Name.SetColor(ARGB(m_TransparencyMax, 255, 255, 255));
 		m_Text_Distance.SetColor(ARGB(m_TransparencyMax, 255, 255, 255));
@@ -412,6 +416,8 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 		GetSettings();
 		m_LayoutRoot = GetGame().GetWorkspace().CreateWidgets(m_LayoutPath);
 		OnWidgetScriptInit(m_LayoutRoot);
+
+		Refresh();
 	}
 
 	void GetSettings()

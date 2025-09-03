@@ -60,8 +60,12 @@ modded class ScriptedLightBase
 			return false;
 
 		EntityAI parentEntity;
-		if (Class.CastTo(parentEntity, GetParent()) && parentEntity.GetInventory().IsInCargo())
-			return false;
+		if (Class.CastTo(parentEntity, GetParent()))
+		{
+			GameInventory inventory = parentEntity.GetInventory();
+			if (inventory && inventory.IsInCargo())
+				return false;
+		}
 
 		return true;
 	}

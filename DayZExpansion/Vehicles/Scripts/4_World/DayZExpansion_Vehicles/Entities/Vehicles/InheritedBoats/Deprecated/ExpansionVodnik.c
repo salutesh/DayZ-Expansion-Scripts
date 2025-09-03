@@ -339,6 +339,20 @@ class ExpansionVodnik: ExpansionBoatScript
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
 	}
 
+	override void Expansion_OnGotOut(PlayerBase player, int seatIdx)
+	{
+		super.Expansion_OnGotOut(player, seatIdx);
+
+		switch (seatIdx)
+		{
+			case DayZPlayerConstants.VEHICLESEAT_DRIVER:
+			case DayZPlayerConstants.VEHICLESEAT_CODRIVER:
+				player.PhysicsSetSolid(false);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.PhysicsSetSolid, 1500, false, true);
+				break;
+		}
+	}
+
 	override float OnSound(CarSoundCtrl ctrl, float oldValue)
 	{
 #ifdef EXPANSIONTRACE

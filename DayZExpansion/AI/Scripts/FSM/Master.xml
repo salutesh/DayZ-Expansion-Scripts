@@ -392,9 +392,9 @@
 					
 					if (weapon.HasInternalMagazine(mi))
 					{
-						//! If this is a gun with internal mag and we are not in combat, reload when mag is not at capacity
+						//! If this is a gun with internal mag and we are not in combat, reload when mag is below 60% capacity
 						//! even if chamber is not empty
-						if (weapon.GetInternalMagazineCartridgeCount(mi) &gt;= weapon.GetInternalMagazineMaxCartridgeCount(mi) - 1)
+						if (weapon.GetInternalMagazineCartridgeCount(mi) &gt;= weapon.GetInternalMagazineMaxCartridgeCount(mi) * 0.6)
 							return FAIL;
 						
 						if (!unit.eAI_HasAmmoForFirearm(weapon, magazine))
@@ -409,15 +409,15 @@
 						{
 							int ammoCount = currentMag.GetAmmoCount();
 							
-							//! Don't reload if attached mag is still at capacity
-							if (ammoCount &gt;= currentMag.GetAmmoMax() - 1)
+							//! Don't reload if attached mag is still at 40% capacity or higher
+							if (ammoCount &gt;= currentMag.GetAmmoMax() * 0.4)
 								return FAIL;
 							
 							if (!unit.eAI_HasAmmoForFirearm(weapon, magazine))
 								return FAIL;
 							
-							//! Don't swap magazine if attached mag is not empty
-							if (!magazine.IsAmmoPile() &amp;&amp; ammoCount &gt; 0)
+							//! Don't swap magazine if attached mag is not empty and not unlimited reload
+							if (!magazine.IsAmmoPile() &amp;&amp; ammoCount &gt; 0 &amp;&amp; !unit.eAI_IsTargetUnlimitedReload())
 								return FAIL;
 						}
 						else
@@ -478,6 +478,7 @@
 						dst.item = unit.GetBandageToUse();
 						if (dst.item)
 						{
+							dst.allowDrop = true;
 							return SUCCESS;
 						}
 					}
@@ -557,6 +558,7 @@
 							}
 							
 							dst.item = item;
+							dst.allowDrop = true;
 							EXTrace.Print(EXTrace.AI, unit, "Taking " + item + " to hands because not prefering melee or target and weapon to use is not current hand item or better than " + hands);
 							return SUCCESS;
 						}
@@ -567,6 +569,7 @@
 						if (target.GetDistanceSq(true) &lt;= 4.0 &amp;&amp; target.GetThreat() &gt; 0.1 &amp;&amp; !unit.eAI_IsItemObstructed(targetItem))
 						{
 							dst.item = targetItem;
+							dst.allowDrop = true;
 							EXTrace.Print(EXTrace.AI, unit, "Taking target " + targetItem + " to hands because not prefering melee but prefering target over " + hands);
 							return SUCCESS;
 						}
@@ -591,6 +594,7 @@
 						}
 						
 						dst.item = item;
+						dst.allowDrop = true;
 						EXTrace.Print(EXTrace.AI, unit, "Taking " + item + " to hands because not prefering melee and weapon to use is not current hand item or better than " + hands);
 						return SUCCESS;
 					}
@@ -609,9 +613,13 @@
 					{
 						if (item == hands || item.Expansion_GetHierarchyRootItem() == hands)
 							return FAIL;
+						
+						if (preferMelee &amp;&amp; unit.eAI_GetThreatOverride(item))
+							return FAIL;
 					}
 					
 					dst.item = item;
+					dst.allowDrop = !preferMelee;
 					return SUCCESS;
 				}
 				

@@ -168,22 +168,25 @@ modded class MiscGameplayFunctions
 		return false;
 	}
 
+	/**
+	 * @brief count items in cargo of entity and in cargo of attachments
+	 * 
+	 * @note does NOT include count of items in cargo of items that are themselves in cargo
+	 */
 	static int Expansion_CountCargo(EntityAI entity)
 	{
 		int cargoCount;
 
-		CargoBase cargo = entity.GetInventory().GetCargo();
-		
-		if (cargo)
-			cargoCount = cargo.GetItemCount();
-
-		if (!entity.GetHierarchyParent())
+		ExpansionVehicle vehicle;
+		if (!entity.GetHierarchyParent() && ExpansionVehicle.Get(vehicle, entity))
 		{
-			auto vehicle = ExpansionVehicle.Get(entity);
-			if (vehicle)
-			{
-				cargoCount += vehicle.GetCargoCount();
-			}
+			cargoCount = vehicle.GetCargoCount();
+		}
+		else
+		{
+			CargoBase cargo = entity.GetInventory().GetCargo();
+			if (cargo)
+				cargoCount = cargo.GetItemCount();
 		}
 
 		for (int i = 0; i < entity.GetInventory().AttachmentCount(); i++)
@@ -195,6 +198,11 @@ modded class MiscGameplayFunctions
 		return cargoCount;
 	}
 
+	/**
+	 * @brief recursively get items in cargo of entity, in cargo of items in cargo, and in cargo of attachments
+	 * 
+	 * @param includeAttachments   if true, includes attachments themselves as well, not just their cargo
+	 */
 	static array<EntityAI> Expansion_GetCargoItems(EntityAI entity, bool includeAttachments = false)
 	{
 		array<EntityAI> cargoItems = {};

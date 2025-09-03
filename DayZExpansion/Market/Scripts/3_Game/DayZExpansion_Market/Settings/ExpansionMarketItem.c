@@ -57,6 +57,9 @@ class ExpansionMarketItem
 	autoptr array< int > m_AttachmentIDs;
 
 	[NonSerialized()]
+	bool m_IsMagazine;
+
+	[NonSerialized()]
 	bool m_IsVariant;
 
 	[NonSerialized()]
@@ -166,6 +169,9 @@ class ExpansionMarketItem
 			EXTrace.Print(true, this, ClassName + " SellPricePercent " + SellPricePercent);
 
 		SetAttachments(SpawnAttachments);
+
+		if (GetGame().IsKindOf(ClassName, "Magazine_Base") && !GetGame().IsKindOf(ClassName, "Ammunition_Base"))
+			m_IsMagazine = true;
 	}
 
 #ifdef EXPANSIONMODHARDLINE
@@ -251,7 +257,7 @@ class ExpansionMarketItem
 
 	bool IsMagazine()
 	{
-		return GetGame().IsKindOf(ClassName, "Magazine_Base") && !GetGame().IsKindOf(ClassName, "Ammunition_Base");
+		return m_IsMagazine;
 	}
 
 	map<string, bool> GetAttachmentTypes(out int magAmmoCount)

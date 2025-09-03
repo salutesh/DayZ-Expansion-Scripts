@@ -42,7 +42,7 @@ class ExpansionState_Fighting_Positioning: eAIState
 			auto hands = unit.GetHumanInventory().GetEntityInHands();
 			auto targetEntity = target.GetEntity();
 			auto itemTarget = ItemBase.Cast(targetEntity);
-			if (itemTarget && (!itemTarget.Expansion_IsExplosive() || target.GetCachedThreat(true) > 0.4))
+			if (itemTarget && !itemTarget.Expansion_IsMechanicalTrap() && (!itemTarget.Expansion_IsExplosive() || target.GetCachedThreat(true) > 0.4))
 			{
 				wantsLower = true;
 			}

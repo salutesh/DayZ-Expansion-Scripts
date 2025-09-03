@@ -897,15 +897,6 @@ modded class ItemBase
 		if (!GetGame().IsServer())
 			return;
 
-		if (newLoc.GetParent() != oldLoc.GetParent())
-		{
-			if (oldLoc.GetType() == InventoryLocationType.CARGO)
-				Expansion_UpdateParentCargoCount(oldLoc, -1);
-
-			if (newLoc.GetType() == InventoryLocationType.CARGO)
-				Expansion_UpdateParentCargoCount(newLoc, 1);
-		}
-
 		if (!GetExpansionSettings().GetSafeZone().Enabled)
 			return;
 
@@ -956,9 +947,6 @@ modded class ItemBase
 		{
 			delta *= GetInventory().CountInventory();
 			vehicle.UpdateCargoCount(delta);
-			#ifdef DIAG_DEVELOPER
-			EXTrace.Print(EXTrace.GENERAL_ITEMS, this, vehicle.GetEntity().ToString() + " cargo count " + delta + " " + vehicle.GetCargoCount());
-			#endif
 		}
 	}
 
@@ -1271,12 +1259,7 @@ modded class ItemBase
 	{
 		super.EEDelete(parent);
 
-		if (parent)
-		{
-			if (parent.IsTransport())
-				Expansion_UpdateParentCargoCountEx(parent, -1);
-		}
-		else if (m_Expansion_QueuedActions)
+		if (!parent && m_Expansion_QueuedActions)
 		{
 			//! Deferred removal of all entity actions from queue
 			ExpansionItemBaseModule.s_Instance.QueueEntityActions(this, -int.MAX);

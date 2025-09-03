@@ -307,5 +307,9 @@ modded class BoatScript
 	void Expansion_OnDoorClosed(string selection)
 	{
 	}
+
+	void Expansion_OnGotOut(PlayerBase player, int seatIdx)
+	{
+	}
 };
 #endif

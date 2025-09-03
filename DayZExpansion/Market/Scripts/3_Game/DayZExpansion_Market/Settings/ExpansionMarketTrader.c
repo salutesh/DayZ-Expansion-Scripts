@@ -316,7 +316,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 				if (!cat)
 				{
-					EXError.Error(null, "TRADER CONFIGURATION ERROR: Category " + fileName + " does not exist!", {});
+					EXError.Error(null, "TRADER CONFIGURATION ERROR: Category " + fileName + " in " + m_FileName + " does not exist!", {});
 					continue;
 				}
 
@@ -333,7 +333,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 				if (!cat)
 				{
-					EXError.Error(null, "TRADER CONFIGURATION ERROR: Category " + id + " does not exist!", {});
+					EXError.Error(null, "TRADER CONFIGURATION ERROR: Category " + id + " in " + m_FileName + " does not exist!", {});
 					continue;
 				}
 
