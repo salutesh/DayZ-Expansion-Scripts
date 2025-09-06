@@ -786,6 +786,22 @@ modded class ExpansionVehicle
 	{
 	}
 
+	void OnGotOut(PlayerBase player, int seatIdx)
+	{
+		EntityAI vehicle = GetEntity();
+
+		CarScript cs;
+		BoatScript bs;
+		ExpansionVehicleBase ev;
+
+		if (Class.CastTo(cs, vehicle))
+			cs.Expansion_OnGotOut(player, seatIdx);
+		else if (Class.CastTo(bs, vehicle))
+			bs.Expansion_OnGotOut(player, seatIdx);
+		else if (Class.CastTo(ev, vehicle))
+			ev.Expansion_OnGotOut(player, seatIdx);
+	}
+
 	bool NameOverride(out string output)
 	{
 		bool ret;

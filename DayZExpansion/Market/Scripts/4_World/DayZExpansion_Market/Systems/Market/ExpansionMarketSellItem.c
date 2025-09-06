@@ -10,6 +10,9 @@
  *
 */
 
+typedef Param2<int, float> ExpansionMarketItemPriceTier;
+typedef array<ref ExpansionMarketItemPriceTier> ExpansionMarketItemPriceTiers;
+
 class ExpansionMarketSell
 {
 	bool Valid;
@@ -25,12 +28,15 @@ class ExpansionMarketSell
 
 	ref array<ref ExpansionMarketSellItem> Sell;
 	
+	PlayerBase m_Player;
+
 	// ------------------------------------------------------------
 	// ExpansionMarketSell Constructor
 	// ------------------------------------------------------------
-	void ExpansionMarketSell()
+	void ExpansionMarketSell(PlayerBase player = null)
 	{
 		Sell = new array<ref ExpansionMarketSellItem>;
+		m_Player = player;
 	}
 	
 	// ------------------------------------------------------------
@@ -53,42 +59,61 @@ class ExpansionMarketSell
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionMarketSell AddItem
-	// ------------------------------------------------------------
-	void AddSellItem(int takenAmount, float addStockAmount, EntityAI item, string className = "")
+	ExpansionMarketSellItem AddSellItem(int takenAmount, float addStockAmount, EntityAI item, string className = "")
+	{
+		EXError.ErrorOnce(this, "DEPRECATED, use AddSellItemEx");
+		int soldAmount = addStockAmount;
+		ExpansionMarketItem marketItem;
+		if (className)
+			marketItem = ExpansionMarketCategory.GetGlobalItem(className);
+		return AddSellItemEx(takenAmount, soldAmount, 1.0, item, marketItem);
+	}
+
+	ExpansionMarketSellItem AddSellItem(int takenAmount, int soldAmount, float incrementStockModifier, EntityAI item, string className = "")
+	{
+		EXError.ErrorOnce(this, "DEPRECATED, use AddSellItemEx");
+		ExpansionMarketItem marketItem;
+		if (className)
+			marketItem = ExpansionMarketCategory.GetGlobalItem(className);
+		return AddSellItemEx(takenAmount, soldAmount, 1.0, item, marketItem);
+	}
+
+	ExpansionMarketSellItem AddSellItemEx(int takenAmount, int soldAmount, float incrementStockModifier, EntityAI item, ExpansionMarketItem marketItem)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "AddItem");
 #endif
-
-		if (!className && item)
-		{
-			className = item.GetType();
-			className.ToLower();
-		}
 		
 		ExpansionMarketSellItem itemSell = new ExpansionMarketSellItem;
+		itemSell.m_Item = marketItem;
 		itemSell.TakenAmount = takenAmount;
+		itemSell.SoldAmount = soldAmount;
 		itemSell.ItemRep = item;  //! Can be NULL! (ammo in mags/ammopiles are not entities)
-		itemSell.ClassName = className;
+		itemSell.ClassName = marketItem.ClassName;
 		if (item)
 			itemSell.IsEntity = true;
 		Sell.Insert(itemSell);
 
-		itemSell.AddStockAmount = addStockAmount;
+		itemSell.AddStockAmount = soldAmount * incrementStockModifier;
+		return itemSell;
 	}
 }
 
 class ExpansionMarketSellItem
 {
+	ExpansionMarketItem m_Item;
 	int TakenAmount;
+	int SoldAmount;
 	EntityAI ItemRep;
 	string ClassName;
 	bool IsEntity;
 
 	//! Amount to be added to trader stock when selling (including modifiers)
 	float AddStockAmount;
+
+	//! For debug purposes
+	int Price;
+	ref ExpansionMarketItemPriceTiers PriceTiers = {};
 		
 	// ------------------------------------------------------------
 	// ExpansionMarketSellItem Debug
@@ -202,7 +227,7 @@ class ExpansionMarketSellDebug
 		}
 	}
 
-	void OnReceive(ParamsReadContext ctx, string mainItemClassName)
+	void OnReceive(ParamsReadContext ctx, int mainItemID)
 	{
 		ctx.Read(m_ZoneSellPricePercent);
 
@@ -214,7 +239,24 @@ class ExpansionMarketSellDebug
 			auto debugItem = new ExpansionMarketSellDebugItem;
 			debugItem.OnReceive(ctx, i == 0);
 			if (i == 0)
-				debugItem.ClassName = mainItemClassName;
+				debugItem.ItemID = mainItemID;
+			ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(debugItem.ItemID, false);
+			if (item)
+				debugItem.ClassName = item.ClassName;
+			else
+				debugItem.ClassName = "ERROR: ITEM NOT FOUND";
+			if (debugItem.ParentID > -1)
+			{
+				ExpansionMarketItem parent = ExpansionMarketCategory.GetGlobalItem(debugItem.ParentID, false);
+				if (parent)
+					debugItem.Parent = parent.ClassName;
+				else
+					debugItem.Parent = "ERROR: ITEM NOT FOUND";
+			}
+			else
+			{
+				debugItem.Parent = "";
+			}
 			m_Items.Insert(debugItem);
 		}
 	}
@@ -223,11 +265,10 @@ class ExpansionMarketSellDebug
 	{
 		EXLogPrint("| Zone SellPricePercent: " + m_ZoneSellPricePercent);
 		EXLogPrint("| Items: " + m_Items.Count());
-		int n;
-		foreach (ExpansionMarketSellDebugItem debugItem: m_Items)
+		foreach (int i, ExpansionMarketSellDebugItem debugItem: m_Items)
 		{
-			n++;
-			EXLogPrint("| Item #" + n);
+			EXLogPrint("| Item " + (i + 1).ToString());
+			EXLogPrint("|   ItemID: " + debugItem.ItemID);
 			EXLogPrint("|   ClassName: " + debugItem.ClassName);
 			EXLogPrint("|   MaxPriceThreshold: " + debugItem.MaxPriceThreshold);
 			EXLogPrint("|   MinPriceThreshold: " + debugItem.MinPriceThreshold);
@@ -235,14 +276,25 @@ class ExpansionMarketSellDebug
 			EXLogPrint("|   MaxStockThreshold: " + debugItem.MaxStockThreshold);
 			EXLogPrint("|   MinStockThreshold: " + debugItem.MinStockThreshold);
 			EXLogPrint("|   Stock: " + debugItem.Stock);
+			EXLogPrint("|   SoldAmount: " + debugItem.SoldAmount);
 			EXLogPrint("|   AddStockAmount: " + debugItem.AddStockAmount);
+			EXLogPrint("|   Price: " + debugItem.Price);
+			EXLogPrint("|   PriceTiers");
+			foreach (auto itemPrice: debugItem.PriceTiers)
+			{
+				EXLogPrint("|     Price at stock #: " + itemPrice.param1 + " at " + itemPrice.param2);
+			}
 		}
 	}
 }
 
 class ExpansionMarketSellDebugItem
 {
+	int ItemID;
 	string ClassName;
+
+	int ParentID;
+	string Parent;
 
 	int MaxPriceThreshold;
 	int MinPriceThreshold;
@@ -252,62 +304,173 @@ class ExpansionMarketSellDebugItem
 	int MaxStockThreshold;
 	int MinStockThreshold;
 
+	bool StockOnly;
 	int Stock;
 
+	int EntityHealthLevel;
+	float EntityQuantity;
+	int EntityFoodStage;
+
+	int SoldAmount;
 	float AddStockAmount;
+	int Price;
+	ref ExpansionMarketItemPriceTiers PriceTiers;
 
 	void ExpansionMarketSellDebugItem(ExpansionMarketSellItem sellItem = null, ExpansionMarketTraderZone zone = null)
 	{
 		if (!sellItem || !zone)
 			return;
 
-		ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(sellItem.ClassName);
+		ExpansionMarketItem item = sellItem.m_Item;
 		if (!item)
 			return;
 
+		ItemID = item.ItemID;
 		ClassName = item.ClassName;
+		if (item.m_Parent)
+		{
+			ParentID = item.m_Parent.ItemID;
+			Parent = item.m_Parent.ClassName;
+		}
+		else
+		{
+			ParentID = -1;
+			Parent = "";
+		}
 		MaxPriceThreshold = item.MaxPriceThreshold;
 		MinPriceThreshold = item.MinPriceThreshold;
 		SellPricePercent = item.SellPricePercent;
 		MaxStockThreshold = item.MaxStockThreshold;
 		MinStockThreshold = item.MinStockThreshold;
-		Stock = zone.GetStock(item.ClassName);
+		if (item.m_StockOnly)
+			StockOnly = true;
+		if (item.IsStaticStock())
+			Stock = ExpansionMarketStock.Static;
+		else
+			Stock = zone.GetStock(item.ClassName);
+		if (sellItem.ItemRep)
+		{
+			EntityHealthLevel = sellItem.ItemRep.GetHealthLevel();
+			EntityQuantity = sellItem.ItemRep.GetQuantity();
+			Edible_Base edible;
+			if (Class.CastTo(edible, sellItem.ItemRep) && edible.HasFoodStage())
+				EntityFoodStage = edible.GetFoodStageType();
+			else
+				EntityFoodStage = FoodStageType.NONE;
+		}
+		else
+		{
+			EntityHealthLevel = ExpansionMarketHealthLevel.NOT_APPLICABLE;
+			EntityQuantity = -1;
+			EntityFoodStage = FoodStageType.NONE;
+		}
+		SoldAmount = sellItem.SoldAmount;
 		AddStockAmount = sellItem.AddStockAmount;
+		Price = sellItem.Price;
+		PriceTiers = sellItem.PriceTiers;
 	}
 
 	void OnSend(ParamsWriteContext ctx, bool isMainItem = false)
 	{
 		if (!isMainItem)
-			ctx.Write(ClassName);
+			ctx.Write(ItemID);
+
+		ctx.Write(ParentID);
 
 		ctx.Write(MaxPriceThreshold);
 		ctx.Write(MinPriceThreshold);
 
-		ctx.Write(SellPricePercent);
+		//ctx.Write(SellPricePercent);
 
 		ctx.Write(MaxStockThreshold);
 		ctx.Write(MinStockThreshold);
 
+		//ctx.Write(StockOnly);
 		ctx.Write(Stock);
 
+		//ctx.Write(EntityHealthLevel);
+		ctx.Write(EntityQuantity);
+		//ctx.Write(EntityFoodStage);
+
+		//! Network optimization: Pack StockOnly, EntityHealthLevel, EntityFoodStage and SellPricePercent into one 32-bit int
+		//! (8 bits for StockOnly and EntityHealthLevel combined, 8 bits for EntityFoodStage, 16 bits for SellPricePercent)
+		//! @note for EntityFoodStage, we use 0x0..0x7f for 0..127 and 0x80..0xff for -128..-1, this needs to be dealt with when decoding!
+		//! @note for SellPricePercent, we use 0x0..0x00007fff for 0..32767 and 0x00008000..0x0000ffff for -32768..-1, this needs to be dealt with when decoding!
+		int param1 = StockOnly;
+		param1 |= EntityHealthLevel << 4;
+		int sellPricePercentEncoded = CF_Cast<float, int>.Reinterpret(SellPricePercent) >> 16;  //! Convert to integer representation of bfloat16
+		int packed = ((param1 & 0xff) << 24) | ((EntityFoodStage & 0xff) << 16) | (sellPricePercentEncoded & 0x0000ffff);
+		ctx.Write(packed);
+
+		ctx.Write(SoldAmount);
 		ctx.Write(AddStockAmount);
+		ctx.Write(Price);
+
+		ctx.Write(PriceTiers.Count());
+		foreach (auto itemPrice: PriceTiers)
+		{
+			ctx.Write(itemPrice.param1);  //! price
+			ctx.Write(itemPrice.param2);  //! stock
+		}
 	}
 
 	void OnReceive(ParamsReadContext ctx, bool isMainItem = false)
 	{
 		if (!isMainItem)
-			ctx.Read(ClassName);
+			ctx.Read(ItemID);
+
+		ctx.Read(ParentID);
 
 		ctx.Read(MaxPriceThreshold);
 		ctx.Read(MinPriceThreshold);
 
-		ctx.Read(SellPricePercent);
+		//ctx.Read(SellPricePercent);
 
 		ctx.Read(MaxStockThreshold);
 		ctx.Read(MinStockThreshold);
 
+		//ctx.Read(StockOnly);
 		ctx.Read(Stock);
 
+		//ctx.Read(EntityHealthLevel);
+		ctx.Read(EntityQuantity);
+		//ctx.Read(EntityFoodStage);
+
+		int packed;
+		ctx.Read(packed);
+
+		int param1 = packed >> 24;
+
+		StockOnly = param1 & 0x0f;
+		EntityHealthLevel = (param1 & 0xf0) >> 4;
+
+		EntityFoodStage = (packed & 0x00ff0000) >> 16;
+		if (EntityFoodStage > 0x7f)
+			EntityFoodStage -= 0x100;
+
+		int sellPricePercentEncoded = packed & 0x0000ffff;
+		if (sellPricePercentEncoded > 0x00007fff)
+			sellPricePercentEncoded -= 0x00010000;
+
+		//! Convert integer representation of bfloat16 back to float
+		SellPricePercent = CF_Cast<int, float>.Reinterpret(sellPricePercentEncoded << 16);
+
+		ctx.Read(SoldAmount);
 		ctx.Read(AddStockAmount);
+		ctx.Read(Price);
+
+		int count;
+		ctx.Read(count);
+		PriceTiers = {};
+		if (count < 0)  //! Safety against infinite recursion
+			return;
+		while (count--)
+		{
+			int price;
+			ctx.Read(price);
+			float stock;
+			ctx.Read(stock);
+			PriceTiers.Insert(new ExpansionMarketItemPriceTier(price, stock));
+		}
 	}
 }

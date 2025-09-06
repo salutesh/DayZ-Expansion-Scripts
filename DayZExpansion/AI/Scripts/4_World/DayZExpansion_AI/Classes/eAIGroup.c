@@ -1187,7 +1187,7 @@ class eAIGroup
 	{
 		TStringArray report = {};
 
-		report.Insert(indent + string.Format("Group ID %1 %2", m_ID, m_Name));
+		report.Insert(indent + string.Format("Group ID %1 %2 (%3 members)", m_ID, m_Name, Count()));
 
 		if (indent)
 			indent.Replace("-", " ");

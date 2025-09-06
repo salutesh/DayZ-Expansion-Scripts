@@ -43,7 +43,7 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 			levelFactor = ProcessVehicleThreat(m_Transport, ai, distance, speed, fromTargetDot);
 			//PrintFormat("eAIVehicleTargetInformation dist %1 spd %2 dot %3 lvl %4", distance, speed, fromTargetDot, levelFactor);
 
-			levelFactor *= ai.Expansion_GetVisibility(distance);
+			levelFactor *= ai.eAI_GetThreatDistanceFactor(distance);
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);

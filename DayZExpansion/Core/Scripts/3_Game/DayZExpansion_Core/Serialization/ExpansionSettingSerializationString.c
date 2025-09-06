@@ -31,8 +31,6 @@ class ExpansionSettingSerializationString: ExpansionSettingSerializationBase
 	{
 		string value;
 
-		FindClassInstanceAndVariable();
-
 		EnScript.GetClassVar( m_ActualInstance, m_ActualVariable, 0, value );
 		
 		return value;
@@ -40,8 +38,6 @@ class ExpansionSettingSerializationString: ExpansionSettingSerializationBase
 
 	void SetValue( string value )
 	{
-		FindClassInstanceAndVariable();
-
 		EnScript.SetClassVar( m_ActualInstance, m_ActualVariable, 0, value );
 		
 		GetGame().GameScript.Call( m_Instance, "OnSettingsUpdated", new Param2< typename, ExpansionSettingSerializationBase >( Type(), this ) );

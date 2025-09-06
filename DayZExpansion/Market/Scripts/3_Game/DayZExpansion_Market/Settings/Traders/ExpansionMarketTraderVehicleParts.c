@@ -27,5 +27,7 @@ class ExpansionMarketTraderVehicleParts: ExpansionMarketTrader
 
 		AddItem("TireRepairKit");
 		AddItem("CanisterGasoline");
+		AddItem("CarBattery");
+		AddItem("TruckBattery");
 	}
 }

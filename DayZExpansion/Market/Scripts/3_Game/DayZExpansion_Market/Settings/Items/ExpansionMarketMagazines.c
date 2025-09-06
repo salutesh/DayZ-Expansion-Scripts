@@ -16,7 +16,6 @@ class ExpansionMarketMagazines: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 37;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MAGAZINES";
 		m_FileName = "Magazines";
 

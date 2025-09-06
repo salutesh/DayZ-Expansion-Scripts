@@ -42,7 +42,12 @@ class ExpansionExplosive: ItemBase
 
 	void ~ExpansionExplosive()
 	{
-		if ( GetGame() && (!GetGame().IsDedicatedServer()) ) 
+		if (!g_Game)
+			return;
+
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(OnFrame);
+
+		if (!g_Game.IsDedicatedServer()) 
 		{
 			if (m_ParticleEfx)
 				m_ParticleEfx.Stop();
@@ -62,11 +67,16 @@ class ExpansionExplosive: ItemBase
 
 	void OnFrame()
 	{
-		if ( IsMissionHost() && m_Armed && m_ExplosionTimer.GetRemaining() < 10 )
+		if ( IsMissionHost() && m_Armed )
 		{
-			m_Time = Math.Round(m_ExplosionTimer.GetRemaining());
+			int time = Math.Round(m_ExplosionTimer.GetRemaining());
 
-			SetSynchDirty();
+			if (time < 10 && time != m_Time)
+			{
+				m_Time = time;
+
+				SetSynchDirty();
+			}
 		}
 
 		if ( IsMissionClient() && m_ArmedSynchRemote )
@@ -102,9 +112,6 @@ class ExpansionExplosive: ItemBase
 
 	void RemoveLater()
 	{
-		ToDelete();
-
-		SetPosition( vector.Zero );
 		GetGame().ObjectDelete( this );
 	}
 
@@ -187,8 +194,6 @@ class ExpansionExplosive: ItemBase
 	
 		Particle p4 = Particle.Play(ParticleList.IMPACT_GRAVEL_RICOCHET, GetPosition());
 		p4.SetOrientation(n);
-
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( RemoveLater, 100, false );  
 	}
 
 	override void OnVariablesSynchronized()

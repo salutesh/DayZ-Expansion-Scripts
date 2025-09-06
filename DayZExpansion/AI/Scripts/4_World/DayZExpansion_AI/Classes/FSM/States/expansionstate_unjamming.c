@@ -7,6 +7,10 @@ class ExpansionState_Unjamming: eAIState
 	override void OnEntry(string Event, ExpansionState From)
 	{
 		time = 0;
+
+		if (unit.m_eAI_IsInCover && unit.eAI_GetStance() == DayZPlayerConstants.STANCEIDX_ERECT && unit.m_eAI_StancePreference != DayZPlayerConstants.STANCEIDX_PRONE)
+			unit.OverrideStance(DayZPlayerConstants.STANCEIDX_CROUCH);
+
 		unit.RaiseWeapon(false);
 		
 		unit.StartActionObject(eAIActionWeaponUnjam, null);
@@ -15,6 +19,9 @@ class ExpansionState_Unjamming: eAIState
 	override void OnExit(string Event, bool Aborted, ExpansionState To)
 	{
 		unit.OverrideMovementDirection(false, 0);
+
+		if (unit.eAI_ShouldGetUp())
+			unit.Expansion_GetUp();
 	}
 
 	override int OnUpdate(float DeltaTime, int SimulationPrecision)
@@ -32,9 +39,29 @@ class ExpansionState_Unjamming: eAIState
 			}
 			
 			auto target = unit.GetTarget();
-			if (target && target.GetDistanceSq(true) <= 2.25)
+			if (target && unit.GetThreatToSelf() >= 0.4)
 			{
-				unit.OverrideMovementDirection(true, -180);
+				if (!unit.m_eAI_IsInCover)
+					unit.OverrideTargetPosition(target, true);
+				
+				if (target.GetDistanceSq(true) <= 2.25)
+					unit.OverrideMovementDirection(true, -180);
+			}
+			else
+			{
+				vector position;
+
+				auto group = unit.GetGroup();
+				if (group)
+				{
+					if (group.GetFormationLeader() != unit)
+						position = group.GetFormationPosition(unit);
+					else
+						position = group.GetCurrentWaypoint();
+				}
+			
+				if (position != vector.Zero)
+					unit.OverrideTargetPosition(position);
 			}
 		
 			return CONTINUE;

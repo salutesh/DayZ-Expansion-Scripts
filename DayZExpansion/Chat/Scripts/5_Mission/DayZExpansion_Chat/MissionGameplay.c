@@ -20,6 +20,7 @@ modded class MissionGameplay
 	protected Widget m_ChatChannelRootWidget;
 	protected TextWidget m_ChatChannelName;
 	protected bool m_ExpansionUseChat;
+	protected bool m_Expansion_MenuChatToggle;
 
 	void MissionGameplay()
 	{
@@ -277,16 +278,24 @@ modded class MissionGameplay
 	{
 		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-		if (m_ExpansionUseChat && !inputIsFocused && m_Hud.Expansion_CanShowHUDElements(player))
+		if (isAliveConscious && !inputIsFocused && m_ExpansionUseChat)
 		{
+			if (menu || viewMenu)
+			{
+				//! If chat is toggled (visible), hide it while menu is open
+				if (GetExpansionClientSettings().HUDChatToggle && !m_Expansion_MenuChatToggle)
+				{
+					m_Expansion_MenuChatToggle = true;
+					m_Chat.HideChatToggle();
+				}
+			}
 			//! Open main chat input and window
-			if (input.LocalPress("UAChat", false))
+			else if (input.LocalPress("UAChat", false))
 			{
 				ShowChat();
 			}
-
 			//! Hide chat toggle
-			if (input.LocalPress("UAExpansionHideChatToggle", false))
+			else if (input.LocalPress("UAExpansionHideChatToggle", false))
 			{
 				m_Chat.HideChatToggle();
 
@@ -299,11 +308,16 @@ modded class MissionGameplay
 					ExpansionNotification("STR_EXPANSION_CHATTOGGLE_TITLE", "STR_EXPANSION_CHATTOGGLE_OFF", EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 5).Info(player.GetIdentity());
 				}
 			}
-
 			//! Switch chat channel
-			if (input.LocalPress("UAExpansionChatSwitchChannel", false))
+			else if (input.LocalPress("UAExpansionChatSwitchChannel", false))
 			{
 				SwitchChannel();
+			}
+			else if (m_Expansion_MenuChatToggle)
+			{
+				//! Show chat again after menu is closed
+				m_Expansion_MenuChatToggle = false;
+				m_Chat.HideChatToggle();
 			}
 		}
 	}

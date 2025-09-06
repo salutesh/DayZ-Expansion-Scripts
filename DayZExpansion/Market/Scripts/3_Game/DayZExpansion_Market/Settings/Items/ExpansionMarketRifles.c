@@ -19,7 +19,6 @@ class ExpansionMarketRifles: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 47;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_RIFLES";
 		m_FileName = "Rifles";
 
@@ -32,7 +31,7 @@ class ExpansionMarketRifles: ExpansionMarketCategory
 		AddItem("winchester70", 	3725, 	6210,	1,100);
 		AddItem("ssg82", 	3960, 	6600,	1,100,{"Mag_SSG82_5rnd"});
 		AddItem("sks", 	980, 	1635,	1,100,{"SKS_Bayonet"});
-		AddItem("m14", 	6715, 	11190,	1,100,{"M14_10Rnd","M14_20Rnd"});
+		AddItem("m14", 	6715, 	11190,	1,100,{"Mag_M14_10Rnd","Mag_M14_20Rnd"});
 
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_Kar98", 			1230, 	2050,	1,		100);

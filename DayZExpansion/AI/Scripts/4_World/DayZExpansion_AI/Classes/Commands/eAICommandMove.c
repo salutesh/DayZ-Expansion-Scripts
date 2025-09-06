@@ -1848,11 +1848,11 @@ class eAICommandMove: ExpansionHumanCommand
 				{
 					hit = true;
 
-					if (updatePathIfTreeClose && vector.DistanceSq(m_Waypoint, hitPosition) < 16.0)
-						m_UpdatePath = true;
-
 					if (obj != m_PrevBlockingObject)
 					{
+						if (updatePathIfTreeClose && vector.DistanceSq(m_Waypoint, hitPosition) < 16.0)
+							m_UpdatePath = true;
+
 						m_Unit.Expansion_DebugObject(2100, begPos - dir * radiusRV, "ExpansionDebugSphereSmall_Cyan", dir);
 						m_Unit.Expansion_DebugObject(2101, begPos + dir.Perpend() * radiusRV, "ExpansionDebugSphereSmall_Cyan", dir);
 						m_Unit.Expansion_DebugObject(2102, begPos - dir.Perpend() * radiusRV, "ExpansionDebugSphereSmall_Cyan", dir);

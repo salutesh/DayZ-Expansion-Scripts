@@ -16,7 +16,6 @@ class ExpansionMarketBelts: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 8;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BELTS";
 		m_FileName = "Belts";
 

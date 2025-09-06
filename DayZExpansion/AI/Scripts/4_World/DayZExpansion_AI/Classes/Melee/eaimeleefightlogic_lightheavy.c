@@ -97,7 +97,7 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.AI, m_AI, "HandleFightLogic - start blocking attack (cooldown " + target.GetAttackCooldown() + " " + target.IsFighting() +  ")");
 				#endif
-					m_eAI_BlockEndTime = GetGame().GetTime() + Math.RandomInt(3000, 6000);
+					m_eAI_BlockEndTime = GetGame().GetTime() + Math.RandomInt(1500, 3000);
 					block = true;
 				}
 

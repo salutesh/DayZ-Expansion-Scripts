@@ -16,7 +16,6 @@ class ExpansionMarketFishing: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 23;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FISHING";
 		m_FileName = "Fishing";
 		

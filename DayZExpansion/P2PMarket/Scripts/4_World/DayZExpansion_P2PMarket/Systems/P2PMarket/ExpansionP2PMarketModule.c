@@ -94,8 +94,8 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
 		#endif 
 				
+		m_P2PMarketSettings = GetExpansionSettings().GetP2PMarket(false);
 		#ifdef SERVER
-		m_P2PMarketSettings = GetExpansionSettings().GetP2PMarket();
 		if (m_P2PMarketSettings.Enabled)
 		{
 			CreateDirectoryStructure();
@@ -1200,7 +1200,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		
 		if (!dataMap)
 		{
-			EXError.Error(this, "::SendCategoryListingsData - Could not get P2P categroy data!");
+			EXError.Error(this, "::SendCategoryListingsData - Could not get P2P category data!");
 			return;
 		}
 		
@@ -2075,7 +2075,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		if (!ignoreListingPrice)
 		{
 			string type = objEntity.GetType();
-			int listingPrice = Math.Ceil(price * m_P2PMarketSettings.ListingPricePercent / 100);
+			int listingPrice = Math.Ceil(price * GetListingPricePercent(traderID, player) / 100);
 			string listingPriceString = GetDisplayPrice(traderConfig, listingPrice, false, true, true);
 			if (listingPrice <= 0)
 			{
@@ -2692,6 +2692,12 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 				m_CallbackInvoker.Invoke(callback, type, price, option, blockingObject);
 				break;
 		}
+	}
+
+	//! For 3rd-party modding override support
+	float GetListingPricePercent(int traderID, PlayerBase player = null)
+	{
+		return m_P2PMarketSettings.ListingPricePercent;
 	}
 
 	static int GetMarketPrice(string typeName)

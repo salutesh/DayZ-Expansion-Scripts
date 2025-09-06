@@ -16,7 +16,6 @@ class ExpansionMarketElectronics: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 18;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_ELECTRONICS";
 		m_FileName = "Electronics";
 

@@ -4,7 +4,6 @@ modded class ZombieBase
 	ref eAIDamageHandler m_eAI_DamageHandler;
 	bool m_Expansion_Airborne;
 	float m_Expansion_AirbornePeakAltitude;
-	float m_eAI_AttackCooldown;  //! vanilla m_AttackCoolDownTime unfortunately only ticks down in FightAttackLogic, not ChaseAttackLogic, and is sped up
 
 	void ZombieBase()
 	{
@@ -73,43 +72,6 @@ modded class ZombieBase
 		return super.ModCommandHandlerBefore(pDt, pCurrentCommandID, pCurrentCommandFinished);
 	}
 
-	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
-	{
-		//! @note attack starts *after* cooldown reaches zero
-		if (m_eAI_AttackCooldown > 0)
-			m_eAI_AttackCooldown -= pDt;
-
-		super.CommandHandler(pDt, pCurrentCommandID, pCurrentCommandFinished);
-	}
-
-	override bool ChaseAttackLogic(int pCurrentCommandID, DayZInfectedInputController pInputController, float pDt)
-	{
-		if (super.ChaseAttackLogic(pCurrentCommandID, pInputController, pDt))
-		{
-			if (EXTrace.AI)
-				PrintFormat("%1 ChaseAttackLogic distance=%2 pitch=%3 type=%4 subtype=%5 %6 heavy=%7 cooldown=%8 probability=%9", this, m_ActualAttackType.m_Pitch, m_ActualAttackType.m_Distance, m_ActualAttackType.m_Type, m_ActualAttackType.m_Subtype, m_ActualAttackType.m_AmmoType, m_ActualAttackType.m_IsHeavy, m_ActualAttackType.m_Cooldown, m_ActualAttackType.m_Probability);
-
-			m_eAI_AttackCooldown = m_ActualAttackType.m_Cooldown;
-			return true;
-		}
-
-		return false;
-	}
-
-	override bool FightAttackLogic(int pCurrentCommandID, DayZInfectedInputController pInputController, float pDt)
-	{
-		if (super.FightAttackLogic(pCurrentCommandID, pInputController, pDt))
-		{
-			if (EXTrace.AI)
-				PrintFormat("%1 FightAttackLogic distance=%2 pitch=%3 type=%4 subtype=%5 %6 heavy=%7 cooldown=%8 probability=%9", this, m_ActualAttackType.m_Pitch, m_ActualAttackType.m_Distance, m_ActualAttackType.m_Type, m_ActualAttackType.m_Subtype, m_ActualAttackType.m_AmmoType, m_ActualAttackType.m_IsHeavy, m_ActualAttackType.m_Cooldown, m_ActualAttackType.m_Probability);
-
-			m_eAI_AttackCooldown = m_ActualAttackType.m_Cooldown;
-			return true;
-		}
-
-		return false;
-	}
-
 	override protected void EOnContact(IEntity other, Contact extra)
 	{
 		if (!IsAlive() || !m_Expansion_Airborne || m_Expansion_AirbornePeakAltitude == 0)
@@ -128,11 +90,6 @@ modded class ZombieBase
 	void Expansion_SetAirborne(bool state)
 	{
 		m_Expansion_Airborne = state;
-	}
-
-	EntityAI Expansion_GetActualTarget()
-	{
-		return m_ActualTarget;   //! Vanilla variable, but no vanilla getter
 	}
 
 	int Expansion_GetMindState()

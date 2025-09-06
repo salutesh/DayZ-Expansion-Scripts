@@ -31,6 +31,12 @@ class ExpansionMarketMenuItemManagerCategory: ExpansionScriptView
 			m_MarketItemManagerCategoryController = ExpansionMarketMenuItemManagerCategoryController.Cast(GetController());
 	}
 	
+	void ~ExpansionMarketMenuItemManagerCategory()
+	{
+		if (m_CategoryTooltip) 
+			m_CategoryTooltip.Destroy();
+	}
+
 	override string GetLayoutFile() 
 	{
 		return "DayZExpansion/Market/GUI/layouts/market/expansion_market_menu_item_manager_category_element.layout";

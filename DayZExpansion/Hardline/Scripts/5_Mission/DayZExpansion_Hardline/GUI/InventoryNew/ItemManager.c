@@ -19,6 +19,11 @@ modded class ItemManager
 		m_Expansion_IsValidLayout = false;
 		ExpansionSettings.SI_Hardline.Insert(Expansion_OnSettingsReceived);
 	}
+
+	void ~ItemManager()
+	{
+		ExpansionSettings.SI_Hardline.Remove(Expansion_OnSettingsReceived);
+	}
 	
 	void Expansion_OnSettingsReceived()
 	{

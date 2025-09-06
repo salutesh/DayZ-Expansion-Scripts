@@ -160,6 +160,16 @@ class eAITargetInformation
 		return false;
 	}
 
+	bool IsAcuteDanger(eAIBase ai = null)
+	{
+		return false;
+	}
+
+	bool IsLit()
+	{
+		return false;
+	}
+
 	float GetAttackCooldown()
 	{
 		return 0;

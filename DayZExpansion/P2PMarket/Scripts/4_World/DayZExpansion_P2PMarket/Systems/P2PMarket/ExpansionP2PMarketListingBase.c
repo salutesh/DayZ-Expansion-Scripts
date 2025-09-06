@@ -184,7 +184,7 @@ class ExpansionP2PMarketListingBase
 		foreach (string ammoName, int count: ammoTypes)
 		{
 			string ammoClassName = GetGame().ConfigGetTextOut("CfgAmmo " + ammoName + " spawnPileType");
-			EXPrint(ToString() + "::GetAmmoForMagazine - Ammo: " + ammoClassName + ", " + "Count: " + count);
+			EXTrace.Print(EXTrace.P2PMARKET, this, "::GetAmmoForMagazine - Ammo: " + ammoClassName + ", " + "Count: " + count);
 
 			while (count > 0)
 			{
@@ -208,7 +208,7 @@ class ExpansionP2PMarketListingBase
 					count -= count;
 				}
 
-				EXPrint(ToString() + "::GetAmmoForMagazine - Add entry for ammo: " + ammoClassName);
+				EXTrace.Print(EXTrace.P2PMARKET, this, "::GetAmmoForMagazine - Add entry for ammo: " + ammoClassName);
 				ExpansionP2PMarketContainerItem ammoItem = new ExpansionP2PMarketContainerItem();
 				ammoItem.SetFromItem(ammo);
 				ammoItem.SetExcluded(true);

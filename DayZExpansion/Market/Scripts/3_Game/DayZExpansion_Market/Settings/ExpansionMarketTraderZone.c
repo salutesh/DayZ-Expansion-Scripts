@@ -10,6 +10,12 @@
  *
 */
 
+enum ExpansionMarketStock
+{
+	Undefined = -3,  //! -3 for legacy 3rd party compat
+	Static = -2
+}
+
 class ExpansionMarketTraderZoneBase
 {
 	int m_Version;
@@ -229,6 +235,8 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 
 		item.m_StockOnly = tItem.MarketItem.m_StockOnly;
 
+		//! stockOnly true means trader was already netsynched
+		//! item.m_StockOnly true means it's a variant that's identical to its parent (sans classname obviously)
 		if (stockOnly || item.m_StockOnly)
 			return item;
 
@@ -248,7 +256,12 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 				EXPrint("ExpansionMarketTraderZone::GetNetworkItemSerialization - WARNING: Attachment '" + className + "' does not exist!");
 		}
 		item.Variants = new array< string >;
-		item.Variants.Copy(tItem.MarketItem.Variants);
+		foreach (string variant: tItem.MarketItem.Variants)
+		{
+			string networkVariant = variant;
+			networkVariant.Replace(item.ClassName, "*");
+			item.Variants.Insert(networkVariant);
+		}
 
 		//! Network optimization: Pack BuySell, Hardline item rarity (if loaded), QuantityPercent and SellPricePercent into one 32-bit int
 		//! (8 bits for BuySell and item rarity combined, 8 bits for QuantityPercent, 16 bits for SellPricePercent)
@@ -440,7 +453,7 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 		if (!ItemExists(className))
 		{
 			Error("ExpansionMarketTraderZone::GetStock - Item " + className + " does not exist in trader zone!");
-			return -3; // -3 means the item does not exist in this trader zone
+			return ExpansionMarketStock.Undefined;
 		}
 
 		int stock = Stock.Get( className );

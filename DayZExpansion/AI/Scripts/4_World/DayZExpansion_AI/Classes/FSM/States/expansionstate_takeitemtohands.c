@@ -4,6 +4,7 @@ class ExpansionState_TakeItemToHands: eAIState
 	float time;
 	bool loweringWeapon;
 	int requestSwapToMeleeForZombieTime;
+	bool allowDrop;
 
 	override void OnEntry(string Event, ExpansionState From)
 	{
@@ -66,8 +67,16 @@ class ExpansionState_TakeItemToHands: eAIState
 			else if (hands)
 			{
 				//! Try to put current hand item in inventory (shoulder slot or cargo), drop if not possible
-				if (!unit.eAI_TakeItemToInventoryDropShoulderImpl(hands))
-					unit.eAI_DropItem(hands, false, true, false);
+				if (!unit.eAI_TakeItemToInventoryDropShoulderImpl(hands, allowDrop))
+				{
+					if (allowDrop)
+						unit.eAI_DropItem(hands, false, true, false);
+					else
+					{
+						unit.eAI_ThreatOverride(item, true);
+						return EXIT;
+					}
+				}
 				else if (unit.m_eAI_LastDroppedItem == item)
 					unit.eAI_ThreatOverride(item, false);
 				else

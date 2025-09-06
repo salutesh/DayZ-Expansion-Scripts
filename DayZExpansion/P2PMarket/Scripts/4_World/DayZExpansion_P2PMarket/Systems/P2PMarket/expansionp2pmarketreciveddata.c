@@ -28,6 +28,9 @@ class ExpansionP2PMarketRecivedData
 	
 	void Debug()
 	{
+		if (!EXTrace.P2PMARKET)
+			return;
+
 		ErrorEx("Listings: " + m_Listings + " | Count: " + m_Listings.Count(), ErrorExSeverity.INFO);
 		ErrorEx("Trader ID: " + m_TraderID, ErrorExSeverity.INFO);
 		ErrorEx("Is global: " + m_IsGlobal, ErrorExSeverity.INFO);

@@ -1,6 +1,152 @@
+enum ExpansionPositionKnowledgeType
+{
+	NONE,
+	COORDS_GRIDSECTOR,
+	COORDS_METERS
+}
+
 modded class PlayerBase
 {
 	ref TIntArray m_eAI_FactionModifiers;
+
+	bool m_eAI_IsLit;
+
+#ifndef SERVER
+	//! Client only!
+
+	//! Lights the player is in radius of
+	ref array<ScriptedLightBase> m_eAI_Lights;
+
+	ref ScriptCaller m_eAI_AddLightIfPlayerInLight = ScriptCaller.Create(eAI_AddLightIfPlayerInLight);
+
+	int m_eAI_ProcessedLights;
+
+	void ~PlayerBase()
+	{
+	#ifndef DIAG_DEVELOPER
+		if (!g_Game)
+			return;
+	#endif
+
+		if (m_eAI_Lights)
+		{
+			foreach (ScriptedLightBase light: m_eAI_Lights)
+			{
+				light.eAI_RemovePlayer(this);
+			}
+		}
+	}
+
+	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)	
+	{
+		super.CommandHandler(pDt, pCurrentCommandID, pCurrentCommandFinished);
+
+		eAI_ProcessLights();
+	}
+
+	void eAI_AddLightIfPlayerInLight(ScriptedLightBase light)
+	{
+		if (light.Type() != PersonalLight && light.eAI_IsVisible(true) && (light.eAI_IsLightOnPlayer(this) || light.eAI_IsPlayerInLight(this)))
+		{
+			if (!m_eAI_Lights || m_eAI_Lights.Find(light) == -1)
+				eAI_AddLight(light);
+		}
+	}
+
+	void eAI_RemoveLightsIfPlayerNotInLight(bool isNight = false)
+	{
+		for (int i = m_eAI_Lights.Count() - 1; i >= 0; --i)
+		{
+			ScriptedLightBase light = m_eAI_Lights[i];
+
+			if (!light.eAI_IsVisible(isNight) || (!light.eAI_IsLightOnPlayer(this) && !light.eAI_IsPlayerInLight(this)))
+				eAI_RemoveLightAtIndex(i);
+		}
+
+		if (m_eAI_IsLit && m_eAI_Lights.Count() == 0)
+			m_eAI_IsLit = false;
+	}
+
+	void eAI_AddLight(ScriptedLightBase light)
+	{
+		if (!m_eAI_Lights)
+			m_eAI_Lights = {};
+
+		int index = m_eAI_Lights.Insert(light);
+
+		light.eAI_AddPlayer(this);
+
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.AI, this, string.Format("[Lights] added %1 at index %2", light, index));
+	#endif
+
+		m_eAI_IsLit = true;
+	}
+
+	void eAI_RemoveLight(ScriptedLightBase light, bool removePlayerFromLight = true)
+	{
+		if (m_eAI_Lights)
+		{
+			int index = m_eAI_Lights.Find(light);
+
+			eAI_RemoveLightAtIndex(index, removePlayerFromLight);
+		}
+	}
+
+	void eAI_RemoveLightAtIndex(int index, bool removePlayerFromLight = true)
+	{
+		ScriptedLightBase light = m_eAI_Lights[index];
+
+		m_eAI_Lights.Remove(index);
+
+		if (removePlayerFromLight)
+			light.eAI_RemovePlayer(this);
+
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.AI, this, string.Format("[Lights] removed %1 at index %2", light, index));
+	#endif
+	}
+
+	void eAI_ProcessLights()
+	{
+		bool isLit = m_eAI_IsLit;
+		bool isNight = g_Game.GetWorld().IsNight();
+
+		if (isLit)
+			eAI_RemoveLightsIfPlayerNotInLight(isNight);
+
+		if (!ScriptedLightBase.s_eAI_LightNodes.m_Current)
+		{
+		//#ifdef DIAG_DEVELOPER
+			//EXTrace.Print(EXTrace.AI, this, string.Format("[Lights] processed %1 lights", m_eAI_ProcessedLights));
+		//#endif
+			m_eAI_ProcessedLights = 0;
+		}
+
+	#ifdef EXTRACE
+		auto trace = EXTrace.Profile(EXTrace.AI, ScriptedLightBase, "s_eAI_LightNodes::Each");
+	#endif
+
+		if (isNight && !m_eAI_IsLit)
+			m_eAI_ProcessedLights += ScriptedLightBase.s_eAI_LightNodes.Each(m_eAI_AddLightIfPlayerInLight, 30);
+
+	#ifdef EXTRACE
+		trace = null;
+	#endif
+
+		if (m_eAI_IsLit != isLit)
+		{
+		#ifdef DIAG_DEVELOPER
+			MessageStatus(string.Format("[CLIENT] %1 lit %2", GetIdentityName(), m_eAI_IsLit.ToString()));
+			EXTrace.Print(EXTrace.AI, this, string.Format("[Lights] %1 lit %2", GetIdentityName(), m_eAI_IsLit.ToString()));
+		#endif
+
+			auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_eAI_SetLit");
+			rpc.Write(m_eAI_IsLit);
+			rpc.Expansion_Send(true);
+		}
+	}
+#endif
 
 	override void Init()
 	{
@@ -8,6 +154,11 @@ modded class PlayerBase
 
 		if (!IsAI())
 			RegisterNetSyncVariableInt("m_eAI_LastAggressionTimeout");
+
+		if (!m_Expansion_RPCManager)
+			m_Expansion_RPCManager = new ExpansionRPCManager(this, ExpansionWorld.GetModdableRootType(this));
+
+		m_Expansion_RPCManager.RegisterServer("RPC_eAI_SetLit");
 	}
 
 	override void SetActions(out TInputActionMap InputActionMap)
@@ -16,6 +167,7 @@ modded class PlayerBase
 
 		AddAction(ExpansionActionRecruitAI, InputActionMap);
 		AddAction(ExpansionActionDismissAI, InputActionMap);
+		AddAction(ExpansionActionOpenAIInventory, InputActionMap);
 	}
 
 	//! @note Only called for players not eAIBase since the latter overrides the commandhandler completely,
@@ -143,6 +295,21 @@ modded class PlayerBase
 		m_eAI_FactionModifiers = null;
 	}
 
+	void RPC_eAI_SetLit(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		ctx.Read(m_eAI_IsLit);
+
+	#ifdef DIAG_DEVELOPER
+		MessageStatus(string.Format("[SERVER] %1 lit %2", GetIdentityName(), m_eAI_IsLit.ToString()));
+		EXTrace.Print(EXTrace.AI, this, string.Format("[Lights] %1 lit %2", GetIdentityName(), m_eAI_IsLit.ToString()));
+	#endif
+	}
+
+	override bool eAI_IsLit()
+	{
+		return m_eAI_IsLit;
+	}
+
 	void Expansion_OnDangerousAreaEnterServer(EffectArea area, Trigger trigger)
 	{
 	}
@@ -166,6 +333,97 @@ modded class PlayerBase
 		}
 
 		return players;
+	}
+
+	bool Expansion_CanAgentGrow(int agentId)
+	{
+		typename e = EMedicalDrugsType;
+		int count = e.GetVariableCount();
+		for (int vIdx = 0; vIdx < count; ++vIdx)
+		{
+			int drugType;
+			if (e.GetVariableType(vIdx) == int && e.GetVariableValue(null, vIdx, drugType) && drugType != EMedicalDrugsType.NONE)
+			{
+				if ((m_MedicalDrugsActive & drugType) == drugType)
+				{
+					if (!m_AgentPool.m_PluginTransmissionAgents.GrowDuringMedicalDrugsAttack(agentId, drugType, this))
+					{
+						return false;
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	bool Expansion_HasEnergy(notnull ExpansionInventoryItemType itemType)
+	{
+		foreach (ItemBase item: itemType.Items)
+		{
+			if (item.GetCompEM() && item.GetCompEM().CanWork())
+				return true;
+		}
+
+		return false;
+	}
+
+	ExpansionPositionKnowledgeType Expansion_GetPositionKnowledgeType()
+	{
+		ExpansionInventoryItemType itemType;
+
+	#ifdef EXPANSIONMODNAVIGATION
+		itemType = Expansion_GetInventoryItemType(ExpansionGPS); 
+		if (itemType && Expansion_HasEnergy(itemType))
+			return ExpansionPositionKnowledgeType.COORDS_METERS;
+
+		auto mapSettings = GetExpansionSettings().GetMap();
+		if (mapSettings.EnableMap)
+		{
+			bool canUseMap = !mapSettings.NeedMapItemForKeyBinding;
+
+			if (!canUseMap && Expansion_GetInventoryCount(ItemMap) > 0)
+				canUseMap = true;
+
+			if (canUseMap)
+			{
+				//! We really should have an enum for ShowPlayerPosition in Navigation mod...
+				switch (mapSettings.ShowPlayerPosition)
+				{
+					case 1:
+						//! Player position is visible
+						return ExpansionPositionKnowledgeType.COORDS_METERS;
+
+					case 2:
+						//! Player position is visible if player has a compass
+						if (Expansion_GetInventoryCount(ItemCompass) > 0)
+							return ExpansionPositionKnowledgeType.COORDS_METERS;
+						break;
+				}
+			}
+		}
+	#endif
+
+		itemType = Expansion_GetInventoryItemType(GPSReceiver); 
+		if (itemType && Expansion_HasEnergy(itemType))
+			return ExpansionPositionKnowledgeType.COORDS_GRIDSECTOR;
+
+		return ExpansionPositionKnowledgeType.NONE;
+	}
+
+	bool Expansion_CanKnowGroupMemberDistance()
+	{
+	#ifdef EXPANSIONMODGROUPS
+		auto groupSettings = GetExpansionSettings().GetParty();
+
+		if (groupSettings.ShowPartyMember3DMarkers && groupSettings.ShowDistanceUnderPartyMembersMarkers)
+			return true;
+
+		if (groupSettings.ShowPartyMemberHUD && groupSettings.ShowHUDMemberDistance)
+			return true;
+	#endif
+
+		return false;
 	}
 
 	/**

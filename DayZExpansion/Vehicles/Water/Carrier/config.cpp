@@ -86,6 +86,7 @@ class CfgVehicles
 				proxyPos="crewDriver";
 				getInPos="pos_driver";
 				getInDir="pos_driver_dir";
+				isDriver=1;
 			};
 		};
 		class SimulationModule: SimulationModule

@@ -12,7 +12,17 @@
 
 modded class CF_ModuleGame
 {
+	static ref map<typename, bool> s_Expansion_TracingEnabled = new map<typename, bool>;
+	bool m_Expansion_TracingEnabled;
+
 	ref ExpansionRPCManager m_Expansion_RPCManager;
+
+	void EnableTracing(bool enable = true)
+	{
+		m_Expansion_TracingEnabled = enable;
+		typename type = Type();
+		s_Expansion_TracingEnabled[type] = enable;
+	}
 
 	override void EnableRPC()
 	{
@@ -54,5 +64,35 @@ modded class CF_ModuleGame
 	ExpansionScriptRPC Expansion_CreateRPC(string fn)
 	{
 		return m_Expansion_RPCManager.CreateRPC(fn);
+	}
+
+	void TracePrint(string msg)
+	{
+		EXTrace.Print(m_Expansion_TracingEnabled, this, msg);
+	}
+
+	void TracePrint(string msg, string p1, string p2 = "", string p3 = "", string p4 = "", string p5 = "", string p6 = "", string p7 = "", string p8 = "", string p9 = "")
+	{
+		EXTrace.Print(m_Expansion_TracingEnabled, this, string.Format(msg, p1, p2, p3, p4, p5, p6, p7, p8, p9));
+	}
+
+	void TracePrint(string msg, Class p1, Class p2 = null, Class p3 = null, Class p4 = null, Class p5 = null, Class p6 = null, Class p7 = null, Class p8 = null, Class p9 = null)
+	{
+		EXTrace.Print(m_Expansion_TracingEnabled, this, ExpansionStatic.FormatString(msg, p1, p2, p3, p4, p5, p6, p7, p8, p9));
+	}
+
+	static void TracePrint(typename type, string msg)
+	{
+		EXTrace.Print(s_Expansion_TracingEnabled[type], type, msg);
+	}
+
+	static void TracePrint(typename type, string msg, string p1, string p2 = "", string p3 = "", string p4 = "", string p5 = "", string p6 = "", string p7 = "", string p8 = "", string p9 = "")
+	{
+		EXTrace.Print(s_Expansion_TracingEnabled[type], type, string.Format(msg, p1, p2, p3, p4, p5, p6, p7, p8, p9));
+	}
+
+	static void TracePrint(typename type, string msg, Class p1, Class p2 = null, Class p3 = null, Class p4 = null, Class p5 = null, Class p6 = null, Class p7 = null, Class p8 = null, Class p9 = null)
+	{
+		EXTrace.Print(s_Expansion_TracingEnabled[type], type, ExpansionStatic.FormatString(msg, p1, p2, p3, p4, p5, p6, p7, p8, p9));
 	}
 }

@@ -136,7 +136,7 @@ class cfgWeapons
 			{
 				class Health
 				{
-					hitpoints=100;
+					hitpoints=250;
 					healthLevels[]=
 					{
 						

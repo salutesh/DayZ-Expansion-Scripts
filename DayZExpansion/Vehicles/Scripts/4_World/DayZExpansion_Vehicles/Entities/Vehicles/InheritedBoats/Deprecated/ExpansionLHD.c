@@ -25,6 +25,14 @@ class ExpansionLHD : ExpansionBoatScript
 			SetAllowDamage(false);
 	}
 
+	void ~ExpansionLHD()
+	{
+		if (!g_Game)
+			return;
+
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(Update);
+	}
+
 	override void DeferredInit()
 	{
 		super.DeferredInit();

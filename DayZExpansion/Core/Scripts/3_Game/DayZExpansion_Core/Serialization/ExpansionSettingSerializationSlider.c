@@ -18,6 +18,28 @@ class ExpansionSettingSerializationSlider: ExpansionSettingSerializationBase
 
 	float m_TempValue;
 
+	typename m_VariableType;
+
+	override protected bool FindClassInstanceAndVariable()
+	{
+		if (super.FindClassInstanceAndVariable())
+		{
+			typename type = m_ActualInstance.Type();
+			int count = type.GetVariableCount();
+
+			for (int i = 0; i < count; i++)
+			{
+				if (type.GetVariableName(i) == m_ActualVariable)
+				{
+					m_VariableType = type.GetVariableType(i);
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	void SetTempValue( float value )
 	{
 		m_TempValue = value;
@@ -33,22 +55,38 @@ class ExpansionSettingSerializationSlider: ExpansionSettingSerializationBase
 
 	float GetValue()
 	{
-		float value;
+		switch (m_VariableType)
+		{
+			case int:
+				int i;
+				EnScript.GetClassVar(m_ActualInstance, m_ActualVariable, 0, i);
+				return i;
 
-		FindClassInstanceAndVariable();
+			case float:
+				float f;
+				EnScript.GetClassVar(m_ActualInstance, m_ActualVariable, 0, f);
+				return f;
+		}
 
-		EnScript.GetClassVar( m_ActualInstance, m_ActualVariable, 0, value );
-		
-		return value;
+		return 0;
 	}
 
 	void SetValue( float value )
 	{
 		value = Math.Clamp( value, m_Min, m_Max );
 
-		FindClassInstanceAndVariable();
+		switch (m_VariableType)
+		{
+			case int:
+				int i = Math.Round(value);
+				EnScript.SetClassVar(m_ActualInstance, m_ActualVariable, 0, i);
+				break;
 
-		EnScript.SetClassVar( m_ActualInstance, m_ActualVariable, 0, value );
+			case float:
+				float f = value;
+				EnScript.SetClassVar(m_ActualInstance, m_ActualVariable, 0, f);
+				break;
+		}
 		
 		GetGame().GameScript.Call( m_Instance, "OnSettingsUpdated", new Param2< typename, ExpansionSettingSerializationBase >( Type(), this ) );
 	}

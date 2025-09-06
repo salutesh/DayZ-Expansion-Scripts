@@ -270,6 +270,9 @@ class ExpansionVehicle
 		if (entity.IsInitialized())
 			entity.SetSynchDirty();
 	#endif
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, this, GetEntity().ToString() + " cargo count + " + delta + " = " + m_CargoCount);
+	#endif
 	}
 
 	int GetCargoCount()

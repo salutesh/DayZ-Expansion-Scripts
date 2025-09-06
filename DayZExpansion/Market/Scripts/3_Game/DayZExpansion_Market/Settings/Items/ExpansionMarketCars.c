@@ -16,7 +16,6 @@ class ExpansionMarketCars: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 14;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_CARS";
 		m_FileName = "Cars";
 		

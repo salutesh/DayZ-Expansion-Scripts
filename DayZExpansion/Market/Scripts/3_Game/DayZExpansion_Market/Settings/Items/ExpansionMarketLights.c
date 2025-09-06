@@ -16,7 +16,6 @@ class ExpansionMarketLights: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 34;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LIGHTS";
 		m_FileName = "Lights";
 		
@@ -31,7 +30,6 @@ class ExpansionMarketLights: ExpansionMarketCategory
 		AddItem("portablegaslamp", 	750, 	1250,	1,100,{"MediumGasCanister"});
 		AddItem("portablegasstove", 	365, 	605,	1,100,{"MediumGasCanister"});
 		AddItem("headtorch_black", 	1770, 	2955,	1,100,{"Battery9V"},{"Headtorch_Grey"});
-		AddItem("headtorch_grey", 	1770, 	2955,	1,100,{"Battery9V"});
 		AddItem("spotlight", 	670, 	1115,	1,100);
 		
 		AddItem("universallight", 	2855, 	4760,	1,100);

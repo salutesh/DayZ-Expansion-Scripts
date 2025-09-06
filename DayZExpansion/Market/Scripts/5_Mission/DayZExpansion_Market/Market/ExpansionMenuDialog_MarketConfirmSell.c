@@ -108,32 +108,32 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionDialogBase
 	void PopulateAttachmentsList()
 	{
 		ExpansionMarketModule marketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
-		ExpansionMarketPlayerItem playerItem;
-		array<ref ExpansionMarketPlayerItem> items = m_MarketMenu.GetPlayerItems();
-		
-		if (items.Count() == 0)
-			return;
 		
 		ExpansionDialogContentSpacer spacer;
 				
-		for (int j = 0; j < items.Count(); j++)
-		{
-			string itemName = items[j].ClassName;
-			itemName.ToLower();
-			
-			itemName = marketModule.GetMarketItemClassName(marketModule.GetTrader().GetTraderMarket(), itemName);
+		ExpansionMarketPlayerItem playerItem  = m_MarketMenu.GetPlayerItem(m_MarketMenu.GetSelectedMarketItem().ClassName);
 
-			if (itemName == m_MarketMenu.GetSelectedMarketItem().ClassName)
-			{
-				playerItem = items[j];
-			}
-		}
-		
 		if (playerItem)
 		{			
 			ExpansionDialogContent_WrapSpacer_Entry entry;
 			string name;
-			if (playerItem.ContainerItems.Count() > 1)
+			if (playerItem.IsEquipped())
+			{
+				name = ExpansionStatic.FormatString("{1:name}", playerItem.GetItem().GetHierarchyParent());
+				InventoryLocation il = new InventoryLocation();
+				playerItem.GetItem().GetInventory().GetCurrentInventoryLocation(il);
+				string slotName = InventorySlots.GetSlotName(il.GetSlot());
+				string slotDisplayNamePath = string.Format("CfgSlots Slot_%1 displayName", slotName);
+				name += string.Format(" (%1)", g_Game.ConfigGetTextOut(slotDisplayNamePath));
+				entry = new ExpansionDialogContent_WrapSpacer_Entry(m_WrapSpacer, name);	
+				entry.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));	
+				m_WrapSpacer.AddSpacerContent(entry);
+				m_AdditionalText.SetText("#STR_EXPANSION_MARKET_ITEM_TOOLTIP_ONSLOT");
+				m_AdditionalText.Show();
+				spacer = new ExpansionDialogContentSpacer(this);
+				AddContent(spacer);
+			}
+			else if (playerItem.ContainerItems.Count() > 1)
 			{
 				foreach (string containerItemName, int quantity: playerItem.ContainerItems)
 				{
@@ -193,7 +193,10 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionDialogBase
 	}
 
 	override void Expansion_Update()
-	{		
+	{
+		if (!m_MarketMenu)
+			return;
+
 		if ((ExpansionStatic.Key_Y() || ExpansionStatic.Key_Z()) && !m_KeyInput)
 		{
 			GetMarketMenu().OnConfirmSellButtonClick();

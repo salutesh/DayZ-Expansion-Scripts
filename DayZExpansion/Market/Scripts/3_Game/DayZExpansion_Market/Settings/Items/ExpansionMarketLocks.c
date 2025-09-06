@@ -16,7 +16,6 @@ class ExpansionMarketLocks: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 36;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LOCKS";
 		m_FileName = "Locks";
 

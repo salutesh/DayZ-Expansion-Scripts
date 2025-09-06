@@ -18,6 +18,8 @@ enum ExpansionMarketMenuSortPriority
 
 class ExpansionMarketMenu: ExpansionScriptViewMenu
 {
+	static string s_RepIcon = "DayZExpansion/Core/GUI/icons/hud/Reputation-Stars.edds";
+
 	protected ref ExpansionMarketMenuController m_MarketMenuController;
 	protected ref ExpansionMarketModule m_MarketModule;
 	protected ExpansionTraderObjectBase m_TraderObject;
@@ -60,7 +62,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	protected bool m_ShowHandBullets = false;
 	protected bool m_ShowSellable = false;
 	protected bool m_ShowPurchasables = false;
-	protected ref array<ref ExpansionMarketPlayerItem> m_PlayerItems;
+	protected ref map<string, ref ExpansionMarketPlayerItem> m_PlayerItems;
 	protected ref ExpansionMarketFilters m_MarketFilters;
 	protected ref TStringArray m_FilterOptionStrings;
 	protected bool m_FilterUpdateInProgress;
@@ -198,14 +200,14 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			m_QuatityTooltip.SetContentOffset(-0.273438, -0.104167);
 		}
 		
-		m_MarketMenuController.ShowSellables = GetExpansionClientSettings().MarketMenuFilterSellableState;
-		m_MarketMenuController.ShowPurchasables = GetExpansionClientSettings().MarketMenuFilterPurchasableState;
+		SetFilterSellables(GetExpansionClientSettings().MarketMenuFilterSellableState);
+		SetFilterPurchasables(GetExpansionClientSettings().MarketMenuFilterPurchasableState);
+
+		m_MarketMenuController.WasShowingSellables = m_MarketMenuController.ShowSellables;
+		m_MarketMenuController.WasShowingPurchasables = m_MarketMenuController.ShowPurchasables;
 
 		market_item_sellables_checkbox.SetChecked(m_MarketMenuController.ShowSellables);
 		market_item_purchasables_checkbox.SetChecked(m_MarketMenuController.ShowPurchasables);
-		
-		SetFilterSellables(GetExpansionClientSettings().MarketMenuFilterSellableState);
-		SetFilterPurchasables(GetExpansionClientSettings().MarketMenuFilterPurchasableState);
 		
 		if (!m_MarketMenuItemManager)
 		{
@@ -221,7 +223,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("UpdatePlayerItems - Start");
 		
 		if (!m_PlayerItems)
-			m_PlayerItems = new array <ref ExpansionMarketPlayerItem>;
+			m_PlayerItems = new map<string, ref ExpansionMarketPlayerItem>;
 		else
 			m_PlayerItems.Clear();
 		
@@ -230,46 +232,30 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		foreach (EntityAI item: items)
 		{
 			string name = item.GetType();
-			bool added = false;
 			
 			MarketPrint("UpdatePlayerItems - Add player item: " + name + " to player items array");
 			
-			foreach (ExpansionMarketPlayerItem currentItem : m_PlayerItems)
-			{
-				if (currentItem.ClassName == name)
-				{
-					currentItem.Count++;
-					currentItem.UpdateContainerItems();
-					added = true;
-					break;
-				}
-			}
-			
-			if (!added)
-			{
-				m_PlayerItems.Insert(new ExpansionMarketPlayerItem(item));
-			}
+			name.ToLower();
+			name = m_MarketModule.GetMarketItemClassName(m_TraderMarket, name);
+
+			ExpansionMarketPlayerItem currentItem;
+			if (m_PlayerItems.Find(name, currentItem))
+				currentItem.Count++;
+			else
+				m_PlayerItems[name] = new ExpansionMarketPlayerItem(item);
 		}
 
 		MarketPrint("UpdatePlayerItems - End");
 	}
 
-	bool HasPlayerItem(string name)
+	bool HasPlayerItem(string name, out ExpansionMarketPlayerItem playerItem = null)
 	{
 		MarketPrint("HasPlayerItem - Start");
 		
-		for (int i = 0; i < m_PlayerItems.Count(); i++)
+		if (m_PlayerItems.Find(name, playerItem))
 		{
-			string itemName = m_PlayerItems[i].ClassName;
-			itemName.ToLower();
-			
-			itemName = m_MarketModule.GetMarketItemClassName(m_TraderMarket, itemName);
-
-			if (itemName == name)
-			{
-				MarketPrint("ExpansionMarketMenu::HasPlayerItem - End and return true" + name);
-				return true;
-			}
+			MarketPrint("ExpansionMarketMenu::HasPlayerItem - End and return true" + name);
+			return true;
 		}
 		
 		MarketPrint("HasPlayerItem - End and return false: " + name);
@@ -283,18 +269,24 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 	ExpansionMarketPlayerItem GetPlayerItem(string name)
 	{		
-		ExpansionMarketPlayerItem item;
-		for (int i = 0; i < m_PlayerItems.Count(); i++)
-		{
-			string itemName = m_PlayerItems[i].ClassName;			
-			if (itemName == name)
-				item = m_PlayerItems[i];
-		}
-		
-		return item;
+		return m_PlayerItems[name];
 	}
 
 	array<ref ExpansionMarketPlayerItem> GetPlayerItems()
+	{
+		EXError.Error(this, "DEPRECATED, use GetPlayerItemsEx");
+
+		array<ref ExpansionMarketPlayerItem> items = {};
+
+		foreach (string name, ExpansionMarketPlayerItem item: m_PlayerItems)
+		{
+			items.Insert(item);
+		}
+
+		return items;
+	}
+
+	map<string, ref ExpansionMarketPlayerItem> GetPlayerItemsEx()
 	{
 		return m_PlayerItems;
 	}
@@ -376,7 +368,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		for (int i = 0; i < count; i++)
 		{
 			ExpansionMarketMenuCategory menuCategory = m_MarketMenuController.MarketCategories[i];
-			if (GetExpansionClientSettings().MarketMenuCategoriesState || count == 1)
+			if (GetExpansionClientSettings().MarketMenuCategoriesState || (count == 1 && m_Complete))
 				menuCategory.ToggleCategory(true);
 		}
 
@@ -427,6 +419,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				else
 					currentItem.m_ShowInMenu = false;
 				
+				UpdateMarketItemPreviewEntity(currentItem);
+
 				TempInsertItem(displayName, currentItem, tempItems);
 				
 				itemCount++;
@@ -456,10 +450,35 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("CreateMenuCategories - End");
 	}
 	
+	void UpdateMarketItemPreviewEntity(ExpansionMarketItem item)
+	{
+		if (item.m_ShowInMenu)
+		{
+			item.m_PreviewEntity = null;
+
+			if (ShowSellables() && !ShowPurchasables())
+			{
+				ExpansionMarketPlayerItem playerItem;
+				if (HasPlayerItem(item.ClassName, playerItem))
+					item.m_PreviewEntity = playerItem.Item;
+			}
+		}
+	}
+
 	static void CreatePreviewObject(string className, inout EntityAI preview)
 	{
+		ErrorEx("DEPRECATED, use CreatePreviewObjectEx");
+	}
+
+	void CreatePreviewObjectEx(ExpansionMarketItem marketItem, inout EntityAI preview)
+	{
+		string className = GetPreviewClassName(marketItem.ClassName);
+
 		if (preview)
 		{
+			if (preview.GetHierarchyRootPlayer() == GetGame().GetPlayer())
+				return;
+
 			if (CF_String.EqualsIgnoreCase(preview.GetType(), className))
 			{
 				//! Same classname, remove all attachments
@@ -484,15 +503,15 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			preview = EntityAI.Cast(GetGame().CreateObjectEx(className, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
 #ifdef EXPANSIONMODHARDLINE
 			ItemBase item;
-			if (GetExpansionSettings().GetHardline().EnableItemRarity && Class.CastTo(item, preview))
-				item.Expansion_SetRarity(GetExpansionSettings().GetHardline().GetItemRarityByType(item.GetType()));
+			if (marketItem && GetExpansionSettings().GetHardline().EnableItemRarity && Class.CastTo(item, preview))
+				item.Expansion_SetRarity(marketItem.m_Rarity);
 #endif
 		}
 	}
 
 	bool ShouldShowItem(ExpansionMarketItem currentItem, string displayName, string search = "")
 	{
-		MarketPrint("CreateMenuCategories - Start");
+		MarketPrint("ShouldShowItem - Start");
 		
 		if (search != "")
 		{
@@ -517,7 +536,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 					if (ShowSellables() && !HasPlayerItem(currentItem.ClassName))
 						return false;
 					
-					if (!ShouldShowItemEx(currentItem.ClassName))
+					if (!ShouldShowItemEx(currentItem))
 						return false;
 
 					MarketPrint("ExpansionMarketMenu::ShouldShowItem - A option filter is active. Add item: " + currentItem.ClassName);
@@ -536,6 +555,27 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	//! This is here for overrides
 	bool ShouldShowItemEx(string className)
 	{
+		Error("DEPRECATED, use ShouldShowItemEx(ExpansionMarketItem item)");
+		return true;
+	}
+	
+	//! This is here for overrides
+	bool ShouldShowItemEx(ExpansionMarketItem item)
+	{
+	#ifdef EXPANSIONMODMARKET
+		auto settings = GetExpansionSettings().GetHardline();
+
+		if (!settings.UseReputation)
+			return true;
+
+		if ((ShowPurchasables() && settings.UseItemRarityForMarketPurchase) || (ShowSellables() && settings.UseItemRarityForMarketSell))
+		{
+			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			if (!m_MarketModule.HasRepForItemRarity(player, item))
+				return false;
+		}
+	#endif
+
 		return true;
 	}
 
@@ -590,7 +630,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 	void UpdateMarketCategories(bool updateItemViews = false)
 	{
-		MarketPrint("UpdateMarketCategories - Start");
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+	#endif
 
 		string search = GetSearchText();
 		search.ToLower();
@@ -606,11 +648,14 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				item.m_ShowInMenu = true;
 			else
 				item.m_ShowInMenu = false;
+
 			if (!item.m_ShowInMenu && (!item.m_IsVariant || (!item.m_Parent.m_ShowInMenu && ShowPurchasables()) || ShowSellables() || search))
 			{
 				string displayName = GetDisplayName(GetPreviewClassName(item.ClassName, true));
 				item.m_ShowInMenu = ShouldShowItem(item, displayName, search);
 			}
+
+			UpdateMarketItemPreviewEntity(item);
 		}
 		
 		bool includeAttachments;
@@ -700,6 +745,16 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				{
 					menuItem.Show();
 					MarketPrint("UpdateMarketCategories - Show item: " + currentBaseItem.ClassName);
+
+					if (!currentBaseItem.m_PreviewEntity)
+					{
+						if (menuItem.GetPreviewObject() && !menuItem.IsLocalPreview())
+							menuItem.UpdatePreviewObject();
+					}
+					else if (!menuItem.IsPreview(currentBaseItem.m_PreviewEntity))
+					{
+						menuItem.UpdatePreviewObject();
+					}
 				}
 			}
 			
@@ -723,8 +778,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				}
 			}
 		}
-		
-		MarketPrint("UpdateMarketCategories - End");
 	}
 
 	void UpdateOptionFilterStrings()
@@ -865,7 +918,11 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	bool IsFiltered()
 	{
 		//! NOTE: ShowSellables/ShowPurchasables needs to be checked separately because it can result in zero option filter strings
-		return m_FilterOptionStrings.Count() > 0 || GetSearchText() != "" || ShowSellables() || ShowPurchasables();
+
+		//! https://feedback.bistudio.com/T173348
+		if (m_FilterOptionStrings.Count() > 0 || GetSearchText() != "" || ShowSellables() || ShowPurchasables())
+			return true;
+		return false;
 	}
 
 	bool IsInFilter(string className)
@@ -962,6 +1019,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		if (!m_FirstCall)
 		{
 			EXPrint("SetTraderObject() - !m_FirstCall");
+
+			if (!m_Complete && complete)
+				m_Complete = complete;
+
 			InitMarketCategories();
 			CreateMenuCategories();
 	
@@ -977,11 +1038,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				m_MarketMenuController.NotifyPropertyChanged("MarketIcon");
 			}
 			
-			if (GetExpansionSettings().GetMarket().CurrencyIcon != "")
+			string currencyIcon = GetExpansionSettings().GetMarket().CurrencyIcon;
+			if (currencyIcon != "")
 			{
-				m_MarketMenuController.CurrencySellIcon = GetExpansionSettings().GetMarket().CurrencyIcon;
+				m_MarketMenuController.CurrencySellIcon = currencyIcon;
 				m_MarketMenuController.NotifyPropertyChanged("CurrencySellIcon");
-				m_MarketMenuController.CurrencyBuyIcon = GetExpansionSettings().GetMarket().CurrencyIcon;
+				m_MarketMenuController.CurrencyBuyIcon = currencyIcon;
 				m_MarketMenuController.NotifyPropertyChanged("CurrencyBuyIcon");
 			}
 			
@@ -990,6 +1052,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		else if (!m_Complete)
 		{
 			EXPrint("SetTraderObject() - !m_Complete");
+
+			if (complete)
+				m_Complete = complete;
+
 			//! Create remaining categories as items arrive
 			CreateMenuCategories();
 		}
@@ -1008,9 +1074,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			
 			UpdateItemFieldFromBasicNetSync();
 		}
-
-		if (!m_Complete && complete)
-			m_Complete = complete;
 
 		SetIsLoading(false);
 		
@@ -1316,9 +1379,14 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 	void UpdatePreview()
 	{
-		MarketPrint("UpdatePreview - Start");
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+	#endif
 		
-		string previewClassName = GetPreviewClassName(GetSelectedMarketItem().ClassName);
+		if (!m_SelectedMarketItem)
+			return;
+		
+		string previewClassName = GetPreviewClassName(m_SelectedMarketItem.ClassName);
 		
 		if (!UsePlayerPreview())
 		{
@@ -1336,8 +1404,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 			m_PlayerPreview.Update(previewClassName);
 		}
-		
-		MarketPrint("UpdatePreview - End");
 	}
 
 	override void UpdatePlayerPreviewObject(Object previewObject)
@@ -1632,14 +1698,16 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("UpdateItemFieldFromBasicNetSync - GetSelectedMarketItem().ClassName: " + GetSelectedMarketItem().ClassName);
 		MarketPrint("UpdateItemFieldFromBasicNetSync - m_TraderItemStock: " + m_TraderItemStock);
 		
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+
 		//! TODO: Give each transaction an unique ID and MarketSell?
-		m_MarketSell = new ExpansionMarketSell;
+		m_MarketSell = new ExpansionMarketSell(player);
 		m_MarketSell.Item = GetSelectedMarketItem();
 		m_MarketSell.Trader = m_TraderObject;
 		
 		int color;
 
-		if (GetSelectedMarketItemElement().CanSell() && GetSelectedMarketItemElement().HasRepSell())
+		if (GetSelectedMarketItemElement().CanSell())
 		{
 			if (m_PlayerStock >= 0)
 			{
@@ -1656,7 +1724,17 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			{
 				m_MarketMenuController.MarketItemStockPlayer = "#STR_EXPANSION_MARKET_ITEM_CANT_SELL";
 			}
+		}
+		else
+		{
+			if (GetSelectedMarketItemElement().CanBuy())
+				m_MarketMenuController.MarketItemStockPlayer = "";
+			else
+				m_MarketMenuController.MarketItemStockPlayer = "#STR_EXPANSION_MARKET_ITEM_CANT_SELL";
+		}
 
+		if (GetSelectedMarketItemElement().CanSell() && GetSelectedMarketItemElement().HasRepSell())
+		{
 			array<EntityAI> items;
 			if (m_PlayerStock != 0)
 			{
@@ -1668,35 +1746,45 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			{
 				//! Player doesn't have the item
 				items = new array<EntityAI>;
-				color = COLOR_EXPANSION_NOTIFICATION_EXPANSION;
+				color = ARGB(255, 192, 57, 43);
 			}
 
 			//! https://feedback.bistudio.com/T173348
 			bool includeAttachments;
 			if (m_PlayerStock != 0 || m_SelectedMarketItemElement.GetIncludeAttachments())
 				includeAttachments = true;
-			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_TraderItemStock, m_Quantity, m_MarketSell, includeAttachments, m_LastFindSellPriceResult, m_LastFindSellPriceFailedClassName);
+			m_MarketModule.FindSellPrice(player, items, m_TraderItemStock, m_Quantity, m_MarketSell, includeAttachments, m_LastFindSellPriceResult, m_LastFindSellPriceFailedClassName);
 			m_SellPrice = m_MarketSell.Price;
 
 			market_item_sell_price_text.SetColor(color); 
 			market_item_sell_price_icon.SetColor(color);
 
 			m_MarketMenuController.MarketItemTotalSellPrice = GetDisplayPrice(m_SellPrice);
+			m_MarketMenuController.CurrencySellIcon = GetExpansionSettings().GetMarket().CurrencyIcon;
 		}
 		else
 		{
 			m_SellPrice = -1;
+
 			if (GetSelectedMarketItemElement().HasRepSell())
-				m_MarketMenuController.MarketItemStockPlayer = "#STR_EXPANSION_MARKET_ITEM_CANT_SELL";
+			{
+				m_MarketMenuController.MarketItemTotalSellPrice = "";
+				m_MarketMenuController.CurrencySellIcon = GetExpansionSettings().GetMarket().CurrencyIcon;
+			}
 			else
-				m_MarketMenuController.MarketItemStockPlayer = "NOT ENOUGH REP";
-			m_MarketMenuController.MarketItemTotalSellPrice = "";
-			
+			{
+				m_MarketMenuController.MarketItemTotalSellPrice = m_SelectedMarketItem.m_RequiredRep.ToString();
+				m_MarketMenuController.CurrencySellIcon = s_RepIcon;
+
+				color = ARGB(255, 192, 57, 43);
+				market_item_sell_price_text.SetColor(color);
+				market_item_sell_price_icon.SetColor(color);
+			}
 		}
 		
-		market_item_sell_price_icon.Show(m_SellPrice > -1);
+		market_item_sell_price_icon.Show(m_MarketMenuController.MarketItemTotalSellPrice != "");
 		
-		if (GetSelectedMarketItemElement().CanBuy() && GetSelectedMarketItemElement().HasRepBuy())
+		if (GetSelectedMarketItemElement().CanBuy())
 		{
 			if (m_TraderItemStock > 0)
 			{
@@ -1714,10 +1802,20 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				else
 					m_MarketMenuController.MarketItemStockTrader = "N/A";
 			}
+		}
+		else
+		{
+			if (GetSelectedMarketItemElement().CanSell())
+				m_MarketMenuController.MarketItemStockTrader = "";
+			else
+				m_MarketMenuController.MarketItemStockTrader = "#STR_EXPANSION_MARKET_ITEM_CANT_BUY";
+		}
 
+		if (GetSelectedMarketItemElement().CanBuy() && GetSelectedMarketItemElement().HasRepBuy())
+		{
 			int price = 0;
 			ExpansionMarketResult result = ExpansionMarketResult.Success;
-			m_MarketModule.FindPriceOfPurchase(GetSelectedMarketItem(), m_MarketModule.GetClientZone(), m_TraderMarket, m_Quantity, price, GetSelectedMarketItemElement().GetIncludeAttachments(), result);
+			m_MarketModule.FindPriceOfPurchaseEx(GetSelectedMarketItem(), m_MarketModule.GetClientZone(), m_TraderMarket, player, m_Quantity, price, GetSelectedMarketItemElement().GetIncludeAttachments(), result);
 			if (result == ExpansionMarketResult.IntegerOverflow)
 			{
 				m_BuyPrice = -1;
@@ -1730,10 +1828,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				m_MarketMenuController.MarketItemTotalBuyPrice = GetDisplayPrice(m_BuyPrice);
 			}
 
+			m_MarketMenuController.CurrencyBuyIcon = GetExpansionSettings().GetMarket().CurrencyIcon;
+
 			if (m_MarketModule.GetPlayerWorth() >= m_BuyPrice)
 				color = GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText");
 			else
-				color = COLOR_EXPANSION_NOTIFICATION_EXPANSION;
+				color = ARGB(255, 192, 57, 43);
 
 			market_item_buy_price_text.SetColor(color); 
 			market_item_buy_price_icon.SetColor(color);
@@ -1741,16 +1841,27 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		else
 		{
 			m_BuyPrice = -1;
+
 			if (GetSelectedMarketItemElement().HasRepBuy())
-				m_MarketMenuController.MarketItemStockTrader = "#STR_EXPANSION_MARKET_ITEM_CANT_BUY";
+			{
+				m_MarketMenuController.MarketItemTotalBuyPrice = "";
+				m_MarketMenuController.CurrencyBuyIcon = GetExpansionSettings().GetMarket().CurrencyIcon;
+			}
 			else
-				m_MarketMenuController.MarketItemStockTrader = "NOT ENOUGH REP";
-			m_MarketMenuController.MarketItemTotalBuyPrice = "";
+			{
+				m_MarketMenuController.MarketItemTotalBuyPrice = m_SelectedMarketItem.m_RequiredRep.ToString();
+				m_MarketMenuController.CurrencyBuyIcon = s_RepIcon;
+
+				color = ARGB(255, 192, 57, 43);
+				market_item_buy_price_text.SetColor(color);
+				market_item_buy_price_icon.SetColor(color);
+			}
 		}
 
-		market_item_buy_price_icon.Show(m_BuyPrice > -1);
+		market_item_buy_price_icon.Show(m_MarketMenuController.MarketItemTotalBuyPrice != "");
+
 		m_MarketMenuController.MarketQuantity = m_Quantity.ToString();
-		m_MarketMenuController.NotifyPropertiesChanged({"MarketItemStockPlayer", "MarketItemTotalSellPrice", "MarketItemStockTrader", "MarketItemTotalBuyPrice", "MarketQuantity"});
+		m_MarketMenuController.NotifyPropertiesChanged({"MarketItemStockPlayer", "MarketItemTotalSellPrice", "MarketItemStockTrader", "MarketItemTotalBuyPrice", "MarketQuantity", "CurrencySellIcon", "CurrencyBuyIcon"});
 
 		market_item_buy.Show(GetSelectedMarketItemElement().CanBuy() && GetSelectedMarketItemElement().HasRepBuy() && m_Quantity > 0 && m_TraderHasQuantity && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice);
 		market_item_info_stock.SetColor(GetSelectedMarketItemElement().GetMarketStockColor(m_TraderHasQuantity));
@@ -2024,11 +2135,13 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		int color = COLOR_EXPANSION_NOTIFICATION_ERROR;
 		bool notify = true;
 		bool sale = result == ExpansionMarketResult.SellSuccess;
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 
 		if (result >= ExpansionMarketResult.FailedNoVehicleSpawnPositions && result <= ExpansionMarketResult.FailedVehicleSpawnOccupied)
 		{
 			msgId = typename.EnumToString(ExpansionVehicleType, option1);
 		}
+
 
 		switch (result)
 		{
@@ -2072,7 +2185,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 						if (m_MarketSell.Item && m_MarketSell.Item.ClassName != itemClassName)
 							EXLogPrint("MenuCallback - WARNING: MarketSell item class name " + m_MarketSell.Item.ClassName + " != " + itemClassName);
 						
-						EXLogPrint("===============================================================================");
+						EXLogPrint(ExpansionString.JustifyLeft("=", 80, "="));
 
 						EXLogPrint("| MARKET SELL REQUEST FAILED!");
 						EXLogPrint("| Price mismatch between client and server.");
@@ -2086,7 +2199,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 						auto sellDebug = new ExpansionMarketSellDebug(m_MarketSell, m_MarketModule.GetClientZone());
 						sellDebug.Dump();
 						
-						EXLogPrint("===============================================================================");
+						EXLogPrint(ExpansionString.JustifyLeft("=", 80, "="));
 					}
 				}
 				else
@@ -2122,7 +2235,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				ExpansionMarketReserve reserve;
 				map<string, int> removedStock;
 				m_OutOfStockList.Clear();
-				m_MarketModule.FindPriceOfPurchase(ExpansionMarketCategory.GetGlobalItem(itemClassName), m_MarketModule.GetClientZone(), m_TraderMarket, amount, price, includeAttachments, resultTmp, reserve, removedStock, m_OutOfStockList);
+				m_MarketModule.FindPriceOfPurchaseEx(ExpansionMarketCategory.GetGlobalItem(itemClassName), m_MarketModule.GetClientZone(), m_TraderMarket, player, amount, price, includeAttachments, resultTmp, reserve, removedStock, m_OutOfStockList);
 				if (m_OutOfStockList.Count())
 				{
 					loc = new StringLocaliser(text);
@@ -2199,9 +2312,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				{
 					loc = new StringLocaliser(text);
 					string displayName;
-					PlayerBase player = PlayerBase.Cast(object);
-					if (player && player.GetIdentity())
-						displayName = player.GetIdentityName();  //! So you can call 'em out in chat - unless it's yourself...
+					PlayerBase otherPlayer;
+					if (Class.CastTo(otherPlayer, object) && otherPlayer.GetIdentity())
+						displayName = otherPlayer.GetIdentityName();  //! So you can call 'em out in chat - unless it's yourself...
 					else
 						displayName = object.GetDisplayName();
 					text = loc.Format() + " (" + displayName + ")";
@@ -2281,6 +2394,38 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				text = "Integer overflow. Reduce the quantity you are trying to buy or sell.";
 				break;
 			}
+
+		#ifdef EXPANSIONMODHARDLINE
+			case ExpansionMarketResult.FailedNotEnoughRepBuy:
+			{
+				MarketPrint("MenuCallback - not enough rep to buy " + itemClassName);
+
+				title = "STR_EXPANSION_HARDLINE_MARKET_REPLOW";
+				text = "STR_EXPANSION_HARDLINE_MARKET_REPLOW_BUY_DESC";
+				ExpansionMarketItem itemBuy = ExpansionMarketCategory.GetGlobalItem(itemClassName);
+				string requiredRepBuyTxt = "<ITEM_NOT_FOUND>";
+				if (itemBuy)
+					requiredRepBuyTxt = itemBuy.m_RequiredRep.ToString();
+				loc = new StringLocaliser(text, requiredRepBuyTxt);
+				text = string.Format("%1: %2", GetDisplayName(itemClassName), loc.Format());
+				break;
+			}
+
+			case ExpansionMarketResult.FailedNotEnoughRepSell:
+			{
+				MarketPrint("MenuCallback - not enough rep to sell " + itemClassName);
+
+				title = "STR_EXPANSION_HARDLINE_MARKET_REPLOW";
+				text = "STR_EXPANSION_HARDLINE_MARKET_REPLOW_SELL_DESC";
+				ExpansionMarketItem itemSell = ExpansionMarketCategory.GetGlobalItem(itemClassName);
+				string requiredRepSellTxt = "<ITEM_NOT_FOUND>";
+				if (itemSell)
+					requiredRepSellTxt = itemSell.m_RequiredRep.ToString();
+				loc = new StringLocaliser(text, requiredRepSellTxt);
+				text = string.Format("%1: %2", GetDisplayName(itemClassName), loc.Format());
+				break;
+			}
+		#endif
 
 			default:
 			{
@@ -2398,7 +2543,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			attachmentIDs = GetCurrentSelectedAttachmentIDs();
 		}
 
-		m_MarketModule.RequestPurchase(GetSelectedMarketItem().ClassName, m_Quantity, m_BuyPrice, m_TraderObject, NULL, includeAttachments, GetSelectedMarketItemElement().GetCurrentSelectedSkinIndex(), attachmentIDs);
+		m_MarketModule.RequestPurchase(GetSelectedMarketItem().ItemID, m_Quantity, m_BuyPrice, m_TraderObject, NULL, includeAttachments, GetSelectedMarketItemElement().GetCurrentSelectedSkinIndex(), attachmentIDs);
 		if (m_PurchaseDialog)
 			m_PurchaseDialog.Hide();
 		
@@ -2415,7 +2560,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		if (!m_MarketModule)
 			return;
 		
-		if (GetExpansionClientSettings().MarketMenuSkipConfirmations)
+		ExpansionMarketPlayerItem playerItem = GetPlayerItem(m_SelectedMarketItem.ClassName);
+		if (!playerItem || !playerItem.Item)
+			return;
+
+		//! Only allow to skip confirmation if not attached/equipped
+		if (GetExpansionClientSettings().MarketMenuSkipConfirmations && !playerItem.IsAttachedOrEquipped())
 		{
 			OnConfirmSellButtonClick();
 		}
@@ -2463,7 +2613,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 		
 		SetMenuState(ExpansionMarketMenuState.REQUESTING_SELL);
-		m_MarketModule.RequestSell(GetSelectedMarketItem().ClassName, m_Quantity, m_SellPrice, m_TraderObject, m_MarketSell);
+		m_MarketModule.RequestSell(GetSelectedMarketItem().ItemID, m_Quantity, m_SellPrice, m_TraderObject, m_MarketSell);
 		if (m_SellDialog)
 			m_SellDialog.Hide();
 		
@@ -3245,8 +3395,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	{
 		if (!m_MarketMenuItemManager.IsVisible())
 		{
+			m_SelectedMarketItem.m_PreviewEntity = null;
 			market_menu_content.Show(false);
-			m_MarketMenuItemManager.SetMarketItem(GetSelectedMarketItem());
+			m_MarketMenuItemManager.SetMarketItem(m_SelectedMarketItem);
 			m_MarketMenuItemManager.Show();
 			market_item_preview.Show(false);
 		}
@@ -3260,12 +3411,34 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 	array<int> GetCurrentSelectedAttachmentIDs(bool recursive = false, ExpansionMarketItem item = NULL)
 	{
+	#ifdef EXPANSIONMODHARDLINE
+		auto settings = GetExpansionSettings().GetHardline();
+
+		PlayerBase player;
+		bool useRarity;
+
+		if (settings.UseReputation && settings.UseItemRarityForMarketPurchase)
+		{
+			player = PlayerBase.Cast(GetGame().GetPlayer());
+			useRarity = true;
+		}
+	#endif
+
 		array<int> attachmentIDs = new array<int>;
 		if (!item)
 			item = GetSelectedMarketItem();
 		foreach (string attachment: item.SpawnAttachments)
 		{
 			ExpansionMarketItem attachmentItem = ExpansionMarketCategory.GetGlobalItem(attachment);
+
+		#ifdef EXPANSIONMODHARDLINE
+			if (useRarity)
+			{
+				if (!m_MarketModule.HasRepForItemRarity(player, attachmentItem))
+					continue;
+			}
+		#endif
+
 			attachmentIDs.Insert(attachmentItem.ItemID);
 			if (recursive)
 				attachmentIDs.InsertAll(GetCurrentSelectedAttachmentIDs(recursive, attachmentItem));
@@ -3410,6 +3583,7 @@ class ExpansionMarketMenuController: ExpansionViewController
 				menu.SetFilterSellables(ShowSellables);
 				menu.UpdateOptionFilterStrings();
 				menu.UpdateMarketCategories();
+				menu.UpdatePreview();
 			}
 		}
 		else if (property_name == "ShowPurchasables")
@@ -3422,6 +3596,7 @@ class ExpansionMarketMenuController: ExpansionViewController
 				menu.SetFilterPurchasables(ShowPurchasables);
 				menu.UpdateOptionFilterStrings();
 				menu.UpdateMarketCategories();
+				menu.UpdatePreview();
 			}
 		}
 		else if (property_name == "IncludeAttachments")

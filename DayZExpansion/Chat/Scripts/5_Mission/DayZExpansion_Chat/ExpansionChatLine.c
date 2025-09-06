@@ -130,6 +130,8 @@ class ExpansionChatLineBase: ExpansionScriptView
 	private GridSpacerWidget ChatItemWidget;
 	ExpansionChatMessage m_Message;
 
+	ExpansionClientSettings m_ClientSettings;
+
 	void ExpansionChatLineBase(Widget parent, Chat chat)
 	{
 #ifdef EXTRACE
@@ -143,6 +145,13 @@ class ExpansionChatLineBase: ExpansionScriptView
 		m_FadeTimer = new ExpansionScriptViewFadeTimer;
 
 		m_Parent.AddChild(GetLayoutRoot());
+
+	#ifdef EXPANSION_CHAT_TEXT_PROPERTIES
+		m_ClientSettings = GetExpansionClientSettings();
+		m_ClientSettings.SI_UpdateSetting.Insert(UpdateTextProperties);
+
+		SetAlpha(1);
+	#endif
 	}
 
 	void ~ExpansionChatLineBase()
@@ -308,12 +317,55 @@ class ExpansionChatLineBase: ExpansionScriptView
 	{
 		super.SetAlpha(alpha);
 
+	#ifdef EXPANSION_CHAT_TEXT_PROPERTIES
+		int outlineSize = m_ClientSettings.HUDChatOutlineSize;
+		int color = ARGB(m_ClientSettings.HUDChatOutlineOpacity * 255 * alpha, 0, 0, 0);
+		int shadowSize = m_ClientSettings.HUDChatShadowSize;
+		float shadowOpacity = m_ClientSettings.HUDChatShadowOpacity * alpha;
+		float shadowOffsetX = m_ClientSettings.HUDChatShadowOffsetX;
+		float shadowOffsetY = m_ClientSettings.HUDChatShadowOffsetY;
+	#endif
+
 		if (Time)
+		{
 			Time.SetAlpha(alpha * 0.8);
+
+		#ifdef EXPANSION_CHAT_TEXT_PROPERTIES
+			Time.SetOutline(outlineSize, color);
+			Time.SetShadow(shadowSize, FadeColors.BLACK, shadowOpacity, shadowOffsetX, shadowOffsetY);
+		#endif
+		}
+
 		if (SenderName)
+		{
 			SenderName.SetAlpha(alpha);
+
+		#ifdef EXPANSION_CHAT_TEXT_PROPERTIES
+			SenderName.SetOutline(outlineSize, color);
+			SenderName.SetShadow(shadowSize, FadeColors.BLACK, shadowOpacity, shadowOffsetX, shadowOffsetY);
+		#endif
+		}
+
 		if (Message)
+		{
 			Message.SetAlpha(alpha);
+
+		#ifdef EXPANSION_CHAT_TEXT_PROPERTIES
+			Message.SetOutline(outlineSize, color);
+			Message.SetShadow(shadowSize, FadeColors.BLACK, shadowOpacity, shadowOffsetX, shadowOffsetY);
+
+			//! Updating outline or shadow opacity on richtextwidget dosn't work, so hide widget instead
+			if (alpha < 0.01)
+				Message.Show(false);
+			else
+				Message.Show(true);
+		#endif
+		}
+	}
+
+	void UpdateTextProperties()
+	{
+		SetAlpha(GetAlpha());
 	}
 
 	void SetAlphaEx(float alpha)

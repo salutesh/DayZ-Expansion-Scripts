@@ -897,15 +897,6 @@ modded class ItemBase
 		if (!GetGame().IsServer())
 			return;
 
-		if (newLoc.GetParent() != oldLoc.GetParent())
-		{
-			if (oldLoc.GetType() == InventoryLocationType.CARGO)
-				Expansion_UpdateParentCargoCount(oldLoc, -1);
-
-			if (newLoc.GetType() == InventoryLocationType.CARGO)
-				Expansion_UpdateParentCargoCount(newLoc, 1);
-		}
-
 		if (!GetExpansionSettings().GetSafeZone().Enabled)
 			return;
 
@@ -946,14 +937,16 @@ modded class ItemBase
 	//! Workaround for vanilla not initializing vehicle inv on client if not close to player (cargo count is used by e.g. market to show unsellable items)
 	void Expansion_UpdateParentCargoCount(InventoryLocation loc, int delta)
 	{
-		auto vehicle = ExpansionVehicle.Get(loc.GetParent());
+		Expansion_UpdateParentCargoCountEx(loc.GetParent(), delta);
+	}
+
+	void Expansion_UpdateParentCargoCountEx(EntityAI parent, int delta)
+	{
+		auto vehicle = ExpansionVehicle.Get(parent);
 		if (vehicle)
 		{
 			delta *= GetInventory().CountInventory();
 			vehicle.UpdateCargoCount(delta);
-			#ifdef DIAG_DEVELOPER
-			EXTrace.Print(EXTrace.GENERAL_ITEMS, this, vehicle.GetEntity().ToString() + " cargo count " + delta + " " + vehicle.GetCargoCount());
-			#endif
 		}
 	}
 
@@ -1266,12 +1259,12 @@ modded class ItemBase
 	{
 		super.EEDelete(parent);
 
-		if (!m_Expansion_QueuedActions || GetHierarchyParent())
-			return;
-
-		//! Deferred removal of all entity actions from queue
-		ExpansionItemBaseModule.s_Instance.QueueEntityActions(this, -int.MAX);
-		m_Expansion_QueuedActions = 0;
+		if (!parent && m_Expansion_QueuedActions)
+		{
+			//! Deferred removal of all entity actions from queue
+			ExpansionItemBaseModule.s_Instance.QueueEntityActions(this, -int.MAX);
+			m_Expansion_QueuedActions = 0;
+		}
 	}
 
 	override void OnCEUpdate()
@@ -1791,7 +1784,7 @@ modded class ItemBase
 
 	bool Expansion_CanBeUsedToBandage()
 	{
-		return IsInherited(Rag) || IsInherited(BandageDressing) || IsInherited(Bandana_ColorBase);
+		return IsInherited(Rag) || IsInherited(BandageDressing) || IsInherited(Bandana_ColorBase) || IsInherited(Shemag_ColorBase);
 	}
 
 	bool Expansion_CanUseVirtualStorage(bool restoreOverride = false)

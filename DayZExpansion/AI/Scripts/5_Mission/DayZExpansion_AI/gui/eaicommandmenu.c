@@ -393,7 +393,9 @@ class eAICommandMenu: UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.BANDAGES, "Bandages", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.WEAPONS, "Weapons", eAICommandCategories.CATEGORIES));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING, "Clothing", eAICommandCategories.CATEGORIES));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_LOOTINGBEHAVIOUR_CLOTHING_BACK, "Bags", eAICommandCategories.CATEGORIES));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_LOOTINGBEHAVIOUR_CLOTHING_BACK, "Backwear", eAICommandCategories.CATEGORIES));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_SIMILAR, "Similar", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_IDENTICAL, "Identical", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.UPGRADE, "Upgrade", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			break;
 
@@ -401,7 +403,7 @@ class eAICommandMenu: UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING, "All", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_VEST, "Vests", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_BODY, "Tops", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_HIPS, "Belts", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_HIPS, "Hipwear", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_LEGS, "Pants", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_HEADGEAR, "Headgear", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_MASK, "Masks", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
@@ -455,7 +457,7 @@ class eAICommandMenu: UIScriptedMenu
 
 		case eAICommandCategories.CAT_DAMAGE_IN:
 		case eAICommandCategories.CAT_DAMAGE_OUT:
-			for (i = 0; i < 20; ++i)
+			for (i = 0; i < eAICommands.DEB_DAMAGE_COUNT; ++i)
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DAMAGE + i, string.Format("%1%%", 100 - i * 5), category));
 			}

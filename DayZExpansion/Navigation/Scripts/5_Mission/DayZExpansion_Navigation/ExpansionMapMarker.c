@@ -281,13 +281,6 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		super.SetPosition(x, y, performDropEvent);
 	}
 
-	override void SetPosition(vector position, bool performDropEvent = false)
-	{
-		position[1] = GetGame().SurfaceY(position[0], position[2]) + 1.0;
-
-		super.SetPosition(position, performDropEvent);
-	}
-
 	bool IsDragLocked()
 	{
 		return m_Data && m_Data.GetLockState() && !ExpansionStatic.Key_SHIFT();

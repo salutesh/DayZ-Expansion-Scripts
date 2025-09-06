@@ -678,6 +678,33 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				break;
 		}
 
+		if (!entity)
+		{
+			bool cfgExists;
+
+			TStringArray paths = {CFG_VEHICLESPATH, CFG_WEAPONSPATH, CFG_MAGAZINESPATH};
+			foreach (string path: paths)
+			{
+				if (GetGame().ConfigIsExisting(string.Format("%1 %2", path, type)))
+				{
+					cfgExists = true;
+					break;
+				}
+			}
+
+			if (!cfgExists)
+			{
+				//! Config type was removed or renamed
+				errorMsg += " because the classname doesn't exist (removed or renamed?)";
+
+				if (!level)
+					return ErrorFalse(errorMsg);
+
+				EXError.Warn(null, errorMsg);
+				return false;
+			}
+		}
+
 		if (!entity && ilt != InventoryLocationType.GROUND)
 		{
 			string locInfo;
@@ -706,10 +733,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		}
 
 		if (!entity)
-		{
-			EXError.Error(null, errorMsg);
-			return false;
-		}
+			return ErrorFalse(errorMsg);
 
 		s_CurrentEntity = entity;
 

@@ -16,7 +16,6 @@ class ExpansionMarketMedical: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 40;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MEDICALS";
 		m_FileName = "Medical";
 

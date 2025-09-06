@@ -16,7 +16,6 @@ class ExpansionMarketOptics: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 44;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_OPTICS";
 		m_FileName = "Optics";
 		

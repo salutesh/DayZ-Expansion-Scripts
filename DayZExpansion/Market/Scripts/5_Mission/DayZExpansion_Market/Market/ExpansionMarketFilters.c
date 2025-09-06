@@ -285,7 +285,8 @@ class ExpansionMarketFilters
 			{
 				int worth = m_MarketModule.GetPlayerWorth();
 				ExpansionMarketTraderZone zone = m_MarketModule.GetClientZone();
-				float priceModifier = zone.BuyPricePercent / 100;
+				ExpansionMarketTrader traderMarket = trader.GetTraderMarket();
+				PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 				foreach (ExpansionMarketTraderItem tItem: trader.GetTraderMarket().m_Items) 
 				{
 					if (tItem.BuySell == ExpansionMarketTraderBuySell.CanOnlySell)
@@ -302,6 +303,8 @@ class ExpansionMarketFilters
 						if (itemStock < 1)
 							continue;
 					}
+
+					float priceModifier = m_MarketModule.GetBuyPricePercent(tItem.MarketItem, zone, traderMarket, player) / 100;
 
 					//! We are only interested in the base item price here, not including attachments
 					int price = tItem.MarketItem.CalculatePrice(itemStock, priceModifier, true);
@@ -374,6 +377,19 @@ class ExpansionMarketFilters
 	{
 		if (output)
 		{
+		#ifdef EXPANSIONMODHARDLINE
+			auto settings = GetExpansionSettings().GetHardline();
+
+			PlayerBase player;
+			bool useRarity;
+
+			if (settings.UseReputation && settings.UseItemRarityForMarketPurchase)
+			{
+				player = PlayerBase.Cast(GetGame().GetPlayer());
+				useRarity = true;
+			}
+		#endif
+
 			ExpansionMarketTrader trader = m_MarketModule.GetTrader().GetTraderMarket();
 			ExpansionMarketTraderZone zone = m_MarketModule.GetClientZone();
 			foreach (ExpansionMarketAttachType attachType: attachTypes)
@@ -385,9 +401,22 @@ class ExpansionMarketFilters
 					{
 						int stock = zone.GetStock(name);
 						if (stock > 0)
+						{
+						#ifdef EXPANSIONMODHARDLINE
+							if (useRarity)
+							{
+								name.ToLower();
+								ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(name, false);
+								if (!m_MarketModule.HasRepForItemRarity(player, attachment))
+									continue;
+							}
+						#endif
 							attachments.Insert(name);
-						else if (stock == -3)
+						}
+						else if (stock == ExpansionMarketStock.Undefined)
+						{
 							EXPrint(ToString() + "::GetAttachmentsByClassNameAndTypesEx - " + name + " does not exist in trader zone!");
+						}
 					}
 				}
 			}

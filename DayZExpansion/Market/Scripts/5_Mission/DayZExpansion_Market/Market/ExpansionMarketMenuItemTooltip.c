@@ -65,23 +65,10 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 		if (m_ItemElement.GetMarketMenu().HasPlayerItem(m_ItemElement.GetMarketItem().ClassName))
 		{
 			ExpansionMarketModule marketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
-
-			array<ref ExpansionMarketPlayerItem> items = m_ItemElement.GetMarketMenu().GetPlayerItems();
 			
 			m_TooltipController.SpacerEntries.Clear();
 			
-			for (int j = 0; j < items.Count(); j++)
-			{
-				string itemName = items[j].ClassName;
-				itemName.ToLower();
-				
-				itemName = marketModule.GetMarketItemClassName(marketModule.GetTrader().GetTraderMarket(), itemName);
-
-				if (itemName == m_ItemElement.GetMarketItem().ClassName)
-				{
-					m_PlayerItem = items[j];
-				}
-			}
+			m_PlayerItem = m_ItemElement.GetMarketMenu().GetPlayerItem(m_ItemElement.GetMarketItem().ClassName);
 			
 			if (m_PlayerItem)
 			{
@@ -115,7 +102,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 					
 				}
 				
-				if (HasItemOnInventorySlot(m_PlayerItem.Item))
+				if (m_PlayerItem.IsEquipped())
 				{
 					itemInfoEntry = new ExpansionMarketMenuItemTooltipEntryItemInfo(this);
 					itemInfoEntry.SetText("#STR_EXPANSION_MARKET_ITEM_TOOLTIP_ONSLOT");
@@ -180,13 +167,12 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 	
 	bool HasItemOnInventorySlot(EntityAI item)
 	{
-		array<string> slots = {"Back", "Vest", "Legs", "Body", "Hands", "Shoulder", "Melee", "Bow", "Hips", "Feet", "Armband", "Headgear", "Mask", "Eyewear", "LeftHand", "Gloves"};
-		foreach (string slot: slots)
+		HumanInventory inventory = GetGame().GetPlayer().GetHumanInventory();
+		for (int i = 0; i < inventory.AttachmentCount(); ++i)
 		{
-			if (GetGame().GetPlayer().FindAttachmentBySlotName(slot) == item /*&& MiscGameplayFunctions.Expansion_HasAnyCargo(item)*/)
-			{
+			EntityAI attachment = inventory.GetAttachmentFromIndex(i);
+			if (attachment == item)
 				return true;
-			}
 		}
 		return false;
 	}

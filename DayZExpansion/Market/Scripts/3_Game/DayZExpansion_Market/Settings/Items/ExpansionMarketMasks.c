@@ -16,7 +16,6 @@ class ExpansionMarketMasks: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 38;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MASKS";
 		m_FileName = "Masks";
 

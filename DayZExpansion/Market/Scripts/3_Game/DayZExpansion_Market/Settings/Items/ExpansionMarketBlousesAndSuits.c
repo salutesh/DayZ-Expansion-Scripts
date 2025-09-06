@@ -16,7 +16,6 @@ class ExpansionMarketBlousesAndSuits: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 9;
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_BLOUSES" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_SUITS");
 		m_FileName = "Blouses_And_Suits";
 
@@ -29,9 +28,6 @@ class ExpansionMarketBlousesAndSuits: ExpansionMarketCategory
 		AddItem("womansuit_black", 	1285, 	2140,	1,100);
 		AddItem("womansuit_blue", 	1285, 	2140,	1,100);
 		AddItem("womansuit_brown", 	1285, 	2140,	1,100);
-		AddItem("womansuit_darkgrey", 	830, 	1380,	1,100);
-		AddItem("womansuit_khaki", 	830, 	1380,	1,100);
-		AddItem("womansuit_lightgrey", 	830, 	1380,	1,100);
 		AddItem("womansuit_white", 	690, 	1150,	1,100);
 	}
 };

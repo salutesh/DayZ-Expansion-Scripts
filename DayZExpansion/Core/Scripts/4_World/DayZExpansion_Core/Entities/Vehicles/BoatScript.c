@@ -46,6 +46,20 @@ modded class BoatScript
 			m_Expansion_SafeZoneInstance.Update();
 	}
 
+	override void EECargoIn(EntityAI item)
+	{
+		super.EECargoIn(item);
+
+		m_ExpansionVehicle.UpdateCargoCount(1);
+	}
+
+	override void EECargoOut(EntityAI item)
+	{
+		super.EECargoOut(item);
+
+		m_ExpansionVehicle.UpdateCargoCount(-1);
+	}
+
 	override void DeferredInit()
 	{
 		super.DeferredInit();

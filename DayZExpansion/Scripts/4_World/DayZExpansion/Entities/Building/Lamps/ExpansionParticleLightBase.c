@@ -16,61 +16,6 @@
 class ExpansionParticleLightBase: ExpansionLampLightBase
 {
 	Particle m_Flare;
-	
-	// ------------------------------------------------------------
-	// Constructor
-	// ------------------------------------------------------------
-	void ExpansionParticleLightBase()
-	{
-		if ( IsMissionClient() )
-		{
-			ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
-			GetExpansionClientSettings().SI_UpdateSetting.Insert( OnSettingsUpdated );
-			ExpansionWorldObjectsModule.SI_LampEnable.Insert( Enable );
-			ExpansionWorldObjectsModule.SI_LampDisable.Insert( Disable );
-		}
-		
-	}
-
-	// ------------------------------------------------------------
-	// Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionParticleLightBase()
-	{
-		if ( IsMissionClient() )
-		{
-			ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
-			GetExpansionClientSettings().SI_UpdateSetting.Remove( OnSettingsUpdated );
-			ExpansionWorldObjectsModule.SI_LampEnable.Remove( Enable );
-			ExpansionWorldObjectsModule.SI_LampDisable.Remove( Disable );
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// OnSettingsUpdated
-	// ------------------------------------------------------------
-	override void OnSettingsUpdated()
-	{
-		if ( IsMissionClient() )
-		{
-			m_CastShadow = GetExpansionClientSettings().CastLightShadows;
-			
-			//! https://feedback.bistudio.com/T173348
-			if (GetExpansionSettings().GetGeneral().EnableLamps != LampModeEnum.Disabled)
-				m_CanBeEnabled = true;
-			else
-				m_CanBeEnabled = false;
-	
-			if ( m_CanBeEnabled )
-			{
-				OnEnable();
-			} 
-			else
-			{
-				OnDisable();
-			}
-		}
-	}
 
 	// ------------------------------------------------------------
 	// Expansion OnEnable

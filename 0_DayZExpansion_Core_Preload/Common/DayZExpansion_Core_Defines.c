@@ -28,9 +28,11 @@
 #define EXPANSION_GEQ_1_8_28
 #define EXPANSION_GEQ_1_8_33
 #define EXPANSION_GEQ_1_8_46
+#define EXPANSION_GEQ_1_9_38
 
 //! Features
 #define EXPANSION_GLOBALID_ITEMBASE_CORE
+#define EXPANSION_CHAT_TEXT_PROPERTIES
 
 //! Enable it if you want to enable logging with EXPrint
 //#define EXPANSIONEXPRINT
@@ -89,4 +91,4 @@
 #endif
 
 //! Versioning - NEW - do NOT add/change manually, will be added/changed during build with CI.bat!
-#define EXPANSION_1_9_31
+#define EXPANSION_1_9_39

@@ -16,7 +16,6 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 15;
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_COATS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_JACKETS");
 		m_FileName = "Coats_And_Jackets";
 
@@ -37,7 +36,6 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 		AddItem("woolcoat_red", 	810, 	1350,	1,100,null,{"WoolCoat_Blue","WoolCoat_Beige","WoolCoat_RedCheck","WoolCoat_BlueCheck","WoolCoat_GreyCheck","WoolCoat_BrownCheck","WoolCoat_Black","WoolCoat_BlackCheck","WoolCoat_Green"});
 		AddItem("woolcoat_blue", 	1005, 	1675,	1,100);
 		AddItem("woolcoat_beige", 	1145, 	1910,	1,100);
-		AddItem("woolcoat_redcheck", 	810, 	1350,	1,100);
 		AddItem("woolcoat_bluecheck", 	1005, 	1675,	1,100);
 		AddItem("woolcoat_greycheck", 	650, 	1080,	1,100);
 		AddItem("woolcoat_browncheck", 	1445, 	2410,	1,100);
@@ -52,7 +50,6 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 	#endif
 	
 		AddItem("firefighterjacket_beige", 	355, 	590,	1,100,null,{"FirefighterJacket_Black"});
-		AddItem("firefighterjacket_black", 	355, 	590,	1,100);
 		
 		AddItem("jumpsuitjacket_blue", 	1815, 	3030,	1,100,null,{"JumpsuitJacket_Gray","JumpsuitJacket_Green","JumpsuitJacket_Red"});
 		AddItem("jumpsuitjacket_gray", 	1170, 	1955,	1,100);
@@ -100,7 +97,6 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 		AddItem("gorkaejacket_summer", 	1055, 	1755,	1,100,null,{"GorkaEJacket_Flat","GorkaEJacket_Autumn","GorkaEJacket_PautRev","GorkaEJacket_Winter"});
 		
 		AddItem("usmcjacket_desert", 	1055, 	1755,	1,100,null,{"USMCJacket_Woodland"});
-		AddItem("usmcjacket_woodland", 	1055, 	1755,	1,100);
 		
 		AddItem("nbcjacketgray", 	7900, 	13165,	1,100,null,{"nbcjacketyellow","nbcjacketwhite"});
 		

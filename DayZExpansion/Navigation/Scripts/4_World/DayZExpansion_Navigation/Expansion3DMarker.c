@@ -25,9 +25,6 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 	private int m_TransparencyMax;
 	private float m_TransparencyLerp;
 
-	private float m_OriginalWidth;
-	private float m_OriginalHeight;
-
 	private ExpansionMarkerModule m_MarkerModule;
 	#ifdef EXPANSIONMODGROUPS
 	private ExpansionPartyModule m_PartyModule;
@@ -77,7 +74,6 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 		CF_Modules<ExpansionPartyModule>.Get(m_PartyModule);
 		#endif
 		
-		GetExpansionClientSettings().SI_UpdateSetting.Insert(RefreshAlphaMinColor);
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(OnSettingChanged);
 
 		m_Player = PlayerBase.Cast(GetGame().GetPlayer());
@@ -85,7 +81,6 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 
 	void ~Expansion3DMarker()
 	{
-		GetExpansionClientSettings().SI_UpdateSetting.Remove(RefreshAlphaMinColor);
 		GetExpansionClientSettings().SI_UpdateSetting.Remove(OnSettingChanged);
 		
 		if ( m_LayoutRoot )
@@ -107,8 +102,6 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 		Class.CastTo(m_Image_Icon, m_LayoutRoot.FindAnyWidget("MarkerImage"));
 		Class.CastTo(m_Text_Name, m_LayoutRoot.FindAnyWidget("MarkerText"));
 		Class.CastTo(m_Text_Distance, m_LayoutRoot.FindAnyWidget("MarkerDistance"));
-		Class.CastTo(m_Frame, m_LayoutRoot.FindAnyWidget("MarkerFrame"));	
-		m_Frame.GetSize(m_OriginalWidth, m_OriginalHeight);
 		
 		m_LayoutRoot.SetHandler(this);
 	}
@@ -131,24 +124,29 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 			return false;
 		}
 
+		ExpansionMapMarkerType markerType = m_MarkerData.GetType();
+
 		#ifdef EXPANSIONMODGROUPS
-		if (m_MarkerData.GetType() == ExpansionMapMarkerType.PARTY || m_MarkerData.GetType() == ExpansionMapMarkerType.PLAYER)
+		switch (markerType)
 		{
-			if (!m_PartyModule.HasParty())
-			{
-				return false;
-			}
+			case ExpansionMapMarkerType.PARTY:
+			case ExpansionMapMarkerType.PLAYER:
+				if (!m_PartyModule.HasParty())
+				{
+					return false;
+				}
+				break;
 		}
 		#endif
 
-		if (m_MarkerData.GetType() != ExpansionMapMarkerType.PARTY_QUICK)
+		if (markerType != ExpansionMapMarkerType.PARTY_QUICK)
 		{
 			if (!m_MarkerData.Is3D() || !m_MarkerData.IsWorldVisible())
 			{
 				return false;
 			}
 
-			if (!m_MarkerModule.IsWorldVisible(m_MarkerData.GetType()))
+			if (!m_MarkerModule.IsWorldVisible(markerType))
 			{
 				return false;
 			}
@@ -169,7 +167,9 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 			return true;
 		}
 
-		m_TransparencyMax = (m_MarkerData.GetColor() >> 24) & 0xFF;
+		int color = m_MarkerData.GetColor();
+
+		m_TransparencyMax = (color >> 24) & 0xFF;
 
 		float dist = vector.Distance(screen_position, Vector(0.5, 0.5, screen_position[2]));
 		float minTransparencyDist = 0.05;
@@ -189,66 +189,53 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 		float distance = markerDir.Length();
 		float transparencyOverride;
 		
-		if (m_MarkerData.GetType() == ExpansionMapMarkerType.SERVER)
+		switch (markerType)
 		{
-			m_Text_Name.Show(m_ShowServerName);
-			m_Text_Distance.Show(m_ShowServerDistance);
-			if (Is3DMarkerFarAway(distance, m_MaxDistance3DGlobalMarkers, transparencyOverride))
-			{
-				return true;
-			}
-		} 
-		else if (m_MarkerData.GetType() == ExpansionMapMarkerType.PERSONAL)
-		{
-			m_Text_Distance.Show(m_ShowPersonalDistance);
-			if (Is3DMarkerFarAway(distance, m_MaxDistance3DClientMarkers, transparencyOverride))
-			{
-				return true;
-			}
-		}
+			case ExpansionMapMarkerType.SERVER:
+				m_Text_Name.Show(m_ShowServerName);
+				m_Text_Distance.Show(m_ShowServerDistance);
+				if (Is3DMarkerFarAway(distance, m_MaxDistance3DGlobalMarkers, transparencyOverride))
+				{
+					return true;
+				}
+				break;
 
-		string icon = m_MarkerData.GetIcon();
-		if (icon != string.Empty)
-		{
-			m_Image_Icon.LoadImageFile(0, icon);
-			m_Image_Icon.SetImage(0);
-			m_Image_Icon.Show(true);
-		}
-		else
-		{
-			m_Image_Icon.Show(false);
-		}
+			case ExpansionMapMarkerType.PERSONAL:
+				m_Text_Distance.Show(m_ShowPersonalDistance);
+				if (Is3DMarkerFarAway(distance, m_MaxDistance3DClientMarkers, transparencyOverride))
+				{
+					return true;
+				}
+				break;
 
-		#ifdef EXPANSIONMODGROUPS
-		if (m_MarkerData.GetType() == ExpansionMapMarkerType.PARTY_QUICK)
-		{
-			m_Text_Name.Show(m_ShowQuickName);
-			m_Text_Distance.Show(m_ShowQuickDistance);
+			#ifdef EXPANSIONMODGROUPS
+			case ExpansionMapMarkerType.PARTY_QUICK:
+				m_Text_Name.Show(m_ShowQuickName);
+				m_Text_Distance.Show(m_ShowQuickDistance);
+				if (Is3DMarkerFarAway(distance, m_MaxDistance3DPartyMarkers, transparencyOverride))
+				{
+					return true;
+				}
+				break;
 
-			if (Is3DMarkerFarAway(distance, m_MaxDistance3DPartyMarkers, transparencyOverride))
-			{
-				return true;
-			}
-		} 
-		else if (m_MarkerData.GetType() == ExpansionMapMarkerType.PARTY)
-		{
-			if (Is3DMarkerFarAway(distance, m_MaxDistance3DPartyMarkers, transparencyOverride))
-			{
-				return true;
-			}
-		}
-		else if (m_MarkerData.GetType() == ExpansionMapMarkerType.PLAYER)
-		{
-			m_Text_Name.Show(m_ShowMemberName);
-			m_Text_Distance.Show(m_ShowMemberDistance);
-			m_Image_Icon.Show(m_Show3DPartyMemberIcon);
+			case ExpansionMapMarkerType.PARTY:
+				if (Is3DMarkerFarAway(distance, m_MaxDistance3DPartyMarkers, transparencyOverride))
+				{
+					return true;
+				}
+				break;
 
-			if (Is3DMarkerFarAway(distance, m_MaxDistance3DPlayerMarkers, transparencyOverride))
-			{
-				return true;
-			}
+			case ExpansionMapMarkerType.PLAYER:
+				m_Text_Name.Show(m_ShowMemberName);
+				m_Text_Distance.Show(m_ShowMemberDistance);
+				m_Image_Icon.Show(m_Show3DPartyMemberIcon);
+				if (Is3DMarkerFarAway(distance, m_MaxDistance3DPlayerMarkers, transparencyOverride))
+				{
+					return true;
+				}
+				break;
+			#endif
 		}
-		#endif
 
 		vector cameraDir = GetGame().GetCurrentCameraDirection();
 		vector markerDirNorm = markerDir.Normalized();
@@ -264,7 +251,7 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 		int markerColorR = 0;
 		int markerColorG = 0;
 		int markerColorB = 0;
-		ExpansionStatic.IntToARGB(m_MarkerData.GetColor(), markerColorA, markerColorR, markerColorG, markerColorB);
+		ExpansionStatic.IntToARGB(color, markerColorA, markerColorR, markerColorG, markerColorB);
 
 		int colorText;
 		if (m_ShowMarkerTextColor)
@@ -276,15 +263,11 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 			colorText = ARGB(m_TransparencyLerp, 255, 255, 255);
 		}
 
-		m_Text_Name.SetText(m_MarkerData.GetName());
 		m_Text_Name.SetColor(colorText);
 		
 		//! Set distance
 		m_Text_Distance.SetText(Math.Ceil(distance).ToString() + "m");
 		m_Text_Distance.SetColor(colorText);
-
-		float scale = ExpansionMath.LinearConversion(2000, 100, distance, 0.6, 1);
-		m_Frame.SetSize(m_OriginalWidth * scale, m_OriginalHeight * scale);
 		
 		m_LayoutRoot.Show(true);
 		m_LayoutRoot.SetPos(screen_position[0], screen_position[1]);
@@ -387,9 +370,29 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 	void SetMarkerData(ExpansionMarkerData data)
 	{
 		m_MarkerData = data;
+
+		Refresh();
+	}
+
+	void Refresh()
+	{
 		RefreshAlphaMinColor();
 		m_Text_Name.SetColor(ARGB(m_TransparencyMax, 255, 255, 255));
 		m_Text_Distance.SetColor(ARGB(m_TransparencyMax, 255, 255, 255));
+
+		string icon = m_MarkerData.GetIcon();
+		if (icon != string.Empty)
+		{
+			m_Image_Icon.LoadImageFile(0, icon);
+			m_Image_Icon.SetImage(0);
+			m_Image_Icon.Show(true);
+		}
+		else
+		{
+			m_Image_Icon.Show(false);
+		}
+
+		m_Text_Name.SetText(m_MarkerData.GetName());
 	}
 
 	ExpansionMarkerData GetMarkerData()
@@ -413,6 +416,8 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 		GetSettings();
 		m_LayoutRoot = GetGame().GetWorkspace().CreateWidgets(m_LayoutPath);
 		OnWidgetScriptInit(m_LayoutRoot);
+
+		Refresh();
 	}
 
 	void GetSettings()

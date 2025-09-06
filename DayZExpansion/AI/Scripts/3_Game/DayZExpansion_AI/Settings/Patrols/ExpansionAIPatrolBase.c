@@ -185,16 +185,6 @@ class ExpansionAISpawnBase
 
 	void Log(string msg)
 	{
-		auto settings = GetExpansionSettings().GetLog();
-		if (IsInherited(ExpansionAIObjectPatrol))
-		{
-			if (settings.AIObjectPatrol)
-				settings.PrintLog("[AI Object Patrol] %1", msg);
-		}
-		else if (settings.AIPatrol)
-		{
-			settings.PrintLog("[AI Patrol] %1", msg);
-		}
 	}
 };
 
@@ -207,11 +197,14 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 	float MinSpreadRadius;
 	float MaxSpreadRadius;
 	float Chance;                       // chance for this patrol to spawn
-	string WaypointInterpolation;
 	float DespawnTime;					// if all players outside despawn radius, ticks up time. When despawn time reached, patrol is deleted. If set to -1, will use general setting instead
 	float RespawnTime;	                // Time in seconds before the dead group will respawn. If set to -1, they won't respawn, if set to -2, will use the general setting instead
 	string LoadBalancingCategory;       // Category name to use for load balancing. Needs matching entry in AIPatrolSetttings::LoadBalancingCategories.
 	                                    // If left empty, will use "ObjectPatrols" for object patrols, "Patrols" for normal patrols, or "Global".
+	string ObjectClassName;  // Object for patrol to spawn on, needs to be registered via eAIRegisterDynamicPatrolSpawner (by default, only BuildingBase is registered). If set, Waypoints array (below) will be ignored and waypoints will be generated dynamically
+	string WaypointInterpolation;
+	bool UseRandomWaypointAsStartPoint;
+	autoptr TVectorArray Waypoints;     // a list of positions to create a path to follow
 
 	void ExpansionAIDynamicSpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, int unlimitedreload = 0, float chance = 1.0, float mindistradius = -1, float maxdistradius = -1)
 	{
@@ -224,5 +217,157 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 			DespawnRadius = -1;
 		DespawnTime = -1;
 		RespawnTime = -2;
+	}
+
+	//! TODO: Improve the spread code, this is very unoptimised
+	void DefaultSpread()
+	{
+		if (Behaviour == "HALT")
+		{
+			if (ObjectClassName == "ContaminatedArea_Static" || ObjectClassName == "ContaminatedArea_Dynamic")
+			{
+				MinSpreadRadius = 0;
+				MaxSpreadRadius = 50;
+			}
+			else
+			{
+				MinSpreadRadius = 5;
+				MaxSpreadRadius = 10;
+			}
+		}
+		else
+		{
+			if (ObjectClassName == "ContaminatedArea_Static" || ObjectClassName == "ContaminatedArea_Dynamic")
+			{
+				MinSpreadRadius = 0;
+				MaxSpreadRadius = 150;
+			}
+			else
+			{
+				MinSpreadRadius = 5;
+				MaxSpreadRadius = 20;
+			}
+		}
+	}
+
+	//! @note behavior param is deprecated and should not be used
+	TVectorArray GenerateWaypoints(vector position = vector.Zero, int beh = eAIWaypointBehavior.HALT)
+	{
+		TVectorArray waypoints = {};
+		vector waypoint;
+		int amountofwaypoints;
+
+		if (!MinSpreadRadius)
+			MinSpreadRadius = 5;
+		if (MaxSpreadRadius < MinSpreadRadius)
+			MaxSpreadRadius = MinSpreadRadius + 5;
+
+		if (ObjectClassName == "ContaminatedArea_Static" || ObjectClassName == "ContaminatedArea_Dynamic")
+		{
+			amountofwaypoints = Math.RandomIntInclusive(4, 8);
+
+			for (int i = 0; i < amountofwaypoints; i++)
+			{
+				waypoint = ExpansionMath.GetRandomPointInRing(position, MinSpreadRadius, MaxSpreadRadius);
+				waypoint = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
+
+				waypoints.Insert(waypoint);
+			}
+		}
+		else
+		{
+			//! For wrecks, we let AI follow a roughly circular pattern around the wreck so they don't run into it
+
+			int ccw = Math.RandomIntInclusive(0, 1);
+			float angle = Math.RandomFloat(0, 360);
+			float angleIncCumulative;
+
+			//! This will generate anywhere from 8 to 10 waypoints
+			while (true)
+			{
+				waypoint = ExpansionMath.GetRandomPointAtDegrees(position, angle, MinSpreadRadius, MaxSpreadRadius);
+				waypoint = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
+
+				waypoints.Insert(waypoint);
+
+				float angleInc = Math.RandomFloat(36, 45);
+
+				angleIncCumulative += angleInc;
+				if (angleIncCumulative > 360)
+					break;
+
+				if (ccw)
+				{
+					angle -= angleInc;
+					if (angle < 0)
+						angle += 360;
+				}
+				else
+				{
+					angle += angleInc;
+					if (angle > 360)
+						angle -= 360;
+				}
+			}
+		}
+
+		return waypoints;
+	}
+
+	override TVectorArray GetWaypoints(vector position = vector.Zero, int beh = eAIWaypointBehavior.HALT)
+	{
+		TVectorArray waypoints;
+
+		if (ObjectClassName)
+		{
+			waypoints = GenerateWaypoints(position, beh);
+		}
+		else
+		{
+			waypoints = {};
+
+			foreach (vector waypoint: Waypoints)
+			{
+				if (MaxSpreadRadius > 0)
+					waypoint = ExpansionMath.GetRandomPointInRing(waypoint, MinSpreadRadius, MaxSpreadRadius);
+
+				waypoints.Insert(GetPlacementPosition(waypoint));
+			}
+		}
+
+		if (WaypointInterpolation)
+		{
+			int curveType;
+
+			if (!ExpansionStatic.StringToEnumEx(ECurveType, WaypointInterpolation, curveType))
+			{
+				EXError.Error(null, string.Format("WaypointInterpolation \"%1\" is not one of the valid values, \"CatmullRom\", \"NaturalCubic\" or \"UniformCubic\"", WaypointInterpolation), {});
+			}
+			else
+			{
+				bool smooth;
+
+				if (MaxSpreadRadius > 0)
+					smooth = true;
+
+				return ExpansionMath.PathInterpolated(waypoints, curveType, smooth);
+			}
+		}
+
+		return waypoints;
+	}
+
+	override void Log(string msg)
+	{
+		auto settings = GetExpansionSettings().GetLog();
+		if (ObjectClassName)
+		{
+			if (settings.AIObjectPatrol)
+				settings.PrintLog("[AI Object Patrol] %1", msg);
+		}
+		else if (settings.AIPatrol)
+		{
+			settings.PrintLog("[AI Patrol] %1", msg);
+		}
 	}
 };

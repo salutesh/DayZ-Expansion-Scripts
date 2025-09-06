@@ -58,7 +58,7 @@ class ExpansionLocatorUI: ScriptedWidgetEventHandler
 	void AnimateShowSimpleLoactionClient()
 	{
 		m_ShowCityAlpha += m_FadeIn;
-		m_LocatorCityName.SetAlpha( m_ShowCityAlpha );
+		m_LocatorCityName.SetAlpha( Math.Min(m_ShowCityAlpha, 1) );
 
 		if ( !m_PlaySound )
 		{
@@ -68,7 +68,7 @@ class ExpansionLocatorUI: ScriptedWidgetEventHandler
 			m_PlaySound = true;
 		}
 		
-		if ( m_ShowCityAlpha > 1 )
+		if ( m_ShowCityAlpha >= 1 )
 		{	
 			if ( !m_PlaySoundTime )
 			{
@@ -80,12 +80,9 @@ class ExpansionLocatorUI: ScriptedWidgetEventHandler
 			
 			m_LocatorCityName.SetAlpha( 1 );
 			m_ShowTimeAlpha += m_FadeIn;
-			m_LocatorTime.SetAlpha( m_ShowTimeAlpha );
-			if ( m_ShowTimeAlpha > 1 )
-			{
-				m_LocatorTime.SetAlpha( 1 );
+			m_LocatorTime.SetAlpha( Math.Min(m_ShowTimeAlpha, 1) );
+			if ( m_ShowTimeAlpha >= 1 )
 				GetGame().GetUpdateQueue( CALL_CATEGORY_GAMEPLAY ).Remove( AnimateShowSimpleLoactionClient );
-			}
 		}
 	}
 	
@@ -106,7 +103,7 @@ class ExpansionLocatorUI: ScriptedWidgetEventHandler
 			return;
 
 		m_HideCityAlpha = m_HideCityAlpha - m_FadeOut;
-		m_LocatorTime.SetAlpha( m_HideCityAlpha );
+		m_LocatorTime.SetAlpha( Math.Max(m_HideCityAlpha, 0) );
 
 		if ( !m_BackSoundTime ) // Put sounds back if you want
 		{
@@ -114,7 +111,7 @@ class ExpansionLocatorUI: ScriptedWidgetEventHandler
 				m_BackSoundTime = true;
 		}
 		
-		if ( m_HideCityAlpha < 0 )
+		if ( m_HideCityAlpha <= 0 )
 		{	
 			if ( !m_BackSound )
 			{
@@ -124,12 +121,9 @@ class ExpansionLocatorUI: ScriptedWidgetEventHandler
 			
 			m_LocatorTime.SetAlpha( 0 );
 			m_HideTimeAlpha -= m_FadeOut;
-			m_LocatorCityName.SetAlpha( m_HideTimeAlpha );		
-			if ( m_HideTimeAlpha < 0 )
-			{
-				m_LocatorCityName.SetAlpha( 0 );
+			m_LocatorCityName.SetAlpha( Math.Max(m_HideTimeAlpha, 0) );		
+			if ( m_HideTimeAlpha <= 0 )
 				GetGame().GetUpdateQueue( CALL_CATEGORY_GAMEPLAY ).Remove( AnimateHideSimpleLocationClient );
-			}
 		}
 	}
 	

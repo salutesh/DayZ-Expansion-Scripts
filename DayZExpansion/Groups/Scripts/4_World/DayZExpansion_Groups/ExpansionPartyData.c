@@ -1065,7 +1065,7 @@ class ExpansionPartyData
 	#endif
 		
 		if (GetExpansionSettings().GetLog().Party)
-			GetExpansionSettings().GetLog().PrintLog("[Party] Player \"" + player.Name + "\" (id=" + player.GetID() + ")" + " joinded the party \"" + PartyName + "\" (id=" + PartyID + " ownerUID=" + OwnerUID + " ownerName=" + OwnerName + ")");
+			GetExpansionSettings().GetLog().PrintLog("[Party] Player \"" + player.Name + "\" (id=" + player.GetID() + ")" + " joined the party \"" + PartyName + "\" (id=" + PartyID + " ownerUID=" + OwnerUID + " ownerName=" + OwnerName + ")");
 	}
 
 	void OnLeave(ExpansionPartyPlayerData player)

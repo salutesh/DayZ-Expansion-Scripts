@@ -70,7 +70,7 @@ class eAIAimingProfile
 			}
 
 			float dist = Math.Sqrt(distSq);
-			float visibility = m_Unit.Expansion_GetVisibility(dist);
+			float visibility = m_Unit.eAI_GetVisibility(dist, target);
 			float inaccuracyLR = 1.0 - Math.RandomFloat(accuracyMin, accuracyMax) * visibility;
 			float inaccuracyUD = 1.0 - Math.RandomFloat(accuracyMin, accuracyMax) * visibility;
 

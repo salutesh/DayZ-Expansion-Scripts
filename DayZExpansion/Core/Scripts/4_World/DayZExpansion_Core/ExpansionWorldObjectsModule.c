@@ -12,17 +12,101 @@
 
 class ExpansionRemovedObject: OLinkT
 {
-	string Type;
-	vector Position;
-	int Flags;
-	int EventMask;
+	ref ExpansionHash m_Expansion_Hash;
+	vector m_Position;
+	bool m_IsSolid;
 
 	void ExpansionRemovedObject(Object init)
 	{
-		Type = init.GetType();
-		Position = init.GetPosition();
-		Flags = init.GetFlags();
-		EventMask = init.GetEventMask();
+		string type = init.GetType();
+		if (!type)
+			type = init.GetShapeName();
+		type.ToLower();
+
+		m_Expansion_Hash = new ExpansionHash(type);
+
+		m_Position = init.GetPosition();
+
+		init.SetPosition(m_Position - Vector(0, 1000, 0));
+
+		init.Update();
+
+		m_IsSolid = dBodyIsSolid(init);
+		if (m_IsSolid)
+		{
+			dBodySetSolid(init, false);
+
+		#ifdef DIAG_DEVELOPER
+			EXTrace.Print(EXTrace.MAPPING, this, init.GetDebugName() + " solid true -> false");
+		#endif
+		}
+
+		//! Use of IsServer is intended here, makes it work in offline/SP as well
+		if (GetGame().IsServer() && init.CanAffectPathgraph())
+			GetGame().GetWorld().MarkObjectForPathgraphUpdate(init);
+
+		EXTrace.Print(EXTrace.MAPPING, this, "Removed object " + init.GetDebugName() + " at " + m_Position);
+	}
+
+	void ~ExpansionRemovedObject()
+	{
+		Object obj = Get();
+		if (obj)
+		{
+			obj.SetPosition(m_Position);
+
+			obj.Update();
+
+			if (m_IsSolid)
+				dBodySetSolid(obj, true);
+
+			//! Use of IsDedicatedServer is intended here, no need to do anything in offline/SP
+			if (GetGame().IsDedicatedServer() && obj.CanAffectPathgraph())
+				GetGame().GetWorld().MarkObjectForPathgraphUpdate(obj);
+
+			EXTrace.Print(EXTrace.MAPPING, this, "Restored object " + obj.GetDebugName() + " at " + m_Position);
+		}
+	}
+
+	override void Release()
+	{
+		super.Release();
+		EXTrace.Print(EXTrace.MAPPING, this, "Released");
+	}
+}
+
+class ExpansionRemovedObjects
+{
+	ref map<Object, ref ExpansionRemovedObject> m_RemovedObjects = new map<Object, ref ExpansionRemovedObject>;
+
+	void Set(Object obj, ExpansionRemovedObject removedObject)
+	{
+		m_RemovedObjects[obj] = removedObject;
+	}
+
+	bool Get(Object obj)
+	{
+		//! Check if object has been removed by Expansion
+		if (m_RemovedObjects.Contains(obj))
+			return true;
+
+		//! Check if object has been hidden by zeroing first three transform vectors
+		vector transform[4];
+		obj.GetTransform(transform);
+		if (transform[0] == vector.Zero && transform[1] == vector.Zero && transform[2] == vector.Zero)
+			return true;
+
+		return false;
+	}
+
+	int Count()
+	{
+		return m_RemovedObjects.Count();
+	}
+
+	void Clear()
+	{
+		m_RemovedObjects.Clear();
 	}
 }
 
@@ -31,7 +115,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 {
 	static ref array<Object> s_FirePlacesToDelete = new array<Object>;
 
-	static ref map<Object, ref ExpansionRemovedObject> s_RemovedObjects = new map<Object, ref ExpansionRemovedObject>;
+	static ref ExpansionRemovedObjects s_RemovedObjects = new ExpansionRemovedObjects;
 	static bool s_RemovedObjectsReceived;
 
 	override void OnInit()
@@ -87,17 +171,6 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule);
 #endif
-		
-		foreach (Object obj, ExpansionRemovedObject removedObj: s_RemovedObjects)
-		{
-			if (!obj || !removedObj)
-				continue;
-
-			EXTrace.Print(EXTrace.MAPPING, null, "Restoring object " + obj + " at " + obj.GetPosition());
-			obj.SetFlags(removedObj.Flags, true);
-			obj.SetEventMask(removedObj.EventMask);
-			obj.SetScale(1.0);
-		}
 
 		s_RemovedObjects.Clear();
 	}
@@ -139,10 +212,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 #endif
 		
 		ctx.Write(s_RemovedObjects.Count());
-		foreach (Object obj, ExpansionRemovedObject removedObj: s_RemovedObjects)
+		foreach (Object obj, ExpansionRemovedObject removedObj: s_RemovedObjects.m_RemovedObjects)
 		{
-			ctx.Write(removedObj.Type);
-			ctx.Write(removedObj.Position);
+			removedObj.m_Expansion_Hash.Write(ctx);
+			ctx.Write(removedObj.m_Position);
 		}
 	}
 
@@ -155,16 +228,15 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		
 		int count;
 		ctx.Read(count);
-		while (count)
+		while (count--)
 		{
-			string type;
-			if (!ctx.Read(type))
+			ExpansionHash hash = new ExpansionHash();
+			if (!hash.Read(ctx))
 				break;
 			vector position;
 			if (!ctx.Read(position))
 				break;
-			RemoveObjects(type, position);
-			count--;
+			RemoveObject(hash, position);
 		}
 	}
 
@@ -350,6 +422,8 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		if (className == "*")
 			return objects;
 
+		className.ToLower();
+
 		int doPartialMatch;
 		string classNameStart;
 		string classNameEnd;
@@ -384,6 +458,9 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		{
 			string type;
 			g_Game.ObjectGetType(obj, type);
+			if (!type)
+				type = obj.GetShapeName();
+			type.ToLower();
 			ExpansionString exType = type;
 			bool match = false;
 			switch (doPartialMatch)
@@ -412,6 +489,26 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		return filteredOjects;
 	}
 
+	static Object FindObject(ExpansionHash hash, vector position, float radius = 0.1)
+	{
+		array<Object> objects = {};
+		GetGame().GetObjectsAtPosition3D(position, radius, objects, null);
+
+		foreach (Object obj: objects)
+		{
+			string type;
+			g_Game.ObjectGetType(obj, type);
+			if (!type)
+				type = obj.GetShapeName();
+			type.ToLower();
+
+			if (hash.IsEqual(new ExpansionHash(type)))
+				return obj;
+		}
+
+		return null;
+	}
+
 	static void RemoveObjects(string className, vector position, float radius = 0.1)
 	{
 		array<Object> objects = FindObjects(className, position, radius);
@@ -427,22 +524,25 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		}
 	}
 
+	static void RemoveObject(ExpansionHash hash, vector position, float radius = 0.1)
+	{
+		Object obj = FindObject(hash, position, radius);
+		if (!obj)
+			EXPrint("[ExpansionWorldObjectsModule::RemoveObject] Warning: Object with hash {" + hash.m_HashA + ", " + hash.m_HashB + "} not found at " + position);
+		else
+			RemoveObject(obj);
+	}
+
 	static void RemoveObject(Object obj)
 	{
 		if (!s_RemovedObjects[obj])
 		{
 			s_RemovedObjects[obj] = new ExpansionRemovedObject(obj);
 		}
-
-		EXTrace.Print(EXTrace.MAPPING, null, "Removing object " + obj + " at " + obj.GetPosition());
-
-		EntityFlags flags = obj.GetFlags();
-		EntityEvent events = obj.GetEventMask();
-		obj.ClearFlags(flags, true);
-		obj.ClearEventMask(events);
-		obj.SetEventMask(EntityEvent.NOTVISIBLE);
-		obj.SetScale(0.0);
-		dBodyDestroy(obj); //! Remove collision
+		else
+		{
+			EXError.Warn(null, "RemoveObject called on already removed object " + obj.GetDebugName() + " at " + obj.GetPosition());
+		}
 	}
 
 	static void ProcessObject(Object obj)

@@ -19,6 +19,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 	protected Widget item_element_background;
 	protected ButtonWidget item_element_increment;
 	protected ButtonWidget item_element_decrement;
+	protected Widget item_element_overlay;
 	protected ButtonWidget item_element_tooltip;
 	protected ImageWidget item_element_tooltip_icon;
 	protected bool m_CanBeAttached;
@@ -43,6 +44,12 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 	{
 		if (m_Object)
 			GetGame().ObjectDelete(m_Object);
+
+		if (m_Tooltip) 
+			m_Tooltip.Destroy();
+
+		if (m_ItemTooltip) 
+			m_ItemTooltip.Destroy();
 	}
 	
 	override string GetLayoutFile() 
@@ -61,7 +68,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 		GetCategoryItemController().NotifyPropertyChanged("ItemName");
 
 		UpdateView();
-		ExpansionMarketMenu.CreatePreviewObject(m_ItemClassName, m_Object);
+		m_MarketMenu.CreatePreviewObjectEx(m_MarketMenu.GetSelectedMarketItem(), m_Object);
 	}
 
 	int GetCount()
@@ -145,6 +152,25 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 		bool showTooltip;
 		if (!m_CanBeAttachedOrReplaceConflicting && GetCount() == 0)
 			showTooltip = true;
+
+	#ifdef EXPANSIONMODHARDLINE
+		auto settings = GetExpansionSettings().GetHardline();
+		if (settings.UseReputation && settings.UseItemRarityForMarketPurchase)
+		{
+			string itemTypeName = m_ItemClassName;
+			itemTypeName.ToLower();
+			
+			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(itemTypeName);
+			if (!ExpansionMarketModule.GetInstance().HasRepForItemRarity(player, item))
+			{
+				showTooltip = true;
+				item_element_overlay.Show(true);
+				item_element_increment.Show(false);
+				item_element_decrement.Show(false);
+			}
+		}
+	#endif
 
 		item_element_tooltip.Show(showTooltip);
 		return showTooltip;
@@ -322,9 +348,29 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 		{
 			m_Tooltip = new ExpansionMarketMenuTooltip();
 		}
-		
-		m_Tooltip.SetTitle("#STR_EXPANSION_MARKET_TOOLTIP_ATTACHMENTS_TITLE");
-		m_Tooltip.SetText("#STR_EXPANSION_MARKET_TOOLTIP_ATTACHMENTS_DESC");
+
+		string title = "#STR_EXPANSION_MARKET_TOOLTIP_ATTACHMENTS_TITLE";
+		string text = "#STR_EXPANSION_MARKET_TOOLTIP_ATTACHMENTS_DESC";
+
+	#ifdef EXPANSIONMODHARDLINE
+		auto settings = GetExpansionSettings().GetHardline();
+		if (settings.UseReputation && settings.UseItemRarityForMarketPurchase)
+		{
+			string itemTypeName = m_ItemClassName;
+			itemTypeName.ToLower();
+			
+			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(itemTypeName);
+			if (!ExpansionMarketModule.GetInstance().HasRepForItemRarity(player, item))
+			{
+				title = "#STR_EXPANSION_HARDLINE_MARKET_REPLOW";
+				text = string.Format("#STR_EXPANSION_MARKET_ITEM_REP (%1)", item.m_RequiredRep.ToString());
+			}
+		}
+	#endif
+
+		m_Tooltip.SetTitle(title);
+		m_Tooltip.SetText(text);
 		m_Tooltip.SetContentOffset(0.019531, 0);
 		m_Tooltip.Show();
 	}

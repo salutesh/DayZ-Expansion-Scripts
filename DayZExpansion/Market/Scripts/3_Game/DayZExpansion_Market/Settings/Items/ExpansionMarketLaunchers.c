@@ -16,7 +16,6 @@ class ExpansionMarketLaunchers: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 33;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LAUNCHERS";
 		m_FileName = "Launchers";
 	

@@ -19,7 +19,6 @@ class ExpansionMarketFish: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 22;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FISH";
 		m_FileName = "Fish";
 

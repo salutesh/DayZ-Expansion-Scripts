@@ -16,7 +16,6 @@ class ExpansionMarketHandguards: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 27;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HANDGUARDS";
 		m_FileName = "Handguards";
 			

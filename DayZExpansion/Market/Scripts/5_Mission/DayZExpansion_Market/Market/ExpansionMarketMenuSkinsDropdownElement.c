@@ -41,6 +41,9 @@ class ExpansionMarketMenuSkinsDropdownElement: ExpansionScriptView
 	{
 		if (m_Object)
 			GetGame().ObjectDelete(m_Object);
+
+		if (m_ItemTooltip) 
+			m_ItemTooltip.Destroy();
 	}
 	
 	override string GetLayoutFile() 
@@ -58,7 +61,7 @@ class ExpansionMarketMenuSkinsDropdownElement: ExpansionScriptView
 		m_ElementController.Text = m_SkinName;
 		m_ElementController.NotifyPropertyChanged("Text");
 		
-		ExpansionMarketMenu.CreatePreviewObject(m_ClassName, m_Object);
+		m_MarketMenu.CreatePreviewObjectEx(m_MarketMenu.GetSelectedMarketItem(), m_Object);
 	}
 			
 	override bool OnMouseEnter(Widget w, int x, int y)

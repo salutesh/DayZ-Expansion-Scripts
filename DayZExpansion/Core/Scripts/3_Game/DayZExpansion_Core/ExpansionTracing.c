@@ -63,7 +63,7 @@ class EXTrace
 
 	static bool LIGHTHOUSE = IsEnabled();
 
-	static bool LIGHTS;
+	static bool LIGHTS = IsEnabled();
 
 	static bool LOADOUTS = IsEnabled();
 
@@ -343,7 +343,7 @@ class EXTrace
 		}
 	}
 
-	//! @note max script log line length 256 characters
+	//! @note max script log printable text length client 240, server 1026 characters
 	void DumpLine(string line, float elapsed, bool end = false)
 	{
 		if (end)

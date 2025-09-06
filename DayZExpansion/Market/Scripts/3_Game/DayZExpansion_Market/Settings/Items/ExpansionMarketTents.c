@@ -16,17 +16,13 @@ class ExpansionMarketTents: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 54;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_TENTS";
 		m_FileName = "Tents";
 	
 		AddItem("partytent", 	3060, 	5105,	1,100,null,{"PartyTent_Blue","PartyTent_Brown","PartyTent_Lunapark"});
-		AddItem("partytent_blue", 	3060, 	5105,	1,100);
-		AddItem("partytent_brown", 	3060, 	5105,	1,100);
 		AddItem("partytent_lunapark", 	3830, 	6380,	1,100);
 
 		AddItem("mediumtent", 	2355, 	3925,	1,100,null,{"MediumTent_Orange","MediumTent_Green"});
-		AddItem("mediumtent_orange", 	2355, 	3925,	1,100);
 		AddItem("mediumtent_green", 	3015, 	5025,	1,100);
 		
 		AddItem("largetent", 	11485, 	19140,	1,100);

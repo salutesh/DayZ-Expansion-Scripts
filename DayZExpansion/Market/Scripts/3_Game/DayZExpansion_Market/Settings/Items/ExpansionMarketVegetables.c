@@ -16,7 +16,6 @@ class ExpansionMarketVegetables: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 56;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FRUIT_AND_VEGETABLES";
 		m_FileName = "Fruit_And_Vegetables";
 

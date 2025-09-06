@@ -61,6 +61,16 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 			m_ColorHandler = new ExpansionATMMenuColorHandler(GetLayoutRoot());
 	}
 
+	void ~ExpansionATMMenu()
+	{
+		ExpansionMarketModule.SI_ATMMenuInvoker.Remove(SetPlayerATMData);
+		ExpansionMarketModule.SI_ATMMenuCallback.Remove(OnCallback);
+		ExpansionMarketModule.SI_ATMMenuTransferCallback.Remove(OnTransferCallback);
+		#ifdef EXPANSIONMODGROUPS
+		ExpansionMarketModule.SI_ATMMenuPartyCallback.Remove(OnPartyCallback);
+		#endif
+	}
+
 	override string GetLayoutFile() 
 	{
 		return "DayZExpansion/Market/GUI/layouts/atm/expansion_atm_menu.layout";

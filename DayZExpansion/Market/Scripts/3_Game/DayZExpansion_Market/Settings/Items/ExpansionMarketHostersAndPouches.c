@@ -16,7 +16,6 @@ class ExpansionMarketHostersAndPouches: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 62;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HOLSTERS";
 		m_FileName = "Holsters_And_Pouches";
 

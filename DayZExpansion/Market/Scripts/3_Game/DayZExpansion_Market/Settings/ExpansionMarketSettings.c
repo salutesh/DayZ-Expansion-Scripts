@@ -71,7 +71,7 @@ class ExpansionMarketSettingsV3: ExpansionMarketSettingsBaseV2
  **/
 class ExpansionMarketSettings: ExpansionMarketSettingsBase
 {
-	static const int VERSION = 15;
+	static const int VERSION = 16;
 
 	bool UseWholeMapForATMPlayerList;
 	float SellPricePercent;
@@ -97,6 +97,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	autoptr array<ref ExpansionMarketSpawnPosition> TrainSpawnPositions;
 
 	bool DisallowUnpersisted;
+
+	bool DisableClientSellTransactionDetails;
 	
 	[NonSerialized()]
 	protected autoptr map<int, ref ExpansionMarketCategory> m_Categories;
@@ -169,6 +171,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 			NetworkCategories.Insert(new ExpansionMarketNetworkCategory(category));
 		}
+
+		ExpansionMarketCategory.AddDefaultAttachments();
 
 		//TraderPrint("LoadCategories - End");
 	}
@@ -278,6 +282,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		ctx.Read(s.SZVehicleParkingTicketFine);
 		#endif
 
+		ctx.Read(DisableClientSellTransactionDetails);
+
 		s.MarketMenuColors.OnReceive(ctx);
 
 		CopyInternal(s);
@@ -316,6 +322,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		#ifdef EXPANSIONMODVEHICLE
 		ctx.Write(SZVehicleParkingTicketFine);
 		#endif
+
+		ctx.Write(DisableClientSellTransactionDetails);
 
 		//! Do not send vehicle spawn positions (only used on server)
 
@@ -495,6 +503,17 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		category.Defaults();
 		category.Save();
 		category.Finalize();
+
+		if (category.CategoryID == 0)
+			CF.FormatError("Category %1 has an ID of 0! Not calling super in Defaults()?", category.m_FileName);
+
+		ExpansionMarketCategory conflict = m_Categories[category.CategoryID];
+		if (conflict)
+		{
+			CF.FormatError("Category %1 conflicts with %2 (same ID: %3)", category.m_FileName, conflict.m_FileName, category.CategoryID.ToString());
+			return;
+		}
+
 		GetCategories().Set(category.CategoryID, category);
 		NetworkCategories.Insert(new ExpansionMarketNetworkCategory(category));
 	}
@@ -625,6 +644,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		AddDefaultCategory(new ExpansionMarketFlags);
 		AddDefaultCategory(new ExpansionMarketBayonets);
 		AddDefaultCategory(new ExpansionMarketFurnishings);
+
+		ExpansionMarketCategory.AddDefaultAttachments();
+
 		//TraderPrint("DefaultCategories - End");
 	}
 	

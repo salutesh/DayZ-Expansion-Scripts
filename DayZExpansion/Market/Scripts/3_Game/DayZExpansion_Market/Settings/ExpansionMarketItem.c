@@ -57,6 +57,9 @@ class ExpansionMarketItem
 	autoptr array< int > m_AttachmentIDs;
 
 	[NonSerialized()]
+	bool m_IsMagazine;
+
+	[NonSerialized()]
 	bool m_IsVariant;
 
 	[NonSerialized()]
@@ -74,9 +77,15 @@ class ExpansionMarketItem
 	[NonSerialized()]
 	bool m_UpdateView;
 	
+	[NonSerialized()]
+	EntityAI m_PreviewEntity;
+
 #ifdef EXPANSIONMODHARDLINE
 	[NonSerialized()]
 	int m_Rarity;
+
+	[NonSerialized()]
+	int m_RequiredRep;
 #endif
 
 	// ------------------------------------------------------------
@@ -104,19 +113,7 @@ class ExpansionMarketItem
 
 		QuantityPercent = quantityPercent;
 
-		SpawnAttachments = new array< string >;
-		if ( attachments )
-		{
-			foreach ( string attClsName : attachments )
-			{
-				attClsName.ToLower();
-				//! Check if attachment is not same classname as parent to prevent infinite recursion (user error)
-				if (attClsName == ClassName)
-					Error("[ExpansionMarketItem] Trying to add " + ClassName + " as attachment to itself!");
-				else
-					SpawnAttachments.Insert( attClsName );
-			}
-		}
+		SpawnAttachments = attachments;
 
 		Variants = new array< string >;
 		if ( variants )
@@ -171,10 +168,44 @@ class ExpansionMarketItem
 		if (EXTrace.MARKET && SellPricePercent != -1)
 			EXTrace.Print(true, this, ClassName + " SellPricePercent " + SellPricePercent);
 
+		SetAttachments(SpawnAttachments);
+
+		if (GetGame().IsKindOf(ClassName, "Magazine_Base") && !GetGame().IsKindOf(ClassName, "Ammunition_Base"))
+			m_IsMagazine = true;
+	}
+
 #ifdef EXPANSIONMODHARDLINE
-		if (GetGame().IsServer())
-			m_Rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(ClassName);
+	//! Server only!
+	void SetRarityAndRepReq()
+	{
+		if (m_StockOnly)
+		{
+			EXError.Warn(this, string.Format("%1: rarity and reputation requirements for stockonly netsync variants are set in ExpansionMarketCategory::AddVariants", ClassName));
+			return;
+		}
+
+		ExpansionHardlineSettings settings = GetExpansionSettings().GetHardline();
+		m_Rarity = settings.GetItemRarityByType(ClassName);
+		if (m_Rarity != ExpansionHardlineItemRarity.NONE)
+			m_RequiredRep = settings.GetReputationForRarity(m_Rarity);
+	}
 #endif
+
+	void SetAttachments(TStringArray attachments)
+	{
+		SpawnAttachments = new array< string >;
+		if ( attachments )
+		{
+			foreach ( string attClsName : attachments )
+			{
+				attClsName.ToLower();
+				//! Check if attachment is not same classname as parent to prevent infinite recursion (user error)
+				if (attClsName == ClassName)
+					EXError.Error(null, "MARKET CONFIGURATION ERROR: Trying to add " + ClassName + " as attachment to itself", {});
+				else
+					SpawnAttachments.Insert( attClsName );
+			}
+		}
 	}
 
 	void SetAttachmentsFromIDs()
@@ -186,9 +217,26 @@ class ExpansionMarketItem
 			if (attachment)
 				SpawnAttachments.Insert(attachment.ClassName);
 			else
-				EXPrint("ExpansionMarketItem::SetAttachmentsFromIDs - WARNING: Attachment ID " + attachmentID + " does not exist!");
+				EXError.Error(null, "MARKET CONFIGURATION ERROR: Attachment ID " + attachmentID + " does not exist for item " + ClassName + " (ID " + ItemID + ")", {});
 		}
 		m_AttachmentIDs = NULL;
+	}
+
+	/**
+	 * @brief create derivative with same properties but different attachments
+	 */
+	ExpansionMarketItem CreateDerivative(TIntArray attachmentIDs)
+	{
+		ExpansionMarketItem item = new ExpansionMarketItem(CategoryID, ClassName, MinPriceThreshold, MaxPriceThreshold, MinStockThreshold, MaxStockThreshold, null, Variants, SellPricePercent, QuantityPercent, ItemID, attachmentIDs);
+
+		item.SetAttachmentsFromIDs();
+
+	#ifdef EXPANSIONMODHARDLINE
+		item.m_Rarity = m_Rarity;
+		item.m_RequiredRep = m_RequiredRep;
+	#endif
+
+		return item;
 	}
 
 	bool IsStaticStock()
@@ -227,7 +275,7 @@ class ExpansionMarketItem
 
 	bool IsMagazine()
 	{
-		return GetGame().IsKindOf(ClassName, "Magazine_Base") && !GetGame().IsKindOf(ClassName, "Ammunition_Base");
+		return m_IsMagazine;
 	}
 
 	map<string, bool> GetAttachmentTypes(out int magAmmoCount)
@@ -306,12 +354,19 @@ class ExpansionMarketItem
 			//! Add ammo "attachment" (use 1st ammo item) if not yet present and quantity is not zero
 			TStringArray ammoItems = new TStringArray;
 			GetGame().ConfigGetTextArray("CfgMagazines " + ClassName + " ammoItems", ammoItems);
-			if (ammoItems.Count())
+			foreach (string ammo: ammoItems)
 			{
-				string ammo = ammoItems[0];
 				ammo.ToLower();
-				if (SpawnAttachments.Find(ammo) == -1)
+				if (SpawnAttachments.Find(ammo) == -1 && ExpansionMarketCategory.GetGlobalItem(ammo, false))
+				{
 					SpawnAttachments.Insert(ammo);
+					break;
+				}
+			}
+
+			if (SpawnAttachments.Count() == 0)
+			{
+				EXError.MarketCfgWarn(null, string.Format("Magazine %1 has no specified ammo attachment, and the magazine's default ammo (%2) does not exist in market. The magazine will be empty when bought.", ClassName, ExpansionString.JoinStrings(ammoItems, " or ")));
 			}
 		}
 	}

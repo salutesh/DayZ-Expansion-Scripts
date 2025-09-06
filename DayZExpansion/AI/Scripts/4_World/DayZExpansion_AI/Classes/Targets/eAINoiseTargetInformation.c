@@ -30,6 +30,24 @@ class eAINoiseTargetInformation: eAITargetInformation
 		m_ThreatLevel = threatLevel;
 	}
 
+	EntityAI GetSource()
+	{
+		return m_Source;
+	}
+
+	eAINoiseType GetNoiseType()
+	{
+		if (m_Source)
+		{
+			if (m_Source.IsWeapon())
+				return eAINoiseType.SHOT;
+			else if (m_Source.IsInherited(ExplosivesBase))
+				return eAINoiseType.EXPLOSION;
+		}
+
+		return eAINoiseType.SOUND;
+	}
+
 	float GetStrength()
 	{
 		return m_Strength;

@@ -16,7 +16,6 @@ class ExpansionMarketCrossbows: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 59;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_CROSSBOWS";
 		m_FileName = "Crossbows";
 	

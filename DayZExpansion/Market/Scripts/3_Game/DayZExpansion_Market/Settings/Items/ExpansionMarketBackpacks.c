@@ -16,13 +16,10 @@ class ExpansionMarketBackpacks: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 5;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BACKPACKS";
 		m_FileName = "Backpacks";
 		
 		AddItem("childbag_red", 	765, 	1280,	1,100,null,{"ChildBag_Blue","ChildBag_Green"});
-		AddItem("childbag_blue", 	765, 	1280,	1,100);
-		AddItem("childbag_green", 	765, 	1280,	1,100);
 		
 		AddItem("drybag_orange", 	2030, 	3385,	1,100,null,{"DryBag_Yellow","DryBag_Blue","DryBag_Black","DryBag_Red","DryBag_Green"});
 		AddItem("drybag_black", 	2050, 	3415,	1,100);
@@ -78,8 +75,6 @@ class ExpansionMarketBackpacks: ExpansionMarketCategory
 		AddItem("mountainbag_red", 	1025, 	1705,	1,100,null,{"MountainBag_Blue","MountainBag_Orange","MountainBag_Green"});
 		
 		AddItem("alicebag_green", 	3505, 	5840,	1,100,null,{"AliceBag_Black","AliceBag_Camo"});
-		AddItem("alicebag_black", 	3505, 	5840,	1,100);
-		AddItem("alicebag_camo", 	3505, 	5840,	1,100);
 		
 		AddItem("slingbag_black", 	925, 	1545,	1,100,null,{"Slingbag_Brown","Slingbag_Gray"});
 		AddItem("duffelbagsmall_camo", 	5390, 	8980,	1,100,null,{"DuffelBagSmall_Green","DuffelBagSmall_Medical"});

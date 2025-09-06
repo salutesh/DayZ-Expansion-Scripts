@@ -23,6 +23,11 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapWidgetBase
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(SetPlayerArrowColor);
 	}
 
+	void ~ExpansionMapMarkerPlayerArrow()
+	{
+		GetExpansionClientSettings().SI_UpdateSetting.Remove(SetPlayerArrowColor);
+	}
+
 	void SetPlayerArrowColor()
 	{
 		switch (GetExpansionClientSettings().PlayerArrowColor)

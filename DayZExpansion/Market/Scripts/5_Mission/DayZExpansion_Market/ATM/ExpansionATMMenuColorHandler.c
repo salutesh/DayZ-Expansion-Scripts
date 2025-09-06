@@ -30,7 +30,7 @@ class ExpansionATMMenuColorHandler
 	
 	protected TextWidget AmountLabel;
 	protected EditBoxWidget AmountValue;
-	protected ImageWidget AmountBackground;
+	protected Widget AmountBackground;
 	
 	protected ButtonWidget ButtonWithdraw;
 	protected TextWidget ButtonWithdrawLabel;
@@ -59,7 +59,7 @@ class ExpansionATMMenuColorHandler
 	protected ImageWidget atm_filter_search_icon;
 	protected ImageWidget atm_filter_clear_icon;
 	protected EditBoxWidget atm_filter_box;
-	protected ImageWidget atm_filter_background;
+	protected Widget atm_filter_background;
 	
 	protected Widget atm_transfer_separator;
 	
@@ -143,7 +143,7 @@ class ExpansionATMMenuColorHandler
 		AmountValue.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		//! Amount background
-		AmountBackground = ImageWidget.Cast(m_LayooutRoot.FindAnyWidget("AmountBackground"));
+		AmountBackground = Widget.Cast(m_LayooutRoot.FindAnyWidget("AmountBackground"));
 		AmountBackground.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
 		//! Withdraw button
@@ -215,7 +215,7 @@ class ExpansionATMMenuColorHandler
 		atm_filter_box.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		//! Search editbox background
-		atm_filter_background = ImageWidget.Cast(m_LayooutRoot.FindAnyWidget("atm_filter_background"));
+		atm_filter_background = Widget.Cast(m_LayooutRoot.FindAnyWidget("atm_filter_background"));
 		atm_filter_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
 		//! Party Header

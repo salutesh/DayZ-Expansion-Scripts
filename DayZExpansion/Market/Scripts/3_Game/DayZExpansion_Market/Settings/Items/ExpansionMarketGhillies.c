@@ -16,7 +16,6 @@ class ExpansionMarketGhillies: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 25;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_GHILLIES";
 		m_FileName = "Ghillies";
 		

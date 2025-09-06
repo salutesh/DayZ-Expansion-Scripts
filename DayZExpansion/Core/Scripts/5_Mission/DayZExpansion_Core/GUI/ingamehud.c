@@ -12,16 +12,37 @@
 
 modded class IngameHud
 {
+#ifdef DIAG_DEVELOPER
+	static bool s_Expansion_OverrideCanShowHUDElements_Enabled;
+	static bool s_Expansion_OverrideCanShowHUDElements_Value;
+
+	static void Expansion_OverrideCanShowHUDElements(bool enable, bool value)
+	{
+		s_Expansion_OverrideCanShowHUDElements_Enabled = enable;
+		s_Expansion_OverrideCanShowHUDElements_Value = value;
+	}
+#endif
+
 	override bool Expansion_CanShowHUDElements(DayZPlayer player = null)
 	{
+#ifdef DIAG_DEVELOPER
+		if (s_Expansion_OverrideCanShowHUDElements_Enabled)
+			return s_Expansion_OverrideCanShowHUDElements_Value;
+#endif
+
 		if (!super.Expansion_CanShowHUDElements(player))
 			return false;
 
 		if (player && (player.GetPlayerState() != EPlayerStates.ALIVE || player.IsUnconscious()))
 			return false;
 
-		if (GetGame().GetUIManager().GetMenu() || GetDayZExpansion().GetExpansionUIManager().GetMenu())
+		if (GetGame().GetUIManager().GetMenu())
 			return false;
+
+	#ifdef EXPANSIONUI
+		if (GetDayZExpansion().GetExpansionUIManager().GetMenu())
+			return false;
+	#endif
 
 	#ifndef DAYZ_1_26
 		//! 1.27+

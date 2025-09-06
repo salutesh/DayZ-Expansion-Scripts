@@ -97,7 +97,7 @@ modded class MissionGameplay
 			}
 		}
 
-		if (!inputIsFocused && input.LocalPress("eAISetWaypoint", false))
+		if (!inputIsFocused && input.LocalPress("eAISetWaypoint", false) && !menu && !viewMenu)
 		{
 			if (player && player.GetGroup() && !player.IsRaised())
 			{
@@ -121,6 +121,26 @@ modded class MissionGameplay
 			{
 				if (cooldownVisible)
 					m_Hud.Expansion_ShowAggressionCooldown(false);
+			}
+		}
+	}
+
+	override void HideInventory()
+	{
+		super.HideInventory();
+
+		PlayerBase player;
+		if (Class.CastTo(player, GetGame().GetPlayer()))
+		{
+			eAIGroup group = player.GetGroup();
+			if (group)
+			{
+				for (int i = 0; i < group.Count(); ++i)
+				{
+					eAIBase ai;
+					if (Class.CastTo(ai, group.GetMember(i)) && ai.m_eAI_IsInventoryVisible)
+						ai.eAI_SetIsInventoryVisible(false, player);
+				}
 			}
 		}
 	}

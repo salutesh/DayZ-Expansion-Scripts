@@ -1,7 +1,8 @@
 enum eAINoiseType
 {
 	SHOT,
-	SOUND
+	SOUND,
+	EXPLOSION
 }
 
 class eAINoiseParams: Class
@@ -33,7 +34,7 @@ class eAINoiseParams: Class
 		}
 
 		if (m_Type == eAINoiseType.SHOT)
-			m_Strength *= 10;  //! Hmm...
+			m_Strength = Math.Min(m_Strength * 34, 1100);  //! Hmm... scale strength (range) so strength 100 = 3400 but clamp to 1100
 
 		EXTrace.Print(EXTrace.AI, this, path + " " + m_Strength + " " + typename.EnumToString(eAINoiseType, m_Type));
 	}

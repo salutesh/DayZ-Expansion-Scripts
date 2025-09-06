@@ -16,7 +16,6 @@ class ExpansionMarketExchange: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 0;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_EXCHANGE";
 		m_FileName = "Exchange";
 		IsExchange = true;

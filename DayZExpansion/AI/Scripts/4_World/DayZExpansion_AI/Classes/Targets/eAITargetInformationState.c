@@ -11,6 +11,7 @@ class eAITargetInformationState
 	int m_SearchPositionUpdateTimestamp;
 	vector m_SearchPosition;
 	vector m_SearchDirection;
+	bool m_SearchOnLOSLost;
 	bool m_LOS;  //! LOS state (may be stale if not current target for AI)
 #ifdef DIAG_DEVELOPER
 	Object m_LOSRaycastHitObject;
@@ -78,7 +79,7 @@ class eAITargetInformationState
 			else if (!force)
 			{
 				float threatMin;
-				if (m_AI.m_eAI_FlankTime == 0.0)
+				if (m_AI.m_eAI_FlankTime == 0.0 || !m_SearchOnLOSLost)
 					threatMin = 0.0999;
 				else
 					threatMin = 0.4;  //! Prevent leaving combat state while flanking

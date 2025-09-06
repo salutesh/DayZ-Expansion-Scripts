@@ -167,6 +167,7 @@ class ExpansionMapWidgetBase: ScriptedWidgetEventHandler
 	{
 		m_LayoutRoot.SetPos(x, y, true);
 		vector newPos = m_MapWidget.ScreenToMap(Vector(x, y, 0));
+		newPos[1] = GetGame().SurfaceY(newPos[0], newPos[2]) + 1.0;
 		SetPosition(newPos, performDropEvent);
 	}
 

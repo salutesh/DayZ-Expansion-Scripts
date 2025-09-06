@@ -31,7 +31,7 @@ class ExpansionVehicleAnimInstances
 
 	// Boats
 	static int EXPANSION_UTILITY_BOAT = 10;
-	static int EXPANSION_LHD = 12;
+	static int EXPANSION_LHD = 15;
 
 	// Bikes
 	static int EXPANSION_TT650 = 13;

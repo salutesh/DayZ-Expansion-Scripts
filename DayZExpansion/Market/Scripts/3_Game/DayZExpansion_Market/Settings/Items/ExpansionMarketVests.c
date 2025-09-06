@@ -16,7 +16,6 @@ class ExpansionMarketVests: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 58;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_VESTS";
 		m_FileName = "Vests";
 
@@ -25,7 +24,6 @@ class ExpansionMarketVests: ExpansionMarketCategory
 		AddItem("policevest", 	660, 	1100,	1,100);
 		
 		AddItem("pressvest_blue", 	2525, 	4205,	1,100,null,{"PressVest_LightBlue"});
-		AddItem("pressvest_lightblue", 	2525, 	4205,	1,100);
 		
 		AddItem("ukassvest_black", 	1025, 	1710,	1,100,null,{"UKAssVest_Khaki","UKAssVest_Olive","UKAssVest_Camo","ukassvest_winter"});
 		AddItem("ukassvest_camo", 	1060, 	1770,	1,100);

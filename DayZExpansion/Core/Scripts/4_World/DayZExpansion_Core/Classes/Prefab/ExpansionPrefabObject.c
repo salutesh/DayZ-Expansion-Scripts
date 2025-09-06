@@ -185,7 +185,7 @@ class ExpansionPrefabObject : Managed
 		return true;
 	}
 
-	Object Spawn(Object self, bool ignoreCargo = false)
+	Object Spawn(Object self, array<ref ExpansionPrefabObject> inventoryCargo = null)
 	{
 	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.LOADOUTS, this);
@@ -210,7 +210,7 @@ class ExpansionPrefabObject : Managed
 					if (prefab.Include && CF_String.EqualsIgnoreCase(prefab.Include, m_Name))
 						EXError.Error(this, string.Format("'%1' cannot include parent '%2'", prefab.m_Name, m_Name), {});
 					else
-						prefab.Spawn(self, ignoreCargo);
+						prefab.Spawn(self, inventoryCargo);
 				}
 			}
 		}
@@ -221,9 +221,6 @@ class ExpansionPrefabObject : Managed
 			float healthModifier = Math.RandomFloatInclusive(health.Min, health.Max);
 			self.SetHealth(health.Zone, "", maxHealth * healthModifier);
 		}
-
-		Weapon_Base weapon;
-		bool isWeapon = Class.CastTo(weapon, self);
 
 		EntityAI entity;
 		if (Class.CastTo(entity, self))
@@ -294,14 +291,22 @@ class ExpansionPrefabObject : Managed
 				int index;
 
 				//! Cargo from root of any set needs to be spawned last so that cargo containers (e.g. clothing) added via attachments are already there
-				array<ref ExpansionPrefabObject> inventoryCargo();
-				if (!ignoreCargo)
+				bool spawnCargo;
+
+				array<ref ExpansionPrefabObject> inventoryCargoLocal;
+				if (!inventoryCargo)
 				{
-					foreach (ExpansionPrefabObject thisCargo: InventoryCargo)
-					{
-						if (thisCargo.ClassName && thisCargo.CanSpawn())
-							inventoryCargo.Insert(thisCargo);
-					}
+					//! Cannot assign new array directly to inventoryCargo inside this conditional block,
+					//! leads to nonsensical compile error ("Variable 'inventoryCargo' is not strong ref")
+					inventoryCargoLocal = new array<ref ExpansionPrefabObject>;
+					inventoryCargo = inventoryCargoLocal;
+					spawnCargo = true;
+				}
+
+				foreach (ExpansionPrefabObject thisCargo: InventoryCargo)
+				{
+					if (thisCargo.ClassName && thisCargo.CanSpawn())
+						inventoryCargo.Insert(thisCargo);
 				}
 				
 				//! Select sets by chance
@@ -323,12 +328,7 @@ class ExpansionPrefabObject : Managed
 
 					if (!selectedSet.ClassName || setNames.Find(selectedSet.ClassName) == -1)
 					{
-						selectedSet.Spawn(self, true);
-						foreach (ExpansionPrefabObject setCargo: selectedSet.InventoryCargo)
-						{
-							if (setCargo.ClassName && setCargo.CanSpawn())
-								inventoryCargo.Insert(setCargo);
-						}
+						selectedSet.Spawn(self, inventoryCargo);
 						if (selectedSet.ClassName)
 						{
 							setNames.Insert(selectedSet.ClassName);
@@ -471,7 +471,21 @@ class ExpansionPrefabObject : Managed
 					}
 				}
 
-				if (ignoreCargo)
+				BaseBuildingBase baseBuilding;
+				if (Class.CastTo(baseBuilding, entity))
+				{
+					Construction construction = baseBuilding.GetConstruction();
+
+					if (construction)
+					{
+						foreach (string partName: ConstructionPartsBuilt)
+						{
+							construction.ExpansionBuildPartFull(partName);
+						}
+					}
+				}
+
+				if (!spawnCargo)
 					return self;
 
 				//! Spawn candidate cargo in random order

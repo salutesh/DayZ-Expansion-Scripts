@@ -88,9 +88,9 @@ modded class BuildingBase
 				"land_city_firestation",
 				"land_city_stand",
 				"land_dieselpowerplant_tank_big",
-				"land_farm_cowsheda",
-				"land_farm_cowshedb",
-				"land_farm_cowshedc",
+				//"land_farm_cowsheda",
+				//"land_farm_cowshedb",
+				//"land_farm_cowshedc",
 				"land_garage",
 				"land_geoplant_coolingstack",  //! Sakhal
 				"land_geoplant_mainhall_right",  //! Sakhal

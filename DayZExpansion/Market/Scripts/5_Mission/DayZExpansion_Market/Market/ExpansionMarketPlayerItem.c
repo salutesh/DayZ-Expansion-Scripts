@@ -18,23 +18,37 @@ class ExpansionMarketPlayerItem
 	int Count;
 	ref map<string, int> ContainerItems;
 	int ContainerItemsCount;
-	bool IsWeapon = false;
-	bool IsMagazine = false;
-	bool IsAttached = false;
+	bool IsWeapon;
+	bool IsMagazine;
+	bool IsAttached;
+	bool IsEquipped;
+	bool IsAttachedToRoot;
 
 	void ExpansionMarketPlayerItem(EntityAI item)
 	{
 		Item = item;
 		ClassName = item.GetType();
 		DisplayName = item.GetDisplayName();
+		Count = 1;
 
 		if (item.IsWeapon())
 			IsWeapon = true;
 
 		if (item.GetInventory().IsAttachment())
 		{
-			if (!item.GetHierarchyParent().IsInherited(SurvivorBase))
+			EntityAI parent = item.GetHierarchyParent();
+
+			if (parent.IsMan())
+			{
+				IsEquipped = true;
+				IsAttachedToRoot = true;
+			}
+			else
+			{
 				IsAttached = true;
+				if (parent == item.GetHierarchyRoot())
+					IsAttachedToRoot = true;
+			}
 		}
 
 		if (item.IsInherited(MagazineStorage))
@@ -121,6 +135,24 @@ class ExpansionMarketPlayerItem
 	bool IsAttached()
 	{
 		return IsAttached;
+	}
+	
+	bool IsEquipped()
+	{
+		return IsEquipped;
+	}
+
+	bool IsAttachedOrEquipped()
+	{
+		if (IsAttached || IsEquipped)
+			return true;
+
+		return false;
+	}
+
+	bool IsAttachedToRoot()
+	{
+		return IsAttachedToRoot;
 	}
 
 	EntityAI GetItem()

@@ -6,10 +6,4 @@ class ExpansionSceneObject : ExpansionPrefabObject
 	vector Scale;
 
 	autoptr array<ref ExpansionSceneObject> Children = new array<ref ExpansionSceneObject>();
-
-	override Object Spawn(Object self, bool ignoreCargo = false)
-	{
-		self = super.Spawn(self);
-		return self;
-	}
 };

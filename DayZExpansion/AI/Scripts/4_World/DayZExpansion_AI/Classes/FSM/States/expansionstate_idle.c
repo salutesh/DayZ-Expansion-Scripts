@@ -2,10 +2,14 @@ class ExpansionState_Idle: eAIState
 {
 	override void OnEntry(string Event, ExpansionState From)
 	{
-		auto hands = unit.GetItemInHands();
+		EntityAI hands = unit.GetItemInHands();
 		if (hands && hands.HasEnergyManager() && hands.GetCompEM().IsWorking() && hands.GetCompEM().CanSwitchOff())
 		{
-			hands.GetCompEM().SwitchOff();
+			if (hands.GetType() == unit.m_eAI_TypeSwitchedOnDuringCombat)
+			{
+				hands.GetCompEM().SwitchOff();
+				unit.m_eAI_TypeSwitchedOnDuringCombat = "";
+			}
 		}
 		
 		auto cmd = unit.GetCommand_MoveAI();

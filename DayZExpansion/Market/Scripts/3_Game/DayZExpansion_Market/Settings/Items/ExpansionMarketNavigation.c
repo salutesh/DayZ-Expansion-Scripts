@@ -16,7 +16,6 @@ class ExpansionMarketNavigation: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 43;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_NAVIGATION";
 		m_FileName = "Navigation";
 		

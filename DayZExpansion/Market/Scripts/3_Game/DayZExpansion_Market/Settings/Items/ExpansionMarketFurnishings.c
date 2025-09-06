@@ -16,7 +16,6 @@ class ExpansionMarketFurnishings: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 65;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FURNISHINGS";
 		m_FileName = "Furnishings";
 		

@@ -69,25 +69,22 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (!m_Config.LoadBalancingCategory)
 		{
-			switch (m_Config.ClassName())
+			if (m_Config.ObjectClassName)
 			{
-				case "ExpansionAIObjectPatrol":
-					m_Config.LoadBalancingCategory = "ObjectPatrol";
-					break;
+				m_Config.LoadBalancingCategory = "ObjectPatrol";
+			}
+			else
+			{
+				switch (m_Config.ClassName())
+				{
+					case "ExpansionQuestAISpawn":
+						m_Config.LoadBalancingCategory = "Quest";
+						break;
 
-				case "ExpansionAIPatrol":
-					m_Config.LoadBalancingCategory = "Patrol";
-					break;
-
-				case "ExpansionQuestAISpawn":
-					m_Config.LoadBalancingCategory = "Quest";
-					break;
-
-			#ifdef DIAG_DEVELOPER
-				default:
-					EXTrace.Print(EXTrace.AI, this, "LoadBalancingCategory does not exist " + m_Config.ClassName());
-					break;
-			#endif
+					default:
+						m_Config.LoadBalancingCategory = "Patrol";
+						break;
+				}
 			}
 		}
 
@@ -98,7 +95,7 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (config.NumberOfAI == 0)
 		{
-			Log("WARNING: NumberOfAI shouldn't be set to 0, skipping this patrol...");
+			EXError.Error(null, "NumberOfAI shouldn't be set to 0", {});
 			return false;
 		}
 
@@ -138,9 +135,7 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (startpos == vector.Zero)
 		{
-			Log("!!! ERROR !!!");
-			Log("Couldn't find a spawn location. First waypoint is set to 0 0 0 or could not be read by the system (validate your file with a json validator)");
-			Log("!!! ERROR !!!");
+			EXError.Error(null, "Invalid spawn position - waypoint is set to zero vector <0 0 0>", {});
 			return false;
 		}
 
@@ -178,9 +173,7 @@ class eAIDynamicPatrol : eAIPatrol
 		
 		if (m_MinimumRadius > m_MaximumRadius)
 		{
-			Log("!!! ERROR !!!");
-			Log("MinDistRadius (" + m_MinimumRadius + ") should be smaller than MaxDistRadius (" + m_MaximumRadius + ")");
-			Log("!!! ERROR !!!");
+			EXError.Error(null, "MinDistRadius (" + m_MinimumRadius + ") should be smaller than MaxDistRadius (" + m_MaximumRadius + ")", {});
 			float actualMax = m_MinimumRadius;
 			m_MinimumRadius = m_MaximumRadius;
 			m_MaximumRadius = actualMax;
@@ -241,9 +234,8 @@ class eAIDynamicPatrol : eAIPatrol
 	vector GetInitialSpawnPosition()
 	{
 		int startPosIndex;
-		ExpansionAIPatrol patrolWithWaypoints;
 		//! For object patrols, we always use random waypoint as startpoint, for patrols with fixed waypoints, only if random is set
-		if (!Class.CastTo(patrolWithWaypoints, m_Config) || patrolWithWaypoints.UseRandomWaypointAsStartPoint)
+		if (m_Config.ObjectClassName || m_Config.UseRandomWaypointAsStartPoint)
 			startPosIndex = Math.RandomInt(0, m_Waypoints.Count());
 		return m_Waypoints[startPosIndex];
 	}
@@ -840,7 +832,7 @@ class eAIDynamicPatrol : eAIPatrol
 	void Log(string msg)
 	{
 		auto settings = GetExpansionSettings().GetLog();
-		if (m_Config && m_Config.IsInherited(ExpansionAIObjectPatrol))
+		if (m_Config && m_Config.ObjectClassName)
 		{
 			if (settings.AIObjectPatrol)
 				settings.PrintLog("[AI Object Patrol %1] %2", m_ID.ToStringLen(5), msg);

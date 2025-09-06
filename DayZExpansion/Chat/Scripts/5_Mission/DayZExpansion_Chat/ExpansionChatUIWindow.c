@@ -12,9 +12,6 @@
 
 class ExpansionChatUIWindow: ExpansionScriptView
 {
-	//! Max messages in history
-	protected const int MAX_MESSAGES = 100;
-
 	//! Number of chat lines (partly) visible at smallest chat font size (adjust this when changing height of the chathistory box in layout)
 	protected const int MAX_MESSAGES_VISIBLE = 16;
 
@@ -38,6 +35,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	protected Widget ChatBackground;
 
 	protected ExpansionClientUIChatSize m_ChatSize;
+	protected int m_ChatHistoryLimit;
 
 	void ExpansionChatUIWindow(Widget parent, Chat chat)
 	{
@@ -55,6 +53,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		m_ChatParams = new array<ref ExpansionChatMessage>;
 
 		m_ChatSize = GetExpansionClientSettings().HUDChatSize;
+		m_ChatHistoryLimit = GetExpansionClientSettings().HUDChatMessagesHistoryLimit;
 		m_MessageTimeTheshold = GetExpansionClientSettings().HUDChatMessageTimeThreshold;
 		m_MessageFadeoutDuration = GetExpansionClientSettings().HUDChatFadeOut;
 
@@ -70,7 +69,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 #endif
 
-		m_ChatLines.Clear();
+		ClearChatLines();
 		GetExpansionClientSettings().SI_UpdateSetting.Remove(OnSettingChanged);
 	}
 
@@ -87,7 +86,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		m_ChatLines.Insert(chatLine);
 
 		//! Don't lag the game while creating chat lines
-		if (m_ChatLines.Count() < MAX_MESSAGES)
+		if (m_ChatLines.Count() < m_ChatHistoryLimit)
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(CreateChatLines, 1, false);
 		}
@@ -102,22 +101,23 @@ class ExpansionChatUIWindow: ExpansionScriptView
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 #endif
+		auto settings = GetExpansionClientSettings();
 
-		m_MessageTimeTheshold = GetExpansionClientSettings().HUDChatMessageTimeThreshold;
-		m_MessageFadeoutDuration = GetExpansionClientSettings().HUDChatFadeOut;
+		m_MessageTimeTheshold = settings.HUDChatMessageTimeThreshold;
+		m_MessageFadeoutDuration = settings.HUDChatFadeOut;
 		
-
-		//! Recreate chat lines if chat font size setting changed
-		if (m_ChatSize == GetExpansionClientSettings().HUDChatSize)
+		//! Recreate chat lines if chat font size or history setting changed
+		if (m_ChatSize == settings.HUDChatSize && m_ChatHistoryLimit == settings.HUDChatMessagesHistoryLimit)
 			return;
 
-		m_ChatSize = GetExpansionClientSettings().HUDChatSize;
+		m_ChatSize = settings.HUDChatSize;
+		m_ChatHistoryLimit = settings.HUDChatMessagesHistoryLimit;
 
 		ClearChatLines();
 
 		if (GetLayoutRoot())
 		{
-			if (GetExpansionClientSettings().HUDChatToggle)
+			if (settings.HUDChatToggle)
 				GetLayoutRoot().Show(true);
 			CreateChatLines();
 		}
@@ -210,12 +210,12 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		GetHourMinuteSecond(hour, minute, second);
 		message.Time = hour.ToStringLen(2) + ":" + minute.ToStringLen(2);
 
-		m_ChatParams.InsertAt(message, 0);
-
-		while (m_ChatParams.Count() > MAX_MESSAGES)
+		while (m_ChatParams.Count() > m_ChatHistoryLimit)
 		{
 			m_ChatParams.Remove(m_ChatParams.Count() - 1);
 		}
+
+		m_ChatParams.InsertAt(message, 0);
 
 		SetChatMessage(message);
 	}
@@ -227,7 +227,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 #endif
 
 		int count = m_ChatLines.Count();
-		if (count != MAX_MESSAGES)  //! Still creating chat lines
+		if (count != m_ChatHistoryLimit)  //! Still creating chat lines
 			return;
 
 		if (message.IsMuted)
@@ -242,7 +242,6 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 		bool isChatHistoryVisible = IsVisible();
 
-		int firstVisibleMessageIndex = count - MAX_MESSAGES_VISIBLE;
 		for (int i = 0; i < idx; i++)
 		{
 			m_ChatLines[i] = m_ChatLines[i + 1];
@@ -269,12 +268,12 @@ class ExpansionChatUIWindow: ExpansionScriptView
 #endif
 
 		int count = m_ChatLines.Count();
-		if (count != MAX_MESSAGES)  //! Still creating chat lines
+		if (count != m_ChatHistoryLimit)  //! Still creating chat lines
 			return;
 
 		bool isChatHistoryVisible = IsVisible();
 
-		int firstVisibleMessageIndex = count - MAX_MESSAGES_VISIBLE;
+		int firstVisibleMessageIndex = Math.Max(count - MAX_MESSAGES_VISIBLE, 0);
 		int i;
 		int idx = count - 1;
 		float time = GetGame().GetTickTime();

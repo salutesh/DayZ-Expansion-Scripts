@@ -3,7 +3,7 @@ modded class Environment
 	//! Normal fog
 	//! -----------------------------------------------------------------------
 
-	static float s_Expansion_Visibilty_In[5] = {
+	static float s_Expansion_Visibility_In[5] = {
 		0.0,
 		0.25,
 		0.5,
@@ -15,7 +15,7 @@ modded class Environment
 	//! At 50% fog, visibility is around 445 m
 	//! At 75% fog, visibility is around 250 m
 	//! At 100% fog, visibility is around 44 m
-	static float s_Expansion_FogVisibilty_Out[5] = {
+	static float s_Expansion_FogVisibility_Out[5] = {
 		1.000,
 		0.900,
 		0.445,
@@ -116,7 +116,7 @@ modded class Environment
 
 	static void Expansion_GetWeatherVisibility(float fog, float overcast, float rain, float snow, out float fogVisibility, out float overcastVisibility, out float rainVisibility, out float snowVisibility)
 	{
-		fogVisibility = ExpansionMath.LookUp(fog, 5, s_Expansion_Visibilty_In, s_Expansion_FogVisibilty_Out);
+		fogVisibility = ExpansionMath.LookUp(fog, 5, s_Expansion_Visibility_In, s_Expansion_FogVisibility_Out);
 		overcastVisibility = ExpansionMath.LinearConversion(0.75 - Math.Min(rain, 0.75), 1.0, overcast, 1.0, 0.5 * fogVisibility);
 		rainVisibility = ExpansionMath.LinearConversion(0.5, 1.0, rain, 1.0, 0.33);
 		snowVisibility = ExpansionMath.LinearConversion(0.5, 1.0, snow, 1.0, 0.33);

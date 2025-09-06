@@ -16,7 +16,6 @@ class ExpansionMarketBootsAndShoes: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 11;
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_BOOTS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_SHOES");
 		m_FileName = "Boots_And_Shoes";
 
@@ -28,26 +27,15 @@ class ExpansionMarketBootsAndShoes: ExpansionMarketCategory
 		
 		/*
 		AddItem("Ballerinas_Blue", 					32,		64,		1,		100, null, {"Ballerinas_Red", "Ballerinas_White", "Ballerinas_Yellow"});
-		AddItem("Ballerinas_Red", 					32,		64,		1,		100);
-		AddItem("Ballerinas_White", 				32,		64,		1,		100);
-		AddItem("Ballerinas_Yellow", 				32,		64,		1,		100);
 		*/
 
 		AddItem("dressshoes_white", 	265, 	440,	1,100,null,{"DressShoes_Beige","DressShoes_Black","DressShoes_Brown","DressShoes_Sunburst"});
 
 		AddItem("hikingbootslow_blue", 	205, 	340,	1,100,null,{"HikingBootsLow_Grey","HikingBootsLow_Beige","HikingBootsLow_Black"});
-		AddItem("hikingbootslow_grey", 	205, 	340,	1,100);
-		AddItem("hikingbootslow_beige", 	205, 	340,	1,100);
-		AddItem("hikingbootslow_black", 	205, 	340,	1,100);
 		
 		AddItem("workingboots_yellow", 	255, 	425,	1,100,null,{"WorkingBoots_Grey","WorkingBoots_Brown","WorkingBoots_Beige","WorkingBoots_Green"});
-		AddItem("workingboots_grey", 	255, 	425,	1,100);
-		AddItem("workingboots_brown", 	255, 	425,	1,100);
-		AddItem("workingboots_beige", 	255, 	425,	1,100);
-		AddItem("workingboots_green", 	255, 	425,	1,100);
 
 		AddItem("hikingboots_brown", 	205, 	340,	1,100,null,{"HikingBoots_Black"});
-		AddItem("hikingboots_black", 	205, 	340,	1,100);
 	
 		AddItem("combatboots_beige", 	1055, 	1755,	1,100,null,{"CombatBoots_Black","CombatBoots_Brown","CombatBoots_Green","CombatBoots_Grey"});
 

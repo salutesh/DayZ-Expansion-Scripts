@@ -12,7 +12,8 @@ class ExpansionAirdropContainerFX
 
 	void ~ExpansionAirdropContainerFX()
 	{
-		Destroy();
+		if (g_Game)
+			Destroy();
 	}
 
 	void Destroy()

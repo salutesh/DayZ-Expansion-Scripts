@@ -16,7 +16,6 @@ class ExpansionMarketBatteries: ExpansionMarketCategory
 	{
 		super.Defaults();
 		
-		CategoryID = 7;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BATTERIES";
 		m_FileName = "Batteries";
 

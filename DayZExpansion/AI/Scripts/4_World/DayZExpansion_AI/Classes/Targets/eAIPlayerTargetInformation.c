@@ -40,6 +40,16 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		return false;
 	}
 
+	override bool IsAcuteDanger(eAIBase ai = null)
+	{
+		return true;
+	}
+
+	override bool IsLit()
+	{
+		return m_Player.eAI_IsLit();
+	}
+
 	override float GetAttackCooldown()
 	{
 		return m_Player.m_eAI_AttackCooldown;
@@ -180,7 +190,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 				}
 			}
 
-			levelFactor *= ai.Expansion_GetVisibility(distance);
+			levelFactor *= ai.eAI_GetThreatDistanceFactor(distance);
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);

@@ -129,6 +129,8 @@
 				<position_destination x="1308.43814240661" y="862.453840426607" />
 			</editor_data>
 			<guard>
+				if (unit.IsUnconscious()) return FAIL;
+				
 				auto group = unit.GetGroup();
 				if (!group) return FAIL;
 				
@@ -153,6 +155,8 @@
 				<position_destination x="1310.98813306457" y="939.143311463732" />
 			</editor_data>
 			<guard>
+				if (unit.IsUnconscious()) return FAIL;
+				
 				if (!unit.IsInTransport()) return FAIL;
 				
 				if (!src.transport.CrewCanGetThrough(src.seat) || !src.transport.IsAreaAtDoorFree(src.seat)) return FAIL;

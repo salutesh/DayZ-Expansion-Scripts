@@ -16,7 +16,6 @@ class ExpansionMarketKnifes: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 32;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_KNIFES";
 		m_FileName = "Knifes";
 		

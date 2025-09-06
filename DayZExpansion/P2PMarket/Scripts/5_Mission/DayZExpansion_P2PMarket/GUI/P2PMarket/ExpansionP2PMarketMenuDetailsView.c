@@ -434,7 +434,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 			string priceText = listing_price_editbox.GetText();
 
 		#ifdef DIAG_DEVELOPER
-			EXPrint(ToString() + "::OnChange - price text: " + priceText);
+			EXTrace.Print(EXTrace.P2PMARKET, this, "::OnChange - price text: " + priceText);
 		#endif
 
 			//! Convert localized input
@@ -447,15 +447,15 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 			priceText.Replace(" ", "");
 
 		#ifdef DIAG_DEVELOPER
-			EXPrint(ToString() + "::OnChange - price text after conversion of localized input: " + priceText);
+			EXTrace.Print(EXTrace.P2PMARKET, this, "::OnChange - price text after conversion of localized input: " + priceText);
 		#endif
 
 			float priceFloat = priceText.ToFloat();  //! Will be nan if not a valid number
 
 		#ifdef DIAG_DEVELOPER
-			EXPrint(ToString() + "::OnChange - price after conversion to float: " + priceFloat.ToString());
+			EXTrace.Print(EXTrace.P2PMARKET, this, "::OnChange - price after conversion to float: " + priceFloat.ToString());
 			if (priceFloat == "nan".ToFloat())
-				EXPrint(ToString() + "::OnChange - price is nan");
+				EXTrace.Print(EXTrace.P2PMARKET, this, "::OnChange - price is nan");
 		#endif
 
 			string allowedCharacters = "0123456789.e";
@@ -488,11 +488,11 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 
 				//! Valid input
 				m_ListPrice = price;
-				m_ListCost = Math.Ceil(price * m_P2PMarketSettings.ListingPricePercent / 100);
+				m_ListCost = Math.Ceil(price * ExpansionP2PMarketModule.GetModuleInstance().GetListingPricePercent(m_P2PMarketMenu.GetTraderID(), PlayerBase.Cast(GetGame().GetPlayer())) / 100);
 				listCostString = m_P2PMarketMenu.GetDisplayPrice(m_ListCost, false, true, true);
 
 			#ifdef DIAG_DEVELOPER
-				EXPrint(ToString() + "::OnChange - valid price " + price);
+				EXTrace.Print(EXTrace.P2PMARKET, this, "::OnChange - valid price " + price);
 			#endif
 			}
 			else
@@ -503,7 +503,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 				listCostString = "";
 				listing_price_editbox.SetText("");
 			#ifdef DIAG_DEVELOPER
-				EXPrint(ToString() + "::OnChange - invalid price " + price);
+				EXTrace.Print(EXTrace.P2PMARKET, this, "::OnChange - invalid price " + price);
 			#endif
 			}
 

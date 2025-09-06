@@ -19,7 +19,6 @@ class ExpansionMarketSpraycans: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 61;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_SPRAYCANS";
 		m_FileName = "Spraycans";
 	

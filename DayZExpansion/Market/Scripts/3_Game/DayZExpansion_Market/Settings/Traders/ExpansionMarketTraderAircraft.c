@@ -26,5 +26,6 @@ class ExpansionMarketTraderAircraft: ExpansionMarketTrader
 		Categories.Insert("Helicopters");
 		AddCategory("Vehicle_Parts", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 		AddCategory("Batteries", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
+		AddItem("ExpansionHelicopterBattery");
 	}
 }

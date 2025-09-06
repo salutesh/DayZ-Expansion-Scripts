@@ -16,7 +16,6 @@ class ExpansionMarketContainers: ExpansionMarketCategory
 	{
 		super.Defaults();
 
-		CategoryID = 16;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_CONTAINERS";
 		m_FileName = "Containers";
 

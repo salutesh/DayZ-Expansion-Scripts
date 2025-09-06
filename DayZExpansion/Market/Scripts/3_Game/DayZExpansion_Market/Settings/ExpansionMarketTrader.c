@@ -239,21 +239,16 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		ExpansionMarketItem marketItem = ExpansionMarketCategory.GetGlobalItem( item );
 		if ( marketItem )
 		{
-			CF_Log.Debug("ExpansionMarketTrader::AddItem - Added item " + item + " to trader " + m_FileName + " items array");
-
 			return AddItemInternal( marketItem, buySell );
 		}
 
-		CF_Log.Warn( "[ExpansionMarketTrader] Error: The \"" + item + "\" does not exist in the market!" );
+		EXError.MarketCfgError(null, "Can't add " + item + " to trader " + m_FileName + " - item does not exist in market");
 
 		return NULL;
 	}
 
 	ExpansionMarketTraderItem AddItemInternal( ExpansionMarketItem marketItem, ExpansionMarketTraderBuySell buySell )
 	{
-		//! If this is a variant, check if parent is present, otherwise we need to add it first or it will fuck with network sync
-		if (marketItem.m_IsVariant && marketItem.m_StockOnly && !Items.Contains(marketItem.m_Parent.ClassName))
-			AddItemInternal( new ExpansionMarketTraderItem( marketItem.m_Parent, buySell ) );
 		ExpansionMarketTraderItem item = new ExpansionMarketTraderItem( marketItem, buySell );
 		AddItemInternal( item );
 		return item;
@@ -261,6 +256,12 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 	void AddItemInternal( ExpansionMarketTraderItem item )
 	{
+		if (Items.Contains(item.MarketItem.ClassName))
+		{
+			CF.FormatError("Item %1 has already been added to trader %2", item.MarketItem.ClassName, m_FileName);
+			return;
+		}
+
 		Items.Insert( item.MarketItem.ClassName, item.BuySell );
 
 		//! Inserting ordered by ID ensures same order of IDs as given to items by categories (only required on server for correct netsynch)
@@ -283,6 +284,8 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 			m_Items.InsertAt( item, i );
 		}
+
+		CF_Log.Debug("ExpansionMarketTrader::AddItemInternal - Added item " + item.MarketItem.ClassName + " (ID " + item.MarketItem.ItemID + ") to trader " + m_FileName + " items array");
 	}
 
 	void AddCategory(string fileName, ExpansionMarketTraderBuySell buySell)
@@ -313,7 +316,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 				if (!cat)
 				{
-					EXPrint("[ExpansionMarketTrader] Error: Category " + fileName + " does not exist!");
+					EXError.Error(null, "TRADER CONFIGURATION ERROR: Category " + fileName + " in " + m_FileName + " does not exist!", {});
 					continue;
 				}
 
@@ -330,7 +333,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 				if (!cat)
 				{
-					EXPrint("[ExpansionMarketTrader] Error: Category " + id + " does not exist!");
+					EXError.Error(null, "TRADER CONFIGURATION ERROR: Category " + id + " in " + m_FileName + " does not exist!", {});
 					continue;
 				}
 
@@ -355,20 +358,51 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 	void AddAttachmentsAndVariants(array<ref ExpansionMarketTraderItem> items)
 	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.MARKET, this, m_FileName);
+	#endif
+
+		//! @note can't add to m_Items directly because it would alter the array during iteration...
+
 		map<string, ExpansionMarketTraderBuySell> toAdd = new map<string, ExpansionMarketTraderBuySell>;
 
 		foreach (ExpansionMarketTraderItem item : items)
 		{
-			foreach ( string attachment : item.MarketItem.SpawnAttachments )
+			ExpansionMarketItem marketItem = item.MarketItem;
+
+			foreach ( string attachment : marketItem.SpawnAttachments )
 			{
 				if ( !Items.Contains( attachment ) && !toAdd.Contains( attachment ) )
+				{
+				#ifdef DIAG_DEVELOPER
+					CF_Log.Debug("ExpansionMarketTrader::AddAttachmentsAndVariants - Adding attachment " + attachment + " to trader " + m_FileName);
+				#endif
 					toAdd.Insert( attachment, ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly );
+				}
 			}
 
-			foreach ( string variant : item.MarketItem.Variants )
+			if (marketItem.m_IsVariant && marketItem.m_Parent)
+			{
+				string parentClassName = marketItem.m_Parent.ClassName;
+
+				if ( !Items.Contains( parentClassName ) && !toAdd.Contains( parentClassName ) )
+				{
+				#ifdef DIAG_DEVELOPER
+					CF_Log.Debug("ExpansionMarketTrader::AddAttachmentsAndVariants - Adding parent " + parentClassName + " to trader " + m_FileName);
+				#endif
+					toAdd.Insert(parentClassName, item.BuySell);
+				}
+			}
+
+			foreach ( string variant : marketItem.Variants )
 			{
 				if ( !Items.Contains( variant ) && !toAdd.Contains( variant ) )
+				{
+				#ifdef DIAG_DEVELOPER
+					CF_Log.Debug("ExpansionMarketTrader::AddAttachmentsAndVariants - Adding variant " + variant + " to trader " + m_FileName);
+				#endif
 					toAdd.Insert( variant, item.BuySell );
+				}
 			}
 		}
 

@@ -51,7 +51,7 @@ GridSpacerWidgetClass ChatItemWidget {
   }
   GridSpacerWidgetClass Meta {
    visible 1
-   clipchildren 1
+   clipchildren 0
    inheritalpha 1
    ignorepointer 1
    position 0 0
