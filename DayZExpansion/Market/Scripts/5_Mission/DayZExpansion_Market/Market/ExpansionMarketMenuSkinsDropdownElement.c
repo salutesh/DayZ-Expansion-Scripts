@@ -61,7 +61,13 @@ class ExpansionMarketMenuSkinsDropdownElement: ExpansionScriptView
 		m_ElementController.Text = m_SkinName;
 		m_ElementController.NotifyPropertyChanged("Text");
 		
-		m_MarketMenu.CreatePreviewObjectEx(m_MarketMenu.GetSelectedMarketItem(), m_Object);
+		if (m_ClassName)
+		{
+			string classNameLower = m_ClassName;
+			classNameLower.ToLower();
+			ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(classNameLower);
+			m_MarketMenu.CreatePreviewObjectEx(item, m_Object);
+		}
 	}
 			
 	override bool OnMouseEnter(Widget w, int x, int y)

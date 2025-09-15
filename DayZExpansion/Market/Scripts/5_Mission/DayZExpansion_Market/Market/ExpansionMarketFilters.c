@@ -377,19 +377,6 @@ class ExpansionMarketFilters
 	{
 		if (output)
 		{
-		#ifdef EXPANSIONMODHARDLINE
-			auto settings = GetExpansionSettings().GetHardline();
-
-			PlayerBase player;
-			bool useRarity;
-
-			if (settings.UseReputation && settings.UseItemRarityForMarketPurchase)
-			{
-				player = PlayerBase.Cast(GetGame().GetPlayer());
-				useRarity = true;
-			}
-		#endif
-
 			ExpansionMarketTrader trader = m_MarketModule.GetTrader().GetTraderMarket();
 			ExpansionMarketTraderZone zone = m_MarketModule.GetClientZone();
 			foreach (ExpansionMarketAttachType attachType: attachTypes)
@@ -402,15 +389,6 @@ class ExpansionMarketFilters
 						int stock = zone.GetStock(name);
 						if (stock > 0)
 						{
-						#ifdef EXPANSIONMODHARDLINE
-							if (useRarity)
-							{
-								name.ToLower();
-								ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(name, false);
-								if (!m_MarketModule.HasRepForItemRarity(player, attachment))
-									continue;
-							}
-						#endif
 							attachments.Insert(name);
 						}
 						else if (stock == ExpansionMarketStock.Undefined)

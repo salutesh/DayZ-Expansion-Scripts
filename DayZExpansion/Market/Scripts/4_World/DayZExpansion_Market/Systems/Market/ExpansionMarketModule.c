@@ -234,6 +234,16 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 	static ref map<string, string> s_AmmoBullets = new map<string, string>;
 
+	private bool m_Exec_RequestPurchase_Called;
+	private bool m_FindPurchasePriceAndReserveEx_Called;
+	private bool m_FindPriceOfPurchaseEx_Called;
+	private bool m_FindPriceOfPurchaseInternal_Called;
+	private bool m_HasRepForItemRarity_Purchase_Called;
+
+	private bool m_Exec_RequestSell_Called;
+	private bool m_FindSellPrice_Called;
+	private bool m_HasRepForItemRarity_Sell_Called;
+
 	// ------------------------------------------------------------
 	// ExpansionMarketModule Constructor
 	// ------------------------------------------------------------	
@@ -523,6 +533,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	//! Find sell price and check if item can be sold. `ExpansionMarketResult result` indicates reason if cannot be sold.
 	bool FindSellPrice(notnull PlayerBase player, array<EntityAI> items, int stock, int amountWanted, ExpansionMarketSell sell, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success, out string failedClassName = "")
 	{
+		m_FindSellPrice_Called = true;
+
 		MarketModulePrint("FindSellPrice - " + sell.Item.ClassName + " - stock " + stock + " wanted " + amountWanted);
 		
 		result = ExpansionMarketResult.Success;  //! Always set initial result to success, this is changed accordingly below where necessary
@@ -1195,9 +1207,12 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
+		m_FindPurchasePriceAndReserveEx_Called = true;
+
 		if (!item)
 		{		
 			Error("FindPurchasePriceAndReserveEx - [ERROR]: ExpansionMarketItem is NULL!");
+			result = ExpansionMarketResult.FailedUnknown;
 			return false;
 		}
 		
@@ -1206,6 +1221,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!zone)
 		{	
 			Error("FindPurchasePriceAndReserveEx - [ERROR]: ExpansionMarketTraderZone is NULL!");
+			result = ExpansionMarketResult.FailedUnknown;
 			return false;
 		}
 
@@ -1214,12 +1230,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!trader)
 		{	
 			Error("FindPurchasePriceAndReserveEx - [ERROR]: ExpansionMarketTrader is NULL!");
+			result = ExpansionMarketResult.FailedUnknown;
 			return false;
 		}
 		
 		if (amountWanted < 0)
 		{
 			Error("FindPurchasePriceAndReserveEx - [ERROR]: Amount wanted is smaller then 0: " + amountWanted);
+			result = ExpansionMarketResult.FailedUnknown;
 			return false;
 		}
 		
@@ -1251,6 +1269,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	//! Returns true if item and attachments (if any) are in stock, false otherwise
 	bool FindPriceOfPurchaseEx(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, PlayerBase player, int amountWanted, inout int price, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success, out ExpansionMarketReserve reserved = NULL, inout map<string, int> removedStock = NULL, out TStringArray outOfStockList = NULL, int level = 0)
 	{
+		m_FindPriceOfPurchaseEx_Called = true;
+
 		return FindPriceOfPurchaseInternal(item, zone, trader, player, amountWanted, price, includeAttachments, result, reserved, removedStock, outOfStockList, level);
 	}
 
@@ -1259,6 +1279,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	//! Couldn't change FindPriceOfPurchaseEx signature because of 3rd party mods
 	protected bool FindPriceOfPurchaseInternal(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, PlayerBase player, int amountWanted, inout int price, bool includeAttachments = true, inout ExpansionMarketResult result = ExpansionMarketResult.Success, out ExpansionMarketReserve reserved = NULL, inout map<string, int> removedStock = NULL, out TStringArray outOfStockList = NULL, int level = 0)
 	{
+		m_FindPriceOfPurchaseInternal_Called = true;
+
 		int stock;
 
 		if (item.IsStaticStock())
@@ -2530,7 +2552,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!CheckCanUseTrader(player, trader))
 			return;
 
+		m_Exec_RequestPurchase_Called = false;
+
 		Exec_RequestPurchase(player, itemID, count, currentPrice, trader, includeAttachments, skinIndex, attachmentIDs);
+
+		if (!m_Exec_RequestPurchase_Called)
+		{
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "FATAL ERROR: A 3rd-party mod is overriding ExpansionMarketModule::Exec_RequestPurchase w/o calling super. This is an unrecoverable error.").Error(player.GetIdentity());
+			return;
+		}
 	}
 	
 	static ExpansionTraderObjectBase GetTraderFromObject(Object obj, bool errorOnNoTrader = true)
@@ -2599,6 +2629,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
+		m_Exec_RequestPurchase_Called = true;
+
 		if (!player)
 		{
 			return;
@@ -2661,6 +2693,11 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 
 		ExpansionMarketResult result;
+
+		m_FindPurchasePriceAndReserveEx_Called = false;
+		m_FindPriceOfPurchaseEx_Called = false;
+		m_FindPriceOfPurchaseInternal_Called = false;
+		m_HasRepForItemRarity_Purchase_Called = false;
 
 		//! Compare that price to the one the player sent
 		if (!FindPurchasePriceAndReserveEx(item, player, count, reservedList, includeAttachments, result) || reservedList.Price != currentPrice || result == ExpansionMarketResult.FailedNotEnoughRepBuy)
@@ -2725,6 +2762,38 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 			return;
 		}
+		else if (!m_FindPurchasePriceAndReserveEx_Called)
+		{
+			ClearReserved(player);
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "FATAL ERROR: A 3rd-party mod is overriding ExpansionMarketModule::FindPurchasePriceAndReserveEx w/o calling super. This is an unrecoverable error.").Error(player.GetIdentity());
+			return;
+		}
+		else if (!m_FindPriceOfPurchaseEx_Called)
+		{
+			ClearReserved(player);
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "FATAL ERROR: A 3rd-party mod is overriding ExpansionMarketModule::FindPriceOfPurchaseEx w/o calling super. This is an unrecoverable error.").Error(player.GetIdentity());
+			return;
+		}
+		else if (!m_FindPriceOfPurchaseInternal_Called)
+		{
+			ClearReserved(player);
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "FATAL ERROR: A 3rd-party mod is overriding ExpansionMarketModule::FindPriceOfPurchaseInternal w/o calling super. This is an unrecoverable error.").Error(player.GetIdentity());
+			return;
+		}
+	#ifdef EXPANSIONMODHARDLINE
+		else if (!m_HasRepForItemRarity_Purchase_Called)
+		{
+			ClearReserved(player);
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "FATAL ERROR: A 3rd-party mod is overriding ExpansionMarketModule::HasRepForItemRarity_Purchase w/o calling super. This is an unrecoverable error.").Error(player.GetIdentity());
+			return;
+		}
+		else if (player.m_Expansion_Item_NotEnoughRep)
+		{
+			ClearReserved(player);
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", string.Format("ERROR: A 3rd-party mod is overriding the result of ExpansionMarketModule::FindPurchasePriceAndReserveEx, but you don't have enough reputation to buy %1.", player.m_Expansion_Item_NotEnoughRep.ClassName)).Error(player.GetIdentity());
+			return;
+		}
+	#endif
 		
 		UnlockMoney(player);
 
@@ -2767,6 +2836,12 @@ class ExpansionMarketModule: CF_ModuleWorld
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
+
+		if (!m_Exec_RequestPurchase_Called)
+		{
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "FATAL ERROR: A 3rd-party mod is overriding ExpansionMarketModule::Exec_RequestPurchase w/o calling super. This is an unrecoverable error.").Error(player.GetIdentity());
+			return;
+		}
 
 		ExpansionMarketReserve reserve = player.GetMarketReserve();
 		if (!reserve)
@@ -3070,7 +3145,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!CheckCanUseTrader(player, trader))
 			return;
 
+		m_Exec_RequestSell_Called = false;
+
 		Exec_RequestSell(player, itemID, count, currentPrice, trader, playerSentSellDebug);
+
+		if (!m_Exec_RequestSell_Called)
+		{
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "FATAL ERROR: A 3rd-party mod is overriding ExpansionMarketModule::Exec_RequestSell w/o calling super. This is an unrecoverable error.").Error(player.GetIdentity());
+			return;
+		}
 	}
 	
 	//! DEPRECATED (using itemClassName)
@@ -3090,6 +3173,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
+
+		m_Exec_RequestSell_Called = true;
 
 		if (!player)
 		{
@@ -3149,6 +3234,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		ExpansionMarketResult result;
 		string failedClassName;
 		ExpansionMarketSellDebug sellDebug;
+
+		m_FindSellPrice_Called = false;
+		m_HasRepForItemRarity_Sell_Called = false;
 
 		//! Compare that price to the one the player sent
 		if (!FindSellPrice(player, inventory.m_Inventory, stock, count, sellList, true, result, failedClassName) || sellList.Price != playerSentPrice || result == ExpansionMarketResult.FailedNotEnoughRepSell)
@@ -3265,6 +3353,27 @@ class ExpansionMarketModule: CF_ModuleWorld
 			
 			return;
 		}
+		else if (!m_FindSellPrice_Called)
+		{
+			player.ClearMarketSell();
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "FATAL ERROR: A 3rd-party mod is overriding ExpansionMarketModule::FindSellPrice w/o calling super. This is an unrecoverable error.").Error(player.GetIdentity());
+			return;
+		}
+	#ifdef EXPANSIONMODHARDLINE
+		else if (!m_HasRepForItemRarity_Sell_Called)
+		{
+			player.ClearMarketSell();
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "FATAL ERROR: A 3rd-party mod is overriding ExpansionMarketModule::HasRepForItemRarity_Sell w/o calling super. This is an unrecoverable error.").Error(player.GetIdentity());
+			return;
+		}
+		else if (player.m_Expansion_Item_NotEnoughRep)
+		{
+			player.ClearMarketSell();
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", string.Format("ERROR: A 3rd-party mod is overriding the result of ExpansionMarketModule::FindSellPrice, but you don't have enough reputation to sell %1.", player.m_Expansion_Item_NotEnoughRep.ClassName)).Error(player.GetIdentity());
+			return;
+		}
+	#endif
+
 		#ifdef DIAG_DEVELOPER
 		bool disallowUnpersisted;
 
@@ -3365,6 +3474,12 @@ class ExpansionMarketModule: CF_ModuleWorld
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
+
+		if (!m_Exec_RequestSell_Called)
+		{
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "FATAL ERROR: A 3rd-party mod is overriding ExpansionMarketModule::Exec_RequestSell w/o calling super. This is an unrecoverable error.").Error(player.GetIdentity());
+			return;
+		}
 
 		if (!player)
 		{
@@ -4185,12 +4300,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 #ifdef EXPANSIONMODHARDLINE
 	bool HasRepForItemRarity_Purchase(PlayerBase player, ExpansionMarketItem item, inout ExpansionMarketResult result)
 	{
+		m_HasRepForItemRarity_Purchase_Called = true;
+
 		if (m_HardlineSettings.UseItemRarityForMarketPurchase && m_HardlineSettings.UseReputation && !HasRepForItemRarity(player, item))
 		{
-		#ifdef SERVER
-			EXError.Info(this, string.Format("HasRepForItemRarity_Purchase %1 (id=%2) %3 false", player.GetCachedName(), player.GetCachedID(), item.ClassName), {});
-		#endif
-
 			if (result != ExpansionMarketResult.FailedNotEnoughRepBuy)
 			{
 				player.m_Expansion_Item_NotEnoughRep = item;
@@ -4200,21 +4313,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return false;
 		}
 
-	#ifdef SERVER
-		EXError.Info(this, string.Format("HasRepForItemRarity_Purchase %1 (id=%2) %3 true", player.GetCachedName(), player.GetCachedID(), item.ClassName), {});
-	#endif
-
 		return true;
 	}
 
 	bool HasRepForItemRarity_Sell(PlayerBase player, ExpansionMarketItem item, inout ExpansionMarketResult result)
 	{
+		m_HasRepForItemRarity_Sell_Called = true;
+
 		if (m_HardlineSettings.UseItemRarityForMarketSell && m_HardlineSettings.UseReputation && !HasRepForItemRarity(player, item))
 		{
-		#ifdef SERVER
-			EXError.Info(this, string.Format("HasRepForItemRarity_Sell %1 (id=%2) %3 false", player.GetCachedName(), player.GetCachedID(), item.ClassName), {});
-		#endif
-
 			if (result != ExpansionMarketResult.FailedNotEnoughRepSell)
 			{
 				player.m_Expansion_Item_NotEnoughRep = item;
@@ -4223,10 +4330,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 			return false;
 		}
-
-	#ifdef SERVER
-		EXError.Info(this, string.Format("HasRepForItemRarity_Sell %1 (id=%2) %3 true", player.GetCachedName(), player.GetCachedID(), item.ClassName), {});
-	#endif
 
 		return true;
 	}

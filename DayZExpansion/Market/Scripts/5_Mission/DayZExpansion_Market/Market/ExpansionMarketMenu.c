@@ -501,9 +501,17 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		if (!GetGame().IsKindOf(className, "DZ_LightAI"))
 		{
 			preview = EntityAI.Cast(GetGame().CreateObjectEx(className, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
+
+			if (!g_Game.IsServer())
+			{
+				Weapon_Base weapon;
+				if (Class.CastTo(weapon, preview))
+					GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(weapon.AssembleGun);
+			}
+
 #ifdef EXPANSIONMODHARDLINE
 			ItemBase item;
-			if (marketItem && GetExpansionSettings().GetHardline().EnableItemRarity && Class.CastTo(item, preview))
+			if (GetExpansionSettings().GetHardline().EnableItemRarity && Class.CastTo(item, preview))
 				item.Expansion_SetRarity(marketItem.m_Rarity);
 #endif
 		}
@@ -2539,8 +2547,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		TIntArray attachmentIDs = {};
 		if (GetSelectedMarketItem().SpawnAttachments.Count() > 0 && GetSelectedMarketItemElement().GetIncludeAttachments())
 		{
-			includeAttachments = true;
 			attachmentIDs = GetCurrentSelectedAttachmentIDs();
+			if (attachmentIDs.Count() > 0)
+				includeAttachments = true;
 		}
 
 		m_MarketModule.RequestPurchase(GetSelectedMarketItem().ItemID, m_Quantity, m_BuyPrice, m_TraderObject, NULL, includeAttachments, GetSelectedMarketItemElement().GetCurrentSelectedSkinIndex(), attachmentIDs);

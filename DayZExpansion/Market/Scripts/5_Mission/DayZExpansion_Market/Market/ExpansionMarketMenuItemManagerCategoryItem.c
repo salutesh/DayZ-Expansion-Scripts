@@ -68,7 +68,10 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 		GetCategoryItemController().NotifyPropertyChanged("ItemName");
 
 		UpdateView();
-		m_MarketMenu.CreatePreviewObjectEx(m_MarketMenu.GetSelectedMarketItem(), m_Object);
+		string classNameLower = m_ItemClassName;
+		classNameLower.ToLower();
+		ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(classNameLower);
+		m_MarketMenu.CreatePreviewObjectEx(item, m_Object);
 	}
 
 	int GetCount()
