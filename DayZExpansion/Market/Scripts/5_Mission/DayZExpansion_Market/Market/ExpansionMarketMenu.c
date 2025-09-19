@@ -465,15 +465,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 	}
 
+	//! @note also used by P2P market!
 	static void CreatePreviewObject(string className, inout EntityAI preview)
 	{
-		ErrorEx("DEPRECATED, use CreatePreviewObjectEx");
-	}
-
-	void CreatePreviewObjectEx(ExpansionMarketItem marketItem, inout EntityAI preview)
-	{
-		string className = GetPreviewClassName(marketItem.ClassName);
-
 		if (preview)
 		{
 			if (preview.GetHierarchyRootPlayer() == GetGame().GetPlayer())
@@ -508,13 +502,20 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				if (Class.CastTo(weapon, preview))
 					GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(weapon.AssembleGun);
 			}
+		}
+	}
+
+	void CreatePreviewObjectEx(ExpansionMarketItem marketItem, inout EntityAI preview)
+	{
+		string className = GetPreviewClassName(marketItem.ClassName);
+
+		CreatePreviewObject(className, preview);
 
 #ifdef EXPANSIONMODHARDLINE
 			ItemBase item;
 			if (GetExpansionSettings().GetHardline().EnableItemRarity && Class.CastTo(item, preview))
 				item.Expansion_SetRarity(marketItem.m_Rarity);
 #endif
-		}
 	}
 
 	bool ShouldShowItem(ExpansionMarketItem currentItem, string displayName, string search = "")
@@ -1805,7 +1806,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 			else
 			{
-				m_MarketMenuController.MarketItemTotalSellPrice = m_SelectedMarketItem.m_RequiredRep.ToString();
+				m_MarketMenuController.MarketItemTotalSellPrice = ExpansionStatic.FormatInt(m_SelectedMarketItem.m_RequiredRep);
 				m_MarketMenuController.CurrencySellIcon = s_RepIcon;
 
 				color = GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorRequirementsNotMet");
@@ -1881,7 +1882,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 			else
 			{
-				m_MarketMenuController.MarketItemTotalBuyPrice = m_SelectedMarketItem.m_RequiredRep.ToString();
+				m_MarketMenuController.MarketItemTotalBuyPrice = ExpansionStatic.FormatInt(m_SelectedMarketItem.m_RequiredRep);
 				m_MarketMenuController.CurrencyBuyIcon = s_RepIcon;
 
 				color = GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorRequirementsNotMet");
@@ -3456,33 +3457,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 	array<int> GetCurrentSelectedAttachmentIDs(bool recursive = false, ExpansionMarketItem item = NULL)
 	{
-	#ifdef EXPANSIONMODHARDLINE
-		auto settings = GetExpansionSettings().GetHardline();
-
-		PlayerBase player;
-		bool useRarity;
-
-		if (settings.UseReputation && settings.UseItemRarityForMarketPurchase)
-		{
-			player = PlayerBase.Cast(GetGame().GetPlayer());
-			useRarity = true;
-		}
-	#endif
-
 		array<int> attachmentIDs = new array<int>;
 		if (!item)
 			item = GetSelectedMarketItem();
 		foreach (string attachment: item.SpawnAttachments)
 		{
 			ExpansionMarketItem attachmentItem = ExpansionMarketCategory.GetGlobalItem(attachment);
-
-		#ifdef EXPANSIONMODHARDLINE
-			if (useRarity)
-			{
-				if (!m_MarketModule.HasRepForItemRarity(player, attachmentItem))
-					continue;
-			}
-		#endif
 
 			attachmentIDs.Insert(attachmentItem.ItemID);
 			if (recursive)

@@ -314,30 +314,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	//! Spawn attachments and attachments on attachments
 	void SpawnAttachments(ExpansionMarketItem item, EntityAI parent, int level = 0)
 	{
-	#ifdef EXPANSIONMODHARDLINE
-		auto settings = GetExpansionSettings().GetHardline();
-
-		PlayerBase player;
-		bool useRarity;
-
-		if (settings.UseReputation && settings.UseItemRarityForMarketPurchase)
-		{
-			player = PlayerBase.Cast(GetGame().GetPlayer());
-			useRarity = true;
-		}
-	#endif
-
 		foreach (string attachmentName: item.SpawnAttachments)
 		{
 			ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(attachmentName, false);
-
-		#ifdef EXPANSIONMODHARDLINE
-			if (useRarity)
-			{
-				if (!m_MarketModule.HasRepForItemRarity(player, attachment))
-					continue;
-			}
-		#endif
 
 			EntityAI attachmentEntity = ExpansionItemSpawnHelper.SpawnAttachment(attachmentName, parent, m_CurrentSelectedSkinIndex);
 			if (attachmentEntity && level < 3)
@@ -439,7 +418,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 				m_ItemController.OverlayText = "#STR_EXPANSION_MARKET_ITEM_NOTINSTOCK";
 		#ifdef EXPANSIONMODHARDLINE
 			else
-				m_ItemController.OverlayText = string.Format("#STR_EXPANSION_MARKET_ITEM_REP (%1)", GetMarketItem().m_RequiredRep);
+				m_ItemController.OverlayText = string.Format("#STR_EXPANSION_MARKET_ITEM_REP (%1)", ExpansionStatic.FormatInt(GetMarketItem().m_RequiredRep));
 		#endif
 			m_ItemController.NotifyPropertyChanged("OverlayText");
 		}

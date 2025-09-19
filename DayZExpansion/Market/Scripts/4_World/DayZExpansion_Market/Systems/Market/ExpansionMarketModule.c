@@ -2704,9 +2704,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			EXPrint("Exec_RequestPurchase - Player sent price: " + currentPrice);
 			EXPrint("Exec_RequestPurchase - Current stock: " + zone.GetStock(itemClassName, true));
-			#ifdef EXPANSIONMODMARKET_DEBUG
 			reservedList.Debug();
-			#endif
 
 			if (result == ExpansionMarketResult.Success)
 			{
