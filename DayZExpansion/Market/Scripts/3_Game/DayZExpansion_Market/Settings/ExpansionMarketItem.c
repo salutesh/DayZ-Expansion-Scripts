@@ -72,6 +72,9 @@ class ExpansionMarketItem
 	bool m_ShowInMenu;
 
 	[NonSerialized()]
+	ref set<ExpansionMarketItem> m_VariantsShownInMenu;
+
+	[NonSerialized()]
 	int m_Idx;
 
 	[NonSerialized()]
@@ -80,13 +83,11 @@ class ExpansionMarketItem
 	[NonSerialized()]
 	EntityAI m_PreviewEntity;
 
-#ifdef EXPANSIONMODHARDLINE
 	[NonSerialized()]
 	int m_Rarity;
 
 	[NonSerialized()]
 	int m_RequiredRep;
-#endif
 
 	// ------------------------------------------------------------
 	// ExpansionMarketItem Constructor
@@ -172,9 +173,14 @@ class ExpansionMarketItem
 
 		if (GetGame().IsKindOf(ClassName, "Magazine_Base") && !GetGame().IsKindOf(ClassName, "Ammunition_Base"))
 			m_IsMagazine = true;
+
+	#ifndef SERVER
+		m_VariantsShownInMenu = new set<ExpansionMarketItem>;
+	#endif
 	}
 
 #ifdef EXPANSIONMODHARDLINE
+	//! Server only!
 	void SetRarityAndRepReq()
 	{
 		if (m_StockOnly)
@@ -219,6 +225,23 @@ class ExpansionMarketItem
 				EXError.Error(null, "MARKET CONFIGURATION ERROR: Attachment ID " + attachmentID + " does not exist for item " + ClassName + " (ID " + ItemID + ")", {});
 		}
 		m_AttachmentIDs = NULL;
+	}
+
+	/**
+	 * @brief create derivative with same properties but different attachments
+	 */
+	ExpansionMarketItem CreateDerivative(TIntArray attachmentIDs)
+	{
+		ExpansionMarketItem item = new ExpansionMarketItem(CategoryID, ClassName, MinPriceThreshold, MaxPriceThreshold, MinStockThreshold, MaxStockThreshold, null, Variants, SellPricePercent, QuantityPercent, ItemID, attachmentIDs);
+
+		item.SetAttachmentsFromIDs();
+
+	#ifdef EXPANSIONMODHARDLINE
+		item.m_Rarity = m_Rarity;
+		item.m_RequiredRep = m_RequiredRep;
+	#endif
+
+		return item;
 	}
 
 	bool IsStaticStock()

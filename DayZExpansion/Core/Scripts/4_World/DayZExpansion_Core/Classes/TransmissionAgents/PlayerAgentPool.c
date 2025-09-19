@@ -23,10 +23,7 @@ modded class PlayerAgentPool
 			ctx.Write(agentId);
 			ctx.Write(GetSingleAgentCount(agentId));
 
-		#ifndef DAYZ_1_25
-			//! 1.26+
 			ctx.Write(GetTemporaryResistance(agentId));
-		#endif
 		}
 	}
 	
@@ -52,10 +49,7 @@ modded class PlayerAgentPool
 				if (!ctx.Read(agentTemporaryResistanceTime))
 					return false;
 
-			#ifndef DAYZ_1_25
-				//! 1.26+
 				SetTemporaryResistance(agentId, agentTemporaryResistanceTime);
-			#endif
 			}
 			
 			SetAgentCount(agentId, agentCount);

@@ -947,11 +947,9 @@ class ExpansionStatic: ExpansionStaticCore
 				break;
 			case InventoryLocationType.HANDS:
 				break;
-		#ifndef DAYZ_1_25
 			case InventoryLocationType.VEHICLE:
 				res += " idx=" + loc.GetIdx();
 				break;
-		#endif
 			default:
 				res += "??";
 				break;
@@ -1844,19 +1842,6 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static array< string > FindInLocation( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES, bool recursive = false )
 	{
-#ifdef PLATFORM_LINUX
-	#ifdef DAYZ_1_25
-		return FindInLocationImpl_Linux_T179707(folder, ext, mode, recursive);
-	#else
-		return FindInLocationImpl(folder, ext, mode, recursive);
-	#endif
-#else
-		return FindInLocationImpl(folder, ext, mode, recursive);
-#endif
-	}
-
-	static array< string > FindInLocationImpl( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES, bool recursive = false )
-	{
 		array< string > files = new array< string >;
 		if (!FileExist(folder))
 			return files;
@@ -1894,7 +1879,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 					if (recursive && isDir)
 					{
-						TStringArray subFolderFileNames = FindInLocationImpl(folder + fileName + "\\", ext, mode, true);
+						TStringArray subFolderFileNames = FindInLocation(folder + fileName + "\\", ext, mode, true);
 						foreach (string subFolderFileName: subFolderFileNames)
 						{
 							files.Insert( fileName + "\\" + subFolderFileName );
@@ -1908,63 +1893,12 @@ class ExpansionStatic: ExpansionStaticCore
 			CloseFindFile( findFileHandle );
 		}
 	#ifdef DIAG_DEVELOPER
-		EXTrace.Print(EXTrace.MISC, null, "FindInLocationImpl " + folder + "*" + ext + " mode=" + typename.EnumToString(ExpansionFindFileMode, mode) + " recursive=" + recursive.ToString());
+		EXTrace.Print(EXTrace.MISC, null, "FindInLocation " + folder + "*" + ext + " mode=" + typename.EnumToString(ExpansionFindFileMode, mode) + " recursive=" + recursive.ToString());
 		foreach (string file: files)
 		{
 			EXTrace.Print(EXTrace.MISC, null, folder + file);
 		}
 	#endif
-		return files;
-	}
-
-	//! Workaround for https://feedback.bistudio.com/T179707 (will be fixed in 1.26)
-	//! @note will only find files, not directories
-	static array<string> FindInLocationImpl_Linux_T179707(string folder, string ext = "", int mode = ExpansionFindFileMode.FILES, bool recursive = false)
-	{
-		array<string> files = new array< string >;
-		if (!FileExist(folder))
-			return files;
-		folder.Replace("\\", "/");
-		string fileName;
-		//! Under Linux, fileAttr cannot be used, see https://feedback.bistudio.com/T179707
-		FileAttr fileAttr;
-		FindFileHandle findFileHandle = FindFile( folder + "*", fileName, fileAttr, 0 );
-		//! Under Linux, FindFile always returns zero, see https://feedback.bistudio.com/T182004
-		//if (findFileHandle)
-		//{
-			bool isValid = true;
-
-			bool includeFiles;
-			if (mode & ExpansionFindFileMode.FILES)
-				includeFiles = true;
-
-			bool includeDirs;
-			if (mode & ExpansionFindFileMode.DIRECTORIES)
-				includeDirs = true;
-
-			FileHandle file;
-			while (isValid)
-			{
-				if (fileName.Length() > 0)
-				{
-					if (!ext || ExpansionString.EndsWithIgnoreCase(fileName, ext))
-						files.Insert(fileName);
-
-					if (recursive)
-					{
-						TStringArray subFolderFileNames = FindInLocationImpl_Linux_T179707(folder + fileName + "\\", ext, mode, true);
-						foreach (string subFolderFileName: subFolderFileNames)
-						{
-							files.Insert( fileName + "\\" + subFolderFileName );
-						}
-					}
-				}
-
-				isValid = FindNextFile(findFileHandle, fileName, fileAttr);
-			}
-
-			CloseFindFile(findFileHandle);
-		//}
 		return files;
 	}
 

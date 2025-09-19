@@ -18,20 +18,6 @@ modded class DebugMonitor
 	{
 		Instance = this;
 	}
-
-#ifdef DAYZ_1_26
-	bool IsVisible()
-	{
-		return m_WidgetRoot.IsVisible();
-	}
-#endif
-
-#ifdef DAYZ_1_21
-	void Show()
-	{
-		m_WidgetRoot.Show(true);
-	}
-#endif
 }
 
 #ifdef JM_COT

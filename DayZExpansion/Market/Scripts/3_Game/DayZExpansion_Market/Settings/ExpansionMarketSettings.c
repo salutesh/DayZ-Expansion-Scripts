@@ -71,7 +71,7 @@ class ExpansionMarketSettingsV3: ExpansionMarketSettingsBaseV2
  **/
 class ExpansionMarketSettings: ExpansionMarketSettingsBase
 {
-	static const int VERSION = 16;
+	static const int VERSION = 17;
 
 	bool UseWholeMapForATMPlayerList;
 	float SellPricePercent;
@@ -629,14 +629,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		AddDefaultCategory(new ExpansionMarketVegetables);
 		AddDefaultCategory(new ExpansionMarketVehicleParts);
 		AddDefaultCategory(new ExpansionMarketVests);
-	#ifndef DAYZ_1_20
-		//! 1.21+
 		AddDefaultCategory(new ExpansionMarketCrossbows);
-	#else
-		#ifdef EXPANSIONMODWEAPONS
-			AddDefaultCategory(new ExpansionMarketCrossbows);
-		#endif
-	#endif
 		AddDefaultCategory(new ExpansionMarketEvent);
 	#ifdef EXPANSIONMODVEHICLE
 		AddDefaultCategory(new ExpansionMarketSpraycans);

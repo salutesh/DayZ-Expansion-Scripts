@@ -32,6 +32,9 @@
 
 //! Features
 #define EXPANSION_GLOBALID_ITEMBASE_CORE
+#define EXPANSION_CHAT_HISTORY_LIMIT
+#define EXPANSION_CHAT_TEXT_PROPERTIES
+#define EXPANSION_HUD_VISIBILITY
 
 //! Enable it if you want to enable logging with EXPrint
 //#define EXPANSIONEXPRINT
@@ -90,4 +93,4 @@
 #endif
 
 //! Versioning - NEW - do NOT add/change manually, will be added/changed during build with CI.bat!
-#define EXPANSION_1_9_38
+#define EXPANSION_1_9_39

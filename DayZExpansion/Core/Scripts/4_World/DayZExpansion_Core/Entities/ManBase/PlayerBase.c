@@ -840,25 +840,6 @@ modded class PlayerBase
 	#endif
 		super.EEKilled(killer);
 	}
-
-#ifdef DAYZ_1_25
-	override bool CanReceiveItemIntoHands(EntityAI item_to_hands)
-	{
-		if ( Expansion_IsAttached() )
-		{
-			Object attachmentObject = Expansion_GetAttachmentObject();
-			bool isVehicle;
-			isVehicle |= attachmentObject.IsInherited(CarScript);
-		#ifdef EXPANSIONMODVEHICLE
-			isVehicle |= attachmentObject.IsInherited(ExpansionVehicleBase);
-		#endif
-			if (isVehicle)
-				return CanPickupHeavyItem(item_to_hands);
-		}
-		
-		return super.CanReceiveItemIntoHands(item_to_hands);
-	}
-#endif
 	
 	override void OnVehicleSeatDriverEnter()
 	{

@@ -16,4 +16,9 @@ modded class Hud
 	{
 		return true;
 	}
+
+	bool Expansion_IsVisible()
+	{
+		return true;
+	}
 };

@@ -369,9 +369,38 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 			return;
 		}
 				
+	#ifdef EXPANSIONMODHARDLINE
+		auto settings = GetExpansionSettings().GetHardline();
+
+		PlayerBase player;
+		bool useRarity;
+
+		if (settings.UseReputation && settings.UseItemRarityForMarketPurchase)
+		{
+			player = PlayerBase.Cast(GetGame().GetPlayer());
+			useRarity = true;
+		}
+
+		array<string> removedAtts = {};
+	#endif
+
 		m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.Clear();
 		foreach (string attachment: preset.ItemAttachments)
 		{
+		#ifdef EXPANSIONMODHARDLINE
+			if (useRarity)
+			{
+				
+				ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(attachment, false);
+
+				if (!ExpansionMarketModule.GetInstance().HasRepForItemRarity(player, item))
+				{
+					removedAtts.Insert(attachment);
+					continue;
+				}
+			}
+		#endif
+
 			m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.Insert(attachment);
 		}
 		
@@ -380,6 +409,30 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 		m_MarketItemManagerController.NotifyPropertyChanged("PresetName");
 		
 		UpdateMenuViews();
+
+	#ifdef EXPANSIONMODHARDLINE
+		if (removedAtts.Count() > 0)
+		{
+			string removedText;
+			foreach (string removedAtt: removedAtts)
+			{
+				string displayName = ExpansionStatic.GetItemDisplayNameWithType(removedAtt);
+				if (!removedText)
+				{
+					removedText = displayName;
+				}
+				else
+				{
+					removedText = removedText + ", " + displayName;
+				}
+			}
+
+			CF_Localiser title = new CF_Localiser("STR_EXPANSION_HARDLINE_MARKET_REPLOW");
+			//! TODO: translation
+			CF_Localiser text = new CF_Localiser("The following items have been removed from the preset because you don't have the required reputation to use them: " + removedText);
+			ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.MARKET).Create();
+		}
+	#endif
 	}
 	
 	bool IsPresetValidCheck(ExpansionMarketMenuItemManagerPreset preset)

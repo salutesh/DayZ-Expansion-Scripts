@@ -43,9 +43,7 @@ class ExpansionMarketHatsAndHoods: ExpansionMarketCategory
 		AddItem("booniehat_dpm", 	805, 	1340,	1,100);
 		AddItem("booniehat_dubok", 	805, 	1340,	1,100);
 		AddItem("booniehat_flecktran", 	805, 	1340,	1,100);
-		#ifndef DAYZ_1_25
 		AddItem("booniehat_winter", 	665, 	1110,	1,100);
-		#endif
 		
 		AddItem("budenovkahat_gray", 	145, 	240,	1,100);
 
@@ -53,12 +51,10 @@ class ExpansionMarketHatsAndHoods: ExpansionMarketCategory
 		
 		AddItem("nbchoodgray", 	7900, 	13165,	1,100,null,{"nbchoodyellow","nbchoodwhite"});
 
-		#ifndef DAYZ_1_25
 		AddItem("morozkohat", 	360, 	600,	1,100);
 		AddItem("okzkcap_beige", 	1060, 	1770,	1,100,null,{"okzkcap_green"});
 		AddItem("petushokhat_black", 	285, 	470,	1,100,null,{"petushokhat_green","petushokhat_yellow"});
 		AddItem("snowstormushanka_brown", 	145, 	240,	1,100,null,{"snowstormushanka_navy","snowstormushanka_olive","snowstormushanka_white"});
 		AddItem("wintercoif_black", 	175, 	290,	1,100,null,{"wintercoif_blue","wintercoif_green","wintercoif_skull"});
-		#endif
 	}
 };

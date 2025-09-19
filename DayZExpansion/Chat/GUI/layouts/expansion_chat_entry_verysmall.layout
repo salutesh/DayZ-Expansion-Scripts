@@ -51,7 +51,7 @@ GridSpacerWidgetClass ChatItemWidget {
   }
   GridSpacerWidgetClass Meta {
    visible 1
-   clipchildren 1
+   clipchildren 0
    inheritalpha 1
    ignorepointer 1
    position 0 0
@@ -137,7 +137,7 @@ GridSpacerWidgetClass ChatItemWidget {
    "size to text v" 1
    "text valign" top
    wrap 1
-   "condense whitespace" 0
+   "condense whitespace" 1
    "strip newlines" 1
    {
     ScriptParamsClass {

@@ -381,10 +381,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static Object SpawnObject(string className, vector position, vector rotation, bool special = false, bool takeable = true)
 	{
-		int flags = ECE_CREATEPHYSICS | ECE_NOLIFETIME | ECE_KEEPHEIGHT;
-		#ifndef DAYZ_1_20
-		flags |= ECE_DYNAMIC_PERSISTENCY;
-		#endif
+		int flags = ECE_CREATEPHYSICS | ECE_NOLIFETIME | ECE_KEEPHEIGHT | ECE_DYNAMIC_PERSISTENCY;
 
 		Object obj = GetGame().CreateObjectEx( className, position, flags );
 		if ( !obj )
@@ -608,10 +605,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 				vector smoke_point_pos_world = buildingWithFireplace.ModelToWorld(smoke_point_pos);		
 				vector smokePos = smoke_point_pos_world;
 
-				int flags = ECE_PLACE_ON_SURFACE | ECE_NOLIFETIME;
-				#ifndef DAYZ_1_20
-				flags |= ECE_NOPERSISTENCY_WORLD;
-				#endif
+				int flags = ECE_PLACE_ON_SURFACE | ECE_NOLIFETIME | ECE_NOPERSISTENCY_WORLD;
 				Object obj_fireplace = GetGame().CreateObjectEx("bldr_fireplace", fire_place_pos_world, flags);
 				s_FirePlacesToDelete.Insert(obj_fireplace);
 				

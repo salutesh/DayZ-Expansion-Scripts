@@ -46,9 +46,7 @@ class ExpansionMarketTools: ExpansionMarketCategory
 
 		AddItem("fieldshovel", 	1425, 	2375,	1,100);
 		AddItem("meattenderizer", 	285, 	475,	1,100);
-		#ifndef DAYZ_1_25
 		AddItem("iceaxe", 	245, 	410,	1,100);
-		#endif
 	#ifdef EXPANSIONMODBASEBUILDING
 		AddItem("ExpansionPropaneTorch", 		950, 	1500,	1,		100);
 		AddItem("ExpansionBoltCutters", 		390, 	620,	1,		100);

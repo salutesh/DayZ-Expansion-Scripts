@@ -98,9 +98,16 @@ class ExpansionClientSettings
 	// Chat Settings
 	bool HUDChatToggle;
 	ExpansionClientUIChatSize HUDChatSize;
+	int HUDChatOutlineSize;
+	float HUDChatOutlineOpacity;
+	int HUDChatShadowSize;
+	float HUDChatShadowOpacity;
+	float HUDChatShadowOffsetX;
+	float HUDChatShadowOffsetY;
 	float HUDChatMessageTimeThreshold;
 	float HUDChatFadeOut;
 	ExpansionClientUIChatChannel DefaultChatChannel;
+	int HUDChatMessagesHistoryLimit;
 
 	bool ShowNameQuickMarkers;
 	bool ShowDistanceQuickMarkers;
@@ -142,13 +149,10 @@ class ExpansionClientSettings
 		auto trace = EXTrace.StartStack(EXTrace.CLIENT_SETTINGS, this);
 #endif
 
-	#ifdef EXPANSIONMOD
-		m_ShouldShowHUDCategory = true;
-	#endif
 	#ifdef EXPANSIONMODNAVIGATION
 		m_ShouldShowHUDCategory = true;
 	#endif
-	#ifdef EXPANSIONMODCHAT
+	#ifdef EXPANSIONMODGROUPS
 		m_ShouldShowHUDCategory = true;
 	#endif
 	#ifdef EXPANSIONMODHARDLINE
@@ -748,6 +752,56 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read OpenMapOnPlayerPos!");
 			return false;
 		}
+		
+		if ( version < 55 )
+		{
+			return true;
+		}
+		
+		if ( !ctx.Read( HUDChatMessagesHistoryLimit ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatMessagesHistoryLimit!");
+			return false;
+		}
+		
+		if (version < 56)
+			return true;
+
+		if (!ctx.Read(HUDChatOutlineSize))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatOutlineSize!");
+			return false;
+		}
+
+		if (!ctx.Read(HUDChatOutlineOpacity))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatOutlineOpacity!");
+			return false;
+		}
+
+		if (!ctx.Read(HUDChatShadowSize))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatShadowSize!");
+			return false;
+		}
+
+		if (!ctx.Read(HUDChatShadowOpacity))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatShadowOpacity!");
+			return false;
+		}
+
+		if (!ctx.Read(HUDChatShadowOffsetX))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatShadowOffsetX!");
+			return false;
+		}
+
+		if (!ctx.Read(HUDChatShadowOffsetY))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatShadowOffsetY!");
+			return false;
+		}
 
 		return true;
 	}
@@ -885,6 +939,15 @@ class ExpansionClientSettings
 		ctx.Write( MaxDistance3DGlobalMarkers );
 		ctx.Write( ShowMarkerTextColor );
 		ctx.Write( OpenMapOnPlayerPos );
+
+		ctx.Write( HUDChatMessagesHistoryLimit );
+
+		ctx.Write(HUDChatOutlineSize);
+		ctx.Write(HUDChatOutlineOpacity);
+		ctx.Write(HUDChatShadowSize);
+		ctx.Write(HUDChatShadowOpacity);
+		ctx.Write(HUDChatShadowOffsetX);
+		ctx.Write(HUDChatShadowOffsetY);
 	}
 
 	// -----------------------------------------------------------
@@ -1012,6 +1075,12 @@ class ExpansionClientSettings
 		HUDChatToggle = true;
 		HUDChatMessageTimeThreshold = 10.0;
 		HUDChatSize = ExpansionClientUIChatSize.MEDIUM;
+		HUDChatOutlineSize = 0;
+		HUDChatOutlineOpacity = 1;
+		HUDChatShadowSize = 4;
+		HUDChatShadowOpacity = 1;
+		HUDChatShadowOffsetX = 1;
+		HUDChatShadowOffsetY = 1;
 		HUDChatFadeOut = 3.0;
 
 		MemberMarkerType = ExpansionClientUIMemberMarkerType.PERSON;
@@ -1046,6 +1115,7 @@ class ExpansionClientSettings
 		Show3DPartyMemberIcon = true;
 
 		DefaultChatChannel = ExpansionClientUIChatChannel.GLOBAL;
+		HUDChatMessagesHistoryLimit = 50;
 
 		VehicleResyncTimeout = 5.0;
 		ShowDesyncInvulnerabilityNotifications = false;
@@ -1068,34 +1138,51 @@ class ExpansionClientSettings
 		CreateCategory( "VideoSettings", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO" );
 
 		//! Option to toggle light shadows
-		CreateToggle( "CastLightShadows", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS_DESC" );
-		//! Client side view distance of the terrain
-	#ifdef DAYZ_1_25
-		//! Only show the sliders for 1.25, 1.26 vanilla has its own viewdistance settings
-		CreateSlider( "ViewDistance", "#STR_EXPANSION_SETTINGS_CLIENT_VIEWDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIEWDISTANCE_DESC", 0, 3600, 100 );
-		//! Client side view distance of the objects and vegetation
-		CreateSlider( "ObjectViewDistance", "#STR_EXPANSION_SETTINGS_CLIENT_OBJECTVIEWDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_OBJECTVIEWDISTANCE_DESC", 0, 3600, 100 );
-	#endif
+		CreateToggle( "CastLightShadows", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS_DESC" );
 	#ifdef EXPANSIONMODNAVIGATION
 		CreateCategory( "3DMapMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D" );
 
 		//! Option to toggle view of all personal 3D Map-Markers
-		CreateToggle( "Show3DClientMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DCLIENTMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DCLIENTMARKERS_DESC" );
+		CreateToggle( "Show3DClientMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DCLIENTMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DCLIENTMARKERS_DESC" );
 		//! Option to toggle view of all 3D Party Player-Markers
-		CreateToggle( "Show3DPlayerMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPLAYERMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPLAYERMARKERS_DESC" );
+		CreateToggle( "Show3DPlayerMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPLAYERMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPLAYERMARKERS_DESC" );
 		//! Option to toggle view of all 3D Party Map-Markers
-		CreateToggle( "Show3DPartyMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMARKERS_DESC" );
+		CreateToggle( "Show3DPartyMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMARKERS_DESC" );
 		//! Option to toggle view of all 3D Global Server-Markers
-		CreateToggle( "Show3DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DGLOBALMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DGLOBALMARKERS_DESC" );
+		CreateToggle( "Show3DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DGLOBALMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DGLOBALMARKERS_DESC" );
 	#ifdef EXPANSIONMODGROUPS
 		//! Option to show/hide the icon that gets displayed next to party member markers
-		CreateToggle( "Show3DPartyMemberIcon", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMEMBERICON", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMEMBERICON_DESC" );
+		CreateToggle( "Show3DPartyMemberIcon", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMEMBERICON", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMEMBERICON_DESC" );
 	#endif
-		CreateToggle( "ShowMarkerTextColor", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOWMARKERTEXTCOLOR", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOWMARKERTEXTCOLOR_DESC" );
-		CreateSlider( "MaxDistance3DClientMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_CLIENT3DDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_CLIENT3DDISTANCE_DESC", 100, 30000, 100 );
-		CreateSlider( "MaxDistance3DPlayerMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_PLAYER3DDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_PLAYER3DDISTANCE_DESC", 100, 30000, 100 );
-		CreateSlider( "MaxDistance3DPartyMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_PARTY3DDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_PARTY3DDISTANCE_DESC", 100, 30000, 100 );
-		CreateSlider( "MaxDistance3DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_GLOBAL3DDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_GLOBAL3DDISTANCE_DESC", 100, 30000, 100 );
+		CreateToggle( "ShowMarkerTextColor", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOWMARKERTEXTCOLOR", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOWMARKERTEXTCOLOR_DESC" );
+		CreateSlider( "MaxDistance3DClientMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_CLIENT3DDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_CLIENT3DDISTANCE_DESC", 100, 30000, 100 );
+		CreateSlider( "MaxDistance3DPlayerMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_PLAYER3DDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_PLAYER3DDISTANCE_DESC", 100, 30000, 100 );
+		CreateSlider( "MaxDistance3DPartyMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_PARTY3DDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_PARTY3DDISTANCE_DESC", 100, 30000, 100 );
+		CreateSlider( "MaxDistance3DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_GLOBAL3DDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_GLOBAL3DDISTANCE_DESC", 100, 30000, 100 );
+
+		//! Option to use the desired party member marker
+		//CreateEnum( "MemberMarkerType", ExpansionClientUIMemberMarkerType, "MemberMarkerType", "MemberMarkerType" );
+		//! Option to set the 3D marker size
+		CreateEnum( "MarkerSize", ExpansionClientUIMarkerSize, "#STR_EXPANSION_SETTINGS_MARKER_SIZE", "#STR_EXPANSION_SETTINGS_MARKER_SIZE_DESC" );
+		//! Option to toggle party Member name under their marker
+		CreateToggle( "ShowMemberNameMarker", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_NAME", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_NAME_DESC" );
+		//! Option to toggle party Member distance under their marker
+		CreateToggle( "ShowMemberDistanceMarker", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_DISTANCE", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_DISTANCE_DESC" );
+		//! Option to use the desired party member color instead of a randomized color
+		//CreateToggle( "ForceColorMemberMarker", "ForceColorMemberMarker", "ForceColorMemberMarker" );
+
+		//! Option to toggle name under quick markers
+		CreateToggle( "ShowNameQuickMarkers", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_NAME", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_NAME_DESC" );
+		//! Option to toggle distance under quick markers
+		CreateToggle( "ShowDistanceQuickMarkers", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE_DESC" );
+
+		//Color slider for party member on top of player head
+		//CreateSlider( "AlphaColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER_DESC", 0.0, 255.0, 5.0 );
+		//CreateSlider( "RedColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER_DESC", 0.0, 255.0, 5.0 );
+		//CreateSlider( "GreenColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER_DESC", 0.0, 255.0, 5.0 );
+		//CreateSlider( "BlueColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER_DESC", 0.0, 255.0, 5.0 );
+	
+		CreateSlider( "AlphaColorLookAtMinimum", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING_DESC", 0.0, 255.0, 5.0 );
 	#endif
 	
 
@@ -1103,137 +1190,127 @@ class ExpansionClientSettings
 		CreateCategory( "2DMapMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D" );
 
 		//! Option to toggle view of all personal 2D Map-Markers
-		CreateToggle( "Show2DClientMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DCLIENTMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DCLIENTMARKERS_DESC" );
+		CreateToggle( "Show2DClientMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DCLIENTMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DCLIENTMARKERS_DESC" );
 		//! Option to toggle view of all 2D party Player-Markers
-		CreateToggle( "Show2DPlayerMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DPLAYERMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DPLAYERMARKERS_DESC" );
+		CreateToggle( "Show2DPlayerMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DPLAYERMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DPLAYERMARKERS_DESC" );
 		//! Option to toggle view of all 2D party Map-Markers
-		CreateToggle( "Show2DPartyMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DPARTYMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DPARTYMARKERS_DESC" );
+		CreateToggle( "Show2DPartyMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DPARTYMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DPARTYMARKERS_DESC" );
 		//! Option to toggle view of all 2D global Server-Markers
-		CreateToggle( "Show2DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DGLOBALMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DGLOBALMARKERS_DESC" );
+		CreateToggle( "Show2DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DGLOBALMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DGLOBALMARKERS_DESC" );
 		//! Option to set default marker lock state for new created map markers.
-		CreateToggle( "DefaultMarkerLockState", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK_DESC" );
-		CreateToggle( "OpenMapOnPlayerPos", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_OPENMAPONPLAYERPOS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_OPENMAPONPLAYERPOS_DESC" );
+		CreateToggle( "DefaultMarkerLockState", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK_DESC" );
+		CreateToggle( "OpenMapOnPlayerPos", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_OPENMAPONPLAYERPOS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_OPENMAPONPLAYERPOS_DESC" );
+
+		CreateToggle( "ShowMapMarkerList", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE_DESC" );
+
+		CreateEnum( "PlayerArrowColor", ExpansionClientUIPlayerArrowColor, "#STR_EXPANSION_SETTINGS_PLAYERARROW_COLOR", "#STR_EXPANSION_SETTINGS_PLAYERARROW_COLOR_DESC" );
 	#endif
 
 		CreateCategory( "Notifications", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS" );
 
 		//! Option to toggle notification sounds
-		CreateToggle( "ShowNotifications", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_DISPLAY", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_DISPLAY_DESC" );
+		CreateToggle( "ShowNotifications", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_DISPLAY", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_DISPLAY_DESC" );
 		//! Option to toggle notification sounds
-		CreateToggle( "NotificationSound", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_SOUND", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_SOUND_DESC" );
+		CreateToggle( "NotificationSound", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_SOUND", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_SOUND_DESC" );
 		//! Option to toggle notification sounds
-		CreateToggle( "NotificationSoundLeaveJoin", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_SOUND_LEAVE_JOIN", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_SOUND_LEAVE_JOIN_DESC" );
+		CreateToggle( "NotificationSoundLeaveJoin", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_SOUND_LEAVE_JOIN", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_SOUND_LEAVE_JOIN_DESC" );
 		//! Option to toggle display of player join notifications
-		CreateToggle( "NotificationJoin", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_JOIN", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_JOIN_DESC" );
+		CreateToggle( "NotificationJoin", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_JOIN", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_JOIN_DESC" );
 		//! Option to toggle display of player left notifications
-		CreateToggle( "NotificationLeave", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_LEAVE", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_LEAVE_DESC" );
+		CreateToggle( "NotificationLeave", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_LEAVE", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_LEAVE_DESC" );
 
 		CreateCategory( "StreamerMode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE" );
 
 		//! Option to toggle streamer mode
-		CreateToggle( "StreamerMode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION_DESC" );
+		CreateToggle( "StreamerMode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION_DESC" );
 		//! Option to toggle display of pins and passwords
-		CreateToggle( "ShowPINCode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE_DESC" );
+		CreateToggle( "ShowPINCode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE_DESC" );
 		
 	#ifdef EXPANSION_INSPECT_MENU_NEW_ENABLE
-		CreateToggle( "EnableLiquidTypeColors", "#STR_EXPANSION_SETTINGS_ENABLE_LIQUID_TYPE_COLORS", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_ENABLE_LIQUID_TYPE_COLORS_DESC" );
+		CreateToggle( "EnableLiquidTypeColors", "#STR_EXPANSION_SETTINGS_ENABLE_LIQUID_TYPE_COLORS", "#STR_EXPANSION_SETTINGS_ENABLE_LIQUID_TYPE_COLORS_DESC" );
+	#endif
+
+	#ifdef EXPANSIONMOD	
+		//! Option to change ear plug level 
+		CreateSlider( "EarplugLevel", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL_DESC", 0.0, 1.0, 0.05 );
 	#endif
 
 		CreateCategory( "BaseBuilding", "#STR_EXPANSION_SETTINGS_BASEBUILDING" );
 
 		//! Option to automaticaly open the lock menu after placing the codelock
-		CreateToggle( "AutoOpenLockMenuAfterPlacing", "#STR_EXPANSION_SETTINGS_AUTOOPEN_CODELOCK_PLACING", "#STR_EXPANSION_SETTINGS_BASEBUILDING", "#STR_EXPANSION_SETTINGS_AUTOOPEN_CODELOCK_PLACING_DESC" );
+		CreateToggle( "AutoOpenLockMenuAfterPlacing", "#STR_EXPANSION_SETTINGS_AUTOOPEN_CODELOCK_PLACING", "#STR_EXPANSION_SETTINGS_AUTOOPEN_CODELOCK_PLACING_DESC" );
 
-	if ( m_ShouldShowHUDCategory )
-		CreateCategory( "HUD", "#STR_EXPANSION_SETTINGS_HUD" );
-	#ifdef EXPANSIONMOD	
-		//! Option to change ear plug level 
-		CreateSlider( "EarplugLevel", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL_DESC", 0.0, 1.0, 0.05 );
-	#endif
+		if ( m_ShouldShowHUDCategory )
+			CreateCategory( "HUD", "#STR_EXPANSION_SETTINGS_HUD" );
 
 	#ifdef EXPANSIONMODGROUPS
 		//! Option to show/hide the party hud on client side
-		CreateToggle( "ShowPartyMemberHUD", "#STR_EXPANSION_SETTINGS_CLIENT_PARTY_SHOWPARTYMEMBERHUD", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_CLIENT_PARTY_SHOWPARTYMEMBERHUD_DESC" );
+		CreateToggle( "ShowPartyMemberHUD", "#STR_EXPANSION_SETTINGS_CLIENT_PARTY_SHOWPARTYMEMBERHUD", "#STR_EXPANSION_SETTINGS_CLIENT_PARTY_SHOWPARTYMEMBERHUD_DESC" );
 	#endif
 
 	#ifdef EXPANSIONMODNAVIGATION
-		//! Option to use the desired party member marker
-		//CreateEnum( "MemberMarkerType", ExpansionClientUIMemberMarkerType, "MemberMarkerType", "MemberMarkerType", "MemberMarkerType" );
-		//! Option to set the 3D marker size
-		CreateEnum( "MarkerSize", ExpansionClientUIMarkerSize, "#STR_EXPANSION_SETTINGS_MARKER_SIZE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_MARKER_SIZE_DESC" );
-		//! Option to toggle party Member name under their marker
-		CreateToggle( "ShowMemberNameMarker", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_NAME", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_NAME_DESC" );
-		//! Option to toggle party Member distance under their marker
-		CreateToggle( "ShowMemberDistanceMarker", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_DISTANCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_DISTANCE_DESC" );
-		//! Option to use the desired party member color instead of a randomized color
-		//CreateToggle( "ForceColorMemberMarker", "ForceColorMemberMarker", "ForceColorMemberMarker", "ForceColorMemberMarker" );
-
-		//! Option to toggle name under quick markers
-		CreateToggle( "ShowNameQuickMarkers", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_NAME", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_NAME_DESC" );
-		//! Option to toggle distance under quick markers
-		CreateToggle( "ShowDistanceQuickMarkers", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE_DESC" );
-
-		CreateToggle( "ShowMapMarkerList", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE_DESC" );
-
-		CreateToggle( "EnableGPSBasedOnVehicleSpeed", "#STR_EXPANSION_SETTINGS_GPS_AUTO_UPDATE_STATE_PREFERENCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_GPS_AUTO_UPDATE_STATE_PREFERENCE_DESC" );
-
-		//! Option to set the 3D marker size
-		CreateEnum( "PlayerArrowColor", ExpansionClientUIPlayerArrowColor, "#STR_EXPANSION_SETTINGS_PLAYERARROW_COLOR", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PLAYERARROW_COLOR_DESC" );
-		//Color slider for party member on top of player head
-		//CreateSlider( "AlphaColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER_DESC", 0.0, 255.0, 5.0 );
-		//CreateSlider( "RedColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER_DESC", 0.0, 255.0, 5.0 );
-		//CreateSlider( "GreenColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER_DESC", 0.0, 255.0, 5.0 );
-		//CreateSlider( "BlueColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER_DESC", 0.0, 255.0, 5.0 );
-	
-		CreateSlider( "AlphaColorLookAtMinimum", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING_DESC", 0.0, 255.0, 5.0 );
-	#endif
-
-	#ifdef EXPANSIONMODCHAT
-		CreateToggle( "HUDChatToggle", "#STR_EXPANSION_SETTINGS_HUD_CHAT_TOGGLE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_TOGGLE_DESC" );
-		CreateEnum( "HUDChatSize", ExpansionClientUIChatSize, "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE_DESC" );
-		CreateSlider( "HUDChatMessageTimeThreshold", "#STR_EXPANSION_SETTINGS_HUD_CHAT_MESSAGE_TIME_THRESHOLD", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_MESSAGE_TIME_THRESHOLD_DESC", 1.0, 20.0, 0.25 );
-		CreateSlider( "HUDChatFadeOut", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT_DESC", 0.0, 6.0, 0.1 );
-		CreateEnum( "DefaultChatChannel", ExpansionClientUIChatChannel, "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL_DESC" );
+		CreateToggle( "EnableGPSBasedOnVehicleSpeed", "#STR_EXPANSION_SETTINGS_GPS_AUTO_UPDATE_STATE_PREFERENCE", "#STR_EXPANSION_SETTINGS_GPS_AUTO_UPDATE_STATE_PREFERENCE_DESC" );
 	#endif
 
 	#ifdef EXPANSIONMODHARDLINE
-		CreateToggle( "ShowUnderRoofIndicator", "#STR_EXPANSION_HUD_SHOW_ROOF_INDICATOR", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_HUD_SHOW_ROOF_INDICATOR_DESC" );
-		CreateCategory( "Inventory", "INVENTORY" );
-		CreateToggle( "RarityColorToggle", "RARITY COLOR", "RARITY COLOR", "Display rarity color on slot- and inventory item backgrounds." );
+		CreateToggle( "ShowUnderRoofIndicator", "#STR_EXPANSION_HUD_SHOW_ROOF_INDICATOR", "#STR_EXPANSION_HUD_SHOW_ROOF_INDICATOR_DESC" );
+	#endif
+
+	#ifdef EXPANSIONMODCHAT
+		CreateCategory( "HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT" );
+		CreateToggle( "HUDChatToggle", "#STR_EXPANSION_SETTINGS_HUD_CHAT_TOGGLE", "#STR_EXPANSION_SETTINGS_HUD_CHAT_TOGGLE_DESC" );
+		CreateEnum( "HUDChatSize", ExpansionClientUIChatSize, "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE_DESC" );
+		CreateSlider( "HUDChatOutlineSize", "#STR_EXPANSION_SETTINGS_HUD_CHAT_OUTLINE_SIZE", "#STR_EXPANSION_SETTINGS_HUD_CHAT_OUTLINE_SIZE_DESC", 0.0, 10.0, 1.0 );
+		CreateSlider( "HUDChatOutlineOpacity", "#STR_EXPANSION_SETTINGS_HUD_CHAT_OUTLINE_OPACITY", "#STR_EXPANSION_SETTINGS_HUD_CHAT_OUTLINE_OPACITY_DESC", 0.0, 1.0, 0.01 );
+		CreateSlider( "HUDChatShadowSize", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SHADOW_SIZE", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SHADOW_SIZE_DESC", 0.0, 10.0, 1.0 );
+		CreateSlider( "HUDChatShadowOpacity", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SHADOW_OPACITY", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SHADOW_OPACITY_DESC", 0.0, 1.0, 0.01 );
+		CreateSlider( "HUDChatShadowOffsetX", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SHADOW_OFFSET_X", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SHADOW_OFFSET_X_DESC", 0.0, 4.0, 0.25 );
+		CreateSlider( "HUDChatShadowOffsetY", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SHADOW_OFFSET_Y", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SHADOW_OFFSET_Y_DESC", 0.0, 4.0, 0.25 );
+		CreateSlider( "HUDChatMessageTimeThreshold", "#STR_EXPANSION_SETTINGS_HUD_CHAT_MESSAGE_TIME_THRESHOLD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_MESSAGE_TIME_THRESHOLD_DESC", 1.0, 20.0, 0.25 );
+		CreateSlider( "HUDChatFadeOut", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT_DESC", 0.0, 6.0, 0.1 );
+		CreateEnum( "DefaultChatChannel", ExpansionClientUIChatChannel, "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL", "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL_DESC" );
+		CreateSlider( "HUDChatMessagesHistoryLimit", "#STR_EXPANSION_SETTINGS_HUD_CHAT_MESSAGES_HISTORY_LIMIT", "#STR_EXPANSION_SETTINGS_HUD_CHAT_MESSAGES_HISTORY_LIMIT_DESC", 0.0, 100.0, 1.0 );
+	#endif
+
+	#ifdef EXPANSIONMODHARDLINE
+		CreateCategory( "Inventory", "#STR_EXPANSION_SETTINGS_INVENTORY" );
+		CreateToggle( "RarityColorToggle", "#STR_EXPANSION_SETTINGS_INVENTORY_RARITY_COLOR_TOGGLE", "#STR_EXPANSION_SETTINGS_INVENTORY_RARITY_COLOR_TOGGLE_DESC" );
 	#endif
 
 	#ifdef EXPANSIONMODVEHICLE
 		CreateCategory( "Vehicles", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES" );
 
 		//! Option to toggle the vehicle camera
-		//CreateToggle( "UseCameraLock", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_FREELOOK", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_FREELOOK_DESC" );
-		CreateToggle( "UseInvertedMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_INVERTED", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_DESC_INVERTED" );
-		CreateToggle( "UseHelicopterMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL_DESC" );
-		CreateSlider( "HelicopterMouseVerticalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL_DESC", 0.1, 3.0, 0.1 );
-		CreateSlider( "HelicopterMouseHorizontalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL_DESC", 0.1, 3.0, 0.1 );
-		CreateToggle( "TurnOffAutoHoverDuringFlight", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT_DESC" );
+		//CreateToggle( "UseCameraLock", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_FREELOOK", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_FREELOOK_DESC" );
 
 		//! Option to change vehicle camera height
-		CreateSlider( "VehicleCameraHeight", "VEHICLE CAMERA HEIGHT", "VEHICLE CAMERA HEIGHT", "", 0.5, 10.0, 0.1 );
-		CreateSlider( "VehicleCameraDistance", "VEHICLE CAMERA DISTANCE", "VEHICLE CAMERA DISTANCE", "", 0.5, 5.0, 0.1 );
-		//CreateSlider( "VehicleCameraOffsetY", "VEHICLE CAMERA OFFSET VERTICAL", "VEHICLE CAMERA OFFSET VERTICAL", "", -10.0, 5.0, 0.5 );
+		CreateSlider( "VehicleCameraHeight", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_CAMERA_HEIGHT", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_CAMERA_HEIGHT_DESC", 0.5, 10.0, 0.1 );
+		CreateSlider( "VehicleCameraDistance", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_CAMERA_DISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_CAMERA_DISTANCE_DESC", 0.5, 5.0, 0.1 );
+		//CreateSlider( "VehicleCameraOffsetY", "VEHICLE CAMERA OFFSET VERTICAL", "", -10.0, 5.0, 0.5 );
+
+		//! Heli mouse ctrl
+		CreateToggle( "UseHelicopterMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL_DESC" );
+		CreateToggle( "UseInvertedMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_INVERTED", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_DESC_INVERTED" );
+		CreateSlider( "HelicopterMouseVerticalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL_DESC", 0.1, 3.0, 0.1 );
+		CreateSlider( "HelicopterMouseHorizontalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL_DESC", 0.1, 3.0, 0.1 );
+		CreateToggle( "TurnOffAutoHoverDuringFlight", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT_DESC" );
 		
-		//CreateToggle( "UsePlaneMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL_DESC" );
+		//CreateToggle( "UsePlaneMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL_DESC" );
 
 		//! @note Lower values for VehicleResyncTimeout allow for faster resync, but may cause more stutter in crowded areas of the map,
 		//! higher values may avoid stutter, but can result in more extreme vehicle position changes in case of reaching the timeout or prevent resync altogether.
 		//! A vehicle that fails to resync will remain in that state for the affected client until the player leaves the vehicle's network bubble.
-		CreateSlider( "VehicleResyncTimeout", "VEHICLE RESYNC TIMEOUT", "VEHICLE RESYNC TIMEOUT", "How long after desync and no resync has occurred vehicle physics updates are halted and position is restored to last known from server.", 1.0, 10.0, 0.5 );
-		CreateToggle( "ShowDesyncInvulnerabilityNotifications", "INVULNERABILITY NOTIFICATIONS", "SHOW DESYNC INVULNERABILITY NOTIFICATIONS", "Show desync invulnerability notifications (after the fact)." );
+		CreateSlider( "VehicleResyncTimeout", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_RESYNC_TIMEOUT", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_RESYNC_TIMEOUT_DESC", 1.0, 10.0, 0.5 );
+		CreateToggle( "ShowDesyncInvulnerabilityNotifications", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_INVULNERABILITY_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_INVULNERABILITY_NOTIFICATIONS_DESC" );
 	#endif
 
 	#ifdef EXPANSIONMODMARKET
-		CreateCategory( "MarketMenu", "MARKET MENU" );
-		CreateToggle( "MarketMenuCategoriesState", "MARKET CATEGORIES TOGGLE STATE", "MarketMenu", "Automatically expand all categories when opening trader menu (WARNING: Performance hit!)" );
-		CreateToggle( "MarketMenuSkipConfirmations", "SKIP ALL MENU CONFIRMATIONS", "MarketMenu", "Skip all confirmations for buying/selling." );
-		CreateToggle( "MarketMenuFilterPurchasableState", "PURCHASABLES FILTER STATE", "MarketMenu", "Show only puchasable items by default." );
-		CreateToggle( "MarketMenuFilterSellableState", "SELLABLES FILTER STATE", "MarketMenu", "Show only sellable items by default." );
-		CreateToggle( "MarketMenuDisableSuccessNotifications", "DISABLE SUCCESS NOTIFICATIONS", "MarketMenu", "Disable notifications for successful purchases and sales." );
+		CreateCategory( "MarketMenu", "#STR_EXPANSION_SETTINGS_CLIENT_MARKET" );
+		CreateToggle( "MarketMenuCategoriesState", "#STR_EXPANSION_SETTINGS_CLIENT_MARKET_CATEGORIES_TOGGLE_STATE", "#STR_EXPANSION_SETTINGS_CLIENT_MARKET_CATEGORIES_TOGGLE_STATE_DESC" );
+		CreateToggle( "MarketMenuSkipConfirmations", "#STR_EXPANSION_SETTINGS_CLIENT_MARKET_SKIP_CONFIRMATIONS", "#STR_EXPANSION_SETTINGS_CLIENT_MARKET_SKIP_CONFIRMATIONS_DESC" );
+		CreateToggle( "MarketMenuFilterPurchasableState", "#STR_EXPANSION_SETTINGS_CLIENT_MARKET_PURCHASABLES_FILTER_STATE", "#STR_EXPANSION_SETTINGS_CLIENT_MARKET_PURCHASABLES_FILTER_STATE_DESC" );
+		CreateToggle( "MarketMenuFilterSellableState", "#STR_EXPANSION_SETTINGS_CLIENT_MARKET_SELLABLES_FILTER_STATE", "#STR_EXPANSION_SETTINGS_CLIENT_MARKET_SELLABLES_FILTER_STATE_DESC" );
+		CreateToggle( "MarketMenuDisableSuccessNotifications", "#STR_EXPANSION_SETTINGS_CLIENT_MARKET_DISABLE_SUCCESS_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_CLIENT_MARKET_DISABLE_SUCCESS_NOTIFICATIONS_DESC" );
 	#endif
 	}
 
@@ -1267,18 +1344,15 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	// ExpansionClientSettings CreateToggle
 	// -----------------------------------------------------------
-	private void CreateToggle( string variable, string name, string detailLabel, string detailContent )
+	private void CreateToggle( string variable, string name, string detailContent )
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateToggle");
 	#endif
 
-		ExpansionSettingSerializationToggle setting = new ExpansionSettingSerializationToggle;
+		ExpansionSettingSerializationToggle setting = new ExpansionSettingSerializationToggle(this, variable);
 
-		setting.m_Variable = variable;
 		setting.m_Name = name;
-		setting.m_Instance = this;
-		setting.m_DetailLabel = detailLabel;
 		setting.m_DetailContent = detailContent;
 
 		m_CurrentCategory.m_Settings.Insert( setting );
@@ -1287,18 +1361,15 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	// ExpansionClientSettings CreateSlider
 	// -----------------------------------------------------------
-	private void CreateSlider( string variable, string name, string detailLabel, string detailContent, float min, float max, float step = 0 )
+	private void CreateSlider( string variable, string name, string detailContent, float min, float max, float step = 0 )
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateSlider");
 	#endif
 
-		ExpansionSettingSerializationSlider setting = new ExpansionSettingSerializationSlider;
+		ExpansionSettingSerializationSlider setting = new ExpansionSettingSerializationSlider(this, variable);
 
-		setting.m_Variable = variable;
 		setting.m_Name = name;
-		setting.m_Instance = this;
-		setting.m_DetailLabel = detailLabel;
 		setting.m_DetailContent = detailContent;
 		setting.m_Min = min;
 		setting.m_Max = max;
@@ -1311,18 +1382,15 @@ class ExpansionClientSettings
 	// ExpansionClientSettings CreateInt
 	// -----------------------------------------------------------
 	//! TODO: Not working.
-	private void CreateInt( string variable, string name, string detailLabel, string detailContent )
+	private void CreateInt( string variable, string name, string detailContent )
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateInt");
 	#endif
 
-		ExpansionSettingSerializationInt setting = new ExpansionSettingSerializationInt;
+		ExpansionSettingSerializationInt setting = new ExpansionSettingSerializationInt(this, variable);
 
-		setting.m_Variable = variable;
 		setting.m_Name = name;
-		setting.m_Instance = this;
-		setting.m_DetailLabel = detailLabel;
 		setting.m_DetailContent = detailContent;
 
 		m_CurrentCategory.m_Settings.Insert( setting );
@@ -1331,18 +1399,15 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	// ExpansionClientSettings CreateEnum
 	// ----------------------------------------------------------
-	private void CreateEnum( string variable, typename enm, string name, string detailLabel, string detailContent )
+	private void CreateEnum( string variable, typename enm, string name, string detailContent )
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateEnum");
 	#endif
 
-		ExpansionSettingSerializationEnum setting = new ExpansionSettingSerializationEnum;
+		ExpansionSettingSerializationEnum setting = new ExpansionSettingSerializationEnum(this, variable);
 
-		setting.m_Variable = variable;
 		setting.m_Name = name;
-		setting.m_Instance = this;
-		setting.m_DetailLabel = detailLabel;
 		setting.m_DetailContent = detailContent;
 
 		for ( int j = 0; j < enm.GetVariableCount(); ++j )
@@ -1359,18 +1424,15 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	// ExpansionClientSettings CreateEnum
 	// ----------------------------------------------------------
-	private void CreateString( string variable, string name, string detailLabel, string detailContent )
+	private void CreateString( string variable, string name, string detailContent )
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateString");
 	#endif
 
-		ExpansionSettingSerializationString setting = new ExpansionSettingSerializationString;
+		ExpansionSettingSerializationString setting = new ExpansionSettingSerializationString(this, variable);
 
-		setting.m_Variable = variable;
 		setting.m_Name = name;
-		setting.m_Instance = this;
-		setting.m_DetailLabel = detailLabel;
 		setting.m_DetailContent = detailContent;
 
 		m_CurrentCategory.m_Settings.Insert( setting );

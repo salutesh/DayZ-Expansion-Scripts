@@ -24,9 +24,7 @@ class ExpansionMarketFishing: ExpansionMarketCategory
 		// Crafted item !
 		//AddItem("BoneHook", 		5,		10,			1,		100);
 		AddItem("hook", 	460, 	770,	1,100);
-		#ifndef DAYZ_1_25
 		AddItem("jig", 	485, 	805,	1,100);
-		#endif
 		AddItem("fishingrod", 	440, 	735,	1,100);
 	}
 };

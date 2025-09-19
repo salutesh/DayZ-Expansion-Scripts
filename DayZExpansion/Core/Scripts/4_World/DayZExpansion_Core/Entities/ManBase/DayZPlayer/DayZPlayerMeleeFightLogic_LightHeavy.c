@@ -24,13 +24,7 @@ modded class DayZPlayerMeleeFightLogic_LightHeavy
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "HandleFightLogic");
 #endif
 
-#ifdef DAYZ_1_23
-		PlayerBase player = PlayerBase.Cast(m_DZPlayer);
-		if (player && player.Expansion_IsInSafeZone())
-#else
-		//! 1.24+
 		if (m_Player && m_Player.Expansion_IsInSafeZone())
-#endif
 			return false;
 
 		return super.HandleFightLogic(pCurrentCommandID, pInputs, pEntityInHands, pMovementState, pContinueAttack);

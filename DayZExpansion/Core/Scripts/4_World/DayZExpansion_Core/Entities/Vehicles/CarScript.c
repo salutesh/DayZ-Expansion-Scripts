@@ -26,10 +26,6 @@ modded class CarScript
 	protected bool m_Expansion_IsStoreLoaded;
 	protected bool m_Expansion_IsStoreSaved;
 
-#ifdef DAYZ_1_25
-	bool m_Expansion_AcceptingAttachment;
-#endif
-
 	ref ExpansionGlobalID m_Expansion_GlobalID = new ExpansionGlobalID();
 
 	ref ExpansionRPCManager m_Expansion_RPCManager;

@@ -197,14 +197,13 @@ class CfgMagazines
 	class Ammo_Expansion_M203_Sticky_Smoke_Base: Ammo_Expansion_M203_Smoke_Base
 	{
 		scope=0;
-		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_WHITE";
 		descriptionShort="$STR_EXPANSION_AMMO_M203_STICKY_SMOKE_DESC";
 		ammo="Bullet_Expansion_M203_Sticky_Smoke_White";
 	};
 	class Ammo_Expansion_M203_Sticky_Smoke_White: Ammo_Expansion_M203_Sticky_Smoke_Base
 	{
 		scope=2;
-		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_WHITE";
+		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_WHITE_STICKY";
 		ammo="Bullet_Expansion_M203_Sticky_Smoke_White";
 		hiddenSelectionsTextures[]=
 		{
@@ -215,7 +214,7 @@ class CfgMagazines
 	class Ammo_Expansion_M203_Sticky_Smoke_Red: Ammo_Expansion_M203_Sticky_Smoke_Base
 	{
 		scope=2;
-		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_RED";
+		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_RED_STICKY";
 		ammo="Bullet_Expansion_M203_Sticky_Smoke_Red";
 		hiddenSelectionsTextures[]=
 		{
@@ -226,7 +225,7 @@ class CfgMagazines
 	class Ammo_Expansion_M203_Sticky_Smoke_Green: Ammo_Expansion_M203_Sticky_Smoke_Base
 	{
 		scope=2;
-		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_GREEN";
+		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_GREEN_STICKY";
 		ammo="Bullet_Expansion_M203_Sticky_Smoke_Green";
 		hiddenSelectionsTextures[]=
 		{
@@ -237,7 +236,7 @@ class CfgMagazines
 	class Ammo_Expansion_M203_Sticky_Smoke_Yellow: Ammo_Expansion_M203_Sticky_Smoke_Base
 	{
 		scope=2;
-		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_YELLOW";
+		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_YELLOW_STICKY";
 		ammo="Bullet_Expansion_M203_Sticky_Smoke_Yellow";
 		hiddenSelectionsTextures[]=
 		{
@@ -248,7 +247,7 @@ class CfgMagazines
 	class Ammo_Expansion_M203_Sticky_Smoke_Purple: Ammo_Expansion_M203_Sticky_Smoke_Base
 	{
 		scope=2;
-		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_PURPLE";
+		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_PURPLE_STICKY";
 		ammo="Bullet_Expansion_M203_Sticky_Smoke_Purple";
 		hiddenSelectionsTextures[]=
 		{
@@ -259,7 +258,7 @@ class CfgMagazines
 	class Ammo_Expansion_M203_Sticky_Smoke_Teargas: Ammo_Expansion_M203_Sticky_Smoke_Base
 	{
 		scope=2;
-		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_TEARGAS";
+		displayName="$STR_EXPANSION_AMMO_M203_SMOKE_TEARGAS_STICKY";
 		descriptionShort="$STR_EXPANSION_AMMO_M203_SMOKE_TEARGAS_DESC";
 		ammo="Bullet_Expansion_M203_Sticky_Smoke_Teargas";
 	};

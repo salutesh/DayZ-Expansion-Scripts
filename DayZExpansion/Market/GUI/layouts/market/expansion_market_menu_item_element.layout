@@ -292,7 +292,7 @@ PanelWidgetClass ExpansionMarketItem {
            "stretch mode" stretch_w_h
            {
             ScriptParamsClass {
-             Binding_Name "CurrencyIcon"
+             Binding_Name "CurrencyBuyIcon"
             }
            }
           }
@@ -352,7 +352,7 @@ PanelWidgetClass ExpansionMarketItem {
            "stretch mode" stretch_w_h
            {
             ScriptParamsClass {
-             Binding_Name "CurrencyIcon"
+             Binding_Name "CurrencySellIcon"
             }
            }
           }

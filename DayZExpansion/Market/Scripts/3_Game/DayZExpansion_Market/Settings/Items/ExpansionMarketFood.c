@@ -51,9 +51,7 @@ class ExpansionMarketFood: ExpansionMarketCategory
 		AddItem("bakedbeanscan", 	935, 	1560,	1,100);
 		AddItem("tacticalbaconcan", 	1240, 	2070,	1,100);
 		
-		#ifndef DAYZ_1_25
 		AddItem("crabcan", 	175, 	290,	1,100);
-		#endif
 	
 	#ifdef EXPANSIONMOD	
 		AddItem("ExpansionBread1", 				15,			30,			1,		100);

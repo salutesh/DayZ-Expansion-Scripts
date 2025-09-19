@@ -28,12 +28,7 @@ modded class PlayerBase
 		if (IsControlledPlayer() && m_Hud)
 		{
 			LoginTimeBase loginTimeScreen = GetDayZGame().Expansion_GetLoginTimeScreen();
-		#ifndef DAYZ_1_27
-			//! 1.28+
 			if (loginTimeScreen && loginTimeScreen.IsRespawn() && loginTimeScreen.IsVisible() && !loginTimeScreen.IsClosing())
-		#else
-			if (loginTimeScreen && loginTimeScreen.IsRespawn() && loginTimeScreen.IsVisible())
-		#endif
 			{
 				hasRespawnTimeScreen = true;
 			}

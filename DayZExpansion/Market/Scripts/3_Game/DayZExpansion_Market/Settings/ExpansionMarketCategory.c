@@ -272,10 +272,10 @@ class ExpansionMarketCategory
 		{
 			foreach (ExpansionMarketItem item : Items)
 			{
-				AddVariants(item);
 			#ifdef EXPANSIONMODHARDLINE
 				item.SetRarityAndRepReq();
 			#endif
+				AddVariants(item);
 			}
 		}
 

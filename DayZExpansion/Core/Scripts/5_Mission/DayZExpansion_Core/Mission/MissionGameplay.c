@@ -32,14 +32,6 @@ modded class MissionGameplay
 		DestroyNotificationSystem();
 	}
 
-	override void Expansion_UpdateWorldViewDistances()
-	{
-		if (GetExpansionClientSettings().ViewDistance > 0)
-			GetGame().GetWorld().SetViewDistance(GetExpansionClientSettings().ViewDistance);
-		if (GetExpansionClientSettings().ObjectViewDistance > 0)
-			GetGame().GetWorld().SetObjectViewDistance(GetExpansionClientSettings().ObjectViewDistance);
-	}
-
 	void Expansion_EnableAllInputs()
 	{
 		TIntArray inputIDs = new TIntArray;
@@ -183,10 +175,6 @@ modded class MissionGameplay
 		ExpansionGlobalID.s_IsMissionLoaded = true;
 
 		super.OnMissionLoaded();
-
-		#ifdef DAYZ_1_25
-		Expansion_UpdateWorldViewDistances();
-		#endif
 	}
 
 	// ------------------------------------------------------------

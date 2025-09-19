@@ -12,20 +12,28 @@
 
 class ExpansionSettingSerializationBase
 {
-	string m_Variable;
+	protected string m_Variable;
 	string m_Name;
 
-	string m_DetailLabel;
 	string m_DetailContent;
 
-	Class m_Instance;
+	protected Class m_Instance;
 
-	Class m_ActualInstance;
-	string m_ActualVariable;
+	protected Class m_ActualInstance;
+	protected string m_ActualVariable;
 
 	Managed m_WidgetHandle;
 
 	bool m_IsTempSet;
+
+	void ExpansionSettingSerializationBase(notnull Class instance, string variable)
+	{
+		m_Instance = instance;
+		m_Variable = variable;
+
+		if (!FindClassInstanceAndVariable())
+			CF.FormatError("Variable '%1' not found on %2", m_Variable, m_Instance.ToString());
+	}
 
 	void SetFromTemp()
 	{

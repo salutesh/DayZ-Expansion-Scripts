@@ -32,9 +32,7 @@ class ExpansionMarketEyewear: ExpansionMarketCategory
 		
 		AddItem("nvgheadstrap", 	9695, 	16160,	1,100);
 
-		#ifndef DAYZ_1_25
 		AddItem("skigoggles_blackyellow", 	145, 	240,	1,100,null,{"skigoggles_whiteclear","skigoggles_whitedark"});
-		#endif
 
 		// Crafted item !
 		//AddItem("EyePatch_Improvised", 				10,		20,		1,		100);

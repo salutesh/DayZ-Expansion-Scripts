@@ -42,17 +42,4 @@ class ExpansionClientSettingsModule : CF_ModuleWorld
 
 		OnSettingsChanged(this, CF_EventArgs.Empty);
 	}
-	
-#ifdef DAYZ_1_25
-	override void OnSettingsChanged(Class sender, CF_EventArgs args)
-	{
-		super.OnSettingsChanged(sender, args);
-
-		MissionBaseWorld missionWorld = MissionBaseWorld.Cast(GetGame().GetMission());
-		if (missionWorld)
-		{
-			missionWorld.Expansion_UpdateWorldViewDistances();
-		}
-	}
-#endif
 };

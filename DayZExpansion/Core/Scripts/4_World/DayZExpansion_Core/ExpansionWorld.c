@@ -218,10 +218,8 @@ class ExpansionWorld: ExpansionGame
 			return BuildingBase;
 		else if (entity.IsInherited(CarScript))
 			return CarScript;
-	#ifndef DAYZ_1_25
 		else if (entity.IsInherited(BoatScript))
 			return BoatScript;
-	#endif
 		else if (entity.IsInherited(DayZPlayerImplement))
 			return DayZPlayerImplement;
 		//else if (entity.IsInherited(HelicopterScript))

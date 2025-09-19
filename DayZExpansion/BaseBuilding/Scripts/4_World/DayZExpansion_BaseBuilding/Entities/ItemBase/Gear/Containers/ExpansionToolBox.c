@@ -16,4 +16,28 @@ class ExpansionToolBox: DeployableContainer_Base
 	{
 		return false;
 	}
+
+	override bool CanPutInCargo(EntityAI parent)
+	{
+		if (!super.CanPutInCargo(parent))
+			return false;
+		
+		return !parent || !parent.IsClothing() || IsEmpty();
+	}
+
+	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
+	{
+		if (!super.CanReceiveAttachment(attachment, slotId))
+			return false;
+
+		return !GetInventory().IsInCargo();
+	}
+
+	override bool CanReceiveItemIntoCargo(EntityAI item)
+	{
+		if (!super.CanReceiveItemIntoCargo(item))
+			return false;
+
+		return !GetInventory().IsInCargo();
+	}
 };

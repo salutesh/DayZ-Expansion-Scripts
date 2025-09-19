@@ -205,7 +205,7 @@ class ExpansionOptionSettingWidget: ScriptedWidgetEventHandler
 	
 		if ( w == selectWidget )
 		{
-			m_Menu.ShowDetails( m_Setting.m_DetailLabel, m_Setting.m_DetailContent );
+			m_Menu.ShowDetails( m_Setting.m_Name, m_Setting.m_DetailContent );
 			selectWidget.SetColor( ARGB( 255, 0, 0, 0 ) );
 			settingLabel.SetColor( ARGB( 255, 255, 0, 0 ) );
 			

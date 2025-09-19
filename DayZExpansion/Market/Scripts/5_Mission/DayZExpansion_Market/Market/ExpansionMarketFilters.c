@@ -388,9 +388,13 @@ class ExpansionMarketFilters
 					{
 						int stock = zone.GetStock(name);
 						if (stock > 0)
+						{
 							attachments.Insert(name);
+						}
 						else if (stock == ExpansionMarketStock.Undefined)
+						{
 							EXPrint(ToString() + "::GetAttachmentsByClassNameAndTypesEx - " + name + " does not exist in trader zone!");
+						}
 					}
 				}
 			}

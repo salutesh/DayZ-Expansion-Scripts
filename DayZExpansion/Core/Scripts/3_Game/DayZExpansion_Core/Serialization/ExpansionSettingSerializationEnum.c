@@ -14,7 +14,7 @@ class ExpansionSettingSerializationEnum: ExpansionSettingSerializationInt
 {
 	ref array< string > m_Values;
 
-	void ExpansionSettingSerializationEnum()
+	void ExpansionSettingSerializationEnum(notnull Class instance, string variable)
 	{
 		m_Values = new array< string >();
 	}

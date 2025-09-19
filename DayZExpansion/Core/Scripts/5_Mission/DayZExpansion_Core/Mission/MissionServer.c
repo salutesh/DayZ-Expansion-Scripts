@@ -175,8 +175,8 @@ modded class MissionServer
 		super.OnClientReadyEvent( identity, player );
 
 //! DON'T remove! Update this for the next version of DayZ when necessary.
-#ifdef DAYZ_1_18
-		string preferredVersion = "1.19";
+#ifdef DAYZ_1_27
+		string preferredVersion = "1.28";
 		string version;
 		GetDayZGame().GetVersion(version);
 		string warningText = "This server is running an unsupported version of the game (" + version + ").";
