@@ -12,6 +12,8 @@
 
 modded class ItemBase
 {
+	static ref ScriptInvoker s_Expansion_UpdateTidyPanelVisibilityExSI = new ScriptInvoker();
+
 	protected int m_ExpansionSaveVersion;
 
 	//! Skinning
@@ -874,28 +876,31 @@ modded class ItemBase
 	
 	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
 	{
-		DayZPlayerImplement old_owner_dpi;
-		DayZPlayerImplement new_owner_dpi;
+		super.EEItemLocationChanged(oldLoc, newLoc);
 
-		bool shouldSuper = true;
-		
-		if (oldLoc.GetParent())
-			old_owner_dpi = DayZPlayerImplement.Cast(oldLoc.GetParent().GetHierarchyRootPlayer());
-		
-		if (newLoc.GetParent())
-			new_owner_dpi = DayZPlayerImplement.Cast(newLoc.GetParent().GetHierarchyRootPlayer());
+	#ifndef SERVER
+		DayZPlayer player = g_Game.GetPlayer();
+		if (player)
+		{
+			EntityAI oldParent = oldLoc.GetParent();
+			EntityAI newParent = newLoc.GetParent();
 
-		//! super EEItemLocationChanged wants PlayerBase class, NPCs are DayZPlayerImplement so this is to prevent the super method from being called.
-		if (old_owner_dpi && !PlayerBase.Cast(old_owner_dpi))
-			shouldSuper = false;
-		else if (new_owner_dpi && !PlayerBase.Cast(new_owner_dpi))
-			shouldSuper = false;
-		
-		if (shouldSuper)
-			super.EEItemLocationChanged(oldLoc, newLoc);
+			if (oldParent && oldLoc.GetType() == InventoryLocationType.CARGO)
+			{
+				if (oldParent.GetHierarchyRootPlayer() == player || vector.DistanceSq(player.GetPosition(), oldParent.GetPosition()) <= UAMaxDistances.DEFAULT * UAMaxDistances.DEFAULT)
+					s_Expansion_UpdateTidyPanelVisibilityExSI.Invoke(oldParent);
+			}
 
-		if (!GetGame().IsServer())
+			if (newParent && newLoc.GetType() == InventoryLocationType.CARGO && newParent != oldParent)
+			{
+				if (newParent.GetHierarchyRootPlayer() == player || vector.DistanceSq(player.GetPosition(), newParent.GetPosition()) <= UAMaxDistances.DEFAULT * UAMaxDistances.DEFAULT)
+					s_Expansion_UpdateTidyPanelVisibilityExSI.Invoke(newParent);
+			}
+		}
+
+		if (!g_Game.IsServer())
 			return;
+	#endif
 
 		if (!GetExpansionSettings().GetSafeZone().Enabled)
 			return;
@@ -1520,6 +1525,21 @@ modded class ItemBase
 		else if (Expansion_IsStackable())
 		{
 			return GetQuantity();
+		}
+
+		return 1;
+	}
+
+	int Expansion_GetStackMax()
+	{
+		if (IsAmmoPile())
+		{
+			auto mag = Magazine.Cast(this);
+			return mag.GetAmmoMax();
+		}
+		else if (Expansion_IsStackable())
+		{
+			return GetQuantityMax();
 		}
 
 		return 1;

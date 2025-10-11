@@ -20,6 +20,103 @@ class ExpansionScriptRPC: ScriptRPC
 	int m_Expansion_RPCID;
 	Object m_Expansion_Target;
 
+	/* Packed write -------------------------------------------------------- */
+
+	int m_Packed;
+	int m_PackedBits;
+
+	void Write(int value, int bits)
+	{
+		ExpansionBitStreamWriter.Write(this, value, bits, m_Packed, m_PackedBits);
+	}
+	
+	void WriteUInt(int value, int bits)
+	{
+		ExpansionBitStreamWriter.WriteUInt(this, value, bits, m_Packed, m_PackedBits);
+	}
+
+	/**
+	 * @brief Optimized writing of integer in range [min..max]
+	 */
+	void Write(int value, int min, int max)
+	{
+		ExpansionBitStreamWriter.Write(this, value, min, max, m_Packed, m_PackedBits);
+	}
+
+	void WriteBool(bool value)
+	{
+		ExpansionBitStreamWriter.WriteBool(this, value, m_Packed, m_PackedBits);
+	}
+
+	void WriteChar(int value)
+	{
+		ExpansionBitStreamWriter.WriteChar(this, value, m_Packed, m_PackedBits);
+	}
+
+	void WriteUChar(int value)
+	{
+		ExpansionBitStreamWriter.WriteUChar(this, value, m_Packed, m_PackedBits);
+	}
+
+	void WriteShort(int value)
+	{
+		ExpansionBitStreamWriter.WriteShort(this, value, m_Packed, m_PackedBits);
+	}
+
+	void WriteUShort(int value)
+	{
+		ExpansionBitStreamWriter.WriteUShort(this, value, m_Packed, m_PackedBits);
+	}
+
+	void Write(float value, int bits)
+	{
+		ExpansionBitStreamWriter.Write(this, value, bits, m_Packed, m_PackedBits);
+	}
+
+	//! @note converts float to fp16
+	void WriteHalf(float value)
+	{
+		ExpansionBitStreamWriter.WriteHalf(this, value, m_Packed, m_PackedBits);
+	}
+
+	void Write(vector value, int bits)
+	{
+		ExpansionBitStreamWriter.Write(this, value, bits, m_Packed, m_PackedBits);
+	}
+
+	//! @note converts float to fp16
+	void WriteHalf(vector value)
+	{
+		ExpansionBitStreamWriter.WriteHalf(this, value, m_Packed, m_PackedBits);
+	}
+
+	void Write(string value, int bits)
+	{
+		ExpansionBitStreamWriter.Write(this, value, bits, m_Packed, m_PackedBits);
+	}
+
+	void Write(string value, int bits, string alphabet)
+	{
+		ExpansionBitStreamWriter.Write(this, value, bits, alphabet, m_Packed, m_PackedBits);
+	}
+
+	void WriteClassName(string value)
+	{
+		ExpansionBitStreamWriter.WriteClassName(this, value, m_Packed, m_PackedBits);
+	}
+
+	void WriteClassNameLower(string value)
+	{
+		ExpansionBitStreamWriter.WriteClassNameLower(this, value, m_Packed, m_PackedBits);
+	}
+
+	void Flush()
+	{
+		ExpansionBitStreamWriter.Flush(this, m_Packed, m_PackedBits);
+	}
+
+	/* --------------------------------------------------------------------- */
+
 	void Expansion_WriteNetworkID(Object object)
 	{
 		int low, high;
@@ -37,6 +134,8 @@ class ExpansionScriptRPC: ScriptRPC
 	{
 		if (!m_Expansion_RPCID)
 			return;
+
+		Flush();
 
 		if (target)
 			Send(target, EXPANSION_RPC_TARGETED, guaranteed, recipient);

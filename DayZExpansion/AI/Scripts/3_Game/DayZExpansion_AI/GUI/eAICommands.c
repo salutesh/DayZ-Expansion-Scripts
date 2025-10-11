@@ -66,6 +66,7 @@ enum eAICommands
 	DEB_UNLIMITEDRELOAD_VEHICLES,
 	DEB_DBGOBJECTS,
 	DEB_DBGDAMAGE,
+	DEB_RESET_PATHFINDING,
 	DEB_SPECTATE,
 	// Behaviour
 	BEH_LOOT  //! Always keep BEH_LOOT as the last entry!

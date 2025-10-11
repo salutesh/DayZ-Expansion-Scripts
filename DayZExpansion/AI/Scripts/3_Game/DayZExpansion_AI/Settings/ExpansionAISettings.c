@@ -21,7 +21,7 @@ class ExpansionAISettingsV11: ExpansionSettingBase
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 15;
+	static const int VERSION = 16;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -42,6 +42,7 @@ class ExpansionAISettings: ExpansionSettingBase
 	
 	bool CanRecruitFriendly;
 	bool CanRecruitGuards;
+	int MaxRecruitableAI;
 
 	ref TStringArray PreventClimb = {};
 
@@ -70,23 +71,38 @@ class ExpansionAISettings: ExpansionSettingBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
 #endif
 
-		if ( !ctx.Read( CanRecruitGuards ) )
+		auto reader = GetReader(ctx);
+
+		if (!reader.ReadBool(CanRecruitGuards))
 		{
-			Error("ExpansionAISettings::OnRecieve CanRecruitGuards");
+			Error("Couldn't read CanRecruitGuards");
 			return false;
 		}
 
-		if ( !ctx.Read( CanRecruitFriendly ) )
+		if (!reader.ReadBool(CanRecruitFriendly))
 		{
-			Error("ExpansionAISettings::OnRecieve CanRecruitFriendly");
+			Error("Couldn't read CanRecruitFriendly");
 			return false;
 		}
 
-		if ( !ctx.Read( m_IsAdmin ) )
+		if (!reader.ReadUInt(MaxRecruitableAI, 8))
 		{
-			Error("ExpansionAISettings::OnRecieve m_IsAdmin");
+			Error("Couldn't read MaxRecruitableAI");
 			return false;
 		}
+
+		if (!reader.ReadBool(m_IsAdmin))
+		{
+			Error("Couldn't read m_IsAdmin");
+			return false;
+		}
+
+	#ifdef DIAG_DEVELOPER
+		Print(CanRecruitGuards);
+		Print(CanRecruitFriendly);
+		Print(MaxRecruitableAI);
+		Print(m_IsAdmin);
+	#endif
 
 		m_IsLoaded = true;
 
@@ -95,17 +111,6 @@ class ExpansionAISettings: ExpansionSettingBase
 		ExpansionSettings.SI_AI.Invoke();
 
 		return true;
-	}
-
-	// ------------------------------------------------------------
-	override void OnSend( ParamsWriteContext ctx )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
-#endif
-
-		ctx.Write( CanRecruitGuards );
-		ctx.Write( CanRecruitFriendly );
 	}
 
 	// ------------------------------------------------------------
@@ -120,8 +125,12 @@ class ExpansionAISettings: ExpansionSettingBase
 		}
 
 		auto rpc = CreateRPC();
-		OnSend( rpc );
-		rpc.Write( IsAdmin( identity ) );
+
+		rpc.WriteBool(CanRecruitGuards);
+		rpc.WriteBool(CanRecruitFriendly);
+		rpc.WriteUInt(MaxRecruitableAI, 8);
+		rpc.WriteBool(IsAdmin(identity));
+
 		rpc.Expansion_Send(true, identity);
 
 		return 0;
@@ -285,6 +294,9 @@ class ExpansionAISettings: ExpansionSettingBase
 				if (m_Version < 15 && LightingConfigMinNightVisibilityMeters.Count() == 0)
 					LightingConfigMinNightVisibilityMeters.Copy(settingsDefault.LightingConfigMinNightVisibilityMeters);
 
+				if (m_Version < 16 && !MaxRecruitableAI)
+					MaxRecruitableAI = settingsDefault.MaxRecruitableAI;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -343,6 +355,12 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		CanRecruitFriendly = true;
 		CanRecruitGuards = false;
+
+	#ifdef DIAG_DEVELOPER
+		MaxRecruitableAI = 255;
+	#else
+		MaxRecruitableAI = 1;
+	#endif
 
 		PreventClimb.Clear();
 

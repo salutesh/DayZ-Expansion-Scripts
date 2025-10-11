@@ -80,6 +80,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	bool m_KeyInput = false;
 	bool m_IsDropdownExpanded = false;
 	bool m_IsSkinSelectorExpanded = false;
+	int m_ExpansionSkinsCount;
 	protected ref ExpansionMarketMenuItemManager m_MarketMenuItemManager;
 	protected bool m_NameSortState;
 	protected bool m_PriceSortState;
@@ -1465,6 +1466,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	void ClearSkins()
 	{
 		m_MarketMenuController.SkinsDropdownElements.Clear();
+		m_ExpansionSkinsCount = 0;
 	}
 
 	void UpdateItemSkins()
@@ -1510,6 +1512,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 					dropdownElements.Insert(currentSkinName, currentElements);
 				}
 				currentElements.Insert(dropdownElement);
+
+				m_ExpansionSkinsCount++;
 			}
 		}
 
@@ -1655,9 +1659,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		if (!GetSelectedMarketItemElement())
 			return;
 		
+		int skinsAndVariantsCount = m_MarketMenuController.SkinsDropdownElements.Count();
 		ExpansionMarketItem baseItem = GetSelectedMarketItemElement().GetBaseItem();
+		int variantsCount = baseItem.Variants.Count();
+		int variantsShownInMenu = baseItem.m_VariantsShownInMenu.Count();
 
-		if (m_MarketMenuController.SkinsDropdownElements.Count() > 1 && baseItem.m_VariantsShownInMenu.Count() < baseItem.Variants.Count())
+		if (skinsAndVariantsCount > 1 && (m_ExpansionSkinsCount > 0 || variantsShownInMenu < variantsCount))
 			skin_selector.Show(true);
 		else
 			skin_selector.Show(false);

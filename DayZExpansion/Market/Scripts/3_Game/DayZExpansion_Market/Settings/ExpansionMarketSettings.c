@@ -154,7 +154,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			
 			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_MARKET_FOLDER);
 			DefaultCategories();
-			return;
 		}
 
 		foreach (string fileName : files)
@@ -173,6 +172,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		}
 
 		ExpansionMarketCategory.AddDefaultAttachments();
+		ExpansionMarketCategory.CreateStaticNetworkRepresentations();
 
 		//TraderPrint("LoadCategories - End");
 	}
@@ -467,9 +467,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		//TraderPrint("UpdateMarketItem_Client - Start - " + networkItem.ClassName + " (" + networkItem.Stock + ") catID " + networkItem.CategoryID);
 
 		string clsName = networkItem.ClassName;
-		clsName.ToLower();
 
 		ExpansionMarketCategory category = GetCategory(networkItem.CategoryID);
+		if (!category)
+			return null;
 
 		ExpansionMarketItem existingItem = category.GetItem(clsName, false);
 		if ( existingItem )
@@ -479,18 +480,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			return existingItem;
 		}
 
-		int sellPricePercentEncoded = networkItem.Packed & 0x0000ffff;
-		if (sellPricePercentEncoded > 0x00007fff)
-			sellPricePercentEncoded -= 0x00010000;
-
-		//! Convert integer representation of bfloat16 back to float
-		float sellPricePercent = CF_Cast<int, float>.Reinterpret(sellPricePercentEncoded << 16);
-
-		int quantityPercent = (networkItem.Packed & 0x00ff0000) >> 16;
-		if (quantityPercent > 0x7f)
-			quantityPercent -= 0x100;
-
-		ExpansionMarketItem item = category.AddItem(clsName, networkItem.MinPriceThreshold, networkItem.MaxPriceThreshold, networkItem.MinStockThreshold, networkItem.MaxStockThreshold, NULL, networkItem.Variants, sellPricePercent, quantityPercent, networkItem.ItemID, networkItem.AttachmentIDs);
+		ExpansionMarketItem item = category.AddItem(clsName, networkItem.MinPriceThreshold, networkItem.MaxPriceThreshold, networkItem.MinStockThreshold, networkItem.MaxStockThreshold, NULL, networkItem.Variants, networkItem.SellPricePercent, networkItem.QuantityPercent, networkItem.ItemID, networkItem.AttachmentIDs);
 
 		//TraderPrint("UpdateMarketItem_Client - End and return newly added item: " + item);
 

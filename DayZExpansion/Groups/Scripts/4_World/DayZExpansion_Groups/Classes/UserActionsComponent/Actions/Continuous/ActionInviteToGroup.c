@@ -1,5 +1,5 @@
 /**
- * ActionInviteToGroup.c
+ * ExpansionActionInviteToGroup.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,9 +10,9 @@
  *
 */
 
-class ActionInviteToGroup: ActionInteractBase
+class ExpansionActionInviteToGroup: ActionInteractBase
 {
-	void ActionInviteToGroup()
+	void ExpansionActionInviteToGroup()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_INTERACTONCE;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_CROUCH;

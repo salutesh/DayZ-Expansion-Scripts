@@ -2,25 +2,25 @@
 <fsm name="Fighting" type="eAI">
 	<files />
 	<states default="Positioning">
-		<state name="Positioning" class="ExpansionState_Fighting_Positioning">
+		<state name="Positioning" class="eAIState_Fighting_Positioning">
 			<editor_data>
 				<position x="891" y="714" />
 				<size width="150" height="40" />
 			</editor_data>
 		</state>
-		<state name="Evade" class="ExpansionState_Fighting_Evade">
+		<state name="Evade" class="eAIState_Fighting_Evade">
 			<editor_data>
 				<position x="518.636363636364" y="715.727272727273" />
 				<size width="150" height="40" />
 			</editor_data>
 		</state>
-		<state name="FireWeapon" class="ExpansionState_Fighting_FireWeapon">
+		<state name="FireWeapon" class="eAIState_Fighting_FireWeapon">
 			<editor_data>
 				<position x="618.636363636364" y="715.727272727273" />
 				<size width="150" height="40" />
 			</editor_data>
 		</state>
-		<state name="Melee" class="ExpansionState_Fighting_Melee">
+		<state name="Melee" class="eAIState_Fighting_Melee">
 			<editor_data>
 				<position x="1155" y="711" />
 				<size width="150" height="40" />
@@ -34,26 +34,7 @@
 				<position_destination x="1228" y="711" />
 			</editor_data>
 			<guard>
-				if (unit.IsRestrained()) return FAIL;
-				
-				if (!unit.CanRaiseWeapon() || !unit.eAI_HasLOS()) return FAIL;
-				
-				if (unit.eAI_ShouldBandage() &amp;&amp; unit.GetBandageToUse()) return FAIL;
-				
-				dst.m_Target = unit.GetTarget();
-				if (!dst.m_Target) return FAIL;
-				
-				if (!dst.m_Target.IsMeleeViable() || dst.m_Target.GetThreat() &lt; 0.4) return FAIL;
-				
-				if (dst.m_Target.ShouldAvoid()) return FAIL;
-				
-				if (unit.m_eAI_HasProjectileWeaponInHands)
-				{
-					if (unit.eAI_SkipMelee("skipping melee", dst.m_Target, false))
-						return FAIL;
-				}
-				
-				return SUCCESS;
+				return dst.Guard();
 			</guard>
 			<event />
 			<from_state />
@@ -65,37 +46,7 @@
 				<position_destination x="1228" y="711" />
 			</editor_data>
 			<guard>
-				int missionTime = GetGame().GetTime();
-				
-				Weapon_Base aiWeapon;
-				if (Class.CastTo(aiWeapon, unit.GetHumanInventory().GetEntityInHands()) &amp;&amp; missionTime - unit.m_eAI_LastEvadeTime &lt; Math.RandomInt(2500, 5000)) return FAIL;
-				
-				auto target = unit.GetTarget();
-				if (!target) return FAIL;
-				
-				auto targetPlayer = DayZPlayerImplement.Cast(target.GetEntity());
-				if (!targetPlayer) return FAIL;
-				
-				if (!targetPlayer.IsRaised()) return FAIL;  //! Ignore if target player isn't raised
-				
-				if (!target.m_LOS) return FAIL;
-				
-				auto weapon = Weapon_Base.Cast(targetPlayer.GetHumanInventory().GetEntityInHands());
-				if (!weapon) return FAIL;  //! Ignore if target player doesn't have a firearm
-				
-				vector fromTargetDirection = vector.Direction(targetPlayer.GetPosition(), unit.GetPosition()).Normalized();
-				float fromTargetDot = vector.Dot(targetPlayer.Expansion_GetAimDirection(), fromTargetDirection);
-				if (fromTargetDot &lt; 0.97) return FAIL;  //! Ignore if target player isn't aiming at us
-				
-				if (Math.RandomInt(0, 5) &gt; 0) return FAIL;  //! 1 in 5 chance to evade
-				
-				if (unit.eAI_IsDangerousAltitude()) return FAIL;  //! Don't evade if high above ground
-				
-				if (unit.m_eAI_IsOnLadder) return FAIL;
-				
-				unit.m_eAI_LastEvadeTime = missionTime;
-				
-				return SUCCESS;
+				return dst.Guard();
 			</guard>
 			<event />
 			<from_state />
@@ -107,107 +58,7 @@
 				<position_destination x="696.636363636364" y="715.727272727273" />
 			</editor_data>
 			<guard>
-				if (unit.IsRestrained()) return FAIL;
-				
-				// we are aiming at something?
-				dst.m_Target = unit.GetTarget();
-				if (!dst.m_Target) return FAIL;
-				
-				PlayerBase player;
-				EntityAI targetEntity = dst.m_Target.GetEntity();
-				ItemBase itemTarget;
-				float dist = dst.m_Target.GetDistance();
-				if (!targetEntity)
-				{
-					return FAIL;
-				}
-				else if (Class.CastTo(player, targetEntity))
-				{
-					if (player.IsUnconscious())
-						return FAIL;
-				}
-				else if (Class.CastTo(itemTarget, targetEntity))
-				{
-					// don't shoot at bandages, ammo/magazines, melee weapons, clothing or headtorches, silly
-					if (itemTarget.Expansion_CanBeUsedToBandage())
-						return FAIL;
-					if (itemTarget.IsMagazine())
-						return FAIL;
-					if (itemTarget.IsWeapon())
-						return FAIL;
-					if (itemTarget.Expansion_IsMeleeWeapon())
-						return FAIL;
-					if (itemTarget.IsClothing())
-						return FAIL;
-				}
-				
-				if (unit.IsFighting()) return FAIL;
-				
-				if (!Class.CastTo(dst.m_Weapon, unit.GetItemInHands()) || dst.m_Weapon.IsDamageDestroyed()) return FAIL;
-				
-				if (!unit.CanRaiseWeapon() || !dst.m_Target.m_LOS) return FAIL;
-				
-				if (!dst.m_Weapon.Expansion_IsChambered()) return FAIL;
-				
-				if (unit.GetWeaponManager().CanUnjam(dst.m_Weapon)) return FAIL;
-				
-				float minDist;
-				
-				if (dst.m_Weapon.ShootsExplosiveAmmo())
-					minDist = dst.m_Weapon.Expansion_GetMinSafeFiringDistance();
-				
-				if (dst.m_Target.IsExplosive())
-					minDist = Math.Max(dst.m_Target.GetMinDistance(), minDist);
-				
-				if (minDist)
-				{
-					//! Avoid firing if within minDist
-					if (dist &lt; minDist) return FAIL;
-					
-					//! Avoid firing if other friendly units within minDist from tgt
-					float minDistSq = minDist * minDist;
-					
-					vector aimPosition = dst.m_Target.GetPosition() + dst.m_Target.GetAimOffset();
-					
-					vector min = Vector(aimPosition[0] - minDist, aimPosition[1] - minDist, aimPosition[2] - minDist);
-					vector max = Vector(aimPosition[0] + minDist, aimPosition[1] + minDist, aimPosition[2] + minDist);
-					
-					array&lt;EntityAI&gt; entities = {};
-					
-					DayZPlayerUtils.SceneGetEntitiesInBox(min, max, entities);
-					
-					vector hitPos;
-					vector hitDir;
-					int hitComponent;
-					set&lt;Object&gt; results = new set&lt;Object&gt;;
-					
-					foreach (EntityAI entity: entities)
-					{
-						vector entityCenter = entity.GetCenter();
-						
-						if (vector.DistanceSq(entityCenter, aimPosition) &gt; minDistSq)
-							continue;
-						
-						if (!unit.PlayerIsEnemy(entity))
-						{
-							//! Friendly unit in blast radius
-							if (DayZPhysics.RaycastRV(aimPosition, entityCenter, hitPos, hitDir, hitComponent, results, null, targetEntity, false, false, ObjIntersectFire, 0.2))
-							{
-								Object parentObject;
-								
-								if (results.Find(entity) &gt; -1 || (Class.CastTo(parentObject, entity.GetParent()) &amp;&amp; results.Find(parentObject) &gt; -1))
-								{
-									if (!unit.IsRaised())
-										unit.RaiseWeapon(true);
-									
-									return FAIL;  //! Friendly unit in blast radius and nothing blocking the blast
-								}
-							}
-						}
-					}
-				}
-				
-				return SUCCESS;
+				return dst.Guard();
 			</guard>
 			<event />
 			<from_state />

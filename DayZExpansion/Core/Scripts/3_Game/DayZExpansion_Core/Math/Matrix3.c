@@ -1,5 +1,5 @@
 /**
- * Matrix3.c
+ * ExpansionMatrix3.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,11 +10,11 @@
  *
  */
 
-class Matrix3
+class ExpansionMatrix3
 {
 	vector data[3];
 
-	Transform m_trans;
+	ExpansionTransform m_trans;
 
 	static void Transpose(vector a[3], out vector b[3])
 	{
@@ -29,14 +29,14 @@ class Matrix3
 		b[2][2] = a[1][2];
 	}
 
-	void Matrix3()
+	void ExpansionMatrix3()
 	{
 		data = {"1 0 0", "0 1 0", "0 0 1"};
 	}
 
-	static Matrix3 SetRotationX(float angle)
+	static ExpansionMatrix3 SetRotationX(float angle)
 	{
-		Matrix3 mat = new Matrix3();
+		ExpansionMatrix3 mat = new ExpansionMatrix3();
 
 		float s = Math.Sin(angle);
 		float c = Math.Cos(angle);
@@ -70,19 +70,19 @@ class Matrix3
 			m_trans.UpdateBasis();
 	}
 
-	void ToQuaternion(out Quaternion quat)
+	void ToQuaternion(out ExpansionQuaternion quat)
 	{
 		if (quat == NULL)
-			quat = new Quaternion;
+			quat = new ExpansionQuaternion;
 
 		Math3D.MatrixToQuat(data, quat.data);
 
 		quat.Update();
 	}
 
-	Matrix3 Invert()
+	ExpansionMatrix3 Invert()
 	{
-		Matrix3 n = new Matrix3;
+		ExpansionMatrix3 n = new ExpansionMatrix3;
 
 		vector co = Vector(Cofactor(1, 1, 2, 2), Cofactor(1, 2, 2, 0), Cofactor(1, 0, 2, 1));
 
@@ -109,9 +109,9 @@ class Matrix3
 		return n;
 	}
 
-	Matrix3 Scaled(vector scale)
+	ExpansionMatrix3 Scaled(vector scale)
 	{
-		Matrix3 n = new Matrix3;
+		ExpansionMatrix3 n = new ExpansionMatrix3;
 
 		n.data[0][0] = data[0][0] * scale[0];
 		n.data[1][0] = data[1][0] * scale[1];
@@ -128,9 +128,9 @@ class Matrix3
 		return n;
 	}
 
-	Matrix3 Transpose()
+	ExpansionMatrix3 Transpose()
 	{
-		Matrix3 n = new Matrix3;
+		ExpansionMatrix3 n = new ExpansionMatrix3;
 
 		n.data[0][0] = data[0][0];
 		n.data[0][1] = data[1][0];
@@ -147,9 +147,9 @@ class Matrix3
 		return n;
 	}
 
-	Matrix3 Adjoint()
+	ExpansionMatrix3 Adjoint()
 	{
-		Matrix3 n = new Matrix3;
+		ExpansionMatrix3 n = new ExpansionMatrix3;
 
 		n.data[0][0] = Cofactor(1, 1, 2, 2);
 		n.data[0][1] = Cofactor(0, 2, 2, 1);
@@ -213,9 +213,9 @@ class Matrix3
 		Update();
 	}
 
-	static Matrix3 YawPitchRoll(vector ypr)
+	static ExpansionMatrix3 YawPitchRoll(vector ypr)
 	{
-		Matrix3 mat = new Matrix3;
+		ExpansionMatrix3 mat = new ExpansionMatrix3;
 
 		Math3D.YawPitchRollMatrix(ypr, mat.data);
 
@@ -229,10 +229,10 @@ class Matrix3
 		return Math3D.MatrixToAngles(data);
 	}
 
-	static void Tilda(vector vIn, out Matrix3 mat)
+	static void Tilda(vector vIn, out ExpansionMatrix3 mat)
 	{
 		if (mat == NULL)
-			mat = new Matrix3;
+			mat = new ExpansionMatrix3;
 
 		mat.data[0][0] = 0.0;
 		mat.data[1][1] = 0.0;
@@ -248,44 +248,44 @@ class Matrix3
 		mat.Update();
 	}
 
-	Matrix3 Multiply(Matrix3 m)
+	ExpansionMatrix3 Multiply(ExpansionMatrix3 m)
 	{
-		Matrix3 n = new Matrix3;
+		ExpansionMatrix3 n = new ExpansionMatrix3;
 
 		Math3D.MatrixMultiply3(data, m.data, n.data);
 
 		return n;
 	}
 
-	void Multiply(Matrix3 m, out Matrix3 n)
+	void Multiply(ExpansionMatrix3 m, out ExpansionMatrix3 n)
 	{
 		if (n == NULL)
-			n = new Matrix3;
+			n = new ExpansionMatrix3;
 
 		Math3D.MatrixMultiply3(data, m.data, n.data);
 	}
 
-	static void Multiply(Matrix3 a, Matrix3 b, out Matrix3 n)
+	static void Multiply(ExpansionMatrix3 a, ExpansionMatrix3 b, out ExpansionMatrix3 n)
 	{
 		if (n == NULL)
-			n = new Matrix3;
+			n = new ExpansionMatrix3;
 
 		Math3D.MatrixMultiply3(a.data, b.data, n.data);
 	}
 
-	Matrix3 InvMultiply(Matrix3 m)
+	ExpansionMatrix3 InvMultiply(ExpansionMatrix3 m)
 	{
-		Matrix3 n = new Matrix3;
+		ExpansionMatrix3 n = new ExpansionMatrix3;
 
 		Math3D.MatrixInvMultiply3(data, m.data, n.data);
 
 		return n;
 	}
 
-	static void DirectionAndUp(vector dir, vector up, out Matrix3 mat)
+	static void DirectionAndUp(vector dir, vector up, out ExpansionMatrix3 mat)
 	{
 		if (mat == NULL)
-			mat = new Matrix3;
+			mat = new ExpansionMatrix3;
 
 		vector temp[4];
 		Math3D.DirectionAndUpMatrix(dir, up, temp);
@@ -295,9 +295,9 @@ class Matrix3
 		mat.data[2] = temp[2];
 	}
 
-	Matrix3 BISAdd(Matrix3 m)
+	ExpansionMatrix3 BISAdd(ExpansionMatrix3 m)
 	{
-		Matrix3 n = new Matrix3;
+		ExpansionMatrix3 n = new ExpansionMatrix3;
 
 		n.data[0] = data[0] + m.data[0];
 		n.data[1] = data[1] + m.data[1];
@@ -306,9 +306,9 @@ class Matrix3
 		return n;
 	}
 
-	Matrix3 BISSubtract(Matrix3 m)
+	ExpansionMatrix3 BISSubtract(ExpansionMatrix3 m)
 	{
-		Matrix3 n = new Matrix3;
+		ExpansionMatrix3 n = new ExpansionMatrix3;
 
 		n.data[0] = data[0] - m.data[0];
 		n.data[1] = data[1] - m.data[1];
@@ -317,9 +317,9 @@ class Matrix3
 		return n;
 	}
 
-	Matrix3 BISMultiply(float m)
+	ExpansionMatrix3 BISMultiply(float m)
 	{
-		Matrix3 n = new Matrix3;
+		ExpansionMatrix3 n = new ExpansionMatrix3;
 
 		n.data[0][0] = data[0][0] * m;
 		n.data[1][0] = data[1][0] * m;

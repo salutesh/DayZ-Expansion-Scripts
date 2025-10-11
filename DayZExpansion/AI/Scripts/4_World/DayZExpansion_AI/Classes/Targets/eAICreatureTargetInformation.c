@@ -1,6 +1,7 @@
 class eAICreatureTargetInformation: eAIEntityTargetInformation
 {
 	private AnimalBase m_Creature;
+	bool m_IsActive = true;
 
 	void eAICreatureTargetInformation(EntityAI target)
 	{
@@ -50,15 +51,40 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 		return pos;
 	}
 
+	override bool IsActive()
+	{
+		if (!m_Creature)
+			return false;
+
+		return m_IsActive;
+	}
+
 	override float CalculateThreat(eAIBase ai = null)
 	{
 		if (m_Creature.IsDamageDestroyed())
+		{
+			if (ai && ai.eAI_ShouldProcureFood() && ai.m_eAI_MeleeWeapons.Count() > 0)
+			{
+				float dist = GetDistance(ai, true);
+				if (dist > 4.0)
+					return ExpansionMath.PowerConversion(0.0, 227.968982, dist, 1.0, 0.0, 3.0);  //! Go skinning
+			}
+
+			m_IsActive = false;
+
 			return 0.0;
+		}
 
 		if (!m_Creature.Expansion_IsDanger())
 		{
-			if (ai && GetVelocity(m_Creature).LengthSq() > 0.277777)  //! 1 km/h
-				return ExpansionMath.LinearConversion(0.0, 90.0, GetDistance(ai, true), 0.15, 0.0);  //! 0.1 at 30 m
+			if (ai)
+			{
+				if (ai.eAI_ShouldProcureFood() && ai.m_eAI_Firearms.Count() > 0 && ai.m_eAI_MeleeWeapons.Count() > 0)
+					return ExpansionMath.PowerConversion(0.0, 227.968982, GetDistance(ai, true), 1.0, 0.0, 3.0);  //! Go hunting
+
+				if (GetVelocity(m_Creature).LengthSq() > 0.277777)  //! 1 km/h
+					return ExpansionMath.LinearConversion(0.0, 90.0, GetDistance(ai, true), 0.15, 0.0);  //! 0.1 at 30 m
+			}
 
 			return 0.0;
 		}
@@ -108,7 +134,7 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 
 	override float GetMinDistance(eAIBase ai = null, float distance = 0.0)
 	{
-		if (ai && (ai.m_eAI_AcuteDangerTargetCount > ai.GetGroup().Count() + 1 || ai.eAI_IsLowVitals() || (!ai.m_eAI_HasProjectileWeaponInHands && m_Creature.m_Expansion_IsBigGame && !ai.GetGroup().GetFaction().GetMeleeDamageMultiplier() < 100)))
+		if (ai && m_Creature.IsAlive() && (ai.m_eAI_AcuteDangerTargetCount > ai.GetGroup().Count() + 1 || ai.eAI_IsLowVitals() || (!ai.m_eAI_HasProjectileWeaponInHands && m_Creature.m_Expansion_IsBigGame && !ai.GetGroup().GetFaction().GetMeleeDamageMultiplier() < 100)))
 			return 100.0;  //! Flee
 
 		return m_MinDistance;

@@ -16,6 +16,10 @@ class ExpansionItemNameTable
 
 	static void LoadNameTable()
 	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionItemNameTable);
+		#endif
+
 		if (s_NameTable.Count() > 0)
 			return;
 
@@ -52,6 +56,10 @@ class ExpansionItemNameTable
 			}
 		}
 		
+		#ifdef EXTRACE
+		trace = null;
+		#endif
+
 		#ifdef DIAG_DEVELOPER
 		foreach(string dN, array<string> tN: s_NameTable)
 		{

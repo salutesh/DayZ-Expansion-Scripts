@@ -247,9 +247,9 @@ modded class ActionDeployObject
 	// ------------------------------------------------------------	
 	void SetLocalProjectionTransform( Object parent, vector posms, vector orims, out vector posws, out vector oriws )
 	{
-		Transform snapTrans = Transform.GetObject( parent );
-		Transform localTrans = Transform.YawPitchRoll( orims, posms );
-		Transform worldTrans = new Transform();
+		ExpansionTransform snapTrans = ExpansionTransform.GetObject( parent );
+		ExpansionTransform localTrans = ExpansionTransform.YawPitchRoll( orims, posms );
+		ExpansionTransform worldTrans = new ExpansionTransform();
 
 		Math3D.MatrixMultiply4( snapTrans.data, localTrans.data, worldTrans.data );
 		worldTrans.UpdateUnion();

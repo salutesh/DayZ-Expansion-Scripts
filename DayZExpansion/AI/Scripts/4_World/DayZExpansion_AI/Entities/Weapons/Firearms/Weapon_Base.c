@@ -345,17 +345,19 @@ modded class Weapon_Base
 		//! In DayZ, max projectile travel time is 6 seconds
 		while (distanceTraveled < distance && timeTraveled < 6.0)
 		{
-			distanceTraveledPrev = distanceTraveled;
 			timeTraveledPrev = timeTraveled;
-			speed = Math.Pow(Math.EULER, airFriction * distanceTraveled) * initSpeed;
-			distanceTraveled += speed * simulationStep;
 			timeTraveled += simulationStep;
+			speed = Math.Pow(Math.EULER, airFriction * distanceTraveled) * initSpeed;
+			if (speed <= 0)  //! speed should never reach zero with properly configured airFriction, initSpeed and initSpeedMultiplier in ammo
+				break;
+			distanceTraveledPrev = distanceTraveled;
+			distanceTraveled += speed * simulationStep;
 		}
 
-		if (distance)
+		if (distanceTraveled > distanceTraveledPrev)
 			return ExpansionMath.LinearConversion(distanceTraveledPrev, distanceTraveled, distance, timeTraveledPrev, timeTraveled);
 
-		return 0.0;
+		return timeTraveled;
 	}
 
 	/**

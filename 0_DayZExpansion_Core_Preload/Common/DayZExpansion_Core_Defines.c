@@ -93,4 +93,4 @@
 #endif
 
 //! Versioning - NEW - do NOT add/change manually, will be added/changed during build with CI.bat!
-#define EXPANSION_1_9_39
+#define EXPANSION_1_9_42

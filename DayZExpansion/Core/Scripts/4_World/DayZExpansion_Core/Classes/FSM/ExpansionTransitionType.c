@@ -120,6 +120,21 @@ class ExpansionTransitionType
 			event_class = "Expansion_" + event_name + "_Event";
 		}
 
+		bool inheritsFromCustom = false;
+
+		string inherited = fsmType.m_Type + "Transition";
+		if (xml_root_tag.GetAttribute("class"))
+		{
+			typename inherited_type = xml_root_tag.GetAttribute("class").ValueAsString().ToType();
+			if (!inherited_type.IsInherited(inherited.ToType()))
+			{
+				Error("class doesn't inherit from fsm base type");
+			}
+
+			inherited = inherited_type.ToString();
+			inheritsFromCustom = true;
+		}
+
 		string class_name = "Expansion_" + fsmName + "_" + from_state_name + "_" + to_state_name + "_Transition_" + ExpansionFSMType.s_ReloadNumber;
 
 		if (ExpansionTransitionType.Contains(class_name))
@@ -130,7 +145,7 @@ class ExpansionTransitionType
 		ExpansionTransitionType new_type = new ExpansionTransitionType();
 		new_type.m_ClassName = class_name;
 
-		FPrintln(file, "class " + class_name + ": " + fsmType.m_Type + "Transition {");
+		FPrintln(file, "class " + class_name + ": " + inherited + " {");
 
 		FPrintln(file, "	private " + from_state_class + " src;");
 		FPrintln(file, "	private " + to_state_class + " dst;");
@@ -145,13 +160,14 @@ class ExpansionTransitionType
 		FPrintln(file, "	}");
 
 		auto guard = xml_root_tag.GetTag("guard");
-		if (guard.Count() > 0)
+		if (guard.Count() > 0 && guard[0].GetContent().GetContent().Trim())
 		{
 			FPrintln(file, "	override int Guard() {");
 #ifdef EAI_TRACE
 			FPrintln(file, "	auto trace = CF_Trace_0(this, \"Guard\");");
 #endif
-			ExpansionStateType.FPrintTag0(file, guard);
+			if (inheritsFromCustom) FPrintln(file, "		if (super.Guard() == FAIL) return FAIL;");
+			ExpansionStateType.FPrintContent(file, guard[0].GetContent().GetContent());
 			FPrintln(file, "	}");
 		}
 

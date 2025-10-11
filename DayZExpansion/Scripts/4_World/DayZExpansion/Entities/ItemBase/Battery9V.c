@@ -16,6 +16,6 @@ modded class Battery9V
 	{
 		super.SetActions();
 		
-		AddAction( ActionLickBattery );
+		AddAction( ExpansionActionLickBattery );
 	}
 }

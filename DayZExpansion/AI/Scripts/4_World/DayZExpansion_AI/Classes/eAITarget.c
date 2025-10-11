@@ -268,33 +268,38 @@ class eAITarget: eAITargetInformationState
 		if (distSq > range * range)
 			return false;
 
+		if (IsUnconscious())
+			return false;
+
 		EntityAI entityInHands = m_AI.GetHumanInventory().GetEntityInHands();
 
 		Weapon_Base weapon;
-		bool hasAmmo;
 		if (Class.CastTo(weapon, entityInHands))
 		{
 			if (!m_AI.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
 				return false;
 
-			if (weapon.Expansion_IsChambered())
-				hasAmmo = true;
+			//! If we have a chambered firearm that doesn't shoot explosive ammo...
+			if (weapon.Expansion_IsChambered() && !weapon.ShootsExplosiveAmmo())
+			{
+				EntityAI tgtEntity = GetEntity();
+
+				//! ...don't melee if fighting a bear
+				if (tgtEntity.IsInherited(Animal_UrsusArctos))
+					return false;
+
+				//! ...if avg dmg per shot is above or equal target health or weapon has mag w/ ammo...
+				if (weapon.Expansion_GetAvgDmgPerShot() >= tgtEntity.GetHealth() || weapon.Expansion_GetMagazineAmmoCount() > 0)
+				{
+					//! ...don't melee if fighting multiple zombies/wolves or last melee was less than three seconds ago
+					if (m_AI.m_eAI_AcuteDangerTargetCount > 1 || GetGame().GetTime() - m_AI.m_eAI_MeleeTime < 3000)
+						return false;
+				}
+			}
 		}
 		else if (entityInHands && !entityInHands.IsMeleeWeapon())
 		{
 			return false;
-		}
-
-		//! We don't punch the bear or multiple zombies/wolves if we have a firearm with ammo - unless it's explosive ammo
-		if (GetEntity().IsInherited(Animal_UrsusArctos) || m_AI.m_eAI_AcuteDangerTargetCount > 1 || GetGame().GetTime() - m_AI.m_eAI_MeleeTime < 3000)
-		{
-			if (hasAmmo && !weapon.ShootsExplosiveAmmo())
-				return false;
-		}
-		else
-		{
-			if (IsUnconscious())
-				return false;
 		}
 
 		return true;

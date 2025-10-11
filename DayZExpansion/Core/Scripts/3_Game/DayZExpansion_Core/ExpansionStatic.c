@@ -831,7 +831,7 @@ class ExpansionStatic: ExpansionStaticCore
 			if (obj.ToDelete())
 				dbgInfo += "[TO_DELETE]";
 
-			//! Is parent being deleted?
+			//! Is object in process of being deleted?
 			if (obj.IsPendingDeletion())
 				dbgInfo += "[PENDING_DELETION]";
 		}
@@ -847,9 +847,9 @@ class ExpansionStatic: ExpansionStaticCore
 			if (entity.IsPreparedToDelete())
 				dbgInfo += "[PREPARED_TO_DELETE]";
 
-			//! Has EntityAI::EEDelete been called?
+			//! Has EntityAI::Delete or EntityAI::EEDelete been called?
 			if (entity.m_PendingDelete)
-				dbgInfo += "[EE_DELETE]";
+				dbgInfo += "[PENDING_DELETE]";
 
 			int lockType;
 			EntityAI lockedEntity;

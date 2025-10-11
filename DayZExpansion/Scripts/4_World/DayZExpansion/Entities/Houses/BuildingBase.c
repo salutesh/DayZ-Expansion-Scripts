@@ -159,9 +159,9 @@ modded class BuildingBase
 	// ------------------------------------------------------------
 	private void ConvertTransformToWorld( vector posms, vector orims, out vector posws, out vector oriws )
 	{
-		Transform snapTrans = Transform.GetObject( this );
-		Transform localTrans = Transform.YawPitchRoll( orims, posms );
-		Transform worldTrans = new Transform();
+		ExpansionTransform snapTrans = ExpansionTransform.GetObject( this );
+		ExpansionTransform localTrans = ExpansionTransform.YawPitchRoll( orims, posms );
+		ExpansionTransform worldTrans = new ExpansionTransform();
 
 		Math3D.MatrixMultiply4( snapTrans.data, localTrans.data, worldTrans.data );
 		worldTrans.UpdateUnion();

@@ -33,8 +33,8 @@ class ExpansionJacobianEntry
 		m_aJ = m_aJ.InvMultiply3(world2A);
 		m_bJ = m_bJ.InvMultiply3(world2B);
 
-		m_0MinvJt = VectorHelper.Multiply(inertiaInvA, m_aJ);
-		m_1MinvJt = VectorHelper.Multiply(inertiaInvB, m_bJ);
+		m_0MinvJt = ExpansionVectorHelper.Multiply(inertiaInvA, m_aJ);
+		m_1MinvJt = ExpansionVectorHelper.Multiply(inertiaInvB, m_bJ);
 
 		float dAJ = vector.Dot(m_0MinvJt, m_aJ);
 		float dBJ = vector.Dot(m_1MinvJt, m_bJ);
@@ -56,10 +56,10 @@ class ExpansionJacobianEntry
 		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "GetRelativeVelocity").Add(linvelA).Add(angvelA).Add(linvelB).Add(angvelB);
 #endif
 
-		vector linrel = VectorHelper.Multiply(linvelA - linvelB, m_linearJointAxis);
+		vector linrel = ExpansionVectorHelper.Multiply(linvelA - linvelB, m_linearJointAxis);
 
-		vector angvela = VectorHelper.Multiply(angvelA, m_aJ);
-		vector angvelb = VectorHelper.Multiply(angvelB, m_bJ);
+		vector angvela = ExpansionVectorHelper.Multiply(angvelA, m_aJ);
+		vector angvelb = ExpansionVectorHelper.Multiply(angvelB, m_bJ);
 
 		angvela = angvela + angvelb + linrel;
 

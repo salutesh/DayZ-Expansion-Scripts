@@ -109,7 +109,7 @@ class ExpansionPrefabObject : Managed
 		return object;
 	}
 
-	ExpansionPrefabObject SetQuantity(int quantityMin, int quantityMax = 0)
+	ExpansionPrefabObject SetQuantity(float quantityMin, float quantityMax = 0)
 	{
 		Quantity.Set(quantityMin, quantityMax);
 
@@ -274,6 +274,20 @@ class ExpansionPrefabObject : Managed
 						{
 							item.SetQuantity(itemQuantity);
 						}
+					}
+				}
+			}
+
+			BaseBuildingBase baseBuilding;
+			if (Class.CastTo(baseBuilding, entity))
+			{
+				Construction construction = baseBuilding.GetConstruction();
+
+				if (construction)
+				{
+					foreach (string partName: ConstructionPartsBuilt)
+					{
+						construction.ExpansionBuildPartFull(partName);
 					}
 				}
 			}
@@ -467,20 +481,6 @@ class ExpansionPrefabObject : Managed
 							}
 						#endif
 							break;
-						}
-					}
-				}
-
-				BaseBuildingBase baseBuilding;
-				if (Class.CastTo(baseBuilding, entity))
-				{
-					Construction construction = baseBuilding.GetConstruction();
-
-					if (construction)
-					{
-						foreach (string partName: ConstructionPartsBuilt)
-						{
-							construction.ExpansionBuildPartFull(partName);
 						}
 					}
 				}

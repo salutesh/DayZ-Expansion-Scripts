@@ -39,7 +39,7 @@ class EXTrace
 
 	static bool BOOK;
 
-	static bool CE;
+	static bool CE = IsEnabled();
 
 	static bool CHAT = IsEnabled();
 

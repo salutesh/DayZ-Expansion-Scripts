@@ -1,4 +1,4 @@
-class ExpansionNavMeshPolygon : PathNode
+class ExpansionNavMeshPolygon : ExpansionPathNode
 {
 	static const int INDEX_COUNT = 4;
 	static const int EDGE_COUNT = 8;

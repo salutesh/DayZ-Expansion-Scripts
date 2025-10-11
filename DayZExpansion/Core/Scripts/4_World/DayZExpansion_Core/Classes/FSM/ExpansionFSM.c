@@ -177,7 +177,7 @@ class ExpansionFSM
 		#endif
 
 		ExpansionState new_state;
-		FindSuitableTransition(m_CurrentState, "", new_state);
+		FindSuitableTransition(m_CurrentState, e, new_state);
 
 		ExpansionState src = m_CurrentState;
 		ExpansionState dst = new_state;

@@ -39,6 +39,7 @@ class eAICommandManagerClient : eAICommandManager
 
 		m_Expansion_RPCManager.RegisterServer("RPC_DumpState");
 		m_Expansion_RPCManager.RegisterServer("RPC_UnlimitedReload");
+		m_Expansion_RPCManager.RegisterServer("RPC_ResetPathfinding");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugObjects");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugDamage");
 		m_Expansion_RPCManager.RegisterServer("RPC_SetDamageInOut");
@@ -92,6 +93,11 @@ class eAICommandManagerClient : eAICommandManager
 					m_UnlimitedReload |= unlimitedReload;
 
 				m_Expansion_RPCManager.SendRPC("RPC_UnlimitedReload", new Param1<int>(m_UnlimitedReload));
+				return true;
+
+			case eAICommands.DEB_RESET_PATHFINDING:
+				rpc = m_Expansion_RPCManager.CreateRPC("RPC_ResetPathfinding");
+				rpc.Expansion_Send(GetAIAtCursorOrNearest(), true);
 				return true;
 
 			case eAICommands.DEB_DBGOBJECTS:
@@ -625,6 +631,23 @@ class eAICommandManagerClient : eAICommandManager
 			msg += " (global)";
 
 		ExpansionNotification("EXPANSION AI", "Unlimited reload " + msg).Info(sender);
+	}
+	
+	void RPC_ResetPathfinding(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		if (GetGame().IsMultiplayer())
+		{
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
+		}
+
+		eAIBase ai;
+		if (Class.CastTo(ai, target))
+			ai.eAI_ResetPathfinding();
 	}
 	
 	void RPC_DebugObjects(PlayerIdentity sender, Object target, ParamsReadContext ctx)

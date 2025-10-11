@@ -31,14 +31,23 @@ class eAIDoorTargetInformation: eAIEntityTargetInformation
 		if (!super.IsActive())
 			return false;
 
-		return m_Building.GetAllowDamage();
+		if (!m_Building.GetAllowDamage())
+			return false;
+
+		if (!m_Building.IsDoorLocked(m_DoorIndex))
+			return false;
+
+		if ((m_Building.GetLockCompatibilityType(m_DoorIndex) & (1 << EBuildingLockType.LOCKPICK)) == 0)
+			return false;
+
+		if (!m_Building.CanDoorBeOpened(m_DoorIndex, false))
+			return false;
+
+		return true;
 	}
 
 	override float CalculateThreat(eAIBase ai = null)
 	{
-		if (!m_Building.IsDoorLocked(m_DoorIndex))
-			return 0.0;
-
 		if (ai)
 		{
 			//! If AI was recently hit, ignore this door

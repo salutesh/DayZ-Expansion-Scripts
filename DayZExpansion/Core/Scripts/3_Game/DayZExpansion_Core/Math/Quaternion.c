@@ -1,5 +1,5 @@
 /**
- * Quaternion.c
+ * ExpansionQuaternion.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,13 +10,13 @@
  *
  */
 
-class Quaternion
+class ExpansionQuaternion
 {
 	float data[4];
 
-	Transform m_trans;
+	ExpansionTransform m_trans;
 
-	void Quaternion()
+	void ExpansionQuaternion()
 	{
 		data = {0, 0, 0, 1};
 	}
@@ -27,10 +27,10 @@ class Quaternion
 			m_trans.UpdateRotation();
 	}
 
-	void ToMatrix(out Matrix3 matrix)
+	void ToMatrix(out ExpansionMatrix3 matrix)
 	{
 		if (matrix == NULL)
-			matrix = new Matrix3;
+			matrix = new ExpansionMatrix3;
 
 		Math3D.QuatToMatrix(data, matrix.data);
 
@@ -54,17 +54,17 @@ class Quaternion
 		data[3] = Math.Cos(angle * 0.5);
 	}
 
-	static Quaternion Rotation(float angle, vector axis)
+	static ExpansionQuaternion Rotation(float angle, vector axis)
 	{
-		Quaternion q = new Quaternion;
+		ExpansionQuaternion q = new ExpansionQuaternion;
 		q.SetRotation(angle, axis);
 
 		return q;
 	}
 
-	Quaternion Add(Quaternion other)
+	ExpansionQuaternion Add(ExpansionQuaternion other)
 	{
-		Quaternion n = new Quaternion;
+		ExpansionQuaternion n = new ExpansionQuaternion;
 
 		n.data[0] = data[0] + other.data[0];
 		n.data[1] = data[1] + other.data[1];
@@ -74,7 +74,7 @@ class Quaternion
 		return n;
 	}
 
-	Quaternion AddSelf(Quaternion other)
+	ExpansionQuaternion AddSelf(ExpansionQuaternion other)
 	{
 		data[0] = data[0] + other.data[0];
 		data[1] = data[1] + other.data[1];
@@ -84,9 +84,9 @@ class Quaternion
 		return this;
 	}
 
-	Quaternion Multiply(float other)
+	ExpansionQuaternion Multiply(float other)
 	{
-		Quaternion n = new Quaternion;
+		ExpansionQuaternion n = new ExpansionQuaternion;
 
 		n.data[0] = data[0] * other;
 		n.data[1] = data[1] * other;
@@ -96,7 +96,7 @@ class Quaternion
 		return n;
 	}
 
-	Quaternion MultiplySelf(float other)
+	ExpansionQuaternion MultiplySelf(float other)
 	{
 		data[0] = data[0] * other;
 		data[1] = data[1] * other;

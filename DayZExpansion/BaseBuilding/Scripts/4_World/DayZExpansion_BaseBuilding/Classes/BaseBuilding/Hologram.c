@@ -438,9 +438,9 @@ modded class Hologram
 				m_PlacingPositionMS = projPosition + "0 0 0";
 				m_PlacingOrientationMS = projOrientation + "0 0 0";
 
-				Transform snapTrans = Transform.GetObject( m_SnapPosition.Target );
-				Transform localTrans = Transform.YawPitchRoll( m_PlacingOrientationMS, m_PlacingPositionMS );
-				Transform worldTrans = new Transform();
+				ExpansionTransform snapTrans = ExpansionTransform.GetObject( m_SnapPosition.Target );
+				ExpansionTransform localTrans = ExpansionTransform.YawPitchRoll( m_PlacingOrientationMS, m_PlacingPositionMS );
+				ExpansionTransform worldTrans = new ExpansionTransform();
 
 				Math3D.MatrixMultiply4( snapTrans.data, localTrans.data, worldTrans.data );
 				worldTrans.UpdateUnion();
@@ -645,9 +645,9 @@ modded class Hologram
 			break;
 		}
 
-		Transform snapTrans = Transform.YawPitchRoll( m_SnapMVectorC.VectorToAngles(), m_SnapPosition.Position );
-		Transform localTrans = Transform.YawPitchRoll( orientation, position );
-		Transform worldTrans = new Transform();
+		ExpansionTransform snapTrans = ExpansionTransform.YawPitchRoll( m_SnapMVectorC.VectorToAngles(), m_SnapPosition.Position );
+		ExpansionTransform localTrans = ExpansionTransform.YawPitchRoll( orientation, position );
+		ExpansionTransform worldTrans = new ExpansionTransform();
 
 		Math3D.MatrixMultiply4( snapTrans.data, localTrans.data, worldTrans.data );
 		worldTrans.UpdateUnion();

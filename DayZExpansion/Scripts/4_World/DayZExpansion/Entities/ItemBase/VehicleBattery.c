@@ -16,6 +16,6 @@ modded class VehicleBattery
 	{
 		super.SetActions();
 		
-		AddAction( ActionLickBattery );
+		AddAction( ExpansionActionLickBattery );
 	}
 }

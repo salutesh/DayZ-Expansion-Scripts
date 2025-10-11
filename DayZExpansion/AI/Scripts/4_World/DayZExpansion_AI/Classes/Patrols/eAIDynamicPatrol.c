@@ -7,7 +7,10 @@ class eAIDynamicPatrol : eAIPatrol
 	static ref ExpansionAIPatrolLoadBalancing s_LoadBalancingGlobal;
 	static bool s_LoadBalancing_IsScheduled;
 
+	static ref map<string, ref array<ref ExpansionPrefab>> s_LootDropsOnDeath = new map<string, ref array<ref ExpansionPrefab>>;
+
 	ref ExpansionAIDynamicSpawnBase m_Config;
+	ref array<ref ExpansionPrefab> m_LootDropOnDeath;
 	ref ExpansionAIPatrolLoadBalancing m_LoadBalancing;
 	ref ExpansionAIPatrolLoadBalancingTracker m_PatrolCountTracker;
 	vector m_Position;
@@ -226,6 +229,31 @@ class eAIDynamicPatrol : eAIPatrol
 
 		m_CanSpawn = true;
 
+		if (config.LootDropOnDeath)
+		{
+			ExpansionString path = EXPANSION_AI_LOOTDROPS_FOLDER + config.LootDropOnDeath;
+
+			if (!path.EndsWithIgnoreCase(".json"))
+				path += ".json";
+
+			if (!s_LootDropsOnDeath.Find(path, m_LootDropOnDeath))
+			{
+				string errorMsg;
+				if (!JsonFileLoader<array<ref ExpansionPrefab>>.LoadFile(path, m_LootDropOnDeath, errorMsg))
+				{
+					EXError.Error(this, string.Format("Couldn't load LootDropOnDeath '%1': %2", path, errorMsg), {});
+				}
+				else
+				{
+					foreach (ExpansionPrefab lootDropOnDeath: m_LootDropOnDeath)
+						lootDropOnDeath.m_Name = config.LootDropOnDeath;
+
+					s_LootDropsOnDeath[path] = m_LootDropOnDeath;
+				}
+
+			}
+		}
+
 		if (autoStart) Start();
 
 		return true;
@@ -337,6 +365,7 @@ class eAIDynamicPatrol : eAIPatrol
 		ai.eAI_SetDamageReceivedMultiplier(m_DamageReceivedMultiplier);
 		ai.eAI_SetSniperProneDistanceThreshold(m_Config.SniperProneDistanceThreshold);
 		ai.eAI_SetLootingBehavior(m_Config.GetLootingBehaviour());
+		ai.m_eAI_LootDropOnDeath = m_LootDropOnDeath;
 	}
 
 	bool WasGroupDestroyed()

@@ -66,6 +66,11 @@ modded class CF_ModuleGame
 		return m_Expansion_RPCManager.CreateRPC(fn);
 	}
 
+	ExpansionBitStreamReader GetReader(ParamsReadContext ctx)
+	{
+		return m_Expansion_RPCManager.GetReader(ctx);
+	}
+
 	void TracePrint(string msg)
 	{
 		EXTrace.Print(m_Expansion_TracingEnabled, this, msg);

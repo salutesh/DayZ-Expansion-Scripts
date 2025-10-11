@@ -391,6 +391,7 @@ class eAICommandMenu: UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.ALL, "All", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.DEFAULT, "Default", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.BANDAGES, "Bandages", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.FOOD, "Food", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.WEAPONS, "Weapons", eAICommandCategories.CATEGORIES));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING, "Clothing", eAICommandCategories.CATEGORIES));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_LOOTINGBEHAVIOUR_CLOTHING_BACK, "Backwear", eAICommandCategories.CATEGORIES));
@@ -434,6 +435,7 @@ class eAICommandMenu: UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_DUMP, "Dump State", eAICommandCategories.CAT_STATUS));
 			if (GetExpansionSettings().GetAI().IsAdmin())
 			{
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_RESET_PATHFINDING, "    Reset\nPathfinding", eAICommandCategories.CAT_STATUS));
 			#ifdef DIAG_DEVELOPER
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGOBJECTS, " Debug\nObjects", eAICommandCategories.CAT_STATUS));
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGDAMAGE, " Debug\nDamage", eAICommandCategories.CAT_STATUS));

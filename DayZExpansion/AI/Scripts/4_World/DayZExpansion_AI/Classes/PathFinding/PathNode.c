@@ -1,33 +1,33 @@
-class PathNode
+class ExpansionPathNode
 {
 	vector m_Position;
 	float m_Radius;
 
 	int m_Flags;
 
-	ref set<PathNode> m_Neighbours = new set<PathNode>();
+	ref set<ExpansionPathNode> m_Neighbours = new set<ExpansionPathNode>();
 
 	int Count()
 	{
 		return m_Neighbours.Count();
 	}
 
-	PathNode Get(int index)
+	ExpansionPathNode Get(int index)
 	{
 		return m_Neighbours[index];
 	}
 
-	int Find(PathNode node)
+	int Find(ExpansionPathNode node)
 	{
 		return m_Neighbours.Find(node);
 	}
 
-	bool Contains(PathNode node)
+	bool Contains(ExpansionPathNode node)
 	{
 		return m_Neighbours.Find(node) != -1;
 	}
 
-	void Add(PathNode node)
+	void Add(ExpansionPathNode node)
 	{
 		if (node == this) return;
 		
@@ -35,7 +35,7 @@ class PathNode
 		node.m_Neighbours.Insert(this);
 	}
 
-	void Remove(PathNode node)
+	void Remove(ExpansionPathNode node)
 	{
 		if (node == this) return;
 		

@@ -1,5 +1,5 @@
 /**
- * Transform.c
+ * ExpansionTransform.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,28 +10,28 @@
  *
  */
 
-class Transform // also known as Matrix4
+class ExpansionTransform // also known as Matrix4
 {
 	vector data[4];
 
-	ref Matrix3 m_basis;
-	ref Quaternion m_rotation;
+	ref ExpansionMatrix3 m_basis;
+	ref ExpansionQuaternion m_rotation;
 
-	void Transform()
+	void ExpansionTransform()
 	{
 		data = {"1 0 0", "0 1 0", "0 1 0", "0 0 0"};
 
-		m_basis = new Matrix3;
-		m_rotation = new Quaternion;
+		m_basis = new ExpansionMatrix3;
+		m_rotation = new ExpansionQuaternion;
 		m_basis.m_trans = this;
 		m_rotation.m_trans = this;
 
 		UpdateUnion();
 	}
 
-	Transform Clone()
+	ExpansionTransform Clone()
 	{
-		Transform n = new Transform();
+		ExpansionTransform n = new ExpansionTransform();
 
 		n.data = data;
 		n.UpdateUnion();
@@ -41,14 +41,14 @@ class Transform // also known as Matrix4
 
 	void Debug()
 	{
-		Print("Transform::Debug");
+		Print("ExpansionTransform::Debug");
 		Print("[0] " + data[0]);
 		Print("[1] " + data[1]);
 		Print("[2] " + data[2]);
 		Print("[3] " + data[3]);
 	}
 
-	Transform Add(Transform transform)
+	ExpansionTransform Add(ExpansionTransform transform)
 	{
 		return NULL;
 	}
@@ -68,7 +68,7 @@ class Transform // also known as Matrix4
 		return data[_index];
 	}
 
-	Transform Set(notnull Object obj, bool update = false)
+	ExpansionTransform Set(notnull Object obj, bool update = false)
 	{
 		obj.SetTransform(data);
 
@@ -80,7 +80,7 @@ class Transform // also known as Matrix4
 		return this;
 	}
 
-	Transform Get(notnull Object obj)
+	ExpansionTransform Get(notnull Object obj)
 	{
 		obj.GetTransform(data);
 
@@ -89,9 +89,9 @@ class Transform // also known as Matrix4
 		return this;
 	}
 
-	static Transform GetArray(vector trans[4])
+	static ExpansionTransform GetArray(vector trans[4])
 	{
-		Transform n = new Transform();
+		ExpansionTransform n = new ExpansionTransform();
 
 		n.data[0] = trans[0];
 		n.data[1] = trans[1];
@@ -103,18 +103,18 @@ class Transform // also known as Matrix4
 		return n;
 	}
 
-	static Transform GetObject(notnull Object obj)
+	static ExpansionTransform GetObject(notnull Object obj)
 	{
-		Transform n = new Transform();
+		ExpansionTransform n = new ExpansionTransform();
 
 		n.Get(obj);
 
 		return n;
 	}
 
-	static Transform GetPlayerBoneWS(notnull Human human, int boneIdx, int mode = 0)
+	static ExpansionTransform GetPlayerBoneWS(notnull Human human, int boneIdx, int mode = 0)
 	{
-		Transform n = new Transform();
+		ExpansionTransform n = new ExpansionTransform();
 
 		human.GetBoneTransformWS(boneIdx, n.data);
 		if (mode == 1)
@@ -133,7 +133,7 @@ class Transform // also known as Matrix4
 		return n;
 	}
 
-	static void Set(notnull Object obj, Transform trans)
+	static void Set(notnull Object obj, ExpansionTransform trans)
 	{
 		trans.Set(obj);
 	}
@@ -165,12 +165,12 @@ class Transform // also known as Matrix4
 		Math3D.MatrixToQuat(m_basis.data, m_rotation.data);
 	}
 
-	Matrix3 GetBasis()
+	ExpansionMatrix3 GetBasis()
 	{
 		return m_basis;
 	}
 
-	void SetBasis(Matrix3 basis)
+	void SetBasis(ExpansionMatrix3 basis)
 	{
 		m_basis = basis;
 		m_basis.m_trans = this;
@@ -178,12 +178,12 @@ class Transform // also known as Matrix4
 		UpdateBasis();
 	}
 
-	Quaternion GetRotation()
+	ExpansionQuaternion GetRotation()
 	{
 		return m_rotation;
 	}
 
-	void SetRotation(Quaternion rotation)
+	void SetRotation(ExpansionQuaternion rotation)
 	{
 		m_rotation = rotation;
 		m_rotation.m_trans = this;
@@ -206,10 +206,10 @@ class Transform // also known as Matrix4
 		data[3] = origin;
 	}
 
-	static void DirectionAndUp(vector dir, vector up, out Transform trans, vector pos = "0 0 0")
+	static void DirectionAndUp(vector dir, vector up, out ExpansionTransform trans, vector pos = "0 0 0")
 	{
 		if (trans == NULL)
-			trans = new Transform;
+			trans = new ExpansionTransform;
 
 		Math3D.DirectionAndUpMatrix(dir, up, trans.data);
 		trans.UpdateUnion();
@@ -217,7 +217,7 @@ class Transform // also known as Matrix4
 		trans.data[3] = pos;
 	}
 
-	vector Transform(vector v)
+	vector ExpansionTransform(vector v)
 	{
 		vector n = vector.Zero;
 
@@ -228,9 +228,9 @@ class Transform // also known as Matrix4
 		return n;
 	}
 
-	static Transform YawPitchRoll(vector ypr, vector pos = "0 0 0")
+	static ExpansionTransform YawPitchRoll(vector ypr, vector pos = "0 0 0")
 	{
-		Transform trans = new Transform;
+		ExpansionTransform trans = new ExpansionTransform;
 
 		Math3D.YawPitchRollMatrix(ypr, trans.m_basis.data);
 
@@ -241,18 +241,18 @@ class Transform // also known as Matrix4
 		return trans;
 	}
 
-	Transform Multiply(Transform m)
+	ExpansionTransform Multiply(ExpansionTransform m)
 	{
-		Transform n = new Transform;
+		ExpansionTransform n = new ExpansionTransform;
 
 		Math3D.MatrixMultiply4(data, m.data, n.data);
 
 		return n;
 	}
 
-	Transform InvMultiply(Transform m)
+	ExpansionTransform InvMultiply(ExpansionTransform m)
 	{
-		Transform n = new Transform;
+		ExpansionTransform n = new ExpansionTransform;
 
 		Math3D.MatrixInvMultiply4(data, m.data, n.data);
 

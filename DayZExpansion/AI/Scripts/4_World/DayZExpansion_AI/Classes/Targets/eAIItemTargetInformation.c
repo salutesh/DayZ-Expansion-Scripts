@@ -252,6 +252,28 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 
 				return q / distance;
 			}
+			else if (m_Item.IsInherited(WeaponCleaningKit))
+			{
+				//EntityAI entityInHands = ai.GetHumanInventory().GetEntityInHands();
+				//if (entityInHands && entityInHands.IsWeapon())
+				if (ai.m_eAI_RepairKits.Count() == 0)
+					return ExpansionMath.PowerConversion(0.0, 227.968982, Math.Sqrt(distance), 1.0, 0.0, 3.0);
+			}
+			else if (m_Item.IsInherited(Edible_Base))
+			{
+				if (ai.eAI_ShouldProcureFood())
+				{
+					if (m_Item.IsCorpse())
+					{
+						if (ai.m_eAI_MeleeWeapons.Count() > 0)
+							return ExpansionMath.PowerConversion(0.0, 227.968982, Math.Sqrt(distance), 1.0, 0.0, 3.0);  //! Go skinning
+					}
+					else if (m_Item.IsFood())
+					{
+						return ExpansionMath.PowerConversion(0.0, 227.968982, Math.Sqrt(distance), 1.0, 0.0, 3.0);
+					}
+				}
+			}
 		}
 
 		return 0.0;

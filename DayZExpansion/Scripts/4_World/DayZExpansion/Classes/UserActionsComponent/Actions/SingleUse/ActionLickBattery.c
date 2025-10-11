@@ -1,5 +1,5 @@
 /**
- * ActionLickBattery.c
+ * ExpansionActionLickBattery.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,12 +10,12 @@
  *
 */
 
-class ActionLickBattery: ActionSingleUseBase
+class ExpansionActionLickBattery: ActionSingleUseBase
 {
 	ItemBase m_Battery;
 	float m_Quantity;
 
-	void ActionLickBattery()
+	void ExpansionActionLickBattery()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_LICKBATTERY;
 		m_CommandUIDProne = DayZPlayerConstants.CMD_ACTIONFB_LICKBATTERY;

@@ -896,7 +896,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			if (questConfig.IsGroupQuest() || questConfig.GetQuestGiverIDs().Count() > 0 || questConfig.GetPreQuestIDs().Count() > 0)
 			{
-				QuestModuleLog("[Expansion Quests] Quest with ID=%1 is not a a valid achievement or auto start quest. Skip quest for player with UID=%2", configQuestID.ToString(), playerUID);
 				continue;
 			}
 

@@ -452,6 +452,50 @@ class ExpansionString: string
 		return output;
 	}
 
+	/**
+	 * @brief Find longest common prefix in values
+	 * 
+	 * @param prefix   Starting prefix
+	 * @param values
+	 * @param skipNotFound  If true, skip values where a common prefix was not found (else return empty string)
+	 * 
+	 * @return longest common prefix or empty string
+	 */
+	static string FindLongestCommonPrefix(string prefix, TStringArray values, bool skipNotFound = false)
+	{
+		if (values.Count() == 0)
+			return "";
+
+		bool found;
+
+		foreach (string current: values)
+		{
+			int i = 0;
+
+			while (i < prefix.Length() && i < current.Length() && prefix[i] == current[i])
+				i++;
+
+			if (i == 0)
+			{
+				if (skipNotFound)
+					continue;
+
+				return "";
+			}
+			else
+			{
+				found = true;
+			}
+
+			prefix = prefix.Substring(0, i);
+		}
+
+		if (found)
+			return prefix;
+
+		return "";
+	}
+
 	static int StrCmp(string a, string b)
 	{
 		for (int i = 0; i < Math.Min(a.Length(), b.Length()); i++)

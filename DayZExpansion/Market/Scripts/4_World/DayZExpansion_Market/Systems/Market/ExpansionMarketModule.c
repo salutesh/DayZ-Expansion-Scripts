@@ -3744,15 +3744,29 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 
 		auto rpc = Expansion_CreateRPC("RPC_LoadTraderItems");
+
 		rpc.Write(start);
 		rpc.Write(next);
+
 		if (itemIDsTmp && itemIDsTmp.Count())
 			rpc.Write(itemIDsTmp.Count());
 		else
 			rpc.Write(trader.GetTraderMarket().m_Items.Count());
+
 		rpc.Write(stockOnly);
-		rpc.Write(networkBaseItems);
-		rpc.Write(networkItems);
+
+		rpc.Write(networkBaseItems.Count());
+		foreach (ExpansionMarketNetworkBaseItem networkBaseItem: networkBaseItems)
+		{
+			networkBaseItem.WriteTo(rpc);
+		}
+
+		rpc.Write(networkItems.Count());
+		foreach (ExpansionMarketNetworkItem networkItem: networkItems)
+		{
+			networkItem.WriteTo(rpc);
+		}
+
 		rpc.Expansion_Send(trader.GetTraderEntity(), true, ident);
 
 		MarketModulePrint("LoadTraderItems - End - start: " + start + " end: " + next);
@@ -3921,32 +3935,16 @@ class ExpansionMarketModule: CF_ModuleWorld
 		EXPrint("RPC_LoadTraderItems - received batch total: " + next + " remaining: " + (count - next));
 
 		auto hitch = new EXHitch(ToString() + "::RPC_LoadTraderItems - update market items ");
-	
-		array<ref ExpansionMarketNetworkBaseItem> networkBaseItems = new array<ref ExpansionMarketNetworkBaseItem>;
-		if (!ctx.Read(networkBaseItems))
-		{
-			Error("ExpansionMarketModule::RPC_LoadTraderItems - Could not read networkBaseItems array!");
-			SI_SetTraderInvoker.Invoke(trader, true);
-			return;
-		}
 
-		array<ref ExpansionMarketNetworkItem> networkItems = new array<ref ExpansionMarketNetworkItem>;
-		if (!ctx.Read(networkItems))
-		{
-			Error("ExpansionMarketModule::RPC_LoadTraderItems - Could not read networkItems array!");
-			SI_SetTraderInvoker.Invoke(trader, true);
-			return;
-		}
-	
-		if (networkBaseItems.Count() + networkItems.Count() <= 0)
-		{
-			Error("ExpansionMarketModule::RPC_LoadTraderItems - networkBaseItems + networkItems count is 0!");
-			SI_SetTraderInvoker.Invoke(trader, true);
-			return;
-		}
+		auto reader = GetReader(ctx);
 
-		int i;
-		ExpansionMarketItem item;
+		int networkBaseItemsCount;
+		if (!reader.Read(networkBaseItemsCount) || networkBaseItemsCount < 0 || networkBaseItemsCount > 431136)
+		{
+			CF.FormatError("ExpansionMarketModule::RPC_LoadTraderItems - Could not read networkBaseItemsCount or %1 out of range [0..431136]!", networkBaseItemsCount.ToString());
+			SI_SetTraderInvoker.Invoke(trader, true);
+			return;
+		}
 
 		if (start == 0)
 		{
@@ -3954,33 +3952,83 @@ class ExpansionMarketModule: CF_ModuleWorld
 			ClearTmpNetworkCaches();
 		}
 
-		if (networkItems.Count())
-		{
-			//! Add full items + set stock
-			EXPrint(ToString() + "::RPC_LoadTraderItems - Adding and setting stock for " + networkItems.Count() + " items");
+		array<ref ExpansionMarketNetworkBaseItem> networkBaseItems = new array<ref ExpansionMarketNetworkBaseItem>;
+		ExpansionMarketNetworkBaseItem baseItem;
 
-			for (i = 0; i < networkItems.Count(); i++)
+		while (networkBaseItemsCount--)
+		{
+			baseItem = new ExpansionMarketNetworkBaseItem;
+
+			if (!baseItem.ReadFrom(reader))
 			{
-				//EXPrint("RPC_LoadTraderItems - " + networkItems[i].ClassName + " (ID " + networkItems[i].ItemID + ") - stock: " + networkItems[i].Stock);
-				item = GetExpansionSettings().GetMarket().UpdateMarketItem_Client(networkItems[i]);
-				m_ClientMarketZone.SetStock(networkItems[i].ClassName, networkItems[i].Stock);
-				int param1 = networkItems[i].Packed >> 24;
-			#ifdef EXPANSIONMODHARDLINE
-				//! @note EnfScript bug: Bit-shifting produces negative value. Workaround: Apply mask first (bitwise AND)
-				//! https://feedback.bistudio.com/T177670
-				int rarity = (param1 & 0xf0) >> 4;
-				if (rarity)
-				{
-					item.m_Rarity = rarity;
-					if (rarity != ExpansionHardlineItemRarity.NONE)
-						item.m_RequiredRep = m_HardlineSettings.GetReputationForRarity(rarity);
-				}
-			#endif
-				int buySell = param1 & 0x0f;
-				trader.GetTraderMarket().AddItemInternal(item, buySell);
-				if (!m_TmpNetworkCats.Contains(networkItems[i].CategoryID))
-					m_TmpNetworkCats.Insert(networkItems[i].CategoryID, GetExpansionSettings().GetMarket().GetCategory(networkItems[i].CategoryID));
+				Error("ExpansionMarketModule::RPC_LoadTraderItems - Could not read networkBaseItems array!");
+				SI_SetTraderInvoker.Invoke(trader, true);
+				return;
 			}
+
+			networkBaseItems.Insert(baseItem);
+			m_TmpNetworkBaseItems.Insert(baseItem);
+		}
+
+		int networkItemsCount;
+		if (!reader.Read(networkItemsCount) || networkItemsCount < 0 || networkItemsCount > 431136)
+		{
+			CF.FormatError("ExpansionMarketModule::RPC_LoadTraderItems - Could not read networkItemsCount or %1 out of range [0..431136]!", networkItemsCount.ToString());
+			SI_SetTraderInvoker.Invoke(trader, true);
+			return;
+		}
+	
+		if (networkBaseItems.Count() + networkItemsCount <= 0)
+		{
+			Error("ExpansionMarketModule::RPC_LoadTraderItems - networkBaseItems.Count() + networkItemsCount count is 0!");
+			SI_SetTraderInvoker.Invoke(trader, true);
+			return;
+		}
+
+		if (networkItemsCount)
+			EXPrint(ToString() + "::RPC_LoadTraderItems - Adding and setting stock for " + networkItemsCount + " items");
+
+		ExpansionMarketNetworkItem networkItem;
+		ExpansionMarketItem item;
+
+		while (networkItemsCount--)
+		{
+			networkItem = new ExpansionMarketNetworkItem;
+
+			if (!networkItem.ReadFrom(reader))
+			{
+				Error("ExpansionMarketModule::RPC_LoadTraderItems - Could not read networkBaseItems array!");
+				SI_SetTraderInvoker.Invoke(trader, true);
+				return;
+			}
+
+			//! Add full items + set stock
+
+			//EXPrint("RPC_LoadTraderItems - " + networkItem.ClassName + " (ID " + networkItem.ItemID + ") - stock: " + networkItem.Stock);
+			item = GetExpansionSettings().GetMarket().UpdateMarketItem_Client(networkItem);
+			if (!item)
+			{
+				Error("ExpansionMarketModule::RPC_LoadTraderItems - Could not find category ID " + networkItem.CategoryID + " for item " + networkItem.ClassName);
+				SI_SetTraderInvoker.Invoke(trader, true);
+				return;
+			}
+
+			m_ClientMarketZone.SetStock(networkItem.ClassName, networkItem.Stock);
+
+		#ifdef EXPANSIONMODHARDLINE
+			int rarity = networkItem.m_Rarity;
+			if (rarity)
+			{
+				item.m_Rarity = rarity;
+				if (rarity != ExpansionHardlineItemRarity.NONE)
+					item.m_RequiredRep = m_HardlineSettings.GetReputationForRarity(rarity);
+			}
+		#endif
+
+			trader.GetTraderMarket().AddItemInternal(item, networkItem.m_BuySell);
+
+			if (!m_TmpNetworkCats.Contains(networkItem.CategoryID))
+				m_TmpNetworkCats.Insert(networkItem.CategoryID, GetExpansionSettings().GetMarket().GetCategory(networkItem.CategoryID));
 		}
 
 		if (m_TmpNetworkCats.Count())
@@ -3989,12 +4037,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			{
 				m_TmpVariantIds.Insert(networkBaseItem.ItemID);
 			}
-		}
-
-		//! Set stock only
-		for (i = 0; i < networkBaseItems.Count(); i++)
-		{
-			m_TmpNetworkBaseItems.Insert(networkBaseItems[i]);
 		}
 		
 		delete hitch;

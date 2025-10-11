@@ -30,6 +30,11 @@ class ExpansionSettingBase
 		return GetExpansionSettings().CreateRPC(Type());
 	}
 
+	ExpansionBitStreamReader GetReader(ParamsReadContext ctx)
+	{
+		return GetExpansionSettings().GetReader(ctx);
+	}
+
 	bool OnRecieve( ParamsReadContext ctx )
 	{
 		Error("Not implemented");
