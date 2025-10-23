@@ -47,7 +47,7 @@ class ExpansionRPCManager
 
 	ref map<int, Managed> m_RegisteredInstances = new map<int, Managed>;
 
-	ref ExpansionBitStreamReader m_Reader;
+	ref ExpansionBitStreamSerializerReader m_Reader;
 
 	void ExpansionRPCManager(Managed owner, typename type = NULLTYPE)
 	{
@@ -169,7 +169,7 @@ class ExpansionRPCManager
 		}
 		else
 		{
-			m_Reader = new ExpansionBitStreamReader(ctx);
+			m_Reader = new ExpansionBitStreamSerializerReader(ctx);
 		}
 
 		return m_Reader;

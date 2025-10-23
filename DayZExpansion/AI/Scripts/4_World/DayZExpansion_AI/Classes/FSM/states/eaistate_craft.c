@@ -62,6 +62,7 @@ class eAIState_Craft: eAIState
 	int Guard()
 	{
 		if (unit.IsFighting()) return eAITransition.FAIL;
+		if (unit.IsRaised()) return eAITransition.FAIL;
 		
 		if (unit.IsRestrained()) return eAITransition.FAIL;
 		if (unit.IsUnconscious()) return eAITransition.FAIL;

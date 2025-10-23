@@ -49,6 +49,21 @@ modded class ChatInputMenu
 
 	override bool OnChange(Widget w, int x, int y, bool finished)
 	{
+		string text = m_edit_box.GetText();
+
+		MissionGameplay gameplayMission = MissionGameplay.Cast(GetGame().GetMission());
+
+		//! Don't leak password
+		if (text.IndexOf("#login ") == 0)
+		{
+			gameplayMission.SwitchChatChannelToDirect();
+			PasswordEditBoxWidget.Cast(m_edit_box).SetHideText(true);
+		}
+		else
+		{
+			PasswordEditBoxWidget.Cast(m_edit_box).SetHideText(false);
+		}
+
 		if (!finished)
 			return false;
 
@@ -56,12 +71,8 @@ modded class ChatInputMenu
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 #endif
 
-		string text = m_edit_box.GetText();
-
 		if (text != "")
 		{
-			MissionGameplay gameplayMission = MissionGameplay.Cast(GetGame().GetMission());
-
 			bool useExpansionChat = false;
 
 			switch (gameplayMission.GetChatChannel())

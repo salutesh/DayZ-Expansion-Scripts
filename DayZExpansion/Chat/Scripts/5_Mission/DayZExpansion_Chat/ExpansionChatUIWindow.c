@@ -187,6 +187,9 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		message.Text = params.param3;
 		message.SetColorByName(params.param4);
 
+		//! Don't leak password
+		ExpansionGlobalChatModule.s_Instance.RemoveSensitiveInfo(message.Text);
+
 		ExpansionChatMessageEventParams exParams;
 		if (Class.CastTo(exParams, params))
 		{

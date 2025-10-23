@@ -31,4 +31,14 @@ modded class WeaponStateBase
 	{
 		eAI_WpnPrint(s);
 	}
+
+	//! Suppress crash.log debug spam by only printing to script log if AI on client
+	void Error(string err)
+	{
+		eAIBase ai;
+		if (Class.CastTo(ai, m_weapon.GetHierarchyRoot()) && g_Game.IsClient())
+			Print(err);
+		else
+			ErrorEx(err);
+	}
 }

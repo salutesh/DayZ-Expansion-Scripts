@@ -1008,7 +1008,7 @@ modded class ItemBase
 
 		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
 
-		if ( !IsKnownUser( player ) && GetCode() != code )
+		if ((!IsKnownUser(player) || code != "") && GetCode() != code)
 		{
 			CF_Log.Debug("ItemBase::OnRPC ExpansionLockRPC.UNLOCK GetCode() != code");
 			

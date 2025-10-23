@@ -33,6 +33,8 @@ enum ExpansionMarketResult
 	FailedCannotBuy,
 	FailedNotInPlayerPossession,
 	FailedItemDoesNotExistInTrader,
+	FailedAttachmentDoesNotExist,
+	FailedAttachmentOfAttachmentDoesNotExistInTrader,
 	FailedItemSpawn,
 	FailedSellListMismatch,
 	FailedNotEnoughRepBuy,
@@ -417,6 +419,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	int GetMoneyPrice(string type)
 	{
 		int price;
+
+		MapInsanityStackToMoneyType(type);
+
 		if (m_MoneyTypes && m_MoneyTypes.Contains(type))
 		{
 			price = m_MoneyTypes.Get(type);
@@ -426,6 +431,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		MarketModulePrint("GetMoneyPrice - Failed to get price: " + string.ToString(price) + "| Type: " + type);
 		return price;
+	}
+
+	void MapInsanityStackToMoneyType(inout string type)
+	{
+		int index = type.IndexOf("_insanitystack");
+		if (index > -1)
+			type = type.Substring(0, index);
 	}
 
 	// ------------------------------------------------------------
@@ -1673,6 +1685,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 					string existingType = existingMoney.GetType();
 					existingType.ToLower();
 
+					MapInsanityStackToMoneyType(existingType);
+
 					//! Ignore currencies this trader/ATM does not accept
 					if (currencies && currencies.Find(existingType) == -1)
 						continue;
@@ -1871,6 +1885,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 					string type = money.GetType();
 					type.ToLower();
+
+					MapInsanityStackToMoneyType(type);
 
 					//! Ignore currencies this trader/ATM does not accept
 					if (currencies && currencies.Find(type) == -1)
@@ -2101,6 +2117,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 				string type = money.GetType();
 				type.ToLower();
 				
+				MapInsanityStackToMoneyType(type);
+
 				//! Always include all money types the player has, even if trader/ATM would not accept
 				int idx = m_MoneyDenominations.Find(type);
 				monies[idx] = monies[idx] + money.GetQuantity();
@@ -2178,6 +2196,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 			{
 				string type = money.GetType();
 				type.ToLower();
+
+				MapInsanityStackToMoneyType(type);
 
 				int idx = m_MoneyDenominations.Find(type);
 				MarketModulePrint("GetMoneyBases - idx: " + idx);
@@ -2721,12 +2741,30 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 						EXPrint("Fixed purchase price to " + reservedList.Price);
 					}
+					else if (attachmentIDs && attachmentIDs.Count() && item.SpawnAttachments.Count() != attachmentIDs.Count())
+					{
+						result = ExpansionMarketResult.FailedAttachmentDoesNotExist;
+					}
 					else
 					{
-						//! Result if the price the player has seen and agreed to in menu doesn't match anymore
-						//! the current item price of the trader because stock has changed enough to affect it
-						//! (another player was quicker to get his transaction through)
-						result = ExpansionMarketResult.FailedStockChange;
+						int priceTmp;
+						ExpansionMarketResult resultTmp;
+						ExpansionMarketReserve reservedTmp;
+						map<string, int> removedStockTmp;
+						TStringArray outOfStockListTmp;
+						FindPriceOfPurchaseEx(item, zone, trader.GetTraderMarket(), player, count, priceTmp, includeAttachments, resultTmp, reservedTmp, removedStockTmp, outOfStockListTmp, 2);
+
+						if (priceTmp != reservedList.Price)
+						{
+							result = ExpansionMarketResult.FailedAttachmentOfAttachmentDoesNotExistInTrader;
+						}
+						else
+						{
+							//! Result if the price the player has seen and agreed to in menu doesn't match anymore
+							//! the current item price of the trader because stock has changed enough to affect it
+							//! (another player was quicker to get his transaction through)
+							result = ExpansionMarketResult.FailedStockChange;
+						}
 					}
 				}
 				else
@@ -4120,6 +4158,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 	bool IsMoney(string type)
 	{
+		MapInsanityStackToMoneyType(type);
+
 		return m_MoneyTypes.Contains(type);
 	}
 

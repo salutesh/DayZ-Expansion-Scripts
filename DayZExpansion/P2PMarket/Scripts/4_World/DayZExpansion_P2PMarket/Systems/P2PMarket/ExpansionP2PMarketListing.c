@@ -401,7 +401,9 @@ class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 		ctx.Write(m_GlobalID);
 		ctx.Write(m_OwnerUID);
 		ctx.Write(m_OwnerName);
-		ctx.Write(m_ClassName);
+
+		OnSendClassName(ctx);
+
 		ctx.Write(m_Price);
 		ctx.Write(m_ListingTime);
 		ctx.Write(m_SkinIndex);
@@ -468,7 +470,7 @@ class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 			return false;
 		}
 		
-		if (!ctx.Read(m_ClassName))
+		if (!OnReceiveClassName(ctx))
 		{
 			Error(ToString() + "::OnRecieveBasic - m_ClassName");
 			return false;

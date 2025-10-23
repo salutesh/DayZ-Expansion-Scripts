@@ -12,6 +12,9 @@ class eAIState_PlayEmote: eAIState
 
 	int Guard()
 	{
+		if (!unit.m_Expansion_EmoteID) return eAITransition.FAIL;
+		if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetEmoteManager().Expansion_GetCurrentGesture() == unit.m_Expansion_EmoteID) return eAITransition.FAIL;
+		
 		if (unit.IsRaised()) return eAITransition.FAIL;
 		if (unit.IsRestrained()) return eAITransition.FAIL;
 		if (unit.IsUnconscious()) return eAITransition.FAIL;
@@ -21,8 +24,6 @@ class eAIState_PlayEmote: eAIState
 		if (!unit.GetCommand_MoveAI()) return eAITransition.FAIL;
 		if (unit.eAI_IsChangingStance()) return eAITransition.FAIL;
 		
-		if (!unit.m_Expansion_EmoteID) return eAITransition.FAIL;
-		if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetEmoteManager().Expansion_GetCurrentGesture() == unit.m_Expansion_EmoteID) return eAITransition.FAIL;
 		if (unit.GetThreatToSelf(true) > 0.2) return eAITransition.FAIL;
 		if (unit.IsFighting()) return eAITransition.FAIL;
 		if (unit.GetWeaponManager().IsRunning()) return eAITransition.FAIL;

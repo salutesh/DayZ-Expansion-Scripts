@@ -2407,6 +2407,24 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				break;
 			}
 
+			case ExpansionMarketResult.FailedAttachmentDoesNotExist:
+			{
+				MarketPrint("MenuCallback - an attachment of " + itemClassName + " does not exist");
+				
+				title = "STR_EXPANSION_MARKET_TITLE";
+				text = "Transaction failed: An attachment of " + GetDisplayName(itemClassName) + " (" + itemClassName + ") does not exist in the market.";
+				break;
+			}
+
+			case ExpansionMarketResult.FailedAttachmentOfAttachmentDoesNotExistInTrader:
+			{
+				MarketPrint("MenuCallback - an attachment of the attachments of " + itemClassName + " does not exist in trader");
+				
+				title = "STR_EXPANSION_MARKET_TITLE";
+				text = "Transaction failed: An attachment of the attachments of " + GetDisplayName(itemClassName) + " (" + itemClassName + ") does not exist in the trader's item list.";
+				break;
+			}
+
 			case ExpansionMarketResult.FailedItemSpawn:
 			{
 				MarketPrint("MenuCallback - item could not be spawned: " + itemClassName);

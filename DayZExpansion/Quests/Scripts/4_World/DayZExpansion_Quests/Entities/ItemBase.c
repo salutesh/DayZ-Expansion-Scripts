@@ -30,6 +30,7 @@ modded class ItemBase
 	protected bool m_Expansion_Quests_InventoryEnter;
 	protected bool m_Expansion_IsSetForDeletion = false;
 	protected bool m_Expansion_IsObjectiveLootItem = false;
+	protected bool m_Expansion_SkipQuestItemCheck;
 
 	protected const ref array<string> m_Expansion_ExcludedFromCombine = {"Ammunition_Base", "Edible_Base"};
 
@@ -238,19 +239,33 @@ modded class ItemBase
 		if (!super.CanBeSplit())
 			return false;
 
-		if (Expansion_IsQuestItem())
-		{
-			Man itemOwner = GetHierarchyRootPlayer();
-			if (itemOwner && itemOwner.GetIdentity())
-			{
-				StringLocaliser text = new StringLocaliser("The item %1 is a quest item and can't be split!", GetDisplayName());
-				ExpansionNotification("Can't split item", text, "Error", COLOR_EXPANSION_NOTIFICATION_ORANGE, 7).Create(itemOwner.GetIdentity());
-			}
-
+		if (!m_Expansion_SkipQuestItemCheck && Expansion_IsQuestItem())
 			return false;
-		}
 
 		return true;
+	}
+
+	bool Expansion_CanBeSplit(bool skipQuestItemCheck = false)
+	{
+		m_Expansion_SkipQuestItemCheck = skipQuestItemCheck;
+
+		bool canBeSplit = CanBeSplit();
+
+		m_Expansion_SkipQuestItemCheck = false;
+
+		return canBeSplit;
+	}
+
+	override void OnRightClick()
+	{
+		super.OnRightClick();
+
+		if (!g_Game.IsDedicatedServer() && Expansion_IsQuestItem() && Expansion_CanBeSplit(true) && !GetDayZGame().IsLeftCtrlDown() && !GetGame().GetPlayer().GetInventory().HasInventoryReservation(this, null))
+		{
+			//! TODO: localization
+			CF_Localiser text = new CF_Localiser("The item %1 is a quest item and can't be split!", GetDisplayName());
+			ExpansionNotification("Can't split item", text, "Error", COLOR_EXPANSION_NOTIFICATION_ORANGE, 7).Create();
+		}
 	}
 
 	override bool CanBeCombined(EntityAI other_item, bool reservation_check = true, bool stack_max_limit = false)

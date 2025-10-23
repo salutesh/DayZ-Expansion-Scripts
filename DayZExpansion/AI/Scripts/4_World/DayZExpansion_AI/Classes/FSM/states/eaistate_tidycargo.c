@@ -67,6 +67,7 @@ class eAIState_TidyCargo: eAIState
 		if (unit.m_eAI_IsInventoryVisible) return eAITransition.FAIL;
 		
 		if (unit.IsFighting()) return eAITransition.FAIL;
+		if (unit.IsRaised()) return eAITransition.FAIL;
 		
 		if (unit.IsRestrained()) return eAITransition.FAIL;
 		if (unit.IsUnconscious()) return eAITransition.FAIL;

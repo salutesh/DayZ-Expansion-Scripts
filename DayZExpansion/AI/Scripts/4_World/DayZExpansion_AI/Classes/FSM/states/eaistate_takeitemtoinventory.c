@@ -1,58 +1,7 @@
-class eAIState_TakeItemToInventory: eAIState
+class eAIState_TakeItemToInventory: eAIState_TakeItem_Base
 {
-	ItemBase m_Item;
-	float m_Time;
-	bool m_LoweringWeapon;
-
-	override void OnEntry(string Event, ExpansionState From)
+	override int OnUpdateEx(float DeltaTime, int SimulationPrecision)
 	{
-		#ifdef DIAG
-		EXTrace.Print(EXTrace.AI, unit, "TakeItemToInventory " + m_Item.ToString());
-		#endif
-		m_Time = 0;
-		m_LoweringWeapon = false;
-		if (unit.GetEmoteManager().IsEmotePlaying())
-			unit.GetEmoteManager().ServerRequestEmoteCancel();
-	}
-
-	override int OnUpdate(float DeltaTime, int SimulationPrecision)
-	{
-		if (unit.IsUnconscious()) return EXIT;
-		
-		if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning() || !unit.GetCommand_MoveAI())
-		{
-			m_Time += DeltaTime;
-			if (m_Time > 10)  //! Looks like something went terribly wrong
-			{
-				EXPrint(unit.ToString() + " TakeItemToInventory - timeout");
-				unit.eAI_Unbug("take to inventory");
-				m_Time = 0;
-				return EXIT;
-			}
-			
-			return CONTINUE;
-		}
-		
-		//! Taking items while raised breaks hands! Wait until lowered
-		if (unit.IsRaised())
-		{
-			m_LoweringWeapon = true;
-			unit.RaiseWeapon(false);
-			m_Time = 0;
-		}
-		
-		if (m_LoweringWeapon)
-		{
-			if (m_Time < 0.5)
-			{
-				m_Time += DeltaTime;
-				return CONTINUE;
-			}
-			
-			m_Time = 0;
-			m_LoweringWeapon = false;
-		}
-		
 		if (m_Item && !m_Item.Expansion_GetRootPlayerAliveExcluding(null))
 		{
 			if (unit.eAI_GetThreatOverride(m_Item))
@@ -65,16 +14,7 @@ class eAIState_TakeItemToInventory: eAIState
 			}
 		}
 		
-		if (m_Time < 0.5)
-		{
-			m_Time += DeltaTime;
-			return CONTINUE;
-		}
-		
-		if (unit.GetActionManager().GetRunningAction())
-			return CONTINUE;
-		
-		return EXIT;
+		return CONTINUE;
 	}
 
 	int Guard()

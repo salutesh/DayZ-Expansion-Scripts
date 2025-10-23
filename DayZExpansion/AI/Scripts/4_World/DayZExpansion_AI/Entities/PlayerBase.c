@@ -7,6 +7,8 @@ enum ExpansionPositionKnowledgeType
 
 modded class PlayerBase
 {
+	static ref array<PlayerBase> s_eAI_TickSchedulerPlayers = {};
+
 	ref TIntArray m_eAI_FactionModifiers;
 
 	bool m_eAI_IsLit;
@@ -20,22 +22,6 @@ modded class PlayerBase
 	ref ScriptCaller m_eAI_AddLightIfPlayerInLight = ScriptCaller.Create(eAI_AddLightIfPlayerInLight);
 
 	int m_eAI_ProcessedLights;
-
-	void ~PlayerBase()
-	{
-	#ifndef DIAG_DEVELOPER
-		if (!g_Game)
-			return;
-	#endif
-
-		if (m_eAI_Lights)
-		{
-			foreach (ScriptedLightBase light: m_eAI_Lights)
-			{
-				light.eAI_RemovePlayer(this);
-			}
-		}
-	}
 
 	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)	
 	{
@@ -124,7 +110,7 @@ modded class PlayerBase
 		}
 
 	#ifdef EXTRACE
-		auto trace = EXTrace.Profile(EXTrace.AI, ScriptedLightBase, "s_eAI_LightNodes::Each");
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, ScriptedLightBase, "s_eAI_LightNodes::Each");
 	#endif
 
 		if (isNight && !m_eAI_IsLit)
@@ -145,6 +131,82 @@ modded class PlayerBase
 			rpc.Write(m_eAI_IsLit);
 			rpc.Expansion_Send(true);
 		}
+	}
+#endif
+
+	void ~PlayerBase()
+	{
+		if (!g_Game)
+			return;
+
+	#ifndef SERVER
+		if (m_eAI_Lights)
+		{
+			foreach (ScriptedLightBase light: m_eAI_Lights)
+			{
+				light.eAI_RemovePlayer(this);
+			}
+		}
+	#endif
+
+		if (g_Game.IsServer())
+		{
+			//! Get players. Vanilla does this in TickScheduler (which we override),
+			//! but it's more efficient to do it only when player count actually changes.
+			//! We don't use this array, this is just to avoid potential compat issues
+			//! with 3rd party mods that may expect it to be filled
+			MissionBaseWorld mission;
+			if (Class.CastTo(mission, g_Game.GetMission()))
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(mission.eAI_GetPlayers);
+
+			eAI_RemoveFromTickScheduler();
+		}
+	}
+
+	override void EEKilled(Object killer)
+	{
+		super.EEKilled(killer);
+
+		eAI_RemoveFromTickScheduler();
+	}
+
+	void eAI_RemoveFromTickScheduler()
+	{
+		if (g_Game.IsServer())
+		{
+			if (s_eAI_TickSchedulerPlayers)
+			{
+				int index = s_eAI_TickSchedulerPlayers.Find(this);  //! AI and non-AI players
+				if (index > -1)
+				{
+					s_eAI_TickSchedulerPlayers.Remove(index);
+				#ifdef DIAG_DEVELOPER
+					EXPrint(this, "TickScheduler players -1 count=" + s_eAI_TickSchedulerPlayers.Count());
+				#endif
+				}
+			}
+		}
+	}
+
+	override void OnSelectPlayer()
+	{
+		super.OnSelectPlayer();
+
+		if (g_Game.IsServer())
+		{
+			s_eAI_TickSchedulerPlayers.Insert(this);  //! non-AI player
+		#ifdef DIAG_DEVELOPER
+			EXPrint(this, "TickScheduler players +1 count=" + s_eAI_TickSchedulerPlayers.Count());
+		#endif
+		}
+	}
+
+#ifdef EXTRACE_DIAG
+	override void OnScheduledTick(float deltaTime)
+	{
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "OnScheduledTick");
+
+		super.OnScheduledTick(deltaTime);
 	}
 #endif
 

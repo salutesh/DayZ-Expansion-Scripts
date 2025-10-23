@@ -226,7 +226,7 @@ class ExpansionFSM
 	int Update(float pDt, int pSimulationPrecision)
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI, this);
+		auto trace = EXTrace.Profile(EXTrace.AI, this, "Update");
 #endif
 
 		if (!m_Owner)

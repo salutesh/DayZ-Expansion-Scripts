@@ -27,12 +27,12 @@ class ExpansionScriptRPC: ScriptRPC
 
 	void Write(int value, int bits)
 	{
-		ExpansionBitStreamWriter.Write(this, value, bits, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.Write(this, value, bits, m_Packed, m_PackedBits);
 	}
 	
 	void WriteUInt(int value, int bits)
 	{
-		ExpansionBitStreamWriter.WriteUInt(this, value, bits, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.WriteUInt(this, value, bits, m_Packed, m_PackedBits);
 	}
 
 	/**
@@ -40,79 +40,79 @@ class ExpansionScriptRPC: ScriptRPC
 	 */
 	void Write(int value, int min, int max)
 	{
-		ExpansionBitStreamWriter.Write(this, value, min, max, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.Write(this, value, min, max, m_Packed, m_PackedBits);
 	}
 
 	void WriteBool(bool value)
 	{
-		ExpansionBitStreamWriter.WriteBool(this, value, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.WriteBool(this, value, m_Packed, m_PackedBits);
 	}
 
 	void WriteChar(int value)
 	{
-		ExpansionBitStreamWriter.WriteChar(this, value, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.WriteChar(this, value, m_Packed, m_PackedBits);
 	}
 
 	void WriteUChar(int value)
 	{
-		ExpansionBitStreamWriter.WriteUChar(this, value, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.WriteUChar(this, value, m_Packed, m_PackedBits);
 	}
 
 	void WriteShort(int value)
 	{
-		ExpansionBitStreamWriter.WriteShort(this, value, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.WriteShort(this, value, m_Packed, m_PackedBits);
 	}
 
 	void WriteUShort(int value)
 	{
-		ExpansionBitStreamWriter.WriteUShort(this, value, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.WriteUShort(this, value, m_Packed, m_PackedBits);
 	}
 
 	void Write(float value, int bits)
 	{
-		ExpansionBitStreamWriter.Write(this, value, bits, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.Write(this, value, bits, m_Packed, m_PackedBits);
 	}
 
 	//! @note converts float to fp16
 	void WriteHalf(float value)
 	{
-		ExpansionBitStreamWriter.WriteHalf(this, value, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.WriteHalf(this, value, m_Packed, m_PackedBits);
 	}
 
 	void Write(vector value, int bits)
 	{
-		ExpansionBitStreamWriter.Write(this, value, bits, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.Write(this, value, bits, m_Packed, m_PackedBits);
 	}
 
 	//! @note converts float to fp16
 	void WriteHalf(vector value)
 	{
-		ExpansionBitStreamWriter.WriteHalf(this, value, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.WriteHalf(this, value, m_Packed, m_PackedBits);
 	}
 
 	void Write(string value, int bits)
 	{
-		ExpansionBitStreamWriter.Write(this, value, bits, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.Write(this, value, bits, m_Packed, m_PackedBits);
 	}
 
 	void Write(string value, int bits, string alphabet)
 	{
-		ExpansionBitStreamWriter.Write(this, value, bits, alphabet, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.Write(this, value, bits, alphabet, m_Packed, m_PackedBits);
 	}
 
 	void WriteClassName(string value)
 	{
-		ExpansionBitStreamWriter.WriteClassName(this, value, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.WriteClassName(this, value, m_Packed, m_PackedBits);
 	}
 
 	void WriteClassNameLower(string value)
 	{
-		ExpansionBitStreamWriter.WriteClassNameLower(this, value, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.WriteClassNameLower(this, value, m_Packed, m_PackedBits);
 	}
 
 	void Flush()
 	{
-		ExpansionBitStreamWriter.Flush(this, m_Packed, m_PackedBits);
+		ExpansionBitStreamSerializerWriter.Flush(this, m_Packed, m_PackedBits);
 	}
 
 	/* --------------------------------------------------------------------- */

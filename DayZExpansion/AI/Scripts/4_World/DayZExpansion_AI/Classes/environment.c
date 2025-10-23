@@ -33,4 +33,9 @@ modded class Environment
 
 		return ExpansionMath.LookUp(hour + minute / 60.0, 6, time, m_Expansion_TimeVisibility_Out);
 	}
+
+	bool Expansion_IsUnderRoofBuilding()
+	{
+		return m_IsUnderRoofBuilding;
+	}
 }

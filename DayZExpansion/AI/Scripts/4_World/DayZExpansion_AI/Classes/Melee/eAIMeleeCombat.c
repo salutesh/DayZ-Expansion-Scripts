@@ -24,7 +24,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 	override protected void TargetSelection()
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI, this, "TargetSelection");
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "TargetSelection");
 #endif 
 		
 		vector hitPos;
@@ -136,7 +136,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 	override protected bool HitZoneSelectionRaycast(out vector hitPos, out int hitZone, out Object target, bool useCamera)
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI, this, "HitZoneSelectionRaycast");
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "HitZoneSelectionRaycast");
 #endif 
 		
 		vector pos;

@@ -194,7 +194,7 @@ class ExpansionMarketItem
 
 		writer.WriteUInt(CategoryID, 16);
 
-		WriteClassNameLower(writer, ClassName);
+		WriteClassNameLowerHashed(writer, ClassName);
 
 		TIntArray attachmentIDs = {};
 		foreach (string attClassName: SpawnAttachments)
@@ -242,10 +242,21 @@ class ExpansionMarketItem
 			{
 				int variantLength = variant.Length();
 
-				isSubstring = (variantLength > classNameLength && variant.IndexOf(className) == 0);
+				isSubstring = false;
+				if (variantLength > classNameLength && variant.IndexOf(className) == 0 && variantLength - classNameLength <= 2)
+					isSubstring = true;
+
+				writer.WriteBool(isSubstring);
 
 				if (isSubstring)
+				{
 					variant = variant.Substring(classNameLength, variantLength - classNameLength);
+					WriteClassNameLower(writer, variant);
+				}
+				else
+				{
+					WriteClassNameLowerHashed(writer, variant);
+				}
 
 			#ifdef DIAG_DEVELOPER
 				if (isSubstring)
@@ -253,15 +264,35 @@ class ExpansionMarketItem
 				else
 					EXTrace.Print(EXTrace.MARKET, this, variant);
 			#endif
-
-				WriteClassNameLower(writer, variant);
-				writer.WriteBool(isSubstring);
 			}
 		}
 
 		writer.Flush();
 
 		m_StaticNetworkRepresentation = serializer.m_Data;
+	}
+
+	void WriteClassNameLowerHashed(ExpansionBitStreamArrayWriter writer, string className)
+	{
+		if (className.Length() > 2)
+		{
+			int hashA;
+			int hashB;
+			ExpansionItemNameTable.Hash(className, hashA, hashB);
+
+			if (ExpansionItemNameTable.GetTypeByHash(hashA, hashB) && !ExpansionItemNameTable.IsHashColliding(className))
+			{
+				//! 25 bits
+				writer.WriteBool(true);
+				ExpansionItemNameTable.WriteHash(writer, hashA, hashB);
+
+				return;
+			}
+		}
+
+		//! 1 bit + 7 bits string length + 6 * <string length> bits
+		writer.WriteBool(false);
+		WriteClassNameLower(writer, className);
 	}
 
 	void WriteClassNameLower(ExpansionBitStreamArrayWriter writer, string value)

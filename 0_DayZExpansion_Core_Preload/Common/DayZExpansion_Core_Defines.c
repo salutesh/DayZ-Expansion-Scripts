@@ -36,6 +36,9 @@
 #define EXPANSION_CHAT_TEXT_PROPERTIES
 #define EXPANSION_HUD_VISIBILITY
 
+//! Fixes
+#define EXPANSION_VANILLA_EEITEMLOCATION_PB_FIX
+
 //! Enable it if you want to enable logging with EXPrint
 //#define EXPANSIONEXPRINT
 //#define EXPANSIONTRACE
@@ -93,4 +96,4 @@
 #endif
 
 //! Versioning - NEW - do NOT add/change manually, will be added/changed during build with CI.bat!
-#define EXPANSION_1_9_42
+#define EXPANSION_1_9_44

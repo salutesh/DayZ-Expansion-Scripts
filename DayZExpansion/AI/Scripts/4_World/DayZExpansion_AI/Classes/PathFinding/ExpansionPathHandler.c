@@ -526,9 +526,9 @@ class ExpansionPathHandler
 
 	void OnUpdate(float pDt, int pSimulationPrecision)
 	{
-#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI, this, "OnUpdate");
-#endif
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, m_Unit, "CommandHandler(07) -> ExpansionPathHandler::OnUpdate");
+	#endif
 
 		m_TimeIt.Start();
 
@@ -1052,13 +1052,16 @@ class ExpansionPathHandler
 				}
 			}
 		}
-		else if (m_Unit.AI_HANDLEVAULTING && (IsBlockedPhysically(start + "0 0.49 0", end + "0 0.49 0") || IsElevated(start)))
+		else if (m_Unit.AI_HANDLEVAULTING)
 		{
-			m_IsBlockedPhysically = true;
-			if (!m_Next0.Parent)
+			if (IsBlockedPhysically(start + "0 0.49 0", end + "0 0.49 0") || IsElevated(start))
 			{
-				m_IsJumpClimb = true;
-				//m_DoClimbTestEx = true;
+				m_IsBlockedPhysically = true;
+				if (!m_Next0.Parent)
+				{
+					m_IsJumpClimb = true;
+					//m_DoClimbTestEx = true;
+				}
 			}
 		}
 

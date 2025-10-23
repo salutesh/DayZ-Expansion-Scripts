@@ -66,7 +66,8 @@ class ExpansionPersonalStorageContainerItem: ExpansionPersonalStorageItemBase
 
 	void OnSend(ParamsWriteContext ctx)
 	{
-		ctx.Write(m_ClassName);
+		OnSendClassName(ctx);
+
 		ctx.Write(m_Quantity);
 		ctx.Write(m_SkinIndex);
 		ctx.Write(m_QuantityType);
@@ -93,7 +94,7 @@ class ExpansionPersonalStorageContainerItem: ExpansionPersonalStorageItemBase
 
 	bool OnRecieve(ParamsReadContext ctx)
 	{
-		if (!ctx.Read(m_ClassName))
+		if (!OnReceiveClassName(ctx))
 			return false;
 
 		if (!ctx.Read(m_Quantity))

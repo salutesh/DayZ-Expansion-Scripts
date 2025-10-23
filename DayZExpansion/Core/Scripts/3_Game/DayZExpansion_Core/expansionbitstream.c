@@ -5,7 +5,7 @@
  *  auto ctx = new ScriptReadWriteContext();
  *  
  *  // Writing
- *  auto writer = new ExpansionBitStreamWriter(ctx.GetWriteContext());
+ *  auto writer = new ExpansionBitStreamSerializerWriter(ctx.GetWriteContext());
  *  
  *  bool   b = true;
  *  int    i = 123;
@@ -24,7 +24,7 @@
  *  writer.Flush();
  * 
  *  // Reading
- *  auto reader = new ExpansionBitStreamReader(ctx.GetReadContext());
+ *  auto reader = new ExpansionBitStreamSerializerReader(ctx.GetReadContext());
  *  
  *  bool   b;
  *  int    i;
@@ -290,7 +290,7 @@ class ExpansionBitStream
 	{
 		auto ctx = new ScriptReadWriteContext();
 
-		auto writer = new ExpansionBitStreamWriter(ctx.GetWriteContext());
+		auto writer = new ExpansionBitStreamSerializerWriter(ctx.GetWriteContext());
 
 		bool   b = true;
 		int    i = 123;
@@ -316,7 +316,7 @@ class ExpansionBitStream
 		writer.Write(v, 24);
 		writer.Flush();
 
-		auto reader = new ExpansionBitStreamReader(ctx.GetReadContext());
+		auto reader = new ExpansionBitStreamSerializerReader(ctx.GetReadContext());
 
 		b = false;
 		i = 0;
@@ -343,7 +343,66 @@ class ExpansionBitStream
 	}
 }
 
-class ExpansionBitStreamWriterT<Class T>: ExpansionBitStream
+class ExpansionBitStreamWriter: ExpansionBitStream
+{
+	void WriteUInt(int value, int bits);
+
+	void Write(int value, int bits);
+
+	void Write(int value, int min, int max);
+
+	void WriteBool(bool value);
+
+	void WriteChar(int value);
+
+	void WriteUChar(int value);
+
+	void WriteShort(int value);
+
+	void WriteUShort(int value);
+
+	void Write(float value, int bits);
+
+	void WriteHalf(float value);
+
+	void Write(vector value, int bits);
+
+	void WriteHalf(vector value);
+
+	void Write(string value, int bits);
+
+	void Write(string value, int bits, string alphabet);
+
+	void WriteClassName(string value);
+
+	void WriteClassNameLower(string value);
+
+	void Flush();
+
+	/* Pass through write -------------------------------------------------- */
+
+	void Write(bool value);
+
+	void Write(int value);
+
+	void Write(float value);
+
+	void Write(vector value);
+
+	void Write(string value);
+
+	void Write(TBoolArray values);
+
+	void Write(TIntArray values);
+
+	void Write(TFloatArray values);
+
+	void Write(TStringArray values);
+
+	void Write(TVectorArray values);
+}
+
+class ExpansionBitStreamWriterT<Class T>: ExpansionBitStreamWriter
 {
 	T m_Serializer;
 
@@ -485,7 +544,7 @@ class ExpansionBitStreamWriterT<Class T>: ExpansionBitStream
 			if (length > maxLength)
 			{
 				CF.FormatError("string length %1 exceeds maximum %2 according to given bits %3", length.ToString(), maxLength.ToString(), bits.ToString());
-				return;
+				length = maxLength;
 			}
 		}
 
@@ -513,7 +572,7 @@ class ExpansionBitStreamWriterT<Class T>: ExpansionBitStream
 			if (length > maxLength)
 			{
 				CF.FormatError("string length %1 exceeds maximum %2 according to given bits %3", length.ToString(), maxLength.ToString(), bits.ToString());
-				return;
+				length = maxLength;
 			}
 		}
 
@@ -523,7 +582,15 @@ class ExpansionBitStreamWriterT<Class T>: ExpansionBitStream
 
 		for (int i = 0; i < length; ++i)
 		{
-			WriteUInt(serializer, alphabet.IndexOf(value[i]), alphabetBits, packed, packedBits);
+			int v = alphabet.IndexOf(value[i]);
+
+			if (v == -1)
+			{
+				CF.FormatError("Invalid character '%1' at index %2", value[i], i.ToString());
+				v = 0;
+			}
+
+			WriteUInt(serializer, v, alphabetBits, packed, packedBits);
 		}
 	}
 
@@ -561,12 +628,12 @@ class ExpansionBitStreamWriterT<Class T>: ExpansionBitStream
 		}
 	}
 
-	void Write(int value, int bits)
+	override void Write(int value, int bits)
 	{
 		Write(m_Serializer, value, bits, m_Packed, m_PackedBits);
 	}
 	
-	void WriteUInt(int value, int bits)
+	override void WriteUInt(int value, int bits)
 	{
 		WriteUInt(m_Serializer, value, bits, m_Packed, m_PackedBits);
 	}
@@ -574,139 +641,198 @@ class ExpansionBitStreamWriterT<Class T>: ExpansionBitStream
 	/**
 	 * @brief Optimized writing of integer in range [min..max]
 	 */
-	void Write(int value, int min, int max)
+	override void Write(int value, int min, int max)
 	{
 		Write(m_Serializer, value, min, max, m_Packed, m_PackedBits);
 	}
 
-	void WriteBool(bool value)
+	override void WriteBool(bool value)
 	{
 		WriteBool(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	void WriteChar(int value)
+	override void WriteChar(int value)
 	{
 		WriteChar(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	void WriteUChar(int value)
+	override void WriteUChar(int value)
 	{
 		WriteUChar(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	void WriteShort(int value)
+	override void WriteShort(int value)
 	{
 		WriteShort(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	void WriteUShort(int value)
+	override void WriteUShort(int value)
 	{
 		WriteUShort(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	void Write(float value, int bits)
+	override void Write(float value, int bits)
 	{
 		Write(m_Serializer, value, bits, m_Packed, m_PackedBits);
 	}
 
 	//! @note converts float to fp16
-	void WriteHalf(float value)
+	override void WriteHalf(float value)
 	{
 		WriteHalf(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	void Write(vector value, int bits)
+	override void Write(vector value, int bits)
 	{
 		Write(m_Serializer, value, bits, m_Packed, m_PackedBits);
 	}
 
 	//! @note converts float to fp16
-	void WriteHalf(vector value)
+	override void WriteHalf(vector value)
 	{
 		WriteHalf(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
 	//! @note bits is used to encode string length, not characters!
-	void Write(string value, int bits)
+	override void Write(string value, int bits)
 	{
 		Write(m_Serializer, value, bits, m_Packed, m_PackedBits);
 	}
 
 	//! @note bits is used to encode string length, not characters!
-	void Write(string value, int bits, string alphabet)
+	override void Write(string value, int bits, string alphabet)
 	{
 		Write(m_Serializer, value, bits, alphabet, m_Packed, m_PackedBits);
 	}
 
-	void WriteClassName(string value)
+	override void WriteClassName(string value)
 	{
 		WriteClassName(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	void WriteClassNameLower(string value)
+	override void WriteClassNameLower(string value)
 	{
 		WriteClassNameLower(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	void Flush()
+	override void Flush()
 	{
 		Flush(m_Serializer, m_Packed, m_PackedBits);
 	}
 
 	/* Pass through write -------------------------------------------------- */
 
-	void Write(bool value)
+	override void Write(bool value)
 	{
 		m_Serializer.Write(value);
 	}
 
-	void Write(int value)
+	override void Write(int value)
 	{
 		m_Serializer.Write(value);
 	}
 
-	void Write(float value)
+	override void Write(float value)
 	{
 		m_Serializer.Write(value);
 	}
 
-	void Write(vector value)
+	override void Write(vector value)
 	{
 		m_Serializer.Write(value);
 	}
 
-	void Write(string value)
+	override void Write(string value)
 	{
 		m_Serializer.Write(value);
 	}
 
-	void Write(TBoolArray values)
+	override void Write(TBoolArray values)
 	{
 		m_Serializer.Write(values);
 	}
 
-	void Write(TIntArray values)
+	override void Write(TIntArray values)
 	{
 		m_Serializer.Write(values);
 	}
 
-	void Write(TFloatArray values)
+	override void Write(TFloatArray values)
 	{
 		m_Serializer.Write(values);
 	}
 
-	void Write(TStringArray values)
+	override void Write(TStringArray values)
 	{
 		m_Serializer.Write(values);
 	}
 
-	void Write(TVectorArray values)
+	override void Write(TVectorArray values)
 	{
 		m_Serializer.Write(values);
 	}
 }
 
-class ExpansionBitStreamReaderT<Class T>: ExpansionBitStream
+class ExpansionBitStreamReader: ExpansionBitStream
+{
+	bool ReadUInt(out int value, int bits);
+
+	bool Read(out int value, int bits);
+
+	bool Read(out int value, int min, int max);
+
+	bool ReadBool(out bool value);
+
+	bool ReadChar(out int value);
+
+	bool ReadUChar(out int value);
+
+	bool ReadShort(out int value);
+
+	bool ReadUShort(out int value);
+
+	bool Read(out float value, int bits);
+
+	bool ReadHalf(out float value);
+
+	bool Read(out vector value, int bits);
+
+	bool ReadHalf(out vector value);
+
+	bool Read(out string value, int bits);
+
+	bool Read(out string value, int bits, string alphabet);
+
+	bool ReadClassName(out string value);
+
+	bool ReadClassNameLower(out string value);
+
+	void Reset();
+
+	/* Pass through read --------------------------------------------------- */
+
+	bool Read(out bool value);
+
+	bool Read(out int value);
+
+	bool Read(out float value);
+
+	bool Read(out vector value);
+
+	bool Read(out string value);
+
+	bool Read(out TBoolArray values);
+
+	bool Read(out TIntArray values);
+
+	bool Read(out TFloatArray values);
+
+	bool Read(out TStringArray values);
+
+	bool Read(out TVectorArray values);
+}
+
+class ExpansionBitStreamReaderT<Class T>: ExpansionBitStreamReader
 {
 	T m_Serializer;
 
@@ -941,7 +1067,7 @@ class ExpansionBitStreamReaderT<Class T>: ExpansionBitStream
 			if (i > maxIndex)
 			{
 				CF.FormatError("Index out of bounds [0..%1]: %2", maxIndex.ToString(), i.ToString());
-				return false;
+				continue;
 			}
 
 			value += alphabet[i];
@@ -966,86 +1092,86 @@ class ExpansionBitStreamReaderT<Class T>: ExpansionBitStream
 		packedBits = 0;
 	}
 
-	bool ReadUInt(out int value, int bits)
+	override bool ReadUInt(out int value, int bits)
 	{
 		return ReadUInt(m_Serializer, value, bits, m_Packed, m_PackedBits);
 	}
 
-	bool Read(out int value, int bits)
+	override bool Read(out int value, int bits)
 	{
 		return Read(m_Serializer, value, bits, m_Packed, m_PackedBits);
 	}
 
-	bool Read(out int value, int min, int max)
+	override bool Read(out int value, int min, int max)
 	{
 		return Read(m_Serializer, value, min, max, m_Packed, m_PackedBits);
 	}
 
-	bool ReadBool(out bool value)
+	override bool ReadBool(out bool value)
 	{
 		return ReadBool(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	bool ReadChar(out int value)
+	override bool ReadChar(out int value)
 	{
 		return ReadChar(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	bool ReadUChar(out int value)
+	override bool ReadUChar(out int value)
 	{
 		return ReadUChar(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	bool ReadShort(out int value)
+	override bool ReadShort(out int value)
 	{
 		return ReadShort(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	bool ReadUShort(out int value)
+	override bool ReadUShort(out int value)
 	{
 		return ReadUShort(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	bool Read(out float value, int bits)
+	override bool Read(out float value, int bits)
 	{
 		return Read(m_Serializer, value, bits, m_Packed, m_PackedBits);
 	}
 
 	//! @note reads fp16 and converts to float
-	bool ReadHalf(out float value)
+	override bool ReadHalf(out float value)
 	{
 		return ReadHalf(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	bool Read(out vector value, int bits)
+	override bool Read(out vector value, int bits)
 	{
 		return Read(m_Serializer, value, bits, m_Packed, m_PackedBits);
 	}
 
 	//! @note reads fp16 and converts to float
-	bool ReadHalf(out vector value)
+	override bool ReadHalf(out vector value)
 	{
 		return ReadHalf(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
 	//! @note bits is used to decode string length, not characters!
-	bool Read(out string value, int bits)
+	override bool Read(out string value, int bits)
 	{
 		return Read(m_Serializer, value, bits, m_Packed, m_PackedBits);
 	}
 
 	//! @note bits is used to decode string length, not characters!
-	bool Read(out string value, int bits, string alphabet)
+	override bool Read(out string value, int bits, string alphabet)
 	{
 		return Read(m_Serializer, value, bits, alphabet, m_Packed, m_PackedBits);
 	}
 
-	bool ReadClassName(out string value)
+	override bool ReadClassName(out string value)
 	{
 		return ReadClassName(m_Serializer, value, m_Packed, m_PackedBits);
 	}
 
-	bool ReadClassNameLower(out string value)
+	override bool ReadClassNameLower(out string value)
 	{
 		return ReadClassNameLower(m_Serializer, value, m_Packed, m_PackedBits);
 	}
@@ -1053,7 +1179,7 @@ class ExpansionBitStreamReaderT<Class T>: ExpansionBitStream
 	/**
 	 * @brief Reset internal state. Only call this if you know what you're doing.
 	 */
-	void Reset()
+	override void Reset()
 	{
 		m_Packed = 0;
 		m_PackedBits = 0;
@@ -1061,52 +1187,52 @@ class ExpansionBitStreamReaderT<Class T>: ExpansionBitStream
 
 	/* Pass through read --------------------------------------------------- */
 
-	bool Read(out bool value)
+	override bool Read(out bool value)
 	{
 		return m_Serializer.Read(value);
 	}
 
-	bool Read(out int value)
+	override bool Read(out int value)
 	{
 		return m_Serializer.Read(value);
 	}
 
-	bool Read(out float value)
+	override bool Read(out float value)
 	{
 		return m_Serializer.Read(value);
 	}
 
-	bool Read(out vector value)
+	override bool Read(out vector value)
 	{
 		return m_Serializer.Read(value);
 	}
 
-	bool Read(out string value)
+	override bool Read(out string value)
 	{
 		return m_Serializer.Read(value);
 	}
 
-	bool Read(out TBoolArray values)
+	override bool Read(out TBoolArray values)
 	{
 		return m_Serializer.Read(values);
 	}
 
-	bool Read(out TIntArray values)
+	override bool Read(out TIntArray values)
 	{
 		return m_Serializer.Read(values);
 	}
 
-	bool Read(out TFloatArray values)
+	override bool Read(out TFloatArray values)
 	{
 		return m_Serializer.Read(values);
 	}
 
-	bool Read(out TStringArray values)
+	override bool Read(out TStringArray values)
 	{
 		return m_Serializer.Read(values);
 	}
 
-	bool Read(out TVectorArray values)
+	override bool Read(out TVectorArray values)
 	{
 		return m_Serializer.Read(values);
 	}
@@ -1363,5 +1489,5 @@ class ExpansionArraySerializer
 
 typedef ExpansionBitStreamWriterT<ExpansionArraySerializer> ExpansionBitStreamArrayWriter;
 typedef ExpansionBitStreamReaderT<ExpansionArraySerializer> ExpansionBitStreamArrayReader;
-typedef ExpansionBitStreamWriterT<Serializer> ExpansionBitStreamWriter;
-typedef ExpansionBitStreamReaderT<Serializer> ExpansionBitStreamReader;
+typedef ExpansionBitStreamWriterT<Serializer> ExpansionBitStreamSerializerWriter;
+typedef ExpansionBitStreamReaderT<Serializer> ExpansionBitStreamSerializerReader;

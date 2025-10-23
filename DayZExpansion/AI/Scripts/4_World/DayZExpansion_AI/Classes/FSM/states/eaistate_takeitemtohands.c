@@ -1,60 +1,10 @@
-class eAIState_TakeItemToHands: eAIState
+class eAIState_TakeItemToHands: eAIState_TakeItem_Base
 {
-	ItemBase m_Item;
-	float m_Time;
-	bool m_LoweringWeapon;
 	int m_RequestSwapToMeleeForZombieTime;
 	bool m_AllowDrop;
 
-	override void OnEntry(string Event, ExpansionState From)
+	override int OnUpdateEx(float DeltaTime, int SimulationPrecision)
 	{
-		#ifdef DIAG
-		EXTrace.Print(EXTrace.AI, unit, "TakeItemToHands " + m_Item.ToString());
-		#endif
-		m_Time = 0;
-		m_LoweringWeapon = false;
-		if (unit.GetEmoteManager().IsEmotePlaying())
-			unit.GetEmoteManager().ServerRequestEmoteCancel();
-	}
-
-	override int OnUpdate(float DeltaTime, int SimulationPrecision)
-	{
-		if (unit.IsUnconscious()) return EXIT;
-		
-		if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning() || !unit.GetCommand_MoveAI())
-		{
-			m_Time += DeltaTime;
-			if (m_Time > 10)  //! Looks like something went terribly wrong
-			{
-				EXPrint(unit.ToString() + " TakeItemToHands - timeout");
-				unit.eAI_Unbug("take to hands");
-				m_Time = 0;
-				return EXIT;
-			}
-			
-			return CONTINUE;
-		}
-		
-		//! Taking items to hands while raised breaks hands! Wait until lowered
-		if (unit.IsRaised())
-		{
-			m_LoweringWeapon = true;
-			unit.RaiseWeapon(false);
-			m_Time = 0;
-		}
-		
-		if (m_LoweringWeapon)
-		{
-			if (m_Time < 0.5)
-			{
-				m_Time += DeltaTime;
-				return CONTINUE;
-			}
-			
-			m_Time = 0;
-			m_LoweringWeapon = false;
-		}
-		
 		ItemBase hands = unit.GetItemInHands();
 		if (m_Item && hands != m_Item && !m_Item.Expansion_GetRootPlayerAliveExcluding(unit))
 		{
@@ -89,16 +39,7 @@ class eAIState_TakeItemToHands: eAIState
 			}
 		}
 		
-		if (m_Time < 0.5)
-		{
-			m_Time += DeltaTime;
-			return CONTINUE;
-		}
-		
-		if (unit.GetActionManager().GetRunningAction())
-			return CONTINUE;
-		
-		return EXIT;
+		return CONTINUE;
 	}
 
 	int Guard()

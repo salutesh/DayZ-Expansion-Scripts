@@ -35,6 +35,8 @@ class EXTrace
 
 	static bool AI = IsEnabled();
 
+	static bool AI_PROFILE = IsEnabled();
+
 	static bool BASEBUILDING = IsEnabled();
 
 	static bool BOOK;

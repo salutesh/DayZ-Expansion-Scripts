@@ -97,8 +97,6 @@ modded class MissionGameplay
 					SwitchChatChannelToDirect();
 			}
 
-			UpdateChannelColor();
-
 			//! Show chat channel widgets
 			m_ChatChannelRootWidget.Show(true);
 		}
@@ -128,6 +126,7 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCGlobal;
 			m_ChatChannelName.SetText("Global Chat");
+			UpdateChannelColor();
 		}
 		else
 		{
@@ -148,6 +147,7 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCTeam;
 			m_ChatChannelName.SetText("Team Chat");
+			UpdateChannelColor();
 		}
 		else
 		{
@@ -168,6 +168,7 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCTransport;
 			m_ChatChannelName.SetText("Transport Chat");
+			UpdateChannelColor();
 		}
 		else
 		{
@@ -185,6 +186,7 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCAdmin;
 			m_ChatChannelName.SetText("Admin Chat");
+			UpdateChannelColor();
 		}
 		else
 		{
@@ -200,6 +202,7 @@ modded class MissionGameplay
 
 		m_ChatChannel = ExpansionChatChannels.CCDirect;
 		m_ChatChannelName.SetText("Proximity Chat");
+		UpdateChannelColor();
 	}
 
 	void SwitchChannel()
@@ -232,8 +235,6 @@ modded class MissionGameplay
 			SwitchChatChannelToDirect();
 			break;
 		}
-
-		UpdateChannelColor();
 
 		m_ChatChannelHideTimer.Run(2, m_ChatChannelRootWidget, "Show", new Param1<bool>(false));
 	}

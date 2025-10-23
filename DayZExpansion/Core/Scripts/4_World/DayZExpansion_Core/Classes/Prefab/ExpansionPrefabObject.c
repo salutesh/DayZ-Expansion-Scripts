@@ -204,7 +204,16 @@ class ExpansionPrefabObject : Managed
 			}
 			else
 			{
-				ExpansionPrefab prefab = ExpansionPrefab.Load(Include);
+				string folder;
+
+				ExpansionPrefab thisPrefab;
+				if (Class.CastTo(thisPrefab, this))
+					folder = ExpansionString.DirName(thisPrefab.m_Path);
+
+				if (!folder)
+					folder = EXPANSION_LOADOUT_FOLDER;
+
+				ExpansionPrefab prefab = ExpansionPrefab.Load(Include, false, folder);
 				if (prefab)
 				{
 					if (prefab.Include && CF_String.EqualsIgnoreCase(prefab.Include, m_Name))

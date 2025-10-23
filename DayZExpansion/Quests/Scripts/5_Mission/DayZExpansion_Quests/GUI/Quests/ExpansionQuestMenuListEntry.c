@@ -82,11 +82,11 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 
 		if (!questHUD.IsEntryHidden(m_Quest.GetID()))
 		{
-			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Eye");
+			m_QuestMenuLogEntryController.HideIcon = "set:dayz_gui image:PasswordEyeOpen";
 		}
 		else
 		{
-			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Cross");
+			m_QuestMenuLogEntryController.HideIcon = "set:dayz_gui image:PasswordEyeClose";
 		}
 		m_QuestMenuLogEntryController.NotifyPropertyChanged("HideIcon");
 	}
@@ -111,7 +111,7 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 			}
 			case HideButton:
 			{
-				HideIcon.SetColor(ARGB(255, 220, 220, 220));
+				HideIcon.SetColor(ARGB(255, 255, 255, 255));
 				return true;
 			}
 		}
@@ -160,11 +160,11 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 
 		if (!questHUD.IsEntryHidden(m_Quest.GetID()))
 		{
-			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Eye");
+			m_QuestMenuLogEntryController.HideIcon = "set:dayz_gui image:PasswordEyeOpen";
 		}
 		else
 		{
-			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Cross");
+			m_QuestMenuLogEntryController.HideIcon = "set:dayz_gui image:PasswordEyeClose";
 		}
 		m_QuestMenuLogEntryController.NotifyPropertyChanged("HideIcon");
 	}

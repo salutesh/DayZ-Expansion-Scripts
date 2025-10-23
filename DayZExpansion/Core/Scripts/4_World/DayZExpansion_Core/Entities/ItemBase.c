@@ -876,15 +876,27 @@ modded class ItemBase
 	
 	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
 	{
-		super.EEItemLocationChanged(oldLoc, newLoc);
+		EntityAI oldParent = oldLoc.GetParent();
+		EntityAI newParent = newLoc.GetParent();
+
+		Man oldOwner;
+		Man newOwner;
+		
+		if (oldParent)
+			oldOwner = oldParent.GetHierarchyRootPlayer();
+		
+		if (newParent)
+			newOwner = newParent.GetHierarchyRootPlayer();
+
+		//! Vanilla ItemBase::EEItemLocationChanged wants PlayerBase class,
+		//! NPCs are not PlayerBase so this is to prevent the super method from being called and causing NULL ptrs
+		if ((!oldOwner || oldOwner.IsInherited(PlayerBase)) && (!newOwner || newOwner.IsInherited(PlayerBase)))
+			super.EEItemLocationChanged(oldLoc, newLoc);
 
 	#ifndef SERVER
 		DayZPlayer player = g_Game.GetPlayer();
 		if (player)
 		{
-			EntityAI oldParent = oldLoc.GetParent();
-			EntityAI newParent = newLoc.GetParent();
-
 			if (oldParent && oldLoc.GetType() == InventoryLocationType.CARGO)
 			{
 				if (oldParent.GetHierarchyRootPlayer() == player || vector.DistanceSq(player.GetPosition(), oldParent.GetPosition()) <= UAMaxDistances.DEFAULT * UAMaxDistances.DEFAULT)

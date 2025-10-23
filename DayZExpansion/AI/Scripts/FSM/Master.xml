@@ -130,6 +130,12 @@
 				<size width="150" height="40" />
 			</editor_data>
 		</state>
+		<state name="Struggle" class="eAIState_Struggle">
+			<editor_data>
+				<position x="655.886600687191" y="503.617136976937" />
+				<size width="150" height="40" />
+			</editor_data>
+		</state>
 	</states>
 	<transitions>
 		<transition>
@@ -154,6 +160,30 @@
 			</guard>
 			<event />
 			<from_state name="Unconscious" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="948.972336543873" y="239.798443463138" />
+				<position_destination x="949.021210954633" y="262.363165761721" />
+			</editor_data>
+			<guard>
+				return dst.Guard();
+			</guard>
+			<event />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation" />
+			<to_state name="Struggle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="902.021210954633" y="283.262936077279" />
+				<position_destination x="704" y="351.086651264055" />
+			</editor_data>
+			<guard>
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state name="Struggle" />
 			<to_state name="Idle" />
 		</transition>
 		<transition>
@@ -201,7 +231,7 @@
 				return dst.Guard();
 			</guard>
 			<event />
-			<from_state name="Idle,TraversingWaypoints,FollowFormation,Flank,Fighting" />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation,Flank,Fighting,TakeItemToHands" />
 			<to_state name="Bandaging_Self" />
 		</transition>
 		<transition>
@@ -237,8 +267,20 @@
 				return dst.Guard();
 			</guard>
 			<event />
-			<from_state name="Idle,Flank,Fighting,TraversingWaypoints,FollowFormation" />
+			<from_state name="Idle,Flank,Fighting,TraversingWaypoints,FollowFormation,TakeItemToInventory" />
 			<to_state name="TakeItemToHands" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="444.344352352527" y="620.921949556564" />
+				<position_destination x="445.340877794781" y="647.920853681019" />
+			</editor_data>
+			<guard>
+				return dst.Guard();
+			</guard>
+			<event />
+			<from_state name="Idle,Flank,Fighting,Skinning,TakeItemToInventory,TakeItemToHands,Skinning" />
+			<to_state name="TakeItemToInventory" />
 		</transition>
 		<transition>
 			<editor_data>
@@ -251,18 +293,6 @@
 			<event />
 			<from_state name="TakeItemToHands" />
 			<to_state name="Idle" />
-		</transition>
-		<transition>
-			<editor_data>
-				<position_source x="444.344352352527" y="620.921949556564" />
-				<position_destination x="445.340877794781" y="647.920853681019" />
-			</editor_data>
-			<guard>
-				return dst.Guard();
-			</guard>
-			<event />
-			<from_state name="Idle,Flank,Fighting,Skinning" />
-			<to_state name="TakeItemToInventory" />
 		</transition>
 		<transition>
 			<editor_data>

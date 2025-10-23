@@ -390,4 +390,59 @@ class ExpansionPersonalStorageItemBase
 			}
 		}
 	}	
+
+	void OnSendClassName(ParamsWriteContext ctx)
+	{
+		//! TODO: Use ExpansionBitStreamWriter
+		if (m_ClassName.Length() > 0)
+		{
+			ExpansionString className = m_ClassName;
+			className.ToLower();
+
+			int hashA;
+			int hashB;
+			ExpansionItemNameTable.Hash(className, hashA, hashB);
+
+			if (ExpansionItemNameTable.GetTypeByHash(hashA, hashB) && !ExpansionItemNameTable.IsHashColliding(className))
+			{
+				//! 8 bytes (4 bytes bool written as int + 6 bytes hash + 2 bytes null)
+				ctx.Write(true);
+				ExpansionItemNameTable.WriteHash(ctx, hashA, hashB);
+				PrintFormat("%1 %2 %3", m_ClassName, hashA, hashB);
+
+				return;
+			}
+		}
+
+		//! 4 bytes bool written as int + 4 bytes string length + 1 byte per char
+		ctx.Write(false);
+		ctx.Write(m_ClassName);
+	}
+
+	bool OnReceiveClassName(ParamsReadContext ctx)
+	{
+		//! TODO: Use ExpansionBitStreamReader
+		bool isHashed;
+
+		if (!ctx.Read(isHashed))
+			return false;
+
+		if (isHashed)
+		{
+			int hashA;
+			int hashB;
+			if (!ExpansionItemNameTable.ReadHash(ctx, hashA, hashB))
+				return false;
+
+			m_ClassName = ExpansionItemNameTable.GetTypeByHash(hashA, hashB);
+			PrintFormat("%1 %2 %3", m_ClassName, hashA, hashB);
+		}
+		else
+		{
+			if (!ctx.Read(m_ClassName))
+				return false;
+		}
+
+		return true;
+	}
 };

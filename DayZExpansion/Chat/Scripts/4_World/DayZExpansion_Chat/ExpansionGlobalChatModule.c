@@ -17,11 +17,15 @@
 [CF_RegisterModule(ExpansionGlobalChatModule)]
 class ExpansionGlobalChatModule: CF_ModuleWorld
 {
+	static ExpansionGlobalChatModule s_Instance;
+
 	void ExpansionGlobalChatModule()
 	{
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 #endif
+
+		s_Instance = this;
 
 		GetPermissionsManager().RegisterPermission("Admin.Chat");
 	}
@@ -54,6 +58,18 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 	#endif
 	}
 
+	void RemoveSensitiveInfo(inout string text)
+	{
+		//! Don't leak password
+		if (text.IndexOf("#login ") == 0)
+		{
+			int pwLen = text.Length() - 7;
+			text = "#login ";
+			for (int i  = 0; i < pwLen; ++i)
+				text += "*";
+		}
+	}
+
 	void FilterBlacklistedWords(inout string text)
 	{
 		foreach (string word: GetExpansionSettings().GetChat().BlacklistedWords)
@@ -68,6 +84,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 
 		data.param2 = sender.GetName();
 		string originalText = data.param3;
+		RemoveSensitiveInfo(data.param3);  //! In case login cmd was accidentally not sent to direct channel
 		FilterBlacklistedWords(data.param3);
 		data.param5 = sender.GetId();
 

@@ -137,8 +137,25 @@ class ExpansionMarketNetworkItem: ExpansionMarketNetworkBaseItem
 		if (!reader.ReadUInt(CategoryID, 16))
 			return false;
 
-		if (!reader.ReadClassNameLower(ClassName))
+		bool isHashed;
+		int hashA;
+		int hashB;
+
+		if (!reader.ReadBool(isHashed))
 			return false;
+
+		if (isHashed)
+		{
+			if (!ExpansionItemNameTable.ReadHash(reader, hashA, hashB))
+				return false;
+
+			ClassName = ExpansionItemNameTable.GetTypeLowerByHash(hashA, hashB);
+		}
+		else
+		{
+			if (!reader.ReadClassNameLower(ClassName))
+				return false;
+		}
 
 		int attCount;
 		if (!reader.ReadUInt(attCount, 8))
@@ -185,22 +202,44 @@ class ExpansionMarketNetworkItem: ExpansionMarketNetworkBaseItem
 
 			while (variantsCount--)
 			{
-				string variant;
-				if (!reader.ReadClassNameLower(variant))
-					return false;
-
 				if (!reader.ReadBool(isSubstring))
 					return false;
 
-			#ifdef DIAG_DEVELOPER
-				if (isSubstring)
-					EXTrace.Print(EXTrace.MARKET, this, className + "*" + variant);
-				else
-					EXTrace.Print(EXTrace.MARKET, this, variant);
-			#endif
+				string variant;
 
 				if (isSubstring)
+				{
+					if (!reader.ReadClassNameLower(variant))
+						return false;
+
+				#ifdef DIAG_DEVELOPER
+					EXTrace.Print(EXTrace.MARKET, this, className + "*" + variant);
+				#endif
+
 					variant = className + variant;
+				}
+				else
+				{
+					if (!reader.ReadBool(isHashed))
+						return false;
+
+					if (isHashed)
+					{
+						if (!ExpansionItemNameTable.ReadHash(reader, hashA, hashB))
+							return false;
+
+						variant = ExpansionItemNameTable.GetTypeLowerByHash(hashA, hashB);
+					}
+					else
+					{
+						if (!reader.ReadClassNameLower(variant))
+							return false;
+					}
+
+				#ifdef DIAG_DEVELOPER
+					EXTrace.Print(EXTrace.MARKET, this, variant);
+				#endif
+				}
 
 				Variants.Insert(variant);
 			}

@@ -756,6 +756,21 @@ class eAIDynamicPatrol : eAIPatrol
 		s_PatrolCount += delta;
 		Log("Global patrol count: " + s_PatrolCount);
 
+		array<eAIBase> all = eAIBase.eAI_GetAll();
+		int aliveCount;
+		int deceasedCount;
+		foreach (eAIBase ai: all)
+		{
+			if (ai.IsSetForDeletion())
+				continue;
+
+			if (ai.IsDamageDestroyed())
+				deceasedCount += 1;
+			else
+				aliveCount += 1;
+		}
+		Log(string.Format("Global Expansion AI count: %1 alive, %2 deceased", aliveCount, deceasedCount));
+
 		if (m_PatrolCountTracker && (!s_LoadBalancingGlobal || m_PatrolCountTracker != s_LoadBalancingGlobal.m_PatrolCountTracker))
 		{
 			m_PatrolCountTracker.m_PatrolCount += delta;

@@ -1,5 +1,7 @@
 modded class ModifierBase
 {
+	float m_eAI_LastTickTime;
+
 	//! Only allow modifiers that do not affect health/blood/energy/water negatively for AI if dmg is disabled
 	override void Tick(float delta_time)
 	{
@@ -36,5 +38,12 @@ modded class ModifierBase
 		}
 
 		super.Tick(delta_time);
+	}
+
+	override void ResetLastTickTime()
+	{
+		super.ResetLastTickTime();
+
+		m_eAI_LastTickTime = 0;
 	}
 }

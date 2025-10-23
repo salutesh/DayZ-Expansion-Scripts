@@ -1053,7 +1053,7 @@ class ExpansionClientSettings
 		NotificationLeave = true;
 
 		StreamerMode = false;
-		ShowPINCode = true;
+		ShowPINCode = false;
 		AutoOpenLockMenuAfterPlacing = false;
 
 		EnableLiquidTypeColors = true;

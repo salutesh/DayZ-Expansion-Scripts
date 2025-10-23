@@ -17,6 +17,7 @@ modded class Weapon_Base
 	static ref map<string, float> s_Expansion_MinSafeFiringDistance = new map<string, float>;
 
 	float m_eAI_LastFiredTime;
+	bool m_eAI_SuppressEEFired;
 
 	eAINoiseParams m_eAI_NoiseParams;
 
@@ -141,15 +142,85 @@ modded class Weapon_Base
 
 		return Fire(muzzleIndex, pos, dir, dir);
 	#else
-		return TryFireWeapon(this, muzzleIndex);
+		int mode = GetCurrentMode(muzzleIndex);
+		string ammoType = GetChamberedCartridgeMagazineTypeName(muzzleIndex);
+
+		m_eAI_SuppressEEFired = true;
+
+		bool result = TryFireWeapon(this, muzzleIndex);
+
+		if (!result)
+		{
+		#ifdef DIAG_DEVELOPER
+			EXError.Warn(ai, string.Format("TryFireWeapon(%1, %2) failed", this, muzzleIndex), {});
+		#endif
+
+			vector pos = ai.GetBonePositionWS(ai.GetBoneIndexByName("neck"));
+			vector dir = ai.Expansion_GetAimDirectionClient();
+
+			result = Fire(muzzleIndex, pos, dir, dir);
+
+		/*
+			if (result)
+			{
+				//! XXX: The game won't play weapon soundsets manually via EffectSound >:(
+				//! E.g.
+				//! SCRIPT    (E): [EffectSound::SoundError] :: [ERROR] :: EffectSound<a43a3b30>: SoundSetName: 'IZH43_Shot_SoundSet' :: m_SoundObject is null.
+				//! Also, no way to get the contents of soundSetShotExt and soundSetShotExt1st in script (nested arrays in config.cpp)
+
+				ExpansionFireMode mode = Expansion_GetFireMode();
+
+				switch (mode)
+				{
+					case ExpansionFireMode.INVALID:
+						break;
+
+					default:
+						string modeClsName = typename.EnumToString(ExpansionFireMode, mode);
+						string path = string.Format("%1 %2 %3 soundSetShot", CFG_WEAPONSPATH, GetType(), modeClsName);
+
+						if (g_Game.ConfigIsExisting(path))
+						{
+							TStringArray soundSetShot = {};
+							g_Game.ConfigGetTextArray(path, soundSetShot);
+
+							foreach (string soundSet: soundSetShot)
+							{
+								SEffectManager.Expansion_PlaySound(soundSet, ai.GetPosition());
+							}
+						}
+
+						break;
+				}
+			}
+		*/
+
+		#ifdef DIAG_DEVELOPER
+			if (!result)
+				EXError.Warn(ai, string.Format("%1::Fire(%2, %3, %4, %4) failed", this, muzzleIndex, pos, dir.ToString(false)), {});
+		#endif
+		}
+
+		//! Sometimes, AI gunshots will have no sound or muzzle flash. Ensure we at least have muzzle flash
+		m_eAI_SuppressEEFired = false;
+		if (result)
+			EEFired(muzzleIndex, mode, ammoType);
+
+		return result;
 	#endif
 	}
 
 	override void EEFired(int muzzleType, int mode, string ammoType)
 	{
-		super.EEFired(muzzleType, mode, ammoType);
+	#ifndef SERVER
+		if (m_eAI_SuppressEEFired)
+		{
+			m_eAI_SuppressEEFired = false;
+			return;
+		}
+	#endif
 
-		Man owner = GetHierarchyRootPlayer();
+		super.EEFired(muzzleType, mode, ammoType);
 
 		if (GetGame().IsServer())
 		{
@@ -163,8 +234,13 @@ modded class Weapon_Base
 					eAINoiseSystem.AddNoiseEx(this, eAI_GetNoiseParams(), strengthMultiplier);
 			}
 		}
-		else if (owner)
+		else
 		{
+			Man owner = GetHierarchyRootPlayer();
+
+			if (!owner)
+				return;
+
 			ExpansionGame exGame = GetDayZGame().GetExpansionGame();
 			if (!exGame.m_FirearmFXSource || owner.GetIdentity())
 				exGame.m_FirearmFXSource = this;
