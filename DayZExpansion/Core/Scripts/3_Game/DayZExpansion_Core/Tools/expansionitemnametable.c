@@ -44,22 +44,23 @@ class ExpansionItemNameTable
 
 				string displayName;
 				g_Game.ConfigGetText(configClass + " " + childName + " displayName", displayName);
-				displayName.ToLower();
-				ExpansionString childNameLower = childName;
+				string childNameLower = childName;
 				childNameLower.ToLower();
 				
-				if (displayName == "")
-					continue;
-				
-				array<string> currentTypes;
-				if (!s_NameTable.Find(displayName, currentTypes))
+				if (displayName != "")
 				{
-					currentTypes = new array<string>;
-					s_NameTable[displayName] = currentTypes;
+					displayName.ToLower();
+
+					array<string> currentTypes;
+					if (!s_NameTable.Find(displayName, currentTypes))
+					{
+						currentTypes = new array<string>;
+						s_NameTable[displayName] = currentTypes;
+					}
+					
+					if (currentTypes.Find(childNameLower) == -1)
+						currentTypes.Insert(childNameLower);
 				}
-				
-				if (currentTypes.Find(childNameLower) == -1)
-					currentTypes.Insert(childNameLower);
 
 				//! --------------------------------------------
 

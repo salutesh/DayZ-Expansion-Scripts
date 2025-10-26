@@ -175,6 +175,41 @@ modded class Weapon_Base
 		Expansion_UpdateFireMode();
 	}
 
+	override void EEItemAttached(EntityAI item, string slot_name)
+	{
+		super.EEItemAttached(item, slot_name);
+
+		Expansion_OnItemAttachedOrDetached(item, slot_name);
+	}
+
+	override void EEItemDetached(EntityAI item, string slot_name)
+	{
+		super.EEItemDetached(item, slot_name);
+
+		Expansion_OnItemAttachedOrDetached(item, slot_name);
+	}
+
+	void Expansion_OnItemAttachedOrDetached(EntityAI item, string slot_name)
+	{
+		if (item.IsMagazine() && g_Game.IsClient())
+		{
+			DayZPlayerImplement player;
+			if (Class.CastTo(player, GetHierarchyRoot()) && player.Expansion_IsAI())
+				Expansion_DelayedValidateAndRepair();
+		}
+	}
+
+	void Expansion_DelayedValidateAndRepair()
+	{
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_ValidateAndRepair, 34, false);
+	}
+
+	void Expansion_ValidateAndRepair()
+	{
+		if (m_fsm)
+			m_fsm.Expansion_ValidateAndRepair();
+	}
+
 	void Expansion_UpdateFireMode()
 	{
 		int muzzleCount = GetMuzzleCount();

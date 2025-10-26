@@ -12,7 +12,7 @@
 
 modded class WeaponFSM
 {
-	//! Instead of writing a stack dump to both script and crash log, print stack dump to info_date_time.log.
+	//! This is just here so that our custom ErrorEx string including owner is used.
 	//! Other than that, this is exactly equivalent to vanilla ValidateAndRepairHelper
 	override protected bool ValidateAndRepairHelper(Weapon_Base weapon, string name, bool stateCondition, bool gunCondition, WeaponEventBase e1, WeaponEventBase e2, out WeaponStableState state)
 	{
@@ -22,12 +22,12 @@ modded class WeaponFSM
 		{
 			WeaponStableState repairedState;
 			
-			// Seeing this message is not TOO bad, it just means this system is working
+			// Seeing this message is not TOO bad, it is mostly informative
 			// It is simply being listed in the logs to identify how much the FSM state and weapon state still desyncs
 			// Which can be because of a myriad of causes, such as incorrectly set up transitions
 			// Or simply certain timings of certain actions or interrupts lined up perfectly, which can have repro rates such as 1/300
-			EXError.Info(this, string.Format("[wpnfsm] ValidateAndRepair Attempting to repair: %1 (owner %2) - %3 - %4 - state: %5 != weapon: %6",
-				weapon.GetDebugName(weapon), weapon.GetHierarchyRootPlayer(), name, m_State, stateCondition, gunCondition));
+			ErrorEx(string.Format("[wpnfsm] ValidateAndRepair Attempting to repair: %1 (owner %2) - %3 - %4 - state: %5 != weapon: %6",
+				weapon.GetDebugName(weapon), weapon.GetHierarchyRootPlayer(), name, m_State, stateCondition, gunCondition), ErrorExSeverity.INFO);
 			
 			if (e1 && e2)
 				repairedState = ValidateAndRepairStateFinder(gunCondition, e1, e2, state);
@@ -79,5 +79,21 @@ modded class WeaponFSM
 		}
 		
 		return false;
+	}
+
+	void Expansion_ValidateAndRepair()
+	{
+		WeaponStableState state = WeaponStableState.Cast(m_State);				
+		if (state && state.IsRepairEnabled())
+		{		
+			Weapon_Base weapon = state.m_weapon;
+
+			if (Internal_ValidateAndRepair())
+				ErrorEx(string.Format("Repaired state of %1 (owner %2)", weapon, weapon.GetHierarchyRootPlayer()), ErrorExSeverity.INFO);
+		#ifdef DIAG_DEVELOPER
+			else
+				ErrorEx(string.Format("Validated state of %1 (owner %2)", weapon, weapon.GetHierarchyRootPlayer()), ErrorExSeverity.INFO);
+		#endif
+		}
 	}
 }
