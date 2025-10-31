@@ -81,7 +81,7 @@ class eAIRoadNetwork
 	void DS_Create(vector position, float radius)
 	{
 		#ifndef SERVER
-		array<PathNode> visited();
+		array<ExpansionPathNode> visited();
 		for (int i = 0; i < m_Roads.Count(); i++)
 		{
 			if (visited.Find(m_Roads[i]) != -1) continue;
@@ -122,8 +122,8 @@ class eAIRoadNetwork
 			m_DebugShapes.Insert(Shape.CreateSphere(0xFF00FFFF, ShapeFlags.VISIBLE | ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Sections[i].m_Position + "0 0.5 0", 0.5));
 			m_DebugShapes.Insert(Shape.CreateSphere(0xFFFFFFFF, ShapeFlags.NOCULL | ShapeFlags.TRANSP | ShapeFlags.NOZWRITE | ShapeFlags.DOUBLESIDE | ShapeFlags.WIREFRAME, m_Sections[i].m_Position, m_Sections[i].m_Radius));
 
-			PathNode s = m_Sections[i].m_Head;
-			PathNode e = m_Sections[i].m_Tail;
+			ExpansionPathNode s = m_Sections[i].m_Head;
+			ExpansionPathNode e = m_Sections[i].m_Tail;
 			
 			vector points[2];
 			points[0] = s.m_Position + "0 0.1 0";
@@ -136,7 +136,7 @@ class eAIRoadNetwork
 	void DS_SectionEndsCreate(vector position, float radius)
 	{
 		#ifndef SERVER
-		array<PathNode> visited();
+		array<ExpansionPathNode> visited();
 		for (int i = 0; i < m_SectionEnds.Count(); i++)
 		{
 			if (visited.Find(m_SectionEnds[i]) != -1) continue;
@@ -384,8 +384,8 @@ class eAIRoadNetwork
 		float minDistBest;
 		float connectionRadius;
 		
-		PathNode nodeA;
-		PathNode nodeB;
+		ExpansionPathNode nodeA;
+		ExpansionPathNode nodeB;
 
 		//if (false)
 		{
@@ -501,8 +501,8 @@ class eAIRoadNetwork
 				float distA;
 				float distB;
 	
-				PathNode temp_nodeA;
-				PathNode temp_nodeB;
+				ExpansionPathNode temp_nodeA;
+				ExpansionPathNode temp_nodeB;
 
 				for (j = 0; j < m_Roads.Count(); j++)
 				{

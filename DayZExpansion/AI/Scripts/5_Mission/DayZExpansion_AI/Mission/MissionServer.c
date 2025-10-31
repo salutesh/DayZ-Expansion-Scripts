@@ -15,6 +15,10 @@
  **/
 modded class MissionServer
 {	
+#ifdef EXTRACE_DIAG
+	bool m_eAI_PlayerConnected;
+#endif
+
 	// ------------------------------------------------------------
 	// MissionServer Constructor
 	// ------------------------------------------------------------
@@ -37,6 +41,16 @@ modded class MissionServer
 	override void InvokeOnConnect(PlayerBase player, PlayerIdentity identity)
 	{
 		super.InvokeOnConnect(player, identity);
+
+	#ifdef EXTRACE_DIAG
+		m_eAI_PlayerConnected = true;
+	#endif
+
+		//! Get players. Vanilla does this in TickScheduler (which we override),
+		//! but it's more efficient to do it only when player count actually changes.
+		//! We don't use this array, this is just to avoid potential compat issues
+		//! with 3rd party mods that may expect it to be filled
+		eAI_GetPlayers();
 
 		eAIDynamicPatrol.LoadBalancing_Schedule();
 
@@ -115,5 +129,21 @@ modded class MissionServer
 			eAIGroup.SaveAllPersistentGroups();
 
 		eAIDynamicPatrol.LoadBalancing_Schedule();
+	}
+
+#ifdef EXTRACE_DIAG
+	override void TickScheduler(float timeslice)
+	{
+		EXTrace trace;
+		if (m_eAI_PlayerConnected)
+			trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "TickScheduler");
+
+		super.TickScheduler(timeslice);
+	}
+#endif
+
+	override void eAI_GetPlayers()
+	{
+		GetGame().GetWorld().GetPlayerList(m_Players);
 	}
 };

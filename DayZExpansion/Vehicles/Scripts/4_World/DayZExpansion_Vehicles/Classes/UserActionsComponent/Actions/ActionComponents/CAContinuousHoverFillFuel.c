@@ -1,4 +1,4 @@
-class CAContinuousHoverFillFuel : CAContinuousBase
+class CAContinuousExpansionHoverFillFuel : CAContinuousBase
 {
 	protected float 				m_SpentQuantity;
 	protected float 				m_SpentQuantity_total;
@@ -9,7 +9,7 @@ class CAContinuousHoverFillFuel : CAContinuousBase
 	protected float 				m_DefaultTimeStep;
 	protected ref Param1<float>		m_SpentUnits;
 	
-	void CAContinuousHoverFillFuel( float quantity_used_per_second, float time_to_progress )
+	void CAContinuousExpansionHoverFillFuel( float quantity_used_per_second, float time_to_progress )
 	{
 		m_QuantityUsedPerSecond = quantity_used_per_second;
 		m_DefaultTimeStep = time_to_progress;

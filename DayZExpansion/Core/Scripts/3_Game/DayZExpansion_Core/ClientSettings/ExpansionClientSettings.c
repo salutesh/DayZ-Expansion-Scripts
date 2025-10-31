@@ -1053,7 +1053,7 @@ class ExpansionClientSettings
 		NotificationLeave = true;
 
 		StreamerMode = false;
-		ShowPINCode = true;
+		ShowPINCode = false;
 		AutoOpenLockMenuAfterPlacing = false;
 
 		EnableLiquidTypeColors = true;
@@ -1139,13 +1139,6 @@ class ExpansionClientSettings
 
 		//! Option to toggle light shadows
 		CreateToggle( "CastLightShadows", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS_DESC" );
-		//! Client side view distance of the terrain
-	#ifdef DAYZ_1_25
-		//! Only show the sliders for 1.25, 1.26 vanilla has its own viewdistance settings
-		CreateSlider( "ViewDistance", "#STR_EXPANSION_SETTINGS_CLIENT_VIEWDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VIEWDISTANCE_DESC", 0, 3600, 100 );
-		//! Client side view distance of the objects and vegetation
-		CreateSlider( "ObjectViewDistance", "#STR_EXPANSION_SETTINGS_CLIENT_OBJECTVIEWDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_OBJECTVIEWDISTANCE_DESC", 0, 3600, 100 );
-	#endif
 	#ifdef EXPANSIONMODNAVIGATION
 		CreateCategory( "3DMapMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D" );
 

@@ -52,9 +52,7 @@ class ExpansionVehicle
 
 	static ExpansionVehicle Get(IEntity entity, bool errorOnFailure = false, bool includeAttached = false)
 	{
-	#ifndef DAYZ_1_25
 		BoatScript bs;
-	#endif
 		CarScript cs;
 		//HelicopterScript hs;
 	#ifdef EXPANSIONMODVEHICLE
@@ -64,10 +62,8 @@ class ExpansionVehicle
 
 		if (Class.CastTo(cs, entity))
 			return cs.GetExpansionVehicle();
-	#ifndef DAYZ_1_25
 		else if (Class.CastTo(bs, entity))
 			return bs.GetExpansionVehicle();
-	#endif
 		//else if (Class.CastTo(hs, entity))
 			//return new ExpansionVehicleT<HelicopterScript>(hs);
 	#ifdef EXPANSIONMODVEHICLE
@@ -178,12 +174,10 @@ class ExpansionVehicle
 		return null;
 	}
 
-#ifndef DAYZ_1_25
 	BoatScript GetBoat()
 	{
 		return BoatScript.Cast(GetEntity());
 	}
-#endif
 
 	CarScript GetCar()
 	{
@@ -1033,10 +1027,8 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	override void FillFluids(float relativeAmount = 1.0)
 	{
 		typename fluidEnum = CarFluid;
-	#ifndef DAYZ_1_25
 		if (GetBoat())
 			fluidEnum = BoatFluid;
-	#endif
 		int fluid;
 		for (int i = 0; i < EnumTools.GetEnumSize(fluidEnum); i++)
 		{
@@ -1048,10 +1040,8 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	override void CloneFluidsTo(ExpansionVehicle dst)
 	{
 		typename fluidEnum = CarFluid;
-	#ifndef DAYZ_1_25
 		if (GetBoat())
 			fluidEnum = BoatFluid;
-	#endif
 		int fluid;
 		for (int i = 0; i < EnumTools.GetEnumSize(fluidEnum); i++)
 		{
@@ -1063,10 +1053,8 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	override void LeakFluids()
 	{
 		typename fluidEnum = CarFluid;
-	#ifndef DAYZ_1_25
 		if (GetBoat())
 			fluidEnum = BoatFluid;
-	#endif
 		int fluid;
 		for (int i = 0; i < EnumTools.GetEnumSize(fluidEnum); i++)
 		{
@@ -1088,10 +1076,8 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	override void WriteFluidsTo(ParamsWriteContext ctx)
 	{
 		typename fluidEnum = CarFluid;
-	#ifndef DAYZ_1_25
 		if (GetBoat())
 			fluidEnum = BoatFluid;
-	#endif
 		int fluidCount = EnumTools.GetEnumSize(fluidEnum);
 		ctx.Write(fluidCount);
 		for (int i = 0; i < fluidCount; i++)
@@ -1105,10 +1091,8 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 		int fluid;
 		float fluidFraction;
 		typename fluidEnum = CarFluid;
-	#ifndef DAYZ_1_25
 		if (GetBoat())
 			fluidEnum = BoatFluid;
-	#endif
 		int fluidEnumSize = EnumTools.GetEnumSize(fluidEnum);
 		int fluidCount;
 
@@ -1325,21 +1309,7 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 			return players;
 
 		//! Attached players
-	#ifdef DAYZ_1_25
-		IEntity child = m_Vehicle.GetChildren();
-		while (child)
-		{
-			crew = Human.Cast(child);
-
-			child = child.GetSibling();
-
-			if (!crew)
-				continue;
-
-			if (!playersOnly || crew.GetIdentity())
-				players.Insert(crew);
-		}
-	#else
+		//! TODO: this is fairly inefficient
 		auto node = PlayerBase.s_Expansion_AllPlayers.m_Head;
 		while (node)
 		{
@@ -1353,17 +1323,14 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 			if (!playersOnly || crew.GetIdentity())
 				players.Insert(crew);
 		}
-	#endif
 
 		return players;
 	}
 
 	override void ForceCrewGetOut()
 	{
-	#ifndef DAYZ_1_27
 		//! TODO/FIXME ForceCrewGetOut doesn't work under DayZ 1.28 or newer
 		return;
-	#endif
 
 		auto crew = GetCrew(false, false);
 		foreach (auto member: crew)

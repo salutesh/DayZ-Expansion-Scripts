@@ -40,19 +40,8 @@ modded class MissionGameplay
 	{
 		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-		#ifndef DAYZ_1_26
-		//! 1.27+
-		if (!m_Hud.Expansion_CanShowHUDElements(player))
-		#else
-		InventoryMenu inventoryMenu;
-		if (viewMenu || (menu && !Class.CastTo(inventoryMenu, menu)) || m_Hud.IsHideHudPlayer())
-		#endif
-		{
-			m_ExpansionHardlineHUD.ShowHud(false);
-		}
-		else
-		{
-			m_ExpansionHardlineHUD.ShowHud(true);
-		}
+	#ifdef EXPANSION_HUD_VISIBILITY
+		m_ExpansionHardlineHUD.ShowHud(m_Hud.Expansion_IsVisible());
+	#endif
 	}
 };

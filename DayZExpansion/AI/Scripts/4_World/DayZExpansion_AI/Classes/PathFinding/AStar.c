@@ -1,4 +1,4 @@
-class AStar<Class NodeType>
+class ExpansionAStar<Class NodeType>
 {
 	static float Heuristic(vector a, vector b)
 	{

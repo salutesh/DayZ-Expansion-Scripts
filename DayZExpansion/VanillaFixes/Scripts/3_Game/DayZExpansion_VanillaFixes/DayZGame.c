@@ -20,12 +20,7 @@ modded class DayZGame
 
 	void Expansion_RestoreRespawnTimeScreen()
 	{
-	#ifndef DAYZ_1_27
-		//! 1.28+
 		if ((!m_LoginTimeScreen || m_LoginTimeScreen.IsClosing()) && m_LoginTime > 0)
-	#else
-		if (!m_LoginTimeScreen && m_LoginTime > 0)
-	#endif
 		{
 			if (m_LoginTimeScreen)
 			{

@@ -311,7 +311,22 @@ class eAIDamageHandler
 				}
 
 				if (player.IsAI())
+				{
 					damageMultiplier *= player.m_eAI_DamageReceivedMultiplier;
+
+					switch (dmgZone)
+					{
+						case "Brain":
+							//! Any damage to brain is certain death, HP don't matter
+							if (player.m_eAI_HeadshotResistance > 0)
+								return false;
+							break;
+
+						case "Head":
+							damageMultiplier *= (1.0 - player.m_eAI_HeadshotResistance);
+							break;
+					}
+				}
 			}
 
 			if (sourcePlayer)

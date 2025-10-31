@@ -7,7 +7,10 @@ class eAIDynamicPatrol : eAIPatrol
 	static ref ExpansionAIPatrolLoadBalancing s_LoadBalancingGlobal;
 	static bool s_LoadBalancing_IsScheduled;
 
+	static ref map<string, ref array<ref ExpansionPrefab>> s_LootDropsOnDeath = new map<string, ref array<ref ExpansionPrefab>>;
+
 	ref ExpansionAIDynamicSpawnBase m_Config;
+	ref array<ref ExpansionPrefab> m_LootDropOnDeath;
 	ref ExpansionAIPatrolLoadBalancing m_LoadBalancing;
 	ref ExpansionAIPatrolLoadBalancingTracker m_PatrolCountTracker;
 	vector m_Position;
@@ -156,7 +159,7 @@ class eAIDynamicPatrol : eAIPatrol
 		else
 			m_DespawnTime = config.DespawnTime;
 
-		if (config.MinDistRadius <= 0)
+		if (config.MinDistRadius < 0)
 			m_MinimumRadius = s_AIPatrolSettings.MinDistRadius;
 		else
 			m_MinimumRadius = config.MinDistRadius;
@@ -225,6 +228,31 @@ class eAIDynamicPatrol : eAIPatrol
 			SetUnits(config.Units);
 
 		m_CanSpawn = true;
+
+		if (config.LootDropOnDeath)
+		{
+			ExpansionString path = EXPANSION_AI_LOOTDROPS_FOLDER + config.LootDropOnDeath;
+
+			if (!path.EndsWithIgnoreCase(".json"))
+				path += ".json";
+
+			if (!s_LootDropsOnDeath.Find(path, m_LootDropOnDeath))
+			{
+				string errorMsg;
+				if (!JsonFileLoader<array<ref ExpansionPrefab>>.LoadFile(path, m_LootDropOnDeath, errorMsg))
+				{
+					EXError.Error(this, string.Format("Couldn't load LootDropOnDeath '%1': %2", path, errorMsg), {});
+				}
+				else
+				{
+					foreach (ExpansionPrefab lootDropOnDeath: m_LootDropOnDeath)
+						lootDropOnDeath.m_Name = config.LootDropOnDeath;
+
+					s_LootDropsOnDeath[path] = m_LootDropOnDeath;
+				}
+
+			}
+		}
 
 		if (autoStart) Start();
 
@@ -335,8 +363,10 @@ class eAIDynamicPatrol : eAIPatrol
 		ai.eAI_SetNoiseInvestigationDistanceLimit(m_NoiseInvestigationDistanceLimit);
 		ai.eAI_SetDamageMultiplier(m_DamageMultiplier);
 		ai.eAI_SetDamageReceivedMultiplier(m_DamageReceivedMultiplier);
+		ai.m_eAI_HeadshotResistance = m_Config.HeadshotResistance;
 		ai.eAI_SetSniperProneDistanceThreshold(m_Config.SniperProneDistanceThreshold);
 		ai.eAI_SetLootingBehavior(m_Config.GetLootingBehaviour());
+		ai.m_eAI_LootDropOnDeath = m_LootDropOnDeath;
 	}
 
 	bool WasGroupDestroyed()
@@ -726,6 +756,21 @@ class eAIDynamicPatrol : eAIPatrol
 	{
 		s_PatrolCount += delta;
 		Log("Global patrol count: " + s_PatrolCount);
+
+		array<eAIBase> all = eAIBase.eAI_GetAll();
+		int aliveCount;
+		int deceasedCount;
+		foreach (eAIBase ai: all)
+		{
+			if (ai.IsSetForDeletion())
+				continue;
+
+			if (ai.IsDamageDestroyed())
+				deceasedCount += 1;
+			else
+				aliveCount += 1;
+		}
+		Log(string.Format("Global Expansion AI count: %1 alive, %2 deceased", aliveCount, deceasedCount));
 
 		if (m_PatrolCountTracker && (!s_LoadBalancingGlobal || m_PatrolCountTracker != s_LoadBalancingGlobal.m_PatrolCountTracker))
 		{

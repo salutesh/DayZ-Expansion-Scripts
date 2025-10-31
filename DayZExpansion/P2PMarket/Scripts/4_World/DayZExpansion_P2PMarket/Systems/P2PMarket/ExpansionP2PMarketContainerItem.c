@@ -61,7 +61,8 @@ class ExpansionP2PMarketContainerItem: ExpansionP2PMarketListingBase
 	
 	void OnSendBasic(ParamsWriteContext ctx)
 	{
-		ctx.Write(m_ClassName);
+		OnSendClassName(ctx);
+
 		ctx.Write(m_Quantity);
 		ctx.Write(m_SkinIndex);
 		ctx.Write(m_QuantityType);
@@ -84,7 +85,7 @@ class ExpansionP2PMarketContainerItem: ExpansionP2PMarketListingBase
 	
 	bool OnRecieveBasic(ParamsReadContext ctx)
 	{
-		if (!ctx.Read(m_ClassName))
+		if (!OnReceiveClassName(ctx))
 			return false;
 		
 		if (!ctx.Read(m_Quantity))

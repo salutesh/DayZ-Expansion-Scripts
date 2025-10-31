@@ -67,15 +67,9 @@ class ExpansionMarketHelmets: ExpansionMarketCategory
 
 		AddItem("ssh68helmet", 	990, 	1650,	1,100);
 
-		#ifndef DAYZ_1_25
 		AddItem("ballistichelmet_un", 	1060, 	1770,	1,100,null,{"BallisticHelmet_Black","BallisticHelmet_Green","BallisticHelmet_BDU","BallisticHelmet_Desert","BallisticHelmet_Woodland","BallisticHelmet_Navy","BallisticHelmet_Winter"});
-		#else
-		AddItem("ballistichelmet_un", 	1060, 	1770,	1,100,null,{"BallisticHelmet_Black","BallisticHelmet_Green","BallisticHelmet_BDU","BallisticHelmet_Desert","BallisticHelmet_Woodland"});
-		#endif
-		#ifndef DAYZ_1_25
 		AddItem("ballistichelmet_navy", 	145, 	240,	1,100);
 		AddItem("ballistichelmet_winter", 	1080, 	1800,	1,100);
-		#endif
 
 		//! 1.21+
 		AddItem("chainmail_coif", 	355, 	595,	1,100);

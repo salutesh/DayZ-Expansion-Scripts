@@ -332,7 +332,7 @@ class eAICommandMove: ExpansionHumanCommand
 			return;
 
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI, this, "PreAnimUpdate");
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, m_Unit, "CommandHandler(15) -> eAICommandMove::PreAnimUpdate ");
 #endif
 
 		super.PreAnimUpdate(pDt);
@@ -561,7 +561,8 @@ class eAICommandMove: ExpansionHumanCommand
 			isBusy = true;
 
 		//! Try and avoid obstacles if we are moving and not busy with other actions
-		if (m_MovementSpeed && !isBusy)
+		float cdt = m_Unit.m_eAI_CommandHandlerDT;
+		if (m_MovementSpeed && !isBusy && cdt >= 0.12)
 		{
 			vector leftPos;
 			vector rightPos;
@@ -627,7 +628,7 @@ class eAICommandMove: ExpansionHumanCommand
 				speedThreshold *= (1.0 - m_Unit.m_InjuryHandler.GetInjuryAnimValue() * 0.9);
 			}
 			if (velocity.LengthSq() < speedThreshold && !m_Unit.GetActionManager().GetRunningAction() && !m_Unit.IsRaised() && !m_Unit.m_eAI_IsOnLadder)
-				m_Unit.m_eAI_PositionTime += pDt;  //! We don't seem to be actually moving
+				m_Unit.m_eAI_PositionTime += cdt;  //! We don't seem to be actually moving
 			else
 				m_Unit.m_eAI_PositionTime = 0;
 
@@ -673,7 +674,7 @@ class eAICommandMove: ExpansionHumanCommand
 					checkDir = position + 0.5 * fb;
 				}
 
-				blockedForward = this.Raycast(position, checkDir, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed, 0.5, true, m_BlockingObject, true);
+				blockedForward = this.Raycast(position, checkDir, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed * 1.7, 0.3, true, m_BlockingObject, true);
 
 				if (!blockedForward && m_Unit.m_eAI_PositionTime > 4.0)
 					blockedForward = true;
@@ -692,13 +693,48 @@ class eAICommandMove: ExpansionHumanCommand
 				}
 			}
 
+			if (!m_BlockingObject)
+			{
+				m_IsBlockedByBuildingWithDoor = false;
+				m_IsBlockedByBuildingWithLadder = false;
+			}
+			else if (m_BlockingObject != m_PrevBlockingObject)
+			{
+				m_IsBlockedByBuildingWithDoor = false;
+				m_IsBlockedByBuildingWithLadder = false;
+
+				BuildingBase building;
+				if (Class.CastTo(building, m_BlockingObject))
+				{
+					if (building.GetDoorCount() > 0)
+						m_IsBlockedByBuildingWithDoor = true;
+
+					if (!m_Unit.m_eAI_Ladder && building.Expansion_GetLaddersCount() > 0 && !m_Unit.eAI_IsExcludedBuildingWithLadder(building))
+					{
+						if (m_Unit.m_eAI_BuildingWithLadder != building)
+						{
+						#ifdef DIAG_DEVELOPER
+							msg = "Bumped into building with ladder " + building.GetType();
+							EXTrace.Print(EXTrace.AI, this, msg);
+							ExpansionStatic.MessageNearPlayers(m_Unit.m_ExTransformPlayer[3], 100, m_Unit.ToString() + " " + msg);
+						#endif
+
+							m_Unit.m_eAI_BuildingWithLadder = building;
+							m_Unit.m_eAI_LadderLoops = 0;
+						}
+
+						m_IsBlockedByBuildingWithLadder = true;
+					}
+				}
+			}
+
 			bool blockedFwdOrBwd;
 			//! https://feedback.bistudio.com/T173348
 			if (blockedForward || blockedBackward)
 			{
 				blockedFwdOrBwd = true;
 				if (m_LastBlocked)
-					m_Unit.m_eAI_BlockedTime += pDt;
+					m_Unit.m_eAI_BlockedTime += cdt;
 			}
 			else
 			{
@@ -1078,10 +1114,10 @@ class eAICommandMove: ExpansionHumanCommand
 					break;
 			}
 
-			//! Limit speed to jog when moving bwd, avoiding obstacles, going downhill, altitude is dangerous or surface is deep enough under water for swimming
+			//! Limit speed to jog when avoiding obstacles, going downhill, altitude is dangerous or surface is deep enough under water for swimming
 			if (speedLimit > 2)
 			{
-				if (Math.AbsFloat(m_MovementDirection) > 90 || m_OverrideMovementTimeout > 0 || (!m_Unit.IsSwimming() && (ExpansionMath.RelAngle(m_PathAngles[1]) < -25.0 || isDangerousAltitude || (!m_PathFinding.m_IsSwimmingEnabled && m_Unit.m_eAI_SurfaceY < g_Game.SurfaceGetSeaLevel() - 1.5))))
+				if (m_OverrideMovementTimeout > 0 || (!m_Unit.IsSwimming() && (ExpansionMath.RelAngle(m_PathAngles[1]) < -25.0 || isDangerousAltitude || (!m_PathFinding.m_IsSwimmingEnabled && m_Unit.m_eAI_SurfaceY < g_Game.SurfaceGetSeaLevel() - 1.5))))
 					speedLimit = 2;
 			}
 		}
@@ -1091,8 +1127,13 @@ class eAICommandMove: ExpansionHumanCommand
 		else
 			m_WaypointDistance2DSq = 0.0;
 
+		HumanCommandMove move = m_Unit.GetCommand_Move();
+
 		if (m_MovementSpeed != 0)
 		{
+			if (move)
+				m_MinFinal = move.GetCurrentMovementSpeed() * 0.1;
+
 			if (ShouldRecalculateTurnTarget())
 			{
 				//! Turn to waypoint while moving
@@ -1129,13 +1170,20 @@ class eAICommandMove: ExpansionHumanCommand
 
 		m_Turn = orientation[0];
 
+		eAITarget target = m_Unit.GetTarget();
+		PlayerBase targetPlayer;
+		eAIGroup targetGroup;
+
+		if (target && Class.CastTo(targetPlayer, target.GetEntity()))
+			targetGroup = targetPlayer.GetGroup();
+
 		if (m_OverrideMovementTimeout > 0)
 		{
 			m_TargetMovementDirection = m_OverrideTargetMovementDirection;
 			m_ForceMovementDirection = true;
 		}
-		//! Turn towards aim direction when raised but keep moving in waypoint direction (strafe/backpedal if necessary)
-		else if (m_MovementSpeed > 0 && m_Unit.IsRaised() && m_WaypointDistance2DSq > 0.0001)
+		//! Turn towards aim direction when raised or target is not part of our group but keep moving in waypoint direction (strafe/backpedal if necessary)
+		else if (m_MovementSpeed > 0 && (m_Unit.IsRaised() || !targetGroup || targetGroup != group) && m_WaypointDistance2DSq > 0.0001)
 		{
 			vector aimDir = m_Unit.GetAimDirection();
 			float aimAngle = aimDir.VectorToAngles()[0];
@@ -1374,16 +1422,13 @@ class eAICommandMove: ExpansionHumanCommand
 			}
 			else
 			{
-				if (Math.AbsFloat(m_TargetMovementDirection) > 90)
-					targetSpeed = 2.0;  //! Can't sprint backwards
-				else
-					targetSpeed = 3.0;
+				targetSpeed = 3.0;
 			}
 
 			if (m_MovementSpeed > speedLimit && speedLimit >= 0)
 				targetSpeed = speedLimit;
 
-			if (targetSpeed > m_MovementSpeed)
+			if (targetSpeed > 1 && targetSpeed > m_MovementSpeed)
 				SetTargetSpeed(Math.Lerp(m_MovementSpeed, targetSpeed, pDt * 2.0));
 			else
 				m_TargetSpeed = targetSpeed;
@@ -1393,22 +1438,13 @@ class eAICommandMove: ExpansionHumanCommand
 			if (m_MovementSpeed > speedLimit && speedLimit >= 0)
 				m_TargetSpeed = speedLimit;
 
-			if (m_TargetSpeed > m_MovementSpeed)
+			if (m_TargetSpeed > 1 && m_TargetSpeed > m_MovementSpeed)
 				SetTargetSpeed(Math.Lerp(m_MovementSpeed, m_TargetSpeed, pDt * 2.0));
 		}
 
 		DBGDrawSphere(waypoint, 0.05, 0xFF00FF00);
 		//DBGDrawLine(position, waypoint, 0xFF00FF00);
 		//m_Unit.Expansion_DebugObject_Deferred(CORRECTED_WAYPOINT, waypoint, "ExpansionDebugBox");
-
-		float dirChangeSpeed = pDt;
-		if (m_ForceMovementDirection)
-		{
-			if (m_TargetMovementDirection == 0)
-				dirChangeSpeed *= 8;
-			else
-				dirChangeSpeed *= 4;
-		}
 
 		if (m_Unit.m_eAI_IsOnLadder)
 		{
@@ -1447,7 +1483,7 @@ class eAICommandMove: ExpansionHumanCommand
 			}
 			else
 			{
-				m_MovementDirection += ExpansionMath.AngleDiff2(m_MovementDirection, m_TargetMovementDirection) * dirChangeSpeed;
+				m_MovementDirection += ExpansionMath.AngleDiff2(m_MovementDirection, m_TargetMovementDirection);
 				m_MovementDirection = Math.Clamp(m_MovementDirection, -180.0, 180.0);
 			}
 		}
@@ -1497,7 +1533,6 @@ class eAICommandMove: ExpansionHumanCommand
 
 			//m_Table.SetStance(m_Unit, m_Stance);
 
-			HumanCommandMove move = m_Unit.GetCommand_Move();
 			if (move)
 				move.ForceStance(m_Stance);
 
@@ -1506,7 +1541,7 @@ class eAICommandMove: ExpansionHumanCommand
 			m_ForceStance = false;
 		}
 
-		if (!IsChangingStance() && !isBusy && !m_Unit.IsSwimming() && !m_Unit.GetEmoteManager().IsEmotePlaying() && !m_Unit.m_eAI_IsOnLadder)
+		if (!IsChangingStance() && !isBusy && !m_Unit.IsSwimming() && !m_Unit.GetEmoteManager().IsEmotePlaying() && !m_Unit.m_eAI_IsOnLadder && cdt >= 0.12)
 		{
 			//! Head position standing 1.6m, crouched 1m, prone 0.3m
 			//! + 0.2m = full character height (not including gear)
@@ -1604,9 +1639,7 @@ class eAICommandMove: ExpansionHumanCommand
 			if (!tacticalLean && m_Unit.m_eAI_MemeLevel && m_Unit.GetThreatToSelf() > 0.15)
 			{
 				//! If a friendly player leans, we lean
-				eAITarget target = m_Unit.GetTarget();
-				PlayerBase targetPlayer;
-				if (target && Class.CastTo(targetPlayer, target.GetEntity()) && (m_Unit.m_eAI_Meme || Math.AbsFloat(targetPlayer.m_MovementState.m_fLeaning) > 0.5))
+				if (targetPlayer && (m_Unit.m_eAI_Meme || Math.AbsFloat(targetPlayer.m_MovementState.m_fLeaning) > 0.5))
 				{
 					eAIFaction faction = group.GetFaction();
 					if (faction.IsObserver())
@@ -1615,7 +1648,6 @@ class eAICommandMove: ExpansionHumanCommand
 					}
 					else
 					{
-						eAIGroup targetGroup = targetPlayer.GetGroup();
 						if (targetGroup)
 						{
 							if (group == targetGroup)
@@ -1833,15 +1865,21 @@ class eAICommandMove: ExpansionHumanCommand
 		vector endPos = endRV + CHECK_MIN_HEIGHT;
 		bool hit;
 
-		m_IsBlockedByBuildingWithDoor = false;
-		m_IsBlockedByBuildingWithLadder = false;
-
 		//! 1st raycast specifically for trees
 		int contactComponent;
 		set<Object> results();
 		//m_Unit.Expansion_DebugObject(2099, endPos, "ExpansionDebugSphereSmall_Purple", dir, begPos);
 		if (DayZPhysics.RaycastRV(begPos, endPos, hitPosition, hitNormal, contactComponent, results, null, m_Unit, false, false, ObjIntersectGeom, radiusRV))
 		{
+			float distSq;
+			float farDistSqThresh;
+
+			if (updatePathIfTreeClose)
+			{
+				distSq = vector.DistanceSq(start, hitPosition);
+				farDistSqThresh = vector.DistanceSq(start, endRV) * 0.444444;
+			}
+
 			foreach (Object obj: results)
 			{
 				if (obj.IsTree())
@@ -1851,7 +1889,50 @@ class eAICommandMove: ExpansionHumanCommand
 					if (obj != m_PrevBlockingObject)
 					{
 						if (updatePathIfTreeClose && vector.DistanceSq(m_Waypoint, hitPosition) < 16.0)
+						{
 							m_UpdatePath = true;
+							m_PathFinding.m_SuppressRecalculate = false;
+						}
+
+						if (distSq > farDistSqThresh)
+						{
+							if (!m_UpdatePath && obj != m_Unit.m_eAI_CurrentCoverObject)
+							{
+								//! In case we move towards a tree, move path point to left or right side of tree
+
+								blockingObject = obj;
+
+								hitPosition[1] = hitPosition[1] - CHECK_MIN_HEIGHT[1];
+								vector position = obj.GetPosition();
+								position[1] = hitPosition[1];
+								position = start + vector.Direction(start, position).Normalized() * Math.Sqrt(distSq);
+
+								vector pathDir = m_PathFinding.m_PathSegmentDirection.Normalized();
+								vector side = pathDir.Perpend();
+
+								vector waypoint;
+
+								if (ExpansionMath.Side(start, position, hitPosition) > 0)
+									waypoint = hitPosition + pathDir * 0.5 + side * 1.25;  //! left
+								else
+									waypoint = hitPosition + pathDir * 0.5 - side * 1.25;  //! right
+							
+								if (m_PathFinding.m_AIWorld.SampleNavmeshPosition(waypoint, 0.5, m_PathFinding.m_AllFilter, waypoint))
+								{
+									m_PathFinding.m_Points.InsertAt(waypoint, m_PathFinding.m_PointIdx);
+									++m_PathFinding.m_Count;
+									m_PathFinding.m_Next0.Position = waypoint;
+									m_PathFinding.m_SuppressRecalculate = true;
+								}
+
+							#ifdef DIAG_DEVELOPER
+								m_Unit.Expansion_DebugObject(99999, position, "ExpansionDebugCone_Red");
+								m_Unit.Expansion_DebugObject(999991, waypoint, "ExpansionDebugCone");
+							#endif
+							}
+
+							return false;
+						}
 
 						m_Unit.Expansion_DebugObject(2100, begPos - dir * radiusRV, "ExpansionDebugSphereSmall_Cyan", dir);
 						m_Unit.Expansion_DebugObject(2101, begPos + dir.Perpend() * radiusRV, "ExpansionDebugSphereSmall_Cyan", dir);
@@ -1864,8 +1945,16 @@ class eAICommandMove: ExpansionHumanCommand
 
 						//ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, m_Unit.ToString() + " mov block " + obj);
 					}
+					else if (distSq > farDistSqThresh)
+					{
+						return false;
+					}
 
 					blockingObject = obj;
+				}
+				else if (distSq > farDistSqThresh)
+				{
+					return false;
 				}
 				else if (obj.IsDayZCreature())
 				{
@@ -1878,29 +1967,7 @@ class eAICommandMove: ExpansionHumanCommand
 				}
 				else if (obj.IsBuilding())
 				{
-					BuildingBase building;
-					if (Class.CastTo(building, obj))
-					{
-						if (building.GetDoorCount() > 0)
-							m_IsBlockedByBuildingWithDoor = true;
-
-						if (!m_Unit.m_eAI_Ladder && building.Expansion_GetLaddersCount() > 0 && !m_Unit.eAI_IsExcludedBuildingWithLadder(building))
-						{
-							if (m_Unit.m_eAI_BuildingWithLadder != building)
-							{
-							#ifdef DIAG_DEVELOPER
-								string msg = "Bumped into building with ladder " + building.GetType();
-								EXTrace.Print(EXTrace.AI, this, msg);
-								ExpansionStatic.MessageNearPlayers(m_Unit.m_ExTransformPlayer[3], 100, m_Unit.ToString() + " " + msg);
-							#endif
-
-								m_Unit.m_eAI_BuildingWithLadder = building;
-								m_Unit.m_eAI_LadderLoops = 0;
-							}
-
-							m_IsBlockedByBuildingWithLadder = true;
-						}
-					}
+					blockingObject = obj;
 				}
 				else if (obj.IsPlainObject())
 				{
@@ -1919,7 +1986,7 @@ class eAICommandMove: ExpansionHumanCommand
 			IEntity hitEntity;
 			Object hitObject;
 		//#ifdef EXTRACE_DIAG
-			//trace = EXTrace.Profile(EXTrace.AI, this, "Raycast CollisionMoveTest");
+			//trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "Raycast CollisionMoveTest");
 		//#endif
 			//! @note CollisionMoveTest is around 1.5x slower than SphereCastBullet (below), it deals better with more corner cases (ymmv)
 			//! although has a few issues of its own (steep stairs tend to be detected as colliding even though AI could run up no problem).
@@ -1983,7 +2050,7 @@ class eAICommandMove: ExpansionHumanCommand
 			if (includeAI)
 				hit_mask |= PhxInteractionLayers.CHARACTER | PhxInteractionLayers.AI;
 		#ifdef EXTRACE_DIAG
-			trace = EXTrace.Profile(EXTrace.AI, this, "Raycast SphereCastBullet");
+			trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "Raycast SphereCastBullet");
 		#endif
 			hit = DayZPhysics.SphereCastBullet(start + dir * 0.125 + CHECK_MIN_HEIGHT_BULLET, end + CHECK_MIN_HEIGHT_BULLET, 0.25, hit_mask, m_Unit, hitObject, hitPosition, hitNormal, hitFraction);
 		#ifdef EXTRACE_DIAG

@@ -104,6 +104,9 @@ class ExpansionMarketMenuColors: ExpansionColorSettingsBase
 	string ColorCategoryCorners;
 	string ColorCategoryBackground;
 
+	string ColorPlayerStock;
+	string ColorRequirementsNotMet;
+
 	override void Update()
 	{
 		super.Update();
@@ -216,5 +219,11 @@ class ExpansionMarketMenuColors: ExpansionColorSettingsBase
 			
 		if (!Get("ColorCategoryBackground"))	
 			Set("ColorCategoryBackground", ARGB(255, 34, 37, 38));						//! Expansion gray 
+
+		if (!Get("ColorPlayerStock"))
+			Set("ColorPlayerStock", ARGB(255, 41, 128, 185));						//! Expansion blue
+
+		if (!Get("ColorRequirementsNotMet"))
+			Set("ColorRequirementsNotMet", ARGB(255, 235, 70, 53));						//! Expansion red 4
 	}
 }

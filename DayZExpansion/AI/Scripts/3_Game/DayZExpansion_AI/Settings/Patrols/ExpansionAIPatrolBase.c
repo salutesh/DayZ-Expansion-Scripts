@@ -26,6 +26,7 @@ class ExpansionAISpawnBase
 	string Speed;                       // See eAIMovementSpeed
 	string UnderThreatSpeed;            // 
 	bool CanBeLooted;                   // if enabled, the bots can be looted by the players
+	string LootDropOnDeath;            // Loot to drop when AI dies (file name)
 	int UnlimitedReload;               // should bots be able to reload indefinitely (still needs spare mag in inventory!)
 	float SniperProneDistanceThreshold;
 	float AccuracyMin;
@@ -34,6 +35,7 @@ class ExpansionAISpawnBase
 	float NoiseInvestigationDistanceLimit;
 	float DamageMultiplier;
 	float DamageReceivedMultiplier;
+	float HeadshotResistance;
 
 	[NonSerialized()]
 	string m_BaseName;

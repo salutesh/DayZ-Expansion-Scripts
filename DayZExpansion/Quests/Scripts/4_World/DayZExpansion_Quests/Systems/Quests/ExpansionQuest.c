@@ -1212,7 +1212,7 @@ class ExpansionQuest
 		while (remainingAmount > 0)
 		{
 			int remainingAmountBefore = remainingAmount;
-			Object obj = ExpansionItemSpawnHelper.SpawnOnParent(questItem.GetClassName(), player, parent, remainingAmount, 10);
+			Object obj = ExpansionItemSpawnHelper.SpawnOnParent(questItem.GetClassName(), player, parent, remainingAmount);
 			if (!obj)
 			{
 				Error("Error: Couldn't spawn " + questItem.GetClassName());

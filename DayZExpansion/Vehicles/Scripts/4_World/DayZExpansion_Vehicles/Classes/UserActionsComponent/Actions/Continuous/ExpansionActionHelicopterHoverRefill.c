@@ -17,7 +17,7 @@ class ExpansionActionHelicopterHoverRefillCB : ActionContinuousBaseCB
 {
 	override void CreateActionComponent()
 	{
-		m_ActionData.m_ActionComponent = new CAContinuousHoverFillFuel(UAQuantityConsumed.FUEL, 0.5);
+		m_ActionData.m_ActionComponent = new CAContinuousExpansionHoverFillFuel(UAQuantityConsumed.FUEL, 0.5);
 	}
 }
 

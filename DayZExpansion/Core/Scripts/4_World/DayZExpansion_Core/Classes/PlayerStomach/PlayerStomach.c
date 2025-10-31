@@ -14,9 +14,7 @@ modded class PlayerStomach
 			ctx.Write(write_result);
 			ctx.Write(stomach_item.m_Agents);
 
-		#ifndef DAYZ_1_25
 			ctx.Write((int) stomach_item.GetTemperature());
-		#endif
 		}
 	}
 	
@@ -51,12 +49,7 @@ modded class PlayerStomach
 				int food_mask = Math.Pow(2, id_bit_offset) - 1;
 				int food_stage = value & food_mask;
 				string classname = GetClassnameFromID(id);
-			#ifdef DAYZ_1_25
-				AddToStomach(classname, amount, food_stage, agents);
-			#else
-				//! 1.26+
 				AddToStomach(classname, amount, food_stage, agents, temperature);
-			#endif
 			}
 		}
 

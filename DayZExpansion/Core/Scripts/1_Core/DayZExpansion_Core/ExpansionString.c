@@ -12,7 +12,26 @@
 
 class ExpansionString: string
 {
-	const string ZERO_WIDTH_SPACE = "​"; //! This may look like an empty string, but it is not. It's a zero-width space as UTF-8;
+	static const string ZERO_WIDTH_SPACE = "​"; //! This may look like an empty string, but it is not. It's a zero-width space as UTF-8;
+
+	static const int PERMUTATION_TABLE[256] = {
+		98, 6, 85, 150, 36, 23, 112, 164, 135, 207, 169, 5, 26, 64, 165, 219,
+		61, 20, 68, 89, 130, 63, 52, 102, 24, 229, 132, 245, 80, 216, 195, 115,
+		90, 168, 156, 203, 177, 120, 2, 190, 188, 7, 100, 185, 174, 243, 162, 10,
+		237, 18, 253, 225, 8, 208, 172, 244, 255, 126, 101, 79, 145, 235, 228, 121,
+		123, 251, 67, 250, 161, 0, 107, 97, 241, 111, 181, 82, 249, 33, 69, 55,
+		59, 153, 29, 9, 213, 167, 84, 93, 30, 46, 94, 75, 151, 114, 73, 222,
+		197, 96, 210, 45, 16, 227, 248, 202, 51, 152, 252, 125, 81, 206, 215, 186,
+		39, 158, 178, 187, 131, 136, 1, 49, 50, 17, 141, 91, 47, 129, 60, 99,
+		154, 35, 86, 171, 105, 34, 38, 200, 147, 58, 77, 118, 173, 246, 76, 254,
+		133, 232, 196, 144, 198, 124, 53, 4, 108, 74, 223, 234, 134, 230, 157, 139,
+		189, 205, 199, 128, 176, 19, 211, 236, 127, 192, 231, 70, 233, 88, 146, 44,
+		183, 201, 22, 83, 13, 214, 116, 109, 159, 32, 95, 226, 140, 220, 57, 12,
+		221, 31, 209, 182, 143, 92, 149, 184, 148, 62, 113, 65, 37, 27, 106, 166,
+		3, 14, 204, 72, 21, 41, 56, 66, 28, 193, 40, 217, 25, 54, 179, 117,
+		238, 87, 240, 155, 180, 170, 242, 212, 191, 163, 78, 218, 137, 194, 175, 110,
+		43, 119, 224, 71, 122, 142, 42, 160, 104, 48, 247, 103, 15, 11, 138, 239
+	};
 
 /*
 	protected string value;
@@ -60,35 +79,108 @@ class ExpansionString: string
 		return tmp.DirName();
 	}
 
+	int DJB2Hash()
+	{
+		int hash = 5381;
+
+		for (int i = 0; i < value.Length(); ++i)
+		{
+			hash = ((hash << 5) + hash) + value[i].ToAscii();  //! Equivalent to hash * 33 + value[i].ToAscii()
+		}
+
+		return hash;
+	}
+	
+	static int DJB2Hash(string str)
+	{
+		ExpansionString tmp = str;
+		return tmp.DJB2Hash();
+	}
+
+	int JenkinsHash()
+	{
+		int hash = 0;
+
+		for (int i = 0; i < value.Length(); ++i)
+		{
+			hash += value[i].ToAscii();
+			hash += (hash << 10);
+			hash ^= (hash >> 6);
+		}
+
+		hash += (hash << 3);
+		hash ^= (hash >> 11);
+		hash += (hash << 15);
+
+		return hash;
+	}
+	
+	static int JenkinsHash(string str)
+	{
+		ExpansionString tmp = str;
+		return tmp.JenkinsHash();
+	}
+
+	int PearsonHash8()
+	{
+		int hash = value.Length();  //! Initial value can be anything
+
+		for (int i = 0; i < value.Length(); ++i)
+		{
+			int ascii = value[i].ToAscii();
+			hash = PERMUTATION_TABLE[(hash ^ ascii) & 0xff];
+		}
+
+		return hash;
+	}
+	
+	static int PearsonHash8(string str)
+	{
+		ExpansionString tmp = str;
+		return tmp.PearsonHash8();
+	}
+
 	//! Neat little hash function, good for small datasets (< 64 k)
 	//! https://stackoverflow.com/a/19661491
-	static int Hash16(string str)
+	int Hash16()
 	{
 		int hash;
 
-		for (int i = 0; i < str.Length(); i++)
+		for (int i = 0; i < value.Length(); ++i)
 		{
-			int ch = str[i].Hash() + i;
-			hash += (hash << 5) + ch + (ch << 7);
+			int ascii = value[i].ToAscii() + i;
+			hash += (hash << 5) + ascii + (ascii << 7);
 		}
 
 		return (hash ^ (hash >> 16)) & 0xffff;
 	}
+	
+	static int Hash16(string str)
+	{
+		ExpansionString tmp = str;
+		return tmp.Hash16();
+	}
 
 	//! Like vanilla Hash(), but using different prime (109 instead of 37) for better collision resilience
-	static int BetterHash(string str)
+	int BetterHash()
 	{
 		int hash;
 
-		for (int i = 0; i < str.Length(); i++)
+		for (int i = 0; i < value.Length(); ++i)
 		{
-			int ascii = str[i].Hash();
+			int ascii = value[i].ToAscii();
 			hash = hash * 109 + ascii;
 			if (ascii > 127)
 				hash -= 256;
 		}
 		   
 		return hash;
+	}
+	
+	static int BetterHash(string str)
+	{
+		ExpansionString tmp = str;
+		return tmp.BetterHash();
 	}
 
 	static string CamelCaseToWords(string str, string sep = " ")
@@ -169,6 +261,18 @@ class ExpansionString: string
 		}
 
 		return count;
+	}
+
+	string Reversed()
+	{
+		string result;
+
+		for (int i = value.Length() - 1; i >= 0; --i)
+		{
+			result += value[i];
+		}
+
+		return result;
 	}
 
 	bool StartsWith(string prefix)
@@ -450,6 +554,50 @@ class ExpansionString: string
 		}
 
 		return output;
+	}
+
+	/**
+	 * @brief Find longest common prefix in values
+	 * 
+	 * @param prefix   Starting prefix
+	 * @param values
+	 * @param skipNotFound  If true, skip values where a common prefix was not found (else return empty string)
+	 * 
+	 * @return longest common prefix or empty string
+	 */
+	static string FindLongestCommonPrefix(string prefix, TStringArray values, bool skipNotFound = false)
+	{
+		if (values.Count() == 0)
+			return "";
+
+		bool found;
+
+		foreach (string current: values)
+		{
+			int i = 0;
+
+			while (i < prefix.Length() && i < current.Length() && prefix[i] == current[i])
+				i++;
+
+			if (i == 0)
+			{
+				if (skipNotFound)
+					continue;
+
+				return "";
+			}
+			else
+			{
+				found = true;
+			}
+
+			prefix = prefix.Substring(0, i);
+		}
+
+		if (found)
+			return prefix;
+
+		return "";
 	}
 
 	static int StrCmp(string a, string b)

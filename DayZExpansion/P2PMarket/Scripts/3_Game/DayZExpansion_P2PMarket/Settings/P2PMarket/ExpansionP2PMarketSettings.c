@@ -669,34 +669,14 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 		ExpansionP2PMarketMenuSubCategory sub_Cat_Equipment_Backpacks = new ExpansionP2PMarketMenuSubCategory();
 		sub_Cat_Equipment_Backpacks.SetDisplayName("Backpacks");
 		sub_Cat_Equipment_Backpacks.SetIconPath("set:dayz_inventory image:back");
-#ifdef DAYZ_1_21
-		sub_Cat_Equipment_Backpacks.AddIncluded("ChildBag_ColorBase");
-		sub_Cat_Equipment_Backpacks.AddIncluded("DryBag_ColorBase");
-		sub_Cat_Equipment_Backpacks.AddIncluded("TaloonBag_ColorBase");
-		sub_Cat_Equipment_Backpacks.AddIncluded("SmershBag");
-		sub_Cat_Equipment_Backpacks.AddIncluded("AssaultBag_ColorBase");
-		sub_Cat_Equipment_Backpacks.AddIncluded("HuntingBag");
-		sub_Cat_Equipment_Backpacks.AddIncluded("TortillaBag");
-		sub_Cat_Equipment_Backpacks.AddIncluded("CoyoteBag_ColorBase");
-		sub_Cat_Equipment_Backpacks.AddIncluded("MountainBag_ColorBase");
-		sub_Cat_Equipment_Backpacks.AddIncluded("AliceBag_ColorBase");
-#else
-		//! 1.22+
 		sub_Cat_Equipment_Backpacks.AddIncluded("Backpack_Base");
-#endif
 		cat_Equipment.AddSubCategory(sub_Cat_Equipment_Backpacks);
 
 		//! Equipment - Belts
 		ExpansionP2PMarketMenuSubCategory sub_Cat_Equipment_Belts = new ExpansionP2PMarketMenuSubCategory();
 		sub_Cat_Equipment_Belts.SetDisplayName("Belts");
 		sub_Cat_Equipment_Belts.SetIconPath("set:dayz_inventory image:hips");
-#ifdef DAYZ_1_21
-		sub_Cat_Equipment_Belts.AddIncluded("CivilianBelt");
-		sub_Cat_Equipment_Belts.AddIncluded("MilitaryBelt");
-#else
-		//! 1.22+
 		sub_Cat_Equipment_Belts.AddIncluded("Belt_Base");
-#endif
 		cat_Equipment.AddSubCategory(sub_Cat_Equipment_Belts);
 
 		//! Equipment - Blouses & Suits
@@ -712,25 +692,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 		ExpansionP2PMarketMenuSubCategory sub_Cat_Equipment_BootsAndShoes = new ExpansionP2PMarketMenuSubCategory();
 		sub_Cat_Equipment_BootsAndShoes.SetDisplayName("Boots & Shoes");
 		sub_Cat_Equipment_BootsAndShoes.SetIconPath("set:dayz_inventory image:feet");
-#ifdef DAYZ_1_21
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("AthleticShoes_ColorBase");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("JoggingShoes_ColorBase");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("Sneakers_ColorBase");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("Ballerinas_ColorBase");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("DressShoes_ColorBase");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("HikingBootsLow_ColorBase");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("WorkingBoots_ColorBase");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("HikingBoots_ColorBase");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("CombatBoots_ColorBase");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("JungleBoots_ColorBase");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("Wellies_ColorBase");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("TTSKOBoots");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("MilitaryBoots_ColorBase");
-		sub_Cat_Equipment_BootsAndShoes.AddIncluded("NBCBootsBase");
-#else
-		//! 1.22+
 		sub_Cat_Equipment_BootsAndShoes.AddIncluded("Shoes_Base");
-#endif
 		cat_Equipment.AddSubCategory(sub_Cat_Equipment_BootsAndShoes);
 
 		//! Equipment - Caps
@@ -778,19 +740,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 		ExpansionP2PMarketMenuSubCategory sub_Cat_Equipment_Eyewear = new ExpansionP2PMarketMenuSubCategory();
 		sub_Cat_Equipment_Eyewear.SetDisplayName("Eyewear");
 		sub_Cat_Equipment_Eyewear.SetIconPath("set:dayz_inventory image:eyewear");
-#ifdef DAYZ_1_21
-		sub_Cat_Equipment_Eyewear.AddIncluded("SportGlasses_ColorBase");
-		sub_Cat_Equipment_Eyewear.AddIncluded("ThinFramesGlasses");
-		sub_Cat_Equipment_Eyewear.AddIncluded("ThickFramesGlasses");
-		sub_Cat_Equipment_Eyewear.AddIncluded("DesignerGlasses");
-		sub_Cat_Equipment_Eyewear.AddIncluded("AviatorGlasses");
-		sub_Cat_Equipment_Eyewear.AddIncluded("TacticalGoggles");
-		sub_Cat_Equipment_Eyewear.AddIncluded("NVGHeadstrap");
-		sub_Cat_Equipment_Eyewear.AddIncluded("EyePatch_Improvised");
-#else
-		//! 1.22+
 		sub_Cat_Equipment_Eyewear.AddIncluded("Glasses_Base");
-#endif
 		cat_Equipment.AddSubCategory(sub_Cat_Equipment_Eyewear);
 
 		//! Equipment - Ghillies
@@ -807,16 +757,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 		ExpansionP2PMarketMenuSubCategory sub_Cat_Equipment_Gloves = new ExpansionP2PMarketMenuSubCategory();
 		sub_Cat_Equipment_Gloves.SetDisplayName("Gloves");
 		sub_Cat_Equipment_Gloves.SetIconPath("set:dayz_inventory image:gloves");
-#ifdef DAYZ_1_21
-		sub_Cat_Equipment_Gloves.AddIncluded("SurgicalGloves_ColorBase");
-		sub_Cat_Equipment_Gloves.AddIncluded("WorkingGloves_ColorBase");
-		sub_Cat_Equipment_Gloves.AddIncluded("TacticalGloves_ColorBase");
-		sub_Cat_Equipment_Gloves.AddIncluded("OMNOGloves_ColorBase");
-		sub_Cat_Equipment_Gloves.AddIncluded("NBCGloves_ColorBase");
-#else
-		//! 1.22+
 		sub_Cat_Equipment_Gloves.AddIncluded("Gloves_Base");
-#endif
 		cat_Equipment.AddSubCategory(sub_Cat_Equipment_Gloves);
 
 		//! Equipment - Hats & Hoods
@@ -844,52 +785,14 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 		ExpansionP2PMarketMenuSubCategory sub_Cat_Equipment_Masks = new ExpansionP2PMarketMenuSubCategory();
 		sub_Cat_Equipment_Masks.SetDisplayName("Masks");
 		sub_Cat_Equipment_Masks.SetIconPath("set:dayz_inventory image:mask");
-#ifdef DAYZ_1_21
-		sub_Cat_Equipment_Masks.AddIncluded("SurgicalMask");
-		sub_Cat_Equipment_Masks.AddIncluded("NioshFaceMask");
-		sub_Cat_Equipment_Masks.AddIncluded("HockeyMask");
-		sub_Cat_Equipment_Masks.AddIncluded("BalaclavaMask_ColorBase");
-		sub_Cat_Equipment_Masks.AddIncluded("Balaclava3Holes_ColorBase");
-		sub_Cat_Equipment_Masks.AddIncluded("WeldingMask");
-		sub_Cat_Equipment_Masks.AddIncluded("GasMask");
-		sub_Cat_Equipment_Masks.AddIncluded("GP5GasMask");
-		sub_Cat_Equipment_Masks.AddIncluded("AirborneMask");
-#else
-		//! 1.22+
 		sub_Cat_Equipment_Masks.AddIncluded("Mask_Base");
-#endif
 		cat_Equipment.AddSubCategory(sub_Cat_Equipment_Masks);
 
 		//! Equipment - Pants
 		ExpansionP2PMarketMenuSubCategory sub_Cat_Equipment_Pants = new ExpansionP2PMarketMenuSubCategory();
 		sub_Cat_Equipment_Pants.SetDisplayName("Pants");
 		sub_Cat_Equipment_Pants.SetIconPath("set:dayz_inventory image:legs");
-#ifdef DAYZ_1_21
-		sub_Cat_Equipment_Pants.AddIncluded("MedicalScrubsPants_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("TrackSuitPants_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("PrisonUniformPants");
-		sub_Cat_Equipment_Pants.AddIncluded("Breeches_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("SlacksPants_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("CanvasPantsMidi_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("CanvasPants_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("JumpsuitPants_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("PolicePants");
-		sub_Cat_Equipment_Pants.AddIncluded("ParamedicPants_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("FirefightersPants_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("CargoPants_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("ShortJeans_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("Jeans_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("TTSKOPants");
-		sub_Cat_Equipment_Pants.AddIncluded("BDUPants");
-		sub_Cat_Equipment_Pants.AddIncluded("USMCPants_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("PolicePantsOrel");
-		sub_Cat_Equipment_Pants.AddIncluded("HunterPants_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("GorkaPants_ColorBase");
-		sub_Cat_Equipment_Pants.AddIncluded("NBCPantsBase");
-#else
-		//! 1.22+
 		sub_Cat_Equipment_Pants.AddIncluded("Pants_Base");
-#endif
 		cat_Equipment.AddSubCategory(sub_Cat_Equipment_Pants);
 
 		//! Equipment - Shirts
@@ -921,19 +824,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 		ExpansionP2PMarketMenuSubCategory sub_Cat_Equipment_Vests = new ExpansionP2PMarketMenuSubCategory();
 		sub_Cat_Equipment_Vests.SetDisplayName("Vests");
 		sub_Cat_Equipment_Vests.SetIconPath("set:dayz_inventory image:vest");
-#ifdef DAYZ_1_21
-		sub_Cat_Equipment_Vests.AddIncluded("ReflexVest");
-		sub_Cat_Equipment_Vests.AddIncluded("PoliceVest");
-		sub_Cat_Equipment_Vests.AddIncluded("PressVest_ColorBase");
-		sub_Cat_Equipment_Vests.AddIncluded("UKAssVest_ColorBase");
-		sub_Cat_Equipment_Vests.AddIncluded("SmershVest");
-		sub_Cat_Equipment_Vests.AddIncluded("HighCapacityVest_ColorBase");
-		sub_Cat_Equipment_Vests.AddIncluded("PlateCarrierVest");
-		sub_Cat_Equipment_Vests.AddIncluded("HuntingVest");
-#else
-		//! 1.22+
 		sub_Cat_Equipment_Vests.AddIncluded("Vest_Base");
-#endif
 		cat_Equipment.AddSubCategory(sub_Cat_Equipment_Vests);
 
 		//! Explosives
@@ -1018,22 +909,7 @@ class ExpansionP2PMarketSettings: ExpansionP2PMarketSettingsBase
 		ExpansionP2PMarketMenuSubCategory sub_Cat_Weapons_AR = new ExpansionP2PMarketMenuSubCategory();
 		sub_Cat_Weapons_AR.SetDisplayName("Assault Rifles");
 		sub_Cat_Weapons_AR.SetIconPath("set:dayz_inventory image:pistol");
-#ifdef DAYZ_1_21
-		sub_Cat_Weapons_AR.AddIncluded("FAL_Base");
-		sub_Cat_Weapons_AR.AddIncluded("AKM_Base");
-		sub_Cat_Weapons_AR.AddIncluded("AK74_Base");
-		sub_Cat_Weapons_AR.AddIncluded("M4A1_Base");
-		sub_Cat_Weapons_AR.AddIncluded("M16A2_Base");
-		sub_Cat_Weapons_AR.AddIncluded("Famas_Base");
-		sub_Cat_Weapons_AR.AddIncluded("Aug_Base");
-	#ifdef EXPANSIONMODWEAPONS
-		sub_Cat_Weapons_AR.AddIncluded("Expansion_M16_Base");
-		sub_Cat_Weapons_AR.AddIncluded("Expansion_G36_Base");
-	#endif
-#else
-		//! 1.22+
 		sub_Cat_Weapons_AR.AddIncluded("RifleBoltFree_Base");
-#endif
 		cat_Weapons.AddSubCategory(sub_Cat_Weapons_AR);
 
 		//! Weapons - Pistols

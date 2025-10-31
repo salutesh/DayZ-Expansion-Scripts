@@ -1168,8 +1168,15 @@ class eAIGroup
 		{
 			if (Class.CastTo(ai, member))
 			{
-				if (enable || !ai.IsSwimming())
+				if (enable)
+				{
+					if (!ai.IsRestrained())
+						ai.GetPathFinding().EnableSwimming(enable);
+				}
+				else if (!ai.IsSwimming())
+				{
 					ai.GetPathFinding().EnableSwimming(enable);
+				}
 			}
 		}
 	}

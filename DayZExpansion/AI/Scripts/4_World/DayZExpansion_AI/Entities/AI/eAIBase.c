@@ -80,7 +80,8 @@ class eAIBase: PlayerBase
 
 	// Targeting data
 	private autoptr array<ref eAITarget> m_eAI_Targets;
-	ref eAITarget m_eAI_ItemTargetHistory[4];
+	bool m_eAI_TargetChanged;
+	ref eAITarget m_eAI_ItemTargetHistory[3];
 	typename m_eAI_LastEngagedTargetType;
 	int m_eAI_AcuteDangerTargetCount;
 	int m_eAI_AcuteDangerPlayerTargetCount;
@@ -129,6 +130,8 @@ class eAIBase: PlayerBase
 	// Command handling
 	ref eAICommandMove m_eAI_CommandMove;
 	private int m_eAI_CurrentCommandID;
+	float m_eAI_CommandHandlerDT;
+	float m_eAI_LOSCheckDT;
 	float m_eAI_CommandTime;
 	bool m_eAI_DeathHandled;
 	bool m_eAI_SkipScript;
@@ -252,10 +255,19 @@ class eAIBase: PlayerBase
 	ref array<Weapon_Base> m_eAI_Launchers = {};
 	ref array<ItemBase> m_eAI_MeleeWeapons = {};
 	ref array<ItemBase> m_eAI_Bandages = {};
+	ref array<ItemBase> m_eAI_RepairKits = {};
 	ref array<Magazine> m_eAI_Magazines = {};
+	ref array<ItemBase> m_eAI_Food = {};
+	ref array<ItemBase> m_eAI_ItemsToDrop = {};
 	ItemBase m_eAI_BandageToUse;
+	int m_eAI_MaxFoodCount;
 
 	ref map<typename, Magazine> m_eAI_EvaluatedFirearmTypes = new map<typename, Magazine>;
+
+	int m_eAI_AccessibleCargoSpaceTaken;
+	int m_eAI_AccessibleCargoSpaceTotal;
+
+	ref set<Clothing> m_eAI_CargosToTidy = new set<Clothing>;
 
 #ifdef DIAG_DEVELOPER
 	EntityAI m_eAI_CompareWeapon;
@@ -380,6 +392,8 @@ class eAIBase: PlayerBase
 	
 	ref set<PlayerBase> m_eAI_Spectators = new set<PlayerBase>;
 
+	ref array<ref ExpansionPrefab> m_eAI_LootDropOnDeath;
+
 	void eAIBase()
 	{
 #ifdef EAI_TRACE
@@ -405,11 +419,13 @@ class eAIBase: PlayerBase
 		m_Swimming = new eAIImplementSwimming(this);
 	#endif
 
+/*
 		if (GetGame().IsClient())
 		{
 			m_eAI_ClientUpdateTimer = new Timer(CALL_CATEGORY_SYSTEM);
 			m_eAI_ClientUpdateTimer.Run(1.0 / 30.0, this, "eAI_ClientUpdate", NULL, true);
 		}
+*/
 	}
 
 	static eAIBase Get(int index)
@@ -524,6 +540,43 @@ class eAIBase: PlayerBase
 			s_eAI_LoveSound02_SoundSet = ExpansionSoundSet.Register("Expansion_AI_The_Sound_Of_Love_02_SoundSet");
 	}
 
+	override void OnPlayerLoaded()
+	{
+		if (m_Environment)
+			m_Environment.Init();
+		
+		if (GetGame().IsMultiplayer() || GetGame().IsServer())
+			Expansion_SynchLifespanVisual();
+		
+		if (!GetGame().IsDedicatedServer())
+		{
+			GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdateCorpseStateVisual, 2000, false);
+			m_PlayerSoundEventHandler = new PlayerSoundEventHandler(this);
+			m_ReplaceSoundEventHandler = new ReplaceSoundEventHandler(this);
+		}
+
+		int slotId = InventorySlots.GetSlotIdFromString("Head");
+		m_CharactersHead = Head_Default.Cast(GetInventory().FindPlaceholderForSlot(slotId));
+		CheckHairClippingOnCharacterLoad();
+		UpdateHairSelectionVisibility();
+		PreloadDecayTexture();
+		
+		Weapon_Base wpn = Weapon_Base.Cast(GetItemInHands());
+		if (wpn)
+		{
+			if (GetInstanceType() == DayZPlayerInstanceType.INSTANCETYPE_AI_REMOTE)
+			{
+				wpn.DelayedValidateAndRepair();
+			}
+			else
+			{
+				wpn.ValidateAndRepair();
+			}
+		}
+
+		m_PlayerLoaded = true;
+	}
+
 	static void ReloadAllFSM()
 	{
 		array<eAIBase> ai();
@@ -545,6 +598,12 @@ class eAIBase: PlayerBase
 		{
 			ai1.LoadFSM();
 		}
+	}
+
+	void eAI_ResetPathfinding()
+	{
+		m_PathFinding.ResetUnreachable();
+		m_eAI_LadderLoops = 0;
 	}
 
 	void LoadFSM()
@@ -609,6 +668,11 @@ class eAIBase: PlayerBase
 
 		m_eActionManager = new eAIActionManager(this);
 		m_ActionManager = m_eActionManager;
+
+		s_eAI_TickSchedulerPlayers.Insert(this);
+	#ifdef DIAG_DEVELOPER
+		EXPrint(this, "TickScheduler players +1 count=" + s_eAI_TickSchedulerPlayers.Count());
+	#endif
 	}
 
 	override void DeferredInit()
@@ -1118,6 +1182,16 @@ class eAIBase: PlayerBase
 			m_eAI_MeleeFightLogic.eAI_EndBlock();
 	}
 
+	override void EEHitByRemote(int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos)
+	{
+		if (!g_Game.IsDedicatedServer())
+			super.EEHitByRemote(damageType, source, component, dmgZone, ammo, modelPos);
+	#ifdef DIAG_DEVELOPER
+		else if (m_MeleeFightLogic.IsInBlock())
+			EXError.Warn(this, "EEHitByRemote called on server while in block");
+	#endif
+	}
+
 	override void EEKilled(Object killer)
 	{
 	#ifdef EXTRACE_DIAG
@@ -1134,6 +1208,15 @@ class eAIBase: PlayerBase
 			eAIGroup group = GetGroup();
 			if (group && group.m_Persist && group.m_BaseName)
 				eAI_DeletePersistentFiles();
+		}
+
+		if (m_eAI_LootDropOnDeath)
+		{
+			foreach (ExpansionPrefab lootDropOnDeath: m_eAI_LootDropOnDeath)
+			{
+				if (lootDropOnDeath.CanSpawn())
+					Object obj = lootDropOnDeath.Spawn(ExpansionMath.GetRandomPointInCircle(GetPosition(), 0.5), vector.Zero);
+			}
 		}
 	}
 
@@ -1242,6 +1325,27 @@ class eAIBase: PlayerBase
 		return null;
 	}
 
+	ItemBase eAI_GetRepairKit(EntityAI entity)
+	{
+		foreach (ItemBase repairKit: m_eAI_RepairKits)
+		{
+			if (repairKit && !repairKit.IsDamageDestroyed() && repairKit.Expansion_CanRepair(entity))
+				return repairKit;
+		}
+
+		eAITarget target = GetTarget();
+
+		if (target && target.GetDistanceSq(true) <= 4.0)
+		{
+			EntityAI targetEntity = target.GetEntity();
+			ItemBase item;
+			if (Class.CastTo(item, targetEntity) && item.Expansion_CanRepair(entity))
+				return item;
+		}
+
+		return null;
+	}
+
 	Weapon_Base eAI_GetAnyWeaponToUse(bool requireAmmo = false, bool preferExplosiveAmmo = false)
 	{
 #ifdef EAI_TRACE
@@ -1310,10 +1414,10 @@ class eAIBase: PlayerBase
 	}
 
 	//! Unlike GetMagazineToReload, this can be used to check if there is a mag/ammo for a weapon that is not in hands
-	Magazine eAI_GetMagazineToReload(Weapon_Base weapon)
+	Magazine eAI_GetMagazineToReload(Weapon_Base weapon, bool unlimitedReload = false)
 	{
 #ifdef EXTRACE
-		auto trace = EXTrace.Start(EXTrace.AI, eAIBase, weapon.ToString());
+		auto trace = EXTrace.Start(EXTrace.AI, eAIBase, weapon.ToString(), "unlimitedReload " + unlimitedReload);
 #endif
 		
 		eAIWeaponManager weapon_manager = eAIWeaponManager.Cast(GetWeaponManager());
@@ -1325,8 +1429,6 @@ class eAIBase: PlayerBase
 		Magazine ammo_pile; // ammo pile
 		int last_ammo_pile_count;
 		int ammo_pile_count;
-
-		bool unlimitedReload = eAI_IsTargetUnlimitedReload();
 
 		// Get all magazines in (player) inventory
 		foreach (Magazine magazine: m_eAI_Magazines)
@@ -1376,6 +1478,12 @@ class eAIBase: PlayerBase
 					}
 				}
 			}
+		#ifdef DIAG_DEVELOPER
+			else
+			{
+				EXTrace.Print(EXTrace.AI, this, "eAI_GetMagazineToReload - can not attach/swap/load " + magazine.GetType());
+			}
+		#endif
 		}
 
 		// prioritize magazine
@@ -1406,12 +1514,6 @@ class eAIBase: PlayerBase
 		else
 			EXTrace.Print(EXTrace.AI, this, "eAI_GetMagazineToReload " + ammo_pile + " ammo count " + last_ammo_pile_count);
 #endif
-
-		if (chosen && unlimitedReload)
-		{
-			chosen.ServerSetAmmoMax();
-			chosen.SetSynchDirty();
-		}
 
 		return chosen;
 	}
@@ -1592,6 +1694,16 @@ class eAIBase: PlayerBase
 
 		m_eAI_FallHasLanded = false;
 		m_eAI_FallYVelZeroTime = 0;
+	}
+
+	//! 1.29 CTD fix for Man::GetEntityInHands used by vanilla
+	override ItemBase GetItemInHands()
+	{
+		HumanInventory humanInventory = GetHumanInventory();
+		if (humanInventory)
+			return ItemBase.Cast(humanInventory.GetEntityInHands());
+
+		return null;
 	}
 
 	eAIAimingProfile GetAimingProfile()
@@ -1809,7 +1921,7 @@ class eAIBase: PlayerBase
 
 		TStringArray report = {};
 
-		report.Insert(indent + string.Format("%1", Debug.GetDebugName(this)));
+		report.Insert(indent + string.Format("%1", ExpansionStatic.GetDebugInfo(this)));
 
 		if (indent)
 		{
@@ -1839,7 +1951,7 @@ class eAIBase: PlayerBase
 		report.Insert(indent + string.Format("|- Active visibility enhancers %1", m_Expansion_ActiveVisibilityEnhancers.Count()));
 		foreach (ItemBase visEnh: m_Expansion_ActiveVisibilityEnhancers)
 		{
-			report.Insert(indent + string.Format("|  |- %1 (on %2) %3", Debug.GetDebugName(visEnh), Debug.GetDebugName(visEnh.GetHierarchyParent()), visEnh.eAI_GetNightVisibility()));
+			report.Insert(indent + string.Format("|  |- %1 (on %2) %3", ExpansionStatic.GetDebugInfo(visEnh), ExpansionStatic.GetDebugInfo(visEnh.GetHierarchyParent()), visEnh.eAI_GetNightVisibility()));
 		}
 		if (m_Expansion_ActiveVisibilityEnhancers.Count() > 0)
 			eAI_FixupLastReportEntry(report);
@@ -1874,6 +1986,7 @@ class eAIBase: PlayerBase
 
 		report.Insert(indent + string.Format("|- Accuracy min %1%% max %2%%", ExpansionStatic.FloatToString(m_eAI_AccuracyMin * 100), ExpansionStatic.FloatToString(m_eAI_AccuracyMax * 100)));
 		report.Insert(indent + string.Format("|- Damage in %1%% out %2%%", m_eAI_DamageReceivedMultiplier * 100, m_eAI_DamageMultiplier * 100));
+		report.Insert(indent + string.Format("|- Headshot resistance %1%%", m_eAI_HeadshotResistance * 100));
 		report.Insert(indent + string.Format("|- Threat distance limit %1 m", ExpansionStatic.FloatToString(m_eAI_ThreatDistanceLimit)));
 		report.Insert(indent + string.Format("|- Noise investigation distance limit %1 m", ExpansionStatic.FloatToString(m_eAI_NoiseInvestigationDistanceLimit)));
 		report.Insert(indent + string.Format("|- Sniper prone distance threshold %1 m", ExpansionStatic.FloatToString(m_eAI_SniperProneDistanceThreshold)));
@@ -1890,7 +2003,7 @@ class eAIBase: PlayerBase
 			for (int fovIndex = 0; fovIndex <= fovIndexMax; ++fovIndex)
 			{
 				float fovDist = m_eAI_FOVNear_DistThreshold + fovDistInc * fovIndex;
-				float fovHalfAngleH = eAI_CalculateFOVHalfAngleH(fovDist * fovDist);
+				float fovHalfAngleH = eAI_CalculateFOVHalfAngleH(fovDist);
 				report.Insert(indent + string.Format("|     |- %1    %2",
 													 ExpansionString.JustifyLeft(ExpansionStatic.FormatFloat(fovDist, 3, false, false), 8, " "),
 													 ExpansionStatic.FormatFloat(fovHalfAngleH * 2, 2, false, false)));
@@ -1972,7 +2085,7 @@ class eAIBase: PlayerBase
 
 		if (m_eAI_CurrentCoverObject)
 		{
-			report.Insert(indent + string.Format("|- Current cover object %1", Debug.GetDebugName(m_eAI_CurrentCoverObject)));
+			report.Insert(indent + string.Format("|- Current cover object %1", ExpansionStatic.GetDebugInfo(m_eAI_CurrentCoverObject)));
 			report.Insert(indent + string.Format("|  |- Position %1",
 												 ExpansionStatic.VectorToString(m_eAI_CurrentCoverObject.GetPosition(),
 																				ExpansionVectorToString.Plain)));
@@ -2048,7 +2161,7 @@ class eAIBase: PlayerBase
 				if (Class.CastTo(player, target.GetEntity()) && player.GetIdentity())
 					targetInfo += " " + player.GetIdentity().GetName();
 				else
-					targetInfo += " " + Debug.GetDebugName(target.GetEntity());
+					targetInfo += " " + ExpansionStatic.GetDebugInfo(target.GetEntity());
 
 				if (!target.m_IsTracked)
 					targetInfo += " (untracked)";
@@ -2107,7 +2220,7 @@ class eAIBase: PlayerBase
 				if (targetInfoState)
 				{
 					report.Insert(indent + string.Format("|  |- LOS ray hit position %1", ExpansionStatic.VectorToString(targetInfoState.m_LOSRaycastHitPosition, ExpansionVectorToString.Plain)));
-					report.Insert(indent + string.Format("|  |- LOS ray hit object %1", Debug.GetDebugName(targetInfoState.m_LOSRaycastHitObject)));
+					report.Insert(indent + string.Format("|  |- LOS ray hit object %1", ExpansionStatic.GetDebugInfo(targetInfoState.m_LOSRaycastHitObject)));
 				}
 			#endif
 
@@ -2294,7 +2407,7 @@ class eAIBase: PlayerBase
 
 		string itemName;
 		if (itemInHands)
-			itemName = Debug.GetDebugName(itemInHands);
+			itemName = ExpansionStatic.GetDebugInfo(itemInHands);
 		else
 			itemName = "NONE";
 		report.Insert(indent + string.Format("|- Item in hands %1", itemName));
@@ -2306,7 +2419,7 @@ class eAIBase: PlayerBase
 		report.Insert(indent + string.Format("|- Melee weapons %1", m_eAI_MeleeWeapons.Count()));
 		foreach (ItemBase meleeWeapon: m_eAI_MeleeWeapons)
 		{
-			report.Insert(indent + string.Format("|  |- %1", meleeWeapon.GetType()));
+			report.Insert(indent + string.Format("|  |- %1", ExpansionStatic.GetDebugInfo(meleeWeapon)));
 		}
 		if (m_eAI_MeleeWeapons.Count())
 			eAI_FixupLastReportEntry(report);
@@ -2314,7 +2427,7 @@ class eAIBase: PlayerBase
 		report.Insert(indent + string.Format("|- Firearm types and ammo/mags to reload %1", m_eAI_EvaluatedFirearmTypes.Count()));
 		foreach (typename weaponType, Magazine magToReload: m_eAI_EvaluatedFirearmTypes)
 		{
-			report.Insert(indent + string.Format("|  |- %1 -> %2", weaponType, magToReload));
+			report.Insert(indent + string.Format("|  |- %1 -> %2", weaponType, ExpansionStatic.GetDebugInfo(magToReload)));
 		}
 		if (m_eAI_EvaluatedFirearmTypes.Count())
 			eAI_FixupLastReportEntry(report);
@@ -2322,10 +2435,20 @@ class eAIBase: PlayerBase
 		report.Insert(indent + string.Format("|- Ammo/mags %1", m_eAI_Magazines.Count()));
 		foreach (Magazine candidateMag: m_eAI_Magazines)
 		{
-			report.Insert(indent + string.Format("|  |- %1 (%2/%3)", candidateMag.GetType(), candidateMag.GetAmmoCount(), candidateMag.GetAmmoMax()));
+			report.Insert(indent + string.Format("|  |- %1 (%2/%3)", ExpansionStatic.GetDebugInfo(candidateMag), candidateMag.GetAmmoCount(), candidateMag.GetAmmoMax()));
 		}
 		if (m_eAI_Magazines.Count())
 			eAI_FixupLastReportEntry(report);
+
+		report.Insert(indent + string.Format("|- Food %1/%2", m_eAI_Food.Count(), m_eAI_MaxFoodCount));
+		foreach (ItemBase food: m_eAI_Food)
+		{
+			report.Insert(indent + string.Format(".  |- %1", ExpansionStatic.GetDebugInfo(food)));
+		}
+		if (m_eAI_Food.Count())
+			eAI_FixupLastReportEntry(report);
+
+		report.Insert(indent + string.Format("|- Cargo space taken %1/%2", m_eAI_AccessibleCargoSpaceTaken, m_eAI_AccessibleCargoSpaceTotal));
 
 		array<EntityAI> cargoItems = MiscGameplayFunctions.Expansion_GetCargoItems(this);
 		report.Insert(indent + string.Format("\\- Items in cargo %1", cargoItems.Count()));
@@ -2335,11 +2458,16 @@ class eAIBase: PlayerBase
 		foreach (EntityAI cargoItem: cargoItems)
 		{
 			if (Class.CastTo(mag, cargoItem))
-				report.Insert(indent + string.Format(".  |- %1 (%2/%3)", cargoItem.GetType(), mag.GetAmmoCount(), mag.GetAmmoMax()));
+				report.Insert(indent + string.Format(".  |- %1 (%2/%3)", ExpansionStatic.GetDebugInfo(cargoItem), mag.GetAmmoCount(), mag.GetAmmoMax()));
 			else if (Class.CastTo(cargoItemBase, cargoItem) && cargoItemBase.HasQuantity())
-				report.Insert(indent + string.Format(".  |- %1 (%2/%3)", cargoItem.GetType(), cargoItem.GetQuantity(), cargoItem.GetQuantityMax()));
+			{
+				if (cargoItemBase.Expansion_IsStackable())
+					report.Insert(indent + string.Format(".  |- %1 (%2/%3)", ExpansionStatic.GetDebugInfo(cargoItem), cargoItem.GetQuantity(), cargoItem.GetQuantityMax()));
+				else
+					report.Insert(indent + string.Format(".  |- %1 (%2%%)", ExpansionStatic.GetDebugInfo(cargoItem), cargoItem.GetQuantityNormalized() * 100));
+			}
 			else
-				report.Insert(indent + string.Format(".  |- %1", cargoItem.GetType()));
+				report.Insert(indent + string.Format(".  |- %1", ExpansionStatic.GetDebugInfo(cargoItem)));
 		}
 		if (cargoItems.Count())
 			eAI_FixupLastReportEntry(report);
@@ -2377,7 +2505,7 @@ class eAIBase: PlayerBase
 	{
 		foreach (Weapon_Base weapon: weapons)
 		{
-			report.Insert(indent + string.Format("|- Weapon %1", Debug.GetDebugName(weapon)));
+			report.Insert(indent + string.Format("|- Weapon %1", ExpansionStatic.GetDebugInfo(weapon)));
 
 			int mi = weapon.GetCurrentMuzzle();
 
@@ -2387,17 +2515,19 @@ class eAIBase: PlayerBase
 			int ammoCount = weapon.Expansion_GetMagazineAmmoCount(mi, attachedMag);
 
 			if (attachedMag)
-				report.Insert(indent + string.Format("|  |- Has attached mag %1 (%2/%3)", attachedMag.GetType(), ammoCount, attachedMag.GetAmmoMax()));
+				report.Insert(indent + string.Format("|  |- Has attached mag %1 (%2/%3)", ExpansionStatic.GetDebugInfo(attachedMag), ammoCount, attachedMag.GetAmmoMax()));
 			else if (weapon.GetMagazineTypeCount(mi) > 0)
 				report.Insert(indent + "|  |- Has no attached mag");
 			else if (weapon.HasInternalMagazine(mi))
 				report.Insert(indent + string.Format("|  |- Has internal mag (%1/%2)", ammoCount, weapon.GetInternalMagazineMaxCartridgeCount(mi)));
 
 			Magazine mag = null;
-			if (m_eAI_EvaluatedFirearmTypes.Find(weapon.Type(), mag) && mag && mag != attachedMag && mag.GetAmmoCount() > 0)
-				report.Insert(indent + string.Format("|  \\- Has ammo/mag to reload %1 (%2/%3)", mag.GetType(), mag.GetAmmoCount(), mag.GetAmmoMax()));
-			else
+			if (!m_eAI_EvaluatedFirearmTypes.Find(weapon.Type(), mag))
 				report.Insert(indent + "|  \\- Ammo/mag to reload not evaluated");
+			else if (!mag)
+				report.Insert(indent + "|  \\- Has no ammo/mag to reload");
+			else
+				report.Insert(indent + string.Format("|  \\- Has ammo/mag to reload %1 (%2/%3)", ExpansionStatic.GetDebugInfo(mag), mag.GetAmmoCount(), mag.GetAmmoMax()));
 		}
 	}
 
@@ -2539,7 +2669,7 @@ class eAIBase: PlayerBase
 	void UpdateTargets(float pDt, EntityAI entityInHands = null)
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI, eAIBase, "UpdateTargets");
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(03a) -> UpdateTargets");
 #endif
 
 #ifdef EAI_TRACE
@@ -2697,6 +2827,7 @@ class eAIBase: PlayerBase
 		ItemBase targetItem;
 		Weapon_Base targetWeapon;
 		Magazine mag;
+		Edible_Base food;
 
 		Weapon_Base fireArm;
 		ItemBase itemInHands;
@@ -2798,8 +2929,6 @@ class eAIBase: PlayerBase
 				{
 					//! Check if we're interested in the item
 
-					bool shouldPickup = false;
-
 					if (targetItem.IsWeapon())
 					{
 						if (eAI_CanLootWeapon(targetItem, faction))
@@ -2817,8 +2946,25 @@ class eAIBase: PlayerBase
 								continue;
 							}
 
-							if ((!hasFirearmWithAmmo && targetItem.Expansion_GetDPS() > 0) || (itemInHands && itemInHands.IsWeapon() && (m_eAI_LootingBehavior & eAILootingBehavior.UPGRADE) && eAI_WeaponSelection(itemInHands, targetItem)))
-								shouldPickup = true;
+							if (hasFirearmWithAmmo)
+							{
+								if ((m_eAI_LootingBehavior & eAILootingBehavior.UPGRADE) == 0)
+									continue;
+
+								if (!itemInHands || !itemInHands.IsWeapon())
+									continue;
+
+								if (!eAI_WeaponSelection(itemInHands, targetItem))
+									continue;
+							}
+							else if (targetItem.Expansion_GetDPS() <= 0)
+							{
+								continue;
+							}
+						}
+						else
+						{
+							continue;
 						}
 					}
 					else if (targetItem.Expansion_IsMeleeWeapon())
@@ -2832,8 +2978,24 @@ class eAIBase: PlayerBase
 								continue;
 							}
 
-							if (!hasFirearmWithAmmo && (!hasMeleeWeapon || (itemInHands && itemInHands.Expansion_IsMeleeWeapon() && (m_eAI_LootingBehavior & eAILootingBehavior.UPGRADE) && itemInHands.Expansion_CompareDPS(targetItem) < 0)))
-								shouldPickup = true;
+							if (hasFirearmWithAmmo)
+								continue;
+
+							if (hasMeleeWeapon)
+							{
+								if ((m_eAI_LootingBehavior & eAILootingBehavior.UPGRADE) == 0)
+									continue;
+
+								if (!itemInHands || !itemInHands.Expansion_IsMeleeWeapon())
+									continue;
+
+								if (itemInHands.Expansion_CompareDPS(targetItem) >= 0)
+									continue;
+							}
+						}
+						else
+						{
+							continue;
 						}
 					}
 					else if (targetItem.IsMagazine())
@@ -2846,16 +3008,29 @@ class eAIBase: PlayerBase
 									continue;
 							}
 
-							if (fireArm && Class.CastTo(mag, targetItem) && mag.GetAmmoCount())
-								shouldPickup = true;
+							if (!fireArm || !Class.CastTo(mag, targetItem) || mag.GetAmmoCount() == 0)
+								continue;
+						}
+						else
+						{
+							continue;
 						}
 					}
-					else if (eAI_ShouldPickupBandage(targetItem))
+					else if (targetItem.Expansion_CanBeUsedToBandage())
 					{
-						shouldPickup = true;
+						if (!eAI_ShouldPickupBandage(targetItem))
+							continue;
 					}
-					else if ((m_eAI_LootingBehavior & eAILootingBehavior.CLOTHING) && targetItem.IsClothing())
+					else if (targetItem.IsInherited(WeaponCleaningKit))
 					{
+						if (!entityInHands || !entityInHands.IsWeapon() || m_eAI_RepairKits.Count() > 0)
+							continue;
+					}
+					else if (targetItem.IsClothing())
+					{
+						if ((m_eAI_LootingBehavior & eAILootingBehavior.CLOTHING) == 0)
+							continue;
+
 						//! Ignore hockey mask since it blocks certain helmets from being worn and due to its armor value
 						//! will only be swapped out for a different mask when it's ruined
 						//! (hockey mask is the only vanilla mask with armor)
@@ -2867,15 +3042,15 @@ class eAIBase: PlayerBase
 						ItemBase slotGear;
 						ItemBase currentlyWornGear;
 						int slotID = 0;
-						bool isBack = false;
+						bool isBackOrHips = false;
 
 						foreach (string slot: inventorySlots)
 						{
 							slotID = InventorySlots.GetSlotIdFromString(slot);
 							if (GetInventory().HasAttachmentSlot(slotID))
 							{
-								if (slotID == InventorySlots.BACK)
-									isBack = true;
+								if (slotID == InventorySlots.BACK || slotID == InventorySlots.HIPS)
+									isBackOrHips = true;
 
 								if (!Class.CastTo(slotGear, GetInventory().FindAttachment(slotID)))
 								{
@@ -2899,14 +3074,31 @@ class eAIBase: PlayerBase
 							}
 						}
 
-						if (canWear && eAI_ClothingSelection(currentlyWornGear, targetItem, isBack))
-							shouldPickup = true;
-						else
+						if (!canWear || !eAI_ClothingSelection(currentlyWornGear, targetItem, isBackOrHips))
+						{
 							eAI_ThreatOverride(targetItem, true);  //! Ignore by overriding threat so we don't have to do above checks again
+							continue;
+						}
 					}
+					else if (Class.CastTo(food, targetItem))
+					{
+						if (!eAI_ShouldProcureFood())
+							continue;
 
-					if (!shouldPickup)
+						if (targetItem.IsCorpse() && m_eAI_MeleeWeapons.Count() == 0)
+							continue;
+
+						if (!targetItem.IsFood())
+							continue;
+
+						if (food.GetFoodStage() && food.GetFoodStageType() == FoodStageType.ROTTEN)
+							continue;
+					}
+					else
+					{
+						//! Ignore everything else
 						continue;
+					}
 				}
 			}
 			else if (entity.IsBuilding())
@@ -3120,7 +3312,7 @@ class eAIBase: PlayerBase
 		return false;
 	}
 
-	bool eAI_ClothingSelection(ItemBase currentlyWornGear, ItemBase targetItem, bool isBack = false)
+	bool eAI_ClothingSelection(ItemBase currentlyWornGear, ItemBase targetItem, bool isBackOrHips = false)
 	{
 		if (!currentlyWornGear)
 		{
@@ -3160,8 +3352,14 @@ class eAIBase: PlayerBase
 					tgtCargoSize = tgtCargo.GetWidth() * tgtCargo.GetHeight();
 					if (tgtCargoSize < curCargoSize)
 						return false;
-					else if (isBack && tgtCargoSize > curCargoSize)
+					else if (isBackOrHips && tgtCargoSize > curCargoSize)
 						return true;
+				}
+				else if (isBackOrHips && curCargoSize > 0)
+				{
+					//! Don't allow to swap backpack for item w/o cargo,
+					//! but allow (e.g.) swapping vest w/ cargo for vest with higher protection but no cargo
+					return false;
 				}
 
 				//! Since destroyed clothing provides no protection whatsoever, always prefer target item if same or bigger cargo size,
@@ -3469,7 +3667,7 @@ class eAIBase: PlayerBase
 	void eAI_PrioritizeTargets()
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI, eAIBase, "eAI_PrioritizeTargets");
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(03b) -> eAI_PrioritizeTargets");
 #endif
 
 		//! find the target with the highest threat level, no sorting
@@ -3506,21 +3704,34 @@ class eAIBase: PlayerBase
 		#endif
 		}
 
+		m_eAI_TargetChanged = false;
+
 		if (max_threat_idx > 0)
 		{
 			eAITarget selectedTarget = m_eAI_Targets[max_threat_idx];
 
 			if (selectedTarget.IsItem() && selectedTarget != m_eAI_ItemTargetHistory[0])
 			{
-				m_eAI_ItemTargetHistory[3] = m_eAI_ItemTargetHistory[2];
+				//! Avoid switching between same two item targets in alternating fashion as it can cause AI
+				//! to move between these two items endlessly when it doesn't get close enough for pickup
+				if (selectedTarget == m_eAI_ItemTargetHistory[1] && m_eAI_ItemTargetHistory[0] == m_eAI_ItemTargetHistory[2])
+				{
+				#ifdef DIAG_DEVELOPER
+					EXTrace.Print(EXTrace.AI, this, "selectedTarget = " + selectedTarget);
+					EXTrace.Print(EXTrace.AI, this, "m_eAI_ItemTargetHistory[0] = " + m_eAI_ItemTargetHistory[0]);
+				#endif
+					return;
+				}
+
 				m_eAI_ItemTargetHistory[2] = m_eAI_ItemTargetHistory[1];
 				m_eAI_ItemTargetHistory[1] = m_eAI_ItemTargetHistory[0];
 				m_eAI_ItemTargetHistory[0] = selectedTarget;
 
-				//! Avoid switching between same two item targets in alternating fashion as it can cause AI
-				//! to move between these two items endlessly when it doesn't get close enough for pickup
-				if (selectedTarget == m_eAI_ItemTargetHistory[2] && selectedTarget != m_eAI_ItemTargetHistory[1] && m_eAI_ItemTargetHistory[1] == m_eAI_ItemTargetHistory[3])
-					return;
+			#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.AI, this, "selectedTarget = " + selectedTarget);
+				EXTrace.Print(EXTrace.AI, this, "m_eAI_ItemTargetHistory[1] = " + m_eAI_ItemTargetHistory[1]);
+				EXTrace.Print(EXTrace.AI, this, "m_eAI_ItemTargetHistory[2] = " + m_eAI_ItemTargetHistory[2]);
+			#endif
 			}
 
 			eAITarget previousTarget = m_eAI_Targets[0];
@@ -3530,6 +3741,7 @@ class eAIBase: PlayerBase
 			else if (previousTarget.IsNoise() && !IsUnconscious())
 				m_eAI_NoiseTarget = max_threat_idx;
 			m_eAI_Targets[max_threat_idx] = previousTarget;
+			m_eAI_TargetChanged = true;
 			m_eAI_SyncCurrentTarget = true;
 #ifdef DIAG_DEVELOPER
 			m_eAI_PrintCurrentTarget = true;
@@ -3589,7 +3801,7 @@ class eAIBase: PlayerBase
 	void eAI_OnNoiseEvent(EntityAI source, vector position, float lifetime, eAINoiseParams params, float strengthMultiplier)
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI, this, "eAI_OnNoiseEvent");
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "eAI_OnNoiseEvent");
 #endif
 
 		if (m_eAI_NoiseInvestigationDistanceLimit <= 0)
@@ -3610,11 +3822,11 @@ class eAIBase: PlayerBase
 			if (root == this)
 				return;
 
-			if (m_eAI_CurrentThreatToSelfActive >= 0.4)
+			if (m_eAI_CurrentThreatToSelfActive >= 0.4 && m_eAI_HasLOS)
 			{
 				eAITarget target = GetTarget();
 				if (target && target.GetEntity() == root)
-					return;  //! Already targeting the source entity
+					return;  //! Already targeting the source entity and have line of sight
 			}
 		}
 
@@ -3687,10 +3899,25 @@ class eAIBase: PlayerBase
 
 			m_eAI_NoiseTargetInfo.SetNoiseParams(source, position, strength, lifetime, threatLevel);
 
-			int max_time = lifetime * 1000;
+			//! 2.915452 = 1000 / (speed of sound = 343 m/s)
+			//! avg human reaction time to sound = 170 ms
+			int delay = distance * 2.915452 + 170;
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_AddNoiseTarget, delay, false, threatLevel);
+		}
+
+	#ifdef DIAG_DEVELOPER
+		EXTrace.Print(EXTrace.AI, this, string.Format("::eAI_OnNoiseEvent %1 %2 %3 %4 %5 %6 %7", source, position.ToString(), lifetime, params.m_Strength, strengthMultiplier, params.m_Path, typename.EnumToString(eAINoiseType, params.m_Type)));
+	#endif
+	}
+
+	void eAI_AddNoiseTarget(float threatLevel)
+	{
+		if (threatLevel >= m_eAI_NoiseTargetInfo.GetThreat())
+		{
+			int maxTime = m_eAI_NoiseTargetInfo.GetLifetime() * 1000;
 			bool created;
 
-			eAITarget state = m_eAI_NoiseTargetInfo.AddAI(this, max_time, true, created);
+			eAITarget state = m_eAI_NoiseTargetInfo.AddAI(this, maxTime, true, created);
 
 			if (!created)
 			{
@@ -3698,10 +3925,6 @@ class eAIBase: PlayerBase
 				state.UpdateFoundAtTime();
 			}
 		}
-
-	#ifdef DIAG_DEVELOPER
-		EXTrace.Print(EXTrace.AI, this, string.Format("::eAI_OnNoiseEvent %1 %2 %3 %4 %5 %6 %7", source, position.ToString(), lifetime, params.m_Strength, strengthMultiplier, params.m_Path, typename.EnumToString(eAINoiseType, params.m_Type)));
-	#endif
 	}
 
 	override void OnVariablesSynchronized()
@@ -3849,8 +4072,29 @@ class eAIBase: PlayerBase
 
 	bool eAI_CanEnableSwimming()
 	{
-		if ((((GetCurrentWaterLevel() >= -0.5 || m_eAI_SurfaceY < g_Game.SurfaceGetSeaLevelMin()) && GetThreatToSelf() < 0.2) || m_eAI_EffectArea) && !IsSwimming() && !m_PathFinding.m_IsSwimmingEnabled && (!IsBleeding() || m_eAI_DangerousAreaCount > 0))
+		//! @note order matters! To preserve intent, conditions that return false need to come first,
+		//! then those that return true followed by final return false
+
+		if (IsSwimming())
+			return false;
+
+		if (IsRestrained())
+			return false;
+
+		if (m_PathFinding.m_IsSwimmingEnabled)
+			return false;
+
+		if (IsBleeding() && m_eAI_DangerousAreaCount == 0)
+			return false;
+
+		if (m_eAI_EffectArea)
 			return true;
+
+		if (GetCurrentWaterLevel() >= -0.5 || m_eAI_SurfaceY < g_Game.SurfaceGetSeaLevelMin())
+		{
+			if (GetThreatToSelf() < 0.2)
+				return true;
+		}
 
 		return false;
 	}
@@ -3947,6 +4191,17 @@ class eAIBase: PlayerBase
 		Weapon_Base weapon;
 		if (Class.CastTo(weapon, item))
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(weapon.eAI_SetFireModeAuto);
+
+		if (g_Game.IsServer() && item.IsInherited(RestrainingToolLocked))
+		{
+			if (AI_HANDLEDOORS)
+				m_PathFinding.AllowClosedDoors(false, 0.0);
+
+			if (AI_HANDLEVAULTING)
+				m_PathFinding.SetAllowJumpClimb(false, 0.0);
+
+			m_PathFinding.EnableSwimming(false);
+		}
 	}
 
 	override void EEItemOutOfHands(EntityAI item)
@@ -3961,6 +4216,15 @@ class eAIBase: PlayerBase
 		#ifdef EXPANSION_AI_MELEEDBG_CHATTY
 			ExpansionStatic.MessageNearPlayers(GetPosition(), 100, ToString() + " EEItemOutOfHands " + item + " melee range (fists) " + m_eMeleeCombat.eAI_GetRange());
 		#endif
+		}
+
+		if (g_Game.IsServer() && item.IsInherited(RestrainingToolLocked))
+		{
+			if (AI_HANDLEDOORS)
+				m_PathFinding.AllowClosedDoors(true, 0.0);
+
+			if (AI_HANDLEVAULTING)
+				m_PathFinding.SetAllowJumpClimb(true, 0.0);
 		}
 	}
 
@@ -5478,8 +5742,31 @@ class eAIBase: PlayerBase
 	//! @note INTERNAL USE ONLY
 	void eAI_OnItemDestroyed(ItemBase item)
 	{
-		eAI_RemoveItem(item);
+		EXTrace.Print(EXTrace.AI, this, "eAI_OnItemDestroyed " + item);
+		if (!item.GetInventory().GetCargo())
+		{
+			eAI_RemoveItem(item);
+			m_eAI_ItemsToDrop.Insert(item);
+		}
 	}
+
+	void eAI_OnCargoEnter(EntityAI parent, ItemBase item)
+	{
+	}
+
+	void eAI_OnCargoExit(EntityAI parent, ItemBase item)
+	{
+		if (!parent.GetInventory().IsInCargo())
+		{
+			EXTrace.Print(EXTrace.AI, this, "eAI_OnCargoExit " + parent + " " + item);
+			m_eAI_AccessibleCargoSpaceTaken -= item.Expansion_GetItemSize();
+			m_eAI_MaxFoodCount = Math.Ceil((m_eAI_AccessibleCargoSpaceTotal - m_eAI_AccessibleCargoSpaceTaken) * 0.05);
+		}
+	}
+
+#ifdef DIAG_DEVELOPER
+	bool m_eAI_AccessibleCargoSpaceDbg;
+#endif
 
 	//! @note INTERNAL USE ONLY
 	private void eAI_AddItem(ItemBase item)
@@ -5487,6 +5774,33 @@ class eAIBase: PlayerBase
 		//! @note since call to eAI_AddItem is deferred, we need to do these checks here
 		if (!item || item.GetHierarchyRootPlayer() != this || item.IsDamageDestroyed())
 			return;
+
+		if (item.GetInventory().IsInCargo() && item.GetHierarchyParent().IsClothing() && !item.GetHierarchyParent().GetInventory().IsInCargo())
+		{
+			EXTrace.Print(EXTrace.AI, this, "eAI_AddItem - cargo " + item);
+			m_eAI_AccessibleCargoSpaceTaken += item.Expansion_GetItemSize();
+
+		#ifdef DIAG_DEVELOPER
+			if (m_eAI_AccessibleCargoSpaceTaken > m_eAI_AccessibleCargoSpaceTotal)
+			{
+				vector itemSize = item.ConfigGetVector("itemSize");
+				string warning = string.Format("m_eAI_AccessibleCargoSpaceTaken(%1) > m_eAI_AccessibleCargoSpaceTotal(%2) | item %3 %4x%5 | parent %6 | initialized %7", m_eAI_AccessibleCargoSpaceTaken, m_eAI_AccessibleCargoSpaceTotal, item, itemSize[0], itemSize[1], item.GetHierarchyParent(), IsInitialized().ToString());
+				EXError.Warn(this, warning, {});
+				m_eAI_AccessibleCargoSpaceDbg = true;
+			}
+		#endif
+
+			m_eAI_MaxFoodCount = Math.Ceil((m_eAI_AccessibleCargoSpaceTotal - m_eAI_AccessibleCargoSpaceTaken) * 0.05);
+
+			if (IsInitialized() && m_eAI_MaxFoodCount >= 0)
+			{
+				while (m_eAI_Food.Count() > m_eAI_MaxFoodCount)
+				{
+					m_eAI_ItemsToDrop.Insert(m_eAI_Food[0]);
+					m_eAI_Food.Remove(0);
+				}
+			}
+		}
 
 		Weapon_Base weapon;
 		if (Class.CastTo(weapon, item))
@@ -5522,6 +5836,60 @@ class eAIBase: PlayerBase
 			return;
 		}
 
+		if (item.IsInherited(WeaponCleaningKit))
+		{
+			EXTrace.Print(EXTrace.AI, this, "eAI_AddItem - repair kit " + item);
+			m_eAI_RepairKits.Insert(item);
+			return;
+		}
+
+		Edible_Base food;
+		if (Class.CastTo(food, item) && !item.IsCorpse() && item.IsFood())
+		{
+			EXTrace.Print(EXTrace.AI, this, "eAI_AddItem - food " + item);
+			if (food.GetFoodStage() && food.GetFoodStageType() == FoodStageType.ROTTEN)
+				m_eAI_ItemsToDrop.Insert(item);
+			else
+				m_eAI_Food.Insert(item);
+			return;
+		}
+
+		if (item.IsClothing() && !item.GetInventory().IsInCargo())
+		{
+			int w, h;
+			CargoBase cargo = item.GetInventory().GetCargo();
+			if (cargo)
+			{
+				w = cargo.GetWidth();
+				h = cargo.GetHeight();
+
+			#ifdef DIAG_DEVELOPER
+				if (m_eAI_AccessibleCargoSpaceTaken > m_eAI_AccessibleCargoSpaceTotal || m_eAI_AccessibleCargoSpaceDbg)
+				{
+					string cmp;
+
+					if (m_eAI_AccessibleCargoSpaceTaken > m_eAI_AccessibleCargoSpaceTotal + w * h)
+					{
+						cmp = ">";
+					}
+					else
+					{
+						cmp = "<=";
+						m_eAI_AccessibleCargoSpaceDbg = false;
+					}
+
+					EXError.Warn(this, string.Format("m_eAI_AccessibleCargoSpaceTaken(%1) %2 m_eAI_AccessibleCargoSpaceTotal(%3) | clothing %4 cargo size %5x%6 | initialized %7", m_eAI_AccessibleCargoSpaceTaken, cmp, m_eAI_AccessibleCargoSpaceTotal + w * h, item, w, h, IsInitialized().ToString()), {});
+				}
+			#endif
+
+				m_eAI_AccessibleCargoSpaceTotal += w * h;
+
+				m_eAI_MaxFoodCount = Math.Ceil((m_eAI_AccessibleCargoSpaceTotal - m_eAI_AccessibleCargoSpaceTaken) * 0.05);
+			}
+			EXTrace.Print(EXTrace.AI, this, "eAI_AddItem - clothing " + item + " " + w + "x" + h);
+			return;
+		}
+
 		//! Ammo/magazines
 		Magazine mag;
 		if (Class.CastTo(mag, item) && !item.GetInventory().IsAttachment())
@@ -5544,11 +5912,11 @@ class eAIBase: PlayerBase
 	{
 		//! If mag is detached from weapon and still on player, add to available mags
 		if (parent.IsWeapon() && mag.GetHierarchyRootPlayer() == this && !mag.IsDamageDestroyed())
-			eAI_AddMag(mag);
+			eAI_AddMag(mag, false, false);
 	}
 
 	//! @note INTERNAL USE ONLY
-	private void eAI_AddMag(Magazine mag, bool fillAnyCompatibleMag = false)
+	private void eAI_AddMag(Magazine mag, bool fillAnyCompatibleMag = false, bool forceEvaluateFirearmTypes = true)
 	{
 		EXTrace.Print(EXTrace.AI, this, "eAI_AddMag - " + mag + " " + mag.GetType() + " ammo count " + mag.GetAmmoCount());
 
@@ -5569,13 +5937,22 @@ class eAIBase: PlayerBase
 			m_eAI_Magazines.Insert(mag);
 
 		//! Force re-evaluation of any gun/mag (loot) targets and guns/mags in inventory
-		m_eAI_EvaluatedFirearmTypes.Clear();
+		eAI_EvaluateFirearmTypes(forceEvaluateFirearmTypes);
 	}
 
 	//! @note INTERNAL USE ONLY
 	private void eAI_RemoveItem(ItemBase item)
 	{
 		eAI_RemoveActiveVisibilityEnhancer(item);
+
+		if (item.GetInventory().IsInCargo() && item.GetHierarchyParent().IsClothing() && !item.GetHierarchyParent().GetInventory().IsInCargo())
+		{
+			EXTrace.Print(EXTrace.AI, this, "eAI_RemoveItem - cargo " + item);
+			m_eAI_AccessibleCargoSpaceTaken -= item.Expansion_GetItemSize();
+			m_eAI_MaxFoodCount = Math.Ceil((m_eAI_AccessibleCargoSpaceTotal - m_eAI_AccessibleCargoSpaceTaken) * 0.05);
+		}
+
+		m_eAI_ItemsToDrop.RemoveItemUnOrdered(item);
 
 		Weapon_Base weapon;
 		if (Class.CastTo(weapon, item))
@@ -5609,6 +5986,36 @@ class eAIBase: PlayerBase
 			m_eAI_Bandages.RemoveItem(item);
 			if (item == m_eAI_BandageToUse)
 				m_eAI_BandageToUse = null;
+			return;
+		}
+
+		if (item.IsInherited(WeaponCleaningKit))
+		{
+			EXTrace.Print(EXTrace.AI, this, "eAI_RemoveItem - repair kit " + item);
+			m_eAI_RepairKits.RemoveItem(item);
+			return;
+		}
+
+		Edible_Base food;
+		if (Class.CastTo(food, item) && !item.IsCorpse() && item.IsFood())
+		{
+			EXTrace.Print(EXTrace.AI, this, "eAI_RemoveItem - food " + item);
+			if (!food.GetFoodStage() || food.GetFoodStageType() != FoodStageType.ROTTEN)
+				m_eAI_Food.RemoveItemUnOrdered(item);
+			return;
+		}
+
+		if (item.IsClothing() && !item.GetInventory().IsInCargo())
+		{
+			int w, h;
+			CargoBase cargo = item.GetInventory().GetCargo();
+			if (cargo)
+			{
+				w = cargo.GetWidth();
+				h = cargo.GetHeight();
+				m_eAI_AccessibleCargoSpaceTotal -= w * h;
+			}
+			EXTrace.Print(EXTrace.AI, this, "eAI_RemoveItem - clothing " + item + " " + w + "x" + h);
 			return;
 		}
 
@@ -5656,6 +6063,17 @@ class eAIBase: PlayerBase
 
 		//! Force re-evaluation of any gun (loot) targets/guns in inventory
 		eAI_EvaluateFirearmTypes();
+	}
+
+	void eAI_OnFoodExpired(ItemBase food)
+	{
+		int index = m_eAI_Food.Find(food);
+
+		if (index >= 0)
+		{
+			m_eAI_Food.Remove(index);
+			m_eAI_ItemsToDrop.Insert(food);
+		}
 	}
 
 	float eAI_GetCurrentDPS(Weapon_Base weapon)
@@ -5846,36 +6264,33 @@ class eAIBase: PlayerBase
 		if (!checkMagsInInventory && gun.Expansion_HasAmmo(mag))
 			return true;
 
-		bool found = m_eAI_EvaluatedFirearmTypes.Find(gun.Type(), mag);
+		typename type = gun.Type();
+
+		bool found = m_eAI_EvaluatedFirearmTypes.Find(type, mag);
+
+		bool unlimitedReload;
 
 		if (found && mag)
 		{
 			int ammoCount = mag.GetAmmoCount();
 
-			//! When unlimited reload is on, we need to set ammo max here for already evaluated ammo piles since
-			//! they would be deleted by the game when ammo count reaches zero
-			//! @note checkMagsInInventory should only be true when called from reloading FSM state,
-			//! so we use this to detect when we are reloading
-			if (checkMagsInInventory && mag.IsAmmoPile() && ammoCount < mag.GetAmmoMax() && eAI_IsTargetUnlimitedReload())
-			{
-				mag.ServerSetAmmoMax();
-				mag.SetSynchDirty();
+			unlimitedReload = eAI_IsTargetUnlimitedReload();
 
+			if (ammoCount > 0 || unlimitedReload)
 				return true;
-			}
-			else if (ammoCount > 0)
-			{
-				return true;
-			}
 		}
 
-		if (!found)
+		//! Mag not found or has no ammo and no unlimited reload
+		if (!found || mag)
 		{
-			//! eAI_GetMagazineToReload will only return non-empty mags/ammo. EXPENSIVE, use with care.
-			mag = eAI_GetMagazineToReload(gun);
+			if (!found)
+				unlimitedReload = eAI_IsTargetUnlimitedReload();
 
-			EXTrace.Print(EXTrace.AI, this, "eAI_HasAmmoForFirearm - inserting " + gun.Type() + " " + mag);
-			m_eAI_EvaluatedFirearmTypes[gun.Type()] = mag;
+			//! eAI_GetMagazineToReload will only return non-empty mags/ammo (unless unlimited reload) or null. EXPENSIVE, use with care.
+			mag = eAI_GetMagazineToReload(gun, unlimitedReload);
+
+			EXTrace.Print(EXTrace.AI, this, "eAI_HasAmmoForFirearm - inserting " + type + " " + mag);
+			m_eAI_EvaluatedFirearmTypes[type] = mag;
 
 			return mag != null;
 		}
@@ -5883,13 +6298,13 @@ class eAIBase: PlayerBase
 		return false;
 	}
 
-	void eAI_EvaluateFirearmTypes()
+	void eAI_EvaluateFirearmTypes(bool force = false)
 	{
 		TTypenameArray toRemove();
 
 		foreach (typename type, Magazine mag: m_eAI_EvaluatedFirearmTypes)
 		{
-			if (!mag || mag.GetHierarchyRootPlayer() != this || mag.GetHierarchyParent().IsWeapon())
+			if (force || !mag || mag.GetHierarchyRootPlayer() != this || mag.GetHierarchyParent().IsWeapon())
 				toRemove.Insert(type);
 		}
 
@@ -5897,7 +6312,35 @@ class eAIBase: PlayerBase
 		{
 			EXTrace.Print(EXTrace.AI, this, "eAI_EvaluateFirearmTypes - removing " + removeType + " " + m_eAI_EvaluatedFirearmTypes[removeType]);
 			m_eAI_EvaluatedFirearmTypes.Remove(removeType);
+
+			if (eAI_HasAmmoForFirearmType(m_eAI_Firearms, removeType))
+				continue;
+			if (eAI_HasAmmoForFirearmType(m_eAI_Handguns, removeType))
+				continue;
+			if (eAI_HasAmmoForFirearmType(m_eAI_Launchers, removeType))
+				continue;
 		}
+	}
+
+	bool eAI_HasAmmoForFirearmType(array<Weapon_Base> weapons, typename type)
+	{
+		Magazine mag;
+		foreach (Weapon_Base weapon: weapons)
+		{
+			if (weapon.Type() == type)
+			{
+				if (eAI_HasAmmoForFirearm(weapon, mag, true))
+					return true;
+
+				//! When eAI_HasAmmoForFirearm returns false, it has inserted a NULL mag entry for the weapon type,
+				//! which we need to remove again so the next call to eAI_HasAmmoForFirearm with the same type
+				//! checks mags in inventory
+				m_eAI_EvaluatedFirearmTypes.Remove(type);
+				break;
+			}
+		}
+
+		return false;
 	}
 
 	bool eAI_ShouldPreferExplosiveAmmo()
@@ -5988,6 +6431,10 @@ class eAIBase: PlayerBase
 
 	bool eAI_HandleAiming(float pDt, bool hasLOS = false)
 	{
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(06) -> eAI_HandleAiming");
+	#endif
+
 		auto vehCmd = GetCommand_VehicleAI();
 		if (vehCmd && (vehCmd.IsGettingIn() || vehCmd.IsGettingOut()))
 			return false;
@@ -6109,9 +6556,9 @@ class eAIBase: PlayerBase
 		if (!GetGame())
 			return;
 
-#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI, this, "CommandHandler");
-#endif
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler");
+	#endif
 
 	/*
 		if (GetIdentity())
@@ -6148,7 +6595,15 @@ class eAIBase: PlayerBase
 
 		m_eAI_SkipScript = false;
 
+	#ifdef EXTRACE_DIAG
+		auto trace2 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(02) -> super");
+	#endif
+
 		super.CommandHandler(pDt, pCurrentCommandID, pCurrentCommandFinished);
+
+	#ifdef EXTRACE_DIAG
+		trace2 = null;
+	#endif
 
 		//! @note CommandHandler super may have started different command!
 		//! Use pCurrentCommandID/pCurrentCommandFinished only to check for previous command,
@@ -6190,6 +6645,18 @@ class eAIBase: PlayerBase
 			return;
 		}
 
+	//#ifdef EXTRACE_DIAG
+		//auto trace3 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(03)");
+	//#endif
+
+		if (m_eAI_CommandHandlerDT >= 0.12)
+			m_eAI_CommandHandlerDT = 0;
+		m_eAI_CommandHandlerDT += pDt;
+
+		if (m_eAI_LOSCheckDT >= 0.15)
+			m_eAI_LOSCheckDT = 0;
+		m_eAI_LOSCheckDT += pDt;
+
 		int simulationPrecision = 0;
 
 		GetTransform(m_ExTransformPlayer);
@@ -6216,6 +6683,10 @@ class eAIBase: PlayerBase
 		else
 			m_eAI_HasProjectileWeaponInHands = false;
 
+	//#ifdef EXTRACE_DIAG
+		//trace3 = null;
+	//#endif
+
 		eAITarget previousTarget = m_eAI_Targets[0];
 		UpdateTargets(pDt, entityInHands);
 		if (eAI_RemoveTargets() || m_eAI_UpdateTargetsTick == 0)
@@ -6225,6 +6696,10 @@ class eAIBase: PlayerBase
 
 		bool hadLOS = m_eAI_HasLOS;
 		m_eAI_HasLOS = EnforceLOS();
+
+	//#ifdef EXTRACE_DIAG
+		//auto trace5 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(05)");
+	//#endif
 
 	#ifdef DIAG_DEVELOPER
 		if (!m_eAI_Targets.Count())
@@ -6276,6 +6751,10 @@ class eAIBase: PlayerBase
 			m_eAI_SilentAttackViabilityTime += pDt;  //! Prefer melee if gun not silenced
 		else
 			m_eAI_SilentAttackViabilityTime = 0;
+
+	//#ifdef EXTRACE_DIAG
+		//trace5 = null;
+	//#endif
 
 		if (actualCommandID != DayZPlayerConstants.COMMANDID_LADDER)
 		{
@@ -6330,7 +6809,9 @@ class eAIBase: PlayerBase
 			//}
 		}
 
-		OnScheduledTick(pDt);
+	//#ifdef EXTRACE_DIAG
+		//auto trace10 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(10)");
+	//#endif
 
 		m_eAI_PurgeFiredShotsTick += pDt;
 		if (m_eAI_PurgeFiredShotsTick > 1.0)
@@ -6373,9 +6854,19 @@ class eAIBase: PlayerBase
 		#endif
 		}
 
+	#ifdef EXTRACE_DIAG
+		//trace10 = null;
+		auto trace11 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(11) -> eAIFSM::Update");
+	#endif
+
 		//! Do FSM update only after current command has been running for at least one command handler tick, else initial gun holding will look scuffed
 		if (m_FSM && m_eAI_CommandTime > pDt)
 			m_FSM.Update(pDt, simulationPrecision);
+
+	#ifdef EXTRACE_DIAG
+		trace11 = null;
+		//auto trace12 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(12)");
+	#endif
 
 		if (m_ActionManager)
 		{
@@ -6545,6 +7036,10 @@ class eAIBase: PlayerBase
 
 		m_eAI_CommandMove.SetLookAnglesRel(m_eAI_LookRelAngles[0], m_eAI_LookRelAngles[1]);
 
+	//#ifdef EXTRACE_DIAG
+		//trace12 = null;
+	//#endif
+
 		if (!m_eAI_SkipScript && eAI_IsLocomotionCmd(actualCommandID))
 		{
 			eAICommandMove ecm;
@@ -6657,10 +7152,51 @@ class eAIBase: PlayerBase
 				ecm.SetSpeedLimit(speedLimit);
 				ecm.SetTargetDirection(m_MovementDirection, m_MovementDirectionActive);
 
-				if (ecm.GetCurrentMovementSpeed() > 0 && m_eAI_PositionTime > 3.0 && Expansion_IsAnimationIdle())
+				if (ecm.GetCurrentMovementSpeed() >= 0.5 && m_eAI_PositionTime > 4.98 && Expansion_IsAnimationIdle())
 				{
-					m_eAI_PositionTime = 0;
-					eAI_Unbug("move");
+				#ifdef DIAG_DEVELOPER
+					string pos = ExpansionStatic.VectorToString(playerPosition);
+					string msg = "Movement speed " + ecm.GetCurrentMovementSpeed() + " but not moving for " + m_eAI_PositionTime + " s " + Debug.GetDebugName(this) + " (pos=" + pos + "), item in hands " + ExpansionStatic.GetDebugInfo(GetItemInHands());
+
+					EXPrint(this, msg);
+
+					msg.Replace("<", "‹");
+					msg.Replace(">", "›");
+					ExpansionNotification("NOT MOVING", msg).Error();
+				#endif
+
+					Object blockingObject = m_eAI_CommandMove.GetBlockingObject();
+					if ((blockingObject && !blockingObject.IsPlainObject() && !blockingObject.IsRock()) || m_PathFinding.m_PathGlueIdx != -1)
+					{
+						vector waypoint = m_eAI_CommandMove.GetWaypoint();
+						if (waypoint != playerPosition && waypoint != vector.Zero)
+						{
+							m_eAI_PositionTime = 0;
+							SetPosition(waypoint);  //! OH GOD THE HACKS
+
+						#ifdef DIAG_DEVELOPER
+							pos = ExpansionStatic.VectorToString(waypoint);
+							float dist = vector.Distance(playerPosition, waypoint);
+							msg = "Teleporting " + Debug.GetDebugName(this) + " to " + pos + " (distance " + dist + " m)";
+
+							EXPrint(this, msg);
+
+							msg.Replace("<", "‹");
+							msg.Replace(">", "›");
+							ExpansionNotification("TELEPORTING", msg).Error();
+						#endif
+						}
+						else
+						{
+							m_eAI_PositionTime = 0;
+							eAI_ResetPathfinding();
+						}
+					}
+					else
+					{
+						m_eAI_PositionTime = 0;
+						eAI_ResetPathfinding();
+					}
 				}
 
 				break;
@@ -7011,6 +7547,9 @@ class eAIBase: PlayerBase
 
 		eAITargetInformationState state = target;
 
+		if (m_eAI_LOSCheckDT < 0.15 && !m_eAI_TargetChanged)
+			return state.m_LOS;
+
 		PlayerBase targetPlayer;
 		if (Class.CastTo(targetPlayer, targetEntity) && targetPlayer.Expansion_HasAdminToolInvisibility())
 		{
@@ -7026,6 +7565,10 @@ class eAIBase: PlayerBase
 			state.m_LOS = false;
 			return false;
 		}
+
+#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(04) -> EnforceLOS");
+#endif
 
 		bool isItemTarget = targetEntity.IsItemBase();
 
@@ -7130,7 +7673,7 @@ class eAIBase: PlayerBase
 			//! (regardless if the wall actually has windows or not or if they are closed) due to the wall's firegeo and use of ObjIntersectFire
 			results.Clear();
 			//Expansion_DebugObject_Deferred(1819, contactPos, "ExpansionDebugSphereSmall_Red", contactDir);
-			DayZPhysics.RaycastRV(contactPos, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectFire, radius);
+			DayZPhysics.RaycastRV(contactPos - dir * 0.1, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectFire, radius);
 		}
 
 		//float targetDistSq = vector.DistanceSq(begPos, endPos);
@@ -7308,6 +7851,8 @@ class eAIBase: PlayerBase
 			m_eAI_LeanTarget = -1.0;  //! target is on the right, lean left
 		else
 			m_eAI_LeanTarget = 1.0;  //! target is on the left, lean right
+
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_ResetLeanTarget, Math.RandomInt(1000, 2000), false);
 	}
 
 	void eAI_ResetLeanTarget()
@@ -7606,11 +8151,24 @@ class eAIBase: PlayerBase
 
 	override void OnScheduledTick(float deltaTime)
 	{
+	//#ifdef EXTRACE_DIAG
+		//auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "OnScheduledTick");
+	//#endif
+
 		if (!IsPlayerSelected() || !IsAlive())
 			return;
 
+	#ifdef EXTRACE_DIAG
+		auto trace2 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "OnScheduledTick(2) -> ModifiersManager::OnScheduledTick");
+	#endif
+
 		if (m_ModifiersManager)
 			m_ModifiersManager.OnScheduledTick(deltaTime);
+
+	#ifdef EXTRACE_DIAG
+		trace2 = null;
+	#endif
+
 		//if (m_NotifiersManager)
 			//m_NotifiersManager.OnScheduledTick();
 		//! These send RPC to identity which is NULL for AI and thus affects all actual players HUDs (shows AI values instead of player)
@@ -7618,10 +8176,30 @@ class eAIBase: PlayerBase
 			//m_TrasferValues.OnScheduledTick(deltaTime);
 		// if( m_VirtualHud )
 			//m_VirtualHud.OnScheduledTick();
+
+	//#ifdef EXTRACE_DIAG
+		//auto trace3 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "OnScheduledTick(3) -> BleedingSourcesManagerServer::OnTick");
+	//#endif
+
 		if (GetBleedingManagerServer())
 			GetBleedingManagerServer().OnTick(deltaTime);
-		if ( m_Environment )
+
+	//#ifdef EXTRACE_DIAG
+		//trace3 = null;
+	//#endif
+
+		if (m_Environment)
+		{
+		#ifdef EXTRACE_DIAG
+			auto trace4 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "OnScheduledTick(4) -> Environment::Update");
+		#endif
+
 			m_Environment.Update(deltaTime);
+
+		#ifdef EXTRACE_DIAG
+			trace4 = null;
+		#endif
+		}
 
 		// Check if electric device needs to be unplugged
 		ItemBase heldItem = GetItemInHands();
@@ -7672,6 +8250,14 @@ class eAIBase: PlayerBase
 			int mi = wpn.GetCurrentMuzzle();
 			Magazine currentMag = wpn.GetMagazine(mi);
 			EXTrace.Print(EXTrace.AI, this, "ReloadWeaponAI - wpn " + wpn + " attached mag " + currentMag + " internal mag cartridge count " + wpn.GetInternalMagazineCartridgeCount(mi) + " - reload from " + mag);
+			
+
+			if (mag && mag.GetAmmoCount() < mag.GetAmmoMax() && eAI_IsTargetUnlimitedReload())
+			{
+				mag.ServerSetAmmoMax();
+				mag.SetSynchDirty();
+			}
+
 			if (GetWeaponManager().CanUnjam(wpn))
 			{
 #ifdef EXTRACE
@@ -8121,6 +8707,10 @@ class eAIBase: PlayerBase
 
 	void Expansion_UpdateVisibility(bool force = false)
 	{
+#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "OnScheduledTick(5) -> Expansion_UpdateVisibility");
+#endif
+
 		m_Expansion_DaylightVisibility = m_Environment.Expansion_GetDaylightVisibility();
 
 		m_Environment.Expansion_GetWeatherVisibility(m_eAI_FogVisibility, m_eAI_OvercastVisibility, m_eAI_RainVisibility, m_eAI_SnowVisibility);
@@ -8316,6 +8906,10 @@ class eAIBase: PlayerBase
 
 	void eAI_HandleWeapons(float pDt, Entity pInHands, HumanInputController pInputs, out bool pExitIronSights)
 	{
+#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(08) -> eAI_HandleWeapons");
+#endif
+
 		HumanCommandWeapons hcw = GetCommandModifier_Weapons();
 
 		Weapon_Base weapon;
@@ -8647,7 +9241,12 @@ class eAIBase: PlayerBase
 		m_eAI_IsRestrained = is_restrained;
 
 		if (is_restrained)
+		{
 			m_eAI_IsInventoryVisible = false;
+
+			if (GetEmoteManager().IsEmotePlaying())
+				GetEmoteManager().ServerRequestEmoteCancel();
+		}
 
 		super.SetRestrained(is_restrained);
 
@@ -8794,6 +9393,11 @@ class eAIBase: PlayerBase
 	override vector Expansion_GetAimDirection()
 	{
 		return GetAimDirection();
+	}
+
+	vector Expansion_GetAimDirectionClient()
+	{
+		return super.Expansion_GetAimDirection();
 	}
 
 	override vector GetAimPosition()
@@ -8956,10 +9560,13 @@ class eAIBase: PlayerBase
 	//! - Let AI fall a short distance (unreliable in fixing the bug)
 	void eAI_Unbug(string what)
 	{
-		string msg = "Action timed out for " + Debug.GetDebugName(this) + " while trying to " + what + ", item in hands " + ExpansionStatic.GetDebugInfo(GetItemInHands());
+		string pos = ExpansionStatic.VectorToString(GetPosition());
+		string msg = "Action timed out for " + Debug.GetDebugName(this) + " (pos=" + pos + ") while trying to " + what + ", item in hands " + ExpansionStatic.GetDebugInfo(GetItemInHands());
 		EXTrace.Print(true, this, msg);
 
 #ifdef DIAG_DEVELOPER
+		msg.Replace("<", "‹");
+		msg.Replace(">", "›");
 		ExpansionNotification("ACTION TIMEOUT", msg).Error();
 #endif
 
@@ -8971,7 +9578,8 @@ class eAIBase: PlayerBase
 	{
 		eAI_ResetRaised();
 
-		eAI_DropItemInHandsImpl(false, false, false);
+		if (!IsRestrained())
+			eAI_DropItemInHandsImpl(false, false, false);
 
 		super.OnUnconsciousStart();
 	}
@@ -9008,7 +9616,7 @@ class eAIBase: PlayerBase
 		auto trace = EXTrace.Start(EXTrace.AI, this, "" + item);
 #endif 
 
-		if (!useAction)
+		if (!useAction || item != GetItemInHands())
 			return eAI_DropItemImpl(item, eAI_GetThreatOverride(item), switchOff, remember);
 		else if (StartAction(eAIActionDropItem, null, item))
 			return true;
@@ -9225,13 +9833,10 @@ class eAIBase: PlayerBase
 
 	bool eAI_ShouldPickupBandage(ItemBase item)
 	{
-		if (item.Expansion_CanBeUsedToBandage())
-		{
-			int bandages = m_eAI_Bandages.Count();
+		int bandages = m_eAI_Bandages.Count();
 
-			if ((IsBleeding() && bandages == 0) || (!IsBleeding() && (m_eAI_LootingBehavior & eAILootingBehavior.BANDAGES) && bandages < 3))
-				return true;
-		}
+		if ((IsBleeding() && bandages == 0) || (!IsBleeding() && (m_eAI_LootingBehavior & eAILootingBehavior.BANDAGES) && bandages < 3))
+			return true;
 
 		return false;
 	}
@@ -9243,9 +9848,17 @@ class eAIBase: PlayerBase
 			if ((m_eAI_LootingBehavior & eAILootingBehavior.CLOTHING) == 0)
 				return true;
 
-			if ((m_eAI_LootingBehavior & eAILootingBehavior.BANDAGES) && m_eAI_Bandages.Count() < 3)
+			if ((m_eAI_LootingBehavior & eAILootingBehavior.BANDAGES) && (m_eAI_Bandages.Count() < 3 || item == GetItemInHands()))
 				return true;
 		}
+
+		return false;
+	}
+
+	bool eAI_ShouldProcureFood()
+	{
+		if ((m_eAI_LootingBehavior & eAILootingBehavior.FOOD) && m_eAI_Food.Count() < m_eAI_MaxFoodCount)
+			return true;
 
 		return false;
 	}
@@ -9706,6 +10319,12 @@ class eAIBase: PlayerBase
 		//	return false;
 		//}
 
+		if (IsRestrained())
+			return false;
+
+		if (m_eAI_CommandHandlerDT < 0.12)
+			return false;
+
 		if (!m_PathFinding.m_AllowJumpClimb && !m_PathFinding.m_IsBlockedPhysically)
 			return false;
 
@@ -9722,7 +10341,8 @@ class eAIBase: PlayerBase
 		bool isBlockingVehicle;
 
 		//! Offset is because AI, like players, can just run over small height differences unless walking slowly
-		float offset = 0.3;
+		//! 0.49 instead of 0.5 because of platform2_wall.p3d (e.g. at <1057.06, 157.539, 6692.51> in Camp Metalurg on Chernarus)
+		float offset = 0.49;
 
 		//! Superjanky but allows climbing floating items with collision, e.g. Expansion basebuilding floors,
 		//! while preventing unwanted climbing on other items.
@@ -9763,6 +10383,10 @@ class eAIBase: PlayerBase
 
 		if ((m_eAI_PositionIsFinal && Math.Round(Expansion_GetMovementSpeed()) == 0.0) || !eAI_IsFallSafe(GetDirection() * 2.0, false))
 			return false;
+
+#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(14) -> HandleVaulting");
+#endif
 
 		SHumanCommandClimbSettings hcls = GetDayZPlayerType().CommandClimbSettingsW();
 		
@@ -9884,6 +10508,10 @@ class eAIBase: PlayerBase
 
 		if (climbRes)
 		{
+			//! This should prevent AI from vaulting open doors...
+			if (climbRes.m_bIsClimbOver && climbType >= 1 && !m_PathFinding.m_IsBlocked)
+				return false;
+
 			if (!eAI_CanClimbOn(climbRes.m_GrabPointParent, climbRes))
 				return false;
 			if (!eAI_CanClimbOn(climbRes.m_ClimbStandPointParent, climbRes))
@@ -10201,6 +10829,12 @@ class eAIBase: PlayerBase
 		//if (!m_PathFinding.IsDoor())
 			//return;
 
+		if (IsRestrained())
+			return false;
+
+		if (m_eAI_CommandHandlerDT < 0.12)
+			return false;
+
 		if (m_eAI_PositionIsFinal && Math.Round(hcm.GetCurrentMovementSpeed()) == 0.0)
 			return false;
 
@@ -10231,6 +10865,10 @@ class eAIBase: PlayerBase
 		#endif
 			return false;
 		}
+
+#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(13) -> HandleBuildingDoors");
+#endif
 
 	#ifdef DIAG_DEVELOPER
 		Expansion_DebugObject(22222, p1, "ExpansionDebugSphereSmall_White", direction, position);
@@ -10386,17 +11024,18 @@ class eAIBase: PlayerBase
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_SetHalt, timeTresh * 0.65, false, false);
 			}
 
-			//! Prevent AI getting pushed by opening/closing door by temporarily disabling collision/gravity (EXPERIMENTAL)
+			//! Prevent AI getting pushed by opening/closing door by temporarily disabling collision
 			/*
-			if (dBodyIsActive(this))
+			PhxInteractionLayers layer = dBodyGetInteractionLayer(this);
+			if (layer != PhxInteractionLayers.AI)
 			{
 				if (m_eAI_Halt)
 					inactiveDuration = 1000;
 				else
 					inactiveDuration = ExpansionMath.PowerConversion(1, 3, m_MovementSpeedLimit, 1000, 200, 2.6);
 
-				dBodyActive(this, ActiveState.INACTIVE);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_dBodyActive, inactiveDuration, false, ActiveState.ACTIVE);
+				dBodySetInteractionLayer(this, PhxInteractionLayers.AI);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_dBodySetInteractionLayer, inactiveDuration, false, layer);
 			}
 			*/
 
@@ -10437,9 +11076,9 @@ class eAIBase: PlayerBase
 		m_eAI_Halt = halt;
 	}
 
-	void eAI_dBodyActive(ActiveState activeState)
+	void eAI_dBodySetInteractionLayer(PhxInteractionLayers layer)
 	{
-		dBodyActive(this, activeState);
+		dBodySetInteractionLayer(this, layer);
 	}
 
 	void eAI_UpdateVisitedBuildings()

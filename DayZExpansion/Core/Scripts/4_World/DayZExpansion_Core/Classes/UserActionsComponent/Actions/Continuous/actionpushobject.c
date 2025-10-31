@@ -10,7 +10,6 @@
  *
 */
 
-#ifndef DAYZ_1_25
 modded class ActionPushObject
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
@@ -21,4 +20,3 @@ modded class ActionPushObject
 		return super.ActionCondition( player, target, item );
 	}
 };
-#endif

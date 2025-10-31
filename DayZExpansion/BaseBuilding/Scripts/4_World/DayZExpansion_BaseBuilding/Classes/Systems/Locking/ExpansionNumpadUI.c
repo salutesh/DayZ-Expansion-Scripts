@@ -42,6 +42,9 @@ class ExpansionNumpadUI: ExpansionLockUIBase
 	protected TextWidget m_ButtonClear_Text;
 	
 	protected ImageWidget m_LockStateIcon;
+
+	protected ButtonWidget m_ToggleShowPIN;
+	protected ImageWidget m_ToggleShowPIN_Icon;
 	
 	protected int m_HighlightColor = ARGB(255, 88, 88, 88);
 	protected int m_NormalColor = ARGB(255, 255, 255, 255);
@@ -107,6 +110,16 @@ class ExpansionNumpadUI: ExpansionLockUIBase
 		m_LockStateIcon.LoadImageFile(0, "set:expansion_notification_iconset image:icon_lock_locked");
 		m_LockStateIcon.LoadImageFile(1, "set:expansion_notification_iconset image:icon_lock_unlocked");
 		
+		m_ToggleShowPIN = ButtonWidget.Cast( layoutRoot.FindAnyWidget("ToggleShowPIN") );
+		m_ToggleShowPIN_Icon = ImageWidget.Cast( layoutRoot.FindAnyWidget("ToggleShowPIN_Icon") );
+		m_ToggleShowPIN_Icon.LoadImageFile(1, "set:dayz_gui image:PasswordEyeClose");
+
+		auto settings = GetExpansionClientSettings();
+		if (settings.ShowPINCode)
+			m_ToggleShowPIN_Icon.SetImage(0);
+		else
+			m_ToggleShowPIN_Icon.SetImage(1);
+
 		RefreshCode();
 		ShowLockState();
 		
@@ -189,6 +202,12 @@ class ExpansionNumpadUI: ExpansionLockUIBase
 			
 			return true;
 		}
+		else if ( w == m_ToggleShowPIN )
+		{
+			m_ToggleShowPIN_Icon.SetAlpha(1.0);
+			
+			return true;
+		}
 		
 	 	return false;
 	}
@@ -266,6 +285,12 @@ class ExpansionNumpadUI: ExpansionLockUIBase
 		else if ( w == m_ButtonClear )
 		{
 			m_ButtonClear_Text.SetColor( m_NormalColor );
+			
+			return true;
+		}
+		else if ( w == m_ToggleShowPIN )
+		{
+			m_ToggleShowPIN_Icon.SetAlpha(0.8);
 			
 			return true;
 		}
@@ -372,6 +397,20 @@ class ExpansionNumpadUI: ExpansionLockUIBase
 			SoundOnReset();
 
 			return true;
+		}
+
+		if (w == m_ToggleShowPIN)
+		{
+			auto settings = GetExpansionClientSettings();
+			settings.ShowPINCode = !settings.ShowPINCode;
+
+			if (settings.ShowPINCode)
+				m_ToggleShowPIN_Icon.SetImage(0);
+			else
+				m_ToggleShowPIN_Icon.SetImage(1);
+
+			RefreshCode();
+			SoundOnclick();
 		}
 
 		return false;

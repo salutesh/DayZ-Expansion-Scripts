@@ -53,7 +53,11 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		m_ChatParams = new array<ref ExpansionChatMessage>;
 
 		m_ChatSize = GetExpansionClientSettings().HUDChatSize;
+	#ifdef EXPANSION_CHAT_HISTORY_LIMIT
 		m_ChatHistoryLimit = GetExpansionClientSettings().HUDChatMessagesHistoryLimit;
+	#else
+		m_ChatHistoryLimit = 50;
+	#endif
 		m_MessageTimeTheshold = GetExpansionClientSettings().HUDChatMessageTimeThreshold;
 		m_MessageFadeoutDuration = GetExpansionClientSettings().HUDChatFadeOut;
 
@@ -107,11 +111,17 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		m_MessageFadeoutDuration = settings.HUDChatFadeOut;
 		
 		//! Recreate chat lines if chat font size or history setting changed
+	#ifdef EXPANSION_CHAT_HISTORY_LIMIT
 		if (m_ChatSize == settings.HUDChatSize && m_ChatHistoryLimit == settings.HUDChatMessagesHistoryLimit)
+	#else
+		if (m_ChatSize == settings.HUDChatSize)
+	#endif
 			return;
 
 		m_ChatSize = settings.HUDChatSize;
+	#ifdef EXPANSION_CHAT_HISTORY_LIMIT
 		m_ChatHistoryLimit = settings.HUDChatMessagesHistoryLimit;
+	#endif
 
 		ClearChatLines();
 
@@ -177,6 +187,9 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		message.Text = params.param3;
 		message.SetColorByName(params.param4);
 
+		//! Don't leak password
+		ExpansionGlobalChatModule.s_Instance.RemoveSensitiveInfo(message.Text);
+
 		ExpansionChatMessageEventParams exParams;
 		if (Class.CastTo(exParams, params))
 		{
@@ -233,7 +246,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		if (message.IsMuted)
 			return;
 
-		if (GetExpansionClientSettings().HUDChatToggle)
+		if (GetExpansionClientSettings().HUDChatToggle && GetGame().GetMission().GetHud().Expansion_IsVisible())
 			GetLayoutRoot().Show(true);
 
 		int idx = count - 1;
@@ -440,6 +453,11 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	}
 
 	override void Expansion_Update()
+	{
+		ScrollToBottom();
+	}
+
+	void ScrollToBottom()
 	{
 		//! Scroll new messages into view, but only if chat input is not open
 		//! OR if mouse is not hovering chat area

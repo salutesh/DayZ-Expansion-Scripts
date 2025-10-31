@@ -5,56 +5,33 @@
 		<variable name="weapon" type="Weapon_Base" />
 		<variable name="magazine" type="Magazine" />
 		<variable name="last_attempt_time" type="int" />
-		<variable name="failed_attempts" type="int" />
 	</variables>
 	<states default="Start">
-		<state name="Start">
-			<variables />
+		<state name="Start" class="eAIState_Weapon_Reloading_Start">
 			<editor_data>
 				<position x="561" y="364" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				fsm.last_attempt_time = GetGame().GetTime();
-				
-				unit.OverrideMovementSpeed(false, 0);
+				OnEntryEx(Event, From, fsm.last_attempt_time);
 			</event_entry>
-			<event_exit />
-			<event_update>
-				return EXIT;
-			</event_update>
 		</state>
-		<state name="Reloading" class="ExpansionState_Reloading">
+		<state name="Reloading" class="eAIState_Weapon_Reloading_Reloading">
 			<editor_data>
 				<position x="457.565289256198" y="477.213223140496" />
 				<size width="150" height="40" />
 			</editor_data>
 		</state>
-		<state name="Reloading_Fail">
-			<variables>
-				<variable name="time" type="float" />
-			</variables>
+		<state name="Reloading_Fail" class="eAIState_Weapon_Reloading_Fail">
 			<editor_data>
 				<position x="649.545454545455" y="473.876033057851" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-				unit.RaiseWeapon(false);
-				
-				time = 0;
-			</event_entry>
-			<event_exit />
 			<event_update>
-				time += DeltaTime;
-				
-				// waiting for the weapon to be lowered
-				if (fsm.weapon &amp;&amp; time &lt; 0.5)
-					return CONTINUE;
-				
-				return EXIT;
+				return OnUpdateEx(DeltaTime, SimulationPrecision, fsm.weapon);
 			</event_update>
 		</state>
-		<state name="Removing">
+		<state name="Removing" class="eAIState_Weapon_Reloading_Removing">
 			<variables />
 			<editor_data>
 				<position x="648.925619834711" y="557.735537190083" />
@@ -63,16 +40,7 @@
 			<event_entry />
 			<event_exit />
 			<event_update>
-				if (!fsm.weapon || unit.GetItemInHands() != fsm.weapon)
-					return EXIT;  // remove complete
-				
-				if (unit.GetActionManager().GetRunningAction())
-					return CONTINUE;
-				
-				if (fsm.weapon.IsDamageDestroyed() || !unit.eAI_TakeItemToInventoryDropShoulderImpl(fsm.weapon))
-					unit.eAI_DropItem(fsm.weapon);
-				
-				return CONTINUE;
+				return OnUpdateEx(DeltaTime, SimulationPrecision, fsm.weapon);
 			</event_update>
 		</state>
 	</states>
@@ -83,26 +51,7 @@
 				<position_destination x="532.334805190902" y="477.213223140496" />
 			</editor_data>
 			<guard>
-				if (!fsm.weapon || fsm.weapon.IsDamageDestroyed())
-					return FAIL;
-				
-				if (!fsm.magazine &amp;&amp; !fsm.weapon.Expansion_HasAmmo(fsm.magazine))
-				{
-					if (!unit.eAI_HasAmmoForFirearm(fsm.weapon, fsm.magazine))
-						return FAIL;
-				}
-				
-				#ifdef EXTRACE_DIAG
-				if (!fsm.magazine)
-					EXTrace.Start0(EXTrace.AI, this, "Reloading " + fsm.weapon + " from internal mag");
-				else
-					EXTrace.Start0(EXTrace.AI, this, "Reloading " + fsm.weapon + " from mag " + fsm.magazine);
-				#endif
-				
-				dst.weapon = fsm.weapon;
-				dst.magazine = fsm.magazine;
-				
-				return SUCCESS;
+				return dst.GuardEx(fsm.weapon, fsm.magazine);
 			</guard>
 			<event />
 			<from_state name="Start" />

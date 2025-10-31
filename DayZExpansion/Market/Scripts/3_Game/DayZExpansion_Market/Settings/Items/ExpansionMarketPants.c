@@ -72,9 +72,7 @@ class ExpansionMarketPants: ExpansionMarketCategory
 		//! 1.21+
 		AddItem("chainmail_leggings", 	355, 	595,	1,100);
 		
-		#ifndef DAYZ_1_25
 		AddItem("omkpants_navy", 	145, 	240,	1,100);
 		AddItem("navyuniformpants", 	145, 	240,	1,100);
-		#endif
 	}
 };

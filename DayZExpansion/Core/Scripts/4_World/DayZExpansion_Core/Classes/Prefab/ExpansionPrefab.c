@@ -9,14 +9,16 @@ class ExpansionPrefab : ExpansionPrefabObject
 	[NonSerialized()]
 	string m_Path;
 
-	static ExpansionPrefab Load(string name, bool forceReload = false)
+	static ExpansionPrefab Load(string name, bool forceReload = false, string folder = EXPANSION_LOADOUT_FOLDER)
 	{
 	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.LOADOUTS, ExpansionPrefab);
 	#endif
 
+		string path = GetPath(name, folder);
+
 		ExpansionPrefab prefab;
-		if (s_Prefabs.Find(name, prefab) && !forceReload)
+		if (s_Prefabs.Find(path, prefab) && !forceReload)
 		{
 			return prefab;
 		}
@@ -24,11 +26,11 @@ class ExpansionPrefab : ExpansionPrefabObject
 		if (!prefab)
 		{
 			prefab = new ExpansionPrefab();
-			s_Prefabs.Insert(name, prefab);
+			prefab.m_Name = name;
+			prefab.m_Path = path;
+			Insert(prefab);
 		}
 
-		prefab.m_Name = name;
-		prefab.m_Path = EXPANSION_LOADOUT_FOLDER + name + ".json";
 		if (FileExist(prefab.m_Path))
 		{
 			JsonFileLoader<ExpansionPrefab>.JsonLoadFile(prefab.m_Path, prefab);
@@ -38,14 +40,19 @@ class ExpansionPrefab : ExpansionPrefabObject
 		return null;
 	}
 
+	protected static void Insert(ExpansionPrefab prefab)
+	{
+		s_Prefabs.Insert(prefab.m_Path, prefab);
+	}
+
 	override string GetPath()
 	{
 		return m_Path;
 	}
 
-	static string GetPath(string name)
+	static string GetPath(string name, string folder = EXPANSION_LOADOUT_FOLDER)
 	{
-		return EXPANSION_LOADOUT_FOLDER + name + ".json";
+		return folder + name + ".json";
 	}
 
 	override void Save()
@@ -53,10 +60,17 @@ class ExpansionPrefab : ExpansionPrefabObject
 		JsonFileLoader<ExpansionPrefab>.JsonSaveFile(m_Path, this);
 	}
 
-	Object Spawn(vector position, vector orientation)
+	Object Spawn(vector position, vector orientation = vector.Zero, int rotationFlags = RF_DEFAULT)
 	{
-		Object object = GetGame().CreateObjectEx(ClassName, position, ECE_PLACE_ON_SURFACE);
-		object.SetOrientation(orientation);
+		int flags = ECE_PLACE_ON_SURFACE;
+		if (GetGame().IsKindOf(ClassName, "DZ_LightAI"))
+			flags |= ECE_INITAI;
+
+		Object object = GetGame().CreateObjectEx(ClassName, position, flags, rotationFlags);
+
+		if (orientation != vector.Zero)
+			object.SetOrientation(orientation);
+
 		return Spawn(object);
 	}
 
@@ -65,20 +79,20 @@ class ExpansionPrefab : ExpansionPrefabObject
 		return Spawn(other);
 	}
 
-	static ExpansionPrefabObject Create(string name)
+	static ExpansionPrefabObject Create(string name, string folder = EXPANSION_LOADOUT_FOLDER)
 	{
 		s_Begin.Clear();
 
 		ExpansionPrefab prefab = new ExpansionPrefab();
 
-		prefab.m_Path = GetPath(name);
+		prefab.m_Path = GetPath(name, folder);
 
 		if (prefab.m_Path == string.Empty)
 		{
 			return null;
 		}
 
-		s_Prefabs.Insert(name, prefab);
+		Insert(prefab);
 		return prefab;
 	}
 };

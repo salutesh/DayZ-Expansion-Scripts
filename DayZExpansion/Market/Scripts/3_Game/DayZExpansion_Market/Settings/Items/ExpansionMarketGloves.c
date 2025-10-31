@@ -38,9 +38,7 @@ class ExpansionMarketGloves: ExpansionMarketCategory
 		AddItem("woolgloves_green", 	3905, 	6505,	1,100,null,{"WoolGloves_Black","WoolGloves_Tan","WoolGloves_White","woolgloves_christmasblue","woolgloves_christmasred"});
 		AddItem("woolglovesfingerless_green", 	3970, 	6620,	1,100,null,{"WoolGlovesFingerless_Black","WoolGlovesFingerless_Tan","WoolGlovesFingerless_White","woolglovesfingerless_christmasblue","woolglovesfingerless_christmasred"});
 
-		#ifndef DAYZ_1_25
 		AddItem("skigloves_90s", 	145, 	240,	1,100,null,{"skigloves_blue","skigloves_red"});
-		#endif
 		
 		AddItem("paddedgloves_beige", 	175, 	295,	1,100,null,{"paddedgloves_brown","paddedgloves_threat"});
 		AddItem("paddedgloves_brown", 	280, 	470,	1,100);

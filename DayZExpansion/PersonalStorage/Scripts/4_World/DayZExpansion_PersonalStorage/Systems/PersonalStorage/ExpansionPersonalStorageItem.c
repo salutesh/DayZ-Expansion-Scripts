@@ -252,7 +252,8 @@ class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 		ctx.Write(m_GlobalID);
 
 		ctx.Write(m_OwnerUID);
-		ctx.Write(m_ClassName);
+
+		OnSendClassName(ctx);
 
 		ctx.Write(m_Quantity);
 		ctx.Write(m_QuantityType);
@@ -303,7 +304,7 @@ class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 			return false;
 		}
 
-		if (!ctx.Read(m_ClassName))
+		if (!OnReceiveClassName(ctx))
 		{
 			Error(ToString() + "::OnRecieve - m_ClassName");
 			return false;

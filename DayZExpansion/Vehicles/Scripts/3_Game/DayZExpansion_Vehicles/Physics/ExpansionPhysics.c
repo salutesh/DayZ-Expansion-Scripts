@@ -97,8 +97,8 @@ class ExpansionPhysics
 			vel = vel1;
 		}
 
-		//Matrix3.Transpose(orientation1, orientation1);
-		//Matrix3.Transpose(orientation2, orientation2);
+		//ExpansionMatrix3.Transpose(orientation1, orientation1);
+		//ExpansionMatrix3.Transpose(orientation2, orientation2);
 
 		ExpansionJacobianEntry jac = new ExpansionJacobianEntry(orientation1, orientation2, rel_pos1, rel_pos2, normal, invInertiaDiagLocal1, invMass1, invInertiaDiagLocal2, invMass2);
 
@@ -116,7 +116,7 @@ class ExpansionPhysics
 		return res;
 	}
 
-	static float ComputeImpulseDenominator(vector pos, vector normal, Matrix3 invInertiaWS, float invMass)
+	static float ComputeImpulseDenominator(vector pos, vector normal, ExpansionMatrix3 invInertiaWS, float invMass)
 	{
 		vector c0 = pos * normal;
 

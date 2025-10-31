@@ -44,8 +44,6 @@ modded class IngameHud
 			return false;
 	#endif
 
-	#ifndef DAYZ_1_26
-		//! 1.27+
 		if (!m_HudVisibility)
 			return false;
 
@@ -56,20 +54,17 @@ modded class IngameHud
 			return false;
 		
 		return true;
-	#else
-		return GetHudState();
-	#endif
 	}
 
 	Widget Expansion_GetStancePanel()
 	{
-	#ifndef DAYZ_1_26
-		//! 1.27+
 		if (m_HudVisibility)
 			return m_HudVisibility.Expansion_GetElementWidget(EHudElement.LHUD_STANCE);
 		return null;
-	#else
-		return m_StancePanel;
-	#endif
+	}
+
+	override bool Expansion_IsVisible()
+	{
+		return !m_HudVisibility.IsContextFlagActive(IngameHudVisibility.HUD_HIDE_FLAGS);
 	}
 }

@@ -8,6 +8,7 @@ modded class WeaponAttachMagazine
 			Magazine mag = e.m_magazine;
 
 			InventoryLocation newSrc = new InventoryLocation;
+			InventoryLocation lhand;
 			if (mag.GetInventory().GetCurrentInventoryLocation(newSrc))
 			{
 				eAI_HandleMag(e, newSrc);
@@ -41,7 +42,7 @@ modded class WeaponAttachMagazine
 				// move to LH - but only if not already in LH
 				if (newSrc.GetSlot() != InventorySlots.LEFTHAND)
 				{
-					InventoryLocation lhand = new InventoryLocation;
+					lhand = new InventoryLocation;
 					lhand.SetAttachment(e.m_player, mag, InventorySlots.LEFTHAND);
 					if (GameInventory.LocationSyncMoveEntity(newSrc, lhand))
 					{
@@ -59,6 +60,18 @@ modded class WeaponAttachMagazine
 			else
 			{
 				Error(ExpansionStatic.GetDebugInfo(e.m_player) + " [wpnfsm] " + ExpansionStatic.GetDebugInfo(m_weapon) + " WeaponAttachMagazine, error - cannot get curr location of " + ExpansionStatic.GetDebugInfo(mag) + " " + ExpansionStatic.DumpToString(newSrc));
+
+				EntityAI lhandEntity = e.m_player.GetInventory().FindAttachment(InventorySlots.LEFTHAND);
+				if (!lhandEntity)
+				{
+					lhand = new InventoryLocation;
+					lhand.SetAttachment(e.m_player, mag, InventorySlots.LEFTHAND);
+
+					ErrorEx(ExpansionStatic.GetDebugInfo(e.m_player) + " WeaponAttachMagazine - moving " + ExpansionStatic.GetDebugInfo(mag) + " to LHand " + ExpansionStatic.DumpToString(lhand), ErrorExSeverity.WARNING);
+
+					if (!GameInventory.LocationAddEntity(lhand))
+						Error(ExpansionStatic.GetDebugInfo(e.m_player) + " " + ExpansionStatic.GetDebugInfo(m_weapon) + " WeaponAttachMagazine, error - couldn't move " + ExpansionStatic.GetDebugInfo(mag) + " to LHand " + ExpansionStatic.DumpToString(lhand));
+				}
 			}
 
 			super.eAI_Vanilla_OnEntry(e);  //! WeaponStateBase::eAI_Vanilla_OnEntry

@@ -86,13 +86,6 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		market_item_info_stock_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		market_item_info_price_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
-		string currencyIcon = GetExpansionSettings().GetMarket().CurrencyIcon;
-		if (currencyIcon != "")
-		{
-			m_ItemController.CurrencyBuyIcon = currencyIcon;
-			m_ItemController.CurrencySellIcon = currencyIcon;
-		}
-		
 		SetView();
 	}
 
@@ -246,14 +239,13 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		{
 			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 			ExpansionMarketItem item = GetMarketItem();
-			if (!m_MarketModule.HasRepForItemRarity(player, item))
-			{
-				if (settings.UseItemRarityForMarketPurchase)
-					m_HasRepBuy = false;
-				
-				if (settings.UseItemRarityForMarketSell)
-					m_HasRepSell = false;
-			}
+			bool hasRep = m_MarketModule.HasRepForItemRarity(player, item);
+
+			if (settings.UseItemRarityForMarketPurchase)
+				m_HasRepBuy = hasRep;
+			
+			if (settings.UseItemRarityForMarketSell)
+				m_HasRepSell = hasRep;
 		}
 		
 	#ifdef EXPANSIONMODMARKET_DEBUG
@@ -264,8 +256,10 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	
 	void UpdatePreviewObject()
 	{
-		if (m_Item.m_PreviewEntity)
-			m_Object = m_Item.m_PreviewEntity;
+		ExpansionMarketItem item = GetMarketItem();
+
+		if (item.m_PreviewEntity && !item.m_PreviewEntity.IsSetForDeletion())
+			m_Object = item.m_PreviewEntity;
 		else
 			CreatePreviewObject();
 
@@ -320,30 +314,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	//! Spawn attachments and attachments on attachments
 	void SpawnAttachments(ExpansionMarketItem item, EntityAI parent, int level = 0)
 	{
-	#ifdef EXPANSIONMODHARDLINE
-		auto settings = GetExpansionSettings().GetHardline();
-
-		PlayerBase player;
-		bool useRarity;
-
-		if (settings.UseReputation && settings.UseItemRarityForMarketPurchase)
-		{
-			player = PlayerBase.Cast(GetGame().GetPlayer());
-			useRarity = true;
-		}
-	#endif
-
 		foreach (string attachmentName: item.SpawnAttachments)
 		{
 			ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(attachmentName, false);
-
-		#ifdef EXPANSIONMODHARDLINE
-			if (useRarity)
-			{
-				if (!m_MarketModule.HasRepForItemRarity(player, attachment))
-					continue;
-			}
-		#endif
 
 			EntityAI attachmentEntity = ExpansionItemSpawnHelper.SpawnAttachment(attachmentName, parent, m_CurrentSelectedSkinIndex);
 			if (attachmentEntity && level < 3)
@@ -445,7 +418,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 				m_ItemController.OverlayText = "#STR_EXPANSION_MARKET_ITEM_NOTINSTOCK";
 		#ifdef EXPANSIONMODHARDLINE
 			else
-				m_ItemController.OverlayText = string.Format("#STR_EXPANSION_MARKET_ITEM_REP (%1)", GetMarketItem().m_RequiredRep);
+				m_ItemController.OverlayText = string.Format("#STR_EXPANSION_MARKET_ITEM_REP (%1)", ExpansionStatic.FormatInt(GetMarketItem().m_RequiredRep));
 		#endif
 			m_ItemController.NotifyPropertyChanged("OverlayText");
 		}
@@ -470,13 +443,13 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	void UpdateButtons()
 	{
 		bool showFastBuy;
-		if (m_CanBuy /*&& m_HasRepBuy*/ && m_ItemStock > 0 /*&& m_BuyPrice > -1*/ && m_MarketModule.GetPlayerWorth() >= m_BuyPrice)
+		if (m_CanBuy && m_HasRepBuy && m_ItemStock > 0 && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice)
 			showFastBuy = true;
 
 		market_item_fastbuy.Show(showFastBuy);
 
 		bool showFastSell;
-		if (m_CanSell /*&& m_HasRepSell*/ && m_PlayerStock > 0 /*&& m_SellPrice > -1*/)
+		if (m_CanSell && m_HasRepSell && m_PlayerStock > 0 && m_SellPrice > -1)
 			showFastSell = true;
 
 		market_item_fastsell.Show(showFastSell);
@@ -495,6 +468,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			m_MarketModule.FindPriceOfPurchaseEx(item, m_MarketModule.GetClientZone(), GetMarketMenu().GetMarketTrader(), player, 1, price, GetIncludeAttachments());
 			m_BuyPrice = price;
 			m_ItemController.ItemBuyPrice = m_MarketMenu.GetDisplayPrice(m_BuyPrice, true);
+			m_ItemController.CurrencyBuyIcon = GetExpansionSettings().GetMarket().CurrencyIcon;
 		}
 		else
 		{
@@ -508,7 +482,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			}
 			else
 			{
-				m_ItemController.ItemBuyPrice = GetMarketItem().m_RequiredRep.ToString();
+				m_ItemController.ItemBuyPrice = ExpansionStatic.FormatInt(GetMarketItem().m_RequiredRep, true);
 				m_ItemController.CurrencyBuyIcon = ExpansionMarketMenu.s_RepIcon;
 			}
 		}
@@ -541,6 +515,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			m_SellPrice = marketSell.Price;
 
 			m_ItemController.ItemSellPrice = m_MarketMenu.GetDisplayPrice(m_SellPrice, true);
+			m_ItemController.CurrencySellIcon = GetExpansionSettings().GetMarket().CurrencyIcon;
 		}
 		else
 		{
@@ -554,7 +529,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			}
 			else
 			{
-				m_ItemController.ItemSellPrice = GetMarketItem().m_RequiredRep.ToString();
+				m_ItemController.ItemSellPrice = ExpansionStatic.FormatInt(GetMarketItem().m_RequiredRep, true);
 				m_ItemController.CurrencySellIcon = ExpansionMarketMenu.s_RepIcon;
 			}
 		}
@@ -570,7 +545,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 
 		int color;
 		if (!m_HasRepBuy || m_MarketModule.GetPlayerWorth() < m_BuyPrice)
-			color = ARGB(255, 192, 57, 43);
+			color = GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorRequirementsNotMet");
 		else
 			color = GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText");
 
@@ -594,7 +569,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		if (!percent || !check)
 		{
 			//! Color red
-			return ARGB(255, 192, 57, 43);
+			return GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorRequirementsNotMet");
 		}
 		else if (percent < 25)
 		{
@@ -621,8 +596,8 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		market_item_info_player_stock.SetColor(GetPlayerStockColor());
 
 		int color;
-		if (m_PlayerStock <= 0 || !m_HasRepSell)
-			color = ARGB(255, 192, 57, 43);
+		if (!m_HasRepSell)
+			color = GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorRequirementsNotMet");
 		else
 			color = GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText");
 
@@ -633,9 +608,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	int GetPlayerStockColor(bool check = true)
 	{
 		if (m_PlayerStock <= 0 || !m_CanSell || !check)
-			return ARGB(255, 192, 57, 43);
+			return GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorRequirementsNotMet");
 
-		return ARGB(255, 41, 128, 185);
+		return GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorPlayerStock");
 	}
 	
 	void OnItemButtonClick(ButtonCommandArgs args)

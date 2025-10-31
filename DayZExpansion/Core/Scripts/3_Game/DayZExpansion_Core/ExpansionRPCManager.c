@@ -47,6 +47,8 @@ class ExpansionRPCManager
 
 	ref map<int, Managed> m_RegisteredInstances = new map<int, Managed>;
 
+	ref ExpansionBitStreamSerializerReader m_Reader;
+
 	void ExpansionRPCManager(Managed owner, typename type = NULLTYPE)
 	{
 		SetOwner(owner);
@@ -156,6 +158,21 @@ class ExpansionRPCManager
 	Managed GetOwner()
 	{
 		return m_Owner;
+	}
+
+	ExpansionBitStreamReader GetReader(ParamsReadContext ctx)
+	{
+		if (m_Reader)
+		{
+			m_Reader.Reset();
+			m_Reader.m_Serializer = ctx;
+		}
+		else
+		{
+			m_Reader = new ExpansionBitStreamSerializerReader(ctx);
+		}
+
+		return m_Reader;
 	}
 
 	protected int CreateRPCID(string fn, Managed instance = null)

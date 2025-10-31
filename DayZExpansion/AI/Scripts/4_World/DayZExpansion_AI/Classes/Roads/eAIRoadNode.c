@@ -52,9 +52,9 @@ class eAIRoadNode: eAIRoadNodeBase
 		m_Sections.Clear();
 	}
 
-	void PathTo(PathNode target, inout array<PathNode> path)
+	void PathTo(ExpansionPathNode target, inout array<ExpansionPathNode> path)
 	{
-		PathNode current = this;
+		ExpansionPathNode current = this;
 
 		while (current != target)
 		{
@@ -70,9 +70,9 @@ class eAIRoadNode: eAIRoadNodeBase
 		}
 	}
 
-	bool CanConnectToTarget(PathNode target)
+	bool CanConnectToTarget(ExpansionPathNode target)
 	{
-		array<PathNode> path();
+		array<ExpansionPathNode> path();
 		PathTo(target, path);
 
 		if (path.Find(target) != -1) return false;
@@ -218,8 +218,8 @@ class eAIRoadNode: eAIRoadNodeBase
 			return false;
 		}
 
-		PathNode a = m_Neighbours[0];
-		PathNode b = m_Neighbours[1];
+		ExpansionPathNode a = m_Neighbours[0];
+		ExpansionPathNode b = m_Neighbours[1];
 
 		if (a.m_Neighbours.Count() == 2 && b.m_Neighbours.Count() == 2)
 		{

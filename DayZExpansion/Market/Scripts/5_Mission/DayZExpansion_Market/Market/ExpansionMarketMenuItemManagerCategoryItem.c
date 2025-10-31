@@ -367,7 +367,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 			if (!ExpansionMarketModule.GetInstance().HasRepForItemRarity(player, item))
 			{
 				title = "#STR_EXPANSION_HARDLINE_MARKET_REPLOW";
-				text = string.Format("#STR_EXPANSION_MARKET_ITEM_REP (%1)", item.m_RequiredRep.ToString());
+				text = string.Format("#STR_EXPANSION_MARKET_ITEM_REP (%1)", ExpansionStatic.FormatInt(item.m_RequiredRep));
 			}
 		}
 	#endif

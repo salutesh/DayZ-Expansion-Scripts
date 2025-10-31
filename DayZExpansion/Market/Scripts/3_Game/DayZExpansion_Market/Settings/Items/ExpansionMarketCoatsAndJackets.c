@@ -27,9 +27,7 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 		AddItem("tracksuitjacket_lightblue", 	530, 	885,	1,100);
 		AddItem("tracksuitjacket_red", 	635, 	1060,	1,100);
 		
-		#ifndef DAYZ_1_25
 		AddItem("downjacket_blue", 	145, 	240,	1,100,null,{"downjacket_green","downjacket_orange","downjacket_red"});
-		#endif
 
 		AddItem("denimjacket", 	210, 	350,	1,100);
 
@@ -70,9 +68,7 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 
 		AddItem("policejacketorel", 	660, 	1100,	1,100);
 		AddItem("policejacket", 	660, 	1100,	1,100);
-		#ifndef DAYZ_1_25
 		AddItem("bushlatpolicejacket_blue", 	4740, 	7895,	1,100);
-		#endif
 
 		AddItem("paramedicjacket_blue", 	645, 	1075,	1,100,null,{"ParamedicJacket_Crimson","ParamedicJacket_Green"});
 
@@ -102,9 +98,7 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 		
 		AddItem("chainmail", 	355, 	595,	1,100);
 		
-		#ifndef DAYZ_1_25
 		AddItem("omkjacket_navy", 	145, 	240,	1,100);
 		AddItem("navyuniformjacket", 	145, 	240,	1,100);
-		#endif
 	}
 };

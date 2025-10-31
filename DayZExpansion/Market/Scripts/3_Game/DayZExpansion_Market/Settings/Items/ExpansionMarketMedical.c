@@ -25,9 +25,7 @@ class ExpansionMarketMedical: ExpansionMarketCategory
 		AddItem("purificationtablets", 	310, 	520,	1,100);
 		AddItem("bloodtestkit", 	895, 	1490,	1,100);
 		AddItem("gasmask_filter", 	360, 	595,	1,100);
-		#ifndef DAYZ_1_25
 		AddItem("chelatingtablets", 	930, 	1555,	1,100);
-		#endif
 		//AddItem("InjectionVial", 				5,		10,		1,		100);
 		AddItem("thermometer", 	365, 	610,	1,100);
 		AddItem("vitaminbottle", 	40, 	65,	1,100);

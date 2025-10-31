@@ -526,9 +526,9 @@ class ExpansionPathHandler
 
 	void OnUpdate(float pDt, int pSimulationPrecision)
 	{
-#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI, this, "OnUpdate");
-#endif
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, m_Unit, "CommandHandler(07) -> ExpansionPathHandler::OnUpdate");
+	#endif
 
 		m_TimeIt.Start();
 
@@ -1052,13 +1052,16 @@ class ExpansionPathHandler
 				}
 			}
 		}
-		else if (m_Unit.AI_HANDLEVAULTING && IsBlockedPhysically(start + "0 0.5 0", end + "0 0.5 0"))
+		else if (m_Unit.AI_HANDLEVAULTING)
 		{
-			m_IsBlockedPhysically = true;
-			if (!m_Next0.Parent)
+			if (IsBlockedPhysically(start + "0 0.49 0", end + "0 0.49 0") || IsElevated(start))
 			{
-				m_IsJumpClimb = true;
-				//m_DoClimbTestEx = true;
+				m_IsBlockedPhysically = true;
+				if (!m_Next0.Parent)
+				{
+					m_IsJumpClimb = true;
+					//m_DoClimbTestEx = true;
+				}
 			}
 		}
 
@@ -1093,6 +1096,14 @@ class ExpansionPathHandler
 		float distSq = vector.DistanceSq(start, end);
 		EXTrace.Print(EXTrace.AI, m_Unit, "Vault dist " + Math.Sqrt(distSq));
 		if (distSq > 0.25 && distSq < 100.0)
+			return true;
+
+		return false;
+	}
+
+	bool IsElevated(vector start)
+	{
+		if (start[1] - m_Unit.GetPosition()[1] > 0.5)
 			return true;
 
 		return false;
@@ -1227,5 +1238,11 @@ class ExpansionPathHandler
 		m_SuppressRecalculate = false;
 		if (forceUpdate)
 			m_Time = PATH_RECALCULATE_THRESHOLD;
+	}
+
+	void ResetUnreachable()
+	{
+		m_IsTargetUnreachable = false;
+		m_IsUnreachable = false;
 	}
 };

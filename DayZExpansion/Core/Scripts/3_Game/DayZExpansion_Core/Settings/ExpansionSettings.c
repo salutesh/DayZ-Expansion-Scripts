@@ -12,7 +12,8 @@
 
 class ExpansionSettings
 {
-	static ref ScriptInvoker SI_Debug = new ScriptInvoker();
+	static ref ScriptInvoker SI_Core = new ScriptInvoker();
+	static ref ScriptInvoker SI_Debug = SI_Core;  //! Legacy compat
 	static ref ScriptInvoker SI_Log = new ScriptInvoker();
 	static ref ScriptInvoker SI_SafeZone = new ScriptInvoker();
 	static ref ScriptInvoker SI_Notification = new ScriptInvoker();
@@ -86,7 +87,7 @@ class ExpansionSettings
 		auto trace = EXTrace.Start(EXTrace.SETTINGS, this);
 #endif
 		
-		Init(ExpansionDebugSettings, true);
+		Init(ExpansionCoreSettings, true);
 		Init(ExpansionLogSettings);
 		Init(ExpansionSafeZoneSettings);
 		Init(ExpansionNotificationSettings, true);
@@ -113,6 +114,11 @@ class ExpansionSettings
 	ExpansionScriptRPC CreateRPC(string fn)
 	{
 		return m_Expansion_RPCManager.CreateRPC(fn);
+	}
+
+	ExpansionBitStreamReader GetReader(ParamsReadContext ctx)
+	{
+		return m_Expansion_RPCManager.GetReader(ctx);
 	}
 
 	void Init(typename type, bool registerClientRPC = false)
@@ -169,9 +175,9 @@ class ExpansionSettings
 		}
 	}
 
-	void RPC_DebugSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	void RPC_CoreSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		Receive(ExpansionDebugSettings, ctx);
+		Receive(ExpansionCoreSettings, ctx);
 	}
 
 	void RPC_MonitoringSettings(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -272,8 +278,14 @@ class ExpansionSettings
 		}
 	}
 
+	ExpansionCoreSettings GetCore(bool checkLoaded = true)
+	{
+		return ExpansionCoreSettings.Cast(Get(ExpansionCoreSettings, checkLoaded));
+	}
+
 	ExpansionDebugSettings GetDebug(bool checkLoaded = true)
 	{
+		EXError.ErrorOnce(this, "DEPRECATED, use GetExpansionSettings().GetCore() instead");
 		return ExpansionDebugSettings.Cast(Get(ExpansionDebugSettings, checkLoaded));
 	}
 

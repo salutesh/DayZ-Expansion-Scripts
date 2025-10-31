@@ -354,11 +354,10 @@ class ExpansionChatLineBase: ExpansionScriptView
 			Message.SetOutline(outlineSize, color);
 			Message.SetShadow(shadowSize, FadeColors.BLACK, shadowOpacity, shadowOffsetX, shadowOffsetY);
 
-			//! Updating outline or shadow opacity on richtextwidget dosn't work, so hide widget instead
-			if (alpha < 0.01)
-				Message.Show(false);
-			else
-				Message.Show(true);
+			//! Updating outline or shadow opacity on richtextwidget dosn't work when not setting text as well
+			//! For performance reasons, we limit it to when alpha reaches zero
+			if (alpha <= 0.0 && m_Message)
+				Message.SetText(m_Message.FormattedText);
 		#endif
 		}
 	}

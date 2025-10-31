@@ -12,10 +12,6 @@
 
 modded class DayZGame
 {
-	protected float m_Expansion_ServerUpdateRateLimit_Interval;
-	protected float m_Expansion_ServerUpdateRateLimit_LastUpdateTime;
-	protected float m_Expansion_ServerUpdateRateLimit_TimeSlice;
-
 	protected string m_ExpansionClientVersion;
 	protected string m_ExpansionLastestVersion;
 	protected ref ExpansionGame m_ExpansionGame;
@@ -256,36 +252,13 @@ modded class DayZGame
 		super.FirearmEffects(source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
 	}
 
-	override void OnUpdate(bool doSim, float timeslice)
+#ifndef WORKBENCH
+	override void Expansion_OnUpdate(bool doSim, float timeslice)
 	{
-#ifdef SERVER
-		//! @note timeslice isn't accurate for measuring actual elapsed time, so it's just passed to super to match vanilla
-		float updateTime = GetTickTime();
-		float elapsed = updateTime - m_Expansion_ServerUpdateRateLimit_LastUpdateTime;
-		m_Expansion_ServerUpdateRateLimit_TimeSlice += timeslice;
-		if (elapsed >= m_Expansion_ServerUpdateRateLimit_Interval)
-		{
-			super.OnUpdate(doSim, m_Expansion_ServerUpdateRateLimit_TimeSlice);
-
-			if (m_ExpansionGame != NULL)
-				m_ExpansionGame.OnUpdate(doSim, m_Expansion_ServerUpdateRateLimit_TimeSlice);
-
-			m_Expansion_ServerUpdateRateLimit_LastUpdateTime = updateTime;
-			m_Expansion_ServerUpdateRateLimit_TimeSlice = 0;
-		}
-#ifdef CFTOOLS
-		else
-		{
-			gl_ticks++;
-		}
-#endif
-#else
-		super.OnUpdate(doSim, timeslice);
-
-		if (m_ExpansionGame != NULL)
+		if (m_ExpansionGame)
 			m_ExpansionGame.OnUpdate(doSim, timeslice);
-#endif
 	}
+#endif
 
 	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
 	{
@@ -337,6 +310,8 @@ modded class DayZGame
 
 	void Expansion_SetServerUpdateRateLimit(int rate)
 	{
+#ifndef WORKBENCH
 		m_Expansion_ServerUpdateRateLimit_Interval = 1.0 / rate;
+#endif
 	}
 };

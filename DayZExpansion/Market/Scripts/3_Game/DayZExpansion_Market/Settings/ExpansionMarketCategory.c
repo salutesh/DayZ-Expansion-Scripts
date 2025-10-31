@@ -126,9 +126,6 @@ class ExpansionMarketCategory
 
 		foreach (ExpansionMarketItem item : items)
 		{
-			//! Make sure item classnames are lowercase
-			item.ClassName.ToLower();
-
 			//! NOTE: ItemID is not serialized
 			item.ItemID = ++ExpansionMarketItem.m_CurrentItemId;
 
@@ -175,8 +172,6 @@ class ExpansionMarketCategory
 	// ------------------------------------------------------------
 	ExpansionMarketItem AddItem( string className, int minPrice, int maxPrice, int minStock, int maxStock, array< string > attachments = NULL, array< string > variants = NULL, float sellPricePercent = -1, int quantityPercent = -1, int itemID = -1, array<int> attachmentIDs = NULL )
 	{
-		className.ToLower();
-
 		ExpansionMarketItem item = new ExpansionMarketItem( CategoryID, className, minPrice, maxPrice, minStock, maxStock, attachments, variants, sellPricePercent, quantityPercent, itemID, attachmentIDs );
 
 		if (!AddItemInternal( item ))
@@ -272,10 +267,10 @@ class ExpansionMarketCategory
 		{
 			foreach (ExpansionMarketItem item : Items)
 			{
-				AddVariants(item);
 			#ifdef EXPANSIONMODHARDLINE
 				item.SetRarityAndRepReq();
 			#endif
+				AddVariants(item);
 			}
 		}
 
@@ -289,6 +284,14 @@ class ExpansionMarketCategory
 		foreach (ExpansionMarketItem item: s_GlobalItems)
 		{
 			item.AddDefaultAttachments();
+		}
+	}
+
+	static void CreateStaticNetworkRepresentations()
+	{
+		foreach (ExpansionMarketItem item: s_GlobalItems)
+		{
+			item.CreateStaticNetworkRepresentation();
 		}
 	}
 
@@ -308,9 +311,6 @@ class ExpansionMarketCategory
 			#ifdef DIAG_DEVELOPER
 				CF_Log.Debug("Processing variant " + className);
 			#endif
-
-				className.ToLower();
-				className.Replace("*", item.ClassName);
 
 				if (GetGame().IsServer())
 				{

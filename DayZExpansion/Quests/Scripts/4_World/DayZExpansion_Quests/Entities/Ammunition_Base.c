@@ -45,17 +45,8 @@ modded class Ammunition_Base
 		if (!super.CanBeSplit())
 			return false;
 		
-		if (Expansion_IsQuestItem())
-		{
-			Man itemOwner = GetHierarchyRootPlayer();
-			if (itemOwner && itemOwner.GetIdentity())
-			{
-				StringLocaliser text = new StringLocaliser("The item %1 is a quest item and can't be split!", GetDisplayName());
-				ExpansionNotification("Can't split item", text, "Error", COLOR_EXPANSION_NOTIFICATION_ORANGE, 7).Create(itemOwner.GetIdentity());
-			}
-
+		if (!m_Expansion_SkipQuestItemCheck && Expansion_IsQuestItem())
 			return false;
-		}
 
 		return true;
 	}

@@ -878,7 +878,7 @@ FrameWidgetClass ExpansionMarketMenu {
          visible 1
          ignorepointer 1
          color 0.8627 0.8627 0.8627 1
-         size 0.5 26
+         size 1 26
          valign center_ref
          hexactpos 0
          vexactpos 0
@@ -894,7 +894,7 @@ FrameWidgetClass ExpansionMarketMenu {
         TextWidgetClass player_total {
          ignorepointer 1
          color 0.8627 0.8627 0.8627 1
-         size 0.5 0.8
+         size 1 0.8
          halign right_ref
          valign center_ref
          hexactpos 0

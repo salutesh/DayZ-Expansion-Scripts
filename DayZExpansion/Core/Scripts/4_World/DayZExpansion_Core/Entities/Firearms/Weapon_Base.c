@@ -160,6 +160,20 @@ modded class Weapon_Base
 		RegisterNetSyncVariableInt("m_Expansion_FireModeIndexSync", 0, 15); 
 	}
 
+	void ~Weapon_Base()
+	{
+		if (!g_Game)
+			return;
+
+		//! MagDetached also fires if the weapon is deleted; we cannot detect that beforehand on client, only after-the-fact
+		//! and remove the queued call to Expansion_ValidateAndRepair
+		if (m_fsm && m_fsm.m_Expansion_ValidateAndRepairQueued)
+		{
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_ValidateAndRepair);
+			m_fsm.m_Expansion_ValidateAndRepairQueued = "";
+		}
+	}
+
 	override void AfterStoreLoad()
 	{
 		super.AfterStoreLoad();
@@ -173,6 +187,65 @@ modded class Weapon_Base
 		super.OnVariablesSynchronized();
 
 		Expansion_UpdateFireMode();
+	}
+
+	override void EEItemAttached(EntityAI item, string slot_name)
+	{
+		super.EEItemAttached(item, slot_name);
+
+		if (item.IsMagazine())
+			Expansion_CheckDelayedValidateAndRepair("MagAttached");
+	}
+
+	override void EEItemDetached(EntityAI item, string slot_name)
+	{
+		super.EEItemDetached(item, slot_name);
+
+		if (item.IsMagazine())
+			Expansion_CheckDelayedValidateAndRepair("MagDetached");
+	}
+
+	bool Expansion_IsDelayedValidationTimerRunning()
+	{
+		if (m_DelayedValidationTimer)
+			return m_DelayedValidationTimer.IsRunning();
+
+		return false;
+	}
+
+	void Expansion_CheckDelayedValidateAndRepair(string name)
+	{
+		if (!g_Game.IsDedicatedServer() && IsInitialized() && !IsSetForDeletion())
+		{
+			//! Delayed validate and repair for AI - fixes occasional state mismatch that vanilla doesn't deal with
+			PlayerBase player;
+			if (Class.CastTo(player, GetHierarchyRootPlayer()) && player.GetInstanceType() == DayZPlayerInstanceType.INSTANCETYPE_AI_REMOTE)
+			{
+				//! MagAttached also fires if the gun was newly created in inventory; we can detect that by checking if the vanilla
+				//! validation timer is running which fires OnInventoryEnter
+				if (!Expansion_IsDelayedValidationTimerRunning())
+					Expansion_DelayedValidateAndRepair(name);
+			}
+		}
+	}
+
+	void Expansion_DelayedValidateAndRepair(string name)
+	{
+		if (m_fsm)
+		{
+			//! Always remove any existing queued call and queue new call
+			if (m_fsm.m_Expansion_ValidateAndRepairQueued)
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_ValidateAndRepair);
+
+			m_fsm.m_Expansion_ValidateAndRepairQueued = name;
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_ValidateAndRepair, 3000, false, name);
+		}
+	}
+
+	void Expansion_ValidateAndRepair(string name)
+	{
+		if (m_fsm)
+			m_fsm.Expansion_ValidateAndRepair(name);
 	}
 
 	void Expansion_UpdateFireMode()

@@ -38,6 +38,38 @@ FrameWidgetClass ExpansionNumpadUI {
      "text halign" center
      "text valign" center
     }
+    ButtonWidgetClass ToggleShowPIN {
+     ignorepointer 0
+     position 0 141
+     size 24 24
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style Empty
+     {
+      ImageWidgetClass ToggleShowPIN_Icon {
+       ignorepointer 1
+       color 1 1 1 0.8
+       position 0 0
+       size 24 24
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:dayz_gui image:PasswordEyeOpen"
+       image1 "set:dayz_gui image:PasswordEyeClose"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+      }
+     }
+    }
     ButtonWidgetClass Button0 {
      clipchildren 0
      position 0.52391 0.54114
@@ -365,8 +397,8 @@ FrameWidgetClass ExpansionNumpadUI {
      image0 "set:expansion_notification_iconset image:icon_lock_unlocked"
      mode blend
      "src alpha" 1
-     "no wrap" 1
-     stretch 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
     }
    }
   }
@@ -383,8 +415,8 @@ FrameWidgetClass ExpansionNumpadUI {
    imageTexture "{FBCB1F0B60E57FF4}DayZExpansion/BaseBuilding/GUI/textures/numpad.edds"
    mode blend
    "src alpha" 1
-   "no wrap" 1
-   stretch 1
+   "clamp mode" clamp
+   "stretch mode" stretch_w_h
   }
  }
 }

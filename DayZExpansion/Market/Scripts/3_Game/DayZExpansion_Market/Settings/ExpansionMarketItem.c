@@ -32,12 +32,6 @@ class ExpansionMarketItem
 	int MaxPriceThreshold;
 	int MinPriceThreshold;
 
-	//! @note this is a workaround for a serious Enforce bug (MaxPriceThreshold gets randomly reset to zero on client after a few buys/sells)
-	[NonSerialized()]
-	private int m_MaxPriceThreshold;
-	[NonSerialized()]
-	private int m_MinPriceThreshold;
-
 	//! @note not netsynced directly! Encoded to bfloat16 and sent packed together with BuySell and QuantityPercent
 	float SellPricePercent;
 
@@ -57,6 +51,9 @@ class ExpansionMarketItem
 	autoptr array< int > m_AttachmentIDs;
 
 	[NonSerialized()]
+	ref TIntArray m_StaticNetworkRepresentation;
+
+	[NonSerialized()]
 	bool m_IsMagazine;
 
 	[NonSerialized()]
@@ -72,6 +69,9 @@ class ExpansionMarketItem
 	bool m_ShowInMenu;
 
 	[NonSerialized()]
+	ref set<ExpansionMarketItem> m_VariantsShownInMenu;
+
+	[NonSerialized()]
 	int m_Idx;
 
 	[NonSerialized()]
@@ -80,13 +80,11 @@ class ExpansionMarketItem
 	[NonSerialized()]
 	EntityAI m_PreviewEntity;
 
-#ifdef EXPANSIONMODHARDLINE
 	[NonSerialized()]
 	int m_Rarity;
 
 	[NonSerialized()]
 	int m_RequiredRep;
-#endif
 
 	// ------------------------------------------------------------
 	// ExpansionMarketItem Constructor
@@ -101,7 +99,6 @@ class ExpansionMarketItem
 		CategoryID = catID;
 		
 		ClassName = className;
-		ClassName.ToLower();
 
 		MinPriceThreshold = minPrice;
 		MaxPriceThreshold = maxPrice;
@@ -115,50 +112,57 @@ class ExpansionMarketItem
 
 		SpawnAttachments = attachments;
 
-		Variants = new array< string >;
-		if ( variants )
-		{
-			foreach ( string variantClsName : variants )
-			{
-				variantClsName.ToLower();
-				Variants.Insert( variantClsName );
-			}
-		}
+		Variants = variants;
 
-		if ( attachmentIDs )
-			m_AttachmentIDs = attachmentIDs;
+		m_AttachmentIDs = attachmentIDs;
 
 		SanityCheckAndRepair();
+
+	#ifndef SERVER
+		m_VariantsShownInMenu = new set<ExpansionMarketItem>;
+	#endif
 	}
 	
 	void SanityCheckAndRepair()
 	{
+		//! Make sure item classnames are lowercase
+		ClassName.ToLower();
+
 		if ( MinPriceThreshold < 0 )
 		{
-			Error("[ExpansionMarketItem] The minimum price must be 0 or higher for '" + ClassName + "'");
+			EXError.Error(null, "MARKET CONFIGURATION ERROR: The minimum price must be 0 or higher for '" + ClassName + "'", {});
 			MinPriceThreshold = 0;
 		}
 
 		if ( MinStockThreshold < 0 )
 		{
-			Error("[ExpansionMarketItem] The minimum stock must be 0 or higher for '" + ClassName + "'");
+			EXError.Error(null, "MARKET CONFIGURATION ERROR: The minimum stock must be 0 or higher for '" + ClassName + "'", {});
 			MinStockThreshold = 0;
 		}
 
 		if ( MinPriceThreshold > MaxPriceThreshold )
 		{
-			Error("[ExpansionMarketItem] The minimum price must be lower than or equal to the maximum price for '" + ClassName + "'");
+			EXError.Error(null, "MARKET CONFIGURATION ERROR: The minimum price must be lower than or equal to the maximum price for '" + ClassName + "'", {});
 			MaxPriceThreshold = MinPriceThreshold;
 		}
 
 		if ( MinStockThreshold > MaxStockThreshold )
 		{
-			Error("[ExpansionMarketItem] The minimum stock must be lower than or equal to the maximum stock for '" + ClassName + "'");
+			EXError.Error(null, "MARKET CONFIGURATION ERROR: The minimum stock must be lower than or equal to the maximum stock for '" + ClassName + "'", {});
 			MaxStockThreshold = MinStockThreshold;
 		}
 
-		m_MinPriceThreshold = MinPriceThreshold;
-		m_MaxPriceThreshold = MaxPriceThreshold;
+		if (MinStockThreshold > 655535)
+		{
+			EXError.Warn(null, "Market configuration warning: The minimum stock must be lower than or equal to 655535 for '" + ClassName + "'", {});
+			MinStockThreshold = 655535;
+		}
+
+		if (MaxStockThreshold > 655535)
+		{
+			EXError.Warn(null, "Market configuration warning: The maximum stock must be lower than or equal to 655535 for '" + ClassName + "'", {});
+			MaxStockThreshold = 655535;
+		}
 
 		//! Convert to integer representation of bfloat16
 		m_SellPricePercent = CF_Cast<float, int>.Reinterpret(SellPricePercent) >> 16;
@@ -170,8 +174,170 @@ class ExpansionMarketItem
 
 		SetAttachments(SpawnAttachments);
 
+		SetVariants(Variants);
+
 		if (GetGame().IsKindOf(ClassName, "Magazine_Base") && !GetGame().IsKindOf(ClassName, "Ammunition_Base"))
 			m_IsMagazine = true;
+	}
+
+	void CreateStaticNetworkRepresentation()
+	{
+		//! Encoding on-the-fly when sending network items would (roughly) double the processing time due to string encoding,
+		//! so we pre-fill some static encoded values
+
+		auto serializer = new ExpansionArraySerializer;
+
+		auto writer = new ExpansionBitStreamArrayWriter(serializer);
+
+		//! @note Technically itemID is also static, but the 16-bit values for ItemID and stock
+		//! make a nice aligned pair and are needed together in NetworkBaseItem
+
+		writer.WriteUInt(CategoryID, 16);
+
+		WriteClassNameLowerHashed(writer, ClassName);
+
+		TIntArray attachmentIDs = {};
+		foreach (string attClassName: SpawnAttachments)
+		{
+			ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(attClassName);
+			if (attachment)
+				attachmentIDs.Insert(attachment.ItemID);
+			else
+				EXError.Warn(null, "ExpansionMarketItem::WriteTo - WARNING: Attachment '" + attClassName + "' does not exist!", {});
+		}
+
+		writer.WriteUInt(attachmentIDs.Count(), 8);
+		foreach (int attID: attachmentIDs)
+		{
+			writer.WriteUInt(attID, 16);
+		}
+
+		int count = Variants.Count();
+
+		writer.WriteUInt(count, 8);
+
+		if (count)
+		{
+			string prefix = ExpansionString.FindLongestCommonPrefix(ClassName, Variants, true);
+			int substringLength = prefix.Length();
+			bool isSubstring = (substringLength > 0 && prefix != ClassName);
+
+			writer.WriteBool(isSubstring);
+
+			string className;
+
+			if (isSubstring)
+			{
+				writer.WriteUInt(substringLength, 7);
+				className = prefix;
+			}
+			else
+			{
+				className = ClassName;
+			}
+
+			int classNameLength = className.Length();
+
+			foreach (string variant: Variants)
+			{
+				int variantLength = variant.Length();
+
+				isSubstring = false;
+				if (variantLength > classNameLength && variant.IndexOf(className) == 0 && variantLength - classNameLength <= 2)
+					isSubstring = true;
+
+				writer.WriteBool(isSubstring);
+
+				if (isSubstring)
+				{
+					variant = variant.Substring(classNameLength, variantLength - classNameLength);
+					WriteClassNameLower(writer, variant);
+				}
+				else
+				{
+					WriteClassNameLowerHashed(writer, variant);
+				}
+
+			#ifdef DIAG_DEVELOPER
+				if (isSubstring)
+					EXTrace.Print(EXTrace.MARKET, this, className + "*" + variant);
+				else
+					EXTrace.Print(EXTrace.MARKET, this, variant);
+			#endif
+			}
+		}
+
+		writer.Flush();
+
+		m_StaticNetworkRepresentation = serializer.m_Data;
+	}
+
+	void WriteClassNameLowerHashed(ExpansionBitStreamArrayWriter writer, string className)
+	{
+		if (className.Length() > 2)
+		{
+			int hashA;
+			int hashB;
+			ExpansionItemNameTable.Hash(className, hashA, hashB);
+
+			if (ExpansionItemNameTable.GetTypeByHash(hashA, hashB) && !ExpansionItemNameTable.IsHashColliding(className))
+			{
+				//! 25 bits
+				writer.WriteBool(true);
+				ExpansionItemNameTable.WriteHash(writer, hashA, hashB);
+
+				return;
+			}
+		}
+
+		//! 1 bit + 7 bits string length + 6 * <string length> bits
+		writer.WriteBool(false);
+		WriteClassNameLower(writer, className);
+	}
+
+	void WriteClassNameLower(ExpansionBitStreamArrayWriter writer, string value)
+	{
+		int bits = 7;
+		string alphabet = ExpansionBitStream.CLASSNAME_ALPHABET_LOWERCASE;
+		int length = value.Length();
+
+		if (bits < BIT_INT_SIZE)
+		{
+			int maxLength = Math.Pow(2, bits) - 1;
+
+			if (length > maxLength)
+			{
+				EXError.MarketCfgError(null, string.Format("string length %1 exceeds allowed maximum %2: '%3'", length.ToString(), maxLength.ToString(), value));
+				length = maxLength;
+			}
+		}
+
+		writer.WriteUInt(length, bits);
+
+		int alphabetBits = ExpansionBitStream.BitSize(alphabet.Length());
+
+		for (int i = 0; i < length; ++i)
+		{
+			int v = alphabet.IndexOf(value[i]);
+
+			if (v == -1)
+			{
+				string indicator = "";
+
+				for (int j = 0; j < i; ++j)
+				{
+					indicator += "-";
+				}
+
+				indicator += "^";
+
+				EXError.MarketCfgError(null, string.Format("Invalid character '%1' at position %2:\n'%3'\n %4", value[i], (i + 1).ToString(), value, indicator));
+
+				v = 10;
+			}
+
+			writer.WriteUInt(v, alphabetBits);
+		}
 	}
 
 #ifdef EXPANSIONMODHARDLINE
@@ -193,11 +359,17 @@ class ExpansionMarketItem
 
 	void SetAttachments(TStringArray attachments)
 	{
-		SpawnAttachments = new array< string >;
+		SpawnAttachments = {};
 		if ( attachments )
 		{
-			foreach ( string attClsName : attachments )
+			foreach (int i, string attClsName : attachments)
 			{
+				if (i == 255)
+				{
+					EXError.Error(null, "MARKET CONFIGURATION ERROR: The max allowed number of attachments per item is 255. Item: '" + ClassName + "'", {});
+					break;
+				}
+
 				attClsName.ToLower();
 				//! Check if attachment is not same classname as parent to prevent infinite recursion (user error)
 				if (attClsName == ClassName)
@@ -210,7 +382,7 @@ class ExpansionMarketItem
 
 	void SetAttachmentsFromIDs()
 	{
-		SpawnAttachments.Clear();
+		SpawnAttachments = {};
 		foreach (int attachmentID: m_AttachmentIDs)
 		{
 			ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(attachmentID, false);
@@ -222,12 +394,34 @@ class ExpansionMarketItem
 		m_AttachmentIDs = NULL;
 	}
 
+	void SetVariants(TStringArray variants)
+	{
+		Variants = {};
+		if (variants)
+		{
+			foreach (int i, string variant: variants)
+			{
+				if (i == 255)
+				{
+					EXError.Error(null, "MARKET CONFIGURATION ERROR: The max allowed number of variants per item is 255. Item: '" + ClassName + "'", {});
+					break;
+				}
+
+				variant.ToLower();
+				Variants.Insert(variant);
+			}
+		}
+	}
+
 	/**
 	 * @brief create derivative with same properties but different attachments
 	 */
 	ExpansionMarketItem CreateDerivative(TIntArray attachmentIDs)
 	{
 		ExpansionMarketItem item = new ExpansionMarketItem(CategoryID, ClassName, MinPriceThreshold, MaxPriceThreshold, MinStockThreshold, MaxStockThreshold, null, Variants, SellPricePercent, QuantityPercent, ItemID, attachmentIDs);
+
+		item.m_SellPricePercent = m_SellPricePercent;
+		item.m_IsMagazine = m_IsMagazine;
 
 		item.SetAttachmentsFromIDs();
 
@@ -251,15 +445,15 @@ class ExpansionMarketItem
 	int CalculatePrice(int stock, float modifier = 1.0, bool round = false)
 	{
 		#ifdef EXPANSIONMODMARKET_DEBUG
-		EXPrint("ExpansionMarketItem::CalculatePrice - Start - " + ClassName + " - stock " + stock + " modifier " + modifier + " minstock " + MinStockThreshold + " maxstock " + MaxStockThreshold + " maxprice " + m_MaxPriceThreshold + " minprice " + m_MinPriceThreshold + " pct " + SellPricePercent);
+		EXPrint("ExpansionMarketItem::CalculatePrice - Start - " + ClassName + " - stock " + stock + " modifier " + modifier + " minstock " + MinStockThreshold + " maxstock " + MaxStockThreshold + " maxprice " + MaxPriceThreshold + " minprice " + MinPriceThreshold + " pct " + SellPricePercent);
 		#endif
 
 		float price;
 
 		if (!IsStaticStock() && MaxStockThreshold != 0)
-			price = ExpansionMath.PowerConversion(MinStockThreshold, MaxStockThreshold, stock, m_MaxPriceThreshold, m_MinPriceThreshold, 6.0);
+			price = ExpansionMath.PowerConversion(MinStockThreshold, MaxStockThreshold, stock, MaxPriceThreshold, MinPriceThreshold, 6.0);
 		else
-			price = m_MinPriceThreshold;
+			price = MinPriceThreshold;
 
 		price *= modifier;
 

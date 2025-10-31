@@ -2,7 +2,7 @@ class eAIRoadNodeSection: eAIRoadNodeBase
 {
 	eAIRoadNode m_Node;
 
-	void PathTo(eAIRoadNodeSection target, inout array<PathNode> path)
+	void PathTo(eAIRoadNodeSection target, inout array<ExpansionPathNode> path)
 	{
 		eAIRoadSection section = m_Sections[m_Neighbours.Find(target)];
 		

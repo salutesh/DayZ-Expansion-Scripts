@@ -1,5 +1,5 @@
 /**
- * Vector.c
+ * ExpansionVectorHelper.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,9 +10,9 @@
  *
 */
 
-class VectorHelper
+class ExpansionVectorHelper
 {
-	static vector Rotate( Matrix3 a, vector o )
+	static vector Rotate( ExpansionMatrix3 a, vector o )
 	{
 		vector n = vector.Zero;
 
@@ -61,29 +61,29 @@ class VectorHelper
 		return n;
 	}
 
-	static vector Multiply( vector data, Matrix3 other )
+	static vector Multiply( vector data, ExpansionMatrix3 other )
 	{
 		return data.Multiply3( other.data );
 	}
 
-	static vector Multiply( vector data, Transform other )
+	static vector Multiply( vector data, ExpansionTransform other )
 	{
 		return data.Multiply4( other.data );
 	}
 
-	static vector InvMultiply( vector data, Matrix3 other )
+	static vector InvMultiply( vector data, ExpansionMatrix3 other )
 	{
 		return data.InvMultiply3( other.data );
 	}
 
-	static vector InvMultiply( vector data, Transform other )
+	static vector InvMultiply( vector data, ExpansionTransform other )
 	{
 		return data.InvMultiply4( other.data );
 	}
 
-	static Quaternion Multiply( vector data, Quaternion q )
+	static ExpansionQuaternion Multiply( vector data, ExpansionQuaternion q )
 	{		
-		Quaternion n = new Quaternion;
+		ExpansionQuaternion n = new ExpansionQuaternion;
 		
 		n.data[0] =  data[0] * q.data[3] + data[1] * q.data[2] - data[2] * q.data[1];
 		n.data[1] =  data[1] * q.data[3] + data[2] * q.data[0] - data[0] * q.data[2];

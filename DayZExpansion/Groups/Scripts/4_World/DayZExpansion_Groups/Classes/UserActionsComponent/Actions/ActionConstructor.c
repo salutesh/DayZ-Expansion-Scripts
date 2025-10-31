@@ -23,6 +23,6 @@ modded class ActionConstructor
 		super.RegisterActions( actions );	
 
 		//! Groups
-		actions.Insert(ActionInviteToGroup);
+		actions.Insert(ExpansionActionInviteToGroup);
 	}
 }

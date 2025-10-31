@@ -1,4 +1,3 @@
-#ifndef DAYZ_1_25
 modded class BoatScript
 {
 	static ref CF_DoublyLinkedNodes_WeakRef<BoatScript> s_Expansion_AllVehicles = new CF_DoublyLinkedNodes_WeakRef<BoatScript>();
@@ -334,4 +333,3 @@ modded class BoatScript
 		return 0;
 	}
 }
-#endif

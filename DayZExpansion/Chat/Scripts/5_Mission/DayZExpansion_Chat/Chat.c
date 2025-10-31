@@ -58,6 +58,12 @@ modded class Chat
 			m_ExChatUI.Hide();
 	}
 
+	void Expansion_Show(bool state = true)
+	{
+		if (m_ExChatUI)
+			m_ExChatUI.GetLayoutRoot().Show(state);
+	}
+
 	void HideChatToggle()
 	{
 		GetExpansionClientSettings().HUDChatToggle = !GetExpansionClientSettings().HUDChatToggle;

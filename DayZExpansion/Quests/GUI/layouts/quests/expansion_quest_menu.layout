@@ -733,7 +733,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                vexactsize 0
                scriptclass ""
                style DayZNormal
-               text "You will receive the following items on quest start:"
+               text "#STR_EXPANSION_QUEST_MENU_ITEMS_LABEL"
                font "gui/fonts/sdf_MetronBook72"
                "text offset" 5 0
                "exact text" 1

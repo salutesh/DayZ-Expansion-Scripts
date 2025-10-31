@@ -13,4 +13,18 @@
 modded class BaseBuildingBase
 {
 	void ExpansionUpdateBaseBuildingStateFromPartBuilt(string part_name) {};
+
+	void Expansion_OnPartBuiltServer(ConstructionPart constructionPart)
+	{
+		//! Equivalent to vanilla BaseBuildingBase::OnPartBuiltServer (minus creating construction kit and requirement for player)
+
+		RegisterPartForSync(constructionPart.GetId());
+		RegisterActionForSync(constructionPart.GetId(), AT_BUILD_PART);
+		SynchronizeBaseState();
+		SetPartFromSyncData(constructionPart);
+		UpdateNavmesh();
+		UpdateVisuals();
+
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ResetActionSyncData, 100, false);
+	}
 };

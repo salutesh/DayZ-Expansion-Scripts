@@ -93,7 +93,7 @@ class ExpansionNavMesh
 		{
 			array<ExpansionNavMeshPolygon> polyPath();
 
-			AStar<ExpansionNavMeshPolygon>.Perform(startPoly, endPoly, filter, polyPath);
+			ExpansionAStar<ExpansionNavMeshPolygon>.Perform(startPoly, endPoly, filter, polyPath);
 
 			count = polyPath.Count();
 

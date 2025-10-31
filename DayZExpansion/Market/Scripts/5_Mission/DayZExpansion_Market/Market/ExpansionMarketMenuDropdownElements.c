@@ -257,6 +257,7 @@ class ExpansionMarketMenuDropdownElement: ExpansionScriptView
 		m_MarketMenu.SetDropdownState();
 		m_MarketMenu.UpdateOptionFilterStrings();
 		m_MarketMenu.UpdateMarketCategories();
+		m_MarketMenu.UpdateSkinSelectorVisibility();
 	}
 	
 	override bool OnMouseEnter(Widget w, int x, int y)

@@ -44,12 +44,16 @@ class ExpansionCodeLockUI: ExpansionLockUIBase
 	protected ButtonWidget m_ButtonHash;
 	protected TextWidget m_ButtonHash_Text;
 	
-	protected ImageWidget m_LockStateIcon;
+	protected ImageWidget m_LockStateIconUnlocked;
+	protected ImageWidget m_LockStateIconLocked;
+
+	protected ButtonWidget m_ToggleShowPIN;
+	protected ImageWidget m_ToggleShowPIN_Icon;
 	
 	protected int m_HighlightColor = ARGB(255, 255, 255, 255);
 	protected int m_NormalColor = ARGB(255, 88, 88, 88);
-	protected int m_LockedColor = ARGB(255, 231, 76, 60);
-	protected int m_UnlockedColor = ARGB(255, 46, 204, 113);
+	protected int m_LockedColor = ARGB(255, 46, 204, 113);
+	protected int m_UnlockedColor = ARGB(255, 231, 76, 60);
 	
 	override void ShowLockState()
 	{
@@ -57,10 +61,12 @@ class ExpansionCodeLockUI: ExpansionLockUIBase
 		{
 			if ( m_Target.ExpansionIsLocked() )
 			{
-				m_LockStateIcon.SetColor(m_LockedColor);
+				m_LockStateIconLocked.SetColor(m_LockedColor);
+				m_LockStateIconUnlocked.SetColor(m_NormalColor);
 			} else
 			{
-				m_LockStateIcon.SetColor(m_UnlockedColor);
+				m_LockStateIconUnlocked.SetColor(m_UnlockedColor);
+				m_LockStateIconLocked.SetColor(m_NormalColor);
 			}
 		}
 	}
@@ -107,8 +113,19 @@ class ExpansionCodeLockUI: ExpansionLockUIBase
 		m_TextCodePanel = TextWidget.Cast( layoutRoot.FindAnyWidget("CodeText") );
 		m_TextCodePanel.SetText( m_Code );
 		
-		m_LockStateIcon = ImageWidget.Cast( layoutRoot.FindAnyWidget("LockState") );
+		m_LockStateIconUnlocked = ImageWidget.Cast( layoutRoot.FindAnyWidget("LockStateUnlocked") );
+		m_LockStateIconLocked = ImageWidget.Cast( layoutRoot.FindAnyWidget("LockStateLocked") );
 		
+		m_ToggleShowPIN = ButtonWidget.Cast( layoutRoot.FindAnyWidget("ToggleShowPIN") );
+		m_ToggleShowPIN_Icon = ImageWidget.Cast( layoutRoot.FindAnyWidget("ToggleShowPIN_Icon") );
+		m_ToggleShowPIN_Icon.LoadImageFile(1, "set:dayz_gui image:PasswordEyeClose");
+
+		auto settings = GetExpansionClientSettings();
+		if (settings.ShowPINCode)
+			m_ToggleShowPIN_Icon.SetImage(0);
+		else
+			m_ToggleShowPIN_Icon.SetImage(1);
+
 		RefreshCode();
 		ShowLockState();
 		
@@ -197,6 +214,12 @@ class ExpansionCodeLockUI: ExpansionLockUIBase
 			
 			return true;
 		}
+		else if ( w == m_ToggleShowPIN )
+		{
+			m_ToggleShowPIN_Icon.SetAlpha(1.0);
+			
+			return true;
+		}
 		
 	 	return false;
 	}
@@ -280,6 +303,12 @@ class ExpansionCodeLockUI: ExpansionLockUIBase
 		else if ( w == m_ButtonHash )
 		{
 			m_ButtonHash_Text.SetColor( m_NormalColor );
+			
+			return true;
+		}
+		else if ( w == m_ToggleShowPIN )
+		{
+			m_ToggleShowPIN_Icon.SetAlpha(0.8);
 			
 			return true;
 		}
@@ -386,6 +415,20 @@ class ExpansionCodeLockUI: ExpansionLockUIBase
 			SoundOnReset();
 
 			return true;
+		}
+
+		if (w == m_ToggleShowPIN)
+		{
+			auto settings = GetExpansionClientSettings();
+			settings.ShowPINCode = !settings.ShowPINCode;
+
+			if (settings.ShowPINCode)
+				m_ToggleShowPIN_Icon.SetImage(0);
+			else
+				m_ToggleShowPIN_Icon.SetImage(1);
+
+			RefreshCode();
+			SoundOnclick();
 		}
 
 		return false;

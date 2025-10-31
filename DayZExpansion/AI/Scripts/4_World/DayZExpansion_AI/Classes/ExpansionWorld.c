@@ -25,6 +25,8 @@ modded class ExpansionWorld
 
 			if (settings.RoamingLocations.Count() == 0)
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GenerateRoamingLocations, 10000);
+
+			CheckCreateExampleAILootDrop();
 		}
 	}
 
@@ -264,5 +266,124 @@ modded class ExpansionWorld
 	{
 		if (m_FirearmFXSource == source)
 			m_FirearmFXSource = null;
+	}
+
+	void CheckCreateExampleAILootDrop()
+	{
+		if (FileExist(EXPANSION_AI_LOOTDROPS_FOLDER))
+			return;
+
+		ExpansionStatic.MakeDirectoryRecursive(EXPANSION_AI_LOOTDROPS_FOLDER);
+
+		string path = EXPANSION_AI_LOOTDROPS_FOLDER + "Example.json";
+
+		if (FileExist(path))
+			return;
+
+		auto defaultLootDrop = new array<ref ExpansionPrefab>;
+		
+		ExpansionPrefab prefab;
+
+		prefab = new ExpansionPrefab();
+		prefab.ClassName = "Ammo_545x39";
+		prefab.Chance = 0.5;
+		prefab.SetHealth(0.7, 1.0);
+		prefab.SetQuantity(0.4, 0.8);
+		defaultLootDrop.Insert(prefab);
+
+		prefab = new ExpansionPrefab();
+		prefab.ClassName = "Ammo_545x39Tracer";
+		prefab.Chance = 0.5;
+		prefab.SetHealth(0.7, 1.0);
+		prefab.SetQuantity(0.4, 0.8);
+		defaultLootDrop.Insert(prefab);
+
+		prefab = new ExpansionPrefab();
+		prefab.ClassName = "Ammo_762x39";
+		prefab.Chance = 0.25;
+		prefab.SetHealth(0.7, 1.0);
+		prefab.SetQuantity(0.2, 0.6);
+		defaultLootDrop.Insert(prefab);
+
+		prefab = new ExpansionPrefab();
+		prefab.ClassName = "Ammo_762x39Tracer";
+		prefab.Chance = 0.25;
+		prefab.SetHealth(0.7, 1.0);
+		prefab.SetQuantity(0.2, 0.6);
+		defaultLootDrop.Insert(prefab);
+
+		prefab = new ExpansionPrefab();
+		prefab.ClassName = "Ammo_556x45";
+		prefab.Chance = 0.5;
+		prefab.SetHealth(0.7, 1.0);
+		prefab.SetQuantity(0.4, 0.8);
+		defaultLootDrop.Insert(prefab);
+
+		prefab = new ExpansionPrefab();
+		prefab.ClassName = "Ammo_556x45Tracer";
+		prefab.Chance = 0.5;
+		prefab.SetHealth(0.7, 1.0);
+		prefab.SetQuantity(0.4, 0.8);
+		defaultLootDrop.Insert(prefab);
+
+		prefab = new ExpansionPrefab();
+		prefab.ClassName = "Ammo_762x54";
+		prefab.Chance = 0.15;
+		prefab.SetHealth(0.7, 1.0);
+		prefab.SetQuantity(0.2, 0.6);
+		defaultLootDrop.Insert(prefab);
+
+		prefab = new ExpansionPrefab();
+		prefab.ClassName = "Ammo_762x54Tracer";
+		prefab.Chance = 0.15;
+		prefab.SetHealth(0.7, 1.0);
+		prefab.SetQuantity(0.2, 0.6);
+		defaultLootDrop.Insert(prefab);
+
+		prefab = new ExpansionPrefab();
+		prefab.ClassName = "Ammo_308Win";
+		prefab.Chance = 0.15;
+		prefab.SetHealth(0.7, 1.0);
+		prefab.SetQuantity(0.2, 0.6);
+		defaultLootDrop.Insert(prefab);
+
+		prefab = new ExpansionPrefab();
+		prefab.ClassName = "Ammo_308WinTracer";
+		prefab.Chance = 0.15;
+		prefab.SetHealth(0.7, 1.0);
+		prefab.SetQuantity(0.2, 0.6);
+		defaultLootDrop.Insert(prefab);
+
+		prefab = new ExpansionPrefab();
+		prefab.ClassName = "FirstAidKit";
+		prefab.Chance = 0.33;
+		prefab.SetHealth(0.7, 1.0);
+		ExpansionPrefabObject obj;
+		obj = prefab.BeginCargo("BandageDressing");
+			obj.Chance = 1.0;
+			obj.SetHealth(0.7, 1.0);
+			obj.End();
+		obj = prefab.BeginCargo("BandageDressing");
+			obj.Chance = 0.4;
+			obj.SetHealth(0.7, 1.0);
+			obj.End();
+		obj = prefab.BeginCargo("IodineTincture");
+			obj.Chance = 0.25;
+			obj.SetHealth(0.7, 1.0);
+			obj.SetQuantity(0.2, 1.0);
+			obj.End();
+		obj = prefab.BeginCargo("Morphine");
+			obj.Chance = 0.25;
+			obj.SetHealth(0.7, 1.0);
+			obj.End();
+		obj = prefab.BeginCargo("Epinephrine");
+			obj.Chance = 0.25;
+			obj.SetHealth(0.7, 1.0);
+			obj.End();
+		defaultLootDrop.Insert(prefab);
+
+		string errorMsg;
+		if (!JsonFileLoader<array<ref ExpansionPrefab>>.SaveFile(path, defaultLootDrop, errorMsg))
+			EXError.Error(this, string.Format("Couldn't save '%1': %2", path, errorMsg), {});
 	}
 };

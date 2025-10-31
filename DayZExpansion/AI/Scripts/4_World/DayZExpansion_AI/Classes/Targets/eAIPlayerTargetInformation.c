@@ -198,10 +198,26 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 
 	override float GetMinDistance(eAIBase ai = null, float distance = 0.0)
 	{
-		if (distance > m_DistanceThreshold && (ai.eAI_IsLowVitals() || (m_HasProjectileWeaponInHands && !ai.m_eAI_HasProjectileWeaponInHands && (m_Player.IsRaised() || (m_Player.GetGroup() && m_Player.GetGroup().Count() > ai.GetGroup().Count())))))
-			return 1000.0;  //! Flee
-		else if (ai.m_eAI_HasProjectileWeaponInHands)  //! Only reset after AI has projectile weapon, irrespective of enemy weapon
-			return 0.0;
+		if (ai)
+		{
+			if (distance > m_DistanceThreshold)
+			{
+				if (ai.eAI_IsLowVitals())
+					return 1000.0;  //! Flee
+
+				if (m_HasProjectileWeaponInHands && !ai.m_eAI_HasProjectileWeaponInHands)
+				{
+					if (m_Player.IsRaised())
+						return 1000.0;  //! Flee
+
+					if (m_Player.GetGroup() && m_Player.GetGroup().Count() > ai.GetGroup().Count())
+						return 1000.0;  //! Flee
+				}
+			}
+
+			if (ai.m_eAI_HasProjectileWeaponInHands)  //! Only reset after AI has projectile weapon, irrespective of enemy weapon
+				return 0.0;
+		}
 
 		return m_MinDistance;
 	}

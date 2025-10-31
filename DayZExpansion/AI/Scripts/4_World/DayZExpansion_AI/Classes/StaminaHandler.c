@@ -14,16 +14,6 @@
 
 modded class StaminaHandler
 {
-	void StaminaHandler(PlayerBase player)
-	{
-		if (m_Player.IsAI())
-		{
-			m_HumanMoveSettings.m_fDirFilterTimeout			= 0.033333;		//!< direction filter timeout [s]
-			m_HumanMoveSettings.m_fDirFilterSprintTimeout 		= 0.033333;	//!< sprint direction filter timeout [s]
-			m_HumanMoveSettings.m_fMaxSprintAngle				= Math.DEG2RAD * 90.01;
-		}
-	}
-
 	override void Update(float deltaT, int pCurrentCommandID)
 	{
 		if (!m_Player)

@@ -106,6 +106,49 @@ modded class ItemBase
 			ai.eAI_UpdateProtectionLevels(this, -1);
 	}
 
+	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
+	{
+		super.EEItemLocationChanged(oldLoc, newLoc);
+
+		EntityAI oldParent = oldLoc.GetParent();
+		EntityAI newParent = newLoc.GetParent();
+
+		Man oldOwner;
+		Man newOwner;
+
+		if (oldParent)
+			oldOwner = oldParent.GetHierarchyRootPlayer();
+
+		if (newParent)
+			newOwner = newParent.GetHierarchyRootPlayer();
+
+		if (oldLoc.GetType() == InventoryLocationType.CARGO && oldOwner != newOwner)
+			eAI_OnCargoExit(oldOwner, oldParent);
+
+		if (newLoc.GetType() == InventoryLocationType.CARGO && oldOwner != newOwner)
+			eAI_OnCargoEnter(newOwner, newParent);
+	}
+
+	void eAI_OnCargoEnter(Man owner, EntityAI parent)
+	{
+		if (!GetGame().IsServer())
+			return;
+
+		eAIBase ai;
+		if (Class.CastTo(ai, owner))
+			ai.eAI_OnCargoEnter(parent, this);
+	}
+
+	void eAI_OnCargoExit(Man owner, EntityAI parent)
+	{
+		if (!GetGame().IsServer())
+			return;
+
+		eAIBase ai;
+		if (Class.CastTo(ai, owner))
+			ai.eAI_OnCargoExit(parent, this);
+	}
+
 	override void OnInventoryEnter(Man player)
 	{
 		super.OnInventoryEnter(player);
@@ -119,7 +162,6 @@ modded class ItemBase
 			return;
 		}
 
-		//! TODO: Latest 1.26 patch on 2024-11-19 added OnChildItemReceived which would be a better place for the following code
 		if (!GetGame().IsServer())
 			return;
 
@@ -132,7 +174,6 @@ modded class ItemBase
 	{
 		super.OnInventoryExit(player);
 
-		//! TODO: Latest 1.26 patch on 2024-11-19 added OnChildItemRemoved which would be a better place for the following code
 		if (!GetGame().IsServer())
 			return;
 
@@ -359,6 +400,21 @@ modded class ItemBase
 		}
 
 		return 0.0;
+	}
+
+	bool Expansion_CanRepair(EntityAI entity)
+	{
+		int repairKitType = ConfigGetInt("repairKitType");
+
+		if (repairKitType != 0)
+		{
+			TIntArray repairableWithKits = {};
+			entity.ConfigGetIntArray("repairableWithKits", repairableWithKits);
+
+			return repairableWithKits.Find(repairKitType) != -1;
+		}
+
+		return false;
 	}
 
 	Man Expansion_GetRootPlayerAliveExcluding(Man player)

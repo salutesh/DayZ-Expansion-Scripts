@@ -8,6 +8,7 @@ class eAICommandManagerClient : eAICommandManager
 	int m_LootingBehavior = eAILootingBehavior.DEFAULT;  //! Client
 	int m_DamageIn = eAICommands.DEB_DAMAGE;  //! Client
 	int m_DamageOut = eAICommands.DEB_DAMAGE;  //! Client
+	int m_HeadshotResistance = eAICommands.DEB_DAMAGE;  //! Client
 
 	void eAICommandManagerClient()
 	{
@@ -39,6 +40,7 @@ class eAICommandManagerClient : eAICommandManager
 
 		m_Expansion_RPCManager.RegisterServer("RPC_DumpState");
 		m_Expansion_RPCManager.RegisterServer("RPC_UnlimitedReload");
+		m_Expansion_RPCManager.RegisterServer("RPC_ResetPathfinding");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugObjects");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugDamage");
 		m_Expansion_RPCManager.RegisterServer("RPC_SetDamageInOut");
@@ -92,6 +94,11 @@ class eAICommandManagerClient : eAICommandManager
 					m_UnlimitedReload |= unlimitedReload;
 
 				m_Expansion_RPCManager.SendRPC("RPC_UnlimitedReload", new Param1<int>(m_UnlimitedReload));
+				return true;
+
+			case eAICommands.DEB_RESET_PATHFINDING:
+				rpc = m_Expansion_RPCManager.CreateRPC("RPC_ResetPathfinding");
+				rpc.Expansion_Send(GetAIAtCursorOrNearest(), true);
 				return true;
 
 			case eAICommands.DEB_DBGOBJECTS:
@@ -246,8 +253,10 @@ class eAICommandManagerClient : eAICommandManager
 					{
 						if (category == eAICommandCategories.CAT_DAMAGE_IN)
 							m_DamageIn = cmd;
-						else
+						else if (category == eAICommandCategories.CAT_DAMAGE_OUT)
 							m_DamageOut = cmd;
+						else
+							m_HeadshotResistance = cmd;
 
 						rpc = m_Expansion_RPCManager.CreateRPC("RPC_SetDamageInOut");
 						rpc.Write(cmd);
@@ -341,6 +350,7 @@ class eAICommandManagerClient : eAICommandManager
 		rpc.Write(m_LootingBehavior);
 		rpc.Write(m_DamageIn);
 		rpc.Write(m_DamageOut);
+		rpc.Write(m_HeadshotResistance);
 		rpc.Expansion_Send(null, true);
 	}
 
@@ -412,6 +422,9 @@ class eAICommandManagerClient : eAICommandManager
 		int damageOut;
 		if (!ctx.Read(damageOut)) return;
 
+		int headshotResistance;
+		if (!ctx.Read(headshotResistance)) return;
+
 		if (GetGame().IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
@@ -436,6 +449,7 @@ class eAICommandManagerClient : eAICommandManager
 				ai.eAI_SetLootingBehavior(lootingBehavior);
 				ai.eAI_SetDamageReceivedMultiplier(1.0 - damageIn * (1.0 / eAICommands.DEB_DAMAGE_COUNT));
 				ai.eAI_SetDamageMultiplier(1.0 - damageOut * (1.0 / eAICommands.DEB_DAMAGE_COUNT));
+				ai.m_eAI_HeadshotResistance = headshotResistance * (1.0 / eAICommands.DEB_DAMAGE_COUNT);
 				break;
 			default:
 				eAIFaction faction = eAIFaction.CreateByID(command);
@@ -627,6 +641,23 @@ class eAICommandManagerClient : eAICommandManager
 		ExpansionNotification("EXPANSION AI", "Unlimited reload " + msg).Info(sender);
 	}
 	
+	void RPC_ResetPathfinding(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		if (GetGame().IsMultiplayer())
+		{
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
+		}
+
+		eAIBase ai;
+		if (Class.CastTo(ai, target))
+			ai.eAI_ResetPathfinding();
+	}
+	
 	void RPC_DebugObjects(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 	#ifdef EXTRACE
@@ -710,8 +741,10 @@ class eAICommandManagerClient : eAICommandManager
 		{
 			eAIGroup group = ai.GetGroup();
 
-			int dmg = 100 - cmd * (100 / eAICommands.DEB_DAMAGE_COUNT);
-			float multiplier = dmg * 0.01;
+			int percent = cmd * (100 / eAICommands.DEB_DAMAGE_COUNT);
+			if (category != eAICommandCategories.CAT_HEADSHOTRESISTANCE)
+				percent = 100 - percent;
+			float multiplier = percent * 0.01;
 
 			for (int i = 0; i < group.Count(); ++i)
 			{
@@ -719,8 +752,10 @@ class eAICommandManagerClient : eAICommandManager
 				{
 					if (category == eAICommandCategories.CAT_DAMAGE_IN)
 						ai.eAI_SetDamageReceivedMultiplier(multiplier);
-					else
+					else if (category == eAICommandCategories.CAT_DAMAGE_OUT)
 						ai.eAI_SetDamageMultiplier(multiplier);
+					else
+						ai.m_eAI_HeadshotResistance = multiplier;
 				}
 			}
 
@@ -745,9 +780,11 @@ class eAICommandManagerClient : eAICommandManager
 			}
 
 			if (category == eAICommandCategories.CAT_DAMAGE_IN)
-				ExpansionNotification("EXPANSION AI", "Damage In " + dmg.ToString() + "%% for group " + groupdesc).Info(sender);
+				ExpansionNotification("EXPANSION AI", "Damage In " + percent.ToString() + "%% for group " + groupdesc).Info(sender);
+			else if (category == eAICommandCategories.CAT_DAMAGE_OUT)
+				ExpansionNotification("EXPANSION AI", "Damage Out " + percent.ToString() + "%% for group " + groupdesc).Info(sender);
 			else
-				ExpansionNotification("EXPANSION AI", "Damage Out " + dmg.ToString() + "%% for group " + groupdesc).Info(sender);
+				ExpansionNotification("EXPANSION AI", "Headshot Resistance " + percent.ToString() + "%% for group " + groupdesc).Info(sender);
 		}
 	}
 	

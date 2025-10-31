@@ -218,7 +218,7 @@ modded class PlayerBase
 		vector direction;
 		GetInputController().GetMovement( speed, direction );
 
-		Transform trans = Transform.GetObject( this );
+		ExpansionTransform trans = ExpansionTransform.GetObject( this );
 		direction = direction.Multiply3( trans.GetBasis().data );
 
 		vector pos = GetPosition() + direction;

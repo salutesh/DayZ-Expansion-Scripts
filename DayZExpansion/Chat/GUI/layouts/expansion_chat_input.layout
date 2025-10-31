@@ -22,7 +22,7 @@ PanelWidgetClass ExpansionChatInput {
    scaled 0
    style rover_sim_colorable
    {
-    EditBoxWidgetClass InputEditBoxWidget {
+    PasswordEditBoxWidgetClass InputEditBoxWidget {
      position 0 0
      size 1 28
      halign center_ref
@@ -30,12 +30,13 @@ PanelWidgetClass ExpansionChatInput {
      hexactsize 0
      vexactsize 1
      priority 1
-     style No_Highlight
+     style ServerBrowser
      "limit visible" 1
      "Use default text" 0
      "exact text" 1
      "exact text size" 22
      font "gui/fonts/sdf_MetronBook24"
+     "hide text" 0
     }
    }
   }

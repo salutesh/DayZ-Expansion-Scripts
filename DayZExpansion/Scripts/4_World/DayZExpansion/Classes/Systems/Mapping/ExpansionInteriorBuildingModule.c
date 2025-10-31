@@ -10,7 +10,7 @@
  *
 */
 
-class IviesPosition
+class ExpansionIviesPosition
 {
 	vector		position;
 	float   	radius;	
@@ -19,7 +19,7 @@ class IviesPosition
 [CF_RegisterModule(ExpansionInteriorBuildingModule)]
 class ExpansionInteriorBuildingModule: CF_ModuleWorld
 {
-	autoptr array< ref IviesPosition > m_WhereIviesObjectsSpawn;
+	autoptr array< ref ExpansionIviesPosition > m_WhereIviesObjectsSpawn;
 	
 	//string is classname of the object, and bool, to know if it has collision or not
 	autoptr map<string, bool> m_CachedCollision;
@@ -236,13 +236,13 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 			return;
 
 		if ( !m_WhereIviesObjectsSpawn ) {
-			m_WhereIviesObjectsSpawn = new array< ref IviesPosition >;
+			m_WhereIviesObjectsSpawn = new array< ref ExpansionIviesPosition >;
 			
 			TVectorArray positions = new TVectorArray;
 			GetIviesPositions(positions);
 			
 			for (int i = 0; i < positions.Count(); ++i) {
-				IviesPosition iviesPosition = new IviesPosition;
+				ExpansionIviesPosition iviesPosition = new ExpansionIviesPosition;
 				iviesPosition.position = positions[i];
 				iviesPosition.radius = 5;
 				

@@ -100,6 +100,16 @@ class cfgWeapons
 			"weaponOptics"
 		};
 		itemSize[]={9,3};
+		hiddenSelectionsTextures[]=
+		{
+			"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\dayz_co.paa",
+			"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\dayz_co.paa"
+		};
+		hiddenSelectionsMaterials[]=
+		{
+			"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14.rvmat",
+			"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14.rvmat"
+		};
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -114,6 +124,7 @@ class cfgWeapons
 							1,
 							
 							{
+								"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14.rvmat",
 								"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14.rvmat"
 							}
 						},
@@ -122,6 +133,7 @@ class cfgWeapons
 							0.69999999,
 							
 							{
+								"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14.rvmat",
 								"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14.rvmat"
 							}
 						},
@@ -130,6 +142,7 @@ class cfgWeapons
 							0.5,
 							
 							{
+								"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14_Damaged.rvmat",
 								"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14_Damaged.rvmat"
 							}
 						},
@@ -138,6 +151,7 @@ class cfgWeapons
 							0.30000001,
 							
 							{
+								"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14_Damaged.rvmat",
 								"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14_Damaged.rvmat"
 							}
 						},
@@ -146,6 +160,7 @@ class cfgWeapons
 							0,
 							
 							{
+								"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14_Ruined.rvmat",
 								"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14_Ruined.rvmat"
 							}
 						}

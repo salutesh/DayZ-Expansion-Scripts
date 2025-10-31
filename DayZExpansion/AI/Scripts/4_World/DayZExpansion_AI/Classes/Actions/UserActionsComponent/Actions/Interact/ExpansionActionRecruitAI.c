@@ -65,7 +65,7 @@ class ExpansionActionRecruitAI: ActionInteractBase
 		bool friendly;
 		if (faction.IsGuard())
 		{
-			if (!settings.CanRecruitGuards)
+			if (!settings.CanRecruitGuards || (playerGroup && playerGroup.Count() - 1 >= settings.MaxRecruitableAI))
 				return false;
 
 			if (GetGame().IsServer() && tAI.eAI_GetCachedThreat(player.GetTargetInformation()) > 0.2)
@@ -74,7 +74,7 @@ class ExpansionActionRecruitAI: ActionInteractBase
 				return false;
 			}
 		}
-		else if (!settings.CanRecruitFriendly)
+		else if (!settings.CanRecruitFriendly || (playerGroup && playerGroup.Count() - 1 >= settings.MaxRecruitableAI))
 		{
 			return false;
 		}

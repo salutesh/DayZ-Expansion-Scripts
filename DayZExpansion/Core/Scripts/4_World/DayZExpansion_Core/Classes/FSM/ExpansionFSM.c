@@ -177,7 +177,7 @@ class ExpansionFSM
 		#endif
 
 		ExpansionState new_state;
-		FindSuitableTransition(m_CurrentState, "", new_state);
+		FindSuitableTransition(m_CurrentState, e, new_state);
 
 		ExpansionState src = m_CurrentState;
 		ExpansionState dst = new_state;
@@ -226,7 +226,7 @@ class ExpansionFSM
 	int Update(float pDt, int pSimulationPrecision)
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI, this);
+		auto trace = EXTrace.Profile(EXTrace.AI, this, "Update");
 #endif
 
 		if (!m_Owner)

@@ -20,6 +20,103 @@ class ExpansionScriptRPC: ScriptRPC
 	int m_Expansion_RPCID;
 	Object m_Expansion_Target;
 
+	/* Packed write -------------------------------------------------------- */
+
+	int m_Packed;
+	int m_PackedBits;
+
+	void Write(int value, int bits)
+	{
+		ExpansionBitStreamSerializerWriter.Write(this, value, bits, m_Packed, m_PackedBits);
+	}
+	
+	void WriteUInt(int value, int bits)
+	{
+		ExpansionBitStreamSerializerWriter.WriteUInt(this, value, bits, m_Packed, m_PackedBits);
+	}
+
+	/**
+	 * @brief Optimized writing of integer in range [min..max]
+	 */
+	void Write(int value, int min, int max)
+	{
+		ExpansionBitStreamSerializerWriter.Write(this, value, min, max, m_Packed, m_PackedBits);
+	}
+
+	void WriteBool(bool value)
+	{
+		ExpansionBitStreamSerializerWriter.WriteBool(this, value, m_Packed, m_PackedBits);
+	}
+
+	void WriteChar(int value)
+	{
+		ExpansionBitStreamSerializerWriter.WriteChar(this, value, m_Packed, m_PackedBits);
+	}
+
+	void WriteUChar(int value)
+	{
+		ExpansionBitStreamSerializerWriter.WriteUChar(this, value, m_Packed, m_PackedBits);
+	}
+
+	void WriteShort(int value)
+	{
+		ExpansionBitStreamSerializerWriter.WriteShort(this, value, m_Packed, m_PackedBits);
+	}
+
+	void WriteUShort(int value)
+	{
+		ExpansionBitStreamSerializerWriter.WriteUShort(this, value, m_Packed, m_PackedBits);
+	}
+
+	void Write(float value, int bits)
+	{
+		ExpansionBitStreamSerializerWriter.Write(this, value, bits, m_Packed, m_PackedBits);
+	}
+
+	//! @note converts float to fp16
+	void WriteHalf(float value)
+	{
+		ExpansionBitStreamSerializerWriter.WriteHalf(this, value, m_Packed, m_PackedBits);
+	}
+
+	void Write(vector value, int bits)
+	{
+		ExpansionBitStreamSerializerWriter.Write(this, value, bits, m_Packed, m_PackedBits);
+	}
+
+	//! @note converts float to fp16
+	void WriteHalf(vector value)
+	{
+		ExpansionBitStreamSerializerWriter.WriteHalf(this, value, m_Packed, m_PackedBits);
+	}
+
+	void Write(string value, int bits)
+	{
+		ExpansionBitStreamSerializerWriter.Write(this, value, bits, m_Packed, m_PackedBits);
+	}
+
+	void Write(string value, int bits, string alphabet)
+	{
+		ExpansionBitStreamSerializerWriter.Write(this, value, bits, alphabet, m_Packed, m_PackedBits);
+	}
+
+	void WriteClassName(string value)
+	{
+		ExpansionBitStreamSerializerWriter.WriteClassName(this, value, m_Packed, m_PackedBits);
+	}
+
+	void WriteClassNameLower(string value)
+	{
+		ExpansionBitStreamSerializerWriter.WriteClassNameLower(this, value, m_Packed, m_PackedBits);
+	}
+
+	void Flush()
+	{
+		ExpansionBitStreamSerializerWriter.Flush(this, m_Packed, m_PackedBits);
+	}
+
+	/* --------------------------------------------------------------------- */
+
 	void Expansion_WriteNetworkID(Object object)
 	{
 		int low, high;
@@ -37,6 +134,8 @@ class ExpansionScriptRPC: ScriptRPC
 	{
 		if (!m_Expansion_RPCID)
 			return;
+
+		Flush();
 
 		if (target)
 			Send(target, EXPANSION_RPC_TARGETED, guaranteed, recipient);

@@ -23,6 +23,6 @@ modded class ActionConstructor
 		super.RegisterActions( actions );
 
 		//! Misc
-		actions.Insert( ActionLickBattery );
+		actions.Insert( ExpansionActionLickBattery );
 	}
 }

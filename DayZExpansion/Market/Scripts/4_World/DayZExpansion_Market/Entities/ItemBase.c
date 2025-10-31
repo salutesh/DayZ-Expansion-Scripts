@@ -10,21 +10,27 @@
  *
 */
 
+#ifndef EXPANSION_VANILLA_EEITEMLOCATION_PB_FIX
 modded class ItemBase
 {
-	//! Fix NULL pointer when giving trader NPCs guns
 	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
 	{
-		bool callSuper = true;
+		EntityAI oldParent = oldLoc.GetParent();
+		EntityAI newParent = newLoc.GetParent();
 
-		if ( newLoc.GetParent() )
-		{
-			Man man = newLoc.GetParent().GetHierarchyRootPlayer();
-			if (man && man.IsInherited(ExpansionTraderNPCBase))
-				callSuper = false;
-		}
+		Man oldOwner;
+		Man newOwner;
 
-		if (callSuper)
-			super.EEItemLocationChanged(oldLoc,newLoc);
+		if (oldParent)
+			oldOwner = oldParent.GetHierarchyRootPlayer();
+		
+		if (newParent)
+			newOwner = newParent.GetHierarchyRootPlayer();
+
+		//! Vanilla ItemBase::EEItemLocationChanged wants PlayerBase class,
+		//! NPCs are not PlayerBase so this is to prevent the super method from being called and causing NULL ptrs
+		if ((!oldOwner || oldOwner.IsInherited(PlayerBase)) && (!newOwner || newOwner.IsInherited(PlayerBase)))
+			super.EEItemLocationChanged(oldLoc, newLoc);
 	}
 }
+#endif

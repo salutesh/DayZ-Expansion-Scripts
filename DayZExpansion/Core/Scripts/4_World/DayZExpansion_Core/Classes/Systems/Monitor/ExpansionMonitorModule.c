@@ -625,30 +625,16 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		ExpansionPlayerStanceStatus stance = ExpansionPlayerStanceStatus.STAND;
 		ExpansionVehicle vehicle;
 		
-		if (!ExpansionVehicle.Get(vehicle, player))
+		
+		if (!player.IsAlive())
 		{
-			if (!player.IsAlive())
-			{
-				stance = ExpansionPlayerStanceStatus.DEAD;
-			}
-			else if (player.IsUnconscious())
-			{
-				stance = ExpansionPlayerStanceStatus.UNCONSCIOUS;
-			}
-			else if (player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDERECT) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_ERECT))
-			{
-				stance = ExpansionPlayerStanceStatus.STAND;
-			}
-			else if (player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_CROUCH) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDCROUCH))
-			{
-				stance = ExpansionPlayerStanceStatus.CROUCH;
-			}
-			else if (player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_PRONE) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDPRONE))
-			{
-				stance = ExpansionPlayerStanceStatus.PRONE;
-			}
+			stance = ExpansionPlayerStanceStatus.DEAD;
 		}
-		else
+		else if (player.IsUnconscious())
+		{
+			stance = ExpansionPlayerStanceStatus.UNCONSCIOUS;
+		}
+		else if (ExpansionVehicle.Get(vehicle, player))
 		{
 			if (vehicle.IsHelicopter())
 			{
@@ -661,6 +647,21 @@ class ExpansionMonitorModule: CF_ModuleWorld
 			else
 			{
 				stance = ExpansionPlayerStanceStatus.CAR;
+			}
+		}
+		else
+		{
+			if (player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDERECT) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_ERECT))
+			{
+				stance = ExpansionPlayerStanceStatus.STAND;
+			}
+			else if (player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_CROUCH) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDCROUCH))
+			{
+				stance = ExpansionPlayerStanceStatus.CROUCH;
+			}
+			else if (player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_PRONE) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDPRONE))
+			{
+				stance = ExpansionPlayerStanceStatus.PRONE;
 			}
 		}
 		

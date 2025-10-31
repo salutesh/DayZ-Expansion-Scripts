@@ -136,6 +136,7 @@ PanelWidgetClass ExpansionQuestMenuLogEntry {
       }
       ImageWidgetClass HideIcon {
        ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
        size 34 34
        halign center_ref
        valign center_ref

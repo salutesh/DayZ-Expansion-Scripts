@@ -17,8 +17,4 @@ modded class MissionBaseWorld
 	{
 		return action.Expansion_CheckSuccess(action_data);
 	}
-
-	void Expansion_UpdateWorldViewDistances()
-	{
-	}
 }

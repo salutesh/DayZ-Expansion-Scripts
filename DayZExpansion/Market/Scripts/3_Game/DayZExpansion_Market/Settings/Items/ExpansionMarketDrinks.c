@@ -26,10 +26,8 @@ class ExpansionMarketDrinks: ExpansionMarketCategory
 		AddItem("sodacan_fronta", 	605, 	1005,	1,100);
 		AddItem("waterbottle", 	65, 	105,	1,100);
 		AddItem("canteen", 	725, 	1210,	1,100);
-		#ifndef DAYZ_1_25
 		AddItem("glassbottle", 	130, 	220,	1,100);
 		AddItem("filteringbottle", 	145, 	240,	1,100);
-		#endif
 	#ifdef EXPANSIONMOD
 		AddItem("ExpansionMilkBottle", 		130,		220,		1,		100);
 	#endif

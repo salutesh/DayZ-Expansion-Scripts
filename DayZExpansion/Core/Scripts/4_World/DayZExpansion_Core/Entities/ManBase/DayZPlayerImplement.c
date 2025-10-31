@@ -399,15 +399,12 @@ modded class DayZPlayerImplement
 	{
 		IEntity parent = GetParent();
 
-	#ifndef DAYZ_1_25
 		if (!parent)
 			parent = PhysicsGetLinkedEntity();
-	#endif
 
 		return parent;
 	}
 
-#ifndef DAYZ_1_25
 	bool Expansion_IsAttached()
 	{
 		if (PhysicsGetLinkedEntity())
@@ -415,7 +412,6 @@ modded class DayZPlayerImplement
 
 		return false;
 	}
-#endif
 
 	/**
 	 * @brief meant as a reliable way to check if player is sitting in vehicle seat as GetParent()

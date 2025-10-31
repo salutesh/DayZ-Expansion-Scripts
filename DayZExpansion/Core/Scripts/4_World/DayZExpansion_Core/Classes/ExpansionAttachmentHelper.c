@@ -17,12 +17,6 @@ class ExpansionAttachmentHelper
 		ExpansionVehicle vehicle;
 		if (ExpansionVehicle.Get(vehicle, target))
 		{
-		#ifdef DAYZ_1_25
-			CarScript car = vehicle.GetCar();
-			if (!car || !car.m_Expansion_AcceptingAttachment)
-				return false;
-		#endif
-
 			return vehicle.CanObjectAttach(child);
 		}
 

@@ -31,46 +31,25 @@ class ExpansionMarketBackpacks: ExpansionMarketCategory
 	
 		AddItem("smershbag", 	3415, 	5695,	1,100);
 		
-		#ifndef DAYZ_1_25
 		AddItem("assaultbag_black", 	6195, 	10330,	1,100,null,{"AssaultBag_Green","AssaultBag_Ttsko","AssaultBag_Winter"});
 		AddItem("assaultbag_winter", 	1190, 	1980,	1,100);
-		#else
-		AddItem("assaultbag_black", 	6195, 	10330,	1,100,null,{"AssaultBag_Green","AssaultBag_Ttsko"});
-		#endif
 		
 		AddItem("huntingbag", 	3660, 	6100,	1,100,null,{"huntingbag_hannah"});
 		
 		AddItem("waterproofbag_green", 	365, 	605,	1,100,null,{"waterproofbag_orange","waterproofbag_yellow"});
 	
 #ifdef EXPANSIONMOD
-	#ifndef DAYZ_1_25
 		AddItem("tortillabag", 	1170, 	1945,	1,100,null,{"ExpansionDesertTortilla","TortillaBag_Winter"});
-	#else
-		AddItem("tortillabag", 	1170, 	1945,	1,100,null,{"ExpansionDesertTortilla"});
-	#endif
 #else
-	#ifndef DAYZ_1_25
 		AddItem("tortillabag", 	1170, 	1945,	1,100,null,{"TortillaBag_Winter"});
-	#else
-		AddItem("tortillabag", 	1170, 	1945,	1,100);
-	#endif
 #endif
 	
 	#ifdef EXPANSIONMOD
-		#ifndef DAYZ_1_25
 		AddItem("coyotebag_brown", 	7820, 	13030,	1,100,null,{"CoyoteBag_Green","coyotebag_winter","ExpansionCoyoteBlack"});
-		AddItem("coyotebag_winter", 	1190, 	1980,	1,100);
-		#else
-		AddItem("coyotebag_brown", 	7820, 	13030,	1,100,null,{"CoyoteBag_Green","ExpansionCoyoteBlack"});
-		#endif
 	#else
-		#ifndef DAYZ_1_25
 		AddItem("coyotebag_brown", 	7820, 	13030,	1,100,null,{"CoyoteBag_Green","coyotebag_winter"});
-		AddItem("coyotebag_winter", 	1190, 	1980,	1,100);
-		#else
-		AddItem("coyotebag_brown", 	7820, 	13030,	1,100,null,{"CoyoteBag_Green"});
-		#endif
 	#endif	
+		AddItem("coyotebag_winter", 	1190, 	1980,	1,100);
 
 		AddItem("mountainbag_red", 	1025, 	1705,	1,100,null,{"MountainBag_Blue","MountainBag_Orange","MountainBag_Green"});
 		

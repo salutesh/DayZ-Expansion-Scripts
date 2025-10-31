@@ -44,8 +44,13 @@ modded class Construction
 			if (isSupportedBB)
 			{
 				Construction construction = baseBuilding.GetConstruction();
-				construction.Init();
-				construction.ExpansionBuildFull();
+				if (construction)
+				{
+					if (construction.GetConstructionParts().Count() == 0)
+						construction.Init();
+
+					construction.ExpansionBuildFull();
+				}
 			}
 		}
 	}
@@ -100,12 +105,20 @@ modded class Construction
 					return;
 			}
 
-			constrution_part.SetBuiltState(true);
+			if (!g_Game.IsServer())
+			{
+				constrution_part.SetBuiltState(true);
 
-			if (constrution_part.IsBase())
-				GetParent().SetBaseState(true);
+				if (constrution_part.IsBase())
+					GetParent().SetBaseState(true);
+			}
 
 			GetParent().ExpansionUpdateBaseBuildingStateFromPartBuilt(part_name);
+
+			if (g_Game.IsServer())
+				GetParent().Expansion_OnPartBuiltServer(constrution_part);
+			else
+				GetParent().UpdateVisuals();
 		}
 	}
 

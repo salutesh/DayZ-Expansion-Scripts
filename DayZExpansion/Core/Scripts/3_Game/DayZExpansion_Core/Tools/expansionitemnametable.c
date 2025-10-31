@@ -13,45 +13,88 @@
 class ExpansionItemNameTable
 {
 	static ref map<string, ref array<string>> s_NameTable = new map<string, ref array<string>>;
+	static ref map<int, ref map<int, string>> s_HashTable = new map<int, ref map<int, string>>;
+	static ref set<string> s_Collisions = new set<string>;
 
 	static void LoadNameTable()
 	{
+		#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.GENERAL_ITEMS, ExpansionItemNameTable);
+		#endif
+
 		if (s_NameTable.Count() > 0)
 			return;
 
 		array<string> configClasses = {CFG_WEAPONSPATH, CFG_MAGAZINESPATH, CFG_VEHICLESPATH};
 		foreach(string configClass: configClasses)
 		{
-			int childCount = GetGame().ConfigGetChildrenCount(configClass);
+			int childCount = g_Game.ConfigGetChildrenCount(configClass);
 			for (int i = 0; i < childCount; i++)
 			{
 				string childName;
-				GetGame().ConfigGetChildName(configClass, i, childName);
+				g_Game.ConfigGetChildName(configClass, i, childName);
 				
-				int scope = GetGame().ConfigGetInt(configClass + " " + childName + " scope");
+				int scope = g_Game.ConfigGetInt(configClass + " " + childName + " scope");
 				if (scope != 2)
 					continue;
-				
+
+				//! --------------------------------------------
+
+				//! Item name table - maps display name to types
+
 				string displayName;
-				GetGame().ConfigGetText(configClass + " " + childName + " displayName", displayName);
-				displayName.ToLower();
-				childName.ToLower();
+				g_Game.ConfigGetText(configClass + " " + childName + " displayName", displayName);
+				string childNameLower = childName;
+				childNameLower.ToLower();
 				
-				if (displayName == "")
-					continue;
-				
-				array<string> currentTypes;
-				if (!s_NameTable.Find(displayName, currentTypes))
+				if (displayName != "")
 				{
-					currentTypes = new array<string>;
-					s_NameTable[displayName] = currentTypes;
+					displayName.ToLower();
+
+					array<string> currentTypes;
+					if (!s_NameTable.Find(displayName, currentTypes))
+					{
+						currentTypes = new array<string>;
+						s_NameTable[displayName] = currentTypes;
+					}
+					
+					if (currentTypes.Find(childNameLower) == -1)
+						currentTypes.Insert(childNameLower);
 				}
+
+				//! --------------------------------------------
+
+				//! Hash table - maps hash to type. We use a combined 16 bit + 8 bit hash for optimized network efficiency
+
+				int hashA;
+				int hashB;
+				Hash(childNameLower, hashA, hashB);
 				
-				if (currentTypes.Find(childName) == -1)
-					currentTypes.Insert(childName);
+				map<int, string> hashTable;
+				if (!s_HashTable.Find(hashA, hashTable))
+				{
+					hashTable = new map<int, string>;
+					s_HashTable[hashA] = hashTable;
+				}
+
+				if (hashTable.Contains(hashB))
+				{
+					#ifdef DIAG_DEVELOPER
+					EXError.Info(null, "Hash collision: " + childName + " collides with " + hashTable[hashB], {});
+					#endif
+					s_Collisions.Insert(childNameLower);
+				}
+				else
+				{
+					hashTable[hashB] = childName;
+				}
 			}
 		}
 		
+		#ifdef EXTRACE
+		trace = null;
+		#endif
+
 		#ifdef DIAG_DEVELOPER
 		foreach(string dN, array<string> tN: s_NameTable)
 		{
@@ -62,6 +105,75 @@ class ExpansionItemNameTable
 			}
 		}
 		#endif
+	}
+
+	static void Hash(string type, out int hashA, out int hashB)
+	{
+		ExpansionString tmp = type;
+		hashA = tmp.DJB2Hash() & 0xffff;
+		hashB = tmp.JenkinsHash() & 0xff;
+	}
+
+	static void WriteHash(ParamsWriteContext ctx, int hashA, int hashB)
+	{
+		int hash = hashA;
+		hash |= hashB << 16;
+		ctx.Write(hash);
+	}
+
+	static bool ReadHash(ParamsReadContext ctx, out int hashA, out int hashB)
+	{
+		int hash;
+		if (!ctx.Read(hash))
+			return false;
+
+		hashA = hash & 0x0000ffff;
+
+		int shift = 16;
+		hashB = ExpansionBitStream.Unpack(hash, 8, shift);
+
+		return true;
+	}
+
+	static void WriteHash(ExpansionBitStreamWriter writer, int hashA, int hashB)
+	{
+		writer.WriteUInt(hashA, 16);
+		writer.WriteUInt(hashB, 8);
+	}
+
+	static bool ReadHash(ExpansionBitStreamReader reader, out int hashA, out int hashB)
+	{
+		if (!reader.ReadUInt(hashA, 16))
+			return false;
+
+		if (!reader.ReadUInt(hashB, 8))
+			return false;
+
+		return true;
+	}
+
+	static bool IsHashColliding(string type)
+	{
+		type.ToLower();
+		if (s_Collisions.Find(type) > -1)
+			return true;
+		return false;
+	}
+
+	static string GetTypeByHash(int hashA, int hashB)
+	{
+		map<int, string> hashTable;
+		if (s_HashTable.Find(hashA, hashTable))
+			return hashTable[hashB];
+
+		return "";
+	}
+
+	static string GetTypeLowerByHash(int hashA, int hashB)
+	{
+		string type = GetTypeByHash(hashA, hashB);
+		type.ToLower();
+		return type;
 	}
 	
 	static array<string> GetTypeNamesByString(string displayName)

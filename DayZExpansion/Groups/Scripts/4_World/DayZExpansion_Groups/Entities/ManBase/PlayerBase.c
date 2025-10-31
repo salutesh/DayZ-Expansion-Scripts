@@ -27,7 +27,7 @@ modded class PlayerBase
 	{
 		super.SetActionsRemoteTarget(InputActionMap);
 
-		AddAction(ActionInviteToGroup, InputActionMap);
+		AddAction(ExpansionActionInviteToGroup, InputActionMap);
 	}
 
 	#ifdef EXPANSION_MODSTORAGE

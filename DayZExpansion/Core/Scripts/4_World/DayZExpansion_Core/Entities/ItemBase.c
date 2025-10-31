@@ -12,6 +12,8 @@
 
 modded class ItemBase
 {
+	static ref ScriptInvoker s_Expansion_UpdateTidyPanelVisibilityExSI = new ScriptInvoker();
+
 	protected int m_ExpansionSaveVersion;
 
 	//! Skinning
@@ -40,6 +42,8 @@ modded class ItemBase
 	bool m_Expansion_IsWorking;
 	Man m_Expansion_PreviousOwner;
 	Man m_Expansion_CurrentOwner;
+
+	protected bool m_Expansion_SuppressDelete;
 
 	protected int m_Expansion_QueuedActions;
 	protected bool m_Expansion_IsLootable = true;
@@ -874,28 +878,43 @@ modded class ItemBase
 	
 	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
 	{
-		DayZPlayerImplement old_owner_dpi;
-		DayZPlayerImplement new_owner_dpi;
+		EntityAI oldParent = oldLoc.GetParent();
+		EntityAI newParent = newLoc.GetParent();
 
-		bool shouldSuper = true;
+		Man oldOwner;
+		Man newOwner;
 		
-		if (oldLoc.GetParent())
-			old_owner_dpi = DayZPlayerImplement.Cast(oldLoc.GetParent().GetHierarchyRootPlayer());
+		if (oldParent)
+			oldOwner = oldParent.GetHierarchyRootPlayer();
 		
-		if (newLoc.GetParent())
-			new_owner_dpi = DayZPlayerImplement.Cast(newLoc.GetParent().GetHierarchyRootPlayer());
+		if (newParent)
+			newOwner = newParent.GetHierarchyRootPlayer();
 
-		//! super EEItemLocationChanged wants PlayerBase class, NPCs are DayZPlayerImplement so this is to prevent the super method from being called.
-		if (old_owner_dpi && !PlayerBase.Cast(old_owner_dpi))
-			shouldSuper = false;
-		else if (new_owner_dpi && !PlayerBase.Cast(new_owner_dpi))
-			shouldSuper = false;
-		
-		if (shouldSuper)
+		//! Vanilla ItemBase::EEItemLocationChanged wants PlayerBase class,
+		//! NPCs are not PlayerBase so this is to prevent the super method from being called and causing NULL ptrs
+		if ((!oldOwner || oldOwner.IsInherited(PlayerBase)) && (!newOwner || newOwner.IsInherited(PlayerBase)))
 			super.EEItemLocationChanged(oldLoc, newLoc);
 
-		if (!GetGame().IsServer())
+	#ifndef SERVER
+		DayZPlayer player = g_Game.GetPlayer();
+		if (player)
+		{
+			if (oldParent && oldLoc.GetType() == InventoryLocationType.CARGO)
+			{
+				if (oldParent.GetHierarchyRootPlayer() == player || vector.DistanceSq(player.GetPosition(), oldParent.GetPosition()) <= UAMaxDistances.DEFAULT * UAMaxDistances.DEFAULT)
+					s_Expansion_UpdateTidyPanelVisibilityExSI.Invoke(oldParent);
+			}
+
+			if (newParent && newLoc.GetType() == InventoryLocationType.CARGO && newParent != oldParent)
+			{
+				if (newParent.GetHierarchyRootPlayer() == player || vector.DistanceSq(player.GetPosition(), newParent.GetPosition()) <= UAMaxDistances.DEFAULT * UAMaxDistances.DEFAULT)
+					s_Expansion_UpdateTidyPanelVisibilityExSI.Invoke(newParent);
+			}
+		}
+
+		if (!g_Game.IsServer())
 			return;
+	#endif
 
 		if (!GetExpansionSettings().GetSafeZone().Enabled)
 			return;
@@ -1255,6 +1274,17 @@ modded class ItemBase
 		return m_Expansion_IsLootable;
 	}
 
+	override void Delete()
+	{
+		if (!m_Expansion_SuppressDelete)
+			super.Delete();
+	}
+
+	void Expansion_SuppressDelete(bool suppress)
+	{
+		m_Expansion_SuppressDelete = suppress;
+	}
+
 	override void EEDelete(EntityAI parent)
 	{
 		super.EEDelete(parent);
@@ -1520,6 +1550,35 @@ modded class ItemBase
 		else if (Expansion_IsStackable())
 		{
 			return GetQuantity();
+		}
+
+		return 1;
+	}
+
+	int Expansion_GetStackMin()
+	{
+		if (IsAmmoPile())
+		{
+			return 0;
+		}
+		else if (Expansion_IsStackable())
+		{
+			return GetQuantityMin();
+		}
+
+		return 1;
+	}
+
+	int Expansion_GetStackMax()
+	{
+		if (IsAmmoPile())
+		{
+			auto mag = Magazine.Cast(this);
+			return mag.GetAmmoMax();
+		}
+		else if (Expansion_IsStackable())
+		{
+			return GetQuantityMax();
 		}
 
 		return 1;

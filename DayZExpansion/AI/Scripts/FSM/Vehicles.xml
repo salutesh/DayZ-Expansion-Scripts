@@ -6,14 +6,14 @@
 		<variable name="seat" type="int" />
 	</variables>
 	<states default="GoToVehicle">
-		<state name="GoToVehicle" class="ExpansionState_GoToVehicle">
+		<state name="GoToVehicle" class="eAIState_GoToVehicle">
 			<editor_data>
 				<position x="1149.9818389093" y="451.533421790161" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				entity = fsm.entity;
-				seat = fsm.seat;
+				m_Entity = fsm.entity;
+				m_Seat = fsm.seat;
 				
 				super.OnEntry(Event, null);
 				
@@ -21,25 +21,25 @@
 				unit.OverrideMovementSpeed(false, 0);
 			</event_entry>
 		</state>
-		<state name="GetInVehicle" class="ExpansionState_GetInVehicle">
+		<state name="GetInVehicle" class="eAIState_GetInVehicle">
 			<editor_data>
 				<position x="1239" y="550.644739300538" />
 				<size width="150" height="40" />
 			</editor_data>
 		</state>
-		<state name="GetOutVehicle" class="ExpansionState_GetOutVehicle">
+		<state name="GetOutVehicle" class="eAIState_GetOutVehicle">
 			<editor_data>
 				<position x="1239" y="550.644739300538" />
 				<size width="150" height="40" />
 			</editor_data>
 		</state>
-		<state name="OpenVehicleDoor" class="ExpansionState_OpenVehicleDoor">
+		<state name="OpenVehicleDoor" class="eAIState_OpenVehicleDoor">
 			<editor_data>
 				<position x="1239" y="550.644739300538" />
 				<size width="150" height="40" />
 			</editor_data>
 		</state>
-		<state name="CloseVehicleDoor" class="ExpansionState_CloseVehicleDoor">
+		<state name="CloseVehicleDoor" class="eAIState_CloseVehicleDoor">
 			<editor_data>
 				<position x="1239" y="550.644739300538" />
 				<size width="150" height="40" />
@@ -66,10 +66,10 @@
 				<position_destination x="1313" y="550.644739300538" />
 			</editor_data>
 			<guard>
-				if (vector.DistanceSq(unit.GetPosition(), src.position) &gt; 1.0) return FAIL;
-				if (!src.transport.IsAreaAtDoorFree(src.seat)) return FAIL;
+				if (vector.DistanceSq(unit.GetPosition(), src.m_Position) &gt; 1.0) return FAIL;
+				if (!src.m_Transport.IsAreaAtDoorFree(src.m_Seat)) return FAIL;
 				CarScript cs;
-				if (src.transport.CrewMember(src.seat) || (Class.CastTo(cs, src.transport) &amp;&amp; cs.Expansion_IsSeatReservedByOther(src.seat, unit))) return FAIL;
+				if (src.m_Transport.CrewMember(src.m_Seat) || (Class.CastTo(cs, src.m_Transport) &amp;&amp; cs.Expansion_IsSeatReservedByOther(src.m_Seat, unit))) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -83,7 +83,16 @@
 				<position_destination x="1313" y="550.644739300538" />
 			</editor_data>
 			<guard>
-				if (vector.DistanceSq(unit.GetPosition(), src.position) &lt; 1.0) return FAIL;
+				//auto group = unit.GetGroup();
+				//if (!group) return FAIL;
+				//
+				//auto leader = group.GetFormationLeader();
+				//if (leader &amp;&amp; leader != unit)
+				//{
+				//	if (!leader.IsInTransport()) return FAIL;
+				//}
+				
+				if (vector.DistanceSq(unit.GetPosition(), src.m_Position) &lt; 1.0) return FAIL;
 				
 				if (unit.GetThreatToSelf() &gt;= 0.4) return FAIL;
 				
@@ -99,11 +108,11 @@
 				<position_destination x="1312.25419083697" y="629.019715945429" />
 			</editor_data>
 			<guard>
-				if (vector.DistanceSq(unit.GetPosition(), src.position) &gt; 1.0) return FAIL;
+				if (vector.DistanceSq(unit.GetPosition(), src.m_Position) &gt; 1.0) return FAIL;
 				if (unit.IsInTransport()) return FAIL;
-				if (!src.transport.CrewCanGetThrough(src.seat) || !src.transport.IsAreaAtDoorFree(src.seat)) return FAIL;
+				if (!src.m_Transport.CrewCanGetThrough(src.m_Seat) || !src.m_Transport.IsAreaAtDoorFree(src.m_Seat)) return FAIL;
 				CarScript cs;
-				if (src.transport.CrewMember(src.seat) || (Class.CastTo(cs, src.transport) &amp;&amp; cs.Expansion_IsSeatReservedByOther(src.seat, unit))) return FAIL;
+				if (src.m_Transport.CrewMember(src.m_Seat) || (Class.CastTo(cs, src.m_Transport) &amp;&amp; cs.Expansion_IsSeatReservedByOther(src.m_Seat, unit))) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -116,7 +125,7 @@
 				<position_source x="1312.25419083697" y="669.019715945429" />
 				<position_destination x="1314.38313869708" y="710.749953289782" />
 			</editor_data>
-			<guard>				
+			<guard>
 				return SUCCESS;
 			</guard>
 			<event />
@@ -141,7 +150,7 @@
 						return FAIL;
 				}
 				
-				if (!dst.transport.IsAreaAtDoorFree(dst.seat)) return FAIL;
+				if (!dst.m_Transport.IsAreaAtDoorFree(dst.m_Seat)) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -159,7 +168,7 @@
 				
 				if (!unit.IsInTransport()) return FAIL;
 				
-				if (!src.transport.CrewCanGetThrough(src.seat) || !src.transport.IsAreaAtDoorFree(src.seat)) return FAIL;
+				if (!src.m_Transport.CrewCanGetThrough(src.m_Seat) || !src.m_Transport.IsAreaAtDoorFree(src.m_Seat)) return FAIL;
 				
 				return SUCCESS;
 			</guard>

@@ -967,7 +967,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSIONMODGROUPS
 		if ( GetExpansionSettings().GetTerritory().OnlyInviteGroupMember && !territory.IsPartyMember(targetPlayer) )
 		{
-			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_NOT_PARTY_MEMBER", targetPlayer.GetIdentity().GetName())).Error(sender);
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_NOT_IN_GROUP", targetPlayer.GetIdentity().GetName())).Error(sender);
 			return;
 		}
 		#endif

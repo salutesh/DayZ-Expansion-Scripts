@@ -42,6 +42,82 @@ class eAIWeaponManager: WeaponManager
 		return true;
 	}
 
+	//! @note only difference to vanilla StartPendingAction is that we check if pending event was already posted
+	//! and turn the vanilla error into a warning in that case
+	override void StartPendingAction()
+	{		
+		m_WeaponInHand = Weapon_Base.Cast(m_player.GetHumanInventory().GetEntityInHands());
+		if(!m_WeaponInHand)
+		{
+			OnWeaponActionEnd();
+			return;
+		}
+		switch (m_PendingWeaponAction)
+		{
+			case AT_WPN_ATTACH_MAGAZINE:
+			{
+				PostWeaponEvent( new WeaponEventAttachMagazine(m_player, m_PendingTargetMagazine) );
+				break;
+			}
+			case AT_WPN_SWAP_MAGAZINE:
+			{
+				PostWeaponEvent( new WeaponEventSwapMagazine(m_player, m_PendingTargetMagazine, m_PendingInventoryLocation) );
+				break;
+			}
+			case AT_WPN_DETACH_MAGAZINE:
+			{
+				Magazine mag = Magazine.Cast(m_PendingInventoryLocation.GetItem());
+				PostWeaponEvent( new WeaponEventDetachMagazine(m_player, mag, m_PendingInventoryLocation) );
+				break;
+			}
+			case AT_WPN_LOAD_BULLET:
+			{
+				m_WantContinue = false;
+				PostWeaponEvent( new WeaponEventLoad1Bullet(m_player, m_PendingTargetMagazine) );
+				break;
+			}
+			case AT_WPN_LOAD_MULTI_BULLETS_START:
+			{
+				PostWeaponEvent( new WeaponEventLoad1Bullet(m_player, m_PendingTargetMagazine) );
+				break;
+			}
+			case AT_WPN_LOAD_MULTI_BULLETS_END:
+			{
+				PostWeaponEvent( new WeaponEventContinuousLoadBulletEnd(m_player) );
+				break;
+			}
+			case AT_WPN_UNJAM:
+			{
+				PostWeaponEvent( new WeaponEventUnjam(m_player, NULL) );
+				break;
+			}
+			case AT_WPN_EJECT_BULLET:
+			{
+				PostWeaponEvent( new WeaponEventMechanism(m_player, NULL) );
+				break;
+			}
+			case AT_WPN_SET_NEXT_MUZZLE_MODE:
+			{
+				PostWeaponEvent( new WeaponEventSetNextMuzzleMode(m_player, NULL) );
+				break;
+			}
+			default:
+				m_InProgress = false;
+				Error("unknown actionID=" + m_PendingWeaponAction);
+		}	
+		m_IsEventSended = true;
+		m_canEnd = false;
+	}
+
+	void PostWeaponEvent(WeaponEventBase e)
+	{
+		DayZPlayerInventory inventory = m_player.GetDayZPlayerInventory();
+		if (!inventory.m_DeferredWeaponEvent)
+			inventory.PostWeaponEvent(e);
+		else
+			EXError.Warn(null, "[wpnfsm] " + Object.GetDebugName(inventory.GetInventoryOwner()) + " warning - pending event already posted, curr_event=" + inventory.m_DeferredWeaponEvent.DumpToString() + " new_event=" + e.DumpToString());
+	}
+
 	override void OnWeaponActionEnd()
 	{
 		if ( !m_InProgress )

@@ -36,6 +36,7 @@ modded class DayZPlayerImplement
 
 	[eAIAttribute<float>.Register("m_eAI_DamageReceivedMultiplier")]
 	float m_eAI_DamageReceivedMultiplier = 1.0;
+	float m_eAI_HeadshotResistance;
 
 	float m_eAI_AttackCooldown;  //! Melee attack cooldown
 

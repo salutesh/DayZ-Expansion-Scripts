@@ -37,10 +37,7 @@ class ExpansionEntity
 			ctx.Write(b4);
 		}
 
-	#ifndef DAYZ_1_25
-		//! 1.26+
 		CF_SaveVariables(ctx);
-	#endif
 	}
 
 	//! EntityAI::OnStoreLoad, but for ModStorage
@@ -112,8 +109,6 @@ class ExpansionEntity
 		return true;
 	}
 
-#ifndef DAYZ_1_25
-	//! 1.26+
 	void CF_SaveVariables(CF_ModStorage ctx)
 	{
 		int varFlags;
@@ -137,7 +132,6 @@ class ExpansionEntity
 			ctx.Write(m_Entity.GetIsFrozen());
 		}
 	}
-#endif
 
 	bool CF_LoadVariables(CF_ModStorage ctx, int version)
 	{
@@ -168,10 +162,7 @@ class ExpansionEntity
 			return false;
 		}
 
-	#ifndef DAYZ_1_25
-		//! 1.26+
 		m_Entity.m_VariablesMask = mask;
-	#endif
 
 		if (mask & VARIABLE_TEMPERATURE)
 		{
@@ -182,10 +173,7 @@ class ExpansionEntity
 				return false;
 			}
 
-		#ifndef DAYZ_1_25
-			//! 1.26+
 			m_Entity.SetTemperatureDirect(temperature);
-		#endif
 
 			bool isFrozen;
 			if (!ctx.Read(isFrozen))
@@ -194,10 +182,7 @@ class ExpansionEntity
 				return false;
 			}
 
-		#ifndef DAYZ_1_25
-			//! 1.26+
 			m_Entity.SetFrozen(isFrozen);
-		#endif
 		}
 		
 		return true;

@@ -391,6 +391,7 @@ class eAICommandMenu: UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.ALL, "All", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.DEFAULT, "Default", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.BANDAGES, "Bandages", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.FOOD, "Food", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.WEAPONS, "Weapons", eAICommandCategories.CATEGORIES));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING, "Clothing", eAICommandCategories.CATEGORIES));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_LOOTINGBEHAVIOUR_CLOTHING_BACK, "Backwear", eAICommandCategories.CATEGORIES));
@@ -434,6 +435,7 @@ class eAICommandMenu: UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.STA_DUMP, "Dump State", eAICommandCategories.CAT_STATUS));
 			if (GetExpansionSettings().GetAI().IsAdmin())
 			{
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_RESET_PATHFINDING, "    Reset\nPathfinding", eAICommandCategories.CAT_STATUS));
 			#ifdef DIAG_DEVELOPER
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGOBJECTS, " Debug\nObjects", eAICommandCategories.CAT_STATUS));
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGDAMAGE, " Debug\nDamage", eAICommandCategories.CAT_STATUS));
@@ -460,6 +462,13 @@ class eAICommandMenu: UIScriptedMenu
 			for (i = 0; i < eAICommands.DEB_DAMAGE_COUNT; ++i)
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DAMAGE + i, string.Format("%1%%", 100 - i * 5), category));
+			}
+			break;
+
+		case eAICommandCategories.CAT_HEADSHOTRESISTANCE:
+			for (i = 0; i < eAICommands.DEB_DAMAGE_COUNT; ++i)
+			{
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DAMAGE + i, string.Format("%1%%", i * 5), category));
 			}
 			break;
 
@@ -795,6 +804,10 @@ class eAICommandMenu: UIScriptedMenu
 
 						case eAICommandCategories.CAT_DAMAGE_IN:
 							RefreshGestures(eAICommandCategories.CAT_DAMAGE_OUT, "Damage Out");
+							break;
+
+						case eAICommandCategories.CAT_DAMAGE_OUT:
+							RefreshGestures(eAICommandCategories.CAT_HEADSHOTRESISTANCE, "Headshot Resistance");
 							break;
 
 						case eAICommandCategories.CAT_FORMATION:

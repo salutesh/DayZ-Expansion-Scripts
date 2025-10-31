@@ -179,33 +179,38 @@ class ExpansionStateType
 		}
 		else
 		{
-			FPrintln(file, "	override void OnEntry(string Event, ExpansionState From) {");
-#ifdef EAI_TRACE
-			FPrintln(file, "		auto trace = CF_Trace_2(this, \"OnEntry\").Add(Event).Add(From);");
-#endif
-			if (inheritsFromCustom) FPrintln(file, "		super.OnEntry(Event, From);");
-			FPrintTag0(file, event_entry);
-			FPrintln(file, "	}");
-
-			FPrintln(file, "	override void OnExit(string Event, bool Aborted, ExpansionState To) {");
-#ifdef EAI_TRACE
-			FPrintln(file, "		auto trace = CF_Trace_3(this, \"OnExit\").Add(Event).Add(Aborted).Add(To);");
-#endif
-			if (inheritsFromCustom) FPrintln(file, "		super.OnExit(Event, Aborted, To);");
-			FPrintTag0(file, event_exit);
-			FPrintln(file, "	}");
-
-			FPrintln(file, "	override int OnUpdate(float DeltaTime, int SimulationPrecision) {");
-#ifdef EAI_TRACE
-			FPrintln(file, "		auto trace = CF_Trace_2(this, \"OnUpdate\").Add(DeltaTime).Add(SimulationPrecision);");
-#endif
-			if (inheritsFromCustom) FPrintln(file, "		if (super.OnUpdate(DeltaTime, SimulationPrecision) == EXIT) return EXIT;");
-			if (!FPrintTag0(file, event_update))
+			if (event_entry.Count() > 0 && event_entry[0].GetContent().GetContent().Trim())
 			{
-				FPrintln(file, "		return CONTINUE;");
+				FPrintln(file, "	override void OnEntry(string Event, ExpansionState From) {");
+#ifdef EAI_TRACE
+				FPrintln(file, "		auto trace = CF_Trace_2(this, \"OnEntry\").Add(Event).Add(From);");
+#endif
+				if (inheritsFromCustom) FPrintln(file, "		super.OnEntry(Event, From);");
+				FPrintContent(file, event_entry[0].GetContent().GetContent());
+				FPrintln(file, "	}");
 			}
 
-			FPrintln(file, "	}");
+			if (event_exit.Count() > 0 && event_exit[0].GetContent().GetContent().Trim())
+			{
+				FPrintln(file, "	override void OnExit(string Event, bool Aborted, ExpansionState To) {");
+#ifdef EAI_TRACE
+				FPrintln(file, "		auto trace = CF_Trace_3(this, \"OnExit\").Add(Event).Add(Aborted).Add(To);");
+#endif
+				if (inheritsFromCustom) FPrintln(file, "		super.OnExit(Event, Aborted, To);");
+				FPrintContent(file, event_exit[0].GetContent().GetContent());
+				FPrintln(file, "	}");
+			}
+
+			if (event_update.Count() > 0 && event_update[0].GetContent().GetContent().Trim())
+			{
+				FPrintln(file, "	override int OnUpdate(float DeltaTime, int SimulationPrecision) {");
+#ifdef EAI_TRACE
+				FPrintln(file, "		auto trace = CF_Trace_2(this, \"OnUpdate\").Add(DeltaTime).Add(SimulationPrecision);");
+#endif
+				if (inheritsFromCustom) FPrintln(file, "		if (super.OnUpdate(DeltaTime, SimulationPrecision) == EXIT) return EXIT;");
+				FPrintContent(file, event_update[0].GetContent().GetContent());
+				FPrintln(file, "	}");
+			}
 		}
 
 		FPrintln(file, "}");
@@ -222,25 +227,30 @@ class ExpansionStateType
 			string content = tags[0].GetContent().GetContent();
 			if (content.Trim())
 			{
-				TStringArray lines = {};
-				content.Split("\n", lines);
-				string indent = "		";
-				foreach (string line: lines)
-				{
-					//! Minimal "Code formatting"
-					line = line.Trim();
-					bool hasCurlyL = line.Contains("{");
-					bool hasCurlyR = line.Contains("}");
-					if (hasCurlyR && !hasCurlyL)
-						indent = indent.Substring(0, indent.Length() - 1);
-					FPrintln(file, indent + line);
-					if (hasCurlyL && !hasCurlyR)
-						indent += "	";
-				}
+				FPrintContent(file, content);
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	static void FPrintContent(FileHandle file, string content)
+	{
+		TStringArray lines = {};
+		content.Split("\n", lines);
+		string indent = "		";
+		foreach (string line: lines)
+		{
+			//! Minimal "Code formatting"
+			line = line.Trim();
+			bool hasCurlyL = line.Contains("{");
+			bool hasCurlyR = line.Contains("}");
+			if (hasCurlyR && !hasCurlyL)
+				indent = indent.Substring(0, indent.Length() - 1);
+			FPrintln(file, indent + line);
+			if (hasCurlyL && !hasCurlyR)
+				indent += "	";
+		}
 	}
 };

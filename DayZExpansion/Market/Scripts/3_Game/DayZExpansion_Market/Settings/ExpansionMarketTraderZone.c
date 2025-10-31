@@ -240,40 +240,19 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 		if (stockOnly || item.m_StockOnly)
 			return item;
 
-		item.CategoryID = tItem.MarketItem.CategoryID;
-		item.ClassName = tItem.MarketItem.ClassName;
 		item.MinPriceThreshold = tItem.MarketItem.MinPriceThreshold;
 		item.MaxPriceThreshold = tItem.MarketItem.MaxPriceThreshold;
 		item.MinStockThreshold = tItem.MarketItem.MinStockThreshold;
 		item.MaxStockThreshold = tItem.MarketItem.MaxStockThreshold;
-		item.AttachmentIDs = new array< int >;
-		foreach (string className: tItem.MarketItem.SpawnAttachments)
-		{
-			ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(className);
-			if (attachment)
-				item.AttachmentIDs.Insert(attachment.ItemID);
-			else
-				EXPrint("ExpansionMarketTraderZone::GetNetworkItemSerialization - WARNING: Attachment '" + className + "' does not exist!");
-		}
-		item.Variants = new array< string >;
-		foreach (string variant: tItem.MarketItem.Variants)
-		{
-			string networkVariant = variant;
-			networkVariant.Replace(item.ClassName, "*");
-			item.Variants.Insert(networkVariant);
-		}
 
-		//! Network optimization: Pack BuySell, Hardline item rarity (if loaded), QuantityPercent and SellPricePercent into one 32-bit int
-		//! (8 bits for BuySell and item rarity combined, 8 bits for QuantityPercent, 16 bits for SellPricePercent)
-		//! @note we need to include Hardline item rarity here because it is used in market menu, and item previews are only rendered clientside so we can't use
-		//!       ItemBase netsync
-		//! @note for QuantityPercent, we use 0x0..0x7f for 0..127 and 0x80..0xff for -128..-1, this needs to be dealt with when decoding!
-		//! @note for SellPricePercent, we use 0x0..0x00007fff for 0..32767 and 0x00008000..0x0000ffff for -32768..-1, this needs to be dealt with when decoding!
-		int param1 = tItem.BuySell;
+		item.m_MarketItem = tItem.MarketItem;
+
+		item.m_BuySell = tItem.BuySell;
 #ifdef EXPANSIONMODHARDLINE
-		param1 |= tItem.MarketItem.m_Rarity << 4;
+		item.m_Rarity = tItem.MarketItem.m_Rarity;
 #endif
-		item.Packed = ((param1 & 0xff) << 24) | ((tItem.MarketItem.QuantityPercent & 0xff) << 16) | (tItem.MarketItem.m_SellPricePercent & 0x0000ffff);
+		item.QuantityPercent = tItem.MarketItem.QuantityPercent;
+		item.m_SellPricePercent = tItem.MarketItem.m_SellPricePercent;
 
 		#ifdef EXPANSIONMODMARKET_DEBUG
 		EXPrint("ExpansionMarketTraderZone::GetNetworkItemSerialization - End " + tItem.MarketItem.ClassName);

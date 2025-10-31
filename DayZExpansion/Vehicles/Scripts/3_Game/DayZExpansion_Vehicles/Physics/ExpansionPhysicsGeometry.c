@@ -83,7 +83,7 @@ class ExpansionPhysicsGeometry : PhysicsGeomDef
 		return this;
 	}
 
-	ExpansionPhysicsGeometry SetTransform(Transform transform)
+	ExpansionPhysicsGeometry SetTransform(ExpansionTransform transform)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "SetTransform").Add(transform);

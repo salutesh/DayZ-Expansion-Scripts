@@ -34,9 +34,7 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 #endif
 	Transport m_Transport;
 	Car m_Car;
-#ifndef DAYZ_1_25
 	Boat m_Boat;
-#endif
 
 	int m_SeatIndex;
 	int m_SeatAnim;
@@ -70,9 +68,7 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 #endif
 		Class.CastTo(m_Transport, vehicle);
 		Class.CastTo(m_Car, vehicle);
-#ifndef DAYZ_1_25
 		Class.CastTo(m_Boat, vehicle);
-#endif
 
 		m_SeatIndex = seatIdx;
 		m_SeatAnim = seat_anim;
@@ -260,14 +256,12 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 				m_Table.SetVehicleBrake(this, m_Car.GetBrake() != 0.0);
 				m_Table.SetVehicleClutch(this, m_ClutchState);
 			}
-#ifndef DAYZ_1_25
 			else if (m_Boat)
 			{
 				m_Table.SetVehicleSteering(this, m_Boat.GetSteering());
 				m_Table.SetVehicleThrottle(this, m_Boat.GetThrottle());
 				m_Table.SetVehicleClutch(this, m_ClutchState);
 			}
-#endif
 #ifdef EXPANSIONMODVEHICLE
 			else if (m_Vehicle)
 			{
