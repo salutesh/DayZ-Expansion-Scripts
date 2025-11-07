@@ -214,6 +214,11 @@ class eAITarget: eAITargetInformationState
 		return m_Info.GetParent();
 	}
 
+	float GetLifetime()
+	{
+		return m_Info.GetLifetime();
+	}
+
 	vector GetPosition(bool actual = false)
 	{
 		return m_Info.GetPosition(m_AI, actual, this);

@@ -19,7 +19,7 @@ modded class StaminaHandler
 		if (!m_Player)
 			return;
 
-		if (m_Player.IsAI())
+		if (m_Player.IsAI() && !m_Player.IsDamageDestroyed())
 		{
 			eAIGroup group = m_Player.GetGroup();
 

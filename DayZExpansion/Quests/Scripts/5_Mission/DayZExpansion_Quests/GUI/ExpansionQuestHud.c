@@ -37,33 +37,33 @@ class ExpansionQuestHUD: ExpansionScriptView
 	void UpdateView()
 	{
 #ifdef EXTRACE
-		auto trace = EXTrace.Start(true, this);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 #endif
 
 		if (!GetGame().GetPlayer())
 		{
-			EXTrace.Print(true, this, "no player - skipping");
+			EXTrace.Print(EXTrace.QUESTS, this, "::UpdateView - no player - skipping");
 			return;
 		}
 
 		if (!IsVisible())
 		{
-			EXTrace.Print(true, this, "not visible - skipping");
+			EXTrace.Print(EXTrace.QUESTS, this, "::UpdateView - not visible - skipping");
 			return;
 		}
 		
 		map<int, bool> visStates = GetExpansionClientSettings().QuestVisibilityStates;
-		Print(ToString() + "::UpdateView - Quest entry visibility states: " + visStates.Count());
+		EXTrace.Print(EXTrace.QUESTS, this, "::UpdateView - Quest entry visibility states: " + visStates.Count());
 		foreach (int visQuestID, bool visState: visStates)
 		{
-			Print(ToString() + "::UpdateView - Set quest entry visibility state for quest entry: " + visQuestID + " | State: " + visState);
+			EXTrace.Print(EXTrace.QUESTS, this, "::UpdateView - Set quest entry visibility state for quest entry: " + visQuestID + " | State: " + visState);
 			m_QuestEntriesVisibilityPreference[visQuestID] = visState;
 		}
 
 		ExpansionQuestPersistentData playerData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
 		if (!playerData)
 		{
-			EXTrace.Print(true, this, "no client quest data - skipping");
+			EXTrace.Print(EXTrace.QUESTS, this, "::UpdateView - no client quest data - skipping");
 			return;
 		}
 
@@ -100,12 +100,12 @@ class ExpansionQuestHUD: ExpansionScriptView
 	
 				if (!m_QuestEntriesVisibilityPreference.Find(questID, isVisible) || isVisible)
 				{
-					Print(ToString() + "::UpdateView - Show entry for quest with ID " + questID + ".");
+					EXTrace.Print(EXTrace.QUESTS, this, "::UpdateView - Show entry for quest with ID " + questID + ".");
 					entry.Show();
 				}
 				else
 				{
-					Print(ToString() + "::UpdateView - Hide entry for quest with ID " + questID + ".");
+					EXTrace.Print(EXTrace.QUESTS, this, "::UpdateView - Hide entry for quest with ID " + questID + ".");
 					entry.Hide();
 				}
 			}

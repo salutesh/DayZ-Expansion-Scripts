@@ -693,6 +693,21 @@ class eAICommandMove: ExpansionHumanCommand
 				}
 			}
 
+			bool blockedFwdOrBwd;
+			//! https://feedback.bistudio.com/T173348
+			if (blockedForward || blockedBackward)
+			{
+				blockedFwdOrBwd = true;
+				if (m_LastBlocked)
+					m_Unit.m_eAI_BlockedTime += cdt;
+			}
+			else
+			{
+				m_Unit.m_eAI_BlockedTime = 0.0;
+			}
+
+			m_LastBlocked = blockedFwdOrBwd;
+
 			if (!m_BlockingObject)
 			{
 				m_IsBlockedByBuildingWithDoor = false;
@@ -709,7 +724,7 @@ class eAICommandMove: ExpansionHumanCommand
 					if (building.GetDoorCount() > 0)
 						m_IsBlockedByBuildingWithDoor = true;
 
-					if (!m_Unit.m_eAI_Ladder && building.Expansion_GetLaddersCount() > 0 && !m_Unit.eAI_IsExcludedBuildingWithLadder(building))
+					if (blockedFwdOrBwd && !m_Unit.m_eAI_Ladder && building.Expansion_GetLaddersCount() > 0 && !m_Unit.eAI_IsExcludedBuildingWithLadder(building))
 					{
 						if (m_Unit.m_eAI_BuildingWithLadder != building)
 						{
@@ -727,21 +742,6 @@ class eAICommandMove: ExpansionHumanCommand
 					}
 				}
 			}
-
-			bool blockedFwdOrBwd;
-			//! https://feedback.bistudio.com/T173348
-			if (blockedForward || blockedBackward)
-			{
-				blockedFwdOrBwd = true;
-				if (m_LastBlocked)
-					m_Unit.m_eAI_BlockedTime += cdt;
-			}
-			else
-			{
-				m_Unit.m_eAI_BlockedTime = 0.0;
-			}
-
-			m_LastBlocked = blockedFwdOrBwd;
 
 			float overrideTargetMovementDirection = m_OverrideTargetMovementDirection;
 
@@ -1183,7 +1183,7 @@ class eAICommandMove: ExpansionHumanCommand
 			m_ForceMovementDirection = true;
 		}
 		//! Turn towards aim direction when raised or target is not part of our group but keep moving in waypoint direction (strafe/backpedal if necessary)
-		else if (m_MovementSpeed > 0 && (m_Unit.IsRaised() || !targetGroup || targetGroup != group) && m_WaypointDistance2DSq > 0.0001)
+		else if (m_MovementSpeed > 0 && m_WaypointDistance2DSq > 0.0001 && !m_Unit.IsSwimming() && (m_Unit.IsRaised() || !target || ((!target.IsNoise() && target.m_ThreatLevelActive > 0.2 && (!targetGroup || targetGroup != group)) || target.GetLifetime() > 3.0)))
 		{
 			vector aimDir = m_Unit.GetAimDirection();
 			float aimAngle = aimDir.VectorToAngles()[0];
@@ -1922,7 +1922,9 @@ class eAICommandMove: ExpansionHumanCommand
 									m_PathFinding.m_Points.InsertAt(waypoint, m_PathFinding.m_PointIdx);
 									++m_PathFinding.m_Count;
 									m_PathFinding.m_Next0.Position = waypoint;
-									m_PathFinding.m_SuppressRecalculate = true;
+
+									if (m_Unit.GetFSM().IsInState("FollowFormation"))
+										m_PathFinding.m_SuppressRecalculate = true;
 								}
 
 							#ifdef DIAG_DEVELOPER
@@ -1952,6 +1954,13 @@ class eAICommandMove: ExpansionHumanCommand
 
 					blockingObject = obj;
 				}
+				else if (obj.IsBuilding())
+				{
+					blockingObject = obj;
+
+					if (distSq > farDistSqThresh)
+						return false;
+				}
 				else if (distSq > farDistSqThresh)
 				{
 					return false;
@@ -1963,10 +1972,6 @@ class eAICommandMove: ExpansionHumanCommand
 
 					hit = true;
 
-					blockingObject = obj;
-				}
-				else if (obj.IsBuilding())
-				{
 					blockingObject = obj;
 				}
 				else if (obj.IsPlainObject())
@@ -2168,7 +2173,10 @@ class eAICommandMove: ExpansionHumanCommand
 
 	bool CheckBlocked()
 	{
-		if (!IsBlocked() || !CheckBlockedLeft() || !CheckBlockedRight())
+		if (!m_MovementSpeed || m_Unit.IsClimbing() || m_Unit.IsFalling() || m_Unit.IsFighting())
+			return false;
+
+		if (!m_LastBlocked || !m_LastBlockedLeft || !m_LastBlockedRight)
 			return false;
 
 		return true;

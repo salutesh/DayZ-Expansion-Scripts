@@ -66,13 +66,13 @@ modded class WeaponFireMultiMuzzle
 				if (LogManager.IsWeaponLogEnable()) { wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " WeaponFire bang bang!"); }
 
 				int mi = m_weapon.GetCurrentMuzzle();
-				int b = m_weapon.GetCurrentModeBurstSize(mi);
-				if(b > 1 )
+				int b = Math.Min(m_weapon.GetCurrentModeBurstSize(mi), m_weapon.GetMuzzleCount());
+				if (b > 1)
 				{
 					
 					for (int i = 0; i < b; i++)
 					{
-						if (m_weapon.eAI_Fire(i, p))
+						if (!m_weapon.IsChamberEmpty(i) && !m_weapon.IsChamberFiredOut(i) && m_weapon.eAI_Fire(i, p))
 						{
 							p.GetAimingModel().SetRecoil(m_weapon);
 							m_weapon.OnFire(i);

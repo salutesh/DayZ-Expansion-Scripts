@@ -54,6 +54,11 @@ class eAITargetInformation
 		return "";
 	}
 
+	float GetLifetime()
+	{
+		return 0.0;
+	}
+
 	bool CanPutInCargo(EntityAI parent)
 	{
 		return false;

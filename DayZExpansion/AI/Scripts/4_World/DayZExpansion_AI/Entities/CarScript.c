@@ -105,7 +105,7 @@ modded class CarScript
 		float brake = (1.0 - speedCoef) * (1.0 - distanceCoef);
 
 		SetSteering(steering);
-		SetThrust(throttle);
+		SetThrottle(throttle);
 		SetBrake(brake);
 
 		ShiftTo(gear);

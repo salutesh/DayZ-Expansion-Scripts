@@ -1244,5 +1244,6 @@ class ExpansionPathHandler
 	{
 		m_IsTargetUnreachable = false;
 		m_IsUnreachable = false;
+		m_SuppressRecalculate = false;
 	}
 };

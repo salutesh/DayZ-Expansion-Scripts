@@ -807,7 +807,8 @@ class eAIRoadNetwork
 		if (!m_IsEnabled) return;
 
 		//Print("+eAIRoadNetwork::FindPath");
-		//GetGame().GameScript.Call(this, "_FindPath", new Param3<vector, vector, ExpansionPathHandler>(start, end, pathFinding));
+		//auto param = new Param3<vector, vector, ExpansionPathHandler>(start, end, pathFinding);
+		//GetGame().GameScript.Call(this, "_FindPath", param);
 		//thread _FindPath(start, end, pathFinding);
 		//Print("-eAIRoadNetwork::FindPath");
 	}

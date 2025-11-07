@@ -54,6 +54,7 @@ class eAIGroup
 
 	bool m_Leave;
 	bool m_ForcePatrolDespawn;
+	float m_LastHitTime;
 
 	// return the group owned by leader, otherwise create a new one.
 	static eAIGroup GetGroupByLeader(DayZPlayerImplement leader, bool createIfNoneExists = true, eAIFaction faction = null, bool autoDeleteFormerGroupIfEmpty = true)
@@ -1044,6 +1045,17 @@ class eAIGroup
 	bool IsInCombat()
 	{
 		return m_IsInCombat;
+	}
+
+	bool CanLeave()
+	{
+		if (!m_Leave)
+			return false;
+
+		if (g_Game.GetTime() - m_LastHitTime < 30)
+			return false;
+
+		return true;
 	}
 
 	DayZPlayerImplement GetMember(int i)

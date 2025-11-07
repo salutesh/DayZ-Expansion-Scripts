@@ -79,6 +79,9 @@ modded class BuildingBase
 		if (!s_eAI_PreventClimb)
 		{
 			//! Hardcoded defaults (AI will vault those buildings' edges otherwise or climb on ledges unnecessarily)
+			//! Entries ending with $ will match to end, others can match anywhere
+			//! "foo_bar" will match "foo_bar", "xyz_foo_bar_baz" etc.
+			//! "foo_bar$" will match "foo_bar", "xyz_foo_bar", but not "foo_bar_baz" etc.
 			s_eAI_PreventClimb = {
 				"land_boat_",  //! Sakhal, pathfinding won't find a path off the boat
 				"land_busstop",
@@ -87,6 +90,7 @@ modded class BuildingBase
 				//"land_cementworks",
 				"land_city_firestation",
 				"land_city_stand",
+				"land_container",
 				"land_dieselpowerplant_tank_big",
 				//"land_farm_cowsheda",
 				//"land_farm_cowshedb",
@@ -120,6 +124,13 @@ modded class BuildingBase
 				"land_train_wagon_box",  //! Pathfinding won't find a path out of the wagon, that's the only reason it's excluded
 				"land_village_healthcare",
 				"land_village_store",
+				"land_wall_fenforest_gate",
+				"land_wall_gate_feng$",
+				"land_wall_gate_feng_open$",
+				"land_wall_gate_fenr$",
+				"land_wall_gate_fenr_open$",
+				"land_wall_gate_opendam",
+				"land_wall_gate_wood",
 				"land_warheadstorage_entrance",  //! Sakhal
 				"land_water_station",
 				"land_workshop",
@@ -133,7 +144,16 @@ modded class BuildingBase
 		type.ToLower();
 		foreach (string preventClimb: s_eAI_PreventClimb)
 		{
-			if (type.IndexOf(preventClimb) >= 0)
+			int lastChar = preventClimb.Length() - 1;
+			if (preventClimb[lastChar] == "$")
+			{
+				if (preventClimb.Substring(0, lastChar).IndexOf(type) >= 0)
+				{
+					m_eAI_PreventClimb = true;
+					break;
+				}
+			}
+			else if (type.IndexOf(preventClimb) >= 0)
 			{
 				m_eAI_PreventClimb = true;
 				break;

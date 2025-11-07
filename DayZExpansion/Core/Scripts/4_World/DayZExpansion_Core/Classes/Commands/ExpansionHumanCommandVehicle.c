@@ -252,7 +252,7 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 			if (m_Car)
 			{
 				m_Table.SetVehicleSteering(this, m_Car.GetSteering());
-				m_Table.SetVehicleThrottle(this, m_Car.GetThrust());
+				m_Table.SetVehicleThrottle(this, m_Car.GetThrottle());
 				m_Table.SetVehicleBrake(this, m_Car.GetBrake() != 0.0);
 				m_Table.SetVehicleClutch(this, m_ClutchState);
 			}

@@ -472,8 +472,11 @@ modded class DayZPlayerImplement
 		if (IsDamageDestroyed())
 			return;
 
-		if (!GetGroup())
+		eAIGroup group = GetGroup();
+		if (!group)
 			return;
+
+		group.m_LastHitTime = m_eAI_LastHitTime;
 
 		ZombieBase zmb;
 		if (Class.CastTo(zmb, source))
@@ -494,7 +497,7 @@ modded class DayZPlayerImplement
 				if (!ai || IsAI())
 					player.GetTargetInformation().AddFriendlyAI(this, 120000, true, 0.21);  //! Attacking player will be attacked by friendly AI
 				else
-					GetGroup().AddTarget(this, player.GetTargetInformation(), 120000, true, 0.21);   //! Attacking friendly AI will be attacked by group members of player
+					group.AddTarget(this, player.GetTargetInformation(), 120000, true, 0.21);   //! Attacking friendly AI will be attacked by group members of player
 			}
 
 			return;

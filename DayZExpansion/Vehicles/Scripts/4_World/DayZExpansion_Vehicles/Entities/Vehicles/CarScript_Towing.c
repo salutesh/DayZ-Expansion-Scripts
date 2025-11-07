@@ -58,7 +58,7 @@ modded class CarScript
 
 			SetHandbrake(0);
 			SetBrake(0);
-			SetThrust(0);
+			SetThrottle(0);
 			SetSteering(0);
 			SetBrakesActivateWithoutDriver(false);
 

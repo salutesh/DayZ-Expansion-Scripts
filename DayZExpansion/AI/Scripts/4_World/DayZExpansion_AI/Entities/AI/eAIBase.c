@@ -231,6 +231,7 @@ class eAIBase: PlayerBase
 	private bool m_eAI_TurnTargetActive;
 	private float m_eAI_TurnTarget;
 	bool m_eAI_Halt;
+	bool m_eAI_ResetInteractionLayer;
 	float m_eAI_PositionTime;
 	float m_eAI_BlockedTime;
 	float m_eAI_LastDoorInteractionTime;
@@ -2618,8 +2619,11 @@ class eAIBase: PlayerBase
 								emoteId = EmoteConstants.ID_EMOTE_THROAT;
 								break;
 							case 3:
+							#ifdef DAYZ_1_28
+								//! 1.29 broke dabbing
 								emoteId = EmoteConstants.ID_EMOTE_DABBING;
 								break;
+							#endif
 							case 4:
 								emoteId = EmoteConstants.ID_EMOTE_CLAP;
 								break;
@@ -3912,6 +3916,9 @@ class eAIBase: PlayerBase
 
 	void eAI_AddNoiseTarget(float threatLevel)
 	{
+		if (IsDamageDestroyed())
+			return;
+
 		if (threatLevel >= m_eAI_NoiseTargetInfo.GetThreat())
 		{
 			int maxTime = m_eAI_NoiseTargetInfo.GetLifetime() * 1000;
@@ -7570,8 +7577,6 @@ class eAIBase: PlayerBase
 		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(04) -> EnforceLOS");
 #endif
 
-		bool isItemTarget = targetEntity.IsItemBase();
-
 		string boneName;
 		if (IsRaised())
 			boneName = "Neck";
@@ -7585,6 +7590,49 @@ class eAIBase: PlayerBase
 		dir.Normalize();
 		//! Extend LOS ray by some amount because some targets like doors have inaccurate position and ray would not hit otherwise
 		vector endPos = begPos + dir * dist + dir * 0.5;
+
+		Object parent;
+
+		if (targetPlayer)
+		{
+			//! If targeting a player, and player is not in vehicle, or vehicle engine is not on,
+			//! or vehicle is farther away than 150 m and not a helicopter, check if we are facing target
+			//! (look direction, not movement direction)
+			ExpansionVehicle vehicle;
+			if (!Class.CastTo(parent, targetPlayer.Expansion_GetParent()) || !ExpansionVehicle.Get(vehicle, parent) || !vehicle.EngineIsOn() || (dist > 150 && !vehicle.IsHelicopter()))
+			{
+				vector toTargetAngles = dir.VectorToAngles();
+				float toTargetAngleH = toTargetAngles[0];
+				//float toTargetAngleV = toTargetAngles[1];
+				vector lookAngles = GetLookDirection().VectorToAngles();
+				float lookAngleH = lookAngles[0];
+				//float lookAngleV = lookAngles[1];
+				float angleDiffH = ExpansionMath.AngleDiff2(toTargetAngleH, lookAngleH);
+				//float angleDiffV = ExpansionMath.AngleDiff2(toTargetAngleV, lookAngleV);
+				float threshAngleH = eAI_CalculateFOVHalfAngleH(dist);
+			#ifdef DIAG_DEVELOPER
+				m_eAI_DbgThreshAngleH = threshAngleH;
+				m_eAI_DbgLookAngleH = lookAngleH;
+				//int encodedThreshAngleH = threshAngleH / 360.0 * 65535;
+				//int encodedLookAngleH = lookAngleH / 360.0 * 65535;
+				//encodedLookAngleH = encodedLookAngleH << 16;
+				//m_eAI_DbgLOSAngles = encodedThreshAngleH | encodedLookAngleH;
+			#endif
+				//if (Math.AbsFloat(angleDiffH) > threshH || Math.AbsFloat(angleDiffV) > threshV)  //! Player is outside AI FOV
+				if (Math.AbsFloat(angleDiffH) > threshAngleH)  //! Player is outside AI FOV
+				{
+				#ifdef DIAG_DEVELOPER
+					Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugSphereSmall");
+					Expansion_DebugObject_Deferred(19, endPos, "ExpansionDebugSphereSmall_Red", dir, begPos);
+				#endif
+					
+					state.m_LOS = false;
+					return false;
+				}
+			}
+		}
+
+		bool isItemTarget = targetEntity.IsItemBase();
 
 		vector contactPos;
 		vector contactDir;
@@ -7623,46 +7671,6 @@ class eAIBase: PlayerBase
 
 		//! Reset state for further checks
 		state.m_LOS = false;
-
-		Object parent;
-
-		if (targetPlayer)
-		{
-			//! If targeting a player, and player is not in vehicle, or vehicle engine is not on,
-			//! or vehicle is farther away than 150 m and not a helicopter, check if we are facing target
-			//! (look direction, not movement direction)
-			ExpansionVehicle vehicle;
-			if (!Class.CastTo(parent, targetPlayer.Expansion_GetParent()) || !ExpansionVehicle.Get(vehicle, parent) || !vehicle.EngineIsOn() || (dist > 150 && !vehicle.IsHelicopter()))
-			{
-				vector toTargetAngles = dir.VectorToAngles();
-				float toTargetAngleH = toTargetAngles[0];
-				//float toTargetAngleV = toTargetAngles[1];
-				vector lookAngles = GetLookDirection().VectorToAngles();
-				float lookAngleH = lookAngles[0];
-				//float lookAngleV = lookAngles[1];
-				float angleDiffH = ExpansionMath.AngleDiff2(toTargetAngleH, lookAngleH);
-				//float angleDiffV = ExpansionMath.AngleDiff2(toTargetAngleV, lookAngleV);
-				float threshAngleH = eAI_CalculateFOVHalfAngleH(dist);
-			#ifdef DIAG_DEVELOPER
-				m_eAI_DbgThreshAngleH = threshAngleH;
-				m_eAI_DbgLookAngleH = lookAngleH;
-				//int encodedThreshAngleH = threshAngleH / 360.0 * 65535;
-				//int encodedLookAngleH = lookAngleH / 360.0 * 65535;
-				//encodedLookAngleH = encodedLookAngleH << 16;
-				//m_eAI_DbgLOSAngles = encodedThreshAngleH | encodedLookAngleH;
-			#endif
-				//if (Math.AbsFloat(angleDiffH) > threshH || Math.AbsFloat(angleDiffV) > threshV)  //! Player is outside AI FOV
-				if (Math.AbsFloat(angleDiffH) > threshAngleH)  //! Player is outside AI FOV
-				{
-				#ifdef DIAG_DEVELOPER
-					Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugSphereSmall");
-					Expansion_DebugObject_Deferred(19, contactPos, "ExpansionDebugSphereSmall_Red", dir, begPos);
-				#endif
-					
-					return false;
-				}
-			}
-		}
 
 		bool isCreatureTarget = targetEntity.IsDayZCreature();
 
@@ -10508,10 +10516,6 @@ class eAIBase: PlayerBase
 
 		if (climbRes)
 		{
-			//! This should prevent AI from vaulting open doors...
-			if (climbRes.m_bIsClimbOver && climbType >= 1 && !m_PathFinding.m_IsBlocked)
-				return false;
-
 			if (!eAI_CanClimbOn(climbRes.m_GrabPointParent, climbRes))
 				return false;
 			if (!eAI_CanClimbOn(climbRes.m_ClimbStandPointParent, climbRes))
@@ -10607,26 +10611,37 @@ class eAIBase: PlayerBase
 				if (building.m_eAI_PreventClimb || building.IsInherited(ExpansionDebugObject))
 					return false;
 
-				//! Don't allow vaulting unenterable building unless path endpoint is within building or we are within building
-				if (!building.Expansion_IsEnterable() && !isPathEndPointCollidingObject && !ExpansionStatic.IsColliding(object, GetPosition()) && climbRes.m_bIsClimbOver)
+				if (climbRes.m_bIsClimbOver)
 				{
-					auto move = GetCommand_MoveAI();
-					if (!move || !m_eAI_CommandMove.IsBlocked())
-					{
-						if (EXTrace.AI)
-							EXTrace.Print(true, this, "eAI_CanClimbOn false " + Debug.GetDebugName(parent) + " is scenery? " + object.IsScenery() + " is plain? " + object.IsPlainObject());
-
+					//! This should prevent AI from vaulting open doors...
+					if (climbRes.m_fClimbHeight >= 1.7)
 						return false;
+
+					//! Don't allow vaulting unenterable building unless path endpoint is within building or we are within building
+					if (!building.Expansion_IsEnterable() && !isPathEndPointCollidingObject && !ExpansionStatic.IsColliding(object, GetPosition()))
+					{
+						auto move = GetCommand_MoveAI();
+						if (!move || !m_eAI_CommandMove.IsBlocked())
+						{
+							if (EXTrace.AI)
+								EXTrace.Print(true, this, "eAI_CanClimbOn false " + Debug.GetDebugName(parent) + " is scenery? " + object.IsScenery() + " is plain? " + object.IsPlainObject());
+
+							return false;
+						}
 					}
 				}
 			}
 			else if (object.IsTransport() || object.IsInventoryItem())
 			{
-				if (!isPathEndPointCollidingObject && !ExpansionStatic.IsColliding(object, GetPosition()) && climbRes.m_bIsClimbOver)
+				if (climbRes.m_bIsClimbOver && !isPathEndPointCollidingObject && !ExpansionStatic.IsColliding(object, GetPosition()))
 					return false;
 			}
 			else if (!object.IsScenery())
 			{
+				//! This should prevent AI from vaulting open gates unless blocked...
+				if (climbRes.m_bIsClimbOver && climbRes.m_fClimbHeight >= 1.7 && (!m_PathFinding.m_IsBlocked || !m_PathFinding.m_IsJumpClimb))
+					return false;
+
 				string debugName = object.GetDebugName();
 				debugName.ToLower();
 
@@ -10835,7 +10850,8 @@ class eAIBase: PlayerBase
 		if (m_eAI_CommandHandlerDT < 0.12)
 			return false;
 
-		if (m_eAI_PositionIsFinal && Math.Round(hcm.GetCurrentMovementSpeed()) == 0.0)
+		float speed = hcm.GetCurrentMovementSpeed();
+		if (m_eAI_PositionIsFinal && Math.Round(speed) == 0.0)
 			return false;
 
 		int time = GetGame().GetTime();
@@ -10855,7 +10871,7 @@ class eAIBase: PlayerBase
 			fwdBwd = -1.0;
 
 		vector p0 = position;
-		vector p1 = position + (direction * 1.5 * fwdBwd);
+		vector p1 = position + (direction * 1.5 * Math.Clamp(speed, 1.0, 1.333) * fwdBwd);
 
 		if (GetWeaponManager().IsRunning())
 		{
@@ -10936,14 +10952,14 @@ class eAIBase: PlayerBase
 					{
 						//! If we're blocked less than 3 seconds, and there's enough free space to move fwd/left/right,
 						//! and speed limit is zero or movement speed is zero or velocity is higher than 0.001 m/s, ignore opened door
-						if (m_eAI_BlockedTime < 3.0 && (CheckFreeSpace(vector.Forward, 0.3, false) || CheckFreeSpace(vector.Aside, 0.5, false) || CheckFreeSpace(-vector.Aside, 0.5, false)) && (m_MovementSpeedLimit == 0 || Math.Floor(hcm.GetCurrentMovementSpeed()) == 0.0 || m_eAI_PositionTime < 1.5))
+						if (m_eAI_BlockedTime < 3.0 && (CheckFreeSpace(vector.Forward, 0.3, false) || CheckFreeSpace(vector.Aside, 0.5, false) || CheckFreeSpace(-vector.Aside, 0.5, false)) && (m_MovementSpeedLimit == 0 || Math.Floor(speed) == 0.0 || m_eAI_PositionTime < 1.5))
 						{
 							if (hcm.IsBlocked() && m_eAI_BlockedTime > 0.5)
 							{
 								m_PathFinding.ForceRecalculate(true);
 								break;
 							}
-							else if (m_eAI_BlockedTime < 4.0 - hcm.GetCurrentMovementSpeed())
+							else if (m_eAI_BlockedTime < 4.0 - speed)
 							{
 								break;
 							}
@@ -11027,12 +11043,14 @@ class eAIBase: PlayerBase
 			//! Prevent AI getting pushed by opening/closing door by temporarily disabling collision
 			/*
 			PhxInteractionLayers layer = dBodyGetInteractionLayer(this);
-			if (layer != PhxInteractionLayers.AI)
+			if (layer != PhxInteractionLayers.AI && !m_eAI_ResetInteractionLayer)
 			{
+				m_eAI_ResetInteractionLayer = true;
+
 				if (m_eAI_Halt)
-					inactiveDuration = 1000;
+					inactiveDuration = Math.Min(timeTresh, 1000);
 				else
-					inactiveDuration = ExpansionMath.PowerConversion(1, 3, m_MovementSpeedLimit, 1000, 200, 2.6);
+					inactiveDuration = ExpansionMath.PowerConversion(1, 3, m_MovementSpeedLimit, Math.Min(timeTresh, 1000), timeTresh * 0.2, 2.6);
 
 				dBodySetInteractionLayer(this, PhxInteractionLayers.AI);
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_dBodySetInteractionLayer, inactiveDuration, false, layer);
@@ -11078,7 +11096,10 @@ class eAIBase: PlayerBase
 
 	void eAI_dBodySetInteractionLayer(PhxInteractionLayers layer)
 	{
-		dBodySetInteractionLayer(this, layer);
+		m_eAI_ResetInteractionLayer = false;
+
+		if (!IsDamageDestroyed())
+			dBodySetInteractionLayer(this, layer);
 	}
 
 	void eAI_UpdateVisitedBuildings()
