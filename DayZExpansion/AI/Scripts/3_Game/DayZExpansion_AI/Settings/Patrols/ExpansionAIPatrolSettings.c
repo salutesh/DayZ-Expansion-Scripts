@@ -54,7 +54,7 @@ class ExpansionAIPatrolSettingsV24
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 26;
+	static const int VERSION = 27;
 
 	ref map<string, ref array<ref ExpansionAIPatrolLoadBalancing>> LoadBalancingCategories = new map<string, ref array<ref ExpansionAIPatrolLoadBalancing>>;
 

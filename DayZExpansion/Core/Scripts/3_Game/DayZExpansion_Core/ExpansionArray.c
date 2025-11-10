@@ -145,9 +145,11 @@ class ExpansionArrayTools<Class T1, Class T2>
 	 */
 	static void InsertAll_DownCast(array<T1> from, array<T2> to)
 	{
-		if (!T2.IsInherited(T1))
+		typename t1 = T1;
+		typename t2 = T2;
+		if (!t2.IsInherited(t1))
 		{
-			Error("'" + T1 + "' cannot be down-casted to '" + T2 + "'");
+			Error("'" + t1 + "' cannot be down-casted to '" + t2 + "'");
 			return;
 		}
 
@@ -164,9 +166,11 @@ class ExpansionArrayTools<Class T1, Class T2>
 	 */
 	static void InsertAll_UpCast(array<T1> from, array<T2> to)
 	{
-		if (!T1.IsInherited(T2))
+		typename t1 = T1;
+		typename t2 = T2;
+		if (!t1.IsInherited(t2))
 		{
-			Error("'" + T1 + "' cannot be up-casted to '" + T2 + "'");
+			Error("'" + t1 + "' cannot be up-casted to '" + t2 + "'");
 			return;
 		}
 

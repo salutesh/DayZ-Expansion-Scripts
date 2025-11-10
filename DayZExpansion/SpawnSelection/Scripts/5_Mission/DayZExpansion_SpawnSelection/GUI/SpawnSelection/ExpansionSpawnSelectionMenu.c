@@ -214,15 +214,6 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 					EXTrace.Print(EXTrace.RESPAWN, this, "Showing vanilla debug monitor");
 					DebugMonitor.Instance.Show();
 				}
-			#ifdef JM_COT
-			#ifndef JM_COT_DEBUGMONITOR_REMOVED
-				if (JMDebugMonitor.Instance)
-				{
-					EXTrace.Print(EXTrace.RESPAWN, this, "Showing COT debug monitor");
-					JMDebugMonitor.Instance.ForceShow();
-				}
-			#endif
-			#endif
 				m_DebugMonitorHidden = false;
 			}
 		}
@@ -334,16 +325,6 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 			DebugMonitor.Instance.Hide();
 			m_DebugMonitorHidden = true;
 		}
-	#ifdef JM_COT
-	#ifndef JM_COT_DEBUGMONITOR_REMOVED
-		if (JMDebugMonitor.Instance && JMDebugMonitor.Instance.IsVisible())
-		{
-			EXTrace.Print(EXTrace.RESPAWN, this, "Hiding COT debug monitor");
-			JMDebugMonitor.Instance.ForceHide();
-			m_DebugMonitorHidden = true;
-		}
-	#endif
-	#endif
 	}
 	
 	ButtonWidget GetConfirmButton()

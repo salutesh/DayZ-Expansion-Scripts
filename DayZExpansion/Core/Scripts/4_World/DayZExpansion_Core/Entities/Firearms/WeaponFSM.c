@@ -12,12 +12,21 @@
 
 modded class WeaponFSM
 {
-	//! This is just here so that our custom ErrorEx string including owner is used.
+	string m_Expansion_ValidateAndRepairQueued;
+
+	//! This is just here so that our custom ErrorEx string including owner is used,
+	//! and queued calls to Expansion_ValidateAndRepair are removed.
 	//! Other than that, this is exactly equivalent to vanilla ValidateAndRepairHelper
 	override protected bool ValidateAndRepairHelper(Weapon_Base weapon, string name, bool stateCondition, bool gunCondition, WeaponEventBase e1, WeaponEventBase e2, out WeaponStableState state)
 	{
 		if (LogManager.IsWeaponLogEnable()) { wpnDebugPrint("[wpnfsm] " + weapon.GetDebugName(weapon) + " ValidateAndRepair - " + name + " - " + m_State + " - state: " + stateCondition + " & weapon: " + gunCondition); }
-		
+
+		if (m_Expansion_ValidateAndRepairQueued)
+		{
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(weapon.Expansion_ValidateAndRepair);
+			m_Expansion_ValidateAndRepairQueued = "";
+		}
+
 		if (stateCondition != gunCondition)
 		{
 			WeaponStableState repairedState;
@@ -81,19 +90,48 @@ modded class WeaponFSM
 		return false;
 	}
 
-	void Expansion_ValidateAndRepair()
+	bool Expansion_ValidateAndRepair(string name)
 	{
-		WeaponStableState state = WeaponStableState.Cast(m_State);				
-		if (state && state.IsRepairEnabled())
-		{		
-			Weapon_Base weapon = state.m_weapon;
+		m_Expansion_ValidateAndRepairQueued = "";
 
-			if (Internal_ValidateAndRepair())
-				ErrorEx(string.Format("Repaired state of %1 (owner %2)", weapon, weapon.GetHierarchyRootPlayer()), ErrorExSeverity.INFO);
+		WeaponStableState state = WeaponStableState.Cast(m_State);				
+		Weapon_Base weapon;
+		Man owner;
+		if (state)
+		{		
+			weapon = state.m_weapon;
+			owner = weapon.GetHierarchyRootPlayer();
+
+			if (super.Internal_ValidateAndRepair())
+			{
+				EXError.Info(this, string.Format("Repaired state %1 of %2 (owner %3) - %4", m_State, weapon, owner, name));
+				return true;
+			}
 		#ifdef DIAG_DEVELOPER
+			else if (state.IsRepairEnabled())
+			{
+				EXError.Info(this, string.Format("Validated state %1 of %2 (owner %3) - %4", m_State, weapon, owner, name));
+			}
 			else
-				ErrorEx(string.Format("Validated state of %1 (owner %2)", weapon, weapon.GetHierarchyRootPlayer()), ErrorExSeverity.INFO);
+			{
+				EXError.Info(this, string.Format("Skipped validating state %1 of %2 (owner %3) - %4", m_State, weapon, owner, name));
+			}
 		#endif
 		}
+	#ifdef DIAG_DEVELOPER
+		else
+		{
+			WeaponStateBase baseState = WeaponStateBase.Cast(m_State);
+			if (baseState)
+			{
+				weapon = baseState.m_weapon;
+				owner = weapon.GetHierarchyRootPlayer();
+			}
+
+			EXError.Info(this, string.Format("Skipped validating unstable state %1 of %2 (owner %3) - %4", m_State, weapon, owner, name));
+		}
+	#endif
+
+		return false;
 	}
 }

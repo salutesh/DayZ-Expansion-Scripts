@@ -105,7 +105,7 @@ modded class AnimalBase
 
 			dir = vector.Direction(pos1, pos3);
 
-			EXTrace.Print(EXTrace.MISC, this, string.Format("head to back leg %2 m", dir.Length()));
+			EXTrace.Print(EXTrace.MISC, this, string.Format("head to back leg %1 m", dir.Length()));
 
 			//! Animal_UrsusArctos = ~1.7..1.8 m
 			//! Animal_BosTaurus = ~2.1 m

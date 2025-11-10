@@ -114,6 +114,23 @@ modded class PlayerBase
 	}
 
 	/**
+	 * @brief Send RPC to players in close network range
+	 * 
+	 * @param rpc ExpansionScriptRPC instance
+	 * @param position Center position to determine radius
+	 * @param target Target object (or null)
+	 * @param guaranteed
+	 */
+	static void Expansion_SendClose(ExpansionScriptRPC rpc, vector position, Object target = null, bool guaranteed = false)
+	{
+		float distance = GetGame().ServerConfigGetInt("networkRangeClose");
+		if (distance == 0.0)
+			distance = 20;  //! default as per https://community.bistudio.com/wiki/DayZ:Server_Configuration
+		//! @note verified that items have to be in network range + 10% for them to exist in client bubble
+		Expansion_SendNear(rpc, position, distance * 1.10, target, guaranteed);
+	}
+
+	/**
 	 * @brief Send RPC to players in far network range
 	 * 
 	 * @param rpc ExpansionScriptRPC instance
@@ -148,11 +165,11 @@ modded class PlayerBase
 			root = targetEntity.GetHierarchyRoot();
 
 		//! Target is man or is in inventory of man, or target is transport, or root has forceFarBubble
-		if (root.IsInherited(Man) || target.IsInherited(Transport) || root.ConfigGetString("forceFarBubble") == "true")
-			Expansion_SendFar(rpc, target.GetPosition(), target, guaranteed);
+		if (root.IsMan() || target.IsTransport() || root.ConfigGetString("forceFarBubble") == "true")
+			Expansion_SendFar(rpc, root.GetPosition(), target, guaranteed);
 		 //! Target is in inventory of root (might be transport or non-man object)
 		else if (root != target)
-			Expansion_SendNear(rpc, target.GetPosition(), 20.0, target, guaranteed);
+			Expansion_SendClose(rpc, root.GetPosition(), target, guaranteed);
 		//! Target has no parent
 		else
 			Expansion_SendNear(rpc, target.GetPosition(), target, guaranteed);

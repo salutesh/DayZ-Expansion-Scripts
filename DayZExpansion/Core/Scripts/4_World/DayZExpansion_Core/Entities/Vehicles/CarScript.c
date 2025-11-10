@@ -274,7 +274,7 @@ modded class CarScript
 
 	float Expansion_GetThrottle()
 	{
-		return GetThrust();
+		return GetThrottle();
 	}
 
 	bool Expansion_IsVehicleFunctional(bool checkOptionalParts = false, set<typename> missingComponents = null)

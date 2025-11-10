@@ -43,6 +43,8 @@ modded class ItemBase
 	Man m_Expansion_PreviousOwner;
 	Man m_Expansion_CurrentOwner;
 
+	protected bool m_Expansion_SuppressDelete;
+
 	protected int m_Expansion_QueuedActions;
 	protected bool m_Expansion_IsLootable = true;
 
@@ -1272,6 +1274,17 @@ modded class ItemBase
 		return m_Expansion_IsLootable;
 	}
 
+	override void Delete()
+	{
+		if (!m_Expansion_SuppressDelete)
+			super.Delete();
+	}
+
+	void Expansion_SuppressDelete(bool suppress)
+	{
+		m_Expansion_SuppressDelete = suppress;
+	}
+
 	override void EEDelete(EntityAI parent)
 	{
 		super.EEDelete(parent);
@@ -1537,6 +1550,20 @@ modded class ItemBase
 		else if (Expansion_IsStackable())
 		{
 			return GetQuantity();
+		}
+
+		return 1;
+	}
+
+	int Expansion_GetStackMin()
+	{
+		if (IsAmmoPile())
+		{
+			return 0;
+		}
+		else if (Expansion_IsStackable())
+		{
+			return GetQuantityMin();
 		}
 
 		return 1;

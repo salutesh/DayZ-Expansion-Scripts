@@ -706,7 +706,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		ExpansionQuestPersistentData playerData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
 		if (!playerData)
 		{
-			EXTrace.Print(true, this, "no client quest data - skipping");
+			EXTrace.Print(EXTrace.QUESTS, this, "no client quest data - skipping");
 			return false;
 		}
 		int maxAllowed = GetExpansionSettings().GetQuest().MaxActiveQuests;

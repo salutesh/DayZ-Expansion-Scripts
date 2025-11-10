@@ -39,7 +39,8 @@ class ExpansionSettingSerializationInt: ExpansionSettingSerializationBase
 	void SetValue( int value )
 	{
 		EnScript.SetClassVar( m_ActualInstance, m_ActualVariable, 0, value );
-		
-		GetGame().GameScript.Call( m_Instance, "OnSettingsUpdated", new Param2< typename, ExpansionSettingSerializationBase >( Type(), this ) );
+
+		auto param = new Param2< typename, ExpansionSettingSerializationBase >( Type(), this );
+		GetGame().GameScript.Call( m_Instance, "OnSettingsUpdated", param );
 	}
 };

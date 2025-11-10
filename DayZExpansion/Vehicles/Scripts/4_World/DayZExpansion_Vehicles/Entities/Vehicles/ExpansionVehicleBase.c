@@ -2174,9 +2174,9 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		return m_Controller.GetSteering();
 	}
 
-	float GetThrust()
+	float GetThrottle()
 	{
-		//return m_Controller.GetThrust();
+		//return m_Controller.GetThrottle();
 		EXError.Error(this, "NOT IMPLEMENTED");
 		return 0.0;
 	}
@@ -3774,7 +3774,12 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		return false;
 	}
 
+#ifndef DAYZ_1_28
+	//! 1.29+ moved to Transport
+	override void UpdateLights(int new_gear = -1) // -1 is invalid gear.
+#else
 	void UpdateLights(int new_gear = -1) // -1 is invalid gear.
+#endif
 	{
 		if (!GetGame().IsServer() || !GetGame().IsMultiplayer()) // client side
 		{

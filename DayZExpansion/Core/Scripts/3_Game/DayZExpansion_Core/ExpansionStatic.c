@@ -114,6 +114,11 @@ class EXTee
 	}
 }
 
+enum EXErrorSeverity: ErrorExSeverity
+{
+	INFO_TRACE
+}
+
 class EXError
 {
 	static ref CF_Date s_Start = CF_Date.Now();
@@ -123,6 +128,11 @@ class EXError
 	static void Info(Class instance, string msg, TStringArray stack = null)
 	{
 		Log(instance, msg, stack, ErrorExSeverity.INFO);
+	}
+
+	static void InfoTrace(Class instance, string msg, TStringArray stack = null)
+	{
+		Log(instance, msg, stack, EXErrorSeverity.INFO_TRACE);
 	}
 
 	static void Warn(Class instance, string msg, TStringArray stack = null)
@@ -175,16 +185,22 @@ class EXError
 		if (!s_BaseNames)
 			s_BaseNames = new map<ErrorExSeverity, string>;
 
-		if (!s_BaseNames.Find(severity, baseName))
+		int key;
+		if (severity == EXErrorSeverity.INFO_TRACE)
+			key = ErrorExSeverity.INFO;
+		else
+			key = severity;
+
+		if (!s_BaseNames.Find(key, baseName))
 		{
-			string prefix = typename.EnumToString(ErrorExSeverity, severity);
+			string prefix = typename.EnumToString(ErrorExSeverity, key);
 			prefix.ToLower();
 
 			if (!s_Start)
 				s_Start = CF_Date.Now();
 
 			baseName = string.Format("%1_%2.log", prefix, s_Start.GetISODateTime("_", "-"));
-			s_BaseNames[severity] = baseName;
+			s_BaseNames[key] = baseName;
 		}
 
 		TStringArray filtered;
@@ -213,6 +229,8 @@ class EXError
 					insert = true;
 				else if (line.IndexOf("ErrorOnce()") > -1)
 					insert = true;
+				else if (line.IndexOf("InfoTrace()") > -1)
+					insert = true;
 			}
 
 			stack = filtered;
@@ -223,9 +241,7 @@ class EXError
 
 	static void LogToFile(string fileName, Class instance, string msg, TStringArray stack = null, ErrorExSeverity severity = ErrorExSeverity.ERROR)
 	{
-		string now = CF_Date.Now().Format(CF_Date.DATETIME);
-
-		//! Try to mimic vanilla error output
+		//! Format like ErrorEx but with timestamps including ms
 
 		EXTee tee;
 
@@ -235,18 +251,50 @@ class EXError
 		}
 		else
 		{
+			int key;
+			if (severity == EXErrorSeverity.INFO_TRACE)
+				key = ErrorExSeverity.INFO;
+			else
+				key = severity;
+
 			tee = new EXTee(fileName, FileMode.WRITE);
 
 			tee.WriteLine("---------------------------------------------", false);
-			tee.WriteLine(string.Format("Log %1 started at %2", s_BaseNames[severity], now), false);
+			tee.WriteLine(string.Format("Log %1 started at %2", s_BaseNames[key], ExpansionStatic.GetISODateTime(false, " ")), false);
 			tee.WriteLine("", false);
+		}
+
+		string callerInfo;
+
+		if (instance)
+		{
+			callerInfo += "[" + instance.ToString();
+
+			if (stack.Count())
+				callerInfo += "::" + stack[0].Substring(0, stack[0].IndexOf("("));
+
+			callerInfo += "] :: ";
+		}
+
+		string tag;
+		if (severity == EXErrorSeverity.INFO_TRACE)
+			tag = "INFO";
+		else
+			tag = typename.EnumToString(ErrorExSeverity, severity);
+
+		msg = string.Format("%1 %2[%3] :: %4", ExpansionStatic.GetISOTime(), callerInfo, tag, msg);
+
+		switch (severity)
+		{
+			case ErrorExSeverity.INFO:
+				tee.WriteLine(msg);
+				return;
 		}
 
 		tee.WriteLine("", false);
 		tee.WriteLine("", false);
 		tee.WriteLine("------------------------------------", false);
-		tee.WriteLine(string.Format("%1, %2", GetMachineName(), now), false);
-		tee.WriteLine("", false);
+		tee.WriteLine(string.Format("%1, %2", GetMachineName(), ExpansionStatic.GetISODate()), false);
 
 		tee.WriteLine(msg);
 
@@ -256,7 +304,6 @@ class EXError
 			IEntity entity;
 			if (Class.CastTo(entity, instance))
 				tee.WriteLine(string.Format("Entity id:%1", entity.GetID()));
-			tee.WriteLine("");
 		}
 
 		if (stack.Count())
@@ -2295,7 +2342,7 @@ class ExpansionStatic: ExpansionStaticCore
 					case "name":
 						if (Class.CastTo(player, p))
 							output += GetDayZGame().GetExpansionGame().GetPlayerName(player);
-						else if (Class.CastTo(obj, p))
+						else if (Class.CastTo(obj, p) && obj.GetDisplayName())
 							output += obj.GetDisplayName();
 						else
 							output += p.ClassName();

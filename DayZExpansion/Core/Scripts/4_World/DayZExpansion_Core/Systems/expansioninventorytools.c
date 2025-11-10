@@ -299,14 +299,30 @@ class ExpansionInventoryTools
 			{
 				ItemBase other = stacks[j];
 
+				other.Expansion_SuppressDelete(true);
 				item.CombineItems(other);
+				if (other)
+					other.Expansion_SuppressDelete(false);
 
 			#ifdef EXTRACE
 				++n;
 			#endif
 
+				//! Ammo stack deletion when count reaches zero is handled by the game engine, other stacks we handle ourselves
 				if (!other || other.ToDelete())
+				{
 					++i;
+				}
+				else if (other.Expansion_GetStackAmount() == other.Expansion_GetStackMin())
+				{
+					++i;
+
+					if (other.ConfigGetBool("varQuantityDestroyOnMin"))
+					{
+						//! Instantly remove item from location to free up space for tidy
+						g_Game.ObjectDelete(other);
+					}
+				}
 
 				if (item.Expansion_GetStackAmount() == item.Expansion_GetStackMax())
 					break;
@@ -344,7 +360,7 @@ class ExpansionInventoryTools
 			rpc.WriteBool(loc.GetFlip());
 		}
 
-		rpc.Expansion_Send(parent, true);
+		PlayerBase.Expansion_Send(rpc, parent, true);
 	}
 
 	protected void RPC_SyncLocations(PlayerIdentity sender, Object target, ParamsReadContext ctx)

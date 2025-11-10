@@ -38,6 +38,9 @@ class eAIState_Bandaging_Self: eAIState
 	{
 		if (unit.IsUnconscious()) return EXIT;
 		
+		if (!unit.GetCommand_MoveAI())
+			return CONTINUE;
+		
 		if (unit.eAI_IsChangingStance())
 			return CONTINUE;
 		
@@ -98,8 +101,6 @@ class eAIState_Bandaging_Self: eAIState
 		if (!hands) return eAITransition.FAIL;
 		
 		if (!hands.Expansion_CanBeUsedToBandage() || hands.IsDamageDestroyed()) return eAITransition.FAIL;
-		
-		if (!unit.GetCommand_MoveAI()) return eAITransition.FAIL;
 		
 		m_Bandage = hands;
 		

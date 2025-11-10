@@ -181,7 +181,9 @@ class ExpansionTraderObjectBase
 			rpc.Write(m_Trader.Currencies);
 			rpc.Write(m_Trader.DisplayCurrencyValue);
 			rpc.Write(m_Trader.DisplayCurrencyName);
-			rpc.Write(m_Trader.m_Categories);
+			rpc.Write(m_Trader.UseCategoryOrder);
+
+			WriteCategories(rpc);
 
 			rpc.Expansion_Send(GetTraderEntity(), true, sender);
 		}
@@ -217,9 +219,51 @@ class ExpansionTraderObjectBase
 			if (!ctx.Read(m_Trader.DisplayCurrencyName))
 				return;
 
-			if (!ctx.Read(m_Trader.m_Categories))
+			if (!ctx.Read(m_Trader.UseCategoryOrder))
+				return;
+
+			if (!ReadCategories(ctx))
 				return;
 		}
+	}
+
+	void WriteCategories(ParamsWriteContext ctx)
+	{
+		ctx.Write(m_Trader.m_CategoryIDs.Count());
+
+		foreach (int catID: m_Trader.m_CategoryIDs)
+		{
+			ctx.Write(catID);
+
+			int buySell = m_Trader.m_Categories[catID];
+			ctx.Write(buySell);
+		}
+	}
+
+	bool ReadCategories(ParamsReadContext ctx)
+	{
+		m_Trader.m_CategoryIDs.Clear();
+		m_Trader.m_Categories.Clear();
+
+		int count;
+		if (!ctx.Read(count) || count < 0)
+			return false;
+
+		while (count--)
+		{
+			int catID;
+			if (!ctx.Read(catID))
+				return false;
+
+			int buySell;
+			if (!ctx.Read(buySell))
+				return false;
+
+			m_Trader.m_CategoryIDs.Insert(catID);
+			m_Trader.m_Categories[catID] = buySell;
+		}
+
+		return true;
 	}
 
 	void UpdateTraderZone()

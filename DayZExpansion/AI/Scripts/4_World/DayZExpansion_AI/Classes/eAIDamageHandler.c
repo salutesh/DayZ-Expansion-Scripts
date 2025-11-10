@@ -311,7 +311,22 @@ class eAIDamageHandler
 				}
 
 				if (player.IsAI())
+				{
 					damageMultiplier *= player.m_eAI_DamageReceivedMultiplier;
+
+					switch (dmgZone)
+					{
+						case "Brain":
+							//! Any damage to brain is certain death, HP don't matter
+							if (player.m_eAI_HeadshotResistance > 0)
+								return false;
+							break;
+
+						case "Head":
+							damageMultiplier *= (1.0 - player.m_eAI_HeadshotResistance);
+							break;
+					}
+				}
 			}
 
 			if (sourcePlayer)
@@ -373,13 +388,40 @@ class eAIDamageHandler
 				}
 			}
 
+		#ifdef DIAG_DEVELOPER
+			PluginAdminLog adminLog = PluginAdminLog.Cast(GetPlugin(PluginAdminLog));
+			string playerPrefix;
+			string sourcePrefix;
+
+			if (m_Entity.IsPlayer() && (damageMultiplier != 1.0 || player.m_eAI_DamageReceivedMultiplier != 1.0 || player.m_eAI_HeadshotResistance > 0.0))
+			{
+				float dmgCoef = damageMultiplier * speedCoef;
+				string hitMessage = GetHitMessage(damageResult, component, dmgZone, ammo, dmgCoef);
+
+				playerPrefix = adminLog.GetPlayerPrefix(PlayerBase.Cast(player), player.GetIdentity());
+				playerPrefix += "[HP: " + player.GetHealth().ToString() + "]";
+
+				if (sourcePlayer)
+				{
+					sourcePrefix = adminLog.GetPlayerPrefix(PlayerBase.Cast(sourcePlayer), sourcePlayer.GetIdentity());
+					sourcePrefix += hitMessage;
+
+					if (source.IsMeleeWeapon() || source.IsWeapon())
+						sourcePrefix += " with " + source.GetDisplayName();
+				}
+				else
+				{
+					sourcePrefix = source.GetDisplayName();
+					sourcePrefix += hitMessage;
+				}
+
+				adminLog.LogPrint(playerPrefix + " hit by " + sourcePrefix + " dmg coef " + speedCoef + " -> " + dmgCoef);
+			}
+		#endif
+
 			if (damageMultiplier != 1.0)
 			{
 				damageMultiplier *= speedCoef;
-
-			#ifdef DIAG_DEVELOPER
-				EXTrace.Print(EXTrace.AI, m_Entity, ToString() + "::OnDamageCalculated[" + m_HitCounter + "] override dmg coef " + speedCoef + " -> " + damageMultiplier);
-			#endif
 
 				if (!isPlayerItem && damageMultiplier != 0.0)
 				{
@@ -405,12 +447,27 @@ class eAIDamageHandler
 
 		return true;
 	}
+	
+	string GetHitMessage(TotalDamageResult damageResult, int component, string zone, string ammo, float damageCoef) 
+	{	
+		if (damageResult)	
+		{
+			float dmg = damageResult.GetHighestDamage("Health") * damageCoef;
+			return " into " + zone + "(" + component.ToString() + ") for " + dmg.ToString() + " damage (" + ammo + ")";
+		}
+		else
+		{
+			return " into Block" + "(" + component.ToString() + ") for 0 damage ";
+		}
+	}
 
 	void ProcessDamage(int damageType, EntityAI source, DayZPlayerImplement sourcePlayer, string dmgZone, string ammo, vector modelPos, float damageCoef = 1.0)
 	{
 	#ifdef DIAG_DEVELOPER
 		EXTrace.PrintHit(EXTrace.AI, m_Entity, ToString() + "::ProcessDamage[" + m_HitCounter + "]", null, damageType, source, -1, dmgZone, ammo, modelPos, damageCoef);
 	#endif
+
+		EntityAI originalSource = source;
 
 		if (!source)
 		{
@@ -424,6 +481,12 @@ class eAIDamageHandler
 
 		m_ProcessDamage = true;
 		m_Entity.ProcessDirectDamage(damageType, source, dmgZone, ammo, modelPos, damageCoef);
+
+		if (m_ProcessDamage)
+		{
+			m_ProcessDamage = false;
+			EXError.Warn(m_Entity, "Damage was not processed (source: " + originalSource + ")");
+		}
 	}
 
 	bool CheckCandidate(notnull eAIShot candidate, eAIBase ai, vector modelPos, vector dir, float travelTimeRemaining, string dmgZone)

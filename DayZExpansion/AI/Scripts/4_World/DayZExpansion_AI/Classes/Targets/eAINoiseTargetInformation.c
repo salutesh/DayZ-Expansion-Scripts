@@ -53,7 +53,7 @@ class eAINoiseTargetInformation: eAITargetInformation
 		return m_Strength;
 	}
 
-	float GetLifetime()
+	override float GetLifetime()
 	{
 		return m_Lifetime;
 	}

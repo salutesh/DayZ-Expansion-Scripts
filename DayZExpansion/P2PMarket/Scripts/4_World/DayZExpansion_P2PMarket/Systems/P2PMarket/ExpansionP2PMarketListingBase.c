@@ -366,7 +366,6 @@ class ExpansionP2PMarketListingBase
 				//! 8 bytes (4 bytes bool written as int + 6 bytes hash + 2 bytes null)
 				ctx.Write(true);
 				ExpansionItemNameTable.WriteHash(ctx, hashA, hashB);
-				PrintFormat("%1 %2 %3", m_ClassName, hashA, hashB);
 
 				return;
 			}
@@ -393,7 +392,6 @@ class ExpansionP2PMarketListingBase
 				return false;
 
 			m_ClassName = ExpansionItemNameTable.GetTypeByHash(hashA, hashB);
-			PrintFormat("%1 %2 %3", m_ClassName, hashA, hashB);
 		}
 		else
 		{

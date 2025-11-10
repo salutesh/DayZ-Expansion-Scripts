@@ -465,6 +465,13 @@ class eAICommandMenu: UIScriptedMenu
 			}
 			break;
 
+		case eAICommandCategories.CAT_HEADSHOTRESISTANCE:
+			for (i = 0; i < eAICommands.DEB_DAMAGE_COUNT; ++i)
+			{
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DAMAGE + i, string.Format("%1%%", i * 5), category));
+			}
+			break;
+
 		case eAICommandCategories.CAT_DEBUG:
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNALLY, "Companion", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_CLEARALL, "Clear AI", eAICommandCategories.CAT_DEBUG));
@@ -797,6 +804,10 @@ class eAICommandMenu: UIScriptedMenu
 
 						case eAICommandCategories.CAT_DAMAGE_IN:
 							RefreshGestures(eAICommandCategories.CAT_DAMAGE_OUT, "Damage Out");
+							break;
+
+						case eAICommandCategories.CAT_DAMAGE_OUT:
+							RefreshGestures(eAICommandCategories.CAT_HEADSHOTRESISTANCE, "Headshot Resistance");
 							break;
 
 						case eAICommandCategories.CAT_FORMATION:

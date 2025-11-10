@@ -319,35 +319,62 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			return;
 		}
 
-		array<ref ExpansionMarketCategory> categoriesArray;
-
-		foreach (ExpansionMarketCategory category : categories)
-		{
-			string displayNameTranslated = Widget.TranslateString(category.DisplayName);
-
-			//! Deal with the case where different categories may have the same display name
-			if (!m_MarketCategories.Find(displayNameTranslated, categoriesArray))
-			{
-				categoriesArray = new array<ref ExpansionMarketCategory>;
-				m_MarketCategories.Insert(displayNameTranslated, categoriesArray);
-			}
-			categoriesArray.Insert(category);
-		}
-
-		m_CategoryNames = m_MarketCategories.GetKeyArray();
-		m_CategoryNames.Sort();
-
 		int idx;
-		foreach (string categoryName : m_CategoryNames)
+
+		if (m_TraderMarket.UseCategoryOrder)
 		{
-			categoriesArray = m_MarketCategories[categoryName];
-			foreach (ExpansionMarketCategory currentCategory: categoriesArray)
+			foreach (int categoryID, ExpansionMarketCategory _: categories)
 			{
-				currentCategory.m_Idx = idx++;
+				if (m_TraderMarket.m_CategoryIDs.Find(categoryID) == -1)
+					m_TraderMarket.m_CategoryIDs.Insert(categoryID);
+			}
+
+			foreach (int catID: m_TraderMarket.m_CategoryIDs)
+			{
+				ExpansionMarketCategory cat = categories[catID];
+
+				InitMarketCategory(cat);
+
+				cat.m_Idx = idx++;
+			}
+		}
+		else
+		{
+			foreach (ExpansionMarketCategory category: categories)
+			{
+				InitMarketCategory(category);
+			}
+
+			m_CategoryNames.Sort();
+
+			array<ref ExpansionMarketCategory> categoriesArray;
+
+			foreach (string categoryName : m_CategoryNames)
+			{
+				categoriesArray = m_MarketCategories[categoryName];
+				foreach (ExpansionMarketCategory currentCategory: categoriesArray)
+				{
+					currentCategory.m_Idx = idx++;
+				}
 			}
 		}
 		
 		MarketPrint("InitMarketCategories - End");
+	}
+
+	void InitMarketCategory(ExpansionMarketCategory category)
+	{
+		string displayNameTranslated = Widget.TranslateString(category.DisplayName);
+
+		//! Deal with the case where different categories may have the same display name
+		array<ref ExpansionMarketCategory> categoriesArray;
+		if (!m_MarketCategories.Find(displayNameTranslated, categoriesArray))
+		{
+			categoriesArray = new array<ref ExpansionMarketCategory>;
+			m_MarketCategories.Insert(displayNameTranslated, categoriesArray);
+			m_CategoryNames.Insert(displayNameTranslated);
+		}
+		categoriesArray.Insert(category);
 	}
 
 	void CreateMenuCategories()

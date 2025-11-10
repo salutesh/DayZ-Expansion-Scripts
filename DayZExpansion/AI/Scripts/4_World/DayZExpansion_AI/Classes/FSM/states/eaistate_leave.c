@@ -33,8 +33,6 @@ class eAIState_Leave: eAIState
 			return CONTINUE;
 		}
 
-		if (unit.IsClimbing()) return CONTINUE;
-		if (unit.IsFalling()) return CONTINUE;
 		if (unit.eAI_IsChangingStance()) return CONTINUE;
 
 		if (m_Phase < 2 && unit.GetEmoteManager().IsEmotePlaying()) return CONTINUE;
@@ -49,7 +47,12 @@ class eAIState_Leave: eAIState
 			{
 				int emoteId;
 
+			#ifdef DAYZ_1_28
 				switch (Math.RandomInt(0, 3))
+			#else
+				//! 1.29 broke dabbing
+				switch (Math.RandomInt(0, 2))
+			#endif
 				{
 					case 0:
 						emoteId = EmoteConstants.ID_EMOTE_TAUNTELBOW;
@@ -96,8 +99,11 @@ class eAIState_Leave: eAIState
 		
 		auto group = unit.GetGroup();
 		if (!group) return eAITransition.FAIL;
-		if (group.IsInCombat()) return eAITransition.FAIL;
-		if (!group.m_Leave) return eAITransition.FAIL;
+		if (!group.CanLeave()) return eAITransition.FAIL;
+
+		if (unit.IsClimbing()) return eAITransition.FAIL;
+		if (unit.IsClimbingLadder()) return eAITransition.FAIL;
+		if (unit.IsFalling()) return eAITransition.FAIL;
 		
 		return eAITransition.SUCCESS;
 	}

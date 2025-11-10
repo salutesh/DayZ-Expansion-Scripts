@@ -149,8 +149,8 @@ class ExpansionPathFilters
 		filter.SetCost(PGAreaType.OBJECTS_NOFFCON, 5.0);
 		filter.SetCost(PGAreaType.OBJECTS, 5.0);
 		filter.SetCost(PGAreaType.TERRAIN, 4.0);
-		filter.SetCost(PGAreaType.BUILDING, 1.0);
-		filter.SetCost(PGAreaType.ROADWAY_BUILDING, 4.0);
+		filter.SetCost(PGAreaType.BUILDING, 4.0);
+		filter.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);
 
 		filterNoJumpClimb.SetCost(PGAreaType.LADDER, 1.0);
 		filterNoJumpClimb.SetCost(PGAreaType.CRAWL, 10.0);
@@ -171,8 +171,8 @@ class ExpansionPathFilters
 		filterNoJumpClimb.SetCost(PGAreaType.OBJECTS_NOFFCON, 5.0);
 		filterNoJumpClimb.SetCost(PGAreaType.OBJECTS, 5.0);
 		filterNoJumpClimb.SetCost(PGAreaType.TERRAIN, 4.0);
-		filterNoJumpClimb.SetCost(PGAreaType.BUILDING, 1.0);
-		filterNoJumpClimb.SetCost(PGAreaType.ROADWAY_BUILDING, 4.0);
+		filterNoJumpClimb.SetCost(PGAreaType.BUILDING, 4.0);
+		filterNoJumpClimb.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);
 	}
 
 	static ExpansionPathFilters GetInstance()

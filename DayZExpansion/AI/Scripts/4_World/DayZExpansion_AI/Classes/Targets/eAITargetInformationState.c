@@ -88,7 +88,7 @@ class eAITargetInformationState
 					m_ThreatLevelActive = Math.Min(0.3999, m_ThreatLevel);  //! No interpolation for item targets
 				else
 			#endif
-				m_ThreatLevelActive = Math.Lerp(m_ThreatLevelActive, Math.Min(threatMin, m_ThreatLevel), diff / 33.333333 * 0.001111);
+				m_ThreatLevelActive = Math.Lerp(m_ThreatLevelActive, Math.Min(threatMin, m_ThreatLevel), diff * 0.00003333);
 			}
 		}
 	}

@@ -78,7 +78,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			float distance = GetDistance(ai, true) + 0.1;
 
 			if (m_Player.IsUnconscious())
-				return ExpansionMath.LinearConversion(0, 100, distance, 0.4, 0.2, false);
+				return ExpansionMath.LinearConversion(0, 100, distance, 0.4, 0.3, false);
 
 			if (m_Player.IsRestrained())
 				return ExpansionMath.LinearConversion(0, 100, distance, 0.15, 0.1);

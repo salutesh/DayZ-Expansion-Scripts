@@ -380,6 +380,14 @@ modded class PlayerBase
 	{
 	}
 
+	void Expansion_SynchLifespanVisual()
+	{
+		if (m_ModuleLifespan)
+		{
+			m_ModuleLifespan.SynchLifespanVisual(this, m_LifeSpanState, m_HasBloodyHandsVisible, m_HasBloodTypeVisible, m_BloodType);
+		}
+	}
+
 	static set<PlayerBase> Expansion_GetInCircle(vector center, float radius)
 	{
 		set<PlayerBase> players = new set<PlayerBase>;

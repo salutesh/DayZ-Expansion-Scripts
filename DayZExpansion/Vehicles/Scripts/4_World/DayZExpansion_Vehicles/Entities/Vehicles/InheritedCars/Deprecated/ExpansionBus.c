@@ -303,7 +303,7 @@ class ExpansionBus: CarScript
 					int gear;
 
 					if (new_gear == -1)
-						gear = GetController().GetGear();
+						gear = GetGear();
 					else
 						gear = new_gear;
 

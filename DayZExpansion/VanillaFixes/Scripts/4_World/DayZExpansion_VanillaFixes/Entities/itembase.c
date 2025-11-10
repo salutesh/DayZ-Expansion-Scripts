@@ -19,11 +19,12 @@ modded class ItemBase
 		super.EEOnCECreate();
 
 		//! @note lifetime for newly created items will always be zero in EEOnCECreate
-		//! and set to a too high value by the game afterwards (https://feedback.bistudio.com/T194225)
-		//! To truly fix the initial lifetime, we need to wait for the 1st OnCEUpdate after creation
-		//! (lifetime will still tick down too slowly, but we're not attempting to fix that
+		//! and set to a higher value by the game afterwards as a means of staggered de- and respawning
+		//! (see https://feedback.bistudio.com/T194225#2873138 for likely explanation)
+		//! To truly override the initial lifetime, we need to wait for the 1st OnCEUpdate after creation
+		//! (lifetime will still tick down slightly too slowly, but we're not attempting to fix that
 		//! since it could interfere with lifetime being adjusted by other means)
-		if (GetExpansionSettings().GetCore().FixCELifetime)
+		if (GetExpansionSettings().GetCore().ForceExactCEItemLifetime)
 			m_Expansion_CECreationTimestamp = g_Game.GetTickTime();
 	}
 

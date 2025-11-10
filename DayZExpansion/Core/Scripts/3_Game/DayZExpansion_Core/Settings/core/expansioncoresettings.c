@@ -14,10 +14,10 @@ typedef ExpansionCoreSettings ExpansionDebugSettings;  //! Legacy compat
 
 class ExpansionCoreSettings: ExpansionSettingBase
 {
-	static const int VERSION = 8;
+	static const int VERSION = 9;
 	
 	int ServerUpdateRateLimit;
-	bool FixCELifetime;
+	bool ForceExactCEItemLifetime;
 	bool EnableInventoryCargoTidy;
 
 	[NonSerialized()]
@@ -96,7 +96,7 @@ class ExpansionCoreSettings: ExpansionSettingBase
 #endif
 
 		ServerUpdateRateLimit = s.ServerUpdateRateLimit;
-		FixCELifetime = s.FixCELifetime;
+		ForceExactCEItemLifetime = s.ForceExactCEItemLifetime;
 		EnableInventoryCargoTidy = s.EnableInventoryCargoTidy;
 	}
 	
@@ -141,12 +141,16 @@ class ExpansionCoreSettings: ExpansionSettingBase
 				auto settingsDefaults = new ExpansionCoreSettings();
 				settingsDefaults.Defaults();
 
-				EnableInventoryCargoTidy = settingsDefaults.EnableInventoryCargoTidy;
+				if (m_Version < 8 && !EnableInventoryCargoTidy)
+					EnableInventoryCargoTidy = settingsDefaults.EnableInventoryCargoTidy;
 
 				m_Version = VERSION;
 
 				save = true;
 			}
+
+			if (ForceExactCEItemLifetime)
+				EXError.Warn(this, "ForceExactCEItemLifetime is enabled and staggered item de-/respawning is essentially no longer in effect as a result. This may negatively affect server and loot economy performance. Recommended setting for ForceExactCEItemLifetime is 0 or false unless you're sure you still want it despite the potential drawback.", {});
 		}
 		else
 		{
@@ -200,7 +204,7 @@ class ExpansionCoreSettings: ExpansionSettingBase
 		m_Version = VERSION;
 		
 		ServerUpdateRateLimit = 0;
-		FixCELifetime = false;
+		ForceExactCEItemLifetime = false;
 
 		EnableInventoryCargoTidy = false;
 	}

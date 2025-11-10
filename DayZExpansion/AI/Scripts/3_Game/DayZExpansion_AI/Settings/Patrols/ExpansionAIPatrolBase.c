@@ -35,6 +35,7 @@ class ExpansionAISpawnBase
 	float NoiseInvestigationDistanceLimit;
 	float DamageMultiplier;
 	float DamageReceivedMultiplier;
+	float HeadshotResistance;
 
 	[NonSerialized()]
 	string m_BaseName;

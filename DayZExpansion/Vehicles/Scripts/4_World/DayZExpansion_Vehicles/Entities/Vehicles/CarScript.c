@@ -1230,7 +1230,7 @@ modded class CarScript
 	float Expansion_GetThrottle(int index)
 	{
 		if (index == 0)
-			return GetThrust();
+			return GetThrottle();
 
 		return m_Controller.GetThrottle(index);
 	}
@@ -2382,7 +2382,7 @@ modded class CarScript
 		
 		//! 1.19
 		m_Controller.m_Yaw = GetSteering();
-		//m_Controller.m_Throttle[0] = GetThrust();
+		//m_Controller.m_Throttle[0] = GetThrottle();
 		m_Controller.m_Brake[0] = GetBrake();
 		m_Controller.m_Gear[0] = GetGear();
 

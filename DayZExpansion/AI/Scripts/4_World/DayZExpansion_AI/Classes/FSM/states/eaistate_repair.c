@@ -7,8 +7,6 @@ class eAIState_Repair: eAIState_Craft
 		m_RecipeClassName = "CleanWeapon";
 
 		super.OnEntry(Event, From);
-
-		unit.OverrideStance(DayZPlayerConstants.STANCEIDX_CROUCH);
 	}
 
 	override bool UpdateState()

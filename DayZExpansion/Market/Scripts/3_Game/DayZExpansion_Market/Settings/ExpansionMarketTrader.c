@@ -42,7 +42,7 @@ class ExpansionMarketTraderV9: ExpansionMarketTraderBase
 
 class ExpansionMarketTrader : ExpansionMarketTraderBase
 {
-	static const int VERSION = 12;
+	static const int VERSION = 13;
 
 	int MinRequiredReputation;
 	int MaxRequiredReputation;
@@ -57,12 +57,17 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 	int DisplayCurrencyValue;
 	string DisplayCurrencyName;
 
+	bool UseCategoryOrder;
+
 	autoptr TStringArray Categories;
 	
 	ref map<string, ExpansionMarketTraderBuySell> Items;
 
 	[NonSerialized()]
 	ref map<int, ExpansionMarketTraderBuySell> m_Categories;
+
+	[NonSerialized()]
+	ref TIntArray m_CategoryIDs = {};  //! Ordered
 
 	[NonSerialized()]
 	ref array<ref ExpansionMarketTraderItem> m_Items;
@@ -319,6 +324,9 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 					EXError.Error(null, "TRADER CONFIGURATION ERROR: Category " + fileName + " in " + m_FileName + " does not exist!", {});
 					continue;
 				}
+
+				if (!m_Categories.Contains(cat.CategoryID))
+					m_CategoryIDs.Insert(cat.CategoryID);
 
 				m_Categories.Insert(cat.CategoryID, catBuySell);
 

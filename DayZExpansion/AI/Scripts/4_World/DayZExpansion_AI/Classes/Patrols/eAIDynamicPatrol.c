@@ -159,7 +159,7 @@ class eAIDynamicPatrol : eAIPatrol
 		else
 			m_DespawnTime = config.DespawnTime;
 
-		if (config.MinDistRadius <= 0)
+		if (config.MinDistRadius < 0)
 			m_MinimumRadius = s_AIPatrolSettings.MinDistRadius;
 		else
 			m_MinimumRadius = config.MinDistRadius;
@@ -363,6 +363,7 @@ class eAIDynamicPatrol : eAIPatrol
 		ai.eAI_SetNoiseInvestigationDistanceLimit(m_NoiseInvestigationDistanceLimit);
 		ai.eAI_SetDamageMultiplier(m_DamageMultiplier);
 		ai.eAI_SetDamageReceivedMultiplier(m_DamageReceivedMultiplier);
+		ai.m_eAI_HeadshotResistance = m_Config.HeadshotResistance;
 		ai.eAI_SetSniperProneDistanceThreshold(m_Config.SniperProneDistanceThreshold);
 		ai.eAI_SetLootingBehavior(m_Config.GetLootingBehaviour());
 		ai.m_eAI_LootDropOnDeath = m_LootDropOnDeath;
