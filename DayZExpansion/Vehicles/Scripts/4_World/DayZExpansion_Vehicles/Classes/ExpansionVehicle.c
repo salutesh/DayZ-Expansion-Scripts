@@ -50,12 +50,12 @@ modded class ExpansionVehicle
 		if (vehicle.ConfigIsExisting("ExpansionAttachments"))
 		{
 			path = "CfgVehicles " + vehicle.GetType() + " ExpansionAttachments";
-			count = GetGame().ConfigGetChildrenCount(path);
+			count = g_Game.ConfigGetChildrenCount(path);
 
 			for (i = 0; i < count; i++)
 			{
 				string attachmentName;
-				GetGame().ConfigGetChildName(path, i, attachmentName);
+				g_Game.ConfigGetChildName(path, i, attachmentName);
 
 				string attachmentPath = path + " " + attachmentName;
 				door = new ExpansionDoor(this, attachmentName, attachmentPath);
@@ -128,7 +128,7 @@ modded class ExpansionVehicle
 			}
 		}
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			auto settings = GetExpansionSettings().GetVehicle();
 
@@ -147,7 +147,7 @@ modded class ExpansionVehicle
 	{
 		super.DeferredInit();
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			EntityAI entity = GetEntity();
 
@@ -159,7 +159,7 @@ modded class ExpansionVehicle
 
 			m_BoundingRadius = entity.ClippingInfo(m_BoundingBox);
 
-			m_AutoCoverTimestamp = GetGame().GetTickTime();
+			m_AutoCoverTimestamp = g_Game.GetTickTime();
 		}
 	}
 
@@ -235,22 +235,22 @@ modded class ExpansionVehicle
 			playerAvoidanceRadius = 150;
 		if (EngineIsOn() || !GetCEApi().AvoidPlayer(GetPosition(), playerAvoidanceRadius))
 		{
-			m_AutoCoverTimestamp = GetGame().GetTickTime();
+			m_AutoCoverTimestamp = g_Game.GetTickTime();
 			return;
 		}
 
-		if (GetGame().GetTickTime() - m_AutoCoverTimestamp > settings.VehicleAutoCoverTimeSeconds)
+		if (g_Game.GetTickTime() - m_AutoCoverTimestamp > settings.VehicleAutoCoverTimeSeconds)
 		{
 			EntityAI cover = vehicle.FindAttachmentBySlotName("CamoNet");
 			if (settings.VehicleAutoCoverRequireCamonet && !cover)
 			{
-				m_AutoCoverTimestamp = GetGame().GetTickTime();
+				m_AutoCoverTimestamp = g_Game.GetTickTime();
 				return;
 			}
 
 			if (!CanCover())
 			{
-				m_AutoCoverTimestamp = GetGame().GetTickTime();
+				m_AutoCoverTimestamp = g_Game.GetTickTime();
 				return;
 			}
 
@@ -412,7 +412,7 @@ modded class ExpansionVehicle
 
 	override void ResetKeyPairing()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			m_MasterKeyPersistentIDA = 0;
 			m_MasterKeyPersistentIDB = 0;
@@ -587,15 +587,15 @@ modded class ExpansionVehicle
 		if (vehicle.ConfigIsExisting("GUIInventoryAttachmentsProps"))
 		{
 			string path = "CfgVehicles " + vehicle.GetType() + " GUIInventoryAttachmentsProps";
-			int count = GetGame().ConfigGetChildrenCount(path);
+			int count = g_Game.ConfigGetChildrenCount(path);
 
 			for (int i = 0; i < count; i++)
 			{
 				string attachmentCategory;
-				GetGame().ConfigGetChildName(path, i, attachmentCategory);
+				g_Game.ConfigGetChildName(path, i, attachmentCategory);
 
 				TStringArray attachmentSlots = {};
-				GetGame().ConfigGetTextArray(path + " " + attachmentCategory + " attachmentSlots", attachmentSlots);
+				g_Game.ConfigGetTextArray(path + " " + attachmentCategory + " attachmentSlots", attachmentSlots);
 
 				if (ExpansionStatic.StringArrayContainsIgnoreCase(attachmentSlots, slotName))
 					return vehicle.CanDisplayAttachmentCategory(attachmentCategory);
@@ -641,7 +641,7 @@ modded class ExpansionVehicle
 
 	bool CanUpdateLock(float dt)
 	{
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return false;
 
 		if (IsReadyToLock())
@@ -717,7 +717,7 @@ modded class ExpansionVehicle
 
 	void OnItemAttached(EntityAI item, string slotName)
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			ExpansionDoor door;
 			string slotNameLower = slotName;
@@ -737,7 +737,7 @@ modded class ExpansionVehicle
 
 	void OnItemDetached(EntityAI item, string slotName)
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			ExpansionDoor door;
 			string slotNameLower = slotName;
@@ -917,9 +917,9 @@ modded class ExpansionVehicle
 		if (m_ModelZeroPointDistanceFromGround < 0)
 		{
 			string path = "CfgVehicles " + GetType() + " modelZeroPointDistanceFromGround";
-			if (GetGame().ConfigIsExisting(path))
+			if (g_Game.ConfigIsExisting(path))
 			{
-				m_ModelZeroPointDistanceFromGround = GetGame().ConfigGetFloat(path);
+				m_ModelZeroPointDistanceFromGround = g_Game.ConfigGetFloat(path);
 			}
 			else
 			{
@@ -958,7 +958,7 @@ modded class ExpansionVehicle
 			else
 				continue;
 
-			if (GetGame().ConfigIsExisting("CfgVehicles " + placeholderType))
+			if (g_Game.ConfigIsExisting("CfgVehicles " + placeholderType))
 				break;
 			else
 				placeholderType = "Expansion_Generic_Vehicle_Cover";

@@ -32,7 +32,7 @@ class ExpansionObjectSet
 	{
 		foreach (Object obj: m_Objects)
 		{
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 		}
 
 		m_Objects.Clear();

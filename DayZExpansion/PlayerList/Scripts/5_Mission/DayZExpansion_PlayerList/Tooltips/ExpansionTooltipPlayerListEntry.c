@@ -65,7 +65,7 @@ class ExpansionTooltipPlayerListEntry: ExpansionScriptView
 	{
 		m_Title = title;
 		m_PlayerID = playerID;
-		if (m_PlayerID != GetGame().GetPlayer().GetIdentity().GetId())
+		if (m_PlayerID != g_Game.GetPlayer().GetIdentity().GetId())
 			m_PlayerPlainID = playerPlainID;
 		
 		int x, y;

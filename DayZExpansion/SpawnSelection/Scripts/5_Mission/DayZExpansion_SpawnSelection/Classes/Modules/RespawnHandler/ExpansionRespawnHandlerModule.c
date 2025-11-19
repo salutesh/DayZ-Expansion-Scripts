@@ -215,7 +215,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		EXPrint(this, "RPC_ShowSpawnMenu - m_SpawnSelected " + m_SpawnSelected);
 
 		//! Call this periodically via call queue (will check if game is ready to show menu, then clean itself up)
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_ShowSpawnMenu, 1, true, spawnlist, territoryspawnlist);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_ShowSpawnMenu, 1, true, spawnlist, territoryspawnlist);
 	}
 	
 	// ------------------------------------------------------------
@@ -227,7 +227,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		if (GetDayZGame().IsLoading())
 			return;
 
-		if (GetGame().GetUIManager().GetMenu())
+		if (g_Game.GetUIManager().GetMenu())
 			return;
 
 		if (GetDayZExpansion().GetExpansionUIManager().GetMenu())
@@ -236,7 +236,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		if (GetDayZGame().GetMissionState() != DayZGame.MISSION_STATE_GAME)
 			return;
 
-		if (!GetGame().GetMission().GetHud())
+		if (!g_Game.GetMission().GetHud())
 			return;
 
 	#ifdef EXPANSIONMONITORMODULE
@@ -347,10 +347,10 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			return;
 		}
 
-		if (ProcessCooldown(GetGame().GetPlayer().GetIdentity(), locKey, isTerritory, useCooldown, false))
+		if (ProcessCooldown(g_Game.GetPlayer().GetIdentity(), locKey, isTerritory, useCooldown, false))
 			return;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Exec_ShowSpawnMenu);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Exec_ShowSpawnMenu);
 
 		auto rpc = Expansion_CreateRPC("RPC_SelectSpawn");
 		rpc.Write(index);
@@ -490,7 +490,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			spawnPoint = state.m_Position;
 
 		if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
-			spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
+			spawnPoint[1] = g_Game.SurfaceY(spawnPoint[0], spawnPoint[2]);
 
 		DayZPlayerSyncJunctures.ExpansionTeleport(player, spawnPoint);
 	}
@@ -606,7 +606,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 #endif
 		
 		//! Use CallLater to make menu disappear *after* player position has updated on client
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_CloseSpawnMenu, 1000, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_CloseSpawnMenu, 1000, false);
 	}
 	
 	// ------------------------------------------------------------
@@ -724,10 +724,10 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		//hasEnergySourceSlot = item.GetInventory().HasInventorySlot(InventorySlots.GetSlotIdFromString("BatteryD"));  //! WHY THE FUCK does this not work?!?
 
 		TStringArray attachmentSlotNames = new TStringArray;
-		if (GetGame().ConfigIsExisting("CfgVehicles " + gearItem.ClassName + " attachments"))
-			GetGame().ConfigGetTextArray("CfgVehicles " + gearItem.ClassName + " attachments", attachmentSlotNames);
-		else if (GetGame().ConfigIsExisting("CfgWeapons " + gearItem.ClassName + " attachments"))
-			GetGame().ConfigGetTextArray("CfgWeapons " + gearItem.ClassName + " attachments", attachmentSlotNames);
+		if (g_Game.ConfigIsExisting("CfgVehicles " + gearItem.ClassName + " attachments"))
+			g_Game.ConfigGetTextArray("CfgVehicles " + gearItem.ClassName + " attachments", attachmentSlotNames);
+		else if (g_Game.ConfigIsExisting("CfgWeapons " + gearItem.ClassName + " attachments"))
+			g_Game.ConfigGetTextArray("CfgWeapons " + gearItem.ClassName + " attachments", attachmentSlotNames);
 
 		foreach (string slotName: attachmentSlotNames)
 		{
@@ -842,12 +842,12 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		super.OnMissionStart(sender, args);
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 			return;
 
 		string filename_old = EXPANSION_FOLDER + "playerstates.bin";
 
-		int instance_id = GetGame().ServerConfigGetInt( "instanceId" );
+		int instance_id = g_Game.ServerConfigGetInt( "instanceId" );
 		string folder = "$mission:storage_" + instance_id + "\\expansion\\";
 		s_Folder = folder;
 		s_FileName = folder + "spawnselect.bin";
@@ -878,7 +878,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		super.OnMissionFinish(sender, args);
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 			return;
 
 		//! Save all states of players that haven't finished spawn select
@@ -1057,7 +1057,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 #endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 			return;
 
 		ExpansionRespawnDelayTimers playerCooldowns = m_PlayerRespawnDelays[playerUID];
@@ -1174,7 +1174,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		m_PlayerRespawnDelays.Clear();
 		ExpansionRespawnDelayTimers timers = new ExpansionRespawnDelayTimers;
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		string playerUID = player.GetIdentityUID();
 		m_PlayerRespawnDelays.Insert(playerUID, timers);
 		int now = CF_Date.Now(true).GetTimestamp();

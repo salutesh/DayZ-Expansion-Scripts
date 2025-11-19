@@ -8,9 +8,9 @@ class eAIState_Weapon_Reloading: eAIState
 
 	int GuardEx(int lastAttemptTime, inout Weapon_Base weapon, inout Magazine magazine)
 	{
-		if (GetGame().GetTime() - lastAttemptTime < 1000) return eAITransition.FAIL;
+		if (g_Game.GetTime() - lastAttemptTime < 1000) return eAITransition.FAIL;
 		
-		if (unit.IsClimbing() || unit.IsFalling() || unit.IsFighting() || !unit.GetCommand_MoveAI()) return eAITransition.FAIL;
+		if (unit.IsClimbing() || unit.IsFalling() || unit.IsFighting() || !unit.GetCommand_Move()) return eAITransition.FAIL;
 		
 		if (unit.IsRestrained()) return eAITransition.FAIL;
 		if (unit.IsUnconscious()) return eAITransition.FAIL;

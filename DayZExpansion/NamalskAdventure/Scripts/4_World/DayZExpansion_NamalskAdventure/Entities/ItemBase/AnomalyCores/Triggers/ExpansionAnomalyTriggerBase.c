@@ -138,12 +138,12 @@ class ExpansionAnomalyTriggerBase: Trigger
 			return;
 		}
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			OnEnterAnomalyClient(other);
 		}
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			OnEnterAnomalyServer(other);
 		}
@@ -168,12 +168,12 @@ class ExpansionAnomalyTriggerBase: Trigger
 			return;
 		}
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			OnEnterAnomalyClient(other);
 		}
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			OnEnterAnomalyServer(other);
 		}
@@ -198,12 +198,12 @@ class ExpansionAnomalyTriggerBase: Trigger
 			return;
 		}
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			OnEnterAnomalyClient(other);
 		}
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			OnEnterAnomalyServer(other);
 		}
@@ -233,7 +233,7 @@ class ExpansionAnomalyTriggerBase: Trigger
 
 		//! @note: When overriding this method you will need to call ExpansionAnomalyTriggerBase::DeferredTriggerCheck after all event calls
 		//! to make sure the anomaly state is switched back to the correct state after it has been triggered (reset).
-		//! --> GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeferredTriggerCheck, TRIGGER_CHECK_DELAY);
+		//! --> g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeferredTriggerCheck, TRIGGER_CHECK_DELAY);
 	}
 
 	//! Reset the trigger so it can call the trigger event again

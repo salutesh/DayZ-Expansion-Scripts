@@ -25,12 +25,12 @@ modded class ChatInputMenu
 
 		m_BackInputWrapper = GetUApi().GetInputByID(UAUIBack).GetPersistentWrapper();
 
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Chat/GUI/layouts/expansion_chat_input.layout");
+		layoutRoot = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Chat/GUI/layouts/expansion_chat_input.layout");
 		m_edit_box = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("InputEditBoxWidget"));
 
 		m_Position = 1;
 
-		MissionGameplay mission = MissionGameplay.Cast(GetGame().GetMission());
+		MissionGameplay mission = MissionGameplay.Cast(g_Game.GetMission());
 		if (mission && mission.GetChat())
 			m_Chat = mission.GetChat();
 
@@ -51,7 +51,7 @@ modded class ChatInputMenu
 	{
 		string text = m_edit_box.GetText();
 
-		MissionGameplay gameplayMission = MissionGameplay.Cast(GetGame().GetMission());
+		MissionGameplay gameplayMission = MissionGameplay.Cast(g_Game.GetMission());
 
 		//! Don't leak password
 		if (text.IndexOf("#login ") == 0)
@@ -90,7 +90,7 @@ modded class ChatInputMenu
 
 			if (useExpansionChat)
 			{
-				if (GetGame().IsMultiplayer())
+				if (g_Game.IsMultiplayer())
 				{
 					ExpansionChatMessageEventParams chat_params_rpc = new ExpansionChatMessageEventParams(gameplayMission.GetChatChannel(), "", text, "");
 					ExpansionGlobalChatModule module;
@@ -102,7 +102,7 @@ modded class ChatInputMenu
 				else
 				{
 					string name;
-					GetGame().GetPlayerName(name);
+					g_Game.GetPlayerName(name);
 
 					ExpansionChatMessageEventParams chat_params = new ExpansionChatMessageEventParams(gameplayMission.GetChatChannel(), name, text, "");
 					gameplayMission.m_Chat.Add(chat_params);
@@ -135,7 +135,7 @@ modded class ChatInputMenu
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 #endif
 
-		if (GetGame() && GetGame().GetMission())  //! Prevent NULL pointer on game exit
+		if (g_Game && g_Game.GetMission())  //! Prevent NULL pointer on game exit
 			super.OnHide();
 
 		if (m_Chat)

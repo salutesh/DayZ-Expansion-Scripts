@@ -76,11 +76,11 @@ class ExpansionAirdropPlaneBase: House
 	{
 	#ifdef SERVER
 		//SetEventMask( EntityEvent.SIMULATE );
-		m_Expansion_LastUpdateTickTime = GetGame().GetTickTime();
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_Update, 25, true);
+		m_Expansion_LastUpdateTickTime = g_Game.GetTickTime();
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_Update, 25, true);
 	#else
 		//! Client or SP
-		GetGame().GetUpdateQueue(CALL_CATEGORY_SYSTEM).Insert(Expansion_OnUpdate);
+		g_Game.GetUpdateQueue(CALL_CATEGORY_SYSTEM).Insert(Expansion_OnUpdate);
 	#endif
 
 		m_Expansion_IsUpdateEnabled = true;
@@ -94,11 +94,11 @@ class ExpansionAirdropPlaneBase: House
 		{
 		#ifdef SERVER
 			//ClearEventMask(EntityEvent.SIMULATE);
-			if (GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM))
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_Update);
+			if (g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM))
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_Update);
 		#else
-			if (GetGame().GetUpdateQueue(CALL_CATEGORY_SYSTEM))
-				GetGame().GetUpdateQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_OnUpdate);
+			if (g_Game.GetUpdateQueue(CALL_CATEGORY_SYSTEM))
+				g_Game.GetUpdateQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_OnUpdate);
 		#endif
 
 			m_Expansion_IsUpdateEnabled = false;
@@ -107,7 +107,7 @@ class ExpansionAirdropPlaneBase: House
 
 	void ~ExpansionAirdropPlaneBase()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		Expansion_DisableUpdate();
@@ -124,7 +124,7 @@ class ExpansionAirdropPlaneBase: House
 		
 		super.EEDelete(parent);
 		
-		if ( GetGame() )
+		if ( g_Game )
 		{
 			if (m_Expansion_Light1)
 			{
@@ -153,7 +153,7 @@ class ExpansionAirdropPlaneBase: House
 		float size = GetDayZGame().GetWorldSize();
 		vector worldCenter = GetDayZGame().GetWorldCenterPosition();
 
-		EXPrint("ExpansionAirdropPlane::Expansion_GetSpawnPoint - drop position " + dropPosition + " - map is " + GetGame().GetWorldName() + " - size " + size + " - center " + worldCenter);
+		EXPrint("ExpansionAirdropPlane::Expansion_GetSpawnPoint - drop position " + dropPosition + " - map is " + g_Game.GetWorldName() + " - size " + size + " - center " + worldCenter);
 
 		vector spawnPoint = Vector( 0, height, 0 );
 
@@ -220,7 +220,7 @@ class ExpansionAirdropPlaneBase: House
 
 		if ( GetExpansionSettings().GetAirdrop().HeightIsRelativeToGroundLevel )
 		{
-			float surfaceY = Math.Max( GetGame().SurfaceY( spawnPoint[0], spawnPoint[2] ), GetGame().SurfaceGetSeaLevel() );
+			float surfaceY = Math.Max( g_Game.SurfaceY( spawnPoint[0], spawnPoint[2] ), g_Game.SurfaceGetSeaLevel() );
 			spawnPoint[1] = surfaceY + height;
 		}
 
@@ -288,8 +288,8 @@ class ExpansionAirdropPlaneBase: House
 			m_Expansion_DropProximityDistNear = m_Expansion_DropProximityDist * (m_Expansion_DropProximityDist / m_Expansion_DropProximityDistFar);
 		}
 		
-		// Message( PlayerBase.Cast( GetGame().GetPlayer() ), "m_Expansion_Speed " + m_Expansion_Speed );
-		// Message( PlayerBase.Cast( GetGame().GetPlayer() ), "speed " + speed );
+		// Message( PlayerBase.Cast( g_Game.GetPlayer() ), "m_Expansion_Speed " + m_Expansion_Speed );
+		// Message( PlayerBase.Cast( g_Game.GetPlayer() ), "speed " + speed );
 
 		m_Expansion_LootContainer = container;
 
@@ -327,7 +327,7 @@ class ExpansionAirdropPlaneBase: House
 */
 	void Expansion_Update()
 	{
-		float time = GetGame().GetTickTime();
+		float time = g_Game.GetTickTime();
 		float dt = time - m_Expansion_LastUpdateTickTime;
 
 		Expansion_OnUpdate(dt);
@@ -483,7 +483,7 @@ class ExpansionAirdropPlaneBase: House
 			}
 		}
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			if ( Expansion_CheckForDrop() && !m_Expansion_Container )
 			{	
@@ -510,7 +510,7 @@ class ExpansionAirdropPlaneBase: House
 	float Expansion_GetTerrainY( vector position )
 	{
 		//! Make sure we clamp surfaceY to sea level (when plane is over water)
-		float terrainY = Math.Max( GetGame().SurfaceRoadY( position[0], position[2] ), GetGame().SurfaceGetSeaLevel() );
+		float terrainY = Math.Max( g_Game.SurfaceRoadY( position[0], position[2] ), g_Game.SurfaceGetSeaLevel() );
 
 	/*
 		float radius = 21.0;  //! Note: C-130J has a wingspan of 40.4m, radius is chosen accordingly
@@ -547,7 +547,7 @@ class ExpansionAirdropPlaneBase: House
 	void Expansion_RemovePlane()
 	{
 		Expansion_DisableUpdate();
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 0, false, this );
+		g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( g_Game.ObjectDelete, 0, false, this );
 	}
 
 	bool Expansion_IsWarningProximity()
@@ -628,7 +628,7 @@ class ExpansionAirdropPlaneBase: House
 
 		dropPosition = ExpansionMath.GetRandomPointInCircle( Vector( dropPosition[0], spawnPoint[1], dropPosition[2] ), maxRadius );
 
-		auto plane = ExpansionAirdropPlaneBase.Cast( GetGame().CreateObjectEx(planeClassName, spawnPoint, ECE_AIRBORNE | ECE_LOCAL) );
+		auto plane = ExpansionAirdropPlaneBase.Cast( g_Game.CreateObjectEx(planeClassName, spawnPoint, ECE_AIRBORNE | ECE_LOCAL) );
 
 		plane.Expansion_SetAirdropPlaneID(s_Expansion_AirdropPlaneNextID++);
 		plane.Expansion_SetupPlane( spawnPoint, dropPosition, name, maxRadius, settings.HeightIsRelativeToGroundLevel, height, dropHeight, settings.FollowTerrainFraction, speed, dropSpeed, settings.DropZoneProximityDistance, container, warningProximityMsg, airdropCreatedMsg, containerLifeTime );
@@ -695,13 +695,13 @@ class ExpansionAirdropPlaneBase: House
 		#ifndef DAYZ_1_20
 		flags |= ECE_DYNAMIC_PERSISTENCY;
 		#endif
-		Object obj = GetGame().CreateObjectEx(container, dropPosition, flags);
+		Object obj = g_Game.CreateObjectEx(container, dropPosition, flags);
 
 		#ifdef DIAG_DEVELOPER
 		if (DayZPlayerImplement.s_Expansion_DebugObjects_Enabled)
 		{
 			EntityAI dbgEnt;
-			if (Class.CastTo(dbgEnt, GetGame().CreateObjectEx("ExpansionDebugRodBig", ExpansionStatic.GetSurfacePosition(dropPosition), ECE_NOLIFETIME)))
+			if (Class.CastTo(dbgEnt, g_Game.CreateObjectEx("ExpansionDebugRodBig", ExpansionStatic.GetSurfacePosition(dropPosition), ECE_NOLIFETIME)))
 				dbgEnt.SetLifetime(600);
 		}
 		#endif
@@ -710,10 +710,10 @@ class ExpansionAirdropPlaneBase: House
 		if ( Class.CastTo( drop, obj ) )
 		{
 			drop.SetPosition( dropPosition );
-			if (GetGame().GetWeather())
+			if (g_Game.GetWeather())
 			{
 				//! Rotate to wind
-				vector wind = GetGame().GetWeather().GetWind();
+				vector wind = g_Game.GetWeather().GetWind();
 				vector ori = wind.Normalized().VectorToAngles();
 				ori[0] = Math.NormalizeAngle(ori[0] + 90.0);
 				ori[1] = 0.0;

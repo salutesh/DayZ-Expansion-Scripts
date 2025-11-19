@@ -14,7 +14,7 @@ modded class DayZPlayerImplement
 
         HumanInputController hic = GetInputController();
 
-        if (GetGame().GetWorld().Is3rdPersonDisabled() && Expansion_IsInSafeZone())
+        if (g_Game.GetWorld().Is3rdPersonDisabled() && Expansion_IsInSafeZone())
         {
             m_Camera3rdPerson = camera3rdPerson;
 

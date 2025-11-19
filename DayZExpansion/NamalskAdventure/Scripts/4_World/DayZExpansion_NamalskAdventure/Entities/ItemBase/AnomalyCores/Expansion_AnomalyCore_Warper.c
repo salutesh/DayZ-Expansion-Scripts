@@ -55,9 +55,9 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
-			GetGame().CreateObject("ExpansionAnomalyAreaWarper_Local", GetPosition());
+			g_Game.CreateObject("ExpansionAnomalyAreaWarper_Local", GetPosition());
 			UpdateAnomalyCoreState(ExpansionAnomalyCoreState.ACTIVATED);
 		}
 	}
@@ -68,7 +68,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			UpdateAnomalyCoreState(ExpansionAnomalyCoreState.DESTROYED);
 		}
@@ -126,7 +126,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 			//! Get wind values and use it to let the entity fly - TEST
 			float mass;
-			vector wind = GetGame().GetWeather().GetWind();
+			vector wind = g_Game.GetWeather().GetWind();
 			wind[0] = ((wind[0] + 0.1) * 2) / 100;
 			wind[1] = 12.0; //! Let the entity fly 12 meters into the air.
 			wind[2] = ((wind[2] + 0.1) * 2) / 100;
@@ -219,7 +219,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			//! Ideally play a one time effect such as an explosion
 			m_ParticleActivated = ParticleManager.GetInstance().PlayInWorld(ParticleList.EXPANSION_PARTICLE_WARPER_ACTIVATE, GetPosition());
@@ -233,7 +233,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 			PlaySoundSet(m_ActivatedSound, "EasterEgg_Catch_SoundSet", 0, 0);
 	}
 
@@ -243,7 +243,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			//! Ideally play a one time effect such as an explosion
 			m_ParticleTarget = ParticleManager.GetInstance().PlayInWorld(ParticleList.EXPANSION_PARTICLE_WARPER_ACTIVATE, pos);
@@ -257,13 +257,13 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			EffectSound soundEffect = SEffectManager.PlaySound("Blowout_Teleport", pos, 0, 0, false);
 			if (!soundEffect)
 				return;
 
-			soundEffect.SetParent(GetGame().GetPlayer());
+			soundEffect.SetParent(g_Game.GetPlayer());
 			soundEffect.SetSoundAutodestroy(true);
 		}
 	}
@@ -277,7 +277,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 		if (m_CoreState != ExpansionAnomalyCoreState.DESTROYED)
 			return;
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			if (!EntityConditions(other))
 				return;
@@ -302,7 +302,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 	protected void PlayTeleportSFX(vector pos, PlayerIdentity identity)
 	{
 		Param1<vector> p = new Param1<vector>(pos);
-		GetGame().RPCSingleParam(this, Expansion_AnomalyCore_ERPCs.PLAY_TARGET_FX, p, true, identity);
+		g_Game.RPCSingleParam(this, Expansion_AnomalyCore_ERPCs.PLAY_TARGET_FX, p, true, identity);
 	}
 
 	override int GetAnomalyCoreParticle()
@@ -320,7 +320,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 	{
 		super.OnRPC(sender, rpc_type, ctx);
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			switch (rpc_type)
 			{

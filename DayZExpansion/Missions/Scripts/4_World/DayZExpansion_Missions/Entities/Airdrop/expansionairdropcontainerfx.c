@@ -38,7 +38,7 @@ class ExpansionAirdropContainerFX
 
 	void Enable(bool enable)
 	{
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if (enable)
 			{

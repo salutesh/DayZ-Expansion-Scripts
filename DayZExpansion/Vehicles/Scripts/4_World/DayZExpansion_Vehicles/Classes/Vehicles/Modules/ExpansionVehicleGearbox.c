@@ -21,18 +21,18 @@ static ExpansionVehicleGearbox Expansion_CreateGearbox(EntityAI vehicle, string 
 	int type = ExpansionVehicleGearboxType.DEFAULT;
 	string typePath = path + " type";
 
-	if (GetGame().ConfigIsExisting(typePath))
+	if (g_Game.ConfigIsExisting(typePath))
 	{
-		switch (GetGame().ConfigGetType(typePath))
+		switch (g_Game.ConfigGetType(typePath))
 		{
 		case CT_STRING:
 			string typeName;
-			GetGame().ConfigGetText(typePath, typeName);
+			g_Game.ConfigGetText(typePath, typeName);
 			typeName.ToUpper();
 			type = typename.StringToEnum(ExpansionVehicleGearboxType, typeName);
 			break;
 		default:
-			type = GetGame().ConfigGetInt(typePath);
+			type = g_Game.ConfigGetInt(typePath);
 			break;
 		}
 	}

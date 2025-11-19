@@ -69,7 +69,7 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapWidgetBase
 	override void Update(float pDt)
 	{
 		float x, y;
-		vector mapPos = GetMapWidget().MapToScreen(GetGame().GetCurrentCameraPosition());
+		vector mapPos = GetMapWidget().MapToScreen(g_Game.GetCurrentCameraPosition());
 		GetLayoutRoot().GetParent().GetScreenPos(x, y);
 		GetLayoutRoot().SetPos(mapPos[0] - x, mapPos[1] - y, true);
 		GetDragWidget().SetRotation(0, 0, GetMapDirection(), true);
@@ -77,7 +77,7 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapWidgetBase
 
 	private int GetMapDirection()
 	{
-		return Math.Round(Math.NormalizeAngle(GetGame().GetCurrentCameraDirection().VectorToAngles()[0]));
+		return Math.Round(Math.NormalizeAngle(g_Game.GetCurrentCameraDirection().VectorToAngles()[0]));
 	}
 
 	override bool IsEditButton( Widget w )

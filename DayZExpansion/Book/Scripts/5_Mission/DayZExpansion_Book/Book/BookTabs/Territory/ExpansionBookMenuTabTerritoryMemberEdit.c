@@ -110,7 +110,7 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 		
 		bool show;
 		//! https://feedback.bistudio.com/T173348
-		if (m_TerritoryTab.GetPlayerRank() != ExpansionTerritoryRank.MEMBER && m_Member.GetID() != GetGame().GetPlayer().GetIdentity().GetId())
+		if (m_TerritoryTab.GetPlayerRank() != ExpansionTerritoryRank.MEMBER && m_Member.GetID() != g_Game.GetPlayer().GetIdentity().GetId())
 			show = true;
 		option_promote_button.Show(show && m_Member.GetRank() != ExpansionTerritoryRank.MODERATOR);
 		option_demote_button.Show(show && m_Member.GetRank() != ExpansionTerritoryRank.MEMBER);
@@ -160,7 +160,7 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 			break;
 		case ExpansionTerritoryRank.MEMBER:
 		case ExpansionTerritoryRank.ADMIN:
-			if (m_Member.GetID() == GetGame().GetPlayer().GetIdentity().GetId())
+			if (m_Member.GetID() == g_Game.GetPlayer().GetIdentity().GetId())
 			{
 				ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_CANT_DEMOTE_SELF").Error();
 			}
@@ -192,7 +192,7 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 		}
 		else
 		{
-			if (m_Member.GetID() == GetGame().GetPlayer().GetIdentity().GetId())
+			if (m_Member.GetID() == g_Game.GetPlayer().GetIdentity().GetId())
 			{
 				ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_CANT_KICK_SELF").Error();
 			}
@@ -233,7 +233,7 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 			//! Set a flag so we can check whether mouse button is still down.
 			m_MouseButtonIsDown = true;
 			GetMousePos(m_PlayerPreviewRotationX, m_PlayerPreviewRotationY);
-			GetGame().GetDragQueue().Call(this, "UpdatePlayerPreviewRotation");
+			g_Game.GetDragQueue().Call(this, "UpdatePlayerPreviewRotation");
 		}
 		
 		return super.OnMouseButtonDown(w, x, y, button);

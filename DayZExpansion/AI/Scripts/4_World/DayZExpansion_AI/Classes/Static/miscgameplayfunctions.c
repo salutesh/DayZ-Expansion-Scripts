@@ -15,11 +15,11 @@ modded class MiscGameplayFunctions
 			
 			if (player_pos!=closest_safe_pos)
 			{
-				closest_safe_pos[1] = GetGame().SurfaceY(closest_safe_pos[0], closest_safe_pos[2]);
+				closest_safe_pos[1] = g_Game.SurfaceY(closest_safe_pos[0], closest_safe_pos[2]);
 				
 				player.SetPosition( closest_safe_pos );//...so lets teleport them somewhere safe
 				//DeveloperTeleport.SetPlayerPosition(player, closest_safe_pos);
-				GetGame().RPCSingleParam(player, ERPCs.RPC_WARNING_TELEPORT, null, true, player.GetIdentity());
+				g_Game.RPCSingleParam(player, ERPCs.RPC_WARNING_TELEPORT, null, true, player.GetIdentity());
 			}
 			
 			player.SetPersistentFlag(PersistentFlag.AREA_PRESENCE, false);

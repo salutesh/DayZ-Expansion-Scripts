@@ -23,7 +23,7 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 
 		ProcessEntityEvents(other);
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeferredTriggerCheck, TRIGGER_CHECK_DELAY);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeferredTriggerCheck, TRIGGER_CHECK_DELAY);
 	}
 
 	protected void ProcessEntityEvents(IEntity other)
@@ -52,7 +52,7 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 				randomPosition = position;
 			}
 			
-			randomPosition[1] = GetGame().SurfaceY(randomPosition[0], randomPosition[2]);
+			randomPosition[1] = g_Game.SurfaceY(randomPosition[0], randomPosition[2]);
 			vector ori = objectEntity.GetOrientation();
 
 			if (ExpansionStatic.IsAnyOf(objectEntity, s_Items, true))
@@ -81,7 +81,7 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 				{
 					//! Get wind values and use it to let the entity fly - TEST
 					float mass;
-					vector wind = GetGame().GetWeather().GetWind();
+					vector wind = g_Game.GetWeather().GetWind();
 					wind[0] = ((wind[0] + 0.1) * 2) / 100;
 					wind[1] = 12.0; //! Let the entity fly 12 meters into the air.
 					wind[2] = ((wind[2] + 0.1) * 2) / 100;
@@ -137,7 +137,7 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 				animal.SetPosition(randomPosition);
 				animal.SetOrientation(ori);
 				
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, objectEntity, position);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, objectEntity, position);
 				
 				m_IsActive = false;
 			}
@@ -152,7 +152,7 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 				zombie.SetPosition(randomPosition);
 				zombie.SetOrientation(ori);
 				
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, objectEntity, position);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, objectEntity, position);
 				
 				m_IsActive = false;
 			}*/
@@ -179,7 +179,7 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 			DayZPlayerSyncJunctures.ExpansionTeleport(player, randomPosition, orientation);
 		}
 		
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, player, oldPosition);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, player, oldPosition);
 	}
 	
 	protected void CheckEntityPos(EntityAI objectEntity, vector oldPos)

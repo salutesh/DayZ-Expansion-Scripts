@@ -97,7 +97,7 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		{
 			m_Expansion_SetPersonalStorageHub = 0;
 			ExpansionPersonalStorageHub hub;
-			if (Class.CastTo(hub, GetGame().GetObjectByNetworkId(m_Expansion_PersonalStorageHub_IdLow, m_Expansion_PersonalStorageHub_IdHigh)))
+			if (Class.CastTo(hub, g_Game.GetObjectByNetworkId(m_Expansion_PersonalStorageHub_IdLow, m_Expansion_PersonalStorageHub_IdHigh)))
 				Expansion_SetPersonalStorageHub(hub);
 		}
 	}
@@ -106,7 +106,7 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 	override bool DescriptionOverride(out string output)
 	{
 		PlayerBase player;
-		if (Class.CastTo(player, GetGame().GetPlayer()))
+		if (Class.CastTo(player, g_Game.GetPlayer()))
 		{
 			int nextLevel;
 			int nextLvlRepReq;
@@ -176,7 +176,7 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		}
 		else
 		{
-			GetGame().GetMission().ShowInventory();
+			g_Game.GetMission().ShowInventory();
 		}
 	}
 
@@ -254,7 +254,7 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 		if (settings.IsLoaded() && ExpansionStatic.IsAnyOf(item, settings.ExcludedItems))
 			return true;
 
-		if (GetGame().IsClient() && !s_Expansion_RequestedIsExcludedFromPS[item.GetType()])
+		if (g_Game.IsClient() && !s_Expansion_RequestedIsExcludedFromPS[item.GetType()])
 			Expansion_RequestIsExcludedFromPS(item);
 
 		return false;

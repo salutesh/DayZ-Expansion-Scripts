@@ -167,7 +167,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 	
 	bool HasItemOnInventorySlot(EntityAI item)
 	{
-		HumanInventory inventory = GetGame().GetPlayer().GetHumanInventory();
+		HumanInventory inventory = g_Game.GetPlayer().GetHumanInventory();
 		for (int i = 0; i < inventory.AttachmentCount(); ++i)
 		{
 			EntityAI attachment = inventory.GetAttachmentFromIndex(i);

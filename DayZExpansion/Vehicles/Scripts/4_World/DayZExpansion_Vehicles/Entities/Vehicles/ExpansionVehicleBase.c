@@ -232,10 +232,10 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	void ExpansionVehicleBase()
 	{
 #ifndef DIAG_DEVELOPER
-		if (GetGame().IsServer())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Delete);
+		if (g_Game.IsServer())
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Delete);
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 			ExpansionNotification("ERROR", GetType() + " IS NOT READY FOR PRODUCTION! Use " + GetType().Substring(8, GetType().Length() - 8) + " instead.").Error();
 	
 		Print(GetType() + " IS NOT READY FOR PRODUCTION! Use " + GetType().Substring(8, GetType().Length() - 8) + " instead");
@@ -372,21 +372,21 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		string path;
 
 		path = "CfgVehicles " + GetType() + " SimulationModule airDragFrontTotal";
-		if (GetGame().ConfigIsExisting(path))
-			m_AirDragCoefficient = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_AirDragCoefficient = g_Game.ConfigGetFloat(path);
 
 		vector airDragMin, airDragMax;
 		bool airDragOverride = true;
 
 		path = "CfgVehicles " + GetType() + " SimulationModule airDragSizeMin";
-		airDragOverride = airDragOverride & GetGame().ConfigIsExisting(path);
+		airDragOverride = airDragOverride & g_Game.ConfigIsExisting(path);
 		if (airDragOverride)
-			airDragMin = GetMemoryPointPos(GetGame().ConfigGetTextOut(path));
+			airDragMin = GetMemoryPointPos(g_Game.ConfigGetTextOut(path));
 
 		path = "CfgVehicles " + GetType() + " SimulationModule airDragSizeMax";
-		airDragOverride = airDragOverride & GetGame().ConfigIsExisting(path);
+		airDragOverride = airDragOverride & g_Game.ConfigIsExisting(path);
 		if (airDragOverride)
-			airDragMax = GetMemoryPointPos(GetGame().ConfigGetTextOut(path));
+			airDragMax = GetMemoryPointPos(g_Game.ConfigGetTextOut(path));
 
 		m_AirDragArea = -1;
 		if (airDragOverride)
@@ -399,10 +399,10 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		path = "CfgVehicles " + GetType() + " SimulationModule drive";
 
 		m_DifferentialType = ExpansionVehicleDifferentialType.RWD;
-		if (GetGame().ConfigIsExisting(path))
+		if (g_Game.ConfigIsExisting(path))
 		{
 			string drive;
-			GetGame().ConfigGetText(path, drive);
+			g_Game.ConfigGetText(path, drive);
 
 			if (drive == "DRIVE_RWD")
 			{
@@ -434,63 +434,63 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		int count = 0;
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Gearboxes";
-		count = GetGame().ConfigGetChildrenCount(path);
+		count = g_Game.ConfigGetChildrenCount(path);
 
 		for (i = 0; i < count; i++)
 		{
 			string gearName;
-			GetGame().ConfigGetChildName(path, i, gearName);
+			g_Game.ConfigGetChildName(path, i, gearName);
 
 			string gearPath = path + " " + gearName;
 			AddModule(Expansion_CreateGearbox(this, gearPath));
 		}
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Engines";
-		count = GetGame().ConfigGetChildrenCount(path);
+		count = g_Game.ConfigGetChildrenCount(path);
 
 		for (i = 0; i < count; i++)
 		{
 			string engineName;
-			GetGame().ConfigGetChildName(path, i, engineName);
+			g_Game.ConfigGetChildName(path, i, engineName);
 
 			string enginePath = path + " " + engineName;
 			AddModule(Expansion_CreateEngine(this, enginePath));
 		}
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Props";
-		count = GetGame().ConfigGetChildrenCount(path);
+		count = g_Game.ConfigGetChildrenCount(path);
 
 		for (i = 0; i < count; i++)
 		{
 			string propName;
-			GetGame().ConfigGetChildName(path, i, propName);
+			g_Game.ConfigGetChildName(path, i, propName);
 
 			string propPath = path + " " + propName;
 			AddModule(new ExpansionVehicleProp(this, propPath));
 		}
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Buoyancy";
-		count = GetGame().ConfigGetChildrenCount(path);
+		count = g_Game.ConfigGetChildrenCount(path);
 
 		for (i = 0; i < count; i++)
 		{
 			string buoyancyName;
-			GetGame().ConfigGetChildName(path, i, buoyancyName);
+			g_Game.ConfigGetChildName(path, i, buoyancyName);
 
 			string buoyancyPath = path + " " + buoyancyName;
 			AddModule(new ExpansionVehicleBuoyantPoint(this, buoyancyPath));
 		}
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Axles";
-		count = GetGame().ConfigGetChildrenCount(path);
+		count = g_Game.ConfigGetChildrenCount(path);
 
 		for (i = 0; i < count; i++)
 		{
 			string axleName;
-			GetGame().ConfigGetChildName(path, i, axleName);
+			g_Game.ConfigGetChildName(path, i, axleName);
 
 			string wheelPath = "CfgVehicles " + GetType() + " SimulationModule Axles " + axleName + " Wheels";
-			int wheelCount = GetGame().ConfigGetChildrenCount(wheelPath);
+			int wheelCount = g_Game.ConfigGetChildrenCount(wheelPath);
 
 			ExpansionVehicleAxle axle = NULL;
 			ExpansionVehicleWheel wheel = NULL;
@@ -524,7 +524,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 				for (int j = 0; j < wheelCount; j++)
 				{
 					string wheelName;
-					GetGame().ConfigGetChildName(wheelPath, j, wheelName);
+					g_Game.ConfigGetChildName(wheelPath, j, wheelName);
 
 					wheel = axle.AddWheel(wheelName);
 					AddModule(wheel);
@@ -533,12 +533,12 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		}
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Aerofoils";
-		count = GetGame().ConfigGetChildrenCount(path);
+		count = g_Game.ConfigGetChildrenCount(path);
 
 		for (i = 0; i < count; i++)
 		{
 			string aerofoilName;
-			GetGame().ConfigGetChildName(path, i, aerofoilName);
+			g_Game.ConfigGetChildName(path, i, aerofoilName);
 
 			AddModule(new ExpansionVehicleAerofoil(this, aerofoilName));
 		}
@@ -554,7 +554,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 			array<string> soundSetNames = new array<string>();
 
 			path = "CfgVehicles " + GetType() + " ExpansionSounds soundSetsFilter";
-			GetGame().ConfigGetTextArray(path, soundSetNames);
+			g_Game.ConfigGetTextArray(path, soundSetNames);
 
 			for (i = 0; i < soundSetNames.Count(); i++)
 			{
@@ -562,7 +562,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 			}
 
 			path = "CfgVehicles " + GetType() + " ExpansionSounds soundSetsInt";
-			GetGame().ConfigGetTextArray(path, soundSetNames);
+			g_Game.ConfigGetTextArray(path, soundSetNames);
 
 			for (i = 0; i < soundSetNames.Count(); i++)
 			{
@@ -593,7 +593,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 		ExpansionSettings.SI_Vehicle.Insert(OnSettingsUpdated);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			m_Event_SettingsChanged.SettingsChanged();
 
 		LoadConstantVariables();
@@ -602,17 +602,17 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 		//! This exists so it can be overridden (e.g.) by server owners who don't have access to unbinarized models
 		path = "CfgVehicles " + GetType() + " mass";
-		if (GetGame().ConfigIsExisting(path))
-			m_Expansion_Mass = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_Expansion_Mass = g_Game.ConfigGetFloat(path);
 		else
 			m_Expansion_Mass = dBodyGetMass(this);
 		
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
+		g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
 	}
 
 	void ~ExpansionVehicleBase()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 #ifdef CF_DebugUI
@@ -661,7 +661,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	{
 		super.EEDelete(parent);
 		
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if (SEffectManager.IsEffectExist(m_coolantPtcFx))
 				SEffectManager.Stop(m_coolantPtcFx);
@@ -745,7 +745,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 		m_AirDragConstant = m_AirDragArea * m_AirDragCoefficient * 0.5;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnAfterLoadConstantVariables, 100, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnAfterLoadConstantVariables, 100, false);
 
 		float minHeight = 0;
 		for (i = 0; i < m_Wheels.Count(); i++)
@@ -758,7 +758,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		}
 
 		vector position = GetOrigin();
-		position[1] = GetGame().SurfaceY(position[0], position[2]) - minHeight;
+		position[1] = g_Game.SurfaceY(position[0], position[2]) - minHeight;
 		SetOrigin(position);
 
 		m_ExpansionVehicle.DeferredInit();
@@ -878,7 +878,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 			CarPartsHealthCheck();
 
 			//First of all check if the car should stop the engine
-			if (GetGame().IsServer() && EnginesOn() > 0)
+			if (g_Game.IsServer() && EnginesOn() > 0)
 			{
 				CheckVitalItem(IsVitalCarBattery(), "CarBattery");
 				CheckVitalItem(IsVitalTruckBattery(), "TruckBattery");
@@ -900,7 +900,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 				coolant = 1.0;
 
 			float fuelConsumption;
-			if (GetGame().IsServer() && m_Engines.Count() > 0)
+			if (g_Game.IsServer() && m_Engines.Count() > 0)
 			{
 				m_EngineHealth = 0;
 				for (int i = 0; i < m_Engines.Count(); i++)
@@ -913,7 +913,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 			//! actions runned when the engine on
 			if (EnginesOn() > 0)
 			{
-				if (GetGame().IsServer())
+				if (g_Game.IsServer())
 				{
 					//! leaking of coolant from radiator when damaged
 					if (IsVitalRadiator() && coolant > 0.0 && m_RadiatorHealth < 0.5) //CARS_LEAK_THRESHOLD
@@ -933,7 +933,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 				}
 
 				//FX only on Client and in Single
-				if (!GetGame().IsDedicatedServer())
+				if (!g_Game.IsDedicatedServer())
 				{
 					if (!SEffectManager.IsEffectExist(m_exhaustPtcFx))
 					{
@@ -969,7 +969,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 			else
 			{
 				//FX only on Client and in Single
-				if (!GetGame().IsDedicatedServer())
+				if (!g_Game.IsDedicatedServer())
 				{
 					if (SEffectManager.IsEffectExist(m_exhaustPtcFx))
 						SEffectManager.Stop(m_exhaustPtcFx);
@@ -1124,7 +1124,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 		//campos
 		m_SoundVariables[2] = 1;
-		auto player = PlayerBase.Cast(GetGame().GetPlayer());
+		auto player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (player)
 		{
 			if (!player.IsInThirdPerson())
@@ -1271,7 +1271,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 		if (m_Expansion_TowConnectionMask == 0 && !dBodyIsActive(this))
 		{
-			if (GetGame().IsServer())
+			if (g_Game.IsServer())
 			{
 				OnNoSimulation(dt);
 
@@ -1323,7 +1323,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		{
 		//! @note vanilla RPC, so not using Expansion RPC manager
 		case ERPCs.RPC_EXPLODE_EVENT:
-			if (GetGame().IsClient())
+			if (g_Game.IsClient())
 			{
 				Param2<int, string> params;
 
@@ -1550,7 +1550,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	override void EEItemAttached(EntityAI item, string slot_name)
 	{
 		super.EEItemAttached(item, slot_name);
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			switch (slot_name)
 			{
@@ -1641,7 +1641,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
 		super.EEItemAttached(item, slot_name);
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			switch(slot_name)
 			{
@@ -1987,7 +1987,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	
 	void RemoveAction(typename actionName)
 	{
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		ActionBase action = player.GetActionManager().GetAction(actionName);
 		typename ai = action.GetInputType();
 		array<ActionBase_Basic> action_array = m_InputActionMap.Get(ai);
@@ -2092,13 +2092,13 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
                     vector pos2 = crew.GetBonePositionMS( boneIdx );
                     vector pos3 = crew.GetBonePositionWS( boneIdx );
 
-                    if ( GetGame().GetWaterDepth( pos1 ) > 0 )
+                    if ( g_Game.GetWaterDepth( pos1 ) > 0 )
                         Debug.DrawSphere(pos1, 0.03, COLOR_RED);
                     
-					if ( GetGame().GetWaterDepth( pos2 ) > 0 )
+					if ( g_Game.GetWaterDepth( pos2 ) > 0 )
                         Debug.DrawSphere(pos2, 0.03, COLOR_GREEN);
                     
-                    if ( GetGame().GetWaterDepth( pos3 ) > 0 )
+                    if ( g_Game.GetWaterDepth( pos3 ) > 0 )
                         Debug.DrawSphere(pos3, 0.03, COLOR_YELLOW, ShapeFlags.NOZBUFFER | ShapeFlags.NOZWRITE);
 
                 }
@@ -2106,9 +2106,9 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
         }
 */
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
-			if (GetGame().GetWaterDepth(GetEnginePosWS()) > 0)
+			if (g_Game.GetWaterDepth(GetEnginePosWS()) > 0)
 			{
 				m_DrownTime += dt;
 				if (m_DrownTime > DROWN_ENGINE_THRESHOLD)
@@ -2125,9 +2125,9 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		}
 
 		//FX only on Client and in Single
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
-			if (IsDamageDestroyed() && GetGame().GetWaterDepth(GetEnginePosWS()) <= 0)
+			if (IsDamageDestroyed() && g_Game.GetWaterDepth(GetEnginePosWS()) <= 0)
 			{
 				if (!SEffectManager.IsEffectExist(m_enginePtcFx))
 				{
@@ -2670,7 +2670,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 			break;
 */
 		default:
-			if (GetGame().IsServer() && zoneName != "")
+			if (g_Game.IsServer() && zoneName != "")
 			{
 				if (CanBeDamaged())
 				{
@@ -2747,7 +2747,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "OnSound").Add(ctrl).Add(oldValue);
 #endif
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			if (GetCrashLightSound())
 				m_PlayCrashSoundLight = false;
@@ -2806,7 +2806,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 				}
 				
 				//! postpone the engine sound played from c++ on soundcontroller (via OnSound override)
-				GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Expansion_SetEngineStarted, 1000, false, true);
+				g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Expansion_SetEngineStarted, 1000, false, true);
 				break;
 				
 			case CarEngineSoundState.START_NO_FUEL:
@@ -2888,7 +2888,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	void KeyMessage(string message)
 	{
-		GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", message, ""));
+		g_Game.GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", message, ""));
 	}
 
 	bool IsLocked()
@@ -3070,7 +3070,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	override void Explode(int damageType, string ammoType = "")
 	{
-		if (GetGame().IsServer() && !m_Exploded)
+		if (g_Game.IsServer() && !m_Exploded)
 		{
 			if (ammoType == "")
 				ammoType = this.ConfigGetString("ammoType");
@@ -3080,13 +3080,13 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 			ExpansionOnExplodeServer(damageType, ammoType);
 
-			if (GetGame().IsServer() && !GetGame().IsMultiplayer())
+			if (g_Game.IsServer() && !g_Game.IsMultiplayer())
 			{
 				ExpansionOnExplodeClient(damageType, ammoType);
 			}
 			else
 			{
-				GetGame().RPCSingleParam(this, ERPCs.RPC_EXPLODE_EVENT, new Param2<int, string>(damageType, ammoType), true);
+				g_Game.RPCSingleParam(this, ERPCs.RPC_EXPLODE_EVENT, new Param2<int, string>(damageType, ammoType), true);
 			}
 		}
 	}
@@ -3231,7 +3231,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		if (!super.IsInventoryVisible())
 			return false;
 
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (player)
 		{
 			auto ehcv = player.GetCommand_ExpansionVehicle();
@@ -3781,7 +3781,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 	void UpdateLights(int new_gear = -1) // -1 is invalid gear.
 #endif
 	{
-		if (!GetGame().IsServer() || !GetGame().IsMultiplayer()) // client side
+		if (!g_Game.IsServer() || !g_Game.IsMultiplayer()) // client side
 		{
 			ItemBase battery;
 
@@ -4162,7 +4162,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	void CarPartsHealthCheck()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			ItemBase radiator;
 			Class.CastTo(radiator, FindAttachmentBySlotName("CarRadiator"));
@@ -4192,7 +4192,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	void PlayCrashLightSound()
 	{
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			EffectSound sound = SEffectManager.PlaySound("offroad_hit_light_SoundSet", GetPosition());
 			sound.SetSoundAutodestroy(true);
@@ -4213,7 +4213,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	void PlayCrashHeavySound()
 	{
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			EffectSound sound = SEffectManager.PlaySound("offroad_hit_heavy_SoundSet", GetPosition());
 			sound.SetSoundAutodestroy(true);
@@ -4368,8 +4368,8 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	string GetWreck()
 	{
-		if (GetGame().ConfigIsExisting("CfgVehicles " + GetType() + " wreck"))
-			return GetGame().ConfigGetTextOut("CfgVehicles " + GetType() + " wreck");
+		if (g_Game.ConfigIsExisting("CfgVehicles " + GetType() + " wreck"))
+			return g_Game.ConfigGetTextOut("CfgVehicles " + GetType() + " wreck");
 		return GetType() + "Wreck";
 	}
 

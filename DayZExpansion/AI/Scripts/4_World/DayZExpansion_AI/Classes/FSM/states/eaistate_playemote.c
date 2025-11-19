@@ -21,7 +21,7 @@ class eAIState_PlayEmote: eAIState
 		if (unit.IsClimbing()) return eAITransition.FAIL;
 		if (unit.IsFalling()) return eAITransition.FAIL;
 		if (unit.IsSwimming()) return eAITransition.FAIL;
-		if (!unit.GetCommand_MoveAI()) return eAITransition.FAIL;
+		if (!unit.GetCommand_Move()) return eAITransition.FAIL;
 		if (unit.eAI_IsChangingStance()) return eAITransition.FAIL;
 		
 		if (unit.GetThreatToSelf(true) > 0.2) return eAITransition.FAIL;

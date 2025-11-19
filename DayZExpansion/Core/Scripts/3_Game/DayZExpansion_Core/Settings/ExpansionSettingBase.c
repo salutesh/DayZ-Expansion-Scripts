@@ -49,7 +49,7 @@ class ExpansionSettingBase
 
 	bool Load()
 	{
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			Defaults();
 			return false;
@@ -71,7 +71,7 @@ class ExpansionSettingBase
 
 	bool Save()
 	{
-		if ( GetGame().IsClient() )
+		if ( g_Game.IsClient() )
 		{
 			return false;
 		}

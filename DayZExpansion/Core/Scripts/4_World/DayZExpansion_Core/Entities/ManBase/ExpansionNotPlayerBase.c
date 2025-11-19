@@ -58,7 +58,7 @@ class ExpansionNotPlayerBase: ManBase
 
 		m_DecayedTexture = ConfigGetString("decayedTexture");
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(OnPlayerLoaded);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(OnPlayerLoaded);
 	}
 	
 	// 1137
@@ -78,11 +78,11 @@ class ExpansionNotPlayerBase: ManBase
 		
 		HideHairSelections(itemIB,true);
 		
-		GetGame().GetAnalyticsClient().OnItemAttachedAtPlayer(item, slot_name);
+		g_Game.GetAnalyticsClient().OnItemAttachedAtPlayer(item, slot_name);
 		Clothing clothing = Clothing.Cast(item);
 		if (clothing)
 		{
-			if (!GetGame().IsDedicatedServer())
+			if (!g_Game.IsDedicatedServer())
 			{
 				/*
 				if (clothing.GetEffectWidgetTypes())
@@ -96,11 +96,11 @@ class ExpansionNotPlayerBase: ManBase
 				}
 				*/
 				
-				GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdateCorpseStateVisual, 200, false);//sometimes it takes a while to load in
+				g_Game.GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdateCorpseStateVisual, 200, false);//sometimes it takes a while to load in
 				UpdateCorpseStateVisual();//....but if possible, we don't want a delay
 			}
 			/*
-			else if (GetGame().IsServer())
+			else if (g_Game.IsServer())
 			{
 				if (clothing.IsGasMask())
 				{
@@ -135,7 +135,7 @@ class ExpansionNotPlayerBase: ManBase
 		if (clothing)
 		{
 			/*
-			if (!GetGame().IsDedicatedServer())
+			if (!g_Game.IsDedicatedServer())
 			{
 				if (clothing.GetEffectWidgetTypes())
 				{
@@ -148,7 +148,7 @@ class ExpansionNotPlayerBase: ManBase
 				}
 			}
 			
-			if (GetGame().IsServer())
+			if (g_Game.IsServer())
 			{
 				if (clothing.IsGasMask())
 				{
@@ -158,7 +158,7 @@ class ExpansionNotPlayerBase: ManBase
 			
 			clothing.UpdateNVGStatus(this);
 			*/
-			GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdateCorpseStateVisual, 200, false);//sometimes it takes a while to load in
+			g_Game.GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdateCorpseStateVisual, 200, false);//sometimes it takes a while to load in
 			UpdateCorpseStateVisual();//....but if possible, we don't want a delay
 		}
 	}
@@ -302,11 +302,11 @@ class ExpansionNotPlayerBase: ManBase
 	override void EEHealthLevelChanged(int oldLevel, int newLevel, string zone)
 	{
 		super.EEHealthLevelChanged(oldLevel, newLevel, zone);
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if (m_CorpseState != 0)
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdateCorpseState, 0, false);
+				g_Game.GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdateCorpseState, 0, false);
 			}
 		}
 	}
@@ -575,7 +575,7 @@ class ExpansionNotPlayerBase: ManBase
 	// client-side
 	void UpdateCorpseStateVisual()
 	{
-		//Print("---Prettying up corpses... | " + GetGame().GetTime() + " | " + this + " | " + GetType() + "---");
+		//Print("---Prettying up corpses... | " + g_Game.GetTime() + " | " + this + " | " + GetType() + "---");
 		//Print("m_DecayedTexture = " + m_DecayedTexture);
 		int state = Math.AbsInt(m_CorpseState);//negative sign denotes a special meaning(state was forced to a live player), but we are only intetested in the positive value here
 		if (state == PlayerConstants.CORPSE_STATE_DECAYED)

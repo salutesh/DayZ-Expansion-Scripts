@@ -21,9 +21,9 @@ modded class ReplaceAndDestroyLambda
 			//! Properly transfer all data associated with old item
 			ScriptReadWriteContext ctx = new ScriptReadWriteContext;
 			old_item.OnStoreSave(ctx.GetWriteContext());
-			new_item.OnStoreLoad(ctx.GetReadContext(), GetGame().SaveVersion());
+			new_item.OnStoreLoad(ctx.GetReadContext(), g_Game.SaveVersion());
 			new_item.AfterStoreLoad();
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(new_item.EEOnAfterLoad);  //! Make sure EEOnAfterLoad gets called AFTER whole hierarchy has loaded
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(new_item.EEOnAfterLoad);  //! Make sure EEOnAfterLoad gets called AFTER whole hierarchy has loaded
 		}
 
 		super.CopyOldPropertiesToNew(old_item, new_item);

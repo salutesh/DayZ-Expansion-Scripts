@@ -51,7 +51,7 @@ class eAIActionTakeItemToHands: ActionInteractBase
 		{
 			eAIBase ai = eAIBase.Cast(action_data.m_Player);
 			//! Need to do actual take to hands in next frame to avoid segfault, don't ask why
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(ai.eAI_TakeItemToHandsImpl, ntarget);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(ai.eAI_TakeItemToHandsImpl, ntarget);
 		}
 		else
 		{

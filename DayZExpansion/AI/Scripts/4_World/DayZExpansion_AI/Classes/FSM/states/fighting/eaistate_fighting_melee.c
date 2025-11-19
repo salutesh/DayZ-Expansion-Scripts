@@ -10,7 +10,7 @@ class eAIState_Fighting_Melee: eAIState
 		m_Time = 0;
 		m_MovementDirection = 0;
 		
-		unit.m_eAI_LastFireTime = GetGame().GetTime();
+		unit.m_eAI_LastFireTime = g_Game.GetTime();
 		
 		unit.Expansion_GetUp(true);
 	}

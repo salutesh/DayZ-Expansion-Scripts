@@ -67,16 +67,16 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 		string path;
 
 		path = "CfgVehicles " + GetType() + " SimulationModule maxSpeed";
-		if (GetGame().ConfigIsExisting(path))
-			m_MaxSpeed = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_MaxSpeed = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + GetType() + " SimulationModule altitudeFullForce";
-		if (GetGame().ConfigIsExisting(path))
-			m_AltitudeFullForce = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_AltitudeFullForce = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + GetType() + " SimulationModule altitudeNoForce";
-		if (GetGame().ConfigIsExisting(path))
-			m_AltitudeNoForce = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_AltitudeNoForce = g_Game.ConfigGetFloat(path);
 
 		ExpansionVehicleHelicopter_OLD simulation = new ExpansionVehicleHelicopter_OLD(this);
 		m_Simulation = simulation;
@@ -226,7 +226,7 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 		{
 			attachment = GetInventory().GetAttachmentFromIndex(j);
 
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 0, false, attachment);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(g_Game.ObjectDelete, 0, false, attachment);
 		}
 
 		PlayerBase player;
@@ -247,7 +247,7 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 					dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
 
 				//! Needs to be called at least one simulation frame (25ms) later
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.StartCommand_Fall, 25, false, 0);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.StartCommand_Fall, 25, false, 0);
 			}
 		}
 
@@ -266,7 +266,7 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 					dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
 
 				//! Needs to be called at least one simulation frame (25ms) later
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.StartCommand_Fall, 25, false, 0);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.StartCommand_Fall, 25, false, 0);
 			}
 			else
 			{
@@ -275,7 +275,7 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 		}
 
 		ExpansionWreck wreck;
-		if (Class.CastTo(wreck, GetGame().CreateObjectEx(GetWreck(), position + "0 2.5 0", ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH)))
+		if (Class.CastTo(wreck, g_Game.CreateObjectEx(GetWreck(), position + "0 2.5 0", ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH)))
 		{
 			wreck.SetPosition(position + "0 2.5 0");
 			wreck.SetOrientation(orientation);
@@ -300,11 +300,11 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 
 			dBodyApplyForce(wreck, m_State.m_LinearAcceleration * m_State.m_Mass);
 
-			// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( MiscGameplayFunctions.TransferInventory, 1, false, this, wreck, playerForTransfer );
+			// g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( MiscGameplayFunctions.TransferInventory, 1, false, this, wreck, playerForTransfer );
 
 			array<Object> objects = new array<Object>;
 			array<CargoBase> proxy = new array<CargoBase>;
-			GetGame().GetObjectsAtPosition(GetPosition(), 10, objects, proxy);
+			g_Game.GetObjectsAtPosition(GetPosition(), 10, objects, proxy);
 
 			for (int n = 0; n < objects.Count(); ++n)
 			{
@@ -316,19 +316,19 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 				BushSoft bushSoft;
 				if (Class.CastTo(treeHard, obj))
 				{
-					GetGame().RPCSingleParam(wreck, PlantType.TREE_HARD, new Param1<vector>(obj.GetPosition()), true);
+					g_Game.RPCSingleParam(wreck, PlantType.TREE_HARD, new Param1<vector>(obj.GetPosition()), true);
 				}
 				else if (Class.CastTo(treeSoft, obj))
 				{
-					GetGame().RPCSingleParam(wreck, PlantType.TREE_SOFT, new Param1<vector>(obj.GetPosition()), true);
+					g_Game.RPCSingleParam(wreck, PlantType.TREE_SOFT, new Param1<vector>(obj.GetPosition()), true);
 				}
 				else if (Class.CastTo(bushHard, obj))
 				{
-					GetGame().RPCSingleParam(wreck, PlantType.BUSH_HARD, new Param1<vector>(obj.GetPosition()), true);
+					g_Game.RPCSingleParam(wreck, PlantType.BUSH_HARD, new Param1<vector>(obj.GetPosition()), true);
 				}
 				else if (Class.CastTo(bushSoft, obj))
 				{
-					GetGame().RPCSingleParam(wreck, PlantType.BUSH_SOFT, new Param1<vector>(obj.GetPosition()), true);
+					g_Game.RPCSingleParam(wreck, PlantType.BUSH_SOFT, new Param1<vector>(obj.GetPosition()), true);
 				}
 				else
 				{
@@ -342,13 +342,13 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 					if (dBodyIsSet(obj))
 						dBodyDestroy(obj);
 
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(GetGame().ObjectDelete, obj);
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(g_Game.ObjectDelete, obj);
 				}
 			}
 
 			super.ExpansionOnExplodeServer(damageType, ammoType);
 
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(GetGame().ObjectDelete, this);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(g_Game.ObjectDelete, this);
 		}
 		else
 		{
@@ -364,11 +364,11 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 
 		super.ExpansionOnExplodeClient(damageType, ammoType);
 
-		if (!IsMissionOffline() && GetGame().GetPlayer().GetParent() == this)
+		if (!IsMissionOffline() && g_Game.GetPlayer().GetParent() == this)
 		{
-			GetGame().GetPlayer().UnlinkFromLocalSpace();
+			g_Game.GetPlayer().UnlinkFromLocalSpace();
 			//! Needs to be called at least one simulation frame (25ms) later
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().GetPlayer().StartCommand_Fall, 25, false, 0);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(g_Game.GetPlayer().StartCommand_Fall, 25, false, 0);
 		}
 	}
 

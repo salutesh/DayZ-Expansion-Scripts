@@ -37,10 +37,10 @@ class ExpansionNetsyncData
 		m_Expansion_RPCManager.RegisterServer("Send", this);
 		m_Expansion_RPCManager.RegisterClient("Receive", this);
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 		{
 			SI_Receive = new ScriptInvoker();
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LateClientInit, 250);  //! Has to be delayed, else won't work!
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LateClientInit, 250);  //! Has to be delayed, else won't work!
 		}
 	}
 

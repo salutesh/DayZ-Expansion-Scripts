@@ -55,7 +55,7 @@ modded class BuildingBase
 	{
 		super.DeferredInit();
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			OnSettingsUpdated();
 	}
 
@@ -83,13 +83,13 @@ modded class BuildingBase
 		if (!loadInterior && loadIvys == 0)
 			return;
 
-		if (GetGame().IsDedicatedServer())
+		if (g_Game.IsDedicatedServer())
 		{
 			LoadCustomObjects(loadInterior, loadIvys);
 		}
 		else
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadCustomObjects, s_Expansion_LoadCustomObjectsDelay, false, loadInterior, loadIvys);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadCustomObjects, s_Expansion_LoadCustomObjectsDelay, false, loadInterior, loadIvys);
 
 			//! @note buildings are initialized map-wide even on client (unlike other entities)
 			//! Load objects every 5 ms to avoid bogging down client
@@ -177,7 +177,7 @@ modded class BuildingBase
 	{
 		ConvertTransformToWorld( position, orientation, position, orientation );
 
-		Object obj = GetGame().CreateObjectEx( type, position, ECE_LOCAL );
+		Object obj = g_Game.CreateObjectEx( type, position, ECE_LOCAL );
 		if ( !obj )
 			return NULL;
 		
@@ -216,7 +216,7 @@ modded class BuildingBase
 		Object obj;
 		if ( !s_InteriorModule.m_CachedCollision.Find( type, hasCollision ) )
 		{
-			obj = GetGame().CreateObjectEx( type, position, ECE_CREATEPHYSICS | ECE_LOCAL );
+			obj = g_Game.CreateObjectEx( type, position, ECE_CREATEPHYSICS | ECE_LOCAL );
 			if ( !obj )
 			{
 				s_InteriorModule.m_CachedCollision.Insert( type, false );
@@ -228,17 +228,17 @@ modded class BuildingBase
 			
 			s_InteriorModule.m_CachedCollision.Insert( type, hasCollision );
 			
-			GetGame().ObjectDelete( obj );
+			g_Game.ObjectDelete( obj );
 		}
 
 		//Only spawn object with collision at server side, and object without collision at client side 
 		if ( hasCollision )
 		{
-			if ( GetGame().IsClient() )
+			if ( g_Game.IsClient() )
 				return NULL;
 		} else
 		{
-			if ( GetGame().IsServer() && GetGame().IsMultiplayer() )
+			if ( g_Game.IsServer() && g_Game.IsMultiplayer() )
 				return NULL;
 		}
 		
@@ -247,7 +247,7 @@ modded class BuildingBase
 		if ( IsMissionClient() )
 			flags |= ECE_LOCAL; // create_local
 		
-		obj = GetGame().CreateObjectEx( type, position, flags );
+		obj = g_Game.CreateObjectEx( type, position, flags );
 		if ( !obj )
 			return NULL;
 		
@@ -256,11 +256,11 @@ modded class BuildingBase
 		obj.SetOrientation( orientation );
 		obj.Update();
 		
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			obj.SetAffectPathgraph( true, false );
 			if ( obj.CanAffectPathgraph() )
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, obj );
+				g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( g_Game.UpdatePathgraphRegionByObject, 100, false, obj );
 		}
 
 		Entity ent = Entity.Cast(obj);
@@ -314,8 +314,8 @@ modded class BuildingBase
 		SpawnInterior();
 		m_InteriorsLoaded = true;
 
-		if (GetGame().IsDedicatedServer())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
+		if (g_Game.IsDedicatedServer())
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(g_Game.UpdatePathgraphRegionByObject, 100, false, this);
 	}
 	
 	// ------------------------------------------------------------
@@ -389,7 +389,7 @@ modded class BuildingBase
 		foreach (Object int_obj: m_InteriorObjects)
 		{
 			if (int_obj)
-				GetGame().ObjectDelete(int_obj);
+				g_Game.ObjectDelete(int_obj);
 		}
 		
 		
@@ -415,7 +415,7 @@ modded class BuildingBase
 		}
 		
 		foreach (Object ivy_obj: m_IvyObjects) {
-			GetGame().ObjectDelete(ivy_obj);
+			g_Game.ObjectDelete(ivy_obj);
 		}
 		
 		m_IvyObjects.Clear();
@@ -447,11 +447,11 @@ modded class BuildingBase
 	/*
 	void RemoveInterior()
 	{
-		if ( GetGame() )
+		if ( g_Game )
 		{
 			for ( int i = 0; i < m_InteriorObjects.Count(); ++i )
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(GetGame().ObjectDelete, m_InteriorObjects[i]);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(g_Game.ObjectDelete, m_InteriorObjects[i]);
 			}
 			
 			BuildingBaseSpawned.AllSpawned.RemoveItem(GetPosition());

@@ -1229,7 +1229,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
 		//EXPrint(ToString() + "::OnClientDisconnect " + cArgs.UID);
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 			return;
 
 		ExpansionPartyPlayerData party_player = GetPartyPlayerData(cArgs.UID);
@@ -1249,7 +1249,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 			return;
 
 		#ifdef EXPANSIONEXPRINT
@@ -1306,7 +1306,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetParty().EnableQuickMarker)
 			return;
 
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (!player || !m_Party)
 			return;
 
@@ -1315,8 +1315,8 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 		vector pos = vector.Zero;
 
-		vector rayStart = GetGame().GetCurrentCameraPosition();
-		vector rayEnd = rayStart + GetGame().GetCurrentCameraDirection() * 10000;
+		vector rayStart = g_Game.GetCurrentCameraPosition();
+		vector rayEnd = rayStart + g_Game.GetCurrentCameraDirection() * 10000;
 		vector hitPos;
 		vector hitNormal;
 		int hitComponentIndex;
@@ -1337,14 +1337,14 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetParty().EnableQuickMarker)
 			return;
 
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (!player || !m_Party)
 			return;
 
 		if (!GetExpansionSettings().GetParty() || !GetExpansionSettings().GetParty().EnableQuickMarker)
 			return;
 
-		if (GetGame().GetUIManager().FindMenu(MENU_EXPANSION_MAP))
+		if (g_Game.GetUIManager().FindMenu(MENU_EXPANSION_MAP))
 			return;
 
 		UpdateQuickMarker(vector.Zero);

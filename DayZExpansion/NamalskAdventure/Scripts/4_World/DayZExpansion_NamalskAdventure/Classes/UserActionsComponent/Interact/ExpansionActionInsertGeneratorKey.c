@@ -47,7 +47,7 @@ class ExpansionActionInsertGeneratorKey: ActionSingleUseBase
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 		
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 			return;
 		
 		ClearInventoryReservationEx(action_data);

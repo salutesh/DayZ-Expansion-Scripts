@@ -35,7 +35,7 @@ modded class ActionDigGardenPlot
 					return true;
 
 				//! Items cannot be checked on client because they are not synced (network optimization). Server will do the check for us
-				if ( !GetGame().IsServer() )
+				if ( !g_Game.IsServer() )
 					return true;
 
 				//! Player is in enemy territory
@@ -51,7 +51,7 @@ modded class ActionDigGardenPlot
 					return true;
 
 				//! Items cannot be checked on client because they are not synced (network optimization). Server will do the check for us
-				if ( !GetGame().IsServer() )
+				if ( !g_Game.IsServer() )
 					return true;
 					
 				foreach (string deployableOutsideTerritory: GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory)

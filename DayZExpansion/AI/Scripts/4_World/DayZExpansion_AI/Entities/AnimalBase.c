@@ -9,7 +9,7 @@ modded class AnimalBase
 
 	void AnimalBase()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
 
 		vector minMax[2];

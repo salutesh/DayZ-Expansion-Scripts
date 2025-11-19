@@ -49,63 +49,63 @@ class ExpansionVehicleProp : ExpansionVehicleModule
 		int type;
 
 		path = rootPath + " type";
-		if (GetGame().ConfigIsExisting(path))
+		if (g_Game.ConfigIsExisting(path))
 		{
-			int configType = GetGame().ConfigGetType(path);
+			int configType = g_Game.ConfigGetType(path);
 			if (configType == CT_STRING)
 			{
 				string typeName;
-				GetGame().ConfigGetText(path, typeName);
+				g_Game.ConfigGetText(path, typeName);
 				typeName.ToUpper();
 				m_Type = typename.StringToEnum(ExpansionVehiclePropType, typeName);
 			}
 			else
 			{
-				m_Type = GetGame().ConfigGetInt(path);
+				m_Type = g_Game.ConfigGetInt(path);
 			}
 		}
 
 		path = rootPath + " engine";
-		if (GetGame().ConfigIsExisting(path))
-			m_EngineIndex = GetGame().ConfigGetInt(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_EngineIndex = g_Game.ConfigGetInt(path);
 
 		path = rootPath + " start";
-		vector start = m_Vehicle.GetMemoryPointPos(GetGame().ConfigGetTextOut(path));
+		vector start = m_Vehicle.GetMemoryPointPos(g_Game.ConfigGetTextOut(path));
 
 		path = rootPath + " end";
-		vector end = m_Vehicle.GetMemoryPointPos(GetGame().ConfigGetTextOut(path));
+		vector end = m_Vehicle.GetMemoryPointPos(g_Game.ConfigGetTextOut(path));
 
 		path = rootPath + " maxYaw";
-		if (GetGame().ConfigIsExisting(path))
-			m_MaxYaw = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_MaxYaw = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " maxPitch";
-		if (GetGame().ConfigIsExisting(path))
-			m_MaxPitch = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_MaxPitch = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " radius";
-		if (GetGame().ConfigIsExisting(path))
-			m_RotorRadius = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_RotorRadius = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " animation";
-		if (GetGame().ConfigIsExisting(path))
-			m_Animation = GetGame().ConfigGetTextOut(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_Animation = g_Game.ConfigGetTextOut(path);
 
 		path = rootPath + " yawAnimation";
-		if (GetGame().ConfigIsExisting(path))
-			m_YawAnimation = GetGame().ConfigGetTextOut(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_YawAnimation = g_Game.ConfigGetTextOut(path);
 
 		path = rootPath + " pitchAnimation";
-		if (GetGame().ConfigIsExisting(path))
-			m_PitchAnimation = GetGame().ConfigGetTextOut(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_PitchAnimation = g_Game.ConfigGetTextOut(path);
 
 		path = rootPath + " hiderotor";
-		if (GetGame().ConfigIsExisting(path))
-			m_HideRotor = GetGame().ConfigGetTextOut(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_HideRotor = g_Game.ConfigGetTextOut(path);
 
 		path = rootPath + " hiderotorblur";
-		if (GetGame().ConfigIsExisting(path))
-			m_HideRotorBlur = GetGame().ConfigGetTextOut(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_HideRotorBlur = g_Game.ConfigGetTextOut(path);
 
 		m_Position = start;
 		m_Direction = vector.Direction(start, end).Normalized();

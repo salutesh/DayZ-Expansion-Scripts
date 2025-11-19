@@ -134,7 +134,7 @@ modded class ActionStartEngine
 
 			if (vehicle.EngineGetCurrent() > 0 || exVehicle)
 			{
-				if (GetGame().IsServer() || exVehicle)
+				if (g_Game.IsServer() || exVehicle)
 					vehicle.EngineStart();
 
 				return;

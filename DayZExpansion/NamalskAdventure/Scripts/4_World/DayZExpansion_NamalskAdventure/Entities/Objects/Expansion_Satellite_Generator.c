@@ -16,7 +16,7 @@ class Expansion_Satellite_Generator: PowerGenerator
 	{
 		super.OnSwitchOn();
 
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (g_Game.IsClient() || !g_Game.IsMultiplayer())
 		{
 			SetAnimationPhase("switch", 1.0);
 		}
@@ -26,7 +26,7 @@ class Expansion_Satellite_Generator: PowerGenerator
 	{
 		super.OnSwitchOff();
 
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (g_Game.IsClient() || !g_Game.IsMultiplayer())
 		{
 			SetAnimationPhase("switch", 0.0);
 		}
@@ -84,6 +84,6 @@ class Expansion_Satellite_Generator: PowerGenerator
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
-		GetGame().ObjectDelete(this);
+		g_Game.ObjectDelete(this);
 	}
 };

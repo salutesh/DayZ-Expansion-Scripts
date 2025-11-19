@@ -45,7 +45,7 @@ class eAIState_Craft: eAIState
 		}
 		else if (Guard() == eAITransition.SUCCESS)
 		{
-			m_LastAttemptTime = GetGame().GetTime();
+			m_LastAttemptTime = g_Game.GetTime();
 			m_Time = 0;
 			
 			if (m_TargetEntity.GetHierarchyRoot() == unit)
@@ -68,7 +68,7 @@ class eAIState_Craft: eAIState
 		if (unit.IsUnconscious()) return eAITransition.FAIL;
 		if (unit.IsSwimming()) return eAITransition.FAIL;
 		
-		if (!unit.GetCommand_MoveAI()) return eAITransition.FAIL;
+		if (!unit.GetCommand_Move()) return eAITransition.FAIL;
 
 		if (unit.m_eAI_DangerousAreaCount > 0 && unit.m_eAI_IsInDangerByArea)
 			return eAITransition.FAIL;
@@ -76,7 +76,7 @@ class eAIState_Craft: eAIState
 		if (unit.GetThreatToSelf() > 0.2)
 			return eAITransition.FAIL;
 		
-		if (GetGame().GetTime() - m_LastAttemptTime < 4000) return eAITransition.FAIL;
+		if (g_Game.GetTime() - m_LastAttemptTime < 4000) return eAITransition.FAIL;
 		
 		return eAITransition.SUCCESS;
 	}

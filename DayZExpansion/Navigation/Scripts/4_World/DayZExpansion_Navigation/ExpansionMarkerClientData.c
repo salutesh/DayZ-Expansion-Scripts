@@ -233,7 +233,7 @@ class ExpansionMarkerClientData : Managed
 				markers.Insert(marker);
 		}
 	
-		PlayerBase localPlayer = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase localPlayer = PlayerBase.Cast(g_Game.GetPlayer());
 		string localUid = "";
 		if (localPlayer)
 			localUid = localPlayer.GetIdentityUID();
@@ -556,7 +556,7 @@ class ExpansionMarkerClientData : Managed
 	void OnRefresh()
 	{
 		//! IMPORTANT! We do not want to clear any marker client info if player is not yet loaded
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (!player || !player.IsPlayerLoaded())
 			return;
 

@@ -15,7 +15,7 @@ modded class MissionBase
 
 	void ~MissionBase()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		DestroyDayZExpansion();
@@ -30,7 +30,7 @@ modded class MissionBase
 	override void CF_OnUpdate(float timeslice)
 	{
 #ifdef SERVER
-		float updateTime = GetGame().GetTickTime();
+		float updateTime = g_Game.GetTickTime();
 		float elapsed = updateTime - m_CF_UpdateTime;
 		bool update = elapsed >= 0.025;
 

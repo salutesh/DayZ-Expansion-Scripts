@@ -82,7 +82,7 @@ modded class MissionServer
 		if (GetCLIParam("exitAfter", exitAfter))
 		{
 			EXPrint(ToString() + " Command line parameter exitAfter found - exiting after " + exitAfter + " seconds");
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().RequestExit, exitAfter.ToInt() * 1000, false, 0);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(g_Game.RequestExit, exitAfter.ToInt() * 1000, false, 0);
 		}
 	}
 	
@@ -180,7 +180,7 @@ modded class MissionServer
 		string version;
 		GetDayZGame().GetVersion(version);
 		string warningText = "This server is running an unsupported version of the game (" + version + ").";
-		if (GetGame().ConfigIsExisting("CfgMods DZ_Expansion_Animations_Preload"))
+		if (g_Game.ConfigIsExisting("CfgMods DZ_Expansion_Animations_Preload"))
 			warningText += " Some player animations MAY not work correctly.";
 		warningText += " Preferably, please use DayZ " + preferredVersion + " (Experimental or stable when available).";
 		ExpansionNotification("WARNING", warningText, "Error", COLOR_EXPANSION_NOTIFICATION_ORANGE, 20).Create(identity);
@@ -210,7 +210,7 @@ modded class MissionServer
 		{
 			//! Only send settings if this is not a respawn
 		#ifdef EXPANSION_SETTINGS_DELAY
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SendSettings, 20000, false, player);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SendSettings, 20000, false, player);
 		#else
 			GetExpansionSettings().Send( identity );
 		#endif
@@ -264,10 +264,10 @@ modded class MissionServer
 		array<string> classNames = {};
 		Param1<array<string>> dump = new Param1<array<string>>(classNames);
 		
-		for (int i = 0; i < GetGame().ConfigGetChildrenCount("CfgVehicles"); i++)
+		for (int i = 0; i < g_Game.ConfigGetChildrenCount("CfgVehicles"); i++)
 	    {
 	        string name;
-	        GetGame().ConfigGetChildName("CfgVehicles", i, name);
+	        g_Game.ConfigGetChildName("CfgVehicles", i, name);
 	 
 	        if (name == string.Empty)
 	            continue;

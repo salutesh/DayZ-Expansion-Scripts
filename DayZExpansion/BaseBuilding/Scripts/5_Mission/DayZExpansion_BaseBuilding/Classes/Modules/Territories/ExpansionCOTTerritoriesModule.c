@@ -235,7 +235,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		array<ref ExpansionEntityMetaData> objects_datas = new array<ref ExpansionEntityMetaData>;
 		array<Object> objects = new array<Object>;
 		array<CargoBase> proxyCargos = new array<CargoBase> ;
-		GetGame().GetObjectsAtPosition3D( pos, GetExpansionSettings().GetTerritory().TerritorySize, objects, proxyCargos );
+		g_Game.GetObjectsAtPosition3D( pos, GetExpansionSettings().GetTerritory().TerritorySize, objects, proxyCargos );
 		
 		if ( objects && objects.Count() > 0 )
 		{
@@ -387,12 +387,12 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		if ( !ctx.Read( netHigh ) )
 			return;
 		
-		Object object = GetGame().GetObjectByNetworkId( netLow, netHigh );
+		Object object = g_Game.GetObjectByNetworkId( netLow, netHigh );
 
 		if ( !object )
 			return;
 
-		GetGame().ObjectDelete( object );
+		g_Game.ObjectDelete( object );
 		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_DeleteObject - End");
@@ -537,7 +537,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		if ( !player )
 			return;
 
-		Object object = GetGame().GetObjectByNetworkId( netLow, netHigh );
+		Object object = g_Game.GetObjectByNetworkId( netLow, netHigh );
 		if ( !object )
 			return;
 
@@ -599,7 +599,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		if ( !ctx.Read( netHigh ) )
 			return;
 
-		Object object = GetGame().GetObjectByNetworkId( netLow, netHigh );
+		Object object = g_Game.GetObjectByNetworkId( netLow, netHigh );
 		if ( !object )
 			return;
 

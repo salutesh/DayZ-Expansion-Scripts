@@ -66,7 +66,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	protected void CreateDirectoryStructure()
 	{
-		int instance_id = GetGame().ServerConfigGetInt("instanceId");
+		int instance_id = g_Game.ServerConfigGetInt("instanceId");
 		s_GarageFolderPath = "$mission:storage_" + instance_id + "\\expansion\\garage\\";
 		if (!FileExist(s_GarageFolderPath))
 			ExpansionStatic.MakeDirectoryRecursive(s_GarageFolderPath);
@@ -84,10 +84,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 		Class.CastTo(m_MarketModule, CF_ModuleCoreManager.Get(ExpansionMarketModule));
 	#endif
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 			ServerModuleInit();
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 			ClientModuleInit();
 	}
 
@@ -126,7 +126,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 	protected void ServerModuleInit()
 	{
 		//! Server only
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			m_GarageData = new array<ref ExpansionGarageData>;
 		#ifdef EXPANSIONMODBASEBUILDING
@@ -142,7 +142,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 	protected void ClientModuleInit()
 	{
 		//! Client only
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 		{
 			if (!m_GarageMenuInvoker)
 				m_GarageMenuInvoker = new ScriptInvoker(); //! Client
@@ -805,7 +805,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
 #endif
 		
-		if (!GetGame().IsClient())
+		if (!g_Game.IsClient())
 		{
 			Error(ToString() + "::RetrieveVehicleRequest - Tryed to call RetrieveVehicleRequest on Server!");
 			return;
@@ -1380,9 +1380,9 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	bool CanOpenMenu()
 	{
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
-			if (GetGame().GetUIManager().GetMenu())
+			if (g_Game.GetUIManager().GetMenu())
 				return false;
 
 			if (GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())

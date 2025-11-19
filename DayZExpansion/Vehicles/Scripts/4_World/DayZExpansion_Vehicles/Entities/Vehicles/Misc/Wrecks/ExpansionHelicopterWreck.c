@@ -19,24 +19,24 @@ class ExpansionHelicopterWreck : ExpansionWreck
 
 	void ExpansionHelicopterWreck()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			ExpansionCreateExplosion(this, "", 5, 100);
 		}
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			m_ParticleEfx = Particle.PlayOnObject(ParticleList.EXPANSION_FIRE_HELICOPTER, this, GetMemoryPointPos("fire_pos"), "0 0 0", true);
 
 			// turn light on
-			if (!GetLightEntity() && (!GetGame().IsDedicatedServer()))
+			if (!GetLightEntity() && (!g_Game.IsDedicatedServer()))
 			{
 				SetLightEntity(FireplaceLight.Cast(ScriptedLightBase.CreateLight(FireplaceLight, GetPosition(), 20)));
 				GetLightEntity().AttachOnMemoryPoint(this, "light");
 
 				if (GetLightEntity())
 				{
-					Object player = GetGame().GetPlayer();
+					Object player = g_Game.GetPlayer();
 					if (player)
 					{
 						if (vector.Distance(player.GetPosition(), this.GetPosition()) > m_LightDistance)
@@ -56,7 +56,7 @@ class ExpansionHelicopterWreck : ExpansionWreck
 
 	override void EEDelete(EntityAI parent)
 	{
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			// turn light off
 			if (GetLightEntity())

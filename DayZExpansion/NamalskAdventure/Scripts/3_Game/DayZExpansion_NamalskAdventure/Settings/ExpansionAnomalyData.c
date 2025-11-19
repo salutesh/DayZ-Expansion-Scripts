@@ -154,9 +154,9 @@ class ExpansionAnomalyDynamic: ExpansionAnomalyStatic
 	    for (int i = 0; i < amount * 2; i++)
 	    {
 	        position = center + Vector(Math.RandomFloat(-largeSquareSize / 2, largeSquareSize / 2), 0, Math.RandomFloat(-largeSquareSize / 2, largeSquareSize / 2));
-	        position[1] = GetGame().SurfaceY(position[0], position[2]);
+	        position[1] = g_Game.SurfaceY(position[0], position[2]);
 
-	        if (!GetGame().SurfaceIsSea(position[0], position[2]) && !GetGame().SurfaceIsPond(position[0], position[2]) && position != vector.Zero)
+	        if (!g_Game.SurfaceIsSea(position[0], position[2]) && !g_Game.SurfaceIsPond(position[0], position[2]) && position != vector.Zero)
 	            largePositions.Insert(position);
 	    }
 
@@ -168,7 +168,7 @@ class ExpansionAnomalyDynamic: ExpansionAnomalyStatic
 	        largePositions.Remove(index);
 
 	        array<Object> excludes;
-	        if (!GetGame().IsBoxColliding(position, Vector(5, 0, 5), Vector(5, 5, 5), excludes))
+	        if (!g_Game.IsBoxColliding(position, Vector(5, 0, 5), Vector(5, 5, 5), excludes))
 	        {
 	            bool validPos = true;
 				if (position == vector.Zero)

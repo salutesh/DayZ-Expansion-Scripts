@@ -3,18 +3,11 @@ class CfgPatches
 	class DayZExpansion_Weapons_Rifles_G36
 	{
 		units[]={};
-		weapons[]=
-		{
-			"Expansion_G36"
-		};
+		weapons[]={};
 		requiredVersion=0.1;
 		requiredAddons[]=
 		{
 			"DZ_Weapons_Firearms"
-		};
-		magazines[]=
-		{
-			"Mag_Expansion_G36_30Rnd"
 		};
 	};
 };
@@ -94,23 +87,26 @@ class cfgWeapons
 		{
 			soundSetShot[]=
 			{
-				"M4_Shot_SoundSet",
-				"M4_Tail_SoundSet",
-				"M4_InteriorTail_SoundSet"
+				"M4A1_Shot_1st_SoundSet",
+				"M4A1_Shot_1st_iterior_SoundSet",
+				"M4A1_Tail_SoundSet",
+				"M4A1_InteriorTail_SoundSet",
+				"M4A1_Slapback_SoundSet",
+				"M4A1_Tail_2D_SoundSet"
 			};
 			soundSetShotExt[]=
 			{
 				
 				{
-					"M4_silencer_SoundSet",
-					"M4_silencerTail_SoundSet",
-					"M4_silencerInteriorTail_SoundSet"
+					"M4A1_1st_silencer_SoundSet",
+					"M4A1_silencerTail_SoundSet",
+					"M4A1_silencerInteriorTail_SoundSet"
 				},
 				
 				{
-					"M4_silencerHomeMade_SoundSet",
-					"M4_silencerHomeMadeTail_SoundSet",
-					"M4_silencerInteriorHomeMadeTail_SoundSet"
+					"M4A1_1st_silencerHomeMade_SoundSet",
+					"M4A1_silencerHomeMadeTail_SoundSet",
+					"M4A1_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
 			reloadTime=0.125;
@@ -121,25 +117,44 @@ class cfgWeapons
 		};
 		class FullAuto: Mode_FullAuto
 		{
+			soundSetShot1st[]=
+			{
+				"M4A1_Shot_1st_SoundSet",
+				"M4A1_Shot_1st_iterior_SoundSet"
+			};
 			soundSetShot[]=
 			{
-				"M4_Shot_SoundSet",
-				"M4_Tail_SoundSet",
-				"M4_InteriorTail_SoundSet"
+				"M4A1_Shot_SoundSet",
+				"M4A1_Shot_iterior_SoundSet",
+				"M4A1_Tail_SoundSet",
+				"M4A1_InteriorTail_SoundSet",
+				"M4A1_Slapback_SoundSet",
+				"M4A1_Tail_2D_SoundSet"
+			};
+			soundSetShotExt1st[]=
+			{
+				
+				{
+					"M4A1_1st_silencer_SoundSet"
+				},
+				
+				{
+					"M4A1_1st_silencerHomeMade_SoundSet"
+				}
 			};
 			soundSetShotExt[]=
 			{
 				
 				{
-					"M4_silencer_SoundSet",
-					"M4_silencerTail_SoundSet",
-					"M4_silencerInteriorTail_SoundSet"
+					"M4A1_silencer_SoundSet",
+					"M4A1_silencerTail_SoundSet",
+					"M4A1_silencerInteriorTail_SoundSet"
 				},
 				
 				{
-					"M4_silencerHomeMade_SoundSet",
-					"M4_silencerHomeMadeTail_SoundSet",
-					"M4_silencerInteriorHomeMadeTail_SoundSet"
+					"M4A1_silencerHomeMade_SoundSet",
+					"M4A1_silencerHomeMadeTail_SoundSet",
+					"M4A1_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
 			reloadTime=0.079999998;

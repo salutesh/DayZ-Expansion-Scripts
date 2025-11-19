@@ -68,7 +68,7 @@ class ExpansionAnomalyTriggerFire_Dynamic : ExpansionAnomalyTriggerBase_Dynamic
 	/*protected void PlayFXTarget(vector pos, PlayerIdentity identity)
 	{
 		Param1<vector> p = new Param1<vector>(pos);
-		GetGame().RPCSingleParam(this, Expansion_AnomalyCore_ERPCs.PLAY_TARGET_FX, p, true, identity);
+		g_Game.RPCSingleParam(this, Expansion_AnomalyCore_ERPCs.PLAY_TARGET_FX, p, true, identity);
 	}
 
 	protected void PlayVFXTarget(vector pos)
@@ -77,10 +77,10 @@ class ExpansionAnomalyTriggerFire_Dynamic : ExpansionAnomalyTriggerBase_Dynamic
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if (m_ParticleTarget)
-				GetGame().ObjectDelete(m_ParticleTarget);
+				g_Game.ObjectDelete(m_ParticleTarget);
 
 			//! Ideally play a one time effect such as an explosion
 			m_ParticleTarget = ParticleManager.GetInstance().PlayInWorld(ParticleList.EXPANSION_PARTICLE_WARPER_ACTIVATE, pos);
@@ -94,13 +94,13 @@ class ExpansionAnomalyTriggerFire_Dynamic : ExpansionAnomalyTriggerBase_Dynamic
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			EffectSound soundEffect = SEffectManager.PlaySound("Blowout_Teleport", pos, 0, 0, false);
 			if (!soundEffect)
 				return;
 
-			soundEffect.SetParent(GetGame().GetPlayer());
+			soundEffect.SetParent(g_Game.GetPlayer());
 			soundEffect.SetSoundAutodestroy(true);
 		}
 	}
@@ -109,7 +109,7 @@ class ExpansionAnomalyTriggerFire_Dynamic : ExpansionAnomalyTriggerBase_Dynamic
 	{
 		super.OnRPC(sender, rpc_type, ctx);
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			switch (rpc_type)
 			{

@@ -52,7 +52,7 @@ modded class AnimalBase
 			if (IsDanger())
 			{
 				SetHealth(0);
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 5000, false, this );
+				g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( g_Game.ObjectDelete, 5000, false, this );
 			}
 		}
 	}
@@ -116,7 +116,7 @@ modded class AnimalBase
 		//! Will CTD if targeted by another creature after health of this one is depleted while it has no AI agent,
 		//! so remove the body to prevent that
 		if (!GetAIAgent())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Delete, 1500);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Delete, 1500);
 	}
 
 	override bool ModCommandHandlerBefore(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)

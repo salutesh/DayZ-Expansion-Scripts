@@ -12,7 +12,7 @@ modded class CarScript
 	{		
 		super.EEInit();
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			m_eAI_NoiseParamsPath = "cfgVehicles " + GetType() + " NoiseCarHorn";
 		}

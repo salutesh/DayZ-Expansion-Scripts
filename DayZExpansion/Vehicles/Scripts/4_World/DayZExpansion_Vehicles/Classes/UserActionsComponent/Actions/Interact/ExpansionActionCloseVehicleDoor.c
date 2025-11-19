@@ -118,7 +118,7 @@ class ExpansionActionCloseVehicleDoor: ActionInteractBase
 		if( vehicle )
 		{
 			vehicle.SetAnimationPhase( m_AnimSource, 0.0);
-			if ( !GetGame().IsDedicatedServer() )
+			if ( !g_Game.IsDedicatedServer() )
 				SEffectManager.PlaySound("offroad_door_close_SoundSet", vehicle.GetPosition() );
 		}
 	}

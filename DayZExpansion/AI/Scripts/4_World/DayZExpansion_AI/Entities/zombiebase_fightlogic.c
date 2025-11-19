@@ -7,7 +7,7 @@ modded class ZombieBase
 
 	void ZombieBase()
 	{
-		if (GetGame().IsServer() && GetExpansionSettings().GetAI().EnableZombieVehicleAttackHandler)
+		if (g_Game.IsServer() && GetExpansionSettings().GetAI().EnableZombieVehicleAttackHandler)
 		{
 			m_Expansion_InfectedType = ExpansionInfectedType.Get(Type());
 			m_Expansion_ZombieFightLogic = new ExpansionZombieFightLogic(this);

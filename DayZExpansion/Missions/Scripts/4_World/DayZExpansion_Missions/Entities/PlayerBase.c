@@ -41,12 +41,12 @@ modded class PlayerBase
 		m_Expansion_ContaminatedArea = true;
 		m_Expansion_ContaminatedAreaSynchRemote = true;
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			GetModifiersManager().ActivateModifier(eModifiers.MDF_AREAEXPOSURE);
 		}
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			auto area = ExpansionContaminatedArea.GetArea(GetPosition());
 			if (!area)
@@ -71,12 +71,12 @@ modded class PlayerBase
 		m_Expansion_ContaminatedArea = false;
 		m_Expansion_ContaminatedAreaSynchRemote = false;
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			GetModifiersManager().DeactivateModifier(eModifiers.MDF_AREAEXPOSURE);
 		}
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			SetContaminatedEffect(false, m_Expansion_ContaminatedAreaPPERequesterIdx);
 		}

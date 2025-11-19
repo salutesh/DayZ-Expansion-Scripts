@@ -35,21 +35,21 @@ class ExpansionSkinModule: CF_ModuleWorld
 
 		super.OnInit();
 
-		int mod_count = GetGame().ConfigGetChildrenCount( "CfgMods" );
+		int mod_count = g_Game.ConfigGetChildrenCount( "CfgMods" );
 		
 		for ( int i = 0; i < mod_count; ++i )
 		{
 			string mod_name;
-			GetGame().ConfigGetChildName( "CfgMods", i, mod_name );
+			g_Game.ConfigGetChildName( "CfgMods", i, mod_name );
 
 			string configSkins = "CfgMods " + mod_name + " expansionSkins";
-			if ( !GetGame().ConfigIsExisting( configSkins ) )
+			if ( !g_Game.ConfigIsExisting( configSkins ) )
 			{
 				continue;
 			}
 
 			TStringArray folders = new TStringArray;
-			GetGame().ConfigGetTextArray( configSkins, folders );
+			g_Game.ConfigGetTextArray( configSkins, folders );
 
 			if ( !folders || folders.Count() == 0 )
 			{
@@ -173,10 +173,10 @@ class ExpansionSkinModule: CF_ModuleWorld
 			return;
 
 		TStringArray applySkinsTo = new TStringArray;
-		GetGame().ConfigGetTextArray( path + " " + classname + " applySkinsTo", applySkinsTo );
+		g_Game.ConfigGetTextArray( path + " " + classname + " applySkinsTo", applySkinsTo );
 
 		string defaultSkin = "";
-		GetGame().ConfigGetText( path + " " + classname + " defaultSkin", defaultSkin );
+		g_Game.ConfigGetText( path + " " + classname + " defaultSkin", defaultSkin );
 
 		applySkinsTo.Insert( classname );
 
@@ -199,16 +199,16 @@ class ExpansionSkinModule: CF_ModuleWorld
 	string GetConfigPath( string classname )
 	{
 		string path = "cfgVehicles";
-		if ( !GetGame().ConfigIsExisting( path + " " + classname ) )
+		if ( !g_Game.ConfigIsExisting( path + " " + classname ) )
 		{
 			path = "cfgWeapons";
-			if ( !GetGame().ConfigIsExisting( path + " " + classname ) )
+			if ( !g_Game.ConfigIsExisting( path + " " + classname ) )
 			{
 				path = "cfgMagazines";
-				if ( !GetGame().ConfigIsExisting( path + " " + classname ) )
+				if ( !g_Game.ConfigIsExisting( path + " " + classname ) )
 				{
 					path = "cfgNonAIVehicles";
-					if ( !GetGame().ConfigIsExisting( path + " " + classname ) )
+					if ( !g_Game.ConfigIsExisting( path + " " + classname ) )
 					{
 						if(classname)
 							Print( "ExpansionSkinModule::GetConfigPath - [ERROR]: Invalid class name " + classname );
@@ -268,8 +268,8 @@ class ExpansionSkinModule: CF_ModuleWorld
 	string GetSkinName( string classname )
 	{
 		string path = GetConfigPath( classname );
-		if ( path && GetGame().ConfigIsExisting( path + " " + classname + " skinName" ) )
-			return GetGame().ConfigGetTextOut( path + " " + classname + " skinName" );
+		if ( path && g_Game.ConfigIsExisting( path + " " + classname + " skinName" ) )
+			return g_Game.ConfigGetTextOut( path + " " + classname + " skinName" );
 		return "";
 	}
 	
@@ -293,8 +293,8 @@ class ExpansionSkinModule: CF_ModuleWorld
 
 			//! If it exists, use skinBase instead of given classname
 			//! (so when spawning <thing>_<skinname>, it has the correct skin)
-			if ( GetGame().ConfigIsExisting( path + " " + classname + " skinBase" ) )
-				GetGame().ConfigGetText( path + " " + classname + " skinBase", skinBase );
+			if ( g_Game.ConfigIsExisting( path + " " + classname + " skinBase" ) )
+				g_Game.ConfigGetText( path + " " + classname + " skinBase", skinBase );
 
 			if ( !skinBase )
 				skinBase = classname;
@@ -318,8 +318,8 @@ class ExpansionSkinModule: CF_ModuleWorld
 
 			//! If it exists, use skinName instead of default skin
 			//! (so when spawning <thing>_<skinname>, it has the correct skin)
-			if ( GetGame().ConfigIsExisting( path + " " + classname + " skinName" ) )
-				GetGame().ConfigGetText( path + " " + classname + " skinName", skinName );
+			if ( g_Game.ConfigIsExisting( path + " " + classname + " skinName" ) )
+				g_Game.ConfigGetText( path + " " + classname + " skinName", skinName );
 
 			if ( !skinName )
 				skinName = skins.GetDefaultSkin();

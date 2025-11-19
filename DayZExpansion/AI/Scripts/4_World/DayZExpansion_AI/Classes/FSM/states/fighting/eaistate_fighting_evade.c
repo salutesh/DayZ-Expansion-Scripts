@@ -24,7 +24,7 @@ class eAIState_Fighting_Evade: eAIState
 
 	int Guard()
 	{
-		int missionTime = GetGame().GetTime();
+		int missionTime = g_Game.GetTime();
 		
 		Weapon_Base aiWeapon;
 		if (Class.CastTo(aiWeapon, unit.GetHumanInventory().GetEntityInHands()) && missionTime - unit.m_eAI_LastEvadeTime < Math.RandomInt(2500, 5000)) return eAITransition.FAIL;

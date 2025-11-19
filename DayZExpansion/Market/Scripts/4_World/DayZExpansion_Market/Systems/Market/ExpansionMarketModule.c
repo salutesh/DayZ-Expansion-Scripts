@@ -369,7 +369,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		super.OnMissionLoaded(sender, args);
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 		
 		LoadMoneyPrice();
@@ -605,7 +605,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		ExpansionMarketTraderZone zone;
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 			zone = GetClientZone();
 		else
 			zone = sell.Trader.GetTraderZone();
@@ -809,7 +809,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		ExpansionMarketTraderZone zone;
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 			zone = GetClientZone();
 		else
 			zone = sell.Trader.GetTraderZone();
@@ -850,7 +850,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 				ExpansionMarketItem ammoItem = NULL;
 				if (!m_AmmoItems.Find(bulletClassName, ammoItem))
 				{
-					string ammoClassName = GetGame().ConfigGetTextOut("CfgAmmo " + bulletClassName + " spawnPileType");
+					string ammoClassName = g_Game.ConfigGetTextOut("CfgAmmo " + bulletClassName + " spawnPileType");
 					ammoClassName.ToLower();
 					ammoItem = ExpansionMarketCategory.GetGlobalItem(ammoClassName, false);
 					if (!ammoItem)
@@ -1150,23 +1150,23 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!trader.Items.Contains(itemClassName))
 		{
 			bool isCfgVehicleSkin;
-			if (GetGame().ConfigIsExisting("CfgVehicles " + itemClassName + " skinBase"))
+			if (g_Game.ConfigIsExisting("CfgVehicles " + itemClassName + " skinBase"))
 				isCfgVehicleSkin = true;
 			bool isCfgWeaponSkin;
-			if (!isCfgVehicleSkin && GetGame().ConfigIsExisting("CfgWeapons " + itemClassName + " skinBase"))
+			if (!isCfgVehicleSkin && g_Game.ConfigIsExisting("CfgWeapons " + itemClassName + " skinBase"))
 				isCfgWeaponSkin = true;
 			bool isCfgMagazineSkin;
-			if (!isCfgVehicleSkin && !isCfgWeaponSkin && GetGame().ConfigIsExisting("CfgMagazines " + itemClassName + " skinBase"))
+			if (!isCfgVehicleSkin && !isCfgWeaponSkin && g_Game.ConfigIsExisting("CfgMagazines " + itemClassName + " skinBase"))
 				isCfgMagazineSkin = true;
 
 			if (isCfgVehicleSkin || isCfgWeaponSkin || isCfgMagazineSkin)
 			{
 				if (isCfgVehicleSkin)
-					GetGame().ConfigGetText("CfgVehicles " + itemClassName + " skinBase", itemClassName);
+					g_Game.ConfigGetText("CfgVehicles " + itemClassName + " skinBase", itemClassName);
 				else if (isCfgWeaponSkin)
-					GetGame().ConfigGetText("CfgWeapons " + itemClassName + " skinBase", itemClassName);
+					g_Game.ConfigGetText("CfgWeapons " + itemClassName + " skinBase", itemClassName);
 				else if (isCfgMagazineSkin)
-					GetGame().ConfigGetText("CfgMagazines " + itemClassName + " skinBase", itemClassName);
+					g_Game.ConfigGetText("CfgMagazines " + itemClassName + " skinBase", itemClassName);
 
 				itemClassName.ToLower();
 			}
@@ -1596,7 +1596,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 								string bulletName = "";
 								if (!s_AmmoBullets.Find(ammoName, bulletName))
 								{
-									bulletName = GetGame().ConfigGetTextOut("CfgMagazines " + ammoName + " ammo");
+									bulletName = g_Game.ConfigGetTextOut("CfgMagazines " + ammoName + " ammo");
 									s_AmmoBullets.Insert(ammoName, bulletName);
 								}
 
@@ -1632,7 +1632,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", message, ""));
+		g_Game.GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", message, ""));
 		
 	}
 	
@@ -2278,7 +2278,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 				}
 				if (!quantity)
 				{
-					GetGame().ObjectDelete(money);
+					g_Game.ObjectDelete(money);
 				}
 				else
 				{
@@ -2306,7 +2306,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			if (!player)
 				return;
@@ -2436,7 +2436,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			if (!MoneyCheck(identity))
 				return;
@@ -2502,10 +2502,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 	void RequestPurchase(int itemID, int count, int currentPrice, ExpansionTraderObjectBase trader, PlayerBase player = NULL, bool includeAttachments = true, int skinIndex = -1, TIntArray attachmentIDs = NULL)
 	{
 #ifdef EXTRACE
-		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+		auto trace = EXTrace.Start(EXTrace.MARKET, this, "itemID = " + itemID, "count = " + count, "currentPrice = " + currentPrice, "player = " + player, "includeAttachments = " + includeAttachments, "skinIndex = " + skinIndex, "attachmentIDs = " + attachmentIDs);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if (!trader)
 			{
@@ -2646,7 +2646,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void Exec_RequestPurchase(notnull PlayerBase player, int itemID, int count, int currentPrice, ExpansionTraderObjectBase trader, bool includeAttachments = true, int skinIndex = -1, TIntArray attachmentIDs = NULL)
 	{
 #ifdef EXTRACE
-		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+		auto trace = EXTrace.Start(EXTrace.MARKET, this, "itemID = " + itemID, "count = " + count, "currentPrice = " + currentPrice, "player = " + player, "includeAttachments = " + includeAttachments, "skinIndex = " + skinIndex, "attachmentIDs = " + attachmentIDs);
 #endif
 
 		m_Exec_RequestPurchase_Called = true;
@@ -2852,14 +2852,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 
 		reservedList.Valid = true;
-		reservedList.Time = GetGame().GetTime();
+		reservedList.Time = g_Game.GetTime();
 
 		#ifdef EXPANSIONMODMARKET_DEBUG
 		reservedList.Debug();
 		#endif
 
 		// !TODO: Finish method RemoveReservedStock in PlayerBase
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RemoveReservedStock, 30000, false, player, itemClassName);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RemoveReservedStock, 30000, false, player, itemClassName);
 
 		Exec_ConfirmPurchase(player, itemClassName, includeAttachments, skinIndex);
 	}
@@ -3054,7 +3054,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			auto rpc = Expansion_CreateRPC("RPC_CancelPurchase");
 			rpc.Write(itemClassName);
@@ -3113,7 +3113,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if (!trader)
 			{
@@ -3439,7 +3439,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		#endif
 		
 		sellList.Valid = true;
-		sellList.Time = GetGame().GetTime();
+		sellList.Time = g_Game.GetTime();
 
 		Exec_ConfirmSell(player, itemClassName);
 	}
@@ -3617,7 +3617,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			auto rpc = Expansion_CreateRPC("RPC_CancelSell");
 			rpc.Write(itemClassName);
@@ -3666,7 +3666,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if (!trader)
 			{
@@ -4280,9 +4280,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	bool CanOpenMenu()
 	{
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
-			if (GetGame().GetUIManager().GetMenu())
+			if (g_Game.GetUIManager().GetMenu())
 				return false;
 			
 			if (GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
@@ -4295,7 +4295,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	bool CheckCanUseTrader(PlayerBase player, ExpansionTraderObjectBase trader)
 	{
 	#ifdef ENFUSION_AI_PROJECT
-		if (GetGame().IsServer() && trader.GetTraderMarket().RequiredFaction != "")
+		if (g_Game.IsServer() && trader.GetTraderMarket().RequiredFaction != "")
 		{
 			if (!player.GetGroup() || player.GetGroup().GetFaction().GetName() != trader.GetTraderMarket().RequiredFaction)
 			{
@@ -4317,7 +4317,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	#endif
 
 	#ifdef EXPANSIONMODHARDLINE
-		if (GetGame().IsServer() && m_HardlineSettings.UseReputation)
+		if (g_Game.IsServer() && m_HardlineSettings.UseReputation)
 		{
 			int minRep = trader.GetTraderMarket().MinRequiredReputation;
 			int maxRep = trader.GetTraderMarket().MaxRequiredReputation;
@@ -4575,7 +4575,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			auto rpc = Expansion_CreateRPC("RPC_RequestPlayerATMData");
 			rpc.Expansion_Send(true);
@@ -4676,7 +4676,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			auto rpc = Expansion_CreateRPC("RPC_RequestDepositMoney");
 			rpc.Write(amount);
@@ -4842,7 +4842,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			auto rpc = Expansion_CreateRPC("RPC_RequestWithdrawMoney");
 			rpc.Write(amount);
@@ -4998,7 +4998,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			auto rpc = Expansion_CreateRPC("RPC_RequestTransferMoneyToPlayer");
 			rpc.Write(amount);
@@ -5171,7 +5171,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			auto rpc = Expansion_CreateRPC("RPC_RequestPartyTransferMoney");
 			rpc.Write(amount);
@@ -5353,7 +5353,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			auto rpc = Expansion_CreateRPC("RPC_RequestPartyWithdrawMoney");
 			rpc.Write(amount);

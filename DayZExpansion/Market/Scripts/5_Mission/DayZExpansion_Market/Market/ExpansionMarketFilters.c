@@ -63,47 +63,47 @@ class ExpansionMarketFilters
 
 	TStringArray GetPrimaryWeaponMagazines()
 	{
-		return GetWeaponMagazines(GetGame().GetPlayer().FindAttachmentBySlotName("Shoulder"));
+		return GetWeaponMagazines(g_Game.GetPlayer().FindAttachmentBySlotName("Shoulder"));
 	}
 
 	TStringArray GetSecondaryWeaponMagazines()
 	{
-		return GetWeaponMagazines(GetGame().GetPlayer().FindAttachmentBySlotName("Melee"));
+		return GetWeaponMagazines(g_Game.GetPlayer().FindAttachmentBySlotName("Melee"));
 	}
 
 	TStringArray GetHandWeaponMagazines()
 	{
-		return GetWeaponMagazines(GetGame().GetPlayer().GetHumanInventory().GetEntityInHands());
+		return GetWeaponMagazines(g_Game.GetPlayer().GetHumanInventory().GetEntityInHands());
 	}
 
 	TStringArray GetPrimaryWeaponBullets()
 	{
-		return GetWeaponBullets(GetGame().GetPlayer().FindAttachmentBySlotName("Shoulder"));
+		return GetWeaponBullets(g_Game.GetPlayer().FindAttachmentBySlotName("Shoulder"));
 	}
 
 	TStringArray GetSecondaryWeaponBullets()
 	{
-		return GetWeaponBullets(GetGame().GetPlayer().FindAttachmentBySlotName("Melee"));
+		return GetWeaponBullets(g_Game.GetPlayer().FindAttachmentBySlotName("Melee"));
 	}
 
 	TStringArray GetHandWeaponBullets()
 	{
-		return GetWeaponBullets(GetGame().GetPlayer().GetHumanInventory().GetEntityInHands());
+		return GetWeaponBullets(g_Game.GetPlayer().GetHumanInventory().GetEntityInHands());
 	}
 
 	TStringArray GetPrimaryWeaponAttachments()
 	{
-		return GetWeaponAttachments(GetGame().GetPlayer().FindAttachmentBySlotName("Shoulder"));
+		return GetWeaponAttachments(g_Game.GetPlayer().FindAttachmentBySlotName("Shoulder"));
 	}
 
 	TStringArray GetSecondaryWeaponAttachments()
 	{
-		return GetWeaponAttachments(GetGame().GetPlayer().FindAttachmentBySlotName("Melee"));
+		return GetWeaponAttachments(g_Game.GetPlayer().FindAttachmentBySlotName("Melee"));
 	}
 
 	TStringArray GetHandWeaponAttachments()
 	{
-		return GetWeaponAttachments(GetGame().GetPlayer().GetHumanInventory().GetEntityInHands());
+		return GetWeaponAttachments(g_Game.GetPlayer().GetHumanInventory().GetEntityInHands());
 	}
 	
 	ExpansionMarketWeapon GetMarketWeapon(EntityAI item)
@@ -189,16 +189,16 @@ class ExpansionMarketFilters
 	
 	void GenerateAttachmentsMapFromPath(out map<string, ref TStringArray> currentMap, string path)
 	{
-		for (int i = 0; i < GetGame().ConfigGetChildrenCount(path); i++) 
+		for (int i = 0; i < g_Game.ConfigGetChildrenCount(path); i++) 
 		{
 			string item_name;
-			GetGame().ConfigGetChildName(path, i, item_name);
-			switch (GetGame().ConfigGetType(path + " " + item_name + " inventorySlot")) 
+			g_Game.ConfigGetChildName(path, i, item_name);
+			switch (g_Game.ConfigGetType(path + " " + item_name + " inventorySlot")) 
 			{
 				case CT_ARRAY: 
 				{
 					TStringArray inventory_slots = {};
-					GetGame().ConfigGetTextArray(path + " " + item_name + " inventorySlot", inventory_slots);
+					g_Game.ConfigGetTextArray(path + " " + item_name + " inventorySlot", inventory_slots);
 					foreach (string inv_slot: inventory_slots) 
 					{
 						inv_slot.ToLower();
@@ -213,7 +213,7 @@ class ExpansionMarketFilters
 				case CT_STRING: 
 				{
 					string inventory_slot;
-					GetGame().ConfigGetText(path + " " + item_name + " inventorySlot", inventory_slot);
+					g_Game.ConfigGetText(path + " " + item_name + " inventorySlot", inventory_slot);
 					inventory_slot.ToLower();
 					if (!currentMap[inventory_slot]) 
 					{
@@ -235,8 +235,8 @@ class ExpansionMarketFilters
 		{
 			ExpansionMarketWeapon weapon = new ExpansionMarketWeapon();
 			weapon.name = className;
-			GetGame().ConfigGetTextArray("CfgWeapons " + className + " chamberableFrom", weapon.bullets);
-			GetGame().ConfigGetTextArray("CfgWeapons " + className + " magazines", weapon.magazines);
+			g_Game.ConfigGetTextArray("CfgWeapons " + className + " chamberableFrom", weapon.bullets);
+			g_Game.ConfigGetTextArray("CfgWeapons " + className + " magazines", weapon.magazines);
 			
 			AddAttachmentDenom(weapon, "CfgWeapons");
 
@@ -286,7 +286,7 @@ class ExpansionMarketFilters
 				int worth = m_MarketModule.GetPlayerWorth();
 				ExpansionMarketTraderZone zone = m_MarketModule.GetClientZone();
 				ExpansionMarketTrader traderMarket = trader.GetTraderMarket();
-				PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+				PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 				foreach (ExpansionMarketTraderItem tItem: trader.GetTraderMarket().m_Items) 
 				{
 					if (tItem.BuySell == ExpansionMarketTraderBuySell.CanOnlySell)
@@ -403,12 +403,12 @@ class ExpansionMarketFilters
 	
 	static bool IsCustomizableClothing(string className)
 	{
-		return GetGame().IsKindOf(className, "Clothing_Base") && ClassNameHierarchyContains(className, "CfgVehicles", {"vest", "chestrig", "bag", "backpack", "rucksack", "belt", "helmet", "headgear", "helm"}, "Clothing_Base");
+		return g_Game.IsKindOf(className, "Clothing_Base") && ClassNameHierarchyContains(className, "CfgVehicles", {"vest", "chestrig", "bag", "backpack", "rucksack", "belt", "helmet", "headgear", "helm"}, "Clothing_Base");
 	}
 	
 	static bool IsWeapon(string className)
 	{
-		return GetGame().ConfigIsExisting("CfgWeapons " + className);
+		return g_Game.ConfigIsExisting("CfgWeapons " + className);
 	}
 
 	//! Fucking SLOW. Use with care.
@@ -429,7 +429,7 @@ class ExpansionMarketFilters
 					return true;
 			}
 
-			GetGame().ConfigGetBaseName(cfgPath + " " + className, baseName);
+			g_Game.ConfigGetBaseName(cfgPath + " " + className, baseName);
 
 			if (baseName == "All" || baseName == stopAt)
 				return false;
@@ -448,7 +448,7 @@ class ExpansionMarketFilters
 		//! Traverse max 10 levels up the inheritance tree
 		for (int i = 0; i < 10; i++)
 		{
-			GetGame().ConfigGetBaseName(cfgPath + " " + className, baseName);
+			g_Game.ConfigGetBaseName(cfgPath + " " + className, baseName);
 
 			if (baseName == "All" || baseName == stopAt)
 				break;
@@ -522,10 +522,10 @@ class ExpansionMarketFilters
 		classNameToLower.ToLower();
 		string slotNameToLower = slotName;
 		slotNameToLower.ToLower();
-		if (GetGame().ConfigIsExisting("CfgVehicles " + className))
-			GetGame().ConfigGetBaseName("CfgVehicles " + className, baseClassName);
-		else if (GetGame().ConfigIsExisting("CfgMagazines " + className))
-			GetGame().ConfigGetBaseName("CfgMagazines " + className, baseClassName);
+		if (g_Game.ConfigIsExisting("CfgVehicles " + className))
+			g_Game.ConfigGetBaseName("CfgVehicles " + className, baseClassName);
+		else if (g_Game.ConfigIsExisting("CfgMagazines " + className))
+			g_Game.ConfigGetBaseName("CfgMagazines " + className, baseClassName);
 		baseNameToLower = baseClassName;
 		baseNameToLower.ToLower();
 		
@@ -621,16 +621,16 @@ class ExpansionMarketFilters
 		
 		if (IsCustomizableClothing(className) && !m_MarketOutputs.Clothing.Contains(className))
 		{
-			switch (GetGame().ConfigGetType("CfgVehicles " + className + " inventorySlot"))
+			switch (g_Game.ConfigGetType("CfgVehicles " + className + " inventorySlot"))
 			{
 				case CT_ARRAY: 
 				{
-					GetGame().ConfigGetTextArray("CfgVehicles " + className + " inventorySlot", inventory_slots);
+					g_Game.ConfigGetTextArray("CfgVehicles " + className + " inventorySlot", inventory_slots);
 					break;
 				}
 				case CT_STRING: 
 				{
-					GetGame().ConfigGetText("CfgVehicles " + className + " inventorySlot", inventory_slot);
+					g_Game.ConfigGetText("CfgVehicles " + className + " inventorySlot", inventory_slot);
 					break;
 				}
 			}
@@ -650,7 +650,7 @@ class ExpansionMarketFilters
 	void AddAttachmentDenom(ExpansionMarketOutput output, string cfgPath)
 	{
 		TStringArray attachmentSlotNames = {};
-		GetGame().ConfigGetTextArray(cfgPath + " " + output.name + " attachments", attachmentSlotNames);
+		g_Game.ConfigGetTextArray(cfgPath + " " + output.name + " attachments", attachmentSlotNames);
 
 		if (m_AttachmentsMap.Count() > 0)
 		{
@@ -682,7 +682,7 @@ class ExpansionMarketFilters
 		string baseNameToLower;
 		string classNameToLower = className;
 		classNameToLower.ToLower();
-		GetGame().ConfigGetBaseName("CfgVehicles " + className, baseClassName);
+		g_Game.ConfigGetBaseName("CfgVehicles " + className, baseClassName);
 		baseNameToLower = baseClassName;
 		baseNameToLower.ToLower();
 		string slotNameToLower = slotName;

@@ -47,12 +47,7 @@ class eAIState_Leave: eAIState
 			{
 				int emoteId;
 
-			#ifdef DAYZ_1_28
 				switch (Math.RandomInt(0, 3))
-			#else
-				//! 1.29 broke dabbing
-				switch (Math.RandomInt(0, 2))
-			#endif
 				{
 					case 0:
 						emoteId = EmoteConstants.ID_EMOTE_TAUNTELBOW;

@@ -92,7 +92,7 @@ class Expansion_Teleporter_Base: BuildingSuper
 
 	#ifdef DIAG_DEVELOPER
 	#ifdef EXPANSIONMODNAVIGATION
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
 	#endif
 	#endif
 	}
@@ -112,7 +112,7 @@ class Expansion_Teleporter_Base: BuildingSuper
 	{
 	#ifdef NAMALSK_SURVIVAL
 	    NamEventManager event_manager;
-	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
+	    g_Script.CallFunction(g_Game.GetMission(), "GetNamEventManager", event_manager, null);
 
 	    if (!event_manager)
 	        return false;
@@ -281,7 +281,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 #endif
 
-		if (!m_ParticleIdle && GetGame() && (!GetGame().IsDedicatedServer()))
+		if (!m_ParticleIdle && g_Game && (!g_Game.IsDedicatedServer()))
 			m_ParticleIdle = Particle.PlayOnObject(GetTeleporterIdleParticle(), this, "0 0.2 0");
 	}
 
@@ -292,7 +292,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 #endif
 
-		if (m_ParticleIdle && GetGame() && (!GetGame().IsDedicatedServer()))
+		if (m_ParticleIdle && g_Game && (!g_Game.IsDedicatedServer()))
 		{
 			m_ParticleIdle.Stop();
 			m_ParticleIdle = null;
@@ -335,7 +335,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 		DebugTrace("::UpdateVisualState - Teleporter state is: " + typename.EnumToString(ExpansionTeleporterState, state));
 		
 		#ifndef SERVER
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(UpdateTeleporterVFX_Deferred, state);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(UpdateTeleporterVFX_Deferred, state);
 		#endif
 	}
 	

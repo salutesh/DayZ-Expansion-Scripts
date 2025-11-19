@@ -159,9 +159,9 @@ modded class ExpansionBaseBuilding
 #endif
 
 		vector ref_dir = GetDirection();
-		vector cam_dir = GetGame().GetCurrentCameraDirection();
+		vector cam_dir = g_Game.GetCurrentCameraDirection();
 		
-		//ref_dir = GetGame().GetCurrentCameraPosition() - GetPosition();
+		//ref_dir = g_Game.GetCurrentCameraPosition() - GetPosition();
 		ref_dir.Normalize();
 		ref_dir[1] = 0;	//! Ignore height
 		
@@ -179,7 +179,7 @@ modded class ExpansionBaseBuilding
 		}
 
 		return false;
-		//return ExpansionIsFacing( GetGame().GetCurrentCameraDirection() );
+		//return ExpansionIsFacing( g_Game.GetCurrentCameraDirection() );
 	}
 	
 	override bool HasProperDistance( string selection, PlayerBase player )
@@ -443,7 +443,7 @@ modded class ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	protected void SoundGateOpenStart()
 	{
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			EffectSound sound = SEffectManager.PlaySound(SOUND_GATE_OPEN_START, GetPosition());
 			sound.SetSoundAutodestroy( true );
@@ -452,7 +452,7 @@ modded class ExpansionBaseBuilding
 
 	protected void SoundGateCloseStart()
 	{
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			EffectSound sound = SEffectManager.PlaySound(SOUND_GATE_CLOSE_START, GetPosition());
 			sound.SetSoundAutodestroy( true );
@@ -461,7 +461,7 @@ modded class ExpansionBaseBuilding
 
 	protected void SoundGateCloseEnd()
 	{
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			EffectSound sound = SEffectManager.PlaySound(SOUND_GATE_CLOSE_END, GetPosition());
 			sound.SetSoundAutodestroy( true );

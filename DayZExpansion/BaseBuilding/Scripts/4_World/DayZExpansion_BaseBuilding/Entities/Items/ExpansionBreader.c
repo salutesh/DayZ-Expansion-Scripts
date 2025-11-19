@@ -50,7 +50,7 @@ class ExpansionBreader: Inventory_Base
 	{
 		super.EEItemAttached( item, slot_name );
 
-		if ( slot_name == "Chicken" && GetGame().IsServer() )
+		if ( slot_name == "Chicken" && g_Game.IsServer() )
 		{
 			ExpansionChicken item_chicken = ExpansionChicken.Cast( item );
 			if ( item_chicken )
@@ -64,7 +64,7 @@ class ExpansionBreader: Inventory_Base
 	{
 		super.EEItemDetached( item, slot_name );
 
-		if ( slot_name == "Chicken" && GetGame().IsServer() )
+		if ( slot_name == "Chicken" && g_Game.IsServer() )
 		{
 			if (m_SpawnTimer && m_SpawnTimer.IsRunning())
 				m_SpawnTimer.Stop();

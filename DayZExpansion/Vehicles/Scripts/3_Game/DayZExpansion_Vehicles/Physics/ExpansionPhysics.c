@@ -17,7 +17,7 @@ class ExpansionPhysics
 		float resultForce = 0;
 		float downForce = 0.5;
 
-		float depth = GetGame().GetWaterDepth(position) + offset;
+		float depth = g_Game.GetWaterDepth(position) + offset;
 
 		float forceFactor = 1.0 - (depth / objectDensity);
 		forceFactor = -forceFactor;

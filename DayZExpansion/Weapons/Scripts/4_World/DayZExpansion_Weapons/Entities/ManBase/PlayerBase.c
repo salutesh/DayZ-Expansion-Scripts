@@ -25,7 +25,7 @@ modded class PlayerBase
 	// This Function is meant for modders to add custom behaviours to the taser in a more friendly way
 	void Expansion_ProcessTaser()
 	{
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(WakePlayer, 9000, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(WakePlayer, 9000, false);
 	}
 
 	// ------------------------------------------------------------

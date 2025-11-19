@@ -40,7 +40,7 @@ modded class ActionPackTent
 			if (ActionDeployObject.CanDeployInTerritory(player, targetItem))
 				return true;
 
-			if (GetGame().IsServer() && player.GetIdentity())
+			if (g_Game.IsServer() && player.GetIdentity())
 				ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY").Error(player.GetIdentity());
 
 			return false;

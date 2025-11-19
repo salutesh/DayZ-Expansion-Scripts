@@ -109,7 +109,7 @@ class ExpansionAutorunModule: CF_ModuleWorld
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "AutoRun");
 #endif
 
-		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+		PlayerBase player = PlayerBase.Cast( g_Game.GetPlayer() );
 		
 		if ( m_AutoWalkMode > 0 && !SHIFT() )
 		{
@@ -143,9 +143,9 @@ class ExpansionAutorunModule: CF_ModuleWorld
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "UpdateAutoWalk");
 #endif
 
-		if (GetGame() && GetGame().GetPlayer()) 
+		if (g_Game && g_Game.GetPlayer()) 
 		{
-			PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+			PlayerBase player = PlayerBase.Cast( g_Game.GetPlayer() );
 			
 			if ( m_AutoWalkMode > 0 )
 	  		{

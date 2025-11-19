@@ -333,7 +333,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 
 		if (!m_EditPanel)
 		{
-			m_EditPanel = GetGame().GetWorkspace().CreateWidgets(GetEditLayoutPath(), m_LayoutRoot.FindAnyWidget("marker_frame"));
+			m_EditPanel = g_Game.GetWorkspace().CreateWidgets(GetEditLayoutPath(), m_LayoutRoot.FindAnyWidget("marker_frame"));
 			m_EditPanel.Show(false);
 
 			OnEditInit(m_EditPanel);
@@ -386,7 +386,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			m_RightButton.SetText("#STR_EXPANSION_MAP_MARKER_UPDATE_TITLE");
 		}
 
-		ExpansionMapMenu mapmenu = ExpansionMapMenu.Cast(GetGame().GetUIManager().GetMenu());
+		ExpansionMapMenu mapmenu = ExpansionMapMenu.Cast(g_Game.GetUIManager().GetMenu());
 		if (mapmenu)
 		{
 			mapmenu.SetIsEditingMarker(true);
@@ -400,7 +400,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		m_EditName.Show(false);
 		m_Name.Show(true);
 
-		ExpansionMapMenu mapmenu = ExpansionMapMenu.Cast(GetGame().GetUIManager().GetMenu());
+		ExpansionMapMenu mapmenu = ExpansionMapMenu.Cast(g_Game.GetUIManager().GetMenu());
 		if (mapmenu)
 		{
 			mapmenu.SetIsEditingMarker(false);
@@ -416,7 +416,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			SetFromMarkerData();
 
 			ExpansionMapMenu menu;
-			if (Class.CastTo(menu, GetGame().GetUIManager().GetMenu()))
+			if (Class.CastTo(menu, g_Game.GetUIManager().GetMenu()))
 			{
 				if (IsCreating())
 				{
@@ -470,7 +470,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			m_Data.SetLockState(m_StateDragLockCheckbox.IsChecked());
 
 			ExpansionMapMenu menu;
-			if (Class.CastTo(menu, GetGame().GetUIManager().GetMenu()))
+			if (Class.CastTo(menu, g_Game.GetUIManager().GetMenu()))
 			{
 				if (IsCreating())
 				{

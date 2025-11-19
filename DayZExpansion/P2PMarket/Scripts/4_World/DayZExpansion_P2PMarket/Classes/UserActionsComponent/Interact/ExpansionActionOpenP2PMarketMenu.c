@@ -131,7 +131,7 @@ class ExpansionActionOpenP2PMarketMenu: ActionInteractBase
 				if (!npcEmoteManager.IsEmotePlaying())
 				{
 					npcEmoteManager.PlayEmote(traderConfig.GetEmoteID());
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
 				}
 			}
 			#endif

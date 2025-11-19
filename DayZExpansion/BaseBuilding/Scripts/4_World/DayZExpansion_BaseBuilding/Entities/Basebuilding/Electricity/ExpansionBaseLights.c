@@ -7,7 +7,7 @@ class ExpansionBaseLightBase: ItemBase
 
 	override void OnWorkStart()
 	{
-		GetGame().CreateObject("ExplosionTest", this.GetPosition());
+		g_Game.CreateObject("ExplosionTest", this.GetPosition());
 	}
 	
 	override void SetActions()

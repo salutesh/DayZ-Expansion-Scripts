@@ -2,7 +2,7 @@ class AKM_eAI_Debug: RifleBoltFree_Base
 {
 	void AKM_eAI_Debug()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			SetAllowDamage(false);
 	}
 
@@ -44,7 +44,7 @@ class AKM_eAI_Debug: RifleBoltFree_Base
 			Magazine magazine = GetMagazine(GetCurrentMuzzle());
 			if (magazine)
 			{
-				if (GetGame().IsServer())
+				if (g_Game.IsServer())
 					magazine.ServerSetAmmoMax();
 				else
 					magazine.LocalSetAmmoMax();

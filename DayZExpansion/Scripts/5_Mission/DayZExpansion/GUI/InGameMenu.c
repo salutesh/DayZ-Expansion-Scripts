@@ -89,7 +89,7 @@ modded class InGameMenu
 		copyright.Show(true);
 
 		//! Death-Screen
-		m_DeadScreenRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_dead_screen.layout", layoutRoot);
+		m_DeadScreenRoot = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_dead_screen.layout", layoutRoot);
 		m_DeadScreenRoot.SetAlpha(0);
 		m_DeadScreenRoot.Show(false);
 
@@ -162,7 +162,7 @@ modded class InGameMenu
 		auto trace = EXTrace.Start(EXTrace.PLAYER_MONITOR, this, player_stats.m_PlainID);
 	#endif
 
-		if (GetGame().GetPlayer().GetIdentity().Expansion_GetPlainId() != player_stats.m_PlainID || !player_stats.m_HasRegisteredStats)
+		if (g_Game.GetPlayer().GetIdentity().Expansion_GetPlainId() != player_stats.m_PlainID || !player_stats.m_HasRegisteredStats)
 			return;
 
 		if (GetExpansionSettings().GetGeneral().UseDeathScreenStatistics && GetValuesFromMonitor())
@@ -197,9 +197,9 @@ modded class InGameMenu
 
 	protected void UpdatePlayerStatValues()
 	{
-		if (GetGame().GetPlayer() && GetGame().GetPlayer().GetIdentity())
+		if (g_Game.GetPlayer() && g_Game.GetPlayer().GetIdentity())
 		{
-			string name = GetGame().GetPlayer().GetIdentity().GetName();
+			string name = g_Game.GetPlayer().GetIdentity().GetName();
 			StringLocaliser player_name = new StringLocaliser("STR_EXPANSION_DEADSCREEN_STATS_TITLE", name);
 			m_DeadSceenStatsPanelTitle.SetText(player_name.Format());
 			m_LongestShotVal.SetText(ExpansionStatic.GetDistanceString(m_LongestShot));

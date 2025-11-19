@@ -74,7 +74,7 @@ class ExpansionActionRemoveGeneratorKey: ActionInteractBase
 			Expansion_Bunker_Generator_Key currentKey = Expansion_Bunker_Generator_Key.Cast(generator.GetInventory().FindAttachment(slot_id_key));
 			ExDebugPrint("::OnExecuteServer - Attached key: " + currentKey.ToString());
 			int healthLvl = currentKey.GetHealthLevel();
-			GetGame().ObjectDelete(currentKey);
+			g_Game.ObjectDelete(currentKey);
 
 			Expansion_Bunker_Generator_Key newKey = Expansion_Bunker_Generator_Key.Cast(action_data.m_Player.GetHumanInventory().CreateInHands("Expansion_Bunker_Generator_Key"));
 			newKey.AddHealthLevel(healthLvl + KEY_HEALTH_DELTA);

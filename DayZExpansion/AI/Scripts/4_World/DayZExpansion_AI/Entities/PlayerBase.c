@@ -254,7 +254,7 @@ modded class PlayerBase
 
 		super.OnCommandSwimStart();
 
-		if (GetGame().IsServer() && GetGroup())
+		if (g_Game.IsServer() && GetGroup())
 			GetGroup().EnableSwimming(true);  //! Enable swimming for the whole group so they can follow the leader
 	}
 
@@ -266,7 +266,7 @@ modded class PlayerBase
 
 		super.OnCommandSwimFinish();
 
-		//if (GetGame().IsServer() && GetGroup())
+		//if (g_Game.IsServer() && GetGroup())
 			//GetGroup().EnableSwimming(false);  //! Disable swimming for the whole group (unless they are currently swimming)
 	}
 
@@ -274,7 +274,7 @@ modded class PlayerBase
 	{
 		super.eAI_SetFactionTypeID(id);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			eAI_RemoveFactionModifiers();
 			if (GetGroup())

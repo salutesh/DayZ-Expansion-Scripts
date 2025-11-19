@@ -63,10 +63,10 @@ class ExpansionPrefab : ExpansionPrefabObject
 	Object Spawn(vector position, vector orientation = vector.Zero, int rotationFlags = RF_DEFAULT)
 	{
 		int flags = ECE_PLACE_ON_SURFACE;
-		if (GetGame().IsKindOf(ClassName, "DZ_LightAI"))
+		if (g_Game.IsKindOf(ClassName, "DZ_LightAI"))
 			flags |= ECE_INITAI;
 
-		Object object = GetGame().CreateObjectEx(ClassName, position, flags, rotationFlags);
+		Object object = g_Game.CreateObjectEx(ClassName, position, flags, rotationFlags);
 
 		if (orientation != vector.Zero)
 			object.SetOrientation(orientation);

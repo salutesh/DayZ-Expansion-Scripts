@@ -59,7 +59,7 @@ modded class BuildingBase
 
 	void BuildingBase()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			m_eAI_DynamicPatrolSpawner = new eAIDynamicPatrolSpawner<BuildingBase>(this);
 	}
 
@@ -67,7 +67,7 @@ modded class BuildingBase
 	{
 		super.DeferredInit();
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		//! Do not init patrols on CrashBase unless created by CE (EEOnCECreate/AfterStoreLoad will take care of init in that case)
@@ -209,13 +209,13 @@ modded class BuildingBase
 		if (!m_eAI_DoorAnimationTime.Find(doorIndex, time))
 		{
 			string path = CFG_VEHICLESPATH + " " + GetType() + " Doors";
-			int count = GetGame().ConfigGetChildrenCount(path);
+			int count = g_Game.ConfigGetChildrenCount(path);
 
 			if (doorIndex < count)
 			{
 				string name;
-				GetGame().ConfigGetChildName(path, doorIndex, name);
-				time = GetGame().ConfigGetFloat(path + " " + name + " animPeriod");
+				g_Game.ConfigGetChildName(path, doorIndex, name);
+				time = g_Game.ConfigGetFloat(path + " " + name + " animPeriod");
 			#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.AI, this, "eAI_GetDoorAnimationTime(" + doorIndex + ") " + GetType() + " Doors " + name + " animPeriod " + time);
 			#endif

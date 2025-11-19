@@ -98,7 +98,7 @@ class ExpansionPathPoint
 		vector hitPos;
 		vector hitNor;
 		
-		bool hit = GetGame().GetWorld().GetAIWorld().RaycastNavMesh(p0, p1, m_Filter, hitPos, hitNor);
+		bool hit = g_Game.GetWorld().GetAIWorld().RaycastNavMesh(p0, p1, m_Filter, hitPos, hitNor);
 				
 		if (hit)
 		{
@@ -158,7 +158,7 @@ class ExpansionPathPoint
 	#endif
 			bool isSwimming = pathFinding.m_Unit.IsSwimming();
 
-			if (isSwimming && GetGame().GetWaterDepth(Position) > 0.0)
+			if (isSwimming && g_Game.GetWaterDepth(Position) > 0.0)
 			{
 				//! AIWorld::FindPath will use terrain under water, which can be problematic.
 				//! If direct path to target is clear, use it if target position is in water.
@@ -280,7 +280,7 @@ class ExpansionPathPoint
 							if (isSwimming || !pathFinding.IsBlockedPhysically(checkPos, surfacePosition + "0 0.5 0"))
 							{
 								//! Swim start water level = 1.5 m, see DayZPlayerUtils::CheckWaterLevel
-								if (pathFinding.m_IsSwimmingEnabled || GetGame().GetWaterDepth(surfacePosition) <= 1.5)
+								if (pathFinding.m_IsSwimmingEnabled || g_Game.GetWaterDepth(surfacePosition) <= 1.5)
 								{
 									path.Clear();
 									pathGlueIdx = 0;
@@ -380,7 +380,7 @@ class ExpansionPathPoint
 
 		foreach (int i, vector point: path)
 		{
-			float waterDepth = GetGame().GetWaterDepth(point);
+			float waterDepth = g_Game.GetWaterDepth(point);
 			if (waterDepth > 0.0)
 				point[1] = point[1] + waterDepth;
 
@@ -396,7 +396,7 @@ class ExpansionPathPoint
 			else
 			{
 				vector next = path[i + 1];
-				float waterDepthNext = GetGame().GetWaterDepth(next);
+				float waterDepthNext = g_Game.GetWaterDepth(next);
 				if (waterDepthNext > 0.0)
 					next[1] = next[1] + waterDepthNext;
 

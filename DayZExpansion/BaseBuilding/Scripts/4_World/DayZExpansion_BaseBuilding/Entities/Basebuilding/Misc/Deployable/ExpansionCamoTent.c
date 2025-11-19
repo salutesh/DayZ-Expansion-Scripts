@@ -60,8 +60,8 @@ class ExpansionCamoTent: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	override bool CanBeDamaged()
 	{
-		if ( m_Expansion_CanBeDamaged == -1 && GetGame() && GetGame().IsMultiplayer() && GetGame().IsServer() )
-			m_Expansion_CanBeDamaged = GetGame().ServerConfigGetInt( "disableContainerDamage" ) == 0;
+		if ( m_Expansion_CanBeDamaged == -1 && g_Game && g_Game.IsMultiplayer() && g_Game.IsServer() )
+			m_Expansion_CanBeDamaged = g_Game.ServerConfigGetInt( "disableContainerDamage" ) == 0;
 
 		return m_Expansion_CanBeDamaged;
 	}

@@ -85,7 +85,6 @@ class eAICommandMove: ExpansionHumanCommand
 	private float m_HitFraction;
 
 	private int m_Stance = -1;
-	private bool m_ForceStance;
 	private float m_StanceChangeTimeout;
 
 	Object m_BlockingObject;
@@ -143,8 +142,6 @@ class eAICommandMove: ExpansionHumanCommand
 
 	override void OnActivate()
 	{
-		//! XXX: This doesn't seem to be needed
-		//dBodySetInteractionLayer(m_Player, PhxInteractionLayers.CHARACTER | PhxInteractionLayers.BUILDING | PhxInteractionLayers.DOOR | PhxInteractionLayers.VEHICLE | PhxInteractionLayers.ITEM_LARGE | PhxInteractionLayers.FENCE | PhxInteractionLayers.AI);
 	}
 
 	override void OnDeactivate()
@@ -296,8 +293,6 @@ class eAICommandMove: ExpansionHumanCommand
 	{
 		if (m_Unit.m_eAI_StancePreference != stance)
 		{
-			//m_ForceStance = force;
-
 			m_Unit.m_eAI_StancePreference = stance;
 
 		//#ifdef DIAG_DEVELOPER
@@ -328,7 +323,7 @@ class eAICommandMove: ExpansionHumanCommand
 
 	override void PreAnimUpdate(float pDt)
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 #ifdef EXTRACE_DIAG
@@ -451,7 +446,7 @@ class eAICommandMove: ExpansionHumanCommand
 					//! Don't go into deep water
 					surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(position + fb);
 					//! Swim start water level = 1.5 m, see DayZPlayerUtils::CheckWaterLevel
-					if (GetGame().GetWaterDepth(surfacePosition) > 1.5)
+					if (g_Game.GetWaterDepth(surfacePosition) > 1.5)
 					{
 					#ifdef DIAG_DEVELOPER
 						if (!m_PathFinding.m_IsUnreachable)
@@ -488,8 +483,6 @@ class eAICommandMove: ExpansionHumanCommand
 
 		if (!m_Unit.IsSwimming())
 		{
-			//m_Table.SetWaterLevel(m_Unit, Math.Clamp(characterDepth, 0.0, 1.0));  //! Doesn't seem to be used in vanilla, can be set to force wading in water, but seems to "stick" until AI stops moving
-
 			//! Disable swimming once we are 3.5m above sea level
 			if (characterDepth < -3.5 && m_PathFinding.m_IsSwimmingEnabled && !m_Unit.m_eAI_EffectArea && m_Unit.m_eAI_SurfaceY >= g_Game.SurfaceGetSeaLevelMin())
 			{
@@ -1154,7 +1147,7 @@ class eAICommandMove: ExpansionHumanCommand
 		/*
 		if (waypoint != position)
 		{
-			float y = GetGame().SurfaceY(waypoint[0], waypoint[2]);
+			float y = g_Game.SurfaceY(waypoint[0], waypoint[2]);
 			if (y > waypoint[1]) waypoint[1] = y;
 
 			if (DayZPhysics.RayCastBullet(waypoint + Vector(0.0, 1.5, 0.0), waypoint - Vector(0.0, 10.0, 0.0), m_CollisionLayerMask|PhxInteractionLayers.TERRAIN, m_Player, m_HitObject, m_HitPosition, m_HitNormal, m_HitFraction))
@@ -1502,7 +1495,7 @@ class eAICommandMove: ExpansionHumanCommand
 		}
 	#endif
 
-		if (m_Stance != -1 && (m_Stance != m_Unit.eAI_GetStance() || m_ForceStance) && m_StanceChangeTimeout <= 0.0 && !isBusy && !m_Unit.IsSwimming() && !m_Unit.GetEmoteManager().IsEmotePlaying() && !m_Unit.GetActionManager().GetRunningAction() && !m_Unit.m_eAI_IsOnLadder)
+		if (m_Stance != -1 && m_Stance != m_Unit.eAI_GetStance() && m_StanceChangeTimeout <= 0.0 && !isBusy && !m_Unit.IsSwimming() && !m_Unit.GetEmoteManager().IsEmotePlaying() && !m_Unit.GetActionManager().GetRunningAction() && !m_Unit.m_eAI_IsOnLadder)
 		{
 			//! Can't go from erect to prone or prone to erect directly, need to crouch first
 			//! else it breaks character to surface alignment and hitbox
@@ -1531,14 +1524,10 @@ class eAICommandMove: ExpansionHumanCommand
 			ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, m_Unit.ToString() + " set stance " + m_Unit.eAI_GetStance() + " -> " + m_Stance);
 		#endif
 
-			//m_Table.SetStance(m_Unit, m_Stance);
-
 			if (move)
 				move.ForceStance(m_Stance);
 
 			SetCurrentStance(m_Stance);
-
-			m_ForceStance = false;
 		}
 
 		if (!IsChangingStance() && !isBusy && !m_Unit.IsSwimming() && !m_Unit.GetEmoteManager().IsEmotePlaying() && !m_Unit.m_eAI_IsOnLadder && cdt >= 0.12)
@@ -1581,7 +1570,6 @@ class eAICommandMove: ExpansionHumanCommand
 			}
 			else if (m_Unit.m_eAI_StancePreference != -1 && m_Stance != m_Unit.m_eAI_StancePreference && !DayZPhysics.RaycastRV(position + "0 0.3 0", position + Vector(0, 0.5 + (2.0 - m_Unit.m_eAI_StancePreference) * 0.75, 0), hitPosition, hitNormal, contactComponent, results, null, m_Unit, false, false, ObjIntersectView, 0.1))
 			{
-				//m_ForceStance = true;
 				m_Stance = m_Unit.m_eAI_StancePreference;
 
 			#ifdef DIAG_DEVELOPER
@@ -1597,7 +1585,6 @@ class eAICommandMove: ExpansionHumanCommand
 
 		HumanInputController hic = m_Unit.GetInputController();
 
-		//m_Table.SetMovementDirection(m_Unit, m_MovementDirection);  //! If not HumanCommandScript, only changes the animation, not the actual movement dir
 		hic.OverrideMovementAngle(HumanInputControllerOverrideType.ONE_FRAME, m_MovementDirection);
 
 		float movementSpeed;
@@ -1607,7 +1594,6 @@ class eAICommandMove: ExpansionHumanCommand
 		else
 			movementSpeed = m_MovementSpeed;
 
-		//m_Table.SetMovementSpeed(m_Unit, movementSpeed);
 		hic.OverrideMovementSpeed(HumanInputControllerOverrideType.ONE_FRAME, movementSpeed);
 
 		if (movementSpeed > 2)
@@ -1621,9 +1607,6 @@ class eAICommandMove: ExpansionHumanCommand
 
 		if (m_Unit.m_eAI_IsOnLadder)
 			return;
-
-		//m_Table.SetAimX(m_Unit, m_AimLR);
-		//m_Table.SetAimY(m_Unit, m_AimUD);
 
 		//m_TurnVelocity = ExpansionMath.AngleDiff2(m_Turn, m_TurnPrevious);
 		//m_TurnPrevious = m_Turn;
@@ -1838,19 +1821,6 @@ class eAICommandMove: ExpansionHumanCommand
 		return wl[1];
 	}
 
-/*
-	override void PrePhysUpdate(float pDt)
-	{
-		if (!GetGame())
-			return;
-
-		if (PrePhys_IsTag(m_Table.m_TAG_WeaponFire))
-			m_IsTagWeaponFire = true;
-		else
-			m_IsTagWeaponFire = false;
-	}
-*/
-
 	private bool Raycast(vector start, vector end, out vector hitPosition, out vector hitNormal, out float hitFraction, vector endRV = vector.Zero, float radiusRV = 0.25, bool includeAI = false, out Object blockingObject = null, bool updatePathIfTreeClose = false)
 	{
 	#ifdef EXTRACE_DIAG
@@ -1896,7 +1866,7 @@ class eAICommandMove: ExpansionHumanCommand
 
 						if (distSq > farDistSqThresh)
 						{
-							if (!m_UpdatePath && obj != m_Unit.m_eAI_CurrentCoverObject)
+							if (!m_UpdatePath && obj != m_Unit.m_eAI_CurrentCoverObject && m_PathFinding.m_Count > 1 + m_PathFinding.m_PointIdx)
 							{
 								//! In case we move towards a tree, move path point to left or right side of tree
 
@@ -1919,7 +1889,7 @@ class eAICommandMove: ExpansionHumanCommand
 							
 								if (m_PathFinding.m_AIWorld.SampleNavmeshPosition(waypoint, 0.5, m_PathFinding.m_AllFilter, waypoint))
 								{
-									m_PathFinding.m_Points.InsertAt(waypoint, m_PathFinding.m_PointIdx);
+									m_PathFinding.m_Points.InsertAt(waypoint, 1 + m_PathFinding.m_PointIdx);
 									++m_PathFinding.m_Count;
 									m_PathFinding.m_Next0.Position = waypoint;
 

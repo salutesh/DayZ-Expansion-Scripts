@@ -18,7 +18,7 @@ class eAIShot
 
 	void eAIShot(Weapon_Base weapon, int muzzleIndex, vector origin, vector dir, Object hitObject, vector hitPosition, int component)
 	{
-		m_Time = GetGame().GetTickTime();
+		m_Time = g_Game.GetTickTime();
 
 		m_Weapon = weapon;
 
@@ -111,8 +111,8 @@ class eAIDamageHandler
 
 				path += " " + m_Entity.GetType() + " DamageSystem DamageZones " + dmgZone + " Health transferToGlobalCoef";
 
-				if (GetGame().ConfigIsExisting(path))
-					transferToGlobalCoef = GetGame().ConfigGetFloat(path);
+				if (g_Game.ConfigIsExisting(path))
+					transferToGlobalCoef = g_Game.ConfigGetFloat(path);
 			}
 
 			EXTrace.Print(EXTrace.AI, m_Entity, "Global damage: " + (dmg * transferToGlobalCoef));
@@ -190,7 +190,7 @@ class eAIDamageHandler
 
 					//! Only redirect for root entity, children will be dealt with by parent dmg handler
 
-					float time = GetGame().GetTickTime();
+					float time = g_Game.GetTickTime();
 
 					eAIShot match;
 
@@ -251,7 +251,7 @@ class eAIDamageHandler
 							float travelTimeRemaining = candidate.m_TravelTime - elapsed;
 
 							if (travelTimeRemaining > 0.05)
-								GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckCandidate, travelTimeRemaining * 1000, false, candidate, ai, modelPos, dir, travelTimeRemaining, dmgZone);
+								g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckCandidate, travelTimeRemaining * 1000, false, candidate, ai, modelPos, dir, travelTimeRemaining, dmgZone);
 							else if (CheckCandidate(candidate, ai, modelPos, dir, travelTimeRemaining, dmgZone))
 								break;
 						}
@@ -431,7 +431,7 @@ class eAIDamageHandler
 						source = m_Entity;
 
 					//! Need to use Call() to avoid inconsistent damage
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(ProcessDamage, damageType, source, sourcePlayer, dmgZone, ammo, modelPos, damageMultiplier);
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(ProcessDamage, damageType, source, sourcePlayer, dmgZone, ammo, modelPos, damageMultiplier);
 				}
 
 				return false;
@@ -524,7 +524,7 @@ class eAIDamageHandler
 	
 		if (match)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CheckCandidate);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CheckCandidate);
 
 			if (match.m_HitObject == match.m_HitObjectRoot)
 			{
@@ -588,7 +588,7 @@ class eAIDamageHandler
 			EXTrace.Print(EXTrace.AI, ai, "Wrong entity hit " + ExpansionStatic.GetHierarchyInfo(m_Entity) + " and candidate wasn't hit, ignoring dmg");
 
 		#ifdef EXPANSION_AI_DMGDEBUG_CHATTY
-			ExpansionStatic.MessageNearPlayers(candidate.m_HitPosition, 100.0, "[" + ExpansionStatic.FormatFloat(candidate.m_Time, 3, false) + "] miss " + candidate.m_HitObjectRoot + " travel " + ExpansionStatic.FormatFloat(candidate.m_TravelTime, 4, false) + " elapsed " + ExpansionStatic.FormatFloat(GetGame().GetTickTime() - candidate.m_Time, 4, false));
+			ExpansionStatic.MessageNearPlayers(candidate.m_HitPosition, 100.0, "[" + ExpansionStatic.FormatFloat(candidate.m_Time, 3, false) + "] miss " + candidate.m_HitObjectRoot + " travel " + ExpansionStatic.FormatFloat(candidate.m_TravelTime, 4, false) + " elapsed " + ExpansionStatic.FormatFloat(g_Game.GetTickTime() - candidate.m_Time, 4, false));
 		#endif
 		}
 	#endif

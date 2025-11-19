@@ -202,18 +202,18 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			m_InfectedCount++;
 
 			vector spawnPos = ExpansionMath.GetRandomPointInRing(m_Container.GetPosition(), InfectedSpawnRadius * 0.1, InfectedSpawnRadius);
-			spawnPos[1] = GetGame().SurfaceY( spawnPos[0], spawnPos[2] );
+			spawnPos[1] = g_Game.SurfaceY( spawnPos[0], spawnPos[2] );
 
 			//! Have to convert vector to string for call queue
 
 			int additionalDelay;
 			if ( InfectedSpawnInterval > 0 )
 			{
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( Send_SpawnParticle, InfectedSpawnInterval * m_InfectedCount, false, spawnPos.ToString( false ) );
+				g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( Send_SpawnParticle, InfectedSpawnInterval * m_InfectedCount, false, spawnPos.ToString( false ) );
 				additionalDelay = Math.RandomFloat(100, 300);
 			}
 
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( CreateSingleInfected, InfectedSpawnInterval * m_InfectedCount + additionalDelay, false, spawnPos.ToString( false ) );
+			g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( CreateSingleInfected, InfectedSpawnInterval * m_InfectedCount + additionalDelay, false, spawnPos.ToString( false ) );
 		}
 	}
 
@@ -223,7 +223,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 		string type = Animals.Classnames.GetRandomElement();
 
 		//! TODO: Create Z slightly in ground to give effect as if they emerge from underground? Also, is there a way to affect Z stance (crouching)?
-		Object obj = GetGame().CreateObject( type, spawnPos, false, GetGame().IsKindOf(type, "DZ_LightAI") );
+		Object obj = g_Game.CreateObject( type, spawnPos, false, g_Game.IsKindOf(type, "DZ_LightAI") );
 
 		if ( obj )
 		{
@@ -267,7 +267,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			foreach (auto container: m_Containers)
 			{
 				if (container)
-					GetGame().ObjectDelete(container);
+					g_Game.ObjectDelete(container);
 			}
 
 			m_Containers.Clear();
@@ -626,8 +626,8 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	Object SpawnObject( string type, vector position = "0 0 0", vector orientation = "0 0 0", float lifetime = 0 )
 	{
 		Object obj;
-		//GetGame().CreateObjectEx( type, position, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_AIRBORNE );
-		obj = GetGame().CreateObject( type, position );
+		//g_Game.CreateObjectEx( type, position, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_AIRBORNE );
+		obj = g_Game.CreateObject( type, position );
 		
 		if ( obj )
 		{
@@ -645,7 +645,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 				if (Class.CastTo(entity, obj))
 					entity.SetLifetimeMax(lifetime);
 				else
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( GetGame().ObjectDelete, lifetime * 60 * 1000, false, obj );
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( g_Game.ObjectDelete, lifetime * 60 * 1000, false, obj );
 			}
 		}
 

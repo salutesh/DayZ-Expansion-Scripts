@@ -81,7 +81,7 @@ class ExpansionUIManager
 	 */
 	protected void CloseAllUIScriptedMenus(bool includeVanilla = false)
 	{
-		UIMenuPanel menu = GetGame().GetUIManager().GetMenu();
+		UIMenuPanel menu = g_Game.GetUIManager().GetMenu();
 		while (menu)
 		{
 			if (menu.GetParentMenu())

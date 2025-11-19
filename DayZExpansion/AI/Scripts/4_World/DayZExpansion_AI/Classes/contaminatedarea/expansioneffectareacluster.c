@@ -144,7 +144,7 @@ class Expansion_EffectAreas: array<EffectArea>
 		foreach (int i, EffectArea other: this)
 		{
 		#ifndef SERVER
-			if (!other && GetGame().IsMultiplayer())
+			if (!other && g_Game.IsMultiplayer())
 			{
 				EXError.Warn(this, "Warning: NULL entry at index " + i);
 				continue;
@@ -286,7 +286,7 @@ class ExpansionEffectAreaMergedCluster
 #ifdef DIAG_DEVELOPER
 	void ~ExpansionEffectAreaMergedCluster()
 	{
-		if (GetGame())
+		if (g_Game)
 			EXTrace.Print(EXTrace.AI, this, "~ExpansionEffectAreaMergedCluster");
 
 		CleanupDebugShapes();
@@ -780,7 +780,10 @@ class ExpansionEffectAreaMergedCluster
 		//! Check if ray intersects any area cluster
 		if (isInside)
 		{
-			if (m_Areas.Count() > 1)
+			int count = m_Areas.Count();
+			int intersectCount;
+
+			if (count > 1)
 			{
 				//! Get closest area in cluster (distance to outer edge)
 
@@ -808,6 +811,9 @@ class ExpansionEffectAreaMergedCluster
 						closestArea = area;
 						closestDistSq = distSq;
 					}
+
+					if (Math3D.IntersectRayCylinder(start, end, center, area.m_Radius, height))
+						++intersectCount;
 				}
 			}
 			else
@@ -822,13 +828,16 @@ class ExpansionEffectAreaMergedCluster
 			center[0] = closestArea.m_Position[0];
 			center[2] = closestArea.m_Position[2];
 
+			if (count == 1 && Math3D.IntersectRayCylinder(start, end, center, closestArea.m_Radius, height))
+				++intersectCount;
+
 			avoidanceDistance = Math.Max(Math.Min(closestArea.m_Radius * 0.1, 15.0), 3.0);
 			radius = closestArea.m_Radius + avoidanceDistance;
 
 			//! Since we already know we are inside cluster, we can simplify area check by using IsPointInCircle (we ignore area height)
 			//! for checking whether or not startpoint is in circle.
 			//! We still need to check intersection to take into account line from start to endpoint in this case.
-			if (!Math.IsPointInCircle(center, closestArea.m_Radius + 3.0, start) && !Math3D.IntersectRayCylinder(start, end, center, closestArea.m_Radius, height))
+			if (!Math.IsPointInCircle(center, closestArea.m_Radius + 3.0, start) && intersectCount == 0)
 				return false;
 
 			float perpendicularDistance = avoidanceDirection * avoidanceDistance;

@@ -69,7 +69,7 @@ class ExpansionOwnedContainer: Container_Base
 		if (!super.CanCombineAttachment(e, slot, stack_max_limit))
 			return false;
 
-		return GetGame().IsDedicatedServer() || ExpansionIsContainerOwner();
+		return g_Game.IsDedicatedServer() || ExpansionIsContainerOwner();
 	}
 
 	override bool CanDisplayAttachmentSlot(int slot_id)
@@ -109,7 +109,7 @@ class ExpansionOwnedContainer: Container_Base
 
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
-		return GetGame().IsDedicatedServer() || ExpansionIsContainerOwner();
+		return g_Game.IsDedicatedServer() || ExpansionIsContainerOwner();
 	}
 
 	override bool CanReceiveItemIntoCargo(EntityAI item)
@@ -117,7 +117,7 @@ class ExpansionOwnedContainer: Container_Base
 		if (!super.CanReceiveItemIntoCargo(item))
 			return false;
 
-		return GetGame().IsDedicatedServer() || ExpansionIsContainerOwner();
+		return g_Game.IsDedicatedServer() || ExpansionIsContainerOwner();
 	}
 
 	override bool CanReleaseAttachment(EntityAI attachment)
@@ -125,12 +125,12 @@ class ExpansionOwnedContainer: Container_Base
 		if (!super.CanReleaseAttachment(attachment))
 			return false;
 
-		return GetGame().IsDedicatedServer() || ExpansionIsContainerOwner();
+		return g_Game.IsDedicatedServer() || ExpansionIsContainerOwner();
 	}
 
 	override bool CanReleaseCargo(EntityAI cargo)
 	{
-		return GetGame().IsDedicatedServer() || ExpansionIsContainerOwner();
+		return g_Game.IsDedicatedServer() || ExpansionIsContainerOwner();
 	}
 
 	override bool CanSwapItemInCargo(EntityAI child_entity, EntityAI new_entity)
@@ -138,7 +138,7 @@ class ExpansionOwnedContainer: Container_Base
 		if (!super.CanSwapItemInCargo(child_entity, new_entity))
 			return false;
 
-		return GetGame().IsDedicatedServer() || ExpansionIsContainerOwner();
+		return g_Game.IsDedicatedServer() || ExpansionIsContainerOwner();
 	}
 
 	//! This hides the container from vicinity completely
@@ -154,15 +154,15 @@ class ExpansionOwnedContainer: Container_Base
 
 	override bool NameOverride(out string output)
 	{
-		if (!GetGame().GetPlayer())
+		if (!g_Game.GetPlayer())
 			return false;
 
-		PlayerIdentity identity = GetGame().GetPlayer().GetIdentity();
+		PlayerIdentity identity = g_Game.GetPlayer().GetIdentity();
 
 		if (!ExpansionIsContainerOwner(identity))
 			return false;
 
-		GetGame().ObjectGetDisplayName(this, output);
+		g_Game.ObjectGetDisplayName(this, output);
 		output += " - " + identity.GetName();
 
 		return true;
@@ -232,7 +232,7 @@ class ExpansionOwnedContainer: Container_Base
 	//! Callable client only
 	bool ExpansionIsContainerOwner()
 	{
-		return ExpansionIsContainerOwner(GetGame().GetPlayer());
+		return ExpansionIsContainerOwner(g_Game.GetPlayer());
 	}
 
 	//! Callable client/server
@@ -321,18 +321,18 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 
 	void ExpansionTemporaryOwnedContainer()
 	{
-		if (GetGame().IsServer())  //! Server or SP
+		if (g_Game.IsServer())  //! Server or SP
 		{
 			SetAllowDamage(false);
 
 			//! Delete after 20 minutes
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionDeleteStorage, 1000 * 60 * 20, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionDeleteStorage, 1000 * 60 * 20, false);
 		}
 
-		if (!GetGame().IsDedicatedServer())  //! Client or SP
+		if (!g_Game.IsDedicatedServer())  //! Client or SP
 		{
 			//! Warn about pending deletion after 15 minutes
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionStorageNotification, 1000 * 60 * 15, false, "STR_EXPANSION_TEMPORARY_STORAGE_EXPIRATION_WARNING");
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionStorageNotification, 1000 * 60 * 15, false, "STR_EXPANSION_TEMPORARY_STORAGE_EXPIRATION_WARNING");
 
 			Expansion_SetInvisible(this);
 		}
@@ -355,16 +355,16 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 	{
 		super.Expansion_OnOwnerSync();
 
-		//! @note GetGame().GetPlayer() will only be non-NULL after player has fully loaded in
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionCheckContainerOwner, 1000, true);
+		//! @note g_Game.GetPlayer() will only be non-NULL after player has fully loaded in
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionCheckContainerOwner, 1000, true);
 	}
 
 	void ExpansionCheckContainerOwner()
 	{
-		if (!GetGame().GetPlayer())
+		if (!g_Game.GetPlayer())
 			return;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(ExpansionCheckContainerOwner);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(ExpansionCheckContainerOwner);
 
 		EXTrace.Print(EXTrace.MISC, this, "ExpansionTemporaryOwnedContainer::Expansion_OnOwnerSync - is owner? " + ExpansionIsContainerOwner());
 
@@ -380,21 +380,21 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 
 		super.EEItemLocationChanged(oldLoc, newLoc);
 
-		if (GetGame().IsDedicatedServer())
+		if (g_Game.IsDedicatedServer())
 			return;
 
 		//! @note call to ClearFlags needs to be delayed one frame, else other clients won't see other items taken to hand afterwards
 		//! Can't use ScriptCallQueue::Call to call ClearFlags directly, CTDs other clients
 		if (!ExpansionIsContainerOwner() && newLoc.GetType() == InventoryLocationType.GROUND)
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_SetInvisible, this, true);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_SetInvisible, this, true);
 		else
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_SetInvisible, this, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_SetInvisible, this, false);
 	}
 
 	void Expansion_SetInvisible(EntityAI item, bool invisible = true)
 	{
 		//! Client or SP
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if (invisible)
 				item.ClearFlags(EntityFlags.VISIBLE, false);
@@ -410,7 +410,7 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		if (IsEmpty())
 			ExpansionDeleteStorage();
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_SetInvisible, this, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_SetInvisible, this, false);
 	}
 
 	override void EEItemDetached(EntityAI item, string slot_name)
@@ -420,7 +420,7 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		if (IsEmpty())
 			ExpansionDeleteStorage();
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_SetInvisible, this, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_SetInvisible, this, false);
 	}
 
 	override bool CanCombineAttachment(notnull EntityAI e, int slot, bool stack_max_limit = false)

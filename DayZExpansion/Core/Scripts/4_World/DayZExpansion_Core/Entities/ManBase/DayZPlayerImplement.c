@@ -65,7 +65,7 @@ modded class DayZPlayerImplement
 
 	void ~DayZPlayerImplement()
 	{
-		if (GetGame())
+		if (g_Game)
 			Expansion_DeleteDebugObjects();
 	}
 
@@ -143,7 +143,7 @@ modded class DayZPlayerImplement
 
 		super.OnVariablesSynchronized();
 		
-		if (!GetGame().IsClient())
+		if (!g_Game.IsClient())
 			return;
 
 		if ( m_Expansion_IsInSafeZoneSynchRemote && !m_Expansion_IsInSafeZone )
@@ -173,7 +173,7 @@ modded class DayZPlayerImplement
 	//! Netsynced version of SetAllowDamage
 	void Expansion_SetAllowDamage(bool state)
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			SetAllowDamage(state);
 		else
 			m_Expansion_AllowDamage = state;
@@ -188,7 +188,7 @@ modded class DayZPlayerImplement
 	bool Expansion_CanBeDamaged(string ammo = string.Empty)
 	{
 		bool canBeDamaged;
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			canBeDamaged = GetAllowDamage();
 		else
 			canBeDamaged = m_Expansion_AllowDamage;
@@ -428,7 +428,7 @@ modded class DayZPlayerImplement
 	void Expansion_DebugObject_Deferred(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero, float lifetime = 300.0, int flags = 0)
 	{
 #ifdef DIAG_DEVELOPER
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_DebugObject, 1, false, i, position, type, direction, origin, lifetime, flags);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_DebugObject, 1, false, i, position, type, direction, origin, lifetime, flags);
 #endif
 	}
 
@@ -449,7 +449,7 @@ modded class DayZPlayerImplement
 		if (createObject)
 		{
 			if (obj)
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 			if (position == vector.Zero)
 				return null;
 			int iFlags;
@@ -458,7 +458,7 @@ modded class DayZPlayerImplement
 			#else
 			iFlags = ECE_LOCAL;
 			#endif
-			obj = GetGame().CreateObjectEx(type, position, iFlags);
+			obj = g_Game.CreateObjectEx(type, position, iFlags);
 			if (!obj)
 				return null;
 			m_Expansion_DebugObjects[i] = obj;
@@ -508,7 +508,7 @@ modded class DayZPlayerImplement
 		if (m_Expansion_DebugObjects.Find(i, obj))
 		{
 			if (obj)
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 
 			m_Expansion_DebugObjects.Remove(i);
 		}
@@ -519,7 +519,7 @@ modded class DayZPlayerImplement
 		foreach (Object obj: m_Expansion_DebugObjects)
 		{
 			if (obj)
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 		}
 
 		m_Expansion_DebugObjects.Clear();
@@ -668,7 +668,7 @@ modded class DayZPlayerCommandDeathCallback
 	override void OnSimulationEnd()
 	{
 		EntityAI itemInHands;
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			itemInHands = m_pPlayer.GetHumanInventory().GetEntityInHands();
 
 		super.OnSimulationEnd();

@@ -22,7 +22,7 @@ class ExpansionHelipadKit: ExpansionKitLarge
 	{
 		if ( IsMissionHost() )
 		{			
-			ExpansionHelipad helipad = ExpansionHelipad.Cast( GetGame().CreateObject( "ExpansionHelipad", GetPosition() ) );
+			ExpansionHelipad helipad = ExpansionHelipad.Cast( g_Game.CreateObject( "ExpansionHelipad", GetPosition() ) );
 			helipad.SetPosition( position );
 			helipad.SetOrientation( orientation );
 			// helipad.PlaceOnSurface();
@@ -30,7 +30,7 @@ class ExpansionHelipadKit: ExpansionKitLarge
 			//! Make the kit invisible, so it can be destroyed from deploy UA when action ends
 			HideAllSelections();
 
-			GetGame().ObjectDelete(this);
+			g_Game.ObjectDelete(this);
 		}	
 		
 		SetIsDeploySound( true );

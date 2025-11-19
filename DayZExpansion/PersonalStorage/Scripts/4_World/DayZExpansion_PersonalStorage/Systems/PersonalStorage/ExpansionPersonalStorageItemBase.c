@@ -191,16 +191,16 @@ class ExpansionPersonalStorageItemBase
 
 		foreach (string ammoName, int count: ammoTypes)
 		{
-			string ammoClassName = GetGame().ConfigGetTextOut("CfgAmmo " + ammoName + " spawnPileType");
+			string ammoClassName = g_Game.ConfigGetTextOut("CfgAmmo " + ammoName + " spawnPileType");
 			Print(ToString() + "::GetAmmoForMagazine - Ammo: " + ammoClassName + ", " + "Count: " + count);
 
 			while (count > 0)
 			{
-				Object obj = GetGame().CreateObjectEx(ammoClassName, "0 0 0", ECE_LOCAL);
+				Object obj = g_Game.CreateObjectEx(ammoClassName, "0 0 0", ECE_LOCAL);
 				Ammunition_Base ammo;
 				if (!Class.CastTo(ammo, obj))
 				{
-					GetGame().ObjectDelete(obj);
+					g_Game.ObjectDelete(obj);
 					continue;
 				}
 

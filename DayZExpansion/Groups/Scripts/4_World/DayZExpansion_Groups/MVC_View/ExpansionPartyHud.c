@@ -59,7 +59,7 @@ class ExpansionPartyHud: ExpansionScriptViewBase
 		foreach (string playerID, string playerName: members)
 		{
 			int memberIndex = currentMembers.Find(playerID);
-			if (memberIndex == -1 && playerID != GetGame().GetPlayer().GetIdentity().GetId())
+			if (memberIndex == -1 && playerID != g_Game.GetPlayer().GetIdentity().GetId())
 			{
 				SyncPlayer syncPlayer = SyncPlayer.Expansion_GetByID(playerID);
 				if (syncPlayer)

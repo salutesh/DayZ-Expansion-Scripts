@@ -37,7 +37,7 @@ class Vehicle_ExpansionLHD : Vehicle_ExpansionZodiacBoat
 		CreatePart("ExpansionLHDHouse1", house1);
 		CreatePart("ExpansionLHDHouse2", house2);
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateModels, 5000, true);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateModels, 5000, true);
 
 		SetAllowDamage(false);
 	}
@@ -73,7 +73,7 @@ class Vehicle_ExpansionLHD : Vehicle_ExpansionZodiacBoat
 	{
 		if (obj)
 		{
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 		}
 
 		obj = NULL;
@@ -81,7 +81,7 @@ class Vehicle_ExpansionLHD : Vehicle_ExpansionZodiacBoat
 
 	private void CreatePart(string part, out Object obj)
 	{
-		obj = GetGame().CreateObjectEx(part, "0 0 0", ECE_CREATEPHYSICS | ECE_LOCAL);
+		obj = g_Game.CreateObjectEx(part, "0 0 0", ECE_CREATEPHYSICS | ECE_LOCAL);
 
 		obj.SetPosition("0 0 0");
 		obj.SetOrientation("0 0 0");
@@ -174,14 +174,14 @@ class Vehicle_ExpansionLHD : Vehicle_ExpansionZodiacBoat
 					{
 						m_Particles[b].Stop();
 
-						GetGame().ObjectDelete(m_Particles[b]);
+						g_Game.ObjectDelete(m_Particles[b]);
 					}
 
 					for (b = -0; b < m_Lights.Count(); b++)
 					{
 						m_Lights[b].ExpansionSetEnabled(false);
 
-						GetGame().ObjectDelete(m_Lights[b]);
+						g_Game.ObjectDelete(m_Lights[b]);
 					}
 
 					m_Lights.Clear();

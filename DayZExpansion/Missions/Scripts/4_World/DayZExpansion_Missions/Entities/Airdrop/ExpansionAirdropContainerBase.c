@@ -84,10 +84,10 @@ class ExpansionAirdropContainerBase: House
 		
 		//SetEventMask( EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.SIMULATE );
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			Expansion_EnableUpdate();
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			m_Expansion_HideCargoWhileParachuteIsDeployed = GetExpansionSettings().GetAirdrop().HideCargoWhileParachuteIsDeployed;
 
@@ -104,11 +104,11 @@ class ExpansionAirdropContainerBase: House
 	{
 	#ifdef SERVER
 		//SetEventMask( EntityEvent.SIMULATE );
-		m_Expansion_LastUpdateTickTime = GetGame().GetTickTime();
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_Update, 25, true);
+		m_Expansion_LastUpdateTickTime = g_Game.GetTickTime();
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_Update, 25, true);
 	#else
 		//! Client or SP
-		GetGame().GetUpdateQueue(CALL_CATEGORY_SYSTEM).Insert(Expansion_OnUpdate);
+		g_Game.GetUpdateQueue(CALL_CATEGORY_SYSTEM).Insert(Expansion_OnUpdate);
 	#endif
 
 		m_Expansion_IsUpdateEnabled = true;
@@ -122,11 +122,11 @@ class ExpansionAirdropContainerBase: House
 		{
 		#ifdef SERVER
 			//ClearEventMask(EntityEvent.SIMULATE);
-			if (GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM))
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_Update);
+			if (g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM))
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_Update);
 		#else
-			if (GetGame().GetUpdateQueue(CALL_CATEGORY_SYSTEM))
-				GetGame().GetUpdateQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_OnUpdate);
+			if (g_Game.GetUpdateQueue(CALL_CATEGORY_SYSTEM))
+				g_Game.GetUpdateQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_OnUpdate);
 		#endif
 
 			m_Expansion_IsUpdateEnabled = false;
@@ -135,7 +135,7 @@ class ExpansionAirdropContainerBase: House
 
 	void ~ExpansionAirdropContainerBase()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		Expansion_DisableUpdate();
@@ -148,7 +148,7 @@ class ExpansionAirdropContainerBase: House
 	{
 		super.EEInit();
 
-		//if (GetGame().IsServer())
+		//if (g_Game.IsServer())
 		//{
 			m_Expansion_SpawnPosition = GetPosition();
 			m_Expansion_Position = m_Expansion_SpawnPosition;
@@ -178,7 +178,7 @@ class ExpansionAirdropContainerBase: House
 			//EnableDynamicCCD( true );
 			//SetDynamicPhysicsLifeTime( -1 );
 
-			m_Expansion_StartTime = GetGame().GetTickTime();
+			m_Expansion_StartTime = g_Game.GetTickTime();
 
 			//dBodySetDamping(this, 0.0, 1.0);
 		//}
@@ -206,16 +206,16 @@ class ExpansionAirdropContainerBase: House
 			if (obj)
 			{
 				if (Expansion_CanExplodeOther(obj))
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_ExplodeOther, obj);
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_ExplodeOther, obj);
 				else if (Expansion_CanCrushOther(obj))
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_CrushOther, obj);
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_CrushOther, obj);
 			}
 
 			if (!m_Expansion_HasDiscardedParachute && !m_Expansion_HasCollided)
 			{
 				m_Expansion_HasCollided = true;
 
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_DiscardParachute);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_DiscardParachute);
 			}
 		}
 	}
@@ -416,7 +416,7 @@ class ExpansionAirdropContainerBase: House
 /*
 	override void EOnSimulate(IEntity other, float dt)
 	{
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		Expansion_OnUpdate(dt);
@@ -425,7 +425,7 @@ class ExpansionAirdropContainerBase: House
 
 	void Expansion_Update()
 	{
-		float time = GetGame().GetTickTime();
+		float time = g_Game.GetTickTime();
 		float dt = time - m_Expansion_LastUpdateTickTime;
 
 		Expansion_OnUpdate(dt);
@@ -441,7 +441,7 @@ class ExpansionAirdropContainerBase: House
 
 		bool guaranteed;
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 		{
 			//! MP client
 
@@ -481,14 +481,14 @@ class ExpansionAirdropContainerBase: House
 						EXTrace.Print(EXTrace.MISSIONS, this, "Expansion_OnUpdate - inactive & has landed - updating pathgraph region");
 
 						SetAffectPathgraph(false, true);
-						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
+						g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(g_Game.UpdatePathgraphRegionByObject, 100, false, this);
 
-						if (GetGame().IsDedicatedServer())
+						if (g_Game.IsDedicatedServer())
 						{
 							if (m_Expansion_SimulationTimeAccumulator > 0.0)
 								Expansion_SynchContainerStateToClient();
 
-							GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SynchContainerStateToClient, 100, false, true, null);
+							g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SynchContainerStateToClient, 100, false, true, null);
 						}
 					}
 				}
@@ -497,7 +497,7 @@ class ExpansionAirdropContainerBase: House
 					Expansion_CreateDynamicPhysics();
 				}
 			}
-			else if (GetGame().IsDedicatedServer())
+			else if (g_Game.IsDedicatedServer())
 			{
 				if (GetAnimationPhase("camo") < 1)
 				{
@@ -528,9 +528,9 @@ class ExpansionAirdropContainerBase: House
 
 			if ( m_Expansion_WindImpactStrength > 0.0 )
 			{
-				if (GetGame().GetWeather())
+				if (g_Game.GetWeather())
 				{
-					vector wind = GetGame().GetWeather().GetWind();
+					vector wind = g_Game.GetWeather().GetWind();
 
 					vector windImpact;
 					windImpact[0] = wind[0] * m_Expansion_WindImpactStrength;
@@ -584,7 +584,7 @@ class ExpansionAirdropContainerBase: House
 				if (DayZPlayerImplement.s_Expansion_DebugObjects_Enabled)
 				{
 					EntityAI dbgEnt;
-					if (Class.CastTo(dbgEnt, GetGame().CreateObjectEx("ExpansionDebugRodBig", transform[3], ECE_NOLIFETIME)))
+					if (Class.CastTo(dbgEnt, g_Game.CreateObjectEx("ExpansionDebugRodBig", transform[3], ECE_NOLIFETIME)))
 					{
 						dbgEnt.SetOrientation(GetOrientation());
 						dbgEnt.SetLifetime(600);
@@ -654,7 +654,7 @@ class ExpansionAirdropContainerBase: House
 				}
 				else if (!ExpansionLootSpawner.IsPlayerNearby(this, 100))
 				{
-					Object obj = GetGame().CreateObjectEx(ExpansionStatic.GetWorkingZombieClasses().GetRandomElement(), surfacePos, ECE_PLACE_ON_SURFACE | ECE_INITAI);
+					Object obj = g_Game.CreateObjectEx(ExpansionStatic.GetWorkingZombieClasses().GetRandomElement(), surfacePos, ECE_PLACE_ON_SURFACE | ECE_INITAI);
 					obj.SetHealth(0);
 					m_Expansion_ForceCollisionInit_Object = obj;
 				}
@@ -792,7 +792,7 @@ class ExpansionAirdropContainerBase: House
 
 		dBodySetDamping(this, 0.5, 0.5);
 
-		SetDynamicPhysicsLifeTime( (GetGame().GetTickTime() - m_Expansion_StartTime) + 30 );
+		SetDynamicPhysicsLifeTime( (g_Game.GetTickTime() - m_Expansion_StartTime) + 30 );
 
 		m_Expansion_HasDynamicPhysics = true;
 	}
@@ -935,7 +935,7 @@ class ExpansionAirdropContainerBase_Server: ExpansionAirdropContainerBase
 	{
 		super.AfterStoreLoad();
 
-		GetGame().ObjectDelete(this);
+		g_Game.ObjectDelete(this);
 	}
 };
 #else

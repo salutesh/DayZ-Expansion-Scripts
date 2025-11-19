@@ -36,7 +36,7 @@ modded class Ammunition_Base
 	{
 		int numberOfTransferredBullets = super.Expansion_TransferCartridges(dst, amount, resetDstAmmoCount, totalDamage);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			float resultingHealth = 1 - totalDamage / numberOfTransferredBullets;
 			dst.SetHealth01("", "", resultingHealth);

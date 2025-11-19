@@ -43,7 +43,7 @@ class Expansion_EffectHolder_Base: House
 	
 	void ~Expansion_EffectHolder_Base()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 		
 		#ifdef EXTRACE
@@ -68,7 +68,7 @@ class Expansion_EffectHolder_Base: House
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
 		
-		if (GetGame() && GetGame().IsServer())
+		if (g_Game && g_Game.IsServer())
 		{
 			#ifdef DIAG_DEVELOPER
 			#ifdef EXPANSIONMODNAVIGATION
@@ -83,7 +83,7 @@ class Expansion_EffectHolder_Base: House
 			#endif
 		}
 
-		if (GetGame() && !GetGame().IsDedicatedServer())
+		if (g_Game && !g_Game.IsDedicatedServer())
 		{
 			if (m_ParticleIdle)
 				ParticleIdleStop();
@@ -110,12 +110,12 @@ class Expansion_EffectHolder_Base: House
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			InitEffectClient();
 		}
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			InitEffectServer();
 		}
@@ -137,9 +137,9 @@ class Expansion_EffectHolder_Base: House
 		#endif
 
 		//! Remove grass
-		Object cc_object = GetGame().CreateObjectEx(OBJECT_CLUTTER_CUTTER , GetWorldPosition(), ECE_PLACE_ON_SURFACE);
+		Object cc_object = g_Game.CreateObjectEx(OBJECT_CLUTTER_CUTTER , GetWorldPosition(), ECE_PLACE_ON_SURFACE);
 		cc_object.SetOrientation (GetOrientation());
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(DestroyClutterCutter, 200, false, cc_object);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(DestroyClutterCutter, 200, false, cc_object);
 
 		//SetSynchDirty();
 	}
@@ -149,7 +149,7 @@ class Expansion_EffectHolder_Base: House
 		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
-		GetGame().ObjectDelete(clutter_cutter);
+		g_Game.ObjectDelete(clutter_cutter);
 
 		#ifdef DIAG_DEVELOPER
 		#ifdef EXPANSIONMODNAVIGATION
@@ -167,7 +167,7 @@ class Expansion_EffectHolder_Base: House
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
 
-		if (!particle && GetGame() && (!GetGame().IsDedicatedServer()))
+		if (!particle && g_Game && (!g_Game.IsDedicatedServer()))
 		{
 			particle = Particle.PlayOnObject(particle_type, this, "0 0.7 0");
 			return true;
@@ -183,7 +183,7 @@ class Expansion_EffectHolder_Base: House
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
 
-		if (particle && GetGame() && (!GetGame().IsDedicatedServer()))
+		if (particle && g_Game && (!g_Game.IsDedicatedServer()))
 		{
 			particle.Stop();
 			particle = null;
@@ -215,7 +215,7 @@ class Expansion_EffectHolder_Base: House
 		#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateEffectVFX_Deferred, 0, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateEffectVFX_Deferred, 0, false);
 	}
 
 	//! @note: This method updates the anomaly visual effects (VFX) in a deferred manner based on the provided `state`.

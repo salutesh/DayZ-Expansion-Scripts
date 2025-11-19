@@ -10,131 +10,6 @@
  *
 */
 
-#ifndef DAYZ_1_27
-//! 1.28+
-class ExpansionHelicopterScriptMove : CarScriptMove
-{
-	// Event: -1 means unset, 0 is false, 1 is true
-	int m_AutoHover = -1;
-	int m_EngineOn = -1;
-	
-	float m_MainRotorSpeedTarget;
-	float m_BackRotorSpeedTarget;
-	
-	float m_CyclicForwardTarget;
-	float m_CyclicSideTarget;
-	
-	float m_AutoHoverSpeedX;
-	float m_AutoHoverAltitude;
-	float m_AutoHoverSpeedZ;
-
-	bool m_IsFreeLook;
-	
-	protected override event void Write(PawnMoveWriter ctx, PawnMove prev)
-	{
-		super.Write(ctx, prev);
-
-		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
-
-		ctx.Write(m_AutoHover);
-		ctx.Write(m_EngineOn);
-		
-		ctx.Write(m_MainRotorSpeedTarget);
-		ctx.Write(m_BackRotorSpeedTarget);
-		ctx.Write(m_CyclicForwardTarget);
-		ctx.Write(m_CyclicSideTarget);
-
-		ctx.Write(m_AutoHoverSpeedX);
-		ctx.Write(m_AutoHoverAltitude);
-		ctx.Write(m_AutoHoverSpeedZ);
-
-		ctx.Write(m_IsFreeLook);
-	}
-
-	protected override event void Read(PawnMoveReader ctx, PawnMove prev)
-	{
-		super.Read(ctx, prev);
-
-		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
-		
-		ctx.Read(m_AutoHover);
-		ctx.Read(m_EngineOn);
-		
-		ctx.Read(m_MainRotorSpeedTarget);
-		ctx.Read(m_BackRotorSpeedTarget);
-		ctx.Read(m_CyclicForwardTarget);
-		ctx.Read(m_CyclicSideTarget);
-
-		ctx.Read(m_AutoHoverSpeedX);
-		ctx.Read(m_AutoHoverAltitude);
-		ctx.Read(m_AutoHoverSpeedZ);
-
-		ctx.Read(m_IsFreeLook);
-	}
-
-	protected override event int EstimateMaximumSize()
-	{
-		int size = super.EstimateMaximumSize();
-		size += 10 * 4; // num float variables multiplied by size of float
-		return size;
-	}
-};
-
-class ExpansionHelicopterScriptOwnerState : CarScriptOwnerState
-{
-	float m_RotorSpeed;
-	bool m_EngineState;
-	
-	float m_MainRotorSpeed;
-	float m_BackRotorSpeed;
-	
-	float m_Hydraulic;
-	
-	float m_CyclicForward;
-	float m_CyclicSide;
-	
-	bool m_AutoHover;
-	
-	protected override event void Write(PawnStateWriter ctx)
-	{
-		super.Write(ctx);
-
-		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
-		
-		ctx.Write(m_RotorSpeed);
-		ctx.Write(m_EngineState);
-		ctx.Write(m_MainRotorSpeed);
-		ctx.Write(m_BackRotorSpeed);
-		ctx.Write(m_Hydraulic);
-		ctx.Write(m_CyclicForward);
-		ctx.Write(m_CyclicSide);
-		ctx.Write(m_AutoHover);
-	}
-
-	protected override event void Read(PawnStateReader ctx)
-	{
-		super.Read(ctx);
-
-		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
-		
-		ctx.Read(m_RotorSpeed);
-		ctx.Read(m_EngineState);
-		ctx.Read(m_MainRotorSpeed);
-		ctx.Read(m_BackRotorSpeed);
-		ctx.Read(m_Hydraulic);
-		ctx.Read(m_CyclicForward);
-		ctx.Read(m_CyclicSide);
-		ctx.Read(m_AutoHover);
-	}
-
-	protected override event int EstimateMaximumSize()
-	{
-		int size = super.EstimateMaximumSize();
-		size += 8 * 4; // num float variables multiplied by size of float
-		return size;
-	}
-};
-#endif
 
 /**@class		ExpansionHelicopterScript
  * @brief		This class handle helicopter movement and physics
@@ -195,16 +70,16 @@ class ExpansionHelicopterScript: CarScript
 		string path;
 
 		path = "CfgVehicles " + GetType() + " SimulationModule maxSpeed";
-		if (GetGame().ConfigIsExisting(path))
-			m_MaxSpeed = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_MaxSpeed = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + GetType() + " SimulationModule altitudeFullForce";
-		if (GetGame().ConfigIsExisting(path))
-			m_AltitudeFullForce = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_AltitudeFullForce = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + GetType() + " SimulationModule altitudeNoForce";
-		if (GetGame().ConfigIsExisting(path))
-			m_AltitudeNoForce = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_AltitudeNoForce = g_Game.ConfigGetFloat(path);
 
 		ExpansionVehicleHelicopter_OLD simulation = new ExpansionVehicleHelicopter_OLD(this);
 		m_Simulation = simulation;
@@ -420,7 +295,7 @@ class ExpansionHelicopterScript: CarScript
 			return;
 
 		bool resetImpulse;
-		if (GetGame().IsServer() && !IsDamageDestroyed())
+		if (g_Game.IsServer() && !IsDamageDestroyed())
 			resetImpulse = true;
 
 		vector transform[4];
@@ -576,7 +451,7 @@ class ExpansionHelicopterScript: CarScript
 		ExpansionWreck wreck;
 		vector modelBottomPos = ModelToWorld(Vector(0, -m_ExpansionVehicle.GetModelZeroPointDistanceFromGround(), 0));
 		position[1] = modelBottomPos[1] + 1;
-		if (Class.CastTo(wreck, GetGame().CreateObjectEx(GetWreck(), position, ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH)))
+		if (Class.CastTo(wreck, g_Game.CreateObjectEx(GetWreck(), position, ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH)))
 		{
 			wreck.SetPosition(position);
 			wreck.SetOrientation(orientation);
@@ -608,7 +483,7 @@ class ExpansionHelicopterScript: CarScript
 
 			array<Object> objects = new array<Object>;
 			array<CargoBase> proxy = new array<CargoBase>;
-			GetGame().GetObjectsAtPosition(GetPosition(), 10, objects, proxy);
+			g_Game.GetObjectsAtPosition(GetPosition(), 10, objects, proxy);
 
 			for (int n = 0; n < objects.Count(); ++n)
 			{
@@ -620,19 +495,19 @@ class ExpansionHelicopterScript: CarScript
 				BushSoft bushSoft;
 				if (Class.CastTo(treeHard, obj))
 				{
-					GetGame().RPCSingleParam(wreck, PlantType.TREE_HARD, new Param1<vector>(obj.GetPosition()), true);
+					g_Game.RPCSingleParam(wreck, PlantType.TREE_HARD, new Param1<vector>(obj.GetPosition()), true);
 				}
 				else if (Class.CastTo(treeSoft, obj))
 				{
-					GetGame().RPCSingleParam(wreck, PlantType.TREE_SOFT, new Param1<vector>(obj.GetPosition()), true);
+					g_Game.RPCSingleParam(wreck, PlantType.TREE_SOFT, new Param1<vector>(obj.GetPosition()), true);
 				}
 				else if (Class.CastTo(bushHard, obj))
 				{
-					GetGame().RPCSingleParam(wreck, PlantType.BUSH_HARD, new Param1<vector>(obj.GetPosition()), true);
+					g_Game.RPCSingleParam(wreck, PlantType.BUSH_HARD, new Param1<vector>(obj.GetPosition()), true);
 				}
 				else if (Class.CastTo(bushSoft, obj))
 				{
-					GetGame().RPCSingleParam(wreck, PlantType.BUSH_SOFT, new Param1<vector>(obj.GetPosition()), true);
+					g_Game.RPCSingleParam(wreck, PlantType.BUSH_SOFT, new Param1<vector>(obj.GetPosition()), true);
 				}
 				else
 				{
@@ -647,7 +522,7 @@ class ExpansionHelicopterScript: CarScript
 					if (dBodyIsSet(obj))
 						dBodyDestroy(obj);
 
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(GetGame().ObjectDelete, obj);
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(g_Game.ObjectDelete, obj);
 				}
 			}
 
@@ -655,7 +530,7 @@ class ExpansionHelicopterScript: CarScript
 			dBodyActive(this, ActiveState.INACTIVE);
 			dBodyDynamic(this, false);
 			SetPosition("0 0 0");
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 5000, false, this);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(g_Game.ObjectDelete, 5000, false, this);
 		}
 	}
 
@@ -668,7 +543,7 @@ class ExpansionHelicopterScript: CarScript
 		super.ExpansionOnExplodeClient(damageType, ammoType);
 
 		PlayerBase player;
-		if (!IsMissionOffline() && Class.CastTo(player, GetGame().GetPlayer()) && player.Expansion_GetParent() == this)
+		if (!IsMissionOffline() && Class.CastTo(player, g_Game.GetPlayer()) && player.Expansion_GetParent() == this)
 		{
 			bool isCrew;
 
@@ -718,7 +593,7 @@ class ExpansionHelicopterScript: CarScript
 				dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
 
 			//! Needs to be called at least one simulation frame (25ms) later
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.StartCommand_Fall, 25, false, 0);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.StartCommand_Fall, 25, false, 0);
 		}
 	}
 
@@ -750,7 +625,7 @@ class ExpansionHelicopterScript: CarScript
 			//if (position[1] - ground[1] <= 2.53)
 				//dummySpawnPosition = ground;  //! If we died close to ground, spawn dummy on ground
 
-			PlayerBase dummy = PlayerBase.Cast(GetGame().CreateObject(player.GetType(), dummySpawnPosition));
+			PlayerBase dummy = PlayerBase.Cast(g_Game.CreateObject(player.GetType(), dummySpawnPosition));
 
 		#ifdef EXPANSIONMOD
 			//! Make gravecross work correctly
@@ -778,10 +653,10 @@ class ExpansionHelicopterScript: CarScript
 
 			//! Just in case fall doesn't kill our dummy (maybe because we died on ground), kill it later.
 			//! This may look a little awkward, but at least makes sure it's dead.
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(dummy.ProcessDirectDamage, Math.Sqrt((fallHeight * 2) / 9.81) * 1000, false, DT_CUSTOM, this, "", DayZPlayerImplementFallDamage.FALL_DAMAGE_AMMO_HEALTH, vector.Zero, dummy.GetMaxHealth(), ProcessDirectDamageFlags.ALL_TRANSFER);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(dummy.ProcessDirectDamage, Math.Sqrt((fallHeight * 2) / 9.81) * 1000, false, DT_CUSTOM, this, "", DayZPlayerImplementFallDamage.FALL_DAMAGE_AMMO_HEALTH, vector.Zero, dummy.GetMaxHealth(), ProcessDirectDamageFlags.ALL_TRANSFER);
 
 			//! Needs to be called at least two simulation frames (50ms) later
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.Delete, 50, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.Delete, 50, false);
 		}
 	}
 
@@ -1033,7 +908,7 @@ class ExpansionHelicopterScript: CarScript
 		vector start = ModelToWorld(Vector(0, -modelZPDistFromGround + 0.5, 0));
 		vector end = ModelToWorld(Vector(0, -modelZPDistFromGround - 0.5, 0));
 
-		float surfaceY = GetGame().SurfaceY(pos[0], pos[2]);
+		float surfaceY = g_Game.SurfaceY(pos[0], pos[2]);
 		if (start[1] - surfaceY < 1)
 		{
 			if (!m_IsLanded)
@@ -1089,7 +964,7 @@ class ExpansionHelicopterScript: CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_CanSimulate");
 #endif
 
-		if ((GetGame().IsServer() && GetGame().IsMultiplayer()) && !m_IsInitialized)
+		if ((g_Game.IsServer() && g_Game.IsMultiplayer()) && !m_IsInitialized)
 			return false;
 
 		return true;

@@ -33,7 +33,7 @@ modded class DayZPlayerCamera1stPerson
 		}
 		else
 		{
-			GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY).Call( m_Ex_Player.SetHeadInvisible_Ex, false );
+			g_Game.GetCallQueue( CALL_CATEGORY_GAMEPLAY).Call( m_Ex_Player.SetHeadInvisible_Ex, false );
 			return;
 		}
 		

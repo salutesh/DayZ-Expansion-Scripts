@@ -56,7 +56,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 
 	override Widget Init()
 	{
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/BaseBuilding/GUI/layouts/flag/expansion_flag_menu.layout");
+		layoutRoot = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/BaseBuilding/GUI/layouts/flag/expansion_flag_menu.layout");
 		
 		//! Flag Window
 		m_FlagWindow = Widget.Cast( layoutRoot.FindAnyWidget( "flag_window_content" ) );
@@ -176,7 +176,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 		//! Territory name can't be empty or have a illegal characters
 		if ( territoryName == "" || FindChar(forrbidenChars,territoryName) )
 		{
-			PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+			PlayerBase player = PlayerBase.Cast( g_Game.GetPlayer() );
 			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_NAMEINVALID", territoryName)).Error(player.GetIdentity());
 			return;
 		}
@@ -196,7 +196,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 		super.OnShow();
 
 		SetFocus(layoutRoot);
-		GetGame().GetMission().PlayerControlDisable(INPUT_EXCLUDE_ALL);
+		g_Game.GetMission().PlayerControlDisable(INPUT_EXCLUDE_ALL);
 		
 		PPEffects.SetBlurMenu(0.5);
 		
@@ -206,7 +206,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 			LoadTextureList();
 		}
 		
-		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+		PlayerBase player = PlayerBase.Cast( g_Game.GetPlayer() );
 		
 		m_CurrentFlag = player.FindNearestFlag();
 		if (!m_CurrentFlag)
@@ -234,7 +234,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 
 	void SetTerritoryInfo()
 	{
-		PlayerBase clientPlayer = PlayerBase.Cast( GetGame().GetPlayer() );
+		PlayerBase clientPlayer = PlayerBase.Cast( g_Game.GetPlayer() );
 		
 		if ( clientPlayer )
 		{
@@ -250,14 +250,14 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 	{
 		super.OnHide();
 
-		GetGame().GetMission().PlayerControlEnable(true);
+		g_Game.GetMission().PlayerControlEnable(true);
 		
 		PPEffects.SetBlurMenu( 0.0 );
 	}
 
 	override void Update( float timeslice )
 	{
-		Input input = GetGame().GetInput();
+		Input input = g_Game.GetInput();
 		if (input.LocalPress("UAUIBack", false))
 		{			
 			Close();

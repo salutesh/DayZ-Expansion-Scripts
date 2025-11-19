@@ -7,11 +7,11 @@ modded class JMPlayerInstance
 
 	override void Update()
 	{
-		if (GetGame().IsServer() && (GetGame().GetTime() - m_DataLastUpdated) >= 100)
+		if (g_Game.IsServer() && (g_Game.GetTime() - m_DataLastUpdated) >= 100)
 		{
-			if (!GetGame().IsMultiplayer())
+			if (!g_Game.IsMultiplayer())
 			{
-				PlayerBase.CastTo(PlayerObject, GetGame().GetPlayer());
+				PlayerBase.CastTo(PlayerObject, g_Game.GetPlayer());
 			}
 
 			if (PlayerObject)

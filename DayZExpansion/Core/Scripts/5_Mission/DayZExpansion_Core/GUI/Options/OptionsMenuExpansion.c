@@ -30,7 +30,7 @@ class OptionsMenuExpansion: ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	void OptionsMenuExpansion( Widget parent, Widget details_root, GameOptions options, OptionsMenu menu )
 	{
-		m_Root = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Core/GUI/layouts/ui/options/expansion_tab.layout", parent );
+		m_Root = g_Game.GetWorkspace().CreateWidgets( "DayZExpansion/Core/GUI/layouts/ui/options/expansion_tab.layout", parent );
 		m_Root.SetHandler( this );
 		
 		if ( !m_OptionsWidgets )
@@ -50,7 +50,7 @@ class OptionsMenuExpansion: ScriptedWidgetEventHandler
 		for ( int i = 0; i < GetExpansionClientSettings().m_Categories.Count(); i++ )
 		{
 			ExpansionClientSettingCategory category = GetExpansionClientSettings().m_Categories[i];
-			Widget categoryWidget = Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Core/GUI/layouts/ui/options/expansion_options_category.layout", rootContent ) );
+			Widget categoryWidget = Widget.Cast( g_Game.GetWorkspace().CreateWidgets( "DayZExpansion/Core/GUI/layouts/ui/options/expansion_options_category.layout", rootContent ) );
 			TextWidget categoryLable = TextWidget.Cast( categoryWidget.FindAnyWidget( "expansion_options_category_header_text" ) );
 			categoryLable.SetText( category.m_DisplayName );
 			GridSpacerWidget categoryGrid = GridSpacerWidget.Cast( categoryWidget.FindAnyWidget( "expansion_options_category_content" ) );

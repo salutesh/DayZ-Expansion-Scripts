@@ -79,7 +79,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	void ~Expansion_AnomalyCore_Base()
 	{
-		if (GetGame())
+		if (g_Game)
 			CleanupAnomalyCore();
 	}
 
@@ -92,10 +92,10 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		if (s_Expansion_AllAnomalyCores)
 			s_Expansion_AllAnomalyCores.Remove(m_Expansion_AnomalyCoreNode);
 
-		if (GetGame() && !GetGame().IsDedicatedServer())
+		if (g_Game && !g_Game.IsDedicatedServer())
 		{
 			if (m_EffectLight)
-				GetGame().ObjectDelete(m_EffectLight);
+				g_Game.ObjectDelete(m_EffectLight);
 
 			if (m_ParticleEffect)
 				ParticleEffectStop();
@@ -119,12 +119,12 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			InitAnomalyCoreClient();
 		}
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			InitAnomalyCoreServer();
 		}
@@ -175,10 +175,10 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			m_Exploded = true;
-			GetGame().CreateObject("ExpansionAnomalyAreaSingularity_Local", GetPosition());
+			g_Game.CreateObject("ExpansionAnomalyAreaSingularity_Local", GetPosition());
 		}
 	}
 
@@ -194,7 +194,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	#endif
 		ExDebugPrint("::EOnContact - Entity: " + other.ToString());
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			if (!m_Exploded)
 			{
@@ -210,7 +210,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	#endif
 		ExDebugPrint("::UpdateAnomalyCoreState - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			m_CoreState = state;
 			SetSynchDirty();
@@ -223,10 +223,10 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			UpdateAnomalyCoreState(ExpansionAnomalyCoreState.DESTROYED);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Delete, 1000);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Delete, 1000);
 
 			if (s_Expansion_AllAnomalyCores)
 				s_Expansion_AllAnomalyCores.Remove(m_Expansion_AnomalyCoreNode);
@@ -304,7 +304,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 
-		if (!particle && GetGame() && (!GetGame().IsDedicatedServer()))
+		if (!particle && g_Game && (!g_Game.IsDedicatedServer()))
 		{
 			particle = Particle.PlayOnObject(particle_type, this);
 			return true;
@@ -337,7 +337,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 		ExDebugPrint("::UpdateVisualState - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateAnomalyCoreVFX_Deferred, 0, false, state);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateAnomalyCoreVFX_Deferred, 0, false, state);
 	}
 
 	protected void UpdateAnomalyCoreVFX_Deferred(ExpansionAnomalyCoreState state)
@@ -373,7 +373,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 			case ExpansionAnomalyCoreState.DESTROYED:
 			{
 				if (m_Light)
-					GetGame().ObjectDelete(m_Light);
+					g_Game.ObjectDelete(m_Light);
 
 				ParticleEffectStop();
 			}
@@ -413,7 +413,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 
-		if (particle && GetGame() && (!GetGame().IsDedicatedServer()))
+		if (particle && g_Game && (!g_Game.IsDedicatedServer()))
 		{
 			particle.Stop();
 			particle = NULL;
@@ -456,7 +456,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnActivateFinished, explosionTime);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnActivateFinished, explosionTime);
 	}
 
 	bool CanUnsatabilize()

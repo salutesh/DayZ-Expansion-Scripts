@@ -37,15 +37,15 @@ class ExpansionSnappingPosition
 			direction.Index = idx;
 
 			string allowPath = "cfgVehicles " + Target.GetType() + " ExpansionSnapping Pos_" + Index + " Dir_" + idx + " allow";
-			if ( GetGame().ConfigIsExisting( allowPath ) )
+			if ( g_Game.ConfigIsExisting( allowPath ) )
 			{
-				GetGame().ConfigGetTextArray( allowPath, direction.Allow );
+				g_Game.ConfigGetTextArray( allowPath, direction.Allow );
 			}
 
 			string offsetPath = "cfgVehicles " + Target.GetType() + " ExpansionSnapping Pos_" + Index + " Dir_" + idx + " offset";
-			if ( GetGame().ConfigIsExisting( offsetPath ) )
+			if ( g_Game.ConfigIsExisting( offsetPath ) )
 			{
-				GetGame().ConfigGetIntArray( offsetPath, direction.Offset );
+				g_Game.ConfigGetIntArray( offsetPath, direction.Offset );
 			}
 
 			if ( direction.Allow.Count() != direction.Offset.Count() )

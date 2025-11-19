@@ -104,7 +104,7 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 
 	override void OnExecuteServer( ActionData action_data )
 	{
-		if ( GetGame().IsMultiplayer() )
+		if ( g_Game.IsMultiplayer() )
 			return;
 
 		OnExecuteInternal( action_data );
@@ -132,7 +132,7 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 		if ( !GetExpansionClientSettings().AutoOpenLockMenuAfterPlacing )
 			return;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Expansion_OpenCodeLockUI, 250, false, targetItem);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Expansion_OpenCodeLockUI, 250, false, targetItem);
 #endif
 	}
 
@@ -140,7 +140,7 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 	{
 		if ( targetItem && targetItem.ExpansionGetCodeLock() && !targetItem.HasCode() )
 		{
-			ExpansionCodeLockUI menu = ExpansionCodeLockUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_CODELOCK_MENU, NULL ) );
+			ExpansionCodeLockUI menu = ExpansionCodeLockUI.Cast( g_Game.GetUIManager().EnterScriptedMenu( MENU_EXPANSION_CODELOCK_MENU, NULL ) );
 			if ( menu )
 			{
 				menu.SetChangeCodelock( false );

@@ -41,7 +41,7 @@ class ExpansionGame
 	// ------------------------------------------------------------	
 	void ~ExpansionGame()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 		
 	#ifdef EXPANSIONUI
@@ -113,7 +113,7 @@ class ExpansionGame
 		return CreateObjectExSafe(type, pos, flags);
 	*/
 		if (IsSafeToSpawn(type))
-			return GetGame().CreateObject(type, pos, create_local, init_ai, create_physics);
+			return g_Game.CreateObject(type, pos, create_local, init_ai, create_physics);
 
 		return null;
 	}
@@ -124,7 +124,7 @@ class ExpansionGame
 	static Object CreateObjectExSafe(string type, vector pos, int iFlags, int iRotation = RF_DEFAULT)
 	{
 		if (IsSafeToSpawn(type))
-			return GetGame().CreateObjectEx(type, pos, iFlags, iRotation);
+			return g_Game.CreateObjectEx(type, pos, iFlags, iRotation);
 
 		return null;
 	}
@@ -137,12 +137,12 @@ class ExpansionGame
 
 		foreach (string path: paths)
 		{
-			if (GetGame().ConfigIsExisting(path + " " + type))
+			if (g_Game.ConfigIsExisting(path + " " + type))
 			{
-				if (!GetGame().ConfigGetInt(path + " " + type + " scope"))
+				if (!g_Game.ConfigGetInt(path + " " + type + " scope"))
 					return false;
 
-				if (!GetGame().ConfigGetText(path + " " + type + " model", model) || !model || model == "bmp")
+				if (!g_Game.ConfigGetText(path + " " + type + " model", model) || !model || model == "bmp")
 					return false;
 
 				return true;
@@ -165,7 +165,7 @@ class ExpansionGame
 	void OnStart()
 	{
 		//! @note ServerConfigGetInt will return zero in OnMissionFinish, so we cache the value
-		m_InstanceId = GetGame().ServerConfigGetInt("instanceId");
+		m_InstanceId = g_Game.ServerConfigGetInt("instanceId");
 	}
 	
 	// ------------------------------------------------------------
@@ -218,28 +218,28 @@ class ExpansionGame
 	static bool IsMultiplayerClient()
 	{
 		//! Check for `&& IsMultiplayer` is redundant here, comment for clarity
-		return GetGame().IsClient();
+		return g_Game.IsClient();
 	}
 
 	static bool IsMultiplayerServer()
 	{
-		return GetGame().IsServer() && GetGame().IsMultiplayer();
+		return g_Game.IsServer() && g_Game.IsMultiplayer();
 	}
 
 	static bool IsOffline()
 	{
-		return !GetGame().IsMultiplayer();
+		return !g_Game.IsMultiplayer();
 	}
 
 	static bool IsClientOrOffline()
 	{
-		return !GetGame().IsDedicatedServer();
+		return !g_Game.IsDedicatedServer();
 	}
 
 	static bool IsServerOrOffline()
 	{
 		//! Check for `|| !IsMultiplayer` is redundant here, comment for clarity
-		return GetGame().IsServer();
+		return g_Game.IsServer();
 	}
 
 	void Lobotomize(DayZCreatureAI creature)

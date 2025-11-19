@@ -44,7 +44,7 @@ class ExpansionCarKey: ItemBase
 
 	void ~ExpansionCarKey()
 	{		
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		m_AllKeys.RemoveItem(this);
@@ -407,7 +407,7 @@ class ExpansionCarKey: ItemBase
 							if (file)
 							{
 								string vehicleBase;
-								GetGame().ConfigGetBaseName(CFG_VEHICLESPATH + " " + vehicleType, vehicleBase);
+								g_Game.ConfigGetBaseName(CFG_VEHICLESPATH + " " + vehicleType, vehicleBase);
 								FPrintln(file, "Can't create keychain on " + vehicleType + " because the 'KeyChain' slot is missing. Add the following config.cpp to your serverpack to enable keychain creation (the keychain provides additional useful info like vehicle ID):");
 								FPrintln(file, "");
 								FPrintln(file, "class CfgPatches");

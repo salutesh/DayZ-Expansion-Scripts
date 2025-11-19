@@ -88,7 +88,7 @@ class ExpansionBookMenuTabServerInfo: ExpansionBookMenuTabBase
 	void SetServerInfo()
 	{
 		//! Get and set basic server information
-		MenuData menu_data = GetGame().GetMenuData();
+		MenuData menu_data = g_Game.GetMenuData();
 		GetServersResultRow info = OnlineServices.GetCurrentServerInfo();
 		if (info)
 		{

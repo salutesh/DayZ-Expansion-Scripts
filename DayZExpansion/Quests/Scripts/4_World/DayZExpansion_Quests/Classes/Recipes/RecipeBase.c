@@ -64,7 +64,7 @@ modded class RecipeBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 			return;
 
 		if (s_Expansion_AssignedQuestObjectives.Count() == 0)

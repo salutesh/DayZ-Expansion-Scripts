@@ -31,7 +31,7 @@ modded class ExpansionWorldObjectsModule
  	{
 		super.OnMissionStart(sender, args);
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		string worldName = ExpansionStatic.GetCanonicalWorldName();
@@ -54,7 +54,7 @@ modded class ExpansionWorldObjectsModule
 
 		super.OnMissionLoaded(sender, args);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			ExpansionLampLightBase.LateInitLamps();
 	}
 
@@ -94,7 +94,7 @@ modded class ExpansionWorldObjectsModule
 
 		m_LightGenerators.Insert( position );
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			SI_LampEnable.Invoke( position );
 		} else
@@ -113,7 +113,7 @@ modded class ExpansionWorldObjectsModule
 
 		m_LightGenerators.RemoveItem( position );
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			SI_LampDisable.Invoke( position );
 		} 

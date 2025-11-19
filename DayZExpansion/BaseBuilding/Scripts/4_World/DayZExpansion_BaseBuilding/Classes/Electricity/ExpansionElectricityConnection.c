@@ -127,7 +127,7 @@ class ExpansionElectricityConnection: ExpansionElectricityBase
 		
 		if ( m_IsPaired )
 		{
-			m_Source = ItemBase.Cast( GetGame().GetEntityByPersitentID( m_SourceA, m_SourceB, m_SourceC, m_SourceD ) );
+			m_Source = ItemBase.Cast( g_Game.GetEntityByPersitentID( m_SourceA, m_SourceB, m_SourceC, m_SourceD ) );
 
 			if ( m_Source )
 			{
@@ -169,7 +169,7 @@ class ExpansionElectricityConnection: ExpansionElectricityBase
 		if ( m_IsPaired )
 		{
 
-			m_Source = ItemBase.Cast( GetGame().GetObjectByNetworkId( m_SourceNetLow, m_SourceNetHigh ) );
+			m_Source = ItemBase.Cast( g_Game.GetObjectByNetworkId( m_SourceNetLow, m_SourceNetHigh ) );
 
 			if ( prev_source != m_Source )
 			{

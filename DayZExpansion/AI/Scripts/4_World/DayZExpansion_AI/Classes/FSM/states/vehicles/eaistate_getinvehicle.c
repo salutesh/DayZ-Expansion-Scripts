@@ -15,7 +15,7 @@ class eAIState_GetInVehicle : eAIState_GoToVehicle
 	{
 		super.OnUpdate(DeltaTime, SimulationPrecision);
 
-		auto vehCmd = unit.GetCommand_VehicleAI();
+		auto vehCmd = unit.GetCommand_Vehicle();
 
 		if (!vehCmd && m_Transport && !unit.IsInTransport() && !unit.eAI_GetTransport())
 		{

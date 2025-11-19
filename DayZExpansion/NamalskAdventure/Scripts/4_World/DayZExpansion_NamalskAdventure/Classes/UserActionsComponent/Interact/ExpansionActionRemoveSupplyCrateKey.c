@@ -75,13 +75,13 @@ class ExpansionActionRemoveSupplyCrateKey: ActionInteractBase
 			ExDebugPrint("::OnExecuteServer - Attached key: " + currentKey.ToString());
 			int healthLvl = currentKey.GetHealthLevel();
 			string keyType = currentKey.GetType();
-			GetGame().ObjectDelete(currentKey);
+			g_Game.ObjectDelete(currentKey);
 
 			Expansion_SupplyCrate_Key_Base newKey = Expansion_SupplyCrate_Key_Base.Cast(action_data.m_Player.GetHumanInventory().CreateInHands(keyType));
 			newKey.AddHealthLevel(healthLvl + KEY_HEALTH_DELTA);
 			
 			if (newKey.IsRuined())
-				GetGame().ObjectDelete(newKey);
+				g_Game.ObjectDelete(newKey);
 			
 			if (action_data.m_Player.GetItemInHands())
 			{

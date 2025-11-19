@@ -2,10 +2,7 @@ class CfgPatches
 {
 	class DayZExpansion_Objects_Explosives_Licensed
 	{
-		units[]=
-		{
-			"ExpansionSatchel"
-		};
+		units[]={};
 		weapons[]={};
 		requiredVersion=0.1;
 		requiredAddons[]=

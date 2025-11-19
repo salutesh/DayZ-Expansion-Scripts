@@ -7,15 +7,6 @@ class CfgPatches
 		{
 			"DZ_Data"
 		};
-		units[]=
-		{
-			"ExpansionFloorKit",
-			"ExpansionRoofKit",
-			"ExpansionFloor6x6",
-			"ExpansionFloor3x3",
-			"ExpansionFloor3x6"
-		};
-		weapons[]={};
 	};
 };
 class CfgVehicles

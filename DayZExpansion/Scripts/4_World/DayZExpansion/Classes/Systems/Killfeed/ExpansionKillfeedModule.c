@@ -46,7 +46,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		CF_Modules<JMWebhookModule>.Get(m_Webhook);
 #endif
 
-		m_Expansion_SurvivorDisplayName = GetGame().ConfigGetTextOut(CFG_VEHICLESPATH + " SurvivorBase displayName");
+		m_Expansion_SurvivorDisplayName = g_Game.ConfigGetTextOut(CFG_VEHICLESPATH + " SurvivorBase displayName");
 	}
 
 #ifdef JM_COT
@@ -476,7 +476,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		string icon;
 
 		//! Check if player died as driver in vehicle
-		if ( ExpansionVehicle.Get( vehicle, player ) && GetGame().GetTickTime() - vehicle.GetCrewKilledTimestamp() < 0.1 )
+		if ( ExpansionVehicle.Get( vehicle, player ) && g_Game.GetTickTime() - vehicle.GetCrewKilledTimestamp() < 0.1 )
 		{
 			Human driver = vehicle.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
 			if (driver && driver != player)
@@ -731,7 +731,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 	//! @note Called on Server
 	private void KillFeedMessage( ExpansionKillFeedMessageType type, string icon, string param1 = "", string param2 = "", string param3 = "", string param4 = "")
 	{
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
 			ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData(type, icon, param1, param2, param3, param4);
 
@@ -1020,7 +1020,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 			}
 			else if ( GetExpansionSettings().GetNotification(false).KillFeedMessageType == ExpansionAnnouncementType.CHAT )
 			{
-				GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", "#STR_EXPANSION_KILLFEED_TITLE" + " - " + loc.Format(), "" ) );
+				g_Game.GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", "#STR_EXPANSION_KILLFEED_TITLE" + " - " + loc.Format(), "" ) );
 			}
 		}
 	}

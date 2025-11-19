@@ -52,7 +52,7 @@ class Expansion_Bunker_Generator: House
 
 	void ~Expansion_Bunker_Generator()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 		
 		#ifdef EXTRACE
@@ -98,7 +98,7 @@ class Expansion_Bunker_Generator: House
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
 
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (g_Game.IsClient() || !g_Game.IsMultiplayer())
 		{
 			if (GetCompEM().IsWorking())
 			{
@@ -119,7 +119,7 @@ class Expansion_Bunker_Generator: House
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
 
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (g_Game.IsClient() || !g_Game.IsMultiplayer())
 		{
 			if (IsInitialized())
 			{
@@ -137,7 +137,7 @@ class Expansion_Bunker_Generator: House
 			}
 		}
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			m_UTSource.SetDefferedActive(true, 20.0);
 
@@ -158,12 +158,12 @@ class Expansion_Bunker_Generator: House
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			m_UTSource.Update(m_UTSSettings, m_UTSLEngine);
 		}
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			SetSynchDirty();
 		}
@@ -175,7 +175,7 @@ class Expansion_Bunker_Generator: House
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
 
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (g_Game.IsClient() || !g_Game.IsMultiplayer())
 		{
 			//! Sound
 			PlaySoundSet(m_EngineStop, STOP_SOUND, 0, 0);
@@ -185,7 +185,7 @@ class Expansion_Bunker_Generator: House
 			SEffectManager.DestroyEffect(m_Smoke);
 		}
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			m_UTSource.SetDefferedActive(false, 20.0);
 
@@ -213,7 +213,7 @@ class Expansion_Bunker_Generator: House
 			GetCompEM().SetEnergy(500);
 			GetCompEM().SwitchOn();
 
-			if (GetGame().IsServer())
+			if (g_Game.IsServer())
 			{
 				int slot_id_key = InventorySlots.GetSlotIdFromString("Att_ExpansionGeneratorKey");
 				GetInventory().SetSlotLock(slot_id_key, true);
@@ -239,7 +239,7 @@ class Expansion_Bunker_Generator: House
 		{
 			GetCompEM().SwitchOff();
 
-			if (GetGame().IsServer())
+			if (g_Game.IsServer())
 			{
 				int slot_id_key = InventorySlots.GetSlotIdFromString("Att_ExpansionGeneratorKey");
 				GetInventory().SetSlotLock(slot_id_key, false);
@@ -355,7 +355,7 @@ class Expansion_Bunker_Generator: House
 
 		super.AfterStoreLoad();
 
-		GetGame().ObjectDelete(this);
+		g_Game.ObjectDelete(this);
 	}
 
 	protected void ExDebugPrint(string text)

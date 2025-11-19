@@ -45,7 +45,7 @@ class ExpansionBulletTrace
 		if ( m_Object == NULL )
 			return true;
 		
-		float time = GetGame().GetTickTime();
+		float time = g_Game.GetTickTime();
 		float delta = ( time - m_PreviousTime );
 		m_PreviousTime = time;
 		

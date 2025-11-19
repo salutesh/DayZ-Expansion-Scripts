@@ -376,7 +376,7 @@ class ExpansionRPCManager
 
 		if (!rpcID)
 		{
-			if (!GetGame().IsMultiplayer())
+			if (!g_Game.IsMultiplayer())
 				rpcID = m_TypeMapping.m_RegisteredClientRPCIDs[fn];
 
 			if (!rpcID)
@@ -401,7 +401,7 @@ class ExpansionRPCManager
 	#endif
 	#else
 		fn = m_TypeMapping.m_RegisteredClientRPCs[rpcID];
-		if (!fn && !GetGame().IsMultiplayer() && !GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu())
+		if (!fn && !g_Game.IsMultiplayer() && !GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu())
 			fn = m_TypeMapping.m_RegisteredServerRPCs[rpcID];
 	#ifdef EXPANSION_RPCMANAGER_TRACE
 		EXTrace.Print(EXTrace.PROFILING, this, "::GetRPCName CLIENT " + rpcID + " " + fn);
@@ -555,7 +555,7 @@ class ExpansionRPCManager
 	#endif
 
 		auto params = new Param3<PlayerIdentity, Object, ParamsReadContext>(sender, target, ctx);
-		GetGame().GameScript.CallFunctionParams(instance, fn, null, params);
+		g_Game.GameScript.CallFunctionParams(instance, fn, null, params);
 
 		return true;
 	}
@@ -586,7 +586,7 @@ class ExpansionRPCManager
 	#endif
 
 		auto params = new Param2<PlayerIdentity, ParamsReadContext>(sender, ctx);
-		GetGame().GameScript.CallFunctionParams(instance, fn, null, params);
+		g_Game.GameScript.CallFunctionParams(instance, fn, null, params);
 
 		return true;
 	}

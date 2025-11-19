@@ -75,7 +75,7 @@ class ExpansionPathHandler
 		m_BlockFilter = ExpansionPathFilters.GetInstance().m_BlockFilter;
 		m_AllFilter = ExpansionPathFilters.GetInstance().m_AllFilter;
 
-		m_AIWorld = GetGame().GetWorld().GetAIWorld();
+		m_AIWorld = g_Game.GetWorld().GetAIWorld();
 
 		m_Current = new ExpansionPathPoint();
 		m_Target = new ExpansionPathPoint();
@@ -612,8 +612,8 @@ class ExpansionPathHandler
 				else
 				{
 					vector leaderPos = m_Unit.GetGroup().GetFormationLeader().GetPosition();
-					leaderPos[1] = GetGame().SurfaceY(leaderPos[0], leaderPos[2]);
-					if (GetGame().GetWaterDepth(leaderPos) < 2.0)
+					leaderPos[1] = g_Game.SurfaceY(leaderPos[0], leaderPos[2]);
+					if (g_Game.GetWaterDepth(leaderPos) < 2.0)
 						isFormationLeaderOnGround = true;
 				}
 			*/
@@ -629,7 +629,7 @@ class ExpansionPathHandler
 					//inPos = oldPos;
 					m_IsTargetUnreachable = true;
 				}
-				else if (GetGame().GetWaterDepth(inPos) > 1.5 && !m_IsSwimmingEnabled && m_Unit.GetCurrentWaterLevel() < -0.5 && !m_Unit.m_eAI_EffectArea)
+				else if (g_Game.GetWaterDepth(inPos) > 1.5 && !m_IsSwimmingEnabled && m_Unit.GetCurrentWaterLevel() < -0.5 && !m_Unit.m_eAI_EffectArea)
 				{
 				#ifdef DIAG_DEVELOPER
 					if (!m_IsTargetUnreachable)

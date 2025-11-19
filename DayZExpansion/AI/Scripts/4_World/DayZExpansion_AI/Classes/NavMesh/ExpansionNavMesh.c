@@ -259,8 +259,8 @@ class ExpansionNavMesh
 
 	vector GetPositionAtCursor(Object ignore)
 	{
-		vector dir = GetGame().GetCurrentCameraDirection();
-		vector from = GetGame().GetCurrentCameraPosition();
+		vector dir = g_Game.GetCurrentCameraDirection();
+		vector from = g_Game.GetCurrentCameraPosition();
 
 		PhxInteractionLayers layerMask;
 
@@ -284,7 +284,7 @@ class ExpansionNavMesh
 	void DebugScripts()
 	{		
 		DayZPlayerImplement player;
-		if (!Class.CastTo(player, GetGame().GetPlayer()))
+		if (!Class.CastTo(player, g_Game.GetPlayer()))
 			return;
 
 		vector cursorPosition = g_Expansion_Car.WorldToModel(GetPositionAtCursor(player));

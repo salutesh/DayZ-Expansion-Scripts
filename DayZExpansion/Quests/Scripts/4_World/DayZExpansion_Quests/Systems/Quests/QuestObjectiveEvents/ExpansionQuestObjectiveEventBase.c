@@ -33,7 +33,7 @@ class ExpansionQuestObjectiveEventBase
 
 	void ~ExpansionQuestObjectiveEventBase()
 	{
-		if (GetGame())
+		if (g_Game)
 		{
 #ifdef EXTRACE
 			auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -116,16 +116,16 @@ class ExpansionQuestObjectiveEventBase
 #endif
 				
 		//! Call MissionBase::Expansion_OnObjectiveTimeLimitReached for override in init.c
-		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnObjectiveTimeLimitReached(this);
+		MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_OnObjectiveTimeLimitReached(this);
 		
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.OnTimeLimitReached);
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.SyncTimeLimitTime);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.OnTimeLimitReached);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.SyncTimeLimitTime);
 		m_TimeLimit = -1;
 
 		//! @Steve - Note: We call this in the next frame because otherwise calling m_Quest.CancelQuest() in the same frame causes a server crash for no simple reason?!
 		//! Lava said it might be infinite recursion but i cant see the source.
 		if (m_Quest)
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(m_Quest.CancelQuest);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(m_Quest.CancelQuest);
 	}
 
 	//! Event called when objective has a time-limit to update the current remainig time in the persistent quest data of the quest players.
@@ -135,7 +135,7 @@ class ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 #endif
 
-		m_TimeLimit = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(this.OnTimeLimitReached) / 1000;
+		m_TimeLimit = g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(this.OnTimeLimitReached) / 1000;
 
 		if (m_Quest)
 			m_Quest.UpdateQuest(false);
@@ -150,8 +150,8 @@ class ExpansionQuestObjectiveEventBase
 
 		if (m_TimeLimit > -1)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.OnTimeLimitReached, m_TimeLimit * 1000);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.SyncTimeLimitTime, 10 * 1000, true);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.OnTimeLimitReached, m_TimeLimit * 1000);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.SyncTimeLimitTime, 10 * 1000, true);
 		}
 
 		AssignObjectiveOnClasses();
@@ -342,8 +342,8 @@ class ExpansionQuestObjectiveEventBase
 
 		if (m_TimeLimit > -1)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.OnTimeLimitReached);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.SyncTimeLimitTime);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.OnTimeLimitReached);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.SyncTimeLimitTime);
 			m_TimeLimit = -1;
 		}
 
@@ -390,8 +390,8 @@ class ExpansionQuestObjectiveEventBase
 
 		if (m_TimeLimit > -1)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.OnTimeLimitReached);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.SyncTimeLimitTime);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.OnTimeLimitReached);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.SyncTimeLimitTime);
 			m_TimeLimit = -1;
 		}
 

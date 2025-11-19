@@ -159,7 +159,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 			}
 			else
 			{
-				ExpansionCodeLockUI menu = ExpansionCodeLockUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_CODELOCK_MENU, NULL ) );
+				ExpansionCodeLockUI menu = ExpansionCodeLockUI.Cast( g_Game.GetUIManager().EnterScriptedMenu( MENU_EXPANSION_CODELOCK_MENU, NULL ) );
 				if ( menu )
 				{
 					menu.SetChangeCodelock( false );

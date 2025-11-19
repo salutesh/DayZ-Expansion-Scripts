@@ -34,7 +34,7 @@ class ExpansionHash
 	bool ObjectIsKindOf(Object object)
 	{
 		TStringArray fullPath = {};
-		GetGame().ConfigGetObjectFullPath(object, fullPath);
+		g_Game.ConfigGetObjectFullPath(object, fullPath);
 	
 		ExpansionHash tmpHash = new ExpansionHash();
 		foreach (string tmp: fullPath)

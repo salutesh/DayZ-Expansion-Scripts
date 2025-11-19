@@ -74,7 +74,7 @@ modded class DayZGame
 	private bool Expansion_UseMouse()
 	{
 		#ifdef PLATFORM_CONSOLE
-		return GetGame().GetInput().IsEnabledMouseAndKeyboardEvenOnServer();
+		return g_Game.GetInput().IsEnabledMouseAndKeyboardEvenOnServer();
 		#else
 		return true;
 		#endif
@@ -83,7 +83,7 @@ modded class DayZGame
 	private bool Expansion_UseKeyboard()
 	{
 		#ifdef PLATFORM_CONSOLE
-		return GetGame().GetInput().IsEnabledMouseAndKeyboardEvenOnServer();
+		return g_Game.GetInput().IsEnabledMouseAndKeyboardEvenOnServer();
 		#else
 		return true;
 		#endif

@@ -59,9 +59,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		EnableInvokeConnect();
 		Expansion_EnableRPCManager();
 
-		//EXPrint(ToString() + "::OnInit - GetGame() " + GetGame());  // OK
-		//EXPrint(ToString() + "::OnInit - GetGame().IsServer() " + GetGame().IsServer());  // true on client during init
-		//EXPrint(ToString() + "::OnInit - GetGame().IsMultiplayer() " + GetGame().IsMultiplayer());  // false on client during init
+		//EXPrint(ToString() + "::OnInit - g_Game " + g_Game);  // OK
+		//EXPrint(ToString() + "::OnInit - g_Game.IsServer() " + g_Game.IsServer());  // true on client during init
+		//EXPrint(ToString() + "::OnInit - g_Game.IsMultiplayer() " + g_Game.IsMultiplayer());  // false on client during init
 
 		m_Stats = new map<string, ref ExpansionSyncedPlayerStats>;
 		m_States = new map<string, ref ExpansionSyncedPlayerStates>;
@@ -236,7 +236,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	private void UpdateStats(string playerID)
 	{
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 			return;
 		
 		ExpansionSyncedPlayerStats stats = m_Stats.Get(playerID);
@@ -295,7 +295,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------		
 	private void UpdateStates(string playerID)
 	{
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 			return;
 		
 		ExpansionSyncedPlayerStates states = m_States.Get(playerID);
@@ -346,7 +346,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "AddPlayerStats");
 #endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 			return;
 				
 		if (!m_Stats.Contains(playerID)) //! RemovePlayerStats would never be called if AddPlayerStats was called twice (logout cancelled or reconnected in time)
@@ -366,7 +366,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "AddPlayerStates");
 #endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 			return;
 		
 		if (!m_States.Contains(playerID)) //! RemovePlayerStates would never be called if AddPlayerStats was called twice (logout cancelled or reconnected in time)
@@ -386,7 +386,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "RemovePlayerStats");
 #endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 			return;
 		
 		if (m_Stats.Contains(playerID))
@@ -403,7 +403,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "RemovePlayerStates");
 #endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 			return;
 		
 		if (m_States.Contains(playerID))
@@ -444,7 +444,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (!ctx.Read(message))
 			return;
 		
-		GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(ExpansionChatChannels.CCSystem, "", tag.Format() + " - " + message.Format(), ""));
+		g_Game.GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(ExpansionChatChannels.CCSystem, "", tag.Format() + " - " + message.Format(), ""));
 	}
 	
 	// ------------------------------------------------------------
@@ -961,7 +961,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void SyncLastDeathPos(PlayerIdentity identity)
 	{
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 			return;
 
 		if (!identity)

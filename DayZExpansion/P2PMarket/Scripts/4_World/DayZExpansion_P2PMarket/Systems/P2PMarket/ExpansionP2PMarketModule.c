@@ -112,10 +112,10 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
 		#endif
 		
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 			ServerModuleInit();
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 			ClientModuleInit();
 	}
 
@@ -129,7 +129,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			string playerUID = cArgs.Identity.GetId();
 			//! Add counter data instance for connecting player
@@ -176,7 +176,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		#endif 
 		
 		//! Server only
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			m_MarketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
 
@@ -194,7 +194,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
 		#endif 
 		
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 		{
 			m_ListingsInvoker = new ScriptInvoker();
 			m_ListingDetailsInvoker = new ScriptInvoker();
@@ -577,7 +577,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	protected void CreateDefaultP2PTraderConfig()
 	{
 		string worldname;
-		GetGame().GetWorldName(worldname);
+		g_Game.GetWorldName(worldname);
 		worldname.ToLower();
 
 		vector mapPos = GetDayZGame().GetWorldCenterPosition();
@@ -2013,7 +2013,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 						continue;
 
 					carKey.Unpair(true);
-					GetGame().ObjectDelete(carKey);
+					g_Game.ObjectDelete(carKey);
 				}
 
 				vehicle.ResetKeyPairing();
@@ -2619,7 +2619,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			GetExpansionSettings().GetLog().PrintLog("[P2P Market] Player \"" + identity.GetName() + "\" (id=" + identity.GetId() + ")" + " has purchased \"" + typeName + "\" for a price of " + messagePriceStringLog + " (globalID=" + globalIDText + ")");
 		}
 		
-		MissionBaseWorld missionWorld = MissionBaseWorld.Cast(GetGame().GetMission());
+		MissionBaseWorld missionWorld = MissionBaseWorld.Cast(g_Game.GetMission());
 		if (missionWorld)
 		{
 			missionWorld.Expansion_OnP2PMarketPurchase(playerUID, messagePrice, loadedEntity);
@@ -2677,14 +2677,14 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 				priceString = ExpansionMarketModule.GetDisplayPriceEx(price);
 				int salesCount = option;
 				localiser = new CF_Localiser("STR_EXPANSION_MARKET_P2P_MSG_TOTAL_SOLD_NOTIFIER", priceString, salesCount.ToString());
-				GetGame().Chat(localiser.Format(), "colorAction");
+				g_Game.Chat(localiser.Format(), "colorAction");
 				break;
 
 			case ExpansionP2PMarketModuleCallback.MsgItemGotSold:
 				string displayName = ExpansionStatic.GetItemDisplayNameWithType(type);
 				priceString = ExpansionMarketModule.GetDisplayPriceEx(price);
 				localiser = new CF_Localiser("STR_EXPANSION_MARKET_P2P_MSG_ITEM_GOT_SOLD_NOTIFIER", displayName, priceString);
-				GetGame().Chat(localiser.Format(), "colorAction");
+				g_Game.Chat(localiser.Format(), "colorAction");
 				m_CallbackInvoker.Invoke(callback);
 				break;
 
@@ -2718,7 +2718,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 	bool CheckCanUseTrader(PlayerBase player, ExpansionP2PMarketTraderConfig trader)
 	{
 		#ifdef ENFUSION_AI_PROJECT
-		if (GetGame().IsServer() && trader.m_RequiredFaction != "")
+		if (g_Game.IsServer() && trader.m_RequiredFaction != "")
 		{
 			if (!player.GetGroup() || player.GetGroup().GetFaction().GetName() != trader.m_RequiredFaction)
 			{
@@ -3255,7 +3255,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 
 	static string GetP2PMarketDataDirectory()
 	{
-		int instanceID = GetGame().ServerConfigGetInt("instanceId");
+		int instanceID = g_Game.ServerConfigGetInt("instanceId");
 		return "$mission:storage_" + instanceID + "\\expansion\\p2pmarket\\";
 	}
 	

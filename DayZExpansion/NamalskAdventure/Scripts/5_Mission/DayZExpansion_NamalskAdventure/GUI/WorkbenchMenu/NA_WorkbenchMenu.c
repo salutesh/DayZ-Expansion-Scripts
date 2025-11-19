@@ -405,7 +405,7 @@ class NA_WorkbenchMenuRecipe: ExpansionScriptView
 				{
 					EntityAI attachment = preview.GetInventory().GetAttachmentFromIndex(i);
 					if (attachment)
-						GetGame().ObjectDelete(attachment);
+						g_Game.ObjectDelete(attachment);
 				}
 
 				return;
@@ -413,13 +413,13 @@ class NA_WorkbenchMenuRecipe: ExpansionScriptView
 			else
 			{
 				//! Different classname, delete old preview object
-				GetGame().ObjectDelete(preview);
+				g_Game.ObjectDelete(preview);
 			}
 		}
 
-		if (!GetGame().IsKindOf(className, "DZ_LightAI"))
+		if (!g_Game.IsKindOf(className, "DZ_LightAI"))
 		{
-			preview = EntityAI.Cast(GetGame().CreateObjectEx(className, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
+			preview = EntityAI.Cast(g_Game.CreateObjectEx(className, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
 		#ifdef EXPANSIONMODHARDLINE
 			ItemBase item;
 			if (GetExpansionSettings().GetHardline().EnableItemRarity && Class.CastTo(item, preview))

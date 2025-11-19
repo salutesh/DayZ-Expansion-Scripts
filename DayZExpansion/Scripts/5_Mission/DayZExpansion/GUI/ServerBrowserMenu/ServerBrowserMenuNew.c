@@ -92,15 +92,15 @@ modded class ServerBrowserMenuNew
 
 		if (ip && port)
 		{
-			GetGame().SetProfileString("ExpansionDirectConnectIP", ip);
-			GetGame().SetProfileString("ExpansionDirectConnectPort", port.ToString());
-			GetGame().SaveProfile();
+			g_Game.SetProfileString("ExpansionDirectConnectIP", ip);
+			g_Game.SetProfileString("ExpansionDirectConnectPort", port.ToString());
+			g_Game.SaveProfile();
 
 			g_Game.ConnectFromServerBrowser( ip, port, "" );
 		}
 		else if ( !ip || !port )
 		{
-			GetGame().GetUIManager().ShowDialog( "#STR_EXPANSION_DIRECT_CONNECT_DIALOG_TITLE", "#STR_EXPANSION_DIRECT_CONNECT_ERROR", EXPANSION_IDC_Int_DIRECT, DBT_OK, DBB_NONE, DMT_INFO, GetGame().GetUIManager().GetMenu() );
+			g_Game.GetUIManager().ShowDialog( "#STR_EXPANSION_DIRECT_CONNECT_DIALOG_TITLE", "#STR_EXPANSION_DIRECT_CONNECT_ERROR", EXPANSION_IDC_Int_DIRECT, DBT_OK, DBB_NONE, DMT_INFO, g_Game.GetUIManager().GetMenu() );
 		}
 	}
 

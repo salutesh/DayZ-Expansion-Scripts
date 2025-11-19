@@ -49,7 +49,7 @@ modded class MissionGameplay
 				{
 					if (GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding)
 					{
-						if (PlayerBase.Cast(GetGame().GetPlayer()).HasItemGPS())
+						if (PlayerBase.Cast(g_Game.GetPlayer()).HasItemGPS())
 						{
 							ToggleHUDGPSMode();
 						}
@@ -74,7 +74,7 @@ modded class MissionGameplay
 					{
 						if (GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding)
 						{			
-							if (PlayerBase.Cast(GetGame().GetPlayer()).HasItemGPS())
+							if (PlayerBase.Cast(g_Game.GetPlayer()).HasItemGPS())
 							{
 								m_Hud.SetHasGPSItem(true);
 								m_Hud.ToggleHUDGPS();
@@ -143,7 +143,7 @@ modded class MissionGameplay
 					if (!visibility)
 					{
 						//! We are restoring previous visibility
-						GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLE_ALL_SHOW", ""));
+						g_Game.GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLE_ALL_SHOW", ""));
 					}
 
 					if (!visibility && !previousVisibility)
@@ -166,7 +166,7 @@ modded class MissionGameplay
 					else
 					{
 						//! Default behavior when any shown. Hide markers.
-						GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLE_ALL_HIDE", ""));
+						g_Game.GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLE_ALL_HIDE", ""));
 						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
 						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
@@ -229,12 +229,12 @@ modded class MissionGameplay
 		{
 			if ((m_MarkerModule.GetVisibility(type) & EXPANSION_MARKER_VIS_WORLD) == 0)
 			{
-				GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", string.Format("#STR_EXPANSION_MARKERTOGGLE_%1_SHOW", name), ""));
+				g_Game.GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", string.Format("#STR_EXPANSION_MARKERTOGGLE_%1_SHOW", name), ""));
 				m_MarkerModule.SetVisibility(type, EXPANSION_MARKER_VIS_WORLD);
 			}
 			else
 			{
-				GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", string.Format("#STR_EXPANSION_MARKERTOGGLE_%1_HIDE", name), ""));
+				g_Game.GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", string.Format("#STR_EXPANSION_MARKERTOGGLE_%1_HIDE", name), ""));
 				m_MarkerModule.RemoveVisibility(type, EXPANSION_MARKER_VIS_WORLD);
 			}
 
@@ -302,7 +302,7 @@ modded class MissionGameplay
 
 		auto settings = GetExpansionSettings().GetMap();
 
-		if (!GetGame().GetUIManager().GetMenu() && settings.CanOpenMapWithKeyBinding)
+		if (!g_Game.GetUIManager().GetMenu() && settings.CanOpenMapWithKeyBinding)
 		{
 			if (settings.NeedMapItemForKeyBinding)
 			{
@@ -327,11 +327,11 @@ modded class MissionGameplay
 				{
 					if (m_Expansion_MapMenu)
 					{
-						GetGame().GetUIManager().ShowScriptedMenu(m_Expansion_MapMenu, NULL);
+						g_Game.GetUIManager().ShowScriptedMenu(m_Expansion_MapMenu, NULL);
 					}
 					else
 					{
-						m_Expansion_MapMenu = MapMenu.Cast(GetGame().GetUIManager().EnterScriptedMenu(MENU_MAP, NULL));
+						m_Expansion_MapMenu = MapMenu.Cast(g_Game.GetUIManager().EnterScriptedMenu(MENU_MAP, NULL));
 					}
 				}
 			}
@@ -348,11 +348,11 @@ modded class MissionGameplay
 				{
 					if (m_Expansion_ExpansionMapMenu)
 					{
-						GetGame().GetUIManager().ShowScriptedMenu(m_Expansion_ExpansionMapMenu, NULL);
+						g_Game.GetUIManager().ShowScriptedMenu(m_Expansion_ExpansionMapMenu, NULL);
 					}
 					else
 					{
-						m_Expansion_ExpansionMapMenu = ExpansionMapMenu.Cast(GetGame().GetUIManager().EnterScriptedMenu(MENU_EXPANSION_MAP, NULL));
+						m_Expansion_ExpansionMapMenu = ExpansionMapMenu.Cast(g_Game.GetUIManager().EnterScriptedMenu(MENU_EXPANSION_MAP, NULL));
 					}
 				}
 			}

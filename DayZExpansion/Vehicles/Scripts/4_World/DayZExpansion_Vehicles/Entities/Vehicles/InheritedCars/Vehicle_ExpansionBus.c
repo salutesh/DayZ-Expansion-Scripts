@@ -101,7 +101,7 @@ class Vehicle_ExpansionBus: ExpansionVehicleCarBase
 
 	override void UpdateLights(int new_gear = -1)
 	{
-		if (!GetGame().IsServer() || !GetGame().IsMultiplayer()) // client side
+		if (!g_Game.IsServer() || !g_Game.IsMultiplayer()) // client side
 		{
 			ItemBase battery;
 

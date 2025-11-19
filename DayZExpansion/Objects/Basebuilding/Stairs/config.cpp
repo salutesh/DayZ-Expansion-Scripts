@@ -7,12 +7,6 @@ class CfgPatches
 		{
 			"DZ_Data"
 		};
-		units[]=
-		{
-			"ExpansionStairKit",
-			"ExpansionStairS1_5x3x3"
-		};
-		weapons[]={};
 	};
 };
 class CfgVehicles

@@ -16,7 +16,7 @@ modded class ExpansionCodeLock
 	{
 		super.ExpansionUnlock();
 
-		if (GetGame().IsServer() && GetInventory().IsAttachment())
+		if (g_Game.IsServer() && GetInventory().IsAttachment())
 		{
 			ItemBase parent;
 			if (Class.CastTo(parent, GetHierarchyParent()) && parent.Expansion_CanUseVirtualStorage(true))
@@ -26,7 +26,7 @@ modded class ExpansionCodeLock
 
 	override void ExpansionLock()
 	{
-		if (GetGame().IsServer() && GetInventory().IsAttachment())
+		if (g_Game.IsServer() && GetInventory().IsAttachment())
 		{
 			ItemBase parent;
 			if (Class.CastTo(parent, GetHierarchyParent()) && parent.Expansion_CanUseVirtualStorage())

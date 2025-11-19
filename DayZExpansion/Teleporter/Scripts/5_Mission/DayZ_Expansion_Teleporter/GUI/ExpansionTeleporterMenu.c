@@ -89,11 +89,11 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 		if (!m_TeleporterClientData)
 			return;
 		
-		vector playerPos = GetGame().GetPlayer().GetPosition();
-		GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(SetMapPosition, 100, false, playerPos);
+		vector playerPos = g_Game.GetPlayer().GetPosition();
+		g_Game.GetCallQueue(CALL_CATEGORY_GUI).CallLater(SetMapPosition, 100, false, playerPos);
 		
 		m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow(PositionMapPanel, PositionMap, true);
-		m_PlayerArrowMarker.SetName(GetGame().GetPlayer().GetIdentity().GetName());
+		m_PlayerArrowMarker.SetName(g_Game.GetPlayer().GetIdentity().GetName());
 		m_PlayerArrowMarker.Show();
 
 		m_LocationMarker = new ExpansionTeleporterMenuMarker(TeleportMapPanel, TeleportMap, true);
@@ -258,7 +258,7 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 			vector tempPos = randomPos.GetPosition();
 			string displayName;
 			displayName = pos.GetDisplayName();
-			GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(SetLocationMapPosition, 100, false, tempPos, displayName);
+			g_Game.GetCallQueue(CALL_CATEGORY_GUI).CallLater(SetLocationMapPosition, 100, false, tempPos, displayName);
 		}
 	}
 	

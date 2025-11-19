@@ -19,12 +19,12 @@ modded class TerritoryFlagKit
 			m_AdminLog.OnPlacementComplete(player, this);
 		}
 
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
 			//Create TerritoryFlag
 			PlayerBase player_base = PlayerBase.Cast( player );
 			
-			TerritoryFlag totem = TerritoryFlag.Cast( GetGame().CreateObjectEx( "TerritoryFlag", GetPosition(), ECE_PLACE_ON_SURFACE ) );
+			TerritoryFlag totem = TerritoryFlag.Cast( g_Game.CreateObjectEx( "TerritoryFlag", GetPosition(), ECE_PLACE_ON_SURFACE ) );
 			totem.SetPosition( position );
 			totem.SetOrientation( orientation );
 			totem.SetOwnerID( player_base.GetIdentityUID() );

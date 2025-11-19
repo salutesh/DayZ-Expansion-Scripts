@@ -5,7 +5,7 @@ modded class CarScript
 
 	void CarScript()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
 	}
 

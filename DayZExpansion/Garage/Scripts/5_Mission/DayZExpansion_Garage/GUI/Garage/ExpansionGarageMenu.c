@@ -161,7 +161,7 @@ class ExpansionGarageMenu: ExpansionScriptViewMenu
 	void UpdatePlayerCurrency()
 	{		
 		array<int> monies = new array<int>;
-		int worth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies);	
+		int worth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(g_Game.GetPlayer()), monies);	
 		
 		string currencyPlayerTotalMoneyString = ExpansionStatic.IntToCurrencyString(worth, ",");
 		m_GarageMenuController.PlayerMoney = currencyPlayerTotalMoneyString + " #STR_EXPANSION_GARAGE_MENU_CURRENCY_TOTAL";

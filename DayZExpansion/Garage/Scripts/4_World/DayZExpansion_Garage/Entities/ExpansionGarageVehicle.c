@@ -18,7 +18,7 @@ class ExpansionGarageVehicle: ExpansionEntityStoragePlaceholder
 	{
 		super.DeferredInit();
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			m_Expansion_GaragePosition = ExpansionStatic.GetSurfacePosition(GetPosition()) - "0 1 0";
 			SetPosition(m_Expansion_GaragePosition);

@@ -83,13 +83,13 @@ modded class MissionGameplay
 			return;
 		}
 
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 
 		bool isAliveConscious;
 		if (player && player.GetPlayerState() == EPlayerStates.ALIVE && !player.IsUnconscious())
 			isAliveConscious = true;
 
-		Input input = GetGame().GetInput();
+		Input input = g_Game.GetInput();
 
 		//! Checking for keyboard focus
 		Widget focus = GetFocus();

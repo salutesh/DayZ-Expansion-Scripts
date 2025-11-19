@@ -26,7 +26,7 @@ modded class ItemBase
 	{
 		RegisterNetSyncVariableBool( "m_Expansion_IsAttached" );
 
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
+		g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
 
 		//SetEventMask(EntityEvent.CONTACT);
 	}
@@ -128,12 +128,12 @@ modded class ItemBase
 		
 		if ( m_Expansion_IsAttached )
 		{
-			m_Expansion_WorldAttachment = GetGame().GetEntityByPersitentID( m_Expansion_AttachIDA, m_Expansion_AttachIDB, m_Expansion_AttachIDC, m_Expansion_AttachIDD );
+			m_Expansion_WorldAttachment = g_Game.GetEntityByPersitentID( m_Expansion_AttachIDA, m_Expansion_AttachIDB, m_Expansion_AttachIDC, m_Expansion_AttachIDD );
 		
 			//! Same functionality as vanilla, delete if the storage owner is gone to prevent basebuilding appear randomly in the air
 			if ( !m_Expansion_WorldAttachment )
 			{
-				GetGame().ObjectDelete( this );
+				g_Game.ObjectDelete( this );
 			} else
 			{
 				LinkToLocalSpaceOf( m_Expansion_WorldAttachment, m_Expansion_AttachmentTransform );
@@ -225,7 +225,7 @@ modded class ItemBase
 
 		super.OnItemLocationChanged( old_owner, new_owner );
 
-		if ( !GetGame().IsServer() )
+		if ( !g_Game.IsServer() )
 		{
 			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 			Print( "ItemBase::OnItemLocationChanged - End - Not Server" );
@@ -355,7 +355,7 @@ modded class ItemBase
 		Print( "ItemBase::LinkToLocalSpaceOf - Start - Target=" + pParent );
 		#endif
 
-		if ( !GetGame().IsServer() )
+		if ( !g_Game.IsServer() )
 		{
 			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 			Print( "ItemBase::LinkToLocalSpaceOf - End - Not Server" );
@@ -423,7 +423,7 @@ modded class ItemBase
 		Print( "ItemBase::UnlinkFromLocalSpace - Start" );
 		#endif
 
-		if ( !GetGame().IsServer() )
+		if ( !g_Game.IsServer() )
 		{
 			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 			Print( "ItemBase::UnlinkFromLocalSpace - End - Not Server" );
@@ -476,7 +476,7 @@ modded class ItemBase
 
 	void Expansion_PhysicsDrop()
 	{
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		EntityAI parent = GetHierarchyParent();
@@ -510,7 +510,7 @@ modded class ItemBase
 		dst.SetGround(this, transform);
 
 		InventoryMode invMode = InventoryMode.SERVER;
-		if (!GetGame().IsMultiplayer())
+		if (!g_Game.IsMultiplayer())
 			invMode = InventoryMode.LOCAL;
 
 		GetInventory().TakeToDst(invMode, src, dst);

@@ -19,12 +19,12 @@ modded class ExpansionWorld
 		m_Network = new eAIRoadNetwork();
 		//m_Network.Init();
 
-		if (GetGame().IsDedicatedServer())
+		if (g_Game.IsDedicatedServer())
 		{
 			auto settings = GetExpansionSettings().GetAILocation();
 
 			if (settings.RoamingLocations.Count() == 0)
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GenerateRoamingLocations, 10000);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GenerateRoamingLocations, 10000);
 
 			CheckCreateExampleAILootDrop();
 		}
@@ -39,7 +39,7 @@ modded class ExpansionWorld
 		auto settings = GetExpansionSettings().GetAILocation();
 		auto excludedAreas = settings.NoGoAreas;
 
-		int worldSize = GetGame().GetWorld().GetWorldSize();
+		int worldSize = g_Game.GetWorld().GetWorldSize();
 		vector min = Vector(0, -1000, 0);
 		vector max = Vector(worldSize, 1000, worldSize);
 
@@ -93,9 +93,9 @@ modded class ExpansionWorld
 			m_Network.NotifyGenerate(m_NetworkPosition, m_NetworkRadius);
 		}
 		
-		if (GetGame().GetInput().LocalPress("UAFire"))
+		if (g_Game.GetInput().LocalPress("UAFire"))
 		{			
-			vector pos = GetGame().GetCurrentCameraPosition();
+			vector pos = g_Game.GetCurrentCameraPosition();
 			float radius = 500;
 			
 			m_Network.DS_Destroy();
@@ -137,7 +137,7 @@ modded class ExpansionWorld
 	override void OnUpdate(bool doSim, float timeslice)
 	{
 		// don't process if we aren't the server
-		if (!GetGame().IsServer()) return;
+		if (!g_Game.IsServer()) return;
 
 		m_ProcessingTime += timeslice;
 		
@@ -225,7 +225,7 @@ modded class ExpansionWorld
 		if (!directHit)
 			return;
 
-		bool isClient = GetGame().IsClient();
+		bool isClient = g_Game.IsClient();
 
 		//! source is NULL on client
 		if (isClient)
@@ -259,7 +259,7 @@ modded class ExpansionWorld
 		}
 
 		if (isClient)
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ResetFirearmFXSource, 3, false, source);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ResetFirearmFXSource, 3, false, source);
 	}
 
 	void ResetFirearmFXSource(Object source)

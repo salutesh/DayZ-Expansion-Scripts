@@ -7,13 +7,6 @@ class CfgPatches
 		{
 			"DZ_Data"
 		};
-		units[]=
-		{
-			"ExpansionBarrierGateKit",
-			"ExpansionBarrierGateKitPlacing",
-			"ExpansionBarrierGate"
-		};
-		weapons[]={};
 	};
 };
 class CfgVehicles

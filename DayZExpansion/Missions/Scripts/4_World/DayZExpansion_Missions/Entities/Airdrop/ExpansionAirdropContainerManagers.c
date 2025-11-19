@@ -40,7 +40,7 @@ class ExpansionAirdropContainerManagers
 
 	static void DeferredCleanup()
 	{
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( Cleanup, 1000, false );
+		g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( Cleanup, 1000, false );
 	}
 
 	protected static void Cleanup()

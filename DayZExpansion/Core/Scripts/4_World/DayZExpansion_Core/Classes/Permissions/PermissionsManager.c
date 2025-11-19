@@ -29,9 +29,9 @@ class ExpansionPermissionsManager
 
 	bool HasPermission( string permission )
 	{
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
-			Man player = GetGame().GetPlayer();
+			Man player = g_Game.GetPlayer();
 			if (player && player.GetIdentity() )
 				return HasPermission( permission, player.GetIdentity() );
 		}
@@ -48,7 +48,7 @@ class ExpansionPermissionsManager
 			case "Expansion.Territories.Edit":
 			case "Expansion.DayZCreature.Lobotomize":
 				#ifdef VPPADMINTOOLS
-				if (!GetGame().IsDedicatedServer())
+				if (!g_Game.IsDedicatedServer())
 					return IsAdminToolsToggledOn();
 				PermissionManager pm = GetPermissionManager();
 				if (!pm)
@@ -69,7 +69,7 @@ class ExpansionPermissionsManager
 	bool IsAdminToolsToggledOn()
 	{
 		#ifdef VPPADMINTOOLS
-		MissionBaseWorld mission = MissionBaseWorld.Cast(GetGame().GetMission());
+		MissionBaseWorld mission = MissionBaseWorld.Cast(g_Game.GetMission());
 		return mission && mission.VPPAT_AdminToolsToggled();
 		#endif
 

@@ -60,11 +60,11 @@ modded class MissionGameplay
 		super.OnKeyPress(key);
 		
 		ExpansionLockUIBase menu;
-		if (Class.CastTo(menu, GetGame().GetUIManager().FindMenu(MENU_EXPANSION_NUMPAD_MENU)))
+		if (Class.CastTo(menu, g_Game.GetUIManager().FindMenu(MENU_EXPANSION_NUMPAD_MENU)))
 			menu.OnKeyPress(key);
 		
 		menu = NULL;
-		if (Class.CastTo(menu, GetGame().GetUIManager().FindMenu(MENU_EXPANSION_CODELOCK_MENU)))
+		if (Class.CastTo(menu, g_Game.GetUIManager().FindMenu(MENU_EXPANSION_CODELOCK_MENU)))
 			menu.OnKeyPress(key);
 	}
 }

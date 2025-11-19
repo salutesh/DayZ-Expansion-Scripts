@@ -50,7 +50,7 @@ class eAIGroup
 
 	bool m_UpdateSearchPosition;
 	protected bool m_IsInCombat;
-	bool m_DangerousAreaAvoidanceDirection;
+	int m_DangerousAreaAvoidanceDirection;
 
 	bool m_Leave;
 	bool m_ForcePatrolDespawn;
@@ -80,7 +80,7 @@ class eAIGroup
 		DayZPlayerImplement player;
 		eAIGroup group;
 
-		if (Class.CastTo(player, GetGame().GetPlayer()))
+		if (Class.CastTo(player, g_Game.GetPlayer()))
 			group = player.GetGroup();
 
 		return group;
@@ -174,7 +174,7 @@ class eAIGroup
 
 	/*private*/ void ~eAIGroup()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 	#ifdef DIAG_DEVELOPER
@@ -190,7 +190,7 @@ class eAIGroup
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 #endif
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(DeleteGroup, this);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(DeleteGroup, this);
 	}
 
 	void AddWaypoint(vector pos)
@@ -314,7 +314,7 @@ class eAIGroup
 		//! When looting buildings, stay at most 10 minutes (600 seconds) in the area before moving on to next map location
 		float locationTime;
 		if (m_RoamingLocationReachedTimestamp > 0.0)
-			locationTime = GetGame().GetTickTime() - m_RoamingLocationReachedTimestamp;
+			locationTime = g_Game.GetTickTime() - m_RoamingLocationReachedTimestamp;
 
 		BuildingBase building;
 		string buildingType;
@@ -567,7 +567,7 @@ class eAIGroup
 			}
 
 			if (m_VisitedBuildings.Count() == 0 || clearVisitedBuildingsOnLocationReached)
-				m_RoamingLocationReachedTimestamp = GetGame().GetTickTime();
+				m_RoamingLocationReachedTimestamp = g_Game.GetTickTime();
 
 			//! Remove destination from roaming locations if not a helicrash (helicrashes are events and not in roaming locations)
 			if (m_RoamingLocation.Type != "StaticHeliCrash")
@@ -742,7 +742,7 @@ class eAIGroup
 		auto trace = CF_Trace_1(this, "GetFormationPosition").Add(ai);
 #endif
 
-		float time = GetGame().GetTickTime();
+		float time = g_Game.GetTickTime();
 		bool isInitialUpdate = ai.m_eAI_FormationPositionUpdateTime == 0.0;
 		if (time - ai.m_eAI_FormationPositionUpdateTime > Math.RandomFloat(2.0, 4.0) || isInitialUpdate)
 		{
@@ -1003,7 +1003,7 @@ class eAIGroup
 			}
 		}
 	#else
-		if (!GetGame().IsMultiplayer())
+		if (!g_Game.IsMultiplayer())
 		{
 			if (m_Members.Count() > 1)
 				GetDayZGame().GetExpansionGame().SetInGroup(true);

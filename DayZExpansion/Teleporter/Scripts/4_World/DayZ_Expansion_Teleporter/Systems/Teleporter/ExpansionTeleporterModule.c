@@ -80,13 +80,13 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 		m_TeleporterData = new map<int, ref ExpansionTeleportData>;
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			CreateDirectoryStructure();
 			LoadTeleporterServerData();
 		}
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 			ClientModuleInit();
 	}
 
@@ -96,7 +96,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 #endif
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 		{
 			if (!m_TeleporterMenuInvoker)
 				m_TeleporterMenuInvoker = new ScriptInvoker(); //! Client
@@ -255,23 +255,23 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		if (!teleporterObj.IsActive())
 		{
 			teleporterObj.SetActive(true);
-			remaining = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(this.DeactivateTeleporter);
+			remaining = g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(this.DeactivateTeleporter);
 			if (remaining <= 0)
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.DeactivateTeleporter, 30000, false, teleporterObj);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.DeactivateTeleporter, 30000, false, teleporterObj);
 			}
 		}
 		else
 		{
-			remaining = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(this.DeactivateTeleporter);
+			remaining = g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(this.DeactivateTeleporter);
 			if (remaining > 0)
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.DeactivateTeleporter);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.DeactivateTeleporter, 30000, false, teleporterObj);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.DeactivateTeleporter);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.DeactivateTeleporter, 30000, false, teleporterObj);
 			}
 		}
 		
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.RemovePlayerFromTeleporter, 30000, false, teleporterID, playerUID);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.RemovePlayerFromTeleporter, 30000, false, teleporterID, playerUID);
 	}
 	
 	void DeactivateTeleporter(Expansion_Teleporter_Big teleporterObj)
@@ -339,7 +339,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 #endif
 
-		if (!GetGame().IsClient())
+		if (!g_Game.IsClient())
 		{
 			Error(ToString() + "::RequestTeleport - Tryed to call RequestTeleport on Server!");
 			return;
@@ -380,11 +380,11 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		vector position = pos.GetPosition();
 		vector orientation = pos.GetOrientation();
 		if (position[1] == 0)
-			position[1] = GetGame().SurfaceY(position[0], position[2]);
+			position[1] = g_Game.SurfaceY(position[0], position[2]);
 
 		PlayTeleportSound(teleporterObjPos, ExpansionTeleporterSound.TELEPORT_ACTIVE);
 		PlayTeleportSound(position, ExpansionTeleporterSound.TELEPORT_ACTIVE);
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(TeleportPlayer, 9000, false, position, orientation, player, teleporterObjPos);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(TeleportPlayer, 9000, false, position, orientation, player, teleporterObjPos);
 	}
 
 	void TeleportPlayer(vector pos, vector ori, PlayerBase player, vector teleporterObjPos = vector.Zero)
@@ -413,7 +413,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 #endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 		{
 			Error(ToString() + "::ExitTeleport - Tryed to call ExitTeleport on Client!");
 			return;
@@ -436,9 +436,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		vector position = randomPos.GetPosition();
 		vector orientation = randomPos.GetOrientation();
 		if (position[1] == 0)
-			position[1] = GetGame().SurfaceY(position[0], position[2]);
+			position[1] = g_Game.SurfaceY(position[0], position[2]);
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(TeleportPlayer, 200, false, position, orientation, player);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(TeleportPlayer, 200, false, position, orientation, player);
 	}
 
 	//! Server
@@ -448,7 +448,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 #endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 		{
 			Error(ToString() + "::PlayTeleportSound - Tryed to call PlayTeleportSound on Client!");
 			return;

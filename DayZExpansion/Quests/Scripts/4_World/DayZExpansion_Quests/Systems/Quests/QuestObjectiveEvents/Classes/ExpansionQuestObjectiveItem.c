@@ -57,12 +57,12 @@ class ExpansionQuestObjectiveItem
 				ExpansionCarKey.GetKeysForVehicle(vehicle, keys);
 				foreach (ExpansionCarKey key : keys)
 				{
-					GetGame().ObjectDelete(key);
+					g_Game.ObjectDelete(key);
 				}
 			}
 			#endif
 
-			GetGame().ObjectDelete(m_ObjectiveItem);
+			g_Game.ObjectDelete(m_ObjectiveItem);
 			return;
 		}
 

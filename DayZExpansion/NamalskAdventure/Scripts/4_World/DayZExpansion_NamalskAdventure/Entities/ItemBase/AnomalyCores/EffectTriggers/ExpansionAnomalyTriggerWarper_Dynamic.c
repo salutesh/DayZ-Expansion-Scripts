@@ -79,7 +79,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			randomPosition = position;
 		}
 		
-		randomPosition[1] = GetGame().SurfaceY(randomPosition[0], randomPosition[2]);
+		randomPosition[1] = g_Game.SurfaceY(randomPosition[0], randomPosition[2]);
 		vector ori = entityObj.GetOrientation();
 
 		/*if (ExpansionStatic.IsAnyOf(entityObj, s_Items, true))
@@ -90,7 +90,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			
 			//! Get wind values and use it to let the entity fly - TEST
 			float mass;
-			vector wind = GetGame().GetWeather().GetWind();
+			vector wind = g_Game.GetWeather().GetWind();
 			wind[0] = ((wind[0] + 0.1) * 2) / 100;
 			wind[1] = 12.0; //! Let the entity fly 12 meters into the air.
 			wind[2] = ((wind[2] + 0.1) * 2) / 100;
@@ -105,7 +105,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			mass = dBodyGetMass(item);
 			dBodyApplyImpulse(item, mass * wind);
 			
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
 		}
 		else*/ if (ExpansionStatic.IsAnyOf(entityObj, s_Players, true))
 		{
@@ -128,7 +128,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 				DayZPlayerSyncJunctures.ExpansionTeleport(player, randomPosition, ori);
 				PlayFXTarget(randomPosition, player.GetIdentity());
 				
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
 			}
 		}
 		else if (ExpansionStatic.IsAnyOf(entityObj, s_Vehicles, true))
@@ -147,7 +147,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			car.COT_PlaceOnSurfaceAtPosition(randomPosition);
 		#endif
 			
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
 		}
 		/*else if (ExpansionStatic.IsAnyOf(entityObj, s_Animals, true))
 		{
@@ -171,14 +171,14 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			zombie.SetPosition(randomPosition);
 			zombie.SetOrientation(ori);
 			
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
 		}*/
 	}
 
 	protected void PlayFXTarget(vector pos, PlayerIdentity identity)
 	{
 		Param1<vector> p = new Param1<vector>(pos);
-		GetGame().RPCSingleParam(this, Expansion_AnomalyCore_ERPCs.PLAY_TARGET_FX, p, true, identity);
+		g_Game.RPCSingleParam(this, Expansion_AnomalyCore_ERPCs.PLAY_TARGET_FX, p, true, identity);
 	}
 	
 	protected void PlayVFXTarget(vector pos)
@@ -187,10 +187,10 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 		
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if (m_ParticleTarget)
-				GetGame().ObjectDelete(m_ParticleTarget);
+				g_Game.ObjectDelete(m_ParticleTarget);
 						
 			//! Ideally play a one time effect such as an explosion
 			m_ParticleTarget = ParticleManager.GetInstance().PlayInWorld(ParticleList.EXPANSION_PARTICLE_WARPER_ACTIVATE, pos);
@@ -204,13 +204,13 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 		
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			EffectSound soundEffect = SEffectManager.PlaySound("Blowout_Teleport", pos, 0, 0, false);
 			if (!soundEffect)
 				return;
 	
-			soundEffect.SetParent(GetGame().GetPlayer());
+			soundEffect.SetParent(g_Game.GetPlayer());
 			soundEffect.SetSoundAutodestroy(true);
 		}
 	}
@@ -219,7 +219,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 	{
 		super.OnRPC(sender, rpc_type, ctx);
 		
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			switch (rpc_type)
 			{

@@ -73,7 +73,7 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 		m_QuestMenuLogEntryController.NotifyPropertyChanged("QuestIconPath");
 
 		MissionGameplay mission;
-		if (!Class.CastTo(mission, GetGame().GetMission()))
+		if (!Class.CastTo(mission, g_Game.GetMission()))
 			return;
 
 		ExpansionQuestHUD questHUD = mission.GetQuestHUD();
@@ -149,7 +149,7 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 			return;
 
 		MissionGameplay mission;
-		if (!Class.CastTo(mission, GetGame().GetMission()))
+		if (!Class.CastTo(mission, g_Game.GetMission()))
 			return;
 
 		ExpansionQuestHUD questHUD = mission.GetQuestHUD();

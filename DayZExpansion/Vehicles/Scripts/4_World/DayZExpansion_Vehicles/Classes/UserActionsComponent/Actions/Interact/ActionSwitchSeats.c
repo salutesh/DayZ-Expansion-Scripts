@@ -16,7 +16,7 @@ modded class ActionSwitchSeats
 	{
 		super.Start(action_data);
 
-		if (GetGame().IsServer() && action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEnter)
+		if (g_Game.IsServer() && action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEnter)
 		{
 			auto vehicle = ExpansionVehicle.Get(action_data.m_Target.GetObject());
 			if (vehicle)

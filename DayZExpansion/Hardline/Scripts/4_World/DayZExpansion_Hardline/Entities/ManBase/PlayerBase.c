@@ -197,7 +197,7 @@ modded class PlayerBase
 		EXTrace.Add(trace, newFactionTypeID);
 	#endif
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		if (!GetIdentity())
@@ -245,7 +245,7 @@ modded class PlayerBase
 			if (!saved)
 				Expansion_SaveHardlineData(true);
 
-			MissionBaseWorld missionWorld = MissionBaseWorld.Cast(GetGame().GetMission());
+			MissionBaseWorld missionWorld = MissionBaseWorld.Cast(g_Game.GetMission());
 			if (missionWorld)
 			{
 				missionWorld.Expansion_OnPlayerFactionChange(this, oldFactionTypeID, newFactionTypeID);

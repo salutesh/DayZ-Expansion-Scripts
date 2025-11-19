@@ -35,7 +35,7 @@ class ExpansionUITooltip: ScriptedWidgetEventHandler
 		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "ExpansionUITooltip");
 #endif
 
-		m_Root = Widget.Cast( GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Navigation/GUI/layouts/expansion_tooltip.layout") );
+		m_Root = Widget.Cast( g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Navigation/GUI/layouts/expansion_tooltip.layout") );
 		m_Title = HtmlWidget.Cast(m_Root.FindAnyWidget("TooltipTitle"));
 		m_Seperator = Widget.Cast(m_Root.FindAnyWidget("Separator"));
 		m_Text = HtmlWidget.Cast(m_Root.FindAnyWidget("TooltipText"));

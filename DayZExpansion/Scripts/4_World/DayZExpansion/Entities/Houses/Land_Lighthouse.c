@@ -26,19 +26,19 @@ class Expansion_Lighthouse_Lamp: House
 		auto trace = EXTrace.Start(EXTrace.LIGHTHOUSE, this);
 #endif 
 		
-		if (GetGame().IsServer())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_Rotate, 25, true);
+		if (g_Game.IsServer())
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_Rotate, 25, true);
 	
 	#ifndef SERVER
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(Expansion_OnClientSettingsUpdated);
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_OnClientSettingsUpdated, 1000);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_OnClientSettingsUpdated, 1000);
 	#endif
 	}
 
 	void ~Expansion_Lighthouse_Lamp()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 #ifdef EXTRACE
@@ -49,10 +49,10 @@ class Expansion_Lighthouse_Lamp: House
 		GetExpansionClientSettings().SI_UpdateSetting.Remove(Expansion_OnClientSettingsUpdated);
 
 		if (m_Expansion_Light_Inner)
-			GetGame().ObjectDelete(m_Expansion_Light_Inner);
+			g_Game.ObjectDelete(m_Expansion_Light_Inner);
 
 		if (m_Expansion_Light_Outer)
-			GetGame().ObjectDelete(m_Expansion_Light_Outer);
+			g_Game.ObjectDelete(m_Expansion_Light_Outer);
 	#endif
 	}
 
@@ -69,7 +69,7 @@ class Expansion_Lighthouse_Lamp: House
 
 	void Expansion_Rotate()
 	{
-		float tickTime = GetGame().GetTickTime();
+		float tickTime = g_Game.GetTickTime();
 		float timeSlice = tickTime - m_Expansion_LastRotationUpdateTime;
 		m_Expansion_LastRotationUpdateTime = tickTime;
 
@@ -190,7 +190,7 @@ class Land_Lighthouse: House
 	void Expansion_DeleteLamp()
 	{
 		if (m_Expansion_Lighthouse_Lamp)
-			GetGame().ObjectDelete(m_Expansion_Lighthouse_Lamp);
+			g_Game.ObjectDelete(m_Expansion_Lighthouse_Lamp);
 	}
 
 	override void OnSettingsUpdated()
@@ -201,7 +201,7 @@ class Land_Lighthouse: House
 
 		super.OnSettingsUpdated();
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		if (ExpansionWorldObjectsModule.s_RemovedObjects[this])
@@ -215,10 +215,10 @@ class Land_Lighthouse: House
 			vector pos = ModelToWorld(GetMemoryPointPos("cerveny pozicni blik")) - "0 4.5 0";
 			int flags = ECE_CREATEPHYSICS | ECE_NOLIFETIME | ECE_KEEPHEIGHT | ECE_NOPERSISTENCY_WORLD;
 
-			m_Expansion_Lighthouse_Lamp = GetGame().CreateObjectEx("Expansion_Lighthouse_Lamp", pos, flags);
+			m_Expansion_Lighthouse_Lamp = g_Game.CreateObjectEx("Expansion_Lighthouse_Lamp", pos, flags);
 			m_Expansion_Lighthouse_Lamp.SetFlags(EntityFlags.STATIC, false);
 
-			//GetGame().CreateObjectEx("Apple", ModelToWorld(GetMemoryPointPos("cerveny pozicni blik")), flags);
+			//g_Game.CreateObjectEx("Apple", ModelToWorld(GetMemoryPointPos("cerveny pozicni blik")), flags);
 		}
 		else
 		{

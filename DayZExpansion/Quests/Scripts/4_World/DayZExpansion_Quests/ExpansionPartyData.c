@@ -23,7 +23,7 @@ modded class ExpansionPartyData
 		if (!GetExpansionSettings().GetQuest().EnableQuests)
 			return;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnJoin_Deferred, 1000, false, player);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnJoin_Deferred, 1000, false, player);
 	}
 
 	protected void OnJoin_Deferred(ExpansionPartyPlayerData player)

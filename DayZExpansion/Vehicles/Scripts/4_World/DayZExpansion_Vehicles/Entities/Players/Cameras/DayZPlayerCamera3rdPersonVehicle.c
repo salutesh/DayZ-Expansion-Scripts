@@ -126,7 +126,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		}
 		else
 		{
-			Input input = GetGame().GetInput(); //! Reference to input
+			Input input = g_Game.GetInput(); //! Reference to input
 			if (input.LocalValue("UANextAction") != 0 && input.LocalHold("UAVehicleSlow", false))
 			{
 				m_ExUpDownLockedAngle += 1.0;

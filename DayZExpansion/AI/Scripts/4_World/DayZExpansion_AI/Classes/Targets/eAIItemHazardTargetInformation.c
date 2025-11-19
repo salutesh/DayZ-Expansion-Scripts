@@ -31,8 +31,8 @@ class eAIItemHazardTargetInformation: eAIItemTargetInformation
 					continue;
 
 				//! @note ammo for mechanical traps (e.g. bear trap, tripwire) doesn't have range
-				range = GetGame().ConfigGetFloat(CFG_AMMO + " " + ammoType + " indirectHitRange");
-				mult = GetGame().ConfigGetFloat(CFG_AMMO + " " + ammoType + " indirectHitRangeMultiplier");
+				range = g_Game.ConfigGetFloat(CFG_AMMO + " " + ammoType + " indirectHitRange");
+				mult = g_Game.ConfigGetFloat(CFG_AMMO + " " + ammoType + " indirectHitRangeMultiplier");
 
 				if (mult)
 					range *= mult;

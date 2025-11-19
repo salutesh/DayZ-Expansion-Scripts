@@ -53,6 +53,6 @@ class ExpansionActionOpenAIInventory: ActionInteractBase
 
 	override void OnEndClient(ActionData action_data)
 	{
-		GetGame().GetMission().ShowInventory();
+		g_Game.GetMission().ShowInventory();
 	}
 };

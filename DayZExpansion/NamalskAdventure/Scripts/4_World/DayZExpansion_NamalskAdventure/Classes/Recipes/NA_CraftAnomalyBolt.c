@@ -72,7 +72,7 @@ class NA_CraftAnomalyBolt extends RecipeBase
 			int newAmmoCount = ammoCount - 1;
 			if (newAmmoCount == 0)
 			{
-				GetGame().ObjectDelete(boltMag);
+				g_Game.ObjectDelete(boltMag);
 			}
 			else
 			{
@@ -84,19 +84,19 @@ class NA_CraftAnomalyBolt extends RecipeBase
 		if (Class.CastTo(anomalyCore, ingredients[1]))
 		{
 			vector pos = player.GetPosition();
-			float surfaceY = GetGame().SurfaceY(pos[0], pos[2]);
+			float surfaceY = g_Game.SurfaceY(pos[0], pos[2]);
 			Expansion_Ammo_BoltAnomaly_Base anomalyBolt;
 			
 			Expansion_AnomalyCore_Ice anomalyCoreIce;
 			if (Class.CastTo(anomalyCoreIce, anomalyCore))
 			{
-				anomalyBolt = Expansion_Ammo_BoltAnomaly_Base.Cast(GetGame().CreateObject("Expansion_Ammo_BoltAnomaly_Ice", Vector(pos[0], surfaceY, pos[2])));
+				anomalyBolt = Expansion_Ammo_BoltAnomaly_Base.Cast(g_Game.CreateObject("Expansion_Ammo_BoltAnomaly_Ice", Vector(pos[0], surfaceY, pos[2])));
 			}
 			
 			Expansion_AnomalyCore_Warper anomalyCoreWarper;
 			if (Class.CastTo(anomalyCoreWarper, anomalyCore))
 			{
-				anomalyBolt = Expansion_Ammo_BoltAnomaly_Base.Cast(GetGame().CreateObject("Expansion_Ammo_BoltAnomaly_Warper", Vector(pos[0], surfaceY, pos[2])));
+				anomalyBolt = Expansion_Ammo_BoltAnomaly_Base.Cast(g_Game.CreateObject("Expansion_Ammo_BoltAnomaly_Warper", Vector(pos[0], surfaceY, pos[2])));
 			}
 			
 			if (anomalyBolt)
@@ -110,7 +110,7 @@ class NA_CraftAnomalyBolt extends RecipeBase
 				}
 			}
 
-			GetGame().ObjectDelete(anomalyCore);
+			g_Game.ObjectDelete(anomalyCore);
 		}
 	}
 };

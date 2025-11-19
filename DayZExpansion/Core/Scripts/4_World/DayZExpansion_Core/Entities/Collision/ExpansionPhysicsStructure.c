@@ -42,7 +42,7 @@ class ExpansionPhysicsStructure : ItemBase
 		GetTransform(m_Transform);
 
 		// Call 'AdjustPosition' here only
-		AdjustPosition(GetGame().SurfaceY(m_Transform[3][0], m_Transform[3][2]) + height, vector.Zero);
+		AdjustPosition(g_Game.SurfaceY(m_Transform[3][0], m_Transform[3][2]) + height, vector.Zero);
 
 		SetTransform(m_Transform);
 		SetAffectPathgraph(false, false);
@@ -51,7 +51,7 @@ class ExpansionPhysicsStructure : ItemBase
 
 		OnCreate();
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			SetSynchDirty();
 		}
@@ -113,7 +113,7 @@ class ExpansionPhysicsStructure : ItemBase
 
 		array<Object> objects = new array<Object>;
 		vector position = Vector(m_PosX, m_PosY, m_PosZ);
-		GetGame().GetObjectsAtPosition3D(position, minDistance, objects, NULL);
+		g_Game.GetObjectsAtPosition3D(position, minDistance, objects, NULL);
 		for (int i = 0; i < objects.Count(); i++)
 		{
 			if (objects[i].GetType() == ExpansionGetPhysicsType())

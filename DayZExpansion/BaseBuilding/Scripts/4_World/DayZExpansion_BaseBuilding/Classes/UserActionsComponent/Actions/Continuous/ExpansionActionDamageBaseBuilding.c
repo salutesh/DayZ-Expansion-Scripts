@@ -79,7 +79,7 @@ class ExpansionActionDamageBaseBuilding: ActionContinuousBase
 						//! Camera check 
 						if ( camera_check )
 						{
-							if ( GetGame() && ( !GetGame().IsDedicatedServer() ) )
+							if ( g_Game && ( !g_Game.IsDedicatedServer() ) )
 							{
 								if ( !base_building.IsFacingCamera( part_name ) )
 								{

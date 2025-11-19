@@ -103,7 +103,7 @@ class ExpansionContaminatedArea : House
 	{
 		super.EEInit();
 
-		if (GetGame().IsMultiplayer() && GetGame().IsServer())
+		if (g_Game.IsMultiplayer() && g_Game.IsServer())
 			return;
 
 		OnVariablesSynchronized();
@@ -111,7 +111,7 @@ class ExpansionContaminatedArea : House
 
 	override void EEDelete(EntityAI parent)
 	{
-		if (GetGame().IsClient() && m_ToxicClouds)
+		if (g_Game.IsClient() && m_ToxicClouds)
 		{
 			for (int i = 0; i < m_ToxicClouds.Count(); i++)
 			{
@@ -181,7 +181,7 @@ class ExpansionContaminatedArea : House
 
 	void PlayFX()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			Param1<vector> pos;		 // The value to be sent through RPC
 			array<ref Param> params; // The RPC params
@@ -193,7 +193,7 @@ class ExpansionContaminatedArea : House
 			// We send the message with this set of coords
 			pos.param1 = m_OffsetPos;
 			params.Insert(pos);
-			GetGame().RPC(null, ERPCs.RPC_SOUND_CONTAMINATION, params, true);
+			g_Game.RPC(null, ERPCs.RPC_SOUND_CONTAMINATION, params, true);
 
 			// We go to the next stage
 			m_DecayState = eAreaDecayStage.START;
@@ -208,10 +208,10 @@ class ExpansionContaminatedArea : House
 
 	void PlayFlareVFX()
 	{
-		if (GetGame().IsClient() || (GetGame().IsServer() && !GetGame().IsMultiplayer()))
+		if (g_Game.IsClient() || (g_Game.IsServer() && !g_Game.IsMultiplayer()))
 		{
 			// We spawn locally the dummy object which will be used to move and manage the particle
-			DynamicArea_Flare dummy = DynamicArea_Flare.Cast(GetGame().CreateObjectEx("DynamicArea_Flare", m_OffsetPos, ECE_SETUP | ECE_LOCAL));
+			DynamicArea_Flare dummy = DynamicArea_Flare.Cast(g_Game.CreateObjectEx("DynamicArea_Flare", m_OffsetPos, ECE_SETUP | ECE_LOCAL));
 
 			// We add some light to reinforce the effect
 			m_FlareLight = FlareLightContamination.Cast(ScriptedLightBase.CreateLight(FlareLightContamination, m_OffsetPos));
@@ -222,7 +222,7 @@ class ExpansionContaminatedArea : House
 	{
 		// Determine if we snap first layer to ground
 		//bool snapFirstLayer = true;
-		//if (m_Type == eZoneType.STATIC && pos[1] != GetGame().SurfaceRoadY(pos[0], pos[2]))
+		//if (m_Type == eZoneType.STATIC && pos[1] != g_Game.SurfaceRoadY(pos[0], pos[2]))
 		//	snapFirstLayer = false;
 
 		// BEGINNING OF SAFETY NET
@@ -316,7 +316,7 @@ class ExpansionContaminatedArea : House
 
 					// We snap first layer to ground if specified
 					//if (k == 0 && snapFirstLayer == true)
-					//	partPos[1] = GetGame().SurfaceY(partPos[0], partPos[2]);
+					//	partPos[1] = g_Game.SurfaceY(partPos[0], partPos[2]);
 					//else if (k == 0 && snapFirstLayer == false)
 					partPos[1] = partPos[1] - m_NegativeHeight;
 
@@ -325,7 +325,7 @@ class ExpansionContaminatedArea : House
 					{
 						// Place emitter at vector end ( coord )
 						Particle toxicParticle = Particle.PlayInWorld(partId, partPos);
-						toxicParticle.SetOrientation(GetGame().GetSurfaceOrientation(partPos[0], partPos[2]));
+						toxicParticle.SetOrientation(g_Game.GetSurfaceOrientation(partPos[0], partPos[2]));
 						m_ToxicClouds.Insert(toxicParticle);
 
 						partCounter++;

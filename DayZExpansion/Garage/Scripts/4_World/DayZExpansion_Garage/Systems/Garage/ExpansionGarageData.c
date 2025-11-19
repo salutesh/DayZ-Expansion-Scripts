@@ -110,7 +110,7 @@ class ExpansionGarageData: ExpansionGarageDataBase
 				ExpansionVehicle vehicle;
 				foreach (ExpansionGarageVehicleData vehicleDataV3: garageData.m_Vehicles)
 				{
-					obj = GetGame().CreateObject(vehicleDataV3.m_ClassName, "0 0 0", true);
+					obj = g_Game.CreateObject(vehicleDataV3.m_ClassName, "0 0 0", true);
 					if (obj)
 					{
 						if (ExpansionVehicle.Get(vehicle, obj))
@@ -119,7 +119,7 @@ class ExpansionGarageData: ExpansionGarageDataBase
 							vehicleDataV3.m_Position = Vector(vehicleDataV3.m_Position[0], vehicleDataV3.m_Position[1] - modelZeroPointFromGround, vehicleDataV3.m_Position[2]);
 						}
 
-						GetGame().ObjectDelete(obj);
+						g_Game.ObjectDelete(obj);
 					}
 					
 					if (!vehicleDataV3.m_SkinIndex)

@@ -56,7 +56,7 @@ class ExpansionParticleLightBase: ExpansionLampLightBase
 			{
 				m_Flare.Stop();
 
-				GetGame().ObjectDelete( m_Flare );
+				g_Game.ObjectDelete( m_Flare );
 			}
 		}
 	}

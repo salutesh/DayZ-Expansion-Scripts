@@ -101,7 +101,7 @@ modded class ItemBase
 		if (m_Expansion_IsStoreLoaded && m_Expansion_QuestID > -1 && !Expansion_IsQuestGiver())
 		{
 			if (!GetHierarchyRootPlayer())
-				GetGame().ObjectDelete(this);
+				g_Game.ObjectDelete(this);
 		}
 	}
 
@@ -109,7 +109,7 @@ modded class ItemBase
 	{
 		super.OnInventoryEnter(player);
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			PlayerBase playerPB = PlayerBase.Cast(player);
 			if (playerPB && playerPB.GetIdentity())
@@ -119,7 +119,7 @@ modded class ItemBase
 					//! Delete this item when it has a quest ID assigned but the player who picks it up has not a active quest instance with that ID.
 					if (!ExpansionQuestModule.GetModuleInstance().GetActiveQuestWithQuestID(playerPB, m_Expansion_QuestID))
 					{
-						GetGame().ObjectDelete(this);
+						g_Game.ObjectDelete(this);
 						return;
 					}
 				}
@@ -127,7 +127,7 @@ modded class ItemBase
 				//! @note use Call() so execution happens in next frame, after all operations in the current frame have executed
 				//! (e.g. splitting/combining items etc)
 				m_Expansion_Quests_InventoryEnter = true;
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(CheckAssignedObjectivesForEntity, ExpansionQuestItemState.INV_ENTER, player, 0.0);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(CheckAssignedObjectivesForEntity, ExpansionQuestItemState.INV_ENTER, player, 0.0);
 			}
 		}
 	}
@@ -136,7 +136,7 @@ modded class ItemBase
 	{
 		super.OnInventoryExit(player);
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			PlayerBase playerPB = PlayerBase.Cast(player);
 			if (playerPB && playerPB.GetIdentity())
@@ -148,7 +148,7 @@ modded class ItemBase
 					{
 						//! Delete this item when it has a quest ID assigned but the player dropping it has not a active quest instance with that ID.
 						if (!questInstance)
-							GetGame().ObjectDelete(this);
+							g_Game.ObjectDelete(this);
 					}
 					else if (questInstance && questInstance.GetQuestGiverItem())
 					{
@@ -167,17 +167,17 @@ modded class ItemBase
 	{
 		super.OnQuantityChanged(delta);
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer() && !m_Expansion_Quests_InventoryEnter)
+		if (g_Game.IsServer() && g_Game.IsMultiplayer() && !m_Expansion_Quests_InventoryEnter)
 		{
 			//! @note use Call() so execution happens in next frame, after all operations in the current frame have executed
 			//! (e.g. splitting/combining items etc)
 			if (Expansion_IsStackable())
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_OnStackSizeChanged, delta);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_OnStackSizeChanged, delta);
 			}
 			else
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_OnContentQuantityChanged, delta);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_OnContentQuantityChanged, delta);
 			}
 		}
 	}
@@ -215,7 +215,7 @@ modded class ItemBase
 	{
 		super.EEHealthLevelChanged(oldLevel,newLevel,zone);
 		
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			//! If item state is ruined then check if it is a quest objective item and remove it from the certain objective.
 			if (newLevel == GameConstants.STATE_RUINED)
@@ -260,7 +260,7 @@ modded class ItemBase
 	{
 		super.OnRightClick();
 
-		if (!g_Game.IsDedicatedServer() && Expansion_IsQuestItem() && Expansion_CanBeSplit(true) && !GetDayZGame().IsLeftCtrlDown() && !GetGame().GetPlayer().GetInventory().HasInventoryReservation(this, null))
+		if (!g_Game.IsDedicatedServer() && Expansion_IsQuestItem() && Expansion_CanBeSplit(true) && !GetDayZGame().IsLeftCtrlDown() && !g_Game.GetPlayer().GetInventory().HasInventoryReservation(this, null))
 		{
 			//! TODO: localization
 			CF_Localiser text = new CF_Localiser("The item %1 is a quest item and can't be split!", GetDisplayName());

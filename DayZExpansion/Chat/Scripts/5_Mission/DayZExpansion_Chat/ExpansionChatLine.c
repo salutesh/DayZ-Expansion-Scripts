@@ -174,7 +174,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 #endif
 
 		MissionGameplay mission;
-		if (!Class.CastTo(mission, GetGame().GetMission()))
+		if (!Class.CastTo(mission, g_Game.GetMission()))
 			return;
 
 		m_Message = message;
@@ -420,7 +420,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 		if (!m_Message)
 			return false;
 
-		if (!m_Message.UID || m_Message.UID == GetGame().GetPlayer().GetIdentity().GetId())
+		if (!m_Message.UID || m_Message.UID == g_Game.GetPlayer().GetIdentity().GetId())
 			return false;
 
 		return m_Chat.CanMute(m_Message.Channel);

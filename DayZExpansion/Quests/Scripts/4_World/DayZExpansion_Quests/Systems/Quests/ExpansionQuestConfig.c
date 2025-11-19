@@ -145,7 +145,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV20Base
 
 	void ~ExpansionQuestConfig()
 	{
-		if (GetGame())
+		if (g_Game)
 			EXPrint(ToString() + "~ExpansionQuestConfig");
 	}
 

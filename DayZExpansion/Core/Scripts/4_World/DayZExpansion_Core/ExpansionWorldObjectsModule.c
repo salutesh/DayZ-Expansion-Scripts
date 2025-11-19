@@ -42,8 +42,8 @@ class ExpansionRemovedObject: OLinkT
 		}
 
 		//! Use of IsServer is intended here, makes it work in offline/SP as well
-		if (GetGame().IsServer() && init.CanAffectPathgraph())
-			GetGame().GetWorld().MarkObjectForPathgraphUpdate(init);
+		if (g_Game.IsServer() && init.CanAffectPathgraph())
+			g_Game.GetWorld().MarkObjectForPathgraphUpdate(init);
 
 		EXTrace.Print(EXTrace.MAPPING, this, "Removed object " + init.GetDebugName() + " at " + m_Position);
 	}
@@ -61,8 +61,8 @@ class ExpansionRemovedObject: OLinkT
 				dBodySetSolid(obj, true);
 
 			//! Use of IsDedicatedServer is intended here, no need to do anything in offline/SP
-			if (GetGame().IsDedicatedServer() && obj.CanAffectPathgraph())
-				GetGame().GetWorld().MarkObjectForPathgraphUpdate(obj);
+			if (g_Game.IsDedicatedServer() && obj.CanAffectPathgraph())
+				g_Game.GetWorld().MarkObjectForPathgraphUpdate(obj);
 
 			EXTrace.Print(EXTrace.MAPPING, this, "Restored object " + obj.GetDebugName() + " at " + m_Position);
 		}
@@ -142,7 +142,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		
 		super.OnMissionStart(sender, args);
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		bool loadTraderNPCs;
@@ -185,7 +185,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 //! If Expansion Main is loaded, removed objects are sent as part of general settings RPC to avoid race conditions (building interiors checks if object was removed)
 #ifndef EXPANSIONMOD
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
@@ -245,7 +245,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		Print("Clear up static fireplaces: " + s_FirePlacesToDelete.Count());
 		foreach (Object fireplace: s_FirePlacesToDelete)
 		{
-			GetGame().ObjectDelete(fireplace);
+			g_Game.ObjectDelete(fireplace);
 		}
 		s_FirePlacesToDelete.Clear();
 	}
@@ -376,14 +376,14 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 		CloseFile( file );
 
-		GetGame().GetWorld().ProcessMarkedObjectsForPathgraphUpdate();
+		g_Game.GetWorld().ProcessMarkedObjectsForPathgraphUpdate();
 	}
 
 	static Object SpawnObject(string className, vector position, vector rotation, bool special = false, bool takeable = true)
 	{
 		int flags = ECE_CREATEPHYSICS | ECE_NOLIFETIME | ECE_KEEPHEIGHT | ECE_DYNAMIC_PERSISTENCY;
 
-		Object obj = GetGame().CreateObjectEx( className, position, flags );
+		Object obj = g_Game.CreateObjectEx( className, position, flags );
 		if ( !obj )
 			return NULL;
 
@@ -395,7 +395,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 		if ( obj.CanAffectPathgraph() )
 		{
-			GetGame().GetWorld().MarkObjectForPathgraphUpdate(obj);
+			g_Game.GetWorld().MarkObjectForPathgraphUpdate(obj);
 		}
 
 		if (!takeable)
@@ -414,7 +414,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 	static array<Object> FindObjects(string className, vector position, float radius = 0.1)
 	{
 		array<Object> objects = {};
-		GetGame().GetObjectsAtPosition3D(position, radius, objects, null);
+		g_Game.GetObjectsAtPosition3D(position, radius, objects, null);
 
 		if (className == "*")
 			return objects;
@@ -489,7 +489,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 	static Object FindObject(ExpansionHash hash, vector position, float radius = 0.1)
 	{
 		array<Object> objects = {};
-		GetGame().GetObjectsAtPosition3D(position, radius, objects, null);
+		g_Game.GetObjectsAtPosition3D(position, radius, objects, null);
 
 		foreach (Object obj: objects)
 		{
@@ -606,7 +606,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 				vector smokePos = smoke_point_pos_world;
 
 				int flags = ECE_PLACE_ON_SURFACE | ECE_NOLIFETIME | ECE_NOPERSISTENCY_WORLD;
-				Object obj_fireplace = GetGame().CreateObjectEx("bldr_fireplace", fire_place_pos_world, flags);
+				Object obj_fireplace = g_Game.CreateObjectEx("bldr_fireplace", fire_place_pos_world, flags);
 				s_FirePlacesToDelete.Insert(obj_fireplace);
 				
 				ProcessFireplace(obj_fireplace, false);
@@ -727,7 +727,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			token.Split("+", items);
 			EntityAI itemEnt = NULL;
 			//! Spawn weapon in hands
-			if ( entity.IsInherited( Man ) && GetGame().ConfigIsExisting( "CfgVehicles " + items[0] + " suicideAnim" ) || GetGame().IsKindOf( items[0], "Rifle_Base" ) || GetGame().IsKindOf( items[0], "Pistol_Base" ) || GetGame().IsKindOf( items[0], "Archery_Base" ) || GetGame().IsKindOf( items[0], "Launcher_Base" ) )
+			if ( entity.IsInherited( Man ) && g_Game.ConfigIsExisting( "CfgVehicles " + items[0] + " suicideAnim" ) || g_Game.IsKindOf( items[0], "Rifle_Base" ) || g_Game.IsKindOf( items[0], "Pistol_Base" ) || g_Game.IsKindOf( items[0], "Archery_Base" ) || g_Game.IsKindOf( items[0], "Launcher_Base" ) )
 				itemEnt = Man.Cast( entity ).GetHumanInventory().CreateInHands( items[0] );
 			//! Spawn everything else in inventory
 			if ( !itemEnt )
@@ -848,7 +848,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 			CF_Log.Debug( "Attempt to create mission trader " + className + " at " + position + " from file:" + filePath + ".");
 
-			obj = ExpansionGame.CreateObjectSafe( className, position, false, GetGame().IsKindOf(className, "DZ_LightAI"), true );
+			obj = ExpansionGame.CreateObjectSafe( className, position, false, g_Game.IsKindOf(className, "DZ_LightAI"), true );
 			if (!obj)
 				continue;
 
@@ -858,7 +858,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 			if ( obj.CanAffectPathgraph() )
 			{
-				GetGame().GetWorld().MarkObjectForPathgraphUpdate(obj);
+				g_Game.GetWorld().MarkObjectForPathgraphUpdate(obj);
 			}
 
 			trader = EntityAI.Cast( obj );
@@ -913,7 +913,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 		CloseFile( file );
 
-		GetGame().GetWorld().ProcessMarkedObjectsForPathgraphUpdate();
+		g_Game.GetWorld().ProcessMarkedObjectsForPathgraphUpdate();
 	}
 
 	// ------------------------------------------------------------
@@ -944,7 +944,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 				coordinate = Vector( 0, 0, 0 );
 				coordinate[0] = coordinateTokens[0].ToFloat();
 				coordinate[2] = coordinateTokens[1].ToFloat();
-				coordinate[1] = GetGame().SurfaceY( coordinate[0], coordinate[2] );
+				coordinate[1] = g_Game.SurfaceY( coordinate[0], coordinate[2] );
 			}
 			else
 			{

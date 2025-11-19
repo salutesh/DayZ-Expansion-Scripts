@@ -69,7 +69,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
 #endif
 		
-		PlayerBase clientPB = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase clientPB = PlayerBase.Cast(g_Game.GetPlayer());
 		if (!clientPB)
 		{
 			Error(ToString() + "::RPC_ReceiveFactionReputation - Could not get player!");
@@ -287,7 +287,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			reputation = -reputation;
 
 		killer.Expansion_AddReputation(reputation);
-		MissionBaseWorld missionWorld = MissionBaseWorld.Cast(GetGame().GetMission());
+		MissionBaseWorld missionWorld = MissionBaseWorld.Cast(g_Game.GetMission());
 		if (missionWorld)
 		{
 			missionWorld.Expansion_OnPlayerKilledEntity(killer, victim, reputation);
@@ -336,7 +336,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			reputation = -reputation;
 		
 		killer.Expansion_AddReputation(reputation);
-		MissionBaseWorld missionWorld = MissionBaseWorld.Cast(GetGame().GetMission());
+		MissionBaseWorld missionWorld = MissionBaseWorld.Cast(g_Game.GetMission());
 		if (missionWorld)
 		{
 			missionWorld.Expansion_OnPlayerKilledPlayer(killer, victim, reputation, victimIsAI);
@@ -355,7 +355,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			return;
 		
 		victim.Expansion_DecreaseReputation(repToRemove);
-		MissionBaseWorld missionWorld = MissionBaseWorld.Cast(GetGame().GetMission());
+		MissionBaseWorld missionWorld = MissionBaseWorld.Cast(g_Game.GetMission());
 		if (missionWorld)
 		{
 			missionWorld.Expansion_OnPlayerDeath(victim, repToRemove);
@@ -370,7 +370,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 #endif 
 		
 		HandlePlayerDeath(victim);
-		MissionBaseWorld missionWorld = MissionBaseWorld.Cast(GetGame().GetMission());
+		MissionBaseWorld missionWorld = MissionBaseWorld.Cast(g_Game.GetMission());
 		if (missionWorld)
 		{
 			missionWorld.Expansion_OnPlayerKilledAI(killer, victim, reputation);

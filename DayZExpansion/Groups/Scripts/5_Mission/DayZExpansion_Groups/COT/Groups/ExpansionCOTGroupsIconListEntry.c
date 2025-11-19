@@ -28,7 +28,7 @@ class ExpansionCOTGroupsIconListEntry: ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ExpansionCOTGroupsIconListEntry(Widget parent, int iconIndex, ExpansionCOTGroupsMenu menu)
 	{
-		m_Root	= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Groups/GUI/layouts/COT/groups/Icon_List_Entry.layout", parent);
+		m_Root	= g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Groups/GUI/layouts/COT/groups/Icon_List_Entry.layout", parent);
 		m_Icon = ImageWidget.Cast(m_Root.FindAnyWidget("entry_icon"));
 		m_IconName = TextWidget.Cast(m_Root.FindAnyWidget("icon_name"));
 		m_EntryButton = ButtonWidget.Cast(m_Root.FindAnyWidget("entry_button"));

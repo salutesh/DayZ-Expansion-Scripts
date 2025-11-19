@@ -46,7 +46,7 @@ class eAIPatrol : Managed
 		auto trace = CF_Trace_0(this, "~eAIPatrol");
 		#endif
 
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		int idx = s_AllPatrols.Find(this);
@@ -100,7 +100,7 @@ class eAIPatrol : Managed
 		#endif
 
 		m_IsBeingDestroyed = true;
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(DeletePatrol, this);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(DeletePatrol, this);
 	}
 
 	/**
@@ -125,7 +125,7 @@ class eAIPatrol : Managed
 		#endif
 
 		//DelayedStart();
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.DelayedStart, Math.RandomInt(1, 1000), false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.DelayedStart, Math.RandomInt(1, 1000), false);
 	}
 
 	private void DelayedStart()

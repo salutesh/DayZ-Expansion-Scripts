@@ -49,13 +49,13 @@ modded class BarrelHoles_ColorBase
 	{
 		super.Open();
 
-		if (GetGame().IsServer() && Expansion_CanUseVirtualStorage(true))
+		if (g_Game.IsServer() && Expansion_CanUseVirtualStorage(true))
 			Expansion_RestoreContents();
 	}
 
 	override void Close()
 	{
-		if (GetGame().IsServer() && !IsBurning() && Expansion_CanUseVirtualStorage())
+		if (g_Game.IsServer() && !IsBurning() && Expansion_CanUseVirtualStorage())
 			Expansion_StoreContents();
 
 		super.Close();

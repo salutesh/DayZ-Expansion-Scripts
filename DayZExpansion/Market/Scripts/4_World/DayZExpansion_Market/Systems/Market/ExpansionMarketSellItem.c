@@ -153,12 +153,12 @@ class ExpansionMarketSellItem
 				ExpansionCarKey.GetKeysForVehicle(vehicle, keys);
 				foreach (ExpansionCarKey key : keys)
 				{
-					GetGame().ObjectDelete(key);
+					g_Game.ObjectDelete(key);
 				}
 			}
 			#endif
 
-			GetGame().ObjectDelete(ItemRep);
+			g_Game.ObjectDelete(ItemRep);
 			return;
 		}
 

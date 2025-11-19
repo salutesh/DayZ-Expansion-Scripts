@@ -190,7 +190,7 @@ modded class ItemBase
 	//! Fixes stone oven despawning prematurely, among other things, and properly supports setting max lifetime via script
 	override void MaxLifetimeRefreshCalc()
 	{
-		if ( (!GetGame().IsMultiplayer() || GetGame().IsServer()) && GetEconomyProfile() )
+		if ( (!g_Game.IsMultiplayer() || g_Game.IsServer()) && GetEconomyProfile() )
 		{
 			float lifetime = GetLifetimeMax();
 			int frequency = GetCEApi().GetCEGlobalInt("FlagRefreshFrequency");

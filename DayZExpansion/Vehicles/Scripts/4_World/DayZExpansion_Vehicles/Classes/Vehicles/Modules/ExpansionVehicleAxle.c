@@ -56,44 +56,44 @@ class ExpansionVehicleAxle : ExpansionVehicleRotational
 		string path = "";
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " controller";
-		if (GetGame().ConfigIsExisting(path))
-			m_ControlIndex = GetGame().ConfigGetInt(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_ControlIndex = g_Game.ConfigGetInt(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " maxSteeringAngle";
-		if (GetGame().ConfigIsExisting(path))
+		if (g_Game.ConfigIsExisting(path))
 		{
-			m_MaxSteeringAngle = GetGame().ConfigGetFloat(path);
+			m_MaxSteeringAngle = g_Game.ConfigGetFloat(path);
 		}
 		else
 		{
 			path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Steering maxSteeringAngle";  //! 1.19
-			m_MaxSteeringAngle = GetGame().ConfigGetFloat(path);
+			m_MaxSteeringAngle = g_Game.ConfigGetFloat(path);
 		}
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " maxBrakeTorque";
-		m_MaxBrakeTorque = GetGame().ConfigGetFloat(path);
+		m_MaxBrakeTorque = g_Game.ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " finalRatio";
-		m_Ratio = GetGame().ConfigGetFloat(path);
+		m_Ratio = g_Game.ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " brakeBias";
-		m_BrakeBias = GetGame().ConfigGetFloat(path);
+		m_BrakeBias = g_Game.ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " brakeForce";
-		m_BrakeForce = GetGame().ConfigGetFloat(path);
+		m_BrakeForce = g_Game.ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " wheelHubMass";
-		m_WheelHubMass = GetGame().ConfigGetFloat(path);
+		m_WheelHubMass = g_Game.ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " wheelHubRadius";
-		m_WheelHubRadius = GetGame().ConfigGetFloat(path);
+		m_WheelHubRadius = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " Suspension swayBar";
-		m_SwayBar = GetGame().ConfigGetFloat(path);
+		m_SwayBar = g_Game.ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " Suspension stiffness";
-		m_Stiffness = GetGame().ConfigGetFloat(path);
+		m_Stiffness = g_Game.ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " Suspension compression";
-		m_Compression = GetGame().ConfigGetFloat(path);
+		m_Compression = g_Game.ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " Suspension damping";
-		m_Damping = GetGame().ConfigGetFloat(path);
+		m_Damping = g_Game.ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " Suspension travelMaxUp";
-		m_TravelMaxUp = GetGame().ConfigGetFloat(path);
+		m_TravelMaxUp = g_Game.ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " Suspension travelMaxDown";
-		m_TravelMaxDown = GetGame().ConfigGetFloat(path);
+		m_TravelMaxDown = g_Game.ConfigGetFloat(path);
 
 		m_TravelMax = m_TravelMaxUp + m_TravelMaxDown;
 	}

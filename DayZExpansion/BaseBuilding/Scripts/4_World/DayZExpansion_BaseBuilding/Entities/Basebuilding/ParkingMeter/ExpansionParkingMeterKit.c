@@ -18,7 +18,7 @@ class ExpansionParkingMeterKit: ExpansionConstructionKitLarge
 		if (!super.CanBePlaced(player, position))
 			return false;
 		
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			//! Make sure player places this in his own territory only.
 			ExpansionTerritoryModule territoyModule = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
@@ -49,14 +49,14 @@ class ExpansionParkingMeterKit: ExpansionConstructionKitLarge
 	{
 		super.OnPlacementComplete( player, position, orientation );
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			ExpansionTerritoryModule module = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
 			TerritoryFlag flag = module.GetFlagAtPosition3D(GetPosition());
 			PlayerBase playerPB = PlayerBase.Cast(player);
 			auto setting = GetExpansionSettings().GetGarage();
 			
-			ExpansionParkingMeter parkingMeter = ExpansionParkingMeter.Cast(GetGame().CreateObjectEx("ExpansionParkingMeter", GetPosition(), ECE_PLACE_ON_SURFACE));
+			ExpansionParkingMeter parkingMeter = ExpansionParkingMeter.Cast(g_Game.CreateObjectEx("ExpansionParkingMeter", GetPosition(), ECE_PLACE_ON_SURFACE));
 			parkingMeter.SetPosition(position);
 			parkingMeter.SetOrientation(orientation);
 			parkingMeter.m_Expansion_ConstructionKitHealth = GetHealth("", "");

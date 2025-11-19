@@ -59,7 +59,7 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 			if (!vehicle.CanCover())
 				return false;
 
-			if (!GetGame().IsDedicatedServer())
+			if (!g_Game.IsDedicatedServer())
 			{
 				placeholderType = vehicle.GetPlaceholderType(item.GetType());
 				vehicleModel = vehicle.GetEntity().ConfigGetString("model");
@@ -70,9 +70,9 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 			return false;
 		}
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
-			string placeHolderModel = GetGame().ConfigGetTextOut("CfgVehicles " + placeholderType + " model");
+			string placeHolderModel = g_Game.ConfigGetTextOut("CfgVehicles " + placeholderType + " model");
 			if (placeHolderModel == vehicleModel)
 				m_Text = "#STR_EXPANSION_ACTION_STORE";
 			else

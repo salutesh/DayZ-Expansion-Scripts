@@ -79,7 +79,7 @@ modded class JMPlayerModule
 	
 	string GetEntityStorageDataDirectory()
 	{
-		int instance_id = GetGame().ServerConfigGetInt("instanceId");
+		int instance_id = g_Game.ServerConfigGetInt("instanceId");
 		return "$mission:storage_" + instance_id + "\\expansion\\entitystorage\\";
 	}
 }

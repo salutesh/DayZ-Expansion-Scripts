@@ -2,11 +2,7 @@ class CfgPatches
 {
 	class DayZExpansion_Objects_Gear_Guitar
 	{
-		units[]=
-		{
-			"Expansion_Guitar",
-			"Expansion_Guitar_old"
-		};
+		units[]={};
 		weapons[]={};
 		requiredVersion=0.1;
 		requiredAddons[]=

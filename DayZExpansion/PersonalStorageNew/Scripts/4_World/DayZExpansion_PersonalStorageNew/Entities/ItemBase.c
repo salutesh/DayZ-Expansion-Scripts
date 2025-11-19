@@ -17,11 +17,11 @@ modded class ItemBase
 	{
 		super.EEItemLocationChanged(oldLoc, newLoc);
 
-		if (GetGame().IsServer() && oldLoc.GetType() != InventoryLocationType.UNKNOWN)
+		if (g_Game.IsServer() && oldLoc.GetType() != InventoryLocationType.UNKNOWN)
 		{
 			ExpansionPersonalStorageContainer container;
 			if (Class.CastTo(container, newLoc.GetParent()) && container.Expansion_IsExcludedFromPS(newLoc.GetItem()))
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_UndoMoveToPS, container, newLoc.GetItem());
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_UndoMoveToPS, container, newLoc.GetItem());
 		}
 	}
 
@@ -38,14 +38,14 @@ modded class ItemBase
 
 		bool moved;
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 			moved = owner.ServerTakeEntityToInventory(FindInventoryLocationType.ANY, item);
 		else
 			moved = owner.LocalTakeEntityToInventory(FindInventoryLocationType.ANY, item);
 
 		if (!moved)
 		{
-			if (GetGame().IsMultiplayer())
+			if (g_Game.IsMultiplayer())
 				moved = owner.GetInventory().DropEntity(InventoryMode.SERVER, owner, item);
 			else
 				moved = owner.GetInventory().DropEntity(InventoryMode.LOCAL, owner, item);

@@ -14,7 +14,7 @@ class ExpansionStaticKeyGrinder: ItemBase
 {
 	void ExpansionStaticKeyGrinder()
 	{
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
 			SetAllowDamage(false);
 		}

@@ -168,7 +168,7 @@ class ExpansionMarkerData
 	Object GetObject()
 	{
 		if ( IsMissionClient() )
-			m_Object = GetGame().GetObjectByNetworkId( m_ObjectNetworkLow, m_ObjectNetworkHigh );
+			m_Object = g_Game.GetObjectByNetworkId( m_ObjectNetworkLow, m_ObjectNetworkHigh );
 		
 		return m_Object;
 	}
@@ -367,7 +367,7 @@ class ExpansionMarkerData
 			if ( !ctx.Read( m_ObjectNetworkLow ) || !ctx.Read( m_ObjectNetworkHigh ) )
 				return false;
 			
-			m_Object = GetGame().GetObjectByNetworkId( m_ObjectNetworkLow, m_ObjectNetworkHigh );
+			m_Object = g_Game.GetObjectByNetworkId( m_ObjectNetworkLow, m_ObjectNetworkHigh );
 		}
 
 		return true;

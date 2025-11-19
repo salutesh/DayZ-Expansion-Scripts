@@ -56,7 +56,7 @@ modded class EffectArea
 
 	void ~EffectArea()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		if (s_Expansion_DangerousAreas)

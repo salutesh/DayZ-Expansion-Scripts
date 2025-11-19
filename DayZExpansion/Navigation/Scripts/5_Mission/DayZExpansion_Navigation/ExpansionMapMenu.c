@@ -110,7 +110,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 	#endif
 
 		m_DeletingMarkers = new set<ExpansionMapMarker>();
-		Class.CastTo(m_PlayerB, GetGame().GetPlayer());
+		Class.CastTo(m_PlayerB, g_Game.GetPlayer());
 		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
 
 	#ifdef EXPANSIONMODGROUPS
@@ -168,7 +168,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 			return layoutRoot;
 		}
 
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Navigation/GUI/layouts/expansion_map.layout");
+		layoutRoot = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Navigation/GUI/layouts/expansion_map.layout");
 		Class.CastTo(m_MapWidget, layoutRoot.FindAnyWidget( "Map" ));
 		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 
@@ -192,7 +192,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 
 			if (GetExpansionSettings().GetMap().ShowPlayerPosition == 2)
 			{
-				if (PlayerBase.Cast(GetGame().GetPlayer() ).HasItemCompass())
+				if (PlayerBase.Cast(g_Game.GetPlayer() ).HasItemCompass())
 				{
 					player_Marker.Show();
 				}
@@ -209,7 +209,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 			m_Markers.Insert(player_Marker);
 		}
 
-		Widget marker_list = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Navigation/GUI/layouts/expansion_map_markerlist.layout", layoutRoot);
+		Widget marker_list = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Navigation/GUI/layouts/expansion_map_markerlist.layout", layoutRoot);
 		marker_list.GetScript(m_MarkerList);
 
 		m_MarkerList.Init(this);
@@ -262,7 +262,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 			vector mapPosition;
 			if (player && !player.GetLastMapInfo(scale, mapPosition))
 			{
-				vector tempPosition = GetGame().ConfigGetVector(string.Format("CfgWorlds %1 centerPosition", GetGame().GetWorldName()));
+				vector tempPosition = g_Game.ConfigGetVector(string.Format("CfgWorlds %1 centerPosition", g_Game.GetWorldName()));
 				scale = 0.33;
 				mapPosition = tempPosition;
 			}
@@ -718,7 +718,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 			return;
 		}
 
-		PlayerBase localPlayer = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase localPlayer = PlayerBase.Cast(g_Game.GetPlayer());
 		string localUid = "";
 		if (localPlayer)
 			localUid = localPlayer.GetIdentityUID();
@@ -1068,7 +1068,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 		vector cameraPos;
 		vector mapPos;
 
-		cameraPos = GetGame().GetCurrentCameraPosition();
+		cameraPos = g_Game.GetCurrentCameraPosition();
 		mapPos = m_MapWidget.MapToScreen(cameraPos);
 
 		return mapPos;
@@ -1084,7 +1084,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 		float normalizedAngle;
 		int dir;
 
-		cameraOri = GetGame().GetCurrentCameraDirection().VectorToAngles();
+		cameraOri = g_Game.GetCurrentCameraDirection().VectorToAngles();
 		yaw = cameraOri[0];
 		normalizedAngle = Math.NormalizeAngle(yaw);
 		dir = Math.Round(normalizedAngle);
@@ -1148,7 +1148,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 		vector player_pos;
 
 		if (!m_PlayerB)
-			m_PlayerB = PlayerBase.Cast( GetGame().GetPlayer() );
+			m_PlayerB = PlayerBase.Cast( g_Game.GetPlayer() );
 
 		if (m_PlayerB && !m_PlayerB.GetLastMapInfo(scale, map_pos))
 		{
@@ -1164,7 +1164,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 			else
 			{
 				scale = 0.50;
-				map_pos = GetGame().ConfigGetVector(string.Format("CfgWorlds %1 centerPosition", GetGame().GetWorldName()));
+				map_pos = g_Game.ConfigGetVector(string.Format("CfgWorlds %1 centerPosition", g_Game.GetWorldName()));
 			}
 			m_PlayerB.SetLastMapInfo(scale, map_pos);
 		}
@@ -1193,7 +1193,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 
 		float scale = m_MapWidget.GetScale();
 		vector map_pos = m_MapWidget.GetMapPos();
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 
 		if (player)
 			player.SetLastMapInfo(scale, map_pos);
@@ -1221,7 +1221,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 				{
 					int mouse_x;
 					int mouse_y;
-					PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+					PlayerBase player = PlayerBase.Cast( g_Game.GetPlayer() );
 
 					if (GetExpansionSettings().GetMap().NeedPenItemForCreateMarker && player.HasItemPen())
 					{
@@ -1279,7 +1279,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 		m_OpenMapTime = 0;
 
 		SetFocus(layoutRoot);
-		GetGame().GetMission().AddActiveInputExcludes({"map"});
+		g_Game.GetMission().AddActiveInputExcludes({"map"});
 
 		if (GetExpansionClientSettings().OpenMapOnPlayerPos)
 			SetMapPosition();
@@ -1310,8 +1310,8 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 		m_MarkerList.HideTooltips();
 		m_MarkerModule.SaveLocalServerMarkers();
 
-		if (GetGame().GetMission())
-			GetGame().GetMission().RemoveActiveInputExcludes({"map"});
+		if (g_Game.GetMission())
+			g_Game.GetMission().RemoveActiveInputExcludes({"map"});
 
 		PPEffects.SetBlurMenu(0.0);
 
@@ -1334,19 +1334,19 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 
 		UpdateMapLegend();
 
-		if (GetGame().GetInput().LocalPress("UAUIBack", false))
+		if (g_Game.GetInput().LocalPress("UAUIBack", false))
 		{
 			CloseMapMenu();
 			return;
 		}
 
-		if (GetGame().GetInput().LocalPress("UAExpansionMapToggle", false ) && m_OpenMapTime > 0.10 && !IsEditingMarker())
+		if (g_Game.GetInput().LocalPress("UAExpansionMapToggle", false ) && m_OpenMapTime > 0.10 && !IsEditingMarker())
 		{
 			CloseMapMenu();
 			return;
 		}
 
-		if (GetGame().GetInput().LocalPress( "UAExpansionMapDeleteMarker", false))
+		if (g_Game.GetInput().LocalPress( "UAExpansionMapDeleteMarker", false))
 			RemoveMarker();
 
 		UpdateMapPosition();
@@ -1477,7 +1477,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	void PlayDrawSound()
 	{
-		if (!GetGame().IsServer() || !GetGame().IsMultiplayer()) // client side
+		if (!g_Game.IsServer() || !g_Game.IsMultiplayer()) // client side
 		{
 			SEffectManager.PlaySound("Expansion_Draws_SoundSet", m_PlayerB.GetPosition());
 		}
@@ -1523,7 +1523,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 
 		if (m_Map)
 		{
-			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 			if (player)
 			{
 				player.SetMapClosingSyncSet(false); //map is closing, server needs to be notified - once
@@ -1533,7 +1533,7 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 		if (destroy)
 			Close();
 		else
-			GetGame().GetUIManager().HideScriptedMenu( this );  //! Don't close, we do not want to have to redraw all the markers next time we open it
+			g_Game.GetUIManager().HideScriptedMenu( this );  //! Don't close, we do not want to have to redraw all the markers next time we open it
 	}
 
 	// ------------------------------------------------------------

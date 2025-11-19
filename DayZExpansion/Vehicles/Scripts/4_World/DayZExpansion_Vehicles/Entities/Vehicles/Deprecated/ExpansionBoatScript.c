@@ -60,24 +60,24 @@ class ExpansionBoatScript: CarScript
 
 		/*
 		path = "CfgVehicles " + GetType() + " SimulationModule Props";
-		count = GetGame().ConfigGetChildrenCount(path);
+		count = g_Game.ConfigGetChildrenCount(path);
 
 		for (i = 0; i < count; i++)
 		{
 			string propName;
-			GetGame().ConfigGetChildName(path, i, propName);
+			g_Game.ConfigGetChildName(path, i, propName);
 
 			string propPath = path + " " + propName;
 			AddModule(new ExpansionVehicleProp(this, propPath));
 		}
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Buoyancy";
-		count = GetGame().ConfigGetChildrenCount(path);
+		count = g_Game.ConfigGetChildrenCount(path);
 
 		for (i = 0; i < count; i++)
 		{
 			string buoyancyName;
-			GetGame().ConfigGetChildName(path, i, buoyancyName);
+			g_Game.ConfigGetChildName(path, i, buoyancyName);
 
 			string buoyancyPath = path + " " + buoyancyName;
 			AddModule(new ExpansionVehicleBuoyantPoint(this, buoyancyPath));
@@ -100,17 +100,17 @@ class ExpansionBoatScript: CarScript
 		m_CarDoorOpenSound = "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound = "offroad_door_close_SoundSet";
 
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
 			int selectionIndex = GetHiddenSelectionIndex("antiwater");
 			if (selectionIndex > -1)
 			{
 				SetObjectTexture(selectionIndex, "dz\\data\\data\\antiwater_ca.paa");
 				SetObjectMaterial(selectionIndex, "dz\\data\\data\\antiwater.rvmat");
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(UpdateVisuals);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(UpdateVisuals);
 			}
 
-			m_Expansion_SDSCheckTime = GetGame().GetTickTime();
+			m_Expansion_SDSCheckTime = g_Game.GetTickTime();
 		}
 	}
 
@@ -265,7 +265,7 @@ class ExpansionBoatScript: CarScript
 	{
 		vector enginePosition = ModelToWorld(GetMemoryPointPos("engine"));
 		//! TODO: Make particles for reverse gear too
-		if (enginePosition[1] <= GetGame().SurfaceGetSeaLevel() && Math.AbsFloat(GetSpeedometer()) > 5)
+		if (enginePosition[1] <= g_Game.SurfaceGetSeaLevel() && Math.AbsFloat(GetSpeedometer()) > 5)
 		{
 			if (!m_ParticleEngine && MemoryPointExists("engine"))
 			{
@@ -547,7 +547,7 @@ class ExpansionBoatScript: CarScript
 		{
 			m_BoatTime = 0;
 
-			if (GetGame().IsServer() && Expansion_EngineIsOn(1))
+			if (g_Game.IsServer() && Expansion_EngineIsOn(1))
 			{
 				if (GetFluidFraction(CarFluid.FUEL) <= 0 || m_EngineHealth <= 0)
 					Expansion_EngineStop(1);
@@ -636,7 +636,7 @@ class ExpansionBoatScript: CarScript
 
 	float GetTideCorrection(vector position)
 	{
-		if (GetGame().SurfaceIsSea(position[0], position[2]))
+		if (g_Game.SurfaceIsSea(position[0], position[2]))
 		{
 			vector waterSurfacePos = ExpansionStatic.GetSurfaceWaterPosition(position);
 			//! Based on Chernarus, where lowest and highest tide point are roughly 0.320801 and 0.820602, respectively
@@ -671,7 +671,7 @@ class ExpansionBoatScript: CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_CanSimulate");
 #endif
 
-		if ((GetGame().IsServer() && GetGame().IsMultiplayer()) && !m_IsInitialized)
+		if ((g_Game.IsServer() && g_Game.IsMultiplayer()) && !m_IsInitialized)
 			return false;
 
 		return true;
@@ -693,7 +693,7 @@ class ExpansionBoatScript: CarScript
 
 		//! Make sure to let simulation run for at least 20s so that collision can be handled by vanilla, otherwise boat may get deactivated
 		//! in CarScript::EOnSimulate prematurely if no driver and get pushed under water by still running vanilla collision code
-		if (GetGame().GetTickTime() - m_Expansion_SDSCheckTime < 20)
+		if (g_Game.GetTickTime() - m_Expansion_SDSCheckTime < 20)
 			return false;
 
 		vector velocity = GetVelocity(this);
@@ -725,7 +725,7 @@ class ExpansionBoatScript: CarScript
 		}
 
 		if (result)
-			m_Expansion_SDSCheckTime = GetGame().GetTickTime();
+			m_Expansion_SDSCheckTime = g_Game.GetTickTime();
 
 		return result;
 	}

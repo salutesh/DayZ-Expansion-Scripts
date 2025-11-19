@@ -22,14 +22,14 @@ class ExpansionWoodPillarKit: ExpansionKitLarge
 	{
 		if ( IsMissionHost() )
 		{			
-			ExpansionWoodPillar pillar = ExpansionWoodPillar.Cast( GetGame().CreateObject( "ExpansionWoodPillar", GetPosition() ) );
+			ExpansionWoodPillar pillar = ExpansionWoodPillar.Cast( g_Game.CreateObject( "ExpansionWoodPillar", GetPosition() ) );
 			pillar.SetPosition( position );
 			pillar.SetOrientation( orientation );
 			
 			//! Make the kit invisible, so it can be destroyed from deploy UA when action ends
 			HideAllSelections();
 
-			GetGame().ObjectDelete(this);
+			g_Game.ObjectDelete(this);
 		}	
 		
 		SetIsDeploySound( true );
@@ -39,7 +39,7 @@ class ExpansionWoodPillarKit: ExpansionKitLarge
 	{
 		if (!IsHologram())
 		{
-			ItemBase stick = ItemBase.Cast(GetGame().CreateObjectEx("WoodenStick",GetPosition(),ECE_PLACE_ON_SURFACE));
+			ItemBase stick = ItemBase.Cast(g_Game.CreateObjectEx("WoodenStick",GetPosition(),ECE_PLACE_ON_SURFACE));
 			MiscGameplayFunctions.TransferItemProperties(this, stick);
 			stick.SetQuantity(1);
 			Rope rope = Rope.Cast(item);

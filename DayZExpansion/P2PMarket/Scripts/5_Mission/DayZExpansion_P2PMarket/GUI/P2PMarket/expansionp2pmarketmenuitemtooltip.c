@@ -187,7 +187,7 @@ class ExpansionP2PMarketMenuItemTooltip: ExpansionScriptView
 		array<string> slots = {"Back", "Vest", "Legs", "Body", "Hands", "Shoulder", "Melee", "Bow", "Hips", "Feet", "Armband", "Headgear", "Mask", "Eyewear", "LeftHand", "Gloves"};
 		foreach (string slot: slots)
 		{
-			if (GetGame().GetPlayer().FindAttachmentBySlotName(slot) == item /*&& MiscGameplayFunctions.Expansion_HasAnyCargo(item)*/)
+			if (g_Game.GetPlayer().FindAttachmentBySlotName(slot) == item /*&& MiscGameplayFunctions.Expansion_HasAnyCargo(item)*/)
 			{
 				return true;
 			}

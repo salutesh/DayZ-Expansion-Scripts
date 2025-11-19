@@ -15,7 +15,7 @@ modded class EffectSound
 #ifdef DIAG_DEVELOPER
 	void ~EffectSound()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		if (ExpansionSoundSet.s_RegisteredSoundSets_ByName.Contains(GetSoundSet()))

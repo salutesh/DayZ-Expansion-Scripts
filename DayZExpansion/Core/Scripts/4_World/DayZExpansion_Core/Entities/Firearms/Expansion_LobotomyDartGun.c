@@ -31,7 +31,7 @@ class Expansion_LobotomyDartGun_Debug: Expansion_LobotomyDartGun
 #ifdef DIAG_DEVELOPER
 	void Expansion_LobotomyDartGun_Debug()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			SetAllowDamage(false);
 	}
 
@@ -45,7 +45,7 @@ class Expansion_LobotomyDartGun_Debug: Expansion_LobotomyDartGun
 			Magazine magazine = GetMagazine(GetCurrentMuzzle());
 			if (magazine)
 			{
-				if (GetGame().IsServer())
+				if (g_Game.IsServer())
 					magazine.ServerSetAmmoMax();
 				else
 					magazine.LocalSetAmmoMax();

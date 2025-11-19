@@ -57,7 +57,7 @@ modded class SwapOldAndNewMagazine
 					if (ExpansionItemSpawnHelper.Clone(m_newMagazine, true, il, keepUnlootable) == null)
 						Error("Cloning failed " + ExpansionStatic.GetDebugInfo(m_newMagazine) + " " + ExpansionStatic.DumpToString(il));
 
-					GetGame().ObjectDelete(m_newMagazine);  //! Whether cloning succeeded or not, always delete the offending mag to break out of the event (else it will repeat over and over...)
+					g_Game.ObjectDelete(m_newMagazine);  //! Whether cloning succeeded or not, always delete the offending mag to break out of the event (else it will repeat over and over...)
 				}
 			}
 
@@ -184,7 +184,7 @@ modded class AttachNewMagazine
 					}
 				}
 
-				if (!success && GetGame().IsServer())
+				if (!success && g_Game.IsServer())
 				{
 					il.Reset();
 
@@ -214,7 +214,7 @@ modded class AttachNewMagazine
 					if (ExpansionItemSpawnHelper.Clone(m_newMagazine, true, il, keepUnlootable) == null)
 						Error("Cloning failed " + ExpansionStatic.GetDebugInfo(m_newMagazine) + " " + ExpansionStatic.DumpToString(il));
 
-					GetGame().ObjectDelete(m_newMagazine);  //! Whether cloning succeeded or not, always delete the offending mag to break out of the event (else it will repeat over and over...)
+					g_Game.ObjectDelete(m_newMagazine);  //! Whether cloning succeeded or not, always delete the offending mag to break out of the event (else it will repeat over and over...)
 
 				/*
 					if (directParent)
@@ -229,7 +229,7 @@ modded class AttachNewMagazine
 						if (ExpansionItemSpawnHelper.Clone(directParent, true, il, keepUnlootable) == null)
 							Error("Cloning failed " + ExpansionStatic.GetDebugInfo(directParent) + " " + ExpansionStatic.DumpToString(il));
 
-						GetGame().ObjectDelete(directParent);  //! Whether cloning succeeded or not, always delete the offending direct parent to break out of the event (else it will repeat over and over...)
+						g_Game.ObjectDelete(directParent);  //! Whether cloning succeeded or not, always delete the offending direct parent to break out of the event (else it will repeat over and over...)
 					}
 				*/
 				}

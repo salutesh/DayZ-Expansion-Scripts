@@ -18,7 +18,7 @@ modded class ExpansionActionOpenQuestMenu
 		if (!super.ActionCondition(player, target, item))
 			return false;
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{			
 			bool changeText = false;
 			string actionText;

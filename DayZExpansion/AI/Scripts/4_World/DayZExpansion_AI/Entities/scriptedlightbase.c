@@ -16,7 +16,7 @@ modded class ScriptedLightBase
 #ifdef DIAG_DEVELOPER
 	void ScriptedLightBase()
 	{
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_DeferredInit, 34);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_DeferredInit, 34);
 	}
 #endif
 

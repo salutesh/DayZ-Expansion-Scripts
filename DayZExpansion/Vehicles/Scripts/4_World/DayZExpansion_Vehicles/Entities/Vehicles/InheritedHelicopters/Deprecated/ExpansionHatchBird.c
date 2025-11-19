@@ -33,7 +33,7 @@ class ExpansionHatchBird: ExpansionHelicopterScript
 	{		
 		super.EEInit();
 		
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
  			m_UTSSettings 					= new UniversalTemperatureSourceSettings();
 			m_UTSSettings.m_ManualUpdate 	= true;
@@ -52,7 +52,7 @@ class ExpansionHatchBird: ExpansionHelicopterScript
 	{
 		super.OnEngineStart();
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			m_UTSource.SetDefferedActive(true, 20.0);
 		}
@@ -62,7 +62,7 @@ class ExpansionHatchBird: ExpansionHelicopterScript
 	{
 		super.OnEngineStop();
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			m_UTSource.SetDefferedActive(false, 10.0);
 		}
@@ -70,7 +70,7 @@ class ExpansionHatchBird: ExpansionHelicopterScript
 	
 	override void EOnPostSimulate(IEntity other, float timeSlice)
 	{		
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			if (m_UTSource.IsActive())
 			{

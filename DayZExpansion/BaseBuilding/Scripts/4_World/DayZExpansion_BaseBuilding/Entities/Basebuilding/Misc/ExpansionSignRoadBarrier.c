@@ -55,7 +55,7 @@ class ExpansionSignRoadBarrier: Container_Base
 	{
 		super.OnSwitchOn();
 
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 			Expansion_SoundTurnOn();
 	}
 
@@ -67,7 +67,7 @@ class ExpansionSignRoadBarrier: Container_Base
 
 		super.OnWorkStart();
 
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			if ( !m_Expansion_Light )
 			{
@@ -111,7 +111,7 @@ class ExpansionSignRoadBarrier: Container_Base
 			SetObjectMaterial( 0, "DayZExpansion\\Objects\\Basebuilding\\Misc\\Signs\\Data\\bariera_lampa_on.rvmat" );
 			if (m_Expansion_Light)
 				m_Expansion_Light.SetBrightnessTo(1.0);
-			GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(Expansion_EnableLight, 250, false, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_GUI).CallLater(Expansion_EnableLight, 250, false, false);
 		}
 		else
 		{
@@ -128,7 +128,7 @@ class ExpansionSignRoadBarrier: Container_Base
 	{
 		super.OnSwitchOff();
 
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 			Expansion_SoundTurnOff();
 	}
 
@@ -140,7 +140,7 @@ class ExpansionSignRoadBarrier: Container_Base
 
 		super.OnWorkStop();
 
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			if ( m_Expansion_Light )
 			{

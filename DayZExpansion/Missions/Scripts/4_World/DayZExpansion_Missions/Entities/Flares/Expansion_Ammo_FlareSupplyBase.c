@@ -14,7 +14,7 @@ modded class Flaregun
 {
 	override void OnFire(int muzzle_index)
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			float ammoDamage;
 			string ammoType;
@@ -25,7 +25,7 @@ modded class Flaregun
 				case "Bullet_Expansion_FlareSupplyRed":
 				case "Bullet_Expansion_FlareSupplyGreen":
 				case "Bullet_Expansion_FlareSupplyBlue":
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionMissionModule.s_Instance.CallAirdrop, 2000, false, GetPosition());
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionMissionModule.s_Instance.CallAirdrop, 2000, false, GetPosition());
 					break;
 			}
 		}

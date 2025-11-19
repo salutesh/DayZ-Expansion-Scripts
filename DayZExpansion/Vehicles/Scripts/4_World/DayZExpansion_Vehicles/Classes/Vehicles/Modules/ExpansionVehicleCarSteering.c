@@ -59,7 +59,7 @@ class ExpansionVehicleCarSteering : ExpansionVehicleSteering
 
 	bool LoadSpeed(string rootPath, string pName, out array<float> pValues)
 	{
-		GetGame().ConfigGetFloatArray(rootPath + " " + pName, pValues);
+		g_Game.ConfigGetFloatArray(rootPath + " " + pName, pValues);
 
 		if (pValues.Count() == 0)
 			return false;

@@ -38,7 +38,7 @@ modded class SlotsIcon
 	protected ImageWidget m_Expansion_RarityColor;
 	void SlotsIcon(LayoutHolder parent, Widget root, int index, EntityAI slot_parent) 
 	{
-		m_Expansion_RarityColor = ImageWidget.Cast(GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_icon_rarity.layout", m_ItemPreview));
+		m_Expansion_RarityColor = ImageWidget.Cast(g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_icon_rarity.layout", m_ItemPreview));
 		m_Expansion_RarityColor.Show(false);
 	}
 

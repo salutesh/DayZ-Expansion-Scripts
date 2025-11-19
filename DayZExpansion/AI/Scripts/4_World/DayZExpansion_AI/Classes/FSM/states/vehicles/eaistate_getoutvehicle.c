@@ -6,7 +6,7 @@ class eAIState_GetOutVehicle : eAIState_GoToVehicle
 	{
 		super.OnEntry(Event, From);
 
-		auto vehCmd = unit.GetCommand_VehicleAI();
+		auto vehCmd = unit.GetCommand_Vehicle();
 		if (vehCmd && !vehCmd.IsGettingIn())
 		{
 			vehCmd.GetOutVehicle();
@@ -26,7 +26,7 @@ class eAIState_GetOutVehicle : eAIState_GoToVehicle
 
 		m_Time += DeltaTime;
 
-		auto vehCmd = unit.GetCommand_VehicleAI();
+		auto vehCmd = unit.GetCommand_Vehicle();
 		if ((vehCmd && vehCmd.IsGettingOut()) || m_Time < 2.0)
 		{
 			return CONTINUE;

@@ -32,9 +32,9 @@ class ExpansionDamageSystem
 
 		if (ammoType)
 		{
-			if (GetGame().ConfigIsExisting("CfgAmmo " + ammoType + " indirectHitRange"))
+			if (g_Game.ConfigIsExisting("CfgAmmo " + ammoType + " indirectHitRange"))
 			{
-				explosionDropoffRange = GetGame().ConfigGetFloat("CfgAmmo " + ammoType + " indirectHitRange");
+				explosionDropoffRange = g_Game.ConfigGetFloat("CfgAmmo " + ammoType + " indirectHitRange");
 			}
 			else
 			{
@@ -42,9 +42,9 @@ class ExpansionDamageSystem
 				explosionDropoffRange = 1.0;
 			}
 
-			if (GetGame().ConfigIsExisting("CfgAmmo " + ammoType + " indirectHitRangeMultiplier"))
+			if (g_Game.ConfigIsExisting("CfgAmmo " + ammoType + " indirectHitRangeMultiplier"))
 			{
-				explosionRange = explosionDropoffRange * GetGame().ConfigGetFloat("CfgAmmo " + ammoType + " indirectHitRangeMultiplier");
+				explosionRange = explosionDropoffRange * g_Game.ConfigGetFloat("CfgAmmo " + ammoType + " indirectHitRangeMultiplier");
 			}
 			else
 			{
@@ -52,9 +52,9 @@ class ExpansionDamageSystem
 				explosionRange = explosionDropoffRange;
 			}
 
-			directional = GetGame().ConfigGetTextOut("CfgAmmo " + ammoType + " explosionType") == "directional";
-			indirectHitAngle1 = GetGame().ConfigGetFloat("CfgAmmo " + ammoType + " indirectHitAngle1");
-			indirectHitAngle2 = GetGame().ConfigGetFloat("CfgAmmo " + ammoType + " indirectHitAngle2");
+			directional = g_Game.ConfigGetTextOut("CfgAmmo " + ammoType + " explosionType") == "directional";
+			indirectHitAngle1 = g_Game.ConfigGetFloat("CfgAmmo " + ammoType + " indirectHitAngle1");
+			indirectHitAngle2 = g_Game.ConfigGetFloat("CfgAmmo " + ammoType + " indirectHitAngle2");
 
 			return true;
 		}
@@ -77,7 +77,7 @@ class ExpansionDamageSystem
 
 		if (ammoType)
 		{
-			dmgNominal = GetGame().ConfigGetFloat("CfgAmmo " + ammoType + " DamageApplied Health damage");
+			dmgNominal = g_Game.ConfigGetFloat("CfgAmmo " + ammoType + " DamageApplied Health damage");
 			return dmgNominal * GetExplosionDamageNormalized(source, target, explosionRange, explosionDropoffRange);
 		}
 
@@ -102,7 +102,7 @@ class ExpansionDamageSystem
 
 	static void OnBeforeExplode(EntityAI source, int damageType, string ammoType = "", vector position = vector.Zero)
 	{
-		if (!GetGame().IsServer() || damageType != DamageType.EXPLOSION || !GetExpansionSettings().GetDamageSystem().Enabled)
+		if (!g_Game.IsServer() || damageType != DamageType.EXPLOSION || !GetExpansionSettings().GetDamageSystem().Enabled)
 			return;
 
 		if (position == vector.Zero)
@@ -139,7 +139,7 @@ class ExpansionDamageSystem
 		}
 		//else
 		//{
-			GetGame().GetObjectsAtPosition3D(position, explosionRange, nearest_objects, proxy_cargos);
+			g_Game.GetObjectsAtPosition3D(position, explosionRange, nearest_objects, proxy_cargos);
 		//}
 
 		ItemBase nearest_item;
@@ -256,7 +256,7 @@ class ExpansionDamageSystem
 #endif
 		}
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnAfterExplode, 34, false, source, source.ToString(), ExpansionStatic.VectorToString(position), damageType, ammoType, targets);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnAfterExplode, 34, false, source, source.ToString(), ExpansionStatic.VectorToString(position), damageType, ammoType, targets);
 	}
 
 	static bool PerformRaycast(EntityAI source, EntityAI target, vector position, out bool targetHit, out Object blockingObject)
@@ -360,7 +360,7 @@ class ExpansionDamageSystem
 
 				float dmgCoef = (baseDmg - dmg) / dmgDirectHit;
 
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(ApplyExplosionDamage, source, target, dmgZone, ammoType, modelPos, dmgCoef);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(ApplyExplosionDamage, source, target, dmgZone, ammoType, modelPos, dmgCoef);
 				return false;
 			}
 		}

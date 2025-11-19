@@ -141,7 +141,7 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 	void SetTerritory()
 	{
 		PlayerBase player;
-		if (Class.CastTo(player, GetGame().GetPlayer()))
+		if (Class.CastTo(player, g_Game.GetPlayer()))
 			m_Flag = m_TerritoryModule.GetFlagAtPosition3D(player.GetPosition());
 		
 		if (!m_Flag)
@@ -268,7 +268,7 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 		if (!m_Territory || !book_menu_content_left.IsVisible()) 
 			return;		
 		
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (!player) 
 			return;
 	
@@ -394,7 +394,7 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 		array<CargoBase> proxyCargos = new array<CargoBase>;
 		array<PlayerIdentity> identitys = new array<PlayerIdentity>;
 		
-		GetGame().GetObjectsAtPosition(position, radius, objects, proxyCargos);
+		g_Game.GetObjectsAtPosition(position, radius, objects, proxyCargos);
 		
 		if (objects.Count() > 0)
 		{
@@ -454,7 +454,7 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 	ExpansionTerritoryRank GetPlayerRank()
 	{
 		ExpansionTerritoryRank rank;
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		ExpansionTerritoryMember member = m_Territory.GetMember(player.GetIdentity().GetId());
 		rank = member.GetRank();
 		return rank;

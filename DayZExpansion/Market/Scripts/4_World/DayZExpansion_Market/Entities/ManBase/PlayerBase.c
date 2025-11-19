@@ -52,9 +52,9 @@ modded class PlayerBase
 #ifdef EXPANSIONMODMARKET_DEBUG
 				EXPrint("PlayerBase::IsMarketItemReserved - 2");
 				EXPrint("PlayerBase::IsMarketItemReserved - m_MarketReserve.Time: " + m_MarketReserve.Time);
-				EXPrint("PlayerBase::IsMarketItemReserved - GetGame().GetTime() - 30000: " + (GetGame().GetTime() - 30000));
+				EXPrint("PlayerBase::IsMarketItemReserved - g_Game.GetTime() - 30000: " + (g_Game.GetTime() - 30000));
 #endif
-				if (m_MarketReserve.Time >= GetGame().GetTime() - 30000)
+				if (m_MarketReserve.Time >= g_Game.GetTime() - 30000)
 				{
 					//! Still within 30 second timelimit until item reservation expires
 #ifdef EXPANSIONMODMARKET_DEBUG

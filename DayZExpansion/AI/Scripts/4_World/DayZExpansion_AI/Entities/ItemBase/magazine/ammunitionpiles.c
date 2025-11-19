@@ -10,8 +10,8 @@ modded class Ammunition_Base
 		if (!s_Expansion_HealthDamage.Find(ammoType, m_Expansion_HealthDamage))
 		{
 			string bulletType;
-			if (GetGame().ConfigGetText(CFG_MAGAZINESPATH + " " + ammoType + " ammo", bulletType))
-				m_Expansion_HealthDamage = GetGame().ConfigGetFloat(CFG_AMMO + " " + bulletType + " DamageApplied Health damage");
+			if (g_Game.ConfigGetText(CFG_MAGAZINESPATH + " " + ammoType + " ammo", bulletType))
+				m_Expansion_HealthDamage = g_Game.ConfigGetFloat(CFG_AMMO + " " + bulletType + " DamageApplied Health damage");
 
 		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.AI, null, ammoType + " " + bulletType + " health dmg " + m_Expansion_HealthDamage);

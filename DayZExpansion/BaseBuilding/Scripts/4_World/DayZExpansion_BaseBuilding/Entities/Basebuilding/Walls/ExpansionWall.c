@@ -677,7 +677,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	
 	override void Expansion_Close( string selection ) 
 	{	
-		if ( GetGame().IsServer() && m_Expansion_HasWindow )
+		if ( g_Game.IsServer() && m_Expansion_HasWindow )
 		{
 			if (selection == (m_Expansion_CurrentBuild + "_window_ll"))
 			{

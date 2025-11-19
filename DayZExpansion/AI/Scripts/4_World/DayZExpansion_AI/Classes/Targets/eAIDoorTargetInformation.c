@@ -51,7 +51,7 @@ class eAIDoorTargetInformation: eAIEntityTargetInformation
 		if (ai)
 		{
 			//! If AI was recently hit, ignore this door
-			if (GetGame().GetTickTime() - ai.m_eAI_LastHitTime < 3.0)
+			if (g_Game.GetTickTime() - ai.m_eAI_LastHitTime < 3.0)
 				return 0.0;
 
 			float distance = Math.Max(GetDistance(ai), 1.0);

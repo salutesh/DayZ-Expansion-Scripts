@@ -323,7 +323,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 			//! Update module community goal data.
 			m_CommunityGoals.Set(id, communityGoal);
 			
-			MissionBaseWorld missionWorld = MissionBaseWorld.Cast(GetGame().GetMission());
+			MissionBaseWorld missionWorld = MissionBaseWorld.Cast(g_Game.GetMission());
 			if (missionWorld)
 			{
 				missionWorld.Expansion_OnCommunityGoalReached(id, communityGoal);
@@ -341,12 +341,12 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 		array<ref ExpansionCommunityGoalsBoard> communityGoalsBoards = m_ServerData.GetCommunityGoalsBoards();
 		foreach (ExpansionCommunityGoalsBoard communityGoalsBoard: communityGoalsBoards)
 		{
-			Object obj = GetGame().CreateObjectEx(communityGoalsBoard.ClassName, communityGoalsBoard.Position, ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
+			Object obj = g_Game.CreateObjectEx(communityGoalsBoard.ClassName, communityGoalsBoard.Position, ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
 			Expansion_CommunityGoals_Board goalsBoardObj = Expansion_CommunityGoals_Board.Cast(obj);
 			if (!goalsBoardObj)
 			{
 				Error(ToString() + "::SpawnCommunityGoalBoards - Could not spawn community goal board object!");
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 				return;
 			}
 
@@ -365,7 +365,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 		{
 			Error(ToString() + "::SendCommunityGoalData - Tried to call SendWorkbenchData on Client!");
 			return;
@@ -445,7 +445,7 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 #endif
 		ModuleDebugPrint("::RequestCommunityGoalDetails - Request community goal details for goal with ID: " + goalID);
 
-		if (!GetGame().IsClient())
+		if (!g_Game.IsClient())
 		{
 			Error(ToString() + "::RequestCommunityGoalDetails - Tried to call RequestCommunityGoalDetails on Server!");
 			return;

@@ -2,7 +2,7 @@ modded class DayZPlayerImplementFallDamage
 {
 	override void HandleFallDamage(FallDamageData pData)
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			DayZPlayerImplement player;
 			//! @note `FallDamage` is just a placeholder we use, it doesn't actually exist as ammo since DayZ 1.21

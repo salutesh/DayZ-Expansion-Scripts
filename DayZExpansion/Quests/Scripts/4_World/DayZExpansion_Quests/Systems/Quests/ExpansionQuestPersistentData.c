@@ -28,7 +28,7 @@ class ExpansionQuestPersistentData
 
 	void ~ExpansionQuestPersistentData()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		if (QuestData)
@@ -476,9 +476,9 @@ class ExpansionQuestPersistentData
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
-		if (GetGame().IsServer() || QuestData.Count())
+		if (g_Game.IsServer() || QuestData.Count())
 			Print("------------------------------------------------------------------------------------------------");
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			Print(ToString() + "::QuestDebug - File name: " + m_FileName);
 			Print(ToString() + "::QuestDebug - Data version: " + DataVersion);
@@ -487,7 +487,7 @@ class ExpansionQuestPersistentData
 		{
 			data.QuestDebug();
 		}
-		if (GetGame().IsServer() || QuestData.Count())
+		if (g_Game.IsServer() || QuestData.Count())
 			Print("------------------------------------------------------------------------------------------------");
 	#endif
 	}

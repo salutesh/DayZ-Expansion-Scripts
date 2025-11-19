@@ -18,14 +18,14 @@ modded class ItemBase
 
 		if (newLevel == GameConstants.STATE_RUINED && IsInherited(CarWheel) && !IsInherited(CarWheel_Ruined))
 			//! Do this in next frame so vanilla wheel replacement can run first
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_ReplaceWheelWithRuined);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_ReplaceWheelWithRuined);
 	}
 
 	string Expansion_GetRuinedWheelType()
 	{
 		string ruinedWheelType = GetType() + "_Ruined";
 
-		if (GetGame().ConfigIsExisting("CfgVehicles " + ruinedWheelType))
+		if (g_Game.ConfigIsExisting("CfgVehicles " + ruinedWheelType))
 			return ruinedWheelType;
 
 		return string.Empty;
@@ -91,7 +91,7 @@ class Expansion_Landrover_Wheel_Ruined: CarWheel_Ruined
 
 		//! TODO: Crutch, Expansion_Landrover_Wheel_Ruined doesn't have a proper ruined model + rvmats,
 		//! so we force visual damaged state by applying damage equal to wheel health (setting health to zero alone does NOT work)
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			ProcessDirectDamage(DT_CUSTOM, this, "Tire", "TransportHit", "0 0 0", 800);
 			SetHealth(0);

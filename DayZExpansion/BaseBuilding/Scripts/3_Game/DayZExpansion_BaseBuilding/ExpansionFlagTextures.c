@@ -58,7 +58,7 @@ class ExpansionFlagTextures
 		
 		//! Load all flags from config.cpp
 
-		int count = GetGame().ConfigGetChildrenCount(CFG_VEHICLESPATH);
+		int count = g_Game.ConfigGetChildrenCount(CFG_VEHICLESPATH);
 		string childName;
 		TStringArray hiddenSelectionsTextures;
 		string path;
@@ -72,16 +72,16 @@ class ExpansionFlagTextures
 
 		for (int i = 0; i < count; i++)
 		{
-			GetGame().ConfigGetChildName(CFG_VEHICLESPATH, i, childName);
+			g_Game.ConfigGetChildName(CFG_VEHICLESPATH, i, childName);
 
-			if (!GetGame().IsKindOf(childName, "Flag_Base") || GetGame().ConfigGetInt(CFG_VEHICLESPATH + " " + childName + " scope") != 2)
+			if (!g_Game.IsKindOf(childName, "Flag_Base") || g_Game.ConfigGetInt(CFG_VEHICLESPATH + " " + childName + " scope") != 2)
 				continue;
 
 			if (IsExcludedClassName(childName))
 				continue;
 
 			hiddenSelectionsTextures = {};
-			GetGame().ConfigGetTextArray(CFG_VEHICLESPATH + " " + childName + " hiddenSelectionsTextures", hiddenSelectionsTextures);
+			g_Game.ConfigGetTextArray(CFG_VEHICLESPATH + " " + childName + " hiddenSelectionsTextures", hiddenSelectionsTextures);
 			if (!hiddenSelectionsTextures.Count() || !hiddenSelectionsTextures[0])
 			{
 				EXPrint(ToString() + " WARNING: Flag without hiddenSelectionTextures '" + childName + "'");
@@ -94,7 +94,7 @@ class ExpansionFlagTextures
 
 			//! Use color as flag name, if not set, fall back to using classname
 			color = "";
-			GetGame().ConfigGetText(CFG_VEHICLESPATH + " " + childName + " color", color);
+			g_Game.ConfigGetText(CFG_VEHICLESPATH + " " + childName + " color", color);
 			if (color)
 			{
 				tempName = color;

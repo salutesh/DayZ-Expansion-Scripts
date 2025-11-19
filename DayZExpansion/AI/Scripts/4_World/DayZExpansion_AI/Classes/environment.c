@@ -12,7 +12,7 @@ modded class Environment
 	float Expansion_GetDaylightVisibility()
 	{
 		int year, month, day, hour, minute;
-		GetGame().GetWorld().GetDate(year, month, day, hour, minute);
+		g_Game.GetWorld().GetDate(year, month, day, hour, minute);
 
 		return Expansion_GetDaylightVisibilityEx(month, hour, minute);
 	}

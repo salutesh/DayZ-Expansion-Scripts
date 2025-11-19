@@ -47,16 +47,6 @@ class CfgSlots
 		ghostIcon="set:dayz_inventory image:shoulderleft";
 	};
 };
-class CfgNonAIVehicles
-{
-	class ProxyAttachment;
-	class ProxyExpansionHands: ProxyAttachment
-	{
-		scope=0;
-		inventorySlot="ExpansionHands";
-		model="";
-	};
-};
 class CfgVehicles
 {
 	class Inventory_Base;

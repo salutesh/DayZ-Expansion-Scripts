@@ -65,7 +65,7 @@ class ExpansionMissionEventBase
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
-		if ( GetGame() && GetGame().IsServer() )
+		if ( g_Game && g_Game.IsServer() )
 		{
 			if ( m_IsRunning )
 			{
@@ -238,7 +238,7 @@ class ExpansionMissionEventBase
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
 			m_FileName = file;
 	
@@ -252,7 +252,7 @@ class ExpansionMissionEventBase
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
 			OnSaveMission();
 		}
@@ -286,14 +286,14 @@ class ExpansionMissionEventBase
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
 			m_IsRunning = true;
 			m_CurrentMissionTime = 0;
 	
 			Event_OnStart();
 	
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnUpdate, 1000, true, 1.0 );
+			g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnUpdate, 1000, true, 1.0 );
 		}
 	}
 	
@@ -311,9 +311,9 @@ class ExpansionMissionEventBase
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( OnUpdate );
+			g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( OnUpdate );
 	
 			SI_OnMissionEnd.Invoke( this );
 	
@@ -325,7 +325,7 @@ class ExpansionMissionEventBase
 
 	void OnUpdate( float delta )
 	{
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
 			m_CurrentMissionTime += delta;
 	
@@ -369,9 +369,9 @@ class ExpansionMissionEventBase
 
 		nPosition[0] = position[0] + spawnX;
 		nPosition[2] = position[2] + spawnZ;
-		nPosition[1] = GetGame().SurfaceY( nPosition[0], nPosition[2] );
+		nPosition[1] = g_Game.SurfaceY( nPosition[0], nPosition[2] );
 
-		AIWorld aiWorld = GetGame().GetWorld().GetAIWorld();
+		AIWorld aiWorld = g_Game.GetWorld().GetAIWorld();
 
 		if (!s_Filter)
 		{

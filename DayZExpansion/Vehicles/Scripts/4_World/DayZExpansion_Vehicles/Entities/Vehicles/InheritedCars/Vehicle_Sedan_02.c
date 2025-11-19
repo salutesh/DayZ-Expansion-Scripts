@@ -94,7 +94,7 @@ class Vehicle_Sedan_02: ExpansionVehicleCarBase
 			return false;
 
 		category_name.ToLower();
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 
 		if (category_name.Contains("engine"))
 		{

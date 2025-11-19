@@ -21,18 +21,18 @@ static ExpansionVehicleEngineBase Expansion_CreateEngine(EntityAI vehicle, strin
 	int type = ExpansionVehicleEngineType.CAR;
 	string typePath = path + " type";
 
-	if (GetGame().ConfigIsExisting(typePath))
+	if (g_Game.ConfigIsExisting(typePath))
 	{
-		switch (GetGame().ConfigGetType(typePath))
+		switch (g_Game.ConfigGetType(typePath))
 		{
 		case CT_STRING:
 			string typeName;
-			GetGame().ConfigGetText(typePath, typeName);
+			g_Game.ConfigGetText(typePath, typeName);
 			typeName.ToUpper();
 			type = typename.StringToEnum(ExpansionVehicleEngineType, typeName);
 			break;
 		default:
-			type = GetGame().ConfigGetInt(typePath);
+			type = g_Game.ConfigGetInt(typePath);
 			break;
 		}
 	}
@@ -83,51 +83,51 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 		string path;
 
 		path = rootPath + " gear";
-		if (GetGame().ConfigIsExisting(path))
-			m_GearIndex = GetGame().ConfigGetInt(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_GearIndex = g_Game.ConfigGetInt(path);
 
 		path = rootPath + " throttle";
-		if (GetGame().ConfigIsExisting(path))
-			m_ThrottleIndex = GetGame().ConfigGetInt(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_ThrottleIndex = g_Game.ConfigGetInt(path);
 
 		path = rootPath + " inertia";
 		m_Inertia = 0.9;
-		if (GetGame().ConfigIsExisting(path))
-			m_Inertia = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_Inertia = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " rpmIdle";
 		m_RPMIdle = 0;
-		if (GetGame().ConfigIsExisting(path))
-			m_RPMIdle = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_RPMIdle = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " rpmMin";
 		m_RPMMin = 0;
-		if (GetGame().ConfigIsExisting(path))
-			m_RPMMin = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_RPMMin = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " rpmClutch";
 		m_RPMClutch = 0;
-		if (GetGame().ConfigIsExisting(path))
-			m_RPMClutch = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_RPMClutch = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " rpmRedline";
 		m_RPMRedline = 0;
-		if (GetGame().ConfigIsExisting(path))
-			m_RPMRedline = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_RPMRedline = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " rpmMax";
 		m_RPMMax = 0;
-		if (GetGame().ConfigIsExisting(path))
-			m_RPMMax = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_RPMMax = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " damageZone";
 		m_DamageZone = "Engine";
-		if (GetGame().ConfigIsExisting(path))
-			m_DamageZone = GetGame().ConfigGetTextOut(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_DamageZone = g_Game.ConfigGetTextOut(path);
 
 		m_Position = ExpansionVehiclesStatic.GetCenterSelection(m_Vehicle, "geometryView", "dmgzone_" + m_DamageZone);
 
-		m_FuelConsumption = GetGame().ConfigGetFloat("CfgVehicles " + m_Vehicle.GetType() + " fuelConsumption");
+		m_FuelConsumption = g_Game.ConfigGetFloat("CfgVehicles " + m_Vehicle.GetType() + " fuelConsumption");
 	}
 
 	override void Init()

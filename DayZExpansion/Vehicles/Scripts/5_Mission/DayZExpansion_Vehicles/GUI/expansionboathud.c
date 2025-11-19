@@ -40,7 +40,7 @@ class ExpansionBoatHud : VehicleHudBase
 	{
 		super.Init(vehicleHudPanels);
 		
-		m_VehiclePanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Vehicles/GUI/layouts/hud/hud_boats.layout", vehicleHudPanels);
+		m_VehiclePanel = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Vehicles/GUI/layouts/hud/hud_boats.layout", vehicleHudPanels);
 		
 		m_BoatSpeedPointer = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("SpeedPointer"));
 		m_BoatSpeedValue = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("SpeedValue"));

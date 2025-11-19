@@ -31,7 +31,7 @@ class ExpansionAirdropStarDestroyer: ExpansionAirdropPlaneBase
 		
 		float scale = 0.0;
 
-		Man player = GetGame().GetPlayer();
+		Man player = g_Game.GetPlayer();
 		if (player && Math.IsPointInCircle(m_Expansion_AirdropPosition, m_Expansion_WarpedOutDist, player.GetPosition()))
 		{
 			float dist = vector.Distance(player.GetPosition(), GetPosition());

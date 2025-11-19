@@ -92,7 +92,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		m_PersonalStorageSettings = GetExpansionSettings().GetPersonalStorage();
 		m_BrowseHeader = new ExpansionPersonalStorageMenuBrowseHeader(this);
 		
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		m_PlayerUID = player.GetIdentity().GetId();
 		player.Expansion_GetOnRestrainedStateChaged().Insert(OnRestrainedStateChaged);
 	}
@@ -121,7 +121,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		if (m_PersonalStorageMenuController.PlayerCategories)
 			m_PersonalStorageMenuController.PlayerCategories.Clear();
 		
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (player)
 			player.Expansion_GetOnRestrainedStateChaged().Remove(OnRestrainedStateChaged);
 	}
@@ -169,7 +169,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 						continue;
 					
 					ExpansionPersonalStorageItem newDepositedItem = new ExpansionPersonalStorageItem();
-					newDepositedItem.SetFromItem(item, GetGame().GetPlayer().GetIdentity().GetId());
+					newDepositedItem.SetFromItem(item, g_Game.GetPlayer().GetIdentity().GetId());
 					newDepositedItem.SetIsStored(true);
 								
 					ExpansionPersonalStorageMenuItem storedItem = new ExpansionPersonalStorageMenuItem(newDepositedItem, this);
@@ -273,7 +273,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		if (personalStorageConfig)
 		{
 			int reputationToUnlock = personalStorageConfig.GetReputation();
-			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 			if (player)
 			{
 				int reputation = player.Expansion_GetReputation();
@@ -304,7 +304,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		array<EntityAI> items = ExpansionPersonalStorageModule.GetModuleInstance().LocalGetEntityInventory();
 		if (items && items.Count() > 0)
 		{
-			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 			foreach (EntityAI item: items)
 			{
 				if (item.GetHierarchyParent() && item.GetHierarchyParent().IsInherited(SurvivorBase))
@@ -639,32 +639,32 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	protected void PlayObjectSound()
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (g_Game.IsClient() || !g_Game.IsMultiplayer())
 		{
-			if (GetGame().GetPlayer())
+			if (g_Game.GetPlayer())
 			{
 				string soundConfig;
 				string typeName = m_SelectedPlayerItem.GetPreviewObject().GetType();
 				string path = "cfgVehicles " + typeName + " " + "AnimEvents ";
-				int events_sources_count = GetGame().ConfigGetChildrenCount(path);
+				int events_sources_count = g_Game.ConfigGetChildrenCount(path);
 				string soundName = "";
 				EffectSound sound;
 
 				for (int i = 0; i < events_sources_count; i++)
 				{
 					string soundWeapons;
-					GetGame().ConfigGetChildName(path, i, soundWeapons);
+					g_Game.ConfigGetChildName(path, i, soundWeapons);
 
-					if (GetGame().ConfigIsExisting(path + soundWeapons + " pickUpItem" + " soundSet"))
-						GetGame().ConfigGetText(path + soundWeapons + " pickUpItem" + " soundSet", soundName);
-					else if (GetGame().ConfigIsExisting(path + soundWeapons + " pickUpItem_Light" + " soundSet"))
-						GetGame().ConfigGetText(path + soundWeapons + " pickUpItem_Light" + " soundSet", soundName);
+					if (g_Game.ConfigIsExisting(path + soundWeapons + " pickUpItem" + " soundSet"))
+						g_Game.ConfigGetText(path + soundWeapons + " pickUpItem" + " soundSet", soundName);
+					else if (g_Game.ConfigIsExisting(path + soundWeapons + " pickUpItem_Light" + " soundSet"))
+						g_Game.ConfigGetText(path + soundWeapons + " pickUpItem_Light" + " soundSet", soundName);
 				}
 
 				if (soundName != "")
-					sound = SEffectManager.PlaySound(soundName, GetGame().GetPlayer().GetPosition());
+					sound = SEffectManager.PlaySound(soundName, g_Game.GetPlayer().GetPosition());
 				else
-					sound = SEffectManager.PlaySound("pickUpBackPack_Metal_SoundSet", GetGame().GetPlayer().GetPosition());
+					sound = SEffectManager.PlaySound("pickUpBackPack_Metal_SoundSet", g_Game.GetPlayer().GetPosition());
 
 				sound.SetSoundAutodestroy(true);
 			}
@@ -989,7 +989,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		browse_categories_content.Show(false);
 		toggle_categories_panel.Show(false);
 		
-		ExpansionPersonalStorageModule.GetModuleInstance().EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
+		ExpansionPersonalStorageModule.GetModuleInstance().EnumeratePlayerInventory(PlayerBase.Cast(g_Game.GetPlayer()));
 		UpdatePlayerItems();
 	
 		m_PreviousViewState = m_ViewState;
@@ -1090,7 +1090,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		else
 		{
 			m_Container.Expansion_RequestMoveItem(playerItem);
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(OnModuleCallback, 200, false, ExpansionPersonalStorageModuleCallback.ItemStored);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(OnModuleCallback, 200, false, ExpansionPersonalStorageModuleCallback.ItemStored);
 		}
 		
 		loading.Show(true);
@@ -1123,7 +1123,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 			}
 
 			m_Container.Expansion_RequestMoveItem(playerItem);
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(OnModuleCallback, 200, false, ExpansionPersonalStorageModuleCallback.ItemRetrieved);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(OnModuleCallback, 200, false, ExpansionPersonalStorageModuleCallback.ItemRetrieved);
 		}
 		
 		loading.Show(true);
@@ -1302,7 +1302,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 			break;
 			case ExpansionPersonalStorageModuleCallback.Error:
 			{
-				ExpansionPersonalStorageModule.GetModuleInstance().EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
+				ExpansionPersonalStorageModule.GetModuleInstance().EnumeratePlayerInventory(PlayerBase.Cast(g_Game.GetPlayer()));
 				UpdatePlayerItems();
 				
 				OnBackClick();
@@ -1351,7 +1351,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 #endif
 		
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		if (m_ItemDetailsView)
@@ -1362,7 +1362,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		
 		if (m_IsPersonalStorageContainer && m_ContainerHub)
 		{
-			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 			
 			if (player)
 			{
@@ -1543,7 +1543,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 				{
 					EntityAI attachment = preview.GetInventory().GetAttachmentFromIndex(i);
 					if (attachment)
-						GetGame().ObjectDelete(attachment);
+						g_Game.ObjectDelete(attachment);
 				}
 
 				return;
@@ -1551,13 +1551,13 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 			else
 			{
 				//! Different classname, delete old preview object
-				GetGame().ObjectDelete(preview);
+				g_Game.ObjectDelete(preview);
 			}
 		}
 
-		if (!GetGame().IsKindOf(className, "DZ_LightAI"))
+		if (!g_Game.IsKindOf(className, "DZ_LightAI"))
 		{
-			preview = EntityAI.Cast(GetGame().CreateObjectEx(className, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
+			preview = EntityAI.Cast(g_Game.CreateObjectEx(className, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
 		#ifdef EXPANSIONMODHARDLINE
 			ItemBase item;
 			if (GetExpansionSettings().GetHardline().EnableItemRarity && Class.CastTo(item, preview))

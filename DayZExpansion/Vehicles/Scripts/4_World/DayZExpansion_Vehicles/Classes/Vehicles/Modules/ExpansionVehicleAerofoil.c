@@ -57,11 +57,11 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 		int type;
 
 		path = rootPath + " type";
-		type = GetGame().ConfigGetType(path);
+		type = g_Game.ConfigGetType(path);
 		if (type == CT_STRING)
 		{
 			string typeName;
-			GetGame().ConfigGetText(path, typeName);
+			g_Game.ConfigGetText(path, typeName);
 			typeName.ToLower();
 			type = typename.StringToEnum(ExpansionVehicleAerofoilTypeL, typeName);
 			if (type != -1)
@@ -69,19 +69,19 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 		}
 		else
 		{
-			m_Type = GetGame().ConfigGetInt(path);
+			m_Type = g_Game.ConfigGetInt(path);
 		}
 
 		vector min, max;
 
 		path = rootPath + " up";
-		m_Up = GetGame().ConfigGetTextOut(path).ToVector();
+		m_Up = g_Game.ConfigGetTextOut(path).ToVector();
 
 		path = rootPath + " min";
-		min = m_Vehicle.GetMemoryPointPos(GetGame().ConfigGetTextOut(path));
+		min = m_Vehicle.GetMemoryPointPos(g_Game.ConfigGetTextOut(path));
 
 		path = rootPath + " max";
-		max = m_Vehicle.GetMemoryPointPos(GetGame().ConfigGetTextOut(path));
+		max = m_Vehicle.GetMemoryPointPos(g_Game.ConfigGetTextOut(path));
 
 		m_Position = vector.Lerp(min, max, 0.5);
 
@@ -111,17 +111,17 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 			m_Area *= size[2];
 
 		path = rootPath + " camber";
-		m_Camber = GetGame().ConfigGetFloat(path);
+		m_Camber = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " maxControlAngle";
-		m_MaxControlAngle = GetGame().ConfigGetFloat(path);
+		m_MaxControlAngle = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " stallAngle";
-		m_StallAngle = GetGame().ConfigGetFloat(path);
+		m_StallAngle = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " animation";
-		if (GetGame().ConfigIsExisting(path))
-			m_Animation = GetGame().ConfigGetTextOut(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_Animation = g_Game.ConfigGetTextOut(path);
 
 		m_SelfDebugWindow = true;
 		

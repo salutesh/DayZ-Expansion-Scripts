@@ -397,7 +397,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		}
 
 		//! 4) storesave
-		int version = GetGame().SaveVersion();
+		int version = g_Game.SaveVersion();
 		ctx.Write(version);
 		entity.OnStoreSave(ctx);
 
@@ -602,9 +602,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				if (!ctx.Read(orientation))
 					return ErrorFalse(type + ": Couldn't read orientation");
 				int flags = ECE_OBJECT_SWAP;
-				if (GetGame().IsKindOf(type, "DZ_LightAI"))
+				if (g_Game.IsKindOf(type, "DZ_LightAI"))
 					flags |= ECE_INITAI;
-				if (Class.CastTo(entity, GetGame().CreateObjectEx(type, position, flags, RF_DEFAULT)))
+				if (Class.CastTo(entity, g_Game.CreateObjectEx(type, position, flags, RF_DEFAULT)))
 				{
 					entity.SetPosition(position);
 					entity.SetOrientation(orientation);
@@ -685,7 +685,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			TStringArray paths = {CFG_VEHICLESPATH, CFG_WEAPONSPATH, CFG_MAGAZINESPATH};
 			foreach (string path: paths)
 			{
-				if (GetGame().ConfigIsExisting(string.Format("%1 %2", path, type)))
+				if (g_Game.ConfigIsExisting(string.Format("%1 %2", path, type)))
 				{
 					cfgExists = true;
 					break;
@@ -713,7 +713,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				//! Try to create in player inventory, falling back to owned container
 				entity = ExpansionItemSpawnHelper.SpawnInInventorySecure(type, player, parent);
 				//! Try to create on ground at player pos
-				if (!entity && Class.CastTo(entity, GetGame().CreateObjectEx(type, player.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
+				if (!entity && Class.CastTo(entity, g_Game.CreateObjectEx(type, player.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
 				{
 					if (il)
 						locInfo = " " + ExpansionStatic.DumpToString(il);
@@ -723,7 +723,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			else if (parent)
 			{
 				//! Try to create at parent position
-				if (Class.CastTo(entity, GetGame().CreateObjectEx(type, parent.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
+				if (Class.CastTo(entity, g_Game.CreateObjectEx(type, parent.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
 				{
 					if (il)
 						locInfo = " " + ExpansionStatic.DumpToString(il);
@@ -997,7 +997,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		Weapon_Base weapon;
 		if (Class.CastTo(weapon, entity))
 			weapon.Synchronize();
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(entity.EEOnAfterLoad);  //! Make sure EEOnAfterLoad gets called AFTER whole hierarchy has loaded
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(entity.EEOnAfterLoad);  //! Make sure EEOnAfterLoad gets called AFTER whole hierarchy has loaded
 	}
 
 	//! Legacy
@@ -1013,7 +1013,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 	static string GetStorageDirectory()
 	{
-		int instance_id = GetGame().ServerConfigGetInt("instanceId");
+		int instance_id = g_Game.ServerConfigGetInt("instanceId");
 		return "$mission:storage_" + instance_id + "\\expansion\\entitystorage\\";
 	}
 
@@ -1021,7 +1021,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	{
 		s_SavedEntityToBeDeleted = entity;
 
-		GetGame().ObjectDelete(entity);
+		g_Game.ObjectDelete(entity);
 
 		s_SavedEntityToBeDeleted = null;
 	}
@@ -1201,12 +1201,12 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	//! @note if storeCargo is false (default), move cargo to placeholder, else save cargo to virtual storage
 	static bool SaveToFileAndReplace(EntityAI entity, string fileName, string placeholderType, vector position, int iFlags = ECE_OBJECT_SWAP, out EntityAI placeholder = null, bool storeCargo = false, array<EntityAI> transferAttachments = null)
 	{
-		Object placeholderObject = GetGame().CreateObjectEx(placeholderType, position, iFlags);
+		Object placeholderObject = g_Game.CreateObjectEx(placeholderType, position, iFlags);
 
 		if (!Class.CastTo(placeholder, placeholderObject))
 		{
 			EXError.Error(entity, "ExpansionEntityStorageModule::SaveToFileAndReplace - Couldn't cast to EntityAI " + placeholderObject);
-			GetGame().ObjectDelete(placeholderObject);
+			g_Game.ObjectDelete(placeholderObject);
 			return false;
 		}
 
@@ -1251,7 +1251,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			if (isInventoryLocked)
 				inventory.LockInventory(HIDE_INV_FROM_SCRIPT);
 			if (placeholder)
-				GetGame().ObjectDelete(placeholder);
+				g_Game.ObjectDelete(placeholder);
 
 			return false;
 		}

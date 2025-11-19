@@ -373,7 +373,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 			}
 			if (LogToADM)
 			{
-				GetGame().AdminLog(output);
+				g_Game.AdminLog(output);
 			}
 		} else {
 			if (!FileExist( m_FileName ))

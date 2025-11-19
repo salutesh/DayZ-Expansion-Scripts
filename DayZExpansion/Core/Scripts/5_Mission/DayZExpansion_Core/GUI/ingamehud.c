@@ -36,7 +36,7 @@ modded class IngameHud
 		if (player && (player.GetPlayerState() != EPlayerStates.ALIVE || player.IsUnconscious()))
 			return false;
 
-		if (GetGame().GetUIManager().GetMenu())
+		if (g_Game.GetUIManager().GetMenu())
 			return false;
 
 	#ifdef EXPANSIONUI

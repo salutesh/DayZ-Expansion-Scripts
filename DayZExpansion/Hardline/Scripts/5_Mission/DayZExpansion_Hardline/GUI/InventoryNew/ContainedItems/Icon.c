@@ -39,7 +39,7 @@ modded class Icon
 
 	void Icon( LayoutHolder parent, bool hands_icon = false )
 	{
-		m_Expansion_RarityColor = ImageWidget.Cast(GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_icon_rarity.layout", m_ItemPreview));
+		m_Expansion_RarityColor = ImageWidget.Cast(g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_icon_rarity.layout", m_ItemPreview));
 		m_Expansion_RarityColor.Show(false);
 	}
 	

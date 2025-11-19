@@ -60,7 +60,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	
 	override void OnHide()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 		
 		super.OnHide();
@@ -137,7 +137,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	{
 		super.ShowHud(state);
 
-		MissionGameplay mission = MissionGameplay.Cast(GetGame().GetMission());
+		MissionGameplay mission = MissionGameplay.Cast(g_Game.GetMission());
 		
 		IngameHud hud = IngameHud.Cast(mission.GetHud());
 		if (!hud || !hud.GetHudPanelWidget())
@@ -156,7 +156,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	{
 		super.ShowUICursor(state);
 		
-		UIManager vanillaUIManager = GetGame().GetUIManager();
+		UIManager vanillaUIManager = g_Game.GetUIManager();
 		vanillaUIManager.ShowUICursor(state);
 	}
 	

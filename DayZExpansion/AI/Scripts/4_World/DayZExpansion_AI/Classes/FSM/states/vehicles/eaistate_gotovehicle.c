@@ -18,7 +18,7 @@ class eAIState_GoToVehicle : eAIState
 			EnScript.GetClassVar(From, "m_Seat", 0, m_Seat);
 		}
 
-		auto vehCmd = unit.GetCommand_VehicleAI();
+		auto vehCmd = unit.GetCommand_Vehicle();
 		if (vehCmd)
 		{
 			m_Seat = vehCmd.GetVehicleSeat();

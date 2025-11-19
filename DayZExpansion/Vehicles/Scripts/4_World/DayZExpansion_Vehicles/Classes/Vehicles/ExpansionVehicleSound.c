@@ -35,16 +35,16 @@ class ExpansionVehicleSound
 
 		array<string> soundShaders = new array<string>;
 		path = "CfgSoundSets " + soundSetName + " soundShaders";
-		if (GetGame().ConfigIsExisting(path))
-			GetGame().ConfigGetTextArray(path, soundShaders);
+		if (g_Game.ConfigIsExisting(path))
+			g_Game.ConfigGetTextArray(path, soundShaders);
 
 		if (soundShaders.Count() > 0)
 			ExpansionVehicleSoundManager.Get(soundShaders[0], m_Shader);
 
 		path = "CfgSoundSets " + soundSetName + " positionOffset";
 		TFloatArray values = new TFloatArray;
-		if (GetGame().ConfigIsExisting(path))
-			GetGame().ConfigGetFloatArray(path, values);
+		if (g_Game.ConfigIsExisting(path))
+			g_Game.ConfigGetFloatArray(path, values);
 	}
 
 	bool Update(float pDt, array<float> variables)
@@ -100,7 +100,7 @@ class ExpansionVehicleSound
 
 		if (!m_AbstractWave)
 		{
-			m_AbstractWave = GetGame().GetSoundScene().Play3D(m_SoundObject, m_SoundObjectBuilder);
+			m_AbstractWave = g_Game.GetSoundScene().Play3D(m_SoundObject, m_SoundObjectBuilder);
 			m_AbstractWave.Play();
 			m_AbstractWave.Loop(true);
 

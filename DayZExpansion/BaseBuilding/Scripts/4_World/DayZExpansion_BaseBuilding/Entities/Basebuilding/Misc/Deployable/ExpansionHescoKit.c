@@ -22,7 +22,7 @@ class ExpansionHescoKit: ExpansionKitLarge
 	{
 		if ( IsMissionHost() )
 		{			
-			ExpansionHesco hesco = ExpansionHesco.Cast( GetGame().CreateObject( "ExpansionHesco", GetPosition() ) );
+			ExpansionHesco hesco = ExpansionHesco.Cast( g_Game.CreateObject( "ExpansionHesco", GetPosition() ) );
 			hesco.SetPosition( position );
 			hesco.SetOrientation( orientation );
 			// hesco.PlaceOnSurface();
@@ -30,7 +30,7 @@ class ExpansionHescoKit: ExpansionKitLarge
 			//! Make the kit invisible, so it can be destroyed from deploy UA when action ends
 			HideAllSelections();
 
-			GetGame().ObjectDelete(this);
+			g_Game.ObjectDelete(this);
 		}	
 		
 		SetIsDeploySound( true );

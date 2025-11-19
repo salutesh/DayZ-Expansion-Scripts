@@ -269,20 +269,28 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 		Items.Insert( item.MarketItem.ClassName, item.BuySell );
 
-		//! Inserting ordered by ID ensures same order of IDs as given to items by categories (only required on server for correct netsynch)
 		int count = m_Items.Count();
 		int i;
-		if (!count || GetGame().IsClient() || item.MarketItem.ItemID >= m_Items[count - 1].MarketItem.ItemID)
+
+		int id = item.MarketItem.ItemID;
+		int lastID;
+		if (count)
+			lastID = m_Items[count - 1].MarketItem.ItemID;
+
+		//! Inserting ordered by ID ensures same order of IDs as given to items by categories (only required on server for correct netsynch)
+		if (!count || g_Game.IsClient() || id >= lastID)
 		{
 			m_Items.Insert( item );
 		}
 		else
 		{
-			if (item.MarketItem.ItemID > m_Items[0].MarketItem.ItemID)
+			int nextID = m_Items[0].MarketItem.ItemID;
+			if (id > nextID)
 			{
 				for (i = 1; i < count; i++)
 				{
-					if (item.MarketItem.ItemID <= m_Items[i].MarketItem.ItemID)
+					nextID = m_Items[i].MarketItem.ItemID;
+					if (id <= nextID)
 						break
 				}
 			}
@@ -290,7 +298,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 			m_Items.InsertAt( item, i );
 		}
 
-		CF_Log.Debug("ExpansionMarketTrader::AddItemInternal - Added item " + item.MarketItem.ClassName + " (ID " + item.MarketItem.ItemID + ") to trader " + m_FileName + " items array");
+		CF_Log.Debug("ExpansionMarketTrader::AddItemInternal - Added item " + item.MarketItem.ClassName + " (ID " + item.MarketItem.ItemID + ") to trader " + m_FileName + " items array at index " + i + " | count: " + m_Items.Count());
 	}
 
 	void AddCategory(string fileName, ExpansionMarketTraderBuySell buySell)
@@ -303,7 +311,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 	{
 		//! Add any missing items from categories
 		ExpansionMarketCategory cat;
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			foreach (string fileName : Categories)
 			{

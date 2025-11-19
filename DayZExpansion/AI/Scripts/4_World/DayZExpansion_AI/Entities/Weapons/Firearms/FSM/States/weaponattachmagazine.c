@@ -19,7 +19,7 @@ modded class WeaponAttachMagazine
 				{
 					EXError.Warn(this, ExpansionStatic.GetDebugInfo(e.m_player) + "WeaponAttachMagazine, warning - entity in LHand " + ExpansionStatic.GetDebugInfo(lhandEntity) + ", entity to be attached " + ExpansionStatic.DumpToString(newSrc));
 
-					if (GetGame().IsServer())
+					if (g_Game.IsServer())
 					{
 						vector m4[4];
 						Math3D.MatrixIdentity4(m4);
@@ -34,7 +34,7 @@ modded class WeaponAttachMagazine
 						if (ExpansionItemSpawnHelper.Clone(lhandEntity, true, ground, true) == null)
 							Error("Cloning failed " + ExpansionStatic.GetDebugInfo(lhandEntity) + " " + ExpansionStatic.DumpToString(ground));
 
-						GetGame().ObjectDelete(lhandEntity);  //! Whether cloning succeeded or not, always delete the offending entity
+						g_Game.ObjectDelete(lhandEntity);  //! Whether cloning succeeded or not, always delete the offending entity
 					}
 				}
 			*/

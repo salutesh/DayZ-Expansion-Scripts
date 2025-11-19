@@ -457,14 +457,14 @@ modded class PlayerBase
 			Expansion_SetAllowDamageEx("FallDamage", false);
 
 			//! CallLater so vehicle attachment code etc has a chance to run first
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlacePlayerOnGround, 1500);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlacePlayerOnGround, 1500);
 		}
 	}
 
 	void PlacePlayerOnGround()
 	{
 		//todo: branchless ??
-		if ( GetGame().IsServer() ) 
+		if ( g_Game.IsServer() ) 
 		{
 			IEntity attachmentParent = Expansion_GetParent();
 
@@ -568,7 +568,7 @@ modded class PlayerBase
 			}
 
 			//! Enable fall damage again - after a delay or player may still die from it
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SetAllowDamageEx, 1500, false, "FallDamage", true);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SetAllowDamageEx, 1500, false, "FallDamage", true);
 		}
 	}
 };

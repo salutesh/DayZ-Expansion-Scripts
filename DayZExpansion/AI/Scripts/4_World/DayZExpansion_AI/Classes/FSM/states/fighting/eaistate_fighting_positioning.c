@@ -27,7 +27,7 @@ class eAIState_Fighting_Positioning: eAIState
 		
 		float speed = unit.Expansion_GetMovementSpeed();
 		
-		int timeSinceLastFire = GetGame().GetTime() - unit.m_eAI_LastFireTime;
+		int timeSinceLastFire = g_Game.GetTime() - unit.m_eAI_LastFireTime;
 		if (unit.m_eAI_LastFireTime > 0 && timeSinceLastFire > unit.m_eAI_TimeBetweenFiring && speed > 0)
 			wantsLower = true;
 		

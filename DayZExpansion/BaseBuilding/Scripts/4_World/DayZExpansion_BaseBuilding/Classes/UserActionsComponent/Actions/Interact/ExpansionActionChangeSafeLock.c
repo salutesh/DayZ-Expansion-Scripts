@@ -84,7 +84,7 @@ class ExpansionActionChangeSafeLock: ActionInteractBase
 
 		if ( !m_Target.ExpansionIsLocked() && m_Target.HasCode() )
 		{
-			ExpansionNumpadUI menu = ExpansionNumpadUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_NUMPAD_MENU, NULL ) );
+			ExpansionNumpadUI menu = ExpansionNumpadUI.Cast( g_Game.GetUIManager().EnterScriptedMenu( MENU_EXPANSION_NUMPAD_MENU, NULL ) );
 			if ( menu )
 			{
 				menu.SetChangeCodelock( true );

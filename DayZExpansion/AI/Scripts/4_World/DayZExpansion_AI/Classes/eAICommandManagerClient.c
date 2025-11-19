@@ -201,7 +201,7 @@ class eAICommandManagerClient : eAICommandManager
 			case eAICommands.STA_SITREP:
 				//! @note sitrep should not disclose information that a player couldn't have by looking at his own status
 				PlayerBase player;
-				if (Class.CastTo(player, GetGame().GetPlayer()))
+				if (Class.CastTo(player, g_Game.GetPlayer()))
 				{
 					bool isAdmin = GetExpansionSettings().GetAI().IsAdmin();
 
@@ -293,7 +293,7 @@ class eAICommandManagerClient : eAICommandManager
 		if (!Class.CastTo(targetAI, target))
 		{
 			//! Get nearest AI
-			vector cameraPosition = GetGame().GetCurrentCameraPosition();
+			vector cameraPosition = g_Game.GetCurrentCameraPosition();
 			float minDistSq = float.MAX;
 			array<eAIBase> allAI = eAIBase.eAI_GetAll();
 			foreach (eAIBase ai: allAI)
@@ -357,7 +357,7 @@ class eAICommandManagerClient : eAICommandManager
 	eAIBase SpawnAIEx(vector pos, string loadout = "HumanLoadout.json")
 	{
 		eAIBase ai;
-		if (Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos)))
+		if (Class.CastTo(ai, g_Game.CreateObject(GetRandomAI(), pos)))
 			ExpansionHumanLoadout.Apply(ai, loadout, true);
 
 		EXTrace.Print(EXTrace.AI, null, "Spawned AI at " + pos);
@@ -388,7 +388,7 @@ class eAICommandManagerClient : eAICommandManager
 		vector position, direction, rotation;
 		player.GetCurrentCameraTransform(position, direction, rotation);
 		position = position + direction * 20;
-		float surfaceY = GetGame().SurfaceY(position[0], position[2]);
+		float surfaceY = g_Game.SurfaceY(position[0], position[2]);
 		if (surfaceY > position[1])
 			position[1] = surfaceY;
 		return ExpansionAISpawnBase.GetPlacementPosition(position);
@@ -425,7 +425,7 @@ class eAICommandManagerClient : eAICommandManager
 		int headshotResistance;
 		if (!ctx.Read(headshotResistance)) return;
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
@@ -468,7 +468,7 @@ class eAICommandManagerClient : eAICommandManager
 		vector pos;
 		if (!ctx.Read(pos)) return;
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
@@ -481,7 +481,7 @@ class eAICommandManagerClient : eAICommandManager
 		else
 			pos = ExpansionAISpawnBase.GetPlacementPosition(pos);
 
-		GetGame().CreateObject(ExpansionStatic.GetWorkingZombieClasses().GetRandomElement(), pos, false, true, true);
+		g_Game.CreateObject(ExpansionStatic.GetWorkingZombieClasses().GetRandomElement(), pos, false, true, true);
 	}
 
 	void RPC_SpawnWolf(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -493,7 +493,7 @@ class eAICommandManagerClient : eAICommandManager
 		vector pos;
 		if (!ctx.Read(pos)) return;
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
@@ -506,7 +506,7 @@ class eAICommandManagerClient : eAICommandManager
 		else
 			pos = ExpansionAISpawnBase.GetPlacementPosition(pos);
 		
-		GetGame().CreateObject("Animal_CanisLupus_Grey", pos, false, true, true);
+		g_Game.CreateObject("Animal_CanisLupus_Grey", pos, false, true, true);
 	}
 
 	void RPC_SpawnBear(PlayerIdentity sender, Object target, ParamsReadContext ctx)
@@ -518,7 +518,7 @@ class eAICommandManagerClient : eAICommandManager
 		vector pos;
 		if (!ctx.Read(pos)) return;
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
@@ -531,7 +531,7 @@ class eAICommandManagerClient : eAICommandManager
 		else
 			pos = ExpansionAISpawnBase.GetPlacementPosition(pos);
 	
-		GetGame().CreateObject("Animal_UrsusArctos", pos, false, true, true);
+		g_Game.CreateObject("Animal_UrsusArctos", pos, false, true, true);
 	}
 	
 	// Server Side: Delete AI.
@@ -541,7 +541,7 @@ class eAICommandManagerClient : eAICommandManager
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
@@ -559,7 +559,7 @@ class eAICommandManagerClient : eAICommandManager
 		int factionID;
 		if (!ctx.Read(factionID)) return;
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
@@ -590,7 +590,7 @@ class eAICommandManagerClient : eAICommandManager
 		int unlimitedReload;
 		if (!ctx.Read(unlimitedReload)) return;
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
@@ -647,7 +647,7 @@ class eAICommandManagerClient : eAICommandManager
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
@@ -664,7 +664,7 @@ class eAICommandManagerClient : eAICommandManager
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
@@ -677,7 +677,7 @@ class eAICommandManagerClient : eAICommandManager
 		{
 			onOff = "ON";
 
-			if (GetGame().IsMultiplayer())
+			if (g_Game.IsMultiplayer())
 				onOff += "<br/>\nWARNING: Debug objects are server-side and thus visible to anyone!";
 		}
 		else
@@ -701,7 +701,7 @@ class eAICommandManagerClient : eAICommandManager
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
@@ -730,7 +730,7 @@ class eAICommandManagerClient : eAICommandManager
 		int category;
 		if (!ctx.Read(category)) return;
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
@@ -1015,7 +1015,7 @@ class eAICommandManagerClient : eAICommandManager
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;
@@ -1044,7 +1044,7 @@ class eAICommandManagerClient : eAICommandManager
 		ExpansionJsonFileParser<ExpansionAIPatrol>.Save("$profile:Expansion_AI_Patrol.json", patrol);
 		ExpansionNotification("EXPANSION AI", "Patrol written to \"$profile:Expansion_AI_Patrol.json\".").Info(sender);
 	#else
-		GetGame().CopyToClipboard(ExpansionJsonFileParser<ExpansionAIPatrol>.AsString(patrol));
+		g_Game.CopyToClipboard(ExpansionJsonFileParser<ExpansionAIPatrol>.AsString(patrol));
 		ExpansionNotification("EXPANSION AI", "Patrol copied to clipboard.").Info();
 	#endif
 	}
@@ -1188,11 +1188,11 @@ class eAICommandManagerClient : eAICommandManager
 				FPrintln(file, msg);
 
 			if (i < chatLineLimit)
-				GetGame().ChatMP(player, msg, "colorDefault");
+				g_Game.ChatMP(player, msg, "colorDefault");
 		}
 
 		if (report.Count() > chatLineLimit)
-			GetGame().ChatMP(player, "WARNING: State dump is too large for chat", "colorAction");
+			g_Game.ChatMP(player, "WARNING: State dump is too large for chat", "colorAction");
 
 		if (file)
 		{
@@ -1209,7 +1209,7 @@ class eAICommandManagerClient : eAICommandManager
 			int iVisibility = Math.Round(fVisibility);
 			string sVisibility = iVisibility.ToString();
 
-			vector dir = GetGame().GetCurrentCameraDirection();
+			vector dir = g_Game.GetCurrentCameraDirection();
 			vector ori = dir.VectorToAngles();
 			ori[1] = 0;
 			ori[2] = 0;
@@ -1233,24 +1233,24 @@ class eAICommandManagerClient : eAICommandManager
 			if (iVisibility < 3)
 			{
 				soundSet = soundSetPrefix + "jack_shit";
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
 			}
 			else
 			{
 				soundSet = string.Format(soundSetPrefix + "%1", sVisibility[0]);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
 				delay += 730;
 
 				if (iVisibility % 1000 == 0)
 				{
 					soundSet = soundSetPrefix + "thousand";
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
 					delay += 943;
 				}
 				else if (iVisibility % 100 == 0)
 				{
 					soundSet = soundSetPrefix + "hundred";
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
 					delay += 887;
 				}
 				else
@@ -1258,13 +1258,13 @@ class eAICommandManagerClient : eAICommandManager
 					for (int i = 1; i < sVisibility.Length(); i++)
 					{
 						soundSet = string.Format(soundSetPrefix + "%1", sVisibility[i]);
-						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
+						g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
 						delay += 730;
 					}
 				}
 
 				soundSet = soundSetPrefix + "meters";
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlaySoundOnObject, delay, false, soundSet, ai);
 			}
 		}
 	}

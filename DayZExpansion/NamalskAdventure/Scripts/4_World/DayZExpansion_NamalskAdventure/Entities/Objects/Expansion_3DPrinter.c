@@ -254,7 +254,7 @@ class Expansion_3DPrinter: ItemBase
 			{
 				foreach (ItemBase item : invType.Items)
 				{
-					GetGame().ObjectDelete(item);
+					g_Game.ObjectDelete(item);
 				}
 			}
 		}
@@ -265,7 +265,7 @@ class Expansion_3DPrinter: ItemBase
 			string resultTypeName = result.GetType();
 			int resultQuantity = result.GetQuantity();
 
-			ItemBase resultIB = ItemBase.Cast(GetGame().CreateObjectEx(resultTypeName, GetGame().ObjectModelToWorld(this, GetMemoryPointPos("spawn_suit")), ECE_NONE));
+			ItemBase resultIB = ItemBase.Cast(g_Game.CreateObjectEx(resultTypeName, g_Game.ObjectModelToWorld(this, GetMemoryPointPos("spawn_suit")), ECE_NONE));
 			resultIB.SetDirection(GetDirection());
 			
 			if (resultIB.Expansion_IsStackable())
@@ -276,7 +276,7 @@ class Expansion_3DPrinter: ItemBase
 			{
 				for (int i = 0; i < resultQuantity - 1; i++)
 				{
-					resultIB = ItemBase.Cast(GetGame().CreateObjectEx(resultTypeName, GetGame().ObjectModelToWorld(this, GetMemoryPointPos("spawn_suit")), ECE_NONE));
+					resultIB = ItemBase.Cast(g_Game.CreateObjectEx(resultTypeName, g_Game.ObjectModelToWorld(this, GetMemoryPointPos("spawn_suit")), ECE_NONE));
 					resultIB.SetDirection(GetDirection());
 				}
 			}
@@ -358,7 +358,7 @@ class Expansion_3DPrinter: ItemBase
 	
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
-		return GetGame().IsDedicatedServer() || CanViewCargo();
+		return g_Game.IsDedicatedServer() || CanViewCargo();
 	}
 
 	override bool CanReceiveItemIntoCargo(EntityAI item)
@@ -366,7 +366,7 @@ class Expansion_3DPrinter: ItemBase
 		if (!super.CanReceiveItemIntoCargo(item))
 			return false;
 
-		return GetGame().IsDedicatedServer() || CanViewCargo();
+		return g_Game.IsDedicatedServer() || CanViewCargo();
 	}
 
 	override bool CanReleaseAttachment(EntityAI attachment)
@@ -374,12 +374,12 @@ class Expansion_3DPrinter: ItemBase
 		if (!super.CanReleaseAttachment(attachment))
 			return false;
 
-		return GetGame().IsDedicatedServer() || CanViewCargo();
+		return g_Game.IsDedicatedServer() || CanViewCargo();
 	}
 
 	override bool CanReleaseCargo(EntityAI cargo)
 	{
-		return GetGame().IsDedicatedServer() || CanViewCargo();
+		return g_Game.IsDedicatedServer() || CanViewCargo();
 	}
 
 	override bool CanSwapItemInCargo(EntityAI child_entity, EntityAI new_entity)
@@ -387,7 +387,7 @@ class Expansion_3DPrinter: ItemBase
 		if (!super.CanSwapItemInCargo(child_entity, new_entity))
 			return false;
 
-		return GetGame().IsDedicatedServer() || CanViewCargo();
+		return g_Game.IsDedicatedServer() || CanViewCargo();
 	}
 
 	override bool CanPutIntoHands(EntityAI parent)

@@ -15,7 +15,7 @@ modded class Land_Underground_Stairs_Exit
 	void Land_Underground_Stairs_Exit()
 	{
 	#ifndef SERVER
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove(CreateLights);
+		g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove(CreateLights);
 	#endif
 	}
 

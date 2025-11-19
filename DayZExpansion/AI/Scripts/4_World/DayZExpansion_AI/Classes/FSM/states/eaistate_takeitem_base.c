@@ -33,7 +33,7 @@ class eAIState_TakeItem_Base: eAIState
 	{
 		if (unit.IsUnconscious()) return EXIT;
 		
-		if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning() || !unit.GetCommand_MoveAI())
+		if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetActionManager().GetRunningAction() || unit.GetWeaponManager().IsRunning() || !unit.GetCommand_Move())
 		{
 			m_Time += DeltaTime;
 			if (m_Time > 10)  //! Looks like something went terribly wrong

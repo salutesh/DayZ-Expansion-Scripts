@@ -30,10 +30,10 @@ class ExpansionSoundSet
 		m_ID = name.Hash();
 
 		TStringArray soundShaders = {};
-		GetGame().ConfigGetTextArray("CfgSoundSets " + name + " soundShaders", soundShaders);
+		g_Game.ConfigGetTextArray("CfgSoundSets " + name + " soundShaders", soundShaders);
 		foreach (string soundShader: soundShaders)
 		{
-			m_Range = Math.Max(GetGame().ConfigGetFloat("CfgSoundShaders " + soundShader + " range"), m_Range);
+			m_Range = Math.Max(g_Game.ConfigGetFloat("CfgSoundShaders " + soundShader + " range"), m_Range);
 		}
 
 	#ifdef DIAG_DEVELOPER

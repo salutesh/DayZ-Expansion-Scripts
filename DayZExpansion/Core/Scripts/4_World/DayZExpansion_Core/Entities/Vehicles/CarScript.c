@@ -50,7 +50,7 @@ modded class CarScript
 	void ~CarScript()
 	{
 	#ifndef DIAG_DEVELOPER
-		if (!GetGame())
+		if (!g_Game)
 			return;
 	#endif
 
@@ -234,7 +234,7 @@ modded class CarScript
 	{
 		ForceUpdateLightsStart();
 		m_ExpansionVehicle.SetAllDoorsAnimationPhase(0.0);
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ForceUpdateLightsEnd, 500);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ForceUpdateLightsEnd, 500);
 	}
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)

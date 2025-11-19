@@ -20,7 +20,7 @@ modded class Edible_Base
 		FoodStageType processedFoodStage = FoodStageType.NONE;
 		FoodStageType lastDecayStage;
 		float decayDelta = 0.0;
-		decayDelta *= DayZGame.Cast(GetGame()).GetFoodDecayModifier();
+		decayDelta *= DayZGame.Cast(g_Game).GetFoodDecayModifier();
 		decayDelta += ( 1 + ( 1 - GetHealthLevelValue(GetHealthLevel()) ) );
 		if ( hasRootAsPlayer )
 			decayDelta += GameConstants.DECAY_RATE_ON_PLAYER;

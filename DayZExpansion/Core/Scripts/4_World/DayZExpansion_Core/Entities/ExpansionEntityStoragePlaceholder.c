@@ -30,7 +30,7 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 
 	override void EEDelete(EntityAI parent)
 	{
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			if (HasAnyCargo())
 				EXPrint("WARNING: " + GetType() + " " + GetPosition() + " with cargo is about to be deleted!");
@@ -107,7 +107,7 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 		string type;
 		bool hasNetsyncData = m_Expansion_NetsyncData.Get(0, type);
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 		{
 			return hasNetsyncData;
 		}
@@ -304,8 +304,8 @@ class ExpansionDebugGoat: ExpansionEntityStoragePlaceholder
 	{
 		super.EEInit();
 		
-		if (GetGame().IsServer())
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_CreateGoatAttachment);
+		if (g_Game.IsServer())
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_CreateGoatAttachment);
 	}
 
 	override void SetActions()

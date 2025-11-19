@@ -96,7 +96,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		ServerMarkers.Insert( marker );
 		ServerMarkersMap.Insert( marker.GetUID(), marker );
 
-		if (EnableServerMarkers && GetGame().IsDedicatedServer())
+		if (EnableServerMarkers && g_Game.IsDedicatedServer())
 		{
 			auto rpc = GetExpansionSettings().CreateRPC("RPC_AddServerMarker");
 			rpc.Write(marker.GetUID());
@@ -130,7 +130,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 
 			delete server_markerMap;
 
-			if (EnableServerMarkers && GetGame().IsDedicatedServer())
+			if (EnableServerMarkers && g_Game.IsDedicatedServer())
 			{
 				auto rpc = GetExpansionSettings().CreateRPC("RPC_RemoveServerMarker");
 				rpc.Write(uid);

@@ -42,7 +42,7 @@ modded class dzn_lehs
 		super.EEHealthLevelChanged(oldLevel, newLevel, zone);
 		
 		//! Only on server
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (g_Game.IsClient() || !g_Game.IsMultiplayer())
 			return;
 		
 		//! Destroy attached circuit board if suit health state reached STATE_RUINED. 

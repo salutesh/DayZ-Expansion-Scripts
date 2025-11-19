@@ -29,7 +29,7 @@ modded class InGameMenu
 		m_ExSeperatorLine = layoutRoot.FindAnyWidget("separator_red");
 		m_ExSeperatorLine.SetColor(ARGB(255, 63, 212, 252));
 		
-		m_ExLogo = ImageWidget.Cast(GetGame().GetWorkspace().CreateWidgets("DayZExpansion/NamalskAdventure/GUI/layouts/logo.layout", layoutRoot));
+		m_ExLogo = ImageWidget.Cast(g_Game.GetWorkspace().CreateWidgets("DayZExpansion/NamalskAdventure/GUI/layouts/logo.layout", layoutRoot));
 		m_ExLogo.SetScreenPos(posLogoX, posLogoY, true);
 		m_ExLogo.LoadImageFile(0, "DayZExpansion/NamalskAdventure/GUI/logo.edds");
 		

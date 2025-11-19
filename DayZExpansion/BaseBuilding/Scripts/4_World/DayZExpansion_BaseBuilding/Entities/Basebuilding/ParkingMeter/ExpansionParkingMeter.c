@@ -38,7 +38,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 
 	void ExpansionParkingMeter()
 	{
-		m_Expansion_ChargeEnergyPerSecond = GetGame().ConfigGetFloat ("CfgVehicles " + GetType() + " ChargeEnergyPerSecond");
+		m_Expansion_ChargeEnergyPerSecond = g_Game.ConfigGetFloat ("CfgVehicles " + GetType() + " ChargeEnergyPerSecond");
 
 		CF_Modules<ExpansionTerritoryModule>.Get(m_Expansion_TerritoryModule);
 		CF_Modules<ExpansionGarageModule>.Get(m_Expansion_GarageModule);
@@ -53,10 +53,10 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 
 	void ~ExpansionParkingMeter()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer() && ExpansionGarageModule.s_Instance)
+		if (g_Game.IsServer() && g_Game.IsMultiplayer() && ExpansionGarageModule.s_Instance)
 		{
 			if (m_Expansion_TerritoryID > -1)
 				ExpansionGarageModule.s_Instance.RemoveTerritoryParkingMeter(m_Expansion_TerritoryID);
@@ -110,7 +110,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 				GetCompEM().SwitchOn();
 		}
 		
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			ExpansionCircuitBoardBase board;
 			if (Class.CastTo(board, item))
@@ -125,7 +125,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 		sound.SetAutodestroy( true );
 		#endif
 
-		if (GetGame().IsServer() && GetCompEM().CanWork() && GetAttachmentByType(ExpansionCircuitBoardBase))
+		if (g_Game.IsServer() && GetCompEM().CanWork() && GetAttachmentByType(ExpansionCircuitBoardBase))
 		{
 			if (GetExpansionSettings().GetGarage().ParkingMeterEnableFlavor)
 				s_Expansion_ParkingMeterActivated_SoundSet.Play(this);
@@ -139,7 +139,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 		if (item.IsInherited(CarBattery))
 			GetCompEM().SwitchOff();
 		
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			ExpansionCircuitBoardBase board;
 			if (Class.CastTo(board, item))
@@ -160,7 +160,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 		super.EEHealthLevelChanged(oldLevel, newLevel, zone);
 		
 		//! If object is destroyed drop all stored vehicles and destroy them.
-		if (GetGame().IsServer() && GetGame().IsMultiplayer() && m_Expansion_GarageModule && zone == "" && newLevel == GameConstants.STATE_RUINED)
+		if (g_Game.IsServer() && g_Game.IsMultiplayer() && m_Expansion_GarageModule && zone == "" && newLevel == GameConstants.STATE_RUINED)
 		{
 			DropStoredVehicles(true);
 		}
@@ -168,7 +168,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 	
 	override void DestroyConstruction()
 	{		
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			//! Drop objects in inventory
 			MiscGameplayFunctions.DropAllItemsInInventoryInBounds(this, Vector(0.8, 0.15, 1.3));
@@ -202,7 +202,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 
 	protected void UpdateVisuals(ExpansionParkingMeterState state)
 	{
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateVisuals_Deferred, 0, false, state);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateVisuals_Deferred, 0, false, state);
 	}
 
 	protected void UpdateVisuals_Deferred(ExpansionParkingMeterState state)
@@ -348,7 +348,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 	{
 	#ifdef NAMALSK_SURVIVAL
 	    NamEventManager event_manager;
-	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
+	    g_Script.CallFunction(g_Game.GetMission(), "GetNamEventManager", event_manager, null);
 	
 	    if (!event_manager)
 	        return false;
@@ -370,7 +370,7 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 	
 	override void OnWork(float consumed_energy)
 	{
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		int slot = InventorySlots.GetSlotIdFromString("CarBattery");
@@ -380,9 +380,9 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 			bool isEVRStormActive = IsEVRStormActive();
 			bool isUnderRoof = MiscGameplayFunctions.IsUnderRoof(this);
 			
-			World world = GetGame().GetWorld();
+			World world = g_Game.GetWorld();
 			
-			Weather weather = GetGame().GetWeather();
+			Weather weather = g_Game.GetWeather();
 			float overcast = weather.GetOvercast().GetActual();
 			float rain = weather.GetRain().GetActual();
 			float fog = weather.GetFog().GetActual();

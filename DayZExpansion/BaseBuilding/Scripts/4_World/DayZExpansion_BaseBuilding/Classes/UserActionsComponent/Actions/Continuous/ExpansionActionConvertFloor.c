@@ -64,7 +64,7 @@ class ExpansionActionConvertFloor : ActionContinuousBase
 
 		ExpansionFloorBase floor = ExpansionFloorBase.Cast( target.GetObject() );
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 			m_ExpansionFloor = floor;
 
 		if ( !floor || !floor.IsLastStage() || !floor.IsPlayerInside( player, "" ) )

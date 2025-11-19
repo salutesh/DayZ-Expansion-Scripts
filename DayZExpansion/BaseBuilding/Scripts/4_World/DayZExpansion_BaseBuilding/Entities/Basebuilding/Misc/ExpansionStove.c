@@ -145,7 +145,7 @@ class ExpansionStove: PortableGasStove
 		}
 		
 		// reset cooking time (to prevent the cooking exploit)
-		if (GetGame().IsServer() && edible_base_attached)
+		if (g_Game.IsServer() && edible_base_attached)
 		{
 			Edible_Base edBase = Edible_Base.Cast(item_base);
 			if (edBase)
@@ -206,7 +206,7 @@ class ExpansionStove: PortableGasStove
 		//manage cooking equipment
 		super.OnWork(consumed_energy);
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		float temperature = GetTemperature();

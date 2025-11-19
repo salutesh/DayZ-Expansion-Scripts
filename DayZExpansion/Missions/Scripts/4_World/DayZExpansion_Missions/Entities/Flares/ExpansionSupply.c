@@ -18,7 +18,7 @@ class ExpansionSupplySignal: M18SmokeGrenade_Purple
 
 		if ( IsMissionHost() )
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_CallAirdrop, m_FuseDelay * 1000);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_CallAirdrop, m_FuseDelay * 1000);
 		}
 	}
 

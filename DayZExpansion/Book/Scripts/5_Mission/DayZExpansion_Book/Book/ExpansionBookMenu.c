@@ -213,25 +213,25 @@ class ExpansionBookMenu: ExpansionScriptViewMenu
 
 	void PlayOpenBookSound()
 	{
-		EffectSound m_Sound = SEffectManager.PlaySound("Expansion_OpenBook_SoundSet", GetGame().GetPlayer().GetPosition());
+		EffectSound m_Sound = SEffectManager.PlaySound("Expansion_OpenBook_SoundSet", g_Game.GetPlayer().GetPosition());
 		m_Sound.SetSoundAutodestroy(true);
 	}
 
 	void PlaySwitchPageSound()
 	{
-		EffectSound m_Sound = SEffectManager.PlaySound("Expansion_SwitchPage_SoundSet", GetGame().GetPlayer().GetPosition());
+		EffectSound m_Sound = SEffectManager.PlaySound("Expansion_SwitchPage_SoundSet", g_Game.GetPlayer().GetPosition());
 		m_Sound.SetSoundAutodestroy(true);
 	}
 
 	void PlayCloseBookSound()
 	{
-		EffectSound m_Sound = SEffectManager.PlaySound("Expansion_CloseBook_SoundSet", GetGame().GetPlayer().GetPosition());
+		EffectSound m_Sound = SEffectManager.PlaySound("Expansion_CloseBook_SoundSet", g_Game.GetPlayer().GetPosition());
 		m_Sound.SetSoundAutodestroy(true);
 	}
 
 	void PlayDrawSound()
 	{
-		EffectSound m_Sound = SEffectManager.PlaySound("Expansion_Draws_SoundSet", GetGame().GetPlayer().GetPosition());
+		EffectSound m_Sound = SEffectManager.PlaySound("Expansion_Draws_SoundSet", g_Game.GetPlayer().GetPosition());
 		m_Sound.SetSoundAutodestroy(true);
 	}
 	

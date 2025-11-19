@@ -22,9 +22,9 @@ class ExpansionVehicleSoundShader
 
 		expression = "1";
 		path = "CfgSoundShaders " + name + " volume";
-		if (GetGame().ConfigIsExisting(path))
+		if (g_Game.ConfigIsExisting(path))
 		{
-			expression = GetGame().ConfigGetTextOut(path);
+			expression = g_Game.ConfigGetTextOut(path);
 		}
 
 #ifdef CF_EXPRESSION
@@ -33,9 +33,9 @@ class ExpansionVehicleSoundShader
 
 		expression = "1";
 		path = "CfgSoundShaders " + name + " frequency";
-		if (GetGame().ConfigIsExisting(path))
+		if (g_Game.ConfigIsExisting(path))
 		{
-			expression = GetGame().ConfigGetTextOut(path);
+			expression = g_Game.ConfigGetTextOut(path);
 		}
 
 #ifdef CF_EXPRESSION

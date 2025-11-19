@@ -40,7 +40,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 #endif
 
-		if (!GetGame().GetPlayer())
+		if (!g_Game.GetPlayer())
 		{
 			EXTrace.Print(EXTrace.QUESTS, this, "::UpdateView - no player - skipping");
 			return;

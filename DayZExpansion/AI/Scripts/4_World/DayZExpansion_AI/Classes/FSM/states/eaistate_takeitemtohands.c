@@ -113,11 +113,11 @@ class eAIState_TakeItemToHands: eAIState_TakeItem_Base
 				}
 				else if (target.IsZombie())
 				{
-					if ((hasMeleeInHands || (!hands.eAI_IsSilent() && GetGame().GetTime() - m_RequestSwapToMeleeForZombieTime > 60000)) && unit.m_eAI_SilentAttackViabilityTime > 2.0 && unit.eAI_HasLOS() && unit.GetHealth01() > 0.8)
+					if ((hasMeleeInHands || (!hands.eAI_IsSilent() && g_Game.GetTime() - m_RequestSwapToMeleeForZombieTime > 60000)) && unit.m_eAI_SilentAttackViabilityTime > 2.0 && unit.eAI_HasLOS() && unit.GetHealth01() > 0.8)
 					{
 						preferMelee = true;
 						if (!hasMeleeInHands)
-							m_RequestSwapToMeleeForZombieTime = GetGame().GetTime();
+							m_RequestSwapToMeleeForZombieTime = g_Game.GetTime();
 					}
 				}
 			}

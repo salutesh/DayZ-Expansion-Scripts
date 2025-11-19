@@ -79,15 +79,15 @@ class NA_CraftFingerlessWoolGloves extends RecipeBase
 		{
 			float resultHealth = woolGloves.GetHealth01("", "");
 			vector pos = player.GetPosition();
-			float surfaceY = GetGame().SurfaceY(pos[0], pos[2]);
+			float surfaceY = g_Game.SurfaceY(pos[0], pos[2]);
 			string glovesTypeColor = woolGloves.GetType();
 			glovesTypeColor.Replace("WoolGloves_", "");
 			string fingerlessType = "WoolGlovesFingerless_" + glovesTypeColor;
-			if (GetGame().ConfigIsExisting("cfgVehicles " + fingerlessType))
+			if (g_Game.ConfigIsExisting("cfgVehicles " + fingerlessType))
 			{
-				WoolGlovesFingerless_ColorBase woolGlovesFingerless = WoolGlovesFingerless_ColorBase.Cast(GetGame().CreateObject(fingerlessType, Vector(pos[0], surfaceY, pos[2])));
+				WoolGlovesFingerless_ColorBase woolGlovesFingerless = WoolGlovesFingerless_ColorBase.Cast(g_Game.CreateObject(fingerlessType, Vector(pos[0], surfaceY, pos[2])));
 				woolGlovesFingerless.SetHealth01("", "", resultHealth);
-				GetGame().ObjectDelete(woolGloves);
+				g_Game.ObjectDelete(woolGloves);
 			}
 		}
 	}

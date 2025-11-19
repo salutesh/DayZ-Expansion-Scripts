@@ -39,11 +39,11 @@ class ExpansionInfectedType
 		string chaseAttPath = string.Format("cfgVehicles %1 AttackActions AttackRun ammoType", name);
 
 		string lightAttAmmo;
-		GetGame().ConfigGetText(lightAttPath, lightAttAmmo);
+		g_Game.ConfigGetText(lightAttPath, lightAttAmmo);
 		string heavyAttAmmo;
-		GetGame().ConfigGetText(heavyAttPath, heavyAttAmmo);
+		g_Game.ConfigGetText(heavyAttPath, heavyAttAmmo);
 		string chaseAttAmmo;
-		GetGame().ConfigGetText(chaseAttPath, chaseAttAmmo);
+		g_Game.ConfigGetText(chaseAttPath, chaseAttAmmo);
 
 		//! Push w/ both hands against obstacle
 		//RegisterAttack(DayZInfectedAttackGroupType.FIGHT, 1.7,  0, 9, 0, lightAttAmmo, 0, 0.4, 1.0);  //! DoorPushAttack

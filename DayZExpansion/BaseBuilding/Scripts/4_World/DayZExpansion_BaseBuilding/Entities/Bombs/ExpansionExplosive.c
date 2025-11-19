@@ -99,7 +99,7 @@ class ExpansionExplosive: ItemBase
 			if ( GetExpansionSettings().GetLog().BaseBuildingRaiding )
 				GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] Player \"" + player.GetIdentity().GetName() + "\" (id=" + player.GetIdentity().GetId() + " pos=" + player.GetPosition() + ")" + " deployed " + GetType() + " at " + GetPosition() );
 
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnFrame, 1, true );
+			g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnFrame, 1, true );
 
 			SetSynchDirty();
 		}
@@ -112,7 +112,7 @@ class ExpansionExplosive: ItemBase
 
 	void RemoveLater()
 	{
-		GetGame().ObjectDelete( this );
+		g_Game.ObjectDelete( this );
 	}
 
 	override bool ExpansionCanRecievePower()
@@ -134,11 +134,11 @@ class ExpansionExplosive: ItemBase
 
 			//! Explode( DT_EXPLOSION, "ExpansionRocket_Ammo" );
 			//ExpansionCreateExplosion( this, "ExpansionRocket_Ammo", 5, 500 );
-			Object explosion = GetGame().CreateObject( "Expansion_C4_Explosion", this.GetPosition() );
+			Object explosion = g_Game.CreateObject( "Expansion_C4_Explosion", this.GetPosition() );
 			explosion.SetDirection(GetDirection());
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( RemoveLater, 150, false ); 
+			g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( RemoveLater, 150, false ); 
 
-			if ( !GetGame().IsMultiplayer() )
+			if ( !g_Game.IsMultiplayer() )
 			{
 				HandleClientExplosion();
 			} else
@@ -175,12 +175,12 @@ class ExpansionExplosive: ItemBase
 		if ( m_Sound ) 
 			m_Sound.SoundStop();
 
-		float distance_to_player = vector.Distance(GetPosition(), GetGame().GetPlayer().GetPosition());
+		float distance_to_player = vector.Distance(GetPosition(), g_Game.GetPlayer().GetPosition());
 
 		float strength_factor = Math.InverseLerp(GameConstants.CAMERA_SHAKE_GRENADE_DISTANCE, 0, distance_to_player);
 
 		// just don't
-		//GetGame().GetPlayer().GetCurrentCamera().SpawnCameraShake(strength_factor * 4);
+		//g_Game.GetPlayer().GetCurrentCamera().SpawnCameraShake(strength_factor * 4);
 
 		SEffectManager.PlaySound("Expansion_Explosive_Large_SoundSet", GetPosition());
 
@@ -210,7 +210,7 @@ class ExpansionExplosive: ItemBase
 		{
 			m_Armed = true;
 
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnFrame, 1, true );
+			g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnFrame, 1, true );
 		}
 	}
 

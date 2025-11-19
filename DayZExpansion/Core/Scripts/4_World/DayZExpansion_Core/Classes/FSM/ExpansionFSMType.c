@@ -126,7 +126,7 @@ class ExpansionFSMType
 		
 		CloseFile(file);
 
-		ScriptModule module = GetGame().GetMission().MissionScript;
+		ScriptModule module = g_Game.GetMission().MissionScript;
 		new_type.m_Module = ScriptModule.LoadScript(module, script_path, false);
 		if (new_type.m_Module == null)
 		{

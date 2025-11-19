@@ -40,7 +40,7 @@ class ExpansionMarketMenuSkinsDropdownElement: ExpansionScriptView
 	void ~ExpansionMarketMenuSkinsDropdownElement()
 	{
 		if (m_Object)
-			GetGame().ObjectDelete(m_Object);
+			g_Game.ObjectDelete(m_Object);
 
 		if (m_ItemTooltip) 
 			m_ItemTooltip.Destroy();

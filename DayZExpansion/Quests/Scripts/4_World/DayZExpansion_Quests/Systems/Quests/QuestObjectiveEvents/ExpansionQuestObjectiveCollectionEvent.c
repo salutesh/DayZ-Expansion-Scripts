@@ -27,7 +27,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		if (!GetObjectiveDataFromConfig())
 			return false;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
 
 		return true;
 	}
@@ -47,7 +47,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		if (!GetObjectiveDataFromConfig())
 			return false;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
 
 		return true;
 	}

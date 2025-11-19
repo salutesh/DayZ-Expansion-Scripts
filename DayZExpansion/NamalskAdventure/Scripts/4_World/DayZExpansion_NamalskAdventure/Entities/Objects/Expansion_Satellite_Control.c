@@ -49,7 +49,7 @@ class Expansion_Satellite_Control: ItemBase
 
 	void ~Expansion_Satellite_Control()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 		
 		#ifdef EXTRACE
@@ -103,7 +103,7 @@ class Expansion_Satellite_Control: ItemBase
 
 		#ifdef DIAG_DEVELOPER
 		#ifdef EXPANSIONMODNAVIGATION
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
 		#endif
 		#endif
 	}
@@ -270,7 +270,7 @@ class Expansion_Satellite_Control: ItemBase
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			EffectSound soundEffect = SEffectManager.PlaySound("Expansion_Satellite_Boot_Soundset", satellite.GetPosition());
 			if (!soundEffect)
@@ -287,7 +287,7 @@ class Expansion_Satellite_Control: ItemBase
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
 
-		if (!GetGame().IsDedicatedServer() && !m_RunSFX)
+		if (!g_Game.IsDedicatedServer() && !m_RunSFX)
 		{
 			m_RunSFX = SEffectManager.PlaySound("Expansion_Satellite_Active_Soundset", satellite.GetPosition());
 			if (!m_RunSFX)

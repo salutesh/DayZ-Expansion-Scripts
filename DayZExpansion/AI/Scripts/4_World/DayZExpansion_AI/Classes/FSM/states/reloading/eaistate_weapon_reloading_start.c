@@ -2,7 +2,7 @@ class eAIState_Weapon_Reloading_Start: eAIState
 {
 	void OnEntryEx(string Event, ExpansionState From, out int lastAttemptTime)
 	{
-		lastAttemptTime = GetGame().GetTime();
+		lastAttemptTime = g_Game.GetTime();
 
 		unit.OverrideMovementSpeed(false, 0);
 	}

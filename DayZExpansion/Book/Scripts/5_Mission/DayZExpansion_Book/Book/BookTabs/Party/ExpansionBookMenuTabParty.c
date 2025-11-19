@@ -140,7 +140,7 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 	{
 		if (m_Party && m_Party.GetPlayers().Count() > 0)
 		{
-			ExpansionPartyPlayerData playerData = m_Party.GetPlayer(GetGame().GetPlayer().GetIdentity().GetId());
+			ExpansionPartyPlayerData playerData = m_Party.GetPlayer(g_Game.GetPlayer().GetIdentity().GetId());
 
 			array<ref ExpansionPartyPlayerData> members = m_Party.GetPlayers();
 			foreach (ExpansionPartyPlayerData memberData: members)
@@ -184,7 +184,7 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		if (!m_Party) 
 			return;
 		
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (!player) 
 			return;
 		
@@ -313,7 +313,7 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 	
 	ExpansionPartyPlayerData GetPlayerPartyData()
 	{
-		return m_Party.GetPlayer(GetGame().GetPlayer().GetIdentity().GetId());
+		return m_Party.GetPlayer(g_Game.GetPlayer().GetIdentity().GetId());
 	}
 	
 	void OnDeleteButtonClick()

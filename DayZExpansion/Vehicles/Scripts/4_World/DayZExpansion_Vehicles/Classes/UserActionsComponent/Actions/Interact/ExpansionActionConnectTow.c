@@ -129,7 +129,7 @@ class ExpansionActionConnectTow : ActionInteractBase
 				vector towPosition = vehicle.GetTowPositionWS();
 				float towRadius = vehicle.GetTowLength();
 
-				GetGame().IsBoxColliding(towPosition, vehicle.GetTowDirection(), "5 5 5", excluded, collided);
+				g_Game.IsBoxColliding(towPosition, vehicle.GetTowDirection(), "5 5 5", excluded, collided);
 				
 				//Shape.CreateSphere(0xFF00FF00, ShapeFlags.NOZBUFFER | ShapeFlags.TRANSP | ShapeFlags.ONCE, towPosition, towRadius);
 
@@ -204,7 +204,7 @@ class ExpansionActionConnectTow : ActionInteractBase
 			{
 				vehicle.CreateTow(action_data_b.m_ToTow, action_data_b.m_Index);
 
-				if (GetGame().IsMultiplayer() && GetExpansionSettings().GetLog().VehicleTowing)
+				if (g_Game.IsMultiplayer() && GetExpansionSettings().GetLog().VehicleTowing)
 				{
 					GetExpansionSettings().GetLog().PrintLog("[VehicleTowing] Player \"{1:name}\" (id={1:id} pos={1:position}) towed {2:type} (id={2:persistent_id} pos={2:position}) with {3:type} (id={3:persistent_id} pos={3:position})", action_data.m_Player, action_data_b.m_ToTow, vehicle.GetEntity());
 				}

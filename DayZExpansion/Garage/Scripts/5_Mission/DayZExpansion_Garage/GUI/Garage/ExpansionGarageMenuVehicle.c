@@ -40,7 +40,7 @@ class ExpansionGarageMenuVehicle: ExpansionScriptView
 	void ~ExpansionGarageMenuVehicle()
 	{
 		if (m_Object && m_Object != m_Vehicle.m_VehicleObject)
-			GetGame().ObjectDelete(m_Object);
+			g_Game.ObjectDelete(m_Object);
 	}
 
 	void SetView()
@@ -142,13 +142,13 @@ class ExpansionGarageMenuVehicle: ExpansionScriptView
 			else
 			{
 				//! Different classname, delete old preview object
-				GetGame().ObjectDelete(preview);
+				g_Game.ObjectDelete(preview);
 			}
 		}
 
-		if (!GetGame().IsKindOf(className, "DZ_LightAI"))
+		if (!g_Game.IsKindOf(className, "DZ_LightAI"))
 		{
-			preview = EntityAI.Cast(GetGame().CreateObjectEx(className, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
+			preview = EntityAI.Cast(g_Game.CreateObjectEx(className, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
 		#ifdef EXPANSIONMODHARDLINE
 			ItemBase item;
 			if (GetExpansionSettings().GetHardline().EnableItemRarity && Class.CastTo(item, preview))

@@ -92,7 +92,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	void ~ExpansionMarketMenuItem()
 	{	
 		if (m_Object && IsLocalPreview())
-			GetGame().ObjectDelete(m_Object);
+			g_Game.ObjectDelete(m_Object);
 		
 		DestroyTooltip();
 		DestroyItemTooltip();
@@ -237,7 +237,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		auto settings = GetExpansionSettings().GetHardline();
 		if (settings.UseReputation && (settings.UseItemRarityForMarketPurchase || settings.UseItemRarityForMarketSell))
 		{
-			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 			ExpansionMarketItem item = GetMarketItem();
 			bool hasRep = m_MarketModule.HasRepForItemRarity(player, item);
 
@@ -457,7 +457,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 
 	void UpdatePrices()
 	{
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 
 		//! Buy price
 		if (m_CanBuy && m_HasRepBuy)

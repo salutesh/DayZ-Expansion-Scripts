@@ -29,7 +29,7 @@ class ExpansionLockUIBase: ExpansionUIScriptedMenu
 
 	void ExpansionLockUIBase()
 	{
-		GetGame().GetUpdateQueue( CALL_CATEGORY_GUI ).Insert( Update );
+		g_Game.GetUpdateQueue( CALL_CATEGORY_GUI ).Insert( Update );
 
 		m_CodeLength = 4;
 
@@ -38,15 +38,15 @@ class ExpansionLockUIBase: ExpansionUIScriptedMenu
 
 		m_Sound = new EffectSound;
 		
-		if (GetGame() && (!GetGame().IsDedicatedServer())) 
+		if (g_Game && (!g_Game.IsDedicatedServer())) 
 		{
-			m_Player = PlayerBase.Cast( GetGame().GetPlayer() );
+			m_Player = PlayerBase.Cast( g_Game.GetPlayer() );
 		}
 	}
 
 	void ~ExpansionLockUIBase()
 	{
-		GetGame().GetUpdateQueue( CALL_CATEGORY_GUI ).Remove( Update );
+		g_Game.GetUpdateQueue( CALL_CATEGORY_GUI ).Remove( Update );
 	}
 
 	bool HidePinCode()
@@ -88,8 +88,8 @@ class ExpansionLockUIBase: ExpansionUIScriptedMenu
 				else
 					m_TextCodePanel.SetText( "Enter PIN(" + m_CodeLength + ")" );
 			} else {
-				m_TextCodePanel.SetText( "Error BaseBuildingSettings" );
-				Error("Expansion BaseBuildingSettings.json - CodeLockLength is inferior to 1 or can't be read !!! Validate the file or compare your file with this link https://github.com/ExpansionModTeam/DayZ-Expansion-Settings/blob/master/BaseBuildingSettings.json");
+				m_TextCodePanel.SetText( "Settings Error" );
+				EXError.Error(null, "Expansion BaseBuildingSettings.json - CodeLockLength is less than 1! Validate the file or delete it for it to be re-generated on next server start", {});
 			}
 		} else {
 			m_TextCodePanel.SetText( "Critical Error" );
@@ -186,7 +186,7 @@ class ExpansionLockUIBase: ExpansionUIScriptedMenu
 	
 	override void Update(float timeslice)
 	{
-		if ( GetGame().GetInput().LocalPress( "UAUIBack", false ) )
+		if ( g_Game.GetInput().LocalPress( "UAUIBack", false ) )
 		{
 			Close();
 			return;
@@ -205,7 +205,7 @@ class ExpansionLockUIBase: ExpansionUIScriptedMenu
 
 		RefreshCode();
 		
-		GetGame().GetMission().PlayerControlDisable(INPUT_EXCLUDE_ALL);
+		g_Game.GetMission().PlayerControlDisable(INPUT_EXCLUDE_ALL);
 
 		SetFocus( layoutRoot );
 	}
@@ -216,7 +216,7 @@ class ExpansionLockUIBase: ExpansionUIScriptedMenu
 
 		RefreshCode();
 
-		GetGame().GetMission().PlayerControlEnable(true);
+		g_Game.GetMission().PlayerControlEnable(true);
 	}
 	
 	override bool UseKeyboard() 
@@ -235,7 +235,7 @@ class ExpansionLockUIBase: ExpansionUIScriptedMenu
 
 	protected void SoundOnclick()
 	{
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			if ( m_Player )
 			{
@@ -247,7 +247,7 @@ class ExpansionLockUIBase: ExpansionUIScriptedMenu
 	
 	protected void SoundOnReset()
 	{
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			if ( m_Player )
 			{
@@ -259,7 +259,7 @@ class ExpansionLockUIBase: ExpansionUIScriptedMenu
 
 	protected void SoundOnError()
 	{
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			if ( m_Player )
 			{
@@ -271,7 +271,7 @@ class ExpansionLockUIBase: ExpansionUIScriptedMenu
 
 	protected void SoundOnSuccess()
 	{
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			if ( m_Player )
 			{

@@ -66,7 +66,7 @@ class ExpansionActionPaint: ActionContinuousBase
 		m_TargetName = target.GetObject().GetType();
 
 		string spraySkin;
-		GetGame().ConfigGetText( "cfgVehicles " + spraycan.GetType() + " skinName", spraySkin );
+		g_Game.ConfigGetText( "cfgVehicles " + spraycan.GetType() + " skinName", spraySkin );
 
 		int skinIndex = m_SkinModule.GetSkinIndex( m_TargetName, spraySkin );
 
@@ -91,7 +91,7 @@ class ExpansionActionPaint: ActionContinuousBase
 		ItemBase item;
 
 		string spraySkin;
-		GetGame().ConfigGetText( "cfgVehicles " + action_data.m_MainItem.GetType() + " skinName", spraySkin );
+		g_Game.ConfigGetText( "cfgVehicles " + action_data.m_MainItem.GetType() + " skinName", spraySkin );
 
 		int skinIndex = m_SkinModule.GetSkinIndex( action_data.m_Target.GetObject().GetType(), spraySkin );
 		if ( skinIndex == -1 )
@@ -107,7 +107,7 @@ class ExpansionActionPaint: ActionContinuousBase
 
 		action_data.m_MainItem.AddQuantity( -10 );
 		
-		if ( !GetGame().IsServer() || !GetGame().IsMultiplayer() )
+		if ( !g_Game.IsServer() || !g_Game.IsMultiplayer() )
 		{
 			SEffectManager.PlaySound( "Expansion_Spraying_SoundSet", action_data.m_Target.GetObject().GetPosition() );
 		}

@@ -23,7 +23,7 @@ class Expansion_GraveBase extends Inventory_Base
 	{
 		super.AfterStoreLoad();
 
-		if ( m_ReceivedAttachments && GetGame().IsServer() )
+		if ( m_ReceivedAttachments && g_Game.IsServer() )
 		{
 			if (GetInventory().AttachmentCount() < 1 || m_Lifetime < 60)
 			{
@@ -46,7 +46,7 @@ class Expansion_GraveBase extends Inventory_Base
 
 		ctx.Write(m_ReceivedAttachments);
 
-		m_Lifetime = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(RemoveGrave);
+		m_Lifetime = g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(RemoveGrave);
 
 		ctx.Write(m_Lifetime);
 	}
@@ -86,7 +86,7 @@ class Expansion_GraveBase extends Inventory_Base
 
 	void SetSelfDestructCountDown(int lifetime)
 	{
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RemoveGrave, lifetime * 1000, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RemoveGrave, lifetime * 1000, false);
 	}
 
 	// Probably not needed, but in case if we need to mod it or change it's deletion behaviour here ya go
@@ -145,7 +145,7 @@ class Expansion_GraveBase extends Inventory_Base
 	{
 		float health;
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			health = item.GetHealth();
 			item.SetHealth(item.GetMaxHealth()); // set item to max health, so we can move ruined items
@@ -153,14 +153,14 @@ class Expansion_GraveBase extends Inventory_Base
 
 		if (GetInventory().CanAddAttachment(item))
 		{
-			if (GetGame().IsMultiplayer())
+			if (g_Game.IsMultiplayer())
 				ServerTakeEntityToInventory( FindInventoryLocationType.ATTACHMENT, item );
 			else
 				entity.LocalTakeEntityToTargetInventory(this, FindInventoryLocationType.ATTACHMENT, item);
 		}
 		else
 		{
-			if (GetGame().IsMultiplayer())
+			if (g_Game.IsMultiplayer())
 				entity.GetInventory().DropEntity(InventoryMode.SERVER, entity, item);
 			else
 				entity.GetInventory().DropEntity(InventoryMode.LOCAL, entity, item);
@@ -169,7 +169,7 @@ class Expansion_GraveBase extends Inventory_Base
 			item.SetOrientation(orientation);
 		}
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			item.SetHealth(health);
 	}
 

@@ -222,7 +222,7 @@ class CfgVehicles
 	class bldr__ice_sea_square_50m: HouseNoDestruct
 	{
 		scope=1;
-		model="DZ\water_sakhal\ice_sea\ ice_sea_square_50m.p3d";
+		model="DZ\water_sakhal\ice_sea\ice_sea_square_50m.p3d";
 	};
 	class bldr_ice_sea_piece_1: HouseNoDestruct
 	{

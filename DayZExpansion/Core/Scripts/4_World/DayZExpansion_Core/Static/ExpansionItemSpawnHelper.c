@@ -41,13 +41,13 @@ class ExpansionItemSpawnHelper
 				//! Not an item, but was spawned in inventory. Get rid of it.
 				//! TODO: This is just here for historical reasons, do we really need it?
 
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 
 				return NULL;
 			}
 
 			//! Spawn on ground
-			obj = GetGame().CreateObject(className, parent.GetPosition(), false, GetGame().IsKindOf(className, "DZ_LightAI"));
+			obj = g_Game.CreateObject(className, parent.GetPosition(), false, g_Game.IsKindOf(className, "DZ_LightAI"));
 			if (!Class.CastTo(item, obj))
 			{
 				if (obj)
@@ -198,7 +198,7 @@ class ExpansionItemSpawnHelper
 			}
 			else
 			{
-				if (!Class.CastTo(newStorage, GetGame().CreateObjectEx("ExpansionTemporaryOwnedContainer", player.GetPosition(), ECE_PLACE_ON_SURFACE)))
+				if (!Class.CastTo(newStorage, g_Game.CreateObjectEx("ExpansionTemporaryOwnedContainer", player.GetPosition(), ECE_PLACE_ON_SURFACE)))
 				{
 					Error("Failed to create temporary storage container!");
 
@@ -213,7 +213,7 @@ class ExpansionItemSpawnHelper
 		}
 
 		if (storage && !existingPlayerStorage)
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(TemporaryStorageNotification, player.GetIdentity());
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(TemporaryStorageNotification, player.GetIdentity());
 
 		return entity;
 	}
@@ -303,16 +303,16 @@ class ExpansionItemSpawnHelper
 					TIntArray itemSize = {};
 
 					string path;
-					if (GetGame().ConfigIsExisting(CFG_MAGAZINESPATH + " " + type))
+					if (g_Game.ConfigIsExisting(CFG_MAGAZINESPATH + " " + type))
 						path = CFG_MAGAZINESPATH;
-					else if (GetGame().ConfigIsExisting(CFG_WEAPONSPATH + " " + type))
+					else if (g_Game.ConfigIsExisting(CFG_WEAPONSPATH + " " + type))
 						path = CFG_WEAPONSPATH;
-					else if (GetGame().ConfigIsExisting(CFG_VEHICLESPATH + " " + type))
+					else if (g_Game.ConfigIsExisting(CFG_VEHICLESPATH + " " + type))
 						path = CFG_VEHICLESPATH;
 					else
 						return null;
 
-					GetGame().ConfigGetIntArray(path + " "  + type + " itemSize", itemSize);
+					g_Game.ConfigGetIntArray(path + " "  + type + " itemSize", itemSize);
 
 					int cargoMax = Math.Max(cargo.GetWidth(), cargo.GetHeight());
 					int cargoMin = Math.Min(cargo.GetWidth(), cargo.GetHeight());
@@ -362,7 +362,7 @@ class ExpansionItemSpawnHelper
 		EntityAI tmpEntity;
 		EntityAI newEntity;
 
-		Object obj = GetGame().CreateObjectEx(type, "0 0 0", ECE_LOCAL);
+		Object obj = g_Game.CreateObjectEx(type, "0 0 0", ECE_LOCAL);
 		if (Class.CastTo(tmpEntity, obj))
 		{
 			auto src = new InventoryLocation();
@@ -393,7 +393,7 @@ class ExpansionItemSpawnHelper
 			Error(obj.ToString() + " is not EntityAI");
 		}
 
-		GetGame().ObjectDelete(obj);
+		g_Game.ObjectDelete(obj);
 
 		return newEntity;
 	}
@@ -423,22 +423,22 @@ class ExpansionItemSpawnHelper
 				Object debugBox;
 
 				//! Bottom left
-				debugBox = GetGame().CreateObjectEx("ExpansionDebugBox_Blue", position, ECE_NOLIFETIME);
+				debugBox = g_Game.CreateObjectEx("ExpansionDebugBox_Blue", position, ECE_NOLIFETIME);
 				debugBox.SetOrientation(orientation);
 				debugBox.SetPosition(debugBox.ModelToWorld(Vector(-size[0] / 2, 0, -size[2] / 2)));
 
 				//! Bottom right
-				debugBox = GetGame().CreateObjectEx("ExpansionDebugBox_Orange", position, ECE_NOLIFETIME);
+				debugBox = g_Game.CreateObjectEx("ExpansionDebugBox_Orange", position, ECE_NOLIFETIME);
 				debugBox.SetOrientation(orientation);
 				debugBox.SetPosition(debugBox.ModelToWorld(Vector(size[0] / 2, 0, -size[2] / 2)));
 
 				//! Top right
-				debugBox = GetGame().CreateObjectEx("ExpansionDebugBox_Red", position, ECE_NOLIFETIME);
+				debugBox = g_Game.CreateObjectEx("ExpansionDebugBox_Red", position, ECE_NOLIFETIME);
 				debugBox.SetOrientation(orientation);
 				debugBox.SetPosition(debugBox.ModelToWorld(Vector(size[0] / 2, size[1], size[2] / 2)));
 
 				//! Top left
-				debugBox = GetGame().CreateObjectEx("ExpansionDebugBox_Purple", position, ECE_NOLIFETIME);
+				debugBox = g_Game.CreateObjectEx("ExpansionDebugBox_Purple", position, ECE_NOLIFETIME);
 				debugBox.SetOrientation(orientation);
 				debugBox.SetPosition(debugBox.ModelToWorld(Vector(-size[0] / 2, size[1], size[2] / 2)));
 				#endif
@@ -470,7 +470,7 @@ class ExpansionItemSpawnHelper
 
 		array<Object> objects = new array<Object>;
 		
-		if (!GetGame().IsBoxColliding( position + Vector(0, size[1] / 2, 0), orientation, size, excluded_objects, objects))
+		if (!g_Game.IsBoxColliding( position + Vector(0, size[1] / 2, 0), orientation, size, excluded_objects, objects))
 			return NULL;
 
 		foreach (Object obj: objects)
@@ -500,12 +500,12 @@ class ExpansionItemSpawnHelper
 
 		bool placeOnSurface;
 		//! https://feedback.bistudio.com/T173348
-		if (!GetGame().IsKindOf(className, "ExpansionBoatScript") && !GetGame().IsKindOf(className, "ExpansionVehicleBoatBase"))
+		if (!g_Game.IsKindOf(className, "ExpansionBoatScript") && !g_Game.IsKindOf(className, "ExpansionVehicleBoatBase"))
 			placeOnSurface = true;
 		if (placeOnSurface)
 			flags |= ECE_TRACE;
 
-		Object obj = GetGame().CreateObjectEx(className, position, flags);
+		Object obj = g_Game.CreateObjectEx(className, position, flags);
 
 		remainingAmount--;
 
@@ -554,7 +554,7 @@ class ExpansionItemSpawnHelper
 		{
 			if (obj)
 			{
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 			}
 			
 			return NULL;
@@ -604,7 +604,7 @@ class ExpansionItemSpawnHelper
 					flags |= ECE_INITAI;
 				//! XXX: LocationCreateEntity with ECE_PLACE_ON_SURFACE broke somewhere around 1.20 (object rotation isn't applied)
 				//dst = GameInventory.LocationCreateEntity(location, src.GetType(), flags, RF_DEFAULT);
-				dst = EntityAI.Cast(GetGame().CreateObjectEx(src.GetType(), location.GetPos(), flags));
+				dst = EntityAI.Cast(g_Game.CreateObjectEx(src.GetType(), location.GetPos(), flags));
 				if (dst && !src.GetHierarchyParent())
 					dst.SetOrientation(src.GetOrientation());
 				break;
@@ -706,7 +706,7 @@ class ExpansionItemSpawnHelper
 		//! 4) storesave/storeload
 		ScriptReadWriteContext ctx = new ScriptReadWriteContext;
 		src.OnStoreSave(ctx.GetWriteContext());
-		dst.OnStoreLoad(ctx.GetReadContext(), GetGame().SaveVersion());
+		dst.OnStoreLoad(ctx.GetReadContext(), g_Game.SaveVersion());
 
 		if (dstWeapon)
 			dstWeapon.Expansion_ResetMuzzleModes();
@@ -758,7 +758,7 @@ class ExpansionItemSpawnHelper
 		dst.SetSynchDirty();
 		if (dstWeapon)
 			dstWeapon.Synchronize();
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(dst.EEOnAfterLoad);  //! Make sure EEOnAfterLoad gets called AFTER whole hierarchy has loaded
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(dst.EEOnAfterLoad);  //! Make sure EEOnAfterLoad gets called AFTER whole hierarchy has loaded
 
 		return dst;
 	}

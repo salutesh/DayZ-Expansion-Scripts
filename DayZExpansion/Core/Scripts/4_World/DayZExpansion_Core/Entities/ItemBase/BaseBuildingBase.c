@@ -25,6 +25,6 @@ modded class BaseBuildingBase
 		UpdateNavmesh();
 		UpdateVisuals();
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ResetActionSyncData, 100, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ResetActionSyncData, 100, false);
 	}
 };

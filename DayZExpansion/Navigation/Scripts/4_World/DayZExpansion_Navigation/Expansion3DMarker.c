@@ -61,7 +61,7 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 	{
 		GetSettings();
 		
-		m_LayoutRoot = GetGame().GetWorkspace().CreateWidgets(m_LayoutPath);
+		m_LayoutRoot = g_Game.GetWorkspace().CreateWidgets(m_LayoutPath);
 		OnWidgetScriptInit(m_LayoutRoot);
 
 		if (data)
@@ -76,7 +76,7 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 		
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(OnSettingChanged);
 
-		m_Player = PlayerBase.Cast(GetGame().GetPlayer());
+		m_Player = PlayerBase.Cast(g_Game.GetPlayer());
 	}
 
 	void ~Expansion3DMarker()
@@ -152,7 +152,7 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 			}
 		}
 
-		Hud inGameHUD = GetGame().GetMission().GetHud();
+		Hud inGameHUD = g_Game.GetMission().GetHud();
 		if (inGameHUD && !inGameHUD.Expansion_CanShowHUDElements())
 		{
 			m_LayoutRoot.Show(false);
@@ -160,7 +160,7 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 		}
 
 		vector position = m_MarkerData.GetAdjustedPosition();
-		vector screen_position = GetGame().GetScreenPosRelative(position);
+		vector screen_position = g_Game.GetScreenPosRelative(position);
 		if (screen_position[0] >= 1 || screen_position[0] <= 0 || screen_position[1] >= 1 || screen_position[1] <= 0 || screen_position[2] <= 0)
 		{
 			m_LayoutRoot.Show(false);
@@ -184,7 +184,7 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 
 		m_Transparency = ExpansionMath.LinearConversion(0.0125, minTransparencyDist, dist, m_TransparencyMax, m_TransparencyMin);
 		
-		vector cameraPos = GetGame().GetCurrentCameraPosition();
+		vector cameraPos = g_Game.GetCurrentCameraPosition();
 		vector markerDir =  vector.Direction(cameraPos, position);
 		float distance = markerDir.Length();
 		float transparencyOverride;
@@ -237,7 +237,7 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 			#endif
 		}
 
-		vector cameraDir = GetGame().GetCurrentCameraDirection();
+		vector cameraDir = g_Game.GetCurrentCameraDirection();
 		vector markerDirNorm = markerDir.Normalized();
 
 		//! dotprod tolerance 10 degrees = 0.984808 = Math.Cos(10 * Math.DEG2RAD)
@@ -356,7 +356,7 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 					if (Math.AbsFloat(markerDist - vector.Distance(rayStart, contactPos)) < 1.5)
 						return false;
 
-					vector screen_position = GetGame().GetScreenPosRelative( contactPos );
+					vector screen_position = g_Game.GetScreenPosRelative( contactPos );
 					float dist = vector.Distance( screen_position, Vector( 0.5, 0.5, screen_position[2] ) );
 					transparencyOverride = ExpansionMath.LinearConversion( 0.0125, decaySpeed, dist, 0, m_TransparencyMin );
 					return true;
@@ -414,7 +414,7 @@ class Expansion3DMarker: ScriptedWidgetEventHandler
 		}
 
 		GetSettings();
-		m_LayoutRoot = GetGame().GetWorkspace().CreateWidgets(m_LayoutPath);
+		m_LayoutRoot = g_Game.GetWorkspace().CreateWidgets(m_LayoutPath);
 		OnWidgetScriptInit(m_LayoutRoot);
 
 		Refresh();

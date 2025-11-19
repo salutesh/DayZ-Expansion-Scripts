@@ -91,7 +91,7 @@ class ExpansionActionLickBattery: ActionSingleUseBase
 			m_Battery.SetQuantity( m_Quantity - m_Battery.GetQuantityMax() * 0.001 );
 
 		if ( IsMissionClient() )
-			GetGame().GetCallQueue( CALL_CATEGORY_GUI ).CallLater( NotifyPlayer, 500, false, action_data.m_Player.GetIdentity() );
+			g_Game.GetCallQueue( CALL_CATEGORY_GUI ).CallLater( NotifyPlayer, 500, false, action_data.m_Player.GetIdentity() );
 	}
 
 	void NotifyPlayer( PlayerIdentity identity )

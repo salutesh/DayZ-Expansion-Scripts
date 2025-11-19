@@ -69,7 +69,7 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 
 		if (!placeholder.Expansion_HasStoredEntity())
 		{
-			if (GetGame().IsServer() && GetGame().IsMultiplayer())
+			if (g_Game.IsServer() && g_Game.IsMultiplayer())
 			{
 				ExpansionNotification("Entity Storage", "Could not restore " + placeholder.Expansion_GetStoredEntityDisplayName() + " (missing data?)").Error(player.GetIdentity());
 
@@ -136,7 +136,7 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 
 				position[1] = position[1] + placeHolderOffsetY - entityOffsetY;
 
-				GetGame().ObjectDelete(placeholder);
+				g_Game.ObjectDelete(placeholder);
 
 				entity.SetPosition(position);
 				entity.SetOrientation(orientation);

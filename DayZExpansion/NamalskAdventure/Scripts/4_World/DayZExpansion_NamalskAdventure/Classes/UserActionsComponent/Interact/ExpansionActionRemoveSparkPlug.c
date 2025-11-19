@@ -64,7 +64,7 @@ class ExpansionActionRemoveSparkPlug: ActionInteractBase
 		float resultHealth = sparkPlug.GetHealth01("", "");
 		
 		//! Delete the spark plug from the entity attachment slot
-		GetGame().ObjectDelete(sparkPlug);
+		g_Game.ObjectDelete(sparkPlug);
 		
 		//! If player has an other spark plug in his hands try the switch
 		if (action_data.m_MainItem && action_data.m_MainItem.GetType() == "SparkPlug" && !action_data.m_MainItem.IsRuined())
@@ -88,7 +88,7 @@ class ExpansionActionRemoveSparkPlug: ActionInteractBase
 		float resultHealth = sparkPlug.GetHealth01("", "");
 		
 		//! Delete the spark plug from the entity attachment slot
-		GetGame().ObjectDelete(sparkPlug);
+		g_Game.ObjectDelete(sparkPlug);
 		
 		//! If player has an other spark plug in his hands try the switch
 		if (action_data.m_MainItem && action_data.m_MainItem.GetType() == "SparkPlug" && !action_data.m_MainItem.IsRuined())

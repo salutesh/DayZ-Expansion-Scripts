@@ -64,7 +64,7 @@ class ExpansionWreck : Container_Base
 		{
 			if (m_Crater)
 			{
-				GetGame().ObjectDelete(m_Crater);
+				g_Game.ObjectDelete(m_Crater);
 			}
 		}
 	}
@@ -84,7 +84,7 @@ class ExpansionWreck : Container_Base
 		//! TODO: Add collision check so if heli is colliding with any building it wont spawn crater
 
 		string surface;
-		GetGame().SurfaceGetType(GetPosition()[0], GetPosition()[2], surface);
+		g_Game.SurfaceGetType(GetPosition()[0], GetPosition()[2], surface);
 
 		for (int b = 0; b < m_CraterSurfaces.Count(); b++)
 		{
@@ -100,7 +100,7 @@ class ExpansionWreck : Container_Base
 
 			PlaceOnSurface();
 
-			m_Crater = GetGame().CreateObjectEx("CraterLong", GetPosition(), ECE_PLACE_ON_SURFACE);
+			m_Crater = g_Game.CreateObjectEx("CraterLong", GetPosition(), ECE_PLACE_ON_SURFACE);
 			if (m_Crater)
 			{
 				SetDynamicPhysicsLifeTime(0.001);
@@ -155,7 +155,7 @@ class ExpansionWreck : Container_Base
 
 		if (IsMissionHost())
 		{
-			if (!m_CraterSpawned && GetPosition()[1] - GetGame().SurfaceY(GetPosition()[0], GetPosition()[2]) < m_Altitude)
+			if (!m_CraterSpawned && GetPosition()[1] - g_Game.SurfaceY(GetPosition()[0], GetPosition()[2]) < m_Altitude)
 			{
 				// m_CraterTimer.Run( 0.1, this, "OnCrater", NULL, false );
 
@@ -173,19 +173,19 @@ class ExpansionWreck : Container_Base
 				BushSoft bushSoft;
 				if (Class.CastTo(treeHard, obj))
 				{
-					GetGame().RPCSingleParam(this, PlantType.TREE_HARD, new Param1<vector>(obj.GetPosition()), true);
+					g_Game.RPCSingleParam(this, PlantType.TREE_HARD, new Param1<vector>(obj.GetPosition()), true);
 				}
 				else if (Class.CastTo(treeSoft, obj))
 				{
-					GetGame().RPCSingleParam(this, PlantType.TREE_SOFT, new Param1<vector>(obj.GetPosition()), true);
+					g_Game.RPCSingleParam(this, PlantType.TREE_SOFT, new Param1<vector>(obj.GetPosition()), true);
 				}
 				else if (Class.CastTo(bushHard, obj))
 				{
-					GetGame().RPCSingleParam(this, PlantType.BUSH_HARD, new Param1<vector>(obj.GetPosition()), true);
+					g_Game.RPCSingleParam(this, PlantType.BUSH_HARD, new Param1<vector>(obj.GetPosition()), true);
 				}
 				else if (Class.CastTo(bushSoft, obj))
 				{
-					GetGame().RPCSingleParam(this, PlantType.BUSH_SOFT, new Param1<vector>(obj.GetPosition()), true);
+					g_Game.RPCSingleParam(this, PlantType.BUSH_SOFT, new Param1<vector>(obj.GetPosition()), true);
 				}
 				else
 				{
@@ -199,7 +199,7 @@ class ExpansionWreck : Container_Base
 					if (dBodyIsSet(obj))
 						dBodyDestroy(obj);
 
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(GetGame().ObjectDelete, obj);
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(g_Game.ObjectDelete, obj);
 				}
 			}
 		}
@@ -271,7 +271,7 @@ class ExpansionWreck : Container_Base
 		{
 			for (int i = 1; i < 5; i++)
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnParticle, i * 100, false);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnParticle, i * 100, false);
 			}
 		}
 	}
