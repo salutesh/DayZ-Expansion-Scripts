@@ -40,13 +40,13 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		m_MapMarkers = new array<ref ExpansionSpawSelectionMenuMapMarker>;
 		
 		CF_Modules<ExpansionRespawnHandlerModule>.Get(m_RespawnModule);
-		Class.CastTo(m_Mission, MissionGameplay.Cast(GetGame().GetMission()));
+		Class.CastTo(m_Mission, MissionGameplay.Cast(g_Game.GetMission()));
 		Class.CastTo(m_SpawnSelectionMenuController, GetController());
 		
 		Confirm.Show(false);
 		Confirm.Enable(false);
 
-		int mapSize = GetGame().GetWorld().GetWorldSize() / 2;
+		int mapSize = g_Game.GetWorld().GetWorldSize() / 2;
 		Map_Widget.SetMapPos(Vector(mapSize, 0, mapSize));
 	}
 	
@@ -156,7 +156,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	{
 		super.OnShow();
 		
-		GetGame().GetInput().ChangeGameFocus(1);
+		g_Game.GetInput().ChangeGameFocus(1);
 		SetFocus(GetLayoutRoot());
 		PPEffects.SetBlurMenu(0.5);
 		m_Mission.GetHud().ShowHud(false);
@@ -193,9 +193,9 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	{
 		super.OnHide();
 		
-		if (GetGame().GetMission())
+		if (g_Game.GetMission())
 		{
-			GetGame().GetInput().ResetGameFocus();
+			g_Game.GetInput().ResetGameFocus();
 			PPEffects.SetBlurMenu(0.0);
 			Clear();
 

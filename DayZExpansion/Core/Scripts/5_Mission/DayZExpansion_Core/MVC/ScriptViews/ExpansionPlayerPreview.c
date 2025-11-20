@@ -42,23 +42,23 @@ class ExpansionPlayerPreview
 	void ~ExpansionPlayerPreview()
 	{
 		if (m_PlayerPreview)
-			GetGame().ObjectDelete(m_PlayerPreview);
+			g_Game.ObjectDelete(m_PlayerPreview);
 	}
 
 	void Update(string previewClassName)
 	{
-		Man player = GetGame().GetPlayer();
+		Man player = g_Game.GetPlayer();
 		
 		if (!m_PlayerPreview)
 		{
 			//! Oh fml... of all the things I tried to get the player preview face texture to render,
 			//! it turns out the preview entity needs to be close to the player's viewport. Go figure.
 			//! Just spawn it behind the player camera so it won't be seen under normal circumstances.
-			vector dir = GetGame().GetCurrentCameraDirection();
+			vector dir = g_Game.GetCurrentCameraDirection();
 			dir.Normalize();
-			vector pos = GetGame().GetCurrentCameraPosition() - dir * 0.5;
+			vector pos = g_Game.GetCurrentCameraPosition() - dir * 0.5;
 			pos[1] = player.GetPosition()[1];
-			m_PlayerPreview = PlayerBase.Cast(GetGame().CreateObjectEx(player.GetType(), pos, ECE_LOCAL|ECE_NOLIFETIME));
+			m_PlayerPreview = PlayerBase.Cast(g_Game.CreateObjectEx(player.GetType(), pos, ECE_LOCAL|ECE_NOLIFETIME));
 			m_PlayerPreview.SetOrientation(player.GetOrientation());
 
 			m_ParentView.UpdatePlayerPreviewObject(m_PlayerPreview);
@@ -256,7 +256,7 @@ class ExpansionPlayerPreview
 
 		if (currentY != targetInterpolatedY && frameNumber < frames)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(AnimatePosition, Math.Round(1000 / fps), false, animID, frameNumber + 1);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(AnimatePosition, Math.Round(1000 / fps), false, animID, frameNumber + 1);
 		}
 		else
 		{
@@ -269,14 +269,14 @@ class ExpansionPlayerPreview
 
 	bool OnMouseButtonDown(Widget w, int x, int y, int button)
 	{
-		GetGame().GetDragQueue().Call(this, "UpdateRotation");
+		g_Game.GetDragQueue().Call(this, "UpdateRotation");
 		GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
 		return true;
 	}
 
 	bool OnMouseWheel(Widget w, int x, int y, int wheel) 
 	{
-		GetGame().GetDragQueue().Call(this, "UpdateScale");
+		g_Game.GetDragQueue().Call(this, "UpdateScale");
 		m_CharacterScaleDelta = wheel;
 		return false;
 	}

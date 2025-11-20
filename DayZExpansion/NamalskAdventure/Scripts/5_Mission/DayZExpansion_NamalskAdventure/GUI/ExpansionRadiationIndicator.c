@@ -74,7 +74,7 @@ class ExpansionRadiationIndicator: ExpansionScriptView
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 		
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (player)
 		{
 			UpdateRadiationIndicator(player);

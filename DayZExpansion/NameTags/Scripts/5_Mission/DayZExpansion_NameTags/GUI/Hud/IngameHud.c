@@ -67,9 +67,9 @@ modded class IngameHud
 			string cfg_name = searching_in.Get(s);
 			string path = cfg_name + " " + e.GetType();
 
-			if (GetGame().ConfigIsExisting(path))
+			if (g_Game.ConfigIsExisting(path))
 			{
-				GetGame().ConfigGetTextArray(path + " attachments", attachments_slots);
+				g_Game.ConfigGetTextArray(path + " attachments", attachments_slots);
 				if (e.IsWeapon() && (!e.ConfigIsExisting("DisplayMagazine") || e.ConfigGetBool("DisplayMagazine")))
 				{
 					attachments_slots.Insert("magazine");
@@ -88,7 +88,7 @@ modded class IngameHud
 
 	protected void Expansion_CreatePlayerTagWigets()
 	{
-		m_PlayerTag = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/NameTags/GUI/layouts/expansion_hud_player_tag.layout");
+		m_PlayerTag = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/NameTags/GUI/layouts/expansion_hud_player_tag.layout");
 		m_PlayerTagText = TextWidget.Cast(m_PlayerTag.FindAnyWidget("TagText"));
 		m_PlayerTagIcon = ImageWidget.Cast(m_PlayerTag.FindAnyWidget("TagIcon"));
 
@@ -142,7 +142,7 @@ modded class IngameHud
 
 	protected void Expansion_RefreshPlayerTagsEx()
 	{
-		if (!GetGame().GetPlayer())
+		if (!g_Game.GetPlayer())
 			return;
 
 		m_MaxViewRange = GetExpansionSettings().GetNameTags().PlayerTagViewRange;
@@ -159,7 +159,7 @@ modded class IngameHud
 		bool showPlayerItem = GetExpansionSettings().GetNameTags().ShowPlayerItemInHands;
 		bool safeZone = GetExpansionSettings().GetNameTags().OnlyInSafeZones;
 		bool territory = GetExpansionSettings().GetNameTags().OnlyInTerritories;
-		vector head_pos = GetGame().GetCurrentCameraPosition();
+		vector head_pos = g_Game.GetCurrentCameraPosition();
 		float distance;
 
 		vector end_pos;
@@ -183,7 +183,7 @@ modded class IngameHud
 		m_IsMember = false;
 		m_IsFriendly = false;
 
-		PlayerBase playerA = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase playerA = PlayerBase.Cast(g_Game.GetPlayer());
 		PlayerBase playerB;
 
 		bool isInSafeZone;
@@ -198,7 +198,7 @@ modded class IngameHud
 		foreach (Man player : ClientData.m_PlayerBaseList)
 		{
 			EntityAI entityInHands;
-			if (player.IsAlive() && player != GetGame().GetPlayer())
+			if (player.IsAlive() && player != g_Game.GetPlayer())
 			{
 				Class.CastTo(playerB, player);
 
@@ -219,8 +219,8 @@ modded class IngameHud
 				if (showPlayerItem && player.GetHumanInventory().GetEntityInHands())
 					entityInHands = player.GetHumanInventory().GetEntityInHands();
 
-				end_pos = head_pos + GetGame().GetCurrentCameraDirection() * RAYCAST_RANGE;
-				params = new RaycastRVParams(head_pos, end_pos, GetGame().GetPlayer(), 0);
+				end_pos = head_pos + g_Game.GetCurrentCameraDirection() * RAYCAST_RANGE;
+				params = new RaycastRVParams(head_pos, end_pos, g_Game.GetPlayer(), 0);
 				params.sorted = true;
 
 				results = new array<ref RaycastRVResult>;
@@ -288,7 +288,7 @@ modded class IngameHud
 						}
 
 						string icon_name = ""; //! icon_name must be in format "set:<setname> image:<imagename>"
-						if (GetGame().ConfigGetText(path + " ghostIcon", icon_name) && icon_name != "")
+						if (g_Game.ConfigGetText(path + " ghostIcon", icon_name) && icon_name != "")
 							m_CurrentTaggedItemIcon = StaticGUIUtils.VerifyIconImageString(StaticGUIUtils.IMAGESETGROUP_INVENTORY, icon_name);
 					}
 
@@ -358,7 +358,7 @@ modded class IngameHud
 	protected bool HandleCurrentTaggedPlayer(float timeslice)
 	{
 		vector target_pos = m_CurrentTaggedPlayer.GetPosition();
-		vector head_pos = GetGame().GetCurrentCameraPosition();
+		vector head_pos = g_Game.GetCurrentCameraPosition();
 		float distance = vector.Distance(head_pos, target_pos);
 		float range = m_MaxViewRange;
 		bool isMember;
@@ -379,7 +379,7 @@ modded class IngameHud
 
 		m_PlayerSpineIndex = m_CurrentTaggedPlayer.GetBoneIndex("Spine2");
 		vector player_pos = m_CurrentTaggedPlayer.GetBonePositionWS(m_PlayerSpineIndex);
-		vector screen_pos = GetGame().GetScreenPosRelative(player_pos);
+		vector screen_pos = g_Game.GetScreenPosRelative(player_pos);
 		string nameText = m_CurrentTaggedPlayer.GetIdentityName();
 		int iconColor = ARGB(255, 230, 230, 230);
 
@@ -438,7 +438,7 @@ modded class IngameHud
 
 		m_PlayerSpineIndex = m_CurrentTaggedNPC.GetBoneIndex("Spine2");
 		vector player_pos = m_CurrentTaggedNPC.GetBonePositionWS(m_PlayerSpineIndex);
-		vector screen_pos = GetGame().GetScreenPosRelative(player_pos);
+		vector screen_pos = g_Game.GetScreenPosRelative(player_pos);
 		string npcName = "Unknown";
 		string iconPath = m_PlayerTagIconPath;
 		int iconColor = ARGB(255, 230, 230, 230);
@@ -473,7 +473,7 @@ modded class IngameHud
 						ExpansionQuestNPCBase expQuestNPCBase;
 						if (Class.CastTo(expQuestNPCBase, expNPCBase))
 						{
-							showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), expQuestNPCBase.GetQuestNPCID());
+							showQuestMarker = ShowQuestMarker(PlayerBase.Cast(g_Game.GetPlayer()), expQuestNPCBase.GetQuestNPCID());
 							if (showQuestMarker)
 							{
 								icon = "{2F55C3FCBE849589}DayZExpansion/Core/GUI/icons/hud/exclamationmark_64x64.edds";
@@ -491,7 +491,7 @@ modded class IngameHud
 						ExpansionQuestNPCAIBase expQuestNPCAIBase;
 						if (Class.CastTo(expQuestNPCAIBase, expAINPCBase))
 						{
-							showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), expQuestNPCAIBase.GetQuestNPCID());
+							showQuestMarker = ShowQuestMarker(PlayerBase.Cast(g_Game.GetPlayer()), expQuestNPCAIBase.GetQuestNPCID());
 							if (showQuestMarker)
 							{
 								icon = "{2F55C3FCBE849589}DayZExpansion/Core/GUI/icons/hud/exclamationmark_64x64.edds";
@@ -557,7 +557,7 @@ modded class IngameHud
 	protected bool HandleCurrentTaggedItem(float timeslice)
 	{
 		vector target_pos = m_CurrentTaggedItem.GetPosition();
-		vector head_pos = GetGame().GetCurrentCameraPosition();
+		vector head_pos = g_Game.GetCurrentCameraPosition();
 		float distance = vector.Distance(head_pos, target_pos);
 
 		if (distance > m_MaxViewRange)
@@ -569,7 +569,7 @@ modded class IngameHud
 			m_PlayerTag.SetPos(SCREEN_X, SCREEN_Y);
 		}
 
-		vector screen_pos = GetGame().GetScreenPosRelative(m_CurrentTaggedItem.GetPosition());
+		vector screen_pos = g_Game.GetScreenPosRelative(m_CurrentTaggedItem.GetPosition());
 		string iconPath = "{C5A0666669DF90D2}DayZExpansion/Core/GUI/icons/hud/eye_64x64.edds";
 		string nameText = m_CurrentTaggedItem.GetDisplayName();
 		int iconColor = ARGB(255, 230, 230, 230);
@@ -623,7 +623,7 @@ modded class IngameHud
 	protected bool HandleCurrentTaggedObject(float timeslice)
 	{
 		vector target_pos = m_CurrentTaggedObject.GetPosition();
-		vector head_pos = GetGame().GetCurrentCameraPosition();
+		vector head_pos = g_Game.GetCurrentCameraPosition();
 		float distance = vector.Distance(head_pos, target_pos);
 
 		if (distance > m_MaxViewRange)
@@ -635,7 +635,7 @@ modded class IngameHud
 			m_PlayerTag.SetPos(SCREEN_X, SCREEN_Y);
 		}
 
-		vector screen_pos = GetGame().GetScreenPosRelative(m_CurrentTaggedObject.GetPosition());
+		vector screen_pos = g_Game.GetScreenPosRelative(m_CurrentTaggedObject.GetPosition());
 		if (screen_pos[2] > 0)
 		{
 			if (screen_pos[0] > 0 && screen_pos[0] < 2)
@@ -659,7 +659,7 @@ modded class IngameHud
 					ExpansionQuestStaticObject staticQuestObject;
 					if (Class.CastTo(staticQuestObject, staticObject))
 					{
-						bool showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), staticQuestObject.GetQuestNPCID());
+						bool showQuestMarker = ShowQuestMarker(PlayerBase.Cast(g_Game.GetPlayer()), staticQuestObject.GetQuestNPCID());
 						if (showQuestMarker)
 						{
 							icon = "{2F55C3FCBE849589}DayZExpansion/Core/GUI/icons/hud/exclamationmark_64x64.edds";
@@ -697,7 +697,7 @@ modded class IngameHud
 		eAIFaction localFaction;
 		eAIFaction playerFaction;
 		string factionName = "N/A";
-		DayZPlayerImplement localPlayer = DayZPlayerImplement.Cast(GetGame().GetPlayer());
+		DayZPlayerImplement localPlayer = DayZPlayerImplement.Cast(g_Game.GetPlayer());
 		eAIGroup playerGroup = player.GetGroup();
 		if (!playerGroup)
 			return;

@@ -10,7 +10,7 @@ class eAIState_Fighting_FireWeapon: eAIState
 		
 		m_Time = 0;
 		
-		unit.m_eAI_LastFireTime = GetGame().GetTime();
+		unit.m_eAI_LastFireTime = g_Game.GetTime();
 		
 		bool adjustStance = unit.eAI_AdjustStance(m_Weapon, unit.m_eAI_DistanceToTargetSq);
 		

@@ -212,7 +212,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		{
 			if ( m_Container )
 			{
-				GetGame().ObjectDelete(m_Container);
+				g_Game.ObjectDelete(m_Container);
 			}
 
 			if ( GetExpansionSettings().GetNotification().ShowAirdropEnded && ShowNotification )

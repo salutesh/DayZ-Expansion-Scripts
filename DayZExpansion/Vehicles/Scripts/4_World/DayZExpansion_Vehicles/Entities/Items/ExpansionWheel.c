@@ -15,28 +15,28 @@ class ExpansionWheelBase : ItemBase
 		string path;
 
 		path = "CfgVehicles " + GetType() + " mass";
-		m_Mass = GetGame().ConfigGetFloat(path);
+		m_Mass = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + GetType() + " radius";
-		m_Radius = GetGame().ConfigGetFloat(path);
+		m_Radius = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + GetType() + " friction";
-		m_Friction = GetGame().ConfigGetFloat(path);
+		m_Friction = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + GetType() + " width";
-		m_Width = GetGame().ConfigGetFloat(path);
+		m_Width = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + GetType() + " tyreRollResistance";
-		m_TyreRollResistance = GetGame().ConfigGetFloat(path);
+		m_TyreRollResistance = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + GetType() + " tyreRollDrag";
-		m_TyreRollDrag = GetGame().ConfigGetFloat(path);
+		m_TyreRollDrag = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + GetType() + " tyreRoughness";
-		m_TyreRoughness = GetGame().ConfigGetFloat(path);
+		m_TyreRoughness = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + GetType() + " tyreTread";
-		m_TyreTread = GetGame().ConfigGetFloat(path);
+		m_TyreTread = g_Game.ConfigGetFloat(path);
 	}
 
 	override bool Expansion_CarContactActivates()

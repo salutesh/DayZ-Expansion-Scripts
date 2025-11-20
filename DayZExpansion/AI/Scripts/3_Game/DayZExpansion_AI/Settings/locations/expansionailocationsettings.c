@@ -159,7 +159,7 @@ class ExpansionAILocationSettings: ExpansionSettingBase
 		RoamingLocations = ExpansionLocationT<ExpansionAIRoamingLocation>.GetWorldLocations(include);
 
 		if (RoamingLocations.Count() == 0)
-			EXPrint(this, "Map " + GetGame().GetWorldName() + " has no locations!");
+			EXPrint(this, "Map " + g_Game.GetWorldName() + " has no locations!");
 
 		//! Excluded buildings are structures where the pathfinding won't generate a good path.
 		//! TODO: Possibly move excludes to cover obj discovery in eAIBase::UpdateTargets?

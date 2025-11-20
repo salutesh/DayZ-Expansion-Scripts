@@ -377,7 +377,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 
 		if (settings.UseReputation && settings.UseItemRarityForMarketPurchase)
 		{
-			player = PlayerBase.Cast(GetGame().GetPlayer());
+			player = PlayerBase.Cast(g_Game.GetPlayer());
 			useRarity = true;
 		}
 
@@ -558,7 +558,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 			
 		if (w == market_item_manager_preview)
 		{
-			GetGame().GetDragQueue().Call(this, "UpdateRotation");
+			g_Game.GetDragQueue().Call(this, "UpdateRotation");
 			GetMousePos(m_ItemRotationX, m_ItemRotationY);
 			return true;
 		}		

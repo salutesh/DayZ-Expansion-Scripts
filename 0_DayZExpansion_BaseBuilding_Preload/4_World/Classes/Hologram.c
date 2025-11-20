@@ -24,7 +24,7 @@ modded class Hologram
 		m_ContactDir = vector.Zero;
 		vector minMax[2];
 		float projectionRadius = GetProjectionRadius();
-		float cameraToPlayerDistance = vector.Distance(GetGame().GetCurrentCameraPosition(), player.GetPosition());
+		float cameraToPlayerDistance = vector.Distance(g_Game.GetCurrentCameraPosition(), player.GetPosition());
 
 		if (projectionRadius < SMALL_PROJECTION_RADIUS) // objects with radius smaller than 1m
 		{
@@ -38,17 +38,17 @@ modded class Hologram
 			maxProjectionDistance = Math.Clamp(maxProjectionDistance, SMALL_PROJECTION_RADIUS, LARGE_PROJECTION_DISTANCE_LIMIT);
 		}
 		
-		vector from = GetGame().GetCurrentCameraPosition();
+		vector from = g_Game.GetCurrentCameraPosition();
 		//adjusts raycast origin to player head approx. level (limits results behind the character)
 		if (DayZPlayerCamera3rdPerson.Cast(player.GetCurrentCamera()))
 		{
 			vector head_pos;
 			MiscGameplayFunctions.GetHeadBonePos(player,head_pos);
 			float dist = vector.Distance(head_pos,from);
-			from = from + GetGame().GetCurrentCameraDirection() * dist;
+			from = from + g_Game.GetCurrentCameraDirection() * dist;
 		}
 		
-		vector to = from + (GetGame().GetCurrentCameraDirection() * (maxProjectionDistance + cameraToPlayerDistance));
+		vector to = from + (g_Game.GetCurrentCameraDirection() * (maxProjectionDistance + cameraToPlayerDistance));
 		vector contactPosition;
 		set<Object> hitObjects = new set<Object>();
 
@@ -78,7 +78,7 @@ modded class Hologram
 		// Camera isn't correctly positioned in some cases, leading to raycasts hitting the object directly behind the camera
 		if ((hitObjects.Count() > 0) && (vector.DistanceSq(from, contactPosition) < minDistFromStart))
 		{
-			from = contactPosition + GetGame().GetCurrentCameraDirection() * raycastOriginOffsetOnFail;
+			from = contactPosition + g_Game.GetCurrentCameraDirection() * raycastOriginOffsetOnFail;
 			//! @note vanilla changed raycast from ObjIntersectView to ObjIntersectFire in 1.16, which breaks some 3rd party mods including our basebuilding.
 			//! Override it back to ObjIntersectView which works just fine for vanilla and 3rd party mods.
 			DayZPhysics.RaycastRV( from, to, contactPosition, m_ContactDir, m_ContactComponent, hitObjects, player, m_Projection, false, false, ObjIntersectView );

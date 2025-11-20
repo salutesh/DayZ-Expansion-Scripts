@@ -321,7 +321,7 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 			//! Set a flag so we can check whether mouse button is still down.
 			m_MouseButtonIsDown = true;
 			GetMousePos(m_PlayerPreviewRotationX, m_PlayerPreviewRotationY);
-			GetGame().GetDragQueue().Call(this, "UpdatePlayerPreviewRotation");
+			g_Game.GetDragQueue().Call(this, "UpdatePlayerPreviewRotation");
 		}
 		
 		return super.OnMouseButtonDown(w, x, y, button);

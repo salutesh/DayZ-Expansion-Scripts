@@ -38,7 +38,7 @@ class ExpansionBookMenuTabCraftingIngredient: ExpansionScriptView
 	void ~ExpansionBookMenuTabCraftingIngredient()
 	{
 		if (m_Object)
-			GetGame().ObjectDelete(m_Object);
+			g_Game.ObjectDelete(m_Object);
 	}
 	
 	override string GetLayoutFile() 
@@ -64,11 +64,11 @@ class ExpansionBookMenuTabCraftingIngredient: ExpansionScriptView
 		m_IngredientController.NotifyPropertyChanged("ItemName");
 		
 		if (m_Object)
-			GetGame().ObjectDelete(m_Object);
+			g_Game.ObjectDelete(m_Object);
 		
 		for (int i = 0; i < m_Item.ClassNames.Count(); i++)
 		{
-			m_Object = EntityAI.Cast(GetGame().CreateObjectEx(m_Item.ClassNames[i], vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
+			m_Object = EntityAI.Cast(g_Game.CreateObjectEx(m_Item.ClassNames[i], vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
 			if (m_Object)
 				break;
 		}

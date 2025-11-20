@@ -72,7 +72,7 @@ modded class TerritoryFlag
 			m_Expansion_TerritoryModule.RemoveTerritoryFlag( m_Expansion_TerritoryID );
 		}
 
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		int i = m_Expansion_TerritoryFlags.Find( this );
@@ -430,7 +430,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	override void EEDelete( EntityAI parent )
 	{		
-		if ( m_Expansion_Territory && m_Expansion_TerritoryID > -1 && GetGame() && m_Expansion_TerritoryModule )
+		if ( m_Expansion_Territory && m_Expansion_TerritoryID > -1 && g_Game && m_Expansion_TerritoryModule )
 			m_Expansion_TerritoryModule.Exec_DeleteTerritoryAdmin( m_Expansion_TerritoryID, null );
 			
 		super.EEDelete( parent );
@@ -450,7 +450,7 @@ modded class TerritoryFlag
 
 		if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation && part_name == "pole" ) 
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_AttachDefaultFlag, 34, false, PlayerBase.Cast(player));
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_AttachDefaultFlag, 34, false, PlayerBase.Cast(player));
 		}
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG

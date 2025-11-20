@@ -103,13 +103,13 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 			ClientModuleInit();
 	}
 
 	protected void ClientModuleInit()
 	{
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 		{
 			m_PersonalStorageMenuCallbackInvoker = new ScriptInvoker();
 			m_PersonalStorageMenuInvoker = new ScriptInvoker();
@@ -118,7 +118,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			m_ItemsData = new map<string, ref array<ref ExpansionPersonalStorageItem>>;
 			m_PersonalStorageConfig = new map<int, ref ExpansionPersonalStorageConfig>;
@@ -181,7 +181,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	protected void CreateDefaultPersonalStorageConfig()
 	{
 		string worldname;
-		GetGame().GetWorldName(worldname);
+		g_Game.GetWorldName(worldname);
 		worldname.ToLower();
 		
 		vector mapPos = GetDayZGame().GetWorldCenterPosition();
@@ -633,12 +633,12 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		if (player.FindAttachmentBySlotName("ExpansionPersonalContainer"))
 			return;
 
-		Object obj = GetGame().CreateObjectEx("ExpansionSmallPersonalProtectorCase", player.GetPosition(), ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
+		Object obj = g_Game.CreateObjectEx("ExpansionSmallPersonalProtectorCase", player.GetPosition(), ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
 		ExpansionPersonalProtectiveCaseBase personalStorageCase;
 		if (!ExpansionPersonalProtectiveCaseBase.CastTo(personalStorageCase, obj))
 		{
 			if (obj)
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 
 			Error(ToString() + "::SpawnPesonalStorageCase - Could not spawn Personal Storage case!");
 			return;
@@ -882,7 +882,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	
 	static string GetPersonalStorageDataDirectory()
 	{
-		int instance_id = GetGame().ServerConfigGetInt("instanceId");
+		int instance_id = g_Game.ServerConfigGetInt("instanceId");
 		return "$mission:storage_" + instance_id + "\\expansion\\personalstorage\\";
 	}
 };

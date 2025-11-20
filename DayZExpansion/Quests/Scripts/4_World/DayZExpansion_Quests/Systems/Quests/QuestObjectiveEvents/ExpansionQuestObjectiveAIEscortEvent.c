@@ -99,7 +99,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			if (!npcEmoteManager.IsEmotePlaying())
 			{
 				npcEmoteManager.PlayEmote(EmoteConstants.ID_EMOTE_GREETING);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
 			}
 
 			eAIFaction faction = new eAIFactionInvincibleObservers();
@@ -109,7 +109,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			group.SetWaypointBehaviour(eAIWaypointBehavior.ONCE);
 			group.AddWaypoint(m_ObjectivePos);
 
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeleteVIP, 10000);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeleteVIP, 10000);
 
 			auto player = m_Quest.GetPlayer();
 			if (!player.Expansion_GetFormerGroup())
@@ -132,7 +132,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			return false;
 
 		if (m_Trigger)
-			GetGame().ObjectDelete(m_Trigger);
+			g_Game.ObjectDelete(m_Trigger);
 
 		if (m_VIP)
 		{
@@ -178,10 +178,10 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!m_VIP)
 			return;
 		
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.UpdateVIPPosition);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.UpdateVIPPosition);
 		//! Make sure to move AI out of the way, otherwise invisible collision box will be left behind when deleting
 		m_VIP.SetPosition("0 0 0");
-		GetGame().ObjectDelete(m_VIP);
+		g_Game.ObjectDelete(m_VIP);
 	}
 
 	protected void CreateVIP()
@@ -204,7 +204,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		m_VIP.m_Expansion_NetsyncData.Set(0, m_AIEscortConfig.GetNPCName());
 		m_VIP.m_Expansion_NetsyncData.Set(1, "set:expansion_iconset image:icon_profile");
 		
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.UpdateVIPPosition, 10 * 1000, true);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.UpdateVIPPosition, 10 * 1000, true);
 	}
 
 	protected eAIBase SpawnAI_VIP(PlayerBase owner, string loadout = "HumanLoadout", string className = "")
@@ -226,7 +226,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			spawnPos = m_LastVIPPos;
 		
 		eAIBase ai;
-		if (!Class.CastTo(ai, GetGame().CreateObject(className, spawnPos)))
+		if (!Class.CastTo(ai, g_Game.CreateObject(className, spawnPos)))
 			return null;
 
 		eAIGroup group = owner.GetGroup();
@@ -258,7 +258,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		m_Trigger = ExpansionEscortObjectiveSphereTrigger.Cast(GetGame().CreateObjectEx("ExpansionEscortObjectiveSphereTrigger", pos, ECE_LOCAL));
+		m_Trigger = ExpansionEscortObjectiveSphereTrigger.Cast(g_Game.CreateObjectEx("ExpansionEscortObjectiveSphereTrigger", pos, ECE_LOCAL));
 		if (!m_Trigger)
 			return;
 

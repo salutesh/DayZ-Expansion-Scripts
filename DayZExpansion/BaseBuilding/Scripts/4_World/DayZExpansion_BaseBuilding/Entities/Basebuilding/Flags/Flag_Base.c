@@ -20,7 +20,7 @@ modded class Flag_Base
 	void Flag_Base()
 	{
 		TStringArray textures = new TStringArray;
-		GetGame().ConfigGetTextArray( "CfgVehicles " + GetType() + " hiddenSelectionsTextures", textures );
+		g_Game.ConfigGetTextArray( "CfgVehicles " + GetType() + " hiddenSelectionsTextures", textures );
 		SetFlagTexture( textures[0] );
 	}
 	

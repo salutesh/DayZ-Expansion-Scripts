@@ -79,10 +79,10 @@ class ExpansionNotificationView: ScriptView
 
 	void PlaySound()
 	{
-		if ( GetGame() && GetGame().GetPlayer() && (!m_Data.m_LeaveJoinNotif || (m_Data.m_LeaveJoinNotif && GetExpansionClientSettings().NotificationSoundLeaveJoin) ))
+		if ( g_Game && g_Game.GetPlayer() && (!m_Data.m_LeaveJoinNotif || (m_Data.m_LeaveJoinNotif && GetExpansionClientSettings().NotificationSoundLeaveJoin) ))
 		{
-			if (GetGame().ConfigIsExisting("CfgSoundSets "+ GetSoundSet()))  //! Hint sound is part of Licensed
-				SEffectManager.PlaySoundOnObject(GetSoundSet(), GetGame().GetPlayer(), 0, 0.15, false);
+			if (g_Game.ConfigIsExisting("CfgSoundSets "+ GetSoundSet()))  //! Hint sound is part of Licensed
+				SEffectManager.PlaySoundOnObject(GetSoundSet(), g_Game.GetPlayer(), 0, 0.15, false);
 		}
 	}
 
@@ -138,7 +138,7 @@ class ExpansionNotificationView: ScriptView
 		{	
 			m_Showing = false;
 			m_Data.m_HasShown = true;
-			m_Data.m_NotificationTime = GetGame().GetTickTime() + m_Data.GetTime();
+			m_Data.m_NotificationTime = g_Game.GetTickTime() + m_Data.GetTime();
 		}
 	}
 	

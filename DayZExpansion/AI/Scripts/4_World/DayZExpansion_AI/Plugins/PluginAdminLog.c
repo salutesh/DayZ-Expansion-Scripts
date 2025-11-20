@@ -9,12 +9,12 @@ modded class PluginAdminLog
 
 		//! Expansion settings get initialized in DayZExpansion constructor, which gets created in MissionBase constructor.
 		//! Vanilla plugin init also happens in MissionBase constructor, so we have to delay accessing Expansion settings to next frame
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(eAI_OnAfterInit);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(eAI_OnAfterInit);
 	}
 
 	void eAI_OnAfterInit()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			auto settings = GetExpansionSettings().GetAI();
 			m_eAI_LogAIHitBy = settings.LogAIHitBy;

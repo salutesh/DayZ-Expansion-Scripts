@@ -23,13 +23,13 @@ class ExpansionTraderNPCBase: ExpansionNPCBase
 	{
 		m_allTraders.Insert(this);
 
-		if (GetGame() && GetGame().IsClient())
+		if (g_Game && g_Game.IsClient())
 			LoadTrader("");
 	}
 
 	void ~ExpansionTraderNPCBase()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 		
 		int idx = m_allTraders.Find(this);
@@ -91,7 +91,7 @@ class ExpansionTraderObjectBase
 
 	void ~ExpansionTraderObjectBase()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 #ifdef EXTRACE
@@ -118,7 +118,7 @@ class ExpansionTraderObjectBase
 		} 
 		else
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RequestTraderObject, 250, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RequestTraderObject, 250, false);
 		}
 	}
 
@@ -168,7 +168,7 @@ class ExpansionTraderObjectBase
 
 	private void RPC_TraderObject(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			if (!m_Trader)
 				return;
@@ -510,13 +510,13 @@ class ExpansionTraderStaticBase: ExpansionStaticObjectBase
 	{
 		m_allTraders.Insert(this);
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
-		if (GetGame() && GetGame().IsClient())
+		if (g_Game && g_Game.IsClient())
 			LoadTrader("");
 	}
 
 	void ~ExpansionTraderStaticBase()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		int idx = m_allTraders.Find(this);
@@ -573,13 +573,13 @@ class ExpansionTraderZombieBase: ZombieBase
 
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 
-		if (GetGame() && GetGame().IsClient())
+		if (g_Game && g_Game.IsClient())
 			LoadTrader("");
 	}
 
 	void ~ExpansionTraderZombieBase()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		int idx = m_allTraders.Find(this);
@@ -703,14 +703,14 @@ class ExpansionTraderAIBase: eAIBase
 		SetMovementSpeedLimits(1.0);  //! Always walk
 #endif
 
-		if (GetGame() && GetGame().IsClient())
+		if (g_Game && g_Game.IsClient())
 			LoadTrader("");
 	}
 	
 	override void Expansion_Init()
 	{
 	#ifdef EXPANSIONMODAI
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			m_eAI_FactionType = eAIFactionInvincibleObservers;
 	#else
 		Expansion_SetAllowDamage(false);

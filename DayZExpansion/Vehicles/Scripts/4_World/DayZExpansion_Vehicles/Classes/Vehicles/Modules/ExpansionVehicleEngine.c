@@ -25,8 +25,8 @@ class ExpansionVehicleEngine : ExpansionVehicleEngineBase
 
 		path = rootPath + " points";
 		array<float> points = new array<float>();
-		if (GetGame().ConfigIsExisting(path))
-			GetGame().ConfigGetFloatArray(path, points);
+		if (g_Game.ConfigIsExisting(path))
+			g_Game.ConfigGetFloatArray(path, points);
 
 		m_Count = (points.Count() / 2) + 2;
 		m_RPMs.Resize(m_Count);

@@ -21,8 +21,8 @@ class ExpansionVehicleThrottle : ExpansionVehicleModule
 		string path;
 
 		path = rootPath + " controller";
-		if (GetGame().ConfigIsExisting(path))
-			m_ControlIndex = GetGame().ConfigGetInt(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_ControlIndex = g_Game.ConfigGetInt(path);
 			
 		m_TEMP_DeferredInit = false;
 		m_SettingsChanged = false;
@@ -60,24 +60,24 @@ class ExpansionVehicleCarThrottle : ExpansionVehicleThrottle
 		string path;
 
 		path = rootPath + " reactionTime";
-		if (GetGame().ConfigIsExisting(path))
-			m_ReactionTime = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_ReactionTime = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " defaultThrust";
-		if (GetGame().ConfigIsExisting(path))
-			m_DefaultThrust = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_DefaultThrust = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " gentleThrust";
-		if (GetGame().ConfigIsExisting(path))
-			m_GentleThrust = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_GentleThrust = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " turboCoef";
-		if (GetGame().ConfigIsExisting(path))
-			m_TurboCoef = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_TurboCoef = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " gentleCoef";
-		if (GetGame().ConfigIsExisting(path))
-			m_GentleCoef = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_GentleCoef = g_Game.ConfigGetFloat(path);
 	}
 
 	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)

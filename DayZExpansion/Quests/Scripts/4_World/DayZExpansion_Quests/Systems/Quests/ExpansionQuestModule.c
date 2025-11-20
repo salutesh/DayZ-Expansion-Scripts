@@ -167,7 +167,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		super.OnMissionStart(sender, args);
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetQuest().EnableQuests)
 			{
@@ -195,7 +195,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 #endif
 
 		//! Server only
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			if (!FileExist(EXPANSION_QUESTS_FOLDER))
 				MakeDirectory(EXPANSION_QUESTS_FOLDER);
@@ -418,7 +418,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		super.OnMissionLoaded(sender, args);
 
 		//! Spawn NPCs late so mapping already loaded
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			SpawnQuestNPCs();
 	}
 
@@ -436,11 +436,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (SyncEvents.s_Expansion_RespawningUIDs[cArgs.Identity.GetId()])
 			return;
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetQuest().EnableQuests)
+		if (g_Game.IsServer() && g_Game.IsMultiplayer() && GetExpansionSettings().GetQuest().EnableQuests)
 		{
 			QuestModuleLog("[Expansion Quests] Initialize quest system on the connected client with UID=%1", cArgs.Identity.GetId());
 			//! Need to init in next frame because group init happens in OnInvokeConnect as well and needs to be done first
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(InitQuestSystemClient, cArgs.Identity);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(InitQuestSystemClient, cArgs.Identity);
 		}
 	}
 
@@ -496,7 +496,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 #endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 		{
 			EXError.Error(this, "[Expansion Quests] Tryed to call InitQuestSystemClient on Client!");
 			return;
@@ -602,7 +602,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 #endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 		{
 			EXError.Error(this, "[Expansion Quests] Tryed to call InitClientQuests on Client!");
 			return;
@@ -647,7 +647,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		SendClientQuestData(playerQuestData, identity, sendConfigs);
 
 		//! Call MissionBase::Expansion_OnQuestPlayerInit method. Can be used to hook into the quest module and call events after client initalisation via override in Init.c.
-		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestPlayerInit(playerQuestData, identity);
+		MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_OnQuestPlayerInit(playerQuestData, identity);
 	}
 
 	//! Server
@@ -1209,10 +1209,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		m_ClientQuestData.QuestDebug();
 
-		if (GetGame().GetMission().GetHud())
+		if (g_Game.GetMission().GetHud())
 			UpdateClient();
 		else  //! HUD not yet initialized, delay a bit to allow for init
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateClient, 1000);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateClient, 1000);
 	}
 
 	protected void UpdateClient()
@@ -1318,7 +1318,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			if (!npcEmoteManager.IsEmotePlaying())
 			{
 				npcEmoteManager.PlayEmote(questNPCData.NPCInteractionEmoteID);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
 			}
 		}
 	#endif
@@ -1379,7 +1379,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 		
 		//! Open quest menu if no other menu is opened
-		if (!GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu() && !GetGame().GetUIManager().GetMenu())
+		if (!GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu() && !g_Game.GetUIManager().GetMenu())
 		{
 			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionQuestMenu");
 			//! Populate quest menu with needed client data.
@@ -1456,7 +1456,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		if (!MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_CanStartQuest(configInstance, sender))
+		if (!MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_CanStartQuest(configInstance, sender))
 			return;
 
 		string playerUID = sender.GetId();
@@ -1561,7 +1561,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			if (!npcEmoteManager.IsEmotePlaying())
 			{
 				npcEmoteManager.PlayEmote(npc.GetQuestNPCData().NPCQuestStartEmoteID);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
 			}
 		}
 	#endif
@@ -1905,7 +1905,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			if (!npcEmoteManager.IsEmotePlaying())
 			{
 				npcEmoteManager.PlayEmote(npc.GetQuestNPCData().NPCQuestCancelEmoteID);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
 			}
 		}
 	#endif
@@ -1924,7 +1924,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 #endif
 
 		//! Call custom cancel event for override in init.c
-		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestCancel(quest);
+		MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_OnQuestCancel(quest);
 
 		//! Reset the quest timestamp in the persisten quest data of the quest players.
 		//! save = false because OnCancel quest will process and save the quest data of all quest players afterwards.
@@ -2096,7 +2096,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		}
 
-		if (MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_CanCompleteQuest(quest, identity))
+		if (MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_CanCompleteQuest(quest, identity))
 		{
 			CompleteQuest(quest, playerUID, identity, isAutoComplete, reward, selectedObjItemIndex);
 			return;
@@ -2139,7 +2139,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 					PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
 					//! We set to skip the pre-quest conditions check here as the player quest data does not contain the completion of the current quest yet and the QuestDisplayConditions check would return false otherwise then.
 					if (player && QuestDisplayConditions(followUpQuest, player, playerQuestData, -1, false, true))
-						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RequestOpenQuestMenuForQuest, 1000, false, identity, followUpQuest.GetID());
+						g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RequestOpenQuestMenuForQuest, 1000, false, identity, followUpQuest.GetID());
 				}
 			}
 		}
@@ -2230,7 +2230,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				if (!npcEmoteManager.IsEmotePlaying())
 				{
 					npcEmoteManager.PlayEmote(npc.GetQuestNPCData().NPCQuestCompleteEmoteID);
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
 				}
 			}
 		}
@@ -2622,7 +2622,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 		{
 			EXError.Error(this, "[Expansion Quests] Tryed to call SpawnQuestNPCs on Client!");
 			return;
@@ -2697,7 +2697,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	protected void GetObjectiveData(string fileName, string path)
 	{
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 		{
 			EXError.Error(this, "[Expansion Quests] Tryed to call GetObjectiveData on Client!");
 			return;
@@ -2999,7 +2999,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	protected void GetQuestNPCData(string fileName)
 	{
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 		{
 			EXError.Error(this, "[Expansion Quests] Tryed to call GetQuestNPCData on Client!", {});
 			return;
@@ -3030,7 +3030,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	protected void GetQuestData(string fileName)
 	{
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 		{
 			EXError.Error(this, "[Expansion Quests] Tryed to call GetQuestData on Client!");
 			return;
@@ -3402,7 +3402,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 #endif
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 		{
 			EXError.Error(this, "[Expansion Quests] Tryed to call CleanupPlayerQuests on Client!");
 			return;
@@ -4265,7 +4265,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (s_QuestNPCAIEntities.Contains(id))
 		{
 			if (s_QuestNPCAIEntities.Get(id))
-				GetGame().ObjectDelete(s_QuestNPCAIEntities.Get(id));
+				g_Game.ObjectDelete(s_QuestNPCAIEntities.Get(id));
 
 			s_QuestNPCAIEntities.Remove(id);
 		}
@@ -4490,7 +4490,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (s_QuestObjectEntities.Contains(id))
 		{
 			if (s_QuestObjectEntities.Get(id))
-				GetGame().ObjectDelete(s_QuestObjectEntities.Get(id));
+				g_Game.ObjectDelete(s_QuestObjectEntities.Get(id));
 
 			s_QuestObjectEntities.Remove(id);
 		}
@@ -4515,7 +4515,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (s_QuestNPCEntities.Contains(id))
 		{
 			if (s_QuestNPCEntities.Get(id))
-				GetGame().ObjectDelete(s_QuestNPCEntities.Get(id));
+				g_Game.ObjectDelete(s_QuestNPCEntities.Get(id));
 
 			s_QuestNPCEntities.Remove(id);
 		}
@@ -4557,7 +4557,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		ExpansionQuestIndicatorState currentState;
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 
 		foreach (int questID, ExpansionQuestConfig config: m_QuestConfigs)
 		{
@@ -4634,7 +4634,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto trace = EXTrace.StartStack(EXTrace.QUESTS, s_ModuleInstance, obj.ToString() + " " + obj.GetPosition() + " | State: " + typename.EnumToString(ExpansionQuestIndicatorState, state));
 #endif
 
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (g_Game.IsClient() || !g_Game.IsMultiplayer())
 		{
 			if (state != ExpansionQuestIndicatorState.NOT_SET)
 			{
@@ -5022,7 +5022,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 #endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 		{
 			EXError.Error(this, "[Expansion Quests] Tryed to call SendClientQuestConfigs on Client!");
 			return;
@@ -5175,11 +5175,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (createLocal)
 			flags = flags | ECE_LOCAL;
 
-	    Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), flags);
+	    Object obj = g_Game.CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), flags);
 	    ExpansionQuestStaticObject questObject;
 	    if (!ExpansionQuestStaticObject.CastTo(questObject, obj))
 	    {
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 	        return null;
 	    }
 
@@ -5196,11 +5196,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	protected ExpansionQuestNPCBase SpawnQuestNPC(ExpansionQuestNPCData questNPCData, bool createLocal = false)
 	{
-		Object obj = GetGame().CreateObject(questNPCData.GetClassName(), questNPCData.GetPosition(), createLocal);
+		Object obj = g_Game.CreateObject(questNPCData.GetClassName(), questNPCData.GetPosition(), createLocal);
  		ExpansionQuestNPCBase questNPC;
 		if (!ExpansionQuestNPCBase.CastTo(questNPC, obj))
 	    {
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 	        return null;
 	    }
 
@@ -5223,14 +5223,14 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		vector position = ExpansionAIPatrol.GetPlacementPosition(questNPCData.GetPosition());
 
-		Object obj = GetGame().CreateObject(questNPCData.GetClassName(), position, createLocal);
+		Object obj = g_Game.CreateObject(questNPCData.GetClassName(), position, createLocal);
 		if (!obj)
 			return null;
 
 		ExpansionQuestNPCAIBase questNPC = ExpansionQuestNPCAIBase.Cast(obj);
 		if (!questNPC)
 		{
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 			return null;
 		}
 

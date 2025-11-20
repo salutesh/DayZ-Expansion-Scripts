@@ -51,7 +51,7 @@ class ExpansionActionInstallCircuitBoard: ActionSingleUseBase
 			}
 		}
 		
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			//! TODO: Localization
 			m_Text = "Install Upgrade - Tier " + boardInHands.Expansion_GetTier().ToString();
@@ -75,7 +75,7 @@ class ExpansionActionInstallCircuitBoard: ActionSingleUseBase
 				boardHealth = attachedBoard.GetHealth();
 				targetEntity.GetInventory().SetSlotLock(m_Expansion_CircuitBoardSlotId, false);
 				//! Delete the attached board.
-				GetGame().ObjectDelete(attachedBoard);
+				g_Game.ObjectDelete(attachedBoard);
 			}
 
 			//! Attach the new board to the target object.
@@ -85,7 +85,7 @@ class ExpansionActionInstallCircuitBoard: ActionSingleUseBase
 				attachedBoard.SetHealth(action_data.m_MainItem.GetHealth());
 				targetEntity.GetInventory().SetSlotLock(m_Expansion_CircuitBoardSlotId, true);
 				//! Delete the board in the players hands on board installation.
-				GetGame().ObjectDelete(action_data.m_MainItem);
+				g_Game.ObjectDelete(action_data.m_MainItem);
 			}
 
 			if (attachedType)
@@ -100,13 +100,13 @@ class ExpansionActionInstallCircuitBoard: ActionSingleUseBase
 
 	override void OnExecuteServer(ActionData action_data)
 	{
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 			OnExecuteImpl(action_data);
 	}
 		
 	override void OnExecuteClient(ActionData action_data)
 	{
-		if (!GetGame().IsMultiplayer())
+		if (!g_Game.IsMultiplayer())
 			OnExecuteImpl(action_data);
 	}
 };

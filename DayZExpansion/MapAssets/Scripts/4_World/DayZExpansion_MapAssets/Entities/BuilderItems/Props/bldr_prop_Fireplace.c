@@ -6,9 +6,9 @@ class bldr_prop_Fireplace: House
 
 	void bldr_prop_Fireplace()
 	{
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnParticles, 2000, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnParticles, 2000, false);
 		}
 	}
 

@@ -89,7 +89,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 							isNear = true;
 					}
 
-					if (isUnreachable || (isNear && (distance > 4.0 || ai.eAI_IsItemObstructed(m_Item))) || GetGame().GetTime() - target.m_FoundAtTime > target.m_MaxTime)
+					if (isUnreachable || (isNear && (distance > 4.0 || ai.eAI_IsItemObstructed(m_Item))) || g_Game.GetTime() - target.m_FoundAtTime > target.m_MaxTime)
 					{
 						//! Item is above or below where AI can reach or item is obstructed
 						ai.eAI_ThreatOverride(m_Item, true);
@@ -290,7 +290,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 
 	override void OnHealthLevelChanged(int oldLevel, int newLevel, string zone)
 	{
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 			GetDayZGame().GetExpansionGame().m_FirearmFXHitObject = m_Item.GetHierarchyRoot();
 	}
 };

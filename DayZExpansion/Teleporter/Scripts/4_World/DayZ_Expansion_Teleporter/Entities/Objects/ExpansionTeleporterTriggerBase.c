@@ -59,7 +59,7 @@
 	
 	override void EOnEnter(IEntity other, int extra)
 	{
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{	
 			if (!m_TeleportData)
 				return;
@@ -82,7 +82,7 @@
 	
 	override void EOnLeave(IEntity other, int extra)
 	{
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			PlayerBase player;
 			if (!Class.CastTo(player, other))
@@ -229,7 +229,7 @@
 		}
 
 		if (position[1] == 0)
-			position[1] = GetGame().SurfaceY(position[0], position[2]);
+			position[1] = g_Game.SurfaceY(position[0], position[2]);
 		player.SetPosition(position);
 		player.SetOrientation(orientation);
 		DayZPlayerSyncJunctures.ExpansionTeleport(player, position, orientation);

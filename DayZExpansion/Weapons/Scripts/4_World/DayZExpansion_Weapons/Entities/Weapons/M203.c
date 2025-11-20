@@ -33,7 +33,7 @@ class Expansion_M203_HE_Explosion: BuildingBase
 
 		Explode(DT_EXPLOSION, "RGD5Grenade_Ammo");
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 			m_ParticleExplosion = Particle.PlayInWorld(ParticleList.RGD5, this.GetPosition());
 	}
 };

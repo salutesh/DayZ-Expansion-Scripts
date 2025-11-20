@@ -35,14 +35,14 @@ class ExpansionEngineStartSound
 
 	void PlayAfterStartDelay()
 	{
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Play, m_StartDelay * 1000);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Play, m_StartDelay * 1000);
 	}
 
 	void Play()
 	{
 		if (m_Vehicle && (m_StartDelay == 0 || m_Vehicle.Expansion_EngineIsOn()))
 		{
-			Man player = GetGame().GetPlayer();
+			Man player = g_Game.GetPlayer();
 
 			string soundset = m_SoundSet;
 
@@ -63,7 +63,7 @@ class ExpansionEngineStartSound
 
 			sound.SoundPlay();
 			if (m_StopDelay > 0)
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(sound.Stop, m_StopDelay * 1000);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(sound.Stop, m_StopDelay * 1000);
 		}
 	}
 }

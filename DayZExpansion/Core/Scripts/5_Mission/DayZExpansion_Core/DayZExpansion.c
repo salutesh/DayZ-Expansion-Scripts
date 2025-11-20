@@ -39,7 +39,7 @@ class DayZExpansion: ExpansionWorld
 
 	void ~DayZExpansion()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 #ifdef DIAG_DEVELOPER
@@ -70,7 +70,7 @@ class DayZExpansion: ExpansionWorld
 		}
 		
 		//string versionTest;
-		//GetGame().ConfigGetText( "CfgMods DZ_Expansion version", versionTest );
+		//g_Game.ConfigGetText( "CfgMods DZ_Expansion version", versionTest );
 		//Print( versionTest );
 	}
 

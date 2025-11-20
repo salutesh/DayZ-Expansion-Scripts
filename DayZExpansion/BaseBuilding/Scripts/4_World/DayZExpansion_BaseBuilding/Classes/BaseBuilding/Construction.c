@@ -65,22 +65,22 @@ modded class Construction
 		string main_part_name = GetConstructionPart( part_name ).GetMainPartName();
 		string cfg_path = "cfgVehicles" + " " + GetParent().GetType() + " "+ "Construction" + " " + main_part_name + " " + part_name + " " + "Materials";
 		
-		if ( GetGame().ConfigIsExisting( cfg_path ) )
+		if ( g_Game.ConfigIsExisting( cfg_path ) )
 		{
-			int	child_count = GetGame().ConfigGetChildrenCount( cfg_path );
+			int	child_count = g_Game.ConfigGetChildrenCount( cfg_path );
 			
 			for ( int i = 0; i < child_count; i++ )
 			{
 				string child_name;
-				GetGame().ConfigGetChildName( cfg_path, i, child_name );
+				g_Game.ConfigGetChildName( cfg_path, i, child_name );
 				
 				//get type, lockable from material
 				string config_path;
 				string slot_name;
 				config_path = cfg_path + " " + child_name + " " + "slot_name";
-				GetGame().ConfigGetText( config_path, slot_name );
+				g_Game.ConfigGetText( config_path, slot_name );
 				config_path = cfg_path + " " + child_name + " " + "lockable";
-				bool lockable = GetGame().ConfigGetInt( config_path );
+				bool lockable = g_Game.ConfigGetInt( config_path );
 				
 				ItemBase attachment = ItemBase.Cast( GetParent().FindAttachmentBySlotName( slot_name ) );
 				if ( attachment && lockable )
@@ -105,31 +105,31 @@ modded class Construction
 
 		string construction_path = "cfgVehicles" + " " + GetParent().GetType() + " " + "Construction";
 
-		if ( GetGame().ConfigIsExisting( construction_path ) )
+		if ( g_Game.ConfigIsExisting( construction_path ) )
 		{
 			//main parts
-			for ( int i = 0; i < GetGame().ConfigGetChildrenCount( construction_path ); ++i )
+			for ( int i = 0; i < g_Game.ConfigGetChildrenCount( construction_path ); ++i )
 			{
 				string main_part_name;
-				GetGame().ConfigGetChildName( construction_path, i, main_part_name );
+				g_Game.ConfigGetChildName( construction_path, i, main_part_name );
 				string part_path = construction_path + " " + main_part_name;
 				
 				//parts
-				for ( int j = 0; j < GetGame().ConfigGetChildrenCount( part_path ); ++j )
+				for ( int j = 0; j < g_Game.ConfigGetChildrenCount( part_path ); ++j )
 				{
 					string part_name;
-					GetGame().ConfigGetChildName( part_path, j, part_name );
+					g_Game.ConfigGetChildName( part_path, j, part_name );
 
 					ConstructionPart part;
 					if (  m_ConstructionParts.Find( part_name, part ) )
 					{
 						string snapping_show_path = part_path + " " + part_name + " snapping_show";
-						if ( GetGame().ConfigIsExisting( snapping_show_path ) )
+						if ( g_Game.ConfigIsExisting( snapping_show_path ) )
 						{
-							GetGame().ConfigGetIntArray( snapping_show_path, part.m_SnappingShow );
+							g_Game.ConfigGetIntArray( snapping_show_path, part.m_SnappingShow );
 						}
 						
-						part.m_Order = GetGame().ConfigGetInt( part_path + " " + part_name + " order" );
+						part.m_Order = g_Game.ConfigGetInt( part_path + " " + part_name + " order" );
 						
 						CF_Log.Debug("Construction::UpdateConstructionParts " + part.GetName() + " part.m_Order : " + part.m_Order);
 					}

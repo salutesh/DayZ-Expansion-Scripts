@@ -731,7 +731,7 @@ class ExpansionItemInspection: ExpansionItemInspectionBase
 	{		
 		if (w == ItemPreview)
 		{
-			GetGame().GetDragQueue().Call(this, "UpdateRotation");
+			g_Game.GetDragQueue().Call(this, "UpdateRotation");
 			GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
 			return true;
 		}

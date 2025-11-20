@@ -14,11 +14,11 @@ class eAINoiseParams: Class
 	void eAINoiseParams(string path, eAINoiseType type = -1)
 	{
 		m_Path = path;
-		m_Strength = GetGame().ConfigGetFloat(path + " strength");
+		m_Strength = g_Game.ConfigGetFloat(path + " strength");
 
 		if (type == -1)
 		{
-			switch (GetGame().ConfigGetTextOut(path + " type"))
+			switch (g_Game.ConfigGetTextOut(path + " type"))
 			{
 				case "shot":
 					m_Type = eAINoiseType.SHOT;

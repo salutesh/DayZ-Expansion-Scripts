@@ -67,7 +67,7 @@ class ExpansionVodnik: ExpansionBoatScript
 	{		
 		super.EEInit();
 		
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
  			m_UTSSettings 					= new UniversalTemperatureSourceSettings();
 			m_UTSSettings.m_ManualUpdate 	= true;
@@ -86,7 +86,7 @@ class ExpansionVodnik: ExpansionBoatScript
 	{
 		super.OnEngineStart();
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			m_UTSource.SetDefferedActive(true, 20.0);
 		}
@@ -96,7 +96,7 @@ class ExpansionVodnik: ExpansionBoatScript
 	{
 		super.OnEngineStop();
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			m_UTSource.SetDefferedActive(false, 10.0);
 		}
@@ -104,7 +104,7 @@ class ExpansionVodnik: ExpansionBoatScript
 	
 	override void EOnPostSimulate(IEntity other, float timeSlice)
 	{
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			if (m_UTSource.IsActive())
 			{
@@ -248,14 +248,14 @@ class ExpansionVodnik: ExpansionBoatScript
 	{
 		super.EEItemAttached( item, slot_name );
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
 	}
 
 	override void EEItemDetached( EntityAI item, string slot_name )
 	{
 		super.EEItemDetached( item, slot_name );
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
 	}
 
 	override bool CanDisplayAttachmentCategory( string category_name )
@@ -331,12 +331,12 @@ class ExpansionVodnik: ExpansionBoatScript
 
 	override void Expansion_OnDoorOpened(string selection)
 	{
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
 	}
 
 	override void Expansion_OnDoorClosed(string selection)
 	{
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateVisuals, 250, false);
 	}
 
 	override void Expansion_OnGotOut(PlayerBase player, int seatIdx)
@@ -348,7 +348,7 @@ class ExpansionVodnik: ExpansionBoatScript
 			case DayZPlayerConstants.VEHICLESEAT_DRIVER:
 			case DayZPlayerConstants.VEHICLESEAT_CODRIVER:
 				player.PhysicsSetSolid(false);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.PhysicsSetSolid, 1500, false, true);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.PhysicsSetSolid, 1500, false, true);
 				break;
 		}
 	}
@@ -622,7 +622,7 @@ class ExpansionVodnik: ExpansionBoatScript
 
 		super.UpdateLights(new_gear);
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			ItemBase battery;
 
@@ -651,7 +651,7 @@ class ExpansionVodnik: ExpansionBoatScript
 						{
 							m_Particles[b].Stop();
 
-							GetGame().ObjectDelete(m_Particles[b]);
+							g_Game.ObjectDelete(m_Particles[b]);
 						}
 					}
 
@@ -661,7 +661,7 @@ class ExpansionVodnik: ExpansionBoatScript
 						{
 							m_Lights[b].ExpansionSetEnabled(false);
 
-							GetGame().ObjectDelete(m_Lights[b]);
+							g_Game.ObjectDelete(m_Lights[b]);
 						}
 					}
 

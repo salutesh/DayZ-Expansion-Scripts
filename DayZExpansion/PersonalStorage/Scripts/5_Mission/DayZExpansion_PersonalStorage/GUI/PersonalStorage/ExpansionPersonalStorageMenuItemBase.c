@@ -41,7 +41,7 @@ class ExpansionPersonalStorageMenuItemBase: ExpansionScriptView
 			m_ItemTooltip.Destroy();
 
 		if (m_Object)
-			GetGame().ObjectDelete(m_Object);
+			g_Game.ObjectDelete(m_Object);
 	}
 
 	override typename GetControllerType()

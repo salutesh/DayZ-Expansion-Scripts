@@ -96,7 +96,7 @@ class eAIState_Weapon_Unjamming: eAIState
 
 	int Guard()
 	{
-		if (unit.IsClimbing() || unit.IsFalling() || unit.IsFighting() || !unit.GetCommand_MoveAI()) return eAITransition.FAIL;
+		if (unit.IsClimbing() || unit.IsFalling() || unit.IsFighting() || !unit.GetCommand_Move()) return eAITransition.FAIL;
 		
 		if (unit.IsRestrained()) return eAITransition.FAIL;
 		if (unit.IsUnconscious()) return eAITransition.FAIL;

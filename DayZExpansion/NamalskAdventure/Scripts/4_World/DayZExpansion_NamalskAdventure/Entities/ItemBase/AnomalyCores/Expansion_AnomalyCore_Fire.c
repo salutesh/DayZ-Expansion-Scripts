@@ -37,9 +37,9 @@ class Expansion_AnomalyCore_Fire: Expansion_AnomalyCore_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
-			GetGame().CreateObject("ExpansionAnomalyAreaFire_Local", GetPosition());
+			g_Game.CreateObject("ExpansionAnomalyAreaFire_Local", GetPosition());
 			UpdateAnomalyCoreState(ExpansionAnomalyCoreState.ACTIVATED);
 		}
 	}

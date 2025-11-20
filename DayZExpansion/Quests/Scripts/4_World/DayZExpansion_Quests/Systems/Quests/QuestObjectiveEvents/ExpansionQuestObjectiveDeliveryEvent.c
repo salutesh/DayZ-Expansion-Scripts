@@ -37,7 +37,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		if (!SpawnObjectiveDeliveryItems())
 			return false;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
 
 		return true;
 	}
@@ -60,7 +60,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		if (!GetObjectiveDataFromConfig())
 			return false;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
 
 		return true;
 	}
@@ -143,7 +143,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		m_Position = npcPos;
 		
 		array<ExpansionObjectiveTriggerBase> triggers = new array<ExpansionObjectiveTriggerBase>;
-		ExpansionTravelObjectiveSphereTrigger trigger = ExpansionTravelObjectiveSphereTrigger.Cast(GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", npcPos, ECE_LOCAL));
+		ExpansionTravelObjectiveSphereTrigger trigger = ExpansionTravelObjectiveSphereTrigger.Cast(g_Game.CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", npcPos, ECE_LOCAL));
 		if (!trigger)
 			return false;
 
@@ -159,7 +159,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 	bool TriggerCreationCheck(vector npcPos)
 	{
 		//! If trigger radius is large enough to cover the whole map, don't create it
-		float worldSize = GetGame().GetWorld().GetWorldSize();
+		float worldSize = g_Game.GetWorld().GetWorldSize();
 		//! Choose world pos at edge of map that is farthest from NPC pos
 		vector worldPos;
 		if (npcPos[0] < worldSize * 0.5)
@@ -213,7 +213,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		{
 			ExpansionQuestObjectiveItem objItem = m_ObjectiveItems[i];
 			objItem.GetItem().Expansion_SetQuestID(-1);
-			GetGame().ObjectDelete(objItem.GetItem());
+			g_Game.ObjectDelete(objItem.GetItem());
 			m_ObjectiveItems.RemoveOrdered(i);
 		}
 	}
@@ -261,7 +261,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 	        ItemBase questItem;
 	        if (!Class.CastTo(questItem, obj))
 	        {
-	            GetGame().ObjectDelete(obj);
+	            g_Game.ObjectDelete(obj);
 	            return false;
 	        }
 

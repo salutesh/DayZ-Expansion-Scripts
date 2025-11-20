@@ -59,10 +59,11 @@ class eAIBase: PlayerBase
 		"misc_haybale",
 		"misc_woodreserve",
 		"misc_advertcolumn",
-		"misc_coil"
+		"misc_coil",
+		"ice_sea"
 	};
 
-	static string s_Expansion_SurvivorDisplayName = GetGame().ConfigGetTextOut(CFG_VEHICLESPATH + " SurvivorBase displayName");
+	static string s_Expansion_SurvivorDisplayName = g_Game.ConfigGetTextOut(CFG_VEHICLESPATH + " SurvivorBase displayName");
 
 	private ref eAICallbacks m_eAI_Callbacks = new eAICallbacks(this);
 
@@ -407,7 +408,7 @@ class eAIBase: PlayerBase
 
 		s_AllAI.Insert(this);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			ExpansionAISettings settings = GetExpansionSettings().GetAI();
 			AI_HANDLEVAULTING = settings.Vaulting;
@@ -421,7 +422,7 @@ class eAIBase: PlayerBase
 	#endif
 
 /*
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 		{
 			m_eAI_ClientUpdateTimer = new Timer(CALL_CATEGORY_SYSTEM);
 			m_eAI_ClientUpdateTimer.Run(1.0 / 30.0, this, "eAI_ClientUpdate", NULL, true);
@@ -472,7 +473,7 @@ class eAIBase: PlayerBase
 		m_WeaponManager = new eAIWeaponManager(this);
 		m_ShockHandler = new eAIShockHandler(this);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			eAI_SetAccuracy(-1, -1);
 			eAI_SetThreatDistanceLimit(-1);
@@ -502,7 +503,7 @@ class eAIBase: PlayerBase
 		if (!m_ExpansionST)
 			m_ExpansionST = new ExpansionHumanST(this);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			m_eAI_CommandMove = new eAICommandMove(this, m_ExpansionST, DayZPlayerConstants.STANCEIDX_ERECT);
 
@@ -516,7 +517,7 @@ class eAIBase: PlayerBase
 
 	override void Expansion_Init()
 	{
-		if (GetGame().IsServer() && !m_eAI_FactionType)
+		if (g_Game.IsServer() && !m_eAI_FactionType)
 		{
 			m_eAI_FactionType = eAIFactionRaiders;
 		}
@@ -546,12 +547,12 @@ class eAIBase: PlayerBase
 		if (m_Environment)
 			m_Environment.Init();
 		
-		if (GetGame().IsMultiplayer() || GetGame().IsServer())
+		if (g_Game.IsMultiplayer() || g_Game.IsServer())
 			Expansion_SynchLifespanVisual();
 		
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdateCorpseStateVisual, 2000, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdateCorpseStateVisual, 2000, false);
 			m_PlayerSoundEventHandler = new PlayerSoundEventHandler(this);
 			m_ReplaceSoundEventHandler = new ReplaceSoundEventHandler(this);
 		}
@@ -627,7 +628,7 @@ class eAIBase: PlayerBase
 		auto trace = CF_Trace_0(this, "~eAIBase");
 #endif
 
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 #ifdef CF_DEBUG
@@ -654,7 +655,7 @@ class eAIBase: PlayerBase
 
 		m_WeaponManager.SortMagazineAfterLoad();
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			//! add callbacks for ai target system
 			SetAITargetCallbacks(new AITargetCallbacksPlayer(this));
@@ -680,7 +681,7 @@ class eAIBase: PlayerBase
 	{
 		super.DeferredInit();
 
-		if (GetGame().IsServer() && !m_eMeleeCombat.eAI_GetWeapon())
+		if (g_Game.IsServer() && !m_eMeleeCombat.eAI_GetWeapon())
 		{
 			m_eMeleeCombat.Reset(null, EMeleeHitType.NONE, false);
 
@@ -720,7 +721,7 @@ class eAIBase: PlayerBase
 
 		if (persistentCount > 0)
 		{
-			int time = GetGame().GetTickTime();
+			int time = g_Game.GetTickTime();
 
 			if (time - s_eAI_LastCEUpdateTime > 3.0)
 			{
@@ -852,14 +853,14 @@ class eAIBase: PlayerBase
 					//! threat overrides are cleared on AI destruction
 					m_eAI_ThreatOverride = new eAIThreatOverride;
 
-					GetGame().ObjectDelete(this);
+					g_Game.ObjectDelete(this);
 
 					return;
 				}
 				else
 				{
 					clone.SetPosition(vector.Zero);
-					GetGame().ObjectDelete(clone);
+					g_Game.ObjectDelete(clone);
 				}
 			}
 
@@ -996,7 +997,7 @@ class eAIBase: PlayerBase
 		}
 
 #ifdef EXPANSIONMODGROUPS
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			PlayerBase leader;
 			PlayerBase otherLeader;
@@ -1041,7 +1042,7 @@ class eAIBase: PlayerBase
 		auto trace = CF_Trace_0(this, "TryFireWeapon");
 #endif
 
-		if (GetGame().GetTime() < m_eAI_MinTimeTillNextFire)
+		if (g_Game.GetTime() < m_eAI_MinTimeTillNextFire)
 			return;
 
 		Weapon_Base weapon = Weapon_Base.Cast(GetHumanInventory().GetEntityInHands());
@@ -1094,9 +1095,9 @@ class eAIBase: PlayerBase
 			m_eAI_QueuedShots--;
 
 		if (m_eAI_QueuedShots > 0)
-			m_eAI_MinTimeTillNextFire = GetGame().GetTime() + weapon.GetReloadTime(weapon.GetCurrentMuzzle()) * 1000;
+			m_eAI_MinTimeTillNextFire = g_Game.GetTime() + weapon.GetReloadTime(weapon.GetCurrentMuzzle()) * 1000;
 		else
-			m_eAI_MinTimeTillNextFire = GetGame().GetTime() + Math.RandomIntInclusive(200, 300);
+			m_eAI_MinTimeTillNextFire = g_Game.GetTime() + Math.RandomIntInclusive(200, 300);
 	}
 
 	/**
@@ -1122,7 +1123,7 @@ class eAIBase: PlayerBase
 		}
 
 		if (changedFireMode)
-			m_eAI_MinTimeTillNextFire = GetGame().GetTime() + Math.RandomIntInclusive(200, 300);
+			m_eAI_MinTimeTillNextFire = g_Game.GetTime() + Math.RandomIntInclusive(200, 300);
 	}
 
 	bool eAI_CanFire(Weapon_Base weapon)
@@ -1159,7 +1160,7 @@ class eAIBase: PlayerBase
 		
 		if (m_eAI_CurrentThreatToSelfActive >= 0.4 || m_eAI_IsFightingFSM)
 		{
-			if (GetGame().GetTickTime() - m_eAI_LastHitTime <= 10)
+			if (g_Game.GetTickTime() - m_eAI_LastHitTime <= 10)
 				return false;
 
 			if (GetHealth01("", "Blood") >= 0.7 && m_eAI_Targets.Count() > 0 && !GetTarget().IsItem() && !GetTarget().IsNoise())
@@ -1201,10 +1202,10 @@ class eAIBase: PlayerBase
 
 		super.EEKilled(killer);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			if (!m_Expansion_EmoteAutoCancel)
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_PlayEmote);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_PlayEmote);
 
 			eAIGroup group = GetGroup();
 			if (group && group.m_Persist && group.m_BaseName)
@@ -1252,13 +1253,13 @@ class eAIBase: PlayerBase
 		if (group)
 			group.SetIsInCombat(false);
 
-		if (GetGame().IsServer() && !IsDamageDestroyed())
+		if (g_Game.IsServer() && !IsDamageDestroyed())
 			s_Expansion_AllPlayers.m_OnRemove.Remove(eAI_OnRemovePlayer);
 
 		if (m_eAI_ClientUpdateTimer && m_eAI_ClientUpdateTimer.IsRunning())
 			m_eAI_ClientUpdateTimer.Stop();
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			eAINoiseSystem.SI_OnNoiseAdded.Remove(eAI_OnNoiseEvent);
 
 		if (m_eAI_CurrentCoverObject)
@@ -1758,7 +1759,7 @@ class eAIBase: PlayerBase
 		}
 #ifdef DIAG_DEVELOPER
 		m_eAI_PrintCurrentTarget = true;
-		EXTrace.Print(EXTrace.AI, this, "eAI_RemoveTarget " + target.GetDebugName() + " - time remaining " + (target.m_FoundAtTime + target.m_MaxTime - GetGame().GetTime()) + " - target count " + m_eAI_Targets.Count());
+		EXTrace.Print(EXTrace.AI, this, "eAI_RemoveTarget " + target.GetDebugName() + " - time remaining " + (target.m_FoundAtTime + target.m_MaxTime - g_Game.GetTime()) + " - target count " + m_eAI_Targets.Count());
 #endif
 	}
 
@@ -2049,7 +2050,7 @@ class eAIBase: PlayerBase
 
 		report.Insert(indent + string.Format("|- Path progression %1/%2", pointIdx, m_PathFinding.m_Count));
 
-		auto hcm = GetCommand_MoveAI();
+		auto hcm = GetCommand_Move();
 		if (hcm)
 		{
 			report.Insert(indent + string.Format("|  |- Current point %1",
@@ -2619,11 +2620,8 @@ class eAIBase: PlayerBase
 								emoteId = EmoteConstants.ID_EMOTE_THROAT;
 								break;
 							case 3:
-							#ifdef DAYZ_1_28
-								//! 1.29 broke dabbing
 								emoteId = EmoteConstants.ID_EMOTE_DABBING;
 								break;
-							#endif
 							case 4:
 								emoteId = EmoteConstants.ID_EMOTE_CLAP;
 								break;
@@ -3027,7 +3025,7 @@ class eAIBase: PlayerBase
 					}
 					else if (targetItem.IsInherited(WeaponCleaningKit))
 					{
-						if (!entityInHands || !entityInHands.IsWeapon() || m_eAI_RepairKits.Count() > 0)
+						if (!faction.IsWeaponPickupEnabled() || !fireArm || m_eAI_RepairKits.Count() > 0)
 							continue;
 					}
 					else if (targetItem.IsClothing())
@@ -3128,7 +3126,7 @@ class eAIBase: PlayerBase
 		//! Since item target info states are only removed if the item is deleted or picked up,
 		//! we periodically purge states to avoid accumulating a lot of stale states over time
 
-		float timestamp = GetGame().GetTickTime();
+		float timestamp = g_Game.GetTickTime();
 
 		i = 0;
 
@@ -3378,7 +3376,7 @@ class eAIBase: PlayerBase
 
 				//! Always prefer comparing to current gear projectile health damage even if target item doesn't have any,
 				//! That way we don't downgrade from an item that has projectile armor to one that doesn't
-				if (GetGame().ConfigIsExisting(curGearArmorPath + " Projectile"))
+				if (g_Game.ConfigIsExisting(curGearArmorPath + " Projectile"))
 				{
 					curGearDmgPath = curGearArmorPath + " Projectile Health damage";
 					tgtGearDmgPath = tgtGearArmorPath + " Projectile Health damage";
@@ -3392,17 +3390,17 @@ class eAIBase: PlayerBase
 				float curGearDmg = 1.0;
 				float tgtGearDmg = 1.0;
 
-				if (GetGame().ConfigIsExisting(curGearDmgPath))
+				if (g_Game.ConfigIsExisting(curGearDmgPath))
 				{
-					curGearDmg = GetGame().ConfigGetFloat(curGearDmgPath);
+					curGearDmg = g_Game.ConfigGetFloat(curGearDmgPath);
 				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.AI, this, "Current gear " + currentlyWornGear.GetType() + " armor dmg " + curGearDmg);
 				#endif
 				}
 
-				if (GetGame().ConfigIsExisting(tgtGearDmgPath))
+				if (g_Game.ConfigIsExisting(tgtGearDmgPath))
 				{
-					tgtGearDmg = GetGame().ConfigGetFloat(tgtGearDmgPath);
+					tgtGearDmg = g_Game.ConfigGetFloat(tgtGearDmgPath);
 				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.AI, this, "Target gear " + targetItem.GetType() + " armor dmg " + tgtGearDmg);
 				#endif
@@ -3448,7 +3446,7 @@ class eAIBase: PlayerBase
 				int itemWidth;
 				int itemHeight;
 
-				GetGame().GetInventoryItemSize(item, itemWidth, itemHeight);
+				g_Game.GetInventoryItemSize(item, itemWidth, itemHeight);
 
 				int itemSize = itemWidth * itemHeight;
 
@@ -3459,9 +3457,11 @@ class eAIBase: PlayerBase
 					float h = minMax[1][1] - minMax[0][1];
 					float d = minMax[1][2] - minMax[0][2];
 
-					if (itemSize >= 30 && w > 0.3 && h > 0.55 && d > 0.2)
+					float max = Math.Max(Math.Max(w, h), d);
+
+					if (itemSize >= 30 && w > 0.3 && max > 0.55 && d > 0.2)
 						behavior = eAILootingBehavior.CLOTHING_BACK_LARGE;
-					else if (itemSize > 20 && w > 0.3 && h > 0.45 && d > 0.2)
+					else if (itemSize > 20 && w > 0.3 && h > 0.39 && d > 0.2)
 						behavior = eAILootingBehavior.CLOTHING_BACK_MEDIUM;
 					else
 						behavior = eAILootingBehavior.CLOTHING_BACK_SMALL;
@@ -3560,7 +3560,7 @@ class eAIBase: PlayerBase
 	 */
 	int eAI_ForgetStaleRecentlyDroppedItems()
 	{
-		float time = GetGame().GetTickTime();
+		float time = g_Game.GetTickTime();
 
 		TStringArray staleRecentlyDroppedItems = {};
 
@@ -3588,7 +3588,7 @@ class eAIBase: PlayerBase
 		eAI_ForgetStaleRecentlyDroppedItems();
 
 		string key = string.Format("%1@%2", item.GetType(), ExpansionStatic.VectorToString(item.GetPosition()));
-		m_eAI_RecentlyDroppedItems[key] = GetGame().GetTickTime();
+		m_eAI_RecentlyDroppedItems[key] = g_Game.GetTickTime();
 
 		EXTrace.Print(EXTrace.AI, this, "Recently dropped items: " + m_eAI_RecentlyDroppedItems.Count());
 	}
@@ -3604,7 +3604,7 @@ class eAIBase: PlayerBase
 	{
 		string key = string.Format("%1@%2", item.GetType(), ExpansionStatic.VectorToString(item.GetPosition()));
 		float timeDropped;
-		if (m_eAI_RecentlyDroppedItems.Find(key, timeDropped) && GetGame().GetTickTime() - timeDropped <= 300.0)
+		if (m_eAI_RecentlyDroppedItems.Find(key, timeDropped) && g_Game.GetTickTime() - timeDropped <= 300.0)
 			return true;
 
 		return false;
@@ -3791,7 +3791,7 @@ class eAIBase: PlayerBase
 			target.Remove();
 		if (m_eAI_CurrentTarget_NetIDLow == 0 && m_eAI_CurrentTarget_NetIDHigh == 0)
 			return;
-		Object entity = GetGame().GetObjectByNetworkId(m_eAI_CurrentTarget_NetIDLow, m_eAI_CurrentTarget_NetIDHigh);
+		Object entity = g_Game.GetObjectByNetworkId(m_eAI_CurrentTarget_NetIDLow, m_eAI_CurrentTarget_NetIDHigh);
 		if (!entity)
 			return;
 		eAITargetInformation info = eAITargetInformation.GetTargetInformation(entity);
@@ -3973,15 +3973,9 @@ class eAIBase: PlayerBase
 		}
 	}
 
-/*
-	eAICommandMove GetCommand_MoveAI()
-	{
-		return eAICommandMove.Cast(GetCommand_Script());
-	}
-*/
-
 	HumanCommandMove GetCommand_MoveAI()
 	{
+		EXError.ErrorOnce(this, "DEPRECATED, use GetCommand_Move()");
 		return GetCommand_Move();
 	}
 
@@ -3999,11 +3993,7 @@ class eAIBase: PlayerBase
 				stance -= DayZPlayerConstants.STANCEIDX_RAISED;
 		}
 		EXTrace.Print(EXTrace.AI, this, "StartCommand_MoveAI " + typename.EnumToString(eAIStance, stance) + " (" + stance + ")");
-		// WARNING: memory leak
-		//eAICommandMove cmd = new eAICommandMove(this, m_ExpansionST, stance);
-		//StartCommand_Script(cmd);
 		HumanCommandMove cmd = StartCommand_Move();
-		//m_eAI_Command = cmd;
 		if (stance != -1)
 			m_eAI_CommandMove.SetStance(stance);
 		if (m_WeaponRaised)
@@ -4011,28 +4001,15 @@ class eAIBase: PlayerBase
 		return cmd;
 	}
 
-/*
-	eAICommandVehicle GetCommand_VehicleAI()
-	{
-		return eAICommandVehicle.Cast(GetCommand_Script());
-	}
-
-	eAICommandVehicle StartCommand_VehicleAI(Transport vehicle, int seatIdx, int seat_anim, bool fromUnconscious = false)
-	{
-		// WARNING: memory leak
-		eAICommandVehicle cmd = new eAICommandVehicle(this, m_ExpansionST, vehicle, seatIdx, seat_anim, fromUnconscious);
-		StartCommand_Script(cmd);
-		m_eAI_Command = cmd;
-		return cmd;
-	}
-*/
-
 	HumanCommandVehicle GetCommand_VehicleAI()
 	{
+		EXError.ErrorOnce(this, "DEPRECATED, use GetCommand_Vehicle()");
 		return GetCommand_Vehicle();
 	}
+
 	HumanCommandVehicle StartCommand_VehicleAI(Transport vehicle, int seatIdx, int seat_anim, bool fromUnconscious = false)
 	{
+		EXError.ErrorOnce(this, "DEPRECATED, use StartCommand_Vehicle()");
 		return StartCommand_Vehicle(vehicle, seatIdx, seat_anim, fromUnconscious);
 	}
 
@@ -4068,13 +4045,13 @@ class eAIBase: PlayerBase
 	{
 		super.OnCommandMelee2Start();
 		EXTrace.Print(EXTrace.AI, this, "OnCommandMelee2Start");
-		m_eAI_MeleeTime = GetGame().GetTime();
+		m_eAI_MeleeTime = g_Game.GetTime();
 	}
 
 	override void EndFighting()
 	{
 		super.EndFighting();
-		EXTrace.Print(EXTrace.AI, this, "EndFighting - melee time " + (GetGame().GetTime() - m_eAI_MeleeTime) + " ms");
+		EXTrace.Print(EXTrace.AI, this, "EndFighting - melee time " + (g_Game.GetTime() - m_eAI_MeleeTime) + " ms");
 	}
 
 	bool eAI_CanEnableSwimming()
@@ -4137,7 +4114,7 @@ class eAIBase: PlayerBase
 		GetWeaponManager().DelayedRefreshAnimationState(10);
 		RequestHandAnimationStateRefresh();
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		bool wasSwimmingEnabled = m_PathFinding.m_IsSwimmingEnabled;
@@ -4172,7 +4149,7 @@ class eAIBase: PlayerBase
 	{
 		super.EEItemAttached(item, slot_name);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			eAI_UpdateProtectionLevels(item, 1, slot_name);
 	}
 
@@ -4180,7 +4157,7 @@ class eAIBase: PlayerBase
 	{
 		super.EEItemDetached(item, slot_name);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			eAI_UpdateProtectionLevels(item, -1, slot_name);
 	}
 
@@ -4197,7 +4174,7 @@ class eAIBase: PlayerBase
 
 		Weapon_Base weapon;
 		if (Class.CastTo(weapon, item))
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(weapon.eAI_SetFireModeAuto);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(weapon.eAI_SetFireModeAuto);
 
 		if (g_Game.IsServer() && item.IsInherited(RestrainingToolLocked))
 		{
@@ -4515,7 +4492,7 @@ class eAIBase: PlayerBase
 					climbDir = -1;
 				}
 
-				if (GetGame().GetWaterDepth(m_eAI_LadderEntryPoint) < 1.0 || eAI_IsInLadderRadius(entryPoint))
+				if (g_Game.GetWaterDepth(m_eAI_LadderEntryPoint) < 1.0 || eAI_IsInLadderRadius(entryPoint))
 				{
 					//! Only use ladder if entry point is not underwater or we are in radius
 
@@ -4564,7 +4541,7 @@ class eAIBase: PlayerBase
 			{
 				pPosition = ExpansionStatic.GetSurfaceRoadPosition(pPosition, RoadSurfaceDetection.CLOSEST);
 
-				float waterDepth = GetGame().GetWaterDepth(pPosition);
+				float waterDepth = g_Game.GetWaterDepth(pPosition);
 				if (waterDepth > 0)
 					pPosition[1] = pPosition[1] + waterDepth;
 
@@ -5380,7 +5357,7 @@ class eAIBase: PlayerBase
 		if (IsClimbing() || IsFalling() || IsFighting() || IsSwimming() || IsUnconscious())
 			return false;
 
-		auto move = GetCommand_MoveAI();
+		auto move = GetCommand_Move();
 
 		if (!move && force)
 			move = StartCommand_MoveAI();
@@ -5405,26 +5382,10 @@ class eAIBase: PlayerBase
 
 		return false;
 	}
-
-/*
-#ifndef DAYZ_1_27
-	//! This has been moved to native under 1.27
-	//! The native method calls HumanCommandScript::GetCurrentStance
-	override bool IsPlayerInStance(int pStanceMask)
-	{
-		auto cmd = GetCommand_MoveAI();
-		if (cmd)
-			return ((1 << m_eAI_CommandMove.GetStance()) & pStanceMask) != 0;
-
-		//! @note IMPORTANT need to call super if not in eAICommandMove else it breaks actions!
-		return super.IsPlayerInStance(pStanceMask);
-	}
-#endif
-*/
 	
 	bool eAI_IsChangingStance()
 	{
-		auto cmd = GetCommand_MoveAI();
+		auto cmd = GetCommand_Move();
 		return cmd && m_eAI_CommandMove.IsChangingStance();
 	}
 
@@ -5444,7 +5405,7 @@ class eAIBase: PlayerBase
 		//! otherwise stand back up
 
 		float distThreshSq = m_eAI_SniperProneDistanceThreshold * m_eAI_SniperProneDistanceThreshold;
-		if (distThreshSq > 0.0 && distToTargetSq > distThreshSq && GetGame().GetTickTime() - m_eAI_LastHitTime > 10.0)
+		if (distThreshSq > 0.0 && distToTargetSq > distThreshSq && g_Game.GetTickTime() - m_eAI_LastHitTime > 10.0)
 		{
 			vector targetDirection = vector.Direction(GetPosition(), m_eAI_AimPosition_WorldSpace).Normalized();
 			ItemOptics optics;
@@ -5562,7 +5523,7 @@ class eAIBase: PlayerBase
 
 	float eAI_GetCurrentMovementSpeedLimit()
 	{
-		auto cmd = GetCommand_MoveAI();
+		auto cmd = GetCommand_Move();
 		if (cmd)
 			return m_eAI_CommandMove.GetSpeedLimit();
 
@@ -5584,7 +5545,7 @@ class eAIBase: PlayerBase
 
 	void CreateDebugApple()
 	{
-		Class.CastTo(m_DebugTargetApple, GetGame().CreateObject("Apple", GetPosition(), true));
+		Class.CastTo(m_DebugTargetApple, g_Game.CreateObject("Apple", GetPosition(), true));
 	}
 
 	void DestroyDebugApple()
@@ -5689,7 +5650,7 @@ class eAIBase: PlayerBase
 			}
 		#endif
 
-			GetGame().ObjectDelete(src);
+			g_Game.ObjectDelete(src);
 
 			if (location.GetType() == InventoryLocationType.HANDS)
 			{
@@ -5737,7 +5698,7 @@ class eAIBase: PlayerBase
 	//! @note INTERNAL USE ONLY
 	void eAI_OnInventoryEnter(ItemBase item)
 	{
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(eAI_AddItem, item);  //! Add in next tick to make sure we're not instantly adding items created by ObjectCreate(Ex) and similar methods where item setup (quantity etc) is performed in script after creation
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(eAI_AddItem, item);  //! Add in next tick to make sure we're not instantly adding items created by ObjectCreate(Ex) and similar methods where item setup (quantity etc) is performed in script after creation
 	}
 
 	//! @note INTERNAL USE ONLY
@@ -5930,7 +5891,7 @@ class eAIBase: PlayerBase
 		if (mag.GetAmmoCount() == 0 && eAI_GetMagazineTypeCount(mag.GetType()) > 1)
 		{
 			EXTrace.Print(EXTrace.AI, this, "Deleting empty duplicate " +  mag);
-			GetGame().ObjectDelete(mag);
+			g_Game.ObjectDelete(mag);
 			return;
 		}
 
@@ -6442,13 +6403,13 @@ class eAIBase: PlayerBase
 		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(06) -> eAI_HandleAiming");
 	#endif
 
-		auto vehCmd = GetCommand_VehicleAI();
+		auto vehCmd = GetCommand_Vehicle();
 		if (vehCmd && (vehCmd.IsGettingIn() || vehCmd.IsGettingOut()))
 			return false;
 
 		eAITarget target = m_eAI_Targets[0];
 
-		bool isServer = GetGame().IsServer();
+		bool isServer = g_Game.IsServer();
 		bool lookAim;
 		bool lookDirectionRecalculate;
 		bool aimDirectionRecalculate;
@@ -6560,7 +6521,7 @@ class eAIBase: PlayerBase
 
 	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 	#ifdef EXTRACE_DIAG
@@ -6638,7 +6599,7 @@ class eAIBase: PlayerBase
 		if (m_eAI_DeathHandled)
 			return;
 
-		if (!GetGame().IsServer())  //! @note ComandHandler will not run on MP client for AI anyway
+		if (!g_Game.IsServer())  //! @note ComandHandler will not run on MP client for AI anyway
 			return;
 
 		if (m_eAI_Recreate)
@@ -6646,7 +6607,7 @@ class eAIBase: PlayerBase
 			if (!m_eAI_Recreating)
 			{
 				m_eAI_Recreating = true;
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_Recreate, 34, false);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_Recreate, 34, false);
 			}
 
 			return;
@@ -6669,7 +6630,7 @@ class eAIBase: PlayerBase
 		GetTransform(m_ExTransformPlayer);
 
 		vector playerPosition = m_ExTransformPlayer[3];
-		m_eAI_SurfaceY = GetGame().SurfaceY(playerPosition[0], playerPosition[2]);
+		m_eAI_SurfaceY = g_Game.SurfaceY(playerPosition[0], playerPosition[2]);
 
 		if (playerPosition[1] < m_eAI_SurfaceY - 0.5)
 		{
@@ -6678,6 +6639,11 @@ class eAIBase: PlayerBase
 			SetPosition(playerPosition);
 			return;
 		}
+
+		//! Needed because vanilla only checks for INSTANCETYPE_SERVER
+		GetPlayerSoundManagerServer().Update();
+		ShockRefill(pDt);
+		FreezeCheck();
 
 		eAI_CheckIsInCover();
 		eAI_CheckIsInDangerByArea();
@@ -6804,11 +6770,10 @@ class eAIBase: PlayerBase
 
 		HumanInputController hic = GetInputController();
 
-		//if (hic && pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT && !pCurrentCommandFinished && m_eAI_Command)
 		if (hic && !pCurrentCommandFinished)
 		{
-			//eAICommandVehicle vehicleCmd;
-			//if (!Class.CastTo(vehicleCmd, m_eAI_Command) || !vehicleCmd.IsGettingIn())
+			//HumanCommandVehicle vehicleCmd = GetCommand_Vehicle();
+			//if (!vehicleCmd || !vehicleCmd.IsGettingIn())
 			//{
 				bool exitIronSights = false;
 				//! @note HandleWeapons also deals with hands lowering/raising if no weapon in hands
@@ -6825,7 +6790,7 @@ class eAIBase: PlayerBase
 		{
 			m_eAI_PurgeFiredShotsTick = 0;
 
-			float time = GetGame().GetTickTime();
+			float time = g_Game.GetTickTime();
 
 		#ifdef DIAG_DEVELOPER
 			bool dbgObjEnabled = s_Expansion_DebugObjects_Enabled;
@@ -6978,7 +6943,7 @@ class eAIBase: PlayerBase
 		else if (m_eAI_Transport)
 		{
 			int seat_anim_type = m_eAI_Transport.GetSeatAnimationType(m_eAI_Transport_SeatIndex);
-			auto vehCommand = StartCommand_VehicleAI(m_eAI_Transport, m_eAI_Transport_SeatIndex, seat_anim_type);
+			auto vehCommand = StartCommand_Vehicle(m_eAI_Transport, m_eAI_Transport_SeatIndex, seat_anim_type);
 			vehCommand.SetVehicleType(m_eAI_Transport.GetAnimInstance());
 
 			m_eAI_Transport = null;
@@ -7261,7 +7226,7 @@ class eAIBase: PlayerBase
 	bool eAI_ShouldStartFalling()
 	{
 		vector position = m_ExTransformPlayer[3];
-		if (!IsSwimming() && position[1] - GetGame().SurfaceRoadY3D(position[0], position[1], position[2], RoadSurfaceDetection.UNDER) >= 0.5)
+		if (!IsSwimming() && position[1] - g_Game.SurfaceRoadY3D(position[0], position[1], position[2], RoadSurfaceDetection.UNDER) >= 0.5)
 			return true;
 
 		return false;
@@ -7282,7 +7247,7 @@ class eAIBase: PlayerBase
 		if (!GetGroup() || IsUnconscious())
 			return false;
 		
-		float time = GetGame().GetTickTime();
+		float time = g_Game.GetTickTime();
 		bool force;
 
 		if (m_eAI_FormationDirectionUpdateTime == 0.0)
@@ -7309,12 +7274,12 @@ class eAIBase: PlayerBase
 		bool isDir;
 		bool isDirWS;
 
-		auto hcv = GetCommand_VehicleAI();
+		auto hcv = GetCommand_Vehicle();
 
 		if (speed > 0 || hcv)
 		{
 			isDir = true;
-			auto hcm = GetCommand_MoveAI();
+			auto hcm = GetCommand_Move();
 			if (hcm)
 			{
 				Object blockingObject = m_eAI_CommandMove.GetBlockingObject();
@@ -7535,7 +7500,7 @@ class eAIBase: PlayerBase
 	bool EnforceLOS()
 	{
 		//! Prevent core dump on server shutdown
-		if (!GetGame())
+		if (!g_Game)
 			return false;
 
 		if (!m_eAI_Targets.Count())
@@ -7651,7 +7616,7 @@ class eAIBase: PlayerBase
 		if (!state.m_LOS)
 		{
 			if (hadLOS && m_eAI_IsFightingFSM)
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_UpdateLeanTarget, 1000, false);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_UpdateLeanTarget, 1000, false);
 
 		#ifdef DIAG_DEVELOPER
 			if (hadLOS)
@@ -7764,11 +7729,11 @@ class eAIBase: PlayerBase
 		{
 			m_eAI_PositionOverrideTimeout = 0.0;
 			if (m_eAI_LeanTarget)
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_ResetLeanTarget, 1000, false);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_ResetLeanTarget, 1000, false);
 		}
 		else if (hadLOS && !state.m_LOS && m_eAI_IsFightingFSM)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_UpdateLeanTarget, 1000, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_UpdateLeanTarget, 1000, false);
 		}
 
 	#ifdef DIAG_DEVELOPER
@@ -7860,7 +7825,7 @@ class eAIBase: PlayerBase
 		else
 			m_eAI_LeanTarget = 1.0;  //! target is on the left, lean right
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_ResetLeanTarget, Math.RandomInt(1000, 2000), false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_ResetLeanTarget, Math.RandomInt(1000, 2000), false);
 	}
 
 	void eAI_ResetLeanTarget()
@@ -7875,7 +7840,7 @@ class eAIBase: PlayerBase
 
 		if (angle == 0.0)
 		{
-			auto cmd = GetCommand_MoveAI();
+			auto cmd = GetCommand_Move();
 			if (cmd)
 			{
 				blockedLeft = m_eAI_CommandMove.CheckBlockedLeft();
@@ -7971,7 +7936,7 @@ class eAIBase: PlayerBase
 
 	override bool eAI_IsSideSteppingObstacles()
 	{
-		auto cmd = GetCommand_MoveAI();
+		auto cmd = GetCommand_Move();
 		return cmd && m_eAI_CommandMove.IsSideSteppingObstacles();
 	}
 
@@ -8422,7 +8387,7 @@ class eAIBase: PlayerBase
 		if (m_eAI_CurrentThreatToSelfActive >= 0.4)
 			return false;
 
-		if (GetGame().GetTime() - m_eAI_LastFireTime < Math.RandomFloat(m_eAI_TimeBetweenFiring, m_eAI_TimeBetweenFiringAndGettingUp))
+		if (g_Game.GetTime() - m_eAI_LastFireTime < Math.RandomFloat(m_eAI_TimeBetweenFiring, m_eAI_TimeBetweenFiringAndGettingUp))
 			return false;
 
 		return true;
@@ -8449,7 +8414,7 @@ class eAIBase: PlayerBase
 
 		ammoCount -= reloadAmmo;
 		if (ammoCount == 0 && deleteSourceIfDepleted && ammoSource && !ammoSource.IsSetForDeletion())
-			GetGame().ObjectDelete(ammoSource);
+			g_Game.ObjectDelete(ammoSource);
 
 		return reloadAmmo;
 	}
@@ -8951,7 +8916,7 @@ class eAIBase: PlayerBase
 
 			if (g_Game.IsServer() && m_eAI_AimDirectionPrev != vector.Zero)
 			{
-				auto cmd = GetCommand_MoveAI();
+				auto cmd = GetCommand_Move();
 				if (cmd)
 				{
 					//! Adjust aim when turning
@@ -9097,7 +9062,7 @@ class eAIBase: PlayerBase
 			//return;
 		//}
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		Weapon_Base weap;
@@ -9162,7 +9127,7 @@ class eAIBase: PlayerBase
 
 	void eAI_ResetRaised()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			m_WeaponRaised = false;
 			m_WeaponRaisedPrev = false;
@@ -9590,6 +9555,35 @@ class eAIBase: PlayerBase
 			eAI_DropItemInHandsImpl(false, false, false);
 
 		super.OnUnconsciousStart();
+
+		//! Needed because vanilla only checks for INSTANCETYPE_SERVER
+
+		//! <--------------------------------------------------------------------------------
+
+		SetSynchDirty();
+
+		if (m_LastCommandBeforeUnconscious == DayZPlayerConstants.COMMANDID_VEHICLE)
+		{
+			if (m_TransportCache)
+				m_TransportCache.MarkCrewMemberUnconscious(m_TransportCache.CrewMemberIndex(this));
+		}
+
+		if (m_AdminLog)
+			m_AdminLog.UnconStart(this);
+
+		if (GetMeleeFightLogic())
+			GetMeleeFightLogic().SetBlock(false);
+
+		//! -------------------------------------------------------------------------------/>
+	}
+
+	override void OnUnconsciousStop(int pCurrentCommandID)
+	{
+		super.OnUnconsciousStop(pCurrentCommandID);
+
+		//! Needed because vanilla only checks for INSTANCETYPE_SERVER
+		if (m_AdminLog)
+			m_AdminLog.UnconStop(this);
 	}
 
 	bool eAI_DropItemInHands(bool useAction = true)
@@ -10032,8 +10026,8 @@ class eAIBase: PlayerBase
 			}
 		}
 
-		if (GetGame().IsMultiplayer())
-			GetGame().RemoteObjectTreeDelete(item);
+		if (g_Game.IsMultiplayer())
+			g_Game.RemoteObjectTreeDelete(item);
 
 		bool result = LocalTakeToDst(il_src, il_dst);
 
@@ -10067,8 +10061,8 @@ class eAIBase: PlayerBase
 			}
 		}
 
-		if (GetGame().IsMultiplayer())
-			GetGame().RemoteObjectTreeCreate(item);
+		if (g_Game.IsMultiplayer())
+			g_Game.RemoteObjectTreeCreate(item);
 
 		return result;
 	}
@@ -10261,7 +10255,7 @@ class eAIBase: PlayerBase
 						break;
 				}
 				if (delay)
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_EmoteManager.ServerRequestEmoteCancel, delay);
+					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_EmoteManager.ServerRequestEmoteCancel, delay);
 			}
 		}
 
@@ -10290,7 +10284,7 @@ class eAIBase: PlayerBase
 
 	override float Expansion_GetMovementSpeed()
 	{
-		auto cmd = GetCommand_MoveAI();
+		auto cmd = GetCommand_Move();
 		if (cmd)
 		{
 			float speed = m_eAI_CommandMove.GetCurrentMovementSpeed();
@@ -10304,7 +10298,7 @@ class eAIBase: PlayerBase
 
 	override float Expansion_GetMovementAngle()
 	{
-		auto cmd = GetCommand_MoveAI();
+		auto cmd = GetCommand_Move();
 		if (cmd)
 			return m_eAI_CommandMove.GetCurrentMovementAngle();
 
@@ -10313,7 +10307,7 @@ class eAIBase: PlayerBase
 
 	float Expansion_GetTargetMovementAngle()
 	{
-		auto cmd = GetCommand_MoveAI();
+		auto cmd = GetCommand_Move();
 		if (cmd)
 			return m_eAI_CommandMove.GetTargetDirection();
 
@@ -10484,7 +10478,7 @@ class eAIBase: PlayerBase
 
 	override bool CanClimb(int climbType, SHumanCommandClimbResult climbRes)
 	{
-		//! Following is equivalent to vanilla PlayerBase::CanClimb
+		//! Following is roughly equivalent to vanilla PlayerBase::CanClimb
 
 		if (GetBrokenLegs() == eBrokenLegs.BROKEN_LEGS)
 			return false;
@@ -10492,15 +10486,15 @@ class eAIBase: PlayerBase
 		if (climbType == 1 && !CanConsumeStamina(EStaminaConsumers.VAULT))
 			return false;	
 		
-		//! vault from water allowed
-		if (IsSwimming())
-			return true;
-		
-		if (climbType == 2 && (!CanConsumeStamina(EStaminaConsumers.CLIMB) || GetBrokenLegs() != eBrokenLegs.NO_BROKEN_LEGS))
-			return false;
+		//! vault from water allowed - only check if not swimming
+		if (!IsSwimming())
+		{
+			if (climbType == 2 && (!CanConsumeStamina(EStaminaConsumers.CLIMB) || GetBrokenLegs() != eBrokenLegs.NO_BROKEN_LEGS))
+				return false;
 
-		if (climbType > 0 && m_InjuryHandler && m_InjuryHandler.GetInjuryAnimValue() >= InjuryAnimValues.LVL3)
-			return false;
+			if (climbType > 0 && m_InjuryHandler && m_InjuryHandler.GetInjuryAnimValue() >= InjuryAnimValues.LVL3)
+				return false;
+		}
 
 		//! Following is roughly equivalent to vanilla DayZPlayerImplement::CanClimb
 
@@ -10565,7 +10559,7 @@ class eAIBase: PlayerBase
 
 			vector surfacePosition = ExpansionStatic.GetSurfaceRoadPosition(unitPosition + checkDirection);
 			//! Swim start water level = 1.5 m, see DayZPlayerUtils::CheckWaterLevel
-			if (!m_PathFinding.m_IsSwimmingEnabled && GetGame().GetWaterDepth(surfacePosition) > 1.5)
+			if (!m_PathFinding.m_IsSwimmingEnabled && g_Game.GetWaterDepth(surfacePosition) > 1.5)
 			{
 			#ifdef DIAG_DEVELOPER
 				Expansion_DebugObject(1344, unitPosition + checkDirection, "ExpansionDebugRodBig_Blue", checkDirection, surfacePosition);
@@ -10620,7 +10614,7 @@ class eAIBase: PlayerBase
 					//! Don't allow vaulting unenterable building unless path endpoint is within building or we are within building
 					if (!building.Expansion_IsEnterable() && !isPathEndPointCollidingObject && !ExpansionStatic.IsColliding(object, GetPosition()))
 					{
-						auto move = GetCommand_MoveAI();
+						auto move = GetCommand_Move();
 						if (!move || !m_eAI_CommandMove.IsBlocked())
 						{
 							if (EXTrace.AI)
@@ -10700,7 +10694,7 @@ class eAIBase: PlayerBase
 		vector begPos = Vector(checkPosition[0], checkPosition[1] + offsetY, checkPosition[2]);
 */
 
-		checkPosition[1] = GetGame().SurfaceRoadY3D(checkPosition[0], checkPosition[1] + offsetY, checkPosition[2], RoadSurfaceDetection.UNDER);
+		checkPosition[1] = g_Game.SurfaceRoadY3D(checkPosition[0], checkPosition[1] + offsetY, checkPosition[2], RoadSurfaceDetection.UNDER);
 
 		float fallHeight = position[1] - checkPosition[1];
 /*
@@ -10760,7 +10754,7 @@ class eAIBase: PlayerBase
 		bool isFallSafe;
 
 		vector waterCheckPosition = checkPosition;
-		float waterDepth = GetGame().GetWaterDepth(checkPosition);
+		float waterDepth = g_Game.GetWaterDepth(checkPosition);
 		if (waterDepth > 0.0)
 		{
 			waterCheckPosition[1] = waterCheckPosition[1] + waterDepth;
@@ -10810,7 +10804,7 @@ class eAIBase: PlayerBase
 		if (m_PathFinding.m_IsSwimmingEnabled)
 		{
 			vector surfacePosition = Vector(position[0], m_eAI_SurfaceY, position[2]);
-			float waterDepth = Math.Max(GetGame().GetWaterDepth(surfacePosition), 0.0);
+			float waterDepth = Math.Max(g_Game.GetWaterDepth(surfacePosition), 0.0);
 			if (fallHeight - waterDepth < DayZPlayerImplementFallDamage.HEALTH_HEIGHT_LOW)
 				return false;
 		}
@@ -10854,7 +10848,7 @@ class eAIBase: PlayerBase
 		if (m_eAI_PositionIsFinal && Math.Round(speed) == 0.0)
 			return false;
 
-		int time = GetGame().GetTime();
+		int time = g_Game.GetTime();
 
 		if (time - m_eAI_LastDoorInteractionTime < 1000)
 			return false;
@@ -11037,7 +11031,7 @@ class eAIBase: PlayerBase
 			if (!isDoorOpen && !m_eAI_Halt)
 			{
 				eAI_SetHalt(true);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_SetHalt, timeTresh * 0.65, false, false);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_SetHalt, timeTresh * 0.65, false, false);
 			}
 
 			//! Prevent AI getting pushed by opening/closing door by temporarily disabling collision
@@ -11053,7 +11047,7 @@ class eAIBase: PlayerBase
 					inactiveDuration = ExpansionMath.PowerConversion(1, 3, m_MovementSpeedLimit, Math.Min(timeTresh, 1000), timeTresh * 0.2, 2.6);
 
 				dBodySetInteractionLayer(this, PhxInteractionLayers.AI);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_dBodySetInteractionLayer, inactiveDuration, false, layer);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_dBodySetInteractionLayer, inactiveDuration, false, layer);
 			}
 			*/
 
@@ -11073,7 +11067,7 @@ class eAIBase: PlayerBase
 
 			if (canInteract)
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_PathFinding.ForceRecalculate, 34, false, true);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_PathFinding.ForceRecalculate, 34, false, true);
 			}
 			else
 			{

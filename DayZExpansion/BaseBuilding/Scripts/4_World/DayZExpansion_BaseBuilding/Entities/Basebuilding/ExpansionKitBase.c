@@ -26,8 +26,8 @@ class ExpansionKitBase: WatchtowerKit
 		m_Expansion_PlacingTypes = new array< string >;
 		
 		string path = "CfgVehicles " + GetType() + " placingTypes";
-		if ( GetGame().ConfigIsExisting( path ) )
-			GetGame().ConfigGetTextArray( path, m_Expansion_PlacingTypes );
+		if ( g_Game.ConfigIsExisting( path ) )
+			g_Game.ConfigGetTextArray( path, m_Expansion_PlacingTypes );
 	}
 	
 	// ------------------------------------------------------------
@@ -37,10 +37,10 @@ class ExpansionKitBase: WatchtowerKit
 		m_Expansion_PlacingTypeChosen = placingTypeIdx;
 		
 		string path = "CfgVehicles " + m_Expansion_PlacingTypes[m_Expansion_PlacingTypeChosen] + " deployType";
-		if ( !GetGame().ConfigIsExisting( path ) )
+		if ( !g_Game.ConfigIsExisting( path ) )
 			return;
 		
-		m_Expansion_ToDeploy = GetGame().ConfigGetTextOut( path );
+		m_Expansion_ToDeploy = g_Game.ConfigGetTextOut( path );
 	}
 	
 	// ------------------------------------------------------------
@@ -70,7 +70,7 @@ class ExpansionKitBase: WatchtowerKit
 		if ( !IsMissionHost() )
 			return NULL;
 
-		Object obj = GetGame().CreateObject( GetDeployType(), GetPosition() );
+		Object obj = g_Game.CreateObject( GetDeployType(), GetPosition() );
 		obj.SetPosition( position );
 		obj.SetOrientation( orientation );
 

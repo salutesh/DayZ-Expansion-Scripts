@@ -25,7 +25,7 @@ class ExpansionStairKit: ExpansionKitLarge
 	{
 		if (!IsHologram())
 		{
-			ItemBase stick = ItemBase.Cast(GetGame().CreateObjectEx("WoodenStick",GetPosition(),ECE_PLACE_ON_SURFACE));
+			ItemBase stick = ItemBase.Cast(g_Game.CreateObjectEx("WoodenStick",GetPosition(),ECE_PLACE_ON_SURFACE));
 			MiscGameplayFunctions.TransferItemProperties(this, stick);
 			stick.SetQuantity(4);
 			Rope rope = Rope.Cast(item);

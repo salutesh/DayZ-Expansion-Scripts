@@ -36,7 +36,7 @@ modded class ActionDeployObject
 			PlaceObjectActionData poActionData;
 			poActionData = PlaceObjectActionData.Cast( action_data );
 
-			if ( !GetGame().IsDedicatedServer() )
+			if ( !g_Game.IsDedicatedServer() )
 			{
 				Hologram hologram = poActionData.m_Player.GetHologramLocal();
 				if ( hologram )
@@ -82,7 +82,7 @@ modded class ActionDeployObject
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 		
-		return Expansion_CheckDeploy(player, target, item, GetGame().IsDedicatedServer());
+		return Expansion_CheckDeploy(player, target, item, g_Game.IsDedicatedServer());
 	}
 
 	static bool Expansion_CheckDeploy(PlayerBase player, ActionTarget target, ItemBase item, bool notify = false)
@@ -101,7 +101,7 @@ modded class ActionDeployObject
 		string text;
 
 		//! @note zones are not sent to client (intentional)
-		if ( GetGame().IsServer() && GetExpansionSettings().GetBaseBuilding().Zones.Count() )
+		if ( g_Game.IsServer() && GetExpansionSettings().GetBaseBuilding().Zones.Count() )
 		{
 			ExpansionBuildNoBuildZone zone = player.GetBuildNoBuildZone();
 
@@ -172,7 +172,7 @@ modded class ActionDeployObject
 				{
 					isDisallowedInEnemyTerritory = !CanDeployInTerritory( player, item );
 				}
-				else if (GetGame().IsServer())
+				else if (g_Game.IsServer())
 				{
 					//! @note deployables are not sent to client (intentional)
 					isDisallowedOutsideTerritory = !GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory;
@@ -269,7 +269,7 @@ modded class ActionDeployObject
 
 		if ( kit && kit.IsInherited( ExpansionKitBase ) )
 		{
-			if ( GetGame().IsMultiplayer() )
+			if ( g_Game.IsMultiplayer() )
 			{
 				if ( !poActionData )
 					return;
@@ -298,7 +298,7 @@ modded class ActionDeployObject
 						}
 					}
 			
-					GetGame().AddActionJuncture( action_data.m_Player, entity_for_placing, 10000 );
+					g_Game.AddActionJuncture( action_data.m_Player, entity_for_placing, 10000 );
 					entity_for_placing.SetIsBeingPlaced( true );
 				}
 			} else
@@ -335,10 +335,10 @@ modded class ActionDeployObject
 
 			if ( !poActionData.m_AlreadyPlaced )
 			{
-				GetGame().ClearJuncture( action_data.m_Player, entity_for_placing );
+				g_Game.ClearJuncture( action_data.m_Player, entity_for_placing );
 				action_data.m_MainItem.SetIsBeingPlaced( false );
 
-				if ( GetGame().IsMultiplayer() )
+				if ( g_Game.IsMultiplayer() )
 				{
 					action_data.m_Player.PlacingCancelServer();
 					action_data.m_Player.ServerTakeEntityToHands( entity_for_placing );
@@ -351,7 +351,7 @@ modded class ActionDeployObject
 					action_data.m_Player.LocalTakeEntityToHands( entity_for_placing );
 				}
 
-				GetGame().ClearJuncture( action_data.m_Player, action_data.m_MainItem );
+				g_Game.ClearJuncture( action_data.m_Player, action_data.m_MainItem );
 			} else
 			{
 				//TODO: make OnEND placement event and move there
@@ -364,7 +364,7 @@ modded class ActionDeployObject
 					action_data.m_MainItem.Delete();
 				} else
 				{
-					GetGame().ClearJuncture( action_data.m_Player, action_data.m_MainItem );
+					g_Game.ClearJuncture( action_data.m_Player, action_data.m_MainItem );
 				}
 			}
 		}	

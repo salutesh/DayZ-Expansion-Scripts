@@ -45,7 +45,7 @@ modded class ItemManager
 			GridSpacerWidget container = GridSpacerWidget.Cast(m_TooltipWidget.FindAnyWidget("GridSpacerWidget0"));
 			if (container) //! Make sure the container exists and not any other layout is used that does not have this widget..
 			{
-				GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_tooltip_entry_rarity.layout", container);
+				g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_tooltip_entry_rarity.layout", container);
 				m_Expansion_IsValidLayout = true;
 			}
 		}

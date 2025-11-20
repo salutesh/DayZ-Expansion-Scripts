@@ -13,7 +13,7 @@ class eAITargetInformation
 
 	void ~eAITargetInformation()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 #ifdef EXTRACE_DIAG
@@ -596,7 +596,7 @@ class eAITargetInformation
 	// and for some circumstances using templates just won't work.
 	//
 	// wherever possible, please use
-	//	'eAIEntity<DayZPlayerImplement>.GetTargetInformation(GetGame().GetPlayer())`
+	//	'eAIEntity<DayZPlayerImplement>.GetTargetInformation(g_Game.GetPlayer())`
 	static eAITargetInformation GetTargetInformation(Object entity)
 	{
 		DayZPlayerImplement player;

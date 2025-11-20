@@ -275,7 +275,7 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 		#endif
 		{
 			if (obj)
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 			EXError.Error(this, "::Spawn - Tried to spawn P2P market trader with unsuported type name: " + m_ClassName);
 			return;
 		}
@@ -292,7 +292,7 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 		if (!object && !npc)
 		#endif
 		{
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 			Error(ToString() + "::Spawn - Could not spawn NPC: " + m_ClassName);
 			return;
 		}

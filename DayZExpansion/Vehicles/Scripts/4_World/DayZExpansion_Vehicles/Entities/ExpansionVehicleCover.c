@@ -18,8 +18,8 @@ class ExpansionVehicleCover: ExpansionEntityStoragePlaceholder
 	{
 		//! @note geo LOD of cover p3d needs to have a high enough mass else UpdatePathgraphRegion won't do anything.
 		//! 100 kg and up seem to work. All our covers have a geo LOD mass of 1000 kg.
-		if (GetGame().IsServer())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
+		if (g_Game.IsServer())
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(g_Game.UpdatePathgraphRegionByObject, 100, false, this);
 	}
 
 	override void AfterStoreLoad()
@@ -48,9 +48,9 @@ class ExpansionVehicleCover: ExpansionEntityStoragePlaceholder
 			string type;
 			m_Expansion_NetsyncData.Get(0, type);
 			string icon;
-			if (GetGame().IsKindOf(type, "ExpansionHelicopterScript"))
+			if (g_Game.IsKindOf(type, "ExpansionHelicopterScript"))
 				icon = GetExpansionSettings().GetVehicle().CFToolsHeliCoverIconName;
-			else if (GetGame().IsKindOf(type, "ExpansionBoatScript"))
+			else if (g_Game.IsKindOf(type, "ExpansionBoatScript"))
 				icon = GetExpansionSettings().GetVehicle().CFToolsBoatCoverIconName;
 			else
 				icon = GetExpansionSettings().GetVehicle().CFToolsCarCoverIconName;

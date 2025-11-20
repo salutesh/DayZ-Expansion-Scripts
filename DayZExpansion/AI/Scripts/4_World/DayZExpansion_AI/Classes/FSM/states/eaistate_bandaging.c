@@ -8,7 +8,7 @@ class eAIState_Bandaging_Self: eAIState
 
 	override void OnEntry(string Event, ExpansionState From)
 	{
-		m_LastBandageAttemptTime = GetGame().GetTime();
+		m_LastBandageAttemptTime = g_Game.GetTime();
 		m_BleedingSourceCount = unit.GetBleedingSourceCount();
 		m_Time = 0;
 		float effectivity = m_Bandage.GetBandagingEffectivity();
@@ -38,7 +38,7 @@ class eAIState_Bandaging_Self: eAIState
 	{
 		if (unit.IsUnconscious()) return EXIT;
 		
-		if (!unit.GetCommand_MoveAI())
+		if (!unit.GetCommand_Move())
 			return CONTINUE;
 		
 		if (unit.eAI_IsChangingStance())
@@ -69,7 +69,7 @@ class eAIState_Bandaging_Self: eAIState
 			{
 				if (unit.IsBleeding() && !m_Bandage.IsDamageDestroyed())
 				{
-					m_LastBandageAttemptTime = GetGame().GetTime();
+					m_LastBandageAttemptTime = g_Game.GetTime();
 					m_Time = 0;
 					
 					unit.StartActionObject(ActionBandageSelf, null);
@@ -95,7 +95,7 @@ class eAIState_Bandaging_Self: eAIState
 		
 		if (!unit.eAI_ShouldBandage()) return eAITransition.FAIL;
 		
-		if (GetGame().GetTime() - m_LastBandageAttemptTime < 4000) return eAITransition.FAIL;
+		if (g_Game.GetTime() - m_LastBandageAttemptTime < 4000) return eAITransition.FAIL;
 		
 		auto hands = unit.GetItemInHands();
 		if (!hands) return eAITransition.FAIL;
@@ -111,7 +111,7 @@ class eAIState_Bandaging_Self: eAIState
 	{
 		if (unit.GetActionManager().GetRunningAction()) return eAITransition.FAIL;
 		
-		if (GetGame().GetTime() - m_LastBandageAttemptTime < 4000) return eAITransition.FAIL;
+		if (g_Game.GetTime() - m_LastBandageAttemptTime < 4000) return eAITransition.FAIL;
 		
 		return eAITransition.SUCCESS;
 	}

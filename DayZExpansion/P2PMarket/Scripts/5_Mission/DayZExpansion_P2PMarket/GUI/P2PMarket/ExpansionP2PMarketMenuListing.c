@@ -82,7 +82,7 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 		m_P2PMarketMenuListingController.OwnerName = m_Listing.GetOwnerName();
 		m_P2PMarketMenuListingController.NotifyPropertyChanged("OwnerName");
 		
-		string playerUID = GetGame().GetPlayer().GetIdentity().GetId();
+		string playerUID = g_Game.GetPlayer().GetIdentity().GetId();
 		if (m_Listing.GetListingState() == ExpansionP2PMarketListingState.LISTED && m_Listing.GetOwnerUID() == playerUID)
 		{
 			SetIsOwnedItem();

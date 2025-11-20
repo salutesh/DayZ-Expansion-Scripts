@@ -26,28 +26,28 @@ class ExpansionVehicleCarEngine : ExpansionVehicleEngineBase
 
 		path = rootPath + " torqueMax";
 		m_TorqueMax = 0;
-		if (GetGame().ConfigIsExisting(path))
-			m_TorqueMax = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_TorqueMax = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " torqueRpm";
 		m_TorqueRPM = 0;
-		if (GetGame().ConfigIsExisting(path))
-			m_TorqueRPM = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_TorqueRPM = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " steepness";
 		m_Steepness = 1;
-		if (GetGame().ConfigIsExisting(path))
-			m_Steepness = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_Steepness = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " powerMax";
 		m_PowerMax = 0;
-		if (GetGame().ConfigIsExisting(path))
-			m_PowerMax = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_PowerMax = g_Game.ConfigGetFloat(path);
 
 		path = rootPath + " powerRpm";
 		m_PowerRPM = 0;
-		if (GetGame().ConfigIsExisting(path))
-			m_PowerRPM = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_PowerRPM = g_Game.ConfigGetFloat(path);
 	}
 
 #ifdef CF_DebugUI

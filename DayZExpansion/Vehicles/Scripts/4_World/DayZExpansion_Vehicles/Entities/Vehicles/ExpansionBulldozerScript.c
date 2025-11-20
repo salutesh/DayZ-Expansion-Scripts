@@ -50,7 +50,7 @@ class ExpansionBulldozerScript: CarScript
 			}
 		}
 
-		GetGame().GetObjectsAtPosition(m_RayStart, 1, objects, proxy);
+		g_Game.GetObjectsAtPosition(m_RayStart, 1, objects, proxy);
 		if ( objects && Math.AbsFloat(GetSpeedometer()) > 5 ) 
 		{
 			for ( int i = 0; i < objects.Count(); i++ ) 
@@ -68,7 +68,7 @@ class ExpansionBulldozerScript: CarScript
 								tree.DecreaseHealth("", "", 100, true);			
 								if ( tree.IsTree() )
 								{
-									ItemBase wooden_logs = ItemBase.Cast(GetGame().CreateObject("WoodenLog", GetPosition(), false));
+									ItemBase wooden_logs = ItemBase.Cast(g_Game.CreateObject("WoodenLog", GetPosition(), false));
 								}
 								dBodyDestroy(tree);
 								m_TreesCutted++;	
@@ -82,7 +82,7 @@ class ExpansionBulldozerScript: CarScript
 							if ( IsMissionHost()) 
 							{
 								bush.DecreaseHealth("", "", 100, true);			
-								ItemBase wooden_sticks = ItemBase.Cast(GetGame().CreateObject("LongWoodenStick", GetPosition(), false));
+								ItemBase wooden_sticks = ItemBase.Cast(g_Game.CreateObject("LongWoodenStick", GetPosition(), false));
 								dBodyDestroy(bush);
 								m_TreesCutted++;	
 							}

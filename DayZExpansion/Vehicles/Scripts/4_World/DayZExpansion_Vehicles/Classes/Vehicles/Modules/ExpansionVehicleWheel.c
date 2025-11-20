@@ -98,19 +98,19 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 		string path;
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + m_Axle.m_Name + " Wheels " + m_Name + " inventorySlot";
-		m_InventorySlot = GetGame().ConfigGetTextOut(path);
+		m_InventorySlot = g_Game.ConfigGetTextOut(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + m_Axle.m_Name + " Wheels " + m_Name + " animTurn";
-		m_AnimTurn = GetGame().ConfigGetTextOut(path);
+		m_AnimTurn = g_Game.ConfigGetTextOut(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + m_Axle.m_Name + " Wheels " + m_Name + " animRotation";
-		m_AnimRotation = GetGame().ConfigGetTextOut(path);
+		m_AnimRotation = g_Game.ConfigGetTextOut(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + m_Axle.m_Name + " Wheels " + m_Name + " animDamper";
-		m_AnimDamper = GetGame().ConfigGetTextOut(path);
+		m_AnimDamper = g_Game.ConfigGetTextOut(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + m_Axle.m_Name + " Wheels " + m_Name + " wheelHub";
-		m_WheelHub = GetGame().ConfigGetTextOut(path);
+		m_WheelHub = g_Game.ConfigGetTextOut(path);
 
 		m_Position = ExpansionVehiclesStatic.GetCenterSelection(m_Vehicle, "geometry", m_WheelHub);
 
@@ -123,10 +123,10 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 		string n_axis_end;
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + m_Axle.m_Name + " Wheels " + m_Name + " axis_start";
-		if (GetGame().ConfigGetText(path, n_axis_start))
+		if (g_Game.ConfigGetText(path, n_axis_start))
 		{
 			path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + m_Axle.m_Name + " Wheels " + m_Name + " axis_end";
-			if (GetGame().ConfigGetText(path, n_axis_end))
+			if (g_Game.ConfigGetText(path, n_axis_end))
 			{
 				vector axis_start = m_Vehicle.GetMemoryPointPos(n_axis_start);
 				vector axis_end = m_Vehicle.GetMemoryPointPos(n_axis_end);

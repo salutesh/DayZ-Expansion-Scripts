@@ -176,7 +176,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 	#endif
 
 		array<ExpansionObjectiveTriggerBase> triggers = new array<ExpansionObjectiveTriggerBase>;
-		ExpansionAICampObjectiveSphereTrigger trigger = ExpansionAICampObjectiveSphereTrigger.Cast(GetGame().CreateObjectEx("ExpansionAICampObjectiveSphereTrigger", pos, ECE_LOCAL));
+		ExpansionAICampObjectiveSphereTrigger trigger = ExpansionAICampObjectiveSphereTrigger.Cast(g_Game.CreateObjectEx("ExpansionAICampObjectiveSphereTrigger", pos, ECE_LOCAL));
 		if (!trigger)
 			return;
 

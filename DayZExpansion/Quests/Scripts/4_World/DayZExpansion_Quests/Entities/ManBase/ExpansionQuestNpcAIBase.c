@@ -53,7 +53,7 @@ class ExpansionQuestNPCAIBase: eAINPCBase
 
 	override void Expansion_Init()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			m_eAI_FactionType = eAIFactionInvincibleObservers;
 		}

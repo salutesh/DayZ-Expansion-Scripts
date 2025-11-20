@@ -46,7 +46,7 @@ class ExpansionAnomalyAreaSingularity_Local: ExpansionAnomalyAreaBase_Dynamic
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			SetupZoneData(new EffectAreaParams);
 			m_Timer1.Run(TICK_RATE, this, "Tick", NULL, true);

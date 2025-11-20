@@ -18,8 +18,8 @@ modded class BleedingSourcesManagerServer
 	void eAI_ProcessHit(float damage, EntityAI source, int component, string zone, string ammo, vector modelPos)
 	{
 		float dmg_max = m_Player.GetMaxHealth(zone, "Blood");
-		float bleed_threshold = GetGame().ConfigGetFloat("CfgAmmo " + ammo + " DamageApplied bleedThreshold");
-		string damageTypeString = GetGame().ConfigGetTextOut("CfgAmmo " + ammo + " DamageApplied type");
+		float bleed_threshold = g_Game.ConfigGetFloat("CfgAmmo " + ammo + " DamageApplied bleedThreshold");
+		string damageTypeString = g_Game.ConfigGetTextOut("CfgAmmo " + ammo + " DamageApplied type");
 		bleed_threshold = Math.Clamp(bleed_threshold,0,1);
 		float bleedingChance;
 		bool createBleedingSource = false;

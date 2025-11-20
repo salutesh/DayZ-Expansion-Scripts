@@ -59,7 +59,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		if (IsCompleted() || m_ActionConfig.GetActionNames().Find(actionBase.ClassName()) == -1)
 			return;
 
-		if (!MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_CheckActionSuccess(actionBase, actionData))
+		if (!MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_CheckActionSuccess(actionBase, actionData))
 			return;
 
 		if (actionData.m_Target || actionData.m_MainItem)

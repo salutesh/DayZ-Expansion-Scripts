@@ -26,7 +26,7 @@ class ExpansionCOTGroupsListEntry: ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ExpansionCOTGroupsListEntry(Widget parent, ExpansionCOTGroupsMenu menu, ExpansionPartyData partyData)
 	{
-		m_Root	= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Groups/GUI/layouts/COT/groups/Groups_List_Entry.layout", parent);
+		m_Root	= g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Groups/GUI/layouts/COT/groups/Groups_List_Entry.layout", parent);
 		m_GroupName = TextWidget.Cast( m_Root.FindAnyWidget("group_name"));
 		m_GroupID = TextWidget.Cast( m_Root.FindAnyWidget("group_id"));
 		m_EditButton	= ButtonWidget.Cast( m_Root.FindAnyWidget("edit_button"));

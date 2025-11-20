@@ -97,7 +97,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		super.OnMissionLoaded(sender, args);
 
 		//! Server only
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			if (GetExpansionSettings().GetNamalskAdventure().EnableAnomalies)
 			{
@@ -159,11 +159,11 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	protected void SpawnAnomalyStatic(ExpansionAnomalyStatic anomaly, bool isDynamicEvent = false)
 	{
 		string typeToSpawn = anomaly.AnomalyTypes.GetRandomElement();
-	    Object entity = GetGame().CreateObjectEx(typeToSpawn, anomaly.CenterPosition, ECE_PLACE_ON_SURFACE | ECE_NOPERSISTENCY_WORLD | ECE_NOLIFETIME);
+	    Object entity = g_Game.CreateObjectEx(typeToSpawn, anomaly.CenterPosition, ECE_PLACE_ON_SURFACE | ECE_NOPERSISTENCY_WORLD | ECE_NOLIFETIME);
 	    Expansion_Anomaly_Base anomalyObj = Expansion_Anomaly_Base.Cast(entity);
 		if (!anomalyObj)
         {
-           GetGame().ObjectDelete(entity);
+           g_Game.ObjectDelete(entity);
            return;
         }
 
@@ -190,11 +190,11 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		if (dynamicSpawn.Persistance < ExpansionAnomalyPersistance.LIFETIME)
 		    flags |= ECE_NOLIFETIME;
 
-		Object entity = GetGame().CreateObjectEx(typeToSpawn, position, flags);
+		Object entity = g_Game.CreateObjectEx(typeToSpawn, position, flags);
 		Expansion_Anomaly_Base anomalyObj = Expansion_Anomaly_Base.Cast(entity);
 		if (!anomalyObj)
 		{
-		    GetGame().ObjectDelete(entity);
+		    g_Game.ObjectDelete(entity);
 		    return;
 		}
 
@@ -288,7 +288,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		#endif
 
 		NamEventManager event_manager;
-	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
+	    g_Script.CallFunction(g_Game.GetMission(), "GetNamEventManager", event_manager, null);
 		
 		m_StabilizeAnomalies = true;
 		
@@ -314,7 +314,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 		#ifdef NAMALSK_SURVIVAL
 	    NamEventManager event_manager;
-	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
+	    g_Script.CallFunction(g_Game.GetMission(), "GetNamEventManager", event_manager, null);
 
 	    if (!event_manager)
 	        return false;
@@ -412,12 +412,12 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	    for (int i = 0; i < amount; i++)
 	    {
 	        position = center + Vector(Math.RandomFloat(-largeSquareSize / 2, largeSquareSize / 2), 0, Math.RandomFloat(-largeSquareSize / 2, largeSquareSize / 2));
-	        position[1] = GetGame().SurfaceY(position[0], position[2]);
+	        position[1] = g_Game.SurfaceY(position[0], position[2]);
 
 			if (position == vector.Zero)
 				continue;
 
-	        if (!GetGame().SurfaceIsSea(position[0], position[2]) && !GetGame().SurfaceIsPond(position[0], position[2]))
+	        if (!g_Game.SurfaceIsSea(position[0], position[2]) && !g_Game.SurfaceIsPond(position[0], position[2]))
 	            largePositions.Insert(position);
 	    }
 
@@ -429,7 +429,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	        largePositions.Remove(index);
 
 	        array<Object> excludes;
-	        if (!GetGame().IsBoxColliding(position, Vector(4, 1, 4), Vector(5, 0, 5), excludes))
+	        if (!g_Game.IsBoxColliding(position, Vector(4, 1, 4), Vector(5, 0, 5), excludes))
 	        {
 	            bool validPos = true;
 
@@ -535,7 +535,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	{
 		super.OnUpdate(sender, args);
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		auto update = CF_EventUpdateArgs.Cast(args);

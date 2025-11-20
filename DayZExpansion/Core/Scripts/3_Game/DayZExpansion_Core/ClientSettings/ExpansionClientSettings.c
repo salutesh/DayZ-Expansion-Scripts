@@ -1472,7 +1472,7 @@ static ExpansionClientSettings GetExpansionClientSettings()
 	auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, "GetExpansionClientSettings");
 #endif
 
-	if (GetGame().IsDedicatedServer())
+	if (g_Game.IsDedicatedServer())
 		return null;
 
 	if ( !g_ExClientSettings )

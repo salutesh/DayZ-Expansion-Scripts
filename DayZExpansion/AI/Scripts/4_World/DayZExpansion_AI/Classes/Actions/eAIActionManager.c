@@ -79,14 +79,6 @@ class eAIActionManager: ActionManagerBase
 		}
 	}
 	
-	override bool ActionPossibilityCheck(int pCurrentCommandID)
-	{
-		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT)
-			return super.ActionPossibilityCheck(DayZPlayerConstants.COMMANDID_MOVE);
-
-		return super.ActionPossibilityCheck(pCurrentCommandID);
-	}
-	
 	override void Update(int pCurrentCommandID)
 	{
 		m_InventoryActionHandler.OnUpdate();
@@ -143,7 +135,7 @@ class eAIActionManager: ActionManagerBase
 				default:
 					if ( m_ActionWantEndRequest )
 					{
-						if ( GetGame().IsMultiplayer() && !m_CurrentActionData.m_Action.IsLocal() )
+						if ( g_Game.IsMultiplayer() && !m_CurrentActionData.m_Action.IsLocal() )
 						{
 							if ( !m_ActionWantEndRequest_Send && ScriptInputUserData.CanStoreInputUserData() )
 							{
@@ -170,7 +162,7 @@ class eAIActionManager: ActionManagerBase
 					
 					if ( m_ActionInputWantEnd )
 					{
-						if ( GetGame().IsMultiplayer() && !m_CurrentActionData.m_Action.IsLocal() )
+						if ( g_Game.IsMultiplayer() && !m_CurrentActionData.m_Action.IsLocal() )
 						{
 							if ( !m_ActionInputWantEnd_Send && ScriptInputUserData.CanStoreInputUserData() )
 							{

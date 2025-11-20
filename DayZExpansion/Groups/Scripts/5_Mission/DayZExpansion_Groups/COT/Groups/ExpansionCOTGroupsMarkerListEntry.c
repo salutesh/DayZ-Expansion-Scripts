@@ -27,7 +27,7 @@ class ExpansionCOTGroupsMarkerListEntry: ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ExpansionCOTGroupsMarkerListEntry(Widget parent, ExpansionCOTGroupsMapMarker marker, ExpansionCOTGroupsMenu menu)
 	{
-		m_Root	= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Groups/GUI/layouts/COT/groups/Markers_List_Entry.layout", parent);
+		m_Root	= g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Groups/GUI/layouts/COT/groups/Markers_List_Entry.layout", parent);
 		m_MarkerIcon = ImageWidget.Cast(m_Root.FindAnyWidget("marker_icon"));
 		m_MarkerName = TextWidget.Cast(m_Root.FindAnyWidget("marker_name"));
 		m_EditButton = ButtonWidget.Cast(m_Root.FindAnyWidget("edit_button"));

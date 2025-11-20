@@ -80,7 +80,7 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 				//! If already blocking, keep blocking until enemy attack ends or timeout reached
 				if (m_IsInBlock)
 				{
-					if (target.IsFighting() && GetGame().GetTime() < m_eAI_BlockEndTime)
+					if (target.IsFighting() && g_Game.GetTime() < m_eAI_BlockEndTime)
 					{
 						block = true;
 					}
@@ -97,7 +97,7 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.AI, m_AI, "HandleFightLogic - start blocking attack (cooldown " + target.GetAttackCooldown() + " " + target.IsFighting() +  ")");
 				#endif
-					m_eAI_BlockEndTime = GetGame().GetTime() + Math.RandomInt(1500, 3000);
+					m_eAI_BlockEndTime = g_Game.GetTime() + Math.RandomInt(1500, 3000);
 					block = true;
 				}
 
@@ -272,7 +272,7 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 	{
 		if (super.HandleComboHit(pCurrentCommandID, pInputs, itemInHands, pMovementState, pContinueAttack))
 		{
-			m_AI.m_eAI_MeleeTime = GetGame().GetTime();
+			m_AI.m_eAI_MeleeTime = g_Game.GetTime();
 			m_eAI_IsInCombo = true;
 			return true;
 		}

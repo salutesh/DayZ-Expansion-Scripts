@@ -132,7 +132,7 @@ class ExpansionPhysicsState
 		m_SyncPosition = pos;
 
 		//! Server only
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			m_DesyncInvulnerabilityTimeoutSeconds = GetExpansionSettings().GetVehicle().DesyncInvulnerabilityTimeoutSeconds;
 	}
 
@@ -221,7 +221,7 @@ class ExpansionPhysicsState
 	{
 		EXTrace trace;
 
-		bool isServer = GetGame().IsServer();
+		bool isServer = g_Game.IsServer();
 
 		if (!m_IsSync)
 			m_TimeSinceDesync += pDt;

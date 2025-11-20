@@ -63,7 +63,7 @@ modded class IngameHud
 
 		m_Expansion_BadgeNotifierDivider = m_HudPanelWidget.FindAnyWidget("BadgeNotifierDivider");
 	
-		m_Expansion_NVPanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/expansion_night_vision.layout");
+		m_Expansion_NVPanel = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/expansion_night_vision.layout");
 		if (m_Expansion_NVPanel)
 		{
 			m_Expansion_NVPanel.Show(false);
@@ -75,7 +75,7 @@ modded class IngameHud
 			m_Expansion_NVBatteryVal = TextWidget.Cast(m_Expansion_NVPanel.FindAnyWidget("NVBatteryVal"));
 		}
 
-		m_Expansion_EarplugsPanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/expansion_earplugs.layout");
+		m_Expansion_EarplugsPanel = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/expansion_earplugs.layout");
 	}
 
 	override void Update(float timeslice)
@@ -380,16 +380,16 @@ modded class IngameHud
 		{
 			if (GetExpansionClientSettings())
 			{
-				GetGame().GetSoundScene().SetSoundVolume(GetExpansionClientSettings().EarplugLevel, 1);
+				g_Game.GetSoundScene().SetSoundVolume(GetExpansionClientSettings().EarplugLevel, 1);
 			}
 			else
 			{
-				GetGame().GetSoundScene().SetSoundVolume(0.5, 1);
+				g_Game.GetSoundScene().SetSoundVolume(0.5, 1);
 			}
 		}
 		else
 		{
-			GetGame().GetSoundScene().SetSoundVolume(g_Game.m_volume_sound, 1);
+			g_Game.GetSoundScene().SetSoundVolume(g_Game.m_volume_sound, 1);
 		}
 
 		RefreshHudVisibility();
@@ -399,7 +399,7 @@ modded class IngameHud
 	{
 		if (GetExpansionClientSettings())
 		{
-			GetGame().GetSoundScene().SetSoundVolume(GetExpansionClientSettings().EarplugLevel, 1);
+			g_Game.GetSoundScene().SetSoundVolume(GetExpansionClientSettings().EarplugLevel, 1);
 			RefreshHudVisibility();
 		}
 	}

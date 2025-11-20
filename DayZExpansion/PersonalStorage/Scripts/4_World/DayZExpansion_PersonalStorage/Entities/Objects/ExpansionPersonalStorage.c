@@ -72,7 +72,7 @@ modded class PlayerBase
 	{
 		super.EEKilled(killer);
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (g_Game.IsServer() && g_Game.IsMultiplayer())
 		{
 			if (GetIdentity() && GetExpansionSettings().GetPersonalStorage().UsePersonalStorageCase)
 				ExpansionPersonalStorageModule.GetModuleInstance().StorePersonalStorageCase(this);

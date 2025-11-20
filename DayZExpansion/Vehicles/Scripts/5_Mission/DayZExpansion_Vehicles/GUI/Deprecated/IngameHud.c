@@ -95,7 +95,7 @@ modded class IngameHud
 		if ( m_LeftHudPanelWidget )
 		{
 			//! Boat
-			m_BoatPanel								= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Vehicles/GUI/layouts/hud/vehicles/boat.layout", m_LeftHudPanelWidget );	
+			m_BoatPanel								= g_Game.GetWorkspace().CreateWidgets( "DayZExpansion/Vehicles/GUI/layouts/hud/vehicles/boat.layout", m_LeftHudPanelWidget );	
 			if ( m_BoatPanel )
 			{
 				m_BoatPanel.Show( false );
@@ -120,7 +120,7 @@ modded class IngameHud
 			}
 			
 			//! Helicopter
-			m_HelicopterPanel						= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Vehicles/GUI/layouts/hud/vehicles/helicopter.layout", m_LeftHudPanelWidget );
+			m_HelicopterPanel						= g_Game.GetWorkspace().CreateWidgets( "DayZExpansion/Vehicles/GUI/layouts/hud/vehicles/helicopter.layout", m_LeftHudPanelWidget );
 			if ( m_HelicopterPanel )
 			{
 				m_HelicopterPanel.Show( false );
@@ -148,7 +148,7 @@ modded class IngameHud
 			}
 			
 			//! Plane
-			m_PlanePanel							= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Vehicles/GUI/layouts/hud/vehicles/plane.layout", m_LeftHudPanelWidget );
+			m_PlanePanel							= g_Game.GetWorkspace().CreateWidgets( "DayZExpansion/Vehicles/GUI/layouts/hud/vehicles/plane.layout", m_LeftHudPanelWidget );
 			if ( m_PlanePanel )
 			{
 				m_PlanePanel.Show( false );
@@ -186,7 +186,7 @@ modded class IngameHud
 		if ( !m_CurrentVehicle )
 		{
 			PlayerBase player;
-			if ( !Class.CastTo( player, GetGame().GetPlayer() ) )
+			if ( !Class.CastTo( player, g_Game.GetPlayer() ) )
 			{
 				return;
 			}
@@ -204,7 +204,7 @@ modded class IngameHud
 			m_InVehicleAsDriver	= true;
 	
 			TFloatArray gears = new TFloatArray;
-			GetGame().ConfigGetFloatArray( "CfgVehicles " + m_ExpansionVehicle.GetType() + " SimulationModule Gearbox ratios" , gears );
+			g_Game.ConfigGetFloatArray( "CfgVehicles " + m_ExpansionVehicle.GetType() + " SimulationModule Gearbox ratios" , gears );
 			
 			m_VehicleGearCount = gears.Count() + 1;
 				
@@ -299,7 +299,7 @@ modded class IngameHud
 			}
 			
 			gears.Clear();
-			GetGame().ConfigGetFloatArray( "CfgVehicles " + m_ExpansionVehicle.GetType() + " SimulationModule Gearbox ratios" , gears );
+			g_Game.ConfigGetFloatArray( "CfgVehicles " + m_ExpansionVehicle.GetType() + " SimulationModule Gearbox ratios" , gears );
 		
 			m_VehicleGearCount = gears.Count();
 
@@ -321,7 +321,7 @@ modded class IngameHud
 			}
 			
 			gears.Clear();
-			GetGame().ConfigGetFloatArray( "CfgVehicles " + m_ExpansionVehicle.GetType() + " SimulationModule Gearbox ratios" , gears );
+			g_Game.ConfigGetFloatArray( "CfgVehicles " + m_ExpansionVehicle.GetType() + " SimulationModule Gearbox ratios" , gears );
 		
 			m_VehicleGearCount = gears.Count();
 
@@ -356,7 +356,7 @@ modded class IngameHud
 		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "RefreshVehicleHud").Add(timeslice);
 #endif
 
-		if ( GetGame().GetUIManager().GetMenu() )
+		if ( g_Game.GetUIManager().GetMenu() )
 		{
 			return;
 		}

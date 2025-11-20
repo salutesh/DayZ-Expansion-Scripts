@@ -14,7 +14,7 @@ modded class InventoryQuickbar
 {
 	override int GetQuickbarItemColor(InventoryGrid grid, InventoryItem item)
 	{
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 
 		if (!player.GetInventory().IsInventoryLocked())
 			return super.GetQuickbarItemColor(grid, item);

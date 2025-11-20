@@ -22,14 +22,14 @@ class ExpansionCamoTentKit: ExpansionKitLarge
 	{
 		if ( IsMissionHost() )
 		{			
-			ExpansionCamoTent tent = ExpansionCamoTent.Cast( GetGame().CreateObject( "ExpansionCamoTent", GetPosition() ) );
+			ExpansionCamoTent tent = ExpansionCamoTent.Cast( g_Game.CreateObject( "ExpansionCamoTent", GetPosition() ) );
 			tent.SetPosition( position );
 			tent.SetOrientation( orientation );
 			
 			//! Make the kit invisible, so it can be destroyed from deploy UA when action ends
 			HideAllSelections();
 
-			GetGame().ObjectDelete(this);
+			g_Game.ObjectDelete(this);
 		}	
 		
 		SetIsDeploySound( true );

@@ -40,7 +40,7 @@ class ExpansionActionOpenATMMenu: ActionInteractBase
 		if (!m_MarketModule.CanOpenMenu())
 			return false;
 		
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if ( !target.GetObject() )
 				return false;

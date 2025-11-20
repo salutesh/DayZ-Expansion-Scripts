@@ -187,7 +187,7 @@ class ExpansionDebugText : ExpansionShapeBase
 		ExpansionDebugText res();
 
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
-		Widget layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Core/GUI/layouts/expansion_debug.layout");
+		Widget layoutRoot = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Core/GUI/layouts/expansion_debug.layout");
 		
 		res.m_Origin = position;
 
@@ -228,7 +228,7 @@ class ExpansionDebugText : ExpansionShapeBase
 		
 		Math3D.MatrixMultiply4(objTransform, transform, transform);
 
-		vector position = GetGame().GetScreenPos(transform[3]);
+		vector position = g_Game.GetScreenPos(transform[3]);
 
 		float width;
 		float height;

@@ -62,7 +62,7 @@ class ExpansionLocatorModule: CF_ModuleGame
 		{
 			m_Time = 0;
 			
-			if ( !GetGame() )
+			if ( !g_Game )
 				return;
 
 			if ( !GetExpansionSettings().GetMap(false).IsLoaded() )
@@ -80,7 +80,7 @@ class ExpansionLocatorModule: CF_ModuleGame
 	// ------------------------------------------------------------
 	protected void CheckPlayer()
 	{
-		Mission mission = GetGame().GetMission();
+		Mission mission = g_Game.GetMission();
 		if ( !mission )
 			return;
 
@@ -90,7 +90,7 @@ class ExpansionLocatorModule: CF_ModuleGame
 		
 		ExpansionLocation shortestLocation = null;
 		float shortestDistanceSq = int.MAX;
-		vector myPos = GetGame().GetCurrentCameraPosition();
+		vector myPos = g_Game.GetCurrentCameraPosition();
 		vector myPos2D = Vector( myPos[0], 0, myPos[2] );
 
 		foreach (ExpansionLocation loc: m_AreaArray)

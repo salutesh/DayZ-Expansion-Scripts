@@ -185,7 +185,7 @@ class Vehicle_ExpansionC130J: ExpansionVehiclePlaneBase
 
 		super.UpdateLights(new_gear);
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			ItemBase battery;
 
@@ -228,14 +228,14 @@ class Vehicle_ExpansionC130J: ExpansionVehiclePlaneBase
 					{
 						m_Particles[b].Stop();
 
-						GetGame().ObjectDelete(m_Particles[b]);
+						g_Game.ObjectDelete(m_Particles[b]);
 					}
 
 					for (b = -0; b < m_Lights.Count(); b++)
 					{
 						m_Lights[b].ExpansionSetEnabled(false);
 
-						GetGame().ObjectDelete(m_Lights[b]);
+						g_Game.ObjectDelete(m_Lights[b]);
 					}
 
 					m_Lights.Clear();

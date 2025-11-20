@@ -57,7 +57,7 @@ class ExpansionLHD : ExpansionBoatScript
 		//ExpansionLHD_CreatePart("ExpansionLHDElevatorL", "LHD_Elevator_L");
 		//ExpansionLHD_CreatePart("ExpansionLHDElevatorR", "LHD_Elevator_R");
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Update, 5000, true);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Update, 5000, true);
 
 		float lengthF = 128.0;
 		float lengthB = 128.0;
@@ -146,12 +146,12 @@ class ExpansionLHD : ExpansionBoatScript
 	
 	override void EOnSimulate(IEntity other, float dt)
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			vector min = ModelToWorld(m_SizeMin);
 			vector max = ModelToWorld(m_SizeMax);
 
-		//	GetGame().UpdatePathgraphRegion(min, max);
+		//	g_Game.UpdatePathgraphRegion(min, max);
 		}
 	}
 
@@ -164,7 +164,7 @@ class ExpansionLHD : ExpansionBoatScript
 
 		position = position.InvMultiply3(transform);
 
-		Object obj = GetGame().CreateObject(part, "0 0 0");
+		Object obj = g_Game.CreateObject(part, "0 0 0");
 
 		obj.SetPosition(position);
 		//obj.SetOrientation("180 0 0");

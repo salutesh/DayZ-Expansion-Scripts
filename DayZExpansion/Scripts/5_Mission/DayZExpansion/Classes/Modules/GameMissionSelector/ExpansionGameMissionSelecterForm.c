@@ -150,7 +150,7 @@ class ExpansionGameMissionSelecterForm extends JMFormBase
 		{
 			string mission_path = m_PathToMissions + "\\" + mission_name;
 					
-			GetGame().PlayMission( mission_path );
+			g_Game.PlayMission( mission_path );
 		}
 	}
 };

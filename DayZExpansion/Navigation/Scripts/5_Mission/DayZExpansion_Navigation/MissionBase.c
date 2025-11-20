@@ -23,7 +23,7 @@ modded class MissionBase
 			if (settings.EnableMap && settings.UseMapOnMapItem)
 			{
 				PlayerBase pb;
-				if (Class.CastTo(pb, GetGame().GetPlayer()))
+				if (Class.CastTo(pb, g_Game.GetPlayer()))
 				{
 					ActionBase action = pb.GetActionManager().GetRunningAction();
 					if (action && action.Type() == ActionUnfoldMap)

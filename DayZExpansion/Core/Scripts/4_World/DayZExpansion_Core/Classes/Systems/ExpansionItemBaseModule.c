@@ -46,7 +46,7 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 		super.OnMissionStart(sender, args);
 
 #ifdef SERVER
-		int instance_id = GetGame().ServerConfigGetInt( "instanceId" );
+		int instance_id = g_Game.ServerConfigGetInt( "instanceId" );
 		string folder = "$mission:storage_" + instance_id + "\\expansion\\";
 		m_QueuedEntityActionsFileName = folder + "queuedentityactions.bin";
 
@@ -71,7 +71,7 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 		if ((selectedActions & SETUNLOOTABLE) == SETUNLOOTABLE)
 			SetLootable(entity, false);
 		if ((selectedActions & DELETE) == DELETE)
-			GetGame().ObjectDelete(entity);
+			g_Game.ObjectDelete(entity);
 
 		return selectedActions;
 	}

@@ -30,9 +30,9 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	override void EOnInit( IEntity other, int extra)
 	{
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
-			GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ).CallLater( CreateDamageTrigger, 100, false );
+			g_Game.GetCallQueue( CALL_CATEGORY_GAMEPLAY ).CallLater( CreateDamageTrigger, 100, false );
 		}
 	}
 

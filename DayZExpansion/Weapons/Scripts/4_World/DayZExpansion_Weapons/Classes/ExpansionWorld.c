@@ -53,7 +53,7 @@ modded class ExpansionWorld
 		}
 		#endif
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		string M203SmokeItem = "Expansion_M203Round_Smoke_White";
@@ -102,7 +102,7 @@ modded class ExpansionWorld
 			}
 			case "Bullet_Expansion_M203_HE":
 			{
-				explosion = GetGame().CreateObject( "Expansion_M203_HE_Explosion", pos );
+				explosion = g_Game.CreateObject( "Expansion_M203_HE_Explosion", pos );
 				break;
 			}
 			case "Bullet_Expansion_M203_Smoke_White":
@@ -137,49 +137,49 @@ modded class ExpansionWorld
 			}
 			case "Bullet_Expansion_M203_Sticky_Smoke_White":
 			{
-				GetGame().CreateObject( "Expansion_M203Round_Smoke_White", pos);
+				g_Game.CreateObject( "Expansion_M203Round_Smoke_White", pos);
 				break;
 			}
 			case "Bullet_Expansion_M203_Sticky_Smoke_Red":
 			{
-				GetGame().CreateObject( "Expansion_M203Round_Smoke_Red", pos);
+				g_Game.CreateObject( "Expansion_M203Round_Smoke_Red", pos);
 				break;
 			}
 			case "Bullet_Expansion_M203_Sticky_Smoke_Green":
 			{
-				GetGame().CreateObject( "Expansion_M203Round_Smoke_Green", pos);
+				g_Game.CreateObject( "Expansion_M203Round_Smoke_Green", pos);
 				break;
 			}
 			case "Bullet_Expansion_M203_Sticky_Smoke_Yellow":
 			{
-				GetGame().CreateObject( "Expansion_M203Round_Smoke_Yellow", pos);
+				g_Game.CreateObject( "Expansion_M203Round_Smoke_Yellow", pos);
 				break;
 			}
 			case "Bullet_Expansion_M203_Sticky_Smoke_Purple":
 			{
-				GetGame().CreateObject( "Expansion_M203Round_Smoke_Purple", pos);
+				g_Game.CreateObject( "Expansion_M203Round_Smoke_Purple", pos);
 				break;
 			}						
 			case "Bullet_Expansion_M203_Sticky_Smoke_Teargas":
 			{
-				GetGame().CreateObject( "Expansion_M203Round_Smoke_Teargas", pos);
+				g_Game.CreateObject( "Expansion_M203Round_Smoke_Teargas", pos);
 				break;
 			}	
 			case "ExpansionRocketRPG":
 			{
-				explosion = GetGame().CreateObject( "Expansion_RPG_Explosion", pos );
+				explosion = g_Game.CreateObject( "Expansion_RPG_Explosion", pos );
 				break;
 			}				
 			case "ExpansionRocketLAW":
 			{
-				explosion = GetGame().CreateObject( "Expansion_LAW_Explosion", pos );
+				explosion = g_Game.CreateObject( "Expansion_LAW_Explosion", pos );
 				break;
 			}			
 		}
 		
 		if ( ammoType.Contains("Expansion_M203_Smoke") )
 		{
-			Object physicsObj = GetGame().CreateObject( M203SmokeItem, pos );
+			Object physicsObj = g_Game.CreateObject( M203SmokeItem, pos );
 			if ( physicsObj == NULL )
 				return;
 				

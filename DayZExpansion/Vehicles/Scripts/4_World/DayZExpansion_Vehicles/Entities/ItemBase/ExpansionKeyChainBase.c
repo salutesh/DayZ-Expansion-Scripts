@@ -12,7 +12,7 @@ class ExpansionKeyChainBase : ItemBase
 	#ifdef SERVER
 		PlayerBase.s_Expansion_SI_OnPlayerConnected.Insert(Expansion_OnPlayerConnected);
 	#else
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 			m_Expansion_NetsyncData.SI_Receive.Insert(Expansion_UpdateOwnerName);
 	#endif
 	}

@@ -36,7 +36,7 @@ class ExpansionMapWidgetBase: ScriptedWidgetEventHandler
 
 	void ExpansionMapWidgetBase(Widget parent, MapWidget mapWidget, bool autoInit = true)
 	{
-		m_LayoutRoot = GetGame().GetWorkspace().CreateWidgets(GetLayoutPath(), parent);
+		m_LayoutRoot = g_Game.GetWorkspace().CreateWidgets(GetLayoutPath(), parent);
 		m_MapWidget = mapWidget;
 		if (autoInit)
 			OnInit(m_LayoutRoot);
@@ -167,7 +167,7 @@ class ExpansionMapWidgetBase: ScriptedWidgetEventHandler
 	{
 		m_LayoutRoot.SetPos(x, y, true);
 		vector newPos = m_MapWidget.ScreenToMap(Vector(x, y, 0));
-		newPos[1] = GetGame().SurfaceY(newPos[0], newPos[2]) + 1.0;
+		newPos[1] = g_Game.SurfaceY(newPos[0], newPos[2]) + 1.0;
 		SetPosition(newPos, performDropEvent);
 	}
 
@@ -195,7 +195,7 @@ class ExpansionMapWidgetBase: ScriptedWidgetEventHandler
 	{
 		if (IsMissionClient() && GetDropSoundEffect() != "")
 		{
-			SEffectManager.PlaySound(GetDropSoundEffect(), GetGame().GetPlayer().GetPosition());
+			SEffectManager.PlaySound(GetDropSoundEffect(), g_Game.GetPlayer().GetPosition());
 		}
 	}
 

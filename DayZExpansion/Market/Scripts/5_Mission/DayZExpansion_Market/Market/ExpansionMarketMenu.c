@@ -498,7 +498,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	{
 		if (preview)
 		{
-			if (preview.GetHierarchyRootPlayer() == GetGame().GetPlayer())
+			if (preview.GetHierarchyRootPlayer() == g_Game.GetPlayer())
 				return;
 
 			if (CF_String.EqualsIgnoreCase(preview.GetType(), className))
@@ -508,7 +508,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				{
 					EntityAI attachment = preview.GetInventory().GetAttachmentFromIndex(i);
 					if (attachment)
-						GetGame().ObjectDelete(attachment);
+						g_Game.ObjectDelete(attachment);
 				}
 
 				return;
@@ -516,19 +516,19 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			else
 			{
 				//! Different classname, delete old preview object
-				GetGame().ObjectDelete(preview);
+				g_Game.ObjectDelete(preview);
 			}
 		}
 
-		if (!GetGame().IsKindOf(className, "DZ_LightAI"))
+		if (!g_Game.IsKindOf(className, "DZ_LightAI"))
 		{
-			preview = EntityAI.Cast(GetGame().CreateObjectEx(className, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
+			preview = EntityAI.Cast(g_Game.CreateObjectEx(className, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
 
 			if (!g_Game.IsServer())
 			{
 				Weapon_Base weapon;
 				if (Class.CastTo(weapon, preview))
-					GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(weapon.AssembleGun);
+					g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(weapon.AssembleGun);
 			}
 		}
 	}
@@ -607,7 +607,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 		if ((ShowPurchasables() && settings.UseItemRarityForMarketPurchase) || (ShowSellables() && settings.UseItemRarityForMarketSell))
 		{
-			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 			if (!m_MarketModule.HasRepForItemRarity(player, item))
 				return false;
 		}
@@ -1055,7 +1055,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		{
 			if (!m_FirstCall || (m_Complete && complete))
 			{
-				m_MarketModule.EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
+				m_MarketModule.EnumeratePlayerInventory(PlayerBase.Cast(g_Game.GetPlayer()));
 
 				UpdatePlayerCurrency();
 				UpdatePlayerItems();
@@ -1189,9 +1189,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	{
 		MarketPrint("UpdateDropdownFilterElements - Start");
 
-		EntityAI shoulder_left = GetGame().GetPlayer().FindAttachmentBySlotName("Shoulder");
-		EntityAI shoulder_right = GetGame().GetPlayer().FindAttachmentBySlotName("Melee");
-		EntityAI hands = GetGame().GetPlayer().GetHumanInventory().GetEntityInHands();
+		EntityAI shoulder_left = g_Game.GetPlayer().FindAttachmentBySlotName("Shoulder");
+		EntityAI shoulder_right = g_Game.GetPlayer().FindAttachmentBySlotName("Melee");
+		EntityAI hands = g_Game.GetPlayer().GetHumanInventory().GetEntityInHands();
 		
 		ClearDropdownElements();
 		
@@ -1291,7 +1291,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		array<int> monies = new array<int>;
 		
-		int worth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, m_TraderMarket);
+		int worth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(g_Game.GetPlayer()), monies, m_TraderMarket);
 		
 		TStringArray descriptions = new TStringArray;
 		TStringArray excludedCurrencys = new TStringArray;
@@ -1765,7 +1765,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("UpdateItemFieldFromBasicNetSync - GetSelectedMarketItem().ClassName: " + GetSelectedMarketItem().ClassName);
 		MarketPrint("UpdateItemFieldFromBasicNetSync - m_TraderItemStock: " + m_TraderItemStock);
 		
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 
 		//! TODO: Give each transaction an unique ID and MarketSell?
 		m_MarketSell = new ExpansionMarketSell(player);
@@ -2017,7 +2017,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		sellChangeDescriptions.Clear();
 		
-		m_MarketModule.FindMoneyAndCountTypes(PlayerBase.Cast(GetGame().GetPlayer()), m_BuyPrice, monies, false, GetSelectedMarketItem(), m_TraderMarket);
+		m_MarketModule.FindMoneyAndCountTypes(PlayerBase.Cast(g_Game.GetPlayer()), m_BuyPrice, monies, false, GetSelectedMarketItem(), m_TraderMarket);
 		for (i = 0; i < monies.Count(); i++)
 		{
 			if (monies[i] < 0)
@@ -2202,7 +2202,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		int color = COLOR_EXPANSION_NOTIFICATION_ERROR;
 		bool notify = true;
 		bool sale = result == ExpansionMarketResult.SellSuccess;
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 
 		if (result >= ExpansionMarketResult.FailedNoVehicleSpawnPositions && result <= ExpansionMarketResult.FailedVehicleSpawnOccupied)
 		{
@@ -2422,6 +2422,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_NOT_IN_PLAYER_POSSESSION";
+				loc = new StringLocaliser(text);
+				text = string.Format("%1: %2", GetDisplayName(itemClassName), loc.Format());
 				break;
 			}
 
@@ -2981,7 +2983,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	{		
 		if (w == market_item_preview)
 		{
-			GetGame().GetDragQueue().Call(this, "UpdateRotation");
+			g_Game.GetDragQueue().Call(this, "UpdateRotation");
 			GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
 			return true;
 		}
@@ -3014,7 +3016,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	{
 		if (w == market_item_preview)
 		{
-			GetGame().GetDragQueue().Call(this, "UpdateScale");
+			g_Game.GetDragQueue().Call(this, "UpdateScale");
 			m_CharacterScaleDelta = wheel ;
 		}
 		else if (w == market_player_preview)
@@ -3223,7 +3225,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	{
 		MarketPrint("OnNetworkItemUpdate - Start");
 		
-		m_MarketModule.EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
+		m_MarketModule.EnumeratePlayerInventory(PlayerBase.Cast(g_Game.GetPlayer()));
 		
 		if (GetSelectedMarketItemElement() && GetSelectedMarketItem())
 		{
@@ -3242,13 +3244,13 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 	void PlayMarketSound()
 	{
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{	
-			if (GetGame().GetPlayer())
+			if (g_Game.GetPlayer())
 			{
 				string soundConfig;
 				string path = "cfgVehicles " + GetSelectedMarketItem().ClassName + " " + "AnimEvents ";
-				int events_sources_count = GetGame().ConfigGetChildrenCount(path);
+				int events_sources_count = g_Game.ConfigGetChildrenCount(path);
 				string soundName = "";
 				EffectSound sound;
 				
@@ -3258,23 +3260,23 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				for (int i = 0; i < events_sources_count; i++)
 				{
 					string soundWeapons;
-					GetGame().ConfigGetChildName(path, i, soundWeapons);
+					g_Game.ConfigGetChildName(path, i, soundWeapons);
 					MarketPrint("PlayMarketSound - Path 2: " + path + soundWeapons + " pickUpItem" + " soundSet");
 					
-					if (GetGame().ConfigIsExisting(path + soundWeapons + " pickUpItem" + " soundSet"))
+					if (g_Game.ConfigIsExisting(path + soundWeapons + " pickUpItem" + " soundSet"))
 					{
-						GetGame().ConfigGetText(path + soundWeapons + " pickUpItem" + " soundSet", soundName);
+						g_Game.ConfigGetText(path + soundWeapons + " pickUpItem" + " soundSet", soundName);
 						MarketPrint("PlayMarketSound - Sound: " + soundName);
 					}
 				}
 				
 				if (soundName != "")
 				{
-					sound = SEffectManager.PlaySound(soundName, GetGame().GetPlayer().GetPosition());
+					sound = SEffectManager.PlaySound(soundName, g_Game.GetPlayer().GetPosition());
 				}
 				else
 				{
-					sound = SEffectManager.PlaySound("pickUpBackPack_Metal_SoundSet", GetGame().GetPlayer().GetPosition());
+					sound = SEffectManager.PlaySound("pickUpBackPack_Metal_SoundSet", g_Game.GetPlayer().GetPosition());
 				}
 				
 				sound.SetSoundAutodestroy(true);

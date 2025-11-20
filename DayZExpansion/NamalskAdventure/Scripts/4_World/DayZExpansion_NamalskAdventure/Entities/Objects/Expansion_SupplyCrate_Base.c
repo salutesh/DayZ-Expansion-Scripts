@@ -65,7 +65,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	
 	void ~Expansion_SupplyCrate_Base()
 	{
-		if (GetGame())
+		if (g_Game)
 			CleanupSupplyCrate();
 		
 	#ifdef DIAG_DEVELOPER
@@ -113,7 +113,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	#ifdef DIAG_DEVELOPER
 	#ifdef EXPANSIONMODNAVIGATION
     #ifdef SERVER
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
     #endif
 	#endif
 	#endif
@@ -131,7 +131,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 		Expansion_SupplyCrate_Key_Base key;
 		if (Class.CastTo(key, item))
 		{
-			if (GetGame().IsServer())
+			if (g_Game.IsServer())
 			{
 				int slot_id_key = InventorySlots.GetSlotIdFromString("Att_ExpansionSupplyCrateKey");
 				GetInventory().SetSlotLock(slot_id_key, true);
@@ -157,7 +157,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 		Expansion_SupplyCrate_Key_Base key;
 		if (Class.CastTo(key, item))
 		{
-			if (GetGame().IsServer())
+			if (g_Game.IsServer())
 			{
 				int slot_id_key = InventorySlots.GetSlotIdFromString("Att_ExpansionSupplyCrateKey");
 				GetInventory().SetSlotLock(slot_id_key, false);
@@ -245,7 +245,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 			if (invItem == this)
 				continue;
 	
-			GetGame().ObjectDelete(invItem);
+			g_Game.ObjectDelete(invItem);
 		}
 	}
 	
@@ -417,7 +417,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 		super.OnVariablesSynchronized();
 		
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateSupplyCrateVFX_Deferred, 0);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateSupplyCrateVFX_Deferred, 0);
 	}
 	
 	protected void UpdateSupplyCrateVFX_Deferred()
@@ -444,7 +444,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 		super.AfterStoreLoad();
 		
-		GetGame().ObjectDelete(this);
+		g_Game.ObjectDelete(this);
 	}
 
 	protected void ExDebugPrint(string text)

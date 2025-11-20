@@ -808,7 +808,7 @@ modded class ItemBase
 			return NULL;
 
 		//! NOTE: Both actual magazines and ammo inherit from Magazine_Base
-		if (IsInherited(Weapon_Base) && GetGame().IsKindOf(className, "Magazine_Base") && !GetGame().IsKindOf(className, "Ammunition_Base"))
+		if (IsInherited(Weapon_Base) && g_Game.IsKindOf(className, "Magazine_Base") && !g_Game.IsKindOf(className, "Ammunition_Base"))
 		{
 			//! It's an actual magazine
 			Weapon_Base weapon = Weapon_Base.Cast(this);
@@ -838,7 +838,7 @@ modded class ItemBase
 			{
 				ScriptReadWriteContext ctx = new ScriptReadWriteContext;
 				ctx.GetWriteContext().Write(stateId);
-				weapon.LoadCurrentFSMState(ctx.GetReadContext(), GetGame().SaveVersion());
+				weapon.LoadCurrentFSMState(ctx.GetReadContext(), g_Game.SaveVersion());
 			}
 
 		#ifdef SERVER
@@ -1146,7 +1146,7 @@ modded class ItemBase
 	string Expansion_GetDisplayNameRaw()
 	{
 		string displayName = ConfigGetStringRaw("displayName");
-		GetGame().FormatRawConfigStringKeys(displayName);
+		g_Game.FormatRawConfigStringKeys(displayName);
 		return displayName;
 	}
 
@@ -1156,7 +1156,7 @@ modded class ItemBase
 
 		//! Skin
 
-		if ( GetGame().IsServer() && m_CanBeSkinned )
+		if ( g_Game.IsServer() && m_CanBeSkinned )
 		{
 			m_CurrentSkinIndex = m_SkinModule.GetSkinIndex( GetType(), m_CurrentSkinName );
 			m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
@@ -1305,7 +1305,7 @@ modded class ItemBase
 		{
 			if (!GetHierarchyParent())
 			{
-				GetGame().ObjectDelete(this);
+				g_Game.ObjectDelete(this);
 
 				#ifdef EXPANSION_SAFEZONE_DEBUG
 				EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " deleted");
@@ -1510,7 +1510,7 @@ modded class ItemBase
 			int ammoMax = mag.GetAmmoMax();
 			if (amount > ammoMax)
 				amount = ammoMax;
-			if (GetGame().IsServer())
+			if (g_Game.IsServer())
 				mag.ServerSetAmmoCount(amount);
 			else
 				mag.LocalSetAmmoCount(amount);
@@ -1662,8 +1662,8 @@ modded class ItemBase
 		if (m_Expansion_IsMeleeWeapon)
 		{
 			string ammoType;
-			if (GetGame().ConfigGetText(CFG_VEHICLESPATH + " " + GetType() + " MeleeModes Default ammo", ammoType))
-				return GetGame().ConfigGetFloat(CFG_AMMO + " " + ammoType + " DamageApplied Health damage");
+			if (g_Game.ConfigGetText(CFG_VEHICLESPATH + " " + GetType() + " MeleeModes Default ammo", ammoType))
+				return g_Game.ConfigGetFloat(CFG_AMMO + " " + ammoType + " DamageApplied Health damage");
 		}
 
 		return 0.0;
@@ -1743,7 +1743,7 @@ modded class ItemBase
 		vector mat0[3];
 		vector mat1[3];
 		vector mat2[3];
-		vector normal = GetGame().SurfaceGetNormal(position[0], position[2]);
+		vector normal = g_Game.SurfaceGetNormal(position[0], position[2]);
 
 		vector angles = normal.VectorToAngles();
 		angles[1] = angles[1] + 270;

@@ -10,7 +10,7 @@ modded class ItemBase
 	{
 		m_TargetInformation = CreateTargetInformation();
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
 	}
 
@@ -59,7 +59,7 @@ modded class ItemBase
 		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy[" + m_eAI_DamageHandler.m_HitCounter + "]", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
 	#ifdef EXPANSION_AI_DMGDEBUG_CHATTY
-		ExpansionStatic.MessageNearPlayers(GetPosition(), 100.0, "[" + ExpansionStatic.FormatFloat(GetGame().GetTickTime(), 3, false) + "] hit " + ToString() + " " + dmgZone);
+		ExpansionStatic.MessageNearPlayers(GetPosition(), 100.0, "[" + ExpansionStatic.FormatFloat(g_Game.GetTickTime(), 3, false) + "] hit " + ToString() + " " + dmgZone);
 	#endif
 	#endif
 
@@ -74,7 +74,7 @@ modded class ItemBase
 
 		super.EEHealthLevelChanged(oldLevel, newLevel, zone);
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		eAIBase ai;
@@ -86,7 +86,7 @@ modded class ItemBase
 	{
 		super.EEItemAttached(item, slot_name);
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		eAIBase ai;
@@ -98,7 +98,7 @@ modded class ItemBase
 	{
 		super.EEItemDetached(item, slot_name);
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		eAIBase ai;
@@ -131,7 +131,7 @@ modded class ItemBase
 
 	void eAI_OnCargoEnter(Man owner, EntityAI parent)
 	{
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		eAIBase ai;
@@ -141,7 +141,7 @@ modded class ItemBase
 
 	void eAI_OnCargoExit(Man owner, EntityAI parent)
 	{
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		eAIBase ai;
@@ -162,7 +162,7 @@ modded class ItemBase
 			return;
 		}
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		EXTrace.Print(EXTrace.AI, this, "::OnInventoryEnter - " + player);
@@ -174,7 +174,7 @@ modded class ItemBase
 	{
 		super.OnInventoryExit(player);
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		eAIBase ai;
@@ -190,7 +190,7 @@ modded class ItemBase
 	{
 		super.OnWasAttached(parent, slot_id);
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		eAIBase ai;
@@ -210,7 +210,7 @@ modded class ItemBase
 	{
 		super.OnWasDetached(parent, slot_id);
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		eAIBase ai;
@@ -228,9 +228,9 @@ modded class ItemBase
 
 	override void EOnContact(IEntity other, Contact extra)
 	{
-		if (m_CanPlayImpactSound && GetGame().IsServer())
+		if (m_CanPlayImpactSound && g_Game.IsServer())
 		{
-			float time = GetGame().GetTickTime();
+			float time = g_Game.GetTickTime();
 			if (time - m_eAI_LastRecordedImpactTime > 1.0)
 			{
 				//! Because impacts may happen rapidly, we only update this once every second

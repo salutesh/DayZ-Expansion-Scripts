@@ -40,7 +40,7 @@ modded class DayZExpansion
 
 	override void SpectateAI(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		if (GetGame().IsMultiplayer())
+		if (g_Game.IsMultiplayer())
 		{
 			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
 				return;

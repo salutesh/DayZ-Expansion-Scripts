@@ -75,7 +75,7 @@ class eAIState_TidyCargo: eAIState
 		if (unit.IsClimbing()) return eAITransition.FAIL;
 		if (unit.IsFalling()) return eAITransition.FAIL;
 		
-		if (!unit.GetCommand_MoveAI()) return eAITransition.FAIL;
+		if (!unit.GetCommand_Move()) return eAITransition.FAIL;
 
 		if (unit.m_eAI_DangerousAreaCount > 0 && unit.m_eAI_IsInDangerByArea)
 			return eAITransition.FAIL;

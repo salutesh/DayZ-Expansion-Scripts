@@ -69,7 +69,7 @@ modded class ActionGetOutTransport
 		Class.CastTo(cs, got_action_data.m_Vehicle);
 
 		if (cs && !cs.Expansion_IsCar() && !cs.Expansion_IsDuck())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(action_data.m_Player.GetInventory().UnlockInventory, 1500, false, LOCK_FROM_SCRIPT); //! Unlock after delay to fix hand desync bug
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(action_data.m_Player.GetInventory().UnlockInventory, 1500, false, LOCK_FROM_SCRIPT); //! Unlock after delay to fix hand desync bug
 		else
 			super.OnEnd(action_data);
 	}

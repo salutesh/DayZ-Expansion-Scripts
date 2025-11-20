@@ -7,14 +7,6 @@ class CfgPatches
 		{
 			"DZ_Data"
 		};
-		units[]=
-		{
-			"ExpansionCodeLock",
-			"ExpansionLumber1",
-			"ExpansionLumber1_5",
-			"ExpansionLumber3"
-		};
-		weapons[]={};
 	};
 };
 class CfgSlots

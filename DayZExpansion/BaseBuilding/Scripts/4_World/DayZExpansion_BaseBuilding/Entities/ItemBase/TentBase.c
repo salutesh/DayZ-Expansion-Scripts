@@ -217,7 +217,7 @@ modded class TentBase
 		}
 
 		if (!ExpansionCanAttachCodeLock())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.ExpansionCodeLockRemove, 1000, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.ExpansionCodeLockRemove, 1000, false);
 		
 		return true;
 	}

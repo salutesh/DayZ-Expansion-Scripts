@@ -16,7 +16,7 @@ class ExpansionAirdropParticle: House
 	
 	void ExpansionAirdropParticle()
 	{
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 			m_ParticleEfx = Particle.PlayOnObject(ParticleList.EXPANSION_AIRDROP_SMOKE, this);
 	}
 	

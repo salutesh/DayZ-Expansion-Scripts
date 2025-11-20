@@ -27,11 +27,11 @@ class Expansion_Halloween_GiftBox_Small extends ItemBase
 	protected void SpawnTreat()
 	{
 		string treat = m_Treats.GetRandomElement();
-		GetGame().CreateObjectEx(treat, GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT);
+		g_Game.CreateObjectEx(treat, GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT);
 	}
 	
 	protected void SpawnTrick()
 	{
-		GetGame().CreateObjectEx("ZmbM_Mummy", GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT);
+		g_Game.CreateObjectEx("ZmbM_Mummy", GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT);
 	}
 };

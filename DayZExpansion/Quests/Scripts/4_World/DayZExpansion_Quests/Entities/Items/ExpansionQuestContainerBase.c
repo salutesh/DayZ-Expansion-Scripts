@@ -25,8 +25,8 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 
 	void ~ExpansionQuestContainerBase()
 	{
-		if (m_ExpansionStashDelete && GetGame())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionDeleteStorage);
+		if (m_ExpansionStashDelete && g_Game)
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionDeleteStorage);
 	}
 	
 	override bool CanPutIntoHands(EntityAI parent)
@@ -80,7 +80,7 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 		if (IsMissionHost())  //! Server or COM
 		{
 			//! Delete after 20 minutes
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionDeleteStorage, 1000 * 60 * 20, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionDeleteStorage, 1000 * 60 * 20, false);
 		}
 	}
 
@@ -95,9 +95,9 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 
 	protected void ExpansionDeleteStorage()
 	{
-		GetGame().ObjectDelete(this);
+		g_Game.ObjectDelete(this);
 		if (m_ExpansionStashDelete)
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionDeleteStorage);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionDeleteStorage);
 	}
 
 	override bool Expansion_CanUseVirtualStorage(bool restoreOverride = false)
@@ -141,7 +141,7 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 			return;
 
 		if (s_Expansion_AssignedQuestObjectives.Count() == 0)
@@ -251,7 +251,7 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 
 		super.AfterStoreLoad();
 
-		GetGame().ObjectDelete(this);
+		g_Game.ObjectDelete(this);
 	}
 
 	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
@@ -262,8 +262,8 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 
 		super.EEItemLocationChanged(oldLoc, newLoc);
 
-		if (newLoc.GetType() == InventoryLocationType.GROUND && GetGame().IsServer())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_FinalizeLoot);
+		if (newLoc.GetType() == InventoryLocationType.GROUND && g_Game.IsServer())
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_FinalizeLoot);
 	}
 
 	//void Expansion_DirtSync_FuckDayZ()
@@ -283,7 +283,7 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 			ItemBase lootIB = ItemBase.Cast(lootItem);
 			if (!lootIB)
 			{
-				GetGame().ObjectDelete(lootItem);
+				g_Game.ObjectDelete(lootItem);
 				continue;
 			}
 			

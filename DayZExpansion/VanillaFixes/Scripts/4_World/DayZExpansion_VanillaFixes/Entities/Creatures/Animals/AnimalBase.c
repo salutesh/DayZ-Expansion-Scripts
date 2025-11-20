@@ -59,8 +59,8 @@ modded class AnimalBase
 		super.EEKilled(killer);
 
 		//! Since some dead animals have collision, carve navmesh so AI don't get stuck
-		if (GetGame().IsServer() && ConfigGetBool("useExpansionNavMeshCarver"))
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_CheckCreateNavmeshCarver, 100, true);
+		if (g_Game.IsServer() && ConfigGetBool("useExpansionNavMeshCarver"))
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_CheckCreateNavmeshCarver, 100, true);
 	}
 
 	override void EEDelete(EntityAI parent)
@@ -68,7 +68,7 @@ modded class AnimalBase
 		super.EEDelete(parent);
 
 		if (m_Expansion_NavmeshCarver)
-			GetGame().ObjectDelete(m_Expansion_NavmeshCarver);
+			g_Game.ObjectDelete(m_Expansion_NavmeshCarver);
 	}
 
 	void Expansion_CheckCreateNavmeshCarver()
@@ -76,7 +76,7 @@ modded class AnimalBase
 		//! Wait until ragdoll finished
 		if (!dBodyIsActive(this))
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_CheckCreateNavmeshCarver);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_CheckCreateNavmeshCarver);
 
 			Expansion_CreateNavmeshCarver();
 		}
@@ -122,7 +122,7 @@ modded class AnimalBase
 		}
 
 		EXTrace.Print(EXTrace.MISC, this, "Creating navmesh carver at " + pos);
-		if (Class.CastTo(m_Expansion_NavmeshCarver, GetGame().CreateObjectEx("ExpansionLargeAnimalNavmeshCarver", pos, ECE_CREATEPHYSICS | ECE_NOLIFETIME | ECE_KEEPHEIGHT)))
+		if (Class.CastTo(m_Expansion_NavmeshCarver, g_Game.CreateObjectEx("ExpansionLargeAnimalNavmeshCarver", pos, ECE_CREATEPHYSICS | ECE_NOLIFETIME | ECE_KEEPHEIGHT)))
 		{
 			m_Expansion_NavmeshCarver.SetDirection(dir);
 			m_Expansion_NavmeshCarver.Expansion_SetAssociatedObject(this);
@@ -144,7 +144,7 @@ modded class AnimalBase
 
 		if (!m_Expansion_NavmeshCarver && (m_Expansion_NavmeshCarverNetIdLow != 0 || m_Expansion_NavmeshCarverNetIdHigh != 0))
 		{
-			if (Class.CastTo(m_Expansion_NavmeshCarver, GetGame().GetObjectByNetworkId(m_Expansion_NavmeshCarverNetIdLow, m_Expansion_NavmeshCarverNetIdHigh)))
+			if (Class.CastTo(m_Expansion_NavmeshCarver, g_Game.GetObjectByNetworkId(m_Expansion_NavmeshCarverNetIdLow, m_Expansion_NavmeshCarverNetIdHigh)))
 			{
 				EXTrace.Print(EXTrace.MISC, this, "OnVariablesSynchronized - navmesh carver " + m_Expansion_NavmeshCarver);
 				m_Expansion_NavmeshCarver.Expansion_SetAssociatedObject(this);

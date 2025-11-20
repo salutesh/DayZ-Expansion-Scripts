@@ -73,7 +73,7 @@ class ExpansionBookMenuTabSideBookmarkLeft: ExpansionScriptView
 	
 	void OnBookmarkButtonClick()
 	{
-		GetGame().OpenURL(m_URL);
+		g_Game.OpenURL(m_URL);
 	}
 	
 	override bool OnMouseEnter(Widget w, int x, int y)

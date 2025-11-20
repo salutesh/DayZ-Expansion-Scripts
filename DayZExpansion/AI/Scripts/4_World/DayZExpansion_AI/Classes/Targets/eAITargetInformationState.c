@@ -33,7 +33,7 @@ class eAITargetInformationState
 
 	void SetInitial(float threat, vector position)
 	{
-		int time = GetGame().GetTime();
+		int time = g_Game.GetTime();
 
 		m_ThreatLevelUpdateTimestamp = time;
 		m_ThreatLevel = threat;
@@ -47,7 +47,7 @@ class eAITargetInformationState
 
 	void UpdateThreat(bool force = false)
 	{
-		int time = GetGame().GetTime();
+		int time = g_Game.GetTime();
 		int diff = time - m_ThreatLevelUpdateTimestamp;
 		if (force || diff > Math.RandomIntInclusive(250, 300))
 		{
@@ -95,7 +95,7 @@ class eAITargetInformationState
 
 	void UpdatePosition(bool force = false)
 	{
-		int time = GetGame().GetTime();
+		int time = g_Game.GetTime();
 		if (force || m_LOS || time - m_SearchPositionUpdateTimestamp > Math.RandomIntInclusive(250, 300))
 		{
 #ifdef DIAG_DEVELOPER

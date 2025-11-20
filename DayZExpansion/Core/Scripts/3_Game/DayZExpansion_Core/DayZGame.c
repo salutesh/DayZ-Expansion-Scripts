@@ -218,8 +218,8 @@ modded class DayZGame
 
 	protected void SetWorldCenterPosition()
 	{
-		string path = "CfgWorlds " + GetGame().GetWorldName();
-		vector temp = GetGame().ConfigGetVector( path + " centerPosition" );
+		string path = "CfgWorlds " + g_Game.GetWorldName();
+		vector temp = g_Game.ConfigGetVector( path + " centerPosition" );
 		m_WorldCenterPosition = Vector(temp[0], temp[2], temp[1]);
 	}
 
@@ -234,7 +234,7 @@ modded class DayZGame
 
 	float GetWorldSize()
 	{
-		return GetGame().GetWorld().GetWorldSize();
+		return g_Game.GetWorld().GetWorldSize();
 	}
 
 	// ------------------------------------------------------------

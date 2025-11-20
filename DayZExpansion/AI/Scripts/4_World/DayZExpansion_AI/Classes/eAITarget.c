@@ -10,7 +10,7 @@ class eAITarget: eAITargetInformationState
 #ifdef DIAG_DEVELOPER
 	void ~eAITarget()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		if (m_Info)
@@ -35,7 +35,7 @@ class eAITarget: eAITargetInformationState
 
 		m_IsTracked = true;
 
-		m_FoundAtTime = GetGame().GetTime();
+		m_FoundAtTime = g_Game.GetTime();
 
 		if (maxTime != -1)
 			m_MaxTime = maxTime;
@@ -131,7 +131,7 @@ class eAITarget: eAITargetInformationState
 
 	void UpdateFoundAtTime()
 	{
-		m_FoundAtTime = GetGame().GetTime();
+		m_FoundAtTime = g_Game.GetTime();
 	}
 
 	bool HasInfo()
@@ -297,7 +297,7 @@ class eAITarget: eAITargetInformationState
 				if (weapon.Expansion_GetAvgDmgPerShot() >= tgtEntity.GetHealth() || weapon.Expansion_GetMagazineAmmoCount() > 0)
 				{
 					//! ...don't melee if fighting multiple zombies/wolves or last melee was less than three seconds ago
-					if (m_AI.m_eAI_AcuteDangerTargetCount > 1 || GetGame().GetTime() - m_AI.m_eAI_MeleeTime < 3000)
+					if (m_AI.m_eAI_AcuteDangerTargetCount > 1 || g_Game.GetTime() - m_AI.m_eAI_MeleeTime < 3000)
 						return false;
 				}
 			}
@@ -312,7 +312,7 @@ class eAITarget: eAITargetInformationState
 
 	bool ShouldRemove()
 	{
-		return !m_Info.IsActive() || (m_FoundAtTime + m_MaxTime <= GetGame().GetTime() && m_Info.ShouldRemove(m_AI));
+		return !m_Info.IsActive() || (m_FoundAtTime + m_MaxTime <= g_Game.GetTime() && m_Info.ShouldRemove(m_AI));
 	}
 
 	bool ShouldAvoid(float distance = 0.0)

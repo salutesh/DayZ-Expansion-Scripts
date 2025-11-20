@@ -17,7 +17,7 @@ modded class Wreck_SantasSleigh
 	void ~Wreck_SantasSleigh()
 	{
 	#ifndef DIAG_DEVELOPER
-		if (!GetGame())
+		if (!g_Game)
 			return;
 	#endif
 

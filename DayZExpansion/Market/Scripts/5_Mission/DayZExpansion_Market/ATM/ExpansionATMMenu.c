@@ -120,7 +120,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		m_ATMMenuController.NotifyPropertyChanged("MoneyDepositValue");
 		
 		array<int> monies = new array<int>;
-		m_PlayerMoney = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, NULL, true);		
+		m_PlayerMoney = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(g_Game.GetPlayer()), monies, NULL, true);		
 		m_ATMMenuController.PlayerMoneyValue = m_PlayerMoney.ToString();
 		m_ATMMenuController.NotifyPropertyChanged("PlayerMoneyValue");
 		
@@ -135,7 +135,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		if (GetExpansionSettings().GetMarket().ATMPartyLockerEnabled)
 		{
 			#ifdef EXPANSIONMODGROUPS
-			//PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			//PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 			ExpansionPartyModule module = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 			
 			if (!module || !module.HasParty())
@@ -180,7 +180,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		if (updatePlayerMoney)
 		{
 			array<int> monies = new array<int>;
-			m_PlayerMoney = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, NULL, true);
+			m_PlayerMoney = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(g_Game.GetPlayer()), monies, NULL, true);
 		}
 
 		m_ATMMenuController.PlayerMoneyValue = m_PlayerMoney.ToString();
@@ -342,11 +342,11 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 
 	void LoadPlayers(string filter)
 	{
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (!player) 
 			return;
 		
-		if (!GetGame().GetPlayer().GetIdentity())
+		if (!g_Game.GetPlayer().GetIdentity())
 			return;
 		
 		ClearPlayers();
@@ -354,7 +354,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		string filterNormal = filter;
 		filter.ToLower();	
 			
-		string playerID = GetGame().GetPlayer().GetIdentity().GetId();
+		string playerID = g_Game.GetPlayer().GetIdentity().GetId();
 		ExpansionATMMenuPlayerEntry entry;
 		int i;
 		string playerName;
@@ -658,7 +658,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	#ifdef EXPANSIONMODGROUPS
 	ExpansionPartyPlayerData GetPlayerPartyData()
 	{
-		return m_Party.GetPlayer(GetGame().GetPlayer().GetIdentity().GetId());
+		return m_Party.GetPlayer(g_Game.GetPlayer().GetIdentity().GetId());
 	}
 	#endif
 	

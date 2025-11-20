@@ -134,7 +134,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (!GetPermissionsManager().HasPermission("Expansion.Groups.View"))
 			return;
 		
-		string playerUID = GetGame().GetPlayer().GetIdentity().GetId();
+		string playerUID = g_Game.GetPlayer().GetIdentity().GetId();
 		auto rpc = Expansion_CreateRPC("RPC_RequestGroups");
 		rpc.Write(callBack);
 		rpc.Write(playerUID);

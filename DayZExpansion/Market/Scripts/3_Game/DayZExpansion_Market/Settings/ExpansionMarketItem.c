@@ -176,7 +176,7 @@ class ExpansionMarketItem
 
 		SetVariants(Variants);
 
-		if (GetGame().IsKindOf(ClassName, "Magazine_Base") && !GetGame().IsKindOf(ClassName, "Ammunition_Base"))
+		if (g_Game.IsKindOf(ClassName, "Magazine_Base") && !g_Game.IsKindOf(ClassName, "Ammunition_Base"))
 			m_IsMagazine = true;
 	}
 
@@ -483,7 +483,7 @@ class ExpansionMarketItem
 			bool isMagAmmo = false;
 			if (!attachmentTypes.Find(attachmentName, isMagAmmo))
 			{
-				if (isMag && GetGame().IsKindOf(attachmentName, "Ammunition_Base"))
+				if (isMag && g_Game.IsKindOf(attachmentName, "Ammunition_Base"))
 					isMagAmmo = true;
 				attachmentTypes.Insert(attachmentName, isMagAmmo);
 			}
@@ -500,7 +500,7 @@ class ExpansionMarketItem
 			return NULL;
 
 		map<string, int> magAmmoCounts = new map<string, int>;
-		int magCapacity = GetGame().ConfigGetInt("CfgMagazines " + ClassName + " count");
+		int magCapacity = g_Game.ConfigGetInt("CfgMagazines " + ClassName + " count");
 
 		int totalAmmo;
 		int quantityPercent = QuantityPercent;
@@ -547,7 +547,7 @@ class ExpansionMarketItem
 		{
 			//! Add ammo "attachment" (use 1st ammo item) if not yet present and quantity is not zero
 			TStringArray ammoItems = new TStringArray;
-			GetGame().ConfigGetTextArray("CfgMagazines " + ClassName + " ammoItems", ammoItems);
+			g_Game.ConfigGetTextArray("CfgMagazines " + ClassName + " ammoItems", ammoItems);
 			foreach (string ammo: ammoItems)
 			{
 				ammo.ToLower();

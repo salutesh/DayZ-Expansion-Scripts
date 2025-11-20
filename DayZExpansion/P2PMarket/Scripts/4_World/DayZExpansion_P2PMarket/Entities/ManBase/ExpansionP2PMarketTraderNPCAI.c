@@ -34,7 +34,7 @@ class ExpansionP2PMarketTraderNPCAI: eAIBase
 	override void Expansion_Init()
 	{
 	#ifdef EXPANSIONMODAI
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			m_eAI_FactionType = eAIFactionInvincibleObservers;
 	#else
 		Expansion_SetAllowDamage(false);

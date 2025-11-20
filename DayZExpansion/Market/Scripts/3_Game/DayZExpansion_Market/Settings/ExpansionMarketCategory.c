@@ -312,7 +312,7 @@ class ExpansionMarketCategory
 				CF_Log.Debug("Processing variant " + className);
 			#endif
 
-				if (GetGame().IsServer())
+				if (g_Game.IsServer())
 				{
 					if (!className.Trim())
 					{
@@ -387,7 +387,7 @@ class ExpansionMarketCategory
 				}
 				else
 				{
-					if (GetGame().IsServer() && variant.m_IsVariant)
+					if (g_Game.IsServer() && variant.m_IsVariant)
 					{
 						catInfo = GetItemCategoryInfo(variant.m_Parent);
 

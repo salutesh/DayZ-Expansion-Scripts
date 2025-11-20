@@ -7,13 +7,6 @@ class CfgPatches
 		{
 			"DZ_Data"
 		};
-		units[]=
-		{
-			"ExpansionKitLargePlacing",
-			"ExpansionKitSmallPlacing",
-			"ExpansionBaseBuilding"
-		};
-		weapons[]={};
 	};
 };
 class CfgExpansionSnapping

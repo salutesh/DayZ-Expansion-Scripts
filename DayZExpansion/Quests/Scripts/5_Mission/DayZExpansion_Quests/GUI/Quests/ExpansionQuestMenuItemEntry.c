@@ -41,7 +41,7 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 	void ~ExpansionQuestMenuItemEntry()
 	{
 		if (m_Object)
-			GetGame().ObjectDelete(m_Object);
+			g_Game.ObjectDelete(m_Object);
 		
 		if (m_ItemTooltip) 
 			m_ItemTooltip.Destroy();
@@ -69,7 +69,7 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 		m_QuestMenuItemEntryController.NotifyPropertyChanged("ItemAmount");
 
 		if (!m_Object)
-			m_Object = EntityAI.Cast(GetGame().CreateObjectEx(m_ClassName, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
+			m_Object = EntityAI.Cast(g_Game.CreateObjectEx(m_ClassName, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
 
 		if (m_Attachments && m_Attachments.Count() > 0)
 			SpawnAttachments(m_Attachments, m_Object);

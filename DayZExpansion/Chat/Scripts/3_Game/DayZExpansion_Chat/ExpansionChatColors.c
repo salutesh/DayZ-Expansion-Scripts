@@ -21,10 +21,10 @@ class ExpansionChatColors: ExpansionColorSettingsBase
 	string TransmitterChatColor;
 
 	//! These can be used in script via vanilla methods, e.g.
-	//! player.MessageStatus("Hello") or GetGame().ChatMP(player, "Hello", "colorStatusChannel")
-	//! player.MessageAction("Hello") or GetGame().ChatMP(player, "Hello", "colorAction")
-	//! player.MessageFriendly("Hello") or GetGame().ChatMP(player, "Hello", "colorFriendly")
-	//! player.MessageImportant("Hello") or GetGame().ChatMP(player, "Hello", "colorImportant")
+	//! player.MessageStatus("Hello") or g_Game.ChatMP(player, "Hello", "colorStatusChannel")
+	//! player.MessageAction("Hello") or g_Game.ChatMP(player, "Hello", "colorAction")
+	//! player.MessageFriendly("Hello") or g_Game.ChatMP(player, "Hello", "colorFriendly")
+	//! player.MessageImportant("Hello") or g_Game.ChatMP(player, "Hello", "colorImportant")
 	string StatusMessageColor;
 	string ActionMessageColor;
 	string FriendlyMessageColor;

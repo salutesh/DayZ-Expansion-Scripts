@@ -17,7 +17,7 @@ class ExpansionNPCBase: ExpansionNotPlayerBase
 		Expansion_SetAllowDamage(false);
 
 		#ifdef EXPANSIONMODAI
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			m_eAI_FactionType = eAIFactionPassive;
 			eAI_SetPassive();  //! In case this NPC joins another group that's part of a non-passive faction, we still want the NPC to be passive

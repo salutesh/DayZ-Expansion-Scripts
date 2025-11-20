@@ -226,7 +226,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		foreach (EntityAI item: m_ObjectiveItems)
 		{
 			ObjectivePrint("Delete ojective item " + item.GetType());
-			GetGame().ObjectDelete(item);
+			g_Game.ObjectDelete(item);
 		}
 	}
 

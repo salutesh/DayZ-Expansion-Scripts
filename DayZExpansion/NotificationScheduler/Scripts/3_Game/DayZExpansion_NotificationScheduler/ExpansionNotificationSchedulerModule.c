@@ -59,7 +59,7 @@ class ExpansionNotificationSchedulerModule: CF_ModuleGame
 			}
 			else
 			{
-				int missionTime = GetGame().GetTime();
+				int missionTime = g_Game.GetTime();
 				int seconds = (missionTime / 1000) % 60;
 				int minutes = ((missionTime / (1000*60)) % 60);
 				int hours  = ((missionTime / (1000*60*60)) % 24);

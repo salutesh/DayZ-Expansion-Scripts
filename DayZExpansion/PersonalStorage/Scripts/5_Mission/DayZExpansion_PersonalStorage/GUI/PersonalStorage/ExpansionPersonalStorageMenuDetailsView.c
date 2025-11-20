@@ -401,7 +401,7 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 	{
 		if (w == view_item_preview)
 		{
-			GetGame().GetDragQueue().Call(this, "UpdateScale");
+			g_Game.GetDragQueue().Call(this, "UpdateScale");
 			m_CharacterScaleDelta = wheel ;
 		}
 		else if (w == view_player_preview)
@@ -417,7 +417,7 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 	{
 		if (w == view_item_preview)
 		{
-			GetGame().GetDragQueue().Call(this, "UpdateRotation");
+			g_Game.GetDragQueue().Call(this, "UpdateRotation");
 			GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
 			return true;
 		}

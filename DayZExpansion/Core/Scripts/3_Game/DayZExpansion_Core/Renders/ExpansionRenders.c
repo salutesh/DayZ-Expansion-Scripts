@@ -57,7 +57,7 @@ class ExpansionCircleRender
     void Render(MapWidget mapWidget)
     {	
 		m_MapWidget = mapWidget;
-		Widget layoutCanvas = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Core/GUI/layouts/map/expansion_map_canvaslayout.layout", m_Parent);
+		Widget layoutCanvas = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Core/GUI/layouts/map/expansion_map_canvaslayout.layout", m_Parent);
 		m_CanvasWidget = CanvasWidget.Cast( layoutCanvas.FindAnyWidget( "CanvasWidget" ) );
 		
         for (int i = 0; i < m_Circles.Count(); i++)

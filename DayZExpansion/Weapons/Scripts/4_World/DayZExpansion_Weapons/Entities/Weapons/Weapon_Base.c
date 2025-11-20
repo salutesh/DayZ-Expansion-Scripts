@@ -50,7 +50,7 @@ modded class Weapon_Base
 		auto trace = CF_Trace_0(ExpansionTracing.WEAPONS, this, "UpdateLaser");
 #endif
 		
-		if ( GetGame().IsServer() && GetGame().IsMultiplayer() )
+		if ( g_Game.IsServer() && g_Game.IsMultiplayer() )
 			return;
 
 		if ( !GetInventory() )

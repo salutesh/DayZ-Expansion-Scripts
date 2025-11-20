@@ -26,7 +26,7 @@ modded class ExpansionPartyPlayerData
 		if ( QuickMarker )
 			delete QuickMarker;
 			
-		if (GetGame() && GetExpansionClientSettings())
+		if (g_Game && GetExpansionClientSettings())
 			GetExpansionClientSettings().SI_UpdateSetting.Remove(OnSettingChanged);
 	}
 	

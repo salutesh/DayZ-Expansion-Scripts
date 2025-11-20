@@ -369,7 +369,7 @@ static void EXLogPrint( int s )
 //! Prints a hitch warning if elapsed time since startTime is above threshold (DEPRECATED, use EXHitch)
 static void EXPrintHitch( string msgPrefix, float startTime, float threshold = 0.0125 )
 {
-	float elapsedTime = GetGame().GetTickTime() - startTime;
+	float elapsedTime = g_Game.GetTickTime() - startTime;
 	if (elapsedTime > threshold)
 		EXPrint(msgPrefix + "HITCH: " + (elapsedTime * 1000) + "ms");
 }
@@ -418,7 +418,7 @@ class EXHitch: EXTimeIt
 
 	void ~EXHitch()
 	{
-		if (GetGame())
+		if (g_Game)
 			Log();
 	}
 
@@ -448,6 +448,8 @@ class ExpansionStatic: ExpansionStaticCore
 {
 	static const string BASE16 = "0123456789ABCDEF";
 	static const typename NULLTYPE;
+	static const string DIRSEPARATOR = "\\";
+	static const string DIRSEPARATOR_ALT = "/";
 
 	static ref TStringArray s_VehicleClassNames = {"CarScript", "BoatScript", "ExpansionVehicleBase", "HypeTrain_PartBase"};
 
@@ -825,7 +827,7 @@ class ExpansionStatic: ExpansionStaticCore
 	{
 		string repr = instance.ToString();
 		int start = repr.LastIndexOf("<") + 1;
-		int len = repr.Length() - start - 1;
+		int len = repr.LastIndexOf(">") - start;
 		return repr.Substring(start, len);
 	}
 
@@ -838,7 +840,7 @@ class ExpansionStatic: ExpansionStaticCore
 	 * @return instance dbg name + instance id, followed by indicators for pending deletion and inventory locked (if applicable)
 	 * 
 	 * @code
-	 * 	string info = ExpansionStatic.GetEntityDebugInfo(GetGame().GetPlayer());
+	 * 	string info = ExpansionStatic.GetEntityDebugInfo(g_Game.GetPlayer());
 	 * 	Print(info);
 	 * 	
 	 * 	>> info = 'PlayerBase:1:INSTANCETYPE_CLIENT<59d0b5f5>'
@@ -1020,8 +1022,8 @@ class ExpansionStatic: ExpansionStaticCore
 		else
 			path = CFG_VEHICLESPATH;
 
-		if (GetGame().ConfigGetTextRaw(path + " " + obj.GetType() + " displayName", displayName))
-			GetGame().FormatRawConfigStringKeys(displayName);
+		if (g_Game.ConfigGetTextRaw(path + " " + obj.GetType() + " displayName", displayName))
+			g_Game.FormatRawConfigStringKeys(displayName);
 
 		return displayName;
 	}
@@ -1040,20 +1042,20 @@ class ExpansionStatic: ExpansionStaticCore
 		{
 			return cfg_name;
 		}
-		else if ( GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) )
+		else if ( g_Game.ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) )
 		{
 			cfg_name_path = CFG_WEAPONSPATH + " " + type_name + " displayName";
-			GetGame().ConfigGetText( cfg_name_path, cfg_name );
+			g_Game.ConfigGetText( cfg_name_path, cfg_name );
 		}
-		else if ( GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
+		else if ( g_Game.ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
 		{
 			cfg_name_path = CFG_VEHICLESPATH + " " + type_name + " displayName";
-			GetGame().ConfigGetText( cfg_name_path, cfg_name );
+			g_Game.ConfigGetText( cfg_name_path, cfg_name );
 		}
-		else if ( GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
+		else if ( g_Game.ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
 		{
 			cfg_name_path = CFG_MAGAZINESPATH + " " + type_name + " displayName";
-			GetGame().ConfigGetText( cfg_name_path, cfg_name );
+			g_Game.ConfigGetText( cfg_name_path, cfg_name );
 		}
 		if (!cfg_name)
 		{
@@ -1085,20 +1087,20 @@ class ExpansionStatic: ExpansionStaticCore
 		{
 			return cfg_des;
 		}
-		else if ( GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) )
+		else if ( g_Game.ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) )
 		{
 			cfg_des_path = CFG_WEAPONSPATH + " " + type_name + " descriptionShort";
-			GetGame().ConfigGetText( cfg_des_path, cfg_des );
+			g_Game.ConfigGetText( cfg_des_path, cfg_des );
 		}
-		else if ( GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
+		else if ( g_Game.ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
 		{
 			cfg_des_path = CFG_VEHICLESPATH + " " + type_name + " descriptionShort";
-			GetGame().ConfigGetText( cfg_des_path, cfg_des );
+			g_Game.ConfigGetText( cfg_des_path, cfg_des );
 		}
-		else if ( GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
+		else if ( g_Game.ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
 		{
 			cfg_des_path = CFG_MAGAZINESPATH + " " + type_name + " descriptionShort";
-			GetGame().ConfigGetText( cfg_des_path, cfg_des );
+			g_Game.ConfigGetText( cfg_des_path, cfg_des );
 		}
 
 		if ( cache )
@@ -1111,7 +1113,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static string GetPreviewClassName(string className, bool ignoreBaseBuildingKits = false)
 	{
-		if (GetGame().ConfigIsExisting("CfgVehicles " + className + "_ExpansionMarketPreview"))
+		if (g_Game.ConfigIsExisting("CfgVehicles " + className + "_ExpansionMarketPreview"))
 		{
 			return className + "_ExpansionMarketPreview";
 		}
@@ -1124,19 +1126,19 @@ class ExpansionStatic: ExpansionStaticCore
 			 *************************************************************************************************************************/
 
 			//! Expansion
-			if (GetGame().IsKindOf(className, "ExpansionKitLarge"))
+			if (g_Game.IsKindOf(className, "ExpansionKitLarge"))
 			{
 				string path = "CfgVehicles " + className + " placingTypes";
-				if (GetGame().ConfigIsExisting(path))
+				if (g_Game.ConfigIsExisting(path))
 				{
 					TStringArray placingTypes = new TStringArray;
-					GetGame().ConfigGetTextArray(path, placingTypes);
+					g_Game.ConfigGetTextArray(path, placingTypes);
 					foreach (string placingType : placingTypes)
 					{
 						path = "CfgVehicles " + placingType + " deployType";
-						if (GetGame().ConfigIsExisting(path))
+						if (g_Game.ConfigIsExisting(path))
 						{
-							return GetGame().ConfigGetTextOut(path);
+							return g_Game.ConfigGetTextOut(path);
 						}
 					}
 				}
@@ -1147,7 +1149,7 @@ class ExpansionStatic: ExpansionStaticCore
 			{
 				//! Item name is kit name without "kit" at the end
 				string previewClassName = className.Substring(0, className.Length() - 3);
-				if (GetGame().ConfigIsExisting("CfgVehicles " + previewClassName))
+				if (g_Game.ConfigIsExisting("CfgVehicles " + previewClassName))
 					return previewClassName;
 			}
 		}
@@ -1184,10 +1186,10 @@ class ExpansionStatic: ExpansionStaticCore
 		foreach (string rootPath: paths)
 		{
 			string path = rootPath + " " + type;
-			if (GetGame().ConfigIsExisting(path))
+			if (g_Game.ConfigIsExisting(path))
 			{
 				string baseName;
-				if (GetGame().ConfigGetBaseName(path, baseName))
+				if (g_Game.ConfigGetBaseName(path, baseName))
 					GetAnimationSourcesEx(rootPath + " " + baseName, animationSources, source);
 
 				GetAnimationSourcesEx(path, animationSources, source);
@@ -1200,13 +1202,13 @@ class ExpansionStatic: ExpansionStaticCore
 	static void GetAnimationSourcesEx(string path, notnull TStringArray animationSources, string source = "user")
 	{
 		string animPath = path + " AnimationSources";
-		int	childCount = GetGame().ConfigGetChildrenCount(animPath);
+		int	childCount = g_Game.ConfigGetChildrenCount(animPath);
 		for (int i = 0; i < childCount; ++i)
 		{
 			string name;
-			if (GetGame().ConfigGetChildName(animPath, i, name))
+			if (g_Game.ConfigGetChildName(animPath, i, name))
 			{
-				if (GetGame().ConfigGetTextOut(animPath + " " + name + " source") == source)
+				if (g_Game.ConfigGetTextOut(animPath + " " + name + " source") == source)
 					animationSources.Insert(name);
 			}
 		}
@@ -1228,12 +1230,12 @@ class ExpansionStatic: ExpansionStaticCore
 	{
 		float radius;
 
-		Object obj = GetGame().CreateObjectEx(className, "0 0 0", ECE_LOCAL);
+		Object obj = g_Game.CreateObjectEx(className, "0 0 0", ECE_LOCAL);
 
 		if (obj)
 		{
 			radius = obj.ClippingInfo(minMax);
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 		}
 
 		return radius;
@@ -1244,12 +1246,12 @@ class ExpansionStatic: ExpansionStaticCore
 	{
 		bool hasCollisionBox;
 
-		Object obj = GetGame().CreateObjectEx(className, "0 0 0", ECE_LOCAL);
+		Object obj = g_Game.CreateObjectEx(className, "0 0 0", ECE_LOCAL);
 
 		if (obj)
 		{
 			hasCollisionBox = GetCollisionBox(obj, minMax);
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 		}
 
 		return hasCollisionBox;
@@ -1290,16 +1292,16 @@ class ExpansionStatic: ExpansionStaticCore
 		float min;
 		float max;
 
-		if (GetGame().IsKindOf(item_name, "Magazine_Base"))
+		if (g_Game.IsKindOf(item_name, "Magazine_Base"))
 		{
-			max = GetGame().ConfigGetInt("CfgMagazines " + item_name + " count");
+			max = g_Game.ConfigGetInt("CfgMagazines " + item_name + " count");
 		}
 		else
 		{
-			min = GetGame().ConfigGetInt("CfgVehicles " + item_name + " varQuantityMin");
-			max = GetGame().ConfigGetFloat("CfgVehicles " + item_name + " varStackMax");
+			min = g_Game.ConfigGetInt("CfgVehicles " + item_name + " varQuantityMin");
+			max = g_Game.ConfigGetFloat("CfgVehicles " + item_name + " varStackMax");
 			if (!max)
-				max = GetGame().ConfigGetInt("CfgVehicles " + item_name + " varQuantityMax");
+				max = g_Game.ConfigGetInt("CfgVehicles " + item_name + " varQuantityMax");
 		}
 
 		return max - min > 0;
@@ -1307,7 +1309,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static bool ItemExists(string type_name)
 	{
-		return GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name );
+		return g_Game.ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) || g_Game.ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) || g_Game.ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name );
 	}
 
 	static bool TypeExists(string type_name)
@@ -1926,10 +1928,10 @@ class ExpansionStatic: ExpansionStaticCore
 
 					if (recursive && isDir)
 					{
-						TStringArray subFolderFileNames = FindInLocation(folder + fileName + "\\", ext, mode, true);
+						TStringArray subFolderFileNames = FindInLocation(folder + fileName + DIRSEPARATOR, ext, mode, true);
 						foreach (string subFolderFileName: subFolderFileNames)
 						{
-							files.Insert( fileName + "\\" + subFolderFileName );
+							files.Insert( fileName + DIRSEPARATOR + subFolderFileName );
 						}
 					}
 				}
@@ -1962,11 +1964,14 @@ class ExpansionStatic: ExpansionStaticCore
 	static bool MakeDirectoryRecursive(string path)
 	{
 		TStringArray parts = {};
-		path.Split("\\", parts);
+		path.Replace(DIRSEPARATOR_ALT, DIRSEPARATOR);
+		path.Split(DIRSEPARATOR, parts);
 		path = "";
 		foreach (string part: parts)
 		{
-			path += part + "\\";
+			if (!part)
+				continue;
+			path += part + DIRSEPARATOR;
 			if (part.IndexOf(":") == part.Length() - 1)
 				continue;
 			if (!FileExist(path) && !MakeDirectory(path))
@@ -1983,13 +1988,15 @@ class ExpansionStatic: ExpansionStaticCore
 	//! If `move` is true and copying is successful, removes srcDir afterwards if empty.
 	static bool CopyDirectoryTree(string srcDir, string dstDir, string ext = "", bool move = false)
 	{
+		srcDir.Replace(DIRSEPARATOR_ALT, DIRSEPARATOR);
 		ExpansionString srcDirEx = srcDir;
-		if (srcDirEx.LastIndexOf("\\") != srcDir.Length() - 1)
-			srcDir += "\\";
+		if (srcDirEx.LastIndexOf(DIRSEPARATOR) != srcDir.Length() - 1)
+			srcDir += DIRSEPARATOR;
 
+		dstDir.Replace(DIRSEPARATOR_ALT, DIRSEPARATOR);
 		ExpansionString dstDirEx = dstDir;
-		if (dstDirEx.LastIndexOf("\\") != dstDir.Length() - 1)
-			dstDir += "\\";
+		if (dstDirEx.LastIndexOf(DIRSEPARATOR) != dstDir.Length() - 1)
+			dstDir += DIRSEPARATOR;
 
 		if (!FileExist(dstDir) && !MakeDirectoryRecursive(dstDir))
 			return false;
@@ -2052,7 +2059,7 @@ class ExpansionStatic: ExpansionStaticCore
 			TStringArray dirs = ExpansionStatic.FindDirectoriesInLocation(path);
 			foreach (string dirBaseName: dirs)
 			{
-				DeleteDirectoryStructureRecursive(path + dirBaseName + "\\", ext);
+				DeleteDirectoryStructureRecursive(path + dirBaseName + DIRSEPARATOR, ext);
 			}
 
 			return DeleteFile(path);
@@ -2061,12 +2068,15 @@ class ExpansionStatic: ExpansionStaticCore
 		return false;
 	}
 
-	//! @note if copying a directory, make sure paths end with "\\" or provide fileAttr parameter
+	//! @note if copying a directory, make sure paths end with a path separator or provide fileAttr parameter
 	static bool CopyFileOrDirectoryTree(string srcPath, string dstPath, string ext = "", bool move = false, FileAttr fileAttr = 0)
 	{
+		srcPath.Replace(DIRSEPARATOR_ALT, DIRSEPARATOR);
+		dstPath.Replace(DIRSEPARATOR_ALT, DIRSEPARATOR);
+
 		bool isDir = (fileAttr & FileAttr.DIRECTORY);
 		ExpansionString srcPathEx = srcPath;
-		if (!isDir && srcPathEx.LastIndexOf("\\") == srcPath.Length() - 1)
+		if (!isDir && srcPathEx.LastIndexOf(DIRSEPARATOR) == srcPath.Length() - 1)
 			isDir = true;
 
 		if (isDir)
@@ -2077,7 +2087,7 @@ class ExpansionStatic: ExpansionStaticCore
 		else
 		{
 			ExpansionString dstPathEx = dstPath;
-			string dstDir = dstPath.Substring(0, dstPathEx.LastIndexOf("\\"));
+			string dstDir = dstPath.Substring(0, dstPathEx.LastIndexOf(DIRSEPARATOR));
 			if (!FileExist(dstDir) && !MakeDirectoryRecursive(dstDir))
 				return false;
 
@@ -2245,7 +2255,7 @@ class ExpansionStatic: ExpansionStaticCore
 	 * @return formatted string
 	 *
 	 * @code
-	 * 	Man player = GetGame().GetPlayer();
+	 * 	Man player = g_Game.GetPlayer();
 	 *	string test = ExpansionStatic.FormatString("Player {1} \"{1:name}\" (id={1:id} pos={1:position})", player);
 	 * 	Print(test);	
 	 * 	>> test = 'Player DayZPlayer<4461795a> "ClientA" (id=XoIwo96...= pos=<7500, 0, 7500>)'
@@ -2517,44 +2527,44 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static bool INPUT_FORWARD()
 	{
-   		return GetGame().GetInput().LocalPress( "UAMoveForward", false );
+   		return g_Game.GetInput().LocalPress( "UAMoveForward", false );
 	}
 
 	static bool INPUT_BACK()
 	{
-   		return GetGame().GetInput().LocalPress( "UAMoveBack", false );
+   		return g_Game.GetInput().LocalPress( "UAMoveBack", false );
 	}
 
 	static bool INPUT_LEFT()
 	{
-   		return GetGame().GetInput().LocalPress( "UAMoveLeft", false );
+   		return g_Game.GetInput().LocalPress( "UAMoveLeft", false );
 	}
 
 	static bool INPUT_RIGHT()
 	{
-   		return GetGame().GetInput().LocalPress( "UAMoveRight", false );
+   		return g_Game.GetInput().LocalPress( "UAMoveRight", false );
 	}
 
 	static bool INPUT_GETOVER()
 	{
-   		return GetGame().GetInput().LocalPress( "UAGetOver", false );
+   		return g_Game.GetInput().LocalPress( "UAGetOver", false );
 	}
 
 	static bool INPUT_STANCE()
 	{
-   		return GetGame().GetInput().LocalPress( "UAStance", false );
+   		return g_Game.GetInput().LocalPress( "UAStance", false );
 	}
 
 	static void MessageNearPlayers(vector position, float radius, string msg)
 	{
 		float radiusSq = radius * radius;
 		array<Man> players();
-		GetGame().GetPlayers(players);
+		g_Game.GetPlayers(players);
 		foreach (Man player: players)
 		{
 			if (vector.DistanceSq(position, player.GetPosition()) < radiusSq)
 			{
-				GetGame().RPCSingleParam(player, ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>(msg), true, player.GetIdentity());
+				g_Game.RPCSingleParam(player, ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>(msg), true, player.GetIdentity());
 			}
 		}
 	}
@@ -2565,8 +2575,8 @@ class ExpansionStatic: ExpansionStaticCore
 		auto trace = EXTrace.Start(EXTrace.MISC, ExpansionStatic);
 	#endif
 
-		vector begPos = GetGame().GetCurrentCameraPosition();
-		vector endPos = begPos + GetGame().GetCurrentCameraDirection() * 1000.0;
+		vector begPos = g_Game.GetCurrentCameraPosition();
+		vector endPos = begPos + g_Game.GetCurrentCameraDirection() * 1000.0;
 
 	#ifdef EXTRACE_DIAG
 		EXTrace.Add(trace, begPos);
@@ -2577,15 +2587,15 @@ class ExpansionStatic: ExpansionStaticCore
 		int hitComponent;
 		set<Object> results = new set<Object>;
 
-		if (DayZPhysics.RaycastRV(begPos, endPos, hitPosition, hitNormal, hitComponent, results, null, GetGame().GetPlayer()))
+		if (DayZPhysics.RaycastRV(begPos, endPos, hitPosition, hitNormal, hitComponent, results, null, g_Game.GetPlayer()))
 		{
 			if (results.Count())
 				hitObject = results[0];
 		}
 		else if (fallbackDistance)
 		{
-			hitPosition = begPos + GetGame().GetCurrentCameraDirection() * fallbackDistance;
-			float surfaceY = GetGame().SurfaceY(hitPosition[0], hitPosition[2]);
+			hitPosition = begPos + g_Game.GetCurrentCameraDirection() * fallbackDistance;
+			float surfaceY = g_Game.SurfaceY(hitPosition[0], hitPosition[2]);
 			if (surfaceY > hitPosition[1])
 				hitPosition[1] = surfaceY;
 		}
@@ -2604,7 +2614,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static vector GetSurfacePosition(float x, float z)
 	{
-		return Vector(x, GetGame().SurfaceY(x, z), z);
+		return Vector(x, g_Game.SurfaceY(x, z), z);
 	}
 
 	static vector GetSurfaceRoadPosition(vector position, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER)
@@ -2625,8 +2635,8 @@ class ExpansionStatic: ExpansionStaticCore
 		{
 			case RoadSurfaceDetection.CLOSEST:
 				//! CLOSEST doesn't always return actual closest surface https://feedback.bistudio.com/T192568
-				float roadY_Above = GetGame().SurfaceRoadY3D(x, y, z, RoadSurfaceDetection.ABOVE);
-				float roadY_Under = GetGame().SurfaceRoadY3D(x, y, z, RoadSurfaceDetection.UNDER);
+				float roadY_Above = g_Game.SurfaceRoadY3D(x, y, z, RoadSurfaceDetection.ABOVE);
+				float roadY_Under = g_Game.SurfaceRoadY3D(x, y, z, RoadSurfaceDetection.UNDER);
 				float dist_Above = Math.AbsFloat(roadY_Above - y);
 				float dist_Under = Math.AbsFloat(roadY_Under - y);
 				if (dist_Above < dist_Under)
@@ -2636,7 +2646,7 @@ class ExpansionStatic: ExpansionStaticCore
 				break;
 
 			default:
-				roadY = GetGame().SurfaceRoadY3D(x, y, z, rsd);
+				roadY = g_Game.SurfaceRoadY3D(x, y, z, rsd);
 				break;
 		}
 
@@ -2645,7 +2655,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static vector GetSurfaceRoadPosition(float x, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.LEGACY)
 	{
-		return Vector(x, GetGame().SurfaceRoadY(x, z, rsd), z);
+		return Vector(x, g_Game.SurfaceRoadY(x, z, rsd), z);
 	}
 
 	static float GetSurfaceWaterDepth(vector position)
@@ -2655,7 +2665,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static float GetSurfaceWaterDepth(float x, float z)
 	{
-		return GetGame().GetWaterDepth(GetSurfacePosition(x, z));
+		return g_Game.GetWaterDepth(GetSurfacePosition(x, z));
 	}
 
 	//! Get ground surface position or water surface position, whichever has higher elevation
@@ -2668,7 +2678,7 @@ class ExpansionStatic: ExpansionStaticCore
 	static vector GetSurfaceWaterPosition(float x, float z)
 	{
 		vector position = GetSurfacePosition(x, z);
-		float waterDepth = GetGame().GetWaterDepth(position);
+		float waterDepth = g_Game.GetWaterDepth(position);
 		if (waterDepth > 0)
 			position[1] = position[1] + waterDepth;
 		return position;
@@ -2677,7 +2687,7 @@ class ExpansionStatic: ExpansionStaticCore
 	static bool SurfaceIsWater(vector position)
 	{
 		string type;
-		GetGame().SurfaceGetType3D(position[0], position[1] + 0.1, position[2], type);
+		g_Game.SurfaceGetType3D(position[0], position[1] + 0.1, position[2], type);
 		if (type.Contains("water"))
 			return true;
 
@@ -2686,7 +2696,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static bool SurfaceIsWater(float x, float z)
 	{
-		return GetGame().SurfaceIsSea(x, z) || GetGame().SurfaceIsPond(x, z);
+		return g_Game.SurfaceIsSea(x, z) || g_Game.SurfaceIsPond(x, z);
 	}
 
 	static string GetImpactSurfaceType(Object directHit, vector hitPosition, vector relativeVelocityBefore)
@@ -2744,7 +2754,7 @@ class ExpansionStatic: ExpansionStaticCore
 	static string GetCanonicalWorldName(CGame game = NULL)
 	{
 		if (!game)
-			game = GetGame();
+			game = g_Game;
 
 		string worldName;
 		game.GetWorldName(worldName);

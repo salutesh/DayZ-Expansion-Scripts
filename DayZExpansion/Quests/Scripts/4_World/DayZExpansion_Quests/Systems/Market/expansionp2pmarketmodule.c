@@ -18,7 +18,7 @@ modded class ExpansionP2PMarketModule
 		if (!super.CheckCanUseTrader(player, trader))
 			return false;
 
-		if (GetGame().IsServer() && GetExpansionSettings().GetQuest().EnableQuests)
+		if (g_Game.IsServer() && GetExpansionSettings().GetQuest().EnableQuests)
 		{
 			int questID = trader.m_RequiredCompletedQuestID;
 			if (questID > -1)

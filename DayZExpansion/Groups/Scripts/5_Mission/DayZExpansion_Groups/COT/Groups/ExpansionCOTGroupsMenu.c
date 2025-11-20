@@ -453,7 +453,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 
 		FillMemberList(true);
 
-		string playerUID = GetGame().GetPlayer().GetIdentity().GetId();
+		string playerUID = g_Game.GetPlayer().GetIdentity().GetId();
 		if (m_Module.HasGroup(playerUID))
 			m_GroupInviteSelfButton.Show(false);
 
@@ -699,7 +699,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		string ownerUID = m_CurrentSelectedGroup.GetOwnerUID();
 		string ownerName = m_CurrentSelectedGroup.GetOwnerName();
 		string partyID = m_CurrentSelectedGroup.GetPartyID().ToString();
-		GetGame().CopyToClipboard("[COT Expansion Group] Group ID: " + partyID + " | Owner: " + ownerName + " - " + ownerUID);
+		g_Game.CopyToClipboard("[COT Expansion Group] Group ID: " + partyID + " | Owner: " + ownerName + " - " + ownerUID);
 	}
 
 	// ------------------------------------------------------------
@@ -714,7 +714,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		if (m_CurrentSelectedGroupMember.GetParty().GetOwnerUID() == m_CurrentSelectedGroupMember.GetID())
 			isOwner = true;
 
-		GetGame().CopyToClipboard("[COT Expansion Group] Group Member: " + m_CurrentSelectedGroupMember.GetName() + " [" + m_CurrentSelectedGroupMember.GetID() + "] | Group ID: " + m_CurrentSelectedGroupMember.GetParty().GetPartyID() + " | Permissions: " + m_CurrentSelectedGroupMember.GetPermissions() + " | Owner: " + isOwner);
+		g_Game.CopyToClipboard("[COT Expansion Group] Group Member: " + m_CurrentSelectedGroupMember.GetName() + " [" + m_CurrentSelectedGroupMember.GetID() + "] | Group ID: " + m_CurrentSelectedGroupMember.GetParty().GetPartyID() + " | Permissions: " + m_CurrentSelectedGroupMember.GetPermissions() + " | Owner: " + isOwner);
 	}
 
 	// ------------------------------------------------------------
@@ -1138,7 +1138,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		}
 		else if (w == m_GroupInviteSelfButton)
 		{
-			InvitePlayer(GetGame().GetPlayer().GetIdentity().GetId());
+			InvitePlayer(g_Game.GetPlayer().GetIdentity().GetId());
 			return true;
 		}
 		else if (w == m_PlayerInviteButton)

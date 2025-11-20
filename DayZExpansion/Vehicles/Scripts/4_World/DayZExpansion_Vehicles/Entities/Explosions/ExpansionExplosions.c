@@ -38,7 +38,7 @@ class ExplosionSmall: ExplosionPoint
 	// ------------------------------------------------------------
 	override void ExplodeNow()
 	{
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			SEffectManager.PlaySound("Expansion_Explosive_Small_SoundSet", GetPosition());
 

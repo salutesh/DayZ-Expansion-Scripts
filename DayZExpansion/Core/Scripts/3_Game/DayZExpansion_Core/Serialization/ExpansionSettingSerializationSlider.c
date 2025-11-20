@@ -89,6 +89,6 @@ class ExpansionSettingSerializationSlider: ExpansionSettingSerializationBase
 		}
 
 		auto param = new Param2< typename, ExpansionSettingSerializationBase >( Type(), this );
-		GetGame().GameScript.Call( m_Instance, "OnSettingsUpdated", param );
+		g_Game.GameScript.Call( m_Instance, "OnSettingsUpdated", param );
 	}
 };

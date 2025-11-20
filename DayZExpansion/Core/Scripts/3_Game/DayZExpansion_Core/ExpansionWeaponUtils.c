@@ -33,9 +33,9 @@ class ExpansionWeaponUtils
 		else
 		{
 			string bulletTypeNamePath = "CfgMagazines " + ammoTypeName + " ammo";
-			if (GetGame().ConfigIsExisting(bulletTypeNamePath))
+			if (g_Game.ConfigIsExisting(bulletTypeNamePath))
 			{
-				string bulletTypeName = GetGame().ConfigGetTextOut(bulletTypeNamePath);
+				string bulletTypeName = g_Game.ConfigGetTextOut(bulletTypeNamePath);
 				damageApplied = GetDamageAppliedByBullet(bulletTypeName, healthType);
 				s_DamageAppliedByAmmo[ammoTypeName] = s_DamageAppliedByBullet[bulletTypeName];
 			}
@@ -58,8 +58,8 @@ class ExpansionWeaponUtils
 		if (!healthTypeMap.Find(healthType, damageApplied))
 		{
 			string damageAppliedPath = "CfgAmmo " + bulletTypeName + " DamageApplied " + healthType + " damage";
-			if (GetGame().ConfigIsExisting(damageAppliedPath))
-				damageApplied = GetGame().ConfigGetFloat(damageAppliedPath);
+			if (g_Game.ConfigIsExisting(damageAppliedPath))
+				damageApplied = g_Game.ConfigGetFloat(damageAppliedPath);
 			healthTypeMap[healthType] = damageApplied;
 		}
 
@@ -73,8 +73,8 @@ class ExpansionWeaponUtils
 		if (!s_InitSpeedMultipliers.Find(weaponTypeName, mult))
 		{
 			string path = "CfgWeapons " + weaponTypeName + " initSpeedMultiplier";
-			if (GetGame().ConfigIsExisting(path))
-				mult = GetGame().ConfigGetFloat(path);
+			if (g_Game.ConfigIsExisting(path))
+				mult = g_Game.ConfigGetFloat(path);
 			s_InitSpeedMultipliers.Insert(weaponTypeName, mult);
 			//EXPrint(weaponTypeName + " " + mult, " [ExpansionWeaponUtils] ");
 		}

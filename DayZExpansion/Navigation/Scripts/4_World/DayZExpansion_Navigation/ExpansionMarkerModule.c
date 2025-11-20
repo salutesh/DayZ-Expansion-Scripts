@@ -85,7 +85,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		super.OnMissionLoaded(sender, args);
 		
-		if (GetGame().IsDedicatedServer())
+		if (g_Game.IsDedicatedServer())
 			return;
 
 		if (m_AllData.Count() == 0)
@@ -101,7 +101,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		{
 			string address;
 			int port;
-			if ( GetGame().GetHostAddress( address, port ) )
+			if ( g_Game.GetHostAddress( address, port ) )
 			{
 				bool found = false;
 
@@ -144,7 +144,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		super.OnMissionFinish(sender, args);
 		
-		if (GetGame().IsDedicatedServer())
+		if (g_Game.IsDedicatedServer())
 			return;
 
 		//! @note non-persistent personal markers won't be saved (this is handled in ExpansionMarkerClientData::OnStoreSave),
@@ -616,7 +616,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		}
 
 		ExpansionUIScriptedMenu menu;
-		if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_MAP ) ) )
+		if ( Class.CastTo( menu, g_Game.GetUIManager().FindMenu( MENU_EXPANSION_MAP ) ) )
 		{
 			menu.Refresh();
 		}

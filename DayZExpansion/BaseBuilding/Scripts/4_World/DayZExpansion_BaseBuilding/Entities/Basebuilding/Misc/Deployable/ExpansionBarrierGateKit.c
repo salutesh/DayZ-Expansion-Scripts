@@ -32,14 +32,14 @@ class ExpansionBarrierGateKit: ExpansionKitLarge
 	{
 		if ( IsMissionHost() )
 		{			
-			ExpansionBarrierGate gate = ExpansionBarrierGate.Cast( GetGame().CreateObject( "ExpansionBarrierGate", GetPosition() ) );
+			ExpansionBarrierGate gate = ExpansionBarrierGate.Cast( g_Game.CreateObject( "ExpansionBarrierGate", GetPosition() ) );
 			gate.SetPosition( position );
 			gate.SetOrientation( orientation );
 			
 			//! Make the kit invisible, so it can be destroyed from deploy UA when action ends
 			HideAllSelections();
 
-			GetGame().ObjectDelete(this);
+			g_Game.ObjectDelete(this);
 		}	
 		
 		SetIsDeploySound( true );

@@ -369,7 +369,7 @@ class ExpansionQuest
 
 		UpdateQuest(true);
 
-		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestStart(this);
+		MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_OnQuestStart(this);
 
 		return true;
 	}
@@ -409,7 +409,7 @@ class ExpansionQuest
 		if (m_QuestGiverItem)
 		{
 			m_QuestGiverItem.Expansion_SetDeletedByQuest(true);
-			GetGame().ObjectDelete(m_QuestGiverItem);
+			g_Game.ObjectDelete(m_QuestGiverItem);
 		}
 	}
 
@@ -487,9 +487,9 @@ class ExpansionQuest
 		
 		//! Open quest menu so player can turn in the quest when the quest has no quest turn-in ID and cant be autocompleted.
 		if (!m_Config.IsAutocomplete() && !m_Config.IsAchievement() && m_Config.GetQuestTurnInIDs().Count() == 0)
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest, 1000, false, m_Player.GetIdentity(), m_Config.GetID());
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest, 1000, false, m_Player.GetIdentity(), m_Config.GetID());
 		
-		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestObjectivesComplete(this);
+		MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_OnQuestObjectivesComplete(this);
 	}
 
 	//! Create the turn-in marker if the quest is not autocompleted or has no turn-in quest NPC ID.
@@ -519,7 +519,7 @@ class ExpansionQuest
 
 		SetQuestState(ExpansionQuestState.STARTED);
 		
-		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestObjectivesIncomplete(this);
+		MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_OnQuestObjectivesIncomplete(this);
 	}
 
 	//! Event called when ever a quest is completed and turned-in
@@ -591,7 +591,7 @@ class ExpansionQuest
 		SetIsCompleted(true);
 		SetQuestState(ExpansionQuestState.COMPLETED);
 
-		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestCompletion(this);
+		MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_OnQuestCompletion(this);
 
 		return true;
 	}
@@ -709,9 +709,9 @@ class ExpansionQuest
 		
 		//! If the quest cant be automatically completed but has no turn-in NPC IDs then we try to open the quest menu so the player can turn-in the quest.
 		if (!m_Config.IsAutocomplete() && !m_Config.IsAchievement() && m_QuestState == ExpansionQuestState.CAN_TURNIN && m_Config.GetQuestTurnInIDs().Count() == 0)
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest, 1000, false, m_Player.GetIdentity(), m_Config.GetID());
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest, 1000, false, m_Player.GetIdentity(), m_Config.GetID());
 
-		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestContinue(this);
+		MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_OnQuestContinue(this);
 
 		return true;
 	}
@@ -823,7 +823,7 @@ class ExpansionQuest
 		for (int i = m_QuestItems.Count() - 1; i >= 0; i--)
 		{
 			ItemBase item = m_QuestItems[i];
-			GetGame().ObjectDelete(item);
+			g_Game.ObjectDelete(item);
 			m_QuestItems.RemoveOrdered(i);
 		}
 		
@@ -857,7 +857,7 @@ class ExpansionQuest
 				continue;
 			
 			if (!itemIB.Expansion_IsQuestGiver() && !itemIB.Expansion_IsObjectiveLoot() && itemIB.Expansion_GetQuestID() == m_Config.GetID())
-				GetGame().ObjectDelete(item);
+				g_Game.ObjectDelete(item);
 		}
 	}
 
@@ -1020,7 +1020,7 @@ class ExpansionQuest
 						if (findIndex > -1)
 						{
 							m_QuestItems.Remove(findIndex);
-							GetGame().ObjectDelete(item);
+							g_Game.ObjectDelete(item);
 						}
 					}
 				}
@@ -1222,7 +1222,7 @@ class ExpansionQuest
 			ItemBase item;
 			if (!Class.CastTo(item, obj))
 			{
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 				Error("Error: Couldn't spawn " + questItem.GetClassName());
 				break;
 			}

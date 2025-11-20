@@ -99,12 +99,12 @@ class ExpansionPersonalStorageConfig: ExpansionPersonalStorageConfigBase
 	
 	void Spawn()
 	{
-		Object obj = GetGame().CreateObjectEx(ClassName, Position, ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
+		Object obj = g_Game.CreateObjectEx(ClassName, Position, ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
 		
 		if (!obj || !obj.IsInherited(ExpansionPersonalStorageBase))
 		{
 			if (obj)
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 			Error(ToString() + "::Spawn - Tried to spawn personal storage object with unsuported type name: " + ClassName);
 			return;
 		}
@@ -112,7 +112,7 @@ class ExpansionPersonalStorageConfig: ExpansionPersonalStorageConfigBase
 		auto personalStorage = ExpansionPersonalStorageBase.Cast(obj);
 		if (!personalStorage)
 		{
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 			Error(ToString() + "::Spawn - Could not spawn Personal Storage!");
 			return;
 		}

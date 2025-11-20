@@ -81,7 +81,7 @@ modded class ExpansionESPModificationModule
 		if ( !item )
 			return;
 
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
 			JMPlayerInstance instance;
 			if ( !GetPermissionsManager().HasPermission( "ESP.Object.BaseBuilding.Codelock", senderRPC, instance ) )

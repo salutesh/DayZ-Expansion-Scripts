@@ -104,7 +104,7 @@ class Expansion_Anomaly_Base: ItemBase
 	
 	void ~Expansion_Anomaly_Base()
 	{
-		if (GetGame())
+		if (g_Game)
 			CleanupAnomaly();
 	}
 	
@@ -137,7 +137,7 @@ class Expansion_Anomaly_Base: ItemBase
 		
 		#ifdef SERVER
 		if (m_AnomalyTrigger)
-			GetGame().ObjectDelete(m_AnomalyTrigger);
+			g_Game.ObjectDelete(m_AnomalyTrigger);
 
 		#ifdef DIAG_DEVELOPER
 		#ifdef EXPANSIONMODNAVIGATION
@@ -154,7 +154,7 @@ class Expansion_Anomaly_Base: ItemBase
 		foreach (EntityAI lootItem: m_LootItems)
 		{
 			if (!lootItem.GetParent())
-				GetGame().ObjectDelete(lootItem);
+				g_Game.ObjectDelete(lootItem);
 		}
 		#endif
 	
@@ -166,7 +166,7 @@ class Expansion_Anomaly_Base: ItemBase
 			ParticleActivatedStop();
 
 		if (m_Light)
-			GetGame().ObjectDelete(m_Light);
+			g_Game.ObjectDelete(m_Light);
 
 		if (m_Sound)
 			SoundStop();
@@ -208,12 +208,12 @@ class Expansion_Anomaly_Base: ItemBase
 		CreateAnomalyTrigger();
 
 		//! Remove grass
-		Object cc_object = GetGame().CreateObjectEx(OBJECT_CLUTTER_CUTTER , GetWorldPosition(), ECE_PLACE_ON_SURFACE);
+		Object cc_object = g_Game.CreateObjectEx(OBJECT_CLUTTER_CUTTER , GetWorldPosition(), ECE_PLACE_ON_SURFACE);
 		cc_object.SetOrientation(GetOrientation());
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(DestroyClutterCutter, 200, false, cc_object);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(DestroyClutterCutter, 200, false, cc_object);
 
 		//! Spawn the core item into the anomaly.
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnCoreItem, 500, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnCoreItem, 500, false);
 
 		SetSynchDirty();
 	}
@@ -223,7 +223,7 @@ class Expansion_Anomaly_Base: ItemBase
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
-		GetGame().ObjectDelete(clutter_cutter);
+		g_Game.ObjectDelete(clutter_cutter);
 
 		#ifdef DIAG_DEVELOPER
 		#ifdef EXPANSIONMODNAVIGATION
@@ -241,7 +241,7 @@ class Expansion_Anomaly_Base: ItemBase
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 
-		if (!particle && GetGame() && (!GetGame().IsDedicatedServer()))
+		if (!particle && g_Game && (!g_Game.IsDedicatedServer()))
 		{
 			particle = Particle.PlayOnObject(particle_type, this, "0 0 0");
 			return true;
@@ -257,7 +257,7 @@ class Expansion_Anomaly_Base: ItemBase
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 
-		if (particle && GetGame() && (!GetGame().IsDedicatedServer()))
+		if (particle && g_Game && (!g_Game.IsDedicatedServer()))
 		{
 			particle.Stop();
 			particle = null;
@@ -314,7 +314,7 @@ class Expansion_Anomaly_Base: ItemBase
 		m_AnomalyCore = Expansion_AnomalyCore_Base.Cast(item);
 		if (!m_AnomalyCore)
 		{
-			GetGame().ObjectDelete(item);
+			g_Game.ObjectDelete(item);
 			return;
 		}
 
@@ -381,7 +381,7 @@ class Expansion_Anomaly_Base: ItemBase
 	#endif
 		ExDebugPrint("::UpdateVisualState - Anomaly state is: " + typename.EnumToString(ExpansionAnomalyState, state));
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(UpdateAnomalyVFX_Deferred, state);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(UpdateAnomalyVFX_Deferred, state);
 	}
 
 	//! @note: This method updates the anomaly visual effects (VFX) in a deferred manner based on the provided `state`.
@@ -423,7 +423,7 @@ class Expansion_Anomaly_Base: ItemBase
 			    if (m_DelayVFX && m_IdleParticleDelay > 0.0)
 			    {
 					m_DelayVFX = false;
-			        GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateIdleParticle, m_IdleParticleDelay * 1000, false, state);
+			        g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateIdleParticle, m_IdleParticleDelay * 1000, false, state);
 			    }
 			    else
 			    {
@@ -601,7 +601,7 @@ class Expansion_Anomaly_Base: ItemBase
 	#endif
 
 		vector pos = GetPosition();
-		Class.CastTo(m_AnomalyTrigger, GetGame().CreateObjectEx(GetAnomalyTriggerName(), pos, ECE_NONE));
+		Class.CastTo(m_AnomalyTrigger, g_Game.CreateObjectEx(GetAnomalyTriggerName(), pos, ECE_NONE));
 		m_AnomalyTrigger.SetPosition(pos);
 		m_AnomalyTrigger.SetTriggerRadius(TRIGGER_RADIUS);
 		m_AnomalyTrigger.SetActive(true);
@@ -681,7 +681,7 @@ class Expansion_Anomaly_Base: ItemBase
 		ExDebugPrint("::SetAnomalyExplosion - Explosion time: " + explosionTime);
 
 		if (MiscGameplayFunctions.Expansion_HasAnyCargo(this) || m_AnomalyCore || m_LootConfig && m_LootItemsMin > 0 && m_LootItemsMax)
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(DropAnormalyItems_Deferred, explosionTime);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(DropAnormalyItems_Deferred, explosionTime);
 	}
 
 	protected void DropAnormalyItems_Deferred()
@@ -719,7 +719,7 @@ class Expansion_Anomaly_Base: ItemBase
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 		
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnLootItems, 200);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnLootItems, 200);
 	}
 
 	//! @note: Spawn given loot items around the anomaly
@@ -836,7 +836,7 @@ class Expansion_Anomaly_Base: ItemBase
 #endif
 		ExDebugPrint("::EOnTouch - Entity: " + other.ToString());
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			ContactEvent(other, GetPosition());
 		}
@@ -849,7 +849,7 @@ class Expansion_Anomaly_Base: ItemBase
 #endif
 		ExDebugPrint("::EOnContact - Entity: " + other.ToString());
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			ContactEvent(other, extra.Position);
 		}
@@ -862,7 +862,7 @@ class Expansion_Anomaly_Base: ItemBase
 #endif
 		ExDebugPrint("::ContactEvent - Entity: " + other.ToString() + " | Position: " + position);
 
-		if (GetGame().IsServer() && !m_ContactEventProcessing)
+		if (g_Game.IsServer() && !m_ContactEventProcessing)
 		{
 			m_ContactEventProcessing = true;
 			//MiscGameplayFunctions.ThrowAllItemsInInventory(this, ThrowEntityFlags.NONE);
@@ -902,7 +902,7 @@ class Expansion_Anomaly_Base: ItemBase
 			if (state)
 			{
 				m_AnomalyCore = anomalyCore;
-				if (GetGame().IsServer())
+				if (g_Game.IsServer())
 				{
 					if (evrStormActive)
 					{
@@ -921,7 +921,7 @@ class Expansion_Anomaly_Base: ItemBase
 			else
 			{
 				m_AnomalyCore = null;
-				if (GetGame().IsServer())
+				if (g_Game.IsServer())
 				{
 					if (evrStormActive)
 					{
@@ -1001,7 +1001,7 @@ class Expansion_Anomaly_Base: ItemBase
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	#endif
 
-		GetGame().ObjectDelete(this);
+		g_Game.ObjectDelete(this);
 	}
 
 	protected void ExDebugPrint(string text)

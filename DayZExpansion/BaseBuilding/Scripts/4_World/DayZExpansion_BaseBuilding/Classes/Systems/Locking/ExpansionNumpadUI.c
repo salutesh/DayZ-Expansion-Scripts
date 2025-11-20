@@ -73,7 +73,7 @@ class ExpansionNumpadUI: ExpansionLockUIBase
 		
 		m_Code = "";
 		
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/BaseBuilding/GUI/layouts/expansion_numpad.layout");
+		layoutRoot = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/BaseBuilding/GUI/layouts/expansion_numpad.layout");
 		
 		m_Button0 = ButtonWidget.Cast( layoutRoot.FindAnyWidget("Button0") );
 		m_Button0_Text = TextWidget.Cast( layoutRoot.FindAnyWidget("Button0_Text") );

@@ -37,7 +37,7 @@ class ExpansionChicken: Inventory_Base
 	{
 		if ( m_TypeChicken && !m_Chicken )
 		{
-			m_Chicken = Animal_GallusGallusDomesticus.Cast( GetGame().CreateObject( m_TypeChicken, Vector( 0, 0, 0 ), false, false ) );
+			m_Chicken = Animal_GallusGallusDomesticus.Cast( g_Game.CreateObject( m_TypeChicken, Vector( 0, 0, 0 ), false, false ) );
 
 			dBodySetInteractionLayer( m_Chicken, PhxInteractionLayers.AI_NO_COLLISION );
 
@@ -84,7 +84,7 @@ class ExpansionChicken: Inventory_Base
 			m_Chicken.Update();
 			Update();
 
-			m_Chicken.InitAIAgent( GetGame().GetWorld().GetAIWorld().CreateGroup("DZdomesticGroupBeh") );
+			m_Chicken.InitAIAgent( g_Game.GetWorld().GetAIWorld().CreateGroup("DZdomesticGroupBeh") );
 
 			dBodySetInteractionLayer( m_Chicken, PhxInteractionLayers.AI );
 		}

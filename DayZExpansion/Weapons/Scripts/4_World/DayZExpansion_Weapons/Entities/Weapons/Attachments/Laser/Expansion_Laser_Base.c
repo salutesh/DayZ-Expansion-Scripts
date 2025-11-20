@@ -18,15 +18,15 @@ class Expansion_Laser_Base: UniversalLight
 	{
 		if ( m_Expansion_LaserBeam )
 		{
-			GetGame().ObjectDelete( m_Expansion_LaserBeam );
+			g_Game.ObjectDelete( m_Expansion_LaserBeam );
 		}
 	}
 	
 	override void OnWorkStart()
 	{
-		if ( !GetGame().IsServer() || !GetGame().IsMultiplayer() )
+		if ( !g_Game.IsServer() || !g_Game.IsMultiplayer() )
 		{
-			Object laser = GetGame().CreateObject( "Expansion_Laser_Beam", GetMemoryPointPos( "beamStart" ), true, false, true );
+			Object laser = g_Game.CreateObject( "Expansion_Laser_Beam", GetMemoryPointPos( "beamStart" ), true, false, true );
 
 			m_Expansion_LaserBeam = Expansion_Laser_Beam.Cast( laser );
 			if ( !IsVisibleWithoutNVG() && !CheckNVGState() )
@@ -49,7 +49,7 @@ class Expansion_Laser_Base: UniversalLight
 
 		RemoveChild( m_Expansion_LaserBeam );
 			
-		GetGame().ObjectDelete( m_Expansion_LaserBeam );
+		g_Game.ObjectDelete( m_Expansion_LaserBeam );
 	}
 
 	override void UpdateLaser()
@@ -144,7 +144,7 @@ class Expansion_Laser_Base: UniversalLight
 	{
 		DayZPlayerImplement player;
 		DayZPlayerCameraBase camera;
-		if (Class.CastTo(player, GetGame().GetPlayer()) && Class.CastTo(camera, player.GetCurrentCamera()) && camera.IsCameraNV())
+		if (Class.CastTo(player, g_Game.GetPlayer()) && Class.CastTo(camera, player.GetCurrentCamera()) && camera.IsCameraNV())
 		{
 			if (player.IsInOptics())
 			{

@@ -22,7 +22,7 @@ class ExpansionActionPlaceDebugGoat: ActionPlaceObject
 		{
 			destination.SetGroundEx(entity_for_placing, position, direction);
 			
-			if (GetGame().IsMultiplayer())
+			if (g_Game.IsMultiplayer())
 				action_data.m_Player.ServerTakeToDst(source, destination);
 			else // singleplayer
 				MoveEntityToFinalPositionSinglePlayer(action_data, source, destination);

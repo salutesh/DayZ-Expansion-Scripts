@@ -40,7 +40,7 @@ class ExpansionCodeLock: ItemBase
 
 		UpdateVisuals();
 
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 			return;
 
 		ItemBase parent = ItemBase.Cast( GetHierarchyParent() );
@@ -164,7 +164,7 @@ class ExpansionCodeLock: ItemBase
 
 		UpdateVisuals();
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			SetCode("");
 	}
 
@@ -197,7 +197,7 @@ class ExpansionCodeLock: ItemBase
 	static TStringArray Expansion_GetCodeLockInventorySlots()
 	{
 		if (!s_Expansion_InventorySlots.Count())
-			GetGame().ConfigGetTextArray("CfgVehicles ExpansionCodeLock inventorySlot", s_Expansion_InventorySlots);
+			g_Game.ConfigGetTextArray("CfgVehicles ExpansionCodeLock inventorySlot", s_Expansion_InventorySlots);
 
 		return s_Expansion_InventorySlots;
 	}
@@ -224,7 +224,7 @@ class ExpansionCodeLock: ItemBase
 	void UpdateVisuals()
 	{
 		//Client/Server
-		GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ).CallLater( UpdateVisuals_Deferred, 0, false );
+		g_Game.GetCallQueue( CALL_CATEGORY_GAMEPLAY ).CallLater( UpdateVisuals_Deferred, 0, false );
 	}
 	
 	protected void UpdateVisuals_Deferred()
@@ -261,7 +261,7 @@ class ExpansionCodeLock: ItemBase
 	
 	protected void SoundCodeLockLocked()
 	{
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			m_Expansion_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Lock1_SoundSet", GetPosition());
 			m_Expansion_Sound.SetSoundAutodestroy( true );
@@ -270,7 +270,7 @@ class ExpansionCodeLock: ItemBase
 	
 	protected void SoundCodeLockUnlocked()
 	{
-		if ( !GetGame().IsDedicatedServer() ) // client side
+		if ( !g_Game.IsDedicatedServer() ) // client side
 		{
 			m_Expansion_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock1_SoundSet", GetPosition());
 			m_Expansion_Sound.SetSoundAutodestroy( true );

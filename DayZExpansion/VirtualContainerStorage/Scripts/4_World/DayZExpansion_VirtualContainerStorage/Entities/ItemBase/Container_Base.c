@@ -66,13 +66,13 @@ modded class Container_Base
 	{
 		super.Open();
 
-		if (GetGame().IsServer() && Expansion_CanUseVirtualStorage(true))
+		if (g_Game.IsServer() && Expansion_CanUseVirtualStorage(true))
 			Expansion_RestoreContents();
 	}
 
 	override void Close()
 	{
-		if (GetGame().IsServer() && Expansion_CanUseVirtualStorage())
+		if (g_Game.IsServer() && Expansion_CanUseVirtualStorage())
 			Expansion_StoreContents();
 
 		super.Close();

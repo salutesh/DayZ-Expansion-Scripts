@@ -18,7 +18,7 @@ modded class ExpansionP2PMarketModule
 		if (!super.CheckCanUseTrader(player, trader))
 			return false;
 
-		if (GetGame().IsServer() && trader.m_UseReputation)
+		if (g_Game.IsServer() && trader.m_UseReputation)
 		{
 			int minRep = trader.m_MinRequiredReputation;
 			int maxRep = trader.m_MaxRequiredReputation;

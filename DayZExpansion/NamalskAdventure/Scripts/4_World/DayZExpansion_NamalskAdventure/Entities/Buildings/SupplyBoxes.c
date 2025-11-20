@@ -39,7 +39,7 @@ class StaticObj_Misc_SupplyBox1_DE extends House
 	#ifdef DIAG_DEVELOPER
 	#ifdef EXPANSIONMODNAVIGATION
     #ifdef SERVER
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
     #endif
 	#endif
 	#endif
@@ -91,7 +91,7 @@ class StaticObj_Misc_SupplyBox2_DE extends House
 	#ifdef DIAG_DEVELOPER
 	#ifdef EXPANSIONMODNAVIGATION
     #ifdef SERVER
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
     #endif
 	#endif
 	#endif
@@ -143,7 +143,7 @@ class StaticObj_Misc_SupplyBox3_DE extends House
 	#ifdef DIAG_DEVELOPER
 	#ifdef EXPANSIONMODNAVIGATION
     #ifdef SERVER
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
     #endif
 	#endif
 	#endif

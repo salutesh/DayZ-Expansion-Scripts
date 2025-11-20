@@ -403,14 +403,14 @@ class ExpansionPrefabObject : Managed
 						currentSlotId = slotId;
 						if (slotId == InventorySlots.INVALID && entity.IsInherited(Weapon_Base))
 						{
-							if (GetGame().IsKindOf(attachment.ClassName, "Magazine_Base") && !GetGame().IsKindOf(attachment.ClassName, "Ammunition_Base"))
+							if (g_Game.IsKindOf(attachment.ClassName, "Magazine_Base") && !g_Game.IsKindOf(attachment.ClassName, "Ammunition_Base"))
 								currentSlotId = InventorySlots.MAGAZINE;
 						}
 					#ifdef EXPANSIONMODAI
 						else if (ai)
 						{
 							//! Prefer hand slot for AI weapon to mitigate client sync issues
-							if ((slotId == InventorySlots.SHOULDER || slotId == InventorySlots.MELEE) && !slotTaken[InventorySlots.HANDS] && GetGame().ConfigIsExisting("CfgWeapons " + attachment.ClassName))
+							if ((slotId == InventorySlots.SHOULDER || slotId == InventorySlots.MELEE) && !slotTaken[InventorySlots.HANDS] && g_Game.ConfigIsExisting("CfgWeapons " + attachment.ClassName))
 							{
 								currentSlotId = InventorySlots.HANDS;
 								fallbackSlotId = slotId;

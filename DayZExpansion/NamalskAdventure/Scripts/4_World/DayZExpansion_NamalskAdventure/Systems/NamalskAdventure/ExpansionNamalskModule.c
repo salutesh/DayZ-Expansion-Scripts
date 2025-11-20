@@ -191,7 +191,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		if (GetExpansionSettings().GetNamalskAdventure().ClearPlayerFactions)
 		{
 			//! Cleanup player faction/group on connection
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ClearPlayerFaction, 5000, false, cArgs.Identity);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ClearPlayerFaction, 5000, false, cArgs.Identity);
 		}
 	}
 
@@ -303,7 +303,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		vector pos = ExpansionAIPatrol.GetPlacementPosition(aiSpawn.Position);
 
 		eAIBase ai;
-		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos)))
+		if (!Class.CastTo(ai, g_Game.CreateObject(GetRandomAI(), pos)))
 			return;
 
 		if (!ai.m_Expansion_NetsyncData)
@@ -521,12 +521,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		marketSettings.AddMarketTrader(trader);
 		
 		//! Create the temporary trader entity
-		Object obj = GetGame().CreateObject("ExpansionTraderMirek", positionToUse.Position);
+		Object obj = g_Game.CreateObject("ExpansionTraderMirek", positionToUse.Position);
 		ExpansionTraderNPCBase npcTrader = ExpansionTraderNPCBase.Cast(obj);
 		if (!npcTrader)
 		{
 			Error(ToString() + "::CreateMerchant - Could not spawn merchant object!");
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 			return;
 		}
 
@@ -534,7 +534,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		if (!traderBase)
 		{
 			Error(ToString() + "::CreateMerchant - Could not spawn merchant trader base object!");
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 			return;
 		}
 
@@ -638,7 +638,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#endif
 
 		NamEventManager event_manager;
-	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
+	    g_Script.CallFunction(g_Game.GetMission(), "GetNamEventManager", event_manager, null);
 
 		m_LastNamalskEvent = event_manager.GetLastEventType();
 
@@ -766,7 +766,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#endif
 
 		//! Server only
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		if (!g_Game.IsServer() && !g_Game.IsMultiplayer())
 		{
 			Error(ToString() + "::AfterQuestModuleClientInit - Tryed to call AfterQuestModuleClientInit on Client!");
 			return;
@@ -785,7 +785,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		if (questState == ExpansionQuestState.NONE)
 		{
 			//! Show the first quest to the player
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ShowMainQuest, 3000, false, identity);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ShowMainQuest, 3000, false, identity);
 		}
 	}
 
@@ -805,7 +805,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		#ifdef NAMALSK_SURVIVAL
 	    NamEventManager event_manager;
-	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
+	    g_Script.CallFunction(g_Game.GetMission(), "GetNamEventManager", event_manager, null);
 
 	    if (!event_manager)
 	        return false;
@@ -825,7 +825,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		#endif
 
-		m_AbdonedSatellite = SV_Abandoned_Sattelite_Antenna.Cast(GetGame().CreateObjectEx("SV_Abandoned_Sattelite_Antenna", "1118.26 27.4257 11745.3", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
+		m_AbdonedSatellite = SV_Abandoned_Sattelite_Antenna.Cast(g_Game.CreateObjectEx("SV_Abandoned_Sattelite_Antenna", "1118.26 27.4257 11745.3", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
 		if (m_AbdonedSatellite)
 		{
 			m_AbdonedSatellite.SetPosition("1118.26 27.4257 11745.3");
@@ -833,7 +833,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			m_AbdonedSatellite.Update();
 		}
 		
-		m_SatelliteGenerator = Expansion_Satellite_Generator.Cast(GetGame().CreateObjectEx("Expansion_Satellite_Generator", "1191.82 3.31497 11828.2", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS | ECE_NOPERSISTENCY_WORLD));
+		m_SatelliteGenerator = Expansion_Satellite_Generator.Cast(g_Game.CreateObjectEx("Expansion_Satellite_Generator", "1191.82 3.31497 11828.2", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS | ECE_NOPERSISTENCY_WORLD));
 		if (m_SatelliteGenerator)
 		{
 			m_SatelliteGenerator.SetPosition("1191.82 3.31497 11828.2");
@@ -842,7 +842,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		}
 
 		#ifdef EXPANSIONMODTELEPORTER
-		m_SatelliteTeleporter = Expansion_Teleporter_Big.Cast(GetGame().CreateObjectEx("Expansion_Teleporter_Big", "1211.435059 2.206216 11724.829102", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
+		m_SatelliteTeleporter = Expansion_Teleporter_Big.Cast(g_Game.CreateObjectEx("Expansion_Teleporter_Big", "1211.435059 2.206216 11724.829102", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
 		if (m_SatelliteTeleporter)
 		{
 			m_SatelliteTeleporter.SetPosition("1211.435059 2.206216 11724.829102");
@@ -873,16 +873,16 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#endif
 
 		//! Satellite Panel Lever
-		m_SatellitePanelLever = Expansion_Satellite_Panel_Lever.Cast(GetGame().CreateObjectEx("Expansion_Satellite_Panel_Lever", "1124.776245 19.212120 11742.402344", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
+		m_SatellitePanelLever = Expansion_Satellite_Panel_Lever.Cast(g_Game.CreateObjectEx("Expansion_Satellite_Panel_Lever", "1124.776245 19.212120 11742.402344", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
 		if (m_SatellitePanelLever)
 		{
 			m_SatellitePanelLever.SetPosition("1124.776245 19.212120 11742.402344");
 			m_SatellitePanelLever.SetOrientation("-101.478386 0.000000 -0.000000");
 			m_SatellitePanelLever.Update();
-			GetGame().RegisterNetworkStaticObject(m_SatellitePanelLever);
+			g_Game.RegisterNetworkStaticObject(m_SatellitePanelLever);
 		}
 		
-		m_SatelliteController = Expansion_Satellite_Control.Cast(GetGame().CreateObjectEx("Expansion_Satellite_Control", "1221.751343 2.596711 11723.593750", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
+		m_SatelliteController = Expansion_Satellite_Control.Cast(g_Game.CreateObjectEx("Expansion_Satellite_Control", "1221.751343 2.596711 11723.593750", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
 		if (m_SatelliteController)
 		{
 			m_SatelliteController.SetPosition("1221.751343 2.596711 11723.593750");
@@ -901,31 +901,31 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		
 		//! Spawn lamps
 		m_BeringOutpostLamps = new array<Object>;		
-		Object lampObj = GetGame().CreateObjectEx("StaticObj_Lamp_Harbour", "1250.121704 4.973861 11761.608398", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
+		Object lampObj = g_Game.CreateObjectEx("StaticObj_Lamp_Harbour", "1250.121704 4.973861 11761.608398", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
 		lampObj.SetOrientation("-97.900902 0.000000 0.000000");
 		m_BeringOutpostLamps.Insert(lampObj);
 		
-		lampObj = GetGame().CreateObjectEx("StaticObj_Lamp_Harbour", "1241.190796 4.920628 11721.717773", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
+		lampObj = g_Game.CreateObjectEx("StaticObj_Lamp_Harbour", "1241.190796 4.920628 11721.717773", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
 		lampObj.SetOrientation("123.503586 -0.000000 -0.000000");
 		m_BeringOutpostLamps.Insert(lampObj);
 		
-		lampObj = GetGame().CreateObjectEx("StaticObj_Lamp_Harbour", "1291.743774 7.098015 11836.565430", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
+		lampObj = g_Game.CreateObjectEx("StaticObj_Lamp_Harbour", "1291.743774 7.098015 11836.565430", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
 		lampObj.SetOrientation("123.503586 -0.000000 -0.000000");
 		m_BeringOutpostLamps.Insert(lampObj);
 		
-		lampObj = GetGame().CreateObjectEx("StaticObj_Lamp_Harbour", "1217.004272 5.026705 11795.666016", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
+		lampObj = g_Game.CreateObjectEx("StaticObj_Lamp_Harbour", "1217.004272 5.026705 11795.666016", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
 		lampObj.SetOrientation("81.979431 0.000000 0.000000");
 		m_BeringOutpostLamps.Insert(lampObj);
 		
-		lampObj = GetGame().CreateObjectEx("StaticObj_Lamp_Harbour", "1147.509766 18.227001 11754.374023", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
+		lampObj = g_Game.CreateObjectEx("StaticObj_Lamp_Harbour", "1147.509766 18.227001 11754.374023", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
 		lampObj.SetOrientation("167.666061 0.000000 0.000000");
 		m_BeringOutpostLamps.Insert(lampObj);
 		
-		lampObj = GetGame().CreateObjectEx("StaticObj_Lamp_Harbour", "1208.784302 4.900608 11766.455078", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
+		lampObj = g_Game.CreateObjectEx("StaticObj_Lamp_Harbour", "1208.784302 4.900608 11766.455078", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
 		lampObj.SetOrientation("171.159988 0.000000 -0.000000");
 		m_BeringOutpostLamps.Insert(lampObj);
 		
-		lampObj = GetGame().CreateObjectEx("StaticObj_Lamp_Harbour", "1191.698608 5.603325 11833.480469", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
+		lampObj = g_Game.CreateObjectEx("StaticObj_Lamp_Harbour", "1191.698608 5.603325 11833.480469", ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS);
 		lampObj.SetOrientation("80.811607 0.000000 -0.000000");
 		m_BeringOutpostLamps.Insert(lampObj);
 	}
@@ -938,7 +938,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		string soundSet = "Expansion_Satellite_Cry_Distance_SoundSet";
 		Param3<bool, vector, int> satelliteCry = new Param3<bool, vector, int>(true, "1118.26 27.4257 11745.3", soundSet.Hash());
-		GetGame().RPCSingleParam(null, ERPCs.RPC_SOUND_HELICRASH, satelliteCry, true);
+		g_Game.RPCSingleParam(null, ERPCs.RPC_SOUND_HELICRASH, satelliteCry, true);
 	}
 	
 	void SetSatelliteFacilityPower(bool state)
@@ -970,7 +970,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		
 		string soundSet = "Reactor_SwitchOn";
 		Param3<bool, vector, int> activationSound = new Param3<bool, vector, int>(true, "1193.147095 1.941499 11813.058594", soundSet.Hash());
-		GetGame().RPCSingleParam(null, ERPCs.RPC_SOUND_HELICRASH, activationSound, true);
+		g_Game.RPCSingleParam(null, ERPCs.RPC_SOUND_HELICRASH, activationSound, true);
 		
 		foreach (Object lampObj: m_BeringOutpostLamps)
 		{
@@ -990,7 +990,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		
 		string soundSet = "Reactor_SwitchOn";
 		Param3<bool, vector, int> activationSound = new Param3<bool, vector, int>(true, "1193.147095 1.941499 11813.058594", soundSet.Hash());
-		GetGame().RPCSingleParam(null, ERPCs.RPC_SOUND_HELICRASH, activationSound, true);
+		g_Game.RPCSingleParam(null, ERPCs.RPC_SOUND_HELICRASH, activationSound, true);
 		
 		foreach (Object lampObj: m_BeringOutpostLamps)
 		{
@@ -1117,7 +1117,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#endif
 
 		//! Entrance trigger
-		ExpansionBunkerEntranceTriggerBase trigger = ExpansionBunkerEntranceTriggerBase.Cast(GetGame().CreateObjectEx("ExpansionBunkerEntranceTriggerBase", m_A1_Bunker_EntrancePos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
+		ExpansionBunkerEntranceTriggerBase trigger = ExpansionBunkerEntranceTriggerBase.Cast(g_Game.CreateObjectEx("ExpansionBunkerEntranceTriggerBase", m_A1_Bunker_EntrancePos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
 		if (trigger)
 		{
 			trigger.SetPosition(m_A1_Bunker_EntrancePos);
@@ -1129,7 +1129,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		
 		//! Bunker event teleporter
 		#ifdef EXPANSIONMODTELEPORTER
-		m_A1BunkerTeleporter = Expansion_Teleporter_Big.Cast(GetGame().CreateObjectEx("Expansion_Teleporter_Big", m_A1_Bunker_TeleporterPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
+		m_A1BunkerTeleporter = Expansion_Teleporter_Big.Cast(g_Game.CreateObjectEx("Expansion_Teleporter_Big", m_A1_Bunker_TeleporterPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
 		if (m_A1BunkerTeleporter)
 		{
 			m_A1BunkerTeleporter.SetOrientation(m_A1_Bunker_TeleporterOri);
@@ -1155,7 +1155,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#endif
 
 		//! Bunker event generator
-		m_A1BungerGenerator = Expansion_Bunker_Generator.Cast(GetGame().CreateObjectEx("Expansion_Bunker_Generator", m_A1_Bunker_GeneratorPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS | ECE_NOPERSISTENCY_WORLD));
+		m_A1BungerGenerator = Expansion_Bunker_Generator.Cast(g_Game.CreateObjectEx("Expansion_Bunker_Generator", m_A1_Bunker_GeneratorPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS | ECE_NOPERSISTENCY_WORLD));
 		if (m_A1BungerGenerator)
 		{
 			m_A1BungerGenerator.SetOrientation(m_A1_Bunker_GeneratorOri);
@@ -1198,7 +1198,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#endif
 
 		//! Bunker fake entrance panel
-		m_A1BunkerFakeEntranceLeaver = Land_Underground_Panel_Lever.Cast(GetGame().CreateObjectEx("Land_Underground_Panel_Lever", m_A1_Bunker_FakeEntranceLeaverPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
+		m_A1BunkerFakeEntranceLeaver = Land_Underground_Panel_Lever.Cast(g_Game.CreateObjectEx("Land_Underground_Panel_Lever", m_A1_Bunker_FakeEntranceLeaverPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
 		if (m_A1BunkerFakeEntranceLeaver)
 		{
 			m_A1BunkerFakeEntranceLeaver.SetOrientation(m_A1_Bunker_FakeEntranceLeaverOri);
@@ -1206,7 +1206,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		}
 
 		//! Bunker entrance panel
-		m_A1BunkerEntrancePanel = Land_Underground_Panel.Cast(GetGame().CreateObjectEx("Land_Underground_Panel", m_A1_Bunker_EntrancePanelPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
+		m_A1BunkerEntrancePanel = Land_Underground_Panel.Cast(g_Game.CreateObjectEx("Land_Underground_Panel", m_A1_Bunker_EntrancePanelPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
 		if (m_A1BunkerEntrancePanel)
 		{
 			m_A1BunkerEntrancePanel.SetOrientation(m_A1_Bunker_EntrancePanelOri);
@@ -1215,7 +1215,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		}
 
 		//! Bunker entrance panel leaver
-		m_A1BunkerEntranceLeaver = Land_Underground_Panel_Lever.Cast(GetGame().CreateObjectEx("Land_Underground_Panel_Lever", m_A1_Bunker_EntranceLeaverPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
+		m_A1BunkerEntranceLeaver = Land_Underground_Panel_Lever.Cast(g_Game.CreateObjectEx("Land_Underground_Panel_Lever", m_A1_Bunker_EntranceLeaverPos, ECE_NOLIFETIME | ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH | ECE_ROTATIONFLAGS));
 		if (m_A1BunkerEntranceLeaver)
 		{
 			m_A1BunkerEntranceLeaver.SetOrientation(m_A1_Bunker_EntranceLeaverOri);
@@ -1235,7 +1235,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		array<ref ExpansionSupplyCrateSetup> supplyCrateSpawns = GetExpansionSettings().GetNamalskAdventure().GetSupplyCrateSpawns();
 		foreach (ExpansionSupplyCrateSetup supplyCrate: supplyCrateSpawns)
 		{
-			Expansion_SupplyCrate_Base supplyCareObj = Expansion_SupplyCrate_Base.Cast(GetGame().CreateObjectEx(supplyCrate.ClassName, supplyCrate.Position, ECE_KEEPHEIGHT | ECE_NOPERSISTENCY_WORLD));
+			Expansion_SupplyCrate_Base supplyCareObj = Expansion_SupplyCrate_Base.Cast(g_Game.CreateObjectEx(supplyCrate.ClassName, supplyCrate.Position, ECE_KEEPHEIGHT | ECE_NOPERSISTENCY_WORLD));
 			if (!supplyCareObj)
 			{
 				Error(ToString() + "::SpawnSupplyCrates - Could not spawn supply crate object!");
@@ -1358,7 +1358,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 				if (!key)
 					return;
 
-				GetGame().ObjectDelete(key);
+				g_Game.ObjectDelete(key);
 			}
 		}
 	}
@@ -1367,25 +1367,25 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected void OnUpdateClient(float deltaTime)
 	{
 		m_ClientUpdateTimer += deltaTime;
-		if (m_ClientUpdateTimer >= CLIENT_UPDATE_TIME && GetGame().GetPlayer())
+		if (m_ClientUpdateTimer >= CLIENT_UPDATE_TIME && g_Game.GetPlayer())
 		{
 			//! @note: Preload A1 Bunker objects on client when the client is near bunker entrance position. 
-			float dist = vector.Distance(m_A1_Bunker_TeleporterPos, GetGame().GetPlayer().GetPosition());
+			float dist = vector.Distance(m_A1_Bunker_TeleporterPos, g_Game.GetPlayer().GetPosition());
 			if (dist < 200)
 			{
-				GetGame().PreloadObject("Land_Underground_Stairs_Exit", 3000);
-				GetGame().PreloadObject("Land_Underground_Stairs_Block", 3000);
-				GetGame().PreloadObject("Land_Underground_Stairs_Start", 3000);
-				GetGame().PreloadObject("Land_Underground_Floor_Crew", 3000);
-				GetGame().PreloadObject("Land_Underground_Floor_Comms", 3000);
-				GetGame().PreloadObject("Land_Underground_Stairs_Collapsed", 3000);
-				GetGame().PreloadObject("Land_Mil_Barracks_Round", 3000);
-				GetGame().PreloadObject("Land_Underground_Stairs_Block_Terminator", 3000);
-				GetGame().PreloadObject("bldr_expansion_Sign_roadbarrier", 3000);
-				GetGame().PreloadObject("ExpansionQuestObjectLocker", 3000);
-				GetGame().PreloadObject("Expansion_Bunker_Generator", 3000);
+				g_Game.PreloadObject("Land_Underground_Stairs_Exit", 3000);
+				g_Game.PreloadObject("Land_Underground_Stairs_Block", 3000);
+				g_Game.PreloadObject("Land_Underground_Stairs_Start", 3000);
+				g_Game.PreloadObject("Land_Underground_Floor_Crew", 3000);
+				g_Game.PreloadObject("Land_Underground_Floor_Comms", 3000);
+				g_Game.PreloadObject("Land_Underground_Stairs_Collapsed", 3000);
+				g_Game.PreloadObject("Land_Mil_Barracks_Round", 3000);
+				g_Game.PreloadObject("Land_Underground_Stairs_Block_Terminator", 3000);
+				g_Game.PreloadObject("bldr_expansion_Sign_roadbarrier", 3000);
+				g_Game.PreloadObject("ExpansionQuestObjectLocker", 3000);
+				g_Game.PreloadObject("Expansion_Bunker_Generator", 3000);
 				#ifdef EXPANSIONMODTELEPORTER
-				GetGame().PreloadObject("Expansion_Teleporter_Big", 3000);
+				g_Game.PreloadObject("Expansion_Teleporter_Big", 3000);
 				#endif
 			}
 
@@ -1511,7 +1511,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		printer.ActivatePrinter();
 		
 		//! Finalize printing
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(printer.CompletePrinting, (printer.PRINTING_LENGTH * 1000));
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(printer.CompletePrinting, (printer.PRINTING_LENGTH * 1000));
 	}
 
 	//! Client

@@ -81,7 +81,7 @@ class eAIDynamicPatrolSpawner<Class T>
 
 	void ~eAIDynamicPatrolSpawner()
 	{
-		if (!GetGame() || !GetGame().IsServer())
+		if (!g_Game || !g_Game.IsServer())
 			return;
 
 		#ifdef EAI_DEBUG_EVENTPATROL

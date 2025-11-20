@@ -32,7 +32,7 @@ class ExpansionAICampObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 	#ifdef SERVER
 		ZombieBase infected;
 		if (Class.CastTo(infected, other))
-			GetGame().ObjectDelete(infected);
+			g_Game.ObjectDelete(infected);
 	#endif
 	}
 };

@@ -39,7 +39,7 @@ modded class ActionUnrestrainTarget
 			for (int i = 0; i < CachedObjectsArrays.ARRAY_STRING.Count(); i++)
 			{
 				string class_name = CachedObjectsArrays.ARRAY_STRING.Get(i);
-				if (GetGame().IsKindOf(item_in_hands_name, class_name))
+				if (g_Game.IsKindOf(item_in_hands_name, class_name))
 				{
 					damageToTool = CachedObjectsArrays.ARRAY_FLOAT.Get(i / 2);
 					break;
@@ -69,7 +69,7 @@ modded class ActionUnrestrainTarget
 			ai.SetRestrained(false);
 			ai.OnItemInHandsChanged();
 
-			GetGame().CreateObjectEx(new_item_name, ai.GetPosition(), ECE_PLACE_ON_SURFACE);
+			g_Game.CreateObjectEx(new_item_name, ai.GetPosition(), ECE_PLACE_ON_SURFACE);
 		}
 		else
 		{

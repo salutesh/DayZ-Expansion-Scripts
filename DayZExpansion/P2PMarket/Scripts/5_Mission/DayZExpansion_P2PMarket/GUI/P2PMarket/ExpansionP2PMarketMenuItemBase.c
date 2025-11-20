@@ -48,7 +48,7 @@ class ExpansionP2PMarketMenuItemBase: ExpansionP2PMarketMenuViewBase
 			m_ItemTooltip.Destroy();
 
 		if (m_Object)
-			GetGame().ObjectDelete(m_Object);
+			g_Game.ObjectDelete(m_Object);
 	}
 
 	override typename GetControllerType()

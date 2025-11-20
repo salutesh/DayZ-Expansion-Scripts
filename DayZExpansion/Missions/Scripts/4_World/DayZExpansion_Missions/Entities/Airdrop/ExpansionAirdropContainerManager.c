@@ -52,7 +52,7 @@ class ExpansionAirdropContainerManager
 		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
 		#endif
 
-		m_NoiseSystem = GetGame().GetNoiseSystem();
+		m_NoiseSystem = g_Game.GetNoiseSystem();
 		if (m_NoiseSystem && !m_NoisePar)
 		{
 			m_NoisePar = new NoiseParams();
@@ -111,7 +111,7 @@ class ExpansionAirdropContainerManager
 				infected.SetHealth( 0 );
 
 				//! Remove dead body shortly after
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( DeleteSingleInfected, 3000, false, infected );
+				g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( DeleteSingleInfected, 3000, false, infected );
 			}
 		}
 
@@ -125,7 +125,7 @@ class ExpansionAirdropContainerManager
 		{
 			int index = m_Infected.Count() - 1;
 
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( KillSingleInfected, InfectedSpawnInterval, false, m_Infected[ index ] );
+			g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( KillSingleInfected, InfectedSpawnInterval, false, m_Infected[ index ] );
 
 			m_Infected.Remove( index );
 		} else
@@ -141,7 +141,7 @@ class ExpansionAirdropContainerManager
 		Print("ExpansionAirdropContainerManager::DeleteSingleInfected");
 
 		if ( infected )
-			GetGame().ObjectDelete( infected );
+			g_Game.ObjectDelete( infected );
 	}
 
 	void Send_SpawnParticle( string spawnPosStr )
@@ -167,7 +167,7 @@ class ExpansionAirdropContainerManager
 			m_InfectedCount++;
 
 			vector spawnPos = ExpansionMath.GetRandomPointInRing(m_Container.GetPosition(), InfectedSpawnRadius * 0.1, InfectedSpawnRadius);
-			spawnPos[1] = GetGame().SurfaceY( spawnPos[0], spawnPos[2] );
+			spawnPos[1] = g_Game.SurfaceY( spawnPos[0], spawnPos[2] );
 
 			SpawnSingleInfected(spawnPos);
 		}
@@ -180,11 +180,11 @@ class ExpansionAirdropContainerManager
 		int additionalDelay;
 		if ( InfectedSpawnInterval > 0 )
 		{
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( Send_SpawnParticle, InfectedSpawnInterval * m_InfectedCount, false, spawnPos.ToString( false ) );
+			g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( Send_SpawnParticle, InfectedSpawnInterval * m_InfectedCount, false, spawnPos.ToString( false ) );
 			additionalDelay = Math.RandomFloat(100, 300);
 		}
 
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( CreateSingleInfected, InfectedSpawnInterval * m_InfectedCount + additionalDelay, false, spawnPos.ToString( false ), m_InfectedCount );
+		g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( CreateSingleInfected, InfectedSpawnInterval * m_InfectedCount + additionalDelay, false, spawnPos.ToString( false ), m_InfectedCount );
 	}
 
 	void CreateSingleInfected( string spawnPosStr, int count )
@@ -204,7 +204,7 @@ class ExpansionAirdropContainerManager
 #endif
 
 		//! TODO: Create Z slightly in ground to give effect as if they emerge from underground? Also, is there a way to affect Z stance (crouching)?
-		Object obj = GetGame().CreateObject( type, spawnPos, false, GetGame().IsKindOf(type, "DZ_LightAI") );
+		Object obj = g_Game.CreateObject( type, spawnPos, false, g_Game.IsKindOf(type, "DZ_LightAI") );
 
 		if ( obj )
 		{
@@ -235,7 +235,7 @@ class ExpansionAirdropContainerManager
 		}
 
 		if (count == InfectedCount)  //! Periodic noise at container to attract Infected
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateNoise, 1000, true);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateNoise, 1000, true);
 	}
 
 	//! Make "noise" around the container which AI like Infected will "hear" and get alerted by
@@ -245,7 +245,7 @@ class ExpansionAirdropContainerManager
 			return;
 
 		//! Add noise if player within 5 m of container or 7-10 seconds elapsed since last noise
-		float tickTime = GetGame().GetTickTime();
+		float tickTime = g_Game.GetTickTime();
 		if (ExpansionLootSpawner.IsPlayerNearby(m_Container, 5.0) || tickTime - m_NoiseTickTime > Math.RandomFloat(7.0, 10.0))
 		{
 			m_NoiseTickTime = tickTime;
@@ -255,8 +255,8 @@ class ExpansionAirdropContainerManager
 
 	void StopUpdateNoise()
 	{
-		if (GetGame())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(UpdateNoise);
+		if (g_Game)
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(UpdateNoise);
 	}
 
 	void CreateServerMarker()
@@ -273,7 +273,7 @@ class ExpansionAirdropContainerManager
 		if ( GetExpansionSettings().GetAirdrop().ShowAirdropTypeOnMarker )
 		{
 			markerName = m_Container.ConfigGetStringRaw("displayName");
-			GetGame().FormatRawConfigStringKeys(markerName);
+			g_Game.FormatRawConfigStringKeys(markerName);
 		}
 		
 		vector surfacePosition = ExpansionStatic.GetSurfacePosition(m_Container.m_Expansion_SpawnPosition);

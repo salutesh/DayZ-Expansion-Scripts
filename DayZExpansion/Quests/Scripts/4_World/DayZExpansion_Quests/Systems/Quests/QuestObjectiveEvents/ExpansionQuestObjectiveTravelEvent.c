@@ -51,7 +51,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 				if (m_Position == vector.Zero)
 					m_Position = playerPos;
 				else
-					m_Position[1] = GetGame().SurfaceY(m_Position[0], m_Position[2]);
+					m_Position[1] = g_Game.SurfaceY(m_Position[0], m_Position[2]);
 			}
 		}
 
@@ -62,7 +62,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		if (!ExpansionQuestModule.GetModuleInstance().QuestTriggerExists(m_Quest.GetQuestConfig().GetID(), GetObjectiveType(), m_ObjectiveConfig.GetID()))
 			CreateTrigger(m_Position);
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DestinationCheck, 500);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DestinationCheck, 500);
 	}
 
 	protected void DestinationCheck()
@@ -231,7 +231,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	protected void CreateTrigger(vector pos)
 	{
 		array<ExpansionObjectiveTriggerBase> triggers = new array<ExpansionObjectiveTriggerBase>;
-		ExpansionTravelObjectiveSphereTrigger trigger = ExpansionTravelObjectiveSphereTrigger.Cast(GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", pos, ECE_LOCAL));
+		ExpansionTravelObjectiveSphereTrigger trigger = ExpansionTravelObjectiveSphereTrigger.Cast(g_Game.CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", pos, ECE_LOCAL));
 		if (!trigger)
 			return;
 
@@ -256,12 +256,12 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		vector position = ExpansionMath.GetRandomPointInCircle(pos, radius);
-        if (GetGame().SurfaceIsSea(position[0], position[2]) || GetGame().SurfaceIsPond(position[0], position[2]))
+        if (g_Game.SurfaceIsSea(position[0], position[2]) || g_Game.SurfaceIsPond(position[0], position[2]))
             return GetRandomPointInCircle(pos, radius);
 
         array<Object> position_objects = {};
         array<CargoBase> position_cargos = {};
-        GetGame().GetObjectsAtPosition(position, 10, position_objects, position_cargos);
+        g_Game.GetObjectsAtPosition(position, 10, position_objects, position_cargos);
         if (position_objects.Count() > 0)
             return GetRandomPointInCircle(pos, radius);
 

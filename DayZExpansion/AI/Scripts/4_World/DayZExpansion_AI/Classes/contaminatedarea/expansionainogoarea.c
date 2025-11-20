@@ -16,7 +16,7 @@ class ExpansionAINoGoArea: EffectArea
 
 	override void CreateTrigger(vector pos, int radius)
 	{
-		if (Class.CastTo(m_Expansion_Trigger, GetGame().CreateObjectEx("ExpansionAINoGoAreaTrigger", pos, ECE_NONE)))
+		if (Class.CastTo(m_Expansion_Trigger, g_Game.CreateObjectEx("ExpansionAINoGoAreaTrigger", pos, ECE_NONE)))
 		{
 			m_Expansion_Trigger.SetCollisionCylinder(radius, m_PositiveHeight);
 			m_Expansion_Trigger.Expansion_Init(this);
@@ -26,7 +26,7 @@ class ExpansionAINoGoArea: EffectArea
 	override void EEDelete(EntityAI parent)
 	{
 		if (m_Expansion_Trigger)
-			GetGame().ObjectDelete(m_Expansion_Trigger);
+			g_Game.ObjectDelete(m_Expansion_Trigger);
 
 		super.EEDelete(parent);
 	}

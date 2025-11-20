@@ -14,10 +14,10 @@ class ExpansionBakedMapObject : House
 
 		ItemBase.ExpansionPhaseObject(other);
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 			return;
 
-		Object object = GetGame().CreateObjectEx(ExpansionGetPhysicsType(), GetPosition(), ECE_IN_INVENTORY);
+		Object object = g_Game.CreateObjectEx(ExpansionGetPhysicsType(), GetPosition(), ECE_IN_INVENTORY);
 
 		ExpansionPhysicsStructure structure;
 		if (Class.CastTo(structure, object))

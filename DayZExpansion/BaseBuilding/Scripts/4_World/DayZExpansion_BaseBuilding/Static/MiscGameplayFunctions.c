@@ -158,7 +158,7 @@ modded class MiscGameplayFunctions
 		//! Had to duplicate this so our version of IsObjectObstructedEx gets used and not the vanilla one
 
 		vector rayStart;
-		MiscGameplayFunctions.GetHeadBonePos( PlayerBase.Cast( GetGame().GetPlayer() ), rayStart);
+		MiscGameplayFunctions.GetHeadBonePos( PlayerBase.Cast( g_Game.GetPlayer() ), rayStart);
 		IsObjectObstructedCache cache = new IsObjectObstructedCache(rayStart, 1);
 		return IsObjectObstructedEx(object, cache, doDistanceCheck, distanceCheckPos, maxDist);
 	}
@@ -215,7 +215,7 @@ modded class MiscGameplayFunctions
 		int geometry = ObjIntersectFire; //default for the RV raycast
 		if (geometryTypeOverride != -1)
 			geometry = geometryTypeOverride;
-		DayZPhysics.RaycastRV(cache.RaycastStart, cache.ObjectCenterPos, cache.ObjectContactPos, cache.ObjectContactDir, cache.ContactComponent, cache.HitObjects, object, GetGame().GetPlayer(), false, false, geometry, 0.0, CollisionFlags.ALLOBJECTS);
+		DayZPhysics.RaycastRV(cache.RaycastStart, cache.ObjectCenterPos, cache.ObjectContactPos, cache.ObjectContactDir, cache.ContactComponent, cache.HitObjects, object, g_Game.GetPlayer(), false, false, geometry, 0.0, CollisionFlags.ALLOBJECTS);
 
 		//! Vanilla END
 

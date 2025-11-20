@@ -93,7 +93,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		if (!stats || stats.m_PlainID != string.Empty || !stats.m_HasBaseStats || !stats.m_HasRegisteredStats)
 			return;
 
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 
 		stats.Acquire(player);
 
@@ -157,7 +157,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		//! Player preview
 		if (!m_PlayerProfileController.PlayerCharacter)
 		{
-			m_PlayerProfileController.PlayerCharacter = GetGame().GetPlayer();
+			m_PlayerProfileController.PlayerCharacter = g_Game.GetPlayer();
 			m_PlayerProfileController.NotifyPropertyChanged("PlayerCharacter");
 		}
 		
@@ -273,7 +273,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 			//! Set a flag so we can check whether mouse button is still down.
 			m_MouseButtonIsDown = true;
 			GetMousePos(m_PlayerPreviewRotationX, m_PlayerPreviewRotationY);
-			GetGame().GetDragQueue().Call(this, "UpdatePlayerPreviewRotation");
+			g_Game.GetDragQueue().Call(this, "UpdatePlayerPreviewRotation");
 		}
 
 		return super.OnMouseButtonDown(w, x, y, button);

@@ -17,7 +17,7 @@ modded class Wreck_UH1Y
 	void ~Wreck_UH1Y()
 	{
 	#ifndef DIAG_DEVELOPER
-		if (!GetGame())
+		if (!g_Game)
 			return;
 	#endif
 

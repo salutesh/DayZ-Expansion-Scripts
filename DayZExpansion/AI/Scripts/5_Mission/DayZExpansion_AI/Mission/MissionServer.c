@@ -102,7 +102,7 @@ modded class MissionServer
 		foreach (auto areaConfig: excludedAreas)
 		{
 			ExpansionAINoGoArea area;
-			if (Class.CastTo(area, GetGame().CreateObjectEx("ExpansionAINoGoArea", areaConfig.Position, ECE_NONE)))
+			if (Class.CastTo(area, g_Game.CreateObjectEx("ExpansionAINoGoArea", areaConfig.Position, ECE_NONE)))
 				area.Expansion_Init(areaConfig);
 		}
 	}
@@ -112,7 +112,7 @@ modded class MissionServer
 		super.OnMissionLoaded();
 
 		//! Init patrols late so mapping already loaded
-        GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAIPatrolManager.InitPatrols, 10000, false);
+        g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAIPatrolManager.InitPatrols, 10000, false);
 		//! According to the community this fix the issue of zombies not aggroing
 		//! Dont ask how, dont ask why
 	}
@@ -144,6 +144,6 @@ modded class MissionServer
 
 	override void eAI_GetPlayers()
 	{
-		GetGame().GetWorld().GetPlayerList(m_Players);
+		g_Game.GetWorld().GetPlayerList(m_Players);
 	}
 };

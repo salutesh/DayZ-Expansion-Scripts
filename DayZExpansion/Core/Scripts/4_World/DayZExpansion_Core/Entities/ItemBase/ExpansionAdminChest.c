@@ -14,7 +14,7 @@ class ExpansionAdminChest: SeaChest
 {
 	void ExpansionAdminChest()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			SetAllowDamage(false);
 	}
 
@@ -39,7 +39,7 @@ class ExpansionAdminChest: SeaChest
 		if (!super.CanPutInCargo(parent))
 			return false;
 
-		return GetGame().IsDedicatedServer() || Expansion_HasPermission();
+		return g_Game.IsDedicatedServer() || Expansion_HasPermission();
 	}
 
 	override bool CanPutIntoHands(EntityAI parent)
@@ -47,7 +47,7 @@ class ExpansionAdminChest: SeaChest
 		if (!super.CanPutIntoHands(parent))
 			return false;
 
-		return GetGame().IsDedicatedServer() || Expansion_HasPermission();
+		return g_Game.IsDedicatedServer() || Expansion_HasPermission();
 	}
 
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
@@ -55,7 +55,7 @@ class ExpansionAdminChest: SeaChest
 		if (!super.CanReceiveAttachment(attachment, slotId))
 			return false;
 
-		return GetGame().IsDedicatedServer() || Expansion_HasPermission();
+		return g_Game.IsDedicatedServer() || Expansion_HasPermission();
 	}
 
 	override bool CanReceiveItemIntoCargo(EntityAI item)
@@ -63,7 +63,7 @@ class ExpansionAdminChest: SeaChest
 		if (!super.CanReceiveItemIntoCargo(item))
 			return false;
 
-		return GetGame().IsDedicatedServer() || Expansion_HasPermission();
+		return g_Game.IsDedicatedServer() || Expansion_HasPermission();
 	}
 
 	override bool CanReleaseAttachment(EntityAI attachment)
@@ -71,7 +71,7 @@ class ExpansionAdminChest: SeaChest
 		if (!super.CanReleaseAttachment(attachment))
 			return false;
 
-		return GetGame().IsDedicatedServer() || Expansion_HasPermission();
+		return g_Game.IsDedicatedServer() || Expansion_HasPermission();
 	}
 
 	override bool CanReleaseCargo(EntityAI cargo)
@@ -79,7 +79,7 @@ class ExpansionAdminChest: SeaChest
 		if (!super.CanReleaseCargo(cargo))
 			return false;
 
-		return GetGame().IsDedicatedServer() || Expansion_HasPermission();
+		return g_Game.IsDedicatedServer() || Expansion_HasPermission();
 	}
 
 	override bool CanSwapItemInCargo(EntityAI child_entity, EntityAI new_entity)
@@ -87,7 +87,7 @@ class ExpansionAdminChest: SeaChest
 		if (!super.CanSwapItemInCargo(child_entity, new_entity))
 			return false;
 
-		return GetGame().IsDedicatedServer() || Expansion_HasPermission();
+		return g_Game.IsDedicatedServer() || Expansion_HasPermission();
 	}
 
 	override bool IsInventoryVisible()

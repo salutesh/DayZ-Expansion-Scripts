@@ -19,8 +19,8 @@ class ExpansionVehicleGearboxDefault : ExpansionVehicleGearboxAdvanced
 		string path;
 		
 		path = rootPath + " reverse";
-		if (GetGame().ConfigIsExisting(path))
-			m_Reverse = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_Reverse = g_Game.ConfigGetFloat(path);
 
 		m_Gears.Insert("R");
 		m_Gears.Insert("N");

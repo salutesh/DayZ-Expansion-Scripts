@@ -222,9 +222,9 @@ modded class Weapon_Base
 
 		super.EEFired(muzzleType, mode, ammoType);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
-			float time = GetGame().GetTickTime();
+			float time = g_Game.GetTickTime();
 			if (time - m_eAI_LastFiredTime > 1.0)
 			{
 				//! Because shots may be fired rapidly, we only update this once every second
@@ -344,7 +344,7 @@ modded class Weapon_Base
 
 	float eAI_CalculateProjectileSpeedCoefAtPosition(vector origin, string ammoType, vector hitPosition, out float airFriction = 0.0, out float distance = 0.0)
 	{
-		airFriction = GetGame().ConfigGetFloat("CfgAmmo " + ammoType + " airFriction");
+		airFriction = g_Game.ConfigGetFloat("CfgAmmo " + ammoType + " airFriction");
 		distance = vector.Distance(origin, hitPosition);
 
 		return Math.Pow(Math.EULER, airFriction * distance);
@@ -374,13 +374,13 @@ modded class Weapon_Base
 
 	float eAI_CalculateProjectileDamageCoefAtPosition(vector origin, string ammoType, vector hitPosition, float damageOverride = 1.0, out float airFriction = 0.0, out float distance = 0.0, out float speedCoef = 0.0, out float initSpeed = 0.0, out float speed = 0.0)
 	{
-		initSpeed = GetGame().ConfigGetFloat("CfgAmmo " + ammoType + " initSpeed");
+		initSpeed = g_Game.ConfigGetFloat("CfgAmmo " + ammoType + " initSpeed");
 		float initSpeedMultiplier = ConfigGetFloat("initSpeedMultiplier");
 
 		if (initSpeedMultiplier)
 			initSpeed *= initSpeedMultiplier;
 
-		float typicalSpeed = GetGame().ConfigGetFloat("CfgAmmo " + ammoType + " typicalSpeed");
+		float typicalSpeed = g_Game.ConfigGetFloat("CfgAmmo " + ammoType + " typicalSpeed");
 
 		typicalSpeed *= damageOverride;
 
@@ -494,7 +494,7 @@ modded class Weapon_Base
 	{
 		if (PlayerBase.Cast(e.m_player).IsAI())
 		{
-			if (GetGame().IsServer())
+			if (g_Game.IsServer())
 			{
 				ProcessEventResult result;
 				m_fsm.ProcessAbortEvent(e, result);
@@ -588,8 +588,8 @@ modded class Weapon_Base
 
 		if (!s_Expansion_MinSafeFiringDistance.Find(projectile, minDist))
 		{
-			float indirectHitRange = GetGame().ConfigGetFloat(CFG_AMMO + " " + projectile + " indirectHitRange");
-			float indirectHitRangeMultiplier = GetGame().ConfigGetFloat(CFG_AMMO + " " + projectile + " indirectHitRangeMultiplier");
+			float indirectHitRange = g_Game.ConfigGetFloat(CFG_AMMO + " " + projectile + " indirectHitRange");
+			float indirectHitRangeMultiplier = g_Game.ConfigGetFloat(CFG_AMMO + " " + projectile + " indirectHitRangeMultiplier");
 
 			minDist = indirectHitRange;
 			if (indirectHitRangeMultiplier)

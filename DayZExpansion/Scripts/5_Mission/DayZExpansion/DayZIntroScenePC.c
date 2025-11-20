@@ -39,9 +39,9 @@ modded class DayZIntroScenePC
 
 			for (int i = 0; i < count; i++)
 			{
-				GetGame().ConfigGetChildName(root_path, i, childName);
+				g_Game.ConfigGetChildName(root_path, i, childName);
 
-				if (GetGame().ConfigGetInt(root_path + " " + childName + " CanUseInCharacterCreation"))
+				if (g_Game.ConfigGetInt(root_path + " " + childName + " CanUseInCharacterCreation"))
 					ccScenes.Insert(childName);
 			}
 
@@ -154,12 +154,12 @@ modded class DayZIntroScenePC
 		else
 		{
 			string item;
-			GetGame().ConfigGetText(m_Expansion_CustomScene + " HandItem", item);
+			g_Game.ConfigGetText(m_Expansion_CustomScene + " HandItem", item);
 
 			if (item != "")
 			{
 				if (m_Character.GetCharacterObj().GetItemInHands())
-					GetGame().ObjectDelete(m_Character.GetCharacterObj().GetItemInHands());
+					g_Game.ObjectDelete(m_Character.GetCharacterObj().GetItemInHands());
 				m_Character.GetCharacterObj().GetHumanInventory().CreateInHands(item);
 			}
 
@@ -179,7 +179,7 @@ modded class DayZIntroScenePC
 
 				//! Get and trigger the bunker entrance door
 				array<Object> objects = new array<Object>;
-				GetGame().GetObjectsAtPosition("742.4 532.942 1225.78", 5.0, objects, null);
+				g_Game.GetObjectsAtPosition("742.4 532.942 1225.78", 5.0, objects, null);
 				
 				foreach (Object obj: objects)
 				{
@@ -252,7 +252,7 @@ modded class DayZIntroScenePC
 
 			float pos_x = m_CharacterPos[0];
 			float pos_z = m_CharacterPos[2];
-			float pos_y = GetGame().SurfaceY(pos_x, pos_z);
+			float pos_y = g_Game.SurfaceY(pos_x, pos_z);
 			vector ground_demo_pos = Vector(pos_x, pos_y, pos_z);
 			m_CharacterPos = ground_demo_pos;
 

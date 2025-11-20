@@ -58,12 +58,12 @@ class SV_Abandoned_Sattelite_Antenna extends House
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			InitSatelliteClient();
 		}
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			InitSatelliteServer();
 		}
@@ -117,7 +117,7 @@ class SV_Abandoned_Sattelite_Antenna extends House
 
 	#ifdef DIAG_DEVELOPER
 	#ifdef EXPANSIONMODNAVIGATION
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
 	#endif
 	#endif
 	}

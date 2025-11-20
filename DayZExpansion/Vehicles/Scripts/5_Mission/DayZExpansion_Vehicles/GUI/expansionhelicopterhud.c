@@ -64,7 +64,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 
 	override void Init(Widget vehicleHudPanels)
 	{
-		m_VehiclePanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Vehicles/GUI/layouts/hud/hud_helicopters.layout", vehicleHudPanels);
+		m_VehiclePanel = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Vehicles/GUI/layouts/hud/hud_helicopters.layout", vehicleHudPanels);
 
 		m_HeliSpeedPointer = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("SpeedPointer"));
 		m_HeliSpeedValue = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("SpeedValue"));
@@ -184,7 +184,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 		}
 		
 		//! outdoor temperature
-		//float temperature = GetGame().GetMission().GetWorldData().GetBaseEnvTemperatureAtObject(m_CurrentHelicopter);
+		//float temperature = g_Game.GetMission().GetWorldData().GetBaseEnvTemperatureAtObject(m_CurrentHelicopter);
 		//m_HeliOutdoorTempValue.SetText("Temp:" + Math.Floor(temperature).ToString() + "C");
 		
 		//! speed

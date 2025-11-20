@@ -104,7 +104,7 @@ class eAICommandMenu: UIScriptedMenu
 		if (!instance)
 			instance = new eAICommandMenu();
 
-		GetGame().GetUIManager().ShowScriptedMenu(instance, null);
+		g_Game.GetUIManager().ShowScriptedMenu(instance, null);
 		#endif
 	}
 
@@ -113,7 +113,7 @@ class eAICommandMenu: UIScriptedMenu
 	//============================================
 	override Widget Init()
 	{
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/AI/GUI/layouts/radial_menu/menu.layout");
+		layoutRoot = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/AI/GUI/layouts/radial_menu/menu.layout");
 		m_GestureItemCardPanel = layoutRoot.FindAnyWidget(RadialMenu.RADIAL_ITEM_CARD_CONTAINER);
 
 		//register gestures menu
@@ -143,11 +143,11 @@ class eAICommandMenu: UIScriptedMenu
 	{
 		super.OnShow();
 
-		if (GetGame().GetUIManager())
-			GetGame().GetUIManager().ShowCursor(true);
+		if (g_Game.GetUIManager())
+			g_Game.GetUIManager().ShowCursor(true);
 	
-		if (GetGame().GetMission())// thanks Wardog
-			GetGame().GetMission().PlayerControlDisable(INPUT_EXCLUDE_MOUSE_RADIAL);
+		if (g_Game.GetMission())// thanks Wardog
+			g_Game.GetMission().PlayerControlDisable(INPUT_EXCLUDE_MOUSE_RADIAL);
 		
 		m_IsMenuClosing = false;
 	}
@@ -159,11 +159,11 @@ class eAICommandMenu: UIScriptedMenu
 		if (GetParentMenu()) // check if we're a child menu, we shouldn't give control back yet
 			return;
 	
-		if (GetGame().GetUIManager())
-			GetGame().GetUIManager().ShowCursor(false);
+		if (g_Game.GetUIManager())
+			g_Game.GetUIManager().ShowCursor(false);
 	
-		if (GetGame().GetMission())
-			GetGame().GetMission().PlayerControlEnable(true);
+		if (g_Game.GetMission())
+			g_Game.GetMission().PlayerControlEnable(true);
 		
 		m_IsMenuClosing = true;
 	}
@@ -529,7 +529,7 @@ class eAICommandMenu: UIScriptedMenu
 			eAICommandMenuItem gesture_item = m_GestureItems.Get(i);
 
 			//create item card
-			Widget gesture_item_card_widget = Widget.Cast(GetGame().GetWorkspace().CreateWidgets("DayZExpansion/AI/GUI/layouts/radial_menu/item_card.layout", m_GestureItemCardPanel));
+			Widget gesture_item_card_widget = Widget.Cast(g_Game.GetWorkspace().CreateWidgets("DayZExpansion/AI/GUI/layouts/radial_menu/item_card.layout", m_GestureItemCardPanel));
 			gesture_item.SetRadialItemCard(gesture_item_card_widget);
 
 			//update item card widget
@@ -597,7 +597,7 @@ class eAICommandMenu: UIScriptedMenu
 			#endif
 			#ifdef PLATFORM_PS4
 			string confirm = "cross";
-			if (GetGame().GetInput().GetEnterButton() == GamepadButton.A)
+			if (g_Game.GetInput().GetEnterButton() == GamepadButton.A)
 			{
 				confirm = "cross";
 			}
@@ -785,7 +785,7 @@ class eAICommandMenu: UIScriptedMenu
 	{
 		if (instance.m_IsCategorySelected && instance.m_SelectedItem)
 		{
-			if (!GetGame().IsDedicatedServer())
+			if (!g_Game.IsDedicatedServer())
 			{
 				eAICommandMenuItem selected;
 				instance.m_SelectedItem.GetUserData(selected);

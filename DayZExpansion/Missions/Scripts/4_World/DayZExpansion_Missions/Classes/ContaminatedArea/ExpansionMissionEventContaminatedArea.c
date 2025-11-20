@@ -26,11 +26,11 @@ class ExpansionMissionEventContaminatedArea: ExpansionMissionEventBase
 
 		if (pos[1] == 0)
 		{
-			pos[1] = GetGame().SurfaceRoadY(pos[0], pos[2]);
+			pos[1] = g_Game.SurfaceRoadY(pos[0], pos[2]);
 			flag = ECE_PLACE_ON_SURFACE;
 		}
 
-		Class.CastTo(m_Entity, GetGame().CreateObjectEx("ExpansionContaminatedArea", pos, flag));
+		Class.CastTo(m_Entity, g_Game.CreateObjectEx("ExpansionContaminatedArea", pos, flag));
 
 		pos[1] = pos[1] - Data.NegHeight;
 
@@ -66,7 +66,7 @@ class ExpansionMissionEventContaminatedArea: ExpansionMissionEventBase
 	{
 		m_Zone = null;
 
-		GetGame().ObjectDelete(m_Entity);
+		g_Game.ObjectDelete(m_Entity);
 	}
 
 	override void Event_OnUpdate(float delta)

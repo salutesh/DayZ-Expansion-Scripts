@@ -39,7 +39,7 @@ class ExpansionWorld: ExpansionGame
 
 	void ~ExpansionWorld()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 #ifdef DIAG_DEVELOPER
@@ -95,7 +95,7 @@ class ExpansionWorld: ExpansionGame
 		}
 #endif
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			if (source && source.ShootsExplosiveAmmo() && !deflected && outSpeed == vector.Zero)
 			{
@@ -167,8 +167,8 @@ class ExpansionWorld: ExpansionGame
 		}
 
 		//! @note server segfault under DayZ 1.28 Experimental if setting plant health to zero in same frame as contact event, so defer using Call
-		if (GetGame().IsServer())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(FellPlant, plant, sendToClient);
+		if (g_Game.IsServer())
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(FellPlant, plant, sendToClient);
 	}
 
 	static void FellPlant(Plant plant, bool sendToClient = false)
@@ -244,8 +244,8 @@ class ExpansionWorld: ExpansionGame
 		string clsName = nutritionalProfile.GetLiquidClassname();
 		string underscored = ExpansionString.CamelCaseToWords(clsName, "_");
 		string displayName;
-		GetGame().ConfigGetTextRaw("CfgLiquidDefinitions " + clsName +  " displayName", displayName);
-		GetGame().FormatRawConfigStringKeys(displayName);
+		g_Game.ConfigGetTextRaw("CfgLiquidDefinitions " + clsName +  " displayName", displayName);
+		g_Game.FormatRawConfigStringKeys(displayName);
 
 		string translated;
 		if (displayName.IndexOf("#") == 0)
@@ -267,12 +267,12 @@ class ExpansionWorld: ExpansionGame
 		{
 			string colorPath = "CfgLiquidDefinitions " + clsName +  " color";
 
-			color = GetGame().ConfigGetInt(colorPath);
+			color = g_Game.ConfigGetInt(colorPath);
 
 			if (!color)
 			{
 				string colorConstantName;
-				GetGame().ConfigGetTextRaw(colorPath, colorConstantName);
+				g_Game.ConfigGetTextRaw(colorPath, colorConstantName);
 
 				if (!colorConstantName)
 				{
@@ -374,7 +374,7 @@ class ExpansionWorld: ExpansionGame
 			if (!creature.GetAIAgent())
 			{
 				string templateName = creature.ConfigGetString("aiAgentTemplate");
-				AIWorld aiWorld = GetGame().GetWorld().GetAIWorld();
+				AIWorld aiWorld = g_Game.GetWorld().GetAIWorld();
 			#ifdef DIAG_DEVELOPER
 				EXTrace.Print(EXTrace.MISC, this, "Creating AI group " + templateName);
 			#endif

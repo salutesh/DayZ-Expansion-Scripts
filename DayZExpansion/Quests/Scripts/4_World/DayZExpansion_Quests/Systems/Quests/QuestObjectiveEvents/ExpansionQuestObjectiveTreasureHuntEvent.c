@@ -104,10 +104,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		//! Only cleanup the chest if objective is not completed yet, because it may yet contain items if quest is autocomplete
 		//! (autocomplete will complete the quest if the 1st item is taken out of the chest)
 		if (m_Chest && !IsCompleted())
-			GetGame().ObjectDelete(m_Chest);
+			g_Game.ObjectDelete(m_Chest);
 
 		if (m_Stash)
-			GetGame().ObjectDelete(m_Stash);
+			g_Game.ObjectDelete(m_Stash);
 
 		int questID = m_Quest.GetQuestConfig().GetID();
 		int objectiveType = GetObjectiveType();
@@ -142,14 +142,14 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		foreach (EntityAI obj: m_LootItems)
 		{
 			EXTrace.Print(EXTrace.QUESTS, this, "::OnCancel - loot item: " + obj);
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 		}
 
 		if (m_Chest)
-			GetGame().ObjectDelete(m_Chest);
+			g_Game.ObjectDelete(m_Chest);
 
 		if (m_Stash)
-			GetGame().ObjectDelete(m_Stash);
+			g_Game.ObjectDelete(m_Stash);
 
 		ObjectivePrint("End and return TRUE.");
 
@@ -314,15 +314,15 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (useStash)
 		{
 			//! Create the underground stash and hide it
-			Object stashObj = GetGame().CreateObjectEx("UndergroundStash", m_StashPos, ECE_KEEPHEIGHT);
+			Object stashObj = g_Game.CreateObjectEx("UndergroundStash", m_StashPos, ECE_KEEPHEIGHT);
 			if (!Class.CastTo(m_Stash, stashObj))
 			{
-				GetGame().ObjectDelete(stashObj);
+				g_Game.ObjectDelete(stashObj);
 				return;
 			}
 
 			m_Stash.SetPosition(m_StashPos);
-			vector ori = GetGame().GetSurfaceOrientation(m_StashPos[0], m_StashPos[2]);
+			vector ori = g_Game.GetSurfaceOrientation(m_StashPos[0], m_StashPos[2]);
 			m_Stash.SetOrientation(ori);
 			m_Stash.Expansion_SetQuestID(m_Quest.GetQuestConfig().GetID());
 		}
@@ -340,12 +340,12 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		}
 		else
 		{
-			chestObj = GetGame().CreateObjectEx(containerName, m_StashPos, ECE_PLACE_ON_SURFACE);
+			chestObj = g_Game.CreateObjectEx(containerName, m_StashPos, ECE_PLACE_ON_SURFACE);
 		}
 
 		if (!Class.CastTo(m_Chest, chestObj))
 		{
-			GetGame().ObjectDelete(chestObj);
+			g_Game.ObjectDelete(chestObj);
 			return;
 		}
 
@@ -379,7 +379,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		array<ExpansionObjectiveTriggerBase> triggers = {};
-		ExpansionTravelObjectiveSphereTrigger trigger = ExpansionTravelObjectiveSphereTrigger.Cast(GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", pos, ECE_LOCAL));
+		ExpansionTravelObjectiveSphereTrigger trigger = ExpansionTravelObjectiveSphereTrigger.Cast(g_Game.CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", pos, ECE_LOCAL));
 		if (!trigger)
 			return;
 
@@ -421,13 +421,13 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		{
 			if (m_Chest)
 			{
-				GetGame().ObjectDelete(m_Chest);
+				g_Game.ObjectDelete(m_Chest);
 				m_Chest = null;
 			}
 
 			if (m_Stash)
 			{
-				GetGame().ObjectDelete(m_Stash);
+				g_Game.ObjectDelete(m_Stash);
 				m_Stash = null;
 			}
 

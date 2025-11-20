@@ -537,7 +537,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		
 		m_Module.RequestServerTerritories();
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdateMapPosition, 34, false, true, vector.Zero);
+		g_Game.GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdateMapPosition, 34, false, true, vector.Zero);
 	}
 	
 	void UpdateMapPosition( bool usePlayerPosition, vector mapPosition = vector.Zero )
@@ -546,7 +546,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		{
 			PlayerBase player;
 			float scale;
-			if ( Class.CastTo( player, GetGame().GetPlayer() ) && !player.GetLastMapInfo( scale, mapPosition ) )
+			if ( Class.CastTo( player, g_Game.GetPlayer() ) && !player.GetLastMapInfo( scale, mapPosition ) )
 			{
 				scale = 0.33;
 				mapPosition = player.GetWorldPosition();

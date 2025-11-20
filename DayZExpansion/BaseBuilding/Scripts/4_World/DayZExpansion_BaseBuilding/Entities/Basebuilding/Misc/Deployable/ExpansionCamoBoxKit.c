@@ -26,14 +26,14 @@ class ExpansionCamoBoxKit: ExpansionKitLarge
 		
 		if ( IsMissionHost() )
 		{			
-			ExpansionCamoBox camobox = ExpansionCamoBox.Cast( GetGame().CreateObject( "ExpansionCamoBox", GetPosition() ) );
+			ExpansionCamoBox camobox = ExpansionCamoBox.Cast( g_Game.CreateObject( "ExpansionCamoBox", GetPosition() ) );
 			camobox.SetPosition( position );
 			camobox.SetOrientation( orientation );
 			
 			//! Make the kit invisible, so it can be destroyed from deploy UA when action ends
 			HideAllSelections();
 
-			GetGame().ObjectDelete(this);
+			g_Game.ObjectDelete(this);
 		}	
 		
 		SetIsDeploySound( true );

@@ -36,7 +36,7 @@ modded class RecipeBase
 
 				//! Hmm. This is still a bit iffy but should work ok for now
 				array<string> itemInfo = new array<string>;
-				GetGame().ConfigGetTextArray("CfgVehicles " + className + " itemInfo", itemInfo);
+				g_Game.ConfigGetTextArray("CfgVehicles " + className + " itemInfo", itemInfo);
 				bool isBaseballBat = false;
 				bool isKnife = false;
 				bool isAxe = false;
@@ -154,7 +154,7 @@ modded class RecipeBase
 			{
 				//! Only set amount if item can be split
 				string cfgPath = cfgSearch + " " + className;
-				if (GetGame().ConfigGetInt(cfgPath + " canBeSplit") && !GetGame().ConfigGetInt(cfgPath + " quantityBar"))
+				if (g_Game.ConfigGetInt(cfgPath + " canBeSplit") && !g_Game.ConfigGetInt(cfgPath + " quantityBar"))
 				{
 					return quantity;
 				}

@@ -27,7 +27,7 @@ class ExpansionDirectConnectTab extends ServerBrowserTab
 	// ------------------------------------------------------------
 	protected override void Construct( Widget parent, ServerBrowserMenuNew menu, TabType type )
 	{
-		m_Root = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/server_browser/expansion_server_browser_tab_direct.layout", parent );
+		m_Root = g_Game.GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/server_browser/expansion_server_browser_tab_direct.layout", parent );
 	
 		m_IPSetting				= Widget.Cast( m_Root.FindAnyWidget( "direct_ip_setting" ) );
 		m_IPEditbox 			= EditBoxWidget.Cast( m_Root.FindAnyWidget( "direct_ip_setting_editbox" ) );
@@ -42,12 +42,12 @@ class ExpansionDirectConnectTab extends ServerBrowserTab
 		string ip;
 		string port;
 		
-		if ( GetGame().GetProfileString("ExpansionDirectConnectIP", ip) )
+		if ( g_Game.GetProfileString("ExpansionDirectConnectIP", ip) )
 		{
 			m_IPEditbox.SetText( ip );
 		}
 		
-		if ( GetGame().GetProfileString("ExpansionDirectConnectPort", port) )
+		if ( g_Game.GetProfileString("ExpansionDirectConnectPort", port) )
 		{
 			m_PortEditbox.SetText( port );
 		}

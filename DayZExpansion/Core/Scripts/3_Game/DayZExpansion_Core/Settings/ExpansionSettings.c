@@ -196,7 +196,7 @@ class ExpansionSettings
 		auto trace = EXTrace.Start(EXTrace.SETTINGS, this, type.ToString());
 #endif
 		
-		if (GetGame().IsDedicatedServer())
+		if (g_Game.IsDedicatedServer())
 			return;
 
 		Init(type);
@@ -209,7 +209,7 @@ class ExpansionSettings
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Save");
 #endif
 
-		if ( IsMissionHost() && GetGame().IsMultiplayer() )
+		if ( IsMissionHost() && g_Game.IsMultiplayer() )
 		{
 			foreach (ExpansionSettingBase setting: m_SettingsOrdered)
 			{
@@ -223,10 +223,10 @@ class ExpansionSettings
 		auto setting = m_Settings[type];
 		if (setting && !setting.IsLoaded())
 		{
-			if (checkLoaded && (GetGame().IsDedicatedServer() || !GetGame().GetMission() || (GetGame().GetMission().IsMissionGameplay() && GetGame().IsMultiplayer()) || (GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu() && !GetDayZGame().Expansion_IsMissionSinglePlayer())))
+			if (checkLoaded && (g_Game.IsDedicatedServer() || !g_Game.GetMission() || (g_Game.GetMission().IsMissionGameplay() && g_Game.IsMultiplayer()) || (GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu() && !GetDayZGame().Expansion_IsMissionSinglePlayer())))
 				WarnNotLoaded(type);
 
-			if (!setting.IsUsingDefaults() && (GetGame().IsDedicatedServer() || GetDayZGame().Expansion_IsMissionSinglePlayer()))
+			if (!setting.IsUsingDefaults() && (g_Game.IsDedicatedServer() || GetDayZGame().Expansion_IsMissionSinglePlayer()))
 			{
 				//! IMPORTANT: Only use defaults if dedicated server or SP!
 				EXTrace.Print(true, type, "Using defaults");
@@ -251,7 +251,7 @@ class ExpansionSettings
 		{
 			string msg = "Trying to access " + type.ToString() + " before it has been ";
 
-			if (GetGame().IsDedicatedServer() || GetDayZGame().Expansion_IsMissionSinglePlayer())
+			if (g_Game.IsDedicatedServer() || GetDayZGame().Expansion_IsMissionSinglePlayer())
 				msg += "loaded!";
 			else
 				msg += "received!";
@@ -266,13 +266,13 @@ class ExpansionSettings
 			}
 
 		#ifdef DIAG_DEVELOPER
-			EXTrace.Print(true, null, "Dedicated server: " + GetGame().IsDedicatedServer());
+			EXTrace.Print(true, null, "Dedicated server: " + g_Game.IsDedicatedServer());
 			EXTrace.Print(true, null, "Is mission singleplayer: " + GetDayZGame().Expansion_IsMissionSinglePlayer());
-			EXTrace.Print(true, null, "Is multiplayer: " + GetGame().IsMultiplayer());
+			EXTrace.Print(true, null, "Is multiplayer: " + g_Game.IsMultiplayer());
 			EXTrace.Print(true, null, "Is loading: " + GetDayZGame().IsLoading());
-			EXTrace.Print(true, null, "Mission: " + GetGame().GetMission());
-			if (GetGame().GetMission())
-				EXTrace.Print(true, null, "Is mission gameplay: " + GetGame().GetMission().IsMissionGameplay());
+			EXTrace.Print(true, null, "Mission: " + g_Game.GetMission());
+			if (g_Game.GetMission())
+				EXTrace.Print(true, null, "Is mission gameplay: " + g_Game.GetMission().IsMissionGameplay());
 			EXTrace.Print(true, null, "Is mission main menu: " + GetDayZGame().Expansion_IsMissionMainMenu());
 		#endif
 		}

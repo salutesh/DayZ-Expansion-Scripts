@@ -106,7 +106,7 @@ class CAContinuousExpansionHoverFillFuel : CAContinuousBase
 		}
 		
 		
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
 			auto vehicle = ExpansionVehicle.Get(action_data.m_Player);
 			

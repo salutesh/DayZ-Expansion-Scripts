@@ -16,7 +16,7 @@ modded class InspectMenuNew
 	{
 		if (Expansion_UseCustomLayout())
 		{
-			layoutRoot = GetGame().GetWorkspace().CreateWidgets(Expansion_GetInspectionMenuLayout());
+			layoutRoot = g_Game.GetWorkspace().CreateWidgets(Expansion_GetInspectionMenuLayout());
 		}
 		else
 		{

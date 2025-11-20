@@ -90,9 +90,9 @@ class ExpansionLocationT<Class T>
 
 		array<ref T> areaArray = {};
 
-		string worldName = GetGame().GetWorldName();
+		string worldName = g_Game.GetWorldName();
 		string location_config_path = "CfgWorlds " + worldName + " Names";
-		int classNamesCount = GetGame().ConfigGetChildrenCount( location_config_path );
+		int classNamesCount = g_Game.ConfigGetChildrenCount( location_config_path );
 		
 		worldName.ToLower();
 
@@ -100,7 +100,7 @@ class ExpansionLocationT<Class T>
 		for ( int l = 0; l < classNamesCount; ++l ) 
 		{
 			string location_class_name;
-			GetGame().ConfigGetChildName( location_config_path, l, location_class_name );
+			g_Game.ConfigGetChildName( location_config_path, l, location_class_name );
 
 			string location_class_name_path = location_config_path + " " + location_class_name;
 
@@ -110,11 +110,11 @@ class ExpansionLocationT<Class T>
 
 			string location_type;
 			string location_name;
-			GetGame().ConfigGetText( location_type_path, location_type );
-			GetGame().ConfigGetText( location_name_path, location_name );
+			g_Game.ConfigGetText( location_type_path, location_type );
+			g_Game.ConfigGetText( location_name_path, location_name );
 
 			TFloatArray location_position = {};
-			GetGame().ConfigGetFloatArray( location_position_path, location_position );
+			g_Game.ConfigGetFloatArray( location_position_path, location_position );
 			
 			if (location_position == null || location_position.Count() != 2)
 			{

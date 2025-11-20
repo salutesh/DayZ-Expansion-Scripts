@@ -21,7 +21,7 @@ static void ExpansionCreateExplosion( Object ent, string ammoType, float radius 
 
 	vector pos = ent.GetPosition();
 		
-	GetGame().GetObjectsAtPosition3D( pos, radius, objects, cargos ); 
+	g_Game.GetObjectsAtPosition3D( pos, radius, objects, cargos ); 
 	for ( int i = 0; i < objects.Count(); i++ ) 
 	{
 		Object object = objects.Get(i);

@@ -81,7 +81,7 @@ modded class IngameHud
 	{
 		super.Init(hud_panel_widget);
 
-		m_GPSPanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Navigation/GUI/layouts/expansion_gps.layout");
+		m_GPSPanel = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Navigation/GUI/layouts/expansion_gps.layout");
 		if (m_GPSPanel)
 		{
 			m_GPSPanel.Show(false);
@@ -105,7 +105,7 @@ modded class IngameHud
 			m_PlayerArrowMarker.SetName("");
 		}
 
-		m_CompassPanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Navigation/GUI/layouts/expansion_compass.layout");
+		m_CompassPanel = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Navigation/GUI/layouts/expansion_compass.layout");
 		if (m_CompassPanel)
 		{
 			m_CompassPanel.Show(false);
@@ -122,7 +122,7 @@ modded class IngameHud
 	{
 		super.Update(timeslice);
 
-		UIScriptedMenu topMenu = GetGame().GetUIManager().GetMenu();
+		UIScriptedMenu topMenu = g_Game.GetUIManager().GetMenu();
 		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 
 		if (topMenu || viewMenu)
@@ -160,7 +160,7 @@ modded class IngameHud
 		if (m_CompassPanel && m_CompassPanel.IsVisible())
 			RefreshCompass();
 
-		m_Player = PlayerBase.Cast(GetGame().GetPlayer());
+		m_Player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (m_Player && m_Player.IsAlive())
 		{
 			m_CloseTime += timeslice;
@@ -298,7 +298,7 @@ modded class IngameHud
 		if ( GetExpansionClientSettings() && !GetExpansionClientSettings().EnableGPSBasedOnVehicleSpeed )
 			return;
 
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (player)
 		{
 			auto vehicle = ExpansionVehicle.Get(player);
@@ -316,11 +316,11 @@ modded class IngameHud
 
 	void RefreshGPSMapStats()
 	{
-		if (!(GetGame().GetPlayer() && GetGame().GetCurrentCameraPosition()))
+		if (!(g_Game.GetPlayer() && g_Game.GetCurrentCameraPosition()))
 			return;
 
-		vector cameraPosition = GetGame().GetCurrentCameraPosition();
-		vector cameraDirection = GetGame().GetCurrentCameraDirection().VectorToAngles();
+		vector cameraPosition = g_Game.GetCurrentCameraPosition();
+		vector cameraDirection = g_Game.GetCurrentCameraDirection().VectorToAngles();
 		float yaw = cameraDirection[0];
 		float normalizedAngle = Math.NormalizeAngle(yaw);
 		int dir = Math.Round(normalizedAngle);
@@ -333,10 +333,10 @@ modded class IngameHud
 
 	void RefreshGPSMap()
 	{
-		if (!(GetGame().GetPlayer() && GetGame().GetCurrentCameraPosition()))
+		if (!(g_Game.GetPlayer() && g_Game.GetCurrentCameraPosition()))
 			return;
 
-		vector tempPosition = GetGame().GetCurrentCameraPosition();
+		vector tempPosition = g_Game.GetCurrentCameraPosition();
 		vector mapPosition = Vector(tempPosition[0], tempPosition[1], tempPosition[2]);
 		float scale = GetCurrentGPSMapScale();
 
@@ -358,7 +358,7 @@ modded class IngameHud
 			m_AddedCompassSettings = true;
 		}
 
-		vector player_dir = GetGame().GetCurrentCameraDirection();
+		vector player_dir = g_Game.GetCurrentCameraDirection();
 		float player_angle = player_dir.VectorToAngles().GetRelAngles()[0];
 		float image_pos;
 

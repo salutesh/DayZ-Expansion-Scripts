@@ -22,7 +22,7 @@ class ExpansionPersonalStorageHub: BuildingBase
 	{
 		//! @note on client, this should run AFTER Expansion_OnOwnerSync has been invoked on all existing containers,
 		//! on server it should run after all existing containers have been loaded from storage
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_FindContainersInVicinity, 1000);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_FindContainersInVicinity, 1000);
 	}
 
 	override bool CanObstruct()
@@ -91,7 +91,7 @@ class ExpansionPersonalStorageHub: BuildingBase
 		}
 	#endif
 
-		string displayName = GetGame().ConfigGetTextOut(CFG_VEHICLESPATH + " " + containerName + " displayName");
+		string displayName = g_Game.ConfigGetTextOut(CFG_VEHICLESPATH + " " + containerName + " displayName");
 
 		if (!displayName)
 			displayName = "#STR_EXPANSION_PERSONALSTORAGE";
@@ -119,11 +119,11 @@ class ExpansionPersonalStorageHub: BuildingBase
 
 			string containerBase = ConfigGetString("expansionPersonalStorageBase");
 
-			Object obj = GetGame().CreateObjectEx(containerBase + "_Level" + lvl, GetPosition(), ECE_KEEPHEIGHT);
+			Object obj = g_Game.CreateObjectEx(containerBase + "_Level" + lvl, GetPosition(), ECE_KEEPHEIGHT);
 			if (!Class.CastTo(container, obj))
 			{
 				EXError.Error(this, "Cannot cast " + obj + " to ExpansionPersonalStorageContainer", {});
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 				return false;
 			}
 
@@ -131,7 +131,7 @@ class ExpansionPersonalStorageHub: BuildingBase
 
 			if (FileExist(container.Expansion_GetPersonalStorageFileName()) && !container.Expansion_RestoreContents())
 			{
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 				return false;
 			}
 

@@ -73,7 +73,7 @@ class eAIDynamicPatrolSphereTrigger: Trigger
 			if (!m_eAI_PatrolSpawnCheck)
 			{
 				m_eAI_PatrolSpawnCheck = true;
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_PatrolSpawnCheck, 34, false, true);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_PatrolSpawnCheck, 34, false, true);
 			}
 		}
 	}

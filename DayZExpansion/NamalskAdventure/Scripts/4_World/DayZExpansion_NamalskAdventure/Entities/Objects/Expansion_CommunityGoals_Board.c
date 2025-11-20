@@ -103,7 +103,7 @@ class Expansion_CommunityGoals_Board: House
 
 		super.AfterStoreLoad();
 
-		GetGame().ObjectDelete(this);
+		g_Game.ObjectDelete(this);
 	}
 
 	protected void ExDebugPrint(string text)

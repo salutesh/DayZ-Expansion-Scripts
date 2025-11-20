@@ -14,7 +14,7 @@ class ExpansionActionSelectNextPlacement: ActionInteractBase
 		string type = m_Hologram.GetPossiblePlacingTypes()[m_NextType];
 		
 		string displayName;
-		GetGame().ConfigGetText( "cfgVehicles " + type + " displayName", displayName );
+		g_Game.ConfigGetText( "cfgVehicles " + type + " displayName", displayName );
 
 		return string.Format( Widget.TranslateString( "#STR_USRACT_CHOOSE_NEXT_PLACEMENT" ), Widget.TranslateString( displayName ) );
 	}

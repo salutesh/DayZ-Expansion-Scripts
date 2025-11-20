@@ -33,7 +33,7 @@ modded class PlayerBase
 		//! Making sure we remove tha call for CreateGraveCross when ever the player base entity gets deleted
 		if (Expansion_IsGravecrossEnabled())
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CreateGraveCross);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CreateGraveCross);
 		}
 	}
 
@@ -72,7 +72,7 @@ modded class PlayerBase
 			}
 
 			EntityAI handEntity = GetHumanInventory().GetEntityInHands();
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, GetExpansionSettings().GetGeneral().GravecrossSpawnTimeDelay * 1000, false, handEntity);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, GetExpansionSettings().GetGeneral().GravecrossSpawnTimeDelay * 1000, false, handEntity);
 		}
 
 		super.EEKilled(killer);
@@ -148,7 +148,7 @@ modded class PlayerBase
 		Expansion_GraveBase grave;
 
 		vector pos = GetPosition();
-		vector ground = Vector(pos[0], GetGame().SurfaceY(pos[0], pos[2]), pos[2]);
+		vector ground = Vector(pos[0], g_Game.SurfaceY(pos[0], pos[2]), pos[2]);
 
 		//! The idea here is that the gravecross should spawn on top of the thing the player died on if it's a building or large item,
 		//! and not below sea level if over water
@@ -169,7 +169,7 @@ modded class PlayerBase
 		if ( DayZPhysics.RayCastBullet( pos, ground, layerMask, this, hitObject, hitPosition, hitNormal, hitFraction ) )
 			ground[1] = hitPosition[1];
 
-		float water_depth = GetGame().GetWaterDepth(ground);
+		float water_depth = g_Game.GetWaterDepth(ground);
 
 		if ( water_depth > 0 )
 		{
@@ -179,7 +179,7 @@ modded class PlayerBase
 
 		ground[1] = ground[1] + offsetY;
 
-		grave = Expansion_GraveBase.Cast(GetGame().CreateObjectEx(graveobject, ground, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH));
+		grave = Expansion_GraveBase.Cast(g_Game.CreateObjectEx(graveobject, ground, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH));
 		grave.SetPosition(ground);
 
 		if ( handEntity && handEntity.GetHierarchyRootPlayer() )
@@ -204,7 +204,7 @@ modded class PlayerBase
 		if (deleteBody)
 		{
             SetPosition("0 0 0");
-        	GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Delete, 5000, false);
+        	g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Delete, 5000, false);
 		}
 	}
 

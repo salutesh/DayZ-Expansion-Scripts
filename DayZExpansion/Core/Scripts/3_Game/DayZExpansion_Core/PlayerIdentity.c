@@ -18,7 +18,7 @@ modded class PlayerIdentity
 
 	string Expansion_GetPlainId()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			return GetPlainId();
 
 		//! @note on client, PlayerIdentity::GetPlainId() will return empty string,
@@ -168,7 +168,7 @@ modded class PlayerIdentity
 	static PlayerIdentity Expansion_GetIdentityByPlainId(string steamId)
 	{
 		array<PlayerIdentity> identities = {};
-		GetGame().GetPlayerIndentities(identities);
+		g_Game.GetPlayerIndentities(identities);
 
 		foreach (PlayerIdentity identity: identities)
 		{
@@ -182,7 +182,7 @@ modded class PlayerIdentity
 	static PlayerIdentity Expansion_GetIdentityById(string id)
 	{
 		array<PlayerIdentity> identities = {};
-		GetGame().GetPlayerIndentities(identities);
+		g_Game.GetPlayerIndentities(identities);
 
 		foreach (PlayerIdentity identity: identities)
 		{

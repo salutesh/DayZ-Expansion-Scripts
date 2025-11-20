@@ -43,7 +43,7 @@ class ExpansionActionOpenTraderMenu: ActionInteractBase
 		if (!trader.GetTraderMarket() || !ExpansionMarketModule.s_Instance.CheckCanUseTrader(player, trader))
 			return false;
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 			m_Text = "#STR_USRACT_TRADE" + " - " + trader.GetDisplayName();
 
 		return true;

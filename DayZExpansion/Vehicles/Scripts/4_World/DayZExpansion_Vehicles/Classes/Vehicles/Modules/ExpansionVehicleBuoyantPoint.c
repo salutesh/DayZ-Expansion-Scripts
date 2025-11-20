@@ -20,7 +20,7 @@ class ExpansionVehicleBuoyantPoint : ExpansionVehicleModule
 		string path;
 
 		path = rootPath + " point";
-		m_Position = m_Vehicle.GetMemoryPointPos(GetGame().ConfigGetTextOut(path));
+		m_Position = m_Vehicle.GetMemoryPointPos(g_Game.ConfigGetTextOut(path));
 		
 		m_SelfDebugWindow = true;
 		
@@ -35,7 +35,7 @@ class ExpansionVehicleBuoyantPoint : ExpansionVehicleModule
 
 	override void PreSimulate(ExpansionPhysicsState pState)
 	{
-		m_Depth = GetGame().GetWaterDepth(m_Vehicle.ModelToWorld(m_Position));
+		m_Depth = g_Game.GetWaterDepth(m_Vehicle.ModelToWorld(m_Position));
 		m_Velocity = pState.GetModelVelocityAt(m_Position);
 	}
 

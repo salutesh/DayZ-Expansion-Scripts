@@ -66,8 +66,8 @@ class ExpansionAnomalyHUDMarker: ScriptView
 		vector parentSize = Vector(width, height, 0);
 		
 		// Get player's camera direction and position
-		vector camDir = GetGame().GetCurrentCameraDirection();
-		vector playerPos = GetGame().GetPlayer().GetPosition();
+		vector camDir = g_Game.GetCurrentCameraDirection();
+		vector playerPos = g_Game.GetPlayer().GetPosition();
 		
 		// Calculate the vector from player's position to anomaly position
 		vector toAnomaly = m_AnomalyPos - playerPos;
@@ -76,11 +76,11 @@ class ExpansionAnomalyHUDMarker: ScriptView
 		vector alignedToAnomaly = vector.Dot(toAnomaly, camDir) * camDir;
 		
 		// Get the screen position of the aligned vector
-		//vector screenPos = GetGame().GetScreenPos(alignedToAnomaly);
-		vector screenPos = GetGame().GetScreenPosRelative(alignedToAnomaly);
+		//vector screenPos = g_Game.GetScreenPos(alignedToAnomaly);
+		vector screenPos = g_Game.GetScreenPosRelative(alignedToAnomaly);
 		
 		int screen_width, screen_height;
-		GetGame().GetScreenSize(screen_width, screen_height);
+		g_Game.GetScreenSize(screen_width, screen_height);
 		vector localPos = screenPos - parentPos;
 		localPos[0] = localPos[0] / screen_width * parentSize[0];
 		localPos[1] = localPos[1] / screen_height * parentSize[1];
@@ -182,12 +182,12 @@ class ExpansionAnomalyHUD: ScriptView
 #endif
 		
 		ref map<string, vector> anomalies = new map<string, vector>;
-		vector camDir = GetGame().GetCurrentCameraDirection();
+		vector camDir = g_Game.GetCurrentCameraDirection();
 		//! Update rotation of the radar circle image widget
 		RadarCircle.SetRotation(0, 0, Math.Round(Math.NormalizeAngle(camDir.VectorToAngles()[0])), true);
 		
 		const float detectionRange = 50.0; //! 50 meters
-		const vector playerCamPos = GetGame().GetCurrentCameraPosition(); // Current players camera position
+		const vector playerCamPos = g_Game.GetCurrentCameraPosition(); // Current players camera position
 		//! Find closest anomaly to player
 		vector closestPosition;
 		
@@ -248,7 +248,7 @@ modded class dzn_apsi
 		
 		super.InitHud();
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 		{
 			if (m_AnomalyHUD)
 			{
@@ -268,7 +268,7 @@ modded class dzn_apsi
 		    return;
 		}
 		
-		m_UpdateQueueTimer += GetGame().GetTickTime();
+		m_UpdateQueueTimer += g_Game.GetTickTime();
 		if (m_UpdateQueueTimer >= m_LastUpdateTimer + UPDATE_DELAY)
 		{
 			m_AnomalyHUD.UpdateRadar();

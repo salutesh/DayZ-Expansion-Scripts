@@ -21,7 +21,7 @@ modded class ItemBase
 	{
 		if (Expansion_DoesSupportVirtualStorage())
 		{
-			if (GetGame().IsServer() && !m_Expansion_GlobalID)
+			if (g_Game.IsServer() && !m_Expansion_GlobalID)
 				m_Expansion_GlobalID = new ExpansionGlobalID();
 
 			RegisterNetSyncVariableBool("m_Expansion_HasEntityStorage");
@@ -32,7 +32,7 @@ modded class ItemBase
 	{
 		super.DeferredInit();
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer() && m_Expansion_GlobalID)
+		if (g_Game.IsServer() && g_Game.IsMultiplayer() && m_Expansion_GlobalID)
 		{
 			m_Expansion_HasEntityStorage = Expansion_HasEntityStorage();
 
@@ -67,7 +67,7 @@ modded class ItemBase
 
 	override void EEDelete(EntityAI parent)
 	{
-		if (GetGame().IsServer() && GetGame().IsMultiplayer() && m_Expansion_GlobalID && m_Expansion_GlobalID.m_IsSet)
+		if (g_Game.IsServer() && g_Game.IsMultiplayer() && m_Expansion_GlobalID && m_Expansion_GlobalID.m_IsSet)
 		{
 			EntityAI savedEntityToBeDeleted = ExpansionEntityStorageModule.GetSavedEntityToBeDeleted();
 			if (this != savedEntityToBeDeleted && !Expansion_IsContainedIn(savedEntityToBeDeleted))
@@ -180,7 +180,7 @@ modded class ItemBase
 #ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		if (Expansion_DoesSupportVirtualStorage() && GetGame().IsServer() && !m_Expansion_GlobalID.m_IsSet)
+		if (Expansion_DoesSupportVirtualStorage() && g_Game.IsServer() && !m_Expansion_GlobalID.m_IsSet)
 			m_Expansion_GlobalID.Acquire();
 
 		super.CF_OnStoreSave(storage);
@@ -208,7 +208,7 @@ modded class ItemBase
 
 	bool Expansion_HasEntityStorage()
 	{
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 			return m_Expansion_HasEntityStorage;
 
 		if (!m_Expansion_GlobalID || !m_Expansion_GlobalID.m_IsSet)
@@ -236,7 +236,7 @@ modded class ItemBase
 		if (!Expansion_DoesSupportVirtualStorage())
 			return false;
 
-		if (GetGame().IsServer() && !m_Expansion_GlobalID)
+		if (g_Game.IsServer() && !m_Expansion_GlobalID)
 			return false;
 
 		auto settings = GetExpansionSettings().GetBaseBuilding(false);
@@ -265,7 +265,7 @@ modded class ItemBase
 				{
 					attachment.GetInventory().GetCurrentInventoryLocation(il);
 					if (!GetInventory().GetSlotLock(il.GetSlot()) && !attachment.IsKindOf("CombinationLock") && !attachment.IsKindOf("ExpansionCodeLock"))
-						GetGame().ObjectDelete(attachment);
+						g_Game.ObjectDelete(attachment);
 				}
 			}
 		}
@@ -276,7 +276,7 @@ modded class ItemBase
 			{
 				EntityAI item = cargo.GetItem(i);
 				if (item)
-					GetGame().ObjectDelete(item);
+					g_Game.ObjectDelete(item);
 			}
 		}
 
@@ -285,7 +285,7 @@ modded class ItemBase
 
 	void Expansion_DeleteEntityStorageFilesIfEmpty()
 	{
-		if (!GetGame().IsClient() && !m_Expansion_DeletingContents && Expansion_HasEntityStorage() && Expansion_IsEmptyIgnoringLockedSlots())
+		if (!g_Game.IsClient() && !m_Expansion_DeletingContents && Expansion_HasEntityStorage() && Expansion_IsEmptyIgnoringLockedSlots())
 		{
 			EntityAI savedEntityToBeDeleted = ExpansionEntityStorageModule.GetSavedEntityToBeDeleted();
 			if (!ExpansionEntityStorageModule.IsCurrentEntity(this) && !Expansion_IsContainedIn(savedEntityToBeDeleted))

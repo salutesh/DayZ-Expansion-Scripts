@@ -43,7 +43,7 @@ class ExpansionActionOpenPersonalStorage: ActionInteractBase
 			return false;
 
 	#ifdef EXPANSIONMODHARDLINE
-		if (GetGame().IsServer() && player.GetIdentity())
+		if (g_Game.IsServer() && player.GetIdentity())
 		{
 			int nextLevel, repReq, questID;
 			bool completed;

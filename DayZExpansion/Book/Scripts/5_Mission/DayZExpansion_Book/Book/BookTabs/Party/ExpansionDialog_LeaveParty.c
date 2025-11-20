@@ -80,7 +80,7 @@ class ExpansionDialogButton_Text_PartyLeave_Accept: ExpansionDialogBookButton_Te
 	{
 		if (m_PartyTab && m_PartyModule)
 		{
-			string id = GetGame().GetPlayer().GetIdentity().GetId();
+			string id = g_Game.GetPlayer().GetIdentity().GetId();
 			m_PartyModule.RemovePartyMember(id, true);
 		}
 		

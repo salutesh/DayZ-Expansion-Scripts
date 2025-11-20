@@ -30,7 +30,7 @@ modded class ExpansionMarketModule
 		if (!super.CheckCanUseTrader(player, trader))
 			return false;
 
-		if (GetGame().IsServer() && GetExpansionSettings().GetQuest().EnableQuests)
+		if (g_Game.IsServer() && GetExpansionSettings().GetQuest().EnableQuests)
 		{
 			int questID = trader.GetTraderMarket().RequiredCompletedQuestID;
 			if (questID > -1)

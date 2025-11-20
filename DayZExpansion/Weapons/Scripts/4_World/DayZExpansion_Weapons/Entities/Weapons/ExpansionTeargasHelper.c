@@ -35,10 +35,10 @@ class ExpansionTeargasHelper
 		auto trace = CF_Trace_0(ExpansionTracing.WEAPONS, this, "OnWorkStart");
 #endif
 
-		if ( GetGame().IsServer() )
+		if ( g_Game.IsServer() )
 		{
 			m_ZoneActive = true;
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, 2000, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, 2000, false);
 		}
 	}
 
@@ -52,7 +52,7 @@ class ExpansionTeargasHelper
 		array<Object> nearest_objects = new array<Object>();
 		array<CargoBase> proxy_cargos = new array<CargoBase>();
 
-		GetGame().GetObjectsAtPosition3D(m_Entity.GetPosition(), 5, nearest_objects, proxy_cargos);
+		g_Game.GetObjectsAtPosition3D(m_Entity.GetPosition(), 5, nearest_objects, proxy_cargos);
 
 		for (int i = 0; i < nearest_objects.Count(); i++)
 		{
@@ -69,7 +69,7 @@ class ExpansionTeargasHelper
 		}
 
 		if (m_ZoneActive)
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, m_CoughTimer, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, m_CoughTimer, false);
 
 	}
 
@@ -83,7 +83,7 @@ class ExpansionTeargasHelper
 		if (!mask) return false;
 
 		string protectionPath = "CfgVehicles " + mask.GetType() + " Protection ";
-		return GetGame().ConfigGetInt(protectionPath + "biological");
+		return g_Game.ConfigGetInt(protectionPath + "biological");
 	}
 
 	void OnWorkStop()

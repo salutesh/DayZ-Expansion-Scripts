@@ -22,7 +22,7 @@ class ExpansionBarbedWireKit: ExpansionKitLarge
 	{
 		if ( IsMissionHost() )
 		{			
-			ExpansionBarbedWire wire = ExpansionBarbedWire.Cast( GetGame().CreateObject( "ExpansionBarbedWire", GetPosition() ) );
+			ExpansionBarbedWire wire = ExpansionBarbedWire.Cast( g_Game.CreateObject( "ExpansionBarbedWire", GetPosition() ) );
 			wire.SetPosition( position );
 			wire.SetOrientation( orientation );
 			// hesco.PlaceOnSurface();
@@ -30,7 +30,7 @@ class ExpansionBarbedWireKit: ExpansionKitLarge
 			//! Make the kit invisible, so it can be destroyed from deploy UA when action ends
 			HideAllSelections();
 
-			GetGame().ObjectDelete(this);
+			g_Game.ObjectDelete(this);
 		}	
 		
 		SetIsDeploySound( true );

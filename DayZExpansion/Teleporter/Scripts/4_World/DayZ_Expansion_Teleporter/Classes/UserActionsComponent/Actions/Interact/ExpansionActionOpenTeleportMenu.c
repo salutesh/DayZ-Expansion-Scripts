@@ -48,7 +48,7 @@ class ExpansionActionOpenTeleportMenu: ActionInteractBase
 	#endif
 	#endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			//! Client
 			//! Dont show action if menu is already opened

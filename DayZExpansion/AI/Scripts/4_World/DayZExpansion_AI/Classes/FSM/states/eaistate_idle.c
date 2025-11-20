@@ -12,7 +12,7 @@ class eAIState_Idle: eAIState
 			}
 		}
 		
-		auto cmd = unit.GetCommand_MoveAI();
+		auto cmd = unit.GetCommand_Move();
 		if (!unit.m_eAI_CurrentCoverObject || !cmd || unit.m_eAI_CommandMove.GetWaypoint() != unit.m_eAI_CurrentCoverPosition)
 		{
 			unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() * 0.333333);

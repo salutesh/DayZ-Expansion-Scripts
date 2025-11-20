@@ -144,7 +144,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	void SetStats(ExpansionSyncedPlayerStats player_stats)
 	{
 		#ifdef EXPANSIONMONITORMODULE
-		DayZPlayer player = GetGame().GetPlayer();
+		DayZPlayer player = g_Game.GetPlayer();
 		if (m_Settings.ShowHUDMemberDistance && player)
 		{
 			vector playerPos = player.GetPosition();

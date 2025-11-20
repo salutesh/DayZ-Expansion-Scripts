@@ -114,7 +114,7 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 				rpc2.Expansion_Send(m_Target, true);
 			} else
 			{
-				ExpansionNumpadUI menu = ExpansionNumpadUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_NUMPAD_MENU, NULL ) );
+				ExpansionNumpadUI menu = ExpansionNumpadUI.Cast( g_Game.GetUIManager().EnterScriptedMenu( MENU_EXPANSION_NUMPAD_MENU, NULL ) );
 				if ( menu )
 				{
 					menu.SetChangeCodelock( false );

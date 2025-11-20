@@ -37,7 +37,7 @@ class ExpansionUIScriptedMenu: UIScriptedMenu
 	// ------------------------------------------------------------
 	void ShowHud(bool state)
 	{
-		Mission mission = GetGame().GetMission();
+		Mission mission = g_Game.GetMission();
 		
 		if (!mission)
 			return;

@@ -96,7 +96,7 @@ class ExpansionCOTGroupsMapMarker: ExpansionMapMarker
 
 	override void SetPosition(vector position, bool performDropEvent = false)
 	{
-		position[1] = GetGame().SurfaceY(position[0], position[2]) + 1.0;
+		position[1] = g_Game.SurfaceY(position[0], position[2]) + 1.0;
 		
 		m_WorldPosition = position;
 		vector mPos = m_MapWidget.MapToScreen(m_WorldPosition);

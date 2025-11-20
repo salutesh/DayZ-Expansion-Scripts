@@ -29,7 +29,7 @@ class eAIGoal
 	{
 		if (!LayoutRoot)
 		{
-			LayoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/AI/GUI/eai_goal_debug.layout");
+			LayoutRoot = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/AI/GUI/eai_goal_debug.layout");
 			if (!LayoutRoot) return;
 
 			Class.CastTo(TextA, LayoutRoot.FindAnyWidget("TextWidget0"));
@@ -37,7 +37,7 @@ class eAIGoal
 			Class.CastTo(TextC, LayoutRoot.FindAnyWidget("TextWidget2"));
 		}
 
-		vector screenPos = GetGame().GetScreenPos(Position_WorldSpace);
+		vector screenPos = g_Game.GetScreenPos(Position_WorldSpace);
 		LayoutRoot.SetPos(screenPos[0], screenPos[1]);
 		LayoutRoot.Show(screenPos[2] > 0); 
 

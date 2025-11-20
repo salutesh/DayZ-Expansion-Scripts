@@ -415,7 +415,7 @@ class ExpansionMath
 		for (int l = 0; l < interpolatedPath.Count(); l++)
 		{
 			vector interpolatedPoint = interpolatedPath[l];
-			interpolatedPoint[1] = GetGame().SurfaceY(interpolatedPath[l][0], interpolatedPath[l][2]);
+			interpolatedPoint[1] = g_Game.SurfaceY(interpolatedPath[l][0], interpolatedPath[l][2]);
 			interpolatedPath[l] = interpolatedPoint;
 #ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, interpolatedPath[l].ToString(false));

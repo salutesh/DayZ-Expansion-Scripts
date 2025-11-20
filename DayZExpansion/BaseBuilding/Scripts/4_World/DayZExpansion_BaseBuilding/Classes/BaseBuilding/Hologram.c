@@ -125,12 +125,12 @@ modded class Hologram
 
 		for ( int i = 0; i < m_DebugPositions.Count(); i++ )
 		{
-			GetGame().ObjectDelete( m_DebugPositions[i] );
+			g_Game.ObjectDelete( m_DebugPositions[i] );
 		}
 
 		for ( i = 0; i < m_DebugDirections.Count(); i++ )
 		{
-			GetGame().ObjectDelete( m_DebugDirections[i] );
+			g_Game.ObjectDelete( m_DebugDirections[i] );
 		}
 
 		m_DebugPositions.Clear();
@@ -138,22 +138,22 @@ modded class Hologram
 
 		if ( m_DebugPositionHighlighted )
 		{
-			GetGame().ObjectDelete( m_DebugPositionHighlighted );
+			g_Game.ObjectDelete( m_DebugPositionHighlighted );
 		}
 
 		if ( m_DebugDirectionHighlighted )
 		{
-			GetGame().ObjectDelete( m_DebugDirectionHighlighted );
+			g_Game.ObjectDelete( m_DebugDirectionHighlighted );
 		}
 
 		if ( m_DebugProjectionPosition )
 		{
-			GetGame().ObjectDelete( m_DebugProjectionPosition );
+			g_Game.ObjectDelete( m_DebugProjectionPosition );
 		}
 
 		if ( m_DebugPointerPosition )
 		{
-			GetGame().ObjectDelete( m_DebugPointerPosition );
+			g_Game.ObjectDelete( m_DebugPointerPosition );
 		}
 	}
 
@@ -182,7 +182,7 @@ modded class Hologram
 		return NULL;
 	#endif
 
-		return GetGame().CreateObject( name, pos, true );
+		return g_Game.CreateObject( name, pos, true );
 	}
 
 	vector m_ExPointerRayStart;
@@ -215,14 +215,14 @@ modded class Hologram
 		auto trace = CF_Trace_0(ExpansionTracing.BASEBUILDING, this, "GetPointerPosition");
 #endif
 
-		if ( !GetGame().GetPlayer() )
+		if ( !g_Game.GetPlayer() )
 		{
 			return "0 0 0";
 		}
 
-		vector position = GetGame().GetCurrentCameraPosition();
-		m_ExPointerRayStart = position + GetGame().GetCurrentCameraDirection() * 0.1;
-		m_ExPointerRayEnd = position + GetGame().GetCurrentCameraDirection() * 3.0;
+		vector position = g_Game.GetCurrentCameraPosition();
+		m_ExPointerRayStart = position + g_Game.GetCurrentCameraDirection() * 0.1;
+		m_ExPointerRayEnd = position + g_Game.GetCurrentCameraDirection() * 3.0;
 
 		Object hitObj;
 		vector hitNormal;
@@ -293,7 +293,7 @@ modded class Hologram
 		array< Object > objects = new array< Object >;
 		array< CargoBase > proxyCargos = new array< CargoBase >;
 
-		GetGame().GetObjectsAtPosition3D( GetGame().GetPlayer().GetPosition(), LARGE_PROJECTION_DISTANCE_LIMIT * 2.0, objects, proxyCargos );
+		g_Game.GetObjectsAtPosition3D( g_Game.GetPlayer().GetPosition(), LARGE_PROJECTION_DISTANCE_LIMIT * 2.0, objects, proxyCargos );
 
 		GenerateSnappingPositions( objects, snappingData );
 
@@ -476,7 +476,7 @@ modded class Hologram
 #endif
 
 		vector ref_dir = orientation.AnglesToVector();
-		vector cam_dir = GetGame().GetCurrentCameraDirection();
+		vector cam_dir = g_Game.GetCurrentCameraDirection();
 		
 		ref_dir[1] = 0;
 		ref_dir.Normalize();
@@ -784,7 +784,7 @@ modded class Hologram
 		{
 			if ( m_DebugPositions[index].GetType() != type )
 			{
-				GetGame().ObjectDelete( m_DebugPositions[index] );
+				g_Game.ObjectDelete( m_DebugPositions[index] );
 				m_DebugPositions.Set( index, CreateDebugObject( type, position ) );
 			}
 			else
@@ -814,7 +814,7 @@ modded class Hologram
 		{
 			if ( m_DebugDirections[index] && m_DebugDirections[index].GetType() != type )
 			{
-				GetGame().ObjectDelete( m_DebugDirections[index] );
+				g_Game.ObjectDelete( m_DebugDirections[index] );
 				m_DebugDirections.Set( index, CreateDebugObject( type, position ) );
 			}
 		}
@@ -834,7 +834,7 @@ modded class Hologram
 		if ( object != NULL )
 		{
 			string hasSnapping = "cfgVehicles " + object.GetType() + " ExpansionSnapping";
-			if ( GetGame().ConfigIsExisting( hasSnapping ) )
+			if ( g_Game.ConfigIsExisting( hasSnapping ) )
 			{
 				m_BBCanSnap = true;
 			} else
@@ -843,63 +843,63 @@ modded class Hologram
 			}
 
 			string typePath = "cfgVehicles " + object.GetType() + " ExpansionSnapping type";
-			if ( GetGame().ConfigIsExisting( typePath ) && m_BBCanSnap )
+			if ( g_Game.ConfigIsExisting( typePath ) && m_BBCanSnap )
 			{
-				GetGame().ConfigGetText( typePath, m_BBType );
+				g_Game.ConfigGetText( typePath, m_BBType );
 			} else
 			{
 				m_BBCanSnap = false;
 			}
 
 			string xSizePath = "cfgVehicles " + object.GetType() + " ExpansionSnapping xSize";
-			if ( GetGame().ConfigIsExisting( xSizePath ) && m_BBCanSnap )
+			if ( g_Game.ConfigIsExisting( xSizePath ) && m_BBCanSnap )
 			{
-				m_BBxSize = GetGame().ConfigGetFloat( xSizePath );
+				m_BBxSize = g_Game.ConfigGetFloat( xSizePath );
 			} else
 			{
 				m_BBCanSnap = false;
 			}
 
 			string ySizePath = "cfgVehicles " + object.GetType() + " ExpansionSnapping ySize";
-			if ( GetGame().ConfigIsExisting( ySizePath ) && m_BBCanSnap )
+			if ( g_Game.ConfigIsExisting( ySizePath ) && m_BBCanSnap )
 			{
-				m_BBySize = GetGame().ConfigGetFloat( ySizePath );
+				m_BBySize = g_Game.ConfigGetFloat( ySizePath );
 			} else
 			{
 				m_BBCanSnap = false;
 			}
 
 			string zSizePath = "cfgVehicles " + object.GetType() + " ExpansionSnapping zSize";
-			if ( GetGame().ConfigIsExisting( zSizePath ) && m_BBCanSnap )
+			if ( g_Game.ConfigIsExisting( zSizePath ) && m_BBCanSnap )
 			{
-				m_BBzSize = GetGame().ConfigGetFloat( zSizePath );
+				m_BBzSize = g_Game.ConfigGetFloat( zSizePath );
 			} else
 			{
 				m_BBCanSnap = false;
 			}
 
 			string xOffsetPath = "cfgVehicles " + object.GetType() + " ExpansionSnapping xOffset";
-			if ( GetGame().ConfigIsExisting( xOffsetPath ) && m_BBCanSnap )
+			if ( g_Game.ConfigIsExisting( xOffsetPath ) && m_BBCanSnap )
 			{
-				m_BBxOffset = GetGame().ConfigGetFloat( xOffsetPath );
+				m_BBxOffset = g_Game.ConfigGetFloat( xOffsetPath );
 			} else
 			{
 				m_BBCanSnap = false;
 			}
 
 			string yOffsetPath = "cfgVehicles " + object.GetType() + " ExpansionSnapping yOffset";
-			if ( GetGame().ConfigIsExisting( yOffsetPath ) && m_BBCanSnap )
+			if ( g_Game.ConfigIsExisting( yOffsetPath ) && m_BBCanSnap )
 			{
-				m_BByOffset = GetGame().ConfigGetFloat( yOffsetPath );
+				m_BByOffset = g_Game.ConfigGetFloat( yOffsetPath );
 			} else
 			{
 				m_BBCanSnap = false;
 			}
 
 			string zOffsetPath = "cfgVehicles " + object.GetType() + " ExpansionSnapping zOffset";
-			if ( GetGame().ConfigIsExisting( zOffsetPath ) && m_BBCanSnap )
+			if ( g_Game.ConfigIsExisting( zOffsetPath ) && m_BBCanSnap )
 			{
-				m_BBzOffset = GetGame().ConfigGetFloat( zOffsetPath );
+				m_BBzOffset = g_Game.ConfigGetFloat( zOffsetPath );
 			} else
 			{
 				m_BBCanSnap = false;
@@ -930,16 +930,16 @@ modded class Hologram
 
 				string typePath = "cfgVehicles " + objects[i].GetType() + " ExpansionSnapping type";
 				string type = "";
-				if ( GetGame().ConfigIsExisting( typePath ) )
+				if ( g_Game.ConfigIsExisting( typePath ) )
 				{
-					GetGame().ConfigGetText( typePath, type );
+					g_Game.ConfigGetText( typePath, type );
 				}
 
 				string defaultHidePath = "cfgVehicles " + objects[i].GetType() + " ExpansionSnapping default_hide";
 				array< int > defaultHide = new array< int >;
-				if ( GetGame().ConfigIsExisting( defaultHidePath ) )
+				if ( g_Game.ConfigIsExisting( defaultHidePath ) )
 				{
-					GetGame().ConfigGetIntArray( defaultHidePath, defaultHide );
+					g_Game.ConfigGetIntArray( defaultHidePath, defaultHide );
 				}
 
 				while ( objects[i].MemoryPointExists( "ex_snap_pos_" + snapIdx ) )
@@ -997,18 +997,18 @@ modded class Hologram
 
 			if ( m_Projection )
 			{
-				GetGame().ObjectDelete( m_Projection );
+				g_Game.ObjectDelete( m_Projection );
 			}
 
 			EntityAI projection_entity;
-			if ( GetGame().IsMultiplayer() && GetGame().IsServer() )
+			if ( g_Game.IsMultiplayer() && g_Game.IsServer() )
 			{	
-				projection_entity = EntityAI.Cast( GetGame().CreateObjectEx( ProjectionBasedOnParent(), GetProjectionEntityPosition( m_Player ), ECE_PLACE_ON_SURFACE ) );
+				projection_entity = EntityAI.Cast( g_Game.CreateObjectEx( ProjectionBasedOnParent(), GetProjectionEntityPosition( m_Player ), ECE_PLACE_ON_SURFACE ) );
 				SetProjectionEntity( projection_entity );
 				SetAnimations();
 			} else
 			{
-				projection_entity = EntityAI.Cast( GetGame().CreateObjectEx( ProjectionBasedOnParent(), GetProjectionEntityPosition( m_Player ), ECE_TRACE|ECE_LOCAL ) );
+				projection_entity = EntityAI.Cast( g_Game.CreateObjectEx( ProjectionBasedOnParent(), GetProjectionEntityPosition( m_Player ), ECE_TRACE|ECE_LOCAL ) );
 				SetProjectionEntity( projection_entity );
 				SetAnimations();
 				CreateTrigger();

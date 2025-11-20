@@ -55,7 +55,7 @@ class ExpansionActionDestroyTerritory: ActionContinuousBase
 		
 	override string GetText()
 	{
-		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+		PlayerBase player = PlayerBase.Cast( g_Game.GetPlayer() );
 		if ( player )
 		{
 			ConstructionActionData construction_action_data = player.GetConstructionActionData();

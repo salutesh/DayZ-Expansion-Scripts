@@ -16,7 +16,7 @@ class ExpansionTidyPanel
 		if (parent)
 		{
 			m_Owner = owner;
-			m_Panel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Core/GUI/layouts/expansion_inventory_tidy.layout", parent);
+			m_Panel = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Core/GUI/layouts/expansion_inventory_tidy.layout", parent);
 			m_Btn = ButtonWidget.Cast(m_Panel.FindAnyWidget("TidyBtn"));
 			m_BtnIcon = ImageWidget.Cast(m_Panel.FindAnyWidget("TidyBtnIcon"));
 			WidgetEventHandler.GetInstance().RegisterOnClick(m_Btn, this, "Tidy");

@@ -29,7 +29,7 @@ modded class PlayerBase
 			case DayZPlayerSyncJunctures.EXPANSION_SJ_TELEPORT:
 				if (m_Expansion_SpawnSelect)
 				{
-					MissionBaseWorld missionWorld = MissionBaseWorld.Cast(GetGame().GetMission());
+					MissionBaseWorld missionWorld = MissionBaseWorld.Cast(g_Game.GetMission());
 					if (missionWorld)
 					{
 						missionWorld.Expansion_EndSpawnSelection(this);

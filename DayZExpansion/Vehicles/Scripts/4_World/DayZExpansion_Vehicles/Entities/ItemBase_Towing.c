@@ -62,7 +62,7 @@ modded class ItemBase
 			return;
 		}
 
-		if (!GetGame().IsClient())
+		if (!g_Game.IsClient())
 		{
 			m_Expansion_ChildTow.GetNetworkID(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh);
 
@@ -87,7 +87,7 @@ modded class ItemBase
 		m_Expansion_Connections[index].m_Parent = EntityAI.Cast(parent);
 		m_Expansion_Connections[index].m_Attached = true;
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			SetSynchDirty();
 
 		return true;
@@ -123,7 +123,7 @@ modded class ItemBase
 		m_Expansion_IsTowing = false;
 		m_Expansion_TowConnectionIndex = -1;
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			SetSynchDirty();
 	}
 
@@ -136,7 +136,7 @@ modded class ItemBase
 		m_Expansion_TowConnectionSynchMask &= ~(1 << connectionIndex);
 		m_Expansion_TowConnectionMask = m_Expansion_TowConnectionSynchMask;
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			SetSynchDirty();
 	}
 
@@ -267,7 +267,7 @@ modded class ItemBase
 			m_Expansion_ChildTow = NULL;
 			if (m_Expansion_IsTowing)
 			{
-				m_Expansion_ChildTow = EntityAI.Cast(GetGame().GetObjectByNetworkId(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh));
+				m_Expansion_ChildTow = EntityAI.Cast(g_Game.GetObjectByNetworkId(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh));
 			}
 
 			if (m_Expansion_TowConnectionMask != m_Expansion_TowConnectionSynchMask)

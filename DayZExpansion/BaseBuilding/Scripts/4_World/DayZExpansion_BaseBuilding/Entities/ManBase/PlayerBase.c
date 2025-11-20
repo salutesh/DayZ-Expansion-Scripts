@@ -239,7 +239,7 @@ modded class PlayerBase
 		array<Object> objects = new array<Object>;
 		array<CargoBase> proxyCargos = new array<CargoBase> ;
 		float radius = 10;
-		GetGame().GetObjectsAtPosition3D( pos, radius, objects, proxyCargos );
+		g_Game.GetObjectsAtPosition3D( pos, radius, objects, proxyCargos );
 		float distance;
 		TerritoryFlag nearestFlag;
 		
@@ -270,7 +270,7 @@ modded class PlayerBase
 	{
 		//! Duplicate of vanilla code except using TerritorySize instead of constant
 		array<vector> temp = new array<vector>;
-		temp = GetGame().GetMission().GetActiveRefresherLocations();
+		temp = g_Game.GetMission().GetActiveRefresherLocations();
 		int count = temp.Count();
 		if (count > 0)
 		{

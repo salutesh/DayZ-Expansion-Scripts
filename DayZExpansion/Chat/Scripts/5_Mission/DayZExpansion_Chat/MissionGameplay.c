@@ -41,7 +41,7 @@ modded class MissionGameplay
 		m_ChatPanel = Widget.Cast(m_HudRootWidget.FindAnyWidget("ChatFrameWidget"));
 		if (m_Chat && m_ChatPanel)
 		{
-			m_ChatChannelRootWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Chat/GUI/layouts/expansion_chat_channel.layout");
+			m_ChatChannelRootWidget = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Chat/GUI/layouts/expansion_chat_channel.layout");
 			m_ChatChannelName = TextWidget.Cast(m_ChatChannelRootWidget.FindAnyWidget("ChatChannelName"));
 
 			ExpansionClientUIChatChannel chatChannel = GetExpansionClientSettings().DefaultChatChannel;
@@ -64,7 +64,7 @@ modded class MissionGameplay
 	{
 		super.OnMissionLoaded();
 
-		if (!GetGame().IsMultiplayer())
+		if (!g_Game.IsMultiplayer())
 			Expansion_OnChatSettingsReceived();
 	}
 
@@ -88,7 +88,7 @@ modded class MissionGameplay
 
 		if (m_ExpansionUseChat)
 		{
-			GetGame().GetUIManager().ShowUICursor(true);
+			g_Game.GetUIManager().ShowUICursor(true);
 
 			//! If we are no longer in a vehicle and last used channel was transport, switch to direct
 			if (m_ChatChannel == ExpansionChatChannels.CCTransport)

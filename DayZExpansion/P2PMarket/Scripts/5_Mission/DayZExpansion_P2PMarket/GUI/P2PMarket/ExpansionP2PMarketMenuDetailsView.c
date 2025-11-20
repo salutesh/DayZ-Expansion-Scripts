@@ -488,7 +488,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 
 				//! Valid input
 				m_ListPrice = price;
-				m_ListCost = Math.Ceil(price * ExpansionP2PMarketModule.GetModuleInstance().GetListingPricePercent(m_P2PMarketMenu.GetTraderID(), PlayerBase.Cast(GetGame().GetPlayer())) / 100);
+				m_ListCost = Math.Ceil(price * ExpansionP2PMarketModule.GetModuleInstance().GetListingPricePercent(m_P2PMarketMenu.GetTraderID(), PlayerBase.Cast(g_Game.GetPlayer())) / 100);
 				listCostString = m_P2PMarketMenu.GetDisplayPrice(m_ListCost, false, true, true);
 
 			#ifdef DIAG_DEVELOPER
@@ -584,7 +584,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 	{
 		if (w == view_item_preview)
 		{
-			GetGame().GetDragQueue().Call(this, "UpdateScale");
+			g_Game.GetDragQueue().Call(this, "UpdateScale");
 			m_CharacterScaleDelta = wheel;
 		}
 		else if (w == view_player_preview)
@@ -600,7 +600,7 @@ class ExpansionP2PMarketMenuDetailsView: ExpansionP2PMarketMenuViewBase
 	{
 		if (w == view_item_preview)
 		{
-			GetGame().GetDragQueue().Call(this, "UpdateRotation");
+			g_Game.GetDragQueue().Call(this, "UpdateRotation");
 			GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
 			return true;
 		}

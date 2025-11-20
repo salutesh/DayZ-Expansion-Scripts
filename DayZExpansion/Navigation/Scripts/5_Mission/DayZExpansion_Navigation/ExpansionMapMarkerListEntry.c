@@ -46,7 +46,7 @@ class ExpansionMapMarkerListEntry: ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionMapMarkerListEntry::ExpansionMapMarkerListEntry - Start");
 		#endif
 		
-		m_Root = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Navigation/GUI/layouts/expansion_map_markerlist_entry.layout", list_category_parent );
+		m_Root = g_Game.GetWorkspace().CreateWidgets( "DayZExpansion/Navigation/GUI/layouts/expansion_map_markerlist_entry.layout", list_category_parent );
 		m_ListPanel = Widget.Cast(m_Root.FindAnyWidget("MarkerListEntryPanel"));
 		m_Icon = ImageWidget.Cast(m_Root.FindAnyWidget("MarkerListEntryIcon"));
 		m_Name = TextWidget.Cast(m_Root.FindAnyWidget("MarkerListEntryName"));

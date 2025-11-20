@@ -49,7 +49,7 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 	#endif
 			return false;
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			//! Client
 			//! Dont show action if menu is already opened

@@ -173,7 +173,7 @@ class ExpansionBookMenuTabCraftingResult: ExpansionScriptView
 
 		m_RecipeChecked = true;
 
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 
 		array<EntityAI> items = new array<EntityAI>;
 		items.Reserve(player.GetInventory().CountInventory());

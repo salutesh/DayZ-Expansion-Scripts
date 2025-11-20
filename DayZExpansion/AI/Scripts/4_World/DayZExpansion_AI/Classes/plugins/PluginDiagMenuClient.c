@@ -12,7 +12,7 @@ modded class PluginDiagMenuClient
 	static void ExpansionAI_Climb(float value)
 	{
 		DayZPlayerImplement player;
-		Class.CastTo(player, GetGame().GetPlayer());
+		Class.CastTo(player, g_Game.GetPlayer());
 		
         player.DEBUG_EXPANSION_AI_CLIMB = value;
 	}
@@ -20,7 +20,7 @@ modded class PluginDiagMenuClient
 	static void ExpansionAI_Vehicle(bool state)
 	{
 		DayZPlayerImplement player;
-		Class.CastTo(player, GetGame().GetPlayer());
+		Class.CastTo(player, g_Game.GetPlayer());
 		
         player.DEBUG_EXPANSION_AI_VEHICLE = state;
 	}

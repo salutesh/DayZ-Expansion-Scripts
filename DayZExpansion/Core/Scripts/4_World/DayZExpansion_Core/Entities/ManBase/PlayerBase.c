@@ -64,14 +64,14 @@ modded class PlayerBase
 	{
 		m_Expansion_Node = s_Expansion_AllPlayers.Add(this);
 
-		if ( IsMissionClient() && GetGame() && GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( DeferredClientInit, 100, false );
+		if ( IsMissionClient() && g_Game && g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
+			g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( DeferredClientInit, 100, false );
 	}
 	
 	void ~PlayerBase()
 	{
 	#ifndef DIAG_DEVELOPER
-		if (!GetGame())
+		if (!g_Game)
 			return;
 	#endif
 	
@@ -106,7 +106,7 @@ modded class PlayerBase
 	 */
 	static void Expansion_SendNear(ExpansionScriptRPC rpc, vector position, Object target = null, bool guaranteed = false)
 	{
-		float distance = GetGame().ServerConfigGetInt("networkRangeNear");
+		float distance = g_Game.ServerConfigGetInt("networkRangeNear");
 		if (distance == 0.0)
 			distance = 150;  //! default as per https://community.bistudio.com/wiki/DayZ:Server_Configuration
 		//! @note verified that items have to be in network range + 10% for them to exist in client bubble
@@ -123,7 +123,7 @@ modded class PlayerBase
 	 */
 	static void Expansion_SendClose(ExpansionScriptRPC rpc, vector position, Object target = null, bool guaranteed = false)
 	{
-		float distance = GetGame().ServerConfigGetInt("networkRangeClose");
+		float distance = g_Game.ServerConfigGetInt("networkRangeClose");
 		if (distance == 0.0)
 			distance = 20;  //! default as per https://community.bistudio.com/wiki/DayZ:Server_Configuration
 		//! @note verified that items have to be in network range + 10% for them to exist in client bubble
@@ -140,7 +140,7 @@ modded class PlayerBase
 	 */
 	static void Expansion_SendFar(ExpansionScriptRPC rpc, vector position, Object target = null, bool guaranteed = false)
 	{
-		float distance = GetGame().ServerConfigGetInt("networkRangeFar");
+		float distance = g_Game.ServerConfigGetInt("networkRangeFar");
 		if (distance == 0.0)
 			distance = 1000;  //! default as per https://community.bistudio.com/wiki/DayZ:Server_Configuration
 		//! @note verified that items have to be in network range + 10% for them to exist in client bubble
@@ -391,8 +391,8 @@ modded class PlayerBase
 
 	static PlayerBase ExpansionGetPlayerByIdentity( PlayerIdentity identity )
 	{
-		if ( !GetGame().IsMultiplayer() )
-			return PlayerBase.Cast( GetGame().GetPlayer() );
+		if ( !g_Game.IsMultiplayer() )
+			return PlayerBase.Cast( g_Game.GetPlayer() );
 
 		return PlayerBase.Cast( identity.GetPlayer() );
 	}
@@ -659,7 +659,7 @@ modded class PlayerBase
 
 		if (type == ExpansionZoneType.SAFE)
 		{
-			if (GetGame().IsClient())
+			if (g_Game.IsClient())
 			{
 				// OnLeftSafeZone needs to be called on client
 				OnLeftSafeZone();
@@ -674,10 +674,10 @@ modded class PlayerBase
 			//TODO: expose to settings
 
 			//! Remove any previous call to OnLeftSafeZone from the queue
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(OnLeftSafeZone);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(OnLeftSafeZone);
 
 			//! Delay actually leaving the safezone by 10 seconds
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnLeftSafeZone, 10000, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnLeftSafeZone, 10000, false);
 		}
 	}
 
@@ -756,7 +756,7 @@ modded class PlayerBase
 
 		SetCanRaise(false);
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 			return;
 
 		if (GetExpansionSettings().GetSafeZone().DisablePlayerCollision)
@@ -789,7 +789,7 @@ modded class PlayerBase
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnLeftSafeZone");
 #endif
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 		{
 			m_Expansion_IsInSafeZone = false;
 			SetCanRaise(true);
@@ -851,7 +851,7 @@ modded class PlayerBase
 			string playerUID = GetIdentity().GetId();
 			vector pos = GetPosition();
 			monitorModule.AddLastPlayerDeathPos(playerUID, pos);
-			if (GetGame().IsServer())
+			if (g_Game.IsServer())
 				monitorModule.SyncStatsToClient(this);
 		}
 	#endif
@@ -867,7 +867,7 @@ modded class PlayerBase
 		{
 			vehicle.SetLastDriverUID(this);
 			if (IsMissionHost())
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(vehicle.ResetLastDriverUIDSynch, 1000, false);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(vehicle.ResetLastDriverUIDSynch, 1000, false);
 		}
 	}
 

@@ -36,7 +36,7 @@ class ExpansionMissionEventHorde: ExpansionMissionEventBase
 		auto trace = CF_Trace_0(ExpansionTracing.MISSIONS, this, "Event_OnStart");
 #endif
 
-		m_AIGroup = GetGame().GetWorld().GetAIWorld().CreateGroup( "ExpansionInfectedPatrolGroupBeh" );
+		m_AIGroup = g_Game.GetWorld().GetAIWorld().CreateGroup( "ExpansionInfectedPatrolGroupBeh" );
 
 		BehaviourGroupInfectedPack bgip;
 		Class.CastTo( bgip, m_AIGroup.GetBehaviour() );
@@ -74,7 +74,7 @@ class ExpansionMissionEventHorde: ExpansionMissionEventBase
 		{
 			int index = m_Infected.Count() - 1;
 
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, index * 5, false, m_Infected[ index ] );
+			g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( g_Game.ObjectDelete, index * 5, false, m_Infected[ index ] );
 
 			m_Infected.Remove( index );
 		}
@@ -194,7 +194,7 @@ class ExpansionMissionEventHorde: ExpansionMissionEventBase
 		MinimumSpawnRadius = 10.0;
 		MaximumSpawnRadius = 20.0;
 
-		Position[1] = GetGame().SurfaceY( Position[0], Position[2] );
+		Position[1] = g_Game.SurfaceY( Position[0], Position[2] );
 
 		WayPoints.Insert( new BehaviourGroupInfectedPackWaypointParams( Position, 40.0 ) );
 
@@ -214,7 +214,7 @@ class ExpansionMissionEventHorde: ExpansionMissionEventBase
 
 		vector spawnPosition = SampleSpawnPosition( centerPosition, spawnRadius, innerRadius );
 
-		Object obj = GetGame().CreateObject( ExpansionStatic.GetWorkingZombieClasses().GetRandomElement(), spawnPosition, false, false, true );
+		Object obj = g_Game.CreateObject( ExpansionStatic.GetWorkingZombieClasses().GetRandomElement(), spawnPosition, false, false, true );
 
 		DayZCreatureAI creature;
 		Class.CastTo( creature, obj );
@@ -226,6 +226,6 @@ class ExpansionMissionEventHorde: ExpansionMissionEventBase
 		}
 
 		SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, remaining - 1 );
-		// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( this.SpawnInfectedRemaining, centerPosition, innerRadius, spawnRadius, remaining - 1 );
+		// g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( this.SpawnInfectedRemaining, centerPosition, innerRadius, spawnRadius, remaining - 1 );
 	}
 };

@@ -81,7 +81,7 @@ class ExpansionBookMenuTabCrafting: ExpansionBookMenuTabBase
 		super.OnHide();
 		
 		if (m_Object)
-			GetGame().ObjectDelete(m_Object);
+			g_Game.ObjectDelete(m_Object);
 		
 		book_menu_content_left.Show(false);
 	}
@@ -174,11 +174,11 @@ class ExpansionBookMenuTabCrafting: ExpansionBookMenuTabBase
 		m_SelectedRecipe = recipe;
 			
 		if (m_Object)
-			GetGame().ObjectDelete(m_Object);
+			g_Game.ObjectDelete(m_Object);
 		
 		for (int i = 0; i < item.ClassNames.Count(); i++)
 		{
-			m_Object = EntityAI.Cast(GetGame().CreateObjectEx(item.ClassNames[i], vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
+			m_Object = EntityAI.Cast(g_Game.CreateObjectEx(item.ClassNames[i], vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
 			if (m_Object)
 				break;
 		}
@@ -307,7 +307,7 @@ class ExpansionBookMenuTabCrafting: ExpansionBookMenuTabBase
 	
 	void PlayDrawSound()
 	{
-		EffectSound m_Sound = SEffectManager.PlaySound("Expansion_Draws_SoundSet", GetGame().GetPlayer().GetPosition());
+		EffectSound m_Sound = SEffectManager.PlaySound("Expansion_Draws_SoundSet", g_Game.GetPlayer().GetPosition());
 		m_Sound.SetSoundAutodestroy(true);
 	}
 };

@@ -92,7 +92,7 @@ class ExpansionSafeBase: Container_Base
 	
 	protected void SoundCodeLockLocked()
 	{
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			m_Expansion_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Lock3_SoundSet", GetPosition());
 			m_Expansion_Sound.SetSoundAutodestroy( true );
@@ -101,7 +101,7 @@ class ExpansionSafeBase: Container_Base
 	
 	protected void SoundCodeLockUnlocked()
 	{
-		if ( !GetGame().IsDedicatedServer() ) // client side
+		if ( !g_Game.IsDedicatedServer() ) // client side
 		{
 			// Expansion_Succes_SoundSet
 			m_Expansion_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock1_SoundSet", GetPosition());

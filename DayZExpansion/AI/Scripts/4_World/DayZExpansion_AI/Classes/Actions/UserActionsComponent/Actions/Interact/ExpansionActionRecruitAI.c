@@ -68,7 +68,7 @@ class ExpansionActionRecruitAI: ActionInteractBase
 			if (!settings.CanRecruitGuards || (playerGroup && playerGroup.Count() - 1 >= settings.MaxRecruitableAI))
 				return false;
 
-			if (GetGame().IsServer() && tAI.eAI_GetCachedThreat(player.GetTargetInformation()) > 0.2)
+			if (g_Game.IsServer() && tAI.eAI_GetCachedThreat(player.GetTargetInformation()) > 0.2)
 			{
 				ExpansionNotification("STR_EXPANSION_HOSTILE", "STR_EXPANSION_AI_CANNOT_RECRUIT_HOSTILE_TEMP").Error(player.GetIdentity());
 				return false;
@@ -80,7 +80,7 @@ class ExpansionActionRecruitAI: ActionInteractBase
 		}
 		else if (tAI.PlayerIsEnemy(player, false, isPlayerMoving, friendly))
 		{
-			if (GetGame().IsServer() && friendly)
+			if (g_Game.IsServer() && friendly)
 				ExpansionNotification("STR_EXPANSION_HOSTILE", "STR_EXPANSION_AI_CANNOT_RECRUIT_HOSTILE_TEMP").Error(player.GetIdentity());
 
 			return false;

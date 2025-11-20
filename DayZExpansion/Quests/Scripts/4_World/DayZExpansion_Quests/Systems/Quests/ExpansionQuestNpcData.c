@@ -210,7 +210,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	{
 		int flags = ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE;
 
-		if (GetGame().IsKindOf(ClassName, "DZ_LightAI"))  //! Only true for animals and Zs
+		if (g_Game.IsKindOf(ClassName, "DZ_LightAI"))  //! Only true for animals and Zs
 			flags |= ECE_INITAI;
 
 		Object obj = ExpansionGame.CreateObjectExSafe(ClassName, Position, flags);
@@ -218,7 +218,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		if (!ExpansionQuestNPCBase.CastTo(questNPC, obj))
 	    {
 			Error("ExpansionQuestNPCDataBase::SpawnNPC - Used unsupported object " + ClassName + " as quest NPC in config. Only objects based on ExpansionQuestNPCBase class are allowed!");
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 	        return null;
 	    }
 
@@ -262,7 +262,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		ExpansionQuestNPCAIBase questNPC = ExpansionQuestNPCAIBase.Cast(obj);
 		if (!questNPC)
 		{
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 			return NULL;
 		}
 
@@ -314,7 +314,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	    if (!ExpansionQuestStaticObject.CastTo(questObject, obj))
 	    {
 			Error("ExpansionQuestNPCDataBase::SpawnNPC - Used unsupported object " + ClassName + " as AI quest NPC in config. Only objects based on ExpansionQuestStaticObject class are allowed!");
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 	        return null;
 	    }
 

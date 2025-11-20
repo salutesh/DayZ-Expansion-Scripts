@@ -92,7 +92,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		//! Don't lag the game while creating chat lines
 		if (m_ChatLines.Count() < m_ChatHistoryLimit)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(CreateChatLines, 1, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_GUI).CallLater(CreateChatLines, 1, false);
 		}
 		else
 		{
@@ -215,7 +215,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 		message.FormatText();
 
-		message.TimeStamp = GetGame().GetTickTime();
+		message.TimeStamp = g_Game.GetTickTime();
 
 		int hour;
 		int minute;
@@ -246,7 +246,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		if (message.IsMuted)
 			return;
 
-		if (GetExpansionClientSettings().HUDChatToggle && GetGame().GetMission().GetHud().Expansion_IsVisible())
+		if (GetExpansionClientSettings().HUDChatToggle && g_Game.GetMission().GetHud().Expansion_IsVisible())
 			GetLayoutRoot().Show(true);
 
 		int idx = count - 1;
@@ -269,7 +269,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 		if (!isChatHistoryVisible)
 		{
-			float time = GetGame().GetTickTime();
+			float time = g_Game.GetTickTime();
 			chatLine.FadeOutLater(m_MessageTimeTheshold - (time - message.TimeStamp), m_MessageFadeoutDuration);
 		}
 	}
@@ -289,7 +289,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		int firstVisibleMessageIndex = Math.Max(count - MAX_MESSAGES_VISIBLE, 0);
 		int i;
 		int idx = count - 1;
-		float time = GetGame().GetTickTime();
+		float time = g_Game.GetTickTime();
 		float showMessageTimestamp = time - m_MessageTimeTheshold;
 		while (idx >= 0)
 		{
@@ -550,7 +550,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		if (state)
 		{
 			MuteScroller.SetAlpha(1.0);
-			ChatInputMenu inputMenu = ChatInputMenu.Cast(GetGame().GetUIManager().GetMenu());
+			ChatInputMenu inputMenu = ChatInputMenu.Cast(g_Game.GetUIManager().GetMenu());
 			if (inputMenu)
 				SetFocus(inputMenu.GetEditboxWidget());
 		}

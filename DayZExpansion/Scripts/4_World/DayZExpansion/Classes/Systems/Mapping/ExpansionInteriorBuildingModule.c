@@ -76,10 +76,10 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			LoadIviesPositions();
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SaveCachedCollisions, 20000, false);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SaveCachedCollisions, 20000, false);
 		}
 	}
 	

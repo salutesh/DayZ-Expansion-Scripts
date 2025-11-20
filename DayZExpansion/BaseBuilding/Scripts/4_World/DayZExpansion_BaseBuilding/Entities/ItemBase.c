@@ -95,11 +95,11 @@ modded class ItemBase
 		{
 			Expansion_RegisterLockRPCs();
 
-			if (GetGame().IsServer())
+			if (g_Game.IsServer())
 			{
 				//! If max is reached during storage load, the codelock will NOT be dropped
 				bool loaded = GetDayZGame().GetExpansionGame().IsLoaded();
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_EnforceMaxCodeLocksPerTerritory, item, loaded, loaded);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_EnforceMaxCodeLocksPerTerritory, item, loaded, loaded);
 			}
 		}
 	}
@@ -184,7 +184,7 @@ modded class ItemBase
 
 		if (item.IsInherited(ExpansionCodeLock))
 		{
-			if (GetGame().IsServer())
+			if (g_Game.IsServer())
 			{
 				auto settings = GetExpansionSettings().GetTerritory();
 				auto flag = ExpansionTerritoryModule.s_Instance.GetFlagAtPosition3D(GetPosition(), settings.TerritorySize);
@@ -558,7 +558,7 @@ modded class ItemBase
 	*/
 	void SetCode( string code, PlayerBase player = NULL, bool setUser = true, bool updateLock = true )
 	{
-		if (!GetGame().IsServer())
+		if (!g_Game.IsServer())
 		{
 			Error("ERROR: ItemBase::SetCode called on client!");
 			return;
@@ -802,7 +802,7 @@ modded class ItemBase
 			SOUND_CODE_DENIED = "Expansion_Denied_SoundSet";
 		}
 
-		if ( !GetGame().IsDedicatedServer() ) // client side
+		if ( !g_Game.IsDedicatedServer() ) // client side
 		{
 			EffectSound sound = SEffectManager.PlaySound(SOUND_CODE_DENIED, GetPosition());
 			sound.SetSoundAutodestroy( true );
@@ -841,7 +841,7 @@ modded class ItemBase
 		if (!m_Expansion_KnownUIDs)
 			return false;
 
-		if ( GetGame().IsClient() && !m_Expansion_KnownUIDsSet && !m_Expansion_KnownUIDsRequested )
+		if ( g_Game.IsClient() && !m_Expansion_KnownUIDsSet && !m_Expansion_KnownUIDsRequested )
 			RequestKnownUIDs();
 
 		return m_Expansion_KnownUIDs.Find( player.GetIdentityUID() ) > -1;
@@ -1140,7 +1140,7 @@ modded class ItemBase
 			FailedUnlock();
 
 		ExpansionLockUIBase menu;
-		if ( !Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_CODELOCK_MENU ) ) && !Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_NUMPAD_MENU ) ) )
+		if ( !Class.CastTo( menu, g_Game.GetUIManager().FindMenu( MENU_EXPANSION_CODELOCK_MENU ) ) && !Class.CastTo( menu, g_Game.GetUIManager().FindMenu( MENU_EXPANSION_NUMPAD_MENU ) ) )
 			return;
 			
 		menu.OnServerResponse( reply, injuring );
@@ -1161,7 +1161,7 @@ modded class ItemBase
 			Error("ItemBase::RPC_Expansion_ReceiveKnownUIDs can't read m_Expansion_KnownUIDsSet");
 
 		if (m_Expansion_KnownUIDsSet)
-			m_Expansion_KnownUIDs.Insert(GetGame().GetPlayer().GetIdentity().GetId());  //! We only need to know this client's player identity
+			m_Expansion_KnownUIDs.Insert(g_Game.GetPlayer().GetIdentity().GetId());  //! We only need to know this client's player identity
 	}
 
 	#ifdef EXPANSION_MODSTORAGE

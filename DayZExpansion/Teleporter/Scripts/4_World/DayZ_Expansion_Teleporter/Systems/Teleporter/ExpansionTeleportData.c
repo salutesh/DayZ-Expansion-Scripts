@@ -223,10 +223,10 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 
 	void SpawnTeleporter()
 	{
-		Object obj = GetGame().CreateObjectEx("Expansion_Teleporter_Big", m_ObjectPosition, ECE_NONE);
+		Object obj = g_Game.CreateObjectEx("Expansion_Teleporter_Big", m_ObjectPosition, ECE_NONE);
 		Expansion_Teleporter_Big teleportObj = Expansion_Teleporter_Big.Cast(obj);
 		if (!teleportObj)
-			GetGame().ObjectDelete(obj);
+			g_Game.ObjectDelete(obj);
 
 		teleportObj.SetPosition(m_ObjectPosition);
 		teleportObj.SetOrientation(m_ObjectOrientation);

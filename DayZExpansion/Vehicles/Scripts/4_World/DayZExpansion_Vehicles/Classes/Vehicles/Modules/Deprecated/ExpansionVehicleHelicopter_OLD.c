@@ -1,3 +1,128 @@
+#ifndef DAYZ_1_27
+//! 1.28+
+class ExpansionHelicopterScriptMove : CarScriptMove
+{
+	// Event: -1 means unset, 0 is false, 1 is true
+	int m_AutoHover = -1;
+	int m_EngineOn = -1;
+	
+	float m_MainRotorSpeedTarget;
+	float m_BackRotorSpeedTarget;
+	
+	float m_CyclicForwardTarget;
+	float m_CyclicSideTarget;
+	
+	float m_AutoHoverSpeedX;
+	float m_AutoHoverAltitude;
+	float m_AutoHoverSpeedZ;
+
+	bool m_IsFreeLook;
+	
+	protected override event void Write(PawnMoveWriter ctx, PawnMove prev)
+	{
+		super.Write(ctx, prev);
+
+		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
+
+		ctx.Write(m_AutoHover);
+		ctx.Write(m_EngineOn);
+		
+		ctx.Write(m_MainRotorSpeedTarget);
+		ctx.Write(m_BackRotorSpeedTarget);
+		ctx.Write(m_CyclicForwardTarget);
+		ctx.Write(m_CyclicSideTarget);
+
+		ctx.Write(m_AutoHoverSpeedX);
+		ctx.Write(m_AutoHoverAltitude);
+		ctx.Write(m_AutoHoverSpeedZ);
+
+		ctx.Write(m_IsFreeLook);
+	}
+
+	protected override event void Read(PawnMoveReader ctx, PawnMove prev)
+	{
+		super.Read(ctx, prev);
+
+		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
+		
+		ctx.Read(m_AutoHover);
+		ctx.Read(m_EngineOn);
+		
+		ctx.Read(m_MainRotorSpeedTarget);
+		ctx.Read(m_BackRotorSpeedTarget);
+		ctx.Read(m_CyclicForwardTarget);
+		ctx.Read(m_CyclicSideTarget);
+
+		ctx.Read(m_AutoHoverSpeedX);
+		ctx.Read(m_AutoHoverAltitude);
+		ctx.Read(m_AutoHoverSpeedZ);
+
+		ctx.Read(m_IsFreeLook);
+	}
+
+	protected override event int EstimateMaximumSize()
+	{
+		int size = super.EstimateMaximumSize();
+		size += 10 * 4; // num float variables multiplied by size of float
+		return size;
+	}
+};
+
+class ExpansionHelicopterScriptOwnerState : CarScriptOwnerState
+{
+	float m_RotorSpeed;
+	bool m_EngineState;
+	
+	float m_MainRotorSpeed;
+	float m_BackRotorSpeed;
+	
+	float m_Hydraulic;
+	
+	float m_CyclicForward;
+	float m_CyclicSide;
+	
+	bool m_AutoHover;
+	
+	protected override event void Write(PawnStateWriter ctx)
+	{
+		super.Write(ctx);
+
+		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
+		
+		ctx.Write(m_RotorSpeed);
+		ctx.Write(m_EngineState);
+		ctx.Write(m_MainRotorSpeed);
+		ctx.Write(m_BackRotorSpeed);
+		ctx.Write(m_Hydraulic);
+		ctx.Write(m_CyclicForward);
+		ctx.Write(m_CyclicSide);
+		ctx.Write(m_AutoHover);
+	}
+
+	protected override event void Read(PawnStateReader ctx)
+	{
+		super.Read(ctx);
+
+		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
+		
+		ctx.Read(m_RotorSpeed);
+		ctx.Read(m_EngineState);
+		ctx.Read(m_MainRotorSpeed);
+		ctx.Read(m_BackRotorSpeed);
+		ctx.Read(m_Hydraulic);
+		ctx.Read(m_CyclicForward);
+		ctx.Read(m_CyclicSide);
+		ctx.Read(m_AutoHover);
+	}
+
+	protected override event int EstimateMaximumSize()
+	{
+		int size = super.EstimateMaximumSize();
+		size += 8 * 4; // num float variables multiplied by size of float
+		return size;
+	}
+};
+#endif
 
 class ExpansionHelicopterScriptRotor : CollisionOverlapCallback
 {
@@ -19,25 +144,25 @@ class ExpansionHelicopterScriptRotor : CollisionOverlapCallback
 
 		string path;
 		string rootPath = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Rotors " + rotor;
-		m_Setup = GetGame().ConfigIsExisting(rootPath);
+		m_Setup = g_Game.ConfigIsExisting(rootPath);
 
 		if (m_Setup)
 		{
 			path = rootPath + " inventorySlot";
-			if (GetGame().ConfigIsExisting(path))
-				m_InventorySlot = GetGame().ConfigGetTextOut(path);
+			if (g_Game.ConfigIsExisting(path))
+				m_InventorySlot = g_Game.ConfigGetTextOut(path);
 
 			path = rootPath + " contactDamage";
-			if (GetGame().ConfigIsExisting(path))
-				m_ContactDamage = GetGame().ConfigGetFloat(path);
+			if (g_Game.ConfigIsExisting(path))
+				m_ContactDamage = g_Game.ConfigGetFloat(path);
 
 			path = rootPath + " radius";
-			if (GetGame().ConfigIsExisting(path))
-				m_Radius = GetGame().ConfigGetFloat(path);
+			if (g_Game.ConfigIsExisting(path))
+				m_Radius = g_Game.ConfigGetFloat(path);
 
 			path = rootPath + " height";
-			if (GetGame().ConfigIsExisting(path))
-				m_Height = GetGame().ConfigGetFloat(path);
+			if (g_Game.ConfigIsExisting(path))
+				m_Height = g_Game.ConfigGetFloat(path);
 
 			m_InventorySlot.ToLower();
 		}
@@ -65,7 +190,7 @@ class ExpansionHelicopterScriptRotor : CollisionOverlapCallback
 
 	void Update(float time)
 	{
-		if (GetGame().IsClient() || !m_Entity || !m_Setup)
+		if (g_Game.IsClient() || !m_Entity || !m_Setup)
 		{
 			return;
 		}
@@ -307,67 +432,67 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		string path;
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule bodyFrictionCoef";
-		if (GetGame().ConfigIsExisting(path))
-			m_BodyFrictionCoef = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_BodyFrictionCoef = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule liftForceCoef";
-		if (GetGame().ConfigIsExisting(path))
-			m_LiftForceCoef = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_LiftForceCoef = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule bankForceCoef";
-		if (GetGame().ConfigIsExisting(path))
-			m_BankForceCoef = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_BankForceCoef = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule tailForceCoef";
-		if (GetGame().ConfigIsExisting(path))
-			m_TailForceCoef = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_TailForceCoef = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule linearFrictionCoef";
-		if (GetGame().ConfigIsExisting(path))
-			m_LinearFrictionCoef = GetGame().ConfigGetVector(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_LinearFrictionCoef = g_Game.ConfigGetVector(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule angularFrictionCoef";
-		if (GetGame().ConfigIsExisting(path))
-			m_AngularFrictionCoef = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_AngularFrictionCoef = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Rotor minAutoRotateSpeed";
-		if (GetGame().ConfigIsExisting(path))
-			m_MinAutoRotateSpeed = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_MinAutoRotateSpeed = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Rotor maxAutoRotateSpeed";
-		if (GetGame().ConfigIsExisting(path))
-			m_MaxAutoRotateSpeed = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_MaxAutoRotateSpeed = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Rotor startUpTime";
-		if (GetGame().ConfigIsExisting(path))
-			m_EngineStartDuration = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_EngineStartDuration = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule AntiTorque speed";
-		if (GetGame().ConfigIsExisting(path))
-			m_AntiTorqueSpeed = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_AntiTorqueSpeed = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule AntiTorque max";
-		if (GetGame().ConfigIsExisting(path))
-			m_AntiTorqueMax = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_AntiTorqueMax = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic forceCoefficient";
-		if (GetGame().ConfigIsExisting(path))
-			m_CyclicForceCoef = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_CyclicForceCoef = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Forward speed";
-		if (GetGame().ConfigIsExisting(path))
+		if (g_Game.ConfigIsExisting(path))
 		{
 			m_CyclicForwardControlCount = 2;
 			m_CyclicForwardControlFluid[0] = 0.0;
 			m_CyclicForwardControlDelta[0] = 0.0;
 			m_CyclicForwardControlFluid[1] = 1.0;
-			m_CyclicForwardControlDelta[1] = GetGame().ConfigGetFloat(path);
+			m_CyclicForwardControlDelta[1] = g_Game.ConfigGetFloat(path);
 		}
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Forward hydraulic";
-		if (GetGame().ConfigIsExisting(path))
+		if (g_Game.ConfigIsExisting(path))
 		{
-			GetGame().ConfigGetFloatArray(path, curve);
+			g_Game.ConfigGetFloatArray(path, curve);
 
 			m_CyclicForwardControlCount = (curve.Count() / 2) + 1;
 
@@ -390,31 +515,31 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Forward max";
-		if (GetGame().ConfigIsExisting(path))
-			m_CyclicForwardMax = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_CyclicForwardMax = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Forward coefficient";
-		if (GetGame().ConfigIsExisting(path))
-			m_CyclicForwardCoef = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_CyclicForwardCoef = g_Game.ConfigGetFloat(path);
 
 		//path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Forward animation";
-		//if ( GetGame().ConfigIsExisting( path ) )
-		//	m_Inertia = GetGame().ConfigGetTextOut( path );
+		//if ( g_Game.ConfigIsExisting( path ) )
+		//	m_Inertia = g_Game.ConfigGetTextOut( path );
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Side speed";
-		if (GetGame().ConfigIsExisting(path))
+		if (g_Game.ConfigIsExisting(path))
 		{
 			m_CyclicSideControlCount = 2;
 			m_CyclicSideControlFluid[0] = 0.0;
 			m_CyclicSideControlDelta[0] = 0.0;
 			m_CyclicSideControlFluid[1] = 1.0;
-			m_CyclicSideControlDelta[1] = GetGame().ConfigGetFloat(path);
+			m_CyclicSideControlDelta[1] = g_Game.ConfigGetFloat(path);
 		}
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Side hydraulic";
-		if (GetGame().ConfigIsExisting(path))
+		if (g_Game.ConfigIsExisting(path))
 		{
-			GetGame().ConfigGetFloatArray(path, curve);
+			g_Game.ConfigGetFloatArray(path, curve);
 
 			m_CyclicSideControlCount = (curve.Count() / 2) + 1;
 
@@ -437,16 +562,16 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Side max";
-		if (GetGame().ConfigIsExisting(path))
-			m_CyclicSideMax = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_CyclicSideMax = g_Game.ConfigGetFloat(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Side coefficient";
-		if (GetGame().ConfigIsExisting(path))
-			m_CyclicSideCoef = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_CyclicSideCoef = g_Game.ConfigGetFloat(path);
 
 		//path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Side animation";
-		//if ( GetGame().ConfigIsExisting( path ) )
-		//	m_Inertia = GetGame().ConfigGetTextOut( path );
+		//if ( g_Game.ConfigIsExisting( path ) )
+		//	m_Inertia = g_Game.ConfigGetTextOut( path );
 
 		m_CyclicSideCoef = 0.6 * m_CyclicSideCoef;
 		m_CyclicForwardCoef = -1.6 * m_CyclicForwardCoef;
@@ -612,7 +737,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			return;
 		#endif
 
-			input = GetGame().GetInput();
+			input = g_Game.GetInput();
 		}
 		else
 	#endif
@@ -714,7 +839,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_CyclicForwardInputVal = c_forward - c_backward;
 		m_CyclicSideInputVal = c_left - c_right;
 		
-		if (IsAutoHover() && pDriver && !GetGame().IsDedicatedServer() && GetExpansionClientSettings().TurnOffAutoHoverDuringFlight)
+		if (IsAutoHover() && pDriver && !g_Game.IsDedicatedServer() && GetExpansionClientSettings().TurnOffAutoHoverDuringFlight)
 		{
 			//! Automatically deactivate autohover if forward/backward/left/right input is detected (20% sensitivity)
 			if (c_forward > 0.2 || c_backward > 0.2 || c_right > 0.2 || c_left > 0.2)
@@ -732,7 +857,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 				autoHoverHeight += autoHoverChange * 0.3;
 
-				float surfaceY = GetGame().SurfaceY(pState.m_Transform[3][0], pState.m_Transform[3][2]);
+				float surfaceY = g_Game.SurfaceY(pState.m_Transform[3][0], pState.m_Transform[3][2]);
 				if (m_Hit)
 					surfaceY = m_HitPosition[1];
 
@@ -828,7 +953,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		if (IsMissionClient() && m_EnableWind)
 		{
-			m_WindSpeedSync = GetGame().GetWeather().GetWind();
+			m_WindSpeedSync = g_Game.GetWeather().GetWind();
 
 			if (m_Hit)
 			{
@@ -837,7 +962,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 				if (ExpansionStatic.SurfaceIsWater(m_HitPosition))
 				{
-					distance = pState.m_Transform[3][1] - GetGame().SurfaceGetSeaLevel();
+					distance = pState.m_Transform[3][1] - g_Game.SurfaceGetSeaLevel();
 				}
 				else
 				{
@@ -905,7 +1030,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			m_RotorSpeedTarget = 1;
 			if (IsMissionHost() && m_NoiseParams)
 			{
-				GetGame().GetNoiseSystem().AddNoise(m_Vehicle, m_NoiseParams);
+				g_Game.GetNoiseSystem().AddNoise(m_Vehicle, m_NoiseParams);
 			}
 
 			if (!m_Hit && !pState.m_HasDriver && !IsAutoHover())
@@ -1226,7 +1351,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			if (ExpansionStatic.SurfaceIsWater(m_HitPosition))
 			{
-				m_HitPosition[1] = GetGame().SurfaceGetSeaLevel();
+				m_HitPosition[1] = g_Game.SurfaceGetSeaLevel();
 
 				if (!m_WaterParticle)
 				{

@@ -172,7 +172,7 @@ modded class CarScript
 
 		LoadConstantVariables();
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LongDeferredInit, 1000);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LongDeferredInit, 1000);
 
 		ExpansionSettings.SI_Vehicle.Insert(OnSettingsUpdated);
 
@@ -194,7 +194,7 @@ modded class CarScript
 		m_Expansion_MaximumEngine = 1;
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Engines";
-		count = GetGame().ConfigGetChildrenCount(path);
+		count = g_Game.ConfigGetChildrenCount(path);
 
 		AddModule(new ExpansionVehicleEngine_CarScript(this, "CfgVehicles " + GetType() + " SimulationModule Engine"));
 		AddModule(new ExpansionVehicleGearbox_CarScript(this, "CfgVehicles " + GetType() + " SimulationModule Gearbox"));
@@ -202,43 +202,43 @@ modded class CarScript
 		for (i = 0; i < count; i++)
 		{
 			string engineName;
-			GetGame().ConfigGetChildName(path, i, engineName);
+			g_Game.ConfigGetChildName(path, i, engineName);
 
 			string enginePath = path + " " + engineName;
 			AddModule(Expansion_CreateEngine(this, enginePath));
 		}
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Gearboxes";
-		count = GetGame().ConfigGetChildrenCount(path);
+		count = g_Game.ConfigGetChildrenCount(path);
 
 		for (i = 0; i < count; i++)
 		{
 			string gearName;
-			GetGame().ConfigGetChildName(path, i, gearName);
+			g_Game.ConfigGetChildName(path, i, gearName);
 
 			string gearPath = path + " " + gearName;
 			AddModule(Expansion_CreateGearbox(this, gearPath));
 		}
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Props";
-		count = GetGame().ConfigGetChildrenCount(path);
+		count = g_Game.ConfigGetChildrenCount(path);
 
 		for (i = 0; i < count; i++)
 		{
 			string propName;
-			GetGame().ConfigGetChildName(path, i, propName);
+			g_Game.ConfigGetChildName(path, i, propName);
 
 			string propPath = path + " " + propName;
 			AddModule(new ExpansionVehicleProp(this, propPath));
 		}
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Buoyancy";
-		count = GetGame().ConfigGetChildrenCount(path);
+		count = g_Game.ConfigGetChildrenCount(path);
 
 		for (i = 0; i < count; i++)
 		{
 			string buoyancyName;
-			GetGame().ConfigGetChildName(path, i, buoyancyName);
+			g_Game.ConfigGetChildName(path, i, buoyancyName);
 
 			string buoyancyPath = path + " " + buoyancyName;
 			AddModule(new ExpansionVehicleBuoyantPoint(this, buoyancyPath));
@@ -246,8 +246,8 @@ modded class CarScript
 
 		//! This exists so it can be overridden (e.g.) by server owners who don't have access to unbinarized models
 		path = "CfgVehicles " + GetType() + " mass";
-		if (GetGame().ConfigIsExisting(path))
-			m_Expansion_Mass = GetGame().ConfigGetFloat(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_Expansion_Mass = g_Game.ConfigGetFloat(path);
 		else
 			m_Expansion_Mass = dBodyGetMass(this);
 
@@ -282,17 +282,17 @@ modded class CarScript
 		}
 
 		path = "CfgVehicles " + GetType() + " hornLongSoundSet";
-		if (GetGame().ConfigIsExisting(path))
-			m_CarHornLongSoundName = GetGame().ConfigGetTextOut(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_CarHornLongSoundName = g_Game.ConfigGetTextOut(path);
 
 		path = "CfgVehicles " + GetType() + " hornShortSoundSet";
-		if (GetGame().ConfigIsExisting(path))
-			m_CarHornShortSoundName = GetGame().ConfigGetTextOut(path);
+		if (g_Game.ConfigIsExisting(path))
+			m_CarHornShortSoundName = g_Game.ConfigGetTextOut(path);
 
 		TStringArray attachmentSlotNames = {};
 		ConfigGetTextArray("attachments", attachmentSlotNames);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			auto settings = GetExpansionSettings().GetVehicle();
 
@@ -323,9 +323,9 @@ modded class CarScript
 		}
 
 		path = CFG_VEHICLESPATH + " " + GetType() + " GUIInventoryAttachmentsProps";
-		if (GetGame().ConfigIsExisting(path))
+		if (g_Game.ConfigIsExisting(path))
 		{
-			count = GetGame().ConfigGetChildrenCount(path);
+			count = g_Game.ConfigGetChildrenCount(path);
 
 			if (count > 0)
 			{
@@ -334,13 +334,13 @@ modded class CarScript
 				for (i = 0; i < count; ++i)
 				{
 					string attCatName;
-					GetGame().ConfigGetChildName(path, i, attCatName);
+					g_Game.ConfigGetChildName(path, i, attCatName);
 
 					string attSlotsPath = path + " " + attCatName + " attachmentSlots";
-					if (GetGame().ConfigIsExisting(attSlotsPath))
+					if (g_Game.ConfigIsExisting(attSlotsPath))
 					{
 						TStringArray attSlots = {};
-						GetGame().ConfigGetTextArray(attSlotsPath, attSlots);
+						g_Game.ConfigGetTextArray(attSlotsPath, attSlots);
 
 						guiAtts.InsertAll(attSlots);
 					}
@@ -408,7 +408,7 @@ modded class CarScript
 
 				m_Lights[i].ExpansionSetEnabled(false);
 
-				GetGame().ObjectDelete(m_Lights[i]);
+				g_Game.ObjectDelete(m_Lights[i]);
 			}
 
 			for (i = 0; i < m_Particles.Count(); i++)
@@ -418,7 +418,7 @@ modded class CarScript
 
 				m_Particles[i].Stop();
 
-				GetGame().ObjectDelete(m_Particles[i]);
+				g_Game.ObjectDelete(m_Particles[i]);
 			}
 		}
 
@@ -442,8 +442,8 @@ modded class CarScript
 		
 		super.EEInit();
 
-		if (GetGame().IsServer() && (IsHelicopter() || IsBoat()))
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_AddWheels);
+		if (g_Game.IsServer() && (IsHelicopter() || IsBoat()))
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_AddWheels);
 	}
 
 	override bool NameOverride(out string output)
@@ -525,7 +525,7 @@ modded class CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "LongDeferredInit");
 #endif
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			m_Event_SettingsChanged.SettingsChanged();
 	}
 
@@ -579,11 +579,11 @@ modded class CarScript
 		m_BoundingBox[1] = m_State.m_BoundingBox[1];
 		m_MaxSpeedMS = m_State.m_MaxSpeedMS;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnAfterLoadConstantVariables, 100, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnAfterLoadConstantVariables, 100, false);
 
 		m_Expansion_dBodyIsActive = dBodyIsActive(this);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			if (m_Expansion_dBodyIsActive && m_Expansion_IsStoreLoaded && !m_Expansion_WasMissionLoadedAtVehicleInstantiation)
 			{
@@ -800,7 +800,7 @@ modded class CarScript
 
 	override void Explode(int damageType, string ammoType = "")
 	{
-		if (GetGame().IsServer() && !m_Exploded)
+		if (g_Game.IsServer() && !m_Exploded)
 		{
 			if (ammoType == "")
 				ammoType = this.ConfigGetString("ammoType");
@@ -810,13 +810,13 @@ modded class CarScript
 
 			ExpansionOnExplodeServer(damageType, ammoType);
 
-			if (GetGame().IsServer() && !GetGame().IsMultiplayer())
+			if (g_Game.IsServer() && !g_Game.IsMultiplayer())
 			{
 				ExpansionOnExplodeClient(damageType, ammoType);
 			}
 			else
 			{
-				GetGame().RPCSingleParam(this, ERPCs.RPC_EXPLODE_EVENT, new Param2<int, string>(damageType, ammoType), true);
+				g_Game.RPCSingleParam(this, ERPCs.RPC_EXPLODE_EVENT, new Param2<int, string>(damageType, ammoType), true);
 			}
 		}
 	}
@@ -862,7 +862,7 @@ modded class CarScript
 			if (!crew)
 				continue;
 
-			if (GetGame().IsMultiplayer())
+			if (g_Game.IsMultiplayer())
 			{
 				crew.ProcessDirectDamage(damageType, this, "", ammoType, "0 0 0", crew.GetMaxHealth());
 			}
@@ -921,17 +921,17 @@ modded class CarScript
 			{
 				m_Particles[z].Stop();
 
-				GetGame().ObjectDelete(m_Particles[z]);
+				g_Game.ObjectDelete(m_Particles[z]);
 			}
 
 			for (z = 0; z < m_Lights.Count(); z++)
 			{
 				m_Lights[z].ExpansionSetEnabled(false);
 
-				GetGame().ObjectDelete(m_Lights[z]);
+				g_Game.ObjectDelete(m_Lights[z]);
 			}
 
-			if (GetGame().GetWaterDepth(GetPosition()) < 1)
+			if (g_Game.GetWaterDepth(GetPosition()) < 1)
 			{
 				if (!m_SmokeParticle)
 				{
@@ -957,11 +957,11 @@ modded class CarScript
 			p.SetOrientation(n);
 		}
 
-		float distance_to_player = vector.Distance(GetPosition(), GetGame().GetPlayer().GetPosition());
+		float distance_to_player = vector.Distance(GetPosition(), g_Game.GetPlayer().GetPosition());
 
 		float strength_factor = Math.InverseLerp(GameConstants.CAMERA_SHAKE_GRENADE_DISTANCE, 0, distance_to_player);
 
-		// GetGame().GetPlayer().GetCurrentCamera().SpawnCameraShake( strength_factor * 16.0 );
+		// g_Game.GetPlayer().GetCurrentCamera().SpawnCameraShake( strength_factor * 16.0 );
 	}
 
 	/**
@@ -993,7 +993,7 @@ modded class CarScript
 			//! @note vanilla RPC, so not using Expansion RPC manager
 			case ERPCs.RPC_EXPLODE_EVENT:
 			{
-				if (GetGame().IsClient())
+				if (g_Game.IsClient())
 				{
 					Param2<int, string> params;
 	
@@ -1309,7 +1309,7 @@ modded class CarScript
 
 	override void EEItemAttached(EntityAI item, string slot_name)
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			if (slot_name == "ExpansionHelicopterBattery")
 				m_BatteryHealth = item.GetHealth01();
@@ -1336,11 +1336,11 @@ modded class CarScript
 
 		if (item.GetType() == "HatchbackWheel" && !IsCar() && !IsDuck())
 		{
-			if (!GetGame().IsDedicatedServer())
+			if (!g_Game.IsDedicatedServer())
 				item.SetInvisible(true);
 		#ifndef DAYZ_1_19
 			//! DayZ 1.20+
-			if (GetGame().IsServer())
+			if (g_Game.IsServer())
 				item.SetAllowDamage(false);
 		#endif
 		}
@@ -1460,7 +1460,7 @@ modded class CarScript
 
 		int i;
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			if (HasRadiator())
 			{
@@ -1533,7 +1533,7 @@ modded class CarScript
 		}
 
 		//FX only on Client and in Single
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if (Expansion_EngineIsSpinning())
 			{
@@ -1634,7 +1634,7 @@ modded class CarScript
 	//! @note only called for driver on client
 	override void OnUpdate(float dt)
 	{
-		if (GetGame().IsServer() && m_DrownTime > 0 && !CanBeDamaged())
+		if (g_Game.IsServer() && m_DrownTime > 0 && !CanBeDamaged())
 			m_DrownTime = 0;
 
 		super.OnUpdate(dt);
@@ -2207,7 +2207,7 @@ modded class CarScript
 
 	protected void OnAnimationUpdate(float pDt)
 	{
-		//float tickTime = GetGame().GetTickTime();
+		//float tickTime = g_Game.GetTickTime();
 		//float deltaTimeAccurate = tickTime - m_Expansion_AnimationTickTime;
 		//m_Expansion_AnimationTickTime = tickTime;
 		m_Event_Animate.Animate(m_State, pDt);
@@ -2274,11 +2274,11 @@ modded class CarScript
 
 		bool isActive = dBodyIsActive(this);
 
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 		{
 			m_IsPhysicsHost = IsOwner();
 		}
-		else if (GetGame().IsServer())
+		else if (g_Game.IsServer())
 		{
 			m_IsPhysicsHost = true;
 
@@ -2387,7 +2387,7 @@ modded class CarScript
 		m_Controller.m_Gear[0] = GetGear();
 
 		TFloatArray gears = new TFloatArray;
-		GetGame().ConfigGetFloatArray("CfgVehicles " + GetType() + " SimulationModule Gearbox ratios", gears);
+		g_Game.ConfigGetFloatArray("CfgVehicles " + GetType() + " SimulationModule Gearbox ratios", gears);
 
 		//! 1.19
 		if (GetGear() > 2)
@@ -2396,7 +2396,7 @@ modded class CarScript
 		}
 		else if (GetGear() == 0)
 		{
-			m_Controller.m_Ratio[0] = GetGame().ConfigGetFloat("CfgVehicles " + GetType() + " SimulationModule Gearbox reverse");
+			m_Controller.m_Ratio[0] = g_Game.ConfigGetFloat("CfgVehicles " + GetType() + " SimulationModule Gearbox reverse");
 		}
 		else
 		{
@@ -2438,7 +2438,7 @@ modded class CarScript
 		else
 	#endif
 		{
-			if (m_IsPhysicsHost && GetGame().IsClient())
+			if (m_IsPhysicsHost && g_Game.IsClient())
 			{
 				NetworkSend();
 			}
@@ -2452,7 +2452,7 @@ modded class CarScript
 	
 		OnPostSimulation(dt);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			SetSynchDirty();
 		}
@@ -3106,7 +3106,7 @@ modded class CarScript
 
 		//! Something (probably vanilla?) is calling OnEngineStop in a loop on client, EVEN IF ENGINE IS RUNNING WHYYY WTF
 		//! Prevent this by checking var that tells us if engine is really stopped or not
-		if (GetGame().IsClient() && m_Expansion_EngineIsOn)
+		if (g_Game.IsClient() && m_Expansion_EngineIsOn)
 			return;
 
 		OnEngineStop(0);
@@ -3635,15 +3635,15 @@ modded class CarScript
 	string GetWreck()
 	{
 		string path = "CfgVehicles " + GetType() + " wreck";
-		if (GetGame().ConfigIsExisting(path))
-			return GetGame().ConfigGetTextOut(path);
+		if (g_Game.ConfigIsExisting(path))
+			return g_Game.ConfigGetTextOut(path);
 
 		string className = GetType() + "Wreck";
 
-		if (GetGame().ConfigIsExisting("CfgVehicles " + className))
+		if (g_Game.ConfigIsExisting("CfgVehicles " + className))
 			return className;
 
-		GetGame().ConfigGetBaseName("CfgVehicles " + GetType(), className);
+		g_Game.ConfigGetBaseName("CfgVehicles " + GetType(), className);
 
 		return className + "Wreck";
 	}
@@ -3692,7 +3692,7 @@ modded class CarScript
 
 		ExpansionWorld.CheckTreeContact(other, momentum, true);
 
-		if (GetGame().IsServer() && (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed))
+		if (g_Game.IsServer() && (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed))
 		{
 			CarScript otherVehicle;
 			bool otherVehicleEngineOn;
@@ -3745,7 +3745,7 @@ modded class CarScript
 			CrashDebugData.m_CrashDataPoint.m_VelocityCur = GetVelocity(this);
 			CrashDebugData.m_CrashDataPoint.m_VelocityPrev = m_VelocityPrevTick;
 			CrashDebugData.m_CrashDataPoint.m_VelocityDot = vector.Dot(m_VelocityPrevTick.Normalized(), GetVelocity(this).Normalized());
-			CrashDebugData.m_CrashDataPoint.m_Time = GetGame().GetTime();
+			CrashDebugData.m_CrashDataPoint.m_Time = g_Game.GetTime();
 
 			if (DEBUG_OUTPUT_TYPE & EVehicleDebugOutputType.DAMAGE_CONSIDERED)
 			{
@@ -3762,7 +3762,7 @@ modded class CarScript
 				Debug.Log("velocityCur.): "+ GetVelocity(this));
 				Debug.Log("velocityPrev.): "+ m_VelocityPrevTick);
 				Debug.Log("velocityDot): "+ vector.Dot(m_VelocityPrevTick.Normalized(), GetVelocity(this).Normalized()));
-				Debug.Log("GetGame().GetTime(): "+ GetGame().GetTime());
+				Debug.Log("g_Game.GetTime(): "+ g_Game.GetTime());
 				Debug.Log("--------------------------------------------------");
 			}
 		#endif
@@ -3785,7 +3785,7 @@ modded class CarScript
 			#ifdef DIAG_DEVELOPER
 				CrashDebugData.m_CrashDataPoint.m_DamageType = "Small";
 				if (DEBUG_OUTPUT_TYPE & EVehicleDebugOutputType.DAMAGE_APPLIED)
-					Debug.Log(string.Format("[Vehiles:Damage]:: DMG %1 to the %2 zone is SMALL (threshold: %3), SPEEDOMETER: %4, TIME: %5", dmg, zoneName, GameConstants.CARS_CONTACT_DMG_MIN, GetSpeedometer(), GetGame().GetTime() ));
+					Debug.Log(string.Format("[Vehiles:Damage]:: DMG %1 to the %2 zone is SMALL (threshold: %3), SPEEDOMETER: %4, TIME: %5", dmg, zoneName, GameConstants.CARS_CONTACT_DMG_MIN, GetSpeedometer(), g_Game.GetTime() ));
 			#endif
 
 				SynchCrashLightSound(true);
@@ -3796,7 +3796,7 @@ modded class CarScript
 			#ifdef DIAG_DEVELOPER
 				CrashDebugData.m_CrashDataPoint.m_DamageType = "Big";
 				if (DEBUG_OUTPUT_TYPE & EVehicleDebugOutputType.DAMAGE_APPLIED)
-					Debug.Log(string.Format("[Vehiles:Damage]:: DMG %1 to the %2 zone is BIG (threshold: %3), SPEED: %4, TIME: %5", dmg, zoneName, GameConstants.CARS_CONTACT_DMG_THRESHOLD, GetSpeedometer(), GetGame().GetTime() ));
+					Debug.Log(string.Format("[Vehiles:Damage]:: DMG %1 to the %2 zone is BIG (threshold: %3), SPEED: %4, TIME: %5", dmg, zoneName, GameConstants.CARS_CONTACT_DMG_THRESHOLD, GetSpeedometer(), g_Game.GetTime() ));
 			#endif
 
 				float crewDmg = crewDmgBase * GetExpansionSettings().GetVehicle().VehicleCrewDamageMultiplier;

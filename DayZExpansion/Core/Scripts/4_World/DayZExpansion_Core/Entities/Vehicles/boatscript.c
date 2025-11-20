@@ -29,7 +29,7 @@ modded class BoatScript
 	void ~BoatScript()
 	{
 	#ifndef DIAG_DEVELOPER
-		if (!GetGame())
+		if (!g_Game)
 			return;
 	#endif
 
@@ -41,7 +41,7 @@ modded class BoatScript
 	{
 		super.EEInit();
 
-		if (GetGame().IsServer() && GetExpansionSettings().GetSafeZone().Enabled)
+		if (g_Game.IsServer() && GetExpansionSettings().GetSafeZone().Enabled)
 			m_Expansion_SafeZoneInstance.Update();
 	}
 

@@ -33,21 +33,21 @@ class eAIRoadNetwork
 		m_SectionEnds = new array<ref eAIRoadNodeSection>();
 		m_Directories = new array<string>();
 
-		m_WorldName = GetGame().GetWorldName();
-		m_CenterPoint = GetGame().ConfigGetVector("CfgWorlds " + m_WorldName + " centerPosition");
+		m_WorldName = g_Game.GetWorldName();
+		m_CenterPoint = g_Game.ConfigGetVector("CfgWorlds " + m_WorldName + " centerPosition");
 
 		m_Directories.Insert("DayZExpansion/AI/Scripts/Data/Roads");
 
-		int mod_count = GetGame().ConfigGetChildrenCount("CfgMods");
+		int mod_count = g_Game.ConfigGetChildrenCount("CfgMods");
 		for (int i = 0; i < mod_count; i++)
 		{
 			string mod_name;
-			GetGame().ConfigGetChildName("CfgMods", i, mod_name);
+			g_Game.ConfigGetChildName("CfgMods", i, mod_name);
 			
-			if (GetGame().ConfigIsExisting("CfgMods " + mod_name + " roadNetworkDirectory"))
+			if (g_Game.ConfigIsExisting("CfgMods " + mod_name + " roadNetworkDirectory"))
 			{
 				string directory;
-				GetGame().ConfigGetText("CfgMods " + mod_name + " roadNetworkDirectory", directory);
+				g_Game.ConfigGetText("CfgMods " + mod_name + " roadNetworkDirectory", directory);
 				m_Directories.Insert(directory);
 			}
 		}
@@ -332,7 +332,7 @@ class eAIRoadNetwork
 		Resize(position[0] * 2, position[1] * 2);
 		
 		PGFilter pathFilter = new PGFilter();
-		AIWorld aiWorld = GetGame().GetWorld().GetAIWorld();
+		AIWorld aiWorld = g_Game.GetWorld().GetAIWorld();
 		vector nmHitPos;
 		vector nmHitNormal;
 		
@@ -353,7 +353,7 @@ class eAIRoadNetwork
 		array<Object> objects();
 		array<CargoBase> proxyCargos();
 
-		GetGame().GetObjectsAtPosition(position, radius, objects, proxyCargos);
+		g_Game.GetObjectsAtPosition(position, radius, objects, proxyCargos);
 
 		for (i = 0; i < objects.Count(); i++)
 		{
@@ -808,7 +808,7 @@ class eAIRoadNetwork
 
 		//Print("+eAIRoadNetwork::FindPath");
 		//auto param = new Param3<vector, vector, ExpansionPathHandler>(start, end, pathFinding);
-		//GetGame().GameScript.Call(this, "_FindPath", param);
+		//g_Game.GameScript.Call(this, "_FindPath", param);
 		//thread _FindPath(start, end, pathFinding);
 		//Print("-eAIRoadNetwork::FindPath");
 	}

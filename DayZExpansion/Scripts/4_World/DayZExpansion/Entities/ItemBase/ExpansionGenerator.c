@@ -14,10 +14,10 @@ class ExpansionGenerator_Base: PowerGenerator
 {
 	void ~ExpansionGenerator_Base()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			ExpansionWorldObjectsModule module;
 			if ( CF_Modules<ExpansionWorldObjectsModule>.Get(module) )
@@ -31,7 +31,7 @@ class ExpansionGenerator_Base: PowerGenerator
 	{
 		super.OnSwitchOn();
 
-		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
+		if ( g_Game.IsClient() || !g_Game.IsMultiplayer() )
 		{
 			SetAnimationPhase("switch", 1.0);
 		}
@@ -41,7 +41,7 @@ class ExpansionGenerator_Base: PowerGenerator
 	{
 		super.OnSwitchOff();
 
-		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
+		if ( g_Game.IsClient() || !g_Game.IsMultiplayer() )
 		{
 			SetAnimationPhase("switch", 0.0);
 		}
@@ -51,7 +51,7 @@ class ExpansionGenerator_Base: PowerGenerator
 	{
 		super.OnWorkStart();
 		
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			ExpansionWorldObjectsModule module;
 			if ( CF_Modules<ExpansionWorldObjectsModule>.Get(module) )
@@ -65,7 +65,7 @@ class ExpansionGenerator_Base: PowerGenerator
 	{
 		super.OnWorkStop();
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		if (g_Game.IsServer() || !g_Game.IsMultiplayer())
 		{
 			ExpansionWorldObjectsModule module;
 			if ( CF_Modules<ExpansionWorldObjectsModule>.Get(module) )

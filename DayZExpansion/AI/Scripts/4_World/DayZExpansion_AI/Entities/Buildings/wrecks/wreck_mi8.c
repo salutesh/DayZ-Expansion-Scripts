@@ -17,7 +17,7 @@ modded class Wreck_Mi8_Crashed
 	void ~Wreck_Mi8_Crashed()
 	{
 	#ifndef DIAG_DEVELOPER
-		if (!GetGame())
+		if (!g_Game)
 			return;
 	#endif
 

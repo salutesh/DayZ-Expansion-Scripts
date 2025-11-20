@@ -33,7 +33,7 @@ class Expansion_Taser_Debug: Expansion_Taser_Base
 #ifdef DIAG_DEVELOPER
 	void Expansion_Taser_Debug()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			SetAllowDamage(false);
 	}
 
@@ -47,7 +47,7 @@ class Expansion_Taser_Debug: Expansion_Taser_Base
 			Magazine magazine = GetMagazine(GetCurrentMuzzle());
 			if (magazine)
 			{
-				if (GetGame().IsServer())
+				if (g_Game.IsServer())
 					magazine.ServerSetAmmoMax();
 				else
 					magazine.LocalSetAmmoMax();

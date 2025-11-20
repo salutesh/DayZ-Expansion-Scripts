@@ -182,7 +182,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		TerritoryFlag flag;
 		if ( Class.CastTo( flag, target ) )
 		{
-			GetGame().GetUIManager().EnterScriptedMenu( flag.GetTerritoryMenuID(), GetGame().GetUIManager().GetMenu() );
+			g_Game.GetUIManager().EnterScriptedMenu( flag.GetTerritoryMenuID(), g_Game.GetUIManager().GetMenu() );
 		}
 	}
 	
@@ -278,7 +278,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#endif
 
 		PlayerBase player;
-		if ( Class.CastTo( player, GetGame().GetPlayer() ) )
+		if ( Class.CastTo( player, g_Game.GetPlayer() ) )
 		{
 			ExpansionTerritory oldTerritory = m_Territories.Get( territoryID );
 			if ( oldTerritory )
@@ -637,7 +637,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			//Don't forget to set it as null before to delete, to not do a infinte loop
 			flag.SetTerritory(null);
 
-			GetGame().CreateObject( "TerritoryFlagKit", flag.GetPosition() );
+			g_Game.CreateObject( "TerritoryFlagKit", flag.GetPosition() );
 			flag.Delete();
 			
 			m_TerritoryFlags.Remove( territoryID );
@@ -829,7 +829,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_SyncPlayerInvitesClient(PlayerIdentity senderRPC, Object target, ParamsReadContext ctx)
 	{
-		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+		PlayerBase player = PlayerBase.Cast( g_Game.GetPlayer() );
 		if ( !player )
 			return;
 		
@@ -1730,7 +1730,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	private void Exec_CheckPlayer()
 	{
 		PlayerBase player;
-		if ( !Class.CastTo( player, GetGame().GetPlayer() ) )
+		if ( !Class.CastTo( player, g_Game.GetPlayer() ) )
 			return;
 
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -1951,7 +1951,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		if ( position == "-1 -1 -1" && IsMissionClient() )
 		{
-			PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+			PlayerBase player = PlayerBase.Cast( g_Game.GetPlayer() );
 			if ( !player )
 			{
 				#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -1965,7 +1965,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 
 		if ( territorySize <= 0 )
 		{
-			if (GetGame().IsClient() && !GetExpansionSettings().GetTerritory(false).IsLoaded())
+			if (g_Game.IsClient() && !GetExpansionSettings().GetTerritory(false).IsLoaded())
 				return false;
 
 			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
@@ -2066,7 +2066,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 
 	bool CanEditTerritory(string playerUID)
 	{
-		if (GetGame().IsClient() && !GetPermissionsManager().IsAdminToolsToggledOn())
+		if (g_Game.IsClient() && !GetPermissionsManager().IsAdminToolsToggledOn())
 			return false;
 
 		PlayerBase player;
@@ -2074,7 +2074,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	#ifdef SERVER
 		player = PlayerBase.GetPlayerByUID(playerUID);
 	#else
-		player = PlayerBase.Cast(GetGame().GetPlayer());
+		player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (playerUID && player.GetIdentity().GetId() != playerUID)
 			return false;
 	#endif
@@ -2098,7 +2098,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 
 		if (territorySize <= 0 || perimeterSize <= 0)
 		{
-			if (GetGame().IsClient() && !GetExpansionSettings().GetTerritory(false).IsLoaded())
+			if (g_Game.IsClient() && !GetExpansionSettings().GetTerritory(false).IsLoaded())
 				return false;
 		}
 
@@ -2125,7 +2125,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	{
 		if ( territorySize <= 0 )
 		{
-			if (GetGame().IsClient() && !GetExpansionSettings().GetTerritory(false).IsLoaded())
+			if (g_Game.IsClient() && !GetExpansionSettings().GetTerritory(false).IsLoaded())
 				return NULL;
 
 			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
@@ -2213,7 +2213,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 
 		if (territorySize <= 0 || perimeterSize <= 0)
 		{
-			if (GetGame().IsClient() && !GetExpansionSettings().GetTerritory(false).IsLoaded())
+			if (g_Game.IsClient() && !GetExpansionSettings().GetTerritory(false).IsLoaded())
 				return false;
 		}
 
@@ -2268,8 +2268,8 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void CloseMenus()
 	{
-		if ( GetGame().GetUIManager() && GetGame().GetUIManager().IsMenuOpen( MENU_EXPANSION_FLAG_MENU ) )
-			GetGame().GetUIManager().FindMenu( MENU_EXPANSION_FLAG_MENU ).Close();
+		if ( g_Game.GetUIManager() && g_Game.GetUIManager().IsMenuOpen( MENU_EXPANSION_FLAG_MENU ) )
+			g_Game.GetUIManager().FindMenu( MENU_EXPANSION_FLAG_MENU ).Close();
 	}
 	
 	// ------------------------------------------------------------

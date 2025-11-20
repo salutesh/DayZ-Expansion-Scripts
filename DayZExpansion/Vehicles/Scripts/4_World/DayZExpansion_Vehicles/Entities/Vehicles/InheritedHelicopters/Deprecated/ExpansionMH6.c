@@ -548,7 +548,7 @@ class ExpansionMh6 : ExpansionHelicopterScript
 					{
 						m_Lights[b].ExpansionSetEnabled(false);
 
-						GetGame().ObjectDelete(m_Lights[b]);
+						g_Game.ObjectDelete(m_Lights[b]);
 					}
 
 					m_Lights.Clear();

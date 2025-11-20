@@ -30,13 +30,13 @@ class ExpansionLampLightBase_Lamp: House
 		ExpansionSettings.SI_General.Insert(Expansion_OnClientSettingsUpdated);
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(Expansion_OnClientSettingsUpdated);
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_OnClientSettingsUpdated, 1000);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_OnClientSettingsUpdated, 1000);
 	#endif
 	}
 
 	void ~ExpansionLampLightBase_Lamp()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 	#ifdef EXTRACE
@@ -48,7 +48,7 @@ class ExpansionLampLightBase_Lamp: House
 		GetExpansionClientSettings().SI_UpdateSetting.Remove(Expansion_OnClientSettingsUpdated);
 
 		if (m_Expansion_Light)
-			GetGame().ObjectDelete(m_Expansion_Light);
+			g_Game.ObjectDelete(m_Expansion_Light);
 	#endif
 	}
 
@@ -150,7 +150,7 @@ modded class ExpansionLampLightBase
 		m_LampColor = ConfigGetString("color").ToVector();
 		m_LampPosition = ConfigGetString("position").ToVector();
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			s_Lamps.Insert(this);
 	}
 
@@ -403,7 +403,7 @@ modded class ExpansionLampLightBase
 	void DeleteLamp()
 	{
 		if (m_Lamp)
-			GetGame().ObjectDelete(m_Lamp);
+			g_Game.ObjectDelete(m_Lamp);
 	}
 
 	// ------------------------------------------------------------
@@ -411,7 +411,7 @@ modded class ExpansionLampLightBase
 	// ------------------------------------------------------------
 	void OnSettingsUpdated()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			if (ExpansionWorldObjectsModule.s_RemovedObjects[this])
 				return;
@@ -474,7 +474,7 @@ modded class ExpansionLampLightBase
 	// ------------------------------------------------------------
 	protected void OnEnable()
 	{
-		if (GetGame().IsServer() && !IsEnabled() && !m_Lamp && m_CanBeEnabled)
+		if (g_Game.IsServer() && !IsEnabled() && !m_Lamp && m_CanBeEnabled)
 		{
 			vector modelPos;
 
@@ -485,7 +485,7 @@ modded class ExpansionLampLightBase
 
 			int flags = ECE_NOLIFETIME | ECE_KEEPHEIGHT | ECE_NOPERSISTENCY_WORLD;
 
-			Object obj = GetGame().CreateObjectEx("ExpansionLampLightBase_Lamp", ModelToWorld(modelPos), flags);
+			Object obj = g_Game.CreateObjectEx("ExpansionLampLightBase_Lamp", ModelToWorld(modelPos), flags);
 
 			if (Class.CastTo(m_Lamp, obj))
 			{
@@ -494,7 +494,7 @@ modded class ExpansionLampLightBase
 			}
 			else
 			{
-				GetGame().ObjectDelete(obj);
+				g_Game.ObjectDelete(obj);
 			}
 		}
 	}

@@ -22,7 +22,7 @@ class ExpansionMapMarkerIconItem: ScriptedWidgetEventHandler
 	
 	void ExpansionMapMarkerIconItem( Widget parent, ExpansionIcon data, ExpansionMapMarker marker )
 	{
-		Class.CastTo( m_LayoutRoot, GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Navigation/GUI/layouts/expansion_marker_icon_entry.layout", parent ) );
+		Class.CastTo( m_LayoutRoot, g_Game.GetWorkspace().CreateWidgets( "DayZExpansion/Navigation/GUI/layouts/expansion_marker_icon_entry.layout", parent ) );
 		Class.CastTo( m_Button, m_LayoutRoot.FindAnyWidget( "marker_icon_button" ) );
 		Class.CastTo( m_Icon, m_LayoutRoot.FindAnyWidget( "marker_icon_image" ) );
 		Class.CastTo( m_Name, m_LayoutRoot.FindAnyWidget( "marker_icon_name" ) );

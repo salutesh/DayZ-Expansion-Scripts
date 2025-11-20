@@ -37,7 +37,7 @@ static TransferInventoryResult ExpansionTransferInventory(EntityAI sourceItem, E
 
 		float health;
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			health = child.GetHealth();
 			child.SetHealth(child.GetMaxHealth()); //! Set item to max health, so we can move ruined items
@@ -45,7 +45,7 @@ static TransferInventoryResult ExpansionTransferInventory(EntityAI sourceItem, E
 
 		if (child_src.GetType() != InventoryLocationType.HANDS && GameInventory.LocationCanAddEntity(child_dst))
 		{
-			if (GetGame().IsMultiplayer())
+			if (g_Game.IsMultiplayer())
 				sourceItem.GetInventory().TakeToDst(InventoryMode.SERVER, child_src, child_dst);
 			else
 				sourceItem.GetInventory().TakeToDst(InventoryMode.LOCAL, child_src, child_dst);
@@ -58,7 +58,7 @@ static TransferInventoryResult ExpansionTransferInventory(EntityAI sourceItem, E
 				child.GetTransform(mat);
 				child_dst.SetGround(child, mat);
 
-				if (GetGame().IsMultiplayer())
+				if (g_Game.IsMultiplayer())
 					sourceItem.GetInventory().TakeToDst(InventoryMode.SERVER, child_src, child_dst);
 				else
 					sourceItem.GetInventory().TakeToDst(InventoryMode.LOCAL, child_src, child_dst);
@@ -69,7 +69,7 @@ static TransferInventoryResult ExpansionTransferInventory(EntityAI sourceItem, E
 			}
 			else
 			{
-				if (GetGame().IsMultiplayer())
+				if (g_Game.IsMultiplayer())
 					sourceItem.GetInventory().DropEntity(InventoryMode.SERVER, sourceItem, child);
 				else
 					sourceItem.GetInventory().DropEntity(InventoryMode.LOCAL, sourceItem, child);
@@ -78,7 +78,7 @@ static TransferInventoryResult ExpansionTransferInventory(EntityAI sourceItem, E
 			result = TransferInventoryResult.DroppedSome;
 		}
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			child.SetHealth(health);
 	}
 	return result;
@@ -86,11 +86,11 @@ static TransferInventoryResult ExpansionTransferInventory(EntityAI sourceItem, E
 
 static void Expansion_PhysicsDropAttachments(EntityAI parent)
 {
-	if (!GetGame().IsServer())
+	if (!g_Game.IsServer())
 		return;
 
 	InventoryMode invMode = InventoryMode.SERVER;
-	if (!GetGame().IsMultiplayer())
+	if (!g_Game.IsMultiplayer())
 		invMode = InventoryMode.LOCAL;
 
 	bool exploded;

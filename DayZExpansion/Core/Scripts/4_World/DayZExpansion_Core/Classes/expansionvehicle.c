@@ -42,7 +42,7 @@ class ExpansionVehicle
 	void ~ExpansionVehicle()
 	{
 	#ifndef DIAG_DEVELOPER
-		if (!GetGame())
+		if (!g_Game)
 			return;
 	#endif
 
@@ -113,7 +113,7 @@ class ExpansionVehicle
 
 	static ExpansionVehicleType GetVehicleType(string type)
 	{
-		string vehicleClass = GetGame().ConfigGetTextOut("CfgVehicles " + type + " vehicleClass");
+		string vehicleClass = g_Game.ConfigGetTextOut("CfgVehicles " + type + " vehicleClass");
 		switch (vehicleClass)
 		{
 			case "Expansion_Helicopter":
@@ -133,10 +133,10 @@ class ExpansionVehicle
 		#endif
 		}
 
-		if (GetGame().IsKindOf(type, "BoatScript"))
+		if (g_Game.IsKindOf(type, "BoatScript"))
 			return ExpansionVehicleType.WATER;
 
-		if (GetGame().IsKindOf(type, "CarScript"))
+		if (g_Game.IsKindOf(type, "CarScript"))
 			return ExpansionVehicleType.LAND;
 
 		return ExpansionVehicleType.NONE;
@@ -811,7 +811,7 @@ class ExpansionVehicle
 				}
 			}
 
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeleteVehicleWhenCrewLeft, 3000, false, lifetime);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeleteVehicleWhenCrewLeft, 3000, false, lifetime);
 		}
 	}
 
@@ -888,7 +888,7 @@ class ExpansionVehicle
 
 	void OnDestroyed(Object killer)
 	{
-		if (GetGame().IsServer() && GetExpansionSettings().GetLog().VehicleDestroyed && !m_DestructionLogged)
+		if (g_Game.IsServer() && GetExpansionSettings().GetLog().VehicleDestroyed && !m_DestructionLogged)
 		{
     		GetExpansionSettings().GetLog().PrintLog("[VehicleDestroyed] {1:type} (id={1:persistent_id} pos={1:position})", GetEntity());
 
@@ -898,7 +898,7 @@ class ExpansionVehicle
 
 	void OnDelete()
 	{
-		if (GetGame().IsServer() && GetExpansionSettings().GetLog().VehicleDeleted)
+		if (g_Game.IsServer() && GetExpansionSettings().GetLog().VehicleDeleted)
 		{
 			GetExpansionSettings().GetLog().PrintLog("[VehicleDeleted] {1:type} (id={1:persistent_id} pos={1:position})", GetEntity());
 		}
@@ -925,7 +925,7 @@ class ExpansionVehicle
 #ifdef EXPANSION_CARKEY_LOGGING
 	#ifndef SERVER
 		PlayerBase player;
-		if (Class.CastTo(player, GetGame().GetPlayer()))
+		if (Class.CastTo(player, g_Game.GetPlayer()))
 			player.Message(message);
 	#endif
 
@@ -954,7 +954,7 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 		m_IsPlane = vehicle.Expansion_IsPlane();
 		m_IsDuck = vehicle.Expansion_IsDuck();
 
-		m_FuelConsumption = GetGame().ConfigGetFloat("CfgVehicles " + vehicle.GetType() + " fuelConsumption");
+		m_FuelConsumption = g_Game.ConfigGetFloat("CfgVehicles " + vehicle.GetType() + " fuelConsumption");
 	}
 
 	override void Init()
@@ -1281,7 +1281,7 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 
 			//! Reset m_LastDriverUID client-side if vehicle has driver and it is not the player
 			Human driver = m_Vehicle.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
-			Man player = GetGame().GetPlayer();
+			Man player = g_Game.GetPlayer();
 			if (driver && player && driver != player)
 			{
 				m_LastDriverUID = "";
@@ -1524,7 +1524,7 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 
 	override bool OnBeforeEngineStart(int index = 0)
 	{
-		if (GetGame().IsClient())
+		if (g_Game.IsClient())
 			return true;
 
 		float engineHealth = GetEntity().GetHealth01("Engine", "");
@@ -1550,13 +1550,13 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 
 	override void OnEngineStart(int index = 0)
 	{
-		if (GetGame().IsServer() && GetExpansionSettings().GetLog().VehicleEngine)
+		if (g_Game.IsServer() && GetExpansionSettings().GetLog().VehicleEngine)
 			GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player \"{1:name}\" (id={1:id}) started vehicle {2:name} (id={2:persistent_id} pos={2:position})", CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER), GetEntity());
 	}
 
 	override void OnEngineStop(int index = 0)
 	{
-		if (GetGame().IsServer() && GetExpansionSettings().GetLog().VehicleEngine)
+		if (g_Game.IsServer() && GetExpansionSettings().GetLog().VehicleEngine)
 			GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player \"{1:name}\" (id={1:id}) stopped vehicle {2:name} (id={2:persistent_id} pos={2:position})", CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER), GetEntity());
 	}
 
@@ -1666,7 +1666,7 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	{
 		KeyMessage("OnLocked");
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			auto rpc = m_Vehicle.m_Expansion_RPCManager.CreateRPC("RPC_PlayLockSound");
 			PlayerBase.Expansion_SendNear(rpc, GetEntity().GetPosition(), 20.0, GetEntity(), true);
@@ -1677,7 +1677,7 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	{
 		KeyMessage("OnUnlocked");
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			switch (previousLockState)
 			{

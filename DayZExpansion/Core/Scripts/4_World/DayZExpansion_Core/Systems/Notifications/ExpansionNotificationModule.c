@@ -175,7 +175,7 @@ class ExpansionNotificationModule: CF_ModuleWorld
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "HideNotification");
 #endif
 
-		if (GetGame().IsMultiplayer() && GetGame().IsServer())
+		if (g_Game.IsMultiplayer() && g_Game.IsServer())
 			return;
 
 		if (index < 0)

@@ -175,7 +175,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			QuestDebug(ToString() + "::SetQuestLogView - Could not get players persistent quest data! Not created yet?!");
 		}
 		
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (!player)
 		{
 			Error(ToString() + "::SetQuests - Could not player!");
@@ -255,7 +255,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			QuestDebug(ToString() + "::SetQuests - Could not get players persistent quest data! Not created yet?!");
 		}
 
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (!player)
 		{
 			Error(ToString() + "::SetQuests - Could not player!");
@@ -305,7 +305,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			QuestListContent.Show(false);
 			DefaultPanel.Show(true);
 			
-			StringLocaliser defaultNPCText = new StringLocaliser(defaultText, GetGame().GetPlayer().GetIdentity().GetName());
+			StringLocaliser defaultNPCText = new StringLocaliser(defaultText, g_Game.GetPlayer().GetIdentity().GetName());
 			m_QuestMenuController.DefaultText = defaultNPCText.Format();
 			m_QuestMenuController.NotifyPropertyChanged("DefaultText");
 		}
@@ -436,7 +436,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			}
 		}
 
-		StringLocaliser descriptiontext = new StringLocaliser(description, GetGame().GetPlayer().GetIdentity().GetName());
+		StringLocaliser descriptiontext = new StringLocaliser(description, g_Game.GetPlayer().GetIdentity().GetName());
 		m_QuestMenuController.QuestDescription = descriptiontext.Format();
 		m_QuestMenuController.NotifyPropertyChanged("QuestDescription");
 		
@@ -847,7 +847,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	{
 		bool canShow;
 	#ifdef EXPANSIONMODGROUPS
-		canShow = PlayerBase.Cast(GetGame().GetPlayer()).Expansion_GetPartyID() > -1;
+		canShow = PlayerBase.Cast(g_Game.GetPlayer()).Expansion_GetPartyID() > -1;
 	#endif
 
 		return canShow;

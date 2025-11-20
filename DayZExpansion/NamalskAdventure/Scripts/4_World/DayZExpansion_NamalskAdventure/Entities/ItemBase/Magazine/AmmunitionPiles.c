@@ -55,7 +55,7 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 #endif
 
 		//! Spawn the core item into the anomaly.
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnCoreItem, 500, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnCoreItem, 500, false);
 	}
 	
 	//! Server
@@ -74,7 +74,7 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 #endif
 		ExDebugPrint("::EEParentedTo - Parent: " + parent.ToString() + " | Position: " + parent.GetPosition());
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(HandleBoltParented, 100, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(HandleBoltParented, 100, false);
 	}
 
 	override void EEItemDetached(EntityAI item, string slot_name)
@@ -102,14 +102,14 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 #endif
 
 		vector pos = GetPosition();
-		float surfaceY = GetGame().SurfaceY(pos[0], pos[2]);
+		float surfaceY = g_Game.SurfaceY(pos[0], pos[2]);
 		float offsetX;
 		float offsetY;
 
 		float resultHealth = GetHealth01("", "");
 		offsetX = Math.RandomFloatInclusive(0.2, 0.7);
 		offsetY = Math.RandomFloatInclusive(0.2, 0.7);
-		Ammo_HuntingBolt newBolt = Ammo_HuntingBolt.Cast(GetGame().CreateObject("Ammo_HuntingBolt", Vector(pos[0] + offsetX, surfaceY, pos[2] + offsetY)));
+		Ammo_HuntingBolt newBolt = Ammo_HuntingBolt.Cast(g_Game.CreateObject("Ammo_HuntingBolt", Vector(pos[0] + offsetX, surfaceY, pos[2] + offsetY)));
 		newBolt.SetHealth01("", "", resultHealth);
 		
 		Magazine boltMag;
@@ -126,10 +126,10 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 		
 		newBolt.Update();
 		
-		Rope rope = Rope.Cast(GetGame().CreateObject("Rope", Vector(pos[0] + offsetX, surfaceY, pos[2] + offsetY)));
+		Rope rope = Rope.Cast(g_Game.CreateObject("Rope", Vector(pos[0] + offsetX, surfaceY, pos[2] + offsetY)));
 		rope.SetHealth01("", "", resultHealth);
 		
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(HandleDisassemble, 100, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(HandleDisassemble, 100, false);
 	}
 	
 	//! Server
@@ -146,7 +146,7 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 			int newAmmoCount = ammoCount - 1;
 			if (newAmmoCount == 0)
 			{
-				GetGame().ObjectDelete(boltMag);
+				g_Game.ObjectDelete(boltMag);
 			}
 			else
 			{
@@ -164,18 +164,18 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 #endif
 		
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			vector pos = GetPosition();
 			vector ori = GetOrientation();
 			
 			//! Create anomaly core explosion
-			Expansion_AnomalyCore_Base anomalyCore = Expansion_AnomalyCore_Base.Cast(GetGame().CreateObject(GetAmomalyCoreName(), pos));
+			Expansion_AnomalyCore_Base anomalyCore = Expansion_AnomalyCore_Base.Cast(g_Game.CreateObject(GetAmomalyCoreName(), pos));
 			anomalyCore.SetPosition(pos);
 			anomalyCore.SetHealth01("", "", 0);
 
 			//! Create new bolt on impact position.
-			Ammo_HuntingBolt newBolt = Ammo_HuntingBolt.Cast(GetGame().CreateObject("Ammo_HuntingBolt", pos));
+			Ammo_HuntingBolt newBolt = Ammo_HuntingBolt.Cast(g_Game.CreateObject("Ammo_HuntingBolt", pos));
 			newBolt.SetOrientation(ori);
 			newBolt.SetFromProjectile(m_Expansion_ProjectileStoppedInfo);
 			
@@ -190,7 +190,7 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 					arrowParent.AddArrow(newBolt, collisionInfo.GetComponentIndex(), collisionInfo.GetHitObjPos(), collisionInfo.GetHitObjRot());
 			}
 			
-			GetGame().ObjectDelete(this);
+			g_Game.ObjectDelete(this);
 		}
 	}
 

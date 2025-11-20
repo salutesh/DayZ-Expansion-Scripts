@@ -60,16 +60,16 @@ class ExpansionDoor
 			string path;
 
 			path = rootPath + " selection";
-			if (GetGame().ConfigIsExisting(path))
-				m_Selection = GetGame().ConfigGetTextOut(path);
+			if (g_Game.ConfigIsExisting(path))
+				m_Selection = g_Game.ConfigGetTextOut(path);
 
 			path = rootPath + " animation";
-			if (GetGame().ConfigIsExisting(path))
-				m_Animation = GetGame().ConfigGetTextOut(path);
+			if (g_Game.ConfigIsExisting(path))
+				m_Animation = g_Game.ConfigGetTextOut(path);
 
 			path = rootPath + " isDoor";
-			if (GetGame().ConfigIsExisting(path))
-				m_IsDoor = GetGame().ConfigGetInt(path);
+			if (g_Game.ConfigIsExisting(path))
+				m_IsDoor = g_Game.ConfigGetInt(path);
 		}
 
 		if (m_Selection && m_Animation)

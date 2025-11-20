@@ -41,8 +41,8 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 	void ~ExpansionQuestHUDObjective()
 	{
-		if (GetGame() && ObjectiveName)
-			GetGame().GetCallQueue(CALL_CATEGORY_GUI).Remove(ObjectiveName.SetSize);
+		if (g_Game && ObjectiveName)
+			g_Game.GetCallQueue(CALL_CATEGORY_GUI).Remove(ObjectiveName.SetSize);
 	}
 
 	override string GetLayoutFile()
@@ -87,7 +87,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 			m_QuestHUDObjectiveController.ObjectiveName = objectiveState + m_ObjectiveConfig.GetObjectiveText();
 			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveName");
-			GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(ObjectiveName.SetSize, 100, false, 1.0, 1.0, true);
+			g_Game.GetCallQueue(CALL_CATEGORY_GUI).CallLater(ObjectiveName.SetSize, 100, false, 1.0, 1.0, true);
 		}
 
 		UpdateTimeLimit();
@@ -330,7 +330,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	
 	override void Expansion_Update()
 	{
-		if (!m_Objective || !m_QuestConfig || !IsVisible() || !GetGame().GetPlayer())
+		if (!m_Objective || !m_QuestConfig || !IsVisible() || !g_Game.GetPlayer())
 			return;
 		
 		UpdateTimeLimit();
@@ -444,7 +444,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		if (m_ObjectiveConfig.IsInherited(ExpansionQuestObjectiveAIEscortConfig))
 			objectivePos = m_ObjectiveConfig.GetPosition();  //! We want pos of target location, not current objective (VIP) pos
 	#endif
-		vector playerPos = GetGame().GetPlayer().GetPosition();
+		vector playerPos = g_Game.GetPlayer().GetPosition();
 		int currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
 		m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
 		m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");

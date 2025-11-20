@@ -46,8 +46,8 @@ class eAIDynamicPatrol : eAIPatrol
 
 	void ~eAIDynamicPatrol()
 	{
-		if (GetGame() && m_Trigger)
-			GetGame().ObjectDelete(m_Trigger);
+		if (g_Game && m_Trigger)
+			g_Game.ObjectDelete(m_Trigger);
 	}
 
 	/**
@@ -329,7 +329,7 @@ class eAIDynamicPatrol : eAIPatrol
 		else
 			unit = eAISurvivor.GetQuasiRandom();
 
-		return eAIBase.Cast(GetGame().CreateObject(unit, pos));
+		return eAIBase.Cast(g_Game.CreateObject(unit, pos));
 	}
 
 	private eAIBase SpawnAI(vector pos)
@@ -483,7 +483,7 @@ class eAIDynamicPatrol : eAIPatrol
 
 		s_LoadBalancing_IsScheduled = true;
 		
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadBalancing_UpdateAll, 10000, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadBalancing_UpdateAll, 10000, false);
 	}
 
 	void Spawn()
@@ -592,7 +592,7 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 
 		if (!loaded && m_NumberOfAI > 1)
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(SpawnAI_Deferred, 1);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(SpawnAI_Deferred, 1);
 
 		m_IsSpawned = true;
 
@@ -611,7 +611,7 @@ class eAIDynamicPatrol : eAIPatrol
 			ai.SetGroup(m_Group);
 
 			if (++i < m_NumberOfAI)
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(SpawnAI_Deferred, i);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(SpawnAI_Deferred, i);
 			else
 				m_Group.SetWaypointBehaviour(m_WaypointBehaviour);  //! Only start moving after all AI spawned
 		}
@@ -678,7 +678,7 @@ class eAIDynamicPatrol : eAIPatrol
 		{
 			if (!m_Trigger && CanSpawn())
 			{
-				m_Trigger = eAIDynamicPatrolSphereTrigger.Cast(GetGame().CreateObjectEx("eAIDynamicPatrolSphereTrigger", m_Position, ECE_LOCAL));
+				m_Trigger = eAIDynamicPatrolSphereTrigger.Cast(g_Game.CreateObjectEx("eAIDynamicPatrolSphereTrigger", m_Position, ECE_LOCAL));
 				m_Trigger.eAI_SetParams(this, m_MaximumRadius, m_MinimumRadius);
 			}
 		}

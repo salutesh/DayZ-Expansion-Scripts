@@ -43,7 +43,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 	void ~ExpansionMarketMenuItemManagerCategoryItem()
 	{
 		if (m_Object)
-			GetGame().ObjectDelete(m_Object);
+			g_Game.ObjectDelete(m_Object);
 
 		if (m_Tooltip) 
 			m_Tooltip.Destroy();
@@ -163,7 +163,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 			string itemTypeName = m_ItemClassName;
 			itemTypeName.ToLower();
 			
-			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 			ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(itemTypeName);
 			if (!ExpansionMarketModule.GetInstance().HasRepForItemRarity(player, item))
 			{
@@ -231,7 +231,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 						else if (!GameInventory.LocationAddEntity(loc))
 						{
 							EXTrace.Print(EXTrace.MARKET, parent, "Could NOT reattach existing " + item.GetType());
-							GetGame().ObjectDelete(item);
+							g_Game.ObjectDelete(item);
 						}
 						else
 						{
@@ -248,7 +248,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 		EntityAI attachmentEntity = ExpansionItemSpawnHelper.SpawnAttachment(attachment, parent);
 		if (attachmentEntity)
 		{
-			GetGame().ObjectDelete(attachmentEntity);
+			g_Game.ObjectDelete(attachmentEntity);
 
 			EXTrace.Print(EXTrace.MARKET, parent, "Can attach " + attachment);
 			return true;
@@ -362,7 +362,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 			string itemTypeName = m_ItemClassName;
 			itemTypeName.ToLower();
 			
-			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 			ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(itemTypeName);
 			if (!ExpansionMarketModule.GetInstance().HasRepForItemRarity(player, item))
 			{
@@ -418,22 +418,22 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 		string slot;
 		string path;
 		
-		if (GetGame().ConfigIsExisting("CfgVehicles " + className))
+		if (g_Game.ConfigIsExisting("CfgVehicles " + className))
 			path = "CfgVehicles " + className;
-		else if (GetGame().ConfigIsExisting("CfgMagazines " + className))
+		else if (g_Game.ConfigIsExisting("CfgMagazines " + className))
 			path = "CfgMagazines " + className;
 			
-		switch (GetGame().ConfigGetType(path + " inventorySlot")) 
+		switch (g_Game.ConfigGetType(path + " inventorySlot")) 
 		{
 			case CT_ARRAY: 
 			{
-				GetGame().ConfigGetTextArray(path + " inventorySlot", inventory_slots);
+				g_Game.ConfigGetTextArray(path + " inventorySlot", inventory_slots);
 				break;
 			}
 			
 			case CT_STRING: 
 			{
-				GetGame().ConfigGetText(path + " inventorySlot", slot);
+				g_Game.ConfigGetText(path + " inventorySlot", slot);
 				break;
 			}
 		}
@@ -470,7 +470,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 			{
 				if (CF_String.EqualsIgnoreCase(attachment, item.GetType()))
 				{
-					GetGame().ObjectDelete(item);
+					g_Game.ObjectDelete(item);
 					break;
 				}
 			}
@@ -579,18 +579,18 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 	static bool GetAttachmentSlots(string className, out TStringArray inventory_slots)
 	{
 		string path;
-		if (GetGame().ConfigIsExisting("CfgVehicles " + className))
+		if (g_Game.ConfigIsExisting("CfgVehicles " + className))
 			path = "CfgVehicles " + className;
-		else if (GetGame().ConfigIsExisting("CfgMagazines " + className))
+		else if (g_Game.ConfigIsExisting("CfgMagazines " + className))
 			path = "CfgMagazines " + className;
 		else
 			return false;
 
-		switch (GetGame().ConfigGetType(path + " inventorySlot")) 
+		switch (g_Game.ConfigGetType(path + " inventorySlot")) 
 		{
 			case CT_ARRAY: 
 			{
-				GetGame().ConfigGetTextArray(path + " inventorySlot", inventory_slots);
+				g_Game.ConfigGetTextArray(path + " inventorySlot", inventory_slots);
 				TStringArray tmp = inventory_slots;
 				inventory_slots = new TStringArray;
 				foreach (string inventory_slot: tmp)
@@ -604,7 +604,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 			case CT_STRING: 
 			{
 				string slot;
-				GetGame().ConfigGetText(path + " inventorySlot", slot);
+				g_Game.ConfigGetText(path + " inventorySlot", slot);
 				slot.ToLower();
 				inventory_slots.Insert(slot);
 				return true;

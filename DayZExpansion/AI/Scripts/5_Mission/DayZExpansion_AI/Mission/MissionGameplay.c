@@ -130,7 +130,7 @@ modded class MissionGameplay
 		super.HideInventory();
 
 		PlayerBase player;
-		if (Class.CastTo(player, GetGame().GetPlayer()))
+		if (Class.CastTo(player, g_Game.GetPlayer()))
 		{
 			eAIGroup group = player.GetGroup();
 			if (group)

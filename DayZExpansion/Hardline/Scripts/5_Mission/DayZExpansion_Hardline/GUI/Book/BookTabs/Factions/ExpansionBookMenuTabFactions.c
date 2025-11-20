@@ -24,7 +24,7 @@ class ExpansionBookMenuTabFactions: ExpansionBookMenuTabBase
 	
 	void SetView()
 	{
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (!player)
 			return;
 

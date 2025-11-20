@@ -224,8 +224,8 @@ class ExpansionGarageVehicleData: ExpansionGarageVehicleDataBase
 		if (!ctx.Read(m_NetworkIDHigh))
 			return false;
 		
-		if (!GetGame().IsDedicatedServer())
-			m_VehicleObject = GetGame().GetObjectByNetworkId(m_NetworkIDLow, m_NetworkIDHigh);
+		if (!g_Game.IsDedicatedServer())
+			m_VehicleObject = g_Game.GetObjectByNetworkId(m_NetworkIDLow, m_NetworkIDHigh);
 
 		if (!ctx.Read(m_StorePrice))
 			return false;

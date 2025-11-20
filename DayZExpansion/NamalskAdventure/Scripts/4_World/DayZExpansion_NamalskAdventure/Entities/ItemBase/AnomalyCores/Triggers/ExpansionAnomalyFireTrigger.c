@@ -23,7 +23,7 @@ class ExpansionAnomalyFireTrigger: ExpansionAnomalyTriggerBase
 
 		ProcessEntityEvents(other);
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeferredTriggerCheck, TRIGGER_CHECK_DELAY);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeferredTriggerCheck, TRIGGER_CHECK_DELAY);
 	}
 
 	protected void ProcessEntityEvents(IEntity other)

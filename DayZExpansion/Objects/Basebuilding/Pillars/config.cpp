@@ -7,12 +7,6 @@ class CfgPatches
 		{
 			"DZ_Data"
 		};
-		units[]=
-		{
-			"ExpansionWoodPillarKit",
-			"ExpansionWoodPillar"
-		};
-		weapons[]={};
 	};
 };
 class CfgVehicles

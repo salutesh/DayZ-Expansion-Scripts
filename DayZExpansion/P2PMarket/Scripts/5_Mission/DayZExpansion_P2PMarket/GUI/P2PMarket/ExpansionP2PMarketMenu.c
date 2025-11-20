@@ -179,9 +179,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		inventory_header.AddChild(m_ListHeader.GetLayoutRoot());
 		m_ListHeader.SetSort(0, false);
 
-		m_PlayerUID = GetGame().GetPlayer().GetIdentity().GetId();
+		m_PlayerUID = g_Game.GetPlayer().GetIdentity().GetId();
 		
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (player)
 			player.Expansion_GetOnRestrainedStateChaged().Insert(OnRestrainedStateChaged);
 		
@@ -239,7 +239,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		m_P2PMarketMenuController.ListingCategories.Clear();
 		m_P2PMarketMenuController.PlayerCategories.Clear();
 		
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (player)
 			player.Expansion_GetOnRestrainedStateChaged().Remove(OnRestrainedStateChaged);
 	}
@@ -429,7 +429,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 		m_PlayerItems.Clear();
 
-		m_P2PMarketModule.EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
+		m_P2PMarketModule.EnumeratePlayerInventory(PlayerBase.Cast(g_Game.GetPlayer()));
 		array<EntityAI> items = m_P2PMarketModule.LocalGetEntityInventory();
 		
 		if (items && items.Count() > 0)
@@ -451,7 +451,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 			m_P2PMarketMenuController.PlayerItems.Clear();
 
-			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 			array<EntityAI> slotItems = MiscGameplayFunctions.Expansion_GetAttachments(player);
 			array<string> slotNames = new array<string>;
 			slotNames.Insert("All");
@@ -510,7 +510,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		#endif
 		
 		array<int> monies = new array<int>;
-		m_PlayerWorth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, m_Currencies);
+		m_PlayerWorth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(g_Game.GetPlayer()), monies, m_Currencies);
 
 		m_P2PMarketMenuController.PlayerMoney = GetDisplayPrice(m_PlayerWorth, false, true, true);
 		m_P2PMarketMenuController.NotifyPropertyChanged("PlayerMoney");
@@ -525,7 +525,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		switch (m_ViewState)
 		{
 			case ExpansionP2PMarketMenuViewState.ViewList:
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdatePlayerItems, 250);
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdatePlayerItems, 250);
 				if (market_filter_box.GetText() != string.Empty)
 					SearchInPlayerItems();
 				break;
@@ -563,7 +563,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 				}
 				else
 				{
-					GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdatePlayerCurrency, 100);
+					g_Game.GetCallQueue(CALL_CATEGORY_GUI).CallLater(UpdatePlayerCurrency, 100);
 				}
 				break;
 			}
@@ -1083,7 +1083,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 		GetDetailsView().GetDetailsViewController().InfoTextTwo = localiser.Format();
 		GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("InfoTextTwo");
 
-		int feePercent = m_P2PMarketModule.GetListingPricePercent(m_TraderID, PlayerBase.Cast(GetGame().GetPlayer()));
+		int feePercent = m_P2PMarketModule.GetListingPricePercent(m_TraderID, PlayerBase.Cast(g_Game.GetPlayer()));
 
 		localiser = new CF_Localiser("STR_EXPANSION_MARKET_P2P_INFOBOX_LISTINGFEE_DESC", feePercent.ToString());
 		GetDetailsView().GetDetailsViewController().InfoTextThree = localiser.Format();
@@ -2030,7 +2030,7 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 			if (m_CurrentItemPrice == -1 || m_CurrentItemPrice == 0)
 				return;
 
-			int listingPrice = Math.Ceil(m_CurrentItemPrice * m_P2PMarketModule.GetListingPricePercent(m_TraderID, PlayerBase.Cast(GetGame().GetPlayer())) / 100);
+			int listingPrice = Math.Ceil(m_CurrentItemPrice * m_P2PMarketModule.GetListingPricePercent(m_TraderID, PlayerBase.Cast(g_Game.GetPlayer())) / 100);
 			string currentItemPriceString = GetDisplayPrice(m_CurrentItemPrice, false, true, true);
 			string listingPriceString = GetDisplayPrice(listingPrice, false, true, true);
 			localiser = new CF_Localiser("STR_EXPANSION_MARKET_P2P_CONFIRM_BUTTON_SELL_LABEL", m_SelectedPlayerItem.GetPreviewObject().GetDisplayName(), currentItemPriceString, listingPriceString);
@@ -2264,9 +2264,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 	protected void PlayObjectSound()
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (g_Game.IsClient() || !g_Game.IsMultiplayer())
 		{
-			if (GetGame().GetPlayer())
+			if (g_Game.GetPlayer())
 			{
 				string typeName;
 				string soundConfig;
@@ -2278,25 +2278,25 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 
 				path = "cfgVehicles " + typeName + " " + "AnimEvents ";
 
-				int events_sources_count = GetGame().ConfigGetChildrenCount(path);
+				int events_sources_count = g_Game.ConfigGetChildrenCount(path);
 				string soundName = "";
 				EffectSound sound;
 
 				for (int i = 0; i < events_sources_count; ++i)
 				{
 					string soundWeapons;
-					GetGame().ConfigGetChildName(path, i, soundWeapons);
+					g_Game.ConfigGetChildName(path, i, soundWeapons);
 
-					if (GetGame().ConfigIsExisting(path + soundWeapons + " pickUpItem" + " soundSet"))
-						GetGame().ConfigGetText(path + soundWeapons + " pickUpItem" + " soundSet", soundName);
-					else if (GetGame().ConfigIsExisting(path + soundWeapons + " pickUpItem_Light" + " soundSet"))
-						GetGame().ConfigGetText(path + soundWeapons + " pickUpItem_Light" + " soundSet", soundName);
+					if (g_Game.ConfigIsExisting(path + soundWeapons + " pickUpItem" + " soundSet"))
+						g_Game.ConfigGetText(path + soundWeapons + " pickUpItem" + " soundSet", soundName);
+					else if (g_Game.ConfigIsExisting(path + soundWeapons + " pickUpItem_Light" + " soundSet"))
+						g_Game.ConfigGetText(path + soundWeapons + " pickUpItem_Light" + " soundSet", soundName);
 				}
 
 				if (soundName != "")
-					sound = SEffectManager.PlaySound(soundName, GetGame().GetPlayer().GetPosition());
+					sound = SEffectManager.PlaySound(soundName, g_Game.GetPlayer().GetPosition());
 				else
-					sound = SEffectManager.PlaySound("pickUpBackPack_Metal_SoundSet", GetGame().GetPlayer().GetPosition());
+					sound = SEffectManager.PlaySound("pickUpBackPack_Metal_SoundSet", g_Game.GetPlayer().GetPosition());
 
 				sound.SetSoundAutodestroy(true);
 			}

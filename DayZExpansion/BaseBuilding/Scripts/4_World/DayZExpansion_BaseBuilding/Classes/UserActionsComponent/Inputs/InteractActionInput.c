@@ -9,7 +9,7 @@ modded class InteractActionInput
 			return;
 		}
 		
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			if ( player.GetHologramLocal() )
 			{

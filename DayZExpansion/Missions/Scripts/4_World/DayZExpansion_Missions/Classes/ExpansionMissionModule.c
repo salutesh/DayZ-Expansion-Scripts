@@ -59,7 +59,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		if(m_lowPlayerCheckRunning)
 		{
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove(StartNewMissions);
+			g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove(StartNewMissions);
 			m_lowPlayerCheckRunning = false;
 		}
 
@@ -99,10 +99,10 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAirdropPlaneBase.Expansion_SendCreatePlanesOnClient, 1000, false, cArgs.Player);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAirdropPlaneBase.Expansion_SendCreatePlanesOnClient, 1000, false, cArgs.Player);
 
 		if (ExpansionAirdropContainerBase.s_Expansion_CreateContainerOnClient)
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAirdropContainerBase.Expansion_SendCreateContainersOnClient, 1000, false, cArgs.Player);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAirdropContainerBase.Expansion_SendCreateContainersOnClient, 1000, false, cArgs.Player);
 	}
 
 	//! Client
@@ -159,7 +159,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 		if (!ctx.Read(dropProximityDist))
 			return;
 
-		auto plane = ExpansionAirdropPlaneBase.Cast(GetGame().CreateObjectEx(planeClassName, position, ECE_AIRBORNE | ECE_LOCAL) );
+		auto plane = ExpansionAirdropPlaneBase.Cast(g_Game.CreateObjectEx(planeClassName, position, ECE_AIRBORNE | ECE_LOCAL) );
 
 		plane.Expansion_SetAirdropPlaneID(planeID);
 		plane.Expansion_SetupPlane(spawnPoint, dropPosition, "", 0.0, heightIsRelativeToGround, height, dropHeight, followTerrainFrac, speed, dropSpeed, dropProximityDist, null);
@@ -205,7 +205,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 		if (!ctx.Read(hasDiscardedParachute))
 			return;
 
-		auto container = ExpansionAirdropContainerBase.Cast(GetGame().CreateObjectEx(className, spawnPoint, ECE_AIRBORNE | ECE_LOCAL) );
+		auto container = ExpansionAirdropContainerBase.Cast(g_Game.CreateObjectEx(className, spawnPoint, ECE_AIRBORNE | ECE_LOCAL) );
 		container.SetOrientation(orientation);
 
 		container.Expansion_SetAirdropContainerID(containerID);
@@ -539,7 +539,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 		if ( m_MissionSettings.MinPlayersToStartMissions != 0 )
 		{
 			array< Man > players = new array< Man >;
-			GetGame().GetWorld().GetPlayerList( players );
+			g_Game.GetWorld().GetPlayerList( players );
 
 			int playerCount = players.Count();
 
@@ -552,7 +552,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 			{
 				if( !m_lowPlayerCheckRunning )
 				{
-					GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissions, 10000, true );
+					g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissions, 10000, true );
 					m_lowPlayerCheckRunning = true;
 				}
 
@@ -561,7 +561,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 			if( m_lowPlayerCheckRunning )
 			{
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove(StartNewMissions);
+				g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove(StartNewMissions);
 				m_lowPlayerCheckRunning = false;
 			}
 		}
@@ -576,7 +576,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 			m_InitialMission = true;
 			delay = m_MissionSettings.InitialMissionStartDelay;
 		}
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissionsInternal, delay, false );
+		g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissionsInternal, delay, false );
 	}
 
 	void StartNewMissionsInternal()
@@ -600,7 +600,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 			}
 			if ( skip || (FindNewMission() && m_RunningMissions.Count() < m_MissionSettings.MaxMissions) )
 			{
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissionsInternal, 10000, false );
+				g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissionsInternal, 10000, false );
 			}
 		}
 	}
@@ -618,7 +618,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		SI_Ended.Invoke( mission );
 
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissions, m_MissionSettings.TimeBetweenMissions, false );
+		g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissions, m_MissionSettings.TimeBetweenMissions, false );
 	}
 
 	protected bool FindNewMission()

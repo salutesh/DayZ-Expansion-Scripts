@@ -125,7 +125,7 @@ class ExpansionAISpawnBase
 				pos[1] = surfaceY;
 		}
 
-		float waterDepth = GetGame().GetWaterDepth(pos);
+		float waterDepth = g_Game.GetWaterDepth(pos);
 		if (waterDepth > 0)
 			pos[1] = pos[1] + waterDepth;
 

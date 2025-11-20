@@ -39,7 +39,7 @@ class eAIState_DropItem: eAIState
 		if (unit.IsUnconscious()) return eAITransition.FAIL;
 		if (unit.IsSwimming()) return eAITransition.FAIL;
 		
-		if (!unit.GetCommand_MoveAI()) return eAITransition.FAIL;
+		if (!unit.GetCommand_Move()) return eAITransition.FAIL;
 
 		if (unit.IsRaised()) return eAITransition.FAIL;
 		if (unit.GetActionManager().GetRunningAction()) return eAITransition.FAIL;

@@ -241,7 +241,7 @@ modded class NotificationSystem
 			array< NotificationRuntimeData > to_remove = new array< NotificationRuntimeData >;
 			foreach ( NotificationRuntimeData data : m_Instance.m_ExNotifications )
 			{
-				if ( data.GetTime() < GetGame().GetTickTime() && data.m_HasShown )
+				if ( data.GetTime() < g_Game.GetTickTime() && data.m_HasShown )
 				{
 					to_remove.Insert( data );
 				}

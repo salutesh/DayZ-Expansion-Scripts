@@ -22,25 +22,25 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 
 		Object targetObject = target.GetParentOrObject();
 
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			string placeholderType = targetObject.GetType();
 			string placeholderModel = targetObject.ConfigGetString("model");
 			string vehicleType = placeholderType.Substring(0, placeholderType.Length() - 6);
-			string vehicleModel = GetGame().ConfigGetTextOut("CfgVehicles " + vehicleType + " model");
+			string vehicleModel = g_Game.ConfigGetTextOut("CfgVehicles " + vehicleType + " model");
 			if (placeholderModel == vehicleModel)
 				m_Text = "#STR_EXPANSION_ACTION_RESTORE";
 			else
 				m_Text = "#STR_EXPANSION_ACTION_UNCOVER";
 		}
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			auto placeholder = ExpansionEntityStoragePlaceholder.Cast(targetObject);
 			if (placeholder)
 			{
 				string type = placeholder.Expansion_GetStoredEntityType();
-				if (!GetGame().ConfigIsExisting("CfgVehicles " + type))
+				if (!g_Game.ConfigIsExisting("CfgVehicles " + type))
 				{
 					ExpansionNotification("Entity Storage", "Cannot restore " + type + " because the mod providing this vehicle is not loaded").Error(player.GetIdentity());
 					return false;
@@ -89,7 +89,7 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 			//! TODO: Find a way to take existing attachment to hand instead of recreating. ServerTakeEntityToHands doesn't work :-(
 			EntityAI camoNet = action_data.m_Player.GetHumanInventory().CreateInHands(coverType);
 			if (!camoNet)
-				camoNet = EntityAI.Cast(GetGame().CreateObject(coverType, action_data.m_Player.GetPosition()));
+				camoNet = EntityAI.Cast(g_Game.CreateObject(coverType, action_data.m_Player.GetPosition()));
 			if (camoNet)
 				camoNet.SetHealth(camoNetAttachment.GetHealth());
 		}
@@ -104,7 +104,7 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 			}
 		}
 
-		GetGame().ObjectDelete(placeholder);
+		g_Game.ObjectDelete(placeholder);
 		
 		if (GetExpansionSettings().GetLog().VehicleCover)
 			GetExpansionSettings().GetLog().PrintLog("[VehicleCover] Player \"{1:name}\" (id={1:id} pos={1:position}) uncovered vehicle \"{2:type}\" (GlobalID={3} pos={2:position})!", action_data.m_Player, entity, new EXString(id));

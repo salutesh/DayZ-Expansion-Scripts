@@ -48,13 +48,13 @@ modded class DayZPlayerImplement
 
 	void DayZPlayerImplement()
 	{
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 			m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
 	}
 
 	void ~DayZPlayerImplement()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 	#ifdef DIAG_DEVELOPER
@@ -79,7 +79,7 @@ modded class DayZPlayerImplement
 		m_eAI_GroupID = -1;
 		m_eAI_FactionTypeID = -1;
 
-		if (GetGame().IsServer() && m_eAI_FactionType)
+		if (g_Game.IsServer() && m_eAI_FactionType)
 		{
 			//! @note w/o the cast to eAIFaction, the compiler warns about unsafe downcasting.
 			//! Of course the compiler is wrong, because we're casting up, not down, so this cast here is just there to satisfy compiler shortcomings.
@@ -212,7 +212,7 @@ modded class DayZPlayerImplement
 			eAI_SetFactionTypeID(-1);
 		}
 
-		if (GetGame().IsDedicatedServer())
+		if (g_Game.IsDedicatedServer())
 			SetSynchDirty();
 	}
 
@@ -265,7 +265,7 @@ modded class DayZPlayerImplement
 		m_eAI_GroupMemberIndex = index;
 		m_eAI_GroupMemberIndexSynch = index;
 
-		if (GetGame().IsDedicatedServer())
+		if (g_Game.IsDedicatedServer())
 			SetSynchDirty();
 	}
 
@@ -281,7 +281,7 @@ modded class DayZPlayerImplement
 
 		eAI_OnFactionChange(oldFactionTypeID, id);
 
-		if (GetGame().IsDedicatedServer())
+		if (g_Game.IsDedicatedServer())
 			SetSynchDirty();
 	}
 
@@ -430,7 +430,7 @@ modded class DayZPlayerImplement
 		super.EEKilled(killer);
 
 		//! Since we're going to remove this player from their group, do it in next frame so other mods can still access group in EEKilled
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(eAI_Cleanup, false);
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(eAI_Cleanup, false);
 	}
 
 	/**
@@ -459,11 +459,11 @@ modded class DayZPlayerImplement
 		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy[" + m_eAI_DamageHandler.m_HitCounter + "]", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
 	#ifdef EXPANSION_AI_DMGDEBUG_CHATTY
-		ExpansionStatic.MessageNearPlayers(GetPosition(), 100.0, "[" + ExpansionStatic.FormatFloat(GetGame().GetTickTime(), 3, false) + "] hit " + ToString() + " " + dmgZone);
+		ExpansionStatic.MessageNearPlayers(GetPosition(), 100.0, "[" + ExpansionStatic.FormatFloat(g_Game.GetTickTime(), 3, false) + "] hit " + ToString() + " " + dmgZone);
 	#endif
 	#endif
 
-		m_eAI_LastHitTime = GetGame().GetTickTime();
+		m_eAI_LastHitTime = g_Game.GetTickTime();
 
 		m_TargetInformation.OnHit(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
@@ -495,9 +495,9 @@ modded class DayZPlayerImplement
 			if (!Class.CastTo(ai, player) || (ai.GetTarget() && ai.GetTarget().GetEntity() == this))
 			{
 				if (!ai || IsAI())
-					player.GetTargetInformation().AddFriendlyAI(this, 120000, true, 0.21);  //! Attacking player will be attacked by friendly AI
+					player.GetTargetInformation().AddFriendlyAI(this, 120000, true, 1.0);  //! Attacking player will be attacked by friendly AI
 				else
-					group.AddTarget(this, player.GetTargetInformation(), 120000, true, 0.21);   //! Attacking friendly AI will be attacked by group members of player
+					group.AddTarget(this, player.GetTargetInformation(), 120000, true, 1.0);   //! Attacking friendly AI will be attacked by group members of player
 			}
 
 			return;
@@ -564,7 +564,7 @@ modded class DayZPlayerImplement
 		super.AddNoise(noisePar, noiseMultiplier);
 
 		//! Because noises may fire rapidly, we only update this once every second
-		float time = GetGame().GetTickTime();
+		float time = g_Game.GetTickTime();
 		if (time - m_eAI_LastNoiseTime < 1.0)
 			return;
 

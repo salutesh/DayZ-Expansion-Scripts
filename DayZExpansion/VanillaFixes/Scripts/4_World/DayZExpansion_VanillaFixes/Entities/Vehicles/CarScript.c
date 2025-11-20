@@ -32,7 +32,7 @@ modded class CarScript
 		
 		excluded.Insert(this);
 		
-		GetGame().IsBoxColliding(position, orientation, extents, excluded, collided);
+		g_Game.IsBoxColliding(position, orientation, extents, excluded, collided);
 		
 		orientation.RotationMatrixFromAngles(transform);
 		transform[3] = position;

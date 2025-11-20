@@ -20,7 +20,7 @@ class ExpansionCooldownIndicator: ScriptedWidgetEventHandler
 
 	void ExpansionCooldownIndicator(Widget parent)
 	{
-		m_LayoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/AI/GUI/layouts/expansion_cooldown_indicator.layout", parent);
+		m_LayoutRoot = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/AI/GUI/layouts/expansion_cooldown_indicator.layout", parent);
 		m_CooldownText = TextWidget.Cast(m_LayoutRoot.FindAnyWidget("CooldownText"));
 	}
 	

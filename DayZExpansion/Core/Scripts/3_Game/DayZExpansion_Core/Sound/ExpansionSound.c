@@ -34,7 +34,7 @@ class ExpansionSound
 
 	void ~ExpansionSound()
 	{
-		if (!GetGame())
+		if (!g_Game)
 			return;
 
 		if (m_IsLinked)

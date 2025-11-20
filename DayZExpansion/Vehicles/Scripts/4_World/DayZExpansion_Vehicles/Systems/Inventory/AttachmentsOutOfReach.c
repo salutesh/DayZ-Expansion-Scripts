@@ -9,7 +9,7 @@ modded class AttachmentsOutOfReach
 		//! Verbatim copy of IsAttachmentReachable from scripts\4_world\systems\inventory\attachmentsoutofreach.c
 		if( !e.IgnoreOutOfReachCondition() )
 		{
-			PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+			PlayerBase player = PlayerBase.Cast( g_Game.GetPlayer() );
 			if( player.IsInVehicle() )
 			{
 				return false;

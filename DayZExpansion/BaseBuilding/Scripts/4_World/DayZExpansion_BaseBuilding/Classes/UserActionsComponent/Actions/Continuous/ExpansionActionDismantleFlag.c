@@ -120,7 +120,7 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 
 		//! Should the flag drop a flag kit after being dismantled ?
 		if ( !GetExpansionSettings().GetBaseBuilding().GetTerritoryFlagKitAfterBuild && !GetExpansionSettings().GetBaseBuilding().DestroyFlagOnDismantle )
-			GetGame().CreateObject("TerritoryFlagKit", flag.GetPosition() );
+			g_Game.CreateObject("TerritoryFlagKit", flag.GetPosition() );
 
 		flag.Delete();
 	}

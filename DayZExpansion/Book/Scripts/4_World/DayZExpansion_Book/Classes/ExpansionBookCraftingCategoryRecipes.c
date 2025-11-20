@@ -166,7 +166,7 @@ class ExpansionBookCraftingRecipe
 			case "#str_prepare0":
 			case "#str_split0":
 			case "#sharpen":
-				if (Results.Count() > 1 && GetGame().IsKindOf(Results[m_TempMainIndex].ClassNames[0], "SeedBase"))
+				if (Results.Count() > 1 && g_Game.IsKindOf(Results[m_TempMainIndex].ClassNames[0], "SeedBase"))
 				{
 					recipeNameLower = "#str_cutoutseeds0";
 					displayName = "#str_cutoutseeds0";
@@ -322,7 +322,7 @@ class ExpansionBookCraftingItem
 		{
 			foreach (string className : ClassNames)
 			{
-				if (className != item.GetType() && !GetGame().IsKindOf(item.GetType(), className))
+				if (className != item.GetType() && !g_Game.IsKindOf(item.GetType(), className))
 					continue;
 
 				ItemBase itemBase = ItemBase.Cast(item);

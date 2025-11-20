@@ -90,7 +90,7 @@ class ExpansionConstructionKitBase: ItemBase
 		super.OnPlacementCancelled(player);
 		m_Expansion_DeployedRegularly = false;
 		
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			//! When placing gets cancled show it again
 			ShowAllSelections();
@@ -124,7 +124,7 @@ class ExpansionConstructionKitBase: ItemBase
 	
 	void PlayDeployLoopSound()
 	{
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if (!m_Expansion_DeployLoopSound || !m_Expansion_DeployLoopSound.IsSoundPlaying())
 			{
@@ -135,7 +135,7 @@ class ExpansionConstructionKitBase: ItemBase
 
 	void StopDeployLoopSound()
 	{
-		if ( !GetGame().IsDedicatedServer() )
+		if ( !g_Game.IsDedicatedServer() )
 		{
 			m_Expansion_DeployLoopSound.SetSoundFadeOut(0.5);
 			m_Expansion_DeployLoopSound.SoundStop();
@@ -201,7 +201,7 @@ class ExpansionDeployableConstruction: ItemBase
 	
 	ItemBase CreateConstructionKit()
 	{
-		ItemBase construction_kit = ItemBase.Cast(GetGame().CreateObjectEx(GetConstructionKitType(), GetPosition(), ECE_PLACE_ON_SURFACE ));
+		ItemBase construction_kit = ItemBase.Cast(g_Game.CreateObjectEx(GetConstructionKitType(), GetPosition(), ECE_PLACE_ON_SURFACE ));
 		if (m_Expansion_ConstructionKitHealth > 0)
 		{
 			construction_kit.SetHealth(m_Expansion_ConstructionKitHealth);
@@ -234,7 +234,7 @@ class ExpansionDeployableConstruction: ItemBase
 		if (m_FixDamageSystemInit)
 			return;
 		
-		if (zone == "" && newLevel == GameConstants.STATE_RUINED && GetGame().IsServer())
+		if (zone == "" && newLevel == GameConstants.STATE_RUINED && g_Game.IsServer())
 			MiscGameplayFunctions.DropAllItemsInInventoryInBounds(this, Vector(0.8, 0.15, 1.3));
 	}
 	
@@ -242,7 +242,7 @@ class ExpansionDeployableConstruction: ItemBase
 	
 	void DestroyConstruction()
 	{
-		GetGame().ObjectDelete(this);
+		g_Game.ObjectDelete(this);
 	}	
 	
 	#ifdef EXPANSION_MODSTORAGE

@@ -47,7 +47,7 @@ class ExpansionWeaponInfo
 			ExpansionFireMode fireMode = typename.StringToEnum(ExpansionFireMode, mode);
 			if (fireMode != -1)
 			{
-				float reloadTime = GetGame().ConfigGetFloat(CFG_WEAPONSPATH + " " + type + " " + mode + " reloadTime");
+				float reloadTime = g_Game.ConfigGetFloat(CFG_WEAPONSPATH + " " + type + " " + mode + " reloadTime");
 				if (reloadTime > 0.0 && reloadTime < m_ReloadTimeMin)
 					m_ReloadTimeMin = reloadTime;
 			#ifdef DIAG_DEVELOPER
@@ -75,9 +75,9 @@ class ExpansionWeaponInfo
 		int count;
 		foreach (string ammoType: m_ChamberableFrom)
 		{
-			if (GetGame().ConfigGetText(CFG_MAGAZINESPATH + " " + ammoType + " ammo", bulletType))
+			if (g_Game.ConfigGetText(CFG_MAGAZINESPATH + " " + ammoType + " ammo", bulletType))
 			{
-				dmg = GetGame().ConfigGetFloat(CFG_AMMO + " " + bulletType + " DamageApplied Health damage");
+				dmg = g_Game.ConfigGetFloat(CFG_AMMO + " " + bulletType + " DamageApplied Health damage");
 				if (dmg > 0.0)
 				{
 					m_AvgDmg += dmg;
@@ -504,7 +504,7 @@ modded class Weapon_Base
 	#ifdef DIAG_DEVELOPER
 		Man player = GetHierarchyRootPlayer();
 		string msg = string.Format("%1 %2<%3> fireMode %4", player, GetType(), ExpansionStatic.GetInstanceID(this), fireMode);
-		GetGame().Chat(msg, "colorAction");
+		g_Game.Chat(msg, "colorAction");
 	#endif
 	#endif
 	}

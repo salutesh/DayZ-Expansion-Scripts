@@ -131,9 +131,22 @@ modded class JMPlayerModule
 		Exec_SetExpansionFaction(factionTypeID, guids, senderRPC, instance);
 	}
 
+#ifdef COT_ANYSPECTATE
+	override void Server_OnStartSpectating(Object spectateObject, PlayerIdentity ident)
+	{
+		PlayerBase spectator = PlayerBase.Cast(ident.GetPlayer());
+		eAIBase ai;
+		if (spectator && Class.CastTo(ai, spectateObject))
+			ai.m_eAI_Spectators.Insert(spectator);
+	}
+#endif
+
 	void StartSpectatingAI(eAIBase ai, PlayerIdentity ident)
 	{
 	#ifdef SERVER
+	#ifdef COT_ANYSPECTATE
+		Server_StartSpectating(ai, ident);
+	#else
 		PlayerBase playerSpectator = PlayerBase.Cast(ident.GetPlayer());
 		if (!playerSpectator)
 			return;
@@ -151,10 +164,10 @@ modded class JMPlayerModule
 
 		playerSpectator.COT_TempDisableOnSelectPlayer();
 
-		GetGame().SelectPlayer(ident, null);
+		g_Game.SelectPlayer(ident, null);
 
 		vector position = ai.GetBonePositionWS(ai.GetBoneIndexByName("Head"));
-		GetGame().SelectSpectator(ident, "JMSpectatorCamera", position);
+		g_Game.SelectSpectator(ident, "JMSpectatorCamera", position);
 
 		playerSpectator.COTSetGodMode(true, false);  //! Enable godmode and remember previous state of GetAllowDamage
 		playerSpectator.COTUpdateSpectatorPosition();
@@ -169,11 +182,12 @@ modded class JMPlayerModule
 		ai.m_eAI_Spectators.Insert(playerSpectator);
 
 		GetCommunityOnlineToolsBase().Log(ident, "Spectating AI " + ai);
+	#endif
 	#else
-		if (!GetGame().IsMultiplayer() || !GetGame().GetPlayer() || !ai)
+		if (!g_Game.IsMultiplayer() || !g_Game.GetPlayer() || !ai)
 			return;
 
-		m_SpectatorClient = PlayerBase.Cast(GetGame().GetPlayer());
+		m_SpectatorClient = PlayerBase.Cast(g_Game.GetPlayer());
 		m_SpectatorClient.COT_TempDisableOnSelectPlayer();
 		m_SpectatorClient.COT_RememberVehicle();
 	#endif
@@ -183,7 +197,11 @@ modded class JMPlayerModule
 	{
 		PlayerBase spectator = m_Spectators[ident.GetId()];
 		eAIBase ai;
+	#ifdef COT_ANYSPECTATE
+		if (spectator && Class.CastTo(ai, spectator.m_JM_SpectatedObject))
+	#else
 		if (spectator && Class.CastTo(ai, spectator.m_JM_SpectatedPlayer))
+	#endif
 			ai.m_eAI_Spectators.RemoveItem(spectator);
 
 		super.Server_EndSpectating(ident);

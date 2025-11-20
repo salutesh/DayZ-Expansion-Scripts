@@ -71,7 +71,7 @@ modded class BoatScript
 	{
 		m_ExpansionVehicle.OnPostSimulate(timeSlice);
 
-		if (GetGame().IsServer())
+		if (g_Game.IsServer())
 		{
 			m_Expansion_FuelCheckTime += timeSlice;
 

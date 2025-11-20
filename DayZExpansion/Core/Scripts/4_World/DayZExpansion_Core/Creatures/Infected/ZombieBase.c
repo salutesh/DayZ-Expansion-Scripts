@@ -56,7 +56,7 @@ modded class ZombieBase
 			m_Expansion_IsInSafeZone = true;
 
 			SetHealth(0);
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 5000, false, this );
+			g_Game.GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( g_Game.ObjectDelete, 5000, false, this );
 		}
 	}
 	
@@ -130,7 +130,7 @@ modded class ZombieBase
 		//! Will CTD if targeted by another creature after health of this one is depleted while it has no AI agent,
 		//! so remove the body to prevent that
 		if (!GetAIAgent())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Delete, 1500);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Delete, 1500);
 	}
 
 	override void OnVariablesSynchronized()

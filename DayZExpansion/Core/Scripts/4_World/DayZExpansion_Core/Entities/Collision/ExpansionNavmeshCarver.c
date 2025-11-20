@@ -9,22 +9,22 @@ class ExpansionNavmeshCarver: House
 		RegisterNetSyncVariableInt("m_Expansion_AssociatedObjectNetIdLow");
 		RegisterNetSyncVariableInt("m_Expansion_AssociatedObjectNetIdHigh");
 
-		if (GetGame().IsServer())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
+		if (g_Game.IsServer())
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(g_Game.UpdatePathgraphRegionByObject, 100, false, this);
 	}
 
 	override void EEDelete(EntityAI parent)
 	{
 		super.EEDelete(parent);
 
-		if (GetGame() && GetGame().IsServer())
+		if (g_Game && g_Game.IsServer())
 		{
 			vector pos = GetPosition();
 			vector minMax[2];
 			float radius = ClippingInfo(minMax);
 			vector min = Vector(pos[0] - radius, pos[1], pos[2] - radius);
 			vector max = Vector(pos[0] + radius, pos[1], pos[2] + radius);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegion, 100, false, min, max);
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(g_Game.UpdatePathgraphRegion, 100, false, min, max);
 		}
 	}
 
@@ -55,7 +55,7 @@ class ExpansionNavmeshCarver: House
 		super.OnVariablesSynchronized();
 
 		if (!m_Expansion_AssociatedObject && (m_Expansion_AssociatedObjectNetIdLow != 0 || m_Expansion_AssociatedObjectNetIdHigh != 0))
-			Expansion_SetAssociatedObject(GetGame().GetObjectByNetworkId(m_Expansion_AssociatedObjectNetIdLow, m_Expansion_AssociatedObjectNetIdHigh));
+			Expansion_SetAssociatedObject(g_Game.GetObjectByNetworkId(m_Expansion_AssociatedObjectNetIdLow, m_Expansion_AssociatedObjectNetIdHigh));
 	}
 }
 

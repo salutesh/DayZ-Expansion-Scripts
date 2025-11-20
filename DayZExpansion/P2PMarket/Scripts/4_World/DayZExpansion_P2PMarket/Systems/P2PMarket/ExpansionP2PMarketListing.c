@@ -299,7 +299,7 @@ class ExpansionP2PMarketListing: ExpansionP2PMarketListingBase
 				//! Migrate older listing and entity storage files from old to new location
 				string baseName = data.GetEntityStorageBaseName();
 				string extES = ExpansionEntityStorageModule.EXT;
-				int instanceID = GetGame().ServerConfigGetInt("instanceId");
+				int instanceID = g_Game.ServerConfigGetInt("instanceId");
 				string srcPathES = ExpansionEntityStorageModule.GetStorageDirectory() + baseName;  //! old path
 				string srcES = srcPathES + extES;
 				

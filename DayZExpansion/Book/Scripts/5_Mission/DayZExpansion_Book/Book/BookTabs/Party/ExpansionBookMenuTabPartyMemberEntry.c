@@ -84,7 +84,7 @@ class ExpansionBookMenuTabPartyMemberEntry: ExpansionScriptView
 	
 	void OnEditButtonClick()
 	{
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());		
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());		
 		ExpansionPartyData player_party = m_PartyModule.GetParty();
 		
 		if (!player_party)
@@ -93,7 +93,7 @@ class ExpansionBookMenuTabPartyMemberEntry: ExpansionScriptView
 		if (!m_Member)
 			return;
 
-		ExpansionPartyPlayerData playerPartyData = player_party.GetPlayer(GetGame().GetPlayer().GetIdentity().GetId());
+		ExpansionPartyPlayerData playerPartyData = player_party.GetPlayer(g_Game.GetPlayer().GetIdentity().GetId());
 		if (playerPartyData && !playerPartyData.CanEdit())
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_CANTEDIT").Error();

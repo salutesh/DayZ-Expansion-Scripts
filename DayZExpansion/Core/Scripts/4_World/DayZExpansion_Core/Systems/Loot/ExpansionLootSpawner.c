@@ -84,7 +84,7 @@ class ExpansionLootSpawner
 		else
 		{
 			vector spawnPos = ExpansionMath.GetRandomPointInRing(parent.GetWorldPosition(), 3, 5);
-			item = ItemBase.Cast(GetGame().CreateObjectEx(className, spawnPos, ECE_PLACE_ON_SURFACE));
+			item = ItemBase.Cast(g_Game.CreateObjectEx(className, spawnPos, ECE_PLACE_ON_SURFACE));
 		}
 
 		if ( item )
@@ -251,7 +251,7 @@ class ExpansionLootSpawner
 			return !GetCEApi().AvoidPlayer(pos, radius);
 
 		array<Man> players = new array<Man>;
-		GetGame().GetWorld().GetPlayerList(players);
+		g_Game.GetWorld().GetPlayerList(players);
 		float distanceSq;
 		float radiusSq = radius * radius;
 		

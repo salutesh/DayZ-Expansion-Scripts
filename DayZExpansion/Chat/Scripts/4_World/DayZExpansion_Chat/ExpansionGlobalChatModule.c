@@ -146,7 +146,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 				break;
 		}
 
-		GetGame().GetMission().OnEvent(ChatMessageEventTypeID, data);
+		g_Game.GetMission().OnEvent(ChatMessageEventTypeID, data);
 
 		// Uses similar format as vanilla direct chat log
 		if (GetExpansionSettings().GetLog().Chat)
@@ -154,13 +154,13 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 			string channelName = GetChannelName(data.param1);
 
 			GetExpansionSettings().GetLog().PrintLog("[Chat - " + channelName + "](\"" + data.param2 + "\"(id=" + data.param5 + ")): " + originalText);
-			GetGame().AdminLog("[Chat - " + channelName + "](\"" + data.param2 + "\"(id=" + data.param5 + ")): " + originalText);
+			g_Game.AdminLog("[Chat - " + channelName + "](\"" + data.param2 + "\"(id=" + data.param5 + ")): " + originalText);
 		}
 	}
 
 	float GetVoiceRange(Object player)
 	{
-		int voiceLevel = GetGame().GetVoiceLevel(player);
+		int voiceLevel = g_Game.GetVoiceLevel(player);
 		float range;
 
 		switch (voiceLevel)
@@ -211,7 +211,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 #endif
 		}
 
-		GetGame().GetMission().OnEvent(ChatMessageEventTypeID, data);
+		g_Game.GetMission().OnEvent(ChatMessageEventTypeID, data);
 	}
 
 	bool CanSendInChannel(ExpansionChatChannels channel, PlayerIdentity sender)

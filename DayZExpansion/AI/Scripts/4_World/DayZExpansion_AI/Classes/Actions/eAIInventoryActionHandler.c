@@ -71,7 +71,7 @@ class eAIInventoryActionHandler
 		mngr.PerformActionStart( action, target, main_item );
 		//mngr.ForceTarget(m_target.GetObject());
 		
-		//GetGame().GetMission().HideInventory();
+		//g_Game.GetMission().HideInventory();
 	}	
 	
 	bool IsActiveAction()
@@ -90,7 +90,7 @@ class eAIInventoryActionHandler
 			return;			
 		}
 		
-		/*if( GetGame().IsInventoryOpen() )
+		/*if( g_Game.IsInventoryOpen() )
 		{
 			DeactiveAction();
 			return;				

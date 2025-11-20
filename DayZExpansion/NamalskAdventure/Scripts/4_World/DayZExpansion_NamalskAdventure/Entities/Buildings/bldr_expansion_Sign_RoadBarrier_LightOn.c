@@ -38,10 +38,10 @@ modded class bldr_expansion_Sign_RoadBarrier_LightOn
 
 	void bldr_expansion_Sign_RoadBarrier_LightOn()
 	{
-		if (!GetGame().IsDedicatedServer())
+		if (!g_Game.IsDedicatedServer())
 		{
 			if (m_Light)
-				GetGame().ObjectDelete(m_Light);
+				g_Game.ObjectDelete(m_Light);
 			
 			if (!m_RoadBarrierLight)
 			{
