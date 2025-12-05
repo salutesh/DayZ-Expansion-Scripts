@@ -254,7 +254,9 @@ class eAIDynamicPatrol : eAIPatrol
 			}
 		}
 
-		if (autoStart) Start();
+		//! There are situations where no suitable waypoints could be generated (e.g. all waypoints in high water)
+		//! In this case, the patrol will not autostart and thus be inactive
+		if (autoStart && m_Waypoints.Count() > 0) Start();
 
 		return true;
 	}

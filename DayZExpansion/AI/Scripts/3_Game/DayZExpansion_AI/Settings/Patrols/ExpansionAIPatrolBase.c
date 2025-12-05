@@ -120,7 +120,7 @@ class ExpansionAISpawnBase
 		else
 		{
 			//! Make sure position is not under terrain
-			float surfaceY = ExpansionStatic.GetSurfaceRoadY3D(pos[0], pos[1], pos[2], RoadSurfaceDetection.CLOSEST);
+			float surfaceY = ExpansionStatic.GetSurfaceRoadY3D(pos[0], pos[1], pos[2], RoadSurfaceDetection.CLOSEST, UseObjectsMode.Wait);
 			if (pos[1] < surfaceY)
 				pos[1] = surfaceY;
 		}
@@ -271,7 +271,7 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 			for (int i = 0; i < amountofwaypoints; i++)
 			{
 				waypoint = ExpansionMath.GetRandomPointInRing(position, MinSpreadRadius, MaxSpreadRadius);
-				waypoint = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
+				waypoint = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST, UseObjectsMode.Wait);
 
 				waypoints.Insert(waypoint);
 			}
@@ -288,7 +288,7 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 			while (true)
 			{
 				waypoint = ExpansionMath.GetRandomPointAtDegrees(position, angle, MinSpreadRadius, MaxSpreadRadius);
-				waypoint = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
+				waypoint = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST, UseObjectsMode.Wait);
 
 				waypoints.Insert(waypoint);
 
@@ -352,8 +352,25 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 				if (MaxSpreadRadius > 0)
 					smooth = true;
 
-				return ExpansionMath.PathInterpolated(waypoints, curveType, smooth);
+				waypoints = ExpansionMath.PathInterpolated(waypoints, curveType, smooth);
 			}
+		}
+
+		TVectorArray filteredPoints;
+
+		if (ObjectClassName)
+		{
+			//! If generated waypoints, filter
+			filteredPoints = {};
+
+			foreach (vector candidate: waypoints)
+			{
+				//! Ignore waypoint if in high water (threshold of 1 m matches SHumanCommandMoveSettings.m_fWaterLevelSpeedRectrictionHigh)
+				if (g_Game.GetWaterDepth(candidate) < 1.0)
+					filteredPoints.Insert(candidate);
+			}
+
+			waypoints = filteredPoints;
 		}
 
 		return waypoints;

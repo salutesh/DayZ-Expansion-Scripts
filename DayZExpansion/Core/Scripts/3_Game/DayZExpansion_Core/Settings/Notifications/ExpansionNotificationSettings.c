@@ -73,6 +73,7 @@ class ExpansionNotificationSettingsBase: ExpansionSettingBase
 	bool KillFeedInfected;
 	bool KillFeedAnimal;
 	bool KillFeedAI;
+	bool KillFeedDrowned;
 	bool KillFeedKilledUnknown;
 	bool KillFeedDiedUnknown;
 

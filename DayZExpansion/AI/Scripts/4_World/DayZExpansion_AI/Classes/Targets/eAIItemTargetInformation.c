@@ -73,7 +73,14 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 			{
 				ExpansionPathHandler pathFinding = ai.GetPathFinding();
 
-				if (pathFinding.m_CurrentTargetPosition == GetPosition(ai))
+				vector tgtPos = pathFinding.m_CurrentTargetPosition;
+				vector itemPos = GetPosition(ai);
+
+				//! Account for tide if swimming
+				if (ai.IsSwimming() && Math.AbsFloat(tgtPos[1] - itemPos[1]) < 0.5)
+					tgtPos[1] = itemPos[1];
+
+				if (tgtPos == itemPos)
 				{
 					bool isUnreachable;
 					bool isNear;

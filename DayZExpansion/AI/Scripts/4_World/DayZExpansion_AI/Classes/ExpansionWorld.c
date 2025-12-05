@@ -66,7 +66,9 @@ modded class ExpansionWorld
 			if (excludedAreas.IsPointInside(position))
 				continue;
 
-			if (ExpansionString.StartsWithAny(candidate.GetType(), settings.ExcludedRoamingBuildings))
+			string type = candidate.GetType();
+			type.ToLower();
+			if (ExpansionString.StartsWithAny(type, settings.ExcludedRoamingBuildings))
 				continue;
 
 			float radius = 100.0;

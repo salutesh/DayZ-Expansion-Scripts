@@ -133,6 +133,22 @@ class eAIGroup
 		return group;
 	}
 
+	//! Prevent 3rd party mods from doing stupid shit when -newErrorsAreWarnings=1 as this would result in NULL pointers later
+	static eAIGroup CreateGroup(Class faction)
+	{
+		TStringArray stack = {};
+		if (faction)
+		{
+			string tmp;
+			DumpStackString(tmp);
+			tmp.Split("\n", stack);
+			stack.RemoveOrdered(0);
+			EXError.Error(null, "FIX-ME: Unsafe down-casting, use 'eAIFaction.Cast' for safe down-casting", stack);
+		}
+
+		return CreateGroup();
+	}
+
 	static void DeleteGroup(eAIGroup group)
 	{
 #ifdef EXTRACE_DIAG
@@ -330,6 +346,7 @@ class eAIGroup
 					continue;
 
 				buildingType = building.GetType();
+				buildingType.ToLower();
 				if (ExpansionString.StartsWithAny(buildingType, excludedBuildings))
 					continue;
 
@@ -481,6 +498,7 @@ class eAIGroup
 					if (Class.CastTo(destinationBuilding, candidate) && destinationBuilding.GetDoorCount() > 0)
 					{
 						buildingType = destinationBuilding.GetType();
+						buildingType.ToLower();
 						if (!ExpansionString.StartsWithAny(buildingType, excludedBuildings))
 							break;
 					}
@@ -618,6 +636,17 @@ class eAIGroup
 			if (member)
 				member.eAI_SetFactionTypeID(newFactionTypeID);
 		}
+	}
+
+	//! Prevent 3rd party mods from doing stupid shit when -newErrorsAreWarnings=1 as this would result in NULL pointers later
+	void SetFaction(Class f)
+	{
+		string tmp;
+		DumpStackString(tmp);
+		TStringArray stack = {};
+		tmp.Split("\n", stack);
+		stack.RemoveOrdered(0);
+		EXError.Error(null, "FIX-ME: Unsafe down-casting, use 'eAIFaction.Cast' for safe down-casting", stack);
 	}
 
 	eAIFaction GetFaction()

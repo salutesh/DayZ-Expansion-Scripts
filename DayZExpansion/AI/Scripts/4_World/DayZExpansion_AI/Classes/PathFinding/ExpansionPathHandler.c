@@ -1006,9 +1006,20 @@ class ExpansionPathHandler
 		{
 			//! Prevent fall from a large height (e.g. building top) - path direction check
 			vector checkDirection = vector.Direction(m_Unit.GetPosition(), m_Points[1 + m_PointIdx]);
+			checkDirection[1] = 0;
 			float len = checkDirection.Length();
-			if ((!m_Unit.m_eAI_Ladder || (!m_Unit.m_eAI_IsOnLadder && !m_Unit.eAI_IsCloseToLadderEntryPoint())) && !m_Unit.eAI_IsFallSafe(checkDirection.Normalized() * (len + 2.0), true, 1339))
+			if ((!m_Unit.m_eAI_Ladder || (!m_Unit.m_eAI_IsOnLadder && !m_Unit.eAI_IsCloseToLadderEntryPoint())) && !m_Unit.eAI_IsFallSafe(checkDirection.Normalized() * (len + 2.0), true, DayZPlayerImplementFallDamage.HEALTH_HEIGHT_LOW, true, 1339))
 			{
+				//! Move next point away from edge if possible
+				float offset = 0.55;
+				if (m_PathSegmentDirection.LengthSq() > offset * offset)
+				{
+					vector nextPoint = m_Points[1 + m_PointIdx] - m_PathSegmentDirection.Normalized() * offset;
+					m_Points[1 + m_PointIdx] = nextPoint;
+					UpdatePoint(m_Next0, nextPoint);
+					return true;
+				}
+
 			#ifdef DIAG_DEVELOPER
 				if (!m_IsUnreachable)
 				{
@@ -1245,5 +1256,6 @@ class ExpansionPathHandler
 		m_IsTargetUnreachable = false;
 		m_IsUnreachable = false;
 		m_SuppressRecalculate = false;
+		m_Unit.m_eAI_PositionTime = 0;
 	}
 };

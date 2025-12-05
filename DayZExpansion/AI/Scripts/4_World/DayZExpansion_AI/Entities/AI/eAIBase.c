@@ -252,6 +252,9 @@ class eAIBase: PlayerBase
 	private float m_WeaponRaisedTimer;
 	private float m_WeaponLowerTimeout;
 
+	int m_eAI_FireWeaponOnClient_RPCID;
+	int m_eAI_RemoteRecreateWeapon_RPCID;
+
 	ref array<Weapon_Base> m_eAI_Firearms = {};
 	ref array<Weapon_Base> m_eAI_Handguns = {};
 	ref array<Weapon_Base> m_eAI_Launchers = {};
@@ -513,6 +516,8 @@ class eAIBase: PlayerBase
 		m_Expansion_EnableBonePositionUpdate = true;
 
 		m_Expansion_RPCManager.RegisterServer("RPC_eAI_SetIsInventoryVisible");
+		m_eAI_FireWeaponOnClient_RPCID = m_Expansion_RPCManager.RegisterClient("RPC_eAI_FireWeaponOnClient");
+		m_eAI_RemoteRecreateWeapon_RPCID = m_Expansion_RPCManager.RegisterServer("RPC_eAI_RemoteRecreateWeapon");
 	}
 
 	override void Expansion_Init()
@@ -978,6 +983,16 @@ class eAIBase: PlayerBase
 				return hostile;
 			}
 		}
+		else
+		{
+			if (!other.CanBeTargetedByAI(this))
+			{
+				if (track && GetExpansionSettings().GetAI().MemeLevel > 0 && isPlayerMoving)
+					return true;
+
+				return targeted;
+			}
+		}
 
 		//! Our faction fiendly to specific player?
 		if (GetGroup().GetFaction().IsFriendlyEntity(other, this))
@@ -1098,6 +1113,67 @@ class eAIBase: PlayerBase
 			m_eAI_MinTimeTillNextFire = g_Game.GetTime() + weapon.GetReloadTime(weapon.GetCurrentMuzzle()) * 1000;
 		else
 			m_eAI_MinTimeTillNextFire = g_Game.GetTime() + Math.RandomIntInclusive(200, 300);
+	}
+
+	void eAI_FireWeaponOnClient(int muzzleIndex, int shotID)
+	{
+	#ifdef SERVER
+		auto rpc = ExpansionScriptRPC.Create(m_eAI_FireWeaponOnClient_RPCID);
+		//! Pack muzzleIndex and shotID into one integer.
+		//! 8 bits should be enough for muzzleIndex and 24 for shotId seems sufficient as well
+		//! (no issue either if the latter wraps)
+		int packed = ((muzzleIndex & 0xff) << 24) | (shotID & 0xffffff);
+		rpc.Write(packed);
+		rpc.Expansion_Send(this, true);
+	#else
+		Weapon_Base weapon;
+		if (Class.CastTo(weapon, GetHumanInventory().GetEntityInHands()))
+		{
+			//! Since muzzleIndex can come from RPC, check it (better safe than sorry, game could CTD if muzzleIndex is invalid otherwise)
+			if (muzzleIndex >= weapon.GetMuzzleCount())
+				CF.FormatError("Invalid muzzle index %1 for %2", muzzleIndex.ToString(), weapon.ToString());
+			else
+				weapon.eAI_FireOnClient(muzzleIndex, this, shotID);
+		}
+		else if (GetExpansionSettings().GetAI().RecreateWeaponNetworkRepresentation)
+		{
+			EXError.Warn(this, "Couldn't fire weapon (NULL), attempting to recreate network representation");
+			auto rpc = ExpansionScriptRPC.Create(m_eAI_RemoteRecreateWeapon_RPCID);
+			rpc.Expansion_Send(this, true);
+		}
+		else
+		{
+			EXError.Error(this, "Couldn't fire weapon (NULL)");
+		}
+	#endif
+	}
+
+	//! Client
+	void RPC_eAI_FireWeaponOnClient(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		int packed;
+		if (!ctx.Read(packed))
+			return;
+
+		int muzzleIndex = (packed >> 24) & 0xff;
+		int shotID = packed & 0xffffff;
+
+		eAI_FireWeaponOnClient(muzzleIndex, shotID);
+	}
+
+	//! Server
+	void RPC_eAI_RemoteRecreateWeapon(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+		Weapon_Base weapon;
+		if (Class.CastTo(weapon, GetHumanInventory().GetEntityInHands()))
+		{
+			weapon.eAI_RemoteRecreate();
+			EXError.Warn(this, "Recreated network representation of " + weapon);
+		}
+		else
+		{
+			EXError.Warn(this, "No weapon in hands");
+		}
 	}
 
 	/**
@@ -1222,7 +1298,7 @@ class eAIBase: PlayerBase
 		}
 	}
 
-	override void eAI_Cleanup(bool autoDeleteGroup = false)
+	override protected void eAI_Cleanup(bool autoDeleteGroup = false)
 	{
 	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Start(EXTrace.AI, this);
@@ -2885,6 +2961,7 @@ class eAIBase: PlayerBase
 						ExpansionArrayTools<ItemBase, EntityAI>.InsertAll_UpCast(ai.m_eAI_MeleeWeapons, m_eAI_PotentialTargetEntities);
 						ExpansionArrayTools<ItemBase, EntityAI>.InsertAll_UpCast(ai.m_eAI_Bandages, m_eAI_PotentialTargetEntities);
 						ExpansionArrayTools<Magazine, EntityAI>.InsertAll_UpCast(ai.m_eAI_Magazines, m_eAI_PotentialTargetEntities);
+						ExpansionArrayTools<ItemBase, EntityAI>.InsertAll_UpCast(ai.m_eAI_RepairKits, m_eAI_PotentialTargetEntities);
 
 						for (i = 0; i < ai.GetInventory().AttachmentCount(); i++)
 						{
@@ -3044,15 +3121,22 @@ class eAIBase: PlayerBase
 						ItemBase slotGear;
 						ItemBase currentlyWornGear;
 						int slotID = 0;
-						bool isBackOrHips = false;
+						bool preferLargerCargo = false;
 
 						foreach (string slot: inventorySlots)
 						{
 							slotID = InventorySlots.GetSlotIdFromString(slot);
 							if (GetInventory().HasAttachmentSlot(slotID))
 							{
-								if (slotID == InventorySlots.BACK || slotID == InventorySlots.HIPS)
-									isBackOrHips = true;
+								switch (slotID)
+								{
+									case InventorySlots.BODY:
+									case InventorySlots.BACK:
+									case InventorySlots.HIPS:
+									case InventorySlots.LEGS:
+										preferLargerCargo = true;
+										break;
+								}
 
 								if (!Class.CastTo(slotGear, GetInventory().FindAttachment(slotID)))
 								{
@@ -3076,7 +3160,7 @@ class eAIBase: PlayerBase
 							}
 						}
 
-						if (!canWear || !eAI_ClothingSelection(currentlyWornGear, targetItem, isBackOrHips))
+						if (!canWear || !eAI_ClothingSelection(currentlyWornGear, targetItem, preferLargerCargo))
 						{
 							eAI_ThreatOverride(targetItem, true);  //! Ignore by overriding threat so we don't have to do above checks again
 							continue;
@@ -3314,7 +3398,7 @@ class eAIBase: PlayerBase
 		return false;
 	}
 
-	bool eAI_ClothingSelection(ItemBase currentlyWornGear, ItemBase targetItem, bool isBackOrHips = false)
+	bool eAI_ClothingSelection(ItemBase currentlyWornGear, ItemBase targetItem, bool preferLargerCargo = false)
 	{
 		if (!currentlyWornGear)
 		{
@@ -3338,30 +3422,17 @@ class eAIBase: PlayerBase
 			{
 				//! Is target item better than what we currently have in some capacity?
 
-				CargoBase curCargo = currentlyWornGear.GetInventory().GetCargo();
-				CargoBase tgtCargo = targetItem.GetInventory().GetCargo();
-
-				int curCargoSize;
-				int tgtCargoSize;
-
-				if (curCargo)
-					curCargoSize = curCargo.GetWidth() * curCargo.GetHeight();
-
-				if (tgtCargo)
+				if (preferLargerCargo)
 				{
-					//! Always prefer larger cargo space which usually also reflects the other attributes of clothing
+					int curCargoSize = currentlyWornGear.eAI_GetCargoSize();
+					int tgtCargoSize = targetItem.eAI_GetCargoSize();
+
+					//! Prefer larger cargo space which usually also reflects the other attributes of clothing
 					//! (military clothing usually has the largest cargo capacity and best protection)
-					tgtCargoSize = tgtCargo.GetWidth() * tgtCargo.GetHeight();
 					if (tgtCargoSize < curCargoSize)
 						return false;
-					else if (isBackOrHips && tgtCargoSize > curCargoSize)
+					else if (tgtCargoSize > curCargoSize)
 						return true;
-				}
-				else if (isBackOrHips && curCargoSize > 0)
-				{
-					//! Don't allow to swap backpack for item w/o cargo,
-					//! but allow (e.g.) swapping vest w/ cargo for vest with higher protection but no cargo
-					return false;
 				}
 
 				//! Since destroyed clothing provides no protection whatsoever, always prefer target item if same or bigger cargo size,
@@ -4054,6 +4125,13 @@ class eAIBase: PlayerBase
 		EXTrace.Print(EXTrace.AI, this, "EndFighting - melee time " + (g_Game.GetTime() - m_eAI_MeleeTime) + " ms");
 	}
 
+	override void OnCommandLadderFinish()
+	{
+		super.OnCommandLadderFinish();
+
+		m_PathFinding.ForceRecalculate(true);
+	}
+
 	bool eAI_CanEnableSwimming()
 	{
 		//! @note order matters! To preserve intent, conditions that return false need to come first,
@@ -4712,6 +4790,14 @@ class eAIBase: PlayerBase
 					}
 				}
 				break;
+
+			case "Land_Geoplant_PipeHall":
+				//! Incorrect navmesh on top of accessory towers
+				return true;
+
+			case "Land_Geoplant_CoolingStack":
+				//! Ladder unreachable via navmesh
+				return true;
 		}
 
 		return false;
@@ -4814,7 +4900,7 @@ class eAIBase: PlayerBase
 		return true;
 	}
 
-	bool eAI_IsCloseToLadderEntryPoint(float maxDist = 2.0)
+	bool eAI_IsCloseToLadderEntryPoint(float maxDist = 2.282542)
 	{
 		vector begPos = m_ExTransformPlayer[3];
 
@@ -6988,14 +7074,6 @@ class eAIBase: PlayerBase
 		vector lookTargetRelAngles = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
 		vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
 
-		if (IsRaised())
-		{
-			//! Need to adjust look direction when aiming
-			lookTargetRelAngles[0] = lookTargetRelAngles[0] - aimTargetRelAngles[0];
-			if (entityInHands && entityInHands.IsWeapon())
-				lookTargetRelAngles[1] = 0;
-		}
-
 		//! We want to interpolate rel angles for looking! Otherwise, if the conversion to rel angles happens later,
 		//! there will be a sudden jump in the unit's head rotation between 180 and -180 due to the way the head animation is set up
 		lookTargetRelAngles[0] = ExpansionMath.RelAngle(lookTargetRelAngles[0]);
@@ -7006,7 +7084,18 @@ class eAIBase: PlayerBase
 		//TODO: quaternion slerp instead for better, accurate results
 		m_eAI_LookRelAngles = ExpansionMath.InterpolateAngles(m_eAI_LookRelAngles, lookTargetRelAngles, pDt, Math.RandomFloat(3.0, 5.0), Math.RandomFloat(1.0, 3.0));
 
-		m_eAI_CommandMove.SetLookAnglesRel(m_eAI_LookRelAngles[0], m_eAI_LookRelAngles[1]);
+		float lookLR = m_eAI_LookRelAngles[0];
+		float lookUD = m_eAI_LookRelAngles[1];
+
+		if (IsRaised())
+		{
+			//! Need to adjust look direction when aiming
+			lookLR =  ExpansionMath.RelAngle(lookLR - m_eAI_AimRelAngles[0]);
+			if (entityInHands && entityInHands.IsWeapon())
+				lookUD = 0;
+		}
+
+		m_eAI_CommandMove.SetLookAnglesRel(lookLR, lookUD);
 
 	//#ifdef EXTRACE_DIAG
 		//trace12 = null;
@@ -7041,6 +7130,10 @@ class eAIBase: PlayerBase
 						hcl.Exit();
 					}
 				}
+				else if (m_eAI_CommandHandlerDT < 0.12)
+				{
+					//! Do nothing
+				}
 				else if (AI_HANDLEDOORS && HandleBuildingDoors(ecm, pDt))
 				{
 					break;
@@ -7053,10 +7146,10 @@ class eAIBase: PlayerBase
 					//! If we didn't vault or climb, find way around obstacle, but only if path is not blocked physically
 					//! (path blocked physically is only set on pathfinding if navmesh isn't blocked,
 					//! so in that case we won't find an alternative path)
-					if (m_PathFinding.m_AllowJumpClimb && !m_PathFinding.m_IsBlockedPhysically)
+					if (m_PathFinding.m_AllowJumpClimb && !m_PathFinding.m_IsBlockedPhysically && !IsSwimming())
 						m_PathFinding.SetAllowJumpClimb(false, 15.0);
 				}
-				else if (m_PathFinding.m_IsJumpClimb && m_PathFinding.m_AllowJumpClimb && !m_PathFinding.m_IsBlockedPhysically && ecm.IsBlocked() && m_eAI_BlockedTime > pDt)
+				else if (m_PathFinding.m_IsJumpClimb && m_PathFinding.m_AllowJumpClimb && !m_PathFinding.m_IsBlockedPhysically && ecm.IsBlocked() && m_eAI_BlockedTime > pDt && !IsSwimming())
 				{
 					//! If we are still blocked, find way around obstacle
 					//! (need to be blocked for at least one commandhandler tick
@@ -7226,7 +7319,7 @@ class eAIBase: PlayerBase
 	bool eAI_ShouldStartFalling()
 	{
 		vector position = m_ExTransformPlayer[3];
-		if (!IsSwimming() && position[1] - g_Game.SurfaceRoadY3D(position[0], position[1], position[2], RoadSurfaceDetection.UNDER) >= 0.5)
+		if (!IsSwimming() && position[1] - ExpansionStatic.GetSurfaceRoadY3D(position[0], position[1], position[2], RoadSurfaceDetection.UNDER) >= 0.5)
 			return true;
 
 		return false;
@@ -7275,12 +7368,12 @@ class eAIBase: PlayerBase
 		bool isDirWS;
 
 		auto hcv = GetCommand_Vehicle();
+		auto hcm = GetCommand_Move();
 
-		if (speed > 0 || hcv)
+		if (speed > 0 || !hcm)
 		{
 			isDir = true;
-			auto hcm = GetCommand_Move();
-			if (hcm)
+			if (!hcv)
 			{
 				Object blockingObject = m_eAI_CommandMove.GetBlockingObject();
 
@@ -7321,14 +7414,14 @@ class eAIBase: PlayerBase
 				ori[0] = Math.RandomFloat(-22.0 * f, 22.0 * f);
 			}
 		}
-		else if (m_PathFinding.GetRemainingCount() == 2 && !Math.IsPointInCircle(m_PathFinding.GetEnd(), 0.55, m_ExTransformPlayer[3]) && !m_FSM.IsInState("Idle"))
+		else if (m_PathFinding.GetRemainingCount() == 2 && m_PathFinding.m_IsUnreachable && !Math.IsPointInCircle(m_PathFinding.GetEnd(), 0.55, m_ExTransformPlayer[3]) && !m_FSM.IsInState("Idle"))
 		{
 			//! Look and aim towards current waypoint so we turn in direction we can go.
 			//! This helps with movement towards ladder or when unreachable due to fallheight check
 			pos = m_PathFinding.GetCurrentPoint();
 			pos[1] = GetBonePositionWS(GetBoneIndexByName("neck"))[1];
 		}
-		else if (m_PathFinding.GetRemainingCount() > 2 && !m_FSM.IsInState("Idle"))
+		else if (m_PathFinding.GetRemainingCount() > 2 && m_PathFinding.m_IsUnreachable && !m_FSM.IsInState("Idle"))
 		{
 			//! Look and aim towards next waypoint so we turn in direction we can go.
 			//! This helps with movement towards ladder or when unreachable due to fallheight check
@@ -7422,7 +7515,7 @@ class eAIBase: PlayerBase
 		{
 			if (IsRaised())
 				ori[1] = Math.RandomFloat(-3.0, 0.0);
-			else if (speed == 0 || hcv)
+			else if ((hcm && speed == 0) || hcv)
 				ori[1] = Math.RandomFloat(-36.0, 18.0);
 
 			dir = ori.AnglesToVector();
@@ -7674,7 +7767,8 @@ class eAIBase: PlayerBase
 			//! Tree with player more than 2 m away from contact pos
 			if (obj.IsTree() && contactToTargetDistSq > 4 && !state.m_SearchPositionUpdateCount)
 			{
-				sideStep = state.m_ThreatLevelActive >= 0.4;
+				if (!isItemTarget)
+					sideStep = state.m_ThreatLevelActive >= 0.4;
 				break;
 			}
 
@@ -7967,16 +8061,24 @@ class eAIBase: PlayerBase
 
 			IEntity floor = PhysicsGetFloorEntity();
 
-			if (floor)
-			{
-				string name = floor.GetDebugName();
+			if (eAI_IsSeaIce(floor))
+				return true;
+		}
 
-				name.ToLower();
+		return false;
+	}
 
-				//! Sakhal ice floes
-				if (name.Contains(": ice_sea"))
-					return true;
-			}
+	bool eAI_IsSeaIce(IEntity entity)
+	{
+		if (entity)
+		{
+			string name = entity.GetDebugName();
+
+			name.ToLower();
+
+			//! Sakhal ice floes
+			if (name.Contains(": ice_sea"))
+				return true;
 		}
 
 		return false;
@@ -9534,13 +9636,13 @@ class eAIBase: PlayerBase
 	void eAI_Unbug(string what)
 	{
 		string pos = ExpansionStatic.VectorToString(GetPosition());
-		string msg = "Action timed out for " + Debug.GetDebugName(this) + " (pos=" + pos + ") while trying to " + what + ", item in hands " + ExpansionStatic.GetDebugInfo(GetItemInHands());
+		string msg = "Action failed for " + Debug.GetDebugName(this) + " (pos=" + pos + ") - " + what + " - item in hands " + ExpansionStatic.GetDebugInfo(GetItemInHands());
 		EXTrace.Print(true, this, msg);
 
 #ifdef DIAG_DEVELOPER
 		msg.Replace("<", "‹");
 		msg.Replace(">", "›");
-		ExpansionNotification("ACTION TIMEOUT", msg).Error();
+		ExpansionNotification("ACTION FAILED", msg).Error();
 #endif
 
 		EXTrace.Print(true, this, "Applying SMACK OF GOD (='-')-o )'~')");
@@ -9882,23 +9984,33 @@ class eAIBase: PlayerBase
 		ItemBase currentlyWornGear;
 		bool transferCargo;
 
-		if (item.IsClothing())
+		if (eAI_ShouldTreatItemAsBandage(item))
+		{
+			flags = FindInventoryLocationType.CARGO;
+		}
+		else if (item.IsClothing())
 		{
 			TStringArray inventorySlots = item.Expansion_GetInventorySlots();
-			bool canWear;
-			bool treatAsBandage = eAI_ShouldTreatItemAsBandage(item);
 
 			foreach (string slot: inventorySlots)
 			{
-				if (GetInventory().HasAttachmentSlot(InventorySlots.GetSlotIdFromString(slot)))
+				int slotId = InventorySlots.GetSlotIdFromString(slot);
+				if (GetInventory().HasAttachmentSlot(slotId))
 				{
-					canWear = true;
+					if (!eAI_ClothingLootingBehaviorCheck_Slot(slot, item))
+						continue;
 
-					if (treatAsBandage || !Class.CastTo(currentlyWornGear, FindAttachmentBySlotName(slot)))
+					if (!Class.CastTo(currentlyWornGear, GetInventory().FindAttachment(slotId)))
 					{
 						//! Found empty slot
 						currentlyWornGear = null;  //! null any gear that was found in another slot
+						il_dst = new InventoryLocation();
+						il_dst.SetAttachment(this, item, slotId);
 						break;
+					}
+					else if (!eAI_ClothingLootingBehaviorCheck_Selection(currentlyWornGear, item))
+					{
+						currentlyWornGear = null;
 					}
 				}
 			}
@@ -9912,7 +10024,6 @@ class eAIBase: PlayerBase
 					//! Drop whole cargo of target item before taking
 					item.Expansion_DropAllCargo();
 
-					//il_dst.SetAttachment(this, item, il_dst.GetSlot());
 					il_dst.SetItem(item);
 
 					EXTrace.Print(EXTrace.AI, this, "Swapping " + currentlyWornGear + " for " + item);
@@ -9924,16 +10035,14 @@ class eAIBase: PlayerBase
 					il_dst.Reset();  //! Invalidate location
 				}
 			}
-			else if (canWear)
+			else if (!il_dst)
 			{
-				if (treatAsBandage)
-					flags = FindInventoryLocationType.CARGO;
-				else
-					flags = FindInventoryLocationType.ATTACHMENT;
+				eAI_ThreatOverride(item, true);
+				return false;
 			}
 		}
 
-		if (!currentlyWornGear)
+		if (!il_dst)
 			eAI_FindFreeInventoryLocationFor(item, flags, il_dst);
 
 		bool result;
@@ -10324,10 +10433,10 @@ class eAIBase: PlayerBase
 		if (IsRestrained())
 			return false;
 
-		if (m_eAI_CommandHandlerDT < 0.12)
+		if (m_eAI_PositionIsFinal && Math.Round(Expansion_GetMovementSpeed()) == 0.0)
 			return false;
 
-		if (!m_PathFinding.m_AllowJumpClimb && !m_PathFinding.m_IsBlockedPhysically)
+		if (!IsSwimming() && !m_PathFinding.m_AllowJumpClimb && !m_PathFinding.m_IsBlockedPhysically)
 			return false;
 
 		if (Math.AbsFloat(ExpansionMath.AngleDiff2(GetOrientation()[0], m_PathFinding.m_PathSegmentDirection.VectorToAngles()[0])) > 45.0)
@@ -10378,13 +10487,15 @@ class eAIBase: PlayerBase
 					return false;
 
 				//! ...don't allow jump/climb if NOT on inverse path and NOT using underwater surface for pathfinding
+				//! and NOT blocked by sea ice
 				if (m_PathFinding.m_PathGlueIdx == -1 && !eAI_ShouldUseSurfaceUnderWaterForPathFinding())
-					return false;
+				{
+					//! @note if not using underwater surface for pathfinding, we're also not swimming but might be in shallow water
+					if (!eAI_IsSeaIce(blockingObject))
+						return false;
+				}
 			}
 		}
-
-		if ((m_eAI_PositionIsFinal && Math.Round(Expansion_GetMovementSpeed()) == 0.0) || !eAI_IsFallSafe(GetDirection() * 2.0, false))
-			return false;
 
 #ifdef EXTRACE_DIAG
 		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(14) -> HandleVaulting");
@@ -10573,8 +10684,18 @@ class eAIBase: PlayerBase
 			}
 		#endif
 
-			if (!eAI_IsFallSafe(checkDirection, false))
-				return false;
+			if (!IsSwimming() || climbRes.m_bIsClimbOver)
+			{
+				float heightThresh;
+
+				if (climbRes.m_bIsClimbOver)
+					heightThresh = 1.0;  //! should prevent unwanted vaulting of stair-rails
+				else
+					heightThresh = DayZPlayerImplementFallDamage.HEALTH_HEIGHT_LOW - climbRes.m_fClimbHeight;
+
+				if (!eAI_IsFallSafe(checkDirection, false, heightThresh, false))
+					return false;
+			}
 		}
 
 		return true;
@@ -10591,7 +10712,7 @@ class eAIBase: PlayerBase
 		if (Class.CastTo(object, parent) && ExpansionStatic.IsColliding(object, m_PathFinding.GetEnd()))
 			isPathEndPointCollidingObject = true;
 
-		if ((m_WeaponRaised || m_eAI_IsFightingFSM) && !isPathEndPointCollidingObject && !climbRes.m_bIsClimbOver && !m_PathFinding.m_IsBlockedPhysically)
+		if ((m_WeaponRaised || (m_eAI_IsFightingFSM && !IsSwimming())) && !isPathEndPointCollidingObject && !climbRes.m_bIsClimbOver && !m_PathFinding.m_IsBlockedPhysically)
 			return false;
 
 		if (object)
@@ -10664,8 +10785,11 @@ class eAIBase: PlayerBase
 		return true;
 	}
 
-	bool eAI_IsFallSafe(vector checkDirection, bool checkBlocking = true, int dbgIndex = 1337)
+	bool eAI_IsFallSafe(vector checkDirection, bool checkBlocking = true, float heightThresh = 0, bool checkHealth = true, int dbgIndex = 1337)
 	{
+		if (heightThresh == 0)
+			heightThresh = DayZPlayerImplementFallDamage.HEALTH_HEIGHT_LOW;
+
 		vector position = GetPosition();
 		vector checkPosition = position + checkDirection;
 		
@@ -10685,6 +10809,12 @@ class eAIBase: PlayerBase
 			//if (DayZPhysics.RaycastRV(fromHit, fromHit + "0 3.5 0", hitPosition, hitNormal, contactComponent, results, null, this, false, false, ObjIntersectGeom))
 				return true;
 		}
+	#ifdef DIAG_DEVELOPER
+		else if (checkBlocking)
+		{
+			Expansion_DebugObject(dbgIndex + 3, checkPosition + "0 0.76 0", "ExpansionDebugSphereSmall_Red", vector.Zero, position + "0 0.76 0");
+		}
+	#endif
 
 		//! @note the 1.5m vertical offset has been added for the top floor of Land_HouseBlock_2F3, else surface won't be detected properly
 		//! (doesn't matter if via SurfaceRoad3D or raycast)
@@ -10694,7 +10824,7 @@ class eAIBase: PlayerBase
 		vector begPos = Vector(checkPosition[0], checkPosition[1] + offsetY, checkPosition[2]);
 */
 
-		checkPosition[1] = g_Game.SurfaceRoadY3D(checkPosition[0], checkPosition[1] + offsetY, checkPosition[2], RoadSurfaceDetection.UNDER);
+		checkPosition[1] = ExpansionStatic.GetSurfaceRoadY3D(checkPosition[0], checkPosition[1] + offsetY, checkPosition[2], RoadSurfaceDetection.UNDER);
 
 		float fallHeight = position[1] - checkPosition[1];
 /*
@@ -10763,7 +10893,7 @@ class eAIBase: PlayerBase
 		
 		if (waterDepth > 1.5 && ExpansionStatic.SurfaceIsWater(waterCheckPosition))
 			isFallSafe = m_PathFinding.m_IsSwimmingEnabled;  //! Falling into water that is deep enough for swimming is safe if swimming enabled
-		else if (fallHeight <= DayZPlayerImplementFallDamage.HEALTH_HEIGHT_LOW || (GetHealth01() - Math.InverseLerp(DayZPlayerImplementFallDamage.HEALTH_HEIGHT_LOW, DayZPlayerImplementFallDamage.HEALTH_HEIGHT_HIGH, fallHeight) >= 0.90))
+		else if (fallHeight <= heightThresh || (checkHealth && GetHealth01() - Math.InverseLerp(heightThresh, DayZPlayerImplementFallDamage.HEALTH_HEIGHT_HIGH, fallHeight) >= 0.90))
 			isFallSafe = true;
 
 	#ifdef DIAG_DEVELOPER
@@ -10839,9 +10969,6 @@ class eAIBase: PlayerBase
 			//return;
 
 		if (IsRestrained())
-			return false;
-
-		if (m_eAI_CommandHandlerDT < 0.12)
 			return false;
 
 		float speed = hcm.GetCurrentMovementSpeed();

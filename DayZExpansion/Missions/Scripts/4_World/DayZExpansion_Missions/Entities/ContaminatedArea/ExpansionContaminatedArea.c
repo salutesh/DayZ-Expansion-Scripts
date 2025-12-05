@@ -222,7 +222,7 @@ class ExpansionContaminatedArea : House
 	{
 		// Determine if we snap first layer to ground
 		//bool snapFirstLayer = true;
-		//if (m_Type == eZoneType.STATIC && pos[1] != g_Game.SurfaceRoadY(pos[0], pos[2]))
+		//if (m_Type == eZoneType.STATIC && pos[1] != ExpansionStatic.GetSurfaceRoadY(pos[0], pos[2], RoadSurfaceDetection.LEGACY, UseObjectsMode.Wait))
 		//	snapFirstLayer = false;
 
 		// BEGINNING OF SAFETY NET

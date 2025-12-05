@@ -12,8 +12,7 @@ class eAIState_DropItem: eAIState
 			m_Time += DeltaTime;
 			if (m_Time > 10)  //! Looks like something went terribly wrong
 			{
-				EXPrint(unit.ToString() + " DropItem - timeout");
-				unit.eAI_Unbug("drop item");
+				unit.eAI_Unbug(m_Name + "(" + m_Item + ") - timeout");
 				m_Time = 0;
 				return EXIT;
 			}

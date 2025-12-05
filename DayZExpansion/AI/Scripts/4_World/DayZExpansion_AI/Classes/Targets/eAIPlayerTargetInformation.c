@@ -80,7 +80,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			if (m_Player.IsUnconscious())
 				return ExpansionMath.LinearConversion(0, 100, distance, 0.4, 0.3, false);
 
-			if (m_Player.IsRestrained())
+			if (m_Player.IsRestrained() || (m_Player.IsSwimming() && ai.IsSwimming()))
 				return ExpansionMath.LinearConversion(0, 100, distance, 0.15, 0.1);
 
 			if (distance <= 100.0 && m_Player.Expansion_GetParent() != ai.Expansion_GetParent())
@@ -97,11 +97,23 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			}
 
 			eAIGroup group = ai.GetGroup();
+			eAIFaction faction = group.GetFaction();
+
+			float aggressionTimeout;
+
+			auto settings = ExpansionAISettings.s_Instance;
+
+			if (faction.IsGuard())
+				aggressionTimeout = settings.GuardAggressionTimeout - distance;
+			else
+				aggressionTimeout = settings.AggressionTimeout;
 
 			bool isPlayerMoving;
 			bool friendly;
 			bool targeted;
-			if (!ai.PlayerIsEnemy(m_Player, false, isPlayerMoving, friendly, targeted))
+			//! @note order matters! PlayerIsEnemy check needs to come first because it sets the passed in out variables,
+			//! group check 2nd, aggression timeout update last to prevent own group becoming hostile on accidental friendly fire
+			if (!ai.PlayerIsEnemy(m_Player, false, isPlayerMoving, friendly, targeted) && (m_Player.GetGroup() == group || !m_Player.eAI_UpdateAgressionTimeout(aggressionTimeout)))
 			{
 				bool targetIsAI = m_Player.IsAI();
 				//! They eyeball you menacingly if you move, or if another friendly AI moves that is not in same group,
@@ -128,14 +140,13 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			//! Others will attack if not friendly or temporarily hostile
 			if (group)
 			{
-				eAIFaction faction = group.GetFaction();
 				bool canEnterFightingState;
 
 				if (faction.IsGuard())
 				{
 					if (m_Player.IsRaised() && fromTargetDot >= 0.9 && (m_HasProjectileWeaponInHands || m_Player.IsFighting()))
 						canEnterFightingState = true;
-					else if (m_Player.eAI_UpdateAgressionTimeout(150.0 - distance))
+					else if (m_Player.eAI_UpdateAgressionTimeout(aggressionTimeout))
 						canEnterFightingState = true;
 
 					if (!canEnterFightingState && m_Player.IsRaised())
@@ -146,7 +157,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 				}
 				else if (!faction.IsObserver() && !m_Player.Expansion_IsInSafeZone())
 				{
-					if (!friendly || m_Player.eAI_UpdateAgressionTimeout(120.0))
+					if (!friendly || m_Player.eAI_UpdateAgressionTimeout(aggressionTimeout))
 						canEnterFightingState = true;
 				}
 

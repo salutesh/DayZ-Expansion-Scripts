@@ -14,10 +14,16 @@
 
 modded class Weapon_Base
 {
+	static const int MAX_RESYNC_ATTEMPTS = 12;
+	static const int MIN_RESYNC_INTERVAL = 3000; //! ms
+	static const int RESET_MAX_RESYNC_ATTEMPTS_THRESHOLD = 3600000; //! ms
+
 	static ref map<string, float> s_Expansion_MinSafeFiringDistance = new map<string, float>;
 
 	float m_eAI_LastFiredTime;
-	bool m_eAI_SuppressEEFired;
+	int m_eAI_ShotID;
+	int m_eAI_ResyncAttempts;
+	int m_eAI_LastResyncTime;
 
 	eAINoiseParams m_eAI_NoiseParams;
 
@@ -140,24 +146,70 @@ modded class Weapon_Base
 
 		pos = pos + dir * 0.2;
 
+		//! Hacky workaround for client FSM desync. Request firing of weapon on client outside FSM.
+		if (GetExpansionSettings().GetAI().OverrideClientWeaponFiring)
+			ai.eAI_FireWeaponOnClient(muzzleIndex, m_eAI_ShotID);
+
+		++m_eAI_ShotID;
+
 		return Fire(muzzleIndex, pos, dir, dir);
 	#else
+		if (GetExpansionSettings().GetAI().OverrideClientWeaponFiring)
+			return true;
+
+		return eAI_FireOnClient(muzzleIndex, ai, m_eAI_ShotID, true);
+	#endif
+	}
+
+	bool eAI_FireOnClient(int muzzleIndex, eAIBase ai, int shotID, bool fromFSM = false)
+	{
+		//! XXX: Shot validation via ID doesn't work like this because obviously m_eAI_ShotID is reset on client when
+		//! weapon leaves netbubble (and networking it would have the issue of potential desync).
+		//! Maybe not really needed though, would just be nice to get an idea which shots are actually handled properly
+		//! via client weapon FSM and which ones aren't.
+		//if (shotID != m_eAI_ShotID)
+		//{
+			////! Shot was already fired, can safely skip.
+			////! We always return true; in case this was called from FSM, it will help maintain appropriate state.
+			//EXError.Warn(this, "Skip eAI_FireOnClient(fromFSM=" + fromFSM.ToString() + "), shotID " + shotID + " != " + m_eAI_ShotID + ", owner " + GetHierarchyRootPlayer(), {});
+			//return true;
+		//}
+
+		//++m_eAI_ShotID;
+
 		int mode = GetCurrentMode(muzzleIndex);
 		string ammoType = GetChamberedCartridgeMagazineTypeName(muzzleIndex);
-
-		m_eAI_SuppressEEFired = true;
 
 		bool result = TryFireWeapon(this, muzzleIndex);
 
 		if (!result)
 		{
 		#ifdef DIAG_DEVELOPER
-			EXError.Warn(ai, string.Format("TryFireWeapon(%1, %2) failed", this, muzzleIndex), {});
+			EXError.Warn(ai, string.Format("TryFireWeapon(%1, %2) failed, shotID %3", this, muzzleIndex, shotID), {});
 		#endif
+
+			string msg;
+
+			if (IsChamberEmpty(muzzleIndex) || IsChamberFiredOut(muzzleIndex))
+			{
+				//! Desynched - chamber - AI would not have fired if chamber was truly empty on authority (server)
+				msg = "eAI_FireOnClient(fromFSM=" + fromFSM.ToString() + "), shotID " + shotID + ", owner " + GetHierarchyRootPlayer() + " - desynched (chamber empty or fired out)";
+			}
+			else
+			{
+				//! Desynched - other reason? (chamber still full)
+				msg = "eAI_FireOnClient(fromFSM=" + fromFSM.ToString() + "), shotID " + shotID + ", owner " + GetHierarchyRootPlayer() + " - desynched (chamber full and not fired out)";
+			}
+
+			if (m_eAI_ResyncAttempts < MAX_RESYNC_ATTEMPTS)
+				EXError.Warn(this, msg, {});
+			else
+				EXError.Error(this, msg + " - max resync attempts reached", {});
 
 			vector pos = ai.GetBonePositionWS(ai.GetBoneIndexByName("neck"));
 			vector dir = ai.Expansion_GetAimDirectionClient();
 
+			//! This takes care of muzzle flash if successful (but no sound)
 			result = Fire(muzzleIndex, pos, dir, dir);
 
 		/*
@@ -195,31 +247,45 @@ modded class Weapon_Base
 			}
 		*/
 
-		#ifdef DIAG_DEVELOPER
 			if (!result)
-				EXError.Warn(ai, string.Format("%1::Fire(%2, %3, %4, %4) failed", this, muzzleIndex, pos, dir.ToString(false)), {});
-		#endif
+			{
+			#ifdef DIAG_DEVELOPER
+				EXError.Warn(ai, string.Format("%1::Fire(%2, '%3', '%4', '%4') failed, shotID %5", this, muzzleIndex, pos.ToString(false), dir.ToString(false), shotID), {});
+			#endif
+
+				//! Ensure muzzle flash
+				EEFired(muzzleIndex, mode, ammoType);
+			}
+
+			//! If the initial TryFireWeapon failed on client, we are definitely desynced since server side AI wouldn't have fired if
+			//! weapon truly wasn't able to. Force (re-)sync but limit max attempts and interval (mirroring values in vanilla WeaponFSM)
+			if (m_eAI_ResyncAttempts < MAX_RESYNC_ATTEMPTS)
+			{
+				int currentTime = g_Game.GetTime();
+				int timeDiff = currentTime - m_eAI_LastResyncTime;
+
+				if (timeDiff > MIN_RESYNC_INTERVAL)
+				{
+					if (timeDiff > RESET_MAX_RESYNC_ATTEMPTS_THRESHOLD)
+						m_eAI_ResyncAttempts = 0;
+
+					Synchronize();
+
+					++m_eAI_ResyncAttempts;
+					m_eAI_LastResyncTime = currentTime;
+				}
+			}
+		}
+		else if (m_eAI_ResyncAttempts > 0)
+		{
+			--m_eAI_ResyncAttempts;  //! Re-allow one resync attempt per succesful shot
 		}
 
-		//! Sometimes, AI gunshots will have no sound or muzzle flash. Ensure we at least have muzzle flash
-		m_eAI_SuppressEEFired = false;
-		if (result)
-			EEFired(muzzleIndex, mode, ammoType);
-
 		return result;
-	#endif
 	}
 
 	override void EEFired(int muzzleType, int mode, string ammoType)
 	{
-	#ifndef SERVER
-		if (m_eAI_SuppressEEFired)
-		{
-			m_eAI_SuppressEEFired = false;
-			return;
-		}
-	#endif
-
 		super.EEFired(muzzleType, mode, ammoType);
 
 		if (g_Game.IsServer())
@@ -322,6 +388,13 @@ modded class Weapon_Base
 			}
 		}
 #endif
+	}
+
+	//! @brief forces recreation of network representation (delete + create on client)
+	void eAI_RemoteRecreate()
+	{
+		g_Game.RemoteObjectTreeDelete(this);
+		g_Game.RemoteObjectTreeCreate(this);
 	}
 
 	/**

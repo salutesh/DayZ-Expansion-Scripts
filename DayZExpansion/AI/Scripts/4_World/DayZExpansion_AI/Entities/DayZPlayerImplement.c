@@ -40,6 +40,8 @@ modded class DayZPlayerImplement
 
 	float m_eAI_AttackCooldown;  //! Melee attack cooldown
 
+	private bool m_eAI_IsBeingDestroyed;
+
 #ifdef DIAG_DEVELOPER
 #ifndef SERVER
 	autoptr array<Shape> m_Expansion_DebugShapes = new array<Shape>();
@@ -61,6 +63,7 @@ modded class DayZPlayerImplement
 		EXTrace.Print(EXTrace.AI, this, "~DayZPlayerImplement");
 	#endif
 
+		m_eAI_IsBeingDestroyed = true;
 		eAI_Cleanup(true);
 	}
 
@@ -442,8 +445,19 @@ modded class DayZPlayerImplement
 	 * from DTOR, and if there are still other alive group members, then the killed player is removed from deceased group members.
 	 * If there are no other alive group members, then group is just destroyed (in the next frame).
 	 */
-	void eAI_Cleanup(bool autoDeleteGroup = false)
+	protected void eAI_Cleanup(bool autoDeleteGroup = false)
 	{
+		if (autoDeleteGroup && !m_eAI_IsBeingDestroyed)
+		{
+			string tmp;
+			DumpStackString(tmp);
+			TStringArray stack = {};
+			tmp.Split("\n", stack);
+			stack.RemoveOrdered(0);
+			EXError.Error(this, "Invalid call", stack);
+			return;
+		}
+
 		if (GetGroup() && !GetGroup().RemoveMember(this, autoDeleteGroup) && autoDeleteGroup)
 		{
 			if (GetGroup().Count())

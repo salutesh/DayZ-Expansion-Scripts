@@ -41,6 +41,7 @@ class eAICommandManagerClient : eAICommandManager
 		m_Expansion_RPCManager.RegisterServer("RPC_DumpState");
 		m_Expansion_RPCManager.RegisterServer("RPC_UnlimitedReload");
 		m_Expansion_RPCManager.RegisterServer("RPC_ResetPathfinding");
+		m_Expansion_RPCManager.RegisterServer("RPC_ForceWeaponResync");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugObjects");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugDamage");
 		m_Expansion_RPCManager.RegisterServer("RPC_SetDamageInOut");
@@ -98,6 +99,11 @@ class eAICommandManagerClient : eAICommandManager
 
 			case eAICommands.DEB_RESET_PATHFINDING:
 				rpc = m_Expansion_RPCManager.CreateRPC("RPC_ResetPathfinding");
+				rpc.Expansion_Send(GetAIAtCursorOrNearest(), true);
+				return true;
+
+			case eAICommands.DEB_FORCEWEAPONRESYNC:
+				rpc = m_Expansion_RPCManager.CreateRPC("RPC_ForceWeaponResync");
 				rpc.Expansion_Send(GetAIAtCursorOrNearest(), true);
 				return true;
 
@@ -1198,6 +1204,30 @@ class eAICommandManagerClient : eAICommandManager
 		{
 			CloseFile(file);
 			ExpansionNotification("EXPANSION AI", string.Format("State dumped to %1", fileName)).Info(sender);
+		}
+	}
+	
+	void RPC_ForceWeaponResync(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		if (g_Game.IsMultiplayer())
+		{
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
+		}
+
+		eAIBase ai;
+		if (Class.CastTo(ai, target))
+		{
+			Weapon_Base weapon;
+			if (Class.CastTo(weapon, ai.GetHumanInventory().GetEntityInHands()) && !ai.GetWeaponManager().IsRunning())
+			{
+				weapon.eAI_RemoteRecreate();
+				ExpansionNotification("EXPANSION AI", string.Format("Recreated network representation of %1 in hands of %2", weapon, ai)).Info(sender);
+			}
 		}
 	}
 

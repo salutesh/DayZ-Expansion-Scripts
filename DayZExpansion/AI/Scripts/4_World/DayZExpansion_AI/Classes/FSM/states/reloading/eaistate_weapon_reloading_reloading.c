@@ -35,8 +35,7 @@ class eAIState_Weapon_Reloading_Reloading: eAIState
 			m_Time += DeltaTime;
 			if (m_Time > 12)  //! Looks like something went terribly wrong
 			{
-				EXPrint(unit.ToString() + " Weapon_Reloading - Reloading - timeout");
-				unit.eAI_Unbug("reload");
+				unit.eAI_Unbug(m_Name + "(" + m_Weapon + ", " + m_Magazine + ") - timeout");
 				return EXIT;
 			}
 			

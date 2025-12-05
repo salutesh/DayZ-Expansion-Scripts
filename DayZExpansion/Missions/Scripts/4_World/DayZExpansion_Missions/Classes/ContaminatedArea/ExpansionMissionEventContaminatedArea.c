@@ -26,7 +26,7 @@ class ExpansionMissionEventContaminatedArea: ExpansionMissionEventBase
 
 		if (pos[1] == 0)
 		{
-			pos[1] = g_Game.SurfaceRoadY(pos[0], pos[2]);
+			pos[1] = ExpansionStatic.GetSurfaceRoadY(pos[0], pos[2], RoadSurfaceDetection.LEGACY, UseObjectsMode.Wait);
 			flag = ECE_PLACE_ON_SURFACE;
 		}
 

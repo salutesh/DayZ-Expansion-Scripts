@@ -53,6 +53,11 @@ class eAIFormation
 		return Math.RandomFloatInclusive(-m_Looseness, m_Looseness);
 	}
 
+	float GetLoosenessPreference()
+	{
+		return m_Looseness;
+	}
+
 	vector ToWorld(vector fs)
 	{
 		if (m_Group.Count() > 0 && m_Group.GetFormationLeader())

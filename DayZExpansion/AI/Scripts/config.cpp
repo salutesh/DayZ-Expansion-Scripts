@@ -245,4 +245,8 @@ class CfgVehicles
 	{
 		scope=2;
 	};
+	class eAIDummy_SurvivorM_Mirek: SurvivorM_Mirek
+	{
+		scope=2;
+	};
 };

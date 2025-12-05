@@ -53,7 +53,7 @@ class ExpansionAINoGoAreas: array<ExpansionAINoGoAreaConfig>
 class ExpansionAILocationSettings: ExpansionSettingBase
 {
 	static const string PATH = EXPANSION_MISSION_SETTINGS_FOLDER + "AILocationSettings.json";
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 
 	ref array<ref ExpansionAIRoamingLocation> RoamingLocations = {};
 	ref TStringArray ExcludedRoamingBuildings = {};
@@ -132,6 +132,16 @@ class ExpansionAILocationSettings: ExpansionSettingBase
 			}
 		}
 
+		//! Convert excluded buildings to lowercase (don't save!)
+		TStringArray excludedRoamingBuildings = {};
+		excludedRoamingBuildings.Copy(ExcludedRoamingBuildings);
+		ExcludedRoamingBuildings.Clear();
+		foreach (string excludedBuilding: excludedRoamingBuildings)
+		{
+			excludedBuilding.ToLower();
+			ExcludedRoamingBuildings.Insert(excludedBuilding);
+		}
+
 		return settingsExist;
 	}
 
@@ -167,6 +177,7 @@ class ExpansionAILocationSettings: ExpansionSettingBase
 		//!       for roaming (target position won't change unless reached)?
 		//! @note classnames can be for groups of buildings (e.g. Land_House_1W09 has a yellow variant)
 		ExcludedRoamingBuildings = {
+			"Land_Boat_",  //! Sakhal, pathfinding won't find a path off the boat
 			"Land_CementWorks_Hall2_Grey",  //! Unsuitable path endpoint
 			"Land_Factory_Small",  //! Unsuitable path endpoint
 			"Land_House_1W09",  //! Path endpoint between opened door and wall leading to AI running in circles trying to reach point

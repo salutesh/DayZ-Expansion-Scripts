@@ -13,4 +13,9 @@ class eAIFactionInfected : eAIFaction
 		if (other.IsInherited(eAIFactionInfected)) return true;
 		return false;
 	}
+
+	override bool IsFriendlyEntity(EntityAI other, DayZPlayer factionMember = null)
+	{
+		return other.IsInherited(DayZInfected);
+	}
 };

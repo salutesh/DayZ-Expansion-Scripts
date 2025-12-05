@@ -3,10 +3,7 @@ class CfgPatches
 	class DayZExpansion_Weapons_Shotguns_DT11
 	{
 		units[]={};
-		weapons[]=
-		{
-			"Expansion_DT11"
-		};
+		weapons[]={};
 		requiredVersion=0.1;
 		requiredAddons[]=
 		{
@@ -96,6 +93,11 @@ class cfgWeapons
 			"Single",
 			"Double"
 		};
+		s_recoilControlStabilityX=0.60000002;
+		s_recoilControlStabilityY=0.60000002;
+		s_recoilControlMisalignmentX=0.60000002;
+		s_recoilControlMisalignmentY=0.60000002;
+		s_recoilControlKick=0.60000002;
 		class Single: Mode_Single
 		{
 			soundSetShot[]=

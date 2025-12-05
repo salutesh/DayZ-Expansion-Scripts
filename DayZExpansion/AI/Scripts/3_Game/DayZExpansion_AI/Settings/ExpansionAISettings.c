@@ -21,7 +21,8 @@ class ExpansionAISettingsV11: ExpansionSettingBase
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 16;
+	static const int VERSION = 18;
+	static ref ExpansionAISettings s_Instance;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -36,6 +37,9 @@ class ExpansionAISettings: ExpansionSettingBase
 	bool Vaulting;
 
 	float SniperProneDistanceThreshold;
+
+	float AggressionTimeout;
+	float GuardAggressionTimeout;
 
 	bool Manners;
 	int MemeLevel;
@@ -55,6 +59,9 @@ class ExpansionAISettings: ExpansionSettingBase
 
 	bool EnableZombieVehicleAttackHandler;
 	bool EnableZombieVehicleAttackPhysics;
+
+	bool OverrideClientWeaponFiring;
+	bool RecreateWeaponNetworkRepresentation;
 
 	ref map<int, float> LightingConfigMinNightVisibilityMeters = new map<int, float>;
 
@@ -91,6 +98,18 @@ class ExpansionAISettings: ExpansionSettingBase
 			return false;
 		}
 
+		if (!reader.ReadBool(OverrideClientWeaponFiring))
+		{
+			Error("Couldn't read OverrideClientWeaponFiring");
+			return false;
+		}
+
+		if (!reader.ReadBool(RecreateWeaponNetworkRepresentation))
+		{
+			Error("Couldn't read RecreateWeaponNetworkRepresentation");
+			return false;
+		}
+
 		if (!reader.ReadBool(m_IsAdmin))
 		{
 			Error("Couldn't read m_IsAdmin");
@@ -101,6 +120,8 @@ class ExpansionAISettings: ExpansionSettingBase
 		Print(CanRecruitGuards);
 		Print(CanRecruitFriendly);
 		Print(MaxRecruitableAI);
+		Print(OverrideClientWeaponFiring);
+		Print(RecreateWeaponNetworkRepresentation);
 		Print(m_IsAdmin);
 	#endif
 
@@ -129,6 +150,8 @@ class ExpansionAISettings: ExpansionSettingBase
 		rpc.WriteBool(CanRecruitGuards);
 		rpc.WriteBool(CanRecruitFriendly);
 		rpc.WriteUInt(MaxRecruitableAI, 8);
+		rpc.WriteBool(OverrideClientWeaponFiring);
+		rpc.WriteBool(RecreateWeaponNetworkRepresentation);
 		rpc.WriteBool(IsAdmin(identity));
 
 		rpc.Expansion_Send(true, identity);
@@ -297,6 +320,24 @@ class ExpansionAISettings: ExpansionSettingBase
 				if (m_Version < 16 && !MaxRecruitableAI)
 					MaxRecruitableAI = settingsDefault.MaxRecruitableAI;
 
+				if (m_Version < 17)
+				{
+					if (!OverrideClientWeaponFiring)
+						OverrideClientWeaponFiring = settingsDefault.OverrideClientWeaponFiring;
+
+					if (!RecreateWeaponNetworkRepresentation)
+						RecreateWeaponNetworkRepresentation = settingsDefault.RecreateWeaponNetworkRepresentation;
+				}
+
+				if (m_Version < 18)
+				{
+					if (!AggressionTimeout)
+						AggressionTimeout = settingsDefault.AggressionTimeout;
+
+					if (!GuardAggressionTimeout)
+						GuardAggressionTimeout = settingsDefault.GuardAggressionTimeout;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -310,6 +351,8 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		if (save)
 			Save();
+
+		s_Instance = this;
 
 		return AISettingsExist;
 	}
@@ -350,6 +393,9 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		SniperProneDistanceThreshold = 0.0;
 
+		AggressionTimeout = 120;
+		GuardAggressionTimeout = 150;
+
 		Manners = false;
 		MemeLevel = 1;
 
@@ -373,6 +419,9 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		EnableZombieVehicleAttackHandler = false;
 		EnableZombieVehicleAttackPhysics = false;
+
+		OverrideClientWeaponFiring = true;
+		RecreateWeaponNetworkRepresentation = true;
 
 		LightingConfigMinNightVisibilityMeters.Clear();
 		LightingConfigMinNightVisibilityMeters[0] = 100;  //! Assume bright night, min visibility 100 m

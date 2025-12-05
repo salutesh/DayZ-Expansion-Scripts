@@ -256,7 +256,8 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		vector position = ExpansionMath.GetRandomPointInCircle(pos, radius);
-        if (g_Game.SurfaceIsSea(position[0], position[2]) || g_Game.SurfaceIsPond(position[0], position[2]))
+		//! @note g_Game.SurfaceIsPond is INCREDIBLY slow, DO NOT USE EVER! g_Game.IsSea is ok
+        if (ExpansionStatic.SurfaceIsWater(position[0], position[2]))
             return GetRandomPointInCircle(pos, radius);
 
         array<Object> position_objects = {};

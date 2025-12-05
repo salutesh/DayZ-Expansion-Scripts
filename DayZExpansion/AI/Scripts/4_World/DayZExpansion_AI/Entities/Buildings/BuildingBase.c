@@ -96,8 +96,8 @@ modded class BuildingBase
 				//"land_farm_cowshedb",
 				//"land_farm_cowshedc",
 				"land_garage",
-				"land_geoplant_coolingstack",  //! Sakhal
-				"land_geoplant_mainhall_right",  //! Sakhal
+				//"land_geoplant_coolingstack",  //! Sakhal
+				//"land_geoplant_mainhall_right",  //! Sakhal
 				"land_guardhouse",
 				"land_house",
 				"land_lighthouse",

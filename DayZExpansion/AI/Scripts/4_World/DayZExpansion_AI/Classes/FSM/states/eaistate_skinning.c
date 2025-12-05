@@ -23,8 +23,7 @@ class eAIState_Skinning: eAIState
 			m_Time += DeltaTime;
 			if (m_Time > m_Timeout)  //! Looks like something went terribly wrong
 			{
-				EXPrint(unit.ToString() + " skinning - timeout");
-				unit.eAI_Unbug("skinning");
+				unit.eAI_Unbug(m_Name + "(" + m_Item + ", " + m_TargetEntity + ") - timeout");
 				m_Time = 0;
 				return EXIT;
 			}

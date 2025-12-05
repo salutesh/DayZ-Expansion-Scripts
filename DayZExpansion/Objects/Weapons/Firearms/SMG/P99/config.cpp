@@ -3,18 +3,11 @@ class CfgPatches
 	class DayZExpansion_Weapons_SMG_Kedr
 	{
 		units[]={};
-		weapons[]=
-		{
-			"Expansion_Kedr"
-		};
+		weapons[]={};
 		requiredVersion=0.1;
 		requiredAddons[]=
 		{
 			"DZ_Weapons_Firearms"
-		};
-		magazines[]=
-		{
-			"Mag_Expansion_Kedr_20Rnd"
 		};
 	};
 };
@@ -69,8 +62,11 @@ class CfgWeapons
 			"FullAuto",
 			"SemiAuto"
 		};
-		s_recoilControlMisalignmentY=0.5;
-		s_recoilControlKick=0.75;
+		s_recoilControlStabilityX=0.60000002;
+		s_recoilControlStabilityY=0.60000002;
+		s_recoilControlMisalignmentX=0.60000002;
+		s_recoilControlMisalignmentY=0.60000002;
+		s_recoilControlKick=0.60000002;
 		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[]=

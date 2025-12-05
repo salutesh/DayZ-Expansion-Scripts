@@ -122,8 +122,6 @@ class eAIState_Fighting_Melee: eAIState
 		
 		if (!unit.CanRaiseWeapon() || !unit.eAI_HasLOS()) return eAITransition.FAIL;
 		
-		if (unit.eAI_ShouldBandage() && unit.GetBandageToUse()) return eAITransition.FAIL;
-		
 		m_Target = unit.GetTarget();
 		if (!m_Target) return eAITransition.FAIL;
 

@@ -2,6 +2,8 @@ class eAICommandMove: ExpansionHumanCommand
 {
 	static const int TURN_STATE_NONE = 0;
 	static const int TURN_STATE_TURNING = 1;
+	static const float MAX_NONRAISED_STRAFE_TIME = 5.0;
+	static const float STRAFE_TIME_RESET_THRESHOLD = 3.5;
 
 	static const vector CHECK_MIN_HEIGHT = "0 1.25 0";
 	static const vector CHECK_MIN_HEIGHT_BULLET = "0 0.75 0";
@@ -62,6 +64,7 @@ class eAICommandMove: ExpansionHumanCommand
 	private float m_TurnPrevious;
 	private float m_TurnVelocity;
 	private int m_TurnState;
+	private float m_StrafeTime;
 
 	private vector m_Direction;
 	private vector m_Velocity;
@@ -399,7 +402,7 @@ class eAICommandMove: ExpansionHumanCommand
 			m_PathDirNormalized = m_PathDir.Normalized();
 			m_PathAngles = m_PathDirNormalized.VectorToAngles();
 			m_PathDir2D = Vector(m_PathDir[0], 0.0, m_PathDir[2]);
-			m_PathDir2DNormalized = Vector(m_PathDirNormalized[0], 0.0, m_PathDirNormalized[2]);
+			m_PathDir2DNormalized = m_PathDir2D.Normalized();
 
 			isDangerousAltitude = m_Unit.eAI_IsDangerousAltitude();
 
@@ -410,6 +413,7 @@ class eAICommandMove: ExpansionHumanCommand
 				{
 					//! Prevent fall from a large height (e.g. building top) - movement direction check
 					vector checkDirection = m_Velocity;
+					checkDirection[1] = 0;
 
 					if (checkDirection.LengthSq() < 0.0001)
 					{
@@ -1125,7 +1129,7 @@ class eAICommandMove: ExpansionHumanCommand
 		if (m_MovementSpeed != 0)
 		{
 			if (move)
-				m_MinFinal = move.GetCurrentMovementSpeed() * 0.1;
+				m_MinFinal = Math.Max(move.GetCurrentMovementSpeed(), 1.0) * 0.1;
 
 			if (ShouldRecalculateTurnTarget())
 			{
@@ -1175,20 +1179,86 @@ class eAICommandMove: ExpansionHumanCommand
 			m_TargetMovementDirection = m_OverrideTargetMovementDirection;
 			m_ForceMovementDirection = true;
 		}
-		//! Turn towards aim direction when raised or target is not part of our group but keep moving in waypoint direction (strafe/backpedal if necessary)
-		else if (m_MovementSpeed > 0 && m_WaypointDistance2DSq > 0.0001 && !m_Unit.IsSwimming() && (m_Unit.IsRaised() || !target || ((!target.IsNoise() && target.m_ThreatLevelActive > 0.2 && (!targetGroup || targetGroup != group)) || target.GetLifetime() > 3.0)))
+		//! Turn towards aim direction when raised or no look target but keep moving in waypoint direction (strafe/backpedal if necessary)
+		//! @note on target handling:
+		//! We only look at targets if threat level > 0.1, so consequently we can be sure we don't turn towards a target
+		//! if we check it's threat level is below that.
+		//! We must never turn towards targets if only looking briefly since that can make the AI spin around its axis repeatedly
+		//! which looks very awkward.
+		//! We ignore targets with a lifetime less than three seconds for that reason.
+		//! @note on ladder handling:
+		//! If we have a ladder target, we don't strafe/backpedal as it would interfere with looking towards ladder
+		//! (handled in eAIBase::eAI_UpdateLookDirectionTarget)
+		else if (m_MovementSpeed > 0 && m_WaypointDistance2DSq > 0.0001 && !m_Unit.IsSwimming() && !m_Unit.m_eAI_Ladder)
 		{
-			vector aimDir = m_Unit.GetAimDirection();
-			float aimAngle = aimDir.VectorToAngles()[0];
-			//float aimToMovementAngle = ExpansionMath.AngleDiff2(aimAngle, m_TurnTarget);
-			//float aimToMovementAngleAbs = Math.AbsFloat(aimToMovementAngle);
+			bool allowStrafing;
 
-			//if (aimToMovementAngleAbs >= 90)
-			if (vector.Dot(aimDir, m_PathDir2DNormalized) < 0.0)
+			if (m_Unit.IsRaised())
 			{
-				m_TargetMovementDirection = ExpansionMath.AngleDiff2(m_Turn, m_TurnTarget);
-				m_ForceMovementDirection = true;
-				m_TurnTarget = aimAngle;
+				allowStrafing = true;
+			}
+			else if (target)
+			{
+				if (target.m_ThreatLevelActive <= 0.1)
+				{
+					if (m_PathFinding.m_PointIdx > 0 || group.GetWaypointBehaviour() == eAIWaypointBehavior.ROAMING)
+						allowStrafing = true;
+				}
+				else if (target.GetRemainingTime() > 3.0)
+				{
+					if (target.IsNoise())
+					{
+						if (target.m_ThreatLevelActive > 0.2)
+							allowStrafing = true;
+					}
+					else
+					{
+						allowStrafing = true;
+					}
+				}
+			}
+			else if (m_PathFinding.m_PointIdx > 0 || group.GetWaypointBehaviour() == eAIWaypointBehavior.ROAMING)
+			{
+				allowStrafing = true;
+			}
+
+			if (allowStrafing)
+			{
+				vector aimDir;
+
+				if (m_Unit.IsRaised())
+				{
+					aimDir = m_Unit.GetAimDirection();
+				}
+				else if (!target || target.m_ThreatLevelActive <= 0.1 || target.IsItem())
+				{
+					aimDir = m_Unit.GetLookDirection();
+				}
+				else
+				{
+					aimDir = target.GetDirection().Normalized();
+				}
+
+				aimDir[1] = 0;
+				float aimAngle = aimDir.VectorToAngles()[0];
+				//float aimToMovementAngle = ExpansionMath.AngleDiff2(aimAngle, m_TurnTarget);
+				//float aimToMovementAngleAbs = Math.AbsFloat(aimToMovementAngle);
+
+				//if (aimToMovementAngleAbs >= 90)
+				if (vector.Dot(aimDir, m_PathDir2DNormalized) < 0.0)
+				{
+					if (m_Unit.IsRaised() || m_StrafeTime < MAX_NONRAISED_STRAFE_TIME)
+					{
+						m_TargetMovementDirection = ExpansionMath.AngleDiff2(m_Turn, m_TurnTarget);
+						m_ForceMovementDirection = true;
+						m_TurnTarget = aimAngle;
+						m_StrafeTime += pDt;
+					}
+				}
+				else if (m_StrafeTime >= STRAFE_TIME_RESET_THRESHOLD)
+				{
+					m_StrafeTime = 0;
+				}
 			}
 		}
 
@@ -1322,13 +1392,39 @@ class eAICommandMove: ExpansionHumanCommand
 			 *   OR
 			 *   ...AI cannot reach ladder entrypoint (e.g. physically blocked)
 			 */
-			if (!Math.IsPointInCircle(m_Unit.m_eAI_LadderEntryPoint, UAMaxDistances.LADDERS, m_PathFinding.GetTarget()) || (vector.DistanceSq(end, m_PathFinding.GetTarget()) < 4.0 && !Math.IsPointInCircle(m_Unit.m_eAI_LadderEntryPoint, UAMaxDistances.LADDERS, end)) || (m_PathFinding.GetRemainingCount() <= 2 && Math.IsPointInCircle(end, 0.55, position) && (vector.DistanceSq(end, m_PathFinding.GetTarget()) >= 4.0 || !m_Unit.eAI_IsCloseToLadderEntryPoint() || !m_Unit.eAI_CanReachLadderEntryPoint())))
+
+			bool isLadderEntryPointNearTarget;
+			if (Math.IsPointInCircle(m_Unit.m_eAI_LadderEntryPoint, UAMaxDistances.LADDERS, m_PathFinding.GetTarget()))
+				isLadderEntryPointNearTarget = true;
+
+			bool isEndNearTarget = vector.DistanceSq(end, m_PathFinding.GetTarget()) < 4.0;
+			bool isLadderEntryPointNearEnd = Math.IsPointInCircle(m_Unit.m_eAI_LadderEntryPoint, UAMaxDistances.LADDERS, end);
+
+			bool isLastSegment = m_PathFinding.GetRemainingCount() <= 2;
+			bool isUnitNearEnd = Math.IsPointInCircle(end, 0.55, position);
+
+			if (!isLadderEntryPointNearTarget || (isEndNearTarget && !isLadderEntryPointNearEnd) || (isLastSegment && (isUnitNearEnd || m_PathFinding.m_IsUnreachable) && (!isEndNearTarget || !m_Unit.eAI_IsCloseToLadderEntryPoint() || !m_Unit.eAI_CanReachLadderEntryPoint())))
 			{
 				//! Remove unreachable ladder from pool
 				if (m_Unit.m_eAI_BuildingWithLadder.Expansion_GetLaddersCount() > 1)
 					m_Unit.m_eAI_Ladders[m_Unit.m_eAI_BuildingWithLadder].Remove(m_Unit.m_eAI_Ladder.m_Index);
 
 				m_Unit.m_eAI_Ladder = null;
+
+				if (target)
+				{
+					EntityAI targetEntity = target.GetEntity();
+					if (targetEntity && !targetEntity.IsMan())
+					{
+						if (!m_Unit.eAI_GetThreatOverride(targetEntity) && vector.DistanceSq(end, targetEntity.GetPosition()) > 4.0)
+						{
+							m_Unit.eAI_ThreatOverride(targetEntity, true);
+							m_Unit.m_eAI_PreferLadder = false;
+							m_PathFinding.m_IsUnreachable = false;
+							m_PathFinding.m_IsTargetUnreachable = false;
+						}
+					}
+				}
 			}
 		}
 
@@ -1619,7 +1715,7 @@ class eAICommandMove: ExpansionHumanCommand
 		{
 			bool meme;
 
-			if (!tacticalLean && m_Unit.m_eAI_MemeLevel && m_Unit.GetThreatToSelf() > 0.15)
+			if (!tacticalLean && m_Unit.m_eAI_MemeLevel && m_Unit.GetThreatToSelf() > 0.15 && m_Unit.GetThreatToSelf() < 0.4)
 			{
 				//! If a friendly player leans, we lean
 				if (targetPlayer && (m_Unit.m_eAI_Meme || Math.AbsFloat(targetPlayer.m_MovementState.m_fLeaning) > 0.5))

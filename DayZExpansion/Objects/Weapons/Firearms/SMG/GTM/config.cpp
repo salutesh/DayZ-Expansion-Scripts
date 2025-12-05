@@ -3,18 +3,11 @@ class CfgPatches
 	class DayZExpansion_Weapons_SMG_MPX
 	{
 		units[]={};
-		weapons[]=
-		{
-			"Expansion_MPX"
-		};
+		weapons[]={};
 		requiredVersion=0.1;
 		requiredAddons[]=
 		{
 			"DZ_Weapons_Firearms"
-		};
-		magazines[]=
-		{
-			"Mag_Expansion_MPX_50Rnd"
 		};
 	};
 };
@@ -84,6 +77,7 @@ class cfgWeapons
 		s_recoilControlStabilityY=0.64999998;
 		s_recoilControlMisalignmentX=0.69999999;
 		s_recoilControlMisalignmentY=0.69999999;
+		s_recoilControlKick=0.60000002;
 		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[]=

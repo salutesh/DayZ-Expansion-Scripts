@@ -67,6 +67,7 @@ enum eAICommands
 	DEB_DBGOBJECTS,
 	DEB_DBGDAMAGE,
 	DEB_RESET_PATHFINDING,
+	DEB_FORCEWEAPONRESYNC,
 	DEB_SPECTATE,
 	// Behaviour
 	BEH_LOOT  //! Always keep BEH_LOOT as the last entry!

@@ -28,15 +28,20 @@ class eAICommandMenuItem
 	{
 		string name = m_Name;
 
-		eAIGroup group;
+		eAIGroup group = eAIGroup.GetGamePlayerGroup();
 
 		switch (m_ID)
 		{
 			case eAICommandCategories.CAT_FACTION:
-				group = eAIGroup.GetGamePlayerGroup();
 				if (group)
 					name = group.GetFaction().GetName();
 				break;
+
+			//! Formation is not synced to client
+			//case eAICommandCategories.CAT_FORMATION:
+				//if (group)
+					//name = group.GetFormation().GetName();
+				//break;
 
 			case eAICommandCategories.CAT_DAMAGE_IN:
 				name = "Damage In";
@@ -436,6 +441,7 @@ class eAICommandMenu: UIScriptedMenu
 			if (GetExpansionSettings().GetAI().IsAdmin())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_RESET_PATHFINDING, "    Reset\nPathfinding", eAICommandCategories.CAT_STATUS));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_FORCEWEAPONRESYNC, "Force Weapon\n     Resync", eAICommandCategories.CAT_STATUS));
 			#ifdef DIAG_DEVELOPER
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGOBJECTS, " Debug\nObjects", eAICommandCategories.CAT_STATUS));
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGDAMAGE, " Debug\nDamage", eAICommandCategories.CAT_STATUS));
@@ -794,6 +800,8 @@ class eAICommandMenu: UIScriptedMenu
 				{
 					g_Game.GetExpansionGame().GetCommandManager().Send(selected.GetID(), selected.GetCategory());
 
+					eAIGroup group = eAIGroup.GetGamePlayerGroup();
+
 					switch (selected.GetCategory())
 					{
 						case eAICommandCategories.CAT_FACTION:
@@ -812,10 +820,21 @@ class eAICommandMenu: UIScriptedMenu
 
 						case eAICommandCategories.CAT_FORMATION:
 							RefreshGestures(eAICommandCategories.CAT_FORMATION_SCALE, "Scale");
+							//! Formation scale is not synced to client
+							//if (group)
+								//UpdateCategoryName("Scale " + group.GetFormation().GetScale() + "x");
 							break;
 
 						case eAICommandCategories.CAT_FORMATION_SCALE:
 							RefreshGestures(eAICommandCategories.CAT_FORMATION_LOOSENESS, "Looseness");
+							//! Formation loseness is not synced to client
+							//if (group)
+							//{
+								//float looseness;
+								//eAIFormation form = group.GetFormation();
+								//EnScript.GetClassVar(form, "m_Looseness", 0, looseness);
+								//UpdateCategoryName("Looseness " + looseness + " m");
+							//}
 							break;
 					}
 				}

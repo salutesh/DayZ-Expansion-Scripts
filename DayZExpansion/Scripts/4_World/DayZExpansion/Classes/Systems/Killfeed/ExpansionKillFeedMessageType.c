@@ -51,6 +51,9 @@ enum ExpansionKillFeedMessageType
 	INFECTED,
 	ANIMAL,
 	
+	DROWNED,
+	DROWNED_UNCON,
+	
 	KILLED_UNKNOWN,
 	DIED_UNKNOWN
 }

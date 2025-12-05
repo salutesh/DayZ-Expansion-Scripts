@@ -57,8 +57,11 @@ class cfgWeapons
 			"FullAuto",
 			"SemiAuto"
 		};
-		s_recoilControlMisalignmentX=0.30000001;
-		s_recoilControlMisalignmentY=0.30000001;
+		s_recoilControlStabilityX=0.60000002;
+		s_recoilControlStabilityY=0.60000002;
+		s_recoilControlMisalignmentX=0.60000002;
+		s_recoilControlMisalignmentY=0.60000002;
+		s_recoilControlKick=0.60000002;
 		class FullAuto: Mode_FullAuto
 		{
 			soundSetShot[]=

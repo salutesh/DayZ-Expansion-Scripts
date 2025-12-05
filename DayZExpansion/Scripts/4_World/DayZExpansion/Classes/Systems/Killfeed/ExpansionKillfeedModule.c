@@ -224,8 +224,14 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 				{
 					if ( !OnKilledByVehicleCrash(player) )
 					{
-						if ( !OnKilledByCondition(player) )
-							OnDiedUnknown( player );
+						if (player.GetDrowningWaterLevelCheck())
+						{
+							OnDrowned(player);
+						}
+						else if ( !OnKilledByCondition(player) )
+						{
+							OnDiedUnknown(player);
+						}
 					}
 				}
 			}
@@ -717,6 +723,20 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		DoKillfeed(ExpansionKillFeedMessageType.KILLED_UNKNOWN, "Human Skull", m_SourceType);
 	}
 
+	void OnDrowned(PlayerBase player)
+	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player);
+#endif
+		
+		ResetKillfeed(player);
+
+		if (player.IsUnconscious())
+			DoKillfeed(ExpansionKillFeedMessageType.DROWNED_UNCON, "Human Skull");
+		else
+			DoKillfeed(ExpansionKillFeedMessageType.DROWNED, "Human Skull");
+	}
+
 	void OnDiedUnknown(PlayerBase player)
 	{
 #ifdef EXTRACE
@@ -812,6 +832,14 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 				return GetExpansionSettings().GetNotification().KillFeedAnimal;
 			case ExpansionKillFeedMessageType.KILLED_UNKNOWN:
 				return GetExpansionSettings().GetNotification().KillFeedKilledUnknown;
+		#ifdef EXPANSION_NOTIFICATION_KILLFEED_DROWNED
+			case ExpansionKillFeedMessageType.DROWNED:
+			case ExpansionKillFeedMessageType.DROWNED_UNCON:
+				return GetExpansionSettings().GetNotification().KillFeedDrowned;
+		#else
+			case ExpansionKillFeedMessageType.DROWNED:
+			case ExpansionKillFeedMessageType.DROWNED_UNCON:
+		#endif
 			case ExpansionKillFeedMessageType.DIED_UNKNOWN:
 				return GetExpansionSettings().GetNotification().KillFeedDiedUnknown;
 		}
@@ -947,6 +975,12 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 				break;
 			case ExpansionKillFeedMessageType.KILLED_UNKNOWN:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_KILLED_UNKNOWN";
+				break;
+			case ExpansionKillFeedMessageType.DROWNED:
+				message = "STR_EXPANSION_KILLFEED_PLAYER_DROWNED";
+				break;
+			case ExpansionKillFeedMessageType.DROWNED_UNCON:
+				message = "STR_EXPANSION_KILLFEED_PLAYER_DROWNED_UNCON";
 				break;
 			case ExpansionKillFeedMessageType.DIED_UNKNOWN:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_DIED_UNKNOWN";

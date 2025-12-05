@@ -34,7 +34,7 @@ class eAIState_TakeItemToHands: eAIState_TakeItem_Base
 			}
 			else if (!unit.eAI_TakeItemToHands(m_Item))
 			{
-				unit.eAI_Unbug("take to hands");
+				unit.eAI_Unbug(m_Name + "(" + m_Item + ") - failure");
 				return EXIT;
 			}
 		}
@@ -59,7 +59,7 @@ class eAIState_TakeItemToHands: eAIState_TakeItem_Base
 		if (hands && hands.IsDamageDestroyed())
 		{
 			unit.eAI_DropItem(hands, false);
-			hands = null;
+			return EXIT;
 		}
 		
 		//! First check if we want to switch to bandage

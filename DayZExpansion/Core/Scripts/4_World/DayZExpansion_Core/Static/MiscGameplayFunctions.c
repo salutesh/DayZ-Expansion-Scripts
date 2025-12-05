@@ -27,6 +27,15 @@ modded class MiscGameplayFunctions
 			return false;
 		#endif
 
+		#ifdef EXPANSIONMODQUESTS
+		ItemBase itemBase;
+		if (Class.CastTo(itemBase, item))
+		{
+			if (itemBase.Expansion_IsQuestItem())
+				return false;
+		}
+		#endif
+
 		if (item.GetInventory())
 		{
 			//! Check if the item has a container and any items in it

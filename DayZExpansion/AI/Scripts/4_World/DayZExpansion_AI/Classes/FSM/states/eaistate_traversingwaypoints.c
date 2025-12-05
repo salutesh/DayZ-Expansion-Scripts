@@ -8,6 +8,7 @@ class eAIState_TraversingWaypoints: eAIState
 	bool m_GotUp;
 	float m_WaypointTime;
 	float m_LeaveThreshold;
+	float m_WaypointCountdown;
 
 	override void OnEntry(string Event, ExpansionState From)
 	{
@@ -19,6 +20,7 @@ class eAIState_TraversingWaypoints: eAIState
 		{
 			m_Waypoint = unit.GetGroup().FindClosestRoamingLocationPosition();
 			m_LeaveThreshold = Math.RandomFloat(5.0, 15.0);
+			m_WaypointCountdown = 0;
 		}
 	}
 
@@ -90,15 +92,35 @@ class eAIState_TraversingWaypoints: eAIState
 			
 			if (behaviour == eAIWaypointBehavior.ROAMING)
 			{
+				if (m_WaypointCountdown > 0)
+					m_WaypointCountdown -= DeltaTime;
+
 				m_WaypointTime += DeltaTime;
 				
-				if ((!unit.m_eAI_Ladder && Math.IsPointInCircle(pathFinding.GetTarget(), 30.0, position)) || m_WaypointTime >= m_LeaveThreshold)
+				if ((!unit.m_eAI_Ladder && Math.IsPointInCircle(pathFinding.GetTarget(), 30.0, position) && m_WaypointCountdown <= 0) || m_WaypointTime >= m_LeaveThreshold)
 				{
 					unit.GetGroup().SetRoamingLocationReached(waypointReached);
 					m_PreviousWaypoint = m_Waypoint;
 					m_Waypoint = unit.GetGroup().FindClosestRoamingLocationPosition();
 					m_WaypointTime = 0;
 					m_LeaveThreshold = Math.RandomFloat(5.0, 15.0);
+					unit.m_eAI_PositionTime = 0;
+
+					if (pathFinding.m_IsUnreachable && pathFinding.m_IsTargetUnreachable)
+					{
+						m_WaypointCountdown = m_LeaveThreshold;
+
+						if (unit.m_eAI_Ladder && !unit.m_eAI_IsOnLadder && unit.m_eAI_BuildingWithLadder)
+						{
+							unit.m_eAI_Ladder = null;
+							unit.m_eAI_PreferLadder = false;
+							pathFinding.ResetUnreachable();
+						}
+					}
+				}
+				else
+				{
+					isFinal = true;
 				}
 			}
 			else if (behaviour == eAIWaypointBehavior.HALT || path.Count() == 1 || pathFinding.m_IsUnreachable)

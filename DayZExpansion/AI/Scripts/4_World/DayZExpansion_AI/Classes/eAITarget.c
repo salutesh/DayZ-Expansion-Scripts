@@ -60,6 +60,11 @@ class eAITarget: eAITargetInformationState
 		m_AI.eAI_AddTarget(this);
 	}
 
+	int GetRemainingTime()
+	{
+		return m_MaxTime - (g_Game.GetTime() - m_FoundAtTime);
+	}
+
 	/**
 	 * @brief Debugging information about the target
 	 *
