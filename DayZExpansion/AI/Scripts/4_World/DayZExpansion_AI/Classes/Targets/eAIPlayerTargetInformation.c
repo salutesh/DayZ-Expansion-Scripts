@@ -112,8 +112,8 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			bool friendly;
 			bool targeted;
 			//! @note order matters! PlayerIsEnemy check needs to come first because it sets the passed in out variables,
-			//! group check 2nd, aggression timeout update last to prevent own group becoming hostile on accidental friendly fire
-			if (!ai.PlayerIsEnemy(m_Player, false, isPlayerMoving, friendly, targeted) && (m_Player.GetGroup() == group || !m_Player.eAI_UpdateAgressionTimeout(aggressionTimeout)))
+			//! AI check 2nd, group check 3rd, aggression timeout update last to prevent own group becoming hostile on accidental friendly fire
+			if (!ai.PlayerIsEnemy(m_Player, false, isPlayerMoving, friendly, targeted) && (m_Player.IsAI() || m_Player.GetGroup() == group || !m_Player.eAI_UpdateAgressionTimeout(aggressionTimeout)))
 			{
 				bool targetIsAI = m_Player.IsAI();
 				//! They eyeball you menacingly if you move, or if another friendly AI moves that is not in same group,

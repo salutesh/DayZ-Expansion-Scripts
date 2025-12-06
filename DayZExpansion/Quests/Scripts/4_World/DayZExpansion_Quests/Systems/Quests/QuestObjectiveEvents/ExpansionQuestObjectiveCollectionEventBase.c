@@ -349,7 +349,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		}
 		
 		//! Make sure we don't use items as money that should not be included, like attachments (e.g. Dogtags that are attached to the player itself) or that are in nested containers (1.25 change).
-		if (!MiscGameplayFunctions.Expansion_IsLooseEntity(item, true))
+		if (!item.Expansion_IsQuestItem() && !MiscGameplayFunctions.Expansion_IsLooseEntity(item, true))
 			return false;
 
 		return true;
