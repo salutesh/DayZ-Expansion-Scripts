@@ -246,7 +246,7 @@ class eAITargetInformation
 		return 0.0;
 	}
 
-	float CalculateThreat(eAIBase ai = null)
+	float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		return 0.0;
 	}
@@ -419,7 +419,17 @@ class eAITargetInformation
 				target.Update(maxTime);
 
 			if (threat > target.m_ThreatLevelActive)
-				target.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
+			{
+				if (!target.m_LOS)
+				{
+					target.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
+					target.m_SearchOnLOSLost = true;
+				}
+				else
+				{
+					target.SetThreat(threat);
+				}
+			}
 		}
 	}
 

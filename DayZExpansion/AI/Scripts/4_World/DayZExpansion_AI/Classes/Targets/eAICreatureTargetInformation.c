@@ -59,7 +59,7 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 		return m_IsActive;
 	}
 
-	override float CalculateThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		if (m_Creature.IsDamageDestroyed())
 		{

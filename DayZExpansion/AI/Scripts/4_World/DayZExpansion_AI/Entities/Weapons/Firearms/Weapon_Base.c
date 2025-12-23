@@ -21,6 +21,7 @@ modded class Weapon_Base
 	static ref map<string, float> s_Expansion_MinSafeFiringDistance = new map<string, float>;
 
 	float m_eAI_LastFiredTime;
+	float m_eAI_LastBulletImpactTime;
 	int m_eAI_ShotID;
 	int m_eAI_ResyncAttempts;
 	int m_eAI_LastResyncTime;
@@ -321,11 +322,29 @@ modded class Weapon_Base
 		return m_eAI_NoiseParams;
 	}
 
+	void eAI_FirearmEffects(Object directHit, int componentIndex, string surface, vector pos, vector surfNormal,
+		 vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType)
+	{
+		float time = g_Game.GetTickTime();
+		if (time - m_eAI_LastBulletImpactTime > 1.0)
+		{
+			//! Because shots may be fired rapidly, we only update this once every second
+			m_eAI_LastBulletImpactTime = time;
+			
+			float surfaceCoef = g_Game.SurfaceGetNoiseMultiplier(directHit, pos, componentIndex);
+			float coefAdjusted = surfaceCoef * inSpeed.Length() / g_Game.ConfigGetFloat("cfgAmmo " + ammoType + " initSpeed");
+			if (coefAdjusted == 0)
+				coefAdjusted = 1;
+			coefAdjusted *= g_Game.GetWeather().GetNoiseReductionByWeather();
+			eAINoiseSystem.AddNoise(this, pos, string.Format("cfgAmmo %1 NoiseHit", ammoType), coefAdjusted, eAINoiseType.BULLETIMPACT);
+		}
+	}
+
 	override bool eAI_IsSilent()
 	{
 		//! Vanilla suppressors reduce noise by -0.85 (improvised) to -0.93 (AK/M4/pistol)
 		//! We consider anything that results in a noise strength below 250 as silent (to have some headroom)
-		//! @note vanilla noise strength values are multiplied by 34 in eAINoiseSystem if noise type is shot!
+		//! @note vanilla noise strength values are multiplied by a certain factor in eAINoiseSystem if noise type is shot!
 		float strengthMultiplier = GetPropertyModifierObject().eAI_GetNoiseShootModifier();
 		if (strengthMultiplier)
 		{

@@ -2,7 +2,7 @@ class eAIState_Fighting_Evade: eAIState
 {
 	override void OnEntry(string Event, ExpansionState From)
 	{
-		unit.eAI_ForceSideStep(Math.RandomFloat(0.3, 0.5));
+		unit.eAI_ForceSideStep(Math.RandomFloat(0.3, 0.5), null, 0.0, false);
 		unit.OverrideMovementSpeed(true, 3);
 		auto target = unit.GetTarget();
 		if (target)

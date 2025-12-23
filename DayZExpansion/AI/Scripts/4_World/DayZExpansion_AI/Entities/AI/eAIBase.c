@@ -12,14 +12,6 @@
  *
 */
 
-enum eAIStance
-{
-	UNKNOWN = -1,
-	STANDING,
-	CROUCHED,
-	PRONE
-}
-
 typedef map<BuildingBase, ref map<int, ref ExpansionLadder>> eAILadders;
 typedef map<EntityAI, bool> eAIThreatOverride;
 typedef map<string, float> eAIRecentlyDroppedItems;
@@ -180,7 +172,9 @@ class eAIBase: PlayerBase
 
 	private bool m_eAI_IsChangingStance;
 	private bool m_eAI_ShouldGetUp = true;
-	int m_eAI_StancePreference = -1;
+	eAIStance m_eAI_StancePreference = -1;
+	eAIStance m_eAI_DefaultStance = eAIStance.STANDING;
+	float m_eAI_DefaultLookAngle = -1;
 
 	bool m_eAI_IsRestrained;
 	bool m_eAI_IsInventoryVisible;
@@ -328,6 +322,8 @@ class eAIBase: PlayerBase
 	Object m_eAI_CurrentCoverObject;
 	vector m_eAI_CurrentCoverPosition;
 	bool m_eAI_IsInCover;
+	float m_eAI_MaxFlankingDistance = 200;
+	bool m_eAI_EnableFlankingOutsideCombat;
 	float m_eAI_FlankAngle;
 	float m_eAI_FlankTime;
 	float m_eAI_FlankTimeMax;
@@ -481,6 +477,8 @@ class eAIBase: PlayerBase
 			eAI_SetAccuracy(-1, -1);
 			eAI_SetThreatDistanceLimit(-1);
 			eAI_SetNoiseInvestigationDistanceLimit(-1);
+			eAI_SetMaxFlankingDistance(-1);
+			eAI_SetEnableFlankingOutsideCombat(-1);
 			eAI_SetDamageMultiplier(-1);
 			eAI_SetDamageReceivedMultiplier(-1);
 			m_eAI_SniperProneDistanceThreshold = GetExpansionSettings().GetAI().SniperProneDistanceThreshold;
@@ -985,7 +983,7 @@ class eAIBase: PlayerBase
 		}
 		else
 		{
-			if (!other.CanBeTargetedByAI(this))
+			if (!player.GetIdentity() && !player.CanBeTargetedByAI(this))
 			{
 				if (track && GetExpansionSettings().GetAI().MemeLevel > 0 && isPlayerMoving)
 					return true;
@@ -1711,6 +1709,42 @@ class eAIBase: PlayerBase
 
 #ifdef EXTRACE
 		EXTrace.Add(trace, distance);
+#endif 
+	}
+
+	void eAI_SetMaxFlankingDistance(float distance)
+	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, eAIBase);
+		EXTrace.Add(trace, distance);
+#endif 
+
+		if (distance <= 0)
+			distance = GetExpansionSettings().GetAI().MaxFlankingDistance;
+
+		if (distance > 0)
+			m_eAI_MaxFlankingDistance = distance;
+
+#ifdef EXTRACE
+		EXTrace.Add(trace, m_eAI_MaxFlankingDistance);
+#endif 
+	}
+
+	void eAI_SetEnableFlankingOutsideCombat(int option)
+	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, eAIBase);
+		EXTrace.Add(trace, option);
+#endif 
+
+		if (option <= 0)
+			option = GetExpansionSettings().GetAI().EnableFlankingOutsideCombat;
+
+		if (option > 0)
+			m_eAI_EnableFlankingOutsideCombat = true;
+
+#ifdef EXTRACE
+		EXTrace.Add(trace, m_eAI_EnableFlankingOutsideCombat);
 #endif 
 	}
 
@@ -2886,7 +2920,7 @@ class eAIBase: PlayerBase
 			PlayerBase player = m_eAI_PotentialTargetPlayer.m_Value;
 
 			EntityAI playerEntity = player;
-			if (player && player != this && m_eAI_PotentialTargetEntities.Find(playerEntity) == -1 && Math.IsPointInCircle(center, m_eAI_ThreatDistanceLimit, player.GetPosition()))
+			if (player && player != this && m_eAI_PotentialTargetEntities.Find(playerEntity) == -1 && Math.IsPointInCircle(center, eAI_GetVisibilityDistanceLimit(player), player.GetPosition()))
 			{
 				m_eAI_PotentialTargetEntities.Insert(playerEntity);
 
@@ -3899,8 +3933,8 @@ class eAIBase: PlayerBase
 
 			if (m_eAI_CurrentThreatToSelfActive >= 0.4 && m_eAI_HasLOS)
 			{
-				eAITarget target = GetTarget();
-				if (target && target.GetEntity() == root)
+				eAITarget currentTarget = GetTarget();
+				if (currentTarget && currentTarget.GetEntity() == root)
 					return;  //! Already targeting the source entity and have line of sight
 			}
 		}
@@ -3910,17 +3944,23 @@ class eAIBase: PlayerBase
 		DayZPlayerImplement player;
 		eAIGroup ourGroup = GetGroup();
 		eAIFaction faction = ourGroup.GetFaction();
+		eAIPlayerTargetInformation info;
 		if (Class.CastTo(player, root))
 		{
-			eAIGroup theirGroup = player.GetGroup();
-			if (theirGroup)
+			if (params.m_Type != eAINoiseType.BULLETIMPACT)
 			{
-				if (theirGroup == ourGroup || theirGroup.GetFaction().IsFriendly(faction) || theirGroup.GetFaction().IsFriendlyEntity(this))
-					return;
+				eAIGroup theirGroup = player.GetGroup();
+				if (theirGroup)
+				{
+					if (theirGroup == ourGroup || theirGroup.GetFaction().IsFriendly(faction) || theirGroup.GetFaction().IsFriendlyEntity(this))
+						return;
+				}
 			}
-			
+
+			info = player.GetTargetInformation();
+
 			//! We ignore the noise if noise source is a player that we have line of sight to
-			if (eAI_HasLOS(player.GetTargetInformation()))
+			if (eAI_HasLOS(info))
 				return;
 		}
 
@@ -3931,6 +3971,40 @@ class eAIBase: PlayerBase
 		float distSq = vector.DistanceSq(GetPosition(), position);
 		if (distSq > strengthSq)
 			return;
+
+		//! If noise was bullet impact and source root is player, add/update player as target
+		if (params.m_Type == eAINoiseType.BULLETIMPACT && info)
+		{
+			bool created;
+			eAITarget target = info.AddAI(this, -1, true, created);
+
+			//! If target threat level is above 0.2, player is enemy
+			if (target.m_ThreatLevel > 0.2)
+			{
+				float threat = 1.0;
+
+				//! Add for searching if desired threat is above active threat
+				if (threat > target.m_ThreatLevelActive)
+				{
+					//! If m_SearchOnLOSLost is false, this means we never had LOS to this target,
+					//! so we set initial position to noise position for searching
+					if (!target.m_SearchOnLOSLost)
+					{
+						target.SetInitial(threat, position);
+						target.m_SearchOnLOSLost = true;
+					}
+					else
+					{
+						target.SetThreat(threat);
+					}
+				}
+
+				if (!created)
+					target.Update();
+
+				return;
+			}
+		}
 
 		float distance = Math.Sqrt(distSq);
 
@@ -3959,7 +4033,21 @@ class eAIBase: PlayerBase
 			}
 			*/
 
-			threatLevel = ExpansionMath.LinearConversion(Math.Min(strength, m_eAI_NoiseInvestigationDistanceLimit), strength * 1.1, distance, 0.4, 0.1024);
+			float distMin;
+			float threatLevelMax;
+
+			if (params.m_Type == eAINoiseType.BULLETIMPACT)
+			{
+				distMin = 0.5;
+				threatLevelMax = 0.2;
+			}
+			else
+			{
+				distMin = Math.Min(strength, m_eAI_NoiseInvestigationDistanceLimit);
+				threatLevelMax = 0.4;
+			}
+
+			threatLevel = ExpansionMath.LinearConversion(distMin, strength * 1.1, distance, threatLevelMax, 0.1024);
 		}
 
 		//! Update noise target info
@@ -3981,7 +4069,16 @@ class eAIBase: PlayerBase
 		}
 
 	#ifdef DIAG_DEVELOPER
-		EXTrace.Print(EXTrace.AI, this, string.Format("::eAI_OnNoiseEvent %1 %2 %3 %4 %5 %6 %7", source, position.ToString(), lifetime, params.m_Strength, strengthMultiplier, params.m_Path, typename.EnumToString(eAINoiseType, params.m_Type)));
+		string fmt = "::eAI_OnNoiseEvent %1 %2 %3 m %4 %5 s %6 x %7 %8 %9";
+		string pos = position.ToString();
+		string type = typename.EnumToString(eAINoiseType, params.m_Type);
+		float paramStrength = params.m_Strength;
+		string msg = string.Format(fmt, source, pos, distance, threatLevel, lifetime, paramStrength, strengthMultiplier, params.m_Path, type);
+
+		EXTrace.Print(EXTrace.AI, this, msg);
+
+		if (params.m_Type == eAINoiseType.BULLETIMPACT)
+			ExpansionStatic.MessageNearPlayers(GetPosition(), 100, ToString() + msg);
 	#endif
 	}
 
@@ -5384,7 +5481,7 @@ class eAIBase: PlayerBase
 
 	bool eAI_IsInFlankRange(float dist)
 	{
-		if (dist > 5.0 && dist <= 200.0)
+		if (dist > 5.0 && dist <= m_eAI_MaxFlankingDistance)
 			return true;
 
 		return false;
@@ -5452,9 +5549,17 @@ class eAIBase: PlayerBase
 		{
 			//int stanceIdx = m_eAI_CommandMove.GetStance();
 			int stanceIdx = eAI_GetStance();
+			int pStanceIdxOrig = pStanceIdx;
+
+			if (pStanceIdx < m_eAI_DefaultStance)
+			{
+				if (g_Game.GetTickTime() - m_eAI_LastHitTime > 10.0 && !m_FSM.IsInState("Melee") && GetCurrentWaterLevel() < 0.3)
+					pStanceIdx = m_eAI_DefaultStance;
+			}
+
 			if (m_eAI_CommandMove.OverrideStance(pStanceIdx, force))
 			{
-				if (pStanceIdx == DayZPlayerConstants.STANCEIDX_ERECT)
+				if (pStanceIdxOrig == DayZPlayerConstants.STANCEIDX_ERECT)
 					m_eAI_ShouldGetUp = true;
 				else
 					m_eAI_ShouldGetUp = false;
@@ -7162,7 +7267,7 @@ class eAIBase: PlayerBase
 					speedLimit = 0.0;
 				else if (eAI_IsSideSteppingVehicle())
 					speedLimit = 3.0;
-				else if (m_eAI_CurrentThreatToSelfActive >= 0.4)
+				else if (m_eAI_CurrentThreatToSelfActive >= 0.4 || m_FSM.IsInState("Flank"))
 					speedLimit = m_MovementSpeedLimitUnderThreat;
 				else
 					speedLimit = m_MovementSpeedLimit;
@@ -7198,6 +7303,11 @@ class eAIBase: PlayerBase
 				else if (IsInherited(eAINPCBase) && ecm.GetCurrentMovementSpeed() == 0.0)
 				{
 					turnTarget = GetOrientation()[0];
+					setTurnTarget = true;
+				}
+				else if (speedLimit == 0 && m_eAI_DefaultLookAngle != 0)
+				{
+					turnTarget = m_eAI_DefaultLookAngle;
 					setTurnTarget = true;
 				}
 
@@ -7427,6 +7537,12 @@ class eAIBase: PlayerBase
 			//! This helps with movement towards ladder or when unreachable due to fallheight check
 			pos = m_PathFinding.GetNextPoint();
 			pos[1] = GetBonePositionWS(GetBoneIndexByName("neck"))[1];
+		}
+		else if (m_eAI_DefaultLookAngle != 0)
+		{
+			ori[0] = m_eAI_DefaultLookAngle;
+			isDir = true;
+			isDirWS = true;
 		}
 		else
 		{
@@ -7796,7 +7912,7 @@ class eAIBase: PlayerBase
 						//! Target is item and item is in player inventory
 						state.m_LOS = true;
 					}
-					else if (eAI_GetCachedThreat(player.GetTargetInformation()) < 0.2)
+					else if (!isItemTarget && eAI_GetCachedThreat(player.GetTargetInformation()) < 0.2)
 					{
 						sideStep = m_eAI_IsFightingFSM;  //! Sidestep if we are in fighting FSM
 					}
@@ -8919,10 +9035,10 @@ class eAIBase: PlayerBase
 
 	float eAI_GetThreatDistanceFactor(float distance)
 	{
-		float threatDistanceThreshold = m_eAI_ThreatDistanceLimit * 0.9;
+		float threatDistanceThreshold = 900;
 
 		if (distance > threatDistanceThreshold)
-			return ExpansionMath.PowerConversion(m_eAI_ThreatDistanceLimit * 1.1, threatDistanceThreshold, distance, 0.0, 1.0, 2.0);
+			return ExpansionMath.PowerConversion(1100, threatDistanceThreshold, distance, 0.0, 1.0, 2.0);
 
 		return 1.0;
 	}
@@ -8933,7 +9049,7 @@ class eAIBase: PlayerBase
 		{
 			if (m_Expansion_Visibility <= m_eAI_NightVisibility)
 			{
-				if (target && target.IsLit())
+				if (target.IsLit())
 					return ExpansionMath.PowerConversion(250, 200, distance, 0.0, 1.0, 2.0);
 			}
 
@@ -8949,14 +9065,25 @@ class eAIBase: PlayerBase
 		{
 			if (m_Expansion_Visibility <= m_eAI_NightVisibility)
 			{
-				if (target && target.IsLit())
-					return Math.Min(distance, 250);
+				if (target.IsLit())
+					return Math.Min(distance, Math.Min(m_eAI_ThreatDistanceLimit, 250));
 			}
 
 			return Math.Min(distance, 1100 * m_Expansion_Visibility);
 		}
 
 		return distance;
+	}
+
+	float eAI_GetVisibilityDistanceLimit(PlayerBase player)
+	{
+		if (m_Expansion_Visibility <= m_eAI_NightVisibility)
+		{
+			if (player.eAI_IsLit())
+				return Math.Min(m_eAI_ThreatDistanceLimit, 250);
+		}
+
+		return 1100 * m_Expansion_Visibility;
 	}
 
 	float Expansion_GetVisibilityDistThreshold()
@@ -10300,7 +10427,31 @@ class eAIBase: PlayerBase
 	{
 		if (!force)
 		{
-			if (IsPlayerInStance(DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_RAISEDERECT))
+			int stanceMask;
+			eAIStance defaultStance;
+
+			if (m_eAI_DefaultStance != eAIStance.STANDING)
+			{
+				if (g_Game.GetTickTime() - m_eAI_LastHitTime > 10.0 && !m_FSM.IsInState("Melee") && GetCurrentWaterLevel() < 0.3)
+					defaultStance = m_eAI_DefaultStance;
+			}
+
+			switch (defaultStance)
+			{
+				case eAIStance.CROUCHED:
+					stanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_RAISEDCROUCH;
+					break;
+
+				case eAIStance.PRONE:
+					stanceMask = DayZPlayerConstants.STANCEMASK_PRONE | DayZPlayerConstants.STANCEMASK_RAISEDPRONE;
+					break;
+
+				default:
+					stanceMask = DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_RAISEDERECT;
+					break;
+			}
+
+			if (IsPlayerInStance(stanceMask))
 				return false;
 		}
 

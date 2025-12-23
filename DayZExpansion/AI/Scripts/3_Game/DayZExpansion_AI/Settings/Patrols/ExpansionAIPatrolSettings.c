@@ -28,6 +28,8 @@ class ExpansionAIPatrolSettingsBase: ExpansionSettingBase
 
 	float ThreatDistanceLimit;
 	float NoiseInvestigationDistanceLimit;
+	float MaxFlankingDistance;
+	int EnableFlankingOutsideCombat;
 	float DamageMultiplier;
 	float DamageReceivedMultiplier;
 }
@@ -54,7 +56,7 @@ class ExpansionAIPatrolSettingsV24
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 27;
+	static const int VERSION = 28;
 
 	ref map<string, ref array<ref ExpansionAIPatrolLoadBalancing>> LoadBalancingCategories = new map<string, ref array<ref ExpansionAIPatrolLoadBalancing>>;
 
@@ -309,6 +311,12 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 				if (version < 24)
 					FormationScale = settingsDefault.FormationScale;
 
+				if (!MaxFlankingDistance)
+					MaxFlankingDistance = settingsDefault.MaxFlankingDistance;
+
+				if (version < 28 && !EnableFlankingOutsideCombat)
+					EnableFlankingOutsideCombat = settingsDefault.EnableFlankingOutsideCombat;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -357,6 +365,15 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 
 				if (version < 24)
 					patrol.FormationScale = -1;
+
+				if (!patrol.DefaultStance)
+					patrol.DefaultStance = typename.EnumToString(eAIStance, eAIStance.STANDING);
+
+				if (!patrol.MaxFlankingDistance)
+					patrol.MaxFlankingDistance = -1;
+
+				if (version < 28 && !patrol.EnableFlankingOutsideCombat)
+					patrol.EnableFlankingOutsideCombat = -1;
 
 				if (patrol.ObjectClassName)
 				{
@@ -515,6 +532,8 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 
 		ThreatDistanceLimit = -1;
 		NoiseInvestigationDistanceLimit = -1;
+		MaxFlankingDistance = -1;
+		EnableFlankingOutsideCombat = -1;
 		DamageMultiplier = -1;
 		DamageReceivedMultiplier = -1;
 

@@ -12,10 +12,14 @@
 
 class ExpansionCE 
 {
+	static const int NOT_SET = int.MIN;
+
 	protected static ref ExpansionCE s_Instance;
 
-	ref map<string, ExpansionCEType> Types = new map<string, ExpansionCEType>();
 	ref ExpansionEconomyCore EconomyCore = new ExpansionEconomyCore();
+	ref ExpansionCETypes Types = new ExpansionCETypes();
+	ref ExpansionCESpawnableTypes SpawnableTypes = new ExpansionCESpawnableTypes();
+	ref ExpansionCEEvents Events = new ExpansionCEEvents();
 	ref map<string, ref ExpansionCETerritories> Territories = new map<string, ref ExpansionCETerritories>();
 
 	static ExpansionCE GetInstance()
@@ -31,7 +35,7 @@ class ExpansionCE
 		Init();
 	}
 
-	void Init() 
+	void Init()
 	{
 	#ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.CE, this);
@@ -45,10 +49,8 @@ class ExpansionCE
 			Territories[territoryName] = ExpansionCETerritories.LoadTerritories(string.Format("$mission:env\\%1", territory));
 		}
 
-		EconomyCore.LoadDB();
-		EconomyCore.Load("$mission:cfgeconomycore.xml");
-
-		MergeCE();
+		EconomyCore.LoadDB(this);
+		EconomyCore.Load(this, "$mission:cfgeconomycore.xml");
 
 	#ifdef DIAG_DEVELOPER
 		string errorMsg;
@@ -57,43 +59,21 @@ class ExpansionCE
 	#endif
 	}
 
-	void MergeCE() 
-	{
-		ExpansionCEType existing;
-		foreach (ExpansionEconomyCoreCE ce: EconomyCore.CE) 
-		{
-			foreach (ExpansionEconomyCoreCEFile file: ce.Files) 
-			{
-				switch (file.Type)
-				{
-					case ExpansionEconomyCoreCEFileType.TYPES:
-						foreach (ExpansionCEType type: file.Types) 
-						{
-							string name = type.Name;
-							name.ToLower();
-
-							if (Types.Find(name, existing))
-								existing.Merge(type);
-							else
-								Types[name] = type;
-						}
-						break;
-
-					case ExpansionEconomyCoreCEFileType.SPAWNABLETYPES:
-						//! TODO
-						break;
-
-					case ExpansionEconomyCoreCEFileType.EVENTS:
-						//! TODO
-						break;
-				}
-			}
-		}
-	}
-
 	ExpansionCEType GetType(string name)
 	{
 		name.ToLower();
 		return Types[name];
+	}
+
+	ExpansionCESpawnableType GetSpawnableType(string name)
+	{
+		name.ToLower();
+		return SpawnableTypes[name];
+	}
+
+	ExpansionCEEvent GetEvent(string name)
+	{
+		name.ToLower();
+		return Events[name];
 	}
 }

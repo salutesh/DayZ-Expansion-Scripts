@@ -58,7 +58,7 @@ class eAINoiseTargetInformation: eAITargetInformation
 		return m_Lifetime;
 	}
 
-	override float CalculateThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		return m_ThreatLevel;
 	}

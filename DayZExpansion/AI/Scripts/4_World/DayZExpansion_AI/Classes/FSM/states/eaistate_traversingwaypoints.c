@@ -22,6 +22,12 @@ class eAIState_TraversingWaypoints: eAIState
 			m_LeaveThreshold = Math.RandomFloat(5.0, 15.0);
 			m_WaypointCountdown = 0;
 		}
+
+		if (unit.m_eAI_DefaultStance > eAIStance.STANDING)
+		{
+			unit.Expansion_GetUp(true);
+			m_GotUp = true;
+		}
 	}
 
 	override void OnExit(string Event, bool Aborted, ExpansionState To)

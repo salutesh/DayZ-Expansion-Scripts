@@ -72,4 +72,18 @@ class ExpansionXML
 
 		return defaultValue;
 	}
+
+	/**
+	 * @brief Get tag content as string. If tag does not exist, return defaultValue.
+	 */
+	static string GetTagContentString(CF_XML_Tag tag, string type, string defaultValue = "")
+	{
+		auto children = tag.GetTag(type);
+		if (children.Count() > 0)
+			return children[0].GetContent().GetContent();
+
+		return defaultValue;
+	}
+
+
 }

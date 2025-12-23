@@ -18,6 +18,7 @@ class eAITargetInformationState
 	vector m_LOSRaycastHitPosition;
 #endif
 	bool m_SkipMelee;
+	int m_AggressionTimeout;
 
 	void eAITargetInformationState(eAIBase ai, eAITargetInformation info, bool initialUpdate = true)
 	{
@@ -36,13 +37,22 @@ class eAITargetInformationState
 		int time = g_Game.GetTime();
 
 		m_ThreatLevelUpdateTimestamp = time;
-		m_ThreatLevel = threat;
+		if (threat > m_ThreatLevel)
+			m_ThreatLevel = threat;
 		m_ThreatLevelActive = threat;
 
 		m_SearchPositionUpdateTimestamp = time;
 		m_LastKnownPosition = position;
 		m_SearchPosition = position;
 		m_SearchDirection = vector.Direction(m_AI.GetPosition(), m_SearchPosition);
+	}
+
+	void SetThreat(float threat)
+	{
+		m_ThreatLevelUpdateTimestamp = g_Game.GetTime();
+		if (threat > m_ThreatLevel)
+			m_ThreatLevel = threat;
+		m_ThreatLevelActive = threat;
 	}
 
 	void UpdateThreat(bool force = false)
@@ -52,7 +62,7 @@ class eAITargetInformationState
 		if (force || diff > Math.RandomIntInclusive(250, 300))
 		{
 			m_ThreatLevelUpdateTimestamp = time;
-			m_ThreatLevel = m_Info.CalculateThreat(m_AI);
+			m_ThreatLevel = m_Info.CalculateThreat(m_AI, this);
 
 			//! Make active threat level rise depending on distance if LOS, fall slowly if no LOS
 		#ifdef EXPANSION_AI_ITEM_TARGET_REQUIRE_LOS
@@ -158,5 +168,13 @@ class eAITargetInformationState
 			return m_ThreatLevel;
 
 		return m_ThreatLevelActive;
+	}
+
+	int GetAggressionCooldown()
+	{
+		if (m_AggressionTimeout > 0)
+			return m_AggressionTimeout - ExpansionStatic.GetTimestamp(true);
+
+		return 0;
 	}
 };

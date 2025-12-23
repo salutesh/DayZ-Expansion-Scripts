@@ -219,6 +219,18 @@ modded class ExpansionWorld
 	}
 	*/
 
+	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal,
+				  vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType) 
+	{
+		super.FirearmEffects(source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
+
+		if (g_Game.IsServer())
+		{
+			Weapon_Base weapon;
+			if (Class.CastTo(weapon, source))
+				weapon.eAI_FirearmEffects(directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
+		}
+	}
 	/**
 	 * @brief fix firearm FX for redirected AI dmg
 	 */

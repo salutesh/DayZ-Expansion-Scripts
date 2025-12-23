@@ -704,7 +704,17 @@ class eAIGroup
 					target.UpdateFoundAtTime();
 
 				if (threat > target.m_ThreatLevelActive)
-					target.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
+				{
+					if (!target.m_LOS)
+					{
+						target.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
+						target.m_SearchOnLOSLost = true;
+					}
+					else
+					{
+						target.SetThreat(threat);
+					}
+				}
 			}
 		}
 	}

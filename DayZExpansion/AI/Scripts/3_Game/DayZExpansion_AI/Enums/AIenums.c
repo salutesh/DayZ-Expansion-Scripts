@@ -70,3 +70,11 @@ enum eAITargetType
 	VEHICLE = 16,
 	ALL_OR = 30  //! ANIMAL | INFECTED | PLAYER | VEHICLE
 };
+
+enum eAIStance
+{
+	UNKNOWN = -1,
+	STANDING,
+	CROUCHED,
+	PRONE
+}

@@ -71,7 +71,7 @@ class eAIItemHazardTargetInformation: eAIItemTargetInformation
 		return false;
 	}
 
-	override float CalculateThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		if (m_Item.IsDamageDestroyed() || m_Item.IsSetForDeletion())
 			return 0.0;

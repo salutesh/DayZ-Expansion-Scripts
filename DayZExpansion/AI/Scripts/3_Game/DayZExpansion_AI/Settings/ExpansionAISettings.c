@@ -21,7 +21,7 @@ class ExpansionAISettingsV11: ExpansionSettingBase
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 18;
+	static const int VERSION = 19;
 	static ref ExpansionAISettings s_Instance;
 
 	float AccuracyMin;
@@ -29,6 +29,8 @@ class ExpansionAISettings: ExpansionSettingBase
 
 	float ThreatDistanceLimit;
 	float NoiseInvestigationDistanceLimit;
+	float MaxFlankingDistance;
+	bool EnableFlankingOutsideCombat;
 	float DamageMultiplier;
 	float DamageReceivedMultiplier;
 
@@ -338,6 +340,12 @@ class ExpansionAISettings: ExpansionSettingBase
 						GuardAggressionTimeout = settingsDefault.GuardAggressionTimeout;
 				}
 
+				if (!MaxFlankingDistance)
+					MaxFlankingDistance = settingsDefault.MaxFlankingDistance;
+
+				if (m_Version < 19 && !EnableFlankingOutsideCombat)
+					EnableFlankingOutsideCombat = settingsDefault.EnableFlankingOutsideCombat;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -384,6 +392,8 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		ThreatDistanceLimit = 1000.0;
 		NoiseInvestigationDistanceLimit = 500.0;
+		MaxFlankingDistance = 200.0;
+		EnableFlankingOutsideCombat = false;
 		DamageMultiplier = 1.0;
 		DamageReceivedMultiplier = 1.0;
 

@@ -48,7 +48,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 		return m_Item.GetCenter();
 	}
 
-	override float CalculateThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		if (m_Item.IsDamageDestroyed() || m_Item.IsSetForDeletion())
 			return 0.0;
@@ -224,7 +224,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 					}
 				}
 
-				if (!ai.IsUnconscious() && m_Item.m_Expansion_PreviousOwner != ai && !ai.eAI_HasLOS(this))
+				if (!ai.IsUnconscious() && m_Item.m_Expansion_PreviousOwner != ai && !state.m_LOS)
 				{
 					//! Make sure we can react to other targets first
 					distance = Math.Sqrt(distance);

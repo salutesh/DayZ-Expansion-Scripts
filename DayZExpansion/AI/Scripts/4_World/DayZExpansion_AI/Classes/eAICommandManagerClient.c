@@ -841,7 +841,8 @@ class eAICommandManagerClient : eAICommandManager
 		eAIBase ai;
 		for (int i = 0; i < g.Count(); i++)
 		{
-			if (Class.CastTo(ai, g.GetMember(i)) && ai.GetTarget() && ai.GetTarget().m_LOS && ai.eAI_IsInFlankRange(ai.GetTarget()))
+			eAITarget currentTarget = ai.GetTarget();
+			if (Class.CastTo(ai, g.GetMember(i)) && currentTarget && currentTarget.m_SearchOnLOSLost && ai.eAI_IsInFlankRange(currentTarget))
 			{
 				g.SetFormationState(eAIGroupFormationState.FLANK);
 				SetMovementSpeed(g, speed);
@@ -1422,12 +1423,9 @@ class eAICommandManagerClient : eAICommandManager
 			{
 				if (target.IsPlayer())
 				{
-					bool isPlayerMoving;
-					bool friendly;
-
 					if (ai.GetGroup() == DayZPlayerImplement.Cast(targetEntity).GetGroup())
 						info = "companion";
-					else if (ai.PlayerIsEnemy(targetEntity, false, isPlayerMoving, friendly) && !friendly)
+					else if (ai.PlayerIsEnemy(targetEntity))
 						info = "hostile";
 					else
 						info = "neutral";
@@ -1435,9 +1433,16 @@ class eAICommandManagerClient : eAICommandManager
 				else if (target.GetThreat() >= 0.4)
 				{
 					if (target.IsItem())
-						info = "loot";
+					{
+						if (target.IsHazard())
+							info = "hazard";
+						else
+							info = "loot";
+					}
 					else
+					{
 						info = "hostile";
+					}
 				}
 				else
 				{

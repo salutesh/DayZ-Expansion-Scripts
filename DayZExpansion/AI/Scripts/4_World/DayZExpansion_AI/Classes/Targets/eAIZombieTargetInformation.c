@@ -74,7 +74,7 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 	}
 
 	// https://www.desmos.com/calculator/r4mqu91qff
-	override float CalculateThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		if (m_Zombie.IsDamageDestroyed())
 			return 0.0;

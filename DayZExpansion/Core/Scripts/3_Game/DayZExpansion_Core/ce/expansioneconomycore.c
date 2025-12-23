@@ -8,16 +8,16 @@
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
-*/
+ */
 
-class ExpansionEconomyCoreCEFileType
+class ExpansionCEFileType
 {
 	static string TYPES = "types";
 	static string SPAWNABLETYPES = "spawnabletypes";
 	static string EVENTS = "events";
 }
 
-class ExpansionEconomyCoreRootClass 
+class ExpansionEconomyCoreRootClass
 {
 	string Name;
 	string Act;
@@ -31,7 +31,7 @@ class ExpansionEconomyCoreRootClass
 	}
 }
 
-class ExpansionEconomyCoreDefault 
+class ExpansionEconomyCoreDefault
 {
 	string Name;
 	string Value;
@@ -43,69 +43,70 @@ class ExpansionEconomyCoreDefault
 	}
 }
 
-class ExpansionEconomyCoreCE
+class ExpansionCEFolder
 {
 	string Folder;
-	ref array<ref ExpansionEconomyCoreCEFile> Files;
+	ref array<ref ExpansionCEFile> Files = {};
 
-	void ExpansionEconomyCoreCE(string folder)
+	void ExpansionCEFolder(string folder)
 	{
 		Folder = folder;
-		Files = {};
 	}
 
-	void Load()
+	void AddFile(string name, string type)
 	{
-		foreach (ExpansionEconomyCoreCEFile file: Files)
-		{
-			file.Load(Folder);
-		}
+		Files.Insert(new ExpansionCEFile(name, type));
+	}
+
+	void Load(ExpansionCE ce)
+	{
+		foreach (ExpansionCEFile file: Files)
+			file.Load(ce, Folder);
 	}
 }
 
-
-class ExpansionEconomyCoreCEFile
+class ExpansionCEFile
 {
 	string Name;
 	string Type;
-	ref ExpansionCETypes Types;
 
-	void ExpansionEconomyCoreCEFile(string name, string type)
+	void ExpansionCEFile(string name, string type)
 	{
 		Name = name;
 		Type = type;
 	}
 
-	void Load(string folder)
+	void Load(ExpansionCE ce, string folder)
 	{
+		string path = string.Format("$mission:%1\\%2", folder, Name);
+
 		switch (Type)
 		{
-			case ExpansionEconomyCoreCEFileType.TYPES:
-				Types = ExpansionCETypes.LoadTypes(string.Format("$mission:%1\\%2", folder, Name));
+			case ExpansionCEFileType.TYPES:
+				ce.Types.ReadTypes(path);
 				break;
 
-			case ExpansionEconomyCoreCEFileType.SPAWNABLETYPES:
-				//! TODO
+			case ExpansionCEFileType.SPAWNABLETYPES:
+				ce.SpawnableTypes.ReadTypes(path);
 				break;
 
-			case ExpansionEconomyCoreCEFileType.EVENTS:
-				//! TODO
+			case ExpansionCEFileType.EVENTS:
+				ce.Events.ReadEvents(path);
 				break;
 		}
 	}
 }
 
-/**@class		ExpansionEconomyCore
- * @brief		structure for EconomyCore.xml
+/**@class       ExpansionEconomyCore
+ * @brief       structure for EconomyCore.xml
  **/
-
-class ExpansionEconomyCore 
+class ExpansionEconomyCore
 {
 	ref array<ref ExpansionEconomyCoreRootClass> Classes = {};
 	ref array<ref ExpansionEconomyCoreDefault> Defaults = {};
-	ref array<ref ExpansionEconomyCoreCE> CE = {};
+	ref array<ref ExpansionCEFolder> CE = {};
 
-	void Load(string fileName)
+	void Load(ExpansionCE ce, string fileName)
 	{
 		CF_XML_Document document = CF_XML.ReadDocumentEx(fileName);
 		if (document)
@@ -147,7 +148,7 @@ class ExpansionEconomyCore
 			auto folders = root.GetTag("ce");
 			foreach (CF_XML_Tag folder: folders)
 			{
-				auto ce = new ExpansionEconomyCoreCE(ExpansionXML.GetAttributeString(folder, "folder"));
+				auto ceFolder = new ExpansionCEFolder(ExpansionXML.GetAttributeString(folder, "folder"));
 
 				auto files = folder.GetTag("file");
 				foreach (CF_XML_Tag file: files)
@@ -155,22 +156,24 @@ class ExpansionEconomyCore
 					string name = ExpansionXML.GetAttributeString(file, "name");
 					string type = ExpansionXML.GetAttributeString(file, "type");
 
-					ce.Files.Insert(new ExpansionEconomyCoreCEFile(name, type));
+					ceFolder.AddFile(name, type);
 				}
 
-				ce.Load();
+				ceFolder.Load(ce);
 
-				CE.Insert(ce);
+				CE.Insert(ceFolder);
 			}
 		}
 	}
 
-	void LoadDB()
+	void LoadDB(ExpansionCE ce)
 	{
-		auto ce = new ExpansionEconomyCoreCE("db");
-		ce.Files.Insert(new ExpansionEconomyCoreCEFile("types.xml", "types"));
-		ce.Load();
+		auto ceFolder = new ExpansionCEFolder("");
+		ceFolder.AddFile("db/types.xml", ExpansionCEFileType.TYPES);
+		ceFolder.AddFile("db/events.xml", ExpansionCEFileType.EVENTS);
+		ceFolder.AddFile("cfgspawnabletypes.xml", ExpansionCEFileType.SPAWNABLETYPES);
+		ceFolder.Load(ce);
 
-		CE.Insert(ce);
+		CE.Insert(ceFolder);
 	}
 }

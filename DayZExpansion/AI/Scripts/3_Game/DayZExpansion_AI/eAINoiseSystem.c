@@ -2,7 +2,8 @@ enum eAINoiseType
 {
 	SHOT,
 	SOUND,
-	EXPLOSION
+	EXPLOSION,
+	BULLETIMPACT
 }
 
 class eAINoiseParams: Class
@@ -33,8 +34,16 @@ class eAINoiseParams: Class
 			m_Type = type;
 		}
 
-		if (m_Type == eAINoiseType.SHOT)
-			m_Strength = Math.Min(m_Strength * 34, 1100);  //! Hmm... scale strength (range) so strength 100 = 3400 but clamp to 1100
+		switch (m_Type)
+		{
+			case eAINoiseType.SHOT:
+				m_Strength = Math.Min(m_Strength * 13.75, 1100);  //! Hmm... scale strength (range) so strength 100 = 1375 but clamp to 1100
+				break;
+
+			case eAINoiseType.BULLETIMPACT:
+				m_Strength *= 2;
+				break;
+		}
 
 		EXTrace.Print(EXTrace.AI, this, path + " " + m_Strength + " " + typename.EnumToString(eAINoiseType, m_Type));
 	}
@@ -64,15 +73,15 @@ class eAINoiseSystem
 		SI_OnNoiseAdded.Invoke(source, vector.Zero, -1, params, strengthMultiplier);
 	}
 
-	static void AddNoise(EntityAI source, vector position, string path, float strengthMultiplier = 1.0)
+	static void AddNoise(EntityAI source, vector position, string path, float strengthMultiplier = 1.0, eAINoiseType type = -1)
 	{
-		eAINoiseParams params = GetNoiseParams(path);
+		eAINoiseParams params = GetNoiseParams(path, type);
 		SI_OnNoiseAdded.Invoke(source, position, -1, params, strengthMultiplier);
 	}
 
-	static void AddNoise(vector position, float lifetime, string path, float strengthMultiplier = 1.0)
+	static void AddNoise(vector position, float lifetime, string path, float strengthMultiplier = 1.0, eAINoiseType type = -1)
 	{
-		eAINoiseParams params = GetNoiseParams(path);
+		eAINoiseParams params = GetNoiseParams(path, type);
 		SI_OnNoiseAdded.Invoke(null, position, lifetime, params, strengthMultiplier);
 	}
 

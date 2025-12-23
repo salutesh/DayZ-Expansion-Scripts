@@ -31,10 +31,11 @@ class eAIState_Flank: eAIState
 		
 		auto group = unit.GetGroup();
 		if (!group) return eAITransition.FAIL;
-		if (group.GetFormationState() != eAIGroupFormationState.FLANK && !group.IsInCombat()) return eAITransition.FAIL;
+		if (!unit.m_eAI_EnableFlankingOutsideCombat && group.GetFormationState() != eAIGroupFormationState.FLANK && !group.IsInCombat())
+			return eAITransition.FAIL;
 		
 		m_Target = unit.GetTarget();
-		if (!m_Target || m_Target.IsItem() || unit.GetThreatToSelf(true) < 0.4)
+		if (!m_Target || m_Target.IsItem() || unit.GetThreatToSelf(true) <= 0.152)
 			return eAITransition.FAIL;
 		
 		//if (!unit.eAI_IsInFlankRange(m_Target)) return eAITransition.FAIL;
@@ -45,7 +46,7 @@ class eAIState_Flank: eAIState
 	int GuardIdle()
 	{
 		auto group = unit.GetGroup();
-		if (group && (group.GetFormationState() == eAIGroupFormationState.FLANK || group.IsInCombat()) && m_Target && !m_Target.IsItem() && unit.GetThreatToSelf(true) >= 0.4 /*&& unit.eAI_IsInFlankRange(m_Target)*/) return eAITransition.FAIL;
+		if (group && (unit.m_eAI_EnableFlankingOutsideCombat || group.GetFormationState() == eAIGroupFormationState.FLANK || group.IsInCombat()) && m_Target && !m_Target.IsItem() && unit.GetThreatToSelf(true) > 0.152 /*&& unit.eAI_IsInFlankRange(m_Target)*/) return eAITransition.FAIL;
 		
 		return eAITransition.SUCCESS;
 	}

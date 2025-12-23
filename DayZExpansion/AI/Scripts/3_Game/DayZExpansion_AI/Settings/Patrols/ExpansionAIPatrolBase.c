@@ -24,7 +24,9 @@ class ExpansionAISpawnBase
 	string Behaviour;                   // See eAIWaypointBehavior
 	string LootingBehaviour;
 	string Speed;                       // See eAIMovementSpeed
-	string UnderThreatSpeed;            // 
+	string UnderThreatSpeed;            //
+	string DefaultStance = "STANDING";
+	float DefaultLookAngle = -1;
 	bool CanBeLooted;                   // if enabled, the bots can be looted by the players
 	string LootDropOnDeath;            // Loot to drop when AI dies (file name)
 	int UnlimitedReload;               // should bots be able to reload indefinitely (still needs spare mag in inventory!)
@@ -33,6 +35,8 @@ class ExpansionAISpawnBase
 	float AccuracyMax;
 	float ThreatDistanceLimit;
 	float NoiseInvestigationDistanceLimit;
+	float MaxFlankingDistance = -1;
+	int EnableFlankingOutsideCombat = -1;
 	float DamageMultiplier;
 	float DamageReceivedMultiplier;
 	float HeadshotResistance;
@@ -71,6 +75,11 @@ class ExpansionAISpawnBase
 	int GetBehaviour()
 	{
 		return typename.StringToEnum(eAIWaypointBehavior, Behaviour);
+	}
+
+	eAIStance GetDefaultStance()
+	{
+		return typename.StringToEnum(eAIStance, DefaultStance);
 	}
 
 	void SetDefaultLootingBehaviour()

@@ -519,7 +519,7 @@
 				return dst.Guard();
 			</guard>
 			<event />
-			<from_state name="Idle,Flank" />
+			<from_state name="Idle" />
 			<to_state name="FollowFormation" />
 		</transition>
 		<transition>
@@ -531,7 +531,7 @@
 				return dst.Guard();
 			</guard>
 			<event />
-			<from_state name="Idle,Flank" />
+			<from_state name="Idle" />
 			<to_state name="TraversingWaypoints" />
 		</transition>
 		<transition>

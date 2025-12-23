@@ -138,6 +138,11 @@ class ExpansionFSM
 	{
 		return m_CurrentState && m_CurrentState.GetName() == name;
 	}
+
+	bool IsInState(typename type)
+	{
+		return m_CurrentState && m_CurrentState.IsInherited(type);
+	}
 	
 	bool StartDefault()
 	{
@@ -268,14 +273,14 @@ class ExpansionFSM
 		if (m_CurrentState == null)
 		{
 			if (src)
-				CF_Log.Info("%1 State transition exit %2", m_Owner.ToString(), src.GetName());
+				CF_Log.Debug("%1 State transition exit %2", m_Owner.ToString(), src.GetName());
 			return EXIT;
 		}
 		
 		if (src)
-			CF_Log.Info("%1 State transition %2 -> %3", m_Owner.ToString(), src.GetName(), m_CurrentState.GetName());
+			CF_Log.Debug("%1 State transition %2 -> %3", m_Owner.ToString(), src.GetName(), m_CurrentState.GetName());
 		else
-			CF_Log.Info("%1 State transition NULL -> %2", m_Owner.ToString(), m_CurrentState.GetName());
+			CF_Log.Debug("%1 State transition NULL -> %2", m_Owner.ToString(), m_CurrentState.GetName());
 
 		m_CurrentState.OnEntry("", src);
 

@@ -1296,8 +1296,12 @@ class eAICommandMove: ExpansionHumanCommand
 						if (m_PathFinding.m_AllowJumpClimb)
 							m_PathFinding.SetAllowJumpClimb(false, 15.0);
 					}
-					else
+					else if (!m_PathFinding.m_IsUnreachable)
 					{
+					#ifdef DIAG_DEVELOPER
+						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " unreachable (blocked by building for more than 3 s)");
+						ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, m_Unit.ToString() + " unreachable (blocked by building for more than 3 s)");
+					#endif
 						m_PathFinding.m_IsUnreachable = true;
 						m_PathFinding.m_IsTargetUnreachable = true;
 					}
@@ -1869,10 +1873,10 @@ class eAICommandMove: ExpansionHumanCommand
 				Anim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
 			//! Enable sharpest turns if turning around while running or sprinting or dangerous altitude
 			else if (isDangerousAltitude || (!m_Unit.IsRaised() && Math.AbsFloat(m_TurnDifference) > 135.0 && m_MovementSpeed >= 2.0))
-				Anim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.1, 30.0);
+				Anim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.15, 30.0);
 			//! Enable sharper turns if above ground or waypoint is not final but close and not avoiding obstacles
 			else if (!m_Unit.IsRaised() && (isAboveGround || (!isPathPointFinal && m_WaypointDistance2DSq < 8.0 * Math.Max(m_MovementSpeed, 1.0) && m_OverrideMovementTimeout <= 0)))
-				Anim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.15, 30.0);
+				Anim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.2, 30.0);
 			else
 				Anim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
 		}
@@ -1943,7 +1947,8 @@ class eAICommandMove: ExpansionHumanCommand
 			if (updatePathIfTreeClose)
 			{
 				distSq = vector.DistanceSq(start, hitPosition);
-				farDistSqThresh = vector.DistanceSq(start, endRV) * 0.444444;
+				float farDistThresh = m_MovementSpeed + radiusRV;
+				farDistSqThresh = farDistThresh * farDistThresh;
 			}
 
 			foreach (Object obj: results)
@@ -2002,6 +2007,7 @@ class eAICommandMove: ExpansionHumanCommand
 							return false;
 						}
 
+					#ifdef DIAG_DEVELOPER
 						m_Unit.Expansion_DebugObject(2100, begPos - dir * radiusRV, "ExpansionDebugSphereSmall_Cyan", dir);
 						m_Unit.Expansion_DebugObject(2101, begPos + dir.Perpend() * radiusRV, "ExpansionDebugSphereSmall_Cyan", dir);
 						m_Unit.Expansion_DebugObject(2102, begPos - dir.Perpend() * radiusRV, "ExpansionDebugSphereSmall_Cyan", dir);
@@ -2010,6 +2016,7 @@ class eAICommandMove: ExpansionHumanCommand
 						m_Unit.Expansion_DebugObject(2105, endPos - dir.Perpend() * radiusRV, "ExpansionDebugSphereSmall_Yellow", dir, begPos - dir.Perpend() * radiusRV);
 						m_Unit.Expansion_DebugObject(2106, hitPosition, "ExpansionDebugSphereSmall_Red", dir, begPos - dir * radiusRV);
 						m_Unit.Expansion_DebugObject(2107, hitPosition + hitNormal, "ExpansionDebugSphereSmall_Purple", hitNormal, hitPosition);
+					#endif
 
 						//ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, m_Unit.ToString() + " mov block " + obj);
 					}

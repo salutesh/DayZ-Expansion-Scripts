@@ -33,6 +33,8 @@ class eAIDynamicPatrol : eAIPatrol
 	float m_AccuracyMax; // zero or negative = use general setting
 	float m_ThreatDistanceLimit; // zero or negative = use general setting
 	float m_NoiseInvestigationDistanceLimit; // zero or negative = use general setting
+	float m_MaxFlankingDistance; // zero or negative = use general setting
+	int m_EnableFlankingOutsideCombat; // zero or negative = use general setting
 	float m_DamageMultiplier; // zero or negative = use general setting
 	float m_DamageReceivedMultiplier; // zero or negative = use general setting
 
@@ -205,7 +207,7 @@ class eAIDynamicPatrol : eAIPatrol
 			noiseDistanceLimit = s_AIPatrolSettings.NoiseInvestigationDistanceLimit;
 		else
 			noiseDistanceLimit = config.NoiseInvestigationDistanceLimit;
-
+		
 		float damageMultiplier;
 		if (config.DamageMultiplier <= 0)
 			damageMultiplier = s_AIPatrolSettings.DamageMultiplier;
@@ -223,6 +225,14 @@ class eAIDynamicPatrol : eAIPatrol
 		SetNoiseInvestigationDistanceLimit(noiseDistanceLimit);
 		SetDamageMultiplier(damageMultiplier);
 		SetDamageReceivedMultiplier(damageReceivedMultiplier);
+
+		m_MaxFlankingDistance = config.MaxFlankingDistance;
+		if (m_MaxFlankingDistance <= 0)
+			m_MaxFlankingDistance = s_AIPatrolSettings.MaxFlankingDistance;
+
+		m_EnableFlankingOutsideCombat = config.EnableFlankingOutsideCombat;
+		if (m_EnableFlankingOutsideCombat <= 0)
+			m_EnableFlankingOutsideCombat = s_AIPatrolSettings.EnableFlankingOutsideCombat;
 
 		if (config.Units && config.Units.Count())
 			SetUnits(config.Units);
@@ -369,6 +379,14 @@ class eAIDynamicPatrol : eAIPatrol
 		ai.eAI_SetSniperProneDistanceThreshold(m_Config.SniperProneDistanceThreshold);
 		ai.eAI_SetLootingBehavior(m_Config.GetLootingBehaviour());
 		ai.m_eAI_LootDropOnDeath = m_LootDropOnDeath;
+		ai.m_eAI_DefaultStance = m_Config.GetDefaultStance();
+		ai.m_eAI_DefaultLookAngle = m_Config.DefaultLookAngle;
+
+		if (m_MaxFlankingDistance > 0)
+			ai.m_eAI_MaxFlankingDistance = m_MaxFlankingDistance;
+
+		if (m_EnableFlankingOutsideCombat > 0)
+			ai.m_eAI_EnableFlankingOutsideCombat = true;
 	}
 
 	bool WasGroupDestroyed()

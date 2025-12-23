@@ -20,7 +20,7 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 		return true;
 	}
 
-	override float CalculateThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		if (m_Transport.IsDamageDestroyed())
 			return 0.0;

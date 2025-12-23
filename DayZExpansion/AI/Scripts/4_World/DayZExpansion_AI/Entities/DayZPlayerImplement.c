@@ -573,6 +573,12 @@ modded class DayZPlayerImplement
 		return 0;
 	}
 
+	void eAI_ResetLastAggressionTimeout()
+	{
+		m_eAI_LastAggressionTimeout = 0;
+		SetSynchDirty();
+	}
+
 	override void AddNoise(NoiseParams noisePar, float noiseMultiplier = 1.0)
 	{
 		super.AddNoise(noisePar, noiseMultiplier);
