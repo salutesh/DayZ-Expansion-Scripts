@@ -24,6 +24,8 @@ modded class DayZExpansion
 		auto trace = CF_Trace_0(this, "DayZExpansion");
 		#endif
 
+		m_CommandManager = new eAICommandManagerImpl();
+
 		m_Instance_5 = this;
 
 		m_RPCManager.RegisterServer("SpectateAI");

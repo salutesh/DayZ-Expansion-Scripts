@@ -112,7 +112,7 @@ class eAITargetInformationState
 			auto hitch = new EXHitch(m_AI.ToString() + " eAITargetInformationState::UpdatePosition ", 20000);
 #endif
 
-			if (force || (m_LOS && m_AI.GetTarget().m_Info == m_Info))
+			if (force || (m_LOS && m_AI.eAI_GetTargetInformation() == m_Info))
 			{
 				//! Update last known target position
 				m_LastKnownPosition = m_Info.GetPosition(m_AI, true);

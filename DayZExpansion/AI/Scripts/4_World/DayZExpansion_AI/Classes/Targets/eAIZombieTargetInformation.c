@@ -124,10 +124,12 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 				return 0.0;
 			}
 
+			EntityAI hands;
+
 			if (!levelFactor)
 			{
 				//! Exception: Zombie is near, not (yet) aggroed and AI has no weapon - pre-empt zombie attacking by going on the offense
-				EntityAI hands = ai.GetHumanInventory().GetEntityInHands();
+				hands = ai.GetHumanInventory().GetEntityInHands();
 				if (distance <= 6.25 && (!hands || !hands.IsWeapon()))
 					levelFactor = 0.25;
 				else

@@ -71,9 +71,13 @@ class ExpansionCETerritories: array<ref ExpansionCETerritory>
 				return;
 			}
 
-			auto territories = root.GetTag("territory");
+			auto territories = root.GetContent().GetTags();
 			foreach (CF_XML_Tag territory: territories)
 			{
+				string tagName = territory.GetName();
+				if (tagName != "territory")
+					continue;
+
 				string color = ExpansionXML.GetAttributeString(territory, "color");
 
 				auto ceTerritory = new ExpansionCETerritory(color);

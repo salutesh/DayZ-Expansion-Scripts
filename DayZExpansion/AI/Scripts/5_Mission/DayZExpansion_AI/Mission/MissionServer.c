@@ -113,8 +113,8 @@ modded class MissionServer
 
 		//! Init patrols late so mapping already loaded
         g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAIPatrolManager.InitPatrols, 10000, false);
-		//! According to the community this fix the issue of zombies not aggroing
-		//! Dont ask how, dont ask why
+
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAITargetInformation.PurgeCustomAI, 60000, true);
 	}
 
 	override void PlayerDisconnected( PlayerBase player, PlayerIdentity identity, string uid )

@@ -29,11 +29,10 @@ class eAIAimingProfile
 		//! 100% guarantee to hit target
 		vector direction = vector.Direction(position, m_Unit.GetAimPosition());
 
-		PlayerBase targetPlayer;
 		eAITarget target = m_Unit.GetTarget();
-		if (target && Class.CastTo(targetPlayer, target.GetEntity()))
+		if (target && !target.IsCreature() && !target.IsZombie())
 		{
-			//! More complex accuracy if target is a player/AI
+			//! More complex accuracy if target is not animal/zombie
 
 			float distSq = direction.LengthSq();
 
@@ -78,17 +77,29 @@ class eAIAimingProfile
 			//vector aimOrientation = direction.InvMultiply3(transform).VectorToAngles();
 			vector aimOrientation = m_Unit.GetAimRelAngles();
 			float distClamped = Math.Clamp(dist, 100, 1000);
-			float targetSpeedMult = targetPlayer.Expansion_GetMovementSpeed() / 3.0;
-			float targetMovementAngle = targetPlayer.Expansion_GetMovementAngle();
+
+			float targetSpeedMult;
+			float targetMovementAngle;
 			float targetMovementAngleMult;
-			if (Math.AbsFloat(targetMovementAngle) < 180)
+
+			DayZPlayerImplement targetPlayer;
+			if (Class.CastTo(targetPlayer, target.GetEntity()))
 			{
-				targetMovementAngleMult = targetMovementAngle / 90.0;
-				if (targetMovementAngleMult < -1)
-					targetMovementAngleMult += 2;
-				else if (targetMovementAngleMult > 1)
-					targetMovementAngleMult -= 2;
+				//! Adjust accuracy by movement speed + angle if target is player/AI
+
+				targetSpeedMult = targetPlayer.Expansion_GetMovementSpeed() / 3.0;
+				targetMovementAngle = targetPlayer.Expansion_GetMovementAngle();
+
+				if (Math.AbsFloat(targetMovementAngle) < 180)
+				{
+					targetMovementAngleMult = targetMovementAngle / 90.0;
+					if (targetMovementAngleMult < -1)
+						targetMovementAngleMult += 2;
+					else if (targetMovementAngleMult > 1)
+						targetMovementAngleMult -= 2;
+				}
 			}
+
 			if (Math.RandomIntInclusive(0, 1))
 				inaccuracyLR = -inaccuracyLR;
 			if (Math.RandomIntInclusive(0, 10))

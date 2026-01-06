@@ -55,6 +55,8 @@ class eAIBase: PlayerBase
 		"ice_sea"
 	};
 
+	ref SHumanCommandClimbResult m_eAI_LastSuccessfulClimbTestResult;
+
 	static string s_Expansion_SurvivorDisplayName = g_Game.ConfigGetTextOut(CFG_VEHICLESPATH + " SurvivorBase displayName");
 
 	private ref eAICallbacks m_eAI_Callbacks = new eAICallbacks(this);
@@ -174,7 +176,7 @@ class eAIBase: PlayerBase
 	private bool m_eAI_ShouldGetUp = true;
 	eAIStance m_eAI_StancePreference = -1;
 	eAIStance m_eAI_DefaultStance = eAIStance.STANDING;
-	float m_eAI_DefaultLookAngle = -1;
+	float m_eAI_DefaultLookAngle;
 
 	bool m_eAI_IsRestrained;
 	bool m_eAI_IsInventoryVisible;
@@ -187,6 +189,8 @@ class eAIBase: PlayerBase
 	private vector m_eAI_LookRelAngles;
 	private vector m_eAI_LookDirectionTarget_ModelSpace;
 	private bool m_eAI_LookDirection_Recalculate;
+	float m_eAI_LookVelLR[1];
+	float m_eAI_LookVelUD[1];
 
 	private vector m_eAI_AimRelAngles;
 	protected float m_eAI_AimRelAngleLR;
@@ -194,6 +198,8 @@ class eAIBase: PlayerBase
 	private vector m_eAI_AimDirectionTarget_ModelSpace;
 	private bool m_eAI_AimDirection_Recalculate;
 	private vector m_eAI_AimDirectionPrev;
+	float m_eAI_AimVelLR[1];
+	float m_eAI_AimVelUD[1];
 
 	//! Dynamic FOV (detection angle) depending on distance to target
 	static float m_eAI_FOVNear_DistThreshold = 0;
@@ -316,6 +322,7 @@ class eAIBase: PlayerBase
 	ref array<EntityAI> m_eAI_TrackedBodies = {};
 	int m_eAI_CurrentPotentialTargetIndex;
 	CF_DoublyLinkedNode_WeakRef<PlayerBase> m_eAI_PotentialTargetPlayer;
+	CF_DoublyLinkedNode_WeakRef<eAICustomCreatureTargetInformation> m_eAI_PotentialTargetCustomCreature;
 	float m_eAI_UpdateNearTargetsTime;
 	int m_eAI_UpdateNearTargetsCount;
 	ref set<Object> m_eAI_PotentialCoverObjects = new set<Object>;
@@ -492,6 +499,7 @@ class eAIBase: PlayerBase
 			LoadFSM();
 
 			s_Expansion_AllPlayers.m_OnRemove.Insert(eAI_OnRemovePlayer);
+			eAICustomCreatureTargetInformation.s_AllCustomCreatures.m_OnRemove.Insert(eAI_OnRemoveCustomCreature);
 
 			GetStatWater().Set(GetStatWater().GetMax());
 			GetStatEnergy().Set(GetStatEnergy().GetMax());
@@ -652,6 +660,14 @@ class eAIBase: PlayerBase
 	{
 		EXTrace.Print(EXTrace.AI, this, "OnSelectPlayer");
 
+		if (g_Game.IsServer() && !m_PlayerSelected)
+		{
+			s_eAI_TickSchedulerPlayers.Insert(this);
+		#ifdef DIAG_DEVELOPER
+			EXPrint(this, "TickScheduler players +1 count=" + s_eAI_TickSchedulerPlayers.Count());
+		#endif
+		}
+
 		m_QuickBarBase.updateSlotsCount();
 
 		m_PlayerSelected = true;
@@ -673,11 +689,6 @@ class eAIBase: PlayerBase
 
 		m_eActionManager = new eAIActionManager(this);
 		m_ActionManager = m_eActionManager;
-
-		s_eAI_TickSchedulerPlayers.Insert(this);
-	#ifdef DIAG_DEVELOPER
-		EXPrint(this, "TickScheduler players +1 count=" + s_eAI_TickSchedulerPlayers.Count());
-	#endif
 	}
 
 	override void DeferredInit()
@@ -908,7 +919,7 @@ class eAIBase: PlayerBase
 			return true;
 		}
 
-		if (player.Expansion_GetMovementSpeed() > 0 || player.IsClimbing() || player.IsFalling() || player.IsFighting() || player.IsLeaning())
+		if (player.Expansion_GetActualVelocity().LengthSq() > 0 || player.IsClimbing() || player.IsFalling() || player.IsFighting() || player.IsLeaning())
 			isPlayerMoving = true;
 
 		if (GetGroup().GetFaction().IsObserver())
@@ -1327,8 +1338,11 @@ class eAIBase: PlayerBase
 		if (group)
 			group.SetIsInCombat(false);
 
-		if (g_Game.IsServer() && !IsDamageDestroyed())
+		if (g_Game.IsServer() && ((!IsDamageDestroyed() && autoDeleteGroup) || (IsDamageDestroyed() && !autoDeleteGroup)))
+		{
 			s_Expansion_AllPlayers.m_OnRemove.Remove(eAI_OnRemovePlayer);
+			eAICustomCreatureTargetInformation.s_AllCustomCreatures.m_OnRemove.Remove(eAI_OnRemoveCustomCreature);
+		}
 
 		if (m_eAI_ClientUpdateTimer && m_eAI_ClientUpdateTimer.IsRunning())
 			m_eAI_ClientUpdateTimer.Stop();
@@ -1620,11 +1634,13 @@ class eAIBase: PlayerBase
 		switch (m_eAI_LastEngagedTargetType)
 		{
 			case eAICreatureTargetInformation:
+			case eAICustomCreatureTargetInformation:
 				if (unlimitedReload & eAITargetType.ANIMAL)
 					return true;
 				break;
 
 			case eAIZombieTargetInformation:
+			case eAICustomInfectedTargetInformation:
 				if (unlimitedReload & eAITargetType.INFECTED)
 					return true;
 				break;
@@ -1838,6 +1854,15 @@ class eAIBase: PlayerBase
 		return m_eAI_Targets[index];
 	}
 
+	eAITargetInformation eAI_GetTargetInformation(int index = 0)
+	{
+		eAITarget target = m_eAI_Targets[index];
+		if (target)
+			return target.m_Info;
+
+		return null;
+	}
+
 	void eAI_AddTarget(eAITarget target)
 	{
 		m_eAI_Targets.Insert(target);
@@ -1892,6 +1917,8 @@ class eAIBase: PlayerBase
 		{
 			case eAICreatureTargetInformation:
 			case eAIZombieTargetInformation:
+			case eAICustomCreatureTargetInformation:
+			case eAICustomInfectedTargetInformation:
 				m_eAI_AcuteDangerTargetCount += delta;
 				break;
 
@@ -2194,6 +2221,38 @@ class eAIBase: PlayerBase
 		report.Insert(indent + string.Format("|  |  \\- Is final %1", m_eAI_TargetPositionIsFinal.ToString()));
 
 		report.Insert(indent + string.Format("|  \\- Is AI position final %1", m_eAI_PositionIsFinal.ToString()));
+
+		report.Insert(indent + string.Format("|- Allow jump/climb %1", m_PathFinding.m_AllowJumpClimb.ToString()));
+		report.Insert(indent + string.Format("|- Path segment blocked %1", m_PathFinding.m_IsBlocked.ToString()));
+		report.Insert(indent + string.Format("|- Path segment blocked physically %1", m_PathFinding.m_IsBlockedPhysically.ToString()));
+		report.Insert(indent + string.Format("|- Path segment jump/climb %1", m_PathFinding.m_IsJumpClimb.ToString()));
+		report.Insert(indent + string.Format("|- Movement blocked %1", m_eAI_CommandMove.IsBlocked().ToString()));
+
+		SHumanCommandClimbResult climbResult = m_eAI_LastSuccessfulClimbTestResult;
+		if (climbResult)
+		{
+			report.Insert(indent + "|- Last successful climb test result");
+			report.Insert(indent + string.Format("|  |- Is climb %1", climbResult.m_bIsClimb.ToString()));
+			report.Insert(indent + string.Format("|  |- Is climb over %1", climbResult.m_bIsClimbOver.ToString()));
+			report.Insert(indent + string.Format("|  |- Finish with fall %1", climbResult.m_bFinishWithFall.ToString()));
+			report.Insert(indent + string.Format("|  |- Has parent %1", climbResult.m_bHasParent.ToString()));
+			report.Insert(indent + string.Format("|  |- Climb height %1", climbResult.m_fClimbHeight));
+			report.Insert(indent + string.Format("|  |- Climb grab point %1",
+												 ExpansionStatic.VectorToString(climbResult.m_ClimbGrabPoint,
+																				ExpansionVectorToString.Plain)));
+			report.Insert(indent + string.Format("|  |- Climb grab point normal %1",
+												 ExpansionStatic.VectorToString(climbResult.m_ClimbGrabPointNormal,
+																				ExpansionVectorToString.Plain)));
+			report.Insert(indent + string.Format("|  |- Climb stand point %1",
+												 ExpansionStatic.VectorToString(climbResult.m_ClimbStandPoint,
+																				ExpansionVectorToString.Plain)));
+			report.Insert(indent + string.Format("|  |- Climb over stand point %1",
+												 ExpansionStatic.VectorToString(climbResult.m_ClimbOverStandPoint,
+																				ExpansionVectorToString.Plain)));
+			report.Insert(indent + string.Format("|  |- Grab point parent %1", Debug.GetDebugName(climbResult.m_GrabPointParent)));
+			report.Insert(indent + string.Format("|  |- Climb stand point parent %1", Debug.GetDebugName(climbResult.m_ClimbStandPointParent)));
+			report.Insert(indent + string.Format("|  \\- Climb over stand point parent %1", Debug.GetDebugName(climbResult.m_ClimbOverStandPointParent)));
+		}
 
 		if (m_eAI_CurrentCoverObject)
 		{
@@ -2932,6 +2991,24 @@ class eAIBase: PlayerBase
 			}
 
 			m_eAI_PotentialTargetPlayer = m_eAI_PotentialTargetPlayer.m_Next;
+
+			//! Custom creatures
+			if (!m_eAI_PotentialTargetCustomCreature)
+				m_eAI_PotentialTargetCustomCreature = eAICustomCreatureTargetInformation.s_AllCustomCreatures.m_Head;
+
+			if (m_eAI_PotentialTargetCustomCreature)
+			{
+				EntityAI creature = m_eAI_PotentialTargetCustomCreature.m_Value.GetEntity();
+				if (creature && m_eAI_PotentialTargetEntities.Find(creature) == -1)
+				{
+					float creatureDetectionLimit = Math.Min(eAICustomCreatureTargetInformation.CREATURE_AGGRO_RANGE, 1100 * m_Expansion_Visibility);
+					if (Math.IsPointInCircle(center, creatureDetectionLimit, creature.GetPosition()))
+						m_eAI_PotentialTargetEntities.Insert(creature);
+				}
+
+				m_eAI_PotentialTargetCustomCreature = m_eAI_PotentialTargetCustomCreature.m_Next;
+			}
+			
 		}
 
 		PlayerBase playerThreat;
@@ -3280,7 +3357,7 @@ class eAIBase: PlayerBase
 
 		if (!info.IsActive())
 		{
-			if (entity.IsZombie())
+			if (entity.IsDayZCreature())
 			{
 				if (m_eAI_TrackedBodies.Find(entity) == -1)
 				{
@@ -3297,7 +3374,7 @@ class eAIBase: PlayerBase
 			return false;
 		}
 
-		if (entity.IsItemBase() || entity.IsZombie() || entity.IsAnimal())
+		if (entity.IsItemBase() || entity.IsDayZCreature())
 		{
 			if (info.ShouldRemove(this))
 				return false;
@@ -3329,6 +3406,12 @@ class eAIBase: PlayerBase
 	{
 		if (node == m_eAI_PotentialTargetPlayer)
 			m_eAI_PotentialTargetPlayer = node.m_Next;
+	}
+
+	void eAI_OnRemoveCustomCreature(CF_DoublyLinkedNode_WeakRef<eAICustomCreatureTargetInformation> node)
+	{
+		if (node == m_eAI_PotentialTargetCustomCreature)
+			m_eAI_PotentialTargetCustomCreature = node.m_Next;
 	}
 
 	/**
@@ -3896,8 +3979,8 @@ class eAIBase: PlayerBase
 			target.Remove();
 		if (m_eAI_CurrentTarget_NetIDLow == 0 && m_eAI_CurrentTarget_NetIDHigh == 0)
 			return;
-		Object entity = g_Game.GetObjectByNetworkId(m_eAI_CurrentTarget_NetIDLow, m_eAI_CurrentTarget_NetIDHigh);
-		if (!entity)
+		EntityAI entity ;
+		if (!Class.CastTo(entity, g_Game.GetObjectByNetworkId(m_eAI_CurrentTarget_NetIDLow, m_eAI_CurrentTarget_NetIDHigh)))
 			return;
 		eAITargetInformation info = eAITargetInformation.GetTargetInformation(entity);
 		if (!info)
@@ -4700,7 +4783,7 @@ class eAIBase: PlayerBase
 		{
 			ExpansionEffectAreaMergedCluster cluster = m_eAI_EffectArea.m_Expansion_MergedCluster;
 			EffectArea closestArea;
-			float tolerance = Math.Max(Math.Min(m_eAI_EffectArea.m_Radius * 0.1, 15.0), 3.0);
+			float tolerance = cluster.GetAvoidanceDistance(m_eAI_EffectArea.m_Radius);
 
 		#ifdef DIAG_DEVELOPER
 			Object dbgObj;
@@ -4742,7 +4825,7 @@ class eAIBase: PlayerBase
 			#endif
 
 				//! If the original target position is inside the closest area, stop unless we are attempting to flank
-				if (m_eAI_DangerousAreaCount == 0 && Math.IsPointInCircle(closestArea.m_Position, closestArea.m_Radius + 3.0, oPos) && !m_eAI_ShouldTakeCover)
+				if (m_eAI_DangerousAreaCount == 0 && Math.IsPointInCircle(closestArea.m_Position, closestArea.m_Radius + ExpansionEffectAreaMergedCluster.IS_INSIDE_MARGIN, oPos) && !m_eAI_ShouldTakeCover)
 				{
 					isFinal = true;
 					m_PathFinding.m_IsTargetUnreachable = true;
@@ -4931,7 +5014,7 @@ class eAIBase: PlayerBase
 			return false;
 		}
 
-		if (m_eAI_LadderLoops == 3)
+		if (m_eAI_LadderLoops == 10)
 		{
 		#ifdef DIAG_DEVELOPER
 			if (m_eAI_Ladder)
@@ -6924,7 +7007,7 @@ class eAIBase: PlayerBase
 		{
 			eAI_HandleAiming(pDt, m_eAI_HasLOS);
 
-			if (actualCommandID != DayZPlayerConstants.COMMANDID_CLIMB && !m_eAI_IsAttachedToMovingParent && !m_FSM.IsInState("Idle"))
+			if (actualCommandID != DayZPlayerConstants.COMMANDID_CLIMB && !m_eAI_IsAttachedToMovingParent && (m_PathFinding.GetOverride() || !m_FSM.IsInState("Idle")))
 				m_PathFinding.OnUpdate(pDt, simulationPrecision);
 		#ifdef DIAG_DEVELOPER
 			else
@@ -7181,13 +7264,7 @@ class eAIBase: PlayerBase
 
 		//! We want to interpolate rel angles for looking! Otherwise, if the conversion to rel angles happens later,
 		//! there will be a sudden jump in the unit's head rotation between 180 and -180 due to the way the head animation is set up
-		lookTargetRelAngles[0] = ExpansionMath.RelAngle(lookTargetRelAngles[0]);
-		lookTargetRelAngles[1] = ExpansionMath.RelAngle(lookTargetRelAngles[1]);
-
-		lookTargetRelAngles[1] = Math.Clamp(lookTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
-
-		//TODO: quaternion slerp instead for better, accurate results
-		m_eAI_LookRelAngles = ExpansionMath.InterpolateAngles(m_eAI_LookRelAngles, lookTargetRelAngles, pDt, Math.RandomFloat(3.0, 5.0), Math.RandomFloat(1.0, 3.0));
+		eAI_InterpolateYawPitch(m_eAI_LookRelAngles, lookTargetRelAngles, m_eAI_LookVelLR, m_eAI_LookVelUD, pDt);
 
 		float lookLR = m_eAI_LookRelAngles[0];
 		float lookUD = m_eAI_LookRelAngles[1];
@@ -7195,7 +7272,7 @@ class eAIBase: PlayerBase
 		if (IsRaised())
 		{
 			//! Need to adjust look direction when aiming
-			lookLR =  ExpansionMath.RelAngle(lookLR - m_eAI_AimRelAngles[0]);
+			lookLR =  ExpansionMath.AngleDiff2(0, lookLR - m_eAI_AimRelAngles[0]);  //! AngleDiff2 ensures range [-180, 180]
 			if (entityInHands && entityInHands.IsWeapon())
 				lookUD = 0;
 		}
@@ -7283,7 +7360,7 @@ class eAIBase: PlayerBase
 					turnTarget = m_eAI_TurnTarget;
 					setTurnTarget = true;
 				}
-				else if (m_eAI_AimDirection_Recalculate || Math.AbsFloat(m_eAI_AimRelAngles[0]) > 90)
+				else if (m_eAI_AimDirection_Recalculate || (Math.AbsFloat(m_eAI_AimRelAngles[0]) > 90 && aimTargetRelAngles[0] != 0))
 				{
 					turnTarget = GetAimDirectionTarget().VectorToAngles()[0];
 					setTurnTarget = true;
@@ -7445,6 +7522,10 @@ class eAIBase: PlayerBase
 		return false;
 	}
 
+#ifdef DIAG_DEVELOPER
+	static float s_eAI_UpdateLookFrequencyMult = 1.0;
+#endif
+
 	bool eAI_UpdateLookDirectionPreference()
 	{
 		if (!GetGroup() || IsUnconscious())
@@ -7467,6 +7548,9 @@ class eAIBase: PlayerBase
 		
 		m_eAI_MovementSpeedPrev = speed;
 		float f = 4.0 - speed;
+	#ifdef DIAG_DEVELOPER
+		f *= s_eAI_UpdateLookFrequencyMult;
+	#endif
 		if (speed > 0.0)
 			m_eAI_FormationDirectionNextUpdateTime = Math.RandomFloat(0.5, 0.333333 * f);
 		else
@@ -7649,6 +7733,31 @@ class eAIBase: PlayerBase
 		}
 
 		return true;
+	}
+
+#ifdef DIAG_DEVELOPER
+	static bool s_eAI_UseInterpolateAngles;
+#endif
+
+	//! @brief interpolate yaw/pitch angles for looking/aiming
+	static void eAI_InterpolateYawPitch(inout vector relAngles, inout vector targetRelAngles, inout float velH[], inout float velV[], float dt)
+	{
+		targetRelAngles[0] = ExpansionMath.RelAngle(targetRelAngles[0]);
+		targetRelAngles[1] = ExpansionMath.RelAngle(targetRelAngles[1]);
+
+		targetRelAngles[1] = Math.Clamp(targetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
+
+	#ifdef DIAG_DEVELOPER
+		if (s_eAI_UseInterpolateAngles)
+		{
+			//! This is the old method. Should no longer be used, kept it in for comparison in diag
+			relAngles = ExpansionMath.InterpolateAngles(relAngles, targetRelAngles, dt, Math.RandomFloat(3.0, 5.0), Math.RandomFloat(1.0, 3.0));
+			return;
+		}
+	#endif
+
+		relAngles[0] = Math.SmoothCD(relAngles[0], targetRelAngles[0], velH, 0.283333, 180, dt);
+		relAngles[1] = Math.SmoothCD(relAngles[1], targetRelAngles[1], velV, 0.283333, 180, dt);
 	}
 
 	void eAI_RandomGreeting(bool excludeWatching = false)
@@ -9151,7 +9260,7 @@ class eAIBase: PlayerBase
 					//! Adjust aim when turning
 					float diff = ExpansionMath.AngleDiff2(m_eAI_AimDirectionPrev.VectorToAngles()[0], GetAimDirectionTarget().VectorToAngles()[0]);
 					float diffAbs = Math.AbsFloat(diff);
-					if (diffAbs <= 10.0)
+					if (diffAbs <= 0.01)
 					{
 						instant = true;
 					}
@@ -9160,13 +9269,7 @@ class eAIBase: PlayerBase
 
 			//! We want to interpolate rel angles for aiming! Otherwise, if the conversion to rel angles happens later,
 			//! there will be a sudden jump in the unit's rotation between 180 and -180 due to the way the animation is set up
-			aimTargetRelAngles[0] = ExpansionMath.RelAngle(aimTargetRelAngles[0]);
-			aimTargetRelAngles[1] = ExpansionMath.RelAngle(aimTargetRelAngles[1]);
-
-			aimTargetRelAngles[1] = Math.Clamp(aimTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
-
-			//TODO: quaternion slerp instead for better, accurate results
-			m_eAI_AimRelAngles = ExpansionMath.InterpolateAngles(m_eAI_AimRelAngles, aimTargetRelAngles, pDt, Math.RandomFloat(3.0, 5.0), Math.RandomFloat(1.0, 3.0));
+			eAI_InterpolateYawPitch(m_eAI_AimRelAngles, aimTargetRelAngles, m_eAI_AimVelLR, m_eAI_AimVelUD, pDt);
 			if (instant)
 				m_eAI_AimRelAngles[0] = aimTargetRelAngles[0];
 
@@ -9231,12 +9334,7 @@ class eAIBase: PlayerBase
 
 			vector lookTargetRelAngles = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
 
-			lookTargetRelAngles[0] = ExpansionMath.RelAngle(lookTargetRelAngles[0]);
-			lookTargetRelAngles[1] = ExpansionMath.RelAngle(lookTargetRelAngles[1]);
-
-			lookTargetRelAngles[1] = Math.Clamp(lookTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
-
-			m_eAI_AimRelAngles = ExpansionMath.InterpolateAngles(m_eAI_AimRelAngles, lookTargetRelAngles, pDt, Math.RandomFloat(3.0, 5.0), Math.RandomFloat(1.0, 3.0));
+			eAI_InterpolateYawPitch(m_eAI_AimRelAngles, lookTargetRelAngles, m_eAI_AimVelLR, m_eAI_AimVelUD, pDt);
 		}
 
 		m_eAI_AimDirectionPrev = GetAimDirection();
@@ -10430,7 +10528,7 @@ class eAIBase: PlayerBase
 			int stanceMask;
 			eAIStance defaultStance;
 
-			if (m_eAI_DefaultStance != eAIStance.STANDING)
+			if (m_eAI_DefaultStance > eAIStance.STANDING)
 			{
 				if (g_Game.GetTickTime() - m_eAI_LastHitTime > 10.0 && !m_FSM.IsInState("Melee") && GetCurrentWaterLevel() < 0.3)
 					defaultStance = m_eAI_DefaultStance;
@@ -10665,10 +10763,18 @@ class eAIBase: PlayerBase
 			hcls.m_fBackwardsCheckDist = 0;
 
 		SetOrientation(GetOrientation());
+
+		//! These two NEED to be reset to zero vector else they may carry previous values if new result climb/climbover differs from previous!
+		//! Other SHumanCommandClimbResult values are set appropriately by DoClimbTest
+		m_ExClimbResult.m_ClimbOverStandPoint = vector.Zero;
+		m_ExClimbResult.m_ClimbStandPoint = vector.Zero;
+
 		HumanCommandClimb.DoClimbTest(this, m_ExClimbResult, 0);
 
 		if (m_ExClimbResult.m_bIsClimb || m_ExClimbResult.m_bIsClimbOver)
 		{
+			m_eAI_LastSuccessfulClimbTestResult = m_ExClimbResult;
+
 			//! AI, like players, can just run over small height differences unless walking slowly (avoids awkwardly climbing stairs)
 			//! @note hcls.m_fFwMinHeight cannot be used for this since it is too high (0.7)
 			//! @note this check is only needed for vanilla DoClimbTest, ExpansionClimb::DoClimbTest checks height internally
@@ -10685,7 +10791,10 @@ class eAIBase: PlayerBase
 		{
 			ExpansionClimb.DoClimbTest(this, m_ExClimbResult, true);
 			if (m_ExClimbResult.m_bIsClimb || m_ExClimbResult.m_bIsClimbOver)
+			{
+				m_eAI_LastSuccessfulClimbTestResult = m_ExClimbResult;
 				return true;
+			}
 		}
 
 		return false;

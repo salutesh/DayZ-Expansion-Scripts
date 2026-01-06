@@ -191,7 +191,7 @@ class eAIDynamicPatrol : eAIPatrol
 			accuracyMin = config.AccuracyMin;
 
 		float accuracyMax;
-		if (config.AccuracyMin <= 0)
+		if (config.AccuracyMax <= 0)
 			accuracyMax = s_AIPatrolSettings.AccuracyMax;
 		else
 			accuracyMax = config.AccuracyMax;
@@ -538,11 +538,11 @@ class eAIDynamicPatrol : eAIPatrol
 		else
 		{
 			if (m_Config.NumberOfAI < 0)
-			{
 				m_NumberOfAI = Math.RandomIntInclusive(1, -m_Config.NumberOfAI);
-			} else {
+			else if (m_Config.NumberOfAIMax > 0)
+				m_NumberOfAI = Math.RandomIntInclusive(m_Config.NumberOfAI, m_Config.NumberOfAIMax);
+			else
 				m_NumberOfAI = m_Config.NumberOfAI;
-			}
 
 			m_Faction = eAIFaction.Create(m_Config.Faction);
 			if (m_Faction == null) m_Faction = new eAIFactionCivilian();
@@ -848,6 +848,7 @@ class eAIDynamicPatrol : eAIPatrol
 		Print(m_IsSpawned);
 
 		Print(m_Config.NumberOfAI);
+		Print(m_Config.NumberOfAIMax);
 		Print(m_NumberOfAI);
 		Print(m_RespawnTime);
 		Print(m_DespawnTime);

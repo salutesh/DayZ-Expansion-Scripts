@@ -500,8 +500,10 @@ modded class DayZPlayerImplement
 			return;
 		}
 
+		EntityAI root = source.GetHierarchyRoot();
+
 		PlayerBase player;
-		if (Class.CastTo(player, source.GetHierarchyRootPlayer()) && player != this)
+		if (Class.CastTo(player, root) && player != this)
 		{
 			//! If attacker is not AI, or we are their current target (else it was accidental friendly fire),
 			//! target attacker for up to 2 minutes
@@ -530,6 +532,15 @@ modded class DayZPlayerImplement
 		if (Class.CastTo(vehicle, source) && damageResult.GetDamage(dmgZone, "Health") >= GetHealth(dmgZone, "Health") * 0.055555)
 		{
 			vehicle.GetTargetInformation().AddFriendlyAI(this);
+
+			return;
+		}
+
+		if (root.IsDayZCreature())
+		{
+			eAITargetInformation.GetTargetInformation(root).AddFriendlyAI(this);
+
+			return;
 		}
 	}
 

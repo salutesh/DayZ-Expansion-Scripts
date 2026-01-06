@@ -5,6 +5,9 @@
  */
 class eAITargetInformation
 {
+	//! Catch-all for custom 3rd party modded AI that's not inheriting from ZombieBase or AnimalBase but DayZCreature
+	static ref map<EntityAI, ref eAITargetInformation> s_CustomAI = new map<EntityAI, ref eAITargetInformation>;
+
 	// in most circumstances an entity should only be in 1 group
 	ref map<int, int> m_Groups = new map<int, int>;  //! Contains all groups actively tracking this target
 	ref map<eAIBase, ref eAITarget> m_Targets = new map<eAIBase, ref eAITarget>;  //! Contains all AI that know about this target (not necessarily actively tracking it)
@@ -607,7 +610,7 @@ class eAITargetInformation
 	//
 	// wherever possible, please use
 	//	'eAIEntity<DayZPlayerImplement>.GetTargetInformation(g_Game.GetPlayer())`
-	static eAITargetInformation GetTargetInformation(Object entity)
+	static eAITargetInformation GetTargetInformation(EntityAI entity)
 	{
 		DayZPlayerImplement player;
 		if (Class.CastTo(player, entity))
@@ -629,6 +632,38 @@ class eAITargetInformation
 		if (Class.CastTo(car, entity))
 			return car.GetTargetInformation();
 
+		if (entity.IsDayZCreature())
+			return GetCustomCreatureTargetInformation(entity);
+
 		return null;
+	}
+
+	static eAITargetInformation GetCustomCreatureTargetInformation(EntityAI entity)
+	{
+		eAITargetInformation info;
+
+		if (!s_CustomAI.Find(entity, info))
+		{
+			if (entity.IsInherited(DayZInfected))
+				info = new eAICustomInfectedTargetInformation(entity);
+			else
+				info = new eAICustomCreatureTargetInformation(entity);
+			s_CustomAI[entity] = info;
+		}
+
+		return info;
+	}
+
+	static void PurgeCustomAI()
+	{
+		auto customAI = new map<EntityAI, ref eAITargetInformation>;
+
+		foreach (EntityAI entity, eAITargetInformation info: s_CustomAI)
+		{
+			if (entity)
+				customAI[entity] = info;
+		}
+
+		s_CustomAI = customAI;
 	}
 };

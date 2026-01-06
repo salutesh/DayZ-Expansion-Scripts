@@ -164,9 +164,13 @@ class ExpansionCEEvents: map<string, ref ExpansionCEEvent>
 				return;
 			}
 
-			auto events = root.GetTag("event");
+			auto events = root.GetContent().GetTags();
 			foreach (CF_XML_Tag eventTag: events)
 			{
+				string tagName = eventTag.GetName();
+				if (tagName != "event")
+					continue;
+
 				string name = ExpansionXML.GetAttributeString(eventTag, "name");
 
 				string key = name;

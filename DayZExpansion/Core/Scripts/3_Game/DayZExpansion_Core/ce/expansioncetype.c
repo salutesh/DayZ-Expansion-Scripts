@@ -125,9 +125,13 @@ class ExpansionCETypes: map<string, ref ExpansionCEType>
 				return;
 			}
 
-			auto types = root.GetTag("type");
+			auto types = root.GetContent().GetTags();
 			foreach (CF_XML_Tag type: types)
 			{
+				string tagName = type.GetName();
+				if (tagName != "type")
+					continue;
+
 				string name = ExpansionXML.GetAttributeString(type, "name");
 
 				string key = name;

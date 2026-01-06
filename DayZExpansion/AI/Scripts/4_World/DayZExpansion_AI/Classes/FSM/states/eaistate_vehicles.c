@@ -36,18 +36,20 @@ class eAIState_Vehicles: eAIState
 		
 		if (!leader.IsInTransport()) return eAITransition.FAIL;
 		
-		CarScript car;
-		if (!Class.CastTo(car, leader.GetParent())) return eAITransition.FAIL;
-		
+		ExpansionVehicle vehicle;
+		if (!ExpansionVehicle.Get(vehicle, leader.GetParent())) return eAITransition.FAIL;
+
+		Transport transport = vehicle.GetTransport();
+
 		//TODO: make this event based instead and store as a variable within CarScript.
 		//Prevents looping through the crew and insteads just compares a bool.
-		for (int i = 1; i < car.CrewSize(); i++)
+		for (int i = 1; i < vehicle.CrewSize(); i++)
 		{
-			if (car.CrewMember(i) == null && !car.Expansion_IsSeatReservedByOther(i, unit) && car.IsAreaAtDoorFree(i))
+			if (vehicle.CrewMember(i) == null && !vehicle.IsSeatReservedByOther(i, unit) && transport.IsAreaAtDoorFree(i))
 			{
 				seat = i;
-				entity = car;
-				car.Expansion_ReserveSeat(i, unit);
+				entity = transport;
+				vehicle.ReserveSeat(i, unit);
 				
 				return eAITransition.SUCCESS;
 			}

@@ -56,7 +56,7 @@ class ExpansionAIPatrolSettingsV24
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 28;
+	static const int VERSION = 30;
 
 	ref map<string, ref array<ref ExpansionAIPatrolLoadBalancing>> LoadBalancingCategories = new map<string, ref array<ref ExpansionAIPatrolLoadBalancing>>;
 
@@ -374,6 +374,15 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 
 				if (version < 28 && !patrol.EnableFlankingOutsideCombat)
 					patrol.EnableFlankingOutsideCombat = -1;
+
+				if (version < 29 && patrol.DefaultLookAngle == -1)
+					patrol.DefaultLookAngle = 0;
+
+				if (version < 30 && patrol.NumberOfAI < 0)
+				{
+					patrol.NumberOfAIMax = -patrol.NumberOfAI;
+					patrol.NumberOfAI = 1;
+				}
 
 				if (patrol.ObjectClassName)
 				{

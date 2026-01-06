@@ -388,40 +388,84 @@ class eAIDamageHandler
 				}
 			}
 
-		#ifdef DIAG_DEVELOPER
-			PluginAdminLog adminLog = PluginAdminLog.Cast(GetPlugin(PluginAdminLog));
-			string playerPrefix;
-			string sourcePrefix;
+			bool overrideDmgZone;
 
-			if (m_Entity.IsPlayer() && (damageMultiplier != 1.0 || player.m_eAI_DamageReceivedMultiplier != 1.0 || player.m_eAI_HeadshotResistance > 0.0))
-			{
-				float dmgCoef = damageMultiplier * speedCoef;
-				string hitMessage = GetHitMessage(damageResult, component, dmgZone, ammo, dmgCoef);
+			//! Detect invalid 3rd party mod player damage zone if target entity is AI
+			if (!dmgZone && (!source || source.GetHierarchyRoot().IsDayZCreature()) && m_Entity.IsInherited(eAIBase))
+				overrideDmgZone = true;
 
-				playerPrefix = adminLog.GetPlayerPrefix(PlayerBase.Cast(player), player.GetIdentity());
-				playerPrefix += "[HP: " + player.GetHealth().ToString() + "]";
-
-				if (sourcePlayer)
-				{
-					sourcePrefix = adminLog.GetPlayerPrefix(PlayerBase.Cast(sourcePlayer), sourcePlayer.GetIdentity());
-					sourcePrefix += hitMessage;
-
-					if (source.IsMeleeWeapon() || source.IsWeapon())
-						sourcePrefix += " with " + source.GetDisplayName();
-				}
-				else
-				{
-					sourcePrefix = source.GetDisplayName();
-					sourcePrefix += hitMessage;
-				}
-
-				adminLog.LogPrint(playerPrefix + " hit by " + sourcePrefix + " dmg coef " + speedCoef + " -> " + dmgCoef);
-			}
-		#endif
-
-			if (damageMultiplier != 1.0)
+			if (damageMultiplier != 1.0 || overrideDmgZone)
 			{
 				damageMultiplier *= speedCoef;
+
+				if (!dmgZone && !isPlayerItem)
+				{
+					//! If damage zone is empty, we need to adjust damage accordingly because if a value other than 1.0 was passed
+					//! as damageCoef to ProcessDirectDamage, speedCoef will be 1.0 and not reflect it (but the damageResult will).
+
+					//! @note for some reason, TotalDamageResult::GetHighestDamage doesn't seem to work if damage zone is empty
+
+					string healthType = "Health";
+					float highestDmg = damageResult.GetDamage(dmgZone, healthType);
+
+					TStringArray additionalHealthTypes = {};
+					if (m_Entity.GetAdditionalHealthTypes(dmgZone, additionalHealthTypes))
+					{
+						foreach (string additionalHealthType: additionalHealthTypes)
+						{
+							float dmg = damageResult.GetDamage(dmgZone, additionalHealthType);
+							if (dmg > highestDmg)
+							{
+								highestDmg = dmg;
+								healthType = additionalHealthType;
+							}
+						}
+					}
+
+					float defaultDmg = ExpansionWeaponUtils.GetDamageAppliedByBullet(ammo, healthType);
+					if (defaultDmg > highestDmg)
+						damageMultiplier *= highestDmg / defaultDmg;
+				}
+
+			#ifdef DIAG_DEVELOPER
+				if (player)
+				{
+					PluginAdminLog adminLog = PluginAdminLog.Cast(GetPlugin(PluginAdminLog));
+					string playerPrefix;
+					string sourcePrefix;
+
+					string hitMessage = GetHitMessage(damageResult, component, dmgZone, ammo, damageMultiplier);
+
+					if (m_Entity != player)
+						playerPrefix = string.Format("%1 on ", m_Entity.ToString());
+
+					playerPrefix += adminLog.GetPlayerPrefix(PlayerBase.Cast(player), player.GetIdentity());
+					playerPrefix += "[HP: " + player.GetHealth().ToString() + "]";
+
+					if (sourcePlayer)
+					{
+						sourcePrefix = adminLog.GetPlayerPrefix(PlayerBase.Cast(sourcePlayer), sourcePlayer.GetIdentity());
+						sourcePrefix += hitMessage;
+
+						if (source.IsMeleeWeapon() || source.IsWeapon())
+							sourcePrefix += " with " + source.GetDisplayName();
+					}
+					else
+					{
+						if (source.IsZombie() || source.IsAnimal())
+							sourcePrefix = source.GetDisplayName();
+						else
+							sourcePrefix = source.GetType();
+
+						sourcePrefix += hitMessage;
+					}
+
+					if (damageType == DT_FIRE_ARM)
+						sourcePrefix += " from " + vector.Distance(source.GetPosition(), player.GetPosition()) + " meters";
+
+					adminLog.LogPrint(playerPrefix + " hit by " + sourcePrefix + " dmg coef " + speedCoef + " -> " + damageMultiplier);
+				}
+			#endif
 
 				if (!isPlayerItem && damageMultiplier != 0.0)
 				{
@@ -429,6 +473,13 @@ class eAIDamageHandler
 					//! Calling ProcessDirectDamage with source being any static/baked entity segfaults (https://feedback.bistudio.com/T192088)
 					if (source && !source.IsItemBase() && !source.IsDayZCreature() && !source.IsMan() && !source.IsTransport())
 						source = m_Entity;
+
+					//! Redirect invalid 3rd party mod player damage zone to random zone so vanilla clothing protection works correctly
+					if (overrideDmgZone)
+					{
+						dmgZone = s_HumanDmgZonesForRedirect.GetRandomElement();
+						modelPos = m_Entity.GetDamageZonePos(dmgZone);
+					}
 
 					//! Need to use Call() to avoid inconsistent damage
 					g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(ProcessDamage, damageType, source, sourcePlayer, dmgZone, ammo, modelPos, damageMultiplier);
@@ -452,8 +503,14 @@ class eAIDamageHandler
 	{	
 		if (damageResult)	
 		{
-			float dmg = damageResult.GetHighestDamage("Health") * damageCoef;
-			return " into " + zone + "(" + component.ToString() + ") for " + dmg.ToString() + " damage (" + ammo + ")";
+			string hitMessage;
+
+			if (zone)
+				hitMessage = " into " + zone + "(" + component.ToString() + ")";
+
+			float dmg = damageResult.GetDamage(zone, "Health") * damageCoef;
+
+			return hitMessage + " for " + dmg.ToString() + " damage (" + ammo + ")";
 		}
 		else
 		{

@@ -24,9 +24,6 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	protected ButtonWidget m_LeftButton;
 	protected ButtonWidget m_RightButton;
 
-	protected Widget m_State3DContainer;
-	protected Widget m_StatePartyContainer;
-
 	protected CheckBoxWidget m_State3DCheckbox;
 	protected CheckBoxWidget m_StatePartyCheckbox;
 	protected CheckBoxWidget m_StateDragLockCheckbox;
@@ -71,9 +68,6 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		Class.CastTo(m_ColorRGB_Green, layoutRoot.FindAnyWidget("marker_color_picker_rgb_green_slider"));
 		Class.CastTo(m_ColorRGB_Blue, layoutRoot.FindAnyWidget("marker_color_picker_rgb_blue_slider"));
 
-		Class.CastTo(m_State3DContainer, layoutRoot.FindAnyWidget("marker_state_3d_container"));
-		Class.CastTo(m_StatePartyContainer, layoutRoot.FindAnyWidget("marker_state_party_container"));
-
 		Class.CastTo(m_State3DCheckbox, layoutRoot.FindAnyWidget("marker_state_3d_checkbox"));
 		Class.CastTo(m_StatePartyCheckbox, layoutRoot.FindAnyWidget("marker_state_party_checkbox"));
 		Class.CastTo(m_StateDragLockCheckbox, layoutRoot.FindAnyWidget("marker_state_lock_checkbox"));
@@ -83,6 +77,8 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		{
 			m_IconTypesArray.Insert(new ExpansionMapMarkerIconItem(m_IconEntries, icon, this));
 		}
+
+		SetPrimaryColor(m_PrimaryColor);
 	}
 
 	void SetMapMenu(ExpansionMapMenu menu)
@@ -201,9 +197,9 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			m_ColorRGB_Blue.SetCurrent(b);
 		}
 
-		for (int i = 0; i < m_IconTypesArray.Count(); ++i)
+		foreach (ExpansionMapMarkerIconItem icon: m_IconTypesArray)
 		{
-			m_IconTypesArray[i].SetColor(m_PrimaryColor);
+			icon.SetColor(m_PrimaryColor);
 		}
 	}
 
@@ -266,7 +262,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			GetScreenSize(screen_w, screen_h);
 			float w, h;
 			m_EditPanel.GetSize(w, h);
-			m_LayoutRoot.SetPos(screen_w / 2 - w / 2 + 25, screen_h / 2 - 75);
+			m_LayoutRoot.SetPos(screen_w / 2 - w / 2 + 25, screen_h / 2 - 175);
 		}
 	}
 
@@ -331,6 +327,8 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		if (!IsCreating() && !m_MapMenu.SetSelectedMarker(m_Data))
 			return;
 
+		m_LayoutRoot.SetSort(999);
+
 		if (!m_EditPanel)
 		{
 			m_EditPanel = g_Game.GetWorkspace().CreateWidgets(GetEditLayoutPath(), m_LayoutRoot.FindAnyWidget("marker_frame"));
@@ -345,6 +343,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 
 		if (CanEditName())
 		{
+			m_EditName.SetSize(345, 25);
 			m_EditName.Show(true);
 			m_EditName.SetText("");
 			m_Name.Show(false);
@@ -359,8 +358,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 				canCreateParty = true;
 #endif
 
-			m_StatePartyContainer.Show(canCreateParty);
-			m_State3DContainer.Show(GetExpansionSettings().GetMap().CanCreate3DMarker);
+			m_StatePartyCheckbox.Show(canCreateParty);
 			m_State3DCheckbox.Show(GetExpansionSettings().GetMap().CanCreate3DMarker);
 			m_State3DCheckbox.SetChecked(false);
 			m_StateDragLockCheckbox.SetChecked(GetExpansionClientSettings().DefaultMarkerLockState);
@@ -370,11 +368,10 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		}
 		else
 		{
-			m_StatePartyContainer.Show(false);
+			m_StatePartyCheckbox.Show(false);
 
 			if (!m_Data.Is3D())
 			{
-				m_State3DContainer.Show(GetExpansionSettings().GetMap().CanCreate3DMarker);
 				m_State3DCheckbox.Show(GetExpansionSettings().GetMap().CanCreate3DMarker);
 			}
 
@@ -395,6 +392,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 
 	void CloseEditPanel()
 	{
+		m_LayoutRoot.SetSort(0);
 		m_Frame.SetColor(ARGB(0, 0, 0, 0));
 		m_EditPanel.Show(false);
 		m_EditName.Show(false);

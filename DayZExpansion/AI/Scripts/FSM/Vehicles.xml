@@ -68,8 +68,7 @@
 			<guard>
 				if (vector.DistanceSq(unit.GetPosition(), src.m_Position) &gt; 1.0) return FAIL;
 				if (!src.m_Transport.IsAreaAtDoorFree(src.m_Seat)) return FAIL;
-				CarScript cs;
-				if (src.m_Transport.CrewMember(src.m_Seat) || (Class.CastTo(cs, src.m_Transport) &amp;&amp; cs.Expansion_IsSeatReservedByOther(src.m_Seat, unit))) return FAIL;
+				if (src.m_Transport.CrewMember(src.m_Seat) || (src.m_Vehicle.IsSeatReservedByOther(src.m_Seat, unit))) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -111,8 +110,7 @@
 				if (vector.DistanceSq(unit.GetPosition(), src.m_Position) &gt; 1.0) return FAIL;
 				if (unit.IsInTransport()) return FAIL;
 				if (!src.m_Transport.CrewCanGetThrough(src.m_Seat) || !src.m_Transport.IsAreaAtDoorFree(src.m_Seat)) return FAIL;
-				CarScript cs;
-				if (src.m_Transport.CrewMember(src.m_Seat) || (Class.CastTo(cs, src.m_Transport) &amp;&amp; cs.Expansion_IsSeatReservedByOther(src.m_Seat, unit))) return FAIL;
+				if (src.m_Transport.CrewMember(src.m_Seat) || (src.m_Vehicle.IsSeatReservedByOther(src.m_Seat, unit))) return FAIL;
 				
 				return SUCCESS;
 			</guard>

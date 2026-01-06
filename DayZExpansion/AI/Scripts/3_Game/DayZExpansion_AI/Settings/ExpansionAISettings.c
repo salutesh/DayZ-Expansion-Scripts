@@ -362,6 +362,16 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		s_Instance = this;
 
+		//! Convert excluded buildings to lowercase (don't save!)
+		TStringArray preventClimb = {};
+		preventClimb.Copy(PreventClimb);
+		PreventClimb.Clear();
+		foreach (string building: preventClimb)
+		{
+			building.ToLower();
+			PreventClimb.Insert(building);
+		}
+
 		return AISettingsExist;
 	}
 

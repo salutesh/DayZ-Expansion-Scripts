@@ -865,6 +865,11 @@ class ExpansionHelicopterScript: CarScript
 		return true;
 	}
 
+	override bool IgnoreOutOfReachCondition()
+	{
+		return true;
+	}
+
 	override bool IsVitalHelicopterBattery()
 	{
 #ifdef EXPANSIONTRACE

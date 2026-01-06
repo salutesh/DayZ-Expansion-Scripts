@@ -20,13 +20,14 @@ class ExpansionAISpawnBase
 	float FormationLooseness;
 	string Loadout;                 // a json file containing the loadout of this team - if empty, will use the default loadout of the faction
 	ref TStringArray Units = {};        // If non-empty, pick from these AI classnames when spawning
-	int NumberOfAI;                     // How many bots, -x will make it random between 0 and x
+	int NumberOfAI;                     // How many bots, if NumberOfAIMax is 0, will use exact number, else between NumberOfAI and NumberOfAIMax
+	int NumberOfAIMax;                     // How many bots max, value above 0 will spawn between NumberOfAI and NumberOfAIMax
 	string Behaviour;                   // See eAIWaypointBehavior
 	string LootingBehaviour;
 	string Speed;                       // See eAIMovementSpeed
 	string UnderThreatSpeed;            //
 	string DefaultStance = "STANDING";
-	float DefaultLookAngle = -1;
+	float DefaultLookAngle;
 	bool CanBeLooted;                   // if enabled, the bots can be looted by the players
 	string LootDropOnDeath;            // Loot to drop when AI dies (file name)
 	int UnlimitedReload;               // should bots be able to reload indefinitely (still needs spare mag in inventory!)
@@ -46,7 +47,15 @@ class ExpansionAISpawnBase
 
 	void ExpansionAISpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, int unlimitedreload = 0)
 	{
-		NumberOfAI = bod;
+		if (bod < 0)
+		{
+			NumberOfAI = 1;
+			NumberOfAIMax = -bod;
+		}
+		else
+		{
+			NumberOfAI = bod;
+		}
 		Speed = spd;
 		UnderThreatSpeed = threatspd;
 		Behaviour = beh;

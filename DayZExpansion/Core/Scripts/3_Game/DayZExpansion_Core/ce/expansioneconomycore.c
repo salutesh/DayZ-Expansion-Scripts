@@ -10,11 +10,11 @@
  *
  */
 
-class ExpansionCEFileType
+enum ExpansionCEFileType
 {
-	static string TYPES = "types";
-	static string SPAWNABLETYPES = "spawnabletypes";
-	static string EVENTS = "events";
+	TYPES,
+	SPAWNABLETYPES,
+	EVENTS
 }
 
 class ExpansionEconomyCoreRootClass
@@ -48,20 +48,52 @@ class ExpansionCEFolder
 	string Folder;
 	ref array<ref ExpansionCEFile> Files = {};
 
+	[NonSerialized()]
+	protected ref map<ExpansionCEFileType, ref array<ExpansionCEFile>> m_FilesByType = new map<ExpansionCEFileType, ref array<ExpansionCEFile>>;
+
 	void ExpansionCEFolder(string folder)
 	{
 		Folder = folder;
 	}
 
-	void AddFile(string name, string type)
+	void AddFile(string name, ExpansionCEFileType type)
 	{
-		Files.Insert(new ExpansionCEFile(name, type));
+		auto file = new ExpansionCEFile(name, type);
+
+		Files.Insert(file);
+
+		array<ExpansionCEFile> files;
+
+		if (!m_FilesByType.Find(type, files))
+		{
+			files = {};
+			m_FilesByType[type] = files;
+		}
+
+		files.Insert(file);
 	}
 
 	void Load(ExpansionCE ce)
 	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.CE, this, Folder);
+	#endif
+
 		foreach (ExpansionCEFile file: Files)
 			file.Load(ce, Folder);
+	}
+
+	void Load(ExpansionCE ce, ExpansionCEFileType type)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.CE, this, Folder, typename.EnumToString(ExpansionCEFileType, type));
+	#endif
+
+		auto files = m_FilesByType[type];
+
+		if (files)
+			foreach (ExpansionCEFile file: files)
+				file.Load(ce, Folder);
 	}
 }
 
@@ -70,17 +102,32 @@ class ExpansionCEFile
 	string Name;
 	string Type;
 
-	void ExpansionCEFile(string name, string type)
+	[NonSerialized()]
+	protected ExpansionCEFileType m_Type;
+
+	[NonSerialized()]
+	protected bool m_IsLoaded;
+
+	void ExpansionCEFile(string name, ExpansionCEFileType type)
 	{
 		Name = name;
-		Type = type;
+		Type = typename.EnumToString(ExpansionCEFileType, type);
+		Type.ToLower();
+		m_Type = type;
 	}
 
 	void Load(ExpansionCE ce, string folder)
 	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.CE, this, Name);
+	#endif
+
+		if (m_IsLoaded)
+			return;
+
 		string path = string.Format("$mission:%1\\%2", folder, Name);
 
-		switch (Type)
+		switch (m_Type)
 		{
 			case ExpansionCEFileType.TYPES:
 				ce.Types.ReadTypes(path);
@@ -94,6 +141,8 @@ class ExpansionCEFile
 				ce.Events.ReadEvents(path);
 				break;
 		}
+
+		m_IsLoaded = true;
 	}
 }
 
@@ -155,11 +204,13 @@ class ExpansionEconomyCore
 				{
 					string name = ExpansionXML.GetAttributeString(file, "name");
 					string type = ExpansionXML.GetAttributeString(file, "type");
+					type.ToUpper();
 
-					ceFolder.AddFile(name, type);
+					ceFolder.AddFile(name, typename.StringToEnum(ExpansionCEFileType, type));
 				}
 
-				ceFolder.Load(ce);
+				if (ce)
+					ceFolder.Load(ce);
 
 				CE.Insert(ceFolder);
 			}
@@ -172,8 +223,17 @@ class ExpansionEconomyCore
 		ceFolder.AddFile("db/types.xml", ExpansionCEFileType.TYPES);
 		ceFolder.AddFile("db/events.xml", ExpansionCEFileType.EVENTS);
 		ceFolder.AddFile("cfgspawnabletypes.xml", ExpansionCEFileType.SPAWNABLETYPES);
-		ceFolder.Load(ce);
+
+		if (ce)
+			ceFolder.Load(ce);
 
 		CE.Insert(ceFolder);
+	}
+
+	void Clear()
+	{
+		Classes.Clear();
+		Defaults.Clear();
+		CE.Clear();
 	}
 }

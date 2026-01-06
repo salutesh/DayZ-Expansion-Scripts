@@ -1091,7 +1091,7 @@ class eAIGroup
 		if (!m_Leave)
 			return false;
 
-		if (g_Game.GetTime() - m_LastHitTime < 30)
+		if (g_Game.GetTickTime() - m_LastHitTime < 30)
 			return false;
 
 		return true;

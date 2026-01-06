@@ -58,68 +58,20 @@ modded class PlayerBase
 		AddAction( ExpansionActionSwitchSeats, InputActionMap );
 	}
 	
-	override void EOnContact( IEntity other, Contact extra )
-	{
-		if( !IsAlive() || Expansion_GetParent() == other || !IsMissionHost() )
-			return;
-
-		Transport transport;
-		if ( Class.CastTo( transport, other ) )
-		{
-			ExpansionRegisterTransportHit( transport );
-		}
-
-		ExpansionVehicleBase vehicle;
-		if ( Class.CastTo( vehicle, other ) )
-		{
-			ExpansionRegisterTransportHit( vehicle );
-		}
-	}
-	
 	override void RegisterTransportHit( Transport transport )
 	{
-		// Preventing vanilla (and other mods) code from running
-	}
-	
-	void ExpansionRegisterTransportHit( EntityAI transport )
-	{
-		bool hasParent = false;
-
-		if ( Expansion_GetParent() )
-			hasParent = true;
-
-#ifdef DAYZ_1_25
-		if ( m_ExPlayerLinkType != ExpansionPlayerLink.NONE )
-			hasParent = true;
-#endif
-
 		if ( m_TransportHitRegistered )
 			return;
 
-		m_TransportHitRegistered = hasParent;
-
-		if ( !m_TransportHitRegistered )
-		{
+		if ( PhysicsGetLinkedEntity() == transport || PhysicsGetFloorEntity() == transport )
 			m_TransportHitRegistered = true;
-			m_TransportHitVelocity = GetVelocity( transport );
 
-			if ( m_TransportHitVelocity.Length() > 2.5 )
-			{
-				float damage = m_TransportHitVelocity.Length() * GetExpansionSettings().GetVehicle().VehicleRoadKillDamageMultiplier;
-				if ( transport && damage )
-					ProcessDirectDamage( DT_CUSTOM, transport, "", "TransportHit", "0 0 0", damage );
-			} else
-			{
-				m_TransportHitRegistered = false;
-			}
+		super.RegisterTransportHit(transport);
+	}
 
-			if ( IsDamageDestroyed() && m_TransportHitVelocity.Length() > 3 )
-			{
-				vector impulse = 40 * m_TransportHitVelocity;
-				impulse[1] = 40 * 1.5;
-				dBodyApplyImpulse(this, impulse);
-			}
-		}
+	[Obsolete("DEPRECATED")]
+	void ExpansionRegisterTransportHit( EntityAI transport )
+	{
 	}
 	
 	override bool ModCommandHandlerInside( float pDt, int pCurrentCommandID, bool pCurrentCommandFinished )	

@@ -409,7 +409,7 @@ class eAICommandMove: ExpansionHumanCommand
 			//if (isTargetPositionFinal && m_PathFinding.m_IsUnreachable)
 			if ((isPathPointFinal || Math.AbsFloat(m_MovementDirection) > 4.0) && (!m_PathFinding.m_IsUnreachable || m_Unit.m_eAI_BuildingWithLadder))
 			{
-				if (isDangerousAltitude)
+				if (m_MovementSpeed > 0 && isDangerousAltitude)
 				{
 					//! Prevent fall from a large height (e.g. building top) - movement direction check
 					vector checkDirection = m_Velocity;
@@ -557,19 +557,8 @@ class eAICommandMove: ExpansionHumanCommand
 		if (m_Unit.IsClimbing() || m_Unit.IsFalling() || m_Unit.IsFighting())
 			isBusy = true;
 
-		//! Try and avoid obstacles if we are moving and not busy with other actions
-		float cdt = m_Unit.m_eAI_CommandHandlerDT;
-		if (m_MovementSpeed && !isBusy && cdt >= 0.12)
+		if (m_MovementSpeed && !isBusy)
 		{
-			vector leftPos;
-			vector rightPos;
-			vector forwardPos;
-			vector backwardPos;
-			vector outNormal;
-			float hitFraction;
-
-			bool chg;
-
 			vector velocity = m_Velocity;
 
 			if (m_Unit.IsSwimming())
@@ -625,9 +614,23 @@ class eAICommandMove: ExpansionHumanCommand
 				speedThreshold *= (1.0 - m_Unit.m_InjuryHandler.GetInjuryAnimValue() * 0.9);
 			}
 			if (velocity.LengthSq() < speedThreshold && !m_Unit.GetActionManager().GetRunningAction() && !m_Unit.IsRaised() && !m_Unit.m_eAI_IsOnLadder)
-				m_Unit.m_eAI_PositionTime += cdt;  //! We don't seem to be actually moving
+				m_Unit.m_eAI_PositionTime += pDt;  //! We don't seem to be actually moving
 			else
 				m_Unit.m_eAI_PositionTime = 0;
+		}
+
+		//! Try and avoid obstacles if we are moving and not busy with other actions
+		float cdt = m_Unit.m_eAI_CommandHandlerDT;
+		if (m_MovementSpeed && !isBusy && cdt >= 0.12)
+		{
+			vector leftPos;
+			vector rightPos;
+			vector forwardPos;
+			vector backwardPos;
+			vector outNormal;
+			float hitFraction;
+
+			bool chg;
 
 			vector checkDir;
 
@@ -1423,9 +1426,7 @@ class eAICommandMove: ExpansionHumanCommand
 						if (!m_Unit.eAI_GetThreatOverride(targetEntity) && vector.DistanceSq(end, targetEntity.GetPosition()) > 4.0)
 						{
 							m_Unit.eAI_ThreatOverride(targetEntity, true);
-							m_Unit.m_eAI_PreferLadder = false;
-							m_PathFinding.m_IsUnreachable = false;
-							m_PathFinding.m_IsTargetUnreachable = false;
+							m_Unit.eAI_ResetPathfinding();
 						}
 					}
 				}

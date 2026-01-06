@@ -16,7 +16,6 @@ class eAIState_Bandaging_Self: eAIState
 			m_Timeout = UATimeSpent.BANDAGE / effectivity + 8.0;
 		else
 			m_Timeout = 16.0;
-		unit.OverrideStance(DayZPlayerConstants.STANCEIDX_CROUCH);
 	}
 
 	override void OnExit(string Event, bool Aborted, ExpansionState To)

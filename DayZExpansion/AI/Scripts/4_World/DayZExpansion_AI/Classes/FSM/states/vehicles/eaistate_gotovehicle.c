@@ -6,9 +6,7 @@ class eAIState_GoToVehicle : eAIState
 	vector m_Position;
 
 	Transport m_Transport;
-#ifdef EXPANSIONMODVEHICLE
-	ExpansionVehicleBase m_Vehicle;
-#endif
+	ExpansionVehicle m_Vehicle;
 
 	override void OnEntry(string Event, ExpansionState From)
 	{
@@ -25,9 +23,7 @@ class eAIState_GoToVehicle : eAIState
 		}
 
 		Class.CastTo(m_Transport, m_Entity);
-#ifdef EXPANSIONMODVEHICLE
-		Class.CastTo(m_Vehicle, m_Entity);
-#endif
+		ExpansionVehicle.Get(m_Vehicle, m_Entity);
 	}
 
 	override void OnExit(string Event, bool Aborted, ExpansionState To)
@@ -45,10 +41,9 @@ class eAIState_GoToVehicle : eAIState
 		{
 			if (m_Transport.CrewMember(m_Seat))
 			{
-				CarScript cs;
-				if (Class.CastTo(cs, m_Transport))
+				if (m_Vehicle)
 				{
-					cs.Expansion_ReserveSeat(m_Seat, null);
+					m_Vehicle.ReserveSeat(m_Seat, null);
 					return EXIT;
 				}
 			}

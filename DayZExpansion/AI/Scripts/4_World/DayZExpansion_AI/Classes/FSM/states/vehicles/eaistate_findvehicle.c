@@ -8,13 +8,14 @@ class eAIState_FindVehicle : eAIState
 		float minDistance = float.MAX;
 		float distance;
 
-		auto node = CarScript.s_Expansion_AllVehicles.m_Head;
+		auto node = ExpansionVehicle.s_All.m_Head;
 		while (node)
 		{
-			distance = vector.Distance(unit.GetPosition(), node.m_Value.GetPosition());
+			EntityAI entity = node.m_Value.GetEntity();
+			distance = vector.Distance(unit.GetPosition(), entity.GetPosition());
 			if (distance < minDistance)
 			{
-				m_Entity = node.m_Value;
+				m_Entity = entity;
 				minDistance = distance;
 			}
 			node = node.m_Next;

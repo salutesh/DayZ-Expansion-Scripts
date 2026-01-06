@@ -116,12 +116,28 @@ class eAIState_TraversingWaypoints: eAIState
 					{
 						m_WaypointCountdown = m_LeaveThreshold;
 
+					#ifdef DIAG_DEVELOPER
+						string msg;
+					#endif
 						if (unit.m_eAI_Ladder && !unit.m_eAI_IsOnLadder && unit.m_eAI_BuildingWithLadder)
 						{
+						#ifdef DIAG_DEVELOPER
+							msg = unit.ToString() + " TraversingWaypoints - resetting ladder";
+							EXPrint(unit, msg);
+							ExpansionStatic.MessageNearPlayers(unit.GetPosition(), 100, msg);
+						#endif
 							unit.m_eAI_Ladder = null;
-							unit.m_eAI_PreferLadder = false;
-							pathFinding.ResetUnreachable();
 						}
+						else
+						{
+						#ifdef DIAG_DEVELOPER
+							msg = unit.ToString() + " TraversingWaypoints - resetting pathfinding";
+							EXPrint(unit, msg);
+							ExpansionStatic.MessageNearPlayers(unit.GetPosition(), 100, msg);
+						#endif
+						}
+
+						unit.eAI_ResetPathfinding();
 					}
 				}
 				else

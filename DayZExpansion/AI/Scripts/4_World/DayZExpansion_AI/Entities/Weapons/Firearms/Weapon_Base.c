@@ -27,6 +27,7 @@ modded class Weapon_Base
 	int m_eAI_LastResyncTime;
 
 	eAINoiseParams m_eAI_NoiseParams;
+	eAITargetInformation m_eAI_ParentTargetInformation;
 
 	bool Hitscan(vector begin_point, vector direction, eAIBase ai, out Object hitObject, out vector hitPosition, out vector hitNormal, out int contactComponent)
 	{
@@ -312,6 +313,42 @@ modded class Weapon_Base
 			if (!exGame.m_FirearmFXSource || owner.GetIdentity())
 				exGame.m_FirearmFXSource = this;
 		}
+	}
+
+	override void EEParentedTo(EntityAI parent)
+	{
+		super.EEParentedTo(parent);
+
+		if (parent.IsDayZCreature())
+		{
+		#ifdef DIAG_DEVELOPER
+			EXPrint(this, "[CustomAI] parented to " + parent);
+		#endif
+			m_eAI_ParentTargetInformation = eAITargetInformation.GetCustomCreatureTargetInformation(parent);
+		}
+	}
+
+	override void EEParentedFrom(EntityAI parent)
+	{
+		super.EEParentedFrom(parent);
+
+		if (parent.IsDayZCreature())
+		{
+		#ifdef DIAG_DEVELOPER
+			EXPrint(this, "[CustomAI] parented from " + parent);
+		#endif
+			if (m_eAI_ParentTargetInformation)
+			{
+				m_eAI_ParentTargetInformation.RemoveFromAll();
+				m_eAI_ParentTargetInformation = null;
+			}
+		}
+	}
+
+	void ~Weapon_Base()
+	{
+		if (g_Game && m_eAI_ParentTargetInformation)
+			m_eAI_ParentTargetInformation.RemoveFromAll();
 	}
 
 	eAINoiseParams eAI_GetNoiseParams()

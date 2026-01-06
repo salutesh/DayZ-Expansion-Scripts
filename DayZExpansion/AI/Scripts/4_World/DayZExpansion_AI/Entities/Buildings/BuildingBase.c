@@ -142,12 +142,15 @@ modded class BuildingBase
 
 		string type = GetType();
 		type.ToLower();
+		int len = type.Length();
 		foreach (string preventClimb: s_eAI_PreventClimb)
 		{
 			int lastChar = preventClimb.Length() - 1;
 			if (preventClimb[lastChar] == "$")
 			{
-				if (preventClimb.Substring(0, lastChar).IndexOf(type) >= 0)
+				preventClimb = preventClimb.Substring(0, lastChar);
+				int index = preventClimb.IndexOf(type);
+				if (index > -1 && index == preventClimb.Length() - len)
 				{
 					m_eAI_PreventClimb = true;
 					break;

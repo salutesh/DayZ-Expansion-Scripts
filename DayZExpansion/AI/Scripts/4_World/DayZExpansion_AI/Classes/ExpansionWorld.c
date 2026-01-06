@@ -14,8 +14,6 @@ modded class ExpansionWorld
 
 	void ExpansionWorld()
 	{
-		m_CommandManager = new eAICommandManagerClient();
-
 		m_Network = new eAIRoadNetwork();
 		//m_Network.Init();
 
