@@ -7272,9 +7272,11 @@ class eAIBase: PlayerBase
 		if (IsRaised())
 		{
 			//! Need to adjust look direction when aiming
-			lookLR =  ExpansionMath.AngleDiff2(0, lookLR - m_eAI_AimRelAngles[0]);  //! AngleDiff2 ensures range [-180, 180]
+			float lookAimLR = ExpansionMath.AngleDiff2(0, lookLR - m_eAI_AimRelAngles[0]);  //! AngleDiff2 ensures range [-180, 180]
+			float t = Math.Min(m_WeaponRaisedTimer * 2, 1.0);
+			lookLR =  Math.Lerp(lookLR, lookAimLR, t);
 			if (entityInHands && entityInHands.IsWeapon())
-				lookUD = 0;
+				lookUD = Math.Lerp(lookUD, 0, t);
 		}
 
 		m_eAI_CommandMove.SetLookAnglesRel(lookLR, lookUD);
@@ -9250,28 +9252,11 @@ class eAIBase: PlayerBase
 
 			vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
 
-			bool instant;
-
-			if (g_Game.IsServer() && m_eAI_AimDirectionPrev != vector.Zero)
-			{
-				auto cmd = GetCommand_Move();
-				if (cmd)
-				{
-					//! Adjust aim when turning
-					float diff = ExpansionMath.AngleDiff2(m_eAI_AimDirectionPrev.VectorToAngles()[0], GetAimDirectionTarget().VectorToAngles()[0]);
-					float diffAbs = Math.AbsFloat(diff);
-					if (diffAbs <= 0.01)
-					{
-						instant = true;
-					}
-				}
-			}
+			m_eAI_CommandMove.AdjustAimAngles(m_eAI_AimRelAngles, m_eAI_LookRelAngles, m_WeaponRaisedTimer);
 
 			//! We want to interpolate rel angles for aiming! Otherwise, if the conversion to rel angles happens later,
 			//! there will be a sudden jump in the unit's rotation between 180 and -180 due to the way the animation is set up
 			eAI_InterpolateYawPitch(m_eAI_AimRelAngles, aimTargetRelAngles, m_eAI_AimVelLR, m_eAI_AimVelUD, pDt);
-			if (instant)
-				m_eAI_AimRelAngles[0] = aimTargetRelAngles[0];
 
 			GetAimingProfile().Update();
 			vector direction = GetAimingProfile().GetAimDirection();

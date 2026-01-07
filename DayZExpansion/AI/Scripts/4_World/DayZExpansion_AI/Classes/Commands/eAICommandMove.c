@@ -1710,7 +1710,7 @@ class eAICommandMove: ExpansionHumanCommand
 			return;
 
 		//m_TurnVelocity = ExpansionMath.AngleDiff2(m_Turn, m_TurnPrevious);
-		//m_TurnPrevious = m_Turn;
+		m_TurnPrevious = m_Turn;
 
 		bool tacticalLean;
 		if (Math.AbsFloat(m_Unit.m_eAI_LeanTarget) > 0 && !m_Unit.IsFighting())
@@ -1891,11 +1891,22 @@ class eAICommandMove: ExpansionHumanCommand
 
 	void Anim_SetFilteredHeading(float pYawAngle, float pFilterDt, float pMaxYawSpeed)
 	{
-		float angle = m_Unit.GetOrientation()[0];
-		//m_Unit.SetOrientation(Vector(angle + m_TurnDifference * m_DT / pFilterDt, 0, 0));
-		m_Unit.SetOrientation(Vector(Math.SmoothCD(angle, angle + m_TurnDifference, m_SmoothVel, pFilterDt, 1000, m_DT), 0, 0));
+		//m_Turn += m_TurnDifference * m_DT / pFilterDt;
+		m_Turn = Math.SmoothCD(m_Turn, m_Turn + m_TurnDifference, m_SmoothVel, pFilterDt, 1000, m_DT);
+		m_Unit.SetOrientation(Vector(m_Turn, 0, 0));
 		//if (Math.AbsFloat(m_TurnDifference) < 0.01)
 			//m_SmoothVel[0] = 0.0;
+	}
+
+	void AdjustAimAngles(inout vector aimRelAngles, inout vector lookRelAngles, float weaponRaisedTimer)
+	{
+		float turnChange = ExpansionMath.AngleDiff2(m_TurnPrevious, m_Turn);
+		float t = Math.Min(weaponRaisedTimer * 2, 1.0);
+		aimRelAngles[0] = Math.Lerp(aimRelAngles[0], aimRelAngles[0] - turnChange, t);
+		lookRelAngles[0] = Math.Lerp(lookRelAngles[0], lookRelAngles[0] - turnChange, t);
+		//! AngleDiff2 ensures range [-180, 180]
+		aimRelAngles[0] = ExpansionMath.AngleDiff2(0, aimRelAngles[0]);
+		lookRelAngles[0] = ExpansionMath.AngleDiff2(0, lookRelAngles[0]);
 	}
 
 	/**
