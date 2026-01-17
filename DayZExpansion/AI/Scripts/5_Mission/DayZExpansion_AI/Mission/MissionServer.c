@@ -29,6 +29,7 @@ modded class MissionServer
 #endif
 
 		ExpansionHumanLoadout.Init();
+		ExpansionHumanLoadout.DefaultFreshSpawnLoadout();
 
 		PlayerBase.Expansion_RegisterInventoryItemType(ItemCompass);
 		PlayerBase.Expansion_RegisterInventoryItemType(ItemMap);

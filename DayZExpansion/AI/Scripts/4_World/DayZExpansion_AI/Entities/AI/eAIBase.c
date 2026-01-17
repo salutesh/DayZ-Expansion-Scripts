@@ -7007,7 +7007,7 @@ class eAIBase: PlayerBase
 		{
 			eAI_HandleAiming(pDt, m_eAI_HasLOS);
 
-			if (actualCommandID != DayZPlayerConstants.COMMANDID_CLIMB && !m_eAI_IsAttachedToMovingParent && (m_PathFinding.GetOverride() || !m_FSM.IsInState("Idle")))
+			if (actualCommandID != DayZPlayerConstants.COMMANDID_CLIMB && !m_eAI_IsAttachedToMovingParent && (m_eAI_IsInDangerByArea || m_PathFinding.GetOverride() || !m_FSM.IsInState("Idle")))
 				m_PathFinding.OnUpdate(pDt, simulationPrecision);
 		#ifdef DIAG_DEVELOPER
 			else
@@ -7348,6 +7348,8 @@ class eAIBase: PlayerBase
 					speedLimit = 3.0;
 				else if (m_eAI_CurrentThreatToSelfActive >= 0.4 || m_FSM.IsInState("Flank"))
 					speedLimit = m_MovementSpeedLimitUnderThreat;
+				else if (m_eAI_IsInDangerByArea)
+					speedLimit = 3.0;
 				else
 					speedLimit = m_MovementSpeedLimit;
 
@@ -7384,7 +7386,7 @@ class eAIBase: PlayerBase
 					turnTarget = GetOrientation()[0];
 					setTurnTarget = true;
 				}
-				else if (speedLimit == 0 && m_eAI_DefaultLookAngle != 0)
+				else if (speedLimit == 0 && GetGroup().GetWaypointBehaviour() == eAIWaypointBehavior.HALT)
 				{
 					turnTarget = m_eAI_DefaultLookAngle;
 					setTurnTarget = true;
@@ -7530,7 +7532,9 @@ class eAIBase: PlayerBase
 
 	bool eAI_UpdateLookDirectionPreference()
 	{
-		if (!GetGroup() || IsUnconscious())
+		eAIGroup group = GetGroup();
+
+		if (!group || IsUnconscious())
 			return false;
 		
 		float time = g_Game.GetTickTime();
@@ -7546,7 +7550,7 @@ class eAIBase: PlayerBase
 		if (!force && time - m_eAI_FormationDirectionUpdateTime < m_eAI_FormationDirectionNextUpdateTime)
 			return true;
 
-		int count = GetGroup().Count();
+		int count = group.Count();
 		
 		m_eAI_MovementSpeedPrev = speed;
 		float f = 4.0 - speed;
@@ -7624,7 +7628,7 @@ class eAIBase: PlayerBase
 			pos = m_PathFinding.GetNextPoint();
 			pos[1] = GetBonePositionWS(GetBoneIndexByName("neck"))[1];
 		}
-		else if (m_eAI_DefaultLookAngle != 0)
+		else if (group.GetWaypointBehaviour() == eAIWaypointBehavior.HALT)
 		{
 			ori[0] = m_eAI_DefaultLookAngle;
 			isDir = true;
@@ -7638,7 +7642,7 @@ class eAIBase: PlayerBase
 			//! 4% to look at another member and Emote if weapon not raised (we don't want to aim gun at friendly)
 			if (diceRoll < 4 && count > 1 && !IsRaised())
 			{
-				pos = GetGroup().GetRandomMemberExcluding(this).GetPosition() + "0 1.5 0";
+				pos = group.GetRandomMemberExcluding(this).GetPosition() + "0 1.5 0";
 				ori = vector.Direction(GetPosition() + "0 1.5 0", pos).VectorToAngles();
 
 				if (Math.AbsFloat(ori[1]) > 45.0)
@@ -7657,7 +7661,7 @@ class eAIBase: PlayerBase
 			//! 12% to look at another member if weapon not raised (we don't want to aim gun at friendly)
 			else if (diceRoll < 16 && count > 1 && !IsRaised())
 			{
-				pos = GetGroup().GetRandomMemberExcluding(this).GetPosition() + "0 1.5 0";
+				pos = group.GetRandomMemberExcluding(this).GetPosition() + "0 1.5 0";
 				ori = vector.Direction(GetPosition() + "0 1.5 0", pos).VectorToAngles();
 
 				if (Math.AbsFloat(ori[1]) > 45.0)
@@ -7685,11 +7689,11 @@ class eAIBase: PlayerBase
 				{
 					ori[0] = Math.RandomFloat(-54.0, 54.0);
 
-					if (count > 1 && GetGroup().GetFormationState() == eAIGroupFormationState.IN)
+					if (count > 1 && group.GetFormationState() == eAIGroupFormationState.IN)
 					{
 						isDirWS = true;
 
-						vector formPos = GetGroup().GetFormation().ToWorld(m_eAI_FormationPosition);
+						vector formPos = group.GetFormation().ToWorld(m_eAI_FormationPosition);
 						dir = vector.Direction(formPos, GetGroup().GetFormation().ToWorld(m_eAI_FormationPosition + m_eAI_FormationDirection));
 						ori[0] = ori[0] + dir.VectorToAngles()[0];
 

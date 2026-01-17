@@ -16,7 +16,7 @@ class ExpansionAISpawnBase
 	bool Persist;   // Patrol will be saved & restored between server restarts unless all members of it are killed
 	string Faction;                     // Raiders, Mercenaries, West, East, Guards, Civilian, Passive
 	string Formation;                   // Column, File, Vee, Wall or RANDOM
-	float FormationScale;
+	float FormationScale = 1.5;
 	float FormationLooseness;
 	string Loadout;                 // a json file containing the loadout of this team - if empty, will use the default loadout of the faction
 	ref TStringArray Units = {};        // If non-empty, pick from these AI classnames when spawning
@@ -93,7 +93,7 @@ class ExpansionAISpawnBase
 
 	void SetDefaultLootingBehaviour()
 	{
-		if (Behaviour == "ROAMING")
+		if (Behaviour == "ROAMING" || Behaviour == "ROAMING_LOCAL")
 			LootingBehaviour = "ALL";
 		else
 			LootingBehaviour = "DEFAULT";
@@ -131,7 +131,7 @@ class ExpansionAISpawnBase
 		layerMask |= PhxInteractionLayers.TERRAIN;
 		layerMask |= PhxInteractionLayers.ITEM_LARGE;
 		layerMask |= PhxInteractionLayers.FENCE;
-		if (DayZPhysics.RayCastBullet(pos + "0 1.8 0", pos - "0 10 0", layerMask, null, null, hitPosition, null, null))
+		if (DayZPhysics.RayCastBullet(pos + "0 1.6 0", pos - "0 10 0", layerMask, null, null, hitPosition, null, null))
 		{
 			pos = hitPosition;
 		}
@@ -210,6 +210,7 @@ class ExpansionAISpawnBase
 
 class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 {
+	bool CanSpawnInContaminatedArea;
 	bool CanBeTriggeredByAI;
 	float MinDistRadius;	            // If the player is closer than MinDistRadius from the spawn point, the patrol won't spawn, if set to -2, will use the general setting instead
 	float MaxDistRadius;	            // Same but if the player is further away than MaxDistRadius, the bots won't spawn, if set to -2, will use the general setting instead
@@ -239,34 +240,39 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 		RespawnTime = -2;
 	}
 
-	//! TODO: Improve the spread code, this is very unoptimised
 	void DefaultSpread()
 	{
+		string clsNameLower = ObjectClassName;
+		clsNameLower.ToLower();
+
+		switch (clsNameLower)
+		{
+			case "contaminatedarea_static":
+			case "contaminatedarea_dynamic":
+				MinSpreadRadius = 10;
+				MaxSpreadRadius = 100;
+				break;
+
+			case "land_city_policestation":
+				MinSpreadRadius = 20;
+				MaxSpreadRadius = 40;
+				break;
+
+			case "land_village_policestation":
+				MinSpreadRadius = 15;
+				MaxSpreadRadius = 35;
+				break;
+
+			default:
+				MinSpreadRadius = 10;
+				MaxSpreadRadius = 20;
+				break;
+		}
+
 		if (Behaviour == "HALT")
 		{
-			if (ObjectClassName == "ContaminatedArea_Static" || ObjectClassName == "ContaminatedArea_Dynamic")
-			{
-				MinSpreadRadius = 0;
-				MaxSpreadRadius = 50;
-			}
-			else
-			{
-				MinSpreadRadius = 5;
-				MaxSpreadRadius = 10;
-			}
-		}
-		else
-		{
-			if (ObjectClassName == "ContaminatedArea_Static" || ObjectClassName == "ContaminatedArea_Dynamic")
-			{
-				MinSpreadRadius = 0;
-				MaxSpreadRadius = 150;
-			}
-			else
-			{
-				MinSpreadRadius = 5;
-				MaxSpreadRadius = 20;
-			}
+			MinSpreadRadius *= 0.5;
+			MaxSpreadRadius *= 0.5;
 		}
 	}
 
@@ -337,10 +343,21 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 	override TVectorArray GetWaypoints(vector position = vector.Zero, int beh = eAIWaypointBehavior.HALT)
 	{
 		TVectorArray waypoints;
+		bool generated;
 
 		if (ObjectClassName)
 		{
-			waypoints = GenerateWaypoints(position, beh);
+			if (Waypoints && Waypoints.Count() > 0)
+			{
+				//! Actual waypoints will be determined in eAIDynamicPatrolSpawner by converting relative to world coordinates
+				//! This just to have a non-zero startpos for eAIDynamicPatrol::Setup
+				waypoints = {position};
+			}
+			else
+			{
+				waypoints = GenerateWaypoints(position, beh);
+				generated = true;
+			}
 		}
 		else
 		{
@@ -376,7 +393,7 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 
 		TVectorArray filteredPoints;
 
-		if (ObjectClassName)
+		if (generated)
 		{
 			//! If generated waypoints, filter
 			filteredPoints = {};

@@ -203,68 +203,19 @@ modded class Weapon_Base
 				msg = "eAI_FireOnClient(fromFSM=" + fromFSM.ToString() + "), shotID " + shotID + ", owner " + GetHierarchyRootPlayer() + " - desynched (chamber full and not fired out)";
 			}
 
-			if (m_eAI_ResyncAttempts < MAX_RESYNC_ATTEMPTS)
-				EXError.Warn(this, msg, {});
-			else
-				EXError.Error(this, msg + " - max resync attempts reached", {});
+			//! Ensure muzzle flash
+			EEFired(muzzleIndex, mode, ammoType);
 
-			vector pos = ai.GetBonePositionWS(ai.GetBoneIndexByName("neck"));
-			vector dir = ai.Expansion_GetAimDirectionClient();
+			eAI_PlayShotSound(ai);
 
-			//! This takes care of muzzle flash if successful (but no sound)
-			result = Fire(muzzleIndex, pos, dir, dir);
-
-		/*
-			if (result)
-			{
-				//! XXX: The game won't play weapon soundsets manually via EffectSound >:(
-				//! E.g.
-				//! SCRIPT    (E): [EffectSound::SoundError] :: [ERROR] :: EffectSound<a43a3b30>: SoundSetName: 'IZH43_Shot_SoundSet' :: m_SoundObject is null.
-				//! Also, no way to get the contents of soundSetShotExt and soundSetShotExt1st in script (nested arrays in config.cpp)
-
-				ExpansionFireMode mode = Expansion_GetFireMode();
-
-				switch (mode)
-				{
-					case ExpansionFireMode.INVALID:
-						break;
-
-					default:
-						string modeClsName = typename.EnumToString(ExpansionFireMode, mode);
-						string path = string.Format("%1 %2 %3 soundSetShot", CFG_WEAPONSPATH, GetType(), modeClsName);
-
-						if (g_Game.ConfigIsExisting(path))
-						{
-							TStringArray soundSetShot = {};
-							g_Game.ConfigGetTextArray(path, soundSetShot);
-
-							foreach (string soundSet: soundSetShot)
-							{
-								SEffectManager.Expansion_PlaySound(soundSet, ai.GetPosition());
-							}
-						}
-
-						break;
-				}
-			}
-		*/
-
-			if (!result)
-			{
-			#ifdef DIAG_DEVELOPER
-				EXError.Warn(ai, string.Format("%1::Fire(%2, '%3', '%4', '%4') failed, shotID %5", this, muzzleIndex, pos.ToString(false), dir.ToString(false), shotID), {});
-			#endif
-
-				//! Ensure muzzle flash
-				EEFired(muzzleIndex, mode, ammoType);
-			}
+			int currentTime = g_Game.GetTime();
+			int timeDiff = currentTime - m_eAI_LastResyncTime;
 
 			//! If the initial TryFireWeapon failed on client, we are definitely desynced since server side AI wouldn't have fired if
 			//! weapon truly wasn't able to. Force (re-)sync but limit max attempts and interval (mirroring values in vanilla WeaponFSM)
 			if (m_eAI_ResyncAttempts < MAX_RESYNC_ATTEMPTS)
 			{
-				int currentTime = g_Game.GetTime();
-				int timeDiff = currentTime - m_eAI_LastResyncTime;
+				EXError.Warn(this, msg, {});
 
 				if (timeDiff > MIN_RESYNC_INTERVAL)
 				{
@@ -277,6 +228,13 @@ modded class Weapon_Base
 					m_eAI_LastResyncTime = currentTime;
 				}
 			}
+			else
+			{
+				if (timeDiff > RESET_MAX_RESYNC_ATTEMPTS_THRESHOLD)
+					m_eAI_ResyncAttempts = 0;
+				else
+					EXError.Error(this, msg + " - max resync attempts reached", {});
+			}
 		}
 		else if (m_eAI_ResyncAttempts > 0)
 		{
@@ -284,6 +242,88 @@ modded class Weapon_Base
 		}
 
 		return result;
+	}
+
+	void eAI_PlayShotSound(DayZPlayerImplement player)
+	{
+		//! TODO: No way to get the contents of soundSetShotExt and soundSetShotExt1st in script (nested arrays in config.cpp),
+		//! so we have to employ some cursed logic to try and determine the correct silenced soundsets from the unsilenced ones
+
+		ExpansionFireMode mode = Expansion_GetFireMode();
+
+		switch (mode)
+		{
+			case ExpansionFireMode.INVALID:
+				break;
+
+			default:
+				string modeClsName = typename.EnumToString(ExpansionFireMode, mode);
+				string path = string.Format("%1 %2 %3 soundSetShot", CFG_WEAPONSPATH, GetType(), modeClsName);
+
+				if (g_Game.ConfigIsExisting(path))
+				{
+					TStringArray soundSetShot = {};
+					g_Game.ConfigGetTextArrayRaw(path, soundSetShot);
+
+					bool isSuppressed;
+					string suppressorType;
+
+					ItemSuppressor suppressor = GetAttachedSuppressor();
+					if (suppressor && !suppressor.IsDamageDestroyed())
+					{
+						isSuppressed = true;
+						if (suppressor.IsInherited(ImprovisedSuppressor))
+							suppressorType = "HomeMade";
+					}
+
+					foreach (string soundSet: soundSetShot)
+					{
+						if (isSuppressed)
+						{
+							soundSet.ToLower();
+
+							//! 'iterior' typo is vanilla
+							if (soundSet.IndexOf("_shot_iterior_") > -1)
+								continue;
+
+							//! just in case w/o typo
+							if (soundSet.IndexOf("_shot_interior_") > -1)
+								continue;
+
+							//! 1.29
+							if (soundSet.IndexOf("_slapback_") > -1)
+								continue;
+
+							if (soundSet.IndexOf("_tail_2d_") > -1)
+								continue;
+
+							soundSet.Replace("_shot_1st_", string.Format("_1st_silencer%1_", suppressorType));  //! 1.29
+							soundSet.Replace("_shot_", string.Format("_silencer%1_", suppressorType));
+							soundSet.Replace("_tail_", string.Format("_silencer%1Tail_", suppressorType));
+							soundSet.Replace("_interiortail_", string.Format("_silencerInterior%1Tail_", suppressorType));
+						}
+
+						//! For some reason SEffectManager::PlaySound doesn't work for all shot soundsets and throws an error
+						//! e.g. SCRIPT    (E): [EffectSound::SoundError] :: [ERROR] :: EffectSound<a43a3b30>: SoundSetName: 'IZH43_Shot_SoundSet' :: m_SoundObject is null.
+						//! so we build the sound ourselves (see DayZPlayerImplement::ProcessWeaponEvent for reference)
+						SoundParams soundParams = new SoundParams(soundSet);
+						if (soundParams.IsValid())
+						{
+							SoundObjectBuilder builder = new SoundObjectBuilder(soundParams);
+							builder.AddEnvSoundVariables(player.GetPosition());	
+
+							SoundObject soundObject = builder.BuildSoundObject();
+							if (soundObject)
+							{
+								player.eAI_AttenuateSoundIfNecessary(soundObject);
+								player.PlaySound(soundObject, builder);
+							}
+						}
+					}
+				}
+
+				break;
+		}
 	}
 
 	override void EEFired(int muzzleType, int mode, string ammoType)
@@ -710,12 +750,12 @@ modded class Weapon_Base
 		int muzzleIndex = GetCurrentMuzzle();
 
 		string projectile;
-		if (IsChamberFull(muzzleIndex))
+		if (!IsChamberEmpty(muzzleIndex))
 			projectile = GetChamberedCartridgeMagazineTypeName(muzzleIndex);
 
 		float minDist;
 
-		if (!s_Expansion_MinSafeFiringDistance.Find(projectile, minDist))
+		if (projectile && !s_Expansion_MinSafeFiringDistance.Find(projectile, minDist))
 		{
 			float indirectHitRange = g_Game.ConfigGetFloat(CFG_AMMO + " " + projectile + " indirectHitRange");
 			float indirectHitRangeMultiplier = g_Game.ConfigGetFloat(CFG_AMMO + " " + projectile + " indirectHitRangeMultiplier");

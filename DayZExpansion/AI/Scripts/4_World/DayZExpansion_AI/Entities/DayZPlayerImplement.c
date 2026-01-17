@@ -508,7 +508,7 @@ modded class DayZPlayerImplement
 			//! If attacker is not AI, or we are their current target (else it was accidental friendly fire),
 			//! target attacker for up to 2 minutes
 			eAIBase ai;
-			if (!Class.CastTo(ai, player) || (ai.GetTarget() && ai.GetTarget().GetEntity() == this))
+			if (!Class.CastTo(ai, player) || (ai.eAI_GetTargetEntity() == this))
 			{
 				if (!ai || IsAI())
 					player.GetTargetInformation().AddFriendlyAI(this, 120000, true, 1.0);  //! Attacking player will be attacked by friendly AI
@@ -640,6 +640,11 @@ modded class DayZPlayerImplement
 				break;
 		#endif
 		}
+	}
+
+	void eAI_AttenuateSoundIfNecessary(SoundObject soundObject)
+	{
+		AttenuateSoundIfNecessary(soundObject);
 	}
 
 #ifdef DIAG_DEVELOPER

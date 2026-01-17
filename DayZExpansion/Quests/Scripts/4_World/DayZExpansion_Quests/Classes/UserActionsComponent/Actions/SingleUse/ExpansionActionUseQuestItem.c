@@ -12,8 +12,6 @@
 
 class ExpansionActionUseQuestItem: ActionSingleUseBase
 {
-	protected ItemBase m_Item;
-
 	void ExpansionActionUseQuestItem()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_DROPITEM_HANDS;
@@ -35,14 +33,10 @@ class ExpansionActionUseQuestItem: ActionSingleUseBase
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		m_Item = item;
-		if (m_Item && m_Item.Expansion_GetQuestID() == -1 || !m_Item.Expansion_IsQuestGiver())
-		{
-			m_Item = null;
+		if (item && (item.Expansion_GetQuestID() == -1 || !item.Expansion_IsQuestGiver()))
 			return false;
-		}
 
-		int questID = m_Item.Expansion_GetQuestID();
+		int questID = item.Expansion_GetQuestID();
 		string playerUID = player.GetIdentity().GetId();
 		ExpansionQuestPersistentData playerData = ExpansionQuestModule.GetModuleInstance().GetPlayerQuestData(playerUID);
 		if (!playerData)
@@ -57,7 +51,7 @@ class ExpansionActionUseQuestItem: ActionSingleUseBase
 
 	override void OnExecuteServer(ActionData action_data)
 	{
-		if (ExpansionQuestModule.GetModuleInstance() && m_Item)
-			ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest(action_data.m_Player.GetIdentity(), m_Item.Expansion_GetQuestID());
+		if (ExpansionQuestModule.GetModuleInstance() && action_data.m_MainItem)
+			ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest(action_data.m_Player.GetIdentity(), action_data.m_MainItem.Expansion_GetQuestID());
 	}
 };

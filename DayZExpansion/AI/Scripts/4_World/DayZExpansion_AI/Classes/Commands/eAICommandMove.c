@@ -1942,6 +1942,8 @@ class eAICommandMove: ExpansionHumanCommand
 		if (endRV == vector.Zero)
 			endRV = end;
 
+		eAITarget target;
+
 		vector dir = vector.Direction(start, end).Normalized();
 		vector begPos = start + dir * radiusRV * 0.5 + CHECK_MIN_HEIGHT;
 		vector endPos = endRV + CHECK_MIN_HEIGHT;
@@ -2052,7 +2054,11 @@ class eAICommandMove: ExpansionHumanCommand
 				}
 				else if (obj.IsDayZCreature())
 				{
-					if (obj.IsDamageDestroyed() || m_Unit.IsRaised() || m_Unit.eAI_GetTargetEntity() == obj)
+					if (obj.IsDamageDestroyed())
+						continue;
+
+					target = m_Unit.GetTarget();
+					if (target && target.GetEntity() == obj && target.m_ThreatLevelActive > 0.2)
 						continue;
 
 					hit = true;
@@ -2120,7 +2126,11 @@ class eAICommandMove: ExpansionHumanCommand
 				{
 					if (hitObject.IsMan())
 					{
-						if (hitObject.IsDamageDestroyed() || m_Unit.IsRaised() || m_Unit.eAI_GetTargetEntity() == hitObject)
+						if (hitObject.IsDamageDestroyed())
+							return false;
+
+						target = m_Unit.GetTarget();
+						if (target && target.GetEntity() == hitObject && target.m_ThreatLevelActive > 0.2)
 							return false;
 
 						blockingObject = hitObject;

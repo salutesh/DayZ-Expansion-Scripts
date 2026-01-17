@@ -396,8 +396,6 @@ class eAIDamageHandler
 
 			if (damageMultiplier != 1.0 || overrideDmgZone)
 			{
-				damageMultiplier *= speedCoef;
-
 				if (!dmgZone && !isPlayerItem)
 				{
 					//! If damage zone is empty, we need to adjust damage accordingly because if a value other than 1.0 was passed
@@ -423,9 +421,11 @@ class eAIDamageHandler
 					}
 
 					float defaultDmg = ExpansionWeaponUtils.GetDamageAppliedByBullet(ammo, healthType);
-					if (defaultDmg > highestDmg)
-						damageMultiplier *= highestDmg / defaultDmg;
+					if (defaultDmg > 0)
+						speedCoef *= highestDmg / defaultDmg;
 				}
+
+				damageMultiplier *= speedCoef;
 
 			#ifdef DIAG_DEVELOPER
 				if (player)
@@ -463,7 +463,7 @@ class eAIDamageHandler
 					if (damageType == DT_FIRE_ARM)
 						sourcePrefix += " from " + vector.Distance(source.GetPosition(), player.GetPosition()) + " meters";
 
-					adminLog.LogPrint(playerPrefix + " hit by " + sourcePrefix + " dmg coef " + speedCoef + " -> " + damageMultiplier);
+					adminLog.LogPrint(playerPrefix + " about to get hit by " + sourcePrefix + " dmg coef " + speedCoef + " -> " + damageMultiplier);
 				}
 			#endif
 
@@ -508,9 +508,10 @@ class eAIDamageHandler
 			if (zone)
 				hitMessage = " into " + zone + "(" + component.ToString() + ")";
 
-			float dmg = damageResult.GetDamage(zone, "Health") * damageCoef;
+			float originalDmg = damageResult.GetDamage(zone, "Health");
+			float dmg = ExpansionWeaponUtils.GetDamageAppliedByBullet(ammo, "Health") * damageCoef;
 
-			return hitMessage + " for " + dmg.ToString() + " damage (" + ammo + ")";
+			return hitMessage + " for " + originalDmg.ToString() + " -> " + dmg.ToString() + " damage (" + ammo + ")";
 		}
 		else
 		{

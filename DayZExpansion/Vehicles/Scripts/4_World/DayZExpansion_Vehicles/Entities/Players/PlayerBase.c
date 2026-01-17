@@ -14,6 +14,7 @@ modded class PlayerBase
 {
 	private int m_ExpansionSaveVersion;
 
+	protected bool m_Expansion_ProcessTransportHit;
 	protected bool m_Expansion_WasInVehicleSeatOrAttached;
 	protected int m_Expansion_SessionTimeStamp;
 	
@@ -73,7 +74,48 @@ modded class PlayerBase
 	void ExpansionRegisterTransportHit( EntityAI transport )
 	{
 	}
-	
+
+	void Expansion_ProcessTransportHit(int damageType, EntityAI source, string dmgZone, vector modelPos, float damageCoef = 1.0)
+	{
+		if (!source)
+			source = this;
+
+		m_Expansion_ProcessTransportHit = true;
+		ProcessDirectDamage(damageType, source, dmgZone, "TransportHit", modelPos, damageCoef);
+	}
+
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
+		if (ammo == "TransportHit")
+		{
+			float mult = GetExpansionSettings().GetVehicle().VehicleRoadKillDamageMultiplier;
+
+			if (mult != 1.0 && !m_Expansion_ProcessTransportHit)
+			{
+				float damage;
+				if (m_TransportHitRegistered)
+					damage = m_TransportHitVelocity.Length();
+				else
+					damage = damageResult.GetDamage(dmgZone, "Health");
+				damage *= mult;
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_ProcessTransportHit, damageType, source, dmgZone, modelPos, damage);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		
+		m_Expansion_ProcessTransportHit = false;
+	}
+
 	override bool ModCommandHandlerInside( float pDt, int pCurrentCommandID, bool pCurrentCommandFinished )	
 	{
 		if ( super.ModCommandHandlerInside( pDt, pCurrentCommandID, pCurrentCommandFinished ) )

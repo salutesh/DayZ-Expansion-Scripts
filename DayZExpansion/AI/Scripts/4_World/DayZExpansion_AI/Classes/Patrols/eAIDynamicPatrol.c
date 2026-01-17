@@ -14,6 +14,7 @@ class eAIDynamicPatrol : eAIPatrol
 	ref ExpansionAIPatrolLoadBalancing m_LoadBalancing;
 	ref ExpansionAIPatrolLoadBalancingTracker m_PatrolCountTracker;
 	vector m_Position;
+	float m_DefaultLookAngle;
 	autoptr array<vector> m_Waypoints;
 	eAIWaypointBehavior m_WaypointBehaviour;
 	int m_WaypointIdx;
@@ -105,6 +106,7 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 
 		m_Waypoints = config.GetWaypoints(startpos);
+		m_WaypointBehaviour = config.GetBehaviour();
 
 		if (config.Persist && config.m_BaseName)
 		{
@@ -113,7 +115,7 @@ class eAIDynamicPatrol : eAIPatrol
 			{
 				eAIGroup.ReadPosition(fileName, startpos);
 
-				if (config.GetBehaviour() != eAIWaypointBehavior.ROAMING)
+				if (m_WaypointBehaviour != eAIWaypointBehavior.ROAMING && m_WaypointBehaviour != eAIWaypointBehavior.ROAMING_LOCAL)
 				{
 					//! Since this patrol is using waypoints, find the closest one
 					float minDistSq = float.MAX;
@@ -145,6 +147,9 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 
 		m_Position = startpos;
+
+		//! We use a separate default look angle variable on this specific patrol instance since config may be shared across different patrols
+		m_DefaultLookAngle = m_Config.DefaultLookAngle;  
 
 		if (config.FormationScale <= 0)
 			m_FormationScale = s_AIPatrolSettings.FormationScale;
@@ -380,7 +385,7 @@ class eAIDynamicPatrol : eAIPatrol
 		ai.eAI_SetLootingBehavior(m_Config.GetLootingBehaviour());
 		ai.m_eAI_LootDropOnDeath = m_LootDropOnDeath;
 		ai.m_eAI_DefaultStance = m_Config.GetDefaultStance();
-		ai.m_eAI_DefaultLookAngle = m_Config.DefaultLookAngle;
+		ai.m_eAI_DefaultLookAngle = m_DefaultLookAngle;
 
 		if (m_MaxFlankingDistance > 0)
 			ai.m_eAI_MaxFlankingDistance = m_MaxFlankingDistance;
@@ -418,6 +423,9 @@ class eAIDynamicPatrol : eAIPatrol
 			return false;
 
 		if (!m_CanSpawn)
+			return false;
+
+		if (!m_Config.CanSpawnInContaminatedArea && EffectArea.s_Expansion_DangerousAreas.IsPointInside(m_Position))
 			return false;
 
 		return CanStay(1);
@@ -593,7 +601,6 @@ class eAIDynamicPatrol : eAIPatrol
 		m_Formation.SetLooseness(m_Config.FormationLooseness);
 		m_Group.SetFormation(m_Formation);
 
-		m_WaypointBehaviour = m_Config.GetBehaviour();
 		if (!loaded && m_NumberOfAI > 1)
 			m_Group.SetWaypointBehaviour(eAIWaypointBehavior.HALT);  //! Only start moving after all AI spawned
 		else

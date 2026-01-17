@@ -240,6 +240,17 @@ class Expansion_EffectAreas: array<EffectArea>
 
 		return found;
 	}
+
+	bool IsPointInside(vector point)
+	{
+		foreach (auto area: this)
+		{
+			if (area.Expansion_IsPointInside(point))
+				return true;
+		}
+
+		return false;
+	}
 }
 
 class Expansion_EffectArea_Clusters: array<ref Expansion_EffectAreas>

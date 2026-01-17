@@ -37,6 +37,7 @@ class eAIGroup
 	int m_CurrentWaypointIndex;
 	bool m_BackTracking;
 	vector m_CurrentWaypoint;
+	bool m_RoamingLocal;
 
 	ref array<ref ExpansionAIRoamingLocation> m_RoamingLocations = {};
 	//vector m_CurrentRoamingLocationPosition;
@@ -253,6 +254,8 @@ class eAIGroup
 		auto trace = CF_Trace_0(this, "SetWaypointBehaviour");
 #endif
 
+		m_RoamingLocal = false;
+
 		switch (bhv)
 		{
 			case eAIWaypointBehavior.HALT_OR_LOOP:
@@ -261,11 +264,21 @@ class eAIGroup
 				else
 					bhv = eAIWaypointBehavior.LOOP;
 				break;
+
 			case eAIWaypointBehavior.HALT_OR_ALTERNATE:
 				if (Math.RandomIntInclusive(0, 1))
 					bhv = eAIWaypointBehavior.HALT;
 				else
 					bhv = eAIWaypointBehavior.ALTERNATE;
+				break;
+
+			case eAIWaypointBehavior.LOOP_OR_ALTERNATE:
+				SetWaypointBehaviourAuto(eAIWaypointBehavior.ALTERNATE);
+				return;
+
+			case eAIWaypointBehavior.ROAMING_LOCAL:
+				bhv = eAIWaypointBehavior.ROAMING;
+				m_RoamingLocal = true;
 				break;
 		}
 
@@ -336,7 +349,7 @@ class eAIGroup
 		string buildingType;
 
 		eAIBase ai;
-		if (Class.CastTo(ai, leader) && ai.m_eAI_PotentialCoverObjects.Count() > 0 && locationTime < Math.RandomFloat(300.0, 600.0))
+		if (Class.CastTo(ai, leader) && ai.m_eAI_PotentialCoverObjects.Count() > 0 && (m_RoamingLocal || locationTime < Math.RandomFloat(300.0, 600.0)))
 		{
 			buildingsByDistance = new map<int, BuildingBase>;
 
@@ -358,6 +371,12 @@ class eAIGroup
 				distKey = distSq;
 				distances.Insert(distKey);
 				buildingsByDistance[distKey] = building;
+			}
+
+			if (m_RoamingLocal && distances.Count() < 3)
+			{
+				distances.Clear();
+				m_VisitedBuildings.Clear();
 			}
 		}
 
@@ -588,7 +607,7 @@ class eAIGroup
 				m_RoamingLocationReachedTimestamp = g_Game.GetTickTime();
 
 			//! Remove destination from roaming locations if not a helicrash (helicrashes are events and not in roaming locations)
-			if (m_RoamingLocation.Type != "StaticHeliCrash")
+			if (!m_RoamingLocal && m_RoamingLocation.Type != "StaticHeliCrash")
 				m_RoamingLocations.RemoveItemUnOrdered(m_RoamingLocation);
 		}
 	}
