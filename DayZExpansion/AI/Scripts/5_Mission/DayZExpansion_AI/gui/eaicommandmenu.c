@@ -449,6 +449,7 @@ class eAICommandMenu: UIScriptedMenu
 			#ifdef DIAG_DEVELOPER
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGOBJECTS, " Debug\nObjects", eAICommandCategories.CAT_STATUS));
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGDAMAGE, " Debug\nDamage", eAICommandCategories.CAT_STATUS));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_TOGGLEFTO, "Toggle\n  FTO", eAICommandCategories.CAT_STATUS));
 			#endif
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DAMAGE_IN, "Damage\n In/Out", eAICommandCategories.CATEGORIES));
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_UNLIMITEDRELOAD, "Unlimited\n  Reload", eAICommandCategories.CATEGORIES));

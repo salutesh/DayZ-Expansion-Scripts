@@ -121,6 +121,10 @@ class eAIState_Weapon_Reloading_Reloading: eAIState
 
 	int GuardEx(Weapon_Base weapon, inout Magazine magazine)
 	{
+	#ifdef EXTRACE_DIAG
+		auto profile = EXTrace.Profile(EXTrace.AI_PROFILE, eAIState_Weapon_Reloading_Reloading, "GuardEx");
+	#endif
+
 		if (!weapon || weapon.IsDamageDestroyed())
 			return eAITransition.FAIL;
 		

@@ -73,6 +73,19 @@ class ExpansionAISettings: ExpansionSettingBase
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
+	[NonSerialized()]
+	private ref set<string> m_ConnectedAdmins = new set<string>;
+
+	static ExpansionAISettings Get()
+	{
+	#ifndef SERVER
+		if (!s_Instance)
+			s_Instance = GetExpansionSettings().GetAI();
+	#endif
+
+		return s_Instance;
+	}
+
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
@@ -476,5 +489,20 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		return identity && Admins.Find(identity.GetPlainId()) > -1;
 	}
-	
+
+	void OnPlayerConnected(Man player, PlayerIdentity identity)
+	{
+		if (IsAdmin(identity))
+			m_ConnectedAdmins.Insert(identity.GetId());
+	}
+
+	void OnPlayerDisconnected(Man player, PlayerIdentity identity, string uid)
+	{
+		m_ConnectedAdmins.RemoveItem(uid);
+	}
+
+	set<string> GetConnectedAdmins()
+	{
+		return m_ConnectedAdmins;
+	}
 };

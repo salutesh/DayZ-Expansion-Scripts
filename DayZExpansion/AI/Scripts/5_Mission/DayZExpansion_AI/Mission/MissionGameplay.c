@@ -145,4 +145,11 @@ modded class MissionGameplay
 			}
 		}
 	}
+
+	override void UpdateDebugMonitor()
+	{
+		if (!m_DebugMonitor) return;
+		
+		m_DebugMonitor.Expansion_Update();
+	}
 };

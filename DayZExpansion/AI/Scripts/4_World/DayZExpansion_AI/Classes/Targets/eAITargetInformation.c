@@ -379,9 +379,9 @@ class eAITargetInformation
 	}
 
 	/**
-	 * @brief Add/update target for all AI friendly to player
+	 * @brief Add/update target (attacker) for all AI friendly to attacked player
 	 * 
-	 * @param player
+	 * @param player Attacked player
 	 * @param update If true (default) and AI is already targeting the target, update foundAtTime and maxTime
 	 * @param threat Initial threat level if non-zero
 	 */
@@ -395,9 +395,19 @@ class eAITargetInformation
 		if (Class.CastTo(ai, player))
 			GetTargetForAIEx(ai, false);
 
+		eAITargetInformation info = player.GetTargetInformation();
+
 		eAIGroup group = player.GetGroup();
 		eAIFaction faction = group.GetFaction();
 		eAIGroup otherGroup;
+
+		DayZPlayerImplement aggressorPlayer;
+		eAIGroup aggressorGroup;
+		if (Class.CastTo(aggressorPlayer, GetEntity()))
+			aggressorGroup = aggressorPlayer.GetGroup();
+
+		string aggressorPrefix;
+		string victimPrefix;
 
 		foreach (eAIBase other, eAITarget target: m_Targets)
 		{
@@ -408,12 +418,26 @@ class eAITargetInformation
 			if (!other)
 				continue;
 
+			otherGroup = other.GetGroup();
+
+			//! The group of the aggressor will not be able to turn hostile on another member anyway,
+			//! but we can early skip here to prevent the misleading log message
+			if (otherGroup == aggressorGroup)
+				continue;
+
+			//! Only skip aggro check if other is not attacked player
 			if (other != player)
 			{
-				otherGroup = other.GetGroup();
+				if (otherGroup != group)
+				{
+					//! Don't aggro on attacker if other faction is not friendly to attacked player's faction or vice versa
+					if (!otherGroup.GetFaction().IsFriendly(faction) || !faction.IsFriendly(otherGroup.GetFaction()))
+						continue;
 
-				if (otherGroup != group && !otherGroup.GetFaction().IsFriendly(faction))
-					continue;
+					//! If other AI is considering attacked player a threat, don't aggro on attacker
+					if (other.eAI_GetCachedThreat(info, true) > 0.2)
+						continue;
+				}
 			}
 
 			if (!target.m_IsTracked)
@@ -423,7 +447,7 @@ class eAITargetInformation
 
 			if (threat > target.m_ThreatLevelActive)
 			{
-				if (!target.m_LOS)
+				if (!target.m_SearchOnLOSLost)
 				{
 					target.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
 					target.m_SearchOnLOSLost = true;
@@ -432,6 +456,15 @@ class eAITargetInformation
 				{
 					target.SetThreat(threat);
 				}
+			}
+
+			if (ExpansionAISettings.Get().LogAIHitBy && aggressorPlayer && target.m_ThreatLevelActive > 0.2)
+			{
+				//! If we already see the attacker as enemy (i.e. their faction is hostile to ours), don't log aggro
+				if (aggressorGroup && !aggressorGroup.GetFaction().IsFriendly(otherGroup.GetFaction()))
+					continue;
+
+				target.LogFriendlyAggro(player, aggressorPrefix, victimPrefix);
 			}
 		}
 	}

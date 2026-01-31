@@ -92,6 +92,9 @@ class ExpansionHelicopterScript: CarScript
 		
 		m_CarDoorOpenSound 		= "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound 	= "offroad_door_close_SoundSet";
+
+		if (m_DrownEnginePos == vector.Zero)
+			m_DrownEnginePos = "0 1 0";
 	}
 
 	override void EEInit()

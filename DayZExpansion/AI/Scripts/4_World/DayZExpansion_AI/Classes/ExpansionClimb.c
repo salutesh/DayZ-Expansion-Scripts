@@ -50,7 +50,7 @@ class ExpansionClimb
 		p0 = distanceCheck + (pDir * radius);
 		p1 = distanceCheck + (pDir * (hcls.m_fFwMaxDistance - radius));
 
-		RaycastRVParams params(p0, p1, pPlayer, radius);
+		RaycastRVParams params = new RaycastRVParams(p0, p1, pPlayer, radius);
 		params.flags = CollisionFlags.ALLOBJECTS;
 		params.type = ObjIntersectGeom;
 		params.radius = radius;
@@ -231,7 +231,7 @@ class ExpansionClimb
 		float minDistance;
 		int processed;
 
-		RaycastRVParams params(p0, p1, pPlayer, radius);
+		RaycastRVParams params = new RaycastRVParams(p0, p1, pPlayer, radius);
 		params.flags = CollisionFlags.ALLOBJECTS;
 		params.type = ObjIntersectGeom;
 		radius = 0.05;

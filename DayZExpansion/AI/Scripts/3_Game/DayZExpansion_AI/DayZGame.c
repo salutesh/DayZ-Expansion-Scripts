@@ -95,4 +95,18 @@ modded class DayZGame
 			eAINoiseSystem.AddNoise(EntityAI.Cast(source), pos, string.Format("cfgAmmo %1 NoiseHit", ammoType), surfaceCoef);
 		}
 	}
+
+	override void OnUpdate(bool doSim, float timeslice)
+	{
+		super.OnUpdate(doSim, timeslice);
+
+		if (m_ExpansionGame)
+			m_ExpansionGame.eAI_OnUpdate(doSim, timeslice);
+	}
+
+	override bool IsDebugMonitor()
+	{
+		//! m_DebugMonitorEnabled == 2 is for server stats (only for admins listed in AISettings)
+		return IsServer() && m_DebugMonitorEnabled == 1;
+	}
 }

@@ -92,7 +92,7 @@ class eAIState_Fighting_FireWeapon: eAIState
 		}
 		else if (Class.CastTo(player, targetEntity))
 		{
-			if (player.IsUnconscious())
+			if (player.IsUnconscious() && !player.IsAI())
 				return eAITransition.FAIL;
 		}
 		else if (Class.CastTo(itemTarget, targetEntity) && !itemTarget.Expansion_IsDanger())

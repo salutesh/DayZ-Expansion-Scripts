@@ -56,4 +56,6 @@ modded class ExpansionGame
 	void SpectateAI(PlayerIdentity sender, Object target, ParamsReadContext ctx);
 
 	void FixAIFirearmFX(inout Object source, inout Object directHit, inout int componentIndex, inout string surface, inout vector pos, inout vector surfNormal, inout vector exitPos, inout vector inSpeed, inout vector outSpeed, inout bool isWater, inout bool deflected, inout string ammoType);
+
+	void eAI_OnUpdate(bool doSim, float timeslice);
 };

@@ -19,6 +19,10 @@ class eAIState_Fighting_Positioning: eAIState
 
 	override int OnUpdate(float DeltaTime, int SimulationPrecision)
 	{
+	#ifdef EXTRACE_DIAG
+		auto profile = EXTrace.Profile(EXTrace.AI_PROFILE, eAIState_Fighting_Positioning, "OnUpdate");
+	#endif
+
 		if (unit.eAI_IsChangingStance())
 			return CONTINUE;
 		

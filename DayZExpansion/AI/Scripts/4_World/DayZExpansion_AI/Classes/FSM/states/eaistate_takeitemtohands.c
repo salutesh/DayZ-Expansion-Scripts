@@ -8,7 +8,7 @@ class eAIState_TakeItemToHands: eAIState_TakeItem_Base
 		ItemBase hands = unit.GetItemInHands();
 		if (m_Item && hands != m_Item && !m_Item.Expansion_GetRootPlayerAliveExcluding(unit))
 		{
-			if (unit.eAI_GetThreatOverride(m_Item))
+			if (unit.eAI_GetThreatOverride(m_Item) && m_Item.GetHierarchyRootPlayer() != unit)
 			{
 				//! If we can't take the item, exit
 				if (!unit.eAI_TakeItemToInventoryDropShoulderImpl(m_Item))
@@ -44,6 +44,10 @@ class eAIState_TakeItemToHands: eAIState_TakeItem_Base
 
 	int Guard()
 	{
+	#ifdef EXTRACE_DIAG
+		auto profile = EXTrace.Profile(EXTrace.AI_PROFILE, eAIState_TakeItemToHands, "Guard");
+	#endif
+
 		if (unit.IsFighting()) return eAITransition.FAIL;
 		
 		if (unit.IsRestrained()) return eAITransition.FAIL;

@@ -502,18 +502,18 @@ modded class DayZPlayerImplement
 
 		EntityAI root = source.GetHierarchyRoot();
 
-		PlayerBase player;
-		if (Class.CastTo(player, root) && player != this)
+		PlayerBase attacker;
+		if (Class.CastTo(attacker, root) && attacker != this)
 		{
 			//! If attacker is not AI, or we are their current target (else it was accidental friendly fire),
 			//! target attacker for up to 2 minutes
 			eAIBase ai;
-			if (!Class.CastTo(ai, player) || (ai.eAI_GetTargetEntity() == this))
+			if (!Class.CastTo(ai, attacker) || ai.eAI_IsCurrentTarget(this, 0.2))
 			{
-				if (!ai || IsAI())
-					player.GetTargetInformation().AddFriendlyAI(this, 120000, true, 1.0);  //! Attacking player will be attacked by friendly AI
-				else
-					group.AddTarget(this, player.GetTargetInformation(), 120000, true, 1.0);   //! Attacking friendly AI will be attacked by group members of player
+				if (!ai || IsAI())  //! If attacker is not AI or victim is AI
+					attacker.GetTargetInformation().AddFriendlyAI(this, 120000, true, 1.0);  //! Attacker will be attacked by friendly AI
+				else  //! If attacker is AI and victim is not AI
+					group.AddTarget(this, attacker.GetTargetInformation(), 120000, true, 1.0);   //! Attacking AI will be attacked by group members of player
 			}
 
 			return;

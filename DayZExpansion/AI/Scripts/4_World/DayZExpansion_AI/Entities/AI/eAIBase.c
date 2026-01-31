@@ -26,8 +26,12 @@ class eAIBase: PlayerBase
 
 	static int s_eAI_UnlimitedReload;
 	static int s_eAI_UnlimitedReloadAll;
+	static bool s_UpdateInCmdHandler;
 
 	private static autoptr array<eAIBase> s_AllAI = new array<eAIBase>();
+	static ref CF_DoublyLinkedNodes_WeakRef<eAIBase> s_eAI_Alive = new CF_DoublyLinkedNodes_WeakRef<eAIBase>;
+	ref CF_DoublyLinkedNode_WeakRef<eAIBase> m_eAI_Alive_Node = s_eAI_Alive.Add(this);
+
 	static float s_eAI_LastCEUpdateTime;
 	static ref set<Object> s_eAI_TakenCoverObjects = new set<Object>;
 
@@ -130,6 +134,7 @@ class eAIBase: PlayerBase
 	float m_eAI_CommandTime;
 	bool m_eAI_DeathHandled;
 	bool m_eAI_SkipScript;
+	bool m_eAI_JumpClimb;
 	bool m_eAI_IsOnLadder;
 	float m_eAI_LadderTime;
 	int m_eAI_LadderClimbDirection;  //! 1 = up, -1 = down
@@ -393,6 +398,8 @@ class eAIBase: PlayerBase
 
 	float m_eAI_Lean;
 	float m_eAI_LeanTarget;
+
+	bool m_eAI_Unbug;
 	
 #ifndef DAYZ_1_25	
 	vector m_ExTransformPlayer[4];
@@ -453,6 +460,34 @@ class eAIBase: PlayerBase
 	static array<eAIBase> eAI_GetAll()
 	{
 		return s_AllAI;
+	}
+
+	static void eAI_ToggleUpdateInCmdHandler()
+	{
+		s_UpdateInCmdHandler = !s_UpdateInCmdHandler;
+
+		ExpansionWorld world;
+		Class.CastTo(world, GetDayZGame().GetExpansionGame());
+
+		if (!s_UpdateInCmdHandler)
+		{
+			eAICommandMove.OBSTACLE_AVOIDANCE_INTERVAL = 0.1;
+
+			world.m_LastAIUpdateTime = 0;
+
+			auto node = s_eAI_Alive.m_Head;
+			while (node)
+			{
+				node.m_Value.m_eAI_LastUpdateTime = 0;
+				node = node.m_Next;
+			}
+		}
+		else
+		{
+			eAICommandMove.OBSTACLE_AVOIDANCE_INTERVAL = 0.12;
+
+			world.DbgAIUpdate();
+		}
 	}
 
 	//! @note Init is called from vanilla PlayerBase ctor, so runs before eAIBase ctor!
@@ -647,6 +682,9 @@ class eAIBase: PlayerBase
 #endif
 
 		s_AllAI.RemoveItem(this);
+
+		if (s_eAI_Alive)
+			s_eAI_Alive.Remove(m_eAI_Alive_Node);
 	}
 
 	protected override void EOnInit(IEntity other, int extra)
@@ -713,7 +751,9 @@ class eAIBase: PlayerBase
 
 		super.EEOnCECreate();
 
+		ExpansionHumanLoadout.Apply(this, "FreshSpawnLoadout");
 		eAI_SetLootingBehavior(eAILootingBehavior.ALL);
+		SetMovementSpeedLimits(2, 3);
 		GetGroup().SetWaypointBehaviour(eAIWaypointBehavior.ROAMING);
 	}
 
@@ -723,8 +763,10 @@ class eAIBase: PlayerBase
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
+		ExpansionHumanLoadout.Apply(this, "FreshSpawnLoadout");
 		eAI_SetLootingBehavior(eAILootingBehavior.ALL);
-		GetGroup().SetWaypointBehaviour(eAIWaypointBehavior.ROAMING);
+		SetMovementSpeedLimits(2, 3);
+		GetGroup().AddWaypoint(ExpansionMath.GetRandomPointInCircle(GetPosition(), 5.0));
 	}
 
 	override void OnCEUpdate()
@@ -1286,6 +1328,9 @@ class eAIBase: PlayerBase
 	#endif
 
 		super.EEKilled(killer);
+
+		if (s_eAI_Alive)
+			s_eAI_Alive.Remove(m_eAI_Alive_Node);
 
 		if (g_Game.IsServer())
 		{
@@ -1951,6 +1996,23 @@ class eAIBase: PlayerBase
 			return target.GetEntity();
 
 		return null;
+	}
+
+	/**
+	 * @brief check whether entity is current target
+	 *
+	 * @param entity
+	 * @param threatLevelMin
+	 *
+	 * @return true if current target and threat level above threatLevelMin
+	 */
+	bool eAI_IsCurrentTarget(EntityAI entity, float threatLevelMin = 0.0)
+	{
+		eAITarget target = GetTarget();
+		if (target && target.GetEntity() == entity && target.m_ThreatLevel > threatLevelMin)
+			return true;
+
+		return false;
 	}
 
 	//! @note all targets except item targets (no state)
@@ -2840,7 +2902,7 @@ class eAIBase: PlayerBase
 	void UpdateTargets(float pDt, EntityAI entityInHands = null)
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(03a) -> UpdateTargets");
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "eAI_Targeting -> UpdateTargets");
 #endif
 
 #ifdef EAI_TRACE
@@ -3859,7 +3921,7 @@ class eAIBase: PlayerBase
 	void eAI_PrioritizeTargets()
 	{
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(03b) -> eAI_PrioritizeTargets");
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "eAI_Targeting -> eAI_PrioritizeTargets");
 #endif
 
 		//! find the target with the highest threat level, no sorting
@@ -5625,9 +5687,6 @@ class eAIBase: PlayerBase
 
 		auto move = GetCommand_Move();
 
-		if (!move && force)
-			move = StartCommand_MoveAI();
-
 		if (move)
 		{
 			//int stanceIdx = m_eAI_CommandMove.GetStance();
@@ -5885,16 +5944,6 @@ class eAIBase: PlayerBase
 		{
 			if (GetWeaponManager().IsRunning())
 				GetWeaponManager().OnWeaponActionEnd();  //! Prevent getting stuck in running state
-		}
-
-		if (location.GetType() == InventoryLocationType.HANDS)
-		{
-			//! Forcing switch to HumanCommandMove before taking to hands,
-			//! and hiding/showing item in hands after, unbreaks hand anim state
-			if (!GetCommand_Move())
-				StartCommand_Move();
-			else
-				m_eAI_CommandTime = 0.0;
 		}
 
 		//! Needs to be 'lootable' while in AI inventory, else AI won't be able to properly interact with item
@@ -6674,12 +6723,16 @@ class eAIBase: PlayerBase
 	bool eAI_HandleAiming(float pDt, bool hasLOS = false)
 	{
 	#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(06) -> eAI_HandleAiming");
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "eAI_OnUpdate -> eAI_HandleAiming");
 	#endif
 
 		auto vehCmd = GetCommand_Vehicle();
 		if (vehCmd && (vehCmd.IsGettingIn() || vehCmd.IsGettingOut()))
+		{
+			LookAtDirection("0 0 1");
+			AimAtDirection("0 0 1");
 			return false;
+		}
 
 		eAITarget target = m_eAI_Targets[0];
 
@@ -6793,6 +6846,166 @@ class eAIBase: PlayerBase
 		return false;
 	}
 
+	EntityAI eAI_SetHasProjectileWeaponInHands()
+	{
+		EntityAI entityInHands = GetHumanInventory().GetEntityInHands();
+
+		if (entityInHands && entityInHands.IsWeapon())
+			m_eAI_HasProjectileWeaponInHands = true;
+		else
+			m_eAI_HasProjectileWeaponInHands = false;
+
+		return entityInHands;
+	}
+
+	void eAI_Targeting(float pDt, EntityAI entityInHands)
+	{
+		eAITarget previousTarget = m_eAI_Targets[0];
+		UpdateTargets(pDt, entityInHands);
+		if (eAI_RemoveTargets() || m_eAI_UpdateTargetsTick == 0)
+			eAI_PrioritizeTargets();
+		//if (m_eAI_SyncCurrentTarget)
+			//eAI_SyncCurrentTarget();
+
+		bool hadLOS = m_eAI_HasLOS;
+		m_eAI_HasLOS = EnforceLOS(pDt);
+
+	//#ifdef EXTRACE_DIAG
+		//auto trace5 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "eAI_Targeting(02)");
+	//#endif
+
+	#ifdef DIAG_DEVELOPER
+		if (!m_eAI_Targets.Count())
+		{
+			Expansion_DeleteDebugObject(18);
+			Expansion_DeleteDebugObject(19);
+		}
+	#endif
+
+		eAITarget currentTarget;
+		if (!m_eAI_HasLOS && m_eAI_NoiseTarget > 0)
+		{
+			currentTarget = m_eAI_Targets[0];
+			m_eAI_Targets[0] = m_eAI_Targets[m_eAI_NoiseTarget];
+			m_eAI_Targets[m_eAI_NoiseTarget] = currentTarget;
+#ifdef DIAG_DEVELOPER
+			float noiseThreatLevelActive = m_eAI_Targets[0].m_ThreatLevelActive;
+			EXTrace.Print(EXTrace.AI, this, "eAI_PrioritizeTargets - prioritizing noise target " + m_eAI_NoiseTarget + " " + m_eAI_Targets[0].GetDebugName() + " threat lvl " + m_eAI_CurrentThreatToSelfActive + " -> " + noiseThreatLevelActive);
+#endif
+			m_eAI_NoiseTarget = 0;
+		}
+
+		currentTarget = m_eAI_Targets[0];
+
+		if (!currentTarget)
+		{
+			if (previousTarget)
+				m_eAI_Callbacks.OnNoMoreTargets();
+		}
+		else if (currentTarget != previousTarget)
+		{
+			m_eAI_Callbacks.OnTargetSelected(currentTarget);
+		}
+
+		if (m_eAI_HasLOS != hadLOS)
+		{
+			if (m_eAI_HasLOS)
+				m_eAI_Callbacks.OnLOS(currentTarget);
+			else
+				m_eAI_Callbacks.OnLOSLost(currentTarget);
+		}
+
+		DetermineThreatToSelf(pDt);
+
+		if (!IsUnconscious() && !IsRestrained())
+			ReactToThreatChange(pDt, entityInHands);
+
+		if (m_eAI_HasLOS && m_eAI_CurrentThreatToSelfActive > 0.1 && m_eAI_AcuteDangerTargetCount <= 1 && m_eAI_AcuteDangerPlayerTargetCount == 0)
+			m_eAI_SilentAttackViabilityTime += pDt;  //! Prefer melee if gun not silenced
+		else
+			m_eAI_SilentAttackViabilityTime = 0;
+	}
+
+	float m_eAI_LastUpdateTime;
+	void eAI_OnUpdate(float pDt)
+	{
+		if (!m_eAI_CurrentCommandID)
+			return;  //! Exit if CmdHandler not (yet) running
+
+	#ifdef EXTRACE_DIAG
+		EXTrace trace;
+		if (EXTrace.AI_PROFILE)
+		{
+			string fn;
+			if (s_UpdateInCmdHandler)
+				fn = "CommandHandler(03) -> eAI_OnUpdate";
+			else
+				fn = "ExpansionWorld::eAI_OnUpdate -> eAI_OnUpdate";
+			trace = EXTrace.Profile(true, this, fn);
+		}
+	#endif
+
+		eAI_CheckIsInCover();
+		eAI_CheckIsInDangerByArea();
+		eAI_CheckIsAttachedToMovingParent();
+
+		EntityAI entityInHands = eAI_SetHasProjectileWeaponInHands();
+
+		eAI_Targeting(pDt, entityInHands);
+
+		int simulationPrecision = 0;
+
+		int actualCommandID = m_eAI_CurrentCommandID;
+		if (actualCommandID != DayZPlayerConstants.COMMANDID_LADDER)
+		{
+			eAI_HandleAiming(pDt, m_eAI_HasLOS);
+
+			if (actualCommandID != DayZPlayerConstants.COMMANDID_CLIMB && !m_eAI_IsAttachedToMovingParent && (m_eAI_IsInDangerByArea || m_PathFinding.GetOverride() || !m_FSM.IsInState("Idle")))
+				m_PathFinding.OnUpdate(pDt, simulationPrecision);
+		#ifdef DIAG_DEVELOPER
+			else
+				m_PathFinding.DrawDebug();
+		#endif
+		}
+		else
+		{
+			LookAtDirection("0 0 1");
+			AimAtDirection("0 0 1");
+		}
+	}
+
+	void eAI_OnWeaponAimUpdate()
+	{
+		if (m_WeaponRaised)
+		{
+			GetAimingProfile().Update();
+			vector direction = GetAimingProfile().GetAimDirection();
+			vector orientation = direction.VectorToAngles();
+			m_eAI_AimRelAngleLR = orientation[0];
+			m_eAI_AimRelAngleUD = orientation[1];
+		}
+	}
+
+	void eAI_UpdateFSM(float pDt, int simulationPrecision)
+	{
+	#ifdef EXTRACE_DIAG
+		EXTrace trace;
+		if (EXTrace.AI_PROFILE)
+		{
+			string fn;
+			if (s_UpdateInCmdHandler)
+				fn = "CommandHandler(11) -> eAIFSM::Update";
+			else
+				fn = "ExpansionWorld::eAI_OnUpdate -> eAIFSM::Update";
+			trace = EXTrace.Profile(true, this, fn);
+		}
+	#endif
+
+		//! Do FSM update only after current command has been running for at least one command handler tick, else initial gun holding will look scuffed
+		if (m_FSM && m_eAI_CommandTime > pDt)
+			m_FSM.Update(pDt, simulationPrecision);
+	}
+
 	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
 	{
 		if (!g_Game)
@@ -6892,12 +7105,11 @@ class eAIBase: PlayerBase
 	//#endif
 
 		if (m_eAI_CommandHandlerDT >= 0.12)
+		{
+			m_eAI_CommandMove.m_CDT = m_eAI_CommandHandlerDT;
 			m_eAI_CommandHandlerDT = 0;
+		}
 		m_eAI_CommandHandlerDT += pDt;
-
-		if (m_eAI_LOSCheckDT >= 0.15)
-			m_eAI_LOSCheckDT = 0;
-		m_eAI_LOSCheckDT += pDt;
 
 		int simulationPrecision = 0;
 
@@ -6919,106 +7131,14 @@ class eAIBase: PlayerBase
 		ShockRefill(pDt);
 		FreezeCheck();
 
-		eAI_CheckIsInCover();
-		eAI_CheckIsInDangerByArea();
-		eAI_CheckIsAttachedToMovingParent();
-
-		EntityAI entityInHands = GetHumanInventory().GetEntityInHands();
-
-		if (entityInHands && entityInHands.IsWeapon())
-			m_eAI_HasProjectileWeaponInHands = true;
-		else
-			m_eAI_HasProjectileWeaponInHands = false;
-
 	//#ifdef EXTRACE_DIAG
 		//trace3 = null;
 	//#endif
 
-		eAITarget previousTarget = m_eAI_Targets[0];
-		UpdateTargets(pDt, entityInHands);
-		if (eAI_RemoveTargets() || m_eAI_UpdateTargetsTick == 0)
-			eAI_PrioritizeTargets();
-		//if (m_eAI_SyncCurrentTarget)
-			//eAI_SyncCurrentTarget();
+		EntityAI entityInHands = GetHumanInventory().GetEntityInHands();;
 
-		bool hadLOS = m_eAI_HasLOS;
-		m_eAI_HasLOS = EnforceLOS();
-
-	//#ifdef EXTRACE_DIAG
-		//auto trace5 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(05)");
-	//#endif
-
-	#ifdef DIAG_DEVELOPER
-		if (!m_eAI_Targets.Count())
-		{
-			Expansion_DeleteDebugObject(18);
-			Expansion_DeleteDebugObject(19);
-		}
-	#endif
-
-		eAITarget currentTarget;
-		if (!m_eAI_HasLOS && m_eAI_NoiseTarget > 0)
-		{
-			currentTarget = m_eAI_Targets[0];
-			m_eAI_Targets[0] = m_eAI_Targets[m_eAI_NoiseTarget];
-			m_eAI_Targets[m_eAI_NoiseTarget] = currentTarget;
-#ifdef DIAG_DEVELOPER
-			float noiseThreatLevelActive = m_eAI_Targets[0].m_ThreatLevelActive;
-			EXTrace.Print(EXTrace.AI, this, "eAI_PrioritizeTargets - prioritizing noise target " + m_eAI_NoiseTarget + " " + m_eAI_Targets[0].GetDebugName() + " threat lvl " + m_eAI_CurrentThreatToSelfActive + " -> " + noiseThreatLevelActive);
-#endif
-			m_eAI_NoiseTarget = 0;
-		}
-
-		currentTarget = m_eAI_Targets[0];
-
-		if (!currentTarget)
-		{
-			if (previousTarget)
-				m_eAI_Callbacks.OnNoMoreTargets();
-		}
-		else if (currentTarget != previousTarget)
-		{
-			m_eAI_Callbacks.OnTargetSelected(currentTarget);
-		}
-
-		if (m_eAI_HasLOS != hadLOS)
-		{
-			if (m_eAI_HasLOS)
-				m_eAI_Callbacks.OnLOS(currentTarget);
-			else
-				m_eAI_Callbacks.OnLOSLost(currentTarget);
-		}
-
-		DetermineThreatToSelf(pDt);
-
-		if (!IsUnconscious() && !IsRestrained())
-			ReactToThreatChange(pDt, entityInHands);
-
-		if (m_eAI_HasLOS && m_eAI_CurrentThreatToSelfActive > 0.1 && m_eAI_AcuteDangerTargetCount <= 1 && m_eAI_AcuteDangerPlayerTargetCount == 0)
-			m_eAI_SilentAttackViabilityTime += pDt;  //! Prefer melee if gun not silenced
-		else
-			m_eAI_SilentAttackViabilityTime = 0;
-
-	//#ifdef EXTRACE_DIAG
-		//trace5 = null;
-	//#endif
-
-		if (actualCommandID != DayZPlayerConstants.COMMANDID_LADDER)
-		{
-			eAI_HandleAiming(pDt, m_eAI_HasLOS);
-
-			if (actualCommandID != DayZPlayerConstants.COMMANDID_CLIMB && !m_eAI_IsAttachedToMovingParent && (m_eAI_IsInDangerByArea || m_PathFinding.GetOverride() || !m_FSM.IsInState("Idle")))
-				m_PathFinding.OnUpdate(pDt, simulationPrecision);
-		#ifdef DIAG_DEVELOPER
-			else
-				m_PathFinding.DrawDebug();
-		#endif
-		}
-		else
-		{
-			LookAtDirection("0 0 1");
-			AimAtDirection("0 0 1");
-		}
+		if (s_UpdateInCmdHandler)
+			eAI_OnUpdate(pDt);
 
 		if (m_eAI_ResetMovementDirectionActive)
 		{
@@ -7100,19 +7220,16 @@ class eAIBase: PlayerBase
 		#endif
 		}
 
-	#ifdef EXTRACE_DIAG
+	//#ifdef EXTRACE_DIAG
 		//trace10 = null;
-		auto trace11 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(11) -> eAIFSM::Update");
-	#endif
+	//#endif
 
-		//! Do FSM update only after current command has been running for at least one command handler tick, else initial gun holding will look scuffed
-		if (m_FSM && m_eAI_CommandTime > pDt)
-			m_FSM.Update(pDt, simulationPrecision);
+		if (s_UpdateInCmdHandler)
+			eAI_UpdateFSM(pDt, simulationPrecision);
 
-	#ifdef EXTRACE_DIAG
-		trace11 = null;
+	//#ifdef EXTRACE_DIAG
 		//auto trace12 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(12)");
-	#endif
+	//#endif
 
 		if (m_ActionManager)
 		{
@@ -7258,6 +7375,20 @@ class eAIBase: PlayerBase
 		{
 			//! Nothing
 		}
+		else if (m_eAI_Unbug)
+		{
+			m_eAI_Unbug = false;
+
+			if (GetActionManager().GetRunningAction())
+			{
+				GetActionManager().OnActionEnd();
+			}
+			else
+			{
+				EXTrace.Print(true, this, "Applying SMACK OF GOD (='-')-o )'~')");
+				StartCommand_Damage(1, 180);
+			}
+		}
 
 		vector lookTargetRelAngles = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
 		vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
@@ -7287,18 +7418,8 @@ class eAIBase: PlayerBase
 
 		if (!m_eAI_SkipScript && eAI_IsLocomotionCmd(actualCommandID))
 		{
-			eAICommandMove ecm;
-
-			int performCommand;
-			//if (Class.CastTo(ecm, ehcs))
 			if (actualCommandID != DayZPlayerConstants.COMMANDID_VEHICLE)
-				performCommand = EAI_COMMANDID_MOVE;
-
-			ecm = m_eAI_CommandMove;
-
-			switch (performCommand)
 			{
-			case EAI_COMMANDID_MOVE:
 				if (m_eAI_IsOnLadder)
 				{
 					HumanCommandLadder hcl = GetCommand_Ladder();
@@ -7314,7 +7435,54 @@ class eAIBase: PlayerBase
 						hcl.Exit();
 					}
 				}
-				else if (m_eAI_CommandHandlerDT < 0.12)
+			}
+
+			if (s_UpdateInCmdHandler)
+			{
+				eAI_OnMovementUpdate(pDt);
+				m_eAI_CommandMove.AvoidObstacles(pDt);
+			}
+
+			if (m_eAI_JumpClimb)
+			{
+				m_eAI_JumpClimb = false;
+
+				if (actualCommandID == DayZPlayerConstants.COMMANDID_MOVE && !m_JumpClimb.Expansion_Climb())
+				{
+					//! If we didn't vault or climb, find way around obstacle, but only if path is not blocked physically
+					//! (path blocked physically is only set on pathfinding if navmesh isn't blocked,
+					//! so in that case we won't find an alternative path)
+					if (m_PathFinding.m_AllowJumpClimb && !m_PathFinding.m_IsBlockedPhysically && !IsSwimming())
+						m_PathFinding.SetAllowJumpClimb(false, 15.0);
+				}
+			}
+
+			m_eAI_CommandMove.PreAnimUpdate(pDt);
+		}
+	}
+
+	void eAI_OnMovementUpdate(float pDt)
+	{
+		int actualCommandID = m_eAI_CurrentCommandID;
+
+		if (!m_eAI_SkipScript && eAI_IsLocomotionCmd(actualCommandID))
+		{
+			eAICommandMove ecm;
+
+			int performCommand;
+			if (actualCommandID != DayZPlayerConstants.COMMANDID_VEHICLE)
+				performCommand = EAI_COMMANDID_MOVE;
+
+			ecm = m_eAI_CommandMove;
+
+			switch (performCommand)
+			{
+			case EAI_COMMANDID_MOVE:
+				if (m_eAI_IsOnLadder)
+				{
+					//! Do nothing
+				}
+				else if (m_eAI_CommandMove.m_CDT < m_eAI_CommandMove.OBSTACLE_AVOIDANCE_INTERVAL)
 				{
 					//! Do nothing
 				}
@@ -7322,16 +7490,11 @@ class eAIBase: PlayerBase
 				{
 					break;
 				}
-				else if (AI_HANDLEVAULTING && HandleVaulting(ecm, pDt))
+				else if (AI_HANDLEVAULTING && (m_eAI_JumpClimb || HandleVaulting(ecm, pDt)))
 				{
-					if (m_JumpClimb.Expansion_Climb())
-						break;
-					
-					//! If we didn't vault or climb, find way around obstacle, but only if path is not blocked physically
-					//! (path blocked physically is only set on pathfinding if navmesh isn't blocked,
-					//! so in that case we won't find an alternative path)
-					if (m_PathFinding.m_AllowJumpClimb && !m_PathFinding.m_IsBlockedPhysically && !IsSwimming())
-						m_PathFinding.SetAllowJumpClimb(false, 15.0);
+					//! Unsafe to call animation-related commands outside cmdhandler, can break character animation
+					m_eAI_JumpClimb = true;
+					break;
 				}
 				else if (m_PathFinding.m_IsJumpClimb && m_PathFinding.m_AllowJumpClimb && !m_PathFinding.m_IsBlockedPhysically && ecm.IsBlocked() && m_eAI_BlockedTime > pDt && !IsSwimming())
 				{
@@ -7355,6 +7518,9 @@ class eAIBase: PlayerBase
 
 				if (m_WeaponRaised)
 					speedLimit = Math.Min(speedLimit, 2);
+
+				vector lookTargetRelAngles = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
+				vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
 
 				float turnTarget;
 				bool setTurnTarget;
@@ -7392,7 +7558,7 @@ class eAIBase: PlayerBase
 					setTurnTarget = true;
 				}
 
-				if (setTurnTarget)
+				if (setTurnTarget && !m_eAI_IsOnLadder)
 					ecm.SetTurnTarget(turnTarget, m_eAI_TurnTargetActive);
 
 				if (GetInputController().LimitsIsSprintDisabled())
@@ -7410,6 +7576,8 @@ class eAIBase: PlayerBase
 
 				if (ecm.GetCurrentMovementSpeed() >= 0.5 && m_eAI_PositionTime > 4.98 && Expansion_IsAnimationIdle())
 				{
+					vector playerPosition = m_ExTransformPlayer[3];
+
 				#ifdef DIAG_DEVELOPER
 					string pos = ExpansionStatic.VectorToString(playerPosition);
 					string msg = "Movement speed " + ecm.GetCurrentMovementSpeed() + " but not moving for " + m_eAI_PositionTime + " s " + Debug.GetDebugName(this) + " (pos=" + pos + "), item in hands " + ExpansionStatic.GetDebugInfo(GetItemInHands());
@@ -7463,8 +7631,6 @@ class eAIBase: PlayerBase
 			#endif
 				break;
 			}
-
-			m_eAI_CommandMove.PreAnimUpdate(pDt);
 		}
 	}
 
@@ -7611,7 +7777,7 @@ class eAIBase: PlayerBase
 			}
 			else
 			{
-				ori[0] = Math.RandomFloat(-22.0 * f, 22.0 * f);
+				ori[0] = Math.RandomFloat(-72.0, 72.0);
 			}
 		}
 		else if (m_PathFinding.GetRemainingCount() == 2 && m_PathFinding.m_IsUnreachable && !Math.IsPointInCircle(m_PathFinding.GetEnd(), 0.55, m_ExTransformPlayer[3]) && !m_FSM.IsInState("Idle"))
@@ -7821,7 +7987,7 @@ class eAIBase: PlayerBase
 		Expansion_SetEmote(emoteId, true);
 	}
 
-	bool EnforceLOS()
+	bool EnforceLOS(float pDt)
 	{
 		//! Prevent core dump on server shutdown
 		if (!g_Game)
@@ -7843,6 +8009,10 @@ class eAIBase: PlayerBase
 
 		eAITargetInformationState state = target;
 
+		if (m_eAI_LOSCheckDT >= 0.15)
+			m_eAI_LOSCheckDT = 0;
+		m_eAI_LOSCheckDT += pDt;
+
 		if (m_eAI_LOSCheckDT < 0.15 && !m_eAI_TargetChanged)
 			return state.m_LOS;
 
@@ -7863,7 +8033,7 @@ class eAIBase: PlayerBase
 		}
 
 #ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(04) -> EnforceLOS");
+		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "eAI_Targeting -> EnforceLOS");
 #endif
 
 		string boneName;
@@ -9262,11 +9432,8 @@ class eAIBase: PlayerBase
 			//! there will be a sudden jump in the unit's rotation between 180 and -180 due to the way the animation is set up
 			eAI_InterpolateYawPitch(m_eAI_AimRelAngles, aimTargetRelAngles, m_eAI_AimVelLR, m_eAI_AimVelUD, pDt);
 
-			GetAimingProfile().Update();
-			vector direction = GetAimingProfile().GetAimDirection();
-			vector orientation = direction.VectorToAngles();
-			m_eAI_AimRelAngleLR = orientation[0];
-			m_eAI_AimRelAngleUD = orientation[1];
+			if (s_UpdateInCmdHandler)
+				eAI_OnWeaponAimUpdate();
 
 		/*
 		#ifndef SERVER
@@ -9859,8 +10026,7 @@ class eAIBase: PlayerBase
 		ExpansionNotification("ACTION FAILED", msg).Error();
 #endif
 
-		EXTrace.Print(true, this, "Applying SMACK OF GOD (='-')-o )'~')");
-		StartCommand_Damage(1, 180);
+		m_eAI_Unbug = true;
 	}
 
 	override void OnUnconsciousStart()
@@ -10321,16 +10487,6 @@ class eAIBase: PlayerBase
 
 		if (il_dst.GetType() != InventoryLocationType.GROUND)
 		{
-			if (il_dst.GetType() == InventoryLocationType.HANDS || il_src.GetType() == InventoryLocationType.HANDS)
-			{
-				//! Forcing switch to HumanCommandMove before taking to/from hands,
-				//! and hiding/showing item in hands after, unbreaks hand anim state
-				if (!GetCommand_Move())
-					StartCommand_Move();
-				else
-					m_eAI_CommandTime = 0.0;
-			}
-
 			if (il_src.GetType() == InventoryLocationType.HANDS)
 			{
 				if (m_WeaponManager.IsRunning())
@@ -11261,7 +11417,7 @@ class eAIBase: PlayerBase
 		Expansion_DebugObject(22223, "0 0 0", "ExpansionDebugSphereSmall_Black");
 	#endif
 
-		RaycastRVParams params(p0, p1, this, 0.5);
+		RaycastRVParams params = new RaycastRVParams(p0, p1, this, 0.5);
 		array<ref RaycastRVResult> results();
 		array<Object> excluded();
 		excluded.Insert(this);

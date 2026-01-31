@@ -7,6 +7,7 @@ modded class PluginDiagMenu
 	protected int m_ExpansionDiagsRootMenu_AI;
 		protected int m_ExpansionDiagsEnum_AIClimb;
 		protected int m_ExpansionDiagsEnum_AIVehicle;
+		protected int m_ExpansionDiagsEnum_AIServerStats;
 	
 	override protected void RegisterModdedDiagsIDs()
 	{
@@ -16,6 +17,7 @@ modded class PluginDiagMenu
 		m_ExpansionDiagsRootMenu_AI = GetModdedDiagID();
 			m_ExpansionDiagsEnum_AIClimb = GetModdedDiagID();
 			m_ExpansionDiagsEnum_AIVehicle = GetModdedDiagID();
+			m_ExpansionDiagsEnum_AIServerStats = GetModdedDiagID();
 	}
 	
 	override protected void RegisterModdedDiags()
@@ -27,6 +29,7 @@ modded class PluginDiagMenu
 		{
 			DiagMenu.RegisterRange(m_ExpansionDiagsEnum_AIClimb, "", "AI CLIMB", m_ExpansionDiagsRootMenu_AI,"0,0x10,0,0x01");
 			DiagMenu.RegisterBool(m_ExpansionDiagsEnum_AIVehicle, "", "AI VEHICLE", m_ExpansionDiagsRootMenu_AI);
+			DiagMenu.RegisterBool(m_ExpansionDiagsEnum_AIServerStats, "", "Server Stats in DbgMon", m_ExpansionDiagsRootMenu_AI);
 		}
 	}
 };

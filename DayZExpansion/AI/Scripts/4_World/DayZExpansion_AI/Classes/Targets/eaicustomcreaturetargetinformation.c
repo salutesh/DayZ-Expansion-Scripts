@@ -1,6 +1,6 @@
 class eAICustomCreatureTargetInformation: eAIEntityTargetInformation
 {
-	static const float CREATURE_AGGRO_RANGE = 100.0;  //! DayZInfected aggro range
+	static const float CREATURE_AGGRO_RANGE = 100.0;
 
 	static ref CF_DoublyLinkedNodes_WeakRef<eAICustomCreatureTargetInformation> s_AllCustomCreatures = new CF_DoublyLinkedNodes_WeakRef<eAICustomCreatureTargetInformation>;
 
@@ -90,9 +90,12 @@ class eAICustomCreatureTargetInformation: eAIEntityTargetInformation
 			//! The further away the creature, the less likely it will be a threat
 			float distance = GetDistance(ai, true);
 
+			if (ai.IsSwimming())
+				return ExpansionMath.LinearConversion(0, 100, distance, 0.15, 0.1);
+
 			levelFactor *= 10 / (distance + 0.1);  //! Threat level 0.2 at 110 m, 0.1 at 220 m (removal threshold)
 
-			if (levelFactor >= 0.2)
+			if (levelFactor > 0.152)
 			{
 				levelFactor *= 2.0;
 				EntityAI hands = ai.GetHumanInventory().GetEntityInHands();

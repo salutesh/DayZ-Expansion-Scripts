@@ -7,6 +7,8 @@ class eAITarget: eAITargetInformationState
 
 	bool m_IsTracked;
 
+	bool m_FriendlyAggro;
+
 #ifdef DIAG_DEVELOPER
 	void ~eAITarget()
 	{
@@ -348,5 +350,45 @@ class eAITarget: eAITargetInformationState
 	float GetDistanceSq(bool actual = false)
 	{
 		return m_Info.GetDistanceSq(m_AI, actual, this);
+	}
+
+	void LogFriendlyAggro(DayZPlayerImplement victim, inout string aggressorPrefix, inout string victimPrefix)
+	{
+		if (m_FriendlyAggro)
+			return;
+
+		m_FriendlyAggro = true;
+
+		PlayerBase pb;
+		string msg;
+		string prefix = m_AI.m_AdminLog.GetPlayerPrefix(m_AI, null);
+
+		if (!aggressorPrefix)
+		{
+			EntityAI aggressor = GetEntity();
+			if (Class.CastTo(pb, aggressor))
+				aggressorPrefix = pb.m_AdminLog.GetPlayerPrefix(pb, pb.GetIdentity());
+			else
+				aggressorPrefix = aggressor.GetDisplayName();
+		}
+
+		if (m_AI != victim)
+		{
+			if (!victimPrefix)
+			{
+				if (Class.CastTo(pb, victim))
+					victimPrefix = pb.m_AdminLog.GetPlayerPrefix(pb, pb.GetIdentity());
+				else
+					victimPrefix = victim.GetDisplayName();
+			}
+
+			msg = string.Format("%1 turned hostile to aggressor %2 because %3 was hit", prefix, aggressorPrefix, victimPrefix);
+		}
+		else
+		{
+			msg = string.Format("%1 turned hostile to attacker %2", prefix, aggressorPrefix);
+		}
+
+		g_Game.AdminLog(msg);
 	}
 };

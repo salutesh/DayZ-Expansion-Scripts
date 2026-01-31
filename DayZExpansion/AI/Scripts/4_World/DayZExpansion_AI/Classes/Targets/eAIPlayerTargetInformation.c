@@ -77,19 +77,35 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			// the further away the player, the less likely they will be a threat
 			float distance = GetDistance(ai, true) + 0.1;
 
-			if (m_Player.IsUnconscious())
+			bool targetIsAI = m_Player.IsAI();
+
+			if (m_Player.IsUnconscious() && !targetIsAI)
 				return ExpansionMath.LinearConversion(0, 100, distance, 0.4, 0.3, false);
 
 			if (m_Player.IsRestrained() || (m_Player.IsSwimming() && ai.IsSwimming()))
 				return ExpansionMath.LinearConversion(0, 100, distance, 0.15, 0.1);
 
-			if (distance <= 100.0 && m_Player.Expansion_GetParent() != ai.Expansion_GetParent())
+			IEntity playerParent;
+			bool differentParent;
+
+			if (distance <= 100.0)
 			{
-				//! Any AI, even passive, will react if vehicle is speeding towards them
-				//! Vehicles WITHOUT drivers are handled by vehicle target info
-				levelFactor = ProcessVehicleThreat(ai, distance);
-				if (!levelFactor)
+				playerParent = m_Player.Expansion_GetParent();
+
+				if (playerParent != ai.Expansion_GetParent())
+				{
+					differentParent = true;
+
+					//! Any AI, even passive, will react if vehicle is speeding towards them
+					//! Vehicles WITHOUT drivers are handled by vehicle target info
+					levelFactor = ProcessVehicleThreat(ai, distance);
+					if (!levelFactor)
+						levelFactor = 10 / distance;
+				}
+				else
+				{
 					levelFactor = 10 / distance;
+				}
 			}
 			else
 			{
@@ -102,14 +118,26 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			bool isPlayerMoving;
 			bool friendly;
 			bool targeted;
-			bool targetIsAI = m_Player.IsAI();
 			//! @note order matters! PlayerIsEnemy check needs to come first because it sets the passed in out variables,
 			//! AI check 2nd, group check 3rd, aggression cooldown check last to prevent own group becoming hostile on accidental friendly fire
 			if (!ai.PlayerIsEnemy(m_Player, false, isPlayerMoving, friendly, targeted) && (targetIsAI || m_Player.GetGroup() == group || !state || state.GetAggressionCooldown() <= 0))
 			{
 				//! They eyeball you menacingly if you move, or if another friendly AI moves that is not in same group,
 				//! or if you're standing close to them
-				if ((isPlayerMoving && (!targetIsAI || m_Player.GetGroup() != group)) || (!isPlayerMoving && !targetIsAI && m_Player.GetGroup() != group && distance <= 2.33))
+
+				bool turnTowardsTarget;
+
+				if (isPlayerMoving)
+				{
+					if ((!targetIsAI && (!playerParent || differentParent)) || m_Player.GetGroup() != group)
+						turnTowardsTarget = true;
+				}
+				else if (!targetIsAI && m_Player.GetGroup() != group && distance <= 2.33)
+				{
+					turnTowardsTarget = true;
+				}
+
+				if (turnTowardsTarget)
 					return ExpansionMath.PowerConversion(0.5, 30, distance, 0.152, 0.0, 0.1);
 
 				return ExpansionMath.LinearConversion(0, 30, distance, 0.1, 0.0);
@@ -140,7 +168,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 					if (m_Player.IsRaised() && fromTargetDot >= 0.9 && (m_HasProjectileWeaponInHands || m_Player.IsFighting()))
 						canEnterFightingState = true;
 					//! Update aggression timeout regardless if targeted or not
-					else if (m_Player.eAI_UpdateAgressionTimeout(ExpansionAISettings.s_Instance.GuardAggressionTimeout - distance))
+					else if (m_Player.eAI_UpdateAgressionTimeout(ExpansionAISettings.Get().GuardAggressionTimeout - distance))
 						canEnterFightingState = true;
 
 					if (!canEnterFightingState && (m_Player.IsRaised() || ai.IsRaised()))
@@ -158,7 +186,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 					else if (targeted)
 					{
 						//! Only update aggression timeout if targeted
-						if (targetIsAI || m_Player.eAI_UpdateAgressionTimeout(ExpansionAISettings.s_Instance.AggressionTimeout))
+						if (targetIsAI || m_Player.eAI_UpdateAgressionTimeout(ExpansionAISettings.Get().AggressionTimeout))
 							canEnterFightingState = true;
 					}
 				}

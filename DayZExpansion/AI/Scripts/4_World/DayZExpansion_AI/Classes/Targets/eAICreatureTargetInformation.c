@@ -102,6 +102,9 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 			// the further away the creature, the less likely it will be a threat
 			float distance = GetDistance(ai, true);
 
+			if (ai.IsSwimming())
+				return ExpansionMath.LinearConversion(0, 100, distance, 0.15, 0.1);
+
 			//! If not reachable, ignore if we don't have a gun
 			if (!ai.m_eAI_HasProjectileWeaponInHands && ai.eAI_IsUnreachable(2.0, m_Target.GetPosition()))
 			{

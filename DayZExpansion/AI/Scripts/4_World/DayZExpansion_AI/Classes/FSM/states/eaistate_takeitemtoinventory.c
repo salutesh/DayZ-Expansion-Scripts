@@ -19,6 +19,10 @@ class eAIState_TakeItemToInventory: eAIState_TakeItem_Base
 
 	int Guard()
 	{
+	#ifdef EXTRACE_DIAG
+		auto profile = EXTrace.Profile(EXTrace.AI_PROFILE, eAIState_TakeItemToInventory, "Guard");
+	#endif
+
 		if (unit.IsFighting()) return eAITransition.FAIL;
 		
 		if (unit.IsRestrained()) return eAITransition.FAIL;

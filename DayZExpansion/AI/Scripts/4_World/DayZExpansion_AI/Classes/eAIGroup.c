@@ -699,8 +699,9 @@ class eAIGroup
 
 	/**
 	 * @brief Add/update target for all group members
-	 * 
-	 * @param info Target information
+	 *
+	 * @param player Attacked player
+	 * @param info Attacker target information
 	 * @param update If true (default) and member is already targeting the target, update found_at_time and max_time
 	 * @param threat Initial threat level if non-zero
 	 */
@@ -713,6 +714,15 @@ class eAIGroup
 		eAIBase ai;
 		eAITarget target;
 		bool created;
+
+		DayZPlayerImplement aggressorPlayer;
+		eAIGroup aggressorGroup;
+		if (Class.CastTo(aggressorPlayer, info.GetEntity()))
+			aggressorGroup = aggressorPlayer.GetGroup();
+
+		string aggressorPrefix;
+		string victimPrefix;
+
 		foreach (DayZPlayerImplement member: m_Members)
 		{
 			if (Class.CastTo(ai, member))
@@ -724,7 +734,7 @@ class eAIGroup
 
 				if (threat > target.m_ThreatLevelActive)
 				{
-					if (!target.m_LOS)
+					if (!target.m_SearchOnLOSLost)
 					{
 						target.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
 						target.m_SearchOnLOSLost = true;
@@ -733,6 +743,15 @@ class eAIGroup
 					{
 						target.SetThreat(threat);
 					}
+				}
+
+				if (ExpansionAISettings.Get().LogAIHitBy && aggressorPlayer && target.m_ThreatLevelActive > 0.2)
+				{
+					//! If we already see the attacker as enemy (i.e. their faction is hostile to ours), don't log aggro
+					if (aggressorGroup && !aggressorGroup.GetFaction().IsFriendly(GetFaction()))
+						continue;
+
+					target.LogFriendlyAggro(player, aggressorPrefix, victimPrefix);
 				}
 			}
 		}

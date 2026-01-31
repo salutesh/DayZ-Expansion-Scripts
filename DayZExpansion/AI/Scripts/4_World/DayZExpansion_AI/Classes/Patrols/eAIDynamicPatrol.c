@@ -1,7 +1,7 @@
 class eAIDynamicPatrol : eAIPatrol
 {
 	static ExpansionAIPatrolSettings s_AIPatrolSettings;
-	private static int s_PatrolCount;
+	static int s_PatrolCount;
 
 	static ref map<string, ref ExpansionAIPatrolLoadBalancing> s_LoadBalancing = new map<string, ref ExpansionAIPatrolLoadBalancing>;
 	static ref ExpansionAIPatrolLoadBalancing s_LoadBalancingGlobal;

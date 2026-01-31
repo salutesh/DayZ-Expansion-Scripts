@@ -44,6 +44,7 @@ class eAICommandManagerImpl: eAICommandManager
 		m_Expansion_RPCManager.RegisterServer("RPC_ForceWeaponResync");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugObjects");
 		m_Expansion_RPCManager.RegisterServer("RPC_DebugDamage");
+		m_Expansion_RPCManager.RegisterServer("RPC_ToggleFTO");
 		m_Expansion_RPCManager.RegisterServer("RPC_SetDamageInOut");
 
 		m_Expansion_RPCManager.RegisterServer("RPC_SitRep");
@@ -113,6 +114,10 @@ class eAICommandManagerImpl: eAICommandManager
 
 			case eAICommands.DEB_DBGDAMAGE:
 				m_Expansion_RPCManager.SendRPC("RPC_DebugDamage");
+				return true;
+
+			case eAICommands.DEB_TOGGLEFTO:
+				m_Expansion_RPCManager.SendRPC("RPC_ToggleFTO");
 				return true;
 
 			case eAICommands.FOR_VEE:
@@ -724,6 +729,29 @@ class eAICommandManagerImpl: eAICommandManager
 			onOff = "OFF";
 
 		ExpansionNotification("EXPANSION AI", "Debug damage " + onOff).Info(sender);
+	}
+	
+	void RPC_ToggleFTO(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+	#endif
+
+		if (g_Game.IsMultiplayer())
+		{
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
+		}
+	
+		eAIBase.eAI_ToggleUpdateInCmdHandler();
+
+		string onOff;
+		if (!eAIBase.s_UpdateInCmdHandler)
+			onOff = "ON";
+		else
+			onOff = "OFF";
+
+		ExpansionNotification("EXPANSION AI", "Frame Time Optimization " + onOff).Info(sender);
 	}
 
 	void RPC_SetDamageInOut(PlayerIdentity sender, Object target, ParamsReadContext ctx)

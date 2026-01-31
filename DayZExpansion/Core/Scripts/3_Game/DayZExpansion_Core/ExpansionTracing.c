@@ -51,6 +51,8 @@ class EXTrace
 
 	static bool DATACOLLECTION = IsEnabled();
 
+	static bool FSM;
+
 	static bool GENERAL_ITEMS = IsEnabled();
 
 	static bool GLOBAL;
@@ -499,23 +501,12 @@ class EXTrace
 		m_Silent = silent;
 	}
 
-	void Print(string msg)
+	void Print(string msg, string p1 = "", string p2 = "", string p3 = "", string p4 = "", string p5 = "", string p6 = "", string p7 = "", string p8 = "", string p9 = "")
 	{
-		PrintFormat("%1 [EXPRINT] %2", ExpansionStatic.GetISOTime(), s_Indent + msg);
+		PrintFormat("%1 [EXPRINT] %2%3", ExpansionStatic.GetISOTime(), s_Indent, string.Format(msg, p1, p2, p3, p4, p5, p6, p7, p8, p9));
 	}
 
-	static void Print(bool yes, Class instance, string msg)
-	{
-		//! Unconditionally conditionally enable if define not defined kappa
-#ifndef EXPANSIONTRACE
-		if (!yes || !msg)
-			return;
-#endif
-
-		PrintEx(instance, NULLTYPE, msg);
-	}
-
-	static void Print(bool yes, typename typeName, string msg)
+	static void Print(bool yes, Class instance, string msg, string p1 = "", string p2 = "", string p3 = "", string p4 = "", string p5 = "", string p6 = "", string p7 = "", string p8 = "", string p9 = "")
 	{
 		//! Unconditionally conditionally enable if define not defined kappa
 #ifndef EXPANSIONTRACE
@@ -523,10 +514,21 @@ class EXTrace
 			return;
 #endif
 
-		PrintEx(null, typeName, msg);
+		PrintEx(instance, NULLTYPE, msg, p1, p2, p3, p4, p5, p6, p7, p8, p9);
 	}
 
-	static void PrintEx(Class instance, typename typeName, string msg)
+	static void Print(bool yes, typename typeName, string msg, string p1 = "", string p2 = "", string p3 = "", string p4 = "", string p5 = "", string p6 = "", string p7 = "", string p8 = "", string p9 = "")
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes || !msg)
+			return;
+#endif
+
+		PrintEx(null, typeName, msg, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+	}
+
+	static void PrintEx(Class instance, typename typeName, string msg, string p1 = "", string p2 = "", string p3 = "", string p4 = "", string p5 = "", string p6 = "", string p7 = "", string p8 = "", string p9 = "")
 	{
 		string ts = ExpansionStatic.GetISOTime();
 
@@ -535,11 +537,13 @@ class EXTrace
 			prefix = instance.ToString();
 		else if (typeName)
 			prefix = typeName.ToString();
+
+		msg = string.Format(msg, p1, p2, p3, p4, p5, p6, p7, p8, p9);
 		
 		if (prefix)
-			PrintFormat("%1 [EXPRINT] %2 %3", ts, s_Indent + prefix, msg);
+			PrintFormat("%1 [EXPRINT] %2%3 %4", ts, s_Indent, prefix, msg);
 		else
-			PrintFormat("%1 [EXPRINT] %2", ts, s_Indent + msg);
+			PrintFormat("%1 [EXPRINT] %2 %3", ts, s_Indent, msg);
 	}
 
 	static void PrintHit(bool yes = true, Class instance = null, string msg = "", TotalDamageResult damageResult = null, int damageType = 0, EntityAI source = null, int component = 0, string dmgZone = "", string ammo = "", vector modelPos = "0 0 0", float speedCoef = 1.0)

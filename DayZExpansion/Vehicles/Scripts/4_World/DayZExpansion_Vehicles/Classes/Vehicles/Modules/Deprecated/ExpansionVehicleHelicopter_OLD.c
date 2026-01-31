@@ -942,14 +942,18 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			return;
 
 		float modelSize = pState.m_BoundingRadius * 1.5;
-		modelSize += 10.0;
+		modelSize += 15.0;
 
 		vector start = pState.m_Transform[3];
 		vector end = pState.m_Transform[3] - Vector(0, modelSize, 0);
 
-		PhxInteractionLayers collisionLayerMask = PhxInteractionLayers.BUILDING | PhxInteractionLayers.DOOR | PhxInteractionLayers.ROADWAY | PhxInteractionLayers.TERRAIN | PhxInteractionLayers.ITEM_SMALL | PhxInteractionLayers.ITEM_LARGE | PhxInteractionLayers.FENCE;
-
-		m_Hit = DayZPhysics.SphereCastBullet(start, end, 5.0, collisionLayerMask, m_Vehicle, m_HitObject, m_HitPosition, m_HitNormal, m_HitFraction);
+		int component;
+		set<Object> results = new set<Object>;
+		m_Hit = DayZPhysics.RaycastRV(start, end, m_HitPosition, m_HitNormal, component, results, null, m_Vehicle, false, false, ObjIntersectView, 0.0);
+		if (m_Hit)
+			m_HitFraction = ExpansionMath.LinearConversion(start[1], end[1], m_HitPosition[1], 0.0, 1.0);
+		else
+			m_HitFraction = 0;
 
 		if (IsMissionClient() && m_EnableWind)
 		{
@@ -958,29 +962,20 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			if (m_Hit)
 			{
 
-				float distance = 0;
-
-				if (ExpansionStatic.SurfaceIsWater(m_HitPosition))
-				{
-					distance = pState.m_Transform[3][1] - g_Game.SurfaceGetSeaLevel();
-				}
-				else
-				{
-					distance = pState.m_Transform[3][1] - m_HitPosition[1];
-				}
+				float distance = pState.m_Transform[3][1] - m_HitPosition[1];
 
 				vector bbox[2];
 				distance /= ((pState.m_BoundingRadius * 1.5) + 10.0);
 				m_WindSpeedSync = m_WindSpeedSync * distance;
 			}
-			else
-			{
+			//else
+			//{
 				//float rnd = fad.m_Player.GetRandomGeneratorSyncManager().GetRandom01(RandomGeneratorSyncUsage.RGSGeneric);
 
 				//m_HasDriver
 
 				// turbulence?
-			}
+			//}
 		}
 		else
 		{

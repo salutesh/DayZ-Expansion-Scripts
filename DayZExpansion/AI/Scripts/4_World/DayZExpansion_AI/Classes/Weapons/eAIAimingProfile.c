@@ -74,8 +74,7 @@ class eAIAimingProfile
 			float inaccuracyUD = 1.0 - Math.RandomFloat(accuracyMin, accuracyMax) * visibility;
 
 			//! Accuracy influenced by target movement speed and angle
-			//vector aimOrientation = direction.InvMultiply3(transform).VectorToAngles();
-			vector aimOrientation = m_Unit.GetAimRelAngles();
+			vector aimOrientation = direction.InvMultiply3(transform).VectorToAngles();
 			float distClamped = Math.Clamp(dist, 100, 1000);
 
 			float targetSpeedMult;

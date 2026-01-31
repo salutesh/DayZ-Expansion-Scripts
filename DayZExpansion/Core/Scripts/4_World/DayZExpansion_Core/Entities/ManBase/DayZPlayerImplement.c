@@ -428,7 +428,8 @@ modded class DayZPlayerImplement
 	void Expansion_DebugObject_Deferred(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero, float lifetime = 300.0, int flags = 0)
 	{
 #ifdef DIAG_DEVELOPER
-		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_DebugObject, 1, false, i, position, type, direction, origin, lifetime, flags);
+		if (s_Expansion_DebugObjects_Enabled)
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_DebugObject, 1, false, i, position, type, direction, origin, lifetime, flags);
 #endif
 	}
 

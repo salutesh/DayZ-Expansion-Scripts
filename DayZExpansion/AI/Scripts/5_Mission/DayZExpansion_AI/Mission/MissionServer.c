@@ -55,6 +55,8 @@ modded class MissionServer
 
 		eAIDynamicPatrol.LoadBalancing_Schedule();
 
+		GetExpansionSettings().GetAI().OnPlayerConnected(player, identity);
+
 		if (player.GetGroup())
 			return;
 
@@ -125,6 +127,8 @@ modded class MissionServer
 #endif
 
 		super.PlayerDisconnected( player, identity, uid );
+
+		GetExpansionSettings().GetAI().OnPlayerDisconnected(player, identity, uid);
 
 		if (PlayerBase.Expansion_GetOnlinePlayersCount() == 0)
 			eAIGroup.SaveAllPersistentGroups();

@@ -38,4 +38,12 @@ class eAIFormationStarDot : eAIFormation
 
 		return dir;
 	}
+
+	override void UpdateTransform(vector newPos, vector dir)
+	{
+		if (m_LastUpdatePosition != vector.Zero)
+			dir = m_Transform[2];
+
+		super.UpdateTransform(newPos, dir);
+	}
 };

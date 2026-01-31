@@ -51,6 +51,8 @@ class ExpansionPathHandler
 	bool m_SuppressRecalculate;
 	bool m_IsBlocked;
 	bool m_IsBlockedPhysically;
+	vector m_HitPosition;
+	Object m_BlockingObject;
 	bool m_IsJumpClimb;
 	bool m_DoClimbTestEx;
 	bool m_IsUnreachable;
@@ -527,7 +529,16 @@ class ExpansionPathHandler
 	void OnUpdate(float pDt, int pSimulationPrecision)
 	{
 	#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, m_Unit, "CommandHandler(07) -> ExpansionPathHandler::OnUpdate");
+		EXTrace trace;
+		if (EXTrace.AI_PROFILE)
+		{
+			string fn;
+			if (eAIBase.s_UpdateInCmdHandler)
+				fn = "CommandHandler(07) ->  ExpansionPathHandler::OnUpdate";
+			else
+				fn = "ExpansionWorld::eAI_OnUpdate -> ExpansionPathHandler::OnUpdate";
+			trace = EXTrace.Profile(true, m_Unit, fn);
+		}
 	#endif
 
 		m_TimeIt.Start();
@@ -1065,7 +1076,10 @@ class ExpansionPathHandler
 		}
 		else if (m_Unit.AI_HANDLEVAULTING)
 		{
-			if (IsBlockedPhysically(start + "0 0.49 0", end + "0 0.49 0") || IsElevated(start))
+			vector offset = "0 0.49 0";
+			vector hitNormal;
+			int component;
+			if (IsBlockedPhysically(start + offset, end + offset, m_HitPosition, hitNormal, component, m_BlockingObject) || IsElevated(start))
 			{
 				m_IsBlockedPhysically = true;
 				if (!m_Next0.Parent)

@@ -7,6 +7,7 @@ modded class PluginDiagMenuClient
 
 		DiagMenu.BindCallback(m_ExpansionDiagsEnum_AIClimb, ExpansionAI_Climb);
 		DiagMenu.BindCallback(m_ExpansionDiagsEnum_AIVehicle, ExpansionAI_Vehicle);
+		DiagMenu.BindCallback(m_ExpansionDiagsEnum_AIServerStats, ExpansionAI_ServerStats);
 	}
 
 	static void ExpansionAI_Climb(float value)
@@ -23,6 +24,15 @@ modded class PluginDiagMenuClient
 		Class.CastTo(player, g_Game.GetPlayer());
 		
         player.DEBUG_EXPANSION_AI_VEHICLE = state;
+	}
+
+	static void ExpansionAI_ServerStats(bool state)
+	{
+        ExpansionWorld.s_DebugMonitor_ShowServerStats = state;
+
+        auto rpc = GetDayZGame().GetExpansionGame().m_RPCManager.CreateRPC("RPC_DebugMonitor_ShowServerStats");
+        rpc.Write(state);
+        rpc.Expansion_Send(true);
 	}
 };
 #endif
