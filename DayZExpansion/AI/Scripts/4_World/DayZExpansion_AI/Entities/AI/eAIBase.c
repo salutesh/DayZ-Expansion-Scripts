@@ -674,8 +674,10 @@ class eAIBase: PlayerBase
 		auto trace = CF_Trace_0(this, "~eAIBase");
 #endif
 
+	#ifndef DIAG_DEVELOPER
 		if (!g_Game)
 			return;
+	#endif
 
 #ifdef CF_DEBUG
 		CF_Debug.Destroy(this);
@@ -1295,6 +1297,30 @@ class eAIBase: PlayerBase
 		}
 
 		return true;
+	}
+
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		//! Detect improper 3rd party mod damage handling
+		if (!dmgZone && source && source.IsDayZCreature())
+		{
+			IEntity child = source.GetChildren();
+			while (child)
+			{
+				Weapon weapon;
+				if (Class.CastTo(weapon, child))
+				{
+					//! Set source to weapon to prevent improper 3rd party mod damage handling
+					//! (proper damage handled in eAIDamageHandler)
+					source = weapon;
+					break;
+				}
+
+				child = child.GetSibling();
+			}
+		}
+
+		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -3063,7 +3089,7 @@ class eAIBase: PlayerBase
 				EntityAI creature = m_eAI_PotentialTargetCustomCreature.m_Value.GetEntity();
 				if (creature && m_eAI_PotentialTargetEntities.Find(creature) == -1)
 				{
-					float creatureDetectionLimit = Math.Min(eAICustomCreatureTargetInformation.CREATURE_AGGRO_RANGE, 1100 * m_Expansion_Visibility);
+					float creatureDetectionLimit = eAICustomCreatureTargetInformation.CREATURE_AGGRO_RANGE * 2.2;
 					if (Math.IsPointInCircle(center, creatureDetectionLimit, creature.GetPosition()))
 						m_eAI_PotentialTargetEntities.Insert(creature);
 				}
@@ -6926,7 +6952,7 @@ class eAIBase: PlayerBase
 			m_eAI_SilentAttackViabilityTime = 0;
 	}
 
-	float m_eAI_LastUpdateTime;
+	int m_eAI_LastUpdateTime;
 	void eAI_OnUpdate(float pDt)
 	{
 		if (!m_eAI_CurrentCommandID)
@@ -7184,7 +7210,7 @@ class eAIBase: PlayerBase
 		{
 			m_eAI_PurgeFiredShotsTick = 0;
 
-			float time = g_Game.GetTickTime();
+			int time = g_Game.GetTime();
 
 		#ifdef DIAG_DEVELOPER
 			bool dbgObjEnabled = s_Expansion_DebugObjects_Enabled;
@@ -7194,9 +7220,9 @@ class eAIBase: PlayerBase
 			for (i = m_eAI_FiredShots.Count() - 1; i >= 0; i--)
 			{
 				eAIShot shot = m_eAI_FiredShots[i];
-				float elapsed = time - shot.m_Time;
+				float elapsed = (time - shot.m_Time) * 0.001;
 				//! If shot has been processed or flight time exceeds 6 seconds (DayZ max), remove shot
-				if ((shot.m_ProcessedTime && time - shot.m_ProcessedTime > 0.005) || elapsed > 6.0)
+				if ((shot.m_ProcessedTime && (time - shot.m_ProcessedTime) * 0.001 > 0.005) || elapsed > 6.0)
 				{
 				#ifdef DIAG_DEVELOPER
 					if (!shot.m_ProcessedTime)
@@ -7207,7 +7233,7 @@ class eAIBase: PlayerBase
 						Expansion_DebugObject(m_eAI_DiscardedShot_DbgIdx--, shot.m_HitPosition, "ExpansionDebugBox_Orange", dir, vector.Zero, 5);
 
 					#ifdef EXPANSION_AI_DMGDEBUG_CHATTY
-						ExpansionStatic.MessageNearPlayers(shot.m_HitPosition, 100.0, "[" + ExpansionStatic.FormatFloat(shot.m_Time, 3, false) + "] timeout " + shot.m_HitObject + " travel " + ExpansionStatic.FormatFloat(shot.m_TravelTime, 4, false) + " elapsed " + ExpansionStatic.FormatFloat(elapsed, 4, false));
+						ExpansionStatic.MessageNearPlayers(shot.m_HitPosition, 100.0, "[" + shot.m_Time + " ms] timeout " + shot.m_HitObject + " travel " + ExpansionStatic.FormatFloat(shot.m_TravelTime * 1000, 4, false) + " ms elapsed " + (elapsed * 1000) + " ms");
 					#endif
 					}
 				#endif
@@ -7379,14 +7405,19 @@ class eAIBase: PlayerBase
 		{
 			m_eAI_Unbug = false;
 
-			if (GetActionManager().GetRunningAction())
-			{
-				GetActionManager().OnActionEnd();
-			}
-			else
+			if (actualCommandID == DayZPlayerConstants.COMMANDID_MOVE || actualCommandID == DayZPlayerConstants.COMMANDID_ACTION)
 			{
 				EXTrace.Print(true, this, "Applying SMACK OF GOD (='-')-o )'~')");
 				StartCommand_Damage(1, 180);
+				return;
+			}
+			else if (GetActionManager().GetRunningAction() && actualCommandID != DayZPlayerConstants.COMMANDID_ACTION)
+			{
+				GetActionManager().OnActionEnd();
+			}
+			else if (GetEmoteManager().IsEmotePlaying())
+			{
+				GetEmoteManager().ServerRequestEmoteCancel();
 			}
 		}
 
@@ -7447,7 +7478,7 @@ class eAIBase: PlayerBase
 			{
 				m_eAI_JumpClimb = false;
 
-				if (actualCommandID == DayZPlayerConstants.COMMANDID_MOVE && !m_JumpClimb.Expansion_Climb())
+				if (actualCommandID != DayZPlayerConstants.COMMANDID_VEHICLE && !IsRestrained() && !m_WeaponManager.IsRunning() && !m_JumpClimb.Expansion_Climb())
 				{
 					//! If we didn't vault or climb, find way around obstacle, but only if path is not blocked physically
 					//! (path blocked physically is only set on pathfinding if navmesh isn't blocked,
@@ -7463,7 +7494,7 @@ class eAIBase: PlayerBase
 
 	void eAI_OnMovementUpdate(float pDt)
 	{
-		int actualCommandID = m_eAI_CurrentCommandID;
+		int actualCommandID = GetCurrentCommandID();
 
 		if (!m_eAI_SkipScript && eAI_IsLocomotionCmd(actualCommandID))
 		{

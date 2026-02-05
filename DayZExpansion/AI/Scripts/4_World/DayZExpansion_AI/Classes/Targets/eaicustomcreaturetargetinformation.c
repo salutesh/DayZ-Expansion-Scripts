@@ -15,8 +15,10 @@ class eAICustomCreatureTargetInformation: eAIEntityTargetInformation
 
 	void ~eAICustomCreatureTargetInformation()
 	{
+	#ifndef DIAG_DEVELOPER
 		if (!g_Game)
 			return;
+	#endif
 
 		if (s_AllCustomCreatures)
 			s_AllCustomCreatures.Remove(m_Node);

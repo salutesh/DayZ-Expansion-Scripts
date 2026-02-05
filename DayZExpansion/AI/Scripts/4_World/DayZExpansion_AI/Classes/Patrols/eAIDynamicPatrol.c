@@ -6,6 +6,7 @@ class eAIDynamicPatrol : eAIPatrol
 	static ref map<string, ref ExpansionAIPatrolLoadBalancing> s_LoadBalancing = new map<string, ref ExpansionAIPatrolLoadBalancing>;
 	static ref ExpansionAIPatrolLoadBalancing s_LoadBalancingGlobal;
 	static bool s_LoadBalancing_IsScheduled;
+	static ref set<eAIDynamicPatrol> s_QueuedForLeave = new set<eAIDynamicPatrol>;
 
 	static ref map<string, ref array<ref ExpansionPrefab>> s_LootDropsOnDeath = new map<string, ref array<ref ExpansionPrefab>>;
 
@@ -414,6 +415,8 @@ class eAIDynamicPatrol : eAIPatrol
 		if (s_PatrolCount)
 			UpdatePatrolCount(-1);
 
+		s_QueuedForLeave.RemoveItem(this);
+
 		return true;
 	}
 
@@ -434,6 +437,8 @@ class eAIDynamicPatrol : eAIPatrol
 	bool CanStay(int delta)
 	{
 	#ifdef SERVER
+		delta -= s_QueuedForLeave.Count();
+
 		if (m_LoadBalancing && m_LoadBalancing != s_LoadBalancingGlobal)
 		{
 			if (m_LoadBalancing.MaxPatrols > -1 && m_PatrolCountTracker.m_PatrolCount + delta > m_LoadBalancing.MaxPatrols)
@@ -455,7 +460,12 @@ class eAIDynamicPatrol : eAIPatrol
 			m_PatrolCountTracker = m_LoadBalancing.m_PatrolCountTracker;
 
 		if (m_Group)
+		{
+			bool wasLeaving = m_Group.m_Leave;
 			m_Group.m_Leave = !CanStay(0);
+			if (!wasLeaving && m_Group.m_Leave)
+				s_QueuedForLeave.Insert(this);
+		}
 
 	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.AI, this, m_Config.Name + " LoadBalancing_Update category " + m_Config.LoadBalancingCategory + " " + m_LoadBalancing);
@@ -677,6 +687,8 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (!m_WasGroupDestroyed && s_PatrolCount)
 			UpdatePatrolCount(-1);
+
+		s_QueuedForLeave.RemoveItem(this);
 	}
 
 	override void OnUpdate()

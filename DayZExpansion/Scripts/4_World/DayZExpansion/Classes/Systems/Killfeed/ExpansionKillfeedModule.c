@@ -203,6 +203,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 					DoKillfeed_SetHitCheck(ExpansionKillFeedMessageType.WEAPON_EXPLOSION, "Human Skull", m_SourceType);
 				}
 				break;
+
+			default:
+				OnPlayerKilled(player, source);
+				break;
 		}
 	}
 
@@ -996,13 +1000,13 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 		if ( identity == NULL )
 		{
-			string displayName = player.GetDisplayName();
+			string type = player.GetType();
+			string displayName = GetDisplayName(type);
 			string name = displayName;
 		#ifdef EXPANSIONMODAI
 			eAIBase ai;
-			if (Class.CastTo(ai, player) && (name == m_Expansion_SurvivorDisplayName || name == string.Empty))
+			if (Class.CastTo(ai, player) && (name == type || name == string.Empty))
 			{
-				name = player.GetType();
 				int index = ExpansionString.LastIndexOf(name, "_");
 				if (index > -1)
 					displayName = name.Substring(index + 1, name.Length() - index - 1);
@@ -1044,7 +1048,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		if (kill_data)
 		{
 #ifdef EXTRACE
-			auto trace = EXTrace.Start(EXTrace.KILLFEED, this, kill_data.Message, kill_data.Icon, kill_data.FeedParam1, kill_data.FeedParam2, kill_data.FeedParam3, kill_data.FeedParam4);
+			auto trace = EXTrace.Start(EXTrace.KILLFEED, this, typename.EnumToString(ExpansionKillFeedMessageType, kill_data.Type), kill_data.Icon, kill_data.FeedParam1, kill_data.FeedParam2, kill_data.FeedParam3, kill_data.FeedParam4);
 #endif 
 			
 			StringLocaliser loc = GetLocaliser(kill_data);
@@ -1064,18 +1068,39 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		if (!kill_data)
 			return NULL;
 
-		string displayName1 = ExpansionStatic.GetItemDisplayNameWithType(kill_data.FeedParam1);
-		string displayName2 = ExpansionStatic.GetItemDisplayNameWithType(kill_data.FeedParam2);
-		string displayName3 = ExpansionStatic.GetItemDisplayNameWithType(kill_data.FeedParam3);
-		string displayName4 = ExpansionStatic.GetItemDisplayNameWithType(kill_data.FeedParam4);
+		string displayName1 = kill_data.FeedParam1;  //! Player or AI name
+		string displayName2 = GetDisplayName(kill_data.FeedParam2);
+		string displayName3 = GetDisplayName(kill_data.FeedParam3);
+		string displayName4 = GetDisplayName(kill_data.FeedParam4);
 
-		auto loc = new StringLocaliser(kill_data.Message);
+		string msg = GetKillFeedMessage(kill_data.Type);
+		auto loc = new StringLocaliser(msg);
 		loc.Set(0, displayName1);
 		loc.Set(1, displayName2);
 		loc.Set(2, displayName3);
 		loc.Set(3, displayName4);
 
 		return loc;
+	}
+
+	string GetDisplayName(string type)
+	{
+		string displayName;
+
+		string path = string.Format("%1 %2 displayName", CFG_VEHICLESPATH, type);
+		if (g_Game.ConfigIsExisting(path) && g_Game.ConfigGetTextRaw(path, displayName))
+		{
+			if (displayName == "$STR_cfgvehicles_survivor0")
+				displayName = type;
+			else
+				g_Game.FormatRawConfigStringKeys(displayName);
+		}
+		else
+		{
+			displayName = ExpansionStatic.GetItemDisplayNameWithType(type);
+		}
+
+		return displayName;
 	}
 
 	private void ExpansionLogKillfeed(ExpansionKillFeedMessageMetaData kill_data)

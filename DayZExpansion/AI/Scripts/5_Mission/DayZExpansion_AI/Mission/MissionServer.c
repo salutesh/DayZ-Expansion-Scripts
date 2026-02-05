@@ -128,6 +128,8 @@ modded class MissionServer
 
 		super.PlayerDisconnected( player, identity, uid );
 
+		eAI_GetPlayers();
+
 		GetExpansionSettings().GetAI().OnPlayerDisconnected(player, identity, uid);
 
 		if (PlayerBase.Expansion_GetOnlinePlayersCount() == 0)
@@ -140,8 +142,8 @@ modded class MissionServer
 	override void TickScheduler(float timeslice)
 	{
 		EXTrace trace;
-		if (m_eAI_PlayerConnected)
-			trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "TickScheduler");
+		if (EXTrace.AI_PROFILE && m_eAI_PlayerConnected)
+			trace = EXTrace.Profile(true, this, "TickScheduler");
 
 		super.TickScheduler(timeslice);
 	}
@@ -150,5 +152,12 @@ modded class MissionServer
 	override void eAI_GetPlayers()
 	{
 		g_Game.GetWorld().GetPlayerList(m_Players);
+	}
+
+	override void OnMissionFinish()
+	{
+		super.OnMissionFinish();
+
+		eAITargetInformation.s_CustomAI.Clear();
 	}
 };

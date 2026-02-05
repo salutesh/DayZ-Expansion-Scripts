@@ -2,16 +2,18 @@ modded class ModifiersManager
 {
 	static float s_eAI_TickSchedulerDT;
 
-	float m_eAI_TickTime;
+	int m_eAI_Time;
 	int m_eAI_BatchSize;
 	int m_eAI_CurrentModifierIdx;
 
 #ifdef DIAG_DEVELOPER
+#ifdef SERVER
 	void ~ModifiersManager()
 	{
 		if (g_Game)
 			Print(m_eAI_BatchSize);
 	}
+#endif
 #endif
 
 	override void SetModifiers(bool enable)
@@ -19,7 +21,7 @@ modded class ModifiersManager
 		super.SetModifiers(enable);
 
 		if (!enable)
-			m_eAI_TickTime = 0;
+			m_eAI_Time = 0;
 	}
 
 	override void OnScheduledTick(float delta_time)
@@ -29,7 +31,7 @@ modded class ModifiersManager
 
 		int modifierCount = m_ModifierListArray.Count();
 
-		m_eAI_TickTime += delta_time;
+		m_eAI_Time += delta_time * 1000;
 
 		//! Adjust batch size dynamically based on delta time since last TickScheduler call. AI update at half the rate of players.
 		//! The intent is for a loop of ticking all modifiers for all players/AI to complete in roughly similar time
@@ -66,8 +68,9 @@ modded class ModifiersManager
 				m_eAI_CurrentModifierIdx = 0;
 
 			ModifierBase modifier = m_ModifierListArray[m_eAI_CurrentModifierIdx];
-			modifier.Tick(m_eAI_TickTime - modifier.m_eAI_LastTickTime);
-			modifier.m_eAI_LastTickTime = m_eAI_TickTime;
+			float dt = (m_eAI_Time - modifier.m_eAI_LastTickTime) * 0.001;
+			modifier.Tick(dt);
+			modifier.m_eAI_LastTickTime = m_eAI_Time;
 
 			++m_eAI_CurrentModifierIdx;
 		}

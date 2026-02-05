@@ -76,21 +76,12 @@ modded class PlayerBase
 		}
 
 		super.EEKilled(killer);
-
-		if (GetExpansionSettings().GetNotification().EnableKillFeed)
-		{
-			if (!Expansion_IsAI() || GetExpansionSettings().GetNotification().KillFeedAI)
-			{
-				if ( m_KillfeedModule )
-				{
-					m_KillfeedModule.OnPlayerKilled( this, killer );
-				}
-			}
-		}
 	}
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
 		if ( GetExpansionSettings().GetNotification().EnableKillFeed )
 		{
 			if (!Expansion_IsAI() || GetExpansionSettings().GetNotification().KillFeedAI)
@@ -102,8 +93,6 @@ modded class PlayerBase
 				}
 			}
 		}
-
-		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 
 	bool IPADACK()
@@ -193,11 +182,11 @@ modded class PlayerBase
 			string name = m_KillfeedModule.GetIdentityName(this);
 			if (GetIdentity())
 			{
-				GetExpansionSettings().GetLog().PrintLog(string.Format("[GraveStone] Spawned GraveStone for player %1 (%2) at position %3", name, GetIdentity().GetId(), ground));
+				GetExpansionSettings().GetLog().PrintLog(string.Format("[GraveCross] Spawned GraveCross for player %1 (%2) at position %3", name, GetIdentity().GetId(), ground));
 			}
 			else
 			{
-				GetExpansionSettings().GetLog().PrintLog(string.Format("[GraveStone] Spawned GraveStone for %1 at position %2", name, ground));
+				GetExpansionSettings().GetLog().PrintLog(string.Format("[GraveCross] Spawned GraveCross for %1 at position %2", name, ground));
 			}
 		}
 

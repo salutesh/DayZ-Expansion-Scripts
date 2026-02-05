@@ -449,7 +449,11 @@ class eAITargetInformation
 			{
 				if (!target.m_SearchOnLOSLost)
 				{
-					target.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
+					if (other == player)
+						target.SetInitial(threat, GetPosition(ai, true));  //! Make hit AI search for attacker
+					else
+						target.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
+
 					target.m_SearchOnLOSLost = true;
 				}
 				else

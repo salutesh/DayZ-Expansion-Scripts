@@ -100,7 +100,7 @@ modded class DayZGame
 	{
 		super.OnUpdate(doSim, timeslice);
 
-		if (m_ExpansionGame)
+		if (IsServer() && m_ExpansionGame)
 			m_ExpansionGame.eAI_OnUpdate(doSim, timeslice);
 	}
 

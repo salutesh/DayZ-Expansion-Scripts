@@ -1,7 +1,7 @@
 class eAIShot
 {
-	float m_Time;
-	float m_ProcessedTime;
+	int m_Time;
+	int m_ProcessedTime;
 	Weapon_Base m_Weapon;
 	vector m_Origin;
 	vector m_Direction;
@@ -18,7 +18,7 @@ class eAIShot
 
 	void eAIShot(Weapon_Base weapon, int muzzleIndex, vector origin, vector dir, Object hitObject, vector hitPosition, int component)
 	{
-		m_Time = g_Game.GetTickTime();
+		m_Time = g_Game.GetTime();
 
 		m_Weapon = weapon;
 
@@ -190,7 +190,7 @@ class eAIDamageHandler
 
 					//! Only redirect for root entity, children will be dealt with by parent dmg handler
 
-					float time = g_Game.GetTickTime();
+					float time = g_Game.GetTime();
 
 					eAIShot match;
 
@@ -222,7 +222,8 @@ class eAIDamageHandler
 								if (!shot.m_ProcessedTime)
 									shot.m_ProcessedTime = time;
 
-								if (time - shot.m_ProcessedTime < 0.005)
+								float dt = (time - shot.m_ProcessedTime) * 0.001;
+								if (dt < 0.005)
 								{
 									match = shot;
 									break;
@@ -247,7 +248,7 @@ class eAIDamageHandler
 							//candidate.m_DamageCoef = candidate.m_Weapon.eAI_CalculateProjectileDamageCoefAtPosition(candidate.m_Origin, ammo, candidate.m_HitPosition, 1.0, airFriction, distance, candidate.m_SpeedCoef, initSpeed);
 
 							//candidate.m_TravelTime = candidate.m_Weapon.eAI_CalculateProjectileTravelTime(airFriction, distance, initSpeed);
-							float elapsed = time - candidate.m_Time;
+							float elapsed = (time - candidate.m_Time) * 0.001;
 							float travelTimeRemaining = candidate.m_TravelTime - elapsed;
 
 							if (travelTimeRemaining > 0.05)
@@ -279,7 +280,7 @@ class eAIDamageHandler
 				#ifdef EXPANSION_AI_DMGDEBUG_CHATTY
 					DayZPlayerImplement p;
 					if (m_Entity == rootEntity || (Class.CastTo(p, rootEntity) && p.m_eAI_DamageHandler.m_ProcessDamage))
-						ExpansionStatic.MessageNearPlayers(match.m_HitPosition, 100.0, "[" + ExpansionStatic.FormatFloat(match.m_Time, 3, false) + "] dmgcalc " + m_Entity + " " + dmgZone + " travel " + ExpansionStatic.FormatFloat(match.m_TravelTime, 4, false) + " actual " + ExpansionStatic.FormatFloat(time - match.m_Time, 4, false));
+						ExpansionStatic.MessageNearPlayers(match.m_HitPosition, 100.0, "[" + match.m_Time + " ms] dmgcalc " + m_Entity + " " + dmgZone + " travel " + ExpansionStatic.FormatFloat(match.m_TravelTime * 1000, 4, false) + " ms actual " + (time - match.m_Time) + " ms");
 				#endif
 				}
 
@@ -390,9 +391,17 @@ class eAIDamageHandler
 
 			bool overrideDmgZone;
 
-			//! Detect invalid 3rd party mod player damage zone if target entity is AI
-			if (!dmgZone && (!source || source.GetHierarchyRoot().IsDayZCreature()) && m_Entity.IsInherited(eAIBase))
-				overrideDmgZone = true;
+			//! Detect improper 3rd party mod damage handling if target entity is AI
+			//! (source is set to weapon in eAIBase::EEOnDamageCalculated)
+			if (!dmgZone && source && source.IsWeapon() && m_Entity.IsInherited(eAIBase))
+			{
+				DayZCreature creature;
+				if (Class.CastTo(creature, source.GetParent()))
+				{
+					source = creature;
+					overrideDmgZone = true;
+				}
+			}
 
 			if (damageMultiplier != 1.0 || overrideDmgZone)
 			{
@@ -623,7 +632,7 @@ class eAIDamageHandler
 			EXTrace.Print(EXTrace.AI, ai, "Wrong entity hit " + ExpansionStatic.GetHierarchyInfo(m_Entity) + " dist " + dir.Length() + ", redirecting dmg to " + ExpansionStatic.GetDebugInfo(match.m_HitObjectRoot) + " dist " + hitEntityDir.Length() + " speedCoef=" + match.m_SpeedCoef + " travelTime=" + match.m_TravelTime + " remaining=" + travelTimeRemaining + " " + dmgZone + " damageCoef=" + match.m_DamageCoef);
 
 		#ifdef EXPANSION_AI_DMGDEBUG_CHATTY
-			ExpansionStatic.MessageNearPlayers(match.m_HitPosition, 100.0, "[" + ExpansionStatic.FormatFloat(match.m_Time, 3, false) + "] redirect " + match.m_HitObjectRoot + " travel " + ExpansionStatic.FormatFloat(match.m_TravelTime, 4, false));
+			ExpansionStatic.MessageNearPlayers(match.m_HitPosition, 100.0, "[" + match.m_Time + " ms] redirect " + match.m_HitObjectRoot + " travel " + ExpansionStatic.FormatFloat(match.m_TravelTime * 1000, 4, false) + " ms");
 		#endif
 		#endif
 
@@ -646,7 +655,7 @@ class eAIDamageHandler
 			EXTrace.Print(EXTrace.AI, ai, "Wrong entity hit " + ExpansionStatic.GetHierarchyInfo(m_Entity) + " and candidate wasn't hit, ignoring dmg");
 
 		#ifdef EXPANSION_AI_DMGDEBUG_CHATTY
-			ExpansionStatic.MessageNearPlayers(candidate.m_HitPosition, 100.0, "[" + ExpansionStatic.FormatFloat(candidate.m_Time, 3, false) + "] miss " + candidate.m_HitObjectRoot + " travel " + ExpansionStatic.FormatFloat(candidate.m_TravelTime, 4, false) + " elapsed " + ExpansionStatic.FormatFloat(g_Game.GetTickTime() - candidate.m_Time, 4, false));
+			ExpansionStatic.MessageNearPlayers(candidate.m_HitPosition, 100.0, "[" + candidate.m_Time + " ms] miss " + candidate.m_HitObjectRoot + " travel " + ExpansionStatic.FormatFloat(candidate.m_TravelTime * 1000, 4, false) + " ms elapsed " + (g_Game.GetTime() - candidate.m_Time) + " ms");
 		#endif
 		}
 	#endif

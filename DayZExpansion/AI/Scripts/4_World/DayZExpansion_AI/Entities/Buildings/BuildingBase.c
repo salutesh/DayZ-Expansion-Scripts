@@ -118,6 +118,7 @@ modded class BuildingBase
 				"land_pier_crane2_base",  //! Sakhal
 				"land_rail_station",
 				"land_shed",
+				"land_slum_house2",
 				"land_slum_house6",
 				"land_tank_big3",  //! Sakhal
 				"land_tenement",

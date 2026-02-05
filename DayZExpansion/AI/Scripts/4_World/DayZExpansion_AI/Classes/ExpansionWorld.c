@@ -1,18 +1,11 @@
-enum eAIProcessingState
-{
-	UNPROCESSED = 0,
-	PROCESSED,
-	REMOVE
-};
-
 modded class ExpansionWorld
 {
 	static float AI_UPDATE_INTERVAL = 0.05;  //! s
 	static float AI_UPDATE_BUDGET_FACTOR = 0.3;  //! 0.3 = 30% of frame time budget can be spent on AI
 	static float MAX_AI_UPDATE_TIME_MS = 5;  //! ms
 	static int MAX_AI_UPDATE_BATCH = 20;
-	static float SERVER_FPS_UPDATE_THRESH = 1.0 / 60.0;  //! s
-	static float SERVER_STATS_SEND_THRESH = 1.0;  //! s
+	static float SERVER_FPS_UPDATE_THRESH = 1000.0 / 60.0;  //! ms
+	static float SERVER_STATS_SEND_THRESH = 1000.0;  //! ms
 
 	static bool s_DebugMonitor_ShowServerStats;
 
@@ -24,7 +17,7 @@ modded class ExpansionWorld
 	private float m_NetworkRadius;
 
 	CF_DoublyLinkedNode_WeakRef<eAIBase> m_CurrentAliveAI;
-	float m_LastAIUpdateTime;
+	int m_LastAIUpdateTime;
 	bool m_eAI_Thread;
 
 	void ExpansionWorld()
@@ -183,10 +176,10 @@ modded class ExpansionWorld
 	ref ExpansionRollingAverage m_ServerFPS_Min = new ExpansionRollingAverage(64);
 	ref ExpansionRollingAverage m_ServerFPS_Max = new ExpansionRollingAverage(64);
 	ref ExpansionRollingAverage m_ServerFPS_Avg = new ExpansionRollingAverage(64);
-	float m_ServerFPS_LastUpdateTime;
+	int m_ServerFPS_LastUpdateTime;
 	float m_ServerFPS_TimeSlice;
 	int m_Server_Ticks;
-	float m_ServerStats_LastSendCheckTime;
+	int m_ServerStats_LastSendCheckTime;
 
 	//! @note when -limitFPS is used on commandline, the thread can still run at a higher rate (good)
 /*
@@ -199,9 +192,6 @@ modded class ExpansionWorld
 */
 	override void eAI_OnUpdate(bool doSim, float timeslice)
 	{
-		if (!g_Game.IsServer())
-			return;
-
 			float costTotal = 0;
 
 			if (!eAIBase.s_UpdateInCmdHandler)
@@ -214,12 +204,12 @@ modded class ExpansionWorld
 					float f = ExpansionMath.LinearConversion(30.0, 35.0, serverFPSAvg, 4.0, 1.0);
 					float updateInterval = AI_UPDATE_INTERVAL * f;  //! Increase update interval if server FPS goes below 35
 					float thresh = updateInterval / aiCount;
-					float updateTime = g_Game.GetTickTime();
+					int updateTime = g_Game.GetTime();
 
 					if (m_LastAIUpdateTime == 0)
 						m_LastAIUpdateTime = updateTime;
 
-					float elapsed = updateTime - m_LastAIUpdateTime;
+					float elapsed = (updateTime - m_LastAIUpdateTime) * 0.001;
 
 					if (elapsed >= thresh)
 					{
@@ -249,7 +239,7 @@ modded class ExpansionWorld
 							if (ai.m_eAI_LastUpdateTime == 0)
 								ai.m_eAI_LastUpdateTime = updateTime;
 
-							float pDt = updateTime - ai.m_eAI_LastUpdateTime;
+							float pDt = (updateTime - ai.m_eAI_LastUpdateTime) * 0.001;  //! s
 							if (pDt >= updateInterval)
 							{
 								int tickCount = TickCount(0);
@@ -258,7 +248,7 @@ modded class ExpansionWorld
 								ai.eAI_UpdateFSM(pDt, simulationPrecision);
 								ai.eAI_OnMovementUpdate(pDt);
 								ai.m_eAI_CommandMove.AvoidObstacles(pDt);
-								updateTime = g_Game.GetTickTime();
+								updateTime = g_Game.GetTime();
 								ai.m_eAI_LastUpdateTime = updateTime;
 								float cost = TickCount(tickCount) * 0.0001;  //! ms
 								costTotal += cost;
@@ -299,22 +289,19 @@ modded class ExpansionWorld
 
 	override void eAI_OnUpdate(bool doSim, float timeslice)
 	{
-		if (!g_Game.IsServer())
-			return;
 */
-		float tickTime = g_Game.GetTickTime();
+		int time = g_Game.GetTime();
 
-		m_ServerFPS_TimeSlice = tickTime - m_ServerFPS_LastUpdateTime;
+		m_ServerFPS_TimeSlice = time - m_ServerFPS_LastUpdateTime;
 		++m_Server_Ticks;
 
 		if (m_ServerFPS_TimeSlice > SERVER_FPS_UPDATE_THRESH)
 		{
-			float currentFPS = (1.0 * m_Server_Ticks) / m_ServerFPS_TimeSlice;
+			float currentFPS = (1000.0 * m_Server_Ticks) / m_ServerFPS_TimeSlice;
 
 			m_ServerFPS_Avg.Add(currentFPS);
 
-			m_ServerFPS_LastUpdateTime = tickTime;
-			m_ServerFPS_TimeSlice = 0.0;
+			m_ServerFPS_LastUpdateTime = time;
 			m_Server_Ticks = 0;
 
 			if (s_DebugMonitor_ShowServerStats)
@@ -324,9 +311,9 @@ modded class ExpansionWorld
 				m_ServerFPS_Max.Add(m_ServerFPS_Avg.GetMax());
 				m_ServerFPS_Avg.SetRollingMinMax(true);
 
-				if (tickTime - m_ServerStats_LastSendCheckTime > SERVER_STATS_SEND_THRESH)
+				if (time - m_ServerStats_LastSendCheckTime > SERVER_STATS_SEND_THRESH)
 				{
-					m_ServerStats_LastSendCheckTime = tickTime;
+					m_ServerStats_LastSendCheckTime = time;
 
 					set<string> connectedAdmins = ExpansionAISettings.Get().GetConnectedAdmins();
 
@@ -458,106 +445,6 @@ modded class ExpansionWorld
 	{
 		return m_Network;
 	}
-
-	/*
-	// List of all eAI entities
-	private autoptr array<eAIProcessingState> m_AIStates = {};
-	private autoptr array<ref eAIPlayerHandler> m_AI = {};
-
-	private int m_ProcessingIndex = 0;
-	private int m_MaxProcessingAI = 0;
-	private float m_MinimumTime = 0.5; // 0.050; // 20hz
-	private float m_ProcessingTime = 0;
-
-	override Class AddAI(DayZPlayer entity)
-	{
-		eAIPlayerHandler handler = new eAIPlayerHandler(PlayerBase.Cast(entity));
-		m_AI.Insert(handler); // insert the new handler to the back of the array
-		return handler;
-	}
-	
-	override void OnUpdate(bool doSim, float timeslice)
-	{
-		// don't process if we aren't the server
-		if (!g_Game.IsServer()) return;
-
-		m_ProcessingTime += timeslice;
-		
-		// we are back at the start
-		if (m_ProcessingIndex == 0)
-		{
-			// we have processed all the AI within the minimum time, we can wait.
-			if (m_ProcessingTime < m_MinimumTime)
-			{
-				return;
-			}
-			
-			m_ProcessingTime = 0;
-
-			if (m_AIStates.Count() == m_MaxProcessingAI)
-			{
-				// remove all AI that was marked for removal
-				for (int i = m_AIStates.Count() - 1; i >= 0; i--)
-				{
-					switch (m_AIStates[i])
-					{
-						case eAIProcessingState.REMOVE:
-						{
-							m_AI.RemoveOrdered(i);
-							break;
-						}
-					}
-				}
-			} else
-			{
-				Error("An unexpected desync with AI processing happened.");
-			}
-
-			// how many AI we can process for this next simulation step
-			m_MaxProcessingAI = m_AI.Count();
-			m_AIStates.Clear();
-
-			// if we have 0 ai to process, wait 2 "ai" frames
-			if (m_MaxProcessingAI == 0)
-			{
-				m_ProcessingTime = -m_MinimumTime;
-				return;
-			}
-		}
-
-		if (m_ProcessingIndex < m_MaxProcessingAI)
-		{
-			// this is the AI we will be processing this frame
-			eAIPlayerHandler ai_Handler = m_AI[m_ProcessingIndex];
-			m_ProcessingIndex++;
-
-			// ai is null
-			if (ai_Handler == null)
-			{
-				m_AIStates.Insert(eAIProcessingState.REMOVE);
-				return;
-			}
-
-			// is dead
-			if (ai_Handler.isDead())
-			{
-				m_AIStates.Insert(eAIProcessingState.REMOVE);
-				return;
-			}
-
-			// update the AI
-			ai_Handler.OnTick();
-
-			// mark the AI as processed
-			m_AIStates.Insert(eAIProcessingState.PROCESSED);
-		} 
-		else 
-		{
-			// reset the AI index if all are processed
-			m_ProcessingIndex = 0; 
-		}
-	}
-	*/
 
 	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal,
 				  vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType) 
