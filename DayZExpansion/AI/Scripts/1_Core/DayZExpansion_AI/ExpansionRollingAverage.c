@@ -122,6 +122,11 @@ class ExpansionRollingAverage
 		}
 	}
 
+	void UpdateMinMax()
+	{
+		FindMinMax(m_Min, m_Max);
+	}
+
 	int Count()
 	{
 		return m_Count;
@@ -149,12 +154,22 @@ class ExpansionRollingAverage
 
 		if (m_Count > windowSize)
 		{
+			bool findMinMax;
+
 			for (int i = windowSize; i < m_Count; ++i)
 			{
-				m_Sum -= m_Values[i];
+				float value = m_Values[i];
+
+				m_Sum -= value;
+
+				if (m_RollingMinMax && (value == m_Min || value == m_Max))
+					findMinMax = true;
 			}
 
 			m_Count = windowSize;
+
+			if (findMinMax)
+				FindMinMax(m_Min, m_Max);
 		}
 
 		m_Values.Resize(windowSize);

@@ -246,8 +246,8 @@ modded class ExpansionWorld
 								ai.eAI_OnUpdate(pDt);
 								ai.eAI_OnWeaponAimUpdate();
 								ai.eAI_UpdateFSM(pDt, simulationPrecision);
-								ai.eAI_OnMovementUpdate(pDt);
 								ai.m_eAI_CommandMove.AvoidObstacles(pDt);
+								ai.eAI_OnMovementUpdate(pDt);
 								updateTime = g_Game.GetTime();
 								ai.m_eAI_LastUpdateTime = updateTime;
 								float cost = TickCount(tickCount) * 0.0001;  //! ms

@@ -129,7 +129,6 @@ class eAIBase: PlayerBase
 	// Command handling
 	ref eAICommandMove m_eAI_CommandMove;
 	private int m_eAI_CurrentCommandID;
-	float m_eAI_CommandHandlerDT;
 	float m_eAI_LOSCheckDT;
 	float m_eAI_CommandTime;
 	bool m_eAI_DeathHandled;
@@ -166,6 +165,7 @@ class eAIBase: PlayerBase
 	private Transport m_eAI_Transport;
 	private int m_eAI_Transport_SeatIndex;
 
+	bool m_eAI_IsPreparingMelee;
 	int m_eAI_MeleeTime;
 
 	private ref eAIAimingProfile m_AimingProfile;
@@ -4371,6 +4371,7 @@ class eAIBase: PlayerBase
 	{
 		if (melee && !m_eAI_MeleeFightLogic.m_eAI_Melee)
 		{
+			m_eAI_IsPreparingMelee = true;
 			Expansion_GetUp();
 
 			if (!IsFighting() && GetExpansionSettings().GetAI().MemeLevel > 9000)
@@ -5721,7 +5722,7 @@ class eAIBase: PlayerBase
 
 			if (pStanceIdx < m_eAI_DefaultStance)
 			{
-				if (g_Game.GetTickTime() - m_eAI_LastHitTime > 10.0 && !m_FSM.IsInState("Melee") && GetCurrentWaterLevel() < 0.3)
+				if (g_Game.GetTickTime() - m_eAI_LastHitTime > 10.0 && !m_eAI_IsPreparingMelee && GetCurrentWaterLevel() < 0.3)
 					pStanceIdx = m_eAI_DefaultStance;
 			}
 
@@ -7130,13 +7131,6 @@ class eAIBase: PlayerBase
 		//auto trace3 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "CommandHandler(03)");
 	//#endif
 
-		if (m_eAI_CommandHandlerDT >= 0.12)
-		{
-			m_eAI_CommandMove.m_CDT = m_eAI_CommandHandlerDT;
-			m_eAI_CommandHandlerDT = 0;
-		}
-		m_eAI_CommandHandlerDT += pDt;
-
 		int simulationPrecision = 0;
 
 		GetTransform(m_ExTransformPlayer);
@@ -7470,8 +7464,8 @@ class eAIBase: PlayerBase
 
 			if (s_UpdateInCmdHandler)
 			{
-				eAI_OnMovementUpdate(pDt);
 				m_eAI_CommandMove.AvoidObstacles(pDt);
+				eAI_OnMovementUpdate(pDt);
 			}
 
 			if (m_eAI_JumpClimb)
@@ -7513,7 +7507,7 @@ class eAIBase: PlayerBase
 				{
 					//! Do nothing
 				}
-				else if (m_eAI_CommandMove.m_CDT < m_eAI_CommandMove.OBSTACLE_AVOIDANCE_INTERVAL)
+				else if (m_eAI_CommandMove.m_CDT > 0)
 				{
 					//! Do nothing
 				}
@@ -8083,6 +8077,9 @@ class eAIBase: PlayerBase
 
 		Object parent;
 
+		vector toTargetAngles = dir.VectorToAngles();
+		float toTargetAngleH = toTargetAngles[0];
+
 		if (targetPlayer)
 		{
 			//! If targeting a player, and player is not in vehicle, or vehicle engine is not on,
@@ -8091,8 +8088,6 @@ class eAIBase: PlayerBase
 			ExpansionVehicle vehicle;
 			if (!Class.CastTo(parent, targetPlayer.Expansion_GetParent()) || !ExpansionVehicle.Get(vehicle, parent) || !vehicle.EngineIsOn() || (dist > 150 && !vehicle.IsHelicopter()))
 			{
-				vector toTargetAngles = dir.VectorToAngles();
-				float toTargetAngleH = toTargetAngles[0];
 				//float toTargetAngleV = toTargetAngles[1];
 				vector lookAngles = GetLookDirection().VectorToAngles();
 				float lookAngleH = lookAngles[0];
@@ -8176,6 +8171,7 @@ class eAIBase: PlayerBase
 
 		//float targetDistSq = vector.DistanceSq(begPos, endPos);
 		float contactToTargetDistSq = vector.DistanceSq(contactPos, endPos);
+		float contactToTargetDist2DSq = ExpansionMath.Distance2DSq(contactPos, endPos);
 
 		DayZPlayerImplement player;
 
@@ -8196,8 +8192,12 @@ class eAIBase: PlayerBase
 				obj = hitEntityRoot;
 			}
 
-			//! Tree with player more than 2 m away from contact pos
-			if (obj.IsTree() && contactToTargetDistSq > 4 && !state.m_SearchPositionUpdateCount)
+			float toObjAngleH = (obj.GetPosition() - begPos).VectorToAngles()[0];
+			float toObjAngleDiffHAbs = Math.AbsFloat(ExpansionMath.AngleDiff2(toTargetAngleH, toObjAngleH));
+			float contactToHitObjDist2DSq = ExpansionMath.Distance2DSq(contactPos, obj.GetPosition());
+
+			//! Target behind tree
+			if (obj.IsTree() && toObjAngleDiffHAbs <= 22.5 && contactToTargetDist2DSq > contactToHitObjDist2DSq && !state.m_SearchPositionUpdateCount)
 			{
 				if (!isItemTarget)
 					sideStep = state.m_ThreatLevelActive >= 0.4;
@@ -8238,9 +8238,9 @@ class eAIBase: PlayerBase
 					//! If object is zombie or animal but not the target or its parent, we don't care if they get shot when they are in the way
 					state.m_LOS = true;
 				}
-				else if (((obj.IsTree() || obj.IsBush()) && contactToTargetDistSq <= 4 && state.m_ThreatLevelActive >= 0.4) || contactToTargetDistSq <= 0.0625)
+				else if (((obj.IsTree() || obj.IsBush()) && (toObjAngleDiffHAbs > 22.5 || contactToTargetDist2DSq <= contactToHitObjDist2DSq) && state.m_ThreatLevel > 0.2) || contactToTargetDistSq <= 0.0625)
 				{
-					//! If object is tree/bush but not the target or its parent, we don't care if they get shot when they are in the way
+					//! Object is tree/bush and target is in front, or target is within 0.25 m of ray contact position
 					state.m_LOS = true;
 				}
 			}
@@ -10706,7 +10706,7 @@ class eAIBase: PlayerBase
 
 			if (m_eAI_DefaultStance > eAIStance.STANDING)
 			{
-				if (g_Game.GetTickTime() - m_eAI_LastHitTime > 10.0 && !m_FSM.IsInState("Melee") && GetCurrentWaterLevel() < 0.3)
+				if (g_Game.GetTickTime() - m_eAI_LastHitTime > 10.0 && !m_eAI_IsPreparingMelee && GetCurrentWaterLevel() < 0.3)
 					defaultStance = m_eAI_DefaultStance;
 			}
 

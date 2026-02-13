@@ -11,7 +11,8 @@ class eAIState_Fighting_Melee: eAIState
 		m_MovementDirection = 0;
 		
 		unit.m_eAI_LastFireTime = g_Game.GetTime();
-		
+
+		unit.m_eAI_IsPreparingMelee = true;
 		unit.Expansion_GetUp(true);
 	}
 

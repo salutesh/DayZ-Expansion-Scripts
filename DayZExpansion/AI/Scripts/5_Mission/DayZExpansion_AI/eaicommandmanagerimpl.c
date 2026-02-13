@@ -1169,7 +1169,10 @@ class eAICommandManagerImpl: eAICommandManager
 		for (int i = 0; i < g.Count(); i++)
 		{
 			if (Class.CastTo(ai, g.GetMember(i)))
+			{
+				ai.m_eAI_DefaultStance = stance;
 				ai.OverrideStance(stance);
+			}
 		}
 	}
 

@@ -27,7 +27,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 	private PlayerStat<float> m_StatEnergy;
 	private float m_Blood;
 
-	private bool m_HitCheckDone;
+	private bool m_HitCheckDone;  //! DEPRECATED, no longer used
 
 #ifdef JM_COT
 	protected JMWebhookModule m_Webhook;
@@ -152,13 +152,13 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 			m_SourceType = "";
 		}
 
-		ResetHitCheckDone();
+		player.UpdateIPADACK(true);
 	}
 
 	//! @note Event executed from playerbase EEHitBy function
 	void OnPlayerHitBy(int damageType, PlayerBase player, EntityAI source, string ammo)
 	{
-		if ( !player || player.IsAlive() )
+		if ( !player || player.IsAlive() || player.IPADACK() )
 			return;
 
 #ifdef EXTRACE
@@ -216,7 +216,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(true, this, "" + player, "" + source);
 #endif 
 		
-		if ( !WasHitCheckDone() )
+		if ( !player.IPADACK() )
 		{
 			if ( !source )
 			{
@@ -259,10 +259,6 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 			{
 				OnKilledByUnknown( player, source );
 			}
-		}
-		else
-		{
-			ResetHitCheckDone();
 		}
 	}
 
@@ -370,22 +366,16 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		return true;
 	}
 
+	[Obsolete("DEPRECATED, no longer used")]
 	bool WasHitCheckDone()
-	{
-#ifdef EXTRACE
-		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + m_HitCheckDone);
-#endif 
-		
+	{	
 		return m_HitCheckDone;
 	}
 
+	[Obsolete("DEPRECATED, no longer used")]
 	void ResetHitCheckDone()
 	{
 		m_HitCheckDone = false;
-
-#ifdef EXTRACE
-		EXTrace.Start(EXTrace.KILLFEED, this, "" + m_HitCheckDone);
-#endif 
 	}
 
 	protected int CalcBlood(PlayerBase player)

@@ -644,6 +644,8 @@ class eAICommandMove: ExpansionHumanCommand
 	float m_CDT;
 	void AvoidObstacles(float pDt)
 	{
+		m_CDT += pDt;
+
 		if (m_CDT < OBSTACLE_AVOIDANCE_INTERVAL)
 			return;
 
@@ -699,19 +701,16 @@ class eAICommandMove: ExpansionHumanCommand
 			m_PrevBlockingObject = m_BlockingObject;
 			m_BlockingObject = null;
 
-			vector fb = m_Direction;
+			vector fb = m_PathDirNormalized;
 
 			//! Only check bwd if we are moving bwd, else check fwd
 			if (Math.AbsFloat(m_MovementDirection) >= 135)
 			{
 				if (m_Unit.m_eAI_IsOnLadder)
-					fb = "0 1 0";
+					fb = "0 -1 0";
 
-				if (!m_Unit.IsRaised())
-				{
-					checkDir = position - 0.5 * fb;
-					blockedBackward = this.Raycast(position, checkDir, backwardPos, outNormal, hitFraction, checkDir, 0.3, true, m_BlockingObject);
-				}
+				checkDir = position + 0.5 * fb;
+				blockedBackward = this.Raycast(position, checkDir, backwardPos, outNormal, hitFraction, checkDir, 0.3, true, m_BlockingObject);
 
 				if (!blockedBackward && m_Unit.m_eAI_PositionTime > 4.0)
 					blockedBackward = true;
@@ -734,7 +733,6 @@ class eAICommandMove: ExpansionHumanCommand
 				}
 				else
 				{
-					fb = m_PathDirNormalized;
 					checkDir = position + 0.5 * fb;
 				}
 
@@ -1179,7 +1177,7 @@ class eAICommandMove: ExpansionHumanCommand
 				m_Unit.Expansion_DebugObject_Deferred(1122, hitPosition, "ExpansionDebugSphereSmall_Red", vector.Zero, hitPosition - hitNormal);
 			#endif
 			}
-			else if (m_Unit.m_eAI_StancePreference != -1 && m_Stance != m_Unit.m_eAI_StancePreference && !DayZPhysics.RaycastRV(origin + "0 0.3 0", origin + Vector(0, 0.5 + (2.0 - m_Unit.m_eAI_StancePreference) * 0.75, 0), hitPosition, hitNormal, contactComponent, results, null, m_Unit, false, false, ObjIntersectView, 0.1))
+			else if (m_Unit.m_eAI_StancePreference != -1 && m_Stance != m_Unit.m_eAI_StancePreference && (m_Unit.m_eAI_StancePreference == DayZPlayerConstants.STANCEIDX_PRONE || !DayZPhysics.RaycastRV(origin + "0 0.3 0", origin + Vector(0, 0.5 + (2.0 - m_Unit.m_eAI_StancePreference) * 0.75, 0), hitPosition, hitNormal, contactComponent, results, null, m_Unit, false, false, ObjIntersectView, 0.1) || !ObjectCanLimitStance(results[0])))
 			{
 				m_Stance = m_Unit.m_eAI_StancePreference;
 
@@ -1736,7 +1734,12 @@ class eAICommandMove: ExpansionHumanCommand
 			}
 			else
 			{
-				m_MovementDirection += ExpansionMath.AngleDiff2(m_MovementDirection, m_TargetMovementDirection);
+				float dirDiff = ExpansionMath.AngleDiff2(m_MovementDirection, m_TargetMovementDirection);
+
+				if (m_Unit.eAI_GetStance() == DayZPlayerConstants.STANCEIDX_PRONE)
+					dirDiff *= pDt;  //! Smoother movement when prone, may look choppy otherwise if direction change is too big
+
+				m_MovementDirection += dirDiff;
 				m_MovementDirection = Math.Clamp(m_MovementDirection, -180.0, 180.0);
 			}
 		}
@@ -2081,8 +2084,9 @@ class eAICommandMove: ExpansionHumanCommand
 		if (m_Stance == DayZPlayerConstants.STANCEIDX_PRONE)
 			radiusRV = 0.2;
 
+		vector origin = start + m_CheckMinHeight;
 		vector dir = vector.Direction(start, end).Normalized();
-		vector begPos = start + dir * radiusRV * 0.5 + m_CheckMinHeight;
+		vector begPos = origin + dir * radiusRV * 0.5;
 		vector endPos = endRV + m_CheckMinHeight;
 		bool hit;
 
@@ -2103,7 +2107,7 @@ class eAICommandMove: ExpansionHumanCommand
 
 			if (updatePathIfTreeClose)
 			{
-				distSq = vector.DistanceSq(start, hitPosition);
+				distSq = vector.DistanceSq(origin, hitPosition);
 				float farDistThresh = m_MovementSpeed + radiusRV;
 				farDistSqThresh = farDistThresh * farDistThresh;
 			}
@@ -2222,34 +2226,57 @@ class eAICommandMove: ExpansionHumanCommand
 		//! Everything else
 		if (!hit)
 		{
-			float collisionMoveRaycastRadius = 0.3; 
+			float collisionMoveRaycastRadius = 0.3;
+			float collisionMoveRaycastLen = 0.5;
 
 			if (m_Unit.m_eAI_IsOnLadder)
 			{
+				origin = m_Transform[3] + "0 1 0";
 				collisionMoveRaycastRadius = 0.0;
 			}
-			else if (m_Velocity[1] > dir[1])
+			else if (m_Unit.IsSwimming())
 			{
-				//! So we don't needlessly climb steep inclines like stairs etc that we can just run up
-				dir = m_Velocity;
-				dir.Normalize();
+				//! Effectively head position
+				origin = m_Transform[3] + CHECK_MIN_HEIGHT;
+				collisionMoveRaycastLen = 0.9;
+			}
+			else
+			{
+				origin = m_Transform[3] + m_CheckMinHeight_NearGround;
+
+				if (m_Velocity[1] > dir[1])
+				{
+					//! So we don't needlessly climb steep inclines like stairs etc that we can just run up
+					dir = m_Velocity;
+					dir.Normalize();
+				}
 			}
 
-			vector origin = m_Transform[3];
-			begPos = origin + dir * 0.15 + m_CheckMinHeight_NearGround;
-			endPos = origin + dir * 0.5 + m_CheckMinHeight_NearGround;
-			results.Clear();
+			begPos = origin + dir * collisionMoveRaycastRadius * 0.5;
+			endPos = origin + dir * collisionMoveRaycastLen;
 
-			if (DayZPhysics.RaycastRV(begPos, endPos, hitPosition, hitNormal, contactComponent, results, null, m_Unit, false, false, ObjIntersectGeom, collisionMoveRaycastRadius) && vector.DistanceSq(begPos, hitPosition) < 0.16)
+			PhxInteractionLayers hitMask;
+
+			hitMask |= PhxInteractionLayers.BUILDING;
+			hitMask |= PhxInteractionLayers.DOOR;
+			hitMask |= PhxInteractionLayers.VEHICLE;
+			hitMask |= PhxInteractionLayers.ITEM_LARGE;
+			hitMask |= PhxInteractionLayers.FENCE;
+
+			if (includeAI)
+				hitMask |= PhxInteractionLayers.CHARACTER | PhxInteractionLayers.AI;
+
+			Object hitObject;
+			//! @note RaycastRV unfortunately in some cases only provides a hit but no results (objects), so we use SphereCastBullet instead.
+			//! With the limited raycast length, SphereCastBullet is roughly 1.7x faster than RaycastRV (under DayZ 1.28).
+			//! Another option would be CollisionMoveTest, but it's roughly 1.5x slower than SphereCastBullet in case of a hit.
+			hit = DayZPhysics.SphereCastBullet(begPos, endPos, collisionMoveRaycastRadius, hitMask, m_Unit, hitObject, hitPosition, hitNormal, hitFraction);
+			if (hit && vector.DistanceSq(begPos, hitPosition) < collisionMoveRaycastLen * collisionMoveRaycastLen)
 			{
 			//#ifdef EXTRACE_DIAG
-				//trace = EXTrace.Profile(EXTrace.AI_PROFILE, m_Unit, "eAICommandMove::Raycast -> CollisionMoveTest processing");
+				//trace = EXTrace.Profile(EXTrace.AI_PROFILE, m_Unit, "eAICommandMove::Raycast -> SphereCastBullet processing");
 			//#endif
-				//ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 100.0, m_Unit.ToString() + " IEnt " + hitEntity + " frac " + hitFraction);
-				Object hitObject = results[0];
 
-				if (hitObject && !hitObject.IsBush())
-				{
 					if (!m_PathFinding.m_IsJumpClimb || !m_PathFinding.m_AllowJumpClimb || m_PathFinding.m_IsBlockedPhysically)
 					{
 					//#ifdef DIAG_DEVELOPER
@@ -2276,6 +2303,8 @@ class eAICommandMove: ExpansionHumanCommand
 						}
 					}
 
+				if (hitObject)
+				{
 					if (hitObject.IsMan())
 					{
 						if (hitObject.IsDamageDestroyed())
@@ -2291,25 +2320,9 @@ class eAICommandMove: ExpansionHumanCommand
 					{
 						blockingObject = hitObject;
 					}
-
-					return true;
 				}
 			}
-
-			return false;
 		}
-
-#ifdef DIAG_DEVELOPER
-#ifndef SERVER
-		int debugColour = 0xFF00AAFF;
-		if (hit) debugColour = 0xFFAA00FF;
-		vector points2[2];
-		points2[0] = start;
-		points2[1] = end;
-		if (hit) points2[1] = hitPosition;
-		m_Unit.AddShape(Shape.CreateLines(debugColour, ShapeFlags.NOZBUFFER, points2, 2));
-#endif
-#endif
 
 		return hit;
 	}

@@ -459,7 +459,7 @@ class eAIDynamicPatrol : eAIPatrol
 		if (m_LoadBalancing)
 			m_PatrolCountTracker = m_LoadBalancing.m_PatrolCountTracker;
 
-		if (m_Group)
+		if (m_Group && !m_WasGroupDestroyed)
 		{
 			bool wasLeaving = m_Group.m_Leave;
 			m_Group.m_Leave = !CanStay(0);

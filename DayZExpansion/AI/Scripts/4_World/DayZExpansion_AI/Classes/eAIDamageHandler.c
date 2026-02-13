@@ -552,7 +552,7 @@ class eAIDamageHandler
 		if (m_ProcessDamage)
 		{
 			m_ProcessDamage = false;
-			EXError.Warn(m_Entity, "Damage was not processed (source: " + originalSource + ")");
+			EXError.Warn(m_Entity, string.Format("Damage was not processed (type=%1 source=%2 zone=%3 ammo=%4 pos=%5 coef=%6)", typename.EnumToString(DamageType, damageType), originalSource, dmgZone, ammo, modelPos.ToString(), damageCoef));
 		}
 	}
 

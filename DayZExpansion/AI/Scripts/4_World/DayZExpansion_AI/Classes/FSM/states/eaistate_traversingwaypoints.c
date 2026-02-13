@@ -61,7 +61,7 @@ class eAIState_TraversingWaypoints: eAIState
 		if (m_Waypoint == vector.Zero)
 			return EXIT;
 		
-		if (!m_GotUp && unit.Expansion_GetMovementSpeed() > 0 && unit.GetGroup().GetLeader().IsAI())
+		if (!m_GotUp && unit.Expansion_GetMovementSpeed() > 0)
 		{
 			unit.Expansion_GetUp(true);
 			m_GotUp = true;

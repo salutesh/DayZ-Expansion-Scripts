@@ -14,17 +14,13 @@ modded class PlayerBase
 {
 	Object m_PlayerHeadingDir;
 
-	private bool m_HasCalledKillFeed;
+	private bool m_Expansion_HitInProgress;
+	private bool m_Expansion_HasCalledKillFeed;
 
 	ExpansionKillFeedModule m_KillfeedModule;
 	ItemBase m_Expansion_SuicideItem;
 
 	float m_Expansion_GraveCross_Playtime;
-
-	void PlayerBase()
-	{
-		m_HasCalledKillFeed = false;
-	}
 
 	override void EEDelete(EntityAI parent)
 	{
@@ -60,6 +56,18 @@ modded class PlayerBase
 		return GetExpansionSettings().GetGeneral().EnableGravecross;
 	}
 
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		m_Expansion_HitInProgress = false;  //! Reset before super
+
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
+		m_Expansion_HitInProgress = true;
+
+		return true;
+	}
+
 	override void EEKilled( Object killer )
 	{
 		if (Expansion_IsGravecrossEnabled())
@@ -76,6 +84,18 @@ modded class PlayerBase
 		}
 
 		super.EEKilled(killer);
+
+		if (GetExpansionSettings().GetNotification().EnableKillFeed)
+		{
+			if (!Expansion_IsAI() || GetExpansionSettings().GetNotification().KillFeedAI)
+			{
+				//! Only call killfeed from EEKilled if not a damage hit (else EEHitBy will take care of it)
+				if ( m_KillfeedModule && !m_Expansion_HitInProgress )
+				{
+					m_KillfeedModule.OnPlayerKilled( this, killer );
+				}
+			}
+		}
 	}
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -86,23 +106,24 @@ modded class PlayerBase
 		{
 			if (!Expansion_IsAI() || GetExpansionSettings().GetNotification().KillFeedAI)
 			{
-				if ( m_KillfeedModule && !IPADACK() )
+				if ( m_KillfeedModule )
 				{
-					UpdateIPADACK( !IsAlive() );
 					m_KillfeedModule.OnPlayerHitBy( damageType, this, source, ammo );
 				}
 			}
 		}
+
+		m_Expansion_HitInProgress = false;
 	}
 
 	bool IPADACK()
 	{
-		return m_HasCalledKillFeed;
+		return m_Expansion_HasCalledKillFeed;
 	}
 
 	void UpdateIPADACK(bool state = true)
 	{
-		m_HasCalledKillFeed = state;
+		m_Expansion_HasCalledKillFeed = state;
 	}
 
 	void Expansion_SetPlaytimeForGraveCross(float playtime)

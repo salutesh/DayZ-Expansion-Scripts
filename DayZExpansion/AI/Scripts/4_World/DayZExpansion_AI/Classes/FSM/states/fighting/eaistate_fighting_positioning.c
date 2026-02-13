@@ -102,12 +102,16 @@ class eAIState_Fighting_Positioning: eAIState
 					minDist = 2.0;
 				else
 					minDist = 1.0;
+
+				unit.m_eAI_IsPreparingMelee = wantsRaise;
 			}
 			else if (!wantsLower)
 			{
 				minDist = 2.0;
 				if (unit.m_eAI_IsInCover)
 					wantsRaise = true;
+
+				unit.m_eAI_IsPreparingMelee = false;
 			}
 			
 			minDistSq = minDist * minDist;
