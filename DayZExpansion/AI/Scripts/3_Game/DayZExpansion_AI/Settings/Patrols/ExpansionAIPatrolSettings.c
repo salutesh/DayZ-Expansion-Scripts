@@ -32,6 +32,8 @@ class ExpansionAIPatrolSettingsBase: ExpansionSettingBase
 	int EnableFlankingOutsideCombat;
 	float DamageMultiplier;
 	float DamageReceivedMultiplier;
+	float ShoryukenChance;
+	float ShoryukenDamageMultiplier;
 }
 
 class ExpansionAIPatrolSettingsV4
@@ -56,7 +58,7 @@ class ExpansionAIPatrolSettingsV24
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 31;
+	static const int VERSION = 32;
 
 	ref map<string, ref array<ref ExpansionAIPatrolLoadBalancing>> LoadBalancingCategories = new map<string, ref array<ref ExpansionAIPatrolLoadBalancing>>;
 
@@ -317,6 +319,15 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 				if (version < 28 && !EnableFlankingOutsideCombat)
 					EnableFlankingOutsideCombat = settingsDefault.EnableFlankingOutsideCombat;
 
+				if (version < 32)
+				{
+					if (!ShoryukenChance)
+						ShoryukenChance = settingsDefault.ShoryukenChance;
+
+					if (!ShoryukenDamageMultiplier)
+						ShoryukenDamageMultiplier = settingsDefault.ShoryukenDamageMultiplier;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -382,6 +393,15 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 				{
 					patrol.NumberOfAIMax = -patrol.NumberOfAI;
 					patrol.NumberOfAI = 1;
+				}
+
+				if (version < 32)
+				{
+					if (!patrol.ShoryukenChance)
+						patrol.ShoryukenChance = -1;
+
+					if (!patrol.ShoryukenDamageMultiplier)
+						patrol.ShoryukenDamageMultiplier = -1;
 				}
 
 				if (patrol.ObjectClassName)
@@ -548,6 +568,8 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 		EnableFlankingOutsideCombat = -1;
 		DamageMultiplier = -1;
 		DamageReceivedMultiplier = -1;
+		ShoryukenChance = 0.01;
+		ShoryukenDamageMultiplier = 3.0;
 
 		//! maxplayers = 60
 		//! aicount_per_patrol = 3

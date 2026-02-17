@@ -624,6 +624,10 @@ class eAITargetInformation
 		return target.m_IsTracked;
 	}
 
+	void OnVariablesSynchronized()
+	{
+	}
+
 	//! entity specific implementations for abstracted call in eAIEntityTargetInformation
 	void OnDeath(Object killer)
 	{

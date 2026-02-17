@@ -533,7 +533,7 @@ class ExpansionPathHandler
 		if (EXTrace.AI_PROFILE)
 		{
 			string fn;
-			if (eAIBase.s_UpdateInCmdHandler)
+			if (eAIBase.s_eAI_FTO == 0)
 				fn = "CommandHandler(07) ->  ExpansionPathHandler::OnUpdate";
 			else
 				fn = "ExpansionWorld::eAI_OnUpdate -> ExpansionPathHandler::OnUpdate";

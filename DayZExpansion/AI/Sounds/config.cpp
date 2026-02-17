@@ -218,6 +218,54 @@ class CfgSoundShaders
 		};
 		volume=1;
 	};
+	class Expansion_AI_ShoryukenF_SoundShader: baseCharacter_SoundShader
+	{
+		samples[]=
+		{
+			
+			{
+				"\DayZExpansion\AI\Sounds\ShoryukenF",
+				1
+			}
+		};
+		volume=0.75;
+	};
+	class Expansion_AI_ShoryukenM_SoundShader: baseCharacter_SoundShader
+	{
+		samples[]=
+		{
+			
+			{
+				"\DayZExpansion\AI\Sounds\ShoryukenM",
+				1
+			}
+		};
+		volume=0.75;
+	};
+	class Expansion_AI_Heavy_Punch_SoundShader: baseCharacter_SoundShader
+	{
+		samples[]=
+		{
+			
+			{
+				"\DayZExpansion\AI\Sounds\Heavy_Punch",
+				1
+			}
+		};
+		volume=1.25;
+	};
+	class Expansion_AI_UahUahUahM_SoundShader: baseCharacter_SoundShader
+	{
+		samples[]=
+		{
+			
+			{
+				"\DayZExpansion\AI\Sounds\UahUahUahM",
+				1
+			}
+		};
+		volume=1.25;
+	};
 };
 class CfgSoundSets
 {
@@ -339,6 +387,34 @@ class CfgSoundSets
 		soundShaders[]=
 		{
 			"Expansion_AI_Female_thousand_SoundShader"
+		};
+	};
+	class Expansion_AI_ShoryukenF_SoundSet: baseCharacter_SoundSet
+	{
+		soundShaders[]=
+		{
+			"Expansion_AI_ShoryukenF_SoundShader"
+		};
+	};
+	class Expansion_AI_ShoryukenM_SoundSet: baseCharacter_SoundSet
+	{
+		soundShaders[]=
+		{
+			"Expansion_AI_ShoryukenM_SoundShader"
+		};
+	};
+	class Expansion_AI_Heavy_Punch_SoundSet: baseCharacter_SoundSet
+	{
+		soundShaders[]=
+		{
+			"Expansion_AI_Heavy_Punch_SoundShader"
+		};
+	};
+	class Expansion_AI_UahUahUahM_SoundSet: baseCharacter_SoundSet
+	{
+		soundShaders[]=
+		{
+			"Expansion_AI_UahUahUahM_SoundShader"
 		};
 	};
 };

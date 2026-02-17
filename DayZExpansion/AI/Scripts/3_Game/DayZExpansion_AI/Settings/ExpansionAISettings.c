@@ -21,7 +21,7 @@ class ExpansionAISettingsV11: ExpansionSettingBase
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 19;
+	static const int VERSION = 20;
 	static ref ExpansionAISettings s_Instance;
 
 	float AccuracyMin;
@@ -33,6 +33,8 @@ class ExpansionAISettings: ExpansionSettingBase
 	bool EnableFlankingOutsideCombat;
 	float DamageMultiplier;
 	float DamageReceivedMultiplier;
+	float ShoryukenChance;
+	float ShoryukenDamageMultiplier;
 
 	autoptr TStringArray Admins = {};
 
@@ -359,6 +361,15 @@ class ExpansionAISettings: ExpansionSettingBase
 				if (m_Version < 19 && !EnableFlankingOutsideCombat)
 					EnableFlankingOutsideCombat = settingsDefault.EnableFlankingOutsideCombat;
 
+				if (m_Version < 20)
+				{
+					if (!ShoryukenChance)
+						ShoryukenChance = settingsDefault.ShoryukenChance;
+
+					if (!ShoryukenDamageMultiplier)
+						ShoryukenDamageMultiplier = settingsDefault.ShoryukenDamageMultiplier;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -431,6 +442,8 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		Manners = false;
 		MemeLevel = 1;
+		ShoryukenChance = 0.01;
+		ShoryukenDamageMultiplier = 3.0;
 
 		CanRecruitFriendly = true;
 		CanRecruitGuards = false;

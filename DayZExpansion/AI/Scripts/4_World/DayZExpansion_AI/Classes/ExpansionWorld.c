@@ -9,6 +9,10 @@ modded class ExpansionWorld
 
 	static bool s_DebugMonitor_ShowServerStats;
 
+	//! Shoryuken meme stuff
+	static ref ExpansionSoundSet s_eAI_UahUahUahM_SoundSet = ExpansionSoundSet.Register("Expansion_AI_UahUahUahM_SoundSet");
+	static ref ExpansionSoundSet s_eAI_Heavy_Punch_SoundSet = ExpansionSoundSet.Register("Expansion_AI_Heavy_Punch_SoundSet");
+	
 	int m_ServerStats_RPCID;
 
 	private ref eAIRoadNetwork m_Network;
@@ -94,7 +98,7 @@ modded class ExpansionWorld
 		s_DebugMonitor_ShowServerStats = true;
 		g_Game.GetMission().CreateDebugMonitor();
 
-		ctx.Read(eAIBase.s_UpdateInCmdHandler);
+		ctx.Read(eAIBase.s_eAI_FTO);
 		ctx.Read(s_AI_Alive_Count);
 		ctx.Read(eAIDynamicPatrol.s_PatrolCount);
 
@@ -194,14 +198,14 @@ modded class ExpansionWorld
 	{
 			float costTotal = 0;
 
-			if (!eAIBase.s_UpdateInCmdHandler)
+			if (eAIBase.s_eAI_FTO > 0)
 			{
 				int aiCount = eAIBase.s_eAI_Alive.m_Count;
 
 				if (aiCount > 0)
 				{
 					float serverFPSAvg = m_ServerFPS_Avg.Get();
-					float f = ExpansionMath.LinearConversion(30.0, 35.0, serverFPSAvg, 4.0, 1.0);
+					float f = ExpansionMath.LinearConversion(30.0, 35.0, serverFPSAvg, 5.0, 1.0);
 					float updateInterval = AI_UPDATE_INTERVAL * f;  //! Increase update interval if server FPS goes below 35
 					float thresh = updateInterval / aiCount;
 					int updateTime = g_Game.GetTime();
@@ -224,6 +228,7 @@ modded class ExpansionWorld
 						int aiMax = Math.Min(Math.Ceil(maxUpdateTime / t), Math.Min(aiCount, MAX_AI_UPDATE_BATCH));
 						int i = 0;
 						int n = 0;
+						float updateIntervalCurrent;
 						while (i < aiCount)
 						{
 							if (!m_CurrentAliveAI)
@@ -239,15 +244,32 @@ modded class ExpansionWorld
 							if (ai.m_eAI_LastUpdateTime == 0)
 								ai.m_eAI_LastUpdateTime = updateTime;
 
+							if (eAIBase.s_eAI_FTO >= 2 && ai.m_eAI_PlayersWithinVisibilityDistanceLimit.Count() == 0)
+								updateIntervalCurrent = AI_UPDATE_INTERVAL * 5;
+							else
+								updateIntervalCurrent = updateInterval;
+
 							float pDt = (updateTime - ai.m_eAI_LastUpdateTime) * 0.001;  //! s
-							if (pDt >= updateInterval)
+							if (pDt >= updateIntervalCurrent)
 							{
 								int tickCount = TickCount(0);
-								ai.eAI_OnUpdate(pDt);
-								ai.eAI_OnWeaponAimUpdate();
+								bool isDisabled = ai.GetIsSimulationDisabled();
+								if (!isDisabled)
+								{
+									ai.eAI_OnUpdate(pDt);
+									ai.eAI_OnWeaponAimUpdate();
+								}
+								else
+								{
+									EntityAI entityInHands = ai.eAI_SetHasProjectileWeaponInHands();
+									ai.eAI_Targeting(pDt, entityInHands, false);
+								}
 								ai.eAI_UpdateFSM(pDt, simulationPrecision);
-								ai.m_eAI_CommandMove.AvoidObstacles(pDt);
-								ai.eAI_OnMovementUpdate(pDt);
+								if (!isDisabled)
+								{
+									ai.m_eAI_CommandMove.AvoidObstacles(pDt);
+									ai.eAI_OnMovementUpdate(pDt);
+								}
 								updateTime = g_Game.GetTime();
 								ai.m_eAI_LastUpdateTime = updateTime;
 								float cost = TickCount(tickCount) * 0.0001;  //! ms
@@ -257,8 +279,8 @@ modded class ExpansionWorld
 
 								if (s_DebugMonitor_ShowServerStats)
 								{
-									m_AIUpdates_DTAvg.Add(pDt);
-									m_AIUpdates_DTCurrent = pDt;
+									m_AIUpdates_DTAvg.Add(pDt / updateIntervalCurrent * f);
+									m_AIUpdates_DTCurrent = pDt / updateIntervalCurrent * f;
 									m_AIUpdates_CostCurrent = cost;
 								}
 
@@ -327,7 +349,7 @@ modded class ExpansionWorld
 					{
 						auto rpc = m_RPCManager.CreateRPC(m_ServerStats_RPCID);
 
-						rpc.Write(eAIBase.s_UpdateInCmdHandler);
+						rpc.Write(eAIBase.s_eAI_FTO);
 						rpc.Write(eAIBase.s_eAI_Alive.m_Count);
 						rpc.Write(eAIDynamicPatrol.s_PatrolCount);
 
@@ -336,8 +358,8 @@ modded class ExpansionWorld
 						rpc.Write(m_ServerFPS_Max.Get());
 						rpc.Write(m_ServerFPS_Avg.Get());
 
-						rpc.Write(m_AIUpdates_DTCurrent * 1000);
-						rpc.Write(m_AIUpdates_DTAvg.Get() * 1000);
+						rpc.Write(m_AIUpdates_DTCurrent * AI_UPDATE_INTERVAL * 1000);
+						rpc.Write(m_AIUpdates_DTAvg.Get() * AI_UPDATE_INTERVAL * 1000);
 
 						rpc.Write(m_AIUpdates_CostCurrent);
 						rpc.Write(m_AIUpdates_CostAvg.Get());

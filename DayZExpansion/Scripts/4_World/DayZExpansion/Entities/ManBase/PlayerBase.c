@@ -85,14 +85,17 @@ modded class PlayerBase
 
 		super.EEKilled(killer);
 
-		if (GetExpansionSettings().GetNotification().EnableKillFeed)
+		if (!IPADACK() && GetExpansionSettings().GetNotification().EnableKillFeed)
 		{
 			if (!Expansion_IsAI() || GetExpansionSettings().GetNotification().KillFeedAI)
 			{
 				//! Only call killfeed from EEKilled if not a damage hit (else EEHitBy will take care of it)
 				if ( m_KillfeedModule && !m_Expansion_HitInProgress )
 				{
-					m_KillfeedModule.OnPlayerKilled( this, killer );
+					if (killer)
+						m_KillfeedModule.OnPlayerKilled( this, killer );
+					else
+						g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(m_KillfeedModule.OnPlayerKilled, this, null);  //! Call in next frame in case a 3rd party mod overrides damage and uses SetHealth instead of ProcessDirectDamage, then calls EEHitBy manually
 				}
 			}
 		}
@@ -192,8 +195,12 @@ modded class PlayerBase
 		grave = Expansion_GraveBase.Cast(g_Game.CreateObjectEx(graveobject, ground, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH));
 		grave.SetPosition(ground);
 
-		if ( handEntity && handEntity.GetHierarchyRootPlayer() )
-			handEntity = NULL;
+		if (handEntity)
+		{
+			EntityAI handEntityRoot = handEntity.GetHierarchyRoot();
+			if (handEntityRoot != this && handEntityRoot != handEntity)  //! Somebody picked it up in the meantime
+				handEntity = NULL;
+		}
 
 		grave.MoveAttachmentsFromEntity(this, handEntity, ground, GetOrientation());
 		grave.SetOrientation(GetOrientation());

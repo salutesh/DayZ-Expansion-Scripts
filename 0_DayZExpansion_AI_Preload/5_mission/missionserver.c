@@ -30,7 +30,7 @@ modded class MissionServer
 			//! (which calls OnScheduledTick) should not be called because VirtualHud and
 			//! TransferValues attempt to send RPCs to identity.
 			//! Note that OnTick/OnScheduledTick are only called for real connected players in vanilla.
-			if (currentPlayer && (currentPlayer.GetIdentity() || currentPlayer.IsAI()))
+			if (currentPlayer && (currentPlayer.GetIdentity() || currentPlayer.IsAI()) && !currentPlayer.GetIsSimulationDisabled())
 				currentPlayer.OnTick();
 
 			++m_currentPlayer;

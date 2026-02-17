@@ -646,7 +646,14 @@ class eAICommandMove: ExpansionHumanCommand
 	{
 		m_CDT += pDt;
 
-		if (m_CDT < OBSTACLE_AVOIDANCE_INTERVAL)
+		float interval;
+
+		if (m_Unit.s_eAI_FTO < 2)
+			interval = OBSTACLE_AVOIDANCE_INTERVAL;
+		else
+			interval = OBSTACLE_AVOIDANCE_INTERVAL * (pDt / ExpansionWorld.AI_UPDATE_INTERVAL);
+
+		if (m_CDT < interval)
 			return;
 
 		float cdt = m_CDT;

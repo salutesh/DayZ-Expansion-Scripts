@@ -39,6 +39,8 @@ class eAIDynamicPatrol : eAIPatrol
 	int m_EnableFlankingOutsideCombat; // zero or negative = use general setting
 	float m_DamageMultiplier; // zero or negative = use general setting
 	float m_DamageReceivedMultiplier; // zero or negative = use general setting
+	float m_ShoryukenChance; // negative = use general setting
+	float m_ShoryukenDamageMultiplier; // zero or negative = use general setting
 
 	eAIGroup m_Group;
 	float m_TimeSinceLastSpawn;
@@ -232,6 +234,16 @@ class eAIDynamicPatrol : eAIPatrol
 		SetDamageMultiplier(damageMultiplier);
 		SetDamageReceivedMultiplier(damageReceivedMultiplier);
 
+		if (config.ShoryukenChance < 0)
+			m_ShoryukenChance = s_AIPatrolSettings.ShoryukenChance;
+		else
+			m_ShoryukenChance = config.ShoryukenChance;
+
+		if (config.ShoryukenDamageMultiplier <= 0)
+			m_ShoryukenDamageMultiplier = s_AIPatrolSettings.ShoryukenDamageMultiplier;
+		else
+			m_ShoryukenDamageMultiplier = config.ShoryukenDamageMultiplier;
+
 		m_MaxFlankingDistance = config.MaxFlankingDistance;
 		if (m_MaxFlankingDistance <= 0)
 			m_MaxFlankingDistance = s_AIPatrolSettings.MaxFlankingDistance;
@@ -393,6 +405,12 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (m_EnableFlankingOutsideCombat > 0)
 			ai.m_eAI_EnableFlankingOutsideCombat = true;
+
+		if (m_ShoryukenChance >= 0)
+			ai.m_eAI_MeleeFightLogic.m_eAI_ShoryukenChance = m_ShoryukenChance;
+
+		if (m_ShoryukenDamageMultiplier >= 0)
+			ai.m_eAI_MeleeFightLogic.m_eAI_ShoryukenDamageMultiplier = m_ShoryukenDamageMultiplier;
 	}
 
 	bool WasGroupDestroyed()

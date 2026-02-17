@@ -41,6 +41,8 @@ class ExpansionAISpawnBase
 	float DamageMultiplier;
 	float DamageReceivedMultiplier;
 	float HeadshotResistance;
+	float ShoryukenChance;
+	float ShoryukenDamageMultiplier;
 
 	[NonSerialized()]
 	string m_BaseName;

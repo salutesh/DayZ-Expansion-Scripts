@@ -73,6 +73,27 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 		return pos;
 	}
 
+	override void PlayFireParticles()
+	{
+		PlayFireParticleOnBone("lefthand");
+		PlayFireParticleOnBone("righthand");
+		PlayFireParticleOnBone("leftfoot");
+		PlayFireParticleOnBone("rightfoot");
+		PlayFireParticleOnBone("pelvis");
+		PlayFireParticleOnBone("spine3");
+		PlayFireParticleOnBone("head");
+	}
+
+	override int GetBoneIndexByName(string boneName)
+	{
+		return m_Zombie.GetBoneIndexByName(boneName);
+	}
+
+	override vector GetBonePositionMS(int boneIdx)
+	{
+		return m_Zombie.GetBonePositionMS(boneIdx);
+	}
+
 	// https://www.desmos.com/calculator/r4mqu91qff
 	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{

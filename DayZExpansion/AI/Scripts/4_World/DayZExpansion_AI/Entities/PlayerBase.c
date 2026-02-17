@@ -221,6 +221,8 @@ modded class PlayerBase
 			m_Expansion_RPCManager = new ExpansionRPCManager(this, ExpansionWorld.GetModdableRootType(this));
 
 		m_Expansion_RPCManager.RegisterServer("RPC_eAI_SetLit");
+
+		RegisterNetSyncVariableBool("m_TargetInformation.m_ShoryukenHit");
 	}
 
 	override void SetActions(out TInputActionMap InputActionMap)

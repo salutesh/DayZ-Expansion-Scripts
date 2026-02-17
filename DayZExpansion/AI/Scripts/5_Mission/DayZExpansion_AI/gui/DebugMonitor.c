@@ -31,10 +31,8 @@ modded class DebugMonitor
 	{
 		if (ExpansionWorld.s_DebugMonitor_ShowServerStats)
 		{
-			m_Expansion_MapTileLabel.SetText("FTO:");
-			if (eAIBase.s_UpdateInCmdHandler)
-				return "OFF";
-			return "ON";
+			m_Expansion_MapTileLabel.SetText("FTO LEVEL:");
+			return eAIBase.s_eAI_FTO.ToString();
 		}
 
 		m_Expansion_MapTileLabel.SetText("MAP TILE:");

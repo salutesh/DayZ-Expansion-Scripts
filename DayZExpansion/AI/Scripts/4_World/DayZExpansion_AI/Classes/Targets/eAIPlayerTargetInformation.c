@@ -380,6 +380,27 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		return pos;
 	}
 
+	override void PlayFireParticles()
+	{
+		PlayFireParticleOnBone("lefthand");
+		PlayFireParticleOnBone("righthand");
+		PlayFireParticleOnBone("leftfoot");
+		PlayFireParticleOnBone("rightfoot");
+		PlayFireParticleOnBone("pelvis");
+		PlayFireParticleOnBone("spine3");
+		PlayFireParticleOnBone("head");
+	}
+
+	override int GetBoneIndexByName(string boneName)
+	{
+		return m_Player.GetBoneIndexByName(boneName);
+	}
+
+	override vector GetBonePositionMS(int boneIdx)
+	{
+		return m_Player.GetBonePositionMS(boneIdx);
+	}
+
 	override void OnRemove(eAIBase ai, eAITarget target)
 	{
 		super.OnRemove(ai, target);

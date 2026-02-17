@@ -743,15 +743,9 @@ class eAICommandManagerImpl: eAICommandManager
 				return;
 		}
 	
-		eAIBase.eAI_ToggleUpdateInCmdHandler();
+		eAIBase.eAI_ToggleFTO();
 
-		string onOff;
-		if (!eAIBase.s_UpdateInCmdHandler)
-			onOff = "ON";
-		else
-			onOff = "OFF";
-
-		ExpansionNotification("EXPANSION AI", "Frame Time Optimization " + onOff).Info(sender);
+		ExpansionNotification("EXPANSION AI", "Frame Time Optimization " + eAIBase.s_eAI_FTO).Info(sender);
 	}
 
 	void RPC_SetDamageInOut(PlayerIdentity sender, Object target, ParamsReadContext ctx)

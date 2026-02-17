@@ -28,6 +28,8 @@ modded class AnimalBase
 				m_Expansion_IsBigGame = true;
 		}
 
+		RegisterNetSyncVariableBool("m_TargetInformation.m_ShoryukenHit");
+
 	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.AI, this, "Bounding radius: " + radius + " | Big game: " + m_Expansion_IsBigGame);
 	#endif
@@ -40,6 +42,13 @@ modded class AnimalBase
 #endif
 
 		return m_TargetInformation;
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		m_TargetInformation.OnVariablesSynchronized();
+
+		super.OnVariablesSynchronized();
 	}
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)

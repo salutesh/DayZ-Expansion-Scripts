@@ -299,6 +299,8 @@ modded class DayZPlayerImplement
 
 	override void OnVariablesSynchronized()
 	{
+		m_TargetInformation.OnVariablesSynchronized();
+
 		super.OnVariablesSynchronized();
 
 		if (m_eAI_GroupID == -1 && m_eAI_Group)

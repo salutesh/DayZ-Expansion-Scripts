@@ -21,12 +21,14 @@ class eAIBase: PlayerBase
 {
 	const int EAI_COMMANDID_MOVE = 1;
 
+	static float LOS_CHECK_INTERVAL = 0.15;
+
 	static bool AI_HANDLEDOORS = true;
 	static bool AI_HANDLEVAULTING = true;
 
 	static int s_eAI_UnlimitedReload;
 	static int s_eAI_UnlimitedReloadAll;
-	static bool s_UpdateInCmdHandler;
+	static int s_eAI_FTO = 2;
 
 	private static autoptr array<eAIBase> s_AllAI = new array<eAIBase>();
 	static ref CF_DoublyLinkedNodes_WeakRef<eAIBase> s_eAI_Alive = new CF_DoublyLinkedNodes_WeakRef<eAIBase>;
@@ -327,6 +329,7 @@ class eAIBase: PlayerBase
 	ref array<EntityAI> m_eAI_TrackedBodies = {};
 	int m_eAI_CurrentPotentialTargetIndex;
 	CF_DoublyLinkedNode_WeakRef<PlayerBase> m_eAI_PotentialTargetPlayer;
+	ref set<CF_DoublyLinkedNode_WeakRef<PlayerBase>> m_eAI_PlayersWithinVisibilityDistanceLimit = new set<CF_DoublyLinkedNode_WeakRef<PlayerBase>>;
 	CF_DoublyLinkedNode_WeakRef<eAICustomCreatureTargetInformation> m_eAI_PotentialTargetCustomCreature;
 	float m_eAI_UpdateNearTargetsTime;
 	int m_eAI_UpdateNearTargetsCount;
@@ -388,8 +391,10 @@ class eAIBase: PlayerBase
 
 	ref Timer m_eAI_ClientUpdateTimer;
 
-	static ref ExpansionSoundSet s_eAI_LoveSound01_SoundSet;
-	static ref ExpansionSoundSet s_eAI_LoveSound02_SoundSet;
+	static ref ExpansionSoundSet s_eAI_LoveSound01_SoundSet = ExpansionSoundSet.Register("Expansion_AI_The_Sound_Of_Love_01_SoundSet");
+	static ref ExpansionSoundSet s_eAI_LoveSound02_SoundSet = ExpansionSoundSet.Register("Expansion_AI_The_Sound_Of_Love_02_SoundSet");
+	static ref ExpansionSoundSet s_eAI_ShoryukenF_SoundSet = ExpansionSoundSet.Register("Expansion_AI_ShoryukenF_SoundSet");
+	static ref ExpansionSoundSet s_eAI_ShoryukenM_SoundSet = ExpansionSoundSet.Register("Expansion_AI_ShoryukenM_SoundSet");
 
 	int m_eAI_Meme;
 
@@ -462,14 +467,17 @@ class eAIBase: PlayerBase
 		return s_AllAI;
 	}
 
-	static void eAI_ToggleUpdateInCmdHandler()
+	static void eAI_ToggleFTO()
 	{
-		s_UpdateInCmdHandler = !s_UpdateInCmdHandler;
+		if (s_eAI_FTO == 2)
+			s_eAI_FTO = 0;
+		else
+			++s_eAI_FTO;
 
 		ExpansionWorld world;
 		Class.CastTo(world, GetDayZGame().GetExpansionGame());
 
-		if (!s_UpdateInCmdHandler)
+		if (s_eAI_FTO > 0)
 		{
 			eAICommandMove.OBSTACLE_AVOIDANCE_INTERVAL = 0.1;
 
@@ -510,6 +518,7 @@ class eAIBase: PlayerBase
 
 		m_eAI_MeleeFightLogic = new eAIMeleeFightLogic_LightHeavy(this);
 		m_MeleeFightLogic = m_eAI_MeleeFightLogic;
+		RegisterNetSyncVariableBool("m_eAI_MeleeFightLogic.m_eAI_Shoryuken");
 
 		m_WeaponManager = new eAIWeaponManager(this);
 		m_ShockHandler = new eAIShockHandler(this);
@@ -581,11 +590,6 @@ class eAIBase: PlayerBase
 		RegisterNetSyncVariableBool("m_eAI_IsInventoryVisible");
 
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
-
-		if (!s_eAI_LoveSound01_SoundSet)
-			s_eAI_LoveSound01_SoundSet = ExpansionSoundSet.Register("Expansion_AI_The_Sound_Of_Love_01_SoundSet");
-		if (!s_eAI_LoveSound02_SoundSet)
-			s_eAI_LoveSound02_SoundSet = ExpansionSoundSet.Register("Expansion_AI_The_Sound_Of_Love_02_SoundSet");
 	}
 
 	override void OnPlayerLoaded()
@@ -3059,17 +3063,21 @@ class eAIBase: PlayerBase
 		ticks = TickCount(0);
 #endif
 
-		if (!faction.IsObserver())  //! Observers only react to near players
-		{
 			if (!m_eAI_PotentialTargetPlayer)
 				m_eAI_PotentialTargetPlayer = s_Expansion_AllPlayers.m_Head;
 
 			PlayerBase player = m_eAI_PotentialTargetPlayer.m_Value;
 
 			EntityAI playerEntity = player;
-			if (player && player != this && m_eAI_PotentialTargetEntities.Find(playerEntity) == -1 && Math.IsPointInCircle(center, eAI_GetVisibilityDistanceLimit(player), player.GetPosition()))
+			if (player && player != this && Math.IsPointInCircle(center, eAI_GetVisibilityDistanceLimit(player), player.GetPosition()))
 			{
-				m_eAI_PotentialTargetEntities.Insert(playerEntity);
+				if (!faction.IsObserver() && m_eAI_PotentialTargetEntities.Find(playerEntity) == -1)
+					m_eAI_PotentialTargetEntities.Insert(playerEntity);
+
+			#ifdef SERVER
+				if (player.GetIdentity())
+			#endif
+					m_eAI_PlayersWithinVisibilityDistanceLimit.Insert(m_eAI_PotentialTargetPlayer);
 
 #ifdef EAI_TRACE
 				elapsed = TickCount(ticks);
@@ -3077,9 +3085,15 @@ class eAIBase: PlayerBase
 				EXTrace.Add(trace, "player/AI in extended range " + player.GetType() + " time (ms) " + (elapsed / 10000.0).ToString());
 #endif
 			}
+			else
+			{
+				m_eAI_PlayersWithinVisibilityDistanceLimit.RemoveItem(m_eAI_PotentialTargetPlayer);
+			}
 
 			m_eAI_PotentialTargetPlayer = m_eAI_PotentialTargetPlayer.m_Next;
 
+		if (!faction.IsObserver())  //! Observers only react to near creatures
+		{
 			//! Custom creatures
 			if (!m_eAI_PotentialTargetCustomCreature)
 				m_eAI_PotentialTargetCustomCreature = eAICustomCreatureTargetInformation.s_AllCustomCreatures.m_Head;
@@ -3184,6 +3198,10 @@ class eAIBase: PlayerBase
 
 					continue;
 				}
+			#ifdef SERVER
+				if (playerThreat.GetIdentity())
+			#endif
+					m_eAI_PlayersWithinVisibilityDistanceLimit.Insert(playerThreat.m_Expansion_Node);
 				if (!playerIsEnemy)
 					continue;
 			}
@@ -3494,6 +3512,8 @@ class eAIBase: PlayerBase
 	{
 		if (node == m_eAI_PotentialTargetPlayer)
 			m_eAI_PotentialTargetPlayer = node.m_Next;
+
+		m_eAI_PlayersWithinVisibilityDistanceLimit.RemoveItem(node);
 	}
 
 	void eAI_OnRemoveCustomCreature(CF_DoublyLinkedNode_WeakRef<eAICustomCreatureTargetInformation> node)
@@ -4282,6 +4302,18 @@ class eAIBase: PlayerBase
 			m_eAI_CurrentTarget_NetIDLowSync = m_eAI_CurrentTarget_NetIDLow;
 			m_eAI_CurrentTarget_NetIDHighSync = m_eAI_CurrentTarget_NetIDHigh;
 			eAI_UpdateCurrentTarget_Client();
+		}
+
+		if (m_eAI_MeleeFightLogic.m_eAI_Shoryuken)
+		{
+			ParticleManager mgr = ParticleManager.GetInstance();
+			string boneName = "lefthand";
+			int boneIdx = GetBoneIndexByName(boneName);
+			vector pos = GetBonePositionMS(boneIdx);
+
+			ParticleSource particle = mgr.PlayOnObject(ParticleList.EXPANSION_AI_SHORYUKEN_FIRE, this, pos, "0 0 0", true);
+
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(particle.StopParticle, 1500, false, 0);
 		}
 	}
 
@@ -5074,6 +5106,9 @@ class eAIBase: PlayerBase
 
 	bool eAI_CheckShouldUseBuildingWithLadder(vector targetPos)
 	{
+		if (m_eAI_IsFightingFSM && m_eAI_AcuteDangerPlayerTargetCount > 0)
+			return false;
+
 		vector center = m_eAI_BuildingWithLadder.GetPosition();
 		float radius = ExpansionStatic.GetBoundingRadius(m_eAI_BuildingWithLadder);
 		vector position = m_ExTransformPlayer[3];
@@ -6885,7 +6920,7 @@ class eAIBase: PlayerBase
 		return entityInHands;
 	}
 
-	void eAI_Targeting(float pDt, EntityAI entityInHands)
+	void eAI_Targeting(float pDt, EntityAI entityInHands, bool checkLOS = true)
 	{
 		eAITarget previousTarget = m_eAI_Targets[0];
 		UpdateTargets(pDt, entityInHands);
@@ -6895,7 +6930,9 @@ class eAIBase: PlayerBase
 			//eAI_SyncCurrentTarget();
 
 		bool hadLOS = m_eAI_HasLOS;
-		m_eAI_HasLOS = EnforceLOS(pDt);
+
+		if (checkLOS)
+			m_eAI_HasLOS = EnforceLOS(pDt);
 
 	//#ifdef EXTRACE_DIAG
 		//auto trace5 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "eAI_Targeting(02)");
@@ -6964,7 +7001,7 @@ class eAIBase: PlayerBase
 		if (EXTrace.AI_PROFILE)
 		{
 			string fn;
-			if (s_UpdateInCmdHandler)
+			if (s_eAI_FTO == 0)
 				fn = "CommandHandler(03) -> eAI_OnUpdate";
 			else
 				fn = "ExpansionWorld::eAI_OnUpdate -> eAI_OnUpdate";
@@ -7020,7 +7057,7 @@ class eAIBase: PlayerBase
 		if (EXTrace.AI_PROFILE)
 		{
 			string fn;
-			if (s_UpdateInCmdHandler)
+			if (s_eAI_FTO == 0)
 				fn = "CommandHandler(11) -> eAIFSM::Update";
 			else
 				fn = "ExpansionWorld::eAI_OnUpdate -> eAIFSM::Update";
@@ -7036,6 +7073,9 @@ class eAIBase: PlayerBase
 	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
 	{
 		if (!g_Game)
+			return;
+
+		if (m_eAI_MeleeFightLogic.m_eAI_Shoryuken)
 			return;
 
 	#ifdef EXTRACE_DIAG
@@ -7104,6 +7144,12 @@ class eAIBase: PlayerBase
 				EXTrace.Print(true, this, "CommandHandler super " + Expansion_CommandIDToString(pCurrentCommandID) + " -> " + Expansion_CommandIDToString(actualCommandID));
 		#endif
 
+			if (m_eAI_MeleeFightLogic.m_eAI_ShoryukenSpin)
+			{
+				if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_FALL || actualCommandID == DayZPlayerConstants.COMMANDID_MOVE)
+					m_eAI_MeleeFightLogic.m_eAI_ShoryukenSpin = false;
+			}
+
 			m_eAI_CurrentCommandID = actualCommandID;
 			m_eAI_CommandTime = 0.0;
 		}
@@ -7157,7 +7203,7 @@ class eAIBase: PlayerBase
 
 		EntityAI entityInHands = GetHumanInventory().GetEntityInHands();;
 
-		if (s_UpdateInCmdHandler)
+		if (s_eAI_FTO == 0)
 			eAI_OnUpdate(pDt);
 
 		if (m_eAI_ResetMovementDirectionActive)
@@ -7244,7 +7290,7 @@ class eAIBase: PlayerBase
 		//trace10 = null;
 	//#endif
 
-		if (s_UpdateInCmdHandler)
+		if (s_eAI_FTO == 0)
 			eAI_UpdateFSM(pDt, simulationPrecision);
 
 	//#ifdef EXTRACE_DIAG
@@ -7462,7 +7508,7 @@ class eAIBase: PlayerBase
 				}
 			}
 
-			if (s_UpdateInCmdHandler)
+			if (s_eAI_FTO == 0)
 			{
 				m_eAI_CommandMove.AvoidObstacles(pDt);
 				eAI_OnMovementUpdate(pDt);
@@ -8034,11 +8080,18 @@ class eAIBase: PlayerBase
 
 		eAITargetInformationState state = target;
 
-		if (m_eAI_LOSCheckDT >= 0.15)
+		float interval;
+
+		if (s_eAI_FTO < 2)
+			interval = LOS_CHECK_INTERVAL;
+		else
+			interval = LOS_CHECK_INTERVAL * (pDt / ExpansionWorld.AI_UPDATE_INTERVAL);
+
+		if (m_eAI_LOSCheckDT >= interval)
 			m_eAI_LOSCheckDT = 0;
 		m_eAI_LOSCheckDT += pDt;
 
-		if (m_eAI_LOSCheckDT < 0.15 && !m_eAI_TargetChanged)
+		if (m_eAI_LOSCheckDT < interval && !m_eAI_TargetChanged)
 			return state.m_LOS;
 
 		PlayerBase targetPlayer;
@@ -8069,8 +8122,10 @@ class eAIBase: PlayerBase
 
 		vector begPos = GetBonePositionWS(GetBoneIndexByName(boneName));
 		vector aimOffset = target.GetAimOffset();
-		vector dir = vector.Direction(begPos, target.GetPosition(true) + aimOffset);
-		float dist = eAI_GetVisibilityDistance(dir.Length(), target);
+		vector aimPosition = target.GetPosition(true) + aimOffset;
+		vector dir = vector.Direction(begPos, aimPosition);
+		float targetDist = dir.Length();
+		float dist = eAI_GetVisibilityDistance(targetDist, target);
 		dir.Normalize();
 		//! Extend LOS ray by some amount because some targets like doors have inaccurate position and ray would not hit otherwise
 		vector endPos = begPos + dir * dist + dir * 0.5;
@@ -8169,9 +8224,8 @@ class eAIBase: PlayerBase
 			DayZPhysics.RaycastRV(contactPos - dir * 0.1, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectFire, radius);
 		}
 
-		//float targetDistSq = vector.DistanceSq(begPos, endPos);
-		float contactToTargetDistSq = vector.DistanceSq(contactPos, endPos);
-		float contactToTargetDist2DSq = ExpansionMath.Distance2DSq(contactPos, endPos);
+		float targetDistSq = targetDist * targetDist;
+		float contactToTargetDistSq = vector.DistanceSq(contactPos, aimPosition);
 
 		DayZPlayerImplement player;
 
@@ -8194,10 +8248,12 @@ class eAIBase: PlayerBase
 
 			float toObjAngleH = (obj.GetPosition() - begPos).VectorToAngles()[0];
 			float toObjAngleDiffHAbs = Math.AbsFloat(ExpansionMath.AngleDiff2(toTargetAngleH, toObjAngleH));
-			float contactToHitObjDist2DSq = ExpansionMath.Distance2DSq(contactPos, obj.GetPosition());
+			vector contactObjPos = obj.GetPosition();
+			contactObjPos[1] = contactPos[1];
+			float toContactObjDistSq = vector.DistanceSq(begPos, contactObjPos);
 
 			//! Target behind tree
-			if (obj.IsTree() && toObjAngleDiffHAbs <= 22.5 && contactToTargetDist2DSq > contactToHitObjDist2DSq && !state.m_SearchPositionUpdateCount)
+			if (obj.IsTree() && toObjAngleDiffHAbs <= 22.5 && targetDistSq > toContactObjDistSq && !state.m_SearchPositionUpdateCount)
 			{
 				if (!isItemTarget)
 					sideStep = state.m_ThreatLevelActive >= 0.4;
@@ -8238,10 +8294,43 @@ class eAIBase: PlayerBase
 					//! If object is zombie or animal but not the target or its parent, we don't care if they get shot when they are in the way
 					state.m_LOS = true;
 				}
-				else if (((obj.IsTree() || obj.IsBush()) && (toObjAngleDiffHAbs > 22.5 || contactToTargetDist2DSq <= contactToHitObjDist2DSq) && state.m_ThreatLevel > 0.2) || contactToTargetDistSq <= 0.0625)
+				else if (contactToTargetDistSq <= 0.04)
 				{
-					//! Object is tree/bush and target is in front, or target is within 0.25 m of ray contact position
 					state.m_LOS = true;
+				}
+				else if (obj.IsTree() || obj.IsBush())
+				{
+					if (toObjAngleDiffHAbs > 22.5)
+					{
+						//! Tree/bush position is behind or to side of AI look direction
+
+						if (contactToTargetDistSq <= 16.0)
+						{
+							//! Target is somewhere near tree/bush or within its foliage
+
+							vector contactPosTmp;
+							vector contactDirTmp;
+							int contactComponentTmp;
+							set<Object> resultsTmp = new set<Object>;
+
+							if (DayZPhysics.RaycastRV(contactPos, contactPos + dir * 4, contactPosTmp, contactDirTmp, contactComponentTmp, resultsTmp, obj, this, false, false, ObjIntersectGeom))
+							{
+								hitObj = resultsTmp[0];
+
+								if (hitObj == targetEntity || hitObj == parent)
+									state.m_LOS = true;
+							}
+							else
+							{
+								state.m_LOS = true;
+							}
+						}
+					}
+					else if (targetDistSq < toContactObjDistSq)
+					{
+						//! Target is in front of tree/bush position but within its foliage
+						state.m_LOS = true;
+					}
 				}
 			}
 
@@ -9463,7 +9552,7 @@ class eAIBase: PlayerBase
 			//! there will be a sudden jump in the unit's rotation between 180 and -180 due to the way the animation is set up
 			eAI_InterpolateYawPitch(m_eAI_AimRelAngles, aimTargetRelAngles, m_eAI_AimVelLR, m_eAI_AimVelUD, pDt);
 
-			if (s_UpdateInCmdHandler)
+			if (s_eAI_FTO == 0)
 				eAI_OnWeaponAimUpdate();
 
 		/*
@@ -10001,6 +10090,8 @@ class eAIBase: PlayerBase
 			case DayZPlayerConstants.COMMANDID_MELEE:
 			case DayZPlayerConstants.COMMANDID_MELEE2:
 			case DayZPlayerConstants.COMMANDID_FALL:
+				if (m_eAI_MeleeFightLogic.m_eAI_ShoryukenSpin)
+					pModel.m_fHeadingAngle = m_eAI_MeleeFightLogic.m_eAI_ShoryukenSpinAngle;
 				pModel.m_fOrientationAngle = pModel.m_fHeadingAngle;
 				SetOrientation(Vector(pModel.m_fHeadingAngle * Math.RAD2DEG, 0, 0));
 				m_fLastHeadingDiff = 0;

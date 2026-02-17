@@ -213,7 +213,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 	void OnPlayerKilled( PlayerBase player, Object source )
 	{
 #ifdef EXTRACE
-		auto trace = EXTrace.Start(true, this, "" + player, "" + source);
+		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player, "" + source);
 #endif 
 		
 		if ( !player.IPADACK() )

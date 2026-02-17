@@ -51,6 +51,23 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 		return pos;
 	}
 
+	override void PlayFireParticles()
+	{
+		PlayFireParticleOnBone("pelvis");
+		PlayFireParticleOnBone("chest");
+		PlayFireParticleOnBone("head");
+	}
+
+	override int GetBoneIndexByName(string boneName)
+	{
+		return m_Creature.GetBoneIndexByName(boneName);
+	}
+
+	override vector GetBonePositionMS(int boneIdx)
+	{
+		return m_Creature.GetBonePositionMS(boneIdx);
+	}
+
 	override bool IsActive()
 	{
 		if (!m_Creature)
