@@ -1477,7 +1477,7 @@ modded class ItemBase
 
 	bool Expansion_IsStackable()
 	{
-		return m_CanThisBeSplit && !m_HasQuantityBar;
+		return m_CanThisBeSplit && !ConfigGetBool("quantityBar");
 	}
 
 	//! @brief Attempt to set stack amount if item is stackable. Return true if operation was performed, false if not.

@@ -51,6 +51,23 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 		return pos;
 	}
 
+	override void PlayFireParticles()
+	{
+		PlayFireParticleOnBone("pelvis");
+		PlayFireParticleOnBone("chest");
+		PlayFireParticleOnBone("head");
+	}
+
+	override int GetBoneIndexByName(string boneName)
+	{
+		return m_Creature.GetBoneIndexByName(boneName);
+	}
+
+	override vector GetBonePositionMS(int boneIdx)
+	{
+		return m_Creature.GetBonePositionMS(boneIdx);
+	}
+
 	override bool IsActive()
 	{
 		if (!m_Creature)
@@ -59,7 +76,7 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 		return m_IsActive;
 	}
 
-	override float CalculateThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		if (m_Creature.IsDamageDestroyed())
 		{
@@ -101,6 +118,9 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 
 			// the further away the creature, the less likely it will be a threat
 			float distance = GetDistance(ai, true);
+
+			if (ai.IsSwimming())
+				return ExpansionMath.LinearConversion(0, 100, distance, 0.15, 0.1);
 
 			//! If not reachable, ignore if we don't have a gun
 			if (!ai.m_eAI_HasProjectileWeaponInHands && ai.eAI_IsUnreachable(2.0, m_Target.GetPosition()))

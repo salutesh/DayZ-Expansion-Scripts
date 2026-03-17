@@ -81,7 +81,8 @@ modded class MissionGameplay
 		// If we want to open the command menu, and nothing else is open
 		if (!inputIsFocused && input.LocalPress("eAICommandMenu", false) && !menu && !viewMenu)
 		{
-			if (GetExpansionSettings().GetAI().IsAdmin() || (player && player.GetGroup()))
+			auto settings = GetExpansionSettings().GetAI();
+			if (settings.IsAdmin() || GetDayZGame().GetExpansionGame().InGroup() || ((settings.CanRecruitFriendly || settings.CanRecruitGuards) && settings.MaxRecruitableAI > 0))
 			{
 				eAICommandMenu.OpenMenu();
 			}
@@ -143,5 +144,12 @@ modded class MissionGameplay
 				}
 			}
 		}
+	}
+
+	override void UpdateDebugMonitor()
+	{
+		if (!m_DebugMonitor) return;
+		
+		m_DebugMonitor.Expansion_Update();
 	}
 };

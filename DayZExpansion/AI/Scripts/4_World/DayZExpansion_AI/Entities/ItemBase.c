@@ -440,4 +440,24 @@ modded class ItemBase
 	{
 		return eAIBase.Cast(GetHierarchyRootPlayer());
 	}
+
+	//! @brief returns cargo size (including attachments)
+	int eAI_GetCargoSize()
+	{
+		int cargoSize;
+
+		CargoBase cargo = GetInventory().GetCargo();
+		if (cargo)
+			cargoSize += cargo.GetWidth() * cargo.GetHeight();
+
+		for (int i = 0; i < GetInventory().AttachmentCount(); ++i)
+		{
+			EntityAI att = GetInventory().GetAttachmentFromIndex(i);
+			cargo = att.GetInventory().GetCargo();
+			if (cargo)
+				cargoSize += cargo.GetWidth() * cargo.GetHeight();
+		}
+
+		return cargoSize;
+	}
 };

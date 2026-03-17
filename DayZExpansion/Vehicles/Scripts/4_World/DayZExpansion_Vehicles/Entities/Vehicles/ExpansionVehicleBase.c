@@ -52,8 +52,6 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 
 	bool m_RecievedInitialSync;
 
-	bool m_Expansion_HasPilot;
-
 	float m_MaxSpeed;	// (km/h)
 	float m_MaxSpeedMS; // (m/s)
 
@@ -1309,10 +1307,9 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		OnPostSimulation(dt);
 	}
 
+	[Obsolete("DEPRECATED, no replacement")]
 	void SetHasPilot(bool state)
 	{
-		//! So we are able to detect if pilot got disconnected or got out on own accord
-		m_Expansion_HasPilot = state;
 	}
 
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
@@ -3078,8 +3075,6 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 			if (ammoType == "")
 				ammoType = "Dummy_Heavy";
 
-			ExpansionOnExplodeServer(damageType, ammoType);
-
 			if (g_Game.IsServer() && !g_Game.IsMultiplayer())
 			{
 				ExpansionOnExplodeClient(damageType, ammoType);
@@ -3088,6 +3083,8 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 			{
 				g_Game.RPCSingleParam(this, ERPCs.RPC_EXPLODE_EVENT, new Param2<int, string>(damageType, ammoType), true);
 			}
+
+			ExpansionOnExplodeServer(damageType, ammoType);
 		}
 	}
 

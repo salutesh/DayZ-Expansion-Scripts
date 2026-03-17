@@ -15,10 +15,13 @@ modded class ActionRestrainSelf
 	override void OnFinishProgressServer(ActionData action_data)
 	{
 		PlayerBase targetPlayer = PlayerBase.Cast(action_data.m_Target.GetObject());
-		ItemBase itemInHands = ItemBase.Cast(targetPlayer.GetHumanInventory().GetEntityInHands());
-		if (itemInHands && targetPlayer)
-			itemInHands.CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_EXIT, targetPlayer);
-		
+		if (targetPlayer)
+		{
+			ItemBase itemInHands = ItemBase.Cast(targetPlayer.GetHumanInventory().GetEntityInHands());
+			if (itemInHands)
+				itemInHands.CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_EXIT, targetPlayer);
+		}
+
 		super.OnFinishProgressServer(action_data);
 	}
 };

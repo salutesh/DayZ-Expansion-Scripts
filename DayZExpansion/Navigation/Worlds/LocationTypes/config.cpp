@@ -20,7 +20,7 @@ class CfgLocationTypes
 		texture="#(argb,1,1,1)color(1,1,1,1)";
 		color[]={1,1,1,1};
 		size=0;
-		font="DayZExpansion/Core/GUI/fonts/etelkatextpro24";
+		font="gui/fonts/MetronBook-Bold58";
 		textSize=0.029999999;
 		shadow=1;
 		importance=1;
@@ -32,7 +32,7 @@ class CfgLocationTypes
 		texture="#(argb,1,1,1)color(1,1,1,1)";
 		color[]={1,1,1,1};
 		size=0;
-		font="DayZExpansion/Core/GUI/fonts/etelkatextpro24";
+		font="gui/fonts/MetronBook-Bold58";
 		textSize=0.029999999;
 		shadow=0;
 		importance=1;

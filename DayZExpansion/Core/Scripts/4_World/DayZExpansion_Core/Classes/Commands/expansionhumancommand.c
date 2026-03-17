@@ -130,16 +130,20 @@ class ExpansionHumanCommand
 
 		m_Table.SetLook(m_Player, m_Look);
 
-		if (m_Player.GetInstanceType() == DayZPlayerInstanceType.INSTANCETYPE_AI_SERVER)
+		switch (m_Player.GetInstanceType())
 		{
-			m_Table.SetLookDirX(m_Player, m_LookLR);
-			m_Table.SetLookDirY(m_Player, m_LookUD);
-		}
-		else
-		{
-			HumanCommandWeapons hcw = m_Player.GetCommandModifier_Weapons();
-			m_Table.SetLookDirX(m_Player, hcw.GetBaseAimingAngleLR());
-			m_Table.SetLookDirY(m_Player, hcw.GetBaseAimingAngleUD());
+			case DayZPlayerInstanceType.INSTANCETYPE_AI_SERVER:
+			case DayZPlayerInstanceType.INSTANCETYPE_AI_REMOTE:
+			case DayZPlayerInstanceType.INSTANCETYPE_AI_SINGLEPLAYER:
+				m_Table.SetLookDirX(m_Player, m_LookLR);
+				m_Table.SetLookDirY(m_Player, m_LookUD);
+				break;
+
+			default:
+				HumanCommandWeapons hcw = m_Player.GetCommandModifier_Weapons();
+				m_Table.SetLookDirX(m_Player, hcw.GetBaseAimingAngleLR());
+				m_Table.SetLookDirY(m_Player, hcw.GetBaseAimingAngleUD());
+				break;
 		}
 	}
 

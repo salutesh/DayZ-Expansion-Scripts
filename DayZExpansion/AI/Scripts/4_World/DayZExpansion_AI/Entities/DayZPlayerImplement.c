@@ -40,6 +40,8 @@ modded class DayZPlayerImplement
 
 	float m_eAI_AttackCooldown;  //! Melee attack cooldown
 
+	private bool m_eAI_IsBeingDestroyed;
+
 #ifdef DIAG_DEVELOPER
 #ifndef SERVER
 	autoptr array<Shape> m_Expansion_DebugShapes = new array<Shape>();
@@ -61,6 +63,7 @@ modded class DayZPlayerImplement
 		EXTrace.Print(EXTrace.AI, this, "~DayZPlayerImplement");
 	#endif
 
+		m_eAI_IsBeingDestroyed = true;
 		eAI_Cleanup(true);
 	}
 
@@ -296,6 +299,8 @@ modded class DayZPlayerImplement
 
 	override void OnVariablesSynchronized()
 	{
+		m_TargetInformation.OnVariablesSynchronized();
+
 		super.OnVariablesSynchronized();
 
 		if (m_eAI_GroupID == -1 && m_eAI_Group)
@@ -442,8 +447,19 @@ modded class DayZPlayerImplement
 	 * from DTOR, and if there are still other alive group members, then the killed player is removed from deceased group members.
 	 * If there are no other alive group members, then group is just destroyed (in the next frame).
 	 */
-	void eAI_Cleanup(bool autoDeleteGroup = false)
+	protected void eAI_Cleanup(bool autoDeleteGroup = false)
 	{
+		if (autoDeleteGroup && !m_eAI_IsBeingDestroyed)
+		{
+			string tmp;
+			DumpStackString(tmp);
+			TStringArray stack = {};
+			tmp.Split("\n", stack);
+			stack.RemoveOrdered(0);
+			EXError.Error(this, "Invalid call", stack);
+			return;
+		}
+
 		if (GetGroup() && !GetGroup().RemoveMember(this, autoDeleteGroup) && autoDeleteGroup)
 		{
 			if (GetGroup().Count())
@@ -486,18 +502,20 @@ modded class DayZPlayerImplement
 			return;
 		}
 
-		PlayerBase player;
-		if (Class.CastTo(player, source.GetHierarchyRootPlayer()) && player != this)
+		EntityAI root = source.GetHierarchyRoot();
+
+		PlayerBase attacker;
+		if (Class.CastTo(attacker, root) && attacker != this)
 		{
 			//! If attacker is not AI, or we are their current target (else it was accidental friendly fire),
 			//! target attacker for up to 2 minutes
 			eAIBase ai;
-			if (!Class.CastTo(ai, player) || (ai.GetTarget() && ai.GetTarget().GetEntity() == this))
+			if (!Class.CastTo(ai, attacker) || ai.eAI_IsCurrentTarget(this, 0.2))
 			{
-				if (!ai || IsAI())
-					player.GetTargetInformation().AddFriendlyAI(this, 120000, true, 1.0);  //! Attacking player will be attacked by friendly AI
-				else
-					group.AddTarget(this, player.GetTargetInformation(), 120000, true, 1.0);   //! Attacking friendly AI will be attacked by group members of player
+				if (!ai || IsAI())  //! If attacker is not AI or victim is AI
+					attacker.GetTargetInformation().AddFriendlyAI(this, 120000, true, 1.0);  //! Attacker will be attacked by friendly AI
+				else  //! If attacker is AI and victim is not AI
+					group.AddTarget(this, attacker.GetTargetInformation(), 120000, true, 1.0);   //! Attacking AI will be attacked by group members of player
 			}
 
 			return;
@@ -516,6 +534,15 @@ modded class DayZPlayerImplement
 		if (Class.CastTo(vehicle, source) && damageResult.GetDamage(dmgZone, "Health") >= GetHealth(dmgZone, "Health") * 0.055555)
 		{
 			vehicle.GetTargetInformation().AddFriendlyAI(this);
+
+			return;
+		}
+
+		if (root.IsDayZCreature())
+		{
+			eAITargetInformation.GetTargetInformation(root).AddFriendlyAI(this);
+
+			return;
 		}
 	}
 
@@ -557,6 +584,12 @@ modded class DayZPlayerImplement
 			return cooldown;
 
 		return 0;
+	}
+
+	void eAI_ResetLastAggressionTimeout()
+	{
+		m_eAI_LastAggressionTimeout = 0;
+		SetSynchDirty();
 	}
 
 	override void AddNoise(NoiseParams noisePar, float noiseMultiplier = 1.0)
@@ -609,6 +642,11 @@ modded class DayZPlayerImplement
 				break;
 		#endif
 		}
+	}
+
+	void eAI_AttenuateSoundIfNecessary(SoundObject soundObject)
+	{
+		AttenuateSoundIfNecessary(soundObject);
 	}
 
 #ifdef DIAG_DEVELOPER

@@ -2,10 +2,7 @@ class CfgPatches
 {
 	class DayZExpansion_Kar98Bayonet
 	{
-		units[]=
-		{
-			"Expansion_Kar98_Bayonet"
-		};
+		units[]={};
 		weapons[]={};
 		requiredVersion=0.1;
 		requiredAddons[]=
@@ -135,6 +132,6 @@ class CfgSlots
 	{
 		name="expansionWeaponBayonetKar";
 		displayName="$STR_EXPANSION_KAR98_BAYONET";
-		ghostIcon="bayonetak";
+		ghostIcon="set:dayz_inventory image:bayonet";
 	};
 };

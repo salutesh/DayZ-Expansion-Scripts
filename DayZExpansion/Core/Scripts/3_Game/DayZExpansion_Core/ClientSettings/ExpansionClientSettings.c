@@ -32,10 +32,13 @@ class ExpansionClientSettings
 	bool UseInvertedMouseControl;
 
 	bool UseHelicopterMouseControl;
-	float HelicopterMouseVerticalSensitivity;
-	float HelicopterMouseHorizontalSensitivity;
+	float HelicopterVerticalSensitivity;
+	float HelicopterHorizontalSensitivity;
 	bool UsePlaneMouseControl;
 	bool TurnOffAutoHoverDuringFlight;
+	bool EnableCollectiveDecay;
+	bool EnableRetreatingBladeStall;
+	bool UseLegacyHelicopterFlightModel;
 
 	// ================= Video Settings =================
 	bool CastLightShadows;
@@ -414,15 +417,15 @@ class ExpansionClientSettings
 		if ( version < 13 )
 			return true;
 
-		if ( !ctx.Read( HelicopterMouseVerticalSensitivity ) )
+		if ( !ctx.Read( HelicopterVerticalSensitivity ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HelicopterMouseVerticalSensitivity!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HelicopterVerticalSensitivity!");
 			return false;
 		}
 
-		if ( !ctx.Read( HelicopterMouseHorizontalSensitivity ) )
+		if ( !ctx.Read( HelicopterHorizontalSensitivity ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HelicopterMouseHorizontalSensitivity!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HelicopterHorizontalSensitivity!");
 			return false;
 		}
 
@@ -802,6 +805,27 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatShadowOffsetY!");
 			return false;
 		}
+		
+		if (version < 57)
+			return true;
+
+		if (!ctx.Read(EnableCollectiveDecay))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read EnableCollectiveDecay!");
+			return false;
+		}
+
+		if (!ctx.Read(EnableRetreatingBladeStall))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read EnableRetreatingBladeStall!");
+			return false;
+		}
+
+		if (!ctx.Read(UseLegacyHelicopterFlightModel))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read UseLegacyHelicopterFlightModel!");
+			return false;
+		}
 
 		return true;
 	}
@@ -870,8 +894,8 @@ class ExpansionClientSettings
 		ctx.Write( ShowNameQuickMarkers );
 		ctx.Write( ShowDistanceQuickMarkers );
 
-		ctx.Write( HelicopterMouseVerticalSensitivity );
-		ctx.Write( HelicopterMouseHorizontalSensitivity );
+		ctx.Write( HelicopterVerticalSensitivity );
+		ctx.Write( HelicopterHorizontalSensitivity );
 
 		ctx.Write( ShowMapMarkerList );
 
@@ -948,6 +972,11 @@ class ExpansionClientSettings
 		ctx.Write(HUDChatShadowOpacity);
 		ctx.Write(HUDChatShadowOffsetX);
 		ctx.Write(HUDChatShadowOffsetY);
+
+		//! v57
+		ctx.Write( EnableCollectiveDecay );
+		ctx.Write( EnableRetreatingBladeStall );
+		ctx.Write( UseLegacyHelicopterFlightModel );
 	}
 
 	// -----------------------------------------------------------
@@ -1069,8 +1098,8 @@ class ExpansionClientSettings
 		UseInvertedMouseControl = false;
 
 		UseHelicopterMouseControl = false;
-		HelicopterMouseVerticalSensitivity = 1.0;
-		HelicopterMouseHorizontalSensitivity = 1.0;
+		HelicopterVerticalSensitivity = 1.0;
+		HelicopterHorizontalSensitivity = 1.0;
 
 		HUDChatToggle = true;
 		HUDChatMessageTimeThreshold = 10.0;
@@ -1291,8 +1320,11 @@ class ExpansionClientSettings
 		//! Heli mouse ctrl
 		CreateToggle( "UseHelicopterMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL_DESC" );
 		CreateToggle( "UseInvertedMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_INVERTED", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_DESC_INVERTED" );
-		CreateSlider( "HelicopterMouseVerticalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL_DESC", 0.1, 3.0, 0.1 );
-		CreateSlider( "HelicopterMouseHorizontalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL_DESC", 0.1, 3.0, 0.1 );
+		CreateSlider( "HelicopterVerticalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_SENSITIVITY_VERTICAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_SENSITIVITY_VERTICAL_DESC", 0.1, 3.0, 0.1 );
+		CreateSlider( "HelicopterHorizontalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_SENSITIVITY_HORIZONTAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_SENSITIVITY_HORIZONTAL_DESC", 0.1, 3.0, 0.1 );
+		CreateToggle( "EnableCollectiveDecay", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_COLLECTIVE_DECAY", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_COLLECTIVE_DECAY_DESC" );
+		CreateToggle( "EnableRetreatingBladeStall", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_RETREATING_BLADE_STALL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_RETREATING_BLADE_STALL_DESC" );
+		CreateToggle( "UseLegacyHelicopterFlightModel", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_USE_LEGACY_FLIGHT_MODEL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_USE_LEGACY_FLIGHT_MODEL_DESC" );
 		CreateToggle( "TurnOffAutoHoverDuringFlight", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT_DESC" );
 		
 		//CreateToggle( "UsePlaneMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL_DESC" );

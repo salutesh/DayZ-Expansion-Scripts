@@ -132,6 +132,13 @@ modded class JMPlayerModule
 	}
 
 #ifdef COT_ANYSPECTATE
+	override private void Server_StartSpectating(Object spectateObject, PlayerIdentity ident)
+	{
+		eAI_RemoveSpectator(ident);
+
+		super.Server_StartSpectating(spectateObject, ident);
+	}
+
 	override void Server_OnStartSpectating(Object spectateObject, PlayerIdentity ident)
 	{
 		PlayerBase spectator = PlayerBase.Cast(ident.GetPlayer());
@@ -147,7 +154,7 @@ modded class JMPlayerModule
 	#ifdef COT_ANYSPECTATE
 		Server_StartSpectating(ai, ident);
 	#else
-		PlayerBase playerSpectator = PlayerBase.Cast(ident.GetPlayer());
+		PlayerBase playerSpectator = eAI_RemoveSpectator(ident);
 		if (!playerSpectator)
 			return;
 
@@ -193,9 +200,9 @@ modded class JMPlayerModule
 	#endif
 	}
 
-	override private void Server_EndSpectating(PlayerIdentity ident)
+	PlayerBase eAI_RemoveSpectator(PlayerIdentity ident)
 	{
-		PlayerBase spectator = m_Spectators[ident.GetId()];
+		PlayerBase spectator = PlayerBase.Cast(ident.GetPlayer());
 		eAIBase ai;
 	#ifdef COT_ANYSPECTATE
 		if (spectator && Class.CastTo(ai, spectator.m_JM_SpectatedObject))
@@ -203,6 +210,13 @@ modded class JMPlayerModule
 		if (spectator && Class.CastTo(ai, spectator.m_JM_SpectatedPlayer))
 	#endif
 			ai.m_eAI_Spectators.RemoveItem(spectator);
+
+		return spectator;
+	}
+
+	override private void Server_EndSpectating(PlayerIdentity ident)
+	{
+		eAI_RemoveSpectator(ident);
 
 		super.Server_EndSpectating(ident);
 	}

@@ -9,6 +9,8 @@ modded class ZombieBase
 	{
 		if (g_Game.IsServer())
 			m_eAI_DamageHandler = new eAIDamageHandler(this, m_TargetInformation);
+
+		RegisterNetSyncVariableBool("m_TargetInformation.m_ShoryukenHit");
 	}
 
 	eAIZombieTargetInformation GetTargetInformation()
@@ -18,6 +20,13 @@ modded class ZombieBase
 #endif
 
 		return m_TargetInformation;
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		m_TargetInformation.OnVariablesSynchronized();
+
+		super.OnVariablesSynchronized();
 	}
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)

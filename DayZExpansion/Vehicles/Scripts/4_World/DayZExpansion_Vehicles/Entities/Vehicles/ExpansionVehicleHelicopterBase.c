@@ -416,7 +416,6 @@ class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 
 		super.SetActions();
 
-		AddAction(ExpansionActionSwitchAutoHover);
 		AddAction(ExpansionActionSwitchAutoHoverInput);
 	}
 

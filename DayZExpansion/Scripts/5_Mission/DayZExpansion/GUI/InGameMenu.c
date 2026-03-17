@@ -122,7 +122,11 @@ modded class InGameMenu
 
 		//! Newsfeed
 		m_NewsFeed = new ExpansionNewsFeed();
-		layoutRoot.AddChild(m_NewsFeed.GetLayoutRoot(), true);
+		Widget newsFeedRoot = m_NewsFeed.GetLayoutRoot();
+		if (newsFeedRoot)
+		{
+			layoutRoot.AddChild(newsFeedRoot, true);
+		}
 
 		MultilineTextWidget modWarning = MultilineTextWidget.Cast(layoutRoot.FindAnyWidget("ModdedWarning"));
 		float width, height;
@@ -130,8 +134,11 @@ modded class InGameMenu
 		float x, y;
 		modWarning.GetPos(x, y);
 
-		float newY = y + height + 56.0;
-		m_NewsFeed.GetLayoutRoot().SetPos(x, newY, true);
+		if (newsFeedRoot)
+		{
+			float newY = y + height + 56.0;
+			newsFeedRoot.SetPos(x, newY, true);
+		}
 
 		if (GetExpansionSettings().GetGeneral(false).IsLoaded())
 			Expansion_OnGeneralSettingsUpdated();

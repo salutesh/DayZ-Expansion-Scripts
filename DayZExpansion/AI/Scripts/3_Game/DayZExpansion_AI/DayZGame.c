@@ -69,7 +69,7 @@ modded class DayZGame
 		
 		if (IsServer())
 		{
-			eAINoiseSystem.AddNoise(hitInfo.GetPosition(), 21.0, string.Format("cfgAmmo %1 NoiseExplosion", hitInfo.GetAmmoType()), hitInfo.GetSurfaceNoiseMultiplier());
+			eAINoiseSystem.AddNoise(hitInfo.GetPosition(), 21.0, string.Format("cfgAmmo %1 NoiseExplosion", hitInfo.GetAmmoType()), hitInfo.GetSurfaceNoiseMultiplier(), eAINoiseType.EXPLOSION);
 		}
 	}
 
@@ -79,15 +79,6 @@ modded class DayZGame
 		GetExpansionGame().FixAIFirearmFX(source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
 
 		super.FirearmEffects(source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
-
-	/* Probably not necessary for AI to react to bullet impact, enough if they can hear the shot (source)
-		if (IsServer())
-		{
-			float surfaceCoef = SurfaceGetNoiseMultiplier(directHit, pos, componentIndex);
-			float coefAdjusted = surfaceCoef * inSpeed.Length() / ConfigGetFloat("cfgAmmo " + ammoType + " initSpeed");
-			eAINoiseSystem.AddNoise(pos, 10.0, string.Format("cfgAmmo %1 NoiseHit", ammoType), coefAdjusted);
-		}
-	*/
 	}
 
 	override void CloseCombatEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, bool isWater, string ammoType) 
@@ -98,7 +89,24 @@ modded class DayZGame
 		if (IsServer())
 		{
 			float surfaceCoef = SurfaceGetNoiseMultiplier(directHit, pos, componentIndex);
+			if (surfaceCoef == 0)
+				surfaceCoef = 1;
+			surfaceCoef *= GetWeather().GetNoiseReductionByWeather();
 			eAINoiseSystem.AddNoise(EntityAI.Cast(source), pos, string.Format("cfgAmmo %1 NoiseHit", ammoType), surfaceCoef);
 		}
+	}
+
+	override void OnUpdate(bool doSim, float timeslice)
+	{
+		super.OnUpdate(doSim, timeslice);
+
+		if (IsServer() && m_ExpansionGame)
+			m_ExpansionGame.eAI_OnUpdate(doSim, timeslice);
+	}
+
+	override bool IsDebugMonitor()
+	{
+		//! m_DebugMonitorEnabled == 2 is for server stats (only for admins listed in AISettings)
+		return IsServer() && m_DebugMonitorEnabled == 1;
 	}
 }

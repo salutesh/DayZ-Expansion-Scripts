@@ -14,6 +14,7 @@ modded class ModItemRegisterCallbacks
 		
 		pType.AddItemInHandsProfileIK("ExpansionMerlinFrontWheel", "dz/anims/workspaces/player/player_main/player_main_2h.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/batterytruck.anm");
 		pType.AddItemInHandsProfileIK("ExpansionUAZWheel_Ruined", "dz/anims/workspaces/player/player_main/player_main_2h.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/batterytruck.anm");
+		pType.AddItemInHandsProfileIK("ExpansionHydraulicFluid", "dz/anims/workspaces/player/player_main/props/player_main_2h_jerrycan.asi", pBehavior, "dz/anims/anm/player/ik/two_handed/WaterproofBag.anm");
 	}
 
 	override void RegisterOneHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )

@@ -8,6 +8,10 @@ class eAIState_Weapon_Reloading: eAIState
 
 	int GuardEx(int lastAttemptTime, inout Weapon_Base weapon, inout Magazine magazine)
 	{
+	#ifdef EXTRACE_DIAG
+		auto profile = EXTrace.Profile(EXTrace.AI_PROFILE, eAIState_Weapon_Reloading, "GuardEx");
+	#endif
+
 		if (g_Game.GetTime() - lastAttemptTime < 1000) return eAITransition.FAIL;
 		
 		if (unit.IsClimbing() || unit.IsFalling() || unit.IsFighting() || !unit.GetCommand_Move()) return eAITransition.FAIL;

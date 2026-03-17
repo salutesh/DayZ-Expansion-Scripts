@@ -9,7 +9,7 @@ class eAIState_TakeItemToInventory: eAIState_TakeItem_Base
 			
 			if (!unit.eAI_TakeItemToInventory(m_Item))
 			{
-				unit.eAI_Unbug("take to inventory");
+				unit.eAI_Unbug(m_Name + "(" + m_Item + ") - failure");
 				return EXIT;
 			}
 		}
@@ -19,6 +19,10 @@ class eAIState_TakeItemToInventory: eAIState_TakeItem_Base
 
 	int Guard()
 	{
+	#ifdef EXTRACE_DIAG
+		auto profile = EXTrace.Profile(EXTrace.AI_PROFILE, eAIState_TakeItemToInventory, "Guard");
+	#endif
+
 		if (unit.IsFighting()) return eAITransition.FAIL;
 		
 		if (unit.IsRestrained()) return eAITransition.FAIL;

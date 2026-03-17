@@ -3,13 +3,14 @@ class eAIFormation
 	static const float DIR_RECALC_DIST_SQ = 9.0;
 
 	static autoptr TTypenameArray s_FormationTypes = {eAIFormationColumn, eAIFormationInvColumn, eAIFormationFile, eAIFormationInvFile, eAIFormationVee, eAIFormationInvVee, eAIFormationWall, eAIFormationCircle, eAIFormationCircleDot, eAIFormationStar, eAIFormationStarDot};
+	static autoptr TTypenameArray s_FormationTypesSane = {eAIFormationColumn, eAIFormationFile, eAIFormationVee, eAIFormationWall};
 
-	private vector m_Transform[4];
-	private float m_Scale = 1.0;
+	protected vector m_Transform[4];
+	protected float m_Scale = 1.0;
 
 	protected eAIGroup m_Group;
 
-	private vector m_LastUpdatePosition;
+	protected vector m_LastUpdatePosition;
 	protected float m_Looseness;
 
 	void eAIFormation(eAIGroup group = null)
@@ -51,6 +52,11 @@ class eAIFormation
 	float GetLooseness()
 	{
 		return Math.RandomFloatInclusive(-m_Looseness, m_Looseness);
+	}
+
+	float GetLoosenessPreference()
+	{
+		return m_Looseness;
 	}
 
 	vector ToWorld(vector fs)
@@ -122,7 +128,7 @@ class eAIFormation
 	static typename GetType(string formationName)
 	{
 		if (formationName == "RANDOM" || formationName == "")
-			return s_FormationTypes.GetRandomElement();
+			return s_FormationTypesSane.GetRandomElement();
 		return ("eAIFormation" + formationName).ToType();
 	}
 

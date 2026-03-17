@@ -14,17 +14,13 @@ modded class PlayerBase
 {
 	Object m_PlayerHeadingDir;
 
-	private bool m_HasCalledKillFeed;
+	private bool m_Expansion_HitInProgress;
+	private bool m_Expansion_HasCalledKillFeed;
 
 	ExpansionKillFeedModule m_KillfeedModule;
 	ItemBase m_Expansion_SuicideItem;
 
 	float m_Expansion_GraveCross_Playtime;
-
-	void PlayerBase()
-	{
-		m_HasCalledKillFeed = false;
-	}
 
 	override void EEDelete(EntityAI parent)
 	{
@@ -60,6 +56,18 @@ modded class PlayerBase
 		return GetExpansionSettings().GetGeneral().EnableGravecross;
 	}
 
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		m_Expansion_HitInProgress = false;  //! Reset before super
+
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
+		m_Expansion_HitInProgress = true;
+
+		return true;
+	}
+
 	override void EEKilled( Object killer )
 	{
 		if (Expansion_IsGravecrossEnabled())
@@ -77,13 +85,17 @@ modded class PlayerBase
 
 		super.EEKilled(killer);
 
-		if (GetExpansionSettings().GetNotification().EnableKillFeed)
+		if (!IPADACK() && GetExpansionSettings().GetNotification().EnableKillFeed)
 		{
 			if (!Expansion_IsAI() || GetExpansionSettings().GetNotification().KillFeedAI)
 			{
-				if ( m_KillfeedModule )
+				//! Only call killfeed from EEKilled if not a damage hit (else EEHitBy will take care of it)
+				if ( m_KillfeedModule && !m_Expansion_HitInProgress )
 				{
-					m_KillfeedModule.OnPlayerKilled( this, killer );
+					if (killer)
+						m_KillfeedModule.OnPlayerKilled( this, killer );
+					else
+						g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(m_KillfeedModule.OnPlayerKilled, this, null);  //! Call in next frame in case a 3rd party mod overrides damage and uses SetHealth instead of ProcessDirectDamage, then calls EEHitBy manually
 				}
 			}
 		}
@@ -91,29 +103,30 @@ modded class PlayerBase
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
 		if ( GetExpansionSettings().GetNotification().EnableKillFeed )
 		{
 			if (!Expansion_IsAI() || GetExpansionSettings().GetNotification().KillFeedAI)
 			{
-				if ( m_KillfeedModule && !IPADACK() )
+				if ( m_KillfeedModule )
 				{
-					UpdateIPADACK( !IsAlive() );
 					m_KillfeedModule.OnPlayerHitBy( damageType, this, source, ammo );
 				}
 			}
 		}
 
-		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		m_Expansion_HitInProgress = false;
 	}
 
 	bool IPADACK()
 	{
-		return m_HasCalledKillFeed;
+		return m_Expansion_HasCalledKillFeed;
 	}
 
 	void UpdateIPADACK(bool state = true)
 	{
-		m_HasCalledKillFeed = state;
+		m_Expansion_HasCalledKillFeed = state;
 	}
 
 	void Expansion_SetPlaytimeForGraveCross(float playtime)
@@ -182,8 +195,12 @@ modded class PlayerBase
 		grave = Expansion_GraveBase.Cast(g_Game.CreateObjectEx(graveobject, ground, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH));
 		grave.SetPosition(ground);
 
-		if ( handEntity && handEntity.GetHierarchyRootPlayer() )
-			handEntity = NULL;
+		if (handEntity)
+		{
+			EntityAI handEntityRoot = handEntity.GetHierarchyRoot();
+			if (handEntityRoot != this && handEntityRoot != handEntity)  //! Somebody picked it up in the meantime
+				handEntity = NULL;
+		}
 
 		grave.MoveAttachmentsFromEntity(this, handEntity, ground, GetOrientation());
 		grave.SetOrientation(GetOrientation());
@@ -193,11 +210,11 @@ modded class PlayerBase
 			string name = m_KillfeedModule.GetIdentityName(this);
 			if (GetIdentity())
 			{
-				GetExpansionSettings().GetLog().PrintLog(string.Format("[GraveStone] Spawned GraveStone for player %1 (%2) at position %3", name, GetIdentity().GetId(), ground));
+				GetExpansionSettings().GetLog().PrintLog(string.Format("[GraveCross] Spawned GraveCross for player %1 (%2) at position %3", name, GetIdentity().GetId(), ground));
 			}
 			else
 			{
-				GetExpansionSettings().GetLog().PrintLog(string.Format("[GraveStone] Spawned GraveStone for %1 at position %2", name, ground));
+				GetExpansionSettings().GetLog().PrintLog(string.Format("[GraveCross] Spawned GraveCross for %1 at position %2", name, ground));
 			}
 		}
 

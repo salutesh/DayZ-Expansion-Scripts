@@ -71,7 +71,7 @@ modded class DayZGame
 		}
 
 #ifdef EXTRACE
-		if (EXTrace.PROFILING)
+		if (EXTrace.s_Profiling.Count())
 			EXTrace.DumpProfilingData();
 #endif
 

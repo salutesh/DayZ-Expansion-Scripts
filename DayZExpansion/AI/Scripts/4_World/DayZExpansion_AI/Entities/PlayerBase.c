@@ -190,15 +190,15 @@ modded class PlayerBase
 
 	override void OnSelectPlayer()
 	{
-		super.OnSelectPlayer();
-
-		if (g_Game.IsServer())
+		if (g_Game.IsServer() && !m_PlayerSelected)
 		{
 			s_eAI_TickSchedulerPlayers.Insert(this);  //! non-AI player
 		#ifdef DIAG_DEVELOPER
 			EXPrint(this, "TickScheduler players +1 count=" + s_eAI_TickSchedulerPlayers.Count());
 		#endif
 		}
+
+		super.OnSelectPlayer();
 	}
 
 #ifdef EXTRACE_DIAG
@@ -221,6 +221,8 @@ modded class PlayerBase
 			m_Expansion_RPCManager = new ExpansionRPCManager(this, ExpansionWorld.GetModdableRootType(this));
 
 		m_Expansion_RPCManager.RegisterServer("RPC_eAI_SetLit");
+
+		RegisterNetSyncVariableBool("m_TargetInformation.m_ShoryukenHit");
 	}
 
 	override void SetActions(out TInputActionMap InputActionMap)

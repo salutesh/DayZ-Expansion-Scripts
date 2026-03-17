@@ -11,6 +11,8 @@ class eAIState_Fighting: eAIState
 	override void OnExit(string Event, bool Aborted, ExpansionState To)
 	{
 		unit.eAI_SetIsFightingFSM(false);
+
+		unit.m_eAI_IsPreparingMelee = false;
 	}
 
 	int Guard()

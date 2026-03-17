@@ -98,7 +98,7 @@ class ExpansionFSM
 			m_Transitions.Insert(transition);
 
 		#ifdef DIAG_DEVELOPER
-			EXTrace.Print(EXTrace.AI, this, "AddTransition NULL -> " + transition.GetDestination() + " | count: " + m_Transitions.Count());
+			EXTrace.Print(EXTrace.FSM, this, "AddTransition NULL -> " + transition.GetDestination() + " | count: " + m_Transitions.Count());
 		#endif
 		}
 	}
@@ -138,6 +138,11 @@ class ExpansionFSM
 	{
 		return m_CurrentState && m_CurrentState.GetName() == name;
 	}
+
+	bool IsInState(typename type)
+	{
+		return m_CurrentState && m_CurrentState.IsInherited(type);
+	}
 	
 	bool StartDefault()
 	{
@@ -152,7 +157,7 @@ class ExpansionFSM
 
 		if (src && src != dst)
 		{
-			CF_Log.Debug("%1 StartDefault - Exiting state: %2", m_Owner.ToString(), src.GetName());
+			EXTrace.Print(EXTrace.FSM, m_Owner, "StartDefault - Exiting state: %1", src.GetName());
 			src.OnExit("", true, dst);
 		}
 	
@@ -160,7 +165,7 @@ class ExpansionFSM
 		
 		if (m_CurrentState)
 		{
-			CF_Log.Debug("%1 StartDefault - Starting state: %2", m_Owner.ToString(), m_CurrentState.GetName());
+			EXTrace.Print(EXTrace.FSM, m_Owner, "StartDefault - Starting state: %1", m_CurrentState.GetName());
 			m_CurrentState.OnEntry("", src);
 			return true;
 		}
@@ -184,7 +189,7 @@ class ExpansionFSM
 
 		if (m_CurrentState && m_CurrentState != dst)
 		{
-			CF_Log.Debug("%1 Start - Exiting state: %2", m_Owner.ToString(), m_CurrentState.GetName());
+			EXTrace.Print(EXTrace.FSM, m_Owner, "Start - Exiting state: %1", m_CurrentState.GetName());
 			m_CurrentState.OnExit(e, true, dst);
 		}
 
@@ -192,7 +197,7 @@ class ExpansionFSM
 
 		if (m_CurrentState && src != m_CurrentState)
 		{
-			CF_Log.Debug("%1 Start - Starting state: %2", m_Owner.ToString(), m_CurrentState.GetName());
+			EXTrace.Print(EXTrace.FSM, m_Owner, "Start - Starting state: %1", m_CurrentState.GetName());
 			m_CurrentState.OnEntry(e, src);
 			return true;
 		}
@@ -210,7 +215,7 @@ class ExpansionFSM
 
 		if (m_CurrentState)
 		{
-			CF_Log.Debug("%1 Abort - Exiting state: %2", m_Owner.ToString(), m_CurrentState.GetName());
+			EXTrace.Print(EXTrace.FSM, m_Owner, "Abort - Exiting state: %1", m_CurrentState.GetName());
 			m_CurrentState.OnExit(e, true, null);
 			m_CurrentState = null;
 			return true;
@@ -232,7 +237,7 @@ class ExpansionFSM
 		if (!m_Owner)
 			return EXIT;
 
-		//CF_Log.Debug("m_CurrentState: %1", "" + m_CurrentState);
+		//EXTrace.Print(EXTrace.FSM, m_Owner, "m_CurrentState: %1", m_CurrentState.ToString());
 
 		if (m_CurrentState)
 		{
@@ -268,14 +273,14 @@ class ExpansionFSM
 		if (m_CurrentState == null)
 		{
 			if (src)
-				CF_Log.Info("%1 State transition exit %2", m_Owner.ToString(), src.GetName());
+				EXTrace.Print(EXTrace.FSM, m_Owner, "State transition exit %1", src.GetName());
 			return EXIT;
 		}
 		
 		if (src)
-			CF_Log.Info("%1 State transition %2 -> %3", m_Owner.ToString(), src.GetName(), m_CurrentState.GetName());
+			EXTrace.Print(EXTrace.FSM, m_Owner, "State transition %1 -> %2", src.GetName(), m_CurrentState.GetName());
 		else
-			CF_Log.Info("%1 State transition NULL -> %2", m_Owner.ToString(), m_CurrentState.GetName());
+			EXTrace.Print(EXTrace.FSM, m_Owner, "State transition NULL -> %1", m_CurrentState.GetName());
 
 		m_CurrentState.OnEntry("", src);
 

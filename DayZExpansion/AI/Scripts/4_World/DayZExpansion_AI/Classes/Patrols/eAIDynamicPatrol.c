@@ -1,11 +1,12 @@
 class eAIDynamicPatrol : eAIPatrol
 {
 	static ExpansionAIPatrolSettings s_AIPatrolSettings;
-	private static int s_PatrolCount;
+	static int s_PatrolCount;
 
 	static ref map<string, ref ExpansionAIPatrolLoadBalancing> s_LoadBalancing = new map<string, ref ExpansionAIPatrolLoadBalancing>;
 	static ref ExpansionAIPatrolLoadBalancing s_LoadBalancingGlobal;
 	static bool s_LoadBalancing_IsScheduled;
+	static ref set<eAIDynamicPatrol> s_QueuedForLeave = new set<eAIDynamicPatrol>;
 
 	static ref map<string, ref array<ref ExpansionPrefab>> s_LootDropsOnDeath = new map<string, ref array<ref ExpansionPrefab>>;
 
@@ -14,6 +15,7 @@ class eAIDynamicPatrol : eAIPatrol
 	ref ExpansionAIPatrolLoadBalancing m_LoadBalancing;
 	ref ExpansionAIPatrolLoadBalancingTracker m_PatrolCountTracker;
 	vector m_Position;
+	float m_DefaultLookAngle;
 	autoptr array<vector> m_Waypoints;
 	eAIWaypointBehavior m_WaypointBehaviour;
 	int m_WaypointIdx;
@@ -33,8 +35,12 @@ class eAIDynamicPatrol : eAIPatrol
 	float m_AccuracyMax; // zero or negative = use general setting
 	float m_ThreatDistanceLimit; // zero or negative = use general setting
 	float m_NoiseInvestigationDistanceLimit; // zero or negative = use general setting
+	float m_MaxFlankingDistance; // zero or negative = use general setting
+	int m_EnableFlankingOutsideCombat; // zero or negative = use general setting
 	float m_DamageMultiplier; // zero or negative = use general setting
 	float m_DamageReceivedMultiplier; // zero or negative = use general setting
+	float m_ShoryukenChance; // negative = use general setting
+	float m_ShoryukenDamageMultiplier; // zero or negative = use general setting
 
 	eAIGroup m_Group;
 	float m_TimeSinceLastSpawn;
@@ -103,6 +109,7 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 
 		m_Waypoints = config.GetWaypoints(startpos);
+		m_WaypointBehaviour = config.GetBehaviour();
 
 		if (config.Persist && config.m_BaseName)
 		{
@@ -111,7 +118,7 @@ class eAIDynamicPatrol : eAIPatrol
 			{
 				eAIGroup.ReadPosition(fileName, startpos);
 
-				if (config.GetBehaviour() != eAIWaypointBehavior.ROAMING)
+				if (m_WaypointBehaviour != eAIWaypointBehavior.ROAMING && m_WaypointBehaviour != eAIWaypointBehavior.ROAMING_LOCAL)
 				{
 					//! Since this patrol is using waypoints, find the closest one
 					float minDistSq = float.MAX;
@@ -143,6 +150,9 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 
 		m_Position = startpos;
+
+		//! We use a separate default look angle variable on this specific patrol instance since config may be shared across different patrols
+		m_DefaultLookAngle = m_Config.DefaultLookAngle;  
 
 		if (config.FormationScale <= 0)
 			m_FormationScale = s_AIPatrolSettings.FormationScale;
@@ -189,7 +199,7 @@ class eAIDynamicPatrol : eAIPatrol
 			accuracyMin = config.AccuracyMin;
 
 		float accuracyMax;
-		if (config.AccuracyMin <= 0)
+		if (config.AccuracyMax <= 0)
 			accuracyMax = s_AIPatrolSettings.AccuracyMax;
 		else
 			accuracyMax = config.AccuracyMax;
@@ -205,7 +215,7 @@ class eAIDynamicPatrol : eAIPatrol
 			noiseDistanceLimit = s_AIPatrolSettings.NoiseInvestigationDistanceLimit;
 		else
 			noiseDistanceLimit = config.NoiseInvestigationDistanceLimit;
-
+		
 		float damageMultiplier;
 		if (config.DamageMultiplier <= 0)
 			damageMultiplier = s_AIPatrolSettings.DamageMultiplier;
@@ -223,6 +233,24 @@ class eAIDynamicPatrol : eAIPatrol
 		SetNoiseInvestigationDistanceLimit(noiseDistanceLimit);
 		SetDamageMultiplier(damageMultiplier);
 		SetDamageReceivedMultiplier(damageReceivedMultiplier);
+
+		if (config.ShoryukenChance < 0)
+			m_ShoryukenChance = s_AIPatrolSettings.ShoryukenChance;
+		else
+			m_ShoryukenChance = config.ShoryukenChance;
+
+		if (config.ShoryukenDamageMultiplier <= 0)
+			m_ShoryukenDamageMultiplier = s_AIPatrolSettings.ShoryukenDamageMultiplier;
+		else
+			m_ShoryukenDamageMultiplier = config.ShoryukenDamageMultiplier;
+
+		m_MaxFlankingDistance = config.MaxFlankingDistance;
+		if (m_MaxFlankingDistance <= 0)
+			m_MaxFlankingDistance = s_AIPatrolSettings.MaxFlankingDistance;
+
+		m_EnableFlankingOutsideCombat = config.EnableFlankingOutsideCombat;
+		if (m_EnableFlankingOutsideCombat <= 0)
+			m_EnableFlankingOutsideCombat = s_AIPatrolSettings.EnableFlankingOutsideCombat;
 
 		if (config.Units && config.Units.Count())
 			SetUnits(config.Units);
@@ -254,7 +282,9 @@ class eAIDynamicPatrol : eAIPatrol
 			}
 		}
 
-		if (autoStart) Start();
+		//! There are situations where no suitable waypoints could be generated (e.g. all waypoints in high water)
+		//! In this case, the patrol will not autostart and thus be inactive
+		if (autoStart && m_Waypoints.Count() > 0) Start();
 
 		return true;
 	}
@@ -367,6 +397,20 @@ class eAIDynamicPatrol : eAIPatrol
 		ai.eAI_SetSniperProneDistanceThreshold(m_Config.SniperProneDistanceThreshold);
 		ai.eAI_SetLootingBehavior(m_Config.GetLootingBehaviour());
 		ai.m_eAI_LootDropOnDeath = m_LootDropOnDeath;
+		ai.m_eAI_DefaultStance = m_Config.GetDefaultStance();
+		ai.m_eAI_DefaultLookAngle = m_DefaultLookAngle;
+
+		if (m_MaxFlankingDistance > 0)
+			ai.m_eAI_MaxFlankingDistance = m_MaxFlankingDistance;
+
+		if (m_EnableFlankingOutsideCombat > 0)
+			ai.m_eAI_EnableFlankingOutsideCombat = true;
+
+		if (m_ShoryukenChance >= 0)
+			ai.m_eAI_MeleeFightLogic.m_eAI_ShoryukenChance = m_ShoryukenChance;
+
+		if (m_ShoryukenDamageMultiplier >= 0)
+			ai.m_eAI_MeleeFightLogic.m_eAI_ShoryukenDamageMultiplier = m_ShoryukenDamageMultiplier;
 	}
 
 	bool WasGroupDestroyed()
@@ -389,6 +433,8 @@ class eAIDynamicPatrol : eAIPatrol
 		if (s_PatrolCount)
 			UpdatePatrolCount(-1);
 
+		s_QueuedForLeave.RemoveItem(this);
+
 		return true;
 	}
 
@@ -400,12 +446,17 @@ class eAIDynamicPatrol : eAIPatrol
 		if (!m_CanSpawn)
 			return false;
 
+		if (!m_Config.CanSpawnInContaminatedArea && EffectArea.s_Expansion_DangerousAreas.IsPointInside(m_Position))
+			return false;
+
 		return CanStay(1);
 	}
 
 	bool CanStay(int delta)
 	{
 	#ifdef SERVER
+		delta -= s_QueuedForLeave.Count();
+
 		if (m_LoadBalancing && m_LoadBalancing != s_LoadBalancingGlobal)
 		{
 			if (m_LoadBalancing.MaxPatrols > -1 && m_PatrolCountTracker.m_PatrolCount + delta > m_LoadBalancing.MaxPatrols)
@@ -426,8 +477,13 @@ class eAIDynamicPatrol : eAIPatrol
 		if (m_LoadBalancing)
 			m_PatrolCountTracker = m_LoadBalancing.m_PatrolCountTracker;
 
-		if (m_Group)
+		if (m_Group && !m_WasGroupDestroyed)
+		{
+			bool wasLeaving = m_Group.m_Leave;
 			m_Group.m_Leave = !CanStay(0);
+			if (!wasLeaving && m_Group.m_Leave)
+				s_QueuedForLeave.Insert(this);
+		}
 
 	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.AI, this, m_Config.Name + " LoadBalancing_Update category " + m_Config.LoadBalancingCategory + " " + m_LoadBalancing);
@@ -518,11 +574,11 @@ class eAIDynamicPatrol : eAIPatrol
 		else
 		{
 			if (m_Config.NumberOfAI < 0)
-			{
 				m_NumberOfAI = Math.RandomIntInclusive(1, -m_Config.NumberOfAI);
-			} else {
+			else if (m_Config.NumberOfAIMax > 0)
+				m_NumberOfAI = Math.RandomIntInclusive(m_Config.NumberOfAI, m_Config.NumberOfAIMax);
+			else
 				m_NumberOfAI = m_Config.NumberOfAI;
-			}
 
 			m_Faction = eAIFaction.Create(m_Config.Faction);
 			if (m_Faction == null) m_Faction = new eAIFactionCivilian();
@@ -573,7 +629,6 @@ class eAIDynamicPatrol : eAIPatrol
 		m_Formation.SetLooseness(m_Config.FormationLooseness);
 		m_Group.SetFormation(m_Formation);
 
-		m_WaypointBehaviour = m_Config.GetBehaviour();
 		if (!loaded && m_NumberOfAI > 1)
 			m_Group.SetWaypointBehaviour(eAIWaypointBehavior.HALT);  //! Only start moving after all AI spawned
 		else
@@ -650,6 +705,8 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (!m_WasGroupDestroyed && s_PatrolCount)
 			UpdatePatrolCount(-1);
+
+		s_QueuedForLeave.RemoveItem(this);
 	}
 
 	override void OnUpdate()
@@ -828,6 +885,7 @@ class eAIDynamicPatrol : eAIPatrol
 		Print(m_IsSpawned);
 
 		Print(m_Config.NumberOfAI);
+		Print(m_Config.NumberOfAIMax);
 		Print(m_NumberOfAI);
 		Print(m_RespawnTime);
 		Print(m_DespawnTime);

@@ -19,6 +19,10 @@ class eAIState_Fighting_Positioning: eAIState
 
 	override int OnUpdate(float DeltaTime, int SimulationPrecision)
 	{
+	#ifdef EXTRACE_DIAG
+		auto profile = EXTrace.Profile(EXTrace.AI_PROFILE, eAIState_Fighting_Positioning, "OnUpdate");
+	#endif
+
 		if (unit.eAI_IsChangingStance())
 			return CONTINUE;
 		
@@ -98,12 +102,16 @@ class eAIState_Fighting_Positioning: eAIState
 					minDist = 2.0;
 				else
 					minDist = 1.0;
+
+				unit.m_eAI_IsPreparingMelee = wantsRaise;
 			}
 			else if (!wantsLower)
 			{
 				minDist = 2.0;
 				if (unit.m_eAI_IsInCover)
 					wantsRaise = true;
+
+				unit.m_eAI_IsPreparingMelee = false;
 			}
 			
 			minDistSq = minDist * minDist;

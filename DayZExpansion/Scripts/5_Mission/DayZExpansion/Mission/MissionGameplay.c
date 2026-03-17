@@ -97,7 +97,19 @@ modded class MissionGameplay
 		DayZPlayerCameraBase camera;
 		if (Class.CastTo(camera, player.GetCurrentCamera()))
 		{
+			bool showNV;
+
 			if (camera.IsCameraNV())
+			{
+				ItemBase nvItem = player.Expansion_GetNVItem();
+				if (nvItem && nvItem.GetCompEM() && nvItem.GetCompEM().IsWorking())
+				{
+					showNV = true;
+					m_Hud.Expansion_SetNVBatteryState(nvItem.Expansion_GetBatteryEnergy());
+				}
+			}
+
+			if (showNV)
 			{
 				if (!m_Hud.Expansion_GetNVState())
 					m_Hud.Expansion_ShowNV(true);
@@ -110,10 +122,6 @@ modded class MissionGameplay
 				return;
 			}
 		}
-
-		ItemBase nvItem = player.Expansion_GetNVItem();
-		if (nvItem)
-			m_Hud.Expansion_SetNVBatteryState(nvItem.Expansion_GetBatteryEnergy());
 	}
 
 	void Expansion_TogglePlayerList()

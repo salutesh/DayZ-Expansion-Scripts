@@ -3,18 +3,11 @@ class CfgPatches
 	class DayZExpansion_M9
 	{
 		units[]={};
-		weapons[]=
-		{
-			"Expansion_M9"
-		};
+		weapons[]={};
 		requiredVersion=0.1;
 		requiredAddons[]=
 		{
 			"DZ_Pistols"
-		};
-		magazines[]=
-		{
-			"Mag_Expansion_M9_15Rnd"
 		};
 	};
 };

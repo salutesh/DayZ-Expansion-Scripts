@@ -71,7 +71,7 @@ modded class ModItemRegisterCallbacks
 		super.RegisterFireArms( pType, pBehavior );
 
 		pType.AddItemInHandsProfileIK("Expansion_MPX_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_m4a1.asi", pBehavior, "dz/anims/anm/player/ik/weapons/m4a1_ik.anm", "dz/anims/anm/player/reloads/M4A1/w_M4A1_states.anm");	   
-		pType.AddItemInHandsProfileIK("Expansion_AWM_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_cz527.asi", pBehavior, "dz/anims/anm/player/ik/weapons/cz527.anm", "dz/anims/anm/player/reloads/cz527/w_CZ527_states.anm");
+		pType.AddItemInHandsProfileIK("Expansion_AWM_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_scout.asi", pBehavior, "dz/anims/anm/player/ik/weapons/scout.anm", "dz/anims/anm/player/reloads/scout/w_scout_states.anm");
 		pType.AddItemInHandsProfileIK("Expansion_Kar98_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_mosin1903.asi", pBehavior, "dz/anims/anm/player/ik/weapons/mosin9130.anm","dz/anims/anm/player/reloads/Mosin_1903/w_mosin1903_states.anm");
 		pType.AddItemInHandsProfileIK("Expansion_M1A_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_svd.asi", pBehavior, "dz/anims/anm/player/ik/weapons/svd.anm","dz/anims/anm/player/reloads/SVD/w_SVD_states.anm");
 		pType.AddItemInHandsProfileIK("Expansion_M14_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_svd.asi", pBehavior, "dz/anims/anm/player/ik/weapons/svd.anm","dz/anims/anm/player/reloads/SVD/w_SVD_states.anm");

@@ -1039,7 +1039,18 @@ modded class ExpansionVehicle
 	}
 #endif
 
+	[Obsolete("DEPRECATED, no replacement")]
 	void SetHasPilot(bool state)
+	{
+	}
+
+	bool IsAutoHover()
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return false;
+	}
+
+	void SwitchAutoHover()
 	{
 	}
 

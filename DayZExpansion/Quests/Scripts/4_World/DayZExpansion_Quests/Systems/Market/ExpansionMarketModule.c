@@ -13,18 +13,6 @@
 #ifdef EXPANSIONMODMARKET
 modded class ExpansionMarketModule
 {
-	override bool CanSellItem(EntityAI item, bool checkIfRuined = false)
-	{
-		ItemBase itemBase;
-		if (Class.CastTo(itemBase, item))
-		{
-			if (itemBase.Expansion_IsQuestItem())
-				return false;
-		}
-
-		return super.CanSellItem(item, checkIfRuined);
-	}
-
 	override bool CheckCanUseTrader(PlayerBase player, ExpansionTraderObjectBase trader)
 	{
 		if (!super.CheckCanUseTrader(player, trader))

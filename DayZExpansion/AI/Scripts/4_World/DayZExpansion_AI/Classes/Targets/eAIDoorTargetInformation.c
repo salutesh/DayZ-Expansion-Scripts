@@ -46,7 +46,7 @@ class eAIDoorTargetInformation: eAIEntityTargetInformation
 		return true;
 	}
 
-	override float CalculateThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		if (ai)
 		{

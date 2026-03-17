@@ -10,9 +10,9 @@ class eAIState_GetOutVehicle : eAIState_GoToVehicle
 		if (vehCmd && !vehCmd.IsGettingIn())
 		{
 			vehCmd.GetOutVehicle();
-			CarScript car;
-			if (Class.CastTo(car, vehCmd.GetTransport()))
-				car.Expansion_ReserveSeat(vehCmd.GetVehicleSeat(), null);
+			ExpansionVehicle vehicle;
+			if (ExpansionVehicle.Get(vehicle, vehCmd.GetTransport()))
+				vehicle.ReserveSeat(vehCmd.GetVehicleSeat(), null);
 
 			unit.LookAtDirection("0 0 1");  //! Reset look direction to prevent head snapping to previous direction after getting out
 		}

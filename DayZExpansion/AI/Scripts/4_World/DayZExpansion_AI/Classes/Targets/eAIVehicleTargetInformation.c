@@ -20,7 +20,7 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 		return true;
 	}
 
-	override float CalculateThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		if (m_Transport.IsDamageDestroyed())
 			return 0.0;
@@ -92,12 +92,12 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 
 			fromTargetDot = vector.Dot(fullVelocity, fromTargetDirection);
 
-			float minDist = radius * 2.0;
+			float travelTime = 3.0;
+			float minDist = radius * travelTime;
 
 			if (fromTargetDot < 0.97 && (distance > minDist || fromTargetDot < 0.25))
 				return ExpansionMath.LinearConversion(0.5, 100, distance, 0.199999, 0.15);
 
-			float travelTime = 2.0;
 
 			//! If AI is within distance that vehicle can travel in travelTime seconds, sidestep
 			if (distance < Math.Max(speedAbs * travelTime, minDist))

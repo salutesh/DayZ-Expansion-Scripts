@@ -99,7 +99,8 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 
-		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAirdropPlaneBase.Expansion_SendCreatePlanesOnClient, 1000, false, cArgs.Player);
+		if (ExpansionAirdropPlaneBase.s_Expansion_CreatePlaneOnClient)
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAirdropPlaneBase.Expansion_SendCreatePlanesOnClient, 1000, false, cArgs.Player);
 
 		if (ExpansionAirdropContainerBase.s_Expansion_CreateContainerOnClient)
 			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAirdropContainerBase.Expansion_SendCreateContainersOnClient, 1000, false, cArgs.Player);
@@ -160,11 +161,15 @@ class ExpansionMissionModule: CF_ModuleWorld
 			return;
 
 		auto plane = ExpansionAirdropPlaneBase.Cast(g_Game.CreateObjectEx(planeClassName, position, ECE_AIRBORNE | ECE_LOCAL) );
-
+		if (!plane)
+		{
+			EXError.Error(this, "Invalid AirdropPlaneClassName: " + planeClassName);
+			return;
+		}
+			
 		plane.Expansion_SetAirdropPlaneID(planeID);
 		plane.Expansion_SetupPlane(spawnPoint, dropPosition, "", 0.0, heightIsRelativeToGround, height, dropHeight, followTerrainFrac, speed, dropSpeed, dropProximityDist, null);
 		plane.Expansion_EnableUpdate();
-		plane.Expansion_PlayEngineSoundLoop();
 	}
 
 	//! Client

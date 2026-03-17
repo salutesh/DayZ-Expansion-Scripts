@@ -51,6 +51,8 @@ class ExpansionPathHandler
 	bool m_SuppressRecalculate;
 	bool m_IsBlocked;
 	bool m_IsBlockedPhysically;
+	vector m_HitPosition;
+	Object m_BlockingObject;
 	bool m_IsJumpClimb;
 	bool m_DoClimbTestEx;
 	bool m_IsUnreachable;
@@ -527,7 +529,16 @@ class ExpansionPathHandler
 	void OnUpdate(float pDt, int pSimulationPrecision)
 	{
 	#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(EXTrace.AI_PROFILE, m_Unit, "CommandHandler(07) -> ExpansionPathHandler::OnUpdate");
+		EXTrace trace;
+		if (EXTrace.AI_PROFILE)
+		{
+			string fn;
+			if (eAIBase.s_eAI_FTO == 0)
+				fn = "CommandHandler(07) ->  ExpansionPathHandler::OnUpdate";
+			else
+				fn = "ExpansionWorld::eAI_OnUpdate -> ExpansionPathHandler::OnUpdate";
+			trace = EXTrace.Profile(true, m_Unit, fn);
+		}
 	#endif
 
 		m_TimeIt.Start();
@@ -1006,9 +1017,20 @@ class ExpansionPathHandler
 		{
 			//! Prevent fall from a large height (e.g. building top) - path direction check
 			vector checkDirection = vector.Direction(m_Unit.GetPosition(), m_Points[1 + m_PointIdx]);
+			checkDirection[1] = 0;
 			float len = checkDirection.Length();
-			if ((!m_Unit.m_eAI_Ladder || (!m_Unit.m_eAI_IsOnLadder && !m_Unit.eAI_IsCloseToLadderEntryPoint())) && !m_Unit.eAI_IsFallSafe(checkDirection.Normalized() * (len + 2.0), true, 1339))
+			if ((!m_Unit.m_eAI_Ladder || (!m_Unit.m_eAI_IsOnLadder && !m_Unit.eAI_IsCloseToLadderEntryPoint())) && !m_Unit.eAI_IsFallSafe(checkDirection.Normalized() * (len + 2.0), true, DayZPlayerImplementFallDamage.HEALTH_HEIGHT_LOW, true, 1339))
 			{
+				//! Move next point away from edge if possible
+				float offset = 0.55;
+				if (m_PathSegmentDirection.LengthSq() > offset * offset)
+				{
+					vector nextPoint = m_Points[1 + m_PointIdx] - m_PathSegmentDirection.Normalized() * offset;
+					m_Points[1 + m_PointIdx] = nextPoint;
+					UpdatePoint(m_Next0, nextPoint);
+					return true;
+				}
+
 			#ifdef DIAG_DEVELOPER
 				if (!m_IsUnreachable)
 				{
@@ -1054,7 +1076,10 @@ class ExpansionPathHandler
 		}
 		else if (m_Unit.AI_HANDLEVAULTING)
 		{
-			if (IsBlockedPhysically(start + "0 0.49 0", end + "0 0.49 0") || IsElevated(start))
+			vector offset = "0 0.49 0";
+			vector hitNormal;
+			int component;
+			if (IsBlockedPhysically(start + offset, end + offset, m_HitPosition, hitNormal, component, m_BlockingObject) || IsElevated(start))
 			{
 				m_IsBlockedPhysically = true;
 				if (!m_Next0.Parent)
@@ -1245,5 +1270,6 @@ class ExpansionPathHandler
 		m_IsTargetUnreachable = false;
 		m_IsUnreachable = false;
 		m_SuppressRecalculate = false;
+		m_Unit.m_eAI_PositionTime = 0;
 	}
 };

@@ -55,7 +55,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		return m_Player.m_eAI_AttackCooldown;
 	}
 
-	override float CalculateThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		if (m_Player.IsDamageDestroyed())
 			return 0.0;
@@ -77,19 +77,35 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			// the further away the player, the less likely they will be a threat
 			float distance = GetDistance(ai, true) + 0.1;
 
-			if (m_Player.IsUnconscious())
+			bool targetIsAI = m_Player.IsAI();
+
+			if (m_Player.IsUnconscious() && !targetIsAI)
 				return ExpansionMath.LinearConversion(0, 100, distance, 0.4, 0.3, false);
 
-			if (m_Player.IsRestrained())
+			if (m_Player.IsRestrained() || (m_Player.IsSwimming() && ai.IsSwimming()))
 				return ExpansionMath.LinearConversion(0, 100, distance, 0.15, 0.1);
 
-			if (distance <= 100.0 && m_Player.Expansion_GetParent() != ai.Expansion_GetParent())
+			IEntity playerParent;
+			bool differentParent;
+
+			if (distance <= 100.0)
 			{
-				//! Any AI, even passive, will react if vehicle is speeding towards them
-				//! Vehicles WITHOUT drivers are handled by vehicle target info
-				levelFactor = ProcessVehicleThreat(ai, distance);
-				if (!levelFactor)
+				playerParent = m_Player.Expansion_GetParent();
+
+				if (playerParent != ai.Expansion_GetParent())
+				{
+					differentParent = true;
+
+					//! Any AI, even passive, will react if vehicle is speeding towards them
+					//! Vehicles WITHOUT drivers are handled by vehicle target info
+					levelFactor = ProcessVehicleThreat(ai, distance);
+					if (!levelFactor)
+						levelFactor = 10 / distance;
+				}
+				else
+				{
 					levelFactor = 10 / distance;
+				}
 			}
 			else
 			{
@@ -97,16 +113,31 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			}
 
 			eAIGroup group = ai.GetGroup();
+			eAIFaction faction = group.GetFaction();
 
 			bool isPlayerMoving;
 			bool friendly;
 			bool targeted;
-			if (!ai.PlayerIsEnemy(m_Player, false, isPlayerMoving, friendly, targeted))
+			//! @note order matters! PlayerIsEnemy check needs to come first because it sets the passed in out variables,
+			//! AI check 2nd, group check 3rd, aggression cooldown check last to prevent own group becoming hostile on accidental friendly fire
+			if (!ai.PlayerIsEnemy(m_Player, false, isPlayerMoving, friendly, targeted) && (targetIsAI || m_Player.GetGroup() == group || !state || state.GetAggressionCooldown() <= 0))
 			{
-				bool targetIsAI = m_Player.IsAI();
 				//! They eyeball you menacingly if you move, or if another friendly AI moves that is not in same group,
 				//! or if you're standing close to them
-				if ((isPlayerMoving && (!targetIsAI || m_Player.GetGroup() != group)) || (!isPlayerMoving && !targetIsAI && m_Player.GetGroup() != group && distance <= 2.33))
+
+				bool turnTowardsTarget;
+
+				if (isPlayerMoving)
+				{
+					if ((!targetIsAI && (!playerParent || differentParent)) || m_Player.GetGroup() != group)
+						turnTowardsTarget = true;
+				}
+				else if (!targetIsAI && m_Player.GetGroup() != group && distance <= 2.33)
+				{
+					turnTowardsTarget = true;
+				}
+
+				if (turnTowardsTarget)
 					return ExpansionMath.PowerConversion(0.5, 30, distance, 0.152, 0.0, 0.1);
 
 				return ExpansionMath.LinearConversion(0, 30, distance, 0.1, 0.0);
@@ -123,22 +154,24 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			else
 				m_HasProjectileWeaponInHands = false;
 
+			float lastAggressionTimeout = m_Player.m_eAI_LastAggressionTimeout;
+
 			//! Guards won't aggro until the other player raises their weapon in their direction, starts melee fighting or shoots another player
 			//! Observers will never aggro and just look at the player
 			//! Others will attack if not friendly or temporarily hostile
 			if (group)
 			{
-				eAIFaction faction = group.GetFaction();
 				bool canEnterFightingState;
 
 				if (faction.IsGuard())
 				{
 					if (m_Player.IsRaised() && fromTargetDot >= 0.9 && (m_HasProjectileWeaponInHands || m_Player.IsFighting()))
 						canEnterFightingState = true;
-					else if (m_Player.eAI_UpdateAgressionTimeout(150.0 - distance))
+					//! Update aggression timeout regardless if targeted or not
+					else if (m_Player.eAI_UpdateAgressionTimeout(ExpansionAISettings.Get().GuardAggressionTimeout - distance))
 						canEnterFightingState = true;
 
-					if (!canEnterFightingState && m_Player.IsRaised())
+					if (!canEnterFightingState && (m_Player.IsRaised() || ai.IsRaised()))
 					{
 						//! They aim at you
 						return ExpansionMath.PowerConversion(0.5, 30, distance, 0.2, 0.0, 0.1);
@@ -146,14 +179,35 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 				}
 				else if (!faction.IsObserver() && !m_Player.Expansion_IsInSafeZone())
 				{
-					if (!friendly || m_Player.eAI_UpdateAgressionTimeout(120.0))
+					if (!friendly)
+					{
 						canEnterFightingState = true;
+					}
+					else if (targeted)
+					{
+						//! Only update aggression timeout if targeted
+						if (targetIsAI || m_Player.eAI_UpdateAgressionTimeout(ExpansionAISettings.Get().AggressionTimeout))
+							canEnterFightingState = true;
+					}
 				}
 
 				if (!canEnterFightingState)
 				{
 					//! They eyeball you menacingly
 					return ExpansionMath.PowerConversion(0.5, 15, distance, 0.152, 0.0, 0.1);
+				}
+			}
+
+			if (m_Player.m_eAI_LastAggressionTimeout > lastAggressionTimeout)
+			{
+				state.m_AggressionTimeout = m_Player.m_eAI_LastAggressionTimeout;
+
+				eAITarget target;
+				if (Class.CastTo(target, state))
+				{
+					int cooldown = m_Player.eAI_GetLastAggressionCooldown() * 1000;
+					if (cooldown > target.GetRemainingTime())
+						target.m_MaxTime = g_Game.GetTime() - target.m_FoundAtTime + cooldown;
 				}
 			}
 
@@ -172,9 +226,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 			//! This should ensure that AI doesn't take fist fights over long distances or against armed enemies unless they are close,
 			//! and prioritizes enemies with raised weapons
 			auto hands = ai.GetHumanInventory().GetEntityInHands();
-			bool hasLOS;
-			if (ai.eAI_HasLOS(this))  //! It's OK if LOS state is stale at this point
-				hasLOS = true;
+			bool hasLOS = state.m_SearchOnLOSLost;  //! True if LOS or we had LOS. It's OK if LOS state is stale at this point
 			if ((hands && AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor, hasLOS)) || distance <= 30 || hasLOS)
 			{
 				if (enemyHands)
@@ -293,7 +345,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 				float initSpeedMult = ExpansionWeaponUtils.GetWeaponInitSpeedMultiplier(gun.GetType());
 				damage *= initSpeedMult;
 				//! In combination with lowest multiplicator above, makes sure overall level factor can not go lower than input value
-				levelFactor *= Math.Clamp(damage, 22.0, 10000.0) / 55.0;
+				levelFactor *= Math.Clamp(damage, 22.0, 300.0) / 55.0;
 			}
 		}
 
@@ -326,5 +378,56 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 		pos = pos - m_Player.GetPosition();
 
 		return pos;
+	}
+
+	override void PlayFireParticles()
+	{
+		PlayFireParticleOnBone("lefthand");
+		PlayFireParticleOnBone("righthand");
+		PlayFireParticleOnBone("leftfoot");
+		PlayFireParticleOnBone("rightfoot");
+		PlayFireParticleOnBone("pelvis");
+		PlayFireParticleOnBone("spine3");
+		PlayFireParticleOnBone("head");
+	}
+
+	override int GetBoneIndexByName(string boneName)
+	{
+		return m_Player.GetBoneIndexByName(boneName);
+	}
+
+	override vector GetBonePositionMS(int boneIdx)
+	{
+		return m_Player.GetBonePositionMS(boneIdx);
+	}
+
+	override void OnRemove(eAIBase ai, eAITarget target)
+	{
+		super.OnRemove(ai, target);
+
+		CheckResetAggressionCooldown(ai, target);
+	}
+
+	void CheckResetAggressionCooldown(eAIBase ai, eAITarget target)
+	{
+		//! If a target is removed from an AI, we check if it is a player target that has an aggro cooldown.
+		//! If all targets with aggro cooldown targeting that player are removed (i.e. no more witnesses),
+		//! we remove the aggro cooldown from the player itself as well.
+		if (target.GetAggressionCooldown() > 0 && target.m_Info == this && m_Player && m_Player.eAI_GetLastAggressionCooldown() > 0)
+		{
+			//! Guards are special. Even if all the targets are removed from currently aggroed guards, the next guard the player runs into
+			//! will aggro regardless because of the previous aggression, so we can just stop here if the AI is a guard.
+			eAIGroup group = ai.GetGroup();
+			if (group.GetFaction().IsGuard())
+				return;
+
+			foreach (eAIBase otherAI, eAITarget otherTarget: target.m_Info.m_Targets)
+			{
+				if (otherTarget.GetAggressionCooldown() > 0 && otherAI != ai && !otherAI.IsSetForDeletion())
+					return;
+			}
+
+			m_Player.eAI_ResetLastAggressionTimeout();
+		}
 	}
 };

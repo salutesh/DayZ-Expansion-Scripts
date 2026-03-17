@@ -3209,7 +3209,7 @@ class ExpansionHumanLoadout
 		ExpansionLoadout loadout = ExpansionLoadout.Load(name, forceReload);
 		if (!loadout)
 		{
-			Print("ERROR !!! Unknwon loadout requested ("+file+")");
+			EXError.Error(null, "Unknown loadout requested ('" + file + "')");
 			return false;
 		}
 

@@ -35,6 +35,7 @@
 #define EXPANSION_CHAT_HISTORY_LIMIT
 #define EXPANSION_CHAT_TEXT_PROPERTIES
 #define EXPANSION_HUD_VISIBILITY
+#define EXPANSION_NOTIFICATION_KILLFEED_DROWNED
 
 //! Fixes
 #define EXPANSION_VANILLA_EEITEMLOCATION_PB_FIX
@@ -96,4 +97,4 @@
 #endif
 
 //! Versioning - NEW - do NOT add/change manually, will be added/changed during build with CI.bat!
-#define EXPANSION_1_9_43
+#define EXPANSION_1_9_46

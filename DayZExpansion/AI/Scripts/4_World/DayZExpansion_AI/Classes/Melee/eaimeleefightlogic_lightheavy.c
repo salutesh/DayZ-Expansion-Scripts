@@ -5,6 +5,14 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 	bool m_eAI_Melee;
 	bool m_eAI_IsInCombo;
 	int m_eAI_BlockEndTime;
+	int m_eAI_ComboCount;
+	float m_eAI_ShoryukenChance;
+	bool m_eAI_ShoryukenPrep;
+	bool m_eAI_Shoryuken;
+	float m_eAI_ShoryukenDamageMultiplier = 1.0;
+	ref Timer m_eAI_ShoryukenSpinTimer;
+	bool m_eAI_ShoryukenSpin;
+	float m_eAI_ShoryukenSpinAngle;  //! Radians
 
 	override void Init(DayZPlayerImplement player)
 	{
@@ -12,6 +20,13 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 
 		m_AI = eAIBase.Cast(player);
 		m_eAI_MeleeCombat = m_AI.m_eMeleeCombat;
+
+		if (g_Game.IsServer())
+		{
+			auto settings = ExpansionAISettings.Get();
+			m_eAI_ShoryukenChance = settings.ShoryukenChance;
+			m_eAI_ShoryukenDamageMultiplier = settings.ShoryukenDamageMultiplier;
+		}
 	}
 
 	override protected EMeleeHitType GetAttackTypeFromInputs(HumanInputController pInputs)
@@ -183,6 +198,8 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 			if (hcm)
 			{
 				m_eAI_IsInCombo = false;
+				m_eAI_ComboCount = 0;
+				m_eAI_ShoryukenSpin = false;
 
 				//! melee with firearm
 				if (isFireWeapon)
@@ -270,14 +287,77 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 
 	override protected bool HandleComboHit(int pCurrentCommandID, HumanInputController pInputs, InventoryItem itemInHands, HumanMovementState pMovementState, out bool pContinueAttack)
 	{
+		if (m_HitType == EMeleeHitType.HEAVY && m_eAI_ComboCount == 0 && m_eAI_ShoryukenChance >= Math.RandomFloat01() && !m_eAI_MeleeCombat.eAI_GetWeapon())
+			m_eAI_ShoryukenPrep = true;
+
 		if (super.HandleComboHit(pCurrentCommandID, pInputs, itemInHands, pMovementState, pContinueAttack))
 		{
 			m_AI.m_eAI_MeleeTime = g_Game.GetTime();
 			m_eAI_IsInCombo = true;
+			++m_eAI_ComboCount;
+
+			if (m_eAI_ShoryukenPrep)
+			{
+				m_eAI_ShoryukenPrep = false;
+
+				EntityAI targetEntity = m_MeleeCombat.GetTargetEntity();
+
+				if (!targetEntity)
+					targetEntity = m_AI.eAI_GetTargetEntity();
+
+				m_eAI_ShoryukenSpinAngle = m_AI.GetOrientation()[0] * Math.DEG2RAD;
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_Shoryuken, 1100, false, targetEntity);
+			}
+
 			return true;
 		}
 
+		m_eAI_ShoryukenPrep = false;
+
 		return false;
+	}
+
+	void eAI_ShoryukenSpin()
+	{
+		m_eAI_ShoryukenSpinAngle += 0.075;
+	}
+
+	void eAI_Shoryuken(EntityAI targetEntity)
+	{
+		if (!IsInBlock() && !IsEvading())
+		{
+			m_eAI_Shoryuken = true;
+			m_AI.SetSynchDirty();
+
+			if (m_AI.IsMale())
+				eAIBase.s_eAI_ShoryukenM_SoundSet.Play(m_AI);
+			else
+				eAIBase.s_eAI_ShoryukenF_SoundSet.Play(m_AI);
+
+			vector shoryukenDir = m_AI.GetDirection() * 150 + vector.Up * 600;
+
+			dBodyApplyImpulse(m_AI, shoryukenDir);
+
+			if (targetEntity)
+			{
+				targetEntity.ProcessDirectDamage(DT_CLOSE_COMBAT, m_AI, "Torso", "MeleeShoryuken", "0 0 0", m_eAI_ShoryukenDamageMultiplier);
+				dBodyApplyImpulse(targetEntity, shoryukenDir * 0.5);
+			}
+
+			m_eAI_ShoryukenSpin = true;
+			if (!m_eAI_ShoryukenSpinTimer) m_eAI_ShoryukenSpinTimer = new Timer();
+			m_eAI_ShoryukenSpinTimer.Run(0.033333, this, "eAI_ShoryukenSpin", NULL, true);
+
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAI_ShoryukenEnd, 700, false);
+		}
+	}
+
+	void eAI_ShoryukenEnd()
+	{
+		m_eAI_Shoryuken = false;
+		m_eAI_ShoryukenSpinTimer.Stop();
+
+		SetVelocity(m_AI, vector.Zero);
 	}
 
 	override protected void EvaluateHit(InventoryItem weapon)

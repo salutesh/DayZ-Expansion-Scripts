@@ -38,8 +38,7 @@ class eAIState_TakeItem_Base: eAIState
 			m_Time += DeltaTime;
 			if (m_Time > 10)  //! Looks like something went terribly wrong
 			{
-				EXPrint(unit.ToString() + m_Name + " - timeout");
-				unit.eAI_Unbug(m_Name);
+				unit.eAI_Unbug(m_Name + "(" + m_Item + ") - timeout");
 				m_Time = 0;
 				return EXIT;
 			}
@@ -72,8 +71,7 @@ class eAIState_TakeItem_Base: eAIState
 			m_Time += DeltaTime;
 			if (m_Time > 10)  //! Looks like something went terribly wrong
 			{
-				EXPrint(unit.ToString() + m_Name + " - changing stance - timeout");
-				unit.eAI_Unbug(m_Name + " - changing stance");
+				unit.eAI_Unbug(m_Name + "(" + m_Item + ")" + " - timeout during changing stance");
 				m_Time = 0;
 				return EXIT;
 			}

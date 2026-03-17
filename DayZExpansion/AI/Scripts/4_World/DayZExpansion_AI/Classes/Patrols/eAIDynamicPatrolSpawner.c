@@ -29,6 +29,38 @@ class eAIDynamicPatrolSpawner<Class T>
 		if (!m_ExpansionAIPatrol)
 			return;
 
+		ExpansionAIDynamicSpawnBase config = m_ExpansionAIPatrol.m_Config;
+		if (config.Waypoints)
+		{
+			int count = config.Waypoints.Count();
+
+			if (count > 0)
+			{
+				TVectorArray waypoints = {};
+
+				//! Convert relative to world coordinates
+				foreach (vector relativePosition: config.Waypoints)
+				{
+					vector waypoint = m_Object.ModelToWorld(relativePosition);
+
+					if (config.MaxSpreadRadius > 0)
+						waypoint = ExpansionMath.GetRandomPointInRing(waypoint, config.MinSpreadRadius, config.MaxSpreadRadius);
+
+					waypoints.Insert(waypoint);
+				}
+
+				m_ExpansionAIPatrol.m_Waypoints = waypoints;
+				m_ExpansionAIPatrol.m_Position = m_ExpansionAIPatrol.GetInitialSpawnPosition();
+
+				//! If we have a single waypoint and behavior is HALT, adjust default look angle relative to object orientation
+				if (count == 1 && m_ExpansionAIPatrol.m_WaypointBehaviour == eAIWaypointBehavior.HALT)
+				{
+					float angle = m_ExpansionAIPatrol.m_DefaultLookAngle;
+					m_ExpansionAIPatrol.m_DefaultLookAngle = ExpansionMath.AngleDiff2(0, angle + m_Object.GetOrientation()[0]);
+				}
+			}
+		}
+
 		EXTrace.Print(EXTrace.AI, this, "::Init " + type);
 
 		#ifdef EAI_DEBUG_EVENTPATROL

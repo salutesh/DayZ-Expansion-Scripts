@@ -9,6 +9,29 @@ PanelWidgetClass GesturesMenu {
  vexactsize 0
  style blank
  {
+  ImageWidgetClass CenterBackground {
+   disabled 0
+   clipchildren 0
+   inheritalpha 0
+   ignorepointer 0
+   keepsafezone 0
+   position 0 0
+   size 262 262
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   fixaspect inside
+   imageTexture "{D655A7FEA5FF8421}DayZExpansion/AI/GUI/textures/radial-inner.edds"
+   mode blend
+   "src alpha" 1
+   "clamp mode" clamp
+   "stretch mode" stretch_w_h
+   filter 1
+   nocache 0
+  }
   ImageWidgetClass GesturesBackground {
    disabled 0
    clipchildren 0
@@ -24,11 +47,11 @@ PanelWidgetClass GesturesMenu {
    hexactsize 1
    vexactsize 1
    fixaspect inside
-   imageTexture "{F150456F37AF9CA2}Gui/textures/radial8.edds"
+   imageTexture "{F150456F37AF9CA2}gui/textures/radial8.edds"
    mode blend
    "src alpha" 1
-   "no wrap" 1
-   stretch 1
+   "clamp mode" clamp
+   "stretch mode" stretch_w_h
    filter 1
    nocache 0
    {
@@ -36,7 +59,7 @@ PanelWidgetClass GesturesMenu {
      disabled 0
      clipchildren 0
      inheritalpha 1
-     color 0.8353 0.8353 0.8353 0.6392
+     color 0.835 0.835 0.835 0.639
      position 0 0
      size 1024 1024
      halign center_ref
@@ -101,8 +124,8 @@ PanelWidgetClass GesturesMenu {
          image0 "set:dayz_gui image:radial_selector"
          mode blend
          "src alpha" 1
-         "no wrap" 1
-         stretch 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
         }
         ImageWidgetClass SelectorImage {
          ignorepointer 1
@@ -114,13 +137,13 @@ PanelWidgetClass GesturesMenu {
          vexactpos 1
          hexactsize 1
          vexactsize 1
-         imageTexture "{528E06782E5680C9}Gui/textures/radial_selector.edds"
+         imageTexture "{528E06782E5680C9}gui/textures/radial_selector.edds"
          mode blend
          "src alpha" 1
-         "no wrap" 1
-         stretch 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
          filter 1
-         Mask "{5B7F9513017B8F1C}Gui/textures/radial_selector_mask.edds"
+         Mask "{5B7F9513017B8F1C}gui/textures/radial_selector_mask.edds"
          "Transition width" 0.01
          Progress 0.5
         }
@@ -269,8 +292,7 @@ PanelWidgetClass GesturesMenu {
          image0 "set:xbox_buttons image:B"
          mode blend
          "src alpha" 1
-         "no wrap" 1
-         stretch 0
+         "clamp mode" clamp
          "flip u" 0
          "flip v" 0
          filter 1

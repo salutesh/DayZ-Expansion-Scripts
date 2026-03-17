@@ -27,6 +27,7 @@ class cfgVehicles
 		itemSize[]={3,1};
 		inventorySlot[]=
 		{
+			"weaponOpticsMosin",
 			"ExpansionKar98Optics"
 		};
 		simulation="itemoptics";
@@ -125,6 +126,7 @@ class CfgSlots
 		name="ExpansionKar98Optics";
 		displayName="$STR_KAR98_SCOPE";
 		ghostIcon="weaponoptics";
+		show="false";
 	};
 };
 class CfgNonAIVehicles

@@ -448,8 +448,21 @@ class ExpansionStatic: ExpansionStaticCore
 {
 	static const string BASE16 = "0123456789ABCDEF";
 	static const typename NULLTYPE;
+	static const string DIRSEPARATOR = "\\";
+	static const string DIRSEPARATOR_ALT = "/";
 
 	static ref TStringArray s_VehicleClassNames = {"CarScript", "BoatScript", "ExpansionVehicleBase", "HypeTrain_PartBase"};
+
+	static ref SurfaceDetectionParameters s_SurfParams = CreateSurfaceDetectionParams();
+	static ref SurfaceDetectionResult s_SurfResult = new SurfaceDetectionResult();
+
+	static SurfaceDetectionParameters CreateSurfaceDetectionParams()
+	{
+		auto surfParams = new SurfaceDetectionParameters();
+		surfParams.type = SurfaceDetectionType.Roadway;
+		surfParams.syncMode = UseObjectsMode.NoWait;
+		return surfParams;
+	}
 
 	static string BitmaskEnumToString(typename e, int enumValue, string delim = "|")
 	{
@@ -1926,10 +1939,10 @@ class ExpansionStatic: ExpansionStaticCore
 
 					if (recursive && isDir)
 					{
-						TStringArray subFolderFileNames = FindInLocation(folder + fileName + "\\", ext, mode, true);
+						TStringArray subFolderFileNames = FindInLocation(folder + fileName + DIRSEPARATOR, ext, mode, true);
 						foreach (string subFolderFileName: subFolderFileNames)
 						{
-							files.Insert( fileName + "\\" + subFolderFileName );
+							files.Insert( fileName + DIRSEPARATOR + subFolderFileName );
 						}
 					}
 				}
@@ -1962,11 +1975,14 @@ class ExpansionStatic: ExpansionStaticCore
 	static bool MakeDirectoryRecursive(string path)
 	{
 		TStringArray parts = {};
-		path.Split("\\", parts);
+		path.Replace(DIRSEPARATOR_ALT, DIRSEPARATOR);
+		path.Split(DIRSEPARATOR, parts);
 		path = "";
 		foreach (string part: parts)
 		{
-			path += part + "\\";
+			if (!part)
+				continue;
+			path += part + DIRSEPARATOR;
 			if (part.IndexOf(":") == part.Length() - 1)
 				continue;
 			if (!FileExist(path) && !MakeDirectory(path))
@@ -1983,13 +1999,15 @@ class ExpansionStatic: ExpansionStaticCore
 	//! If `move` is true and copying is successful, removes srcDir afterwards if empty.
 	static bool CopyDirectoryTree(string srcDir, string dstDir, string ext = "", bool move = false)
 	{
+		srcDir.Replace(DIRSEPARATOR_ALT, DIRSEPARATOR);
 		ExpansionString srcDirEx = srcDir;
-		if (srcDirEx.LastIndexOf("\\") != srcDir.Length() - 1)
-			srcDir += "\\";
+		if (srcDirEx.LastIndexOf(DIRSEPARATOR) != srcDir.Length() - 1)
+			srcDir += DIRSEPARATOR;
 
+		dstDir.Replace(DIRSEPARATOR_ALT, DIRSEPARATOR);
 		ExpansionString dstDirEx = dstDir;
-		if (dstDirEx.LastIndexOf("\\") != dstDir.Length() - 1)
-			dstDir += "\\";
+		if (dstDirEx.LastIndexOf(DIRSEPARATOR) != dstDir.Length() - 1)
+			dstDir += DIRSEPARATOR;
 
 		if (!FileExist(dstDir) && !MakeDirectoryRecursive(dstDir))
 			return false;
@@ -2006,7 +2024,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 		if (fileName.Length() > 0 && !CopyFileOrDirectoryTree(srcDir + fileName, dstDir + fileName, ext, move, fileAttr))
 		{
-			EXPrint("ERROR: CopyDirectoryTree " + srcDir + fileName + " " + dstDir + fileName + " ext " + ext + " move " + move + " failed");
+			EXError.Error(null, "CopyDirectoryTree " + srcDir + fileName + " " + dstDir + fileName + " ext " + ext + " move " + move + " failed");
 			CloseFindFile(findFileHandle);
 			return false;
 		}
@@ -2015,7 +2033,7 @@ class ExpansionStatic: ExpansionStaticCore
 		{
 			if (fileName.Length() > 0 && !CopyFileOrDirectoryTree(srcDir + fileName, dstDir + fileName, ext, move, fileAttr))
 			{
-				EXPrint("ERROR: CopyDirectoryTree " + srcDir + fileName + " " + dstDir + fileName + " ext " + ext + " move " + move + " failed");
+				EXError.Error(null, "CopyDirectoryTree " + srcDir + fileName + " " + dstDir + fileName + " ext " + ext + " move " + move + " failed");
 				CloseFindFile(findFileHandle);
 				return false;
 			}
@@ -2025,7 +2043,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 		if (move && (!ext || !FindFilesInLocation(srcDir).Count()) && !DeleteFile(srcDir))
 		{
-			EXPrint("ERROR: CopyDirectoryTree remove src failed");
+			EXError.Error(null, "CopyDirectoryTree remove src failed");
 			return false;
 		}
 
@@ -2052,7 +2070,7 @@ class ExpansionStatic: ExpansionStaticCore
 			TStringArray dirs = ExpansionStatic.FindDirectoriesInLocation(path);
 			foreach (string dirBaseName: dirs)
 			{
-				DeleteDirectoryStructureRecursive(path + dirBaseName + "\\", ext);
+				DeleteDirectoryStructureRecursive(path + dirBaseName + DIRSEPARATOR, ext);
 			}
 
 			return DeleteFile(path);
@@ -2061,12 +2079,15 @@ class ExpansionStatic: ExpansionStaticCore
 		return false;
 	}
 
-	//! @note if copying a directory, make sure paths end with "\\" or provide fileAttr parameter
+	//! @note if copying a directory, make sure paths end with a path separator or provide fileAttr parameter
 	static bool CopyFileOrDirectoryTree(string srcPath, string dstPath, string ext = "", bool move = false, FileAttr fileAttr = 0)
 	{
+		srcPath.Replace(DIRSEPARATOR_ALT, DIRSEPARATOR);
+		dstPath.Replace(DIRSEPARATOR_ALT, DIRSEPARATOR);
+
 		bool isDir = (fileAttr & FileAttr.DIRECTORY);
 		ExpansionString srcPathEx = srcPath;
-		if (!isDir && srcPathEx.LastIndexOf("\\") == srcPath.Length() - 1)
+		if (!isDir && srcPathEx.LastIndexOf(DIRSEPARATOR) == srcPath.Length() - 1)
 			isDir = true;
 
 		if (isDir)
@@ -2077,19 +2098,19 @@ class ExpansionStatic: ExpansionStaticCore
 		else
 		{
 			ExpansionString dstPathEx = dstPath;
-			string dstDir = dstPath.Substring(0, dstPathEx.LastIndexOf("\\"));
+			string dstDir = dstPath.Substring(0, dstPathEx.LastIndexOf(DIRSEPARATOR));
 			if (!FileExist(dstDir) && !MakeDirectoryRecursive(dstDir))
 				return false;
 
 			if (!CopyFile(srcPath, dstPath))
 			{
-				EXPrint("ERROR: CopyFileOrDirectoryTree copy failed");
+				EXError.Error(null, "CopyFileOrDirectoryTree copy failed");
 				return false;
 			}
 
 			if (move && !DeleteFile(srcPath))
 			{
-				EXPrint("ERROR: CopyFileOrDirectoryTree remove src failed");
+				EXError.Error(null, "CopyFileOrDirectoryTree remove src failed");
 				return false;
 			}
 		}
@@ -2607,26 +2628,39 @@ class ExpansionStatic: ExpansionStaticCore
 		return Vector(x, g_Game.SurfaceY(x, z), z);
 	}
 
-	static vector GetSurfaceRoadPosition(vector position, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER)
+	static vector GetSurfaceRoadPosition(vector position, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER, UseObjectsMode syncMode = UseObjectsMode.NoWait)
 	{
-		return GetSurfaceRoadPosition(position[0], position[1], position[2], rsd);
+		return Vector(position[0], GetSurfaceRoadY3D(position, rsd, syncMode), position[2]);
 	}
 
-	static vector GetSurfaceRoadPosition(float x, float y, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER)
+	static vector GetSurfaceRoadPosition(float x, float y, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER, UseObjectsMode syncMode = UseObjectsMode.NoWait)
 	{
-		return Vector(x, GetSurfaceRoadY3D(x, y + 0.1, z, rsd), z);
+		return Vector(x, GetSurfaceRoadY3D(x, y + 0.1, z, rsd, syncMode), z);
 	}
 
-	static float GetSurfaceRoadY3D(float x, float y, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER)
+	static float GetSurfaceRoadY3D(float x, float y, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER, UseObjectsMode syncMode = UseObjectsMode.NoWait)
 	{
+		return GetSurfaceRoadY3D(Vector(x, y, z));
+	}
+
+	static float GetSurfaceRoadY3D(vector position, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER, UseObjectsMode syncMode = UseObjectsMode.NoWait)
+	{
+		s_SurfParams.position = position;
+		s_SurfParams.syncMode = syncMode;
+
 		float roadY;
 
 		switch (rsd)
 		{
 			case RoadSurfaceDetection.CLOSEST:
 				//! CLOSEST doesn't always return actual closest surface https://feedback.bistudio.com/T192568
-				float roadY_Above = g_Game.SurfaceRoadY3D(x, y, z, RoadSurfaceDetection.ABOVE);
-				float roadY_Under = g_Game.SurfaceRoadY3D(x, y, z, RoadSurfaceDetection.UNDER);
+				s_SurfParams.rsd = RoadSurfaceDetection.ABOVE;
+				g_Game.GetSurface(s_SurfParams, s_SurfResult);
+				float roadY_Above = s_SurfResult.height;
+				s_SurfParams.rsd = RoadSurfaceDetection.UNDER;
+				g_Game.GetSurface(s_SurfParams, s_SurfResult);
+				float roadY_Under = s_SurfResult.height;
+				float y = position[1];
 				float dist_Above = Math.AbsFloat(roadY_Above - y);
 				float dist_Under = Math.AbsFloat(roadY_Under - y);
 				if (dist_Above < dist_Under)
@@ -2636,16 +2670,23 @@ class ExpansionStatic: ExpansionStaticCore
 				break;
 
 			default:
-				roadY = g_Game.SurfaceRoadY3D(x, y, z, rsd);
+				s_SurfParams.rsd = rsd;
+				g_Game.GetSurface(s_SurfParams, s_SurfResult);
+				roadY = s_SurfResult.height;
 				break;
 		}
 
 		return roadY;
 	}
 
-	static vector GetSurfaceRoadPosition(float x, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.LEGACY)
+	static vector GetSurfaceRoadPosition(float x, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.LEGACY, UseObjectsMode syncMode = UseObjectsMode.NoWait)
 	{
-		return Vector(x, g_Game.SurfaceRoadY(x, z, rsd), z);
+		return Vector(x, GetSurfaceRoadY3D(x, 0, z, rsd, syncMode), z);
+	}
+
+	static float GetSurfaceRoadY(float x, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.LEGACY, UseObjectsMode syncMode = UseObjectsMode.NoWait)
+	{
+		return GetSurfaceRoadY3D(x, 0, z, rsd, syncMode);
 	}
 
 	static float GetSurfaceWaterDepth(vector position)
@@ -2674,19 +2715,19 @@ class ExpansionStatic: ExpansionStaticCore
 		return position;
 	}
 
-	static bool SurfaceIsWater(vector position)
+	static bool SurfaceIsWater(vector position, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER, UseObjectsMode syncMode = UseObjectsMode.NoWait)
 	{
-		string type;
-		g_Game.SurfaceGetType3D(position[0], position[1] + 0.1, position[2], type);
-		if (type.Contains("water"))
+		float surfaceY = GetSurfaceRoadY3D(position[0], position[1] + 0.1, position[2], rsd, syncMode);
+		float waterDepth = g_Game.GetWaterDepth(Vector(position[0], surfaceY, position[2]));
+		if (waterDepth > 0)
 			return true;
 
-		return SurfaceIsWater(position[0], position[2]);
+		return false;
 	}
 
-	static bool SurfaceIsWater(float x, float z)
+	static bool SurfaceIsWater(float x, float z, RoadSurfaceDetection rsd = RoadSurfaceDetection.UNDER, UseObjectsMode syncMode = UseObjectsMode.NoWait)
 	{
-		return g_Game.SurfaceIsSea(x, z) || g_Game.SurfaceIsPond(x, z);
+		return SurfaceIsWater(Vector(x, 0, z), rsd, syncMode);
 	}
 
 	static string GetImpactSurfaceType(Object directHit, vector hitPosition, vector relativeVelocityBefore)

@@ -298,8 +298,8 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			}
 		}
 	
-		//! Initialize per-trader category listings
-		foreach (int traderID, ref array<ref ExpansionP2PMarketListing> listings: m_ListingsData)
+		//! Initialize per-trader categories
+		foreach (int traderID, ExpansionP2PMarketTraderConfig traderConfig: m_P2PTraderConfig)
 		{
 			map<int, ref array<ref ExpansionP2PMarketCategoryListings>> traderCategoryMap = new map<int, ref array<ref ExpansionP2PMarketCategoryListings>>;
 			for (int k = 0; k < m_P2PMarketSettings.MenuCategories.Count(); ++k)

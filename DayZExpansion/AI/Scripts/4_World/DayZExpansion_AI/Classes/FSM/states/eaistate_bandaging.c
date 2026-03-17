@@ -16,7 +16,6 @@ class eAIState_Bandaging_Self: eAIState
 			m_Timeout = UATimeSpent.BANDAGE / effectivity + 8.0;
 		else
 			m_Timeout = 16.0;
-		unit.OverrideStance(DayZPlayerConstants.STANCEIDX_CROUCH);
 	}
 
 	override void OnExit(string Event, bool Aborted, ExpansionState To)
@@ -55,8 +54,7 @@ class eAIState_Bandaging_Self: eAIState
 			m_Time += DeltaTime;
 			if (m_Time > m_Timeout)  //! Looks like something went terribly wrong
 			{
-				EXPrint(unit.ToString() + " Bandaging_Self - timeout");
-				unit.eAI_Unbug("bandage");
+				unit.eAI_Unbug(m_Name + "(" + m_Bandage + ") - timeout");
 				m_Time = 0;
 				return EXIT;
 			}

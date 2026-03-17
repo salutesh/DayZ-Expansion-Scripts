@@ -156,6 +156,10 @@ modded class EffectArea
 
 	bool eAI_IsDangerousToAI(eAIBase ai)
 	{
-		return ai.Expansion_CanBeDamaged();  //! Treat unknown areas as dangerous if AI can be damaged
+		//! @note we deliberately DON'T use Expansion_CanBeDamaged because we want to avoid (e.g.) going into an area that overlaps a safezone
+		if (ai.GetGroup().GetFaction().IsInvincible())
+			return false;
+
+		return true;  //! Treat unknown areas as dangerous
 	}
 }

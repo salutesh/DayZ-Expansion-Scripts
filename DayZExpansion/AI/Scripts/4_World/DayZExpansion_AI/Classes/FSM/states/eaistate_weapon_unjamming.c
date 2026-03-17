@@ -34,8 +34,7 @@ class eAIState_Weapon_Unjamming: eAIState
 			m_Time += DeltaTime;
 			if (m_Time > 10)  //! Looks like something went terribly wrong
 			{
-				EXPrint(unit.ToString() + " Weapon_Unjamming - timeout");
-				unit.eAI_Unbug("unjam");
+				unit.eAI_Unbug(m_Name + "(" + m_Weapon + ") - timeout");
 				return EXIT;
 			}
 			

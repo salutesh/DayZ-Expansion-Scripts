@@ -6,7 +6,9 @@ enum eAIWaypointBehavior
 	ONCE,
 	HALT_OR_LOOP,
 	HALT_OR_ALTERNATE,
+	LOOP_OR_ALTERNATE,
 	ROAMING,
+	ROAMING_LOCAL,
 	MIXED  //! TODO
 };
 
@@ -70,3 +72,11 @@ enum eAITargetType
 	VEHICLE = 16,
 	ALL_OR = 30  //! ANIMAL | INFECTED | PLAYER | VEHICLE
 };
+
+enum eAIStance
+{
+	UNKNOWN = -1,
+	STANDING,
+	CROUCHED,
+	PRONE
+}

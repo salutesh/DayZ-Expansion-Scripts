@@ -176,6 +176,19 @@ class CfgSoundShaders
 		frequency=1;
 		volume=0.30000001;
 	};
+	class Expansion_Uh1h_Warning_SoundShader: baseVehicles_SoundShader
+	{
+		samples[]=
+		{
+			
+			{
+				"DayZExpansion\Sounds\Vehicles\Air\Uh1h\warning",
+				1
+			}
+		};
+		frequency=1;
+		volume=0.89999998;
+	};
 };
 class CfgSoundSets
 {
@@ -301,6 +314,15 @@ class CfgSoundSets
 		soundShaders[]=
 		{
 			"Expansion_Uh1h_Engine_Idle_Start_Ext_SoundShader"
+		};
+		volumeFactor=1;
+	};
+	class Expansion_Uh1h_Warning_SoundSet: baseVehicles_SoundSet
+	{
+		loop=0;
+		soundShaders[]=
+		{
+			"Expansion_Uh1h_Warning_SoundShader"
 		};
 		volumeFactor=1;
 	};

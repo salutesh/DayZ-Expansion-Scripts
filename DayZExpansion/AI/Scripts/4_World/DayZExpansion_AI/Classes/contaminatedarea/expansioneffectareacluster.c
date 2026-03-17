@@ -221,21 +221,35 @@ class Expansion_EffectAreas: array<EffectArea>
 	 * 
 	 * @return true if path intersects cylinder, else false
 	 */
-	bool FindClosestPointOutsideAnyArea(vector start, inout vector end, float perpendicularDistance = 15.0)
+	bool FindClosestPointOutsideAnyArea(vector start, inout vector end, float perpendicularDistance = 0)
 	{
+		if (perpendicularDistance == 0)
+			perpendicularDistance = ExpansionEffectAreaMergedCluster.MAX_AVOIDANCE_DISTANCE;
+
 		bool found;
 
 		foreach (auto area: this)
 		{
 			float height = area.m_NegativeHeight + area.m_PositiveHeight;
 			vector center = Vector(area.m_Position[0], area.m_Position[1] - area.m_NegativeHeight + height * 0.5, area.m_Position[2]);
-			float radius = area.m_Radius + 15.0;
+			float radius = area.m_Radius + ExpansionEffectAreaMergedCluster.MAX_AVOIDANCE_DISTANCE;
 
 			if (ExpansionMath.FindClosestPointOutsideCylinder(start, end, center, radius, height, perpendicularDistance))
 				found = true;
 		}
 
 		return found;
+	}
+
+	bool IsPointInside(vector point)
+	{
+		foreach (auto area: this)
+		{
+			if (area.Expansion_IsPointInside(point))
+				return true;
+		}
+
+		return false;
 	}
 }
 
@@ -265,6 +279,10 @@ class Expansion_EffectArea_Clusters: array<ref Expansion_EffectAreas>
 
 class ExpansionEffectAreaMergedCluster
 {
+	static const float MAX_AVOIDANCE_DISTANCE = 30.0;
+	static const float MIN_AVOIDANCE_DISTANCE = 3.0;
+	static const float IS_INSIDE_MARGIN = 3.0;
+
 	ref Expansion_EffectAreas m_Areas;
 	vector m_Position;
 	float m_Radius;
@@ -757,9 +775,8 @@ class ExpansionEffectAreaMergedCluster
 		float actualHeight = m_NegativeHeight + m_PositiveHeight;
 		vector ground = m_Position;
 		vector center;
-		float avoidanceDistance = Math.Max(Math.Min(m_Radius * 0.1, 15.0), 3.0);
+		float avoidanceDistance = GetAvoidanceDistance(m_Radius);
 		float radius = m_Radius + avoidanceDistance;
-		float margin = 3.0;
 
 		float height;
 		bool isInside;
@@ -768,13 +785,13 @@ class ExpansionEffectAreaMergedCluster
 		{
 			height = 10000.0;  //! We could use ExpansionMath.IntersectRayCircle, but since it's not native, IntersectRayCylinder should be faster
 			center = Vector(ground[0], ground[1] - m_NegativeHeight + actualHeight * 0.5 - height * 0.5, ground[2]);
-			isInside = Math.IsPointInCircle(center, radius + margin, start);
+			isInside = Math.IsPointInCircle(center, radius + IS_INSIDE_MARGIN, start);
 		}
 		else
 		{
 			height = actualHeight;
 			center = Vector(ground[0], ground[1] - m_NegativeHeight, ground[2]);
-			isInside = ExpansionMath.IsPointInCylinder(center, radius + margin, height, start);
+			isInside = ExpansionMath.IsPointInCylinder(center, radius + IS_INSIDE_MARGIN, height, start);
 		}
 
 		//! Check if ray intersects any area cluster
@@ -831,7 +848,7 @@ class ExpansionEffectAreaMergedCluster
 			if (count == 1 && Math3D.IntersectRayCylinder(start, end, center, closestArea.m_Radius, height))
 				++intersectCount;
 
-			avoidanceDistance = Math.Max(Math.Min(closestArea.m_Radius * 0.1, 15.0), 3.0);
+			avoidanceDistance = GetAvoidanceDistance(closestArea.m_Radius);
 			radius = closestArea.m_Radius + avoidanceDistance;
 
 			//! Since we already know we are inside cluster, we can simplify area check by using IsPointInCircle (we ignore area height)
@@ -847,6 +864,11 @@ class ExpansionEffectAreaMergedCluster
 		}
 
 		return false;
+	}
+
+	float GetAvoidanceDistance(float radius)
+	{
+		return Math.Max(Math.Min(radius * 0.2, MAX_AVOIDANCE_DISTANCE), MIN_AVOIDANCE_DISTANCE);
 	}
 }
 

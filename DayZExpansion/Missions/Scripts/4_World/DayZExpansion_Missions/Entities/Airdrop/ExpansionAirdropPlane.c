@@ -12,6 +12,12 @@
 
 class ExpansionAirdropPlaneBase: House
 {
+#ifdef EXPANSION_MISSIONS_PLANE_CLIENT
+	static bool s_Expansion_CreatePlaneOnClient = true;
+#else
+	static bool s_Expansion_CreatePlaneOnClient = false;
+#endif
+
 	static ref map<int, ExpansionAirdropPlaneBase> s_Expansion_AirdropPlanes = new map<int, ExpansionAirdropPlaneBase>;
 	static int s_Expansion_AirdropPlaneNextID;
 
@@ -58,6 +64,7 @@ class ExpansionAirdropPlaneBase: House
 
 	protected string m_Expansion_EngineSoundSet;
 	protected EffectSound m_Expansion_EngineSound;
+	protected bool m_Expansion_PlayEngineSound;
 
 	protected int m_Expansion_TargetAltitudeBufferCount;
 	protected float m_Expansion_TargetAltitudeBuffer[40];
@@ -71,9 +78,39 @@ class ExpansionAirdropPlaneBase: House
 
 	protected bool m_Expansion_IsUpdateEnabled;
 	float m_Expansion_LastUpdateTickTime;
+	float m_Expansion_LastTerrainY;
+	float m_Expansion_TimeUntilNextTerrainYUpdate;  //! seconds
+
+	ref SurfaceDetectionParameters m_SurfParams;
+	ref SurfaceDetectionResult m_SurfResult = new SurfaceDetectionResult();
+
+	void ExpansionAirdropPlaneBase()
+	{
+		RegisterNetSyncVariableBool("m_Expansion_PlayEngineSound");
+
+		m_SurfParams = new SurfaceDetectionParameters();
+		m_SurfParams.type = SurfaceDetectionType.Roadway;
+		m_SurfParams.includeWater = true;
+		m_SurfParams.syncMode = UseObjectsMode.NoWait;
+		m_SurfParams.ignore = this;
+		m_SurfParams.rsd = RoadSurfaceDetection.UNDER;
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		if (m_Expansion_PlayEngineSound)
+			Expansion_PlayEngineSoundLoop();
+		else
+			Expansion_StopEngineSound();
+	}
 
 	void Expansion_EnableUpdate()
 	{
+		if (m_Expansion_IsUpdateEnabled)
+			return;
+
 	#ifdef SERVER
 		//SetEventMask( EntityEvent.SIMULATE );
 		m_Expansion_LastUpdateTickTime = g_Game.GetTickTime();
@@ -82,6 +119,8 @@ class ExpansionAirdropPlaneBase: House
 		//! Client or SP
 		g_Game.GetUpdateQueue(CALL_CATEGORY_SYSTEM).Insert(Expansion_OnUpdate);
 	#endif
+
+		Expansion_PlayEngineSoundLoop();
 
 		m_Expansion_IsUpdateEnabled = true;
 	}
@@ -100,6 +139,8 @@ class ExpansionAirdropPlaneBase: House
 			if (g_Game.GetUpdateQueue(CALL_CATEGORY_SYSTEM))
 				g_Game.GetUpdateQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_OnUpdate);
 		#endif
+
+			Expansion_StopEngineSound();
 
 			m_Expansion_IsUpdateEnabled = false;
 		}
@@ -232,7 +273,28 @@ class ExpansionAirdropPlaneBase: House
 	void Expansion_PlayEngineSoundLoop()
 	{
 		if (m_Expansion_EngineSoundSet)
+		{
+			m_Expansion_PlayEngineSound = true;
+
+		#ifdef SERVER
+			if (HasNetworkID())
+				SetSynchDirty();
+		#else
 			PlaySoundSetLoop(m_Expansion_EngineSound, m_Expansion_EngineSoundSet, 3.0, 3.0);
+		#endif
+		}
+	}
+	
+	void Expansion_StopEngineSound()
+	{
+		m_Expansion_PlayEngineSound = false;
+
+	#ifdef SERVER
+		if (HasNetworkID())
+			SetSynchDirty();
+	#else
+		StopSoundSet(m_Expansion_EngineSound);
+	#endif
 	}
 	
 	void Expansion_SetAirdropPlaneID(int planeID)
@@ -316,7 +378,11 @@ class ExpansionAirdropPlaneBase: House
 		m_Expansion_HeadingAngleDeg = dir.VectorToAngles()[0];
 
 		m_Expansion_HeadingAngle = Math.Atan2( m_Expansion_AirdropPosition[2] - m_Expansion_SpawnPoint[2], m_Expansion_AirdropPosition[0] - m_Expansion_SpawnPoint[0] );
+
+		Expansion_OnSetupPlane();
 	}
+
+	void Expansion_OnSetupPlane();
 
 #ifdef SERVER
 /*
@@ -338,9 +404,9 @@ class ExpansionAirdropPlaneBase: House
 
 	void Expansion_OnUpdate(float dt)
 	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-		#endif
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.Profile(EXTrace.MISSIONS, this, "Expansion_OnUpdate");
+	#endif
 
 		//if ( IsMissionHost() )
 		{
@@ -374,6 +440,8 @@ class ExpansionAirdropPlaneBase: House
 			//! @note following terrain implies relative to ground level
 			if (m_Expansion_FollowTerrainFraction > 0)
 			{
+				m_Expansion_TimeUntilNextTerrainYUpdate -= dt;
+
 				//! Plane will be at this pos in 1s - react to terrain elevation changes in advance
 				terrainY = Expansion_GetTerrainY( position + velocity );
 
@@ -445,6 +513,8 @@ class ExpansionAirdropPlaneBase: House
 			{
 				//! Set altitude to relative above the drop position
 
+				m_Expansion_TimeUntilNextTerrainYUpdate -= dt;
+
 				terrainY = Expansion_GetTerrainY(m_Expansion_AirdropPosition);
 
 				targetAltitude = terrainY + m_Expansion_CurrentHeight;
@@ -509,8 +579,13 @@ class ExpansionAirdropPlaneBase: House
 
 	float Expansion_GetTerrainY( vector position )
 	{
-		//! Make sure we clamp surfaceY to sea level (when plane is over water)
-		float terrainY = Math.Max( g_Game.SurfaceRoadY( position[0], position[2] ), g_Game.SurfaceGetSeaLevel() );
+		if (m_Expansion_TimeUntilNextTerrainYUpdate <= 0)
+		{
+			m_SurfParams.position = position;
+			g_Game.GetSurface(m_SurfParams, m_SurfResult);
+			m_Expansion_LastTerrainY = m_SurfResult.height;
+			m_Expansion_TimeUntilNextTerrainYUpdate = 0.25;  //! Update every 250 ms
+		}
 
 	/*
 		float radius = 21.0;  //! Note: C-130J has a wingspan of 40.4m, radius is chosen accordingly
@@ -528,7 +603,7 @@ class ExpansionAirdropPlaneBase: House
 		}
 	*/
 
-		return terrainY;
+		return m_Expansion_LastTerrainY;
 	}
 
 	bool Expansion_CheckForRemove()
@@ -628,12 +703,19 @@ class ExpansionAirdropPlaneBase: House
 
 		dropPosition = ExpansionMath.GetRandomPointInCircle( Vector( dropPosition[0], spawnPoint[1], dropPosition[2] ), maxRadius );
 
-		auto plane = ExpansionAirdropPlaneBase.Cast( g_Game.CreateObjectEx(planeClassName, spawnPoint, ECE_AIRBORNE | ECE_LOCAL) );
+		int flags = ECE_AIRBORNE;
+		if (s_Expansion_CreatePlaneOnClient)
+			flags |= ECE_LOCAL;
 
-		plane.Expansion_SetAirdropPlaneID(s_Expansion_AirdropPlaneNextID++);
+		auto plane = ExpansionAirdropPlaneBase.Cast( g_Game.CreateObjectEx(planeClassName, spawnPoint, flags) );
+
+		if (s_Expansion_CreatePlaneOnClient)
+			plane.Expansion_SetAirdropPlaneID(s_Expansion_AirdropPlaneNextID++);
+
 		plane.Expansion_SetupPlane( spawnPoint, dropPosition, name, maxRadius, settings.HeightIsRelativeToGroundLevel, height, dropHeight, settings.FollowTerrainFraction, speed, dropSpeed, settings.DropZoneProximityDistance, container, warningProximityMsg, airdropCreatedMsg, containerLifeTime );
 
-		plane.Expansion_SendCreatePlaneOnClient();
+		if (s_Expansion_CreatePlaneOnClient)
+			plane.Expansion_SendCreatePlaneOnClient();
 
 		plane.Expansion_EnableUpdate();
 

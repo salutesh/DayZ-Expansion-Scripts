@@ -189,7 +189,12 @@ class ExpansionBus: CarScript
 
 			if (battery)
 			{
+			#ifdef DAYZ_1_28
 				if (m_HeadlightsOn)
+			#else
+				//! 1.29+
+				if (LightIsOn())
+			#endif
 				{
 					if (!m_BusLight1 && m_HeadlightsState != CarHeadlightBulbsState.NONE)
 					{

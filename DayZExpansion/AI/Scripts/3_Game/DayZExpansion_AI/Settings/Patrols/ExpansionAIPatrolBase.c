@@ -16,15 +16,18 @@ class ExpansionAISpawnBase
 	bool Persist;   // Patrol will be saved & restored between server restarts unless all members of it are killed
 	string Faction;                     // Raiders, Mercenaries, West, East, Guards, Civilian, Passive
 	string Formation;                   // Column, File, Vee, Wall or RANDOM
-	float FormationScale;
+	float FormationScale = 1.5;
 	float FormationLooseness;
 	string Loadout;                 // a json file containing the loadout of this team - if empty, will use the default loadout of the faction
 	ref TStringArray Units = {};        // If non-empty, pick from these AI classnames when spawning
-	int NumberOfAI;                     // How many bots, -x will make it random between 0 and x
+	int NumberOfAI;                     // How many bots, if NumberOfAIMax is 0, will use exact number, else between NumberOfAI and NumberOfAIMax
+	int NumberOfAIMax;                     // How many bots max, value above 0 will spawn between NumberOfAI and NumberOfAIMax
 	string Behaviour;                   // See eAIWaypointBehavior
 	string LootingBehaviour;
 	string Speed;                       // See eAIMovementSpeed
-	string UnderThreatSpeed;            // 
+	string UnderThreatSpeed;            //
+	string DefaultStance = "STANDING";
+	float DefaultLookAngle;
 	bool CanBeLooted;                   // if enabled, the bots can be looted by the players
 	string LootDropOnDeath;            // Loot to drop when AI dies (file name)
 	int UnlimitedReload;               // should bots be able to reload indefinitely (still needs spare mag in inventory!)
@@ -33,16 +36,28 @@ class ExpansionAISpawnBase
 	float AccuracyMax;
 	float ThreatDistanceLimit;
 	float NoiseInvestigationDistanceLimit;
+	float MaxFlankingDistance = -1;
+	int EnableFlankingOutsideCombat = -1;
 	float DamageMultiplier;
 	float DamageReceivedMultiplier;
 	float HeadshotResistance;
+	float ShoryukenChance;
+	float ShoryukenDamageMultiplier;
 
 	[NonSerialized()]
 	string m_BaseName;
 
 	void ExpansionAISpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "West", string loa = "", bool canbelooted = true, int unlimitedreload = 0)
 	{
-		NumberOfAI = bod;
+		if (bod < 0)
+		{
+			NumberOfAI = 1;
+			NumberOfAIMax = -bod;
+		}
+		else
+		{
+			NumberOfAI = bod;
+		}
 		Speed = spd;
 		UnderThreatSpeed = threatspd;
 		Behaviour = beh;
@@ -73,9 +88,14 @@ class ExpansionAISpawnBase
 		return typename.StringToEnum(eAIWaypointBehavior, Behaviour);
 	}
 
+	eAIStance GetDefaultStance()
+	{
+		return typename.StringToEnum(eAIStance, DefaultStance);
+	}
+
 	void SetDefaultLootingBehaviour()
 	{
-		if (Behaviour == "ROAMING")
+		if (Behaviour == "ROAMING" || Behaviour == "ROAMING_LOCAL")
 			LootingBehaviour = "ALL";
 		else
 			LootingBehaviour = "DEFAULT";
@@ -113,14 +133,14 @@ class ExpansionAISpawnBase
 		layerMask |= PhxInteractionLayers.TERRAIN;
 		layerMask |= PhxInteractionLayers.ITEM_LARGE;
 		layerMask |= PhxInteractionLayers.FENCE;
-		if (DayZPhysics.RayCastBullet(pos + "0 1.8 0", pos - "0 10 0", layerMask, null, null, hitPosition, null, null))
+		if (DayZPhysics.RayCastBullet(pos + "0 1.6 0", pos - "0 10 0", layerMask, null, null, hitPosition, null, null))
 		{
 			pos = hitPosition;
 		}
 		else
 		{
 			//! Make sure position is not under terrain
-			float surfaceY = ExpansionStatic.GetSurfaceRoadY3D(pos[0], pos[1], pos[2], RoadSurfaceDetection.CLOSEST);
+			float surfaceY = ExpansionStatic.GetSurfaceRoadY3D(pos[0], pos[1], pos[2], RoadSurfaceDetection.CLOSEST, UseObjectsMode.Wait);
 			if (pos[1] < surfaceY)
 				pos[1] = surfaceY;
 		}
@@ -192,6 +212,7 @@ class ExpansionAISpawnBase
 
 class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 {
+	bool CanSpawnInContaminatedArea;
 	bool CanBeTriggeredByAI;
 	float MinDistRadius;	            // If the player is closer than MinDistRadius from the spawn point, the patrol won't spawn, if set to -2, will use the general setting instead
 	float MaxDistRadius;	            // Same but if the player is further away than MaxDistRadius, the bots won't spawn, if set to -2, will use the general setting instead
@@ -221,34 +242,39 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 		RespawnTime = -2;
 	}
 
-	//! TODO: Improve the spread code, this is very unoptimised
 	void DefaultSpread()
 	{
+		string clsNameLower = ObjectClassName;
+		clsNameLower.ToLower();
+
+		switch (clsNameLower)
+		{
+			case "contaminatedarea_static":
+			case "contaminatedarea_dynamic":
+				MinSpreadRadius = 10;
+				MaxSpreadRadius = 100;
+				break;
+
+			case "land_city_policestation":
+				MinSpreadRadius = 20;
+				MaxSpreadRadius = 40;
+				break;
+
+			case "land_village_policestation":
+				MinSpreadRadius = 15;
+				MaxSpreadRadius = 35;
+				break;
+
+			default:
+				MinSpreadRadius = 10;
+				MaxSpreadRadius = 20;
+				break;
+		}
+
 		if (Behaviour == "HALT")
 		{
-			if (ObjectClassName == "ContaminatedArea_Static" || ObjectClassName == "ContaminatedArea_Dynamic")
-			{
-				MinSpreadRadius = 0;
-				MaxSpreadRadius = 50;
-			}
-			else
-			{
-				MinSpreadRadius = 5;
-				MaxSpreadRadius = 10;
-			}
-		}
-		else
-		{
-			if (ObjectClassName == "ContaminatedArea_Static" || ObjectClassName == "ContaminatedArea_Dynamic")
-			{
-				MinSpreadRadius = 0;
-				MaxSpreadRadius = 150;
-			}
-			else
-			{
-				MinSpreadRadius = 5;
-				MaxSpreadRadius = 20;
-			}
+			MinSpreadRadius *= 0.5;
+			MaxSpreadRadius *= 0.5;
 		}
 	}
 
@@ -271,7 +297,7 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 			for (int i = 0; i < amountofwaypoints; i++)
 			{
 				waypoint = ExpansionMath.GetRandomPointInRing(position, MinSpreadRadius, MaxSpreadRadius);
-				waypoint = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
+				waypoint = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST, UseObjectsMode.Wait);
 
 				waypoints.Insert(waypoint);
 			}
@@ -288,7 +314,7 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 			while (true)
 			{
 				waypoint = ExpansionMath.GetRandomPointAtDegrees(position, angle, MinSpreadRadius, MaxSpreadRadius);
-				waypoint = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST);
+				waypoint = ExpansionStatic.GetSurfaceRoadPosition(waypoint, RoadSurfaceDetection.CLOSEST, UseObjectsMode.Wait);
 
 				waypoints.Insert(waypoint);
 
@@ -319,10 +345,21 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 	override TVectorArray GetWaypoints(vector position = vector.Zero, int beh = eAIWaypointBehavior.HALT)
 	{
 		TVectorArray waypoints;
+		bool generated;
 
 		if (ObjectClassName)
 		{
-			waypoints = GenerateWaypoints(position, beh);
+			if (Waypoints && Waypoints.Count() > 0)
+			{
+				//! Actual waypoints will be determined in eAIDynamicPatrolSpawner by converting relative to world coordinates
+				//! This just to have a non-zero startpos for eAIDynamicPatrol::Setup
+				waypoints = {position};
+			}
+			else
+			{
+				waypoints = GenerateWaypoints(position, beh);
+				generated = true;
+			}
 		}
 		else
 		{
@@ -352,8 +389,25 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 				if (MaxSpreadRadius > 0)
 					smooth = true;
 
-				return ExpansionMath.PathInterpolated(waypoints, curveType, smooth);
+				waypoints = ExpansionMath.PathInterpolated(waypoints, curveType, smooth);
 			}
+		}
+
+		TVectorArray filteredPoints;
+
+		if (generated)
+		{
+			//! If generated waypoints, filter
+			filteredPoints = {};
+
+			foreach (vector candidate: waypoints)
+			{
+				//! Ignore waypoint if in high water (threshold of 1 m matches SHumanCommandMoveSettings.m_fWaterLevelSpeedRectrictionHigh)
+				if (g_Game.GetWaterDepth(candidate) < 1.0)
+					filteredPoints.Insert(candidate);
+			}
+
+			waypoints = filteredPoints;
 		}
 
 		return waypoints;

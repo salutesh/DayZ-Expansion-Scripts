@@ -11,6 +11,7 @@ class CfgPatches
 			"DZ_Weapons_Firearms",
 			"DZ_Weapons_Firearms_AKM",
 			"DZ_Weapons_Magazines",
+			"DZ_Weapons_Melee",
 			"DZ_Weapons_Projectiles"
 		};
 	};
@@ -25,6 +26,7 @@ class CfgAmmoTypes
 class CfgAmmo
 {
 	class Bullet_762x39Tracer;
+	class MeleeFist_Heavy;
 	class Bullet_762x39Tracer_eAI_Debug: Bullet_762x39Tracer
 	{
 		spawnPileType="Ammo_762x39Tracer_eAI_Debug";
@@ -48,6 +50,9 @@ class CfgAmmo
 				damage=1;
 			};
 		};
+	};
+	class MeleeShoryuken: MeleeFist_Heavy
+	{
 	};
 };
 class CfgMagazines

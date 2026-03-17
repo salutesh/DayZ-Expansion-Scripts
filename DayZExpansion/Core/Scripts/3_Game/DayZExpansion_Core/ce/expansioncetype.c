@@ -20,67 +20,95 @@ class ExpansionCEType
 	int QuantMin;
 	int QuantMax;
 	int Cost;
-	ref ExpansionCETypeFlags Flags = new ExpansionCETypeFlags();
+	ref ExpansionCETypeFlags Flags;
 	ref set<string> Categories = new set<string>();
 	ref set<string> Usages = new set<string>();
 	ref set<string> Values = new set<string>();
 	
-	void ExpansionCEType(string name, int nominal = -1, int lifetime = -1, int restock = -1, int min = -1, int quantMin = -1, int quantMax = -1, int cost = -1)
+	void ExpansionCEType(string name)
 	{
 		Name = name;
-		Nominal = nominal;
-		Lifetime = lifetime;
-		restock = restock;
-		Min = min;
-		QuantMin = quantMin;
-		QuantMax = quantMax;
-		Cost = cost;
 	}
 
+	//! See https://community.bistudio.com/wiki/DayZ:Central_Economy_mission_files_modding for file specifics
 	void Merge(ExpansionCEType other)
 	{
-		if (other.Nominal != -1)
+		if (other.Nominal != ExpansionCE.NOT_SET)
 			Nominal = other.Nominal;
 
-		if (other.Lifetime != -1)
+		if (other.Lifetime != ExpansionCE.NOT_SET)
 			Lifetime = other.Lifetime;
 
-		if (other.Restock != -1)
+		if (other.Restock != ExpansionCE.NOT_SET)
 			Restock = other.Restock;
 
-		if (other.Min != -1)
+		if (other.Min != ExpansionCE.NOT_SET)
 			Min = other.Min;
 
-		if (other.QuantMin != -1)
+		if (other.QuantMin != ExpansionCE.NOT_SET)
 			QuantMin = other.QuantMin;
 
-		if (other.QuantMax != -1)
+		if (other.QuantMax != ExpansionCE.NOT_SET)
 			QuantMax = other.QuantMax;
 
-		if (other.Cost != -1)
+		if (other.Cost != ExpansionCE.NOT_SET)
 			Cost = other.Cost;
 
-		Categories.InsertSet(other.Categories);
-		Usages.InsertSet(other.Usages);
-		Values.InsertSet(other.Values);
+		if (other.Flags)
+		{
+			if (!Flags)
+				Flags = new ExpansionCETypeFlags();
+
+			Flags.Merge(other.Flags);
+		}
+
+		if (other.Categories)
+			Categories.Copy(other.Categories);
+
+		if (other.Usages)
+			Usages.Copy(other.Usages);
+
+		if (other.Values)
+			Values.Copy(other.Values);
 	}
 }
 
 class ExpansionCETypeFlags
 {
-	bool CountInCargo;
-	bool CountInHoarder;
-	bool CountInMap;
-	bool CountInPlayer;
-	bool Crafted;
-	bool DELoot;
+	int CountInCargo;
+	int CountInHoarder;
+	int CountInMap;
+	int CountInPlayer;
+	int Crafted;
+	int DELoot;
+
+	void Merge(ExpansionCETypeFlags other)
+	{
+		if (other.CountInCargo != ExpansionCE.NOT_SET)
+			CountInCargo = other.CountInCargo;
+
+		if (other.CountInHoarder != ExpansionCE.NOT_SET)
+			CountInHoarder = other.CountInHoarder;
+
+		if (other.CountInMap != ExpansionCE.NOT_SET)
+			CountInMap = other.CountInMap;
+
+		if (other.CountInPlayer != ExpansionCE.NOT_SET)
+			CountInPlayer = other.CountInPlayer;
+
+		if (other.Crafted != ExpansionCE.NOT_SET)
+			Crafted = other.Crafted;
+
+		if (other.DELoot != ExpansionCE.NOT_SET)
+			DELoot = other.DELoot;
+	}
 }
 
-class ExpansionCETypes: array<ref ExpansionCEType>
+class ExpansionCETypes: map<string, ref ExpansionCEType>
 {
 	static ExpansionCETypes LoadTypes(string fileName)
 	{
-		ExpansionCETypes types = {};
+		ExpansionCETypes types = new ExpansionCETypes;
 		types.ReadTypes(fileName);
 		return types;
 	}
@@ -97,30 +125,50 @@ class ExpansionCETypes: array<ref ExpansionCEType>
 				return;
 			}
 
-			auto types = root.GetTag("type");
+			auto types = root.GetContent().GetTags();
 			foreach (CF_XML_Tag type: types)
 			{
-				string name = ExpansionXML.GetAttributeString(type, "name");
-				int nominal = ExpansionXML.GetTagContentInt(type, "nominal", -1);
-				int lifetime = ExpansionXML.GetTagContentInt(type, "lifetime", -1);
-				int restock = ExpansionXML.GetTagContentInt(type, "restock", -1);
-				int min = ExpansionXML.GetTagContentInt(type, "min", -1);
-				int quantmin = ExpansionXML.GetTagContentInt(type, "quantmin", -1);
-				int quantmax = ExpansionXML.GetTagContentInt(type, "quantmax", -1);
-				int cost = ExpansionXML.GetTagContentInt(type, "cost", -1);
+				string tagName = type.GetName();
+				if (tagName != "type")
+					continue;
 
-				auto ceType = new ExpansionCEType(name, nominal, lifetime, restock, min, quantmin, quantmax, cost);
+				string name = ExpansionXML.GetAttributeString(type, "name");
+
+				string key = name;
+				key.ToLower();
+
+				int defaultValue = 0;
+				int defaultQuantity = -1;
+				int defaultCost = 100;
+
+				if (Contains(key))
+				{
+					defaultValue = ExpansionCE.NOT_SET;
+					defaultQuantity = ExpansionCE.NOT_SET;
+					defaultCost = ExpansionCE.NOT_SET;
+				}
+
+				auto ceType = new ExpansionCEType(name);
+
+				ceType.Nominal = ExpansionXML.GetTagContentInt(type, "nominal", defaultValue);
+				ceType.Lifetime = ExpansionXML.GetTagContentInt(type, "lifetime", defaultValue);
+				ceType.Restock = ExpansionXML.GetTagContentInt(type, "restock", defaultValue);
+				ceType.Min = ExpansionXML.GetTagContentInt(type, "min", defaultValue);
+				ceType.QuantMin = ExpansionXML.GetTagContentInt(type, "quantmin", defaultQuantity);
+				ceType.QuantMax = ExpansionXML.GetTagContentInt(type, "quantmax", defaultQuantity);
+				ceType.Cost = ExpansionXML.GetTagContentInt(type, "cost", defaultCost);
 
 				//! Flags
 				auto flags = type.GetTag("flags")[0];
 				if (flags)
 				{
-					ceType.Flags.CountInCargo = ExpansionXML.GetAttributeBool(flags, "count_in_cargo", ceType.Flags.CountInCargo);
-					ceType.Flags.CountInHoarder = ExpansionXML.GetAttributeBool(flags, "count_in_hoarder", ceType.Flags.CountInHoarder);
-					ceType.Flags.CountInMap = ExpansionXML.GetAttributeBool(flags, "count_in_map", ceType.Flags.CountInMap);
-					ceType.Flags.CountInPlayer = ExpansionXML.GetAttributeBool(flags, "count_in_player", ceType.Flags.CountInPlayer);
-					ceType.Flags.Crafted = ExpansionXML.GetAttributeBool(flags, "crafted", ceType.Flags.Crafted);
-					ceType.Flags.DELoot = ExpansionXML.GetAttributeBool(flags, "deloot", ceType.Flags.DELoot);
+					ceType.Flags = new ExpansionCETypeFlags();
+					ceType.Flags.CountInCargo = ExpansionXML.GetAttributeInt(flags, "count_in_cargo", defaultValue);
+					ceType.Flags.CountInHoarder = ExpansionXML.GetAttributeInt(flags, "count_in_hoarder", defaultValue);
+					ceType.Flags.CountInMap = ExpansionXML.GetAttributeInt(flags, "count_in_map", defaultValue);
+					ceType.Flags.CountInPlayer = ExpansionXML.GetAttributeInt(flags, "count_in_player", defaultValue);
+					ceType.Flags.Crafted = ExpansionXML.GetAttributeInt(flags, "crafted", defaultValue);
+					ceType.Flags.DELoot = ExpansionXML.GetAttributeInt(flags, "deloot", defaultValue);
 				}
 
 				//! Categories
@@ -144,8 +192,17 @@ class ExpansionCETypes: array<ref ExpansionCEType>
 					ceType.Values.Insert(ExpansionXML.GetAttributeString(value, "name"));
 				}
 
-				Insert(ceType);
+				Merge(key, ceType);
 			}
 		}
+	}
+
+	void Merge(string key, ExpansionCEType ceType)
+	{
+		ExpansionCEType existing;
+		if (Find(key, existing))
+			existing.Merge(ceType);
+		else
+			Insert(key, ceType);
 	}
 }

@@ -88,9 +88,6 @@ modded class ActionGetInTransport
 
 		if (!vehicle)
 			return;
-
-		if (vehicle.IsHelicopter())
-			vehicle.SetHasPilot(vehicle.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) != NULL);  //! So we are able to detect if pilot got disconnected or got out on own accord
 		
 		if (action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEnter)
 		{

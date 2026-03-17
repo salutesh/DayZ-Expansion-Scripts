@@ -12,16 +12,16 @@
 
 class ExpansionKillFeedMessageMetaData
 {
-	string Message;
+	int Type;
 	string Icon;
-	string FeedParam1;
+	string FeedParam1;  //! Player or AI name
 	string FeedParam2;
 	string FeedParam3;
 	string FeedParam4;
 	
 	void ExpansionKillFeedMessageMetaData(ExpansionKillFeedMessageType type, string icon, string param1 = "", string param2 = "", string param3 = "", string param4 = "")
 	{
-		this.Message = ExpansionKillFeedModule.GetKillFeedMessage(type);
+		this.Type = type;
 		this.Icon = icon;
 		this.FeedParam1 = param1;
 		this.FeedParam2 = param2;

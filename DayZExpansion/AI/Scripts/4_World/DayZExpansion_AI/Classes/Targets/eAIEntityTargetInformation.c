@@ -2,6 +2,8 @@ class eAIEntityTargetInformation: eAITargetInformation
 {
 	protected EntityAI m_Target;
 	private string m_TargetDebugName;
+	bool m_Killed;
+	bool m_ShoryukenHit;
 
 	void eAIEntityTargetInformation(EntityAI target)
 	{
@@ -106,11 +108,70 @@ class eAIEntityTargetInformation: eAITargetInformation
 		return vector.DistanceSq(ai.GetPosition(), position);
 	}
 
+	override void OnVariablesSynchronized()
+	{
+		if (m_ShoryukenHit && m_Target.IsInitialized())
+		{
+			m_ShoryukenHit = false;
+			PlayFireParticles();
+		}
+	}
+
+	void PlayFireParticles()
+	{
+	}
+
+	void PlayFireParticleOnBone(string boneName)
+	{
+		int boneIdx = GetBoneIndexByName(boneName);
+PrintFormat("%1 %2 %3", m_Target, boneName, boneIdx);
+		if (boneIdx == -1)
+			return;
+
+		vector pos = GetBonePositionMS(boneIdx);
+
+		ParticleManager mgr = ParticleManager.GetInstance();
+		ParticleSource particle = mgr.PlayOnObject(ParticleList.EXPANSION_AI_SHORYUKEN_FIRE, m_Target, pos, "0 0 0", true);
+
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(particle.StopParticle, 1500, false, 0);
+	}
+
+	int GetBoneIndexByName(string boneName)
+	{
+		return -1;
+	}
+
+	vector GetBonePositionMS(int boneIdx)
+	{
+		return vector.Zero;
+	}
+
 	override void OnHit(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 		eAIBase ai;
 		if (source && Class.CastTo(ai, source.GetHierarchyRoot()))
 			ai.m_eAI_HitObject = m_Target;
+
+		if (ammo == "MeleeShoryuken")
+		{
+			m_ShoryukenHit = true;
+			m_Target.SetSynchDirty();
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ResetShoryukenHit, 1000, false);
+			ExpansionWorld.s_eAI_Heavy_Punch_SoundSet.Play(m_Target);
+		}
+
+		if (m_Target.IsDamageDestroyed() && !m_Killed)
+		{
+			m_Killed = true;
+
+			if (ammo == "MeleeShoryuken")
+				ExpansionWorld.s_eAI_UahUahUahM_SoundSet.Play(m_Target);
+		}
+	}
+
+	void ResetShoryukenHit()
+	{
+		m_ShoryukenHit = false;
 	}
 
 	override void OnHealthLevelChanged(int oldLevel, int newLevel, string zone)

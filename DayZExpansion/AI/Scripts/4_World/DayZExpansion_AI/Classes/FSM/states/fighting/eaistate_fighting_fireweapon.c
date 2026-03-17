@@ -25,7 +25,7 @@ class eAIState_Fighting_FireWeapon: eAIState
 		if (unit.eAI_IsChangingStance())
 			return CONTINUE;
 		
-		if (!m_Target)
+		if (!m_Target || !m_Target.GetEntity())
 			return EXIT;
 		
 		auto lowPosition = m_Target.GetPosition(false);
@@ -86,14 +86,13 @@ class eAIState_Fighting_FireWeapon: eAIState
 		PlayerBase player;
 		EntityAI targetEntity = m_Target.GetEntity();
 		ItemBase itemTarget;
-		float dist = m_Target.GetDistance();
 		if (!targetEntity)
 		{
 			return eAITransition.FAIL;
 		}
 		else if (Class.CastTo(player, targetEntity))
 		{
-			if (player.IsUnconscious())
+			if (player.IsUnconscious() && !player.IsAI())
 				return eAITransition.FAIL;
 		}
 		else if (Class.CastTo(itemTarget, targetEntity) && !itemTarget.Expansion_IsDanger())
@@ -122,6 +121,7 @@ class eAIState_Fighting_FireWeapon: eAIState
 		if (minDist)
 		{
 			//! Avoid firing if within minDist
+			float dist = m_Target.GetDistance();
 			if (dist < minDist) return eAITransition.FAIL;
 			
 			//! Avoid firing if other friendly units within minDist from tgt

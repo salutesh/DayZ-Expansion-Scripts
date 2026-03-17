@@ -12,6 +12,12 @@
 				<size width="150" height="40" />
 			</editor_data>
 		</state>
+		<state name="Dormant" class="eAIState_Dormant">
+			<editor_data>
+				<position x="554" y="339" />
+				<size width="150" height="40" />
+			</editor_data>
+		</state>
 		<state name="Unconscious" class="eAIState_Unconscious">
 			<editor_data>
 				<position x="892.021210954633" y="252.363165761721" />
@@ -519,7 +525,7 @@
 				return dst.Guard();
 			</guard>
 			<event />
-			<from_state name="Idle,Flank" />
+			<from_state name="Idle" />
 			<to_state name="FollowFormation" />
 		</transition>
 		<transition>
@@ -531,7 +537,7 @@
 				return dst.Guard();
 			</guard>
 			<event />
-			<from_state name="Idle,Flank" />
+			<from_state name="Idle" />
 			<to_state name="TraversingWaypoints" />
 		</transition>
 		<transition>
@@ -580,6 +586,30 @@
 			</guard>
 			<event />
 			<from_state name="Flank" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="748.815618203381" y="600.855335435811" />
+				<position_destination x="662.899826762951" y="479" />
+			</editor_data>
+			<guard>
+				return dst.Guard();
+			</guard>
+			<event />
+			<from_state name="Idle,TraversingWaypoints,FollowFormation" />
+			<to_state name="Dormant" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="758.815618203381" y="610.855335435811" />
+				<position_destination x="672.899826762951" y="489" />
+			</editor_data>
+			<guard>
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state name="Dormant" />
 			<to_state name="Idle" />
 		</transition>
 		<transition>

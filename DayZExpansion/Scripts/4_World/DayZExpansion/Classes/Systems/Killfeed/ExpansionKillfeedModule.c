@@ -27,7 +27,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 	private PlayerStat<float> m_StatEnergy;
 	private float m_Blood;
 
-	private bool m_HitCheckDone;
+	private bool m_HitCheckDone;  //! DEPRECATED, no longer used
 
 #ifdef JM_COT
 	protected JMWebhookModule m_Webhook;
@@ -152,13 +152,13 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 			m_SourceType = "";
 		}
 
-		ResetHitCheckDone();
+		player.UpdateIPADACK(true);
 	}
 
 	//! @note Event executed from playerbase EEHitBy function
 	void OnPlayerHitBy(int damageType, PlayerBase player, EntityAI source, string ammo)
 	{
-		if ( !player || player.IsAlive() )
+		if ( !player || player.IsAlive() || player.IPADACK() )
 			return;
 
 #ifdef EXTRACE
@@ -203,16 +203,20 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 					DoKillfeed_SetHitCheck(ExpansionKillFeedMessageType.WEAPON_EXPLOSION, "Human Skull", m_SourceType);
 				}
 				break;
+
+			default:
+				OnPlayerKilled(player, source);
+				break;
 		}
 	}
 
 	void OnPlayerKilled( PlayerBase player, Object source )
 	{
 #ifdef EXTRACE
-		auto trace = EXTrace.Start(true, this, "" + player, "" + source);
+		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player, "" + source);
 #endif 
 		
-		if ( !WasHitCheckDone() )
+		if ( !player.IPADACK() )
 		{
 			if ( !source )
 			{
@@ -224,8 +228,14 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 				{
 					if ( !OnKilledByVehicleCrash(player) )
 					{
-						if ( !OnKilledByCondition(player) )
-							OnDiedUnknown( player );
+						if (player.GetDrowningWaterLevelCheck())
+						{
+							OnDrowned(player);
+						}
+						else if ( !OnKilledByCondition(player) )
+						{
+							OnDiedUnknown(player);
+						}
 					}
 				}
 			}
@@ -249,10 +259,6 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 			{
 				OnKilledByUnknown( player, source );
 			}
-		}
-		else
-		{
-			ResetHitCheckDone();
 		}
 	}
 
@@ -360,22 +366,16 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		return true;
 	}
 
+	[Obsolete("DEPRECATED, no longer used")]
 	bool WasHitCheckDone()
-	{
-#ifdef EXTRACE
-		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + m_HitCheckDone);
-#endif 
-		
+	{	
 		return m_HitCheckDone;
 	}
 
+	[Obsolete("DEPRECATED, no longer used")]
 	void ResetHitCheckDone()
 	{
 		m_HitCheckDone = false;
-
-#ifdef EXTRACE
-		EXTrace.Start(EXTrace.KILLFEED, this, "" + m_HitCheckDone);
-#endif 
 	}
 
 	protected int CalcBlood(PlayerBase player)
@@ -717,6 +717,20 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		DoKillfeed(ExpansionKillFeedMessageType.KILLED_UNKNOWN, "Human Skull", m_SourceType);
 	}
 
+	void OnDrowned(PlayerBase player)
+	{
+#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player);
+#endif
+		
+		ResetKillfeed(player);
+
+		if (player.IsUnconscious())
+			DoKillfeed(ExpansionKillFeedMessageType.DROWNED_UNCON, "Human Skull");
+		else
+			DoKillfeed(ExpansionKillFeedMessageType.DROWNED, "Human Skull");
+	}
+
 	void OnDiedUnknown(PlayerBase player)
 	{
 #ifdef EXTRACE
@@ -812,6 +826,14 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 				return GetExpansionSettings().GetNotification().KillFeedAnimal;
 			case ExpansionKillFeedMessageType.KILLED_UNKNOWN:
 				return GetExpansionSettings().GetNotification().KillFeedKilledUnknown;
+		#ifdef EXPANSION_NOTIFICATION_KILLFEED_DROWNED
+			case ExpansionKillFeedMessageType.DROWNED:
+			case ExpansionKillFeedMessageType.DROWNED_UNCON:
+				return GetExpansionSettings().GetNotification().KillFeedDrowned;
+		#else
+			case ExpansionKillFeedMessageType.DROWNED:
+			case ExpansionKillFeedMessageType.DROWNED_UNCON:
+		#endif
 			case ExpansionKillFeedMessageType.DIED_UNKNOWN:
 				return GetExpansionSettings().GetNotification().KillFeedDiedUnknown;
 		}
@@ -948,6 +970,12 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 			case ExpansionKillFeedMessageType.KILLED_UNKNOWN:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_KILLED_UNKNOWN";
 				break;
+			case ExpansionKillFeedMessageType.DROWNED:
+				message = "STR_EXPANSION_KILLFEED_PLAYER_DROWNED";
+				break;
+			case ExpansionKillFeedMessageType.DROWNED_UNCON:
+				message = "STR_EXPANSION_KILLFEED_PLAYER_DROWNED_UNCON";
+				break;
 			case ExpansionKillFeedMessageType.DIED_UNKNOWN:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_DIED_UNKNOWN";
 				break;
@@ -962,13 +990,13 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 		if ( identity == NULL )
 		{
-			string displayName = player.GetDisplayName();
+			string type = player.GetType();
+			string displayName = GetDisplayName(type);
 			string name = displayName;
 		#ifdef EXPANSIONMODAI
 			eAIBase ai;
-			if (Class.CastTo(ai, player) && (name == m_Expansion_SurvivorDisplayName || name == string.Empty))
+			if (Class.CastTo(ai, player) && (name == type || name == string.Empty))
 			{
-				name = player.GetType();
 				int index = ExpansionString.LastIndexOf(name, "_");
 				if (index > -1)
 					displayName = name.Substring(index + 1, name.Length() - index - 1);
@@ -1010,7 +1038,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		if (kill_data)
 		{
 #ifdef EXTRACE
-			auto trace = EXTrace.Start(EXTrace.KILLFEED, this, kill_data.Message, kill_data.Icon, kill_data.FeedParam1, kill_data.FeedParam2, kill_data.FeedParam3, kill_data.FeedParam4);
+			auto trace = EXTrace.Start(EXTrace.KILLFEED, this, typename.EnumToString(ExpansionKillFeedMessageType, kill_data.Type), kill_data.Icon, kill_data.FeedParam1, kill_data.FeedParam2, kill_data.FeedParam3, kill_data.FeedParam4);
 #endif 
 			
 			StringLocaliser loc = GetLocaliser(kill_data);
@@ -1030,18 +1058,37 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		if (!kill_data)
 			return NULL;
 
-		string displayName1 = ExpansionStatic.GetItemDisplayNameWithType(kill_data.FeedParam1);
-		string displayName2 = ExpansionStatic.GetItemDisplayNameWithType(kill_data.FeedParam2);
-		string displayName3 = ExpansionStatic.GetItemDisplayNameWithType(kill_data.FeedParam3);
-		string displayName4 = ExpansionStatic.GetItemDisplayNameWithType(kill_data.FeedParam4);
+		string displayName1 = kill_data.FeedParam1;  //! Player or AI name
+		string displayName2 = GetDisplayName(kill_data.FeedParam2);
+		string displayName3 = GetDisplayName(kill_data.FeedParam3);
+		string displayName4 = GetDisplayName(kill_data.FeedParam4);
 
-		auto loc = new StringLocaliser(kill_data.Message);
+		string msg = GetKillFeedMessage(kill_data.Type);
+		auto loc = new StringLocaliser(msg);
 		loc.Set(0, displayName1);
 		loc.Set(1, displayName2);
 		loc.Set(2, displayName3);
 		loc.Set(3, displayName4);
 
 		return loc;
+	}
+
+	string GetDisplayName(string type)
+	{
+		string displayName;
+
+		string path = string.Format("%1 %2 displayName", CFG_VEHICLESPATH, type);
+		if (g_Game.ConfigIsExisting(path) && g_Game.ConfigGetText(path, displayName))
+		{
+			if (displayName == m_Expansion_SurvivorDisplayName)
+				displayName = type;
+		}
+		else
+		{
+			displayName = ExpansionStatic.GetItemDisplayNameWithType(type);
+		}
+
+		return displayName;
 	}
 
 	private void ExpansionLogKillfeed(ExpansionKillFeedMessageMetaData kill_data)

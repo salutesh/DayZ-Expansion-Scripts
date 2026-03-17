@@ -5,8 +5,6 @@ CarScript g_Expansion_Car;
 modded class CarScript
 {
 	string m_eAI_NoiseParamsPath;
-
-	ref map<int, Human> m_Expansion_ReservedSeats = new map<int, Human>;
 	
 	override void EEInit()
 	{		
@@ -30,20 +28,5 @@ modded class CarScript
 
 			eAINoiseSystem.AddNoise(GetPosition(), 5.0, m_eAI_NoiseParamsPath, noiseMultiplier);
 		}
-	}
-
-	bool Expansion_IsSeatReservedByOther(int posIdx, Human crewMember)
-	{
-		Human reserved = m_Expansion_ReservedSeats[posIdx];
-
-		if (!reserved || (!reserved.IsAlive() && !CrewMember(posIdx)))
-			return false;
-
-		return reserved != crewMember;
-	}
-
-	void Expansion_ReserveSeat(int posIdx, Human crewMember)
-	{
-		m_Expansion_ReservedSeats[posIdx] = crewMember;
 	}
 }

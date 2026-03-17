@@ -73,8 +73,29 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 		return pos;
 	}
 
+	override void PlayFireParticles()
+	{
+		PlayFireParticleOnBone("lefthand");
+		PlayFireParticleOnBone("righthand");
+		PlayFireParticleOnBone("leftfoot");
+		PlayFireParticleOnBone("rightfoot");
+		PlayFireParticleOnBone("pelvis");
+		PlayFireParticleOnBone("spine3");
+		PlayFireParticleOnBone("head");
+	}
+
+	override int GetBoneIndexByName(string boneName)
+	{
+		return m_Zombie.GetBoneIndexByName(boneName);
+	}
+
+	override vector GetBonePositionMS(int boneIdx)
+	{
+		return m_Zombie.GetBonePositionMS(boneIdx);
+	}
+
 	// https://www.desmos.com/calculator/r4mqu91qff
-	override float CalculateThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		if (m_Zombie.IsDamageDestroyed())
 			return 0.0;
@@ -117,6 +138,9 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 			//! The further away the zombie, the less likely it will be a threat
 			float distance = GetDistance(ai, true);
 
+			if (ai.IsSwimming())
+				return ExpansionMath.LinearConversion(0, 100, distance, 0.15, 0.1);
+
 			//! If not reachable, ignore if we don't have a gun
 			if (!ai.m_eAI_HasProjectileWeaponInHands && ai.eAI_IsUnreachable(2.0, m_Target.GetPosition()))
 			{
@@ -124,10 +148,12 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 				return 0.0;
 			}
 
+			EntityAI hands;
+
 			if (!levelFactor)
 			{
 				//! Exception: Zombie is near, not (yet) aggroed and AI has no weapon - pre-empt zombie attacking by going on the offense
-				EntityAI hands = ai.GetHumanInventory().GetEntityInHands();
+				hands = ai.GetHumanInventory().GetEntityInHands();
 				if (distance <= 6.25 && (!hands || !hands.IsWeapon()))
 					levelFactor = 0.25;
 				else

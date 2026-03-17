@@ -37,6 +37,7 @@ class eAIGroup
 	int m_CurrentWaypointIndex;
 	bool m_BackTracking;
 	vector m_CurrentWaypoint;
+	bool m_RoamingLocal;
 
 	ref array<ref ExpansionAIRoamingLocation> m_RoamingLocations = {};
 	//vector m_CurrentRoamingLocationPosition;
@@ -131,6 +132,22 @@ class eAIGroup
 		group.m_ID = s_IDCounter;
 
 		return group;
+	}
+
+	//! Prevent 3rd party mods from doing stupid shit when -newErrorsAreWarnings=1 as this would result in NULL pointers later
+	static eAIGroup CreateGroup(Class faction)
+	{
+		TStringArray stack = {};
+		if (faction)
+		{
+			string tmp;
+			DumpStackString(tmp);
+			tmp.Split("\n", stack);
+			stack.RemoveOrdered(0);
+			EXError.Error(null, "FIX-ME: Unsafe down-casting, use 'eAIFaction.Cast' for safe down-casting", stack);
+		}
+
+		return CreateGroup();
 	}
 
 	static void DeleteGroup(eAIGroup group)
@@ -237,6 +254,8 @@ class eAIGroup
 		auto trace = CF_Trace_0(this, "SetWaypointBehaviour");
 #endif
 
+		m_RoamingLocal = false;
+
 		switch (bhv)
 		{
 			case eAIWaypointBehavior.HALT_OR_LOOP:
@@ -245,11 +264,21 @@ class eAIGroup
 				else
 					bhv = eAIWaypointBehavior.LOOP;
 				break;
+
 			case eAIWaypointBehavior.HALT_OR_ALTERNATE:
 				if (Math.RandomIntInclusive(0, 1))
 					bhv = eAIWaypointBehavior.HALT;
 				else
 					bhv = eAIWaypointBehavior.ALTERNATE;
+				break;
+
+			case eAIWaypointBehavior.LOOP_OR_ALTERNATE:
+				SetWaypointBehaviourAuto(eAIWaypointBehavior.ALTERNATE);
+				return;
+
+			case eAIWaypointBehavior.ROAMING_LOCAL:
+				bhv = eAIWaypointBehavior.ROAMING;
+				m_RoamingLocal = true;
 				break;
 		}
 
@@ -320,7 +349,7 @@ class eAIGroup
 		string buildingType;
 
 		eAIBase ai;
-		if (Class.CastTo(ai, leader) && ai.m_eAI_PotentialCoverObjects.Count() > 0 && locationTime < Math.RandomFloat(300.0, 600.0))
+		if (Class.CastTo(ai, leader) && ai.m_eAI_PotentialCoverObjects.Count() > 0 && (m_RoamingLocal || locationTime < Math.RandomFloat(300.0, 600.0)))
 		{
 			buildingsByDistance = new map<int, BuildingBase>;
 
@@ -330,6 +359,7 @@ class eAIGroup
 					continue;
 
 				buildingType = building.GetType();
+				buildingType.ToLower();
 				if (ExpansionString.StartsWithAny(buildingType, excludedBuildings))
 					continue;
 
@@ -341,6 +371,12 @@ class eAIGroup
 				distKey = distSq;
 				distances.Insert(distKey);
 				buildingsByDistance[distKey] = building;
+			}
+
+			if (m_RoamingLocal && distances.Count() < 3)
+			{
+				distances.Clear();
+				m_VisitedBuildings.Clear();
 			}
 		}
 
@@ -481,6 +517,7 @@ class eAIGroup
 					if (Class.CastTo(destinationBuilding, candidate) && destinationBuilding.GetDoorCount() > 0)
 					{
 						buildingType = destinationBuilding.GetType();
+						buildingType.ToLower();
 						if (!ExpansionString.StartsWithAny(buildingType, excludedBuildings))
 							break;
 					}
@@ -570,7 +607,7 @@ class eAIGroup
 				m_RoamingLocationReachedTimestamp = g_Game.GetTickTime();
 
 			//! Remove destination from roaming locations if not a helicrash (helicrashes are events and not in roaming locations)
-			if (m_RoamingLocation.Type != "StaticHeliCrash")
+			if (!m_RoamingLocal && m_RoamingLocation.Type != "StaticHeliCrash")
 				m_RoamingLocations.RemoveItemUnOrdered(m_RoamingLocation);
 		}
 	}
@@ -620,6 +657,17 @@ class eAIGroup
 		}
 	}
 
+	//! Prevent 3rd party mods from doing stupid shit when -newErrorsAreWarnings=1 as this would result in NULL pointers later
+	void SetFaction(Class f)
+	{
+		string tmp;
+		DumpStackString(tmp);
+		TStringArray stack = {};
+		tmp.Split("\n", stack);
+		stack.RemoveOrdered(0);
+		EXError.Error(null, "FIX-ME: Unsafe down-casting, use 'eAIFaction.Cast' for safe down-casting", stack);
+	}
+
 	eAIFaction GetFaction()
 	{
 #ifdef EAI_TRACE
@@ -651,8 +699,9 @@ class eAIGroup
 
 	/**
 	 * @brief Add/update target for all group members
-	 * 
-	 * @param info Target information
+	 *
+	 * @param player Attacked player
+	 * @param info Attacker target information
 	 * @param update If true (default) and member is already targeting the target, update found_at_time and max_time
 	 * @param threat Initial threat level if non-zero
 	 */
@@ -665,6 +714,15 @@ class eAIGroup
 		eAIBase ai;
 		eAITarget target;
 		bool created;
+
+		DayZPlayerImplement aggressorPlayer;
+		eAIGroup aggressorGroup;
+		if (Class.CastTo(aggressorPlayer, info.GetEntity()))
+			aggressorGroup = aggressorPlayer.GetGroup();
+
+		string aggressorPrefix;
+		string victimPrefix;
+
 		foreach (DayZPlayerImplement member: m_Members)
 		{
 			if (Class.CastTo(ai, member))
@@ -675,7 +733,26 @@ class eAIGroup
 					target.UpdateFoundAtTime();
 
 				if (threat > target.m_ThreatLevelActive)
-					target.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
+				{
+					if (!target.m_SearchOnLOSLost)
+					{
+						target.SetInitial(threat, player.GetPosition());  //! We deliberately don't use attacker position but victim position
+						target.m_SearchOnLOSLost = true;
+					}
+					else
+					{
+						target.SetThreat(threat);
+					}
+				}
+
+				if (ExpansionAISettings.Get().LogAIHitBy && aggressorPlayer && target.m_ThreatLevelActive > 0.2)
+				{
+					//! If we already see the attacker as enemy (i.e. their faction is hostile to ours), don't log aggro
+					if (aggressorGroup && !aggressorGroup.GetFaction().IsFriendly(GetFaction()))
+						continue;
+
+					target.LogFriendlyAggro(player, aggressorPrefix, victimPrefix);
+				}
 			}
 		}
 	}
@@ -1052,7 +1129,7 @@ class eAIGroup
 		if (!m_Leave)
 			return false;
 
-		if (g_Game.GetTime() - m_LastHitTime < 30)
+		if (g_Game.GetTickTime() - m_LastHitTime < 30)
 			return false;
 
 		return true;

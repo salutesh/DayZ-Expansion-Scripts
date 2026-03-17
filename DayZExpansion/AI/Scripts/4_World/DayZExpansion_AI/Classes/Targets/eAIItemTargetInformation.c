@@ -48,7 +48,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 		return m_Item.GetCenter();
 	}
 
-	override float CalculateThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null, eAITargetInformationState state = null)
 	{
 		if (m_Item.IsDamageDestroyed() || m_Item.IsSetForDeletion())
 			return 0.0;
@@ -73,7 +73,14 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 			{
 				ExpansionPathHandler pathFinding = ai.GetPathFinding();
 
-				if (pathFinding.m_CurrentTargetPosition == GetPosition(ai))
+				vector tgtPos = pathFinding.m_CurrentTargetPosition;
+				vector itemPos = GetPosition(ai);
+
+				//! Account for tide if swimming
+				if (ai.IsSwimming() && Math.AbsFloat(tgtPos[1] - itemPos[1]) < 0.5)
+					tgtPos[1] = itemPos[1];
+
+				if (tgtPos == itemPos)
 				{
 					bool isUnreachable;
 					bool isNear;
@@ -217,7 +224,7 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 					}
 				}
 
-				if (!ai.IsUnconscious() && m_Item.m_Expansion_PreviousOwner != ai && !ai.eAI_HasLOS(this))
+				if (!ai.IsUnconscious() && m_Item.m_Expansion_PreviousOwner != ai && !state.m_LOS)
 				{
 					//! Make sure we can react to other targets first
 					distance = Math.Sqrt(distance);

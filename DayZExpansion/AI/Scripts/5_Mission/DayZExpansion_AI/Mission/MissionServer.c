@@ -29,6 +29,7 @@ modded class MissionServer
 #endif
 
 		ExpansionHumanLoadout.Init();
+		ExpansionHumanLoadout.DefaultFreshSpawnLoadout();
 
 		PlayerBase.Expansion_RegisterInventoryItemType(ItemCompass);
 		PlayerBase.Expansion_RegisterInventoryItemType(ItemMap);
@@ -53,6 +54,8 @@ modded class MissionServer
 		eAI_GetPlayers();
 
 		eAIDynamicPatrol.LoadBalancing_Schedule();
+
+		GetExpansionSettings().GetAI().OnPlayerConnected(player, identity);
 
 		if (player.GetGroup())
 			return;
@@ -113,8 +116,8 @@ modded class MissionServer
 
 		//! Init patrols late so mapping already loaded
         g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAIPatrolManager.InitPatrols, 10000, false);
-		//! According to the community this fix the issue of zombies not aggroing
-		//! Dont ask how, dont ask why
+
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(eAITargetInformation.PurgeCustomAI, 60000, true);
 	}
 
 	override void PlayerDisconnected( PlayerBase player, PlayerIdentity identity, string uid )
@@ -124,6 +127,10 @@ modded class MissionServer
 #endif
 
 		super.PlayerDisconnected( player, identity, uid );
+
+		eAI_GetPlayers();
+
+		GetExpansionSettings().GetAI().OnPlayerDisconnected(player, identity, uid);
 
 		if (PlayerBase.Expansion_GetOnlinePlayersCount() == 0)
 			eAIGroup.SaveAllPersistentGroups();
@@ -135,8 +142,8 @@ modded class MissionServer
 	override void TickScheduler(float timeslice)
 	{
 		EXTrace trace;
-		if (m_eAI_PlayerConnected)
-			trace = EXTrace.Profile(EXTrace.AI_PROFILE, this, "TickScheduler");
+		if (EXTrace.AI_PROFILE && m_eAI_PlayerConnected)
+			trace = EXTrace.Profile(true, this, "TickScheduler");
 
 		super.TickScheduler(timeslice);
 	}
@@ -145,5 +152,12 @@ modded class MissionServer
 	override void eAI_GetPlayers()
 	{
 		g_Game.GetWorld().GetPlayerList(m_Players);
+	}
+
+	override void OnMissionFinish()
+	{
+		super.OnMissionFinish();
+
+		eAITargetInformation.s_CustomAI.Clear();
 	}
 };

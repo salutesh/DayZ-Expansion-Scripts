@@ -14,6 +14,7 @@ modded class PlayerBase
 {
 	private int m_ExpansionSaveVersion;
 
+	protected bool m_Expansion_ProcessTransportHit;
 	protected bool m_Expansion_WasInVehicleSeatOrAttached;
 	protected int m_Expansion_SessionTimeStamp;
 	
@@ -58,70 +59,63 @@ modded class PlayerBase
 		AddAction( ExpansionActionSwitchSeats, InputActionMap );
 	}
 	
-	override void EOnContact( IEntity other, Contact extra )
-	{
-		if( !IsAlive() || Expansion_GetParent() == other || !IsMissionHost() )
-			return;
-
-		Transport transport;
-		if ( Class.CastTo( transport, other ) )
-		{
-			ExpansionRegisterTransportHit( transport );
-		}
-
-		ExpansionVehicleBase vehicle;
-		if ( Class.CastTo( vehicle, other ) )
-		{
-			ExpansionRegisterTransportHit( vehicle );
-		}
-	}
-	
 	override void RegisterTransportHit( Transport transport )
 	{
-		// Preventing vanilla (and other mods) code from running
-	}
-	
-	void ExpansionRegisterTransportHit( EntityAI transport )
-	{
-		bool hasParent = false;
-
-		if ( Expansion_GetParent() )
-			hasParent = true;
-
-#ifdef DAYZ_1_25
-		if ( m_ExPlayerLinkType != ExpansionPlayerLink.NONE )
-			hasParent = true;
-#endif
-
 		if ( m_TransportHitRegistered )
 			return;
 
-		m_TransportHitRegistered = hasParent;
-
-		if ( !m_TransportHitRegistered )
-		{
+		if ( PhysicsGetLinkedEntity() == transport || PhysicsGetFloorEntity() == transport )
 			m_TransportHitRegistered = true;
-			m_TransportHitVelocity = GetVelocity( transport );
 
-			if ( m_TransportHitVelocity.Length() > 2.5 )
-			{
-				float damage = m_TransportHitVelocity.Length() * GetExpansionSettings().GetVehicle().VehicleRoadKillDamageMultiplier;
-				if ( transport && damage )
-					ProcessDirectDamage( DT_CUSTOM, transport, "", "TransportHit", "0 0 0", damage );
-			} else
-			{
-				m_TransportHitRegistered = false;
-			}
+		super.RegisterTransportHit(transport);
+	}
 
-			if ( IsDamageDestroyed() && m_TransportHitVelocity.Length() > 3 )
+	[Obsolete("DEPRECATED")]
+	void ExpansionRegisterTransportHit( EntityAI transport )
+	{
+	}
+
+	void Expansion_ProcessTransportHit(int damageType, EntityAI source, string dmgZone, vector modelPos, float damageCoef = 1.0)
+	{
+		if (!source)
+			source = this;
+
+		m_Expansion_ProcessTransportHit = true;
+		ProcessDirectDamage(damageType, source, dmgZone, "TransportHit", modelPos, damageCoef);
+	}
+
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
+		if (ammo == "TransportHit")
+		{
+			float mult = GetExpansionSettings().GetVehicle().VehicleRoadKillDamageMultiplier;
+
+			if (mult != 1.0 && !m_Expansion_ProcessTransportHit)
 			{
-				vector impulse = 40 * m_TransportHitVelocity;
-				impulse[1] = 40 * 1.5;
-				dBodyApplyImpulse(this, impulse);
+				float damage;
+				if (m_TransportHitRegistered)
+					damage = m_TransportHitVelocity.Length();
+				else
+					damage = damageResult.GetDamage(dmgZone, "Health");
+				damage *= mult;
+				g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_ProcessTransportHit, damageType, source, dmgZone, modelPos, damage);
+				return false;
 			}
 		}
+
+		return true;
 	}
-	
+
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		
+		m_Expansion_ProcessTransportHit = false;
+	}
+
 	override bool ModCommandHandlerInside( float pDt, int pCurrentCommandID, bool pCurrentCommandFinished )	
 	{
 		if ( super.ModCommandHandlerInside( pDt, pCurrentCommandID, pCurrentCommandFinished ) )
@@ -190,14 +184,22 @@ modded class PlayerBase
 
     override void OnDisconnect()
     {
-        CarScript car;
-        HumanCommandVehicle hcv = GetCommand_Vehicle();
+        ExpansionVehicle vehicle;
 
-        if (hcv && CarScript.CastTo(car, hcv.GetTransport()))
+        if (ExpansionVehicle.Get(vehicle, this))
         {
-            if (hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER && car.Expansion_IsTowing())
+            if (vehicle.CrewMemberIndex(this) == DayZPlayerConstants.VEHICLESEAT_DRIVER)
             {
-				car.Expansion_DestroyTow();
+				if (vehicle.IsTowing())
+					vehicle.DestroyTow();
+
+				if (vehicle.IsHelicopter())
+				{
+					if (!vehicle.IsAutoHover())
+						vehicle.SwitchAutoHover();  //! Turn autohover on
+
+					vehicle.EngineStop();  //! Stop engine. Heli will autorotate to ground.
+				}
             }
         }
 

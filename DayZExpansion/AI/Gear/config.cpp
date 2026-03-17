@@ -17,6 +17,9 @@ class CfgVehicles
 	class GorkaHelmet;
 	class PlateCarrierVest;
 	class PressVest_ColorBase;
+	class DamageSystem;
+	class GlobalHealth;
+	class Health;
 	class Expansion_GorkaHelmet_Yeet: GorkaHelmet
 	{
 		scope=2;
@@ -54,6 +57,64 @@ class CfgVehicles
 			"\DayZExpansion\AI\Gear\Data\PressVest_Blue_Yeet_co.paa",
 			"\DayZExpansion\AI\Gear\Data\PressVest_Blue_Yeet_co.paa",
 			"\DayZExpansion\AI\Gear\Data\PressVest_Blue_Yeet_co.paa"
+		};
+		hiddenSelectionsMaterials[]=
+		{
+			"DayZExpansion\AI\Gear\Data\pressvest_yeet.rvmat",
+			"DayZExpansion\AI\Gear\Data\pressvest_yeet.rvmat",
+			"DayZExpansion\AI\Gear\Data\pressvest_yeet.rvmat"
+		};
+		class DamageSystem: DamageSystem
+		{
+			class GlobalHealth: GlobalHealth
+			{
+				class Health: Health
+				{
+					healthLevels[]=
+					{
+						
+						{
+							1,
+							
+							{
+								"DayZExpansion\AI\Gear\Data\pressvest_yeet.rvmat"
+							}
+						},
+						
+						{
+							0.69999999,
+							
+							{
+								"DayZExpansion\AI\Gear\Data\pressvest_yeet.rvmat"
+							}
+						},
+						
+						{
+							0.5,
+							
+							{
+								"DayZExpansion\AI\Gear\Data\pressvest_yeet_damage.rvmat"
+							}
+						},
+						
+						{
+							0.30000001,
+							
+							{
+								"DayZExpansion\AI\Gear\Data\pressvest_yeet_damage.rvmat"
+							}
+						},
+						
+						{
+							0,
+							
+							{
+								"DayZExpansion\AI\Gear\Data\pressvest_yeet_destruct.rvmat"
+							}
+						}
+					};
+				};
+			};
 		};
 	};
 };

@@ -41,6 +41,7 @@ class CfgMods
 		};
 		defines[]=
 		{
+			"EXPANSION_MISSIONS_PLANE_CLIENT",
 			"EXPANSION_MISSIONS_CONTAINER_NEW"
 		};
 		class defs

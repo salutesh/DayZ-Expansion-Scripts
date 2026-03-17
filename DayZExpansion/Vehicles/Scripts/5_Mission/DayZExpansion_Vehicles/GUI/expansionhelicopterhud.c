@@ -17,6 +17,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 
 	protected ImageWidget			m_HeliSpeedPointer;
 	protected TextWidget			m_HeliSpeedValue;
+	protected TextWidget			m_HeliSpeedValueH;
 
 	protected TextWidget			m_HeliALTValue;
 	protected ProgressBarWidget		m_HeliALTProgressBar;
@@ -68,6 +69,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 
 		m_HeliSpeedPointer = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("SpeedPointer"));
 		m_HeliSpeedValue = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("SpeedValue"));
+		m_HeliSpeedValueH = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("SpeedValueH"));
 
 		m_HeliALTValue = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("ALTValue"));
 		m_HeliALTProgressBar = ProgressBarWidget.Cast(m_VehiclePanel.FindAnyWidget("ALTProgressBar"));
@@ -188,9 +190,46 @@ class ExpansionHelicopterHud : VehicleHudBase
 		//m_HeliOutdoorTempValue.SetText("Temp:" + Math.Floor(temperature).ToString() + "C");
 		
 		//! speed
-		float speedValue = Math.AbsFloat(m_CurrentHelicopter.GetSpeedometer() / 400);
+		float speed = m_CurrentHelicopter.GetSpeedometer();
+		float speedValue = Math.AbsFloat(speed / 400);
 		m_HeliSpeedPointer.SetRotation(0, 0, speedValue * 360 - 130, true);
-		m_HeliSpeedValue.SetText(Math.AbsInt(m_CurrentHelicopter.GetSpeedometer()).ToString());
+		m_HeliSpeedValue.SetText(Math.Round(speed).ToString());
+
+		vector transform[4];
+		m_CurrentHelicopter.GetTransform(transform);
+		vector dir = transform[2];
+		dir[1] = 0.0;  //! Null pitch
+		dir.Normalize();
+		transform[0] = -dir.Perpend();  //! Eliminate roll
+		transform[2] = dir;
+		vector velocity = GetVelocity(m_CurrentHelicopter).InvMultiply3(transform);
+		float sideSpeed = Math.Round(velocity[0] * 3.6);
+		float sideSpeedAbs = Math.AbsFloat(sideSpeed);
+		string speedValueH;
+
+		if (sideSpeed != 0.0)
+		{
+			string arrow;
+
+			if (sideSpeed > 0.0)
+				arrow = "›";
+			else if (sideSpeed < 0.0)
+				arrow = "‹";
+
+			string arrows;
+
+			int intensity = Math.Clamp(sideSpeedAbs / 5, 1, 5);
+			for (int i = 0; i < intensity; ++i)
+			{
+				arrows += arrow;
+			}
+
+			speedValueH = string.Format("%1 %2 %1", arrows, sideSpeedAbs);
+		}
+		else
+			speedValueH = string.Format("‹ %1 ›", sideSpeedAbs);;
+
+		m_HeliSpeedValueH.SetText(speedValueH);
 		
 		//! fuel
 		m_HeliFuelPointer.SetRotation(0, 0, m_CurrentHelicopter.GetFluidFraction(CarFluid.FUEL) * 260 - 130, true);

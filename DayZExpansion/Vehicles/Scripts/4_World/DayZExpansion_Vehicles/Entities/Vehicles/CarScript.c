@@ -18,6 +18,8 @@ CarScript g_Expansion_Car;
  */
 modded class CarScript
 {
+	static float EXPANSION_COLLISION_DMG_MIN_SPEED_TO_DMG_MULT = 97.2;
+
 	private static ref array<ExpansionVehicleAttachmentSave> m_allAttachments = new array<ExpansionVehicleAttachmentSave>;
 
 	ref array<ref ExpansionVehicleModule> m_Modules = new array<ref ExpansionVehicleModule>();
@@ -41,8 +43,6 @@ modded class CarScript
 	float m_Expansion_AnimationTickTime;
 
 	int m_Expansion_EnginesOn;
-
-	bool m_Expansion_HasPilot;
 
 	// ------------------------------------------------------------ //
 	// Constant Values - Set in Constructor, Errors occur if not.   //
@@ -142,6 +142,9 @@ modded class CarScript
 
 	static int s_Expansion_ControllerSync_RPCID;
 	static int s_Expansion_ClientPing_RPCID;
+
+	EntityAI m_Expansion_HydraulicHoses;
+	float m_Expansion_HydraulicHosesHealth = -1.0;
 
 	void CarScript()
 	{
@@ -597,6 +600,9 @@ modded class CarScript
 
 			SetSynchDirty();
 		}
+
+		if (GetExpansionSettings().GetVehicle(false).IsLoaded())
+			OnSettingsUpdated();
 	}
 
 	void OnSettingsUpdated()
@@ -808,8 +814,6 @@ modded class CarScript
 			if (ammoType == "")
 				ammoType = "Dummy_Heavy";
 
-			ExpansionOnExplodeServer(damageType, ammoType);
-
 			if (g_Game.IsServer() && !g_Game.IsMultiplayer())
 			{
 				ExpansionOnExplodeClient(damageType, ammoType);
@@ -818,6 +822,8 @@ modded class CarScript
 			{
 				g_Game.RPCSingleParam(this, ERPCs.RPC_EXPLODE_EVENT, new Param2<int, string>(damageType, ammoType), true);
 			}
+
+			ExpansionOnExplodeServer(damageType, ammoType);
 		}
 	}
 
@@ -1317,6 +1323,12 @@ modded class CarScript
 			if (slot_name == "ExpansionAircraftBattery")
 				m_BatteryHealth = item.GetHealth01();
 
+			if (slot_name == "ExpansionHydraulicHoses")
+			{
+				m_Expansion_HydraulicHoses = item;
+				m_Expansion_HydraulicHosesHealth = item.GetHealth01();
+			}
+
 			if (item.IsInherited(CarWheel))
 			{
 				EXTrace.Print(EXTrace.VEHICLES, this, string.Format("Attached %1 (type=%2)", item.ToString(), item.GetType()));
@@ -1400,6 +1412,12 @@ modded class CarScript
 			if (slot_name == "ExpansionAircraftBattery")
 				m_BatteryHealth = -1;
 
+			if (slot_name == "ExpansionHydraulicHoses")
+			{
+				m_Expansion_HydraulicHoses = null;
+				m_Expansion_HydraulicHosesHealth = -1.0;
+			}
+
 			if (item.IsInherited(CarWheel))
 				m_Expansion_AttachedWheelsCount--;
 		}
@@ -1471,6 +1489,11 @@ modded class CarScript
 				m_RadiatorHealth = 0;
 			}
 
+			if (m_Expansion_HydraulicHoses)
+				m_Expansion_HydraulicHosesHealth = m_Expansion_HydraulicHoses.GetHealth01();
+			else
+				m_Expansion_HydraulicHosesHealth = 0;
+
 			m_FuelTankHealth = GetHealth01("FuelTank", "");
 
 			if (EngineIsOn() || Expansion_EnginesOn())
@@ -1522,7 +1545,7 @@ modded class CarScript
 				if (brake > 0.0 && m_EngineHealth < GameConstants.DAMAGE_DAMAGED_VALUE)
 					LeakFluid(CarFluid.BRAKE);
 
-				if (oil > 0.0 && m_EngineHealth < 0.25)
+				if (oil > 0.0 && (m_EngineHealth < 0.25 || (m_Expansion_HydraulicHoses && m_Expansion_HydraulicHosesHealth <= 0.5)))
 					LeakFluid(CarFluid.OIL);
 
 				m_ExpansionVehicle.ConsumeFuel(fuelConsumption);
@@ -1793,7 +1816,12 @@ modded class CarScript
 				gear = newGear;
 			}
 
+		#ifdef DAYZ_1_28
 			if (m_HeadlightsOn)
+		#else
+			//! 1.29+
+			if (LightIsOn())
+		#endif
 			{
 				if (!m_Headlight && m_HeadlightsState != CarHeadlightBulbsState.NONE)
 				{
@@ -1944,7 +1972,12 @@ modded class CarScript
 				gear = newGear;
 			}
 
+		#ifdef DAYZ_1_28
 			if (m_HeadlightsOn)
+		#else
+			//! 1.29+
+			if (LightIsOn())
+		#endif
 			{
 				DashboardShineOn();
 				TailLightsShineOn();
@@ -2139,7 +2172,8 @@ modded class CarScript
 			else if (IsOwner() && Class.CastTo(player, driver))
 			{
 				// this looks stupid, what?
-				m_State.m_DeltaTime = dt;
+				// -- because it is
+				m_State.m_DeltaTime = Math.Min(dt, 0.025);  //! Prevent lag resulting in huge input due to high dt
 		
 				// damn i had bad ideas
 				m_Event_Control.Control(m_State, player);
@@ -2159,7 +2193,7 @@ modded class CarScript
 		if (!driver.GetInputInterface())
 			return;
 
-		m_State.m_DeltaTime = dt;
+		m_State.m_DeltaTime = Math.Min(dt, 0.033334);  //! Prevent lag resulting in huge input due to high dt
 
 		m_Event_Control.Control(m_State, driver);
 
@@ -2258,20 +2292,6 @@ modded class CarScript
 
 		DayZPlayerImplement driver = DayZPlayerImplement.Cast(CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER));
 
-		//! TODO: MOVE THIS OUT OF HERE!
-		//! Detect if pilot has been disconnected
-		if (!driver && m_Expansion_HasPilot)
-		{
-			ExpansionHelicopterScript heli;
-			m_Expansion_HasPilot = false;
-			if (Class.CastTo(heli, this))
-			{
-				if (!heli.IsAutoHover())
-					heli.SwitchAutoHover();  //! Turn autohover on
-				Expansion_EngineStop();  //! Stop engine. Heli will autorotate to ground.
-			}
-		}
-
 		bool isActive = dBodyIsActive(this);
 
 		if (g_Game.IsClient())
@@ -2297,7 +2317,7 @@ modded class CarScript
 
 			if (!driver && Expansion_CanSimulate())
 			{
-				m_State.m_DeltaTime = dt;
+				m_State.m_DeltaTime = Math.Min(dt, 0.025);  //! Prevent lag resulting in huge input due to high dt
 				m_State.m_IsSync = true;
 
 				m_Event_Control.Control(m_State, null);
@@ -2406,7 +2426,7 @@ modded class CarScript
 		OnPreSimulation(dt);
 
 		//! https://feedback.bistudio.com/T173348
-		if (driver && m_IsPhysicsHost)
+		if (driver && driver.IsAlive() && m_IsPhysicsHost)
 			m_State.m_HasDriver = true;
 		else
 			m_State.m_HasDriver = false;
@@ -2471,10 +2491,9 @@ modded class CarScript
 		}
 	}
 
+	[Obsolete("DEPRECATED, no replacement")]
 	void SetHasPilot(bool state)
 	{
-		//! So we are able to detect if pilot got disconnected or got out on own accord
-		m_Expansion_HasPilot = state;
 	}
 
 	void AddModule(ExpansionVehicleModule module)
@@ -3309,7 +3328,7 @@ modded class CarScript
 					if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionBoatScript))
 					{
 						m_engineFx = new EffEngineSmoke();
-						m_enginePtcFx = SEffectManager.PlayOnObject(m_engineFx, this, fxPos, "0 0 0", true);
+						m_enginePtcFx = SEffectManager.PlayOnObject(m_engineFx, this, fxPos, "0 0 0", false);
 					}
 				}
 
@@ -3696,12 +3715,12 @@ modded class CarScript
 		{
 			CarScript otherVehicle;
 			bool otherVehicleEngineOn;
-			if (Class.CastTo(otherVehicle, other) && otherVehicle.Expansion_EngineIsOn())
+			if (Class.CastTo(otherVehicle, other) && otherVehicle.Expansion_EngineIsSpinning())
 				otherVehicleEngineOn = true;
 
 			if (!m_Expansion_CollisionDamageIfEngineOff)
 			{
-				if (!Expansion_EngineIsOn() && !otherVehicleEngineOn)
+				if (!Expansion_EngineIsSpinning() && !otherVehicleEngineOn)
 					return;
 			}
 
@@ -3712,7 +3731,7 @@ modded class CarScript
 
 				float dmg = data.Impulse * m_dmgContactCoef;
 
-				if (dmg <= m_Expansion_CollisionDamageMinSpeed * 97.2)
+				if (dmg <= m_Expansion_CollisionDamageMinSpeed * EXPANSION_COLLISION_DMG_MIN_SPEED_TO_DMG_MULT)
 					return;
 			}
 		}

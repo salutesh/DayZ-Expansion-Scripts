@@ -35,8 +35,7 @@ class eAIState_Craft: eAIState
 			m_Time += DeltaTime;
 			if (m_Time > m_Timeout)  //! Looks like something went terribly wrong
 			{
-				EXPrint(unit.ToString() + " " + m_RecipeClassName + " - timeout");
-				unit.eAI_Unbug(m_RecipeClassName);
+				unit.eAI_Unbug(m_Name + "(" + m_RecipeClassName + ", " + m_Item + ", " + m_TargetEntity + ") - timeout");
 				m_Time = 0;
 				return EXIT;
 			}

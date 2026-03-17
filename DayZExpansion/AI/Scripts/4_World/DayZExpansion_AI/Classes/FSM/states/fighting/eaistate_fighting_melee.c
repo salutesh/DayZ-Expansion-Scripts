@@ -11,7 +11,8 @@ class eAIState_Fighting_Melee: eAIState
 		m_MovementDirection = 0;
 		
 		unit.m_eAI_LastFireTime = g_Game.GetTime();
-		
+
+		unit.m_eAI_IsPreparingMelee = true;
 		unit.Expansion_GetUp(true);
 	}
 
@@ -121,8 +122,6 @@ class eAIState_Fighting_Melee: eAIState
 		if (unit.IsRestrained()) return eAITransition.FAIL;
 		
 		if (!unit.CanRaiseWeapon() || !unit.eAI_HasLOS()) return eAITransition.FAIL;
-		
-		if (unit.eAI_ShouldBandage() && unit.GetBandageToUse()) return eAITransition.FAIL;
 		
 		m_Target = unit.GetTarget();
 		if (!m_Target) return eAITransition.FAIL;

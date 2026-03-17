@@ -40,9 +40,13 @@ modded class DayZPlayerImplement
 
 	override bool IsShootingFromCamera()
 	{
+		//! Vanilla default is true unless in suicide emote, so if super returns false, we can abort right there
+		if (!super.IsShootingFromCamera())
+			return false;
+
 		if (GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().DisableMagicCrosshair)
 			return false;
-		else
-			return true;
+
+		return true;
 	}
 }

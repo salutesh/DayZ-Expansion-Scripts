@@ -28,15 +28,20 @@ class eAICommandMenuItem
 	{
 		string name = m_Name;
 
-		eAIGroup group;
+		eAIGroup group = eAIGroup.GetGamePlayerGroup();
 
 		switch (m_ID)
 		{
 			case eAICommandCategories.CAT_FACTION:
-				group = eAIGroup.GetGamePlayerGroup();
 				if (group)
 					name = group.GetFaction().GetName();
 				break;
+
+			//! Formation is not synced to client
+			//case eAICommandCategories.CAT_FORMATION:
+				//if (group)
+					//name = group.GetFormation().GetName();
+				//break;
 
 			case eAICommandCategories.CAT_DAMAGE_IN:
 				name = "Damage In";
@@ -72,6 +77,7 @@ class eAICommandMenu: UIScriptedMenu
 	protected Widget m_GestureItemCardPanel;
 	protected ref array < ref eAICommandMenuItem > m_GestureItems;
 
+	protected ImageWidget m_CategoryBackground;
 	protected TextWidget m_CategoryNameText;
 
 	//
@@ -115,6 +121,8 @@ class eAICommandMenu: UIScriptedMenu
 	{
 		layoutRoot = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/AI/GUI/layouts/radial_menu/menu.layout");
 		m_GestureItemCardPanel = layoutRoot.FindAnyWidget(RadialMenu.RADIAL_ITEM_CARD_CONTAINER);
+		m_CategoryBackground = ImageWidget.Cast(layoutRoot.FindAnyWidget("CenterBackground"));
+		m_CategoryNameText = TextWidget.Cast(layoutRoot.FindAnyWidget(CATEGORY_NAME));
 
 		//register gestures menu
 		RadialMenu.GetInstance().RegisterClass(this);
@@ -132,9 +140,6 @@ class eAICommandMenu: UIScriptedMenu
 		Widget toolbar_panel = layoutRoot.FindAnyWidget("toolbar_bg");
 		toolbar_panel.Show(!RadialMenu.GetInstance().IsUsingMouse());
 		#endif
-
-		//clear category name text
-		UpdateCategoryName("");
 
 		return layoutRoot;
 	}
@@ -226,6 +231,9 @@ class eAICommandMenu: UIScriptedMenu
 			instance.m_IsCategorySelected = false;
 			m_MenuPathCategories.Clear();
 			m_MenuPathNames.Clear();
+
+			if (!GetExpansionSettings().GetAI().IsAdmin() && !GetDayZGame().GetExpansionGame().InGroup())
+				name = "No AI companions";
 		}
 
 		CreateGestureContent();
@@ -398,6 +406,7 @@ class eAICommandMenu: UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_SIMILAR, "Similar", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING_IDENTICAL, "Identical", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.UPGRADE, "Upgrade", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.BEH_LOOT + eAILootingBehavior.NONE, "None", eAICommandCategories.CAT_LOOTINGBEHAVIOUR));
 			break;
 
 		case eAICommands.BEH_LOOT + eAILootingBehavior.CLOTHING:
@@ -436,9 +445,11 @@ class eAICommandMenu: UIScriptedMenu
 			if (GetExpansionSettings().GetAI().IsAdmin())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_RESET_PATHFINDING, "    Reset\nPathfinding", eAICommandCategories.CAT_STATUS));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_FORCEWEAPONRESYNC, "Force Weapon\n     Resync", eAICommandCategories.CAT_STATUS));
 			#ifdef DIAG_DEVELOPER
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGOBJECTS, " Debug\nObjects", eAICommandCategories.CAT_STATUS));
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_DBGDAMAGE, " Debug\nDamage", eAICommandCategories.CAT_STATUS));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_TOGGLEFTO, "Toggle\n  FTO", eAICommandCategories.CAT_STATUS));
 			#endif
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DAMAGE_IN, "Damage\n In/Out", eAICommandCategories.CATEGORIES));
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_UNLIMITEDRELOAD, "Unlimited\n  Reload", eAICommandCategories.CATEGORIES));
@@ -629,11 +640,7 @@ class eAICommandMenu: UIScriptedMenu
 
 	protected void UpdateCategoryName(string name)
 	{
-		if (!m_CategoryNameText)
-		{
-			m_CategoryNameText = TextWidget.Cast(layoutRoot.FindAnyWidget(CATEGORY_NAME));
-		}
-
+		m_CategoryBackground.Show(name != string.Empty);
 		m_CategoryNameText.SetText(name);
 	}
 
@@ -794,6 +801,8 @@ class eAICommandMenu: UIScriptedMenu
 				{
 					g_Game.GetExpansionGame().GetCommandManager().Send(selected.GetID(), selected.GetCategory());
 
+					eAIGroup group = eAIGroup.GetGamePlayerGroup();
+
 					switch (selected.GetCategory())
 					{
 						case eAICommandCategories.CAT_FACTION:
@@ -812,10 +821,21 @@ class eAICommandMenu: UIScriptedMenu
 
 						case eAICommandCategories.CAT_FORMATION:
 							RefreshGestures(eAICommandCategories.CAT_FORMATION_SCALE, "Scale");
+							//! Formation scale is not synced to client
+							//if (group)
+								//UpdateCategoryName("Scale " + group.GetFormation().GetScale() + "x");
 							break;
 
 						case eAICommandCategories.CAT_FORMATION_SCALE:
 							RefreshGestures(eAICommandCategories.CAT_FORMATION_LOOSENESS, "Looseness");
+							//! Formation loseness is not synced to client
+							//if (group)
+							//{
+								//float looseness;
+								//eAIFormation form = group.GetFormation();
+								//EnScript.GetClassVar(form, "m_Looseness", 0, looseness);
+								//UpdateCategoryName("Looseness " + looseness + " m");
+							//}
 							break;
 					}
 				}

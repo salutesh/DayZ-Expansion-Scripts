@@ -60,6 +60,24 @@ modded class ActionGetOutTransport
 		}
 	}
 
+	override void OnStartServer(ActionData action_data)
+	{
+		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast(action_data);
+
+		auto vehicle = ExpansionVehicle.Get(got_action_data.m_Vehicle);
+
+		if (vehicle)
+		{
+			if (vehicle.IsHelicopter())
+			{
+				if (!vehicle.IsAutoHover())
+					vehicle.EngineStop();  //! If not in auto-hover, getting out stops engine
+			}
+		}
+
+		super.OnStartServer(action_data);
+	}
+
 	override void OnEnd(ActionData action_data)
 	{
 		auto got_action_data = GetOutTransportActionData.Cast(action_data);
@@ -84,12 +102,7 @@ modded class ActionGetOutTransport
 		super.OnEndServer(action_data);
 
 		if (vehicle)
-		{
-			if (vehicle.IsHelicopter())
-				vehicle.SetHasPilot(false);  //! So we are able to detect if pilot got disconnected or got out on own accord
-
 			vehicle.OnGotOut(action_data.m_Player, got_action_data.m_Expansion_SeatIdx);
-		}
 
 		if (vehicle && action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleLeave)
 		{

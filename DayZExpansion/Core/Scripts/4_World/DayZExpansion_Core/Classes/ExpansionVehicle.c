@@ -1396,15 +1396,28 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 		return true;
 	}
 
-	override void SetHasPilot(bool state)
+	override bool IsAutoHover()
 	{
 		EntityAI entity = GetEntity();
 		ExpansionHelicopterScript hs;
 		ExpansionVehicleHelicopterBase evhb;
 		if (Class.CastTo(hs, entity))
-			hs.SetHasPilot(state);
+			return hs.IsAutoHover();
 		else if (Class.CastTo(evhb, entity))
-			evhb.SetHasPilot(state);
+			return evhb.IsAutoHover();
+
+		return false;
+	}
+	
+	override void SwitchAutoHover()
+	{
+		EntityAI entity = GetEntity();
+		ExpansionHelicopterScript hs;
+		ExpansionVehicleHelicopterBase evhb;
+		if (Class.CastTo(hs, entity))
+			hs.SwitchAutoHover();
+		else if (Class.CastTo(evhb, entity))
+			evhb.SwitchAutoHover();
 	}
 
 	override bool LeavingSeatDoesAttachment(int posIdx)
