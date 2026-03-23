@@ -58,7 +58,7 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 22;
+	static const int VERSION = 23;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
@@ -68,6 +68,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 	float DesyncInvulnerabilityTimeoutSeconds;  //! Timeout for temporary vehicle godmode during desync. Set to 0 to disable.
 
 	float PilotlessAutoHoverEngineStopDelaySeconds;
+	float RoughLandingVerticalSpeedThreshold;
 
 	float DamagedEngineStartupChancePercent;
 
@@ -440,8 +441,11 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 				if (settingsBase.m_Version < 22)
 					EnableMainRotorDamage = settingsDefault.EnableMainRotorDamage;
 
-				if (PilotlessAutoHoverEngineStopDelaySeconds)
+				if (settingsBase.m_Version < 23 && !PilotlessAutoHoverEngineStopDelaySeconds)
 					PilotlessAutoHoverEngineStopDelaySeconds = settingsDefault.PilotlessAutoHoverEngineStopDelaySeconds;
+
+				if (settingsBase.m_Version < 23 && !RoughLandingVerticalSpeedThreshold)
+					RoughLandingVerticalSpeedThreshold = settingsDefault.RoughLandingVerticalSpeedThreshold;
 
 				m_Version = VERSION;
 				save = true;
@@ -536,6 +540,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 	#else
 		PilotlessAutoHoverEngineStopDelaySeconds = 300;
 	#endif
+
+		RoughLandingVerticalSpeedThreshold = 3.7;
 
 		DamagedEngineStartupChancePercent = 100.0;
 

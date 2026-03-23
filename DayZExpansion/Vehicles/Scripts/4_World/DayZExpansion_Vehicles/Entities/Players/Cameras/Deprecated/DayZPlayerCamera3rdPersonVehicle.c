@@ -153,6 +153,8 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		m_LagOffsetOrientation[0] = Math.SmoothCD(m_LagOffsetOrientation[0], orientDiff[0], m_fLagOffsetVelocityYaw, 0.3, 1000, pDt);
 		m_LagOffsetOrientation[1] = Math.SmoothCD(m_LagOffsetOrientation[1], orientDiff[1], m_fLagOffsetVelocityPitch, 0.3, 1000, pDt);
 
+		m_ExIsFreeLook = pIsFreeLook;
+
 		if ( pIsFreeLook )
 		{
 			rotation[0] = m_CurrentCameraYaw + CONST_ANGULAR_LAG_YAW_STRENGTH * m_LagOffsetOrientation[0];

@@ -15,6 +15,7 @@ modded class DayZPlayerCameraBase
 	PlayerBase m_Ex_Player;
 	bool m_Ex_ForceHideHead;
 	bool m_Ex_PreviousForceHideHead;
+	bool m_ExIsFreeLook = true;
 
 	void DayZPlayerCameraBase(DayZPlayer pPlayer, HumanInputController pInput)
 	{
@@ -30,6 +31,8 @@ modded class DayZPlayerCameraBase
 
 		Ex_OnUpdate(pDt, pOutResult);
 		Ex_OnPostUpdate(pDt, pOutResult);
+
+		m_ExIsFreeLook = true;
 	}
 
 	void Ex_OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
@@ -59,5 +62,28 @@ modded class DayZPlayerCameraBase
 			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(m_Ex_Player.SetHeadInvisible_Ex, false);
 		}
 	}
+#else
+	override void OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
+	{
+		super.OnUpdate(pDt, pOutResult);
+
+		m_ExIsFreeLook = true;
+	}
 #endif
+
+	override float UpdateLRAngleUnlocked(out float pAngle, out float pAngleAdd, float pMin, float pMax, float pDt)
+	{
+		if (m_ExIsFreeLook)
+			return super.UpdateLRAngleUnlocked(pAngle, pAngleAdd, pMin, pMax, pDt);
+
+		return m_CurrentCameraYaw;
+	}
+
+	override float UpdateUDAngleUnlocked(out float pAngle, out float pAngleAdd, float pMin, float pMax, float pDt)
+	{
+		if (m_ExIsFreeLook)
+			return super.UpdateUDAngleUnlocked(pAngle, pAngleAdd, pMin, pMax, pDt);
+
+		return m_CurrentCameraPitch;
+	}
 };

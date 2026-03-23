@@ -811,6 +811,7 @@ class ExpansionVehicleBase: ExpansionVehicleBaseBase
 		super.OnCEUpdate();
 
 		m_ExpansionVehicle.SafeZoneCleanup(m_ElapsedSinceLastUpdate);
+		m_ExpansionVehicle.OnCEUpdate();
 	}
 
 	override void EOnContact(IEntity other, Contact extra) //!EntityEvent.CONTACT

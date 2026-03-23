@@ -54,14 +54,10 @@ modded class DayZPlayerCamera1stPersonVehicle
 			isFreeLook = heli.IsFreeLook();
 		}
 
+		m_ExIsFreeLook = isFreeLook;
+
 		if ( isHeliParent && !isFreeLook && m_Ex_Player.Expansion_IsDriver() )
 		{
-			m_fUpDownAngle = 0;
-			m_fLeftRightAngle = 0;
-
-			m_fUpDownAngleAdd = 0;
-			m_fLeftRightAngle = 0;
-			
 			Math3D.YawPitchRollMatrix( "0 0 0", pOutResult.m_CameraTM );
 
 			pOutResult.m_fUseHeading 			= 0.0;

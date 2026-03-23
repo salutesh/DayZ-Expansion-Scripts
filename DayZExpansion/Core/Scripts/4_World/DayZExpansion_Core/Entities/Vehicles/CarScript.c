@@ -192,6 +192,7 @@ modded class CarScript
 		super.OnCEUpdate();
 
 		m_ExpansionVehicle.SafeZoneCleanup(m_ElapsedSinceLastUpdate);
+		m_ExpansionVehicle.OnCEUpdate();
 	}
 
 	void ExpansionCreateCleanup()

@@ -64,6 +64,7 @@ class ExpansionHelicopterScript: CarScript
 	float m_Expansion_IsLandedTick;
 	float m_Expansion_PilotlessTime;
 	float m_Expansion_PilotlessAutoHoverEngineStopDelay;
+	float m_RoughLandingVerticalSpeedThreshold = 3.0;
 
 	EffectSound m_Expansion_HeliWarningSound;
 
@@ -338,7 +339,7 @@ class ExpansionHelicopterScript: CarScript
 			if (other) //! check done just incase
 				impulseRequired += Math.Max(dBodyGetMass(other), 0.0) * maxVelocityMagnitude * 2.0;
 
-			if (extra.Impulse > impulseRequired || (m_Simulation.m_RotorSpeed > 0 && (up[1] < 0.0 || extra.RelativeVelocityBefore.LengthSq() >= maxVelocityMagnitude * maxVelocityMagnitude) && !IsLanded()))
+			if (extra.Impulse > impulseRequired || m_State.m_LinearVelocity[1] < -m_RoughLandingVerticalSpeedThreshold || (m_Simulation.m_RotorSpeed > 0 && (up[1] < 0.0 || extra.RelativeVelocityBefore.LengthSq() >= maxVelocityMagnitude * maxVelocityMagnitude) && !IsLanded()))
 			{
 #ifdef EXPANSIONVEHICLELOG
 				Print(dot);
@@ -384,6 +385,13 @@ class ExpansionHelicopterScript: CarScript
 						}
 					}
 				}
+			}
+			else if (m_State.m_LinearVelocity[1] < -m_RoughLandingVerticalSpeedThreshold)
+			{
+				//! Harsh landing
+
+				collisionDmgMinSpeed = m_Expansion_CollisionDamageMinSpeed;
+				m_Expansion_CollisionDamageMinSpeed = 0;
 			}
 
 			//! Call CarScript OnContact
@@ -829,13 +837,23 @@ class ExpansionHelicopterScript: CarScript
 		return oldValue;
 	}
 
-	override protected void HandleDoorsSound(string animSource, float phase)
+	override void OnAnimationPhaseStarted(string animSource, float phase)
 	{
+	#ifndef SERVER
 		if (animSource.Contains("door_") || animSource.Contains("doors"))
 		{
 			if (!Expansion_ShouldHandleDoorsSound(animSource, phase))
 				return;
+		}
+	#endif
 
+		super.OnAnimationPhaseStarted(animSource, phase);
+	}
+
+	override protected void HandleDoorsSound(string animSource, float phase)
+	{
+		if (animSource.Contains("door_") || animSource.Contains("doors"))
+		{
 			EXTrace.Print(EXTrace.VEHICLES, this, "HandleDoorsSound " + animSource + " " + phase);
 
 			if (phase == 0)
@@ -856,7 +874,7 @@ class ExpansionHelicopterScript: CarScript
 
 		float phaseStarted;
 
-		//! @note prevent door sound overlapping due to OnAnimationPhaseStarteded getting called multiple times each anim phase for helis for some reason.
+		//! @note prevent door sound overlapping due to OnAnimationPhaseStarted getting called multiple times each anim phase for helis for some reason.
 		//! Do nothing if current anim phase is equal to last played sound start phase.
 		if (m_Expansion_DoorSoundPhaseStarted.Find(animSource, phaseStarted) && phase == phaseStarted)
 			return false;
@@ -1073,11 +1091,21 @@ class ExpansionHelicopterScript: CarScript
 	{
 		super.Expansion_OnHandleController(driver, dt);
 
+		string soundSet;
+
 		if (driver)
 		{
 			m_Expansion_PilotlessTime = 0;
 
-			if (m_Expansion_HeliWarningSound && (Expansion_EngineIsOn() || IsLanded()))
+			if (m_Simulation.m_VRSSeverity > 0.1)
+			{
+				if (!m_Expansion_HeliWarningSound)
+				{
+					soundSet = Expansion_GetWarningSoundSet();
+					m_Expansion_HeliWarningSound = SEffectManager.Expansion_PlaySoundOnObject(soundSet, this, 0, 0, true);
+				}
+			}
+			else if (m_Expansion_HeliWarningSound)
 			{
 				m_Expansion_HeliWarningSound.SoundStop();
 				m_Expansion_HeliWarningSound = null;
@@ -1107,7 +1135,7 @@ class ExpansionHelicopterScript: CarScript
 				}
 				else if (!m_Expansion_HeliWarningSound)
 				{
-					string soundSet = Expansion_GetWarningSoundSet();
+					soundSet = Expansion_GetWarningSoundSet();
 					m_Expansion_HeliWarningSound = SEffectManager.Expansion_PlaySoundOnObject(soundSet, this, 0, 0, true);
 				}
 			}
@@ -1118,7 +1146,9 @@ class ExpansionHelicopterScript: CarScript
 	{
 		super.OnSettingsUpdated();
 
-		m_Expansion_PilotlessAutoHoverEngineStopDelay = GetExpansionSettings().GetVehicle().PilotlessAutoHoverEngineStopDelaySeconds;
+		auto settings = GetExpansionSettings().GetVehicle();
+		m_Expansion_PilotlessAutoHoverEngineStopDelay = settings.PilotlessAutoHoverEngineStopDelaySeconds;
+		m_RoughLandingVerticalSpeedThreshold = settings.RoughLandingVerticalSpeedThreshold;
 	}
 
 	string Expansion_GetWarningSoundSet()
