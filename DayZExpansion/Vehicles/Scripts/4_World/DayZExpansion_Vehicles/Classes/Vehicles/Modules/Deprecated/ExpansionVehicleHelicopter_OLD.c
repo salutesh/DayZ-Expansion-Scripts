@@ -837,6 +837,13 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		if (!m_Initialized || !pDriver || pState.m_HaltPhysics)
 			return;
 
+	#ifndef SERVER
+		UIManager uiManager = g_Game.GetUIManager();
+
+		if (uiManager && uiManager.GetMenu())
+			return;
+	#endif
+
 		float pDt = pState.m_DeltaTime;
 
 		UAInterface inputInterface;
@@ -1081,7 +1088,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	override void Simulate(ExpansionPhysicsState pState)
 	{
 	#ifdef EXTRACE_DIAG
-		auto trace = EXTrace.Profile(true, this, "Simulate");
+		auto trace = EXTrace.Profile(EXTrace.VEHICLES, this, "Simulate");
 	#endif
 
 		if (!m_Initialized)
@@ -1302,7 +1309,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			m_CyclicSideHydraulicCoef		= ExpansionMath.LookUp(m_Hydraulic, m_CyclicSideControlCount, m_CyclicSideControlFluid, m_CyclicSideControlDelta);
 		}
 
-		if (pState.m_LinearVelocityMS.Length() > 0.05 || m_RotorSpeed != 0)
+		if (pState.m_LinearVelocityMS.LengthSq() > 0.0025 || m_RotorSpeed != 0)
 		{
 			change = Math.Clamp(Math.Clamp(m_CyclicForwardTarget, -2, 2) - m_CyclicForward, -m_CyclicForwardHydraulicCoef * pDt, m_CyclicForwardHydraulicCoef * pDt);
 			m_CyclicForward = Math.Clamp(m_CyclicForward + change, -m_CyclicForwardMax, m_CyclicForwardMax);
@@ -1376,6 +1383,13 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			}
 		#endif
 
+			//! 0 if heli is facing direction of movement, 1 if perpendicular
+			vector vehDir = pState.m_Transform[2];
+			vector velDir = pState.m_LinearVelocity.Normalized();
+			float perpendicular = Math.Acos(vector.Dot(vehDir, velDir)) / Math.PI_HALF;
+			if (perpendicular > 1.0)
+				perpendicular = 2.0 - perpendicular;
+
 			float stallSpeedThreshold = pState.m_MaxSpeedMS * m_RetreatingBladeStallSpeed;
 			float rbsSeverity;
 
@@ -1388,11 +1402,11 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 				case ExpansionHelicopterSimulationMode.RotorDisk:
 				default:
-					Simulate_RotorDisk(pState, force, torque, horiSpeed, stallSpeedThreshold, rbsSeverity);
+					Simulate_RotorDisk(pState, force, torque, horiSpeed, perpendicular, stallSpeedThreshold, rbsSeverity);
 					break;
 			}
 
-			Simulate_Common(pState, force, torque, horiSpeed, stallSpeedThreshold, rbsSeverity);
+			Simulate_Common(pState, force, torque, horiSpeed, perpendicular, stallSpeedThreshold, rbsSeverity);
 		}
 
 		PreventSinkingInOcean(pState, force, torque);
@@ -1502,7 +1516,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 	}
 
-	void Simulate_Common(ExpansionPhysicsState pState, inout vector force, inout vector torque, float horiSpeed, float stallSpeedThreshold, float rbsSeverity)
+	void Simulate_Common(ExpansionPhysicsState pState, inout vector force, inout vector torque, float horiSpeed, float perpendicular, float stallSpeedThreshold, float rbsSeverity)
 	{
 		float pDt = pState.m_DeltaTime;
 
@@ -1572,13 +1586,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			}
 		}
 
-		//! 0 if heli is facing direction of movement, 1 if perpendicular
-		vector vehDir = pState.m_Transform[2];
-		vector velDir = pState.m_LinearVelocity.Normalized();
-		float perpendicular = Math.Acos(vector.Dot(vehDir, velDir)) / Math.PI_HALF;
-		if (perpendicular > 1.0)
-			perpendicular = 2.0 - perpendicular;
-
 		float tailRotorForce;
 		float tailForce;
 
@@ -1620,7 +1627,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			float airDensity = 1.225;
 			float finArea = 1.2;
-			//! Lerp fin effectiveness with speed — near zero at hover so low-speed corrections feel smooth,
+			//! Lerp fin effectiveness with speed - near zero at hover so low-speed corrections feel smooth,
 			//! full strength at cruise so heading tracks naturally. This is what gives A3 the feeling that
 			//! fin resistance gradually releases as you slow down from an air brake.
 			float speedBlend = Math.Clamp(horiSpeed / (pState.m_MaxSpeedMS * 0.25), 0.0, 1.0);
@@ -1629,13 +1636,13 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			float pedalActivity = Math.Clamp(Math.AbsFloat(m_BackRotorSpeed) / m_AntiTorqueMax * 2.0, 0.0, 1.0);
 			float speedFactor = Math.Clamp(horiSpeed / (pState.m_MaxSpeedMS * 0.4), 0.0, 1.0);
-			//! At high speed pedals suppress only 10% of fin — fin wins, enforcing the ~90° wall like A3
-			//! At low speed pedals suppress up to 100% — free to pirouette in hover
+			//! At high speed pedals suppress only 10% of fin - fin wins, enforcing the ~90 deg wall like A3
+			//! At low speed pedals suppress up to 100% - free to pirouette in hover
 			float maxSuppression = 1.0 - (speedFactor * 0.90);
 			float activeFinCoef = finEffectivenessCoef * (1.0 - pedalActivity * maxSuppression);
 
-			//! Rate-limit the fin force — keeps orbit corrections gradual at low speed.
-			//! The ceiling is driven by ANGLE not speed — so approaching 90° keeps the wall strong
+			//! Rate-limit the fin force - keeps orbit corrections gradual at low speed.
+			//! The ceiling is driven by ANGLE not speed - so approaching 90 deg keeps the wall strong
 			//! even as the air brake scrubs speed. This is what makes the wall feel like it's
 			//! actively resisting rather than fading away as you slow down.
 			float angleWall = perpendicular * perpendicular;  //! 0 at forward, 1 at fully perpendicular
@@ -1755,17 +1762,17 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			force = force + rightAxis * tailLateralForce;
 		}
 
-		//! Sideslip drag applied in worldspace — purely horizontal so pitched attitude can't bleed into vertical
+		//! Sideslip drag applied in worldspace - purely horizontal so pitched attitude can't bleed into vertical
 		//! This is what slows you down when presenting the heli's side to the airflow (pedal air-braking)
 		if (m_AirFrictionMode != ExpansionHelicopterSimulationAirFrictionMode.Legacy)
 		{
-			vector horizVel = Vector(pState.m_LinearVelocity[0], 0, pState.m_LinearVelocity[2]);
-			float horizSpeed = horizVel.Length();
-			if (horizSpeed > 0.1)
+			vector horiVelWS = Vector(pState.m_LinearVelocity[0], 0, pState.m_LinearVelocity[2]);
+			float horiSpeedWSSq = horiVelWS.LengthSq();
+			if (horiSpeedWSSq > 0.01)
 			{
 				float sideslipDragMult = perpendicular * perpendicular * 4.5;
-				float sdForce = horizSpeed * horizSpeed * sideslipDragMult * pDt * m_AirFriction[0] * airFrictionScaleInv * pState.m_Mass * m_BodyFrictionCoef;
-				force -= horizVel.Normalized() * sdForce;
+				float sdForce = horiSpeedWSSq * sideslipDragMult * pDt * m_AirFriction[0] * airFrictionScaleInv * pState.m_Mass * m_BodyFrictionCoef;
+				force -= horiVelWS.Normalized() * sdForce;
 			}
 		}
 
@@ -1813,7 +1820,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	}
 
 	//! Rotor-disk / blade-element model (A3 RotorLib-style)
-	void Simulate_RotorDisk(ExpansionPhysicsState pState, inout vector force, inout vector torque, float horiSpeed, float stallSpeedThreshold, out float rbsSeverity)
+	void Simulate_RotorDisk(ExpansionPhysicsState pState, inout vector force, inout vector torque, float horiSpeed, float perpendicular, float stallSpeedThreshold, out float rbsSeverity)
 	{
 		float pDt = pState.m_DeltaTime;
 
@@ -1842,7 +1849,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		//! A3-style ETL bell curve.
 		//! At hover: high induced inflow (inefficient). As speed builds, inflow drops (more efficient).
 		//! The bell curve creates a pronounced lift surge at ~6-12 m/s before tapering off at cruise.
-		//! ETL peak speed in m/s — ~16-24 knots, matches A3 feel
+		//! ETL peak speed in m/s - ~16-24 knots, matches A3 feel
 		float etlPeakSpeed = 9.0; //Center of the bump in m/s, lower for earlier and more pronounced, higher for later and less pronounced
 		float etlPeakWidth = 5.0; //How wide the bump is in m/s, Smaller = sharper/more sudden, larger = more gradual spread
 		float speedDiff = horiSpeed - etlPeakSpeed;
@@ -1878,7 +1885,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		m_VRSSeverity = vrsSeverity;  //! For collective authority loss and feedback in HUD
 
-		//! Collective → blade pitch: m_MainRotorSpeed 0 = zero thrust, 1 = full
+		//! Collective -> blade pitch: m_MainRotorSpeed 0 = zero thrust, 1 = full
 		float theta0 = m_CollectivePitchAtMin * vrsMult;
 		float collective = m_MainRotorSpeed * m_RotorSpeed * vrsMult;
 		if (collective > 0.0)
@@ -1932,7 +1939,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			}
 			float phi = up / utSafe;  //! Inflow angle
 
-			//! Thrust uses collective pitch ONLY — cyclic is intentionally excluded here.
+			//! Thrust uses collective pitch ONLY - cyclic is intentionally excluded here.
 			//! Including cyclic in thrust breaks azimuthal symmetry via the nonlinear stall/negative-alpha
 			//! clamps, causing cyclic inputs to spuriously increase total thrust (skyrocket on bank+yaw).
 			float alphaThrust = theta0 - phi;
@@ -1961,15 +1968,10 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		totalThrust *= vrsMult * groundEffect * m_RotorDiskThrustScale;
 		totalThrust *= (1.0 - rbsSeverity * m_RetreatingBladeStallLiftLoss);
 
-		//! Sideslip rotor efficiency loss — high perpendicular airflow disturbs disk inflow,
+		//! Sideslip rotor efficiency loss - high perpendicular airflow disturbs disk inflow,
 		//! reducing effective thrust. Scales with both sideslip angle and speed so it has
 		//! no effect in hover (speed=0) but progressively counters the climb during air braking.
 		//! This matches A3 behaviour where you do gain altitude but slowly, not a skyrocket.
-		vector vehDir = pState.m_Transform[2];
-		vector velDir = pState.m_LinearVelocity.Normalized();
-		float perpendicular = Math.Acos(vector.Dot(vehDir, velDir)) / Math.PI_HALF;
-		if (perpendicular > 1.0)
-			perpendicular = 2.0 - perpendicular;
 		float sideslipEfficiencyLoss = perpendicular * perpendicular * Math.Clamp(horiSpeed / (pState.m_MaxSpeedMS * 0.5), 0.0, 1.0) * 0.35;
 		totalThrust *= (1.0 - sideslipEfficiencyLoss);
 

@@ -260,21 +260,6 @@ modded class MissionGameplay
 		return m_Chat;
 	}
 
-	override void PlayerControlDisable(int mode)
-	{
-		switch (mode)
-		{
-			case INPUT_EXCLUDE_CHAT_EXPANSION:
-			{
-				GetUApi().ActivateExclude("chatexpansion");
-				GetUApi().UpdateControls();
-				break;
-			}
-		}
-
-		super.PlayerControlDisable(mode);
-	}
-
 	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
 	{
 		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);

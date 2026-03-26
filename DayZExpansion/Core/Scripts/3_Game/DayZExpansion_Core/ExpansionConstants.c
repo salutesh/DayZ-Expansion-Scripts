@@ -37,12 +37,6 @@ enum ExpansionChatChannels
 const int EXPANSION_LIQUID_MILK = 65536;
 
 /**
- * Expansion Input Type
- * @{
- */
-const int INPUT_EXCLUDE_CHAT_EXPANSION		= 50;
-
-/**
  * Expansion UI Menu IDs
  * @{
  */

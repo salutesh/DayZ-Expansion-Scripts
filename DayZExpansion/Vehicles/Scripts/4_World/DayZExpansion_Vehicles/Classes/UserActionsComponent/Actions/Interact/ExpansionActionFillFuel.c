@@ -37,36 +37,6 @@ class ExpansionActionFillFuel: ActionContinuousBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( !target || !IsTransport(target) )
-			return false;
-
-		if ( item.GetQuantity() <= 0 )
-			return false;
-
-		if ( item.GetLiquidType() != LIQUID_GASOLINE )
-			return false;
-
-		ExpansionVehicleBase car = ExpansionVehicleBase.Cast( target.GetObject() );
-		if ( !car )
-			return false;
-		
-		if ( car.GetFluidFraction( CarFluid.FUEL ) >= 0.98 )
-			return false;
-
-		array<string> selections = new array<string>;
-		target.GetObject().GetActionComponentNameList(target.GetComponentIndex(), selections);
-
-		for (int s = 0; s < selections.Count(); s++)
-		{
-			if ( selections[s] == car.GetActionCompNameFuel() )
-			{
-				float dist = vector.DistanceSq( car.GetRefillPointPosWS(), player.GetPosition() );
-
-				if ( dist < car.GetActionDistanceFuel() * car.GetActionDistanceFuel() )
-					return true;
-			}
-		}
-
 		return false;
 	}
 };

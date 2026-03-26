@@ -72,6 +72,29 @@
 			<include name="movementexpansion" />
 		</exclude>
 
+		<exclude name="expansionhelicopter">
+			<input name="UACarForward" />
+			<input name="UACarLeft" />
+			<input name="UACarRight" />
+			<input name="UACarShiftGearUp" />
+			<input name="UACarShiftGearDown" />
+			<input name="UALookAroundToggle" />
+		</exclude>
+
+		<exclude name="expansionboat">
+			<input name="UACarForward" />
+			<input name="UACarBack" />
+			<input name="UALookAroundToggle" />
+		</exclude>
+
+		<exclude name="expansionplane">
+			<input name="UACarLeft" />
+			<input name="UACarRight" />
+			<input name="UACarShiftGearUp" />
+			<input name="UACarShiftGearDown" />
+			<input name="UALookAroundToggle" />
+		</exclude>
+
 		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionHeliRocket" />
 			<input name="UAExpansionHeliFreeLook" />

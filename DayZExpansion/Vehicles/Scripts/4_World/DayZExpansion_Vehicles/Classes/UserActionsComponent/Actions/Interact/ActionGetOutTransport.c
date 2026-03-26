@@ -46,18 +46,27 @@ modded class ActionGetOutTransport
 
 	override void OnStart(ActionData action_data)
 	{
+		auto vehicle = ExpansionVehicle.Get(action_data.m_Target.GetObject());
+
 		super.OnStart(action_data);
 
-		if (IsMissionClient())
+		if (vehicle)
 		{
-			GetUApi().GetInputByName("UACarLeft").ForceDisable(false);
-			GetUApi().GetInputByName("UACarRight").ForceDisable(false);
-			GetUApi().GetInputByName("UACarForward").ForceDisable(false);
-			GetUApi().GetInputByName("UACarBack").ForceDisable(false);
-
-			GetUApi().GetInputByName("UACarShiftGearUp").ForceDisable(false);
-			GetUApi().GetInputByName("UACarShiftGearDown").ForceDisable(false);
+			if (IsMissionClient())
+			{
+				if (vehicle.IsHelicopter())
+					g_Game.GetMission().RemoveActiveInputExcludes({"expansionhelicopter"});
+				else if (vehicle.IsBoat())
+					g_Game.GetMission().RemoveActiveInputExcludes({"expansionboat"});
+				else if (vehicle.IsPlane())
+					g_Game.GetMission().RemoveActiveInputExcludes({"expansionplane"});
+			}
 		}
+	}
+
+	[Obsolete("no replacement")]
+	void Expansion_OnPerformGetInTransport(CarScript car)
+	{
 	}
 
 	override void OnStartServer(ActionData action_data)
@@ -82,11 +91,9 @@ modded class ActionGetOutTransport
 	{
 		auto got_action_data = GetOutTransportActionData.Cast(action_data);
 
-		CarScript cs;
-		//! 1.26+
-		Class.CastTo(cs, got_action_data.m_Vehicle);
+		auto vehicle = ExpansionVehicle.Get(got_action_data.m_Vehicle);
 
-		if (cs && !cs.Expansion_IsCar() && !cs.Expansion_IsDuck())
+		if (vehicle && !vehicle.IsCar() && !vehicle.IsDuck())
 			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(action_data.m_Player.GetInventory().UnlockInventory, 1500, false, LOCK_FROM_SCRIPT); //! Unlock after delay to fix hand desync bug
 		else
 			super.OnEnd(action_data);

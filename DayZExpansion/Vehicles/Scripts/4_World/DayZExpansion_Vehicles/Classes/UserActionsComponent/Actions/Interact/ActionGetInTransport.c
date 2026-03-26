@@ -37,45 +37,20 @@ modded class ActionGetInTransport
 
 	override void Start(ActionData action_data)
 	{
-		CarScript car = CarScript.Cast(action_data.m_Target.GetObject());
+		auto vehicle = ExpansionVehicle.Get(action_data.m_Target.GetObject());
 
 		super.Start(action_data);
 
-		Expansion_OnPerformGetInTransport(car);
-	}
-
-	void Expansion_OnPerformGetInTransport(CarScript car)
-	{
-		if (car)
+		if (vehicle)
 		{
 			if (IsMissionClient())
 			{
-				bool isCar = car.Expansion_IsCar();
-				bool isBoat = car.Expansion_IsBoat();
-				bool isPlane = car.Expansion_IsPlane();
-
-				if (isPlane)
-				{
-					GetUApi().GetInputByName("UACarShiftGearUp").ForceDisable(isPlane);
-				}
-				else
-				{
-					GetUApi().GetInputByName("UACarForward").ForceDisable(!isCar);
-				}
-
-				if (isBoat)
-				{
-					GetUApi().GetInputByName("UACarBack").ForceDisable(!isCar);
-					GetUApi().GetInputByName("UACarShiftGearUp").ForceDisable(false);
-					GetUApi().GetInputByName("UACarShiftGearDown").ForceDisable(false);
-				}
-				else
-				{
-					GetUApi().GetInputByName("UACarLeft").ForceDisable(!isCar);
-					GetUApi().GetInputByName("UACarRight").ForceDisable(!isCar);
-					GetUApi().GetInputByName("UACarShiftGearUp").ForceDisable(!isCar);
-					GetUApi().GetInputByName("UACarShiftGearDown").ForceDisable(!isCar);
-				}
+				if (vehicle.IsHelicopter())
+					g_Game.GetMission().AddActiveInputExcludes({"expansionhelicopter"});
+				else if (vehicle.IsBoat())
+					g_Game.GetMission().AddActiveInputExcludes({"expansionboat"});
+				else if (vehicle.IsPlane())
+					g_Game.GetMission().AddActiveInputExcludes({"expansionplane"});
 			}
 		}
 	}

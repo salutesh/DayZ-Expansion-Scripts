@@ -37,7 +37,7 @@ modded class DayZPlayerCamera1stPersonVehicle
 			m_Ex_Player.SetHeadInvisible_Ex( false );
 		}
 
-		bool isFreeLook = false;
+		bool isFreeLook = true;
 		bool isHeliParent = false;
 
 		ExpansionHelicopterScript d_heli;

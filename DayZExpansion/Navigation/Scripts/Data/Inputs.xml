@@ -17,15 +17,6 @@
 			
 			<input name="UAExpansionQuickMarker" loc="STR_EXPANSION_QUICK_MARKER" />
 		</actions>
-		
-		<exclude name="chatexpansion">
-			<input name="UAExpansionMapDeleteMarker" />
-			<input name="UAExpansionMapToggle" />
-			<input name="UAExpansionGPSToggle" />
-			<input name="UAExpansionCompassToggle" />
-			<input name="UAExpansionGPSMapScaleDown" />
-			<input name="UAExpansionGPSMapScaleUp" />
-		</exclude>
 
 		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionMapDeleteMarker" />

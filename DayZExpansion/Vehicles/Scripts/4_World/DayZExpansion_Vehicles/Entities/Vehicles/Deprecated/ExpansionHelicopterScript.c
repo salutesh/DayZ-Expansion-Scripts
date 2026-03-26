@@ -1091,12 +1091,15 @@ class ExpansionHelicopterScript: CarScript
 	{
 		super.Expansion_OnHandleController(driver, dt);
 
+	#ifndef SERVER
 		string soundSet;
+	#endif
 
 		if (driver)
 		{
 			m_Expansion_PilotlessTime = 0;
 
+		#ifndef SERVER
 			if (m_Simulation.m_VRSSeverity > 0.1)
 			{
 				if (!m_Expansion_HeliWarningSound)
@@ -1110,6 +1113,7 @@ class ExpansionHelicopterScript: CarScript
 				m_Expansion_HeliWarningSound.SoundStop();
 				m_Expansion_HeliWarningSound = null;
 			}
+		#endif
 		}
 		else
 		{
@@ -1122,8 +1126,9 @@ class ExpansionHelicopterScript: CarScript
 					Expansion_EngineStop();
 			}
 
+		#ifndef SERVER
 			//! Alarm starts 10 s before engine turns off
-			if (m_Expansion_PilotlessTime >= m_Expansion_PilotlessAutoHoverEngineStopDelay - 10 && !g_Game.IsDedicatedServer())
+			if (m_Expansion_PilotlessTime >= m_Expansion_PilotlessAutoHoverEngineStopDelay - 10)
 			{
 				if (IsLanded())
 				{
@@ -1139,6 +1144,7 @@ class ExpansionHelicopterScript: CarScript
 					m_Expansion_HeliWarningSound = SEffectManager.Expansion_PlaySoundOnObject(soundSet, this, 0, 0, true);
 				}
 			}
+		#endif
 		}
 	}
 
