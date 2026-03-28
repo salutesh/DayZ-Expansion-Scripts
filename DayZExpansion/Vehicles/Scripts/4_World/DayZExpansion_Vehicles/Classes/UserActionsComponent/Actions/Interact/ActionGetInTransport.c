@@ -35,51 +35,6 @@ modded class ActionGetInTransport
 		return true;
 	}
 
-	override void Start(ActionData action_data)
-	{
-		CarScript car = CarScript.Cast(action_data.m_Target.GetObject());
-
-		super.Start(action_data);
-
-		Expansion_OnPerformGetInTransport(car);
-	}
-
-	void Expansion_OnPerformGetInTransport(CarScript car)
-	{
-		if (car)
-		{
-			if (IsMissionClient())
-			{
-				bool isCar = car.Expansion_IsCar();
-				bool isBoat = car.Expansion_IsBoat();
-				bool isPlane = car.Expansion_IsPlane();
-
-				if (isPlane)
-				{
-					GetUApi().GetInputByName("UACarShiftGearUp").ForceDisable(isPlane);
-				}
-				else
-				{
-					GetUApi().GetInputByName("UACarForward").ForceDisable(!isCar);
-				}
-
-				if (isBoat)
-				{
-					GetUApi().GetInputByName("UACarBack").ForceDisable(!isCar);
-					GetUApi().GetInputByName("UACarShiftGearUp").ForceDisable(false);
-					GetUApi().GetInputByName("UACarShiftGearDown").ForceDisable(false);
-				}
-				else
-				{
-					GetUApi().GetInputByName("UACarLeft").ForceDisable(!isCar);
-					GetUApi().GetInputByName("UACarRight").ForceDisable(!isCar);
-					GetUApi().GetInputByName("UACarShiftGearUp").ForceDisable(!isCar);
-					GetUApi().GetInputByName("UACarShiftGearDown").ForceDisable(!isCar);
-				}
-			}
-		}
-	}
-
 	override void OnEndServer(ActionData action_data)
 	{
 		super.OnEndServer(action_data);
@@ -88,9 +43,6 @@ modded class ActionGetInTransport
 
 		if (!vehicle)
 			return;
-
-		if (vehicle.IsHelicopter())
-			vehicle.SetHasPilot(vehicle.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) != NULL);  //! So we are able to detect if pilot got disconnected or got out on own accord
 		
 		if (action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEnter)
 		{

@@ -17,8 +17,10 @@ class ExpansionHelicopterWreck : ExpansionWreck
 	FireplaceLight m_Light;
 	float m_LightDistance = 2000;
 
-	void ExpansionHelicopterWreck()
+	override void DeferredInit()
 	{
+		super.DeferredInit();
+
 		if (g_Game.IsServer())
 		{
 			ExpansionCreateExplosion(this, "", 5, 100);
@@ -29,7 +31,7 @@ class ExpansionHelicopterWreck : ExpansionWreck
 			m_ParticleEfx = Particle.PlayOnObject(ParticleList.EXPANSION_FIRE_HELICOPTER, this, GetMemoryPointPos("fire_pos"), "0 0 0", true);
 
 			// turn light on
-			if (!GetLightEntity() && (!g_Game.IsDedicatedServer()))
+			if (!GetLightEntity())
 			{
 				SetLightEntity(FireplaceLight.Cast(ScriptedLightBase.CreateLight(FireplaceLight, GetPosition(), 20)));
 				GetLightEntity().AttachOnMemoryPoint(this, "light");

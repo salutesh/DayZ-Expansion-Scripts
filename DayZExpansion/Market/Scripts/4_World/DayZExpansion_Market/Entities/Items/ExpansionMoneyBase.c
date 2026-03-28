@@ -115,7 +115,7 @@ class ExpansionMoneyBase_InsanityStack: ExpansionMoneyBase
 		//! The max for a netsynced float with precision = 1 is 214748256
 		//! We don't need any places after decimal point for money, so we can set precision to 0
 		//! which increases range to float.MAX
-		UpdateNetSyncVariableFloat("m_VarQuantity", GetQuantityMin(), m_VarQuantityMax, 0);
+		UpdateNetSyncVariableFloat("m_VarQuantity", GetQuantityMin(), ConfigGetInt("varQuantityMax"), 0);
 	}
 
 	override void OnDebugSpawn()

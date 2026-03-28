@@ -62,6 +62,11 @@ class ExpansionHelicopterScript: CarScript
 	vector m_Expansion_IsLandedHitPos;
 
 	float m_Expansion_IsLandedTick;
+	float m_Expansion_PilotlessTime;
+	float m_Expansion_PilotlessAutoHoverEngineStopDelay;
+	float m_RoughLandingVerticalSpeedThreshold = 3.0;
+
+	EffectSound m_Expansion_HeliWarningSound;
 
 	ref map<string, float> m_Expansion_DoorSoundPhaseStarted = new map<string, float>;
 
@@ -271,13 +276,26 @@ class ExpansionHelicopterScript: CarScript
 
 		m_Simulation.OnDetach(slot_name, item);
 	}
-
+	
 	override void EEOnCECreate()
 	{
 		super.EEOnCECreate();
 
-		//! CarFluid.OIL is used as hydraulic fluid for helis. TODO: Remove this after adding capability to refill hydraulic fluid
-		Fill(CarFluid.OIL, GetFluidCapacity(CarFluid.OIL));
+		//! Hydraulic fluid
+		float maxVolume = GetFluidCapacity(CarFluid.OIL);
+		float amount = Math.RandomFloat(0.0, maxVolume * 0.35);
+
+		Fill(CarFluid.OIL, amount);
+	}
+	
+	override string GetActionCompNameOil()
+	{
+		return "refill";
+	}
+
+	override float GetActionDistanceOil()
+	{
+		return 2.5;
 	}
 
 	//! Expansion helis do not seem to receive vanilla OnContact for frontal collisions, but some 3rd party ones do.
@@ -303,6 +321,7 @@ class ExpansionHelicopterScript: CarScript
 
 		vector transform[4];
 		GetTransform(transform);
+		vector up = transform[1];
 
 		if (resetImpulse)
 		{
@@ -311,7 +330,7 @@ class ExpansionHelicopterScript: CarScript
 			//! This is possibly a DayZ SA/Enfusion bug but it will need more testing. May also be the cause for some
 			//! helicoper simulation weirdness when on the ground?
 
-			float dot = vector.Dot(transform[1], vector.Up);
+			float dot = vector.Dot(up, vector.Up);
 			float dotMO = dot - 1.0;
 
 			const float maxVelocityMagnitude = 11.0; // ~40km/h
@@ -320,7 +339,7 @@ class ExpansionHelicopterScript: CarScript
 			if (other) //! check done just incase
 				impulseRequired += Math.Max(dBodyGetMass(other), 0.0) * maxVelocityMagnitude * 2.0;
 
-			if (extra.Impulse > impulseRequired || (m_Simulation.m_RotorSpeed > 0 && extra.RelativeVelocityBefore.LengthSq() >= maxVelocityMagnitude * maxVelocityMagnitude && !IsLanded()))
+			if (extra.Impulse > impulseRequired || m_State.m_LinearVelocity[1] < -m_RoughLandingVerticalSpeedThreshold || (m_Simulation.m_RotorSpeed > 0 && (up[1] < 0.0 || extra.RelativeVelocityBefore.LengthSq() >= maxVelocityMagnitude * maxVelocityMagnitude) && !IsLanded()))
 			{
 #ifdef EXPANSIONVEHICLELOG
 				Print(dot);
@@ -338,9 +357,77 @@ class ExpansionHelicopterScript: CarScript
 		{
 			vector localPos = extra.Position.InvMultiply4(transform);
 
+			float collisionDmgMinSpeed;
+
+			//! If heli is upside down, set min speed to 0 to guarantee contact being added to cache in CarScript::OnContact
+			//! (we handle slowing down rotor + actual dmg in CheckcontactCache so we can guarantee a fixed rate)
+			if (up[1] < 0.0 && m_Simulation.m_RotorSpeed > 0)
+			{
+				collisionDmgMinSpeed = m_Expansion_CollisionDamageMinSpeed;
+				m_Expansion_CollisionDamageMinSpeed = 0;
+
+				//! Make sure dmg is ignored by setting impulse below threshold if main rotor dmg is disabled and below min speed
+				if (!m_Simulation.m_EnableMainRotorDamage)
+				{
+					float dmg = extra.Impulse * m_dmgContactCoef;
+					if (dmg >= GameConstants.CARS_CONTACT_DMG_MIN)
+					{
+						if (dmg <= collisionDmgMinSpeed * EXPANSION_COLLISION_DMG_MIN_SPEED_TO_DMG_MULT)
+						{
+							extra.Impulse = (GameConstants.CARS_CONTACT_DMG_MIN / m_dmgContactCoef) * 0.99;
+						}
+						else
+						{
+							float velocitySq = extra.RelativeVelocityBefore.LengthSq();
+							float collisionDmgMinSpeedSq = collisionDmgMinSpeed * collisionDmgMinSpeed;
+							if (velocitySq < collisionDmgMinSpeedSq)
+								extra.Impulse = (GameConstants.CARS_CONTACT_DMG_MIN / m_dmgContactCoef) * 0.99;
+						}
+					}
+				}
+			}
+			else if (m_State.m_LinearVelocity[1] < -m_RoughLandingVerticalSpeedThreshold)
+			{
+				//! Harsh landing
+
+				collisionDmgMinSpeed = m_Expansion_CollisionDamageMinSpeed;
+				m_Expansion_CollisionDamageMinSpeed = 0;
+			}
+
 			//! Call CarScript OnContact
 			super.OnContact("", localPos, other, extra);
+
+			if (collisionDmgMinSpeed)
+				m_Expansion_CollisionDamageMinSpeed = collisionDmgMinSpeed;
 		}
+	}
+
+	override void CheckContactCache()
+	{
+		if (m_ContactCache.Count() && m_Simulation.m_RotorSpeed > 0)
+		{
+			vector up = m_State.m_Transform[1];
+
+			//! If heli is upside down, main rotor grinds to a halt and optionally gets damaged if dmg is enabled
+			if (up[1] < 0.0)
+			{
+				m_Simulation.m_RotorSpeed *= 0.97;  //! Rotor grinds to a halt (irrespective if main rotor dmg is enabled)
+
+				if (!IsDamageDestroyed() && m_Simulation.m_EnableMainRotorDamage)
+				{
+					foreach (string zoneName, array<ref CarContactData> data: m_ContactCache)
+					{
+						float dmg = Math.AbsInt(data[0].impulse * m_dmgContactCoef);
+
+						//! If main rotor dmg is enabled, set impulse above dmg threshold to guarantee damage
+						if (dmg < GameConstants.CARS_CONTACT_DMG_MIN)
+							data[0].impulse = GameConstants.CARS_CONTACT_DMG_MIN / m_dmgContactCoef + 1.0;
+					}
+				}
+			}
+		}
+
+		super.CheckContactCache();
 	}
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -750,13 +837,23 @@ class ExpansionHelicopterScript: CarScript
 		return oldValue;
 	}
 
-	override protected void HandleDoorsSound(string animSource, float phase)
+	override void OnAnimationPhaseStarted(string animSource, float phase)
 	{
+	#ifndef SERVER
 		if (animSource.Contains("door_") || animSource.Contains("doors"))
 		{
 			if (!Expansion_ShouldHandleDoorsSound(animSource, phase))
 				return;
+		}
+	#endif
 
+		super.OnAnimationPhaseStarted(animSource, phase);
+	}
+
+	override protected void HandleDoorsSound(string animSource, float phase)
+	{
+		if (animSource.Contains("door_") || animSource.Contains("doors"))
+		{
 			EXTrace.Print(EXTrace.VEHICLES, this, "HandleDoorsSound " + animSource + " " + phase);
 
 			if (phase == 0)
@@ -777,7 +874,7 @@ class ExpansionHelicopterScript: CarScript
 
 		float phaseStarted;
 
-		//! @note prevent door sound overlapping due to OnAnimationPhaseStarteded getting called multiple times each anim phase for helis for some reason.
+		//! @note prevent door sound overlapping due to OnAnimationPhaseStarted getting called multiple times each anim phase for helis for some reason.
 		//! Do nothing if current anim phase is equal to last played sound start phase.
 		if (m_Expansion_DoorSoundPhaseStarted.Find(animSource, phaseStarted) && phase == phaseStarted)
 			return false;
@@ -799,7 +896,6 @@ class ExpansionHelicopterScript: CarScript
 
 		super.SetActions();
 
-		AddAction(ExpansionActionSwitchAutoHover);
 		AddAction(ExpansionActionSwitchAutoHoverInput);
 		AddAction(ExpansionActionRotateRotors);
 	}
@@ -989,6 +1085,81 @@ class ExpansionHelicopterScript: CarScript
 		//! (CarScript doesn't have collision in inactive state, so will move through terrain as if it weren't there if it's pushed by an outside force).
 		//! Vanilla WILL deactivate helis that are not in use the same as it does cars, so there is no need for us to do that explicitly.
 		return false;
+	}
+
+	override void Expansion_OnHandleController(DayZPlayerImplement driver, float dt)
+	{
+		super.Expansion_OnHandleController(driver, dt);
+
+	#ifndef SERVER
+		string soundSet;
+	#endif
+
+		if (driver)
+		{
+			m_Expansion_PilotlessTime = 0;
+
+		#ifndef SERVER
+			if (m_Simulation.m_VRSSeverity > 0.1)
+			{
+				if (!m_Expansion_HeliWarningSound)
+				{
+					soundSet = Expansion_GetWarningSoundSet();
+					m_Expansion_HeliWarningSound = SEffectManager.Expansion_PlaySoundOnObject(soundSet, this, 0, 0, true);
+				}
+			}
+			else if (m_Expansion_HeliWarningSound)
+			{
+				m_Expansion_HeliWarningSound.SoundStop();
+				m_Expansion_HeliWarningSound = null;
+			}
+		#endif
+		}
+		else
+		{
+			m_Expansion_PilotlessTime += dt;
+
+			//! If time without pilot exceeds delay, turn off engine
+			if (m_Expansion_PilotlessTime >= m_Expansion_PilotlessAutoHoverEngineStopDelay && g_Game.IsServer())
+			{
+				if (Expansion_EngineIsOn())
+					Expansion_EngineStop();
+			}
+
+		#ifndef SERVER
+			//! Alarm starts 10 s before engine turns off
+			if (m_Expansion_PilotlessTime >= m_Expansion_PilotlessAutoHoverEngineStopDelay - 10)
+			{
+				if (IsLanded())
+				{
+					if (m_Expansion_HeliWarningSound)
+					{
+						m_Expansion_HeliWarningSound.SoundStop();
+						m_Expansion_HeliWarningSound = null;
+					}
+				}
+				else if (!m_Expansion_HeliWarningSound)
+				{
+					soundSet = Expansion_GetWarningSoundSet();
+					m_Expansion_HeliWarningSound = SEffectManager.Expansion_PlaySoundOnObject(soundSet, this, 0, 0, true);
+				}
+			}
+		#endif
+		}
+	}
+
+	override void OnSettingsUpdated()
+	{
+		super.OnSettingsUpdated();
+
+		auto settings = GetExpansionSettings().GetVehicle();
+		m_Expansion_PilotlessAutoHoverEngineStopDelay = settings.PilotlessAutoHoverEngineStopDelaySeconds;
+		m_RoughLandingVerticalSpeedThreshold = settings.RoughLandingVerticalSpeedThreshold;
+	}
+
+	string Expansion_GetWarningSoundSet()
+	{
+		return "Expansion_Mh6_Warning_SoundSet";
 	}
 
 	override bool IsVitalSparkPlug()

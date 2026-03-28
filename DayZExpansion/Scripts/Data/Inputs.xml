@@ -5,11 +5,6 @@
 			<input name="UAExpansionEarplugsToggle" loc="STR_EXPANSION_TOGGLE_EARPLUGS" />
 			<input name="UAExpansionAutoRunToggle" loc="STR_EXPANSION_TOGGLE_AUTORUN" />
 		</actions>
-		
-		<exclude name="chatexpansion">
-			<input name="UAExpansionEarplugsToggle" />
-			<input name="UAExpansionAutoRunToggle" />
-		</exclude>
 
 		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionEarplugsToggle" />

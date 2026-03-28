@@ -1184,7 +1184,7 @@ class eAICommandMove: ExpansionHumanCommand
 				m_Unit.Expansion_DebugObject_Deferred(1122, hitPosition, "ExpansionDebugSphereSmall_Red", vector.Zero, hitPosition - hitNormal);
 			#endif
 			}
-			else if (m_Unit.m_eAI_StancePreference != -1 && m_Stance != m_Unit.m_eAI_StancePreference && (m_Unit.m_eAI_StancePreference == DayZPlayerConstants.STANCEIDX_PRONE || !DayZPhysics.RaycastRV(origin + "0 0.3 0", origin + Vector(0, 0.5 + (2.0 - m_Unit.m_eAI_StancePreference) * 0.75, 0), hitPosition, hitNormal, contactComponent, results, null, m_Unit, false, false, ObjIntersectView, 0.1) || !ObjectCanLimitStance(results[0])))
+			else if (m_Unit.m_eAI_StancePreference != -1 && m_Stance != m_Unit.m_eAI_StancePreference && (m_Unit.m_eAI_StancePreference == DayZPlayerConstants.STANCEIDX_PRONE || !DayZPhysics.RaycastRV(origin + "0 0.3 0", origin + Vector(0, 0.5 + (2.0 - m_Unit.m_eAI_StancePreference) * 0.75, 0), hitPosition, hitNormal, contactComponent, results, null, m_Unit, false, false, ObjIntersectView, 0.1) || !results.Count() || !ObjectCanLimitStance(results[0])))
 			{
 				m_Stance = m_Unit.m_eAI_StancePreference;
 

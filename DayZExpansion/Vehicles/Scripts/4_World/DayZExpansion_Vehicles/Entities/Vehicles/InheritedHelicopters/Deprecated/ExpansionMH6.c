@@ -511,7 +511,12 @@ class ExpansionMh6 : ExpansionHelicopterScript
 
 			if (battery)
 			{
+			#ifdef DAYZ_1_28
 				if (m_HeadlightsOn)
+			#else
+				//! 1.29+
+				if (LightIsOn())
+			#endif
 				{
 					if (!m_Headlight && m_HeadlightsState != CarHeadlightBulbsState.NONE)
 					{

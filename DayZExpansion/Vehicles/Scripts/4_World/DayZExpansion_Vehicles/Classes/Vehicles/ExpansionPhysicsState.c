@@ -212,7 +212,7 @@ class ExpansionPhysicsState
 		{
 			return;
 		}
-		
+
 		dBodyApplyForce(m_Entity, m_Force);
 		dBodyApplyTorque(m_Entity, m_Torque);
 	}

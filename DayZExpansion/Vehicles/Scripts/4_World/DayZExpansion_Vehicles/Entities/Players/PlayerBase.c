@@ -184,19 +184,75 @@ modded class PlayerBase
 
     override void OnDisconnect()
     {
-        CarScript car;
-        HumanCommandVehicle hcv = GetCommand_Vehicle();
+        ExpansionVehicle vehicle;
 
-        if (hcv && CarScript.CastTo(car, hcv.GetTransport()))
+        if (ExpansionVehicle.Get(vehicle, this))
         {
-            if (hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER && car.Expansion_IsTowing())
+            if (vehicle.CrewMemberIndex(this) == DayZPlayerConstants.VEHICLESEAT_DRIVER)
             {
-				car.Expansion_DestroyTow();
+				if (vehicle.IsTowing())
+					vehicle.DestroyTow();
+
+				if (vehicle.IsHelicopter())
+				{
+					if (!vehicle.IsAutoHover())
+						vehicle.SwitchAutoHover();  //! Turn autohover on
+
+					vehicle.EngineStop();  //! Stop engine. Heli will autorotate to ground.
+				}
             }
         }
 
         super.OnDisconnect();
     }
+
+	override void OnVehicleSeatDriverEnter()
+	{
+	#ifdef DIAG_DEVELOPER
+		EXPrint(this, "OnVehicleSeatDriverEnter");
+	#endif
+
+		super.OnVehicleSeatDriverEnter();
+
+		if (!g_Game.IsDedicatedServer())  //! Client or offline/SP
+		{
+			auto vehicle = ExpansionVehicle.Get(this);
+
+			if (vehicle)
+			{
+				if (vehicle.IsHelicopter())
+					g_Game.GetMission().AddActiveInputExcludes({"expansionhelicopter"});
+				else if (vehicle.GetEntity().IsInherited(ExpansionBoatScript) && !vehicle.IsCar())
+					g_Game.GetMission().AddActiveInputExcludes({"expansionboat"});
+				else if (vehicle.IsPlane())
+					g_Game.GetMission().AddActiveInputExcludes({"expansionplane"});
+				else
+				{
+					//! Shouldn't technically be needed, but since 3rd party mods can break stuff by
+					//! overriding OnVehicleSeatDriverLeft and not calling super, better be safe than sorry
+					g_Game.GetMission().RemoveActiveInputExcludes({"expansionhelicopter"});
+					g_Game.GetMission().RemoveActiveInputExcludes({"expansionboat"});
+					g_Game.GetMission().RemoveActiveInputExcludes({"expansionplane"});
+				}
+			}
+		}
+	}
+
+	override void OnVehicleSeatDriverLeft()
+	{
+	#ifdef DIAG_DEVELOPER
+		EXPrint(this, "OnVehicleSeatDriverLeft");
+	#endif
+
+		super.OnVehicleSeatDriverLeft();
+
+		if (!g_Game.IsDedicatedServer())  //! Client or offline/SP
+		{
+			g_Game.GetMission().RemoveActiveInputExcludes({"expansionhelicopter"});
+			g_Game.GetMission().RemoveActiveInputExcludes({"expansionboat"});
+			g_Game.GetMission().RemoveActiveInputExcludes({"expansionplane"});
+		}
+	}
 
 #ifdef DAYZ_1_25
 	override void TryHideItemInHands(bool hide, bool force = false)

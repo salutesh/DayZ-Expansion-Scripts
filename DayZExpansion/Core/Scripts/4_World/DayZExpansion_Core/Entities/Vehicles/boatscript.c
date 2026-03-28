@@ -165,6 +165,7 @@ modded class BoatScript
 		super.OnCEUpdate();
 
 		m_ExpansionVehicle.SafeZoneCleanup(m_ElapsedSinceLastUpdate);
+		m_ExpansionVehicle.OnCEUpdate();
 	}
 
 	override void SetActions()

@@ -231,6 +231,11 @@ class ExpansionMerlin : ExpansionHelicopterScript
 		return "";
 	}
 
+	override string Expansion_GetWarningSoundSet()
+	{
+		return "Expansion_Merlin_Warning_SoundSet";
+	}
+
 	override void UpdateLights(int new_gear = -1)
 	{
 #ifdef EXPANSIONTRACE
@@ -253,7 +258,12 @@ class ExpansionMerlin : ExpansionHelicopterScript
 				vector color;
 				vector ambient;
 
+			#ifdef DAYZ_1_28
 				if (m_HeadlightsOn)
+			#else
+				//! 1.29+
+				if (LightIsOn())
+			#endif
 				{
 					if (m_Lights.Count() == 0)
 					{

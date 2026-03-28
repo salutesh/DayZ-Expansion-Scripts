@@ -865,8 +865,11 @@ class eAICommandManagerImpl: eAICommandManager
 		eAIBase ai;
 		for (int i = 0; i < g.Count(); i++)
 		{
+			if (!Class.CastTo(ai, g.GetMember(i)))
+				continue;
+
 			eAITarget currentTarget = ai.GetTarget();
-			if (Class.CastTo(ai, g.GetMember(i)) && currentTarget && currentTarget.m_SearchOnLOSLost && ai.eAI_IsInFlankRange(currentTarget))
+			if (currentTarget && currentTarget.m_SearchOnLOSLost && ai.eAI_IsInFlankRange(currentTarget))
 			{
 				g.SetFormationState(eAIGroupFormationState.FLANK);
 				SetMovementSpeed(g, speed);
@@ -1263,7 +1266,7 @@ class eAICommandManagerImpl: eAICommandManager
 	{
 		if (GetExpansionSettings().GetAI().IsAdmin(player.GetIdentity()) || player == ai.GetGroup().GetLeader())
 		{
-			float fVisibility = 1 + Environment.Expansion_GetDynVolFogVisibilityEx(ai.GetPosition()[1]) * 999;
+			float fVisibility = 1 + Environment.Expansion_GetDynVolFogVisibilityEx(ai.GetPosition()[1]) * 1099;
 			int iVisibility = Math.Round(fVisibility);
 			string sVisibility = iVisibility.ToString();
 
@@ -1391,8 +1394,8 @@ class eAICommandManagerImpl: eAICommandManager
 		}
 
 		//! Visibility
-		string visibility = Math.Round(ai.m_Expansion_Visibility * 1000).ToString();
-		string volFogVisibility = Math.Round(ai.m_eAI_DynVolFogVisibility * 1000).ToString();
+		string visibility = Math.Round(ai.m_Expansion_Visibility * 1100).ToString();
+		string volFogVisibility = Math.Round(ai.m_eAI_DynVolFogVisibility * 1100).ToString();
 		player.eAI_Message(ai, "Visibility %1 m (volumetric fog %2 m)", visibility, volFogVisibility);
 
 		//! Health

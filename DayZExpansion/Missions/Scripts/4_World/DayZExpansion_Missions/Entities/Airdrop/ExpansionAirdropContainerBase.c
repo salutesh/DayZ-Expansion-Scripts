@@ -305,7 +305,8 @@ class ExpansionAirdropContainerBase: House
 			float totalWeight = GetWeightEx();
 			float totalWeightKg = totalWeight * 0.001;
 
-			m_Expansion_FallSpeed = fallSpeed * ExpansionMath.LinearConversion(m_ConfigWeight, m_ConfigWeight * 1.666666, totalWeight, 1.0, 1.111111);
+			float configWeight = ConfigGetInt("weight");
+			m_Expansion_FallSpeed = fallSpeed * ExpansionMath.LinearConversion(configWeight, configWeight * 1.666666, totalWeight, 1.0, 1.111111);
 
 			//! The higher the fall speed, the lesser the wind impact
 			m_Expansion_WindImpactStrength = ExpansionMath.LinearConversion(3.0, 6.0, m_Expansion_FallSpeed, 0.2, 0.1) * windImpact;

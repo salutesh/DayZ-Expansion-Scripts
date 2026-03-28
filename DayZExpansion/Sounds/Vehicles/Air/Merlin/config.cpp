@@ -13,6 +13,7 @@ class CfgPatches
 };
 class CfgSoundShaders
 {
+	class baseVehicles_SoundShader;
 	class Expansion_Merlin_Base_Int_SoundShader
 	{
 		range=2000;
@@ -151,9 +152,23 @@ class CfgSoundShaders
 		frequency=1;
 		volume=0.30000001;
 	};
+	class Expansion_Merlin_Warning_SoundShader: baseVehicles_SoundShader
+	{
+		samples[]=
+		{
+			
+			{
+				"DayZExpansion\Sounds\Vehicles\Air\Merlin\warning",
+				1
+			}
+		};
+		frequency=1;
+		volume=0.89999998;
+	};
 };
 class CfgSoundSets
 {
+	class baseVehicles_SoundSet;
 	class Expansion_Merlin_Base_Ext_SoundSet
 	{
 		sound3DProcessingType="Vehicle_Ext_3DProcessingType";
@@ -261,6 +276,15 @@ class CfgSoundSets
 		soundShaders[]=
 		{
 			"Expansion_Merlin_Engine_Idle_Start_Ext_SoundShader"
+		};
+		volumeFactor=1;
+	};
+	class Expansion_Merlin_Warning_SoundSet: baseVehicles_SoundSet
+	{
+		loop=0;
+		soundShaders[]=
+		{
+			"Expansion_Merlin_Warning_SoundShader"
 		};
 		volumeFactor=1;
 	};

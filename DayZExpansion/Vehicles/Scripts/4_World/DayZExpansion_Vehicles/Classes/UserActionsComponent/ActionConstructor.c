@@ -52,7 +52,6 @@ modded class ActionConstructor
 		
 		//! Helicopters
 		actions.Insert( ExpansionActionHelicopterHoverRefill );
-		actions.Insert( ExpansionActionSwitchAutoHover );
 		actions.Insert( ExpansionActionSwitchAutoHoverInput );
 		actions.Insert( ExpansionActionRotateRotors );
 

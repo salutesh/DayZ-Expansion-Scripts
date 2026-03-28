@@ -8,6 +8,7 @@ class CfgPatches
 		requiredAddons[]=
 		{
 			"DZ_Gear_Camping",
+			"DZ_Vehicles_Parts",
 			"DZ_Scripts",
 			"DayZExpansion_Objects_Gear_Spraycans"
 		};
@@ -18,6 +19,7 @@ class CfgVehicles
 	class CamoNet;
 	class Inventory_Base;
 	class Container_Base;
+	class EngineOil;
 	class BatteryCharger: Inventory_Base
 	{
 		attachments[]+=
@@ -622,6 +624,77 @@ class CfgVehicles
 							
 							{
 								"DZ\vehicles\parts\data\battery_smallcar_destruct.rvmat"
+							}
+						}
+					};
+				};
+			};
+		};
+	};
+	class ExpansionHydraulicFluid: EngineOil
+	{
+		scope=2;
+		displayName="$STR_EXPANSION_HYDRAULIC_FLUID";
+		descriptionShort="$STR_EXPANSION_HYDRAULIC_FLUID_DESC";
+		model="DayZExpansion\Vehicles\Objects\Gear\hydraulicfluid.p3d";
+		varQuantityInit=4000;
+		varQuantityMin=0;
+		varQuantityMax=4000;
+		varQuantityDestroyOnMin=1;
+		destroyOnEmpty=1;
+		quantityBar=1;
+		stackedUnit="percentage";
+		weight=500;
+		itemSize[]={3,4};
+		absorbency=0;
+		rotationFlags=64;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints=100;
+					healthLevels[]=
+					{
+						
+						{
+							1,
+							
+							{
+								"DayZExpansion\Vehicles\Objects\Gear\data\hydraulicfluid.rvmat"
+							}
+						},
+						
+						{
+							0.69999999,
+							
+							{
+								"DayZExpansion\Vehicles\Objects\Gear\data\hydraulicfluid.rvmat"
+							}
+						},
+						
+						{
+							0.5,
+							
+							{
+								"DayZExpansion\Vehicles\Objects\Gear\data\hydraulicfluid_damage.rvmat"
+							}
+						},
+						
+						{
+							0.30000001,
+							
+							{
+								"DayZExpansion\Vehicles\Objects\Gear\data\hydraulicfluid_damage.rvmat"
+							}
+						},
+						
+						{
+							0,
+							
+							{
+								"DayZExpansion\Vehicles\Objects\Gear\data\hydraulicfluid_destruct.rvmat"
 							}
 						}
 					};

@@ -40,6 +40,9 @@ modded class ExpansionVehicle
 					fine += ib.Expansion_GetItemSize() * baseFine * 0.01;
 			}
 
+			if (EngineIsOn())
+				EngineStop();
+
 			SetLockState(ExpansionVehicleLockState.READY_TO_FORCELOCK);
 			SetParkingFine(fine);
 

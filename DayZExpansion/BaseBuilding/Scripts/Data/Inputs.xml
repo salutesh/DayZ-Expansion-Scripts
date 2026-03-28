@@ -8,12 +8,6 @@
 			<input name="UAExpansionHologramNextPlacing" visible="false" />
 		</actions>
 
-		<exclude name="chatexpansion">
-			<input name="UAExpansionSnappingDirectionNext" />
-			<input name="UAExpansionSnappingDirectionPrevious" />
-			<input name="UAExpansionSnappingToggle" />
-		</exclude>
-
 		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionSnappingDirectionNext" />
 			<input name="UAExpansionSnappingDirectionPrevious" />

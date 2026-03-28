@@ -13,10 +13,16 @@
 #ifndef EXPANSION_VEHICLES_HUD_OLD
 class ExpansionHelicopterHud : VehicleHudBase
 {
+	static int VORTEX_WARNING_COLOR = ARGB(255, 255, 191, 0);
+	static int VORTEX_WARNING_SHADOW_COLOR = ARGB(255, 128, 64, 0);
+	static int VORTEX_ALARM_COLOR = ARGB(255, 255, 140, 57);
+	static int VORTEX_ALARM_SHADOW_COLOR = ARGB(255, 128, 0, 0);
+	
 	protected ExpansionHelicopterScript m_CurrentHelicopter;
 
 	protected ImageWidget			m_HeliSpeedPointer;
 	protected TextWidget			m_HeliSpeedValue;
+	protected TextWidget			m_HeliSpeedValueH;
 
 	protected TextWidget			m_HeliALTValue;
 	protected ProgressBarWidget		m_HeliALTProgressBar;
@@ -45,6 +51,8 @@ class ExpansionHelicopterHud : VehicleHudBase
 	protected ImageWidget    		m_HeliClimbPointer;
 	protected TextWidget			m_HeliClimbValue;
 	
+	protected Widget				m_HeliVortexPanel;
+	protected TextWidget			m_HeliVortexIcon;
 	protected Widget				m_HeliAutoHoverPanel;
 	protected TextWidget			m_HeliOutdoorTempValue;
 	
@@ -68,6 +76,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 
 		m_HeliSpeedPointer = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("SpeedPointer"));
 		m_HeliSpeedValue = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("SpeedValue"));
+		m_HeliSpeedValueH = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("SpeedValueH"));
 
 		m_HeliALTValue = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("ALTValue"));
 		m_HeliALTProgressBar = ProgressBarWidget.Cast(m_VehiclePanel.FindAnyWidget("ALTProgressBar"));
@@ -93,6 +102,8 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliALTPointerH = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("ALTPointerH"));
 		m_HeliALTPointerTH = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("ALTPointerTH"));
 		
+		m_HeliVortexPanel = m_VehiclePanel.FindAnyWidget("VortexIndicator");
+		m_HeliVortexIcon = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("VortexIcon"));
 		m_HeliAutoHoverPanel = m_VehiclePanel.FindAnyWidget("AutoHoverIndicator");
 		m_HeliOutdoorTempValue = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("OutdoorTempValue"));
 
@@ -151,14 +162,42 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliALTPointerH.SetRotation(0, 0, altH, true);
 		m_HeliALTPointerTH.SetRotation(0, 0, altTH, true);
 
-		if (m_CurrentHelicopter.IsAutoHover())
+		float vrsSeverity = m_CurrentHelicopter.m_Simulation.m_VRSSeverity;
+		if (vrsSeverity > 0)
 		{
-			m_HeliAutoHoverPanel.Show(true);
+			m_HeliVortexPanel.Show(true);
+
+			if (vrsSeverity > 0.1)
+			{
+				m_HeliVortexIcon.SetColor(VORTEX_ALARM_COLOR);
+				m_HeliVortexIcon.SetShadow(6, VORTEX_ALARM_SHADOW_COLOR);
+			}
+			else
+			{
+				m_HeliVortexIcon.SetColor(VORTEX_WARNING_COLOR);
+				m_HeliVortexIcon.SetShadow(6, VORTEX_WARNING_SHADOW_COLOR);
+			}
+
+			//! Blinking thrust indicator effect when trying to raise collective while limited by VRS
+			if (vrsSeverity > 0.1 && m_CurrentHelicopter.m_Simulation.m_MainRotorSpeedTarget > m_CurrentHelicopter.m_Simulation.m_MainRotorSpeed)
+				m_HeliThrustProgressBar.SetColor(COLOR_RED);
+			else
+				m_HeliThrustProgressBar.SetColor(COLOR_WHITE);
+		}
+		else
+		{
+			m_HeliVortexPanel.Show(false);
+			m_HeliThrustProgressBar.SetColor(COLOR_WHITE);
+		}
+
+		m_HeliAutoHoverPanel.Show(m_CurrentHelicopter.IsAutoHover());
+
+		if (m_CurrentHelicopter.IsAutoHover() && (m_CurrentHelicopter.m_Simulation.m_RotorSpeedTarget > 0 || m_CurrentHelicopter.m_Simulation.m_RotorSpeed == 0))
+		{
 			m_HeliALTValue.SetText(Math.Round(altValue).ToString() + "/" + Math.Round(m_CurrentHelicopter.GetAutoHoverTargetHeight()).ToString());
 		}
 		else
 		{
-			m_HeliAutoHoverPanel.Show(false);
 			m_HeliALTValue.SetText(Math.Round(altValue).ToString());
 		}
 
@@ -169,7 +208,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 
 		//! climb/fall rate
 		float verticalVelocity = GetVelocity(m_CurrentHelicopter)[1]; //! climb/fall speed in m/s
-		m_HeliClimbValue.SetText(Math.Round(verticalVelocity).ToString());
+		m_HeliClimbValue.SetText((Math.Round(verticalVelocity * 10) / 10).ToString());
 		m_HeliClimbPointer.SetRotation(0, 0, Math.Round(verticalVelocity * 0.04 * 180) - 90, true);  //! 0.04 = 1 / 25
 
 		//! collective/thrust
@@ -188,9 +227,46 @@ class ExpansionHelicopterHud : VehicleHudBase
 		//m_HeliOutdoorTempValue.SetText("Temp:" + Math.Floor(temperature).ToString() + "C");
 		
 		//! speed
-		float speedValue = Math.AbsFloat(m_CurrentHelicopter.GetSpeedometer() / 400);
+		float speed = m_CurrentHelicopter.GetSpeedometer();
+		float speedValue = Math.AbsFloat(speed / 400);
 		m_HeliSpeedPointer.SetRotation(0, 0, speedValue * 360 - 130, true);
-		m_HeliSpeedValue.SetText(Math.AbsInt(m_CurrentHelicopter.GetSpeedometer()).ToString());
+		m_HeliSpeedValue.SetText(Math.Round(speed).ToString());
+
+		vector transform[4];
+		m_CurrentHelicopter.GetTransform(transform);
+		vector dir = transform[2];
+		dir[1] = 0.0;  //! Null pitch
+		dir.Normalize();
+		transform[0] = -dir.Perpend();  //! Eliminate roll
+		transform[2] = dir;
+		vector velocity = GetVelocity(m_CurrentHelicopter).InvMultiply3(transform);
+		float sideSpeed = Math.Round(velocity[0] * 3.6);
+		float sideSpeedAbs = Math.AbsFloat(sideSpeed);
+		string speedValueH;
+
+		if (sideSpeed != 0.0)
+		{
+			string arrow;
+
+			if (sideSpeed > 0.0)
+				arrow = "›";
+			else if (sideSpeed < 0.0)
+				arrow = "‹";
+
+			string arrows;
+
+			int intensity = Math.Clamp(sideSpeedAbs / 5, 1, 5);
+			for (int i = 0; i < intensity; ++i)
+			{
+				arrows += arrow;
+			}
+
+			speedValueH = string.Format("%1 %2 %1", arrows, sideSpeedAbs);
+		}
+		else
+			speedValueH = string.Format("‹ %1 ›", sideSpeedAbs);;
+
+		m_HeliSpeedValueH.SetText(speedValueH);
 		
 		//! fuel
 		m_HeliFuelPointer.SetRotation(0, 0, m_CurrentHelicopter.GetFluidFraction(CarFluid.FUEL) * 260 - 130, true);

@@ -1078,12 +1078,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		string displayName;
 
 		string path = string.Format("%1 %2 displayName", CFG_VEHICLESPATH, type);
-		if (g_Game.ConfigIsExisting(path) && g_Game.ConfigGetTextRaw(path, displayName))
+		if (g_Game.ConfigIsExisting(path) && g_Game.ConfigGetText(path, displayName))
 		{
-			if (displayName == "$STR_cfgvehicles_survivor0")
+			if (displayName == m_Expansion_SurvivorDisplayName)
 				displayName = type;
-			else
-				g_Game.FormatRawConfigStringKeys(displayName);
 		}
 		else
 		{

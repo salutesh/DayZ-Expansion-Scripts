@@ -4,10 +4,6 @@
 		<actions>
 			<input name="UAExpansionPlayerListToggle" loc="STR_EXPANSION_TOGGLE_PLAYER_LIST" />
 		</actions>
-		
-		<exclude name="chatexpansion">
-			<input name="UAExpansionPlayerListToggle" />
-		</exclude>
 
 		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionPlayerListToggle" />

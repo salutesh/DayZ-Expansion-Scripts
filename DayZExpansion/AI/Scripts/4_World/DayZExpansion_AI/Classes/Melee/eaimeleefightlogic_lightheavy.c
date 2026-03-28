@@ -21,9 +21,12 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 		m_AI = eAIBase.Cast(player);
 		m_eAI_MeleeCombat = m_AI.m_eMeleeCombat;
 
-		auto settings = ExpansionAISettings.Get();
-		m_eAI_ShoryukenChance = settings.ShoryukenChance;
-		m_eAI_ShoryukenDamageMultiplier = settings.ShoryukenDamageMultiplier;
+		if (g_Game.IsServer())
+		{
+			auto settings = ExpansionAISettings.Get();
+			m_eAI_ShoryukenChance = settings.ShoryukenChance;
+			m_eAI_ShoryukenDamageMultiplier = settings.ShoryukenDamageMultiplier;
+		}
 	}
 
 	override protected EMeleeHitType GetAttackTypeFromInputs(HumanInputController pInputs)
@@ -316,7 +319,7 @@ class eAIMeleeFightLogic_LightHeavy: DayZPlayerMeleeFightLogic_LightHeavy
 
 	void eAI_ShoryukenSpin()
 	{
-		m_eAI_ShoryukenSpinAngle += 0.15;
+		m_eAI_ShoryukenSpinAngle += 0.075;
 	}
 
 	void eAI_Shoryuken(EntityAI targetEntity)

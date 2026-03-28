@@ -26,6 +26,10 @@ modded class EffectArea
 		super.OnVariablesSynchronized();
 
 #ifdef DIAG_DEVELOPER
+		//! update cluster on client for debugdraw - only for MP - in offline/SP, InitZoneServer() has already updated cluster
+		if (!g_Game.IsMultiplayer())
+			return;
+
 		m_Position = GetWorldPosition();
 
 		if (m_Radius && (m_NegativeHeight || m_PositiveHeight))

@@ -262,7 +262,7 @@ class ExpansionSettings
 			}
 			else
 			{
-				Error("ERROR: " + msg);
+				EXError.Error(this, "ERROR: " + msg);
 			}
 
 		#ifdef DIAG_DEVELOPER

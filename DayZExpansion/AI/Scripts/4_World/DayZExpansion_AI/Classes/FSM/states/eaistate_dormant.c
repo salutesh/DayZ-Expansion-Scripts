@@ -53,7 +53,15 @@ class eAIState_Dormant: eAIState
 		if (unit.m_eAI_PlayersWithinVisibilityDistanceLimit.Count() > 0)
 			return eAITransition.FAIL;
 
-		if (unit.Expansion_GetMovementSpeed() > 0)
+		int cmdID = unit.GetCurrentCommandID();
+
+		if (cmdID != DayZPlayerConstants.COMMANDID_MOVE && cmdID != DayZPlayerConstants.COMMANDID_SWIM)
+		{
+			//Print("Busy");
+			return eAITransition.FAIL;
+		}
+
+		if (unit.m_eAI_CommandMove.GetCurrentMovementSpeed() > 0)
 		{
 			//Print("Moving");
 			return eAITransition.FAIL;
@@ -61,7 +69,7 @@ class eAIState_Dormant: eAIState
 
 		eAIGroup group = unit.GetGroup();
 
-		if ((group.GetWaypoints().Count() > 1 && unit.m_eAI_CommandMove.GetWaypointDistance2DSq() == 0) || !unit.m_eAI_CommandMove.HasReachedWaypoint(false))
+		if (group.GetWaypoints().Count() > 1 || unit.m_eAI_CommandMove.GetWaypoint() == vector.Zero || !unit.m_eAI_CommandMove.HasReachedWaypoint(false))
 		{
 			//Print("Moving to waypoint");
 			return eAITransition.FAIL;

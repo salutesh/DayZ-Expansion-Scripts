@@ -636,7 +636,12 @@ class ExpansionVodnik: ExpansionBoatScript
 				vector color;
 				vector ambient;
 
+			#ifdef DAYZ_1_28
 				if (m_HeadlightsOn)
+			#else
+				//! 1.29+
+				if (LightIsOn())
+			#endif
 				{
 					if (m_Lights.Count() == 0)
 					{

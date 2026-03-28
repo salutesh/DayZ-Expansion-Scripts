@@ -2164,9 +2164,10 @@ class eAIBase: PlayerBase
 
 		report.Insert(indent + string.Format("|- Position %1", ExpansionStatic.VectorToString(GetPosition(), ExpansionVectorToString.Plain)));
 
-		float visibility = Math.Round(m_Expansion_Visibility * 1000);
+		float visibility = Math.Round(m_Expansion_Visibility * 1100);
 		report.Insert(indent + string.Format("|- Visibility %1 m", visibility));
 		report.Insert(indent + string.Format("|- Visibility distance threshold %1 m", m_Expansion_VisibilityDistThreshold));
+		report.Insert(indent + string.Format("|- Visibility distance limit %1 m", eAI_GetVisibilityDistanceLimit(this)));
 		report.Insert(indent + string.Format("|- Visibility limits", visibility));
 		report.Insert(indent + string.Format("|  |- Daylight %1 (threshold %2)", m_Expansion_DaylightVisibility, m_eAI_DayNightThreshold));
 		report.Insert(indent + string.Format("|  |- Night %1", m_eAI_NightVisibility));
@@ -2186,6 +2187,8 @@ class eAIBase: PlayerBase
 		}
 		if (m_Expansion_ActiveVisibilityEnhancers.Count() > 0)
 			eAI_FixupLastReportEntry(report);
+
+		report.Insert(indent + string.Format("|- Players within visibility distance limit %1", m_eAI_PlayersWithinVisibilityDistanceLimit.Count()));
 
 		report.Insert(indent + string.Format("|- Stance %1", typename.EnumToString(eAIStance, eAI_GetStance())));
 

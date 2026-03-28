@@ -5,10 +5,6 @@
 			<input name="UAExpansionBookToggle" loc="STR_EXPANSION_TOGGLE_BOOK" />
 		</actions>
 
-		<exclude name="chatexpansion">
-			<input name="UAExpansionBookToggle" />
-		</exclude>
-
 		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionBookToggle" />
 		</sorting>

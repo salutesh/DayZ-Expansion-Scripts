@@ -124,7 +124,7 @@ class eAICustomCreatureTargetInformation: eAIEntityTargetInformation
 		//! @note at health below 30%, we are too slow to flee from creatures that are close and are better off fighting
 		if (ai)
 		{
-			if (ai.m_eAI_AcuteDangerTargetCount > 1 && (ai.GetHealth01("", "") >= 0.3 || GetDistanceSq(ai, true) > 25))
+			if (ai.m_eAI_AcuteDangerTargetCount > 2 && (ai.GetHealth01("", "") >= 0.3 || GetDistanceSq(ai, true) > 25))
 				return 100.0;  //! Flee
 
 			if (ai.m_eAI_AcuteDangerTargetCount <= 1 && ai.eAI_IsLowVitals() && GetDistanceSq(ai, true) > 25)

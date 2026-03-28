@@ -1458,13 +1458,16 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		if (!MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_CanStartQuest(configInstance, sender))
 			return;
-
-		string playerUID = sender.GetId();
-
+		
+		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+		if (!player)
+			return;		
+				
 		//! Create new quest instance.
 		ExpansionQuest newQuestInstance = new ExpansionQuest(this, configInstance);
 		string questInstanceKey;
-
+		string playerUID = sender.GetId();
+		
 		if (!configInstance.IsGroupQuest())
 		{
 			newQuestInstance.SetPlayerUID(playerUID);
@@ -1478,14 +1481,21 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 
 			playerQuestData.AddQuestData(questID, ExpansionQuestState.NONE);
-
+			
+			if (!QuestDisplayConditions(configInstance, player, playerQuestData))
+			{
+				newQuestInstance = null;
+				playerQuestData.RemoveQuestDataByQuestID(questID);
+				playerQuestData.Save(playerUID, EXPANSION_QUESTS_PLAYERDATA_FOLDER);
+				EXError.Warn(this, string.Format("[Expansion Quests] Player [UID=%1] attempted to force-start quest [ID=%2] without meeting quest requirements!", playerUID, questID));
+				return;
+			}			
+			
 			questInstanceKey = playerUID;
 		}
 		else
 		{
 			QuestModuleLog("[Expansion Quests] Quest with ID=%1 is a group quest. Apply needed parameters! Player UID=%2", questID.ToString(), playerUID);
-
-			PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
 
 			int groupID;
 			string ownerUID;
@@ -1523,7 +1533,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			foreach (string memberUID: memberUIDs)
 			{
-				//! We add a data set to the persistent quest data of each group member that can accept the quest.
+				//! We add a data set to the persistent quest data of each group member that can accept the quest. 
+				//! ToDo: Do we need to check here if the player has some sort of persistent quest data alredy and if not create it?!
 				ExpansionQuestPersistentData memberQuestData = GetPlayerQuestDataByUID(memberUID);
 				if (!memberQuestData)
 					continue;
@@ -1536,6 +1547,16 @@ class ExpansionQuestModule: CF_ModuleWorld
 				{
 					memberQuestData.AddQuestData(questID, ExpansionQuestState.NONE);
 					newQuestInstance.AddGroupMember(memberUID);
+				}
+				else
+				{
+					if (playerUID == memberUID)
+					{			
+						newQuestInstance = null;
+						PurgeQuestDataForGroup(memberUIDs, questID);
+						EXError.Warn(this, string.Format("[Expansion Quests] Player [UID=%1] attempted to force-start group quest [ID=%2] without meeting quest requirements!", playerUID, questID));
+						return;
+					}
 				}
 			}
 
@@ -1567,6 +1588,19 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#endif
 
 		QuestModuleLog("[Expansion Quests] Created new quest instance with instance key=%1 for quest with ID=%2", questInstanceKey, questID.ToString());
+	}
+	
+	protected void PurgeQuestDataForGroup(TStringArray memberUIDs, int questID)
+	{
+		foreach (string memberUID: memberUIDs)
+		{
+			ExpansionQuestPersistentData memberQuestData = GetPlayerQuestDataByUID(memberUID);
+			if (!memberQuestData)
+				continue;
+
+			memberQuestData.RemoveQuestDataByQuestID(questID);
+			memberQuestData.Save(memberUID, EXPANSION_QUESTS_PLAYERDATA_FOLDER);
+		}
 	}
 
 	//! 3rd party modding support helper function
@@ -4840,10 +4874,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		//! Check if all pre-quests are completed.
 		array<int> incompletedQuestIDs = new array<int>;
+		int completedPreQuestCount;
 		if (config.GetPreQuestIDs().Count() > 0 && playerQuestData && !skipPreQuestCheck)
 		{
 			array<int> preQuestIDs = config.GetPreQuestIDs();
-			int completedPreQuestCount;
 			int completionCount;
 
 			ExpansionQuestPersistentQuestData questPlayerData = playerQuestData.GetQuestDataByQuestID(questID);
@@ -4870,19 +4904,20 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 			}
-
-			if (completedPreQuestCount < config.GetPreQuestIDs().Count())
+		}
+		
+		//! Check if player completed all the required quests based on pre quest competion count and the amount of IDs in quest config (if both are 0 then check is skipped).
+		if (completedPreQuestCount < config.GetPreQuestIDs().Count())
+		{
+			QuestModulePrint("--------------------------------------------------");
+			QuestModulePrint("::QuestDisplayConditions - Cant display quest with ID: " + questID);
+			foreach (int incompletedQuestID: incompletedQuestIDs)
 			{
-				QuestModulePrint("--------------------------------------------------");
-				QuestModulePrint("::QuestDisplayConditions - Cant display quest with ID: " + questID);
-				foreach (int incompletedQuestID: incompletedQuestIDs)
-				{
-					QuestModulePrint("::QuestDisplayConditions - Has not completed quest with ID: " + incompletedQuestID);
-				}
-				QuestModulePrint("::QuestDisplayConditions - Return FALSE. Not all pre-quests completed!");
-				QuestModulePrint("--------------------------------------------------");
-				return false;
+				QuestModulePrint("::QuestDisplayConditions - Has not completed quest with ID: " + incompletedQuestID);
 			}
+			QuestModulePrint("::QuestDisplayConditions - Return FALSE. Not all pre-quests completed!");
+			QuestModulePrint("--------------------------------------------------");
+			return false;
 		}
 
 	#ifdef EXPANSIONMODHARDLINE

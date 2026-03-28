@@ -29,6 +29,7 @@ class ExpansionVehicleSettingsBase : ExpansionSettingBase
 	int PickLockTimeSeconds;
 	float PickLockToolDamagePercent;
 	bool EnableWindAerodynamics;		//! If enabled, wind simulation will be enabled
+	bool EnableMainRotorDamage;			//! If enabled, the rotor will be damageable
 	bool EnableTailRotorDamage;			//! If enabled, the rotor will be damageable
 	bool Towing;						//! If enabled, allow vehicle to tow other vehicles
 	bool EnableHelicopterExplosions;	//! If enabled, allow Helicopters to explode
@@ -57,7 +58,7 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 21;
+	static const int VERSION = 23;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
@@ -65,6 +66,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 	bool ExplodingVehicleDropsAttachments;
 	//float ForcePilotSyncIntervalSeconds;
 	float DesyncInvulnerabilityTimeoutSeconds;  //! Timeout for temporary vehicle godmode during desync. Set to 0 to disable.
+
+	float PilotlessAutoHoverEngineStopDelaySeconds;
+	float RoughLandingVerticalSpeedThreshold;
 
 	float DamagedEngineStartupChancePercent;
 
@@ -128,6 +132,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Read(DisableVehicleDamage);
 		ctx.Read(VehicleCrewDamageMultiplier);
 		ctx.Read(VehicleSpeedDamageMultiplier);
+		ctx.Read(VehicleRoadKillDamageMultiplier);
 		ctx.Read(CanChangeLock);
 		ctx.Read(ChangeLockTools);
 
@@ -138,7 +143,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Read(RevvingOverMaxRPMRuinsEngineInstantly);
 
 		ctx.Read(DesyncInvulnerabilityTimeoutSeconds);
-		ctx.Read(VehicleRoadKillDamageMultiplier);
+
+		ctx.Read(PilotlessAutoHoverEngineStopDelaySeconds);
 
 		ctx.Read(EnableVehicleCovers);
 		ctx.Read(CanCoverWithCargo);
@@ -174,6 +180,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Write(DisableVehicleDamage);
 		ctx.Write(VehicleCrewDamageMultiplier);
 		ctx.Write(VehicleSpeedDamageMultiplier);
+		ctx.Write(VehicleRoadKillDamageMultiplier);
 		ctx.Write(CanChangeLock);
 		ctx.Write(ChangeLockTools);
 		ctx.Write(ChangeLockTimeSeconds);
@@ -183,7 +190,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Write(RevvingOverMaxRPMRuinsEngineInstantly);
 
 		ctx.Write(DesyncInvulnerabilityTimeoutSeconds);
-		ctx.Write(VehicleRoadKillDamageMultiplier);
+
+		ctx.Write(PilotlessAutoHoverEngineStopDelaySeconds);
 
 		ctx.Write(EnableVehicleCovers);
 		ctx.Write(CanCoverWithCargo);
@@ -430,6 +438,15 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 				if (settingsBase.m_Version < 21 && !FuelConsumptionPercent)
 					FuelConsumptionPercent = settingsDefault.FuelConsumptionPercent;
 
+				if (settingsBase.m_Version < 22)
+					EnableMainRotorDamage = settingsDefault.EnableMainRotorDamage;
+
+				if (settingsBase.m_Version < 23 && !PilotlessAutoHoverEngineStopDelaySeconds)
+					PilotlessAutoHoverEngineStopDelaySeconds = settingsDefault.PilotlessAutoHoverEngineStopDelaySeconds;
+
+				if (settingsBase.m_Version < 23 && !RoughLandingVerticalSpeedThreshold)
+					RoughLandingVerticalSpeedThreshold = settingsDefault.RoughLandingVerticalSpeedThreshold;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -495,6 +512,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ChangeLockTools.Insert("Screwdriver");
 
 		EnableWindAerodynamics = false; // Not ready, need tweaking
+		EnableMainRotorDamage = true;
 		EnableTailRotorDamage = true;
 
 		EnableHelicopterExplosions = true;
@@ -516,6 +534,14 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		//ForcePilotSyncIntervalSeconds = 1.0;
 		DesyncInvulnerabilityTimeoutSeconds = 3.0;
+
+	#ifdef DIAG_DEVELOPER
+		PilotlessAutoHoverEngineStopDelaySeconds = 30;
+	#else
+		PilotlessAutoHoverEngineStopDelaySeconds = 300;
+	#endif
+
+		RoughLandingVerticalSpeedThreshold = 3.7;
 
 		DamagedEngineStartupChancePercent = 100.0;
 

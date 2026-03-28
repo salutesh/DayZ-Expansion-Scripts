@@ -161,7 +161,12 @@ class ExpansionMissionModule: CF_ModuleWorld
 			return;
 
 		auto plane = ExpansionAirdropPlaneBase.Cast(g_Game.CreateObjectEx(planeClassName, position, ECE_AIRBORNE | ECE_LOCAL) );
-
+		if (!plane)
+		{
+			EXError.Error(this, "Invalid AirdropPlaneClassName: " + planeClassName);
+			return;
+		}
+			
 		plane.Expansion_SetAirdropPlaneID(planeID);
 		plane.Expansion_SetupPlane(spawnPoint, dropPosition, "", 0.0, heightIsRelativeToGround, height, dropHeight, followTerrainFrac, speed, dropSpeed, dropProximityDist, null);
 		plane.Expansion_EnableUpdate();

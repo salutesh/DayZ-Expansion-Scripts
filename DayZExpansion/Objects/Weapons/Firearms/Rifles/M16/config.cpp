@@ -2,8 +2,6 @@ class CfgPatches
 {
 	class DayZExpansion_Weapons_Rifles_M16
 	{
-		units[]={};
-		weapons[]={};
 		requiredVersion=0.1;
 		requiredAddons[]=
 		{
@@ -11,7 +9,6 @@ class CfgPatches
 		};
 	};
 };
-class Mode_Safe;
 class Mode_SemiAuto;
 class Mode_Burst;
 class Mode_FullAuto;
@@ -19,7 +16,6 @@ class OpticsInfoRifle;
 class cfgWeapons
 {
 	class Rifle_Base;
-	class Launcher_Base;
 	class Expansion_M16_Base: Rifle_Base
 	{
 		scope=0;

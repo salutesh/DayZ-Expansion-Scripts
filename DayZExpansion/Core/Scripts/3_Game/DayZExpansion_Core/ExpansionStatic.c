@@ -2024,7 +2024,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 		if (fileName.Length() > 0 && !CopyFileOrDirectoryTree(srcDir + fileName, dstDir + fileName, ext, move, fileAttr))
 		{
-			EXPrint("ERROR: CopyDirectoryTree " + srcDir + fileName + " " + dstDir + fileName + " ext " + ext + " move " + move + " failed");
+			EXError.Error(null, "CopyDirectoryTree " + srcDir + fileName + " " + dstDir + fileName + " ext " + ext + " move " + move + " failed");
 			CloseFindFile(findFileHandle);
 			return false;
 		}
@@ -2033,7 +2033,7 @@ class ExpansionStatic: ExpansionStaticCore
 		{
 			if (fileName.Length() > 0 && !CopyFileOrDirectoryTree(srcDir + fileName, dstDir + fileName, ext, move, fileAttr))
 			{
-				EXPrint("ERROR: CopyDirectoryTree " + srcDir + fileName + " " + dstDir + fileName + " ext " + ext + " move " + move + " failed");
+				EXError.Error(null, "CopyDirectoryTree " + srcDir + fileName + " " + dstDir + fileName + " ext " + ext + " move " + move + " failed");
 				CloseFindFile(findFileHandle);
 				return false;
 			}
@@ -2043,7 +2043,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 		if (move && (!ext || !FindFilesInLocation(srcDir).Count()) && !DeleteFile(srcDir))
 		{
-			EXPrint("ERROR: CopyDirectoryTree remove src failed");
+			EXError.Error(null, "CopyDirectoryTree remove src failed");
 			return false;
 		}
 
@@ -2104,13 +2104,13 @@ class ExpansionStatic: ExpansionStaticCore
 
 			if (!CopyFile(srcPath, dstPath))
 			{
-				EXPrint("ERROR: CopyFileOrDirectoryTree copy failed");
+				EXError.Error(null, "CopyFileOrDirectoryTree copy failed");
 				return false;
 			}
 
 			if (move && !DeleteFile(srcPath))
 			{
-				EXPrint("ERROR: CopyFileOrDirectoryTree remove src failed");
+				EXError.Error(null, "CopyFileOrDirectoryTree remove src failed");
 				return false;
 			}
 		}

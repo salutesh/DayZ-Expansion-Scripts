@@ -178,7 +178,12 @@ class ExpansionUtilityBoat: ExpansionBoatScript
 
 			if (battery)
 			{
+			#ifdef DAYZ_1_28
 				if (m_HeadlightsOn)
+			#else
+				//! 1.29+
+				if (LightIsOn())
+			#endif
 				{
 					DashboardShineOn();
 

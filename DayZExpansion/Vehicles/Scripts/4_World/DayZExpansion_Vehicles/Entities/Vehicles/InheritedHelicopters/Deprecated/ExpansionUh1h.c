@@ -213,9 +213,6 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		{
 		case "uh1hdoor_2_1":
 		case "uh1hdoor_2_2":
-			if (!Expansion_ShouldHandleDoorsSound(animSource, phase))
-				return;
-
 			EXTrace.Print(EXTrace.VEHICLES, this, "HandleDoorsSound " + animSource + " " + phase);
 
 			if (phase == 0)
@@ -475,6 +472,11 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		return "";
 	}
 
+	override string Expansion_GetWarningSoundSet()
+	{
+		return "Expansion_Uh1h_Warning_SoundSet";
+	}
+
 	override void UpdateLights(int new_gear = -1)
 	{
 #ifdef EXPANSIONTRACE
@@ -492,7 +494,12 @@ class ExpansionUh1h : ExpansionHelicopterScript
 
 			if (battery)
 			{
+			#ifdef DAYZ_1_28
 				if (m_HeadlightsOn)
+			#else
+				//! 1.29+
+				if (LightIsOn())
+			#endif
 				{
 					if (m_Lights.Count() == 0)
 					{
