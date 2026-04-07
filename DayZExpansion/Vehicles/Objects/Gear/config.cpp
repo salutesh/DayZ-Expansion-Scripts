@@ -19,7 +19,6 @@ class CfgVehicles
 	class CamoNet;
 	class Inventory_Base;
 	class Container_Base;
-	class EngineOil;
 	class BatteryCharger: Inventory_Base
 	{
 		attachments[]+=
@@ -631,7 +630,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionHydraulicFluid: EngineOil
+	class ExpansionHydraulicFluid: Inventory_Base
 	{
 		scope=2;
 		displayName="$STR_EXPANSION_HYDRAULIC_FLUID";
@@ -698,6 +697,22 @@ class CfgVehicles
 							}
 						}
 					};
+				};
+			};
+		};
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class pickUp
+				{
+					soundSet="engineoil_pickup_SoundSet";
+					id=797;
+				};
+				class drop
+				{
+					soundset="engineoil_drop_SoundSet";
+					id=898;
 				};
 			};
 		};

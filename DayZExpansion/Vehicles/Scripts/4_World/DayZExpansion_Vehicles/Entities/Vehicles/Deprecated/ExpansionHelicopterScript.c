@@ -66,9 +66,19 @@ class ExpansionHelicopterScript: CarScript
 	float m_Expansion_PilotlessAutoHoverEngineStopDelay;
 	float m_RoughLandingVerticalSpeedThreshold = 3.0;
 
-	EffectSound m_Expansion_HeliWarningSound;
+	ref ExpansionSound m_Expansion_HeliWarningSound;
+	ref ExpansionSoundSet m_Expansion_HeliWarningSoundSet = ExpansionSoundSet.Register(Expansion_GetWarningSoundSet());
+
+#ifndef SERVER
+	ref ExpansionDynamicSound m_Expansion_WindEffectSound = new ExpansionDynamicSound("Expansion_Wind_SoundSet");
+#endif
 
 	ref map<string, float> m_Expansion_DoorSoundPhaseStarted = new map<string, float>;
+
+	//! Leave unset (zero) for compat with old 3rd-party heli rotor soundshaders using `rpm * speed`,
+	//! override in heli class if using new soundshaders
+	float m_Expansion_EngineRPMMax;
+	float m_Expansion_EngineRPM01;
 
 	void ExpansionHelicopterScript()
 	{
@@ -287,15 +297,11 @@ class ExpansionHelicopterScript: CarScript
 
 		Fill(CarFluid.OIL, amount);
 	}
-	
-	override string GetActionCompNameOil()
-	{
-		return "refill";
-	}
 
+	//! Disable ability to fill normal engine oil by setting action distance to zero
 	override float GetActionDistanceOil()
 	{
-		return 2.5;
+		return 0;
 	}
 
 	//! Expansion helis do not seem to receive vanilla OnContact for frontal collisions, but some 3rd party ones do.
@@ -806,6 +812,70 @@ class ExpansionHelicopterScript: CarScript
 		return m_Simulation.IsRotorDamaged();
 	}
 
+	override void OnAnimationUpdate(float pDt)
+	{
+		super.OnAnimationUpdate(pDt);
+
+	#ifndef SERVER
+		if (!m_Simulation.m_Initialized)
+			return;
+
+		//! Wind noise
+
+		vector position = GetPosition();
+		float windFrequency;
+		float windVolume;
+
+		DayZPlayer player = g_Game.GetPlayer();
+		if (player && player.GetParent() == this)
+		{
+			//! Light wind noise when flying forward, strong wind noise when going sideways
+			//! Large helis have stronger wind noise
+
+			float fwdSpeedRel = Math.Min(Math.AbsFloat(m_State.m_LinearVelocityMS[2]) / m_State.m_MaxSpeedMS, 1.0);
+			float sideSpeedRel = Math.Min(Math.AbsFloat(m_State.m_LinearVelocityMS[0]) / (m_State.m_MaxSpeedMS * 0.4), 1.0);
+			float sizeCoef = Math.Min(m_State.m_BoundingRadius / m_Simulation.REFERENCE_BOUNDING_RADIUS * 1.25, 1.5);
+
+			windVolume = Math.Min((fwdSpeedRel * 0.5 + sideSpeedRel * 0.5) * sizeCoef, 1.5);
+			windFrequency = Math.Clamp(fwdSpeedRel + sideSpeedRel, 0.6, 2.0);
+
+			if (!player.IsCameraInsideVehicle())
+			{
+				vector dir = position - player.GetPosition();
+				position = g_Game.GetCurrentCameraPosition() + dir;
+			}
+		}
+
+		m_Expansion_WindEffectSound.Update(pDt, position, windFrequency, windVolume);
+
+		//! Engine RPM for soundshaders
+
+		float rpmTarget01;
+
+		if (Expansion_EngineIsOn())
+		{
+			rpmTarget01 = m_Simulation.m_RotorSpeed;
+
+			float droopThreshold = 1.0 - m_Simulation.m_CollectiveLoadCoef;
+
+			if (m_Expansion_EngineRPM01 >= droopThreshold && rpmTarget01 >= droopThreshold)
+			{
+				m_Expansion_EngineRPM01 = rpmTarget01;
+				return;
+			}
+		}
+
+		//! Same rate of change as m_Simulation.m_RotorSpeed during engine start/stop
+		float goingDown = Math.Clamp((-m_State.m_LinearVelocityMS[1] - m_Simulation.m_MinAutoRotateSpeed) / (m_Simulation.m_MaxAutoRotateSpeed - m_Simulation.m_MinAutoRotateSpeed), 0, 1);
+		float brakeRotor = Math.Max(0, -goingDown);
+
+		float change = rpmTarget01 - m_Expansion_EngineRPM01;
+
+		change = Math.Clamp(change, (-0.025 - (brakeRotor * 0.35)) * pDt, m_Simulation.m_EngineStartDuration * pDt);
+		m_Expansion_EngineRPM01 = Math.Clamp(m_Expansion_EngineRPM01 + change, 0, m_Simulation.m_RotorSpeed);
+	#endif
+	}
+
 	override float OnSound(CarSoundCtrl ctrl, float oldValue)
 	{
 #ifdef EXPANSIONTRACE
@@ -819,11 +889,15 @@ class ExpansionHelicopterScript: CarScript
 		{
 		case CarSoundCtrl.SPEED:
 		{
-			return m_Simulation.m_RotorSpeed; // this should just be the velocity length, maybe in KM/h
+			return m_Simulation.m_RotorSpeed;
 		}
 		case CarSoundCtrl.RPM:
 		{
-			return m_Simulation.m_RotorSpeed;
+			//! Compat with old 3rd-party heli rotor soundshaders using `rpm * speed`
+			if (m_Expansion_EngineRPMMax < 1.0)
+				return m_Simulation.m_RotorSpeed;
+
+			return m_Expansion_EngineRPM01 * m_Expansion_EngineRPMMax;
 		}
 		case CarSoundCtrl.ENGINE:
 		{
@@ -832,6 +906,9 @@ class ExpansionHelicopterScript: CarScript
 
 			return 0;
 		}
+		case CarSoundCtrl.DOORS:
+			//! For helis without doors, we return a fallback value to have some sound damping in 1st person view
+			return 1;
 		}
 
 		return oldValue;
@@ -1087,46 +1164,41 @@ class ExpansionHelicopterScript: CarScript
 		return false;
 	}
 
-	override void Expansion_OnHandleController(DayZPlayerImplement driver, float dt)
+	override void OnPostSimulation(float pDt)
 	{
-		super.Expansion_OnHandleController(driver, dt);
+		super.OnPostSimulation(pDt);
 
-	#ifndef SERVER
-		string soundSet;
-	#endif
+		if (!g_Game.IsServer())
+			return;
 
-		if (driver)
+		if (m_State.m_HasDriver)
 		{
 			m_Expansion_PilotlessTime = 0;
 
-		#ifndef SERVER
 			if (m_Simulation.m_VRSSeverity > 0.1)
 			{
 				if (!m_Expansion_HeliWarningSound)
 				{
-					soundSet = Expansion_GetWarningSoundSet();
-					m_Expansion_HeliWarningSound = SEffectManager.Expansion_PlaySoundOnObject(soundSet, this, 0, 0, true);
+					m_Expansion_HeliWarningSound = m_Expansion_HeliWarningSoundSet.Play(this, -1, -1, true);
 				}
 			}
 			else if (m_Expansion_HeliWarningSound)
 			{
-				m_Expansion_HeliWarningSound.SoundStop();
+				m_Expansion_HeliWarningSound.Stop();
 				m_Expansion_HeliWarningSound = null;
 			}
-		#endif
 		}
 		else
 		{
-			m_Expansion_PilotlessTime += dt;
+			m_Expansion_PilotlessTime += pDt;
 
 			//! If time without pilot exceeds delay, turn off engine
-			if (m_Expansion_PilotlessTime >= m_Expansion_PilotlessAutoHoverEngineStopDelay && g_Game.IsServer())
+			if (m_Expansion_PilotlessTime >= m_Expansion_PilotlessAutoHoverEngineStopDelay)
 			{
 				if (Expansion_EngineIsOn())
 					Expansion_EngineStop();
 			}
 
-		#ifndef SERVER
 			//! Alarm starts 10 s before engine turns off
 			if (m_Expansion_PilotlessTime >= m_Expansion_PilotlessAutoHoverEngineStopDelay - 10)
 			{
@@ -1134,17 +1206,15 @@ class ExpansionHelicopterScript: CarScript
 				{
 					if (m_Expansion_HeliWarningSound)
 					{
-						m_Expansion_HeliWarningSound.SoundStop();
+						m_Expansion_HeliWarningSound.Stop();
 						m_Expansion_HeliWarningSound = null;
 					}
 				}
 				else if (!m_Expansion_HeliWarningSound)
 				{
-					soundSet = Expansion_GetWarningSoundSet();
-					m_Expansion_HeliWarningSound = SEffectManager.Expansion_PlaySoundOnObject(soundSet, this, 0, 0, true);
+					m_Expansion_HeliWarningSound = m_Expansion_HeliWarningSoundSet.Play(this, -1, -1, true);
 				}
 			}
-		#endif
 		}
 	}
 

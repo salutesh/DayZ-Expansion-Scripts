@@ -53,6 +53,8 @@ class ExpansionMerlin : ExpansionHelicopterScript
 
 		m_BankForceCoef = 0.2;
 		m_TailForceCoef = 6.0;
+
+		m_Expansion_EngineRPMMax = 13000;
 	}
 
 	override void EEInit()

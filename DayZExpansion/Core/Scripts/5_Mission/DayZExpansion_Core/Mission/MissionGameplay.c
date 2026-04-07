@@ -175,6 +175,8 @@ modded class MissionGameplay
 		ExpansionGlobalID.s_IsMissionLoaded = true;
 
 		super.OnMissionLoaded();
+		
+		GetDayZExpansion().OnLoaded();
 	}
 
 	// ------------------------------------------------------------

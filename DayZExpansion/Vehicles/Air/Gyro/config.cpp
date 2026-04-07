@@ -146,11 +146,7 @@ class CfgVehicles
 				"Expansion_Gyro_Engine_Ext_SoundSet",
 				"Expansion_Gyro_Rotor_Ext_SoundSet"
 			};
-			soundSetsInt[]=
-			{
-				"Expansion_Gyro_Engine_Int_SoundSet",
-				"Expansion_Gyro_Rotor_Int_SoundSet"
-			};
+			soundSetsInt[]={};
 		};
 		class DamageSystem: DamageSystem
 		{

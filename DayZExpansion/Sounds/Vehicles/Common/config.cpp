@@ -81,6 +81,19 @@ class CfgSoundShaders
 		};
 		volume=1;
 	};
+	class Expansion_Wind_SoundShader
+	{
+		range=200;
+		samples[]=
+		{
+			
+			{
+				"DayZExpansion\Sounds\Vehicles\Common\wind_ext",
+				1
+			}
+		};
+		volume=1;
+	};
 };
 class CfgSoundSets
 {
@@ -132,5 +145,18 @@ class CfgSoundSets
 			"Expansion_Car_Lock_SoundShader"
 		};
 		volumeFactor=1;
+	};
+	class Expansion_Wind_SoundSet
+	{
+		sound3DProcessingType="Vehicle_Ext_3DProcessingType";
+		distanceFilter="softVehiclesDistanceFreqAttenuationFilter";
+		volumeCurve="vehicleEngineAttenuationCurve";
+		volumeFactor=1;
+		spatial=1;
+		loop=1;
+		soundShaders[]=
+		{
+			"Expansion_Wind_SoundShader"
+		};
 	};
 };

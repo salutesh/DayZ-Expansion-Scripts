@@ -45,7 +45,7 @@ modded class ActionStopEngine
 				m_Expansion_EngineName = vehicle.EngineGetName();
 			#endif
 
-				if (vehicle.GetSpeedometerAbsolute() <= 8)
+				if (vehicle.GetSpeedometerAbsolute() <= 8 || vehicle.IsHelicopter())
 					return true;
 			}
 		}

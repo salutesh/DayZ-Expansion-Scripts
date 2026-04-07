@@ -15,11 +15,11 @@ class CfgSoundShaders
 {
 	class Expansion_Gyro_Base_Int_SoundShader
 	{
-		range=2000;
+		range=1200;
 	};
 	class Expansion_Gyro_Base_Ext_SoundShader
 	{
-		range=2000;
+		range=1200;
 	};
 	class Expansion_Gyro_Engine_Int_SoundShader: Expansion_Gyro_Base_Int_SoundShader
 	{
@@ -45,7 +45,7 @@ class CfgSoundShaders
 			}
 		};
 		frequency="rpm";
-		volume="rpm * camPos * 0.8";
+		volume="rpm * ((1 - 0.25*doors) max campos) * (1 - 0.2 * (1 - campos)) * 0.8";
 	};
 	class Expansion_Gyro_Rotor_Int_SoundShader: Expansion_Gyro_Base_Int_SoundShader
 	{
@@ -57,8 +57,8 @@ class CfgSoundShaders
 				1
 			}
 		};
-		frequency="rpm * speed";
-		volume="rpm * speed * (1-camPos) * 0.3";
+		frequency="speed - 0.05 * (speed factor[0, 0.95]) * (speed factor[1, 0.95])";
+		volume="(speed factor[0.2, 0.65]) * (1-camPos)";
 	};
 	class Expansion_Gyro_Rotor_Ext_SoundShader: Expansion_Gyro_Base_Ext_SoundShader
 	{
@@ -70,8 +70,8 @@ class CfgSoundShaders
 				1
 			}
 		};
-		frequency="rpm * speed";
-		volume="rpm * speed * camPos";
+		frequency="speed - 0.05 * (speed factor[0, 0.95]) * (speed factor[1, 0.95])";
+		volume="(speed factor[0.2, 0.65]) * ((1 - 0.25*doors) max campos) * (1 - 0.2 * (1 - campos))";
 	};
 };
 class CfgSoundSets

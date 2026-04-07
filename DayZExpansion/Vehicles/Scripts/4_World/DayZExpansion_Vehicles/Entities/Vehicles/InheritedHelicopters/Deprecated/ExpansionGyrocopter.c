@@ -64,6 +64,8 @@ class ExpansionGyrocopter : ExpansionHelicopterScript
 
 		m_BankForceCoef = 0.1; // Speed at which heli will rotate when rotor is banking left or right
 		m_TailForceCoef = 8.0; // Yaw, Q/E, same as m_AntiTorqueMax
+
+		m_Expansion_EngineRPMMax = 1.0;
 	}
 
 	override void EEInit()
@@ -157,6 +159,17 @@ class ExpansionGyrocopter : ExpansionHelicopterScript
 #endif
 
 		return "refill";
+	}
+
+	override float OnSound(CarSoundCtrl ctrl, float oldValue)
+	{
+		switch (ctrl)
+		{
+		case CarSoundCtrl.DOORS:
+			return 0;
+		}
+
+		return super.OnSound(ctrl, oldValue);
 	}
 
 	override string GetDoorSelectionNameFromSeatPos(int posIdx)

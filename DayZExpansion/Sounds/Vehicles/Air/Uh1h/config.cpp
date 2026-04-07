@@ -13,6 +13,7 @@ class CfgPatches
 };
 class CfgSoundShaders
 {
+	class baseCharacter_SoundShader;
 	class baseVehicles_SoundShader;
 	class Expansion_Uh1h_Base_Int_SoundShader
 	{
@@ -46,7 +47,7 @@ class CfgSoundShaders
 			}
 		};
 		frequency="rpm";
-		volume="rpm * camPos";
+		volume="rpm * ((1 - 0.25*doors) max campos) * (1 - 0.2 * (1 - campos))";
 	};
 	class Expansion_Uh1h_Rotor_Int_SoundShader: Expansion_Uh1h_Base_Int_SoundShader
 	{
@@ -58,8 +59,8 @@ class CfgSoundShaders
 				1
 			}
 		};
-		frequency="rpm * speed";
-		volume="rpm * speed * (1 - camPos) * 0.3";
+		frequency="speed - 0.05 * (speed factor[0, 0.95]) * (speed factor[1, 0.95])";
+		volume="(speed factor[0.2, 0.65]) * (1 - camPos) * 0.3";
 	};
 	class Expansion_Uh1h_Rotor_Ext_SoundShader: Expansion_Uh1h_Base_Ext_SoundShader
 	{
@@ -71,8 +72,88 @@ class CfgSoundShaders
 				1
 			}
 		};
-		frequency="rpm * speed";
-		volume="rpm * speed * camPos";
+		frequency="speed - 0.05 * (speed factor[0, 0.95]) * (speed factor[1, 0.95])";
+		volume="(speed factor[0.2, 0.65]) * ((1 - 0.25*doors) max campos) * (1 - 0.2 * (1 - campos))";
+	};
+	class Expansion_Uh1h_Engine_Full_Int_SoundShader: Expansion_Uh1h_Base_Int_SoundShader
+	{
+		samples[]=
+		{
+			
+			{
+				"DayZExpansion\Sounds\Vehicles\Air\Uh1h\Expansion_Uh1h_Engine_Int",
+				1
+			}
+		};
+		frequency="0.3+(0.5*speed)+(0.2*(rpm factor[800, 5000]))";
+		volume="(1-camPos)*(rpm factor [800, 4600])";
+	};
+	class Expansion_Uh1h_Engine_Full_Ext_SoundShader: Expansion_Uh1h_Base_Ext_SoundShader
+	{
+		samples[]=
+		{
+			
+			{
+				"DayZExpansion\Sounds\Vehicles\Air\Uh1h\Expansion_Uh1h_Engine_Ext",
+				1
+			}
+		};
+		frequency="0.3+(0.5*speed)+(0.2*(rpm factor[800, 5000]))";
+		volume="(rpm factor [800, 4600]) * ((1 - 0.25*doors) max campos) * (1 - 0.2 * (1 - campos))";
+		range=1500;
+	};
+	class Expansion_Uh1h_Rotor_Starter_Int_SoundShader: Expansion_Uh1h_Base_Int_SoundShader
+	{
+		samples[]=
+		{
+			
+			{
+				"DayZExpansion\Sounds\Vehicles\Air\Bell412\medium-rotor-int-starter3",
+				1
+			}
+		};
+		frequency="0.25 + (0.25*(speed factor[0.05, 0.15]))";
+		volume="(1-camPos)*(speed factor [0.01, 0.3]) * (speed factor[0.6, 0.3])";
+	};
+	class Expansion_Uh1h_Rotor_Full_Int_SoundShader: Expansion_Uh1h_Base_Int_SoundShader
+	{
+		samples[]=
+		{
+			
+			{
+				"DayZExpansion\Sounds\Vehicles\Air\Uh1h\Expansion_Uh1h_Rotor_Int",
+				1
+			}
+		};
+		frequency="speed - 0.05 * (speed factor[0, 0.95]) * (speed factor[1, 0.95])";
+		volume="(1-camPos)*(speed factor [0.2, 0.85]) * 0.9";
+	};
+	class Expansion_Uh1h_Rotor_Starter_Ext_SoundShader: Expansion_Uh1h_Base_Ext_SoundShader
+	{
+		samples[]=
+		{
+			
+			{
+				"DayZExpansion\Sounds\Vehicles\Air\Bell412\medium-rotor-ext-starter3",
+				1
+			}
+		};
+		frequency="0.25 + (0.25*(speed factor[0.05, 0.2]))";
+		volume="(speed factor [0.01, 0.3]) * (speed factor[0.6, 0.3]) * ((1 - 0.25*doors) max campos) * (1 - 0.2 * (1 - campos))";
+		range=1200;
+	};
+	class Expansion_Uh1h_Rotor_Full_Ext_SoundShader: Expansion_Uh1h_Base_Ext_SoundShader
+	{
+		samples[]=
+		{
+			
+			{
+				"DayZExpansion\Sounds\Vehicles\Air\Uh1h\Expansion_Uh1h_Rotor_Ext",
+				1
+			}
+		};
+		frequency="speed - 0.05 * (speed factor[0, 0.95]) * (speed factor[1, 0.95])";
+		volume="(speed factor [0.2, 0.85]) * ((1 - 0.25*doors) max campos) * (1 - 0.2 * (1 - campos))";
 	};
 	class Expansion_Uh1h_SlidingDoor_Open_SoundShader: baseVehicles_SoundShader
 	{
@@ -104,7 +185,7 @@ class CfgSoundShaders
 		{
 			
 			{
-				"DayZExpansion\Sounds\Vehicles\Air\Uh1h\medium_int_starter_start",
+				"DayZExpansion\Sounds\Vehicles\Air\Bell412\medium_int_starter_start",
 				1
 			}
 		};
@@ -117,12 +198,13 @@ class CfgSoundShaders
 		{
 			
 			{
-				"DayZExpansion\Sounds\Vehicles\Air\Uh1h\medium_ext_starter_start",
+				"DayZExpansion\Sounds\Vehicles\Air\Bell412\medium_ext_starter_start",
 				1
 			}
 		};
 		frequency=1;
 		volume=1;
+		range=200;
 	};
 	class Expansion_Uh1h_Starter_Stop_Int_SoundShader: Expansion_Uh1h_Base_Int_SoundShader
 	{
@@ -130,7 +212,7 @@ class CfgSoundShaders
 		{
 			
 			{
-				"DayZExpansion\Sounds\Vehicles\Air\Uh1h\medium_int_starter_stop",
+				"DayZExpansion\Sounds\Vehicles\Air\Bell412\medium_int_starter_stop",
 				1
 			}
 		};
@@ -143,12 +225,13 @@ class CfgSoundShaders
 		{
 			
 			{
-				"DayZExpansion\Sounds\Vehicles\Air\Uh1h\medium_ext_starter_stop",
+				"DayZExpansion\Sounds\Vehicles\Air\Bell412\medium_ext_starter_stop",
 				1
 			}
 		};
 		frequency=1;
 		volume=1;
+		range=200;
 	};
 	class Expansion_Uh1h_Engine_Idle_Start_Int_SoundShader: Expansion_Uh1h_Base_Int_SoundShader
 	{
@@ -156,7 +239,7 @@ class CfgSoundShaders
 		{
 			
 			{
-				"DayZExpansion\Sounds\Vehicles\Air\Uh1h\medium_int_idle_start",
+				"DayZExpansion\Sounds\Vehicles\Air\Bell412\medium_int_idle_start",
 				1
 			}
 		};
@@ -169,12 +252,13 @@ class CfgSoundShaders
 		{
 			
 			{
-				"DayZExpansion\Sounds\Vehicles\Air\Uh1h\medium_ext_idle_start",
+				"DayZExpansion\Sounds\Vehicles\Air\Bell412\medium_ext_idle_start",
 				1
 			}
 		};
 		frequency=1;
 		volume=0.30000001;
+		range=600;
 	};
 	class Expansion_Uh1h_Warning_SoundShader: baseVehicles_SoundShader
 	{
@@ -182,16 +266,18 @@ class CfgSoundShaders
 		{
 			
 			{
-				"DayZExpansion\Sounds\Vehicles\Air\Uh1h\warning",
+				"DayZExpansion\Sounds\Vehicles\Air\Bell412\warning",
 				1
 			}
 		};
 		frequency=1;
 		volume=0.89999998;
+		range=35;
 	};
 };
 class CfgSoundSets
 {
+	class baseCharacter_SoundSet;
 	class baseVehicles_SoundSet;
 	class Expansion_Uh1h_Base_Ext_SoundSet
 	{
@@ -246,6 +332,54 @@ class CfgSoundSets
 		soundShaders[]=
 		{
 			"Expansion_Uh1h_Rotor_Ext_SoundShader"
+		};
+		volumeFactor=1;
+	};
+	class Expansion_Uh1h_Engine_Full_Int_SoundSet: Expansion_Uh1h_Base_Int_SoundSet
+	{
+		soundShaders[]=
+		{
+			"Expansion_Uh1h_Engine_Full_Int_SoundShader"
+		};
+		volumeFactor=0.40000001;
+	};
+	class Expansion_Uh1h_Engine_Full_Ext_SoundSet: Expansion_Uh1h_Base_Ext_SoundSet
+	{
+		soundShaders[]=
+		{
+			"Expansion_Uh1h_Engine_Full_Ext_SoundShader"
+		};
+		volumeFactor=1;
+	};
+	class Expansion_Uh1h_Rotor_Starter_Int_SoundSet: Expansion_Uh1h_Base_Int_SoundSet
+	{
+		soundShaders[]=
+		{
+			"Expansion_Uh1h_Rotor_Starter_Int_SoundShader"
+		};
+		volumeFactor=0.25;
+	};
+	class Expansion_Uh1h_Rotor_Full_Int_SoundSet: Expansion_Uh1h_Base_Int_SoundSet
+	{
+		soundShaders[]=
+		{
+			"Expansion_Uh1h_Rotor_Full_Int_SoundShader"
+		};
+		volumeFactor=0.30000001;
+	};
+	class Expansion_Uh1h_Rotor_Starter_Ext_SoundSet: Expansion_Uh1h_Base_Ext_SoundSet
+	{
+		soundShaders[]=
+		{
+			"Expansion_Uh1h_Rotor_Starter_Ext_SoundShader"
+		};
+		volumeFactor=0.60000002;
+	};
+	class Expansion_Uh1h_Rotor_Full_Ext_SoundSet: Expansion_Uh1h_Base_Ext_SoundSet
+	{
+		soundShaders[]=
+		{
+			"Expansion_Uh1h_Rotor_Full_Ext_SoundShader"
 		};
 		volumeFactor=1;
 	};

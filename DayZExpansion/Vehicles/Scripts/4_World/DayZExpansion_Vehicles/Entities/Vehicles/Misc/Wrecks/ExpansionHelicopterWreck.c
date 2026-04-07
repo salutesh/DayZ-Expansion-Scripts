@@ -34,7 +34,7 @@ class ExpansionHelicopterWreck : ExpansionWreck
 			if (!GetLightEntity())
 			{
 				SetLightEntity(FireplaceLight.Cast(ScriptedLightBase.CreateLight(FireplaceLight, GetPosition(), 20)));
-				GetLightEntity().AttachOnMemoryPoint(this, "light");
+				GetLightEntity().AttachOnMemoryPoint(this, "fire_pos");
 
 				if (GetLightEntity())
 				{

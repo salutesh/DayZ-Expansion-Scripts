@@ -54,6 +54,7 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionHelicopterHoverRefill );
 		actions.Insert( ExpansionActionSwitchAutoHoverInput );
 		actions.Insert( ExpansionActionRotateRotors );
+		actions.Insert( ExpansionActionFillHydraulicFluid );
 
 		//! Vehicle cover
 		actions.Insert( ExpansionActionCoverVehicle );

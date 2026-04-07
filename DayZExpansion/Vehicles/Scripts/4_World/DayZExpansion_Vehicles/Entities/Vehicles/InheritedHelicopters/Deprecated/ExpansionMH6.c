@@ -40,6 +40,7 @@ class ExpansionMh6 : ExpansionHelicopterScript
 	{
 		m_dmgContactCoef = 0.05;
 		m_ExplosionSize = 10;
+		m_Expansion_EngineRPMMax = 4000;
 	}
 
 	override void EEInit()

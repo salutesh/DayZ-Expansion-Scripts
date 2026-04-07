@@ -364,13 +364,15 @@ class CfgVehicles
 			camposSmoothCoef=0.029999999;
 			soundSetsFilter[]=
 			{
-				"Expansion_Uh1h_Engine_Ext_SoundSet",
-				"Expansion_Uh1h_Rotor_Ext_SoundSet"
+				"Expansion_Bell412_Engine_Hum_Ext_SoundSet",
+				"Expansion_Uh1h_Engine_Full_Ext_SoundSet",
+				"Expansion_Uh1h_Rotor_Starter_Ext_SoundSet",
+				"Expansion_Uh1h_Rotor_Full_Ext_SoundSet"
 			};
 			soundSetsInt[]=
 			{
-				"Expansion_Uh1h_Engine_Int_SoundSet",
-				"Expansion_Uh1h_Rotor_Int_SoundSet"
+				"Expansion_Bell412_Engine_Hum_Int_SoundSet",
+				"Expansion_Uh1h_Engine_Full_Int_SoundSet"
 			};
 		};
 		class GUIInventoryAttachmentsProps

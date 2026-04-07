@@ -615,13 +615,22 @@ class CfgVehicles
 			camposSmoothCoef=0.029999999;
 			soundSetsFilter[]=
 			{
-				"Expansion_Merlin_Engine_Ext_SoundSet",
-				"Expansion_Merlin_Rotor_Ext_SoundSet"
+				"Expansion_Merlin_Engine_Hum_Ext_SoundSet",
+				"Expansion_Merlin_Engine_Idle_Ext_SoundSet",
+				"Expansion_Merlin_Engine_Full_Ext_SoundSet",
+				"Expansion_Merlin_Engine2_Idle_Ext_SoundSet",
+				"Expansion_Merlin_Engine2_Full_Ext_SoundSet",
+				"Expansion_Merlin_Rotor_Starter_Ext_SoundSet",
+				"Expansion_Merlin_Rotor_Idle_Ext_SoundSet",
+				"Expansion_Merlin_Rotor_Full_Ext_SoundSet"
 			};
 			soundSetsInt[]=
 			{
-				"Expansion_Merlin_Engine_Int_SoundSet",
-				"Expansion_Merlin_Rotor_Int_SoundSet"
+				"Expansion_Merlin_Engine_Hum_Int_SoundSet",
+				"Expansion_Merlin_Engine_Idle_Int_SoundSet",
+				"Expansion_Merlin_Engine_Full_Int_SoundSet",
+				"Expansion_Merlin_Engine2_Idle_Int_SoundSet",
+				"Expansion_Merlin_Engine2_Full_Int_SoundSet"
 			};
 		};
 		class ObstacleGenerator
