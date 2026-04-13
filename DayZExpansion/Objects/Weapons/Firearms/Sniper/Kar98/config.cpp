@@ -71,16 +71,16 @@ class cfgWeapons
 			soundSetShot[]=
 			{
 				"Expansion_Kar98_Shot_SoundSet",
-				"Mosin_Tail_SoundSet",
-				"Mosin_InteriorTail_SoundSet"
+				"Mosin9130_Tail_SoundSet",
+				"Mosin9130_InteriorTail_SoundSet"
 			};
 			soundSetShotExt[]=
 			{
 				
 				{
-					"Mosin_silencerHomeMade_SoundSet",
-					"Mosin_silencerHomeMadeTail_SoundSet",
-					"Mosin_silencerInteriorHomeMadeTail_SoundSet"
+					"Mosin9130_silencerHomeMade_SoundSet",
+					"Mosin9130_silencerHomeMadeTail_SoundSet",
+					"Mosin9130_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
 			reloadTime=1;

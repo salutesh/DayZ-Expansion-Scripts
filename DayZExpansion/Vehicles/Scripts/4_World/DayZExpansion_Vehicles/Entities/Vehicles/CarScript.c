@@ -1662,6 +1662,8 @@ modded class CarScript
 
 		super.OnUpdate(dt);
 
+		m_ExpansionVehicle.OnUpdate(dt);
+
 	#ifndef SERVER
 		OnAnimationUpdate(dt);
 	#endif

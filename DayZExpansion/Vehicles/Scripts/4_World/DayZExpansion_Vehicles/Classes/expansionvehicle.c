@@ -764,6 +764,10 @@ modded class ExpansionVehicle
 
 	void OnPostSimulate(float dt)
 	{
+	}
+
+	void OnUpdate(float dt)
+	{
 		if (CanUpdateLock(dt))
 		{
 			UpdateLock(dt);

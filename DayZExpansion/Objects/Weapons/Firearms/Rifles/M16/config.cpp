@@ -98,23 +98,26 @@ class cfgWeapons
 		{
 			soundSetShot[]=
 			{
-				"M4_Shot_SoundSet",
-				"M4_Tail_SoundSet",
-				"M4_InteriorTail_SoundSet"
+				"M16A2_Shot_SoundSet",
+				"M16A2_Shot_iterior_SoundSet",
+				"M16A2_Tail_SoundSet",
+				"M16A2_InteriorTail_SoundSet",
+				"M16A2_Slapback_SoundSet",
+				"M16A2_Tail_2D_SoundSet"
 			};
 			soundSetShotExt[]=
 			{
 				
 				{
-					"M4_silencer_SoundSet",
-					"M4_silencerTail_SoundSet",
-					"M4_silencerInteriorTail_SoundSet"
+					"M16A2_silencer_SoundSet",
+					"M16A2_silencerTail_SoundSet",
+					"M16A2_silencerInteriorTail_SoundSet"
 				},
 				
 				{
-					"M4_silencerHomeMade_SoundSet",
-					"M4_silencerHomeMadeTail_SoundSet",
-					"M4_silencerInteriorHomeMadeTail_SoundSet"
+					"M16A2_silencerHomeMade_SoundSet",
+					"M16A2_silencerHomeMadeTail_SoundSet",
+					"M16A2_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
 			reloadTime=0.125;
@@ -127,23 +130,26 @@ class cfgWeapons
 		{
 			soundSetShot[]=
 			{
-				"M4_Shot_SoundSet",
-				"M4_Tail_SoundSet",
-				"M4_InteriorTail_SoundSet"
+				"M16A2_Shot_SoundSet",
+				"M16A2_Shot_iterior_SoundSet",
+				"M16A2_Tail_SoundSet",
+				"M16A2_InteriorTail_SoundSet",
+				"M16A2_Slapback_SoundSet",
+				"M16A2_Tail_2D_SoundSet"
 			};
 			soundSetShotExt[]=
 			{
 				
 				{
-					"M4_silencer_SoundSet",
-					"M4_silencerTail_SoundSet",
-					"M4_silencerInteriorTail_SoundSet"
+					"M16A2_silencer_SoundSet",
+					"M16A2_silencerTail_SoundSet",
+					"M16A2_silencerInteriorTail_SoundSet"
 				},
 				
 				{
-					"M4_silencerHomeMade_SoundSet",
-					"M4_silencerHomeMadeTail_SoundSet",
-					"M4_silencerInteriorHomeMadeTail_SoundSet"
+					"M16A2_silencerHomeMade_SoundSet",
+					"M16A2_silencerHomeMadeTail_SoundSet",
+					"M16A2_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
 			burst=3;
@@ -155,23 +161,26 @@ class cfgWeapons
 		{
 			soundSetShot[]=
 			{
-				"M4_Shot_SoundSet",
-				"M4_Tail_SoundSet",
-				"M4_InteriorTail_SoundSet"
+				"M16A2_Shot_SoundSet",
+				"M16A2_Shot_iterior_SoundSet",
+				"M16A2_Tail_SoundSet",
+				"M16A2_InteriorTail_SoundSet",
+				"M16A2_Slapback_SoundSet",
+				"M16A2_Tail_2D_SoundSet"
 			};
 			soundSetShotExt[]=
 			{
 				
 				{
-					"M4_silencer_SoundSet",
-					"M4_silencerTail_SoundSet",
-					"M4_silencerInteriorTail_SoundSet"
+					"M16A2_silencer_SoundSet",
+					"M16A2_silencerTail_SoundSet",
+					"M16A2_silencerInteriorTail_SoundSet"
 				},
 				
 				{
-					"M4_silencerHomeMade_SoundSet",
-					"M4_silencerHomeMadeTail_SoundSet",
-					"M4_silencerInteriorHomeMadeTail_SoundSet"
+					"M16A2_silencerHomeMade_SoundSet",
+					"M16A2_silencerHomeMadeTail_SoundSet",
+					"M16A2_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
 			reloadTime=0.075000003;

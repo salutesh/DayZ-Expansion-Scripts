@@ -86,6 +86,13 @@ modded class BoatScript
 		}
 	}
 
+	override void OnUpdate(float dt)
+	{
+		super.OnUpdate(dt);
+
+		m_ExpansionVehicle.OnUpdate(dt);
+	}
+
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
 		if (!super.CanReceiveAttachment(attachment, slotId))
