@@ -254,7 +254,7 @@ modded class ExpansionVehicle
 				return;
 			}
 
-			Cover(cover);
+			CoverEx(null, cover);
 		}
 	}
 
@@ -290,6 +290,11 @@ modded class ExpansionVehicle
 
 	bool Cover(EntityAI cover = null, out ExpansionEntityStoragePlaceholder placeholder = null)
 	{
+		return CoverEx(null, cover, placeholder);
+	}
+
+	bool CoverEx(PlayerBase player = null, EntityAI cover = null, out ExpansionEntityStoragePlaceholder placeholder = null)
+	{
 		string coverType;
 
 		if (cover)
@@ -316,6 +321,11 @@ modded class ExpansionVehicle
 			}
 		}
 
+		string id = GetGlobalID().IDToHex();
+		string type = vehicle.GetType();
+
+		bool covered;
+
 		if (ExpansionEntityStoragePlaceholder.Expansion_StoreEntityAndReplace(vehicle, placeholderType, GetPosition(), ECE_OBJECT_SWAP, placeholder, storeCargo, transferAttachments))
 		{
 			EXTrace.Print(EXTrace.VEHICLES, this, "Covered vehicle " + GetType() + " " + GetPosition() + " with " + coverType);
@@ -323,7 +333,6 @@ modded class ExpansionVehicle
 			//! If the cover was on the vehicle itself, it will be pending deletion and must not be moved to placeholder
 			if (cover && !cover.IsSetForDeletion())
 			{
-				Man player = cover.GetHierarchyRootPlayer();
 				if (player)
 				{
 					bool result = player.ServerTakeEntityToTargetAttachmentEx(placeholder, cover, InventorySlots.GetSlotIdFromString("CamoNet"));
@@ -340,10 +349,28 @@ modded class ExpansionVehicle
 					keychain.Expansion_AssignOwner(GetOwnerUID(), GetOwnerName());
 			}
 
-			return true;
+			covered = true;
 		}
 
-		return false;
+		if (GetExpansionSettings().GetLog().VehicleCover)
+		{
+			if (player)
+			{
+				if (covered)
+					GetExpansionSettings().GetLog().PrintLog("[VehicleCover] Player \"{1:name}\" (id={1:id} pos={1:position}) covered vehicle \"{2}\" (GlobalID={3} pos={4:position})!", player, new EXString(type), new EXString(id), placeholder);
+				else
+					GetExpansionSettings().GetLog().PrintLog("[VehicleCover] ERROR: Player \"{1:name}\" (id={1:id} pos={1:position}) tried to cover vehicle \"{2:type}\" (GlobalID={3} pos={2:position}) but it failed!", player, vehicle, new EXString(id));
+			}
+			else
+			{
+				if (covered)
+					GetExpansionSettings().GetLog().PrintLog("[VehicleCover] Auto-covered vehicle \"{1}\" (GlobalID={2} pos={3:position})", new EXString(type), new EXString(id), placeholder);
+				else
+					GetExpansionSettings().GetLog().PrintLog("[VehicleCover] ERROR: Tried to auto-cover vehicle \"{1:type}\" (GlobalID={2} pos={1:position}) but it failed!", vehicle, new EXString(id));
+			}
+		}
+
+		return covered;
 	}
 
 	void SetMasterKeyPersistentID(int b1, int b2, int b3, int b4)

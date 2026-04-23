@@ -19,7 +19,7 @@ class ExpansionNetsyncData
 	bool m_WasDataRequested;
 	bool m_WasDataSent;
 
-	void ExpansionNetsyncData(Object object)
+	void ExpansionNetsyncData(Object object, bool lateClientInit = true)
 	{
 		m_Object = object;
 
@@ -37,7 +37,7 @@ class ExpansionNetsyncData
 		m_Expansion_RPCManager.RegisterServer("Send", this);
 		m_Expansion_RPCManager.RegisterClient("Receive", this);
 
-		if (g_Game.IsClient())
+		if (g_Game.IsClient() && lateClientInit)
 		{
 			SI_Receive = new ScriptInvoker();
 			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LateClientInit, 250);  //! Has to be delayed, else won't work!

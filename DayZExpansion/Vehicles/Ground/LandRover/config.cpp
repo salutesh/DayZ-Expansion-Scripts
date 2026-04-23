@@ -2894,7 +2894,7 @@ class CfgVehicles
 		descriptionShort="$STR_EXPANSION_SPRAYCAN_Yellow_DESC";
 		hiddenSelectionsTextures[]=
 		{
-			"\DayzExpansion\Objects\Gear\Spraycans\data\spraycan_blue_co.paa"
+			"\DayzExpansion\Objects\Gear\Spraycans\data\spraycan_yellow_co.paa"
 		};
 		skinName="Yellow";
 	};

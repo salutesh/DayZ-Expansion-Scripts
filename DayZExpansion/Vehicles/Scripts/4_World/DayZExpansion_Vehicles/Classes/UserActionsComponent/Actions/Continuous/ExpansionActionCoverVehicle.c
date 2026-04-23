@@ -84,28 +84,10 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 	
 	override void OnFinishProgressServer(ActionData action_data)
 	{
-		EntityAI entity;
-		if (!Class.CastTo(entity, action_data.m_Target.GetParentOrObject()))
-			return;
-
-		string id;
-		string type = entity.GetType();
-
-		auto vehicle = ExpansionVehicle.Get(entity);
-		ExpansionEntityStoragePlaceholder placeholder;
-		bool result;
+		auto vehicle = ExpansionVehicle.Get(action_data.m_Target.GetParentOrObject());
 		if (vehicle)
 		{
-			id = vehicle.GetGlobalID().IDToHex();
-			result = vehicle.Cover(action_data.m_MainItem, placeholder);
-		}
-		
-		if (GetExpansionSettings().GetLog().VehicleCover)
-		{
-			if (result)
-				GetExpansionSettings().GetLog().PrintLog("[VehicleCover] Player \"{1:name}\" (id={1:id} pos={1:position}) covered vehicle \"{2}\" (GlobalID={3} pos={4:position})!", action_data.m_Player, new EXString(type), new EXString(id), placeholder);
-			else
-				GetExpansionSettings().GetLog().PrintLog("[VehicleCover] ERROR: Player \"{1:name}\" (id={1:id} pos={1:position}) tried to cover vehicle \"{2:type}\" (GlobalID={3} pos={2:position}) but it failed!", action_data.m_Player, entity, new EXString(id));
+			vehicle.CoverEx(action_data.m_Player, action_data.m_MainItem);
 		}
 	}
 }

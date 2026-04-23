@@ -898,9 +898,16 @@ class ExpansionVehicle
 
 	void OnDelete()
 	{
-		if (g_Game.IsServer() && GetExpansionSettings().GetLog().VehicleDeleted)
+		if (g_Game.IsServer())
 		{
-			GetExpansionSettings().GetLog().PrintLog("[VehicleDeleted] {1:type} (id={1:persistent_id} pos={1:position})", GetEntity());
+			auto settings = GetExpansionSettings().GetLog();
+			if (settings.VehicleDeleted)
+			{
+				//! Only log vehicle deleted message if not deleted as part of entity storage (e.g. cover/garage)
+				EntityAI entity = GetEntity();
+				if (ExpansionEntityStorageModule.GetSavedEntityToBeDeleted() != entity)
+					settings.PrintLog("[VehicleDeleted] {1:type} (id={1:persistent_id} pos={1:position})", entity);
+			}
 		}
 	}
 

@@ -1311,7 +1311,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		if (m_VRSSeverity > 0.1 && m_MainRotorSpeedTarget > 0.15)
 			m_MainRotorSpeedTarget = 0.15;
 
-		if (m_RotorSpeed >= 1.0 - collectiveLoad || m_RotorSpeedTarget < 0.1 || pState.m_LinearVelocity[1] < -0.5)
+		if (m_RotorSpeed >= 1.0 - m_CollectiveLoadCoef || m_RotorSpeedTarget < 0.1 || pState.m_LinearVelocity[1] < -0.5)
 			change = Math.Clamp(Math.Min(m_MainRotorSpeedTarget, m_RotorSpeed + collectiveLoad) - m_MainRotorSpeed, -0.25 * pDt, 0.25 * pDt);
 		else
 			change = Math.Clamp(0 - m_MainRotorSpeed, -0.25 * pDt, 0.25 * pDt);

@@ -210,6 +210,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	static ref ScriptInvoker SI_ATMMenuTransferCallback = new ScriptInvoker();
 	static ref ScriptInvoker SI_ATMMenuPartyCallback = new ScriptInvoker();
 
+	static ref map<int, ref map<int, ref ExpansionTraderObjectBase>> s_CustomTraders = new map<int, ref map<int, ref ExpansionTraderObjectBase>>;  //! Support any networked object as trader
+
 	//! Client
 	protected ref ExpansionMarketPlayerInventory m_LocalEntityInventory;
 	protected ref TIntArray m_TmpVariantIds;
@@ -285,6 +287,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 		EnableMissionLoaded();
 		Expansion_EnableRPCManager();
 
+		Expansion_RegisterClientRPC("RPC_CustomTraderNetworkIDs");
+		Expansion_RegisterBothRPC("RPC_TraderObject");
 		Expansion_RegisterClientRPC("RPC_Callback");
 		Expansion_RegisterClientRPC("RPC_MoneyDenominations");
 		Expansion_RegisterServerRPC("RPC_RequestPurchase");
@@ -385,6 +389,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 #endif
 
 		super.OnMissionFinish(sender, args);
+
+		s_CustomTraders.Clear();
 
 		m_MoneyTypes.Clear();
 		m_MoneyDenominations.Clear();
@@ -2346,6 +2352,40 @@ class ExpansionMarketModule: CF_ModuleWorld
 		rpc.Write(object);
 		rpc.Expansion_Send(true, playerIdent);
 	}
+
+	void AddCustomTrader(EntityAI traderEntity, string fileName)
+	{
+		int low, high;
+		traderEntity.GetNetworkID(low, high);
+
+		AddCustomTrader(traderEntity, low, high, fileName);
+	}
+
+	void AddCustomTrader(EntityAI traderEntity, int low, int high, string fileName)
+	{
+		if (traderEntity)
+			EXError.Info(this, string.Format("Adding custom trader %1.%2", traderEntity, fileName));
+		else
+			EXError.Info(this, string.Format("Adding custom trader with network ID %1 %2", low, high));
+
+		map<int, ref ExpansionTraderObjectBase> traderObjs;
+
+		if (!s_CustomTraders.Find(high, traderObjs))
+		{
+			traderObjs = new map<int, ref ExpansionTraderObjectBase>;
+			s_CustomTraders[high] = traderObjs;
+		}
+
+		traderObjs[low] = new ExpansionTraderObjectBase(traderEntity, fileName);
+	}
+
+	private void RPC_TraderObject(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		ExpansionTraderObjectBase traderObj = GetTraderFromObject(target);
+
+		if (traderObj)
+			traderObj.RPC_TraderObject(sender, ctx);
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion RPC_Callback
@@ -2424,6 +2464,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			CreateATMData(cArgs.Identity);
 		}
+
+		SendCustomTraderNetworkIDs(cArgs.Identity);
 	}
 #endif
 	
@@ -2485,7 +2527,81 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 	}
 
-	
+	//! Server
+	void SendCustomTraderNetworkIDs(PlayerIdentity recipient)
+	{
+		int highCount = s_CustomTraders.Count();
+
+		if (highCount == 0)
+			return;
+
+		auto rpc = Expansion_CreateRPC("RPC_CustomTraderNetworkIDs");
+
+		rpc.Write(highCount);
+
+		int count;
+
+		foreach (int high, map<int, ref ExpansionTraderObjectBase> traderObjs: s_CustomTraders)
+		{
+			rpc.Write(high);
+
+			int lowCount = traderObjs.Count();
+			rpc.Write(lowCount);
+
+			foreach (int low, ExpansionTraderObjectBase traderObj: traderObjs)
+			{
+				rpc.Write(low);
+
+				++count;
+			}
+		}
+
+		EXError.Info(this, string.Format("Sent %1 custom trader network IDs", count));
+
+		rpc.Expansion_Send(true, recipient);
+	}
+
+	//! Client
+	void RPC_CustomTraderNetworkIDs(PlayerIdentity sender, Object target, ParamsReadContext ctx)
+	{
+		EXError.Info(this, string.Format("Receiving custom trader network IDs"));
+
+		int highCount;
+		if (!ctx.Read(highCount))
+			return;
+
+		if (highCount <= 0)
+			return;
+
+		int high, low;
+		int count;
+
+		while (highCount--)
+		{
+			if (!ctx.Read(high))
+				return;
+
+			int lowCount;
+			if (!ctx.Read(lowCount))
+				return;
+
+			if (lowCount <= 0)
+				return;
+
+			while (lowCount--)
+			{
+				if (!ctx.Read(low))
+					return;
+
+				AddCustomTrader(null, low, high, "");
+
+				++count;
+			}
+		}
+
+		EXError.Info(this, string.Format("Reveived %1 custom trader network IDs", count));
+	}
+
 	//! DEPRECATED (using itemClassName)
 	void RequestPurchase(string itemClassName, int count, int currentPrice, ExpansionTraderObjectBase trader, PlayerBase player = NULL, bool includeAttachments = true, int skinIndex = -1, TIntArray attachmentIDs = NULL)
 	{
@@ -2607,6 +2723,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 		else if (Class.CastTo(traderAI, obj))
 			trader = traderAI.GetTraderObject();
 		#endif
+		else
+		{
+			int low, high;
+			obj.GetNetworkID(low, high);
+
+			map<int, ref ExpansionTraderObjectBase> traderObjs;
+			if (s_CustomTraders.Find(high, traderObjs))
+				trader = traderObjs[low];
+		}
 
 #ifdef EXTRACE
 		if (trace && trader && errorOnNoTrader)
@@ -3712,6 +3837,19 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!identity)
 		{
 			Error("ExpansionMarketModule::StartTrading - Player identity is NULL!");
+			return;
+		}
+
+		if (!trader.GetTraderMarket())
+		{
+			EntityAI traderEntity = trader.GetTraderEntity();
+			EXError.MarketCfgError(this, string.Format("Trader entity \"%1\" at %2 has no associated trader", traderEntity.GetType(), traderEntity.GetPosition().ToString()));
+			return;
+		}
+
+		if (!trader.GetTraderZone())
+		{
+			EXError.MarketCfgError(this, string.Format("Trader \"%1\" is not in a trader zone", trader.GetTraderMarket().m_FileName));
 			return;
 		}
 

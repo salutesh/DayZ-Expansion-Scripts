@@ -280,9 +280,6 @@ class eAITarget: eAITargetInformationState
 		if (distSq > range * range)
 			return false;
 
-		if (IsUnconscious())
-			return false;
-
 		EntityAI entityInHands = m_AI.GetHumanInventory().GetEntityInHands();
 
 		Weapon_Base weapon;

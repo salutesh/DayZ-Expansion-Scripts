@@ -83,17 +83,11 @@ class eAIState_Fighting_FireWeapon: eAIState
 		m_Target = unit.GetTarget();
 		if (!m_Target) return eAITransition.FAIL;
 		
-		PlayerBase player;
 		EntityAI targetEntity = m_Target.GetEntity();
 		ItemBase itemTarget;
 		if (!targetEntity)
 		{
 			return eAITransition.FAIL;
-		}
-		else if (Class.CastTo(player, targetEntity))
-		{
-			if (player.IsUnconscious() && !player.IsAI())
-				return eAITransition.FAIL;
 		}
 		else if (Class.CastTo(itemTarget, targetEntity) && !itemTarget.Expansion_IsDanger())
 		{

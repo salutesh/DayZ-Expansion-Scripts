@@ -37,7 +37,7 @@ class ExpansionBoatScript: CarScript
 
 	private float m_RotorAnimationPosition;
 
-	private bool m_IsInitialized;
+	protected bool m_IsInitialized;
 
 	float m_Expansion_SDSCheckTime;
 

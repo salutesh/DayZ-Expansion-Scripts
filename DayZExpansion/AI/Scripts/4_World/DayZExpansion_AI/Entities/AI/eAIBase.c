@@ -669,6 +669,7 @@ class eAIBase: PlayerBase
 		else
 		{
 			CF_Log.Error("Invalid FSM");
+			Delete();
 		}
 	}
 

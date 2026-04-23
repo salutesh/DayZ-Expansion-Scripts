@@ -32,17 +32,16 @@ static void Expansion_Error(string s, inout bool check = false)
 
 class EXTee
 {
-#ifdef SERVER
-	static const int MAX_PRINTABLE_TEXT_LENGTH = 1026;
-#else
-	static const int MAX_PRINTABLE_TEXT_LENGTH = 240;
-#endif
+	//! Effective printable max length (not including " SCRIPT       : " prefix)
+	//! Under diag server the effective max length is 16365
+	//! but we use the client/nondiag server max length for consistency
+	static const int MAX_PRINTABLE_TEXT_LENGTH = 239;
 
 	FileHandle m_File;
 	autoptr TStringArray m_PrintBuffer = {};
 	int m_BufferLength;
 
-	void EXTee(string fileName, FileMode mode)
+	void EXTee(string fileName, FileMode mode = FileMode.APPEND)
 	{
 		m_File = OpenFile(fileName, mode);
 	}
@@ -85,19 +84,37 @@ class EXTee
 			while (strLen > MAX_PRINTABLE_TEXT_LENGTH)
 			{
 				string chunk = str.Substring(0, MAX_PRINTABLE_TEXT_LENGTH);
-				int index = chunk.LastIndexOf(" ");  //! Try to break on whitespace if possible
+
+				//! Try to break on whitespace if possible
+				int indexS = chunk.LastIndexOf(" ");
+				int indexN = chunk.LastIndexOf("\n");
+
+				int index;
+
+				if (indexN > indexS)
+					index = indexN;
+				else
+					index = indexS;
 
 				if (index > -1)
 				{
 					index++;
 
-					if (index < MAX_PRINTABLE_TEXT_LENGTH)
-						chunk = str.Substring(0, index);
+					chunk = str.Substring(0, index);
+				}
+				else
+				{
+					index = MAX_PRINTABLE_TEXT_LENGTH;
 				}
 
 				Print("" + chunk);
 
 				strLen -= index;
+
+				//! string::Substring has a hard length limit of 8191
+				if (strLen > 8191)
+					strLen = 8191;
+
 				str = str.Substring(index, strLen);
 			}
 
@@ -2428,6 +2445,13 @@ class ExpansionStatic: ExpansionStaticCore
 							output += GetPersistentIDString(entity);
 						else
 							output += "0";
+						break;
+
+					case "lifetime":
+						if (Class.CastTo(entity, p))
+							output += entity.GetLifetime().ToString();
+						else
+							EXError.Error(null, p.ToString() + " is not an entity");
 						break;
 
 					case "type":

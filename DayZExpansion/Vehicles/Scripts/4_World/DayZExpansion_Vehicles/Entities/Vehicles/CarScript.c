@@ -118,10 +118,7 @@ modded class CarScript
 	protected bool m_Expansion_EngineSync2;
 	protected bool m_Expansion_EngineSync3;
 
-	protected bool m_Expansion_ForcedStoreLoadedPositionAndOrientation;
 	protected bool m_Expansion_WasMissionLoadedAtVehicleInstantiation;
-
-	bool m_Expansion_dBodyIsActive; //! Used for forcing storeloaded position/orientation on 1st inactive after load
 
 	bool m_Expansion_CollisionDamageIfEngineOff;
 	float m_Expansion_CollisionDamageMinSpeed; 
@@ -584,14 +581,12 @@ modded class CarScript
 
 		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnAfterLoadConstantVariables, 100, false);
 
-		m_Expansion_dBodyIsActive = dBodyIsActive(this);
-
 		if (g_Game.IsServer())
 		{
-			if (m_Expansion_dBodyIsActive && m_Expansion_IsStoreLoaded && !m_Expansion_WasMissionLoadedAtVehicleInstantiation)
+			if (dBodyIsActive(this) && m_Expansion_IsStoreLoaded && !m_Expansion_WasMissionLoadedAtVehicleInstantiation)
 			{
 				//! Setting state to inactive fixes issues with vehicles being simulated at server start (jumpy helis, boats being always active when in water, not needed for cars)
-				if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionBoatScript))
+				if (IsInherited(ExpansionHelicopterScript) || (IsInherited(ExpansionBoatScript) && ExpansionStatic.SurfaceIsWater(GetPosition())))
 				{
 					EXTrace.Print(EXTrace.VEHICLES, this, "DeferredInit - isStoreLoaded - missionLoaded - setting ActiveState.INACTIVE");
 					dBodyActive(this, ActiveState.INACTIVE);
@@ -2347,41 +2342,6 @@ modded class CarScript
 			m_ExpansionVehicle.OnSimulate(dt);
 		}
 
-		//! If driver managed to get in vehicle before forcing initial storeloaded position, skip it
-		if (driver && m_Expansion_IsStoreLoaded && !m_Expansion_ForcedStoreLoadedPositionAndOrientation)
-			m_Expansion_ForcedStoreLoadedPositionAndOrientation = true;
-
-		if (!isActive)
-		{
-			if (m_Expansion_dBodyIsActive)
-			{
-#ifdef DIAG_DEVELOPER
-				EXTrace.Print(EXTrace.VEHICLES, this, "CarScript::EOnSimulate - pos/ori " + GetPosition() + " " + GetOrientation() + " - dBodyIsActive false");
-#endif
-				m_Expansion_dBodyIsActive = false;
-
-				if (m_Expansion_IsStoreLoaded && !m_Expansion_ForcedStoreLoadedPositionAndOrientation && !m_Expansion_WasMissionLoadedAtVehicleInstantiation)
-				{
-					//! Vehicle has become inactive after initial store load. Force position/orientation to stored values.
-					m_Expansion_ForcedStoreLoadedPositionAndOrientation = true;
-					if (m_Position != vector.Zero && m_Orientation != vector.Zero)
-					{
-						Expansion_ForcePositionAndOrientation(m_Position, m_Orientation);
-#ifdef DIAG_DEVELOPER
-						EXTrace.Print(EXTrace.VEHICLES, this, "CarScript::EOnSimulate - restored pos/ori " + GetPosition() + " " + GetOrientation());
-#endif
-					}
-				}
-			}
-		}
-#ifdef DIAG_DEVELOPER
-		else if (!m_Expansion_dBodyIsActive)
-		{
-			EXTrace.Print(EXTrace.VEHICLES, this, "CarScript::EOnSimulate - pos/ori " + GetPosition() + " " + GetOrientation() + " - dBodyIsActive true");
-			m_Expansion_dBodyIsActive = true;
-		}
-#endif
-
 		if (!Expansion_CanSimulate())
 		{
 			return;
@@ -3014,12 +2974,10 @@ modded class CarScript
 
 		ctx.Write(m_Exploded);
 
-		if (!m_Expansion_IsStoreLoaded || m_Expansion_ForcedStoreLoadedPositionAndOrientation || m_Expansion_WasMissionLoadedAtVehicleInstantiation)
-			GetCurrentOrientation();
+		GetCurrentOrientation();
 		ctx.Write(m_Orientation);
 
-		if (!m_Expansion_IsStoreLoaded || m_Expansion_ForcedStoreLoadedPositionAndOrientation || m_Expansion_WasMissionLoadedAtVehicleInstantiation)
-			GetCurrentPosition();
+		GetCurrentPosition();
 		ctx.Write(m_Position);
 
 		ctx.Write(false);
@@ -3577,10 +3535,6 @@ modded class CarScript
 
 	void Expansion_OnCEUpdate()
 	{
-		//! Prevent autocover before forcing initial storeloaded position
-		if (m_Expansion_IsStoreLoaded && !m_Expansion_ForcedStoreLoadedPositionAndOrientation && !m_Expansion_WasMissionLoadedAtVehicleInstantiation)
-			return;
-
 		m_ExpansionVehicle.AutoCover();
 	}
 
