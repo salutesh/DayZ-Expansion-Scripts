@@ -906,7 +906,7 @@ class ExpansionVehicle
 				//! Only log vehicle deleted message if not deleted as part of entity storage (e.g. cover/garage)
 				EntityAI entity = GetEntity();
 				if (ExpansionEntityStorageModule.GetSavedEntityToBeDeleted() != entity)
-					settings.PrintLog("[VehicleDeleted] {1:type} (id={1:persistent_id} pos={1:position})", entity);
+					settings.PrintLog("[VehicleDeleted] {1:type} (id={1:persistent_id} pos={1:position} lifetime={1:lifetime})", entity);
 			}
 		}
 	}

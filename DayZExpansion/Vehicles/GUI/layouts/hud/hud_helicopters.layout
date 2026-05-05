@@ -42,8 +42,8 @@ PanelWidgetClass VehiclePanel {
     ImageWidgetClass AttitudeHorizonLine {
      clipchildren 0
      color 1 1 1 1
-     position 0 1
-     size 172.5 172.5
+     position 0 2
+     size 170.5 170.5
      halign center_ref
      hexactpos 1
      vexactpos 1
@@ -86,8 +86,8 @@ PanelWidgetClass VehiclePanel {
       FrameWidgetClass AttitudePitchPanel {
        ignorepointer 1
        clipchildren 1
-       position 0 5.175
-       size 1 112.125
+       position 0 12
+       size 1 105.3
        valign top_ref
        hexactpos 1
        vexactpos 1
@@ -97,8 +97,8 @@ PanelWidgetClass VehiclePanel {
         PanelWidgetClass AttitudePitch {
          ignorepointer 1
          clipchildren 0
-         position 0 -0.05
-         size 172.5 172.5
+         position 0 0.055
+         size 134.55 134.55
          halign center_ref
          valign top_ref
          hexactpos 0
@@ -2105,62 +2105,6 @@ PanelWidgetClass VehiclePanel {
             }
            }
           }
-          PanelWidgetClass HoverALTIndicator {
-           visible 0
-           clipchildren 0
-           position 0 75
-           size 1 0.4
-           halign center_ref
-           hexactpos 1
-           vexactpos 1
-           hexactsize 0
-           vexactsize 0
-           style blank
-           {
-            TextWidgetClass HoverALTValue {
-             clipchildren 0
-             size 0.33 16
-             halign center_ref
-             valign center_ref
-             hexactpos 0
-             vexactpos 0
-             hexactsize 0
-             vexactsize 1
-             style None
-             text "0"
-             font "gui/fonts/sdf_metronbook72"
-             "shadow size" 4
-             "shadow color" 0 0 0 1
-             "shadow offset" 2 2
-             "bold text" 1
-             "exact text" 0
-             "exact text size" 16
-             "text halign" center
-            }
-            TextWidgetClass HoverALTLabel {
-             clipchildren 0
-             position 0 12
-             size 1 18
-             halign center_ref
-             valign center_ref
-             hexactpos 1
-             vexactpos 1
-             hexactsize 0
-             vexactsize 1
-             style None
-             text "m"
-             font "gui/fonts/sdf_metronbook72"
-             "shadow size" 4
-             "shadow offset" 1 1
-             "italic text" 0
-             "exact text" 0
-             "size to text h" 0
-             "size to text v" 0
-             "text halign" center
-             "text valign" center
-            }
-           }
-          }
          }
         }
        }
@@ -2231,6 +2175,60 @@ PanelWidgetClass VehiclePanel {
        "text valign" center
       }
      }
+    }
+   }
+  }
+  PanelWidgetClass LegacyPanel {
+   clipchildren 0
+   position 4 -18
+   size 64 18
+   halign center_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style blank
+   {
+    ImageWidgetClass LegacyIcon {
+     position -6 0
+     size 28 28
+     halign left_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     fixaspect inside
+     image0 "set:ccgui_enforce image:HudUserMarker"
+     mode blend
+     "src alpha" 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
+     filter 1
+     nocache 0
+    }
+    TextWidgetClass LegacyLabel {
+     clipchildren 0
+     position 0 0
+     size 46 12
+     halign right_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style None
+     text "LEGACY"
+     font "gui/fonts/sdf_metronbook72"
+     "shadow size" 4
+     "shadow offset" 1 1
+     "italic text" 0
+     "exact text" 0
+     "size to text h" 0
+     "size to text v" 0
+     "text halign" right
+     "text valign" center
     }
    }
   }

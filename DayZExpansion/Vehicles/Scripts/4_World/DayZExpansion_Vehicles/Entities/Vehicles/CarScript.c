@@ -1645,8 +1645,16 @@ modded class CarScript
 	{
 		//! Jump out damage should only apply for land vehicles, not helis, planes or boats, and only if player is not in godmode
 		//! For air vehicles, damage is dealt separately elsewhere after the fall
-		if (gotActionData.m_Player.Expansion_CanBeDamaged("FallDamage") && (Expansion_IsCar() || Expansion_IsBike()))
-			super.OnVehicleJumpOutServer(gotActionData);
+		if (gotActionData.m_Player.Expansion_CanBeDamaged("FallDamage"))
+		{
+			if (Expansion_IsCar() || Expansion_IsBike() || gotActionData.m_Player.m_Expansion_QueuedJumpOutVehicleDamageActionData)
+				super.OnVehicleJumpOutServer(gotActionData);
+			else if (Expansion_IsHelicopter())
+			{
+				gotActionData.m_Speed = GetVelocity(this).Length() * 3.6;
+				gotActionData.m_Player.m_Expansion_QueuedJumpOutVehicleDamageActionData = gotActionData;
+			}
+		}
 	}
 
 	//! @note only called for driver on client

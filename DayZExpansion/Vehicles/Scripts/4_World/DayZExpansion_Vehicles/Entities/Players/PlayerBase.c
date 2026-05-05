@@ -17,6 +17,8 @@ modded class PlayerBase
 	protected bool m_Expansion_ProcessTransportHit;
 	protected bool m_Expansion_WasInVehicleSeatOrAttached;
 	protected int m_Expansion_SessionTimeStamp;
+
+	ref GetOutTransportActionData m_Expansion_QueuedJumpOutVehicleDamageActionData;
 	
 	ref array<ExpansionCarKey> m_Expansion_CarKeys;
 
@@ -252,6 +254,29 @@ modded class PlayerBase
 			g_Game.GetMission().RemoveActiveInputExcludes({"expansionboat"});
 			g_Game.GetMission().RemoveActiveInputExcludes({"expansionplane"});
 		}
+	}
+
+	override bool OnLand(int pCurrentCommandID, FallDamageData fallDamageData)
+	{
+		GetOutTransportActionData gotActionData = m_Expansion_QueuedJumpOutVehicleDamageActionData;
+
+		if (gotActionData)
+		{
+			ExpansionHelicopterScript heli;
+			if (Class.CastTo(heli, gotActionData.m_Vehicle))
+				heli.OnVehicleJumpOutServer(gotActionData);
+		}
+
+		m_Expansion_QueuedJumpOutVehicleDamageActionData = null;
+
+		return super.OnLand(pCurrentCommandID, fallDamageData);
+	}
+
+	override void OnCommandSwimStart()
+	{
+		super.OnCommandSwimStart();
+
+		m_Expansion_QueuedJumpOutVehicleDamageActionData = null;
 	}
 
 #ifdef DAYZ_1_25

@@ -60,6 +60,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
 	static const int VERSION = 23;
 
+	static float ROUGH_LANDING_VERTICAL_SPEED_THRESHOLD_DEFAULT = 3.7;
+
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
 	bool VehicleDropsRuinedDoors;
@@ -146,6 +148,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		ctx.Read(PilotlessAutoHoverEngineStopDelaySeconds);
 
+		ctx.Read(RoughLandingVerticalSpeedThreshold);
+
 		ctx.Read(EnableVehicleCovers);
 		ctx.Read(CanCoverWithCargo);
 		ctx.Read(AllowCoveringDEVehicles);
@@ -192,6 +196,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Write(DesyncInvulnerabilityTimeoutSeconds);
 
 		ctx.Write(PilotlessAutoHoverEngineStopDelaySeconds);
+
+		ctx.Write(RoughLandingVerticalSpeedThreshold);
 
 		ctx.Write(EnableVehicleCovers);
 		ctx.Write(CanCoverWithCargo);
@@ -462,6 +468,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 			save = true;
 		}
 
+		if (RoughLandingVerticalSpeedThreshold < ROUGH_LANDING_VERTICAL_SPEED_THRESHOLD_DEFAULT)
+			RoughLandingVerticalSpeedThreshold = ROUGH_LANDING_VERTICAL_SPEED_THRESHOLD_DEFAULT;
+
 		Update(NULL);
 
 		if (save)
@@ -541,7 +550,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		PilotlessAutoHoverEngineStopDelaySeconds = 300;
 	#endif
 
-		RoughLandingVerticalSpeedThreshold = 3.7;
+		RoughLandingVerticalSpeedThreshold = ROUGH_LANDING_VERTICAL_SPEED_THRESHOLD_DEFAULT;
 
 		DamagedEngineStartupChancePercent = 100.0;
 

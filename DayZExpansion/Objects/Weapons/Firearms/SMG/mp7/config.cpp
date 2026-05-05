@@ -80,6 +80,8 @@ class CfgWeapons
 			soundSetShot[]=
 			{
 				"CZ75_Shot_SoundSet",
+				"CZ75_Tail_2D_SoundSet",
+				"CZ75_Shot_iterior_SoundSet",
 				"CZ75_Tail_SoundSet",
 				"CZ75_InteriorTail_SoundSet"
 			};
@@ -87,15 +89,15 @@ class CfgWeapons
 			{
 				
 				{
-					"CZ61_silencer_SoundSet",
+					"CZ61_1st_silencer_SoundSet",
 					"CZ61_silencerTail_SoundSet",
 					"CZ61_silencerInteriorTail_SoundSet"
 				},
 				
 				{
-					"CZ61_silencerHomeMade_SoundSet",
+					"CZ61_1st_silencerHomeMade_SoundSet",
 					"CZ61_silencerHomeMadeTail_SoundSet",
-					"CZ61_silencerInteriorHomeMadeTail_SoundSet"
+					"CZ61_silencerHomeMadeInteriorTail_SoundSet"
 				}
 			};
 			reloadTime=0.055;
@@ -109,6 +111,8 @@ class CfgWeapons
 			soundSetShot[]=
 			{
 				"CZ75_Shot_SoundSet",
+				"CZ75_Tail_2D_SoundSet",
+				"CZ75_Shot_iterior_SoundSet",
 				"CZ75_Tail_SoundSet",
 				"CZ75_InteriorTail_SoundSet"
 			};
@@ -124,7 +128,7 @@ class CfgWeapons
 				{
 					"CZ61_silencerHomeMade_SoundSet",
 					"CZ61_silencerHomeMadeTail_SoundSet",
-					"CZ61_silencerInteriorHomeMadeTail_SoundSet"
+					"CZ61_silencerHomeMadeInteriorTail_SoundSet"
 				}
 			};
 			reloadTime=0.059999999;

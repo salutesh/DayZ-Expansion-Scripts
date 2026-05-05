@@ -23,6 +23,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 	protected ImageWidget			m_HeliAttitudeSky;
 	protected ImageWidget			m_HeliAttitudeGround;
 	protected ImageWidget			m_HeliAttitudeHorizonLine;
+	protected Widget				m_HeliAttitudePitchPanel;
 	protected Widget				m_HeliAttitudePitch;
 	protected ref map<int, Widget>	m_HeliAttitudePitchLines = new map<int, Widget>;
 	protected ref map<int, Widget>	m_HeliAttitudePitchLabelL = new map<int, Widget>;
@@ -48,9 +49,10 @@ class ExpansionHelicopterHud : VehicleHudBase
 	protected ImageWidget			m_HeliBatteryLight;
 	protected ImageWidget			m_HeliEngineLight;
 	
-	protected Widget 				m_HeliHoverAltitudePanel;
-	protected TextWidget			m_HeliHoverAltitudeValue;
-	
+	protected Widget				m_LegacyPanel;
+	protected ImageWidget			m_LegacyIcon;
+	protected TextWidget			m_LegacyLabel;
+
 	protected Widget				m_HeliShieldPanel;
 	protected ImageWidget			m_HeliShieldIcon;
 	
@@ -94,6 +96,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliAttitudeSky = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("AttitudeSky"));
 		m_HeliAttitudeGround = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("AttitudeGround"));
 		m_HeliAttitudeHorizonLine = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("AttitudeHorizonLine"));
+		m_HeliAttitudePitchPanel = m_VehiclePanel.FindAnyWidget("AttitudePitchPanel");
 		m_HeliAttitudePitch = m_VehiclePanel.FindAnyWidget("AttitudePitch");
 		m_HeliAttitudeCenter = m_VehiclePanel.FindAnyWidget("Attitude_Center");
 		m_HeliAttitudeHorizonLineL = m_VehiclePanel.FindAnyWidget("Attitude_HorizonLine_L");
@@ -140,9 +143,10 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliHydraulicFluidPointer = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("HydraulicFluidPointer"));
 		m_HeliHydraulicFluidLight = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("HydraulicFluidLight"));
 		m_HeliHydraulicFluidLight1 = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("HydraulicFluidLight1"));
-		
-		m_HeliHoverAltitudePanel = m_VehiclePanel.FindAnyWidget("HoverALTIndicator");
-		m_HeliHoverAltitudeValue = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("HoverALTValue"));
+
+		m_LegacyPanel = m_VehiclePanel.FindAnyWidget("LegacyPanel");
+		m_LegacyIcon = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("LegacyIcon"));
+		m_LegacyLabel = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("LegacyLabel"));
 		
 		m_HeliShieldPanel = m_VehiclePanel.FindAnyWidget("ShieldIndicator");
 		m_HeliShieldIcon = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("ShieldIcon"));
@@ -207,6 +211,22 @@ class ExpansionHelicopterHud : VehicleHudBase
 		if (!m_CurrentHelicopter)
 			return;
 
+		bool legacySim = m_CurrentHelicopter.m_Simulation.m_SimulationMode != ExpansionHelicopterSimulationMode.RotorDisk;
+		bool legacyAirFriction = m_CurrentHelicopter.m_Simulation.m_AirFrictionMode != ExpansionHelicopterSimulationAirFrictionMode.Balanced;
+
+		m_LegacyPanel.Show(legacySim || legacyAirFriction);
+
+		if (legacySim != legacyAirFriction)
+		{
+			m_LegacyIcon.SetColor(VORTEX_WARNING_COLOR);
+			m_LegacyLabel.SetColor(VORTEX_WARNING_COLOR);
+		}
+		else
+		{
+			m_LegacyIcon.SetColor(COLOR_WHITE);
+			m_LegacyLabel.SetColor(COLOR_WHITE);
+		}
+
 		//! altimeter
 		float altValue = m_CurrentHelicopter.GetPosition()[1];
 		float altTE = (altValue / 100) * 360;	//! 10m steps
@@ -259,15 +279,42 @@ class ExpansionHelicopterHud : VehicleHudBase
 		//! attitude
 		float horizonOffsetV = m_CurrentHelicopter.GetDirection()[1];
 		vector ori = m_CurrentHelicopter.GetOrientation();
+
 		m_HeliAttitudeSky.SetRotation(0, 0, -ori[2]);
 		m_HeliAttitudeGround.SetRotation(0, 0, -ori[2]);
-		m_HeliAttitudeGround.SetMaskProgress(0.505 - horizonOffsetV);
+
+		float indicatorW, indicatorH;
+		float horizonW, horizonH;
+		float attitudePitchW, attitudePitchH;
+
+		m_HeliAttitudeGround.GetSize(indicatorW, indicatorH);
+		m_HeliAttitudeHorizonLine.GetSize(horizonW, horizonH);
+		m_HeliAttitudePitch.GetSize(attitudePitchW, attitudePitchH);
+
+		float scaleV = attitudePitchH / indicatorH;
+		float horizonScaleV = attitudePitchH / horizonH;
+
+		m_HeliAttitudeGround.SetMaskProgress(0.505 - horizonOffsetV * scaleV);
 		m_HeliAttitudeHorizonLine.SetRotation(0, 0, -ori[2]);
-		m_HeliAttitudeHorizonLine.SetMaskProgress(0.515 - horizonOffsetV);
-		m_HeliAttitudePitch.SetPos(0, -0.05 + horizonOffsetV * (1 / 0.65));
+		m_HeliAttitudeHorizonLine.SetMaskProgress(0.515 - horizonOffsetV * horizonScaleV);
+
+		float pitchOffsetV = ((indicatorH * 0.5 - attitudePitchH * 0.5) / indicatorH) * 0.5;
+		float attitudePitchPanelW, attitudePitchPanelH;
+
+		m_HeliAttitudePitchPanel.GetSize(attitudePitchPanelW, attitudePitchPanelH);
+
+		float pitchScaleV = indicatorH / attitudePitchPanelH;
+		float pitchPosY = pitchOffsetV + horizonOffsetV * pitchScaleV * scaleV;
+
+		m_HeliAttitudePitch.SetPos(0, pitchPosY);
 
 		float roll = Math.Round(ori[2]);
 		float pitch = Math.Round(ori[1]);
+
+		float pitchPanelPosX, pitchPanelPosY;
+		float pitchLinePosX, pitchLinePosY;
+
+		m_HeliAttitudePitchPanel.GetPos(pitchPanelPosX, pitchPanelPosY);
 
 		for (int n = 0; n <= 12; ++n)
 		{
@@ -276,12 +323,18 @@ class ExpansionHelicopterHud : VehicleHudBase
 			if (deg)
 			{
 				int degAbs = Math.AbsInt(deg);
-				bool show = false;;
+				bool show = false;
 
-				if (deg - pitch > -11 && deg - pitch < 26)
+				Widget pitchLine = m_HeliAttitudePitchLines[deg];
+				
+				pitchLine.GetPos(pitchLinePosX, pitchLinePosY);
+
+				pitchLinePosY = pitchPanelPosY + pitchPosY * attitudePitchPanelH + (0.5 + pitchLinePosY) * attitudePitchH;
+
+				if (pitchLinePosY > pitchPanelPosY && pitchLinePosY < pitchPanelPosY + attitudePitchPanelH)
 					show = true;
 
-				m_HeliAttitudePitchLines[deg].Show(show);
+				pitchLine.Show(show);
 
 				if (degAbs < 30 && degAbs % 10 == 0)
 				{

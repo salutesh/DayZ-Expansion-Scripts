@@ -378,6 +378,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	ref ExpansionInterpolatedInput m_Input_CyclicLeft;
 	ref ExpansionInterpolatedInput m_Input_CyclicRight;
 
+	float m_RoughLandingVerticalSpeedThreshold;
+
 	//! Vortex Ring State (VRS) - thrust loss when descending into own downwash
 	float m_VRSDescentThreshold = 3.0;   //! m/s (~600 fpm) - VRS begins
 	float m_VRSDescentDeep = 6.0;        //! m/s (~1200 fpm) - deep VRS
@@ -701,6 +703,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_VRSDescentDeep *= vrsScale;
 		m_VRSAirspeedThreshold *= vrsScale;
 	#ifdef DIAG_DEVELOPER
+		Print(vrsScale);
 		Print(m_VRSDescentThreshold);
 		Print(m_VRSDescentDeep);
 		Print(m_VRSAirspeedThreshold);
@@ -716,6 +719,18 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_EnableMainRotorDamage = settings.EnableMainRotorDamage;
 		m_EnableTailRotorDamage = settings.EnableTailRotorDamage;
 		m_EnableHelicopterExplosions = settings.EnableHelicopterExplosions;
+
+		if (m_RoughLandingVerticalSpeedThreshold <= 0)
+		{
+			m_RoughLandingVerticalSpeedThreshold = settings.RoughLandingVerticalSpeedThreshold;
+
+			float vrsVerticalSpeedScale = Math.Max(m_RoughLandingVerticalSpeedThreshold / ExpansionVehicleSettings.ROUGH_LANDING_VERTICAL_SPEED_THRESHOLD_DEFAULT, 1.0);
+			m_VRSDescentThreshold *= vrsVerticalSpeedScale;
+			m_VRSDescentDeep *= vrsVerticalSpeedScale;
+		#ifdef DIAG_DEVELOPER
+			Print(vrsVerticalSpeedScale);
+		#endif
+		}
 	}
 
 
@@ -1051,6 +1066,72 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		if (!m_Initialized)
 			return;
 
+		if (!g_Game.IsDedicatedServer())
+		{
+			auto settings = GetExpansionClientSettings();
+
+			if (settings.UseLegacyHelicopterFlightModel && !s_UseLegacyFlightModel)
+			{
+				s_SimulationMode = ExpansionHelicopterSimulationMode.Legacy;
+				s_AirFrictionMode = ExpansionHelicopterSimulationAirFrictionMode.Legacy;
+				s_UseLegacyFlightModel = true;
+			}
+			else if (!settings.UseLegacyHelicopterFlightModel && s_UseLegacyFlightModel)
+			{
+				s_SimulationMode = ExpansionHelicopterSimulationMode.RotorDisk;
+				s_AirFrictionMode = ExpansionHelicopterSimulationAirFrictionMode.Balanced;
+				s_UseLegacyFlightModel = false;
+			}
+
+			s_RBS = settings.EnableRetreatingBladeStall;
+
+		#ifdef DIAG_DEVELOPER
+			if (!g_Game.IsClient())
+			{
+				//! Offline/SP
+				if (s_SimulationMode != m_SimulationMode)
+					g_Game.Chat(typename.EnumToString(ExpansionHelicopterSimulationMode, s_SimulationMode), "colorAction");
+
+				if (s_AirFrictionMode != m_AirFrictionMode)
+					g_Game.Chat(typename.EnumToString(ExpansionHelicopterSimulationAirFrictionMode, s_AirFrictionMode), "colorAction");
+
+				if (s_AirFriction[0] != m_AirFriction[0])
+					g_Game.Chat("Air Friction X " + s_AirFriction[0], "colorAction");
+
+				if (s_AirFriction[1] != m_AirFriction[1])
+					g_Game.Chat("Air Friction Y " + s_AirFriction[1], "colorAction");
+
+				if (s_AirFriction[2] != m_AirFriction[2])
+					g_Game.Chat("Air Friction Z " + s_AirFriction[2], "colorAction");
+
+				if (s_RBS != m_RBS)
+					g_Game.Chat("Retreating Blade Stall " + s_RBS.ToString(), "colorAction");
+
+				if (s_CollectiveDecay != m_CollectiveDecay)
+					g_Game.Chat("Collective Decay " + s_CollectiveDecay.ToString(), "colorAction");
+			}
+
+		#endif
+
+			m_SimulationMode = s_SimulationMode;
+			m_AirFrictionMode = s_AirFrictionMode;
+			//! On diag client, air friction values are synced to server
+			m_AirFriction[0] = s_AirFriction[0];
+			m_AirFriction[1] = s_AirFriction[1];
+			m_AirFriction[2] = s_AirFriction[2];
+			m_RBS = s_RBS;
+			m_CollectiveDecay = s_CollectiveDecay;
+		}
+	#ifndef DIAG_DEVELOPER
+		else
+		{
+			//! On non-diag server, air friction values are not synced from client
+			m_AirFriction[0] = s_AirFriction[0];
+			m_AirFriction[1] = s_AirFriction[1];
+			m_AirFriction[2] = s_AirFriction[2];
+		}
+	#endif
+
 		float modelSize = pState.m_BoundingRadius * 1.5;
 		modelSize += 15.0;
 
@@ -1219,9 +1300,16 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 					}
 					else
 					{
+						float mainRotorSpeedMin;
+
+						if (m_SimulationMode != ExpansionHelicopterSimulationMode.Legacy)
+							mainRotorSpeedMin = 0.15;
+						else
+							mainRotorSpeedMin = 0.2;
+
 						float descentRate = -pState.m_LinearVelocityMS[1];
-						if (descentRate > m_VRSDescentThreshold * 0.5 && horiSpeed < m_VRSAirspeedThreshold * 1.5 && m_MainRotorSpeedTarget < 0.15)
-							m_MainRotorSpeedTarget = 0.15;  //! Prevent entering VRS by limiting rate of descent
+						if (descentRate > m_VRSDescentThreshold * 0.5 && horiSpeed < m_VRSAirspeedThreshold * 1.5 && m_MainRotorSpeedTarget < mainRotorSpeedMin)
+							m_MainRotorSpeedTarget = mainRotorSpeedMin;  //! Prevent entering VRS by limiting rate of descent
 
 						//! As soon as the recovery is complete or there is any cyclic/antitorque input, disengage tail force override
 						if (m_OverrideTailForce && ((Math.AbsFloat(m_Bank) < 0.01 && Math.AbsFloat(side) < 1.388) || Math.AbsFloat(m_CyclicForwardInputVal) > 0.01 || Math.AbsFloat(m_CyclicSideInputVal) > 0.01 || Math.AbsFloat(m_BackRotorSpeedTarget) > 0.01))
@@ -1285,9 +1373,16 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		float collectiveLoad;
 
 		//! Disk loading: High collective = high load, high horizontal speed = reduced load
-		if (m_SimulationMode != ExpansionHelicopterSimulationMode.Legacy && m_MainRotorSpeed > 0.3)
+		if (m_MainRotorSpeed > 0.3)
 		{
-			float speedFactor =  Math.Min(horiSpeed / (pState.m_MaxSpeedMS * 0.75), 1.0);
+			float loadFactor;
+
+			if (m_SimulationMode != ExpansionHelicopterSimulationMode.Legacy)
+				loadFactor = 0.75;
+			else
+				loadFactor = 0.66;
+
+			float speedFactor =  Math.Min(horiSpeed / (pState.m_MaxSpeedMS * loadFactor), 1.0);
 			float collectiveLoadCoef = Math.Lerp(m_CollectiveLoadCoef, 0, speedFactor);
 
 			collectiveLoad = m_MainRotorSpeed * ExpansionMath.LinearConversion(0.3, 1.0, m_MainRotorSpeed, 0, collectiveLoadCoef);
@@ -1308,8 +1403,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_RotorSpeed = Math.Clamp(m_RotorSpeed + change, 0, 1.0 - collectiveLoad);
 
 		//! Limit collective so it can't overpower VRS
-		if (m_VRSSeverity > 0.1 && m_MainRotorSpeedTarget > 0.15)
-			m_MainRotorSpeedTarget = 0.15;
+		if (m_VRSSeverity > 0.1 && m_MainRotorSpeedTarget > 0.25)
+			m_MainRotorSpeedTarget = 0.25;
 
 		if (m_RotorSpeed >= 1.0 - m_CollectiveLoadCoef || m_RotorSpeedTarget < 0.1 || pState.m_LinearVelocity[1] < -0.5)
 			change = Math.Clamp(Math.Min(m_MainRotorSpeedTarget, m_RotorSpeed + collectiveLoad) - m_MainRotorSpeed, -0.25 * pDt, 0.25 * pDt);
@@ -1345,72 +1440,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			change = Math.Clamp(Math.Clamp(m_CyclicSideTarget, -2, 2) - m_CyclicSide, -m_CyclicSideHydraulicCoef * pDt, m_CyclicSideHydraulicCoef * pDt);
 			m_CyclicSide = Math.Clamp(m_CyclicSide + change, -m_CyclicSideMax, m_CyclicSideMax);
-
-			if (!g_Game.IsDedicatedServer())
-			{
-				auto settings = GetExpansionClientSettings();
-
-				if (settings.UseLegacyHelicopterFlightModel && !s_UseLegacyFlightModel)
-				{
-					s_SimulationMode = ExpansionHelicopterSimulationMode.Legacy;
-					s_AirFrictionMode = ExpansionHelicopterSimulationAirFrictionMode.Legacy;
-					s_UseLegacyFlightModel = true;
-				}
-				else if (!settings.UseLegacyHelicopterFlightModel && s_UseLegacyFlightModel)
-				{
-					s_SimulationMode = ExpansionHelicopterSimulationMode.RotorDisk;
-					s_AirFrictionMode = ExpansionHelicopterSimulationAirFrictionMode.Balanced;
-					s_UseLegacyFlightModel = false;
-				}
-
-				s_RBS = settings.EnableRetreatingBladeStall;
-
-			#ifdef DIAG_DEVELOPER
-				if (!g_Game.IsClient())
-				{
-					//! Offline/SP
-					if (s_SimulationMode != m_SimulationMode)
-						g_Game.Chat(typename.EnumToString(ExpansionHelicopterSimulationMode, s_SimulationMode), "colorAction");
-
-					if (s_AirFrictionMode != m_AirFrictionMode)
-						g_Game.Chat(typename.EnumToString(ExpansionHelicopterSimulationAirFrictionMode, s_AirFrictionMode), "colorAction");
-
-					if (s_AirFriction[0] != m_AirFriction[0])
-						g_Game.Chat("Air Friction X " + s_AirFriction[0], "colorAction");
-
-					if (s_AirFriction[1] != m_AirFriction[1])
-						g_Game.Chat("Air Friction Y " + s_AirFriction[1], "colorAction");
-
-					if (s_AirFriction[2] != m_AirFriction[2])
-						g_Game.Chat("Air Friction Z " + s_AirFriction[2], "colorAction");
-
-					if (s_RBS != m_RBS)
-						g_Game.Chat("Retreating Blade Stall " + s_RBS.ToString(), "colorAction");
-
-					if (s_CollectiveDecay != m_CollectiveDecay)
-						g_Game.Chat("Collective Decay " + s_CollectiveDecay.ToString(), "colorAction");
-				}
-
-			#endif
-
-				m_SimulationMode = s_SimulationMode;
-				m_AirFrictionMode = s_AirFrictionMode;
-				//! On diag client, air friction values are synced to server
-				m_AirFriction[0] = s_AirFriction[0];
-				m_AirFriction[1] = s_AirFriction[1];
-				m_AirFriction[2] = s_AirFriction[2];
-				m_RBS = s_RBS;
-				m_CollectiveDecay = s_CollectiveDecay;
-			}
-		#ifndef DIAG_DEVELOPER
-			else
-			{
-				//! On non-diag server, air friction values are not synced from client
-				m_AirFriction[0] = s_AirFriction[0];
-				m_AirFriction[1] = s_AirFriction[1];
-				m_AirFriction[2] = s_AirFriction[2];
-			}
-		#endif
 
 			//! 0 if heli is facing direction of movement, 1 if perpendicular
 			vector vehDir = pState.m_Transform[2];
@@ -1470,9 +1499,11 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			float descentRate = -pState.m_LinearVelocityMS[1];  //! positive = descending
 
 			if (m_SimulationMode == ExpansionHelicopterSimulationMode.Legacy_Extended)
-			{
 				flightEnvelope = m_FlightEnvelope_ETL;
+			else
+				flightEnvelope = m_FlightEnvelope;
 
+			{
 				float vx = pState.m_LinearVelocityMS[0];   //! Lateral velocity
 
 				//! Vortex Ring State (VRS): thrust loss when descending into own downwash at low airspeed
@@ -1504,8 +1535,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 					rbsThrustMult = 1.0 - (rbsSeverity * m_RetreatingBladeStallLiftLoss);
 				}
 			}
-			else
-				flightEnvelope = m_FlightEnvelope;
 
 			m_VRSSeverity = vrsSeverity;  //! For collective authority loss and feedback in HUD
 
@@ -1584,15 +1613,11 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 
 		//! Retreating Blade Stall - nose pitch-up and roll toward retreating (left) side at high speed
-		//! @note only for Legacy_Extended and RotorDisk simulation
-		if (m_SimulationMode != ExpansionHelicopterSimulationMode.Legacy)
+		if (rbsSeverity > 0.01)
 		{
-			if (rbsSeverity > 0.01)
-			{
-				float rbsTorque = rbsSeverity * cyclicForce * pState.m_BoundingRadius;
-				torque[0] = torque[0] - (rbsTorque * m_RetreatingBladeStallPitchCoef);   //! Nose pitch-up
-				torque[2] = torque[2] + (rbsTorque * m_RetreatingBladeStallRollCoef);    //! Roll left (retreating side down)
-			}
+			float rbsTorque = rbsSeverity * cyclicForce * pState.m_BoundingRadius;
+			torque[0] = torque[0] - (rbsTorque * m_RetreatingBladeStallPitchCoef);   //! Nose pitch-up
+			torque[2] = torque[2] + (rbsTorque * m_RetreatingBladeStallRollCoef);    //! Roll left (retreating side down)
 		}
 
 		//! bank
@@ -1641,7 +1666,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		float bankForce = Math.Asin(m_Bank) * m_BankForceCoef * m_TailRotateFactor;
 
 		//! tail aerodynamic forces
-		if (m_SimulationMode != ExpansionHelicopterSimulationMode.Legacy)
 		{
 			//! Directional Stability (Aerodynamic)
 			//! This is the force of the wind hitting the vertical fin.
@@ -1682,22 +1706,28 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			float dirStabilityForce = Math.Clamp(rawDirStabilityForce, -maxFinForce, maxFinForce);
 
 			//! Preserve yaw speed "feel" of legacy simulation
-			tailRotorForce *= Math.Min(Math.Max(pState.m_BoundingRadius / REFERENCE_BOUNDING_RADIUS, 1.0), 2.0);
+			float tailRotorForceAdjusted = tailRotorForce * Math.Min(Math.Max(pState.m_BoundingRadius / REFERENCE_BOUNDING_RADIUS, 1.0), 2.0);
 
 			//! Use angular velocity target to calculate torque for antitorque (this is what makes the controls feel crisp)
-			float antiTorqueYawTarget = -(bankForce + tailRotorForce - tailRotorMalfunctionTorque) * Math.PI;
-			float antiTorqueYawDiff = antiTorqueYawTarget - yawVelocity;
+			float antiTorqueYawTarget = (bankForce + tailRotorForceAdjusted - tailRotorMalfunctionTorque) * Math.PI;
+			float antiTorqueYawDiff = antiTorqueYawTarget + yawVelocity;
 
 			float t = perpendicular * speedFactor;
+		}
+
+		if (m_SimulationMode == ExpansionHelicopterSimulationMode.Legacy)
+		{
+			tailForce = (bankForce + tailRotorForce - tailRotorMalfunctionTorque) * 0.5;
+
+			antiTorqueYawDiff = ExpansionMath.LinearConversion(0, 0.25, t, tailForce, antiTorqueYawDiff);
+		}
+
+		{
 			if (m_BackRotorSpeed == 0.0)
 				t = Easing.EaseOutQuad(t);
 			if (m_OverrideTailForce)
 				t *= 0.2;
-			tailForce = Math.Lerp(-antiTorqueYawDiff * scaledSpeedFactor, dirStabilityForce + bankForce * Math.PI_HALF, t);
-		}
-		else
-		{
-			tailForce = (bankForce + tailRotorForce - tailRotorMalfunctionTorque) * 0.5 * scaledSpeedFactor;
+			tailForce = Math.Lerp(antiTorqueYawDiff * scaledSpeedFactor, dirStabilityForce + bankForce * Math.PI_HALF, t);
 		}
 
 		//! apply tail rotor + aerodynamic forces
@@ -1740,7 +1770,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 					//! if the helicopter is turned on then more force is applied to create pseudo-friction
 					float stabilizeXY = 0.4 + (m_RotorSpeed * m_RotorSpeed * 0.6);
 
-					linearFrictionCoefX = m_LinearFrictionCoef[0] * stabilizeXY;
+					//linearFrictionCoefX = m_LinearFrictionCoef[0] * stabilizeXY;  //! <-- original legacy lateral friction
+					linearFrictionCoefX = m_LinearFrictionCoef[2] * stabilizeXY * (m_AirFriction[0] / m_AirFriction[2]);
 					linearFrictionCoefY = m_LinearFrictionCoef[1] * stabilizeXY;
 					linearFrictionCoefZ = m_LinearFrictionCoef[2];
 					break;
@@ -1758,14 +1789,10 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			friction[2] = Math.SquareSign(frictionSpeed[2]) * pDt * linearFrictionCoefZ * pState.m_Mass;
 
 			//! Retreating Blade Stall - extra parasite drag from stalled blade (form drag opposes forward motion)
-			//! @note only for Legacy_Extended and RotorDisk simulation
-			if (m_SimulationMode != ExpansionHelicopterSimulationMode.Legacy)
+			if (rbsSeverity > 0.01)
 			{
-				if (rbsSeverity > 0.01)
-				{
-					float rbsDragMult = 1.0 + (rbsSeverity * m_RetreatingBladeStallDragCoef);
-					friction[2] = friction[2] * rbsDragMult;  //! Forward axis - main parasite drag from stalled retreating blade
-				}
+				float rbsDragMult = 1.0 + (rbsSeverity * m_RetreatingBladeStallDragCoef);
+				friction[2] = friction[2] * rbsDragMult;  //! Forward axis - main parasite drag from stalled retreating blade
 			}
 
 			force -= friction * m_BodyFrictionCoef;
@@ -1793,7 +1820,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		//! Sideslip drag applied in worldspace - purely horizontal so pitched attitude can't bleed into vertical
 		//! This is what slows you down when presenting the heli's side to the airflow (pedal air-braking)
-		if (m_AirFrictionMode != ExpansionHelicopterSimulationAirFrictionMode.Legacy)
+		//if (m_AirFrictionMode != ExpansionHelicopterSimulationAirFrictionMode.Legacy)
 		{
 			vector horiVelWS = Vector(pState.m_LinearVelocity[0], 0, pState.m_LinearVelocity[2]);
 			float horiSpeedWSSq = horiVelWS.LengthSq();

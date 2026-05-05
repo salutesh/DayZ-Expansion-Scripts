@@ -64,6 +64,8 @@ class cfgWeapons
 			soundSetShot[]=
 			{
 				"FNX45_Shot_SoundSet",
+				"FNX45_Tail_2D_SoundSet",
+				"FNX45_Shot_iterior_SoundSet",
 				"FNX45_Tail_SoundSet",
 				"FNX45_InteriorTail_SoundSet"
 			};
@@ -71,9 +73,15 @@ class cfgWeapons
 			{
 				
 				{
-					"FNX45_silencerPro_SoundSet",
+					"FNX45_silencer_SoundSet",
 					"FNX45_silencerTail_SoundSet",
 					"FNX45_silencerInteriorTail_SoundSet"
+				},
+				
+				{
+					"FNX45_silencerHomeMade_SoundSet",
+					"FNX45_silencerHomeMadeTail_SoundSet",
+					"FNX45_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
 			reloadTime=0.125;

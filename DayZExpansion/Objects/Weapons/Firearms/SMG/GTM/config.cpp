@@ -83,6 +83,8 @@ class cfgWeapons
 			soundSetShot[]=
 			{
 				"CZ75_Shot_SoundSet",
+				"CZ75_Tail_2D_SoundSet",
+				"CZ75_Shot_iterior_SoundSet",
 				"CZ75_Tail_SoundSet",
 				"CZ75_InteriorTail_SoundSet"
 			};
@@ -90,9 +92,15 @@ class cfgWeapons
 			{
 				
 				{
-					"CZ75_silencerPro_SoundSet",
+					"CZ75_silencer_SoundSet",
 					"CZ75_silencerTail_SoundSet",
 					"CZ75_silencerInteriorTail_SoundSet"
+				},
+				
+				{
+					"CZ75_silencerHomeMade_SoundSet",
+					"CZ75_silencerHomeMadeTail_SoundSet",
+					"CZ75_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
 			reloadTime=0.125;
@@ -106,6 +114,8 @@ class cfgWeapons
 			soundSetShot[]=
 			{
 				"CZ75_Shot_SoundSet",
+				"CZ75_Tail_2D_SoundSet",
+				"CZ75_Shot_iterior_SoundSet",
 				"CZ75_Tail_SoundSet",
 				"CZ75_InteriorTail_SoundSet"
 			};
@@ -113,9 +123,15 @@ class cfgWeapons
 			{
 				
 				{
-					"CZ75_silencerPro_SoundSet",
+					"CZ75_silencer_SoundSet",
 					"CZ75_silencerTail_SoundSet",
 					"CZ75_silencerInteriorTail_SoundSet"
+				},
+				
+				{
+					"CZ75_silencerHomeMade_SoundSet",
+					"CZ75_silencerHomeMadeTail_SoundSet",
+					"CZ75_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
 			reloadTime=0.07;

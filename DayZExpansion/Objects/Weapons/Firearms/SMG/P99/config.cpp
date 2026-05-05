@@ -87,7 +87,7 @@ class CfgWeapons
 				{
 					"CZ61_silencerHomeMade_SoundSet",
 					"CZ61_silencerHomeMadeTail_SoundSet",
-					"CZ61_silencerInteriorHomeMadeTail_SoundSet"
+					"CZ61_silencerHomeMadeInteriorTail_SoundSet"
 				}
 			};
 			reloadTime=0.1;
@@ -116,7 +116,7 @@ class CfgWeapons
 				{
 					"CZ61_silencerHomeMade_SoundSet",
 					"CZ61_silencerHomeMadeTail_SoundSet",
-					"CZ61_silencerInteriorHomeMadeTail_SoundSet"
+					"CZ61_silencerHomeMadeInteriorTail_SoundSet"
 				}
 			};
 			reloadTime=0.056000002;
