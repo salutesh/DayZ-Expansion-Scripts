@@ -410,7 +410,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	float m_MainRotorTipSpeed = 205.0;   //! m/s at 100% RPM
 	float m_MainRotorChord = 0.35;       //! Blade chord [m]
 	float m_BladeLiftSlope = 5.7;        //! Effective Cl/rad (2*pi with tip loss)
-	float m_BladeStallAngle = 0.35;      //! rad (~20 deg)
+	float m_BladeStallAngle = 0.2618;      //! rad (~15 deg)
 	float m_BladeStallDrag = 0.05;       //! Extra Cd when stalled
 	//float m_RotorDiskThrustScale = 0.85; //! Tune to match hover (blade-element magnitude)
 	float m_RotorDiskThrustScale = 0.13;  //! Retuned after fixing cyclic-induced thrust asymmetry in blade element loop
@@ -1070,19 +1070,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		{
 			auto settings = GetExpansionClientSettings();
 
-			if (settings.UseLegacyHelicopterFlightModel && !s_UseLegacyFlightModel)
-			{
-				s_SimulationMode = ExpansionHelicopterSimulationMode.Legacy;
-				s_AirFrictionMode = ExpansionHelicopterSimulationAirFrictionMode.Legacy;
-				s_UseLegacyFlightModel = true;
-			}
-			else if (!settings.UseLegacyHelicopterFlightModel && s_UseLegacyFlightModel)
-			{
-				s_SimulationMode = ExpansionHelicopterSimulationMode.RotorDisk;
-				s_AirFrictionMode = ExpansionHelicopterSimulationAirFrictionMode.Balanced;
-				s_UseLegacyFlightModel = false;
-			}
-
 			s_RBS = settings.EnableRetreatingBladeStall;
 
 		#ifdef DIAG_DEVELOPER
@@ -1189,6 +1176,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		bool isAboveWater;
 		float buoyancyForce;
 		float horiSpeed = Vector(pState.m_LinearVelocityMS[0], 0, pState.m_LinearVelocityMS[2]).Length();
+		float descentRate = -pState.m_LinearVelocityMS[1];
 
 		float change;
 
@@ -1303,11 +1291,10 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 						float mainRotorSpeedMin;
 
 						if (m_SimulationMode != ExpansionHelicopterSimulationMode.Legacy)
-							mainRotorSpeedMin = 0.15;
+							mainRotorSpeedMin = ExpansionMath.LinearConversion(3, 6.8, m_VRSDescentThreshold, 0.15, 0);
 						else
-							mainRotorSpeedMin = 0.2;
+							mainRotorSpeedMin = ExpansionMath.LinearConversion(3, 7.4, m_VRSDescentThreshold, 0.25, 0);
 
-						float descentRate = -pState.m_LinearVelocityMS[1];
 						if (descentRate > m_VRSDescentThreshold * 0.5 && horiSpeed < m_VRSAirspeedThreshold * 1.5 && m_MainRotorSpeedTarget < mainRotorSpeedMin)
 							m_MainRotorSpeedTarget = mainRotorSpeedMin;  //! Prevent entering VRS by limiting rate of descent
 
@@ -1367,7 +1354,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 
 		// see the speed at which we are free falling
-		float goingDown = Math.Clamp((-pState.m_LinearVelocityMS[1] - m_MinAutoRotateSpeed) / (m_MaxAutoRotateSpeed - m_MinAutoRotateSpeed), 0, 1);
+		vector up = pState.m_Transform[1];
+		float upSign = Math.Sign(up[1]);
+		float goingDown = Math.Clamp((descentRate * upSign - m_MinAutoRotateSpeed) / (m_MaxAutoRotateSpeed - m_MinAutoRotateSpeed), 0, 1);
 		float brakeRotor = Math.Max(Math.Max(m_MainRotorSpeed * 0.2, 0), -goingDown);
 
 		float collectiveLoad;
@@ -1661,6 +1650,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			float tailRotorMalfunctionTorque = 0.5 * tailRotorMalfunction * m_RotorSpeed * (m_RotorSpeed + 0.1);
 
 			tailRotorForce = m_BackRotorSpeed * m_TailForceCoef * tailRotorMalfunctionNeg;
+			tailRotorForce *= m_RotorSpeed * m_RotorSpeed;
 		}
 
 		float bankForce = Math.Asin(m_Bank) * m_BankForceCoef * m_TailRotateFactor;
@@ -1699,10 +1689,11 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			//! even as the air brake scrubs speed. This is what makes the wall feel like it's
 			//! actively resisting rather than fading away as you slow down.
 			float angleWall = perpendicular * perpendicular;  //! 0 at forward, 1 at fully perpendicular
-			float speedBudget = Math.Clamp(horiSpeed * horiSpeed * 0.006 * pDt, 0.0, 1.2);
+			float horiSpeedClamped = Math.Min(horiSpeed, pState.m_MaxSpeedMS);
+			float speedBudget = Math.Clamp(horiSpeedClamped * horiSpeedClamped * 0.006 * pDt, 0.0, 1.2);
 			float angleBudget = Math.Clamp(angleWall * 1.5 * pDt, 0.0, 1.2);
 			float maxFinForce = Math.Max(speedBudget, angleBudget) * pState.m_Mass;
-			float rawDirStabilityForce = -beta * horiSpeed * airDensity * finArea * activeFinCoef * pDt;
+			float rawDirStabilityForce = -beta * horiSpeedClamped * airDensity * finArea * activeFinCoef * pDt;
 			float dirStabilityForce = Math.Clamp(rawDirStabilityForce, -maxFinForce, maxFinForce);
 
 			//! Preserve yaw speed "feel" of legacy simulation
@@ -1725,6 +1716,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		{
 			if (m_BackRotorSpeed == 0.0)
 				t = Easing.EaseOutQuad(t);
+			vector ori = m_Vehicle.GetOrientation();
+			if (ori[1] < -60)
+				t = ExpansionMath.LinearConversion(-60, -90, ori[1], t, 0);
 			if (m_OverrideTailForce)
 				t *= 0.2;
 			tailForce = Math.Lerp(antiTorqueYawDiff * scaledSpeedFactor, dirStabilityForce + bankForce * Math.PI_HALF, t);
@@ -1732,7 +1726,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		//! apply tail rotor + aerodynamic forces
 		{
-			tailForce *= m_RotorSpeed * m_RotorSpeed * pState.m_BoundingRadius * pState.m_Mass;
+			tailForce *= pState.m_BoundingRadius * pState.m_Mass;
 
 			//! apply torque to change the heading of the heli
 			torque[1] = torque[1] - (pState.m_BoundingRadius * tailForce);
@@ -1885,6 +1879,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		float vv = pState.m_LinearVelocityMS[1];   //! Vertical (up positive)
 
 		float omegaR = m_MainRotorTipSpeed * m_RotorSpeed;  //! Tip speed [m/s]
+		float rotorAuthority = m_RotorSpeed * m_RotorSpeed; //! Powered rotor authority [0..1]
 		float mu = 0.0;
 		if (omegaR > 1.0)
 			mu = horiSpeed / omegaR;  //! Advance ratio
@@ -1914,7 +1909,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		 //! Ideal induced velocity for hover, from momentum theory: vi = sqrt(T / (2 * rho * A))
 		 //! T = weight = mass * gravity. A = rotor disk area = pi * r^2. rho = air density.
 		float viHover = Math.Sqrt((REFERENCE_MASS * 9.81) / (2.0 * 1.225 * Math.PI * m_MainRotorRadius * m_MainRotorRadius));
-		float vi = viHover * (1.0 - Math.Clamp(mu * 0.5, 0.0, 0.6));
+		float vi = viHover * rotorAuthority * (1.0 - Math.Clamp(mu * 0.5, 0.0, 0.6));
 		vi = vi / (groundEffect * etlBump);  //! ETL bump reduces induced inflow = more thrust at transition speed
 
 		//! VRS
@@ -1943,7 +1938,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		//! Collective -> blade pitch: m_MainRotorSpeed 0 = zero thrust, 1 = full
 		float theta0 = m_CollectivePitchAtMin * vrsMult;
-		float collective = m_MainRotorSpeed * m_RotorSpeed * vrsMult;
+		float collective = m_MainRotorSpeed * vrsMult;
 		if (collective > 0.0)
 			theta0 = theta0 * 1.2 + collective * m_CollectivePitchAtFull;
 		else
@@ -2000,7 +1995,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			//! clamps, causing cyclic inputs to spuriously increase total thrust (skyrocket on bank+yaw).
 			float alphaThrust = theta0 - phi;
 			float clThrust = m_BladeLiftSlope * alphaThrust;
-			bool isRetreating = ut < omegaR * 0.6;
+
+			//! Retreating blade stall: low UT (retreating side) -> high alpha -> stall
+			bool isRetreating = ut < omegaR * m_RetreatingBladeStallSpeed;
 			if (m_RBS && alphaThrust > m_BladeStallAngle && isRetreating)
 			{
 				float stallFactor = Math.Clamp((alphaThrust - m_BladeStallAngle) / 0.25, 0.0, 1.0);
@@ -2011,7 +2008,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				clThrust = clThrust * 0.5;
 			}
 
-			float dL = 0.5 * rho * m_MainRotorChord * (m_MainRotorRadius * 0.7) * clThrust * u * u * dpsi;
+			float dL = 0.5 * rho * m_MainRotorChord * (m_MainRotorRadius * 0.7) * clThrust * u * u * dpsi * rotorAuthority;
 			totalThrust += dL * m_MainRotorBlades;
 
 			//! TODO: Could use this but much harder to fly than old cyclic controller

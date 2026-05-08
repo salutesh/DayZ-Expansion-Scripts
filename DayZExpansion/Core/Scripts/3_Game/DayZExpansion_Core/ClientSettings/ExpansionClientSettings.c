@@ -38,7 +38,7 @@ class ExpansionClientSettings
 	bool TurnOffAutoHoverDuringFlight;
 	bool EnableCollectiveDecay;
 	bool EnableRetreatingBladeStall;
-	bool UseLegacyHelicopterFlightModel;
+	bool UseLegacyHelicopterFlightModel;  //! Obsolete
 
 	// ================= Video Settings =================
 	bool CastLightShadows;
@@ -821,9 +821,10 @@ class ExpansionClientSettings
 			return false;
 		}
 
-		if (!ctx.Read(UseLegacyHelicopterFlightModel))
+		bool useLegacyHelicopterFlightModel;  //! Obsolete
+		if (version == 57 && !ctx.Read(useLegacyHelicopterFlightModel))
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read UseLegacyHelicopterFlightModel!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read bool!");
 			return false;
 		}
 
@@ -976,7 +977,6 @@ class ExpansionClientSettings
 		//! v57
 		ctx.Write( EnableCollectiveDecay );
 		ctx.Write( EnableRetreatingBladeStall );
-		ctx.Write( UseLegacyHelicopterFlightModel );
 	}
 
 	// -----------------------------------------------------------
@@ -1324,7 +1324,6 @@ class ExpansionClientSettings
 		CreateSlider( "HelicopterHorizontalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_SENSITIVITY_HORIZONTAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_SENSITIVITY_HORIZONTAL_DESC", 0.1, 3.0, 0.1 );
 		CreateToggle( "EnableCollectiveDecay", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_COLLECTIVE_DECAY", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_COLLECTIVE_DECAY_DESC" );
 		CreateToggle( "EnableRetreatingBladeStall", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_RETREATING_BLADE_STALL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_RETREATING_BLADE_STALL_DESC" );
-		CreateToggle( "UseLegacyHelicopterFlightModel", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_USE_LEGACY_FLIGHT_MODEL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_USE_LEGACY_FLIGHT_MODEL_DESC" );
 		CreateToggle( "TurnOffAutoHoverDuringFlight", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT_DESC" );
 		
 		//CreateToggle( "UsePlaneMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL_DESC" );

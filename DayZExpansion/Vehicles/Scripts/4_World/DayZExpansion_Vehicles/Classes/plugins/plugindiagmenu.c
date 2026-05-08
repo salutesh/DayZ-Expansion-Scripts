@@ -82,14 +82,12 @@ modded class PluginDiagMenuClient
 
 	static void Expansion_SetHeliSimMode(int value)
 	{
-		GetExpansionClientSettings().UseLegacyHelicopterFlightModel = false;
 		ExpansionVehicleHelicopter_OLD.s_UseLegacyFlightModel = false;
 		ExpansionVehicleHelicopter_OLD.s_SimulationMode = value;
 	}
 
 	static void Expansion_SetHeliAirFrictionMode(int value)
 	{
-		GetExpansionClientSettings().UseLegacyHelicopterFlightModel = false;
 		ExpansionVehicleHelicopter_OLD.s_UseLegacyFlightModel = false;
 		ExpansionVehicleHelicopter_OLD.s_AirFrictionMode = value;
 	}
