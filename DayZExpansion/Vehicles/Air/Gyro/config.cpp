@@ -377,6 +377,7 @@ class CfgVehicles
 			tailForceCoef=8;
 			linearFrictionCoef[]={16,0.039999999,0.039999999};
 			angularFrictionCoef=1.5;
+			translatingTendencyCoef=0;
 			class Rotor
 			{
 				minAutoRotateSpeed=2;
@@ -484,6 +485,7 @@ class CfgVehicles
 			tailForceCoef=8;
 			linearFrictionCoef[]={16,0.039999999,0.039999999};
 			angularFrictionCoef=1.5;
+			translatingTendencyCoef=0;
 			class Rotor
 			{
 				minAutoRotateSpeed=2;
@@ -687,6 +689,7 @@ class CfgVehicles
 			tailForceCoef=8;
 			linearFrictionCoef[]={16,0.039999999,0.039999999};
 			angularFrictionCoef=1.5;
+			translatingTendencyCoef=0;
 			class Rotor
 			{
 				minAutoRotateSpeed=2;

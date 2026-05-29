@@ -565,20 +565,19 @@ class ExpansionMh6 : ExpansionHelicopterScript
 
 	override void OnDebugSpawn()
 	{
-		EntityAI entity;
+		string skinName = ConfigGetString("skinName");
+		if (skinName)
+			skinName = "_" + skinName;
 
-		if (Class.CastTo(entity, this))
-		{
-			entity.GetInventory().CreateInInventory("Expansion_Mh6_Door_1_1");
-			entity.GetInventory().CreateInInventory("Expansion_Mh6_Door_1_2");
-			entity.GetInventory().CreateInInventory("Expansion_Mh6_Door_2_1");
-			entity.GetInventory().CreateInInventory("Expansion_Mh6_Door_2_2");
+		GetInventory().CreateInInventory("Expansion_Mh6_Door_1_1" + skinName);
+		GetInventory().CreateInInventory("Expansion_Mh6_Door_1_2" + skinName);
+		GetInventory().CreateInInventory("Expansion_Mh6_Door_2_1" + skinName);
+		GetInventory().CreateInInventory("Expansion_Mh6_Door_2_2" + skinName);
 
-			entity.GetInventory().CreateInInventory("ExpansionHydraulicHoses");
-			entity.GetInventory().CreateInInventory("ExpansionIgniterPlug");
-			entity.GetInventory().CreateInInventory("ExpansionHelicopterBattery");
-			entity.GetInventory().CreateInInventory("HeadlightH7");
-		}
+		GetInventory().CreateInInventory("ExpansionHydraulicHoses");
+		GetInventory().CreateInInventory("ExpansionIgniterPlug");
+		GetInventory().CreateInInventory("ExpansionHelicopterBattery");
+		GetInventory().CreateInInventory("HeadlightH7");
 
 		Fill(CarFluid.FUEL, 50);
 		Fill(CarFluid.COOLANT, 6.0);

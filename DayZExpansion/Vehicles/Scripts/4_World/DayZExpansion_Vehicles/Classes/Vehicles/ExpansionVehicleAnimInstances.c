@@ -42,7 +42,7 @@ class ExpansionVehicleAnimInstances
 	static int EXPANSION_MH6 = 12;
 	static int EXPANSION_MERLIN = 15;
 	static int EXPANSION_UH1H = 12;
-	static int EXPANSION_GYROCOPTER = 12;
+	static int EXPANSION_GYROCOPTER = 15;
 
 #else
 
@@ -59,9 +59,9 @@ class ExpansionVehicleAnimInstances
 	static int EXPANSION_OLDBIKE = VehicleAnimInstances.SEDAN;
 
 	// Helicopters
-	static int EXPANSION_MH6 = VehicleAnimInstances.HMMWV;
+	static int EXPANSION_MH6 = VehicleAnimInstances.SEDAN;
 	static int EXPANSION_MERLIN = VehicleAnimInstances.SEDAN;
-	static int EXPANSION_UH1H = VehicleAnimInstances.HMMWV;
+	static int EXPANSION_UH1H = VehicleAnimInstances.SEDAN;
 	static int EXPANSION_GYROCOPTER = VehicleAnimInstances.SEDAN;
 
 #endif

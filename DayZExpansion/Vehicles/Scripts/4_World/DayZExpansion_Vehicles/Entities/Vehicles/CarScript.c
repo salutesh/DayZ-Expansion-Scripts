@@ -1333,10 +1333,8 @@ modded class CarScript
 				if (m_Expansion_WheelsToAdd[wheelType])
 				{
 					int wheelCount = m_Expansion_WheelsToAdd[wheelType];
-					if (wheelCount > 1)
+					if (wheelCount > 0)
 						m_Expansion_WheelsToAdd[wheelType] = wheelCount - 1;
-					else
-						m_Expansion_WheelsToAdd.Remove(wheelType);
 				}
 			}
 		}
@@ -2885,25 +2883,11 @@ modded class CarScript
 
 	int Expansion_EngineStartAnimation(int index)
 	{
-		if (IsPlane())
-			return DayZPlayerConstants.CMD_ACTIONMOD_ITEM_TUNE;
-		if (IsBoat())
-			return DayZPlayerConstants.CMD_ACTIONMOD_ITEM_TUNE;
-		if (IsHelicopter())
-			return DayZPlayerConstants.CMD_ACTIONMOD_ITEM_TUNE;
-
 		return DayZPlayerConstants.CMD_ACTIONMOD_STARTENGINE;
 	}
 
 	int Expansion_EngineStopAnimation(int index)
 	{
-		if (IsPlane())
-			return DayZPlayerConstants.CMD_ACTIONMOD_ITEM_OFF;
-		if (IsBoat())
-			return DayZPlayerConstants.CMD_ACTIONMOD_ITEM_OFF;
-		if (IsHelicopter())
-			return DayZPlayerConstants.CMD_ACTIONMOD_ITEM_OFF;
-
 		return DayZPlayerConstants.CMD_ACTIONMOD_STOPENGINE;
 	}
 

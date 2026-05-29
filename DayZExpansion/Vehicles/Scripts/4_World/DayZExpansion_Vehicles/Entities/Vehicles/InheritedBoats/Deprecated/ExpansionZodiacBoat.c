@@ -188,13 +188,8 @@ class ExpansionZodiacBoat: ExpansionBoatScript
 
 	override void OnDebugSpawn()
 	{
-		EntityAI entity;
-
-		if (Class.CastTo(entity, this))
-		{
-			entity.GetInventory().CreateInInventory("GlowPlug");
-			entity.GetInventory().CreateInInventory("TruckBattery");		
-		}
+		GetInventory().CreateInInventory("GlowPlug");
+		GetInventory().CreateInInventory("TruckBattery");
 
 		Fill(CarFluid.FUEL, 50);
 		Fill(CarFluid.COOLANT, 6.0);

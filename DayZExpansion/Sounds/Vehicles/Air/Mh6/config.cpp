@@ -451,7 +451,7 @@ class CfgSoundSets
 		{
 			"Expansion_Mh6_Engine_Idle_Int_SoundShader"
 		};
-		volumeFactor=0.40000001;
+		volumeFactor=0.60000002;
 	};
 	class Expansion_Mh6_Engine_Idle_Ext_SoundSet: Expansion_Mh6_Base_Ext_SoundSet
 	{
@@ -467,7 +467,7 @@ class CfgSoundSets
 		{
 			"Expansion_Mh6_Engine_Full_Int_SoundShader"
 		};
-		volumeFactor=0.40000001;
+		volumeFactor=1;
 	};
 	class Expansion_Mh6_Engine_Full_Ext_SoundSet: Expansion_Mh6_Base_Ext_SoundSet
 	{

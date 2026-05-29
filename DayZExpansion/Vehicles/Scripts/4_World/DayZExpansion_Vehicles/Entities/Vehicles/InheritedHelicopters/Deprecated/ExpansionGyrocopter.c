@@ -243,14 +243,9 @@ class ExpansionGyrocopter : ExpansionHelicopterScript
 
 	override void OnDebugSpawn()
 	{
-		EntityAI entity;
-
-		if (Class.CastTo(entity, this))
-		{
-			entity.GetInventory().CreateInInventory("ExpansionHelicopterBattery");
-			entity.GetInventory().CreateInInventory("SparkPlug");
-			entity.GetInventory().CreateInInventory("HeadlightH7");
-		}
+		GetInventory().CreateInInventory("ExpansionHelicopterBattery");
+		GetInventory().CreateInInventory("SparkPlug");
+		GetInventory().CreateInInventory("HeadlightH7");
 
 		Fill(CarFluid.FUEL, 50);
 		Fill(CarFluid.COOLANT, 6.0);

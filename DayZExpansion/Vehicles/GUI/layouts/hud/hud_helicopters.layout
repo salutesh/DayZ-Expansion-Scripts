@@ -862,8 +862,9 @@ PanelWidgetClass VehiclePanel {
     }
     PanelWidgetClass AutoHoverIndicator {
      visible 1
-     position 0 40
-     size 68 18
+     clipchildren 0
+     position 0 36
+     size 32 26
      halign center_ref
      valign center_ref
      hexactpos 1
@@ -873,12 +874,14 @@ PanelWidgetClass VehiclePanel {
      style blank
      {
       TextWidgetClass AutoHoverIcon {
+       visible 0
        color 0.8 1 0.8 1
        size 18 18
+       position 0 -0.5
        halign center_ref
-       valign bottom_ref
-       hexactpos 0
-       vexactpos 0
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
        hexactsize 1
        vexactsize 1
        fixaspect inside
@@ -891,6 +894,172 @@ PanelWidgetClass VehiclePanel {
        "exact text size" 24
        "text halign" center
        "text valign" center
+      }
+      ImageWidgetClass AutoHover_CenterDot {
+       visible 1
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position 0 0
+       size 8 8
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:dayz_gui image:circle"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+      }
+      ImageWidgetClass AutoHover_Arrow_Up {
+       visible 1
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position 0 1
+       size 20 8
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:dayz_gui image:radial_selector"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" fit_h
+      }
+      ImageWidgetClass AutoHover_Arrow_Down {
+       visible 1
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position 0 1
+       size 20 8
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:dayz_gui image:radial_selector"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" fit_h
+       "flip v" 1
+      }
+      ImageWidgetClass AutoHover_Arrow_Left {
+       visible 1
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position -2 0
+       size 20 8
+       halign left_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:dayz_gui image:radial_selector"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" fit_h
+       rotation 0 0 -90
+      }
+      ImageWidgetClass AutoHover_Arrow_Right {
+       visible 1
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position -2 0
+       size 20 8
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:dayz_gui image:radial_selector"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" fit_h
+       rotation 0 0 90
+      }
+     }
+    }
+    PanelWidgetClass AutoCollectiveIndicator {
+     visible 0
+     clipchildren 0
+     position 0 36
+     size 32 26
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style blank
+     {
+      ImageWidgetClass AutoCollective_Arrow_Up {
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position 0 2
+       size 8 8
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:expansion_iconset image:arrow_left"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+       rotation 0 0 90
+      }
+      PanelWidgetClass AutoCollective_CenterLine
+      {
+       ignorepointer 1
+       color 0.8 1 0.8 1
+       position 0 0
+       size 18 2
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+       "no focus" 1
+      }
+      ImageWidgetClass AutoCollective_Arrow_Down {
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position 0 2
+       size 8 8
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:expansion_iconset image:arrow_right"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+       rotation 0 0 90
       }
      }
     }
@@ -2178,10 +2347,10 @@ PanelWidgetClass VehiclePanel {
     }
    }
   }
-  PanelWidgetClass LegacyPanel {
+  PanelWidgetClass InfoPanel {
    clipchildren 0
-   position 4 -18
-   size 64 18
+   position 18 -18
+   size 128 18
    halign center_ref
    valign bottom_ref
    hexactpos 1
@@ -2190,45 +2359,47 @@ PanelWidgetClass VehiclePanel {
    vexactsize 1
    style blank
    {
-    ImageWidgetClass LegacyIcon {
-     position -6 0
-     size 28 28
-     halign left_ref
-     valign center_ref
-     hexactpos 1
-     vexactpos 1
-     hexactsize 1
-     vexactsize 1
-     fixaspect inside
-     image0 "set:ccgui_enforce image:HudUserMarker"
-     mode blend
-     "src alpha" 1
-     "clamp mode" clamp
-     "stretch mode" stretch_w_h
-     filter 1
-     nocache 0
-    }
-    TextWidgetClass LegacyLabel {
+    TextWidgetClass InfoLabel {
      clipchildren 0
-     position 0 0
-     size 46 12
-     halign right_ref
+     position 10 0
+     size 128 12
+     halign center_ref
      valign center_ref
      hexactpos 1
      vexactpos 1
      hexactsize 1
      vexactsize 1
      style None
-     text "LEGACY"
+     text "MANUAL TRIM"
      font "gui/fonts/sdf_metronbook72"
      "shadow size" 4
      "shadow offset" 1 1
      "italic text" 0
      "exact text" 0
-     "size to text h" 0
+     "size to text h" 1
      "size to text v" 0
-     "text halign" right
+     "text halign" left
      "text valign" center
+     {
+      ImageWidgetClass InfoIcon {
+       position -26 0
+       size 28 28
+       halign left_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:ccgui_enforce image:HudUserMarker"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+       filter 1
+       nocache 0
+      }
+     }
     }
    }
   }

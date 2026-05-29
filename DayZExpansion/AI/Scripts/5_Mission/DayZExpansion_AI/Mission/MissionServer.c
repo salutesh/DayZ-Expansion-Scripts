@@ -102,8 +102,18 @@ modded class MissionServer
 	{
 		auto excludedAreas = GetExpansionSettings().GetAILocation().NoGoAreas;
 
+		int worldSize = g_Game.GetWorld().GetWorldSize();
+		vector min = vector.Zero;
+		vector max = Vector(worldSize, 0, worldSize);
+
 		foreach (auto areaConfig: excludedAreas)
 		{
+			if (!Math.IsPointInRectangle(min, max, areaConfig.Position) || areaConfig.Position[1] < -1000 || areaConfig.Position[1] > 1000)
+			{
+				EXError.Error(null, string.Format("Invalid NoGoArea position %1", areaConfig.Position.ToString()));
+				continue;
+			}
+
 			ExpansionAINoGoArea area;
 			if (Class.CastTo(area, g_Game.CreateObjectEx("ExpansionAINoGoArea", areaConfig.Position, ECE_NONE)))
 				area.Expansion_Init(areaConfig);

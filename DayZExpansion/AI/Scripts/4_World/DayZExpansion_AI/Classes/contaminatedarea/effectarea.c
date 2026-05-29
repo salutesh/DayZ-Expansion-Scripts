@@ -79,14 +79,12 @@ modded class EffectArea
 
 			if (areaIndex > -1)
 			{
-				if (cluster.m_Areas.Count() > 1)
-				{
-					cluster.m_Areas.Remove(areaIndex);
+				cluster.m_Areas.Remove(areaIndex);
 
-					EXTrace.Print(EXTrace.AI, this, "Removed from " + cluster);
+				EXTrace.Print(EXTrace.AI, this, "Removed from " + cluster);
 
+				if (cluster.m_Areas.Count() > 0)
 					cluster.RemoveNonOverlappingAndUpdate();
-				}
 			}
 		}
 	}

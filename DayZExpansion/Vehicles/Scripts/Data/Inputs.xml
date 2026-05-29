@@ -13,6 +13,10 @@
 			<input name="UAExpansionHeliCyclicBackward" loc="STR_EXPANSION_HELICOPTER_CYCLIC_BACKWARD" />
 			<input name="UAExpansionHeliCyclicLeft" loc="STR_EXPANSION_HELICOPTER_CYCLIC_LEFT" />
 			<input name="UAExpansionHeliCyclicRight" loc="STR_EXPANSION_HELICOPTER_CYCLIC_RIGHT" />
+			<input name="UAExpansionHeliTrimSet" loc="STR_EXPANSION_HELICOPTER_TRIM_SET" />
+			<input name="UAExpansionHeliTrimRelease" loc="STR_EXPANSION_HELICOPTER_TRIM_RELEASE" />
+			<input name="UAExpansionHeliTrimCyclic" loc="STR_EXPANSION_HELICOPTER_TRIM_CYCLIC" />
+			<input name="UAExpansionHeliTrimAntiTorque" loc="STR_EXPANSION_HELICOPTER_TRIM_ANTI_TORQUE" />
 			<input name="UAExpansionHeliCargoDoorUp" visible="false" />
 			<input name="UAExpansionHeliCargoDoorDown" visible="false" />
 
@@ -41,9 +45,14 @@
 			<input name="UAExpansionBoatTurbo" loc="STR_EXPANSION_BOAT_TURBO" />
 
 			<input name="UAExpansionCarRefill" loc="STR_EXPANSION_VEHICLE_REFILL" />
+
+			<input name="UAExpansionVehicleCenterCamera" loc="STR_USRACT_LOOK_CENTER" />
 		</actions>
 		
-		<exclude name="movementexpansion">
+		<exclude name="expansionvehicles">
+			<input name="UAExpansionHeliRocket" />
+			<input name="UAExpansionHeliFreeLook" />
+			<input name="UAExpansionHeliAutoHover" />
 			<input name="UAExpansionHeliCyclicForward" />
 			<input name="UAExpansionHeliCyclicBackward" />
 			<input name="UAExpansionHeliCyclicLeft" />
@@ -52,6 +61,20 @@
 			<input name="UAExpansionHeliCollectiveDown" />
 			<input name="UAExpansionHeliAntiTorqueLeft" />
 			<input name="UAExpansionHeliAntiTorqueRight" />
+			<input name="UAExpansionHeliTrimSet" />
+			<input name="UAExpansionHeliTrimRelease" />
+			<input name="UAExpansionHeliTrimCyclic" />
+			<input name="UAExpansionHeliTrimAntiTorque" />
+			<input name="UAExpansionHeliCargoDoorUp" />
+			<input name="UAExpansionHeliCargoDoorDown" />
+			<input name="UAExpansionPlaneRocket" /> 
+			<input name="UAExpansionPlaneFlare" />
+			<input name="UAExpansionPlaneEngine" />
+			<input name="UAExpansionPlaneEngineUp" />
+			<input name="UAExpansionPlaneEngineDown" />
+			<input name="UAExpansionPlaneBrake" />
+			<input name="UAExpansionPlaneBrakeUp" />
+			<input name="UAExpansionPlaneBrakeDown" />
 			<input name="UAExpansionPlaneElevatorUp" />
 			<input name="UAExpansionPlaneElevatorDown" />
 			<input name="UAExpansionPlaneAileronLeft" />
@@ -60,16 +83,14 @@
 			<input name="UAExpansionPlaneRudderRight" />
 			<input name="UAExpansionPlaneFlapsUp" />
 			<input name="UAExpansionPlaneFlapsDown" />
+			<input name="UAExpansionPlaneWheelBrake" />
 			<input name="UAExpansionBoatMoveForward" />
 			<input name="UAExpansionBoatMoveBackward" />
 			<input name="UAExpansionBoatRotateLeft" />
 			<input name="UAExpansionBoatRotateRight" />
 			<input name="UAExpansionBoatTurbo" />
 			<input name="UAExpansionCarRefill" />
-		</exclude>
-		
-		<exclude name="menuexpansion">
-			<include name="movementexpansion" />
+			<input name="UAExpansionVehicleCenterCamera" />
 		</exclude>
 
 		<exclude name="expansionhelicopter">
@@ -107,6 +128,10 @@
 			<input name="UAExpansionHeliCollectiveDown" />
 			<input name="UAExpansionHeliAntiTorqueLeft" />
 			<input name="UAExpansionHeliAntiTorqueRight" />
+			<input name="UAExpansionHeliTrimSet" />
+			<input name="UAExpansionHeliTrimRelease" />
+			<input name="UAExpansionHeliTrimCyclic" />
+			<input name="UAExpansionHeliTrimAntiTorque" />
 			<input name="UAExpansionHeliCargoDoorUp" />
 			<input name="UAExpansionHeliCargoDoorDown" />
 			<input name="UAExpansionPlaneEngine" />
@@ -130,6 +155,7 @@
 			<input name="UAExpansionBoatRotateRight" />
 			<input name="UAExpansionBoatTurbo" />
 			<input name="UAExpansionCarRefill" />
+			<input name="UAExpansionVehicleCenterCamera" />
 		</sorting>
 	</inputs>
 
@@ -174,6 +200,26 @@
 		<input name="UAExpansionHeliAntiTorqueRight">
 			<btn name="kE" />
             <btn name="x1ShoulderRight" />
+		</input>
+		<input name="UAExpansionHeliTrimSet">
+			<btn name="kRControl">
+				<btn name="kNumpad5" />
+			</btn>
+		</input>
+		<input name="UAExpansionHeliTrimRelease">
+			<btn name="kRControl">
+				<btn name="kDecimal" />
+			</btn>
+		</input>
+		<input name="UAExpansionHeliTrimCyclic">
+			<btn name="kRControl">
+				<btn name="kNumpad4" />
+			</btn>
+		</input>
+		<input name="UAExpansionHeliTrimAntiTorque">
+			<btn name="kRControl">
+				<btn name="kNumpad1" />
+			</btn>
 		</input>
 		<input name="UAExpansionHeliCargoDoorUp">
 		</input>
@@ -242,6 +288,10 @@
 		</input>
 		<input name="UAExpansionCarRefill">
 			<btn name="kR" />
+		</input>
+		<input name="UAExpansionVehicleCenterCamera">
+			<btn name="kNumpad5" />
+			<btn name="x1ThumbRight" />
 		</input>
 	</preset>
 </modded_inputs>

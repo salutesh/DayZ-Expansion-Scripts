@@ -283,6 +283,8 @@ class ExpansionEffectAreaMergedCluster
 	static const float MIN_AVOIDANCE_DISTANCE = 3.0;
 	static const float IS_INSIDE_MARGIN = 3.0;
 
+	static ref set<ExpansionEffectAreaMergedCluster> s_AllClusters = new set<ExpansionEffectAreaMergedCluster>;
+
 	ref Expansion_EffectAreas m_Areas;
 	vector m_Position;
 	float m_Radius;
@@ -299,17 +301,21 @@ class ExpansionEffectAreaMergedCluster
 		m_Areas = cluster;
 
 		Update();
+
+		s_AllClusters.Insert(this);
 	}
 
-#ifdef DIAG_DEVELOPER
 	void ~ExpansionEffectAreaMergedCluster()
 	{
+	#ifdef DIAG_DEVELOPER
 		if (g_Game)
 			EXTrace.Print(EXTrace.AI, this, "~ExpansionEffectAreaMergedCluster");
 
 		CleanupDebugShapes();
+	#endif
+
+		s_AllClusters.RemoveItem(this);
 	}
-#endif
 
 	/**
 	 * @brief Update the cluster. Needs to be called each time m_Areas is changed
@@ -381,7 +387,8 @@ class ExpansionEffectAreaMergedCluster
 		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.AI, null, string.Format("  %1 (pos=%2)", ExpansionStatic.GetDebugInfo(this), m_Position.ToString()));
 		#ifndef SERVER
-			m_DebugShapes.Insert(Debug.DrawArrow(m_Position, m_Position + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_RED));
+			if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
+				m_DebugShapes.Insert(Debug.DrawArrow(m_Position, m_Position + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_RED));
 		#endif
 		#endif
 
@@ -469,7 +476,8 @@ class ExpansionEffectAreaMergedCluster
 
 			#ifdef DIAG_DEVELOPER
 			#ifndef SERVER
-				m_DebugShapes.Insert(Debug.DrawArrow(point, point + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_BLUE));
+				if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
+					m_DebugShapes.Insert(Debug.DrawArrow(point, point + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_BLUE));
 			#endif
 			#endif
 
@@ -539,8 +547,11 @@ class ExpansionEffectAreaMergedCluster
 
 				#ifdef DIAG_DEVELOPER
 				#ifndef SERVER
-					m_DebugShapes.Insert(Debug.DrawArrow(a, a + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_GREEN));
-					m_DebugShapes.Insert(Debug.DrawArrow(b, b + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_GREEN));
+					if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
+					{
+						m_DebugShapes.Insert(Debug.DrawArrow(a, a + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_GREEN));
+						m_DebugShapes.Insert(Debug.DrawArrow(b, b + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_GREEN));
+					}
 				#endif
 				#endif
 
@@ -588,10 +599,13 @@ class ExpansionEffectAreaMergedCluster
 
 				#ifdef DIAG_DEVELOPER
 				#ifndef SERVER
-					dir[0] = dx;
-					dir[2] = dz;
-					point = area.m_Position + dir.Normalized() * area.m_Radius;
-					m_DebugShapes.Insert(Debug.DrawArrow(point, point + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_GREEN));
+					if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
+					{
+						dir[0] = dx;
+						dir[2] = dz;
+						point = area.m_Position + dir.Normalized() * area.m_Radius;
+						m_DebugShapes.Insert(Debug.DrawArrow(point, point + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_GREEN));
+					}
 				#endif
 				#endif
 
@@ -647,7 +661,8 @@ class ExpansionEffectAreaMergedCluster
 
 		#ifdef DIAG_DEVELOPER
 		#ifndef SERVER
-			m_DebugShapes.Insert(Debug.DrawArrow(m_Position, m_Position + Vector(0, m_PositiveHeight + 20, 0), 0.5, color));
+			if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
+				m_DebugShapes.Insert(Debug.DrawArrow(m_Position, m_Position + Vector(0, m_PositiveHeight + 20, 0), 0.5, color));
 		#endif
 		#endif
 		}
@@ -671,6 +686,14 @@ class ExpansionEffectAreaMergedCluster
 	#ifdef DIAG_DEVELOPER
 		DrawDebug();
 	#endif
+	}
+
+	static void UpdateAll()
+	{
+		foreach (auto cluster: s_AllClusters)
+		{
+			cluster.Update();
+		}
 	}
 
 	void RemoveNonOverlappingAndUpdate()
@@ -724,13 +747,13 @@ class ExpansionEffectAreaMergedCluster
 	#ifndef SERVER
 		//CleanupDebugShapes();
 
-		//if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
-		//{
+		if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
+		{
 			float height = m_NegativeHeight + m_PositiveHeight;
 			vector center = Vector(m_Position[0], m_Position[1] - m_NegativeHeight + height * 0.5, m_Position[2]);
 
 			m_DebugShapes.Insert(Debug.DrawCylinder(center, m_Radius, height, ARGB(15, 255, 255, 255), ShapeFlags.TRANSP | ShapeFlags.NOZWRITE));
-		//}
+		}
 	#endif
 	}
 	

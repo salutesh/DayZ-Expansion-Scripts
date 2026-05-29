@@ -49,9 +49,9 @@ class ExpansionHelicopterHud : VehicleHudBase
 	protected ImageWidget			m_HeliBatteryLight;
 	protected ImageWidget			m_HeliEngineLight;
 	
-	protected Widget				m_LegacyPanel;
-	protected ImageWidget			m_LegacyIcon;
-	protected TextWidget			m_LegacyLabel;
+	protected Widget				m_InfoPanel;
+	protected ImageWidget			m_InfoIcon;
+	protected TextWidget			m_InfoLabel;
 
 	protected Widget				m_HeliShieldPanel;
 	protected ImageWidget			m_HeliShieldIcon;
@@ -66,7 +66,10 @@ class ExpansionHelicopterHud : VehicleHudBase
 	
 	protected Widget				m_HeliVortexPanel;
 	protected TextWidget			m_HeliVortexIcon;
+
 	protected Widget				m_HeliAutoHoverPanel;
+	protected Widget				m_HeliAutoCollectivePanel;
+
 	protected TextWidget			m_HeliOutdoorTempValue;
 	
 	protected Widget				m_HeliPitchLine;
@@ -144,9 +147,9 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliHydraulicFluidLight = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("HydraulicFluidLight"));
 		m_HeliHydraulicFluidLight1 = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("HydraulicFluidLight1"));
 
-		m_LegacyPanel = m_VehiclePanel.FindAnyWidget("LegacyPanel");
-		m_LegacyIcon = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("LegacyIcon"));
-		m_LegacyLabel = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("LegacyLabel"));
+		m_InfoPanel = m_VehiclePanel.FindAnyWidget("InfoPanel");
+		m_InfoIcon = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("InfoIcon"));
+		m_InfoLabel = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("InfoLabel"));
 		
 		m_HeliShieldPanel = m_VehiclePanel.FindAnyWidget("ShieldIndicator");
 		m_HeliShieldIcon = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("ShieldIcon"));
@@ -157,7 +160,10 @@ class ExpansionHelicopterHud : VehicleHudBase
 		
 		m_HeliVortexPanel = m_VehiclePanel.FindAnyWidget("VortexIndicator");
 		m_HeliVortexIcon = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("VortexIcon"));
+
 		m_HeliAutoHoverPanel = m_VehiclePanel.FindAnyWidget("AutoHoverIndicator");
+		m_HeliAutoCollectivePanel = m_VehiclePanel.FindAnyWidget("AutoCollectiveIndicator");
+
 		m_HeliOutdoorTempValue = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("OutdoorTempValue"));
 
 		m_HeliClimbPanel = m_VehiclePanel.FindAnyWidget("ClimbPanel");
@@ -213,18 +219,75 @@ class ExpansionHelicopterHud : VehicleHudBase
 
 		bool legacySim = m_CurrentHelicopter.m_Simulation.m_SimulationMode != ExpansionHelicopterSimulationMode.RotorDisk;
 		bool legacyAirFriction = m_CurrentHelicopter.m_Simulation.m_AirFrictionMode != ExpansionHelicopterSimulationAirFrictionMode.Balanced;
+		bool manualTrim = !m_CurrentHelicopter.m_Simulation.m_AutoTrim;
+		string infoText;
 
-		m_LegacyPanel.Show(legacySim || legacyAirFriction);
+		if (legacySim || legacyAirFriction)
+			infoText = "LEGACY ";
+
+		if (manualTrim)
+		{
+			infoText += "MANUAL TRIM";
+
+			float trim;
+
+			trim += m_CurrentHelicopter.m_Simulation.m_CyclicForwardTrim;
+			trim += m_CurrentHelicopter.m_Simulation.m_CyclicBackwardTrim;
+			trim += m_CurrentHelicopter.m_Simulation.m_CyclicLeftTrim;
+			trim += m_CurrentHelicopter.m_Simulation.m_CyclicRightTrim;
+			trim += m_CurrentHelicopter.m_Simulation.m_AntiTorqueLeftTrim;
+			trim += m_CurrentHelicopter.m_Simulation.m_AntiTorqueRightTrim;
+
+			if (trim != 0)
+				infoText += " SET";
+
+		#ifndef DIAG_DEVELOPER
+			m_InfoLabel.SetText(infoText);
+		#endif
+		}
+	#ifndef DIAG_DEVELOPER
+		else if (legacySim || legacyAirFriction)
+		{
+			m_InfoLabel.SetText(infoText);
+		}
+
+		m_InfoPanel.Show(legacySim || legacyAirFriction || manualTrim);
+	#else
+		m_InfoPanel.Show(true);
+
+		auto pState = m_CurrentHelicopter.m_State;
+		float angularPitch = m_CurrentHelicopter.m_State.m_AngularVelocityMS[0];
+		float angularYaw = m_CurrentHelicopter.m_State.m_AngularVelocityMS[1];
+		float angularRoll = m_CurrentHelicopter.m_State.m_AngularVelocityMS[2];
+		string angularLabel = " ";
+
+		if (Math.AbsFloat(angularYaw) > Math.AbsFloat(angularRoll) && Math.AbsFloat(angularYaw) > Math.AbsFloat(angularPitch))
+			angularLabel += (Math.Round(angularYaw * 1000) / 1000).ToString(false) + " Y";
+		else if (Math.AbsFloat(angularPitch) > Math.AbsFloat(angularRoll))
+			angularLabel += (Math.Round(angularPitch * 1000) / 1000).ToString(false) + " P";
+		else
+			angularLabel += (Math.Round(angularRoll * 1000) / 1000).ToString(false) + " R";
+
+		angularLabel.Replace("000 ", " ");
+		angularLabel.Replace("-0.", "−0.");
+		angularLabel.Replace("-1.", "−1.");
+		angularLabel.Replace(" 0.", " +0.");
+		angularLabel.Replace(" 1.", " +1.");
+
+		infoText += angularLabel;
+
+		m_InfoLabel.SetText(infoText);
+	#endif
 
 		if (legacySim != legacyAirFriction)
 		{
-			m_LegacyIcon.SetColor(VORTEX_WARNING_COLOR);
-			m_LegacyLabel.SetColor(VORTEX_WARNING_COLOR);
+			m_InfoIcon.SetColor(VORTEX_WARNING_COLOR);
+			m_InfoLabel.SetColor(VORTEX_WARNING_COLOR);
 		}
 		else
 		{
-			m_LegacyIcon.SetColor(COLOR_WHITE);
-			m_LegacyLabel.SetColor(COLOR_WHITE);
+			m_InfoIcon.SetColor(COLOR_WHITE);
+			m_InfoLabel.SetColor(COLOR_WHITE);
 		}
 
 		//! altimeter
@@ -265,9 +328,13 @@ class ExpansionHelicopterHud : VehicleHudBase
 			m_HeliThrustProgressBar.SetColor(COLOR_WHITE);
 		}
 
-		m_HeliAutoHoverPanel.Show(m_CurrentHelicopter.IsAutoHover());
+		bool autoHover = m_CurrentHelicopter.IsAutoHover();
+		bool autoCollective = m_CurrentHelicopter.m_Simulation.m_AutoCollective;
 
-		if (m_CurrentHelicopter.IsAutoHover() && (m_CurrentHelicopter.m_Simulation.m_RotorSpeedTarget > 0 || m_CurrentHelicopter.m_Simulation.m_RotorSpeed == 0))
+		m_HeliAutoHoverPanel.Show(autoHover);
+		m_HeliAutoCollectivePanel.Show(!autoHover && autoCollective);
+
+		if (autoHover && (m_CurrentHelicopter.m_Simulation.m_RotorSpeedTarget > 0 || m_CurrentHelicopter.m_Simulation.m_RotorSpeed == 0))
 		{
 			m_HeliALTValue.SetText(Math.Round(altValue).ToString() + "/" + Math.Round(m_CurrentHelicopter.GetAutoHoverTargetHeight()).ToString());
 		}
@@ -418,7 +485,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 
 		if (effectiveThrustDiff > 0)
 		{
-			thrust = effectiveThrustPct.ToString() + "+" + effectiveThrustDiff.ToString();
+			thrust += "-" + effectiveThrustDiff.ToString();
 			m_HeliThrustValue.SetColor(0xfffff000);
 		}
 		else

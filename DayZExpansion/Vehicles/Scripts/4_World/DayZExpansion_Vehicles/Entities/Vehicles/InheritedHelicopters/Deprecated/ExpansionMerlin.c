@@ -306,20 +306,15 @@ class ExpansionMerlin : ExpansionHelicopterScript
 
 	override void OnDebugSpawn()
 	{
-		EntityAI entity;
+		GetInventory().CreateInInventory("ExpansionMerlinFrontWheel");
+		GetInventory().CreateInInventory("ExpansionMerlinFrontWheel");
+		GetInventory().CreateInInventory("ExpansionMerlinBackWheel");
+		GetInventory().CreateInInventory("ExpansionMerlinBackWheel");
 
-		if (Class.CastTo(entity, this))
-		{
-			entity.GetInventory().CreateInInventory("ExpansionMerlinFrontWheel");
-			entity.GetInventory().CreateInInventory("ExpansionMerlinFrontWheel");
-			entity.GetInventory().CreateInInventory("ExpansionMerlinBackWheel");
-			entity.GetInventory().CreateInInventory("ExpansionMerlinBackWheel");
-
-			entity.GetInventory().CreateInInventory("ExpansionHydraulicHoses");
-			entity.GetInventory().CreateInInventory("ExpansionIgniterPlug");
-			entity.GetInventory().CreateInInventory("ExpansionHelicopterBattery");
-			entity.GetInventory().CreateInInventory("HeadlightH7");
-		}
+		GetInventory().CreateInInventory("ExpansionHydraulicHoses");
+		GetInventory().CreateInInventory("ExpansionIgniterPlug");
+		GetInventory().CreateInInventory("ExpansionHelicopterBattery");
+		GetInventory().CreateInInventory("HeadlightH7");
 
 		Fill(CarFluid.FUEL, 50);
 		Fill(CarFluid.COOLANT, 6.0);

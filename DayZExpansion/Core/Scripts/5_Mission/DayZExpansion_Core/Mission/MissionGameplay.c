@@ -44,28 +44,6 @@ modded class MissionGameplay
 
 		GetUApi().UpdateControls();
 	}
-	
-	// ------------------------------------------------------------
-	// Override PlayerControlDisable
-	// ------------------------------------------------------------
-	override void PlayerControlDisable(int mode)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "PlayerControlDisable");
-#endif
-	
-		switch (mode)
-		{
-			case INPUT_EXCLUDE_ALL:
-			{
-				GetUApi().ActivateExclude("menuexpansion");
-				GetUApi().UpdateControls();
-				break;
-			}
-		}
-		
-		super.PlayerControlDisable(mode);
-	}
 
 	// ------------------------------------------------------------
 	// OnUpdate

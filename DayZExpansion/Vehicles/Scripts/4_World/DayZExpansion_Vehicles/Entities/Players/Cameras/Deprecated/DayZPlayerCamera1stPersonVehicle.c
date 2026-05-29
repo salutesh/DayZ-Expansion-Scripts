@@ -13,16 +13,60 @@
 #ifdef EXPANSION_OBSOLETE_CAMERA
 modded class DayZPlayerCamera1stPersonVehicle
 {
+	void DayZPlayerCamera1stPersonVehicle(DayZPlayer pPlayer, HumanInputController pInput)
+	{
+		m_Expansion_CameraHandler = new ExpansionCameraHandler(this);
+	}
+
 	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "OnUpdate").Add(pDt);
 #endif
 
+		IEntity parent = m_Ex_Player.Expansion_GetParent();
+
+		m_Expansion_CameraHandler.OnUpdate(pDt, m_fLeftRightAngle, m_fLeftRightAngleAdd, m_fUpDownAngle, m_fUpDownAngleAdd);
+
+		bool isFreeLook = true;
+		bool isHeliParent = false;
+
+		ExpansionVehicleHelicopter_OLD simulation;
+		ExpansionPhysicsState physicsState;
+
+		ExpansionHelicopterScript d_heli;
+		if ( Class.CastTo( d_heli, parent ) )
+		{
+			isHeliParent = true;
+			isFreeLook = d_heli.IsFreeLook();
+
+			simulation = d_heli.m_Simulation;
+			physicsState = d_heli.m_State;
+		}
+
+		ExpansionVehicleHelicopterBase heli;
+		if ( Class.CastTo( heli, parent ) )
+		{
+			isHeliParent = true;
+			isFreeLook = heli.IsFreeLook();
+
+			physicsState = heli.m_State;
+		}
+
+		if (simulation)
+		{
+			if (simulation.m_VRSSeverity > 0.0)
+			{
+				float shakeStrength = physicsState.m_LinearVelocity[1] / -30.0 * simulation.m_VRSSeverity;
+				m_fLeftRightAngleAdd += Math.RandomFloat(-shakeStrength, shakeStrength);
+				m_fUpDownAngleAdd += Math.RandomFloat(-shakeStrength, shakeStrength);
+			}
+		}
+
 		super.OnUpdate( pDt, pOutResult );
-		
+
 		ExpansionVehicleBase exVehicle;
-		m_bForceFreeLook = Class.CastTo( exVehicle, m_Ex_Player.Expansion_GetParent() );
+		m_bForceFreeLook = Class.CastTo( exVehicle, parent );
 		m_bForceFreeLook = false;
 		
 		pOutResult.m_fUseHeading			= 0.0;
@@ -35,23 +79,6 @@ modded class DayZPlayerCamera1stPersonVehicle
 		} else
 		{
 			m_Ex_Player.SetHeadInvisible_Ex( false );
-		}
-
-		bool isFreeLook = true;
-		bool isHeliParent = false;
-
-		ExpansionHelicopterScript d_heli;
-		if ( Class.CastTo( d_heli, m_Ex_Player.Expansion_GetParent() ) )
-		{
-			isHeliParent = true;
-			isFreeLook = d_heli.IsFreeLook();
-		}
-
-		ExpansionVehicleHelicopterBase heli;
-		if ( Class.CastTo( heli, m_Ex_Player.Expansion_GetParent() ) )
-		{
-			isHeliParent = true;
-			isFreeLook = heli.IsFreeLook();
 		}
 
 		m_ExIsFreeLook = isFreeLook;

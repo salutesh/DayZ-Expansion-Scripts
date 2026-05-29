@@ -630,28 +630,27 @@ class ExpansionUAZ: CarScript
 
 	override void OnDebugSpawn()
 	{
-		EntityAI entity;
+		GetInventory().CreateInInventory("ExpansionUAZWheel");
+		GetInventory().CreateInInventory("ExpansionUAZWheel");
+		GetInventory().CreateInInventory("ExpansionUAZWheel");
+		GetInventory().CreateInInventory("ExpansionUAZWheel");
 
-		if (Class.CastTo(entity, this))
-		{
-			entity.GetInventory().CreateInInventory("ExpansionUAZWheel");
-			entity.GetInventory().CreateInInventory("ExpansionUAZWheel");
-			entity.GetInventory().CreateInInventory("ExpansionUAZWheel");
-			entity.GetInventory().CreateInInventory("ExpansionUAZWheel");
+		GetInventory().CreateInInventory("CarBattery");
+		GetInventory().CreateInInventory("SparkPlug");
+		GetInventory().CreateInInventory("CarRadiator");
 
-			entity.GetInventory().CreateInInventory("CarBattery");
-			entity.GetInventory().CreateInInventory("SparkPlug");
-			entity.GetInventory().CreateInInventory("CarRadiator");
+		string skinName = ConfigGetString("skinName");
+		if (skinName)
+			skinName = "_" + skinName;
 
-			entity.GetInventory().CreateInInventory("ExpansionUAZDoorDriver");
-			entity.GetInventory().CreateInInventory("ExpansionUAZDoorCoDriver");
-			entity.GetInventory().CreateInInventory("ExpansionUAZDoorCargo1");
-			entity.GetInventory().CreateInInventory("ExpansionUAZDoorCargo2");
-			entity.GetInventory().CreateInInventory("ExpansionUAZDoorHood");
+		GetInventory().CreateInInventory("ExpansionUAZDoorDriver" + skinName);
+		GetInventory().CreateInInventory("ExpansionUAZDoorCoDriver" + skinName);
+		GetInventory().CreateInInventory("ExpansionUAZDoorCargo1" + skinName);
+		GetInventory().CreateInInventory("ExpansionUAZDoorCargo2" + skinName);
+		GetInventory().CreateInInventory("ExpansionUAZDoorHood" + skinName);
 
-			entity.GetInventory().CreateInInventory("HeadlightH7");
-			entity.GetInventory().CreateInInventory("HeadlightH7");
-		}
+		GetInventory().CreateInInventory("HeadlightH7");
+		GetInventory().CreateInInventory("HeadlightH7");
 
 		Fill(CarFluid.FUEL, 50);
 		Fill(CarFluid.COOLANT, 6.0);

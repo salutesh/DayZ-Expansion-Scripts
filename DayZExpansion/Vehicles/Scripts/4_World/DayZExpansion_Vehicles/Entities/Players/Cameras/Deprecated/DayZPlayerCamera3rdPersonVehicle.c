@@ -33,20 +33,24 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "DayZPlayerCamera3rdPersonVehicle").Add(pPlayer).Add(pInput);
 #endif
 
+		IEntity parent = m_Ex_Player.Expansion_GetParent();
+
 		m_ExUpDownLockedAngle = -10;
 		
 		ExpansionVehicleBase expVehicle;
-		if ( Class.CastTo( expVehicle, m_Ex_Player.Expansion_GetParent() ) )
+		if ( Class.CastTo( expVehicle, parent ) )
 		{
 			m_fDistance 					= expVehicle.GetTransportCameraDistance();
 			m_CameraOffsetMS				= expVehicle.GetTransportCameraOffset();
 		}
 		CarScript vehicle;
-		if ( Class.CastTo( vehicle, m_Ex_Player.Expansion_GetParent() ) )
+		if ( Class.CastTo( vehicle, parent ) )
 		{
 			m_fDistance 					= vehicle.GetTransportCameraDistance();
 			m_CameraOffsetMS				= vehicle.GetTransportCameraOffset();
 		}
+
+		m_Expansion_CameraHandler = new ExpansionCameraHandler(this);
 	}
 	
 	override void OnActivate( DayZPlayerCamera pPrevCamera, DayZPlayerCameraResult pPrevCameraResult )
@@ -72,14 +76,18 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "OnUpdate").Add(pDt);
 #endif
 
+		IEntity parent = m_Ex_Player.Expansion_GetParent();
+
+		m_Expansion_CameraHandler.OnUpdate(pDt, m_fLeftRightAngle, m_fLeftRightAngleAdd, m_fUpDownAngle, m_fUpDownAngleAdd);
+
 		ExpansionVehicleBase exVehicle;
-		m_bForceFreeLook = Class.CastTo( exVehicle, m_Ex_Player.Expansion_GetParent() );
+		m_bForceFreeLook = Class.CastTo( exVehicle, parent );
 
 		super.OnUpdate( pDt, pOutResult );
 
 		m_Ex_Player.SetHeadInvisible_Ex( false );
 
-		pOutResult.m_CollisionIgnoreEntity = m_Ex_Player.Expansion_GetParent();
+		pOutResult.m_CollisionIgnoreEntity = parent;
 
 		ExpansionVehicleBase vehicle;
 		if ( Class.CastTo( vehicle, pOutResult.m_CollisionIgnoreEntity ) )
@@ -91,7 +99,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		}
 
 		EntityAI entParent;
-		if ( !Class.CastTo( entParent, m_Ex_Player.Expansion_GetParent() ) )
+		if ( !Class.CastTo( entParent, parent ) )
 			return;
 
 		bool freelook = true;
@@ -99,7 +107,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		auto hcv = m_Ex_Player.GetCommand_Vehicle();
 
 		ExpansionHelicopterScript d_helicopter;
-		if (hcv && Class.CastTo(d_helicopter, m_Ex_Player.Expansion_GetParent()))
+		if (hcv && Class.CastTo(d_helicopter, parent))
 		{
 			if (hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 				freelook = d_helicopter.IsFreeLook();
@@ -111,7 +119,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		auto ehcv = m_Ex_Player.GetCommand_ExpansionVehicle();
 
 		ExpansionVehicleHelicopterBase helicopter;
-		if (ehcv && Class.CastTo(helicopter, m_Ex_Player.Expansion_GetParent()))
+		if (ehcv && Class.CastTo(helicopter, parent))
 		{
 			if (ehcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 				freelook = helicopter.IsFreeLook();

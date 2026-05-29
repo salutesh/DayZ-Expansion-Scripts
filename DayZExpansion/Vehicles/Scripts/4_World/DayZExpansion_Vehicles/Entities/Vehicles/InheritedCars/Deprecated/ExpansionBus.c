@@ -721,21 +721,16 @@ class ExpansionBus: CarScript
 
 	override void OnDebugSpawn()
 	{
-		EntityAI entity;
+		GetInventory().CreateInInventory("ExpansionBusWheel");
+		GetInventory().CreateInInventory("ExpansionBusWheel");
+		GetInventory().CreateInInventory("ExpansionBusWheelDouble");
+		GetInventory().CreateInInventory("ExpansionBusWheelDouble");
 
-		if (Class.CastTo(entity, this))
-		{
-			entity.GetInventory().CreateInInventory("ExpansionBusWheel");
-			entity.GetInventory().CreateInInventory("ExpansionBusWheel");
-			entity.GetInventory().CreateInInventory("ExpansionBusWheelDouble");
-			entity.GetInventory().CreateInInventory("ExpansionBusWheelDouble");
-
-			entity.GetInventory().CreateInInventory("TruckBattery");
-			entity.GetInventory().CreateInInventory("GlowPlug");
-			entity.GetInventory().CreateInInventory("CarRadiator");
-			entity.GetInventory().CreateInInventory("HeadlightH7");
-			entity.GetInventory().CreateInInventory("HeadlightH7");		
-		}
+		GetInventory().CreateInInventory("TruckBattery");
+		GetInventory().CreateInInventory("GlowPlug");
+		GetInventory().CreateInInventory("CarRadiator");
+		GetInventory().CreateInInventory("HeadlightH7");
+		GetInventory().CreateInInventory("HeadlightH7");
 
 		Fill(CarFluid.FUEL, 50);
 		Fill(CarFluid.COOLANT, 6.0);

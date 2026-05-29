@@ -16,6 +16,7 @@ modded class DayZPlayerCameraBase
 	bool m_Ex_ForceHideHead;
 	bool m_Ex_PreviousForceHideHead;
 	bool m_ExIsFreeLook = true;
+	ref ExpansionCameraHandler m_Expansion_CameraHandler;
 
 	void DayZPlayerCameraBase(DayZPlayer pPlayer, HumanInputController pInput)
 	{

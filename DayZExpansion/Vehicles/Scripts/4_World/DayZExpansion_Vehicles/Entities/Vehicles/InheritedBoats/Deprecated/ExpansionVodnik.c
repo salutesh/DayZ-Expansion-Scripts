@@ -678,25 +678,20 @@ class ExpansionVodnik: ExpansionBoatScript
 
 	override void OnDebugSpawn()
 	{
-		EntityAI entity;
+		GetInventory().CreateInInventory("ExpansionVodnikWheel");
+		GetInventory().CreateInInventory("ExpansionVodnikWheel");
+		GetInventory().CreateInInventory("ExpansionVodnikWheel");
+		GetInventory().CreateInInventory("ExpansionVodnikWheel");
 
-		if (Class.CastTo(entity, this))
-		{
-			entity.GetInventory().CreateInInventory("ExpansionVodnikWheel");
-			entity.GetInventory().CreateInInventory("ExpansionVodnikWheel");
-			entity.GetInventory().CreateInInventory("ExpansionVodnikWheel");
-			entity.GetInventory().CreateInInventory("ExpansionVodnikWheel");
+		GetInventory().CreateInInventory("TruckBattery");
+		GetInventory().CreateInInventory("SparkPlug");
+		GetInventory().CreateInInventory("CarRadiator");
 
-			entity.GetInventory().CreateInInventory("TruckBattery");
-			entity.GetInventory().CreateInInventory("SparkPlug");
-			entity.GetInventory().CreateInInventory("CarRadiator");
+		GetInventory().CreateInInventory("ExpansionVodnikDoorDriver");
+		GetInventory().CreateInInventory("ExpansionVodnikDoorCoDriver");
 
-			entity.GetInventory().CreateInInventory("ExpansionVodnikDoorDriver");
-			entity.GetInventory().CreateInInventory("ExpansionVodnikDoorCoDriver");
-
-			entity.GetInventory().CreateInInventory("HeadlightH7");
-			entity.GetInventory().CreateInInventory("HeadlightH7");
-		}
+		GetInventory().CreateInInventory("HeadlightH7");
+		GetInventory().CreateInInventory("HeadlightH7");
 
 		Fill(CarFluid.FUEL, 50);
 		Fill(CarFluid.COOLANT, 6.0);

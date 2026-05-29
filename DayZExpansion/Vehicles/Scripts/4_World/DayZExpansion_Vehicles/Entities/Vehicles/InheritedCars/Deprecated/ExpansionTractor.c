@@ -417,23 +417,18 @@ class ExpansionTractor: CarScript
 
 	override void OnDebugSpawn()
 	{
-		EntityAI entity;
+		GetInventory().CreateInInventory("ExpansionTractorFrontWheel");
+		GetInventory().CreateInInventory("ExpansionTractorFrontWheel");
+		GetInventory().CreateInInventory("ExpansionTractorBackWheel");
+		GetInventory().CreateInInventory("ExpansionTractorBackWheel");
 
-		if (Class.CastTo(entity, this))
-		{
-			entity.GetInventory().CreateInInventory("ExpansionTractorFrontWheel");
-			entity.GetInventory().CreateInInventory("ExpansionTractorFrontWheel");
-			entity.GetInventory().CreateInInventory("ExpansionTractorBackWheel");
-			entity.GetInventory().CreateInInventory("ExpansionTractorBackWheel");
+		GetInventory().CreateInInventory("ExpansionTractorDoorsDriver");
+		GetInventory().CreateInInventory("ExpansionTractorDoorsCodriver");
 
-			entity.GetInventory().CreateInInventory("ExpansionTractorDoorsDriver");
-			entity.GetInventory().CreateInInventory("ExpansionTractorDoorsCodriver");
-
-			entity.GetInventory().CreateInInventory("CarBattery");
-			entity.GetInventory().CreateInInventory("SparkPlug");
-			entity.GetInventory().CreateInInventory("HeadlightH7");
-			entity.GetInventory().CreateInInventory("HeadlightH7");		
-		}
+		GetInventory().CreateInInventory("CarBattery");
+		GetInventory().CreateInInventory("SparkPlug");
+		GetInventory().CreateInInventory("HeadlightH7");
+		GetInventory().CreateInInventory("HeadlightH7");
 
 		Fill(CarFluid.FUEL, 50);
 		Fill(CarFluid.COOLANT, 6.0);

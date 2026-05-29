@@ -1145,7 +1145,7 @@ class eAIBase: PlayerBase
 				case ExpansionFireMode.FullAuto:
 					Magazine mag;
 					if (Class.CastTo(mag, weapon.GetMagazine(weapon.GetCurrentMuzzle())))
-						burst = mag.GetAmmoMax() * 0.25;
+						burst =  Math.Ceil(mag.GetAmmoMax() * Math.RandomFloat(0.2, 0.3));
 					break;
 			}
 
@@ -1153,8 +1153,8 @@ class eAIBase: PlayerBase
 
 			if (burst > 1)
 			{
-				if (m_eAI_DistanceToTargetSq < 200)
-					m_eAI_QueuedShots = Math.Ceil(((200 - m_eAI_DistanceToTargetSq) / 200) * burst);
+				if (m_eAI_DistanceToTargetSq < 3600)
+					m_eAI_QueuedShots = Math.Ceil((1.0 - (m_eAI_DistanceToTargetSq / 3600)) * burst);
 			}
 		}
 

@@ -99,4 +99,17 @@ class ExpansionAINoGoAreaTrigger: CylinderTrigger
 				ai.Expansion_OnDangerousAreaExitServer(m_Expansion_EffectArea, this);
 		}
 	}
+	
+#ifdef DIAG_DEVELOPER
+	override protected Shape DrawDebugShape(vector pos, vector min, vector max, float radius, int color)
+	{
+		float height = (max[1] - min[1]);
+		pos[1] = pos[1] + height * 0.5;
+
+		Shape dbgShape = Debug.DrawCylinder(pos, radius, height, color, ShapeFlags.TRANSP | ShapeFlags.NOZWRITE | ShapeFlags.DOUBLESIDE);
+		dbgTargets.Insert(dbgShape);
+
+		return dbgShape;
+	}
+#endif
 }
