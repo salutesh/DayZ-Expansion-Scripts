@@ -833,13 +833,14 @@ class ExpansionHelicopterScript: CarScript
 			//! Large helis have stronger wind noise
 
 			float fwdSpeedRel = Math.Min(Math.AbsFloat(m_State.m_LinearVelocityMS[2]) / m_State.m_MaxSpeedMS, 1.0);
-			float vertSpeedRel = Math.Min(Math.AbsFloat(m_State.m_LinearVelocityMS[1]) / 15.0, 1.0);
+			fwdSpeedRel += 0.5 * fwdSpeedRel * Math.Pow(1.0 - fwdSpeedRel, 2);  //! "Bump" at lower speed
+			float vertSpeedRel = Math.Min(Math.AbsFloat(m_State.m_LinearVelocity[1]) / 15.0, 1.0);
 			float sideSpeedRel = Math.Min(Math.AbsFloat(m_State.m_LinearVelocityMS[0]) / (m_State.m_MaxSpeedMS * 0.4), 1.0);
 			float sizeCoef = Math.Min(m_State.m_BoundingRadius / m_Simulation.REFERENCE_BOUNDING_RADIUS * 1.25, 1.5);
 
-			vertSpeedRel *= 0.5 + m_Simulation.m_VRSSeverity * 1.5;
-			windVolume = Math.Min((fwdSpeedRel * 0.5 + vertSpeedRel + sideSpeedRel * 0.5) * sizeCoef, 1.5);
-			windFrequency = Math.Clamp(fwdSpeedRel + vertSpeedRel + sideSpeedRel, 0.6, 2.0);
+			vertSpeedRel *= Math.Lerp(0.5, 0, fwdSpeedRel) + m_Simulation.m_VRSSeverity * 1.5;
+			windVolume = Math.Clamp((fwdSpeedRel * 0.75 + vertSpeedRel + sideSpeedRel * 0.5) * sizeCoef, 0, 1.5);
+			windFrequency = Math.Clamp(fwdSpeedRel * 1.5 + vertSpeedRel + sideSpeedRel * 0.5, 0.6, 2.0);
 
 			if (!player.IsCameraInsideVehicle())
 			{

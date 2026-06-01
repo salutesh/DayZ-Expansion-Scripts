@@ -391,9 +391,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	float m_VRSAirspeedThreshold = 8.0;  //! m/s (~16kt) - below ETL, VRS possible
 	float m_VRSThrustLossMax = 0.55;    //! Max thrust reduction in deep VRS (55% loss)
 	float m_VRSSeverity;
-#ifdef DIAG_DEVELOPER
 	float m_VRSBeginAltitude;
-#endif
 
 	//! Ground Effect - within ~1 rotor diameter (MH-6 ~8m dia, use bounding radius)
 	float m_GroundEffectRadius = 1.2;    //! Multiplier of bounding radius for ground effect zone
@@ -1387,7 +1385,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 					float fwd = pState.m_LinearVelocityMS[2];
 					float side = pState.m_LinearVelocityMS[0];
 
-					if (m_VRSSeverity > 0.1)
+					if (m_VRSSeverity > 0.1 || (m_VRSSeverity > 0 && m_VRSBeginAltitude != 0))
 					{
 						//! Attempt automatic recovery if in VRS
 						
@@ -1404,10 +1402,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 							m_MainRotorSpeedTarget = 0.01;  //! lower collective if fwd/bwd recovery
 						}
 
-					#ifdef DIAG_DEVELOPER
 						if (m_VRSBeginAltitude == 0)
 							m_VRSBeginAltitude = pState.m_Transform[3][1];
-					#endif
 					}
 					else
 					{
@@ -1415,14 +1411,14 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 						if (m_OverrideTailForce && ((Math.AbsFloat(m_Bank) < 0.01 && Math.AbsFloat(side) < 1.388) || Math.AbsFloat(m_CyclicForwardInputVal) > 0.01 || Math.AbsFloat(m_CyclicSideInputVal) > 0.01 || Math.AbsFloat(m_BackRotorSpeedTarget) > 0.01))
 							m_OverrideTailForce = false;
 
-					#ifdef DIAG_DEVELOPER
 						if (m_VRSBeginAltitude != 0)
 						{
+						#ifdef DIAG_DEVELOPER
 							float vrsAltitudeLoss = m_VRSBeginAltitude - pState.m_Transform[3][1];
 							EXPrint(m_Helicopter, "VRS altitude loss: " + vrsAltitudeLoss);
+						#endif
 							m_VRSBeginAltitude = 0;
 						}
-					#endif
 					}
 				}
 				else

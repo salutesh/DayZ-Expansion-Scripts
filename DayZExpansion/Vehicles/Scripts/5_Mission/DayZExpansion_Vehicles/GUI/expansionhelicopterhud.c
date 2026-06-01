@@ -506,12 +506,6 @@ class ExpansionHelicopterHud : VehicleHudBase
 		//! outdoor temperature
 		//float temperature = g_Game.GetMission().GetWorldData().GetBaseEnvTemperatureAtObject(m_CurrentHelicopter);
 		//m_HeliOutdoorTempValue.SetText("Temp:" + Math.Floor(temperature).ToString() + "C");
-		
-		//! speed
-		float speed = m_CurrentHelicopter.GetSpeedometer();
-		float speedValue = Math.AbsFloat(speed / 400);
-		//m_HeliSpeedPointer.SetRotation(0, 0, speedValue * 360 - 130, true);
-		m_HeliSpeedValue.SetText(Math.Round(speed).ToString());
 
 		vector transform[4];
 		m_CurrentHelicopter.GetTransform(transform);
@@ -521,6 +515,20 @@ class ExpansionHelicopterHud : VehicleHudBase
 		transform[0] = -dir.Perpend();  //! Eliminate roll
 		transform[2] = dir;
 		vector velocity = m_CurrentHelicopter.m_State.m_LinearVelocity.InvMultiply3(transform);
+
+		float fwdSpeed = velocity[2];
+		float fwdSpeedMS = m_CurrentHelicopter.m_State.m_LinearVelocityMS[2];
+
+		//! Groundspeed forward or local forward (whichever is higher)
+		float speed;
+		if (Math.AbsFloat(fwdSpeed) > Math.AbsFloat(fwdSpeedMS))
+			speed = fwdSpeed * 3.6;
+		else
+			speed = fwdSpeedMS * 3.6;
+		//m_HeliSpeedPointer.SetRotation(0, 0, Math.AbsFloat(speed / 400) * 360 - 130, true);
+		m_HeliSpeedValue.SetText(Math.Round(speed).ToString());
+
+		//! Groundspeed side (horizontal)
 		float sideSpeed = Math.Round(velocity[0] * 3.6);
 		float sideSpeedAbs = Math.AbsFloat(sideSpeed);
 		string speedValueH;
