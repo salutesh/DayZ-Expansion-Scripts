@@ -42,6 +42,9 @@ class ExpansionClientSettings
 	bool DisableAutoTrim;
 	bool UseLegacyHelicopterFlightModel;  //! Obsolete
 
+	bool ToggleVehicleHudOnHudToggle;
+	bool DisableFlightPathMarker;
+
 	// ================= Video Settings =================
 	bool CastLightShadows;
 
@@ -844,6 +847,21 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read DisableAutoTrim!");
 			return false;
 		}
+		
+		if (version < 60)
+			return true;
+
+		if (!ctx.Read(ToggleVehicleHudOnHudToggle))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ToggleVehicleHudOnHudToggle!");
+			return false;
+		}
+
+		if (!ctx.Read(DisableFlightPathMarker))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read DisableFlightPathMarker!");
+			return false;
+		}
 
 		return true;
 	}
@@ -998,6 +1016,10 @@ class ExpansionClientSettings
 		//! v59
 		ctx.Write( EnableTranslatingTendency );
 		ctx.Write( DisableAutoTrim );
+
+		//! v60
+		ctx.Write(ToggleVehicleHudOnHudToggle);
+		ctx.Write(DisableFlightPathMarker);
 	}
 
 	// -----------------------------------------------------------
@@ -1332,6 +1354,10 @@ class ExpansionClientSettings
 
 		//! Option to toggle the vehicle camera
 		//CreateToggle( "UseCameraLock", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_FREELOOK", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_FREELOOK_DESC" );
+
+		CreateToggle( "ToggleVehicleHudOnHudToggle", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_TOGGLE_VEHICLE_HUD_ON_HUD_TOGGLE", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_TOGGLE_VEHICLE_HUD_ON_HUD_TOGGLE_DESC" );
+
+		CreateToggle( "DisableFlightPathMarker", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_DISABLE_FLIGHT_PATH_MARKER", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_DISABLE_FLIGHT_PATH_MARKER_DESC" );
 
 		//! Option to change vehicle camera height
 		CreateSlider( "VehicleCameraHeight", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_CAMERA_HEIGHT", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_CAMERA_HEIGHT_DESC", 0.5, 10.0, 0.1 );

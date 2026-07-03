@@ -14,8 +14,6 @@
 
 //#define EXPANSION_VEHICLE_DOOR_JOINTS
 
-#define EXPANSION_HELI_WIND
-
 //#define EXPANSION_WHEEL_DEBUG_DISABLE
 
 #define EXPANSION_UNIVERSAL_WHEEL_DISABLE
@@ -43,5 +41,3 @@
 #ifdef SERVER //! Don't comment these, diag exe server crashes
 #define EXPANSION_WHEEL_DEBUG_DISABLE
 #endif
-
-#define EXPANSION_OBSOLETE_CAMERA

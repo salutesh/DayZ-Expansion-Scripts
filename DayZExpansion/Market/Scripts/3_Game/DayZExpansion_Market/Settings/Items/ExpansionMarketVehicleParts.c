@@ -29,6 +29,7 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 	#ifdef EXPANSIONMODVEHICLE
 		AddItem("ExpansionIgniterPlug", 					680, 	1135,	1,		100);
 		AddItem("ExpansionHydraulicHoses", 					610, 	1015,	1,		100);
+		AddItem("ExpansionHydraulicFluid", 250, 500, 1, 100);
 	#endif
 
 		AddItem("hatchbackhood", 	520, 	870,	1,100,null,{"HatchbackHood_Blue","HatchbackHood_BlueRust","HatchbackHood_GreenRust","HatchbackHood_White","HatchbackHood_WhiteRust"});

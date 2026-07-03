@@ -30,9 +30,9 @@ class ExpansionMarketButtstocks: ExpansionMarketCategory
 
 		AddItem("ak74_woodbttstck", 	1280, 	2130,	1,100);
 
-		AddItem("ak_plasticbttstck", 	1280, 	2130,	1,100);
-		AddItem("ak_woodbttstck", 	1280, 	2130,	1,100);
-		AddItem("ak_foldingbttstck", 	1280, 	2130,	1,100);
+		AddItem("ak_plasticbttstck", 	1280, 	2130,	1,100, null, {"AK_PlasticBttstck_Black", "AK_PlasticBttstck_Green"});
+		AddItem("ak_woodbttstck", 	1280, 	2130,	1,100, null, {"AK_WoodBttstck_Black", "AK_WoodBttstck_Camo"});
+		AddItem("ak_foldingbttstck", 	1280, 	2130,	1,100, null, {"AK_FoldingBttstck_Black", "AK_FoldingBttstck_Green"});
 
 		AddItem("m4_oebttstck", 	1280, 	2130,	1,100);
 		AddItem("m4_mpbttstck", 	1280, 	2130,	1,100);

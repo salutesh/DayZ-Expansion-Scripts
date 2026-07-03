@@ -60,7 +60,10 @@ class CfgMods
 			};
 			class imageSets
 			{
-				files[]={};
+				files[]=
+				{
+					"DayZExpansion/Vehicles/GUI/imagesets/sf_team.imageset"
+				};
 			};
 			class engineScriptModule
 			{

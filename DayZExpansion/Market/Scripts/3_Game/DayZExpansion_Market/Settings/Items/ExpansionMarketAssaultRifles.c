@@ -26,6 +26,7 @@ class ExpansionMarketAssaultRifles: ExpansionMarketCategory
 		AddItem("m4a1", 	1225, 	2040,	1,100,{"M4_CarryHandleOptic","Mag_STANAG_30Rnd","M4_OEBttstck","M4_PlasticHndgrd"});
 		AddItem("m16a2", 	2730, 	4550,	1,100,{"Mag_STANAG_30Rnd"});
 		AddItem("famas", 	2730, 	4550,	1,100,{"Mag_FAMAS_25Rnd"});
+		AddItem("SawedoffFAMAS", 800, 1600, 1, 100);
 		
 		AddItem("aug", 	1225, 	2040,	1,100,{"Mag_Aug_30Rnd"});
 		AddItem("augshort", 	2730, 	4550,	1,100,{"Mag_Aug_30Rnd"});

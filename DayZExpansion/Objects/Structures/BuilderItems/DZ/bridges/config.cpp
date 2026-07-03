@@ -40,4 +40,9 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\roads\bridges\bridge_wood_50.p3d";
 	};
+	class bldr_bridge_wood_50_1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\bridges\bridge_wood_50_1.p3d";
+	};
 };

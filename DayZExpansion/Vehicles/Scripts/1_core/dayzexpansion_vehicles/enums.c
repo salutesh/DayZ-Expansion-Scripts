@@ -1,4 +1,4 @@
-//! @note order matters because we rely on it in ExpansionVehicleHelicopter_OLD::Simulate_Common
+//! @note order matters because we rely on it in ExpansionVehicleHelicopter::Simulate_Common
 enum ExpansionHelicopterSimulationMode
 {
 	RotorDisk,

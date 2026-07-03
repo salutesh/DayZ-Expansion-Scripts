@@ -2,8 +2,8 @@
 //! 1.28+
 class ExpansionHelicopterScriptMove : CarScriptMove
 {
-	float m_MainRotorSpeedTarget;
-	float m_BackRotorSpeedTarget;
+	float m_CollectiveTarget;
+	float m_AntiTorqueTarget;
 	
 	float m_CyclicForwardTarget;
 	float m_CyclicSideTarget;
@@ -20,8 +20,8 @@ class ExpansionHelicopterScriptMove : CarScriptMove
 
 		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
 		
-		ctx.Write(m_MainRotorSpeedTarget);
-		ctx.Write(m_BackRotorSpeedTarget);
+		ctx.Write(m_CollectiveTarget);
+		ctx.Write(m_AntiTorqueTarget);
 		ctx.Write(m_CyclicForwardTarget);
 		ctx.Write(m_CyclicSideTarget);
 
@@ -38,8 +38,8 @@ class ExpansionHelicopterScriptMove : CarScriptMove
 
 		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
 		
-		ctx.Read(m_MainRotorSpeedTarget);
-		ctx.Read(m_BackRotorSpeedTarget);
+		ctx.Read(m_CollectiveTarget);
+		ctx.Read(m_AntiTorqueTarget);
 		ctx.Read(m_CyclicForwardTarget);
 		ctx.Read(m_CyclicSideTarget);
 
@@ -63,8 +63,8 @@ class ExpansionHelicopterScriptOwnerState : CarScriptOwnerState
 	float m_RotorSpeed;
 	bool m_EngineState;
 	
-	float m_MainRotorSpeed;
-	float m_BackRotorSpeed;
+	float m_Collective;
+	float m_AntiTorque;
 	
 	float m_Hydraulic;
 	
@@ -81,8 +81,8 @@ class ExpansionHelicopterScriptOwnerState : CarScriptOwnerState
 		
 		ctx.Write(m_RotorSpeed);
 		ctx.Write(m_EngineState);
-		ctx.Write(m_MainRotorSpeed);
-		ctx.Write(m_BackRotorSpeed);
+		ctx.Write(m_Collective);
+		ctx.Write(m_AntiTorque);
 		ctx.Write(m_Hydraulic);
 		ctx.Write(m_CyclicForward);
 		ctx.Write(m_CyclicSide);
@@ -97,8 +97,8 @@ class ExpansionHelicopterScriptOwnerState : CarScriptOwnerState
 		
 		ctx.Read(m_RotorSpeed);
 		ctx.Read(m_EngineState);
-		ctx.Read(m_MainRotorSpeed);
-		ctx.Read(m_BackRotorSpeed);
+		ctx.Read(m_Collective);
+		ctx.Read(m_AntiTorque);
 		ctx.Read(m_Hydraulic);
 		ctx.Read(m_CyclicForward);
 		ctx.Read(m_CyclicSide);
@@ -220,7 +220,7 @@ class ExpansionHelicopterScriptRotor : CollisionOverlapCallback
 	}
 };
 
-class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
+class ExpansionVehicleHelicopter : ExpansionVehicleModule
 {
 	static int HELICOPTER_CONTROLLER_INDEX = 1;
 	const int MAX_CYCLIC_CONTROL_POINTS = 5;
@@ -243,6 +243,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	bool m_AutoTrim = true;  //! Client & server
 	static bool s_TranslatingTendency;  //! Client only
 	bool m_TranslatingTendency;  //! Client & server
+	static bool s_RotorDiskInertia = true;  //! Client only
+	bool m_RotorDiskInertia = true;  //! Client & server
 
 	ExpansionHelicopterScript m_Helicopter;
 
@@ -296,12 +298,15 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	float m_RotorSpeed;
 	float m_RotorSpeedTarget;
 
-	float m_MainRotorInput;
-	float m_MainRotorSpeed;
-	float m_MainRotorSpeedTarget;
+	float m_CollectiveInput;
+	float m_Collective;
+	float m_CollectiveTarget;
+	float m_CollectiveDelta;
+	float m_CollectiveDeltaInterpolated;
+	float m_CollectiveInterpolated;
 
-	float m_BackRotorSpeed;
-	float m_BackRotorSpeedTarget;
+	float m_AntiTorque;
+	float m_AntiTorqueTarget;
 
 	float m_TailRotateFactor;
 
@@ -313,12 +318,12 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	float m_CyclicForward;
 	float m_CyclicForwardTarget;
 	float m_CyclicForwardHydraulicCoef;
-	float m_CyclicForwardInputVal;
+	float m_CyclicForwardInput;
 
 	float m_CyclicSide;
 	float m_CyclicSideTarget;
 	float m_CyclicSideHydraulicCoef;
-	float m_CyclicSideInputVal;
+	float m_CyclicSideInput;
 
 	float m_CyclicForwardTrim;
 	float m_CyclicBackwardTrim;
@@ -373,6 +378,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 	ref ExpansionInterpolatedInput m_Input_CollectiveUp;
 	ref ExpansionInterpolatedInput m_Input_CollectiveDown;
+	ref ExpansionInterpolatedInput m_Input_CollectiveAnalogueUp;
+	ref ExpansionInterpolatedInput m_Input_CollectiveAnalogueDown;
+	bool m_Input_UseAnalogueCollective;
 
 	ref ExpansionInterpolatedInput m_Input_AntiTorqueLeft;
 	ref ExpansionInterpolatedInput m_Input_AntiTorqueRight;
@@ -395,17 +403,17 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 	//! Ground Effect - within ~1 rotor diameter (MH-6 ~8m dia, use bounding radius)
 	float m_GroundEffectRadius = 1.2;    //! Multiplier of bounding radius for ground effect zone
-	float m_GroundEffectMax = 1.15;     //! Max lift boost in ground effect (~15%)
+	float m_GroundEffectMax = 1.3;     //! Max lift boost in ground effect
 
 	//! Translating Tendency - lateral drift in hover (tail rotor thrust)
 	float m_TranslatingTendencyCoef = 0.27;  //! Rightward drift when hovering
 
-	//! Retreating Blade Stall (RBS) - lift loss and instability at high forward speed (VNE limit)
-	float m_RetreatingBladeStallSpeed = 0.9;   //! Fraction of m_MaxSpeedMS where stall begins (~VNE)
+	//! Retreating Blade Stall (RBS) - lift loss and instability driven by advance ratio
 	float m_RetreatingBladeStallLiftLoss = 0.35;  //! Max lift reduction at extreme overspeed
 	float m_RetreatingBladeStallRollCoef = 0.22;  //! Roll toward retreating (left for CCW main rotor, right for CW) side - instability
 	float m_RetreatingBladeStallPitchCoef = 0.18;  //! Nose pitch-up tendency
 	float m_RetreatingBladeStallDragCoef = 0.6;   //! Extra parasite drag when stalled (form drag from separated flow, 0-60% at full RBS)
+	float m_RBSSeverity;
 
 	//! Rotor-disk / blade-element model (A3 RotorLib-style)
 	float m_MainRotorRadius = 4.9;        //! MH-6 rotor radius [m]
@@ -413,15 +421,28 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	float m_MainRotorTipSpeed = 205.0;   //! m/s at 100% RPM
 	float m_MainRotorChord = 0.35;       //! Blade chord [m]
 	float m_BladeLiftSlope = 5.7;        //! Effective Cl/rad (2*pi with tip loss)
-	float m_BladeStallAngle = 0.2618;      //! rad (~15 deg)
+	float m_BladeStallAngle = 0.2;      //! rad (~11 deg)
 	float m_BladeStallDrag = 0.05;       //! Extra Cd when stalled
-	//float m_RotorDiskThrustScale = 0.85; //! Tune to match hover (blade-element magnitude)
-	float m_RotorDiskThrustScale = 0.13;  //! Retuned after fixing cyclic-induced thrust asymmetry in blade element loop
-	//! Collective pitch values tweaked for MH6 to give up to ~20 m/s upward and ~8 m/s downward thrust
-	float m_CollectivePitchAtFull = 0.12744;   //! Collective pitch [rad] at m_MainRotorSpeed = 1.0
-	float m_CollectivePitchAtMin = 0.0323; //! Collective pitch [rad] at m_MainRotorSpeed <= 0
+	float m_RotorDiskThrustScale = 0.13; //! Tune to match hover (blade-element magnitude)
+	//! Collective pitch values tweaked for MH6 to give up to ~15 m/s ascent/decsent rate
+	float m_CollectivePitchAtFull = 0.15;   //! Collective pitch [rad] at m_Collective = 1.0
+	float m_CollectivePitchAtMin = 0.0015; //! Collective pitch [rad] at m_Collective <= 0
 	float m_RotorDiskPitchMomentGain = 0.04;
 	float m_RotorDiskRollMomentGain = 0.03;
+
+	float m_InducedPitchMoment;
+	float m_InducedRollMoment;
+	bool m_UseCyclicDiskMoments = true;
+	float m_CyclicPitchMoment;
+	float m_CyclicRollMoment;
+
+	float m_RotorDiskForwardInertia;
+	float m_RotorDiskForwardInertiaVel[1];
+	float m_RotorDiskSideInertia;
+	float m_RotorDiskSideInertiaVel[1];
+
+	float m_ThrustTiltCoef = 0.2;          //! Thrust vector tilt with disk lead
+	vector m_ThrustDir;
 
 	//! Disk loading (power droop at high collective)
 	float m_CollectiveLoadCoef = 0.05;
@@ -434,7 +455,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	float m_WobbleIntensityScale = 0.3;
 	float m_HoverTimeTracker = 0.0;
 
-	void ExpansionVehicleHelicopter_OLD(EntityAI vehicle)
+	void ExpansionVehicleHelicopter(EntityAI vehicle)
 	{
 		Class.CastTo(m_Helicopter, vehicle);
 
@@ -449,6 +470,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	#ifdef COMPONENT_SYSTEM
 		m_Input_CollectiveUp = new ExpansionInterpolatedInput("UAExpansionHeliCollectiveUp");
 		m_Input_CollectiveDown = new ExpansionInterpolatedInput("UAExpansionHeliCollectiveDown");
+		m_Input_CollectiveAnalogueUp = new ExpansionInterpolatedInput("UAExpansionHeliCollectiveAnalogueUp");
+		m_Input_CollectiveAnalogueDown = new ExpansionInterpolatedInput("UAExpansionHeliCollectiveAnalogueDown");
 		
 		m_Input_AntiTorqueLeft = new ExpansionInterpolatedInput("UAExpansionHeliAntiTorqueLeft");
 		m_Input_AntiTorqueRight = new ExpansionInterpolatedInput("UAExpansionHeliAntiTorqueRight");
@@ -461,6 +484,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	#else
 		m_Input_CollectiveUp = new ExpansionInterpolatedInput(UAExpansionHeliCollectiveUp);
 		m_Input_CollectiveDown = new ExpansionInterpolatedInput(UAExpansionHeliCollectiveDown);
+		m_Input_CollectiveAnalogueUp = new ExpansionInterpolatedInput(UAExpansionHeliCollectiveAnalogueUp);
+		m_Input_CollectiveAnalogueDown = new ExpansionInterpolatedInput(UAExpansionHeliCollectiveAnalogueDown);
 		
 		m_Input_AntiTorqueLeft = new ExpansionInterpolatedInput(UAExpansionHeliAntiTorqueLeft);
 		m_Input_AntiTorqueRight = new ExpansionInterpolatedInput(UAExpansionHeliAntiTorqueRight);
@@ -473,7 +498,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	#endif
 	}
 
-	void ~ExpansionVehicleHelicopter_OLD()
+	void ~ExpansionVehicleHelicopter()
 	{
 		if (IsMissionClient())
 		{
@@ -811,8 +836,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		
 		//move.m_EngineOn = m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX];
 		
-		move.m_MainRotorSpeedTarget = m_MainRotorSpeedTarget;
-		move.m_BackRotorSpeedTarget = m_BackRotorSpeedTarget;
+		move.m_CollectiveTarget = m_CollectiveTarget;
+		move.m_AntiTorqueTarget = m_AntiTorqueTarget;
 		move.m_CyclicForwardTarget = m_CyclicForwardTarget;
 		move.m_CyclicSideTarget = m_CyclicSideTarget;
 		
@@ -835,8 +860,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			//if (move.m_EngineOn >= 0)
 			//	m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX] = move.m_EngineOn;
 			
-			m_MainRotorSpeedTarget = move.m_MainRotorSpeedTarget;
-			m_BackRotorSpeedTarget = move.m_BackRotorSpeedTarget;
+			m_CollectiveTarget = move.m_CollectiveTarget;
+			m_AntiTorqueTarget = move.m_AntiTorqueTarget;
 			m_CyclicForwardTarget = move.m_CyclicForwardTarget;
 			m_CyclicSideTarget = move.m_CyclicSideTarget;
 			
@@ -858,8 +883,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		//if (move.m_EngineOn >= 0)
 		//	m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX] = move.m_EngineOn;
 		
-		m_MainRotorSpeedTarget = move.m_MainRotorSpeedTarget;
-		m_BackRotorSpeedTarget = move.m_BackRotorSpeedTarget;
+		m_CollectiveTarget = move.m_CollectiveTarget;
+		m_AntiTorqueTarget = move.m_AntiTorqueTarget;
 		m_CyclicForwardTarget = move.m_CyclicForwardTarget;
 		m_CyclicSideTarget = move.m_CyclicSideTarget;
 			
@@ -880,8 +905,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		state.m_RotorSpeed = m_RotorSpeed;
 		state.m_EngineState = m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX];
 		
-		state.m_MainRotorSpeed = m_MainRotorSpeed;
-		state.m_BackRotorSpeed = m_BackRotorSpeed;
+		state.m_Collective = m_Collective;
+		state.m_AntiTorque = m_AntiTorque;
 		
 		state.m_Hydraulic = m_Hydraulic;
 		
@@ -904,8 +929,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_RotorSpeed = state.m_RotorSpeed;
 		m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX] = state.m_EngineState;
 		
-		m_MainRotorSpeed = state.m_MainRotorSpeed;
-		m_BackRotorSpeed = state.m_BackRotorSpeed;
+		m_Collective = state.m_Collective;
+		m_AntiTorque = state.m_AntiTorque;
 		
 		m_Hydraulic = state.m_Hydraulic;
 		
@@ -977,8 +1002,15 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 
 	#ifndef SERVER
-		float c_up = m_Input_CollectiveUp.GetValue(pState.m_DeltaTime, 1.0);
-		float c_down = m_Input_CollectiveDown.GetValue(pState.m_DeltaTime, 1.0);
+		float c_up = m_Input_CollectiveUp.GetValue(pState.m_DeltaTime, 0.02) * 0.02;
+		float c_down = m_Input_CollectiveDown.GetValue(pState.m_DeltaTime, 0.02) * 0.02;
+		float c_analogue_up = m_Input_CollectiveAnalogueUp.GetValue(pState.m_DeltaTime, 1.0);
+		float c_analogue_down = m_Input_CollectiveAnalogueDown.GetValue(pState.m_DeltaTime, 1.0);
+
+		if (c_analogue_up > 0 || c_analogue_down > 0)
+			m_Input_UseAnalogueCollective = true;
+		else if (c_up > 0 || c_down > 0)
+			m_Input_UseAnalogueCollective = false;
 	#endif
 
 		float at_left = m_Input_AntiTorqueLeft.GetValue(pState.m_DeltaTime, m_HorzSens, inputInterface);
@@ -1054,10 +1086,10 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			}
 		}
 
-		m_CyclicForwardInputVal = c_forward / vSens - c_backward / vSens;
-		m_CyclicSideInputVal = c_left / m_HorzSens - c_right / m_HorzSens;
+		m_CyclicForwardInput = c_forward - c_backward;
+		m_CyclicSideInput = c_left - c_right;
 
-		m_BackRotorSpeedTarget = at_left  - at_right;
+		m_AntiTorqueTarget = at_left  - at_right;
 
 		if (IsAutoHover())
 		{
@@ -1065,9 +1097,18 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			if (IsMissionClient())
 			{
 				float autoHoverHeight = m_AutoHoverAltitude;
-				float autoHoverChange = c_up - c_down;
+				float autoHoverChange;
 
-				autoHoverHeight += autoHoverChange * 0.3;
+				//! @note max return value from interpolated non-analogue input when going from 0 to 1 with interpolation speed 50 and
+				//! sensitivity 0.02 is 0.0183583
+				//! 0.0183583 * 54.471274 = ~1.0
+
+				if (m_Input_UseAnalogueCollective)
+					autoHoverChange = c_analogue_up - c_analogue_down;
+				else
+					autoHoverChange = (c_up - c_down) * 54.471274;
+
+				autoHoverHeight += autoHoverChange;
 
 				float surfaceY = g_Game.SurfaceY(pState.m_Transform[3][0], pState.m_Transform[3][2]);
 				if (m_Hit)
@@ -1091,7 +1132,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				float sSpd = c_right - c_left;
 
 				float sSpdMult = pState.m_MaxSpeedMS * 0.7;
-				float fSpdMult = pState.m_MaxSpeedMS;
+				float fSpdMult = pState.m_MaxSpeedMS * 0.9;
 
 				m_AutoHoverSpeedTarget[0] = sSpd * sSpdMult;
 				m_AutoHoverSpeedTarget[2] = fSpd * fSpdMult;
@@ -1108,14 +1149,21 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 
 	#ifndef SERVER
-		//! Allow full collective authority in autohover during autorotation
-		if (!IsAutoHover() || m_RotorSpeedTarget == 0)
+		if (m_Input_UseAnalogueCollective)
 		{
-			float mainRotorInput = c_up - c_down;
+			m_CollectiveInput = c_analogue_up - c_analogue_down;
 
-			m_MainRotorInput = mainRotorInput;
+			//! Allow full collective authority in autohover during autorotation
+			if ((!m_AutoHover && !m_AutoCollective) || (m_RotorSpeedTarget == 0 && pState.m_HasDriver))
+				m_CollectiveTarget = Math.Clamp(0.5 + m_CollectiveInput * 0.5, 0, 1);
+		}
+		else
+		{
+			m_CollectiveInput = c_up - c_down;
 
-			m_MainRotorSpeedTarget = Math.Clamp(mainRotorInput, -0.25 * pState.m_DeltaTime, 0.25 * pState.m_DeltaTime) + m_MainRotorSpeed;
+			//! Allow full collective authority in autohover during autorotation
+			if ((!m_AutoHover && !m_AutoCollective) || (m_RotorSpeedTarget == 0 && pState.m_HasDriver))
+				m_CollectiveTarget = Math.Clamp(m_CollectiveInput + m_CollectiveTarget, 0, 1);
 		}
 	#endif
 
@@ -1124,19 +1172,19 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		if (m_VRSSeverity > 0)
 		{
 			//! Stick shake
-			m_CyclicForwardInputVal += Math.RandomFloatInclusive(-1, 1) * pDt * 4 * m_VRSSeverity;
-			m_CyclicSideInputVal += Math.RandomFloatInclusive(-1, 1) * pDt * 4 * m_VRSSeverity;
+			m_CyclicForwardInput += Math.RandomFloatInclusive(-1, 1) * pDt * 4 * m_VRSSeverity;
+			m_CyclicSideInput += Math.RandomFloatInclusive(-1, 1) * pDt * 4 * m_VRSSeverity;
 		}
 	}
 
 	void UpdateController()
 	{
 		//! Not used ATM
-		m_Controller.SetYaw(m_BackRotorSpeedTarget);
+		m_Controller.SetYaw(m_AntiTorqueTarget);
 		m_Controller.SetRoll(m_CyclicSideTarget);
 		m_Controller.SetPitch(m_CyclicForwardTarget);
 
-		m_Controller.SetThrottle(m_MainRotorSpeedTarget, HELICOPTER_CONTROLLER_INDEX);
+		m_Controller.SetThrottle(m_CollectiveTarget, HELICOPTER_CONTROLLER_INDEX);
 		m_Controller.SetBrake(0, HELICOPTER_CONTROLLER_INDEX);
 	}
 
@@ -1215,25 +1263,35 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 				if (s_TranslatingTendency != m_TranslatingTendency)
 					Message("Translating Tendency " + s_TranslatingTendency.ToString());
+
+				if (s_RotorDiskInertia != m_RotorDiskInertia)
+					Message("Rotor Disk Inertia " + s_RotorDiskInertia.ToString());
 			}
 
 		#endif
 
+			//! @note On diag client, these values are synced to server
 			m_SimulationMode = s_SimulationMode;
 			m_AirFrictionMode = s_AirFrictionMode;
-			//! On diag client, air friction values are synced to server
 			m_AirFriction[0] = s_AirFriction[0];
 			m_AirFriction[1] = s_AirFriction[1];
 			m_AirFriction[2] = s_AirFriction[2];
+
 			m_RBS = s_RBS;
 			m_AutoCollective = s_AutoCollective;
 			m_AutoTrim = s_AutoTrim;
 			m_TranslatingTendency = s_TranslatingTendency;
+
+		#ifdef DIAG_DEVELOPER
+			m_RotorDiskInertia = s_RotorDiskInertia;
+		#endif
 		}
 	#ifndef DIAG_DEVELOPER
 		else
 		{
-			//! On non-diag server, air friction values are not synced from client
+			//! @note On non-diag server, these values are not synced from client
+			m_SimulationMode = s_SimulationMode;
+			m_AirFrictionMode = s_AirFrictionMode;
 			m_AirFriction[0] = s_AirFriction[0];
 			m_AirFriction[1] = s_AirFriction[1];
 			m_AirFriction[2] = s_AirFriction[2];
@@ -1254,7 +1312,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		else
 			m_HitFraction = 0;
 
-		if (IsMissionClient() && m_EnableWind)
+	#ifndef SERVER
+		if (m_EnableWind)
 		{
 			m_WindSpeedSync = g_Game.GetWeather().GetWind();
 
@@ -1276,6 +1335,11 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				// turbulence?
 			//}
 		}
+		else
+		{
+			m_WindSpeedSync = vector.Zero;
+		}
+	#endif
 
 		m_Main.Update(pState.m_DeltaTime);
 		m_Tail.Update(pState.m_DeltaTime);
@@ -1298,6 +1362,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		float buoyancyForce;
 		float horiSpeed = Vector(pState.m_LinearVelocityMS[0], 0, pState.m_LinearVelocityMS[2]).Length();
 		float descentRate = -pState.m_LinearVelocityMS[1];
+		float autoDescentLimiter = 1.0;
+		//if (pState.m_AltitudeLimiter < 1.0)
+			//autoDescentLimiter = 0.25;
 
 		float change;
 
@@ -1335,20 +1402,13 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			if (!m_Hit && !pState.m_HasDriver && !IsAutoHover())
 			{
-			#ifdef DAYZ_1_27
-				m_MainRotorSpeedTarget = Math.RandomFloatInclusive(-1, 1);
-				m_BackRotorSpeedTarget = Math.RandomFloatInclusive(-1, 1);
-
-				m_CyclicSideTarget = Math.RandomFloatInclusive(-1, 1);
-				m_CyclicForwardTarget = Math.RandomFloatInclusive(-1, 1);
-			#else
-				//! 1.28+
-				m_MainRotorSpeedTarget = m_Transport.RandomFloat(-1, 1);
-				m_BackRotorSpeedTarget = m_Transport.RandomFloat(-1, 1);
+			#ifndef SERVER
+				m_CollectiveTarget = m_Transport.RandomFloat(-1, 1);
+				m_AntiTorqueTarget = m_Transport.RandomFloat(-1, 1);
+			#endif
 
 				m_CyclicSideTarget = m_Transport.RandomFloat(-1, 1);
 				m_CyclicForwardTarget = m_Transport.RandomFloat(-1, 1);
-			#endif
 			}
 			else if (IsAutoHover())
 			{
@@ -1358,7 +1418,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 					m_AutoHoverSpeedTarget = "0 0 0";
 					m_CyclicForwardTarget = 0;
 					m_CyclicSideTarget = 0;
-					m_BackRotorSpeedTarget = 0;
+					m_AntiTorqueTarget = 0;
 				}
 				else
 				{
@@ -1372,16 +1432,19 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 					m_AutoHoverSpeed[2] = Math.Clamp(m_AutoHoverSpeed[2] + change, -fSpdMult, fSpdMult);
 				}
 
-				//! One second ahead - usually
-				float estT = 40.0 * pDt;
-				vector estimatedPosition = pState.EstimatePosition(estT);
-				vector estimatedOrientation = pState.EstimateOrientation(estT);
+				//! One second ahead
+				vector estimatedPosition = pState.EstimatePosition(1.0);
+				vector estimatedOrientation = pState.EstimateOrientation(1.0);
 				vector targetOrientation = vector.Zero;
+
+				if (m_RotorSpeedTarget > 0 || !pState.m_HasDriver)
+				{
+					change = Math.Clamp(m_AutoHoverAltitude - estimatedPosition[1], -0.25 * pDt * autoDescentLimiter, 0.25 * pDt);
+					m_CollectiveTarget = Math.Clamp(m_Collective + change, 0, 1);
+				}
 
 				if (m_RotorSpeedTarget > 0)
 				{
-					m_MainRotorSpeedTarget = Math.Clamp(m_AutoHoverAltitude - estimatedPosition[1], -0.25 * pDt, 0.25 * pDt) + m_MainRotorSpeed;
-
 					float fwd = pState.m_LinearVelocityMS[2];
 					float side = pState.m_LinearVelocityMS[0];
 
@@ -1394,12 +1457,12 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 							//! If fwd speed is less than 90% of VRS airspeed threshold, initiate Vuichard recovery
 							m_OverrideTailForce = true;  //! Engage tail force override for clean bank
 							m_AutoHoverSpeed[0] = 20.0 * Math.Sign(side);
-							m_MainRotorSpeedTarget = 1.0;
+							m_CollectiveTarget = 1.0;
 						}
 						else
 						{
 							m_AutoHoverSpeed[2] = m_VRSAirspeedThreshold * 2 * Math.Sign(fwd);
-							m_MainRotorSpeedTarget = 0.01;  //! lower collective if fwd/bwd recovery
+							m_CollectiveTarget = 0.01;  //! lower collective if fwd/bwd recovery
 						}
 
 						if (m_VRSBeginAltitude == 0)
@@ -1408,7 +1471,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 					else
 					{
 						//! As soon as the recovery is complete or there is any cyclic/antitorque input, disengage tail force override
-						if (m_OverrideTailForce && ((Math.AbsFloat(m_Bank) < 0.01 && Math.AbsFloat(side) < 1.388) || Math.AbsFloat(m_CyclicForwardInputVal) > 0.01 || Math.AbsFloat(m_CyclicSideInputVal) > 0.01 || Math.AbsFloat(m_BackRotorSpeedTarget) > 0.01))
+						if (m_OverrideTailForce && ((Math.AbsFloat(m_Bank) < 0.01 && Math.AbsFloat(side) < 1.388) || Math.AbsFloat(m_CyclicForwardInput) > 0.01 || Math.AbsFloat(m_CyclicSideInput) > 0.01 || Math.AbsFloat(m_AntiTorqueTarget) > 0.01))
 							m_OverrideTailForce = false;
 
 						if (m_VRSBeginAltitude != 0)
@@ -1485,26 +1548,26 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				m_AutoHoverAltitude = pState.m_Transform[3][1];
 			#endif
 
-				if (m_AutoCollective)
+				if (m_AutoCollective && (m_RotorSpeedTarget > 0 || !pState.m_HasDriver))
 				{
-					float mainRotorInput = m_MainRotorInput;
+					float autoCollectiveChange;
 
-					if (m_RotorSpeedTarget == 0)
-					{
-						if (m_MainRotorSpeedTarget > 0.0)
-							mainRotorInput -= 0.25 * pDt;
-						else if (m_MainRotorSpeedTarget < 0.0)
-							mainRotorInput += 0.25 * pDt;
-					}
-					else if (Math.AbsFloat(mainRotorInput) < 0.05)
-					{
-						float estT2 = 40.0 * pDt;
-						vector estimatedPosition2 = pState.EstimatePosition(estT2);
+					//! @note max return value from interpolated non-analogue input when going from 0 to 1 with interpolation speed 50 and
+					//! sensitivity 0.02 is 0.0183583
+					//! 0.0183583 * 54.471274 = ~1.0
 
-						mainRotorInput += m_AutoHoverAltitude - estimatedPosition2[1];
-					}
+					if (m_Input_UseAnalogueCollective)
+						autoCollectiveChange = m_CollectiveInput;
+					else
+						autoCollectiveChange = m_CollectiveInput * 54.471274;
 
-					m_MainRotorSpeedTarget = Math.Clamp(mainRotorInput, -0.25 * pDt, 0.25 * pDt) + m_MainRotorSpeed;
+					m_AutoHoverAltitude += autoCollectiveChange * 16.5;
+
+					//! One second ahead
+					vector estimatedPosition2 = pState.EstimatePosition(1.0);
+
+					change = Math.Clamp(m_AutoHoverAltitude - estimatedPosition2[1], -0.25 * pDt * autoDescentLimiter, 0.25 * pDt);
+					m_CollectiveTarget = Math.Clamp(m_Collective + change, 0, 1);
 				}
 			}
 
@@ -1512,17 +1575,44 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			{
 				if (m_RotorSpeedTarget > 0)
 				{
-					if (m_VRSSeverity == 0)
+					if (m_VRSSeverity == 0 || m_VRSBeginAltitude == 0)
 					{
-						float mainRotorSpeedMin;
+						float descentAccelRate = -pState.m_LinearAccelerationMS[1];
+						if (horiSpeed < m_VRSAirspeedThreshold * 1.5 && ((descentRate > 0 && descentAccelRate > m_VRSDescentThreshold * 0.5 * pDt) || descentRate > m_VRSDescentThreshold * 0.5))
+						{
+							float collectiveMin;
 
-						if (m_SimulationMode != ExpansionHelicopterSimulationMode.Legacy)
-							mainRotorSpeedMin = ExpansionMath.LinearConversion(3, 6.8, m_VRSDescentThreshold, 0.15, 0);
-						else
-							mainRotorSpeedMin = ExpansionMath.LinearConversion(3, 7.4, m_VRSDescentThreshold, 0.25, 0);
+						#ifdef DIAG_DEVELOPER
+							if (m_SimulationMode == ExpansionHelicopterSimulationMode.Legacy)
+								collectiveMin = ExpansionMath.LinearConversion(3, 12.9, m_VRSDescentThreshold, 0.346, 0.0);
+							else if (m_SimulationMode == ExpansionHelicopterSimulationMode.Legacy_Extended)
+								collectiveMin = ExpansionMath.LinearConversion(3, 12.811, m_VRSDescentThreshold, 0.34, 0.0);
+							else
+						#endif
+							{
+								collectiveMin = ExpansionMath.LinearConversion(3, 15, m_VRSDescentThreshold, 0.403, 0.0);
 
-						if (descentRate > m_VRSDescentThreshold * 0.5 && horiSpeed < m_VRSAirspeedThreshold * 1.5 && m_MainRotorSpeedTarget < mainRotorSpeedMin)
-							m_MainRotorSpeedTarget = mainRotorSpeedMin;  //! Prevent entering VRS by limiting rate of descent
+								if (m_LiftForceCoef < 1.3)
+								{
+									//! With lift force coef < 1.3 nonlinear collective segment may start earlier,
+									//! so need to convert from linear response to actual response
+									float theta0 = GetTheta0(collectiveMin, 1.3);
+									collectiveMin = GetCollectiveInput(theta0, m_LiftForceCoef);
+								}
+							}
+
+							//if (pState.m_AltitudeLimiter < 1.0)
+								//collectiveMin = Math.Lerp(collectiveMin, m_Collective, descentRate / (m_VRSDescentThreshold - 0.15) * (2.0 - pState.m_AltitudeLimiter));
+							//else
+								collectiveMin *= Math.Max(descentRate / m_VRSDescentThreshold, 1.0);  //! VRSProtecPLUS(tm) technology
+
+							collectiveMin = Math.Clamp(collectiveMin, 0.0, 1.0);
+
+							collectiveMin = ExpansionMath.LinearConversion(m_VRSAirspeedThreshold, m_VRSAirspeedThreshold * 1.5, horiSpeed, collectiveMin, m_CollectiveTarget);
+
+							if (m_CollectiveTarget < collectiveMin)
+								m_CollectiveTarget = collectiveMin;  //! Prevent entering VRS by limiting rate of descent
+						}
 					}
 				}
 			}
@@ -1532,19 +1622,21 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		vector up = pState.m_Transform[1];
 		float upSign = Math.Sign(up[1]);
 		float goingDown = Math.Clamp((descentRate * upSign - m_MinAutoRotateSpeed) / (m_MaxAutoRotateSpeed - m_MinAutoRotateSpeed), 0, 1);
-		float brakeRotor = Math.Max(Math.Max(m_MainRotorSpeed * 0.2, 0), -goingDown);
+		float brakeRotor = Math.Max(Math.Max(m_Collective * 0.2, 0), -goingDown);
 
 		float collectiveLoad;
 
 		//! Disk loading: High collective, high horizontal speed = high load
-		if (m_RotorSpeedTarget > 0 && m_MainRotorSpeed > 0.25)
+		if (m_RotorSpeedTarget > 0 && m_Collective > 0.25)
 		{
 			float loadFactor;
 
-			if (m_SimulationMode != ExpansionHelicopterSimulationMode.Legacy)
-				loadFactor = 1.0;
-			else
+		#ifdef DIAG_DEVELOPER
+			if (m_SimulationMode == ExpansionHelicopterSimulationMode.Legacy)
 				loadFactor = 0.9;
+			else
+		#endif
+				loadFactor = 1.0;
 
 			float bucketSpeed = 31 * loadFactor * Math.Sqrt(pState.m_Mass / REFERENCE_MASS);
 			float speedFactor;
@@ -1554,15 +1646,17 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			{
 				speedFactor = horiSpeed / bucketSpeed;
 				collectiveLoadCoef = Math.Lerp(m_CollectiveLoadCoef, 0, speedFactor);
+
+				float collectiveFactor = ExpansionMath.LinearConversion(10.0, bucketSpeed, horiSpeed, 0.5, 0.25);
+				collectiveLoad = ExpansionMath.LinearConversion(collectiveFactor, 1.0, m_Collective, 0, collectiveLoadCoef);
 			}
 			else
 			{
 				float excessSpeed = horiSpeed - bucketSpeed;
 				speedFactor = excessSpeed / bucketSpeed;
 				collectiveLoadCoef = Math.Lerp(0, m_CollectiveLoadCoef, speedFactor);
+				collectiveLoad = ExpansionMath.LinearConversion(0.25, 1.0, m_Collective, 0, collectiveLoadCoef);
 			}
-
-			collectiveLoad = ExpansionMath.LinearConversion(0.25, 1.0, m_MainRotorSpeed, 0, collectiveLoadCoef);
 		}
 
 		// https://en.wikipedia.org/wiki/Autorotation (https://en.wikipedia.org/wiki/Autorotation#/media/File:Airflow_in_auto-2.jpg)
@@ -1579,19 +1673,17 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		change = Math.Clamp(change, (-0.025 - (brakeRotor * 0.35)) * pDt, m_EngineStartDuration * pDt);
 		m_RotorSpeed = Math.Clamp(m_RotorSpeed + change, 0, 1.0 - collectiveLoad);
 
-		//! Limit collective so it can't overpower VRS
-		if (m_VRSSeverity > 0.1 && m_MainRotorSpeedTarget > 0.25)
-			m_MainRotorSpeedTarget = 0.25;
-
-		if (m_RotorSpeed >= 1.0 - m_CollectiveLoadCoef || m_RotorSpeedTarget < 0.1 || m_MainRotorSpeed > 0.0)
-			change = Math.Clamp(Math.Min(m_MainRotorSpeedTarget, m_RotorSpeed + collectiveLoad) - m_MainRotorSpeed, -0.25 * pDt, 0.25 * pDt);
+		m_CollectiveDelta = (m_CollectiveTarget - m_Collective) * m_RotorSpeed * m_RotorSpeed;
+		if (Math.AbsFloat(m_CollectiveDelta) > 0)
+			m_CollectiveDeltaInterpolated = Math.Lerp(m_CollectiveDeltaInterpolated, m_CollectiveDelta, pDt);
 		else
-			change = Math.Clamp(0 - m_MainRotorSpeed, -0.25 * pDt, 0.25 * pDt);
+			m_CollectiveDeltaInterpolated = Math.Lerp(m_CollectiveDeltaInterpolated, m_CollectiveDelta, 0.25 * pDt);
 
-		m_MainRotorSpeed = Math.Clamp(m_MainRotorSpeed + change, -0.2, m_RotorSpeed + collectiveLoad);
+		change = Math.Clamp(Math.Min(m_CollectiveTarget, m_RotorSpeed + collectiveLoad) - m_Collective, -0.25 * pDt, 0.25 * pDt);
+		m_Collective = Math.Clamp(m_Collective + change, 0.0, m_RotorSpeed + collectiveLoad);
 
-		change = Math.Clamp(m_BackRotorSpeedTarget * m_AntiTorqueMax - m_BackRotorSpeed, -m_AntiTorqueSpeed * pDt, m_AntiTorqueSpeed * pDt);
-		m_BackRotorSpeed = Math.Clamp(m_BackRotorSpeed + change, -m_AntiTorqueMax, m_AntiTorqueMax);
+		change = Math.Clamp(m_AntiTorqueTarget * m_AntiTorqueMax - m_AntiTorque, -m_AntiTorqueSpeed * pDt, m_AntiTorqueSpeed * pDt);
+		m_AntiTorque = Math.Clamp(m_AntiTorque + change, -m_AntiTorqueMax, m_AntiTorqueMax);
 
 		if (pState.m_Exploded)
 		{
@@ -1610,7 +1702,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			m_CyclicSideHydraulicCoef		= ExpansionMath.LookUp(m_Hydraulic, m_CyclicSideControlCount, m_CyclicSideControlFluid, m_CyclicSideControlDelta);
 		}
 
-		if (pState.m_LinearVelocityMS.LengthSq() > 0.0025 || m_RotorSpeed != 0)
+		if (m_RotorSpeed != 0 || (pState.m_LinearVelocityMS.LengthSq() > 0.0025 && !m_Helicopter.m_IsLanded))
 		{
 			change = Math.Clamp(Math.Clamp(m_CyclicForwardTarget * m_CyclicForwardMax, -2, 2) - m_CyclicForward, -m_CyclicForwardHydraulicCoef * pDt, m_CyclicForwardHydraulicCoef * pDt);
 			m_CyclicForward = Math.Clamp(m_CyclicForward + change, -m_CyclicForwardMax, m_CyclicForwardMax);
@@ -1625,23 +1717,24 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			if (perpendicular > 1.0)
 				perpendicular = 2.0 - perpendicular;
 
-			float stallSpeedThreshold = pState.m_MaxSpeedMS * m_RetreatingBladeStallSpeed;
 			float rbsSeverity;
 
 			switch (m_SimulationMode)
 			{
+			#ifdef DIAG_DEVELOPER
 				case ExpansionHelicopterSimulationMode.Legacy:
 				case ExpansionHelicopterSimulationMode.Legacy_Extended:
-					Simulate_Legacy(pState, force, torque, horiSpeed, stallSpeedThreshold, rbsSeverity);
+					Simulate_Legacy(pState, force, torque, horiSpeed, rbsSeverity);
 					break;
+			#endif
 
 				case ExpansionHelicopterSimulationMode.RotorDisk:
 				default:
-					Simulate_RotorDisk(pState, force, torque, horiSpeed, perpendicular, stallSpeedThreshold, rbsSeverity);
+					Simulate_RotorDisk(pState, force, torque, horiSpeed, perpendicular, rbsSeverity);
 					break;
 			}
 
-			Simulate_Common(pState, force, torque, horiSpeed, perpendicular, stallSpeedThreshold, rbsSeverity);
+			Simulate_Common(pState, force, torque, horiSpeed, perpendicular, rbsSeverity);
 		}
 
 		PreventSinkingInOcean(pState, force, torque);
@@ -1650,7 +1743,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		pState.m_Torque += torque;
 	}
 
-	void Simulate_Legacy(ExpansionPhysicsState pState, inout vector force, inout vector torque, float horiSpeed, float stallSpeedThreshold, out float rbsSeverity)
+	void Simulate_Legacy(ExpansionPhysicsState pState, inout vector force, inout vector torque, float horiSpeed, out float rbsSeverity)
 	{
 		float pDt = pState.m_DeltaTime;
 
@@ -1670,50 +1763,21 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			float flightEnvelope[15];
 
-			float vrsSeverity;
-			float vrsThrustMult = 1.0;
-			float rbsThrustMult = 1.0;
+			//! VRS
 			float descentRate = -pState.m_LinearVelocityMS[1];  //! positive = descending
 
+			ComputeVRSSeverity(descentRate, horiSpeed, nearGround, pDt);
+
+			float vrsThrustMult = 1.0 - (m_VRSSeverity * m_VRSThrustLossMax);
+
+			float rbsThrustMult = 1.0;
+
+		#ifdef DIAG_DEVELOPER
 			if (m_SimulationMode == ExpansionHelicopterSimulationMode.Legacy_Extended)
 				flightEnvelope = m_FlightEnvelope_ETL;
 			else
+		#endif
 				flightEnvelope = m_FlightEnvelope;
-
-			{
-				float vx = pState.m_LinearVelocityMS[0];   //! Lateral velocity
-
-				//! Vortex Ring State (VRS): thrust loss when descending into own downwash at low airspeed
-				if (m_RotorSpeedTarget > 0 && descentRate > m_VRSDescentThreshold && horiSpeed < m_VRSAirspeedThreshold && m_RotorSpeed > 0.3 && (m_VRSSeverity > 0 || (nearGround == 1.0 && descentRate < m_VRSDescentDeep + (m_VRSDescentDeep - m_VRSDescentThreshold))))
-				{
-					if (m_MainRotorSpeed > 0)
-					{
-						vrsSeverity = Math.Clamp((descentRate - m_VRSDescentThreshold) / (m_VRSDescentDeep - m_VRSDescentThreshold), 0.0, 1.0);
-						vrsSeverity *= 1.0 - (horiSpeed / m_VRSAirspeedThreshold);  //! Less VRS at higher airspeed
-						vrsSeverity *= 1.0 - Math.Min(Math.AbsFloat(vx) / (pState.m_BoundingRadius * 0.6), 1.0);  //! Less VRS when moving laterally towards vortex upwind
-						vrsSeverity *= Math.Lerp(1.0, 0.75 / m_VRSThrustLossMax, m_MainRotorSpeed);  //! higher collective = worse VRS (up to 20%)
-					}
-					else
-					{
-						//! If no or negative collective, full VRS reaches zero in 1.1 s
-						vrsSeverity = Math.Max(Math.Lerp(m_VRSSeverity, -0.01, pDt * 4), 0);
-					}
-
-					vrsThrustMult = 1.0 - (vrsSeverity * m_VRSThrustLossMax);
-				}
-
-				//! Retreating Blade Stall - lift loss at high forward speed (VNE). Worse at low RPM and high altitude.
-				if (m_RBS && horiSpeed > stallSpeedThreshold && m_RotorSpeed > 0.5)
-				{
-					rbsSeverity = Math.Clamp((horiSpeed - stallSpeedThreshold) / (pState.m_MaxSpeedMS - stallSpeedThreshold), 0.0, 1.0);
-					rbsSeverity *= (1.2 - m_RotorSpeed);  //! Worse at low rotor RPM
-					rbsSeverity *= (1.5 - pState.m_AltitudeLimiter * 0.5);  //! Worse at high altitude
-					rbsSeverity = Math.Clamp(rbsSeverity, 0.0, 1.0);
-					rbsThrustMult = 1.0 - (rbsSeverity * m_RetreatingBladeStallLiftLoss);
-				}
-			}
-
-			m_VRSSeverity = vrsSeverity;  //! For collective authority loss and feedback in HUD
 
 			float liftFactor = 0;
 
@@ -1733,7 +1797,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			else
 				liftFactor = flightEnvelope[0];
 
-			float targetVelocity = (pState.m_LinearVelocityMS[1] + 3.0) - (18.0 * m_MainRotorSpeed * m_RotorSpeed * nearGround);
+			float collective = -0.2 + m_Collective * 1.2;
+			float targetVelocity = (pState.m_LinearVelocityMS[1] + 3.0) - (18.0 * collective * m_RotorSpeed * nearGround);
 			if (targetVelocity < -5)
 				targetVelocity = -5;
 
@@ -1742,8 +1807,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			float totalThrust;
 
-			if (vrsSeverity > 0 && descentRate > m_VRSDescentDeep)
-				totalThrust = pState.m_Mass * 9.81 * (descentRate / m_VRSDescentDeep) * vrsThrustMult;
+			if (m_VRSSeverity > 0 && descentRate > m_VRSDescentDeep)
+				totalThrust = pState.m_Mass * Physics.STANDARD_GRAVITY * (descentRate / m_VRSDescentDeep) * vrsThrustMult;
 			else
 				totalThrust = collectiveCoef * vrsThrustMult * rbsThrustMult * pState.m_AltitudeLimiter * m_RotorSpeed * m_RotorSpeed * m_LiftForceCoef * pState.m_Mass;
 
@@ -1751,7 +1816,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 	}
 
-	void Simulate_Common(ExpansionPhysicsState pState, inout vector force, inout vector torque, float horiSpeed, float perpendicular, float stallSpeedThreshold, float rbsSeverity)
+	void Simulate_Common(ExpansionPhysicsState pState, inout vector force, inout vector torque, float horiSpeed, float perpendicular, float rbsSeverity)
 	{
 		float pDt = pState.m_DeltaTime;
 
@@ -1768,46 +1833,71 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		//! Cyclic
 		float cyclicForce = m_CyclicForceCoef * pState.m_Mass * m_RotorSpeed * m_RotorSpeed * pState.m_AltitudeLimiter;
-		if (IsAutoHover() || m_SimulationMode == ExpansionHelicopterSimulationMode.Legacy)
+		float cyclicForward;
+		float cyclicSide;
+		float cyclicPitchTorque;
+		float cyclicRollTorque;	
+	#ifdef DIAG_DEVELOPER
+		if (m_SimulationMode == ExpansionHelicopterSimulationMode.Legacy)
 		{
-			//! Don't use angular velocity target in autohover or they will fight over cyclic authority
-			//! (autover already adjusts cyclic input to meet target)
-			torque[0] = torque[0] - (cyclicForce * m_CyclicForward * m_CyclicForwardCoef * pState.m_BoundingRadius);
-			torque[2] = torque[2] + (cyclicForce * m_CyclicSide * m_CyclicSideCoef * pState.m_BoundingRadius);
+			cyclicForward = m_CyclicForward;
+			cyclicSide = m_CyclicSide;
+			cyclicPitchTorque = cyclicForce * cyclicForward * m_CyclicForwardCoef * pState.m_BoundingRadius;
+			cyclicRollTorque = cyclicForce * cyclicSide * m_CyclicSideCoef * pState.m_BoundingRadius;
 		}
 		else
+	#endif
 		{
 			//! Use angular velocity target to calculate torque for cyclic (this is what makes the controls feel crisp)
 			float pitchBlend;
 			float rollBlend;
 			float cyclicSideAbs = Math.AbsFloat(m_CyclicSide);
 			float cyclicSideFrac = cyclicSideAbs / m_CyclicSideMax;
-			float rollScaleMax = Math.Min(0.5 * radiusScale, 1.0);
+			float rollScaleMin;
+			float rollScaleMax;
 
 			if (!m_AutoTrim)
 			{
 				float cyclicForwardAbs = Math.AbsFloat(m_CyclicForward);
-				float pitchScale = Math.Min(0.8 * radiusScale, 1.0);
-				float rollScaleMin = Math.Min(0.3 * radiusScale, 1.0);
 				float cyclicForwardFrac = cyclicForwardAbs / m_CyclicForwardMax;
+				float pitchScale = Math.Min(0.8 * radiusScale, 1.0);
+				rollScaleMin = Math.Min(0.3 * radiusScale, 1.0);
+				rollScaleMax = Math.Min(0.5 * radiusScale, 1.0);
 				pitchBlend = Math.Lerp(pitchScale, 1.0, cyclicForwardFrac);
 				rollBlend = Math.Lerp(rollScaleMin, rollScaleMax, cyclicSideFrac);
 			}
 			else
 			{
 				pitchBlend = 1.0;
-				rollBlend = Math.Lerp(rollScaleMax, 1.0, cyclicSideFrac);
+				rollBlend = Math.Min(0.5 * radiusScale, 1.0);
 			}
 
-			float cyclicForward = m_CyclicForward * Math.PI_HALF - pState.m_AngularVelocityMS[0] * pitchBlend;
-			float cyclicSide = m_CyclicSide * Math.PI_HALF - pState.m_AngularVelocityMS[2] * rollBlend;
+		#ifdef DIAG_DEVELOPER
+			if (!m_UseCyclicDiskMoments || m_SimulationMode != ExpansionHelicopterSimulationMode.RotorDisk)
+			{
+				cyclicForward = m_CyclicForward * Math.PI_HALF - pState.m_AngularVelocityMS[0] * pitchBlend;
+				cyclicSide = m_CyclicSide * Math.PI_HALF - pState.m_AngularVelocityMS[2] * rollBlend;
+				cyclicPitchTorque = cyclicForce * cyclicForward * m_CyclicForwardCoef * pState.m_BoundingRadius;
+				cyclicRollTorque = cyclicForce * cyclicSide * m_CyclicSideCoef * pState.m_BoundingRadius;
+			}
+			else
+		#endif
+			{
+				//! Apply cyclic disk moments with small gain (raw moments are very large)
+				cyclicPitchTorque = (m_CyclicPitchMoment - m_InducedPitchMoment) * m_RotorDiskPitchMomentGain * radiusScale;
+				cyclicRollTorque = (m_CyclicRollMoment - m_InducedRollMoment) * m_RotorDiskRollMomentGain * radiusScale;
 
-			torque[0] = torque[0] - (cyclicForce * cyclicForward * m_CyclicForwardCoef * pState.m_BoundingRadius);
-			torque[2] = torque[2] + (cyclicForce * cyclicSide * m_CyclicSideCoef * pState.m_BoundingRadius);
+				float maxCyclicTorque = cyclicForce * pState.m_BoundingRadius;
+				cyclicPitchTorque -= pState.m_AngularVelocityMS[0] * maxCyclicTorque * m_CyclicForwardCoef * pitchBlend;
+				cyclicRollTorque -= pState.m_AngularVelocityMS[2] * maxCyclicTorque * m_CyclicSideCoef * rollBlend;
+			}
 		}
 
+		torque[0] = torque[0] - cyclicPitchTorque;
+		torque[2] = torque[2] + cyclicRollTorque;
+
 		//! Retreating Blade Stall - nose pitch-up and roll toward retreating (left for CCW, right for CW) side at high speed
-		if (rbsSeverity > 0.01)
+		if (rbsSeverity > 0.0)
 		{
 			float rbsTorque = rbsSeverity * cyclicForce * pState.m_BoundingRadius;
 			torque[0] = torque[0] - (rbsTorque * m_RetreatingBladeStallPitchCoef);   //! Nose pitch-up
@@ -1837,10 +1927,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		float tailRotorForce;
 		float tailForce;
 
-		float maxSpeedTailEffect = 0.0125;  //! at ~200 km/h, tail rotor has 30% effect, at 288 km/h, it has no effect
-		float tailEffectMin;
-		float scaledSpeedFactor = 1.0 - Math.Min(Math.AbsFloat(pState.m_LinearVelocityMS[2] * maxSpeedTailEffect), 1.0 - tailEffectMin);
-
 		float yawVelocity = pState.m_AngularVelocityMS[1];
 
 		//! tail rotor
@@ -1854,7 +1940,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			float tailRotorMalfunctionNeg = 1.0 - tailRotorMalfunction;
 			float tailRotorMalfunctionTorque = 0.5 * tailRotorMalfunction * m_RotorSpeed * (m_RotorSpeed + 0.1);
 
-			tailRotorForce = m_BackRotorSpeed * m_TailForceCoef * tailRotorMalfunctionNeg;
+			tailRotorForce = m_AntiTorque * m_TailForceCoef * tailRotorMalfunctionNeg;
 			tailRotorForce *= m_RotorSpeed * m_RotorSpeed;
 		}
 
@@ -1866,14 +1952,28 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			float mainRotorTorqueTarget;
 
 			if (!m_AutoTrim && !m_AutoHover)
-				mainRotorTorqueTarget = Math.Max(m_MainRotorSpeed, 0.0);
+				mainRotorTorqueTarget = Math.Max(m_Collective, 0.0);
 
 			m_MainRotorTorque = Math.Lerp(m_MainRotorTorque, mainRotorTorqueTarget, pDt);
 			float torqueSpeedFactor = 1.0 - Math.Clamp(horiSpeed / (pState.m_MaxSpeedMS * 0.5), 0.0, 1.0);
 			tailRotorForce -= m_TranslatingTendencyCoef * m_TranslatingTendencyCoef * m_MainRotorTorque * m_RotorSpeed * m_RotorSpeed * torqueSpeedFactor;
 		}
 
-		float bankForce = Math.Asin(m_Bank) * m_BankForceCoef * m_TailRotateFactor;
+		float bankForceCoef;
+
+	#ifdef DIAG_DEVELOPER
+		if (m_SimulationMode == ExpansionHelicopterSimulationMode.Legacy)
+			bankForceCoef = m_BankForceCoef;
+		else
+	#endif
+		{
+			if (pState.m_MaxSpeed > 120.0)
+				bankForceCoef = Math.Lerp(0.05, 0.001 * radiusScale, horiSpeed / pState.m_MaxSpeedMS);
+			else
+				bankForceCoef = Math.Lerp(0.5, 0.1, horiSpeed / pState.m_MaxSpeedMS);
+		}
+
+		float bankForce = Math.Asin(m_Bank) * bankForceCoef * m_TailRotateFactor;
 
 		//! tail aerodynamic forces
 		{
@@ -1897,8 +1997,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			float finEffectivenessCoef = Math.Lerp(0.12, 0.45, speedBlend);
 			//finEffectivenessCoef *= Math.Min((REFERENCE_MASS * REFERENCE_BOUNDING_RADIUS) / (pState.m_Mass * pState.m_BoundingRadius), 1.0);
 
-			float pedalAbs = Math.AbsFloat(m_BackRotorSpeed);
+			float pedalAbs = Math.AbsFloat(m_AntiTorque);
 			float pedalFrac = pedalAbs / m_AntiTorqueMax;
+			//finEffectivenessCoef = Math.Lerp(1.0, finEffectivenessCoef, pedalFrac);
 			float pedalActivity = Math.Clamp(pedalFrac * 2.0, 0.0, 1.0);
 			float speedFactor = Math.Clamp(horiSpeed / (pState.m_MaxSpeedMS * 0.4), 0.0, 1.0);
 			//! At high speed pedals suppress only 10% of fin - fin wins, enforcing the ~90 deg wall like A3
@@ -1916,6 +2017,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			float angleBudget = Math.Clamp(angleWall * 1.5 * pDt, 0.0, 1.2);
 			float maxFinForce = Math.Max(speedBudget, angleBudget) * pState.m_Mass;
 			float rawDirStabilityForce = -beta * horiSpeedClamped * airDensity * finArea * activeFinCoef * pDt;
+			rawDirStabilityForce *= ExpansionMath.LinearConversion(10.0, 15.0, horiSpeed, 0.0, 1.0);  //! Only weathervane if above 36 km/h
 			float dirStabilityForce = Math.Clamp(rawDirStabilityForce, -maxFinForce, maxFinForce);
 
 			//! Preserve yaw speed "feel" of legacy simulation
@@ -1944,22 +2046,39 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			float t = perpendicular * speedFactor;
 		}
 
+		float swingStrength;
+
+	#ifdef DIAG_DEVELOPER
 		if (m_SimulationMode == ExpansionHelicopterSimulationMode.Legacy)
 		{
-			tailForce = (bankForce + tailRotorForce - tailRotorMalfunctionTorque) * 0.5;
+			float maxSpeedTailEffect = 0.0125;  //! at ~200 km/h, tail rotor has 30% effect, at 288 km/h, it has no effect
+			float tailEffectMin;
+			float scaledSpeedFactor = 1.0 - Math.Min(Math.AbsFloat(pState.m_LinearVelocityMS[2] * maxSpeedTailEffect), 1.0 - tailEffectMin);
+
+			tailForce = (bankForce + tailRotorForce - tailRotorMalfunctionTorque) * 0.5 * scaledSpeedFactor;
 
 			antiTorqueYawDiff = ExpansionMath.LinearConversion(0, 0.25, t, tailForce, antiTorqueYawDiff);
 		}
+		else
+	#endif
+		{
+			float maxSwingStrength = (2.75 - speedFactor) * (2.0 - t) * Math.Clamp(1.0 / radiusScale, 0.0, 1.0);
+			swingStrength = ExpansionMath.LinearConversion(0.0, 1.0, pedalFrac, maxSwingStrength, 0.0);
+			//swingStrength = (1.0 - pedalFrac);
+		}
 
 		{
-			if (m_BackRotorSpeed == 0.0)
-				t = Easing.EaseOutQuad(t);
 			vector ori = m_Vehicle.GetOrientation();
-			if (ori[1] < -60)
-				t = ExpansionMath.LinearConversion(-60, -90, ori[1], t, 0);
+			if (ori[1] < -70)
+			{
+				//! Oscillation protection when pitched down excessively
+				float pitchFactor = ExpansionMath.LinearConversion(-70, -90, ori[1], 1, 0);
+				t *= pitchFactor;
+				swingStrength *= pitchFactor;
+			}
 			if (m_OverrideTailForce)
 				t *= 0.2;
-			tailForce = Math.Lerp(antiTorqueYawDiff * scaledSpeedFactor, dirStabilityForce + bankForce * Math.PI_HALF, t);
+			tailForce = Math.Lerp(antiTorqueYawDiff + dirStabilityForce * swingStrength, dirStabilityForce + bankForce * Math.PI_HALF, t);
 		}
 
 		//! apply tail rotor + aerodynamic forces
@@ -1981,10 +2100,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			vector friction;
 
 			vector frictionSpeed = pState.m_LinearVelocityMS;
-#ifdef EXPANSION_HELI_WIND
 			vector windSpeed = m_WindSpeedSync.InvMultiply3(pState.m_Transform);
-			frictionSpeed += windSpeed;
-#endif
+			frictionSpeed -= windSpeed;
 
 			float linearFrictionCoefX;
 			float linearFrictionCoefY;
@@ -1992,6 +2109,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			switch (m_AirFrictionMode)
 			{
+			#ifdef DIAG_DEVELOPER
 				case ExpansionHelicopterSimulationAirFrictionMode.Legacy:
 					//! @note because the legacy lateral friction value of 16.0 is extremely high relative to the forward value of 0.04,
 					//! this can have the undesired side-effect of strongly affecting the direction of movement!
@@ -2007,6 +2125,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 					linearFrictionCoefY = m_LinearFrictionCoef[1] * stabilizeXY;
 					linearFrictionCoefZ = m_LinearFrictionCoef[2];
 					break;
+			#endif
 
 				case ExpansionHelicopterSimulationAirFrictionMode.Balanced:
 				default:
@@ -2021,7 +2140,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			friction[2] = Math.SquareSign(frictionSpeed[2]) * pDt * linearFrictionCoefZ * pState.m_Mass;
 
 			//! Retreating Blade Stall - extra parasite drag from stalled blade (form drag opposes forward motion)
-			if (rbsSeverity > 0.01)
+			if (rbsSeverity > 0.0)
 			{
 				float rbsDragMult = 1.0 + (rbsSeverity * m_RetreatingBladeStallDragCoef);
 				friction[2] = friction[2] * rbsDragMult;  //! Forward axis - main parasite drag from stalled retreating blade
@@ -2040,10 +2159,12 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		//! Tail rotor lateral push - applied in worldspace using heli's right axis flattened to horizontal
 		//! so pitch attitude never bleeds into vertical. Creates curved flight path toward nose when holding yaw at speed (A3 behaviour)
+	#ifdef DIAG_DEVELOPER
 		if (m_SimulationMode != ExpansionHelicopterSimulationMode.Legacy)
+	#endif
 		{
 			float tailLateralCoef = 0.004;
-			float tailLateralForce = -(m_BackRotorSpeed * m_TailForceCoef * tailLateralCoef * m_RotorSpeed * pState.m_Mass);
+			float tailLateralForce = -(m_AntiTorque * m_TailForceCoef * tailLateralCoef * m_RotorSpeed * pState.m_Mass);
 			//! Use heli right axis (transform column 0) but zero out Y so it's always horizontal
 			vector rightAxis = Vector(pState.m_Transform[0][0], 0, pState.m_Transform[0][2]);
 			float rightLen = rightAxis.Length();
@@ -2054,7 +2175,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		//! Sideslip drag applied in worldspace - purely horizontal so pitched attitude can't bleed into vertical
 		//! This is what slows you down when presenting the heli's side to the airflow (pedal air-braking)
-		//if (m_AirFrictionMode != ExpansionHelicopterSimulationAirFrictionMode.Legacy)
+	#ifdef DIAG_DEVELOPER
+		if (m_AirFrictionMode != ExpansionHelicopterSimulationAirFrictionMode.Legacy)
+	#endif
 		{
 			vector horiVelWS = Vector(pState.m_LinearVelocity[0], 0, pState.m_LinearVelocity[2]);
 			float horiSpeedWSSq = horiVelWS.LengthSq();
@@ -2072,10 +2195,12 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			float tailRotateFactor = m_TailRotateFactor;
 
-			if (m_SimulationMode != ExpansionHelicopterSimulationMode.Legacy)
-				tailRotateFactor *= 0.15;
-			else
+		#ifdef DIAG_DEVELOPER
+			if (m_SimulationMode == ExpansionHelicopterSimulationMode.Legacy)
 				tailRotateFactor *= 0.5;
+			else
+		#endif
+				tailRotateFactor *= 0.15;
 
 			t_friction = pState.m_AngularVelocity * pState.m_Mass * (m_RotorSpeed + 0.2) * (m_AngularFrictionCoef + tailRotateFactor);
 
@@ -2110,7 +2235,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	}
 
 	//! Rotor-disk / blade-element model (A3 RotorLib-style)
-	void Simulate_RotorDisk(ExpansionPhysicsState pState, inout vector force, inout vector torque, float horiSpeed, float perpendicular, float stallSpeedThreshold, out float rbsSeverity)
+	void Simulate_RotorDisk(ExpansionPhysicsState pState, inout vector force, inout vector torque, float horiSpeed, float perpendicular, out float rbsSeverity)
 	{
 		float pDt = pState.m_DeltaTime;
 
@@ -2137,54 +2262,40 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			}
 		}
 
-		//! A3-style ETL bell curve.
-		//! At hover: high induced inflow (inefficient). As speed builds, inflow drops (more efficient).
-		//! The bell curve creates a pronounced lift surge at ~6-12 m/s before tapering off at cruise.
-		//! ETL peak speed in m/s - ~16-24 knots, matches A3 feel
-		float etlPeakSpeed = 9.0; //Center of the bump in m/s, lower for earlier and more pronounced, higher for later and less pronounced
-		float etlPeakWidth = 5.0; //How wide the bump is in m/s, Smaller = sharper/more sudden, larger = more gradual spread
-		float speedDiff = horiSpeed - etlPeakSpeed;
-		float etlBump = 1.0 + 0.40 * Math.Exp(-(speedDiff * speedDiff) / (2.0 * etlPeakWidth * etlPeakWidth)); //! ETL bump multiplier 0.40 means 40% more thrust at the peak of the bump
-
 		 //! Ideal induced velocity for hover, from momentum theory: vi = sqrt(T / (2 * rho * A))
 		 //! T = weight = mass * gravity. A = rotor disk area = pi * r^2. rho = air density.
-		float viHover = Math.Sqrt((REFERENCE_MASS * 9.81) / (2.0 * 1.225 * Math.PI * m_MainRotorRadius * m_MainRotorRadius));
-		float vi = viHover * rotorAuthority * (1.0 - Math.Clamp(mu * 0.5, 0.0, 0.6));
-		vi = vi / (groundEffect * etlBump);  //! ETL bump reduces induced inflow = more thrust at transition speed
+		float viHover = Math.Sqrt((REFERENCE_MASS * Physics.STANDARD_GRAVITY) / (2.0 * 1.225 * Math.PI * m_MainRotorRadius * m_MainRotorRadius));
+		float vi = viHover * rotorAuthority;
 
-		//! VRS
-		float vrsSeverity;
-		float vrsMult = 1.0;
-		float descentRate = -vv;
-		if (m_RotorSpeedTarget > 0 && descentRate > m_VRSDescentThreshold && horiSpeed < m_VRSAirspeedThreshold && m_RotorSpeed > 0.3 && (m_VRSSeverity > 0 || (groundEffect == 1.0 && descentRate < m_VRSDescentDeep + (m_VRSDescentDeep - m_VRSDescentThreshold))))
+		//! Correction factor for ETL to match A3
+		//! Nose pitched down 5° -> ~180 km/h top speed, ~1 m/s ascent at 50% collective (MH-6)
+		//! Adjustment region 12.34666 m/s (44.448 km/h or 24 knots) to 45 m/s (162 km/h)
+		float horiSpeedCorr = ExpansionMath.LinearConversion(12.346666, 45, horiSpeed, horiSpeed, horiSpeed * 0.41);
+
+		//! Effective translational lift, from momentum theory, reduces induced velocity
+		for (int j = 0; j < 8; ++j)
 		{
-			if (m_MainRotorSpeed > 0)
-			{
-				vrsSeverity = Math.Clamp((descentRate - m_VRSDescentThreshold) / (m_VRSDescentDeep - m_VRSDescentThreshold), 0.0, 1.0);
-				vrsSeverity *= 1.0 - (horiSpeed / m_VRSAirspeedThreshold);  //! Less VRS at higher airspeed
-				vrsSeverity *= 1.0 - Math.Min(Math.AbsFloat(vx) / (pState.m_BoundingRadius * 0.6), 1.0);  //! Less VRS when moving laterally towards vortex upwind
-				vrsSeverity *= Math.Lerp(1.0, 0.75 / m_VRSThrustLossMax, m_MainRotorSpeed);  //! higher collective = worse VRS (up to 20%)
-			}
-			else
-			{
-				//! If no or negative collective, full VRS reaches zero in 1.1 s
-				vrsSeverity = Math.Max(Math.Lerp(m_VRSSeverity, -0.01, pDt * 4), 0);
-			}
-
-			vrsMult = 1.0 - (vrsSeverity * m_VRSThrustLossMax);
+			float denom = Math.Sqrt(horiSpeedCorr * horiSpeedCorr + vi * vi);
+			vi = (viHover * viHover) / denom;
 		}
 
-		m_VRSSeverity = vrsSeverity;  //! For collective authority loss and feedback in HUD
+		vi = vi / groundEffect;  //! Ground effect reduces induced velocity
 
-		//! Collective -> blade pitch: m_MainRotorSpeed 0 = zero thrust, 1 = full
-		float theta0 = m_CollectivePitchAtMin * vrsMult;
-		float collective = m_MainRotorSpeed * vrsMult;
-		if (collective > 0.0)
-			theta0 = theta0 * 1.2 + collective * m_CollectivePitchAtFull;
-		else
-			theta0 = ExpansionMath.LinearConversion(-0.2, 0.0, collective, theta0, theta0 * 1.2);
-		float theta1s = m_CyclicForward * 0.04;   //! Longitudinal cyclic
-		float theta1c = m_CyclicSide * 0.04;     //! Lateral cyclic
+		//! VRS
+		float descentRate = -vv;
+
+		ComputeVRSSeverity(descentRate, horiSpeed, groundEffect, pDt);
+
+		float vrsThrustLoss = m_VRSSeverity * m_VRSThrustLossMax;
+		float vrsMult = 1.0 - vrsThrustLoss;
+
+		vi *= 1.0 + vrsThrustLoss;  //! VRS increases induced velocity
+
+		//! Collective -> blade pitch: m_Collective 0 = zero thrust, 1 = full
+		float theta0 = GetTheta0(m_Collective, m_LiftForceCoef);
+		theta0 *= vrsMult;
+		float theta1s = m_CyclicForward * m_CyclicForwardCoef * 0.096;   //! Longitudinal cyclic
+		float theta1c = m_CyclicSide * m_CyclicSideCoef * 0.127;     //! Lateral cyclic
 
 		//! Blade-element sampling: 8 azimuth sectors. cos/sin lookup [0..7]
 		float azCos[8] = { 1.0, 0.707, 0.0, -0.707, -1.0, -0.707, 0.0, 0.707 };
@@ -2194,15 +2305,16 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		float rho = 1.225 * pState.m_AltitudeLimiter;
 
 		float totalThrust = 0.0;
-		float totalPitchMoment = 0.0;
-		float totalRollMoment = 0.0;
+		m_InducedPitchMoment = 0.0;
+		m_InducedRollMoment = 0.0;
+		m_CyclicPitchMoment = 0.0;
+		m_CyclicRollMoment = 0.0;
 
-		if (m_RBS && horiSpeed > stallSpeedThreshold && m_RotorSpeed > 0.5)
+		if (m_RBS)
 		{
-			rbsSeverity = Math.Clamp((horiSpeed - stallSpeedThreshold) / (pState.m_MaxSpeedMS - stallSpeedThreshold), 0.0, 1.0);
-			rbsSeverity *= (1.2 - m_RotorSpeed);
-			rbsSeverity *= (1.5 - pState.m_AltitudeLimiter * 0.5);
-			rbsSeverity = Math.Clamp(rbsSeverity, 0.0, 1.0);
+			//! Our helis are slower in game than the real-world counterparts, so we have to adjust for this
+			float speedCorr = 1.174090;  //! maxSafeAdvanceRatio / (VNE / tipSpeed) = 0.35 / (61.111111 / 205)
+			rbsSeverity = (mu - 0.35) / 0.10;
 		}
 
 		for (int i = 0; i < 8; ++i)
@@ -2230,46 +2342,89 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			}
 			float phi = up / utSafe;  //! Inflow angle
 
-			//! Thrust uses collective pitch ONLY - cyclic is intentionally excluded here.
-			//! Including cyclic in thrust breaks azimuthal symmetry via the nonlinear stall/negative-alpha
-			//! clamps, causing cyclic inputs to spuriously increase total thrust (skyrocket on bank+yaw).
-			float alphaThrust = theta0 - phi;
-			float clThrust = m_BladeLiftSlope * alphaThrust;
+			bool isRetreating = ut < omegaR;
+
+			//! Approximate flapping effect
+			float muLocal = 0.0;
+			if (omegaR > 1.0)
+				muLocal = vx / omegaR;
+
+			float flapAngle = 0.0;
+
+			if (isRetreating) //! retreating side
+				flapAngle = 0.10 * Math.Clamp(muLocal, 0.0, 0.45) * -cpsi;
+
+			float alpha = theta0 - phi + flapAngle;
+			float cl = m_BladeLiftSlope * alpha;
 
 			//! Retreating blade stall: low UT (retreating side) -> high alpha -> stall
-			bool isRetreating = ut < omegaR * m_RetreatingBladeStallSpeed;
-			if (m_RBS && alphaThrust > m_BladeStallAngle && isRetreating)
+			float stallFactor = 0;
+			if (m_RBS && alpha > m_BladeStallAngle && isRetreating)
 			{
-				float stallFactor = Math.Clamp((alphaThrust - m_BladeStallAngle) / 0.25, 0.0, 1.0);
-				clThrust = m_BladeLiftSlope * m_BladeStallAngle * (1.0 - stallFactor * 0.8);
+				stallFactor = Math.Clamp((alpha - m_BladeStallAngle) / 0.25, 0.0, 1.0);
+				cl = m_BladeLiftSlope * m_BladeStallAngle * (1.0 - stallFactor * 0.8);
 			}
-			else if (alphaThrust < -0.1)
+			else if (alpha < -0.1)
 			{
-				clThrust = clThrust * 0.5;
+				cl = cl * 0.5;
 			}
 
-			float dL = 0.5 * rho * m_MainRotorChord * (m_MainRotorRadius * 0.7) * clThrust * u * u * dpsi * rotorAuthority;
+			float dL = 0.5 * rho * m_MainRotorChord * (m_MainRotorRadius * 0.7) * cl * u * u * dpsi * rotorAuthority;
+
+		#ifdef DIAG_DEVELOPER
+			if (!m_AutoTrim || m_UseCyclicDiskMoments)
+		#endif
+			{
+				m_InducedPitchMoment = m_InducedPitchMoment + (dL * spsi * m_MainRotorRadius * 0.7 * m_MainRotorBlades);
+				m_InducedRollMoment = m_InducedRollMoment + (dL * cpsi * m_MainRotorRadius * 0.7 * m_MainRotorBlades);
+			}
+
+		#ifdef DIAG_DEVELOPER
+			if (m_UseCyclicDiskMoments)
+		#endif
+			{
+				float theta = theta0 + theta1s * spsi + theta1c * cpsi;
+				alpha = theta - phi + flapAngle;
+				cl = m_BladeLiftSlope * alpha;
+				if (m_RBS && alpha > m_BladeStallAngle && isRetreating)
+				{
+					stallFactor = Math.Clamp((alpha - m_BladeStallAngle) / 0.25, 0.0, 1.0);
+					cl = m_BladeLiftSlope * m_BladeStallAngle * (1.0 - stallFactor * 0.8);
+				}
+				else if (alpha < -0.1)
+				{
+					cl = cl * 0.5;
+				}
+
+				dL = 0.5 * rho * m_MainRotorChord * (m_MainRotorRadius * 0.7) * cl * u * u * dpsi * rotorAuthority;
+
+				m_CyclicPitchMoment = m_CyclicPitchMoment + (dL * spsi * m_MainRotorRadius * 0.7 * m_MainRotorBlades);
+				m_CyclicRollMoment = m_CyclicRollMoment + (dL * cpsi * m_MainRotorRadius * 0.7 * m_MainRotorBlades);
+			}
+
 			totalThrust += dL * m_MainRotorBlades;
 
-			//! TODO: Could use this but much harder to fly than old cyclic controller
-			//float theta = theta0 + theta1s * spsi + theta1c * cpsi;
-			//float alpha = theta - phi;
-			//float cl = m_BladeLiftSlope * alpha;
-			if (!m_AutoTrim)
-			{
-				totalPitchMoment = totalPitchMoment + (dL * spsi * m_MainRotorRadius * 0.7 * m_MainRotorBlades);
-				totalRollMoment = totalRollMoment + (dL * cpsi * m_MainRotorRadius * 0.7 * m_MainRotorBlades);
-			}
+			rbsSeverity += stallFactor;
+
+		#ifdef DIAG_DEVELOPER
+			if (stallFactor > 0.0)
+				PrintFormat("%1 stallFactor %2 cl %3 ut %4 omegaR %5 muLocal %6 alpha %7 flapAngle %8", i, stallFactor, cl, ut, omegaR, muLocal, theta0 - phi, flapAngle);
+		#endif
 		}
 
-		totalThrust *= vrsMult * groundEffect * m_RotorDiskThrustScale;
+		rbsSeverity = Math.Clamp(rbsSeverity, 0.0, 1.0);
+
+		m_RBSSeverity = rbsSeverity;
+
+		totalThrust *= m_RotorDiskThrustScale;
 		totalThrust *= (1.0 - rbsSeverity * m_RetreatingBladeStallLiftLoss);
 
 		//! Sideslip rotor efficiency loss - high perpendicular airflow disturbs disk inflow,
 		//! reducing effective thrust. Scales with both sideslip angle and speed so it has
 		//! no effect in hover (speed=0) but progressively counters the climb during air braking.
 		//! This matches A3 behaviour where you do gain altitude but slowly, not a skyrocket.
-		float sideslipEfficiencyLoss = perpendicular * perpendicular * Math.Clamp(horiSpeed / (pState.m_MaxSpeedMS * 0.5), 0.0, 1.0) * 0.35;
+		float speedFactor = Math.Clamp(horiSpeed / (pState.m_MaxSpeedMS * 0.5), 0.0, 1.0);
+		float sideslipEfficiencyLoss = perpendicular * perpendicular * speedFactor * 0.35;
 		totalThrust *= (1.0 - sideslipEfficiencyLoss);
 
 		float massScale = pState.m_Mass / REFERENCE_MASS;
@@ -2281,28 +2436,222 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		else
 			totalThrust *= massScale;  //! Scale by reference mass (1.0 = MH6)
 
-		if (vrsSeverity > 0 && descentRate > m_VRSDescentDeep)
-			totalThrust = pState.m_Mass * 9.81 * (descentRate / m_VRSDescentDeep) * vrsMult;
+		//if (m_VRSSeverity > 0 && descentRate > m_VRSDescentDeep)
+			//totalThrust = pState.m_Mass * Physics.STANDARD_GRAVITY * (descentRate / m_VRSDescentDeep) * vrsMult;
 
-		force += Vector(0, 1, 0) * totalThrust;
+		vector ori = m_Helicopter.GetOrientation();
 
-		//! Apply disk moments with small gain so cyclic feels stable (raw moments are very large)
+		//! Thrust along tilted disk normal (disk leads, fuselage hangs below)
+		float cyclicForwardThrustTarget = (m_CyclicForward - m_RotorDiskForwardInertia) / m_CyclicForwardMax;
+		float cyclicForwardThrustTargetAbs = Math.AbsFloat(cyclicForwardThrustTarget) / m_CyclicSideMax;
+		float cyclicSideThrustTarget = (m_CyclicSide - m_RotorDiskSideInertia);
+		float cyclicSideThrustTargetAbs = Math.AbsFloat(cyclicSideThrustTarget);
+
+		float accelMaxSpeed = 50;  //! m/s (~180 km/h)
+		float accelTargetSpeed = Math.Clamp(vh, 0, accelMaxSpeed * (Math.Min(pState.m_MaxSpeed, 220.0) / 220.0));
+		//! 0 to 100 km/h in ~36 s at 5° fwd pitch like A3 MH-6
+		float pitchFactor = ExpansionMath.LinearConversion(0, -5, ori[1], 0.0, 1.0);
+		float fwdThrustFactor = Math.Pow(accelTargetSpeed / accelMaxSpeed, 1.5) * pitchFactor;
+		//PrintFormat("accel %1 pitch %2° pitchFactor %3 fwdThrustFactor %4", pState.m_LinearAccelerationMS[2], ori[1], pitchFactor, fwdThrustFactor);
+		float collectiveSideThrustMoment;
+
+		float liftComp = 1;
+		float rotorRotationDirection = Math.Sign(m_TranslatingTendencyCoef);  //! Main rotor 1 = CCW -1 = CW
+
+		//! Rotor disk dynamic lag/inertia and cross-axis coupling
+	#ifdef DIAG_DEVELOPER
+		if (m_RotorDiskInertia)
+	#endif
+		{
+			//! "Swing" and resistance effect like in A3 (both fade away quickly while there's input and gets inverted when input is released)
+			float swingForceScale = Math.Min(pState.m_BoundingRadius / REFERENCE_BOUNDING_RADIUS, 1.0);
+			float swingForce = rotorAuthority * pState.m_Mass * pState.m_BoundingRadius * 0.5 * swingForceScale * pState.m_AltitudeLimiter;
+			float resistancePitch;
+			float resistanceRoll;
+			float yawSwing;
+			float rollSwing;
+
+			if (cyclicForwardThrustTarget < 0)  //! Pitch up (cyclic bwd), resistance up
+				resistancePitch = Math.Lerp(0, swingForce, cyclicForwardThrustTargetAbs);
+			else  //! Pitch down (cyclic fwd), resistance down
+				resistancePitch = Math.Lerp(0, -swingForce, cyclicForwardThrustTargetAbs);
+
+			//! Swing in opposite direction of main rotor rotation
+			if (m_CyclicForward < 0)
+				yawSwing += resistancePitch * rotorRotationDirection;
+			else
+				yawSwing -= resistancePitch * rotorRotationDirection;
+
+			float collectiveSwingFactor;
+
+			if (m_CollectiveDelta > 0.0 || (m_CollectiveDelta == 0.0 && m_CollectiveDeltaInterpolated > 0.0))
+				collectiveSwingFactor = 2.0;
+			else
+				collectiveSwingFactor = 1.0;
+
+			float collectiveSpeedFactor = Math.Clamp(horiSpeed / (pState.m_MaxSpeedMS * 0.7), 0.5, 1.0);
+
+			//! Collective up = yaw opposite to rotor rotation dir, collective down = yaw in rotor rotation dir
+			float collectiveYawSwing = m_CollectiveDeltaInterpolated * swingForce * rotorRotationDirection;
+			yawSwing += collectiveYawSwing * collectiveSwingFactor * 5.0 * collectiveSpeedFactor;
+
+			//! Collective up = roll in rotor rotation dir, collective down = roll opposite to rotor rotation dir
+			rollSwing += m_CollectiveDelta * swingForce * rotorRotationDirection * collectiveSwingFactor * 0.125 * (1.2 - collectiveSpeedFactor);
+
+			//! Collective up = pitch up, collective down = pitch down
+			float pitchSwing = m_CollectiveDeltaInterpolated * swingForce * collectiveSpeedFactor;
+
+			collectiveSideThrustMoment = m_CollectiveDeltaInterpolated * rotorRotationDirection * 0.1 * collectiveSpeedFactor;
+
+			rollSwing -= resistancePitch * 0.2;
+
+			if (cyclicSideThrustTarget < 0)  //! Roll left (cyclic left), resistance left
+				resistanceRoll = Math.Lerp(0, swingForce, cyclicSideThrustTargetAbs);
+			else  //! Roll right (cyclic right), resistance right
+				resistanceRoll = Math.Lerp(0, -swingForce, cyclicSideThrustTargetAbs);
+
+			yawSwing += resistanceRoll * 2;
+
+			torque[0] = torque[0] + resistancePitch * 2 - pitchSwing;
+			torque[1] = torque[1] + yawSwing;
+			torque[2] = torque[2] + resistanceRoll + rollSwing;
+		}
+
+		m_ThrustDir[0] = -cyclicSideThrustTarget * m_ThrustTiltCoef + collectiveSideThrustMoment;
+		m_ThrustDir[1] = 1.0;
+		m_ThrustDir[2] = (cyclicForwardThrustTarget + fwdThrustFactor) * m_ThrustTiltCoef;
+		m_ThrustDir.Normalize();
+
+		vector thrustForce = m_ThrustDir * totalThrust * liftComp;
+
+		force += thrustForce;
+
+		m_RotorDiskForwardInertia = Math.SmoothCD(m_RotorDiskForwardInertia, m_CyclicForward, m_RotorDiskForwardInertiaVel, 0.2, 1000, pDt);
+		m_RotorDiskSideInertia = Math.SmoothCD(m_RotorDiskSideInertia, m_CyclicSide, m_RotorDiskSideInertiaVel, 0.2, 1000, pDt);
+
+		m_InducedPitchMoment *= massScale;
+		m_InducedRollMoment *= massScale;
+		m_CyclicPitchMoment *= massScale;
+		m_CyclicRollMoment *= massScale;
+
+		//! Apply induced disk moments with small gain (raw moments are very large)
 		if (!m_AutoTrim)
 		{
-			vector ori = m_Helicopter.GetOrientation();
 			float rollAngle = ori[2];
-			float sign = Math.Sign(m_TranslatingTendencyCoef);
-			float angleFactor = ExpansionMath.LinearConversion(0, 90 * sign, rollAngle, 1.0, 0.0);
+			float rollFactor = ExpansionMath.LinearConversion(0, 30 * rotorRotationDirection, rollAngle, 1.0, 0.0);
 
-			torque[0] = torque[0] - (totalPitchMoment * m_RotorDiskPitchMomentGain * massScale * angleFactor);
+			torque[0] = torque[0] - (m_InducedPitchMoment * m_RotorDiskPitchMomentGain);
 
-			if (Math.Sign(m_BackRotorSpeed) == sign)
-				totalRollMoment *= Math.AbsFloat(m_BackRotorSpeed / m_AntiTorqueMax) * -sign;
-			else
-				totalRollMoment = Math.AbsFloat(totalRollMoment);
+			float pedalAbs = Math.AbsFloat(m_AntiTorque);
+			float pedalFrac = pedalAbs / m_AntiTorqueMax;
+			torque[2] = torque[2] + (m_InducedRollMoment * m_RotorDiskRollMomentGain * pedalFrac);
 
-			torque[2] = torque[2] - totalRollMoment * m_RotorDiskRollMomentGain * massScale * angleFactor * sign;
+			torque[2] = torque[2] - (Math.AbsFloat(m_InducedPitchMoment) * 0.1 * m_RotorDiskRollMomentGain * rollFactor * rotorRotationDirection);
 		}
+	}
+
+	void ComputeVRSSeverity(float descentRate, float horiSpeed, float groundEffect, float pDt)
+	{
+		float vrsSeverity;
+
+		if (m_RotorSpeedTarget > 0 && descentRate > m_VRSDescentThreshold && horiSpeed < m_VRSAirspeedThreshold && m_RotorSpeed > 0.3 && (m_VRSSeverity > 0 || (groundEffect == 1.0 && descentRate < m_VRSDescentDeep + (m_VRSDescentDeep - m_VRSDescentThreshold))))
+		{
+			if (m_Collective > 0)
+			{
+				vrsSeverity = Math.Clamp((descentRate - m_VRSDescentThreshold) / (m_VRSDescentDeep - m_VRSDescentThreshold), 0.0, 1.0);
+				vrsSeverity *= 1.0 - (horiSpeed / m_VRSAirspeedThreshold);  //! Less VRS at higher airspeed
+				//vrsSeverity *= 1.0 - Math.Min(Math.AbsFloat(vx) / (pState.m_BoundingRadius * 0.6125), 1.0);  //! Less VRS when moving laterally towards vortex upwind
+
+				if (m_Collective <= 0.5)
+					vrsSeverity *= Math.Lerp(1.0, 0.75 / m_VRSThrustLossMax, m_Collective);  //! higher collective = worse VRS (up to 36%)
+				else
+					vrsSeverity *= Math.Lerp(0.75 / m_VRSThrustLossMax, 0.99 / m_VRSThrustLossMax, m_Collective);  //! higher collective = worse VRS (up to 80%)
+			}
+			else
+			{
+				//! If no or negative collective, full VRS reaches zero in 2 s
+				vrsSeverity = Math.Max(vrsSeverity - pDt * 0.5, 0);
+			}
+		}
+
+		m_VRSSeverity = vrsSeverity;
+	}
+
+	//! Given collective input in interval [0,1], return pitch angle theta0
+	float GetTheta0(float collective, float liftForceCoef)
+	{
+		float theta0 = m_CollectivePitchAtMin;
+		float collectivePitchRange = m_CollectivePitchAtFull - m_CollectivePitchAtMin;
+		float collectiveTransition = ExpansionMath.LinearConversion(1.0, 1.3, liftForceCoef, 0.0, 0.5);
+
+		if (collective <= collectiveTransition)
+		{
+			theta0 += collective * collectivePitchRange;
+		}
+		else
+		{
+			float collectiveRemaining = 1.0 - collectiveTransition;
+			float t = (collective - collectiveTransition) / collectiveRemaining;
+			float scaleFactor;
+
+			if (liftForceCoef < 1.1)
+				scaleFactor = ExpansionMath.LinearConversion(0.4, 1.1, liftForceCoef, -1.9, -1.2);
+			else
+				scaleFactor = ExpansionMath.LinearConversion(1.1, 1.3, liftForceCoef, -1.2, 1.0);
+
+			t = (0.155 * scaleFactor * t * t) + (collectiveRemaining * t) + collectiveTransition;
+			theta0 += t * collectivePitchRange;  //! Gradually ramp up to max ascent rate to match A3 (20 m/s for MH-6)
+		}
+
+		return theta0;
+	}
+
+	//! Given collective pitch angle theta0, return collective input in interval [0,1]
+	float GetCollectiveInput(float theta0, float liftForceCoef)
+	{
+		float collectivePitchRange = m_CollectivePitchAtFull - m_CollectivePitchAtMin;
+		float collectiveTransition = ExpansionMath.LinearConversion(1.0, 1.3, liftForceCoef, 0.0, 0.5);
+		float collectivePitchRel = (theta0 - m_CollectivePitchAtMin) / collectivePitchRange;
+
+		if (theta0 <= m_CollectivePitchAtMin + collectiveTransition * collectivePitchRange)
+			return collectivePitchRel;  //! Linear segment maps directly to collective input
+
+		float collectiveRemaining = 1.0 - collectiveTransition;
+		float scaleFactor;
+		if (liftForceCoef < 1.1)
+			scaleFactor = ExpansionMath.LinearConversion(0.4, 1.1, liftForceCoef, -1.9, -1.2);
+		else
+			scaleFactor = ExpansionMath.LinearConversion(1.1, 1.3, liftForceCoef, -1.2, 1.0);
+
+		//! Solve: collectivePitchRel = (0.155 * scaleFactor * t * t) + (collectiveRemaining * t) + collectiveTransition
+		float a = 0.155 * scaleFactor;  //! Quadratic coefficient
+		float b = collectiveRemaining;  //! Linear coefficient
+		float c = collectiveTransition - collectivePitchRel;  //! Constant term
+		float t;
+		
+		if (Math.AbsFloat(a) < 1e-8)
+		{
+			t = -c / b;
+		}
+		else
+		{
+			float disc = b * b - 4 * a * c;  //! Discriminant
+
+			//! Safeguard against tiny floating-point errors (e.g. -1e-15 instead of 0)
+			disc = Math.Max(disc, 0.0);
+
+			float discSqrt = Math.Sqrt(disc);
+
+			float t1 = (-b + discSqrt) / (2 * a);
+			float t2 = (-b - discSqrt) / (2 * a);
+
+			if (t1 >= -1e-12 && t1 <= 1.0 + 1e-12)
+				t = t1;
+			else
+				t = t2;
+		}
+
+		return collectiveTransition + Math.Clamp(t, 0.0, 1.0) * collectiveRemaining;
 	}
 
 	void ApplyHoverInstability(ExpansionPhysicsState pState, inout vector force, inout vector torque, float horiSpeed)
@@ -2335,8 +2684,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		//! More violent shaking in VRS
 		if (m_VRSSeverity > 0)
 		{
-			//wobbleFrequencyScale *= Math.Lerp(1.0, 0.5, m_VRSSeverity);
-			wobbleIntensityScale *= Math.Lerp(1.0, 5.0, m_VRSSeverity);
+			wobbleIntensityScale *= Math.Lerp(1.0, 3.0, m_VRSSeverity);
 		}
 
 		m_HoverTimeTracker += pState.m_DeltaTime * wobbleFrequencyScale;
@@ -2379,6 +2727,20 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_Vehicle.SetAnimationPhase("compasspointer", m_Vehicle.GetOrientation()[0] * Math.DEG2RAD);
 		m_Vehicle.SetAnimationPhase("attitudeDiveRTD", m_Vehicle.GetDirection()[1]);
 		m_Vehicle.SetAnimationPhase("attitudeBankRTD", m_Vehicle.GetOrientation()[2] / 360);
+
+		float change;
+
+		if (m_CollectiveInterpolated < m_CollectiveTarget)
+			change = deltaTime;
+		else if (m_CollectiveInterpolated > m_CollectiveTarget)
+			change = -deltaTime;
+
+		float absDiff = Math.AbsFloat(m_CollectiveTarget - m_CollectiveInterpolated);
+		change = Math.Clamp(change, -absDiff, absDiff);
+		m_CollectiveInterpolated += change;
+
+		m_Vehicle.SetAnimationPhase("CollectiveRTD", m_CollectiveInterpolated);
+		m_Vehicle.SetAnimationPhase("rudderRTD", m_AntiTorque / m_AntiTorqueMax);
 
 		//! Particles, only client-side
 		if (!IsMissionClient())
@@ -2484,12 +2846,23 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				m_WaterParticle.Stop();
 			}
 		}
+
+	#ifdef DIAG_DEVELOPER
+		vector rotorHubOffset = m_Helicopter.GetMemoryPointPos("rotor");
+		vector origin = rotorHubOffset.Multiply4(pState.m_Transform);
+		vector thrustDirWS = m_ThrustDir.Multiply3(pState.m_Transform);
+		Debug.DrawArrow(origin, origin + pState.m_Transform[1] * 2, 0.5, COLOR_BLUE, ShapeFlags.ONCE | ShapeFlags.NOZBUFFER);
+		Debug.DrawArrow(origin, origin + thrustDirWS * 2, 0.5, COLOR_GREEN, ShapeFlags.ONCE | ShapeFlags.NOZBUFFER);
+	#endif
 	}
 
 	void AnimateCyclic()
 	{
-		m_Vehicle.SetAnimationPhase("cyclicForward", m_CyclicForwardInputVal);
-		m_Vehicle.SetAnimationPhase("cyclicAside", -m_CyclicSideInputVal);
+		float cyclicForwardInput = Math.Clamp(m_CyclicForwardInput, -1.0, 1.0);
+		float cyclicSideInput = Math.Clamp(m_CyclicSideInput, -1.0, 1.0);
+
+		m_Vehicle.SetAnimationPhase("cyclicForward", cyclicForwardInput);
+		m_Vehicle.SetAnimationPhase("cyclicAside", -cyclicSideInput);
 	}
 
 	void AnimateRotors()
@@ -2529,14 +2902,20 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		packed |= (m_AutoHover & 0x1);
 		packed |= (m_IsFreeLook & 0x1) << 1;
+
+	#ifdef DIAG_DEVELOPER
 		packed |= (m_SimulationMode & 0x3) << 2;
 		packed |= (m_AirFrictionMode & 0x3) << 4;
+	#endif
+
 		packed |= (m_RBS & 0x1) << 6;
 		packed |= (m_AutoCollective & 0x1) << 7;
 		packed |= (m_AutoTrim & 0x1) << 8;
 		packed |= (m_TranslatingTendency & 0x1) << 9;
 
 	#ifdef DIAG_DEVELOPER
+		packed |= (m_RotorDiskInertia & 0x1) << 10;
+
 		int airFrictionX = Math.Round(m_AirFriction[0] * 100);
 		int airFrictionY = Math.Round(m_AirFriction[1] * 100);
 		int airFrictionZ = Math.Round(m_AirFriction[2] * 100);
@@ -2555,6 +2934,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		ctx.Write(packed);
 
+		ctx.Write(m_CollectiveTarget);
+
 		if (m_AutoHover)
 		{
 			ctx.Write(m_AutoHoverAltitude);
@@ -2564,11 +2945,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		else if (m_AutoCollective)
 		{
 			ctx.Write(m_AutoHoverAltitude);
-			ctx.Write(m_MainRotorInput);
-		}
-		else
-		{
-			ctx.Write(m_MainRotorSpeedTarget);
+			ctx.Write(m_CollectiveInput);
 		}
 
 		ctx.Write(m_VertSens);
@@ -2587,14 +2964,20 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	{
 		int autoHover = packed & 0x1;
 		int isFreeLook = (packed >> 1) & 0x1;
+
+	#ifdef DIAG_DEVELOPER
 		int simulationMode = (packed >> 2) & 0x3;
 		int airFrictionMode = (packed >> 4) & 0x3;
+	#endif
+
 		int rbs = (packed >> 6) & 0x1;
 		int autoCollective = (packed >> 7) & 0x1;
 		int autoTrim = (packed >> 8) & 0x1;
 		int translatingTendency = (packed >> 9) & 0x1;
 
 	#ifdef DIAG_DEVELOPER
+		int rotorDiskInertia = (packed >> 10) & 0x1;
+
 		int airFrictionX100 = (packed >> 11) & 0x7f;
 		int airFrictionY100 = (packed >> 18) & 0x7f;
 		int airFrictionZ100 = (packed >> 25) & 0x7f;
@@ -2635,6 +3018,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		if (translatingTendency != m_TranslatingTendency)
 			Message("Translating Tendency " + translatingTendency.ToString());
 
+		if (rotorDiskInertia != m_RotorDiskInertia)
+			Message("Rotor Disk Inertia " + rotorDiskInertia.ToString());
+
 		m_AirFriction[0] = airFrictionX;
 		m_AirFriction[1] = airFrictionY;
 		m_AirFriction[2] = airFrictionZ;
@@ -2642,12 +3028,20 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		if (updateFreeLook)
 			m_IsFreeLook = isFreeLook;
+
+	#ifdef DIAG_DEVELOPER
 		m_SimulationMode = simulationMode;
 		m_AirFrictionMode = airFrictionMode;
+	#endif
+
 		m_RBS = rbs;
 		m_AutoCollective = autoCollective;
 		m_AutoTrim = autoTrim;
 		m_TranslatingTendency = translatingTendency;
+
+	#ifdef DIAG_DEVELOPER
+		m_RotorDiskInertia = rotorDiskInertia;
+	#endif
 	}
 
 	//! Server
@@ -2659,6 +3053,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		UnpackNetworkVariables(packed);
 
+		float collectiveTgt;
+		ctx.Read(collectiveTgt);
+		
 		if (m_AutoHover)
 		{
 			ctx.Read(m_AutoHoverAltitude);
@@ -2668,15 +3065,21 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			ctx.Read(autoHoverSpeedTargetZ);
 			m_AutoHoverSpeedTarget[0] = autoHoverSpeedTargetX;
 			m_AutoHoverSpeedTarget[2] = autoHoverSpeedTargetZ;
+
+			if (m_RotorSpeedTarget == 0 && m_Helicopter.m_State.m_HasDriver)
+				m_CollectiveTarget = collectiveTgt;
 		}
 		else if (m_AutoCollective)
 		{
 			ctx.Read(m_AutoHoverAltitude);
-			ctx.Read(m_MainRotorInput);
+			ctx.Read(m_CollectiveInput);
+
+			if (m_RotorSpeedTarget == 0 && m_Helicopter.m_State.m_HasDriver)
+				m_CollectiveTarget = collectiveTgt;
 		}
 		else
 		{
-			ctx.Read(m_MainRotorSpeedTarget);
+			m_CollectiveTarget = collectiveTgt;
 		}
 
 		ctx.Read(m_VertSens);
@@ -2807,11 +3210,11 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		instance.Add("Rotor Speed", m_RotorSpeed);
 		instance.Add("Rotor Speed Target", m_RotorSpeedTarget);
 
-		instance.Add("Main Rotor Speed", m_MainRotorSpeed);
-		instance.Add("Main Rotor Speed Target", m_MainRotorSpeedTarget);
+		instance.Add("Collective", m_Collective);
+		instance.Add("Collective Target", m_CollectiveTarget);
 
-		instance.Add("Back Rotor Speed", m_BackRotorSpeed);
-		instance.Add("Back Rotor Speed Target", m_BackRotorSpeedTarget);
+		instance.Add("Anti Torque", m_AntiTorque);
+		instance.Add("Anti Torque Target", m_AntiTorqueTarget);
 
 		instance.Add("Cyclic Forward", m_CyclicForward);
 		instance.Add("Cyclic Forward Target", m_CyclicForwardTarget);

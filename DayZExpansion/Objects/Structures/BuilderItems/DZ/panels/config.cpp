@@ -65,4 +65,44 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\roads\panels\proxy\concrete_panels_main_grass.p3d";
 	};
+	class bldr_panel_concrete_1_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\panels\panel_concrete_1_lc.p3d";
+	};
+	class bldr_panel_concrete_1_legacy: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\panels\panel_concrete_1_legacy.p3d";
+	};
+	class bldr_panel_concrete_2_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\panels\panel_concrete_2_lc.p3d";
+	};
+	class bldr_panel_concrete_2_legacy: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\panels\panel_concrete_2_legacy.p3d";
+	};
+	class bldr_panel_concrete_dam_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\panels\panel_concrete_dam_lc.p3d";
+	};
+	class bldr_panel_concrete_dam_legacy: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\panels\panel_concrete_dam_legacy.p3d";
+	};
+	class bldr_panels_concrete_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\panels\panels_concrete_lc.p3d";
+	};
+	class bldr_panels_concrete_legacy: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\panels\panels_concrete_legacy.p3d";
+	};
 };

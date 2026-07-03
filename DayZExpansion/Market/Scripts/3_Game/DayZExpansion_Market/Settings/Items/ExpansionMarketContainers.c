@@ -32,5 +32,6 @@ class ExpansionMarketContainers: ExpansionMarketCategory
 		AddItem("ExpansionSafeMedium", 			6000,		12000,		1,		100);
 		AddItem("ExpansionSafeLarge", 			8000,		16000,		1,		100);
 	#endif
+		AddItem("ExpansionBriefcase", 3000, 6000, 1, 100);
 	}
 };

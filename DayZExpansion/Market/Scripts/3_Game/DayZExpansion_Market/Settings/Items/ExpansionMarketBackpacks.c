@@ -62,5 +62,8 @@ class ExpansionMarketBackpacks: ExpansionMarketCategory
 
 		// Crafted item !
 		//AddItem("DrysackBag_Green", 				120,		300,		1,		100, null, {"DrysackBag_Orange", "DrysackBag_Yellow"});
+		AddItem("Attack2Bag_Black", 800, 1600, 1, 100, null, {"Attack2Bag_Green", "Attack2Bag_Ttsko", "Attack2Bag_Yeger"});
+		AddItem("CourierBag", 800, 1600, 1, 100);
+		AddItem("FurCourierBag", 800, 1600, 1, 100);
 	}
 };

@@ -55,5 +55,8 @@ class ExpansionMarketBootsAndShoes: ExpansionMarketCategory
 
 	//! 1.21+
 		AddItem("medievalboots", 	355, 	590,	1,100);
+		AddItem("ColdOperationBoots_Camo", 300, 600, 1, 100, null, {"ColdOperationBoots_Green", "ColdOperationBoots_Grey"});
+		AddItem("LeatherShoes_Beige", 300, 600, 1, 100, null, {"LeatherShoes_Black", "LeatherShoes_Brown", "LeatherShoes_Natural"});
+		AddItem("TraditionalBoots_Beige", 300, 600, 1, 100, null, {"TraditionalBoots_DarkBrown"});
 	}
 };

@@ -570,4 +570,169 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\walls\walls_end.p3d";
 	};
+	class bldr_wall_cbrk_5_d: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_cbrk_5_d.p3d";
+	};
+	class bldr_wall_cbrk_pole: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_cbrk_pole.p3d";
+	};
+	class bldr_wall_cgry_5_d: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_cgry_5_d.p3d";
+	};
+	class bldr_wall_gate_camp: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_camp.p3d";
+	};
+	class bldr_wall_gate_fen2_l: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_fen2_l.p3d";
+	};
+	class bldr_wall_gate_fen2_r: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_fen2_r.p3d";
+	};
+	class bldr_wall_gate_feng: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_feng.p3d";
+	};
+	class bldr_wall_gate_feng_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_feng_big.p3d";
+	};
+	class bldr_wall_gate_feng_big_l: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_feng_big_l.p3d";
+	};
+	class bldr_wall_gate_feng_big_open: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_feng_big_open.p3d";
+	};
+	class bldr_wall_gate_feng_big_r: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_feng_big_r.p3d";
+	};
+	class bldr_wall_gate_feng_open: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_feng_open.p3d";
+	};
+	class bldr_wall_gate_fenr: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_fenr.p3d";
+	};
+	class bldr_wall_gate_fenr_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_fenr_big.p3d";
+	};
+	class bldr_wall_gate_fenr_big_l: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_fenr_big_l.p3d";
+	};
+	class bldr_wall_gate_fenr_big_open: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_fenr_big_open.p3d";
+	};
+	class bldr_wall_gate_fenr_big_r: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_fenr_big_r.p3d";
+	};
+	class bldr_wall_gate_fenr_open: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_fenr_open.p3d";
+	};
+	class bldr_wall_gate_ind1_l: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_ind1_l.p3d";
+	};
+	class bldr_wall_gate_ind1_r: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_ind1_r.p3d";
+	};
+	class bldr_wall_gate_ind2a_l: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_ind2a_l.p3d";
+	};
+	class bldr_wall_gate_ind2a_r: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_ind2a_r.p3d";
+	};
+	class bldr_wall_gate_ind2b_l: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_ind2b_l.p3d";
+	};
+	class bldr_wall_gate_ind2b_r: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_ind2b_r.p3d";
+	};
+	class bldr_wall_gate_ind2rail_l: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_ind2rail_l.p3d";
+	};
+	class bldr_wall_gate_ind2rail_r: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_ind2rail_r.p3d";
+	};
+	class bldr_wall_gate_village: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_village.p3d";
+	};
+	class bldr_wall_gate_wood1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_wood1.p3d";
+	};
+	class bldr_wall_gate_wood2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_wood2.p3d";
+	};
+	class bldr_wall_gate_wood3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_wood3.p3d";
+	};
+	class bldr_wall_gate_wood4: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_gate_wood4.p3d";
+	};
+	class bldr_wall_indcnch_10_mlod: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_indcnch_10_mlod.p3d";
+	};
+	class bldr_wall_wood2_5_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\walls\wall_wood2_5_nolc.p3d";
+	};
 };

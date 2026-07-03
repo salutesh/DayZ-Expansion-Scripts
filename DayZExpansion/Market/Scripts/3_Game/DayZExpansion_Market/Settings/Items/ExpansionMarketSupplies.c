@@ -23,6 +23,7 @@ class ExpansionMarketSupplies: ExpansionMarketCategory
 		m_FileName = "Supplies";
 		
 		AddItem("Paper", 						2,		4,		1,		100);
+		AddItem("GiftWrapPaper", 300, 600, 1, 100);
 		AddItem("pen_black", 	340, 	570,	1,100,null,{"Pen_Blue","Pen_Green","Pen_Red"});
 		AddItem("rope", 	450, 	750,	1,100);
 		// Crafted

@@ -6,8 +6,8 @@ class ExpansionRollingAverage
 	protected int m_Index;
 	protected int m_Count;
 	protected float m_Sum;
-    protected float m_Min = float.MAX;
-    protected float m_Max = -float.MAX;
+	protected float m_Min = float.MAX;
+	protected float m_Max = -float.MAX;
 
 	/**
 	 * @brief rolling average
@@ -38,12 +38,17 @@ class ExpansionRollingAverage
 
 	void Add(float value)
 	{
-		float oldestValue = m_Values[m_Index];
+		float oldestValue;
 
 		if (m_Count == m_WindowSize)
+		{
+			oldestValue = m_Values[m_Index];
 			m_Sum -= oldestValue;
+		}
 		else
+		{
 			++m_Count;
+		}
 
 		m_Values[m_Index] = value;
 		m_Sum += value;
@@ -77,6 +82,28 @@ class ExpansionRollingAverage
 	float GetMax()
 	{
 		return m_Max;
+	}
+
+	float GetOldest()
+	{
+		if (m_Count == 0)
+			return 0.0;
+
+		if (m_Count == m_WindowSize)
+			return m_Values[m_Index];
+
+		return m_Values[0];
+	}
+
+	float GetNewest()
+	{
+		if (m_Count == 0)
+			return 0.0;
+
+		if (m_Index > 0)
+			return m_Values[m_Index - 1];
+
+		return m_Values[m_Count - 1];
 	}
 
 	float FindMin()
@@ -137,16 +164,13 @@ class ExpansionRollingAverage
 		m_Index = 0;
 		m_Count = 0;
 		m_Sum = 0.0;
-
-		for (int i = 0; i < m_Count; ++i)
-		{
-			m_Values[i] = 0.0;
-		}
+		m_Min = float.MAX;
+		m_Max = -float.MAX;
 	}
 
-	void Resize(int windowSize)
+	void Resize(int windowSize, bool keepNewestValuesOnTruncate = false)
 	{
-		if (windowSize <= 1)
+		if (windowSize < 1)
 		{
 			Error("Invalid window size " + windowSize);
 			return;
@@ -154,28 +178,72 @@ class ExpansionRollingAverage
 
 		if (m_Count > windowSize)
 		{
-			bool findMinMax;
+			int i;
+			float value;
 
-			for (int i = windowSize; i < m_Count; ++i)
+			if (keepNewestValuesOnTruncate)
 			{
-				float value = m_Values[i];
+				bool foundMin = false;
+				bool foundMax = false;
 
-				m_Sum -= value;
+				TFloatArray values = {};
+				values.Reserve(windowSize);
 
-				if (m_RollingMinMax && (value == m_Min || value == m_Max))
-					findMinMax = true;
+				m_Sum = 0.0;
+
+				for (i = m_Index + m_Count - windowSize; values.Count() < windowSize; ++i)
+				{
+					if (i >= m_Count)
+						i -= m_Count;
+
+					value = m_Values[i];
+
+					values.Insert(value);
+
+					m_Sum += value;
+
+					if (m_RollingMinMax && (!foundMin || !foundMax))
+					{
+						if (value == m_Min)
+							foundMin = true;
+
+						if (value == m_Max)
+							foundMax = true;
+					}
+				}
+
+				m_Values.Copy(values);
+				m_Index = 0;
+				m_Count = windowSize;
+
+				if (m_RollingMinMax && (!foundMin || !foundMax))
+					FindMinMax(m_Min, m_Max);
 			}
+			else
+			{
+				bool findMinMax;
 
-			m_Count = windowSize;
+				for (i = windowSize; i < m_Count; ++i)
+				{
+					value = m_Values[i];
 
-			if (findMinMax)
-				FindMinMax(m_Min, m_Max);
+					m_Sum -= value;
+
+					if (m_RollingMinMax && (value == m_Min || value == m_Max))
+						findMinMax = true;
+				}
+
+				if (m_Index >= windowSize)
+					m_Index = 0;
+
+				m_Count = windowSize;
+
+				if (findMinMax)
+					FindMinMax(m_Min, m_Max);
+			}
 		}
 
 		m_Values.Resize(windowSize);
 		m_WindowSize = windowSize;
-
-		if (m_Index >= windowSize)
-			m_Index = 0;
 	}
 }

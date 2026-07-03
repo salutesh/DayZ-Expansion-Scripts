@@ -40,7 +40,7 @@ class ExpansionMarketTools: ExpansionMarketCategory
 		AddItem("sledgehammer", 	4485, 	7470,	1,100);
 		AddItem("farminghoe", 	265, 	440,	1,100);
 		AddItem("woodaxe", 	1955, 	3255,	1,100);
-		AddItem("firefighteraxe", 	490, 	820,	1,100);
+		AddItem("firefighteraxe", 	490, 	820,	1,100, null, {"FirefighterAxe_Black", "FirefighterAxe_Green"});
 		AddItem("pitchfork", 	395, 	655,	1,100);
 		AddItem("blowtorch", 	670, 	1115,	1,100,{"SmallGasCanister"});
 
@@ -51,5 +51,7 @@ class ExpansionMarketTools: ExpansionMarketCategory
 		AddItem("ExpansionPropaneTorch", 		950, 	1500,	1,		100);
 		AddItem("ExpansionBoltCutters", 		390, 	620,	1,		100);
 	#endif
+		AddItem("BoneKnife", 300, 600, 1, 100);
+		AddItem("RemoteDetonatorReceiver", 300, 600, 1, 100);
 	}
 };

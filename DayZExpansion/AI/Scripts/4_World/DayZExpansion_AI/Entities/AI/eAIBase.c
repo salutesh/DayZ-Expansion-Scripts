@@ -8413,8 +8413,8 @@ class eAIBase: PlayerBase
 			if (dist < farDistThresh)
 			{
 				float range = farDistThresh - m_eAI_FOVNear_DistThreshold;
-				float t = Easing.EaseInOutPow(dist / range, m_eAI_FOVTransitionExponent);
-				return ExpansionMath.LinearConversion(0, 1, t, nearHalfAngleH, farHalfAngleH);
+				float t = Easing.EaseInOutPow((dist - m_eAI_FOVNear_DistThreshold) / range, m_eAI_FOVTransitionExponent);
+				return Math.Lerp(nearHalfAngleH, farHalfAngleH, t);
 			}
 		}
 

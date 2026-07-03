@@ -1496,7 +1496,7 @@ PanelWidgetClass VehiclePanel {
        hexactsize 0
        vexactsize 0
        style Quantity
-       minimum -0.2
+       minimum 0
        maximum 1
        current 0
        vertical 1
@@ -1518,7 +1518,7 @@ PanelWidgetClass VehiclePanel {
       PanelWidgetClass Thrust50 {
        ignorepointer 1
        color 0.627 0.627 0.627 1
-       position -8 -0.082
+       position -8 0
        size 8 2
        halign right_ref
        valign center_ref
@@ -1532,7 +1532,7 @@ PanelWidgetClass VehiclePanel {
       PanelWidgetClass Thrust0 {
        ignorepointer 1
        color 0.627 0.627 0.627 1
-       position -8 0.16
+       position -8 0
        size 8 2
        halign right_ref
        valign bottom_ref
@@ -1544,6 +1544,7 @@ PanelWidgetClass VehiclePanel {
        style rover_sim_colorable
       }
       PanelWidgetClass ThrustN20 {
+       visible 0
        ignorepointer 1
        color 0.627 0.627 0.627 1
        position -8 0
@@ -2398,6 +2399,432 @@ PanelWidgetClass VehiclePanel {
        "stretch mode" stretch_w_h
        filter 1
        nocache 0
+      }
+     }
+    }
+   }
+  }
+  WrapSpacerWidgetClass SFComms {
+   ignorepointer 1
+   clipchildren 0
+   position -512 99
+   size 500 121
+   halign right_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   content_halign left
+   content_valign bottom
+   Margin 0
+   Padding 0
+   {
+    GridSpacerWidgetClass Falco {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     halign left_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     Padding 4
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign left
+     content_valign bottom
+     Columns 2
+     Rows 1
+     {
+      PanelWidgetClass Avatar_Falco_Border {
+       ignorepointer 1
+       color 0.741 0.847 0.922 1
+       clipchildren 0
+       size 93 117
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+       {
+        ImageWidgetClass Avatar_Falco {
+         ignorepointer 1
+         size 87 111
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:expansion_sf_team image:falco"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         filter 0
+         nocache 0
+        }
+       }
+      }
+      GridSpacerWidgetClass Chat_Falco {
+       ignorepointer 1
+       position 0 0
+       size 1 32
+       halign left_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       Margin 4
+       Padding 14
+       "Size To Content H" 1
+       "Size To Content V" 0
+       content_halign left
+       content_valign bottom
+       Columns 1
+       Rows 1
+       {
+        TextWidgetClass Chat_Falco_0 {
+         ignorepointer 1
+         size 1 24
+         halign left_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         text "...HERE WE GO AGAIN..."
+         font "DayZExpansion/Vehicles/GUI/fonts/sdf_arwing"
+         "shadow size" 2
+         "shadow color" 0.029 0.082 0.156 1
+         "shadow offset" 3 3
+         "text sharpness" 3
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 0
+        }
+       }
+      }
+     }
+    }
+    GridSpacerWidgetClass Fox {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     halign left_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     Padding 4
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign left
+     content_valign bottom
+     Columns 2
+     Rows 1
+     {
+      PanelWidgetClass Avatar_Fox_Border {
+       ignorepointer 1
+       color 0.741 0.847 0.922 1
+       clipchildren 0
+       size 93 117
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+       {
+        ImageWidgetClass Avatar_Fox {
+         ignorepointer 1
+         size 87 111
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:expansion_sf_team image:fox"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         filter 0
+         nocache 0
+        }
+       }
+      }
+      GridSpacerWidgetClass Chat_Fox {
+       ignorepointer 1
+       position 0 0
+       size 1 70
+       halign left_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       Margin 4
+       Padding 14
+       "Size To Content H" 1
+       "Size To Content V" 0
+       content_halign left
+       content_valign bottom
+       Columns 1
+       Rows 2
+       {
+        TextWidgetClass Chat_Fox_0 {
+         ignorepointer 1
+         size 1 24
+         halign left_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         text "YOU'RE KINDA OBSESSED,"
+         font "DayZExpansion/Vehicles/GUI/fonts/sdf_arwing"
+         "shadow size" 2
+         "shadow color" 0.029 0.082 0.156 1
+         "shadow offset" 3 3
+         "text sharpness" 3
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 0
+        }
+        TextWidgetClass Chat_Fox_1 {
+         ignorepointer 1
+         size 1 24
+         halign left_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         text "PEPPY."
+         font "DayZExpansion/Vehicles/GUI/fonts/sdf_arwing"
+         "shadow size" 2
+         "shadow color" 0.029 0.082 0.156 1
+         "shadow offset" 3 3
+         "text sharpness" 3
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 0
+        }
+       }
+      }
+     }
+    }
+    GridSpacerWidgetClass Peppy {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     halign left_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     Padding 4
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign left
+     content_valign bottom
+     Columns 2
+     Rows 1
+     {
+      PanelWidgetClass Avatar_Peppy_Border {
+       ignorepointer 1
+       color 0.741 0.847 0.922 1
+       clipchildren 0
+       size 93 117
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+       {
+        ImageWidgetClass Avatar_Peppy {
+         ignorepointer 1
+         size 87 111
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:expansion_sf_team image:peppy"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         filter 0
+         nocache 0
+        }
+       }
+      }
+      GridSpacerWidgetClass Chat_Peppy {
+       ignorepointer 1
+       position 0 0
+       size 1 32
+       halign left_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       Margin 4
+       Padding 14
+       "Size To Content H" 1
+       "Size To Content V" 0
+       content_halign left
+       content_valign bottom
+       Columns 1
+       Rows 1
+       {
+        TextWidgetClass Chat_Peppy_0 {
+         ignorepointer 1
+         size 1 24
+         halign left_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         text "BARREL ROLL!!!"
+         font "DayZExpansion/Vehicles/GUI/fonts/sdf_arwing"
+         "shadow size" 2
+         "shadow color" 0.029 0.082 0.156 1
+         "shadow offset" 3 3
+         "text sharpness" 3
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 0
+        }
+       }
+      }
+     }
+    }
+    GridSpacerWidgetClass Slippy {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     halign left_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     Padding 4
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign left
+     content_valign bottom
+     Columns 2
+     Rows 1
+     {
+      PanelWidgetClass Avatar_Slippy_Border {
+       ignorepointer 1
+       color 0.741 0.847 0.922 1
+       clipchildren 0
+       size 93 117
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+       {
+        ImageWidgetClass Avatar_Slippy {
+         ignorepointer 1
+         size 87 111
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:expansion_sf_team image:slippy"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         filter 0
+         nocache 0
+        }
+       }
+      }
+      GridSpacerWidgetClass Chat_Slippy {
+       ignorepointer 1
+       position 0 0
+       size 1 70
+       halign left_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       Margin 4
+       Padding 14
+       "Size To Content H" 1
+       "Size To Content V" 0
+       content_halign left
+       content_valign bottom
+       Columns 1
+       Rows 2
+       {
+        TextWidgetClass Chat_Slippy_0 {
+         ignorepointer 1
+         size 1 24
+         halign left_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         text "FOX HAS A POINT,"
+         font "DayZExpansion/Vehicles/GUI/fonts/sdf_arwing"
+         "shadow size" 2
+         "shadow color" 0.029 0.082 0.156 1
+         "shadow offset" 3 3
+         "text sharpness" 3
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 0
+        }
+        TextWidgetClass Chat_Slippy_1 {
+         ignorepointer 1
+         size 1 24
+         halign left_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         text "Y'KNOW..."
+         font "DayZExpansion/Vehicles/GUI/fonts/sdf_arwing"
+         "shadow size" 2
+         "shadow color" 0.029 0.082 0.156 1
+         "shadow offset" 3 3
+         "text sharpness" 3
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 0
+        }
+       }
       }
      }
     }

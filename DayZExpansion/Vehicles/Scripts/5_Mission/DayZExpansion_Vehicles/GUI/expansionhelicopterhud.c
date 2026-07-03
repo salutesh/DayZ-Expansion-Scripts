@@ -10,15 +10,20 @@
  *
 */
 
-#ifndef EXPANSION_VEHICLES_HUD_OLD
 class ExpansionHelicopterHud : VehicleHudBase
 {
 	static int VORTEX_WARNING_COLOR = ARGB(255, 255, 191, 0);
 	static int VORTEX_WARNING_SHADOW_COLOR = ARGB(255, 128, 64, 0);
 	static int VORTEX_ALARM_COLOR = ARGB(255, 255, 140, 57);
 	static int VORTEX_ALARM_SHADOW_COLOR = ARGB(255, 128, 0, 0);
+
+#ifdef DIAG_DEVELOPER
+	FileHandle m_DiagSpeedLogFile;
+	float m_DiagSpeedLogTime;
+#endif
 	
 	protected ExpansionHelicopterScript m_CurrentHelicopter;
+	protected ref ExpansionBarrelRollDetector m_BarrelRollDetector;
 
 	protected ImageWidget			m_HeliAttitudeSky;
 	protected ImageWidget			m_HeliAttitudeGround;
@@ -91,6 +96,24 @@ class ExpansionHelicopterHud : VehicleHudBase
 	protected float					m_HeliDamageZonesHitTimer;
 	protected bool					m_LightsOn;
 	protected PlayerBase			m_DriverPlayer;
+
+	protected Widget				m_AircraftMarkers;
+	protected ImageWidget			m_WaterlineMarker;
+	protected ImageWidget			m_FlightPathMarker;
+
+	ref ExpansionRollingAverage		m_FlightPathVelocity_X_Avg = new ExpansionRollingAverage(6);
+	ref ExpansionRollingAverage		m_FlightPathVelocity_Y_Avg = new ExpansionRollingAverage(6);
+	ref ExpansionRollingAverage		m_FlightPathVelocity_Z_Avg = new ExpansionRollingAverage(6);
+
+#ifdef DIAG_DEVELOPER
+	protected bool					m_FlightPathVelocity_Dbg;
+#endif
+
+	void ~ExpansionHelicopterHud()
+	{
+		if (g_Game)
+			GetExpansionClientSettings().SI_UpdateSetting.Remove(Expansion_OnClientSettingsUpdated);
+	}
 
 	override void Init(Widget vehicleHudPanels)
 	{
@@ -183,6 +206,14 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliThrustN20 = m_VehiclePanel.FindAnyWidget("ThrustN20");
 		
 		m_HeliLightsIcon = m_VehiclePanel.FindAnyWidget("LightsIcon");
+
+		m_AircraftMarkers = g_Game.GetWorkspace().CreateWidgets("DayZExpansion/Vehicles/GUI/layouts/hud/hud_aircraft_markers.layout");
+		m_WaterlineMarker = ImageWidget.Cast(m_AircraftMarkers.FindAnyWidget("WaterlineMarker"));
+		m_FlightPathMarker = ImageWidget.Cast(m_AircraftMarkers.FindAnyWidget("FlightPathMarker"));
+
+		GetExpansionClientSettings().SI_UpdateSetting.Insert(Expansion_OnClientSettingsUpdated);
+
+		m_BarrelRollDetector = new ExpansionBarrelRollDetector(m_VehiclePanel);
 	}
 
 	override void ShowVehicleInfo(PlayerBase player)
@@ -203,6 +234,10 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliLightsIcon.Show(m_LightsOn);
 
 		m_VehiclePanel.Show(true);
+
+		m_FlightPathVelocity_X_Avg.Reset();
+		m_FlightPathVelocity_Y_Avg.Reset();
+		m_FlightPathVelocity_Z_Avg.Reset();
 	}
 
 	override void HideVehicleInfo()
@@ -217,13 +252,113 @@ class ExpansionHelicopterHud : VehicleHudBase
 		if (!m_CurrentHelicopter)
 			return;
 
-		bool legacySim = m_CurrentHelicopter.m_Simulation.m_SimulationMode != ExpansionHelicopterSimulationMode.RotorDisk;
-		bool legacyAirFriction = m_CurrentHelicopter.m_Simulation.m_AirFrictionMode != ExpansionHelicopterSimulationAirFrictionMode.Balanced;
-		bool manualTrim = !m_CurrentHelicopter.m_Simulation.m_AutoTrim;
+		ExpansionVehicleHelicopter simulation = m_CurrentHelicopter.m_Simulation;
+		auto pState = m_CurrentHelicopter.m_State;
+
+		bool legacySim = simulation.m_SimulationMode != ExpansionHelicopterSimulationMode.RotorDisk;
+		bool legacyAirFriction = simulation.m_AirFrictionMode != ExpansionHelicopterSimulationAirFrictionMode.Balanced;
+		bool manualTrim = !simulation.m_AutoTrim;
 		string infoText;
 
 		if (legacySim || legacyAirFriction)
 			infoText = "LEGACY ";
+
+		vector ori = m_CurrentHelicopter.GetOrientation();
+
+		//! Horizontal velocity
+		vector transform[4];
+		m_CurrentHelicopter.GetTransform(transform);
+		vector dir = transform[2];
+		dir[1] = 0.0;  //! Null pitch
+		dir.Normalize();
+		transform[0] = -dir.Perpend();  //! Eliminate roll
+		transform[2] = dir;
+		vector velocity = pState.m_LinearVelocity.InvMultiply3(transform);
+
+		vector velocityMS = pState.m_LinearVelocityMS;
+
+		//! Forward velocity with vertical compensation
+		//! Scale vertical component to 0 as forward approaches 0
+		vector fwdVelocityVComp;
+		fwdVelocityVComp[1] = velocityMS[1];
+		fwdVelocityVComp[2] = velocityMS[2];
+		vector fwdVelocityVCompNorm = fwdVelocityVComp.Normalized();
+		float fwdSpeedVCompNormAbs = Math.AbsFloat(fwdVelocityVCompNorm[2]);
+		float fwdSpeedVCompAbs = Math.AbsFloat(fwdVelocityVComp[2]);
+		float vSpeedAbs = Math.AbsFloat(fwdVelocityVComp[1]) + 0.0001;
+		float speedComp = ExpansionMath.LinearConversion(0, vSpeedAbs, fwdSpeedVCompAbs, fwdSpeedVCompNormAbs, 1.0);
+		fwdVelocityVComp[1] = fwdVelocityVComp[1] * fwdSpeedVCompNormAbs;
+		fwdVelocityVComp[2] = fwdVelocityVComp[2] * speedComp;
+
+		float fwdSpeedVComp = fwdVelocityVComp.Length() * Math.Sign(fwdVelocityVComp[2]) * 3.6;
+		float fwdSpeedMS = velocityMS[2] * 3.6;
+		float groundSpeed = velocity[2] * 3.6;
+
+		float speed;
+		int speedDisplay;
+		switch (speedDisplay)
+		{
+			case 1:  //! Vertically compensated forward speed
+				speed = fwdSpeedVComp;
+				break;
+
+			case 2:
+				speed = groundSpeed;
+				break;
+
+			case 3:
+			default:
+				speed = fwdSpeedMS;
+				break;
+		}
+
+	#ifdef DIAG_DEVELOPER
+		vector longitudinalVelocity;
+		longitudinalVelocity[1] = velocityMS[1];
+		longitudinalVelocity[2] = velocityMS[2];
+
+		float longitudinalSpeed = longitudinalVelocity.Length() * 3.6;
+
+		if (PluginDiagMenu.s_Expansion_LogHeliSpeed)
+		{
+			if (!m_DiagSpeedLogFile)
+			{
+				int year;
+				int month;
+				int day;
+				int hour;
+				int minute;
+				int second;
+				
+				GetYearMonthDay(year, month, day);
+				GetHourMinuteSecond(hour, minute, second);
+
+				string speedLogFileNameFmt = "$profile:%1_speedlog_%2-%3-%4_%5-%6-%7.csv";
+				string type = m_CurrentHelicopter.GetType();
+				string speedLogFileName = string.Format(speedLogFileNameFmt, type, year, month, day, hour, minute, second);
+
+				m_DiagSpeedLogFile = OpenFile(speedLogFileName, FileMode.WRITE);
+				m_DiagSpeedLogTime = 0;
+
+				FPrintln(m_DiagSpeedLogFile, "Time PitchAngle Speed LongitudinalSpeed GroundSpeed FwdSpeed");
+			}
+
+			if (m_DiagSpeedLogFile)
+			{
+				string speedLogLine = string.Format("%1 %2 %3 %4 %5 %6", m_DiagSpeedLogTime, ori[1], speed, longitudinalSpeed, groundSpeed, fwdSpeedMS);
+
+				FPrintln(m_DiagSpeedLogFile, speedLogLine);
+
+				m_DiagSpeedLogTime += timeslice;
+			}
+		}
+		else if (m_DiagSpeedLogFile)
+		{
+			CloseFile(m_DiagSpeedLogFile);
+			FileHandle file;
+			m_DiagSpeedLogFile = file;
+		}
+	#endif
 
 		if (manualTrim)
 		{
@@ -231,12 +366,12 @@ class ExpansionHelicopterHud : VehicleHudBase
 
 			float trim;
 
-			trim += m_CurrentHelicopter.m_Simulation.m_CyclicForwardTrim;
-			trim += m_CurrentHelicopter.m_Simulation.m_CyclicBackwardTrim;
-			trim += m_CurrentHelicopter.m_Simulation.m_CyclicLeftTrim;
-			trim += m_CurrentHelicopter.m_Simulation.m_CyclicRightTrim;
-			trim += m_CurrentHelicopter.m_Simulation.m_AntiTorqueLeftTrim;
-			trim += m_CurrentHelicopter.m_Simulation.m_AntiTorqueRightTrim;
+			trim += simulation.m_CyclicForwardTrim;
+			trim += simulation.m_CyclicBackwardTrim;
+			trim += simulation.m_CyclicLeftTrim;
+			trim += simulation.m_CyclicRightTrim;
+			trim += simulation.m_AntiTorqueLeftTrim;
+			trim += simulation.m_AntiTorqueRightTrim;
 
 			if (trim != 0)
 				infoText += " SET";
@@ -255,10 +390,9 @@ class ExpansionHelicopterHud : VehicleHudBase
 	#else
 		m_InfoPanel.Show(true);
 
-		auto pState = m_CurrentHelicopter.m_State;
-		float angularPitch = m_CurrentHelicopter.m_State.m_AngularVelocityMS[0];
-		float angularYaw = m_CurrentHelicopter.m_State.m_AngularVelocityMS[1];
-		float angularRoll = m_CurrentHelicopter.m_State.m_AngularVelocityMS[2];
+		float angularPitch = pState.m_AngularVelocityMS[0];
+		float angularYaw = pState.m_AngularVelocityMS[1];
+		float angularRoll = pState.m_AngularVelocityMS[2];
 		string angularLabel = " ";
 
 		if (Math.AbsFloat(angularYaw) > Math.AbsFloat(angularRoll) && Math.AbsFloat(angularYaw) > Math.AbsFloat(angularPitch))
@@ -300,9 +434,10 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliALTPointerH.SetRotation(0, 0, altH, true);
 		m_HeliALTPointerTH.SetRotation(0, 0, altTH, true);
 
-		float vrsSeverity = m_CurrentHelicopter.m_Simulation.m_VRSSeverity;
+		float vrsSeverity = simulation.m_VRSSeverity;
 		if (vrsSeverity > 0)
 		{
+			m_HeliVortexIcon.SetText("VORTEX");
 			m_HeliVortexPanel.Show(true);
 
 			if (vrsSeverity > 0.1)
@@ -317,24 +452,46 @@ class ExpansionHelicopterHud : VehicleHudBase
 			}
 
 			//! Blinking thrust indicator effect when trying to raise collective while limited by VRS
-			if (vrsSeverity > 0.1 && m_CurrentHelicopter.m_Simulation.m_MainRotorSpeedTarget > m_CurrentHelicopter.m_Simulation.m_MainRotorSpeed)
+			if (vrsSeverity > 0.1 && simulation.m_CollectiveTarget > simulation.m_Collective && m_HeliThrustProgressBar.GetColor() == COLOR_WHITE)
 				m_HeliThrustProgressBar.SetColor(COLOR_RED);
 			else
 				m_HeliThrustProgressBar.SetColor(COLOR_WHITE);
 		}
 		else
 		{
-			m_HeliVortexPanel.Show(false);
 			m_HeliThrustProgressBar.SetColor(COLOR_WHITE);
+
+			float rbsSeverity = simulation.m_RBSSeverity;
+
+			if (rbsSeverity > 0.0)
+			{
+				m_HeliVortexIcon.SetText("STALL");
+				m_HeliVortexPanel.Show(true);
+
+				if (rbsSeverity > 0.1)
+				{
+					m_HeliVortexIcon.SetColor(VORTEX_ALARM_COLOR);
+					m_HeliVortexIcon.SetShadow(6, VORTEX_ALARM_SHADOW_COLOR);
+				}
+				else
+				{
+					m_HeliVortexIcon.SetColor(VORTEX_WARNING_COLOR);
+					m_HeliVortexIcon.SetShadow(6, VORTEX_WARNING_SHADOW_COLOR);
+				}
+			}
+			else
+			{
+				m_HeliVortexPanel.Show(false);
+			}
 		}
 
 		bool autoHover = m_CurrentHelicopter.IsAutoHover();
-		bool autoCollective = m_CurrentHelicopter.m_Simulation.m_AutoCollective;
+		bool autoCollective = simulation.m_AutoCollective;
 
 		m_HeliAutoHoverPanel.Show(autoHover);
 		m_HeliAutoCollectivePanel.Show(!autoHover && autoCollective);
 
-		if (autoHover && (m_CurrentHelicopter.m_Simulation.m_RotorSpeedTarget > 0 || m_CurrentHelicopter.m_Simulation.m_RotorSpeed == 0))
+		if (autoHover && (simulation.m_RotorSpeedTarget > 0 || simulation.m_RotorSpeed == 0))
 		{
 			m_HeliALTValue.SetText(Math.Round(altValue).ToString() + "/" + Math.Round(m_CurrentHelicopter.GetAutoHoverTargetHeight()).ToString());
 		}
@@ -345,7 +502,6 @@ class ExpansionHelicopterHud : VehicleHudBase
 
 		//! attitude
 		float horizonOffsetV = m_CurrentHelicopter.GetDirection()[1];
-		vector ori = m_CurrentHelicopter.GetOrientation();
 
 		m_HeliAttitudeSky.SetRotation(0, 0, -ori[2]);
 		m_HeliAttitudeGround.SetRotation(0, 0, -ori[2]);
@@ -449,12 +605,17 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliPitchValue.SetText(pitch.ToString() + "°");
 
 		//! climb/fall rate
-		float verticalVelocity = m_CurrentHelicopter.m_State.m_LinearVelocity[1]; //! climb/fall speed in m/s
+		float verticalVelocity = pState.m_LinearVelocity[1]; //! climb/fall speed in m/s
 		m_HeliClimbValue.SetText((Math.Round(verticalVelocity * 10) / 10).ToString());
 		m_HeliClimbPointer.SetRotation(0, 0, Math.Round(verticalVelocity * 0.04 * 180) - 90, true);  //! 0.04 = 1 / 25
 
 		//! collective/thrust
-		float collective = m_CurrentHelicopter.m_Simulation.m_MainRotorSpeed;
+		float collective;
+		if ((simulation.m_AutoHover || simulation.m_AutoCollective) && simulation.m_RotorSpeedTarget > 0)
+			collective = simulation.m_CollectiveInterpolated;
+		else
+			collective = simulation.m_CollectiveTarget;
+
 		m_HeliThrustProgressBar.SetCurrent(collective);
 		float collectivePct = Math.Round(collective * 100);
 		string thrust = collectivePct.ToString();
@@ -480,8 +641,8 @@ class ExpansionHelicopterHud : VehicleHudBase
 			m_HeliThrust100.SetColor(ARGB(255, 160, 160, 160));
 
 	#ifdef DIAG_DEVELOPER
-		float effectiveThrustPct = Math.Round(collective * m_CurrentHelicopter.m_Simulation.m_RotorSpeed * 100);
-		float effectiveThrustDiff = collectivePct - effectiveThrustPct;
+		float effectiveThrust = collective * simulation.m_RotorSpeed;
+		float effectiveThrustDiff = Math.Round((collective - effectiveThrust) * 100);
 
 		if (effectiveThrustDiff > 0)
 		{
@@ -507,25 +668,9 @@ class ExpansionHelicopterHud : VehicleHudBase
 		//float temperature = g_Game.GetMission().GetWorldData().GetBaseEnvTemperatureAtObject(m_CurrentHelicopter);
 		//m_HeliOutdoorTempValue.SetText("Temp:" + Math.Floor(temperature).ToString() + "C");
 
-		vector transform[4];
-		m_CurrentHelicopter.GetTransform(transform);
-		vector dir = transform[2];
-		dir[1] = 0.0;  //! Null pitch
-		dir.Normalize();
-		transform[0] = -dir.Perpend();  //! Eliminate roll
-		transform[2] = dir;
-		vector velocity = m_CurrentHelicopter.m_State.m_LinearVelocity.InvMultiply3(transform);
-
-		float fwdSpeed = velocity[2];
-		float fwdSpeedMS = m_CurrentHelicopter.m_State.m_LinearVelocityMS[2];
-
-		//! Groundspeed forward or local forward (whichever is higher)
-		float speed;
-		if (Math.AbsFloat(fwdSpeed) > Math.AbsFloat(fwdSpeedMS))
-			speed = fwdSpeed * 3.6;
-		else
-			speed = fwdSpeedMS * 3.6;
-		//m_HeliSpeedPointer.SetRotation(0, 0, Math.AbsFloat(speed / 400) * 360 - 130, true);
+		//! Speed
+		float speedAbs = Math.AbsFloat(speed);
+		//m_HeliSpeedPointer.SetRotation(0, 0, (speedAbs / 400) * 360 - 130, true);
 		m_HeliSpeedValue.SetText(Math.Round(speed).ToString());
 
 		//! Groundspeed side (horizontal)
@@ -589,7 +734,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 		
 		int engineHealthLevel = m_CurrentHelicopter.GetHealthLevel("Engine");
 		int fuelTankHealthLevel = m_CurrentHelicopter.GetHealthLevel("FuelTank");
-		bool invulnerable = m_CurrentHelicopter.m_State.m_IsInvulnerable;
+		bool invulnerable = pState.m_IsInvulnerable;
 		bool newHealth = false;
 		
 		//! engine
@@ -646,10 +791,10 @@ class ExpansionHelicopterHud : VehicleHudBase
 		}
 		
 		//! shield indicator
-		if (!m_CurrentHelicopter.m_State.m_IsSync)
+		if (!pState.m_IsSync)
 		{
 			m_HeliShieldIcon.SetImage(1);
-			if (m_CurrentHelicopter.m_State.m_HaltPhysics)
+			if (pState.m_HaltPhysics)
 			{
 				m_HeliShieldIcon.SetColor(ARGB(255, 255, 0, 0));
 			}
@@ -664,7 +809,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 			m_HeliShieldIcon.SetColor(ARGB(255, 0, 255, 255));
 		}
 		
-		if (invulnerable || !m_CurrentHelicopter.m_State.m_IsSync)
+		if (invulnerable || !pState.m_IsSync)
 		{
 			m_HeliShieldPanel.Show(true);
 		}
@@ -714,6 +859,122 @@ class ExpansionHelicopterHud : VehicleHudBase
 		}
 		
 		m_HeliDamageZonesHitTimer += timeslice;
+
+		//! Waterline marker
+		vector centerOfMass = m_CurrentHelicopter.GetPhysics().GetCenterOfMass();
+		vector origin = m_CurrentHelicopter.ModelToWorld(centerOfMass);
+		vector nosePos = origin + m_CurrentHelicopter.GetDirection() * 1000;
+		vector nosePosScrn = g_Game.GetScreenPosRelative(nosePos);
+
+		if (nosePosScrn[0] <= 0 || nosePosScrn[0] >= 1 || nosePosScrn[1] <= 0 || nosePosScrn[1] >= 1 || nosePosScrn[2] < 0)
+		{
+			m_WaterlineMarker.Show(false);
+		}
+		else
+		{
+			m_WaterlineMarker.SetPos(nosePosScrn[0] - 0.5, nosePosScrn[1] - 0.5);
+			m_WaterlineMarker.Show(true);
+		}
+
+		//! Flight path marker
+
+		vector currentVelocity = m_CurrentHelicopter.GetPhysics().GetVelocity();
+		vector flightPathVelocity;
+
+		m_FlightPathVelocity_X_Avg.Add(currentVelocity[0] + pState.m_LinearAcceleration[0]);
+		m_FlightPathVelocity_Y_Avg.Add(currentVelocity[1] + pState.m_LinearAcceleration[1]);
+		m_FlightPathVelocity_Z_Avg.Add(currentVelocity[2] + pState.m_LinearAcceleration[2]);
+
+		flightPathVelocity[0] = m_FlightPathVelocity_X_Avg.Get();
+		flightPathVelocity[1] = m_FlightPathVelocity_Y_Avg.Get();
+		flightPathVelocity[2] = m_FlightPathVelocity_Z_Avg.Get();
+
+	#ifdef DIAG_DEVELOPER
+		if (KeyState(KeyCode.KC_SPACE))
+		{
+			ClearKey(KeyCode.KC_SPACE);
+			m_FlightPathVelocity_Dbg = !m_FlightPathVelocity_Dbg;
+			string msg = "Flight path velocity dbg " + m_FlightPathVelocity_Dbg.ToString();
+			g_Game.GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(ChatChannelType.System, "", msg, "colorAction"));
+		}
+
+		if (m_FlightPathVelocity_Dbg)
+		{
+			flightPathVelocity = currentVelocity;
+			m_FlightPathMarker.SetColor(ARGB(255, 255, 255, 0));
+		}
+		else
+		{
+			m_FlightPathMarker.SetColor(COLOR_WHITE);
+		}
+	#endif
+
+		vector flightPath = origin + flightPathVelocity.Normalized() * 1000;
+
+	/*
+		vector side = pState.m_Transform[0];
+		vector up   = pState.m_Transform[1];
+
+		vector angularVel = pState.m_AngularVelocity;
+
+		float localPitchRate = vector.Dot(angularVel, side);
+		float localYawRate = vector.Dot(angularVel, up);
+		float pitchOffset = localPitchRate * simulation.m_CyclicForwardMax;
+		float yawOffset = localYawRate * simulation.m_AntiTorqueMax;
+
+		flightPath = flightPath + (up * pitchOffset) + (side * yawOffset);
+	*/
+
+		vector flightPathScrn = g_Game.GetScreenPosRelative(flightPath);
+
+		if (speedAbs < 4 || flightPathScrn[0] <= 0 || flightPathScrn[0] >= 1 || flightPathScrn[1] <= 0 || flightPathScrn[1] >= 1 || flightPathScrn[2] < 0)
+		{
+			m_FlightPathMarker.Show(false);
+
+			m_FlightPathVelocity_X_Avg.Reset();
+			m_FlightPathVelocity_Y_Avg.Reset();
+			m_FlightPathVelocity_Z_Avg.Reset();
+		}
+		else
+		{
+			m_FlightPathMarker.SetPos(flightPathScrn[0] - 0.5, flightPathScrn[1] - 0.5);
+			m_FlightPathMarker.Show(true);
+		}
+
+		//! Adjust waterline & flightpath marker rotation depending on camera
+		if (m_DriverPlayer.IsCameraInsideVehicle())
+		{
+			m_WaterlineMarker.SetRotation(0, 0, 0);
+			m_FlightPathMarker.SetRotation(0, 0, 0);
+		}
+		else
+		{
+			m_WaterlineMarker.SetRotation(0, 0, ori[2]);
+			m_FlightPathMarker.SetRotation(0, 0, ori[2]);
+		}
+
+		m_BarrelRollDetector.Update(m_CurrentHelicopter, pState, timeslice);
+	}
+
+	void Expansion_OnClientSettingsUpdated()
+	{
+		if (m_VehiclePanel && m_VehiclePanel.IsVisible() && m_AircraftMarkers)
+			m_AircraftMarkers.Show(!GetExpansionClientSettings().DisableFlightPathMarker);
+	}
+	
+	override void ShowPanel()
+	{
+		super.ShowPanel();
+
+		if (m_AircraftMarkers && !GetExpansionClientSettings().DisableFlightPathMarker)
+			m_AircraftMarkers.Show(true);
+	}
+	
+	override void HidePanel()
+	{
+		super.HidePanel();
+
+		if (m_AircraftMarkers)
+			m_AircraftMarkers.Show(false);
 	}
 };
-#endif

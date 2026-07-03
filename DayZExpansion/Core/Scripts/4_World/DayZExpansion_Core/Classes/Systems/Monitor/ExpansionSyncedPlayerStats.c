@@ -195,7 +195,6 @@ class ExpansionSyncedPlayerStats
 	void Acquire(PlayerBase player)
 	{
 		m_Stamina = player.m_StaminaHandler.GetSyncedStaminaNormalized() * 100;
-		player.UpdateWeight();
-		m_Weight = player.GetWeight();
+		m_Weight = player.GetWeightEx();
 	}
 };

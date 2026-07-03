@@ -165,4 +165,9 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\ruins\ruin_wall.p3d";
 	};
+	class bldr_craterlong_02: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\ruins\craterlong_02.p3d";
+	};
 };

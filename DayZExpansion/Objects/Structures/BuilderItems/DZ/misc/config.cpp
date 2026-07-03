@@ -673,4 +673,14 @@ class CfgVehicles
 	{
 		scope=1;
 	};
+	class bldr_sign_build_skvsch: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\signs\misc\sign_build_skvsch.p3d";
+	};
+	class bldr_sign_easteregg3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\signs\misc\sign_easteregg3.p3d";
+	};
 };

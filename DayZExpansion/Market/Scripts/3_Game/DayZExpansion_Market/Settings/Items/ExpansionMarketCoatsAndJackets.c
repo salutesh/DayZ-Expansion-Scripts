@@ -42,7 +42,7 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 		AddItem("woolcoat_green", 	1015, 	1690,	1,100);
 	
 	#ifdef EXPANSIONMOD
-		AddItem("ridersjacket_black", 	835, 	1390,	1,100,null,{"ExpansionRidersJacketBrown","ExpansionRidersJacketDarkBlue"});
+		AddItem("ridersjacket_black", 	835, 	1390,	1,100,null,{"ExpansionRidersJacketBrown","ExpansionRidersJacketDarkBlue","ExpansionRidersJacketFogEaters"});
 	#else
 		AddItem("ridersjacket_black", 	835, 	1390,	1,100);
 	#endif
@@ -100,5 +100,9 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 		
 		AddItem("omkjacket_navy", 	145, 	240,	1,100);
 		AddItem("navyuniformjacket", 	145, 	240,	1,100);
+		AddItem("GulagJacket_Grey", 500, 1000, 1, 100);
+		AddItem("LeatherJacket_Beige", 500, 1000, 1, 100, null, {"LeatherJacket_Black", "LeatherJacket_Brown", "LeatherJacket_Natural"});
+		AddItem("PilotJacket_Black", 500, 1000, 1, 100, null, {"PilotJacket_Brown", "PilotJacket_Yellow"});
+		AddItem("WinterMilitaryCoat_Brown", 500, 1000, 1, 100, null, {"WinterMilitaryCoat_DarkGrey", "WinterMilitaryCoat_Grey"});
 	}
 };

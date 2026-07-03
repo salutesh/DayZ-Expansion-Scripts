@@ -255,4 +255,159 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\rail\tracks\rail_tracke_turnoutr.p3d";
 	};
+	class bldr_rail_station_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\houses\rail_station_big.p3d";
+	};
+	class bldr_rail_station_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\houses\rail_station_small.p3d";
+	};
+	class bldr_rail_warehouse_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\houses\rail_warehouse_small.p3d";
+	};
+	class bldr_rail_track_25_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_25_lc.p3d";
+	};
+	class bldr_rail_track_down_25_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_down_25_lc.p3d";
+	};
+	class bldr_rail_track_down_40_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_down_40_lc.p3d";
+	};
+	class bldr_rail_track_l25_10_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_l25_10_lc.p3d";
+	};
+	class bldr_rail_track_lb_re_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_lb_re_lc.p3d";
+	};
+	class bldr_rail_track_lb1_re_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_lb1_re_lc.p3d";
+	};
+	class bldr_rail_track_le_rb_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_le_rb_lc.p3d";
+	};
+	class bldr_rail_track_le1_rb_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_le1_rb_lc.p3d";
+	};
+	class bldr_rail_track_passing_10_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_passing_10_lc.p3d";
+	};
+	class bldr_rail_track_passing_25_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_passing_25_lc.p3d";
+	};
+	class bldr_rail_track_passing_25_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_passing_25_nolc.p3d";
+	};
+	class bldr_rail_track_r25_10_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_r25_10_lc.p3d";
+	};
+	class bldr_rail_track_sp_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_sp_lc.p3d";
+	};
+	class bldr_rail_track_turnoutl_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_turnoutl_lc.p3d";
+	};
+	class bldr_rail_track_turnoutr_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_turnoutr_lc.p3d";
+	};
+	class bldr_rail_track_up_25_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_up_25_lc.p3d";
+	};
+	class bldr_rail_track_up_40_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_track_up_40_lc.p3d";
+	};
+	class bldr_rail_tracke_25_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_tracke_25_lc.p3d";
+	};
+	class bldr_rail_tracke_40_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_tracke_40_lc.p3d";
+	};
+	class bldr_rail_tracke_8_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_tracke_8_nolc.p3d";
+	};
+	class bldr_rail_tracke_l25_10_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_tracke_l25_10_lc.p3d";
+	};
+	class bldr_rail_tracke_l25_5_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_tracke_l25_5_lc.p3d";
+	};
+	class bldr_rail_tracke_l30_20_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_tracke_l30_20_lc.p3d";
+	};
+	class bldr_rail_tracke_r25_10_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_tracke_r25_10_lc.p3d";
+	};
+	class bldr_rail_tracke_r25_5_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_tracke_r25_5_lc.p3d";
+	};
+	class bldr_rail_tracke_r30_20_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_tracke_r30_20_lc.p3d";
+	};
+	class bldr_rail_tracke_turnoutl_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_tracke_turnoutl_lc.p3d";
+	};
+	class bldr_rail_tracke_turnoutr_lc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\rail\tracks\rail_tracke_turnoutr_lc.p3d";
+	};
 };

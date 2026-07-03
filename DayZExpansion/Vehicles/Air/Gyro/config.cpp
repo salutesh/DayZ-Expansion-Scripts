@@ -396,14 +396,14 @@ class CfgVehicles
 				{
 					speed=10;
 					max=1;
-					coefficient=0.30000001;
+					coefficient=0.40000001;
 					animation="cyclicForward";
 				};
 				class Side
 				{
 					speed=10;
 					max=1;
-					coefficient=0.30000001;
+					coefficient=0.40000001;
 					animation="cyclicAside";
 				};
 			};
@@ -504,14 +504,14 @@ class CfgVehicles
 				{
 					speed=10;
 					max=1;
-					coefficient=0.30000001;
+					coefficient=0.40000001;
 					animation="cyclicForward";
 				};
 				class Side
 				{
 					speed=10;
 					max=1;
-					coefficient=0.30000001;
+					coefficient=0.40000001;
 					animation="cyclicAside";
 				};
 			};
@@ -708,14 +708,14 @@ class CfgVehicles
 				{
 					speed=10;
 					max=1;
-					coefficient=0.30000001;
+					coefficient=0.40000001;
 					animation="cyclicForward";
 				};
 				class Side
 				{
 					speed=10;
 					max=1;
-					coefficient=0.30000001;
+					coefficient=0.40000001;
 					animation="cyclicAside";
 				};
 			};

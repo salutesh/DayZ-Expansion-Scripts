@@ -54,9 +54,9 @@ class eAIState_Fighting_FireWeapon: eAIState
 		
 		float threshold;
 		if (weapon && weapon.ShootsExplosiveAmmo())
-			threshold = 0.96875;
+			threshold = 0.9703; //! ~14 deg
 		else
-			threshold = 0.875;
+			threshold = 0.9063;  //! ~25 deg
 		
 		if (vector.Dot(unit.GetAimDirection(), direction) < threshold)
 		{

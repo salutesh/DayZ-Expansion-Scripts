@@ -16,7 +16,7 @@
  **/
 class ExpansionHelicopterScript: CarScript
 {
-	ExpansionVehicleHelicopter_OLD m_Simulation;
+	ExpansionVehicleHelicopter m_Simulation;
 
 	// the rotor speeds for the drag of the helicopter when going down while the engine is turned off
 	float m_MinAutoRotateSpeed; // (m/s)
@@ -96,14 +96,14 @@ class ExpansionHelicopterScript: CarScript
 		if (g_Game.ConfigIsExisting(path))
 			m_AltitudeNoForce = g_Game.ConfigGetFloat(path);
 
-		ExpansionVehicleHelicopter_OLD simulation = new ExpansionVehicleHelicopter_OLD(this);
+		ExpansionVehicleHelicopter simulation = new ExpansionVehicleHelicopter(this);
 		m_Simulation = simulation;
 		AddModule(m_Simulation);
 		RegisterNetSyncVariableBool("m_Expansion_EngineSync1");
 
 		RegisterNetSyncVariableFloat("m_Simulation.m_RotorSpeed");
-		RegisterNetSyncVariableFloat("m_Simulation.m_CyclicForwardInputVal");
-		RegisterNetSyncVariableFloat("m_Simulation.m_CyclicSideInputVal");
+		RegisterNetSyncVariableFloat("m_Simulation.m_CyclicForwardInput");
+		RegisterNetSyncVariableFloat("m_Simulation.m_CyclicSideInput");
 		
 		m_CarDoorOpenSound 		= "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound 	= "offroad_door_close_SoundSet";
@@ -838,9 +838,9 @@ class ExpansionHelicopterScript: CarScript
 			float sideSpeedRel = Math.Min(Math.AbsFloat(m_State.m_LinearVelocityMS[0]) / (m_State.m_MaxSpeedMS * 0.4), 1.0);
 			float sizeCoef = Math.Min(m_State.m_BoundingRadius / m_Simulation.REFERENCE_BOUNDING_RADIUS * 1.25, 1.5);
 
-			vertSpeedRel *= Math.Lerp(0.5, 0, fwdSpeedRel) + m_Simulation.m_VRSSeverity * 1.5;
-			windVolume = Math.Clamp((fwdSpeedRel * 0.75 + vertSpeedRel + sideSpeedRel * 0.5) * sizeCoef, 0, 1.5);
-			windFrequency = Math.Clamp(fwdSpeedRel * 1.5 + vertSpeedRel + sideSpeedRel * 0.5, 0.6, 2.0);
+			vertSpeedRel *= Math.Lerp(0.75 + m_Simulation.m_VRSSeverity * 0.25, 0, fwdSpeedRel);
+			windVolume = Math.Clamp((fwdSpeedRel * 0.75 + vertSpeedRel + sideSpeedRel * 0.75) * sizeCoef, 0, 1.5);
+			windFrequency = Math.Clamp(fwdSpeedRel * 1.5 + vertSpeedRel + sideSpeedRel * 0.75, 0.6, 2.0);
 
 			if (!player.IsCameraInsideVehicle())
 			{

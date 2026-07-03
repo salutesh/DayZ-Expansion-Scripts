@@ -44,8 +44,6 @@ modded class ActionSwitchSeats
 
 class ExpansionActionSwitchSeats: ActionSwitchSeats
 {
-	static ref TTypenameArray s_Expansion_VehicleTypes = {ExpansionBus, Vehicle_ExpansionBus};
-
 	override void CreateConditionComponents()  
 	{
 		m_ConditionItem = new CCINone;
@@ -62,7 +60,7 @@ class ExpansionActionSwitchSeats: ActionSwitchSeats
 		if (!parent)
 			return false;
 
-		if (!ExpansionStatic.IsAnyOf(parent, s_Expansion_VehicleTypes))
+		if (!parent.IsInherited(ExpansionBus))
 			return false;
 
 		return super.ActionCondition(player, target, item);

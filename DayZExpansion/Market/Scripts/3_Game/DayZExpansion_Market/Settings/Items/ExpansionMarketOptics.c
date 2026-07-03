@@ -51,5 +51,8 @@ class ExpansionMarketOptics: ExpansionMarketCategory
 		//AddItem("Expansion_ANPEQ15_Red", 		200,		400,	1,		100);
 		//AddItem("Expansion_ANPEQ15_Green", 	200,		400,	1,		100);
 	#endif
-	}	
+			AddItem("MK4Optic_Black", 800, 1600, 1, 100, null, {"MK4Optic_Green", "MK4Optic_Tan"});
+		AddItem("PSO6Optic", 800, 1600, 1, 100);
+		AddItem("SportingOptic", 800, 1600, 1, 100);
+}	
 };

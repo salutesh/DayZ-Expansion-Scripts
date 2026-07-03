@@ -7,6 +7,8 @@
 			<input name="UAExpansionHeliAutoHover" loc="STR_EXPANSION_HELICOPTER_TOGGLE_AUTOHOVER" />
 			<input name="UAExpansionHeliCollectiveUp" loc="STR_EXPANSION_HELICOPTER_COLLECTIVE_UP" />
 			<input name="UAExpansionHeliCollectiveDown" loc="STR_EXPANSION_HELICOPTER_COLLECTIVE_DOWN" />
+			<input name="UAExpansionHeliCollectiveAnalogueUp" loc="STR_EXPANSION_HELICOPTER_COLLECTIVE_ANALOGUE_UP" />
+			<input name="UAExpansionHeliCollectiveAnalogueDown" loc="STR_EXPANSION_HELICOPTER_COLLECTIVE_ANALOGUE_DOWN" />
 			<input name="UAExpansionHeliAntiTorqueLeft" loc="STR_EXPANSION_HELICOPTER_ANTI_TORQUE_LEFT" />
 			<input name="UAExpansionHeliAntiTorqueRight" loc="STR_EXPANSION_HELICOPTER_ANTI_TORQUE_RIGHT" />
 			<input name="UAExpansionHeliCyclicForward" loc="STR_EXPANSION_HELICOPTER_CYCLIC_FORWARD" />
@@ -47,6 +49,7 @@
 			<input name="UAExpansionCarRefill" loc="STR_EXPANSION_VEHICLE_REFILL" />
 
 			<input name="UAExpansionVehicleCenterCamera" loc="STR_USRACT_LOOK_CENTER" />
+			<input name="UAExpansionVehicleCameraZoomOut" loc="STR_USRACT_ZOOM_OUT" />
 		</actions>
 		
 		<exclude name="expansionvehicles">
@@ -59,6 +62,8 @@
 			<input name="UAExpansionHeliCyclicRight" />
 			<input name="UAExpansionHeliCollectiveUp" />
 			<input name="UAExpansionHeliCollectiveDown" />
+			<input name="UAExpansionHeliCollectiveAnalogueUp" />
+			<input name="UAExpansionHeliCollectiveAnalogueDown" />
 			<input name="UAExpansionHeliAntiTorqueLeft" />
 			<input name="UAExpansionHeliAntiTorqueRight" />
 			<input name="UAExpansionHeliTrimSet" />
@@ -91,6 +96,7 @@
 			<input name="UAExpansionBoatTurbo" />
 			<input name="UAExpansionCarRefill" />
 			<input name="UAExpansionVehicleCenterCamera" />
+			<input name="UAExpansionVehicleCameraZoomOut" />
 		</exclude>
 
 		<exclude name="expansionhelicopter">
@@ -126,6 +132,8 @@
 			<input name="UAExpansionHeliCyclicRight" />
 			<input name="UAExpansionHeliCollectiveUp" />
 			<input name="UAExpansionHeliCollectiveDown" />
+			<input name="UAExpansionHeliCollectiveAnalogueUp" />
+			<input name="UAExpansionHeliCollectiveAnalogueDown" />
 			<input name="UAExpansionHeliAntiTorqueLeft" />
 			<input name="UAExpansionHeliAntiTorqueRight" />
 			<input name="UAExpansionHeliTrimSet" />
@@ -156,6 +164,7 @@
 			<input name="UAExpansionBoatTurbo" />
 			<input name="UAExpansionCarRefill" />
 			<input name="UAExpansionVehicleCenterCamera" />
+			<input name="UAExpansionVehicleCameraZoomOut" />
 		</sorting>
 	</inputs>
 
@@ -192,6 +201,10 @@
 		<input name="UAExpansionHeliCollectiveDown">
 			<btn name="kZ" />
             <btn name="x1TriggerLeft" />
+		</input>
+		<input name="UAExpansionHeliCollectiveAnalogueUp">
+		</input>
+		<input name="UAExpansionHeliCollectiveAnalogueDown">
 		</input>
 		<input name="UAExpansionHeliAntiTorqueLeft">
 			<btn name="kQ" />
@@ -292,6 +305,9 @@
 		<input name="UAExpansionVehicleCenterCamera">
 			<btn name="kNumpad5" />
 			<btn name="x1ThumbRight" />
+		</input>
+		<input name="UAExpansionVehicleCameraZoomOut">
+			<btn name="kSubstract" />
 		</input>
 	</preset>
 </modded_inputs>

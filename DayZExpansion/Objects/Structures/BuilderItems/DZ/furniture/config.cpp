@@ -1010,4 +1010,199 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\furniture\various\workbench_dz.p3d";
 	};
+	class bldr_bathroom_sign_m: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\bathroom\bathroom_sign_m.p3d";
+	};
+	class bldr_bathroom_sign_w: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\bathroom\bathroom_sign_w.p3d";
+	};
+	class bldr_toilet_b_02_scaled: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\bathroom\toilet_b_02\toilet_b_02_scaled.p3d";
+	};
+	class bldr_bed_stacked: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\beds\bed_stacked.p3d";
+	};
+	class bldr_matress_white: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\beds\matress_white.p3d";
+	};
+	class bldr_matress_white_bent: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\beds\matress_white_bent.p3d";
+	};
+	class bldr_pillow_flannel: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\beds\pillow_flannel.p3d";
+	};
+	class bldr_pillow_grey: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\beds\pillow_grey.p3d";
+	};
+	class bldr_pillow_old: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\beds\pillow_old.p3d";
+	};
+	class bldr_postel_panelak2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\beds\postel_panelak2.p3d";
+	};
+	class bldr_stretcher_green: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\beds\stretcher_green.p3d";
+	};
+	class bldr_stretcher_green_folded: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\beds\stretcher_green_folded.p3d";
+	};
+	class bldr_stretcher_red: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\beds\stretcher_red.p3d";
+	};
+	class bldr_stretcher_red_folded: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\beds\stretcher_red_folded.p3d";
+	};
+	class bldr_dhangar_brownskrin: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\cases\dhangar_borwnskrin\dhangar_brownskrin.p3d";
+	};
+	class bldr_dhangar_brownskrin_open: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\cases\dhangar_borwnskrin\dhangar_brownskrin_open.p3d";
+	};
+	class bldr_dhangar_brownskrin_old: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\cases\dhangar_borwnskrin_old\dhangar_brownskrin_old.p3d";
+	};
+	class bldr_paperbox_01_small_closed: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\cases\paperbox\paperbox_01_small_closed.p3d";
+	};
+	class bldr_paperbox_01_small_destroyed: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\cases\paperbox\paperbox_01_small_destroyed.p3d";
+	};
+	class bldr_paperbox_01_small_open: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\cases\paperbox\paperbox_01_small_open.p3d";
+	};
+	class bldr_paperbox_01_small_ransacked: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\cases\paperbox\paperbox_01_small_ransacked.p3d";
+	};
+	class bldr_airport_bench: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\chairs\airport_bench\airport_bench.p3d";
+	};
+	class bldr_postel_manz_kov_rust: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\chairs\postel_manz_kov\postel_manz_kov_rust.p3d";
+	};
+	class bldr_brown_sofa_old: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\chairs\sofa_leather\brown_sofa_old.p3d";
+	};
+	class bldr_sofa_sakhal_1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\chairs\sofa_sakhal\sofa_sakhal_1.p3d";
+	};
+	class bldr_vojenska_palanda: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\chairs\vojenska_palanda\vojenska_palanda.p3d";
+	};
+	class bldr_plasticbucket: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\decoration\bucket\plasticbucket.p3d";
+	};
+	class bldr_carpet_big_washedout: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\decoration\carpet_big\carpet_big_washedout.p3d";
+	};
+	class bldr_flower_01_brown: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\decoration\flowers\flower_01_brown.p3d";
+	};
+	class bldr_foldingbed_matress: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\folding_beds\foldingbed_matress.p3d";
+	};
+	class bldr_kicthen_desk_a_cupboards: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\kitchen\kitchendesk\kicthen_desk_a_cupboards.p3d";
+	};
+	class bldr_kicthen_desk_a_nocupboards: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\kitchen\kitchendesk\kicthen_desk_a_nocupboards.p3d";
+	};
+	class bldr_kicthen_desk_c: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\kitchen\kitchendesk\kicthen_desk_c.p3d";
+	};
+	class bldr_kicthen_desk_single_cupboard_closed: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\kitchen\kitchendesk\kicthen_desk_single_cupboard_closed.p3d";
+	};
+	class bldr_kicthen_desk_single_cupboard_open: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\kitchen\kitchendesk\kicthen_desk_single_cupboard_open.p3d";
+	};
+	class bldr_medicalgarbage_bandage: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\medical\medical_garbage\medicalgarbage_bandage.p3d";
+	};
+	class bldr_wall_hanger_short: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\school_equipment\wall_hanger_short.p3d";
+	};
+	class bldr_canister_ground_dz: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\various\canister_ground_dz.p3d";
+	};
+	class bldr_ladder_a_wood: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\furniture\various\ladder_a_wood.p3d";
+	};
 };

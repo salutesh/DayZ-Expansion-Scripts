@@ -120,5 +120,7 @@ class ExpansionMarketMagazines: ExpansionMarketCategory
 
 		AddItem("Mag_Expansion_AWM_5Rnd", 		500,	1000,	1,		100);
 	#endif
-	}
+			AddItem("Mag_PM73_15Rnd", 120, 240, 1, 100);
+		AddItem("Mag_PM73_25Rnd", 120, 240, 1, 100);
+}
 };

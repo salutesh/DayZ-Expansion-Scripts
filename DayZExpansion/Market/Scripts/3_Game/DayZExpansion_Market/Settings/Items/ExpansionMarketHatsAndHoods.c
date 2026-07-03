@@ -56,5 +56,10 @@ class ExpansionMarketHatsAndHoods: ExpansionMarketCategory
 		AddItem("petushokhat_black", 	285, 	470,	1,100,null,{"petushokhat_green","petushokhat_yellow"});
 		AddItem("snowstormushanka_brown", 	145, 	240,	1,100,null,{"snowstormushanka_navy","snowstormushanka_olive","snowstormushanka_white"});
 		AddItem("wintercoif_black", 	175, 	290,	1,100,null,{"wintercoif_blue","wintercoif_green","wintercoif_skull"});
+		AddItem("Headdress_Bear", 200, 400, 1, 100, null, {"Headdress_Fox", "Headdress_Wolf"});
+		AddItem("LeafCrown_Autumn", 200, 400, 1, 100, null, {"LeafCrown_Spring", "LeafCrown_Summer", "LeafCrown_Winter"});
+		AddItem("LeatherHat_Beige", 200, 400, 1, 100, null, {"LeatherHat_Black", "LeatherHat_Brown", "LeatherHat_Natural"});
+		AddItem("SherpaHat_Black", 200, 400, 1, 100, null, {"SherpaHat_Blue", "SherpaHat_Red"});
+		AddItem("WitchHoodCoif_Black", 200, 400, 1, 100, null, {"WitchHoodCoif_Brown", "WitchHoodCoif_Red"});
 	}
 };
