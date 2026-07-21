@@ -24,10 +24,12 @@ class CfgWeapons
 		scope=0;
 		weight=1570;
 		absorbency=0;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
-		PPDOFProperties[]={1,0.5,10,140,4,10};
-		WeaponLength=0.56;
+		repairableWithKits[]={1};
+		repairCosts[]={25};
+		PPDOFProperties[]={1,0.5,10,130,4,10};
+		WeaponLength=0.63999999;
+		barrelArmor=1.35;
+		initSpeedMultiplier=1.25;
 		chamberSize=1;
 		chamberedRound="";
 		chamberableFrom[]=
@@ -39,9 +41,9 @@ class CfgWeapons
 			"Mag_Expansion_Kedr_20Rnd"
 		};
 		magazineSwitchTime=0.30000001;
-		barrelArmor=800;
 		ejectType=1;
-		recoilModifier[]={0.89999998,0.89999998,0.89999998};
+		recoilModifier[]={1,1,1};
+		swayModifier[]={1,1,0.80000001};
 		drySound[]=
 		{
 			"dz\sounds\weapons\firearms\m4a1\m4_dry",
@@ -59,8 +61,8 @@ class CfgWeapons
 		};
 		modes[]=
 		{
-			"FullAuto",
-			"SemiAuto"
+			"SemiAuto",
+			"FullAuto"
 		};
 		s_recoilControlStabilityX=0.60000002;
 		s_recoilControlStabilityY=0.60000002;
@@ -90,7 +92,7 @@ class CfgWeapons
 					"CZ61_silencerHomeMadeInteriorTail_SoundSet"
 				}
 			};
-			reloadTime=0.1;
+			reloadTime=0.12;
 			recoil="recoil_cz61";
 			recoilProne="recoil_cz61_prone";
 			dispersion=0.003;
@@ -119,7 +121,7 @@ class CfgWeapons
 					"CZ61_silencerHomeMadeInteriorTail_SoundSet"
 				}
 			};
-			reloadTime=0.056000002;
+			reloadTime=0.097999997;
 			recoil="recoil_cz61";
 			recoilProne="recoil_cz61_prone";
 			dispersion=0.003;

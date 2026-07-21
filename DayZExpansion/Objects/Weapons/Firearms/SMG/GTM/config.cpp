@@ -22,11 +22,11 @@ class cfgWeapons
 	class Expansion_MPX_Base: Rifle_Base
 	{
 		scope=0;
-		weight=2700;
+		weight=2500;
 		absorbency=0;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
-		PPDOFProperties[]={1,0.60000002,50,200,4,10};
+		repairableWithKits[]={1};
+		repairCosts[]={25};
+		PPDOFProperties[]={1,0.75,20,170,4,10};
 		ironsightsExcludingOptics[]=
 		{
 			"M68Optic",
@@ -34,7 +34,9 @@ class cfgWeapons
 			"ReflexOptic",
 			"ACOGOptic"
 		};
-		WeaponLength=0.56;
+		WeaponLength=0.66352999;
+		barrelArmor=0.89999998;
+		initSpeedMultiplier=1.05;
 		chamberSize=1;
 		chamberedRound="";
 		chamberableFrom[]=
@@ -45,9 +47,10 @@ class cfgWeapons
 		{
 			"Mag_Expansion_MPX_50Rnd"
 		};
-		magazineSwitchTime=0.5;
+		magazineSwitchTime=0.44999999;
 		ejectType=1;
-		recoilModifier[]={0.69999999,0.69999999,0.69999999};
+		recoilModifier[]={1,1,1};
+		swayModifier[]={1.2,1.2,0.69999999};
 		simpleHiddenSelections[]=
 		{
 			"folding_raised",
@@ -103,10 +106,10 @@ class cfgWeapons
 					"CZ75_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
-			reloadTime=0.125;
+			reloadTime=0.12;
 			recoil="recoil_m4";
 			recoilProne="recoil_m4_prone";
-			dispersion=0.00125;
+			dispersion=0.003;
 			magazineSlot="magazine";
 		};
 		class FullAuto: Mode_FullAuto
@@ -134,10 +137,10 @@ class cfgWeapons
 					"CZ75_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
-			reloadTime=0.07;
+			reloadTime=0.097999997;
 			recoil="recoil_m4";
 			recoilProne="recoil_m4_prone";
-			dispersion=0.00125;
+			dispersion=0.003;
 			magazineSlot="magazine";
 		};
 		class OpticsInfo: OpticsInfoRifle

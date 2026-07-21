@@ -18,6 +18,7 @@ modded class PluginDiagMenu
 		protected int m_ExpansionDiagsEnum_VehiclesHeliTranslatingTendency;
 		protected int m_ExpansionDiagsEnum_VehiclesHeliRotorDiskInertia;
 		protected int m_ExpansionDiagsEnum_VehiclesHeliWindAerodynamics;
+		protected int m_ExpansionDiagsEnum_VehiclesHeliRoughLandingThreshold;
 		protected int m_ExpansionDiagsEnum_VehiclesHeliLogSpeed;
 	
 	override protected void RegisterModdedDiagsIDs()
@@ -36,6 +37,7 @@ modded class PluginDiagMenu
 			m_ExpansionDiagsEnum_VehiclesHeliAutoTrim = GetModdedDiagID();
 			m_ExpansionDiagsEnum_VehiclesHeliRotorDiskInertia = GetModdedDiagID();
 			m_ExpansionDiagsEnum_VehiclesHeliWindAerodynamics = GetModdedDiagID();
+			m_ExpansionDiagsEnum_VehiclesHeliRoughLandingThreshold = GetModdedDiagID();
 			m_ExpansionDiagsEnum_VehiclesHeliLogSpeed = GetModdedDiagID();
 	}
 	
@@ -54,6 +56,9 @@ modded class PluginDiagMenu
 			DiagMenu.RegisterRange(m_ExpansionDiagsEnum_VehiclesHeliAirFrictionY, "", "Heli Air Friction Y", m_ExpansionDiagsRootMenu_Vehicles,string.Format("0,1.27,%1,0.01", ExpansionVehicleHelicopter.s_AirFriction[1]));
 
 			DiagMenu.RegisterRange(m_ExpansionDiagsEnum_VehiclesHeliAirFrictionZ, "", "Heli Air Friction Z", m_ExpansionDiagsRootMenu_Vehicles,string.Format("0,1.27,%1,0.01", ExpansionVehicleHelicopter.s_AirFriction[2]));
+
+			if (!g_Game.IsMultiplayer())
+				DiagMenu.RegisterRange(m_ExpansionDiagsEnum_VehiclesHeliRoughLandingThreshold, "", "Rough Landing Thresh", m_ExpansionDiagsRootMenu_Vehicles, string.Format("3.7,99,%1,0.1", GetExpansionSettings().GetVehicle(false).RoughLandingVerticalSpeedThreshold));
 
 			DiagMenu.RegisterBool(m_ExpansionDiagsEnum_VehiclesHeliLogSpeed, "", "Heli Log Speed", m_ExpansionDiagsRootMenu_Vehicles);
 
@@ -150,6 +155,9 @@ modded class PluginDiagMenuClient
 		DiagMenu.BindCallback(m_ExpansionDiagsEnum_VehiclesHeliRotorDiskInertia, Expansion_SetHeliRotorDiskInertia);
 		DiagMenu.BindCallback(m_ExpansionDiagsEnum_VehiclesHeliWindAerodynamics, Expansion_SetHeliWindAerodynamics);
 		DiagMenu.BindCallback(m_ExpansionDiagsEnum_VehiclesHeliLogSpeed, Expansion_ToggleLogHeliSpeed);
+
+		if (!g_Game.IsMultiplayer())
+			DiagMenu.BindCallback(m_ExpansionDiagsEnum_VehiclesHeliRoughLandingThreshold, Expansion_SetHeliRoughLandingThreshold);
 	}
 
 	static void Expansion_SetHeliSimMode(int value)
@@ -243,6 +251,21 @@ modded class PluginDiagMenuClient
 	#endif
 		auto settings = GetExpansionSettings().GetVehicle();
 		settings.EnableWindAerodynamics = enabled;
+		Expansion_UpdateSettings();
+	}
+
+	static void Expansion_SetHeliRoughLandingThreshold(float value)
+	{
+	#ifdef EXTRACE_DIAG
+		auto trace = EXTrace.StartStack(true, PluginDiagMenu);
+	#endif
+		auto settings = GetExpansionSettings().GetVehicle();
+		settings.RoughLandingVerticalSpeedThreshold = value;
+		Expansion_UpdateSettings();
+	}
+
+	static void Expansion_UpdateSettings()
+	{
 		s_Expansion_ChangeInProgress = true;
 		ExpansionSettings.SI_Vehicle.Invoke();
 		s_Expansion_ChangeInProgress = false;

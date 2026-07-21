@@ -22,13 +22,13 @@ class cfgWeapons
 	class Expansion_BenelliM4_Base: Rifle_Base
 	{
 		scope=0;
-		weight=3820;
+		weight=3600;
 		absorbency=0;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
-		PPDOFProperties[]={1,0.5,50,120,4,10};
+		repairableWithKits[]={1};
+		repairCosts[]={25};
+		PPDOFProperties[]={1,0.5,10,140,4,10};
 		DisplayMagazine=0;
-		WeaponLength=0.991;
+		WeaponLength=0.93000001;
 		chamberSize=8;
 		chamberedRound="";
 		ironsightsExcludingOptics[]=
@@ -46,9 +46,11 @@ class cfgWeapons
 			"Ammo_12gaBeanbag"
 		};
 		magazines[]={};
-		barrelArmor=2200;
+		barrelArmor=1.6799999;
+		magazineSwitchTime=0.2;
 		ejectType=1;
-		recoilModifier[]={1.2,1.2,1.2};
+		recoilModifier[]={1,1,1};
+		swayModifier[]={2.5,2.5,0.89999998};
 		cursor="aimBowGhost";
 		drySound[]=
 		{
@@ -82,10 +84,10 @@ class cfgWeapons
 				"Mp133_Tail_SoundSet",
 				"Mp133_InteriorTail_SoundSet"
 			};
-			reloadTime=0.25;
+			reloadTime=0.34999999;
 			recoil="recoil_sks";
 			recoilProne="recoil_sks_prone";
-			dispersion=0.0098999999;
+			dispersion=0.0099999998;
 			magazineSlot="magazine";
 		};
 		class AnimEvents

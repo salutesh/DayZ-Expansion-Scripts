@@ -64,7 +64,6 @@ class ExpansionHelicopterScript: CarScript
 	float m_Expansion_IsLandedTick;
 	float m_Expansion_PilotlessTime;
 	float m_Expansion_PilotlessAutoHoverEngineStopDelay;
-	float m_RoughLandingVerticalSpeedThreshold = 3.0;
 
 	ref ExpansionSound m_Expansion_HeliWarningSound;
 	ref ExpansionSoundSet m_Expansion_HeliWarningSoundSet = ExpansionSoundSet.Register(Expansion_GetWarningSoundSet());
@@ -345,7 +344,7 @@ class ExpansionHelicopterScript: CarScript
 			if (other) //! check done just incase
 				impulseRequired += Math.Max(dBodyGetMass(other), 0.0) * maxVelocityMagnitude * 2.0;
 
-			if (extra.Impulse > impulseRequired || m_State.m_LinearVelocity[1] < -m_RoughLandingVerticalSpeedThreshold || (m_Simulation.m_RotorSpeed > 0 && (up[1] < 0.0 || extra.RelativeVelocityBefore.LengthSq() >= maxVelocityMagnitude * maxVelocityMagnitude) && !IsLanded()))
+			if (extra.Impulse > impulseRequired || m_State.m_LinearVelocity[1] < -m_Simulation.m_RoughLandingVerticalSpeedThreshold || (m_Simulation.m_RotorSpeed > 0 && (up[1] < 0.0 || extra.RelativeVelocityBefore.LengthSq() >= maxVelocityMagnitude * maxVelocityMagnitude) && !IsLanded()))
 			{
 #ifdef EXPANSIONVEHICLELOG
 				Print(dot);
@@ -392,7 +391,7 @@ class ExpansionHelicopterScript: CarScript
 					}
 				}
 			}
-			else if (m_State.m_LinearVelocity[1] < -m_RoughLandingVerticalSpeedThreshold)
+			else if (m_State.m_LinearVelocity[1] < -m_Simulation.m_RoughLandingVerticalSpeedThreshold)
 			{
 				//! Harsh landing
 
@@ -1226,7 +1225,6 @@ class ExpansionHelicopterScript: CarScript
 
 		auto settings = GetExpansionSettings().GetVehicle();
 		m_Expansion_PilotlessAutoHoverEngineStopDelay = settings.PilotlessAutoHoverEngineStopDelaySeconds;
-		m_RoughLandingVerticalSpeedThreshold = settings.RoughLandingVerticalSpeedThreshold;
 	}
 
 	string Expansion_GetWarningSoundSet()

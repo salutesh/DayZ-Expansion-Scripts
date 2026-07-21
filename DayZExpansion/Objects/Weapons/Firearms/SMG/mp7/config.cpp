@@ -23,9 +23,9 @@ class CfgWeapons
 	{
 		scope=0;
 		weight=1900;
-		absorbency=0.1;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
+		absorbency=0;
+		repairableWithKits[]={1};
+		repairCosts[]={25};
 		discreteDistance[]={75,150};
 		discreteDistanceInitIndex=0;
 		modelOptics="-";
@@ -56,10 +56,12 @@ class CfgWeapons
 			"Mag_Expansion_MP7_40Rnd"
 		};
 		magazineSwitchTime=0.30000001;
-		WeaponLength=0.66352999;
-		barrelArmor=1.35;
+		WeaponLength=0.55000001;
+		barrelArmor=1.9;
+		initSpeedMultiplier=1.15;
 		ejectType=1;
 		recoilModifier[]={1,1,1};
+		swayModifier[]={0.94999999,0.94999999,0.69999999};
 		reloadAction="ReloadCZ61";
 		hiddenSelections[]=
 		{
@@ -100,10 +102,10 @@ class CfgWeapons
 					"CZ61_silencerHomeMadeInteriorTail_SoundSet"
 				}
 			};
-			reloadTime=0.055;
+			reloadTime=0.12;
 			recoil="recoil_cz61";
 			recoilProne="recoil_cz61_prone";
-			dispersion=0.003;
+			dispersion=0.0044999998;
 			magazineSlot="magazine";
 		};
 		class FullAuto: Mode_FullAuto
@@ -338,7 +340,7 @@ class CfgWeapons
 				};
 				class Weapon_Movement_Rifle_Sprint
 				{
-					soundSet="Weapon_Movement_Rifle_sprintErc_L_SoundSet";
+					soundSet="Weapon_Movement_Rifle_sprintErc_SoundSet";
 					id=103;
 				};
 				class Weapon_Movement_Rifle_Land

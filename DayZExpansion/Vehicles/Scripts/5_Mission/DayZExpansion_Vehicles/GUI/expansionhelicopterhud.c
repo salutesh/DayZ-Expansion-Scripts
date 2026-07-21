@@ -109,6 +109,9 @@ class ExpansionHelicopterHud : VehicleHudBase
 	protected bool					m_FlightPathVelocity_Dbg;
 #endif
 
+	protected ref EffectSound		m_AlarmSound;
+	protected bool					m_AlarmSoundPlayed;
+
 	void ~ExpansionHelicopterHud()
 	{
 		if (g_Game)
@@ -340,12 +343,12 @@ class ExpansionHelicopterHud : VehicleHudBase
 				m_DiagSpeedLogFile = OpenFile(speedLogFileName, FileMode.WRITE);
 				m_DiagSpeedLogTime = 0;
 
-				FPrintln(m_DiagSpeedLogFile, "Time PitchAngle Speed LongitudinalSpeed GroundSpeed FwdSpeed");
+				FPrintln(m_DiagSpeedLogFile, "Time PitchAngle SpeedVComp LongitudinalSpeed GroundSpeed FwdSpeed VerticalSpeed");
 			}
 
 			if (m_DiagSpeedLogFile)
 			{
-				string speedLogLine = string.Format("%1 %2 %3 %4 %5 %6", m_DiagSpeedLogTime, ori[1], speed, longitudinalSpeed, groundSpeed, fwdSpeedMS);
+				string speedLogLine = string.Format("%1 %2 %3 %4 %5 %6 %7", m_DiagSpeedLogTime, ori[1], fwdSpeedVComp, longitudinalSpeed, groundSpeed, fwdSpeedMS, pState.m_LinearVelocity[1]);
 
 				FPrintln(m_DiagSpeedLogFile, speedLogLine);
 
@@ -410,6 +413,13 @@ class ExpansionHelicopterHud : VehicleHudBase
 
 		infoText += angularLabel;
 
+		float engineTorquePct;
+		if (simulation.m_RotorSpeedTarget > 0.0)
+			engineTorquePct = simulation.m_EngineTorque / simulation.m_MaxEngineTorque * 100;
+		infoText += " " + Math.Round(engineTorquePct).ToString() + "% TRQ";
+		infoText += " " + Math.Round(simulation.m_RotorSpeed * 100).ToString() + "% RPM";
+		infoText += " " + Math.Round(simulation.m_VRSSeverity * 100).ToString() + "% VRS";
+
 		m_InfoLabel.SetText(infoText);
 	#endif
 
@@ -434,22 +444,17 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliALTPointerH.SetRotation(0, 0, altH, true);
 		m_HeliALTPointerTH.SetRotation(0, 0, altTH, true);
 
+		string warningText;
+		float warningThreshold;
+		float warningValue;
+
 		float vrsSeverity = simulation.m_VRSSeverity;
+
 		if (vrsSeverity > 0)
 		{
-			m_HeliVortexIcon.SetText("VORTEX");
-			m_HeliVortexPanel.Show(true);
-
-			if (vrsSeverity > 0.1)
-			{
-				m_HeliVortexIcon.SetColor(VORTEX_ALARM_COLOR);
-				m_HeliVortexIcon.SetShadow(6, VORTEX_ALARM_SHADOW_COLOR);
-			}
-			else
-			{
-				m_HeliVortexIcon.SetColor(VORTEX_WARNING_COLOR);
-				m_HeliVortexIcon.SetShadow(6, VORTEX_WARNING_SHADOW_COLOR);
-			}
+			warningText = "VORTEX";
+			warningThreshold = 0.1;
+			warningValue = vrsSeverity;
 
 			//! Blinking thrust indicator effect when trying to raise collective while limited by VRS
 			if (vrsSeverity > 0.1 && simulation.m_CollectiveTarget > simulation.m_Collective && m_HeliThrustProgressBar.GetColor() == COLOR_WHITE)
@@ -465,24 +470,46 @@ class ExpansionHelicopterHud : VehicleHudBase
 
 			if (rbsSeverity > 0.0)
 			{
-				m_HeliVortexIcon.SetText("STALL");
-				m_HeliVortexPanel.Show(true);
+				warningText = "STALL";
+				warningThreshold = 0.1;
+				warningValue = rbsSeverity;
+			}
+			else if (simulation.m_RotorSpeed < 0.95 && !m_CurrentHelicopter.m_IsLanded)
+			{
+				warningText = "RPM";
+				warningThreshold = 0.1;
+				warningValue = 1.0 - simulation.m_RotorSpeed;
+			}
+		}
 
-				if (rbsSeverity > 0.1)
+		if (warningValue > 0.0)
+		{
+			if (warningValue > warningThreshold)
+			{
+				m_HeliVortexIcon.SetColor(VORTEX_ALARM_COLOR);
+				m_HeliVortexIcon.SetShadow(3, VORTEX_ALARM_SHADOW_COLOR);
+
+				if (vrsSeverity == 0.0 && !m_AlarmSound && !m_AlarmSoundPlayed)
 				{
-					m_HeliVortexIcon.SetColor(VORTEX_ALARM_COLOR);
-					m_HeliVortexIcon.SetShadow(6, VORTEX_ALARM_SHADOW_COLOR);
-				}
-				else
-				{
-					m_HeliVortexIcon.SetColor(VORTEX_WARNING_COLOR);
-					m_HeliVortexIcon.SetShadow(6, VORTEX_WARNING_SHADOW_COLOR);
+					m_CurrentHelicopter.PlaySoundSet(m_AlarmSound, "Expansion_Alarm_SoundSet", 0, 0);
+					m_AlarmSoundPlayed = true;
 				}
 			}
 			else
 			{
-				m_HeliVortexPanel.Show(false);
+				m_HeliVortexIcon.SetColor(VORTEX_WARNING_COLOR);
+				m_HeliVortexIcon.SetShadow(3, VORTEX_WARNING_SHADOW_COLOR);
 			}
+
+			m_HeliVortexIcon.SetText(warningText);
+			m_HeliVortexPanel.Show(true);
+		}
+		else
+		{
+			m_HeliVortexPanel.Show(false);
+
+			if (!m_AlarmSound || !m_AlarmSound.IsSoundPlaying())
+				m_AlarmSoundPlayed = false;
 		}
 
 		bool autoHover = m_CurrentHelicopter.IsAutoHover();

@@ -329,8 +329,11 @@ class ExpansionCameraHandler
 
 		if (zoomOut.LocalDoubleClick())
 			m_ZoomOutToggle = !m_ZoomOutToggle;
-		else if (zoomOut.LocalPress() || zoomIn.LocalPress() || zoomInToggle.LocalPress())
+		else if (zoomOut.LocalPress() || zoomInToggle.LocalPress())
 			m_ZoomOutToggle = false;
+
+		if (zoomIn.LocalValue())
+			return false;
 
 		if (m_ZoomOutToggle || zoomOut.LocalValue())
 		{

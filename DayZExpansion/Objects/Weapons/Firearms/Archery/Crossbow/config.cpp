@@ -31,17 +31,18 @@ class cfgWeapons
 			"weaponOpticsCrossbow"
 		};
 		itemSize[]={9,3};
-		weight=1500;
+		weight=2700;
 		absorbency=0;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
-		PPDOFProperties[]={1,0.5,10,210,4,10};
+		repairableWithKits[]={8};
+		repairCosts[]={25};
+		PPDOFProperties[]={1,0.1,4.5,145,6,25};
+		barrelArmor=1.7;
 		ironsightsExcludingOptics[]=
 		{
 			"HuntingOptic"
 		};
 		DisplayMagazine=0;
-		WeaponLength=0.98105502;
+		WeaponLength=0.94;
 		chamberSize=1;
 		chamberedRound="";
 		chamberableFrom[]=
@@ -51,7 +52,7 @@ class cfgWeapons
 		magazines[]={};
 		ejectType=3;
 		recoilModifier[]={1,1,1};
-		swayModifier[]={2,2,1};
+		swayModifier[]={1.3,1.3,0.80000001};
 		reloadAction="ReloadIZH18";
 		shotAction="";
 		hiddenSelections[]=
@@ -65,10 +66,10 @@ class cfgWeapons
 		class Single: Mode_Single
 		{
 			soundSetShot[]={};
-			reloadTime=1;
+			reloadTime=5.3333001;
 			recoil="recoil_izh18";
 			recoilProne="recoil_izh18_prone";
-			dispersion=0.001;
+			dispersion=0.00075000001;
 			magazineSlot="magazine";
 		};
 		class NoiseShoot

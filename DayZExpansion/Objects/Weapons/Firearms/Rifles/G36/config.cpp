@@ -23,11 +23,11 @@ class cfgWeapons
 	class Expansion_G36_Base: Rifle_Base
 	{
 		scope=0;
-		weight=2820;
+		weight=2276;
 		absorbency=0;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
-		PPDOFProperties[]={1,0.75,20,170,4,10};
+		repairableWithKits[]={1};
+		repairCosts[]={25};
+		PPDOFProperties[]={1,0.60000002,50,200,4,10};
 		ironsightsExcludingOptics[]=
 		{
 			"M4_CarryHandleOptic",
@@ -37,8 +37,11 @@ class cfgWeapons
 			"ReflexOptic",
 			"ACOGOptic"
 		};
-		WeaponLength=0.75300002;
-		barrelArmor=6.75;
+		WeaponLength=0.77999997;
+		ObstructionDistance=0.52600002;
+		ShoulderDistance=0.050000001;
+		barrelArmor=2.5;
+		initSpeedMultiplier=0.89999998;
 		chamberSize=1;
 		chamberedRound="";
 		chamberableFrom[]=
@@ -48,15 +51,26 @@ class cfgWeapons
 		};
 		magazines[]=
 		{
-			"Mag_Expansion_G36_30Rnd",
-			"Mag_STANAG_30Rnd"
+			"Mag_STANAG_30Rnd",
+			"Mag_STANAGCoupled_30Rnd",
+			"Mag_STANAG_60Rnd",
+			"Mag_CMAG_10Rnd",
+			"Mag_CMAG_20Rnd",
+			"Mag_CMAG_30Rnd",
+			"Mag_CMAG_40Rnd"
 		};
 		magazineSwitchTime=0.5;
 		ejectType=1;
-		recoilModifier[]={0.89999998,0.89999998,0.89999998};
+		recoilModifier[]={1,1,1};
+		swayModifier[]={2,2,0.75};
 		simpleHiddenSelections[]=
 		{
 			"hide_barrel"
+		};
+		class NoiseShoot
+		{
+			strength=80;
+			type="shot";
 		};
 		drySound[]=
 		{
@@ -75,8 +89,8 @@ class cfgWeapons
 		};
 		modes[]=
 		{
-			"FullAuto",
-			"SemiAuto"
+			"SemiAuto",
+			"FullAuto"
 		};
 		s_recoilControlStabilityX=0.60000002;
 		s_recoilControlStabilityY=0.60000002;
@@ -109,10 +123,10 @@ class cfgWeapons
 					"M4A1_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
-			reloadTime=0.125;
+			reloadTime=0.12;
 			recoil="recoil_m4";
 			recoilProne="recoil_m4_prone";
-			dispersion=0.00125;
+			dispersion=0.0020000001;
 			magazineSlot="magazine";
 		};
 		class FullAuto: Mode_FullAuto
@@ -157,10 +171,10 @@ class cfgWeapons
 					"M4A1_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
-			reloadTime=0.079999998;
+			reloadTime=0.064999998;
 			recoil="recoil_m4";
 			recoilProne="recoil_m4_prone";
-			dispersion=0.00125;
+			dispersion=0.0020000001;
 			magazineSlot="magazine";
 		};
 		class OpticsInfo: OpticsInfoRifle

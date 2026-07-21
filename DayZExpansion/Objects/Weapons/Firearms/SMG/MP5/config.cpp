@@ -22,13 +22,21 @@ class cfgWeapons
 	class Expansion_MP5_Base: Rifle_Base
 	{
 		scope=0;
-		weight=2540;
+		weight=1840;
 		absorbency=0;
 		repairableWithKits[]={1};
 		repairCosts[]={25};
 		PPDOFProperties[]={1,0.75,40,180,4,10};
-		ironsightsExcludingOptics[]={};
-		WeaponLength=0.699;
+		ironsightsExcludingOptics[]=
+		{
+			"M4_CarryHandleOptic",
+			"BUISOptic",
+			"M68Optic",
+			"M4_T3NRDSOptic",
+			"ReflexOptic"
+		};
+		WeaponLength=0.56;
+		ObstructionDistance=0.45100001;
 		barrelArmor=1.25;
 		initSpeedMultiplier=1.05;
 		chamberSize=1;
@@ -45,8 +53,16 @@ class cfgWeapons
 		magazineSwitchTime=0.5;
 		ejectType=1;
 		recoilModifier[]={1,1,1};
-		swayModifier[]={1.2,1.2,1};
-		simpleHiddenSelections[]={};
+		swayModifier[]={1.2,1.2,0.69999999};
+		simpleHiddenSelections[]=
+		{
+			"hide_barrel"
+		};
+		class NoiseShoot
+		{
+			strength=60;
+			type="shot";
+		};
 		drySound[]=
 		{
 			"dz\sounds\weapons\firearms\m4a1\m4_dry",
@@ -57,9 +73,9 @@ class cfgWeapons
 		reloadAction="ReloadMP5";
 		modes[]=
 		{
-			"FullAuto",
 			"SemiAuto",
-			"Burst"
+			"Burst",
+			"FullAuto"
 		};
 		s_recoilControlStabilityX=0.69999999;
 		s_recoilControlStabilityY=0.69999999;
@@ -590,7 +606,7 @@ class cfgWeapons
 			{
 				
 				{
-					"MP5K_silencerPro_SoundSet",
+					"MP5K_silencer_SoundSet",
 					"MP5K_silencerTail_SoundSet",
 					"MP5K_silencerInteriorTail_SoundSet"
 				}

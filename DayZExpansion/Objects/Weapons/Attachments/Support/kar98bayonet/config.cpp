@@ -20,18 +20,10 @@ class cfgVehicles
 		displayName="$STR_EXPANSION_KAR98_BAYONET";
 		descriptionShort="$STR_EXPANSION_KAR98_BAYONET_DESC";
 		model="DayZExpansion\Objects\Weapons\Attachments\Support\kar98bayonet\k98bayonet.p3d";
-		repairableWithKits[]={5,4};
-		repairCosts[]={30,25};
-		animClass="Knife";
-		rotationFlags=17;
-		reversed=0;
 		weight=426;
-		itemSize[]={1,3};
 		itemModelLength=0.38800001;
-		openItemSpillRange[]={0,20};
 		inventorySlot="expansionWeaponBayonetKar";
 		canSkinBodies=1;
-		recoilModifier[]={1,1,1};
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -82,35 +74,6 @@ class cfgVehicles
 							}
 						}
 					};
-				};
-			};
-		};
-		class MeleeModes
-		{
-			class Default
-			{
-				ammo="MeleeKnife";
-				range=1.1;
-			};
-			class Heavy
-			{
-				ammo="MeleeKnife_Heavy";
-				range=1.1;
-			};
-			class Sprint
-			{
-				ammo="MeleeKnife_Heavy";
-				range=3.3;
-			};
-		};
-		class AnimEvents
-		{
-			class SoundWeapon
-			{
-				class drop
-				{
-					soundset="CombatKnife_drop_SoundSet";
-					id=898;
 				};
 			};
 		};

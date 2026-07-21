@@ -24,11 +24,11 @@ class cfgWeapons
 	class Expansion_M1A_Base: Rifle_Base
 	{
 		scope=0;
-		weight=3200;
+		weight=2700;
 		absorbency=0;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
-		PPDOFProperties[]={};
+		repairableWithKits[]={1};
+		repairCosts[]={25};
+		PPDOFProperties[]={1,0.86000001,50,170,4,10};
 		ironsightsExcludingOptics[]=
 		{
 			"M68Optic",
@@ -36,8 +36,9 @@ class cfgWeapons
 			"ReflexOptic",
 			"ACOGOptic"
 		};
-		WeaponLength=0.88;
-		barrelArmor=7.75;
+		WeaponLength=1.118;
+		barrelArmor=2.2;
+		initSpeedMultiplier=1.23;
 		chamberedRound="";
 		chamberSize=1;
 		chamberableFrom[]=
@@ -50,10 +51,10 @@ class cfgWeapons
 			"Mag_Expansion_M14_10Rnd",
 			"Mag_Expansion_M14_20Rnd"
 		};
-		magazineSwitchTime=0.25;
+		magazineSwitchTime=0.44999999;
 		ejectType=1;
 		recoilModifier[]={1,1,1};
-		swayModifier[]={2,2,1};
+		swayModifier[]={2.4000001,2.4000001,0.89999998};
 		simpleHiddenSelections[]=
 		{
 			"hide_barrel"
@@ -85,10 +86,10 @@ class cfgWeapons
 					"SVD_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
-			reloadTime=0.125;
-			recoil="recoil_svd";
-			recoilProne="recoil_svd_prone";
-			dispersion=0.00075000001;
+			reloadTime=0.12;
+			recoil="recoil_m14";
+			recoilProne="recoil_m14";
+			dispersion=0.00044999999;
 			magazineSlot="magazine";
 		};
 		class Particles

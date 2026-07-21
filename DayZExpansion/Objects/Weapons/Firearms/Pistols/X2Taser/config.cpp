@@ -22,10 +22,11 @@ class cfgWeapons
 	class Expansion_Taser_Base: FNX45_Base
 	{
 		scope=0;
-		weight=550;
-		PPDOFProperties[]={};
+		weight=270;
+		PPDOFProperties[]={1,0.5,10,250,4,10};
+		barrelArmor=1.7;
 		chamberSize=1;
-		repairableWithKits[]={7};
+		repairableWithKits[]={1};
 		repairCosts[]={25};
 		class NoiseShoot
 		{
@@ -84,10 +85,10 @@ class cfgWeapons
 					"Shockpistol_InteriorTail_SoundSet"
 				}
 			};
-			reloadTime=0.086000003;
-			recoil="Expansion_recoil_taser";
-			recoilProne="Expansion_recoil_taser_prone";
-			dispersion=0.0060000001;
+			reloadTime=0.13;
+			recoil="recoil_fnx";
+			recoilProne="recoil_fnx_prone";
+			dispersion=0.003;
 			magazineSlot="magazine";
 		};
 		class DamageSystem
@@ -396,7 +397,7 @@ class CfgMagazines
 		displayName="$STR_EXPANSION_TASER_MAG";
 		descriptionShort="$STR_EXPANSION_TASER_MAG_DESC";
 		model="\DZ\weapons\attachments\magazine\shockpistol_cartridge.p3d";
-		weight=143;
+		weight=184;
 		itemSize[]={2,1};
 		count=2;
 		ammo="Bullet_Expansion_Taser";

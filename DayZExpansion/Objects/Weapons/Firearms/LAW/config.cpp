@@ -148,14 +148,15 @@ class CfgWeapons
 	class ExpansionLAWBase: SKS
 	{
 		scope=0;
-		weight=3200;
+		weight=7000;
 		absorbency=0;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
-		PPDOFProperties[]={};
+		repairableWithKits[]={1};
+		repairCosts[]={25};
+		barrelArmor=2000;
+		PPDOFProperties[]={1,0.5,10,170,4,10};
 		ironsightsExcludingOptics[]={};
 		DisplayMagazine=0;
-		WeaponLength=0.78105503;
+		WeaponLength=0.69999999;
 		chamberSize=1;
 		chamberedRound="";
 		chamberableFrom[]=
@@ -164,7 +165,7 @@ class CfgWeapons
 		};
 		magazines[]={};
 		ejectType=3;
-		recoilModifier[]={2.5,2.5,2.5};
+		recoilModifier[]={1,1,1};
 		swayModifier[]={1,1,1};
 		reloadAction="ReloadIZH18";
 		shotAction="";

@@ -22,13 +22,15 @@ class cfgWeapons
 	class Expansion_M9_Base: Pistol_Base
 	{
 		scope=0;
-		weight=970;
+		weight=950;
 		absorbency=0;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
+		repairableWithKits[]={1};
+		repairCosts[]={25};
 		PPDOFProperties[]={1,0.5,10,250,4,10};
 		ironsightsExcludingOptics[]={};
-		WeaponLength=0.219;
+		WeaponLength=0.22;
+		ObstructionDistance=0.442;
+		barrelArmor=1.7;
 		chamberSize=1;
 		chamberedRound="";
 		magazines[]=
@@ -41,6 +43,7 @@ class cfgWeapons
 		};
 		ejectType=1;
 		recoilModifier[]={1,1,1};
+		swayModifier[]={1.3,1.3,0.5};
 		drySound[]=
 		{
 			"dz\sounds\weapons\firearms\FNX45\FNX45_dry",
@@ -84,10 +87,10 @@ class cfgWeapons
 					"FNX45_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
-			reloadTime=0.125;
+			reloadTime=0.13;
 			recoil="recoil_fnx";
 			recoilProne="recoil_fnx_prone";
-			dispersion=0.0060000001;
+			dispersion=0.003;
 			magazineSlot="magazine";
 		};
 		class OpticsInfo: OpticsInfoPistol
