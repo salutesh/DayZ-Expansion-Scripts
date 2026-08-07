@@ -474,7 +474,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 				warningThreshold = 0.1;
 				warningValue = rbsSeverity;
 			}
-			else if (simulation.m_RotorSpeed < 0.95 && !m_CurrentHelicopter.m_IsLanded)
+			else if (simulation.m_RotorSpeed > 0.0 && simulation.m_RotorSpeed < 0.95 && !m_CurrentHelicopter.m_IsLanded)
 			{
 				warningText = "RPM";
 				warningThreshold = 0.1;

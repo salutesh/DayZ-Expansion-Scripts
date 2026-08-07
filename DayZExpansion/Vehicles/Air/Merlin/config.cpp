@@ -628,9 +628,7 @@ class CfgVehicles
 			{
 				"Expansion_Merlin_Engine_Hum_Int_SoundSet",
 				"Expansion_Merlin_Engine_Idle_Int_SoundSet",
-				"Expansion_Merlin_Engine_Full_Int_SoundSet",
-				"Expansion_Merlin_Engine2_Idle_Int_SoundSet",
-				"Expansion_Merlin_Engine2_Full_Int_SoundSet"
+				"Expansion_Merlin_Engine2_Idle_Int_SoundSet"
 			};
 		};
 		class ObstacleGenerator

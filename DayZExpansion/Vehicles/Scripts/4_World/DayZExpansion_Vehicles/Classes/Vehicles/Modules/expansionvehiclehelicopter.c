@@ -2,6 +2,8 @@
 //! 1.28+
 class ExpansionHelicopterScriptMove : CarScriptMove
 {
+	bool m_UseAnalogueCollective;
+	float m_CollectiveInput;
 	float m_CollectiveTarget;
 	float m_AntiTorqueTarget;
 	
@@ -13,6 +15,11 @@ class ExpansionHelicopterScriptMove : CarScriptMove
 	float m_AutoHoverSpeedTargetZ;
 
 	int m_Packed;
+
+	float m_RotorAnimationPosition;
+
+	float m_WindSpeedSyncX;
+	float m_WindSpeedSyncZ;
 	
 	protected override event void Write(PawnMoveWriter ctx, PawnMove prev)
 	{
@@ -20,6 +27,8 @@ class ExpansionHelicopterScriptMove : CarScriptMove
 
 		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
 		
+		ctx.Write(m_UseAnalogueCollective);
+		ctx.Write(m_CollectiveInput);
 		ctx.Write(m_CollectiveTarget);
 		ctx.Write(m_AntiTorqueTarget);
 		ctx.Write(m_CyclicForwardTarget);
@@ -30,6 +39,11 @@ class ExpansionHelicopterScriptMove : CarScriptMove
 		ctx.Write(m_AutoHoverSpeedTargetZ);
 
 		ctx.Write(m_Packed);
+
+		ctx.Write(m_RotorAnimationPosition);
+
+		ctx.Write(m_WindSpeedSyncX);
+		ctx.Write(m_WindSpeedSyncZ);
 	}
 
 	protected override event void Read(PawnMoveReader ctx, PawnMove prev)
@@ -38,6 +52,8 @@ class ExpansionHelicopterScriptMove : CarScriptMove
 
 		// DO NOT USE 'vector' TYPE, EXPAND TO THREE FLOATS
 		
+		ctx.Read(m_UseAnalogueCollective);
+		ctx.Read(m_CollectiveInput);
 		ctx.Read(m_CollectiveTarget);
 		ctx.Read(m_AntiTorqueTarget);
 		ctx.Read(m_CyclicForwardTarget);
@@ -48,12 +64,17 @@ class ExpansionHelicopterScriptMove : CarScriptMove
 		ctx.Read(m_AutoHoverSpeedTargetZ);
 
 		ctx.Read(m_Packed);
+
+		ctx.Read(m_RotorAnimationPosition);
+
+		ctx.Read(m_WindSpeedSyncX);
+		ctx.Read(m_WindSpeedSyncZ);
 	}
 
 	protected override event int EstimateMaximumSize()
 	{
 		int size = super.EstimateMaximumSize();
-		size += 8 * 4;  // num variables multiplied by size of variables
+		size += 13 * 4;  // num variables multiplied by size of variables
 		return size;
 	}
 };
@@ -64,14 +85,26 @@ class ExpansionHelicopterScriptOwnerState : CarScriptOwnerState
 	bool m_EngineState;
 	
 	float m_Collective;
+	float m_CollectiveDeltaInterpolated;
 	float m_AntiTorque;
 	
 	float m_Hydraulic;
 	
 	float m_CyclicForward;
 	float m_CyclicSide;
+
+	float m_RotorDiskForwardInertia;
+	float m_RotorDiskForwardInertiaVel;
+	float m_RotorDiskSideInertia;
+	float m_RotorDiskSideInertiaVel;
 	
 	int m_Packed;
+
+	float m_GovernorIntegral;
+	float m_MainRotorOmega;
+	float m_VRSSeverity;
+
+	float m_HoverTimeTracker;
 	
 	protected override event void Write(PawnStateWriter ctx)
 	{
@@ -81,12 +114,26 @@ class ExpansionHelicopterScriptOwnerState : CarScriptOwnerState
 		
 		ctx.Write(m_RotorSpeed);
 		ctx.Write(m_EngineState);
+
 		ctx.Write(m_Collective);
+		ctx.Write(m_CollectiveDeltaInterpolated);
 		ctx.Write(m_AntiTorque);
 		ctx.Write(m_Hydraulic);
 		ctx.Write(m_CyclicForward);
 		ctx.Write(m_CyclicSide);
+
+		ctx.Write(m_RotorDiskForwardInertia);
+		ctx.Write(m_RotorDiskForwardInertiaVel);
+		ctx.Write(m_RotorDiskSideInertia);
+		ctx.Write(m_RotorDiskSideInertiaVel);
+
 		ctx.Write(m_Packed);
+
+		ctx.Write(m_GovernorIntegral);
+		ctx.Write(m_MainRotorOmega);
+		ctx.Write(m_VRSSeverity);
+
+		ctx.Write(m_HoverTimeTracker);
 	}
 
 	protected override event void Read(PawnStateReader ctx)
@@ -97,18 +144,32 @@ class ExpansionHelicopterScriptOwnerState : CarScriptOwnerState
 		
 		ctx.Read(m_RotorSpeed);
 		ctx.Read(m_EngineState);
+
 		ctx.Read(m_Collective);
+		ctx.Read(m_CollectiveDeltaInterpolated);
 		ctx.Read(m_AntiTorque);
 		ctx.Read(m_Hydraulic);
 		ctx.Read(m_CyclicForward);
 		ctx.Read(m_CyclicSide);
+
+		ctx.Read(m_RotorDiskForwardInertia);
+		ctx.Read(m_RotorDiskForwardInertiaVel);
+		ctx.Read(m_RotorDiskSideInertia);
+		ctx.Read(m_RotorDiskSideInertiaVel);
+
 		ctx.Read(m_Packed);
+
+		ctx.Read(m_GovernorIntegral);
+		ctx.Read(m_MainRotorOmega);
+		ctx.Read(m_VRSSeverity);
+
+		ctx.Read(m_HoverTimeTracker);
 	}
 
 	protected override event int EstimateMaximumSize()
 	{
 		int size = super.EstimateMaximumSize();
-		size += 8 * 4; // num variables multiplied by size of variables
+		size += 17 * 4; // num variables multiplied by size of variables
 		return size;
 	}
 };
@@ -380,7 +441,7 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 	ref ExpansionInterpolatedInput m_Input_CollectiveDown;
 	ref ExpansionInterpolatedInput m_Input_CollectiveAnalogueUp;
 	ref ExpansionInterpolatedInput m_Input_CollectiveAnalogueDown;
-	bool m_Input_UseAnalogueCollective;
+	bool m_UseAnalogueCollective;
 
 	ref ExpansionInterpolatedInput m_Input_AntiTorqueLeft;
 	ref ExpansionInterpolatedInput m_Input_AntiTorqueRight;
@@ -862,7 +923,9 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		ExpansionHelicopterScriptMove move = ExpansionHelicopterScriptMove.Cast(pMove);
 		
 		//move.m_EngineOn = m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX];
-		
+
+		move.m_UseAnalogueCollective = m_UseAnalogueCollective;
+		move.m_CollectiveInput = m_CollectiveInput;
 		move.m_CollectiveTarget = m_CollectiveTarget;
 		move.m_AntiTorqueTarget = m_AntiTorqueTarget;
 		move.m_CyclicForwardTarget = m_CyclicForwardTarget;
@@ -873,6 +936,11 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		move.m_AutoHoverSpeedTargetZ = m_AutoHoverSpeedTarget[2];
 
 		move.m_Packed = GetPackedNetworkVariables();
+
+		move.m_RotorAnimationPosition = m_RotorAnimationPosition;
+
+		move.m_WindSpeedSyncX = m_WindSpeedSync[0];
+		move.m_WindSpeedSyncZ = m_WindSpeedSync[2];
 	}
 	
 	//! Server
@@ -887,7 +955,8 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 			//if (move.m_EngineOn >= 0)
 			//	m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX] = move.m_EngineOn;
 			
-			m_CollectiveTarget = move.m_CollectiveTarget;
+			m_UseAnalogueCollective = move.m_UseAnalogueCollective;
+			m_CollectiveInput = move.m_CollectiveInput;
 			m_AntiTorqueTarget = move.m_AntiTorqueTarget;
 			m_CyclicForwardTarget = move.m_CyclicForwardTarget;
 			m_CyclicSideTarget = move.m_CyclicSideTarget;
@@ -898,7 +967,35 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 			
 			UnpackNetworkVariables(move.m_Packed);
 
+			if (m_AutoHover)
+			{
+				if (m_RotorSpeedTarget == 0 && m_Helicopter.m_State.m_HasDriver)
+					m_CollectiveTarget = move.m_CollectiveTarget;
+			}
+			else if (m_AutoCollective)
+			{
+				if (m_RotorSpeedTarget == 0 && m_Helicopter.m_State.m_HasDriver)
+					m_CollectiveTarget = move.m_CollectiveTarget;
+			}
+			else
+			{
+				m_CollectiveTarget = move.m_CollectiveTarget;
+			}
+
 			UpdateController();
+
+			m_RotorAnimationPosition = move.m_RotorAnimationPosition;
+
+			//! Sync rotor animation to state received from client. This fixes brief animation glitches
+			//! when passengers enter heli while rotor isn't spinning and pilot is present.
+			if (m_RotorSpeed == 0.0)
+				AnimateRotors();
+
+			if (m_EnableWind)
+			{
+				m_WindSpeedSync[0] = move.m_WindSpeedSyncX;
+				m_WindSpeedSync[2] = move.m_WindSpeedSyncZ;
+			}
 		}
 	}
 
@@ -910,6 +1007,8 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		//if (move.m_EngineOn >= 0)
 		//	m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX] = move.m_EngineOn;
 		
+		m_UseAnalogueCollective = move.m_UseAnalogueCollective;
+		m_CollectiveInput = move.m_CollectiveInput;
 		m_CollectiveTarget = move.m_CollectiveTarget;
 		m_AntiTorqueTarget = move.m_AntiTorqueTarget;
 		m_CyclicForwardTarget = move.m_CyclicForwardTarget;
@@ -920,6 +1019,12 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		m_AutoHoverSpeedTarget[2] = move.m_AutoHoverSpeedTargetZ;
 			
 		UnpackNetworkVariables(move.m_Packed, false);
+
+		if (m_EnableWind)
+		{
+			m_WindSpeedSync[0] = move.m_WindSpeedSyncX;
+			m_WindSpeedSync[2] = move.m_WindSpeedSyncZ;
+		}
 
 		return true;
 	}
@@ -933,14 +1038,26 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		state.m_EngineState = m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX];
 		
 		state.m_Collective = m_Collective;
+		state.m_CollectiveDeltaInterpolated = m_CollectiveDeltaInterpolated;
 		state.m_AntiTorque = m_AntiTorque;
 		
 		state.m_Hydraulic = m_Hydraulic;
 		
 		state.m_CyclicForward = m_CyclicForward;
 		state.m_CyclicSide = m_CyclicSide;
+
+		state.m_RotorDiskForwardInertia = m_RotorDiskForwardInertia;
+		state.m_RotorDiskForwardInertiaVel = m_RotorDiskForwardInertiaVel[0];
+		state.m_RotorDiskSideInertia = m_RotorDiskSideInertia;
+		state.m_RotorDiskSideInertiaVel = m_RotorDiskSideInertiaVel[0];
 		
 		state.m_Packed = GetPackedNetworkVariables();
+
+		state.m_GovernorIntegral = m_GovernorIntegral;
+		state.m_MainRotorOmega = m_MainRotorOmega;
+		state.m_VRSSeverity = m_VRSSeverity;
+
+		state.m_HoverTimeTracker = m_HoverTimeTracker;
 	}
 
 	//! Client
@@ -957,6 +1074,7 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX] = state.m_EngineState;
 		
 		m_Collective = state.m_Collective;
+		m_CollectiveDeltaInterpolated = state.m_CollectiveDeltaInterpolated;
 		m_AntiTorque = state.m_AntiTorque;
 		
 		m_Hydraulic = state.m_Hydraulic;
@@ -966,8 +1084,19 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		
 		m_CyclicForward = state.m_CyclicForward;
 		m_CyclicSide = state.m_CyclicSide;
+
+		m_RotorDiskForwardInertia = state.m_RotorDiskForwardInertia;
+		m_RotorDiskForwardInertiaVel[0] = state.m_RotorDiskForwardInertiaVel;
+		m_RotorDiskSideInertia = state.m_RotorDiskSideInertia;
+		m_RotorDiskSideInertiaVel[0] = state.m_RotorDiskSideInertiaVel;
 		
 		UnpackNetworkVariables(state.m_Packed, false);
+
+		m_GovernorIntegral = state.m_GovernorIntegral;
+		m_MainRotorOmega = state.m_MainRotorOmega;
+		m_VRSSeverity = state.m_VRSSeverity;
+
+		m_HoverTimeTracker = state.m_HoverTimeTracker;
 	}
 #endif
 
@@ -1035,9 +1164,9 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		float c_analogue_down = m_Input_CollectiveAnalogueDown.GetValue(pState.m_DeltaTime, 1.0);
 
 		if (c_analogue_up > 0 || c_analogue_down > 0)
-			m_Input_UseAnalogueCollective = true;
+			m_UseAnalogueCollective = true;
 		else if (c_up > 0 || c_down > 0)
-			m_Input_UseAnalogueCollective = false;
+			m_UseAnalogueCollective = false;
 	#endif
 
 		float at_left = m_Input_AntiTorqueLeft.GetValue(pState.m_DeltaTime, m_HorzSens, inputInterface);
@@ -1130,7 +1259,7 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 				//! sensitivity 0.02 is 0.0183583
 				//! 0.0183583 * 54.471274 = ~1.0
 
-				if (m_Input_UseAnalogueCollective)
+				if (m_UseAnalogueCollective)
 					autoHoverChange = c_analogue_up - c_analogue_down;
 				else
 					autoHoverChange = (c_up - c_down) * 54.471274;
@@ -1176,7 +1305,7 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		}
 
 	#ifndef SERVER
-		if (m_Input_UseAnalogueCollective)
+		if (m_UseAnalogueCollective)
 		{
 			m_CollectiveInput = c_analogue_up - c_analogue_down;
 
@@ -1372,6 +1501,8 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		m_Tail.Update(pState.m_DeltaTime);
 	}
 
+	FileHandle m_NetworkDbg;
+
 	override void Simulate(ExpansionPhysicsState pState)
 	{
 	#ifdef EXTRACE_DIAG
@@ -1384,6 +1515,29 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		vector force;
 		vector torque;
 		float pDt = pState.m_DeltaTime;
+
+	#ifdef DIAG_DEVELOPER
+		if (m_Transport.GetNetworkMoveStrategy() == NetworkMoveStrategy.PHYSICS && g_Game.IsMultiplayer() && pState.m_HasDriver)
+		{
+			if (!m_NetworkDbg)
+			{
+				m_NetworkDbg = OpenFile("$profile:Expansion_Helicopter_NetworkDbg.csv", FileMode.WRITE);
+
+				FPrintln(m_NetworkDbg, "pDt m_CollectiveInput m_CollectiveTarget m_AntiTorqueTarget m_CyclicForwardTarget m_CyclicSideTarget m_AutoHoverSpeedTargetX m_AutoHoverAltitude m_AutoHoverSpeedTargetZ m_RotorAnimationPosition m_RotorSpeed m_Collective m_CollectiveDeltaInterpolated m_AntiTorque m_Hydraulic m_CyclicForward m_CyclicSide m_GovernorIntegral m_MainRotorOmega m_HoverTimeTracker");
+			}
+
+			if (m_NetworkDbg)
+			{
+				string moveDbg = string.Format("%1 %2 %3 %4 %5 %6 %7 %8 %9", pDt, m_CollectiveInput, m_CollectiveTarget, m_AntiTorqueTarget, m_CyclicForwardTarget, m_CyclicSideTarget, m_AutoHoverSpeedTarget[0], m_AutoHoverAltitude, m_AutoHoverSpeedTarget[2]);
+				string moveDbg2 = string.Format("%1", m_RotorAnimationPosition);
+
+				string stateDbg = string.Format("%1 %2 %3 %4 %5 %6 %7 %8 %9", m_RotorSpeed, m_Collective, m_CollectiveDeltaInterpolated, m_AntiTorque, m_Hydraulic, m_CyclicForward, m_CyclicSide, m_GovernorIntegral, m_MainRotorOmega);
+				string stateDbg2 = string.Format("%1", m_HoverTimeTracker);
+
+				FPrintln(m_NetworkDbg, string.Format("%1 %2 %3 %4", moveDbg, moveDbg2, stateDbg, stateDbg2));
+			}
+		}
+	#endif
 
 		bool isAboveWater;
 		float buoyancyForce;
@@ -1583,7 +1737,7 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 					//! sensitivity 0.02 is 0.0183583
 					//! 0.0183583 * 54.471274 = ~1.0
 
-					if (m_Input_UseAnalogueCollective)
+					if (m_UseAnalogueCollective)
 						autoCollectiveChange = m_CollectiveInput;
 					else
 						autoCollectiveChange = m_CollectiveInput * 54.471274;
@@ -2083,12 +2237,12 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 			//! Use angular velocity target to calculate torque for antitorque (this is what makes the controls feel crisp)
 			float antiTorqueYawTarget = (bankForce + tailRotorForceAdjusted - tailRotorMalfunctionTorque) * Math.PI;
 
-			float yawScaleMax = Math.Min(0.5 * radiusScale, 1.0);
+			float yawScaleMax = Math.Min(0.8 * radiusScale, 1.0);
 			float pedalBlend;
 
 			if (!m_AutoTrim)
 			{
-				float yawScaleMin = Math.Min(0.3 * radiusScale, 1.0);
+				float yawScaleMin = Math.Min(0.5 * radiusScale, 1.0);
 				pedalBlend = Math.Lerp(yawScaleMin, yawScaleMax, pedalFrac);
 			}
 			else
@@ -2399,21 +2553,24 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		vi = vi / groundEffect;  //! Ground effect reduces induced velocity
 
 		//! VRS
+
+		//! A3 M900: VRS enter @ -4.75 m/s, RoD at 55% collective -13 m/s, final RoD -16 to -17 m/s, overpower at ~65% collective
+		//! A3 Mohawk: VRS enter at roughly -7 m/s, final RoD -24 m/s to -25 m/s
+
+		//! Expansion MH-6: VRS enter @ -4.75 m/s (34% collective), RoD @ 55% collective -13 m/s, final RoD -18 m/s, overpower @ ~70% collective
+		//! Expansion Merlin: VRS enter @ -6.51 m/s (28% collective), final RoD -23 m/s
+
 		float descentRate = -vv;
 
 		ComputeVRSSeverity(descentRate, horiSpeed, groundEffect, pDt);
 
-		float vrsThrustLoss = m_VRSSeverity * m_VRSThrustLossMax;
-		float vrsMult = 1.0 - vrsThrustLoss;
-
-		vi *= 1.0 + vrsThrustLoss;  //! VRS increases induced velocity
+		vi += viHoverRef * radiusScale * m_VRSSeverity;  //! VRS increases induced velocity
 
 		//! Scale to reference for blade element loop so the resulting forces have the expected magnitude for the rest of the simulation
 		vi *= viHoverRef / viHover;
 
 		//! Collective -> blade pitch: m_Collective 0 = zero thrust, 1 = full
 		float theta0 = GetTheta0(m_Collective, m_LiftForceCoef, pState, horiSpeed);
-		theta0 *= vrsMult;
 		float theta1s = m_CyclicForward * m_CyclicForwardCoef * 0.096;   //! Longitudinal cyclic
 		float theta1c = m_CyclicSide * m_CyclicSideCoef * 0.127;     //! Lateral cyclic
 
@@ -2568,9 +2725,6 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		else
 			totalThrust *= massScale;  //! Scale by reference mass (1.0 = MH6)
 
-		//if (m_VRSSeverity > 0 && descentRate > m_VRSDescentDeep)
-			//totalThrust = pState.m_Mass * Physics.STANDARD_GRAVITY * (descentRate / m_VRSDescentDeep) * vrsMult;
-
 		vector ori = m_Helicopter.GetOrientation();
 
 		//! Thrust along tilted disk normal (disk leads, fuselage hangs below)
@@ -2688,21 +2842,12 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 
 		if (m_RotorSpeedTarget > 0 && descentRate > m_VRSDescentThreshold && horiSpeed < m_VRSAirspeedThreshold && m_RotorSpeed > 0.3 && (m_VRSSeverity > 0 || (groundEffect == 1.0 && descentRate < m_VRSDescentDeep + (m_VRSDescentDeep - m_VRSDescentThreshold))))
 		{
-			if (m_Collective > 0)
-			{
-				vrsSeverity = Math.Clamp((descentRate - m_VRSDescentThreshold) / (m_VRSDescentDeep - m_VRSDescentThreshold), 0.0, 1.0);
-				vrsSeverity *= 1.0 - (horiSpeed / m_VRSAirspeedThreshold);  //! Less VRS at higher airspeed
-				//vrsSeverity *= 1.0 - Math.Min(Math.AbsFloat(vx) / (pState.m_BoundingRadius * 0.6125), 1.0);  //! Less VRS when moving laterally towards vortex upwind
-				float smoothStep = vrsSeverity * vrsSeverity * (3.0 - 2.0 * vrsSeverity);
-				vrsSeverity = 0.5 * vrsSeverity + 0.5 * smoothStep;
-				vrsSeverity *= Math.Lerp(1.0, 0.75 / m_VRSThrustLossMax, m_Collective);  //! higher collective = worse VRS (up to 36%)
-				vrsSeverity = Math.Min(m_VRSSeverity + pDt * 0.5, vrsSeverity);
-			}
-			else
-			{
-				//! If no or negative collective, full VRS reaches zero in 2 s
-				vrsSeverity = Math.Max(m_VRSSeverity - pDt * 0.5, 0);
-			}
+			vrsSeverity = Math.Clamp((descentRate - m_VRSDescentThreshold) / (m_VRSDescentDeep - m_VRSDescentThreshold), 0.0, 1.0);
+			vrsSeverity *= 1.0 - (horiSpeed / m_VRSAirspeedThreshold);  //! Less VRS at higher airspeed
+			float smoothStep = vrsSeverity * vrsSeverity * (3.0 - 2.0 * vrsSeverity);
+			vrsSeverity = 0.2 * vrsSeverity + 0.8 * smoothStep;
+			vrsSeverity *= ExpansionMath.PowerConversion(0.0, 1.0, m_Collective, 0.0, 2.0, 3.0);  //! higher collective = worse VRS
+			vrsSeverity = Math.Min(m_VRSSeverity + pDt * 0.25, vrsSeverity);
 		}
 
 		m_VRSSeverity = vrsSeverity;
