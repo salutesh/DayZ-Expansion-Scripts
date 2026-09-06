@@ -19,15 +19,10 @@ class ExpansionTeleportDataBase
 	vector m_ObjectOrientation;
 	ref array<ref ExpansionTeleportPosition> m_TeleportPositions;
 
-#ifdef EXPANSIONMODAI
 	string m_Faction;
-#endif
-#ifdef EXPANSIONMODHARDLINE
 	int m_Reputation;
-#endif
-#ifdef EXPANSIONMODQUESTS
 	int m_QuestID = -1;
-#endif
+
 	bool m_IsExit = false;
 	bool m_IsActive = false;
 };
@@ -148,7 +143,6 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 		return m_ObjectOrientation;
 	}
 
-#ifdef EXPANSIONMODAI
 	void SetFaction(string faction)
 	{
 		m_Faction = faction;
@@ -158,9 +152,7 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 	{
 		return m_Faction;
 	}
-#endif
 
-#ifdef EXPANSIONMODHARDLINE
 	void SetReputation(int reputation)
 	{
 		m_Reputation = reputation;
@@ -170,9 +162,7 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 	{
 		return m_Reputation;
 	}
-#endif
 
-#ifdef EXPANSIONMODQUESTS
 	void SetQuestID(int questID)
 	{
 		m_QuestID = questID;
@@ -182,7 +172,6 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 	{
 		return m_QuestID;
 	}
-#endif
 	
 	void SetIsExit(bool state)
 	{

@@ -156,7 +156,8 @@ class ExpansionAnomalyDynamic: ExpansionAnomalyStatic
 	        position = center + Vector(Math.RandomFloat(-largeSquareSize / 2, largeSquareSize / 2), 0, Math.RandomFloat(-largeSquareSize / 2, largeSquareSize / 2));
 	        position[1] = g_Game.SurfaceY(position[0], position[2]);
 
-	        if (!g_Game.SurfaceIsSea(position[0], position[2]) && !g_Game.SurfaceIsPond(position[0], position[2]) && position != vector.Zero)
+			//! @note g_Game.SurfaceIsPond is INCREDIBLY slow, DO NOT USE EVER! g_Game.IsSea is ok
+	        if (!ExpansionStatic.SurfaceIsWater(position[0], position[2]) && position != vector.Zero)
 	            largePositions.Insert(position);
 	    }
 

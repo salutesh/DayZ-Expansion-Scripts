@@ -36,13 +36,12 @@ class ExpansionQuestContainerBase: ExpansionOwnedContainer
 
 	override bool CanPutInCargo(EntityAI parent)
 	{
-		if (!super.CanPutInCargo(parent))
-			return false;
+		bool ret = super.CanPutInCargo(parent);
 
 		if (parent.IsInherited(UndergroundStash))
 			return true;
 
-		return false;
+		return ret;
 	}
 
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)

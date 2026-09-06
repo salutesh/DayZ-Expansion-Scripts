@@ -48,6 +48,7 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 	
 	protected ref ExpansionTeleportPosition m_SelectedTeleport;
 	protected ref ExpansionTeleportPositionEntry m_SelectedTeleportPos;
+	protected int m_SelectedTeleportPosIdx;
 	
 	protected bool m_InDetailView;
 	protected bool m_RequestLocked;
@@ -61,6 +62,8 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 		
 		ExpansionTeleporterModule.GetModuleInstance().GetTeleporterMenuSI().Insert(SetTeleportLocations);
 		ExpansionTeleporterModule.GetModuleInstance().GetTeleporterMenuCallbackSI().Insert(MenuCallback);
+
+		m_Player = PlayerBase.Cast(g_Game.GetPlayer());
 	}
 
 	void ~ExpansionTeleporterMenu()
@@ -120,98 +123,11 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 			m_TeleporterMenuController.Positions.Insert(teleportEntry);
 		}
 	}
-	
+
+	[Obsolete("Use ExpansionTeleporterModule.GetModuleInstance().CanUseTeleportPosition")]
 	protected bool CanUseTeleportPosition(ExpansionTeleportPosition position)
 	{
-		#ifdef EXPANSIONMODQUESTS
-		if (GetExpansionSettings().GetQuest().EnableQuests)
-		{
-			int questID = position.GetQuestID();
-			Print(ToString() + "::OnExecuteServer - Need to complete quest with ID: " + questID);
-			if (questID > -1)
-			{
-				//! Check if player has completed required quest
-				if (!ExpansionQuestModule.GetModuleInstance().HasCompletedQuest(questID, m_Player.GetIdentity().GetId()))
-				{
-					ExpansionQuestConfig questConig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
-					if (!questConig)
-					{
-						Error(ToString() + "::OnExecuteServer - Could not get quest config for quest ID: " + questID);
-						return false;
-					}
-		
-					ExpansionNotification(new StringLocaliser("Teleporter is locked!"), new StringLocaliser("You have no access to this teleporter yet. You need to compelete the quest " + questConig.GetTitle() + " first to use this teleporter."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create();
-					return false;
-				}
-			}
-		}
-		#endif
-		
-		#ifdef EXPANSIONMODHARDLINE
-		if (GetExpansionSettings().GetHardline().UseReputation)
-		{
-			int reputationRequirement = position.GetReputation();
-			Print(ToString() + "::OnExecuteServer - Need to have reputation: " + reputationRequirement);
-			if (reputationRequirement > 0)
-			{
-				int reputation = m_Player.Expansion_GetReputation();
-				Print(ToString() + "::OnExecuteServer - Player reputation: " + reputation);
-				if (reputation < reputationRequirement)
-				{
-					ExpansionNotification(new StringLocaliser("Teleporter is locked!"), new StringLocaliser("You have no access to this teleporter yet. You need at least " + reputationRequirement + " reputation points first to use this teleporter."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create();
-					return false;
-				}
-			}
-		}
-		#endif
-		
-		#ifdef EXPANSIONMODAI
-		string factionName = position.GetFaction();
-		bool isInFaction;
-		bool isInInOtherFaction;
-		Print(ToString() + "::OnExecuteServer - Need to be in faction: " + factionName);
-		if (factionName != string.Empty)
-		{
-			eAIGroup group = m_Player.GetGroup();
-			if (!group)
-				group = eAIGroup.GetGroupByLeader(m_Player);
-			
-			Print(ToString() + "::OnExecuteServer - Player group: " + group.ToString());
-			if (group)
-			{
-				eAIFaction playerFaction = group.GetFaction();
-				Print(ToString() + "::OnExecuteServer - Player faction: " + playerFaction.ToString());
-				if (playerFaction)
-				{
-					string playerFactionName = playerFaction.GetName();
-					Print(ToString() + "::OnExecuteServer - Player faction name: " + playerFactionName);
-					if (playerFactionName == factionName)
-					{
-						isInFaction = true;
-					}
-					else
-					{
-						if (playerFactionName != string.Empty)
-							isInInOtherFaction = true;
-					}
-				}
-			}
-			
-			if (!isInFaction)
-			{
-				string message;
-				if (isInInOtherFaction)
-					message = "You have no access to this teleporter. You need to be a member of the " + factionName + " faction. You are a member of the " + playerFactionName + " faction.";
-				else
-					message = "You have no access to this teleporter. You need to be a member of the " + factionName + " faction.";
-				
-				ExpansionNotification(new StringLocaliser("Teleporter is locked!"), new StringLocaliser(message), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create();
-				return false;
-			}
-		}
-		#endif
-		
-		return true;
+		return ExpansionTeleporterModule.GetModuleInstance().CanUseTeleportPosition(m_Player, position.GetQuestID(), position.GetReputation(), position.GetFaction());
 	}
 	
 	protected void SetMapPosition(vector position)
@@ -250,11 +166,14 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 		TeleporterListPanel.Show(false);
 		TeleporterDetailsPanel.Show(true);
 		ButtonsPanel.Show(true);
-		
-		ExpansionTeleportPositionEntry randomPos = pos.GetPositions().GetRandomElement();
+
+		auto positions = pos.GetPositions();
+		int randomPosIdx = positions.GetRandomIndex();
+		ExpansionTeleportPositionEntry randomPos = positions[randomPosIdx];
 		if (randomPos)
 		{
 			m_SelectedTeleportPos = randomPos;
+			m_SelectedTeleportPosIdx = randomPosIdx;
 			vector tempPos = randomPos.GetPosition();
 			string displayName;
 			displayName = pos.GetDisplayName();
@@ -271,12 +190,28 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 	{
 		if (!m_SelectedTeleport || !m_SelectedTeleportPos || m_RequestLocked)
 			return;
-		
-		if (!CanUseTeleportPosition(m_SelectedTeleport))
+
+		if (!ExpansionTeleporterModule.GetModuleInstance().CanUseTeleportPosition(m_Player, m_SelectedTeleport.GetQuestID(), m_SelectedTeleport.GetReputation(), m_SelectedTeleport.GetFaction()))
 			return;
 		
 		m_RequestLocked = true;
-		ExpansionTeleporterModule.GetModuleInstance().RequestTeleport(m_SelectedTeleportPos, m_TeleporterClientData.GetObjectPosition());
+
+		int teleportPositionsIdx;
+		auto teleportPositions = m_TeleporterClientData.GetTeleportPositions();
+		foreach (auto teleport: teleportPositions)
+		{
+			if (teleport == m_SelectedTeleport)
+			{
+			#ifdef DIAG_DEVELOPER
+				PrintFormat("Found selected teleport positions at index %1", teleportPositionsIdx);
+			#endif
+				break;
+			}
+
+			++teleportPositionsIdx;
+		}
+
+		ExpansionTeleporterModule.GetModuleInstance().RequestTeleport(m_TeleporterClientData.GetID(), teleportPositionsIdx, m_SelectedTeleportPosIdx);
 		CloseMenu();
 	}
 	

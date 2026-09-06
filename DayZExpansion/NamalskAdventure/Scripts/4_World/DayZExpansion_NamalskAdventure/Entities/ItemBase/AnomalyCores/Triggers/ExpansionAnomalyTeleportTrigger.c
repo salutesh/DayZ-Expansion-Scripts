@@ -176,7 +176,7 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 			player.GiveShock(Math.RandomFloatInclusive(MIN_SHOCK_INFLICTED, MAX_SHOCK_INFLICTED)); //! Apply random shock damage to the player.
 			player.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the player.
 			ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
-			DayZPlayerSyncJunctures.ExpansionTeleport(player, randomPosition, orientation);
+			player.Expansion_Teleport(randomPosition, orientation);
 		}
 		
 		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, player, oldPosition);
@@ -191,9 +191,10 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 		float dist = vector.Distance(objectEntity.GetPosition(), Vector(0, 0, 0));
 		if (dist < 100)
 		{
-			if (ExpansionStatic.IsAnyOf(objectEntity, s_Players, true))
+			DayZPlayerImplement player;
+			if (Class.CastTo(player, objectEntity))
 			{
-				DayZPlayerSyncJunctures.ExpansionTeleport(DayZPlayer.Cast(objectEntity), oldPos, objectEntity.GetOrientation());
+				player.Expansion_Teleport(oldPos, objectEntity.GetOrientation());
 			}
 			else if (ExpansionStatic.IsAnyOf(objectEntity, s_Vehicles, true))
 			{

@@ -194,10 +194,6 @@ class ExpansionGame
 	void OnUpdate( bool doSim, float timeslice ) 
 	{
 	}
-
-	void OnSyncJuncture(Object target, int junctureID, ParamsReadContext ctx)
-	{
-	}
 	
 	void WriteRemovedWorldObjects(ParamsReadContext ctx)
 	{

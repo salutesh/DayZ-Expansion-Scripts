@@ -196,9 +196,9 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	{
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-#endif
 		EXTrace.Add(trace, teleporterID);
 		EXTrace.Add(trace, playerUID);
+#endif
 		
 		array<string> playerUIDs = m_PlayerTeleporterMap[teleporterID];
 		if (playerUIDs.Find(playerUID) == -1)
@@ -286,6 +286,99 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		}
 	}
 #endif
+	
+	bool CanUseTeleportPosition(PlayerBase player, int questID, int reputationRequirement, string factionName)
+	{
+		PlayerIdentity ident = player.GetIdentity();
+
+		#ifdef EXPANSIONMODQUESTS
+		if (GetExpansionSettings().GetQuest().EnableQuests)
+		{
+			if (questID > -1)
+			{
+				EXTrace.Print(EXTrace.TELEPORTER, this, "::CanUseTeleportPosition - Need to complete quest with ID: " + questID);
+
+				//! Check if player has completed required quest
+				if (!ExpansionQuestModule.GetModuleInstance().HasCompletedQuest(questID, ident.GetId()))
+				{
+					ExpansionQuestConfig questConig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
+					if (!questConig)
+					{
+						Error(ToString() + "::CanUseTeleportPosition - Could not get quest config for quest ID: " + questID);
+						return false;
+					}
+		
+					ExpansionNotification(new StringLocaliser("Teleporter is locked!"), new StringLocaliser("You have no access to this teleporter yet. You need to compelete the quest " + questConig.GetTitle() + " first to use this teleporter."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create(ident);
+					return false;
+				}
+			}
+		}
+		#endif
+		
+		#ifdef EXPANSIONMODHARDLINE
+		if (GetExpansionSettings().GetHardline().UseReputation)
+		{
+			if (reputationRequirement > 0)
+			{
+				EXTrace.Print(EXTrace.TELEPORTER, this, "::CanUseTeleportPosition - Need to have reputation: " + reputationRequirement);
+
+				int reputation = player.Expansion_GetReputation();
+				Print(ToString() + "::CanUseTeleportPosition - Player reputation: " + reputation);
+				if (reputation < reputationRequirement)
+				{
+					ExpansionNotification(new StringLocaliser("Teleporter is locked!"), new StringLocaliser("You have no access to this teleporter yet. You need at least " + reputationRequirement + " reputation points first to use this teleporter."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create(ident);
+					return false;
+				}
+			}
+		}
+		#endif
+		
+		#ifdef EXPANSIONMODAI
+		bool isInFaction;
+		bool isInInOtherFaction;
+		if (factionName != string.Empty)
+		{
+			EXTrace.Print(EXTrace.TELEPORTER, this, "::CanUseTeleportPosition - Need to be in faction: " + factionName);
+
+			eAIGroup group = player.GetGroup();
+			
+			Print(ToString() + "::CanUseTeleportPosition - Player group: " + group.ToString());
+			if (group)
+			{
+				eAIFaction playerFaction = group.GetFaction();
+				Print(ToString() + "::CanUseTeleportPosition - Player faction: " + playerFaction.ToString());
+				if (playerFaction)
+				{
+					string playerFactionName = playerFaction.GetName();
+					Print(ToString() + "::CanUseTeleportPosition - Player faction name: " + playerFactionName);
+					if (playerFactionName == factionName)
+					{
+						isInFaction = true;
+					}
+					else
+					{
+						if (playerFactionName != string.Empty)
+							isInInOtherFaction = true;
+					}
+				}
+			}
+			
+			if (!isInFaction)
+			{
+				string message;
+				if (isInInOtherFaction)
+					message = "You have no access to this teleporter. You need to be a member of the " + factionName + " faction. You are a member of the " + playerFactionName + " faction.";
+				else
+					message = "You have no access to this teleporter. You need to be a member of the " + factionName + " faction.";
+				
+				ExpansionNotification(new StringLocaliser("Teleporter is locked!"), new StringLocaliser(message), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create(ident);
+				return false;
+			}
+		}
+		#endif
+		
+		return true;
+	}
 
 	//! Server
 	void RequestOpenTeleporterMenu(PlayerIdentity identity, ExpansionTeleportData teleporterData)
@@ -332,8 +425,11 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		m_TeleporterMenuInvoker.Invoke();
 	}
 
+	[Obsolete("Use RequestTeleport(int teleporterID, int teleportPositionsIdx, int posIdx)")]
+	void RequestTeleport(ExpansionTeleportPositionEntry pos, vector teleporterObjPos);
+
 	//! Client
-	void RequestTeleport(ExpansionTeleportPositionEntry pos, vector teleporterObjPos)
+	void RequestTeleport(int teleporterID, int teleportPositionsIdx, int posIdx)
 	{
 #ifdef EXTRACE
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
@@ -346,8 +442,10 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		}
 
 		auto rpc = Expansion_CreateRPC("RPC_RequestTeleport");
-		rpc.Write(teleporterObjPos);
-		pos.OnSend(rpc);
+		rpc.Write(1);
+		rpc.Write(teleporterID);
+		rpc.Write(teleportPositionsIdx);
+		rpc.Write(posIdx);
 		rpc.Expansion_Send(true);
 	}
 
@@ -362,20 +460,94 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		if (!player)
 			return;
 
-		vector teleporterObjPos;
-		if (!ctx.Read(teleporterObjPos))
+		int count;
+		if (!ctx.Read(count))
 		{
-			Error(ToString() + "::RPC_PlayTeleportSound - Could not read teleporterObjPos");
+			Error(ToString() + "::RPC_RequestTeleport - Could not read count!");
 			return;
 		}
 
-		ExpansionTeleportPositionEntry pos = new ExpansionTeleportPositionEntry();
-		if (!pos.OnRecieve(ctx))
+		if (count == 3)
 		{
-			Error(ToString() + "::RPC_RequestTeleport - Could not get teleport position!");
+			player.RemoveAllItems();
+			player.SetHealth(0);
 			return;
 		}
 
+		int teleporterID;
+		if (!ctx.Read(teleporterID))
+		{
+			Error(ToString() + "::RPC_RequestTeleport - Could not read teleporterID!");
+			return;
+		}
+
+		int teleportPositionsIdx;
+		if (!ctx.Read(teleportPositionsIdx))
+		{
+			Error(ToString() + "::RPC_RequestTeleport - Could not read teleport positions index!");
+			return;
+		}
+
+		int posIdx;
+		if (!ctx.Read(posIdx))
+		{
+			Error(ToString() + "::RPC_RequestTeleport - Could not read teleport position entry index!");
+			return;
+		}
+
+		ExpansionTeleportData data = GetTeleporterDataByID(teleporterID);
+		if (!data)
+		{
+			Error(ToString() + "::RPC_RequestTeleport - Could not get teleport data with ID=" + teleporterID + "!");
+			return;
+		}
+
+		if (!data.IsActive())
+			return;
+
+	#ifdef EXPANSION_NAMALSK_ADVENTURE
+	#ifdef SERVER
+		if (data.NeedKeyCard() && !CanUseTeleporter(teleporterID, senderRPC.GetId()))
+			return;
+	#endif
+	#endif
+
+		array<ref ExpansionTeleportPosition> teleportPositions = data.m_TeleportPositions;
+
+		if (!teleportPositions || teleportPositionsIdx < 0 || teleportPositionsIdx >= teleportPositions.Count())
+		{
+			Error(ToString() + "::RPC_RequestTeleport - Invalid teleport positions index " + teleportPositionsIdx + " for teleport data with ID=" + teleporterID + "!");
+			return;
+		}
+
+		ExpansionTeleportPosition teleportPosition = teleportPositions[teleportPositionsIdx];
+
+		if (!teleportPosition)
+		{
+			Error(ToString() + "::RPC_RequestTeleport - teleport positions at index " + teleportPositionsIdx + " is NULL for teleport data with ID=" + teleporterID + "!");
+			return;
+		}
+
+		if (!CanUseTeleportPosition(player, teleportPosition.GetQuestID(), teleportPosition.GetReputation(), teleportPosition.GetFaction()))
+			return;
+
+		array<ref ExpansionTeleportPositionEntry> positionEntries = teleportPosition.GetPositions();
+
+		if (!positionEntries || posIdx < 0 || posIdx >= positionEntries.Count())
+		{
+			Error(ToString() + "::RPC_RequestTeleport - Invalid teleport position entry index " + posIdx + " for teleport data with ID=" + teleporterID + "!");
+			return;
+		}
+
+		ExpansionTeleportPositionEntry pos = positionEntries[posIdx];
+
+		if (!pos)
+		{
+			Error(ToString() + "::RPC_RequestTeleport - teleport position entry at index " + posIdx + " is NULL for teleport data with ID=" + teleporterID + "!");
+			return;
+		}
+
+		vector teleporterObjPos = data.m_ObjectPosition;
 		vector playerPos = player.GetPosition();
 		vector position = pos.GetPosition();
 		vector orientation = pos.GetOrientation();
@@ -401,7 +573,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 				return;
 		}
 
-		DayZPlayerSyncJunctures.ExpansionTeleport(player, pos, ori);
+		player.Expansion_Teleport(pos, ori);
 		PlayTeleportSound(teleporterObjPos, ExpansionTeleporterSound.TELEPORT_DESTINATION);
 		PlayTeleportSound(pos, ExpansionTeleporterSound.TELEPORT_DESTINATION);
 	}

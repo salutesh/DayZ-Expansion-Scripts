@@ -492,7 +492,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
 			spawnPoint[1] = g_Game.SurfaceY(spawnPoint[0], spawnPoint[2]);
 
-		DayZPlayerSyncJunctures.ExpansionTeleport(player, spawnPoint);
+		player.Expansion_Teleport(spawnPoint);
+
+		EndSpawnSelection(player);
 	}
 	
 	// ------------------------------------------------------------

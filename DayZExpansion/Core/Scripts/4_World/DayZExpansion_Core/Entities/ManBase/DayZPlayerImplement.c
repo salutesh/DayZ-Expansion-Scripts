@@ -302,30 +302,22 @@ modded class DayZPlayerImplement
 	
 	void Expansion_OnSyncJuncture(int pJunctureID, ParamsReadContext pCtx)
 	{
-#ifdef EXTRACE_DIAG
-		EXTrace trace;
-#endif
+	}
 
-		switch (pJunctureID)
+	void Expansion_Teleport(vector position, vector orientation = "0 0 0")
+	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.PLAYER, this, "" + position, "" + orientation);
+	#endif
+
+		if (!g_Game.IsServer())
 		{
-		case DayZPlayerSyncJunctures.EXPANSION_SJ_TELEPORT:
-#ifdef EXTRACE_DIAG
-			trace = EXTrace.Start(EXTrace.PLAYER, this, "EXPANSION_SJ_TELEPORT");
-#endif
-		
-			if (pCtx)
-			{
-				vector position;
-				vector orientation;
-
-				DayZPlayerSyncJunctures.ExpansionReadTeleport(pCtx, position, orientation);
-
-				SetPosition(position);
-				SetOrientation(orientation);
-
-				break;
-			}
+			EXError.Error(this, "Expansion_Teleport can not be called on MP client");
+			return;
 		}
+
+		SetPosition(position);
+		SetOrientation(orientation);
 	}
 	
 	void Expansion_UpdateActualVelocity(float pDt)
