@@ -18,7 +18,10 @@ class ExpansionMarketContainers: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_CONTAINERS";
 		m_FileName = "Containers";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("smallprotectorcase", 	3405, 	5670,	1,100);
 		AddItem("ammobox", 	34450, 	57420,	1,100);
 		AddItem("BarrelHoles_Blue", 			34450, 	57420,		1,		100, null, {"BarrelHoles_Green", "BarrelHoles_Red", "BarrelHoles_Yellow"});
@@ -32,5 +35,6 @@ class ExpansionMarketContainers: ExpansionMarketCategory
 		AddItem("ExpansionSafeMedium", 			6000,		12000,		1,		100);
 		AddItem("ExpansionSafeLarge", 			8000,		16000,		1,		100);
 	#endif
+		AddItem("ExpansionBriefcase", 3000, 6000, 1, 100);
 	}
 };

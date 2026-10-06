@@ -63,40 +63,18 @@ class ExpansionSkinModule: CF_ModuleWorld
 				string folder = folders[j];
 				folder.Replace("/", "\\");
 
-				CF_Log.Debug( folder );
+			#ifdef DIAG_DEVELOPER
+				EXError.Info(this, "Checking skin folder " + folder);
+			#endif
 
-				string folderName;
-				FileAttr fileAttr;
-				FindFileHandle findFileHandle = FindFile( folder + "*", folderName, fileAttr, FindFileFlags.ALL );
-				
-				if ( findFileHandle )
+				TStringArray fileNames = ExpansionStatic.FindFilesInLocation(folder, ".json", true);
+
+				foreach (string fileName: fileNames)
 				{
-					if ( folderName.Length() > 0 )
-					{
-						//if ( filePatching )
-						//{
-						//	LoadClassSkins( folderName, folder );
-						//} else 
-						{
-							LoadSkinsForObject( folderName, folder );
-						}
-					}
-					
-					while ( FindNextFile( findFileHandle, folderName, fileAttr ) )
-					{
-						if ( folderName.Length() > 0 )
-						{
-							//if ( filePatching )
-							//{
-							//	LoadClassSkins( folderName, folder );
-							//} else 
-							{
-								LoadSkinsForObject( folderName, folder );
-							}
-						}
-					}
-
-					CloseFindFile(findFileHandle);
+				#ifdef DIAG_DEVELOPER
+					EXError.Info(this, "Loading skin " + folder + fileName);
+				#endif
+					LoadSkinsForObject( fileName, folder );
 				}
 			}
 		}
@@ -120,7 +98,7 @@ class ExpansionSkinModule: CF_ModuleWorld
 		
 		string fileName;
 		FileAttr fileAttr;
-		FindFileHandle findFileHandle = FindFile( path + "*", fileName, fileAttr, FindFileFlags.ALL );
+		FindFileHandle findFileHandle = CF.FindFileEx( path + "*", fileName, fileAttr, FindFileFlags.ALL );
 		
 		if ( findFileHandle )
 		{

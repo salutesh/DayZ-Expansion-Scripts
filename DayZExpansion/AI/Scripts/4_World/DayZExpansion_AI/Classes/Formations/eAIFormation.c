@@ -51,11 +51,6 @@ class eAIFormation
 
 	float GetLooseness()
 	{
-		return Math.RandomFloatInclusive(-m_Looseness, m_Looseness);
-	}
-
-	float GetLoosenessPreference()
-	{
 		return m_Looseness;
 	}
 

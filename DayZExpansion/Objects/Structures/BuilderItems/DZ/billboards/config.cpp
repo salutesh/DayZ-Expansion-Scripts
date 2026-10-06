@@ -115,4 +115,39 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\signs\billboards\bilboard_zlute_zgrynda.p3d";
 	};
+	class bldr_10thanniversarybanner_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\signs\billboards\10thanniversarybanner_big.p3d";
+	};
+	class bldr_10thanniversarybanner_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\signs\billboards\10thanniversarybanner_small.p3d";
+	};
+	class bldr_bilboard_hey_buddy: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\signs\billboards\bilboard_hey_buddy.p3d";
+	};
+	class bldr_bilboard_livonia_1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\signs\billboards\bilboard_livonia_1.p3d";
+	};
+	class bldr_bilboard_livonia_2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\signs\billboards\bilboard_livonia_2.p3d";
+	};
+	class bldr_bilboard_notacola: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\signs\billboards\bilboard_notacola.p3d";
+	};
+	class bldr_bilboard_skiresort: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\signs\billboards\bilboard_skiresort.p3d";
+	};
 };

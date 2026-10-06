@@ -665,4 +665,699 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\residential\tenements\proxy\tenement_small_win_front.p3d";
 	};
+	class bldr_busstation_building: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\bus\busstation_building.p3d";
+	};
+	class bldr_busstop_city: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\bus\busstop_city.p3d";
+	};
+	class bldr_city_firestation: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\firedep\city_firestation.p3d";
+	};
+	class bldr_mil_firestation: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\firedep\mil_firestation.p3d";
+	};
+	class bldr_houseblock_1f_corner: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_1f_corner.p3d";
+	};
+	class bldr_houseblock_1f1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_1f1.p3d";
+	};
+	class bldr_houseblock_1f2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_1f2.p3d";
+	};
+	class bldr_houseblock_1f3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_1f3.p3d";
+	};
+	class bldr_houseblock_1f4: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_1f4.p3d";
+	};
+	class bldr_houseblock_2f_corner: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_2f_corner.p3d";
+	};
+	class bldr_houseblock_2f1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_2f1.p3d";
+	};
+	class bldr_houseblock_2f2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_2f2.p3d";
+	};
+	class bldr_houseblock_2f3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_2f3.p3d";
+	};
+	class bldr_houseblock_2f4: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_2f4.p3d";
+	};
+	class bldr_houseblock_2f5: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_2f5.p3d";
+	};
+	class bldr_houseblock_2f6: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_2f6.p3d";
+	};
+	class bldr_houseblock_2f7: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_2f7.p3d";
+	};
+	class bldr_houseblock_2f8: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_2f8.p3d";
+	};
+	class bldr_houseblock_2f9: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_2f9.p3d";
+	};
+	class bldr_houseblock_3f_corner1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_3f_corner1.p3d";
+	};
+	class bldr_houseblock_3f_corner2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_3f_corner2.p3d";
+	};
+	class bldr_houseblock_3f1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_3f1.p3d";
+	};
+	class bldr_houseblock_3f2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_3f2.p3d";
+	};
+	class bldr_houseblock_5f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houseblocks\houseblock_5f.p3d";
+	};
+	class bldr_house_1b01_pub: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1b01_pub.p3d";
+	};
+	class bldr_house_1w01: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w01.p3d";
+	};
+	class bldr_house_1w02: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w02.p3d";
+	};
+	class bldr_house_1w03: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w03.p3d";
+	};
+	class bldr_house_1w04: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w04.p3d";
+	};
+	class bldr_house_1w05: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w05.p3d";
+	};
+	class bldr_house_1w05_yellow: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w05_yellow.p3d";
+	};
+	class bldr_house_1w06: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w06.p3d";
+	};
+	class bldr_house_1w07: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w07.p3d";
+	};
+	class bldr_house_1w08: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w08.p3d";
+	};
+	class bldr_house_1w08_brown: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w08_brown.p3d";
+	};
+	class bldr_house_1w09: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w09.p3d";
+	};
+	class bldr_house_1w09_yellow: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w09_yellow.p3d";
+	};
+	class bldr_house_1w10: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w10.p3d";
+	};
+	class bldr_house_1w10_brown: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w10_brown.p3d";
+	};
+	class bldr_house_1w11: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w11.p3d";
+	};
+	class bldr_house_1w12: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w12.p3d";
+	};
+	class bldr_house_1w12_brown: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_1w12_brown.p3d";
+	};
+	class bldr_house_2b01: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_2b01.p3d";
+	};
+	class bldr_house_2b02: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_2b02.p3d";
+	};
+	class bldr_house_2b03: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_2b03.p3d";
+	};
+	class bldr_house_2b04: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_2b04.p3d";
+	};
+	class bldr_house_2w01: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_2w01.p3d";
+	};
+	class bldr_house_2w02: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_2w02.p3d";
+	};
+	class bldr_house_2w03: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_2w03.p3d";
+	};
+	class bldr_house_2w03_brown: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_2w03_brown.p3d";
+	};
+	class bldr_house_2w04: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_2w04.p3d";
+	};
+	class bldr_house_2w04_yellow: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\house_2w04_yellow.p3d";
+	};
+	class bldr_village_pub: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\houses\village_pub.p3d";
+	};
+	class bldr_city_hospital: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\city_hospital.p3d";
+	};
+	class bldr_city_hospital_ghost1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\city_hospital_ghost1.p3d";
+	};
+	class bldr_city_hospital_ghost2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\city_hospital_ghost2.p3d";
+	};
+	class bldr_curcylinder_01_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\curcylinder_01_f.p3d";
+	};
+	class bldr_decon_cbrncase_01_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_cbrncase_01_f.p3d";
+	};
+	class bldr_decon_hazmatbag_01_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_hazmatbag_01_f.p3d";
+	};
+	class bldr_decon_hazmatbag_01_roll_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_hazmatbag_01_roll_f.p3d";
+	};
+	class bldr_decon_layflathose_01_corner_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_layflathose_01_corner_f.p3d";
+	};
+	class bldr_decon_layflathose_01_curvelong_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_layflathose_01_curvelong_f.p3d";
+	};
+	class bldr_decon_layflathose_01_curveshort_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_layflathose_01_curveshort_f.p3d";
+	};
+	class bldr_decon_layflathose_01_roll_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_layflathose_01_roll_f.p3d";
+	};
+	class bldr_decon_layflathose_01_sbend_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_layflathose_01_sbend_f.p3d";
+	};
+	class bldr_decon_layflathose_01_step_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_layflathose_01_step_f.p3d";
+	};
+	class bldr_decon_layflathose_01_straightlong_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_layflathose_01_straightlong_f.p3d";
+	};
+	class bldr_decon_layflathose_01_straightshort_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_layflathose_01_straightshort_f.p3d";
+	};
+	class bldr_decon_powercable_01_corner_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_powercable_01_corner_f.p3d";
+	};
+	class bldr_decon_powercable_01_curvelong_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_powercable_01_curvelong_f.p3d";
+	};
+	class bldr_decon_powercable_01_curveshort_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_powercable_01_curveshort_f.p3d";
+	};
+	class bldr_decon_powercable_01_roll_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_powercable_01_roll_f.p3d";
+	};
+	class bldr_decon_powercable_01_sbend_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_powercable_01_sbend_f.p3d";
+	};
+	class bldr_decon_powercable_01_step_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_powercable_01_step_f.p3d";
+	};
+	class bldr_decon_powercable_01_straightlong_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_powercable_01_straightlong_f.p3d";
+	};
+	class bldr_decon_powercable_01_straightshort_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_powercable_01_straightshort_f.p3d";
+	};
+	class bldr_decon_pressurehose_01_corner_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_pressurehose_01_corner_f.p3d";
+	};
+	class bldr_decon_pressurehose_01_curvelong_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_pressurehose_01_curvelong_f.p3d";
+	};
+	class bldr_decon_pressurehose_01_curveshort_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_pressurehose_01_curveshort_f.p3d";
+	};
+	class bldr_decon_pressurehose_01_roll_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_pressurehose_01_roll_f.p3d";
+	};
+	class bldr_decon_pressurehose_01_sbend_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_pressurehose_01_sbend_f.p3d";
+	};
+	class bldr_decon_pressurehose_01_step_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_pressurehose_01_step_f.p3d";
+	};
+	class bldr_decon_pressurehose_01_straightlong_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_pressurehose_01_straightlong_f.p3d";
+	};
+	class bldr_decon_pressurehose_01_straightshort_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\decon_pressurehose_01_straightshort_f.p3d";
+	};
+	class bldr_emergencyblanket_discarded: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\emergencyblanket_discarded.p3d";
+	};
+	class bldr_medical_tent_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\medical_tent_big.p3d";
+	};
+	class bldr_medical_tent_shower: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\medical_tent_shower.p3d";
+	};
+	class bldr_scbacylinder_01_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\scbacylinder_01_f.p3d";
+	};
+	class bldr_sponge_01_f: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\sponge_01_f.p3d";
+	};
+	class bldr_village_healthcare: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\village_healthcare.p3d";
+	};
+	class bldr_village_healthcare_ghost1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\village_healthcare_ghost1.p3d";
+	};
+	class bldr_village_healthcare_ghost2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\medical\village_healthcare_ghost2.p3d";
+	};
+	class bldr_garbage_ground_6m_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\garbage_ground_6m_nolc.p3d";
+	};
+	class bldr_garbage_groundsq_3m_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\garbage_groundsq_3m_nolc.p3d";
+	};
+	class bldr_garbage_groundsq_5m_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\garbage_groundsq_5m_nolc.p3d";
+	};
+	class bldr_garden_plot: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\garden_plot.p3d";
+	};
+	class bldr_ladder: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\ladder.p3d";
+	};
+	class bldr_ladder_half: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\ladder_half.p3d";
+	};
+	class bldr_lamp_city1_amp: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\lamp_city1_amp.p3d";
+	};
+	class bldr_misc_chair_plastic: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\misc_chair_plastic.p3d";
+	};
+	class bldr_misc_crashbarrier_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\misc_crashbarrier_nolc.p3d";
+	};
+	class bldr_misc_deerstand1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\misc_deerstand1.p3d";
+	};
+	class bldr_misc_deerstand2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\misc_deerstand2.p3d";
+	};
+	class bldr_misc_feedshack: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\misc_feedshack.p3d";
+	};
+	class bldr_misc_greenhouse: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\misc_greenhouse.p3d";
+	};
+	class bldr_misc_polytunnel: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\misc_polytunnel.p3d";
+	};
+	class bldr_misc_roadbarrier2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\misc_roadbarrier2.p3d";
+	};
+	class bldr_misc_toilet_mobile: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\misc_toilet_mobile.p3d";
+	};
+	class bldr_misc_well_pump_blue: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\misc_well_pump_blue.p3d";
+	};
+	class bldr_misc_well_pump_yellow: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\misc\misc_well_pump_yellow.p3d";
+	};
+	class bldr_office_municipal1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\offices\office_municipal1.p3d";
+	};
+	class bldr_office_municipal2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\offices\office_municipal2.p3d";
+	};
+	class bldr_office1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\offices\office1.p3d";
+	};
+	class bldr_office2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\offices\office2.p3d";
+	};
+	class bldr_office2_ghost1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\offices\office2_ghost1.p3d";
+	};
+	class bldr_office2_ghost2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\offices\office2_ghost2.p3d";
+	};
+	class bldr_city_policestation: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\police\city_policestation.p3d";
+	};
+	class bldr_village_policestation: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\police\village_policestation.p3d";
+	};
+	class bldr_city_school: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\schools\city_school.p3d";
+	};
+	class bldr_shed_m1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\sheds\shed_m1.p3d";
+	};
+	class bldr_shed_m2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\sheds\shed_m2.p3d";
+	};
+	class bldr_shed_m3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\sheds\shed_m3.p3d";
+	};
+	class bldr_shed_m4: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\sheds\shed_m4.p3d";
+	};
+	class bldr_shed_w1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\sheds\shed_w1.p3d";
+	};
+	class bldr_shed_w2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\sheds\shed_w2.p3d";
+	};
+	class bldr_shed_w3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\sheds\shed_w3.p3d";
+	};
+	class bldr_shed_w4: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\sheds\shed_w4.p3d";
+	};
+	class bldr_shed_w5: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\sheds\shed_w5.p3d";
+	};
+	class bldr_shed_w6: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\sheds\shed_w6.p3d";
+	};
+	class bldr_city_stand_fastfood: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\stores\city_stand_fastfood.p3d";
+	};
+	class bldr_city_stand_grocery: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\stores\city_stand_grocery.p3d";
+	};
+	class bldr_city_stand_news1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\stores\city_stand_news1.p3d";
+	};
+	class bldr_city_stand_news2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\stores\city_stand_news2.p3d";
+	};
+	class bldr_city_store: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\stores\city_store.p3d";
+	};
+	class bldr_city_store_withstairs: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\stores\city_store_withstairs.p3d";
+	};
+	class bldr_village_store: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\stores\village_store.p3d";
+	};
+	class bldr_tenement_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\tenements\tenement_big.p3d";
+	};
+	class bldr_tenement_big_entry: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\tenements\tenement_big_entry.p3d";
+	};
+	class bldr_tenement_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\residential\tenements\tenement_small.p3d";
+	};
 };

@@ -13,7 +13,12 @@
 modded class ActionTargetsCursor
 {
 #ifdef EXPANSIONUI
+#ifdef DAYZ_1_29
 	override void Update()
+#else
+	//! 1.30+
+	override void Update(bool fullUpdate = true)
+#endif
 	{
 		//! Don't show floating widget if any script view menu is opened
 		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
@@ -23,7 +28,12 @@ modded class ActionTargetsCursor
 			return;
 		}
 
+	#ifdef DAYZ_1_29
 		super.Update();
+	#else
+		//! 1.30+
+		super.Update(fullUpdate);
+	#endif
 	}
 #endif
 

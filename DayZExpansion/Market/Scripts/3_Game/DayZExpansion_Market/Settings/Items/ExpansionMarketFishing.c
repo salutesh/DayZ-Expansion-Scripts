@@ -18,7 +18,10 @@ class ExpansionMarketFishing: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FISHING";
 		m_FileName = "Fishing";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("worm", 			5,		15,			1,		100);
 
 		// Crafted item !

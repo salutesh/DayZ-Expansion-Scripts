@@ -18,18 +18,21 @@ class ExpansionMarketHandguards: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HANDGUARDS";
 		m_FileName = "Handguards";
-			
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("mp5_plastichndgrd", 	1805, 	3010,	1,100);
 		AddItem("mp5_railhndgrd", 	1805, 	3010,	1,100);
 
 		AddItem("ak74_hndgrd", 	1790, 	2985,	1,100);
 
-		AddItem("ak_woodhndgrd", 	1790, 	2985,	1,100);
-		AddItem("ak_railhndgrd", 	1790, 	2985,	1,100);
+		AddItem("ak_woodhndgrd", 	1790, 	2985,	1,100, null, {"AK_WoodHndgrd_Black", "AK_WoodHndgrd_Camo"});
+		AddItem("ak_railhndgrd", 	1790, 	2985,	1,100, null, {"AK_RailHndgrd_Black", "AK_RailHndgrd_Green"});
 		AddItem("ak_plastichndgrd", 	1790, 	2985,	1,100);
 		
 		AddItem("m4_plastichndgrd", 	1790, 	2985,	1,100);
-		AddItem("m4_rishndgrd", 	1790, 	2985,	1,100);
+		AddItem("m4_rishndgrd", 	1790, 	2985,	1,100, null, {"M4_RISHndgrd_Black", "M4_RISHndgrd_Green"});
 		AddItem("m4_mphndgrd", 	1790, 	2985,	1,100);
 	}
 };

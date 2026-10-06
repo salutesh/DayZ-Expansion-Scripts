@@ -10,4 +10,7 @@
  *
 */
 
-class ExpansionAircraftBattery : VehicleBattery {}
+class ExpansionAircraftBattery: VehicleBattery
+{
+	static int SLOT_ID = InventorySlots.GetSlotIdFromString("ExpansionAircraftBattery");
+}

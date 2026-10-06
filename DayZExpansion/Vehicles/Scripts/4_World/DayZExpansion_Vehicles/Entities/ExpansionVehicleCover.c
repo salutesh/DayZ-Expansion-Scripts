@@ -58,16 +58,31 @@ class ExpansionVehicleCover: ExpansionEntityStoragePlaceholder
 			GetGameLabs().RegisterEvent(m_GameLabs_RegisteredInstance);
 		}
 	}
+#endif
+#endif
 
 	override void EEDelete(EntityAI parent)
 	{
 		super.EEDelete(parent);
 
+		if (g_Game.IsServer())
+		{
+			auto settings = GetExpansionSettings().GetLog();
+			//! If position is zero vector, cover is being deleted as part of uncover operation, only log if that's not the case
+			if (settings.VehicleDeleted && GetPosition() != vector.Zero)
+			{
+				string id = m_Expansion_StoredEntityGlobalID.IDToHex();
+				settings.PrintLog("[VehicleDeleted] {1:type} (GlobalID={2} pos={1:position} lifetime={1:lifetime})", this, new EXString(id));
+			}
+		}
+
+#ifdef GAMELABS
+#ifdef SERVER
 		if (GetGameLabs() && m_GameLabs_RegisteredInstance)
 			GetGameLabs().RemoveEvent(m_GameLabs_RegisteredInstance);
+#endif
+#endif
 	}
-#endif
-#endif
 
 	override void EEItemAttached(EntityAI item, string slot_name)
 	{

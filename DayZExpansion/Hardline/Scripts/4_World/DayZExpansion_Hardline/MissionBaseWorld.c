@@ -13,7 +13,7 @@
 modded class MissionBaseWorld
 {
 #ifdef EXPANSIONMODAI
-    //! Called from ExpansionHardlineModule::OnFactionChange
+    //! Called from PlayerBase::eAI_OnFactionChange
 	void Expansion_OnPlayerFactionChange(PlayerBase player, int oldFactionID, int newFactionID);
 #endif
 

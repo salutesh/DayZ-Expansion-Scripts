@@ -18,7 +18,10 @@ class ExpansionMarketHostersAndPouches: ExpansionMarketCategory
 		
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HOLSTERS";
 		m_FileName = "Holsters_And_Pouches";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("chestholster", 	1075, 	1795,	1,100);
 		
 		AddItem("platecarrierholster", 	1035, 	1725,	1,100,null,{"PlateCarrierHolster_Green","PlateCarrierHolster_Black","PlateCarrierHolster_Camo","platecarrierholster_winter"});

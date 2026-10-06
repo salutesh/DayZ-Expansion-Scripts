@@ -18,7 +18,10 @@ class ExpansionMarketOptics: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_OPTICS";
 		m_FileName = "Optics";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("pistoloptic", 	6050, 	10085,	1,100);
 		AddItem("reflexoptic", 	5070, 	8450,	1,100,{"Battery9V"});
 		AddItem("m4_carryhandleoptic", 	1490, 	2485,	1,100);
@@ -51,5 +54,8 @@ class ExpansionMarketOptics: ExpansionMarketCategory
 		//AddItem("Expansion_ANPEQ15_Red", 		200,		400,	1,		100);
 		//AddItem("Expansion_ANPEQ15_Green", 	200,		400,	1,		100);
 	#endif
-	}	
+			AddItem("MK4Optic_Black", 800, 1600, 1, 100, null, {"MK4Optic_Green", "MK4Optic_Tan"});
+		AddItem("PSO6Optic", 800, 1600, 1, 100);
+		AddItem("SportingOptic", 800, 1600, 1, 100);
+}	
 };

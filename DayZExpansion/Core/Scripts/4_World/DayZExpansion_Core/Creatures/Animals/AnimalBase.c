@@ -16,6 +16,9 @@ modded class AnimalBase
 
 	protected bool m_Expansion_IsInSafeZone;
 	protected bool m_Expansion_IsInSafeZone_DeprecationWarning;
+	
+	ref ExpansionNetsyncData m_Expansion_NetsyncData;
+	ref ExpansionRPCManager m_Expansion_RPCManager;	
 
 	bool m_Expansion_LobotomyInProgress;
 	bool m_Expansion_IsLobotomized;
@@ -78,6 +81,14 @@ modded class AnimalBase
 	bool Expansion_IsInSafeZone()
 	{
 		return m_Expansion_IsInSafeZone;
+	}
+
+	override bool NameOverride(out string output)
+	{
+		if (m_Expansion_NetsyncData && m_Expansion_NetsyncData.Get(0, output))
+			return true;
+		else
+			return super.NameOverride(output);
 	}
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)

@@ -26,19 +26,52 @@ class ExpansionActionOpenTraderMenu: ActionInteractBase
 			
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		ExpansionTraderObjectBase trader = ExpansionMarketModule.GetTraderFromObject(target.GetObject(), false);
+		Object targetObj = target.GetObject();
+		ExpansionTraderObjectBase trader = ExpansionMarketModule.GetTraderFromObject(targetObj, false);
 
 		if (!trader)
 			return false;
 
-		if (!GetExpansionSettings().GetMarket(false).IsLoaded())
+		ExpansionMarketSettings settings = GetExpansionSettings().GetMarket(false);
+
+		if (!settings.IsLoaded())
 			return false;
 
-		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
+		if (!settings.MarketSystemEnabled)
 			return false;
 
 		if (!ExpansionMarketModule.s_Instance.CanOpenMenu())
 			return false;
+
+		if (!trader.GetTraderEntity())
+		{
+			EXError.InfoOnce(this, string.Format("Trader object %1 has no trader entity", targetObj));
+
+			EntityAI traderEntity;
+			if (Class.CastTo(traderEntity, targetObj))
+			{
+				EXError.Info(this, string.Format("Setting trader entity for object %1", targetObj));
+
+				trader.SetTraderEntity(traderEntity);
+				trader.RequestTraderObject();
+
+				if (traderEntity.IsAnyInherited({AnimalBase, BuildingBase, DayZPlayerImplement, ZombieBase}))
+				{
+					ExpansionNetsyncData netsyncData;
+					EnScript.GetClassVar(traderEntity, "m_Expansion_NetsyncData", 0, netsyncData);
+					if (!netsyncData)
+					{
+						netsyncData = new ExpansionNetsyncData(traderEntity, false);
+						EnScript.SetClassVar(traderEntity, "m_Expansion_NetsyncData", 0, netsyncData);
+						netsyncData.Request();
+					}
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
 		
 		if (!trader.GetTraderMarket() || !ExpansionMarketModule.s_Instance.CheckCanUseTrader(player, trader))
 			return false;

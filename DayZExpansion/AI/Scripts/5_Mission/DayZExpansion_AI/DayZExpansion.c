@@ -16,6 +16,8 @@ modded class DayZExpansion
 {
 	private static DayZExpansion m_Instance_5; //! weak ref
 	
+	protected ref eAICommandManager m_CommandManager;
+
 	eAIBase m_eAI_SpectatedAI;
 
     void DayZExpansion()
@@ -24,7 +26,7 @@ modded class DayZExpansion
 		auto trace = CF_Trace_0(this, "DayZExpansion");
 		#endif
 
-		m_CommandManager = new eAICommandManagerImpl();
+		m_CommandManager = new eAICommandManager();
 
 		m_Instance_5 = this;
 
@@ -40,6 +42,11 @@ modded class DayZExpansion
 		return m_Instance_5;
 	}
 
+	eAICommandManager GetCommandManager()
+	{
+		return m_CommandManager;
+	}
+
 	override void SpectateAI(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
 		if (g_Game.IsMultiplayer())
@@ -53,7 +60,16 @@ modded class DayZExpansion
 		if (CF_Modules<JMPlayerModule>.Get(module))
 		{
 			eAIBase ai;
-			if (Class.CastTo(ai, target) && ai != m_eAI_SpectatedAI)
+			PlayerBase player;
+			
+		#ifdef SERVER
+			if (sender)
+				player = PlayerBase.Cast(sender.GetPlayer());
+		#else
+			player = PlayerBase.Cast(g_Game.GetPlayer());
+		#endif
+
+			if (Class.CastTo(ai, target) && (ai != m_eAI_SpectatedAI || (player && player.m_JM_SpectatedObject != ai)))
 			{
 			#ifndef SERVER
 				m_eAI_SpectatedAI = ai;

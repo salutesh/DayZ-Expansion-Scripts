@@ -835,14 +835,15 @@ class eAIGroup
 				float extension;
 				if (leader)
 					extension = leader.Expansion_GetMovementSpeed() * 0.333333;
-				if (extension > 0.0 || isInitialUpdate)
+
+				for (int i = 0; i < 3; i++)
 				{
-					for (int i = 0; i < 3; i++)
-					{
-						position[i] = position[i] + m_Form.GetLooseness();
-						if (i == 2)
-							position[i] = position[i] + extension;  //! Compensate for head start of leader
-					}
+					if (extension > 0.0 || isInitialUpdate)
+						ai.eAI_UpdateFormationLooseness(m_Form.GetLooseness());
+
+					position[i] = position[i] + ai.m_eAI_FormationLooseness;
+					if (i == 2)
+						position[i] = position[i] + extension;  //! Compensate for head start of leader
 				}
 				
 				ai.m_eAI_FormationPosition = position;
@@ -1475,9 +1476,6 @@ class eAIGroup
 					ai.m_eAI_GroupMemberID = groupMemberID;
 				#ifdef DIAG_DEVELOPER
 					EXTrace.Print(EXTrace.AI, eAIGroup, "Restored AI " + ai + " at position " + ai.GetPosition());
-					vector surface = ExpansionStatic.GetSurfacePosition(ai.GetPosition());
-					if (ai.GetPosition()[1] < surface[1])
-						ai.SetPosition(surface);
 				#endif
 				}
 			}

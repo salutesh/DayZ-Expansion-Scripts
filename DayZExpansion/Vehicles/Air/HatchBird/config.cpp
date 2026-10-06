@@ -156,11 +156,7 @@ class CfgVehicles
 				"Expansion_HatchBird_Engine_Ext_SoundSet",
 				"Expansion_HatchBird_Rotor_Ext_SoundSet"
 			};
-			soundSetsInt[]=
-			{
-				"Expansion_HatchBird_Engine_Int_SoundSet",
-				"Expansion_HatchBird_Rotor_Int_SoundSet"
-			};
+			soundSetsInt[]={};
 		};
 		class SimulationModule: SimulationModule
 		{

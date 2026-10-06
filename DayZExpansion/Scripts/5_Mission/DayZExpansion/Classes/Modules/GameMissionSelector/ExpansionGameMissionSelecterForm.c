@@ -103,7 +103,7 @@ class ExpansionGameMissionSelecterForm extends JMFormBase
 		m_PathToMissions = "missions";//"$saves:\\missions";
 		
 		string path_find_pattern = m_PathToMissions + "\\*";
-		FindFileHandle file_handle = FindFile( path_find_pattern, file_name, file_attr, flags );
+		FindFileHandle file_handle = CF.FindFileEx( path_find_pattern, file_name, file_attr, flags );
 		
 		if (file_handle)
 		{

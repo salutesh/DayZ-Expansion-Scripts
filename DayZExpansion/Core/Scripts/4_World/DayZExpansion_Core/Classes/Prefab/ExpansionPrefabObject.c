@@ -273,7 +273,8 @@ class ExpansionPrefabObject : Managed
 					if (quantity > 0)
 					{
 						float itemQuantity = quantityMax * quantity;
-						if (item.Expansion_IsStackable() || mag)
+						string stackedUnit = item.ConfigGetString("stackedUnit");
+						if (item.Expansion_IsStackable() || mag || stackedUnit == "pc." || stackedUnit == "pills")
 							itemQuantity = Math.Round(itemQuantity);
 						if (mag)
 						{

@@ -10,9 +10,14 @@
  *
 */
 
+enum ExpansionVehicleAnimInstancesHelper: VehicleAnimInstances
+{
+	EXPANSION_START
+}
+
 /**
  * @note IMPORTANT: Values must match respective VehicleType in "Vehicles.agr"!
- * @note lowest Expansion anim instance value should be last enum value from vanilla VehicleAnimInstances + 1
+ * @note lowest Expansion anim instance value should be last enum value from vanilla VehicleAnimInstances + 1 (using ExpansionVehicleAnimInstancesHelper.EXPANSION_START guarantees this)
  */
 class ExpansionVehicleAnimInstances
 {
@@ -27,22 +32,22 @@ class ExpansionVehicleAnimInstances
 #ifdef EXPANSIONMODANIMATIONS
 
 	// Cars - Expansion - using Expansion anims
-	static int EXPANSION_BUS = 11;
+	static int EXPANSION_BUS = ExpansionVehicleAnimInstancesHelper.EXPANSION_START + 1;
 
 	// Boats
-	static int EXPANSION_UTILITY_BOAT = 10;
-	static int EXPANSION_LHD = 15;
+	static int EXPANSION_UTILITY_BOAT = ExpansionVehicleAnimInstancesHelper.EXPANSION_START;
+	static int EXPANSION_LHD = ExpansionVehicleAnimInstancesHelper.EXPANSION_START + 5;
 
 	// Bikes
-	static int EXPANSION_TT650 = 13;
-	static int EXPANSION_N250 = 14;
-	static int EXPANSION_OLDBIKE = 16;
+	static int EXPANSION_TT650 = ExpansionVehicleAnimInstancesHelper.EXPANSION_START + 3;
+	static int EXPANSION_N250 = ExpansionVehicleAnimInstancesHelper.EXPANSION_START + 4;
+	static int EXPANSION_OLDBIKE = ExpansionVehicleAnimInstancesHelper.EXPANSION_START + 6;
 
 	// Helicopters
-	static int EXPANSION_MH6 = 12;
-	static int EXPANSION_MERLIN = 15;
-	static int EXPANSION_UH1H = 12;
-	static int EXPANSION_GYROCOPTER = 12;
+	static int EXPANSION_MH6 = ExpansionVehicleAnimInstancesHelper.EXPANSION_START + 2;
+	static int EXPANSION_MERLIN = ExpansionVehicleAnimInstancesHelper.EXPANSION_START + 5;
+	static int EXPANSION_UH1H = ExpansionVehicleAnimInstancesHelper.EXPANSION_START + 2;
+	static int EXPANSION_GYROCOPTER = ExpansionVehicleAnimInstancesHelper.EXPANSION_START + 5;
 
 #else
 
@@ -59,9 +64,9 @@ class ExpansionVehicleAnimInstances
 	static int EXPANSION_OLDBIKE = VehicleAnimInstances.SEDAN;
 
 	// Helicopters
-	static int EXPANSION_MH6 = VehicleAnimInstances.HMMWV;
+	static int EXPANSION_MH6 = VehicleAnimInstances.SEDAN;
 	static int EXPANSION_MERLIN = VehicleAnimInstances.SEDAN;
-	static int EXPANSION_UH1H = VehicleAnimInstances.HMMWV;
+	static int EXPANSION_UH1H = VehicleAnimInstances.SEDAN;
 	static int EXPANSION_GYROCOPTER = VehicleAnimInstances.SEDAN;
 
 #endif

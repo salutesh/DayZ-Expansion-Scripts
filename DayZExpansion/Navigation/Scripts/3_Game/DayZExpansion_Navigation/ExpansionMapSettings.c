@@ -527,12 +527,12 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		EnableHUDCompass = true;
 		NeedCompassItemForHUDCompass = true;
 		NeedGPSItemForHUDCompass = true;
-		CompassColor = ARGB(255,255,255,255);
+		CompassColor = COLOR_WHITE;
 		CreateDeathMarker = true;
 
 		PlayerLocationNotifier = true;
 		
-		CompassBadgesColor = ARGB(140, 0, 0, 0);
+		CompassBadgesColor = COLOR_WHITE;
 
 	#ifdef EXPANSIONMODMARKET
 		switch (ExpansionStatic.GetCanonicalWorldName())

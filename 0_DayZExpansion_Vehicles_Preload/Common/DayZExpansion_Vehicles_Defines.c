@@ -14,8 +14,6 @@
 
 //#define EXPANSION_VEHICLE_DOOR_JOINTS
 
-#define EXPANSION_HELI_WIND
-
 //#define EXPANSION_WHEEL_DEBUG_DISABLE
 
 #define EXPANSION_UNIVERSAL_WHEEL_DISABLE
@@ -31,10 +29,6 @@
 //! Enable if if you want to enable car debug logs
 //#define EXPANSION_CARSCRIPT_LOGGING
 
-#ifndef DIAG_DEVELOPER
-#define EXPANSION_VEHICLES_CONFIG_DISPLAYNAME_TEMP
-#endif
-
 //#define EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
 
 //! Enable it if you want to enable skinning system debug logs
@@ -47,5 +41,3 @@
 #ifdef SERVER //! Don't comment these, diag exe server crashes
 #define EXPANSION_WHEEL_DEBUG_DISABLE
 #endif
-
-#define EXPANSION_OBSOLETE_CAMERA

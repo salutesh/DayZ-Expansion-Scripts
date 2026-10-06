@@ -237,7 +237,18 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		if (!CoveredIndicator || !g_Game.GetPlayer())
 			return;
 
-		if (GetExpansionClientSettings().ShowUnderRoofIndicator && MiscGameplayFunctions.IsUnderRoof(g_Game.GetPlayer()))
+		Man player = g_Game.GetPlayer();
+
+	#ifdef COT_SPECTATOR_TRACKING
+		PlayerBase pb;
+		PlayerBase spectatedPlayer;
+		if (Class.CastTo(pb, player) && Class.CastTo(spectatedPlayer, pb.m_JM_SpectatedObject))
+		{
+			player = spectatedPlayer;
+		}
+	#endif
+
+		if (GetExpansionClientSettings().ShowUnderRoofIndicator && MiscGameplayFunctions.IsUnderRoof(player))
 			CoveredIndicator.Show(true);
 		else
 			CoveredIndicator.Show(false);

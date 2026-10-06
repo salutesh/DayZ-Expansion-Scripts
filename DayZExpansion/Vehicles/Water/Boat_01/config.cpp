@@ -12,11 +12,25 @@ class CfgPatches
 class CfgVehicles
 {
 	class BoatScript;
+	class GUIInventoryAttachmentsProps;
+	class Engine;
 	class Boat_01_ColorBase: BoatScript
 	{
 		attachments[]+=
 		{
+			"CamoNet",
 			"KeyChain"
+		};
+		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
+		{
+			class Engine: Engine
+			{
+				attachmentSlots[]+=
+				{
+					"CamoNet",
+					"KeyChain"
+				};
+			};
 		};
 	};
 };

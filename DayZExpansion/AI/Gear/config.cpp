@@ -77,7 +77,7 @@ class CfgVehicles
 							1,
 							
 							{
-								"DayZExpansion\AI\Gear\Data\pressvest_yeet.rvmat"
+								"DZ\characters\vests\Data\PressVest.rvmat"
 							}
 						},
 						

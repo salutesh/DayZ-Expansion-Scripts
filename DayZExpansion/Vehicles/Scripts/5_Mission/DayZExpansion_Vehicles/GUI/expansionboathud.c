@@ -10,7 +10,6 @@
  *
 */
 
-#ifndef EXPANSION_VEHICLES_HUD_OLD
 class ExpansionBoatHud : VehicleHudBase
 {
 	protected ExpansionBoatScript 	m_CurrentBoat;
@@ -247,4 +246,3 @@ class ExpansionBoatHud : VehicleHudBase
 		m_VehicleNextGearValue.SetText(m_VehicleGearTable.Get(m_EngagedGear + 1));
 	}
 }
-#endif

@@ -22,8 +22,8 @@ class cfgWeapons
 	class Expansion_M14_Base: M14_Base
 	{
 		scope=0;
-		weight=3500;
-		PPDOFProperties[]={};
+		weight=2700;
+		PPDOFProperties[]={1,0.86000001,50,170,4,10};
 		ironsightsExcludingOptics[]=
 		{
 			"M68Optic",
@@ -31,8 +31,9 @@ class cfgWeapons
 			"ReflexOptic",
 			"ACOGOptic"
 		};
-		WeaponLength=0.88;
-		barrelArmor=8.6999998;
+		WeaponLength=1.118;
+		barrelArmor=2.2;
+		initSpeedMultiplier=1.23;
 		chamberedRound="";
 		chamberSize=1;
 		chamberableFrom[]=
@@ -45,9 +46,10 @@ class cfgWeapons
 			"Mag_Expansion_M14_10Rnd",
 			"Mag_Expansion_M14_20Rnd"
 		};
-		magazineSwitchTime=0.25;
+		magazineSwitchTime=0.44999999;
 		ejectType=1;
 		recoilModifier[]={1,1,1};
+		swayModifier[]={2.4000001,2.4000001,0.89999998};
 		simpleHiddenSelections[]=
 		{
 			"hide_barrel"

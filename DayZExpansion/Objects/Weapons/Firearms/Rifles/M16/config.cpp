@@ -19,11 +19,11 @@ class cfgWeapons
 	class Expansion_M16_Base: Rifle_Base
 	{
 		scope=0;
-		weight=1746;
+		weight=2900;
 		absorbency=0;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
-		PPDOFProperties[]={1,0.60000002,50,200,4,10};
+		repairableWithKits[]={1};
+		repairCosts[]={25};
+		PPDOFProperties[]={1,0.60000002,50,180,4,10};
 		ironsightsExcludingOptics[]=
 		{
 			"M4_CarryHandleOptic",
@@ -33,8 +33,9 @@ class cfgWeapons
 			"ReflexOptic",
 			"ACOGOptic"
 		};
-		WeaponLength=0.81478399;
-		barrelArmor=6.75;
+		WeaponLength=1.03;
+		barrelArmor=2.5;
+		initSpeedMultiplier=1;
 		chamberSize=1;
 		chamberedRound="";
 		chamberableFrom[]=
@@ -63,6 +64,7 @@ class cfgWeapons
 		magazineSwitchTime=0.5;
 		ejectType=1;
 		recoilModifier[]={1,1,1};
+		swayModifier[]={2.2,2.2,0.75};
 		simpleHiddenSelections[]=
 		{
 			"folding_raised",
@@ -120,10 +122,10 @@ class cfgWeapons
 					"M16A2_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
-			reloadTime=0.125;
+			reloadTime=0.12;
 			recoil="recoil_m4";
 			recoilProne="recoil_m4_prone";
-			dispersion=0.0015;
+			dispersion=0.0020000001;
 			magazineSlot="magazine";
 		};
 		class Burst: Mode_Burst
@@ -183,10 +185,10 @@ class cfgWeapons
 					"M16A2_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
-			reloadTime=0.075000003;
+			reloadTime=0.064999998;
 			recoil="recoil_m4";
 			recoilProne="recoil_m4_prone";
-			dispersion=0.0015;
+			dispersion=0.0020000001;
 			magazineSlot="magazine";
 		};
 		class OpticsInfo: OpticsInfoRifle

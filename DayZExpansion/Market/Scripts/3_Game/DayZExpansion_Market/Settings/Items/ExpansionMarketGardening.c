@@ -18,7 +18,10 @@ class ExpansionMarketGardening: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_GARDENING";
 		m_FileName = "Gardening";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("gardenlime", 	355, 	595,	1,100,null,{});
 		AddItem("pepperseedspack", 	350, 	585,	1,100);
 		AddItem("tomatoseedspack", 	350, 	585,	1,100);

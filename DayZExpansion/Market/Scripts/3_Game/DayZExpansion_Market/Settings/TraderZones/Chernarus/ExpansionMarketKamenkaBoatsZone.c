@@ -24,7 +24,5 @@ class ExpansionMarketKamenkaBoatsZone: ExpansionMarketTraderZone
 
 		Position = "1756.1 2.2 2025.47"; 	
 		Radius = 100;
-
-		Update();
 	}
 };

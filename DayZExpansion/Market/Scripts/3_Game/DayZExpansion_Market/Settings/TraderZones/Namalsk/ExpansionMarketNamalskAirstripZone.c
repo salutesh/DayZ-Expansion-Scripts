@@ -24,7 +24,5 @@ class ExpansionMarketNamalskAirstripZone: ExpansionMarketTraderZone
 
 		Position = "6302.0 21.21 9513.0";
 		Radius = 400;
-
-		Update();
 	}
 };

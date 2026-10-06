@@ -12,13 +12,13 @@ modded class DayZPlayerImplement
 
 	private eAIGroup m_eAI_Group;
 
-	[eAIAttribute<eAIGroup>.Register("m_Expansion_FormerGroup")]
+	//[eAIAttribute<eAIGroup>.Register("m_Expansion_FormerGroup")]
 	private eAIGroup m_Expansion_FormerGroup;
 
 	protected typename m_eAI_FactionType;
 	private int m_eAI_GroupID;
 
-	[eAIAttribute<int>.Register("m_eAI_GroupMemberID")]
+	//[eAIAttribute<int>.Register("m_eAI_GroupMemberID")]
 	int m_eAI_GroupMemberID = -1;  //! Only unique within current group
 
 	private int m_eAI_FactionTypeID;
@@ -34,7 +34,7 @@ modded class DayZPlayerImplement
 	float m_eAI_LastHitTime;
 	float m_eAI_LastNoiseTime;
 
-	[eAIAttribute<float>.Register("m_eAI_DamageReceivedMultiplier")]
+	//[eAIAttribute<float>.Register("m_eAI_DamageReceivedMultiplier")]
 	float m_eAI_DamageReceivedMultiplier = 1.0;
 	float m_eAI_HeadshotResistance;
 

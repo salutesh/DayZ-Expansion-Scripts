@@ -695,4 +695,344 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\roads\decals\Decal_Heli_Army.p3d";
 	};
+	class bldr_centerline_12: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\centerline_12.p3d";
+	};
+	class bldr_centerline_25: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\centerline_25.p3d";
+	};
+	class bldr_centerline_6: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\centerline_6.p3d";
+	};
+	class bldr_centerline_6konec: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\centerline_6konec.p3d";
+	};
+	class bldr_taxiway_0_2000: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_0 2000.p3d";
+	};
+	class bldr_taxiway_1_1000: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_1 1000.p3d";
+	};
+	class bldr_taxiway_10_100: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_10 100.p3d";
+	};
+	class bldr_taxiway_10_25: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_10 25.p3d";
+	};
+	class bldr_taxiway_10_50: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_10 50.p3d";
+	};
+	class bldr_taxiway_10_75: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_10 75.p3d";
+	};
+	class bldr_taxiway_12: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_12.p3d";
+	};
+	class bldr_taxiway_15_75: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_15 75.p3d";
+	};
+	class bldr_taxiway_22_50: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_22 50.p3d";
+	};
+	class bldr_taxiway_25: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_25.p3d";
+	};
+	class bldr_taxiway_30_25: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_30 25.p3d";
+	};
+	class bldr_taxiway_6: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_6.p3d";
+	};
+	class bldr_taxiway_60_10: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_60 10.p3d";
+	};
+	class bldr_taxiway_6konec: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_6konec.p3d";
+	};
+	class bldr_taxiway_7_100: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\parts\taxiway_7 100.p3d";
+	};
+	class bldr_decal_concrete_panel: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_concrete_panel.p3d";
+	};
+	class bldr_decal_concrete_panels: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_concrete_panels.p3d";
+	};
+	class bldr_decal_concrete_panels_end1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_concrete_panels_end1.p3d";
+	};
+	class bldr_decal_concrete_panels_end2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_concrete_panels_end2.p3d";
+	};
+	class bldr_decal_crosswalk: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_crosswalk.p3d";
+	};
+	class bldr_decal_damage_long1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_damage_long1.p3d";
+	};
+	class bldr_decal_damage_long2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_damage_long2.p3d";
+	};
+	class bldr_decal_damage_long3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_damage_long3.p3d";
+	};
+	class bldr_decal_damage_long4: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_damage_long4.p3d";
+	};
+	class bldr_decal_damage_long5: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_damage_long5.p3d";
+	};
+	class bldr_decal_damage_medium1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_damage_medium1.p3d";
+	};
+	class bldr_decal_damage_medium2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_damage_medium2.p3d";
+	};
+	class bldr_decal_damage_small1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_damage_small1.p3d";
+	};
+	class bldr_decal_damage_small2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_damage_small2.p3d";
+	};
+	class bldr_decal_manhole: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_manhole.p3d";
+	};
+	class bldr_decal_manhole2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_manhole2.p3d";
+	};
+	class bldr_decal_manhole3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_manhole3.p3d";
+	};
+	class bldr_decal_runway_aircrafttireprints_01: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_aircrafttireprints_01.p3d";
+	};
+	class bldr_decal_runway_aircrafttireprints_01_faded: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_aircrafttireprints_01_faded.p3d";
+	};
+	class bldr_decal_runway_aircrafttireprints_02: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_aircrafttireprints_02.p3d";
+	};
+	class bldr_decal_runway_aircrafttireprints_02_faded: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_aircrafttireprints_02_faded.p3d";
+	};
+	class bldr_decal_runway_holdshort: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_holdshort.p3d";
+	};
+	class bldr_decal_runway_line_1x30: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_line_1x30.p3d";
+	};
+	class bldr_decal_runway_line_2x30: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_line_2x30.p3d";
+	};
+	class bldr_decal_runway_line_6x30: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_line_6x30.p3d";
+	};
+	class bldr_decal_runway_num0: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_num0.p3d";
+	};
+	class bldr_decal_runway_num1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_num1.p3d";
+	};
+	class bldr_decal_runway_num2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_num2.p3d";
+	};
+	class bldr_decal_runway_num3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_num3.p3d";
+	};
+	class bldr_decal_runway_num4: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_num4.p3d";
+	};
+	class bldr_decal_runway_num5: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_num5.p3d";
+	};
+	class bldr_decal_runway_num6: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_num6.p3d";
+	};
+	class bldr_decal_runway_num7: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_num7.p3d";
+	};
+	class bldr_decal_runway_num8: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_num8.p3d";
+	};
+	class bldr_decal_runway_num9: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_num9.p3d";
+	};
+	class bldr_decal_runway_skidmarks: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_skidmarks.p3d";
+	};
+	class bldr_decal_runway_skidmarks_end: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_skidmarks_end.p3d";
+	};
+	class bldr_decal_runway_skidmarks_end_light: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_skidmarks_end_light.p3d";
+	};
+	class bldr_decal_runway_skidmarks_end2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_skidmarks_end2.p3d";
+	};
+	class bldr_decal_runway_skidmarks_end2_light: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_skidmarks_end2_light.p3d";
+	};
+	class bldr_decal_runway_skidmarks_light: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runway_skidmarks_light.p3d";
+	};
+	class bldr_decal_runwaypanel_1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runwaypanel_1.p3d";
+	};
+	class bldr_decal_runwaypanel_2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runwaypanel_2.p3d";
+	};
+	class bldr_decal_runwaypanel_damage_1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runwaypanel_damage_1.p3d";
+	};
+	class bldr_decal_runwaypanel_damage_2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runwaypanel_damage_2.p3d";
+	};
+	class bldr_decal_runwaypanel_damage_3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runwaypanel_damage_3.p3d";
+	};
+	class bldr_decal_runwaypanel_line_15m: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runwaypanel_line_15m.p3d";
+	};
+	class bldr_decal_runwaypanel_line_2m: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runwaypanel_line_2m.p3d";
+	};
+	class bldr_decal_runwaypanel_line_8m: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\decals\decal_runwaypanel_line_8m.p3d";
+	};
 };

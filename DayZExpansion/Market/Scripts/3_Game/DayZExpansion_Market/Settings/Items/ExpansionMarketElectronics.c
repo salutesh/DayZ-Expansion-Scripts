@@ -18,7 +18,10 @@ class ExpansionMarketElectronics: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_ELECTRONICS";
 		m_FileName = "Electronics";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("personalradio", 	710, 	1180,	1,100,{"Battery9V"});
 		AddItem("megaphone", 	3030, 	5050,	1,100,{"Battery9V"});
 		AddItem("electronicrepairkit", 	610, 	1015,	1,100);

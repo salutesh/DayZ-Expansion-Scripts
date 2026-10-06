@@ -166,7 +166,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 					player.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the player.
 					ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
 
-					DayZPlayerSyncJunctures.ExpansionTeleport(player, randomPosition, ori);
+					player.Expansion_Teleport(randomPosition, ori);
 
 					PlayTeleportSFX(randomPosition, player.GetIdentity());
 				}

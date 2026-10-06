@@ -32,17 +32,16 @@ static void Expansion_Error(string s, inout bool check = false)
 
 class EXTee
 {
-#ifdef SERVER
-	static const int MAX_PRINTABLE_TEXT_LENGTH = 1026;
-#else
-	static const int MAX_PRINTABLE_TEXT_LENGTH = 240;
-#endif
+	//! Effective printable max length (not including " SCRIPT       : " prefix)
+	//! Under diag server the effective max length is 16365
+	//! but we use the client/nondiag server max length for consistency
+	static const int MAX_PRINTABLE_TEXT_LENGTH = 239;
 
 	FileHandle m_File;
 	autoptr TStringArray m_PrintBuffer = {};
 	int m_BufferLength;
 
-	void EXTee(string fileName, FileMode mode)
+	void EXTee(string fileName, FileMode mode = FileMode.APPEND)
 	{
 		m_File = OpenFile(fileName, mode);
 	}
@@ -85,19 +84,37 @@ class EXTee
 			while (strLen > MAX_PRINTABLE_TEXT_LENGTH)
 			{
 				string chunk = str.Substring(0, MAX_PRINTABLE_TEXT_LENGTH);
-				int index = chunk.LastIndexOf(" ");  //! Try to break on whitespace if possible
+
+				//! Try to break on whitespace if possible
+				int indexS = chunk.LastIndexOf(" ");
+				int indexN = chunk.LastIndexOf("\n");
+
+				int index;
+
+				if (indexN > indexS)
+					index = indexN;
+				else
+					index = indexS;
 
 				if (index > -1)
 				{
 					index++;
 
-					if (index < MAX_PRINTABLE_TEXT_LENGTH)
-						chunk = str.Substring(0, index);
+					chunk = str.Substring(0, index);
+				}
+				else
+				{
+					index = MAX_PRINTABLE_TEXT_LENGTH;
 				}
 
 				Print("" + chunk);
 
 				strLen -= index;
+
+				//! string::Substring has a hard length limit of 8191
+				if (strLen > 8191)
+					strLen = 8191;
+
 				str = str.Substring(index, strLen);
 			}
 
@@ -451,7 +468,7 @@ class ExpansionStatic: ExpansionStaticCore
 	static const string DIRSEPARATOR = "\\";
 	static const string DIRSEPARATOR_ALT = "/";
 
-	static ref TStringArray s_VehicleClassNames = {"CarScript", "BoatScript", "ExpansionVehicleBase", "HypeTrain_PartBase"};
+	static ref TStringArray s_VehicleClassNames = {"CarScript", "BoatScript", "MotorbikeScript", "ExpansionVehicleBase", "HypeTrain_PartBase"};
 
 	static ref SurfaceDetectionParameters s_SurfParams = CreateSurfaceDetectionParams();
 	static ref SurfaceDetectionResult s_SurfResult = new SurfaceDetectionResult();
@@ -1900,17 +1917,15 @@ class ExpansionStatic: ExpansionStaticCore
 		return -1;
 	}
 
-	static array< string > FindInLocation( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES, bool recursive = false )
+	protected static array< string > FindInLocation_Internal(string folder, string ext, int mode, bool recursive)
 	{
 		array< string > files = new array< string >;
-		if (!FileExist(folder))
-			return files;
 		string fileName;
 		FileAttr fileAttr;
 		string pattern = folder + "*";
 		if (!recursive)
 			pattern += ext;
-		FindFileHandle findFileHandle = FindFile( pattern, fileName, fileAttr, 0 );
+		FindFileHandle findFileHandle = CF.FindFileEx( pattern, fileName, fileAttr, FindFileFlags.ALL );
 		if ( findFileHandle )
 		{
 			bool isValid = true;
@@ -1933,7 +1948,7 @@ class ExpansionStatic: ExpansionStaticCore
 				{
 					if ((includeFiles && !isDir) || (includeDirs && isDir))
 					{
-						if (!recursive || ExpansionString.EndsWithIgnoreCase(fileName, ext))
+						if (!recursive || !ext || ExpansionString.EndsWithIgnoreCase(fileName, ext))
 							files.Insert( fileName );
 					}
 
@@ -1952,14 +1967,97 @@ class ExpansionStatic: ExpansionStaticCore
 
 			CloseFindFile( findFileHandle );
 		}
-	#ifdef DIAG_DEVELOPER
-		EXTrace.Print(EXTrace.MISC, null, "FindInLocation " + folder + "*" + ext + " mode=" + typename.EnumToString(ExpansionFindFileMode, mode) + " recursive=" + recursive.ToString());
-		foreach (string file: files)
+
+		if (CF.s_FindFileEx_ResolvePath)
 		{
-			EXTrace.Print(EXTrace.MISC, null, folder + file);
+			//! Keep consistent with what we're used to (using backslash)
+			foreach (int i, string file: files)
+			{
+				file.Replace("/", "\\");
+				files[i] = file;
+			}
+		}
+
+		return files;
+	}
+
+	//! 1.30 Experimental broke $ placeholders in FindFile, see https://report.bistudio.com/issues/DZEXP-134
+	//! Ignore placeholders completely and use file list (if it exists)
+	protected static array< string > FindInLocation_DZEXP_134_FileList(string folder, string ext, int mode, bool recursive)
+	{
+		array< string > files = {};
+
+		FileHandle fileHandle = OpenFile(folder + "FILELIST.txt", FileMode.READ);
+		if (fileHandle)
+		{
+			string relPath = folder;
+			int index;
+
+			if (relPath[0] == "$")
+			{
+				index = relPath.IndexOf(":");
+				if (index > 0)
+					relPath = relPath.Substring(index + 1, relPath.Length() - index - 1);
+			}
+
+		#ifdef DIAG_DEVELOPER
+			EXError.Info(null, "ExpansionStatic::FindInLocation " + folder + "*" + ext + " -> FILELIST.txt");
+		#endif
+
+			string fileName;
+			while (FGets(fileHandle,  fileName) > -1)
+			{
+				index = fileName.IndexOf(relPath);
+				if (index > -1)
+					fileName = fileName.Substring(index + relPath.Length(), fileName.Length() - index - relPath.Length());
+
+				if (ext && !ExpansionString.EndsWithIgnoreCase(fileName, ext))
+					continue;
+
+			#ifdef DIAG_DEVELOPER
+				EXError.Info(null, "ExpansionStatic::FindInLocation " + folder + "FILELIST.txt -> " + fileName);
+			#endif
+
+				if (FileExist(folder + fileName))
+					files.Insert(fileName);
+			}
+
+			CloseFile(fileHandle);
+		}
+
+		return files;
+	}
+
+	static array< string > FindInLocation( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES, bool recursive = false )
+	{
+		array< string > files = FindInLocation_Internal(folder, ext, mode, recursive);
+
+		//! 1.30 Experimental broke $ placeholders in FindFile, see https://report.bistudio.com/issues/DZEXP-134
+		if (files.Count() == 0)
+			files = FindInLocation_DZEXP_134_FileList(folder, ext, mode, recursive);
+
+	#ifdef DIAG_DEVELOPER
+		if (EXTrace.MISC)
+		{
+			EXPrint("FindInLocation " + folder + "*" + ext + " mode=" + typename.EnumToString(ExpansionFindFileMode, mode) + " recursive=" + recursive.ToString());
+			foreach (string file: files)
+			{
+				EXPrint(folder + file);
+			}
 		}
 	#endif
 		return files;
+	}
+
+	static string PickFirstExisting(TStringArray candidates)
+	{
+		foreach (string candidate: candidates)
+		{
+			if (FileExist(candidate))
+				return candidate;
+		}
+
+		return "";
 	}
 
 	static array< string > FindFilesInLocation( string folder, string ext = "", bool recursive = false )
@@ -2014,7 +2112,7 @@ class ExpansionStatic: ExpansionStaticCore
 
 		string fileName;
 		FileAttr fileAttr;
-		FindFileHandle findFileHandle = FindFile(srcDir + "*" + ext, fileName, fileAttr, 0);
+		FindFileHandle findFileHandle = CF.FindFileEx(srcDir + "*" + ext, fileName, fileAttr, FindFileFlags.DIRECTORIES);
 
 		if (!findFileHandle)
 		{
@@ -2126,7 +2224,6 @@ class ExpansionStatic: ExpansionStaticCore
 		}
 	}
 
-	#ifdef ENFUSION_AI_PROJECT
 	static TStringArray GetWorkingAIClasses()
 	{
 		return { "eAI_SurvivorM_Mirek", "eAI_SurvivorM_Denis", "eAI_SurvivorM_Boris",
@@ -2140,7 +2237,6 @@ class ExpansionStatic: ExpansionStaticCore
 		"eAI_SurvivorF_Irena", "eAI_SurvivorF_Judy", "eAI_SurvivorF_Keiko",
 		"eAI_SurvivorF_Eva", "eAI_SurvivorF_Naomi", "eAI_SurvivorF_Baty"};
 	}
-	#endif
 
 	//! DEPRECATED, use FormatInt
 	static string IntToCurrencyString(int number, string separator, bool shorten = false)
@@ -2428,6 +2524,13 @@ class ExpansionStatic: ExpansionStaticCore
 							output += GetPersistentIDString(entity);
 						else
 							output += "0";
+						break;
+
+					case "lifetime":
+						if (Class.CastTo(entity, p))
+							output += entity.GetLifetime().ToString();
+						else
+							EXError.Error(null, p.ToString() + " is not an entity");
 						break;
 
 					case "type":

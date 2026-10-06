@@ -35,26 +35,6 @@ modded class ActionGetInTransport
 		return true;
 	}
 
-	override void Start(ActionData action_data)
-	{
-		auto vehicle = ExpansionVehicle.Get(action_data.m_Target.GetObject());
-
-		super.Start(action_data);
-
-		if (vehicle)
-		{
-			if (IsMissionClient())
-			{
-				if (vehicle.IsHelicopter())
-					g_Game.GetMission().AddActiveInputExcludes({"expansionhelicopter"});
-				else if (vehicle.IsBoat())
-					g_Game.GetMission().AddActiveInputExcludes({"expansionboat"});
-				else if (vehicle.IsPlane())
-					g_Game.GetMission().AddActiveInputExcludes({"expansionplane"});
-			}
-		}
-	}
-
 	override void OnEndServer(ActionData action_data)
 	{
 		super.OnEndServer(action_data);

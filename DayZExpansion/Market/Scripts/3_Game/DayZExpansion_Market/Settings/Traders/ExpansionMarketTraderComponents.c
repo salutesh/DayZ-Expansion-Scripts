@@ -22,7 +22,10 @@ class ExpansionMarketTraderComponents: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_COMPONENTS";
 		m_FileName = "Components";
 		TraderIcon = "Hammer";
-		
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Tools");
 		Categories.Insert("Supplies");
 		Categories.Insert("Locks");

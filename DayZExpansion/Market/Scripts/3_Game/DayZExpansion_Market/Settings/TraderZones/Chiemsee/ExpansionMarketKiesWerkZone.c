@@ -24,7 +24,5 @@ class ExpansionMarketKiesWerkZone: ExpansionMarketTraderZone
 
 		Position = "3264.6201171875 20.903200149536134 4740.669921875"; 	
 		Radius = 400;
-
-		Update();
 	}
 };

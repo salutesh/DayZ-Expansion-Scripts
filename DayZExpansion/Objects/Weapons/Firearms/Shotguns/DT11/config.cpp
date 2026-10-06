@@ -23,12 +23,14 @@ class cfgWeapons
 	class Expansion_DT11_Base: Rifle_Base
 	{
 		scope=0;
-		weight=3700;
+		weight=3100;
 		model="\DayZExpansion\Objects\Weapons\Firearms\Shotguns\DT11\dt11.p3d";
 		itemSize[]={9,3};
 		absorbency=0;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
+		repairableWithKits[]={1};
+		repairCosts[]={25};
+		barrelArmor=1.3329999;
+		initSpeedMultiplier=1.25;
 		chamberSize=1;
 		chamberedRound="";
 		attachments[]=
@@ -44,8 +46,8 @@ class cfgWeapons
 		};
 		magazines[]={};
 		DisplayMagazine=0;
-		PPDOFProperties[]={1,0.5,50,160,4,10};
-		WeaponLength=1.273;
+		PPDOFProperties[]={1,0.5,10,175,4,10};
+		WeaponLength=1.1;
 		muzzles[]=
 		{
 			"this",
@@ -53,7 +55,7 @@ class cfgWeapons
 		};
 		ejectType=3;
 		recoilModifier[]={1,1,1};
-		swayModifier[]={2,2,1};
+		swayModifier[]={2.2,2.2,0.85000002};
 		drySound[]=
 		{
 			"dz\sounds\weapons\shotguns\Izh43\izh43_dry",
@@ -142,8 +144,8 @@ class cfgWeapons
 				"Ammo_12gaRubberSlug",
 				"Ammo_12gaBeanbag"
 			};
-			barrelArmor=1000;
-			initSpeedMultiplier=1;
+			barrelArmor=1.3329999;
+			initSpeedMultiplier=1.25;
 			irDistance=0;
 			irLaserPos="laser pos";
 			irLaserEnd="laser dir";

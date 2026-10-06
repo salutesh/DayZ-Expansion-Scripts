@@ -114,6 +114,10 @@ class ExpansionNotPlayerBase: ManBase
 		
 		AdjustBandana(item,slot_name);
 		AdjustShemag(item,slot_name);
+	#ifndef DAYZ_1_29
+		//! 1.30+
+		AdjustKeffiyeh(item,slot_name);
+	#endif
 	}
 	
 	// 1184
@@ -570,6 +574,26 @@ class ExpansionNotPlayerBase: ManBase
 			}
 		}
 	}
+
+#ifndef DAYZ_1_29
+	//! 1.30+
+	void AdjustKeffiyeh(EntityAI item, string slot_name)
+	{
+		if (Keffiyeh_ColorBase.Cast(item))
+		{
+			if (slot_name == "Headgear")
+			{
+				item.SetSimpleHiddenSelectionState(0,1);
+				item.SetSimpleHiddenSelectionState(1,0);
+			}
+			else if (slot_name == "Mask")
+			{
+				item.SetSimpleHiddenSelectionState(0,0);
+				item.SetSimpleHiddenSelectionState(1,1);
+			}
+		}
+	}
+#endif
 	
 	// 8784
 	// client-side

@@ -78,8 +78,7 @@ class ExpansionTraderObjectBase
 	protected int m_DisplayCurrencyPrecision;
 
 	private EntityAI m_TraderEntity;
-
-	ref ExpansionRPCManager m_Expansion_RPCManager;
+	private bool m_TraderObjectRequested;
 
 	void ExpansionTraderObjectBase(EntityAI traderEntity, string fileName = "")
 	{
@@ -95,7 +94,7 @@ class ExpansionTraderObjectBase
 			return;
 
 #ifdef EXTRACE
-		auto trace = EXTrace.Start(ExpansionTracing.MARKET, this, "" + m_TraderEntity, "" + m_Expansion_RPCManager);
+		auto trace = EXTrace.Start(ExpansionTracing.MARKET, this, "" + m_TraderEntity);
 #endif
 
 		int idx = m_allTraderObjects.Find(this);
@@ -116,7 +115,7 @@ class ExpansionTraderObjectBase
 		{
 			LoadTraderHost(fileName);
 		} 
-		else
+		else if (m_TraderEntity)
 		{
 			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RequestTraderObject, 250, false);
 		}
@@ -162,18 +161,23 @@ class ExpansionTraderObjectBase
 		if ( IsMissionOffline() )
 			return;
 
-		auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_TraderObject");
+		if (m_TraderObjectRequested)
+			return;
+
+		m_TraderObjectRequested = true;
+
+		auto rpc = ExpansionMarketModule.s_Instance.Expansion_CreateRPC("RPC_TraderObject");
 		rpc.Expansion_Send(GetTraderEntity(), true);
 	}
 
-	private void RPC_TraderObject(PlayerIdentity sender, ParamsReadContext ctx)
+	void RPC_TraderObject(PlayerIdentity sender, ParamsReadContext ctx)
 	{
 		if (g_Game.IsServer())
 		{
 			if (!m_Trader)
 				return;
 
-			auto rpc = m_Expansion_RPCManager.CreateRPC("RPC_TraderObject");
+			auto rpc = ExpansionMarketModule.s_Instance.Expansion_CreateRPC("RPC_TraderObject");
 
 			rpc.Write(m_Trader.m_FileName);
 			rpc.Write(m_Trader.DisplayName);
@@ -463,15 +467,6 @@ class ExpansionTraderObjectBase
 #endif
 
 		m_TraderEntity = entity;
-
-		EnScript.GetClassVar(entity, "m_Expansion_RPCManager", 0, m_Expansion_RPCManager);
-		if (!m_Expansion_RPCManager)
-		{
-			typename type = ExpansionWorld.GetModdableRootType(entity);
-			m_Expansion_RPCManager = new ExpansionRPCManager(entity, type);
-			EnScript.SetClassVar(entity, "m_Expansion_RPCManager", 0, m_Expansion_RPCManager);
-		}
-		m_Expansion_RPCManager.RegisterBoth("RPC_TraderObject", this);
 	}
 
 	EntityAI GetTraderEntity()

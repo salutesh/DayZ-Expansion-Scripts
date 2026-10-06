@@ -87,8 +87,15 @@ modded class TerritoryFlag
 		return m_Expansion_TerritoryFlags;
 	}
 
+#ifndef DAYZ_1_29
+	//! 1.30+
+	override void OnCEIterate(float currentTime, float elapsedTime)
+	{
+#else
+	//! 1.29
 	override void OnCEUpdate()
 	{
+#endif
 		//! This is a bit ugly, but I see no other way...
 
 		//! Remember time remaining...
@@ -99,7 +106,15 @@ modded class TerritoryFlag
 
 		m_Expansion_SkipSetRefresherActive = true;
 
+	#ifndef DAYZ_1_29
+		//! 1.30+
+		super.OnCEIterate(currentTime, elapsedTime);
+	#else
+		//! 1.29
 		super.OnCEUpdate();
+
+		float elapsedTime = m_ElapsedSinceLastUpdate;
+	#endif
 
 		//! Restore time remaining
 		m_RefresherTimeRemaining = refresherTimeRemaining;
@@ -107,7 +122,7 @@ modded class TerritoryFlag
 		m_Expansion_SkipSetRefresherActive = false;
 
 		//! Update refresher (duplicate of vanilla code except using TerritorySize instead of constant)
-		int time_elapsed_rounded = Math.Round(m_ElapsedSinceLastUpdate);
+		int time_elapsed_rounded = Math.Round(elapsedTime);
 		
 		if ( m_RefresherTimeRemaining > 0 )
 		{

@@ -500,4 +500,429 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\specific\statues\proxy\t34.p3d";
 	};
+	class bldr_airfield_small_control: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\airfields\airfield_small_control.p3d";
+	};
+	class bldr_airfield_small_hangar: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\airfields\airfield_small_hangar.p3d";
+	};
+	class bldr_cableway_cart2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\cableway\cableway_cart2.p3d";
+	};
+	class bldr_cableway_cart3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\cableway\cableway_cart3.p3d";
+	};
+	class bldr_camp_house_brown: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\camps\camp_house_brown.p3d";
+	};
+	class bldr_camp_house_red: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\camps\camp_house_red.p3d";
+	};
+	class bldr_camp_house_white: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\camps\camp_house_white.p3d";
+	};
+	class bldr_castle_bastion: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_bastion.p3d";
+	};
+	class bldr_castle_bastion_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_bastion_nolc.p3d";
+	};
+	class bldr_castle_bergfrit: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_bergfrit.p3d";
+	};
+	class bldr_castle_bergfrit2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_bergfrit2.p3d";
+	};
+	class bldr_castle_donjon: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_donjon.p3d";
+	};
+	class bldr_castle_gate: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_gate.p3d";
+	};
+	class bldr_castle_stairs: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_stairs.p3d";
+	};
+	class bldr_castle_stairs_bottom_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_stairs_bottom_nolc.p3d";
+	};
+	class bldr_castle_stairs_middle_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_stairs_middle_nolc.p3d";
+	};
+	class bldr_castle_stairs_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_stairs_nolc.p3d";
+	};
+	class bldr_castle_stairs_top_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_stairs_top_nolc.p3d";
+	};
+	class bldr_castle_wall1_20: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall1_20.p3d";
+	};
+	class bldr_castle_wall1_20_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall1_20_nolc.p3d";
+	};
+	class bldr_castle_wall1_20_turn: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall1_20_turn.p3d";
+	};
+	class bldr_castle_wall1_20_turn_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall1_20_turn_nolc.p3d";
+	};
+	class bldr_castle_wall1_corner1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall1_corner1.p3d";
+	};
+	class bldr_castle_wall1_corner1_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall1_corner1_nolc.p3d";
+	};
+	class bldr_castle_wall1_corner2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall1_corner2.p3d";
+	};
+	class bldr_castle_wall1_corner2_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall1_corner2_nolc.p3d";
+	};
+	class bldr_castle_wall1_end1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall1_end1.p3d";
+	};
+	class bldr_castle_wall1_end1_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall1_end1_nolc.p3d";
+	};
+	class bldr_castle_wall1_end2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall1_end2.p3d";
+	};
+	class bldr_castle_wall1_end2_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall1_end2_nolc.p3d";
+	};
+	class bldr_castle_wall2_30: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall2_30.p3d";
+	};
+	class bldr_castle_wall2_30_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall2_30_nolc.p3d";
+	};
+	class bldr_castle_wall2_corner1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall2_corner1.p3d";
+	};
+	class bldr_castle_wall2_corner1_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall2_corner1_nolc.p3d";
+	};
+	class bldr_castle_wall2_corner2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall2_corner2.p3d";
+	};
+	class bldr_castle_wall2_corner2_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall2_corner2_nolc.p3d";
+	};
+	class bldr_castle_wall2_end1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall2_end1.p3d";
+	};
+	class bldr_castle_wall2_end1_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall2_end1_nolc.p3d";
+	};
+	class bldr_castle_wall2_end2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall2_end2.p3d";
+	};
+	class bldr_castle_wall2_end2_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_wall2_end2_nolc.p3d";
+	};
+	class bldr_castle_walls_10: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_walls_10.p3d";
+	};
+	class bldr_castle_walls_10_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_walls_10_nolc.p3d";
+	};
+	class bldr_castle_walls_5_d: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_walls_5_d.p3d";
+	};
+	class bldr_castle_walls_5_d_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_walls_5_d_nolc.p3d";
+	};
+	class bldr_castle_walls_end: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_walls_end.p3d";
+	};
+	class bldr_castle_walls_end_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\castles\castle_walls_end_nolc.p3d";
+	};
+	class bldr_cemetery_smallcross2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\cemeteries\cemetery_smallcross2.p3d";
+	};
+	class bldr_cemetery_smallcross3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\cemeteries\cemetery_smallcross3.p3d";
+	};
+	class bldr_cemetery_tombstone12: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\cemeteries\cemetery_tombstone12.p3d";
+	};
+	class bldr_cemetery_tombstone13: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\cemeteries\cemetery_tombstone13.p3d";
+	};
+	class bldr_cemetery_tombstone14: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\cemeteries\cemetery_tombstone14.p3d";
+	};
+	class bldr_chapel: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\churches\chapel.p3d";
+	};
+	class bldr_church1_yellow: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\churches\church1_yellow.p3d";
+	};
+	class bldr_church2_1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\churches\church2_1.p3d";
+	};
+	class bldr_church2_2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\churches\church2_2.p3d";
+	};
+	class bldr_church3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\churches\church3.p3d";
+	};
+	class bldr_fuelstation_build: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\fuelstation\fuelstation_build.p3d";
+	};
+	class bldr_fuelstation_feed: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\fuelstation\fuelstation_feed.p3d";
+	};
+	class bldr_fuelstation_feed_nofuel: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\fuelstation\fuelstation_feed_nofuel.p3d";
+	};
+	class bldr_hotel: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\hotel\hotel.p3d";
+	};
+	class bldr_hotel_damaged: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\hotel\hotel_damaged.p3d";
+	};
+	class bldr_lunapark_carousel_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\lunapark\lunapark_carousel_small.p3d";
+	};
+	class bldr_lunapark_carousel_swan: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\lunapark\lunapark_carousel_swan.p3d";
+	};
+	class bldr_lunapark_ferris_wheel: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\lunapark\lunapark_ferris_wheel.p3d";
+	};
+	class bldr_lunapark_shooting_gallery: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\lunapark\lunapark_shooting_gallery.p3d";
+	};
+	class bldr_prison_main: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\prison\prison_main.p3d";
+	};
+	class bldr_prison_side: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\prison\prison_side.p3d";
+	};
+	class bldr_prison_wall_large: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\prison\prison_wall_large.p3d";
+	};
+	class bldr_radio_building: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\radio\radio_building.p3d";
+	};
+	class bldr_radio_panelbig: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\radio\radio_panelbig.p3d";
+	};
+	class bldr_radio_panelpas: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\radio\radio_panelpas.p3d";
+	};
+	class bldr_skilift_tower_middle_slope: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\skilift\skilift_tower_middle_slope.p3d";
+	};
+	class bldr_model_plane_mig21: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\statues\model_plane_mig21.p3d";
+	};
+	class bldr_model_plane_mig21_35scale: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\statues\model_plane_mig21_35scale.p3d";
+	};
+	class bldr_modelmonument_mig21: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\statues\modelmonument_mig21.p3d";
+	};
+	class bldr_monument_mig21: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\statues\monument_mig21.p3d";
+	};
+	class bldr_tower_tc1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\towers\tower_tc1.p3d";
+	};
+	class bldr_tower_tc2_base: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\towers\tower_tc2_base.p3d";
+	};
+	class bldr_tower_tc2_mid: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\towers\tower_tc2_mid.p3d";
+	};
+	class bldr_tower_tc2_top: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\towers\tower_tc2_top.p3d";
+	};
+	class bldr_tower_tc3_grey: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\towers\tower_tc3_grey.p3d";
+	};
+	class bldr_tower_tc3_red: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\towers\tower_tc3_red.p3d";
+	};
+	class bldr_tower_tc4_base: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\towers\tower_tc4_base.p3d";
+	};
+	class bldr_tower_tc4_mid: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\towers\tower_tc4_mid.p3d";
+	};
+	class bldr_tower_tc4_top: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\specific\towers\tower_tc4_top.p3d";
+	};
 };

@@ -1,11 +1,8 @@
 class ExpansionPathPoint
 {
 	vector Position;
-	Object Parent;
 
 	int Flags;
-
-	ExpansionNavMesh NavMesh;
 
 	ExpansionPathPoint Next;
 
@@ -22,42 +19,7 @@ class ExpansionPathPoint
 
 	vector GetPosition()
 	{
-	#ifdef EXPANSION_AI_ATTACHMENT_PATH_FINDING
-		if (Parent)
-		{
-			vector transform[4];
-			Parent.GetTransform(transform);
-
-			return Position.Multiply4(transform);
-		}
-	#endif
-
 		return Position;
-	}
-
-	void OnParentUpdate()
-	{
-		if (Parent)
-		{
-			NavMesh = ExpansionNavMeshes.Get(Parent);
-
-			if (!NavMesh)
-			{
-				Parent = null;
-			}
-		}
-
-		if (Parent)
-		{
-			vector transform[4];
-			Parent.GetTransform(transform);
-
-			Position = Position.InvMultiply4(transform);
-		}
-		else
-		{
-			NavMesh = null;
-		}
 	}
 
 #ifdef EAI_DEBUG_PATH
@@ -113,8 +75,6 @@ class ExpansionPathPoint
 	void Copy(ExpansionPathPoint other)
 	{
 		Position = other.Position;
-		Parent = other.Parent;
-		NavMesh = other.NavMesh;
 	}
 
 	bool FindPath(ExpansionPathHandler pathFinding, inout array<vector> path, out int pathGlueIdx = -1)
@@ -138,24 +98,7 @@ class ExpansionPathPoint
 		
 		PGFilter filter = pathFinding.GetFilter();
 		
-	#ifdef EXPANSION_AI_ATTACHMENT_PATH_FINDING
-		if (Parent)
 		{
-			vector transform[4];
-			Parent.GetTransform(transform);
-			
-			startPos = startPos.InvMultiply4(transform);
-
-			found = NavMesh.FindPath(startPos, Position, filter, path);
-			
-			for (i = 0; i < path.Count(); i++)
-			{
-				path[i] = path[i].Multiply4(transform);
-			}
-		}
-		else
-		{
-	#endif
 			bool isSwimming = pathFinding.m_Unit.IsSwimming();
 
 			if (isSwimming && g_Game.GetWaterDepth(Position) > 0.0)
@@ -347,9 +290,7 @@ class ExpansionPathPoint
 				path = OptimizePathForSwimming(path, pathFinding);
 			}
 
-	#ifdef EXPANSION_AI_ATTACHMENT_PATH_FINDING
 		}
-	#endif
 
 	#ifdef DIAG_DEVELOPER
 		pathFinding.m_Unit.Expansion_DebugObject(11110, startPos - "0 3.0 0", "ExpansionDebugNoticeMe_Blue", pathFinding.m_Unit.GetDirection());

@@ -123,7 +123,7 @@ class ExpansionAISpawnBase
 		return bitmask;
 	}
 
-	static vector GetPlacementPosition(vector pos)
+	static vector GetPlacementPosition(vector pos, bool forceOnSurface = false)
 	{
 		vector hitPosition;
 		PhxInteractionLayers layerMask;
@@ -140,8 +140,9 @@ class ExpansionAISpawnBase
 		else
 		{
 			//! Make sure position is not under terrain
+			//! TODO: SurfaceY changed with 1.30, in underground areas will now return TOPMOST surface
 			float surfaceY = ExpansionStatic.GetSurfaceRoadY3D(pos[0], pos[1], pos[2], RoadSurfaceDetection.CLOSEST, UseObjectsMode.Wait);
-			if (pos[1] < surfaceY)
+			if (forceOnSurface || pos[1] == 0 || Math.AbsFloat(pos[1] - surfaceY) < 1.8)
 				pos[1] = surfaceY;
 		}
 

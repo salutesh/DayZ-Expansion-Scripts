@@ -25,10 +25,16 @@ modded class ActionSwitchLights
 					EntityAI neededItem = null;
 					EntityAI vehicleEntity = vehicle.GetEntity();
 
+				#ifdef DAYZ_1_29
 					if ( vehicle.IsVitalCarBattery() ) neededItem = vehicleEntity.FindAttachmentBySlotName("CarBattery");
 					if ( vehicle.IsVitalTruckBattery() ) neededItem = vehicleEntity.FindAttachmentBySlotName("TruckBattery");
 					if ( vehicle.IsVitalHelicopterBattery() ) neededItem = vehicleEntity.FindAttachmentBySlotName("ExpansionHelicopterBattery");
 					if ( vehicle.IsVitalAircraftBattery() ) neededItem = vehicleEntity.FindAttachmentBySlotName("ExpansionAircraftBattery");
+				#else
+					//! 1.30+
+					Transport transport = vehicle.GetTransport();
+					if (transport.NeedElectricitySourceDevice()) neededItem = transport.GetElectricitySourceDevice();
+				#endif
 
 					if ( !neededItem || neededItem.IsRuined() || (neededItem.GetCompEM() && neededItem.GetCompEM().GetEnergy() <= 0) )
 						return false;

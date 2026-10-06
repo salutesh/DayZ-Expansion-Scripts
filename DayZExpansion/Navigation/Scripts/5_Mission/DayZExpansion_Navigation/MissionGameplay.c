@@ -37,7 +37,7 @@ modded class MissionGameplay
 		if (isAliveConscious && !menu && !inputIsFocused)
 		{
 			//! Map Menu
-			if (input.LocalPress("UAExpansionMapToggle", false) && !viewMenu)
+			if (input.LocalPress("UAExpansionMapToggle", false) && !viewMenu && !g_Game.GetMouseCursorDesiredVisibility())
 			{
 				ToggleMapMenu(player);
 			}
@@ -357,6 +357,17 @@ modded class MissionGameplay
 				}
 			}
 		}
+	}
+
+	bool Expansion_IsMapVisible()
+	{
+		if (m_Expansion_MapMenu && m_Expansion_MapMenu.IsVisible())
+			return true;
+
+		if (m_Expansion_ExpansionMapMenu && m_Expansion_ExpansionMapMenu.IsVisible())
+			return true;
+
+		return false;
 	}
 
 	void DecreaseGPSMapScale()

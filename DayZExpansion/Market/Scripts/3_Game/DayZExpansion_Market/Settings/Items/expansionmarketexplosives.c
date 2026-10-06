@@ -18,7 +18,10 @@ class ExpansionMarketExplosives: ExpansionMarketCategory
 
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_EXPLOSIVES" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_GRENADES");
 		m_FileName = "Explosives_And_Grenades";
-		
+	}
+
+	override void DefaultItems()
+	{
 		// EXPLOSIVE GRENADES
 		AddItem("rgd5grenade", 	13250, 	22085,	1,100);
 		AddItem("m67grenade", 	13250, 	22085,	1,100);

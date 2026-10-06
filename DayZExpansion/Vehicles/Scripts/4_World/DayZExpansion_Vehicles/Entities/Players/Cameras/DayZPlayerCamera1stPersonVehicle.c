@@ -10,17 +10,50 @@
  *
 */
 
-#ifndef EXPANSION_OBSOLETE_CAMERA
 modded class DayZPlayerCamera1stPersonVehicle
 {
-	override void OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
+	void DayZPlayerCamera1stPersonVehicle(DayZPlayer pPlayer, HumanInputController pInput)
 	{
-		super.OnUpdate(pDt, pOutResult);
+		m_Expansion_CameraHandler = new ExpansionCameraHandler(this);
+		m_ExpansionVehicle = ExpansionVehicle.Get(m_Ex_Player);
+	}
 
-		if (m_Ex_Player.GetCommand_ExpansionVehicle())
+	override void OnActivate(DayZPlayerCamera pPrevCamera, DayZPlayerCameraResult pPrevCameraResult)
+	{
+		super.OnActivate(pPrevCamera, pPrevCameraResult);
+		
+		m_Expansion_CameraHandler.OnActivate(m_fLeftRightAngle, m_fLeftRightAngleAdd, m_fUpDownAngle, m_fUpDownAngleAdd, pPrevCamera, pPrevCameraResult);
+	}
+
+	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
+	{
+		bool isFreeLook = true;
+
+		ExpansionVehicleHelicopter simulation;
+		ExpansionPhysicsState pState;
+
+		ExpansionHelicopterScript helicopter = m_ExpansionVehicle.GetExpansionHelicopter();
+		if (helicopter)
 		{
-			ForceFreelook(true);
+			if (m_Ex_Player.Expansion_IsDriver())
+				isFreeLook = helicopter.IsFreeLook();
+
+			simulation = helicopter.m_Simulation;
+			pState = helicopter.m_State;
 		}
+
+		m_ExIsFreeLook = isFreeLook;
+
+		m_Expansion_CameraHandler.OnUpdate(pDt, m_fLeftRightAngle, m_fLeftRightAngleAdd, m_fUpDownAngle, m_fUpDownAngleAdd, simulation, pState);
+
+		super.OnUpdate( pDt, pOutResult );
+
+		pOutResult.m_fUseHeading			= 0.0;
+	}
+
+	override void Expansion_GetUDAngles(out float pAngle, out float pAngleAdd)
+	{
+		pAngle = m_fUpDownAngle;
+		pAngleAdd = m_fUpDownAngleAdd;
 	}
 };
-#endif

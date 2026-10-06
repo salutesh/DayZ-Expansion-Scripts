@@ -5,6 +5,7 @@ modded class ItemBase
 
 	bool m_Expansion_IsOwnerPlayer;
 	float m_eAI_LastRecordedImpactTime;
+	string m_eAI_Signature;  //! A signature by which an AI can recognize this specific item using roughly the same criteria a player would
 
 	void ItemBase()
 	{
@@ -66,6 +67,8 @@ modded class ItemBase
 		m_TargetInformation.OnHit(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		eAI_ClearItemSignature();
 	}
 
 	override void EEHealthLevelChanged(int oldLevel, int newLevel, string zone)
@@ -80,6 +83,8 @@ modded class ItemBase
 		eAIBase ai;
 		if (Class.CastTo(ai, GetHierarchyRootPlayer()) && GetInventory().IsAttachment() && m_Initialized)
 			ai.eAI_UpdateProtectionLevels();
+
+		eAI_ClearItemSignature();
 	}
 
 	override void EEItemAttached(EntityAI item, string slot_name)
@@ -110,6 +115,9 @@ modded class ItemBase
 	{
 		super.EEItemLocationChanged(oldLoc, newLoc);
 
+		if (!g_Game.IsServer())
+			return;
+
 		EntityAI oldParent = oldLoc.GetParent();
 		EntityAI newParent = newLoc.GetParent();
 
@@ -127,13 +135,18 @@ modded class ItemBase
 
 		if (newLoc.GetType() == InventoryLocationType.CARGO && oldOwner != newOwner)
 			eAI_OnCargoEnter(newOwner, newParent);
+
+		ItemBase parent;
+
+		if (Class.CastTo(parent, oldParent))
+			parent.eAI_ClearItemSignature();
+
+		if (Class.CastTo(parent, newParent))
+			parent.eAI_ClearItemSignature();
 	}
 
 	void eAI_OnCargoEnter(Man owner, EntityAI parent)
 	{
-		if (!g_Game.IsServer())
-			return;
-
 		eAIBase ai;
 		if (Class.CastTo(ai, owner))
 			ai.eAI_OnCargoEnter(parent, this);
@@ -141,9 +154,6 @@ modded class ItemBase
 
 	void eAI_OnCargoExit(Man owner, EntityAI parent)
 	{
-		if (!g_Game.IsServer())
-			return;
-
 		eAIBase ai;
 		if (Class.CastTo(ai, owner))
 			ai.eAI_OnCargoExit(parent, this);
@@ -271,6 +281,13 @@ modded class ItemBase
 			GetCompEM().SetEnergy0To1(1.0);
 		else
 			super.OnEnergyConsumed();
+	}
+
+	override void OnQuantityChanged(float delta)
+	{
+		super.OnQuantityChanged(delta);
+
+		eAI_ClearItemSignature();
 	}
 
 	override void OnSwitchOn()
@@ -459,5 +476,77 @@ modded class ItemBase
 		}
 
 		return cargoSize;
+	}
+
+	void eAI_ClearItemSignature()
+	{
+		if (!m_eAI_Signature)
+			return;
+
+		m_eAI_Signature = "";
+
+		EntityAI parent = GetHierarchyParent();
+		if (parent && !parent.IsMan() && GetInventory().IsAttachment())
+		{
+			ItemBase item;
+			if (Class.CastTo(item, parent))
+				item.eAI_ClearItemSignature();
+		}
+	}
+
+	/**
+	 * @brief signature by which an AI can recognize this specific item using roughly the same criteria a player would
+	 *
+	 * Signature stays the same as long as health/quantity stays the same and no direct attachments/cargo are added or removed
+	 */
+	string eAI_GetItemSignature(int hierLvl = 0)
+	{
+		if (m_eAI_Signature)
+			return m_eAI_Signature;
+
+		string signature = string.Format("%1@%2", GetType(), GetHealth("", ""));
+
+		Weapon weap;
+		Magazine mag;
+		if (Class.CastTo(weap, this))
+		{
+			int mi = weap.GetCurrentMuzzle();
+			if (weap.HasInternalMagazine(mi))
+				signature += "#" + weap.GetInternalMagazineCartridgeCount(mi);
+			else if (weap.IsChamberFull(mi))
+				signature += "#1";
+		}
+		else if (Class.CastTo(mag, this))
+			signature += "#" + mag.GetAmmoCount();
+		else if (HasQuantity())
+			signature += "#" + GetQuantity();
+
+		GameInventory inv = GetInventory();
+
+		CargoBase cargo = inv.GetCargo();
+		if (cargo)
+		{
+			int cargoCount = cargo.GetItemCount();
+			signature += ":" + cargoCount;  //! Only use cargo count in signature, too expensive to traverse full cargo
+		}
+
+		int attCount = inv.AttachmentCount();
+		if (hierLvl == 0)
+		{
+			for (int i = 0; i < attCount; ++i)
+			{
+				ItemBase att;
+				if (Class.CastTo(att, inv.GetAttachmentFromIndex(i)))
+					signature += "," + att.eAI_GetItemSignature(1);
+			}
+		}
+		else if (attCount > 0)
+		{
+			signature += "+" + attCount;
+		}
+
+		m_eAI_Signature = signature;
+
+		return signature;
 	}
 };

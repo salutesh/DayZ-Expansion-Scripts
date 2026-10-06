@@ -18,6 +18,12 @@ modded class CombinationLock
 			return;
 
 		SetHealth( 0 );
+
+	#ifdef DAYZ_1_29
 		UnlockServer( EntityAI.Cast( killer ), GetHierarchyParent() );
+	#else
+		//! 1.30+
+		UnlockOnServer(EntityAI.Cast( killer ), GetHierarchyParent());
+	#endif
 	}
 }

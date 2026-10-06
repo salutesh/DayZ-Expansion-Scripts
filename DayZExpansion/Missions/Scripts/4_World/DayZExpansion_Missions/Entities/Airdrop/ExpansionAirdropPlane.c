@@ -66,8 +66,7 @@ class ExpansionAirdropPlaneBase: House
 	protected EffectSound m_Expansion_EngineSound;
 	protected bool m_Expansion_PlayEngineSound;
 
-	protected int m_Expansion_TargetAltitudeBufferCount;
-	protected float m_Expansion_TargetAltitudeBuffer[40];
+	protected ref ExpansionRollingAverage m_Expansion_TargetAltitude_Avg = new ExpansionRollingAverage(40);
 	protected float m_Expansion_PrevTargetAltitude;
 	protected float m_Expansion_WorldSize;
 
@@ -447,30 +446,13 @@ class ExpansionAirdropPlaneBase: House
 
 				targetAltitude = Math.Lerp( altitude, terrainY + m_Expansion_CurrentHeight, m_Expansion_FollowTerrainFraction );
 
-				//! Altitude buffer for smoothing
+				//! Altitude avg for smoothing
 
-				float targetAltitudeSum;
+				m_Expansion_TargetAltitude_Avg.Add(targetAltitude);
 
-				for ( int i = 0; i < 40; i++ )
-				{
-					float bufferVal;
+				targetAltitude = m_Expansion_TargetAltitude_Avg.Get();
 
-					if ( i < 39 )
-						bufferVal = m_Expansion_TargetAltitudeBuffer[i + 1];
-					else
-						bufferVal = targetAltitude;
-
-					m_Expansion_TargetAltitudeBuffer[i] = bufferVal;
-
-					targetAltitudeSum += bufferVal;
-				}
-
-				if ( m_Expansion_TargetAltitudeBufferCount < 40 )
-					m_Expansion_TargetAltitudeBufferCount++;
-
-				targetAltitude = targetAltitudeSum / m_Expansion_TargetAltitudeBufferCount;
-
-				if ( m_Expansion_TargetAltitudeBufferCount > 1 )
+				if ( m_Expansion_TargetAltitude_Avg.Count() > 1 )
 				{
 					//! The current pitch angle of the plane determines how much its altitude can change up/down
 					//! Smooths out motion and reduces wobbling on uneven terrain

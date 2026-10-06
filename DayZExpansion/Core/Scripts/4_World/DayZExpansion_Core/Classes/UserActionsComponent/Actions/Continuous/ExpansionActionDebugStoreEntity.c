@@ -52,12 +52,10 @@ class ExpansionActionDebugStoreEntity: ActionContinuousBase
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-#ifdef USER_jacob
-		// fuck off
-		return false;
-#endif
-		
 		if (item)
+			return false;
+
+		if (!g_Game.IsMultiplayer())
 			return false;
 
 		auto entity = EntityAI.Cast(target.GetParentOrObject());

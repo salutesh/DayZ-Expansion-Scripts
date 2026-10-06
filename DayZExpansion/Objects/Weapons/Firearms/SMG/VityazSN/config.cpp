@@ -23,15 +23,15 @@ class cfgWeapons
 	{
 		scope=0;
 		weight=2900;
-		absorbency=0.1;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
+		absorbency=0;
+		repairableWithKits[]={1};
+		repairCosts[]={25};
 		discreteDistance[]={25};
 		discreteDistanceInitIndex=0;
 		modelOptics="-";
 		distanceZoomMin=100;
 		distanceZoomMax=100;
-		PPDOFProperties[]={};
+		PPDOFProperties[]={1,0.5,10,130,4,10};
 		optics=1;
 		opticsFlare=0;
 		ironsightsExcludingOptics[]=
@@ -44,8 +44,8 @@ class cfgWeapons
 			"ReflexOptic",
 			"AcogOptic"
 		};
-		WeaponLength=0.44999999;
-		swayModifier[]={1.25,1.25,1};
+		WeaponLength=0.63999999;
+		swayModifier[]={1,1,0.80000001};
 		value=0;
 		chamberSize=1;
 		chamberedRound="";
@@ -57,8 +57,9 @@ class cfgWeapons
 		{
 			"Mag_Expansion_Vityaz_30Rnd"
 		};
-		magazineSwitchTime=0.2;
-		barrelArmor=3000;
+		magazineSwitchTime=0.30000001;
+		initSpeedMultiplier=1.25;
+		barrelArmor=1.35;
 		ejectType=1;
 		recoilModifier[]={1,1,1};
 		drySound[]=
@@ -117,7 +118,7 @@ class cfgWeapons
 					"MP5K_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
-			reloadTime=0.079999998;
+			reloadTime=0.12;
 			recoil="recoil_mp5";
 			recoilProne="recoil_mp5_prone";
 			dispersion=0.003;

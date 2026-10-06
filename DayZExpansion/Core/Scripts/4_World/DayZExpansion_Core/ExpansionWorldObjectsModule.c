@@ -381,6 +381,18 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static Object SpawnObject(string className, vector position, vector rotation, bool special = false, bool takeable = true)
 	{
+	#ifdef DAYZ_1_29
+	#ifdef DZ_Expansion_AI
+		//! 1.30 anim graph is not compatible with 1.29
+		typename typeName = className.ToType();
+		if (typeName.IsInherited(eAIBase))
+		{
+			EXError.InfoOnce(null, "DayZ 1.29 is not compatible with the 1.30 AI animgraph");
+			return null;
+		}
+	#endif
+	#endif
+
 		int flags = ECE_CREATEPHYSICS | ECE_NOLIFETIME | ECE_KEEPHEIGHT | ECE_DYNAMIC_PERSISTENCY;
 
 		Object obj = g_Game.CreateObjectEx( className, position, flags );
@@ -663,12 +675,13 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		TStringArray tokens = {};
 		gear.Split(",", tokens);
 
+		DayZPlayerImplement ai;
+		BuildingBase building;
+		ZombieBase zombie;
+		AnimalBase animal;
+
 		foreach (string token: tokens)
 		{
-			DayZPlayerImplement ai;
-			BuildingBase building;
-			ZombieBase zombie;
-
 #ifdef EXPANSIONMODAI
 			if (token.IndexOf("faction:") == 0)
 			{
@@ -708,17 +721,33 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			if (token.IndexOf("name:") == 0)
 			{
 				string name = token.Substring(5, token.Length() - 5);
-				if (Class.CastTo(ai, entity) && ai.m_Expansion_NetsyncData)
+				if (Class.CastTo(ai, entity))
 				{
+					if (!ai.m_Expansion_NetsyncData)
+						ai.m_Expansion_NetsyncData = new ExpansionNetsyncData(ai);
+
 					ai.m_Expansion_NetsyncData.Set(0, name);
 				}
-				else if (Class.CastTo(building, entity) && building.m_Expansion_NetsyncData)
+				else if (Class.CastTo(building, entity))
 				{
+					if (!building.m_Expansion_NetsyncData)
+						building.m_Expansion_NetsyncData = new ExpansionNetsyncData(building);
+
 					building.m_Expansion_NetsyncData.Set(0, name);
 				}
-				else if (Class.CastTo(zombie, entity) && zombie.m_Expansion_NetsyncData)
+				else if (Class.CastTo(zombie, entity))
 				{
+					if (!zombie.m_Expansion_NetsyncData)
+						zombie.m_Expansion_NetsyncData = new ExpansionNetsyncData(zombie);
+
 					zombie.m_Expansion_NetsyncData.Set(0, name);
+				}
+				else if (Class.CastTo(animal, entity))
+				{
+					if (!animal.m_Expansion_NetsyncData)
+						animal.m_Expansion_NetsyncData = new ExpansionNetsyncData(animal);
+
+					animal.m_Expansion_NetsyncData.Set(0, name);
 				}
 				continue;
 			}
@@ -846,9 +875,28 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			fileName = parts[1];
 			position = positions[0];
 
+		#ifdef DAYZ_1_29
+		#ifdef DZ_Expansion_AI
+			//! 1.30 anim graph is not compatible with 1.29
+			typename typeName = className.ToType();
+			if (typeName.IsInherited(eAIBase))
+			{
+				EXError.InfoOnce(null, "DayZ 1.29 is not compatible with the 1.30 AI animgraph");
+				continue;
+			}
+		#endif
+		#endif
+
 			CF_Log.Debug( "Attempt to create mission trader " + className + " at " + position + " from file:" + filePath + ".");
 
-			obj = ExpansionGame.CreateObjectSafe( className, position, false, g_Game.IsKindOf(className, "DZ_LightAI"), true );
+			int flags = ECE_CREATEPHYSICS;
+
+			if (g_Game.IsKindOf(className, "DZ_LightAI"))
+				flags |= ECE_INITAI;
+			else
+				flags |= ECE_NOLIFETIME | ECE_DYNAMIC_PERSISTENCY;
+
+			obj = ExpansionGame.CreateObjectExSafe(className, position, flags);
 			if (!obj)
 				continue;
 
@@ -901,7 +949,15 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 				}
 				#endif
 				else
-					EXError.Warn(null, string.Format("Entity %1 from file %2 is not a valid trader classname", className, filePath), {});
+				{
+					ExpansionMarketModule.s_Instance.AddCustomTrader(trader, fileName);  //! Support any networked entity as trader
+
+					trader.SetAllowDamage(false);
+
+					ItemBase item = ItemBase.Cast(trader);
+					if (item)
+						item.Expansion_SetLootable(false);
+				}
 
 				CF_Log.Debug( "  Created" );
 			}

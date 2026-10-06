@@ -18,7 +18,10 @@ class ExpansionMarketMagazines: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MAGAZINES";
 		m_FileName = "Magazines";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("mag_ij70_8rnd", 	425, 	705,	1,100);
 
 		AddItem("mag_cz75_15rnd", 	665, 	1105,	1,100);
@@ -120,5 +123,7 @@ class ExpansionMarketMagazines: ExpansionMarketCategory
 
 		AddItem("Mag_Expansion_AWM_5Rnd", 		500,	1000,	1,		100);
 	#endif
-	}
+			AddItem("Mag_PM73_15Rnd", 120, 240, 1, 100);
+		AddItem("Mag_PM73_25Rnd", 120, 240, 1, 100);
+}
 };

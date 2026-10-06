@@ -21,7 +21,10 @@ class ExpansionMarketAmmoBoxes: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_AMMOBOXES";
 		m_FileName = "Ammo_Boxes";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("ammobox_00buck_10rnd", 	5980, 	9965,	1,250);
 		AddItem("ammobox_12gaslug_10rnd", 	5980, 	9965,	1,250);
 		AddItem("ammobox_12garubberslug_10rnd", 	1165, 	1940,	1,250);

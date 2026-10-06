@@ -1,0 +1,38 @@
+ImageSetClass {
+ Name "expansion_sf_team"
+ RefSize 232 74
+ Textures {
+  ImageSetTextureClass {
+   mpix 1
+   path "{7AA64D789AE8B1B6}DayZExpansion/Vehicles/GUI/imagesets/sf_team.edds"
+  }
+ }
+ Images {
+  ImageSetDefClass fox {
+   Name "fox"
+   Pos 0 0
+   Size 58 74
+   Flags 0
+  }
+  ImageSetDefClass falco {
+   Name "falco"
+   Pos 58 0
+   Size 58 74
+   Flags 0
+  }
+  ImageSetDefClass slippy {
+   Name "slippy"
+   Pos 116 0
+   Size 58 74
+   Flags 0
+  }
+  ImageSetDefClass peppy {
+   Name "peppy"
+   Pos 174 0
+   Size 58 74
+   Flags 0
+  }
+ }
+ Groups {
+ }
+}

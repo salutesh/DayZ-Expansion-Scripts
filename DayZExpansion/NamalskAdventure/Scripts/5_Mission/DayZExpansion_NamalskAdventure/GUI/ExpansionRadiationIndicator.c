@@ -17,7 +17,11 @@ class ExpansionRadiationIndicator: ExpansionScriptView
 	
 	void ExpansionRadiationIndicator(IngameHud hud)
 	{
-		hud.GetHudPanelWidget().FindAnyWidget("BadgesPanel").AddChild(GetLayoutRoot());
+		Widget root = GetLayoutRoot();
+		if (root)
+		{
+			hud.GetHudPanelWidget().FindAnyWidget("BadgesPanel").AddChild(root);
+		}
 		RadiationWidget.Show(false);
 	}
 	

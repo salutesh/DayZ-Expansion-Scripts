@@ -199,58 +199,6 @@ class ExpansionPathHandler
 		m_AllowClosedDoors = allow;
 	}
 
-/*
-	bool Raycast(PGPolyFlags filter, float distance, out vector hitPos)
-	{
-		m_CheckFilter.SetFlags(filter, ~filter, PGPolyFlags.NONE);
-		m_CheckFilter.SetCost(PGAreaType.BUILDING, 1.0);
-
-		vector p = m_Unit.GetPosition();
-		vector d = m_Unit.GetDirection();
-
-		vector p0 = p - (d * distance * 0.5);
-		vector p1 = p + (d * distance);
-		vector hitNor;
-
-		if (m_Current.NavMesh)
-		{
-			vector transform[4];
-			m_Current.Parent.GetTransform(transform);
-			return m_Current.NavMesh.Raycast(p0.Multiply4(transform), p1.Multiply4(transform), m_CheckFilter, hitPos, hitNor);
-		}
-
-		return m_AIWorld.RaycastNavMesh(p0, p1, m_CheckFilter, hitPos, hitNor);
-	}
-
-	bool IsDoor()
-	{
-		if (m_Count <= 1 + m_PointIdx)
-			return false;
-
-		return true;
-
-		//vector hitPos;
-		//return this.Raycast(PGPolyFlags.DOOR, 1.5, hitPos);
-	}
-
-	bool IsVault()
-	{
-		if (m_Count <= 1 + m_PointIdx)
-			return false;
-
-		if (m_Current && m_Current.NavMesh)
-		{
-			vector hitPos;
-			return this.Raycast(PGPolyFlags.CLIMB, 0.5, hitPos);
-		}
-
-		return true;
-
-		//vector hitPos;
-		//return this.Raycast(PGPolyFlags.CLIMB, 0.5, hitPos);
-	}
-*/
-
 	/**
 	 * @brief Check if path is blocked in navmesh
 	 * 
@@ -371,23 +319,6 @@ class ExpansionPathHandler
 		auto trace = CF_Trace_0(this, "DrawDebug");
 #endif
 
-#ifdef DIAG_DEVELOPER
-#ifndef SERVER
-		ExpansionNavMesh navMesh = m_Current.NavMesh;
-		Object parent = m_Current.Parent;
-		if (!navMesh)
-		{
-			navMesh = m_TargetReference.NavMesh;
-			parent = m_TargetReference.Parent;
-		}
-
-		if (navMesh)
-		{
-			navMesh.DrawDebug(parent);
-		}
-#endif
-#endif
-
 #ifdef EAI_DEBUG_PATH
 		int i;
 
@@ -426,8 +357,6 @@ class ExpansionPathHandler
 			bool isFinal = i == (m_Count - 1);
 
 			int color = 0xFF00FF00;
-			if (m_Path[i].Parent)
-				color = 0xFF0000FF;
 
 			points[0] = GetDebugPosition(i);
 			points[1] = GetDebugPosition(i + 1);
@@ -608,7 +537,6 @@ class ExpansionPathHandler
 			string dbgMsg;
 		#endif
 
-			if (!m_TargetReference.Parent)
 			{
 				//vector oldPos = m_TargetReference.Position;
 				vector inPos = m_TargetPosition;
@@ -691,122 +619,12 @@ class ExpansionPathHandler
 			m_Points.Clear();
 			m_PathGlueIdx = -1;
 
-			int F_STATE = -1;
+			m_Target.Copy(m_TargetReference);
 
-			bool found;
-
-			#ifdef EXPANSION_AI_ATTACHMENT_PATH_FINDING
-				if (m_Current.Parent && !m_TargetReference.Parent) // moving to world
-				{
-					F_STATE = 1;
-
-					m_Target.Copy(m_Current);
-
-					m_Target.Position = m_TargetReference.Position;
-					m_Target.OnParentUpdate();
-
-					found = m_Target.FindPath(this, m_Points);
-
-					if (m_Points.Count() == 2)
-					{
-						vector pathDir = vector.Direction(m_Points[0], m_Points[1]).Normalized();
-						m_Points[1] = m_Points[1] + (pathDir * 2.0);
-					}
-				}
-				else if (!m_Current.Parent && m_TargetReference.Parent) // moving to attachment
-				{
-					F_STATE = 2;
-
-					// Find the path from the target position to the entry of the attachment
-
-					m_Target.Copy(m_TargetReference);
-
-					m_Target.Position = m_Unit.GetPosition();
-					m_Target.OnParentUpdate();
-
-					if (!m_Target.NavMesh)
-					{
-						Print("Navmesh removed??");
-					}
-
-					vector checkingIfAlreadyOnPathsPosition = m_Target.Position;
-
-					m_Target.NavMesh.SamplePosition(checkingIfAlreadyOnPathsPosition, checkingIfAlreadyOnPathsPosition);
-
-					float heightDiff = Math.AbsFloat(m_Target.Position[1] - checkingIfAlreadyOnPathsPosition[1]) * 2.0;
-
-					if (vector.Distance(checkingIfAlreadyOnPathsPosition, m_Target.Position) < heightDiff)  //! Already on path
-					{
-						m_Target.Copy(m_TargetReference);
-
-						found = m_Target.FindPath(this, m_Points);
-					}
-					else
-					{
-						array<vector> tempPath = {};
-						found = m_Target.FindPathFrom(m_TargetReference.GetPosition(), this, tempPath);
-						int count = tempPath.Count();
-
-						// Find the path to the entry
-
-						m_Target.Position = m_Current.Position;
-						m_Target.Parent = null;
-						m_Target.OnParentUpdate();
-
-						vector closestPositionOnAttachment = tempPath[count - 1];
-
-						found = m_Target.FindPathFrom(closestPositionOnAttachment, this, m_Points);
-
-#ifdef EAI_DEBUG_PATH
-#ifndef SERVER
-						m_Path.RemoveOrdered(count);
-
-						m_Path.Invert();
-#endif
-#endif
-						m_Points.Invert();
-
-						m_Points.Remove(m_Points.Count() - 1);
-
-						for (i = 0; i < count; i++)
-						{
-							int ii = count - (i + 1);
-							m_Points.Insert(tempPath[ii]);
-						}
-					}
-				}
-				else if (m_TargetReference.Parent) // moving in attachment
-				{
-					F_STATE = 3;
-
-					m_Target.Copy(m_TargetReference);
-
-					found = m_Target.FindPath(this, m_Points);
-				}
-				else if (!m_TargetReference.Parent) // moving in world
-				{
-					F_STATE = 4;
-
-					m_Target.Copy(m_TargetReference);
-
-					found = m_Target.FindPath(this, m_Points, m_PathGlueIdx);
-				}
-				else
-				{
-					F_STATE = 5;
-				}
-			#else
-				F_STATE = 6;
-
-				m_Target.Copy(m_TargetReference);
-
-				found = m_Target.FindPath(this, m_Points, m_PathGlueIdx);
-			#endif
+			bool found = m_Target.FindPath(this, m_Points, m_PathGlueIdx);
 
 			m_Count = m_Points.Count();
 			m_PointIdx = 0;
-
-			//Print(F_STATE);
 
 			UpdateNext();
 
@@ -1064,11 +882,8 @@ class ExpansionPathHandler
 			{
 				if (IsVaultClimb(start, end))
 				{
-					if (!m_Next0.Parent)
-					{
-						m_IsJumpClimb = true;
-						//m_DoClimbTestEx = true;
-					}
+					m_IsJumpClimb = true;
+					//m_DoClimbTestEx = true;
 
 					m_SuppressRecalculate = true;
 				}
@@ -1082,11 +897,8 @@ class ExpansionPathHandler
 			if (IsBlockedPhysically(start + offset, end + offset, m_HitPosition, hitNormal, component, m_BlockingObject) || IsElevated(start))
 			{
 				m_IsBlockedPhysically = true;
-				if (!m_Next0.Parent)
-				{
-					m_IsJumpClimb = true;
-					//m_DoClimbTestEx = true;
-				}
+				m_IsJumpClimb = true;
+				//m_DoClimbTestEx = true;
 			}
 		}
 
@@ -1185,19 +997,11 @@ class ExpansionPathHandler
 		}
 
 		point.Position = position;
-	#ifdef EXPANSION_AI_ATTACHMENT_PATH_FINDING
-		point.Parent = ExpansionAttachmentHelper.IsAttachment(m_Unit, position, 0.5);
-		point.OnParentUpdate();
-	#endif
 	}
 
 	void UpdateCurrent()
 	{
 		m_Current.Position = m_Unit.GetPosition();
-	#ifdef EXPANSION_AI_ATTACHMENT_PATH_FINDING
-		m_Current.Parent = Object.Cast(m_Unit.Expansion_GetParent());
-		m_Current.OnParentUpdate();
-	#endif
 	}
 
 	void SetTarget(vector pPosition, float maxDistance = 1.0, bool allowJumpClimb = true)

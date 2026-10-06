@@ -263,7 +263,8 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 	{
 		float dmg;
 
-		m_Health = m_Vehicle.GetHealth01(m_DamageZone, "");
+		int healthLevel = m_Vehicle.GetHealthLevel(m_DamageZone);
+		m_Health = m_Vehicle.GetHealthLevelValue(healthLevel, m_DamageZone);
 		pOutHealth += m_Health;
 
 		if (pFuel <= 0.0 || m_Health <= 0.0)
@@ -276,43 +277,31 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 		//! @note helicopters are special - they have a CarScript engine, but it will never be on, and its RPM as well as throttle will always be zero.
 		//! Yet, it will be used to process engine health and fuel consumption.
 
-		if (!vehicle.IsHelicopter() && !vehicle.EngineIsOn(m_EngineIndex))
+		if (vehicle.IsHelicopter())
+		{
+			if (!vehicle.EngineIsOn(m_EngineIndex + 1))
+				return;
+		}
+		else if (!vehicle.EngineIsOn(m_EngineIndex))
+		{
 			return;
+		}
 
-		CarScript car = vehicle.GetCar();
-
-		if (vehicle.CanBeDamaged())
+		if (g_Game.IsServer() && vehicle.CanBeDamaged())
 		{
 			if (m_RPM >= m_RPMRedline)
 			{
 				if (m_RPM > m_RPMMax && GetExpansionSettings().GetVehicle().RevvingOverMaxRPMRuinsEngineInstantly)
 					dmg += m_Vehicle.GetMaxHealth(m_DamageZone, "") * 0.05;
 
-			#ifdef DAYZ_1_27
+				// only called on server, don't use deterministic RandomFloat
 				dmg += m_RPM * 0.001 * Math.RandomFloat(0.02, 1.0) * pDt;
-			#else
-				//! 1.28+
-				dmg += m_RPM * 0.001 * m_Transport.RandomFloat(0.02, 1.0) * pDt;
-			#endif
-
-				//! 1.19+
-				if (car)
-					car.SetEngineZoneReceivedHit(true);
-			}
-			//! 1.19+
-			else if (car)
-			{
-				car.SetEngineZoneReceivedHit(false);
 			}
 
 			if (pCoolant >= 0 && pCoolant < 0.5)
 			{
-			#ifdef DAYZ_1_27
+				// only called on server, don't use deterministic RandomFloat
 				dmg += (1.0 - pCoolant) * Math.RandomFloat(0.02, 10.00) * pDt;
-			#else
-				//! 1.28+
-				dmg += (1.0 - pCoolant) * m_Transport.RandomFloat(0.02, 10.00) * pDt;
-			#endif
 			}
 
 			if (pOil < 1.0)
@@ -320,9 +309,18 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 				dmg += Math.Lerp(0.02, 10, 1.0 - pOil);
 			}
 
+			CarScript car = vehicle.GetCar();
+
 			if (dmg != 0.0)
 			{
 				m_Vehicle.AddHealth(m_DamageZone, "Health", -dmg);
+
+				if (car)
+					car.SetEngineZoneReceivedHit(true);
+			}
+			else if (car)
+			{
+				car.SetEngineZoneReceivedHit(false);
 			}
 		}
 

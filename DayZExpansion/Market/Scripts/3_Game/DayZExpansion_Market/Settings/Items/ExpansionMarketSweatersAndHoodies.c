@@ -18,10 +18,13 @@ class ExpansionMarketSweatersAndHoodies: ExpansionMarketCategory
 		
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_SWEATERS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_HOODIES");
 		m_FileName = "Sweaters_And_Hoodies";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("sweater_gray", 	635, 	1060,	1,100);
 		AddItem("sweater_blue", 	1125, 	1875,	1,100);
-		AddItem("sweater_red", 	635, 	1060,	1,100);
+		AddItem("sweater_red", 	635, 	1060,	1,100, null, {"Sweater_ChristmasBlue", "Sweater_ChristmasGreen", "Sweater_ChristmasRed"});
 		AddItem("sweater_green", 	4190, 	6980,	1,100);
 
 		AddItem("hoodie_blue", 	620, 	1035,	1,100);
@@ -30,5 +33,6 @@ class ExpansionMarketSweatersAndHoodies: ExpansionMarketCategory
 		AddItem("hoodie_grey", 	620, 	1035,	1,100);
 		AddItem("hoodie_red", 	620, 	1035,	1,100);
 		AddItem("hoodie_green", 	610, 	1015,	1,100);
-	}
+			AddItem("MilitarySweater_Chernarus", 200, 400, 1, 100, null, {"MilitarySweater_Livonia", "MilitarySweater_NoPatch"});
+}
 };

@@ -1,0 +1,545 @@
+/**
+ * ExpansionUh1h.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2022 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+ */
+
+class ExpansionUh1hDoor_1_1: CarDoor
+{
+};
+
+class ExpansionUh1hDoor_1_2: CarDoor
+{
+};
+
+class ExpansionUh1hDoor_2_1: CarDoor
+{
+};
+
+class ExpansionUh1hDoor_2_2: CarDoor
+{
+};
+
+class ExpansionUh1hWreck : ExpansionHelicopterWreck
+{
+};
+
+/**
+ * @class		ExpansionUh1h
+ * @brief
+ */
+class ExpansionUh1h : ExpansionHelicopterScript
+{
+	void ExpansionUh1h()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "ExpansionGyrocopter");
+#endif
+
+		m_dmgContactCoef = 0.06;
+		m_ExplosionSize = 20;
+		m_Expansion_EngineRPMMax = 5000;
+	}
+
+	override void EEInit()
+	{
+		#ifndef SERVER
+		//! start delay (seconds), stop delay (seconds after sound has started playing), soundset name*, fade in time (s), fade out time (s), loop (true/false)
+		//! * @note if soundset name does not contain the string "_SoundSet", then "_Ext_SoundSet" or "_Int_SoundSet" will be appended automatically depending on camera
+		m_Expansion_EngineStartSounds.Insert(0.0, 9.576, "Expansion_Uh1h_Starter_Start", 0.0, 1.0);
+		m_Expansion_EngineStartSounds.Insert(5.0, 0.0, "Expansion_Uh1h_Engine_Idle_Start", 1.0, 0.0);
+		//m_Expansion_EngineStartSounds.Insert(9.576, 0.0, "Expansion_Uh1h_Starter_Stop", 1.0, 0.0);
+		#endif
+
+		super.EEInit();
+	}
+
+	override CarLightBase CreateFrontLight()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateFrontLight");
+#endif
+
+		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionHelicopterFrontLight));
+	}
+
+	override int GetAnimInstance()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
+#endif
+
+		return ExpansionVehicleAnimInstances.EXPANSION_UH1H;
+	}
+
+	override int GetSeatAnimationType(int posIdx)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetSeatAnimationType").Add(posIdx);
+#endif
+
+		switch (posIdx)
+		{
+		case 0:
+			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
+		case 1:
+			return DayZPlayerConstants.VEHICLESEAT_CODRIVER;
+		case 2:
+			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_L;
+		case 3:
+			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_R;
+		case 4:
+			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_L;
+		case 5:
+			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_R;
+		}
+
+		return 0;
+	}
+
+	override int Get3rdPersonCameraType()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Get3rdPersonCameraType");
+#endif
+
+		return DayZPlayerCameras.DAYZCAMERA_3RD_VEHICLE;
+	}
+
+	override bool IsVitalIgniterPlug()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalIgniterPlug");
+#endif
+
+		return true;
+	}
+
+	override bool IsVitalHydraulicHoses()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHydraulicHoses");
+#endif
+
+		return true;
+	}
+
+	override float GetActionDistanceFuel()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetActionDistanceFuel");
+#endif
+
+		return 2.5;
+	}
+
+	override float GetWreckAltitude()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetWreckAltitude");
+#endif
+
+		return 1.5;
+	}
+
+	override vector GetTransportCameraOffset()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
+#endif
+
+		return "0 2 0";
+	}
+
+	override float GetTransportCameraDistance()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
+#endif
+
+		return 15;
+	}
+
+	override string GetActionCompNameFuel()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetActionCompNameFuel");
+#endif
+
+		return "refill";
+	}
+
+	override float OnSound(CarSoundCtrl ctrl, float oldValue)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "OnSound").Add(ctrl).Add(oldValue);
+#endif
+
+		switch (ctrl)
+		{
+		case CarSoundCtrl.DOORS:
+			float newValue = 0;
+
+			if (GetCarDoorsState("uh1hdoor_1_1") == CarDoorState.DOORS_CLOSED)
+				newValue += 0.5;
+
+			if (GetCarDoorsState("uh1hdoor_1_2") == CarDoorState.DOORS_CLOSED)
+				newValue += 0.5;
+			
+			if (GetCarDoorsState("uh1hdoor_2_1") == CarDoorState.DOORS_CLOSED)
+				newValue += 0.5;
+
+			if (GetCarDoorsState("uh1hdoor_2_2") == CarDoorState.DOORS_CLOSED)
+				newValue += 0.5;
+
+			if (newValue > 1)
+				newValue = 1;
+
+			return newValue;
+			break;
+		}
+
+		return super.OnSound(ctrl, oldValue);
+	}
+
+	override protected void HandleDoorsSound(string animSource, float phase)
+	{
+		switch (animSource)
+		{
+		case "uh1hdoor_2_1":
+		case "uh1hdoor_2_2":
+			EXTrace.Print(EXTrace.VEHICLES, this, "HandleDoorsSound " + animSource + " " + phase);
+
+			if (phase == 0)
+			{
+				SEffectManager.Expansion_PlaySound("Expansion_Uh1h_SlidingDoor_Open_SoundSet", GetPosition());
+			}
+			else if (phase == 1)
+			{
+				SEffectManager.Expansion_PlaySound("Expansion_Uh1h_SlidingDoor_Close_SoundSet", GetPosition());
+			}
+			break;
+		default:
+			super.HandleDoorsSound(animSource, phase);
+		}
+	}
+
+	override string GetDoorSelectionNameFromSeatPos(int posIdx)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetDoorSelectionNameFromSeatPos").Add(posIdx);
+#endif
+
+		switch (posIdx)
+		{
+		case 0:
+			return "uh1hdoor_1_1";
+			break;
+		case 1:
+			return "uh1hdoor_1_2";
+			break;
+		case 2:
+			return "uh1hdoor_2_1";
+			break;
+		case 3:
+			return "uh1hdoor_2_2";
+			break;
+		}
+
+		return super.GetDoorSelectionNameFromSeatPos(posIdx);
+	}
+
+	override string GetDoorInvSlotNameFromSeatPos(int posIdx)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetDoorInvSlotNameFromSeatPos").Add(posIdx);
+#endif
+
+		switch (posIdx)
+		{
+		case 0:
+			return "uh1hdoor_1_1";
+			break;
+		case 1:
+			return "uh1hdoor_1_2";
+			break;
+		case 2:
+			return "uh1hdoor_2_1";
+			break;
+		case 3:
+			return "uh1hdoor_2_2";
+			break;
+		}
+
+		return super.GetDoorInvSlotNameFromSeatPos(posIdx);
+	}
+
+	override bool CanDisplayAttachmentCategory( string category_name )
+	{
+		if ( !super.CanDisplayAttachmentCategory( category_name ) )
+			return false;
+	
+		category_name.ToLower();		
+		if ( category_name.Contains("engine") )
+		{
+			if ( m_ExpansionVehicle.AllDoorsClosed() )
+				return false;
+		}
+				
+		return true;
+	}
+
+	override bool CanDisplayCargo()
+	{
+		if ( !super.CanDisplayCargo() )
+			return false;
+		
+		if ( m_ExpansionVehicle.AllDoorsClosed() )
+			return false;
+		
+		return true;
+	}
+
+	override int GetCarDoorsState(string slotType)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetCarDoorsState").Add(slotType);
+#endif
+
+		CarDoor carDoor;
+		Class.CastTo(carDoor, FindAttachmentBySlotName(slotType));
+		if (!carDoor)
+		{
+			return CarDoorState.DOORS_MISSING;
+		}
+
+		switch (slotType)
+		{
+		case "uh1hdoor_1_1":
+		{
+			if (GetAnimationPhase("uh1hdoor_1_1") > 0.5)
+			{
+				return CarDoorState.DOORS_OPEN;
+			}
+			else
+			{
+				return CarDoorState.DOORS_CLOSED;
+			}
+			break;
+		}
+		case "uh1hdoor_1_2":
+		{
+			if (GetAnimationPhase("uh1hdoor_1_2") > 0.5)
+			{
+				return CarDoorState.DOORS_OPEN;
+			}
+			else
+			{
+				return CarDoorState.DOORS_CLOSED;
+			}
+			break;
+		}
+		case "uh1hdoor_2_1":
+		{
+			if (GetAnimationPhase("uh1hdoor_2_1") > 0.5)
+			{
+				return CarDoorState.DOORS_OPEN;
+			}
+			else
+			{
+				return CarDoorState.DOORS_CLOSED;
+			}
+			break;
+		}
+		case "uh1hdoor_2_2":
+		{
+			if (GetAnimationPhase("uh1hdoor_2_2") > 0.5)
+			{
+				return CarDoorState.DOORS_OPEN;
+			}
+			else
+			{
+				return CarDoorState.DOORS_CLOSED;
+			}
+			break;
+		}
+		
+		default:
+		{
+			return CarDoorState.DOORS_MISSING;
+		}
+		}
+
+		return CarDoorState.DOORS_MISSING;
+	}
+
+	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachDoorsFromSeat").Add(pDoorsSelection).Add(pCurrentSeat);
+#endif
+
+		switch (pCurrentSeat)
+		{
+		case 0:
+			if (pDoorsSelection == "uh1hdoor_1_1")
+			{
+				return true;
+			}
+			break;
+		case 1:
+			if (pDoorsSelection == "uh1hdoor_1_2")
+			{
+				return true;
+			}
+			break;
+		case 2:
+			if (pDoorsSelection == "uh1hdoor_2_1")
+			{
+				return true;
+			}
+			break;
+		case 3:
+			if (pDoorsSelection == "uh1hdoor_2_2")
+			{
+				return true;
+			}
+			break;
+		}
+		return false;
+	}
+    
+	override bool CrewCanGetThrough(int posIdx)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CrewCanGetThrough").Add(posIdx);
+#endif
+
+		switch (posIdx)
+		{
+		case 0:
+			if (GetCarDoorsState("uh1hdoor_1_1") == CarDoorState.DOORS_CLOSED)
+				return false;
+
+			return true;
+			break;
+
+		case 1:
+			if (GetCarDoorsState("uh1hdoor_1_2") == CarDoorState.DOORS_CLOSED)
+				return false;
+
+			return true;
+			break;
+		case 2:
+			if (GetCarDoorsState("uh1hdoor_2_1") == CarDoorState.DOORS_CLOSED)
+				return false;
+
+			return true;
+			break;
+		case 3:
+			if (GetCarDoorsState("uh1hdoor_2_2") == CarDoorState.DOORS_CLOSED)
+				return false;
+
+			return true;
+			break;
+		}
+		return true;
+	}
+
+	override string GetAnimSourceFromSelection(string selection)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetAnimSourceFromSelection").Add(selection);
+#endif
+
+		switch (selection)
+		{
+		case "uh1hdoor_1_1":
+			return "uh1hdoor_1_1";
+		case "uh1hdoor_1_2":
+			return "uh1hdoor_1_2";
+		case "uh1hdoor_2_1":
+			return "uh1hdoor_2_1";
+		case "uh1hdoor_2_2":
+			return "uh1hdoor_2_2";
+		}
+
+		return "";
+	}
+
+	override string Expansion_GetWarningSoundSet()
+	{
+		return "Expansion_Uh1h_Warning_SoundSet";
+	}
+
+	override void UpdateLights(int new_gear = -1)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "UpdateLights").Add(new_gear);
+#endif
+
+		super.UpdateLights(new_gear);
+
+		if (IsMissionClient())
+		{
+			ItemBase battery;
+
+			if (IsVitalHelicopterBattery())
+				battery = ItemBase.Cast(FindAttachmentBySlotName("ExpansionHelicopterBattery"));
+
+			if (battery)
+			{
+			#ifdef DAYZ_1_28
+				if (m_HeadlightsOn)
+			#else
+				//! 1.29+
+				if (LightIsOn())
+			#endif
+				{
+					if (m_Lights.Count() == 0)
+					{
+						CreateLights(this, "interior", ExpansionPointLight, Vector(0.1, 1, 0.25), Vector(0.1, 1, 0.25), 2.3, 0.1, false, true);
+					}
+				}
+				else
+				{
+					for (int b = 0; b < m_Lights.Count(); b++)
+					{
+						m_Lights[b].ExpansionSetEnabled(false);
+
+						g_Game.ObjectDelete(m_Lights[b]);
+					}
+
+					m_Lights.Clear();
+				}
+			}
+		}
+	}
+
+	override void OnDebugSpawn()
+	{
+		string skinName = ConfigGetString("skinName");
+		if (skinName)
+			skinName = "_" + skinName;
+
+		GetInventory().CreateInInventory("ExpansionUh1hDoor_1_1" + skinName);
+		GetInventory().CreateInInventory("ExpansionUh1hDoor_1_2" + skinName);
+		GetInventory().CreateInInventory("ExpansionUh1hDoor_2_1" + skinName);
+		GetInventory().CreateInInventory("ExpansionUh1hDoor_2_2" + skinName);
+
+		GetInventory().CreateInInventory("ExpansionHydraulicHoses");
+		GetInventory().CreateInInventory("ExpansionIgniterPlug");
+		GetInventory().CreateInInventory("ExpansionHelicopterBattery");
+		GetInventory().CreateInInventory("HeadlightH7");
+
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
+	}
+};

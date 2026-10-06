@@ -18,7 +18,10 @@ class ExpansionMarketMuzzles: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MUZZLES";
 		m_FileName = "Muzzles";
-		
+	}
+
+	override void DefaultItems()
+	{
 		// COMPENSATORS
 		AddItem("mosin_compensator", 	1065, 	1775,	1,100);
 		AddItem("mp5_compensator", 	1790, 	2985,	1,100);

@@ -17,6 +17,8 @@ modded class PlayerBase
 	protected bool m_Expansion_ProcessTransportHit;
 	protected bool m_Expansion_WasInVehicleSeatOrAttached;
 	protected int m_Expansion_SessionTimeStamp;
+
+	ref GetOutTransportActionData m_Expansion_QueuedJumpOutVehicleDamageActionData;
 	
 	ref array<ExpansionCarKey> m_Expansion_CarKeys;
 
@@ -205,6 +207,77 @@ modded class PlayerBase
 
         super.OnDisconnect();
     }
+
+	override void OnVehicleSeatDriverEnter()
+	{
+	#ifdef DIAG_DEVELOPER
+		EXPrint(this, "OnVehicleSeatDriverEnter");
+	#endif
+
+		super.OnVehicleSeatDriverEnter();
+
+		if (!g_Game.IsDedicatedServer())  //! Client or offline/SP
+		{
+			auto vehicle = ExpansionVehicle.Get(this);
+
+			if (vehicle)
+			{
+				if (vehicle.IsHelicopter())
+					g_Game.GetMission().AddActiveInputExcludes({"expansionhelicopter"});
+				else if (vehicle.GetEntity().IsInherited(ExpansionBoatScript) && !vehicle.IsCar())
+					g_Game.GetMission().AddActiveInputExcludes({"expansionboat"});
+				else if (vehicle.IsPlane())
+					g_Game.GetMission().AddActiveInputExcludes({"expansionplane"});
+				else
+				{
+					//! Shouldn't technically be needed, but since 3rd party mods can break stuff by
+					//! overriding OnVehicleSeatDriverLeft and not calling super, better be safe than sorry
+					g_Game.GetMission().RemoveActiveInputExcludes({"expansionhelicopter"});
+					g_Game.GetMission().RemoveActiveInputExcludes({"expansionboat"});
+					g_Game.GetMission().RemoveActiveInputExcludes({"expansionplane"});
+				}
+			}
+		}
+	}
+
+	override void OnVehicleSeatDriverLeft()
+	{
+	#ifdef DIAG_DEVELOPER
+		EXPrint(this, "OnVehicleSeatDriverLeft");
+	#endif
+
+		super.OnVehicleSeatDriverLeft();
+
+		if (!g_Game.IsDedicatedServer())  //! Client or offline/SP
+		{
+			g_Game.GetMission().RemoveActiveInputExcludes({"expansionhelicopter"});
+			g_Game.GetMission().RemoveActiveInputExcludes({"expansionboat"});
+			g_Game.GetMission().RemoveActiveInputExcludes({"expansionplane"});
+		}
+	}
+
+	override bool OnLand(int pCurrentCommandID, FallDamageData fallDamageData)
+	{
+		GetOutTransportActionData gotActionData = m_Expansion_QueuedJumpOutVehicleDamageActionData;
+
+		if (gotActionData)
+		{
+			ExpansionHelicopterScript heli;
+			if (Class.CastTo(heli, gotActionData.m_Vehicle))
+				heli.OnVehicleJumpOutServer(gotActionData);
+		}
+
+		m_Expansion_QueuedJumpOutVehicleDamageActionData = null;
+
+		return super.OnLand(pCurrentCommandID, fallDamageData);
+	}
+
+	override void OnCommandSwimStart()
+	{
+		super.OnCommandSwimStart();
+
+		m_Expansion_QueuedJumpOutVehicleDamageActionData = null;
+	}
 
 #ifdef DAYZ_1_25
 	override void TryHideItemInHands(bool hide, bool force = false)

@@ -45,7 +45,7 @@ class CfgSoundShaders
 			}
 		};
 		frequency="rpm";
-		volume="rpm * camPos";
+		volume="rpm * ((1 - 0.25*doors) max campos) * (1 - 0.2 * (1 - campos))";
 	};
 	class Expansion_HatchBird_Rotor_Int_SoundShader: Expansion_HatchBird_Base_Int_SoundShader
 	{
@@ -57,8 +57,8 @@ class CfgSoundShaders
 				1
 			}
 		};
-		frequency="rpm * speed";
-		volume="rpm * speed * (1 - camPos) * 0.3";
+		frequency="speed - 0.05 * (speed factor[0, 0.95]) * (speed factor[1, 0.95])";
+		volume="(speed factor[0.2, 0.65]) * (1 - camPos) * 0.3";
 	};
 	class Expansion_HatchBird_Rotor_Ext_SoundShader: Expansion_HatchBird_Base_Ext_SoundShader
 	{
@@ -70,8 +70,8 @@ class CfgSoundShaders
 				1
 			}
 		};
-		frequency="rpm * speed";
-		volume="rpm * speed * camPos";
+		frequency="speed - 0.05 * (speed factor[0, 0.95]) * (speed factor[1, 0.95])";
+		volume="(speed factor[0.2, 0.65]) * ((1 - 0.25*doors) max campos) * (1 - 0.2 * (1 - campos))";
 	};
 };
 class CfgSoundSets

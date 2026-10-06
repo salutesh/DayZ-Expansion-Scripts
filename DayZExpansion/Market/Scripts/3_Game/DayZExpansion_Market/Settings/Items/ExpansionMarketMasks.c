@@ -18,7 +18,10 @@ class ExpansionMarketMasks: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MASKS";
 		m_FileName = "Masks";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("surgicalmask", 	625, 	1045,	1,100);
 				
 		AddItem("nioshfacemask", 	560, 	935,	1,100);

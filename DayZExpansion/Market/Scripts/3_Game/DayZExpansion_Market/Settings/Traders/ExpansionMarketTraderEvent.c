@@ -22,7 +22,10 @@ class ExpansionMarketTraderEvent: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_EVENT";
 		m_FileName = "Event";
 		TraderIcon = "Questionmark";
-		
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Event");
 	}
 }

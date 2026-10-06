@@ -120,4 +120,34 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\roads\sidewalks\sidewalk3_wideb_4m.p3d";
 	};
+	class bldr_tunnel_biathlon_left: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\tunnels\tunnel_biathlon_left.p3d";
+	};
+	class bldr_tunnel_biathlon_left_anthoxanthum: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\tunnels\tunnel_biathlon_left_anthoxanthum.p3d";
+	};
+	class bldr_tunnel_biathlon_left_elytrigia: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\tunnels\tunnel_biathlon_left_elytrigia.p3d";
+	};
+	class bldr_tunnel_biathlon_right: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\tunnels\tunnel_biathlon_right.p3d";
+	};
+	class bldr_tunnel_biathlon_right_anthoxanthum: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\tunnels\tunnel_biathlon_right_anthoxanthum.p3d";
+	};
+	class bldr_tunnel_biathlon_right_elytrigia: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\roads\tunnels\tunnel_biathlon_right_elytrigia.p3d";
+	};
 };

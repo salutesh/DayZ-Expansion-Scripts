@@ -36,9 +36,14 @@ class ExpansionClientSettings
 	float HelicopterHorizontalSensitivity;
 	bool UsePlaneMouseControl;
 	bool TurnOffAutoHoverDuringFlight;
-	bool EnableCollectiveDecay;
+	int AutoCollectiveMode;
 	bool EnableRetreatingBladeStall;
-	bool UseLegacyHelicopterFlightModel;
+	bool EnableTranslatingTendency;
+	bool DisableAutoTrim;
+	bool UseLegacyHelicopterFlightModel;  //! Obsolete
+
+	bool ToggleVehicleHudOnHudToggle;
+	bool DisableFlightPathMarker;
 
 	// ================= Video Settings =================
 	bool CastLightShadows;
@@ -809,9 +814,9 @@ class ExpansionClientSettings
 		if (version < 57)
 			return true;
 
-		if (!ctx.Read(EnableCollectiveDecay))
+		if (!ctx.Read(AutoCollectiveMode))
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read EnableCollectiveDecay!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read AutoCollectiveMode!");
 			return false;
 		}
 
@@ -821,9 +826,40 @@ class ExpansionClientSettings
 			return false;
 		}
 
-		if (!ctx.Read(UseLegacyHelicopterFlightModel))
+		bool useLegacyHelicopterFlightModel;  //! Obsolete
+		if (version == 57 && !ctx.Read(useLegacyHelicopterFlightModel))
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read UseLegacyHelicopterFlightModel!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read bool!");
+			return false;
+		}
+		
+		if (version < 59)
+			return true;
+
+		if (!ctx.Read(EnableTranslatingTendency))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read EnableTranslatingTendency!");
+			return false;
+		}
+
+		if (!ctx.Read(DisableAutoTrim))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read DisableAutoTrim!");
+			return false;
+		}
+		
+		if (version < 60)
+			return true;
+
+		if (!ctx.Read(ToggleVehicleHudOnHudToggle))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ToggleVehicleHudOnHudToggle!");
+			return false;
+		}
+
+		if (!ctx.Read(DisableFlightPathMarker))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read DisableFlightPathMarker!");
 			return false;
 		}
 
@@ -974,9 +1010,16 @@ class ExpansionClientSettings
 		ctx.Write(HUDChatShadowOffsetY);
 
 		//! v57
-		ctx.Write( EnableCollectiveDecay );
+		ctx.Write( AutoCollectiveMode );
 		ctx.Write( EnableRetreatingBladeStall );
-		ctx.Write( UseLegacyHelicopterFlightModel );
+
+		//! v59
+		ctx.Write( EnableTranslatingTendency );
+		ctx.Write( DisableAutoTrim );
+
+		//! v60
+		ctx.Write(ToggleVehicleHudOnHudToggle);
+		ctx.Write(DisableFlightPathMarker);
 	}
 
 	// -----------------------------------------------------------
@@ -1312,6 +1355,10 @@ class ExpansionClientSettings
 		//! Option to toggle the vehicle camera
 		//CreateToggle( "UseCameraLock", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_FREELOOK", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_FREELOOK_DESC" );
 
+		CreateToggle( "ToggleVehicleHudOnHudToggle", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_TOGGLE_VEHICLE_HUD_ON_HUD_TOGGLE", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_TOGGLE_VEHICLE_HUD_ON_HUD_TOGGLE_DESC" );
+
+		CreateToggle( "DisableFlightPathMarker", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_DISABLE_FLIGHT_PATH_MARKER", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_DISABLE_FLIGHT_PATH_MARKER_DESC" );
+
 		//! Option to change vehicle camera height
 		CreateSlider( "VehicleCameraHeight", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_CAMERA_HEIGHT", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_CAMERA_HEIGHT_DESC", 0.5, 10.0, 0.1 );
 		CreateSlider( "VehicleCameraDistance", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_CAMERA_DISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_CAMERA_DISTANCE_DESC", 0.5, 5.0, 0.1 );
@@ -1320,11 +1367,16 @@ class ExpansionClientSettings
 		//! Heli mouse ctrl
 		CreateToggle( "UseHelicopterMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL_DESC" );
 		CreateToggle( "UseInvertedMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_INVERTED", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_DESC_INVERTED" );
+
+		//! Sensitivity
 		CreateSlider( "HelicopterVerticalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_SENSITIVITY_VERTICAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_SENSITIVITY_VERTICAL_DESC", 0.1, 3.0, 0.1 );
 		CreateSlider( "HelicopterHorizontalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_SENSITIVITY_HORIZONTAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_SENSITIVITY_HORIZONTAL_DESC", 0.1, 3.0, 0.1 );
-		CreateToggle( "EnableCollectiveDecay", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_COLLECTIVE_DECAY", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_COLLECTIVE_DECAY_DESC" );
+
+		//! Simulation features
+		CreateEnum( "AutoCollectiveMode", ExpansionHelicopterAutoCollectiveMode, "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_AUTOCOLLECTIVE", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_AUTOCOLLECTIVE_DESC" );
 		CreateToggle( "EnableRetreatingBladeStall", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_RETREATING_BLADE_STALL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_RETREATING_BLADE_STALL_DESC" );
-		CreateToggle( "UseLegacyHelicopterFlightModel", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_USE_LEGACY_FLIGHT_MODEL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_USE_LEGACY_FLIGHT_MODEL_DESC" );
+		CreateToggle( "EnableTranslatingTendency", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TRANSLATING_TENDENCY", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TRANSLATING_TENDENCY_DESC" );
+		CreateToggle( "DisableAutoTrim", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_DISABLE_AUTO_TRIM", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_DISABLE_AUTO_TRIM_DESC" );
 		CreateToggle( "TurnOffAutoHoverDuringFlight", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT_DESC" );
 		
 		//CreateToggle( "UsePlaneMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL_DESC" );
@@ -1446,7 +1498,18 @@ class ExpansionClientSettings
 		{
 			if ( enm.GetVariableType( j ) == int )
 			{
-				setting.m_Values.Insert( enm.GetVariableName( j ) );
+				string varName = enm.GetVariableName( j );
+				varName.ToUpper();
+
+				string stringId = string.Format("STR_EXPANSION_%1", varName);
+				string displayName = Widget.TranslateString(string.Format("#%1", stringId));
+
+				if (displayName == stringId)
+					displayName = varName;
+				else
+					displayName.ToUpper();
+
+				setting.m_Values.Insert(displayName);
 			}
 		}
 

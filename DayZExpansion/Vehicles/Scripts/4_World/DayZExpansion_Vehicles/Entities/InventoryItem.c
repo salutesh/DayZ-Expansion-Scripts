@@ -101,6 +101,8 @@ class Expansion_Landrover_Wheel_Ruined: CarWheel_Ruined
 
 class ExpansionHydraulicHoses: ItemBase
 {
+	static int SLOT_ID = InventorySlots.GetSlotIdFromString("ExpansionHydraulicHoses");
+
 	override void SetActions()
 	{
 		super.SetActions();
@@ -112,6 +114,8 @@ class ExpansionHydraulicHoses: ItemBase
 
 class ExpansionIgniterPlug: ItemBase
 {
+	static int SLOT_ID = InventorySlots.GetSlotIdFromString("ExpansionIgniterPlug");
+
 	override void SetActions()
 	{
 		super.SetActions();

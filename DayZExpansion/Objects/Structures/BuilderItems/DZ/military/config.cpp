@@ -350,4 +350,349 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\military\tisy\proxy\windows.p3d";
 	};
+	class bldr_airfield_hangar_green: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\airfield_hangar_green.p3d";
+	};
+	class bldr_airfield_radar_tall: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\airfield_radar_tall.p3d";
+	};
+	class bldr_airfield_servicehangar_l: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\airfield_servicehangar_l.p3d";
+	};
+	class bldr_airfield_servicehangar_r: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\airfield_servicehangar_r.p3d";
+	};
+	class bldr_mil_aircraftshelter: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\mil_aircraftshelter.p3d";
+	};
+	class bldr_mil_aircraftshelter_door_l: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\mil_aircraftshelter_door_l.p3d";
+	};
+	class bldr_mil_aircraftshelter_door_r: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\mil_aircraftshelter_door_r.p3d";
+	};
+	class bldr_mil_airfield_hq: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\mil_airfield_hq.p3d";
+	};
+	class bldr_mil_atc_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\mil_atc_big.p3d";
+	};
+	class bldr_mil_atc_big_mlod: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\mil_atc_big_mlod.p3d";
+	};
+	class bldr_mil_atc_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\mil_atc_small.p3d";
+	};
+	class bldr_mil_radar_mobile1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\mil_radar_mobile1.p3d";
+	};
+	class bldr_mil_radar_mobile2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\mil_radar_mobile2.p3d";
+	};
+	class bldr_mil_radar_mobile3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\airfield\mil_radar_mobile3.p3d";
+	};
+	class bldr_mil_barracks_round: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_barracks_round.p3d";
+	};
+	class bldr_mil_barracks1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_barracks1.p3d";
+	};
+	class bldr_mil_barracks2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_barracks2.p3d";
+	};
+	class bldr_mil_barracks3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_barracks3.p3d";
+	};
+	class bldr_mil_barracks4: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_barracks4.p3d";
+	};
+	class bldr_mil_barracks5: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_barracks5.p3d";
+	};
+	class bldr_mil_barracks5_basement: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_barracks5_basement.p3d";
+	};
+	class bldr_mil_barracks6: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_barracks6.p3d";
+	};
+	class bldr_mil_barracks6_ghost1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_barracks6_ghost1.p3d";
+	};
+	class bldr_mil_barracks6_ghost2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_barracks6_ghost2.p3d";
+	};
+	class bldr_mil_barracks6_old: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_barracks6_old.p3d";
+	};
+	class bldr_mil_guardhouse1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_guardhouse1.p3d";
+	};
+	class bldr_mil_guardhouse2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_guardhouse2.p3d";
+	};
+	class bldr_mil_guardtower: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_guardtower.p3d";
+	};
+	class bldr_mil_tower_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\houses\mil_tower_small.p3d";
+	};
+	class bldr_mil_tent_big1_1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\mil_tent_big1_1.p3d";
+	};
+	class bldr_mil_tent_big1_2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\mil_tent_big1_2.p3d";
+	};
+	class bldr_mil_tent_big1_3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\mil_tent_big1_3.p3d";
+	};
+	class bldr_mil_tent_big1_4: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\mil_tent_big1_4.p3d";
+	};
+	class bldr_mil_tent_big1_5: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\mil_tent_big1_5.p3d";
+	};
+	class bldr_mil_tent_big2_1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\mil_tent_big2_1.p3d";
+	};
+	class bldr_mil_tent_big2_2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\mil_tent_big2_2.p3d";
+	};
+	class bldr_mil_tent_big2_3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\mil_tent_big2_3.p3d";
+	};
+	class bldr_mil_tent_big2_4: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\mil_tent_big2_4.p3d";
+	};
+	class bldr_mil_tent_big2_5: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\mil_tent_big2_5.p3d";
+	};
+	class bldr_mil_tent_big3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\mil_tent_big3.p3d";
+	};
+	class bldr_mil_tent_big4: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\mil_tent_big4.p3d";
+	};
+	class bldr_roadblock_table: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\roadblock_table.p3d";
+	};
+	class bldr_roadblock_wood_long: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\roadblock_wood_long.p3d";
+	};
+	class bldr_roadblock_wood_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\roadblock_wood_small.p3d";
+	};
+	class bldr_roadblock_woodencrate: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\improvised\roadblock_woodencrate.p3d";
+	};
+	class bldr_misc_supplybox1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\misc\misc_supplybox1.p3d";
+	};
+	class bldr_misc_supplybox2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\misc\misc_supplybox2.p3d";
+	};
+	class bldr_misc_supplybox3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\misc\misc_supplybox3.p3d";
+	};
+	class bldr_tisy_airshaft: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_airshaft.p3d";
+	};
+	class bldr_tisy_barracks: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_barracks.p3d";
+	};
+	class bldr_tisy_base_cooler: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_base_cooler.p3d";
+	};
+	class bldr_tisy_garages: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_garages.p3d";
+	};
+	class bldr_tisy_garages_grass_l: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_garages_grass_l.p3d";
+	};
+	class bldr_tisy_garages_grass_r: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_garages_grass_r.p3d";
+	};
+	class bldr_tisy_garages2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_garages2.p3d";
+	};
+	class bldr_tisy_garages2_smallpicea_vaccinumtall: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_garages2_smallpicea_vaccinumtall.p3d";
+	};
+	class bldr_tisy_garages2_strobili1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_garages2_strobili1.p3d";
+	};
+	class bldr_tisy_garages2_strobili2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_garages2_strobili2.p3d";
+	};
+	class bldr_tisy_garages2_vaccinium1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_garages2_vaccinium1.p3d";
+	};
+	class bldr_tisy_garages2_vaccinium2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_garages2_vaccinium2.p3d";
+	};
+	class bldr_tisy_garages2_vacciniumredgreen: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_garages2_vacciniumredgreen.p3d";
+	};
+	class bldr_tisy_garages2_viminibus: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_garages2_viminibus.p3d";
+	};
+	class bldr_tisy_hq: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_hq.p3d";
+	};
+	class bldr_tisy_kitchenroom: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_kitchenroom.p3d";
+	};
+	class bldr_tisy_radarb_antenna: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_radarb_antenna.p3d";
+	};
+	class bldr_tisy_radarb_base: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_radarb_base.p3d";
+	};
+	class bldr_tisy_radarplatform_bot: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_radarplatform_bot.p3d";
+	};
+	class bldr_tisy_radarplatform_mid: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_radarplatform_mid.p3d";
+	};
+	class bldr_tisy_radarplatform_top: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\military\tisy\tisy_radarplatform_top.p3d";
+	};
 };

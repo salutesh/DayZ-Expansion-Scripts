@@ -18,7 +18,10 @@ class ExpansionMarketBootsAndShoes: ExpansionMarketCategory
 
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_BOOTS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_SHOES");
 		m_FileName = "Boots_And_Shoes";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("athleticshoes_blue", 	245, 	405,	1,100,null,{"AthleticShoes_Brown","AthleticShoes_Grey","AthleticShoes_Black","AthleticShoes_Green"});
 		
 		AddItem("joggingshoes_black", 	205, 	340,	1,100,null,{"JoggingShoes_Blue","JoggingShoes_Red","JoggingShoes_Violet","JoggingShoes_White"});
@@ -55,5 +58,8 @@ class ExpansionMarketBootsAndShoes: ExpansionMarketCategory
 
 	//! 1.21+
 		AddItem("medievalboots", 	355, 	590,	1,100);
+		AddItem("ColdOperationBoots_Camo", 300, 600, 1, 100, null, {"ColdOperationBoots_Green", "ColdOperationBoots_Grey"});
+		AddItem("LeatherShoes_Beige", 300, 600, 1, 100, null, {"LeatherShoes_Black", "LeatherShoes_Brown", "LeatherShoes_Natural"});
+		AddItem("TraditionalBoots_Beige", 300, 600, 1, 100, null, {"TraditionalBoots_DarkBrown"});
 	}
 };

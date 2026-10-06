@@ -23,12 +23,14 @@ class cfgWeapons
 	{
 		scope=0;
 		animName="Mosin9130";
-		weight=3800;
+		weight=4000;
 		absorbency=0;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
-		PPDOFProperties[]={};
-		WeaponLength=1.12;
+		repairableWithKits[]={1};
+		repairCosts[]={25};
+		PPDOFProperties[]={1,0.5,20,170,4,10};
+		WeaponLength=1.235;
+		barrelArmor=2;
+		initSpeedMultiplier=1.02;
 		DisplayMagazine=0;
 		chamberSize=5;
 		chamberedRound="";
@@ -41,7 +43,7 @@ class cfgWeapons
 		};
 		ejectType=0;
 		recoilModifier[]={1,1,1};
-		swayModifier[]={2,2,1};
+		swayModifier[]={2.5,2.5,0.89999998};
 		reloadSkips[]={0.31999999,0.41,0.5,0.58999997,0.69,0.76999998};
 		reloadAction="ReloadMosinFull";
 		shotAction="ReloadMosinShort";
@@ -86,7 +88,7 @@ class cfgWeapons
 			reloadTime=1;
 			recoil="recoil_mosin";
 			recoilProne="recoil_mosin_prone";
-			dispersion=0.001;
+			dispersion=0.0012000001;
 			magazineSlot="magazine";
 		};
 		class Particles

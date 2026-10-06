@@ -10,7 +10,6 @@
  *
 */
 
-#ifndef EXPANSION_VEHICLES_HUD_OLD
 modded class VehicleHudBase
 {
 	protected const int BATTERY_EMPTY_COLOR = ARGB(255, 231, 76, 60);
@@ -18,4 +17,3 @@ modded class VehicleHudBase
 	protected const int BATTERY_MED_COLOR = ARGB(255, 113, 204, 46);
 	protected const int BATTERY_FULL_COLOR = ARGB(255, 46, 204, 113);
 };
-#endif

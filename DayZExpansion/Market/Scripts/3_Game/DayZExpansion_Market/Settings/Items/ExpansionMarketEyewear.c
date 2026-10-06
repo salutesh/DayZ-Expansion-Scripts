@@ -18,7 +18,10 @@ class ExpansionMarketEyewear: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_EYEWEAR";
 		m_FileName = "Eyewear";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("sportglasses_orange", 	260, 	430,	1,100,null,{"SportGlasses_Blue","SportGlasses_Black","SportGlasses_Green"});
 		
 		AddItem("thinframesglasses", 	210, 	350,	1,100);

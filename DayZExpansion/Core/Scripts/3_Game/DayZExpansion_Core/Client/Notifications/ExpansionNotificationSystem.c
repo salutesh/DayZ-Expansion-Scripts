@@ -130,7 +130,7 @@ class ExpansionNotificationTemplate<Class T>: ExpansionNotificationTemplateBase
 
 	override void Create( string icon, int color, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 	{
-		if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().EnableNotification )
+		if ( GetExpansionSettings().GetNotification(false).EnableNotification )
 		{
 			NotificationSystem.Create_Expansion( m_Title, m_Text, icon, color, m_Time, identity, type );
 		}
@@ -154,7 +154,7 @@ class ExpansionNotificationLocaliser: ExpansionNotificationTemplateBase
 
 	override void Create( string icon, int color, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 	{
-		if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().EnableNotification )
+		if ( GetExpansionSettings().GetNotification(false).EnableNotification )
 		{
 			NotificationSystem.Create_Expansion( m_Title, m_Text, icon, color, m_Time, identity, type );
 		}

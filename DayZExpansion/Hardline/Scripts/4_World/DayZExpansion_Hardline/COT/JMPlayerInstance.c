@@ -23,6 +23,25 @@ modded class JMPlayerInstance
 		super.Update();
 	}
 
+#ifdef COT_ONRECEIVE_PROPER
+	override void OnSendStatus(ParamsWriteContext ctx)
+	{
+		super.OnSendStatus(ctx);
+
+		ctx.Write(m_ExpansionReputation);
+	}
+
+	override bool OnReceiveStatus(ParamsReadContext ctx)
+	{
+		if (!super.OnReceiveStatus(ctx))
+			return false;
+			
+		if (!ctx.Read(m_ExpansionReputation))
+			return false;
+
+		return true;
+	}
+#else
 	override void OnSendHealth(ParamsWriteContext ctx)
 	{
 		super.OnSendHealth(ctx);
@@ -36,6 +55,7 @@ modded class JMPlayerInstance
 
 		ctx.Read(m_ExpansionReputation);
 	}
+#endif
 
 	int GetExpansionReputation()
 	{

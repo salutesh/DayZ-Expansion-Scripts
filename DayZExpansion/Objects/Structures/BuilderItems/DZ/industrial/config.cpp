@@ -815,4 +815,549 @@ class CfgVehicles
 		scope=1;
 		model="\DZ\structures\industrial\tanks\tank_small_white.p3d";
 	};
+	class bldr_cementworks_conveyorhall: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_conveyorhall.p3d";
+	};
+	class bldr_cementworks_expeditiona: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_expeditiona.p3d";
+	};
+	class bldr_cementworks_expeditionb: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_expeditionb.p3d";
+	};
+	class bldr_cementworks_expeditionc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_expeditionc.p3d";
+	};
+	class bldr_cementworks_hall1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_hall1.p3d";
+	};
+	class bldr_cementworks_hall2_brick: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_hall2_brick.p3d";
+	};
+	class bldr_cementworks_hall2_grey: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_hall2_grey.p3d";
+	};
+	class bldr_cementworks_milla: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_milla.p3d";
+	};
+	class bldr_cementworks_millb: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_millb.p3d";
+	};
+	class bldr_cementworks_millc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_millc.p3d";
+	};
+	class bldr_cementworks_milld: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_milld.p3d";
+	};
+	class bldr_cementworks_rotfurnace: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_rotfurnace.p3d";
+	};
+	class bldr_cementworks_silobig1a: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_silobig1a.p3d";
+	};
+	class bldr_cementworks_silobig1b: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_silobig1b.p3d";
+	};
+	class bldr_cementworks_silobig2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\cementworks\cementworks_silobig2.p3d";
+	};
+	class bldr_coalplant_loadinghouse: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\coalplant\coalplant_loadinghouse.p3d";
+	};
+	class bldr_coalplant_main: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\coalplant\coalplant_main.p3d";
+	};
+	class bldr_construction_building: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\construction\construction_building.p3d";
+	};
+	class bldr_construction_crane: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\construction\construction_crane.p3d";
+	};
+	class bldr_construction_house1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\construction\construction_house1.p3d";
+	};
+	class bldr_construction_house2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\construction\construction_house2.p3d";
+	};
+	class bldr_container_1aoh: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\containers\container_1aoh.p3d";
+	};
+	class bldr_container_1bo: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\containers\container_1bo.p3d";
+	};
+	class bldr_container_1mo: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\containers\container_1mo.p3d";
+	};
+	class bldr_container_1moh: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\containers\container_1moh.p3d";
+	};
+	class bldr_container_1n: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\containers\container_1n.p3d";
+	};
+	class bldr_container_1nr: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\containers\container_1nr.p3d";
+	};
+	class bldr_container_1nr2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\containers\container_1nr2.p3d";
+	};
+	class bldr_containerlocked: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\containers\containerlocked.p3d";
+	};
+	class bldr_dam_concrete_20: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\dams\dam_concrete_20.p3d";
+	};
+	class bldr_dam_concrete_20_floodgate: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\dams\dam_concrete_20_floodgate.p3d";
+	};
+	class bldr_dam_stone_40: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\dams\dam_stone_40.p3d";
+	};
+	class bldr_barn_brick1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\farms\barn_brick1.p3d";
+	};
+	class bldr_barn_brick2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\farms\barn_brick2.p3d";
+	};
+	class bldr_barn_metal_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\farms\barn_metal_big.p3d";
+	};
+	class bldr_barn_metal_big_grey: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\farms\barn_metal_big_grey.p3d";
+	};
+	class bldr_barn_wood1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\farms\barn_wood1.p3d";
+	};
+	class bldr_barn_wood2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\farms\barn_wood2.p3d";
+	};
+	class bldr_farm_cowsheda: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\farms\farm_cowsheda.p3d";
+	};
+	class bldr_farm_cowshedb: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\farms\farm_cowshedb.p3d";
+	};
+	class bldr_farm_cowshedc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\farms\farm_cowshedc.p3d";
+	};
+	class bldr_farm_watertower: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\farms\farm_watertower.p3d";
+	};
+	class bldr_farm_watertower_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\farms\farm_watertower_small.p3d";
+	};
+	class bldr_garage_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\garages\garage_big.p3d";
+	};
+	class bldr_garage_office: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\garages\garage_office.p3d";
+	};
+	class bldr_garage_row_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\garages\garage_row_big.p3d";
+	};
+	class bldr_garage_row_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\garages\garage_row_small.p3d";
+	};
+	class bldr_garage_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\garages\garage_small.p3d";
+	};
+	class bldr_boathouse: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\harbour\boathouse.p3d";
+	};
+	class bldr_boathouse_pierl: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\harbour\boathouse_pierl.p3d";
+	};
+	class bldr_boathouse_pierr: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\harbour\boathouse_pierr.p3d";
+	};
+	class bldr_boathouse_piert: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\harbour\boathouse_piert.p3d";
+	};
+	class bldr_lighthouse: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\harbour\lighthouse.p3d";
+	};
+	class bldr_pier_crane_a: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\harbour\pier_crane_a.p3d";
+	};
+	class bldr_pier_crane_b: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\harbour\pier_crane_b.p3d";
+	};
+	class bldr_pier_wooden1_pillars: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\harbour\pier_wooden1_pillars.p3d";
+	};
+	class bldr_factory_lathes: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\houses\factory_lathes.p3d";
+	};
+	class bldr_factory_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\houses\factory_small.p3d";
+	};
+	class bldr_guardhouse: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\houses\guardhouse.p3d";
+	};
+	class bldr_repair_center: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\houses\repair_center.p3d";
+	};
+	class bldr_water_station: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\houses\water_station.p3d";
+	};
+	class bldr_workshop_box: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\houses\workshop_box.p3d";
+	};
+	class bldr_workshop1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\houses\workshop1.p3d";
+	};
+	class bldr_workshop2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\houses\workshop2.p3d";
+	};
+	class bldr_workshop3: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\houses\workshop3.p3d";
+	};
+	class bldr_workshop4: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\houses\workshop4.p3d";
+	};
+	class bldr_workshop5: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\houses\workshop5.p3d";
+	};
+	class bldr_mine_building: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\mines\mine_building.p3d";
+	};
+	class bldr_mine_hopper_build_nolc: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\mines\mine_hopper_build_nolc.p3d";
+	};
+	class bldr_misc_barrelempty: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\misc\misc_barrelempty.p3d";
+	};
+	class bldr_misc_gastank_01_blue: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\misc\misc_gastank_01_blue.p3d";
+	};
+	class bldr_misc_gastank_01_khaki: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\misc\misc_gastank_01_khaki.p3d";
+	};
+	class bldr_misc_gastank_01_yellow: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\misc\misc_gastank_01_yellow.p3d";
+	};
+	class bldr_misc_gastank_02: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\misc\misc_gastank_02.p3d";
+	};
+	class bldr_misc_pipes_2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\misc\misc_pipes_2.p3d";
+	};
+	class bldr_misc_spotlight: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\misc\misc_spotlight.p3d";
+	};
+	class bldr_misc_tire_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\misc\misc_tire_big.p3d";
+	};
+	class bldr_misc_weldingtrolley_01: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\misc\misc_weldingtrolley_01.p3d";
+	};
+	class bldr_pipe_big_buildl: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\pipes\pipe_big_buildl.p3d";
+	};
+	class bldr_pipe_big_buildr: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\pipes\pipe_big_buildr.p3d";
+	};
+	class bldr_pipe_big_cornerl: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\pipes\pipe_big_cornerl.p3d";
+	};
+	class bldr_pipe_big_cornerr: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\pipes\pipe_big_cornerr.p3d";
+	};
+	class bldr_pipe_big_ground1: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\pipes\pipe_big_ground1.p3d";
+	};
+	class bldr_pipe_big_ground2: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\pipes\pipe_big_ground2.p3d";
+	};
+	class bldr_power_pole_conc1_amp: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\power\power_pole_conc1_amp.p3d";
+	};
+	class bldr_power_pole_conc4_lamp_amp: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\power\power_pole_conc4_lamp_amp.p3d";
+	};
+	class bldr_power_pole_wood1_amp: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\power\power_pole_wood1_amp.p3d";
+	};
+	class bldr_power_pole_wood1_lamp: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\power\power_pole_wood1_lamp.p3d";
+	};
+	class bldr_power_pole_wood1_lamp_amp: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\power\power_pole_wood1_lamp_amp.p3d";
+	};
+	class bldr_power_pole_wood1_lamp_only: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\power\power_pole_wood1_lamp_only.p3d";
+	};
+	class bldr_power_station: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\power\power_station.p3d";
+	};
+	class bldr_power_transformer_build: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\power\power_transformer_build.p3d";
+	};
+	class bldr_power_transformerstation_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\power\power_transformerstation_big.p3d";
+	};
+	class bldr_quarry_main: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\quarry\quarry_main.p3d";
+	};
+	class bldr_sawmill_building: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\sawmills\sawmill_building.p3d";
+	};
+	class bldr_sawmill_illuminanttower: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\sawmills\sawmill_illuminanttower.p3d";
+	};
+	class bldr_shed_closed: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\sheds\shed_closed.p3d";
+	};
+	class bldr_shed_open_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\sheds\shed_open_big.p3d";
+	};
+	class bldr_shed_open_big_end: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\sheds\shed_open_big_end.p3d";
+	};
+	class bldr_shed_open_sawmill: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\sheds\shed_open_sawmill.p3d";
+	};
+	class bldr_shed_open_sideroof: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\sheds\shed_open_sideroof.p3d";
+	};
+	class bldr_shed_open_small: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\sheds\shed_open_small.p3d";
+	};
+	class bldr_shed_open_small_end: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\sheds\shed_open_small_end.p3d";
+	};
+	class bldr_smokestack_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\smokestacks\smokestack_big.p3d";
+	};
+	class bldr_smokestack_brick: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\smokestacks\smokestack_brick.p3d";
+	};
+	class bldr_smokestack_medium: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\smokestacks\smokestack_medium.p3d";
+	};
+	class bldr_smokestack_metal: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\smokestacks\smokestack_metal.p3d";
+	};
+	class bldr_tank_big: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\tanks\tank_big.p3d";
+	};
+	class bldr_tank_medium_stairs: HouseNoDestruct
+	{
+		scope=1;
+		model="\DZ\structures\industrial\tanks\tank_medium_stairs.p3d";
+	};
 };

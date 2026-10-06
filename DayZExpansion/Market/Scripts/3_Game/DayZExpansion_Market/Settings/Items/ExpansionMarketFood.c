@@ -18,7 +18,10 @@ class ExpansionMarketFood: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FOOD";
 		m_FileName = "Food";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("zagorky", 	1225, 	2045,	1,100);
 		AddItem("zagorkychocolate", 	780, 	1300,	1,100);
 		AddItem("zagorkypeanuts", 	400, 	665,	1,100);

@@ -24,7 +24,5 @@ class ExpansionMarketJaloviskoZone: ExpansionMarketTraderZone
 
 		Position = "8583.67 24.55 10515.0";
 		Radius = 400;
-
-		Update();
 	}
 };

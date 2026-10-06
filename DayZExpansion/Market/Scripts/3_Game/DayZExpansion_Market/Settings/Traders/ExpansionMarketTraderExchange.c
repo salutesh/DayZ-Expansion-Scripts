@@ -22,7 +22,10 @@ class ExpansionMarketTraderExchange: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_EXCHANGE";
 		m_FileName = "Exchange";
 		TraderIcon = "Trader";
-	
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Exchange");
 	}
 }

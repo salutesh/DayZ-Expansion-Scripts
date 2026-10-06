@@ -23,14 +23,14 @@ class cfgWeapons
 	{
 		scope=0;
 		animName="cz527";
-		weight=2720;
+		weight=3000;
 		absorbency=0;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
+		repairableWithKits[]={1};
+		repairCosts[]={25};
 		modelOptics="-";
 		distanceZoomMin=100;
 		distanceZoomMax=100;
-		PPDOFProperties[]={};
+		PPDOFProperties[]={1,0.5,50,160,4,10};
 		opticsFlare=0;
 		ironsightsExcludingOptics[]=
 		{
@@ -40,7 +40,7 @@ class cfgWeapons
 			"ACOGOptic",
 			"SniperOptic"
 		};
-		WeaponLength=1.22;
+		WeaponLength=0.98000002;
 		value=0;
 		chamberSize=1;
 		chamberedRound="";
@@ -57,10 +57,11 @@ class cfgWeapons
 			"Mag_Expansion_AWM_5rnd"
 		};
 		magazineSwitchTime=0.38;
-		barrelArmor=900;
+		barrelArmor=1.1109999;
+		initSpeedMultiplier=1.15;
 		ejectType=0;
 		recoilModifier[]={1,1,1};
-		swayModifier[]={2,2,1};
+		swayModifier[]={0.89999998,0.89999998,0.60000002};
 		simpleHiddenSelections[]=
 		{
 			"hide_barrel"
@@ -115,10 +116,10 @@ class cfgWeapons
 					"SVD_silencerInteriorHomeMadeTail_SoundSet"
 				}
 			};
-			reloadTime=1;
+			reloadTime=2;
 			recoil="recoil_cz527";
 			recoilProne="recoil_cz527_prone";
-			dispersion=0.001;
+			dispersion=0.0015;
 			magazineSlot="magazine";
 		};
 		class Particles

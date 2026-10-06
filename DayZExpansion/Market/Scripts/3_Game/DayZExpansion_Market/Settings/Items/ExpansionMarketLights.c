@@ -18,7 +18,10 @@ class ExpansionMarketLights: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LIGHTS";
 		m_FileName = "Lights";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("chemlight_blue", 	370, 	615,	1,100,null,{"Chemlight_Green","Chemlight_Red","Chemlight_White","Chemlight_Yellow"});
 
 		AddItem("roadflare", 	5670, 	9445,	1,100);

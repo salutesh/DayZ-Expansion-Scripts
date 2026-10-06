@@ -113,6 +113,7 @@ modded class ItemBase
 		return true;
 	}
 
+#ifdef DAYZ_1_29
 	//! Fix vanilla CanDisplayAttachmentSlot(string slot_name) not calling CanDisplayAttachmentSlot(int slot_id)
 	//! --------------------------------------------------------------------------------------------------------------
 
@@ -147,6 +148,7 @@ modded class ItemBase
 
 		return CanDisplayAttachmentSlot(InventorySlots.GetSlotIdFromString(slot_name));
 	}
+#endif
 
 	//! Prevent being able to combine/split stacks in locked inventory
 	//! --------------------------------------------------------------------------------------------------------------

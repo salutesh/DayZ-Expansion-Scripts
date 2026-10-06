@@ -131,6 +131,17 @@ class ExpansionGame
 
 	static bool IsSafeToSpawn(string type)
 	{
+	#ifdef DAYZ_1_29
+	#ifdef DZ_Expansion_AI
+		//! 1.30 anim graph is not compatible with 1.29
+		if (ExpansionStatic.IsAnyOf(type, ExpansionStatic.GetWorkingAIClasses()))
+		{
+			EXError.InfoOnce(null, "DayZ 1.29 is not compatible with the 1.30 AI animgraph");
+			return false;
+		}
+	#endif
+	#endif
+
 		TStringArray paths = {CFG_VEHICLESPATH, CFG_WEAPONSPATH, CFG_MAGAZINESPATH};
 
 		string model;
@@ -192,10 +203,6 @@ class ExpansionGame
 	// ExpansionGame OnUpdate
 	// ------------------------------------------------------------
 	void OnUpdate( bool doSim, float timeslice ) 
-	{
-	}
-
-	void OnSyncJuncture(Object target, int junctureID, ParamsReadContext ctx)
 	{
 	}
 	

@@ -22,7 +22,10 @@ class ExpansionMarketTraderBuildingSupplies: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_BUILDING_SUPPLIES";
 		m_FileName = "BuildingSupplies";
 		TraderIcon = "Nails";
-		
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Gardening");
 		Categories.Insert("Tools");
 		Categories.Insert("Supplies");

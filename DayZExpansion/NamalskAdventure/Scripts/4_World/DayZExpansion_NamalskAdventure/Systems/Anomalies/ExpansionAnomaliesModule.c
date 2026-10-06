@@ -417,7 +417,8 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 			if (position == vector.Zero)
 				continue;
 
-	        if (!g_Game.SurfaceIsSea(position[0], position[2]) && !g_Game.SurfaceIsPond(position[0], position[2]))
+			//! @note g_Game.SurfaceIsPond is INCREDIBLY slow, DO NOT USE EVER! g_Game.IsSea is ok
+	        if (!ExpansionStatic.SurfaceIsWater(position[0], position[2]))
 	            largePositions.Insert(position);
 	    }
 

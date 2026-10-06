@@ -24,7 +24,5 @@ class ExpansionMarketTaraHarborZone: ExpansionMarketTraderZone
 
 		Position = "8043.48 2.65 7593.5";
 		Radius = 400;
-
-		Update();
 	}
 };

@@ -22,7 +22,10 @@ class ExpansionMarketTraderAttachments: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_ATTACHMENTS";
 		m_FileName = "Attachments";
 		TraderIcon = "Scrap Metal";
-		
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Magazines");
 		Categories.Insert("Muzzles");
 		Categories.Insert("Bayonets");

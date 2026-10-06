@@ -55,6 +55,7 @@ modded class IngameHud
 	protected bool m_CompassWasOpened;
 	protected PlayerBase m_Player;
 	protected bool m_ExpansionCompassToggle;
+	protected bool m_Expansion_VehicleCompass;
 
 	protected autoptr ExpansionLocatorUI m_Expansion_LocatorUI;
 
@@ -136,10 +137,12 @@ modded class IngameHud
 				m_PlayerArrowMarker.Hide();
 		}
 
-		if (!GetExpansionSettings().GetMap(false).IsLoaded())
+		ExpansionMapSettings settings = GetExpansionSettings().GetMap(false);
+
+		if (!settings.IsLoaded())
 			return;
 
-		if (GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2)
+		if (settings.ShowPlayerPosition == 1 || settings.ShowPlayerPosition == 2)
 		{
 			if (m_PlayerArrowMarker)
 				m_PlayerArrowMarker.Update(timeslice);
@@ -180,18 +183,15 @@ modded class IngameHud
 			UpdateGPS();
 
 			//! COMPASS HUD
-			if (GetExpansionSettings().GetMap())
+			if (settings.EnableHUDCompass)
 			{
-				if (GetExpansionSettings().GetMap().EnableHUDCompass)
+				if (settings.NeedCompassItemForHUDCompass || settings.NeedGPSItemForHUDCompass)
 				{
-					if (GetExpansionSettings().GetMap().NeedCompassItemForHUDCompass || GetExpansionSettings().GetMap().NeedGPSItemForHUDCompass)
-					{
-						UpdateCompass();
-					}
-					else
-					{
-						CompassShow();
-					}
+					UpdateCompass();
+				}
+				else
+				{
+					CompassShow();
 				}
 			}
 		}
@@ -218,31 +218,39 @@ modded class IngameHud
 		if (!m_Player)
 			return;
 
+		ExpansionVehicle vehicle;
+
 		if (GetCompassState())
 		{
-			if (GetExpansionSettings().GetMap().NeedGPSItemForHUDCompass && !m_Player.HasItemGPS() && m_HasGPSForCompassItem)
-			{
+			if (m_HasGPSForCompassItem && !m_Player.HasItemGPS())
 				m_HasGPSForCompassItem = false;
-				CompassHide();
-			}
 
-			if (GetExpansionSettings().GetMap().NeedCompassItemForHUDCompass && !m_Player.HasItemCompass() && m_HasCompassItem)
-			{
+			if (m_HasCompassItem && !m_Player.HasItemCompass())
 				m_HasCompassItem = false;
+
+			if (m_Expansion_VehicleCompass && (!ExpansionVehicle.Get(vehicle, m_Player) || !vehicle.IsHelicopter()))
+				m_Expansion_VehicleCompass = false;
+
+			if (!m_HasGPSForCompassItem && !m_HasCompassItem && !m_Expansion_VehicleCompass)
 				CompassHide();
-			}
 		}
-		else
+		else if (!m_HasGPSForCompassItem && !m_HasCompassItem && !m_Expansion_VehicleCompass)
 		{
-			if (GetExpansionSettings().GetMap().NeedGPSItemForHUDCompass && m_Player.HasItemGPS())
+			ExpansionMapSettings settings = GetExpansionSettings().GetMap();
+
+			if (settings.NeedGPSItemForHUDCompass && m_Player.HasItemGPS())
 			{
 				m_HasGPSForCompassItem = true;
 				CompassShow();
 			}
-
-			if (GetExpansionSettings().GetMap().NeedCompassItemForHUDCompass && m_Player.HasItemCompass())
+			else if (settings.NeedCompassItemForHUDCompass && m_Player.HasItemCompass())
 			{
 				m_HasCompassItem = true;
+				CompassShow();
+			}
+			else if (ExpansionVehicle.Get(vehicle, m_Player) && vehicle.IsHelicopter())
+			{
+				m_Expansion_VehicleCompass = true;
 				CompassShow();
 			}
 		}
@@ -250,9 +258,10 @@ modded class IngameHud
 
 	void Expansion_OnNavigationSettingsUpdated()
 	{
-		m_ExpansionGPSSetting = GetExpansionSettings().GetMap().EnableHUDGPS;
-		m_ExpansionGPSPosSetting = GetExpansionSettings().GetMap().ShowPlayerPosition;
-		m_ExpansionCompassSetting = GetExpansionSettings().GetMap().EnableHUDCompass;
+		auto settings = GetExpansionSettings().GetMap();
+		m_ExpansionGPSSetting = settings.EnableHUDGPS;
+		m_ExpansionGPSPosSetting = settings.ShowPlayerPosition;
+		m_ExpansionCompassSetting = settings.EnableHUDCompass;
 	}
 
 	override void RefreshHudVisibility()
@@ -348,8 +357,9 @@ modded class IngameHud
 	{
 		if (!m_AddedCompassSettings)
 		{
-			int compass_color = GetExpansionSettings().GetMap().CompassColor;
-			int compass_badges_color = GetExpansionSettings().GetMap().CompassBadgesColor;
+			auto settings = GetExpansionSettings().GetMap();
+			int compass_color = settings.CompassColor;
+			int compass_badges_color = settings.CompassBadgesColor;
 
 			m_CompassImage.SetColor(compass_color);
 			m_CompassBadge1.SetColor(compass_badges_color);

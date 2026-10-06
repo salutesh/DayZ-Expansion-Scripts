@@ -341,6 +341,8 @@ modded class Weapon_Base
 				if (strengthMultiplier)
 					eAINoiseSystem.AddNoiseEx(this, eAI_GetNoiseParams(), strengthMultiplier);
 			}
+
+			eAI_ClearItemSignature();
 		}
 		else
 		{
@@ -412,7 +414,12 @@ modded class Weapon_Base
 			float coefAdjusted = surfaceCoef * inSpeed.Length() / g_Game.ConfigGetFloat("cfgAmmo " + ammoType + " initSpeed");
 			if (coefAdjusted == 0)
 				coefAdjusted = 1;
+		#ifdef DAYZ_1_29
 			coefAdjusted *= g_Game.GetWeather().GetNoiseReductionByWeather();
+		#else
+			//! 1.30
+			coefAdjusted *= g_Game.eAI_GetNoiseReductionByWeatherEx(this);
+		#endif
 			eAINoiseSystem.AddNoise(this, pos, string.Format("cfgAmmo %1 NoiseHit", ammoType), coefAdjusted, eAINoiseType.BULLETIMPACT);
 		}
 	}

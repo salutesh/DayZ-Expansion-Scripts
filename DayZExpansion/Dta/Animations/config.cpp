@@ -14,15 +14,13 @@ class CfgPatches
 class CfgVehicles
 {
 	class Man;
+	class enfAnimSys;
 	class SurvivorBase: Man
 	{
-		class enfAnimSys
+		class enfAnimSys: enfAnimSys
 		{
-			meshObject="dz\characters\bodies\player_testing.xob";
 			graphName="DayZExpansion\Animations\Player\player_main.agr";
 			defaultInstance="DayZExpansion\Animations\Player\player_main.asi";
-			skeletonName="player_testing.xob";
-			startNode="MasterControl";
 		};
 	};
 };

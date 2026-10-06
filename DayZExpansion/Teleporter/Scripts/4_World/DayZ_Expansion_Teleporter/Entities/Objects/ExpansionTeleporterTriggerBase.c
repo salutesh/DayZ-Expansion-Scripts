@@ -230,9 +230,7 @@
 
 		if (position[1] == 0)
 			position[1] = g_Game.SurfaceY(position[0], position[2]);
-		player.SetPosition(position);
-		player.SetOrientation(orientation);
-		DayZPlayerSyncJunctures.ExpansionTeleport(player, position, orientation);
+		player.Expansion_Teleport(position, orientation);
 	#ifdef NAMALSK_SURVIVAL
 		ExpansionTeleporterModule.GetModuleInstance().PlayTeleportSound(position);
 	#endif

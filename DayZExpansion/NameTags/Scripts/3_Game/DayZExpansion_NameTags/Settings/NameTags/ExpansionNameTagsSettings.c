@@ -16,7 +16,7 @@
 class ExpansionNameTagsSettingsBase: ExpansionSettingBase
 {
 	bool EnablePlayerTags;
-	int PlayerTagViewRange;
+	float PlayerTagViewRange;
 	string PlayerTagsIcon;
 }
 
@@ -31,7 +31,7 @@ class ExpansionNameTagsSettingsV0: ExpansionNameTagsSettingsBase
  **/
 class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 
 	int PlayerTagsColor;
 	int PlayerNameColor;
@@ -295,6 +295,15 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 					JsonFileLoader<ExpansionNameTagsSettings>.JsonLoadFile(EXPANSION_NAMETAGS_SETTINGS, this);
 				}
 
+				if (settingsBase.m_Version < 5)
+				{
+					if (PlayerTagsColor == -1)
+						PlayerTagsColor = settingsDefault.PlayerTagsColor;
+
+					if (PlayerNameColor == -1)
+						PlayerNameColor = settingsDefault.PlayerNameColor;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -347,8 +356,8 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 		EnablePlayerTags = true;
 		PlayerTagViewRange = 5;
 		PlayerTagsIcon = EXPANSION_NOTIFICATION_ICON_PERSONA;
-		PlayerTagsColor = -1;
-		PlayerNameColor = -1;
+		PlayerTagsColor = ARGB(255, 230, 230, 230);
+		PlayerNameColor = ARGB(255, 230, 230, 230);
 		OnlyInSafeZones = false;
 		OnlyInTerritories = false;
 		ShowPlayerItemInHands = false;

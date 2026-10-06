@@ -16,7 +16,7 @@ class ExpansionActionSwitchAutoHover: ActionInteractBase
 
 	void ExpansionActionSwitchAutoHover()
 	{
-		m_CommandUID		= DayZPlayerConstants.CMD_ACTIONMOD_OPENLID;
+		m_CommandUID		= DayZPlayerConstants.CMD_ACTIONMOD_INTERACTONCE;
 		m_StanceMask		= DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
 		m_HUDCursorIcon		= CursorIcons.LootCorpse;
 	}
@@ -81,8 +81,10 @@ class ExpansionActionSwitchAutoHover: ActionInteractBase
 
 class ExpansionActionSwitchAutoHoverInput: ExpansionActionSwitchAutoHover
 {
+	/*
 	override typename GetInputType()
 	{
 		return ExpansionInputSwitchAutoHover;
 	}
+	*/
 };

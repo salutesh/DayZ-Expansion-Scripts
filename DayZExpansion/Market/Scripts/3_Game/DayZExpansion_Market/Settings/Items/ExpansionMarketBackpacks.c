@@ -18,7 +18,10 @@ class ExpansionMarketBackpacks: ExpansionMarketCategory
 		
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BACKPACKS";
 		m_FileName = "Backpacks";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("childbag_red", 	765, 	1280,	1,100,null,{"ChildBag_Blue","ChildBag_Green"});
 		
 		AddItem("drybag_orange", 	2030, 	3385,	1,100,null,{"DryBag_Yellow","DryBag_Blue","DryBag_Black","DryBag_Red","DryBag_Green"});
@@ -62,5 +65,8 @@ class ExpansionMarketBackpacks: ExpansionMarketCategory
 
 		// Crafted item !
 		//AddItem("DrysackBag_Green", 				120,		300,		1,		100, null, {"DrysackBag_Orange", "DrysackBag_Yellow"});
+		AddItem("Attack2Bag_Black", 800, 1600, 1, 100, null, {"Attack2Bag_Green", "Attack2Bag_Ttsko", "Attack2Bag_Yeger"});
+		AddItem("CourierBag", 800, 1600, 1, 100);
+		AddItem("FurCourierBag", 800, 1600, 1, 100);
 	}
 };

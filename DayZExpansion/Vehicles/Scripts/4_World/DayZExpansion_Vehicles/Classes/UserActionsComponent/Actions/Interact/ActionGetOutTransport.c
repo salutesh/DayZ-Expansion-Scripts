@@ -28,13 +28,13 @@ modded class ActionGetOutTransport
 
 		if (vehicle)
 		{
-			if ( vehicle.CanObjectAttach(got_action_data.m_Player) && vehicle.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat()) )
+			got_action_data.m_Expansion_SeatIdx = vehCommand.GetVehicleSeat();
+
+			if (vehicle.CanObjectAttach(got_action_data.m_Player) && vehicle.LeavingSeatDoesAttachment(got_action_data.m_Expansion_SeatIdx))
 			{
 				got_action_data.m_WasJumpingOut = false;
 				got_action_data.m_WasJumpingOutAnim = false;
 			}
-
-			got_action_data.m_Expansion_SeatIdx = vehicle.CrewMemberIndex(got_action_data.m_Player);
 
 			// Should prevent a few issues related to towing and server crashes
 			if (got_action_data.m_Expansion_SeatIdx == DayZPlayerConstants.VEHICLESEAT_DRIVER && vehicle.IsTowing())
@@ -44,47 +44,9 @@ modded class ActionGetOutTransport
 		}
 	}
 
-	override void OnStart(ActionData action_data)
-	{
-		auto vehicle = ExpansionVehicle.Get(action_data.m_Target.GetObject());
-
-		super.OnStart(action_data);
-
-		if (vehicle)
-		{
-			if (IsMissionClient())
-			{
-				if (vehicle.IsHelicopter())
-					g_Game.GetMission().RemoveActiveInputExcludes({"expansionhelicopter"});
-				else if (vehicle.IsBoat())
-					g_Game.GetMission().RemoveActiveInputExcludes({"expansionboat"});
-				else if (vehicle.IsPlane())
-					g_Game.GetMission().RemoveActiveInputExcludes({"expansionplane"});
-			}
-		}
-	}
-
 	[Obsolete("no replacement")]
 	void Expansion_OnPerformGetInTransport(CarScript car)
 	{
-	}
-
-	override void OnStartServer(ActionData action_data)
-	{
-		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast(action_data);
-
-		auto vehicle = ExpansionVehicle.Get(got_action_data.m_Vehicle);
-
-		if (vehicle)
-		{
-			if (vehicle.IsHelicopter())
-			{
-				if (!vehicle.IsAutoHover())
-					vehicle.EngineStop();  //! If not in auto-hover, getting out stops engine
-			}
-		}
-
-		super.OnStartServer(action_data);
 	}
 
 	override void OnEnd(ActionData action_data)
@@ -109,11 +71,39 @@ modded class ActionGetOutTransport
 		super.OnEndServer(action_data);
 
 		if (vehicle)
+		{
 			vehicle.OnGotOut(action_data.m_Player, got_action_data.m_Expansion_SeatIdx);
+
+			if (got_action_data.m_Expansion_SeatIdx == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+			{
+				if (vehicle.IsHelicopter())
+				{
+					if (!vehicle.IsAutoHover())
+						vehicle.EngineStop();  //! If not in auto-hover, getting out stops engine
+				}
+				else if (vehicle.GetEntity().IsInherited(ExpansionBoatScript))
+				{
+					vehicle.EngineStop();
+				}
+			}
+		}
 
 		if (vehicle && action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleLeave)
 		{
-			GetExpansionSettings().GetLog().PrintLog("[VehicleLeave] Player \"{1:name}\" (id={1:id}) left vehicle {2:name} (id={2:persistent_id} pos={2:position})", action_data.m_Player, vehicle.GetEntity());
+			string seat;
+			if (got_action_data.m_Expansion_SeatIdx == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+			{
+				if (vehicle.IsHelicopter() || vehicle.IsPlane())
+					seat = "pilot";
+				else
+					seat = "driver";
+			}
+			else
+			{
+				seat = "passenger";
+			}
+
+			GetExpansionSettings().GetLog().PrintLog("[VehicleLeave] Player \"{1:name}\" (id={1:id}) left vehicle {2:name} (id={2:persistent_id} pos={2:position}) as " + seat, action_data.m_Player, vehicle.GetEntity());
 		}
 	}
 };

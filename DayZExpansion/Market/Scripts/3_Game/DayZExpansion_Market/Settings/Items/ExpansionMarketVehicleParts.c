@@ -18,7 +18,10 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_VEHICLE_PARTS";
 		m_FileName = "Vehicle_Parts";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("headlighth7_box", 	610, 	1015,	1,100);
 		AddItem("headlighth7", 	600, 	985,	1,100);
 		AddItem("carradiator", 	610, 	1015,	1,100);
@@ -29,6 +32,7 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 	#ifdef EXPANSIONMODVEHICLE
 		AddItem("ExpansionIgniterPlug", 					680, 	1135,	1,		100);
 		AddItem("ExpansionHydraulicHoses", 					610, 	1015,	1,		100);
+		AddItem("ExpansionHydraulicFluid", 250, 500, 1, 100);
 	#endif
 
 		AddItem("hatchbackhood", 	520, 	870,	1,100,null,{"HatchbackHood_Blue","HatchbackHood_BlueRust","HatchbackHood_GreenRust","HatchbackHood_White","HatchbackHood_WhiteRust"});

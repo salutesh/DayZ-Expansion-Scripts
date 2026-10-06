@@ -18,7 +18,10 @@ class ExpansionMarketPistols: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_PISTOLS";
 		m_FileName = "Pistols";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("makarovij70", 	470, 	785,	1,100,{"Mag_IJ70_8Rnd"});
 		AddItem("derringer_black", 	365, 	610,	1,100,null,{"Derringer_Grey","Derringer_Pink"});
 		AddItem("cz75", 	735, 	1230,	1,100,{"Mag_CZ75_15Rnd"});
@@ -28,6 +31,7 @@ class ExpansionMarketPistols: ExpansionMarketCategory
 		AddItem("colt1911", 	3210, 	5345,	1,100,{"Mag_1911_7Rnd"});
 		AddItem("engraved1911", 	3235, 	5390,	1,100,{"Mag_1911_7Rnd"});
 		AddItem("magnum", 	235, 	390,	1,100);
+		AddItem("SawedoffMagnum", 800, 1600, 1, 100);
 		AddItem("deagle", 	225, 	375,	1,100,{"Mag_Deagle_9Rnd"},{"Deagle_Gold"});
 		AddItem("deagle_gold", 	240, 	400,	1,100,{"Mag_Deagle_9Rnd"});
 		AddItem("p1", 	520, 	865,	1,100,{"Mag_P1_8Rnd"});

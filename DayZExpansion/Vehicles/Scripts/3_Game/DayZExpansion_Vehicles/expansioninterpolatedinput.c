@@ -51,8 +51,8 @@ class ExpansionInterpolatedInput
 
 		GetValueRaw(inputInterface);
 
-		//! Interpolate only if not analog input. Hold key = interpolate to tgt value, release key = instantly go to tgt value
-		if (m_ValueRaw == 1.0 && (m_Value != prev || prev == 0.0))
+		//! Hold key = interpolate to tgt value, release key = instantly go to tgt value
+		if (m_ValueRaw != 0.0)
 		{
 			float t = 1.0 - Math.Exp(-m_Speed * sensitivity * dt);
 			m_Value = Math.Lerp(m_Value, m_ValueRaw, t);
@@ -67,6 +67,6 @@ class ExpansionInterpolatedInput
 			EXPrint(this, "m_Action = " + m_Action + " m_ValueRaw = " + m_ValueRaw.ToString(false) + " m_Value = " + m_Value.ToString(false) + " dt " + dt);
 	#endif
 
-		return m_Value * sensitivity;
+		return m_Value;
 	}
 }

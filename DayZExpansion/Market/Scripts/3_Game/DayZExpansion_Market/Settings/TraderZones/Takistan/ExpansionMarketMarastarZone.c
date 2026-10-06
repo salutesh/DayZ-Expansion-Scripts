@@ -24,7 +24,5 @@ class ExpansionMarketMarastarZone: ExpansionMarketTraderZone
 
 		Position = "4611.26 4.6 12334.0";
 		Radius = 500;
-
-		Update();
 	}
 };

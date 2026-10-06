@@ -22,7 +22,10 @@ class ExpansionMarketTraderVehicles: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_VEHICLES";
 		m_FileName = "Vehicles";
 		TraderIcon = "Car";
-		
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Cars");
 		AddCategory("Vehicle_Parts", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 		AddCategory("Batteries", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);		

@@ -18,7 +18,10 @@ class ExpansionMarketBlousesAndSuits: ExpansionMarketCategory
 
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_BLOUSES" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_SUITS");
 		m_FileName = "Blouses_And_Suits";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("blouse_blue", 	280, 	470,	1,100,null,{"Blouse_Violet","Blouse_White","Blouse_Green"});
 			
 		AddItem("mansuit_beige", 	830, 	1380,	1,100,null,{"ManSuit_Black","ManSuit_Blue","ManSuit_Brown","ManSuit_DarkGrey","ManSuit_Khaki","ManSuit_LightGrey","ManSuit_White"});

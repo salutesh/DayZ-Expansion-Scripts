@@ -18,7 +18,10 @@ class ExpansionMarketMedical: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MEDICALS";
 		m_FileName = "Medical";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("charcoaltablets", 	350, 	580,	1,100);
 		AddItem("bandagedressing", 	855, 	1425,	1,100);
 		AddItem("disinfectantalcohol", 	105, 	170,	1,100);

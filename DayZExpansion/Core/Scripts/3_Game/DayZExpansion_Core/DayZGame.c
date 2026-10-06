@@ -44,9 +44,6 @@ modded class DayZGame
 		EXLogPrint(ToString() + " Start time (UTC) " + CF_Date.Epoch(m_Expansion_StartTimestampUTC).Format(CF_Date.DATETIME));
 		EXLogPrint(ToString() + " Runtime since start (seconds) " + GetTickTime());
 
-		CF_Log.s_Expansion_StaticCore = CF_Log.s_Expansion_Static;
-		CF_Log.s_Expansion_Static = new ExpansionStatic;
-
 		if (!FileExist(EXPANSION_FOLDER))
 		{
 			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_FOLDER);
@@ -76,7 +73,6 @@ modded class DayZGame
 #endif
 
 		m_ExpansionGame = null;
-		CF_Log.s_Expansion_Static = CF_Log.s_Expansion_StaticCore;
 
 		Print("[DayZ Expansion] ~DayZGame");
 	}
@@ -272,13 +268,6 @@ modded class DayZGame
 					ExpansionRPCManager.OnRPC(sender, target, ctx);
 				else
 					EXTrace.Print(EXTrace.RPC, this, "Info: Targeted Expansion RPC received, but target doesn't exist");
-				break;
-			case ExpansionScriptRPC.EXPANSION_RPC_SJ:
-				int junctureID;
-				if (ctx.Read(junctureID))
-					m_ExpansionGame.OnSyncJuncture(target, junctureID, ctx);
-				else
-					EXError.Error(this, "Expansion Sync Juncture received, but couldn't read juncture ID");
 				break;
 			default:
 				super.OnRPC(sender, target, rpc_type, ctx);

@@ -21,7 +21,10 @@ class ExpansionMarketAmmo: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_AMMO";
 		m_FileName = "Ammo";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("ammo_12gapellets", 	30, 	50,	1,500);
 		AddItem("ammo_12garubberslug", 	45, 	80,	1,500);
 		AddItem("ammo_12gaslug", 	25, 	45,	1,500);

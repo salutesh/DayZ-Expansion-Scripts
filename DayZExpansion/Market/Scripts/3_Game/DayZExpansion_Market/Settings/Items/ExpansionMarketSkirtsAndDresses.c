@@ -21,7 +21,10 @@ class ExpansionMarketSkirtsAndDresses: ExpansionMarketCategory
 
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_SKIRTS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_DRESSES");
 		m_FileName = "Skirts_And_Dresses";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("skirt_blue", 	630, 	1050,	1,100,null,{"Skirt_Red","Skirt_White","Skirt_Yellow"});
 		
 		AddItem("minidress_pink", 	200, 	335,	1,100,null,{"MiniDress_PinkChecker","MiniDress_RedChecker","MiniDress_BlueChecker","MiniDress_BlueWithDots","MiniDress_WhiteChecker","MiniDress_BrownChecker","MiniDress_GreenChecker"});

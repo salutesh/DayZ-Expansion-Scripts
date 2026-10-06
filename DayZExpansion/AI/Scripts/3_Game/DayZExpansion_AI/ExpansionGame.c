@@ -1,7 +1,5 @@
 modded class ExpansionGame
 {
-	protected ref eAICommandManager m_CommandManager;
-
 	private bool m_InGroup;
 
 	Object m_FirearmFXSource;
@@ -10,15 +8,6 @@ modded class ExpansionGame
 	void ExpansionGame()
 	{
 		m_RPCManager.RegisterClient("RPC_SetInGroup");
-	}
-
-	eAICommandManager GetCommandManager()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "GetCommandManager");
-#endif
-
-		return m_CommandManager;
 	}
 
 	ExpansionRPCManager GetRPCManager()

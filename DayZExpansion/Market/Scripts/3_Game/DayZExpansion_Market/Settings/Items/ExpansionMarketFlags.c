@@ -18,9 +18,13 @@ class ExpansionMarketFlags: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FLAGS";
 		m_FileName = "Flags";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("flag_chernarus", 	375, 	625,	1,100);
 		AddItem("flag_chedaki", 	375, 	625,	1,100);
+		AddItem("Flag_Sakhal", 	375, 	625,	1,100);
 		AddItem("flag_napa", 	375, 	625,	1,100);
 		AddItem("flag_cdf", 	375, 	625,	1,100);
 		AddItem("flag_livonia", 	200, 	335,	1,100);
@@ -115,6 +119,11 @@ class ExpansionMarketFlags: ExpansionMarketCategory
 		AddItem("Expansion_Flag_Pink",				15,		30,		1,		100);
 		AddItem("Expansion_Flag_Purple",			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Rainbow",			15,		30,		1,		100);
+		AddItem("Expansion_Flag_Argentina", 15, 30, 1, 100);
+		AddItem("Expansion_Flag_Italy", 15, 30, 1, 100);
+		AddItem("Expansion_Flag_Turkey", 15, 30, 1, 100);
+		AddItem("Expansion_Flag_Ukraine", 15, 30, 1, 100);
 	#endif
+		AddItem("TerritoryFlagKit", 15, 30, 1, 100);
 	}
 };

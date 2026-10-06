@@ -22,7 +22,10 @@ class ExpansionMarketTraderSpraycans: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_SPRAYCANS";
 		m_FileName = "Spraycans";
 		TraderIcon = "Bottle";
-	
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Spraycans");
 	}
 }

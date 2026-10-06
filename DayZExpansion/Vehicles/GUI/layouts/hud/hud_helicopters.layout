@@ -20,10 +20,605 @@ PanelWidgetClass VehiclePanel {
    vexactsize 1
    style blank
    {
+    ImageWidgetClass AttitudeSky {
+     clipchildren 0
+     color 0.278 0.549 0.796 0.8
+     position 0 1
+     size 172.5 172.5
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     image0 ""
+     imageTexture "{4421078A31439C74}DayZExpansion/Vehicles/GUI/textures/hud_helicopter_attitude.edds"
+     mode blend
+     "src alpha" 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
+     filter 1
+     nocache 0
+    }
+    ImageWidgetClass AttitudeHorizonLine {
+     clipchildren 0
+     color 1 1 1 1
+     position 0 2
+     size 170.5 170.5
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     image0 ""
+     imageTexture "{4421078A31439C74}DayZExpansion/Vehicles/GUI/textures/hud_helicopter_attitude.edds"
+     mode blend
+     "src alpha" 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
+     filter 1
+     nocache 0
+     Mask "{AD912E3ABFB368DF}DayZExpansion/Vehicles/GUI/textures/hud_helicopter_attitude_mask.edds"
+     "Transition width" 0
+     Progress 0.51
+    }
+    ImageWidgetClass AttitudeGround {
+     clipchildren 0
+     color 0.494 0.314 0.129 0.96
+     position 0 1
+     size 172.5 172.5
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     image0 ""
+     imageTexture "{4421078A31439C74}DayZExpansion/Vehicles/GUI/textures/hud_helicopter_attitude.edds"
+     mode blend
+     "src alpha" 1
+     "clamp mode" clamp
+     "stretch mode" stretch_w_h
+     filter 1
+     nocache 0
+     Mask "{AD912E3ABFB368DF}DayZExpansion/Vehicles/GUI/textures/hud_helicopter_attitude_mask.edds"
+     "Transition width" 0
+     Progress 0.505
+     {
+      FrameWidgetClass AttitudePitchPanel {
+       ignorepointer 1
+       clipchildren 1
+       position 0 12
+       size 1 105.3
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        PanelWidgetClass AttitudePitch {
+         ignorepointer 1
+         clipchildren 0
+         position 0 0.055
+         size 134.55 134.55
+         halign center_ref
+         valign top_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         style blank
+         {
+          PanelWidgetClass Attitude_PitchUp_30 {
+           ignorepointer 1
+           color 1 1 1 1
+           position 0 -0.5
+           size 15 1
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           style rover_sim_colorable
+          }
+          PanelWidgetClass Attitude_PitchUp_25 {
+           ignorepointer 1
+           color 1 1 1 1
+           position 0 -0.427606
+           size 25 1
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           style rover_sim_colorable
+          }
+          ImageWidgetClass Attitude_PitchUp_20_Label_L {
+           color 1 1 1 1
+           position -28.5 -0.349066
+           size 10.5 6.5
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           image0 ""
+           imageTexture "{B69EB2FCE2537235}DayZExpansion/Vehicles/GUI/textures/hud_helicopters_attitude_pitch_20.edds"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           filter 1
+           nocache 0
+          }
+          ImageWidgetClass Attitude_PitchUp_20_Label_R {
+           color 1 1 1 1
+           position 28.5 -0.349066
+           size 10.5 6.5
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           image0 ""
+           imageTexture "{B69EB2FCE2537235}DayZExpansion/Vehicles/GUI/textures/hud_helicopters_attitude_pitch_20.edds"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           filter 1
+           nocache 0
+          }
+          PanelWidgetClass Attitude_PitchUp_20 {
+           ignorepointer 1
+           color 1 1 1 1
+           position 0 -0.349066
+           size 40 1
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           style rover_sim_colorable
+          }
+          PanelWidgetClass Attitude_PitchUp_15 {
+           ignorepointer 1
+           color 1 1 1 1
+           position 0 -0.261799
+           size 25 1
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           style rover_sim_colorable
+          }
+          PanelWidgetClass Attitude_PitchUp_10 {
+           ignorepointer 1
+           color 1 1 1 1
+           position 0 -0.174533
+           size 40 1
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           style rover_sim_colorable
+          }
+          ImageWidgetClass Attitude_PitchUp_10_Label_L {
+           color 1 1 1 1
+           position -28.5 -0.174533
+           size 10.5 6.5
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           image0 ""
+           imageTexture "{BC3BE2B1544381B2}DayZExpansion/Vehicles/GUI/textures/hud_helicopters_attitude_pitch_10.edds"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           filter 1
+           nocache 0
+          }
+          ImageWidgetClass Attitude_PitchUp_10_Label_R {
+           color 1 1 1 1
+           position 28.5 -0.174533
+           size 10.5 6.5
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           image0 ""
+           imageTexture "{BC3BE2B1544381B2}DayZExpansion/Vehicles/GUI/textures/hud_helicopters_attitude_pitch_10.edds"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           filter 1
+           nocache 0
+          }
+          PanelWidgetClass Attitude_PitchUp_5 {
+           ignorepointer 1
+           color 1 1 1 1
+           position 0 -0.087266
+           size 25 1
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           style rover_sim_colorable
+          }
+          PanelWidgetClass Attitude_PitchDown_5 {
+           ignorepointer 1
+           color 1 1 1 1
+           position 0 0.087266
+           size 25 1
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           style rover_sim_colorable
+          }
+          PanelWidgetClass Attitude_PitchDown_10 {
+           ignorepointer 1
+           color 1 1 1 1
+           position 0 0.174533
+           size 40 1
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           style rover_sim_colorable
+          }
+          ImageWidgetClass Attitude_PitchDown_10_Label_L {
+           color 1 1 1 1
+           position -28.5 0.174533
+           size 10.5 6.5
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           image0 ""
+           imageTexture "{BC3BE2B1544381B2}DayZExpansion/Vehicles/GUI/textures/hud_helicopters_attitude_pitch_10.edds"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           filter 1
+           nocache 0
+          }
+          ImageWidgetClass Attitude_PitchDown_10_Label_R {
+           color 1 1 1 1
+           position 28.5 0.174533
+           size 10.5 6.5
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           image0 ""
+           imageTexture "{BC3BE2B1544381B2}DayZExpansion/Vehicles/GUI/textures/hud_helicopters_attitude_pitch_10.edds"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           filter 1
+           nocache 0
+          }
+          PanelWidgetClass Attitude_PitchDown_15 {
+           ignorepointer 1
+           color 1 1 1 1
+           position 0 0.261799
+           size 25 1
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           style rover_sim_colorable
+          }
+          PanelWidgetClass Attitude_PitchDown_20 {
+           ignorepointer 1
+           color 1 1 1 1
+           position 0 0.349066
+           size 40 1
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           style rover_sim_colorable
+          }
+          ImageWidgetClass Attitude_PitchDown_20_Label_L {
+           color 1 1 1 1
+           position -28.5 0.349066
+           size 10.5 6.5
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           image0 ""
+           imageTexture "{B69EB2FCE2537235}DayZExpansion/Vehicles/GUI/textures/hud_helicopters_attitude_pitch_20.edds"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           filter 1
+           nocache 0
+          }
+          ImageWidgetClass Attitude_PitchDown_20_Label_R {
+           color 1 1 1 1
+           position 28.5 0.349066
+           size 10.5 6.5
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           image0 ""
+           imageTexture "{B69EB2FCE2537235}DayZExpansion/Vehicles/GUI/textures/hud_helicopters_attitude_pitch_20.edds"
+           mode blend
+           "src alpha" 1
+           "clamp mode" clamp
+           "stretch mode" stretch_w_h
+           filter 1
+           nocache 0
+          }
+          PanelWidgetClass Attitude_PitchDown_25 {
+           ignorepointer 1
+           color 1 1 1 1
+           position 0 0.427606
+           size 25 1
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           style rover_sim_colorable
+          }
+          PanelWidgetClass Attitude_PitchDown_30 {
+           ignorepointer 1
+           color 1 1 1 1
+           position 0 0.5
+           size 15 1
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           style rover_sim_colorable
+          }
+         }
+        }
+       }
+      }
+      ImageWidgetClass Attitude_IdealHorizon_Sky {
+       clipchildren 0
+       color 0.278 0.549 0.796 1
+       position 0 0
+       size 172.5 172.5
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 ""
+       imageTexture "{4FBAB9FFB97E1BA1}DayZExpansion/Vehicles/GUI/textures/hud_helicopter_attitude_idealhorizon.edds"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+       filter 1
+       nocache 0
+      }
+      ImageWidgetClass Attitude_IdealHorizon_Ground {
+       clipchildren 0
+       color 0.494 0.314 0.129 1
+       position 0 0
+       size 172.5 172.5
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 ""
+       imageTexture "{89141C46E7CB135A}DayZExpansion/Vehicles/GUI/textures/hud_helicopter_attitude_idealhorizon_ground.edds"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+       filter 1
+       nocache 0
+      }
+      PanelWidgetClass Attitude_Deg0 {
+       ignorepointer 1
+       color 1 1 1 1
+       position 0 0
+       size 3 12
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      ImageWidgetClass Attitude_Deg10_L {
+       clipchildren 0
+       color 1 1 1 1
+       position 0 0
+       size 2 8
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       rotation 0 0 -10
+       pivot 0.5 10.75
+      }
+      ImageWidgetClass Attitude_Deg10_R {
+       clipchildren 0
+       color 1 1 1 1
+       position 0 0
+       size 2 8
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       rotation 0 0 10
+       pivot 0.5 10.75
+      }
+      ImageWidgetClass Attitude_Deg20_L {
+       clipchildren 0
+       color 1 1 1 1
+       position 0 0
+       size 2 8
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       rotation 0 0 -20
+       pivot 0.5 10.75
+      }
+      ImageWidgetClass Attitude_Deg20_R {
+       clipchildren 0
+       color 1 1 1 1
+       position 0 0
+       size 2 8
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       rotation 0 0 20
+       pivot 0.5 10.75
+      }
+      ImageWidgetClass Attitude_Deg30_L {
+       clipchildren 0
+       color 1 1 1 1
+       position 0 0
+       size 3 12
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       rotation 0 0 -30
+       pivot 0.5 7.2
+      }
+      ImageWidgetClass Attitude_Deg30_R {
+       clipchildren 0
+       color 1 1 1 1
+       position 0 0
+       size 3 12
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       rotation 0 0 30
+       pivot 0.5 7.2
+      }
+      ImageWidgetClass Attitude_Deg60_L {
+       clipchildren 0
+       color 1 1 1 1
+       position 0 0
+       size 3 12
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       rotation 0 0 -60
+       pivot 0.5 7.2
+      }
+      ImageWidgetClass Attitude_Deg60_R {
+       clipchildren 0
+       color 1 1 1 1
+       position 0 0
+       size 3 12
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       rotation 0 0 60
+       pivot 0.5 7.2
+      }
+      PanelWidgetClass Attitude_Deg90_L {
+       ignorepointer 1
+       color 1 1 1 1
+       position 0 -1
+       size 12 3
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass Attitude_Deg90_R {
+       ignorepointer 1
+       color 1 1 1 1
+       position 0 -1
+       size 12 3
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+     }
+    }
     ImageWidgetClass SpeedDial {
      clipchildren 0
      color 0.627 0.627 0.627 1
-     size 195 164
+     position 0 -2
+     size 176.5 176.5
      halign center_ref
      hexactpos 1
      vexactpos 1
@@ -33,13 +628,121 @@ PanelWidgetClass VehiclePanel {
      imageTexture "{DD4435A772DFE53F}gui/textures/cardial_big.edds"
      mode blend
      "src alpha" 1
-     "clamp mode" clamp
-     "stretch mode" stretch_w_h
+     "clamp mode" border
+     "stretch mode" fit_w
      filter 1
      nocache 0
+     {
+      PanelWidgetClass Attitude_Center {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position 0 -7
+       size 2 10
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass Attitude_HorizonLine_L {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -8 0
+       size 10 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass Attitude_HorizonLine_R {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -8 0
+       size 10 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass Attitude_Line_Inner_L {
+       ignorepointer 1
+       color 1 1 1 1
+       position 68 0
+       size 12 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass Attitude_Line_Inner_R {
+       ignorepointer 1
+       color 1 1 1 1
+       position 68 0
+       size 12 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      ImageWidgetClass Attitude_CircleHalf {
+       clipchildren 0
+       position 0 -1
+       size 18 18
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:dayz_gui image:continuous_action_mouse_half"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+       filter 1
+       nocache 0
+       rotation 0 0 90
+      }
+      ImageWidgetClass Attitude_CenterDot {
+       clipchildren 0
+       position 0 0
+       size 4 4
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:dayz_gui image:circle"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+       filter 1
+       nocache 0
+       rotation 0 0 90
+      }
+     }
     }
     ImageWidgetClass SpeedPointer {
-     visible 1
+     visible 0
      clipchildren 0
      position 0 -0.15
      size 18 111
@@ -106,7 +809,7 @@ PanelWidgetClass VehiclePanel {
      hexactsize 0
      vexactsize 1
      style None
-     text ""
+     text "‹ 0 ›"
      font "gui/fonts/sdf_metronbook72"
      "shadow offset" 1 1
      "exact text" 0
@@ -117,10 +820,10 @@ PanelWidgetClass VehiclePanel {
     }
     ImageWidgetClass BatteryLight {
      visible 1
-     position 0 -45
+     position 20 0
      size 38 38
-     halign center_ref
-     valign center_ref
+     halign right_ref
+     valign bottom_ref
      hexactpos 1
      vexactpos 1
      hexactsize 1
@@ -131,10 +834,10 @@ PanelWidgetClass VehiclePanel {
     }
     ImageWidgetClass EngineLight {
      visible 1
-     position -45 -15
+     position 20 -3
      size 38 38
-     halign center_ref
-     valign center_ref
+     halign left_ref
+     valign bottom_ref
      hexactpos 1
      vexactpos 1
      hexactsize 1
@@ -144,10 +847,10 @@ PanelWidgetClass VehiclePanel {
      "src alpha" 1
     }
     ImageWidgetClass LightsIcon {
-     position 45 -15
+     position 20 0
      size 26 26
-     halign center_ref
-     valign center_ref
+     halign right_ref
+     valign top_ref
      hexactpos 1
      vexactpos 1
      hexactsize 1
@@ -159,8 +862,9 @@ PanelWidgetClass VehiclePanel {
     }
     PanelWidgetClass AutoHoverIndicator {
      visible 1
-     position 0 40
-     size 68 18
+     clipchildren 0
+     position 0 36
+     size 32 26
      halign center_ref
      valign center_ref
      hexactpos 1
@@ -170,56 +874,192 @@ PanelWidgetClass VehiclePanel {
      style blank
      {
       TextWidgetClass AutoHoverIcon {
-       color 0.153 0.682 0.377 1
+       visible 0
+       color 0.8 1 0.8 1
        size 18 18
+       position 0 -0.5
        halign center_ref
-       valign bottom_ref
-       hexactpos 0
-       vexactpos 0
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
        hexactsize 1
        vexactsize 1
        fixaspect inside
        text "A"
        font "gui/fonts/sdf_metronbook72"
        "shadow size" 6
+       "shadow color" 0.153 0.682 0.377 1
        "bold text" 0
        "exact text" 0
        "exact text size" 24
        "text halign" center
        "text valign" center
       }
+      ImageWidgetClass AutoHover_CenterDot {
+       visible 1
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position 0 0
+       size 8 8
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:dayz_gui image:circle"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+      }
+      ImageWidgetClass AutoHover_Arrow_Up {
+       visible 1
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position 0 1
+       size 20 8
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:dayz_gui image:radial_selector"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" fit_h
+      }
+      ImageWidgetClass AutoHover_Arrow_Down {
+       visible 1
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position 0 1
+       size 20 8
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:dayz_gui image:radial_selector"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" fit_h
+       "flip v" 1
+      }
+      ImageWidgetClass AutoHover_Arrow_Left {
+       visible 1
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position -2 0
+       size 20 8
+       halign left_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:dayz_gui image:radial_selector"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" fit_h
+       rotation 0 0 -90
+      }
+      ImageWidgetClass AutoHover_Arrow_Right {
+       visible 1
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position -2 0
+       size 20 8
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:dayz_gui image:radial_selector"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" fit_h
+       rotation 0 0 90
+      }
      }
     }
-    PanelWidgetClass VortexIndicator {
-     visible 1
-     position 0 20
-     size 100 18
+    PanelWidgetClass AutoCollectiveIndicator {
+     visible 0
+     clipchildren 0
+     position 0 36
+     size 32 26
      halign center_ref
+     valign center_ref
      hexactpos 1
      vexactpos 1
      hexactsize 1
      vexactsize 1
      style blank
      {
-      TextWidgetClass VortexIcon {
-       color 1 0.549 0.224 1
-       size 100 18
+      ImageWidgetClass AutoCollective_Arrow_Up {
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position 0 2
+       size 8 8
        halign center_ref
-       valign bottom_ref
-       hexactpos 0
-       vexactpos 0
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
        hexactsize 1
        vexactsize 1
        fixaspect inside
-       text "VORTEX"
-       font "gui/fonts/sdf_metronbook72"
-       "shadow size" 6
-       "shadow color" 0.502 0 0 1
-       "bold text" 0
-       "exact text" 0
-       "exact text size" 24
-       "text halign" center
-       "text valign" center
+       image0 "set:expansion_iconset image:arrow_left"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+       rotation 0 0 90
+      }
+      PanelWidgetClass AutoCollective_CenterLine
+      {
+       ignorepointer 1
+       color 0.8 1 0.8 1
+       position 0 0
+       size 18 2
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+       "no focus" 1
+      }
+      ImageWidgetClass AutoCollective_Arrow_Down {
+       clipchildren 0
+       color 0.8 1 0.8 1
+       position 0 2
+       size 8 8
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:expansion_iconset image:arrow_right"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+       rotation 0 0 90
       }
      }
     }
@@ -239,10 +1079,10 @@ PanelWidgetClass VehiclePanel {
    style blank
    "no focus" 0
    {
-    PanelWidgetClass AligmentIndicator {
+    PanelWidgetClass PitchIndicator {
      visible 1
      clipchildren 0
-     color 0.529 0.529 0.529 1
+     color 0.627 0.627 0.627 1
      size 5 172.5
      hexactpos 1
      vexactpos 1
@@ -251,21 +1091,159 @@ PanelWidgetClass VehiclePanel {
      style rover_sim_colorable
      "no focus" 0
      {
-      ProgressBarWidgetClass AligmentProgressBar {
-       visible 1
+      PanelWidgetClass PitchLine {
        ignorepointer 1
+       color 1 1 1 1
        position 0 0
-       size 1 1
+       size 1 2
        halign center_ref
+       valign center_ref
        hexactpos 1
-       vexactpos 1
+       vexactpos 0
        hexactsize 0
-       vexactsize 0
-       style Quantity
-       maximum 1
-       current 0.5
-       vertical 1
-       flipped 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchDown_25_L {
+       visible 0
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -4 -0.427606
+       size 4 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchDown_25_R {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -4 -0.427606
+       size 4 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchDown_20_L {
+       visible 0
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -6 -0.349066
+       size 6 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchDown_20_R {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -6 -0.349066
+       size 6 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchDown_15_L {
+       visible 0
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -4 -0.261799
+       size 4 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchDown_15_R {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -4 -0.261799
+       size 4 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchDown_10_L {
+       visible 0
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -6 -0.174533
+       size 6 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchDown_10_R {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -6 -0.174533
+       size 6 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchDown_5_L {
+       visible 0
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -4 -0.087266
+       size 4 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchDown_5_R {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -4 -0.087266
+       size 4 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
       }
       PanelWidgetClass HorizonLine_L {
        ignorepointer 1
@@ -274,7 +1252,7 @@ PanelWidgetClass VehiclePanel {
        size 8 2
        valign center_ref
        hexactpos 1
-       vexactpos 1
+       vexactpos 0
        hexactsize 1
        vexactsize 1
        priority 1
@@ -288,13 +1266,153 @@ PanelWidgetClass VehiclePanel {
        halign right_ref
        valign center_ref
        hexactpos 1
-       vexactpos 1
+       vexactpos 0
        hexactsize 1
        vexactsize 1
        priority 1
        style rover_sim_colorable
       }
-      PanelWidgetClass CurrentAlignmentIndicator {
+      PanelWidgetClass PitchUp_5_L {
+       visible 0
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -4 0.087266
+       size 4 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchUp_5_R {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -4 0.087266
+       size 4 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchUp_10_L {
+       visible 0
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -6 0.174533
+       size 6 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchUp_10_R {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -6 0.174533
+       size 6 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchUp_15_L {
+       visible 0
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -4 0.261799
+       size 4 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchUp_15_R {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -4 0.261799
+       size 4 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchUp_20_L {
+       visible 0
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -6 0.349066
+       size 6 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchUp_20_R {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -6 0.349066
+       size 6 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchUp_25_L {
+       visible 0
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -4 0.427606
+       size 4 2
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass PitchUp_25_R {
+       ignorepointer 1
+       color 0.627 0.627 0.627 1
+       position -4 0.427606
+       size 4 2
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass CurrentPitchIndicator {
        visible 1
        clipchildren 0
        position 0 -26
@@ -307,7 +1425,7 @@ PanelWidgetClass VehiclePanel {
        vexactsize 1
        style blank
        {
-        TextWidgetClass CurrentAlignmentValue {
+        TextWidgetClass CurrentPitchValue {
          clipchildren 0
          position 0.08 0
          size 1 12
@@ -318,7 +1436,7 @@ PanelWidgetClass VehiclePanel {
          hexactsize 0
          vexactsize 1
          style None
-         text "45#STR_EXPANSION_DEGREES"
+         text "0°"
          font "gui/fonts/sdf_metronbook72"
          "shadow size" 4
          "shadow color" 0 0 0 1
@@ -328,7 +1446,7 @@ PanelWidgetClass VehiclePanel {
          "exact text size" 12
          "text halign" center
         }
-        TextWidgetClass CurrentAlignmentLabel {
+        TextWidgetClass CurrentPitchLabel {
          visible 0
          clipchildren 0
          position 0 11
@@ -378,7 +1496,7 @@ PanelWidgetClass VehiclePanel {
        hexactsize 0
        vexactsize 0
        style Quantity
-       minimum -0.2
+       minimum 0
        maximum 1
        current 0
        vertical 1
@@ -400,7 +1518,7 @@ PanelWidgetClass VehiclePanel {
       PanelWidgetClass Thrust50 {
        ignorepointer 1
        color 0.627 0.627 0.627 1
-       position -8 -0.082
+       position -8 0
        size 8 2
        halign right_ref
        valign center_ref
@@ -414,7 +1532,7 @@ PanelWidgetClass VehiclePanel {
       PanelWidgetClass Thrust0 {
        ignorepointer 1
        color 0.627 0.627 0.627 1
-       position -8 0.16
+       position -8 0
        size 8 2
        halign right_ref
        valign bottom_ref
@@ -426,6 +1544,7 @@ PanelWidgetClass VehiclePanel {
        style rover_sim_colorable
       }
       PanelWidgetClass ThrustN20 {
+       visible 0
        ignorepointer 1
        color 0.627 0.627 0.627 1
        position -8 0
@@ -842,6 +1961,40 @@ PanelWidgetClass VehiclePanel {
         }
        }
       }
+      PanelWidgetClass VortexIndicator {
+       visible 1
+       position 0 -12.5
+       size 100 18
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style blank
+       {
+        TextWidgetClass VortexIcon {
+         color 1 0.549 0.224 1
+         size 100 18
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         fixaspect inside
+         text "VORTEX"
+         font "gui/fonts/sdf_metronbook72"
+         "shadow size" 6
+         "shadow color" 0.502 0 0 1
+         "bold text" 0
+         "exact text" 0
+         "exact text size" 24
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
      }
     }
     PanelWidgetClass RightColumn {
@@ -923,7 +2076,7 @@ PanelWidgetClass VehiclePanel {
          rotation 0 0 -40
          pivot 0.5 0.7
         }
-        ImageWidgetClass HydraulicFluidLight {
+        PanelWidgetClass HydraulicFluidLight {
          visible 1
          position 0 -0.04
          size 32 32
@@ -933,20 +2086,13 @@ PanelWidgetClass VehiclePanel {
          vexactpos 0
          hexactsize 1
          vexactsize 1
-         fixaspect inside
-         image0 "set:dayz_inventory image:gascanister"
-         mode blend
-         "src alpha" 1
-         "clamp mode" clamp
-         "stretch mode" stretch_w_h
-         filter 1
-         nocache 0
+         style blank
          {
           ImageWidgetClass HydraulicFluidLight1 {
            visible 1
            inheritalpha 0
-           position 0 0
-           size 8 11
+           position 0 1
+           size 13 18
            halign center_ref
            valign center_ref
            hexactpos 1
@@ -1122,62 +2268,6 @@ PanelWidgetClass VehiclePanel {
             }
            }
           }
-          PanelWidgetClass HoverALTIndicator {
-           visible 0
-           clipchildren 0
-           position 0 75
-           size 1 0.4
-           halign center_ref
-           hexactpos 1
-           vexactpos 1
-           hexactsize 0
-           vexactsize 0
-           style blank
-           {
-            TextWidgetClass HoverALTValue {
-             clipchildren 0
-             size 0.33 16
-             halign center_ref
-             valign center_ref
-             hexactpos 0
-             vexactpos 0
-             hexactsize 0
-             vexactsize 1
-             style None
-             text "0"
-             font "gui/fonts/sdf_metronbook72"
-             "shadow size" 4
-             "shadow color" 0 0 0 1
-             "shadow offset" 2 2
-             "bold text" 1
-             "exact text" 0
-             "exact text size" 16
-             "text halign" center
-            }
-            TextWidgetClass HoverALTLabel {
-             clipchildren 0
-             position 0 12
-             size 1 18
-             halign center_ref
-             valign center_ref
-             hexactpos 1
-             vexactpos 1
-             hexactsize 0
-             vexactsize 1
-             style None
-             text "m"
-             font "gui/fonts/sdf_metronbook72"
-             "shadow size" 4
-             "shadow offset" 1 1
-             "italic text" 0
-             "exact text" 0
-             "size to text h" 0
-             "size to text v" 0
-             "text halign" center
-             "text valign" center
-            }
-           }
-          }
          }
         }
        }
@@ -1246,6 +2336,488 @@ PanelWidgetClass VehiclePanel {
        "exact text size" 12
        "text halign" center
        "text valign" center
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass InfoPanel {
+   clipchildren 0
+   position 18 -18
+   size 128 18
+   halign center_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style blank
+   {
+    TextWidgetClass InfoLabel {
+     clipchildren 0
+     position 10 0
+     size 128 12
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style None
+     text "MANUAL TRIM"
+     font "gui/fonts/sdf_metronbook72"
+     "shadow size" 4
+     "shadow offset" 1 1
+     "italic text" 0
+     "exact text" 0
+     "size to text h" 1
+     "size to text v" 0
+     "text halign" left
+     "text valign" center
+     {
+      ImageWidgetClass InfoIcon {
+       position -26 0
+       size 28 28
+       halign left_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect inside
+       image0 "set:ccgui_enforce image:HudUserMarker"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+       filter 1
+       nocache 0
+      }
+     }
+    }
+   }
+  }
+  WrapSpacerWidgetClass SFComms {
+   ignorepointer 1
+   clipchildren 0
+   position -512 99
+   size 500 121
+   halign right_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   content_halign left
+   content_valign bottom
+   Margin 0
+   Padding 0
+   {
+    GridSpacerWidgetClass Falco {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     halign left_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     Padding 4
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign left
+     content_valign bottom
+     Columns 2
+     Rows 1
+     {
+      PanelWidgetClass Avatar_Falco_Border {
+       ignorepointer 1
+       color 0.741 0.847 0.922 1
+       clipchildren 0
+       size 93 117
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+       {
+        ImageWidgetClass Avatar_Falco {
+         ignorepointer 1
+         size 87 111
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:expansion_sf_team image:falco"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         filter 0
+         nocache 0
+        }
+       }
+      }
+      GridSpacerWidgetClass Chat_Falco {
+       ignorepointer 1
+       position 0 0
+       size 1 32
+       halign left_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       Margin 4
+       Padding 14
+       "Size To Content H" 1
+       "Size To Content V" 0
+       content_halign left
+       content_valign bottom
+       Columns 1
+       Rows 1
+       {
+        TextWidgetClass Chat_Falco_0 {
+         ignorepointer 1
+         size 1 24
+         halign left_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         text "...HERE WE GO AGAIN..."
+         font "DayZExpansion/Vehicles/GUI/fonts/sdf_arwing"
+         "shadow size" 2
+         "shadow color" 0.029 0.082 0.156 1
+         "shadow offset" 3 3
+         "text sharpness" 3
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 0
+        }
+       }
+      }
+     }
+    }
+    GridSpacerWidgetClass Fox {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     halign left_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     Padding 4
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign left
+     content_valign bottom
+     Columns 2
+     Rows 1
+     {
+      PanelWidgetClass Avatar_Fox_Border {
+       ignorepointer 1
+       color 0.741 0.847 0.922 1
+       clipchildren 0
+       size 93 117
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+       {
+        ImageWidgetClass Avatar_Fox {
+         ignorepointer 1
+         size 87 111
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:expansion_sf_team image:fox"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         filter 0
+         nocache 0
+        }
+       }
+      }
+      GridSpacerWidgetClass Chat_Fox {
+       ignorepointer 1
+       position 0 0
+       size 1 70
+       halign left_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       Margin 4
+       Padding 14
+       "Size To Content H" 1
+       "Size To Content V" 0
+       content_halign left
+       content_valign bottom
+       Columns 1
+       Rows 2
+       {
+        TextWidgetClass Chat_Fox_0 {
+         ignorepointer 1
+         size 1 24
+         halign left_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         text "YOU'RE KINDA OBSESSED,"
+         font "DayZExpansion/Vehicles/GUI/fonts/sdf_arwing"
+         "shadow size" 2
+         "shadow color" 0.029 0.082 0.156 1
+         "shadow offset" 3 3
+         "text sharpness" 3
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 0
+        }
+        TextWidgetClass Chat_Fox_1 {
+         ignorepointer 1
+         size 1 24
+         halign left_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         text "PEPPY."
+         font "DayZExpansion/Vehicles/GUI/fonts/sdf_arwing"
+         "shadow size" 2
+         "shadow color" 0.029 0.082 0.156 1
+         "shadow offset" 3 3
+         "text sharpness" 3
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 0
+        }
+       }
+      }
+     }
+    }
+    GridSpacerWidgetClass Peppy {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     halign left_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     Padding 4
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign left
+     content_valign bottom
+     Columns 2
+     Rows 1
+     {
+      PanelWidgetClass Avatar_Peppy_Border {
+       ignorepointer 1
+       color 0.741 0.847 0.922 1
+       clipchildren 0
+       size 93 117
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+       {
+        ImageWidgetClass Avatar_Peppy {
+         ignorepointer 1
+         size 87 111
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:expansion_sf_team image:peppy"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         filter 0
+         nocache 0
+        }
+       }
+      }
+      GridSpacerWidgetClass Chat_Peppy {
+       ignorepointer 1
+       position 0 0
+       size 1 32
+       halign left_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       Margin 4
+       Padding 14
+       "Size To Content H" 1
+       "Size To Content V" 0
+       content_halign left
+       content_valign bottom
+       Columns 1
+       Rows 1
+       {
+        TextWidgetClass Chat_Peppy_0 {
+         ignorepointer 1
+         size 1 24
+         halign left_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         text "BARREL ROLL!!!"
+         font "DayZExpansion/Vehicles/GUI/fonts/sdf_arwing"
+         "shadow size" 2
+         "shadow color" 0.029 0.082 0.156 1
+         "shadow offset" 3 3
+         "text sharpness" 3
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 0
+        }
+       }
+      }
+     }
+    }
+    GridSpacerWidgetClass Slippy {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     halign left_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     Padding 4
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign left
+     content_valign bottom
+     Columns 2
+     Rows 1
+     {
+      PanelWidgetClass Avatar_Slippy_Border {
+       ignorepointer 1
+       color 0.741 0.847 0.922 1
+       clipchildren 0
+       size 93 117
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+       {
+        ImageWidgetClass Avatar_Slippy {
+         ignorepointer 1
+         size 87 111
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:expansion_sf_team image:slippy"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         filter 0
+         nocache 0
+        }
+       }
+      }
+      GridSpacerWidgetClass Chat_Slippy {
+       ignorepointer 1
+       position 0 0
+       size 1 70
+       halign left_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       Margin 4
+       Padding 14
+       "Size To Content H" 1
+       "Size To Content V" 0
+       content_halign left
+       content_valign bottom
+       Columns 1
+       Rows 2
+       {
+        TextWidgetClass Chat_Slippy_0 {
+         ignorepointer 1
+         size 1 24
+         halign left_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         text "FOX HAS A POINT,"
+         font "DayZExpansion/Vehicles/GUI/fonts/sdf_arwing"
+         "shadow size" 2
+         "shadow color" 0.029 0.082 0.156 1
+         "shadow offset" 3 3
+         "text sharpness" 3
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 0
+        }
+        TextWidgetClass Chat_Slippy_1 {
+         ignorepointer 1
+         size 1 24
+         halign left_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         text "Y'KNOW..."
+         font "DayZExpansion/Vehicles/GUI/fonts/sdf_arwing"
+         "shadow size" 2
+         "shadow color" 0.029 0.082 0.156 1
+         "shadow offset" 3 3
+         "text sharpness" 3
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 0
+        }
+       }
       }
      }
     }

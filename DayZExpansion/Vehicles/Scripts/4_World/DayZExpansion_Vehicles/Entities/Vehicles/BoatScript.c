@@ -46,9 +46,17 @@ modded class BoatScript
 		m_ExpansionVehicle.OnCECreate();
 	}
 
+#ifndef DAYZ_1_29
+	//! 1.30+
+	override void OnCEIterate(float currentTime, float elapsedTime)
+	{
+		super.OnCEIterate(currentTime, elapsedTime);
+#else
+	//! 1.29
 	override void OnCEUpdate()
 	{
 		super.OnCEUpdate();
+#endif
 
 		m_ExpansionVehicle.AutoCover();
 	}
@@ -84,6 +92,13 @@ modded class BoatScript
 				m_Expansion_FuelCheckTime = 0;
 			}
 		}
+	}
+
+	override void OnUpdate(float dt)
+	{
+		super.OnUpdate(dt);
+
+		m_ExpansionVehicle.OnUpdate(dt);
 	}
 
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)

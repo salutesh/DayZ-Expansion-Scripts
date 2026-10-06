@@ -22,7 +22,10 @@ class ExpansionMarketTraderFishing: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_FISHING";
 		m_FileName = "Fishing";
 		TraderIcon = "Fishing";
+	}
 
+	override void DefaultItems()
+	{
 		// FISHING ITEMS
 		Categories.Insert("Fishing");
 		

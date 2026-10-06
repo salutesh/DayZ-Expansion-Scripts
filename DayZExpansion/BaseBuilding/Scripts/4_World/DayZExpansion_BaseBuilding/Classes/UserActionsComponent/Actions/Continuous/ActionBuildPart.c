@@ -67,7 +67,19 @@ modded class ActionBuildPart
 		{
 			if ( item_in_hands.GetType() == "ExpansionAdminHammer" )
 			{
-				if ( !construction.IsColliding( part_name ) && construction.CanBuildPart( part_name, action_data.m_MainItem, true ) )
+				bool isColliding;
+
+			#ifdef DAYZ_1_29
+				isColliding = construction.IsColliding( part_name );
+			#else
+				//! 1.30+
+				CollisionCheckData check_data = new CollisionCheckData;
+				check_data.m_PartName = part_name;
+				check_data.m_AdditionalExcludes.Insert(action_data.m_Player);
+				isColliding = construction.IsCollidingEx(check_data);
+			#endif
+				
+				if ( !isColliding && construction.CanBuildPart( part_name, action_data.m_MainItem, true ) )
 				{
 					construction.Expansion_AdminBuildPartServer( action_data.m_Player, part_name, AT_BUILD_PART );
 

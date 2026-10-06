@@ -129,7 +129,8 @@ class ExpansionItemSpawnHelper
 			if (item.HasQuantity())
 			{
 				float itemQuantity = item.GetQuantityMax() * quantityPercent / 100;
-				if (item.Expansion_IsStackable())
+				string stackedUnit = item.ConfigGetString("stackedUnit");
+				if (item.Expansion_IsStackable() || stackedUnit == "pc." || stackedUnit == "pills")
 					itemQuantity = Math.Round(itemQuantity);
 				item.SetQuantity(itemQuantity);
 

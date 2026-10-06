@@ -18,7 +18,10 @@ class ExpansionMarketEvent: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_EVENT";
 		m_FileName = "Event";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("easteregg", 	305, 	510,	1,250);
 		AddItem("crookednose", 	1080, 	1800,	1,250);
 		AddItem("cauldron", 	1080, 	1800,	1,250);

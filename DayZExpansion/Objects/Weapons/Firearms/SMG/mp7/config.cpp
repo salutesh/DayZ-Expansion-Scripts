@@ -23,9 +23,9 @@ class CfgWeapons
 	{
 		scope=0;
 		weight=1900;
-		absorbency=0.1;
-		repairableWithKits[]={5,1};
-		repairCosts[]={30,25};
+		absorbency=0;
+		repairableWithKits[]={1};
+		repairCosts[]={25};
 		discreteDistance[]={75,150};
 		discreteDistanceInitIndex=0;
 		modelOptics="-";
@@ -56,10 +56,12 @@ class CfgWeapons
 			"Mag_Expansion_MP7_40Rnd"
 		};
 		magazineSwitchTime=0.30000001;
-		WeaponLength=0.66352999;
-		barrelArmor=1.35;
+		WeaponLength=0.55000001;
+		barrelArmor=1.9;
+		initSpeedMultiplier=1.15;
 		ejectType=1;
 		recoilModifier[]={1,1,1};
+		swayModifier[]={0.94999999,0.94999999,0.69999999};
 		reloadAction="ReloadCZ61";
 		hiddenSelections[]=
 		{
@@ -80,6 +82,8 @@ class CfgWeapons
 			soundSetShot[]=
 			{
 				"CZ75_Shot_SoundSet",
+				"CZ75_Tail_2D_SoundSet",
+				"CZ75_Shot_iterior_SoundSet",
 				"CZ75_Tail_SoundSet",
 				"CZ75_InteriorTail_SoundSet"
 			};
@@ -87,21 +91,21 @@ class CfgWeapons
 			{
 				
 				{
-					"CZ61_silencer_SoundSet",
+					"CZ61_1st_silencer_SoundSet",
 					"CZ61_silencerTail_SoundSet",
 					"CZ61_silencerInteriorTail_SoundSet"
 				},
 				
 				{
-					"CZ61_silencerHomeMade_SoundSet",
+					"CZ61_1st_silencerHomeMade_SoundSet",
 					"CZ61_silencerHomeMadeTail_SoundSet",
-					"CZ61_silencerInteriorHomeMadeTail_SoundSet"
+					"CZ61_silencerHomeMadeInteriorTail_SoundSet"
 				}
 			};
-			reloadTime=0.055;
+			reloadTime=0.12;
 			recoil="recoil_cz61";
 			recoilProne="recoil_cz61_prone";
-			dispersion=0.003;
+			dispersion=0.0044999998;
 			magazineSlot="magazine";
 		};
 		class FullAuto: Mode_FullAuto
@@ -109,6 +113,8 @@ class CfgWeapons
 			soundSetShot[]=
 			{
 				"CZ75_Shot_SoundSet",
+				"CZ75_Tail_2D_SoundSet",
+				"CZ75_Shot_iterior_SoundSet",
 				"CZ75_Tail_SoundSet",
 				"CZ75_InteriorTail_SoundSet"
 			};
@@ -124,7 +130,7 @@ class CfgWeapons
 				{
 					"CZ61_silencerHomeMade_SoundSet",
 					"CZ61_silencerHomeMadeTail_SoundSet",
-					"CZ61_silencerInteriorHomeMadeTail_SoundSet"
+					"CZ61_silencerHomeMadeInteriorTail_SoundSet"
 				}
 			};
 			reloadTime=0.059999999;
@@ -334,7 +340,7 @@ class CfgWeapons
 				};
 				class Weapon_Movement_Rifle_Sprint
 				{
-					soundSet="Weapon_Movement_Rifle_sprintErc_L_SoundSet";
+					soundSet="Weapon_Movement_Rifle_sprintErc_SoundSet";
 					id=103;
 				};
 				class Weapon_Movement_Rifle_Land

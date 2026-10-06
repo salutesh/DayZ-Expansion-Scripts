@@ -1512,7 +1512,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		array<ref ExpansionMarketMenuSkinsDropdownElement> currentElements;
 
 		ExpansionSkinModule skinModule = ExpansionSkinModule.Cast(CF_ModuleCoreManager.Get(ExpansionSkinModule));
-		if (skinModule)
+		if (skinModule && baseItem.IsVehicle())
 		{
 			array<ExpansionSkin> skins = new array<ExpansionSkin>;
 			string defaultSkin;

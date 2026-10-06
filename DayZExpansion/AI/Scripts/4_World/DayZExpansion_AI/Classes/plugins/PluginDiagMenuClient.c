@@ -34,5 +34,22 @@ modded class PluginDiagMenuClient
         rpc.Write(state);
         rpc.Expansion_Send(true);
 	}
+
+	override void OnRPC(PlayerBase player, int rpc_type, ParamsReadContext ctx)
+	{
+		super.OnRPC(player, rpc_type, ctx);
+
+		switch (rpc_type)
+		{
+			//! Not used by vanilla on client so we can grab it
+			case ERPCs.DEV_DIAGMENU_SUBSCRIBE:
+				int mask;
+
+				if (ctx.Read(mask) && (mask & ESubscriberSystems.TRIGGERS))
+					ExpansionEffectAreaMergedCluster.UpdateAll();
+
+				break;
+		}
+	}
 };
 #endif

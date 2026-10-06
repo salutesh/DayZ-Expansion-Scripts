@@ -24,7 +24,5 @@ class ExpansionMarketGreenMountainZone: ExpansionMarketTraderZone
 
 		Position = "3728.27 403.0 6003.6"; 	
 		Radius = 500;
-
-		Update();
 	}
 };

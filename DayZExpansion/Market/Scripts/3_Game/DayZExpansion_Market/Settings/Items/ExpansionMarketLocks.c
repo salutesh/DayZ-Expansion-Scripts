@@ -18,7 +18,10 @@ class ExpansionMarketLocks: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LOCKS";
 		m_FileName = "Locks";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("combinationlock", 	450, 	750,	1,100);
 		AddItem("combinationlock4", 	450, 	750,	1,100);
 	#ifdef EXPANSIONMODBASEBUILDING		

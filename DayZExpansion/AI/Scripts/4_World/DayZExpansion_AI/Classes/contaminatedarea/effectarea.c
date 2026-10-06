@@ -63,11 +63,34 @@ modded class EffectArea
 		if (!g_Game)
 			return;
 
+		Expansion_RemoveDangerousArea();
+	}
+
+	override void EEDelete(EntityAI parent)
+	{
+		super.EEDelete(parent);
+
+		Expansion_RemoveDangerousArea();
+	}
+
+	void Expansion_RemoveDangerousArea()
+	{
+		int areaIndex;
+
 		if (s_Expansion_DangerousAreas)
 		{
-			s_Expansion_DangerousAreas.RemoveItemUnOrdered(this);
+			areaIndex = s_Expansion_DangerousAreas.Find(this);
 
-			EXTrace.Print(EXTrace.AI, this, "Removed from " + ExpansionStatic.GetDebugInfo(s_Expansion_DangerousAreas));
+			if (areaIndex > -1)
+			{
+				s_Expansion_DangerousAreas.Remove(areaIndex);
+
+				EXTrace.Print(EXTrace.AI, this, "Removed from " + ExpansionStatic.GetDebugInfo(s_Expansion_DangerousAreas));
+			}
+			else if (m_Expansion_MergedCluster)
+			{
+				EXError.Error(this, "Area is not in static dangerous areas array but is part of a merged cluster");
+			}
 		}
 
 		if (m_Expansion_MergedCluster)
@@ -75,19 +98,19 @@ modded class EffectArea
 			//! Update cluster containing this area
 			auto cluster = m_Expansion_MergedCluster;
 
-			int areaIndex = cluster.m_Areas.Find(this);
+			areaIndex = cluster.m_Areas.Find(this);
 
 			if (areaIndex > -1)
 			{
-				if (cluster.m_Areas.Count() > 1)
-				{
-					cluster.m_Areas.Remove(areaIndex);
+				cluster.m_Areas.Remove(areaIndex);
 
-					EXTrace.Print(EXTrace.AI, this, "Removed from " + cluster);
+				EXTrace.Print(EXTrace.AI, this, "Removed from " + cluster);
 
+				if (cluster.m_Areas.Count() > 0)
 					cluster.RemoveNonOverlappingAndUpdate();
-				}
 			}
+
+			m_Expansion_MergedCluster = null;
 		}
 	}
 

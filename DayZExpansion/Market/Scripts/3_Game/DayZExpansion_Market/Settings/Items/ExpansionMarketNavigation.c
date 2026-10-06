@@ -18,7 +18,10 @@ class ExpansionMarketNavigation: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_NAVIGATION";
 		m_FileName = "Navigation";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("compass", 	960, 	1600,	1,100);
 		AddItem("orienteeringcompass", 	330, 	555,	1,100);
 

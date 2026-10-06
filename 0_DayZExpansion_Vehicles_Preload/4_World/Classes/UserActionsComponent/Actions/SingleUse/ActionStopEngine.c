@@ -35,6 +35,12 @@ modded class ActionStopEngine
 			return false;  //! Vanilla boat has own stop engine action
 	#endif
 
+	#ifndef DAYZ_1_29
+		//! 1.30
+		if (vehicle.GetMotorbike())
+			return false;  //! Vanilla motorbike has own start engine action
+	#endif
+
 		if (vehicle.IsPlayerInSeat(player, DayZPlayerConstants.VEHICLESEAT_DRIVER))
 		{
 			if (vehicle.EngineIsOn())
@@ -45,7 +51,7 @@ modded class ActionStopEngine
 				m_Expansion_EngineName = vehicle.EngineGetName();
 			#endif
 
-				if (vehicle.GetSpeedometerAbsolute() <= 8)
+				if (vehicle.GetSpeedometerAbsolute() <= 8 || vehicle.IsHelicopter())
 					return true;
 			}
 		}

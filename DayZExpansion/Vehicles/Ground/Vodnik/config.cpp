@@ -168,6 +168,9 @@ class CfgVehicles
 			};
 		};
 	};
+	class ExpansionVodnikWheel_Ruined: ExpansionVodnikWheel
+	{
+	};
 	class Vehicle_ExpansionVodnikWheel: ExpansionWheelBase
 	{
 		scope=0;

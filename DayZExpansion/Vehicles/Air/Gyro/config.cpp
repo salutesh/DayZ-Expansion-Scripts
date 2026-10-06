@@ -146,11 +146,7 @@ class CfgVehicles
 				"Expansion_Gyro_Engine_Ext_SoundSet",
 				"Expansion_Gyro_Rotor_Ext_SoundSet"
 			};
-			soundSetsInt[]=
-			{
-				"Expansion_Gyro_Engine_Int_SoundSet",
-				"Expansion_Gyro_Rotor_Int_SoundSet"
-			};
+			soundSetsInt[]={};
 		};
 		class DamageSystem: DamageSystem
 		{
@@ -381,6 +377,7 @@ class CfgVehicles
 			tailForceCoef=8;
 			linearFrictionCoef[]={16,0.039999999,0.039999999};
 			angularFrictionCoef=1.5;
+			translatingTendencyCoef=0;
 			class Rotor
 			{
 				minAutoRotateSpeed=2;
@@ -399,14 +396,14 @@ class CfgVehicles
 				{
 					speed=10;
 					max=1;
-					coefficient=0.30000001;
+					coefficient=0.40000001;
 					animation="cyclicForward";
 				};
 				class Side
 				{
 					speed=10;
 					max=1;
-					coefficient=0.30000001;
+					coefficient=0.40000001;
 					animation="cyclicAside";
 				};
 			};
@@ -488,6 +485,7 @@ class CfgVehicles
 			tailForceCoef=8;
 			linearFrictionCoef[]={16,0.039999999,0.039999999};
 			angularFrictionCoef=1.5;
+			translatingTendencyCoef=0;
 			class Rotor
 			{
 				minAutoRotateSpeed=2;
@@ -506,14 +504,14 @@ class CfgVehicles
 				{
 					speed=10;
 					max=1;
-					coefficient=0.30000001;
+					coefficient=0.40000001;
 					animation="cyclicForward";
 				};
 				class Side
 				{
 					speed=10;
 					max=1;
-					coefficient=0.30000001;
+					coefficient=0.40000001;
 					animation="cyclicAside";
 				};
 			};
@@ -691,6 +689,7 @@ class CfgVehicles
 			tailForceCoef=8;
 			linearFrictionCoef[]={16,0.039999999,0.039999999};
 			angularFrictionCoef=1.5;
+			translatingTendencyCoef=0;
 			class Rotor
 			{
 				minAutoRotateSpeed=2;
@@ -709,14 +708,14 @@ class CfgVehicles
 				{
 					speed=10;
 					max=1;
-					coefficient=0.30000001;
+					coefficient=0.40000001;
 					animation="cyclicForward";
 				};
 				class Side
 				{
 					speed=10;
 					max=1;
-					coefficient=0.30000001;
+					coefficient=0.40000001;
 					animation="cyclicAside";
 				};
 			};

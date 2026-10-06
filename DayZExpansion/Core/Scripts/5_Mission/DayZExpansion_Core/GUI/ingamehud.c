@@ -23,6 +23,17 @@ modded class IngameHud
 	}
 #endif
 
+	void IngameHud()
+	{
+		GetExpansionClientSettings().SI_UpdateSetting.Insert(Expansion_OnClientSettingsUpdated);
+	}
+
+	void ~IngameHud()
+	{
+		if (g_Game)
+			GetExpansionClientSettings().SI_UpdateSetting.Remove(Expansion_OnClientSettingsUpdated);
+	}
+
 	override bool Expansion_CanShowHUDElements(DayZPlayer player = null)
 	{
 #ifdef DIAG_DEVELOPER
@@ -66,5 +77,19 @@ modded class IngameHud
 	override bool Expansion_IsVisible()
 	{
 		return !m_HudVisibility.IsContextFlagActive(IngameHudVisibility.HUD_HIDE_FLAGS);
+	}
+
+	void Expansion_OnClientSettingsUpdated()
+	{
+		if (g_Game.GetProfileOption(EDayZProfilesOptions.HUD_VEHICLE) && !GetExpansionClientSettings().ToggleVehicleHudOnHudToggle)
+			SetVehicleHudDisabled(false);
+	}
+
+	override void ShowHudPlayer(bool show)
+	{
+		super.ShowHudPlayer(show);
+
+		if (GetExpansionClientSettings().ToggleVehicleHudOnHudToggle)
+			SetVehicleHudDisabled(!show);
 	}
 }

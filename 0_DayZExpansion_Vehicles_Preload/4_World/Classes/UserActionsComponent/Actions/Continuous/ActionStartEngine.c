@@ -31,6 +31,12 @@ modded class ActionStartEngine
 				return false;  //! Vanilla boat has own start engine action
 		#endif
 
+		#ifndef DAYZ_1_29
+			//! 1.30
+			if (vehicle.GetMotorbike())
+				return false;  //! Vanilla motorbike has own start engine action
+		#endif
+
 			m_CommandUID = vehicle.GetEngineStartAnimation();
 
 		#ifndef SERVER
