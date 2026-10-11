@@ -14,9 +14,6 @@ modded class ActionGetInTransport
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		if (player.GetCommand_ExpansionVehicle())
-			return false;
-
 		if (!super.ActionCondition(player, target, item))
 			return false;
 

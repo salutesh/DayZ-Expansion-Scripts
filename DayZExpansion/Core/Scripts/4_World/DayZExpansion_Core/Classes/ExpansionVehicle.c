@@ -59,9 +59,6 @@ class ExpansionVehicle
 		//! 1.30+
 		MotorbikeScript ms;
 	#endif
-	#ifdef EXPANSIONMODVEHICLE
-		ExpansionVehicleBase evb;
-	#endif
 		DayZPlayerImplement player;
 
 		if (Class.CastTo(cs, entity))
@@ -74,10 +71,6 @@ class ExpansionVehicle
 		//! 1.30+
 		else if (Class.CastTo(ms, entity))
 			return ms.GetExpansionVehicle();
-	#endif
-	#ifdef EXPANSIONMODVEHICLE
-		else if (Class.CastTo(evb, entity))
-			return evb.GetExpansionVehicle();
 	#endif
 		else if (Class.CastTo(player, entity))
 		{
@@ -95,11 +88,6 @@ class ExpansionVehicle
 				auto vehCmd = player.GetCommand_Vehicle();
 				if (vehCmd)
 					return Get(vehCmd.GetTransport(), errorOnFailure);
-			#ifdef EXPANSIONMODVEHICLE
-				auto exVehCmd = player.GetCommand_ExpansionVehicle();
-				if (exVehCmd)
-					return Get(exVehCmd.GetObject(), errorOnFailure);
-			#endif
 			}
 		}
 		
@@ -657,17 +645,6 @@ class ExpansionVehicle
 
 	bool IsPlayerInSeat(DayZPlayerImplement player, int seatIdx = DayZPlayerConstants.VEHICLESEAT_DRIVER)
 	{
-	#ifdef EXPANSIONMODVEHICLE
-		if (GetEntity().IsInherited(ExpansionVehicleBase))
-		{
-			auto exVehCmd = player.GetCommand_ExpansionVehicle();
-			if (exVehCmd && exVehCmd.GetVehicleSeat() == seatIdx)
-				return true;
-
-			return false;
-		}
-	#endif
-
 		auto vehCmd = player.GetCommand_Vehicle();
 		if (vehCmd && vehCmd.GetVehicleSeat() == seatIdx)
 			return true;
@@ -1472,11 +1449,8 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	{
 		EntityAI entity = GetEntity();
 		ExpansionHelicopterScript hs;
-		ExpansionVehicleHelicopterBase evhb;
 		if (Class.CastTo(hs, entity))
 			return hs.IsAutoHover();
-		else if (Class.CastTo(evhb, entity))
-			return evhb.IsAutoHover();
 
 		return false;
 	}
@@ -1485,11 +1459,8 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	{
 		EntityAI entity = GetEntity();
 		ExpansionHelicopterScript hs;
-		ExpansionVehicleHelicopterBase evhb;
 		if (Class.CastTo(hs, entity))
 			hs.SwitchAutoHover();
-		else if (Class.CastTo(evhb, entity))
-			evhb.SwitchAutoHover();
 	}
 
 	override bool LeavingSeatDoesAttachment(int posIdx)

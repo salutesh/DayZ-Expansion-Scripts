@@ -444,7 +444,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			}
 		}
 
-		//! 6) Special treatment for vehicles (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
+		//! 6) Special treatment for vehicles
 		ExpansionVehicle vehicle;
 		if (!entity.IsItemBase() && ExpansionVehicle.Get(vehicle, entity))
 		{
@@ -950,7 +950,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			}
 		}
 
-		//! 6) Special treatment for vehicles (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
+		//! 6) Special treatment for vehicles
 		ExpansionVehicle vehicle;
 		if (!entity.IsItemBase() && ExpansionVehicle.Get(vehicle, entity))
 		{

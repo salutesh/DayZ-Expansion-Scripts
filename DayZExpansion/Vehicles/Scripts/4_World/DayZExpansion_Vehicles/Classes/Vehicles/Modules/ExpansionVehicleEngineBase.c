@@ -165,17 +165,7 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 
 	void Init_ExpansionVehicle()
 	{
-		auto vehicle = ExpansionVehicleBase.Cast(m_Vehicle);
-
-		if (m_GearIndex >= 0)
-			m_Gearbox = vehicle.m_Gearboxes[m_GearIndex];
-
-		if (!m_Gearbox)
-		{
-			ExpansionVehicleGearbox gBox = new ExpansionVehicleGearbox(m_Vehicle, "");
-			vehicle.AddModule(gBox);
-			m_Gearbox = gBox;
-		}
+		Error("to be removed");
 	}
 
 	override void PreSimulate(ExpansionPhysicsState pState)

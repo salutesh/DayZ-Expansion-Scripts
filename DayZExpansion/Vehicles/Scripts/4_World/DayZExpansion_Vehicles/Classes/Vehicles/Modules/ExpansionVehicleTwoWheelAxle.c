@@ -27,35 +27,11 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 	{
 		super.Init();
 
-		auto vehicle = ExpansionVehicleBase.Cast(m_Vehicle);
-
-		int lastIndex = vehicle.GetAxleCount() - 1;
-
-		if (m_Index != 0 && m_Index != lastIndex)
-			return;
-
 		m_TurnRadius = Math.AbsFloat(Math.DEG2RAD * m_MaxSteeringAngle) / (Math.PI2);
 		if (m_TurnRadius == 0.0)
 		{
 			return;
 		}
-
-		vector frontWheel;
-		vector backWheel;
-
-		if (m_Index == 0)
-		{
-			frontWheel = m_Wheels[0].m_InitialTransform[3];
-			backWheel = vehicle.GetAxle(lastIndex).m_Wheels[0].m_InitialTransform[3];
-		}
-		else
-		{
-			frontWheel = vehicle.GetAxle(lastIndex).m_Wheels[0].m_InitialTransform[3];
-			backWheel = m_Wheels[0].m_InitialTransform[3];
-		}
-
-		m_WheelBase = Math.AbsFloat(backWheel[2] - frontWheel[2]);
-		m_WheelOffset = Math.AbsFloat(backWheel[0]);
 
 		m_RawSteering = false;
 	}

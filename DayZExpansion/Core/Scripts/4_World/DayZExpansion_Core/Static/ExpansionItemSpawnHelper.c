@@ -737,7 +737,7 @@ class ExpansionItemSpawnHelper
 			}
 		}
 
-		//! 6) Special treatment for vehicles (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
+		//! 6) Special treatment for vehicles
 		ExpansionVehicle srcVehicle;
 		ExpansionVehicle dstVehicle;
 		if (ExpansionVehicle.Get(srcVehicle, src) && ExpansionVehicle.Get(dstVehicle, dst))

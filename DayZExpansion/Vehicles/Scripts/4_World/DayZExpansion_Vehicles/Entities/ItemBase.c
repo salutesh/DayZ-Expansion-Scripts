@@ -283,7 +283,7 @@ modded class ItemBase
 			}
 
 			CarScript car;
-			ExpansionVehicleBase veh;
+			Transport veh;
 			if ( !Class.CastTo( car, parent ) && !Class.CastTo( veh, parent ) )
 			{
 				#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
@@ -466,9 +466,6 @@ modded class ItemBase
 	bool Expansion_ParentDrops(EntityAI parent)
 	{
 		if (Transport.Cast(parent))
-			return m_Expansion_CanPhysicsDrop;
-
-		if (ExpansionVehicleBase.Cast(parent))
 			return m_Expansion_CanPhysicsDrop;
 
 		return false;

@@ -468,7 +468,7 @@ class ExpansionStatic: ExpansionStaticCore
 	static const string DIRSEPARATOR = "\\";
 	static const string DIRSEPARATOR_ALT = "/";
 
-	static ref TStringArray s_VehicleClassNames = {"CarScript", "BoatScript", "MotorbikeScript", "ExpansionVehicleBase", "HypeTrain_PartBase"};
+	static ref TStringArray s_VehicleClassNames = {"CarScript", "BoatScript", "MotorbikeScript", "HypeTrain_PartBase"};
 
 	static ref SurfaceDetectionParameters s_SurfParams = CreateSurfaceDetectionParams();
 	static ref SurfaceDetectionResult s_SurfResult = new SurfaceDetectionResult();

@@ -178,36 +178,6 @@ modded class ExpansionVehicle
 		return ExpansionHelicopterScript.Cast(GetEntity());
 	}
 
-	ExpansionVehicleBase GetExpansionVehicleBase()
-	{
-		return ExpansionVehicleBase.Cast(GetEntity());
-	}
-
-	ExpansionVehicleCarBase GetExpansionVehicleCar()
-	{
-		return ExpansionVehicleCarBase.Cast(GetEntity());
-	}
-
-	ExpansionVehicleBoatBase GetExpansionVehicleBoat()
-	{
-		return ExpansionVehicleBoatBase.Cast(GetEntity());
-	}
-
-	ExpansionVehicleBikeBase GetExpansionVehicleBike()
-	{
-		return ExpansionVehicleBikeBase.Cast(GetEntity());
-	}
-
-	ExpansionVehicleHelicopterBase GetExpansionVehicleHelicopter()
-	{
-		return ExpansionVehicleHelicopterBase.Cast(GetEntity());
-	}
-
-	ExpansionVehiclePlaneBase GetExpansionVehiclePlane()
-	{
-		return ExpansionVehiclePlaneBase.Cast(GetEntity());
-	}
-
 	override bool CanBeDamaged()
 	{
 		if (GetExpansionSettings().GetVehicle().DisableVehicleDamage)
@@ -751,7 +721,7 @@ modded class ExpansionVehicle
 			slotNameLower.ToLower();
 			if (m_Doors.Find(slotNameLower, door))
 			{
-				door.SetDoor(CarDoor.Cast(item));
+				door.m_Door = CarDoor.Cast(item);
 			}
 		}
 
@@ -771,7 +741,7 @@ modded class ExpansionVehicle
 			slotNameLower.ToLower();
 			if (m_Doors.Find(slotNameLower, door))
 			{
-				door.SetDoor(null);
+				door.m_Door = null;
 			}
 		}
 
@@ -781,12 +751,6 @@ modded class ExpansionVehicle
 
 	void OnSimulate(float dt)
 	{
-	#ifdef EXPANSION_VEHICLE_DOOR_JOINTS
-		foreach (ExpansionDoor door: m_Doors)
-		{
-			door.OnUpdate(dt);
-		}
-	#endif
 	}
 
 	void OnPostSimulate(float dt)
@@ -827,7 +791,6 @@ modded class ExpansionVehicle
 		//! 1.30+
 		MotorbikeScript ms;
 	#endif
-		ExpansionVehicleBase ev;
 
 		if (Class.CastTo(cs, vehicle))
 			cs.Expansion_OnGotOut(player, seatIdx);
@@ -837,8 +800,6 @@ modded class ExpansionVehicle
 		else if (Class.CastTo(ms, vehicle))
 			ms.Expansion_OnGotOut(player, seatIdx);
 	#endif
-		else if (Class.CastTo(ev, vehicle))
-			ev.Expansion_OnGotOut(player, seatIdx);
 	}
 
 	bool NameOverride(out string output)
@@ -1177,11 +1138,8 @@ modded class ExpansionVehicle
 	{
 		EntityAI entity = GetEntity();
 		ExpansionHelicopterScript hs;
-		ExpansionVehicleHelicopterBase evhb;
 		if (Class.CastTo(hs, entity))
 			return hs.Expansion_IsRotorDamaged();
-		else if (Class.CastTo(evhb, entity))
-			return evhb.Expansion_IsRotorDamaged();
 
 		return false;
 	}

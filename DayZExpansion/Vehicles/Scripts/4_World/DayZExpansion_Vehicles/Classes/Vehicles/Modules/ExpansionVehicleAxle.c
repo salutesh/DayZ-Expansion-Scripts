@@ -119,30 +119,6 @@ class ExpansionVehicleAxle : ExpansionVehicleRotational
 			return;
 		}
 
-		auto vehicle = ExpansionVehicleBase.Cast(m_Vehicle);
-		auto engineType = vehicle.m_DifferentialType;
-
-		switch (engineType)
-		{
-		case ExpansionVehicleDifferentialType.RWD:
-			if (m_Index != vehicle.GetAxleCount() - 1)
-			{
-				m_Ratio = 0;
-			}
-			break;
-		case ExpansionVehicleDifferentialType.FWD:
-			if (m_Index != 0)
-			{
-				m_Ratio = 0;
-			}
-			break;
-		}
-
-		// TODO: control link could be another differential
-		if (m_Ratio != 0.0 && m_ControlIndex >= 0)
-		{
-			vehicle.m_Gearboxes[m_ControlIndex].AddComponent(this);
-		}
 	}
 
 	ExpansionVehicleWheel AddWheel(string pName)

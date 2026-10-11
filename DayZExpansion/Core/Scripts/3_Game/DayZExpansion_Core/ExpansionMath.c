@@ -879,4 +879,19 @@ class ExpansionMath
 
 		return min;
 	}
+	
+	static vector Project( vector v, vector onNormal )
+	{
+		float lenSq = vector.Dot( onNormal, onNormal );
+		if( lenSq < 0.000001 )
+			return vector.Zero;
+	
+		return onNormal * vector.Dot(v, onNormal) * (1.0 / lenSq);
+	}
+	
+	static vector GetTangentVelocity(EntityAI owningBody, vector contactPoint, vector surfaceNormal)
+	{
+		vector pointVelocity = dBodyGetVelocityAt(owningBody, contactPoint);
+		return pointVelocity - Project(pointVelocity, surfaceNormal);
+	}
 }

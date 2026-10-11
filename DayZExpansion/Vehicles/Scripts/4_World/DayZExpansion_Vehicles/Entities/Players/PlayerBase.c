@@ -125,31 +125,6 @@ modded class PlayerBase
 			return true;
 		}
 
-		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
-		{
-			auto ehcv = ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
-			if (ehcv)
-			{
-				ExpansionVehicleBase expansionVehicle;
-				if (Class.CastTo(expansionVehicle, ehcv.GetObject()))
-				{
-					if (!ehcv.IsGettingIn() && !ehcv.IsGettingOut() && !ehcv.IsSwitchSeat())
-					{
-						expansionVehicle.HandleController(this, pDt);
-					}
-				}
-
-				if ( ehcv.WasGearChange() )
-				{
-					ExpansionGearChangeActionCallback cb = ExpansionGearChangeActionCallback.Cast( AddCommandModifier_Action( DayZPlayerConstants.CMD_ACTIONMOD_SHIFTGEAR, ExpansionGearChangeActionCallback ) );
-					cb.SetVehicleCommand( ehcv );
-				}
-
-				// Don't allow vanilla command handler to run from this point on, this is a replacement
-				return true;
-			}
-		}
-
 		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE )
 		{
 			auto hcv = GetCommand_Vehicle();
@@ -174,14 +149,6 @@ modded class PlayerBase
 		}
 
 		return false;
-	}
-
-	override ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( ExpansionVehicleBase vehicle, int seatIdx, int seat_anim )
-	{
-		//WARNING: memory leak
-		ExpansionHumanCommandVehicle cmd = new ExpansionHumanCommandVehicle( this, m_ExpansionST, vehicle, seatIdx, seat_anim, false );
-		StartCommand_Script( cmd );
-		return cmd;
 	}
 
     override void OnDisconnect()
@@ -311,76 +278,10 @@ modded class PlayerBase
 		m_Expansion_WasInVehicleSeatOrAttached = state;
 	}
 
-	override bool IsInVehicle()
-	{
-#ifdef DAYZ_1_25
-		if (Expansion_IsAttached())
-			return false;
-#endif
-		
-		if (super.IsInVehicle())
-			return true;
-
-		if (GetCommand_ExpansionVehicle())
-			return true;
-
-		return false;
-	}
-
 	bool Expansion_IsDriver()
 	{
 		return m_IsVehicleSeatDriver;
 	}
-
-	override void OnCommandExpansionVehicleStart()
-	{
-		m_AnimCommandStarting = HumanMoveCommandID.CommandVehicle;
-		
-		if ( GetInventory() )
-			GetInventory().LockInventory(LOCK_FROM_SCRIPT);
-		
-		ItemBase itemInHand = GetItemInHands();
-		EntityAI itemOnHead = FindAttachmentBySlotName("Headgear");
-
-		if ( itemInHand && itemInHand.GetCompEM() )
-			itemInHand.GetCompEM().SwitchOff();
-
-		TryHideItemInHands(true);
-
-		if ( itemOnHead && itemOnHead.GetCompEM() )
-			itemOnHead.GetCompEM().SwitchOff();
-		
-		auto hcv = GetCommand_ExpansionVehicle();
-		if ( hcv && hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-			OnVehicleSeatDriverEnter();
-	}
-	
-	override void OnCommandExpansionVehicleFinish()
-	{
-		if ( GetInventory() )
-			GetInventory().UnlockInventory(LOCK_FROM_SCRIPT);
-		
-		TryHideItemInHands(false, true);
-		
-		if ( m_IsVehicleSeatDriver )
-			OnVehicleSeatDriverLeft();
-	}
-
-#ifdef DAYZ_1_25
-	override void OnExpansionAttachTo( Object obj, vector transform[4] )
-	{
-		super.OnExpansionAttachTo(obj, transform);
-		
-		Expansion_SetIsInVehicleSeatOrAttached( true );
-	}
-
-	override void OnExpansionDetachFrom( Object obj )
-	{
-		super.OnExpansionDetachFrom(obj);
-
-		Expansion_SetIsInVehicleSeatOrAttached( false );
-	}
-#endif
 
 	override bool HeadingModel( float pDt, SDayZPlayerHeadingModel pModel )
 	{
@@ -409,11 +310,6 @@ modded class PlayerBase
 			return null;
 
 		return GetKeyForCar(vehicle);
-	}
-	
-	ExpansionCarKey GetKeyForCar(ExpansionVehicleBase vehicle)
-	{
-		return GetKeyForCar((EntityAI) vehicle);
 	}
 
 	ExpansionCarKey GetKeyForCar(ExpansionVehicle vehicle)
@@ -452,11 +348,6 @@ modded class PlayerBase
 			return true;
 
 		return false;
-	}
-	
-	bool HasKeyForCar(ExpansionVehicleBase vehicle)
-	{
-		return HasKeyForCar((EntityAI) vehicle);
 	}
 
 	/**

@@ -490,11 +490,6 @@ class ExpansionCarKey: ItemBase
 			Expansion_AssignKeychain(GetHierarchyRootPlayer(), null);
 	}
 
-	void PairToVehicle( ExpansionVehicleBase vehicle )
-	{
-		PairToVehicle((EntityAI) vehicle);
-	}
-
 	void Unpair( bool ignore_check = false )
 	{
 #ifdef EXTRACE
@@ -621,11 +616,6 @@ class ExpansionCarKey: ItemBase
 			return false;
 
 		return true;
-	}
-
-	bool IsPairedTo( ExpansionVehicleBase vehicle )
-	{
-		return IsPairedTo((EntityAI) vehicle);
 	}
 
 	#ifdef EXPANSION_MODSTORAGE

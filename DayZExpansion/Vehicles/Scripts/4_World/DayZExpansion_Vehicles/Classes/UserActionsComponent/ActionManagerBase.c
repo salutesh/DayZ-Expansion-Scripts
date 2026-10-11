@@ -38,15 +38,4 @@ modded class ActionManagerBase
 		return true;
 	}
 #endif
-
-	override bool ActionPossibilityCheck( int pCurrentCommandID )
-	{
-		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
-		{
-			if ( m_Player.GetCommand_ExpansionVehicle() )
-				return true;
-		}
-
-		return super.ActionPossibilityCheck( pCurrentCommandID );
-	}
 };

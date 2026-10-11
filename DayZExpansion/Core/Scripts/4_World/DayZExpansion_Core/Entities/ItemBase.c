@@ -196,18 +196,12 @@ modded class ItemBase
 	static void ExpansionPhaseObject(EntityAI other)
 	{
 #ifdef EXPANSIONMODVEHICLE
-		ExpansionVehicleBase evb;
 		CarScript car;
 
 		if (Class.CastTo(car, other))
 		{
 			SetVelocity(other, car.m_State.m_LinearVelocity);
 			dBodySetAngularVelocity(other, car.m_State.m_AngularVelocity);
-		}
-		else if (Class.CastTo(evb, other))
-		{
-			SetVelocity(other, evb.m_State.m_LinearVelocity);
-			dBodySetAngularVelocity(other, evb.m_State.m_AngularVelocity);
 		}
 		else
 #endif
@@ -242,14 +236,9 @@ modded class ItemBase
 
 #ifdef EXPANSIONMODVEHICLE
 		CarScript car;
-		ExpansionVehicleBase evb;
 		if (Class.CastTo(car, other))
 		{
 			hitVelocity = car.m_State.GetWorldVelocityAt(position.InvMultiply4(otherTransform)).Multiply3(transform);
-		}
-		else if (Class.CastTo(evb, other))
-		{
-			hitVelocity = evb.m_State.GetWorldVelocityAt(position.InvMultiply4(otherTransform)).Multiply3(transform);
 		}
 		else
 #endif
