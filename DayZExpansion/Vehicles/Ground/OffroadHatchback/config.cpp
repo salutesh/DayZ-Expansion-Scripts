@@ -2563,36 +2563,6 @@ class CfgVehicles
 		skinBase="HatchbackTrunk";
 		skinName="White";
 	};
-	class OffroadHatchback_Police: OffroadHatchback
-	{
-		skinBase="OffroadHatchback";
-		skinName="Police";
-	};
-	class Vehicle_OffroadHatchback_Police: Vehicle_OffroadHatchback
-	{
-		skinBase="Vehicle_OffroadHatchback";
-		skinName="Police";
-	};
-	class HatchbackDoors_Driver_Police: HatchbackDoors_Driver
-	{
-		skinBase="HatchbackDoors_Driver";
-		skinName="Police";
-	};
-	class HatchbackDoors_CoDriver_Police: HatchbackDoors_CoDriver
-	{
-		skinBase="HatchbackDoors_CoDriver";
-		skinName="Police";
-	};
-	class HatchbackHood_Police: HatchbackHood
-	{
-		skinBase="HatchbackHood";
-		skinName="Police";
-	};
-	class HatchbackTrunk_Police: HatchbackTrunk
-	{
-		skinBase="HatchbackTrunk";
-		skinName="Police";
-	};
 	class OffroadHatchback_GreenRust: OffroadHatchback
 	{
 		skinBase="OffroadHatchback";

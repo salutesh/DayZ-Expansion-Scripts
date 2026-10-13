@@ -346,12 +346,20 @@ class EXError
 // -----------------------------------------------------------
 static void EXPrint( string s, string prefix = " [EXPANSION DEBUG]: " )
 {
+#ifdef DAYZ_1_29
 	PrintFormat("%1%2%3", ExpansionStatic.GetISOTime(), prefix, s );
+#else
+	PrintFormat("%1%2", prefix, s );
+#endif
 }
 
 static void EXPrint( Class instance, string s, string prefix = " [EXPANSION DEBUG]: " )
 {
+#ifdef DAYZ_1_29
 	PrintFormat("%1%2%3 %4", ExpansionStatic.GetISOTime(), prefix, instance.ToString(), s );
+#else
+	PrintFormat("%1%2 %3", prefix, instance.ToString(), s );
+#endif
 }
 
 // -----------------------------------------------------------
@@ -359,12 +367,20 @@ static void EXPrint( Class instance, string s, string prefix = " [EXPANSION DEBU
 // -----------------------------------------------------------
 static void EXLogPrint( string s )
 {
+#ifdef DAYZ_1_29
 	PrintFormat("%1%2%3", ExpansionStatic.GetISOTime(), " [EXPANSION LOG]: ", s );
+#else
+	PrintFormat("%1%2", " [EXPANSION LOG]: ", s );
+#endif
 }
 
 static void EXLogPrint( Class instance, string s )
 {
+#ifdef DAYZ_1_29
 	PrintFormat("%1%2%3 %4", ExpansionStatic.GetISOTime(), " [EXPANSION LOG]: ", instance.ToString(), s );
+#else
+	PrintFormat("%1%2 %3", " [EXPANSION LOG]: ", instance.ToString(), s );
+#endif
 }
 
 // -----------------------------------------------------------
@@ -418,7 +434,11 @@ class EXTimeIt
 	void Log()
 	{
 		int elapsed = TickCount(m_Ticks);
+	#ifdef DAYZ_1_29
 		PrintFormat("%1 elapsed: %2ms", ExpansionStatic.GetISOTime(), (elapsed / 10000.0).ToString());
+	#else
+		PrintFormat("elapsed: %1ms", (elapsed / 10000.0).ToString());
+	#endif
 	}
 }
 
@@ -443,7 +463,11 @@ class EXHitch: EXTimeIt
 	{
 		int elapsed = TickCount(m_Ticks);
 		if (elapsed > m_Threshold)
+		#ifdef DAYZ_1_29
 			PrintFormat("%1 %2HITCH: %3ms", ExpansionStatic.GetISOTime(), m_MsgPrefix, (elapsed / 10000.0).ToString());
+		#else
+			PrintFormat("%1HITCH: %2ms", m_MsgPrefix, (elapsed / 10000.0).ToString());
+		#endif
 	}
 }
 

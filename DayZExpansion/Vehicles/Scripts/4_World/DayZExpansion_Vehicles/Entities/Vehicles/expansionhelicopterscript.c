@@ -109,6 +109,19 @@ class ExpansionHelicopterScript: CarScript
 
 		if (m_DrownEnginePos == vector.Zero)
 			m_DrownEnginePos = "0 1 0";
+
+	#ifndef DAYZ_1_29
+		//! 1.30+
+		m_LightsComponent.Expansion_UnregisterSelection("TailOn");
+		m_LightsComponent.Expansion_UnregisterSelection("TailOff");
+		m_LightsComponent.Expansion_UnregisterSelection("TailLeftOnly");
+		m_LightsComponent.Expansion_UnregisterSelection("TailRightOnly");
+		m_LightsComponent.Expansion_UnregisterSelection("BrakesOn");
+		m_LightsComponent.Expansion_UnregisterSelection("BrakesOff");
+		m_LightsComponent.Expansion_UnregisterSelection("ReverseOn");
+		m_LightsComponent.Expansion_UnregisterSelection("ReverseOff");
+		m_LightsComponent.Expansion_UnregisterLight("Rear");
+	#endif
 	}
 
 	override void EEInit()

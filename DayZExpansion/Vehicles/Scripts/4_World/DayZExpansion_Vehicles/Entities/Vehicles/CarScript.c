@@ -1114,7 +1114,11 @@ modded class CarScript
 
 		return item;
 	}
+#endif
 
+#ifndef DAYZ_1_29
+	[Obsolete("No replacement")]
+#endif
 	void SetCarBatteryStateForVanilla(bool active)
 	{
 		if (!m_CarBatteryVanillaState)
@@ -1124,7 +1128,6 @@ modded class CarScript
 
 		m_CarBatteryVanillaState = active;
 	}
-#endif
 
 	bool HasBattery()
 	{
@@ -1846,9 +1849,14 @@ modded class CarScript
 
 		SetCarBatteryStateForVanilla(false);
 	}
+#endif
 
+#ifndef DAYZ_1_29
+	[Obsolete("No replacement")]
+#endif
 	void Expansion_UpdateLightsClient(int newGear = -1)
 	{
+	#ifdef DAYZ_1_29
 		ItemBase battery;
 
 		if ( IsVitalCarBattery() )
@@ -1997,10 +2005,15 @@ modded class CarScript
 				m_Headlight = null;
 			}
 		}
+	#endif
 	}
 
+#ifndef DAYZ_1_29
+	[Obsolete("No replacement")]
+#endif
 	void Expansion_UpdateLightsServer(int newGear = -1)
 	{
+	#ifdef DAYZ_1_29
 		ItemBase battery;
 
 		if ( IsVitalCarBattery() )
@@ -2133,9 +2146,10 @@ modded class CarScript
 			BrakeLightsShineOff();
 			ReverseLightsShineOff();
 		}
+	#endif
 	}
-#endif
 
+#ifdef DAYZ_1_29
 	override CarRearLightBase CreateRearLight()
 	{
 #ifdef EXPANSIONTRACE
@@ -2162,6 +2176,7 @@ modded class CarScript
 
 		return NULL;
 	}
+#endif
 
 	void GetBoundingPositionTransform(Object obj, vector position, vector wsTrans[4], out vector trans[4])
 	{

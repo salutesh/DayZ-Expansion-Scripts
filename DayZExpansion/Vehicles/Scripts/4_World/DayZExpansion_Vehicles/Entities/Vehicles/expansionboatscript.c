@@ -112,6 +112,11 @@ class ExpansionBoatScript: CarScript
 
 			m_Expansion_SDSCheckTime = g_Game.GetTickTime();
 		}
+
+	#ifndef DAYZ_1_29
+		//! 1.30+
+		m_LightsComponent.Expansion_UnregisterLight("Rear");
+	#endif
 	}
 
 	void ~ExpansionBoatScript()

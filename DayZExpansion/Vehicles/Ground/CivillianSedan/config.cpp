@@ -2736,85 +2736,10 @@ class CfgVehicles
 		skinBase="CivSedanTrunk";
 		skinName="Black";
 	};
-	class CivilianSedan_Police: CivilianSedan
+	class CivilianSedan_WhiteRust: CivilianSedan
 	{
 		skinBase="CivilianSedan";
-		skinName="Police";
-	};
-	class Vehicle_CivilianSedan_Police: Vehicle_CivilianSedan
-	{
-		skinBase="Vehicle_CivilianSedan";
-		skinName="Police";
-	};
-	class CivSedanDoors_Driver_Police: CivSedanDoors_Driver
-	{
-		skinBase="CivSedanDoors_Driver";
-		skinName="Police";
-	};
-	class CivSedanDoors_CoDriver_Police: CivSedanDoors_CoDriver
-	{
-		skinBase="CivSedanDoors_CoDriver";
-		skinName="Police";
-	};
-	class CivSedanDoors_BackLeft_Police: CivSedanDoors_BackLeft
-	{
-		skinBase="CivSedanDoors_BackLeft";
-		skinName="Police";
-	};
-	class CivSedanDoors_BackRight_Police: CivSedanDoors_BackRight
-	{
-		skinBase="CivSedanDoors_BackRight";
-		skinName="Police";
-	};
-	class CivSedanHood_Police: CivSedanHood
-	{
-		skinBase="CivSedanHood";
-		skinName="Police";
-	};
-	class CivSedanTrunk_Police: CivSedanTrunk
-	{
-		skinBase="CivSedanTrunk";
-		skinName="Police";
-	};
-	class CivilianSedan_Lime: CivilianSedan
-	{
-		skinBase="CivilianSedan";
-		skinName="Lime";
-	};
-	class Vehicle_CivilianSedan_Lime: Vehicle_CivilianSedan
-	{
-		skinBase="Vehicle_CivilianSedan";
-		skinName="Lime";
-	};
-	class CivSedanDoors_Driver_Lime: CivSedanDoors_Driver
-	{
-		skinBase="CivSedanDoors_Driver";
-		skinName="Lime";
-	};
-	class CivSedanDoors_CoDriver_Lime: CivSedanDoors_CoDriver
-	{
-		skinBase="CivSedanDoors_CoDriver";
-		skinName="Lime";
-	};
-	class CivSedanDoors_BackLeft_Lime: CivSedanDoors_BackLeft
-	{
-		skinBase="CivSedanDoors_BackLeft";
-		skinName="Lime";
-	};
-	class CivSedanDoors_BackRight_Lime: CivSedanDoors_BackRight
-	{
-		skinBase="CivSedanDoors_BackRight";
-		skinName="Lime";
-	};
-	class CivSedanHood_Lime: CivSedanHood
-	{
-		skinBase="CivSedanHood";
-		skinName="Lime";
-	};
-	class CivSedanTrunk_Lime: CivSedanTrunk
-	{
-		skinBase="CivSedanTrunk";
-		skinName="Lime";
+		skinName="WhiteRust";
 	};
 	class CivSedanDoors_Driver_WhiteRust: CivSedanDoors_Driver
 	{
@@ -2846,6 +2771,11 @@ class CfgVehicles
 		skinBase="CivSedanTrunk";
 		skinName="WhiteRust";
 	};
+	class CivilianSedan_WineRust: CivilianSedan
+	{
+		skinBase="CivilianSedan";
+		skinName="WineRust";
+	};
 	class CivSedanDoors_Driver_WineRust: CivSedanDoors_Driver
 	{
 		skinBase="CivSedanDoors_Driver";
@@ -2875,6 +2805,11 @@ class CfgVehicles
 	{
 		skinBase="CivSedanTrunk";
 		skinName="WineRust";
+	};
+	class CivilianSedan_BlackRust: CivilianSedan
+	{
+		skinBase="CivilianSedan";
+		skinName="BlackRust";
 	};
 	class CivSedanDoors_Driver_BlackRust: CivSedanDoors_Driver
 	{

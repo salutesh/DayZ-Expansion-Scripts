@@ -2,7 +2,7 @@ WrapSpacerWidgetClass ExpansionNotificationViewActivity {
  visible 1
  disabled 0
  inheritalpha 0
- ignorepointer 1
+ ignorepointer 0
  keepsafezone 1
  color 0.1059 0.1059 0.1059 0.4706
  size 0.25 0

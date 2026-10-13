@@ -182,6 +182,9 @@ class CfgVehicles
 			};
 		};
 	};
+	class ExpansionMerlinFrontWheel_Ruined: ExpansionMerlinFrontWheel
+	{
+	};
 	class ExpansionMerlinBackWheel: CarWheel
 	{
 		scope=2;
@@ -256,6 +259,10 @@ class CfgVehicles
 			};
 		};
 	};
+	class ExpansionMerlinBackWheel_Ruined: ExpansionMerlinBackWheel
+	{
+	};
+
 	class Vehicle_ExpansionMerlinFrontWheel: ExpansionWheelBase
 	{
 		scope=0;

@@ -563,6 +563,30 @@ class ExpansionMh6 : ExpansionHelicopterScript
 			}
 		}
 	}
+#else
+	override void UpdateLightsClient(int newGear = -1)
+	{
+		super.UpdateLightsClient(newGear);
+
+		if (LightIsOn())
+		{
+			if (m_Lights.Count() == 0)
+			{
+				CreateLights(this, "interior", ExpansionPointLight, Vector(1, 0.01, 0.01), Vector(1, 0.01, 0.01), 3, 0.35, false, true);
+			}
+		}
+		else
+		{
+			foreach (ExpansionPointLight light: m_Lights)
+			{
+				light.ExpansionSetEnabled(false);
+
+				g_Game.ObjectDelete(light);
+			}
+
+			m_Lights.Clear();
+		}
+	}
 #endif
 
 	override void OnDebugSpawn()

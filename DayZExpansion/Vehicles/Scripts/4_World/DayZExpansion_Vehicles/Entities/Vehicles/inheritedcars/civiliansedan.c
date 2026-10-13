@@ -16,4 +16,32 @@ modded class CivilianSedan
 	{
 		return "CivSedanWheel";
 	}
+
+	override void OnDebugSpawn()
+	{
+		SpawnUniversalParts();
+		SpawnAdditionalItems();
+		FillUpCarFluids();
+
+		GameInventory inventory = GetInventory();
+		inventory.CreateInInventory("CivSedanWheel");
+		inventory.CreateInInventory("CivSedanWheel");
+		inventory.CreateInInventory("CivSedanWheel");
+		inventory.CreateInInventory("CivSedanWheel");
+		
+		string skinName = ConfigGetString("skinName");
+		if (skinName)
+			skinName = "_" + skinName;
+
+		inventory.CreateInInventory("CivSedanDoors_Driver" + skinName);
+		inventory.CreateInInventory("CivSedanDoors_CoDriver" + skinName);
+		inventory.CreateInInventory("CivSedanDoors_BackLeft" + skinName);
+		inventory.CreateInInventory("CivSedanDoors_BackRight" + skinName);
+		inventory.CreateInInventory("CivSedanHood" + skinName);
+		inventory.CreateInInventory("CivSedanTrunk" + skinName);
+
+		//-----IN CAR CARGO
+		inventory.CreateInInventory("CivSedanWheel");
+		inventory.CreateInInventory("CivSedanWheel");
+	}
 };
