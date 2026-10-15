@@ -40,6 +40,18 @@ class ExpansionSkins : Managed
 		auto trace = CF_Trace_0(ExpansionTracing.SKIN, this, "AddSkin");
 #endif
 
+		if (m_Skins.Contains(name))
+		{
+			//! This is not necessarily an error. If a config class specifies applySkinsTo,
+			//! it may contain entries that another config class also has (which is totally
+			//! fine and even expected e.g. for vehicles, which will apply their skin to doors
+			//! etc, but the skin still must not be added again since it will break indexing)
+		#ifdef DIAG_DEVELOPER
+			EXError.Info(this, string.Format("[!] Skin '%1' (%2) was already added", name, path));
+		#endif
+			return;
+		}
+
 		ExpansionSkin skin = new ExpansionSkin;
 		JsonFileLoader< ExpansionSkin >.JsonLoadFile( path, skin );
 		

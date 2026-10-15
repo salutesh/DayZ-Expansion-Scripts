@@ -3193,6 +3193,25 @@ class CfgVehicles
 		skinBase="Expansion_Landrover_Wheel";
 		skinName="Orange";
 	};
+
+	class Expansion_Landrover_Wheel_Yellow_Ruined: Expansion_Landrover_Wheel_Ruined
+	{
+	};
+	class Expansion_Landrover_Wheel_Green_Ruined: Expansion_Landrover_Wheel_Ruined
+	{
+	};
+	class Expansion_Landrover_Wheel_Red_Ruined: Expansion_Landrover_Wheel_Ruined
+	{
+	};
+	class Expansion_Landrover_Wheel_Grey_Ruined: Expansion_Landrover_Wheel_Ruined
+	{
+	};
+	class Expansion_Landrover_Wheel_Blue_Ruined: Expansion_Landrover_Wheel_Ruined
+	{
+	};
+	class Expansion_Landrover_Wheel_Orange_Ruined: Expansion_Landrover_Wheel_Ruined
+	{
+	};
 };
 class CfgNonAIVehicles
 {

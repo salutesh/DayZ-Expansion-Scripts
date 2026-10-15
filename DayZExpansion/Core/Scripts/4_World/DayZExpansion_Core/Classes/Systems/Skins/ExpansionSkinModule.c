@@ -170,6 +170,10 @@ class ExpansionSkinModule: CF_ModuleWorld
 				skins = m_Skins.Get( classname );
 			}
 
+		#ifdef DIAG_DEVELOPER
+			EXError.Info(this, string.Format("Adding skin '%1' to %2", skinname, classname));
+		#endif
+
 			skins.AddSkin( skinname, rootFolder + file );
 		}
 	}

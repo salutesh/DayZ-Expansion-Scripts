@@ -25,10 +25,11 @@ class ExpansionGlobalID
 
 	void Acquire()
 	{
-	#ifndef SERVER
-		Error("Can't Acquire() global ID on client!");
-		return;
-	#endif
+		if (g_Game.IsClient())
+		{
+			Error("Can't Acquire() global ID on client!");
+			return;
+		}
 
 		if (!s_IsMissionLoaded)
 		{

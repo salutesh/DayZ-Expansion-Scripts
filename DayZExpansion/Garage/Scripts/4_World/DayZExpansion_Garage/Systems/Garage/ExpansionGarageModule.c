@@ -84,10 +84,10 @@ class ExpansionGarageModule: CF_ModuleWorld
 		Class.CastTo(m_MarketModule, CF_ModuleCoreManager.Get(ExpansionMarketModule));
 	#endif
 
-		if (g_Game.IsServer() && g_Game.IsMultiplayer())
+		if (g_Game.IsServer())
 			ServerModuleInit();
 
-		if (g_Game.IsClient())
+		if (!g_Game.IsDedicatedServer())
 			ClientModuleInit();
 	}
 
@@ -125,31 +125,23 @@ class ExpansionGarageModule: CF_ModuleWorld
 
 	protected void ServerModuleInit()
 	{
-		//! Server only
-		if (g_Game.IsServer() && g_Game.IsMultiplayer())
-		{
-			m_GarageData = new array<ref ExpansionGarageData>;
-		#ifdef EXPANSIONMODBASEBUILDING
-			m_TerritoryParkingMeters = new map<int, ExpansionParkingMeter>;
-			m_ParkingMeters = new array<ExpansionParkingMeter>;
-		#endif
+		m_GarageData = new array<ref ExpansionGarageData>;
+	#ifdef EXPANSIONMODBASEBUILDING
+		m_TerritoryParkingMeters = new map<int, ExpansionParkingMeter>;
+		m_ParkingMeters = new array<ExpansionParkingMeter>;
+	#endif
 
-			CreateDirectoryStructure();
-			LoadGarageData();
-		}
+		CreateDirectoryStructure();
+		LoadGarageData();
 	}
 
 	protected void ClientModuleInit()
 	{
-		//! Client only
-		if (g_Game.IsClient())
-		{
-			if (!m_GarageMenuInvoker)
-				m_GarageMenuInvoker = new ScriptInvoker(); //! Client
+		if (!m_GarageMenuInvoker)
+			m_GarageMenuInvoker = new ScriptInvoker(); //! Client
 
-			if (!m_GarageMenuCallbackInvoker)
-				m_GarageMenuCallbackInvoker = new ScriptInvoker(); //! Client
-		}
+		if (!m_GarageMenuCallbackInvoker)
+			m_GarageMenuCallbackInvoker = new ScriptInvoker(); //! Client
 	}
 
 	protected void LoadGarageData()
@@ -805,7 +797,7 @@ class ExpansionGarageModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.GARAGE, this);
 #endif
 		
-		if (!g_Game.IsClient())
+		if (g_Game.IsDedicatedServer())
 		{
 			Error(ToString() + "::RetrieveVehicleRequest - Tryed to call RetrieveVehicleRequest on Server!");
 			return;

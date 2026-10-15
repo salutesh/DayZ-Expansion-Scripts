@@ -830,11 +830,10 @@ modded class ItemBase
 				weapon.LoadCurrentFSMState(ctx.GetReadContext(), g_Game.SaveVersion());
 			}
 
-		#ifdef SERVER
-			weapon.Synchronize();
-		#else
-			weapon.ShowMagazine();
-		#endif
+			if (g_Game.IsServer())
+				weapon.Synchronize();
+			else
+				weapon.ShowMagazine();
 
 			//! We are done
 			return magazine;

@@ -2052,21 +2052,33 @@ class ExpansionStatic: ExpansionStaticCore
 		return files;
 	}
 
+#ifdef DIAG_DEVELOPER
+	static int s_FindInLocation_Level;
+#endif
+
 	static array< string > FindInLocation( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES, bool recursive = false )
 	{
+	#ifdef DIAG_DEVELOPER
+		EXError.Info(null, folder + "*" + ext + " mode=" + typename.EnumToString(ExpansionFindFileMode, mode) + " recursive=" + recursive.ToString() + " level=" + s_FindInLocation_Level);
+		++s_FindInLocation_Level;
+	#endif
+
 		array< string > files = FindInLocation_Internal(folder, ext, mode, recursive);
+
+	#ifdef DIAG_DEVELOPER
+		--s_FindInLocation_Level;
+	#endif
 
 		//! 1.30 Experimental broke $ placeholders in FindFile, see https://report.bistudio.com/issues/DZEXP-134
 		if (files.Count() == 0)
 			files = FindInLocation_DZEXP_134_FileList(folder, ext, mode, recursive);
 
 	#ifdef DIAG_DEVELOPER
-		if (EXTrace.MISC)
+		if (s_FindInLocation_Level == 0)
 		{
-			EXPrint("FindInLocation " + folder + "*" + ext + " mode=" + typename.EnumToString(ExpansionFindFileMode, mode) + " recursive=" + recursive.ToString());
 			foreach (string file: files)
 			{
-				EXPrint(folder + file);
+				EXError.Info(null, folder + file);
 			}
 		}
 	#endif
