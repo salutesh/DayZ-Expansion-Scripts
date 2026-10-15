@@ -35,6 +35,7 @@ class ExpansionClientSettings
 	float HelicopterVerticalSensitivity;
 	float HelicopterHorizontalSensitivity;
 	bool UsePlaneMouseControl;
+	int AltitudeMode;
 	bool TurnOffAutoHoverDuringFlight;
 	int AutoCollectiveMode;
 	bool EnableRetreatingBladeStall;
@@ -127,6 +128,7 @@ class ExpansionClientSettings
 	float VehicleCameraHeight;
 	float VehicleCameraDistance;
 	float VehicleCameraOffsetY;
+	int UseVanilla3rdPersonHelicopterCamera;
 
 	float VehicleResyncTimeout;
 	bool ShowDesyncInvulnerabilityNotifications;
@@ -862,6 +864,24 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read DisableFlightPathMarker!");
 			return false;
 		}
+		
+		if (version < 61)
+			return true;
+
+		if (!ctx.Read(AltitudeMode))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read AltitudeMode!");
+			return false;
+		}
+		
+		if (version < 62)
+			return true;
+
+		if (!ctx.Read(UseVanilla3rdPersonHelicopterCamera))
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read UseVanilla3rdPersonHelicopterCamera!");
+			return false;
+		}
 
 		return true;
 	}
@@ -1020,6 +1040,12 @@ class ExpansionClientSettings
 		//! v60
 		ctx.Write(ToggleVehicleHudOnHudToggle);
 		ctx.Write(DisableFlightPathMarker);
+
+		//! v61
+		ctx.Write(AltitudeMode);
+
+		//! v62
+		ctx.Write(UseVanilla3rdPersonHelicopterCamera);
 	}
 
 	// -----------------------------------------------------------
@@ -1364,6 +1390,8 @@ class ExpansionClientSettings
 		CreateSlider( "VehicleCameraDistance", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_CAMERA_DISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_CAMERA_DISTANCE_DESC", 0.5, 5.0, 0.1 );
 		//CreateSlider( "VehicleCameraOffsetY", "VEHICLE CAMERA OFFSET VERTICAL", "", -10.0, 5.0, 0.5 );
 
+		CreateToggle( "UseVanilla3rdPersonHelicopterCamera", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_3PP_VANILLA_CAMERA", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_3PP_VANILLA_CAMERA_DESC" );
+
 		//! Heli mouse ctrl
 		CreateToggle( "UseHelicopterMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL_DESC" );
 		CreateToggle( "UseInvertedMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_INVERTED", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_DESC_INVERTED" );
@@ -1377,6 +1405,7 @@ class ExpansionClientSettings
 		CreateToggle( "EnableRetreatingBladeStall", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_RETREATING_BLADE_STALL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_RETREATING_BLADE_STALL_DESC" );
 		CreateToggle( "EnableTranslatingTendency", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TRANSLATING_TENDENCY", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TRANSLATING_TENDENCY_DESC" );
 		CreateToggle( "DisableAutoTrim", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_DISABLE_AUTO_TRIM", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_DISABLE_AUTO_TRIM_DESC" );
+		CreateEnum( "AltitudeMode", ExpansionHelicopterAltitudeMode, "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_ALTITUDE_MODE", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_ALTITUDE_MODE_DESC" );
 		CreateToggle( "TurnOffAutoHoverDuringFlight", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT_DESC" );
 		
 		//CreateToggle( "UsePlaneMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL_DESC" );

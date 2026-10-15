@@ -33,10 +33,6 @@ class ExpansionVehicleModule
 		m_Vehicle = vehicle;
 		Class.CastTo(m_Transport, vehicle);
 
-		auto vehicleBase = ExpansionVehicleBase.Cast(m_Vehicle);
-		if (vehicleBase)
-			m_Controller = vehicleBase.m_Controller;
-
 		auto car = CarScript.Cast(m_Vehicle);
 		if (car)
 			m_Controller = car.m_Controller;

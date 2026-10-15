@@ -18,7 +18,10 @@ class ExpansionMarketBackpacks: ExpansionMarketCategory
 		
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BACKPACKS";
 		m_FileName = "Backpacks";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("childbag_red", 	765, 	1280,	1,100,null,{"ChildBag_Blue","ChildBag_Green"});
 		
 		AddItem("drybag_orange", 	2030, 	3385,	1,100,null,{"DryBag_Yellow","DryBag_Blue","DryBag_Black","DryBag_Red","DryBag_Green"});

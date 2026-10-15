@@ -18,7 +18,10 @@ class ExpansionMarketHelicopters: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HELICOPTER";
 		m_FileName = "Helicopters";
+	}
 
+	override void DefaultItems()
+	{
 	#ifdef EXPANSIONMODVEHICLE
 		AddItem("ExpansionGyrocopter", 			500000,			1000000,		1,		10,	{"ExpansionHelicopterBattery","SparkPlug"});
 		AddItem("ExpansionBigGyrocopter", 		1000000,	    2000000,		1,		10,	{"ExpansionHelicopterBattery","SparkPlug"});

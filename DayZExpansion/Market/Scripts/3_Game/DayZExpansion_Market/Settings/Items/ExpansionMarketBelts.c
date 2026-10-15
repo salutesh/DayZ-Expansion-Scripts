@@ -18,7 +18,10 @@ class ExpansionMarketBelts: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BELTS";
 		m_FileName = "Belts";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("civilianbelt", 	205, 	340,	1,100);
 		AddItem("militarybelt", 	990, 	1650,	1,100);
 		AddItem("hippack_black", 	300, 	500,	1,100,null,{"HipPack_Green","HipPack_Medical","HipPack_Party"});

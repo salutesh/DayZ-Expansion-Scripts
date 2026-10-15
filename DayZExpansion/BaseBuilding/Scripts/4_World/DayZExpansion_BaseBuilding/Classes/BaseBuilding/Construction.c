@@ -15,7 +15,12 @@ modded class Construction
 	//============================================
 	// IsColliding
 	//============================================
+#ifdef DAYZ_1_29
 	override bool IsColliding( string part_name )
+#else
+	//! 1.30+
+	override bool IsCollidingEx(CollisionCheckData check_data)
+#endif
 	{
 		auto settings = GetExpansionSettings().GetBaseBuilding(false);
 		if ( settings.IsLoaded() && settings.CanBuildAnywhere )
@@ -24,7 +29,12 @@ modded class Construction
 		}
 		else
 		{
+		#ifdef DAYZ_1_29
 			return super.IsColliding(part_name);
+		#else
+			//! 1.30+
+			return super.IsCollidingEx(check_data);
+		#endif
 		}
 	}
 
@@ -45,8 +55,10 @@ modded class Construction
 		//on action
 		Expansion_AdminLockLockableSlots( part_name );
 
+	#ifdef DAYZ_1_29
 		//destroy build collision check trigger
 		DestroyCollisionTrigger();
+	#endif
 
 		//call event
 		GetParent().OnPartBuiltServer( player, part_name, action_id );
@@ -171,7 +183,12 @@ modded class Construction
 		}
 	}
 
+#ifdef DAYZ_1_29
 	override void DismantlePartServer( notnull Man player, string part_name, int action_id )
+#else
+	//! 1.30+
+	override void DismantlePartServerEx( Man player, string part_name, int action_id )
+#endif
 	{
 		if ( GetParent().IsInherited( TerritoryFlag ) )
 		{
@@ -194,7 +211,12 @@ modded class Construction
 			GetParent().OnPartDismantledServer( player, part_name, action_id );
 		} else
 		{
+		#ifdef DAYZ_1_29
 			super.DismantlePartServer( player, part_name, action_id );
+		#else
+			//! 1.30+
+			super.DismantlePartServerEx( player, part_name, action_id );
+		#endif
 		}
 	}
 };

@@ -183,7 +183,7 @@ modded class PlayerBase
 	}
 #endif
 
-#ifdef EXPANSIONAI_ONFACTIONCHANGE
+#ifdef EXPANSIONMODAI
 	//! Server
 	//! @note oldFactionTypeID will be -1 if player didn't have a group/faction before (e.g. initial assignment),
 	//! newFactionTypeID will be -1 if removing group/faction

@@ -18,7 +18,10 @@ class ExpansionMarketVests: ExpansionMarketCategory
 		
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_VESTS";
 		m_FileName = "Vests";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("reflexvest", 	520, 	870,	1,100);
 		
 		AddItem("policevest", 	660, 	1100,	1,100);

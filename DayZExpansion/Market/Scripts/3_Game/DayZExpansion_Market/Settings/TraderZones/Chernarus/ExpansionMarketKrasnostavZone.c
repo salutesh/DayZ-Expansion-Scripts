@@ -24,7 +24,5 @@ class ExpansionMarketKrasnostavZone: ExpansionMarketTraderZone
 
 		Position = "11924.7 140.7 12527.0"; 	
 		Radius = 1000;
-
-		Update();
 	}
 };

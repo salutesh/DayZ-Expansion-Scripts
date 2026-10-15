@@ -18,7 +18,10 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_COATS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_JACKETS");
 		m_FileName = "Coats_And_Jackets";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("labcoat", 	640, 	1065,	1,100);
 
 		AddItem("tracksuitjacket_black", 	990, 	1645,	1,100,null,{"TrackSuitJacket_Blue","TrackSuitJacket_Green","TrackSuitJacket_LightBlue","TrackSuitJacket_Red"});

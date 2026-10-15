@@ -109,6 +109,19 @@ class ExpansionHelicopterScript: CarScript
 
 		if (m_DrownEnginePos == vector.Zero)
 			m_DrownEnginePos = "0 1 0";
+
+	#ifndef DAYZ_1_29
+		//! 1.30+
+		m_LightsComponent.Expansion_UnregisterSelection("TailOn");
+		m_LightsComponent.Expansion_UnregisterSelection("TailOff");
+		m_LightsComponent.Expansion_UnregisterSelection("TailLeftOnly");
+		m_LightsComponent.Expansion_UnregisterSelection("TailRightOnly");
+		m_LightsComponent.Expansion_UnregisterSelection("BrakesOn");
+		m_LightsComponent.Expansion_UnregisterSelection("BrakesOff");
+		m_LightsComponent.Expansion_UnregisterSelection("ReverseOn");
+		m_LightsComponent.Expansion_UnregisterSelection("ReverseOff");
+		m_LightsComponent.Expansion_UnregisterLight("Rear");
+	#endif
 	}
 
 	override void EEInit()
@@ -420,13 +433,26 @@ class ExpansionHelicopterScript: CarScript
 
 				if (!IsDamageDestroyed() && m_Simulation.m_EnableMainRotorDamage)
 				{
+				#ifndef DAYZ_1_29
+					//! 1.30+
+					foreach (string zoneName, array<ref VehicleContactData> data: m_ContactCache)
+				#else
+					//! 1.29
 					foreach (string zoneName, array<ref CarContactData> data: m_ContactCache)
+				#endif
 					{
-						float dmg = Math.AbsInt(data[0].impulse * m_dmgContactCoef);
+					#ifdef DAYZ_1_29
+						float impulse = data[0].impulse;
+					#else
+						//! 1.30+
+						float impulse = data[0].m_Impulse;
+					#endif
+
+						float dmg = Math.AbsInt(impulse * m_dmgContactCoef);
 
 						//! If main rotor dmg is enabled, set impulse above dmg threshold to guarantee damage
 						if (dmg < GameConstants.CARS_CONTACT_DMG_MIN)
-							data[0].impulse = GameConstants.CARS_CONTACT_DMG_MIN / m_dmgContactCoef + 1.0;
+							impulse = GameConstants.CARS_CONTACT_DMG_MIN / m_dmgContactCoef + 1.0;
 					}
 				}
 			}
@@ -1056,6 +1082,7 @@ class ExpansionHelicopterScript: CarScript
 		return true;
 	}
 
+#ifdef DAYZ_1_29
 	override bool IsVitalCarBattery()
 	{
 #ifdef EXPANSIONTRACE
@@ -1069,6 +1096,23 @@ class ExpansionHelicopterScript: CarScript
 
 		return false;
 	}
+#else
+	//! 1.30
+	override bool NeedElectricitySourceDevice()
+	{
+		return true;
+	}
+	
+	override EntityAI GetElectricitySourceDevice()
+	{
+		return GetInventory().FindAttachment(ExpansionHelicopterBattery.SLOT_ID);
+	}
+	
+	override string GetElectricitySourceDeviceType()
+	{
+		return "ExpansionHelicopterBattery";
+	}
+#endif
 
 	bool IsLanded()
 	{
@@ -1286,6 +1330,7 @@ class ExpansionHelicopterScript: CarScript
 		return false;
 	}
 
+#ifdef DAYZ_1_29
 	override bool IsVitalTruckBattery()
 	{
 #ifdef EXPANSIONTRACE
@@ -1294,6 +1339,7 @@ class ExpansionHelicopterScript: CarScript
 
 		return false;
 	}
+#endif
 
 	override CarLightBase CreateFrontLight()
 	{
@@ -1353,7 +1399,7 @@ class ExpansionHelicopterScript: CarScript
 	override int Expansion_NumberTowConnections()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAutoHoverTargetHeight");
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_NumberTowConnections");
 #endif
 
 		return 1;

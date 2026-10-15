@@ -363,7 +363,13 @@ class ExpansionLogSettings: ExpansionSettingBase
 			ExpansionStatic.MakeDirectoryRecursive( EXPANSION_LOG_FOLDER );
 		}
 
-		string output = ExpansionStatic.GetISOTime() + " " + string.Format(text, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+		string output;
+
+	#ifdef DAYZ_1_29
+		output = ExpansionStatic.GetISOTime();
+	#endif
+
+		output += string.Format(text, param1, param2, param3, param4, param5, param6, param7, param8, param9);
 
 		if (LogToScripts || LogToADM)
 		{
@@ -373,13 +379,24 @@ class ExpansionLogSettings: ExpansionSettingBase
 			}
 			if (LogToADM)
 			{
+			#ifndef DAYZ_1_29
+				output = ExpansionStatic.GetISOTime() + " " + output;
+			#endif
+
 				g_Game.AdminLog(output);
 			}
-		} else {
+		}
+		else
+		{
 			if (!FileExist( m_FileName ))
 				m_FileLog = OpenFile(m_FileName, FileMode.WRITE);
 			else
 				m_FileLog = OpenFile(m_FileName, FileMode.APPEND);
+
+		#ifndef DAYZ_1_29
+			output = ExpansionStatic.GetISOTime() + " " + output;
+		#endif
+
 			FPrintln(m_FileLog, output);
 			CloseFile(m_FileLog);
 		}

@@ -478,6 +478,7 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		return "Expansion_Uh1h_Warning_SoundSet";
 	}
 
+#ifdef DAYZ_1_29
 	override void UpdateLights(int new_gear = -1)
 	{
 #ifdef EXPANSIONTRACE
@@ -521,6 +522,31 @@ class ExpansionUh1h : ExpansionHelicopterScript
 			}
 		}
 	}
+#else
+	override void UpdateLightsClient(int newGear = -1)
+	{
+		super.UpdateLightsClient(newGear);
+
+		if (LightIsOn())
+		{
+			if (m_Lights.Count() == 0)
+			{
+				CreateLights(this, "interior", ExpansionPointLight, Vector(0.1, 1, 0.25), Vector(0.1, 1, 0.25), 2.3, 0.1, false, true);
+			}
+		}
+		else
+		{
+			foreach (ExpansionPointLight light: m_Lights)
+			{
+				light.ExpansionSetEnabled(false);
+
+				g_Game.ObjectDelete(light);
+			}
+
+			m_Lights.Clear();
+		}
+	}
+#endif
 
 	override void OnDebugSpawn()
 	{

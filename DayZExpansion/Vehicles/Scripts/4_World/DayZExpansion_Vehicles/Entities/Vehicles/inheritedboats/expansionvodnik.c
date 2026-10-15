@@ -624,10 +624,14 @@ class ExpansionVodnik: ExpansionBoatScript
 
 		if (!g_Game.IsDedicatedServer())
 		{
-			ItemBase battery;
+			EntityAI battery;
 
+		#ifdef DAYZ_1_29
 			if (IsVitalTruckBattery())
-				battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
+		#else
+			if (NeedElectricitySourceDevice())
+		#endif
+				battery = FindAttachmentBySlotName("TruckBattery");
 
 			if (battery)
 			{

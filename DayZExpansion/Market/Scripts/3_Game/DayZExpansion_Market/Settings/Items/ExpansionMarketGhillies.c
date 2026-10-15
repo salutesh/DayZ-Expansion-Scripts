@@ -18,7 +18,10 @@ class ExpansionMarketGhillies: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_GHILLIES";
 		m_FileName = "Ghillies";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("GhillieHood_Tan", 					3160,		5265,		1,		100, null, {"GhillieHood_Woodland","GhillieHood_Mossy","GhillieHood_Winter"});
 		AddItem("GhillieBushrag_Tan", 				3160,		5265,		1,		100, null, {"GhillieBushrag_Woodland","GhillieBushrag_Mossy","GhillieBushrag_Winter"});
 		AddItem("GhillieTop_Tan", 					3160,		5265,		1,		100, null, {"GhillieTop_Woodland","GhillieTop_Mossy","GhillieTop_Winter"});

@@ -412,6 +412,7 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 	vector m_AutoHoverSpeed;
 	vector m_AutoHoverSpeedTarget;
 
+	float m_SurfaceY;
 	bool m_Hit;
 	Object m_HitObject;
 	vector m_HitPosition;
@@ -1247,10 +1248,22 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 
 		m_AntiTorqueTarget = at_left  - at_right;
 
+	#ifndef SERVER
+		ExpansionHelicopterAltitudeMode altMode = GetExpansionClientSettings().AltitudeMode;
+		float surfaceY;
+
+		if (IsAutoHover() || altMode == ExpansionHelicopterAltitudeMode.AGL)
+		{
+			if (m_Hit)
+				surfaceY = m_HitPosition[1];
+			else
+				surfaceY = g_Game.SurfaceY(pState.m_Transform[3][0], pState.m_Transform[3][2]);
+		}
+	#endif
+
 		if (IsAutoHover())
 		{
 		#ifndef SERVER
-			if (IsMissionClient())
 			{
 				float autoHoverHeight = m_AutoHoverAltitude;
 				float autoHoverChange;
@@ -1266,9 +1279,11 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 
 				autoHoverHeight += autoHoverChange;
 
-				float surfaceY = g_Game.SurfaceY(pState.m_Transform[3][0], pState.m_Transform[3][2]);
-				if (m_Hit)
-					surfaceY = m_HitPosition[1];
+				if (altMode == ExpansionHelicopterAltitudeMode.AGL)
+				{
+					autoHoverHeight -= m_SurfaceY;
+					autoHoverHeight += surfaceY;
+				}
 
 				autoHoverHeight -= surfaceY;
 
@@ -1305,6 +1320,8 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		}
 
 	#ifndef SERVER
+		m_SurfaceY = surfaceY;
+
 		if (m_UseAnalogueCollective)
 		{
 			m_CollectiveInput = c_analogue_up - c_analogue_down;
@@ -2430,12 +2447,9 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 			if (buoyancyAcceleration > 1.0)
 			{
 				CarScript car;
-				ExpansionVehicleBase vehicle;
 				bool canBeDamaged;
 				if (Class.CastTo(car, m_Vehicle))
 					canBeDamaged = car.CanBeDamaged();
-				else if (Class.CastTo(vehicle, m_Vehicle))
-					canBeDamaged = vehicle.CanBeDamaged();
 
 				if (canBeDamaged)
 					m_Vehicle.AddHealth("", "", -0.001 * buoyancyForce);

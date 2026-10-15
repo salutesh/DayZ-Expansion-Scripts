@@ -18,7 +18,10 @@ class ExpansionMarketBayonets: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BAYONETS";
 		m_FileName = "Bayonets";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("mosin_bayonet", 	1390, 	2315,	1,100);
 		AddItem("sks_bayonet", 	3590, 	5985,	1,100);
 		AddItem("m9a1_bayonet", 	3150, 	5245,	1,100);

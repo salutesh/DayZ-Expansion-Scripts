@@ -203,6 +203,18 @@ class ExpansionAirdropContainerManager
 		}
 #endif
 
+	#ifdef DAYZ_1_29
+	#ifdef DZ_Expansion_AI
+		//! 1.30 anim graph is not compatible with 1.29
+		typename typeName = type.ToType();
+		if (typeName.IsInherited(eAIBase))
+		{
+			EXError.InfoOnce(null, "DayZ 1.29 is not compatible with the 1.30 AI animgraph");
+			return;
+		}
+	#endif
+	#endif
+
 		//! TODO: Create Z slightly in ground to give effect as if they emerge from underground? Also, is there a way to affect Z stance (crouching)?
 		Object obj = g_Game.CreateObject( type, spawnPos, false, g_Game.IsKindOf(type, "DZ_LightAI") );
 

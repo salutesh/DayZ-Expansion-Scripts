@@ -99,10 +99,8 @@ modded class BoatScript
 
 		ctx.Write(m_Expansion_CurrentSkinName);
 
-	#ifdef SERVER
 		if (!m_Expansion_GlobalID.m_IsSet)
 			m_Expansion_GlobalID.Acquire();
-	#endif
 
 		m_Expansion_GlobalID.OnStoreSave(ctx);
 	}
@@ -160,11 +158,21 @@ modded class BoatScript
 			ExpansionDamageSystem.OnExplosionHit(source, this, ammo);
 	}
 
+#ifndef DAYZ_1_29
+	//! 1.30+
+	override void OnCEIterate(float currentTime, float elapsedTime)
+	{
+		super.OnCEIterate(currentTime, elapsedTime);
+#else
+	//! 1.29
 	override void OnCEUpdate()
 	{
 		super.OnCEUpdate();
 
-		m_ExpansionVehicle.SafeZoneCleanup(m_ElapsedSinceLastUpdate);
+		float elapsedTime = m_ElapsedSinceLastUpdate;
+#endif
+
+		m_ExpansionVehicle.SafeZoneCleanup(elapsedTime);
 		m_ExpansionVehicle.OnCEUpdate();
 	}
 

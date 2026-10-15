@@ -18,7 +18,10 @@ class ExpansionMarketBandanas: ExpansionMarketCategory
 		
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BANDANAS";
 		m_FileName = "Bandanas";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("bandana_redpattern", 	215, 	355,	1,100,null,{"Bandana_Pink","Bandana_Yellow","Bandana_Blue","Bandana_Polkapattern"});
 		AddItem("bandana_greenpattern", 	1135, 	1895,	1,100);
 		AddItem("bandana_camopattern", 	1135, 	1895,	1,100);

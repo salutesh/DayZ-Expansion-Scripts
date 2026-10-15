@@ -57,7 +57,8 @@ class cfgWeapons
 			"Mag_CMAG_10Rnd",
 			"Mag_CMAG_20Rnd",
 			"Mag_CMAG_30Rnd",
-			"Mag_CMAG_40Rnd"
+			"Mag_CMAG_40Rnd",
+			"Mag_Expansion_G36_30Rnd"
 		};
 		magazineSwitchTime=0.5;
 		ejectType=1;

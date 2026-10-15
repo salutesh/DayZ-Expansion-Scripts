@@ -131,7 +131,7 @@ modded class JMPlayerModule
 		Exec_SetExpansionFaction(factionTypeID, guids, senderRPC, instance);
 	}
 
-#ifdef COT_ANYSPECTATE
+#ifndef COT_SPECTATOR_TRACKING
 	override private void Server_StartSpectating(Object spectateObject, PlayerIdentity ident)
 	{
 		eAI_RemoveSpectator(ident);
@@ -141,55 +141,24 @@ modded class JMPlayerModule
 
 	override void Server_OnStartSpectating(Object spectateObject, PlayerIdentity ident)
 	{
+		super.Server_OnStartSpectating(spectateObject, ident);
+
 		PlayerBase spectator = PlayerBase.Cast(ident.GetPlayer());
 		eAIBase ai;
 		if (spectator && Class.CastTo(ai, spectateObject))
+		{
+			if (!ai.m_eAI_Spectators)
+				ai.m_eAI_Spectators = new set<PlayerBase>;
+
 			ai.m_eAI_Spectators.Insert(spectator);
+		}
 	}
 #endif
 
 	void StartSpectatingAI(eAIBase ai, PlayerIdentity ident)
 	{
 	#ifdef SERVER
-	#ifdef COT_ANYSPECTATE
 		Server_StartSpectating(ai, ident);
-	#else
-		PlayerBase playerSpectator = eAI_RemoveSpectator(ident);
-		if (!playerSpectator)
-			return;
-
-		if (m_Spectators[ident.GetId()] != playerSpectator)
-		{
-			playerSpectator.COT_RememberVehicle();
-			playerSpectator.SetLastPosition();
-
-			m_Spectators[ident.GetId()] = playerSpectator;
-		}
-
-		playerSpectator.m_JM_SpectatedPlayer = ai;
-		playerSpectator.m_JM_CameraPosition = vector.Zero;
-
-		playerSpectator.COT_TempDisableOnSelectPlayer();
-
-		g_Game.SelectPlayer(ident, null);
-
-		vector position = ai.GetBonePositionWS(ai.GetBoneIndexByName("Head"));
-		g_Game.SelectSpectator(ident, "JMSpectatorCamera", position);
-
-		playerSpectator.COTSetGodMode(true, false);  //! Enable godmode and remember previous state of GetAllowDamage
-		playerSpectator.COTUpdateSpectatorPosition();
-
-		ScriptRPC rpc = new ScriptRPC();
-		int networkLow, networkHigh;
-		ai.GetNetworkID(networkLow, networkHigh);
-		rpc.Write(networkLow);
-		rpc.Write(networkHigh);
-		rpc.Send(null, JMPlayerModuleRPC.StartSpectating, true, ident);
-
-		ai.m_eAI_Spectators.Insert(playerSpectator);
-
-		GetCommunityOnlineToolsBase().Log(ident, "Spectating AI " + ai);
-	#endif
 	#else
 		if (!g_Game.IsMultiplayer() || !g_Game.GetPlayer() || !ai)
 			return;
@@ -200,25 +169,29 @@ modded class JMPlayerModule
 	#endif
 	}
 
+#ifdef COT_SPECTATOR_TRACKING
+	[Obsolete("No replacement")]
+#endif
 	PlayerBase eAI_RemoveSpectator(PlayerIdentity ident)
 	{
 		PlayerBase spectator = PlayerBase.Cast(ident.GetPlayer());
+
+	#ifndef COT_SPECTATOR_TRACKING
 		eAIBase ai;
-	#ifdef COT_ANYSPECTATE
-		if (spectator && Class.CastTo(ai, spectator.m_JM_SpectatedObject))
-	#else
-		if (spectator && Class.CastTo(ai, spectator.m_JM_SpectatedPlayer))
-	#endif
+		if (spectator && Class.CastTo(ai, spectator.m_JM_SpectatedObject) && ai.m_eAI_Spectators)
 			ai.m_eAI_Spectators.RemoveItem(spectator);
+	#endif
 
 		return spectator;
 	}
 
+#ifndef COT_SPECTATOR_TRACKING
 	override private void Server_EndSpectating(PlayerIdentity ident)
 	{
 		eAI_RemoveSpectator(ident);
 
 		super.Server_EndSpectating(ident);
 	}
+#endif
 }
 #endif

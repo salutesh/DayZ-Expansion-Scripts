@@ -55,8 +55,9 @@ class ExpansionVehicle
 		BoatScript bs;
 		CarScript cs;
 		//HelicopterScript hs;
-	#ifdef EXPANSIONMODVEHICLE
-		ExpansionVehicleBase evb;
+	#ifndef DAYZ_1_29
+		//! 1.30+
+		MotorbikeScript ms;
 	#endif
 		DayZPlayerImplement player;
 
@@ -66,9 +67,10 @@ class ExpansionVehicle
 			return bs.GetExpansionVehicle();
 		//else if (Class.CastTo(hs, entity))
 			//return new ExpansionVehicleT<HelicopterScript>(hs);
-	#ifdef EXPANSIONMODVEHICLE
-		else if (Class.CastTo(evb, entity))
-			return evb.GetExpansionVehicle();
+	#ifndef DAYZ_1_29
+		//! 1.30+
+		else if (Class.CastTo(ms, entity))
+			return ms.GetExpansionVehicle();
 	#endif
 		else if (Class.CastTo(player, entity))
 		{
@@ -86,11 +88,6 @@ class ExpansionVehicle
 				auto vehCmd = player.GetCommand_Vehicle();
 				if (vehCmd)
 					return Get(vehCmd.GetTransport(), errorOnFailure);
-			#ifdef EXPANSIONMODVEHICLE
-				auto exVehCmd = player.GetCommand_ExpansionVehicle();
-				if (exVehCmd)
-					return Get(exVehCmd.GetObject(), errorOnFailure);
-			#endif
 			}
 		}
 		
@@ -138,6 +135,12 @@ class ExpansionVehicle
 
 		if (g_Game.IsKindOf(type, "CarScript"))
 			return ExpansionVehicleType.LAND;
+
+	#ifndef DAYZ_1_29
+		//! 1.30+
+		if (g_Game.IsKindOf(type, "MotorbikeScript"))
+			return ExpansionVehicleType.LAND;
+	#endif
 
 		return ExpansionVehicleType.NONE;
 	}
@@ -188,6 +191,14 @@ class ExpansionVehicle
 	{
 		return HelicopterScript.Cast(GetEntity());
 	}
+
+#ifndef DAYZ_1_29
+	//! 1.30
+	MotorbikeScript GetMotorbike()
+	{
+		return MotorbikeScript.Cast(GetEntity());
+	}
+#endif
 
 	ExpansionGlobalID GetGlobalID()
 	{
@@ -397,6 +408,27 @@ class ExpansionVehicle
 		EXError.Error(this, "NOT IMPLEMENTED");
 		return false;
 	}
+
+//! Crashes with random compile error popup and segfaults
+/*
+	bool NeedElectricitySourceDevice()
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return false;
+	}
+	
+	EntityAI GetElectricitySourceDevice()
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return null;
+	}
+	
+	string GetElectricitySourceDeviceType()
+	{
+		EXError.Error(this, "NOT IMPLEMENTED");
+		return "";
+	}
+*/
 
 	int GetEngineStartAnimation()
 	{
@@ -613,17 +645,6 @@ class ExpansionVehicle
 
 	bool IsPlayerInSeat(DayZPlayerImplement player, int seatIdx = DayZPlayerConstants.VEHICLESEAT_DRIVER)
 	{
-	#ifdef EXPANSIONMODVEHICLE
-		if (GetEntity().IsInherited(ExpansionVehicleBase))
-		{
-			auto exVehCmd = player.GetCommand_ExpansionVehicle();
-			if (exVehCmd && exVehCmd.GetVehicleSeat() == seatIdx)
-				return true;
-
-			return false;
-		}
-	#endif
-
 		auto vehCmd = player.GetCommand_Vehicle();
 		if (vehCmd && vehCmd.GetVehicleSeat() == seatIdx)
 			return true;
@@ -1380,6 +1401,27 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 		return m_Vehicle.Expansion_GetCarDoorsState(slotName);
 	}
 
+//! Crashes with random compile error popup and segfaults
+/*
+#ifndef DAYZ_1_29
+	//! 1.30+
+	override bool NeedElectricitySourceDevice()
+	{
+		return GetTransport().NeedElectricitySourceDevice();
+	}
+	
+	override EntityAI GetElectricitySourceDevice()
+	{
+		return GetTransport().GetElectricitySourceDevice();
+	}
+	
+	override string GetElectricitySourceDeviceType()
+	{
+		return GetTransport().GetElectricitySourceDeviceType();
+	}
+#endif
+*/
+
 #ifdef EXPANSIONMODVEHICLE
 	override void SetActions()
 	{
@@ -1407,11 +1449,8 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	{
 		EntityAI entity = GetEntity();
 		ExpansionHelicopterScript hs;
-		ExpansionVehicleHelicopterBase evhb;
 		if (Class.CastTo(hs, entity))
 			return hs.IsAutoHover();
-		else if (Class.CastTo(evhb, entity))
-			return evhb.IsAutoHover();
 
 		return false;
 	}
@@ -1420,11 +1459,8 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 	{
 		EntityAI entity = GetEntity();
 		ExpansionHelicopterScript hs;
-		ExpansionVehicleHelicopterBase evhb;
 		if (Class.CastTo(hs, entity))
 			hs.SwitchAutoHover();
-		else if (Class.CastTo(evhb, entity))
-			evhb.SwitchAutoHover();
 	}
 
 	override bool LeavingSeatDoesAttachment(int posIdx)
@@ -1484,7 +1520,7 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 
 	override bool IsScriptedLightsOn()
 	{
-		return m_Vehicle.IsScriptedLightsOn();
+		return m_Vehicle.LightIsOn();
 	}
 
 	override bool IsVitalAircraftBattery()
@@ -1492,20 +1528,24 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 		return m_Vehicle.IsVitalAircraftBattery();
 	}
 
+#ifdef DAYZ_1_29
 	override bool IsVitalCarBattery()
 	{
 		return m_Vehicle.IsVitalCarBattery();
 	}
+#endif
 
 	override bool IsVitalHelicopterBattery()
 	{
 		return m_Vehicle.IsVitalHelicopterBattery();
 	}
 
+#ifdef DAYZ_1_29
 	override bool IsVitalTruckBattery()
 	{
 		return m_Vehicle.IsVitalTruckBattery();
 	}
+#endif
 
 	override bool IsExploded()
 	{

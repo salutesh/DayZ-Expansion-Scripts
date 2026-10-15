@@ -163,6 +163,7 @@ class ExpansionUtilityBoat: ExpansionBoatScript
 		return false;
 	}
 
+#ifdef DAYZ_1_29
 	override void UpdateLights(int new_gear = -1)
 	{
 #ifdef EXPANSIONTRACE
@@ -361,6 +362,7 @@ class ExpansionUtilityBoat: ExpansionBoatScript
 			}
 		}
 	}
+#endif
 
 	override void OnDebugSpawn()
 	{

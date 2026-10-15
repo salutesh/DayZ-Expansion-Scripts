@@ -18,3 +18,9 @@ enum ExpansionHelicopterAutoCollectiveMode
 	AlwaysOn,
 	AlwaysOff
 }
+
+enum ExpansionHelicopterAltitudeMode
+{
+	ASL,  //! above sea level
+	AGL  //! above ground level
+}

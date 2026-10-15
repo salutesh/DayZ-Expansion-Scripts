@@ -22,7 +22,10 @@ class ExpansionMarketTraderClothing: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_CLOTHING";
 		m_FileName = "Clothing";
 		TraderIcon = "Backpack";
-					
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Blouses_And_Suits");
 		Categories.Insert("Coats_And_Jackets");
 		Categories.Insert("Shirts_And_TShirts");

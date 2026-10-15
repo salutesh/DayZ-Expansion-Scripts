@@ -1825,11 +1825,6 @@ class CfgVehicles
 		scope=1;
 		model="\dz\weapons\attachments\underslung\m203leafsight.p3d";
 	};
-	class bldr_ubgl_gp25: HouseNoDestruct
-	{
-		scope=1;
-		model="\dz\weapons\attachments\underslung\ubgl_gp25.p3d";
-	};
 	class bldr_claymoremine: HouseNoDestruct
 	{
 		scope=1;
@@ -2019,6 +2014,11 @@ class CfgVehicles
 	{
 		scope=1;
 		model="\dz\weapons\firearms\vss\vikhr.p3d";
+	};
+	class bldr_ubgl_gp25: HouseNoDestruct
+	{
+		scope=1;
+		model="\dz\weapons\launchers\gp25\ubgl_gp25.p3d";
 	};
 	class bldr_m79: HouseNoDestruct
 	{

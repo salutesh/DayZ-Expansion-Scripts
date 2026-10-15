@@ -18,7 +18,10 @@ class ExpansionMarketHandguards: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HANDGUARDS";
 		m_FileName = "Handguards";
-			
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("mp5_plastichndgrd", 	1805, 	3010,	1,100);
 		AddItem("mp5_railhndgrd", 	1805, 	3010,	1,100);
 

@@ -220,8 +220,6 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		RequiredFaction = "";
 
 		RequiredCompletedQuestID = -1;
-		
-		DefaultCurrencies();
 
 		DisplayCurrencyValue = 1;
 		DisplayCurrencyName = "";
@@ -230,6 +228,10 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 	void DefaultCurrencies()
 	{
 		Currencies = {"expansionbanknotehryvnia"};
+	}
+
+	void DefaultItems()
+	{
 	}
 
 	// ------------------------------------------------------------
@@ -329,7 +331,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 				if (!cat)
 				{
-					EXError.Error(null, "TRADER CONFIGURATION ERROR: Category " + fileName + " in " + m_FileName + " does not exist!", {});
+					EXError.Error(null, "TRADER CONFIGURATION ERROR: Category " + fileName + " referenced in trader " + m_FileName + " does not exist!", {});
 					continue;
 				}
 
@@ -349,7 +351,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 				if (!cat)
 				{
-					EXError.Error(null, "TRADER CONFIGURATION ERROR: Category " + id + " in " + m_FileName + " does not exist!", {});
+					EXError.Error(null, "TRADER CONFIGURATION ERROR: Category " + id + " referenced in trader " + m_FileName + " does not exist!", {});
 					continue;
 				}
 

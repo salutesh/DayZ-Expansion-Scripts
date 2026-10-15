@@ -42,7 +42,6 @@ class ExpansionModelInfo
 	}
 
 	bool CanClimb = true;
-	ref ExpansionNavMesh NavMesh = null;
 	ref array<LOD> LODs = new array<LOD>();
 
 	void ExpansionModelInfo(Object object)
@@ -66,17 +65,6 @@ class ExpansionModelInfo
 				if (propertyName == "canclimb")
 				{
 					CanClimb = lod.GetPropertyValue(property) == "1";
-				}
-			}
-			
-			if (lodName == "paths")
-			{
-				NavMesh = new ExpansionNavMesh();
-				NavMesh.Generate(object, lod);
-
-				if (!NavMesh.IsValid())
-				{
-					NavMesh = null;
 				}
 			}
 		}

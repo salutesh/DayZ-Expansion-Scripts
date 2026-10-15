@@ -24,7 +24,5 @@ class ExpansionMarketBalotaAircraftsZone: ExpansionMarketTraderZone
 
 		Position = "4971.0 10.5 2436.36"; 	
 		Radius = 100;
-
-		Update();
 	}
 };

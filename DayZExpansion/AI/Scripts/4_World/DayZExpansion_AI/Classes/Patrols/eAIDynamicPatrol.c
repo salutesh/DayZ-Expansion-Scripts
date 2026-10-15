@@ -307,6 +307,11 @@ class eAIDynamicPatrol : eAIPatrol
 			LoadBalancing_Setup();
 		}
 
+	#ifdef DAYZ_1_29
+		//! 1.30 anim graph is not compatible with 1.29
+		return false;
+	#endif
+
 		return s_AIPatrolSettings.Enabled;
 	}
 
@@ -352,6 +357,12 @@ class eAIDynamicPatrol : eAIPatrol
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
+	#ifdef DAYZ_1_29
+		//! 1.30 anim graph is not compatible with 1.29
+		EXError.InfoOnce(null, "DayZ 1.29 is not compatible with the 1.30 AI animgraph");
+		return null;
+	#endif
+
 		string unit;
 
 		if (m_Units)
@@ -359,7 +370,7 @@ class eAIDynamicPatrol : eAIPatrol
 		else
 			unit = eAISurvivor.GetQuasiRandom();
 
-		return eAIBase.Cast(g_Game.CreateObject(unit, pos));
+		return eAIBase.Cast(g_Game.CreateObjectEx(unit, pos, ECE_CREATEPHYSICS | ECE_KEEPHEIGHT | ECE_NOSURFACEALIGN));
 	}
 
 	private eAIBase SpawnAI(vector pos)
@@ -440,6 +451,11 @@ class eAIDynamicPatrol : eAIPatrol
 
 	bool CanSpawn()
 	{
+	#ifdef DAYZ_1_29
+		//! 1.30 anim graph is not compatible with 1.29
+		return false;
+	#endif
+
 		if (m_Group)
 			return false;
 

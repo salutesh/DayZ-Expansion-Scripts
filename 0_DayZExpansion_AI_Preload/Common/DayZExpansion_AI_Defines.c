@@ -1,7 +1,9 @@
 //#include "JM/CF/Defines/CFDefines.c"
 
+#ifndef DAYZ_1_29
 #define EXPANSIONMODAI
 #define ENFUSION_AI_PROJECT
+#endif
 
 //#define EAI_TRACE
 

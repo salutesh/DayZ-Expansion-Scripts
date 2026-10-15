@@ -22,7 +22,10 @@ class ExpansionMarketTraderClothingAccessories: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_CLOTHING_ACCESSORIES";
 		m_FileName = "Clothing_Accessories";
 		TraderIcon = "Backpack";
-		
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Helmets");
 		Categories.Insert("Caps");
 		Categories.Insert("Hats_And_Hoods");

@@ -16,4 +16,30 @@ modded class OffroadHatchback
 	{
 		return "HatchbackWheel";
 	}
+	
+	override void OnDebugSpawn()
+	{
+		SpawnUniversalParts();
+		SpawnAdditionalItems();
+		FillUpCarFluids();
+
+		GameInventory inventory = GetInventory();
+		inventory.CreateInInventory("HatchbackWheel");
+		inventory.CreateInInventory("HatchbackWheel");
+		inventory.CreateInInventory("HatchbackWheel" );
+		inventory.CreateInInventory("HatchbackWheel");
+		
+		string skinName = ConfigGetString("skinName");
+		if (skinName)
+			skinName = "_" + skinName;
+
+		inventory.CreateInInventory("HatchbackDoors_Driver" + skinName);
+		inventory.CreateInInventory("HatchbackDoors_CoDriver" + skinName);
+		inventory.CreateInInventory("HatchbackHood" + skinName);
+		inventory.CreateInInventory("HatchbackTrunk" + skinName);
+
+		//-----IN CAR CARGO
+		inventory.CreateInInventory("HatchbackWheel");
+		inventory.CreateInInventory("HatchbackWheel");
+	}
 };

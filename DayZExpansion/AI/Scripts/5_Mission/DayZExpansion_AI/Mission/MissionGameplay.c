@@ -71,13 +71,6 @@ modded class MissionGameplay
 
 		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-#ifdef DIAG_DEVELOPER
-		if (player && player.DEBUG_EXPANSION_AI_VEHICLE && g_Expansion_Car && g_ExpansionNavMesh)
-		{
-			g_ExpansionNavMesh.DebugScripts();
-		}
-#endif
-
 		// If we want to open the command menu, and nothing else is open
 		if (!inputIsFocused && input.LocalPress("eAICommandMenu", false) && !menu && !viewMenu)
 		{

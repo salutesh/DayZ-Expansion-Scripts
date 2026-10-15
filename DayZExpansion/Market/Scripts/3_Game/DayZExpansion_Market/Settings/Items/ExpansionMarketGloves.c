@@ -18,7 +18,10 @@ class ExpansionMarketGloves: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_GLOVES";
 		m_FileName = "Gloves";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("surgicalgloves_blue", 	640, 	1065,	1,100,null,{"SurgicalGloves_LightBlue","SurgicalGloves_Green","SurgicalGloves_White"});
 		
 		AddItem("workinggloves_yellow", 	370, 	615,	1,100,null,{"WorkingGloves_Black","WorkingGloves_Beige","WorkingGloves_Brown"});

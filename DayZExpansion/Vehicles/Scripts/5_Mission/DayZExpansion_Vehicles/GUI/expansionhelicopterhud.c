@@ -42,13 +42,13 @@ class ExpansionHelicopterHud : VehicleHudBase
 	protected TextWidget			m_HeliSpeedValueH;
 
 	protected TextWidget			m_HeliALTValue;
-	protected ProgressBarWidget		m_HeliALTProgressBar;
+	protected TextWidget			m_HeliALTLabel;
 
 	protected ImageWidget			m_HeliFuelPointer;
 	protected ImageWidget			m_HeliFuelLight;
 		
 	protected ImageWidget			m_HeliHydraulicFluidPointer;
-	protected ImageWidget			m_HeliHydraulicFluidLight;
+	protected Widget				m_HeliHydraulicFluidLight;
 	protected ImageWidget			m_HeliHydraulicFluidLight1;
 
 	protected ImageWidget			m_HeliBatteryLight;
@@ -112,6 +112,8 @@ class ExpansionHelicopterHud : VehicleHudBase
 	protected ref EffectSound		m_AlarmSound;
 	protected bool					m_AlarmSoundPlayed;
 
+	protected float					m_AGL;
+
 	void ~ExpansionHelicopterHud()
 	{
 		if (g_Game)
@@ -160,7 +162,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliSpeedValueH = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("SpeedValueH"));
 
 		m_HeliALTValue = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("ALTValue"));
-		m_HeliALTProgressBar = ProgressBarWidget.Cast(m_VehiclePanel.FindAnyWidget("ALTProgressBar"));
+		m_HeliALTLabel = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("ALTLabel"));
 
 		m_HeliBatteryLight = ImageWidget.Cast( m_VehiclePanel.FindAnyWidget("BatteryLight"));
 		
@@ -170,7 +172,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliFuelLight = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("FuelLight"));
 		
 		m_HeliHydraulicFluidPointer = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("HydraulicFluidPointer"));
-		m_HeliHydraulicFluidLight = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("HydraulicFluidLight"));
+		m_HeliHydraulicFluidLight = m_VehiclePanel.FindAnyWidget("HydraulicFluidLight");
 		m_HeliHydraulicFluidLight1 = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("HydraulicFluidLight1"));
 
 		m_InfoPanel = m_VehiclePanel.FindAnyWidget("InfoPanel");
@@ -233,7 +235,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 		}
 		
 		//! inital lights check
-		m_LightsOn = m_CurrentHelicopter.IsScriptedLightsOn();
+		m_LightsOn = m_CurrentHelicopter.LightIsOn();
 		m_HeliLightsIcon.Show(m_LightsOn);
 
 		m_VehiclePanel.Show(true);
@@ -435,7 +437,24 @@ class ExpansionHelicopterHud : VehicleHudBase
 		}
 
 		//! altimeter
-		float altValue = m_CurrentHelicopter.GetPosition()[1];
+		float altValue = transform[3][1];
+		ExpansionHelicopterAltitudeMode altMode = GetExpansionClientSettings().AltitudeMode;
+
+		if (altMode == ExpansionHelicopterAltitudeMode.AGL)
+		{
+			if (m_CurrentHelicopter.Expansion_EngineIsSpinning())
+				altValue -= simulation.m_SurfaceY;
+			else
+				altValue = 0;
+
+			m_AGL = Math.Lerp(m_AGL, altValue, timeslice);
+			altValue = m_AGL;
+		}
+		else
+		{
+			m_AGL = altValue - simulation.m_SurfaceY;
+		}
+
 		float altTE = (altValue / 100) * 360;	//! 10m steps
 		float altH = (altValue / 1000) * 360;	//! 100m steps
 		float altTH = (altValue / 10000) * 360;	//! 1000m steps
@@ -520,12 +539,20 @@ class ExpansionHelicopterHud : VehicleHudBase
 
 		if (autoHover && (simulation.m_RotorSpeedTarget > 0 || simulation.m_RotorSpeed == 0))
 		{
-			m_HeliALTValue.SetText(Math.Round(altValue).ToString() + "/" + Math.Round(m_CurrentHelicopter.GetAutoHoverTargetHeight()).ToString());
+			float autoHoverTarget = simulation.m_AutoHoverAltitude;
+
+			if (altMode == ExpansionHelicopterAltitudeMode.AGL)
+				autoHoverTarget -= simulation.m_SurfaceY;
+
+			m_HeliALTValue.SetText(Math.Round(altValue).ToString() + "/" + Math.Round(autoHoverTarget).ToString());
 		}
 		else
-		{
 			m_HeliALTValue.SetText(Math.Round(altValue).ToString());
-		}
+
+		if (altMode == ExpansionHelicopterAltitudeMode.AGL)
+			m_HeliALTLabel.SetText("m AGL");
+		else
+			m_HeliALTLabel.SetText("m ASL");
 
 		//! attitude
 		float horizonOffsetV = m_CurrentHelicopter.GetDirection()[1];
@@ -685,9 +712,9 @@ class ExpansionHelicopterHud : VehicleHudBase
 		m_HeliThrustValue.SetText(thrust + "%");
 
 		//! lights
-		if (m_LightsOn != m_CurrentHelicopter.IsScriptedLightsOn())
+		if (m_LightsOn != m_CurrentHelicopter.LightIsOn())
 		{
-			m_LightsOn = m_CurrentHelicopter.IsScriptedLightsOn();
+			m_LightsOn = m_CurrentHelicopter.LightIsOn();
 			m_HeliLightsIcon.Show(m_LightsOn);
 		}
 		
@@ -744,18 +771,15 @@ class ExpansionHelicopterHud : VehicleHudBase
 		
 			if (hydraulicHosesHealthLevel <= GameConstants.STATE_WORN)
 			{
-				m_HeliHydraulicFluidLight.SetColor(Colors.WHITE);
 				m_HeliHydraulicFluidLight1.SetColor(Colors.WHITE);
 			}
 			else
 			{
 				int hydraulicHosesHealthColor = ItemManager.GetItemHealthColor(hydraulicHosesHealthLevel);
 
-				m_HeliHydraulicFluidLight.SetColor(hydraulicHosesHealthColor);
 				m_HeliHydraulicFluidLight1.SetColor(hydraulicHosesHealthColor);
 			}
 
-			m_HeliHydraulicFluidLight.SetAlpha(1);
 			m_HeliHydraulicFluidLight1.SetAlpha(1);
 		}
 		

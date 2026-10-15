@@ -21,7 +21,10 @@ class ExpansionMarketRifles: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_RIFLES";
 		m_FileName = "Rifles";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("izh18", 	530, 	885,	1,100, null, {"Izh18_Clean", "Izh18_Black", "Izh18_Green", "Izh18_Yellow", "Izh18_Orange", "Izh18_Brown", "Izh18_White", "Izh18_Grey", "Izh18_Blue", "Izh18_Red", "Izh18_Pink"});
 		AddItem("ruger1022", 	865, 	1440,	1,100,{"Mag_Ruger1022_15Rnd"}, {"Ruger1022_Clean", "Ruger1022_Black", "Ruger1022_Green", "Ruger1022_Yellow", "Ruger1022_Orange", "Ruger1022_Brown", "Ruger1022_White", "Ruger1022_Grey", "Ruger1022_Blue", "Ruger1022_Red", "Ruger1022_Pink"});
 		AddItem("repeater", 	1500, 	2500,	1,100, null, {"Repeater_Clean", "Repeater_Black", "Repeater_Green", "Repeater_Yellow", "Repeater_Orange", "Repeater_Brown", "Repeater_White", "Repeater_Grey", "Repeater_Blue", "Repeater_Red", "Repeater_Pink"});

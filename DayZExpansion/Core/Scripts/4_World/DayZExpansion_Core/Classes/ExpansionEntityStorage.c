@@ -444,7 +444,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			}
 		}
 
-		//! 6) Special treatment for vehicles (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
+		//! 6) Special treatment for vehicles
 		ExpansionVehicle vehicle;
 		if (!entity.IsItemBase() && ExpansionVehicle.Get(vehicle, entity))
 		{
@@ -595,6 +595,14 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		switch (ilt)
 		{
 			case InventoryLocationType.GROUND:
+			#ifdef DAYZ_1_29
+			#ifdef DZ_Expansion_AI
+				//! 1.30 anim graph is not compatible with 1.29
+				typename typeName = type.ToType();
+				if (typeName.IsInherited(eAIBase))
+					return ErrorFalse("DayZ 1.29 is not compatible with the 1.30 AI animgraph");
+			#endif
+			#endif
 				vector position;
 				if (!ctx.Read(position))
 					return ErrorFalse(type + ": Couldn't read position");
@@ -942,7 +950,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			}
 		}
 
-		//! 6) Special treatment for vehicles (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
+		//! 6) Special treatment for vehicles
 		ExpansionVehicle vehicle;
 		if (!entity.IsItemBase() && ExpansionVehicle.Get(vehicle, entity))
 		{
@@ -1225,7 +1233,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			foreach (EntityAI transferAttachment: transferAttachments)
 			{
 				transferAttachment.GetInventory().GetCurrentInventoryLocation(transferAttachmentInvLoc);
-				placeholder.ServerTakeEntityAsAttachmentEx(transferAttachment, transferAttachmentInvLoc.GetSlot());
+				placeholder.ServerTakeEntityToTargetAttachmentEx(placeholder, transferAttachment, transferAttachmentInvLoc.GetSlot());
 			}
 		}
 
@@ -1244,7 +1252,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				foreach (EntityAI undoTransferAttachment: transferAttachments)
 				{
 					undoTransferAttachment.GetInventory().GetCurrentInventoryLocation(transferAttachmentInvLoc);
-					entity.ServerTakeEntityAsAttachmentEx(undoTransferAttachment, transferAttachmentInvLoc.GetSlot());
+					entity.ServerTakeEntityToTargetAttachmentEx(entity, undoTransferAttachment, transferAttachmentInvLoc.GetSlot());
 				}
 			}
 

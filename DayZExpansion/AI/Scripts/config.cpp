@@ -38,10 +38,6 @@ class CfgMods
 			"World",
 			"Mission"
 		};
-		defines[]=
-		{
-			"EXPANSIONAI_ONFACTIONCHANGE"
-		};
 		class defs
 		{
 			class engineScriptModule

@@ -22,7 +22,10 @@ class ExpansionMarketTraderConsumables: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_CONSUMABLES";
 		m_FileName = "Consumables";
 		TraderIcon = "Can Of Beans Big";
-		
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Drinks");
 		Categories.Insert("Food");
 		Categories.Insert("Fruit_And_Vegetables");

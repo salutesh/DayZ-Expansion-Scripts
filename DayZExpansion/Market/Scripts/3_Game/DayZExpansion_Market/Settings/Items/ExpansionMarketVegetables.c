@@ -18,7 +18,10 @@ class ExpansionMarketVegetables: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FRUIT_AND_VEGETABLES";
 		m_FileName = "Fruit_And_Vegetables";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("Apple", 						7,		9,		1,		100);
 		AddItem("greenbellpepper", 	940, 	1570,	1,100);
 		AddItem("zucchini", 	1015, 	1690,	1,100);

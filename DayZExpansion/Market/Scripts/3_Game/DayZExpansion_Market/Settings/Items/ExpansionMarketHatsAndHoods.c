@@ -18,7 +18,10 @@ class ExpansionMarketHatsAndHoods: ExpansionMarketCategory
 
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_HATS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_HOODS");
 		m_FileName = "Hats_And_Hoods";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("medicalscrubshat_blue", 	655, 	1090,	1,100,null,{"MedicalScrubsHat_White","MedicalScrubsHat_Green"});
 
 	#ifdef EXPANSIONMOD

@@ -18,7 +18,10 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_VEHICLE_PARTS";
 		m_FileName = "Vehicle_Parts";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("headlighth7_box", 	610, 	1015,	1,100);
 		AddItem("headlighth7", 	600, 	985,	1,100);
 		AddItem("carradiator", 	610, 	1015,	1,100);

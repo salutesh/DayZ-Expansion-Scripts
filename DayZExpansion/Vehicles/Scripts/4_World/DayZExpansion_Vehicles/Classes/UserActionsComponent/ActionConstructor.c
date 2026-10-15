@@ -32,11 +32,6 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionAdminUnpairKey );
 		actions.Insert( ExpansionActionLockVehicle );
 		actions.Insert( ExpansionActionUnlockVehicle );
-		actions.Insert( ExpansionActionOpenVehicleDoor );
-		actions.Insert( ExpansionActionCloseVehicleDoor );
-
-		actions.Insert( ExpansionActionSwitchLights );
-		actions.Insert( ExpansionActionFillFuel );
 
 		//! Tool-based actions
 		actions.Insert( ExpansionActionPickVehicleLock );

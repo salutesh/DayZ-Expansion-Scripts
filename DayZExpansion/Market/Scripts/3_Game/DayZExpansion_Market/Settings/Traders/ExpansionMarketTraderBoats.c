@@ -22,7 +22,10 @@ class ExpansionMarketTraderBoats: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_BOATS";
 		m_FileName = "Boats";
 		TraderIcon = "Boat";
-	
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Boats");
 		AddCategory("Vehicle_Parts", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 		AddCategory("Batteries", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);

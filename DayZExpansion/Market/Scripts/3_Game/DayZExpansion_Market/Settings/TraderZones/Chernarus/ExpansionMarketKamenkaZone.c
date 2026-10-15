@@ -24,7 +24,5 @@ class ExpansionMarketKamenkaZone: ExpansionMarketTraderZone
 
 		Position = "1143.14 6.9 2429.27"; 	
 		Radius = 700;
-
-		Update();
 	}
 };

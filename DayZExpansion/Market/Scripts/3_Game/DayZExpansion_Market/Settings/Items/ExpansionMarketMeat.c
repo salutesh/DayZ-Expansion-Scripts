@@ -18,7 +18,10 @@ class ExpansionMarketMeat: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MEAT";
 		m_FileName = "Meat";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("BearSteakMeat", 				8,		16,		1,		100);
 		AddItem("GoatSteakMeat", 				8,		16,		1,		100);
 		AddItem("BoarSteakMeat", 				8,		16,		1,		100);

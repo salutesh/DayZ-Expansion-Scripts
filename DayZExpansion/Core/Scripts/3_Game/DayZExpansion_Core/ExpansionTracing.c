@@ -350,10 +350,17 @@ class EXTrace
 	//! @note max script log printable text length client 240, server 1026 characters
 	void DumpLine(string line, float elapsed, bool end = false)
 	{
+	#ifdef DAYZ_1_29
 		if (end)
 			PrintFormat("%1 [EXTRACE] %2 %3 ms", ExpansionStatic.GetISOTime(), s_Indent + "-" + line, elapsed.ToString());
 		else
 			PrintFormat("%1 [EXTRACE] %2", ExpansionStatic.GetISOTime(), s_Indent + "+" + line);
+	#else
+		if (end)
+			PrintFormat("[EXTRACE] %1 %2 ms", s_Indent + "-" + line, elapsed.ToString());
+		else
+			PrintFormat("[EXTRACE] %1", s_Indent + "+" + line);
+	#endif
 	}
 
 #ifdef EXTRACE
@@ -503,7 +510,11 @@ class EXTrace
 
 	void Print(string msg, string p1 = "", string p2 = "", string p3 = "", string p4 = "", string p5 = "", string p6 = "", string p7 = "", string p8 = "", string p9 = "")
 	{
+	#ifdef DAYZ_1_29
 		PrintFormat("%1 [EXPRINT] %2%3", ExpansionStatic.GetISOTime(), s_Indent, string.Format(msg, p1, p2, p3, p4, p5, p6, p7, p8, p9));
+	#else
+		PrintFormat("[EXPRINT] %1%2", s_Indent, string.Format(msg, p1, p2, p3, p4, p5, p6, p7, p8, p9));
+	#endif
 	}
 
 	static void Print(bool yes, Class instance, string msg, string p1 = "", string p2 = "", string p3 = "", string p4 = "", string p5 = "", string p6 = "", string p7 = "", string p8 = "", string p9 = "")

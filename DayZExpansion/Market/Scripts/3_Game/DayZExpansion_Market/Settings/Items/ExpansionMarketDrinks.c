@@ -18,7 +18,10 @@ class ExpansionMarketDrinks: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_DRINKS";
 		m_FileName = "Drinks";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("sodacan_pipsi", 	605, 	1005,	1,100);
 		AddItem("sodacan_cola", 	605, 	1005,	1,100);
 		AddItem("sodacan_spite", 	605, 	1005,	1,100);

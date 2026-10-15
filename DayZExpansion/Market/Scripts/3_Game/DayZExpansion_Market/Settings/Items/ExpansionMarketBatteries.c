@@ -18,7 +18,10 @@ class ExpansionMarketBatteries: ExpansionMarketCategory
 		
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BATTERIES";
 		m_FileName = "Batteries";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("battery9v", 	155, 	260,	1,100);
 		AddItem("carbattery", 	485, 	810,	1,100);
 		AddItem("truckbattery", 	535, 	895,	1,100);

@@ -19,7 +19,10 @@ class ExpansionMarketExchange: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_EXCHANGE";
 		m_FileName = "Exchange";
 		IsExchange = true;
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddStaticItem("ExpansionBanknoteHryvnia", 1);
 	}
 };

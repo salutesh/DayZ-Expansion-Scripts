@@ -387,7 +387,7 @@ class ExpansionEffectAreaMergedCluster
 		#ifdef DIAG_DEVELOPER
 			EXTrace.Print(EXTrace.AI, null, string.Format("  %1 (pos=%2)", ExpansionStatic.GetDebugInfo(this), m_Position.ToString()));
 		#ifndef SERVER
-			if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
+			if (DiagMenu.IsInitialized() && DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
 				m_DebugShapes.Insert(Debug.DrawArrow(m_Position, m_Position + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_RED));
 		#endif
 		#endif
@@ -476,7 +476,7 @@ class ExpansionEffectAreaMergedCluster
 
 			#ifdef DIAG_DEVELOPER
 			#ifndef SERVER
-				if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
+				if (DiagMenu.IsInitialized() && DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
 					m_DebugShapes.Insert(Debug.DrawArrow(point, point + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_BLUE));
 			#endif
 			#endif
@@ -547,7 +547,7 @@ class ExpansionEffectAreaMergedCluster
 
 				#ifdef DIAG_DEVELOPER
 				#ifndef SERVER
-					if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
+					if (DiagMenu.IsInitialized() && DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
 					{
 						m_DebugShapes.Insert(Debug.DrawArrow(a, a + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_GREEN));
 						m_DebugShapes.Insert(Debug.DrawArrow(b, b + Vector(0, m_PositiveHeight + 10, 0), 0.5, COLOR_GREEN));
@@ -599,7 +599,7 @@ class ExpansionEffectAreaMergedCluster
 
 				#ifdef DIAG_DEVELOPER
 				#ifndef SERVER
-					if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
+					if (DiagMenu.IsInitialized() && DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
 					{
 						dir[0] = dx;
 						dir[2] = dz;
@@ -661,7 +661,7 @@ class ExpansionEffectAreaMergedCluster
 
 		#ifdef DIAG_DEVELOPER
 		#ifndef SERVER
-			if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
+			if (DiagMenu.IsInitialized() && DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
 				m_DebugShapes.Insert(Debug.DrawArrow(m_Position, m_Position + Vector(0, m_PositiveHeight + 20, 0), 0.5, color));
 		#endif
 		#endif
@@ -747,7 +747,7 @@ class ExpansionEffectAreaMergedCluster
 	#ifndef SERVER
 		//CleanupDebugShapes();
 
-		if (DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
+		if (DiagMenu.IsInitialized() && DiagMenu.GetBool(DiagMenuIDs.TRIGGER_DEBUG))
 		{
 			float height = m_NegativeHeight + m_PositiveHeight;
 			vector center = Vector(m_Position[0], m_Position[1] - m_NegativeHeight + height * 0.5, m_Position[2]);
@@ -860,6 +860,9 @@ class ExpansionEffectAreaMergedCluster
 			{
 				closestArea = m_Areas[0];
 			}
+
+			if (!closestArea)
+				return false;
 
 			ground = closestArea.m_Position;
 

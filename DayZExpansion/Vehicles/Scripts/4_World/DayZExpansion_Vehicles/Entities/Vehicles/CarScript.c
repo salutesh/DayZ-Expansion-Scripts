@@ -1096,6 +1096,7 @@ modded class CarScript
 			item.SetHealth("", "", health);
 	}
 
+#ifdef DAYZ_1_29
 	override EntityAI FindAttachmentBySlotName(string slot_name)
 	{
 		EntityAI item = NULL;
@@ -1113,7 +1114,11 @@ modded class CarScript
 
 		return item;
 	}
+#endif
 
+#ifndef DAYZ_1_29
+	[Obsolete("No replacement")]
+#endif
 	void SetCarBatteryStateForVanilla(bool active)
 	{
 		if (!m_CarBatteryVanillaState)
@@ -1131,6 +1136,7 @@ modded class CarScript
 		return GetBattery() != null;
 	}
 
+#ifdef DAYZ_1_29
 	override ItemBase GetBattery()
 	{
 		if (IsVitalHelicopterBattery())
@@ -1140,6 +1146,7 @@ modded class CarScript
 
 		return super.GetBattery();
 	}
+#endif
 	
 	int Expansion_GetBatteryEnergy()
 	{
@@ -1242,7 +1249,8 @@ modded class CarScript
 			return false;
 
 		EntityAI item;
-		
+
+	#ifdef DAYZ_1_29
 		if (IsVitalHelicopterBattery() || IsVitalAircraftBattery())
 		{
 			item = GetBattery();
@@ -1253,6 +1261,7 @@ modded class CarScript
 				return false;
 			}
 		}
+	#endif
 	
 		if (IsVitalHydraulicHoses())
 		{
@@ -1293,14 +1302,18 @@ modded class CarScript
 
 	override bool OnBeforeEngineStart()
 	{
+	#ifdef DAYZ_1_29
 		SetCarBatteryStateForVanilla(true);
+	#endif
 
 		bool result;
 
 		if (super.OnBeforeEngineStart())
 			result = true;
 
+	#ifdef DAYZ_1_29
 		SetCarBatteryStateForVanilla(false);
+	#endif
 
 		if (!result)
 			return false;
@@ -1367,10 +1380,10 @@ modded class CarScript
 	{
 		if (IsMissionHost())
 		{
-			if (IsScriptedLightsOn())
+			if (LightIsOn())
 			{
 				if (slot_name == "ExpansionHelicopterBattery" || slot_name == "ExpansionAircraftBattery")
-					ToggleHeadlights();
+					LightToggle();
 
 				EntityAI bulb;
 
@@ -1380,7 +1393,7 @@ modded class CarScript
 
 					bulb = FindAttachmentBySlotName("Reflector_2_1");
 					if (!bulb || GetHealth01("Reflector_2_1", "") <= 0)
-						ToggleHeadlights();
+						LightToggle();
 				}
 
 				if (slot_name == "Reflector_2_1")
@@ -1389,7 +1402,7 @@ modded class CarScript
 
 					bulb = FindAttachmentBySlotName("Reflector_1_1");
 					if (!bulb || GetHealth01("Reflector_1_1", "") <= 0)
-						ToggleHeadlights();
+						LightToggle();
 				}
 			}
 
@@ -1464,6 +1477,23 @@ modded class CarScript
 		return m_FluidCheckTime >= GameConstants.CARS_FLUIDS_TICK;
 	}
 
+#ifdef DAYZ_1_29
+	override protected void CarPartsHealthCheck()
+	{
+		super.CarPartsHealthCheck();
+#else
+	//! 1.30+
+	override protected void PartsHealthCheck()
+	{
+		super.PartsHealthCheck();
+#endif
+
+		if (m_Expansion_HydraulicHoses)
+			m_Expansion_HydraulicHosesHealth = m_Expansion_HydraulicHoses.GetHealth01();
+		else
+			m_Expansion_HydraulicHosesHealth = 0;
+	}
+
 	void UpdateHealth(float pDt)
 	{
 		float time = m_FluidCheckTime;
@@ -1471,26 +1501,22 @@ modded class CarScript
 
 		int i;
 
-		if (g_Game.IsServer())
 		{
-			if (HasRadiator())
-			{
-				m_RadiatorHealth = GetRadiator().GetHealth01("", "");
-			}
-			else
-			{
-				m_RadiatorHealth = 0;
-			}
+		#ifdef DAYZ_1_29
+			CarPartsHealthCheck();
+		#else
+			//! 1.30+
+			PartsHealthCheck();
+		#endif
 
-			if (m_Expansion_HydraulicHoses)
-				m_Expansion_HydraulicHosesHealth = m_Expansion_HydraulicHoses.GetHealth01();
-			else
-				m_Expansion_HydraulicHosesHealth = 0;
+			bool isServerOrOwner = IsServerOrOwner();
+			bool engineIsOn;
+			if (EngineIsOn() || Expansion_EnginesOn() > 0)
+				engineIsOn = true;
 
-			m_FuelTankHealth = GetHealth01("FuelTank", "");
-
-			if (EngineIsOn() || Expansion_EnginesOn())
+			if (isServerOrOwner && engineIsOn)
 			{
+			#ifdef DAYZ_1_29
 				CheckVitalItem(IsVitalCarBattery(), "CarBattery");
 				CheckVitalItem(IsVitalTruckBattery(), "TruckBattery");
 				CheckVitalItem(IsVitalAircraftBattery(), "ExpansionAircraftBattery");
@@ -1499,26 +1525,43 @@ modded class CarScript
 				CheckVitalItem(IsVitalHydraulicHoses(), "ExpansionHydraulicHoses");
 				CheckVitalItem(IsVitalSparkPlug(), "SparkPlug");
 				CheckVitalItem(IsVitalGlowPlug(), "GlowPlug");
-				// engine belt is not needed right now
-				//CheckVitalItem(IsVitalEngineBelt(), "EngineBelt");
+			#else
+				CheckVitalItemCallback(IsVitalAircraftBattery(), ExpansionAircraftBattery.SLOT_ID,  this, "Expansion_EngineStopAll");
+				CheckVitalItemCallback(IsVitalHelicopterBattery(), ExpansionHelicopterBattery.SLOT_ID,  this, "Expansion_EngineStopAll");
+				CheckVitalItemCallback(IsVitalIgniterPlug(), ExpansionIgniterPlug.SLOT_ID,  this, "Expansion_EngineStopAll");
+				CheckVitalItemCallback(IsVitalHydraulicHoses(), ExpansionHydraulicHoses.SLOT_ID,  this, "Expansion_EngineStopAll");
+				CheckVitalItemCallback(IsVitalSparkPlug(), SparkPlug.SLOT_ID, this, "EngineStop");
+				CheckVitalItemCallback(IsVitalGlowPlug(), GlowPlug.SLOT_ID, this, "EngineStop");
+			#endif
+			}
 
-				float fuel = GetFluidFraction(CarFluid.FUEL);
-				float coolant = GetFluidFraction(CarFluid.COOLANT);
-				float oil = GetFluidFraction(CarFluid.OIL);
-				float brake = GetFluidFraction(CarFluid.BRAKE);
-				if (!IsVitalRadiator())
+			float fuel;
+			float coolant;
+			float oil;
+			float brake;
+			float fuelConsumption;
+
+			if (isServerOrOwner)
+			{
+				fuel = GetFluidFraction(CarFluid.FUEL);
+				oil = GetFluidFraction(CarFluid.OIL);
+				brake = GetFluidFraction(CarFluid.BRAKE);
+
+				if (IsVitalRadiator())
+					coolant = GetFluidFraction(CarFluid.COOLANT);
+				else
 					coolant = 1.0;
 
-				oil = 1.0;
-
-				float fuelConsumption;
 				m_EngineHealth = 0;
 				for (i = 0; i < m_Engines.Count(); i++)
 				{
 					m_Engines[i].ProcessHealth(time, fuel, coolant, oil, brake, m_EngineHealth, fuelConsumption);
 				}
 				m_EngineHealth = m_EngineHealth / m_Engines.Count();
+			}
 
+			if (g_Game.IsServer())
+			{
 				//! 1.19
 				if (IsVitalFuelTank())
 				{
@@ -1528,6 +1571,10 @@ modded class CarScript
 					}
 				}
 
+			}
+
+			if (isServerOrOwner && engineIsOn)
+			{
 				//! leaking of coolant from radiator when damaged
 				if (IsVitalRadiator() && coolant > 0.0 && m_RadiatorHealth < 0.5) //CARS_LEAK_THRESHOLD
 					LeakFluid(CarFluid.COOLANT);
@@ -1554,6 +1601,12 @@ modded class CarScript
 			if (Expansion_EngineIsSpinning())
 			{
 				auto helicopter = ExpansionHelicopterScript.Cast(this);
+
+			#ifndef DAYZ_1_29
+				//! 1.30+ handles car particles elsewhere
+				if (!helicopter)
+					return;
+			#endif
 
 				for (i = 0; i < 3; i++)
 				{
@@ -1773,6 +1826,7 @@ modded class CarScript
 		m_Particles.Insert(particle);
 	}
 
+#ifdef DAYZ_1_29
 	override void UpdateLights(int new_gear = -1)
 	{
 #ifdef EXPANSIONTRACE
@@ -1795,9 +1849,14 @@ modded class CarScript
 
 		SetCarBatteryStateForVanilla(false);
 	}
+#endif
 
+#ifndef DAYZ_1_29
+	[Obsolete("No replacement")]
+#endif
 	void Expansion_UpdateLightsClient(int newGear = -1)
 	{
+	#ifdef DAYZ_1_29
 		ItemBase battery;
 
 		if ( IsVitalCarBattery() )
@@ -1946,10 +2005,15 @@ modded class CarScript
 				m_Headlight = null;
 			}
 		}
+	#endif
 	}
 
+#ifndef DAYZ_1_29
+	[Obsolete("No replacement")]
+#endif
 	void Expansion_UpdateLightsServer(int newGear = -1)
 	{
+	#ifdef DAYZ_1_29
 		ItemBase battery;
 
 		if ( IsVitalCarBattery() )
@@ -2082,8 +2146,10 @@ modded class CarScript
 			BrakeLightsShineOff();
 			ReverseLightsShineOff();
 		}
+	#endif
 	}
 
+#ifdef DAYZ_1_29
 	override CarRearLightBase CreateRearLight()
 	{
 #ifdef EXPANSIONTRACE
@@ -2110,6 +2176,7 @@ modded class CarScript
 
 		return NULL;
 	}
+#endif
 
 	void GetBoundingPositionTransform(Object obj, vector position, vector wsTrans[4], out vector trans[4])
 	{
@@ -2632,6 +2699,12 @@ modded class CarScript
 		Expansion_EngineStop(m_Expansion_CurrentEngine);
 	}
 
+	void Expansion_EngineStopAll()
+	{
+		for (int i = m_Expansion_MinimumEngine; i <= m_Expansion_MaximumEngine; ++i)
+			Expansion_EngineStop(i);
+	}
+
 	/**
 	 * @brief Returns engine's max rpm before engine blows up.
 	 */
@@ -2759,6 +2832,7 @@ modded class CarScript
 				return false;
 		}
 
+	#ifdef DAYZ_1_29
 		if (IsVitalHelicopterBattery() || IsVitalCarBattery() || IsVitalTruckBattery())
 		{
 			item2 = NULL;
@@ -2768,6 +2842,12 @@ modded class CarScript
 				item2 = FindAttachmentBySlotName("CarBattery");
 			if (IsVitalTruckBattery())
 				item2 = FindAttachmentBySlotName("TruckBattery");
+	#else
+		//! 1.30+
+		if (NeedElectricitySourceDevice())
+		{
+			item2 = GetElectricitySourceDevice();
+	#endif
 
 			if (!item2 || item2.IsRuined() || item2.GetCompEM().GetEnergy() < m_BatteryEnergyStartMin)
 				return false;
@@ -3314,8 +3394,10 @@ modded class CarScript
 			}
 		}
 
-		if (IsMissionHost() && isGlobalOrEngineRuined && Expansion_EngineIsOn())
-			Expansion_EngineStop();
+		bool isServerOrOwner = IsServerOrOwner();
+
+		if (isServerOrOwner && isGlobalOrEngineRuined && Expansion_EngineIsOn())
+			Expansion_EngineStopAll();
 	}
 
 	override void ExpansionSetSkin(int skinIndex)
@@ -3518,9 +3600,17 @@ modded class CarScript
 		m_ExpansionVehicle.OnCECreate();
 	}
 
+#ifndef DAYZ_1_29
+	//! 1.30+
+	override void OnCEIterate(float currentTime, float elapsedTime)
+	{
+		super.OnCEIterate(currentTime, elapsedTime);
+#else
+	//! 1.29
 	override void OnCEUpdate()
 	{
 		super.OnCEUpdate();
+#endif
 
 		Expansion_OnCEUpdate();
 	}
@@ -3694,9 +3784,24 @@ modded class CarScript
 		if (contactZonesCount == 0)
 			return;
 
+	#ifndef DAYZ_1_29
+		//! 1.30+
+		foreach (string zoneName, array<ref VehicleContactData> data: m_ContactCache)
+	#else
+		//! 1.29
 		foreach (string zoneName, array<ref CarContactData> data: m_ContactCache)
+	#endif
 		{
-			float dmg = Math.AbsInt(data[0].impulse * m_dmgContactCoef);
+		#ifdef DAYZ_1_29
+			float impulse = data[0].impulse;
+			IEntity other = data[0].other;
+		#else
+			//! 1.30+
+			float impulse = data[0].m_Impulse;
+			IEntity other = data[0].m_Other;
+		#endif
+
+			float dmg = Math.AbsInt(impulse * m_dmgContactCoef);
 
 		#ifdef DIAG_DEVELOPER
 			CrashDebugData.m_CrashDataPoint = new CrashDebugData();
@@ -3705,7 +3810,7 @@ modded class CarScript
 			CrashDebugData.m_CrashDataPoint.m_Zone = zoneName;
 			CrashDebugData.m_CrashDataPoint.m_MomentumCurr = GetMomentum();
 			CrashDebugData.m_CrashDataPoint.m_MomentumPrev = m_MomentumPrevTick;
-			CrashDebugData.m_CrashDataPoint.m_MomentumDelta = data[0].impulse;
+			CrashDebugData.m_CrashDataPoint.m_MomentumDelta = impulse;
 			CrashDebugData.m_CrashDataPoint.m_SpeedWorld = GetVelocity(this).Length() * 3.6;
 			CrashDebugData.m_CrashDataPoint.m_SpeedWorldPrev = m_VelocityPrevTick.Length() * 3.6;
 			CrashDebugData.m_CrashDataPoint.m_SpeedWorldDelta = (m_VelocityPrevTick.Length() - GetVelocity(this).Length()) * 3.6;
@@ -3722,7 +3827,7 @@ modded class CarScript
 				Debug.Log("zoneName : "+ zoneName);
 				Debug.Log("momentumCurr : "+ GetMomentum());
 				Debug.Log("momentumPrev : "+ m_MomentumPrevTick);
-				Debug.Log("momentumDelta : "+ data[0].impulse);
+				Debug.Log("momentumDelta : "+ impulse);
 				Debug.Log("speed(km/h): "+ GetVelocity(this).Length() * 3.6);
 				Debug.Log("speedPrev(km/h): "+ m_VelocityPrevTick.Length() * 3.6);
 				Debug.Log("speedDelta(km/h) : "+ (m_VelocityPrevTick.Length() - GetVelocity(this).Length()) * 3.6);
@@ -3737,7 +3842,7 @@ modded class CarScript
 			if (dmg < GameConstants.CARS_CONTACT_DMG_MIN)
 				continue;
 
-			float crewDmgBase = Math.AbsInt((data[0].impulse / dBodyGetMass(this)) * 1000 * m_dmgContactCoef);// calculates damage as if the object's weight was 1000kg instead of its actual weight
+			float crewDmgBase = Math.AbsInt((impulse / dBodyGetMass(this)) * 1000 * m_dmgContactCoef);// calculates damage as if the object's weight was 1000kg instead of its actual weight
 
 			int pddfFlags;
 
@@ -3786,7 +3891,7 @@ modded class CarScript
 					ProcessDirectDamage(DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", collisionDamage, pddfFlags);
 			}
 
-			Object targetEntity = Object.Cast(data[0].other);
+			Object targetEntity = Object.Cast(other);
 			if (targetEntity && targetEntity.IsTree() && !targetEntity.IsDamageDestroyed())
 			{
 				SEffectManager.CreateParticleServer(targetEntity.GetPosition(), new TreeEffecterParameters("TreeEffecter", 1.0, 0.1));

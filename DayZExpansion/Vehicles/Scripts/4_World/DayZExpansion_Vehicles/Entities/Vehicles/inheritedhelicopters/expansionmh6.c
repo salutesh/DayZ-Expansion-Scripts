@@ -497,6 +497,7 @@ class ExpansionMh6 : ExpansionHelicopterScript
 		return "";
 	}
 
+#ifdef DAYZ_1_29
 	override void UpdateLights(int new_gear = -1)
 	{
 #ifdef EXPANSIONTRACE
@@ -562,6 +563,31 @@ class ExpansionMh6 : ExpansionHelicopterScript
 			}
 		}
 	}
+#else
+	override void UpdateLightsClient(int newGear = -1)
+	{
+		super.UpdateLightsClient(newGear);
+
+		if (LightIsOn())
+		{
+			if (m_Lights.Count() == 0)
+			{
+				CreateLights(this, "interior", ExpansionPointLight, Vector(1, 0.01, 0.01), Vector(1, 0.01, 0.01), 3, 0.35, false, true);
+			}
+		}
+		else
+		{
+			foreach (ExpansionPointLight light: m_Lights)
+			{
+				light.ExpansionSetEnabled(false);
+
+				g_Game.ObjectDelete(light);
+			}
+
+			m_Lights.Clear();
+		}
+	}
+#endif
 
 	override void OnDebugSpawn()
 	{

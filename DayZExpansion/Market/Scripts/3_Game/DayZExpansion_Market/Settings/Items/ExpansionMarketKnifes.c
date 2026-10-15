@@ -18,7 +18,10 @@ class ExpansionMarketKnifes: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_KNIFES";
 		m_FileName = "Knifes";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("kitchenknife", 	370, 	615,	1,100);
 		AddItem("steakknife", 	580, 	960,	1,100);
 		AddItem("huntingknife", 	855, 	1425,	1,100);

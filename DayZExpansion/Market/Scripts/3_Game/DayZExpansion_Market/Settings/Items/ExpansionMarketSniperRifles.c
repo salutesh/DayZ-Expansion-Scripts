@@ -21,7 +21,10 @@ class ExpansionMarketSniperRifles: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_SNIPER_RIFLES";
 		m_FileName = "Sniper_Rifles";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("vss", 	5885, 	9810,	1,100,{"Mag_VSS_10Rnd"}, {"VSS_Clean", "VSS_Black", "VSS_Green", "VSS_Yellow", "VSS_Orange", "VSS_Brown", "VSS_White", "VSS_Grey", "VSS_Blue", "VSS_Red", "VSS_Pink"});
 		AddItem("asval", 	6770, 	11285,	1,100,{"Mag_VAL_20Rnd"});
 		AddItem("vikhr", 	6040, 	10070,	1,100,{"Mag_Vikhr_30Rnd"});

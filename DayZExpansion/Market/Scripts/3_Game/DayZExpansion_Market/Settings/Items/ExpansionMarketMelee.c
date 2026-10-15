@@ -18,7 +18,10 @@ class ExpansionMarketMelee: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MEELE_WEAPONS";
 		m_FileName = "Melee_Weapons";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("brassknuckles_dull", 	260, 	430,	1,100);
 		AddItem("brassknuckles_shiny", 	1815, 	3025,	1,100);
 		//AddItem("StunBaton", 				15,		30,		1,		100);

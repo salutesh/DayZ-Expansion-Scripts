@@ -59,6 +59,7 @@ class CfgVehicles
 	class ZmbM_JournalistSkinny;
 	class ExpansionATMBase;
 	class ExpansionMoneyBanknote_Base;
+	class ExpansionMoneyBanknote_InsanityStack;
 	class ExpansionStaticObjectBase;
 	class ExpansionTraderStaticBase: ExpansionStaticObjectBase
 	{
@@ -649,5 +650,41 @@ class CfgVehicles
 		displayName="$STR_EXPANSION_BANKNOTES_HRYVNIA";
 		descriptionShort="$STR_EXPANSION_BANKNOTES_HRYVNIA_DESC";
 		model="dayzexpansion\market\objects\currency\Hryvnia.p3d";
+	};
+	class ExpansionBanknoteUSD_InsanityStack: ExpansionMoneyBanknote_InsanityStack
+	{
+		scope=2;
+		displayName="$STR_EXPANSION_BANKNOTES_USD";
+		model="dayzexpansion\market\objects\currency\USD.p3d";
+	};
+	class ExpansionBanknoteEuro_InsanityStack: ExpansionMoneyBanknote_InsanityStack
+	{
+		scope=2;
+		displayName="$STR_EXPANSION_BANKNOTES_EURO";
+		model="dayzexpansion\market\objects\currency\Euro.p3d";
+	};
+	class ExpansionBanknoteHryvnia_InsanityStack: ExpansionMoneyBanknote_InsanityStack
+	{
+		scope=2;
+		displayName="$STR_EXPANSION_BANKNOTES_HRYVNIA";
+		model="dayzexpansion\market\objects\currency\Hryvnia.p3d";
+	};
+	class ExpansionBanknoteUSD_InsanityStack_Billions: ExpansionBanknoteUSD_InsanityStack
+	{
+		descriptionShort="When one stack needs to be enough. The absolute max the game supports, literally billions and billions. Note that the game can NOT use amounts this large without massive rounding errors due to float ‹-› int conversion. ONLY HAVE ONE OF THESE STACKS IN INVENTORY, ELSE YOUR MONEY CAN TURN NEGATIVE DUE TO INTEGER OVERFLOW!";
+		varQuantityMax=2147483520;
+		varStackMax=2147483520;
+	};
+	class ExpansionBanknoteEuro_InsanityStack_Billions: ExpansionBanknoteEuro_InsanityStack
+	{
+		descriptionShort="When one stack needs to be enough. The absolute max the game supports, literally billions and billions. Note that the game can NOT use amounts this large without massive rounding errors due to float ‹-› int conversion. ONLY HAVE ONE OF THESE STACKS IN INVENTORY, ELSE YOUR MONEY CAN TURN NEGATIVE DUE TO INTEGER OVERFLOW!";
+		varQuantityMax=2147483520;
+		varStackMax=2147483520;
+	};
+	class ExpansionBanknoteHryvnia_InsanityStack_Billions: ExpansionBanknoteHryvnia_InsanityStack
+	{
+		descriptionShort="When one stack needs to be enough. The absolute max the game supports, literally billions and billions. Note that the game can NOT use amounts this large without massive rounding errors due to float ‹-› int conversion. ONLY HAVE ONE OF THESE STACKS IN INVENTORY, ELSE YOUR MONEY CAN TURN NEGATIVE DUE TO INTEGER OVERFLOW!";
+		varQuantityMax=2147483520;
+		varStackMax=2147483520;
 	};
 };

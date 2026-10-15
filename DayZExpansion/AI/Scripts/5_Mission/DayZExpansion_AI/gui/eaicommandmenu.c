@@ -799,7 +799,7 @@ class eAICommandMenu: UIScriptedMenu
 
 				if (selected)
 				{
-					g_Game.GetExpansionGame().GetCommandManager().Send(selected.GetID(), selected.GetCategory());
+					GetDayZExpansion().GetCommandManager().Send(selected.GetID(), selected.GetCategory());
 
 					eAIGroup group = eAIGroup.GetGamePlayerGroup();
 

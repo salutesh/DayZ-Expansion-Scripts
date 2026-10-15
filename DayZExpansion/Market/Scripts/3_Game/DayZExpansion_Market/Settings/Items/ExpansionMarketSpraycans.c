@@ -21,7 +21,10 @@ class ExpansionMarketSpraycans: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_SPRAYCANS";
 		m_FileName = "Spraycans";
-	
+	}
+
+	override void DefaultItems()
+	{
 	#ifdef EXPANSIONMODVEHICLE
 		//! COLORS
 		AddItem("ExpansionSpraycanBlue",			100,	200,	1,		100);	//! NOT READY

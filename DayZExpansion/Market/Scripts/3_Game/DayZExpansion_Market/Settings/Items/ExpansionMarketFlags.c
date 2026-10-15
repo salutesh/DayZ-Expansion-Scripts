@@ -18,7 +18,10 @@ class ExpansionMarketFlags: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FLAGS";
 		m_FileName = "Flags";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("flag_chernarus", 	375, 	625,	1,100);
 		AddItem("flag_chedaki", 	375, 	625,	1,100);
 		AddItem("Flag_Sakhal", 	375, 	625,	1,100);

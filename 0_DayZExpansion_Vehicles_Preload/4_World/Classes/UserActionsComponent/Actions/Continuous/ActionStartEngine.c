@@ -31,6 +31,12 @@ modded class ActionStartEngine
 				return false;  //! Vanilla boat has own start engine action
 		#endif
 
+		#ifndef DAYZ_1_29
+			//! 1.30
+			if (vehicle.GetMotorbike())
+				return false;  //! Vanilla motorbike has own start engine action
+		#endif
+
 			m_CommandUID = vehicle.GetEngineStartAnimation();
 
 		#ifndef SERVER
@@ -91,50 +97,15 @@ modded class ActionStartEngine
 		return false;
 	}
 
-#ifdef DAYZ_1_27
-	override void OnFinishProgressClient(ActionData action_data)
-	{
-		ExpansionVehicle vehicle;
-		if (ExpansionVehicle.Get(vehicle, action_data.m_Player))
-		{
-			if (vehicle.GetExpansionVehicleBase())
-			{
-				vehicle.EngineStart();
-				return;
-			}
-		}
-
-		super.OnFinishProgressClient(action_data);
-	}
-
-	override void OnFinishProgressServer(ActionData action_data)
-	{
-		ExpansionVehicle vehicle;
-		if (ExpansionVehicle.Get(vehicle, action_data.m_Player))
-		{
-			auto exVehicle = vehicle.GetExpansionVehicleBase();
-
-			if (vehicle.EngineGetCurrent() > 0 || exVehicle)
-			{
-				vehicle.EngineStart();
-				return;
-			}
-		}
-
-		super.OnFinishProgressServer(action_data);
-	}
-#else
 	//! 1.28+
 	override void OnFinishProgress(ActionData action_data)
 	{
 		ExpansionVehicle vehicle;
 		if (ExpansionVehicle.Get(vehicle, action_data.m_Player))
 		{
-			auto exVehicle = vehicle.GetExpansionVehicleBase();
-
-			if (vehicle.EngineGetCurrent() > 0 || exVehicle)
+			if (vehicle.EngineGetCurrent() > 0)
 			{
-				if (g_Game.IsServer() || exVehicle)
+				if (g_Game.IsServer())
 					vehicle.EngineStart();
 
 				return;
@@ -143,7 +114,6 @@ modded class ActionStartEngine
 
 		super.OnFinishProgress(action_data);
 	}
-#endif
 
 	override bool Expansion_CheckSuccess(ActionData action_data)
 	{

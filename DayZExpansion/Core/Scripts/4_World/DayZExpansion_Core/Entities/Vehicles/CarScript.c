@@ -187,11 +187,21 @@ modded class CarScript
 		m_ExpansionVehicle.OnEnterZone(type);
 	}
 
+#ifndef DAYZ_1_29
+	//! 1.30+
+	override void OnCEIterate(float currentTime, float elapsedTime)
+	{
+		super.OnCEIterate(currentTime, elapsedTime);
+#else
+	//! 1.29
 	override void OnCEUpdate()
 	{
 		super.OnCEUpdate();
 
-		m_ExpansionVehicle.SafeZoneCleanup(m_ElapsedSinceLastUpdate);
+		float elapsedTime = m_ElapsedSinceLastUpdate;
+#endif
+
+		m_ExpansionVehicle.SafeZoneCleanup(elapsedTime);
 		m_ExpansionVehicle.OnCEUpdate();
 	}
 
@@ -233,9 +243,13 @@ modded class CarScript
 
 	void Expansion_CloseAllDoors()
 	{
+	#ifdef DAYZ_1_29
 		ForceUpdateLightsStart();
+	#endif
 		m_ExpansionVehicle.SetAllDoorsAnimationPhase(0.0);
+	#ifdef DAYZ_1_29
 		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ForceUpdateLightsEnd, 500);
+	#endif
 	}
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -292,9 +306,16 @@ modded class CarScript
 
 		EntityAI item;
 
+	#ifdef DAYZ_1_29
 		if (IsVitalCarBattery() || IsVitalTruckBattery())
 		{
 			item = GetBattery();
+	#else
+		//! 1.30+
+		if (NeedElectricitySourceDevice())
+		{
+			item = GetElectricitySourceDevice();
+	#endif
 			if (!item || item.IsRuined() || item.GetCompEM().GetEnergy() < m_BatteryEnergyStartMin)
 			{
 				if (missingComponents)
@@ -408,10 +429,8 @@ modded class CarScript
 
 		ctx.Write(m_CurrentSkinName);
 
-		#ifdef SERVER
 		if (!m_Expansion_GlobalID.m_IsSet)
 			m_Expansion_GlobalID.Acquire();
-		#endif
 
 		m_Expansion_GlobalID.OnStoreSave(ctx);
 	}

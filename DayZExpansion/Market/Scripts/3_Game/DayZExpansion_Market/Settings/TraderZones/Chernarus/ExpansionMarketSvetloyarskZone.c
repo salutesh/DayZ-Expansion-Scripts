@@ -24,7 +24,5 @@ class ExpansionMarketSvetloyarskZone: ExpansionMarketTraderZone
 
 		Position = "14377.1 4.1 13272.9"; 	
 		Radius = 500;
-
-		Update();
 	}
 };

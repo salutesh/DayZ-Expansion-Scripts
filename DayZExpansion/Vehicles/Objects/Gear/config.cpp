@@ -1342,6 +1342,55 @@ class CfgVehicles
 	class ExpansionHatchBird_Cover: OffroadHatchback_Cover
 	{
 	};
+	class Motorbike_01_Blue_Cover: ExpansionVehicleCover
+	{
+		scope=2;
+		model="dayzexpansion\vehicles\objects\gear\vehicle_covers\Motorbike_01_Cover.p3d";
+		hiddenSelections[]=
+		{
+			"camo"
+		};
+		hiddenSelectionsTextures[]=
+		{
+			"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"
+		};
+		hiddenSelectionsMaterials[]=
+		{
+			"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"
+		};
+	};
+	class Motorbike_01_Yellow_Cover: Motorbike_01_Blue_Cover
+	{
+	};
+	class Motorbike_01_Red_Cover: Motorbike_01_Blue_Cover
+	{
+	};
+	class Motorbike_02_Red_Cover: ExpansionVehicleCover
+	{
+		scope=2;
+		model="dayzexpansion\vehicles\objects\gear\vehicle_covers\Motorbike_02_Cover.p3d";
+		hiddenSelections[]=
+		{
+			"camo"
+		};
+		hiddenSelectionsTextures[]=
+		{
+			"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"
+		};
+		hiddenSelectionsMaterials[]=
+		{
+			"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"
+		};
+	};
+	class Motorbike_02_Yellow_Cover: Motorbike_02_Red_Cover
+	{
+	};
+	class Motorbike_02_Blue_Cover: Motorbike_02_Red_Cover
+	{
+	};
+	class Motorbike_02_Green_Cover: Motorbike_02_Red_Cover
+	{
+	};
 };
 class CfgSlots
 {

@@ -124,6 +124,7 @@ class Expansion_Landrover_Base: CarScript
         return 4.2;
     }
 
+#ifdef DAYZ_1_29
 	override bool IsVitalTruckBattery()
 	{
 #ifdef EXPANSIONTRACE
@@ -131,6 +132,7 @@ class Expansion_Landrover_Base: CarScript
 #endif
 		return false;
 	}
+#endif
 
 	override bool IsVitalGlowPlug()
 	{
@@ -150,6 +152,7 @@ class Expansion_Landrover_Base: CarScript
 		return true;
 	}
 	
+#ifdef DAYZ_1_29
 	override bool IsVitalCarBattery()
 	{
 #ifdef EXPANSIONTRACE
@@ -158,6 +161,25 @@ class Expansion_Landrover_Base: CarScript
 
 		return true;
 	}
+#else
+	//! 1.30
+	override bool NeedElectricitySourceDevice()
+	{
+		return true;
+	}
+	
+	override EntityAI GetElectricitySourceDevice()
+	{
+		super.GetElectricitySourceDevice();
+		
+		return GetInventory().FindAttachment(CarBattery.SLOT_ID);
+	}
+	
+	override string GetElectricitySourceDeviceType()
+	{
+		return "CarBattery";
+	}
+#endif
 	
 	override bool IsVitalRadiator()
 	{

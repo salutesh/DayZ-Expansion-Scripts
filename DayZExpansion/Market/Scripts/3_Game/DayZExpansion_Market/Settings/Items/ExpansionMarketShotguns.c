@@ -21,7 +21,10 @@ class ExpansionMarketShotguns: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_SHOTGUNS";
 		m_FileName = "Shotguns";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("mp133shotgun", 	4980, 	8295,	1,100, null, {"Mp133Shotgun_Clean", "Mp133Shotgun_Black", "Mp133Shotgun_Green", "Mp133Shotgun_Yellow", "Mp133Shotgun_Orange", "Mp133Shotgun_Brown", "Mp133Shotgun_White", "Mp133Shotgun_Grey", "Mp133Shotgun_Blue", "Mp133Shotgun_Red", "Mp133Shotgun_Pink"});
 		AddItem("izh43shotgun", 	640, 	1065,	1,100, null, {"Izh43Shotgun_Clean", "Izh43Shotgun_Black", "Izh43Shotgun_Green", "Izh43Shotgun_Yellow", "Izh43Shotgun_Orange", "Izh43Shotgun_Brown", "Izh43Shotgun_White", "Izh43Shotgun_Grey", "Izh43Shotgun_Blue", "Izh43Shotgun_Red", "Izh43Shotgun_Pink"});
 		AddItem("izh18shotgun", 	520, 	865,	1,100);

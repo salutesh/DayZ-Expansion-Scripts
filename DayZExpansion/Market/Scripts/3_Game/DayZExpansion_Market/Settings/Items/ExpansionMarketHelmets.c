@@ -18,7 +18,10 @@ class ExpansionMarketHelmets: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HELMETS";
 		m_FileName = "Helmets";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("constructionhelmet_blue", 	480, 	800,	1,100,null,{"ConstructionHelmet_Orange","ConstructionHelmet_Red","ConstructionHelmet_White","ConstructionHelmet_Yellow","ConstructionHelmet_Lime"});
 		
 		AddItem("skatehelmet_blue", 	205, 	340,	1,100,null,{"SkateHelmet_Gray","SkateHelmet_Red","SkateHelmet_Black","SkateHelmet_Green"});

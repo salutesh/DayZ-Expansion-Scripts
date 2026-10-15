@@ -23,31 +23,30 @@ modded class ActionSwitchLights
 				if ( !vehicle.IsScriptedLightsOn() )
 				{
 					EntityAI neededItem = null;
-					EntityAI vehicleEntity = vehicle.GetEntity();
 
+				#ifdef DAYZ_1_29
+					EntityAI vehicleEntity = vehicle.GetEntity();
 					if ( vehicle.IsVitalCarBattery() ) neededItem = vehicleEntity.FindAttachmentBySlotName("CarBattery");
 					if ( vehicle.IsVitalTruckBattery() ) neededItem = vehicleEntity.FindAttachmentBySlotName("TruckBattery");
 					if ( vehicle.IsVitalHelicopterBattery() ) neededItem = vehicleEntity.FindAttachmentBySlotName("ExpansionHelicopterBattery");
 					if ( vehicle.IsVitalAircraftBattery() ) neededItem = vehicleEntity.FindAttachmentBySlotName("ExpansionAircraftBattery");
+				#else
+					//! 1.30+
+					Transport transport = vehicle.GetTransport();
+					if (transport.NeedElectricitySourceDevice())
+						neededItem = transport.GetElectricitySourceDevice();
+					else
+						return true;
+				#endif
 
-					if ( !neededItem || neededItem.IsRuined() || (neededItem.GetCompEM() && neededItem.GetCompEM().GetEnergy() <= 0) )
-						return false;
-					
-					EntityAI item1 = vehicleEntity.FindAttachmentBySlotName("Reflector_1_1");
-					EntityAI item2 = vehicleEntity.FindAttachmentBySlotName("Reflector_2_1");
-	
-					if ( !item1 && !item2 )
-						return false;
-					else if ( item1 && item1.IsRuined() && item2 && item2.IsRuined() )
-						return false;
-
-					return true;
-				} else
-				{
-					return true;
+					if (neededItem && !neededItem.IsRuined())
+						return neededItem.GetCompEM() && neededItem.GetCompEM().GetEnergy() > 0;
 				}
+				else
+					return true;
 			}
 		}
+
 		return false;
 	}
 };

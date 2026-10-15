@@ -247,6 +247,7 @@ class eAIBase: PlayerBase
 	float m_eAI_FormationPositionUpdateTime;
 	vector m_eAI_FormationPosition;
 	vector m_eAI_FormationDirection;
+	float m_eAI_FormationLooseness;
 
 	float m_eAI_FormationDirectionUpdateTime;
 	float m_eAI_FormationDirectionNextUpdateTime;
@@ -410,7 +411,7 @@ class eAIBase: PlayerBase
 	vector m_ExTransformPlayer[4];
 #endif
 	
-	ref set<PlayerBase> m_eAI_Spectators = new set<PlayerBase>;
+	ref set<PlayerBase> m_eAI_Spectators;
 
 	ref array<ref ExpansionPrefab> m_eAI_LootDropOnDeath;
 
@@ -776,9 +777,17 @@ class eAIBase: PlayerBase
 		GetGroup().AddWaypoint(ExpansionMath.GetRandomPointInCircle(GetPosition(), 5.0));
 	}
 
+#ifndef DAYZ_1_29
+	//! 1.30+
+	override void OnCEIterate(float currentTime, float elapsedTime)
+	{
+		super.OnCEIterate(currentTime, elapsedTime);
+#else
+	//! 1.29
 	override void OnCEUpdate()
 	{
 		super.OnCEUpdate();
+#endif
 
 		int persistentCount = eAIGroup.s_PersistentGroups.Count();
 
@@ -905,9 +914,13 @@ class eAIBase: PlayerBase
 					ai.m_eAI_ThreatDistanceLimit = m_eAI_ThreatDistanceLimit;
 
 				#ifdef JM_COT
-					foreach (PlayerBase spectator: m_eAI_Spectators)
+					set<PlayerBase> spectators = eAI_GetSpectators();
+					if (spectators)
 					{
-						GetDayZGame().GetExpansionGame().SpectateAI(spectator.GetIdentity(), ai, null);
+						foreach (PlayerBase spectator: spectators)
+						{
+							GetDayZGame().GetExpansionGame().SpectateAI(spectator.GetIdentity(), ai, null);
+						}
 					}
 				#endif
 
@@ -3843,7 +3856,7 @@ class eAIBase: PlayerBase
 	 */
 	bool eAI_ForgetRecentlyDroppedItem(ItemBase item)
 	{
-		string key = string.Format("%1@%2", item.GetType(), ExpansionStatic.VectorToString(item.GetPosition()));
+		string key = item.eAI_GetItemSignature();
 		if (m_eAI_RecentlyDroppedItems.Contains(key))
 		{
 			m_eAI_RecentlyDroppedItems.Remove(key);
@@ -3887,7 +3900,7 @@ class eAIBase: PlayerBase
 	{
 		eAI_ForgetStaleRecentlyDroppedItems();
 
-		string key = string.Format("%1@%2", item.GetType(), ExpansionStatic.VectorToString(item.GetPosition()));
+		string key = item.eAI_GetItemSignature();
 		m_eAI_RecentlyDroppedItems[key] = g_Game.GetTickTime();
 
 		EXTrace.Print(EXTrace.AI, this, "Recently dropped items: " + m_eAI_RecentlyDroppedItems.Count());
@@ -3902,7 +3915,7 @@ class eAIBase: PlayerBase
 	 */
 	bool eAI_WasItemRecentlyDropped(ItemBase item)
 	{
-		string key = string.Format("%1@%2", item.GetType(), ExpansionStatic.VectorToString(item.GetPosition()));
+		string key = item.eAI_GetItemSignature();
 		float timeDropped;
 		if (m_eAI_RecentlyDroppedItems.Find(key, timeDropped) && g_Game.GetTickTime() - timeDropped <= 300.0)
 			return true;
@@ -6023,17 +6036,18 @@ class eAIBase: PlayerBase
 				dstItem.m_Expansion_IsOwnerPlayer = item.m_Expansion_IsOwnerPlayer;
 
 		#ifdef JM_COT
-			set<PlayerBase> spectators;
+			set<PlayerBase> spectators = new set<PlayerBase>;
 			if (src.GetHierarchyRootPlayer() != this && dstItem)
 			{
 				eAIGroup group = GetGroup();
 				eAIBase ai;
 				for (int i = 0; i < group.Count(); i++)
 				{
-					if (Class.CastTo(ai, group.GetMember(i)) && ai.m_eAI_Spectators.Count() > 0)
+					if (Class.CastTo(ai, group.GetMember(i)))
 					{
-						spectators = ai.m_eAI_Spectators;
-						break;
+						set<PlayerBase> spectatorsTmp = ai.eAI_GetSpectators();
+						if (spectatorsTmp)
+							spectators.InsertSet(spectatorsTmp);
 					}
 				}
 			}
@@ -6058,7 +6072,7 @@ class eAIBase: PlayerBase
 			}
 
 		#ifdef JM_COT
-			if (spectators)
+			if (spectators.Count() > 0)
 			{
 				string itemName = dstItem.Expansion_GetDisplayNameRaw();
 
@@ -7188,6 +7202,8 @@ class eAIBase: PlayerBase
 		vector playerPosition = m_ExTransformPlayer[3];
 		m_eAI_SurfaceY = g_Game.SurfaceY(playerPosition[0], playerPosition[2]);
 
+	#ifdef DAYZ_1_29
+		//! TODO: SurfaceY changed with 1.30, in underground areas will now return TOPMOST surface
 		if (playerPosition[1] < m_eAI_SurfaceY - 0.5)
 		{
 			playerPosition[1] = m_eAI_SurfaceY;
@@ -7195,6 +7211,7 @@ class eAIBase: PlayerBase
 			SetPosition(playerPosition);
 			return;
 		}
+	#endif
 
 		//! Needed because vanilla only checks for INSTANCETYPE_SERVER
 		GetPlayerSoundManagerServer().Update();
@@ -7671,7 +7688,7 @@ class eAIBase: PlayerBase
 						if (waypoint != playerPosition && waypoint != vector.Zero)
 						{
 							m_eAI_PositionTime = 0;
-							SetPosition(waypoint);  //! OH GOD THE HACKS
+							SetPosition(ExpansionAISpawnBase.GetPlacementPosition(waypoint, true));  //! OH GOD THE HACKS
 
 						#ifdef DIAG_DEVELOPER
 							pos = ExpansionStatic.VectorToString(waypoint);
@@ -8005,6 +8022,14 @@ class eAIBase: PlayerBase
 
 		relAngles[0] = Math.SmoothCD(relAngles[0], targetRelAngles[0], velH, 0.283333, 180, dt);
 		relAngles[1] = Math.SmoothCD(relAngles[1], targetRelAngles[1], velV, 0.283333, 180, dt);
+	}
+
+	void eAI_UpdateFormationLooseness(float looseness)
+	{
+		if (looseness > 0)
+			m_eAI_FormationLooseness = Math.RandomFloatInclusive(-looseness, looseness);
+		else
+			m_eAI_FormationLooseness = 0;
 	}
 
 	void eAI_RandomGreeting(bool excludeWatching = false)
@@ -8769,13 +8794,17 @@ class eAIBase: PlayerBase
 		trace2 = null;
 	#endif
 
-		//if (m_NotifiersManager)
-			//m_NotifiersManager.OnScheduledTick();
-		//! These send RPC to identity which is NULL for AI and thus affects all actual players HUDs (shows AI values instead of player)
-		// if( m_TrasferValues )
-			//m_TrasferValues.OnScheduledTick(deltaTime);
-		// if( m_VirtualHud )
-			//m_VirtualHud.OnScheduledTick();
+		set<PlayerBase> spectators = eAI_GetSpectators();
+		if (spectators && spectators.Count() > 0)
+		{
+			//! If not being spectated, there is no need to tick notifiers, transfervals or virtualhud
+			if (m_NotifiersManager)
+				m_NotifiersManager.OnScheduledTick();
+			if (m_TrasferValues)
+				m_TrasferValues.OnScheduledTick(deltaTime);
+			if (m_VirtualHud)
+				m_VirtualHud.OnScheduledTick();
+		}
 
 	//#ifdef EXTRACE_DIAG
 		//auto trace3 = EXTrace.Profile(EXTrace.AI_PROFILE, this, "OnScheduledTick(3) -> BleedingSourcesManagerServer::OnTick");
@@ -11783,5 +11812,15 @@ class eAIBase: PlayerBase
 				}
 			}
 		}
+	}
+
+	set<PlayerBase> eAI_GetSpectators()
+	{
+	#ifdef COT_SPECTATOR_TRACKING
+		if (m_eAI_Spectators != m_JM_Spectators)
+			m_eAI_Spectators = m_JM_Spectators;
+	#endif
+
+		return m_eAI_Spectators;
 	}
 };

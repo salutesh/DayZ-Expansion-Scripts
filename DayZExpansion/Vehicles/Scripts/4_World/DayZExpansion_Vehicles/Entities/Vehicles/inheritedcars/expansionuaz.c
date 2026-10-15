@@ -575,6 +575,7 @@ class ExpansionUAZ: CarScript
 		return m_HasRoof;
 	}
 
+#ifdef DAYZ_1_29
 	override bool IsVitalCarBattery()
 	{
 #ifdef EXPANSIONTRACE
@@ -592,6 +593,25 @@ class ExpansionUAZ: CarScript
 
 		return false;
 	}
+#else
+	//! 1.30
+	override bool NeedElectricitySourceDevice()
+	{
+		return true;
+	}
+	
+	override EntityAI GetElectricitySourceDevice()
+	{
+		super.GetElectricitySourceDevice();
+		
+		return GetInventory().FindAttachment(CarBattery.SLOT_ID);
+	}
+	
+	override string GetElectricitySourceDeviceType()
+	{
+		return "CarBattery";
+	}
+#endif
 
 	override bool IsVitalSparkPlug()
 	{

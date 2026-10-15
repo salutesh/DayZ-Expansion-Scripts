@@ -100,7 +100,7 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 		{
 			if (entity.GetInventory().HasAttachmentSlot(slotId))
 			{
-				entity.ServerTakeEntityAsAttachmentEx(keychain, slotId);
+				entity.ServerTakeEntityToTargetAttachmentEx(entity, keychain, slotId);
 			}
 		}
 

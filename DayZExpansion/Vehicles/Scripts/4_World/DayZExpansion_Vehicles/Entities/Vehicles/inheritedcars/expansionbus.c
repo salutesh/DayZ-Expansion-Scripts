@@ -178,6 +178,7 @@ class ExpansionBus: CarScript
 		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionBusLights));
 	}
 
+#ifdef DAYZ_1_29
 	override void UpdateLights(int new_gear = -1) // -1 is invalid gear.
 	{
 		if (!g_Game.IsServer() || !g_Game.IsMultiplayer()) // client side
@@ -438,6 +439,7 @@ class ExpansionBus: CarScript
 			}
 		}
 	}
+#endif
 
 	override string GetDoorConditionPointFromSelection(string selection)
 	{
@@ -656,6 +658,7 @@ class ExpansionBus: CarScript
 		return true;
 	}
 
+#ifdef DAYZ_1_29
 	override bool IsVitalCarBattery()
 	{
 #ifdef EXPANSIONTRACE
@@ -673,6 +676,25 @@ class ExpansionBus: CarScript
 
 		return true;
 	}
+#else
+	//! 1.30
+	override bool NeedElectricitySourceDevice()
+	{
+		return true;
+	}
+	
+	override EntityAI GetElectricitySourceDevice()
+	{
+		super.GetElectricitySourceDevice();
+		
+		return GetInventory().FindAttachment(TruckBattery.SLOT_ID);
+	}
+	
+	override string GetElectricitySourceDeviceType()
+	{
+		return "TruckBattery";
+	}
+#endif
 
 	override bool IsVitalSparkPlug()
 	{

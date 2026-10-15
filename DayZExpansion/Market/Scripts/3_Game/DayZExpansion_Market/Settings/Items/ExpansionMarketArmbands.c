@@ -18,7 +18,10 @@ class ExpansionMarketArmbands: ExpansionMarketCategory
 		
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_ARMBANDS";
 		m_FileName = "Armbands";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("Armband_White", 					15,		30,		1,		250, NULL, {"Armband_Yellow","Armband_Orange","Armband_Red","Armband_Green","Armband_Pink","Armband_Blue","Armband_Black"});
 		AddItem("Armband_APA", 					    15,		30,		1,		250, NULL, {"Armband_Altis","Armband_BabyDeer","Armband_Bear","Armband_Bohemia","Armband_BrainZ","Armband_CDF","Armband_CHEL","Armband_CMC","Armband_Cannibals","Armband_Chedaki","Armband_Chernarus","Armband_DayZ","Armband_HunterZ","Armband_Livonia","Armband_LivoniaArmy","Armband_LivoniaPolice","Armband_NAPA","Armband_NSahrani","Armband_Pirates","Armband_RSTA","Armband_Refuge","Armband_Rooster","Armband_SSahrani","Armband_Snake","Armband_TEC","Armband_UEC","Armband_Wolf","Armband_Zenit","Armband_Sakhal", "Armband_Crook", "Armband_Rex", "Armband_Zagorky"});
 		#ifdef EXPANSIONMODBASEBUILDING

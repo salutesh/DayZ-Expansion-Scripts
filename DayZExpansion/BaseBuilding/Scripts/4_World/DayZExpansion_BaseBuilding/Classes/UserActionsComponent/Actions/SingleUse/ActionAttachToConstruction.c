@@ -18,11 +18,8 @@ modded class ActionAttachToConstruction
 		m_ConditionTarget = new CCTNone;
 	}
 
-	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
+	int Expansion_GetAttachmentSlotID(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		if (super.ActionCondition(player, target, item))
-			return true;
-
 		ExpansionBaseBuilding exbb;
 		if (Class.CastTo(exbb, target.GetObject()))
 		{
@@ -32,12 +29,47 @@ modded class ActionAttachToConstruction
 			{
 				if (exbb.CheckSlotVerticalDistance(slot_id, player) && exbb.IsPlayerInside(player, ""))
 				{
-					construction_action_data.SetSlotId(slot_id);
-					return true;
+					return slot_id;
 				}
 			}
 		}
 
+		return InventorySlots.INVALID;
+	}
+
+	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
+	{
+		if (super.ActionCondition(player, target, item))
+			return true;
+
+		int slotID = Expansion_GetAttachmentSlotID(player, target, item);
+		if (slotID != InventorySlots.INVALID)
+		{
+		#ifdef DAYZ_1_29
+			ConstructionActionData construction_action_data = player.GetConstructionActionData();
+			construction_action_data.SetSlotId(slotID);
+		#endif
+
+			return true;
+		}
+
 		return false;
 	}
+
+#ifndef DAYZ_1_29
+	//! 1.30+
+	override bool Post_SetupAction( ActionData action_data )
+	{
+		int slotID = Expansion_GetAttachmentSlotID(action_data.m_Player, action_data.m_Target, action_data.m_MainItem);
+		if (slotID != InventorySlots.INVALID)
+		{	
+			if (!g_Game.IsDedicatedServer())
+				AttachToConstructionActionData.Cast(action_data).m_SlotID = slotID;
+		
+			return true;
+		}
+
+		return super.Post_SetupAction(action_data);
+	}
+#endif
 }

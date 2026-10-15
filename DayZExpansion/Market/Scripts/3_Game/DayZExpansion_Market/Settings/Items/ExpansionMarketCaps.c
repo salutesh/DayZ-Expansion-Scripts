@@ -18,7 +18,10 @@ class ExpansionMarketCaps: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_CAPS";
 		m_FileName = "Caps";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("baseballcap_cmmg_pink", 	250, 	420,	1,100,null,{"BaseballCap_Pink","BaseballCap_Blue","BaseballCap_Beige","BaseballCap_Red","BaseballCap_CMMG_Black","BaseballCap_Black","BaseballCap_Olive","BaseballCap_Camo"});
 		AddItem("baseballcap_blue", 	265, 	440,	1,100);
 		AddItem("baseballcap_beige", 	265, 	440,	1,100);

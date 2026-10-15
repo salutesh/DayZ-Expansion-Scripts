@@ -150,13 +150,31 @@ class ExpansionNotificationView: ScriptView
 		
 		if (m_HideUpdateTime >= m_TotalHideUpdateTime)
 		{
-			if (GetLayoutRoot() && GetLayoutRoot().IsVisible())	
-				GetLayoutRoot().Show(false);
-			
-			m_NotificationModule.RemoveNotificationView(this);
-			RemoveNotificationElement();
-			m_Hiding = false;
+			RemoveNotification();
 		}
+	}
+
+	void RemoveNotification()
+	{
+		if (GetLayoutRoot() && GetLayoutRoot().IsVisible())	
+			GetLayoutRoot().Show(false);
+		
+		m_NotificationModule.RemoveNotificationView(this);
+		RemoveNotificationElement();
+		m_Hiding = false;
+	}
+
+	override bool OnMouseButtonUp(Widget w, int x, int y, int button)
+	{
+		bool ret = super.OnMouseButtonUp(w, x, y, button);
+
+		if (w == GetLayoutRoot())
+		{
+			RemoveNotification();
+			return true;
+		}
+
+		return ret;
 	}
 
 	void SetSlide(float timeslice)

@@ -16,4 +16,33 @@ modded class Sedan_02
 	{
 		return "Sedan_02_Wheel";
 	}
+
+	override void OnDebugSpawn()
+	{
+		SpawnUniversalParts();
+		SpawnAdditionalItems();
+		FillUpCarFluids();
+
+		GameInventory inventory = GetInventory();
+		inventory.CreateInInventory("Sedan_02_Wheel");
+		inventory.CreateInInventory("Sedan_02_Wheel");
+		inventory.CreateInInventory("Sedan_02_Wheel");
+		inventory.CreateInInventory("Sedan_02_Wheel");
+		inventory.CreateInInventory("Sedan_02_Wheel");
+		
+		string skinName = ConfigGetString("skinName");
+		if (skinName)
+			skinName = "_" + skinName;
+
+		inventory.CreateInInventory("Sedan_02_Door_1_1" + skinName);
+		inventory.CreateInInventory("Sedan_02_Door_1_2" + skinName);
+		inventory.CreateInInventory("Sedan_02_Door_2_1" + skinName);
+		inventory.CreateInInventory("Sedan_02_Door_2_2" + skinName);
+		inventory.CreateInInventory("Sedan_02_Hood" + skinName);
+		inventory.CreateInInventory("Sedan_02_Trunk" + skinName);
+
+		//-----IN CAR CARGO
+		inventory.CreateInInventory("Sedan_02_Wheel");
+		inventory.CreateInInventory("Sedan_02_Wheel");
+	}
 };

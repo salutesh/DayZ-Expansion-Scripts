@@ -22,7 +22,10 @@ class ExpansionMarketTraderWeapons: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_WEAPONS";
 		m_FileName = "Weapons";
 		TraderIcon = "Shotgun";
+	}
 
+	override void DefaultItems()
+	{
 		Categories.Insert("Assault_Rifles");
 		Categories.Insert("Submachine_Guns");
 		Categories.Insert("Rifles");

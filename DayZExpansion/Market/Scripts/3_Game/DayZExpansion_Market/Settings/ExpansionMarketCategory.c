@@ -164,6 +164,10 @@ class ExpansionMarketCategory
 		m_FileName = "INVALID-FILE-NAME";
 	}
 
+	void DefaultItems()
+	{
+	}
+
 	// ------------------------------------------------------------
 	// Expansion ExpansionMarketItem AddItem
 	// 'className' the name of the item

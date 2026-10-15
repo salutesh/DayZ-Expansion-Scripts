@@ -21,7 +21,10 @@ class ExpansionMarketSubmachineGuns: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_SUBMACHINE_GUNS";
 		m_FileName = "Submachine_Guns";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("cz61", 	2975, 	4960,	1,100,{"Mag_CZ61_20Rnd"}, {"CZ61_Clean", "CZ61_Black", "CZ61_Green", "CZ61_Yellow", "CZ61_Orange", "CZ61_Brown", "CZ61_White", "CZ61_Grey", "CZ61_Blue", "CZ61_Red", "CZ61_Pink"});
 		AddItem("ump45", 	4165, 	6940,	1,100,{"Mag_UMP_25Rnd"}, {"UMP45_Clean", "UMP45_Black", "UMP45_Green", "UMP45_Yellow", "UMP45_Orange", "UMP45_Brown", "UMP45_White", "UMP45_Grey", "UMP45_Blue", "UMP45_Red", "UMP45_Pink"});
 		AddItem("mp5k", 	3355, 	5595,	1,100,{"MP5k_StockBttstck","MP5_PlasticHndgrd","Mag_MP5_30Rnd"}, {"MP5K_Clean", "MP5K_Black", "MP5K_Green", "MP5K_Yellow", "MP5K_Orange", "MP5K_Brown", "MP5K_White", "MP5K_Grey", "MP5K_Blue", "MP5K_Red", "MP5K_Pink"});

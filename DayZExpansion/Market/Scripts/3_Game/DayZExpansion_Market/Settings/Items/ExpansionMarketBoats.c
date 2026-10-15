@@ -18,7 +18,10 @@ class ExpansionMarketBoats: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BOATS";
 		m_FileName = "Boats";
-		
+	}
+
+	override void DefaultItems()
+	{
 	#ifdef EXPANSIONMODVEHICLE
 		//! AddItem("ExpansionAmphibiaBoat", 	15000,		17000,		1,		10,		{"TruckBattery","GlowPlug"});
 		AddItem("ExpansionUtilityBoat", 		22000,		44000,		1,		10,		{"TruckBattery","GlowPlug"}, {"ExpansionUtilityBoat_Black", "ExpansionUtilityBoat_Green"});

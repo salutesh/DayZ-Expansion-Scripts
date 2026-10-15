@@ -18,7 +18,10 @@ class ExpansionMarketCars: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_CARS";
 		m_FileName = "Cars";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("offroadhatchback", 	20160, 	33600,	1,4,{"HatchbackWheel","HatchbackWheel","HatchbackWheel","HatchbackWheel","HatchbackWheel","CarBattery","CarRadiator","SparkPlug","HatchbackHood","HatchbackTrunk","HatchbackDoors_Driver","HatchbackDoors_CoDriver","HeadlightH7","HeadlightH7"}, {"OffroadHatchback_Green", "OffroadHatchback_Blue", "OffroadHatchback_White", "OffroadHatchback_Police", "OffroadHatchback_GreenRust", "OffroadHatchback_BlueRust", "OffroadHatchback_WhiteRust"});
 		AddItem("hatchback_02", 	14400, 	24000,	1,5,{"Hatchback_02_Wheel","Hatchback_02_Wheel","Hatchback_02_Wheel","Hatchback_02_Wheel","Hatchback_02_Wheel","Hatchback_02_Door_1_1","Hatchback_02_Door_2_1","Hatchback_02_Door_1_2","Hatchback_02_Door_2_2","Hatchback_02_Hood","Hatchback_02_Trunk","CarBattery","CarRadiator","SparkPlug","HeadlightH7","HeadlightH7"}, {"Hatchback_02_Red", "Hatchback_02_Black", "Hatchback_02_Blue", "Hatchback_02_RedRust", "Hatchback_02_BlackRust", "Hatchback_02_BlueRust", "Hatchback_02_BanditKitty"});
 		AddItem("sedan_02", 	18720, 	31200,	1,5,{"Sedan_02_Wheel","Sedan_02_Wheel","Sedan_02_Wheel","Sedan_02_Wheel","Sedan_02_Wheel","CarBattery","CarRadiator","SparkPlug","Sedan_02_Hood","Sedan_02_Trunk","Sedan_02_Door_1_1","Sedan_02_Door_2_1","Sedan_02_Door_1_2","Sedan_02_Door_2_2","HeadlightH7","HeadlightH7"}, {"Sedan_02_Red", "Sedan_02_Yellow", "Sedan_02_Grey", "Sedan_02_YellowBright", "Sedan_02_Blue", "Sedan_02_RedRust", "Sedan_02_YellowRust", "Sedan_02_GreyRust", "Sedan_02_YellowBrightRust", "Sedan_02_BlueRust"});

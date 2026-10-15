@@ -22,7 +22,10 @@ class ExpansionMarketTraderMedicals: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_MEDICALS";
 		m_FileName = "Medicals";
 		TraderIcon = "Medic Box";
-		
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Medical");
 	}
 }

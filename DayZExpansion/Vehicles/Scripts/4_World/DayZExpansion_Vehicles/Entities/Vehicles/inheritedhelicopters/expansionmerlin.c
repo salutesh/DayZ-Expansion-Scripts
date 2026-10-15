@@ -238,6 +238,7 @@ class ExpansionMerlin : ExpansionHelicopterScript
 		return "Expansion_Merlin_Warning_SoundSet";
 	}
 
+#ifdef DAYZ_1_29
 	override void UpdateLights(int new_gear = -1)
 	{
 #ifdef EXPANSIONTRACE
@@ -303,6 +304,48 @@ class ExpansionMerlin : ExpansionHelicopterScript
 			}
 		}
 	}
+#else
+	override void UpdateLightsClient(int newGear = -1)
+	{
+		super.UpdateLightsClient(newGear);
+
+		if (LightIsOn())
+		{
+			if (m_Lights.Count() == 0)
+			{
+				CreateLights(this, "interiorlight1", ExpansionPointLight, Vector(1, 0.01, 0.01), Vector(1, 0.01, 0.01), 5, 0.85, false, true);
+				CreateLights(this, "interiorlight2", ExpansionPointLight, Vector(1, 0.01, 0.01), Vector(1, 0.01, 0.01), 5, 0.85, false, true);
+				CreateLights(this, "switch_lightsac", ExpansionPointLight, Vector(0, 0.1, 1), Vector(1, 1, 1), 5, 0.5, false, true);
+
+				// CreateLights( this, "interiorlight1", ExpansionPointLight, Vector(0.1, 0.1, 0.1), Vector(0.1, 0.1, 0.1), 2, 0.1, false, true );
+				// CreateLights( this, "interiorlight2", ExpansionPointLight, Vector(0.1, 0.1, 0.1), Vector(0.1, 0.1, 0.1), 2, 0.1, false, true );
+
+				// CreateParticle( this, "bily pozicni", ParticleList.EXPANSION_LIGHT_WHITE );
+				// CreateParticle( this, "zeleny pozicni", ParticleList.EXPANSION_LIGHT_YELLOW );
+				// CreateParticle( this, "cerveny pozicni", ParticleList.EXPANSION_LIGHT_RED );
+				// CreateParticle( this, "cerveny pozicni blik", ParticleList.EXPANSION_LIGHT_RED );
+			}
+		}
+		else
+		{
+			/*for (b = 0; b < m_Particles.Count(); b++)
+			{
+				m_Particles[b].Stop();
+
+				g_Game.ObjectDelete(m_Particles[b]);
+			}*/
+
+			foreach (ExpansionPointLight light: m_Lights)
+			{
+				light.ExpansionSetEnabled(false);
+
+				g_Game.ObjectDelete(light);
+			}
+
+			m_Lights.Clear();
+		}
+	}
+#endif
 
 	override void OnDebugSpawn()
 	{

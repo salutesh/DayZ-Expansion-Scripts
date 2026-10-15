@@ -21,7 +21,10 @@ class ExpansionMarketShirtsAndTShirts: ExpansionMarketCategory
 
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_SHIRTS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_TSHIRTS");
 		m_FileName = "Shirts_And_TShirts";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("tshirt_blue", 	440, 	740,	1,100,null,{"TShirt_OrangeWhiteStripes","TShirt_Red","TShirt_RedBlackStripes","TShirt_Beige","TShirt_Grey","TShirt_Green","TShirt_White"});
 		AddItem("tshirt_black", 	440, 	740,	1,100,null,{"Tshirt_10thAnniversary"});
 		

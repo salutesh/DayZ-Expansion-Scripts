@@ -18,7 +18,10 @@ class ExpansionMarketLaunchers: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LAUNCHERS";
 		m_FileName = "Launchers";
-	
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("flaregun", 	795, 	1325,	1,100);
 		AddItem("m79", 	9025, 	15045,	1,100);
 

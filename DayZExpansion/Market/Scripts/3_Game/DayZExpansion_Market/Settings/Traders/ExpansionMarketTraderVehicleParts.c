@@ -22,7 +22,10 @@ class ExpansionMarketTraderVehicleParts: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_VEHICLE_PARTS";
 		m_FileName = "Vehicle_Parts";
 		TraderIcon = "Gas";
-		
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Vehicle_Parts");
 
 		AddItem("TireRepairKit");

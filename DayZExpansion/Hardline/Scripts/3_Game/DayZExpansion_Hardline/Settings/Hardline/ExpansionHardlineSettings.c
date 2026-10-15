@@ -1660,7 +1660,6 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("Mag_SSG82_5rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("Mag_CZ550_10rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_M14_10Rnd", ExpansionHardlineItemRarity.Epic);
-		AddItem("Mag_M14_10Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_M14_20Rnd", ExpansionHardlineItemRarity.Epic);
 
 	#ifdef EXPANSIONMODWEAPONS

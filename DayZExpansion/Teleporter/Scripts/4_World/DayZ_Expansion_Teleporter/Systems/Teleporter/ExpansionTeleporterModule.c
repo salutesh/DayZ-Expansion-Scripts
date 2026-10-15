@@ -148,10 +148,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 		teleporterData.AddTeleportPosition(teleportPos);
 
-		AddTeleporterData(teleporterData);
-
-		teleporterData.Save();
-		teleporterData.SpawnTeleporter();
+		ConditionalAddTeleporterData(teleporterData);
 
 	#ifdef EXPANSION_NAMALSK_ADVENTURE
 		teleporterData = new ExpansionTeleportData();
@@ -170,11 +167,24 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 		teleporterData.AddTeleportPosition(teleportPos);
 
-		AddTeleporterData(teleporterData);
-
-		teleporterData.Save();
-		teleporterData.SpawnTeleporter();
+		ConditionalAddTeleporterData(teleporterData);
 	#endif
+	}
+
+	void ConditionalAddTeleporterData(ExpansionTeleportData teleporterData)
+	{
+		string fileName = "Teleporter_" + teleporterData.m_ID + ".json";
+		if (!FileExist(s_TeleporterDataFolderPath + fileName))
+		{
+			AddTeleporterData(teleporterData);
+			teleporterData.Save();
+			teleporterData.SpawnTeleporter();
+		}
+		else
+		{
+			EXError.Info(this, "Not using defaults - loading existing teleporter data " + teleporterData.m_ID);
+			GetTeleporterData(fileName, s_TeleporterDataFolderPath);
+		}
 	}
 
 	protected void GetTeleporterData(string fileName, string path)

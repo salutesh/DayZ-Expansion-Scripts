@@ -18,7 +18,10 @@ class ExpansionMarketTents: ExpansionMarketCategory
 		
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_TENTS";
 		m_FileName = "Tents";
-	
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("partytent", 	3060, 	5105,	1,100,null,{"PartyTent_Blue","PartyTent_Brown","PartyTent_Lunapark"});
 		AddItem("partytent_lunapark", 	3830, 	6380,	1,100);
 

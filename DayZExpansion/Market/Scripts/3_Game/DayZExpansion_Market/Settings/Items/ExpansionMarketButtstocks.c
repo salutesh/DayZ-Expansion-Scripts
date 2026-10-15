@@ -18,7 +18,10 @@ class ExpansionMarketButtstocks: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BUTTSTOCKS";
 		m_FileName = "Buttstocks";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("mp5k_stockbttstck", 	1290, 	2150,	1,100);
 
 		AddItem("fal_oebttstck", 	1705, 	2840,	1,100);

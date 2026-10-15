@@ -18,7 +18,10 @@ class ExpansionMarketOptics: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_OPTICS";
 		m_FileName = "Optics";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("pistoloptic", 	6050, 	10085,	1,100);
 		AddItem("reflexoptic", 	5070, 	8450,	1,100,{"Battery9V"});
 		AddItem("m4_carryhandleoptic", 	1490, 	2485,	1,100);

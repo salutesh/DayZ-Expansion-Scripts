@@ -2076,7 +2076,7 @@ PanelWidgetClass VehiclePanel {
          rotation 0 0 -40
          pivot 0.5 0.7
         }
-        ImageWidgetClass HydraulicFluidLight {
+        PanelWidgetClass HydraulicFluidLight {
          visible 1
          position 0 -0.04
          size 32 32
@@ -2086,20 +2086,13 @@ PanelWidgetClass VehiclePanel {
          vexactpos 0
          hexactsize 1
          vexactsize 1
-         fixaspect inside
-         image0 "set:dayz_inventory image:gascanister"
-         mode blend
-         "src alpha" 1
-         "clamp mode" clamp
-         "stretch mode" stretch_w_h
-         filter 1
-         nocache 0
+         style blank
          {
           ImageWidgetClass HydraulicFluidLight1 {
            visible 1
            inheritalpha 0
-           position 0 0
-           size 8 11
+           position 0 1
+           size 13 18
            halign center_ref
            valign center_ref
            hexactpos 1

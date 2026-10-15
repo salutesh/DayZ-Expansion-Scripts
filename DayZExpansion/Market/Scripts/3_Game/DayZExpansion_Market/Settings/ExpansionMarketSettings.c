@@ -154,6 +154,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			
 			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_MARKET_FOLDER);
 			DefaultCategories();
+			return;
 		}
 
 		foreach (string fileName : files)
@@ -491,8 +492,26 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	private void AddDefaultCategory(ExpansionMarketCategory category)
 	{
 		category.Defaults();
-		category.Save();
-		category.Finalize();
+
+		//! Workaround: Assigning the result of ExpansionMarketCategory.Load to `category` directly in the `else` block nulls the reference >:(
+		ExpansionMarketCategory loadedCat;
+
+		//! 1.30 Experimental broke FindFile, make sure we don't overwrite existing files
+		if (!FileExist(EXPANSION_MARKET_FOLDER + category.m_FileName + ".json"))
+		{
+			category.DefaultItems();
+			category.Save();
+			category.Finalize();
+		}
+		else
+		{
+			EXError.Info(this, "Not using defaults - loading existing market category " + category.m_FileName);
+			loadedCat = ExpansionMarketCategory.Load(category.m_FileName);
+			if (!loadedCat)
+				return;
+
+			category = loadedCat;
+		}
 
 		if (category.CategoryID == 0)
 			CF.FormatError("Category %1 has an ID of 0! Not calling super in Defaults()?", category.m_FileName);
@@ -504,7 +523,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			return;
 		}
 
-		GetCategories().Set(category.CategoryID, category);
+		if (loadedCat)
+			EXError.Info(this, "Adding category ID " + category.CategoryID + " (" + category.m_FileName + ")");
+
+		m_Categories.Insert(category.CategoryID, category);
 		NetworkCategories.Insert(new ExpansionMarketNetworkCategory(category));
 	}
 
@@ -629,6 +651,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		AddDefaultCategory(new ExpansionMarketFurnishings);
 
 		ExpansionMarketCategory.AddDefaultAttachments();
+		ExpansionMarketCategory.CreateStaticNetworkRepresentations();
 
 		//TraderPrint("DefaultCategories - End");
 	}
@@ -665,10 +688,23 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 				break;
 		}
 		
-		for (int i = 0; i < m_TraderZones.Count(); i++)
+		foreach (int i, ExpansionMarketTraderZone traderZone: m_TraderZones)
 		{
-			m_TraderZones[i].Defaults();
-			m_TraderZones[i].Save();
+			traderZone.Defaults();
+
+			//! 1.30 Experimental broke FindFile, make sure we don't overwrite existing files
+			if (!FileExist(EXPANSION_TRADER_ZONES_FOLDER + traderZone.m_FileName + ".json"))
+			{
+				traderZone.Update();
+				traderZone.Save();
+			}
+			else
+			{
+				EXError.Info(this, "Not using defaults - loading existing market trader zone " + traderZone.m_FileName);
+				traderZone = ExpansionMarketTraderZone.Load(traderZone.m_FileName);
+				if (traderZone)
+					m_TraderZones[i] = traderZone;
+			}
 		}
 		
 		//TraderPrint("DefaultTraderZones - End");
@@ -699,11 +735,25 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		m_Traders.Insert(new ExpansionMarketTraderVehicles);
 		m_Traders.Insert(new ExpansionMarketTraderWeapons);
 		
-		foreach (ExpansionMarketTrader trader: m_Traders)
+		foreach (int i, ExpansionMarketTrader trader: m_Traders)
 		{
 			trader.Defaults();
-			trader.Save();
-			trader.Finalize();
+
+			//! 1.30 Experimental broke FindFile, make sure we don't overwrite existing files
+			if (!FileExist(EXPANSION_TRADER_FOLDER + trader.m_FileName + ".json"))
+			{
+				trader.DefaultCurrencies();
+				trader.DefaultItems();
+				trader.Save();
+				trader.Finalize();
+			}
+			else
+			{
+				EXError.Info(this, "Not using defaults - loading existing market trader " + trader.m_FileName);
+				trader = ExpansionMarketTrader.Load(trader.m_FileName);
+				if (trader)
+					m_Traders[i] = trader;
+			}
 		}
 		
 		//TraderPrint("DefaultTraders - End");

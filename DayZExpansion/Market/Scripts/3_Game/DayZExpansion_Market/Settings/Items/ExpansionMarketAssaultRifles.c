@@ -18,7 +18,10 @@ class ExpansionMarketAssaultRifles: ExpansionMarketCategory
 		
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_ASSAULT_RIFLES";
 		m_FileName = "Assault_Rifles";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("fal", 	6020, 	10030,	1,100,{"Fal_OeBttstck","Mag_FAL_20Rnd"});
 		AddItem("akm", 	6715, 	11190,	1,100,{"AK_WoodBttstck","AK_WoodHndgrd","Mag_AKM_30Rnd"});
 		AddItem("ak101", 	2730, 	4550,	1,100,{"AK_PlasticBttstck","AK_PlasticHndgrd","Mag_AK101_30Rnd"});

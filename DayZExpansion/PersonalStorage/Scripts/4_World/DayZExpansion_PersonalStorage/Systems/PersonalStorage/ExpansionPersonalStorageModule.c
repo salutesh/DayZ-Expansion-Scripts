@@ -204,11 +204,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		#ifdef EXPANSIONMODAI
 			personalStorage.SetFaction("Survivors");
 		#endif
-			personalStorage.Save();
-	
-			m_PersonalStorageConfig.Insert(1, personalStorage);
-	
-			personalStorage.Spawn();
+
+			//! 1.30 Experimental broke FindFile, make sure we don't overwrite existing files
+			ConditionalAddPersonalStorageConfig(personalStorage);
 		}
 		else
 		{
@@ -219,7 +217,25 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			personalStorage.SetDisplayIcon("Backpack");
 			personalStorage.SetPosition(mapPos);
 			personalStorage.SetOrientation(Vector(0, 0, 0));
+
+			//! 1.30 Experimental broke FindFile, make sure we don't overwrite existing files
+			ConditionalAddPersonalStorageConfig(personalStorage);
+		}
+	}
+
+	void ConditionalAddPersonalStorageConfig(ExpansionPersonalStorageConfig personalStorage)
+	{
+		string fileName = "PersonalStorage_" + personalStorage.StorageID + ".json";
+		if (!FileExist(s_PersonalStorageConfigFolderPath + fileName))
+		{
 			personalStorage.Save();
+			m_PersonalStorageConfig.Insert(1, personalStorage);
+			personalStorage.Spawn();
+		}
+		else
+		{
+			EXError.Info(this, "Not using defaults - loading existing personal storage config " + personalStorage.StorageID);
+			GetPersonalStorageConfig(fileName, s_PersonalStorageConfigFolderPath);
 		}
 	}
 

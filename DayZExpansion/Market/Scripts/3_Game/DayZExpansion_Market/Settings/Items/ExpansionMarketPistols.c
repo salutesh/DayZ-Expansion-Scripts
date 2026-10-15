@@ -18,7 +18,10 @@ class ExpansionMarketPistols: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_PISTOLS";
 		m_FileName = "Pistols";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("makarovij70", 	470, 	785,	1,100,{"Mag_IJ70_8Rnd"});
 		AddItem("derringer_black", 	365, 	610,	1,100,null,{"Derringer_Grey","Derringer_Pink"});
 		AddItem("cz75", 	735, 	1230,	1,100,{"Mag_CZ75_15Rnd"});

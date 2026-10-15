@@ -18,7 +18,10 @@ class ExpansionMarketBootsAndShoes: ExpansionMarketCategory
 
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_BOOTS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_SHOES");
 		m_FileName = "Boots_And_Shoes";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("athleticshoes_blue", 	245, 	405,	1,100,null,{"AthleticShoes_Brown","AthleticShoes_Grey","AthleticShoes_Black","AthleticShoes_Green"});
 		
 		AddItem("joggingshoes_black", 	205, 	340,	1,100,null,{"JoggingShoes_Blue","JoggingShoes_Red","JoggingShoes_Violet","JoggingShoes_White"});

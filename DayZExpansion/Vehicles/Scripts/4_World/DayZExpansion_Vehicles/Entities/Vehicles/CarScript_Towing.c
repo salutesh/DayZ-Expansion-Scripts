@@ -203,7 +203,7 @@ modded class CarScript
 	int Expansion_NumberTowConnections()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAutoHoverTargetHeight");
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_NumberTowConnections");
 #endif
 
 		return 2;

@@ -22,7 +22,10 @@ class ExpansionMarketTraderAircraft: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_AIRCRAFT";
 		m_FileName = "Aircraft";
 		TraderIcon = "Helicopter";
-		
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Helicopters");
 		AddCategory("Vehicle_Parts", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 		AddCategory("Batteries", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);

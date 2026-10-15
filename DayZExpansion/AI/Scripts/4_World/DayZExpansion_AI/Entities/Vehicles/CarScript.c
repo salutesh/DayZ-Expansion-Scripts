@@ -1,7 +1,3 @@
-#ifndef EXPANSIONMODVEHICLE
-CarScript g_Expansion_Car;
-#endif
-
 modded class CarScript
 {
 	string m_eAI_NoiseParamsPath;
@@ -16,6 +12,8 @@ modded class CarScript
 		}
 	}
 
+#ifdef DAYZ_1_29
+	//! TODO: Add replacement for DayZ 1.30
 	override protected void GenerateCarHornAINoise(int pState)
 	{
 		super.GenerateCarHornAINoise(pState);
@@ -29,4 +27,5 @@ modded class CarScript
 			eAINoiseSystem.AddNoise(GetPosition(), 5.0, m_eAI_NoiseParamsPath, noiseMultiplier);
 		}
 	}
+#endif
 }

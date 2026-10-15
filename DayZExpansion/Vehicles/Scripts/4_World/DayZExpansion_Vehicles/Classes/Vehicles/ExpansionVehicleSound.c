@@ -12,7 +12,7 @@
 
 class ExpansionVehicleSound
 {
-	ExpansionVehicleBase m_Vehicle;
+	Transport m_Vehicle;
 
 	ExpansionVehicleSoundShader m_Shader;
 
@@ -26,7 +26,7 @@ class ExpansionVehicleSound
 	ref SoundObject m_SoundObject;
 	AbstractWave m_AbstractWave;
 
-	void ExpansionVehicleSound(ExpansionVehicleBase vehicle, string soundSetName)
+	void ExpansionVehicleSound(Transport vehicle, string soundSetName)
 	{
 		m_Vehicle = vehicle;
 		m_SoundSetName = soundSetName;

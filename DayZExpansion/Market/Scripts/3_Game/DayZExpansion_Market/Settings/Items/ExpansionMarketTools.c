@@ -18,7 +18,10 @@ class ExpansionMarketTools: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_TOOLS";
 		m_FileName = "Tools";
-		
+	}
+
+	override void DefaultItems()
+	{
 		AddItem("screwdriver", 	325, 	545,	1,100);
 		AddItem("wrench", 	325, 	545,	1,100);
 		AddItem("pliers", 	325, 	545,	1,100);

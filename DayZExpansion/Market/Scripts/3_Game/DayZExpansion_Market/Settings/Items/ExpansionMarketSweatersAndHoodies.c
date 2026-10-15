@@ -18,7 +18,10 @@ class ExpansionMarketSweatersAndHoodies: ExpansionMarketCategory
 		
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_SWEATERS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_HOODIES");
 		m_FileName = "Sweaters_And_Hoodies";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("sweater_gray", 	635, 	1060,	1,100);
 		AddItem("sweater_blue", 	1125, 	1875,	1,100);
 		AddItem("sweater_red", 	635, 	1060,	1,100, null, {"Sweater_ChristmasBlue", "Sweater_ChristmasGreen", "Sweater_ChristmasRed"});

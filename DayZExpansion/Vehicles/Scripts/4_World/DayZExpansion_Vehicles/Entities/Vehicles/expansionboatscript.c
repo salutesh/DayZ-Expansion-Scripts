@@ -112,6 +112,11 @@ class ExpansionBoatScript: CarScript
 
 			m_Expansion_SDSCheckTime = g_Game.GetTickTime();
 		}
+
+	#ifndef DAYZ_1_29
+		//! 1.30+
+		m_LightsComponent.Expansion_UnregisterLight("Rear");
+	#endif
 	}
 
 	void ~ExpansionBoatScript()
@@ -334,12 +339,8 @@ class ExpansionBoatScript: CarScript
 		super.OnAnimationUpdate(pDt);
 	}
 
-#ifndef DAYZ_1_27
-	//! 1.28+
+#ifdef DAYZ_1_29
 	override protected void CheckVitalItem(bool isVital, string slot_name)
-#else
-	override protected void CheckVitalItem(bool isVital, string itemName)
-#endif
 	{
 		if (!isVital)
 			return;
@@ -356,6 +357,7 @@ class ExpansionBoatScript: CarScript
 		else if (item.IsRuined())
 			Expansion_EngineStop(1);
 	}
+#endif
 
 #ifdef CF_DebugUI
 	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
@@ -552,8 +554,14 @@ class ExpansionBoatScript: CarScript
 				if (GetFluidFraction(CarFluid.FUEL) <= 0 || m_EngineHealth <= 0)
 					Expansion_EngineStop(1);
 
+			#ifdef DAYZ_1_29
 				CheckVitalItem(IsVitalTruckBattery(), "TruckBattery");
 				CheckVitalItem(IsVitalGlowPlug(), "GlowPlug");
+			#else
+				//! 1.30
+				CheckVitalItemCallback(NeedElectricitySourceDevice(), TruckBattery.SLOT_ID, this, "Expansion_EngineStopAll");
+				CheckVitalItemCallback(IsVitalGlowPlug(), GlowPlug.SLOT_ID, this, "Expansion_EngineStopAll");
+			#endif
 			}
 		}
 	}
@@ -767,6 +775,7 @@ class ExpansionBoatScript: CarScript
 		return true;
 	}
 
+#ifdef DAYZ_1_29
 	override bool IsVitalTruckBattery()
 	{
 #ifdef EXPANSIONTRACE
@@ -784,6 +793,23 @@ class ExpansionBoatScript: CarScript
 
 		return false;
 	}
+#else
+	//! 1.30
+	override bool NeedElectricitySourceDevice()
+	{
+		return true;
+	}
+	
+	override EntityAI GetElectricitySourceDevice()
+	{
+		return GetInventory().FindAttachment(TruckBattery.SLOT_ID);
+	}
+	
+	override string GetElectricitySourceDeviceType()
+	{
+		return "TruckBattery";
+	}
+#endif
 
 	override bool IsVitalRadiator()
 	{

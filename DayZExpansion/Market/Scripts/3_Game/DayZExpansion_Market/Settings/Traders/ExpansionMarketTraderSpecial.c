@@ -22,7 +22,10 @@ class ExpansionMarketTraderSpecial: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_SPECIAL";
 		m_FileName = "Special";
 		TraderIcon = "Grenade";
-		
+	}
+
+	override void DefaultItems()
+	{
 		Categories.Insert("Explosives_And_Grenades");
 		
 	#ifdef EXPANSIONMODWEAPONS

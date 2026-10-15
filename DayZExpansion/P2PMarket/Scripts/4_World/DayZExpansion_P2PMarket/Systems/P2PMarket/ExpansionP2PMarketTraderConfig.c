@@ -266,6 +266,18 @@ class ExpansionP2PMarketTraderConfig: ExpansionP2PMarketTraderConfigBase
 
 	void Spawn()
 	{
+	#ifdef DAYZ_1_29
+	#ifdef DZ_Expansion_AI
+		//! 1.30 anim graph is not compatible with 1.29
+		typename typeName = m_ClassName.ToType();
+		if (typeName.IsInherited(eAIBase))
+		{
+			EXError.InfoOnce(null, "DayZ 1.29 is not compatible with the 1.30 AI animgraph");
+			return;
+		}
+	#endif
+	#endif
+
 		Object obj = ExpansionGame.CreateObjectExSafe(m_ClassName, m_Position, ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
 
 		#ifdef ENFUSION_AI_PROJECT

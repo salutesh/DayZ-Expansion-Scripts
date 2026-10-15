@@ -18,7 +18,10 @@ class ExpansionMarketPants: ExpansionMarketCategory
 
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_PANTS" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_SHORTS");
 		m_FileName = "Pants_And_Shorts";
+	}
 
+	override void DefaultItems()
+	{
 		AddItem("medicalscrubspants_blue", 	655, 	1090,	1,100,null,{"MedicalScrubsPants_Green","MedicalScrubsPants_White"});
 		
 		AddItem("tracksuitpants_black", 	990, 	1645,	1,100,null,{"TrackSuitPants_Blue","TrackSuitPants_Green","TrackSuitPants_Red","TrackSuitPants_LightBlue"});

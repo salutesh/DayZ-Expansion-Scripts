@@ -381,6 +381,18 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static Object SpawnObject(string className, vector position, vector rotation, bool special = false, bool takeable = true)
 	{
+	#ifdef DAYZ_1_29
+	#ifdef DZ_Expansion_AI
+		//! 1.30 anim graph is not compatible with 1.29
+		typename typeName = className.ToType();
+		if (typeName.IsInherited(eAIBase))
+		{
+			EXError.InfoOnce(null, "DayZ 1.29 is not compatible with the 1.30 AI animgraph");
+			return null;
+		}
+	#endif
+	#endif
+
 		int flags = ECE_CREATEPHYSICS | ECE_NOLIFETIME | ECE_KEEPHEIGHT | ECE_DYNAMIC_PERSISTENCY;
 
 		Object obj = g_Game.CreateObjectEx( className, position, flags );
@@ -862,6 +874,18 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			className = parts[0];
 			fileName = parts[1];
 			position = positions[0];
+
+		#ifdef DAYZ_1_29
+		#ifdef DZ_Expansion_AI
+			//! 1.30 anim graph is not compatible with 1.29
+			typename typeName = className.ToType();
+			if (typeName.IsInherited(eAIBase))
+			{
+				EXError.InfoOnce(null, "DayZ 1.29 is not compatible with the 1.30 AI animgraph");
+				continue;
+			}
+		#endif
+		#endif
 
 			CF_Log.Debug( "Attempt to create mission trader " + className + " at " + position + " from file:" + filePath + ".");
 

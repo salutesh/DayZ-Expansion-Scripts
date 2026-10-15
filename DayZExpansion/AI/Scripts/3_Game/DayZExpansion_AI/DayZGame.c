@@ -27,19 +27,46 @@ modded class DayZGame
 		if (file)
 		{
 			string line;
+			bool isInsideVehicleTypeDef;
 
 			while (FGets(file, line) >= 0)
 			{
-				if (line.Contains("#Var VehicleType "))
+				string trimmed = line.Trim();
+
+			#ifdef DAYZ_1_29
+				if (trimmed.IndexOf("#Var VehicleType ") == 0)
+			#else
+				//! 1.30+
+				if (trimmed.IndexOf("AnimSrcGCTVarInt VehicleType ") == 0)
+					isInsideVehicleTypeDef = true;
+				else if (trimmed == "}")
+					isInsideVehicleTypeDef = false;
+
+				if (isInsideVehicleTypeDef && trimmed.IndexOf("MaxValue ") == 0)
+			#endif
 				{
-					line.Replace("\t", " ");
+					trimmed.Replace("\t", " ");
 
 					TStringArray split = {};
-					line.Split(" ", split);
+					trimmed.Split(" ", split);
 
+				#ifdef DAYZ_1_29
 					max = split[5].ToInt();
 
-					if (max == 10 || max == 100)
+					//! Vanilla 1.29 animgraph VehicleType max
+					if (max == 10)
+						supported = true;
+				#else
+					//! 1.30+
+					max = split[1].ToInt();
+
+					//! Vanilla 1.30 animgraph VehicleType max
+					if (max == 12)
+						supported = true;
+				#endif
+
+					//! Expansion Animations modded animgraph VehicleType max
+					if (max == 100)
 						supported = true;
 
 					break;
@@ -61,6 +88,10 @@ modded class DayZGame
 
 		if (supportedDefaultInstances.Find(defaultInstance) == -1)
 			EXError.Warn(null, warnTitle + ": " + defaultInstance + "\n" + warnText, {});
+
+	#ifdef DAYZ_1_29
+		EXError.InfoOnce(null, "DayZ 1.29 is not compatible with the 1.30 AI animgraph");
+	#endif
 	}
 
 	override void ExplosionEffectsEx(Object source, Object directHit, int componentIndex, float energyFactor, float explosionFactor, HitInfo hitInfo)
@@ -91,7 +122,12 @@ modded class DayZGame
 			float surfaceCoef = SurfaceGetNoiseMultiplier(directHit, pos, componentIndex);
 			if (surfaceCoef == 0)
 				surfaceCoef = 1;
+		#ifdef DAYZ_1_29
 			surfaceCoef *= GetWeather().GetNoiseReductionByWeather();
+		#else
+			//! 1.30
+			surfaceCoef *= eAI_GetNoiseReductionByWeatherEx(source);
+		#endif
 			eAINoiseSystem.AddNoise(EntityAI.Cast(source), pos, string.Format("cfgAmmo %1 NoiseHit", ammoType), surfaceCoef);
 		}
 	}
@@ -109,4 +145,34 @@ modded class DayZGame
 		//! m_DebugMonitorEnabled == 2 is for server stats (only for admins listed in AISettings)
 		return IsServer() && m_DebugMonitorEnabled == 1;
 	}
+
+#ifndef DAYZ_1_29
+	//! Vanilla Weather::GetNoiseReductionByWeatherEx method introduced in 1.30 Experimental is already marked obsolete,
+	//! so we roll our own (verbatim copy)
+	float eAI_GetNoiseReductionByWeatherEx(notnull Object object)
+	{
+		Weather weather = GetWeather();
+
+		float rainReduction = weather.GetRain().GetActual() * GameConstants.RAIN_NOISE_REDUCTION_WEIGHT;
+		float snowfallReduction = weather.GetSnowfall().GetActual() * GameConstants.SNOWFALL_NOISE_REDUCTION_WEIGHT;
+		float sandstormReduction;
+
+		SandstormController sandstormController = weather.GetSandstorm();
+		if (sandstormController.IsActive())
+		{
+			Man player = Man.Cast(object);
+			if (player)
+				sandstormReduction = sandstormController.GetIntensityForPlayer(player) * GameConstants.SANDSTORM_NOISE_REDUCTION_WEIGHT;
+			else
+				sandstormReduction = sandstormController.GetIntensity(object.GetPosition()) * GameConstants.SANDSTORM_NOISE_REDUCTION_WEIGHT;
+		}
+		
+		// If all reductions are zero, return 1 (no reduction)
+		if (rainReduction == 0 && snowfallReduction == 0 && sandstormReduction == 0)
+			return 1;
+		
+		float maxReduction = Math.Max(rainReduction, Math.Max(snowfallReduction, sandstormReduction));
+		return 1 - maxReduction;
+	}
+#endif
 }

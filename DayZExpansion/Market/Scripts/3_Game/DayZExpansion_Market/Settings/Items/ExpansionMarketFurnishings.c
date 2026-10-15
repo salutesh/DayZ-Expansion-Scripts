@@ -18,7 +18,10 @@ class ExpansionMarketFurnishings: ExpansionMarketCategory
 
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FURNISHINGS";
 		m_FileName = "Furnishings";
-		
+	}
+
+	override void DefaultItems()
+	{
 	#ifdef EXPANSIONMODBASEBUILDING
 		AddItem("ExpansionGunrack", 		3500,	7000,	1,		100);
 		AddItem("ExpansionStove", 			1500,	3000,	1,		100);
