@@ -75,6 +75,13 @@ modded class BoatScript
 		m_ExpansionVehicle.OnItemDetached(item, slot_name);
 	}
 
+	override void EEKilled( Object killer )
+	{
+		super.EEKilled( killer );
+
+		m_ExpansionVehicle.OnDestroyed(killer);
+	}
+
 	override void EOnPostSimulate(IEntity other, float timeSlice)
 	{
 		m_ExpansionVehicle.OnPostSimulate(timeSlice);
@@ -209,6 +216,11 @@ modded class BoatScript
 	}
 
 	bool Expansion_EngineIsOn(int index)
+	{
+		return EngineIsOn();
+	}
+
+	bool Expansion_EngineIsSpinning()
 	{
 		return EngineIsOn();
 	}

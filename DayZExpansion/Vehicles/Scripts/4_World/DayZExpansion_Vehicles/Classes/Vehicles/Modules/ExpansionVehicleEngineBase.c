@@ -279,39 +279,41 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 
 		if (g_Game.IsServer() && vehicle.CanBeDamaged())
 		{
+			bool engineZoneHit;
+
 			if (m_RPM >= m_RPMRedline)
 			{
 				if (m_RPM > m_RPMMax && GetExpansionSettings().GetVehicle().RevvingOverMaxRPMRuinsEngineInstantly)
 					dmg += m_Vehicle.GetMaxHealth(m_DamageZone, "") * 0.05;
 
 				// only called on server, don't use deterministic RandomFloat
-				dmg += m_RPM * 0.001 * Math.RandomFloat(0.02, 1.0) * pDt;
+				float engineDmg = m_RPM * 0.001 * Math.RandomFloat(0.02, 1.0);
+				m_Vehicle.ProcessDirectDamage(DamageType.CUSTOM, null, m_DamageZone, "EnviroDmg", vector.Zero, engineDmg);
+				engineZoneHit = true;
 			}
 
 			if (pCoolant >= 0 && pCoolant < 0.5)
 			{
 				// only called on server, don't use deterministic RandomFloat
-				dmg += (1.0 - pCoolant) * Math.RandomFloat(0.02, 10.00) * pDt;
+				dmg += (1.0 - pCoolant) * Math.RandomFloat(0.02, 10.00);
 			}
 
-			if (pOil < 1.0)
+			if (pOil < 1.0 && vehicle.IsHelicopter())
 			{
 				dmg += Math.Lerp(0.02, 10, 1.0 - pOil);
 			}
-
-			CarScript car = vehicle.GetCar();
 
 			if (dmg != 0.0)
 			{
 				m_Vehicle.AddHealth(m_DamageZone, "Health", -dmg);
 
-				if (car)
-					car.SetEngineZoneReceivedHit(true);
+				engineZoneHit = true;
 			}
-			else if (car)
-			{
-				car.SetEngineZoneReceivedHit(false);
-			}
+
+			CarScript car = vehicle.GetCar();
+
+			if (car)
+				car.SetEngineZoneReceivedHit(engineZoneHit);
 		}
 
 		if (m_RPM >= m_RPMIdle || vehicle.IsHelicopter() || vehicle.GetThrottle(m_EngineIndex) > 0)

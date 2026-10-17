@@ -120,9 +120,6 @@ modded class CarScript
 
 	protected bool m_Expansion_WasMissionLoadedAtVehicleInstantiation;
 
-	bool m_Expansion_CollisionDamageIfEngineOff;
-	float m_Expansion_CollisionDamageMinSpeed; 
-
 	ref map<string, int> m_Expansion_WheelsToAdd = new map<string, int>();
 	int m_Expansion_AttachedWheelsCount;
 
@@ -294,11 +291,6 @@ modded class CarScript
 
 		if (g_Game.IsServer())
 		{
-			auto settings = GetExpansionSettings().GetVehicle();
-
-			m_Expansion_CollisionDamageIfEngineOff = settings.CollisionDamageIfEngineOff;
-			m_Expansion_CollisionDamageMinSpeed = settings.CollisionDamageMinSpeedKmh / 3.6;  //! Converted to m/s
-
 			TStringArray wheels = new TStringArray();
 		#ifdef DAYZ_1_19
 			ConfigGetTextArray("wheels", wheels);
@@ -602,7 +594,7 @@ modded class CarScript
 
 	void OnSettingsUpdated()
 	{
-		m_TowingEnabled = GetExpansionSettings().GetVehicle().Towing;
+		m_TowingEnabled = m_ExpansionVehicle.m_Settings.Towing;
 
 		m_Event_SettingsChanged.SettingsChanged();
 	}
@@ -854,7 +846,7 @@ modded class CarScript
 			attachment.SetHealth(0);
 		}
 
-		if (GetExpansionSettings().GetVehicle().ExplodingVehicleDropsAttachments)
+		if (m_ExpansionVehicle.m_Settings.ExplodingVehicleDropsAttachments)
 			Expansion_PhysicsDropAttachments(this);
 
 		for (int i = 0; i < CrewSize(); i++)
@@ -1325,10 +1317,7 @@ modded class CarScript
 	{
 		if (g_Game.IsServer())
 		{
-			if (slot_name == "ExpansionHelicopterBattery")
-				m_BatteryHealth = item.GetHealth01();
-
-			if (slot_name == "ExpansionAircraftBattery")
+			if (slot_name == "ExpansionHelicopterBattery" || slot_name == "ExpansionAircraftBattery")
 				m_BatteryHealth = item.GetHealth01();
 
 			if (slot_name == "ExpansionHydraulicHoses")
@@ -1378,54 +1367,36 @@ modded class CarScript
 
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
-		if (IsMissionHost())
+		switch (slot_name)
 		{
-			if (LightIsOn())
-			{
-				if (slot_name == "ExpansionHelicopterBattery" || slot_name == "ExpansionAircraftBattery")
-					LightToggle();
+			case "ExpansionHelicopterBattery":
+			case "ExpansionAircraftBattery":
+				m_BatteryHealth = -1;
 
-				EntityAI bulb;
-
-				if (slot_name == "Reflector_1_1")
-				{
-					SetHealth("Reflector_1_1", "Health", 0);
-
-					bulb = FindAttachmentBySlotName("Reflector_2_1");
-					if (!bulb || GetHealth01("Reflector_2_1", "") <= 0)
-						LightToggle();
-				}
-
-				if (slot_name == "Reflector_2_1")
-				{
-					SetHealth("Reflector_2_1", "Health", 0);
-
-					bulb = FindAttachmentBySlotName("Reflector_1_1");
-					if (!bulb || GetHealth01("Reflector_1_1", "") <= 0)
-						LightToggle();
-				}
-			}
-
-			if (Expansion_EngineIsOn())
-			{
-				if (slot_name == "ExpansionHelicopterBattery" || slot_name == "ExpansionAircraftBattery")
+				if (IsServerOrOwner() && Expansion_EngineIsOn())
 					Expansion_EngineStop();
-			}
 
-			if (slot_name == "ExpansionHelicopterBattery")
-				m_BatteryHealth = -1;
+				LightOff();
 
-			if (slot_name == "ExpansionAircraftBattery")
-				m_BatteryHealth = -1;
+				if (g_Game.IsServer())
+					UpdateBattery(ItemBase.Cast(item));
 
-			if (slot_name == "ExpansionHydraulicHoses")
-			{
-				m_Expansion_HydraulicHoses = null;
-				m_Expansion_HydraulicHosesHealth = -1.0;
-			}
+				break;
 
-			if (item.IsInherited(CarWheel))
-				m_Expansion_AttachedWheelsCount--;
+			case "ExpansionHydraulicHoses":
+				if (g_Game.IsServer())
+				{
+					m_Expansion_HydraulicHoses = null;
+					m_Expansion_HydraulicHosesHealth = -1.0;
+				}
+
+				break;
+
+			default:
+				if (g_Game.IsServer() && item.IsInherited(CarWheel))
+					m_Expansion_AttachedWheelsCount--;
+
+				break;
 		}
 
 		super.EEItemDetached(item, slot_name);
@@ -1489,7 +1460,7 @@ modded class CarScript
 #endif
 
 		if (m_Expansion_HydraulicHoses)
-			m_Expansion_HydraulicHosesHealth = m_Expansion_HydraulicHoses.GetHealth01();
+			m_Expansion_HydraulicHosesHealth = m_Expansion_HydraulicHoses.GetHealthLevelValue(m_Expansion_HydraulicHoses.GetHealthLevel());
 		else
 			m_Expansion_HydraulicHosesHealth = 0;
 	}
@@ -1562,15 +1533,13 @@ modded class CarScript
 
 			if (g_Game.IsServer())
 			{
-				//! 1.19
-				if (IsVitalFuelTank())
+				if (IsVitalFuelTank() && CanBeDamaged())
 				{
 					if (m_FuelTankHealth == GameConstants.DAMAGE_RUINED_VALUE && m_EngineHealth > GameConstants.DAMAGE_RUINED_VALUE)
 					{
 						SetHealth("Engine", "Health", GameConstants.DAMAGE_RUINED_VALUE);
 					}
 				}
-
 			}
 
 			if (isServerOrOwner && engineIsOn)
@@ -1585,13 +1554,16 @@ modded class CarScript
 				if (brake > 0.0 && m_EngineHealth < GameConstants.DAMAGE_DAMAGED_VALUE)
 					LeakFluid(CarFluid.BRAKE);
 
-				if (oil > 0.0 && (m_EngineHealth < 0.25 || (m_Expansion_HydraulicHoses && m_Expansion_HydraulicHosesHealth <= 0.5)))
+				if (oil > 0.0 && (m_EngineHealth < GameConstants.DAMAGE_DAMAGED_VALUE || (m_Expansion_HydraulicHoses && m_Expansion_HydraulicHosesHealth <= GameConstants.DAMAGE_DAMAGED_VALUE)))
+					LeakFluid(CarFluid.OIL);
+
+				if (m_EngineHealth < 0.25)
 					LeakFluid(CarFluid.OIL);
 
 				m_ExpansionVehicle.ConsumeFuel(fuelConsumption);
 
 				if (GetFluidFraction(CarFluid.FUEL) <= 0)
-					Expansion_EngineStop();
+					Expansion_EngineStopAll();
 			}
 		}
 
@@ -3709,6 +3681,11 @@ modded class CarScript
 	{
 		return "ExpansionUniversalWheel"; //this should never happen
 	}
+	
+	override float GetMomentum()
+	{
+		return super.GetMomentum() * m_ExpansionVehicle.m_Settings.VehicleSpeedDamageMultiplier;
+	}
 
 	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
 	{
@@ -3744,171 +3721,22 @@ modded class CarScript
 			}
 		}
 
-		float velocity = data.RelativeVelocityBefore.Length();
-		float momentum = m_Expansion_ApproxMass * velocity;
+		float relativeSpeedBefore = data.RelativeVelocityBefore.Length();
+		float momentum = m_Expansion_ApproxMass * relativeSpeedBefore;
 
 		ExpansionWorld.CheckTreeContact(other, momentum, true);
 
-		if (g_Game.IsServer() && (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed))
-		{
-			CarScript otherVehicle;
-			bool otherVehicleEngineOn;
-			if (Class.CastTo(otherVehicle, other) && otherVehicle.Expansion_EngineIsSpinning())
-				otherVehicleEngineOn = true;
-
-			if (!m_Expansion_CollisionDamageIfEngineOff)
-			{
-				if (!Expansion_EngineIsSpinning() && !otherVehicleEngineOn)
-					return;
-			}
-
-			if (m_Expansion_CollisionDamageMinSpeed)
-			{
-				if (velocity < m_Expansion_CollisionDamageMinSpeed && !otherVehicleEngineOn)
-					return;
-
-				float dmg = data.Impulse * m_dmgContactCoef;
-
-				if (dmg <= m_Expansion_CollisionDamageMinSpeed * EXPANSION_COLLISION_DMG_MIN_SPEED_TO_DMG_MULT)
-					return;
-			}
-		}
+		m_ExpansionVehicle.OnContact(zoneName, localPos, other, data, m_MomentumPrevTick, m_VelocityPrevTick, m_dmgContactCoef, m_ContactCache);
 
 		super.OnContact(zoneName, localPos, other, data);
+
+		VehicleContactData.s_OverrideImpulse = -1;
 	}
 
-	override void CheckContactCache()
+	override void DamageCrew(float dmg)
 	{
-		int contactZonesCount = m_ContactCache.Count();
-
-		if (contactZonesCount == 0)
-			return;
-
-	#ifndef DAYZ_1_29
-		//! 1.30+
-		foreach (string zoneName, array<ref VehicleContactData> data: m_ContactCache)
-	#else
-		//! 1.29
-		foreach (string zoneName, array<ref CarContactData> data: m_ContactCache)
-	#endif
-		{
-		#ifdef DAYZ_1_29
-			float impulse = data[0].impulse;
-			IEntity other = data[0].other;
-		#else
-			//! 1.30+
-			float impulse = data[0].m_Impulse;
-			IEntity other = data[0].m_Other;
-		#endif
-
-			float dmg = Math.AbsInt(impulse * m_dmgContactCoef);
-
-		#ifdef DIAG_DEVELOPER
-			CrashDebugData.m_CrashDataPoint = new CrashDebugData();
-			CrashDebugData.m_CrashDataPoint.m_VehicleType = GetDisplayName();
-			CrashDebugData.m_CrashDataPoint.m_Damage = dmg;
-			CrashDebugData.m_CrashDataPoint.m_Zone = zoneName;
-			CrashDebugData.m_CrashDataPoint.m_MomentumCurr = GetMomentum();
-			CrashDebugData.m_CrashDataPoint.m_MomentumPrev = m_MomentumPrevTick;
-			CrashDebugData.m_CrashDataPoint.m_MomentumDelta = impulse;
-			CrashDebugData.m_CrashDataPoint.m_SpeedWorld = GetVelocity(this).Length() * 3.6;
-			CrashDebugData.m_CrashDataPoint.m_SpeedWorldPrev = m_VelocityPrevTick.Length() * 3.6;
-			CrashDebugData.m_CrashDataPoint.m_SpeedWorldDelta = (m_VelocityPrevTick.Length() - GetVelocity(this).Length()) * 3.6;
-			CrashDebugData.m_CrashDataPoint.m_VelocityCur = GetVelocity(this);
-			CrashDebugData.m_CrashDataPoint.m_VelocityPrev = m_VelocityPrevTick;
-			CrashDebugData.m_CrashDataPoint.m_VelocityDot = vector.Dot(m_VelocityPrevTick.Normalized(), GetVelocity(this).Normalized());
-			CrashDebugData.m_CrashDataPoint.m_Time = g_Game.GetTime();
-
-			if (DEBUG_OUTPUT_TYPE & EVehicleDebugOutputType.DAMAGE_CONSIDERED)
-			{
-				Debug.Log("--------------------------------------------------");
-				Debug.Log("Vehicle:" + GetDisplayName());
-				Debug.Log("DMG: " + dmg);
-				Debug.Log("zoneName : "+ zoneName);
-				Debug.Log("momentumCurr : "+ GetMomentum());
-				Debug.Log("momentumPrev : "+ m_MomentumPrevTick);
-				Debug.Log("momentumDelta : "+ impulse);
-				Debug.Log("speed(km/h): "+ GetVelocity(this).Length() * 3.6);
-				Debug.Log("speedPrev(km/h): "+ m_VelocityPrevTick.Length() * 3.6);
-				Debug.Log("speedDelta(km/h) : "+ (m_VelocityPrevTick.Length() - GetVelocity(this).Length()) * 3.6);
-				Debug.Log("velocityCur.): "+ GetVelocity(this));
-				Debug.Log("velocityPrev.): "+ m_VelocityPrevTick);
-				Debug.Log("velocityDot): "+ vector.Dot(m_VelocityPrevTick.Normalized(), GetVelocity(this).Normalized()));
-				Debug.Log("g_Game.GetTime(): "+ g_Game.GetTime());
-				Debug.Log("--------------------------------------------------");
-			}
-		#endif
-
-			if (dmg < GameConstants.CARS_CONTACT_DMG_MIN)
-				continue;
-
-			float crewDmgBase = Math.AbsInt((impulse / dBodyGetMass(this)) * 1000 * m_dmgContactCoef);// calculates damage as if the object's weight was 1000kg instead of its actual weight
-
-			int pddfFlags;
-
-		#ifdef DIAG_DEVELOPER
-			CrashDebugData.m_CrashData.Insert(CrashDebugData.m_CrashDataPoint);
-			CrashDebugData.m_CrashDataPoint.m_Speedometer =  GetSpeedometer();
-			//Print("Crash data recorded");
-		#endif
-
-			if (dmg < GameConstants.CARS_CONTACT_DMG_THRESHOLD)
-			{
-			#ifdef DIAG_DEVELOPER
-				CrashDebugData.m_CrashDataPoint.m_DamageType = "Small";
-				if (DEBUG_OUTPUT_TYPE & EVehicleDebugOutputType.DAMAGE_APPLIED)
-					Debug.Log(string.Format("[Vehiles:Damage]:: DMG %1 to the %2 zone is SMALL (threshold: %3), SPEEDOMETER: %4, TIME: %5", dmg, zoneName, GameConstants.CARS_CONTACT_DMG_MIN, GetSpeedometer(), g_Game.GetTime() ));
-			#endif
-
-				SynchCrashLightSound(true);
-				pddfFlags = ProcessDirectDamageFlags.NO_TRANSFER;
-			}
-			else
-			{
-			#ifdef DIAG_DEVELOPER
-				CrashDebugData.m_CrashDataPoint.m_DamageType = "Big";
-				if (DEBUG_OUTPUT_TYPE & EVehicleDebugOutputType.DAMAGE_APPLIED)
-					Debug.Log(string.Format("[Vehiles:Damage]:: DMG %1 to the %2 zone is BIG (threshold: %3), SPEED: %4, TIME: %5", dmg, zoneName, GameConstants.CARS_CONTACT_DMG_THRESHOLD, GetSpeedometer(), g_Game.GetTime() ));
-			#endif
-
-				float crewDmg = crewDmgBase * GetExpansionSettings().GetVehicle().VehicleCrewDamageMultiplier;
-				if (crewDmg > 0)
-					DamageCrew(crewDmg);
-				SynchCrashHeavySound(true);
-				pddfFlags = 0;
-			}
-
-			//! 1.19
-			#ifdef DEVELOPER
-			m_DebugContactDamageMessage += string.Format("%1: %2\n", zoneName, dmg);
-			#endif
-
-			//! This in turn invokes EEHitBy which deals with exploding the heli if its health reaches 0
-			if (CanBeDamaged())
-			{
-				float collisionDamage = dmg * GetExpansionSettings().GetVehicle().VehicleSpeedDamageMultiplier;
-				if (collisionDamage > 0)
-					ProcessDirectDamage(DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", collisionDamage, pddfFlags);
-			}
-
-			Object targetEntity = Object.Cast(other);
-			if (targetEntity && targetEntity.IsTree() && !targetEntity.IsDamageDestroyed())
-			{
-				SEffectManager.CreateParticleServer(targetEntity.GetPosition(), new TreeEffecterParameters("TreeEffecter", 1.0, 0.1));
-			}
-		}
-
-		UpdateHeadlightState();
-		UpdateLights();
-
-		m_ContactCache.Clear();
-
-		super.CheckContactCache();
-	}
-
-	override float GetBatteryConsumption()
-	{
-		return m_BatteryConsume;
+		dmg *= m_ExpansionVehicle.m_Settings.VehicleCrewDamageMultiplier;
+		super.DamageCrew(dmg);
 	}
 
 	override void EEKilled( Object killer )

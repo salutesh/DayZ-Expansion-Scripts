@@ -56,43 +56,35 @@ modded class ActionBuildPart
 
 	override void OnFinishProgressServer( ActionData action_data )
 	{
-		BaseBuildingBase base_building = BaseBuildingBase.Cast( action_data.m_Target.GetObject() );
-		Construction construction = base_building.GetConstruction();
-		
-		string part_name = BuildPartActionData.Cast(action_data).m_PartType;
-
 		ItemBase item_in_hands = ItemBase.Cast( action_data.m_Player.GetHumanInventory().GetEntityInHands() );
 
-		if ( item_in_hands )
+		if ( item_in_hands &&  item_in_hands.GetType() == "ExpansionAdminHammer" )
 		{
-			if ( item_in_hands.GetType() == "ExpansionAdminHammer" )
+			EntityAI ent = EntityAI.Cast(action_data.m_Target.GetObject());
+			ConstructionBase construction = ConstructionBase.Cast(ent.GetConstructionBasic());
+			
+			string part_name = BuildPartActionData.Cast(action_data).m_PartType;
+
+			bool isColliding;
+
+			CollisionCheckData check_data = new CollisionCheckData;
+			check_data.m_PartName = part_name;
+			check_data.m_AdditionalExcludes.Insert(action_data.m_Player);
+			isColliding = construction.IsCollidingEx(check_data);
+			
+			if ( !isColliding && construction.CanBuildPart( part_name, action_data.m_MainItem, true ) )
 			{
-				bool isColliding;
+				construction.Expansion_AdminBuildPartServer( action_data.m_Player, part_name, AT_BUILD_PART );
 
-			#ifdef DAYZ_1_29
-				isColliding = construction.IsColliding( part_name );
-			#else
-				//! 1.30+
-				CollisionCheckData check_data = new CollisionCheckData;
-				check_data.m_PartName = part_name;
-				check_data.m_AdditionalExcludes.Insert(action_data.m_Player);
-				isColliding = construction.IsCollidingEx(check_data);
-			#endif
-				
-				if ( !isColliding && construction.CanBuildPart( part_name, action_data.m_MainItem, true ) )
-				{
-					construction.Expansion_AdminBuildPartServer( action_data.m_Player, part_name, AT_BUILD_PART );
-
-					if ( GetExpansionSettings().GetLog().AdminTools )
-						GetExpansionSettings().GetLog().PrintLog("[AdminTools] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " used the Admin Hammer to build " + part_name);
-				}
-
-				action_data.m_Player.GetSoftSkillsManager().AddSpecialty( m_SpecialtyWeight );
+				if ( GetExpansionSettings().GetLog().AdminTools )
+					GetExpansionSettings().GetLog().PrintLog("[AdminTools] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " used the Admin Hammer to build " + part_name);
 			}
-			else
-			{
-				super.OnFinishProgressServer( action_data );
-			}
+
+			action_data.m_Player.GetSoftSkillsManager().AddSpecialty( m_SpecialtyWeight );
+		}
+		else
+		{
+			super.OnFinishProgressServer( action_data );
 		}
 	}
 };

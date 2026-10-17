@@ -92,4 +92,20 @@ modded class CarScript
 		shape.SetMatrix(transform);
 		return shape;
 	}
+
+	
+	override void EEItemDetached(EntityAI item, string slot_name)
+	{
+		switch (slot_name)
+		{
+			case "CarBattery":
+			case "TruckBattery":
+				if (!g_Game.IsServer())
+					LightOff();  //! Fix vanilla lights not turning off when removing battery (1.30)
+
+				break;
+		}
+
+		super.EEItemDetached(item, slot_name);
+	}
 }

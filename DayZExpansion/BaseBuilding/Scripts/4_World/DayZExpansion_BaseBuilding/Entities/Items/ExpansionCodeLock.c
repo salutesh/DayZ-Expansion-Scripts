@@ -15,9 +15,9 @@
  **/
 class ExpansionCodeLock: ItemBase
 {
-	static protected const string RED_LIGHT_GLOW	= "dz\\gear\\camping\\data\\battery_charger_light_r.rvmat";
-	static protected const string GREEN_LIGHT_GLOW	= "dz\\gear\\camping\\data\\battery_charger_light_g.rvmat";
-	static protected const string DEFAULT_MATERIAL 	= "DayZExpansion\\Objects\\Basebuilding\\Items\\Codelock\\data\\codelock.rvmat";
+	static protected const string RED_LIGHT_GLOW	= "dz/gear/camping/data/battery_charger_light_r.rvmat";
+	static protected const string GREEN_LIGHT_GLOW	= "dz/gear/camping/data/battery_charger_light_g.rvmat";
+	static protected const string DEFAULT_MATERIAL 	= "DayZExpansion/Objects/Basebuilding/Items/Codelock/data/codelock.rvmat";
 
 	protected static ref TStringArray s_Expansion_InventorySlots = new TStringArray;
 

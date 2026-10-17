@@ -81,12 +81,12 @@ modded class ActionDismantlePart
 		if ( player && !player.IsLeaning() )
 		{
 			Object target_object = target.GetObject();
-			BaseBuildingBase base_building;
-			if ( target_object && target_object.CanUseConstruction() && Class.CastTo(base_building, target_object) )
+			EntityAI ent;
+			if ( target_object && target_object.CanUseConstruction() && Class.CastTo(ent, target_object) )
 			{
 				string part_name = target_object.GetActionComponentName( target.GetComponentIndex() );
 				
-				Construction construction = base_building.GetConstruction();		
+				ConstructionBase construction = ConstructionBase.Cast(ent.GetConstructionBasic());
 				ConstructionPart construction_part = construction.GetConstructionPartToDestroy( part_name );
 				
 				if ( construction_part )

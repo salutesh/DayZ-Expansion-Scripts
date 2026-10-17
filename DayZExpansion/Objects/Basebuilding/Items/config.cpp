@@ -224,7 +224,7 @@ class CfgVehicles
 class CfgNonAIVehicles
 {
 	class ProxyAttachment;
-	class ProxyCodelock: ProxyAttachment
+	class ProxyExpansionCodeLock: ProxyAttachment
 	{
 		model="\DayZExpansion\Objects\Basebuilding\Items\Codelock\CodeLock.p3d";
 		inventorySlot="Att_ExpansionCodeLock";

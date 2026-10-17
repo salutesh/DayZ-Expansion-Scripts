@@ -10,17 +10,9 @@
  *
 */
 
-modded class Construction
+modded class ConstructionBase
 {
-	//============================================
-	// IsColliding
-	//============================================
-#ifdef DAYZ_1_29
-	override bool IsColliding( string part_name )
-#else
-	//! 1.30+
 	override bool IsCollidingEx(CollisionCheckData check_data)
-#endif
 	{
 		auto settings = GetExpansionSettings().GetBaseBuilding(false);
 		if ( settings.IsLoaded() && settings.CanBuildAnywhere )
@@ -29,12 +21,7 @@ modded class Construction
 		}
 		else
 		{
-		#ifdef DAYZ_1_29
-			return super.IsColliding(part_name);
-		#else
-			//! 1.30+
 			return super.IsCollidingEx(check_data);
-		#endif
 		}
 	}
 
@@ -45,23 +32,20 @@ modded class Construction
 		bsbDebugPrint("[bsb] Construction Expansion_AdminBuildPartServer | " + part_name);
 		//reset DamageZone health
 		string damage_zone;
-		if (DamageSystem.GetDamageZoneFromComponentName(GetParent(),part_name,damage_zone))
+		if (DamageSystem.GetDamageZoneFromComponentName(m_EntityParent,part_name,damage_zone))
 		{
-			GetParent().SetAllowDamage(true);
-			GetParent().SetHealthMax(damage_zone);
-			GetParent().ProcessInvulnerabilityCheck(GetParent().GetInvulnerabilityTypeString());
+			m_EntityParent.SetAllowDamage(true);
+			m_EntityParent.SetHealthMax(damage_zone);
+			m_EntityParent.ProcessInvulnerabilityCheck(m_EntityParent.GetInvulnerabilityTypeString());
 		}
 		
 		//on action
 		Expansion_AdminLockLockableSlots( part_name );
 
-	#ifdef DAYZ_1_29
-		//destroy build collision check trigger
-		DestroyCollisionTrigger();
-	#endif
-
 		//call event
-		GetParent().OnPartBuiltServer( player, part_name, action_id );
+		BaseBuildingBase bb;
+		if (Class.CastTo(bb, m_EntityParent))
+			bb.OnPartBuiltServer( player, part_name, action_id );
 	}
 
 	void AdminLockLockableSlots( string part_name, bool repairing = false )
@@ -75,7 +59,7 @@ modded class Construction
 		//! Like vanilla TakeMaterialsServer but does not touch materials and only locks lockable slots
 
 		string main_part_name = GetConstructionPart( part_name ).GetMainPartName();
-		string cfg_path = "cfgVehicles" + " " + GetParent().GetType() + " "+ "Construction" + " " + main_part_name + " " + part_name + " " + "Materials";
+		string cfg_path = "cfgVehicles" + " " + m_EntityParent.GetType() + " "+ "Construction" + " " + main_part_name + " " + part_name + " " + "Materials";
 		
 		if ( g_Game.ConfigIsExisting( cfg_path ) )
 		{
@@ -94,14 +78,14 @@ modded class Construction
 				config_path = cfg_path + " " + child_name + " " + "lockable";
 				bool lockable = g_Game.ConfigGetInt( config_path );
 				
-				ItemBase attachment = ItemBase.Cast( GetParent().FindAttachmentBySlotName( slot_name ) );
+				ItemBase attachment = ItemBase.Cast( m_EntityParent.FindAttachmentBySlotName( slot_name ) );
 				if ( attachment && lockable )
 				{
 					//lock attachment
 					InventoryLocation inventory_location = new InventoryLocation;
 					attachment.GetInventory().GetCurrentInventoryLocation( inventory_location );
 			
-					GetParent().GetInventory().SetSlotLock( inventory_location.GetSlot(), true );
+					m_EntityParent.GetInventory().SetSlotLock( inventory_location.GetSlot(), true );
 				}
 			}
 		}
@@ -115,7 +99,7 @@ modded class Construction
 
 		super.UpdateConstructionParts();
 
-		string construction_path = "cfgVehicles" + " " + GetParent().GetType() + " " + "Construction";
+		string construction_path = "cfgVehicles" + " " + m_EntityParent.GetType() + " " + "Construction";
 
 		if ( g_Game.ConfigIsExisting( construction_path ) )
 		{
@@ -183,17 +167,13 @@ modded class Construction
 		}
 	}
 
-#ifdef DAYZ_1_29
-	override void DismantlePartServer( notnull Man player, string part_name, int action_id )
-#else
-	//! 1.30+
 	override void DismantlePartServerEx( Man player, string part_name, int action_id )
-#endif
 	{
-		if ( GetParent().IsInherited( TerritoryFlag ) )
+		TerritoryFlag flag;
+		if ( Class.CastTo(flag, m_EntityParent)  )
 		{
 			string damage_zone;
-			DamageSystem.GetDamageZoneFromComponentName( GetParent(), part_name, damage_zone );
+			DamageSystem.GetDamageZoneFromComponentName( flag, part_name, damage_zone );
 			
 			bsbDebugPrint("[bsb] Construction DismantlePartServer | " + part_name);
 
@@ -201,22 +181,24 @@ modded class Construction
 			if ( !GetExpansionSettings().GetBaseBuilding().SimpleTerritory )
 			{
 				//receive materials
-				ReceiveMaterialsServer( player, part_name, damage_zone );
+				if (player)
+					ReceiveMaterialsServer( player, part_name, damage_zone );
 					
 				//drop non-usable materials
 				DropNonUsableMaterialsServer( player, part_name );
 			}
+
+			DropEssentialAttachments(player, part_name);
+		
+			if (!CfgGameplayHandler.GetDisableItemFalling())
+				HandleEntityFalling(part_name);
 			
 			//call event
-			GetParent().OnPartDismantledServer( player, part_name, action_id );
-		} else
+			flag.OnPartDismantledServer( player, part_name, action_id );
+		}
+		else
 		{
-		#ifdef DAYZ_1_29
-			super.DismantlePartServer( player, part_name, action_id );
-		#else
-			//! 1.30+
 			super.DismantlePartServerEx( player, part_name, action_id );
-		#endif
 		}
 	}
 };

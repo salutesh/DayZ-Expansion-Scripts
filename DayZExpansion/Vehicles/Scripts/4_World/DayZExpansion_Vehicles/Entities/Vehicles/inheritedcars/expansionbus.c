@@ -178,268 +178,60 @@ class ExpansionBus: CarScript
 		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionBusLights));
 	}
 
-#ifdef DAYZ_1_29
-	override void UpdateLights(int new_gear = -1) // -1 is invalid gear.
+	override void UpdateLightsClient(int newGear = -1)
 	{
-		if (!g_Game.IsServer() || !g_Game.IsMultiplayer()) // client side
+		super.UpdateLightsClient(newGear);
+
+		if (LightIsOn())
 		{
-			ItemBase battery;
-
-			if (IsVitalTruckBattery())
-				battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
-
-			if (battery)
+			if (!m_BusLight1 && m_HeadlightsState != CarHeadlightBulbsState.NONE)
 			{
-			#ifdef DAYZ_1_28
-				if (m_HeadlightsOn)
-			#else
-				//! 1.29+
-				if (LightIsOn())
-			#endif
-				{
-					if (!m_BusLight1 && m_HeadlightsState != CarHeadlightBulbsState.NONE)
-					{
-						m_BusLight1 = CreateBusLight();
-					}
-
-					if (!m_BusLight2 && m_HeadlightsState != CarHeadlightBulbsState.NONE)
-					{
-						m_BusLight2 = CreateBusLight();
-					}
-
-					if (!m_BusLight3 && m_HeadlightsState != CarHeadlightBulbsState.NONE)
-					{
-						m_BusLight3 = CreateBusLight();
-					}
-
-					if (m_HeadlightsState == CarHeadlightBulbsState.BOTH)
-					{
-						if (IsInherited(ExpansionBus))
-						{
-							m_BusLight1.AttachOnObject(this, GetMemoryPointPos("intlight1"));
-							m_BusLight1.AggregateLight();
-
-							m_BusLight2.AttachOnObject(this, GetMemoryPointPos("intlight2"));
-							m_BusLight2.AggregateLight();
-
-							m_BusLight3.AttachOnObject(this, GetMemoryPointPos("intlight3"));
-							m_BusLight3.AggregateLight();
-						}
-					}
-
-					DashboardShineOn();
-
-					if (!m_Headlight && m_HeadlightsState != CarHeadlightBulbsState.NONE)
-					{
-						m_Headlight = CreateFrontLight();
-						TailLightsShineOn();
-					}
-
-					if (m_HeadlightsState == CarHeadlightBulbsState.LEFT)
-					{
-						m_Headlight.AttachOnMemoryPoint(this, m_LeftHeadlightPoint, m_LeftHeadlightTargetPoint);
-						m_Headlight.SegregateLight();
-						LeftFrontLightShineOn();
-						RightFrontLightShineOff();
-					}
-					else if (m_HeadlightsState == CarHeadlightBulbsState.RIGHT)
-					{
-						m_Headlight.AttachOnMemoryPoint(this, m_RightHeadlightPoint, m_RightHeadlightTargetPoint);
-						m_Headlight.SegregateLight();
-						RightFrontLightShineOn();
-						LeftFrontLightShineOff();
-					}
-					else if (m_HeadlightsState == CarHeadlightBulbsState.BOTH)
-					{
-						vector local_pos_left = GetMemoryPointPos(m_LeftHeadlightPoint);
-						vector local_pos_right = GetMemoryPointPos(m_RightHeadlightPoint);
-
-						vector local_pos_middle = (local_pos_left + local_pos_right) * 0.5;
-						m_Headlight.AttachOnObject(this, local_pos_middle);
-						m_Headlight.AggregateLight();
-						LeftFrontLightShineOn();
-						RightFrontLightShineOn();
-					}
-
-					if (m_Headlight && m_HeadlightsState == CarHeadlightBulbsState.NONE)
-					{
-						m_Headlight.FadeOut();
-						m_Headlight = null;
-						LeftFrontLightShineOff();
-						RightFrontLightShineOff();
-						TailLightsShineOff();
-					}
-				}
-				else
-				{
-					TailLightsShineOff();
-					DashboardShineOff();
-					LeftFrontLightShineOff();
-					RightFrontLightShineOff();
-
-					if (m_Headlight)
-					{
-						m_Headlight.FadeOut();
-						m_Headlight = null;
-					}
-
-					if (m_BusLight1)
-					{
-						m_BusLight1.FadeOut();
-						m_BusLight1 = null;
-					}
-
-					if (m_BusLight2)
-					{
-						m_BusLight2.FadeOut();
-						m_BusLight2 = null;
-					}
-
-					if (m_BusLight3)
-					{
-						m_BusLight3.FadeOut();
-						m_BusLight3 = null;
-					}
-				}
-
-				if (EngineIsOn())
-				{
-					int reverse_light_state = CarRearLightType.NONE;
-
-					int gear;
-
-					if (new_gear == -1)
-						gear = GetGear();
-					else
-						gear = new_gear;
-
-					if (gear == CarGear.REVERSE)
-					{
-						reverse_light_state = CarRearLightType.REVERSE_ONLY;
-					}
-					else
-					{
-						reverse_light_state = CarRearLightType.NONE;
-					}
-
-					if (m_BrakesArePressed)
-					{
-						if (reverse_light_state == CarRearLightType.REVERSE_ONLY)
-						{
-							reverse_light_state = CarRearLightType.BRAKES_AND_REVERSE;
-						}
-						else
-						{
-							reverse_light_state = CarRearLightType.BRAKES_ONLY;
-						}
-					}
-
-					if (reverse_light_state != CarRearLightType.NONE && m_HeadlightsState != CarHeadlightBulbsState.NONE && !m_RearLight)
-					{
-						m_RearLight = CreateRearLight();
-						vector local_pos = GetMemoryPointPos(m_ReverseLightPoint);
-						m_RearLight.AttachOnObject(this, local_pos, "180 0 0");
-					}
-
-					if (m_RearLight)
-					{
-						if (reverse_light_state == CarRearLightType.REVERSE_ONLY)
-						{
-							m_RearLight.SetAsSegregatedReverseLight();
-
-							if (m_HeadlightsState != CarHeadlightBulbsState.NONE)
-							{
-								ReverseLightsShineOn();
-								BrakeLightsShineOff();
-							}
-						}
-						else if (reverse_light_state == CarRearLightType.BRAKES_ONLY)
-						{
-							m_RearLight.SetAsSegregatedBrakeLight();
-
-							if (m_HeadlightsState != CarHeadlightBulbsState.NONE)
-							{
-								ReverseLightsShineOff();
-								BrakeLightsShineOn();
-							}
-						}
-						else if (reverse_light_state == CarRearLightType.BRAKES_AND_REVERSE)
-						{
-							m_RearLight.AggregateLight();
-							m_RearLight.SetFadeOutTime(1);
-
-							if (m_HeadlightsState != CarHeadlightBulbsState.NONE)
-							{
-								BrakeLightsShineOn();
-								ReverseLightsShineOn();
-							}
-						}
-						else if (reverse_light_state == CarRearLightType.NONE)
-						{
-							m_RearLight.FadeOut();
-							m_RearLight = null;
-							ReverseLightsShineOff();
-						}
-					}
-					else
-					{
-						ReverseLightsShineOff();
-						BrakeLightsShineOff();
-					}
-				}
-				else
-				{
-					BrakeLightsShineOff();
-					ReverseLightsShineOff();
-
-					if (m_RearLight)
-					{
-						m_RearLight.FadeOut();
-						m_RearLight = null;
-					}
-				}
+				m_BusLight1 = CreateBusLight();
 			}
-			else
+
+			if (!m_BusLight2 && m_HeadlightsState != CarHeadlightBulbsState.NONE)
 			{
-				LeftFrontLightShineOff();
-				RightFrontLightShineOff();
-				DashboardShineOff();
-				BrakeLightsShineOff();
-				ReverseLightsShineOff();
+				m_BusLight2 = CreateBusLight();
+			}
 
-				if (m_RearLight)
-				{
-					m_RearLight.FadeOut();
-					m_RearLight = null;
-				}
+			if (!m_BusLight3 && m_HeadlightsState != CarHeadlightBulbsState.NONE)
+			{
+				m_BusLight3 = CreateBusLight();
+			}
 
-				if (m_Headlight)
-				{
-					m_Headlight.FadeOut();
-					m_Headlight = null;
-				}
+			if (m_HeadlightsState == CarHeadlightBulbsState.BOTH)
+			{
+				m_BusLight1.AttachOnObject(this, GetMemoryPointPos("intlight1"));
+				m_BusLight1.AggregateLight();
 
-				if (m_BusLight1)
-				{
-					m_BusLight1.FadeOut();
-					m_BusLight1 = null;
-				}
+				m_BusLight2.AttachOnObject(this, GetMemoryPointPos("intlight2"));
+				m_BusLight2.AggregateLight();
 
-				if (m_BusLight2)
-				{
-					m_BusLight2.FadeOut();
-					m_BusLight2 = null;
-				}
+				m_BusLight3.AttachOnObject(this, GetMemoryPointPos("intlight3"));
+				m_BusLight3.AggregateLight();
+			}
+		}
+		else
+		{
+			if (m_BusLight1)
+			{
+				m_BusLight1.FadeOut();
+				m_BusLight1 = null;
+			}
 
-				if (m_BusLight3)
-				{
-					m_BusLight3.FadeOut();
-					m_BusLight3 = null;
-				}
+			if (m_BusLight2)
+			{
+				m_BusLight2.FadeOut();
+				m_BusLight2 = null;
+			}
+
+			if (m_BusLight3)
+			{
+				m_BusLight3.FadeOut();
+				m_BusLight3 = null;
 			}
 		}
 	}
-#endif
 
 	override string GetDoorConditionPointFromSelection(string selection)
 	{

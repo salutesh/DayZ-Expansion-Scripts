@@ -375,48 +375,58 @@ class ExpansionHelicopterScript: CarScript
 		{
 			vector localPos = extra.Position.InvMultiply4(transform);
 
-			float collisionDmgMinSpeed;
+			float collisionDmgMinSpeedKmh;
 
 			//! If heli is upside down, set min speed to 0 to guarantee contact being added to cache in CarScript::OnContact
 			//! (we handle slowing down rotor + actual dmg in CheckcontactCache so we can guarantee a fixed rate)
 			if (up[1] < 0.0 && m_Simulation.m_RotorSpeed > 0)
 			{
-				collisionDmgMinSpeed = m_Expansion_CollisionDamageMinSpeed;
-				m_Expansion_CollisionDamageMinSpeed = 0;
+				collisionDmgMinSpeedKmh = m_ExpansionVehicle.m_Settings.CollisionDamageMinSpeedKmh;
+				m_ExpansionVehicle.m_Settings.CollisionDamageMinSpeedKmh = 0;
+
+				float impulse = m_ExpansionVehicle.GetMomentumDelta(m_MomentumPrevTick, m_VelocityPrevTick);  //! Same calc as in Transport::OnContact
+				float dmg = impulse * m_dmgContactCoef;  //! Same calc as in vanilla CarScript::CheckContactCache
 
 				//! Make sure dmg is ignored by setting impulse below threshold if main rotor dmg is disabled and below min speed
 				if (!m_Simulation.m_EnableMainRotorDamage)
 				{
-					float dmg = extra.Impulse * m_dmgContactCoef;
 					if (dmg >= GameConstants.CARS_CONTACT_DMG_MIN)
 					{
-						if (dmg <= collisionDmgMinSpeed * EXPANSION_COLLISION_DMG_MIN_SPEED_TO_DMG_MULT)
+						float collisionDmgMinSpeedMs = collisionDmgMinSpeedKmh * 0.277778;  //! Converted to m/s
+
+						if (dmg <= collisionDmgMinSpeedMs * EXPANSION_COLLISION_DMG_MIN_SPEED_TO_DMG_MULT)
 						{
-							extra.Impulse = (GameConstants.CARS_CONTACT_DMG_MIN / m_dmgContactCoef) * 0.99;
+							VehicleContactData.s_OverrideImpulse = (GameConstants.CARS_CONTACT_DMG_MIN / m_dmgContactCoef) * 0.99;
 						}
 						else
 						{
-							float velocitySq = extra.RelativeVelocityBefore.LengthSq();
-							float collisionDmgMinSpeedSq = collisionDmgMinSpeed * collisionDmgMinSpeed;
-							if (velocitySq < collisionDmgMinSpeedSq)
-								extra.Impulse = (GameConstants.CARS_CONTACT_DMG_MIN / m_dmgContactCoef) * 0.99;
+							float realtiveSpeedBeforeSq = extra.RelativeVelocityBefore.LengthSq();
+							float collisionDmgMinSpeedMsSq = collisionDmgMinSpeedMs * collisionDmgMinSpeedMs;
+							if (realtiveSpeedBeforeSq < collisionDmgMinSpeedMsSq)
+								VehicleContactData.s_OverrideImpulse = (GameConstants.CARS_CONTACT_DMG_MIN / m_dmgContactCoef) * 0.99;
 						}
 					}
+				}
+				else if (!IsDamageDestroyed())
+				{
+					//! If main rotor dmg is enabled, set impulse above dmg threshold to guarantee damage
+					if (dmg < GameConstants.CARS_CONTACT_DMG_MIN)
+						VehicleContactData.s_OverrideImpulse = GameConstants.CARS_CONTACT_DMG_MIN / m_dmgContactCoef + 1.0;
 				}
 			}
 			else if (m_State.m_LinearVelocity[1] < -m_Simulation.m_RoughLandingVerticalSpeedThreshold)
 			{
 				//! Harsh landing
 
-				collisionDmgMinSpeed = m_Expansion_CollisionDamageMinSpeed;
-				m_Expansion_CollisionDamageMinSpeed = 0;
+				collisionDmgMinSpeedKmh = m_ExpansionVehicle.m_Settings.CollisionDamageMinSpeedKmh;
+				m_ExpansionVehicle.m_Settings.CollisionDamageMinSpeedKmh = 0;
 			}
 
 			//! Call CarScript OnContact
 			super.OnContact("", localPos, other, extra);
 
-			if (collisionDmgMinSpeed)
-				m_Expansion_CollisionDamageMinSpeed = collisionDmgMinSpeed;
+			if (collisionDmgMinSpeedKmh)
+				m_ExpansionVehicle.m_Settings.CollisionDamageMinSpeedKmh = collisionDmgMinSpeedKmh;
 		}
 	}
 
@@ -430,31 +440,6 @@ class ExpansionHelicopterScript: CarScript
 			if (up[1] < 0.0)
 			{
 				m_Simulation.m_RotorSpeed *= 0.97;  //! Rotor grinds to a halt (irrespective if main rotor dmg is enabled)
-
-				if (!IsDamageDestroyed() && m_Simulation.m_EnableMainRotorDamage)
-				{
-				#ifndef DAYZ_1_29
-					//! 1.30+
-					foreach (string zoneName, array<ref VehicleContactData> data: m_ContactCache)
-				#else
-					//! 1.29
-					foreach (string zoneName, array<ref CarContactData> data: m_ContactCache)
-				#endif
-					{
-					#ifdef DAYZ_1_29
-						float impulse = data[0].impulse;
-					#else
-						//! 1.30+
-						float impulse = data[0].m_Impulse;
-					#endif
-
-						float dmg = Math.AbsInt(impulse * m_dmgContactCoef);
-
-						//! If main rotor dmg is enabled, set impulse above dmg threshold to guarantee damage
-						if (dmg < GameConstants.CARS_CONTACT_DMG_MIN)
-							impulse = GameConstants.CARS_CONTACT_DMG_MIN / m_dmgContactCoef + 1.0;
-					}
-				}
 			}
 		}
 

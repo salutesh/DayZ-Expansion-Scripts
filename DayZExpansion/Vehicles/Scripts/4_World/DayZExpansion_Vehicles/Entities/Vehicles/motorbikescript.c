@@ -67,6 +67,33 @@ modded class MotorbikeScript
 
 		m_ExpansionVehicle.OnItemDetached(item, slot_name);
 	}
+	
+	override float GetMomentum()
+	{
+		return super.GetMomentum() * m_ExpansionVehicle.m_Settings.VehicleSpeedDamageMultiplier;
+	}
+
+	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
+	{
+		m_ExpansionVehicle.OnContact(zoneName, localPos, other, data, m_MomentumPrevTick, m_VelocityPrevTick, m_VehicleContactDamageCoef, m_ContactCache);
+
+		super.OnContact(zoneName, localPos, other, data);
+
+		VehicleContactData.s_OverrideImpulse = -1;
+	}
+
+	override void DamageCrew(float dmg)
+	{
+		dmg *= m_ExpansionVehicle.m_Settings.VehicleCrewDamageMultiplier;
+		super.DamageCrew(dmg);
+	}
+
+	override void EEKilled( Object killer )
+	{
+		super.EEKilled( killer );
+
+		m_ExpansionVehicle.OnDestroyed(killer);
+	}
 
 	override void EOnPostSimulate(IEntity other, float timeSlice)
 	{
@@ -202,6 +229,11 @@ modded class MotorbikeScript
 	}
 
 	bool Expansion_EngineIsOn(int index)
+	{
+		return EngineIsOn();
+	}
+
+	bool Expansion_EngineIsSpinning()
 	{
 		return EngineIsOn();
 	}
