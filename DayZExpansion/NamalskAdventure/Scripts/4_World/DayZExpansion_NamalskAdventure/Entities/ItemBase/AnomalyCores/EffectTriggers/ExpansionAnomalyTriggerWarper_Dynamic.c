@@ -144,7 +144,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			car.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED));	//! Apply random damage to the vehicle.
 			ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(car, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED); //! Apply random damage to the vehicle cargo items.
 		#ifdef JM_COT
-			car.COT_PlaceOnSurfaceAtPosition(randomPosition);
+			COT_Base.PlaceOnSurfaceAtPosition(car, randomPosition);
 		#endif
 			
 			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
@@ -256,7 +256,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			else if (ExpansionStatic.IsAnyOf(objectEntity, s_Vehicles, true))
 			{
 			#ifdef JM_COT
-				CarScript.Cast(objectEntity).COT_PlaceOnSurfaceAtPosition(oldPos);
+				COT_Base.PlaceOnSurfaceAtPosition(objectEntity, oldPos);
 			#endif
 			}
 			else

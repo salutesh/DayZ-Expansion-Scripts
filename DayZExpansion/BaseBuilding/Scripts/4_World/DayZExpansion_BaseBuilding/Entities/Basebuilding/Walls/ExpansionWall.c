@@ -39,6 +39,9 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		RegisterNetSyncVariableBool( "m_Expansion_HasWall" );
 
 		m_Expansion_CurrentBuild = "wood";
+
+		if ( !g_Game.IsMultiplayer() )
+			m_Expansion_WasSynced = true;
 	}
 
 	override bool IsLastStage()
@@ -225,13 +228,10 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	override bool CanReleaseAttachment( EntityAI attachment )
 	{
-		if ( attachment.IsInherited( ExpansionCodeLock ) )
+		ItemBase item;
+		if ( Class.CastTo(item, attachment) && item.Expansion_IsCodeLock() && !item.ExpansionIsLocked() )
 		{
-			ExpansionCodeLock codelock = ExpansionCodeLock.Cast( attachment );
-			if ( !codelock.ExpansionIsLocked() )
-			{
-				return true;
-			}
+			return true;
 		}
 
 		return super.CanReleaseAttachment( attachment );
@@ -241,24 +241,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	{
 		auto settings = GetExpansionSettings().GetBaseBuilding(false);
 
-		if (!settings.IsLoaded())
-			return false;
+		if ((selection == "*" || selection == "codelock_door" || settings.CodelockActionsAnywhere) && m_Expansion_HasDoor)
+			return FindAttachmentBySlotName("Att_ExpansionCodeLock_1") != null;
 
-		if ( selection == "codelock_door" || settings.CodelockActionsAnywhere )
-		{
-			if ( m_Expansion_HasDoor && FindAttachmentBySlotName( "Att_ExpansionCodeLock_1" ) )
-			{
-				return true;
-			}
-		}
-
-		if ( selection == "codelock_gate" || settings.CodelockActionsAnywhere )
-		{
-			if ( m_Expansion_HasGate && FindAttachmentBySlotName( "Att_ExpansionCodeLock_2" ) )
-			{
-				return true;
-			}
-		}
+		if ((selection == "*" || selection == "codelock_gate" || settings.CodelockActionsAnywhere) && m_Expansion_HasGate)
+			return FindAttachmentBySlotName("Att_ExpansionCodeLock_2") != null;;
 
 		return false;
 	}
@@ -270,6 +257,31 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		if (m_Expansion_HasGate)
 			return ExpansionCodeLock.Cast(FindAttachmentBySlotName("Att_ExpansionCodeLock_2"));
+
+		return null;
+	}
+
+	override ItemBase Expansion_GetCodeLock()
+	{
+		if (m_Expansion_HasDoor)
+			return ItemBase.Cast(FindAttachmentBySlotName("Att_ExpansionCodeLock_1"));
+
+		if (m_Expansion_HasGate)
+			return ItemBase.Cast(FindAttachmentBySlotName("Att_ExpansionCodeLock_2"));
+
+		return null;
+	}
+
+	override ItemBase Expansion_GetCodeLock(string selection)
+	{
+		//! WARNING: Do NOT check CodelockActionsAnywhere when getting codelock entity!
+		//! Reserved for HasCodeLock, else can break actions due to item <-> component mismatch
+
+		if ((selection == "*" || selection == "codelock_door") && m_Expansion_HasDoor)
+			return ItemBase.Cast(FindAttachmentBySlotName("Att_ExpansionCodeLock_1"));
+
+		if ((selection == "*" || selection == "codelock_gate") && m_Expansion_HasGate)
+			return ItemBase.Cast(FindAttachmentBySlotName("Att_ExpansionCodeLock_2"));
 
 		return null;
 	}
@@ -306,6 +318,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		vector test_position = WorldToModel(player_pos);
 
 		return Math.IsPointInRectangle(minMax[0], minMax[1], test_position);
+	}
+
+	override bool Expansion_IsPlayerInside(PlayerBase player, string selection)
+	{
+		return IsPlayerInside(player, selection);
 	}
 
 	override bool ExpansionIsOpenable()
@@ -549,6 +566,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	
 	override bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
+		//PrintFormat("%1::ExpansionCanOpen %2 %3", GetType(), player, selection);
 		if ( !ExpansionIsOpenable() )
 			return false;
 
@@ -564,13 +582,13 @@ class ExpansionWallBase: ExpansionBaseBuilding
 				return true;
 		}
 
-		if ( m_Expansion_HasDoor && ( !ExpansionIsLocked() || IsKnownUser( player ) ) )
+		if ( m_Expansion_HasDoor && ( !ExpansionIsLocked() || IsKnownUser( player ) || Expansion_CanUnlockFromInside( player, selection ) ) )
 		{
 			if ( selection == (m_Expansion_CurrentBuild + "_door") && GetAnimationPhase( m_Expansion_CurrentBuild + "_door_rotate" ) < 0.5 )
 				return true;
 		}
 
-		if ( m_Expansion_HasGate && ( !ExpansionIsLocked() || IsKnownUser( player ) ) )
+		if ( m_Expansion_HasGate && ( !ExpansionIsLocked() || IsKnownUser( player ) || Expansion_CanUnlockFromInside( player, selection ) ) )
 		{
 			if ( selection == (m_Expansion_CurrentBuild + "_gate_l") && GetAnimationPhase( m_Expansion_CurrentBuild +"_gate_l_rotate" ) < 0.5 )
 				return true;
@@ -624,22 +642,22 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	{	
 		if ( IsMissionHost() && m_Expansion_HasWindow )
 		{
-			if (selection == (m_Expansion_CurrentBuild + "_window_ll") || m_Expansion_IsOpened1)
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_window_ll") || m_Expansion_IsOpened1)
 			{
 				m_Expansion_IsOpened1 = true;
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_window_ll_rotate", 1 );
 			}
-			if (selection == (m_Expansion_CurrentBuild + "_window_lr") || m_Expansion_IsOpened2)
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_window_lr") || m_Expansion_IsOpened2)
 			{
 				m_Expansion_IsOpened2 = true;
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_window_lr_rotate", 1 );
 			}
-			if (selection == (m_Expansion_CurrentBuild + "_window_rl") || m_Expansion_IsOpened3)
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_window_rl") || m_Expansion_IsOpened3)
 			{
 				m_Expansion_IsOpened3 = true;
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_window_rl_rotate", 1 );
 			}
-			if (selection == (m_Expansion_CurrentBuild + "_window_rr") || m_Expansion_IsOpened4)
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_window_rr") || m_Expansion_IsOpened4)
 			{
 				m_Expansion_IsOpened4 = true;
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_window_rr_rotate", 1 );
@@ -650,7 +668,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		if ( IsMissionHost() && m_Expansion_HasDoor )
 		{
-			if (selection == (m_Expansion_CurrentBuild + "_door") || m_Expansion_IsOpened)
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_door") || m_Expansion_IsOpened)
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_door_rotate", 1 );
 
 			m_Expansion_IsOpened = true;
@@ -658,12 +676,12 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		if ( IsMissionHost() && m_Expansion_HasGate )
 		{
-			if (selection == (m_Expansion_CurrentBuild + "_gate_l") || m_Expansion_IsOpened1)
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_gate_l") || m_Expansion_IsOpened1)
 			{
 				m_Expansion_IsOpened1 = true;
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_gate_l_rotate", 1 );
 			}
-			if (selection == (m_Expansion_CurrentBuild + "_gate_r") || m_Expansion_IsOpened2)
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_gate_r") || m_Expansion_IsOpened2)
 			{
 				m_Expansion_IsOpened2 = true;
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_gate_r_rotate", 1 );
@@ -679,22 +697,22 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	{	
 		if ( g_Game.IsServer() && m_Expansion_HasWindow )
 		{
-			if (selection == (m_Expansion_CurrentBuild + "_window_ll"))
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_window_ll"))
 			{
 				m_Expansion_IsOpened1 = false;
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_window_ll_rotate", 0 );
 			}
-			if (selection == (m_Expansion_CurrentBuild + "_window_lr"))
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_window_lr"))
 			{
 				m_Expansion_IsOpened2 = false;
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_window_lr_rotate", 0 );
 			}
-			if (selection == (m_Expansion_CurrentBuild + "_window_rl"))
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_window_rl"))
 			{
 				m_Expansion_IsOpened3 = false;
 				SetAnimationPhase( m_Expansion_CurrentBuild+ "_window_rl_rotate", 0 );
 			}
-			if (selection == (m_Expansion_CurrentBuild + "_window_rr"))
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_window_rr"))
 			{
 				m_Expansion_IsOpened4 = false;
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_window_rr_rotate", 0 );
@@ -714,7 +732,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		if ( IsMissionHost() && m_Expansion_HasDoor )
 		{
-			if (selection == (m_Expansion_CurrentBuild + "_door"))
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_door"))
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_door_rotate", 0 );
 
 			if (GetAnimationPhase( m_Expansion_CurrentBuild + "_door_rotate" ) < 0.5)
@@ -725,12 +743,12 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		if ( IsMissionHost() && m_Expansion_HasGate )
 		{
-			if (selection == (m_Expansion_CurrentBuild + "_gate_l"))
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_gate_l"))
 			{
 				m_Expansion_IsOpened1 = false;
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_gate_l_rotate", 0 );
 			}
-			if (selection == (m_Expansion_CurrentBuild + "_gate_r"))
+			if (selection == "*" || selection == (m_Expansion_CurrentBuild + "_gate_r"))
 			{
 				m_Expansion_IsOpened2 = false;
 				SetAnimationPhase( m_Expansion_CurrentBuild + "_gate_r_rotate", 0 );
@@ -773,5 +791,14 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		}
 
 		ExpansionLock();
+	}
+}
+
+class ExpansionWall6x3: ExpansionWallBase
+{
+	override array<string> OnDebugSpawnBuildExcludes()
+	{
+		TStringArray excludes = {"wood_wallframe", "wood_wallfinished"};
+		return excludes;
 	}
 }

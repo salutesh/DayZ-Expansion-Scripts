@@ -12,6 +12,16 @@
 
 modded class CombinationLock
 {
+	override bool Expansion_IsLock()
+	{
+		return true;
+	}
+
+	override bool ExpansionIsLocked()
+	{
+		return IsLocked();
+	}
+
 	override void ExpansionOnDestroyed( Object killer )
 	{
 		if ( IsDamageDestroyed() )

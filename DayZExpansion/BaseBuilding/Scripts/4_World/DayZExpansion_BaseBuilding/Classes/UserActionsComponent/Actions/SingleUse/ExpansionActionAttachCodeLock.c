@@ -66,21 +66,13 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 			targetItem = ItemBase.Cast( targetParent );
 		} else if ( targetObject )
 		{
-			ExpansionWallBase wall;
 			Fence fence;
 
 			targetItem = ItemBase.Cast( targetObject );
 
-			if ( Class.CastTo( wall, targetObject ) )
-			{
-				if ( wall.HasDoor() )
-					slotName = "Att_ExpansionCodeLock_1";
-				else if ( wall.HasGate() )
-					slotName = "Att_ExpansionCodeLock_2";
-			}
-			else if ( Class.CastTo( fence, targetObject ) && fence.HasFullyConstructedGate() )
-				slotName = "Att_CombinationLock";
-			else if ( targetItem && targetItem.IsOpen() && !targetItem.ExpansionIsLocked() )
+			if ( Class.CastTo( fence, targetObject ) && fence.HasFullyConstructedGate() )
+				slotName = Fence.ATTACHMENT_SLOT_CODE_LOCK;
+			else if ( targetItem && !targetItem.CanUseConstruction() && targetItem.IsOpen() && !targetItem.ExpansionIsLocked() )
 				targetItem.ExpansionFindCodeLockSlot( slotName );
 		}
 
@@ -133,24 +125,15 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 		action_data.m_Player.PredictiveTakeEntityToTargetAttachmentEx( targetItem, action_data.m_MainItem, slotId );
 
 #ifndef SERVER
-		if ( !GetExpansionClientSettings().AutoOpenLockMenuAfterPlacing )
-			return;
-
-		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Expansion_OpenCodeLockUI, 250, false, targetItem);
+		if (!targetItem.HasCode() && GetExpansionClientSettings().AutoOpenLockMenuAfterPlacing)
+		{
+			int component = action_data.m_Target.GetComponentIndex();
+			string selection = action_data.m_Target.GetObject().GetActionComponentName(component);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionCodeLockUI.Open, 250, false, targetItem, component, selection, false, true);
+		}
 #endif
 	}
 
-	void Expansion_OpenCodeLockUI(ItemBase targetItem)
-	{
-		if ( targetItem && targetItem.ExpansionGetCodeLock() && !targetItem.HasCode() )
-		{
-			ExpansionCodeLockUI menu = ExpansionCodeLockUI.Cast( g_Game.GetUIManager().EnterScriptedMenu( MENU_EXPANSION_CODELOCK_MENU, NULL ) );
-			if ( menu )
-			{
-				menu.SetChangeCodelock( false );
-				menu.SetConfirm( !targetItem.HasCode() );
-				menu.SetTarget( targetItem, "" );
-			}
-		}
-	}
+	[Obsolete("Use ExpansionCodeLockUI.Open")]
+	void Expansion_OpenCodeLockUI(ItemBase targetItem);
 };

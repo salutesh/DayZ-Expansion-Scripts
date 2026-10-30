@@ -386,9 +386,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 		//! Airdrops
 		missionTypenames.Insert( ExpansionMissionEventAirdrop );
 		
-		//! DayZ rewritten Contaminated Areas
-		missionTypenames.Insert( ExpansionMissionEventContaminatedArea );
-		
 	#ifdef EXPANSION_MISSION_HORDE
 		//! Zombie Horde
 		missionTypenames.Insert( ExpansionMissionEventHorde );

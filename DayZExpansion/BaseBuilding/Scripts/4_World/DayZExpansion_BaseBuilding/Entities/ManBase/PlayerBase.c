@@ -316,6 +316,25 @@ modded class PlayerBase
 		return true;
 	}
 
+	//! Check if player can dismantle generally at current location based on territory
+	bool Expansion_CanDismantle()
+	{
+		if (IsInsideOwnTerritory())
+			return true;
+
+		if (IsInTerritory())
+		{
+			if (GetExpansionSettings().GetBaseBuilding(false).DismantleInsideTerritory)
+				return true;
+		}
+		else if (GetExpansionSettings().GetBaseBuilding(false).DismantleOutsideTerritory)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	void Expansion_OnLeaveTerritory()
 	{
 		auto now = CF_Date.Now(true);

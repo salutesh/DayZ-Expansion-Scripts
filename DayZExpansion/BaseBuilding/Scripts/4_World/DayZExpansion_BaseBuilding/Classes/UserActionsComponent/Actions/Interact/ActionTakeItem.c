@@ -35,11 +35,11 @@ modded class ActionTakeItem
 	static bool Expansion_TakeItemActionCondition(PlayerBase player, ActionTarget target, ItemBase item, out bool showAdminPrefix)
 	{
 		Object targetObject = target.GetObject();
-		//! Disallow taking codelock if it is attached and has code
+		//! Disallow taking codelock if it is attached and has code or player is not inside
 		//! to prevent taking it accidentally
 		//! (have to go into inventory and drag from slot to remove)
 		ExpansionCodeLock codelock = ExpansionCodeLock.Cast(targetObject);
-		if ( target.GetParent() && codelock && codelock.HasCode() )
+		if ( target.GetParent() && codelock && ( codelock.HasCode() || !codelock.Expansion_IsPlayerInside( player, targetObject.GetActionComponentName( target.GetComponentIndex() ) ) ) )
 			return false;
 
 		bool isInsideOwnTerritory;

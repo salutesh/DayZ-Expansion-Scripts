@@ -625,7 +625,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		int groupID = -1;
 		string ownerUID;
 
-		auto player = PlayerBase.Cast(identity.GetPlayer());
+		auto player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
 
 		//! Check for all active group quests the player can participate in one of them if he is member of a group.
 		if (player && GetGroupData(player, groupID, ownerUID))
@@ -1312,7 +1312,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODAI
 		if (npcAI)
 		{
-			npcAI.eAI_AddInteractingPlayer(identity.GetPlayer());
+			Man player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
+			npcAI.eAI_AddInteractingPlayer(player);
 
 			EmoteManager npcEmoteManager = npcAI.GetEmoteManager();
 			if (!npcEmoteManager.IsEmotePlaying())
@@ -1406,7 +1407,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODAI
 		eAIBase npc;
 		if (Class.CastTo(npc, target))
-			npc.eAI_RemoveInteractingPlayer(identity.GetPlayer());
+		{
+			Man player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
+			npc.eAI_RemoveInteractingPlayer(player);
+		}
 	#endif
 	}
 
@@ -1459,7 +1463,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!MissionBaseWorld.Cast(g_Game.GetMission()).Expansion_CanStartQuest(configInstance, sender))
 			return;
 		
-		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		if (!player)
 			return;		
 				
@@ -1909,7 +1913,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		if (questConfig.IsGroupQuest())
 		{
-			PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
+			PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
 			if (player)
 			{
 				int groupID = GetGroupID(player);
@@ -2326,7 +2330,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	protected void ShareQuestWithGroup(PlayerIdentity identity, ExpansionQuestConfig config)
 	{
 	#ifdef EXPANSIONMODGROUPS
-		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
 		if (!player)
 		{
 			EXError.Error(this, "[Expansion Quests] Could not get player entity!");

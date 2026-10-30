@@ -80,7 +80,8 @@ modded class TentBase
 		if (!super.CanReceiveAttachment(attachment, slotId))
 			return false;
 
-		if ( attachment.IsInherited( ExpansionCodeLock ) )
+		ItemBase item;
+		if ( Class.CastTo( item, attachment ) && item.Expansion_IsCodeLock() )
 		{
 			if ( !ExpansionCanAttachCodeLock() )
 				return false;
@@ -94,7 +95,7 @@ modded class TentBase
 		}
 
 		//! Safety to prevent attaching other locks (e.g. silver Code Lock from RoomService's mod) if Expansion Code Lock is already present
-		if ( attachment.IsKindOf( "CombinationLock" ) && ExpansionGetCodeLock() )
+		if ( attachment.IsKindOf( "CombinationLock" ) && Expansion_GetCodeLock() )
 			return false;
 
         return true;
@@ -227,7 +228,7 @@ modded class TentBase
 	{
 		if ( !ExpansionCanAttachCodeLock() )
 		{
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			ItemBase codelock = Expansion_GetCodeLock();
 			if (codelock)
 				codelock.Delete();
 		}

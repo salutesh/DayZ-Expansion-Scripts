@@ -441,11 +441,19 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		CanCraftExpansionBasebuilding = true;
 		DestroyFlagOnDismantle = true;
 		DismantleFlagMode = ExpansionDismantleFlagMode.AnyoneWithTools;
+	#ifdef DIAG_DEVELOPER
+		DismantleOutsideTerritory = true;
+	#else
 		DismantleOutsideTerritory = false;
+	#endif
 		DismantleInsideTerritory = false;
 		DismantleAnywhere = false;
 		
+	#ifdef DIAG_DEVELOPER
+		CodelockAttachMode = ExpansionCodelockAttachMode.ExpansionAndFenceAndTents;
+	#else
 		CodelockAttachMode = ExpansionCodelockAttachMode.ExpansionAndFence;  //! Will also allow BBP if installed
+	#endif
 		CodelockActionsAnywhere = false;
 		CodeLockLength = 4;
 		DoDamageWhenEnterWrongCodeLock = true;

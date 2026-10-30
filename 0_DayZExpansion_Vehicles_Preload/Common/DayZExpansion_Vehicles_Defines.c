@@ -34,10 +34,6 @@
 //! Enable it if you want to enable skinning system debug logs
 //#define EXPANSION_VEHICLE_SKIN_LOGGING
 
-#ifndef EXPANSIONCOTESPMODULE
-#define EXPANSIONCOTESPMODULE
-#endif
-
 #ifdef SERVER //! Don't comment these, diag exe server crashes
 #define EXPANSION_WHEEL_DEBUG_DISABLE
 #endif

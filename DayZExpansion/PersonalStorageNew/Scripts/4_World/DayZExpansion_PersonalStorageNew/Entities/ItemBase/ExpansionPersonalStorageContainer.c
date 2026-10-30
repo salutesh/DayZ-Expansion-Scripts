@@ -438,7 +438,7 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 
 	void RPC_Expansion_RequestMoveItem(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		Man player = sender.GetPlayer();
+		Man player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 
 		if (!player)
 			return;
@@ -516,11 +516,6 @@ class ExpansionPersonalStorageContainer: ExpansionOwnedContainer
 	//! Server
 	void RPC_Expansion_SendIsExcludedFromPS(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		Man player = sender.GetPlayer();
-
-		if (!player)
-			return;
-
 		if (ExpansionGetContainerOwnerUID() != sender.GetId())
 		{
 			ExpansionNotification("Access denied", "Cannot access another player's personal storage!").Error(sender);

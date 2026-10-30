@@ -197,7 +197,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void ClearPlayerFaction(PlayerIdentity identity)
 	{
-		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
 		eAIGroup group = player.GetGroup();
 		if (player && group)
 		{

@@ -80,7 +80,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 
 	void AddChatMessage_Server(PlayerIdentity sender, Object target, ParamsReadContext ctx, ExpansionChatMessageEventParams data)
 	{
-		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 
 		data.param2 = sender.GetName();
 		string originalText = data.param3;
@@ -216,7 +216,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 
 	bool CanSendInChannel(ExpansionChatChannels channel, PlayerIdentity sender)
 	{
-		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 
 		switch (channel)
 		{

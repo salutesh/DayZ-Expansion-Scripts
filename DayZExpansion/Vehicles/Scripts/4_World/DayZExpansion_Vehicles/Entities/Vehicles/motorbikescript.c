@@ -67,11 +67,6 @@ modded class MotorbikeScript
 
 		m_ExpansionVehicle.OnItemDetached(item, slot_name);
 	}
-	
-	override float GetMomentum()
-	{
-		return super.GetMomentum() * m_ExpansionVehicle.m_Settings.VehicleSpeedDamageMultiplier;
-	}
 
 	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
 	{

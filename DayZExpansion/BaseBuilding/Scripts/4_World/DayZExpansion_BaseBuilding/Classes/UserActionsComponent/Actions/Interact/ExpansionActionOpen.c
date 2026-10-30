@@ -12,7 +12,7 @@
 
 class ExpansionActionOpen: ActionInteractBase
 {
-	ItemBase m_Target;
+	ItemBase m_Target;  //! CLIENT/SP ONLY
 
 	void ExpansionActionOpen()
 	{
@@ -68,31 +68,33 @@ class ExpansionActionOpen: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( !Class.CastTo( m_Target, target.GetObject() ) )
-			if ( !Class.CastTo( m_Target, target.GetParent() ) )
-				return false;
+		int component = target.GetComponentIndex();
 
-		string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
+		ItemBase tgtItem;
+		if (!ItemBase.Expansion_GetLockableItem(tgtItem, target.Expansion_GetObjectOrParent(), component))
+			return false;
 
-		return m_Target.ExpansionCanOpen( player, selection );
+		if (!g_Game.IsDedicatedServer())
+			m_Target = tgtItem;
+
+		return tgtItem.ExpansionCanOpen( player, component );
 	}
 	
 	override void OnStartServer( ActionData action_data )
 	{
-		ItemBase tgtItem;
-		if ( !Class.CastTo( tgtItem, action_data.m_Target.GetObject() ) )
-			if ( !Class.CastTo( tgtItem, action_data.m_Target.GetParent() ) )
-				return;
+		int component = action_data.m_Target.GetComponentIndex();
 
-		if ( !tgtItem || ( tgtItem.ExpansionIsLocked() && !tgtItem.IsKnownUser( action_data.m_Player ) ) )
+		ItemBase tgtItem;
+		if (!ItemBase.Expansion_GetLockableItem(tgtItem, action_data.m_Target.Expansion_GetObjectOrParent(), component))
 			return;
 
-		string selection = tgtItem.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
+		if ( tgtItem.ExpansionIsLocked() && !tgtItem.IsKnownUser( action_data.m_Player ) && !tgtItem.Expansion_CanUnlockFromInside(action_data.m_Player, action_data.m_Target.GetObject().GetActionComponentName(component)) )
+			return;
 
 		if ( tgtItem.ExpansionIsLocked() )
-			tgtItem.UnlockAndOpen( selection );
+			tgtItem.UnlockAndOpen( component );
 		else
-			tgtItem.Expansion_Open( selection );
+			tgtItem.Expansion_Open( component );
 
 	#ifdef EXPANSIONMODAI
 		if (action_data.m_Player)

@@ -27,7 +27,7 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 		{
 			m_Time =  GetExpansionSettings().GetRaid().LockOnTentRaidToolTimeSeconds;
 		}
-		else if ( targetObject.IsInherited( ExpansionBaseBuilding ) )
+		else if ( targetObject.IsInherited( ExpansionBaseBuilding ) || targetObject.IsBuilding() )
 		{
 			m_Time = GetExpansionSettings().GetRaid().LockOnWallRaidToolTimeSeconds;
 		}
@@ -62,20 +62,23 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 
 		Object targetObject = target.GetParentOrObject();
 
-		ItemBase targetItem = ItemBase.Cast( targetObject );
-
-		if ( !targetItem )
-			return false;
-
-		Object actualTargetObject = GetActualTargetObject( targetObject );
+		Object actualTargetObject = GetActualTargetObjectEx( targetObject, target.GetComponentIndex() );
 
 		if ( !actualTargetObject )
 			return false;
 
-		if ( !actualTargetObject.IsInherited( CombinationLock ) && !actualTargetObject.IsInherited( ExpansionCodeLock ) )
+		if ( actualTargetObject.IsDamageDestroyed() )
 			return false;
 
-		if ( !targetItem.ExpansionIsLocked() )
+		ItemBase actualTargetItem = ItemBase.Cast( actualTargetObject );
+
+		if ( !actualTargetItem )
+			return false;
+
+		if ( !actualTargetItem.GetHierarchyParent() )
+			return false;  //! Can't raid a lock w/o parent
+
+		if ( !actualTargetItem.ExpansionIsLocked() )
 			return false;
 
 		bool useContainerRaidSettings;
@@ -88,7 +91,7 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 		{
 			m_Time = GetExpansionSettings().GetRaid().LockOnWallRaidToolTimeSeconds;
 		}
-		else if ( targetObject.IsInherited( BaseBuildingBase ) )
+		else if ( targetObject.IsInherited( BaseBuildingBase ) || targetObject.IsBuilding() )
 		{
 			m_Time =  GetExpansionSettings().GetRaid().LockOnFenceRaidToolTimeSeconds;
 		}
@@ -107,7 +110,13 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 		if ( !ExpansionStatic.IsAnyOf(item, raidTools) )
 			return false;
 
-		if ( targetItem.IsInherited( TentBase ) && IsMissionClient() )
+		ItemBase targetItem = ItemBase.Cast( targetObject );
+
+		if ( !targetItem )
+		{
+			//! nothing to do
+		}
+		else if ( targetItem.IsInherited( TentBase ) && IsMissionClient() )
 		{
 			targetObject = target.GetObject();  //! Only on client, NULL on server as we cannot use proxies here
 
@@ -177,16 +186,19 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 		return super.CanBeDestroyed( targetObject );
 	}
 
-	override Object GetActualTargetObject( Object targetObject )
+	override Object GetActualTargetObjectEx( Object targetObject, int component )
 	{
-		ItemBase targetItem = ItemBase.Cast( targetObject );
+		ItemBase targetItem = ItemBase.Expansion_GetLockableItem( targetObject, component );
 
-		if ( !targetItem || !targetItem.GetInventory() )
+		if ( !targetItem )
 			return NULL;
+
+		if ( targetItem.Expansion_IsLock() )
+			return targetItem;
 
 		Object lockObj = targetItem.FindAttachmentBySlotName( "Att_CombinationLock" );
 		if ( !lockObj )
-			lockObj = targetItem.ExpansionGetCodeLock();
+			lockObj = targetItem.Expansion_GetCodeLock();
 
 		return lockObj;
 	}
@@ -194,7 +206,7 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 	override bool Expansion_CheckSuccess(ActionData action_data)
 	{
 		ItemBase codeLock;
-		if (Class.CastTo(codeLock, GetActualTargetObject(action_data.m_Target.GetParentOrObject())))
+		if (Class.CastTo(codeLock, GetActualTargetObjectEx(action_data.m_Target.GetParentOrObject(), action_data.m_Target.GetComponentIndex())))
 			return !codeLock.ExpansionIsLocked();
 
 		return false;

@@ -98,14 +98,20 @@ modded class MiscGameplayFunctions
 		if (Class.CastTo(explosive, item) && explosive.Expansion_IsLive())
 			return false;
 
-		#ifdef WRDG_DOGTAGS
-		//! Don`t add players own dogtag
-		if (item.IsInherited(Dogtag_Base))
+		InventoryLocation il = new InventoryLocation();
+		if (!item.GetInventory().GetCurrentInventoryLocation(il))
+			return false;
+
+		if (il.GetType() == InventoryLocationType.ATTACHMENT)
 		{
-			if (!Expansion_IsLooseEntity(item, true))
+			EntityAI parent = il.GetParent();
+
+			if (!parent.CanReleaseAttachment(item) || !item.CanDetachAttachment(parent))
+				return false;
+			
+			if (!parent.GetInventory().CanRemoveAttachment(item))
 				return false;
 		}
-		#endif
 
 		#ifdef EXPANSIONMODQUESTS
 		//! Don`t add quest items

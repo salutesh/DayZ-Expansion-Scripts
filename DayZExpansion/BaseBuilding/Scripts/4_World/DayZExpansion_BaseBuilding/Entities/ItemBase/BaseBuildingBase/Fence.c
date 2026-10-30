@@ -57,34 +57,88 @@ modded class Fence
 		}
 	}
 
-	//! Only call this after settings have been loaded
 	bool ExpansionCanAttachCodeLock()
 	{
-		int attachMode = GetExpansionSettings().GetBaseBuilding().CodelockAttachMode;
+		int attachMode = GetExpansionSettings().GetBaseBuilding(false).CodelockAttachMode;
 		return attachMode == ExpansionCodelockAttachMode.ExpansionAndFence || attachMode == ExpansionCodelockAttachMode.ExpansionAndFenceAndTents;
+	}
+
+	override bool CanDisplayAttachmentSlot(int slot_id)
+	{
+		if (!super.CanDisplayAttachmentSlot(slot_id))
+			return false;
+
+		string slotName = InventorySlots.GetSlotName(slot_id);
+		if (slotName == ATTACHMENT_SLOT_COMBINATION_LOCK)
+			return FindAttachmentBySlotName(ATTACHMENT_SLOT_CODE_LOCK) == null;
+		else if (slotName == ATTACHMENT_SLOT_CODE_LOCK)
+			return ExpansionCanAttachCodeLock() && FindAttachmentBySlotName(ATTACHMENT_SLOT_COMBINATION_LOCK) == null;
+
+		return true;
 	}
 
     override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
-		if ( GetExpansionSettings().GetBaseBuilding() )
+		if (!super.CanReceiveAttachment(attachment, slotId))
+			return false;
+
+		ItemBase item;
+		if (Class.CastTo(item, attachment))
 		{
-			if ( attachment.IsInherited( ExpansionCodeLock ) )
+			if (item.Expansion_IsCodeLock() && !ExpansionCanAttachCodeLock())
+				return false;
+
+			//! Safety to prevent attaching other locks if a lock is already present (but still allow moving the same lock from one slot to another)
+			if (item.Expansion_IsLock())
 			{
-				if ( !ExpansionCanAttachCodeLock() )
+				EntityAI combo = FindAttachmentBySlotName(ATTACHMENT_SLOT_COMBINATION_LOCK);
+				if (combo && item != combo)
 					return false;
 
-				//! Safety to prevent attaching Expansion Code Lock if another lock is already present (e.g. silver Code Lock from RoomService's mod)
-				if ( FindAttachmentBySlotName( "Att_CombinationLock" ) )
+				EntityAI codeLock = FindAttachmentBySlotName(ATTACHMENT_SLOT_CODE_LOCK);
+				if (codeLock && item != codeLock)
 					return false;
 			}
-
-			//! Safety to prevent attaching other locks (e.g. silver Code Lock from RoomService's mod) if Expansion Code Lock is already present
-			if ( attachment.IsKindOf( "CombinationLock" ) && ExpansionGetCodeLock() )
-				return false;
 		}
 
-        return super.CanReceiveAttachment(attachment, slotId);
+		return true;
     }
+
+    override void EEItemAttached(EntityAI item, string slot_name)
+    {
+		super.EEItemAttached(item, slot_name);
+
+		//! move ExpansionCodelock from combolock to codelock slot
+		if (item.IsInherited(ExpansionCodeLock) && slot_name == ATTACHMENT_SLOT_COMBINATION_LOCK)
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_MoveToCodeLockSlot, item);  //! Need to use call so we can check if other slot has been taken in the meanwhile (e.g. StoreLoad etc)
+	}
+
+	void Expansion_MoveToCodeLockSlot(EntityAI item)
+	{
+		GameInventory inventory = GetInventory();
+		int dstSlot = InventorySlots.GetSlotIdFromString(ATTACHMENT_SLOT_CODE_LOCK);
+
+		if (!inventory.FindAttachment(dstSlot))
+		{
+			auto srcLoc = new InventoryLocation;
+
+			if (item.GetInventory().GetCurrentInventoryLocation(srcLoc))
+			{
+				int srcSlot = srcLoc.GetSlot();
+				bool srcSlotLocked = inventory.GetSlotLock(srcSlot);
+
+				auto dstLoc = new InventoryLocation;
+				dstLoc.SetAttachment(this, item, dstSlot);
+
+				inventory.SetSlotLock(srcSlot, false);
+				inventory.SetSlotLock(dstSlot, false);
+
+				GameInventory.LocationSyncMoveEntity(srcLoc, dstLoc);
+
+				inventory.SetSlotLock(dstSlot, srcSlotLocked);
+			}
+		}
+	}
 
 	override bool ExpansionIsOpenable()
 	{
@@ -96,9 +150,40 @@ modded class Fence
 		return IsOpened();
 	}
 
+	override bool ExpansionHasCodeLock(string selection)
+	{
+		if (selection != "*" && selection != "wall_interact" && !GetExpansionSettings().GetBaseBuilding(false).CodelockActionsAnywhere)
+			return false;
+
+		return super.ExpansionHasCodeLock(selection);
+	}
+
 	override ExpansionCodeLock ExpansionGetCodeLock()
 	{
-		return ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_CombinationLock" ));
+		return ExpansionCodeLock.Cast(Expansion_GetCodeLock());
+	}
+
+	override ItemBase Expansion_GetCodeLock()
+	{
+		ItemBase item;
+
+		if (Class.CastTo(item, FindAttachmentBySlotName(ATTACHMENT_SLOT_CODE_LOCK)) && item.Expansion_IsCodeLock())
+			return item;
+
+		if (Class.CastTo(item, FindAttachmentBySlotName(ATTACHMENT_SLOT_COMBINATION_LOCK)) && item.Expansion_IsCodeLock())
+			return item;
+
+		return null;
+	}
+
+	override ItemBase Expansion_GetCodeLock( string selection )
+	{
+		//! WARNING: Do NOT check CodelockActionsAnywhere when getting codelock entity!
+		//! Reserved for HasCodeLock, else can break actions due to item <-> component mismatch
+		if (selection != "*" && selection != "wall_interact")
+			return null;
+
+		return super.Expansion_GetCodeLock( selection );
 	}
 
 	//! @note vanilla fence overrides modded ItemBase::IsLocked, so super calls Fence::IsLocked
@@ -116,6 +201,11 @@ modded class Fence
 			return true;
 		
 		return false;
+	}
+
+	override bool Expansion_IsPlayerInside(PlayerBase player, string selection)
+	{
+		return IsPlayerInside(player, selection);
 	}
 
 	#ifdef EXPANSION_MODSTORAGE
@@ -161,7 +251,7 @@ modded class Fence
 	{
 		if ( !ExpansionCanAttachCodeLock() )
 		{
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			ItemBase codelock = Expansion_GetCodeLock();
 			if (codelock)
 				codelock.Delete();
 		}
@@ -208,5 +298,11 @@ modded class Fence
 		CloseFence();
 
 		ExpansionLock();
+	}
+
+	override array<string> OnDebugSpawnBuildExcludes()
+	{
+		TStringArray excludes = {"wall_platform"};
+		return excludes;
 	}
 };

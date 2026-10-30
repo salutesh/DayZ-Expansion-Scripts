@@ -493,7 +493,7 @@ modded class TerritoryFlag
 			ItemBase item;
 			if (Class.CastTo(item, entity))
 			{
-				ExpansionCodeLock codeLock = item.ExpansionGetCodeLock();
+				ItemBase codeLock = item.Expansion_GetCodeLock();
 				if (codeLock && vector.DistanceSq(item.GetPosition(), GetPosition()) <= territorySizeSq)
 				{
 					if (item.Expansion_EnforceMaxCodeLocksPerTerritoryEx(this, codeLock, true, notify))

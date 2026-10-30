@@ -92,7 +92,7 @@ class ExpansionStove: PortableGasStove
 	override void Expansion_Open( string selection ) 
 	{
 		//! Door open animation
-		if (selection == "doors1")
+		if (selection == "*" || selection == "doors1")
 			SetAnimationPhase( "doors1", 1 );
 		
 		super.Expansion_Open( selection );
@@ -100,8 +100,8 @@ class ExpansionStove: PortableGasStove
 	
 	override void Expansion_Close( string selection ) 
 	{
-		//! Door open animation
-		if (selection == "doors1")
+		//! Door close animation
+		if (selection == "*" || selection == "doors1")
 			SetAnimationPhase( "doors1", 0 );
 		
 		super.Expansion_Close( selection );

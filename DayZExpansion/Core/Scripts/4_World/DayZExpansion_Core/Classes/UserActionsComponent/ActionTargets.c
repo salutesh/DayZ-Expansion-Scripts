@@ -22,8 +22,10 @@ modded class ActionTarget
 			m_Object = navmeshCarver.Expansion_GetAssociatedObject();
 	}
 
+	//! Should have used Expansion_ prefix, but keeping legacy name since it's been around forever
 	Object GetParentOrObject()
 	{
+		//! Prefer parent
 		if ( GetParent() )
 		{
 			return GetParent();
@@ -31,6 +33,29 @@ modded class ActionTarget
 		else
 		{
 			return GetObject();
+		}
+	}
+
+	void Expansion_SetObject(Object object)
+	{
+		m_Object = object;
+	}
+
+	void Expansion_SetParent(Object parent)
+	{
+		m_Parent = parent;
+	}
+
+	Object Expansion_GetObjectOrParent()
+	{
+		//! Prefer object
+		if ( GetObject() )
+		{
+			return GetObject();
+		}
+		else
+		{
+			return GetParent();
 		}
 	}
 };

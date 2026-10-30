@@ -60,14 +60,7 @@ modded class DayZExpansion
 		if (CF_Modules<JMPlayerModule>.Get(module))
 		{
 			eAIBase ai;
-			PlayerBase player;
-			
-		#ifdef SERVER
-			if (sender)
-				player = PlayerBase.Cast(sender.GetPlayer());
-		#else
-			player = PlayerBase.Cast(g_Game.GetPlayer());
-		#endif
+			PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 
 			if (Class.CastTo(ai, target) && (ai != m_eAI_SpectatedAI || (player && player.m_JM_SpectatedObject != ai)))
 			{

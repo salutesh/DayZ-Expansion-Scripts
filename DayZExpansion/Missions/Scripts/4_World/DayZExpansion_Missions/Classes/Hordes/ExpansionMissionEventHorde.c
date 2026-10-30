@@ -118,12 +118,6 @@ class ExpansionMissionEventHorde: ExpansionMissionEventBase
 
 		switch ( index )
 		{
-		default:
-		case 0:
-			Weight = 5;
-			Position = Vector( 4807, 9812, 100 );
-			MissionName = "NWAF";
-			break;
 		case 1:
 			Weight = 10;
 			Position = Vector( 12159, 12583, 100 );
@@ -183,6 +177,12 @@ class ExpansionMissionEventHorde: ExpansionMissionEventBase
 			Weight = 65;
 			Position = Vector( 5823, 0, 7764 );
 			MissionName = "Stary Sobor";
+			break;
+		case 0:
+		default:
+			Weight = 5;
+			Position = Vector( 4807, 9812, 100 );
+			MissionName = "NWAF";
 			break;
 		}
 

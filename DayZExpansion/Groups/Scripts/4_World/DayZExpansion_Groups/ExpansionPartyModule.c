@@ -255,7 +255,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!ctx.Read(partyTag))
 			return;
 
-		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		if (!player)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -300,7 +300,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 	
 	private void RPC_DissolvePartyServer(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		if (!player)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -416,7 +416,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if ( !ctx.Read( targetID ) )
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase senderPlayer = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		PlayerBase targetPlayer = PlayerBase.GetPlayerByUID(targetID);
 
 		if (!senderPlayer || !targetPlayer)
@@ -510,7 +510,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!ctx.Read(partyID))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase senderPlayer = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -555,7 +555,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!ctx.Read(partyID))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase senderPlayer = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -627,7 +627,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!ctx.Read(requestedByMember))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase senderPlayer = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -752,7 +752,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!ctx.Read(requestedByMember))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase senderPlayer = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -894,7 +894,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!marker.OnRecieve(ctx))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase senderPlayer = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -989,7 +989,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!ctx.Read(uid))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase senderPlayer = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -1044,7 +1044,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!ctx.Read(position))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase senderPlayer = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -1095,7 +1095,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!ctx.Read(position))
 			return;
 
-		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase senderPlayer = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
@@ -1151,7 +1151,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 			return;
 		}
 
-		PlayerBase senderPlayer = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase senderPlayer = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		if (!senderPlayer)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);

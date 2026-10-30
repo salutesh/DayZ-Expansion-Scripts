@@ -115,7 +115,12 @@ modded class IngameHud
 		vector target_pos;
 
 		if (entity.IsMan())
-			target_pos = entity.GetBonePositionWS(entity.GetBoneIndex("Spine2"));
+		{
+			//! For some reason GetBonePositionWS returns garbage here now so replaced with entity position + offset
+			//target_pos = entity.GetBonePositionWS(entity.GetBoneIndex("spine2"));
+			target_pos = entity.GetPosition();
+			target_pos[1] = target_pos[1] + 1.30;
+		}
 		else
 			target_pos =  entity.GetPosition();
 

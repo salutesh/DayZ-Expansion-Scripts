@@ -43,7 +43,7 @@ modded class ActionToggleTentOpen
         m_Tent = TentBase.Cast( target.GetParent() );
         if ( m_Tent )
 		{
-            if ( m_Tent.ExpansionGetCodeLock() && m_Tent.ExpansionIsLocked() )
+            if ( m_Tent.Expansion_GetCodeLock() && m_Tent.ExpansionIsLocked() )
 			{
 				if ( !m_Tent.IsKnownUser( player ) )
 					return false;
@@ -75,7 +75,7 @@ modded class ActionToggleTentOpen
 
 	override void OnExecuteServer( ActionData action_data )
 	{
-		if ( !m_Tent || ( m_Tent.ExpansionGetCodeLock() && m_Tent.ExpansionIsLocked() && !m_Tent.IsKnownUser( action_data.m_Player ) ) )
+		if ( !m_Tent || ( m_Tent.Expansion_GetCodeLock() && m_Tent.ExpansionIsLocked() && !m_Tent.IsKnownUser( action_data.m_Player ) ) )
 			return;
 
 		super.OnExecuteServer( action_data );

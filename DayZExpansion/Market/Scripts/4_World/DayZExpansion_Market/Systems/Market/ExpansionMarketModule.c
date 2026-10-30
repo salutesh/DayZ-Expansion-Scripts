@@ -3853,7 +3853,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		trader.AddInteractingPlayer(identity.GetPlayer());
+		Man player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
+
+		trader.AddInteractingPlayer(player);
 
 		auto hitch = new EXHitch(ToString() + "::RPC_RequestTraderData - LoadTraderData ");
 
@@ -4291,7 +4293,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		trader.RemoveInteractingPlayer(senderRPC.GetPlayer());
+		Man player = PlayerBase.ExpansionGetPlayerByIdentity(senderRPC);
+
+		trader.RemoveInteractingPlayer(player);
 	}
 
 	bool IsMoney(string type)

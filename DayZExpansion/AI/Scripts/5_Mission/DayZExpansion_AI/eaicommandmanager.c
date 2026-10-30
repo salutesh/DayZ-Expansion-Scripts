@@ -1348,9 +1348,9 @@ class eAICommandManager
 
 	void RPC_SitRep(PlayerIdentity sender, Object target, ParamsReadContext ctx)
 	{
-		PlayerBase player;
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		eAIBase ai;
-		if (Class.CastTo(player, sender.GetPlayer()) && Class.CastTo(ai, target))
+		if (player && Class.CastTo(ai, target))
 		{
 			if (GetExpansionSettings().GetAI().IsAdmin(sender) || player == ai.GetGroup().GetLeader())
 			{

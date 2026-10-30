@@ -26,6 +26,9 @@ class ExpansionSafeBase: Container_Base
 
 		RegisterNetSyncVariableBool( "m_Expansion_Locked" );
 		RegisterNetSyncVariableInt( "m_Expansion_CodeLength" );
+
+		if ( !g_Game.IsMultiplayer() )
+			m_Expansion_WasSynced = true;
 	}
 
 	// ------------------------------------------------------------
@@ -65,7 +68,10 @@ class ExpansionSafeBase: Container_Base
 	// ------------------------------------------------------------
 	override bool ExpansionHasCodeLock( string selection )
 	{
-		return (selection == "codelock");
+		if (selection == "*" || selection == "codelock")
+			return true;
+
+		return false;
 	}
 
 	// ------------------------------------------------------------

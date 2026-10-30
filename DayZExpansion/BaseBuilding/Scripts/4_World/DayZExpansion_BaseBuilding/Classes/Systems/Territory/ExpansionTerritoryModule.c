@@ -372,8 +372,8 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		
 		//! Get player object from network by sender identity
-		PlayerBase player;
-		if ( !Class.CastTo(player, sender.GetPlayer()) )
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+		if ( !player )
 		{
 			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER").Error(sender);
 			return;
@@ -1084,7 +1084,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 		
-		PlayerBase senderPlayer = PlayerBase.Cast( sender.GetPlayer() );
+		PlayerBase senderPlayer = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_AcceptInvite - 4 senderPlayer: " + senderPlayer);
 		#endif
@@ -1197,7 +1197,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 		
-		PlayerBase senderPlayer = PlayerBase.Cast( sender.GetPlayer() );
+		PlayerBase senderPlayer = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_DeclineInvite - 4 senderPlayer: " + senderPlayer);
 		#endif
@@ -1565,8 +1565,8 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		territory.RemoveMember( target );
 		
-		PlayerBase playerTarget;
-		if (Class.CastTo(playerTarget, sender.GetPlayer()))
+		PlayerBase playerTarget = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+		if (playerTarget)
 		{
 			if ( GetExpansionSettings().GetTerritory().InviteCooldown > 0 )
 				playerTarget.Expansion_OnLeaveTerritory();
@@ -1661,8 +1661,8 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		if ( GetExpansionSettings().GetTerritory().InviteCooldown > 0 )
 		{
-			PlayerBase player;
-			if (Class.CastTo(player, sender.GetPlayer()))
+			PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
+			if (player)
 				player.Expansion_OnLeaveTerritory();
 		}
 		

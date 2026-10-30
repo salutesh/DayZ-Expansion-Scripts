@@ -797,9 +797,9 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 				text = "#inv_inspect_pristine";
 				color = Colors.COLOR_PRISTINE;
 				break;
+			}
 
 			default:
-			}
 			{
 				text = "#STR_EXPANSION_ERROR_TITLE";
 				color = Colors.COLOR_PRISTINE;

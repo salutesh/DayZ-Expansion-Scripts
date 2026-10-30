@@ -3681,11 +3681,6 @@ modded class CarScript
 	{
 		return "ExpansionUniversalWheel"; //this should never happen
 	}
-	
-	override float GetMomentum()
-	{
-		return super.GetMomentum() * m_ExpansionVehicle.m_Settings.VehicleSpeedDamageMultiplier;
-	}
 
 	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
 	{

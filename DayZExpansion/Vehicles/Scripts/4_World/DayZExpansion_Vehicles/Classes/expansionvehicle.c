@@ -28,6 +28,8 @@ modded class ExpansionVehicle
 
 	protected float m_AutoCoverTimestamp;
 
+	ExpansionVehicleSettings m_Settings = GetExpansionSettings().GetVehicle(false);
+
 	override void Init()
 	{
 		EntityAI vehicle = GetEntity();
@@ -130,9 +132,7 @@ modded class ExpansionVehicle
 
 		if (g_Game.IsServer())
 		{
-			auto settings = GetExpansionSettings().GetVehicle();
-
-			foreach (ExpansionVehiclesConfig vehcfg: settings.VehiclesConfig)
+			foreach (ExpansionVehiclesConfig vehcfg: m_Settings.VehiclesConfig)
 			{
 				if (vehicle.IsKindOf(vehcfg.ClassName))
 				{
@@ -180,23 +180,55 @@ modded class ExpansionVehicle
 
 	override bool CanBeDamaged()
 	{
-		if (GetExpansionSettings().GetVehicle().DisableVehicleDamage)
+		if (m_Settings.DisableVehicleDamage)
 			return false;
 
 		return super.CanBeDamaged();
 	}
 
+	bool CanTakeCollisionDamage(string zoneName, vector localPos, IEntity other, Contact data, float momentumPrevTick, vector velocityPrevTick, float dmgContactCoef)
+	{
+		if (!m_Settings.CollisionDamageIfEngineOff || m_Settings.CollisionDamageMinSpeedKmh)
+		{
+			ExpansionVehicle otherVehicle;
+			bool otherVehicleEngineSpinning;
+			if (ExpansionVehicle.Get(otherVehicle, other) && otherVehicle.EngineIsSpinning())
+				otherVehicleEngineSpinning = true;
+
+			if (!m_Settings.CollisionDamageIfEngineOff)
+			{
+				if (!EngineIsSpinning() && !otherVehicleEngineSpinning)
+					return false;
+			}
+
+			if (m_Settings.CollisionDamageMinSpeedKmh)
+			{
+				float collisionDmgMinSpeedMs = m_Settings.CollisionDamageMinSpeedKmh * 0.277778;  //! Converted to m/s
+
+				float relativeSpeedBeforeSq = data.RelativeVelocityBefore.LengthSq();
+				float collisionDmgMinSpeedMsSq = collisionDmgMinSpeedMs * collisionDmgMinSpeedMs;
+				if (relativeSpeedBeforeSq < collisionDmgMinSpeedMsSq && !otherVehicleEngineSpinning)
+					return false;
+
+				float impulse = GetMomentumDelta(momentumPrevTick, velocityPrevTick);
+				float dmg = Math.AbsInt(impulse * dmgContactCoef);  //! Same calc as in vanilla CarScript::CheckContactCache
+				if (dmg <= collisionDmgMinSpeedMs * CarScript.EXPANSION_COLLISION_DMG_MIN_SPEED_TO_DMG_MULT)
+					return false;
+			}
+		}
+
+		return true;
+	}
+
 	void AutoCover()
 	{
-		auto settings = GetExpansionSettings().GetVehicle(false);
-
-		if (!settings.EnableVehicleCovers || settings.VehicleAutoCoverTimeSeconds <= 0)
+		if (!m_Settings.EnableVehicleCovers || m_Settings.VehicleAutoCoverTimeSeconds <= 0)
 			return;
 
 		EntityAI vehicle = GetEntity();
 
 		//! Prevent autocover if this is a CE spawned vehicle (lifetime will be 0 in that case) and autocovering spawned vehicles is disabled
-		if (vehicle.GetLifetime() <= 0 && !settings.EnableAutoCoveringDEVehicles)
+		if (vehicle.GetLifetime() <= 0 && !m_Settings.EnableAutoCoveringDEVehicles)
 			return;
 
 		//! Defer autocover if engine is on or player is within vehicle bounding radius
@@ -209,10 +241,10 @@ modded class ExpansionVehicle
 			return;
 		}
 
-		if (g_Game.GetTickTime() - m_AutoCoverTimestamp > settings.VehicleAutoCoverTimeSeconds)
+		if (g_Game.GetTickTime() - m_AutoCoverTimestamp > m_Settings.VehicleAutoCoverTimeSeconds)
 		{
 			EntityAI cover = vehicle.FindAttachmentBySlotName("CamoNet");
-			if (settings.VehicleAutoCoverRequireCamonet && !cover)
+			if (m_Settings.VehicleAutoCoverRequireCamonet && !cover)
 			{
 				m_AutoCoverTimestamp = g_Game.GetTickTime();
 				return;
@@ -235,21 +267,19 @@ modded class ExpansionVehicle
 		if (vehicle.IsDamageDestroyed())
 			return false;
 
-		auto settings = GetExpansionSettings().GetVehicle(false);
-
-		if (!settings.IsLoaded())
+		if (!m_Settings.IsLoaded())
 			return false;
 
-		if (!settings.EnableVehicleCovers)
+		if (!m_Settings.EnableVehicleCovers)
 			return false;
 
-		if (!m_HasLifetime && !settings.AllowCoveringDEVehicles)
+		if (!m_HasLifetime && !m_Settings.AllowCoveringDEVehicles)
 			return false;
 
 		if (GetCrew(false, true).Count() > 0)
 			return false;
 
-		if (!settings.CanCoverWithCargo)
+		if (!m_Settings.CanCoverWithCargo)
 		{
 			if (MiscGameplayFunctions.Expansion_HasAnyCargo(vehicle))
 				return false;
@@ -274,14 +304,13 @@ modded class ExpansionVehicle
 
 		string placeholderType = GetPlaceholderType(coverType);
 
-		auto settings = GetExpansionSettings().GetVehicle();
-		bool storeCargo = settings.UseVirtualStorageForCoverCargo;
+		bool storeCargo = m_Settings.UseVirtualStorageForCoverCargo;
 		array<EntityAI> transferAttachments;
 
 		EntityAI vehicle = GetEntity();
 
 		ExpansionKeyChainBase keychain;
-		if (settings.ShowVehicleOwners)
+		if (m_Settings.ShowVehicleOwners)
 		{
 			keychain = ExpansionKeyChainBase.Cast(vehicle.GetAttachmentByType(ExpansionKeyChainBase));
 			if (keychain)
@@ -310,7 +339,7 @@ modded class ExpansionVehicle
 				}
 			}
 
-			if (settings.ShowVehicleOwners && !keychain && HasOwner())
+			if (m_Settings.ShowVehicleOwners && !keychain && HasOwner())
 			{
 				int slotId = InventorySlots.GetSlotIdFromString("KeyChain");
 				string color = ExpansionKeyChainBase.Expansion_GetRandomKeychain();
@@ -508,11 +537,10 @@ modded class ExpansionVehicle
 		if (m_LockState == ExpansionVehicleLockState.FORCEDLOCKED)
 			return false;
 
-		auto settings = GetExpansionSettings().GetVehicle(false);
-		if (settings.IsLoaded() && settings.VehicleLockedAllowInventoryAccess)
+		if (m_Settings.IsLoaded() && m_Settings.VehicleLockedAllowInventoryAccess)
 			return true;
 
-		if (settings.IsLoaded() && settings.VehicleLockedAllowInventoryAccessWithoutDoors && !AllDoorsClosedEx())
+		if (m_Settings.IsLoaded() && m_Settings.VehicleLockedAllowInventoryAccessWithoutDoors && !AllDoorsClosedEx())
 			return true;
 
 		//! @note we explicitly check for LOCKED state instead of IsLocked() as we don't want to be able to access inventory if forced locked
@@ -654,7 +682,7 @@ modded class ExpansionVehicle
 
 		if (previousLockState == ExpansionVehicleLockState.READY_TO_FORCELOCK)
 			lockState = ExpansionVehicleLockState.FORCEDLOCKED;
-		else if (AllDoorsClosedEx() || !GetExpansionSettings().GetVehicle().VehicleRequireAllDoors)
+		else if (AllDoorsClosedEx() || !m_Settings.VehicleRequireAllDoors)
 			lockState = ExpansionVehicleLockState.LOCKED;
 
 		if (lockState)
@@ -690,7 +718,7 @@ modded class ExpansionVehicle
 	
 	void OnHierarchyAfterLoad()
 	{
-		if (GetExpansionSettings().GetVehicle().ShowVehicleOwners)
+		if (m_Settings.ShowVehicleOwners)
 		{
 			EntityAI vehicle = GetEntity();
 			int slotId = InventorySlots.GetSlotIdFromString("KeyChain");
@@ -710,6 +738,25 @@ modded class ExpansionVehicle
 				}
 			}
 		}
+	}
+
+	//! Same calc as in Transport::OnContact
+	float GetMomentumDelta(float momentumPrevTick, vector velocityPrevTick)
+	{
+		Transport transport = GetTransport();
+		float momentumDelta = transport.GetMomentum() - momentumPrevTick;
+		float dot = vector.Dot(velocityPrevTick.Normalized(), GetVelocity(transport).Normalized());
+
+		if (dot < 0)
+			momentumDelta = momentumPrevTick;
+
+		return momentumDelta;
+	}
+
+	void OnContact(string zoneName, vector localPos, IEntity other, Contact data, float momentumPrevTick, vector velocityPrevTick, float dmgContactCoef, VehicleContactCache cache)
+	{
+		if (g_Game.IsServer() && cache.Count() == 0 && !CanTakeCollisionDamage(zoneName, localPos, other, data, momentumPrevTick, velocityPrevTick, dmgContactCoef))
+			VehicleContactData.s_OverrideImpulse = 0;
 	}
 
 	void OnItemAttached(EntityAI item, string slotName)

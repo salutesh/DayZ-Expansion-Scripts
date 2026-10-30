@@ -485,7 +485,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			return;
 		}
 
-		PlayerBase player = PlayerBase.Cast(senderRPC.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(senderRPC);
 		if (!player)
 		{
 			Error(ToString() + "::RPC_RequestRetrieveItem - Could not get player!");
@@ -536,6 +536,20 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		if (!Class.CastTo(objEntity, target))
 		{
 			Error(ToString() + "::RPC_RequestDepositItem - Could not get target object!");
+			return;
+		}
+
+		if (objEntity.IsSetForDeletion())
+		{
+			EXError.Warn(this, "::CanListItem - target is about to be deleted.");
+			CallbackError(senderRPC);
+			return;
+		}
+		
+		if (!ItemCheckEx(objEntity))
+		{
+			EXError.Warn(this, "::CanListItem - ItemCheckEx failed. This entity is excluded on client (someone likely faked an RPC).");
+			CallbackError(senderRPC);
 			return;
 		}
 

@@ -14,18 +14,42 @@ modded class ActionCloseFence
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( super.ActionCondition( player, target, item ) )
-			return true;
+		bool ret = super.ActionCondition( player, target, item );
 
 		Object targetObject = target.GetObject();
-		if ( targetObject && targetObject.CanUseConstruction() )
+
+		if (!ret)
 		{
-			Fence fence = Fence.Cast( targetObject );
-			
-			if ( fence && fence.CanCloseFence() && fence.GetType() != "Fence" )
-				return true;
+			if ( targetObject && targetObject.CanUseConstruction() )
+			{
+				Fence fence = Fence.Cast( targetObject );
+				
+				if ( fence && fence.CanCloseFence() && fence.GetType() != "Fence" )
+					ret = true;
+			}
+		}
+
+		if (ret)
+		{
+			ItemBase tgtItem;
+			if (Class.CastTo(tgtItem, targetObject))
+			{
+				if (ExpansionActionClose.Expansion_CloseAndLockCondition(tgtItem))
+					m_Text = "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
+				else
+					m_Text = "#close";
+			}
 		}
 		
-		return false;
+		return ret;
+	}
+
+	override void OnEndServer(ActionData action_data)
+	{
+		super.OnEndServer(action_data);
+
+		ItemBase tgtItem;
+		if (Class.CastTo(tgtItem, action_data.m_Target.GetObject()) && ExpansionActionClose.Expansion_CloseAndLockCondition(tgtItem))
+			tgtItem.ExpansionLock();
 	}
 }

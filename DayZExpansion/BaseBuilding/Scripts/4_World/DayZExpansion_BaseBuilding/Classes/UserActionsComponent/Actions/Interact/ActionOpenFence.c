@@ -19,15 +19,20 @@ modded class ActionOpenFence
 
 	override string GetText()
 	{
+		string text = super.GetText();
+
 		if (m_Expansion_IsLocked)
 		{
 			if (m_Expansion_HasGate)
-				return "#STR_EXPANSION_OPEN_LOCKED_GATE";
+				text = "#STR_EXPANSION_OPEN_LOCKED_GATE";
+			else
+				text = "#STR_EXPANSION_OPEN_LOCKED_DOOR";
 
-			return "#STR_EXPANSION_OPEN_LOCKED_DOOR";
+			if (GetPermissionsManager().IsAdminToolsToggledOn())
+				text = "[ADMIN] " + text;
 		}
 
-		return "#open";
+		return text;
 	}
 
 	override bool Can(PlayerBase player, ActionTarget target, ItemBase item, int condition_mask)
@@ -43,8 +48,7 @@ modded class ActionOpenFence
 			{
 				m_Expansion_CanOpen = fence.ExpansionCanOpen( player, "" );
 
-				//! Not locked by combination lock, but locked by Expansion codelock
-				if (!fence.IsLocked() && fence.ExpansionIsLocked())
+				if (fence.ExpansionIsLocked())
 					m_Expansion_IsLocked = true;
 				else
 					m_Expansion_IsLocked = false;

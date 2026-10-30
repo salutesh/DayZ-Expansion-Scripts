@@ -41,7 +41,7 @@ class ExpansionActionResetCodeLock: ActionContinuousBase
 		ItemBase targetItem;
 		if (Class.CastTo(targetItem, target.GetParentOrObject()))
 		{
-			ExpansionCodeLock cl = targetItem.ExpansionGetCodeLock();
+			ItemBase cl = targetItem.Expansion_GetCodeLock();
 			string selection = targetItem.GetActionComponentName(target.GetComponentIndex());
 
 			if (cl && cl.IsLockedInSlot() && !targetItem.ExpansionIsLocked() && targetItem.IsPlayerInside(player, selection))

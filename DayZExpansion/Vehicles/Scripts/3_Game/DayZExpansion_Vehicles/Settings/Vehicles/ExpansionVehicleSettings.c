@@ -35,7 +35,7 @@ class ExpansionVehicleSettingsBase : ExpansionSettingBase
 	bool EnableHelicopterExplosions;	//! If enabled, allow Helicopters to explode
 	bool DisableVehicleDamage;			//! If disabled, vehicles (cars, trucks) won't take any damages
 	float VehicleCrewDamageMultiplier;	//! Damage multiplier for the crew. How fast they will blackout or die.
-	float VehicleSpeedDamageMultiplier; //! Damage multiplier for the speed of the car. Above 0 is weaker and below 0 is stronger.
+	float VehicleSpeedDamageMultiplier; //! Damage multiplier for the speed of the car. Above 1 is stronger and below 1 is weaker.
 	float VehicleRoadKillDamageMultiplier;
 	bool CollisionDamageIfEngineOff;	//! Should the vehicle be able to receive damage if the engine is off?
 	float CollisionDamageMinSpeedKmh;	//! Minimum speed in km/h for vehicle to take collision damage

@@ -33,6 +33,84 @@ modded class ExpansionBaseBuilding
 
 	protected string m_Expansion_CurrentBuild;
 
+	override bool CanUseConstruction()
+	{
+		return GetConstructionBasic() != null;
+	}
+
+	override void ConstructionInit()
+	{
+		if (g_Game.ConfigIsExisting(string.Format("%1 %2 Construction", CFG_VEHICLESPATH, GetType())))
+			super.ConstructionInit();
+	}
+
+	override void FullyBuild()
+	{
+		if (CanUseConstruction())
+			Expansion_FullyBuild();
+	}
+
+	//! Similar to vanilla, but builds parts in order and checks required parts and conflicts
+	void Expansion_FullyBuild()
+	{
+		array<string> excludes = OnDebugSpawnBuildExcludes();
+		auto construction = GetConstruction();
+		array<ConstructionPart> parts = construction.GetConstructionPartArray();
+		
+		Man p;
+		
+		#ifdef SERVER
+		array<Man> players = new array<Man>;
+		g_Game.GetWorld().GetPlayerList(players);
+		if (players.Count())
+			p = players[0];
+		#else
+		p = g_Game.GetPlayer();
+		#endif
+		
+		foreach (ConstructionPart part : parts)
+		{
+			bool excluded = false;
+			string partName = part.GetPartName();
+			if (excludes)
+			{
+				foreach (string exclude : excludes)
+				{
+					if (partName.Contains(exclude))
+					{
+						excluded = true;
+						break;
+					}
+				}
+			}
+			
+			if (!excluded && construction.HasRequiredPart(partName) && !construction.HasConflictPart(partName))
+			{
+				OnPartBuiltServer(p, partName, AT_BUILD_PART);
+			}
+		}
+		
+		GetConstruction().UpdateVisuals();
+	}
+
+	override void SetPartsFromSyncData()
+	{
+		if (CanUseConstruction())
+			super.SetPartsFromSyncData();
+	}
+
+	override protected void SetActionFromSyncData()
+	{
+		if (CanUseConstruction())
+			super.SetActionFromSyncData();
+	}
+
+	override void UpdateVisuals()
+	{
+		if (CanUseConstruction())
+			super.UpdateVisuals();
+	}
+
 	// ------------------------------------------------------------
 	//! SetActions
 	// ------------------------------------------------------------
@@ -219,13 +297,9 @@ modded class ExpansionBaseBuilding
 	*/
 	override bool ExpansionHasCodeLock( string selection )
 	{
-		if ( selection == "codelock" )
-		{
-			if ( FindAttachmentBySlotName( "Att_ExpansionCodeLock" ) )
-			{
-				return true;
-			}
-		}
+		if ( selection == "*" || selection == "codelock" || GetExpansionSettings().GetBaseBuilding(false).CodelockActionsAnywhere )
+			return FindAttachmentBySlotName( "Att_ExpansionCodeLock" ) != null;
+
 		return false;
 	}
 
@@ -236,6 +310,21 @@ modded class ExpansionBaseBuilding
 	override ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		return ExpansionCodeLock.Cast( FindAttachmentBySlotName( "Att_ExpansionCodeLock" ) );
+	}
+
+	override ItemBase Expansion_GetCodeLock()
+	{
+		return ItemBase.Cast( FindAttachmentBySlotName( "Att_ExpansionCodeLock" ) );
+	}
+
+	override ItemBase Expansion_GetCodeLock( string selection )
+	{
+		//! WARNING: Do NOT check CodelockActionsAnywhere when getting codelock entity!
+		//! Reserved for HasCodeLock, else can break actions due to item <-> component mismatch
+		if ( selection == "*" || selection == "codelock" )
+			return Expansion_GetCodeLock();
+
+		return null;
 	}
 
 	bool ExpansionGetCollisionBox( out vector minMax[2] )
@@ -286,8 +375,9 @@ modded class ExpansionBaseBuilding
 		{
 			RemoveProxyPhysics( ANIMATION_DEPLOYED );
 		}
-		
-		GetConstruction().UpdatePhysics();
+
+		if (CanUseConstruction())
+			GetConstruction().UpdatePhysics();
 		
 		//regenerate navmesh
 		UpdateNavmesh();

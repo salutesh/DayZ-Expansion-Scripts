@@ -379,11 +379,11 @@ class eAIDynamicPatrol : eAIPatrol
 		auto trace = EXTrace.Start(EXTrace.AI, this);
 	#endif
 
-		pos = ExpansionAIPatrol.GetPlacementPosition(pos);
-
 		eAIBase ai = CreateAI(pos);
 		if (!ai)
 			return null;
+
+		pos = ExpansionAIPatrol.GetPlacementPosition(pos, true);  //! AFTER spawning so map objects have collision (only initialized if player or AI is near)
 
 		ai.SetPosition(pos);
 

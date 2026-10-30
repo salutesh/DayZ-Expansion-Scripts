@@ -355,6 +355,37 @@ class ExpansionLogSettings: ExpansionSettingBase
 	{
 		return "Log Settings";
 	}
+
+	void RaidLog( EntityAI target, EntityAI source, string damageZone, string ammo, float health, float dmg, float damageMultiplier )
+	{
+		if ( !BaseBuildingRaiding )
+			return;
+			
+		if ( ( dmg * damageMultiplier ) == 0 )
+			return;
+
+		string sourceDesc;
+
+		if (source)
+			sourceDesc = source.GetType();
+		else
+			sourceDesc = "<unknown source>";
+
+		if (ammo)
+			sourceDesc = ammo + " from " + sourceDesc;
+
+		PrintLog( "[BaseBuildingRaiding] ------------------------- Expansion Base Raiding Damage Report -------------------------" );
+
+		Man player = source.GetHierarchyRootPlayer();
+		if ( player )
+			PrintLog( "[BaseBuildingRaiding] Player \"{1:name}\" (id={1:id} pos={1:position}) damaged {2:type} at {2:position}", player, target );
+		else
+			PrintLog( "[BaseBuildingRaiding] A player damaged {1:type} at {1:position}", target );
+
+		PrintLog( "[BaseBuildingRaiding] They dealt "  + dmg + " * " + damageMultiplier + " = " + ( dmg * damageMultiplier ) + " damage with " + sourceDesc );
+		PrintLog( "[BaseBuildingRaiding] " + damageZone + " hitpoints decreased from " + health + " to " + target.GetHealth( damageZone, "Health" ) );
+		PrintLog( "[BaseBuildingRaiding] ----------------------------------------------------------------------------------------" );
+	}
 	
 	void PrintLog(string text, string param1 = string.Empty, string param2 = string.Empty, string param3 = string.Empty, string param4 = string.Empty, string param5 = string.Empty, string param6 = string.Empty, string param7 = string.Empty, string param8 = string.Empty, string param9 = string.Empty)
 	{

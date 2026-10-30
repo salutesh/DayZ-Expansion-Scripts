@@ -143,7 +143,7 @@ modded class JMPlayerModule
 	{
 		super.Server_OnStartSpectating(spectateObject, ident);
 
-		PlayerBase spectator = PlayerBase.Cast(ident.GetPlayer());
+		PlayerBase spectator = PlayerBase.ExpansionGetPlayerByIdentity(ident);
 		eAIBase ai;
 		if (spectator && Class.CastTo(ai, spectateObject))
 		{
@@ -174,7 +174,7 @@ modded class JMPlayerModule
 #endif
 	PlayerBase eAI_RemoveSpectator(PlayerIdentity ident)
 	{
-		PlayerBase spectator = PlayerBase.Cast(ident.GetPlayer());
+		PlayerBase spectator = PlayerBase.ExpansionGetPlayerByIdentity(ident);
 
 	#ifndef COT_SPECTATOR_TRACKING
 		eAIBase ai;

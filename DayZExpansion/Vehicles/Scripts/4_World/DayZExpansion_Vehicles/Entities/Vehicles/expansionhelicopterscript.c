@@ -385,7 +385,7 @@ class ExpansionHelicopterScript: CarScript
 				m_ExpansionVehicle.m_Settings.CollisionDamageMinSpeedKmh = 0;
 
 				float impulse = m_ExpansionVehicle.GetMomentumDelta(m_MomentumPrevTick, m_VelocityPrevTick);  //! Same calc as in Transport::OnContact
-				float dmg = impulse * m_dmgContactCoef;  //! Same calc as in vanilla CarScript::CheckContactCache
+				float dmg = Math.AbsInt(impulse * m_dmgContactCoef);  //! Same calc as in vanilla CarScript::CheckContactCache
 
 				//! Make sure dmg is ignored by setting impulse below threshold if main rotor dmg is disabled and below min speed
 				if (!m_Simulation.m_EnableMainRotorDamage)

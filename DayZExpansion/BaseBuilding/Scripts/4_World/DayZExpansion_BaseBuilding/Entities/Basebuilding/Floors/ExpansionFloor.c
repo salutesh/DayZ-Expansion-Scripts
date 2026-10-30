@@ -189,6 +189,11 @@ class ExpansionFloorBase: ExpansionBaseBuilding
 		return Math.IsPointInRectangle(minMax[0], minMax[1], test_position);
 	}
 
+	override bool Expansion_IsPlayerInside(PlayerBase player, string selection)
+	{
+		return IsPlayerInside(player, selection);
+	}
+
 	override bool IsFacingPlayer( PlayerBase player, string selection )
 	{
 		return false;
@@ -198,4 +203,8 @@ class ExpansionFloorBase: ExpansionBaseBuilding
 	{
 		return false;
 	}
-} 
+}
+
+class ExpansionFloor6x6: ExpansionFloorBase {};
+class ExpansionFloor3x3: ExpansionFloorBase {};
+class ExpansionFloor3x6: ExpansionFloorBase {};

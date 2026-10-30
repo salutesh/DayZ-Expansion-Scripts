@@ -69,7 +69,7 @@ class ExpansionActionRemoveSparkPlug: ActionInteractBase
 		//! If player has an other spark plug in his hands try the switch
 		if (action_data.m_MainItem && action_data.m_MainItem.GetType() == "SparkPlug" && !action_data.m_MainItem.IsRuined())
 		{
-			target_EAI.LocalTakeEntityAsAttachment(action_data.m_MainItem);
+			target_EAI.LocalTakeEntityToTargetAttachment(target_EAI, action_data.m_MainItem);
 		}
 		
 		//! Spawn the "old" spark plug in the players hands
@@ -93,7 +93,7 @@ class ExpansionActionRemoveSparkPlug: ActionInteractBase
 		//! If player has an other spark plug in his hands try the switch
 		if (action_data.m_MainItem && action_data.m_MainItem.GetType() == "SparkPlug" && !action_data.m_MainItem.IsRuined())
 		{
-			target_EAI.LocalTakeEntityAsAttachment(action_data.m_MainItem);
+			target_EAI.LocalTakeEntityToTargetAttachment(target_EAI, action_data.m_MainItem);
 		}
 		
 		//! Spawn the "old" spark plug in the players hands

@@ -92,10 +92,12 @@ modded class ItemBase
 		super.EEItemAttached(item, slot_name);
 
 		if (item.IsInherited(ExpansionCodeLock))
-		{
 			Expansion_RegisterLockRPCs();
 
-			if (g_Game.IsServer())
+		if (g_Game.IsServer())
+		{
+			ItemBase ib;
+			if (Class.CastTo(ib, item) && ib.Expansion_IsCodeLock())
 			{
 				//! If max is reached during storage load, the codelock will NOT be dropped
 				bool loaded = GetDayZGame().GetExpansionGame().IsLoaded();
@@ -182,7 +184,8 @@ modded class ItemBase
 	{
 		super.EEItemDetached(item, slot_name);
 
-		if (item.IsInherited(ExpansionCodeLock))
+		ItemBase ib;
+		if (Class.CastTo(ib, item) && ib.Expansion_IsCodeLock())
 		{
 			if (g_Game.IsServer())
 			{
@@ -433,6 +436,16 @@ modded class ItemBase
 		return m_Expansion_IsOpenable;
 	}
 
+#ifdef COT_UNIFIED_OPENCLOSE
+	override bool COT_IsOpenable()
+	{
+		if (super.COT_IsOpenable())
+			return true;
+
+		return ExpansionIsOpenable();
+	}
+#endif
+
 	/**
 	\brief Returning if selection is openable in principle (regardless if player can actually open in current state)
 		\param 	
@@ -471,7 +484,13 @@ modded class ItemBase
 	*/
 	bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
-		return ExpansionIsOpenable( selection ) && !IsOpen() && ( !ExpansionIsLocked() || IsKnownUser( player ) );
+		return ExpansionIsOpenable( selection ) && !IsOpen() && ( !ExpansionIsLocked() || IsKnownUser( player ) || Expansion_CanUnlockFromInside( player, selection ) );
+	}
+
+	bool ExpansionCanOpen( PlayerBase player, int component )
+	{
+		string selection = GetActionComponentName( component );
+		return ExpansionCanOpen( player, selection );
 	}
 
 	/**
@@ -481,6 +500,12 @@ modded class ItemBase
 	bool ExpansionCanClose( PlayerBase player, string selection )
 	{
 		return ExpansionIsOpenable() && CanClose( selection );
+	}
+
+	bool ExpansionCanClose( PlayerBase player, int component )
+	{
+		string selection = GetActionComponentName( component );
+		return ExpansionCanClose( player, selection );
 	}
 	
 	/**
@@ -499,6 +524,12 @@ modded class ItemBase
 	void Expansion_Open( string selection ) 
 	{
 		Open();
+	}
+
+	void Expansion_Open( int component ) 
+	{
+		string selection = GetActionComponentName( component );
+		Expansion_Open( selection );
 	}
 
 	override void Open()
@@ -521,6 +552,12 @@ modded class ItemBase
 
 		Expansion_Open( selection );
 	}
+
+	void UnlockAndOpen( int component ) 
+	{
+		string selection = GetActionComponentName( component );
+		UnlockAndOpen( selection );
+	}
 	
 	/**
 	\brief Closing item on defined selection
@@ -529,6 +566,12 @@ modded class ItemBase
 	void Expansion_Close( string selection ) 
 	{
 		Close();
+	}
+
+	void Expansion_Close( int component ) 
+	{
+		string selection = GetActionComponentName( component );
+		Expansion_Close( selection );
 	}
 
 	override void Close()
@@ -551,6 +594,12 @@ modded class ItemBase
 
 		ExpansionLock();
 	}
+
+	void CloseAndLock( int component ) 
+	{
+		string selection = GetActionComponentName( component );
+		CloseAndLock( selection );
+	}
 	
 	/**
 	\brief Set code of item
@@ -565,9 +614,9 @@ modded class ItemBase
 		}
 
 		//! Check for m_Expansion_Code allows to set empty code on parent after migration of code to attached codelock
-		if (!m_Expansion_Code && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		if (!m_Expansion_Code && !Expansion_IsCodeLock() && !IsInherited(ExpansionSafeBase))
 		{
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			ItemBase codelock = Expansion_GetCodeLock();
 			if (codelock)
 			{
 				codelock.SetCode(code, player, setUser, updateLock);
@@ -595,7 +644,7 @@ modded class ItemBase
 				SetUser( player );
 		}
 
-		if (IsOpen() || !updateLock)
+		if ((!IsInherited(ExpansionCodeLock) && IsOpen()) || !updateLock)
 			SetSynchDirty();
 		else if (HasCode())
 			ExpansionLock();  //! Will call SetSynchDirty
@@ -611,9 +660,9 @@ modded class ItemBase
 	*/
 	string GetCode()
 	{
-		if (!m_Expansion_Code && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		if (!m_Expansion_Code && !Expansion_IsCodeLock() && !IsInherited(ExpansionSafeBase))
 		{
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			ItemBase codelock = Expansion_GetCodeLock();
 			if (codelock)
 				return codelock.GetCode();
 		}
@@ -627,9 +676,9 @@ modded class ItemBase
 	*/
 	int GetCodeLength()
 	{
-		if (!m_Expansion_CodeLength && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		if (!m_Expansion_CodeLength && !Expansion_IsCodeLock() && !IsInherited(ExpansionSafeBase))
 		{
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			ItemBase codelock = Expansion_GetCodeLock();
 			if (codelock)
 				return codelock.GetCodeLength();
 		}
@@ -644,9 +693,9 @@ modded class ItemBase
 	*/
 	bool HasCode()
 	{
-		if (!m_Expansion_CodeLength && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		if (!m_Expansion_CodeLength && !Expansion_IsCodeLock() && !IsInherited(ExpansionSafeBase))
 		{
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			ItemBase codelock = Expansion_GetCodeLock();
 			if (codelock)
 				return codelock.HasCode();
 		}
@@ -654,11 +703,17 @@ modded class ItemBase
 		return m_Expansion_CodeLength > 0;
 	}
 
+	//! Is this a lock item?
+	bool Expansion_IsLock();
+
+	//! Is this a codelock item?
+	bool Expansion_IsCodeLock();
+
 	override bool ExpansionIsLocked()
 	{
-		if (!m_Expansion_CodeLength && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		if (!m_Expansion_CodeLength && !Expansion_IsCodeLock() && !IsInherited(ExpansionSafeBase))
 		{
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			ItemBase codelock = Expansion_GetCodeLock();
 			if (codelock)
 				return codelock.ExpansionIsLocked();
 		}
@@ -675,12 +730,18 @@ modded class ItemBase
 		return ExpansionHasCodeLock();
 	}
 
+	bool ExpansionHasCodeLock( int component )
+	{
+		string selection = GetActionComponentName( component );
+		return ExpansionHasCodeLock( selection );
+	}
+
 	/**
 	\brief Returning if the item has a codelock attached
 	*/
 	bool ExpansionHasCodeLock()
 	{
-		return ExpansionGetCodeLock() != NULL;
+		return Expansion_GetCodeLock() != NULL;
 	}
 
 	bool ExpansionFindCodeLockSlot(out string slotName = "")
@@ -713,12 +774,41 @@ modded class ItemBase
 	}
 
 	/**
-	\brief Returning codelock entity
+	\brief Returning Expansion codelock entity
 		\param
 	*/
 	ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		return ExpansionCodeLock.Cast(GetAttachmentByType(ExpansionCodeLock));
+	}
+
+	/**
+	\brief Returning any codelock entity (vanilla, Expansion or anything else that overrides Expansion_IsCodeLock to true)
+		\param
+	*/
+	ItemBase Expansion_GetCodeLock()
+	{
+		GameInventory inventory = GetInventory();
+		int attCount = inventory.AttachmentCount();
+		for (int i = 0; i < attCount; ++i)
+		{
+			ItemBase item;
+			if (Class.CastTo(item, inventory.GetAttachmentFromIndex(i)) && item.Expansion_IsCodeLock())
+				return item;
+		}
+
+		return null;
+	}
+
+	ItemBase Expansion_GetCodeLock(int component)
+	{
+		string selection = GetActionComponentName(component);
+		return Expansion_GetCodeLock(selection);
+	}
+
+	ItemBase Expansion_GetCodeLock(string selection)
+	{
+		return Expansion_GetCodeLock();
 	}
 
 	void SetSlotLock( EntityAI parent, bool state )
@@ -734,9 +824,12 @@ modded class ItemBase
 	*/
 	void ExpansionLock()
 	{
-		if (!IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		if (IsDamageDestroyed())
+			return;
+
+		if (!Expansion_IsCodeLock() && !IsInherited(ExpansionSafeBase))
 		{
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			ItemBase codelock = Expansion_GetCodeLock();
 			if (codelock)
 			{
 				codelock.ExpansionLock();
@@ -764,9 +857,9 @@ modded class ItemBase
 	*/
 	void ExpansionUnlock()
 	{
-		if (!IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		if (!Expansion_IsCodeLock() && !IsInherited(ExpansionSafeBase))
 		{
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			ItemBase codelock = Expansion_GetCodeLock();
 			if (codelock)
 			{
 				codelock.ExpansionUnlock();
@@ -822,15 +915,21 @@ modded class ItemBase
 	*/
 	bool IsKnownUser( PlayerBase player )
 	{
+		if ( !player )
+			return false;
+
+		if ( !player.GetIdentity() )
+			return false;
+
 		auto bbSettings = GetExpansionSettings().GetBaseBuilding(false);
 		auto ttSettings = GetExpansionSettings().GetTerritory(false);
 
-		if ( !player || !player.GetIdentity() || !bbSettings.IsLoaded() || !ttSettings.IsLoaded() || !bbSettings.RememberCode )
+		if ( !bbSettings.IsLoaded() || !ttSettings.IsLoaded() || !bbSettings.RememberCode )
 			return false;
 
-		if (!IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		if (!Expansion_IsCodeLock() && !IsInherited(ExpansionSafeBase))
 		{
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			ItemBase codelock = Expansion_GetCodeLock();
 			if ( codelock )
 				return codelock.IsKnownUser( player );
 		}
@@ -845,6 +944,25 @@ modded class ItemBase
 			RequestKnownUIDs();
 
 		return m_Expansion_KnownUIDs.Find( player.GetIdentityUID() ) > -1;
+	}
+
+	//! Unlike vanilla, default false
+	bool Expansion_IsPlayerInside(PlayerBase player, string selection)
+	{
+		return false;
+	}
+
+	//! Check if player is inside and can unlock w/o entering code
+	//! Returns false if player is not inside or cannot unlock
+	bool Expansion_CanUnlockFromInside(PlayerBase player, string selection)
+	{
+		if (!player)
+			return false;
+
+		if (Expansion_IsPlayerInside(player, selection) && player.Expansion_CanDismantle())
+			return true;
+
+		return false;
 	}
 
 	void AddUser(PlayerBase player, TStringArray knownUIDsToForget = null)
@@ -955,6 +1073,10 @@ modded class ItemBase
 
 	void RPC_Expansion_Lock(PlayerIdentity sender, ParamsReadContext ctx)
 	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.BASEBUILDING, this);
+	#endif
+
 		string selection;
 		if ( !ctx.Read( selection ) )
 		{
@@ -977,6 +1099,10 @@ modded class ItemBase
 
 	void RPC_Expansion_Unlock(PlayerIdentity sender, ParamsReadContext ctx)
 	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.BASEBUILDING, this);
+	#endif
+
 		if (!GetExpansionSettings().GetBaseBuilding())
 			return;
 		
@@ -1006,9 +1132,9 @@ modded class ItemBase
 			return;
 		}
 
-		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 
-		if ((!IsKnownUser(player) || code != "") && GetCode() != code)
+		if (((!IsKnownUser(player) && !Expansion_CanUnlockFromInside(player, selection)) || code != "") && GetCode() != code)
 		{
 			CF_Log.Debug("ItemBase::OnRPC ExpansionLockRPC.UNLOCK GetCode() != code");
 			
@@ -1054,6 +1180,10 @@ modded class ItemBase
 
 	void RPC_Expansion_SetCode(PlayerIdentity sender, ParamsReadContext ctx)
 	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.BASEBUILDING, this);
+	#endif
+
 		string code;
 		if ( !ctx.Read( code ) || code.Length() == 0 || code.Length() > GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 		{
@@ -1079,7 +1209,7 @@ modded class ItemBase
 			return;
 		}
 
-		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 
 		SetCode( code, player );
 
@@ -1091,6 +1221,10 @@ modded class ItemBase
 
 	void RPC_Expansion_ChangeCode(PlayerIdentity sender, ParamsReadContext ctx)
 	{
+	#ifdef EXTRACE
+		auto trace = EXTrace.Start(EXTrace.BASEBUILDING, this);
+	#endif
+
 		string code;
 		if ( !ctx.Read( code ) || code.Length() == 0 || code.Length() > GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 		{
@@ -1109,7 +1243,7 @@ modded class ItemBase
 			return;
 		}
 
-		PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		
 		SetCode( code, player );
 
@@ -1286,36 +1420,8 @@ modded class ItemBase
 					return false;
 				}
 
-				if (damageType == DT_EXPLOSION)
-				{
-					if (GetExpansionSettings().GetRaid().EnableExplosiveWhitelist)
-					{
-						if (!source)
-						{
-#ifdef DIAG_DEVELOPER
-							EXTrace.Print(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated - no explosion source");
-#endif
-							return false;
-						}
-
-						if (!ExpansionStatic.IsAnyOf(source, GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist, true))
-						{
-#ifdef DIAG_DEVELOPER
-							EXTrace.Print(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated - explosive is not whitelisted");
-#endif
-							return false;
-						}
-
-						if (GetExpansionSettings().GetLog().BaseBuildingRaiding)
-							GetExpansionSettings().GetLog().PrintLog("[BaseBuildingRaiding] BaseRaiding: " + ToString() + " at " + GetPosition() + " has been hit by whitelisted explosive " + source);
-					}
-					else
-					{
-
-						if (GetExpansionSettings().GetLog().BaseBuildingRaiding)
-							GetExpansionSettings().GetLog().PrintLog("[BaseBuildingRaiding] BaseRaiding: " + ToString() + " at " + GetPosition() + " has been hit by explosive " + source);
-					}
-				}
+				if (damageType == DT_EXPLOSION && !GetExpansionSettings().GetRaid().CheckExplosionDamageAllowed(this, source))
+					return false;
 			}
 		}
 
@@ -1357,5 +1463,28 @@ modded class ItemBase
 	bool IsNonExpansionOpenable()
 	{
 		return false;
+	}
+
+	static bool Expansion_GetLockableItem(out ItemBase item, Object target, int component)
+	{
+		item = Expansion_GetLockableItem(target, component);
+		return item != null;
+	}
+
+	static ItemBase Expansion_GetLockableItem(Object target, int component)
+	{
+		ItemBase item;
+		if (Class.CastTo(item, target))
+			return item;
+
+		BuildingBase building;
+		if (Class.CastTo(building, target))
+		{
+			int doorIndex = building.GetDoorIndex(component);
+			if (doorIndex != -1)
+				return building.Expansion_GetCodeLock(doorIndex);
+		}
+
+		return null;
 	}
 };

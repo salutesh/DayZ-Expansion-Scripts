@@ -693,7 +693,7 @@ modded class ItemBase
 
 #ifdef EXPANSIONMODBASEBUILDING
 		if (IsInherited(BaseBuildingBase) || IsInherited(ExpansionSafeBase))
-			RaidLog(source, damageZone, ammo, health, dmg, m_Expansion_DamageMultiplier);
+			GetExpansionSettings().GetLog().RaidLog(this, source, damageZone, ammo, health, dmg, m_Expansion_DamageMultiplier);
 #endif
 	}
 
@@ -735,41 +735,16 @@ modded class ItemBase
 	}
 
 #ifdef EXPANSIONMODBASEBUILDING
+	[Obsolete("Use GetExpansionSettings().GetLog().RaidLog")]
 	void RaidLog( EntityAI source, string damageZone, float health, float dmg, float damageMultiplier )
 	{
-		RaidLog( source, damageZone, "", health, dmg, damageMultiplier );
+		GetExpansionSettings().GetLog().RaidLog( this, source, damageZone, "", health, dmg, damageMultiplier );
 	}
 
+	[Obsolete("Use GetExpansionSettings().GetLog().RaidLog")]
 	void RaidLog( EntityAI source, string damageZone, string ammo, float health, float dmg, float damageMultiplier )
 	{
-		if ( !GetExpansionSettings().GetLog().BaseBuildingRaiding )
-			return;
-			
-		if ( ( dmg * damageMultiplier ) == 0 )
-			return;
-
-		PlayerBase player;
-
-		string sourceDesc;
-
-		if (source)
-			sourceDesc = source.GetType();
-		else
-			sourceDesc = "<unknown source>";
-
-		if (ammo)
-			sourceDesc = ammo + " from " + sourceDesc;
-
-		GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] ------------------------- Expansion Base Raiding Damage Report -------------------------" );
-		
-		if ( source && Class.CastTo( player, source.GetHierarchyRootPlayer() ) )
-			GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] Player \"{1:name}\" (id={1:id} pos={1:position}) damaged {2:type} at {2:position}", player, this );
-		else
-			GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] A player damaged {1:type} at {1:position}", this );
-
-		GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] They dealt "  + dmg + " * " + damageMultiplier + " = " + ( dmg * damageMultiplier ) + " damage with " + sourceDesc );
-		GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] " + damageZone + " hitpoints decreased from " + health + " to " + GetHealth( damageZone, "Health" ) );
-		GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] ----------------------------------------------------------------------------------------" );
+		GetExpansionSettings().GetLog().RaidLog( this, source, damageZone, ammo, health, dmg, damageMultiplier );
 	}
 #endif
 

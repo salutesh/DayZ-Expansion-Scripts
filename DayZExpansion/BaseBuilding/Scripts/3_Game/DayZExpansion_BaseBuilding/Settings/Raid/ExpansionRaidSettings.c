@@ -528,10 +528,17 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		BarbedWireRaidToolTimeSeconds = 5 * 60;
 		BarbedWireRaidToolCycles = 5;
 		BarbedWireRaidToolDamagePercent = 100;
-		
+
+	#ifdef DIAG_DEVELOPER
+		CanRaidLocksOnWalls = RaidLocksOnWallsEnum.Enabled;
+		CanRaidLocksOnFences = true;
+		CanRaidLocksOnTents = true;
+		LockRaidTools.Insert( "Hacksaw" );
+	#else
 		CanRaidLocksOnWalls = RaidLocksOnWallsEnum.Disabled;
 		CanRaidLocksOnFences = false;
 		CanRaidLocksOnTents = false;
+	#endif
 
 		LockOnWallRaidToolTimeSeconds = 15 * 60;
 		LockOnFenceRaidToolTimeSeconds = 15 * 60;
@@ -583,5 +590,40 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		}
 
 		return false;
+	}
+
+	bool CheckExplosionDamageAllowed(EntityAI target, EntityAI source)
+	{
+		string sourceDesc;
+
+		if (EnableExplosiveWhitelist)
+		{
+			if (!source)
+			{
+#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.BASEBUILDING, target, "EEOnDamageCalculated - no explosion source");
+#endif
+				return false;
+			}
+
+			if (!ExpansionStatic.IsAnyOf(source, ExplosiveDamageWhitelist, true))
+			{
+#ifdef DIAG_DEVELOPER
+				EXTrace.Print(EXTrace.BASEBUILDING, target, "EEOnDamageCalculated - explosive is not whitelisted");
+#endif
+				return false;
+			}
+
+			sourceDesc = "whitelisted explosive";
+		}
+		else
+		{
+			sourceDesc = "explosive";
+		}
+
+		if (GetExpansionSettings().GetLog().BaseBuildingRaiding)
+			GetExpansionSettings().GetLog().PrintLog("[BaseBuildingRaiding] BaseRaiding: " + target.ToString() + " at " + target.GetPosition() + " has been hit by " + sourceDesc + " " + source);
+
+		return true;
 	}
 };

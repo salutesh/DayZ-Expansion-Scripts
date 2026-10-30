@@ -475,10 +475,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		//! Locations that should get a HIGH probability should be at the BOTTOM.
 		switch ( idx )
 		{
-		default:
-		case 0:
-			DropLocation = new ExpansionAirdropLocation( 4807, 9812, 100, "NWAF" );
-			break;
 		case 1:
 			DropLocation = new ExpansionAirdropLocation( 12159, 12583, 100, "NEAF" );
 			break;
@@ -515,6 +511,10 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		case 12:
 			DropLocation = new ExpansionAirdropLocation( 5823, 7764, 100, "Stary Sobor" );
 			break;
+		case 0:
+		default:
+			DropLocation = new ExpansionAirdropLocation( 4807, 9812, 100, "NWAF" );
+			break;
 		}
 
 		MissionName = MissionName + "_" + DropLocation.Name;
@@ -535,10 +535,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		//! Locations that should get a HIGH probability should be at the BOTTOM.
 		switch ( idx )
 		{
-		default:
-		case 0:
-			DropLocation = new ExpansionAirdropLocation( 3478, 10130, 100, "NWAF" );
-			break;
 		case 1:
 			DropLocation = new ExpansionAirdropLocation( 1367, 7057, 100, "Topolin" );
 			break;
@@ -572,6 +568,10 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		case 11:
 			DropLocation = new ExpansionAirdropLocation( 4559, 6852, 100, "Muratyn" );
 			break;
+		case 0:
+		default:
+			DropLocation = new ExpansionAirdropLocation( 3478, 10130, 100, "NWAF" );
+			break;
 		}
 
 		MissionName = MissionName + "_" + DropLocation.Name;
@@ -592,10 +592,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		//! Locations that should get a HIGH probability should be at the BOTTOM.
 		switch ( idx )
 		{
-		default:
-		case 0:
-			DropLocation = new ExpansionAirdropLocation( 6055, 13429, 100, "Portland" );
-			break;
 		case 1:
 			DropLocation = new ExpansionAirdropLocation( 7911, 8864, 100, "Mountainville" );
 			break;
@@ -632,6 +628,10 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		case 12:
 			DropLocation = new ExpansionAirdropLocation( 10179, 4722, 100, "Oceanville" );
 			break;
+		case 0:
+		default:
+			DropLocation = new ExpansionAirdropLocation( 6055, 13429, 100, "Portland" );
+			break;
 		}
 
 		MissionName = MissionName + "_" + DropLocation.Name;
@@ -652,10 +652,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		//! Locations that should get a HIGH probability should be at the BOTTOM.
 		switch ( idx )
 		{
-		default:
-		case 0:
-			DropLocation = new ExpansionAirdropLocation( 6751, 10900, 100, "Vorkuta" );
-			break;
 		case 1:
 			DropLocation = new ExpansionAirdropLocation( 8008, 10747, 100, "Jalovisko" );
 			break;
@@ -680,6 +676,10 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		case 8:
 			DropLocation = new ExpansionAirdropLocation( 4327, 5230, 100, "Brensk" );
 			break;
+		case 0:
+		default:
+			DropLocation = new ExpansionAirdropLocation( 6751, 10900, 100, "Vorkuta" );
+			break;
 		}
 
 		MissionName = MissionName + "_" + DropLocation.Name;
@@ -700,10 +700,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		//! Locations that should get a HIGH probability should be at the BOTTOM.
 		switch ( idx )
 		{
-		default:
-		case 0:
-			DropLocation = new ExpansionAirdropLocation( 500, 500, 100, "Middle" );
-			break;
 		case 1:
 			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "BottomLeft" );
 			break;
@@ -715,6 +711,10 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 			break;
 		case 4:
 			DropLocation = new ExpansionAirdropLocation( 1000, 1000, 100, "TopRight" );
+			break;
+		case 0:
+		default:
+			DropLocation = new ExpansionAirdropLocation( 500, 500, 100, "Middle" );
 			break;
 		}
 
@@ -736,10 +736,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 		//! Locations that should get a HIGH probability should be at the BOTTOM.
 		switch ( idx )
 		{
-		default:
-		case 0:
-			DropLocation = new ExpansionAirdropLocation( 3099, 8394, 100, "Atomkraftwerk" );
-			break;
 		case 1:
 			DropLocation = new ExpansionAirdropLocation( 1137, 2551, 100, "Bachham" );
 			break;
@@ -775,6 +771,10 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventAirdropBase
 			break;
 		case 12:
 			DropLocation = new ExpansionAirdropLocation( 6222, 9723, 100, "Weitmoos" );
+			break;
+		case 0:
+		default:
+			DropLocation = new ExpansionAirdropLocation( 3099, 8394, 100, "Atomkraftwerk" );
 			break;
 		}
 

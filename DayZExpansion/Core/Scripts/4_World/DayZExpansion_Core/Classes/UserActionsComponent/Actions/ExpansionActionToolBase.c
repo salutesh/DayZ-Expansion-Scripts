@@ -147,7 +147,7 @@ class ExpansionActionToolBase : ActionContinuousBase
 
 	override void OnFinishProgressServer( ActionData action_data )
 	{
-		Object actualTargetObject = GetActualTargetObject( action_data.m_Target.GetParentOrObject() );
+		Object actualTargetObject = GetActualTargetObjectEx( action_data.m_Target.GetParentOrObject(), action_data.m_Target.GetComponentIndex() );
 
 		if ( !actualTargetObject )
 			return;
@@ -181,14 +181,20 @@ class ExpansionActionToolBase : ActionContinuousBase
 	}
 
 	//! Just kept for compatibility with 3rd party mods
+	[Obsolete("Use GetActualTargetObjectEx")]
 	ItemBase GetTargetItem( Object targetObject )
 	{
-		Error("DEPRECATED - please use ExpansionActionToolBase::GetActualTagetObject instead");
-		return ItemBase.Cast( GetActualTargetObject( targetObject ) );
+		return ItemBase.Cast( GetActualTargetObjectEx( targetObject, -1 ) );
+	}
+
+	[Obsolete("Use GetActualTargetObjectEx")]
+	Object GetActualTargetObject( Object targetObject )
+	{
+		return GetActualTargetObjectEx( targetObject, -1 );
 	}
 
 	//! Override this in derived classes to return a different object than targetObject
-	Object GetActualTargetObject( Object targetObject )
+	Object GetActualTargetObjectEx( Object targetObject, int component )
 	{
 		return targetObject;
 	}

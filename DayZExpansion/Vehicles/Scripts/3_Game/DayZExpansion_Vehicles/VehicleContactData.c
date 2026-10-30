@@ -6,6 +6,8 @@ modded class VehicleContactData
 	{
 		if (s_OverrideImpulse >= 0)
 			impulse = s_OverrideImpulse;
+		else
+			impulse *= GetExpansionSettings().GetVehicle(false).VehicleSpeedDamageMultiplier;
 
 		super.SetData(localPos, other, impulse);
 	}

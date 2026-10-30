@@ -960,7 +960,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		}
 	
 		string playerUID = identity.GetId();
-		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
 		if (!player)
 			return;
 		
@@ -1922,14 +1922,21 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		EntityAI objEntity;
 		if (!Class.CastTo(objEntity, target))
 		{
-			EXError.Error(this, "::RPC_RequestListItem - Could not get target object.");
+			EXError.Warn(this, "::CanListItem - Could not get target object.");
 			CallbackError(identity);
 			return false;
 		}
 
 		if (objEntity.IsSetForDeletion())
 		{
-			EXError.Error(this, "::RPC_RequestListItem - target is about to be deleted.");
+			EXError.Warn(this, "::CanListItem - target is about to be deleted.");
+			CallbackError(identity);
+			return false;
+		}
+		
+		if (!ItemCheckEx(objEntity))
+		{
+			EXError.Warn(this, "::CanListItem - ItemCheckEx failed. This entity is excluded on client (someone likely faked an RPC).");
 			CallbackError(identity);
 			return false;
 		}
@@ -1994,7 +2001,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 					if (!carKey)
 						continue;
 
-					if (carKey.GetHierarchyRootPlayer() && carKey.GetHierarchyRootPlayer() == identity.GetPlayer())
+					if (carKey.GetHierarchyRootPlayer() && carKey.GetHierarchyRootPlayer() == PlayerBase.ExpansionGetPlayerByIdentity(identity))
 					{
 						hasCarKey = true;
 					}
@@ -2045,7 +2052,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 		}
 		
-		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
 		if (!player)
 		{
 			EXError.Error(this, "::ListItem - Could not get player entity.");
@@ -2419,7 +2426,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		PlayerBase player = PlayerBase.Cast(identity.GetPlayer());
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
 		if (!player)
 		{
 			EXError.Error(this, "::RPC_RequestPurchaseItem - Could not get player.");

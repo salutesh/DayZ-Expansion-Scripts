@@ -73,7 +73,7 @@ class ExpansionActionDestroyBarbedWire : ExpansionActionDestroyBase
 		return settings.CanRaidBarbedWire && settings.IsRaidableNow();
 	}
 
-	override Object GetActualTargetObject( Object targetObject )
+	override Object GetActualTargetObjectEx( Object targetObject, int component )
 	{
 		EntityAI targetEntity;
 		if ( targetObject.IsInherited( ExpansionBarbedWire ) )
@@ -91,7 +91,7 @@ class ExpansionActionDestroyBarbedWire : ExpansionActionDestroyBase
 	override bool Expansion_CheckSuccess(ActionData action_data)
 	{
 		ItemBase barbedWire;
-		if (Class.CastTo(barbedWire, GetActualTargetObject(action_data.m_Target.GetParentOrObject())))
+		if (Class.CastTo(barbedWire, GetActualTargetObjectEx(action_data.m_Target.GetParentOrObject(), action_data.m_Target.GetComponentIndex())))
 			return barbedWire.IsDamageDestroyed();
 
 		return false;

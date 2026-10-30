@@ -541,8 +541,6 @@ class EXTrace
 
 	static void PrintEx(Class instance, typename typeName, string msg, string p1 = "", string p2 = "", string p3 = "", string p4 = "", string p5 = "", string p6 = "", string p7 = "", string p8 = "", string p9 = "")
 	{
-		string ts = ExpansionStatic.GetISOTime();
-
 		string prefix;
 		if (instance)
 			prefix = instance.ToString();
@@ -552,9 +550,9 @@ class EXTrace
 		msg = string.Format(msg, p1, p2, p3, p4, p5, p6, p7, p8, p9);
 		
 		if (prefix)
-			PrintFormat("%1 [EXPRINT] %2%3 %4", ts, s_Indent, prefix, msg);
+			PrintFormat("[EXPRINT] %1%2 %3", s_Indent, prefix, msg);
 		else
-			PrintFormat("%1 [EXPRINT] %2 %3", ts, s_Indent, msg);
+			PrintFormat("[EXPRINT] %1 %2", s_Indent, msg);
 	}
 
 	static void PrintHit(bool yes = true, Class instance = null, string msg = "", TotalDamageResult damageResult = null, int damageType = 0, EntityAI source = null, int component = 0, string dmgZone = "", string ammo = "", vector modelPos = "0 0 0", float speedCoef = 1.0)

@@ -39,7 +39,7 @@ class ExpansionActionCloseSafe: ActionInteractBase
 
 		string selection = tgtSafe.GetActionComponentName( target.GetComponentIndex() );
 
-		return tgtSafe.CanClose( selection );
+		return tgtSafe.CanClose( selection ) && ( !tgtSafe.HasCode() || tgtSafe.IsDamageDestroyed() );
 	}
 	
 	override void OnStartServer( ActionData action_data )

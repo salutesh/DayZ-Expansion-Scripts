@@ -15,8 +15,7 @@
  **/
 class ExpansionActionChangeSafeLock: ActionInteractBase
 {
-	//! WARNING: If 'IsLocal' is false, refactor this
-	protected ItemBase m_Target;
+	protected ItemBase m_Target;  //! CLIENT/SP ONLY
 	
 	// -----------------------------------------------------------
 	// ExpansionActionChangeSafeLock Destructor
@@ -62,9 +61,9 @@ class ExpansionActionChangeSafeLock: ActionInteractBase
 		
 		if ( m_Target && !m_Target.ExpansionIsLocked() && m_Target.HasCode() )
 		{
-			string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
+			int component = target.GetComponentIndex();
 
-			return m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpen();
+			return m_Target.ExpansionHasCodeLock( component ) && !m_Target.IsOpen();
 		}
 		
 		return false;

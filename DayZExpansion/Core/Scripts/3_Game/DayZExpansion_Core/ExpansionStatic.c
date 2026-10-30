@@ -62,10 +62,15 @@ class EXTee
 		return false;
 	}
 
-	void WriteLine(string str, bool print = true)
+	void WriteLine(string str, bool print = true, bool writeTimeStamp = false)
 	{
 		if (m_File)
-			FPrintln(m_File, str);
+		{
+			if (writeTimeStamp)
+				FPrintln(m_File, string.Format("%1 %2", ExpansionStatic.GetISOTime(), str));
+			else
+				FPrintln(m_File, str);
+		}
 
 		if (print)
 		{
@@ -299,12 +304,12 @@ class EXError
 		else
 			tag = typename.EnumToString(ErrorExSeverity, severity);
 
-		msg = string.Format("%1 %2[%3] :: %4", ExpansionStatic.GetISOTime(), callerInfo, tag, msg);
+		msg = string.Format("%1[%2] :: %3", callerInfo, tag, msg);
 
 		switch (severity)
 		{
 			case ErrorExSeverity.INFO:
-				tee.WriteLine(msg);
+				tee.WriteLine(msg, true, true);
 				return;
 		}
 
@@ -313,7 +318,7 @@ class EXError
 		tee.WriteLine("------------------------------------", false);
 		tee.WriteLine(string.Format("%1, %2", GetMachineName(), ExpansionStatic.GetISODate()), false);
 
-		tee.WriteLine(msg);
+		tee.WriteLine(msg, true, true);
 
 		if (instance)
 		{

@@ -11,13 +11,7 @@
 */
 
 modded class ActionAttachToConstruction
-{	
-	override void CreateConditionComponents() 
-	{
-		m_ConditionItem = new CCINonRuined;
-		m_ConditionTarget = new CCTNone;
-	}
-
+{
 	int Expansion_GetAttachmentSlotID(PlayerBase player, ActionTarget target, ItemBase item)
 	{
 		ExpansionBaseBuilding exbb;
@@ -39,6 +33,12 @@ modded class ActionAttachToConstruction
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		Object targetObject = target.GetObject();
+
+		//! Fence is handled by ExpansionActionAttachCodelock (allows attaching codelock by pointing anywhere on fence, just like ExpansionWall)
+		if (targetObject && item.IsInherited(ExpansionCodeLock) && targetObject.Type() == Fence)
+			return false;
+
 		if (super.ActionCondition(player, target, item))
 			return true;
 
@@ -70,6 +70,20 @@ modded class ActionAttachToConstruction
 		}
 
 		return super.Post_SetupAction(action_data);
+	}
+#endif
+
+#ifndef SERVER
+	override void OnExecuteImpl(ActionData action_data)
+	{
+		super.OnExecuteImpl(action_data);
+
+		if (action_data.m_MainItem.IsInherited(ExpansionCodeLock))
+		{
+			int component = action_data.m_Target.GetComponentIndex();
+			string selection = action_data.m_Target.GetObject().GetActionComponentName(component);
+			g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionCodeLockUI.Open, 250, false, action_data.m_Target.GetObject(), component, selection, false, true);
+		}
 	}
 #endif
 }

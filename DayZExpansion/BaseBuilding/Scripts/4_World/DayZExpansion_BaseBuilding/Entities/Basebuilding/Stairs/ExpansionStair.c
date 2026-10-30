@@ -147,4 +147,6 @@ class ExpansionStairBase: ExpansionBaseBuilding
 	{
 		return false;
 	}
-} 
+}
+
+class ExpansionStairS1_5x3x3: ExpansionStairBase {};

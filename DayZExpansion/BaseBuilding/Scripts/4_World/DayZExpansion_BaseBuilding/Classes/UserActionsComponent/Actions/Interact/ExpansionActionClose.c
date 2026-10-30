@@ -12,7 +12,7 @@
 
 class ExpansionActionClose: ActionInteractBase
 {
-	ItemBase m_Target;
+	ItemBase m_Target;  //! CLIENT ONLY
 
 	void ExpansionActionClose()
 	{
@@ -31,9 +31,7 @@ class ExpansionActionClose: ActionInteractBase
 	{
 		string text;
 
-		//! If CodelockActionsAnywhere is ON, then "Close and lock" will be provided by ExpansionActionEnterCodeLock
-		//! If it is OFF, then it will be provided by this action
-		if ( m_Target && m_Target.HasCode() && !GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
+		if ( Expansion_CloseAndLockCondition( m_Target ) )
 			text = "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
 		else
 			text = "#close";
@@ -46,32 +44,48 @@ class ExpansionActionClose: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
+		int component = target.GetComponentIndex();
+
+		ItemBase tgtItem;
+		if (!ItemBase.Expansion_GetLockableItem(tgtItem, target.Expansion_GetObjectOrParent(), component))
 			return false;
 
-		if ( !Class.CastTo( m_Target, target.GetObject() ) )
-			if ( !Class.CastTo( m_Target, target.GetParent() ) )
-				return false;
+		if (!g_Game.IsDedicatedServer())
+			m_Target = tgtItem;
 
-		string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
-
-		return m_Target.ExpansionCanClose( player, selection );
+		return tgtItem.ExpansionCanClose( player, component );
 	}
 	
 	override void OnStartServer( ActionData action_data )
 	{
+		int component = action_data.m_Target.GetComponentIndex();
+
 		ItemBase tgtItem;
-		if ( !Class.CastTo( tgtItem, action_data.m_Target.GetObject() ) )
-			if ( !Class.CastTo( tgtItem, action_data.m_Target.GetParent() ) )
-				return;
+		if (!ItemBase.Expansion_GetLockableItem(tgtItem, action_data.m_Target.Expansion_GetObjectOrParent(), component))
+			return;
 
-		string selection = tgtItem.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
-
-		//! If CodelockActionsAnywhere is ON, then "Close and lock" will be provided by ExpansionActionEnterCodeLock
-		//! If it is OFF, then it will be provided by this action
-		if ( tgtItem && tgtItem.HasCode() && !GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
-			tgtItem.CloseAndLock( selection );
+		if ( Expansion_CloseAndLockCondition( tgtItem ) )
+			tgtItem.CloseAndLock( component );
 		else
-			tgtItem.Expansion_Close( selection );
+			tgtItem.Expansion_Close( component );
+	}
+
+	//! If CodelockActionsAnywhere is ON, then "Close and lock" will be provided by ExpansionActionEnterCodeLock
+	//! If it is OFF, then it will be provided by this action
+	static bool Expansion_CloseAndLockCondition( ItemBase item )
+	{
+		if ( !item.Expansion_IsCodeLock() )
+			item = item.Expansion_GetCodeLock();
+
+		if (item && !item.IsDamageDestroyed() && item.HasCode())
+		{
+			//! Enable "Close & lock" for non-Expansion codelocks
+			if (!item.IsInherited(ExpansionCodeLock))
+				return true;
+
+			return !GetExpansionSettings().GetBaseBuilding(false).CodelockActionsAnywhere;
+		}
+
+		return false;
 	}
 }

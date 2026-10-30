@@ -74,7 +74,7 @@ class ExpansionActionDestroyBase : ExpansionActionToolBase
 		if ( !CanBeDestroyed( action_data.m_Target.GetParentOrObject() ) )
 			return;
 
-		Object actualTargetObject = GetActualTargetObject( action_data.m_Target.GetParentOrObject() );
+		Object actualTargetObject = GetActualTargetObjectEx( action_data.m_Target.GetParentOrObject(), action_data.m_Target.GetComponentIndex() );
 
 		if ( actualTargetObject )
 		{
@@ -104,7 +104,7 @@ class ExpansionActionDestroyBase : ExpansionActionToolBase
 
 			if (actualTargetItem)
 			{
-				actualTargetItem.RaidLog( action_data.m_MainItem, "", curHealth, dmg, 1.0 );
+				GetExpansionSettings().GetLog().RaidLog( actualTargetItem, action_data.m_MainItem, "", "", curHealth, dmg, 1.0 );
 
 				if ( actualTargetObject.GetHealth() <= minHealth )
 				{

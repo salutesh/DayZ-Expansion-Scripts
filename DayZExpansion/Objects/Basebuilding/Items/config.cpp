@@ -81,7 +81,28 @@ class CfgVehicles
 			"Att_ExpansionCodeLock",
 			"Att_ExpansionCodeLock_1",
 			"Att_ExpansionCodeLock_2",
-			"Att_CombinationLock"
+			"Att_CombinationLock",
+			"Att_CodeLock",
+			"Att_CodeLock1_Wood",
+			"Att_CodeLock1_Metal",
+			"Att_CodeLock2_Wood",
+			"Att_CodeLock2_Metal",
+			"Att_CodeLock3_Wood",
+			"Att_CodeLock3_Metal",
+			"Att_CodeLock4_Wood",
+			"Att_CodeLock4_Metal",
+			"Att_CodeLock5_Wood",
+			"Att_CodeLock5_Metal",
+			"Att_CodeLock6_Wood",
+			"Att_CodeLock6_Metal",
+			"Att_CodeLock7_Wood",
+			"Att_CodeLock7_Metal",
+			"Att_CodeLock8_Wood",
+			"Att_CodeLock8_Metal",
+			"Att_CodeLock9_Wood",
+			"Att_CodeLock9_Metal",
+			"Att_CodeLock10_Wood",
+			"Att_CodeLock10_Metal"
 		};
 		itemSize[]={2,2};
 		hiddenSelections[]=
@@ -118,7 +139,43 @@ class CfgVehicles
 				animPeriod=0.0099999998;
 				initPhase=0;
 			};
+			class attach_door_inside
+			{
+				source="user";
+				animPeriod=0.0099999998;
+				initPhase=1;
+			};
+			class attach_door_reversed_inside
+			{
+				source="user";
+				animPeriod=0.0099999998;
+				initPhase=1;
+			};
 			class attach_fence
+			{
+				source="user";
+				animPeriod=0.0099999998;
+				initPhase=1;
+			};
+			class attach_fence_outside
+			{
+				source="user";
+				animPeriod=0.0099999998;
+				initPhase=1;
+			};
+			class attach_fence_digital_inside
+			{
+				source="user";
+				animPeriod=0.0099999998;
+				initPhase=1;
+			};
+			class attach_fence_digital_outside
+			{
+				source="user";
+				animPeriod=0.0099999998;
+				initPhase=1;
+			};
+			class attach_wall
 			{
 				source="user";
 				animPeriod=0.0099999998;

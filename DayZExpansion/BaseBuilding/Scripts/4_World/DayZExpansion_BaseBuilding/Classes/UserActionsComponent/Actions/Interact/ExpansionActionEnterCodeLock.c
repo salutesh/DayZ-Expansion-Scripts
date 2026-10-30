@@ -15,9 +15,8 @@
  **/
 class ExpansionActionEnterCodeLock: ActionInteractBase
 {
-	//! WARNING: If 'IsLocal' is false, refactor this
-	protected ItemBase m_Target;
-	protected TentBase m_Tent;
+	protected ItemBase m_Target;  //! CLIENT/SP ONLY
+	protected TentBase m_Tent;  //! OBSOLETE - no longer used
 
 	bool m_IsKnownUser;
 	
@@ -79,25 +78,38 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 	// -----------------------------------------------------------
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
+		auto settings = GetExpansionSettings().GetBaseBuilding(false);
+
+		if (!settings.IsLoaded())
 			return false;
 
-		m_Target = ItemBase.Cast( target.GetParentOrObject() );
-		m_Tent = TentBase.Cast( m_Target );
+		Object targetObject = target.GetObject();
 
-		if ( m_Target )
+		int component = target.GetComponentIndex();
+
+		ItemBase tgtItem;
+		TentBase tent = TentBase.Cast( target.GetParent() );
+		if ( tent )
+			tgtItem = tent;
+		else
+			tgtItem = ItemBase.Expansion_GetLockableItem( targetObject, component );
+
+		if (!g_Game.IsDedicatedServer())
+			m_Target = tgtItem;
+
+		if ( tgtItem )
 		{
-			m_IsKnownUser = m_Target.IsKnownUser( player );
+			if ( tgtItem.IsKnownUser( player ) || tgtItem.Expansion_CanUnlockFromInside( player, tgtItem.GetActionComponentName( component ) ) )
+				m_IsKnownUser = true;
+			else
+				m_IsKnownUser = false;
 
-			string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
-			if ( m_Tent )
+			if ( tent )
 			{
 				//! If CodelockActionsAnywhere is OFF, then "Set/Enter code", "Unlock" and
 				//! "Close & lock" or will only be possible from the tent entrance
-				if ( !GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
+				if ( !settings.CodelockActionsAnywhere )
 				{
-					Object targetObject = target.GetObject();
-
 					if ( !targetObject )
 						return false;
 
@@ -110,7 +122,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 						if ( !selections[s].Contains( "entrance" ) && !selections[s].Contains( "door" ) )
 							continue;
 
-						if ( m_Tent.CanToggleAnimations( selections[s] ) )
+						if ( tent.CanToggleAnimations( selections[s] ) )
 						{
 							isEntrance = true;
 							break;
@@ -121,19 +133,50 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 						return false;
 				}
 
-				if ( m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpen() )
+				if ( tent.ExpansionHasCodeLock( component ) && !tent.IsOpen() )
 					return true;
 
-				if ( m_Target.ExpansionIsLocked() || ( m_Target.HasCode() && !m_Target.IsOpen() ) )
+				if ( tent.ExpansionIsLocked() || ( tent.HasCode() && !tent.IsOpen() ) )
 					return true;
 
 				return false;
 			}
 
-			return m_Target.ExpansionHasCodeLock( selection );
+			return Expansion_CodeLockInteractionCondition(player, settings, targetObject, component, tgtItem);
 		}
 		
 		return false;
+	}
+
+	static bool Expansion_CodeLockInteractionCondition(PlayerBase player, ExpansionBaseBuildingSettings settings, Object targetObject, int component, ItemBase tgtItem)
+	{
+		ExpansionCodeLock codelock;
+		if (Class.CastTo(codelock, tgtItem))
+		{
+			//! @note for rebuildable buildings, targetObject is the codelock if pointing at it from the outside, but not the inside
+			if (targetObject != codelock && !settings.CodelockActionsAnywhere)
+			{
+				if (targetObject.IsBuilding())
+				{
+					//! Prevent double "Lock" action entry on opened building doors (when CodelockActionsAnywhere is OFF,
+					//! "Close and lock" will be provided by ExpansionActionClose)
+					if (codelock.HasCode() && codelock.IsOpen())
+						return false;
+				}
+			}
+		}
+		else if (tgtItem.ExpansionHasCodeLock(component))
+		{
+			codelock = tgtItem.ExpansionGetCodeLock();
+			if (!codelock)
+				return false;
+		}
+		else
+		{
+			return false;
+		}
+
+		return !codelock.IsDamageDestroyed();
 	}
 
 	// -----------------------------------------------------------
@@ -145,8 +188,9 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 
 		if ( !IsMissionClient() || !m_Target )
 			return;
-		
-		string selection = m_Target.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
+
+		int component = action_data.m_Target.GetComponentIndex();
+		string selection = m_Target.GetActionComponentName( component );
 
 		if ( m_Target.ExpansionIsLocked() || !m_Target.HasCode() )
 		{
@@ -159,13 +203,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 			}
 			else
 			{
-				ExpansionCodeLockUI menu = ExpansionCodeLockUI.Cast( g_Game.GetUIManager().EnterScriptedMenu( MENU_EXPANSION_CODELOCK_MENU, NULL ) );
-				if ( menu )
-				{
-					menu.SetChangeCodelock( false );
-					menu.SetConfirm( !m_Target.HasCode() );
-					menu.SetTarget( m_Target, selection );
-				}
+				ExpansionCodeLockUI.Open(m_Target, component, selection, false, !m_Target.HasCode());
 			}
 		} 
 		else

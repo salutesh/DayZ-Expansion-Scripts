@@ -54,6 +54,29 @@ class ExpansionCodeLockUI: ExpansionLockUIBase
 	protected int m_NormalColor = ARGB(255, 88, 88, 88);
 	protected int m_LockedColor = ARGB(255, 46, 204, 113);
 	protected int m_UnlockedColor = ARGB(255, 231, 76, 60);
+
+	static void Open(Object tgtObj, int component, string selection, bool change = false, bool confirm = true)
+	{
+		ItemBase targetItem = ItemBase.Expansion_GetLockableItem(tgtObj, component);
+
+	#ifdef DIAG_DEVELOPER
+		EXError.Info(null, "ExpansionCodeLockUI::Open " + tgtObj.GetType() + " " + targetItem + " " + component + " " + selection + " change " + change + " confirm " + confirm);
+	#endif
+
+		if (!targetItem)
+			return;
+
+		if (!targetItem.Expansion_IsCodeLock() && !tgtObj.IsBuilding() && !targetItem.ExpansionHasCodeLock())
+			return;
+
+		ExpansionCodeLockUI menu = ExpansionCodeLockUI.Cast(g_Game.GetUIManager().EnterScriptedMenu(MENU_EXPANSION_CODELOCK_MENU, NULL));
+		if (menu)
+		{
+			menu.SetChangeCodelock(change);
+			menu.SetConfirm(confirm);
+			menu.SetTarget(targetItem, selection);
+		}
+	}
 	
 	override void ShowLockState()
 	{

@@ -407,26 +407,6 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	
 		switch ( idx )
 		{
-		default:
-		case 0:
-			Weight = 10;
-			notifStart 	= new ExpansionSettingNotificationData("Bandit Ambush", "Bandits prepared a roadblock to ambush cars going toward Zaprudnoe !","Ambush","#b53128");
-			notifAction = new ExpansionSettingNotificationData("Bandit Ambush", "Survivors are attacking the bandits !","Ambush","#b53128");
-			notifEnd 	= new ExpansionSettingNotificationData("Bandit Ambush", "The bandit camp is gone","Ambush","#b53128");
-			mapMarker	= new ExpansionSettingMarkerData("Bandit Ambush","Ambush","#b53128", "5457.122070 173.275223 12304.987305", true);
-			MissionMeta = new ExpansionAIMissionMeta( notifStart, notifAction, notifEnd, mapMarker );
-
-			MappingFile = "BanditRoadAmbush.map";
-		#ifdef EXPANSIONMODAI
-			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"5458.080566 173.637192 12304.130859"}));
-			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"5463.901855 173.594833 12302.534180"}));
-			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"5462.813965 173.794785 12292.244141"}));
-			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"5466.251953 185.817581 12296.766602"}));
-		#endif
-
-			containers.Insert(new ExpansionAIMissionContainer({"Barrel_Red","Barrel_Yellow","Barrel_Green","Barrel_Blue"}, "5457.122070 173.275223 12304.987305"));
-			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Regular() ) );
-			break;
 		case 1:
 			Weight = 10;
 			notifStart 	= new ExpansionSettingNotificationData("Bandit Outpost", "Bandits made a outpost near Kranostav and are harrasing the local traders","Bandit","#b53128");
@@ -560,6 +540,26 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			containers.Insert(ExpansionAIMissionContainer({"Offroad_02"}, "9072.484375 280.127106 10716.075195"));
 			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Military() ) );
 			break;
+		case 0:
+		default:
+			Weight = 10;
+			notifStart 	= new ExpansionSettingNotificationData("Bandit Ambush", "Bandits prepared a roadblock to ambush cars going toward Zaprudnoe !","Ambush","#b53128");
+			notifAction = new ExpansionSettingNotificationData("Bandit Ambush", "Survivors are attacking the bandits !","Ambush","#b53128");
+			notifEnd 	= new ExpansionSettingNotificationData("Bandit Ambush", "The bandit camp is gone","Ambush","#b53128");
+			mapMarker	= new ExpansionSettingMarkerData("Bandit Ambush","Ambush","#b53128", "5457.122070 173.275223 12304.987305", true);
+			MissionMeta = new ExpansionAIMissionMeta( notifStart, notifAction, notifEnd, mapMarker );
+
+			MappingFile = "BanditRoadAmbush.map";
+		#ifdef EXPANSIONMODAI
+			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"5458.080566 173.637192 12304.130859"}));
+			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"5463.901855 173.594833 12302.534180"}));
+			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"5462.813965 173.794785 12292.244141"}));
+			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"5466.251953 185.817581 12296.766602"}));
+		#endif
+
+			containers.Insert(new ExpansionAIMissionContainer({"Barrel_Red","Barrel_Yellow","Barrel_Green","Barrel_Blue"}, "5457.122070 173.275223 12304.987305"));
+			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Regular() ) );
+			break;
 		}
 
 		MissionName = MissionMeta.NotificationStart.Title;
@@ -579,8 +579,8 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	
 		switch ( idx )
 		{
-		default:
 		case 0:
+		default:
 			Weight = 10;
 			MissionMeta = new ExpansionAIMissionMeta( "Petrol Station", "A group of survivors setup camp on the station and are protecting their loot" );
 			

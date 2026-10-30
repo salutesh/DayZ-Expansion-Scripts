@@ -7202,16 +7202,14 @@ class eAIBase: PlayerBase
 		vector playerPosition = m_ExTransformPlayer[3];
 		m_eAI_SurfaceY = g_Game.SurfaceY(playerPosition[0], playerPosition[2]);
 
-	#ifdef DAYZ_1_29
-		//! TODO: SurfaceY changed with 1.30, in underground areas will now return TOPMOST surface
-		if (playerPosition[1] < m_eAI_SurfaceY - 0.5)
+		//! Place AI on surface if it falls through map into the ocean below
+		if (playerPosition[1] < m_eAI_SurfaceY - 0.5 && playerPosition[1] <= g_Game.SurfaceGetSeaLevel())
 		{
 			playerPosition[1] = m_eAI_SurfaceY;
-			EXTrace.Print(EXTrace.AI, this, "below surface - teleporting from " + m_ExTransformPlayer[3] + " to " + playerPosition);
+			EXTrace.Print(true, this, "below surface - teleporting from " + m_ExTransformPlayer[3] + " to " + playerPosition);
 			SetPosition(playerPosition);
 			return;
 		}
-	#endif
 
 		//! Needed because vanilla only checks for INSTANCETYPE_SERVER
 		GetPlayerSoundManagerServer().Update();
@@ -9926,9 +9924,9 @@ class eAIBase: PlayerBase
 
 	void RPC_eAI_SetIsInventoryVisible(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		PlayerBase player;
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(sender);
 		bool visible;
-		if (Class.CastTo(player, sender.GetPlayer()) && player.GetGroup() == GetGroup() && ctx.Read(visible))
+		if (player && player.GetGroup() == GetGroup() && ctx.Read(visible))
 		{
 			if (!m_eAI_IsRestrained && m_Expansion_CanBeLooted)
 				eAI_SetIsInventoryVisible(visible, player);

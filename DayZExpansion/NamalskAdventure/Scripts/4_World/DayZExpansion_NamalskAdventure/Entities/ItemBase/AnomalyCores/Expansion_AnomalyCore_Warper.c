@@ -185,7 +185,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 				ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(car, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED); //! Apply random damage to the vehicle cargo items.
 
 			#ifdef JM_COT
-				car.COT_PlaceOnSurfaceAtPosition(randomPosition);
+				COT_Base.PlaceOnSurfaceAtPosition(car, randomPosition);
 			#endif
 			}
 			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Animals, true))

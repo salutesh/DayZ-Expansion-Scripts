@@ -96,7 +96,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	override void Expansion_Open( string selection ) 
 	{	
 		//! Door open animation
-		if (selection == "gate")
+		if (selection == "*" || selection == "gate")
 			SetAnimationPhase( "gate", 0 );
 		
 		super.Expansion_Open( selection );
@@ -107,8 +107,8 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	override void Expansion_Close( string selection ) 
 	{	
-		//! Door open animation
-		if (selection == "gate")
+		//! Door close animation
+		if (selection == "*" || selection == "gate")
 			SetAnimationPhase( "gate", 1 );
 		
 		super.Expansion_Close( selection );
