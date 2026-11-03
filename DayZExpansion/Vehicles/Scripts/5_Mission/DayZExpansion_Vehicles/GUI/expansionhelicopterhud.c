@@ -181,6 +181,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 		
 		m_HeliShieldPanel = m_VehiclePanel.FindAnyWidget("ShieldIndicator");
 		m_HeliShieldIcon = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("ShieldIcon"));
+		m_HeliShieldIcon.LoadImageFile(1, "{206DBEAC9C7AD942}DayZExpansion/Core/GUI/icons/hud/connection_lost.edds");
 		
 		m_HeliALTPointerTE = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("ALTPointerTE"));
 		m_HeliALTPointerH = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("ALTPointerH"));

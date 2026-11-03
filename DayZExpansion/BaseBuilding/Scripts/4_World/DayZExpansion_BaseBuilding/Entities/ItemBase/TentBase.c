@@ -38,10 +38,7 @@ modded class TentBase
 	//! Only call this after settings have been loaded
 	bool ExpansionCanAttachCodeLock()
 	{
-		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
-			return false;
-
-		int attachMode = GetExpansionSettings().GetBaseBuilding().CodelockAttachMode;
+		int attachMode = GetExpansionSettings().GetBaseBuilding(false).CodelockAttachMode;
 		if (attachMode == ExpansionCodelockAttachMode.ExpansionAndTents || attachMode == ExpansionCodelockAttachMode.ExpansionAndFenceAndTents)
 			return true;
 
@@ -81,22 +78,31 @@ modded class TentBase
 			return false;
 
 		ItemBase item;
-		if ( Class.CastTo( item, attachment ) && item.Expansion_IsCodeLock() )
+		if (Class.CastTo(item, attachment))
 		{
-			if ( !ExpansionCanAttachCodeLock() )
+			if (item.Expansion_IsCodeLock() && !ExpansionCanAttachCodeLock())
 				return false;
 
-			//! Safety to prevent attaching Expansion Code Lock if another lock is already present in different slot (e.g. silver Code Lock from RoomService's mod)
-			if ( FindAttachmentBySlotName( "Att_CombinationLock" ) )
-				return false;
+			//! Safety to prevent attaching other locks if a lock is already present (but still allow moving the same lock from one slot to another)
+			if (item.Expansion_IsLock())
+			{
+				//! In case a 3rd party mod adds the vanilla combolock slot
+				EntityAI combo = FindAttachmentBySlotName("Att_CombinationLock");
+				if (combo && item != combo)
+					return false;
 
-			if ( IsEntranceRuined() )
-				return false;
+				EntityAI codeLock;
+
+				//! In case a 3rd party mod adds the vanilla codelock slot
+				codeLock = FindAttachmentBySlotName("Att_CodeLock");
+				if (codeLock && item != codeLock)
+					return false;
+
+				codeLock = FindAttachmentBySlotName("Att_ExpansionCodeLock");
+				if (codeLock && item != codeLock)
+					return false;
+			}
 		}
-
-		//! Safety to prevent attaching other locks (e.g. silver Code Lock from RoomService's mod) if Expansion Code Lock is already present
-		if ( attachment.IsKindOf( "CombinationLock" ) && Expansion_GetCodeLock() )
-			return false;
 
         return true;
     }
@@ -157,6 +163,43 @@ modded class TentBase
 	override bool ExpansionIsOpenable()
 	{
 		return true;
+	}
+
+	override bool Expansion_IsPlayerInside(PlayerBase player, string selection)
+	{
+		vector minMax[2];
+
+		float boundingRadius = ClippingInfo(minMax);
+		if (!boundingRadius)
+			return false;
+
+		vector playerPos = player.GetPosition();
+
+		if (!Math.IsPointInRectangle(minMax[0], minMax[1], WorldToModel(playerPos)))
+			return false;
+
+		vector begPos = playerPos + "0 0.5 0";
+		vector endPos = begPos + Vector(0, minMax[1][1] - minMax[0][1], 0);
+
+		RaycastRVParams params = new RaycastRVParams(begPos, endPos, player);
+		params.type = ObjIntersectIFire;
+		array<ref RaycastRVResult> results = {};
+		if (DayZPhysics.RaycastRVProxy(params, results))
+		{
+			if (results.Count() > 0)
+			{
+				if (results[0].obj == this || results[0].parent == this)
+				{
+					vector headPos;
+					MiscGameplayFunctions.GetHeadBonePos(player, headPos);
+					vector hitPos = results[0].pos;
+					if (headPos[1] + 0.2 < hitPos[1])
+						return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	#ifdef EXPANSION_MODSTORAGE

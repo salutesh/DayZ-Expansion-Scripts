@@ -84,7 +84,7 @@ modded class ExpansionBaseBuilding
 				}
 			}
 			
-			if (!excluded && construction.HasRequiredPart(partName) && !construction.HasConflictPart(partName))
+			if (!excluded && construction.Expansion_HasRequiredPart(partName) && !construction.Expansion_HasConflictPart(partName))
 			{
 				OnPartBuiltServer(p, partName, AT_BUILD_PART);
 			}

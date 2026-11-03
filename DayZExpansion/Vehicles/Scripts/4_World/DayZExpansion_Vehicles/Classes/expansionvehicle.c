@@ -140,6 +140,9 @@ modded class ExpansionVehicle
 					break;
 				}
 			}
+
+			if (m_Settings.DisableVehicleDamage)
+				vehicle.SetAllowDamage(false);
 		}
 	}
 

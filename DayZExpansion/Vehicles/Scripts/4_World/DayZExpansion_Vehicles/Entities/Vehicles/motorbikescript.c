@@ -109,8 +109,19 @@ modded class MotorbikeScript
 		}
 	}
 
+	override bool IsVitalFuelTank()
+	{
+		if (m_ExpansionVehicle.CanBeDamaged())
+			return super.IsVitalFuelTank();
+
+		return false;
+	}
+
 	override void OnUpdate(float dt)
 	{
+		if (g_Game.IsServer() && m_DrownTime > 0 && !m_ExpansionVehicle.CanBeDamaged())
+			m_DrownTime = 0.0;
+
 		super.OnUpdate(dt);
 
 		m_ExpansionVehicle.OnUpdate(dt);

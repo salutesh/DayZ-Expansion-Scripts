@@ -54,14 +54,14 @@ class ExpansionActionOpen: ActionInteractBase
 			{
 				text = "#STR_EXPANSION_OPEN_LOCKED_DOOR";
 			}
+
+			if (m_Target && GetPermissionsManager().IsAdminToolsToggledOn())
+				text = "[ADMIN] " + text;
 		}
 		else
 		{
 			text = "#open";
 		}
-
-		if (m_Target && GetPermissionsManager().IsAdminToolsToggledOn())
-			text = "[ADMIN] " + text;
 
 		return text;
 	}

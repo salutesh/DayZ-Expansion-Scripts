@@ -25,14 +25,14 @@ modded class ActionToggleTentOpen
 				text = "#STR_EXPANSION_OPEN_LOCKED_TENT";
 			else
 				text = "#STR_EXPANSION_TOGGLE_LOCKED_OPENING";
+
+			if (GetPermissionsManager().IsAdminToolsToggledOn())
+				text = "[ADMIN] " + text;
 		}
 		else
 		{
 			text = "#toggle_opening";
 		}
-
-		if (GetPermissionsManager().IsAdminToolsToggledOn())
-			text = "[ADMIN] " + text;
 
 		return text;
 	}
@@ -45,7 +45,7 @@ modded class ActionToggleTentOpen
 		{
             if ( m_Tent.Expansion_GetCodeLock() && m_Tent.ExpansionIsLocked() )
 			{
-				if ( !m_Tent.IsKnownUser( player ) )
+				if ( !m_Tent.IsKnownUser( player ) && !m_Tent.Expansion_CanUnlockFromInside(player, "") )
 					return false;
 
 				Object targetObject = target.GetObject();
@@ -75,7 +75,7 @@ modded class ActionToggleTentOpen
 
 	override void OnExecuteServer( ActionData action_data )
 	{
-		if ( !m_Tent || ( m_Tent.Expansion_GetCodeLock() && m_Tent.ExpansionIsLocked() && !m_Tent.IsKnownUser( action_data.m_Player ) ) )
+		if ( !m_Tent || ( m_Tent.Expansion_GetCodeLock() && m_Tent.ExpansionIsLocked() && !m_Tent.IsKnownUser( action_data.m_Player ) && !m_Tent.Expansion_CanUnlockFromInside(action_data.m_Player, "") ) )
 			return;
 
 		super.OnExecuteServer( action_data );

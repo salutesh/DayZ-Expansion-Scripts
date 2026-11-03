@@ -2079,8 +2079,15 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return false;
 	#endif
 
-		if (player && player.GetIdentity())
-			return GetPermissionsManager().HasPermission("Expansion.Territories.Edit", player.GetIdentity());
+		if (player && player.GetIdentity() && GetPermissionsManager().HasPermission("Expansion.Territories.Edit", player.GetIdentity()))
+		{
+		#ifdef JM_COT
+			if (GetCOTBase().IsActive(playerUID))
+				return true;
+		#else
+			return true;
+		#endif
+		}
 
 		return false;
 	}

@@ -56,6 +56,7 @@ class ExpansionBoatHud : VehicleHudBase
 		
 		m_BoatShieldPanel = m_VehiclePanel.FindAnyWidget("ShieldIndicator");
 		m_BoatShieldIcon = ImageWidget.Cast(m_VehiclePanel.FindAnyWidget("ShieldIcon"));
+		m_BoatShieldIcon.LoadImageFile(1, "{206DBEAC9C7AD942}DayZExpansion/Core/GUI/icons/hud/connection_lost.edds");
 		
 		m_VehicleCurrentGearValue = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("Current"));
 		m_VehicleNextGearValue = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("Next"));

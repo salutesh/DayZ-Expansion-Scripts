@@ -218,11 +218,14 @@ modded class BuildingBase
 		auto trace = EXTrace.Start(EXTrace.BASEBUILDING, this);
 	#endif
 
+		if (CanDoorBeClosed(doorIndex))
+			CloseDoor(doorIndex);
+
 		ItemBase codelock = Expansion_GetCodeLock(doorIndex);
 		if (codelock && !codelock.ExpansionIsLocked())
 			codelock.ExpansionLock();
 		else if (!IsDoorLocked(doorIndex))
-			LockDoor(doorIndex, true);
+			LockDoor(doorIndex);
 	}
 
 	void Expansion_UnlockAndOpen(int doorIndex)
@@ -235,7 +238,7 @@ modded class BuildingBase
 		if (codelock && codelock.ExpansionIsLocked())
 			codelock.ExpansionUnlock();
 		else if (IsDoorLocked(doorIndex))
-			UnlockDoor(doorIndex, false);
+			UnlockDoor(doorIndex);
 
 		if (CanDoorBeOpened(doorIndex, true))
 			OpenDoor(doorIndex);

@@ -82,10 +82,13 @@ class ExpansionPhysicsState
 	bool m_IsSync;
 	float m_TimeSinceDesync;
 	bool m_HaltPhysics;
+	vector m_CurrentVelocity;
+	vector m_CurrentAngularVelocity;
 	float m_TimeSincePing;
 	bool m_ClientDesync;
 	bool m_NotifyDesyncInvulnerability;
 	float m_DesyncInvulnerabilityTimeoutSeconds;
+	bool m_WasDamageAllowed;
 	bool m_IsInvulnerable;
 	bool m_IsInvulnerableSync;
 	float m_InvulnerabilityTime;
@@ -217,7 +220,23 @@ class ExpansionPhysicsState
 		dBodyApplyTorque(m_Entity, m_Torque);
 	}
 
-	void ApplySimulation_CarScript(float pDt, bool isPhysHost, DayZPlayerImplement driver = NULL)
+	[Obsolete("Use ApplySimulation or ApplySimulation_DesyncProtection (see comments on latter)")]
+	void ApplySimulation_CarScript(float pDt, bool isPhysHost, DayZPlayerImplement driver = NULL);
+
+	/**
+	 * @brief Wrapper around ApplySimulation with desync protection
+	 *
+	 * @note Only for old networking, do *not* use with deterministic physics of new networking/network reconciliation!
+	 *       (call ApplySimulation directly instead)
+	 *
+	 *       If there is deterministic physics on the client, then we do not need to worry about any freeze in network traffic from the 
+	 *       server to the client as any input the client applied will have the same output on the server as long as the client can send 
+	 *       messages.
+	 *       
+	 *       Usually only outgoing messages from the server to the client are throttled. Incoming messages from client to server for 
+	 *       inputs are never throttled.
+	 */
+	void ApplySimulation_DesyncProtection(float pDt, bool isPhysHost, DayZPlayerImplement driver = NULL)
 	{
 		EXTrace trace;
 
@@ -226,7 +245,7 @@ class ExpansionPhysicsState
 		if (!m_IsSync)
 			m_TimeSinceDesync += pDt;
 
-		if (m_IsInvulnerable)
+		if (m_IsInvulnerable && m_IsSync)
 			m_InvulnerabilityTime += pDt;
 
 		if (!isServer && isPhysHost)
@@ -255,6 +274,11 @@ class ExpansionPhysicsState
 			float distanceThresholdSq = velocity * velocity;
 			m_IsSync = vector.DistanceSq(m_SyncPosition, m_Entity.GetPosition()) <= distanceThresholdSq + 1;
 
+		#ifdef DIAG_DEVELOPER
+			if (DiagMenu.IsInitialized() && DiagMenu.GetBool(PluginDiagMenu.EXPANSION_HELI_DESYNC))
+				m_IsSync = false;
+		#endif
+
 			float vehicleResyncTimeout = GetExpansionClientSettings().VehicleResyncTimeout;
 			if (vehicleResyncTimeout < 1.0)
 				vehicleResyncTimeout = 1.0;
@@ -273,6 +297,10 @@ class ExpansionPhysicsState
 
 				//! Let the server know we resynced
 				SendPing(false);
+
+				//! Restore previous velocities
+				m_Entity.GetPhysics().SetVelocity(m_CurrentVelocity);
+				m_Entity.GetPhysics().SetAngularVelocity(m_CurrentAngularVelocity);
 			}
 			else if (!prevSync && !m_IsSync && m_TimeSinceDesync > vehicleResyncTimeout && !m_HaltPhysics)
 			{
@@ -285,75 +313,31 @@ class ExpansionPhysicsState
 
 				//! Let the server know we halted physics
 				SendPing(true);
+
+				//! Store current velocities
+				m_CurrentVelocity = m_LinearVelocity;
+				m_CurrentAngularVelocity = m_AngularVelocity;
 			}
 		}
-		
-	//#ifndef DAYZ_1_27
-		////! 1.28+
-		//CarScript car = CarScript.Cast(m_Entity);
-
-		//// if there is deterministic physics on the client, then we do not need to worry about any freeze in network traffic from the 
-		//// server to the client as any input the client applied will have the same output on the server as long as the client can send 
-		//// messages.
-		//// 
-		//// usually only outgoing messages from the server to the client are throttled. Incoming messages from client to server for 
-		//// inputs are never throttled.
-		//bool usesDeterministicPhysics = car.GetNetworkMoveStrategy() == NetworkMoveStrategy.PHYSICS;
-
-		//if (isServer || usesDeterministicPhysics || !isPhysHost || !m_HaltPhysics)
-	//#else
-		if (isServer || !isPhysHost || !m_HaltPhysics)
-	//#endif
+		else if (!isServer && !isPhysHost && !m_IsSync)
 		{
-			ApplySimulation(pDt);
-		}
-		else
-		{
-			//! Client - player is driver - desynced - halt physics
-
-			SetVelocity(m_Entity, "0 0 0");
-			dBodySetAngularVelocity(m_Entity, "0 0 0");
-			dBodyDynamic(m_Entity, false);
-
-			if (m_SyncPosition != vector.Zero)
-			{
-				Math3D.YawPitchRollMatrix(m_SyncOrientation, m_TargetTransform);
-				m_TargetTransform[3] = m_SyncPosition;
-				m_Entity.SetTransform(m_TargetTransform);
-
-				SetVelocity(m_Entity, "0 0 0");
-				dBodySetAngularVelocity(m_Entity, "0 0 0");
-				dBodyDynamic(m_Entity, true);
-			}
+			//! Client - no driver - was desynced - reset
+			m_IsSync = true;
+			m_HaltPhysics = false;
+			SendPing(false);
 		}
 
-		if (isServer)
+		if (isServer && m_DesyncInvulnerabilityTimeoutSeconds > 0)
 		{
-			m_LinearVelocityX = m_LinearVelocity[0];
-			m_LinearVelocityY = m_LinearVelocity[1];
-			m_LinearVelocityZ = m_LinearVelocity[2];
-
-			//vector pos = m_Transform[3];
-			vector pos = EstimatePosition(pDt);
-			m_PositionX = pos[0];
-			m_PositionY = pos[1];
-			m_PositionZ = pos[2];
-
-			//vector ori = Math3D.MatrixToAngles(m_Transform);
-			vector ori = EstimateOrientation(pDt);
-			m_OrientationX = ori[0];
-			m_OrientationY = ori[1];
-			m_OrientationZ = ori[2];
-
-			if (!m_DesyncInvulnerabilityTimeoutSeconds)
-				return;
-
-			if (m_IsInvulnerable)
+			if (m_IsInvulnerable && m_IsSync)
 			{
 				if (m_InvulnerabilityTime > m_DesyncInvulnerabilityTimeoutSeconds)
 				{
 					//trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Disabling temporary vehicle invulnerability");
-					m_Entity.SetAllowDamage(true);
+
+					if (m_WasDamageAllowed)
+						m_Entity.SetAllowDamage(true);
+
 					m_IsInvulnerable = false;
 				}
 			}
@@ -366,15 +350,22 @@ class ExpansionPhysicsState
 					m_IsSync = false;
 					m_TimeSinceDesync = 0;
 					m_InvulnerabilityTime = 0;
-					if (m_Entity.GetAllowDamage())
+
+					if (!m_IsInvulnerable)
 					{
-						//trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client desynced - time since last ping from client " + m_TimeSincePing + " - enabling temporary vehicle invulnerability");
-						m_Entity.SetAllowDamage(false);
+						m_WasDamageAllowed = m_Entity.GetAllowDamage();
+
+						if (m_WasDamageAllowed)
+						{
+							//trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client desynced - time since last ping from client " + m_TimeSincePing + " - enabling temporary vehicle invulnerability");
+							m_Entity.SetAllowDamage(false);
+						}
+						//else
+						//{
+							//trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client desynced - time since last ping from client " + m_TimeSincePing);
+						//}
+
 						m_IsInvulnerable = true;
-					}
-					else
-					{
-						//trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client desynced - time since last ping from client " + m_TimeSincePing);
 					}
 				}
 				else
@@ -396,6 +387,57 @@ class ExpansionPhysicsState
 				//m_TimeSincePing = 0;
 			//}
 		//}
+		
+		if (!m_HaltPhysics)
+		{
+			ApplySimulation(pDt);
+		}
+		else
+		{
+			//! Client/server - desynced - halt physics
+
+			SetVelocity(m_Entity, "0 0 0");
+			dBodySetAngularVelocity(m_Entity, "0 0 0");
+
+			if (m_SyncPosition != vector.Zero)
+			{
+				Math3D.YawPitchRollMatrix(m_SyncOrientation, m_TargetTransform);
+				m_TargetTransform[3] = m_SyncPosition;
+				m_Entity.SetTransform(m_TargetTransform);
+
+				SetVelocity(m_Entity, "0 0 0");
+				dBodySetAngularVelocity(m_Entity, "0 0 0");
+			}
+		}
+
+		if (isServer)
+		{
+			m_LinearVelocityX = m_LinearVelocity[0];
+			m_LinearVelocityY = m_LinearVelocity[1];
+			m_LinearVelocityZ = m_LinearVelocity[2];
+
+			//vector pos = m_Transform[3];
+			vector pos;
+			if (m_HaltPhysics)
+				pos = m_Entity.GetPosition();
+			else
+				pos = EstimatePosition(pDt);
+			m_PositionX = pos[0];
+			m_PositionY = pos[1];
+			m_PositionZ = pos[2];
+			m_SyncPosition = pos;
+
+			//vector ori = Math3D.MatrixToAngles(m_Transform);
+			vector ori;
+			if (m_HaltPhysics)
+				ori = m_Entity.GetOrientation();
+			else
+				ori = EstimateOrientation(pDt);
+			m_OrientationX = ori[0];
+			m_OrientationY = ori[1];
+			m_OrientationZ = ori[2];
+			m_SyncOrientation = ori;
+		}
 	}
 
 	string GetNotificationIcon()
@@ -424,11 +466,22 @@ class ExpansionPhysicsState
 		if (clientDesync && m_ClientDesync)
 		{
 			m_HaltPhysics = true;
+			
+			//! Store current velocities
+			m_CurrentVelocity = m_LinearVelocity;
+			m_CurrentAngularVelocity = m_AngularVelocity;
 		}
 		else
 		{
 			m_ClientDesync = clientDesync;
 			m_HaltPhysics = false;
+
+			if (!clientDesync)
+			{
+				//! Restore previous velocities
+				m_Entity.GetPhysics().SetVelocity(m_CurrentVelocity);
+				m_Entity.GetPhysics().SetAngularVelocity(m_CurrentAngularVelocity);
+			}
 		}
 
 #ifdef EXTRACE

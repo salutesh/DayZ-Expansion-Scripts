@@ -81,6 +81,9 @@ class ExpansionCameraHandler
 				{
 					//! Center camera on initial vehicle get in
 					m_CenterCamera = true;
+
+					udAngle = 0;
+					udAngleAdd = 0;
 				}
 				else
 				{
@@ -119,10 +122,28 @@ class ExpansionCameraHandler
 		}
 		else if (m_Camera.m_ExIsFreeLook && !m_WasFreeLook)
 		{
-			udAngle = m_UpDownAngle;
-			udAngleAdd = m_UpDownAngleAdd;
-			lrAngle = m_LeftRightAngle;
-			lrAngleAdd = m_LeftRightAngleAdd;
+		#ifdef COMPONENT_SYSTEM
+			UAInput freeLookToggle = GetUApi().GetInputByName("UAExpansionHeliFreeLook");
+			UAInput freeLookModifier = GetUApi().GetInputByName("UAExpansionHeliFreeLookModifier");
+		#else
+			UAInput freeLookToggle = GetUApi().GetInputByID(UAExpansionHeliFreeLook);
+			UAInput freeLookModifier = GetUApi().GetInputByID(UAExpansionHeliFreeLookModifier);
+		#endif
+
+			if (freeLookModifier.LocalValue() && !freeLookToggle.LocalValue())
+			{
+				udAngle = 0;
+				udAngleAdd = 0;
+				lrAngle = 0;
+				lrAngleAdd = 0;
+			}
+			else
+			{
+				udAngle = m_UpDownAngle;
+				udAngleAdd = m_UpDownAngleAdd;
+				lrAngle = m_LeftRightAngle;
+				lrAngleAdd = m_LeftRightAngleAdd;
+			}
 
 			lrAngleAdd += GetLRAngleCorr();
 
@@ -268,7 +289,11 @@ class ExpansionCameraHandler
 			m_Camera.Expansion_GetUDAngleVel(udAngleVel);
 			udAngleVel[0] = 0;
 
-			m_CenterCamera = false;
+			if (m_CenterCamera)
+			{
+				pAngleAdd = lrAngleCorr;
+				m_CenterCamera = false;
+			}
  		}
 		else
 		{

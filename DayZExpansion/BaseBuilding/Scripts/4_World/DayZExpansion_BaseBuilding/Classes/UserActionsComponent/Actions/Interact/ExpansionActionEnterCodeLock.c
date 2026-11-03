@@ -99,6 +99,9 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 
 		if ( tgtItem )
 		{
+			if (!Expansion_CodeLockInteractionCondition(player, settings, targetObject, component, tgtItem))
+				return false;
+
 			if ( tgtItem.IsKnownUser( player ) || tgtItem.Expansion_CanUnlockFromInside( player, tgtItem.GetActionComponentName( component ) ) )
 				m_IsKnownUser = true;
 			else
@@ -114,7 +117,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 						return false;
 
 					array< string > selections = new array< string >;
-					targetObject.GetActionComponentNameList( target.GetComponentIndex(), selections );
+					targetObject.GetActionComponentNameList( component, selections );
 
 					bool isEntrance;
 					for ( int s = 0; s < selections.Count(); s++ )
@@ -142,7 +145,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 				return false;
 			}
 
-			return Expansion_CodeLockInteractionCondition(player, settings, targetObject, component, tgtItem);
+			return true;
 		}
 		
 		return false;
@@ -150,8 +153,8 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 
 	static bool Expansion_CodeLockInteractionCondition(PlayerBase player, ExpansionBaseBuildingSettings settings, Object targetObject, int component, ItemBase tgtItem)
 	{
-		ExpansionCodeLock codelock;
-		if (Class.CastTo(codelock, tgtItem))
+		ItemBase codelock;
+		if (Class.CastTo(codelock, tgtItem) && codelock.Expansion_IsCodeLock())
 		{
 			//! @note for rebuildable buildings, targetObject is the codelock if pointing at it from the outside, but not the inside
 			if (targetObject != codelock && !settings.CodelockActionsAnywhere)
@@ -167,13 +170,20 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 		}
 		else if (tgtItem.ExpansionHasCodeLock(component))
 		{
-			codelock = tgtItem.ExpansionGetCodeLock();
+			codelock = tgtItem.Expansion_GetCodeLock();
 			if (!codelock)
 				return false;
 		}
 		else
 		{
 			return false;
+		}
+
+		if (codelock.IsInherited(DigitalCodeLock))
+		{
+			EntityAI parent = codelock.GetHierarchyParent();
+			if (!parent || !parent.IsInherited(TentBase))
+				return false;  //! Handled by vanilla codelock actions
 		}
 
 		return !codelock.IsDamageDestroyed();

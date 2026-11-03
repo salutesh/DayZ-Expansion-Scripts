@@ -18,11 +18,6 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 		m_ConditionTarget = new CCTCursorNoObject( UAMaxDistances.DEFAULT );
 	}
 
-	override string GetText()
-	{
-		return "#attach";
-	}
-
 	int GetCodeLockSlotId( ActionTarget target, out ItemBase targetItem )
 	{
 		Object targetObject = target.GetObject();
@@ -88,10 +83,16 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 
 		int slotId = GetCodeLockSlotId( target, targetItem );
 
-		if ( !targetItem || slotId == InventorySlots.INVALID || targetItem.ExpansionGetCodeLock() )
+		if ( !targetItem || slotId == InventorySlots.INVALID || targetItem.Expansion_GetCodeLock() )
 			return false;
 
-		return targetItem.CanReceiveAttachment( item, slotId );
+		if (!targetItem.CanReceiveAttachment( item, slotId ))
+			return false;
+		
+		if (!GetGame().IsDedicatedServer() && item)
+			m_Text = "#attach " + item.GetDisplayName();
+
+		return true;
 	}
 
 	override void OnExecuteServer( ActionData action_data )

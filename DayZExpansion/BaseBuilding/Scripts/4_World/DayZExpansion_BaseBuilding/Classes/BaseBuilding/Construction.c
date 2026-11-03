@@ -25,6 +25,18 @@ modded class ConstructionBase
 		}
 	}
 
+	//! Vanilla ConstructionBase::HasRequiredPart is public, but Rebuilding::HasRequiredPart overrides it to protected. Annoying.
+	bool Expansion_HasRequiredPart(string part_name)
+	{
+		return HasRequiredPart(part_name);
+	}
+
+	//! Some old mods override Construction::HasConflictPart to protected. Annoying.
+	bool Expansion_HasConflictPart(string part_name)
+	{
+		return HasConflictPart(part_name);
+	}
+
 	void Expansion_AdminBuildPartServer( notnull Man player, string part_name, int action_id )
 	{
 		//! Like vanilla BuildPartServer but calls Expansion_AdminLockLockableSlots instead of TakeMaterialsServer

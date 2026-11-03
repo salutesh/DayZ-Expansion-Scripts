@@ -1,6 +1,8 @@
 #ifdef DIAG_DEVELOPER
 modded class PluginDiagMenu
 {
+	static int EXPANSION_HELI_DESYNC;
+
 	static bool s_Expansion_ChangeInProgress;
 	static bool s_Expansion_LogHeliSpeed;
 
@@ -39,6 +41,8 @@ modded class PluginDiagMenu
 			m_ExpansionDiagsEnum_VehiclesHeliWindAerodynamics = GetModdedDiagID();
 			m_ExpansionDiagsEnum_VehiclesHeliRoughLandingThreshold = GetModdedDiagID();
 			m_ExpansionDiagsEnum_VehiclesHeliLogSpeed = GetModdedDiagID();
+
+			EXPANSION_HELI_DESYNC = GetModdedDiagID();
 	}
 	
 	override protected void RegisterModdedDiags()
@@ -75,6 +79,8 @@ modded class PluginDiagMenu
 			DiagMenu.RegisterBool(m_ExpansionDiagsEnum_VehiclesHeliRotorDiskInertia, "", "Heli Rotor Disk Inertia", m_ExpansionDiagsRootMenu_Vehicles);
 
 			DiagMenu.RegisterBool(m_ExpansionDiagsEnum_VehiclesHeliWindAerodynamics, "", "Heli Wind Aerodynamics", m_ExpansionDiagsRootMenu_Vehicles);
+
+			DiagMenu.RegisterBool(EXPANSION_HELI_DESYNC, "", "Heli Desync", m_ExpansionDiagsRootMenu_Vehicles);
 
 		#ifndef SERVER
 			auto settings = GetExpansionClientSettings();

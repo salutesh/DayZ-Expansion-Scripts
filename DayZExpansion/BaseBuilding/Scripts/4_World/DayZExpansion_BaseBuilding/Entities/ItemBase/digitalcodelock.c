@@ -1,5 +1,10 @@
 modded class DigitalCodeLock
 {
+	void DigitalCodeLock()
+	{
+		m_Expansion_KnownUIDs = new TStringArray;
+	}
+
 	override bool IsPlayerOnBackside(PlayerBase player)
 	{
 		bool isFacingBackside = super.IsPlayerOnBackside(player);
@@ -53,6 +58,9 @@ modded class DigitalCodeLock
 
 	override void ExpansionLock()
 	{
+		if (IsDamageDestroyed())
+			return;
+
 		SetLockState(true);
 	}
 
@@ -60,10 +68,21 @@ modded class DigitalCodeLock
 	{
 		SetLockState(false);
 	}
-		
+
+	override void ExpansionOnDestroyed(Object killer)
+	{
+		if (IsDamageDestroyed())
+			return;
+
+		SetHealth(0);
+		SetLockState(false);
+	}
+	
 	override void OnWasAttached(EntityAI parent, int slot_id)
 	{
 		super.OnWasAttached(parent, slot_id);
+
+		Expansion_RegisterLockRPCs();
 		
 		if (g_Game.IsServer())
 		{
@@ -84,4 +103,48 @@ modded class DigitalCodeLock
 			}
 		}
 	}
+
+	#ifdef EXPANSION_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
+	{
+		super.CF_OnStoreSave(storage);
+
+		auto ctx = storage[DZ_Expansion_BaseBuilding];
+		if (!ctx) return;
+
+		ctx.Write(m_Expansion_KnownUIDs.Count());
+		foreach (string knownUID: m_Expansion_KnownUIDs)
+		{
+			ctx.Write(knownUID);
+		}
+	}
+	
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
+	{
+		if (!super.CF_OnStoreLoad(storage))
+			return false;
+
+		auto ctx = storage[DZ_Expansion_BaseBuilding];
+		if (!ctx) return true;
+
+		if (ctx.GetVersion() < 53)
+			return true;
+
+		int count;
+		if (!ctx.Read(count))
+			return false;
+
+		while (count--)
+		{
+			string knownUID;
+			if (!ctx.Read(knownUID))
+				return false;
+
+			m_Expansion_KnownUIDs.Insert(knownUID);
+			EXError.Info(this, knownUID);
+		}
+
+		return true;
+	}
+	#endif
 }

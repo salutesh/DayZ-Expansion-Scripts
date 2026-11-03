@@ -274,7 +274,11 @@ modded class PlayerBase
 		int count = temp.Count();
 		if (count > 0)
 		{
-			float territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
+			auto settings = GetExpansionSettings().GetTerritory(false);
+			if (!settings.IsLoaded())
+				return false;
+
+			float territorySize = settings.TerritorySize;
 
 			vector pos = target.GetPosition();
 			for (int i = 0; i < count; i++)

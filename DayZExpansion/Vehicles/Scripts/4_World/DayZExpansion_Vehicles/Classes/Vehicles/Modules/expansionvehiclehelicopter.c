@@ -405,6 +405,7 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 	bool m_OverrideTailForce;
 
 	bool m_IsFreeLook = true;
+	bool m_IsFreeLookModifier;
 	bool m_WasFreeLookPressed;
 	float m_VertSens = 1.0;
 	float m_HorzSens = 1.0;
@@ -1103,7 +1104,7 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 
 	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
 	{
-		if (!m_Initialized || !pDriver || pState.m_HaltPhysics)
+		if (!m_Initialized || !pDriver)
 			return;
 
 		float pDt = pState.m_DeltaTime;
@@ -1130,14 +1131,20 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 			{
 			#ifdef COMPONENT_SYSTEM
 				bool isFreelook = InputValue("UAExpansionHeliFreeLook", inputInterface);
+				m_IsFreeLookModifier = InputValue("UAExpansionHeliFreeLookModifier", inputInterface);
 			#else
 				bool isFreelook = InputValue_ID(UAExpansionHeliFreeLook, inputInterface);
+				m_IsFreeLookModifier = InputValue_ID(UAExpansionHeliFreeLookModifier, inputInterface);
 			#endif
 
 				if (isFreelook && !m_WasFreeLookPressed)
 				{
 					m_WasFreeLookPressed = true;
-					m_IsFreeLook = !m_IsFreeLook;
+
+					if (m_IsFreeLookModifier)
+						m_IsFreeLook = false;  //! Toggles mouse ctrl on when freelook modifier key is released
+					else
+						m_IsFreeLook = !m_IsFreeLook;
 				}
 				else if (!isFreelook)
 				{
@@ -1187,6 +1194,16 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 
 			c_left += InputValue_ID(UAAimLeft, inputInterface) * m_HorzSens;
 			c_right += InputValue_ID(UAAimRight, inputInterface) * m_HorzSens;
+
+		#ifndef SERVER
+			pDriver.GetInputController().OverrideAimChangeX(HumanInputControllerOverrideType.ENABLED, 0.0);
+			pDriver.GetInputController().OverrideAimChangeY(HumanInputControllerOverrideType.ENABLED, 0.0);
+		}
+		else
+		{
+			pDriver.GetInputController().OverrideAimChangeX(HumanInputControllerOverrideType.DISABLED, 0.0);
+			pDriver.GetInputController().OverrideAimChangeY(HumanInputControllerOverrideType.DISABLED, 0.0);
+		#endif
 		}
 		
 		if (IsAutoHover() && pDriver && !g_Game.IsDedicatedServer() && GetExpansionClientSettings().TurnOffAutoHoverDuringFlight)
@@ -1377,20 +1394,20 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		return GetUApi().GetInputByID(action).LocalValue();
 	}
 
-	float InputPress(string action, UAInterface inputInterface = null)
+	bool InputPress(string action, UAInterface inputInterface = null)
 	{
 		if (inputInterface)
-			return inputInterface.SyncedClick(action);
+			return inputInterface.SyncedPress(action);
 
-		return GetUApi().GetInputByName(action).LocalClick();
+		return GetUApi().GetInputByName(action).LocalPress();
 	}
 
-	float InputPress_ID(int action, UAInterface inputInterface = null)
+	bool InputPress_ID(int action, UAInterface inputInterface = null)
 	{
 		if (inputInterface)
-			return inputInterface.SyncedClick_ID(action);
+			return inputInterface.SyncedPress_ID(action);
 
-		return GetUApi().GetInputByID(action).LocalClick();
+		return GetUApi().GetInputByID(action).LocalPress();
 	}
 
 	override void PreSimulate(ExpansionPhysicsState pState)
@@ -1637,7 +1654,9 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 
 				if (m_RotorSpeedTarget > 0 || !pState.m_HasDriver)
 				{
-					change = Math.Clamp(m_AutoHoverAltitude - estimatedPosition[1], -0.25 * pDt * autoDescentLimiter, 0.25 * pDt);
+					if (!pState.m_HaltPhysics)
+						change = Math.Clamp(m_AutoHoverAltitude - estimatedPosition[1], -0.25 * pDt * autoDescentLimiter, 0.25 * pDt);
+
 					m_CollectiveTarget = Math.Clamp(m_Collective + change, 0, 1);
 				}
 
@@ -1776,7 +1795,9 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 					//! One second ahead
 					vector estimatedPosition2 = pState.EstimatePosition(1.0);
 
-					change = Math.Clamp(m_AutoHoverAltitude - estimatedPosition2[1], -0.25 * pDt * autoDescentLimiter, 0.25 * pDt);
+					if (!pState.m_HaltPhysics)
+						change = Math.Clamp(m_AutoHoverAltitude - estimatedPosition2[1], -0.25 * pDt * autoDescentLimiter, 0.25 * pDt);
+
 					m_CollectiveTarget = Math.Clamp(m_Collective + change, 0, 1);
 				}
 			}
@@ -2446,12 +2467,7 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 			float buoyancyAcceleration = buoyancyForce * pState.m_InvMass;
 			if (buoyancyAcceleration > 1.0)
 			{
-				CarScript car;
-				bool canBeDamaged;
-				if (Class.CastTo(car, m_Vehicle))
-					canBeDamaged = car.CanBeDamaged();
-
-				if (canBeDamaged)
+				if (m_Helicopter.GetExpansionVehicle().CanBeDamaged())
 					m_Vehicle.AddHealth("", "", -0.001 * buoyancyForce);
 			}
 		}
@@ -3214,7 +3230,7 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		int packed;
 
 		packed |= (m_AutoHover & 0x1);
-		packed |= (m_IsFreeLook & 0x1) << 1;
+		packed |= (IsFreeLook() & 0x1) << 1;
 
 	#ifdef DIAG_DEVELOPER
 		packed |= (m_SimulationMode & 0x3) << 2;
@@ -3484,7 +3500,10 @@ class ExpansionVehicleHelicopter : ExpansionVehicleModule
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsFreeLook");
 #endif
 
-		return m_IsFreeLook;
+		if (m_IsFreeLook || m_IsFreeLookModifier)
+			return true;
+
+		return false;
 	}
 
 	void OnAttach(string slot, EntityAI entity)

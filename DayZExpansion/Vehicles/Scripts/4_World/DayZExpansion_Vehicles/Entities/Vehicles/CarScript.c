@@ -1533,7 +1533,7 @@ modded class CarScript
 
 			if (g_Game.IsServer())
 			{
-				if (IsVitalFuelTank() && CanBeDamaged())
+				if (IsVitalFuelTank())
 				{
 					if (m_FuelTankHealth == GameConstants.DAMAGE_RUINED_VALUE && m_EngineHealth > GameConstants.DAMAGE_RUINED_VALUE)
 					{
@@ -1646,6 +1646,14 @@ modded class CarScript
 		}
 	}
 
+	override bool IsVitalFuelTank()
+	{
+		if (m_ExpansionVehicle.CanBeDamaged())
+			return super.IsVitalFuelTank();
+
+		return false;
+	}
+
 	bool Expansion_EngineIsSpinning()
 	{
 		return Expansion_EngineIsOn();
@@ -1683,7 +1691,7 @@ modded class CarScript
 	//! @note only called for driver on client
 	override void OnUpdate(float dt)
 	{
-		if (g_Game.IsServer() && m_DrownTime > 0 && !CanBeDamaged())
+		if (g_Game.IsServer() && m_DrownTime > 0 && !m_ExpansionVehicle.CanBeDamaged())
 			m_DrownTime = 0;
 
 		super.OnUpdate(dt);
@@ -2471,7 +2479,7 @@ modded class CarScript
 			}
 
 #ifndef EXPANSION_VEHICLE_DESYNC_PROTECTION_DISABLE
-			m_State.ApplySimulation_CarScript(dt, m_IsPhysicsHost, driver);
+			m_State.ApplySimulation_DesyncProtection(dt, m_IsPhysicsHost, driver);
 #else
 			m_State.ApplySimulation(dt);
 #endif

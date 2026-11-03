@@ -79,6 +79,9 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 		
 		if ( tgtItem && !tgtItem.ExpansionIsLocked() && tgtItem.HasCode() )
 		{
+			if (!ExpansionActionEnterCodeLock.Expansion_CodeLockInteractionCondition(player, settings, targetObject, component, tgtItem))
+				return false;
+
 			if ( tent && !tgtItem.IsOpen() )
 			{
 				//! If CodelockActionsAnywhere is OFF, then "Change code"
@@ -89,7 +92,7 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 						return false;
 
 					array< string > selections = new array< string >;
-					targetObject.GetActionComponentNameList( target.GetComponentIndex(), selections );
+					targetObject.GetActionComponentNameList( component, selections );
 
 					bool isEntrance;
 					for ( int s = 0; s < selections.Count(); s++ )
@@ -111,7 +114,7 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 				return true;
 			}
 
-			return ExpansionActionEnterCodeLock.Expansion_CodeLockInteractionCondition(player, settings, targetObject, component, tgtItem);
+			return true;
 		}
 		
 		return false;
@@ -131,14 +134,6 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 		string selection = m_Target.GetActionComponentName( component );
 
 		if ( !m_Target.ExpansionIsLocked() && m_Target.HasCode() )
-		{
 			ExpansionCodeLockUI.Open(m_Target, component, selection, true, true);
-		} 
-		else
-		{
-			auto rpc = ExpansionScriptRPC.Create(ItemBase.s_Expansion_SetCode_RPCID);
-			rpc.Write(selection);
-			rpc.Expansion_Send(m_Target, true);
-		}
 	}
 }

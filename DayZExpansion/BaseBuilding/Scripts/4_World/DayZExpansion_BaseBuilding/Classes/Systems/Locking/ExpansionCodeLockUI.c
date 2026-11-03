@@ -66,6 +66,19 @@ class ExpansionCodeLockUI: ExpansionLockUIBase
 		if (!targetItem)
 			return;
 
+		DigitalCodeLock codeLock;
+		if (Class.CastTo(codeLock, targetItem) || (targetItem.IsInherited(TentBase) && Class.CastTo(codeLock, targetItem.Expansion_GetCodeLock())))
+		{
+			DigitalCodeLockUIBase codeLockUI;
+			codeLockUI = DigitalCodeLockUIBase.Cast(GetGame().GetUIManager().EnterScriptedMenu(MENU_DIGITAL_CODELOCK, null));
+			if (codeLockUI)
+			{
+				codeLockUI.SetTargetLock(codeLock.GetCodeLockComponent());
+				codeLockUI.Expansion_SetChange(change);
+			}
+			return;
+		}
+
 		if (!targetItem.Expansion_IsCodeLock() && !tgtObj.IsBuilding() && !targetItem.ExpansionHasCodeLock())
 			return;
 

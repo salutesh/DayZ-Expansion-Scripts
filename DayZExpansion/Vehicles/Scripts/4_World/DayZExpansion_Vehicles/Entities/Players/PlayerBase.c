@@ -220,6 +220,9 @@ modded class PlayerBase
 			g_Game.GetMission().RemoveActiveInputExcludes({"expansionhelicopter"});
 			g_Game.GetMission().RemoveActiveInputExcludes({"expansionboat"});
 			g_Game.GetMission().RemoveActiveInputExcludes({"expansionplane"});
+
+			GetInputController().OverrideAimChangeX(HumanInputControllerOverrideType.DISABLED, 0.0);
+			GetInputController().OverrideAimChangeY(HumanInputControllerOverrideType.DISABLED, 0.0);
 		}
 	}
 

@@ -95,6 +95,9 @@ class ExpansionCodeLock: ItemBase
 		auto trace = EXTrace.Start(EXTrace.BASEBUILDING, this);
 	#endif
 
+		if (IsDamageDestroyed())
+			return;
+
 		super.ExpansionLock();
 
 		BuildingBase parentBuilding;
@@ -102,7 +105,7 @@ class ExpansionCodeLock: ItemBase
 		{
 			int doorIndex = parentBuilding.Expansion_FindAttachmentDoorIndex(this);
 			if (doorIndex != -1 && !parentBuilding.IsDoorLocked(doorIndex))
-				parentBuilding.LockDoor(doorIndex, true);
+				parentBuilding.LockDoor(doorIndex);
 		}
 	}
 
@@ -119,7 +122,7 @@ class ExpansionCodeLock: ItemBase
 		{
 			int doorIndex = parentBuilding.Expansion_FindAttachmentDoorIndex(this);
 			if (doorIndex != -1)
-				parentBuilding.UnlockDoor(doorIndex, false);
+				parentBuilding.UnlockDoor(doorIndex);
 		}
 	}
 
@@ -483,6 +486,8 @@ class ExpansionCodeLock: ItemBase
 	{
 		super.OnWasAttached( parent, slot_id );
 		
+		Expansion_RegisterLockRPCs();
+
 		if (g_Game.IsServer())
 		{
 			string slotName = InventorySlots.GetSlotName(slot_id);

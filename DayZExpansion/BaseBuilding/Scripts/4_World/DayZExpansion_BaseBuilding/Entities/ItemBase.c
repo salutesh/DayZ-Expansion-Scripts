@@ -57,9 +57,6 @@ modded class ItemBase
 			//RegisterNetSyncVariableInt( "m_SourceNetLow" );
 			//RegisterNetSyncVariableInt( "m_SourceNetHigh" );
 		}
-
-		if (IsInherited(ExpansionCodeLock) || IsInherited(ExpansionSafeBase))
-			Expansion_RegisterLockRPCs();
 	}
 
 	void Expansion_RegisterLockRPCs()
@@ -91,13 +88,12 @@ modded class ItemBase
 	{
 		super.EEItemAttached(item, slot_name);
 
-		if (item.IsInherited(ExpansionCodeLock))
+		ItemBase ib;
+		if (Class.CastTo(ib, item) && ib.Expansion_IsCodeLock())
+		{
 			Expansion_RegisterLockRPCs();
 
-		if (g_Game.IsServer())
-		{
-			ItemBase ib;
-			if (Class.CastTo(ib, item) && ib.Expansion_IsCodeLock())
+			if (g_Game.IsServer())
 			{
 				//! If max is reached during storage load, the codelock will NOT be dropped
 				bool loaded = GetDayZGame().GetExpansionGame().IsLoaded();
@@ -915,18 +911,6 @@ modded class ItemBase
 	*/
 	bool IsKnownUser( PlayerBase player )
 	{
-		if ( !player )
-			return false;
-
-		if ( !player.GetIdentity() )
-			return false;
-
-		auto bbSettings = GetExpansionSettings().GetBaseBuilding(false);
-		auto ttSettings = GetExpansionSettings().GetTerritory(false);
-
-		if ( !bbSettings.IsLoaded() || !ttSettings.IsLoaded() || !bbSettings.RememberCode )
-			return false;
-
 		if (!Expansion_IsCodeLock() && !IsInherited(ExpansionSafeBase))
 		{
 			ItemBase codelock = Expansion_GetCodeLock();
@@ -934,8 +918,27 @@ modded class ItemBase
 				return codelock.IsKnownUser( player );
 		}
 
+		if ( !player )
+			return false;
+
+		auto bbSettings = GetExpansionSettings().GetBaseBuilding(false);
+		auto ttSettings = GetExpansionSettings().GetTerritory(false);
+
+		if ( !bbSettings.IsLoaded() || !ttSettings.IsLoaded() )
+			return false;
+
 		if (ttSettings.AuthenticateCodeLockIfTerritoryMember && player.IsInsideOwnTerritory())
 			return true;
+
+		if (!bbSettings.RememberCode)
+			return false;
+	#ifdef DIAG_DEVELOPER
+		else if (!g_Game.IsMultiplayer() && g_Game.IsServer())  //! Offline/SP
+			return true;
+	#endif
+
+		if ( !player.GetIdentity() )
+			return false;
 
 		if (!m_Expansion_KnownUIDs)
 			return false;
@@ -1167,11 +1170,16 @@ modded class ItemBase
 
 		if ( GetExpansionSettings().GetBaseBuilding().RememberCode )
 		{
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
-			if ( codelock )
-				codelock.AddUser( player );
-			else if ( IsInherited( ExpansionSafeBase ) )
-				AddUser( player );
+			if (Expansion_IsCodeLock() || IsInherited(ExpansionSafeBase))
+			{
+				AddUser(player);
+			}
+			else
+			{
+				ItemBase codelock = Expansion_GetCodeLock();
+				if (codelock)
+					codelock.AddUser(player);
+			}
 		}
 
 		ExpansionUnlock();

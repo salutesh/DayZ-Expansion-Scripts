@@ -78,7 +78,7 @@ modded class ActionAttachToConstruction
 	{
 		super.OnExecuteImpl(action_data);
 
-		if (action_data.m_MainItem.IsInherited(ExpansionCodeLock))
+		if (action_data.m_MainItem.Expansion_IsCodeLock())
 		{
 			int component = action_data.m_Target.GetComponentIndex();
 			string selection = action_data.m_Target.GetObject().GetActionComponentName(component);
