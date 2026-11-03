@@ -29,6 +29,8 @@ class ExpansionSafeBase: Container_Base
 
 		if ( !g_Game.IsMultiplayer() )
 			m_Expansion_WasSynced = true;
+
+		Expansion_RegisterLockRPCs();
 	}
 
 	// ------------------------------------------------------------
