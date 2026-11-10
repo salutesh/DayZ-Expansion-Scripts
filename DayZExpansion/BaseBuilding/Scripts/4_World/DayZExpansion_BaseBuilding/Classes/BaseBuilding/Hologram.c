@@ -1077,6 +1077,15 @@ modded class Hologram
 		return super.IsCollidingBBox( action_item );
 	}
 
+	//! NOTE: Will only be evaluated if CanBuildAnywhere is false
+    override bool IsCollidingGeometryProxy( ItemBase action_item = NULL )
+    {
+        if ( ExpansionCollisionException( action_item ) )
+            return false;
+
+        return super.IsCollidingGeometryProxy( action_item );
+    }
+
 	// ------------------------------------------------------------
 	// IsBehindObstacle
 	// ------------------------------------------------------------

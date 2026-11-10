@@ -185,7 +185,7 @@ modded class CarScript
 		}
 
 		m_Expansion_MinimumEngine = 0;
-		if (!IsCar())
+		if (!Expansion_IsCar() || Expansion_IsBoat())
 			m_Expansion_MinimumEngine = 1;
 
 		m_Expansion_MaximumEngine = 1;
@@ -280,11 +280,11 @@ modded class CarScript
 
 		path = "CfgVehicles " + GetType() + " hornLongSoundSet";
 		if (g_Game.ConfigIsExisting(path))
-			m_CarHornLongSoundName = g_Game.ConfigGetTextOut(path);
+			m_HornComponent.RegisterSound(VehicleHornMode.LONG, g_Game.ConfigGetTextOut(path));
 
 		path = "CfgVehicles " + GetType() + " hornShortSoundSet";
 		if (g_Game.ConfigIsExisting(path))
-			m_CarHornShortSoundName = g_Game.ConfigGetTextOut(path);
+			m_HornComponent.RegisterSound(VehicleHornMode.SHORT, g_Game.ConfigGetTextOut(path));
 
 		TStringArray attachmentSlotNames = {};
 		ConfigGetTextArray("attachments", attachmentSlotNames);
@@ -1177,14 +1177,16 @@ modded class CarScript
 		return false;
 	}
 
+	[Obsolete("Use VehicleHornComponent.Cast(GetVehicleHornComponent()).Expansion_HasSound(VehicleHornMode.LONG)")]
 	bool Expansion_HasVehicleHorn()
 	{
-		return m_CarHornLongSoundName != string.Empty;
+		return VehicleHornComponent.Cast(GetVehicleHornComponent()).Expansion_HasSound(VehicleHornMode.LONG);
 	}
 
+	[Obsolete("Use VehicleHornComponent.Cast(GetVehicleHornComponent()).Expansion_HasSound(VehicleHornMode.SHORT)")]
 	bool Expansion_HasVehicleHornShort()
 	{
-		return m_CarHornShortSoundName != string.Empty;
+		return VehicleHornComponent.Cast(GetVehicleHornComponent()).Expansion_HasSound(VehicleHornMode.SHORT);
 	}
 
 	bool IsCar()
@@ -2415,23 +2417,22 @@ modded class CarScript
 			return;
 		}
 		
-		//! 1.19
+		int gear = GetGear();
+
 		m_Controller.m_Yaw = GetSteering();
 		//m_Controller.m_Throttle[0] = GetThrottle();
 		m_Controller.m_Brake[0] = GetBrake();
-		m_Controller.m_Gear[0] = GetGear();
+		m_Controller.m_Gear[0] = gear;
 
-		TFloatArray gears = new TFloatArray;
-		g_Game.ConfigGetFloatArray("CfgVehicles " + GetType() + " SimulationModule Gearbox ratios", gears);
+		TFloatArray ratios = m_Gearboxes[0].m_Ratios;
 
-		//! 1.19
-		if (GetGear() > 2)
+		if (gear >= CarGear.FIRST)
 		{
-			m_Controller.m_Ratio[0] = gears[GetGear() - 2];
+			m_Controller.m_Ratio[0] = ratios[gear];
 		}
-		else if (GetGear() == 0)
+		else if (gear == CarGear.REVERSE)
 		{
-			m_Controller.m_Ratio[0] = g_Game.ConfigGetFloat("CfgVehicles " + GetType() + " SimulationModule Gearbox reverse");
+			m_Controller.m_Ratio[0] = ratios[0];
 		}
 		else
 		{
@@ -3466,12 +3467,12 @@ modded class CarScript
 
 		if (m_CurrentSkin.HornLong != "")
 		{
-			m_CarHornLongSoundName = m_CurrentSkin.HornLong;
+			m_HornComponent.RegisterSound(VehicleHornMode.LONG, m_CurrentSkin.HornLong);
 		}
 
 		if (m_CurrentSkin.HornShort != "")
 		{
-			m_CarHornShortSoundName = m_CurrentSkin.HornShort;
+			m_HornComponent.RegisterSound(VehicleHornMode.SHORT, m_CurrentSkin.HornShort);
 		}
 
 		for (int i = 0; i < m_CurrentSkin.HiddenSelections.Count(); i++)

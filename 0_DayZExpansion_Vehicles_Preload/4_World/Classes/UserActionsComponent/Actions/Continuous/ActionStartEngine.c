@@ -16,7 +16,10 @@ modded class ActionStartEngine
 
 	override string GetText()
 	{
-		return "#STR_EXPANSION_VEHICLE_ENGINE_START" + " " + m_Expansion_EngineName + " " + "#STR_EXPANSION_VEHICLE_ENGINE";
+		if (m_Expansion_EngineName)
+			return "#STR_EXPANSION_VEHICLE_ENGINE_START " + m_Expansion_EngineName + " #STR_EXPANSION_VEHICLE_ENGINE";
+
+		return super.GetText();
 	}
 
 	//! Can NOT call super here
@@ -40,7 +43,10 @@ modded class ActionStartEngine
 			m_CommandUID = vehicle.GetEngineStartAnimation();
 
 		#ifndef SERVER
-			m_Expansion_EngineName = vehicle.EngineGetName();
+			if (vehicle.EngineGetCount() > 1)
+				m_Expansion_EngineName = vehicle.EngineGetName();
+			else
+				m_Expansion_EngineName = "";
 		#endif
 
 			return true;

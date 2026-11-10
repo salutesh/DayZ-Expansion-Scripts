@@ -49,11 +49,6 @@ modded class DayZGame
 			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_FOLDER);
 		}
 
-		if (FileExist(EXPANSION_TEMP_INTERIORS))
-		{
-			DeleteFile(EXPANSION_TEMP_INTERIORS);
-		}
-
 		Expansion_FilterPlayerCharacters();
 	}
 
@@ -62,11 +57,6 @@ modded class DayZGame
 	// -------------------------------------------------------------
 	void ~DayZGame()
 	{
-		if (FileExist(EXPANSION_TEMP_INTERIORS))
-		{
-			DeleteFile(EXPANSION_TEMP_INTERIORS);
-		}
-
 #ifdef EXTRACE
 		if (EXTrace.s_Profiling.Count())
 			EXTrace.DumpProfilingData();

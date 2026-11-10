@@ -19,6 +19,7 @@ class ExpansionPersonalStorageMenuItemBase: ExpansionScriptView
 	protected ref ExpansionPersonalStorageItemBase m_Item;
 
 	protected EntityAI m_Object;
+	protected ButtonWidget action_button;
 	protected ButtonWidget item_button;
 	protected TextWidget item_name_text;
 

@@ -21,7 +21,12 @@ class ExpansionP2PMarketMenuCargoItem: ExpansionP2PMarketMenuItemBase
 	{
 		UpdatePreviewObject();
 		
-		string displayName = ExpansionStatic.GetItemDisplayNameWithType(m_Item.GetClassName());
+		string displayName;
+		if (m_Item.GetItem())
+			displayName = m_Item.GetItem().GetDisplayName();
+		else
+			displayName = ExpansionStatic.GetItemDisplayNameWithType(m_Item.GetClassName());
+
 		string displayText = displayName;
 		if (m_Item.GetContainerItems().Count() > 0)
 			displayText = "[+] " + displayName;

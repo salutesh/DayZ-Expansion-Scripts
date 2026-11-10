@@ -1,4 +1,4 @@
-modded class ActionCarHornLong
+modded class ActionVehicleHornLong
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
@@ -9,10 +9,10 @@ modded class ActionCarHornLong
 
 		if (vehCommand)
 		{
-			CarScript car;
-			if (Class.CastTo(car, vehCommand.GetTransport()))
+			Transport transport = vehCommand.GetTransport();
+			if (transport)
 			{
-				return car.Expansion_HasVehicleHorn();
+				return VehicleHornComponent.Cast(transport.GetVehicleHornComponent()).Expansion_HasSound(VehicleHornMode.LONG);
 			}
 		}
 
@@ -20,7 +20,7 @@ modded class ActionCarHornLong
 	}
 };
 
-modded class ActionCarHornShort
+modded class ActionVehicleHornShort
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
@@ -31,10 +31,10 @@ modded class ActionCarHornShort
 
 		if (vehCommand)
 		{
-			CarScript car;
-			if (Class.CastTo(car, vehCommand.GetTransport()))
+			Transport transport = vehCommand.GetTransport();
+			if (transport)
 			{
-				return car.Expansion_HasVehicleHornShort();
+				return VehicleHornComponent.Cast(transport.GetVehicleHornComponent()).Expansion_HasSound(VehicleHornMode.SHORT);
 			}
 		}
 

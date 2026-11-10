@@ -17,9 +17,11 @@ class ExpansionLHD : ExpansionBoatScript
 
 		m_Offset = 4.0;
 		
-		//! 1.19
+		//! 1.30
 		//! Sound set unsuitable for short horn sound (breaks player interaction and infinite bugged playback)
-		m_CarHornLongSoundName	= "Expansion_LHD_Horn_Ext_SoundSet";
+		m_HornComponent.RegisterSound(VehicleHornMode.LONG, "Expansion_LHD_Horn_Ext_SoundSet");
+		m_HornComponent.Expansion_DisableInterrupt();
+		m_HornComponent.Expansion_SetFade(0.1);
 
 		if (IsMissionHost())
 			SetAllowDamage(false);
@@ -30,7 +32,7 @@ class ExpansionLHD : ExpansionBoatScript
 		if (!g_Game)
 			return;
 
-		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(Update);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(Expansion_Update);
 	}
 
 	override void DeferredInit()
@@ -57,7 +59,7 @@ class ExpansionLHD : ExpansionBoatScript
 		//ExpansionLHD_CreatePart("ExpansionLHDElevatorL", "LHD_Elevator_L");
 		//ExpansionLHD_CreatePart("ExpansionLHDElevatorR", "LHD_Elevator_R");
 
-		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Update, 5000, true);
+		g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Expansion_Update, 5000, true);
 
 		float lengthF = 128.0;
 		float lengthB = 128.0;
@@ -68,6 +70,14 @@ class ExpansionLHD : ExpansionBoatScript
 		m_SizeMin = Vector(width, depth, lengthB);
 		m_SizeMax = Vector(width, height, lengthF);
 
+		Update();
+	}
+
+	//! 1.30 CallLater throws bogus VME when passed `Update` as callback
+	//! "[ScriptCallQueue::Call] :: [ERROR] :: Incompatible parameter at index '0' for ExpansionLHD::Update, expected 'IEntity', got 'void'"
+	//! so just have this wrapper around it
+	void Expansion_Update()
+	{
 		Update();
 	}
 
@@ -164,7 +174,7 @@ class ExpansionLHD : ExpansionBoatScript
 
 		position = position.InvMultiply3(transform);
 
-		Object obj = g_Game.CreateObject(part, "0 0 0");
+		Object obj = g_Game.CreateObjectEx(part, "0 0 0", ECE_CREATEPHYSICS | ECE_KEEPHEIGHT | ECE_NOSURFACEALIGN | ECE_NOLIFETIME);
 
 		obj.SetPosition(position);
 		//obj.SetOrientation("180 0 0");

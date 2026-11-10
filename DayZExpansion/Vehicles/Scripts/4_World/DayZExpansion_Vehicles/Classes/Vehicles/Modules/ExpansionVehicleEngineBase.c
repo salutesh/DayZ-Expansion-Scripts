@@ -272,7 +272,7 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 			if (!vehicle.EngineIsOn(m_EngineIndex + 1))
 				return;
 		}
-		else if (!vehicle.EngineIsOn(m_EngineIndex))
+		else if (!vehicle.EngineIsOn(m_EngineIndex) || (m_Vehicle.IsInherited(ExpansionVodnik) && m_EngineIndex == 0))
 		{
 			return;
 		}

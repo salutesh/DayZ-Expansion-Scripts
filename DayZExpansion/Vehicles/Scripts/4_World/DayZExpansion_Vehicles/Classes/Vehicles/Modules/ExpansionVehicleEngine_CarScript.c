@@ -32,9 +32,42 @@ class ExpansionVehicleEngine_CarScript : ExpansionVehicleEngineBase
 		m_RPMMax = m_Car.EngineGetRPMMax();
 	}
 
+	override void ProcessAcceleration(ExpansionPhysicsState pState)
+	{
+		if (m_Car.Expansion_IsBoat())
+		{
+			float speed = pState.m_LinearVelocity.Length();
+			int gear = m_Car.GetGear();
+			float ratio = 1.0;
+
+			ExpansionVehicleGearbox gearbox = m_Car.m_Gearboxes[0];
+
+			if (gear >= CarGear.FIRST)
+				ratio = gearbox.m_Ratios[gear];
+			else if (gear == CarGear.REVERSE)
+				ratio = Math.AbsFloat(gearbox.m_Ratios[0]);
+			else if (gear == CarGear.NEUTRAL && m_Car.Expansion_EngineIsOn())
+				speed = m_Car.GetThrottle() * 45;
+
+			float rpmMin;
+
+			if (m_Car.Expansion_EngineIsOn())
+				rpmMin = m_RPMIdle;
+
+			float rpmTarget = rpmMin + speed * (m_RPMRedline - rpmMin) * 0.025 * ratio;
+
+			rpmTarget = Math.Clamp(rpmTarget, rpmMin, m_RPMMax);
+			m_RPM = Math.Lerp(m_RPM, rpmTarget, pState.m_DeltaTime * 4);
+		}
+		else
+		{
+			super.ProcessAcceleration(pState);
+		}
+	}
+
 	override void ProcessHealth(float pDt, float pFuel, float pCoolant, float pOil, float pBrake, out float pOutHealth, out float pOutFuel)
 	{
-		if (!m_Car.IsHelicopter())
+		if (!m_Car.Expansion_IsHelicopter())
 			m_RPM = m_Car.EngineGetRPM();
 
 		super.ProcessHealth(pDt, pFuel, pCoolant, pOil, pBrake, pOutHealth, pOutFuel);

@@ -65,28 +65,9 @@ modded class ActionGetOutTransport
 	{
 		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast(action_data);
 
-		//! 1.26+
 		auto vehicle = ExpansionVehicle.Get(got_action_data.m_Vehicle);
 
 		super.OnEndServer(action_data);
-
-		if (vehicle)
-		{
-			vehicle.OnGotOut(action_data.m_Player, got_action_data.m_Expansion_SeatIdx);
-
-			if (got_action_data.m_Expansion_SeatIdx == DayZPlayerConstants.VEHICLESEAT_DRIVER)
-			{
-				if (vehicle.IsHelicopter())
-				{
-					if (!vehicle.IsAutoHover())
-						vehicle.EngineStop();  //! If not in auto-hover, getting out stops engine
-				}
-				else if (vehicle.GetEntity().IsInherited(ExpansionBoatScript))
-				{
-					vehicle.EngineStop();
-				}
-			}
-		}
 
 		if (vehicle && action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleLeave)
 		{

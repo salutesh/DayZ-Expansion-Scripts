@@ -40,9 +40,21 @@ modded class ActionFoldBaseBuildingObject
 				return false;
 		}
 
-		//! Standard checks
-		if (!isDeployableConstruction && !super.ActionCondition(player, target, item))
-			return false;
+		if (!isDeployableConstruction)
+		{
+			ExpansionBaseBuilding exbb;
+			if (Class.CastTo(exbb, targetItem))
+			{
+				if (!exbb.CanFoldBaseBuildingObject())
+					return false;
+			}
+			else
+			{
+				//! Standard checks
+				if (!super.ActionCondition(player, target, item))
+					return false;
+			}
+		}
 
 		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
 			return false;

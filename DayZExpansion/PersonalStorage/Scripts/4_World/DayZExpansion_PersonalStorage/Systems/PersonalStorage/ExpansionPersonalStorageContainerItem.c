@@ -10,11 +10,12 @@
  *
 */
 
-class ExpansionPersonalStorageContainerItem: ExpansionPersonalStorageItemBase
+class ExpansionPersonalStorageContainerItem: ExpansionPersonalStorageItem
 {
 	protected bool m_IsWeapon = false;
 	protected bool m_IsMagazine = false;
 	protected bool m_IsAttached = false;
+	protected bool m_CanRelease = false;
 	
 	override void SetFromItem(EntityAI object, string playerUID)
 	{
@@ -38,7 +39,17 @@ class ExpansionPersonalStorageContainerItem: ExpansionPersonalStorageItemBase
 		Print(ToString() + "::SetFromItem - End");
 	}
 
-	bool IsAttached()
+	void SetCanRelease(bool state)
+	{
+		m_CanRelease = state;
+	}
+
+	override bool CanRelease()
+	{
+		return m_CanRelease;
+	}
+
+	override bool IsAttached()
 	{
 		return m_IsAttached;
 	}
@@ -64,7 +75,7 @@ class ExpansionPersonalStorageContainerItem: ExpansionPersonalStorageItemBase
 		}
 	}
 
-	void OnSend(ParamsWriteContext ctx)
+	override void OnSend(ParamsWriteContext ctx)
 	{
 		OnSendClassName(ctx);
 
@@ -92,7 +103,7 @@ class ExpansionPersonalStorageContainerItem: ExpansionPersonalStorageItemBase
 		}
 	}
 
-	bool OnRecieve(ParamsReadContext ctx)
+	override bool OnRecieve(ParamsReadContext ctx)
 	{
 		if (!OnReceiveClassName(ctx))
 			return false;

@@ -50,7 +50,7 @@ WrapSpacerWidgetClass ExpansionPersonalStorageMenuItem {
      content_halign center
      content_valign center
      {
-      ButtonWidgetClass button {
+      ButtonWidgetClass action_button {
        color 0.1529 0.6824 0.3765 1
        position 0 0
        size 1 26
@@ -209,7 +209,7 @@ WrapSpacerWidgetClass ExpansionPersonalStorageMenuItem {
       GridSpacerWidgetClass item_name_panel {
        ignorepointer 1
        position 0.04 0
-       size 0.22 48
+       size 1 48
        hexactpos 0
        vexactpos 1
        hexactsize 0
@@ -219,7 +219,7 @@ WrapSpacerWidgetClass ExpansionPersonalStorageMenuItem {
        "Size To Content H" 1
        content_halign center
        content_valign center
-       Columns 2
+       Columns 1
        Rows 1
        {
         TextWidgetClass item_name_text {
@@ -233,7 +233,7 @@ WrapSpacerWidgetClass ExpansionPersonalStorageMenuItem {
          scriptclass "ViewBinding"
          font "gui/fonts/etelkatextpro22"
          "exact text" 0
-         "size to text h" 0
+         "size to text h" 1
          "size to text v" 0
          "text valign" center
          {

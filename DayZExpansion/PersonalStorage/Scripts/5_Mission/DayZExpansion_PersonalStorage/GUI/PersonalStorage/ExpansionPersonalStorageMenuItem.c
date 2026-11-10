@@ -59,17 +59,26 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 			array<ref ExpansionPersonalStorageContainerItem> containerItems = m_Item.GetContainerItems();
 			foreach (ExpansionPersonalStorageContainerItem item: containerItems)
 			{
-				ExpansionPersonalStorageItem playerItem = new ExpansionPersonalStorageItem();
+				ExpansionPersonalStorageContainerItem playerItem;
 				if (!m_PersonalItem.IsStored() && m_Item.GetItem())
 				{
+					playerItem = new ExpansionPersonalStorageContainerItem();
 					playerItem.SetFromItem(item.GetItem(), m_PersonalItem.GetOwnerUID());
+					playerItem.SetExcluded(item.IsExcluded());
+					playerItem.SetCanRelease(MiscGameplayFunctions.Expansion_CanRelease(item.GetItem()));
 				}
 				else
 				{
-					playerItem.SetFromContainerItem(item, m_PersonalItem.GetStorageID(), m_PersonalItem.GetGlobalID(), m_PersonalItem.GetOwnerUID(), m_PersonalItem.IsStored());
+					playerItem = item;
+					playerItem.SetIsStored(m_PersonalItem.IsStored());
+					ExpansionPersonalStorageContainerItem containerItem;
+					if (Class.CastTo(containerItem, m_Item) && containerItem.IsMagazine())
+						playerItem.SetCanRelease(false);
+					//! TODO: retrieving items in cargo of another item isn't currently supported by
+					//! ExpansionPersonalStorageModule::RPC_RequestRetrieveItem
+					//else
+						//playerItem.SetCanRelease(!item.IsAttached());
 				}
-
-				playerItem.SetExcluded(item.IsExcluded());
 
 				ExpansionPersonalStorageMenuItem playerItemEntry = new ExpansionPersonalStorageMenuItem(playerItem, m_PersonalStorageMenu);
 				playerItemEntry.ShowTreeElements(true);
@@ -86,7 +95,9 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 			item_name_text.SetColor(ARGB(255, 192, 57, 43));
 			item_button.SetColor(ARGB(255, 45, 52, 54));
 		}
-		
+
+		action_button.Show(!m_IsExcluded && (!m_Item.IsInherited(ExpansionPersonalStorageContainerItem) || m_Item.CanRelease()));
+
 		if (m_IsStored)
 		{
 			m_PersonalStorageMenuItemController.ButtonText = "Retrieve";
@@ -101,7 +112,12 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 	
 	protected void UpdateItemName()
 	{
-		string displayName = ExpansionStatic.GetItemDisplayNameWithType(m_Item.GetClassName());
+		string displayName;
+		if (m_Item.GetItem())
+			displayName = m_Item.GetItem().GetDisplayName();
+		else
+			displayName = ExpansionStatic.GetItemDisplayNameWithType(m_Item.GetClassName());
+
 		string displayText = displayName;
 		if (m_Item.GetContainerItems().Count() > 0)
 		{

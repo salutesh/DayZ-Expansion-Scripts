@@ -122,12 +122,12 @@ GridSpacerWidgetClass ChatItemWidget {
    clipchildren 1
    ignorepointer 1
    position 0 0
-   size 0.55 1
+   size 0.55 16
    valign top
    hexactpos 0
    vexactpos 0
    hexactsize 0
-   vexactsize 0
+   vexactsize 1
    scaled 0
    scriptclass "ViewBinding"
    font "gui/fonts/sdf_MetronBook24"

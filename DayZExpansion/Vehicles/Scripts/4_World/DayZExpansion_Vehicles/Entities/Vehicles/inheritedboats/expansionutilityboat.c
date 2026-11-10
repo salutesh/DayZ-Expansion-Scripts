@@ -24,9 +24,11 @@ class ExpansionUtilityBoat: ExpansionBoatScript
 
 		m_Offset = 0.66;
 		
-		//! 1.19
+		//! 1.30
 		//! Sound set unsuitable for short horn sound (breaks player interaction and infinite bugged playback)
-		m_CarHornLongSoundName	= "Expansion_Utility_Horn_Ext_SoundSet";
+		m_HornComponent.RegisterSound(VehicleHornMode.LONG, "Expansion_Utility_Horn_Ext_SoundSet");
+		m_HornComponent.Expansion_DisableInterrupt();
+		m_HornComponent.Expansion_SetFade(0.1);
 	}
 
 	override string GetVehicleType()

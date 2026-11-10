@@ -1655,7 +1655,7 @@ FrameWidgetClass ExpansionP2PMarketMenu {
      hexactsize 0
      vexactsize 1
      style Bold
-     text "#STR_EXPANSION_MARKET_LOADING"
+     text "#STR_EXPANSION_LOADING"
      font "gui/fonts/sdf_metronbook72"
      "bold text" 1
      "exact text" 0

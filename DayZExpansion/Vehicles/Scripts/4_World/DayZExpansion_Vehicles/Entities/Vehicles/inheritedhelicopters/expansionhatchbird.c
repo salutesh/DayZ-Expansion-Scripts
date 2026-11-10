@@ -21,8 +21,8 @@ class ExpansionHatchBird: ExpansionHelicopterScript
 		m_CarDoorOpenSound 		= "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound 	= "offroad_door_close_SoundSet";
 		
-		m_CarHornShortSoundName = "Offroad_Horn_Short_SoundSet";
-		m_CarHornLongSoundName	= "Offroad_Horn_SoundSet";
+		m_HornComponent.RegisterSound(VehicleHornMode.SHORT, "Offroad_Horn_Short_SoundSet");
+		m_HornComponent.RegisterSound(VehicleHornMode.LONG, "Offroad_Horn_SoundSet");
 		
 		SetEnginePos("0 0.7 1.2");
 

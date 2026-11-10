@@ -42,20 +42,8 @@ modded class MiscGameplayFunctions
 			if (Expansion_HasAnyCargo(item))
 				return false;
 
-			//! Check if item is attachment that can be released
-			if (item.GetInventory().IsAttachment())
-			{
-				if (item.IsMagazine())
-					return false;
-				EntityAI parent = item.GetHierarchyParent();
-				if (!item.CanDetachAttachment(parent))
-					return false;
-				if (!parent.CanReleaseAttachment(item))
-					return false;
-				if (!parent.GetInventory().CanRemoveAttachment(item))
-					return false;
-				return true;
-			}
+			if (!Expansion_CanRelease(item, false))
+				return false;
 		}
 		
 		ExpansionVehicle vehicle = ExpansionVehicle.Get(item);
@@ -68,8 +56,42 @@ modded class MiscGameplayFunctions
 		return true;
 	}
 
+	/**
+	 * @brief check whether item can currently be released from its parent
+	 *
+	 * @param allowWeaponMagDetach  if false (default), always fail if item is mag attached to weapon
+	 *
+	 * @return true if can be released. Always returns true for items that are not attached.
+	 */
+	static bool Expansion_CanRelease(EntityAI item, bool allowWeaponMagDetach = false)
+	{
+		InventoryLocation il = new InventoryLocation();
+		if (!item.GetInventory().GetCurrentInventoryLocation(il))
+			return false;
+
+		//! Check if item is attachment that can be released
+		if (il.GetType() == InventoryLocationType.ATTACHMENT)
+		{
+			EntityAI parent = il.GetParent();
+
+			if (item.IsMagazine() && parent.IsWeapon() && !allowWeaponMagDetach)
+				return false;
+
+			if (!item.CanDetachAttachment(parent))
+				return false;
+
+			if (!parent.CanReleaseAttachment(item))
+				return false;
+
+			if (!parent.GetInventory().CanRemoveAttachmentEx(item, il.GetSlot()))
+				return false;
+		}
+
+		return true;
+	}
+
 	//! Used by p2p market and personal storage, couldn't think of a better name/place for it
-	static bool Expansion_ItemCheck(EntityAI item, TStringArray excludedClassNames = null)
+	static bool Expansion_ItemCheck(EntityAI item, TStringArray excludedClassNames = null, bool allowQuestItem = false)
 	{
 	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.StartStack(EXTrace.GENERAL_ITEMS, MiscGameplayFunctions);
@@ -98,25 +120,12 @@ modded class MiscGameplayFunctions
 		if (Class.CastTo(explosive, item) && explosive.Expansion_IsLive())
 			return false;
 
-		InventoryLocation il = new InventoryLocation();
-		if (!item.GetInventory().GetCurrentInventoryLocation(il))
+		if (!Expansion_CanRelease(item, false))
 			return false;
 
-		if (il.GetType() == InventoryLocationType.ATTACHMENT)
-		{
-			EntityAI parent = il.GetParent();
-
-			if (!parent.CanReleaseAttachment(item) || !item.CanDetachAttachment(parent))
-				return false;
-			
-			if (!parent.GetInventory().CanRemoveAttachment(item))
-				return false;
-		}
-
 		#ifdef EXPANSIONMODQUESTS
-		//! Don`t add quest items
 		ItemBase itemIB;
-		if (Class.CastTo(itemIB, item))
+		if (!allowQuestItem && Class.CastTo(itemIB, item))
 		{
 			if (itemIB.Expansion_IsQuestItem() || itemIB.Expansion_IsQuestGiver())
 				return false;

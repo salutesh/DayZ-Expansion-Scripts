@@ -32,6 +32,8 @@ class ExpansionVodnik: ExpansionBoatScript
 	protected ref UniversalTemperatureSourceSettings m_UTSSettings;
 	protected ref UniversalTemperatureSourceLambdaEngine m_UTSLEngine;
 
+	float m_Expansion_FuelFraction;  //! 1.30 no longer updates client fuel/engine state if using old networking
+
 	// ------------------------------------------------------------
 	void ExpansionVodnik()
 	{
@@ -42,6 +44,10 @@ class ExpansionVodnik: ExpansionBoatScript
 		m_TurnCoef					= 0.15;
 	
 		m_Offset					= -0.4;
+
+		//! 1.30 no longer updates client fuel/engine state if using old networking
+		if (GetNetworkMoveStrategy() != NetworkMoveStrategy.PHYSICS)
+			RegisterNetSyncVariableFloat("m_Expansion_FuelFraction");
 
 		//! 1.19
 		m_EngineStartOK			= "Offroad_02_engine_start_SoundSet";
@@ -57,8 +63,8 @@ class ExpansionVodnik: ExpansionBoatScript
 		m_CarDoorOpenSound		= "offroad_02_door_open_SoundSet";
 		m_CarDoorCloseSound		= "offroad_02_door_close_SoundSet";
 
-		m_CarHornShortSoundName = "Offroad_02_Horn_Short_SoundSet";
-		m_CarHornLongSoundName	= "Offroad_02_Horn_SoundSet";
+		m_HornComponent.RegisterSound(VehicleHornMode.SHORT, "Offroad_02_Horn_Short_SoundSet");
+		m_HornComponent.RegisterSound(VehicleHornMode.LONG, "Offroad_02_Horn_SoundSet");
 		
 		SetEnginePos("0 1.36 -0.4");
 	}
@@ -80,6 +86,22 @@ class ExpansionVodnik: ExpansionBoatScript
 			m_UTSLEngine					= new UniversalTemperatureSourceLambdaEngine();
 			m_UTSource						= new UniversalTemperatureSource(this, m_UTSSettings, m_UTSLEngine);
 		}		
+	}
+
+	override void OnEngineStart(int index)
+	{
+		super.OnEngineStart(index);
+
+		if (index == 1 && !EngineIsOn() && g_Game.IsServer())
+			EngineStart();
+	}
+
+	override void OnEngineStop(int index)
+	{
+		super.OnEngineStop(index);
+
+		if (index == 1 && EngineIsOn() && g_Game.IsServer())
+			EngineStop();
 	}
 	
 	override void OnEngineStart()
@@ -109,6 +131,31 @@ class ExpansionVodnik: ExpansionBoatScript
 			if (m_UTSource.IsActive())
 			{
 				m_UTSource.Update(m_UTSSettings, m_UTSLEngine);
+			}
+		}
+	}
+
+	override void UpdateHealth(float pDt)
+	{
+		super.UpdateHealth(pDt);
+
+		//! 1.30 no longer updates client fuel/engine state if using old networking
+		if (g_Game.IsServer() && GetNetworkMoveStrategy() != NetworkMoveStrategy.PHYSICS)
+			m_Expansion_FuelFraction = GetFluidFraction(CarFluid.FUEL);
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		//! 1.30 no longer updates client fuel/engine state if using old networking
+		if (GetNetworkMoveStrategy() != NetworkMoveStrategy.PHYSICS)
+		{
+			float fuel = GetFluidFraction(CarFluid.FUEL);
+			if (m_Expansion_FuelFraction < fuel)
+			{
+				Leak(CarFluid.FUEL, fuel - m_Expansion_FuelFraction);
+				m_Expansion_FuelFraction = GetFluidFraction(CarFluid.FUEL);
 			}
 		}
 	}

@@ -1,33 +1,5 @@
 modded class CarHud
 {
-	TextWidget m_Expansion_RPMLabel;
-
-	override void Init(Widget vehicleHudPanels)
-	{		
-		super.Init(vehicleHudPanels);
-
-		m_Expansion_RPMLabel = TextWidget.Cast(m_VehiclePanel.FindAnyWidget("RPMLabel"));
-	}
-
-	override void ShowVehicleInfo(PlayerBase player)
-	{
-		super.ShowVehicleInfo(player);
-
-		if (m_CurrentVehicle)
-		{
-			//! Hide RPM pointer/redline if boat and not hybrid
-
-			bool showRPM = true;
-
-			if (m_CurrentVehicle.Expansion_IsBoat() && !m_CurrentVehicle.Expansion_IsCar())
-				showRPM = false;
-
-			m_VehicleRPMPointer.Show(showRPM);
-			m_VehicleRPMRedline.Show(showRPM);
-			m_Expansion_RPMLabel.Show(showRPM);
-		}
-	}
-
 	override void RefreshVehicleHud(float timeslice)
 	{
 		super.RefreshVehicleHud(timeslice);
@@ -39,7 +11,7 @@ modded class CarHud
 
 		if (currentEngine > 0)
 		{
-			if (m_CurrentVehicle.Expansion_IsBoat())
+			if (m_CurrentVehicle.Expansion_IsBoat() && !m_CurrentVehicle.Expansion_IsCar())
 			{
 				//! If 2nd engine is selected for boat or hybrid vehicle, show only one forward gear
 
@@ -91,6 +63,13 @@ modded class CarHud
 
 					m_VehiclePrevGearValue.SetText(prevGearLabel);
 				}
+			}
+
+			if (g_Game.IsMultiplayer())
+			{
+				float rpm01 = m_CurrentVehicle.Expansion_EngineGetRPM(currentEngine) / m_CurrentVehicle.Expansion_EngineGetRPMMax(currentEngine);
+
+				m_VehicleRPMPointer.SetRotation(0, 0, rpm01 * 270 - 130, true);
 			}
 		}
 	}

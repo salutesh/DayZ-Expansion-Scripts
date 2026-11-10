@@ -61,6 +61,7 @@ class CfgSoundShaders
 			}
 		};
 		volume=1;
+		range=1000;
 	};
 	class Expansion_Utility_Horn_Int_SoundShader: Expansion_Horn_SoundShader
 	{

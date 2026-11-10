@@ -2171,7 +2171,10 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 			for (int i = 0; i < containerItems.Count(); ++i)
 			{
 				ExpansionP2PMarketContainerItem containerItem = containerItems[i];
-				displayName = ExpansionStatic.GetItemDisplayNameWithType(containerItem.GetClassName());
+				if (containerItem.GetItem())
+					displayName = containerItem.GetItem().GetDisplayName();
+				else
+					displayName = ExpansionStatic.GetItemDisplayNameWithType(containerItem.GetClassName());
 				displayName.ToLower();			
 				
 				foreach(string sC: tokens)
@@ -2181,8 +2184,11 @@ class ExpansionP2PMarketMenu: ExpansionScriptViewMenu
 				}
 			}
 		}
-		
-		displayName = ExpansionStatic.GetItemDisplayNameWithType(listing.GetClassName());
+
+		if (listing.GetItem())
+			displayName = listing.GetItem().GetDisplayName();
+		else
+			displayName = ExpansionStatic.GetItemDisplayNameWithType(listing.GetClassName());
 		displayName.ToLower();
 
 		foreach(string sM: tokens)

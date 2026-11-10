@@ -67,8 +67,11 @@ class ExpansionCodeLockUI: ExpansionLockUIBase
 			return;
 
 		DigitalCodeLock codeLock;
-		if (Class.CastTo(codeLock, targetItem) || (targetItem.IsInherited(TentBase) && Class.CastTo(codeLock, targetItem.Expansion_GetCodeLock())))
+		if (Class.CastTo(codeLock, targetItem) || Class.CastTo(codeLock, targetItem.Expansion_GetCodeLock()))
 		{
+			if (!codeLock.HasEnergy())
+				return;
+
 			DigitalCodeLockUIBase codeLockUI;
 			codeLockUI = DigitalCodeLockUIBase.Cast(GetGame().GetUIManager().EnterScriptedMenu(MENU_DIGITAL_CODELOCK, null));
 			if (codeLockUI)
@@ -79,7 +82,7 @@ class ExpansionCodeLockUI: ExpansionLockUIBase
 			return;
 		}
 
-		if (!targetItem.Expansion_IsCodeLock() && !tgtObj.IsBuilding() && !targetItem.ExpansionHasCodeLock())
+		if (!targetItem.IsInherited(ExpansionCodeLock) && !targetItem.ExpansionGetCodeLock())
 			return;
 
 		ExpansionCodeLockUI menu = ExpansionCodeLockUI.Cast(g_Game.GetUIManager().EnterScriptedMenu(MENU_EXPANSION_CODELOCK_MENU, NULL));

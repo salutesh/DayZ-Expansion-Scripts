@@ -430,7 +430,8 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		inventory_panel.Show(false);
 		tabs_panel.Show(false);
 
-		m_ItemDetailsView.ShowConfirmButton(true);
+		ExpansionPersonalStorageItem playerItem = item.GetPlayerItem();
+		m_ItemDetailsView.ShowConfirmButton(!playerItem.IsExcluded() && (!playerItem.IsInherited(ExpansionPersonalStorageContainerItem) || playerItem.CanRelease()));
 
 		string buttonText;
 		if (item.GetPlayerItem().IsStored())

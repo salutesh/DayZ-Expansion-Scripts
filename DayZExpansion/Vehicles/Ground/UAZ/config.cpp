@@ -2185,7 +2185,7 @@ class CfgVehicles
 						"CarBattery",
 						"SparkPlug"
 					};
-					inventorySlotsCoefs[]={0.2,0.1,0.2};
+					inventorySlotsCoefs[]={0.1,0.050000001};
 				};
 				class FuelTank
 				{
@@ -2289,7 +2289,7 @@ class CfgVehicles
 					{
 						"Reflector_1_1"
 					};
-					inventorySlotsCoefs[]={1,0.30000001};
+					inventorySlotsCoefs[]={1};
 				};
 				class Reflector_2_1: Reflector_1_1
 				{

@@ -38,6 +38,9 @@ class ExpansionP2PMarketListingBase
 	[NonSerialized()]
 	protected bool m_IsExcluded;
 
+	[NonSerialized()]
+	protected bool m_IsExcludedClassName;
+
 	void ExpansionP2PMarketListingBase()
 	{
 		m_ContainerItems = new array<ref ExpansionP2PMarketContainerItem>;
@@ -233,11 +236,28 @@ class ExpansionP2PMarketListingBase
 		m_ListingObject = object;
 		m_ClassName = object.GetType();
 
+		if (!MiscGameplayFunctions.Expansion_ItemCheck(object, null, true))
+			m_IsExcluded = true;
+
+		if (ExpansionStatic.IsAnyOf(object, GetExpansionSettings().GetP2PMarket().ExcludedClassNames))
+		{
+			m_IsExcluded = true;
+			m_IsExcludedClassName = true;
+		}
+
 		UpdateContainerItems();
 
 		ItemBase itemIB;
 		if (Class.CastTo(itemIB, object))
 		{
+			#ifdef EXPANSIONMODQUESTS
+			if (itemIB.Expansion_IsQuestItem() || itemIB.Expansion_IsQuestGiver())
+			{
+				m_IsExcluded = true;
+				m_IsExcludedClassName = true;
+			}
+			#endif
+
 			ExpansionItemQuantityType quantityType;
 			m_Quantity = itemIB.Expansion_GetQuantity(quantityType);
 			m_QuantityType = quantityType;
@@ -279,9 +299,6 @@ class ExpansionP2PMarketListingBase
 			}
 			#endif
 		}
-		
-		if (!ExpansionP2PMarketModule.ItemCheckEx(object))
-			m_IsExcluded = true;
 	}
 
 	void UpdateContainerItems()
@@ -315,13 +332,14 @@ class ExpansionP2PMarketListingBase
 			if (ExpansionP2PMarketModule.m_HardcodedExcludes.Find(item.GetType()) > -1)
 				continue;
 
-			if (!ExpansionP2PMarketModule.ItemCheckEx(item))
-				m_IsExcluded = true;
-
 			ExpansionP2PMarketContainerItem containerItem = new ExpansionP2PMarketContainerItem();
 			containerItem.SetFromItem(item);
 			
-			if (!m_IsExcluded && containerItem.IsExcluded())
+			//! Only if the child item is in list of excluded classnames, set this item to excluded as well.
+			//! E.g. you should not be able to deposit an attachment that is locked in a slot of its parent,
+			//! but if the parent itself is a loose item, it must be possible to deposit the parent + all its children (whole hierarchy).
+			//! If an item's classname is exluded via exclusion list on the other hand, it must NEVER be possible to deposit the item OR its parent(s).
+			if (!m_IsExcluded && containerItem.m_IsExcludedClassName)
 				m_IsExcluded = true;
 			
 			//! If item is a BB kit then make sure we cant deposit the attached rope..

@@ -486,19 +486,22 @@ class ExpansionHelicopterHud : VehicleHudBase
 		{
 			m_HeliThrustProgressBar.SetColor(COLOR_WHITE);
 
-			float rbsSeverity = simulation.m_RBSSeverity;
+			if (!m_CurrentHelicopter.m_IsLanded)
+			{
+				float rbsSeverity = simulation.m_RBSSeverity;
 
-			if (rbsSeverity > 0.0)
-			{
-				warningText = "STALL";
-				warningThreshold = 0.1;
-				warningValue = rbsSeverity;
-			}
-			else if (simulation.m_RotorSpeed > 0.0 && simulation.m_RotorSpeed < 0.95 && !m_CurrentHelicopter.m_IsLanded)
-			{
-				warningText = "RPM";
-				warningThreshold = 0.1;
-				warningValue = 1.0 - simulation.m_RotorSpeed;
+				if (rbsSeverity > 0.0)
+				{
+					warningText = "STALL";
+					warningThreshold = 0.1;
+					warningValue = rbsSeverity;
+				}
+				else if (simulation.m_RotorSpeed > 0.0 && simulation.m_RotorSpeed < 0.95)
+				{
+					warningText = "RPM";
+					warningThreshold = 0.1;
+					warningValue = 1.0 - simulation.m_RotorSpeed;
+				}
 			}
 		}
 

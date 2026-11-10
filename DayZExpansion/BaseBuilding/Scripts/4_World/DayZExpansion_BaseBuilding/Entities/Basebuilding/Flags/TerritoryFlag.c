@@ -221,9 +221,10 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	override void SetActions()
 	{
+		AddAction( ExpansionActionEnterFlagMenu );
+
 		super.SetActions();
 		
-		AddAction( ExpansionActionEnterFlagMenu );
 		AddAction( ExpansionActionDismantleFlag );
 	}
 	

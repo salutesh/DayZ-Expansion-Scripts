@@ -319,12 +319,14 @@ class ExpansionPhysicsState
 				m_CurrentAngularVelocity = m_AngularVelocity;
 			}
 		}
-		else if (!isServer && !isPhysHost && !m_IsSync)
+		else if (!driver && !m_IsSync)
 		{
-			//! Client - no driver - was desynced - reset
+			//! Client/server - no driver - was desynced - reset
 			m_IsSync = true;
 			m_HaltPhysics = false;
-			SendPing(false);
+
+			if (isServer)
+				m_ClientDesync = false;
 		}
 
 		if (isServer && m_DesyncInvulnerabilityTimeoutSeconds > 0)

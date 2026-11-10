@@ -43,9 +43,7 @@ class ExpansionBoatScript: CarScript
 
 	float m_Expansion_BuoyancyFactor;
 
-#ifdef DAYZ_1_27
 	protected bool m_Expansion_StartingSoundPlayed;
-#endif
 
 	void ExpansionBoatScript()
 	{
@@ -269,28 +267,54 @@ class ExpansionBoatScript: CarScript
 	protected override void OnParticleUpdate(float pDt)
 	{
 		vector enginePosition = ModelToWorld(GetMemoryPointPos("engine"));
-		//! TODO: Make particles for reverse gear too
+
+		if (IsInherited(ExpansionVodnik))
+			enginePosition[1] = enginePosition[1] - 1.0;
+
 		if (enginePosition[1] <= g_Game.SurfaceGetSeaLevel() && Math.AbsFloat(GetSpeedometer()) > 5)
 		{
-			if (!m_ParticleEngine && MemoryPointExists("engine"))
+			//! Invert direction of particles when moving backwards
+			float sign = Math.Sign(GetSpeedometer());
+
+			if (!m_ParticleEngine && MemoryPointExists("engine") && !IsInherited(ExpansionVodnik))
 			{
 				m_ParticleEngine = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_ENGINE, this, GetMemoryPointPos("engine"), Vector(0, 90, 0));
 			}
+
+			if (m_ParticleEngine)
+				m_ParticleEngine.SetOrientation(Vector(0, 90 * sign, 0));
+
+			Expansion_SetParticleParams(m_ParticleEngine);
 
 			if (!m_ParticleFirst && MemoryPointExists("waterdecal"))
 			{
 				m_ParticleFirst = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_DECAL, this, GetMemoryPointPos("waterdecal") + Vector(0, 0, 2.5), Vector(-180, 0, 0));
 			}
 
+			if (m_ParticleFirst)
+				m_ParticleFirst.SetOrientation(Vector(-180, 180 * Math.InverseLerp(1, -1, sign), 0));
+
+			Expansion_SetParticleParams(m_ParticleFirst);
+
 			if (!m_ParticleSideFirst && MemoryPointExists("waterstream1_side"))
 			{
 				m_ParticleSideFirst = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_WATER, this, GetMemoryPointPos("waterstream1_side"), Vector(-25, 90, 0));
 			}
 
+			if (m_ParticleSideFirst)
+				m_ParticleSideFirst.SetOrientation(Vector(-25 * sign, 90 * sign, 0));
+
+			Expansion_SetParticleParams(m_ParticleSideFirst);
+
 			if (!m_ParticleSideSecond && MemoryPointExists("waterstream2_side"))
 			{
 				m_ParticleSideSecond = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_WATER, this, GetMemoryPointPos("waterstream2_side"), Vector(25, 90, 0));
 			}
+
+			if (m_ParticleSideSecond)
+				m_ParticleSideSecond.SetOrientation(Vector(25 * sign, 90 * sign, 0));
+
+			Expansion_SetParticleParams(m_ParticleSideSecond);
 		}
 		else
 		{
@@ -318,6 +342,17 @@ class ExpansionBoatScript: CarScript
 			{
 				m_ParticleSideSecond.Stop();
 			}
+		}
+	}
+
+	void Expansion_SetParticleParams(Particle particle)
+	{
+		if (particle)
+		{
+			float relSpeed = Math.Clamp(Math.InverseLerp(5, 85, GetSpeedometerAbsolute()), 0, 1);
+			float mult = 0.05 + relSpeed * 0.95;
+			particle.SetParameter(-1, EmitorParam.BIRTH_RATE, particle.GetParameterOriginal(0, EmitorParam.BIRTH_RATE) * mult);
+			particle.SetParameter(-1, EmitorParam.SIZE, particle.GetParameterOriginal(0, EmitorParam.SIZE) * mult);
 		}
 	}
 
@@ -374,6 +409,29 @@ class ExpansionBoatScript: CarScript
 	}
 #endif
 
+	override float Expansion_EngineGetRPM(int index)
+	{
+		if (g_Game.IsMultiplayer())
+			return m_Engines[0].m_RPM;
+
+		return super.Expansion_EngineGetRPM(0);
+	}
+
+	override float Expansion_EngineGetRPMIdle(int index)
+	{
+		return EngineGetRPMIdle();
+	}
+
+	override float Expansion_EngineGetRPMMax(int index)
+	{
+		return EngineGetRPMMax();
+	}
+
+	override float Expansion_EngineGetRPMRedline(int index)
+	{
+		return EngineGetRPMRedline();
+	}
+
 	protected override void OnSimulation(ExpansionPhysicsState pState)
 	{
 		vector force;
@@ -382,6 +440,8 @@ class ExpansionBoatScript: CarScript
 
 		bool isAboveWater;
 		float buoyancyForce;
+
+		m_Engines[0].ProcessAcceleration(pState);
 
 		if (m_Expansion_BuoyancyFactor < 0.1)
 		{
@@ -484,7 +544,10 @@ class ExpansionBoatScript: CarScript
 			tCenter[2] = -m_BoundingRadius;
 
 			force += tForce;
-			torque += tCenter * tForce;
+
+			//! When m_Thrust is zero but the boat is still moving, thrust becomes inverted and we need to correct
+			//! tForce when taking cross product with tCenter so that the boat doesn't turn in the opposite direction
+			torque += tCenter * (tForce * Math.Sign(thrust) * Math.Sign(linVel));
 		}
 
 		// friction
@@ -854,12 +917,15 @@ class ExpansionBoatScript: CarScript
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "OnSound").Add(ctrl).Add(oldValue);
 #endif
 
-		if (Expansion_EngineIsOn(1) && (!Expansion_EngineIsOn(0) || !m_EngineStarted))
+		if (Expansion_EngineIsOn(1))
 		{
 			switch (ctrl)
 			{
 			case CarSoundCtrl.RPM:
 			{
+				if (Expansion_IsCar())
+					return Expansion_EngineGetRPM();
+
 				float speed = Math.AbsFloat(GetSpeedometer());
 				if (speed > 100)
 				{
@@ -875,45 +941,59 @@ class ExpansionBoatScript: CarScript
 
 			case CarSoundCtrl.ENGINE:
 			{
-				return 1;
-			}
-			}
+				if (m_EngineStarted)
+					return 1;
 
-			return oldValue;
+				return 0;
+			}
+			}
 		}
 
 		return super.OnSound(ctrl, oldValue);
 	}
 
-#ifdef DAYZ_1_27
 	override void HandleEngineSound(CarEngineSoundState state)
 	{
 	#ifndef SERVER
+	#ifndef NO_GUI
 	#ifdef EXTRACE_DIAG
 		auto trace = EXTrace.StartStack(EXTrace.VEHICLES, this, typename.EnumToString(CarEngineSoundState, state));
 	#endif
 		switch (state)
 		{
-			case CarEngineSoundState.STARTING:
+			case CarEngineSoundState.START_OK:
 				if (m_Expansion_StartingSoundPlayed)
 					return;
 				m_Expansion_StartingSoundPlayed = true;
 				break;
 
-			case CarEngineSoundState.START_NO_FUEL:
-			case CarEngineSoundState.START_NO_BATTERY:
-			case CarEngineSoundState.START_NO_SPARKPLUG:
 			case CarEngineSoundState.STOP_OK:
 			case CarEngineSoundState.STOP_NO_FUEL:
-			case CarEngineSoundState.NONE:
-				m_Expansion_StartingSoundPlayed = false;
+				if (CrewDriver())
+					m_Expansion_StartingSoundPlayed = false;
+				g_Game.GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SetEngineStarted, 1000, false, false);
 				break;
 		}
 
 		super.HandleEngineSound(state);
 	#endif
+	#endif
 	}
-#endif
+
+	override void OnDriverEnter(Human player)
+	{
+		super.OnDriverEnter(player);
+
+		m_Expansion_StartingSoundPlayed = false;
+	}
+
+	override void OnDriverExit(Human player)
+	{
+		super.OnDriverExit(player);
+		
+		if (GetGear() != GetNeutralGear())
+			Expansion_EngineStop(1);
+	}
 
 	override CarLightBase CreateRearLight()
 	{

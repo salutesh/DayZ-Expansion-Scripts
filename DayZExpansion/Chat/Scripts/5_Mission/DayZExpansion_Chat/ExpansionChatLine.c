@@ -221,6 +221,11 @@ class ExpansionChatLineBase: ExpansionScriptView
 		Message.SetText(message.FormattedText);
 		Time.SetText(message.Time);
 
+		g_Game.GetCallQueue(CALL_CATEGORY_GUI).CallLater(SetMessageSize, 34, false);  //! DayZ 1.30 needs this in next frame else richtext doesn't size to fit contents
+	}
+
+	void SetMessageSize()
+	{
 		//! Adjust message size so it actually fits and doesn't get cut off
 		float root_w, root_h;
 		m_Parent.GetScreenSize(root_w, root_h);
@@ -228,7 +233,8 @@ class ExpansionChatLineBase: ExpansionScriptView
 		Time.GetScreenSize(time_w, time_h);
 		float sender_w, sender_h;
 		SenderName.GetScreenSize(sender_w, sender_h);
-		Message.SetSize(1.0 - (time_w + 4 + sender_w) / root_w, 1.0);
+
+		Message.SetSize(1.0 - (time_w + 4 + sender_w) / root_w, Message.GetContentHeight());
 	}
 
 	void FadeIn()

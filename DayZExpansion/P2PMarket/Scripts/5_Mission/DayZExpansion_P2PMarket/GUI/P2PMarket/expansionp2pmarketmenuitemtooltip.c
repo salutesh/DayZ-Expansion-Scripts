@@ -63,7 +63,13 @@ class ExpansionP2PMarketMenuItemTooltip: ExpansionScriptView
 	
 	void SetView()
 	{
-		m_TooltipController.TooltipTitle = ExpansionStatic.GetItemDisplayNameWithType(m_Listing.GetClassName());
+		string displayName;
+		if (m_Listing.GetItem())
+			displayName = m_Listing.GetItem().GetDisplayName();
+		else
+			displayName = ExpansionStatic.GetItemDisplayNameWithType(m_Listing.GetClassName());
+
+		m_TooltipController.TooltipTitle = displayName;
 		m_TooltipController.NotifyPropertyChanged("TooltipTitle");
 		tooltip_title.SetColor(ARGB(255, 255, 255, 255));
 	}

@@ -60,7 +60,12 @@ class ExpansionP2PMarketMenuListing: ExpansionP2PMarketMenuItemBase
 		SetRemainingTime();
 		UpdatePreviewObject();
 		
-		string displayName = ExpansionStatic.GetItemDisplayNameWithType(m_Listing.GetClassName());
+		string displayName;
+		if (m_Listing.GetItem())
+			displayName = m_Listing.GetItem().GetDisplayName();
+		else
+			displayName = ExpansionStatic.GetItemDisplayNameWithType(m_Listing.GetClassName());
+
 		string displayText = displayName;
 		if (m_Listing.GetContainerItems().Count() > 0)
 			displayText = "[+] " + displayName;

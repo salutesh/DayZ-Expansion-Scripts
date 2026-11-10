@@ -61,6 +61,9 @@ modded class DigitalCodeLock
 		if (IsDamageDestroyed())
 			return;
 
+		if (!HasEnergy())
+			return;
+
 		SetLockState(true);
 	}
 

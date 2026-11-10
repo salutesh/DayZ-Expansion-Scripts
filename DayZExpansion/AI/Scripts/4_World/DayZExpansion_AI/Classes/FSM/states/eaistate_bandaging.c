@@ -89,6 +89,8 @@ class eAIState_Bandaging_Self: eAIState
 		
 		if (unit.IsRestrained()) return eAITransition.FAIL;
 		if (unit.IsUnconscious()) return eAITransition.FAIL;
+		if (unit.IsClimbing()) return eAITransition.FAIL;
+		if (unit.IsFalling()) return eAITransition.FAIL;
 		if (unit.IsSwimming()) return eAITransition.FAIL;
 		
 		if (!unit.eAI_ShouldBandage()) return eAITransition.FAIL;

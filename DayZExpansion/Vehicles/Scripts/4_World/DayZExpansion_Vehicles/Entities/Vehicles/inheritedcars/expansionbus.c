@@ -37,9 +37,9 @@ class ExpansionBus: CarScript
 		m_CarDoorOpenSound = "Truck_01_door_open_SoundSet";
 		m_CarDoorCloseSound = "Truck_01_door_close_SoundSet";
 		
-		//! 1.19
-		m_CarHornShortSoundName = "Truck_01_Horn_Short_SoundSet";
-		m_CarHornLongSoundName	= "Truck_01_Horn_SoundSet";
+		//! 1.30
+		m_HornComponent.RegisterSound(VehicleHornMode.SHORT, "Truck_01_Horn_Short_SoundSet");
+		m_HornComponent.RegisterSound(VehicleHornMode.LONG, "Truck_01_Horn_SoundSet");
 
 		SetEnginePos("0.42 0.58 4.0");
 	}

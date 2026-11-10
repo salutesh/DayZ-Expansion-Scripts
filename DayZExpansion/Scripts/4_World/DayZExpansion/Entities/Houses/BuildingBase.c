@@ -50,12 +50,20 @@ modded class BuildingBase
 
 		ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
 	}
+
+	override void EEDelete(EntityAI parent)
+	{
+		super.EEDelete(parent);
+
+		UnloadInterior();
+		UnloadIvys();
+	}
 	
 	override void DeferredInit()
 	{
 		super.DeferredInit();
 
-		if (g_Game.IsServer())
+		if (g_Game.IsServer() || GetExpansionSettings().GetGeneral(false).IsLoaded())
 			OnSettingsUpdated();
 	}
 
@@ -106,7 +114,7 @@ modded class BuildingBase
 			return false;
 		}
 
-		if (GetExpansionSettings().GetGeneral().DisableShootToUnlock)
+		if (GetExpansionSettings().GetGeneral().DisableShootToUnlock && GetDoorCount() > 0)
 		{
 			component = Expansion_ConvertComponent(component, LOD.NAME_FIRE, LOD.NAME_VIEW);
 			if (component != -1)

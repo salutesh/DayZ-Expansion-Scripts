@@ -42,9 +42,9 @@ class Expansion_Landrover_Base: CarScript
 		m_CarDoorOpenSound = "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound = "offroad_door_close_SoundSet";
 		
-		//! 1.19
-		m_CarHornShortSoundName = "Offroad_Horn_Short_SoundSet";
-		m_CarHornLongSoundName	= "Offroad_Horn_SoundSet";
+		//! 1.30
+		m_HornComponent.RegisterSound(VehicleHornMode.SHORT, "Offroad_Horn_Short_SoundSet");
+		m_HornComponent.RegisterSound(VehicleHornMode.LONG, "Offroad_Horn_SoundSet");
 		
 		SetEnginePos("0 0.95 1.7");
 	}

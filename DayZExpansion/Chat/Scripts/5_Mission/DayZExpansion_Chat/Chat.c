@@ -45,6 +45,8 @@ modded class Chat
 		{
 			m_ExChatUI.Show();
 			GetExpansionClientSettings().HUDChatToggle = true;
+
+			Expansion_ForceDisableInputs(true);
 		}
 	}
 
@@ -55,7 +57,31 @@ modded class Chat
 	#endif
 
 		if (m_ExChatUI)
+		{
 			m_ExChatUI.Hide();
+
+			Expansion_ForceDisableInputs(false);
+		}
+	}
+
+	void Expansion_ForceDisableInputs(bool state)
+	{
+		TIntArray inputIDs = {};
+		GetUApi().GetActiveInputs(inputIDs);
+
+		set<int> skipIDs = new set<int>;
+		skipIDs.Insert(UAUIBack);
+		skipIDs.Insert(UAUISelect);
+		skipIDs.Insert(UAUITabLeft);
+		skipIDs.Insert(UAUITabRight);
+
+		foreach (int inputID : inputIDs)
+		{
+			if (skipIDs.Find(inputID) == -1)
+			{
+				GetUApi().GetInputByID(inputID).ForceDisable(state);
+			}
+		}
 	}
 
 	void Expansion_Show(bool state = true)

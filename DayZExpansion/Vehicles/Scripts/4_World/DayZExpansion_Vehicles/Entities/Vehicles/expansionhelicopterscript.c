@@ -772,8 +772,9 @@ class ExpansionHelicopterScript: CarScript
 
 		if (IsLanded())
 		{
-			//SetVelocity(this, GetVelocity(this) * m_Simulation.m_RotorSpeed);
+			float f = m_Simulation.m_RotorSpeed;
 			vector angularVelocity = dBodyGetAngularVelocity(this);
+
 			if (angularVelocity.LengthSq() > 0.0001)
 			{
 				//EXTrace.Print(EXTrace.VEHICLES, this, "Angular velocity " + angularVelocity.Length());
@@ -781,7 +782,6 @@ class ExpansionHelicopterScript: CarScript
 				//! 0% momentum at zero vertical distance to ground and/or rotor off,
 				//! 100% momentum at >= 0.5m vertical distance to ground and full rotor speed,
 				//! linearly interpolated
-				float f = m_Simulation.m_RotorSpeed;
 				if (f > 0)
 				{
 					vector modelBottomPos = ModelToWorld(Vector(0, -m_ExpansionVehicle.GetModelZeroPointDistanceFromGround(), 0));
@@ -791,6 +791,9 @@ class ExpansionHelicopterScript: CarScript
 				angularVelocity[2] = angularVelocity[2] * f;
 				dBodySetAngularVelocity(this, angularVelocity);
 			}
+
+			if (f == 0 && angularVelocity.LengthSq() < 0.0001 && GetVelocity(this).LengthSq() < 0.0001 && !HasCrew())
+				dBodyActive(this, ActiveState.INACTIVE);
 		}
 	}
 
@@ -976,6 +979,14 @@ class ExpansionHelicopterScript: CarScript
 
 	override void HandleEngineSound(CarEngineSoundState state)
 	{
+	}
+
+	override void OnDriverExit(Human player)
+	{
+		super.OnDriverExit(player);
+		
+		if (!m_Simulation.IsAutoHover())
+			Expansion_EngineStop(1);
 	}
 
 	override void SetActions()

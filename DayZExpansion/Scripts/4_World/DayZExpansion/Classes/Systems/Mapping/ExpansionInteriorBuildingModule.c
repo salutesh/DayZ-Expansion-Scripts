@@ -59,6 +59,7 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 		super.OnInit();
 
 		EnableMissionStart();
+		EnableMissionLoaded();
 	}
  	
  	override void OnMissionStart(Class sender, CF_EventArgs args)
@@ -68,6 +69,16 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 		BuildingBase.s_Expansion_LoadCustomObjectsDelay = 1000;
 
 		LoadCachedCollisions();
+	}
+ 	
+ 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
+ 	{
+		super.OnMissionLoaded(sender, args);
+
+		if (g_Game.IsDedicatedServer())
+		{
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SaveCachedCollisions, 20000, false);
+		}
 	}
 
 	void OnSettingsUpdated()
@@ -257,6 +268,9 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 
+		if (!GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors)
+			return;
+
 		if (m_LastSavedCount == m_CachedCollision.Count())
 			return;
 
@@ -277,6 +291,9 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 
+		if (!GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors)
+			return;
+
 		if (FileExist(EXPANSION_TEMP_INTERIORS))
 		{
 			FileSerializer file = new FileSerializer;
@@ -285,6 +302,8 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 			{
 				file.Read(m_CachedCollision);
 				file.Close();
+
+				m_LastSavedCount = m_CachedCollision.Count();
 			}
 		}
 	}

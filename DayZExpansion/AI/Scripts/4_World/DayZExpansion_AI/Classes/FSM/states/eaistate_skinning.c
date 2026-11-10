@@ -52,6 +52,8 @@ class eAIState_Skinning: eAIState
 		
 		if (unit.IsRestrained()) return eAITransition.FAIL;
 		if (unit.IsUnconscious()) return eAITransition.FAIL;
+		if (unit.IsClimbing()) return eAITransition.FAIL;
+		if (unit.IsFalling()) return eAITransition.FAIL;
 		if (unit.IsSwimming()) return eAITransition.FAIL;
 		
 		if (!unit.GetCommand_Move()) return eAITransition.FAIL;

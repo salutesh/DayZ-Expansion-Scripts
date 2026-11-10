@@ -16,10 +16,10 @@ modded class ActionStopEngine
 
 	override string GetText()
 	{
-		if (m_Expansion_EngineName != string.Empty)
-			return "#STR_EXPANSION_VEHICLE_ENGINE_STOP" + " " + m_Expansion_EngineName + " " + "#STR_EXPANSION_VEHICLE_ENGINE";
+		if (m_Expansion_EngineName)
+			return "#STR_EXPANSION_VEHICLE_ENGINE_STOP " + m_Expansion_EngineName + " #STR_EXPANSION_VEHICLE_ENGINE";
 
-		return m_Text;
+		return super.GetText();
 	}
 
 	//! Can NOT call super here
@@ -48,7 +48,10 @@ modded class ActionStopEngine
 				m_CommandUID = vehicle.GetEngineStopAnimation();
 
 			#ifndef SERVER
-				m_Expansion_EngineName = vehicle.EngineGetName();
+				if (vehicle.EngineGetCount() > 1)
+					m_Expansion_EngineName = vehicle.EngineGetName();
+				else
+					m_Expansion_EngineName = "";
 			#endif
 
 				if (vehicle.GetSpeedometerAbsolute() <= 8 || vehicle.IsHelicopter())

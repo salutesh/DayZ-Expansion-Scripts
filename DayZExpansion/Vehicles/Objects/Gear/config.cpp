@@ -325,7 +325,7 @@ class CfgVehicles
 		scope=2;
 		displayName="$STR_EXPANSION_IGNITERPLUG";
 		descriptionShort="$STR_EXPANSION_IGNITERPLUG_DESC";
-		model="\DZ\vehicles\parts\igniter_plug.p3d";
+		model="DayZExpansion\Vehicles\Objects\Gear\igniter_plug_lowpoly.p3d";
 		weight=200;
 		itemSize[]={1,1};
 		absorbency=0;
