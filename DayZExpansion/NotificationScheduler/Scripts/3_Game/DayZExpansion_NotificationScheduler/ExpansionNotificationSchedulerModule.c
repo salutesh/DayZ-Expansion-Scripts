@@ -68,26 +68,52 @@ class ExpansionNotificationSchedulerModule: CF_ModuleGame
 			}
 			
 			int timestamp = now.DateToEpoch();
+			
+			//! Current date/time parts, used for matching Cron expressions
+			int nowMonth = now.GetMonth();
+			int nowDayOfMonth = now.GetDay();
+			int nowDayOfWeek = now.GetDayOfWeek();
+			int nowHours = now.GetHours();
+			int nowMinutes = now.GetMinutes();
+			int nowSeconds = now.GetSeconds();
 				
 			for (int i = 0; i < GetExpansionSettings().GetNotificationScheduler().Notifications.Count(); i++)
 			{
 				ExpansionNotificationSchedule schedule = GetExpansionSettings().GetNotificationScheduler().Notifications[i];
-				if (!schedule || schedule.m_LastShownTimestamp == timestamp)
+				if (!schedule)
 					continue;
 				
-				if (schedule.Hour == now.GetHours() && schedule.Minute == now.GetMinutes() && schedule.Second == now.GetSeconds())
+				if (schedule.m_Cron)
 				{
-					StringLocaliser title = new StringLocaliser(schedule.Title);
-					StringLocaliser text = new StringLocaliser(schedule.Text);
+					//! Cron schedule: used instead of Hour/Minute/Second. If the expression is invalid, never fall back to those.
+					if (!schedule.m_Cron.IsValid())
+						continue;
 					
-					ExpansionIcon icon;
-					string iconPath;
-					if (!Class.CastTo(icon, ExpansionIcons.Get(schedule.Icon)))
-						iconPath = schedule.Icon;
-					else
-						iconPath = icon.IconPath;
+					//! Without seconds in the expression, the notification is shown once per matching minute (on the first tick of it),
+					//! so a brief server hitch around second 0 cannot make it be skipped
+					int cronTimestamp = timestamp;
+					if (!schedule.m_Cron.HasSeconds())
+						cronTimestamp = timestamp - nowSeconds;
 					
-					ExpansionNotification(title, text, iconPath, schedule.m_Color.Get("Color"), 7, ExpansionNotificationType.BAGUETTE).Create();
+					if (schedule.m_LastShownTimestamp == cronTimestamp)
+						continue;
+					
+					if (schedule.m_Cron.Matches(nowMonth, nowDayOfMonth, nowDayOfWeek, nowHours, nowMinutes, nowSeconds))
+					{
+						ShowScheduledNotification(schedule);
+						
+						schedule.m_LastShownTimestamp = cronTimestamp;
+					}
+					
+					continue;
+				}
+				
+				if (schedule.m_LastShownTimestamp == timestamp)
+					continue;
+				
+				if (schedule.Hour == nowHours && schedule.Minute == nowMinutes && schedule.Second == nowSeconds)
+				{
+					ShowScheduledNotification(schedule);
 
 					schedule.m_LastShownTimestamp = timestamp;
 				}
@@ -95,5 +121,20 @@ class ExpansionNotificationSchedulerModule: CF_ModuleGame
 			
 			m_UpdateTimer = 0.0;
 		}
+	}
+	
+	private void ShowScheduledNotification(ExpansionNotificationSchedule schedule)
+	{
+		StringLocaliser title = new StringLocaliser(schedule.Title);
+		StringLocaliser text = new StringLocaliser(schedule.Text);
+		
+		ExpansionIcon icon;
+		string iconPath;
+		if (!Class.CastTo(icon, ExpansionIcons.Get(schedule.Icon)))
+			iconPath = schedule.Icon;
+		else
+			iconPath = icon.IconPath;
+		
+		ExpansionNotification(title, text, iconPath, schedule.m_Color.Get("Color"), 7, ExpansionNotificationType.BAGUETTE).Create();
 	}
 }

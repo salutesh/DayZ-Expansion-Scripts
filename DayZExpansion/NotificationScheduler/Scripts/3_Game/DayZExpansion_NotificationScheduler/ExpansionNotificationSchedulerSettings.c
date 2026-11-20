@@ -15,6 +15,12 @@ class ExpansionNotificationSchedule
 	int Hour;
 	int Minute;
 	int Second;
+
+	//! Optional cron-style schedule, e.g. "20,40 * * * *" (every hour at minute 20 and 40).
+	//! If not empty, it is used INSTEAD of Hour/Minute/Second (which are then ignored) for this notification.
+	//! If empty (default), Hour/Minute/Second are used.
+	string Cron;
+
 	string Title;
 	string Text;
 	string Icon;
@@ -25,6 +31,9 @@ class ExpansionNotificationSchedule
 
 	[NonSerialized()]
 	ref ExpansionNotificationScheduleColor m_Color;
+
+	[NonSerialized()]
+	ref ExpansionCronExpression m_Cron;
 
 	void ExpansionNotificationSchedule()
 	{
@@ -38,6 +47,31 @@ class ExpansionNotificationSchedule
 			m_Color.Set("Color", color);
 		else
 			m_Color.Update();
+	}
+
+	//! Parse the Cron expression (if any). Invalid expressions are logged and never fire.
+	void InitCron(bool useMissionTime)
+	{
+		m_Cron = null;
+
+		string expression = Cron.Trim();
+		if (expression == "")
+			return;
+
+		m_Cron = new ExpansionCronExpression(expression);
+
+		if (!m_Cron.IsValid())
+		{
+			CF_Log.Warn("[ExpansionNotificationSchedulerSettings] Invalid Cron \"" + expression + "\" for notification \"" + Title + "\": " + m_Cron.GetError() + ". This notification will not be shown!");
+			return;
+		}
+
+		//! Mission uptime has no meaningful calendar date, so only second/minute/hour can be scheduled with it
+		if (useMissionTime && m_Cron.UsesDateFields())
+		{
+			m_Cron.Invalidate("day-of-month, month and day-of-week must be * when UseMissionTime is enabled");
+			CF_Log.Warn("[ExpansionNotificationSchedulerSettings] Invalid Cron \"" + expression + "\" for notification \"" + Title + "\": " + m_Cron.GetError() + ". This notification will not be shown!");
+		}
 	}
 }
 
@@ -61,7 +95,7 @@ class ExpansionNotificationSchedulerSettings: ExpansionSettingBase
 	bool UseMissionTime;
 	ref array<ref ExpansionNotificationSchedule> Notifications = new array<ref ExpansionNotificationSchedule>;
 	
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -127,11 +161,19 @@ class ExpansionNotificationSchedulerSettings: ExpansionSettingBase
 			foreach (ExpansionNotificationSchedule schedule: Notifications)
 			{
 				schedule.InitColor(schedule.Color);
+				schedule.InitCron(UseMissionTime);
 			}
 			
 			if (m_Version < 2)
 			{
 				UseMissionTime = false;
+			}
+			
+			if (m_Version < VERSION)
+			{
+				//! v3: added optional "Cron" to notifications (empty = use Hour/Minute/Second), no conversion needed
+				m_Version = VERSION;
+				save = true;
 			}
 		}
 		else
