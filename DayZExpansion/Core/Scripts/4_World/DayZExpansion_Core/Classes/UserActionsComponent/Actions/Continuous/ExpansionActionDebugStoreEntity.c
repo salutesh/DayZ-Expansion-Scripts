@@ -35,11 +35,6 @@ class ExpansionActionDebugStoreEntity: ActionContinuousBase
 		m_ConditionItem = new CCINone;
 	}
 
-	override typename GetInputType()
-	{
-		return ContinuousInteractActionInput;
-	}
-
 	override bool HasTarget()
 	{
 		return true;

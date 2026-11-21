@@ -43,7 +43,7 @@ class ExpansionActionSwitchAutoHover: ActionInteractBase
 		ExpansionHelicopterScript d_helicopter;
 		if ( Class.CastTo( d_helicopter, player.GetParent() ) )
 		{
-			m_IsOn = d_helicopter.IsAutoHover();
+			m_IsOn = d_helicopter.m_Simulation.IsAutoHover();
 			return d_helicopter.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER;
 		}
 
@@ -56,7 +56,7 @@ class ExpansionActionSwitchAutoHover: ActionInteractBase
 		{
 			ExpansionHelicopterScript d_helicopter;
 			if ( Class.CastTo( d_helicopter, action_data.m_Player.GetParent() ) )
-				d_helicopter.SwitchAutoHover();
+				d_helicopter.m_Simulation.SwitchAutoHover();
 		}
 		
 		super.OnAnimationEvent( action_data );

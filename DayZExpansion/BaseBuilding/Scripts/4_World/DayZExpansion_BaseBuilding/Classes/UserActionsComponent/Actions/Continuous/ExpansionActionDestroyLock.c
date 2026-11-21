@@ -81,28 +81,11 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 		if ( !actualTargetItem.ExpansionIsLocked() )
 			return false;
 
-		bool useContainerRaidSettings;
-
-		if ( targetObject.IsInherited( TentBase ) )
-		{
-			m_Time =  GetExpansionSettings().GetRaid().LockOnTentRaidToolTimeSeconds;
-		}
-		else if ( targetObject.IsInherited( ExpansionBaseBuilding ) )
-		{
-			m_Time = GetExpansionSettings().GetRaid().LockOnWallRaidToolTimeSeconds;
-		}
-		else if ( targetObject.IsInherited( BaseBuildingBase ) || targetObject.IsBuilding() )
-		{
-			m_Time =  GetExpansionSettings().GetRaid().LockOnFenceRaidToolTimeSeconds;
-		}
-		else
-		{
-			m_Time = GetExpansionSettings().GetRaid().LockOnContainerRaidToolTimeSeconds;
-			useContainerRaidSettings = true;
-		}
+		string typeLower = targetObject.GetType();
+		typeLower.ToLower();
 
 		TStringArray raidTools;
-		if ( !useContainerRaidSettings )
+		if ( targetObject.IsAnyInherited( {BuildingBase, BaseBuildingBase, TentBase} ) || typeLower.Contains("fence") || typeLower.Contains("gate") || typeLower.Contains("door") )
 			raidTools = GetExpansionSettings().GetRaid().LockRaidTools;
 		else
 			raidTools = GetExpansionSettings().GetRaid().LockOnContainerRaidTools;
@@ -143,11 +126,16 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 
 			if ( !canToggle )
 				return false;
-		} else
+		}
+		else if (targetItem.ExpansionIsOpenable())
 		{
 			string selection = targetItem.GetActionComponentName( target.GetComponentIndex() );
 			if ( !selection.Contains( "lock" ) && !selection.Contains( "door" ) && !targetItem.ExpansionIsOpenable( selection ) )
 				return false;
+		}
+		else if (!targetItem.ExpansionHasCodeLock())
+		{
+			return false;
 		}
 
 		m_TargetName = actualTargetObject.GetDisplayName();

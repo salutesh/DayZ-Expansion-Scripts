@@ -65,9 +65,14 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 
 			targetItem = ItemBase.Cast( targetObject );
 
-			if ( Class.CastTo( fence, targetObject ) && fence.HasFullyConstructedGate() )
-				slotName = Fence.ATTACHMENT_SLOT_CODE_LOCK;
-			else if ( targetItem && !targetItem.CanUseConstruction() && targetItem.IsOpen() && !targetItem.ExpansionIsLocked() )
+			if ( Class.CastTo( fence, targetObject ) )
+			{
+				if (fence.GetType() != "Fence")  //! Some 3rd party modded fence
+					fence.ExpansionFindCodeLockSlot( slotName );
+				else if (fence.HasFullyConstructedGate())  //! Vanilla fence
+					slotName = Fence.ATTACHMENT_SLOT_CODE_LOCK;
+			}
+			else if ( targetItem && !targetItem.GetConstructionBasic() && targetItem.IsOpen() && !targetItem.ExpansionIsLocked() )
 				targetItem.ExpansionFindCodeLockSlot( slotName );
 		}
 

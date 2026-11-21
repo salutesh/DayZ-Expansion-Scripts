@@ -154,29 +154,18 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 	static bool Expansion_CodeLockInteractionCondition(PlayerBase player, ExpansionBaseBuildingSettings settings, Object targetObject, int component, ItemBase tgtItem)
 	{
 		ItemBase codelock;
-		if (Class.CastTo(codelock, tgtItem) && codelock.Expansion_IsCodeLock())
+		if (!Class.CastTo(codelock, tgtItem) || !codelock.Expansion_IsCodeLock())
 		{
-			//! @note for rebuildable buildings, targetObject is the codelock if pointing at it from the outside, but not the inside
-			if (targetObject != codelock && !settings.CodelockActionsAnywhere)
+			if (tgtItem.ExpansionHasCodeLock(component))
 			{
-				if (targetObject.IsBuilding())
-				{
-					//! Prevent double "Lock" action entry on opened building doors (when CodelockActionsAnywhere is OFF,
-					//! "Close and lock" will be provided by ExpansionActionClose)
-					if (codelock.HasCode() && codelock.IsOpen())
-						return false;
-				}
+				codelock = tgtItem.Expansion_GetCodeLock();
+				if (!codelock)
+					return false;
 			}
-		}
-		else if (tgtItem.ExpansionHasCodeLock(component))
-		{
-			codelock = tgtItem.Expansion_GetCodeLock();
-			if (!codelock)
+			else
+			{
 				return false;
-		}
-		else
-		{
-			return false;
+			}
 		}
 
 		if (codelock.IsInherited(DigitalCodeLock))
@@ -184,6 +173,18 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 			EntityAI parent = codelock.GetHierarchyParent();
 			if (!parent || !parent.IsInherited(TentBase))
 				return false;  //! Handled by vanilla codelock actions
+		}
+
+		//! @note for rebuildable buildings, targetObject is the codelock if pointing at it from the outside, but not the inside
+		if (targetObject != codelock && !settings.CodelockActionsAnywhere)
+		{
+			if ((targetObject.IsBuilding() || tgtItem.ExpansionIsOpenable()) && tgtItem.IsOpen())
+			{
+				//! Prevent double "Lock" action entry on opened building doors (when CodelockActionsAnywhere is OFF,
+				//! "Close and lock" will be provided by ExpansionActionClose)
+				if (codelock.HasCode())
+					return false;
+			}
 		}
 
 		return !codelock.IsDamageDestroyed();

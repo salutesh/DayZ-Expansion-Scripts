@@ -1094,6 +1094,8 @@ modded class ExpansionVehicle
 	{
 	}
 
+//! Segfaults
+/*
 	bool IsAutoHover()
 	{
 		EXError.Error(this, "NOT IMPLEMENTED");
@@ -1103,6 +1105,7 @@ modded class ExpansionVehicle
 	void SwitchAutoHover()
 	{
 	}
+*/
 
 	bool LeavingSeatDoesAttachment(int posIdx)
 	{

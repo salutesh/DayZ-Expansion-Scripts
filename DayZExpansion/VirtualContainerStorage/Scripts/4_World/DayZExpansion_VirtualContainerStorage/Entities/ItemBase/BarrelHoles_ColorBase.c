@@ -13,6 +13,14 @@
 //! Inherits from FireplaceBase
 modded class BarrelHoles_ColorBase
 {
+	override bool CanReceiveItemIntoCargo(EntityAI item)
+	{
+		if (m_Expansion_RestoringContents)
+			return true;
+
+		return super.CanReceiveItemIntoCargo(item);
+	}
+
 	#ifdef EXPANSION_MODSTORAGE
 	//! Legacy, handled by ItemBase since BaseBuilding storage version 52
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)

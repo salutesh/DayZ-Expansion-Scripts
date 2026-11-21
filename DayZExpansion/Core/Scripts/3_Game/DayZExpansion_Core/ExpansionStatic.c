@@ -498,6 +498,7 @@ class ExpansionStatic: ExpansionStaticCore
 	static const string DIRSEPARATOR_ALT = "/";
 
 	static ref TStringArray s_VehicleClassNames = {"CarScript", "BoatScript", "MotorbikeScript", "HypeTrain_PartBase"};
+	static ref TStringArray s_LockClassNames = {"CombinationLock", "DigitalCodeLock", "ExpansionCodeLock", "RA_CodeLock", "CodeLock", "IAT_Codelock_Colorbase"};
 
 	static ref SurfaceDetectionParameters s_SurfParams = CreateSurfaceDetectionParams();
 	static ref SurfaceDetectionResult s_SurfResult = new SurfaceDetectionResult();
@@ -1481,7 +1482,15 @@ class ExpansionStatic: ExpansionStaticCore
 
 	static bool IsVehicle(string className)
 	{
-		if (ExpansionStatic.IsAnyOf(className, s_VehicleClassNames))
+		if (IsAnyOf(className, s_VehicleClassNames))
+			return true;
+
+		return false;
+	}
+
+	static bool IsLock(string className)
+	{
+		if (IsAnyOf(className, s_LockClassNames))
 			return true;
 
 		return false;

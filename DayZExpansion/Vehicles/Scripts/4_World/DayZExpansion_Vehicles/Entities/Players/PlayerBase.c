@@ -162,12 +162,13 @@ modded class PlayerBase
 				if (vehicle.IsTowing())
 					vehicle.DestroyTow();
 
-				if (vehicle.IsHelicopter())
+				ExpansionHelicopterScript hs;
+				if (Class.CastTo(hs, vehicle.GetEntity()))
 				{
-					if (!vehicle.IsAutoHover())
-						vehicle.SwitchAutoHover();  //! Turn autohover on
+					if (!hs.m_Simulation.IsAutoHover())
+						hs.m_Simulation.SwitchAutoHover();  //! Turn autohover on
 
-					vehicle.EngineStop();  //! Stop engine. Heli will autorotate to ground.
+					hs.EngineStop();  //! Stop engine. Heli will autorotate to ground.
 				}
             }
         }

@@ -14,6 +14,8 @@
 
 modded class Fence
 {
+	bool m_Expansion_CodeLockActionsAdded;
+
 	override bool CanBeDamaged()
 	{
 		auto settings = GetExpansionSettings().GetRaid();
@@ -38,23 +40,24 @@ modded class Fence
 		{
 			//! Order matters. Have ExpansionActionEnterCodeLock AFTER ActionOpenFence
 			//! so that "Open locked" shows on locked doors/gates without having to cycle through actions in the UI.
+
+			if (m_Expansion_CodeLockActionsAdded)
+			{
+				//! The 1st add of ActionOpenFence is always vanilla.
+				//! Some 3rd party mods remove, then add ActionOpenFence again (e.g. BBP),
+				//! so to keep the order intact, we remove, then add the codelock actions.
+				RemoveAction(ExpansionActionEnterCodeLock);
+				RemoveAction(ExpansionActionChangeCodeLock);
+			}
+
 			AddAction(ExpansionActionEnterCodeLock);
 			AddAction(ExpansionActionChangeCodeLock);
+
+			m_Expansion_CodeLockActionsAdded = true;
 		}
 
 		//! Order matters. Have ActionCloseFence AFTER ExpansionActionEnterCodeLock
 		//! so that "Lock" shows on opened doors/gates without having to cycle through actions in the UI.
-	}
-
-	override void RemoveAction(typename actionName)
-	{
-		super.RemoveAction(actionName);
-
-		if (actionName == ActionOpenFence)
-		{
-			RemoveAction(ExpansionActionEnterCodeLock);
-			RemoveAction(ExpansionActionChangeCodeLock);
-		}
 	}
 
 	bool ExpansionCanAttachCodeLock()
@@ -109,7 +112,7 @@ modded class Fence
 		super.EEItemAttached(item, slot_name);
 
 		//! move ExpansionCodelock from combolock to codelock slot
-		if (item.IsInherited(ExpansionCodeLock) && slot_name == ATTACHMENT_SLOT_COMBINATION_LOCK)
+		if (item.IsInherited(ExpansionCodeLock) && slot_name == ATTACHMENT_SLOT_COMBINATION_LOCK && GetType() == "Fence")
 			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_MoveToCodeLockSlot, item);  //! Need to use call so we can check if other slot has been taken in the meanwhile (e.g. StoreLoad etc)
 	}
 
@@ -118,7 +121,7 @@ modded class Fence
 		GameInventory inventory = GetInventory();
 		int dstSlot = InventorySlots.GetSlotIdFromString(ATTACHMENT_SLOT_CODE_LOCK);
 
-		if (!inventory.FindAttachment(dstSlot))
+		if (!inventory.FindAttachment(dstSlot) && CanReceiveAttachment(item, dstSlot))
 		{
 			auto srcLoc = new InventoryLocation;
 
@@ -152,7 +155,7 @@ modded class Fence
 
 	override bool ExpansionHasCodeLock(string selection)
 	{
-		if (selection != "*" && selection != "wall_interact" && !GetExpansionSettings().GetBaseBuilding(false).CodelockActionsAnywhere)
+		if (GetType() == "Fence" && selection != "*" && selection != "wall_interact" && !GetExpansionSettings().GetBaseBuilding(false).CodelockActionsAnywhere)
 			return false;
 
 		return super.ExpansionHasCodeLock(selection);
@@ -180,7 +183,7 @@ modded class Fence
 	{
 		//! WARNING: Do NOT check CodelockActionsAnywhere when getting codelock entity!
 		//! Reserved for HasCodeLock, else can break actions due to item <-> component mismatch
-		if (selection != "*" && selection != "wall_interact")
+		if (GetType() == "Fence" && selection != "*" && selection != "wall_interact")
 			return null;
 
 		return super.Expansion_GetCodeLock( selection );
@@ -205,6 +208,10 @@ modded class Fence
 
 	override bool Expansion_IsPlayerInside(PlayerBase player, string selection)
 	{
+		//! If this is not the vanilla fence and the item can have cargo, never treat player as able to unlock from inside
+		if (GetType() != "Fence" && GetInventory().GetCargo())
+			return false;
+
 		return IsPlayerInside(player, selection);
 	}
 

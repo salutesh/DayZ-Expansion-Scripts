@@ -249,6 +249,7 @@ class ExpansionHelicopterScript: CarScript
 		return "ExpansionVehicleTypeHelicopter";
 	}
 
+	[Obsolete("Use m_Simulation::IsAutoHover")]
 	bool IsAutoHover()
 	{
 #ifdef EXPANSIONTRACE
@@ -258,6 +259,7 @@ class ExpansionHelicopterScript: CarScript
 		return m_Simulation.IsAutoHover();
 	}
 
+	[Obsolete("Use m_Simulation::SwitchAutoHover")]
 	void SwitchAutoHover()
 	{
 #ifdef EXPANSIONTRACE
@@ -267,6 +269,7 @@ class ExpansionHelicopterScript: CarScript
 		m_Simulation.SwitchAutoHover();
 	}
 
+	[Obsolete("Use m_Simulation::IsFreeLook")]
 	bool IsFreeLook()
 	{
 #ifdef EXPANSIONTRACE
@@ -772,7 +775,7 @@ class ExpansionHelicopterScript: CarScript
 
 		if (IsLanded())
 		{
-			float f = m_Simulation.m_RotorSpeed;
+			float rotorSpeed = m_Simulation.m_RotorSpeed;
 			vector angularVelocity = dBodyGetAngularVelocity(this);
 
 			if (angularVelocity.LengthSq() > 0.0001)
@@ -782,6 +785,7 @@ class ExpansionHelicopterScript: CarScript
 				//! 0% momentum at zero vertical distance to ground and/or rotor off,
 				//! 100% momentum at >= 0.5m vertical distance to ground and full rotor speed,
 				//! linearly interpolated
+				float f = rotorSpeed;
 				if (f > 0)
 				{
 					vector modelBottomPos = ModelToWorld(Vector(0, -m_ExpansionVehicle.GetModelZeroPointDistanceFromGround(), 0));
@@ -792,7 +796,7 @@ class ExpansionHelicopterScript: CarScript
 				dBodySetAngularVelocity(this, angularVelocity);
 			}
 
-			if (f == 0 && angularVelocity.LengthSq() < 0.0001 && GetVelocity(this).LengthSq() < 0.0001 && !HasCrew())
+			if (rotorSpeed == 0 && angularVelocity.LengthSq() < 0.0001 && GetVelocity(this).LengthSq() < 0.0001 && !HasCrew())
 				dBodyActive(this, ActiveState.INACTIVE);
 		}
 	}
@@ -917,7 +921,7 @@ class ExpansionHelicopterScript: CarScript
 		}
 		case CarSoundCtrl.ENGINE:
 		{
-			if (m_Simulation.m_RotorSpeedTarget > 0)
+			if (Expansion_EngineIsOn())
 				return 1;
 
 			return 0;
@@ -1383,14 +1387,8 @@ class ExpansionHelicopterScript: CarScript
 		return false;
 	}
 
-	float GetAutoHoverTargetHeight()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAutoHoverTargetHeight");
-#endif
-
-		return m_Simulation.m_AutoHoverAltitude;
-	}
+	[Obsolete("No replacement")]
+	float GetAutoHoverTargetHeight();
 
 	override int Expansion_NumberTowConnections()
 	{

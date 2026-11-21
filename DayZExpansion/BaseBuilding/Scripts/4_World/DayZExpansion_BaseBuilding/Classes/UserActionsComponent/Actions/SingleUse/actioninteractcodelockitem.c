@@ -31,6 +31,9 @@ modded class ActionInteractCodeLockItem
 	static bool Expansion_SetCodeLockTargetForBB(ActionTarget target)
 	{
 		Object tgtObj = target.GetObject();
+		if (!tgtObj)
+			return false;
+
 		if (tgtObj.IsInherited(DigitalCodeLock))
 			return true;
 

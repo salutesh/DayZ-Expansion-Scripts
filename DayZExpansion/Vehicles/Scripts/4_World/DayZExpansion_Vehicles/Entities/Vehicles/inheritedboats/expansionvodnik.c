@@ -32,8 +32,6 @@ class ExpansionVodnik: ExpansionBoatScript
 	protected ref UniversalTemperatureSourceSettings m_UTSSettings;
 	protected ref UniversalTemperatureSourceLambdaEngine m_UTSLEngine;
 
-	float m_Expansion_FuelFraction;  //! 1.30 no longer updates client fuel/engine state if using old networking
-
 	// ------------------------------------------------------------
 	void ExpansionVodnik()
 	{
@@ -44,10 +42,6 @@ class ExpansionVodnik: ExpansionBoatScript
 		m_TurnCoef					= 0.15;
 	
 		m_Offset					= -0.4;
-
-		//! 1.30 no longer updates client fuel/engine state if using old networking
-		if (GetNetworkMoveStrategy() != NetworkMoveStrategy.PHYSICS)
-			RegisterNetSyncVariableFloat("m_Expansion_FuelFraction");
 
 		//! 1.19
 		m_EngineStartOK			= "Offroad_02_engine_start_SoundSet";
@@ -131,31 +125,6 @@ class ExpansionVodnik: ExpansionBoatScript
 			if (m_UTSource.IsActive())
 			{
 				m_UTSource.Update(m_UTSSettings, m_UTSLEngine);
-			}
-		}
-	}
-
-	override void UpdateHealth(float pDt)
-	{
-		super.UpdateHealth(pDt);
-
-		//! 1.30 no longer updates client fuel/engine state if using old networking
-		if (g_Game.IsServer() && GetNetworkMoveStrategy() != NetworkMoveStrategy.PHYSICS)
-			m_Expansion_FuelFraction = GetFluidFraction(CarFluid.FUEL);
-	}
-
-	override void OnVariablesSynchronized()
-	{
-		super.OnVariablesSynchronized();
-
-		//! 1.30 no longer updates client fuel/engine state if using old networking
-		if (GetNetworkMoveStrategy() != NetworkMoveStrategy.PHYSICS)
-		{
-			float fuel = GetFluidFraction(CarFluid.FUEL);
-			if (m_Expansion_FuelFraction < fuel)
-			{
-				Leak(CarFluid.FUEL, fuel - m_Expansion_FuelFraction);
-				m_Expansion_FuelFraction = GetFluidFraction(CarFluid.FUEL);
 			}
 		}
 	}

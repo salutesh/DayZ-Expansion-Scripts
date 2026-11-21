@@ -491,12 +491,14 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 		return true;
 	}
 
+//! Segfaults
+/*
 	override bool IsAutoHover()
 	{
 		EntityAI entity = GetEntity();
 		ExpansionHelicopterScript hs;
 		if (Class.CastTo(hs, entity))
-			return hs.IsAutoHover();
+			return hs.m_Simulation.IsAutoHover();
 
 		return false;
 	}
@@ -506,8 +508,9 @@ class ExpansionVehicleT<Class T>: ExpansionVehicle
 		EntityAI entity = GetEntity();
 		ExpansionHelicopterScript hs;
 		if (Class.CastTo(hs, entity))
-			hs.SwitchAutoHover();
+			hs.m_Simulation.SwitchAutoHover();
 	}
+*/
 
 	override bool LeavingSeatDoesAttachment(int posIdx)
 	{

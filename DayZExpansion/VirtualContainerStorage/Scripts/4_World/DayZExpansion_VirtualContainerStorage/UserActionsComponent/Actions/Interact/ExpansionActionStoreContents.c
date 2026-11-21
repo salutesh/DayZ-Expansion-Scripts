@@ -39,6 +39,11 @@ class ExpansionActionStoreContents: ActionInteractBase
 		if (!container.Expansion_CanUseVirtualStorage())
 			return false;
 
+		//! If a codelock is attached, it handles storing/restoring contents on lock/unlock
+		ItemBase codelock = container.Expansion_GetCodeLock();
+		if (codelock && codelock.HasCode() && !codelock.ExpansionIsLocked())
+			return false;
+
 		if (container.Expansion_HasEntityStorage() || container.Expansion_IsEmptyIgnoringLockedSlots())
 			return false;
 

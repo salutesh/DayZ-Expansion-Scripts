@@ -432,6 +432,7 @@ class ExpansionBoatScript: CarScript
 		return EngineGetRPMRedline();
 	}
 
+	//! Deprecated, should be moved elsewhere
 	protected override void OnSimulation(ExpansionPhysicsState pState)
 	{
 		vector force;
@@ -898,11 +899,6 @@ class ExpansionBoatScript: CarScript
 			if (Expansion_EngineIsOn(0))
 				m_EngineStarted = true;
 		}
-	}
-
-	override void OnVariablesSynchronized()
-	{
-		super.OnVariablesSynchronized();
 	}
 
 	/**

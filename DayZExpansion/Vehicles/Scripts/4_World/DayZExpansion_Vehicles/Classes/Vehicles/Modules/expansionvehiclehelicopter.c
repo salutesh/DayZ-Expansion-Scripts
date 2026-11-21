@@ -281,7 +281,7 @@ class ExpansionHelicopterScriptRotor : CollisionOverlapCallback
 	}
 };
 
-class ExpansionVehicleHelicopter : ExpansionVehicleModule
+sealed class ExpansionVehicleHelicopter : ExpansionVehicleModule
 {
 	static int HELICOPTER_CONTROLLER_INDEX = 1;
 	const int MAX_CYCLIC_CONTROL_POINTS = 5;

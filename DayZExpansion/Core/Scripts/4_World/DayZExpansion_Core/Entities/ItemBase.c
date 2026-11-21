@@ -78,6 +78,18 @@ modded class ItemBase
 		if (destroySound)
 			m_Expansion_DestroySound_SoundSet = ExpansionSoundSet.Register(destroySound);
 	}
+
+	override void InitializeActions()
+	{
+		bool hasInputActionsMap = m_ItemTypeActionsMap.Contains(Type());
+
+		super.InitializeActions();
+
+		if (!hasInputActionsMap)
+			Expansion_SetActions();
+	}
+
+	void Expansion_SetActions();
 	
 	override string GetDisplayName()
 	{

@@ -34,18 +34,19 @@ class ExpansionActionOpen: ActionInteractBase
 		if ( m_Target && m_Target.ExpansionIsLocked() )
 		{
 			string type = m_Target.GetType();
+			type.ToLower();
 			ExpansionWallBase wall;
 			if ( m_Target.IsInherited( ExpansionSafeBase ) )
 			{
 				text = "#STR_EXPANSION_OPEN_LOCKED_SAFE";
 			}
-			else if ( (Class.CastTo( wall, m_Target ) && wall.HasGate()) || type == "Fence" )
+			else if ( (Class.CastTo( wall, m_Target ) && wall.HasGate()) || type == "fence" || type.Contains("gate") )
 			{
 				text = "#STR_EXPANSION_OPEN_LOCKED_GATE";
 			}
 			else if ( m_Target.IsKindOf( "Container_Base" ) && !m_Target.IsBuilding() )
 			{
-				if ( type.Contains("Safe") )
+				if ( type.Contains("safe") )
 					text = "#STR_EXPANSION_OPEN_LOCKED_SAFE";
 				else
 					text = "#STR_EXPANSION_OPEN_LOCKED_CONTAINER";

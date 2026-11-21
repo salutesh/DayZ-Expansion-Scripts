@@ -12,6 +12,7 @@
 
 modded class ItemBase
 {
+	private bool m_Expansion_DoesSupportVirtualStorage;
 	bool m_Expansion_HasEntityStorage;
 	bool m_Expansion_DeferredDeleteEntityStorageFiles;
 	bool m_Expansion_DeletingContents;
@@ -19,7 +20,8 @@ modded class ItemBase
 
 	void ItemBase()
 	{
-		if (Expansion_DoesSupportVirtualStorage())
+		m_Expansion_DoesSupportVirtualStorage = Expansion_DoesSupportVirtualStorage();
+		if (m_Expansion_DoesSupportVirtualStorage)
 		{
 			if (g_Game.IsServer() && !m_Expansion_GlobalID)
 				m_Expansion_GlobalID = new ExpansionGlobalID();
@@ -64,6 +66,83 @@ modded class ItemBase
 		Expansion_DeleteEntityStorageFilesIfEmpty();
 	}
 */
+
+	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
+	{
+		super.EEItemLocationChanged(oldLoc, newLoc);
+
+		//! Don't allow to move items into parent with contents in entity storage and move them back to where they came from
+
+		InventoryLocationType oldType = oldLoc.GetType();
+
+		if (oldType == InventoryLocationType.UNKNOWN)
+			return;
+
+		if (oldType == InventoryLocationType.TEMP)
+			return;
+
+		EntityAI oldParent = oldLoc.GetParent();
+		EntityAI newParent = newLoc.GetParent();
+
+		if (oldParent == newParent)
+			return;
+
+		ItemBase newParentIB;
+		if (!Class.CastTo(newParentIB, newParent))
+			return;
+
+		if (!newParentIB.m_Expansion_HasEntityStorage || newParentIB.m_Expansion_RestoringContents)
+			return;
+
+		auto dstLoc = new InventoryLocation();
+		dstLoc.Copy(oldLoc);
+
+		Man player;
+		PlayerIdentity identity;
+
+		if (oldParent)
+		{
+			player = oldParent.GetHierarchyRootPlayer();
+			if (player)
+				identity = player.GetIdentity();
+		}
+		else if (oldType != InventoryLocationType.GROUND)
+		{
+			GameInventory.SetGroundPosByOwner(newParent, this, dstLoc);
+		}
+
+		string dstLocDump = dstLoc.DumpToString();
+		string newLocDump = newLoc.DumpToString();
+		EXError.Warn(this, string.Format("Moving back to old location %1 because contents of new location %2 are in virtual storage", dstLocDump, newLocDump), {});
+
+	#ifdef SERVER
+		if (identity)
+	#else
+		if ((!player || !g_Game.IsMultiplayer()) && vector.DistanceSq(GetPosition(), g_Game.GetPlayer().GetPosition()) < UAMaxDistances.LARGE * UAMaxDistances.LARGE)
+	#endif
+		{
+			string displayName = newParent.ConfigGetStringRaw("displayName");
+			g_Game.FormatRawConfigStringKeys(displayName);
+			ExpansionNotification("Virtual Storage", string.Format("%1 cannot receive items because its contents are currently in virtual storage. Restore the contents first before trying to put other items in.", displayName)).Error(identity);
+		}
+
+		g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_MoveToLocation, dstLoc);
+	}
+
+	protected void Expansion_MoveToLocation(InventoryLocation dstLoc)
+	{
+		if (!dstLoc || !dstLoc.IsValid())
+			return;
+
+		auto srcLoc = new InventoryLocation();
+
+		if (!GetInventory().GetCurrentInventoryLocation(srcLoc))
+			return;
+
+		EXError.Warn(this, "Expansion_MoveToLocation " + srcLoc.DumpToString() + " -> " + dstLoc.DumpToString(), {});
+
+		GameInventory.LocationSyncMoveEntity(srcLoc, dstLoc);
+	}
 
 	override void EEDelete(EntityAI parent)
 	{
@@ -166,11 +245,11 @@ modded class ItemBase
 		return true;
 	}
 
-	override void SetActions()
+	override void Expansion_SetActions()
 	{
-		super.SetActions();
+		super.Expansion_SetActions();
 
-		if (Expansion_DoesSupportVirtualStorage())
+		if (m_Expansion_DoesSupportVirtualStorage)
 		{
 			AddAction(ExpansionActionStoreContents);
 			AddAction(ExpansionActionRestoreContents);
@@ -180,17 +259,38 @@ modded class ItemBase
 #ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		if (Expansion_DoesSupportVirtualStorage() && g_Game.IsServer() && !m_Expansion_GlobalID.m_IsSet)
+		if (Expansion_DoesSupportVirtualStorage() != m_Expansion_DoesSupportVirtualStorage)
+		{
+			//! 3rd party mods doing stupid shit...
+			string tmp;
+			DumpStackString(tmp);
+			TStringArray lines = {};
+			tmp.Split("\n", lines);
+
+			TStringArray stack = {};
+
+			for (int i = 1; i < lines.Count(); i++)
+			{
+				string line = lines[i];
+				string lineLower = line;
+				lineLower.ToLower();
+
+				if (lineLower.IndexOf("dayzexpansion") == -1)
+					stack.Insert(line);
+			}
+
+			EXError.Error(this, "overridden Expansion_DoesSupportVirtualStorage() return value must not change during runtime!", stack);
+		}
+
+		if (m_Expansion_DoesSupportVirtualStorage && g_Game.IsServer() && !m_Expansion_GlobalID.m_IsSet)
 			m_Expansion_GlobalID.Acquire();
 
 		super.CF_OnStoreSave(storage);
 
 		if (m_Expansion_DeferredDeleteEntityStorageFiles && !ExpansionEntityStorageModule.IsCurrentEntity(this))
 		{
-			array<EntityAI> contents = {};
+			array<EntityAI> contents = MiscGameplayFunctions.Expansion_GetItems(this);  //! Direct children
 			ItemBase item;
-
-			GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, contents);
 
 			foreach (EntityAI entity: contents)
 			{
@@ -220,6 +320,7 @@ modded class ItemBase
 		return false;
 	}
 
+	//! Evaluated ONE TIME in constructor. Mods overriding this must NOT change return value during runtime.
 	bool Expansion_DoesSupportVirtualStorage()
 	{
 		if (IsContainer() || IsItemTent() || (IsFireplace() && IsInherited(BarrelHoles_ColorBase)))
@@ -233,7 +334,7 @@ modded class ItemBase
 		if (restoreOverride)
 			return m_Expansion_HasEntityStorage;
 
-		if (!Expansion_DoesSupportVirtualStorage())
+		if (!m_Expansion_DoesSupportVirtualStorage)
 			return false;
 
 		if (g_Game.IsServer() && !m_Expansion_GlobalID)
@@ -264,7 +365,7 @@ modded class ItemBase
 				if (attachment)
 				{
 					attachment.GetInventory().GetCurrentInventoryLocation(il);
-					if (!GetInventory().GetSlotLock(il.GetSlot()) && !attachment.IsKindOf("CombinationLock") && !attachment.IsKindOf("ExpansionCodeLock"))
+					if (!GetInventory().GetSlotLock(il.GetSlot()) && !ExpansionStatic.IsLock(attachment.GetType()))
 						g_Game.ObjectDelete(attachment);
 				}
 			}
@@ -305,7 +406,7 @@ modded class ItemBase
 				if (attachment)
 				{
 					attachment.GetInventory().GetCurrentInventoryLocation(il);
-					if (!GetInventory().GetSlotLock(il.GetSlot()) && !attachment.IsKindOf("CombinationLock") && !attachment.IsKindOf("ExpansionCodeLock"))
+					if (!GetInventory().GetSlotLock(il.GetSlot()) && !ExpansionStatic.IsLock(attachment.GetType()))
 						count++;
 				}
 			}
@@ -323,9 +424,14 @@ modded class ItemBase
 
 	override bool Expansion_StoreContents()
 	{
+		if (!m_Initialized)  //! Don't allow to store if not initialized
+			return false;
+
 		if (m_Expansion_HasEntityStorage)
 		{
-			EXError.Warn(this, GetType() + " " + GetPosition() + " already has entity storage");
+			if (!Expansion_IsEmptyIgnoringLockedSlots())
+				EXError.Warn(this, GetType() + " " + GetPosition() + " already has entity storage");
+
 			return false;
 		}
 
@@ -368,8 +474,23 @@ modded class ItemBase
 
 	override bool Expansion_RestoreContents(PlayerBase player = null)
 	{
+		string errorMessage;
+		return Expansion_RestoreContentsEx(player, errorMessage);
+	}
+
+	bool Expansion_RestoreContentsEx(PlayerBase player = null, out string errorMessage = "")
+	{
 		if (m_Expansion_HasEntityStorage && m_Expansion_GlobalID.m_IsSet && Expansion_IsEmptyIgnoringLockedSlots())
 		{
+			if (!IsOpen())
+			{
+				string displayName = ConfigGetStringRaw("displayName");
+				g_Game.FormatRawConfigStringKeys(displayName);
+				errorMessage = displayName + " is not open.";
+				EXError.Warn(this, GetType() + " " + GetPosition() + " - could not restore inventory with storage ID " + m_Expansion_GlobalID.IDToHex() + ": " + errorMessage);
+				return false;
+			}
+
 			//! Set to true so we can receive stored atts and cargo
 			m_Expansion_RestoringContents = true;
 
@@ -393,7 +514,12 @@ modded class ItemBase
 			}
 			else
 			{
-				EXTrace.Print(EXTrace.GENERAL_ITEMS, this, "::Expansion_RestoreContents - " + GetPosition() + " - could not restore inventory with storage ID " + m_Expansion_GlobalID.IDToHex());
+				if (!FileExist(Expansion_GetEntityStorageFileName()))
+					errorMessage = "Storage file with ID " + m_Expansion_GlobalID.IDToHex() + " does not exist.";
+				else
+					errorMessage = "Internal error.";
+
+				EXError.Error(this, GetType() + " " + GetPosition() + " - could not restore inventory with storage ID " + m_Expansion_GlobalID.IDToHex() + ": " + errorMessage);
 			}
 
 			//! Restore original health
@@ -407,5 +533,28 @@ modded class ItemBase
 		}
 
 		return false;
+	}
+
+	void Expansion_StoreOrRestoreParentContents(bool store)
+	{
+		auto il = new InventoryLocation();
+		GetInventory().GetCurrentInventoryLocation(il);
+		if (il.GetType() == InventoryLocationType.ATTACHMENT)
+		{
+			ItemBase parent;
+			if (Class.CastTo(parent, il.GetParent()) && parent.Expansion_CanUseVirtualStorage(!store))
+			{
+				if (store)
+				{
+					if (!m_Expansion_HasEntityStorage)
+						parent.Expansion_StoreContents();
+				}
+				else
+				{
+					if (IsOpen())
+						parent.Expansion_RestoreContents();
+				}
+			}
+		}
 	}
 };

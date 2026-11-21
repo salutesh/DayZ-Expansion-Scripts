@@ -13,6 +13,14 @@
 //! Inherits from Container_Base
 modded class GiftBox_Base
 {
+	override bool CanReceiveItemIntoCargo(EntityAI item)
+	{
+		if (m_Expansion_RestoringContents)
+			return true;
+
+		return super.CanReceiveItemIntoCargo(item);
+	}
+
 	override void Open()
 	{
 		super.Open();

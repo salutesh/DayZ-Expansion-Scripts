@@ -68,7 +68,8 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 
 		BuildingBase.s_Expansion_LoadCustomObjectsDelay = 1000;
 
-		LoadCachedCollisions();
+		if (g_Game.IsDedicatedServer())
+			LoadCachedCollisions();
 	}
  	
  	override void OnMissionLoaded(Class sender, CF_EventArgs args)
@@ -89,6 +90,7 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 
 		if (!g_Game.IsDedicatedServer())
 		{
+			LoadCachedCollisions();
 			LoadIviesPositions();
 			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SaveCachedCollisions, 20000, false);
 		}

@@ -36,7 +36,7 @@ modded class ActionAttachToConstruction
 		Object targetObject = target.GetObject();
 
 		//! Fence is handled by ExpansionActionAttachCodelock (allows attaching codelock by pointing anywhere on fence, just like ExpansionWall)
-		if (targetObject && item.IsInherited(ExpansionCodeLock) && targetObject.Type() == Fence)
+		if (targetObject && item.IsInherited(ExpansionCodeLock) && targetObject.GetType() == "Fence")
 			return false;
 
 		if (super.ActionCondition(player, target, item))

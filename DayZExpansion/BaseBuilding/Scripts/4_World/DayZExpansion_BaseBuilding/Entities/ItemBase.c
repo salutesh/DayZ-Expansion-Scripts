@@ -370,9 +370,9 @@ modded class ItemBase
 		}
 	}
 	
-	override void SetActions()
+	override void Expansion_SetActions()
 	{
-		super.SetActions();
+		super.Expansion_SetActions();
 
 		if (IsInherited(ExpansionSafeBase) || IsInherited(TentBase))
 			return;

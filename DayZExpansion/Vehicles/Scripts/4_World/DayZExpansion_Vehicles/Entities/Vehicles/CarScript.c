@@ -140,6 +140,12 @@ modded class CarScript
 	EntityAI m_Expansion_HydraulicHoses;
 	float m_Expansion_HydraulicHosesHealth = -1.0;
 
+	//! 1.30 no longer updates client fluids/engine state if using old networking
+	bool m_UseOldNetworking;
+	float m_Expansion_FuelFraction;
+	float m_Expansion_OilFraction;
+	float m_Expansion_CoolantFraction;
+
 	void CarScript()
 	{
 	#ifndef SERVER
@@ -380,6 +386,24 @@ modded class CarScript
 			s_Expansion_ControllerSync_RPCID = m_Expansion_RPCManager.RegisterBoth("RPC_Expansion_ControllerSync");
 		if (!s_Expansion_ClientPing_RPCID)
 			s_Expansion_ClientPing_RPCID = m_Expansion_RPCManager.RegisterServer("RPC_Expansion_ClientPing");
+
+		//! 1.30 no longer updates client fluids/engine state if using old networking
+		if (ConfigIsExisting("useNewNetworking"))
+			m_UseOldNetworking = !ConfigGetBool("useNewNetworking");
+
+		if (m_UseOldNetworking)
+		{
+			RegisterNetSyncVariableFloat("m_Expansion_FuelFraction");
+			RegisterNetSyncVariableFloat("m_Expansion_OilFraction");
+
+			if (IsVitalRadiator())
+				RegisterNetSyncVariableFloat("m_Expansion_CoolantFraction");
+		}
+
+	#ifdef DIAG_DEVELOPER
+		if (m_UseOldNetworking)
+			EXError.Info(this, "m_UseOldNetworking " + m_UseOldNetworking.ToString());
+	#endif
 	}
 
 	void ~CarScript()
@@ -1474,6 +1498,11 @@ modded class CarScript
 
 		int i;
 
+		float fuel;
+		float coolant;
+		float oil;
+		float brake;
+
 		{
 		#ifdef DAYZ_1_29
 			CarPartsHealthCheck();
@@ -1508,10 +1537,6 @@ modded class CarScript
 			#endif
 			}
 
-			float fuel;
-			float coolant;
-			float oil;
-			float brake;
 			float fuelConsumption;
 
 			if (isServerOrOwner)
@@ -1567,6 +1592,30 @@ modded class CarScript
 				if (GetFluidFraction(CarFluid.FUEL) <= 0)
 					Expansion_EngineStopAll();
 			}
+		}
+
+		//! 1.30 no longer updates client fluids/engine state if using old networking
+		if (g_Game.IsServer() && m_UseOldNetworking)
+		{
+			fuel = GetFluidFraction(CarFluid.FUEL);
+			oil = GetFluidFraction(CarFluid.OIL);
+
+			if (IsVitalRadiator())
+				coolant = GetFluidFraction(CarFluid.COOLANT);
+
+			bool fluidsChanged;
+
+			if (fuel != m_Expansion_FuelFraction || oil != m_Expansion_OilFraction || coolant != m_Expansion_CoolantFraction)
+				fluidsChanged = true;
+
+			m_Expansion_FuelFraction = fuel;
+			m_Expansion_OilFraction = oil;
+
+			if (IsVitalRadiator())
+				m_Expansion_CoolantFraction = coolant;
+
+			if (fluidsChanged)
+				SetSynchDirty();
 		}
 
 		//FX only on Client and in Single
@@ -2279,6 +2328,7 @@ modded class CarScript
 #endif
 	}
 
+	//! DEPRECATED
 	protected void OnSimulation(ExpansionPhysicsState pState)
 	{
 	}
@@ -2409,7 +2459,7 @@ modded class CarScript
 		 * 'Expansion_ShouldDisableSimulation' will be called when there is no driver
 		 * that will set the vehicle to be inactive.
 		 */
-		if (!isActive)
+		if (!isActive && !Expansion_EngineIsSpinning())
 		{
 			//! This needs to run on client as well so dust particle is stopped if no driver
 			OnNoSimulation(dt);
@@ -2456,7 +2506,8 @@ modded class CarScript
 
 			m_Event_PreSimulate.PreSimulate(m_State);
 
-			OnSimulation(m_State);
+			if (IsInherited(ExpansionBoatScript))
+				OnSimulation(m_State);
 
 			m_Event_Simulate.Simulate(m_State);
 
@@ -3223,6 +3274,34 @@ modded class CarScript
 			}
 
 			ExpansionOnSkinUpdate();
+		}
+
+		//! 1.30 no longer updates client fluids/engine state if using old networking
+		if (m_UseOldNetworking)
+		{
+			float fuel = GetFluidFraction(CarFluid.FUEL);
+			if (m_Expansion_FuelFraction < fuel)
+			{
+				Leak(CarFluid.FUEL, fuel - m_Expansion_FuelFraction);
+				m_Expansion_FuelFraction = GetFluidFraction(CarFluid.FUEL);
+			}
+
+			float oil = GetFluidFraction(CarFluid.OIL);
+			if (m_Expansion_OilFraction < oil)
+			{
+				Leak(CarFluid.OIL, oil - m_Expansion_OilFraction);
+				m_Expansion_OilFraction = GetFluidFraction(CarFluid.OIL);
+			}
+
+			if (IsVitalRadiator())
+			{
+				float coolant = GetFluidFraction(CarFluid.COOLANT);
+				if (m_Expansion_CoolantFraction < coolant)
+				{
+					Leak(CarFluid.COOLANT, coolant - m_Expansion_CoolantFraction);
+					m_Expansion_CoolantFraction = GetFluidFraction(CarFluid.COOLANT);
+				}
+			}
 		}
 	}
 

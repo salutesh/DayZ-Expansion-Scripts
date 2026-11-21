@@ -12,27 +12,19 @@
 
 modded class ExpansionCodeLock
 {
+	override void ExpansionLock()
+	{
+		if (g_Game.IsServer())
+			Expansion_StoreOrRestoreParentContents(true);
+
+		super.ExpansionLock();
+	}
+
 	override void ExpansionUnlock()
 	{
 		super.ExpansionUnlock();
 
-		if (g_Game.IsServer() && GetInventory().IsAttachment())
-		{
-			ItemBase parent;
-			if (Class.CastTo(parent, GetHierarchyParent()) && parent.Expansion_CanUseVirtualStorage(true))
-				parent.Expansion_RestoreContents();
-		}
-	}
-
-	override void ExpansionLock()
-	{
-		if (g_Game.IsServer() && GetInventory().IsAttachment())
-		{
-			ItemBase parent;
-			if (Class.CastTo(parent, GetHierarchyParent()) && parent.Expansion_CanUseVirtualStorage())
-				parent.Expansion_StoreContents();
-		}
-
-		super.ExpansionLock();
+		if (g_Game.IsServer())
+			g_Game.GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_StoreOrRestoreParentContents, false);
 	}
 }

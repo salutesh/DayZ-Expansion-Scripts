@@ -579,15 +579,17 @@ class ExpansionCodeLock: ItemBase
 	
 	protected void UpdateVisuals_Deferred()
 	{
-		EntityAI parent = GetHierarchyParent();
+		InventoryLocation il = new InventoryLocation();
+		if (GetInventory())
+			GetInventory().GetCurrentInventoryLocation( il );
 
-		if ( parent && ( parent.IsInherited( BaseBuildingBase ) || parent.IsBuilding() ) )
+		EntityAI parent = il.GetParent();
+
+		if ( il.GetType() == InventoryLocationType.ATTACHMENT && parent && !parent.IsAnyInherited({DayZCreature, Human, TentBase}) )
 		{
 			HideSelection( "camo" );
 			HideSelection( "Codelock" );
 
-			InventoryLocation il = new InventoryLocation();
-			GetInventory().GetCurrentInventoryLocation( il );
 			if ( parent.IsInherited( ExpansionBaseBuilding ) )
 			{
 				HideSelection( "attach_door_inside" );
@@ -625,7 +627,7 @@ class ExpansionCodeLock: ItemBase
 					HideSelection( "attach_door_inside" );
 					HideSelection( "attach_door_reversed_inside" );
 
-					if ( InventorySlots.GetSlotName( il.GetSlot() ).IndexOf( "Att_CodeLock" ) == 0 )
+					if ( parent.GetType() == "Fence" && InventorySlots.GetSlotName( il.GetSlot() ).IndexOf( "Att_CodeLock" ) == 0 )
 					{
 						HideSelection( "attach_fence" );
 						HideSelection( "attach_fence_outside" );

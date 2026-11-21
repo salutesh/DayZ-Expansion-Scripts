@@ -47,7 +47,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		if (helicopter)
 		{
 			if (m_Ex_Player.Expansion_IsDriver())
-				isFreeLook = helicopter.IsFreeLook();
+				isFreeLook = helicopter.m_Simulation.IsFreeLook();
 		}
 
 		m_ExIsFreeLook = isFreeLook;

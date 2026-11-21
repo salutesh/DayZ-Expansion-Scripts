@@ -52,57 +52,13 @@ modded class ItemBase
 		if (loc && loc.IsValid() && !GetInventory().AreChildrenAccessible())
 			ret = false;
 		else
-			ret = Ex_EntityAI_CanReceiveAttachment(attachment, slotId);
+			ret = CheckAttachmentReceiveExclusion(attachment, slotId);  //! Vanilla EntityAI::CanReceiveAttachment just calls CheckAttachmentReceiveExclusion since DayZ 1.27
 
 	#ifdef DIAG_DEVELOPER
 		EXTrace.Print(EXTrace.GENERAL_ITEMS, this, "Ex_NPP_CanRecvAttWithCargo " + attachment + " " + InventorySlots.GetSlotName(slotId) + " " + ret);
 	#endif
 
 		return ret;
-	}
-
-	//! Verbatim copy of EntityAI::HasInternalExclusionConflicts which is needlessly private >:-(
-	bool Ex_EntityAI_HasInternalExclusionConflicts(int targetSlot)
-	{
-		set<int> targetSlotValues = GetAttachmentExclusionMaskSlot(targetSlot);
-		if (targetSlotValues) //can be null, if so, no conflict
-		{
-			set<int> additionalValues = new set<int>(); //NOT slot values
-			additionalValues.InsertSet(GetAttachmentExclusionMaskGlobal());
-			additionalValues.InsertSet(GetAttachmentExclusionMaskChildren());
-			
-			int countTarget = targetSlotValues.Count();
-			for (int i = 0; i < countTarget; i++)
-			{
-				if (additionalValues.Find(targetSlotValues[i]) != -1)
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	//! (Almost) verbatim copy of EntityAI::CanReceiveAttachment with exception of Ex_EntityAI_HasInternalExclusionConflicts
-	bool Ex_EntityAI_CanReceiveAttachment(EntityAI attachment, int slotId)
-	{
-		//generic occupancy check
-		EntityAI currentAtt = GetInventory().FindAttachment(slotId);
-		bool hasInternalConflict = Ex_EntityAI_HasInternalExclusionConflicts(slotId);
-		if (currentAtt) //probably a swap or same-type swap
-		{
-			set<int> diff = attachment.GetAttachmentExclusionMaskAll(slotId);
-			diff.RemoveItems(currentAtt.GetAttachmentExclusionMaskAll(slotId));
-			if (diff.Count() == 0)
-			{
-				return !hasInternalConflict;
-			}
-			else
-			{
-				return !hasInternalConflict && !IsExclusionFlagPresentRecursive(diff, slotId);
-			}
-		}
-		return !hasInternalConflict && !IsExclusionFlagPresentRecursive(attachment.GetAttachmentExclusionMaskAll(slotId), slotId);
 	}
 
 	//! Always allow loading attachments
@@ -112,43 +68,6 @@ modded class ItemBase
 	{
 		return true;
 	}
-
-#ifdef DAYZ_1_29
-	//! Fix vanilla CanDisplayAttachmentSlot(string slot_name) not calling CanDisplayAttachmentSlot(int slot_id)
-	//! --------------------------------------------------------------------------------------------------------------
-
-	override bool CanDisplayAttachmentSlot(string slot_name)
-	{
-		if (!m_Expansion_CDASObsoleteError)
-		{
-			string tmp;
-			DumpStackString(tmp);
-			TStringArray lines = {};
-			tmp.Split("\n", lines);
-
-			TStringArray stack = {};
-
-			for (int i = 1; i < lines.Count(); i++)
-			{
-				string line = lines[i];
-
-				stack.Insert(line);
-
-				if (line.IndexOf("CanDisplayAttachmentSlot()") == -1)
-					break;
-			}
-
-			if (stack.Count() > 1)
-				EXError.ErrorOnce(this, "Obsolete function - use CanDisplayAttachmentSlot with slot id parameter", stack);
-			else
-				EXError.ErrorOnce(null, "Obsolete function call - use CanDisplayAttachmentSlot with slot id parameter", stack);
-
-			m_Expansion_CDASObsoleteError = true;
-		}
-
-		return CanDisplayAttachmentSlot(InventorySlots.GetSlotIdFromString(slot_name));
-	}
-#endif
 
 	//! Prevent being able to combine/split stacks in locked inventory
 	//! --------------------------------------------------------------------------------------------------------------

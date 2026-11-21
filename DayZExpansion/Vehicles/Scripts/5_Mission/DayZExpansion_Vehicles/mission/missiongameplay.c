@@ -37,9 +37,9 @@ modded class MissionGameplay
 
 		if (GetUApi().GetInputByName("UAExpansionHeliAutoHover").LocalPress() && player && isAliveConscious && !inputIsFocused && !menu && !viewMenu)
 		{
-			ExpansionVehicle vehicle;
-			if (ExpansionVehicle.Get(vehicle, player) && vehicle.IsPlayerInSeat(player, DayZPlayerConstants.VEHICLESEAT_DRIVER))
-				vehicle.SwitchAutoHover();
+			ExpansionHelicopterScript hs;
+			if (Class.CastTo(hs, player.GetParent()) && hs.CrewMemberIndex(player) == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+				hs.m_Simulation.SwitchAutoHover();
 		}
 	}
 }

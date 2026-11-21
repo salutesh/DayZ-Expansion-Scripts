@@ -220,7 +220,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			if (Class.CastTo(itemParent, parent) && (itemParent.ExpansionIsOpenable() || itemParent.IsNonExpansionOpenable()))
 				isOpenable = true;
 #endif
-			if (isOpenable || parent.GetInventory().GetSlotLock(il.GetSlot()) || entity.IsKindOf("CombinationLock") || entity.IsKindOf("ExpansionCodeLock") || entity.IsKindOf("RA_CodeLock") || entity.IsKindOf("CodeLock"))
+			if (isOpenable || parent.GetInventory().GetSlotLock(il.GetSlot()) || ExpansionStatic.IsLock(entity.GetType()))
 			{
 				EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Save_Phase1 - skippping " + entity.GetType() + " in locked slot");
 				ctx.Write("");  //! Have to write empty entry because we already have written inventory count and no way to retroactively overwrite it

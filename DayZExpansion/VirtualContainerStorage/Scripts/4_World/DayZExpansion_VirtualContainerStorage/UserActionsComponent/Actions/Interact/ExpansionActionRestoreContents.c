@@ -36,6 +36,11 @@ class ExpansionActionRestoreContents: ActionInteractBase
 		if ((container.ExpansionIsOpenable() || container.IsNonExpansionOpenable()) && !container.IsOpen())
 			return false;
 
+		//! If a codelock is attached, it handles storing/restoring contents on lock/unlock
+		ItemBase codelock = container.Expansion_GetCodeLock();
+		if (codelock && codelock.ExpansionIsLocked())
+			return false;
+
 		if (!container.Expansion_HasEntityStorage() || !container.Expansion_IsEmptyIgnoringLockedSlots())
 			return false;
 
@@ -48,7 +53,8 @@ class ExpansionActionRestoreContents: ActionInteractBase
 		if (!Class.CastTo(container, action_data.m_Target.GetParentOrObject()))
 			return;
 
-		if (!container.Expansion_RestoreContents(action_data.m_Player))
-			ExpansionNotification("STR_EXPANSION_ERROR_TITLE", "Could not restore contents from virtual storage").Error(action_data.m_Player.GetIdentity());
+		string errorMessage;
+		if (!container.Expansion_RestoreContentsEx(action_data.m_Player, errorMessage))
+			ExpansionNotification("Virtual Storage", string.Format("Could not restore contents from virtual storage: %1", errorMessage)).Error(action_data.m_Player.GetIdentity());
 	}
 }

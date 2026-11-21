@@ -535,7 +535,7 @@ class ExpansionHelicopterHud : VehicleHudBase
 				m_AlarmSoundPlayed = false;
 		}
 
-		bool autoHover = m_CurrentHelicopter.IsAutoHover();
+		bool autoHover = simulation.IsAutoHover();
 		bool autoCollective = simulation.m_AutoCollective;
 
 		m_HeliAutoHoverPanel.Show(autoHover);
